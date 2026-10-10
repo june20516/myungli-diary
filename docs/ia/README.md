@@ -51,5 +51,6 @@ flowchart LR
 
 * `screens.json`은 지휘 세션만 고칩니다. writing이나 design이 슬롯·컴포넌트를 새로 만들거나 빼야 하면 `to:root` Issue로 요청합니다.
 * 슬롯 내용(목적, 문장 유형, 어미, 길이)은 writing이, 컴포넌트 생김새는 design이 정합니다. IA는 id, 자리, 한 줄 역할만 정합니다.
-* 화면 id를 바꾸거나 지우거나, 슬롯·컴포넌트를 빼면 `version`을 올리고 app·writing·design에 notice Issue를 보냅니다. 추가만 할 때는 올리지 않습니다.
+* 화면의 `components`에는 그 화면의 내용 컴포넌트만 적습니다. 상태 컴포넌트(`skeleton`, `error-state`, `empty-state`, `notice-banner`)는 화면의 `states`에 따라 붙으며, 따로 적은 곳은 상태와 별개로 내용에 쓰는 경우입니다.
+* 화면 id를 바꾸거나 지우거나, 슬롯·컴포넌트를 빼거나 id를 바꾸면 `version`을 올리고 app·writing·design에 notice Issue를 보냅니다. 추가만 할 때는 올리지 않습니다.
 * 형식 규칙은 spec §5에 있고, `python3 -I tools/docs-check/docs_check.py .`가 검사합니다.

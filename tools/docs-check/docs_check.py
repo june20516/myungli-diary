@@ -147,6 +147,11 @@ def _ia_objects(items: object, label: str) -> tuple[list[dict], list[str]]:
     return objects, problems
 
 
+def _ia_known(value: object, allowed: set[str]) -> bool:
+    """값이 문자열이고 허용 목록에 있는지. 리스트·dict 값도 예외 없이 거짓으로 봅니다."""
+    return isinstance(value, str) and value in allowed
+
+
 def _ia_text(value: object) -> bool:
     return isinstance(value, str) and value.strip() != ""
 
@@ -188,33 +193,33 @@ def _check_ia_screen(
     for field in ("title", "purpose"):
         if field in valid and not _ia_text(screen[field]):
             problems.append(f"{field} 빈 문자열")
-    if "tab" in valid and screen["tab"] is not None and screen["tab"] not in tab_ids:
+    if "tab" in valid and screen["tab"] is not None and not _ia_known(screen["tab"], tab_ids):
         problems.append(f"없는 탭: {screen['tab']}")
-    if "presentation" in valid and screen["presentation"] not in IA_PRESENTATIONS:
+    if "presentation" in valid and not _ia_known(screen["presentation"], IA_PRESENTATIONS):
         problems.append(f"presentation 값 오류: {screen['presentation']}")
-    if "auth" in valid and screen["auth"] not in IA_AUTHS:
+    if "auth" in valid and not _ia_known(screen["auth"], IA_AUTHS):
         problems.append(f"auth 값 오류: {screen['auth']}")
     if "depths" in valid:
-        problems.extend(f"depths 값 오류: {d}" for d in screen["depths"] if d not in IA_DEPTHS)
+        problems.extend(f"depths 값 오류: {d}" for d in screen["depths"] if not _ia_known(d, IA_DEPTHS))
     if "states" in valid:
         states, state_problems = _ia_objects(screen["states"], "states")
         problems.extend(state_problems)
         problems.extend(
-            f"states 값 오류: {state.get('id')}" for state in states if state.get("id") not in IA_STATES
+            f"states 값 오류: {state.get('id')}" for state in states if not _ia_known(state.get("id"), IA_STATES)
         )
     if "components" in valid:
         problems.extend(
-            f"없는 컴포넌트: {c}" for c in screen["components"] if c not in component_ids
+            f"없는 컴포넌트: {c}" for c in screen["components"] if not _ia_known(c, component_ids)
         )
     if "decisions" in valid:
         problems.extend(
-            f"결정 로그에 없는 ID: {d}" for d in screen["decisions"] if d not in decision_ids
+            f"결정 로그에 없는 ID: {d}" for d in screen["decisions"] if not _ia_known(d, decision_ids)
         )
     if "exits" in valid:
         exits, exit_problems = _ia_objects(screen["exits"], "exits")
         problems.extend(exit_problems)
         for exit_ in exits:
-            if exit_.get("to") not in screen_ids:
+            if not _ia_known(exit_.get("to"), screen_ids):
                 problems.append(f"exits의 없는 화면: {exit_.get('to')}")
             if not _ia_text(exit_.get("trigger")):
                 problems.append(f"exits [{exit_.get('to')}]: trigger 없음")
@@ -232,7 +237,7 @@ def _check_ia_screen(
                 if slot_id in slot_ids:
                     problems.append(f"슬롯 id 중복: {slot_id}")
                 slot_ids.add(slot_id)
-            if slot.get("source") not in IA_SLOT_SOURCES:
+            if not _ia_known(slot.get("source"), IA_SLOT_SOURCES):
                 problems.append(f"슬롯 {slot_id}: source 값 오류: {slot.get('source')}")
             role = slot.get("role")
             if not _ia_text(role):
@@ -250,7 +255,7 @@ def check_ia(root: Path) -> list[str]:
         return []
     try:
         doc = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as error:
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
         return [f"{IA_PATH}: JSON 형식 오류 ({error})"]
     if not isinstance(doc, dict) or not {"version", "tabs", "components", "screens"} <= doc.keys():
         return [f"{IA_PATH}: 최상위는 객체여야 하고 version·tabs·components·screens가 있어야 합니다"]
@@ -273,7 +278,7 @@ def check_ia(root: Path) -> list[str]:
             screen_ids.add(screen_id)
     problems.extend(
         f"tabs [{tab.get('id')}]: root가 없는 화면: {tab.get('root')}"
-        for tab in tabs if tab.get("root") not in screen_ids
+        for tab in tabs if not _ia_known(tab.get("root"), screen_ids)
     )
 
     tab_ids = {tab["id"] for tab in tabs if isinstance(tab.get("id"), str)}

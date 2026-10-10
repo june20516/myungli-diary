@@ -288,6 +288,28 @@ class IaTests(RepoTestCase):
         ]
         self.assert_reported(ia_doc(screens=[ia_screen(slots=slots)]), "호칭 자리")
 
+    def test_unhashable_values_reported_without_crash(self) -> None:
+        cases = {
+            "depths": ia_doc(screens=[ia_screen(depths=[["x"]])]),
+            "states": ia_doc(screens=[ia_screen(states=[{"id": ["x"]}])]),
+            "없는 컴포넌트": ia_doc(screens=[ia_screen(components=[{"a": 1}])]),
+            "결정 로그에 없는 ID": ia_doc(screens=[ia_screen(decisions=[["D1"]])]),
+            "exits": ia_doc(screens=[ia_screen(exits=[{"to": ["x"], "trigger": "누름"}])]),
+            "source": ia_doc(screens=[ia_screen(slots=[{"id": "today.a.b", "source": ["ui"], "role": "r"}])]),
+            "root": ia_doc(tabs=[{"id": "today", "title": "오늘", "root": ["today"]}]),
+        }
+        for needle, doc in cases.items():
+            with self.subTest(needle=needle):
+                self.assert_reported(doc, needle)
+
+    def test_non_utf8_file_reported(self) -> None:
+        path = self.root / docs_check.IA_PATH
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"\xff\xfe{")
+        problems = docs_check.check_ia(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("형식 오류", problems[0])
+
     def test_main_reports_ia_problem(self) -> None:
         self.write_ia("{")
         self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)

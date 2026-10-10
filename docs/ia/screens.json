@@ -645,8 +645,7 @@
         "sentence-block",
         "share-button",
         "primary-button",
-        "dialog",
-        "notice-banner"
+        "dialog"
       ],
       "exits": [
         {
@@ -928,10 +927,7 @@
         "guide-question-card",
         "event-row",
         "share-button",
-        "depth-link",
-        "notice-banner",
-        "skeleton",
-        "error-state"
+        "depth-link"
       ],
       "exits": [
         {
@@ -1151,10 +1147,7 @@
         "app-bar",
         "tab-bar",
         "calendar-month",
-        "day-cell",
-        "notice-banner",
-        "skeleton",
-        "error-state"
+        "day-cell"
       ],
       "exits": [
         {
@@ -1234,8 +1227,7 @@
         "sheet",
         "day-character",
         "event-row",
-        "term-token",
-        "empty-state"
+        "term-token"
       ],
       "exits": [
         {
@@ -1313,8 +1305,7 @@
         "time-picker",
         "segmented",
         "primary-button",
-        "dialog",
-        "notice-banner"
+        "dialog"
       ],
       "exits": [],
       "decisions": [
@@ -1366,10 +1357,7 @@
         "diary-row",
         "tag-chip",
         "date-picker",
-        "empty-state",
-        "notice-banner",
-        "skeleton",
-        "error-state"
+        "empty-state"
       ],
       "exits": [
         {
@@ -1634,8 +1622,7 @@
         "sentence-block",
         "term-token",
         "lucky-card",
-        "depth-link",
-        "notice-banner"
+        "depth-link"
       ],
       "exits": [
         {

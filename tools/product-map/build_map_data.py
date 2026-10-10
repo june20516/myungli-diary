@@ -155,7 +155,7 @@ def collect_screens(root: Path) -> list[dict[str, object]]:
     if ia.exists():
         try:
             doc = json.loads(ia.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             doc = None
         if isinstance(doc, dict) and isinstance(doc.get("screens"), list):
             return doc["screens"]
