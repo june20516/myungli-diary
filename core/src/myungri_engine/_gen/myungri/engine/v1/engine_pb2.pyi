@@ -180,6 +180,34 @@ class ElementRole(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     ELEMENT_ROLE_UNSPECIFIED: _ClassVar[ElementRole]
     ELEMENT_ROLE_YONGSIN: _ClassVar[ElementRole]
     ELEMENT_ROLE_TONGGWAN: _ClassVar[ElementRole]
+
+class SolarTermKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    SOLAR_TERM_KIND_UNSPECIFIED: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_SOHAN: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_DAEHAN: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_IPCHUN: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_USU: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_GYEONGCHIP: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_CHUNBUN: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_CHEONGMYEONG: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_GOGU: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_IPHA: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_SOMAN: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_MANGJONG: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_HAJI: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_SOSEO: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_DAESEO: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_IPCHU: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_CHEOSEO: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_BAENGNO: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_CHUBUN: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_HALLO: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_SANGGANG: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_IPDONG: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_SOSEOL: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_DAESEOL: _ClassVar[SolarTermKind]
+    SOLAR_TERM_KIND_DONGJI: _ClassVar[SolarTermKind]
 CALENDAR_TYPE_UNSPECIFIED: CalendarType
 CALENDAR_TYPE_SOLAR: CalendarType
 CALENDAR_TYPE_LUNAR: CalendarType
@@ -300,6 +328,31 @@ RELATION_KIND_HYEONG: RelationKind
 ELEMENT_ROLE_UNSPECIFIED: ElementRole
 ELEMENT_ROLE_YONGSIN: ElementRole
 ELEMENT_ROLE_TONGGWAN: ElementRole
+SOLAR_TERM_KIND_UNSPECIFIED: SolarTermKind
+SOLAR_TERM_KIND_SOHAN: SolarTermKind
+SOLAR_TERM_KIND_DAEHAN: SolarTermKind
+SOLAR_TERM_KIND_IPCHUN: SolarTermKind
+SOLAR_TERM_KIND_USU: SolarTermKind
+SOLAR_TERM_KIND_GYEONGCHIP: SolarTermKind
+SOLAR_TERM_KIND_CHUNBUN: SolarTermKind
+SOLAR_TERM_KIND_CHEONGMYEONG: SolarTermKind
+SOLAR_TERM_KIND_GOGU: SolarTermKind
+SOLAR_TERM_KIND_IPHA: SolarTermKind
+SOLAR_TERM_KIND_SOMAN: SolarTermKind
+SOLAR_TERM_KIND_MANGJONG: SolarTermKind
+SOLAR_TERM_KIND_HAJI: SolarTermKind
+SOLAR_TERM_KIND_SOSEO: SolarTermKind
+SOLAR_TERM_KIND_DAESEO: SolarTermKind
+SOLAR_TERM_KIND_IPCHU: SolarTermKind
+SOLAR_TERM_KIND_CHEOSEO: SolarTermKind
+SOLAR_TERM_KIND_BAENGNO: SolarTermKind
+SOLAR_TERM_KIND_CHUBUN: SolarTermKind
+SOLAR_TERM_KIND_HALLO: SolarTermKind
+SOLAR_TERM_KIND_SANGGANG: SolarTermKind
+SOLAR_TERM_KIND_IPDONG: SolarTermKind
+SOLAR_TERM_KIND_SOSEOL: SolarTermKind
+SOLAR_TERM_KIND_DAESEOL: SolarTermKind
+SOLAR_TERM_KIND_DONGJI: SolarTermKind
 
 class LocalDate(_message.Message):
     __slots__ = ("year", "month", "day")
@@ -733,12 +786,14 @@ class MonthDay(_message.Message):
     def __init__(self, date: _Optional[_Union[LocalDate, _Mapping]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., solar_term: _Optional[_Union[SolarTerm, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., luck_level: _Optional[_Union[LuckLevel, str]] = ..., score: _Optional[int] = ..., score_items: _Optional[_Iterable[_Union[ScoreItem, _Mapping]]] = ..., featured_tag: _Optional[str] = ..., judgment: _Optional[_Union[Judgment, _Mapping]] = ...) -> None: ...
 
 class SolarTerm(_message.Message):
-    __slots__ = ("name", "at")
+    __slots__ = ("name", "at", "kind")
     NAME_FIELD_NUMBER: _ClassVar[int]
     AT_FIELD_NUMBER: _ClassVar[int]
+    KIND_FIELD_NUMBER: _ClassVar[int]
     name: str
     at: _timestamp_pb2.Timestamp
-    def __init__(self, name: _Optional[str] = ..., at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    kind: SolarTermKind
+    def __init__(self, name: _Optional[str] = ..., at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., kind: _Optional[_Union[SolarTermKind, str]] = ...) -> None: ...
 
 class ScoreItem(_message.Message):
     __slots__ = ("id", "score")

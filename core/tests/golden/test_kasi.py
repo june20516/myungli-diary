@@ -123,7 +123,7 @@ def _solar_term_mismatch(term: KasiSolarTerm) -> str | None:
     engine_term = _seoul_month(term.date.year, term.date.month)[term.date].solar_term
     if engine_term is None:
         return "엔진은 이 날짜에 절기가 없음"
-    engine_name, engine_time = engine_term
+    engine_name, engine_time = engine_term.name, engine_term.at
     if engine_name != JIE_QI_BY_KOREAN_NAME[term.name]:
         return f"절기 이름 다름: 엔진 {engine_name}"
     difference = abs(engine_time - term.kst)
@@ -150,7 +150,7 @@ def test_engine_has_24_solar_terms_per_year() -> None:
             if day.solar_term is not None
         ]
         assert len(engine_terms) == TERMS_PER_YEAR, year
-        assert {name for name, _ in engine_terms} == set(JIE_QI_BY_KOREAN_NAME.values()), year
+        assert {term.name for term in engine_terms} == set(JIE_QI_BY_KOREAN_NAME.values()), year
 
 
 def test_solar_terms_match_kasi() -> None:

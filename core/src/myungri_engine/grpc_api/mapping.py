@@ -47,6 +47,7 @@ _PREFIX_RELATION_KIND = "RELATION_KIND"
 _PREFIX_ELEMENT_ROLE = "ELEMENT_ROLE"
 _PREFIX_CALENDAR_TYPE = "CALENDAR_TYPE"
 _PREFIX_GENDER = "GENDER"
+_PREFIX_SOLAR_TERM_KIND = "SOLAR_TERM_KIND"
 _UNSPECIFIED = "UNSPECIFIED"
 
 
@@ -248,8 +249,14 @@ def _month_day(day: MonthDay) -> pb.MonthDay:
         judgment=_judgment(day.judgment),
     )
     if info.solar_term is not None:
-        term_name, entered_at = info.solar_term
-        message.solar_term.CopyFrom(pb.SolarTerm(name=term_name, at=_timestamp(entered_at)))
+        term = info.solar_term
+        message.solar_term.CopyFrom(
+            pb.SolarTerm(
+                name=term.name,
+                at=_timestamp(term.at),
+                kind=_name(_PREFIX_SOLAR_TERM_KIND, term.kind),
+            )
+        )
     if day.featured_tag is not None:
         message.featured_tag = day.featured_tag
     return message

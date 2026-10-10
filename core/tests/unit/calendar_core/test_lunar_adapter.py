@@ -7,7 +7,7 @@ import pytest
 from myungri_engine.calendar_core import lunar_adapter as la
 from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, LunarDate, resolve_birth_moment
 from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode, TwelveStage
+from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode, SolarTermKind, TwelveStage
 from myungri_engine.domain.enums import Direction8 as D
 from myungri_engine.domain.enums import Stem as S
 from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
@@ -255,11 +255,12 @@ def test_month_days_seoul_february_2024() -> None:
     assert days[0].date == date(2024, 2, 1)
     ipchun = days[3]
     assert ipchun.solar_term is not None
-    name, at = ipchun.solar_term
-    assert name == "立春"
+    assert ipchun.solar_term.kind is SolarTermKind.IPCHUN
+    assert ipchun.solar_term.name == "立春"
+    at = ipchun.solar_term.at
     assert (at.date(), at.hour, at.minute) == (date(2024, 2, 4), 17, 27)
     assert at.utcoffset() == timedelta(hours=9)
-    assert days[18].solar_term is not None and days[18].solar_term[0] == "雨水"
+    assert days[18].solar_term is not None and days[18].solar_term.kind is SolarTermKind.USU
     assert sum(1 for d in days if d.solar_term is not None) == 2
     assert days[9].lunar_month == 1 and days[9].lunar_day == 1  # 2024-02-10 설날
     assert days[9].pillar == la.day_pillar(date(2024, 2, 10))
@@ -274,8 +275,19 @@ def test_month_days_leap_month() -> None:
 def test_month_days_term_date_shifts_with_timezone() -> None:
     # 2024 입춘 = UTC 2024-02-04 08:27 → 하와이(UTC-10)에서는 2월 3일
     days = la.month_days(2024, 2, "Pacific/Honolulu")
-    assert days[2].solar_term is not None and days[2].solar_term[0] == "立春"
+    assert days[2].solar_term is not None and days[2].solar_term.kind is SolarTermKind.IPCHUN
     assert days[3].solar_term is None
+
+
+def test_month_days_solar_term_kinds_cover_year_in_order() -> None:
+    # 1월 소한부터 12월 동지까지 SolarTermKind 정의 순서와 같아야 한다 (간체 이름 惊蛰·谷雨 등도 매핑)
+    kinds = [
+        day.solar_term.kind
+        for month in range(1, 13)
+        for day in la.month_days(2024, month, "Asia/Seoul")
+        if day.solar_term is not None
+    ]
+    assert kinds == list(SolarTermKind)
 
 
 # --- 대운 ---

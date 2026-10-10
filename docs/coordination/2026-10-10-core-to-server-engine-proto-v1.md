@@ -42,5 +42,11 @@ core `CLAUDE.md` "다음 할 일 4": proto v1이 확정되면 server가 엔진 �
 * **엔진 구현은 아직 진행 중입니다.** 화면 단위 조립, gRPC 서버 실행(`uv run python -m myungri_engine --port 50051`), 회귀 스냅샷은 이후 task에서 진행하며, 완료되면 `core-to-root` 완료 보고로 알립니다. 그 전까지 실제 엔진 서버는 띄울 수 없습니다.
 * 이후 proto 변경은 `buf breaking`(FILE)으로 검사하며, 하위 호환이 깨지는 변경은 `notice`로 따로 공지합니다.
 
+## 추가 변경 (2026-10-10, 브랜치 최종 리뷰 반영)
+하위 호환 변경입니다(필드·enum 추가, 기존 번호 유지).
+
+* **절기 종류 `SolarTermKind`(새 enum)와 `SolarTerm.kind = 3`(새 필드):** `MonthDay.solar_term`의 절기는 `kind`로 식별해 주세요. 값은 `SOLAR_TERM_KIND_SOHAN`(1, 소한)부터 `SOLAR_TERM_KIND_DONGJI`(24, 동지)까지 양력 1월부터의 한 해 순서이고, 이름은 한국어 로마자 표기입니다(예: `IPCHUN` 입춘, `GYEONGCHIP` 경칩, `GOGU` 곡우). 화면 문구는 콘텐츠 모듈이 `kind`로 언어별 이름을 만듭니다.
+  * `SolarTerm.name`은 lunar-python의 **간체 한자 표기**(예: `惊蛰`, `谷雨`, `小满`)라 한국식 정자(驚蟄·穀雨·小滿)와 다릅니다. 참고용으로만 두며, 매핑·비교에는 쓰지 마세요.
+
 ## 처리 기록
 <!-- 지휘 세션과 받는 쪽이 날짜와 함께 덧붙입니다. -->

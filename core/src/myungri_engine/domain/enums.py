@@ -217,3 +217,32 @@ class TwelveStage(Enum):
     JEOL = auto()
     TAE = auto()
     YANG = auto()
+
+
+class SolarTermKind(Enum):
+    """24절기. 양력 1월의 소한부터 12월의 동지까지 한 해 순서다. 이름은 한국어 로마자 표기."""
+
+    SOHAN = auto()  # 소한 小寒
+    DAEHAN = auto()  # 대한 大寒
+    IPCHUN = auto()  # 입춘 立春
+    USU = auto()  # 우수 雨水
+    GYEONGCHIP = auto()  # 경칩 驚蟄
+    CHUNBUN = auto()  # 춘분 春分
+    CHEONGMYEONG = auto()  # 청명 淸明
+    GOGU = auto()  # 곡우 穀雨
+    IPHA = auto()  # 입하 立夏
+    SOMAN = auto()  # 소만 小滿
+    MANGJONG = auto()  # 망종 芒種
+    HAJI = auto()  # 하지 夏至
+    SOSEO = auto()  # 소서 小暑
+    DAESEO = auto()  # 대서 大暑
+    IPCHU = auto()  # 입추 立秋
+    CHEOSEO = auto()  # 처서 處暑
+    BAENGNO = auto()  # 백로 白露
+    CHUBUN = auto()  # 추분 秋分
+    HALLO = auto()  # 한로 寒露
+    SANGGANG = auto()  # 상강 霜降
+    IPDONG = auto()  # 입동 立冬
+    SOSEOL = auto()  # 소설 小雪
+    DAESEOL = auto()  # 대설 大雪
+    DONGJI = auto()  # 동지 冬至

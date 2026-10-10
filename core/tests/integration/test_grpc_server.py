@@ -102,6 +102,9 @@ def test_get_month_calendar_day_count(stub: pb_grpc.MyungriEngineStub) -> None:
     assert all(day.luck_level != pb.LUCK_LEVEL_UNSPECIFIED for day in response.days)
     assert all(day.judgment.message_key.startswith("calendar.") for day in response.days)
     assert sum(day.HasField("solar_term") for day in response.days) >= 1
+    # 2026-02: 입춘(2/4), 우수(2/19)
+    terms = [(day.date.day, day.solar_term.kind) for day in response.days if day.HasField("solar_term")]
+    assert terms == [(4, pb.SOLAR_TERM_KIND_IPCHUN), (19, pb.SOLAR_TERM_KIND_USU)]
 
 
 def test_invalid_solar_date_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:

@@ -2,7 +2,7 @@
 //
 // 엔진은 상태가 없고 문장을 만들지 않습니다(D27). 사용자에게 보일 문장은 server의 콘텐츠 모듈이
 // 메시지 키(Judgment.message_key, 태그 키)와 매개변수(Judgment.params)로 만듭니다.
-// 이 파일의 문자열 필드는 메시지 키, 규칙 id, 근거 참조(source_ref), IANA 시간대, 절기 원문 이름 같은
+// 이 파일의 문자열 필드는 메시지 키, 규칙 id, 근거 참조(source_ref), IANA 시간대, 절기 참고 표기 같은
 // 식별자뿐입니다.
 //
 // 메시지 개요
@@ -226,6 +226,36 @@ enum ElementRole {
   ELEMENT_ROLE_TONGGWAN = 2;
 }
 
+// 24절기. 번호는 양력 1월의 소한(1)부터 12월의 동지(24)까지 한 해 순서입니다.
+// 값 이름은 한국어 이름의 로마자 표기입니다.
+enum SolarTermKind {
+  SOLAR_TERM_KIND_UNSPECIFIED = 0;
+  SOLAR_TERM_KIND_SOHAN = 1; // 소한 小寒
+  SOLAR_TERM_KIND_DAEHAN = 2; // 대한 大寒
+  SOLAR_TERM_KIND_IPCHUN = 3; // 입춘 立春
+  SOLAR_TERM_KIND_USU = 4; // 우수 雨水
+  SOLAR_TERM_KIND_GYEONGCHIP = 5; // 경칩 驚蟄
+  SOLAR_TERM_KIND_CHUNBUN = 6; // 춘분 春分
+  SOLAR_TERM_KIND_CHEONGMYEONG = 7; // 청명 淸明
+  SOLAR_TERM_KIND_GOGU = 8; // 곡우 穀雨
+  SOLAR_TERM_KIND_IPHA = 9; // 입하 立夏
+  SOLAR_TERM_KIND_SOMAN = 10; // 소만 小滿
+  SOLAR_TERM_KIND_MANGJONG = 11; // 망종 芒種
+  SOLAR_TERM_KIND_HAJI = 12; // 하지 夏至
+  SOLAR_TERM_KIND_SOSEO = 13; // 소서 小暑
+  SOLAR_TERM_KIND_DAESEO = 14; // 대서 大暑
+  SOLAR_TERM_KIND_IPCHU = 15; // 입추 立秋
+  SOLAR_TERM_KIND_CHEOSEO = 16; // 처서 處暑
+  SOLAR_TERM_KIND_BAENGNO = 17; // 백로 白露
+  SOLAR_TERM_KIND_CHUBUN = 18; // 추분 秋分
+  SOLAR_TERM_KIND_HALLO = 19; // 한로 寒露
+  SOLAR_TERM_KIND_SANGGANG = 20; // 상강 霜降
+  SOLAR_TERM_KIND_IPDONG = 21; // 입동 立冬
+  SOLAR_TERM_KIND_SOSEOL = 22; // 소설 小雪
+  SOLAR_TERM_KIND_DAESEOL = 23; // 대설 大雪
+  SOLAR_TERM_KIND_DONGJI = 24; // 동지 冬至
+}
+
 // ---------------------------------------------------------------------------
 // 공통 값
 // ---------------------------------------------------------------------------
@@ -271,22 +301,23 @@ message BirthInfo {
   optional double longitude = 7; // 동경 +, 서경 -. 없음 = 대표 경도
 }
 
+// 요청의 birth와 아래에 "필수"로 적은 필드가 없으면 INVALID_ARGUMENT입니다.
 message ChartRequest {
-  BirthInfo birth = 1;
-  LocalDate as_of = 2; // 세운 기준 연도용
+  BirthInfo birth = 1; // 필수
+  LocalDate as_of = 2; // 필수. 세운 기준 연도용
 }
 
 message DailyRequest {
-  BirthInfo birth = 1;
-  LocalDate date = 2; // 사용자 현재 시간대의 달력 날짜 (D30)
-  string current_timezone = 3;
+  BirthInfo birth = 1; // 필수
+  LocalDate date = 2; // 필수. 사용자 현재 시간대의 달력 날짜 (D30)
+  string current_timezone = 3; // 필수. IANA 이름
 }
 
 message MonthRequest {
-  BirthInfo birth = 1;
-  int32 year = 2;
-  int32 month = 3;
-  string current_timezone = 4;
+  BirthInfo birth = 1; // 필수
+  int32 year = 2; // 필수(0은 값 없음)
+  int32 month = 3; // 필수. 1~12
+  string current_timezone = 4; // 필수. IANA 이름
 }
 
 // ---------------------------------------------------------------------------
@@ -508,10 +539,11 @@ message MonthDay {
   Judgment judgment = 12;
 }
 
-// 절기. name은 원문 한자(예: 立春), at은 입절 절대 시각입니다.
+// 절기. at은 입절 절대 시각입니다.
 message SolarTerm {
-  string name = 1;
+  string name = 1; // lunar-python 간체 표기(예: 立春, 惊蛰), 참고용. 매핑에는 kind를 쓸 것
   google.protobuf.Timestamp at = 2;
+  SolarTermKind kind = 3; // 절기 종류
 }
 
 // 점수 구성 항목(원본 값). 화면 문구용 메시지 키는 MonthDay.judgment에 있고, id는 메시지 키가 아닌 식별자입니다:

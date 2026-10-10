@@ -1,4 +1,4 @@
-"""lunar-python 어댑터. 엔진에서 lunar_python을 import하는 유일한 모듈이다 (D9).
+"""lunar-python 어댑터. lunar_python은 calendar_core 안(이 모듈과 korean_lunar)에서만 import한다 (D9).
 
 lunar-python은 타입 정보가 없으므로, 반환값은 이 모듈 경계에서 즉시 str/int로 바꾸고 enum으로 매핑한다.
 lunar-python의 절기 시각은 UTC+8 벽시계 기준이다 (spec 4.1-2).
@@ -25,7 +25,7 @@ from myungri_engine.calendar_core.time_basis import (
     standard_offset_hours,
 )
 from myungri_engine.constants.longitudes import representative_longitude
-from myungri_engine.domain.enums import Branch, Direction8, Gender, Stem, TwelveStage
+from myungri_engine.domain.enums import Branch, Direction8, Gender, SolarTermKind, Stem, TwelveStage
 from myungri_engine.domain.models import FourPillars, Pillar
 
 if TYPE_CHECKING:
@@ -62,6 +62,34 @@ _DIRECTION_BY_DESC: Final[dict[str, Direction8]] = {
     "西南": Direction8.SW,
     "正西": Direction8.W,
     "西北": Direction8.NW,
+}
+
+# lunar-python JIE_QI 이름(간체 한자) → 절기 종류. 외부 계약에는 이름이 아니라 종류를 쓴다.
+_SOLAR_TERM_KIND_BY_NAME: Final[dict[str, SolarTermKind]] = {
+    "小寒": SolarTermKind.SOHAN,
+    "大寒": SolarTermKind.DAEHAN,
+    "立春": SolarTermKind.IPCHUN,
+    "雨水": SolarTermKind.USU,
+    "惊蛰": SolarTermKind.GYEONGCHIP,
+    "春分": SolarTermKind.CHUNBUN,
+    "清明": SolarTermKind.CHEONGMYEONG,
+    "谷雨": SolarTermKind.GOGU,
+    "立夏": SolarTermKind.IPHA,
+    "小满": SolarTermKind.SOMAN,
+    "芒种": SolarTermKind.MANGJONG,
+    "夏至": SolarTermKind.HAJI,
+    "小暑": SolarTermKind.SOSEO,
+    "大暑": SolarTermKind.DAESEO,
+    "立秋": SolarTermKind.IPCHU,
+    "处暑": SolarTermKind.CHEOSEO,
+    "白露": SolarTermKind.BAENGNO,
+    "秋分": SolarTermKind.CHUBUN,
+    "寒露": SolarTermKind.HALLO,
+    "霜降": SolarTermKind.SANGGANG,
+    "立冬": SolarTermKind.IPDONG,
+    "小雪": SolarTermKind.SOSEOL,
+    "大雪": SolarTermKind.DAESEOL,
+    "冬至": SolarTermKind.DONGJI,
 }
 
 # lunar-python 절기표는 이웃 해의 절기를 병음 키로 담는다. JIE_QI 원문 한자로 되돌린다.
@@ -108,15 +136,24 @@ class LuckCyclesRaw:
 
 
 @dataclass(frozen=True, slots=True)
+class SolarTermEntry:
+    """그 날짜에 든 절기. name은 lunar-python JIE_QI 간체 표기(참고용), at은 현재 시간대의 입절 시각."""
+
+    kind: SolarTermKind
+    name: str
+    at: datetime
+
+
+@dataclass(frozen=True, slots=True)
 class DayInfo:
-    """월간 캘린더의 하루. solar_term은 (JIE_QI 원문 한자, 현재 시간대의 입절 시각)."""
+    """월간 캘린더의 하루. solar_term은 그 날짜에 든 절기(없으면 None)."""
 
     date: date
     pillar: Pillar
     lunar_month: int
     lunar_day: int
     is_leap_month: bool
-    solar_term: tuple[str, datetime] | None
+    solar_term: SolarTermEntry | None
 
 
 # --- 음력 변환 ---
@@ -353,20 +390,21 @@ def _solar_term_to_utc(solar: Solar) -> datetime:
     return wallclock.astimezone(UTC)
 
 
-def _term_name(key: str) -> str:
+def _solar_term_entry(key: str, at: datetime) -> SolarTermEntry:
     name = _PINYIN_TERM_NAMES.get(key, key)
-    if name not in Lunar.JIE_QI:
+    kind = _SOLAR_TERM_KIND_BY_NAME.get(name)
+    if kind is None:
         raise ValueError(f"알 수 없는 절기 이름: {key!r}")
-    return name
+    return SolarTermEntry(kind=kind, name=name, at=at)
 
 
-def _solar_terms_by_local_date(first: date, last: date, zone: ZoneInfo) -> dict[date, tuple[str, datetime]]:
+def _solar_terms_by_local_date(first: date, last: date, zone: ZoneInfo) -> dict[date, SolarTermEntry]:
     """first~last 사이 현지 날짜에 든 절기. 시간대 변환으로 날짜가 넘어가는 경우를 위해 양 끝 절기표를 합친다."""
-    terms: dict[date, tuple[str, datetime]] = {}
+    terms: dict[date, SolarTermEntry] = {}
     for anchor in (first, last):
         table = _lunar_at_noon(anchor).getJieQiTable()
         for key, solar in table.items():
             local_time = _solar_term_to_utc(solar).astimezone(zone)
             if first <= local_time.date() <= last:
-                terms[local_time.date()] = (_term_name(str(key)), local_time)
+                terms[local_time.date()] = _solar_term_entry(str(key), local_time)
     return terms

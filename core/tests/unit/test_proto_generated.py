@@ -38,6 +38,7 @@ DOMAIN_TO_PROTO_ENUMS: tuple[tuple[type[Enum], str, str], ...] = (
     (Position, "Position", "POSITION"),
     (RelationKind, "RelationKind", "RELATION_KIND"),
     (ElementRole, "ElementRole", "ELEMENT_ROLE"),
+    (enums.SolarTermKind, "SolarTermKind", "SOLAR_TERM_KIND"),
 )
 
 
@@ -90,6 +91,15 @@ def test_month_day_carries_luck_judgment() -> None:
 
     assert judgment_field.number == 12
     assert judgment_field.message_type.full_name == "myungri.engine.v1.Judgment"
+
+
+def test_solar_term_carries_kind_with_new_field_number() -> None:
+    pb2 = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2")
+    fields = pb2.SolarTerm.DESCRIPTOR.fields_by_name
+
+    assert (fields["name"].number, fields["at"].number) == (1, 2)
+    assert fields["kind"].number == 3
+    assert fields["kind"].enum_type.full_name == "myungri.engine.v1.SolarTermKind"
 
 
 def test_enum_fields_use_unspecified_instead_of_optional() -> None:
