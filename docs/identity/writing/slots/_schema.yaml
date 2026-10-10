@@ -58,11 +58,13 @@
 - name: allowed
   required: false
   type: "list[string]"
-  description: 목적별 허용 표현. 원칙 0 예외로 허용하는 slop 패턴 ID
+  description: 목적별 허용 표현. 원칙 0 예외로 허용하는 slop·문체 규칙 ID. 검사기는 이 슬롯에서 그 규칙을 건너뜁니다.
 - name: forbidden
   required: false
   type: "list[string]"
-  description: 이 슬롯에서 추가로 금지하는 패턴 ID
+  description: >-
+    이 슬롯에서 추가로 금지하는 규칙 ID. 검사기는 규칙의 exempt_purposes와 관계없이 이 슬롯에 적용합니다.
+    judge가 llm인 규칙은 CI 문장 검사에서 돌지 않으므로 적어도 CI에서는 효과가 없습니다(LLM 판정 명령의 몫).
 - name: examples
   required: true
   type: "map[good|bad, list[map]]"

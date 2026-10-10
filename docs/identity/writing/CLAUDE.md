@@ -67,4 +67,5 @@
 2. **IA(D39)가 나오면** `slots/ui/` 목록을 만듭니다. 지금은 깊이 이름(`ui/depth.yaml`)만 있습니다.
 3. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
 4. **W1:** 콘텐츠 3개 언어 원고를 쓰고 원어민 검수를 받습니다. 사용자용 태그라인·스토어 문구도 W1입니다.
+   - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
 5. 작업 전에 `git log`와 `decisions.md`를 읽고, 이 브랜치가 main에 병합됐는지 확인합니다.
