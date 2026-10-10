@@ -746,7 +746,18 @@ def _check_references(slots: dict[str, Slot], rules: RuleSet, findings: list[Fin
 
 
 # 콘텐츠 슬롯(content)과 ARB 화면 문구 슬롯(ui)의 하위 디렉터리입니다.
-SLOT_GROUPS = ("content", "ui")
+UI_GROUP = "ui"
+SLOT_GROUPS = ("content", UI_GROUP)
+# ui 슬롯의 keys는 Flutter gen-l10n이 getter 이름으로 쓰는 Dart 식별자(lowerCamelCase)입니다.
+ARB_KEY_PATTERN = regex.compile(r"[a-z][A-Za-z0-9]*")
+
+
+def _check_ui_keys(slot: Slot, problems: _Problems) -> bool:
+    """ui 슬롯의 키가 모두 lowerCamelCase인지 확인합니다. 어긋난 키마다 문제를 모읍니다."""
+    bad_keys = [key for key in slot.keys if ARB_KEY_PATTERN.fullmatch(key) is None]
+    for key in bad_keys:
+        problems.add(slot.line, f"ui 슬롯 '{slot.id}'의 키 '{key}'는 lowerCamelCase 식별자여야 합니다")
+    return not bad_keys
 
 
 def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
@@ -764,6 +775,8 @@ def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
         for data, line in _read_items(path, problems) or []:
             slot = _parse_slot(data, line, path, schema, problems)
             if slot is None:
+                continue
+            if path.parent.name == UI_GROUP and not _check_ui_keys(slot, problems):
                 continue
             if slot.id in slots:
                 first = slots[slot.id]

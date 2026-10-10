@@ -13,7 +13,7 @@ from mlw import paths
 from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness, glossary_values
-from mlw.loader import load_content, load_rules, load_slots
+from mlw.loader import UI_GROUP, load_content, load_rules, load_slots
 from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
 from mlw.placeholders import parse
 from mlw.sentence import check_sentence
@@ -22,7 +22,7 @@ GLOSSARY_SLOT = "glossary.value_name"
 NAME_PARAM = "name"
 # 호칭 최대 길이를 채우는 글자입니다. 글자 수만 세므로 무엇이든 됩니다.
 NAME_FILLER = "가"
-UI_GROUP = "ui"
+RULE_JSON = "load.json"
 EXIT_ERROR = 1
 EXIT_LOAD_ERROR = 2
 
@@ -85,14 +85,42 @@ def _print_findings(findings: Sequence[Finding]) -> int:
     return EXIT_ERROR if any(finding.severity == "error" for finding in findings) else 0
 
 
+def _json_error(path: Path, line: int, message: str) -> LoadError:
+    return LoadError([Finding(path, line, RULE_JSON, "error", message)])
+
+
+def _read_json(path: Path) -> object:
+    """JSON 파일을 읽습니다. 없거나 깨졌으면 `LoadError`입니다."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except OSError as error:
+        raise _json_error(path, 1, f"파일을 읽을 수 없습니다: {error.strerror or error}") from error
+    except json.JSONDecodeError as error:
+        raise _json_error(path, error.lineno, f"JSON 오류입니다: {error.msg}") from error
+
+
+def _read_message_keys(path: Path) -> list[str]:
+    data = _read_json(path)
+    if not isinstance(data, list) or not all(isinstance(key, str) for key in data):
+        raise _json_error(path, 1, "메시지 키 파일은 문자열 목록이어야 합니다")
+    return [str(key) for key in data]
+
+
+def _read_fixture(path: Path) -> dict[str, object]:
+    data = _read_json(path)
+    if not isinstance(data, dict):
+        raise _json_error(path, 1, "고정 자료는 JSON 객체여야 합니다")
+    return data
+
+
 def _check(args: argparse.Namespace) -> int:
     rules = load_rules(args.rules_dir)
     all_slots = load_slots(args.slots_dir, rules)
     # ARB 화면 문구 슬롯은 원고(content/)가 없으므로 원고 검사에서 뺍니다.
     slots = {slot_id: slot for slot_id, slot in all_slots.items() if slot.file.parent.name != UI_GROUP}
     entries = load_content(args.content)
-    message_keys: list[str] = json.loads(args.message_keys.read_text(encoding="utf-8"))
-    fixture = json.loads(args.fixture.read_text(encoding="utf-8"))
+    message_keys = _read_message_keys(args.message_keys)
+    fixture = _read_fixture(args.fixture)
 
     completeness = check_completeness(slots, entries, message_keys, LANGS)
     if args.partial:

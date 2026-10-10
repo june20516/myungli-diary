@@ -168,6 +168,21 @@ def test_duplicate_slot_id_is_reported(tmp_path: Path, rules: RuleSet) -> None:
     assert "중복" in raised.value.findings[0].message
 
 
+def test_ui_slot_keys_must_be_lower_camel_case(tmp_path: Path, rules: RuleSet) -> None:
+    slots_dir = make_slots_dir(tmp_path, VALID_SLOT)
+    (slots_dir / "ui").mkdir()
+    (slots_dir / "ui" / "depth.yaml").write_text(
+        VALID_SLOT.replace("test.slot", "ui.test").replace("a.one", "depthOne").replace("a.two", "depth.two"),
+        encoding="utf-8",
+    )
+    with pytest.raises(LoadError) as raised:
+        load_slots(slots_dir, rules)
+    messages = [finding.message for finding in raised.value.findings]
+    assert {finding.rule_id for finding in raised.value.findings} == {"load.schema"}
+    assert any("depth.two" in message for message in messages)
+    assert not any("depthOne" in message for message in messages)
+
+
 def test_unknown_co_display_slot(tmp_path: Path, rules: RuleSet) -> None:
     with pytest.raises(LoadError) as raised:
         load_slots(make_slots_dir(tmp_path, VALID_SLOT + "  co_display: [nowhere]\n"), rules)

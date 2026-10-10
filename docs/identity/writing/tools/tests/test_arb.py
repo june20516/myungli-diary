@@ -44,7 +44,7 @@ def test_arb_placeholder_is_normalized(tmp_path: Path, rules: RuleSet, slots: di
 
 
 def test_arb_slot_key_is_checked(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
-    path = write_arb(tmp_path, {"@@locale": "ko", "ui.depth.surface": "반가워요!"})
+    path = write_arb(tmp_path, {"@@locale": "ko", "depthSurface": "반가워요!"})
     assert [f.rule_id for f in check_arb([path], slots, rules)] == ["slop.P8"]
 
 

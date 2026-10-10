@@ -1,6 +1,6 @@
 # 화면 문구 슬롯: 깊이 단계(depth)
 #
-# keys는 ARB 메시지 이름입니다. ARB 파일은 `mlw check-arb`가 검사하고, 원고(content/)는 두지 않습니다.
+# keys는 Dart 식별자(lowerCamelCase)인 ARB 메시지 이름입니다. ARB 파일은 `mlw check-arb`가 검사하고, 원고(content/)는 두지 않습니다.
 # 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 라운드(W0 Task 11~13)에서 채웁니다.
 
 - id: ui.depth.default_label
@@ -11,7 +11,7 @@
   tone: {}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - ui.depth.default_label
+    - depthDefaultLabel
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
 
@@ -23,7 +23,7 @@
   tone: {}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - ui.depth.surface
+    - depthSurface
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
 
@@ -35,7 +35,7 @@
   tone: {}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - ui.depth.explain
+    - depthExplain
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
 
@@ -47,6 +47,6 @@
   tone: {}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - ui.depth.evidence
+    - depthEvidence
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
