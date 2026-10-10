@@ -14,9 +14,10 @@ from functools import cache
 from typing import TYPE_CHECKING, Final
 from zoneinfo import ZoneInfo
 
-from lunar_python import EightChar, Lunar, LunarYear, Solar
+from lunar_python import EightChar, Lunar, Solar
 from lunar_python.util import LunarUtil
 
+from myungri_engine.calendar_core import korean_lunar
 from myungri_engine.calendar_core.time_basis import (
     SOLAR_TERM_TIMEZONE,
     load_zone,
@@ -25,16 +26,12 @@ from myungri_engine.calendar_core.time_basis import (
 )
 from myungri_engine.constants.longitudes import representative_longitude
 from myungri_engine.domain.enums import Branch, Direction8, Gender, Stem, TwelveStage
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungri_engine.domain.models import FourPillars, Pillar
 
 if TYPE_CHECKING:
     # birth가 이 모듈을 import하므로, BirthMoment는 타입 검사에서만 import한다.
     from myungri_engine.calendar_core.birth import BirthMoment
 
-LUNAR_MIN_YEAR = 1900
-LUNAR_MAX_YEAR = 2099
-MONTHS_PER_YEAR = 12
 LUCK_CYCLE_COUNT = 10
 LUCK_SECT = 1  # 3일 = 1년, 1일 = 4개월, 1시진 = 10일 (spec 5.3)
 ZI_HOUR_UNIFIED_SECT = 1  # 자시 통합: 23시 이후는 다음 날 일주 (D6)
@@ -116,23 +113,8 @@ class DayInfo:
 
 
 def lunar_to_solar(year: int, month: int, day: int, is_leap_month: bool) -> date:
-    """음력 날짜를 양력으로 바꾼다. 그해에 없는 윤달이나 없는 날짜면 InvalidInputError."""
-    if not LUNAR_MIN_YEAR <= year <= LUNAR_MAX_YEAR:
-        raise OutOfRangeError(f"지원 범위 밖의 음력 연도입니다: {year}")
-    if not 1 <= month <= MONTHS_PER_YEAR:
-        raise InvalidInputError(f"음력 월이 잘못되었습니다: {month}")
-
-    lunar_year = LunarYear.fromYear(year)
-    if is_leap_month and int(lunar_year.getLeapMonth()) != month:
-        raise InvalidInputError(f"음력 {year}년에는 윤{month}월이 없습니다.")
-
-    lunar_month_number = -month if is_leap_month else month
-    day_count = int(lunar_year.getMonth(lunar_month_number).getDayCount())
-    if not 1 <= day <= day_count:
-        raise InvalidInputError(f"음력 {year}년 {month}월은 {day_count}일까지입니다: {day}")
-
-    solar = Lunar.fromYmd(year, lunar_month_number, day).getSolar()
-    return date(int(solar.getYear()), int(solar.getMonth()), int(solar.getDay()))
+    """한국 음력(KASI 기준) 날짜를 양력으로 바꾼다. 그해에 없는 윤달이나 없는 날짜면 InvalidInputError."""
+    return korean_lunar.lunar_to_solar(year, month, day, is_leap_month)
 
 
 # --- 사주팔자 ---
@@ -231,7 +213,10 @@ def hour_slots(civil_date: date, current_timezone: str) -> tuple[HourSlot, ...]:
 
 
 def month_days(year: int, month: int, current_timezone: str) -> tuple[DayInfo, ...]:
-    """한 달의 날짜별 일진·음력 날짜·절기(현재 시간대 기준 그 날짜에 든 것만) (spec 8)."""
+    """한 달의 날짜별 일진·음력 날짜·절기(현재 시간대 기준 그 날짜에 든 것만) (spec 8).
+
+    음력 날짜는 한국 음력(korean_lunar)이다. lunar-python의 중국 음력은 쓰지 않는다.
+    """
     zone = load_zone(current_timezone)
     last_day = calendar.monthrange(year, month)[1]
     terms_by_date = _solar_terms_by_local_date(date(year, month, 1), date(year, month, last_day), zone)
@@ -239,15 +224,14 @@ def month_days(year: int, month: int, current_timezone: str) -> tuple[DayInfo, .
     days: list[DayInfo] = []
     for day_number in range(1, last_day + 1):
         civil_date = date(year, month, day_number)
-        lunar = _lunar_at_noon(civil_date)
-        lunar_month_number = int(lunar.getMonth())
+        lunar_date = korean_lunar.solar_to_lunar(civil_date)
         days.append(
             DayInfo(
                 date=civil_date,
-                pillar=_pillar(str(lunar.getDayGan()), str(lunar.getDayZhi())),
-                lunar_month=abs(lunar_month_number),
-                lunar_day=int(lunar.getDay()),
-                is_leap_month=lunar_month_number < 0,
+                pillar=day_pillar(civil_date),
+                lunar_month=lunar_date.month,
+                lunar_day=lunar_date.day,
+                is_leap_month=lunar_date.is_leap_month,
                 solar_term=terms_by_date.get(civil_date),
             )
         )

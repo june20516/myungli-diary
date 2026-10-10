@@ -12,8 +12,13 @@ from functools import cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from myungri_engine.calendar_core.lunar_adapter import DayInfo, lunar_to_solar, month_days
 from myungri_engine.domain.errors import InvalidInputError
+
+# 음력 검사가 1,800여 개월의 month_days를 계산해 30초 남짓 걸린다.
+pytestmark = pytest.mark.slow
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SEOUL = "Asia/Seoul"
@@ -134,6 +139,18 @@ def test_solar_term_fixture_covers_kasi_range() -> None:
     for year in years:
         assert sum(term.date.year == year for term in terms) == TERMS_PER_YEAR
     assert {term.name for term in terms} == set(JIE_QI_BY_KOREAN_NAME)
+
+
+def test_engine_has_24_solar_terms_per_year() -> None:
+    for year in range(2000, 2029):
+        engine_terms = [
+            day.solar_term
+            for month in range(1, 13)
+            for day in _seoul_month(year, month).values()
+            if day.solar_term is not None
+        ]
+        assert len(engine_terms) == TERMS_PER_YEAR, year
+        assert {name for name, _ in engine_terms} == set(JIE_QI_BY_KOREAN_NAME.values()), year
 
 
 def test_solar_terms_match_kasi() -> None:

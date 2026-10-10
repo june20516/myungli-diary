@@ -157,9 +157,9 @@ def lunar_birth(d: LunarDate, leap: bool = False) -> BirthMoment:
 
 
 def test_lunar_date_day_30_converted() -> None:
-    # 양력 달력에 없는 월일. 2024년 음력 2월은 30일까지, 2017년 윤6월도 30일까지 (lunar-python 1.4.8)
+    # 양력 달력에 없는 월일. 한국 음력(KASI) 2024년 2월은 30일까지, 2012년 윤3월도 30일까지
     assert lunar_birth(LunarDate(2024, 2, 30)).solar_date == date(2024, 4, 8)
-    assert lunar_birth(LunarDate(2017, 6, 30), leap=True).solar_date == date(2017, 8, 21)
+    assert lunar_birth(LunarDate(2012, 3, 30), leap=True).solar_date == date(2012, 5, 20)
 
 
 def test_lunar_date_day_30_in_29_day_month_rejected() -> None:
