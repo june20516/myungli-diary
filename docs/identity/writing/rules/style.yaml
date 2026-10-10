@@ -1,0 +1,28 @@
+# 문체 규칙. 나머지는 R1~R3 결과로 채웁니다.
+
+- id: style.S1
+  name: 괄호 풀이 금지
+  severity: error
+  detect:
+    kind: regex
+    pattern: '[가-힣]+\([가-힣\s]+\)'
+    langs: [ko]
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "일간(나를 뜻하는 글자)이 강해요."}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "나를 뜻하는 글자가 강해요."}
+
+- id: style.S2
+  name: 말줄임 금지
+  severity: warn
+  detect:
+    kind: regex
+    pattern: '…|\.\.\.'
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "조금 쉬어 가도 좋아요..."}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "조금 쉬어 가도 좋아요."}

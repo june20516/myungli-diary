@@ -1,0 +1,29 @@
+# 빈도·밀도 상한. max가 null이면 아직 정하지 않은 값이며 검사에서 건너뜁니다.
+
+- id: limit.L1
+  name: 호칭은 한 화면에 한 번
+  scope: screen
+  count: {placeholder: name}
+  max: {ko: 1, ja: 1, en: 1}
+  severity: error
+
+- id: limit.L2
+  name: 돌봄 유형 하루 상한
+  scope: day
+  count: {type: care}
+  max: null
+  severity: warn
+
+- id: limit.L3
+  name: 돌봄 유형 한 주 상한
+  scope: week
+  count: {type: care}
+  max: null
+  severity: warn
+
+- id: limit.L4
+  name: 영어 호칭 한 주 상한
+  scope: week
+  count: {placeholder: name}
+  max: {en: null}
+  severity: warn

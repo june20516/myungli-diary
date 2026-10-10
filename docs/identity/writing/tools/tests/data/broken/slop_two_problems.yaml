@@ -1,0 +1,11 @@
+# 문제가 둘인 파일입니다.
+
+- id: slop.X1
+  name: severity가 틀린 규칙
+  judge: llm
+  severity: fatal
+  rubric: 아무 기준
+- id: slop.X2
+  name: rule인데 detect가 없는 규칙
+  judge: rule
+  severity: warn
