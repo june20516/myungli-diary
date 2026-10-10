@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V0 로고 시안: 앱 아이콘 3종과 워드마크</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+<style>html, body, .main { height: auto; overflow: visible; }</style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  .sizes { display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding: 18px; border-radius: 16px; }
+  .sizes.l { background: #f4f4f2; } .sizes.d { background: #1b1b1a; }
+  .sizes svg { display: block; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .wm { display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: linear-gradient(160deg, #eef4ef, #fbefee); }
+  .lock { display: flex; align-items: center; gap: 12px; }
+  .wm-a { font-family: 'Gowun Dodum', sans-serif; font-size: 30px; color: #2b2b2a; letter-spacing: .02em; }
+  .wm-b { font-family: 'Pretendard', sans-serif; font-weight: 600; font-size: 28px; color: #2b2b2a; letter-spacing: -.02em; }
+  .note { font: 500 11px 'Pretendard', sans-serif; color: #777; }
+</style>
+
+<!-- 아이콘 원형(symbol) 정의: 크기만 바꿔 재사용 -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8f2e9"/><stop offset="1" stop-color="#ffe9e5"/>
+    </linearGradient>
+    <!-- 1. 일기장: 닫힌 공책 + 코랄 책갈피 -->
+    <symbol id="i-diary" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="22" fill="url(#g)"/>
+      <rect x="28" y="22" width="44" height="56" rx="6" fill="#597f61"/>
+      <rect x="28" y="22" width="8" height="56" rx="3" fill="#47634c"/>
+      <rect x="44" y="34" width="20" height="3" rx="1.5" fill="#e8f2e9" opacity=".8"/>
+      <path d="M58 22 v26 l5 -4 l5 4 v-26 z" fill="#a75c53"/>
+    </symbol>
+    <!-- 2. 日: 일(日) 자를 일기 한 쪽으로 — 가운데 획이 책갈피 줄 -->
+    <symbol id="i-day" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="22" fill="url(#g)"/>
+      <rect x="30" y="20" width="40" height="60" rx="9" fill="none" stroke="#47634c" stroke-width="7"/>
+      <line x1="33" y1="50" x2="67" y2="50" stroke="#a75c53" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="50" cy="35" r="4.5" fill="#a75c53"/>
+    </symbol>
+    <!-- 3. 낙관: 코랄 인주 도장 안에 양각 日 -->
+    <symbol id="i-seal" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="22" fill="#f7f7f6"/>
+      <path d="M27 25 q23 -4 46 0 q4 25 0 50 q-23 4 -46 0 q-4 -25 0 -50 z" fill="#a75c53"/>
+      <rect x="38" y="33" width="24" height="34" rx="3" fill="none" stroke="#fef4f2" stroke-width="5"/>
+      <line x1="40" y1="50" x2="60" y2="50" stroke="#fef4f2" stroke-width="5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<h2>로고 시안 — 앱 아이콘 3종과 워드마크</h2>
+<p class="subtitle">방향 비교용 스케치입니다(최종 정밀도 아님). 아이콘은 180 · 60 · 29px(설정 화면 크기)로 라이트·다크 홈 바탕에 놓았습니다. 마음에 드는 아이콘과 워드마크를 골라 주세요. 둘 다 골라도 됩니다.</p>
+
+<div class="cards">
+  <div class="card" data-choice="icon-diary" onclick="toggleSelect(this)">
+    <div class="card-image stack">
+      <div class="sizes l"><svg width="180" height="180"><use href="#i-diary"/></svg><svg width="60" height="60"><use href="#i-diary"/></svg><svg width="29" height="29"><use href="#i-diary"/></svg></div>
+      <div class="sizes d"><svg width="60" height="60"><use href="#i-diary"/></svg><svg width="29" height="29"><use href="#i-diary"/></svg></div>
+    </div>
+    <div class="card-body"><h3>1. 일기장</h3><p>세이지 공책에 코랄 책갈피. ‘같이 보는 일기장’이 바로 읽힙니다. 일기 앱 아이콘과 겹칠 수 있어 책갈피 색·모양이 식별 포인트입니다.</p></div>
+  </div>
+
+  <div class="card" data-choice="icon-day" onclick="toggleSelect(this)">
+    <div class="card-image stack">
+      <div class="sizes l"><svg width="180" height="180"><use href="#i-day"/></svg><svg width="60" height="60"><use href="#i-day"/></svg><svg width="29" height="29"><use href="#i-day"/></svg></div>
+      <div class="sizes d"><svg width="60" height="60"><use href="#i-day"/></svg><svg width="29" height="29"><use href="#i-day"/></svg></div>
+    </div>
+    <div class="card-body"><h3>2. 日 (오늘)</h3><p>日 자의 테두리가 공책 한 쪽, 가운데 획이 책갈피 줄, 점은 해. ‘날마다 다른 오늘’과 일기를 한 형태에 담습니다. 한자를 모르는 사용자에게도 도형으로 읽힙니다.</p></div>
+  </div>
+
+  <div class="card" data-choice="icon-seal" onclick="toggleSelect(this)">
+    <div class="card-image stack">
+      <div class="sizes l"><svg width="180" height="180"><use href="#i-seal"/></svg><svg width="60" height="60"><use href="#i-seal"/></svg><svg width="29" height="29"><use href="#i-seal"/></svg></div>
+      <div class="sizes d"><svg width="60" height="60"><use href="#i-seal"/></svg><svg width="29" height="29"><use href="#i-seal"/></svg></div>
+    </div>
+    <div class="card-body"><h3>3. 낙관</h3><p>인주색 도장에 양각 日. 동양적이고 ‘하루를 기록으로 마친다’는 행동을 담습니다. 작은 크기에서 가장 또렷합니다. 운세·전통 앱 인상이 가장 강합니다.</p></div>
+  </div>
+</div>
+
+<h3>워드마크</h3>
+<div class="cards">
+  <div class="card" data-choice="wordmark-gowun" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="wm">
+        <div class="lock"><svg width="44" height="44"><use href="#i-day"/></svg><span class="wm-a">명리일기</span></div>
+        <div class="lock"><svg width="44" height="44"><use href="#i-seal"/></svg><span class="wm-a">명리일기</span></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A. 고운돋움</h3><p>본문 글꼴과 같은 둥근 고딕. 앱 문장 톤과 이어집니다. 굵기가 하나라 작은 크기에서 가늘어 보일 수 있습니다.</p></div>
+  </div>
+  <div class="card" data-choice="wordmark-pretendard" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="wm">
+        <div class="lock"><svg width="44" height="44"><use href="#i-day"/></svg><span class="wm-b">명리일기</span></div>
+        <div class="lock"><svg width="44" height="44"><use href="#i-seal"/></svg><span class="wm-b">명리일기</span></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B. Pretendard SemiBold</h3><p>단단하고 작은 크기에서도 또렷합니다. 대신 흔한 앱 글자형 인상이고 본문 톤과는 덜 이어집니다.</p></div>
+  </div>
+</div>
+<p class="note">최종 워드마크는 고른 글꼴을 출발점으로 자간·획 끝을 다듬어 아웃라인(SVG)으로 고정합니다. 글꼴 라이선스는 둘 다 SIL OFL이라 로고에 써도 됩니다.</p>
+
+    </div>
+  </div>
+
+</body>
+</html>

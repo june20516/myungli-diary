@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V0 브랜드 팔레트와 좋은 날 배지</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+<style>html, body, .main { height: auto; overflow: visible; }</style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  .ui { font-family: 'Pretendard', sans-serif; }
+  .scale { display: flex; gap: 0; margin: 4px 0 14px; border-radius: 10px; overflow: hidden; }
+  .scale div { flex: 1; height: 44px; font: 500 9px 'Pretendard', sans-serif; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; }
+  .scale-name { font: 600 12px 'Pretendard', sans-serif; color: #555; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .phone { width: 280px; height: 340px; border-radius: 28px; padding: 22px 20px; box-sizing: border-box; display: flex; flex-direction: column; }
+  .light { background: linear-gradient(160deg, #eef4ef, #fbefee); color: #2b2b2a; }
+  .dark  { background: linear-gradient(160deg, #162017, #271818); color: #eeeeed; }
+  .date { font: 500 12px 'Pretendard', sans-serif; }
+  .light .date { color: #5b5b57; } .dark .date { color: #ababa7; }
+  .badge { display: inline-block; font: 600 12px 'Pretendard', sans-serif; padding: 4px 10px; border-radius: 999px; margin: 14px 0 12px; align-self: flex-start; }
+  .msg { font-family: 'Gowun Dodum', sans-serif; font-size: 17px; line-height: 1.65; margin: 0; }
+  .term { border-radius: 4px; padding: 0 4px; }
+  .light .term { background: #e8f2e9; color: #47634c; }
+  .dark .term { background: #354838; color: #d4e3d6; }
+  .chips { margin-top: auto; display: flex; gap: 6px; }
+  .chip { font: 500 12px 'Pretendard', sans-serif; padding: 6px 10px; border-radius: 999px; display: flex; align-items: center; gap: 5px; }
+  .light .chip { background: rgba(255,255,255,.7); } .dark .chip { background: rgba(255,255,255,.08); }
+  .sw { width: 11px; height: 11px; border-radius: 50%; background: #2f4a6b; }
+  .dark .sw { box-shadow: 0 0 0 1px rgba(255,255,255,.35); }
+  /* 배지 A: 옅은 바탕 + 진한 글자 */
+  .a.light .badge { background: #ffe9e5; color: #814942; }
+  .a.dark  .badge { background: #5d3631; color: #f6d5d1; }
+  /* 배지 B: 진한 바탕 + 흰 글자 */
+  .b.light .badge { background: #a75c53; color: #fff; }
+  .b.dark  .badge { background: #e8bbb4; color: #221816; }
+  .cap { text-align: center; font: 500 11px 'Pretendard', sans-serif; color: #777; margin-top: 6px; }
+</style>
+
+<h2>브랜드 팔레트와 좋은 날 배지</h2>
+<p class="subtitle">OKLCH 명도 단계로 만든 브랜드 색 3종입니다. 아래 카드에서 좋은 날 배지 처리 A·B 중 어느 쪽이 나은지 골라 주세요. 모든 글자 조합은 대비 4.5:1 이상입니다.</p>
+
+<div class="section">
+  <div class="scale-name">sage (hue 150) — 강조·용어 토큰</div>
+  <div class="scale">
+    <div style="background:#f2f9f3">50</div><div style="background:#e8f2e9">100</div><div style="background:#d4e3d6">200</div><div style="background:#b8cebc">300</div><div style="background:#96b49b">400</div><div style="background:#749a7b;color:#fff">500</div><div style="background:#597f61;color:#fff">600</div><div style="background:#47634c;color:#fff">700</div><div style="background:#354838;color:#fff">800</div><div style="background:#242f26;color:#fff">900</div><div style="background:#171c18;color:#fff">950</div>
+  </div>
+  <div class="scale-name">coral (hue 28) — 좋은 날·하이라이트</div>
+  <div class="scale">
+    <div style="background:#fef4f2">50</div><div style="background:#ffe9e5">100</div><div style="background:#f6d5d1">200</div><div style="background:#e8bbb4">300</div><div style="background:#d79990">400</div><div style="background:#c4776d;color:#fff">500</div><div style="background:#a75c53;color:#fff">600</div><div style="background:#814942;color:#fff">700</div><div style="background:#5d3631;color:#fff">800</div><div style="background:#3b2522;color:#fff">900</div><div style="background:#221816;color:#fff">950</div>
+  </div>
+  <div class="scale-name">neutral (hue 110, 채도 거의 0) — 글자·바탕</div>
+  <div class="scale">
+    <div style="background:#f7f7f6">50</div><div style="background:#eeeeed">100</div><div style="background:#dededc">200</div><div style="background:#c7c7c5">300</div><div style="background:#ababa7">400</div><div style="background:#8f908b;color:#fff">500</div><div style="background:#747570;color:#fff">600</div><div style="background:#5b5b57;color:#fff">700</div><div style="background:#424340;color:#fff">800</div><div style="background:#2b2b2a;color:#fff">900</div><div style="background:#1b1b1a;color:#fff">950</div>
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card" data-choice="badge-a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="row">
+        <div>
+          <div class="phone a light">
+            <div class="date">10월 10일 토요일</div>
+            <span class="badge">좋은 날</span>
+            <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+            <div class="chips"><span class="chip"><span class="sw"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+          </div>
+          <div class="cap">라이트 · 배지 6.08:1</div>
+        </div>
+        <div>
+          <div class="phone a dark">
+            <div class="date">10월 10일 토요일</div>
+            <span class="badge">좋은 날</span>
+            <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+            <div class="chips"><span class="chip"><span class="sw"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+          </div>
+          <div class="cap">다크 · 배지 7.54:1</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A. 옅은 배지</h3><p>옅은 코랄 바탕에 진한 코랄 글자. 차분하고 바탕과 잘 섞입니다. 대신 좋은 날이 덜 튑니다.</p></div>
+  </div>
+
+  <div class="card" data-choice="badge-b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="row">
+        <div>
+          <div class="phone b light">
+            <div class="date">10월 10일 토요일</div>
+            <span class="badge">좋은 날</span>
+            <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+            <div class="chips"><span class="chip"><span class="sw"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+          </div>
+          <div class="cap">라이트 · 배지 4.89:1</div>
+        </div>
+        <div>
+          <div class="phone b dark">
+            <div class="date">10월 10일 토요일</div>
+            <span class="badge">좋은 날</span>
+            <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+            <div class="chips"><span class="chip"><span class="sw"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+          </div>
+          <div class="cap">다크 · 배지 10.08:1</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B. 진한 배지</h3><p>진한 코랄 바탕에 흰 글자(다크는 반전). 낮은 주의력으로도 좋은 날이 바로 보입니다. 원래 시안보다 코랄이 짙어집니다.</p></div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</body>
+</html>
