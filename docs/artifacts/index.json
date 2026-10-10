@@ -51,12 +51,12 @@
     "file": "2026-10-10-product-map-layout.png",
     "source": "2026-10-10-product-map-layout.html",
     "date": "2026-10-10",
-    "milestone": "B0",
+    "milestone": "",
     "screens": [],
     "decisions": [
       "D45"
     ],
     "status": "chosen",
-    "note": "노선도(C)를 기본 탭으로, 화면(B)과 대등한 탭 구조. 역을 누르면 시트로 상세"
+    "note": "노선도(C)를 기본 탭으로, 화면(B)과 대등한 탭 구조. 역을 누르면 시트로 상세 (특정 마일스톤이 아닌 운영 도구라 milestone은 비움, D45)"
   }
 ]

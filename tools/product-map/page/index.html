@@ -46,7 +46,7 @@ h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; marg
 h3 { font-size: .95rem; margin: 0 0 4px; font-weight: 600; }
 .label { font-size: .72rem; letter-spacing: .06em; color: var(--muted); }
 .muted { color: var(--muted); }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; }
 .pill { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 999px; background: var(--term-soft); color: var(--term); white-space: nowrap; }
 .pill.done { background: var(--term-soft); color: var(--term); }
 .pill.doing, .pill.ready { background: var(--accent-soft); color: var(--accent); }
@@ -74,7 +74,7 @@ ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-directio
 a { color: var(--term); }
 
 /* 화면·산출물 */
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 14px; }
 .card { background: var(--surface); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; border: 0; text-align: left; font: inherit; color: inherit; }
 button.card { cursor: pointer; }
 .card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 10px; background: var(--line); max-width: 100%; }
@@ -141,7 +141,7 @@ img.zoomable { cursor: zoom-in; }
     </div>
     <div class="grid2">
       <div class="box"><h2>지금 진행 순서</h2><div class="table-scroll"><table id="order"></table></div></div>
-      <div class="box"><h2>열린 Issue</h2><ul class="plain" id="issues"></ul></div>
+      <div class="box"><h2>열린 Issue</h2><h3 style="margin-top:4px">막고 있는 것 (blocking)</h3><ul class="plain" id="blocking"></ul><h3 style="margin-top:12px">전체</h3><ul class="plain" id="issues"></ul></div>
     </div>
   </section>
 
@@ -152,6 +152,7 @@ img.zoomable { cursor: zoom-in; }
 
   <section class="panel" id="tab-identity" hidden>
     <div class="box prose" id="identity"></div>
+    <div class="box"><h2>채택한 시안</h2><div id="identity-art"></div></div>
   </section>
 
   <section class="panel" id="tab-logic" hidden>
@@ -310,14 +311,29 @@ function issueList(items) {
   return `<ul class="plain">${items.map((i) => `<li><a href="${esc(i.url)}" target="_blank" rel="noopener">#${i.number} ${esc(i.title)}</a><div class="chips" style="margin-top:3px">${i.labels.map((l) => `<span class="pill todo">${esc(l)}</span>`).join("")}</div></li>`).join("")}</ul>`;
 }
 
+let lastFocus = null;
+function trapFocus(e, container) {
+  if (e.key !== "Tab" || container.hidden) return;
+  const items = [...container.querySelectorAll('button, a[href], input, [tabindex="0"]')].filter((el) => !el.disabled);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
 function openSheet(html) {
   const sheet = document.getElementById("sheet");
+  if (sheet.hidden) lastFocus = document.activeElement;
   sheet.innerHTML = html;
   sheet.hidden = false; document.getElementById("sheet-back").hidden = false;
   sheet.querySelector("button.close").addEventListener("click", closeSheet);
   sheet.querySelector("button.close").focus();
 }
-function closeSheet() { document.getElementById("sheet").hidden = true; document.getElementById("sheet-back").hidden = true; }
+function closeSheet() {
+  const sheet = document.getElementById("sheet");
+  if (sheet.hidden) return;
+  sheet.hidden = true; document.getElementById("sheet-back").hidden = true;
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
 
 function openMilestone(id) {
   const m = layoutMetro(DATA.milestones).find((x) => x.id === id);
@@ -336,7 +352,10 @@ function renderRoute() {
   document.getElementById("order").innerHTML = `<tr><th>순서</th><th>담당</th><th>할 일</th><th>막는 것</th></tr>` +
     (DATA.current_order.map((o) => `<tr><td>${esc(o.step)}</td><td>${esc(o.owner)}</td><td>${esc(o.task)}</td><td>${esc(o.blocks)}</td></tr>`).join("") ||
      `<tr><td colspan="4" class="muted">로드맵에 진행 순서가 없습니다</td></tr>`);
-  document.getElementById("issues").innerHTML = DATA.issues.length ? issueList(DATA.issues).replace(/^<ul class="plain">|<\/ul>$/g, "") : `<li class="muted">열린 Issue가 없습니다(또는 갱신 때 gh 인증이 없었습니다)</li>`;
+  const unavailable = `<li class="muted">갱신할 때 Issue를 읽지 못했습니다(gh 인증 없음)</li>`;
+  const listItems = (items, empty) => !DATA.issues_available ? unavailable : items.length ? issueList(items).replace(/^<ul class="plain">|<\/ul>$/g, "") : `<li class="muted">${empty}</li>`;
+  document.getElementById("blocking").innerHTML = listItems(DATA.issues.filter((i) => i.labels.includes("blocking")), "blocking 라벨이 붙은 Issue가 없습니다");
+  document.getElementById("issues").innerHTML = listItems(DATA.issues, "열린 Issue가 없습니다");
 }
 
 function renderScreens() {
@@ -363,19 +382,24 @@ function renderIdentity() {
   const sections = DATA.identity.sections || {};
   const md = Object.entries(sections).map(([h, body]) => `## ${h}\n\n${body}`).join("\n\n");
   const el = document.getElementById("identity");
+  if (window.marked) window.marked.use({ renderer: { html: (token) => esc(typeof token === "string" ? token : token.text) } });
   el.innerHTML = window.marked ? window.marked.parse(md) : `<pre style="white-space:pre-wrap">${esc(md)}</pre>`;
+  const chosen = DATA.artifacts.filter((a) => a.status === "chosen" && (a.unit === "root" || a.unit === "design") && a.kind !== "screenshot");
+  document.getElementById("identity-art").innerHTML = thumbs(chosen);
 }
 
 function renderGallery() {
   const filters = document.getElementById("gallery-filters");
   const units = [...new Set(DATA.artifacts.map((a) => a.unit))];
   const statuses = [...new Set(DATA.artifacts.map((a) => a.status))];
-  const state = { unit: "all", status: "all" };
+  const milestones = [...new Set(DATA.artifacts.map((a) => a.milestone).filter(Boolean))];
+  const state = { unit: "all", status: "all", milestone: "all" };
   const chip = (group, value, text) => `<button class="chip" type="button" data-group="${group}" data-value="${esc(value)}" aria-pressed="${state[group] === value}">${esc(text)}</button>`;
   const draw = () => {
     filters.innerHTML = chip("unit", "all", "모든 단위") + units.map((u) => chip("unit", u, UNIT_NAMES[u] || u)).join("") +
-      `<span style="width:12px"></span>` + chip("status", "all", "모든 상태") + statuses.map((s) => chip("status", s, STATUS_NAMES[s] || s)).join("");
-    const items = DATA.artifacts.filter((a) => (state.unit === "all" || a.unit === state.unit) && (state.status === "all" || a.status === state.status));
+      `<span style="width:12px"></span>` + chip("status", "all", "모든 상태") + statuses.map((s) => chip("status", s, STATUS_NAMES[s] || s)).join("") +
+      `<span style="width:12px"></span>` + chip("milestone", "all", "모든 마일스톤") + milestones.map((m) => chip("milestone", m, m)).join("");
+    const items = DATA.artifacts.filter((a) => (state.unit === "all" || a.unit === state.unit) && (state.status === "all" || a.status === state.status) && (state.milestone === "all" || a.milestone === state.milestone));
     document.getElementById("gallery").innerHTML = items.map((a) => `<div class="card">
       <img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy">
       <h3>${esc(a.title)}</h3><span style="font-size:.85rem">${esc(a.note)}</span>
@@ -405,7 +429,7 @@ function renderDecisions() {
 
 // 확대 보기: 원본 크기(base)에 배율(scale)을 곱해 너비를 정하고, 넘치는 부분은 stage 스크롤로 봅니다.
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
-const viewer = { el: null, base: 0, scale: 1 };
+const viewer = { el: null, base: 0, scale: 1, returnFocus: null, wheel: 0 };
 function applyZoom() {
   if (!viewer.el) return;
   const width = Math.round(viewer.base * viewer.scale);
@@ -424,6 +448,7 @@ function stepZoom(direction) {
 }
 function openViewer(node, base, title) {
   const stage = document.getElementById("viewer-stage");
+  if (document.getElementById("viewer").hidden) viewer.returnFocus = document.activeElement;
   stage.replaceChildren(node);
   viewer.el = node; viewer.base = Math.max(1, base);
   document.getElementById("viewer-title").textContent = title;
@@ -431,7 +456,11 @@ function openViewer(node, base, title) {
   fitZoom();
   document.getElementById("viewer-close").focus();
 }
-function closeViewer() { document.getElementById("viewer").hidden = true; document.getElementById("viewer-stage").replaceChildren(); viewer.el = null; }
+function closeViewer() {
+  if (document.getElementById("viewer").hidden) return;
+  document.getElementById("viewer").hidden = true; document.getElementById("viewer-stage").replaceChildren(); viewer.el = null;
+  if (viewer.returnFocus && document.contains(viewer.returnFocus)) viewer.returnFocus.focus();
+}
 function zoomSvgFrom(container, title) {
   const svg = container.querySelector("svg");
   if (!svg) {
@@ -460,8 +489,14 @@ document.getElementById("zoom-in").addEventListener("click", () => stepZoom(1));
 document.getElementById("zoom-out").addEventListener("click", () => stepZoom(-1));
 document.getElementById("zoom-fit").addEventListener("click", fitZoom);
 document.getElementById("viewer-close").addEventListener("click", closeViewer);
-document.getElementById("viewer-stage").addEventListener("wheel", (e) => { if (e.ctrlKey) { e.preventDefault(); stepZoom(e.deltaY < 0 ? 1 : -1); } }, { passive: false });
+document.getElementById("viewer-stage").addEventListener("wheel", (e) => {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  viewer.wheel += e.deltaY;
+  if (Math.abs(viewer.wheel) >= 60) { stepZoom(viewer.wheel < 0 ? 1 : -1); viewer.wheel = 0; }
+}, { passive: false });
 document.addEventListener("keydown", (e) => {
+  trapFocus(e, document.getElementById("viewer").hidden ? document.getElementById("sheet") : document.getElementById("viewer"));
   if (document.getElementById("viewer").hidden) return;
   if (e.key === "+" || e.key === "=") stepZoom(1);
   if (e.key === "-") stepZoom(-1);
@@ -472,6 +507,7 @@ function showTab() {
   const current = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "route";
   TABS.forEach((t) => { document.getElementById("tab-" + t).hidden = t !== current; });
   document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === current ? "page" : "false"));
+  closeViewer();
   closeSheet();
 }
 
@@ -487,6 +523,7 @@ fetch("data.json").then((r) => r.json()).then((data) => {
   document.getElementById("stamp").textContent = "갱신 " + when.toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
   renderRoute(); renderScreens(); renderIdentity(); renderGallery(); renderDecisions();
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderMetro);
+  new MutationObserver(renderMetro).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 }).catch(() => {
   document.getElementById("stamp").textContent = "data.json을 읽지 못했습니다. 지휘 세션이 tools/product-map/README.md 순서로 다시 publish해야 합니다.";
 });

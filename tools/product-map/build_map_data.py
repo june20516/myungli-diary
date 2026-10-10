@@ -116,7 +116,15 @@ def collect_artifacts(root: Path) -> list[dict[str, object]]:
         if SKIPPED_DIRS.intersection(index.relative_to(root).parts):
             continue
         directory = index.parent.relative_to(root).as_posix()
-        for entry in json.loads(index.read_text(encoding="utf-8")):
+        try:
+            entries = json.loads(index.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            print(f"건너뜀: {directory}/index.json JSON 형식 오류", file=sys.stderr)
+            continue
+        for entry in entries if isinstance(entries, list) else []:
+            if not isinstance(entry, dict) or not isinstance(entry.get("file"), str):
+                print(f"건너뜀: {directory}/index.json의 file 없는 항목", file=sys.stderr)
+                continue
             item = dict(entry)
             item["unit"] = _unit_of(directory + "/")
             item["path"] = f"{directory}/{entry['file']}"
@@ -124,13 +132,14 @@ def collect_artifacts(root: Path) -> list[dict[str, object]]:
     return artifacts
 
 
-def collect_issues(root: Path) -> list[dict[str, object]]:
+def collect_issues(root: Path) -> list[dict[str, object]] | None:
+    """열린 Issue 목록. gh가 없거나 실패하면 None(0건과 구분)."""
     command = ["gh", "issue", "list", "--state", "open", "--limit", "200",
                "--json", "number,title,labels,milestone,url"]
     try:
         result = subprocess.run(command, cwd=root, capture_output=True, text=True, check=True)
     except (OSError, subprocess.CalledProcessError):
-        return []
+        return None
     return [
         {
             "number": issue["number"], "title": issue["title"], "url": issue.get("url", ""),
@@ -158,6 +167,7 @@ def _read(root: Path, relative: str) -> str:
 
 def build(root: Path) -> dict[str, object]:
     roadmap = _read(root, "docs/roadmap.md")
+    issues = collect_issues(root)
     decisions = [
         decision
         for log in DECISION_LOGS
@@ -171,7 +181,8 @@ def build(root: Path) -> dict[str, object]:
         "screens": collect_screens(root),
         "artifacts": collect_artifacts(root),
         "decisions": decisions,
-        "issues": collect_issues(root),
+        "issues": issues or [],
+        "issues_available": issues is not None,
     }
 
 
