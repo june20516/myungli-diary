@@ -1,0 +1,257 @@
+{
+ "note": "기준 앱 골든 테스트(test_reference_apps.py)가 허용하는 차이. 엔진이 어느 앱과든 다르거나 두 앱끼리 다른 (사례, 필드)마다 한 건씩 둔다. engine·forceteller·mobiwise 값은 테스트가 실제 값과 정확히 대조한다. 간지는 한자 두 글자, daeun_start는 대운수 정수(엔진은 첫 대운 시작 만 나이 연수, 개월 버림). adopted는 엔진이 따르는 쪽과 근거 결정 번호(core/docs/decisions.md C<n>, 루트 docs/decisions.md D<n>).",
+ "differences": [
+  {
+   "case_id": "zi_2329",
+   "field": "day",
+   "engine": "癸酉",
+   "forceteller": "癸酉",
+   "mobiwise": "甲戌",
+   "reason": "진태양시: 표준시 23:29를 엔진은 -30분(22:59, 亥시), 포스텔러는 -32분(22:57)으로 보정해 당일 일주. 사공만세력은 경도 -32분 + 균시차 +4분 = -28분(23:01)이라 자시가 되어 다음 날 일주(자시 통합)",
+   "adopted": "포스텔러와 같음. 근거 C2(진태양시 미적용), D5"
+  },
+  {
+   "case_id": "zi_2329",
+   "field": "hour",
+   "engine": "癸亥",
+   "forceteller": "癸亥",
+   "mobiwise": "甲子",
+   "reason": "진태양시: 위 day와 같은 원인. 사공만세력만 균시차 +4분으로 23:01(子시)",
+   "adopted": "포스텔러와 같음. 근거 C2, D5"
+  },
+  {
+   "case_id": "zi_2330",
+   "field": "day",
+   "engine": "甲戌",
+   "forceteller": "癸酉",
+   "mobiwise": "甲戌",
+   "reason": "경도 보정 -30분 vs -32분: 표준시 23:30을 엔진은 23:00(자시, 다음 날 일주)으로 본다. 포스텔러는 서울 실제 경도 -32분으로 22:58(亥시, 당일 일주). 사공만세력은 -28분(23:02, 자시)",
+   "adopted": "사공만세력과 같음. 근거 C1(대표 경도 127.5°), D5, D6"
+  },
+  {
+   "case_id": "zi_2330",
+   "field": "hour",
+   "engine": "甲子",
+   "forceteller": "癸亥",
+   "mobiwise": "甲子",
+   "reason": "경도 보정 -30분 vs -32분: 위 day와 같은 원인. 포스텔러만 22:58로 亥시",
+   "adopted": "사공만세력과 같음. 근거 C1, D5"
+  },
+  {
+   "case_id": "zi_0129",
+   "field": "hour",
+   "engine": "甲子",
+   "forceteller": "甲子",
+   "mobiwise": "乙丑",
+   "reason": "진태양시: 표준시 01:29를 엔진 00:59, 포스텔러 00:57로 보정해 子시. 사공만세력은 균시차 +4분이 더해져 01:01(丑시)",
+   "adopted": "포스텔러와 같음. 근거 C2, D5"
+  },
+  {
+   "case_id": "zi_0130",
+   "field": "hour",
+   "engine": "乙丑",
+   "forceteller": "甲子",
+   "mobiwise": "乙丑",
+   "reason": "경도 보정 -30분 vs -32분: 표준시 01:30을 엔진은 01:00(丑시), 사공만세력은 01:02(丑시)로 본다. 포스텔러는 -32분으로 00:58(子시)",
+   "adopted": "사공만세력과 같음. 근거 C1, D5"
+  },
+  {
+   "case_id": "kst830_1955",
+   "field": "hour",
+   "engine": "乙巳",
+   "forceteller": "甲辰",
+   "mobiwise": "甲辰",
+   "reason": "경도 보정(UTC+8:30 시기): 서머타임 중 10:00(UTC+9:30)은 UTC 00:30이다. 엔진은 대표 경도 127.5°로 UTC+8:30 = 09:00(巳시 시작). 두 앱은 서울 실제 경도(약 126.98°)로 2분 더 빼 포스텔러 08:58, 사공만세력 약 08:59(균시차 +1분 포함)로 辰시. 경계 정각 사례",
+   "adopted": "어느 앱도 아님(엔진 관례 유지). 근거 C1, D5"
+  },
+  {
+   "case_id": "dst_1956",
+   "field": "hour",
+   "engine": "庚午",
+   "forceteller": "己巳",
+   "mobiwise": "己巳",
+   "reason": "경도 보정(UTC+8:30 시기): 서머타임 중 12:00(UTC+9:30)은 UTC 02:30, 엔진은 UTC+8:30 = 11:00(午시 시작). 포스텔러는 실제 경도로 -2분 더해 10:58, 사공만세력은 경도 -2분 + 균시차 -4분으로 약 10:54(巳시). 경계 정각 사례",
+   "adopted": "어느 앱도 아님(엔진 관례 유지). 근거 C1, D5"
+  },
+  {
+   "case_id": "dst_gap_1987",
+   "field": "hour",
+   "engine": "乙丑",
+   "forceteller": "甲子",
+   "mobiwise": "乙丑",
+   "reason": "서머타임 공백 시각 해석: 1987-05-10 02:30은 존재하지 않는 시각이다. 엔진은 zoneinfo로 뒤로 밀어(03:30 서머타임 = UTC 17:30) 보정 02:00(丑시). 사공만세력은 서머타임 -60분을 적용해 같은 UTC로 보고 약 01:02(丑시). 포스텔러는 경고 없이 2시간을 빼(00:30) -32분 보정 후 5/9 23:58(子시, 다음 날 일주 己未). 세 결과 모두 일주는 己未",
+   "adopted": "사공만세력과 같음. 근거 C4, spec 4.1"
+  },
+  {
+   "case_id": "ipchun_after",
+   "field": "year",
+   "engine": "甲辰",
+   "forceteller": "甲辰",
+   "mobiwise": "癸卯",
+   "reason": "절입 비교 기준: 입춘 2024-02-04 17:27(KST). 입력 17:50은 절대 시각으로 입춘 뒤라 엔진과 포스텔러는 甲辰년. 사공만세력은 진태양시 보정 후 시각(약 17:04)으로 비교해 입춘 전(癸卯년)",
+   "adopted": "포스텔러와 같음. 근거 C3(절입은 절대 시각으로 비교), spec 4.1-2"
+  },
+  {
+   "case_id": "ipchun_after",
+   "field": "month",
+   "engine": "丙寅",
+   "forceteller": "丙寅",
+   "mobiwise": "乙丑",
+   "reason": "절입 비교 기준: 위 year와 같은 원인. 사공만세력만 입춘 전 乙丑월",
+   "adopted": "포스텔러와 같음. 근거 C3, spec 4.1-2"
+  },
+  {
+   "case_id": "gyeongchip_after",
+   "field": "month",
+   "engine": "丁卯",
+   "forceteller": "丁卯",
+   "mobiwise": "丙寅",
+   "reason": "절입 비교 기준: 경칩 2024-03-05 11:23(KST). 입력 11:45는 절대 시각으로 경칩 뒤라 엔진과 포스텔러는 丁卯월. 사공만세력은 보정 후 시각(약 11:01)으로 비교해 경칩 전(丙寅월)",
+   "adopted": "포스텔러와 같음. 근거 C3, spec 4.1-2"
+  },
+  {
+   "case_id": "chubun_before",
+   "field": "hour",
+   "engine": "壬申",
+   "forceteller": "辛未",
+   "mobiwise": "壬申",
+   "reason": "경도 보정 -30분 vs -32분: 표준시 15:30을 엔진은 15:00(申시 시작), 사공만세력은 약 15:06(균시차 +8분 포함, 申시)으로 본다. 포스텔러는 -32분으로 14:58(未시)",
+   "adopted": "사공만세력과 같음. 근거 C1, D5"
+  },
+  {
+   "case_id": "zi_2329",
+   "field": "daeun_start",
+   "engine": 6,
+   "forceteller": 7,
+   "mobiwise": 6,
+   "reason": "대운수 반올림: 엔진 6년 11개월, 사공만세력 만 6.9세(정수 부분 6). 포스텔러는 반올림한 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "zi_0129",
+   "field": "daeun_start",
+   "engine": 6,
+   "forceteller": 7,
+   "mobiwise": 6,
+   "reason": "대운수 반올림: 엔진 6년 10개월, 사공만세력 만 6.8세. 포스텔러는 반올림한 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "zi_0130",
+   "field": "daeun_start",
+   "engine": 3,
+   "forceteller": 4,
+   "mobiwise": 3,
+   "reason": "대운수 반올림: 엔진 3년 6개월, 사공만세력 만 3.4세. 포스텔러는 6개월 이상을 올린 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "kst830_1958",
+   "field": "daeun_start",
+   "engine": 1,
+   "forceteller": 2,
+   "mobiwise": 1,
+   "reason": "대운수 반올림: 엔진 1년 6개월, 사공만세력 만 1.5세. 포스텔러는 6개월 이상을 올린 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "kst830_1960",
+   "field": "daeun_start",
+   "engine": 5,
+   "forceteller": 6,
+   "mobiwise": 5,
+   "reason": "대운수 반올림: 엔진 5년 8개월, 사공만세력 만 5.7세. 포스텔러는 반올림한 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "dst_overlap_1987",
+   "field": "daeun_start",
+   "engine": 0,
+   "forceteller": 1,
+   "mobiwise": 0,
+   "reason": "대운수 반올림: 엔진 0년 7개월, 사공만세력 만 0.6세. 포스텔러는 반올림한 값으로 보임(포스텔러는 중복 시각을 표준시로 해석해 1시간 늦게 보지만 대운수 차이는 반올림으로 설명됨)",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "ipchun_before",
+   "field": "daeun_start",
+   "engine": 9,
+   "forceteller": 10,
+   "mobiwise": 9,
+   "reason": "대운수 반올림: 엔진 9년 10개월, 사공만세력 만 9.8세. 포스텔러는 반올림한 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "gyeongchip_before",
+   "field": "daeun_start",
+   "engine": 9,
+   "forceteller": 10,
+   "mobiwise": 9,
+   "reason": "대운수 반올림: 엔진 9년 11개월, 사공만세력 만 9.8세. 포스텔러는 반올림한 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "normal_1970",
+   "field": "daeun_start",
+   "engine": 6,
+   "forceteller": 7,
+   "mobiwise": 6,
+   "reason": "대운수 반올림: 엔진 6년 7개월, 사공만세력 만 6.6세. 포스텔러는 반올림한 값으로 보임",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "ipchun_after",
+   "field": "daeun_start",
+   "engine": 0,
+   "forceteller": 10,
+   "mobiwise": 0,
+   "reason": "대운수 0 표기: 여성·양년(甲辰) 역행이고 입춘이 23분 전이라 엔진 0년 0개월. 사공만세력은 입춘 전으로 보아 순행 방향 다음 절입(입춘)까지로 계산해 역시 만 0세. 포스텔러는 10으로 표기(대운수 0을 10으로 쓰는 것으로 보임, 규칙 미확정)",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "leap_2023_2_15",
+   "field": "daeun_start",
+   "engine": 0,
+   "forceteller": 10,
+   "mobiwise": 0,
+   "reason": "대운수 0 표기: 여성·음년(癸卯) 순행이고 청명까지 1시간이 안 되어 엔진 0년 0개월, 사공만세력 만 0세. 포스텔러는 10으로 표기(대운수 0을 10으로 쓰는 것으로 보임, 규칙 미확정)",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "unknown_1990",
+   "field": "daeun_start",
+   "engine": 0,
+   "forceteller": 1,
+   "mobiwise": 0,
+   "reason": "시간 모름 대운수: 엔진은 출생일 정오 기준(spec 5.3)으로 입하까지 0년 2개월, 사공만세력 만 0.2세. 포스텔러는 1(시간 모름일 때의 기준 시각과 반올림·최솟값 규칙 미확정)",
+   "adopted": "사공만세력과 같음. 근거 C5, spec 5.3"
+  },
+  {
+   "case_id": "gyeongchip_after",
+   "field": "daeun_start",
+   "engine": 10,
+   "forceteller": 10,
+   "mobiwise": 0,
+   "reason": "절입 비교 기준: 남성·양년 순행. 엔진과 포스텔러는 경칩 뒤(丁卯월)로 보아 다음 절입 청명까지 약 30일 = 10년(엔진 10년 1개월). 사공만세력은 경칩 전(丙寅월)으로 보아 22분 뒤 경칩까지 = 만 0세",
+   "adopted": "포스텔러와 같음. 근거 C3, spec 4.1-2"
+  },
+  {
+   "case_id": "pre1912_1910",
+   "field": "daeun_start",
+   "engine": 4,
+   "forceteller": 4,
+   "mobiwise": 3,
+   "reason": "대운 기준 시각: 여성·양년 역행, 엔진은 절대 시각으로 정확히 4년 0개월(경계). 사공만세력은 진태양시 보정 시각(절대 시각보다 약 36분 이름)으로 지난 절입까지 거리를 재 만 3.9세로 보임(추정)",
+   "adopted": "포스텔러와 같음. 근거 C3, C5"
+  },
+  {
+   "case_id": "normal_1999",
+   "field": "daeun_start",
+   "engine": 8,
+   "forceteller": 8,
+   "mobiwise": 7,
+   "reason": "대운 기준 시각: 남성·음년 역행, 엔진은 절대 시각으로 8년 0개월(경계). 사공만세력은 진태양시 보정 시각(약 34분 이름)으로 지난 절입(대설)까지 거리를 재 만 7.9세로 보임(추정)",
+   "adopted": "포스텔러와 같음. 근거 C3, C5"
+  }
+ ]
+}
