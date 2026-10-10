@@ -8,6 +8,7 @@ from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
+from itertools import product
 from pathlib import Path
 
 from mlw.model import SENTENCE_TYPES, Entry, Finding, Limit, RuleSet, Slot
@@ -297,17 +298,26 @@ def _stale_findings(
 
 
 def _rotate(
-    days: Sequence[DayKeys], entries_by: EntriesBy, lang: str, offset: int, variants: int
+    days: Sequence[DayKeys],
+    entries_by: EntriesBy,
+    lang: str,
+    type_offset: int,
+    variant_offset: int,
+    variants: int,
 ) -> list[list[Entry]]:
-    """표본의 날을 앞에서부터 지나며 키별 출현 횟수로 유형과 가이드 변주를 정합니다."""
+    """표본의 날을 앞에서부터 지나며 키별 출현 횟수로 유형과 가이드 변주를 정합니다.
+
+    유형 시작 위치와 가이드 변주 시작 위치는 서로 독립입니다.
+    """
     appearances: Counter[tuple[str, str]] = Counter()
     per_day: list[list[Entry]] = []
     for day in days:
         picked: list[Entry] = []
         for slot, key in day.bundle().keys:
-            position = offset + appearances[(slot, key)]
+            count = appearances[(slot, key)]
             appearances[(slot, key)] += 1
-            entry = _pick(entries_by.get((slot, key, lang), ()), slot, position, position % variants + 1)
+            guide_variant = (variant_offset + count) % variants + 1
+            entry = _pick(entries_by.get((slot, key, lang), ()), slot, type_offset + count, guide_variant)
             if entry is not None:
                 picked.append(entry)
         per_day.append(picked)
@@ -326,7 +336,7 @@ def check_weeks(
 ) -> list[Finding]:
     """고정 자료의 실제 날짜 순서로 유형 순환을 흉내 내 연속 7일 창마다 한 주 상한을 확인합니다.
 
-    순환은 사용자별로 키마다 따로 돌고, 시작 위치 0·1·2를 모두 검사합니다.
+    순환은 사용자별로 키마다 따로 돌고, 유형 시작 위치 0·1·2와 가이드 변주 시작 위치를 독립으로 모두 조합해 검사합니다.
     같은 (규칙 ID, 파일, 줄)의 finding은 한 번만 냅니다.
     """
     samples = _fixture_samples(fixture)
@@ -340,11 +350,11 @@ def check_weeks(
     seen: set[tuple[str, str, int]] = set()
     for lang in langs:
         for birth_id, start, days in samples:
-            for offset in ROTATION_OFFSETS:
-                per_day = _rotate(days, entries_by, lang, offset, variants)
+            for offset, variant_offset in product(ROTATION_OFFSETS, range(variants)):
+                per_day = _rotate(days, entries_by, lang, offset, variant_offset, variants)
                 for first, window in enumerate(week_windows(per_day, WEEK_LENGTH)):
                     when = f"{start + timedelta(days=first)}부터 7일" if start else f"{first + 1}일째부터 7일"
-                    where = f"표본 {birth_id} {when} (시작 위치 {offset})"
+                    where = f"표본 {birth_id} {when} (유형 시작 {offset}, 가이드 변주 시작 {variant_offset + 1})"
                     week_entries = [entry for day_entries in window for entry in day_entries]
                     for finding in check_limits(week_entries, active, "week", lang, where, rules):
                         identity = (finding.rule_id, str(finding.file), finding.line)
