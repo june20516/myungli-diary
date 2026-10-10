@@ -1,0 +1,45 @@
+"""워드마크·가로 조합 테스트: spec §6.2."""
+import pathlib
+import sys
+import xml.etree.ElementTree as ET
+
+import pytest
+
+TOOLS_DIR = pathlib.Path(__file__).resolve().parent
+DESIGN_DIR = TOOLS_DIR.parent
+REPO_ROOT = DESIGN_DIR.parents[2]
+sys.path.insert(0, str(TOOLS_DIR))
+
+from palette import build_palette  # noqa: E402
+from svg_colors import colors_in_markup, palette_colors  # noqa: E402
+from wordmark import wordmark_svg  # noqa: E402
+
+SVG = "{http://www.w3.org/2000/svg}"
+LOGO = DESIGN_DIR / "logo"
+FONT = REPO_ROOT / ".suberpowers" / "fonts" / "GowunDodum-Regular.ttf"
+
+
+@pytest.fixture
+def font_path():
+    if not FONT.exists():
+        pytest.skip(f"글꼴 없음: {FONT}")
+    return FONT
+
+
+def test_wordmark_is_outlined(font_path):
+    svg = wordmark_svg(font_path, "명리일기", "#2b2b2a")
+    root = ET.fromstring(svg)
+    assert root.find(f".//{SVG}text") is None
+    assert len(root.findall(f".//{SVG}path")) == 4
+    assert colors_in_markup(svg) == {"#2b2b2a"}
+
+
+def test_wordmark_rejects_missing_glyph(font_path):
+    with pytest.raises(ValueError):
+        wordmark_svg(font_path, "명리일기☃", "#2b2b2a")
+
+
+@pytest.mark.parametrize("name", ["wordmark.svg", "wordmark-dark.svg", "lockup.svg", "lockup-dark.svg"])
+def test_logo_files_use_palette_colors(name):
+    stray = colors_in_markup((LOGO / name).read_text()) - palette_colors(build_palette()) - {"#ffffff"}
+    assert stray == set()
