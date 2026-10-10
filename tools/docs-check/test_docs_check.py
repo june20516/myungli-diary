@@ -55,6 +55,24 @@ class LinkTests(RepoTestCase):
         write(self.root, "a.md", "```python\n# [x](missing.md)\n```\n`[y](gone.md)` 본문\n")
         self.assertEqual(docs_check.check_links(self.root), [])
 
+    def test_link_with_title_is_checked(self) -> None:
+        write(self.root, "a.md", '[x](missing.md "제목")')
+        self.assertEqual(docs_check.check_links(self.root), ["a.md: missing.md"])
+
+    def test_percent_encoded_link_resolves(self) -> None:
+        write(self.root, "my file.md", "# f")
+        write(self.root, "a.md", "[x](my%20file.md)")
+        self.assertEqual(docs_check.check_links(self.root), [])
+
+    def test_root_relative_link_resolves_from_repo_root(self) -> None:
+        write(self.root, "docs/b.md", "# b")
+        write(self.root, "sub/a.md", "[x](/docs/b.md)")
+        self.assertEqual(docs_check.check_links(self.root), [])
+
+    def test_indented_fence_is_ignored(self) -> None:
+        write(self.root, "a.md", "1. 단계\n   ```\n   [x](missing.md)\n   ```\n")
+        self.assertEqual(docs_check.check_links(self.root), [])
+
     def test_skips_suberpowers_dir(self) -> None:
         write(self.root, ".suberpowers/x.md", "[x](missing.md)")
         self.assertEqual(docs_check.check_links(self.root), [])
@@ -117,6 +135,13 @@ class ArtifactTests(RepoTestCase):
         problems = docs_check.check_artifacts(self.root)
         self.assertEqual(len(problems), 1)
         self.assertIn("screens", problems[0])
+
+    def test_non_string_id_and_kind_reported_without_crash(self) -> None:
+        write(self.root, "docs/artifacts/a1.png", "png")
+        self.write_index([artifact_entry(id=["a"], kind={"x": 1})])
+        problems = docs_check.check_artifacts(self.root)
+        self.assertTrue(any("kind" in p for p in problems))
+        self.assertTrue(any("id" in p for p in problems))
 
     def test_duplicate_id_reported(self) -> None:
         write(self.root, "docs/artifacts/a1.png", "png")

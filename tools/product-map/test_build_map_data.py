@@ -1,5 +1,7 @@
 """build_map_data의 테스트. 실행: python3 -I -m unittest -q (이 디렉터리에서)"""
 
+import contextlib
+import io
 import json
 import os
 import tempfile
@@ -92,7 +94,7 @@ class RepoTests(unittest.TestCase):
 
     def test_collect_issues_without_gh_returns_empty(self) -> None:
         with mock.patch.dict(os.environ, {"PATH": ""}):
-            self.assertEqual(build_map_data.collect_issues(self.root), [])
+            self.assertIsNone(build_map_data.collect_issues(self.root))
 
     def test_build_uses_provisional_screens_without_ia(self) -> None:
         with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
@@ -102,10 +104,22 @@ class RepoTests(unittest.TestCase):
         self.assertEqual(data["identity"]["concept"], "오늘 일진을 풀어주는 앱")
         self.assertIn("원칙", data["identity"]["sections"])
 
+    def test_malformed_index_is_skipped(self) -> None:
+        write(self.root, "docs/identity/writing/artifacts/index.json", "{not json")
+        write(self.root, "app/docs/artifacts/index.json", json.dumps([{"id": "nofile"}]))
+        artifacts = build_map_data.collect_artifacts(self.root)
+        self.assertEqual({a["id"] for a in artifacts}, {"a", "b"})
+
+    def test_issues_availability_is_reported(self) -> None:
+        with mock.patch.dict(os.environ, {"PATH": ""}), contextlib.redirect_stdout(io.StringIO()):
+            data = build_map_data.build(self.root)
+        self.assertFalse(data["issues_available"])
+
     def test_cli_writes_data_and_copies_images(self) -> None:
         out = self.root / "out"
         with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
-            code = build_map_data.main(["build", str(self.root), str(out)])
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = build_map_data.main(["build", str(self.root), str(out)])
         self.assertEqual(code, 0)
         data = json.loads((out / "data.json").read_text(encoding="utf-8"))
         self.assertEqual(len(data["artifacts"]), 2)
