@@ -8,10 +8,11 @@
 
 **Tech Stack:** Python 3.13, uv 0.11, lunar-python 1.4.8, grpcio / grpcio-tools 1.84.0, protobuf, pytest 9, hypothesis, syrupy 6, ruff, mypy(strict), buf(lint·breaking 전용).
 
-**Spec:** `docs/suberpowers/specs/2026-10-10-myungri-engine-design.md` (승인됨, D34). 상위 근거는 `docs/background/07-engine-logic-wiki.md` v1.4와 `docs/decisions.md`입니다.
+**Spec:** `core/docs/specs/2026-10-10-myungri-engine-design.md` (승인됨, D34). 상위 근거는 `core/docs/engine-logic-wiki.md` v1.4와 `docs/decisions.md`(루트, 읽기 전용)입니다. 작업 규약은 `core/CLAUDE.md`와 `docs/workflow.md`를 따릅니다.
 
 ## Global Constraints
 
+- 이 plan이 고칠 수 있는 곳은 `core/`, `proto/myungri/engine/`과 `proto/buf.yaml`, `.github/workflows/core.yml`, 그리고 요청·보고용 `docs/coordination/`뿐입니다. 루트의 `README.md`, `docs/background/`, `docs/decisions.md`는 고치지 않습니다. 바꿔야 하면 `docs/coordination/`에 요청을 남깁니다(`docs/workflow.md`).
 - 모든 코드는 `core/` 아래에 둡니다. 패키지 이름은 `myungri_engine`, 소스 위치는 `core/src/myungri_engine/`, 테스트 위치는 `core/tests/`입니다.
 - `lunar_python`은 `myungri_engine/calendar_core/` 안에서만 import합니다(D9). 다른 패키지에서 import하면 Task 1의 import 규칙 테스트가 실패합니다.
 - `rules/`는 문장을 만들지 않습니다. 사용자에게 보일 문자열은 엔진 어디에도 넣지 않습니다(D27). 메시지 키는 `constants/message_keys.py`에 등록된 것만 씁니다.
@@ -79,7 +80,6 @@ proto/
 - Create: `core/pyproject.toml`, `core/README.md`, `core/src/myungri_engine/__init__.py`
 - Create: `core/src/myungri_engine/domain/{__init__,enums,elements,ten_gods,models,errors}.py`
 - Test: `core/tests/unit/domain/test_elements.py`, `core/tests/unit/domain/test_ten_gods.py`, `core/tests/unit/test_import_rules.py`
-- Delete: `core/.gitkeep`
 
 **Interfaces:**
 - Produces:
@@ -167,7 +167,6 @@ Expected: 전부 PASS, `Success: no issues found`.
 - [ ] **Step 6: Commit**
 
 ```bash
-git rm -q core/.gitkeep
 git add core/pyproject.toml core/uv.lock core/README.md core/src core/tests
 git commit -m "feat(core): 엔진 프로젝트 골격과 domain enum·오행·십성 추가"
 ```
@@ -209,7 +208,7 @@ from myungri_engine.constants import message_keys
 from myungri_engine.domain.enums import Stem as S, Branch as B, Element as E
 import pytest
 
-CORRECTIONS = Path(__file__).resolve().parents[4] / "docs/references/gungtong-bogam/corrections.json"
+CORRECTIONS = Path(__file__).resolve().parents[4] / "core/docs/references/gungtong-bogam/corrections.json"
 
 def test_johu_has_120_cells_and_matches_corrections():
     assert sum(len(m) for m in JOHU_YONGSIN.values()) == 120
@@ -275,9 +274,9 @@ git commit -m "feat(core): 조후표·귀인·합충형·신살·하도수·방�
 ### Task 3: 근거 데이터를 core로 이전하고 로더 추가
 
 **Files:**
-- Move: `docs/references/gungtong-bogam/{johu_evidence,five_elements,corrections}.json` → `core/src/myungri_engine/references/data/gungtong_bogam/`
-- Modify: `docs/references/gungtong-bogam/tools/build_evidence.py` (출력 경로를 core 데이터 디렉터리로, 조후표 입력을 `core/src/myungri_engine/constants/johu.py`의 `JOHU_YONGSIN` 한자 표로 변경)
-- Modify: `docs/references/README.md`, `README.md`(루트), `docs/background/07-engine-logic-wiki.md` §3.3-0·§5의 경로 표기
+- Move: `core/docs/references/gungtong-bogam/{johu_evidence,five_elements,corrections}.json` → `core/src/myungri_engine/references/data/gungtong_bogam/`
+- Modify: `core/docs/references/gungtong-bogam/tools/build_evidence.py` (출력 경로를 core 데이터 디렉터리로, 조후표 입력을 `core/src/myungri_engine/constants/johu.py`의 `JOHU_YONGSIN` 한자 표로 변경)
+- Modify: `core/docs/references/README.md`, `core/docs/engine-logic-wiki.md` §3.3-0·§5의 경로 표기
 - Create: `core/src/myungri_engine/references/{__init__,loader}.py`
 - Modify: `core/tests/unit/constants/test_tables.py` (CORRECTIONS 경로를 새 위치로)
 - Test: `core/tests/unit/references/test_loader.py`
@@ -327,7 +326,7 @@ Expected: FAIL (`ModuleNotFoundError`).
 
 - [ ] **Step 4: 로더 구현과 생성기 재실행**
 
-Run: `cd .. && python3 -I docs/references/gungtong-bogam/tools/build_evidence.py && cd core && git status --short`
+Run: `cd .. && python3 -I core/docs/references/gungtong-bogam/tools/build_evidence.py && cd core && git status --short`
 Expected: 생성기가 `OK 72 / REVIEWED 48`을 출력하고, 옮긴 JSON에 내용 변경(diff)이 없습니다.
 
 - [ ] **Step 5: 통과 확인**
@@ -338,7 +337,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add -A docs/references core README.md docs/background/07-engine-logic-wiki.md
+git add -A core
 git commit -m "refactor(core): 엔진 근거 데이터를 core 패키지로 이전하고 source_ref 로더 추가"
 ```
 
@@ -1056,7 +1055,8 @@ git commit -m "test(core): KASI 절기·음양력 골든 테스트"
 
 **Files:**
 - Create: `core/tests/golden/fixtures/reference_cases.json`, `core/tests/golden/fixtures/reference_results.json`, `core/tests/golden/test_reference_apps.py`
-- Modify: `docs/background/07-engine-logic-wiki.md` §2.3·§8 (확인 결과 기록), `docs/decisions.md` (차이 채택 근거)
+- Modify: `core/docs/engine-logic-wiki.md` §2.3·§8 (확인 결과 기록)
+- Create: `core/docs/decisions.md` (core 내부 결정 로그. 번호는 `C1`부터), `docs/coordination/` 보고 문서 (자시 확인 결과)
 
 **Interfaces:**
 - Consumes: Task 15 `compose_chart`.
@@ -1091,12 +1091,12 @@ Expected: PASS.
 
 - [ ] **Step 4: 결과 반영**
 
-자시 처리 기본 동작이 D6과 다르면 구현을 멈추고 사용자에게 보고합니다. 07 §2.3의 "확정 조건"에 해당합니다. 같으면 07 §2.3에 "확인 완료(날짜, 앱)"를 적습니다. `known_differences`의 채택 근거는 `docs/decisions.md`에 새 항목으로 기록합니다.
+자시 처리 기본 동작이 D6과 다르면 구현을 멈추고 사용자에게 보고합니다. 07 §2.3의 "확정 조건"에 해당하며, D6은 루트 결정이므로 `docs/coordination/`에 변경 요청도 남깁니다. 같으면 07 §2.3에 "확인 완료(날짜, 앱)"를 적고, `docs/coordination/`에 확인 보고를 남깁니다. `known_differences`의 채택 근거는 `core/docs/decisions.md`에 새 항목으로 기록합니다.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add core/tests/golden docs/background/07-engine-logic-wiki.md docs/decisions.md
+git add core/tests/golden core/docs docs/coordination
 git commit -m "test(core): 기준 앱(포스텔러·사공만세력) 만세력 골든 테스트와 확인 결과"
 ```
 
@@ -1106,7 +1106,8 @@ git commit -m "test(core): 기준 앱(포스텔러·사공만세력) 만세력 �
 
 **Files:**
 - Create: `.github/workflows/core.yml`
-- Modify: `core/README.md`, `docs/background/07-engine-logic-wiki.md` (spec §14 항목), `docs/background/README.md` (미결 목록 정리)
+- Modify: `core/README.md`, `core/docs/engine-logic-wiki.md` (spec §14 항목), `core/CLAUDE.md` (현재 상태)
+- Create: `docs/coordination/` 완료 보고 (엔진 MVP 완료, 제공 계약 버전, 다음 사용자 안내)
 
 - [ ] **Step 1: CI 워크플로 작성**
 
@@ -1129,12 +1130,13 @@ Expected: 전부 PASS.
 
 - 07 위키에 spec §14 항목을 반영합니다: §3.1 지장간 비율·등급, §4.2 택일 Phase 2 명시, §4.3 태그 목록, §8 사례 목록.
 - 07 위키 버전은 v1.5로 올립니다.
-- background README의 "미결" 3개가 spec으로 확정되었음을 표시합니다.
+- `core/CLAUDE.md`의 "현재 상태"를 "엔진 MVP 완료"로 고칩니다.
+- `docs/coordination/`에 완료 보고를 남깁니다: 제공 계약(`proto/myungri/engine/v1`, `core/message_keys.json`)의 버전과, server가 이제 엔진을 실제로 호출할 수 있다는 안내입니다.
 - `core/README.md`에 실행, 테스트, 코드 생성, 보정 스크립트 사용법을 씁니다.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add .github/workflows/core.yml core/README.md docs/background
+git add .github/workflows/core.yml core docs/coordination
 git commit -m "ci(core): 경로 필터 CI와 엔진 문서 정리 (위키 v1.5)"
 ```

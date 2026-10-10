@@ -16,8 +16,14 @@
 * 각 서비스는 자기 디렉터리만으로 빌드되어야 합니다. 그래서 proto 생성 코드는 서비스마다 commit하고, 엔진이 쓰는 데이터는 `core/` 안에 둡니다.
 * 릴리스 태그에는 접두어를 붙입니다. 예: `core/v1.0.0`, `app/v1.0.0`.
 
+## 작업 방식
+* 각 서브 프로젝트는 자기 디렉터리에서 별도 세션으로 설계 → 계획 → 구현 → 마무리를 진행합니다. 저장소 루트의 세션은 조율·계약·통합 로드맵을 맡습니다.
+* 규약: [`docs/workflow.md`](docs/workflow.md), 세션 지시: 각 디렉터리의 `CLAUDE.md`
+
 ## 문서
-* 배경 문서와 목록: [`docs/background/`](docs/background/README.md)
-* 결정 로그: [`docs/decisions.md`](docs/decisions.md)
-* 설계 spec: [`docs/suberpowers/specs/`](docs/suberpowers/specs/)
-* 원전 근거 자료: [`docs/references/`](docs/references/README.md)
+* 제품 배경: [`docs/background/`](docs/background/README.md)
+* 제품·아키텍처 결정: [`docs/decisions.md`](docs/decisions.md)
+* 통합 로드맵: [`docs/roadmap.md`](docs/roadmap.md)
+* 계약 목록: [`docs/contracts/README.md`](docs/contracts/README.md)
+* 요청함: [`docs/coordination/`](docs/coordination/README.md)
+* 엔진 위키·spec·계획·원전 근거: [`core/docs/`](core/docs/)

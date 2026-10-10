@@ -23,7 +23,7 @@
 
 다시 생성하려면 저장소 루트에서 다음을 실행합니다.
 ```bash
-python3 -I docs/references/gungtong-bogam/tools/build_evidence.py
+python3 -I core/docs/references/gungtong-bogam/tools/build_evidence.py
 ```
 
 ### 주의 사항

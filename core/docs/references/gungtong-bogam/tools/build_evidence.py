@@ -1,12 +1,12 @@
 """窮通寶鑑 원문으로 조후용신 근거 데이터와 대조 리포트를 만든다.
 
-사용법 (저장소 루트에서): python3 -I docs/references/gungtong-bogam/tools/build_evidence.py
+사용법 (저장소 루트에서): python3 -I core/docs/references/gungtong-bogam/tools/build_evidence.py
 
 입력
-  docs/references/gungtong-bogam/source.wikitext   위키문헌 원문 (raw wikitext)
-  docs/references/gungtong-bogam/corrections.json  원문 대조로 바로잡은 칸
-  docs/background/07-engine-logic-wiki.md          JOHU_YONGSIN 표 (정정 반영본)
-출력 (docs/references/gungtong-bogam/)
+  core/docs/references/gungtong-bogam/source.wikitext   위키문헌 원문 (raw wikitext)
+  core/docs/references/gungtong-bogam/corrections.json  원문 대조로 바로잡은 칸
+  core/docs/engine-logic-wiki.md          JOHU_YONGSIN 표 (정정 반영본)
+출력 (core/docs/references/gungtong-bogam/)
   entries.json              일간 → 계절 → 월 항목(원문 문단·예시 명조) 전체 구조
   johu_evidence.json        일간 → 월지 → 조후용신 + 원문 근거
   five_elements.json        五行總論의 색·수·방위·성정·억부 원리 근거
@@ -24,8 +24,8 @@ sys.path.insert(0, str(TOOLS_DIR))
 from parse_source import SEASONS, STEMS, build_month_index, parse  # noqa: E402
 
 REFERENCE_DIR = TOOLS_DIR.parent
-REPO_ROOT = REFERENCE_DIR.parent.parent.parent
-WIKI_PATH = REPO_ROOT / "docs" / "background" / "07-engine-logic-wiki.md"
+CORE_DIR = REFERENCE_DIR.parents[2]  # gungtong-bogam → references → docs → core
+WIKI_PATH = CORE_DIR / "docs" / "engine-logic-wiki.md"
 BRANCH_ORDER = "寅卯辰巳午未申酉戌亥子丑"
 STEM_ELEMENT = {
     "甲": "木", "乙": "木", "丙": "火", "丁": "火", "戊": "土",

@@ -4,7 +4,7 @@
 * 상태: **승인됨** (2026-10-10, §16 R1~R10 포함)
 * 대상: 명리일기 서브 프로젝트 1 — Python 명리 엔진 (MVP 범위)
 * 상위 문서: `docs/background/` (특히 07 엔진 위키 v1.4), 결정 로그 `docs/decisions.md` (D1~D32)
-* 근거 자료: `docs/references/`
+* 근거 자료: `core/docs/references/`
 
 ---
 
@@ -61,7 +61,7 @@ myungri_engine/
                    lunar-python 어댑터
   domain/          enum과 값 객체: Stem, Branch, Element, TenGod, Pillar 등
   constants/       조후표, 천을귀인표, 합화표, 신살표, 하도수, 팔괘 방위, 대표 경도
-  references/      docs/references 근거 데이터 로더 (패키지에 함께 배포)
+  references/      core/docs/references 근거 데이터 로더 (패키지에 함께 배포)
 ```
 
 ### 2.3. 설계 규칙
