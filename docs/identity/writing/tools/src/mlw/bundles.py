@@ -4,8 +4,11 @@
 묶음 검사는 존재하는 원고만 셉니다. 빠진 원고는 완결성 검사의 몫입니다.
 """
 
+from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import date, timedelta
+from pathlib import Path
 
 from mlw.model import SENTENCE_TYPES, Entry, Finding, Limit, RuleSet, Slot
 from mlw.placeholders import parse
@@ -52,6 +55,10 @@ SLOT_TAG_LABEL = "daily.tag_label"
 # 유형 순환을 따르는 슬롯입니다.
 TYPED_SLOTS = frozenset({SLOT_HEAD, SLOT_TAG})
 SCREEN_SCOPES: tuple[str, ...] = ("screen", "day")
+WEEK_LENGTH = 7
+ROTATION_OFFSETS: tuple[int, ...] = (0, 1, 2)
+FIXTURE_PATH = Path("fixtures/week_samples.json")
+STALE_RULE_ID = "week.fixture_stale"
 
 EntriesBy = Mapping[tuple[str, str, str], Sequence[Entry]]
 
@@ -225,4 +232,123 @@ def check_days(
                             if identity not in seen:
                                 seen.add(identity)
                                 findings.append(finding)
+    return findings
+
+
+def week_windows[T](days: Sequence[T], length: int) -> list[Sequence[T]]:
+    """날 목록을 `length`일 연속 창으로 한 칸씩 밀며 자릅니다."""
+    return [days[start : start + length] for start in range(len(days) - length + 1)]
+
+
+def _day_from_fixture(raw: Mapping[str, object]) -> DayKeys:
+    def text(name: str) -> str | None:
+        value = raw.get(name)
+        return value if isinstance(value, str) else None
+
+    return DayKeys(
+        head=text("head") or "",
+        tag_sentence=text("tag_sentence"),
+        guide=text("guide") or "",
+        color=text("color") or "",
+        direction=text("direction") or "",
+        number=text("number") or "",
+        focus=text("focus") or "",
+        tag_label=text("tag_label"),
+    )
+
+
+def _fixture_samples(fixture: Mapping[str, object]) -> list[tuple[str, date | None, list[DayKeys]]]:
+    start_text = fixture.get("start")
+    start = date.fromisoformat(start_text) if isinstance(start_text, str) else None
+    raw_samples = fixture.get("samples")
+    samples: list[tuple[str, date | None, list[DayKeys]]] = []
+    for raw in raw_samples if isinstance(raw_samples, list) else []:
+        raw_days = raw.get("days", [])
+        days = [_day_from_fixture(day) for day in raw_days]
+        samples.append((str(raw.get("birth_id", "")), start, days))
+    return samples
+
+
+def _stale_findings(
+    samples: Sequence[tuple[str, date | None, list[DayKeys]]],
+    message_keys: Sequence[str],
+    fixture_path: Path,
+) -> list[Finding]:
+    known = set(message_keys)
+    unknown = sorted(
+        {
+            key
+            for _, _, days in samples
+            for day in days
+            for _slot, key in day.bundle().keys
+            if key not in known
+        }
+    )
+    return [
+        Finding(
+            fixture_path,
+            1,
+            STALE_RULE_ID,
+            "error",
+            f"고정 자료의 키 {key}가 message_keys.json에 없습니다. 고정 자료를 다시 만드세요",
+        )
+        for key in unknown
+    ]
+
+
+def _rotate(
+    days: Sequence[DayKeys], entries_by: EntriesBy, lang: str, offset: int, variants: int
+) -> list[list[Entry]]:
+    """표본의 날을 앞에서부터 지나며 키별 출현 횟수로 유형과 가이드 변주를 정합니다."""
+    appearances: Counter[tuple[str, str]] = Counter()
+    per_day: list[list[Entry]] = []
+    for day in days:
+        picked: list[Entry] = []
+        for slot, key in day.bundle().keys:
+            position = offset + appearances[(slot, key)]
+            appearances[(slot, key)] += 1
+            entry = _pick(entries_by.get((slot, key, lang), ()), slot, position, position % variants + 1)
+            if entry is not None:
+                picked.append(entry)
+        per_day.append(picked)
+    return per_day
+
+
+def check_weeks(
+    slots: Mapping[str, Slot],
+    entries: Sequence[Entry],
+    limits: Iterable[Limit],
+    langs: Sequence[str],
+    rules: RuleSet,
+    fixture: Mapping[str, object],
+    message_keys: Sequence[str],
+    fixture_path: Path = FIXTURE_PATH,
+) -> list[Finding]:
+    """고정 자료의 실제 날짜 순서로 유형 순환을 흉내 내 연속 7일 창마다 한 주 상한을 확인합니다.
+
+    순환은 사용자별로 키마다 따로 돌고, 시작 위치 0·1·2를 모두 검사합니다.
+    같은 (규칙 ID, 파일, 줄)의 finding은 한 번만 냅니다.
+    """
+    samples = _fixture_samples(fixture)
+    findings = _stale_findings(samples, message_keys, fixture_path)
+    if findings:
+        return findings
+    active = [limit for limit in limits if limit.scope == "week"]
+    guide_slot = slots.get(SLOT_GUIDE)
+    variants = guide_slot.variants if guide_slot is not None else DEFAULT_GUIDE_VARIANTS
+    entries_by = _entries_by(entries)
+    seen: set[tuple[str, str, int]] = set()
+    for lang in langs:
+        for birth_id, start, days in samples:
+            for offset in ROTATION_OFFSETS:
+                per_day = _rotate(days, entries_by, lang, offset, variants)
+                for first, window in enumerate(week_windows(per_day, WEEK_LENGTH)):
+                    when = f"{start + timedelta(days=first)}부터 7일" if start else f"{first + 1}일째부터 7일"
+                    where = f"표본 {birth_id} {when} (시작 위치 {offset})"
+                    week_entries = [entry for day_entries in window for entry in day_entries]
+                    for finding in check_limits(week_entries, active, "week", lang, where, rules):
+                        identity = (finding.rule_id, str(finding.file), finding.line)
+                        if identity not in seen:
+                            seen.add(identity)
+                            findings.append(finding)
     return findings
