@@ -14,12 +14,16 @@
 // * ChartResponse: 원국 표(기둥·십성·지장간·12운성·신살·공망), 오행 분포, 강약, 용신, 대운 표, 세운 표.
 // * DailyResponse: 일진, 날의 성격, 카드 4종(컬러·방향·숫자·집중 시간, 각각 Judgment + 원본 값),
 //   일진×원국 합충형, 태그 키(대표·전체), 총운·가이드 질문 Judgment.
-// * MonthResponse: 날짜별 MonthDay(일진, 음력, 절기, 날의 성격, 길흉 점수·수준·구성, 대표 태그 키).
+// * MonthResponse: 날짜별 MonthDay(일진, 음력, 절기, 날의 성격, 길흉 점수·수준·구성, 대표 태그 키,
+//   길흉 수준 Judgment).
 //
 // 관례
-// * enum의 0번은 <ENUM>_UNSPECIFIED입니다. 요청에서 UNSPECIFIED는 INVALID_ARGUMENT, 응답에서는 "값 없음"을 뜻합니다.
+// * enum의 0번은 <ENUM>_UNSPECIFIED입니다. 요청에서 UNSPECIFIED는 INVALID_ARGUMENT입니다.
+// * presence: enum 필드의 "값 없음"은 항상 UNSPECIFIED로 표현하고 optional을 쓰지 않습니다
+//   (예: YongsinInfo.johu_stem, Relation.suppressed_by). 메시지 타입 필드는 그 자체로 값 유무를 구분하고
+//   (예: 시간 모름이면 FourPillars.hour가 비어 있음), 스칼라·문자열의 "없음"은 optional로 표현합니다
+//   (예: BirthInfo.time·longitude, MonthDay.featured_tag).
 // * 자리(Position)별 값은 map 대신 repeated 메시지로 둡니다(proto map 키로 enum을 쓸 수 없음).
-// * 메시지 타입 필드는 그 자체로 값 유무를 구분합니다(시간 모름이면 FourPillars.hour가 비어 있음).
 syntax = "proto3";
 
 package myungri.engine.v1;
@@ -226,7 +230,7 @@ enum ElementRole {
 // 공통 값
 // ---------------------------------------------------------------------------
 
-// 현지 달력 날짜. 음력 입력이면 음력 연·월·일입니다(음력 30일도 그대로).
+// 현지 달력 날짜.
 message LocalDate {
   int32 year = 1;
   int32 month = 2;
@@ -260,7 +264,7 @@ message FourPillars {
 message BirthInfo {
   CalendarType calendar = 1;
   bool is_leap_month = 2; // LUNAR일 때만 의미
-  LocalDate date = 3;
+  LocalDate date = 3; // calendar가 LUNAR면 음력 연·월·일(음력 30일도 그대로), SOLAR면 양력
   optional LocalTime time = 4; // 없음 = 시간 모름
   Gender gender = 5;
   string timezone = 6; // IANA 이름, 예: Asia/Seoul
@@ -379,14 +383,14 @@ message Strength {
   StrengthLevel level = 2;
 }
 
-// 용신·희신·기신·통관과 판정 방식. johu_stem은 조후 방식일 때만 있습니다.
+// 용신·희신·기신·통관과 판정 방식. johu_stem은 조후 방식일 때만 있고, 그 밖에는 STEM_UNSPECIFIED입니다.
 message YongsinInfo {
   Element yongsin = 1;
   Element huisin = 2;
   Element gisin = 3;
   Element tonggwan = 4;
   YongsinMethod method = 5;
-  optional Stem johu_stem = 6;
+  Stem johu_stem = 6;
   Judgment judgment = 7;
 }
 
@@ -497,8 +501,11 @@ message MonthDay {
   DayKind kind = 7;
   LuckLevel luck_level = 8;
   int32 score = 9;
-  repeated ScoreItem score_items = 10; // 점수 구성 (Pro 화면의 근거)
+  repeated ScoreItem score_items = 10; // 점수 구성 원본 값
   optional string featured_tag = 11; // 대표 태그 키
+  // 길흉 수준 판정. message_key는 calendar.<good|neutral|caution>, evidence에 점수 구성 근거
+  // (Pro 화면의 "왜 좋은 날인가")가 담깁니다.
+  Judgment judgment = 12;
 }
 
 // 절기. name은 원문 한자(예: 立春), at은 입절 절대 시각입니다.
@@ -507,7 +514,7 @@ message SolarTerm {
   google.protobuf.Timestamp at = 2;
 }
 
-// 점수 구성 항목. id는 메시지 키가 아닌 식별자입니다:
+// 점수 구성 항목(원본 값). 화면 문구용 메시지 키는 MonthDay.judgment에 있고, id는 메시지 키가 아닌 식별자입니다:
 // gwiin_day, yongsin_day, gisin_day, hap, chung_day_or_month, chung_other, hyeong.
 message ScoreItem {
   string id = 1;

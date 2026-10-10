@@ -1,7 +1,9 @@
 # proto 생성 코드가 최신이고, 패키지 경로로 import되며, 도메인 enum을 빠짐없이 담는지 검사
 import filecmp
 import importlib
+import os
 import subprocess
+import sys
 from enum import Enum
 from pathlib import Path
 
@@ -49,7 +51,9 @@ def _relative_files(root: Path) -> list[Path]:
 
 def test_generated_code_up_to_date(tmp_path: Path) -> None:
     out_dir = tmp_path / "_gen"
-    subprocess.run(["bash", str(GEN_SCRIPT), str(out_dir)], cwd=CORE_DIR, check=True)
+    # 테스트 중 uv run을 다시 부르지 않도록 지금 Python을 넘긴다
+    env = {**os.environ, "PYTHON": sys.executable}
+    subprocess.run(["bash", str(GEN_SCRIPT), str(out_dir)], cwd=CORE_DIR, env=env, check=True)
 
     expected_files = _relative_files(out_dir)
     assert expected_files, "생성 스크립트가 아무 파일도 만들지 않았습니다"
@@ -78,3 +82,23 @@ def test_proto_enums_cover_domain_enums(domain_enum: type[Enum], proto_name: str
 
     expected = [f"{prefix}_UNSPECIFIED"] + [f"{prefix}_{member.name}" for member in domain_enum]
     assert proto_values == expected
+
+
+def test_month_day_carries_luck_judgment() -> None:
+    pb2 = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2")
+    judgment_field = pb2.MonthDay.DESCRIPTOR.fields_by_name["judgment"]
+
+    assert judgment_field.number == 12
+    assert judgment_field.message_type.full_name == "myungri.engine.v1.Judgment"
+
+
+def test_enum_fields_use_unspecified_instead_of_optional() -> None:
+    pb2 = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2")
+    enum_fields_with_presence = [
+        f"{message.name}.{field.name}"
+        for message in pb2.DESCRIPTOR.message_types_by_name.values()
+        for field in message.fields
+        if field.enum_type is not None and field.has_presence
+    ]
+
+    assert enum_fields_with_presence == []

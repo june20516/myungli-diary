@@ -21,11 +21,14 @@ related: [D27, D31, D33, engine.proto v1, core/message_keys.json, core spec §9�
   * `GetDaily(DailyRequest) returns (DailyResponse)`: 데일리
   * `GetMonthCalendar(MonthRequest) returns (MonthResponse)`: 월간 캘린더
 * **생성 코드 위치 정책(D33):** 생성 코드는 서비스마다 자기 디렉터리에 commit합니다. core는 `core/src/myungri_engine/_gen/`(`core/tools/gen_proto.sh`로 생성)에 둡니다. server는 Go 생성 코드를 `server/` 안에 직접 생성해 commit해 주세요. core의 생성물을 가져다 쓰지 않습니다.
-* **메시지 키 목록:** `core/message_keys.json`(정렬된 JSON 배열)입니다. `Judgment.message_key`, `featured_tags`, `all_tags`, `MonthDay.featured_tag`에 오는 값은 모두 이 목록에 있습니다. 콘텐츠 모듈 시드가 모든 키를 3개 언어(D28)로 갖는지 server 쪽 테스트로 검사할 수 있습니다.
+* **메시지 키 목록:** `core/message_keys.json`(정렬된 JSON 배열)입니다. `Judgment.message_key`(카드·용신·총운·가이드·`MonthDay.judgment` 포함), `featured_tags`, `all_tags`, `MonthDay.featured_tag`에 오는 값은 모두 이 목록에 있습니다. 콘텐츠 모듈 시드가 모든 키를 3개 언어(D28)로 갖는지 server 쪽 테스트로 검사할 수 있습니다.
 * **`source_ref` 형식(spec §11):** `<자료 디렉터리>/<파일 이름(확장자 제외)>#<키 경로>`. 예: `gungtong-bogam/johu_evidence#甲.子`, `gungtong-bogam/five_elements#direction`. `Evidence.source_ref`에 들어가며, Pro 화면의 근거 표시에 씁니다.
-* **점수 구성 id(`MonthDay.score_items[].id`):** `gwiin_day`, `yongsin_day`, `gisin_day`, `hap`, `chung_day_or_month`, `chung_other`, `hyeong`. **메시지 키가 아니라 식별자**이므로 `message_keys.json`에는 없습니다. 화면 문구가 필요하면 server의 콘텐츠 모듈에서 이 id를 직접 매핑해 주세요. 집중 시간 가점 사유(`FocusSlot.reasons`: `gwiin`, `yongsin`, `huisin`, `hap`)도 같은 성격의 식별자입니다.
+* **점수 구성 id(`MonthDay.score_items[].id`):** `gwiin_day`, `yongsin_day`, `gisin_day`, `hap`, `chung_day_or_month`, `chung_other`, `hyeong`. **메시지 키가 아니라 식별자**이므로 `message_keys.json`에는 없습니다.
+  * 역할 분담: `MonthDay.judgment`가 화면 문구용 판정입니다. `message_key`는 `calendar.<good|neutral|caution>`이고, `evidence`에 점수 구성 근거(rule_id 예 `calendar/score`, source_ref 예 `gungtong-bogam/five_elements#balance_principle`, `detail`에 구성)가 담깁니다. `score_items`는 같은 구성을 숫자로 다루기 위한 원본 값입니다(점수 막대 표시 등). 항목별 문구가 필요하면 콘텐츠 모듈에서 id를 직접 매핑해 주세요.
+  * 집중 시간 가점 사유(`FocusSlot.reasons`: `gwiin`, `yongsin`, `huisin`, `hap`)도 같은 성격의 식별자입니다.
 * **관례:**
-  * enum 0번은 `<ENUM>_UNSPECIFIED`입니다. 요청에서 UNSPECIFIED(예: `GENDER_UNSPECIFIED`)는 `INVALID_ARGUMENT`이고, 응답에서는 "값 없음"을 뜻합니다(예: `Relation.suppressed_by`).
+  * enum 0번은 `<ENUM>_UNSPECIFIED`입니다. 요청에서 UNSPECIFIED(예: `GENDER_UNSPECIFIED`)는 `INVALID_ARGUMENT`이고, 응답에서 enum 필드의 "값 없음"은 항상 UNSPECIFIED입니다(예: `Relation.suppressed_by`, `YongsinInfo.johu_stem`).
+  * 메시지 타입 필드는 그 자체로 값 유무를 구분하고(예: `MonthDay.solar_term`), 스칼라·문자열의 "없음"은 `optional`입니다(예: `BirthInfo.time`, `MonthDay.featured_tag`).
   * 시간 모름이면 `ChartResponse.pillars.hour`가 비어 있습니다.
   * 시각(`FocusSlot.start/end`, `SolarTerm.at`)은 `google.protobuf.Timestamp`(절대 시각)입니다. 표시할 때는 요청의 `current_timezone`으로 바꿔 주세요.
   * 오류 코드: 잘못된 입력 `INVALID_ARGUMENT`, 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖 `OUT_OF_RANGE`, 그 밖 `INTERNAL`. 계산되는 민감 상황은 오류가 아니라 `ResponseMeta.notices`입니다(D32).

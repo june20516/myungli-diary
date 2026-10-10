@@ -2,6 +2,7 @@
 # proto/myungri/engine/v1/engine.proto 에서 Python 코드를 생성한다.
 #
 # 사용: bash tools/gen_proto.sh [출력 디렉터리]   (core/ 에서 실행, 기본 src/myungri_engine/_gen)
+# 환경 변수 PYTHON: grpc_tools가 설치된 Python 실행 명령 (기본 "uv run python")
 #
 # 생성 코드는 myungri_engine._gen.myungri.engine.v1 패키지로 import한다. protoc의 grpc 플러그인은
 # "from myungri.engine.v1 import engine_pb2" 처럼 proto 경로 기준 절대 import를 쓰므로, 이를 패키지 경로로
@@ -14,13 +15,14 @@ OUT_DIR="${1:-${CORE_DIR}/src/myungri_engine/_gen}"
 PROTO_FILE="myungri/engine/v1/engine.proto"
 PACKAGE_DIR="myungri/engine/v1"
 GEN_PACKAGE="myungri_engine._gen.myungri.engine.v1"
+read -r -a PYTHON_CMD <<< "${PYTHON:-uv run python}"
 
 # 이전 생성물만 지운다(출력 디렉터리 자체는 지우지 않음).
 rm -rf "${OUT_DIR}/myungri"
 mkdir -p "${OUT_DIR}"
 
 cd "${CORE_DIR}"
-uv run python -m grpc_tools.protoc \
+"${PYTHON_CMD[@]}" -m grpc_tools.protoc \
   -I "${PROTO_ROOT}" \
   --python_out="${OUT_DIR}" \
   --pyi_out="${OUT_DIR}" \

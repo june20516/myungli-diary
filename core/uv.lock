@@ -416,7 +416,7 @@ dev = [
 requires-dist = [
     { name = "grpcio", specifier = "==1.84.0" },
     { name = "lunar-python", specifier = "==1.4.8" },
-    { name = "protobuf" },
+    { name = "protobuf", specifier = ">=7.35.1" },
     { name = "tzdata", specifier = ">=2026.5" },
 ]
 

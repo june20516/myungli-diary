@@ -705,7 +705,7 @@ class MonthResponse(_message.Message):
     def __init__(self, days: _Optional[_Iterable[_Union[MonthDay, _Mapping]]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...
 
 class MonthDay(_message.Message):
-    __slots__ = ("date", "pillar", "lunar_month", "lunar_day", "is_leap_month", "solar_term", "kind", "luck_level", "score", "score_items", "featured_tag")
+    __slots__ = ("date", "pillar", "lunar_month", "lunar_day", "is_leap_month", "solar_term", "kind", "luck_level", "score", "score_items", "featured_tag", "judgment")
     DATE_FIELD_NUMBER: _ClassVar[int]
     PILLAR_FIELD_NUMBER: _ClassVar[int]
     LUNAR_MONTH_FIELD_NUMBER: _ClassVar[int]
@@ -717,6 +717,7 @@ class MonthDay(_message.Message):
     SCORE_FIELD_NUMBER: _ClassVar[int]
     SCORE_ITEMS_FIELD_NUMBER: _ClassVar[int]
     FEATURED_TAG_FIELD_NUMBER: _ClassVar[int]
+    JUDGMENT_FIELD_NUMBER: _ClassVar[int]
     date: LocalDate
     pillar: Pillar
     lunar_month: int
@@ -728,7 +729,8 @@ class MonthDay(_message.Message):
     score: int
     score_items: _containers.RepeatedCompositeFieldContainer[ScoreItem]
     featured_tag: str
-    def __init__(self, date: _Optional[_Union[LocalDate, _Mapping]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., solar_term: _Optional[_Union[SolarTerm, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., luck_level: _Optional[_Union[LuckLevel, str]] = ..., score: _Optional[int] = ..., score_items: _Optional[_Iterable[_Union[ScoreItem, _Mapping]]] = ..., featured_tag: _Optional[str] = ...) -> None: ...
+    judgment: Judgment
+    def __init__(self, date: _Optional[_Union[LocalDate, _Mapping]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., solar_term: _Optional[_Union[SolarTerm, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., luck_level: _Optional[_Union[LuckLevel, str]] = ..., score: _Optional[int] = ..., score_items: _Optional[_Iterable[_Union[ScoreItem, _Mapping]]] = ..., featured_tag: _Optional[str] = ..., judgment: _Optional[_Union[Judgment, _Mapping]] = ...) -> None: ...
 
 class SolarTerm(_message.Message):
     __slots__ = ("name", "at")
