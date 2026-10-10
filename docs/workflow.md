@@ -54,6 +54,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **둘 이상의 서브 프로젝트나 제품 전체에 걸친 결정:** `docs/decisions.md` (번호 `D<n>`, 지휘 세션만 기록)
 * **한 서브 프로젝트 안의 결정:** `<서브 프로젝트>/docs/decisions.md` (번호 core `C<n>`, server `S<n>`, app `A<n>`). 작업 단위는 `docs/identity/<writing|design>/decisions.md` (번호 writing `W<n>`, design `V<n>`)
 * 서브 프로젝트 결정이 루트 결정과 부딪히면 구현을 멈추고 요청함으로 올립니다.
+* **번호가 마일스톤 ID와 겹칠 때(D46):** 결정 C1과 마일스톤 C1처럼 글자가 같을 수 있습니다. 문장에서는 "결정 V1", "마일스톤 V1"처럼 종류를 앞에 붙여 씁니다. 표 안에서는 열 이름이 종류를 정하므로 붙이지 않아도 됩니다.
 
 ## 5. 계약과 요청함
 
