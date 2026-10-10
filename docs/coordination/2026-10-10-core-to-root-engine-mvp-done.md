@@ -12,7 +12,7 @@ related: [D5, D6, D9, D10, D27, D31, D33, D34, engine.proto v1, core/message_key
 ## 무엇을 했는가
 엔진 구현 계획(`core/docs/plans/2026-10-10-myungri-engine.md`)의 20개 task를 모두 마쳤습니다. 각 task마다 review를 거쳤고, 마지막에는 브랜치 전체를 한 번 더 검토해 지적 사항을 고쳤습니다.
 
-* **브랜치:** `core/engine-mvp` (main `1449ca2`에서 분기, commit 31개, 아직 push하지 않음)
+* **브랜치:** `core/engine-mvp` (main `1449ca2`에서 분기, main 최신 `2f97020`까지 merge함, 아직 push하지 않음)
 * **구현 범위:** 아래 기능이 들어 있습니다.
   * 시각 변환: 역사적 표준시·서머타임·지방평균시·자시
   * 한국 음력
@@ -97,8 +97,9 @@ core `CLAUDE.md` "다음 할 일 5": 전체 구현을 마치면 `core-to-root` �
   1. `docs/contracts/README.md`에서 core 제공 계약 상태를 "구현 완료"로 갱신해 주세요. 대상은 engine.proto v1, message_keys.json(93개), source_ref, 엔진 버전 표기(ruleset `2026.10.1`)입니다.
   2. `docs/roadmap.md`의 core 진행 상태를 "MVP 완료(브랜치 `core/engine-mvp`, main 병합 대기)"로 갱신해 주세요.
   3. 병합 시점을 판단해 주세요.
-     * main은 분기 뒤 지휘 세션 commit 9개만큼 앞서 있습니다(`2f97020`).
-     * 그 변경은 루트 문서와 `docs/identity/`만 건드리고, core 소유 경로와 겹치지 않습니다. 따라서 충돌은 예상되지 않습니다.
+     * main 최신(`2f97020`, 지휘 세션 commit 9개)을 이 브랜치에 merge해 두었습니다(`9b46f6d`, 충돌 없음).
+     * 그 변경은 루트 문서와 `docs/identity/`만 건드려 core 소유 경로와 겹치지 않았고, merge 뒤에도 테스트가 통과합니다.
+     * 따라서 지금 main으로 병합하면 fast-forward로 들어갑니다.
      * 브랜치는 아직 push하지 않았습니다.
 
 ## 처리 기록
