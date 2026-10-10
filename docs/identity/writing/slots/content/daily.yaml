@@ -2,17 +2,26 @@
 #
 # 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
 #   core/src/myungri_engine/composers/daily.py, rules/messages.py
-# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
-# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드(W0 Task 11~13)에서 채웁니다.
+# max_length는 design과 조정하기 전까지 언어별 `null`입니다.
 # keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+# examples 항목: lang, key(있으면), type(있으면), text, why, source
+#   source: round-R<n>-<문항> = 라운드에서 사용자가 고르거나 걸러낸 문장
+#           writing = 라운드 규칙(W6~W12)을 적용해 writing 세션이 쓴 문장
+# tone: 진지(1 유머 ↔ 5 진지), 격식(1 캐주얼 ↔ 5 격식), 존중(1 파격 ↔ 5 존중), 담백(1 열정 ↔ 5 담백)
 
 - id: daily.fortune.head
-  where: 오늘 화면 총운 헤드라인
+  where: 오늘 화면 총운 헤드라인 (날의 성격 배지 바로 아래)
   purpose: info
-  user_state: 미정
-  structure: 미정
+  user_state: 앱을 연 직후 가장 먼저 읽습니다. 훑어보는 상태라 한 문장으로 그날을 알아야 합니다.
+  structure: >-
+    짧은 한 문장(W8). advice는 이유(선택, 토큰 가능)와 구체적인 행동 하나를 쓰고 "~해 보세요"로 맺습니다(W11).
+    state는 그날 일어나기 쉬운 일을 담백하게 말합니다. care는 그날의 마음을 짚고 특정 행동을 시키지 않습니다(W12).
   types: [advice, state, care]
-  tone: {}
+  depth:
+    surface: 용어 토큰(W9 범주)을 이유 자리에 둘 수 있습니다. 화면 전체 최대 2개, 2개면 한 문장에 모읍니다.
+    explain: 토큰의 뜻과 오늘 그런 이유는 풀이(하프 시트)에서 씁니다.
+  endings: ["advice: ~해 보세요", "state: ~날이에요", "care: ~해도 괜찮은 날이에요, ~큰 날이에요 (괜찮아요 반복은 limit.L8)"]
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [day_kind, ten_god, element, emphasis, name]
@@ -39,15 +48,42 @@
         - fortune.yongsin_day.siksang
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
   co_display: [daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: fortune.yongsin_day.siksang, type: advice, text: "[[식상]]이 살아나니, 회의에서 먼저 의견을 꺼내 보세요.", why: "토큰이 이유, 행동 하나", source: round-R4-1}
+      - {lang: ko, key: fortune.yongsin_day.siksang, type: state, text: "말과 글에 힘이 실리는 날이에요.", why: "짧고 담백한 상태", source: round-R4-2}
+      - {lang: ko, key: fortune.yongsin_day.siksang, type: care, text: "하고 싶던 말을 꺼내도 괜찮은 날이에요.", why: "허락으로 마음을 짚고 행동을 시키지 않음", source: round-R4-3}
+      - {lang: ko, key: fortune.gisin_day.gwanseong, type: advice, text: "일정을 줄일 수 있다면 하나쯤 내일로 미뤄 보세요.", why: "조건을 붙인 현실적인 행동 하나", source: round-R4-4}
+      - {lang: ko, key: fortune.gisin_day.gwanseong, type: state, text: "해야 할 일이 한꺼번에 몰리는 날이에요.", why: "무엇이 일어나는지 구체적", source: round-R4-5}
+      - {lang: ko, key: fortune.gisin_day.gwanseong, type: care, text: "부담이 큰 날이에요. 다 해내지 못해도 괜찮아요.", why: "짐을 덜어 주는 허락", source: round-R1-4}
+      - {lang: ko, key: fortune.ordinary_day.inseong, type: advice, text: "[[인성]]이 들어오니, 미뤄 둔 책이나 강의를 열어 보세요.", why: "토큰이 이유, 행동 하나", source: round-R4-6}
+      - {lang: ko, key: fortune.ordinary_day.inseong, type: state, text: "[[인성]]이 들어와 무언가를 배우기 좋은 날이에요.", why: "토큰을 이유 자리에, 쉬운 일상어", source: round-R3-2}
+      - {lang: ko, key: fortune.ordinary_day.inseong, type: care, text: "몰랐던 걸 알게 되는 기쁨이 큰 날이에요.", why: "허락형이 아닌 기쁨을 짚는 돌봄", source: round-R4-7}
+    bad:
+      - {lang: ko, type: advice, text: "표현하는 당신이 가장 빛나는 순간이에요.", why: "번역 슬로건 slop.P5, 당신", source: round-R4-1}
+      - {lang: ko, type: state, text: "오늘의 당신은 표현의 기운 그 자체예요.", why: "정의형 slop.P2, 추상", source: round-R4-2}
+      - {lang: ko, type: care, text: "차분하게 곁에서 응원할게요.", why: "자기 성격 형용 slop.P6", source: round-R4-3}
+      - {lang: ko, type: state, text: "오늘은 시험대 위에 선 하루예요.", why: "무엇이 일어나는지 말하지 않는 은유 slop.P1", source: round-R4-5}
+      - {lang: ko, type: advice, text: "배움은 언제나 당신을 더 나은 곳으로 데려가요.", why: "사물 주어 slop.P3, 번역 슬로건 slop.P5", source: round-R4-6}
+      - {lang: ko, type: care, text: "지칠 때는 쉬어도 괜찮아요.", why: "돌봄 문장에서 행동(쉬기)을 권함", source: round-R1-4}
+      - {lang: ko, type: state, text: "학습 효율이 높은 날이에요.", why: "한자어 기술 용어 slop.P9", source: round-R3-1}
+      - {lang: ko, type: state, text: "인성(배움과 도움의 기운)이 들어와 배우기 좋은 날이에요.", why: "괄호 풀이 style.S1", source: round-R3-2}
+      - {lang: ko, type: state, text: "생각이 잘 풀리는 날이에요… 말에 힘이 실려요.", why: "말줄임 style.S2, 두 문장", source: round-R2-1}
+  a11y:
+    truncation: 잘리지 않게 씁니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 토큰은 단어 그대로 읽습니다. 풀이를 여는 동작은 app이 버튼으로 따로 알립니다.
 
 - id: daily.fortune.tag
-  where: 오늘 화면 총운 보조 문장
+  where: 오늘 화면 총운 보조 문장 (대표 태그가 있는 날만)
   purpose: info
-  user_state: 미정
-  structure: 미정
+  user_state: 헤드라인 다음에 읽습니다. 그날만의 특징(태그)이 왜 붙었는지 궁금한 상태입니다.
+  structure: 짧은 한 문장. 유형별 구조는 daily.fortune.head와 같습니다. 태그 이름을 토큰으로 쓸 수 있습니다.
   types: [advice, state, care]
-  tone: {}
+  depth:
+    surface: 태그 이름을 토큰으로 둘 수 있습니다. 헤드라인과 합쳐 화면 최대 2개이고, 2개면 한 문장에 모읍니다.
+    explain: 태그의 뜻과 오늘 그런 이유는 풀이에서 씁니다.
+  endings: ["advice: ~해 보세요", "state: ~날이에요", "care: 마음을 짚는 해요체"]
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [day_kind, ten_god, element, emphasis, name]
@@ -69,14 +105,27 @@
         - fortune.tag.yongsin_day
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: fortune.tag.dohwa, type: state, text: "[[도화]]가 들어 사람들의 눈길이 모이는 날이에요.", why: "토큰이 이유, 일어나는 일이 구체적", source: writing}
+      - {lang: ko, key: fortune.tag.yeokma, type: advice, text: "[[역마]]가 드니, 미뤄 둔 외출이나 이동을 오늘 해 보세요.", why: "토큰이 이유, 행동 하나", source: writing}
+    bad:
+      - {lang: ko, key: fortune.tag.dohwa, type: state, text: "도화살 발동! 오늘은 인기 폭발이에요.", why: "들뜬 강조 slop.P8, 과장", source: writing}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 헤드라인 다음에 이어 읽습니다.
 
 - id: daily.guide
-  where: 오늘 화면 가이드 질문
+  where: 오늘 화면 가이드 질문 (일기 쓰기 전에 보임, D22)
   purpose: guide
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 일기를 쓰려는 참입니다. 무엇부터 쓸지 막막할 수 있습니다.
+  structure: >-
+    질문 한 문장. 하루에서 구체적인 것 하나를 짚게 합니다.
+    변주 1은 권유형("~하나 적어 볼까요?"), 변주 2는 질문형("~가장 ~했던 건 뭐였나요?")입니다(W13).
+  depth:
+    surface: 토큰을 쓸 수 있지만 질문의 대상(사람, 장면, 돈)을 흐리지 않게 씁니다.
+  endings: ["변주 1: ~적어 볼까요?", "변주 2: ~뭐였나요?, ~있었나요?"]
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 3}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [ten_god, element]
@@ -103,14 +152,28 @@
         - guide.yongsin_day
   variants: {count: 2, rotation: "같은 키가 나올 때마다 변주 1, 2 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: guide.dohwa, variant: 1, text: "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?", why: "하나만 고르게 하는 권유형", source: round-R6-1}
+      - {lang: ko, key: guide.ten_god.jaeseong, variant: 2, text: "오늘 쓴 돈 중에 가장 만족스러웠던 건 뭐였나요?", why: "구체적인 것 하나를 짚는 질문형", source: round-R6-2}
+    bad:
+      - {lang: ko, key: guide.ten_god.jaeseong, text: "재물의 흐름이 당신에게 어떤 의미로 다가왔나요?", why: "추상 slop.P1, 당신", source: round-R6-2}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 질문으로 읽습니다.
 
 - id: daily.color
-  where: 오늘 화면 행운의 색
+  where: 오늘 화면 행운의 색 카드
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 옷이나 소품을 고르기 전에 훑어봅니다.
+  structure: >-
+    한두 문장. 단순형("오늘은 남색이 잘 맞아요"), 쓰임새형("옷이나 소품을 고른다면 남색이 좋아요"),
+    두 문장형("오늘은 남색이 잘 맞아요. 옷이나 소품으로 챙겨 보세요") 중 하나입니다.
+    같은 화면의 다른 카드와 같은 틀을 쓰지 않습니다(W7, limit.L5). 색이 왜 맞는지는 풀이에서 씁니다.
+  depth:
+    explain: 색과 오행의 관계, 오늘 그 색인 이유
+  endings: ["~잘 맞아요", "~좋아요", "~을 추천해요", "~챙겨 보세요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [element, role]
@@ -121,14 +184,28 @@
         - color.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, text: "오늘은 남색이 잘 맞아요.", why: "단순형", source: round-R1-1}
+      - {lang: ko, text: "옷이나 소품을 고른다면 남색이 좋아요.", why: "쓰임새형", source: round-R2-4}
+      - {lang: ko, text: "오늘은 남색이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.", why: "두 문장형, 같은 틀 반복을 피할 때", source: round-R2-4}
+    bad:
+      - {lang: ko, text: "남색, 오늘 당신을 지켜 줄 색이에요.", why: "사물 주어 slop.P3, 당신", source: round-R1-1}
+      - {lang: ko, text: "오늘 맞는 색은 남색입니다.", why: "합니다체 style.S3", source: round-R1-1}
+      - {lang: ko, text: "남색은 차분하게 가라앉은 물의 기운을 끌어당기는 색이에요.", why: "카드에는 과한 효능 설명, 풀이로", source: round-R1-1}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 색 견본 칩은 app이 색 이름으로 읽습니다. 문장은 그대로 읽습니다.
 
 - id: daily.direction
-  where: 오늘 화면 방향
+  where: 오늘 화면 방향 카드
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 약속 장소나 동선을 정할 때 훑어봅니다.
+  structure: 한두 문장. 형태는 daily.color와 같고, 같은 화면에서 같은 틀을 반복하지 않습니다(W7).
+  depth:
+    explain: 방위와 오행, 오늘 그 방향인 이유(날의 성격 규칙)
+  endings: ["~잘 맞아요", "~좋아요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [direction, rule_id]
@@ -139,14 +216,26 @@
         - direction.day_kind.yongsin
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, text: "약속 장소를 고른다면 북쪽이 좋아요.", why: "쓰임새형", source: round-R2-3}
+      - {lang: ko, text: "오늘은 북쪽이 잘 맞아요.", why: "단순형", source: round-R2-3}
+    bad:
+      - {lang: ko, text: "북쪽으로 향하는 발걸음이 오늘의 행운을 불러와요.", why: "사물 주어 slop.P3, 추상 slop.P1", source: round-R2-3}
+      - {lang: ko, text: "오늘은, 북쪽이 잘 맞아요.", why: "짧은 주제어 뒤 쉼표", source: round-R2-3}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 방향 칩은 app이 방향 이름으로 읽습니다.
 
 - id: daily.number
-  where: 오늘 화면 숫자
+  where: 오늘 화면 숫자 카드
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 번호나 순서를 고를 일이 있을 때 훑어봅니다.
+  structure: 한두 문장. 형태는 daily.color와 같고, 같은 화면에서 같은 틀을 반복하지 않습니다(W7).
+  depth:
+    explain: 하도 수와 오행, 홀짝을 고른 이유
+  endings: ["~잘 맞아요", "~좋아요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [number, element]
@@ -157,14 +246,25 @@
         - number.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.focus_time, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, text: "오늘은 6이 잘 맞아요.", why: "단순형", source: writing}
+      - {lang: ko, text: "번호를 고를 일이 있다면 6이 좋아요.", why: "쓰임새형 (같은 화면의 다른 카드가 쓰임새형이면 단순형으로)", source: writing}
+    bad:
+      - {lang: ko, text: "6이라는 숫자가 오늘 당신에게 행운을 속삭여요.", why: "사물 주어 slop.P3, 당신", source: writing}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 숫자는 숫자로 읽습니다.
 
 - id: daily.focus_time
-  where: 오늘 화면 집중 시간
+  where: 오늘 화면 집중하기 좋은 시간 카드
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 중요한 일을 언제 할지 정할 때 봅니다.
+  structure: 한 문장. 시간대 표시(시진, 시각)는 app이 칩으로 보여 주고, 문장은 그 시간에 무엇이 좋은지만 말합니다.
+  depth:
+    explain: 고른 시진과 가점 사유(daily.focus_reason)
+  endings: ["~좋아요", "~잘 돼요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: [branches, score]
@@ -176,14 +276,26 @@
         - focus_time.yongsin
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.tag_label, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: focus_time.gwiin, text: "이 시간에는 도움을 청하면 잘 통해요.", why: "그 시간에 좋은 일이 구체적", source: writing}
+      - {lang: ko, key: focus_time.fallback, text: "오늘은 이 시간에 집중이 잘 돼요.", why: "특별한 사유가 없을 때의 담백한 형태", source: writing}
+    bad:
+      - {lang: ko, text: "시간의 흐름이 당신 편이 되는 순간이에요.", why: "추상 slop.P1, 사물 주어 slop.P3, 당신", source: writing}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 시간 칩을 먼저, 문장을 다음에 읽습니다(app).
 
 - id: daily.tag_label
-  where: 오늘 화면 태그 이름
+  where: 오늘 화면 태그 이름 (해시태그 칩)
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 칩을 훑어보고 탭해서 풀이를 엽니다.
+  structure: 명사구 하나. 태그 이름 그대로 쓰고 꾸밈말을 붙이지 않습니다.
+  depth:
+    surface: 태그 이름 자체가 용어 토큰 범주입니다(칩이라 문장 토큰 상한에는 세지 않음).
+    explain: 태그의 뜻
+  endings: []
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - tag.big_change
@@ -203,14 +315,25 @@
     - tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.focus_reason]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: tag.dohwa, text: "도화", why: "이름 그대로", source: writing}
+      - {lang: ko, key: tag.big_change, text: "큰 변화", why: "쉬운 일상어 명사구", source: writing}
+    bad:
+      - {lang: ko, key: tag.dohwa, text: "도화살 발동!", why: "들뜬 강조 slop.P8", source: writing}
+  a11y:
+    truncation: 칩 안에서 잘리지 않게 짧게 씁니다.
+    screen_reader: 칩 이름을 읽고, 탭하면 풀이가 열린다는 것은 app이 알립니다.
 
 - id: daily.focus_reason
   where: 오늘 화면 집중 시간 가점 사유 (FocusSlot.reasons)
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 집중 시간 풀이를 열었을 때 봅니다.
+  structure: 명사구 하나. 사유 이름 그대로 씁니다.
+  depth:
+    explain: 이 칩은 풀이 단계에서 보입니다.
+  endings: []
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - gwiin
@@ -219,4 +342,11 @@
     - hap
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label]
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: gwiin, text: "귀인 시간", why: "이름 그대로", source: writing}
+    bad:
+      - {lang: ko, key: gwiin, text: "귀인(나를 돕는 사람)의 시간", why: "괄호 풀이 style.S1", source: writing}
+  a11y:
+    truncation: 칩 안에서 잘리지 않게 짧게 씁니다.
+    screen_reader: 칩 이름을 읽습니다.

@@ -3,17 +3,27 @@
 # 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
 #   (엔진 코드 없음: D42 계산 기준 안내 식별자)
 # 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
-# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드(W0 Task 11~13)에서 채웁니다.
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드 R1~R7 결과(W6~W13)로 채웠습니다.
 # keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
 
 - id: settings.calculation_basis
   where: 설정과 근거(evidence) 단계의 계산 기준 안내 (D42)
   purpose: info
-  user_state: 미정
-  structure: 미정
-  tone: {}
+  user_state: 다른 만세력 앱과 시주가 다르게 나와 이유를 찾는 중입니다.
+  structure: 두세 문장. 무엇을 기준으로 계산했는지와, 그래서 경계 몇 분 안에서 다른 앱과 달라질 수 있다는 점을 말합니다(D42).
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - notice.calculation_basis
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: notice.calculation_basis, text: "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "기준과 결과를 구체적으로", source: writing}
+    bad:
+      - {lang: ko, key: notice.calculation_basis, text: "정확한 계산을 위해 최선을 다하고 있어요.", why: "무엇을 했는지 말하지 않음 slop.P1, 자기 성격 형용 slop.P6", source: writing}
+  depth:
+    evidence: 근거 단계와 설정 화면에 함께 보입니다.
+  endings: ["~계산해요", "~달라질 수 있어요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.
