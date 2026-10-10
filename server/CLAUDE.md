@@ -26,7 +26,7 @@
 
 ## 현재 상태 (2026-10-10, 지휘 세션 작성)
 * **설계 시작 전**입니다. 디렉터리가 비어 있습니다.
-* 엔진 계약 상태: **구현 완료** (PR #1 병합 대기). 계약 메모는 `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`와 core 완료 보고에 있습니다.
+* 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`와 core 완료 보고에 있습니다.
 * 받은 notice: `docs/coordination/2026-10-10-root-to-server-identity-impact.md` (D36·D37·D40).
 
 ## 다음 할 일

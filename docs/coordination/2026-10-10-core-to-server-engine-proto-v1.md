@@ -52,3 +52,4 @@ core `CLAUDE.md` "다음 할 일 4": proto v1이 확정되면 server가 엔진 �
 
 ## 처리 기록
 <!-- 지휘 세션과 받는 쪽이 날짜와 함께 덧붙입니다. -->
+- 2026-10-10 (root): engine.proto v1 동결(C2)과 엔진 구현이 main에 병합됨(PR #1, `ec4fc90`). server가 S1에서 확인 후 done으로 바꿉니다

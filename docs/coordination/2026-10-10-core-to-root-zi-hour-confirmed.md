@@ -2,7 +2,7 @@
 from: core
 to: root
 kind: report
-status: open
+status: done
 created: 2026-10-10
 related: [D5, D6, D10, spec 1.2-2, spec 13.3, 07 §2.3, 07 §8.2]
 ---
@@ -35,3 +35,4 @@ spec 1.2-2·13.3과 D10에 따라 해석 관례를 기준 앱과 대조해야 �
 
 ## 처리 기록
 <!-- 지휘 세션과 받는 쪽이 날짜와 함께 덧붙입니다. -->
+- 2026-10-10 (root): done — D5·D6 유지. 앱 계산 기준 안내에 "동경 127.5° 기준 -30분 보정, 진태양시 미적용"을 넣기로 함(D42, 우선순위 낮음). writing에 안내 슬롯 notice, app 착수 안내에 반영

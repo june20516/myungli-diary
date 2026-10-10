@@ -2,7 +2,7 @@
 from: core
 to: root
 kind: report
-status: open
+status: done
 created: 2026-10-10
 related: [D5, D6, D9, D10, D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec §1.2·§9·§10·§11·§12·§13, C1~C26]
 ---
@@ -104,3 +104,4 @@ core `CLAUDE.md` "다음 할 일 5": 전체 구현을 마치면 `core-to-root` �
 
 ## 처리 기록
 <!-- 지휘 세션과 받는 쪽이 날짜와 함께 덧붙입니다. -->
+- 2026-10-10 (root): done — 지휘 세션이 별도 worktree에서 재검증(ruff, mypy --strict 53, pytest 364, buf lint, 생성 코드 일치). PR #1로 main 병합(`ec4fc90`), CI check·proto 통과, slow는 workflow_dispatch로 실행해 통과(7 passed). 요청 1·2 처리: 계약 목록·로드맵 갱신. 경계 판단: C19 → D41, 계산 기준 안내 → D42(우선순위 낮음). 후속 요청은 `2026-10-10-root-to-core-engine-mvp-feedback.md`
