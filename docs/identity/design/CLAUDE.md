@@ -37,9 +37,11 @@
    - [`../README.md`](../README.md)와 [브랜드 기반 spec](../../specs/2026-10-10-brand-foundation-design.md) §7·§9
    - `docs/background/06-design-system.md`
    - `docs/decisions.md`의 D16, D19, D20, D36, D37
-2. 저장소 루트에서 worktree와 브랜치를 만들고, 그 worktree의 `docs/identity/design`에서 세션을 시작합니다.
+2. worktree와 브랜치를 만들고 그 안으로 옮겨 세션을 시작합니다. 원래 checkout은 다른 세션이 다른 브랜치로 쓰고 있을 수 있고, 그 브랜치에는 `docs/identity/`가 없을 수 있습니다. 그래서 원래 checkout의 이 디렉터리로 들어가지 않고, 아래 명령을 저장소 루트에서 그대로 실행합니다.
    ```
-   git worktree add ../myungli-diary-design -b design/visual-identity --no-track main
+   git fetch origin
+   git worktree add ../myungli-diary-design -b design/visual-identity --no-track origin/main
+   cd ../myungli-diary-design/docs/identity/design && claude
    ```
 3. brainstorming으로 V0 spec을 작성합니다 → `docs/identity/design/specs/`
 4. 토큰 파일 형식(JSON 등)과 Dart 코드 생성 방식은 app과 요청함으로 합의합니다.

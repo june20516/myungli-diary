@@ -51,9 +51,11 @@
    - [`../README.md`](../README.md)와 [브랜드 기반 spec](../../specs/2026-10-10-brand-foundation-design.md)
    - `docs/decisions.md`의 D13, D19~D24, D27, D28, D36~D40
    - `docs/background/` 00·03 (원문의 예시 문구는 slop 사례로 읽습니다)
-2. 저장소 루트에서 worktree와 브랜치를 만들고, 그 worktree의 `docs/identity/writing`에서 세션을 시작합니다.
+2. worktree와 브랜치를 만들고 그 안으로 옮겨 세션을 시작합니다. 원래 checkout은 다른 세션이 다른 브랜치로 쓰고 있을 수 있고, 그 브랜치에는 `docs/identity/`가 없을 수 있습니다. 그래서 원래 checkout의 이 디렉터리로 들어가지 않고, 아래 명령을 저장소 루트에서 그대로 실행합니다.
    ```
-   git worktree add ../myungli-diary-writing -b writing/system-foundation --no-track main
+   git fetch origin
+   git worktree add ../myungli-diary-writing -b writing/system-foundation --no-track origin/main
+   cd ../myungli-diary-writing/docs/identity/writing && claude
    ```
 3. brainstorming으로 W0 spec을 작성합니다 → `docs/identity/writing/specs/`
 4. 친숙도 검수 라운드는 사용자와 n지선다로 진행합니다.

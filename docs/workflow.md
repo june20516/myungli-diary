@@ -74,4 +74,5 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
 * commit 메시지의 범위 표기: `feat(core): …`, `fix(server): …`, `docs(root): …`.
 * **같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다.** 서브 프로젝트를 동시에 진행하려면 서브 프로젝트마다 `git worktree`를 따로 만듭니다(using-git-worktrees skill).
+* **새 세션은 worktree를 먼저 만들고 그 안에서 시작합니다.** 원래 checkout은 다른 세션의 브랜치에 있을 수 있어서, 새 디렉터리(예: `docs/identity/`)가 아직 없을 수 있습니다. 착수 안내는 `git fetch origin` → `git worktree add ../<이름> -b <브랜치> --no-track origin/main` → `cd ../<이름>/<시작 디렉터리> && claude`를 한 덩어리로 적습니다.
 * 릴리스 태그에는 접두어를 붙입니다: `core/v1.0.0`.
