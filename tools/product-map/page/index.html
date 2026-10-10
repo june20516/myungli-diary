@@ -87,6 +87,14 @@ button.card { cursor: pointer; }
 .prose table { margin-block: 8px; }
 .prose blockquote { margin: 8px 0; padding: 4px 14px; border-left: 3px solid var(--term); font-family: var(--font-display); font-size: 1.1rem; }
 
+/* 아이디어 */
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 14px; align-items: start; }
+.lane { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.lane h2 { margin: 0; font-size: 1rem; }
+.lane .group { font-size: .8rem; color: var(--muted); margin: 6px 0 0; border-top: 1px solid var(--line); padding-top: 8px; }
+.lane .card h3 { margin: 0; font-size: .95rem; }
+.lane .card .chip { align-self: flex-start; }
+
 /* 결정 */
 input[type="search"] { width: 100%; font: inherit; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); }
 .decision { display: grid; grid-template-columns: 4.2rem 1fr; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
@@ -129,6 +137,7 @@ img.zoomable { cursor: zoom-in; }
     <a href="#identity" data-tab="identity">정체성</a>
     <a href="#logic" data-tab="logic">로직</a>
     <a href="#gallery" data-tab="gallery">산출물</a>
+    <a href="#ideas" data-tab="ideas">아이디어</a>
     <a href="#decisions" data-tab="decisions">결정</a>
   </nav>
 
@@ -180,6 +189,10 @@ flowchart LR
   <section class="panel" id="tab-gallery" hidden>
     <div class="box"><div class="chips" id="gallery-filters" role="group" aria-label="산출물 거르기"></div></div>
     <div class="cards" id="gallery"></div>
+  </section>
+
+  <section class="panel" id="tab-ideas" hidden>
+    <div class="board" id="ideas-board"></div>
   </section>
 
   <section class="panel" id="tab-decisions" hidden>
@@ -444,6 +457,69 @@ function renderGallery() {
   draw();
 }
 
+const IDEA_LANES = [
+  { title: "대기", states: ["waiting"] },
+  { title: "검토 중", states: ["review"] },
+  { title: "채택", states: ["adopted"] },
+  { title: "보류·기각", states: ["held", "rejected", "unknown"] },
+];
+
+function ideaCard(i) {
+  const decision = i.decision ? `<button class="chip" type="button" data-decision="${esc(i.decision)}">→ ${esc(i.decision)}</button>` : "";
+  return `<div class="card" role="button" tabindex="0" data-idea="${esc(i.id)}">
+    <h3>${esc(i.idea)} <span class="muted" style="font-size:.75rem;font-weight:400">${esc(i.id)}</span></h3>
+    <span class="meta"><span class="pill todo">${esc(i.scope)}</span><span class="pill ${i.revenue === "유료 후보" ? "doing" : "todo"}">${esc(i.revenue)}</span>${i.state === "unknown" ? `<span class="pill todo">${esc(i.status)}</span>` : ""}</span>
+    ${decision}</div>`;
+}
+
+function openDecision(id) {
+  location.hash = "decisions";
+  const search = document.getElementById("decision-search");
+  search.value = id;
+  search.dispatchEvent(new Event("input"));
+}
+
+function openIdea(id) {
+  const i = (DATA.ideas || []).find((x) => x.id === id);
+  if (!i) return;
+  const review = (DATA.idea_reviews || []).find((r) => r.path === i.review);
+  const row = (label, value) => value ? `<div><h3>${label}</h3><p style="margin:0">${value}</p></div>` : "";
+  openSheet(`<header><span class="pill todo">${esc(i.scope)}</span> <span class="pill">${esc(i.revenue)}</span><button class="close" type="button">닫기</button></header>
+    <h2 id="sheet-title">${esc(i.idea)} <span class="muted" style="font-size:.8rem;font-weight:400">${esc(i.id)}</span></h2>
+    ${row("상태", esc(i.status))}
+    ${row("메모", esc(i.memo))}
+    ${row("출처 · 날짜", `${esc(i.source)} · ${esc(i.date)}`)}
+    ${row("검토 문서", review ? `${esc(review.title)}<br><code>${esc(review.path)}</code>` : "")}
+    ${row("결정", i.decision ? `<button class="chip" type="button" data-decision="${esc(i.decision)}">${esc(i.decision)} 보기</button>` : "")}`);
+  document.getElementById("sheet").querySelectorAll("[data-decision]").forEach((b) => b.addEventListener("click", () => openDecision(b.dataset.decision)));
+}
+
+function renderIdeas() {
+  const ideas = DATA.ideas || [];
+  const board = document.getElementById("ideas-board");
+  if (!ideas.length) {
+    board.innerHTML = `<p class="muted">아이디어 함이 비어 있습니다. docs/ideas.md에 적으면 여기에 보입니다.</p>`;
+    return;
+  }
+  const lane = (l) => {
+    const items = ideas.filter((i) => l.states.includes(i.state));
+    let body = items.map(ideaCard).join("");
+    if (l.states.includes("review")) {
+      body = (DATA.idea_reviews || []).map((r) => {
+        const group = items.filter((i) => i.review === r.path);
+        return group.length ? `<p class="group">${esc(r.status ? `${r.title} · ${r.status}` : r.title)}</p>${group.map(ideaCard).join("")}` : "";
+      }).join("");
+    }
+    return `<section class="lane box"><h2>${esc(l.title)} <span class="muted">${items.length}</span></h2>${body}</section>`;
+  };
+  board.innerHTML = IDEA_LANES.map(lane).join("");
+  board.querySelectorAll("[data-decision]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); openDecision(b.dataset.decision); }));
+  board.querySelectorAll("[data-idea]").forEach((c) => {
+    c.addEventListener("click", () => openIdea(c.dataset.idea));
+    c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openIdea(c.dataset.idea); } });
+  });
+}
+
 function renderDecisions() {
   const prefixes = [...new Set(DATA.decisions.map((d) => d.id[0]))];
   const state = { prefix: "all", q: "" };
@@ -536,7 +612,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "-") stepZoom(-1);
 });
 
-const TABS = ["route", "screens", "identity", "logic", "gallery", "decisions"];
+const TABS = ["route", "screens", "identity", "logic", "gallery", "ideas", "decisions"];
 function showTab() {
   const current = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "route";
   TABS.forEach((t) => { document.getElementById("tab-" + t).hidden = t !== current; });
@@ -555,7 +631,7 @@ fetch("data.json").then((r) => r.json()).then((data) => {
   document.getElementById("concept").textContent = data.identity.concept || "";
   const when = new Date(data.generated_at);
   document.getElementById("stamp").textContent = "갱신 " + when.toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
-  renderRoute(); renderScreens(); renderIdentity(); renderGallery(); renderDecisions();
+  renderRoute(); renderScreens(); renderIdentity(); renderGallery(); renderIdeas(); renderDecisions();
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderMetro);
   new MutationObserver(renderMetro).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 }).catch(() => {
