@@ -352,8 +352,8 @@ class IdeaTests(RepoTestCase):
             idea_row("I1"),
             idea_row("I2", status="채택 D23"),
             idea_row("I3", status="검토 docs/business/cycles/c.md", scope="MVP"),
-            idea_row("I4", status="보류", revenue="무관"),
-            idea_row("I5", status="기각", revenue="무료", scope="미정"),
+            idea_row("I4", status="보류", revenue="무관", memo="다음 사이클"),
+            idea_row("I5", status="기각", revenue="무료", scope="미정", memo="범위 밖"),
             idea_row("I6", source="Issue #4", revenue="미정"),
             idea_row("I7", source="조사"),
         )
@@ -419,6 +419,27 @@ class IdeaTests(RepoTestCase):
                 f"docs/ideas.md [I1]: 검토 문서가 없습니다: {relative}",
                 f"docs/ideas.md [I2]: 검토 문서가 없습니다: {target}",
             ])
+
+    def test_empty_last_cell_is_counted(self) -> None:
+        self.write_ideas("| I1 | 2026-10-11 | x | 사용자 | MVP | 무관 | 대기 ||")
+        self.assertEqual(docs_check.check_ideas(self.root), [])
+
+    def test_header_without_separator_is_not_a_table(self) -> None:
+        write(self.root, "docs/ideas.md", IDEAS_HEADER.splitlines()[0] + "\n" + idea_row() + "\n")
+        self.assertEqual(docs_check.check_ideas(self.root), [IDEAS_NO_TABLE])
+
+    def test_held_or_rejected_needs_memo(self) -> None:
+        self.write_ideas(idea_row("I1", status="보류"), idea_row("I2", status="기각", memo="  "))
+        self.assertEqual(docs_check.check_ideas(self.root), [
+            "docs/ideas.md [I1]: 보류·기각은 메모에 이유를 적습니다",
+            "docs/ideas.md [I2]: 보류·기각은 메모에 이유를 적습니다",
+        ])
+
+    def test_reports_bad_date(self) -> None:
+        self.write_ideas(idea_row().replace("2026-10-11", "10월 11일"))
+        self.assertEqual(
+            docs_check.check_ideas(self.root), ["docs/ideas.md [I1]: 날짜 형식은 YYYY-MM-DD입니다: 10월 11일"]
+        )
 
     def test_main_reports_idea_problem(self) -> None:
         self.write_ideas(idea_row(source="친구"))

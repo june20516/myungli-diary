@@ -31,6 +31,8 @@ flowchart LR
   consent -->|미리보기를 거침| notify-ask --> ad-consent --> today
   consent -->|미리보기 없이 옴| onboard-call
   login -->|사주가 저장된 계정| today
+  login -->|사주가 저장된 계정, 이 기기에서 광고 동의 전| ad-consent
+  launch -->|로그인 상태, 이 기기에서 광고 동의 전| ad-consent
 ```
 
 ## 일기 입구 세 곳 (D49)

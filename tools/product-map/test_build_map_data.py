@@ -205,6 +205,29 @@ class IdeaTests(unittest.TestCase):
         ideas, _ = build_map_data.collect_ideas(self.root)
         self.assertEqual(ideas[0]["memo"], "a | b")
 
+    def test_escaped_pipe_at_cell_end(self) -> None:
+        self.write_ideas("| I1 | 2026-10-11 | x | 사용자 | MVP | 무관 | 대기 | a \\||\n")
+        ideas, _ = build_map_data.collect_ideas(self.root)
+        self.assertEqual(ideas[0]["memo"], "a |")
+
+    def test_header_without_separator_warns(self) -> None:
+        write(self.root, "docs/ideas.md", IDEAS_HEADER.splitlines()[0] + "\n" + idea_row("I1", "대기"))
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(build_map_data.collect_ideas(self.root), ([], []))
+        self.assertIn("건너뜀: docs/ideas.md", err.getvalue())
+
+    def test_idea_reviews_ignore_paths_outside_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as outside:
+            target = write(Path(outside), "s.md", "# 밖\n\n* 상태: 조사\n")
+            relative = os.path.relpath(target, self.root)
+            self.write_ideas(idea_row("I1", f"검토 {relative}"), idea_row("I2", f"검토 {target}"))
+            _, reviews = build_map_data.collect_ideas(self.root)
+        self.assertEqual(reviews, [
+            {"path": relative, "title": relative, "status": ""},
+            {"path": str(target), "title": str(target), "status": ""},
+        ])
+
     def test_idea_reviews_read_title_and_status(self) -> None:
         write(self.root, CYCLE, "# 출시 결제\n\n* 작성: 지휘\n* 상태: 조사\n")
         self.write_ideas(idea_row("I1", f"검토 {CYCLE}"), idea_row("I2", f"검토 {CYCLE}"))

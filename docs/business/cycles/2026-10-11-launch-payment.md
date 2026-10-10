@@ -108,9 +108,9 @@ LLM 기능은 D24에 따라 Phase 2이고, 다른 날 전체 풀이는 D47⑥에
 
 고친 문서:
 * `docs/decisions.md`: D53
-* `docs/ia/screens.json`: 화면 `ad-consent`(시스템, notify-ask 뒤)·`ad-free`(나 탭)·`system-purchase`(시스템), 컴포넌트 `ad-banner`·`offer-card`, 슬롯 6개(`settings.ad-free.label`, `ad-free.*` 5개), 탭 루트 4곳에 `ad-banner`, `notify-ask` 경로를 `ad-consent`로. 추가만이라 `version` 1 유지(D51)
-* `docs/ia/README.md`: 로그인 흐름도에 `ad-consent`
-* `docs/specs/2026-10-11-ia-design.md`: §8·§10 개정 줄, §10 app·design·server 범위에 D53 몫
+* `docs/ia/screens.json`: 화면 `ad-consent`(시스템, notify-ask 뒤)·`ad-free`(나 탭)·`system-purchase`(시스템), 컴포넌트 `ad-banner`·`offer-card`, 슬롯 6개(`settings.ad-free.label`, `ad-free.*` 5개), 탭 루트 4곳에 `ad-banner`, `notify-ask` 경로를 `ad-consent`로, `launch`·`login`에 광고 동의 전 갈래. 추가만이라 `version` 1 유지(D51)
+* `docs/ia/README.md`: 로그인 흐름도에 `ad-consent`(새 계정, 기존 계정의 로그인·실행)
+* `docs/specs/2026-10-11-ia-design.md`: §3.3·§3.4 흐름, §4.1·§4.5 화면 표, §6 컴포넌트, §7 슬롯, §8·§10 개정 줄, §10 app·design·server 범위에 D53 몫
 * `docs/contracts/README.md`: IA 행 수치(화면 34·컴포넌트 41·슬롯 100)
 * `docs/background/04-mvp-spec.md`: §4.5 수익
 * `docs/roadmap.md`: M0 완료, S1·A1 착수 가능, 현재 진행 순서, 외부 준비물(사업자등록·통신판매업 신고, AdMob·RevenueCat 계정)

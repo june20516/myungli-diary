@@ -41,6 +41,7 @@ IA_SCREEN_FIELDS = {
     "components": list, "exits": list, "decisions": list,
 }
 
+# 아이디어 표 파싱 규칙은 tools/product-map/build_map_data.py와 같습니다. 바꾸면 그쪽도 바꿉니다.
 IDEAS_PATH = "docs/ideas.md"
 IDEA_COLUMNS = ("id", "날짜", "아이디어", "출처", "범위", "수익", "상태", "메모")
 IDEA_ID_PATTERN = re.compile(r"I[1-9]\d*")
@@ -49,6 +50,8 @@ IDEA_SCOPES = {"MVP", "Phase 2", "미정"}
 IDEA_REVENUES = {"무관", "무료", "유료 후보", "미정"}
 IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S+)")
 UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
+TABLE_SEPARATOR = re.compile(r"\|(\s*:?-+:?\s*\|)+")
+IDEA_DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def _files(root: Path, pattern: str) -> list[Path]:
@@ -307,7 +310,10 @@ def check_ia(root: Path) -> list[str]:
 
 
 def _idea_cells(line: str) -> list[str]:
-    return [cell.strip() for cell in UNESCAPED_PIPE.split(line.strip().strip("|"))]
+    body = line.strip()
+    body = body[1:] if body.startswith("|") else body
+    body = body[:-1] if body.endswith("|") and not body.endswith("\\|") else body
+    return [cell.strip() for cell in UNESCAPED_PIPE.split(body)]
 
 
 def _idea_rows(text: str) -> list[list[str]] | None:
@@ -315,6 +321,9 @@ def _idea_rows(text: str) -> list[list[str]] | None:
     lines = text.splitlines()
     for index, line in enumerate(lines):
         if line.startswith("|") and tuple(_idea_cells(line)) == IDEA_COLUMNS:
+            separator = lines[index + 1].strip() if index + 1 < len(lines) else ""
+            if not TABLE_SEPARATOR.fullmatch(separator):
+                continue
             rows = []
             for row in lines[index + 2:]:
                 if not row.startswith("|"):
@@ -336,13 +345,15 @@ def _check_idea_row(
 ) -> list[str]:
     if len(cells) != len(IDEA_COLUMNS):
         return [f"칸 수가 {len(IDEA_COLUMNS)}이 아닙니다 ({len(cells)})"]
-    idea_id, _, _, source, scope, revenue, status, _ = cells
+    idea_id, date, _, source, scope, revenue, status, memo = cells
     problems = []
     if not IDEA_ID_PATTERN.fullmatch(idea_id):
         problems.append("id 형식은 I<숫자>입니다")
     elif idea_id in seen:
         problems.append("id 중복")
     seen.add(idea_id)
+    if not IDEA_DATE_PATTERN.fullmatch(date):
+        problems.append(f"날짜 형식은 YYYY-MM-DD입니다: {date}")
     if not IDEA_SOURCE_PATTERN.fullmatch(source):
         problems.append(f"출처 값이 아닙니다: {source}")
     if scope not in IDEA_SCOPES:
@@ -356,6 +367,8 @@ def _check_idea_row(
         problems.append(f"없는 결정: {match.group(1)}")
     elif match.group(2) and not _review_doc_exists(root, match.group(2)):
         problems.append(f"검토 문서가 없습니다: {match.group(2)}")
+    if status in ("보류", "기각") and not memo:
+        problems.append("보류·기각은 메모에 이유를 적습니다")
     return problems
 
 

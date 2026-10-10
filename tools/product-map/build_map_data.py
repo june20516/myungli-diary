@@ -23,12 +23,14 @@ DECISION_LOGS = (
 )
 IA_PATH = "docs/ia/screens.json"
 # 아이디어 함 (docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.7)
+# 표 파싱 규칙은 tools/docs-check/docs_check.py와 같습니다. 바꾸면 그쪽도 바꿉니다.
 IDEAS_PATH = "docs/ideas.md"
 IDEA_COLUMNS = ("id", "날짜", "아이디어", "출처", "범위", "수익", "상태", "메모")
 IDEA_KEYS = ("id", "date", "idea", "source", "scope", "revenue", "status", "memo")
 IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S+)")
 IDEA_STATES = {"대기": "waiting", "보류": "held", "기각": "rejected"}
 UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
+TABLE_SEPARATOR = re.compile(r"\|(\s*:?-+:?\s*\|)+")
 ARTIFACT_UNITS = (
     ("docs/identity/design/", "design"),
     ("docs/identity/writing/", "writing"),
@@ -189,7 +191,10 @@ def collect_screen_tabs(root: Path) -> list[dict[str, object]]:
 
 
 def _idea_cells(line: str) -> list[str]:
-    cells = UNESCAPED_PIPE.split(line.strip().strip("|"))
+    body = line.strip()
+    body = body[1:] if body.startswith("|") else body
+    body = body[:-1] if body.endswith("|") and not body.endswith("\\|") else body
+    cells = UNESCAPED_PIPE.split(body)
     return [cell.strip().replace("\\|", "|") for cell in cells]
 
 
@@ -198,6 +203,9 @@ def _idea_rows(text: str) -> list[list[str]] | None:
     lines = text.splitlines()
     for index, line in enumerate(lines):
         if line.startswith("|") and tuple(_idea_cells(line)) == IDEA_COLUMNS:
+            separator = lines[index + 1].strip() if index + 1 < len(lines) else ""
+            if not TABLE_SEPARATOR.fullmatch(separator):
+                continue
             rows = []
             for row in lines[index + 2:]:
                 if not row.startswith("|"):
@@ -224,9 +232,10 @@ def _idea(cells: list[str]) -> dict[str, str]:
 
 
 def _review_doc(root: Path, relative: str) -> dict[str, str]:
-    path = root / relative
+    path = (root / relative).resolve()
+    inside = not Path(relative).is_absolute() and path.is_relative_to(root.resolve())
     try:
-        text = path.read_text(encoding="utf-8") if path.is_file() else ""
+        text = path.read_text(encoding="utf-8") if inside and path.is_file() else ""
     except UnicodeDecodeError:
         text = ""
     title = re.search(r"^# (.+)$", text, re.M)

@@ -94,6 +94,8 @@ button.card { cursor: pointer; }
 .lane .group { font-size: .8rem; color: var(--muted); margin: 6px 0 0; border-top: 1px solid var(--line); padding-top: 8px; }
 .lane .card h3 { margin: 0; font-size: .95rem; }
 .lane .card .chip { align-self: flex-start; }
+.lane button.card-open { all: unset; display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
+.lane button.card-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
 
 /* 결정 */
 input[type="search"] { width: 100%; font: inherit; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); }
@@ -466,14 +468,15 @@ const IDEA_LANES = [
 
 function ideaCard(i) {
   const decision = i.decision ? `<button class="chip" type="button" data-decision="${esc(i.decision)}">→ ${esc(i.decision)}</button>` : "";
-  return `<div class="card" role="button" tabindex="0" data-idea="${esc(i.id)}">
+  return `<div class="card"><button class="card-open" type="button" data-idea="${esc(i.id)}">
     <h3>${esc(i.idea)} <span class="muted" style="font-size:.75rem;font-weight:400">${esc(i.id)}</span></h3>
-    <span class="meta"><span class="pill todo">${esc(i.scope)}</span><span class="pill ${i.revenue === "유료 후보" ? "doing" : "todo"}">${esc(i.revenue)}</span>${i.state === "unknown" ? `<span class="pill todo">${esc(i.status)}</span>` : ""}</span>
+    <span class="meta"><span class="pill todo">${esc(i.scope)}</span><span class="pill ${i.revenue === "유료 후보" ? "doing" : "todo"}">${esc(i.revenue)}</span>${i.state === "unknown" ? `<span class="pill todo">${esc(i.status)}</span>` : ""}</span></button>
     ${decision}</div>`;
 }
 
 function openDecision(id) {
   location.hash = "decisions";
+  document.querySelector('#decision-filters [data-value="all"]')?.click();
   const search = document.getElementById("decision-search");
   search.value = id;
   search.dispatchEvent(new Event("input"));
@@ -513,11 +516,8 @@ function renderIdeas() {
     return `<section class="lane box"><h2>${esc(l.title)} <span class="muted">${items.length}</span></h2>${body}</section>`;
   };
   board.innerHTML = IDEA_LANES.map(lane).join("");
-  board.querySelectorAll("[data-decision]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); openDecision(b.dataset.decision); }));
-  board.querySelectorAll("[data-idea]").forEach((c) => {
-    c.addEventListener("click", () => openIdea(c.dataset.idea));
-    c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openIdea(c.dataset.idea); } });
-  });
+  board.querySelectorAll("[data-decision]").forEach((b) => b.addEventListener("click", () => openDecision(b.dataset.decision)));
+  board.querySelectorAll("[data-idea]").forEach((b) => b.addEventListener("click", () => openIdea(b.dataset.idea)));
 }
 
 function renderDecisions() {
@@ -529,7 +529,8 @@ function renderDecisions() {
     filters.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { state.prefix = b.dataset.value; draw(); }));
     const q = state.q.trim().toLowerCase();
     const items = DATA.decisions.filter((d) => (state.prefix === "all" || d.id[0] === state.prefix) &&
-      (!q || `${d.id} ${d.area} ${d.text}`.toLowerCase().includes(q))).slice().reverse();
+      (!q || `${d.id} ${d.area} ${d.text}`.toLowerCase().includes(q))).slice().reverse()
+      .sort((a, b) => (b.id.toLowerCase() === q) - (a.id.toLowerCase() === q));
     document.getElementById("decisions").innerHTML = items.map((d) => `<div class="decision"><b>${esc(d.id)}</b><span><span class="pill todo">${esc(d.area)}</span> ${esc(d.text)}</span><span class="src">${esc(d.date)} · ${esc(d.source)}</span></div>`).join("") ||
       `<p class="muted">맞는 결정이 없습니다.</p>`;
   };
