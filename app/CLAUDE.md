@@ -55,4 +55,4 @@
    ```
 3. brainstorming으로 app spec을 작성합니다 → `app/docs/specs/`
    - 상태 관리(Provider / Riverpod)는 app 내부 결정(`A<n>`)입니다.
-   - 디자인 토큰은 계약 1.0.0으로 동결됐습니다(`docs/identity/design/tokens/README.md`, Issue #19). 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).
+   - 디자인 토큰은 계약 1.0.0으로 freeze됐습니다(`docs/identity/design/tokens/README.md`, Issue #19). 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).

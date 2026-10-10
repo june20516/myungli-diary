@@ -10,11 +10,11 @@
 | --- | --- | --- | --- | --- | --- |
 | R0 | 제품 결정·엔진 설계 | 지휘 | - | C1 | **완료** (D1~D34) |
 | C1 | 엔진 기반: 시각 변환·원국·판정 규칙 (계획 Task 1~13) | core | R0 | C2 | **완료** (main 병합 완료, PR #1 `ec4fc90`) |
-| C2 | **엔진 gRPC 계약 v1 동결** (Task 14) | core | C1 | S2, I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`) |
+| C2 | **엔진 gRPC 계약 v1 freeze** (Task 14) | core | C1 | S2, I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`) |
 | C3 | 엔진 완성: 서버·골든 테스트·CI (Task 15~20) | core | C2 | I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`, CI check·proto·slow 통과) |
 | S1 | server 설계 (spec·계획) | server | R0, M0 | S2 | 시작 전 (M0 뒤 착수) |
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | 시작 전 |
-| S3 | **REST API v1 동결** | server | S2 | A2, I2 | 시작 전 |
+| S3 | **REST API v1 freeze** | server | S2 | A2, I2 | 시작 전 |
 | A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0 (UI 구현은 V2 이후) | A2 | 시작 전 (M0 뒤 착수, S1과 병행 가능) |
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
@@ -22,7 +22,7 @@
 | M0 | 수익화 결정 체계 수립과 첫 사이클, MVP 범위 재검증 | 지휘 | IA | S1·A1 착수 | 시작 전 |
 | W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | **진행 중** |
 | V0 | 시각 정체성 | design | B0 | V1 | **완료** (PR #10 `77b7e4f`, 결정 V1~V7) |
-| V1 | **디자인 토큰 동결** | design | V0 | V2, A1 | **완료** (PR #18 `d049e08`, 계약 1.0.0, 결정 V8~V12) |
+| V1 | **디자인 토큰 freeze** | design | V0 | V2, A1 | **완료** (PR #18 `d049e08`, 계약 1.0.0, 결정 V8~V12) |
 | V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | 시작 전 (착수 가능, Issue #16) |
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | 시작 전 |
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3 | - |
