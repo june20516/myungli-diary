@@ -10,6 +10,7 @@ from myungri_engine.calendar_core.birth import BirthMoment
 from myungri_engine.domain.enums import Branch, Gender, NoticeCode, Stem, TenGod, TwelveStage
 from myungri_engine.domain.models import FourPillars, Notice, Pillar
 from myungri_engine.domain.ten_gods import ten_god
+from myungri_engine.rules.relations import RelationKind, active, find_relations
 
 PERIOD_YEARS = 10
 KOREAN_AGE_OFFSET = 1
@@ -63,18 +64,26 @@ def build_luck_cycles(moment: BirthMoment, gender: Gender, natal: FourPillars, a
     )
 
     first_year = _period_first_year(moment.solar_date.year, start_years, as_of.year, len(periods))
-    years = tuple(
-        YearLuck(
-            year=year,
-            pillar=_year_pillar(year),
-            ten_god=ten_god(day_stem, _year_pillar(year).stem),
-            relations_with_natal=(),
-        )
-        for year in range(first_year, first_year + PERIOD_YEARS)
-    )
+    years = tuple(_year_luck(year, natal) for year in range(first_year, first_year + PERIOD_YEARS))
 
     notices = () if moment.time_known else (Notice(NoticeCode.DAYUN_START_APPROXIMATE),)
     return LuckCycles(forward, start_years, start_months, periods, years, notices)
+
+
+def _year_luck(year: int, natal: FourPillars) -> YearLuck:
+    pillar = _year_pillar(year)
+    return YearLuck(
+        year=year,
+        pillar=pillar,
+        ten_god=ten_god(natal.day.stem, pillar.stem),
+        relations_with_natal=_relation_names(natal, pillar),
+    )
+
+
+def _relation_names(natal: FourPillars, year_pillar: Pillar) -> tuple[str, ...]:
+    """활성 관계 종류 이름. 중복 없이 RelationKind 정의 순서."""
+    present = {rel.kind for rel in active(find_relations(natal, year_pillar))}
+    return tuple(kind.name for kind in RelationKind if kind in present)
 
 
 def _period_first_year(birth_year: int, start_years: int, as_of_year: int, period_count: int) -> int:

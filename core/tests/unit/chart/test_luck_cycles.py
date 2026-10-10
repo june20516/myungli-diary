@@ -4,6 +4,7 @@ from myungri_engine.calendar_core import lunar_adapter
 from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
 from myungri_engine.chart.luck_cycles import LuckCycles, build_luck_cycles
 from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode
+from myungri_engine.rules.relations import RelationKind, active, find_relations
 
 
 def make_moment(d: date, t: time | None, gender: Gender) -> BirthMoment:
@@ -61,7 +62,6 @@ def test_year_pillar_and_ten_god_known_values() -> None:
     for year_luck in result.years:
         after_ipchun = make_moment(date(year_luck.year, 6, 1), time(12, 0), Gender.MALE)
         assert year_luck.pillar == lunar_adapter.pillars_for(after_ipchun).year
-        assert year_luck.relations_with_natal == ()
 
 
 def test_period_ten_gods_and_stage() -> None:
@@ -69,3 +69,15 @@ def test_period_ten_gods_and_stage() -> None:
     natal = lunar_adapter.pillars_for(moment)
     first = build_luck_cycles(moment, Gender.MALE, natal, date(2026, 10, 10)).periods[0]
     assert first.twelve_stage is lunar_adapter.twelve_stage(natal.day.stem, first.pillar.branch)
+
+
+def test_year_luck_relations_filled() -> None:
+    moment = make_moment(date(1990, 5, 17), time(10, 30), Gender.MALE)
+    natal = lunar_adapter.pillars_for(moment)
+    result = build_luck_cycles(moment, Gender.MALE, natal, date(2026, 10, 10))
+    valid = {kind.name for kind in RelationKind}
+    for year_luck in result.years:
+        expected = {r.kind.name for r in active(find_relations(natal, year_luck.pillar))}
+        assert set(year_luck.relations_with_natal) == expected
+        assert len(year_luck.relations_with_natal) == len(expected) and expected <= valid
+    assert any(y.relations_with_natal for y in result.years)
