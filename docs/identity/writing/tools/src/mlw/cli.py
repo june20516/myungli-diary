@@ -15,6 +15,7 @@ from mlw import paths
 from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness, glossary_values
+from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
 from mlw.loader import UI_GROUP, load_content, load_rules, load_slots
 from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
 from mlw.placeholders import parse
@@ -190,6 +191,20 @@ def _check_arb(args: argparse.Namespace) -> int:
     return _print_findings(check_arb(args.arb_files, slots, rules))
 
 
+def _gen_docs(args: argparse.Namespace) -> int:
+    rules = load_rules(args.rules_dir)
+    docs = render_docs(rules, load_slots(args.slots_dir, rules))
+    if not args.check:
+        write_docs(args.out_dir, docs)
+        return 0
+    stale = stale_docs(args.out_dir, docs)
+    findings = [
+        Finding(Path(args.out_dir.name) / name, 1, RULE_STALE, "error", "생성 문서가 오래됐습니다. `mlw gen-docs`를 실행하세요")
+        for name in stale
+    ]
+    return _print_findings(findings)
+
+
 def _gen_week_fixture(args: argparse.Namespace) -> int:
     # grpc 의존 모듈은 이 하위 명령에서만 불러옵니다.
     from mlw import week_fixture
@@ -217,6 +232,12 @@ def _build_parser() -> argparse.ArgumentParser:
     check_arb_command.add_argument("arb_files", nargs="+", type=Path, metavar="arb", help="ARB 파일")
     add_dirs(check_arb_command)
     check_arb_command.set_defaults(handler=_check_arb)
+
+    gen_docs = commands.add_parser("gen-docs", help="규칙·슬롯 YAML에서 문서를 생성합니다")
+    gen_docs.add_argument("--check", action="store_true", help="쓰지 않고 오래된 문서가 있으면 종료 코드 1입니다")
+    gen_docs.add_argument("--out-dir", type=Path, default=paths.GENERATED_DIR, help="생성 문서 디렉터리")
+    add_dirs(gen_docs)
+    gen_docs.set_defaults(handler=_gen_docs)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")
     fixture.add_argument("--engine", required=True, help="엔진 주소, 예: localhost:50051")
