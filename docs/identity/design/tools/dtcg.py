@@ -162,6 +162,12 @@ def find_problems(documents: dict[str, dict]) -> list[str]:
             owner[name] = file_name
             all_tokens[name] = token
 
+    # 파일을 넘나드는 경우: 한 파일의 토큰 이름이 다른 파일에서 그룹으로 쓰이면 합칠 때 충돌합니다.
+    for name in all_tokens:
+        children = [other for other in all_tokens if other.startswith(name + ".") and owner[other] != owner[name]]
+        if children:
+            problems.append(f"{owner[name]}: {name}: 토큰이면서 그룹임 ({owner[children[0]]}의 {children[0]})")
+
     for name, token in all_tokens.items():
         token_type = token.get("$type")
         if token_type is None:

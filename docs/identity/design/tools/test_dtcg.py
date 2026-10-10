@@ -120,6 +120,14 @@ def test_reports_token_that_is_also_group():
     assert any("color.white" in problem for problem in problems), problems
 
 
+def test_reports_token_that_is_group_in_another_file():
+    documents = clean_documents()
+    documents["primitive.tokens.json"]["color"]["ohaeng"] = {"wood": color(WHITE)}
+    documents["color.light.tokens.json"]["color"]["ohaeng"] = {"wood": {"bg": color(WHITE)}}
+    problems = find_problems(documents)
+    assert any("color.ohaeng.wood" in problem and "그룹" in problem for problem in problems), problems
+
+
 def test_resolve_follows_reference_chain():
     tokens = {"a": color("{b}"), "b": color("{c}"), "c": color(WHITE)}
     assert resolve("a", tokens) == WHITE
