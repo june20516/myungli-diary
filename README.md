@@ -1,0 +1,23 @@
+# 명리일기 (Myungri Diary)
+
+사주 명리학을 바탕으로 사람마다 다른 하루(일진 × 원국)를 추천하고, 일기로 기록·회고하는 앱입니다.
+
+## 저장소 구조 (모노레포)
+| 디렉터리 | 내용 | 기술 |
+| --- | --- | --- |
+| `app/` | 모바일 앱 | Flutter |
+| `server/` | 메인 API 서버, 콘텐츠 모듈, 배치 | Go |
+| `core/` | 명리 엔진 (gRPC 서버) | Python |
+| `proto/` | Go ↔ 엔진 gRPC 계약 (`.proto`, buf) | Protocol Buffers |
+| `docs/` | 배경 문서, 결정 로그, 설계 spec, 근거 자료 | - |
+
+* 각 디렉터리는 자기 언어의 기본 도구를 그대로 씁니다. 저장소 전체를 묶는 빌드 도구는 쓰지 않습니다.
+* CI와 배포는 디렉터리 경로 필터로 나눕니다.
+* 각 서비스는 자기 디렉터리만으로 빌드되어야 합니다. 그래서 proto 생성 코드는 서비스마다 commit하고, 엔진이 쓰는 데이터는 `core/` 안에 둡니다.
+* 릴리스 태그에는 접두어를 붙입니다. 예: `core/v1.0.0`, `app/v1.0.0`.
+
+## 문서
+* 배경 문서와 목록: [`docs/background/`](docs/background/README.md)
+* 결정 로그: [`docs/decisions.md`](docs/decisions.md)
+* 설계 spec: [`docs/suberpowers/specs/`](docs/suberpowers/specs/)
+* 원전 근거 자료: [`docs/references/`](docs/references/README.md)

@@ -1,0 +1,40 @@
+# OS / 에디터
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# 환경 변수·비밀
+.env
+.env.*
+!.env.example
+
+# Python (core/)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+
+# Go (server/)
+server/bin/
+*.test
+*.out
+coverage.txt
+
+# Flutter / Dart (app/)
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/build/
+app/ios/Pods/
+app/ios/.symlinks/
+app/android/.gradle/
+app/android/local.properties
+*.iml
