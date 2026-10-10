@@ -35,7 +35,11 @@
   * 색 값의 출처: [`tools/palette.py`](tools/palette.py) (`--check`로 대비 검사, 32/32 통과).
   * 로고 원본: [`logo/`](logo/), 견본: [`specimen/index.html`](specimen/index.html), 시안 기록: [`artifacts/index.json`](artifacts/index.json).
 * 테스트: 저장소 루트에서 `uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q`
-* 워드마크를 다시 만들려면 고운돋움 TTF가 필요합니다(`.suberpowers/fonts/`, 저장소에 넣지 않음). 받는 곳: `https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf`
+* 고운돋움 TTF는 저장소에 넣지 않습니다(`.suberpowers/fonts/GowunDodum-Regular.ttf`). 받는 곳: `https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf`
+  * 글꼴이 없으면 워드마크 생성 테스트 2개가 **skip**됩니다. 새 checkout이나 CI에서 전부 통과로 보여도 그 2개는 돌지 않은 것입니다. 워드마크를 고쳤다면 글꼴을 받고 다시 돌립니다.
+* 로고 원본(`logo/`)을 바꾸면 순서대로 다시 만듭니다.
+  1. 워드마크·가로 조합: `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo`
+  2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
 1. **V1 디자인 토큰 동결**

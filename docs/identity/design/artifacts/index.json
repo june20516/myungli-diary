@@ -108,6 +108,6 @@
       "V7"
     ],
     "status": "chosen",
-    "note": "정식 SVG 원본은 logo/. 모서리는 미리보기용 마스크"
+    "note": "logo/ 원본을 인라인한 사본(tools/logo_sheet.py로 재생성). 모서리는 미리보기용 마스크"
   }
 ]

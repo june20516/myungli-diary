@@ -12,7 +12,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 
 from palette import build_palette  # noqa: E402
 from svg_colors import colors_in_markup, palette_colors, unsupported_colors_in_markup  # noqa: E402
-from wordmark import wordmark_svg  # noqa: E402
+from wordmark import lockup_svg, wordmark_svg  # noqa: E402
 
 SVG = "{http://www.w3.org/2000/svg}"
 LOGO = DESIGN_DIR / "logo"
@@ -37,6 +37,14 @@ def test_wordmark_is_outlined(font_path):
 def test_wordmark_rejects_missing_glyph(font_path):
     with pytest.raises(ValueError):
         wordmark_svg(font_path, "명리일기☃", "#2b2b2a")
+
+
+def test_lockup_accepts_icon_with_xml_declaration():
+    icon = '<?xml version="1.0"?>\n' + (LOGO / "icon-large.svg").read_text()
+    wordmark = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100"><path d="M0 0h1v1z"/></svg>'
+    lockup = lockup_svg(icon, wordmark)
+    assert "<?xml" not in lockup
+    assert len(ET.fromstring(lockup).findall(f"{SVG}svg")) == 2  # 아이콘과 워드마크, 한 겹씩
 
 
 @pytest.mark.parametrize("name", ["wordmark.svg", "wordmark-dark.svg", "lockup.svg", "lockup-dark.svg"])

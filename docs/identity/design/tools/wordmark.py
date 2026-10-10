@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import pathlib
-import re
 import xml.etree.ElementTree as ET
 
 from fontTools.pens.boundsPen import BoundsPen
@@ -18,6 +17,7 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.ttLib import TTFont
 
 from palette import build_palette
+from svg_markup import inner_markup
 
 WORDMARK_TEXT = "명리일기"
 WORDMARK_HEIGHT_PX = 64
@@ -70,11 +70,6 @@ def wordmark_svg(font_path: pathlib.Path, text: str, fill: str, letter_spacing_e
     )
 
 
-def _inner_markup(svg: str) -> str:
-    """바깥 <svg> 태그를 벗긴 내용을 돌려줍니다."""
-    return re.sub(r"^\s*<svg[^>]*>|</svg>\s*$", "", svg).strip()
-
-
 def lockup_svg(icon_svg: str, wordmark: str, gap_ratio: float = 0.25, icon_to_cap_ratio: float = 1.5) -> str:
     """아이콘 + 워드마크 가로 조합. 아이콘 높이는 워드마크 높이의 icon_to_cap_ratio배입니다."""
     wordmark_root = ET.fromstring(wordmark)
@@ -91,10 +86,10 @@ def lockup_svg(icon_svg: str, wordmark: str, gap_ratio: float = 0.25, icon_to_ca
         f'  <title>명리일기</title>\n'
         f'  <defs><clipPath id="icon-corner"><rect width="100" height="100" rx="{_number(corner)}"/></clipPath></defs>\n'
         f'  <svg x="0" y="0" width="{_number(icon_size)}" height="{_number(icon_size)}" viewBox="0 0 100 100">\n'
-        f'    <g clip-path="url(#icon-corner)">\n{_inner_markup(icon_svg)}\n    </g>\n  </svg>\n'
+        f'    <g clip-path="url(#icon-corner)">\n{inner_markup(icon_svg)}\n    </g>\n  </svg>\n'
         f'  <svg x="{_number(icon_size + gap)}" y="{_number((icon_size - wordmark_height) / 2)}" '
         f'width="{_number(wordmark_width)}" height="{_number(wordmark_height)}" '
-        f'viewBox="{wordmark_root.get("viewBox")}">\n{_inner_markup(wordmark)}\n  </svg>\n'
+        f'viewBox="{wordmark_root.get("viewBox")}">\n{inner_markup(wordmark)}\n  </svg>\n'
         f"</svg>\n"
     )
 

@@ -10,6 +10,7 @@ import pytest
 TOOLS_DIR = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
+import palette  # noqa: E402
 from palette import build_palette, check_contrast, contrast_ratio, oklch_to_hex  # noqa: E402
 
 PALETTE_PY = str(TOOLS_DIR / "palette.py")
@@ -89,10 +90,22 @@ def test_check_contrast_flags_failure():
     assert [r.name for r in failed] == ["light badge.good"]
 
 
-def test_generation_is_deterministic():
-    assert json.dumps(build_palette(), sort_keys=True) == json.dumps(build_palette(), sort_keys=True)
+def test_cli_json_output_is_deterministic():
+    first = subprocess.run([sys.executable, PALETTE_PY], capture_output=True, check=True).stdout
+    second = subprocess.run([sys.executable, PALETTE_PY], capture_output=True, check=True).stdout
+    assert first == second
+    assert json.loads(first)["brand"]["sage"]["600"] == "#597f61"
 
 
 def test_cli_check_exit_code():
     result = subprocess.run([sys.executable, PALETTE_PY, "--check"], capture_output=True, text=True)
     assert result.returncode == 0
+
+
+def test_cli_check_reports_failure(monkeypatch, capsys):
+    failing = build_palette()
+    failing["roles"]["light"]["badge.good.bg"] = "#f4b6ae"
+    monkeypatch.setattr(palette, "build_palette", lambda: failing)
+    assert palette.main(["--check"]) == 1
+    output = capsys.readouterr().out
+    assert "FAIL  1.73  light badge.good" in output
