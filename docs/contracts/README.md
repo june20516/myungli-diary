@@ -9,7 +9,11 @@
 | 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | 설계됨 | 엔진 spec §11 |
 | 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | - | 설계됨 | 엔진 spec §12, D31 |
 | REST API (앱 ↔ 서버) | (server 설계 때 정함) | server | app | v1 | 미설계 (S3) | D26 |
-| 디자인 토큰 (오행 팔레트·타이포) | `docs/background/06-design-system.md` | 지휘 | app | - | 원칙만 있음 | 06 |
+| 디자인 토큰 (오행 팔레트·타이포·그라데이션) | `docs/identity/design/tokens/` | design | app | - | 미설계 (V1에서 동결) | spec §9, 06 |
+| 브랜드 기반 | `docs/identity/README.md` | 지휘 | writing, design | - | 확정 (B0) | 브랜드 기반 spec, D38 |
+| MVP 화면 목록 (IA) | (지휘 세션 작성 예정) | 지휘 | app, writing, design | - | 미작성 | D39 |
+| 슬롯 명세 | `docs/identity/writing/` (W0에서 정함) | writing | server, app | - | 미설계 (W0) | 브랜드 기반 spec §8 |
+| 호칭·조사 처리 규칙 | (W0에서 정함) | writing | server (콘텐츠 모듈) | - | 미설계 (W0) | D36 |
 
 ## 생성 코드
 * proto에서 생성한 코드는 사용하는 서비스마다 자기 디렉터리에 commit합니다(D33).
