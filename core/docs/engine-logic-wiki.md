@@ -110,8 +110,8 @@ v1.0에는 §3.1의 점수로 용신을 고르는 규칙이 없었습니다.
    * 신강: 식상·재성·관성 가운데 가장 약한 오행을 용신으로 씁니다.
 3. **희신:** 용신을 생(生)하는 오행입니다.
 4. **응답:** 어떤 방식으로 정했는지(`johu` / `eokbu`)와 그 근거를 Pro 파라미터에 함께 넣습니다.
-   * 조후: 원문 근거는 `core/docs/references/gungtong-bogam/johu_evidence.json`의 해당 칸 `key_sentence`입니다.
-   * 억부: 원리 근거는 `core/docs/references/gungtong-bogam/five_elements.json`의 `balance_principle`입니다.
+   * 조후: 원문 근거는 `core/src/myungri_engine/references/data/gungtong_bogam/johu_evidence.json`의 해당 칸 `key_sentence`입니다.
+   * 억부: 원리 근거는 `core/src/myungri_engine/references/data/gungtong_bogam/five_elements.json`의 `balance_principle`입니다.
 5. **범위 밖:** 통관·병약·격국은 Phase 2 이후에 검토합니다.
 
 아래 3.3-1 ~ 3.3-4는 이 결정의 근거 자료입니다.

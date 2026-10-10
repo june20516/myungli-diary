@@ -24,7 +24,7 @@ from myungri_engine.domain.enums import Element as E
 from myungri_engine.domain.enums import Stem as S
 
 CORE_DIR = Path(__file__).resolve().parents[3]
-CORRECTIONS = CORE_DIR / "docs/references/gungtong-bogam/corrections.json"
+CORRECTIONS = CORE_DIR / "src/myungri_engine/references/data/gungtong_bogam/corrections.json"
 
 
 def test_johu_has_120_cells_and_matches_corrections():

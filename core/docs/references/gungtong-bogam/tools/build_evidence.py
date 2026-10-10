@@ -4,17 +4,17 @@
 
 입력
   core/docs/references/gungtong-bogam/source.wikitext   위키문헌 원문 (raw wikitext)
-  core/docs/references/gungtong-bogam/corrections.json  원문 대조로 바로잡은 칸
-  core/docs/engine-logic-wiki.md          JOHU_YONGSIN 표 (정정 반영본)
+  core/src/myungri_engine/references/data/gungtong_bogam/corrections.json  원문 대조로 바로잡은 칸
+  core/src/myungri_engine/constants/johu.py  JOHU_TABLE_HANJA 한자 표 (정정 반영본)
 출력 (core/docs/references/gungtong-bogam/)
   entries.json              일간 → 계절 → 월 항목(원문 문단·예시 명조) 전체 구조
+  verification-report.md    조후표 ↔ 원문 대조 결과
+출력 (core/src/myungri_engine/references/data/gungtong_bogam/)
   johu_evidence.json        일간 → 월지 → 조후용신 + 원문 근거
   five_elements.json        五行總論의 색·수·방위·성정·억부 원리 근거
-  verification-report.md    조후표 ↔ 원문 대조 결과
 """
 import ast
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -25,7 +25,8 @@ from parse_source import SEASONS, STEMS, build_month_index, parse  # noqa: E402
 
 REFERENCE_DIR = TOOLS_DIR.parent
 CORE_DIR = REFERENCE_DIR.parents[2]  # gungtong-bogam → references → docs → core
-WIKI_PATH = CORE_DIR / "docs" / "engine-logic-wiki.md"
+JOHU_PATH = CORE_DIR / "src" / "myungri_engine" / "constants" / "johu.py"
+DATA_DIR = CORE_DIR / "src" / "myungri_engine" / "references" / "data" / "gungtong_bogam"
 BRANCH_ORDER = "寅卯辰巳午未申酉戌亥子丑"
 STEM_ELEMENT = {
     "甲": "木", "乙": "木", "丙": "火", "丁": "火", "戊": "土",
@@ -35,9 +36,16 @@ SOURCE_URL = "https://zh.wikisource.org/wiki/%E7%AA%AE%E9%80%9A%E5%AF%B6%E9%91%9
 
 
 def load_johu_table() -> dict:
-    text = WIKI_PATH.read_text(encoding="utf-8")
-    match = re.search(r"JOHU_YONGSIN = (\{.*?\n\})", text, re.S)
-    return ast.literal_eval(match.group(1))
+    """constants/johu.py의 순수 리터럴 JOHU_TABLE_HANJA를 읽는다. 값은 JSON과 같게 리스트로 바꾼다."""
+    for node in ast.parse(JOHU_PATH.read_text(encoding="utf-8")).body:
+        if isinstance(node, ast.AnnAssign) and getattr(node.target, "id", "") == "JOHU_TABLE_HANJA":
+            assert node.value is not None
+            table = ast.literal_eval(node.value)
+            return {
+                stem: {branch: list(yongsin) for branch, yongsin in months.items()}
+                for stem, months in table.items()
+            }
+    raise RuntimeError(f"JOHU_TABLE_HANJA를 찾지 못했습니다: {JOHU_PATH}")
 
 
 def first_sentence(paragraph: str) -> str:
@@ -152,7 +160,7 @@ def write_json(path: Path, data: dict) -> None:
 
 def main() -> None:
     raw = (REFERENCE_DIR / "source.wikitext").read_text(encoding="utf-8")
-    corrections = json.loads((REFERENCE_DIR / "corrections.json").read_text(encoding="utf-8"))["corrections"]
+    corrections = json.loads((DATA_DIR / "corrections.json").read_text(encoding="utf-8"))["corrections"]
     parsed = parse(raw)
     month_index = build_month_index(parsed)
     table = load_johu_table()
@@ -161,8 +169,8 @@ def main() -> None:
     report, flagged = build_report(evidence)
 
     write_json(REFERENCE_DIR / "entries.json", parsed)
-    write_json(REFERENCE_DIR / "johu_evidence.json", {"source": SOURCE_URL, "cells": evidence})
-    write_json(REFERENCE_DIR / "five_elements.json", build_five_elements(raw))
+    write_json(DATA_DIR / "johu_evidence.json", {"source": SOURCE_URL, "cells": evidence})
+    write_json(DATA_DIR / "five_elements.json", build_five_elements(raw))
     (REFERENCE_DIR / "verification-report.md").write_text(report, encoding="utf-8")
 
     season_only = [f"{s}{b}" for s in STEMS for b in BRANCH_ORDER if evidence[s][b]["evidence_level"] == "season"]
