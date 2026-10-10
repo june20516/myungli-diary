@@ -1,0 +1,23 @@
+# 콘텐츠 슬롯: 명식(chart)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   core/src/myungri_engine/composers/chart.py
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드(W0 Task 11~13)에서 채웁니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+
+- id: chart.yongsin_method
+  where: 명식 화면 용신 산출 방법 설명
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: [yongsin, huisin, gisin, tonggwan]
+      keys:
+        - yongsin.method.eokbu
+        - yongsin.method.johu
+        - yongsin.method.johu_neutral
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}

@@ -1,0 +1,76 @@
+# 콘텐츠 슬롯: 달력(calendar)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   core/src/myungri_engine/composers/month.py, rules/calendar_luck.py
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드(W0 Task 11~13)에서 채웁니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+
+- id: calendar.day_level
+  where: 월간 달력 날짜 운 등급
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: [score]
+      keys:
+        - calendar.caution
+        - calendar.good
+        - calendar.neutral
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+
+- id: calendar.score_item
+  where: 월간 달력 점수 구성 (MonthDay.score_items[].id)
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - gwiin_day
+    - yongsin_day
+    - gisin_day
+    - hap
+    - chung_day_or_month
+    - chung_other
+    - hyeong
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+
+- id: calendar.solar_term
+  where: 월간 달력 절기 이름 (SolarTermKind)
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sohan
+    - daehan
+    - ipchun
+    - usu
+    - gyeongchip
+    - chunbun
+    - cheongmyeong
+    - gogu
+    - ipha
+    - soman
+    - mangjong
+    - haji
+    - soseo
+    - daeseo
+    - ipchu
+    - cheoseo
+    - baengno
+    - chubun
+    - hallo
+    - sanggang
+    - ipdong
+    - soseol
+    - daeseol
+    - dongji
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}

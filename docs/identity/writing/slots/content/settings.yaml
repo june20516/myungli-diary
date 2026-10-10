@@ -1,0 +1,19 @@
+# 콘텐츠 슬롯: 설정(settings)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   (엔진 코드 없음: D42 계산 기준 안내 식별자)
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드(W0 Task 11~13)에서 채웁니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+
+- id: settings.calculation_basis
+  where: 설정과 근거(evidence) 단계의 계산 기준 안내 (D42)
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - notice.calculation_basis
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}

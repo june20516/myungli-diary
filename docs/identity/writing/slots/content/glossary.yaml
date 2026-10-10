@@ -1,0 +1,86 @@
+# 콘텐츠 슬롯: 값 이름 사전(glossary)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   (매개변수 값의 언어별 이름. 엔진 코드 없음)
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드(W0 Task 11~13)에서 채웁니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+
+# 키는 `<범주>.<값>`입니다. 값은 proto enum에서 UNSPECIFIED를 빼고 접두어를 제거한 소문자입니다.
+# color는 element와 같은 값 집합입니다(`{element:color}`). ten_god_group은 proto enum이 아니라 여기서 정합니다.
+
+- id: glossary.value_name
+  where: 문장 매개변수로 들어가는 값의 언어별 이름
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - element.wood
+    - element.fire
+    - element.earth
+    - element.metal
+    - element.water
+    - color.wood
+    - color.fire
+    - color.earth
+    - color.metal
+    - color.water
+    - stem.gap
+    - stem.eul
+    - stem.byeong
+    - stem.jeong
+    - stem.mu
+    - stem.gi
+    - stem.gyeong
+    - stem.sin
+    - stem.im
+    - stem.gye
+    - branch.ja
+    - branch.chuk
+    - branch.in
+    - branch.myo
+    - branch.jin
+    - branch.sa
+    - branch.o
+    - branch.mi
+    - branch.shin
+    - branch.yu
+    - branch.sul
+    - branch.hae
+    - ten_god.bigyeon
+    - ten_god.geopjae
+    - ten_god.siksin
+    - ten_god.sanggwan
+    - ten_god.pyeonjae
+    - ten_god.jeongjae
+    - ten_god.pyeongwan
+    - ten_god.jeonggwan
+    - ten_god.pyeonin
+    - ten_god.jeongin
+    - ten_god_group.bigyeop
+    - ten_god_group.siksang
+    - ten_god_group.jaeseong
+    - ten_god_group.gwanseong
+    - ten_god_group.inseong
+    - direction8.n
+    - direction8.ne
+    - direction8.e
+    - direction8.se
+    - direction8.s
+    - direction8.sw
+    - direction8.w
+    - direction8.nw
+    - shinsal.cheoneul_gwiin
+    - shinsal.dohwa
+    - shinsal.yeokma
+    - shinsal.hwagae
+    - shinsal.yangin
+    - shinsal.gongmang
+    - day_kind.gwiin_day
+    - day_kind.yongsin_day
+    - day_kind.gisin_day
+    - day_kind.ordinary_day
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}

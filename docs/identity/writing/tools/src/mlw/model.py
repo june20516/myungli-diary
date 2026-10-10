@@ -1,6 +1,6 @@
 """검사기가 공유하는 데이터 모델."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
@@ -153,6 +153,33 @@ class RuleSet:
     limits: dict[str, Limit]
     style: dict[str, StyleRule]
     josa: JosaData
+
+
+@dataclass(frozen=True)
+class Slot:
+    """콘텐츠 슬롯 명세 하나(spec §4.1)입니다. 미정 필드는 빈 값으로 읽습니다."""
+
+    id: str
+    where: str
+    purpose: str
+    # 문장 유형을 적용하지 않는 슬롯은 비어 있습니다.
+    types: tuple[str, ...]
+    # 유형마다(유형이 없으면 키마다) 필요한 변주 수입니다.
+    variants: int
+    # 메시지 키 또는 식별자 -> 허용 매개변수 이름
+    keys: dict[str, tuple[str, ...]]
+    co_display: tuple[str, ...]
+    # 언어별 글자 수 상한. None은 아직 정하지 않음입니다.
+    max_length: dict[str, int | None]
+    allowed: frozenset[str]
+    forbidden: frozenset[str]
+    examples: dict[str, list[dict[str, object]]]
+    line: int
+    file: Path
+    user_state: str = ""
+    structure: str = ""
+    tone: dict[str, int] = field(default_factory=dict)
+    endings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

@@ -4,6 +4,7 @@
 """
 
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
 
@@ -16,10 +17,12 @@ from mlw.model import (
     LANGS,
     PURPOSES,
     SCOPES,
+    SENTENCE_TYPES,
     SEVERITIES,
     CountSelector,
     Detect,
     DetectKind,
+    Entry,
     Example,
     Examples,
     Finding,
@@ -35,6 +38,7 @@ from mlw.model import (
     Scope,
     Severity,
     SlopRule,
+    Slot,
     StyleRule,
 )
 from mlw.yamlio import load_with_lines
@@ -296,20 +300,27 @@ def _parse_limit(data: dict[str, object], line: int, problems: _Problems) -> Lim
     )
 
 
-def _load_list[T](
-    path: Path,
-    parse: Callable[[dict[str, object], int, _Problems], T | None],
-    get_id: Callable[[T], str],
-    problems: _Problems,
-) -> dict[str, T]:
+def _read_items(path: Path, problems: _Problems) -> list[tuple[dict[str, object], int]] | None:
+    """최상위 리스트의 항목과 줄 번호를 읽습니다. 읽을 수 없으면 문제를 기록하고 None입니다."""
     try:
-        entries = load_with_lines(path)
+        return load_with_lines(path)
     except (yaml.YAMLError, OSError) as error:
         mark = getattr(error, "problem_mark", None)
         line = mark.line + 1 if mark is not None else 1
         problems.findings.append(
             Finding(path, line, YAML_RULE_ID, "error", f"YAML을 읽을 수 없습니다: {error}")
         )
+        return None
+
+
+def _load_list[T](
+    path: Path,
+    parse: Callable[[dict[str, object], int, _Problems], T | None],
+    get_id: Callable[[T], str],
+    problems: _Problems,
+) -> dict[str, T]:
+    entries = _read_items(path, problems)
+    if entries is None:
         return {}
     parsed: dict[str, T] = {}
     first_lines: dict[str, int] = {}
@@ -506,3 +517,308 @@ def load_rules(rules_dir: Path) -> RuleSet:
     if findings:
         raise LoadError(findings)
     return RuleSet(slop=slop, limits=limits, style=style, josa=josa)
+
+
+# --- 슬롯 명세 ---------------------------------------------------------------------------------------
+
+UNKNOWN_RULE_ID = "slot.unknown_rule"
+UNKNOWN_SLOT_ID = "slot.unknown_slot"
+SCHEMA_FILE = "_schema.yaml"
+SCHEMA_FIELD_KEYS = {"name", "required", "type", "description"}
+TONE_AXES: tuple[str, ...] = ("진지", "격식", "존중", "담백")
+VARIANTS_KEYS = {"count", "rotation"}
+KEY_GROUP_KEYS = {"params", "keys"}
+EXAMPLE_SIDES = ("good", "bad")
+ENUM_PATTERN = regex.compile(r"enum\[([^\]]*)\]")
+
+
+@dataclass(frozen=True)
+class _FieldSpec:
+    """`_schema.yaml`의 필드 하나."""
+
+    name: str
+    required: bool
+    type: str
+
+
+def _load_schema(path: Path, problems: _Problems) -> dict[str, _FieldSpec]:
+    entries = _read_items(path, problems)
+    fields: dict[str, _FieldSpec] = {}
+    for data, line in entries or []:
+        item = _Item(data, line, problems)
+        item.check_unknown_keys(SCHEMA_FIELD_KEYS)
+        name = item.text("name")
+        type_text = item.text("type")
+        required = data.get("required")
+        if not isinstance(required, bool):
+            item.fail("'required'는 true 또는 false여야 합니다")
+        if name is None or type_text is None or not isinstance(required, bool):
+            continue
+        fields[name] = _FieldSpec(name, required, type_text)
+    return fields
+
+
+def _enum_values(type_text: str) -> tuple[str, ...]:
+    match = ENUM_PATTERN.search(type_text)
+    if match is None:
+        return ()
+    return tuple(part.strip() for part in match.group(1).split(","))
+
+
+def _type_error(type_text: str, value: object) -> str | None:
+    """값이 스키마의 타입 표기에 맞지 않으면 이유를 돌려줍니다. 알 수 없는 표기는 통과시킵니다."""
+    if type_text == "string":
+        return None if isinstance(value, str) else "문자열이어야 합니다"
+    if type_text.startswith("enum["):
+        allowed = _enum_values(type_text)
+        return None if value in allowed else f"허용 값은 {', '.join(allowed)}입니다"
+    if type_text == "map" or type_text.startswith("map["):
+        return None if isinstance(value, dict) else "매핑이어야 합니다"
+    if type_text.startswith("list["):
+        if not isinstance(value, list):
+            return "리스트여야 합니다"
+        if type_text == "list[string]" and not all(isinstance(entry, str) for entry in value):
+            return "문자열 리스트여야 합니다"
+        if type_text.startswith("list[enum["):
+            allowed = _enum_values(type_text)
+            if any(entry not in allowed for entry in value):
+                return f"각 항목의 허용 값은 {', '.join(allowed)}입니다"
+    return None
+
+
+def _check_schema_fields(item: _Item, schema: dict[str, _FieldSpec]) -> None:
+    """스키마 기준으로 알 수 없는 필드, 필수 필드 누락, 타입 오류를 기록합니다."""
+    item.check_unknown_keys(set(schema))
+    for spec in schema.values():
+        value = item.data.get(spec.name)
+        if value is None:
+            if spec.required:
+                item.fail(f"필수 필드 '{spec.name}'가 없습니다")
+            continue
+        error = _type_error(spec.type, value)
+        if error is not None:
+            item.fail(f"'{spec.name}': {error}")
+
+
+def _field_is_valid(item: _Item, schema: dict[str, _FieldSpec], name: str) -> bool:
+    """값이 있고 스키마의 타입 검사를 통과한 필드인지 확인합니다."""
+    value = item.data.get(name)
+    spec = schema.get(name)
+    return value is not None and (spec is None or _type_error(spec.type, value) is None)
+
+
+def _plain_text(data: dict[str, object], name: str) -> str | None:
+    """문자열이면 돌려줍니다. 타입 오류는 스키마 검사가 이미 기록했습니다."""
+    value = data.get(name)
+    return value if isinstance(value, str) else None
+
+
+def _parse_key_groups(item: _Item) -> dict[str, tuple[str, ...]]:
+    keys: dict[str, tuple[str, ...]] = {}
+
+    def add(key: str, params: tuple[str, ...]) -> None:
+        if key in keys:
+            item.fail(f"keys에 '{key}'가 중복됩니다")
+        keys[key] = params
+
+    for entry in cast(list[object], item.data["keys"]):
+        if isinstance(entry, str):
+            add(entry, ())
+            continue
+        if not isinstance(entry, dict):
+            item.fail("keys의 항목은 문자열 또는 매핑이어야 합니다")
+            continue
+        group = _Item(cast(dict[str, object], entry), item.line, item.problems)
+        group.check_unknown_keys(KEY_GROUP_KEYS)
+        params = group.string_list("params")
+        names = group.string_list("keys")
+        if not names:
+            item.fail("keys 묶음에는 비어 있지 않은 'keys'가 필요합니다")
+        for name in names:
+            add(name, params)
+    return keys
+
+
+def _parse_slot_max_length(item: _Item) -> dict[str, int | None]:
+    result: dict[str, int | None] = dict.fromkeys(LANGS)
+    for lang, value in cast(dict[str, object], item.data["max_length"]).items():
+        if lang not in LANGS:
+            item.fail(f"max_length의 언어 '{lang}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}")
+        elif value is None:
+            result[lang] = None
+        elif _is_int(value) and cast(int, value) > 0:
+            result[lang] = cast(int, value)
+        else:
+            item.fail(f"max_length.{lang}은(는) 양의 정수 또는 null이어야 합니다")
+    return result
+
+
+def _parse_tone(item: _Item) -> dict[str, int]:
+    tone: dict[str, int] = {}
+    for axis, value in cast(dict[str, object], item.data["tone"]).items():
+        if axis not in TONE_AXES:
+            item.fail(f"tone의 축 '{axis}'은(는) 허용되지 않습니다. 허용 값: {', '.join(TONE_AXES)}")
+        elif _is_int(value) and 1 <= cast(int, value) <= 5:
+            tone[axis] = cast(int, value)
+        else:
+            item.fail(f"tone.{axis}은(는) 1~5 정수여야 합니다")
+    return tone
+
+
+def _parse_variant_count(item: _Item) -> int:
+    raw = item.mapping("variants")
+    if raw is None:
+        return 1
+    sub = _Item(raw, item.line, item.problems)
+    sub.check_unknown_keys(VARIANTS_KEYS)
+    sub.text("rotation", required=False)
+    count = raw.get("count", 1)
+    if not _is_int(count) or cast(int, count) < 1:
+        item.fail("variants.count는 1 이상의 정수여야 합니다")
+        return 1
+    return cast(int, count)
+
+
+def _parse_slot_examples(item: _Item) -> dict[str, list[dict[str, object]]]:
+    result: dict[str, list[dict[str, object]]] = {side: [] for side in EXAMPLE_SIDES}
+    raw = item.mapping("examples")
+    if raw is None:
+        return result
+    for side, entries in raw.items():
+        if side not in EXAMPLE_SIDES:
+            item.fail(f"examples에 알 수 없는 키 '{side}'가 있습니다. 허용 값: {', '.join(EXAMPLE_SIDES)}")
+        elif not isinstance(entries, list) or not all(isinstance(entry, dict) for entry in entries):
+            item.fail(f"examples.{side}는 매핑 리스트여야 합니다")
+        else:
+            result[side] = cast(list[dict[str, object]], entries)
+    return result
+
+
+def _parse_slot(
+    data: dict[str, object],
+    line: int,
+    file: Path,
+    schema: dict[str, _FieldSpec],
+    problems: _Problems,
+) -> Slot | None:
+    item = _Item(data, line, problems)
+    _check_schema_fields(item, schema)
+    slot_id = _plain_text(data, "id")
+    where = _plain_text(data, "where")
+    purpose = _plain_text(data, "purpose")
+    structured = ("keys", "max_length", "tone", "examples")
+    if slot_id is None or where is None or purpose is None:
+        return None
+    if not all(_field_is_valid(item, schema, name) for name in structured):
+        return None
+    return Slot(
+        id=slot_id,
+        where=where,
+        purpose=purpose,
+        types=item.string_list("types"),
+        variants=_parse_variant_count(item),
+        keys=_parse_key_groups(item),
+        co_display=item.string_list("co_display"),
+        max_length=_parse_slot_max_length(item),
+        allowed=frozenset(item.string_list("allowed")),
+        forbidden=frozenset(item.string_list("forbidden")),
+        examples=_parse_slot_examples(item),
+        line=line,
+        file=file,
+        user_state=_plain_text(data, "user_state") or "",
+        structure=_plain_text(data, "structure") or "",
+        tone=_parse_tone(item),
+        endings=item.string_list("endings"),
+    )
+
+
+def _check_references(slots: dict[str, Slot], rules: RuleSet, findings: list[Finding]) -> None:
+    known_rules = set(rules.slop) | set(rules.style)
+    for slot in slots.values():
+        for field_name, ids in (("allowed", slot.allowed), ("forbidden", slot.forbidden)):
+            for rule_id in sorted(ids - known_rules):
+                message = f"{field_name}의 규칙 ID '{rule_id}'를 slop.yaml·style.yaml에서 찾을 수 없습니다"
+                findings.append(Finding(slot.file, slot.line, UNKNOWN_RULE_ID, "error", message))
+        for other in slot.co_display:
+            if other not in slots:
+                message = f"co_display의 슬롯 '{other}'가 없습니다"
+                findings.append(Finding(slot.file, slot.line, UNKNOWN_SLOT_ID, "error", message))
+
+
+def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
+    """`slots_dir/content/*.yaml`의 슬롯을 읽습니다. `_schema.yaml`이 검증 기준입니다.
+
+    문제가 있으면 모두 모아 `LoadError`를 던집니다.
+    """
+    schema_problems = _Problems(slots_dir / SCHEMA_FILE)
+    schema = _load_schema(schema_problems.file, schema_problems)
+    findings = list(schema_problems.findings)
+    slots: dict[str, Slot] = {}
+    for path in sorted((slots_dir / "content").glob("*.yaml")):
+        problems = _Problems(path)
+        for data, line in _read_items(path, problems) or []:
+            slot = _parse_slot(data, line, path, schema, problems)
+            if slot is None:
+                continue
+            if slot.id in slots:
+                first = slots[slot.id]
+                problems.add(line, f"슬롯 id '{slot.id}'가 {first.file.name}:{first.line}과 중복됩니다")
+                continue
+            slots[slot.id] = slot
+        findings.extend(problems.findings)
+    _check_references(slots, rules, findings)
+    if findings:
+        raise LoadError(findings)
+    return slots
+
+
+# --- 원고 -------------------------------------------------------------------------------------------
+
+ENTRY_KEYS = {"slot", "key", "type", "variant", "text"}
+
+
+def _parse_entry(
+    data: dict[str, object], line: int, file: Path, lang: str, problems: _Problems
+) -> Entry | None:
+    item = _Item(data, line, problems)
+    item.check_unknown_keys(ENTRY_KEYS)
+    slot = item.text("slot")
+    key = item.text("key")
+    text = item.text("text")
+    entry_type = item.text("type", required=False)
+    if entry_type is not None and entry_type not in SENTENCE_TYPES:
+        item.fail(f"'type' 값 '{entry_type}'은(는) 허용되지 않습니다. 허용 값: {', '.join(SENTENCE_TYPES)}")
+        return None
+    variant = data.get("variant", 1)
+    if not _is_int(variant) or cast(int, variant) < 1:
+        item.fail("'variant'는 1 이상의 정수여야 합니다")
+        return None
+    if slot is None or key is None or text is None:
+        return None
+    return Entry(file, line, slot, key, entry_type, cast(int, variant), lang, text)
+
+
+def load_content(content_dir: Path) -> list[Entry]:
+    """`content_dir/<lang>/*.yaml` 원고를 모두 읽습니다. 디렉터리가 없으면 빈 목록입니다.
+
+    문제가 있으면 모두 모아 `LoadError`를 던집니다.
+    """
+    entries: list[Entry] = []
+    findings: list[Finding] = []
+    if not content_dir.is_dir():
+        return entries
+    for lang_dir in sorted(path for path in content_dir.iterdir() if path.is_dir()):
+        if lang_dir.name not in LANGS:
+            message = f"언어 디렉터리 '{lang_dir.name}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}"
+            findings.append(Finding(lang_dir, 1, SCHEMA_RULE_ID, "error", message))
+            continue
+        for path in sorted(lang_dir.glob("*.yaml")):
+            problems = _Problems(path)
+            for data, line in _read_items(path, problems) or []:
+                entry = _parse_entry(data, line, path, lang_dir.name, problems)
+                if entry is not None:
+                    entries.append(entry)
+            findings.extend(problems.findings)
+    if findings:
+        raise LoadError(findings)
+    return entries
