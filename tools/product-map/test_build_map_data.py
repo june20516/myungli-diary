@@ -123,6 +123,18 @@ class RepoTests(unittest.TestCase):
             screens = build_map_data.collect_screens(self.root)
         self.assertTrue(screens[0]["provisional"])
 
+    def test_build_includes_ia_tabs(self) -> None:
+        doc = {"version": 1, "tabs": [{"id": "today", "title": "오늘", "root": "today"}], "components": [], "screens": []}
+        write(self.root, "docs/ia/screens.json", json.dumps(doc))
+        with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
+            data = build_map_data.build(self.root)
+        self.assertEqual(data["screen_tabs"], [{"id": "today", "title": "오늘", "root": "today"}])
+
+    def test_build_has_no_ia_tabs_without_ia(self) -> None:
+        with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
+            data = build_map_data.build(self.root)
+        self.assertEqual(data["screen_tabs"], [])
+
     def test_malformed_index_is_skipped(self) -> None:
         write(self.root, "docs/identity/writing/artifacts/index.json", "{not json")
         write(self.root, "app/docs/artifacts/index.json", json.dumps([{"id": "nofile"}]))

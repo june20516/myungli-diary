@@ -150,20 +150,35 @@ def collect_issues(root: Path) -> list[dict[str, object]] | None:
     ]
 
 
-def collect_screens(root: Path) -> list[dict[str, object]]:
+def _load_ia(root: Path) -> dict[str, object] | None:
+    """IA 계약을 읽습니다. 없으면 None, 깨졌으면 stderr에 알리고 None."""
     ia = root / IA_PATH
-    if ia.exists():
-        try:
-            doc = json.loads(ia.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            doc = None
-        if isinstance(doc, dict) and isinstance(doc.get("screens"), list):
-            return doc["screens"]
-        print(f"건너뜀: {IA_PATH} 형식 오류, 임시 화면 목록을 씁니다", file=sys.stderr)
+    if not ia.exists():
+        return None
+    try:
+        doc = json.loads(ia.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        doc = None
+    if isinstance(doc, dict) and isinstance(doc.get("screens"), list):
+        return doc
+    print(f"건너뜀: {IA_PATH} 형식 오류, 임시 화면 목록을 씁니다", file=sys.stderr)
+    return None
+
+
+def collect_screens(root: Path) -> list[dict[str, object]]:
+    ia = _load_ia(root)
+    if ia is not None:
+        return list(ia["screens"])
     return [
         {"id": sid, "title": title, "summary": summary, "provisional": True}
         for sid, title, summary in PROVISIONAL_SCREENS
     ]
+
+
+def collect_screen_tabs(root: Path) -> list[dict[str, object]]:
+    ia = _load_ia(root)
+    tabs = ia.get("tabs") if ia is not None else None
+    return list(tabs) if isinstance(tabs, list) else []
 
 
 def _read(root: Path, relative: str) -> str:
@@ -185,6 +200,7 @@ def build(root: Path) -> dict[str, object]:
         "current_order": parse_current_order(roadmap),
         "identity": parse_identity(_read(root, "docs/identity/README.md")),
         "screens": collect_screens(root),
+        "screen_tabs": collect_screen_tabs(root),
         "artifacts": collect_artifacts(root),
         "decisions": decisions,
         "issues": issues or [],
