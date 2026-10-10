@@ -76,7 +76,15 @@ def _sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rule
         if slot is None:
             continue
         findings.extend(
-            check_sentence(entry, slot.purpose, rules, slot.max_length.get(entry.lang), longest[entry.lang])
+            check_sentence(
+                entry,
+                slot.purpose,
+                rules,
+                slot.max_length.get(entry.lang),
+                longest[entry.lang],
+                allowed=slot.allowed,
+                forbidden=slot.forbidden,
+            )
         )
     return findings
 

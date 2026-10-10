@@ -136,6 +136,7 @@ examples:
   - {text: "0(이)가", expected: "0이"}
   - {text: "100(은)는", expected: "100은"}
   - {text: "1000(을)를", expected: "1000을"}
+  - {text: "1,000(을)를", expected: "1,000을"}
   - {text: "10000(이)에요", expected: "10000이에요"}
   - {text: "100000(과)와", expected: "100000과"}
   - {text: "★(으)로", expected: "★(으)로"}

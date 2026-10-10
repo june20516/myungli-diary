@@ -47,13 +47,26 @@ def _rendered_length(text: str, longest_values: Mapping[str, str]) -> int | None
     return len(substitute(text, lambda placeholder: longest_values[placeholder.key]))
 
 
+def _runs_in_ci(rule: SlopRule | StyleRule) -> bool:
+    """CI 문장 검사에서 돌리는 규칙인지 봅니다. `judge: llm` 규칙은 detect가 있어도 LLM 판정 명령의 몫입니다."""
+    is_llm = isinstance(rule, SlopRule) and rule.judge != "rule"
+    return rule.detect is not None and not is_llm
+
+
 def check_sentence(
     entry: Entry,
     purpose: str,
     rules: RuleSet,
     max_length: int | None,
     longest_values: Mapping[str, str],
+    allowed: frozenset[str] = frozenset(),
+    forbidden: frozenset[str] = frozenset(),
 ) -> list[Finding]:
+    """원고 한 문장을 검사합니다.
+
+    `allowed`·`forbidden`은 슬롯 명세의 같은 이름 필드입니다. `allowed`의 규칙은 이 슬롯에서 건너뛰고,
+    `forbidden`의 규칙은 `exempt_purposes`와 관계없이 적용합니다.
+    """
     def finding(rule_id: str, severity: Severity, message: str) -> Finding:
         return Finding(entry.file, entry.line, rule_id, severity, message)
 
@@ -70,7 +83,9 @@ def check_sentence(
     effective_purpose = CARE if entry.type == CARE else purpose
     findings: list[Finding] = []
     for rule in detectable_rules(rules):
-        if rule.detect is None or effective_purpose in rule.exempt_purposes:
+        if rule.detect is None or not _runs_in_ci(rule) or rule.id in allowed:
+            continue
+        if effective_purpose in rule.exempt_purposes and rule.id not in forbidden:
             continue
         text = unicodedata.normalize("NFC", entry.text) if rule.detect.raw else normalized
         if matches(rule.detect, entry.lang, text):

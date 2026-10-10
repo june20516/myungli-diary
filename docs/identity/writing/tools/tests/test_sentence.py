@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from mlw.loader import load_rules
-from mlw.model import Detect, Entry, Examples, RuleSet, StyleRule
+from mlw.model import Detect, Entry, Examples, RuleSet, SlopRule, StyleRule
 from mlw.paths import RULES_DIR
 from mlw.sentence import check_sentence, normalize_for_detection
 
@@ -116,3 +116,48 @@ def test_honorific_suffix_check_applies_nfc_to_raw_text(rules: RuleSet) -> None:
     nfd_text = unicodedata.normalize("NFD", "{name}님의 오늘 하루는 어땠나요?")
     assert nfd_text != "{name}님의 오늘 하루는 어땠나요?"
     assert check_sentence(make_entry(nfd_text), "guide", rules, None, {}) == []
+
+
+def test_allowed_rule_is_skipped_in_slot(rules: RuleSet) -> None:
+    custom = with_banned_word_rule(rules)
+    entry = make_entry("금지어가 있어요.")
+    assert check_sentence(entry, "info", custom, None, {}, allowed=frozenset({"style.T"})) == []
+
+
+def test_forbidden_rule_ignores_exempt_purpose(rules: RuleSet) -> None:
+    custom = with_banned_word_rule(rules)
+    entry = make_entry("금지어가 있어요.", sentence_type="care")
+    findings = check_sentence(entry, "care", custom, None, {}, forbidden=frozenset({"style.T"}))
+    assert [f.rule_id for f in findings] == ["style.T"]
+
+
+def test_llm_rule_with_detect_is_not_run(rules: RuleSet) -> None:
+    llm_rule = SlopRule(
+        id="slop.T",
+        name="테스트",
+        judge="llm",
+        severity="warn",
+        detect=Detect(kind="lexicon", words=("금지어",)),
+        rubric="시험",
+        exempt_purposes=frozenset(),
+        examples=Examples(),
+        line=1,
+    )
+    custom = replace(rules, slop={"slop.T": llm_rule}, style={})
+    assert check_sentence(make_entry("금지어가 있어요."), "info", custom, None, {}) == []
+
+
+@pytest.mark.parametrize("text", ["바쁜 날이니까 하나만 골라 해 보세요.", "몸이 무거우니까 천천히 가도 괜찮아요."])
+def test_connective_nikka_is_not_formal_ending(rules: RuleSet, text: str) -> None:
+    assert "style.S3" not in [f.rule_id for f in check_sentence(make_entry(text), "info", rules, None, {})]
+
+
+def test_formal_ending_still_detected(rules: RuleSet) -> None:
+    findings = check_sentence(make_entry("남색입니다. 좋습니까?"), "info", rules, None, {})
+    assert "style.S3" in [f.rule_id for f in findings]
+
+
+def test_dangsin_is_error(rules: RuleSet) -> None:
+    entry = make_entry("재물의 흐름이 당신에게 어떤 의미로 다가왔나요?")
+    findings = check_sentence(entry, "care", rules, None, {})
+    assert ("style.S6", "error") in [(f.rule_id, f.severity) for f in findings]

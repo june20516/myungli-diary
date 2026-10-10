@@ -63,5 +63,9 @@ def check_arb(arb_paths: Sequence[Path], slots: Mapping[str, Slot], rules: RuleS
             entry = Entry(path, lines.get(key, 1), slot.id if slot else "", key, None, 1, lang, value)
             purpose = slot.purpose if slot else DEFAULT_PURPOSE
             max_length = slot.max_length.get(lang) if slot else None
-            findings.extend(check_sentence(entry, purpose, rules, max_length, {}))
+            allowed = slot.allowed if slot else frozenset()
+            forbidden = slot.forbidden if slot else frozenset()
+            findings.extend(
+                check_sentence(entry, purpose, rules, max_length, {}, allowed=allowed, forbidden=forbidden)
+            )
     return findings

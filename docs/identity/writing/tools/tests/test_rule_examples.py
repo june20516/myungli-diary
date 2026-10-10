@@ -15,6 +15,9 @@ for _rule in detectable_rules(_RULES):
     _CASES += [(_rule.id, _rule.detect, example, True) for example in _rule.examples.hit]
     _CASES += [(_rule.id, _rule.detect, example, False) for example in _rule.examples.pass_]
 
+# 규칙 파일을 못 읽어 케이스가 0개가 되면 조용히 통과하지 않게 막습니다.
+assert _CASES
+
 _IDS = [f"{case[0]}-{'hit' if case[3] else 'pass'}-{index}" for index, case in enumerate(_CASES)]
 
 

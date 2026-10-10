@@ -121,7 +121,7 @@ def test_null_limit_is_skipped() -> None:
     entries = [
         make_entry("daily.fortune.head", HEAD_KEY, "가", 10, type_) for type_ in ("advice", "state", "care")
     ]
-    limit = make_limit("limit.L2", CountSelector(type="care"), None, scope="day")
+    limit = make_limit("limit.test_care", CountSelector(type="care"), None, scope="day")
     assert check_days({}, entries, [limit], ("ko",), RULES) == []
 
 
@@ -130,14 +130,30 @@ def test_rotation_positions_all_checked() -> None:
     entries = [make_entry("daily.fortune.head", HEAD_KEY, "가", 10 + i, t) for i, t in enumerate(types)]
     entries += [make_entry("daily.fortune.tag", TAG_KEY, "나", 20 + i, t) for i, t in enumerate(types)]
     by_key = index(entries)
-    types_by_rotation = [
-        [entry.type for entry in assemble(sample_day(), by_key, "ko", rotation, 1)] for rotation in range(3)
-    ]
-    assert types_by_rotation == [["advice", "advice"], ["state", "state"], ["care", "care"]]
+    picked = {
+        tuple(entry.type for entry in assemble(sample_day(), by_key, "ko", head, tag, 1))
+        for head in range(3)
+        for tag in range(3)
+    }
+    assert picked == {(head, tag) for head in types for tag in types}
 
-    limit = make_limit("limit.L2", CountSelector(type="care"), 1, scope="day")
+    limit = make_limit("limit.test_care", CountSelector(type="care"), 1, scope="day")
     findings = check_days({}, entries, [limit], ("ko",), RULES)
-    assert [(finding.rule_id, finding.line) for finding in findings] == [("limit.L2", 22)]
+    assert [(finding.rule_id, finding.line) for finding in findings] == [("limit.test_care", 22)]
+
+
+def test_head_and_tag_types_rotate_independently() -> None:
+    entries = [
+        make_entry("daily.fortune.head", HEAD_KEY, "{name}님, 쉬어 가세요.", 10, "advice"),
+        make_entry("daily.fortune.head", HEAD_KEY, "가", 11, "state"),
+        make_entry("daily.fortune.head", HEAD_KEY, "가", 12, "care"),
+        make_entry("daily.fortune.tag", TAG_KEY, "나", 20, "advice"),
+        make_entry("daily.fortune.tag", TAG_KEY, "{name}님의 날이에요.", 21, "state"),
+        make_entry("daily.fortune.tag", TAG_KEY, "나", 22, "care"),
+    ]
+    limit = make_limit("limit.L1", CountSelector(placeholder="name"), 1)
+    findings = check_days({}, entries, [limit], ("ko",), RULES)
+    assert [(finding.rule_id, finding.line) for finding in findings] == [("limit.L1", 21)]
 
 
 def test_guide_variants_both_checked() -> None:

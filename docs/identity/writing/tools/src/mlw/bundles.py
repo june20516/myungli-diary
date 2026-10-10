@@ -133,11 +133,21 @@ def _pick(candidates: Sequence[Entry], slot: str, rotation: int, guide_variant: 
 
 
 def assemble(
-    day: DayKeys, entries_by: EntriesBy, lang: str, rotation: int, guide_variant: int
+    day: DayKeys,
+    entries_by: EntriesBy,
+    lang: str,
+    head_rotation: int,
+    tag_rotation: int,
+    guide_variant: int,
 ) -> list[Entry]:
-    """하루 키 조합에 순환 위치를 적용해 실제 원고를 고릅니다. 없는 원고는 건너뜁니다."""
+    """하루 키 조합에 순환 위치를 적용해 실제 원고를 고릅니다. 없는 원고는 건너뜁니다.
+
+    순환은 키마다 따로 돌므로(spec §4.2) 헤드라인과 보조 문장의 유형 위치를 따로 받습니다.
+    """
+    rotations = {SLOT_HEAD: head_rotation, SLOT_TAG: tag_rotation}
     picked: list[Entry] = []
     for slot, key in day.bundle().keys:
+        rotation = rotations.get(slot, 0)
         entry = _pick(entries_by.get((slot, key, lang), ()), slot, rotation, guide_variant)
         if entry is not None:
             picked.append(entry)
@@ -230,7 +240,7 @@ def check_days(
     langs: Sequence[str],
     rules: RuleSet,
 ) -> list[Finding]:
-    """모든 하루 조합 x 순환 위치 x 가이드 변주에 화면·하루 상한을 검사합니다.
+    """모든 하루 조합 x 헤드라인 유형 위치 x 보조 문장 유형 위치 x 가이드 변주에 화면·하루 상한을 검사합니다.
 
     같은 (규칙 ID, 파일, 줄)의 finding은 한 번만 냅니다.
     """
@@ -245,15 +255,20 @@ def check_days(
     for lang in langs:
         for day in enumerate_days():
             where = f"하루 화면 {day.head} / {day.tag_sentence or '대표 태그 없음'} / {day.focus}"
-            for rotation in range(len(SENTENCE_TYPES)):
-                for guide_variant in range(1, guide_variants + 1):
-                    bundle = assemble(day, entries_by, lang, rotation, guide_variant)
-                    for scope in SCREEN_SCOPES:
-                        for finding in check_limits(bundle, active, scope, lang, where, rules):
-                            identity = (finding.rule_id, str(finding.file), finding.line)
-                            if identity not in seen:
-                                seen.add(identity)
-                                findings.append(finding)
+            positions = range(len(SENTENCE_TYPES))
+            checked: set[tuple[Entry, ...]] = set()
+            for head, tag, guide_variant in product(positions, positions, range(1, guide_variants + 1)):
+                bundle = assemble(day, entries_by, lang, head, tag, guide_variant)
+                # 보조 문장이 없는 날처럼 위치가 달라도 같은 묶음이면 다시 보지 않습니다.
+                if tuple(bundle) in checked:
+                    continue
+                checked.add(tuple(bundle))
+                for scope in SCREEN_SCOPES:
+                    for finding in check_limits(bundle, active, scope, lang, where, rules):
+                        identity = (finding.rule_id, str(finding.file), finding.line)
+                        if identity not in seen:
+                            seen.add(identity)
+                            findings.append(finding)
     return findings
 
 

@@ -45,7 +45,7 @@ class Detect:
     words: tuple[str, ...] = ()
     # 비어 있으면 모든 언어에 적용합니다.
     langs: frozenset[str] = frozenset()
-    # True면 정규화 전 원문에서 판정합니다(자리표시자 뒤의 글자를 봐야 하는 규칙).
+    # True면 NFC만 적용한 원문에서 판정합니다(자리표시자 뒤의 글자를 봐야 하는 규칙).
     raw: bool = False
 
 

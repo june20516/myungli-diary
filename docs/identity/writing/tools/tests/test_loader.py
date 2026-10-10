@@ -28,7 +28,9 @@ def test_load_rules_reads_seed_files() -> None:
     assert rules.slop["slop.P8"].detect is not None
     assert rules.slop["slop.P8"].detect.langs == frozenset()
     # 라운드 결과로 규칙이 늘어나므로 초기 규칙을 포함하는지만 확인합니다.
-    assert {"limit.L1", "limit.L2", "limit.L3", "limit.L4", "limit.L5", "limit.L6", "limit.L7"} <= set(rules.limits)
+    assert {"limit.L1", "limit.L4", "limit.L5", "limit.L6", "limit.L7", "limit.L8"} <= set(rules.limits)
+    # 돌봄 유형 상한(W14)은 server 유형 순환이 지킵니다. ID는 다시 쓰지 않습니다.
+    assert not {"limit.L2", "limit.L3"} & set(rules.limits)
     assert {"style.S1", "style.S2"} <= set(rules.style)
 
 
@@ -79,9 +81,7 @@ def test_limit_max_int_expands_to_all_langs() -> None:
     rules = load_rules(RULES_DIR)
     assert rules.limits["limit.L1"].max == {"ko": 1, "en": 1, "ja": 1}
     assert rules.limits["limit.L1"].count.placeholder == "name"
-    assert rules.limits["limit.L2"].max == {"ko": 2, "en": 2, "ja": 2}
     assert rules.limits["limit.L4"].max == {"en": 2}
-    assert rules.limits["limit.L3"].count.type == "care"
 
 
 def test_new_count_selectors_load() -> None:
@@ -124,7 +124,7 @@ def write_limit(directory: Path, scope: str, window_line: str) -> None:
 
 def test_window_defaults_to_seven_and_loads_two() -> None:
     limits = load_rules(RULES_DIR).limits
-    assert limits["limit.L3"].window == 7
+    assert limits["limit.L4"].window == 7
     assert limits["limit.L8"].window == 2
 
 

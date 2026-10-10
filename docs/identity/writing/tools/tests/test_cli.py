@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from mlw.cli import main
-from mlw.paths import CONTENT_DIR
+from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
 
 FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
 BAD_CONTENT = """\
@@ -149,3 +149,48 @@ def test_cli_bad_fixture_structure_is_load_error(
     path = tmp_path / "fixture.json"
     path.write_text(body, encoding="utf-8")
     assert_json_load_error(path, "--fixture", capsys)
+
+
+def copy_slots_with(tmp_path: Path, slot_id: str, extra_line: str) -> Path:
+    """슬롯 명세를 복사하고 `slot_id` 슬롯에 필드 한 줄을 덧붙입니다."""
+    slots_dir = tmp_path / "slots"
+    shutil.copytree(SLOTS_DIR, slots_dir)
+    daily = slots_dir / "content" / "daily.yaml"
+    marker = f"- id: {slot_id}\n"
+    text = daily.read_text(encoding="utf-8")
+    assert marker in text
+    daily.write_text(text.replace(marker, f"{marker}  {extra_line}\n"), encoding="utf-8")
+    return slots_dir
+
+
+def write_bad_content(tmp_path: Path) -> Path:
+    content = tmp_path / "content"
+    (content / "ko").mkdir(parents=True)
+    (content / "ko" / "color.yaml").write_text(BAD_CONTENT, encoding="utf-8")
+    return content
+
+
+def test_cli_check_applies_slot_allowed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    slots_dir = copy_slots_with(tmp_path, "daily.color", "allowed: [slop.P8]")
+    content = write_bad_content(tmp_path)
+    assert main(["check", str(content), "--partial", "--slots-dir", str(slots_dir)]) == 0
+    assert "slop.P8" not in capsys.readouterr().out
+
+
+def test_cli_check_applies_slot_forbidden(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    # 규칙 사본에서 slop.P8이 info 목적을 예외로 두게 바꿉니다. info 슬롯이 forbidden에 적으면 그래도 적용합니다.
+    rules_dir = tmp_path / "rules"
+    shutil.copytree(RULES_DIR, rules_dir)
+    slop = rules_dir / "slop.yaml"
+    text = slop.read_text(encoding="utf-8")
+    p8 = text.index("- id: slop.P8")
+    exempt_at = text.index("exempt_purposes: []", p8)
+    slop.write_text(text[:exempt_at] + "exempt_purposes: [info]" + text[exempt_at + len("exempt_purposes: []") :], encoding="utf-8")
+    content = write_bad_content(tmp_path)
+    base = ["check", str(content), "--partial", "--rules-dir", str(rules_dir)]
+
+    assert main([*base, "--slots-dir", str(SLOTS_DIR)]) == 0
+    assert "slop.P8" not in capsys.readouterr().out
+    slots_dir = copy_slots_with(tmp_path, "daily.color", "forbidden: [slop.P8]")
+    assert main([*base, "--slots-dir", str(slots_dir)]) == 1
+    assert "slop.P8" in capsys.readouterr().out

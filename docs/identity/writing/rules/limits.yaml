@@ -1,4 +1,5 @@
 # 빈도·밀도 상한. max가 null이면 아직 정하지 않은 값이며 검사에서 건너뜁니다.
+# limit.L2·L3(돌봄 유형 하루 2·한 주 7, W14)은 server 유형 순환 계약으로 옮겼습니다. 두 ID는 다시 쓰지 않습니다.
 
 - id: limit.L1
   name: 호칭은 한 화면에 한 번
@@ -6,20 +7,6 @@
   count: {placeholder: name}
   max: {ko: 1, ja: 1, en: 1}
   severity: error
-
-- id: limit.L2
-  name: 돌봄 유형 하루 상한
-  scope: day
-  count: {type: care}
-  max: {ko: 2, ja: 2, en: 2}
-  severity: warn
-
-- id: limit.L3
-  name: 돌봄 유형 한 주 상한
-  scope: week
-  count: {type: care}
-  max: {ko: 7, ja: 7, en: 7}
-  severity: warn
 
 - id: limit.L4
   name: 영어 호칭 한 주 상한

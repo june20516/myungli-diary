@@ -54,13 +54,13 @@ def head_entries() -> list[Entry]:
 
 def care_limit(max_value: int) -> Limit:
     max_by_lang: dict[str, int | None] = {"ko": max_value, "en": max_value, "ja": max_value}
-    return Limit("limit.L3", "돌봄 빈도", "week", CountSelector(type="care"), max_by_lang, "warn", 1)
+    return Limit("limit.test_care", "돌봄 빈도", "week", CountSelector(type="care"), max_by_lang, "warn", 1)
 
 
 def test_week_care_limit() -> None:
     fixture = fixture_of([day_keys()] * 7)
     findings = check_weeks({}, head_entries(), [care_limit(2)], ["ko"], RULES, fixture, MESSAGE_KEYS)
-    assert [finding.rule_id for finding in findings] == ["limit.L3"]
+    assert [finding.rule_id for finding in findings] == ["limit.test_care"]
     assert findings[0].severity == "warn"
 
 

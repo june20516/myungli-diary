@@ -1,6 +1,7 @@
 """ARB 검사 테스트."""
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -53,3 +54,10 @@ def test_arb_invalid_json_is_load_error(tmp_path: Path, rules: RuleSet, slots: d
     path.write_text("{ not json", encoding="utf-8")
     with pytest.raises(LoadError):
         check_arb([path], slots, rules)
+
+
+def test_arb_slot_allowed_skips_rule(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    depth_slot = next(slot for slot in slots.values() if "depthSurface" in slot.keys)
+    allowing = {**slots, depth_slot.id: replace(depth_slot, allowed=frozenset({"slop.P8"}))}
+    path = write_arb(tmp_path, {"@@locale": "ko", "depthSurface": "반가워요!"})
+    assert check_arb([path], allowing, rules) == []
