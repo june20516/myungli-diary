@@ -51,9 +51,9 @@ def _longest_value(placeholder: Placeholder, kind: ParamKind, by_category: Mappi
     """값 종류 규칙으로 가장 긴 렌더 값을 구합니다. 범주를 해석할 수 없으면 ValueError, 값이 없으면 None입니다."""
     if kind.kind == "glossary":
         category = placeholder.category or kind.default_category
-        if category not in kind.categories:
+        if category is None or category not in kind.categories:
             raise ValueError(placeholder.key)
-        values = by_category.get(category or "", ())
+        values = by_category.get(category, ())
         return values[0] if values else None
     if placeholder.category is not None or kind.kind == "none":
         raise ValueError(placeholder.key)
@@ -88,9 +88,10 @@ def longest_values_for(
                 values[NAME_PARAM] = NAME_FILLER * name_max
             continue
         kind = params.get(placeholder.name)
+        if kind is None:
+            unresolved.append(placeholder.key)
+            continue
         try:
-            if kind is None:
-                raise ValueError(placeholder.key)
             value = _longest_value(placeholder, kind, by_category)
         except ValueError:
             unresolved.append(placeholder.key)
