@@ -39,7 +39,7 @@ def test_arb_metadata_keys_ignored(tmp_path: Path, rules: RuleSet, slots: dict[s
 
 
 def test_arb_placeholder_is_normalized(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
-    path = write_arb(tmp_path, {"@@locale": "ko", "greet": "{name}(이)가 왔어요"})
+    path = write_arb(tmp_path, {"@@locale": "ko", "greet": "{color}(이)가 왔어요"})
     assert check_arb([path], slots, rules) == []
 
 

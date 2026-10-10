@@ -51,7 +51,7 @@ STYLE_KEYS = {"id", "name", "severity", "detect", "exempt_purposes", "examples"}
 LIMIT_KEYS = {"id", "name", "scope", "count", "max", "severity", "window"}
 MIN_WINDOW = 2
 MAX_WINDOW = 7
-DETECT_KEYS = {"kind", "pattern", "words", "langs"}
+DETECT_KEYS = {"kind", "pattern", "words", "langs", "raw"}
 EXAMPLE_KEYS = {"lang", "slot_purpose", "text"}
 COUNT_KEYS = ("placeholder", "type", "rule", "lexicon", "token", "token_entries")
 COUNT_STRING_KEYS = ("placeholder", "type", "rule")
@@ -138,6 +138,10 @@ def _parse_detect(item: _Item, *, required: bool) -> Detect | None:
     pattern = sub.text("pattern", required=False)
     words = sub.string_list("words")
     langs = sub.string_list("langs", LANGS)
+    on_raw_text = sub.data.get("raw", False)
+    if not isinstance(on_raw_text, bool):
+        item.fail("detect.raw는 true 또는 false여야 합니다")
+        on_raw_text = False
     if kind in ("regex", "template"):
         if pattern is None:
             item.fail(f"detect.kind '{kind}'에는 'pattern'이 필요합니다")
@@ -155,6 +159,7 @@ def _parse_detect(item: _Item, *, required: bool) -> Detect | None:
         pattern=pattern,
         words=words,
         langs=frozenset(langs),
+        raw=on_raw_text,
     )
 
 

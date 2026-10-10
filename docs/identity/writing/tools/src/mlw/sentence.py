@@ -16,7 +16,7 @@ RULE_TOKEN_SYNTAX = "token.syntax"
 
 
 def matches(detect: Detect, lang: str, text: str) -> bool:
-    """`text`가 탐지 조건에 해당하는지 판정합니다. `text`는 정규화된 텍스트여야 합니다."""
+    """`text`가 탐지 조건에 해당하는지 판정합니다. `text`는 정규화된 텍스트여야 합니다(`detect.raw`인 규칙은 원문)."""
     if detect.langs and lang not in detect.langs:
         return False
     if detect.kind == "lexicon":
@@ -71,7 +71,8 @@ def check_sentence(
     for rule in detectable_rules(rules):
         if rule.detect is None or effective_purpose in rule.exempt_purposes:
             continue
-        if matches(rule.detect, entry.lang, normalized):
+        text = entry.text if rule.detect.raw else normalized
+        if matches(rule.detect, entry.lang, text):
             findings.append(finding(rule.id, rule.severity, rule.name))
 
     if max_length is not None:

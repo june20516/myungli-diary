@@ -88,3 +88,24 @@ def test_bad_token_syntax_reported(rules: RuleSet) -> None:
     assert [(f.rule_id, f.severity) for f in findings] == [("token.syntax", "error")]
     findings = check_sentence(make_entry("[[]]가 와요"), "info", rules, None, {})
     assert [f.rule_id for f in findings] == ["token.syntax"]
+
+
+def test_honorific_suffix_missing_is_error(rules: RuleSet) -> None:
+    findings = check_sentence(make_entry("{name}의 오늘 하루는 어땠나요?"), "guide", rules, None, {})
+    assert [(f.rule_id, f.severity) for f in findings] == [("style.S4", "error")]
+
+
+def test_honorific_suffix_present_passes(rules: RuleSet) -> None:
+    assert check_sentence(make_entry("{name}님의 오늘 하루는 어땠나요?"), "guide", rules, None, {}) == []
+
+
+def test_honorific_suffix_ja_requires_san(rules: RuleSet) -> None:
+    entry = replace(make_entry("{name}の一日はどうでしたか？"), lang="ja")
+    assert [f.rule_id for f in check_sentence(entry, "guide", rules, None, {})] == ["style.S5"]
+    ok = replace(make_entry("{name}さんの一日はどうでしたか？"), lang="ja")
+    assert check_sentence(ok, "guide", rules, None, {}) == []
+
+
+def test_honorific_suffix_not_required_in_english(rules: RuleSet) -> None:
+    entry = replace(make_entry("How was your day, {name}?"), lang="en")
+    assert check_sentence(entry, "guide", rules, None, {}) == []

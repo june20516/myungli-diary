@@ -20,4 +20,5 @@ _IDS = [f"{case[0]}-{'hit' if case[3] else 'pass'}-{index}" for index, case in e
 
 @pytest.mark.parametrize(("rule_id", "detect", "example", "expected"), _CASES, ids=_IDS)
 def test_rule_example(rule_id: str, detect: Detect, example: Example, expected: bool) -> None:
-    assert matches(detect, example.lang, normalize_for_detection(example.text)) is expected
+    text = example.text if detect.raw else normalize_for_detection(example.text)
+    assert matches(detect, example.lang, text) is expected

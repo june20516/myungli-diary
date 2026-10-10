@@ -42,3 +42,35 @@
     pass:
       - {lang: ko, slot_purpose: info, text: "오늘은 남색이 잘 맞아요."}
       - {lang: ko, slot_purpose: guide, text: "민지님의 오늘 하루는 어땠나요?"}
+
+# raw: true는 정규화 전 원문에서 판정합니다. 정규화는 자리표시자를 "값"으로 바꿔 `{name}` 뒤를 알 수 없기 때문입니다.
+# 영어는 접미사가 없어(W5) 대상이 아닙니다.
+- id: style.S4
+  name: 호칭 접미사 누락
+  severity: error
+  detect:
+    kind: regex
+    pattern: '\{name\}(?!님)'
+    langs: [ko]
+    raw: true
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "{name}의 오늘 하루는 어땠나요?"}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "{name}님의 오늘 하루는 어땠나요?"}
+
+- id: style.S5
+  name: 호칭 접미사 누락 (일본어)
+  severity: error
+  detect:
+    kind: regex
+    pattern: '\{name\}(?!さん)'
+    langs: [ja]
+    raw: true
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ja, slot_purpose: guide, text: "{name}の一日はどうでしたか？"}
+    pass:
+      - {lang: ja, slot_purpose: guide, text: "{name}さんの一日はどうでしたか？"}
