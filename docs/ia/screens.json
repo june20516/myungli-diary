@@ -178,6 +178,14 @@
     {
       "id": "settings-row",
       "role": "설정 한 줄"
+    },
+    {
+      "id": "ad-banner",
+      "role": "탭 루트 하단 적응형 배너 광고 자리. 광고 제거 기간에는 숨김"
+    },
+    {
+      "id": "offer-card",
+      "role": "광고 제거권 상품 설명·가격·기간 카드"
     }
   ],
   "screens": [
@@ -209,6 +217,10 @@
           "trigger": "로그인 상태"
         },
         {
+          "to": "ad-consent",
+          "trigger": "로그인 상태, 이 기기에서 광고 동의를 받지 않음"
+        },
+        {
           "to": "welcome",
           "trigger": "로그아웃 상태"
         },
@@ -219,7 +231,8 @@
       ],
       "decisions": [
         "D50",
-        "D39"
+        "D39",
+        "D53"
       ]
     },
     {
@@ -714,11 +727,16 @@
         {
           "to": "today",
           "trigger": "사주가 저장된 계정"
+        },
+        {
+          "to": "ad-consent",
+          "trigger": "사주가 저장된 계정, 이 기기에서 광고 동의를 받지 않음"
         }
       ],
       "decisions": [
         "D50",
-        "D39"
+        "D39",
+        "D53"
       ]
     },
     {
@@ -815,13 +833,34 @@
       ],
       "exits": [
         {
-          "to": "today",
+          "to": "ad-consent",
           "trigger": "허락 또는 건너뛰기"
         }
       ],
       "decisions": [
         "D18",
         "D39"
+      ]
+    },
+    {
+      "id": "ad-consent",
+      "title": "광고 동의",
+      "tab": null,
+      "presentation": "system",
+      "auth": "member",
+      "purpose": "iOS 추적 허용(ATT)과 필요한 지역의 광고 동의(UMP) 창입니다. 이 기기에서 처음 광고를 보이기 전 한 번 묻고(새 계정은 알림 허락 뒤, 기존 계정은 로그인·실행 때), 거절해도 비맞춤 광고로 계속합니다",
+      "depths": [],
+      "states": [],
+      "slots": [],
+      "components": [],
+      "exits": [
+        {
+          "to": "today",
+          "trigger": "허락 또는 거절"
+        }
+      ],
+      "decisions": [
+        "D53"
       ]
     },
     {
@@ -927,7 +966,8 @@
         "guide-question-card",
         "event-row",
         "share-button",
-        "depth-link"
+        "depth-link",
+        "ad-banner"
       ],
       "exits": [
         {
@@ -965,7 +1005,8 @@
         "D25",
         "D40",
         "D48",
-        "D39"
+        "D39",
+        "D53"
       ]
     },
     {
@@ -1147,7 +1188,8 @@
         "app-bar",
         "tab-bar",
         "calendar-month",
-        "day-cell"
+        "day-cell",
+        "ad-banner"
       ],
       "exits": [
         {
@@ -1163,7 +1205,8 @@
         "D18",
         "D47",
         "D48",
-        "D39"
+        "D39",
+        "D53"
       ]
     },
     {
@@ -1357,7 +1400,8 @@
         "diary-row",
         "tag-chip",
         "date-picker",
-        "empty-state"
+        "empty-state",
+        "ad-banner"
       ],
       "exits": [
         {
@@ -1377,7 +1421,8 @@
         "D47",
         "D48",
         "D49",
-        "D39"
+        "D39",
+        "D53"
       ]
     },
     {
@@ -1622,7 +1667,8 @@
         "sentence-block",
         "term-token",
         "lucky-card",
-        "depth-link"
+        "depth-link",
+        "ad-banner"
       ],
       "exits": [
         {
@@ -1642,7 +1688,8 @@
         "D15",
         "D16",
         "D48",
-        "D39"
+        "D39",
+        "D53"
       ]
     },
     {
@@ -1709,7 +1756,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "기본 깊이, 알림 시각, 언어, 정보 수정, 계산 기준, 로그아웃, 계정 삭제, 약관을 둡니다",
+      "purpose": "기본 깊이, 알림 시각, 광고 제거, 언어, 정보 수정, 계산 기준, 로그아웃, 계정 삭제, 약관을 둡니다",
       "depths": [],
       "states": [],
       "slots": [
@@ -1727,6 +1774,11 @@
           "id": "settings.logout.confirm",
           "source": "ui",
           "role": "로그아웃 확인"
+        },
+        {
+          "id": "settings.ad-free.label",
+          "source": "ui",
+          "role": "광고 제거 메뉴와 남은 기간 표시"
         }
       ],
       "components": [
@@ -1738,6 +1790,10 @@
         "dialog"
       ],
       "exits": [
+        {
+          "to": "ad-free",
+          "trigger": "광고 제거"
+        },
         {
           "to": "profile-edit",
           "trigger": "정보 수정"
@@ -1768,7 +1824,97 @@
         "D28",
         "D29",
         "D37",
-        "D39"
+        "D39",
+        "D53"
+      ]
+    },
+    {
+      "id": "ad-free",
+      "title": "광고 제거",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "1개월 광고 제거권을 사고, 남은 기간을 보고, 구매를 복원합니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "상품 정보를 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "상품 정보나 구매 처리 실패, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "구매할 수 없다는 안내"
+        }
+      ],
+      "slots": [
+        {
+          "id": "ad-free.offer.head",
+          "source": "ui",
+          "role": "광고 제거권이 주는 것 한 줄"
+        },
+        {
+          "id": "ad-free.offer.price",
+          "source": "ui",
+          "role": "가격과 기간(1개월, 자동 갱신 아님) 고지"
+        },
+        {
+          "id": "ad-free.status.remaining",
+          "source": "ui",
+          "role": "광고 제거 남은 기간 또는 만료일"
+        },
+        {
+          "id": "ad-free.restore.cta",
+          "source": "ui",
+          "role": "구매 복원"
+        },
+        {
+          "id": "ad-free.legal.notice",
+          "source": "ui",
+          "role": "이용약관·개인정보처리방침 링크 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "offer-card",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "system-purchase",
+          "trigger": "구매"
+        },
+        {
+          "to": "legal",
+          "trigger": "약관·정책 링크"
+        }
+      ],
+      "decisions": [
+        "D53"
+      ]
+    },
+    {
+      "id": "system-purchase",
+      "title": "스토어 결제",
+      "tab": "me",
+      "presentation": "system",
+      "auth": "member",
+      "purpose": "OS 결제 시트(App Store·Google Play)입니다",
+      "depths": [],
+      "states": [],
+      "slots": [],
+      "components": [],
+      "exits": [
+        {
+          "to": "ad-free",
+          "trigger": "결제 완료 또는 취소"
+        }
+      ],
+      "decisions": [
+        "D53"
       ]
     },
     {

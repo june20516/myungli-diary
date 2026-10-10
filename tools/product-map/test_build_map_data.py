@@ -157,5 +157,106 @@ class RepoTests(unittest.TestCase):
         self.assertTrue((out / "images" / "docs/identity/design/artifacts/b.png").exists())
 
 
+IDEAS_HEADER = "| id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모 |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+CYCLE = "docs/business/cycles/c.md"
+
+
+def idea_row(idea_id: str, status: str, memo: str = "") -> str:
+    return f"| {idea_id} | 2026-10-11 | 아이디어 {idea_id} | 사용자 | MVP | 유료 후보 | {status} | {memo} |\n"
+
+
+class IdeaTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def write_ideas(self, *rows: str) -> None:
+        write(self.root, "docs/ideas.md", "# 아이디어 함\n\n" + IDEAS_HEADER + "".join(rows))
+
+    def test_collect_ideas_without_file(self) -> None:
+        self.assertEqual(build_map_data.collect_ideas(self.root), ([], []))
+
+    def test_collect_ideas_parses_rows_and_states(self) -> None:
+        self.write_ideas(
+            idea_row("I1", "대기"), idea_row("I2", f"검토 {CYCLE}"), idea_row("I3", "채택 D23"),
+            idea_row("I4", "보류"), idea_row("I5", "기각"),
+        )
+        ideas, _ = build_map_data.collect_ideas(self.root)
+        self.assertEqual([i["state"] for i in ideas], ["waiting", "review", "adopted", "held", "rejected"])
+        self.assertEqual(ideas[2]["decision"], "D23")
+        self.assertEqual(ideas[1]["review"], CYCLE)
+        self.assertEqual(ideas[0]["review"], "")
+        self.assertEqual(
+            {k: ideas[0][k] for k in ("id", "date", "idea", "source", "scope", "revenue", "status", "memo")},
+            {"id": "I1", "date": "2026-10-11", "idea": "아이디어 I1", "source": "사용자",
+             "scope": "MVP", "revenue": "유료 후보", "status": "대기", "memo": ""},
+        )
+
+    def test_unknown_status_is_kept_as_unknown(self) -> None:
+        self.write_ideas(idea_row("I1", "**대기**"))
+        ideas, _ = build_map_data.collect_ideas(self.root)
+        self.assertEqual(ideas[0]["state"], "unknown")
+
+    def test_collect_ideas_keeps_escaped_pipe(self) -> None:
+        self.write_ideas(idea_row("I1", "대기", memo="a \\| b"))
+        ideas, _ = build_map_data.collect_ideas(self.root)
+        self.assertEqual(ideas[0]["memo"], "a | b")
+
+    def test_escaped_pipe_at_cell_end(self) -> None:
+        self.write_ideas("| I1 | 2026-10-11 | x | 사용자 | MVP | 무관 | 대기 | a \\||\n")
+        ideas, _ = build_map_data.collect_ideas(self.root)
+        self.assertEqual(ideas[0]["memo"], "a |")
+
+    def test_header_without_separator_warns(self) -> None:
+        write(self.root, "docs/ideas.md", IDEAS_HEADER.splitlines()[0] + "\n" + idea_row("I1", "대기"))
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(build_map_data.collect_ideas(self.root), ([], []))
+        self.assertIn("건너뜀: docs/ideas.md", err.getvalue())
+
+    def test_idea_reviews_ignore_paths_outside_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as outside:
+            target = write(Path(outside), "s.md", "# 밖\n\n* 상태: 조사\n")
+            relative = os.path.relpath(target, self.root)
+            self.write_ideas(idea_row("I1", f"검토 {relative}"), idea_row("I2", f"검토 {target}"))
+            _, reviews = build_map_data.collect_ideas(self.root)
+        self.assertEqual(reviews, [
+            {"path": relative, "title": relative, "status": ""},
+            {"path": str(target), "title": str(target), "status": ""},
+        ])
+
+    def test_idea_reviews_read_title_and_status(self) -> None:
+        write(self.root, CYCLE, "# 출시 결제\n\n* 작성: 지휘\n* 상태: 조사\n")
+        self.write_ideas(idea_row("I1", f"검토 {CYCLE}"), idea_row("I2", f"검토 {CYCLE}"))
+        _, reviews = build_map_data.collect_ideas(self.root)
+        self.assertEqual(reviews, [{"path": CYCLE, "title": "출시 결제", "status": "조사"}])
+
+    def test_idea_reviews_fallback_without_heading(self) -> None:
+        write(self.root, "docs/plain.md", "본문만 있습니다\n")
+        self.write_ideas(idea_row("I1", "검토 docs/plain.md"), idea_row("I2", "검토 docs/none.md"))
+        _, reviews = build_map_data.collect_ideas(self.root)
+        self.assertEqual(reviews, [
+            {"path": "docs/plain.md", "title": "docs/plain.md", "status": ""},
+            {"path": "docs/none.md", "title": "docs/none.md", "status": ""},
+        ])
+
+    def test_collect_ideas_bad_table_warns(self) -> None:
+        write(self.root, "docs/ideas.md", "| id | 아이디어 |\n| --- | --- |\n| I1 | x |\n")
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(build_map_data.collect_ideas(self.root), ([], []))
+        self.assertIn("건너뜀: docs/ideas.md", err.getvalue())
+
+    def test_build_includes_ideas(self) -> None:
+        self.write_ideas(idea_row("I1", "대기"))
+        with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
+            data = build_map_data.build(self.root)
+        self.assertEqual([i["id"] for i in data["ideas"]], ["I1"])
+        self.assertEqual(data["idea_reviews"], [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -11,7 +11,7 @@
 | REST API (앱 ↔ 서버) | (server 설계 때 정함) | server | app | v1 | 미설계 (S3) | D26 |
 | 디자인 토큰 (색·오행 팔레트·타이포·간격·반경·그라데이션) | `docs/identity/design/tokens/` (읽는 문서 `tokens/README.md`) | design | app | 1.0.0 | **freeze** (main 병합 완료, PR #18 `d049e08`). DTCG 2025.10 JSON 5개 파일, Dart 코드 생성은 app | 브랜드 기반 spec §9, design 결정 V1~V12, V1 spec |
 | 브랜드 기반 | `docs/identity/README.md` | 지휘 | writing, design | - | 확정 (B0) | 브랜드 기반 spec, D38 |
-| MVP 화면 목록 (IA) | `docs/ia/screens.json` (읽는 문서 `docs/ia/README.md`) | 지휘 | app, writing, design, server | 1 | **확정** (v1, 화면 31·컴포넌트 39·슬롯 94) | IA spec, D39·D51 |
+| MVP 화면 목록 (IA) | `docs/ia/screens.json` (읽는 문서 `docs/ia/README.md`) | 지휘 | app, writing, design, server | 1 | **확정** (v1, 화면 34·컴포넌트 41·슬롯 100) | IA spec, D39·D51·D53 |
 | 슬롯 명세 | `docs/identity/writing/` (W0에서 정함) | writing | server, app | - | 미설계 (W0) | 브랜드 기반 spec §8 |
 | 호칭·조사 처리 규칙 | (W0에서 정함) | writing | server (콘텐츠 모듈) | - | 미설계 (W0) | D36 |
 | 라이팅 검사기 | `docs/identity/writing/tools/` (W0에서 정함) | writing | server (시드 CI), app (CI) | - | 미설계 (W0) | 브랜드 기반 spec §8 |
