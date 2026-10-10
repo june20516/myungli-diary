@@ -1,0 +1,1951 @@
+{
+  "version": 1,
+  "tabs": [
+    {
+      "id": "today",
+      "title": "오늘",
+      "root": "today"
+    },
+    {
+      "id": "calendar",
+      "title": "달력",
+      "root": "calendar"
+    },
+    {
+      "id": "diary",
+      "title": "일기",
+      "root": "diary-list"
+    },
+    {
+      "id": "me",
+      "title": "나",
+      "root": "my-saju"
+    }
+  ],
+  "components": [
+    {
+      "id": "tab-bar",
+      "role": "탭 4개"
+    },
+    {
+      "id": "app-bar",
+      "role": "화면 제목·뒤로·동작 아이콘"
+    },
+    {
+      "id": "sheet",
+      "role": "하프·풀 시트 틀"
+    },
+    {
+      "id": "dialog",
+      "role": "확인 창"
+    },
+    {
+      "id": "toast",
+      "role": "짧은 알림"
+    },
+    {
+      "id": "notice-banner",
+      "role": "오프라인·시간 모름 같은 화면 위 안내"
+    },
+    {
+      "id": "skeleton",
+      "role": "불러오는 중 자리"
+    },
+    {
+      "id": "empty-state",
+      "role": "비어 있을 때"
+    },
+    {
+      "id": "error-state",
+      "role": "오류일 때(다시 시도)"
+    },
+    {
+      "id": "sentence-block",
+      "role": "콘텐츠 문장 덩어리"
+    },
+    {
+      "id": "term-token",
+      "role": "명리 용어 표시(V3). 누르면 풀이 시트"
+    },
+    {
+      "id": "depth-link",
+      "role": "한 단계 깊이로 가는 링크(\"근거 보기\")"
+    },
+    {
+      "id": "reaction-button",
+      "role": "문장 반응(좋아요, D40)"
+    },
+    {
+      "id": "day-character",
+      "role": "날의 성격 배지와 한 줄(D19·D20)"
+    },
+    {
+      "id": "lucky-card",
+      "role": "행운 항목 하나(색·방향·숫자·시간 변형)"
+    },
+    {
+      "id": "guide-question-card",
+      "role": "가이드 질문과 쓰기 입구"
+    },
+    {
+      "id": "share-button",
+      "role": "공유"
+    },
+    {
+      "id": "share-image",
+      "role": "공유 이미지 틀(라이트 고정, V5)"
+    },
+    {
+      "id": "input-step",
+      "role": "질문 하나짜리 입력 화면 틀"
+    },
+    {
+      "id": "text-field",
+      "role": "글자 입력"
+    },
+    {
+      "id": "date-picker",
+      "role": "날짜(양력·음력, 윤달)"
+    },
+    {
+      "id": "time-picker",
+      "role": "시간('모름' 포함)"
+    },
+    {
+      "id": "segmented",
+      "role": "몇 개 중 하나 고르기"
+    },
+    {
+      "id": "check-row",
+      "role": "동의 항목 한 줄"
+    },
+    {
+      "id": "city-search",
+      "role": "도시 검색과 결과 목록"
+    },
+    {
+      "id": "social-login-button",
+      "role": "소셜 로그인 버튼"
+    },
+    {
+      "id": "primary-button",
+      "role": "주 동작 버튼"
+    },
+    {
+      "id": "calendar-month",
+      "role": "한 달 격자"
+    },
+    {
+      "id": "day-cell",
+      "role": "날짜 칸(길흉 점·음력·절기·일정 표시)"
+    },
+    {
+      "id": "event-row",
+      "role": "일정 한 줄"
+    },
+    {
+      "id": "diary-row",
+      "role": "일기 목록 한 줄"
+    },
+    {
+      "id": "diary-editor",
+      "role": "본문 입력"
+    },
+    {
+      "id": "draft-indicator",
+      "role": "초안 저장 상태"
+    },
+    {
+      "id": "tag-chip",
+      "role": "해시태그 칩(누르면 태그 모아보기)"
+    },
+    {
+      "id": "saju-pillars",
+      "role": "원국표"
+    },
+    {
+      "id": "ohaeng-bar",
+      "role": "오행 분포"
+    },
+    {
+      "id": "manse-table",
+      "role": "만세력 기본 표(십성·지장간·12운성·신살)"
+    },
+    {
+      "id": "daeun-table",
+      "role": "대운·세운 표"
+    },
+    {
+      "id": "settings-row",
+      "role": "설정 한 줄"
+    }
+  ],
+  "screens": [
+    {
+      "id": "launch",
+      "title": "앱 시작",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "로그인 상태와 앱 버전을 확인해 첫 화면을 고릅니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "로그인 상태와 최소 앱 버전 확인 중"
+        },
+        {
+          "id": "offline",
+          "note": "연결이 없어 다시 시도 안내"
+        }
+      ],
+      "slots": [],
+      "components": [
+        "skeleton"
+      ],
+      "exits": [
+        {
+          "to": "today",
+          "trigger": "로그인 상태"
+        },
+        {
+          "to": "welcome",
+          "trigger": "로그아웃 상태"
+        },
+        {
+          "to": "force-update",
+          "trigger": "앱 버전이 최소 버전보다 낮음"
+        }
+      ],
+      "decisions": [
+        "D50",
+        "D39"
+      ]
+    },
+    {
+      "id": "force-update",
+      "title": "업데이트 필요",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "규칙 버전이나 API가 바뀌어 옛 앱을 막고 업데이트로 안내합니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "force-update.notice.head",
+          "source": "ui",
+          "role": "업데이트가 필요하다는 제목"
+        },
+        {
+          "id": "force-update.notice.body",
+          "source": "ui",
+          "role": "업데이트해야 하는 이유"
+        },
+        {
+          "id": "force-update.cta.store",
+          "source": "ui",
+          "role": "스토어로 가는 버튼"
+        }
+      ],
+      "components": [
+        "sentence-block",
+        "primary-button"
+      ],
+      "exits": [],
+      "decisions": [
+        "D31",
+        "D39"
+      ]
+    },
+    {
+      "id": "welcome",
+      "title": "시작",
+      "tab": null,
+      "presentation": "page",
+      "auth": "guest",
+      "purpose": "컨셉을 한 화면으로 보여주고 시작과 로그인으로 나눕니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "welcome.concept.head",
+          "source": "ui",
+          "role": "컨셉 한 문장"
+        },
+        {
+          "id": "welcome.concept.body",
+          "source": "ui",
+          "role": "앱이 해주는 일 설명"
+        },
+        {
+          "id": "welcome.cta.start",
+          "source": "ui",
+          "role": "시작하기 버튼"
+        },
+        {
+          "id": "welcome.cta.signin",
+          "source": "ui",
+          "role": "이미 계정이 있어요 버튼"
+        }
+      ],
+      "components": [
+        "sentence-block",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "onboard-call",
+          "trigger": "시작하기"
+        },
+        {
+          "to": "login",
+          "trigger": "이미 계정이 있어요"
+        }
+      ],
+      "decisions": [
+        "D50",
+        "D39"
+      ]
+    },
+    {
+      "id": "onboard-call",
+      "title": "호칭",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "앱이 부를 말을 받습니다. 필수이고 실명이 아니어도 됩니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "onboard-call.question.head",
+          "source": "ui",
+          "role": "호칭을 묻는 질문"
+        },
+        {
+          "id": "onboard-call.input.hint",
+          "source": "ui",
+          "role": "입력칸 예시"
+        },
+        {
+          "id": "onboard-call.note.body",
+          "source": "ui",
+          "role": "실명이 아니어도 된다는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "input-step",
+        "text-field",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "onboard-birth",
+          "trigger": "다음"
+        },
+        {
+          "to": "profile-edit",
+          "trigger": "정보 수정에서 온 경우 저장"
+        }
+      ],
+      "decisions": [
+        "D36",
+        "D39"
+      ]
+    },
+    {
+      "id": "onboard-birth",
+      "title": "생일",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "생일을 양력·음력(윤달 포함)으로 받고 한국 출생 기준임을 표시합니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "out-of-range",
+          "note": "지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖 날짜"
+        }
+      ],
+      "slots": [
+        {
+          "id": "onboard-birth.question.head",
+          "source": "ui",
+          "role": "생일을 묻는 질문"
+        },
+        {
+          "id": "onboard-birth.calendar.hint",
+          "source": "ui",
+          "role": "음력·윤달 고르는 법"
+        },
+        {
+          "id": "onboard-birth.basis.note",
+          "source": "ui",
+          "role": "한국 출생 기준으로 계산한다는 안내"
+        },
+        {
+          "id": "onboard-birth.error.range",
+          "source": "ui",
+          "role": "지원 범위 밖 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "input-step",
+        "date-picker",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "onboard-time",
+          "trigger": "다음"
+        },
+        {
+          "to": "profile-edit",
+          "trigger": "정보 수정에서 온 경우 저장"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D29",
+        "D41",
+        "D39"
+      ]
+    },
+    {
+      "id": "onboard-time",
+      "title": "태어난 시간",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "태어난 시간을 받고 '모름'을 고를 수 있게 합니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "time-unknown",
+          "note": "모름을 고르면 시주를 뺀 3주로 계산한다고 안내"
+        }
+      ],
+      "slots": [
+        {
+          "id": "onboard-time.question.head",
+          "source": "ui",
+          "role": "태어난 시간을 묻는 질문"
+        },
+        {
+          "id": "onboard-time.unknown.note",
+          "source": "ui",
+          "role": "3주로 계산한다는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "input-step",
+        "time-picker",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "onboard-gender",
+          "trigger": "다음"
+        },
+        {
+          "to": "profile-edit",
+          "trigger": "정보 수정에서 온 경우 저장"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D32",
+        "D39"
+      ]
+    },
+    {
+      "id": "onboard-gender",
+      "title": "성별",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "대운 방향 계산에 쓸 성별을 받습니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "onboard-gender.question.head",
+          "source": "ui",
+          "role": "성별을 묻는 질문"
+        },
+        {
+          "id": "onboard-gender.why.body",
+          "source": "ui",
+          "role": "대운 방향 계산에 쓴다는 이유"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "input-step",
+        "segmented",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "preview",
+          "trigger": "다음(기기 지역이 한국)"
+        },
+        {
+          "to": "birthplace",
+          "trigger": "다음(기기 지역이 한국 밖)"
+        },
+        {
+          "to": "profile-edit",
+          "trigger": "정보 수정에서 온 경우 저장"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D29",
+        "D39"
+      ]
+    },
+    {
+      "id": "birthplace",
+      "title": "출생지",
+      "tab": null,
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "도시를 검색해 출생 시간대와 경도를 정합니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "도시 검색 중"
+        },
+        {
+          "id": "empty",
+          "note": "검색 결과 없음"
+        },
+        {
+          "id": "error",
+          "note": "도시 목록을 불러오지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "birthplace.question.head",
+          "source": "ui",
+          "role": "출생지를 묻는 질문"
+        },
+        {
+          "id": "birthplace.why.body",
+          "source": "ui",
+          "role": "출생지가 필요한 이유"
+        },
+        {
+          "id": "birthplace.search.hint",
+          "source": "ui",
+          "role": "검색칸 예시"
+        },
+        {
+          "id": "birthplace.empty.body",
+          "source": "ui",
+          "role": "결과가 없을 때 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "input-step",
+        "city-search",
+        "empty-state"
+      ],
+      "exits": [
+        {
+          "to": "preview",
+          "trigger": "온보딩에서 도시 선택"
+        },
+        {
+          "to": "profile-edit",
+          "trigger": "정보 수정에서 도시 선택"
+        },
+        {
+          "to": "settings",
+          "trigger": "언어 변경 안내에서 도시 선택"
+        }
+      ],
+      "decisions": [
+        "D29",
+        "D47",
+        "D39"
+      ]
+    },
+    {
+      "id": "preview",
+      "title": "첫 풀이",
+      "tab": null,
+      "presentation": "page",
+      "auth": "guest",
+      "purpose": "오늘 풀이 일부를 로그인 없이 보여주고 저장(로그인)으로 잇습니다",
+      "depths": [
+        "surface"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "풀이 계산 중"
+        },
+        {
+          "id": "error",
+          "note": "계산 실패, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "연결이 없어 다시 시도 안내"
+        },
+        {
+          "id": "time-unknown",
+          "note": "3주로 계산했다는 배너"
+        }
+      ],
+      "slots": [
+        {
+          "id": "preview.character.label",
+          "source": "content",
+          "role": "날의 성격 이름"
+        },
+        {
+          "id": "preview.fortune.head",
+          "source": "content",
+          "role": "총운 첫 문장, 호칭 자리"
+        },
+        {
+          "id": "preview.fortune.body",
+          "source": "content",
+          "role": "총운 이어지는 문장"
+        },
+        {
+          "id": "preview.cta.save",
+          "source": "ui",
+          "role": "저장하고 계속하기 버튼"
+        },
+        {
+          "id": "preview.cta.restart",
+          "source": "ui",
+          "role": "다시 입력 링크"
+        },
+        {
+          "id": "preview.share.login-notice",
+          "source": "ui",
+          "role": "로그인하면 공유할 수 있다는 안내 창"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "day-character",
+        "sentence-block",
+        "share-button",
+        "primary-button",
+        "dialog",
+        "notice-banner"
+      ],
+      "exits": [
+        {
+          "to": "login",
+          "trigger": "저장하고 계속하기"
+        },
+        {
+          "to": "login",
+          "trigger": "공유 → 로그인 안내 창에서 로그인"
+        },
+        {
+          "to": "onboard-call",
+          "trigger": "다시 입력"
+        }
+      ],
+      "decisions": [
+        "D13",
+        "D19",
+        "D47",
+        "D50",
+        "D39"
+      ]
+    },
+    {
+      "id": "login",
+      "title": "로그인",
+      "tab": null,
+      "presentation": "page",
+      "auth": "guest",
+      "purpose": "소셜 로그인으로 계정을 만들거나 엽니다(제공자는 따로 정함)",
+      "depths": [],
+      "states": [
+        {
+          "id": "error",
+          "note": "로그인 실패 또는 취소"
+        }
+      ],
+      "slots": [
+        {
+          "id": "login.title.head",
+          "source": "ui",
+          "role": "로그인 제목"
+        },
+        {
+          "id": "login.title.body",
+          "source": "ui",
+          "role": "저장하려면 로그인한다는 설명"
+        },
+        {
+          "id": "login.discard.notice",
+          "source": "ui",
+          "role": "사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "sentence-block",
+        "social-login-button",
+        "dialog"
+      ],
+      "exits": [
+        {
+          "to": "consent",
+          "trigger": "새 계정"
+        },
+        {
+          "to": "today",
+          "trigger": "사주가 저장된 계정"
+        }
+      ],
+      "decisions": [
+        "D50",
+        "D39"
+      ]
+    },
+    {
+      "id": "consent",
+      "title": "약관 동의",
+      "tab": null,
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "새 계정에서 필수 약관과 개인정보 수집 동의를 받습니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "error",
+          "note": "동의 저장 실패"
+        }
+      ],
+      "slots": [
+        {
+          "id": "consent.title.head",
+          "source": "ui",
+          "role": "동의 화면 제목"
+        },
+        {
+          "id": "consent.required.label",
+          "source": "ui",
+          "role": "필수 동의 항목 이름"
+        },
+        {
+          "id": "consent.optional.label",
+          "source": "ui",
+          "role": "선택 동의 항목 이름"
+        },
+        {
+          "id": "consent.cta.agree",
+          "source": "ui",
+          "role": "동의하고 계속 버튼"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "check-row",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "notify-ask",
+          "trigger": "동의(미리보기를 거친 새 계정)"
+        },
+        {
+          "to": "onboard-call",
+          "trigger": "동의(그 외 새 계정)"
+        },
+        {
+          "to": "legal",
+          "trigger": "약관 전문 보기"
+        }
+      ],
+      "decisions": [
+        "D50",
+        "D39"
+      ]
+    },
+    {
+      "id": "notify-ask",
+      "title": "알림 허락",
+      "tab": null,
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "아침 운세 알림 시각과 권한을 받습니다. 건너뛸 수 있습니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "notify-ask.question.head",
+          "source": "ui",
+          "role": "알림을 받을지 묻는 질문"
+        },
+        {
+          "id": "notify-ask.why.body",
+          "source": "ui",
+          "role": "아침 알림이 주는 것"
+        },
+        {
+          "id": "notify-ask.cta.skip",
+          "source": "ui",
+          "role": "건너뛰기"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "input-step",
+        "time-picker",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "today",
+          "trigger": "허락 또는 건너뛰기"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D39"
+      ]
+    },
+    {
+      "id": "today",
+      "title": "오늘",
+      "tab": "today",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "오늘 일진을 내 원국에 맞춰 풀어 보여주고 일기로 이어줍니다",
+      "depths": [
+        "surface",
+        "explain",
+        "evidence"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "카드 자리 스켈레톤"
+        },
+        {
+          "id": "error",
+          "note": "풀이를 불러오지 못함, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "오늘 날짜로 받아둔 풀이가 있으면 보여주고 배너, 없으면 오프라인 화면"
+        },
+        {
+          "id": "time-unknown",
+          "note": "3주로 계산했다는 배너"
+        }
+      ],
+      "slots": [
+        {
+          "id": "today.character.label",
+          "source": "content",
+          "role": "날의 성격 이름(귀인·용신·기신·평범)"
+        },
+        {
+          "id": "today.character.reason",
+          "source": "content",
+          "role": "날의 성격 이유 한 줄"
+        },
+        {
+          "id": "today.fortune.head",
+          "source": "content",
+          "role": "총운 첫 문장, 호칭 자리"
+        },
+        {
+          "id": "today.fortune.body",
+          "source": "content",
+          "role": "총운 이어지는 문장"
+        },
+        {
+          "id": "today.lucky-color.body",
+          "source": "content",
+          "role": "행운 색 설명 한 줄"
+        },
+        {
+          "id": "today.lucky-direction.body",
+          "source": "content",
+          "role": "행운 방향 설명 한 줄"
+        },
+        {
+          "id": "today.lucky-number.body",
+          "source": "content",
+          "role": "행운 숫자 설명 한 줄"
+        },
+        {
+          "id": "today.lucky-time.body",
+          "source": "content",
+          "role": "집중하기 좋은 시간 설명 한 줄"
+        },
+        {
+          "id": "today.guide.question",
+          "source": "content",
+          "role": "그날 일진에 맞춘 가이드 질문"
+        },
+        {
+          "id": "today.guide.cta",
+          "source": "ui",
+          "role": "일기 쓰기 또는 쓴 일기 보기 버튼"
+        },
+        {
+          "id": "today.event.summary",
+          "source": "ui",
+          "role": "오늘 일정 개수와 첫 일정"
+        },
+        {
+          "id": "today.reaction.label",
+          "source": "ui",
+          "role": "좋아요 반응 접근성 라벨"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "tab-bar",
+        "day-character",
+        "sentence-block",
+        "term-token",
+        "reaction-button",
+        "lucky-card",
+        "guide-question-card",
+        "event-row",
+        "share-button",
+        "depth-link",
+        "notice-banner",
+        "skeleton",
+        "error-state"
+      ],
+      "exits": [
+        {
+          "to": "diary-edit",
+          "trigger": "가이드 질문 카드(오늘 일기 없음)"
+        },
+        {
+          "to": "diary-view",
+          "trigger": "가이드 질문 카드(오늘 일기 있음)"
+        },
+        {
+          "to": "explain-sheet",
+          "trigger": "용어 토큰"
+        },
+        {
+          "to": "evidence-sheet",
+          "trigger": "근거 보기"
+        },
+        {
+          "to": "share-preview",
+          "trigger": "공유"
+        },
+        {
+          "to": "day-sheet",
+          "trigger": "오늘 일정 한 줄"
+        }
+      ],
+      "decisions": [
+        "D13",
+        "D14",
+        "D18",
+        "D19",
+        "D20",
+        "D21",
+        "D25",
+        "D40",
+        "D48",
+        "D39"
+      ]
+    },
+    {
+      "id": "explain-sheet",
+      "title": "풀이 시트",
+      "tab": "today",
+      "presentation": "half-sheet",
+      "auth": "member",
+      "purpose": "explain 깊이로 용어 뜻과 오늘 그런 이유를 보여줍니다. 모든 화면이 함께 씁니다",
+      "depths": [
+        "explain"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "풀이 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "풀이를 불러오지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "explain-sheet.term.meaning",
+          "source": "content",
+          "role": "용어 뜻"
+        },
+        {
+          "id": "explain-sheet.today.reason",
+          "source": "content",
+          "role": "오늘 그런 이유"
+        }
+      ],
+      "components": [
+        "sheet",
+        "sentence-block",
+        "depth-link"
+      ],
+      "exits": [
+        {
+          "to": "evidence-sheet",
+          "trigger": "근거 보기"
+        }
+      ],
+      "decisions": [
+        "D37",
+        "D39"
+      ]
+    },
+    {
+      "id": "evidence-sheet",
+      "title": "근거 시트",
+      "tab": "today",
+      "presentation": "full-sheet",
+      "auth": "member",
+      "purpose": "evidence 깊이로 판정 근거와 원전을 보여줍니다. 모든 화면이 함께 씁니다",
+      "depths": [
+        "evidence"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "근거 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "근거를 불러오지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "evidence-sheet.basis.body",
+          "source": "content",
+          "role": "판정 근거"
+        },
+        {
+          "id": "evidence-sheet.source.quote",
+          "source": "content",
+          "role": "원전 인용"
+        }
+      ],
+      "components": [
+        "sheet",
+        "sentence-block",
+        "saju-pillars"
+      ],
+      "exits": [],
+      "decisions": [
+        "D37",
+        "D39"
+      ]
+    },
+    {
+      "id": "share-preview",
+      "title": "공유 미리보기",
+      "tab": "today",
+      "presentation": "half-sheet",
+      "auth": "member",
+      "purpose": "공유 이미지(라이트 고정)를 미리 보고 기기 공유 시트로 넘깁니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "share-preview.image.footer",
+          "source": "ui",
+          "role": "이미지 아래 앱 이름"
+        },
+        {
+          "id": "share-preview.cta.share",
+          "source": "ui",
+          "role": "공유 버튼"
+        }
+      ],
+      "components": [
+        "sheet",
+        "share-image",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "system-share",
+          "trigger": "공유"
+        }
+      ],
+      "decisions": [
+        "D47",
+        "V5",
+        "D39"
+      ]
+    },
+    {
+      "id": "system-share",
+      "title": "기기 공유",
+      "tab": "today",
+      "presentation": "system",
+      "auth": "member",
+      "purpose": "OS 공유 시트입니다",
+      "depths": [],
+      "states": [],
+      "slots": [],
+      "components": [],
+      "exits": [],
+      "decisions": [
+        "D47",
+        "D39"
+      ]
+    },
+    {
+      "id": "calendar",
+      "title": "달력",
+      "tab": "calendar",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "한 달 단위로 길흉 점, 음력 날짜·절기, 일정 표시를 보여줍니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "달 격자 스켈레톤"
+        },
+        {
+          "id": "error",
+          "note": "달력을 불러오지 못함, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "받아둔 달이 있으면 보여주고 배너"
+        }
+      ],
+      "slots": [
+        {
+          "id": "calendar.legend.body",
+          "source": "ui",
+          "role": "점 색의 뜻"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "tab-bar",
+        "calendar-month",
+        "day-cell",
+        "notice-banner",
+        "skeleton",
+        "error-state"
+      ],
+      "exits": [
+        {
+          "to": "day-sheet",
+          "trigger": "날짜 누름"
+        },
+        {
+          "to": "event-edit",
+          "trigger": "일정 추가"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D47",
+        "D48",
+        "D39"
+      ]
+    },
+    {
+      "id": "day-sheet",
+      "title": "그날 시트",
+      "tab": "calendar",
+      "presentation": "half-sheet",
+      "auth": "member",
+      "purpose": "그날 성격 한 줄과 일정, 일기 입구를 보여줍니다",
+      "depths": [
+        "surface",
+        "explain"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "그날 정보 불러오는 중"
+        },
+        {
+          "id": "empty",
+          "note": "그날 일정 없음"
+        },
+        {
+          "id": "error",
+          "note": "그날 정보를 불러오지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "day-sheet.character.label",
+          "source": "content",
+          "role": "날의 성격 이름"
+        },
+        {
+          "id": "day-sheet.character.reason",
+          "source": "content",
+          "role": "날의 성격 이유 한 줄"
+        },
+        {
+          "id": "day-sheet.event.empty",
+          "source": "ui",
+          "role": "일정이 없을 때 안내"
+        },
+        {
+          "id": "day-sheet.event.add",
+          "source": "ui",
+          "role": "일정 추가 버튼"
+        },
+        {
+          "id": "day-sheet.diary.open",
+          "source": "ui",
+          "role": "그날 일기 보기 링크"
+        },
+        {
+          "id": "day-sheet.diary.write-cta",
+          "source": "ui",
+          "role": "이날 일기 쓰기(지난 날·오늘이고 일기 없음)"
+        }
+      ],
+      "components": [
+        "sheet",
+        "day-character",
+        "event-row",
+        "term-token",
+        "empty-state"
+      ],
+      "exits": [
+        {
+          "to": "event-edit",
+          "trigger": "일정 추가 또는 일정 누름"
+        },
+        {
+          "to": "diary-view",
+          "trigger": "그날 일기 보기"
+        },
+        {
+          "to": "diary-edit",
+          "trigger": "이날 일기 쓰기"
+        },
+        {
+          "to": "explain-sheet",
+          "trigger": "용어 토큰"
+        }
+      ],
+      "decisions": [
+        "D19",
+        "D47",
+        "D49",
+        "D39"
+      ]
+    },
+    {
+      "id": "event-edit",
+      "title": "일정 편집",
+      "tab": "calendar",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "일정을 추가·수정·삭제하고 그날 성격 한 줄을 보여줍니다. 일정 보기를 겸합니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "그날 성격 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "저장 실패"
+        },
+        {
+          "id": "offline",
+          "note": "연결이 없어 저장할 수 없다는 배너"
+        }
+      ],
+      "slots": [
+        {
+          "id": "event-edit.character.hint",
+          "source": "content",
+          "role": "그날 성격 한 줄"
+        },
+        {
+          "id": "event-edit.title.hint",
+          "source": "ui",
+          "role": "제목 입력칸 예시"
+        },
+        {
+          "id": "event-edit.memo.hint",
+          "source": "ui",
+          "role": "메모 입력칸 예시"
+        },
+        {
+          "id": "event-edit.delete.confirm",
+          "source": "ui",
+          "role": "일정 삭제 확인"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "text-field",
+        "date-picker",
+        "time-picker",
+        "segmented",
+        "primary-button",
+        "dialog",
+        "notice-banner"
+      ],
+      "exits": [],
+      "decisions": [
+        "D47",
+        "D39"
+      ]
+    },
+    {
+      "id": "diary-list",
+      "title": "일기 목록",
+      "tab": "diary",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "일기를 시간순으로 모아 보고 날짜를 골라 씁니다(미래 날짜는 고를 수 없음)",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "목록 스켈레톤"
+        },
+        {
+          "id": "empty",
+          "note": "쓴 일기가 없음"
+        },
+        {
+          "id": "error",
+          "note": "목록을 불러오지 못함, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "받아둔 목록이 있으면 보여주고 배너"
+        }
+      ],
+      "slots": [
+        {
+          "id": "diary-list.empty.body",
+          "source": "ui",
+          "role": "쓴 일기가 없을 때 안내"
+        },
+        {
+          "id": "diary-list.pick-date.cta",
+          "source": "ui",
+          "role": "날짜 골라 쓰기 버튼"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "tab-bar",
+        "diary-row",
+        "tag-chip",
+        "date-picker",
+        "empty-state",
+        "notice-banner",
+        "skeleton",
+        "error-state"
+      ],
+      "exits": [
+        {
+          "to": "diary-view",
+          "trigger": "일기 누름 또는 고른 날에 일기 있음"
+        },
+        {
+          "to": "diary-edit",
+          "trigger": "날짜 골라 쓰기(그날 일기 없음)"
+        },
+        {
+          "to": "tag-diary",
+          "trigger": "태그 칩"
+        }
+      ],
+      "decisions": [
+        "D47",
+        "D48",
+        "D49",
+        "D39"
+      ]
+    },
+    {
+      "id": "diary-edit",
+      "title": "일기 쓰기",
+      "tab": "diary",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "그날 가이드 질문을 보며 일기를 쓰고 고칩니다. 작성 중인 글은 기기에 초안으로 남습니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "가이드 질문 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "저장 실패, 초안은 기기에 남음"
+        },
+        {
+          "id": "offline",
+          "note": "저장할 수 없다는 배너, 초안은 기기에 남음"
+        },
+        {
+          "id": "draft",
+          "note": "기기에 남은 초안을 이어 씀"
+        }
+      ],
+      "slots": [
+        {
+          "id": "diary-edit.guide.question",
+          "source": "content",
+          "role": "그날 일진에 맞춘 가이드 질문"
+        },
+        {
+          "id": "diary-edit.body.placeholder",
+          "source": "ui",
+          "role": "본문 입력칸 안내"
+        },
+        {
+          "id": "diary-edit.draft.status",
+          "source": "ui",
+          "role": "초안 저장 상태"
+        },
+        {
+          "id": "diary-edit.offline.notice",
+          "source": "ui",
+          "role": "연결되면 저장한다는 안내"
+        },
+        {
+          "id": "diary-edit.saved.tags",
+          "source": "ui",
+          "role": "저장 뒤 붙은 태그 알림"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "sentence-block",
+        "diary-editor",
+        "draft-indicator",
+        "notice-banner",
+        "toast",
+        "primary-button"
+      ],
+      "exits": [
+        {
+          "to": "diary-view",
+          "trigger": "저장"
+        }
+      ],
+      "decisions": [
+        "D22",
+        "D47",
+        "D49",
+        "D39"
+      ]
+    },
+    {
+      "id": "diary-view",
+      "title": "일기 보기",
+      "tab": "diary",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "일기 본문과 그날 성격, 태그를 보여주고 고치기·지우기를 둡니다",
+      "depths": [
+        "surface",
+        "explain"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "일기 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "일기를 불러오지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "diary-view.character.label",
+          "source": "content",
+          "role": "그날 성격 이름"
+        },
+        {
+          "id": "diary-view.delete.confirm",
+          "source": "ui",
+          "role": "일기 삭제 확인"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "day-character",
+        "sentence-block",
+        "tag-chip",
+        "dialog"
+      ],
+      "exits": [
+        {
+          "to": "diary-edit",
+          "trigger": "고치기"
+        },
+        {
+          "to": "tag-diary",
+          "trigger": "태그 칩"
+        },
+        {
+          "to": "explain-sheet",
+          "trigger": "날의 성격 누름"
+        }
+      ],
+      "decisions": [
+        "D49",
+        "D39"
+      ]
+    },
+    {
+      "id": "tag-diary",
+      "title": "태그 모아보기",
+      "tab": "diary",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "같은 태그가 붙은 일기를 모아 보고 태그 뜻을 한 줄로 알려줍니다",
+      "depths": [
+        "surface",
+        "explain"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "목록 불러오는 중"
+        },
+        {
+          "id": "empty",
+          "note": "그 태그가 붙은 일기 없음"
+        },
+        {
+          "id": "error",
+          "note": "목록을 불러오지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "tag-diary.tag.meaning",
+          "source": "content",
+          "role": "태그 뜻 한 줄"
+        },
+        {
+          "id": "tag-diary.empty.body",
+          "source": "ui",
+          "role": "일기가 없을 때 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "sentence-block",
+        "term-token",
+        "diary-row",
+        "empty-state"
+      ],
+      "exits": [
+        {
+          "to": "diary-view",
+          "trigger": "일기 누름"
+        },
+        {
+          "to": "explain-sheet",
+          "trigger": "태그 뜻의 용어 토큰"
+        }
+      ],
+      "decisions": [
+        "D47",
+        "D39"
+      ]
+    },
+    {
+      "id": "my-saju",
+      "title": "나의 사주",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "일간 소개와 용신·행운 색으로 내 원국을 보여줍니다",
+      "depths": [
+        "surface",
+        "explain",
+        "evidence"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "사주 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "사주를 불러오지 못함, 다시 시도"
+        },
+        {
+          "id": "time-unknown",
+          "note": "3주로 계산했다는 배너"
+        }
+      ],
+      "slots": [
+        {
+          "id": "my-saju.ilgan.head",
+          "source": "content",
+          "role": "일간 소개 첫 문장, 호칭 자리"
+        },
+        {
+          "id": "my-saju.ilgan.body",
+          "source": "content",
+          "role": "일간 소개 이어지는 문장"
+        },
+        {
+          "id": "my-saju.yongsin.body",
+          "source": "content",
+          "role": "용신과 행운 색 설명"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "tab-bar",
+        "sentence-block",
+        "term-token",
+        "lucky-card",
+        "depth-link",
+        "notice-banner"
+      ],
+      "exits": [
+        {
+          "to": "saju-chart",
+          "trigger": "근거 보기"
+        },
+        {
+          "to": "explain-sheet",
+          "trigger": "용어 토큰"
+        },
+        {
+          "to": "settings",
+          "trigger": "상단 톱니"
+        }
+      ],
+      "decisions": [
+        "D15",
+        "D16",
+        "D48",
+        "D39"
+      ]
+    },
+    {
+      "id": "saju-chart",
+      "title": "사주 표",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "evidence 깊이로 원국표·오행 분포·용신 판정 근거와 만세력 기본 표·대운·세운 표를 두 탭으로 보여줍니다",
+      "depths": [
+        "evidence"
+      ],
+      "states": [
+        {
+          "id": "loading",
+          "note": "표 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "표를 불러오지 못함"
+        },
+        {
+          "id": "time-unknown",
+          "note": "시주 칸을 비우고 안내"
+        }
+      ],
+      "slots": [
+        {
+          "id": "saju-chart.yongsin.basis",
+          "source": "content",
+          "role": "용신 판정 근거"
+        },
+        {
+          "id": "saju-chart.time-unknown.notice",
+          "source": "ui",
+          "role": "시간 모름으로 시주가 빠졌다는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "saju-pillars",
+        "ohaeng-bar",
+        "manse-table",
+        "daeun-table",
+        "term-token",
+        "notice-banner",
+        "segmented"
+      ],
+      "exits": [
+        {
+          "to": "explain-sheet",
+          "trigger": "용어 토큰"
+        }
+      ],
+      "decisions": [
+        "D16",
+        "D18",
+        "D39"
+      ]
+    },
+    {
+      "id": "settings",
+      "title": "설정",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "기본 깊이, 알림 시각, 언어, 정보 수정, 계산 기준, 로그아웃, 계정 삭제, 약관을 둡니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "settings.depth.desc",
+          "source": "ui",
+          "role": "기본 깊이 설명"
+        },
+        {
+          "id": "settings.language.birthplace-notice",
+          "source": "ui",
+          "role": "언어를 바꿀 때 출생지 입력 안내"
+        },
+        {
+          "id": "settings.logout.confirm",
+          "source": "ui",
+          "role": "로그아웃 확인"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "settings-row",
+        "segmented",
+        "time-picker",
+        "sheet",
+        "dialog"
+      ],
+      "exits": [
+        {
+          "to": "profile-edit",
+          "trigger": "정보 수정"
+        },
+        {
+          "to": "birthplace",
+          "trigger": "언어 변경 안내에서 출생지 입력"
+        },
+        {
+          "to": "calc-basis",
+          "trigger": "계산 기준"
+        },
+        {
+          "to": "account-delete",
+          "trigger": "계정 삭제"
+        },
+        {
+          "to": "legal",
+          "trigger": "약관·정책"
+        },
+        {
+          "to": "welcome",
+          "trigger": "로그아웃 확인"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D28",
+        "D29",
+        "D37",
+        "D39"
+      ]
+    },
+    {
+      "id": "profile-edit",
+      "title": "정보 수정",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "호칭과 출생 정보를 고치고, 바꾸면 풀이가 다시 계산된다고 알립니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "error",
+          "note": "다시 계산 실패"
+        }
+      ],
+      "slots": [
+        {
+          "id": "profile-edit.recalc.notice",
+          "source": "ui",
+          "role": "바꾸면 풀이를 다시 계산한다는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "settings-row",
+        "notice-banner"
+      ],
+      "exits": [
+        {
+          "to": "onboard-call",
+          "trigger": "호칭"
+        },
+        {
+          "to": "onboard-birth",
+          "trigger": "생일"
+        },
+        {
+          "to": "onboard-time",
+          "trigger": "태어난 시간"
+        },
+        {
+          "to": "onboard-gender",
+          "trigger": "성별"
+        },
+        {
+          "to": "birthplace",
+          "trigger": "출생지"
+        }
+      ],
+      "decisions": [
+        "D29",
+        "D36",
+        "D39"
+      ]
+    },
+    {
+      "id": "calc-basis",
+      "title": "계산 기준",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "해석 기준, 시각 보정, 음력 기준을 안내합니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "calc-basis.convention.body",
+          "source": "ui",
+          "role": "한국 기준 해석 안내"
+        },
+        {
+          "id": "calc-basis.longitude.body",
+          "source": "ui",
+          "role": "동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내"
+        },
+        {
+          "id": "calc-basis.lunar.body",
+          "source": "ui",
+          "role": "KASI 기준 한국 음력 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "sentence-block"
+      ],
+      "exits": [],
+      "decisions": [
+        "D28",
+        "D41",
+        "D42",
+        "D39"
+      ]
+    },
+    {
+      "id": "account-delete",
+      "title": "계정 삭제",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "지워지는 데이터를 안내하고 최종 확인을 받아 계정을 지웁니다",
+      "depths": [],
+      "states": [
+        {
+          "id": "error",
+          "note": "삭제 실패"
+        }
+      ],
+      "slots": [
+        {
+          "id": "account-delete.title.head",
+          "source": "ui",
+          "role": "계정 삭제 제목"
+        },
+        {
+          "id": "account-delete.data.body",
+          "source": "ui",
+          "role": "지워지는 데이터 안내"
+        },
+        {
+          "id": "account-delete.cta.delete",
+          "source": "ui",
+          "role": "계정 삭제 버튼"
+        },
+        {
+          "id": "account-delete.delete.confirm",
+          "source": "ui",
+          "role": "최종 확인"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "sentence-block",
+        "primary-button",
+        "dialog"
+      ],
+      "exits": [
+        {
+          "to": "welcome",
+          "trigger": "삭제 완료"
+        }
+      ],
+      "decisions": [
+        "D39"
+      ]
+    },
+    {
+      "id": "legal",
+      "title": "약관·정책",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "any",
+      "purpose": "이용약관, 개인정보 처리방침, 오픈소스 라이선스를 보여줍니다",
+      "depths": [],
+      "states": [],
+      "slots": [],
+      "components": [
+        "app-bar",
+        "settings-row"
+      ],
+      "exits": [],
+      "decisions": [
+        "D39"
+      ]
+    }
+  ]
+}
