@@ -8,15 +8,17 @@
 * 원문이 없는 내용(통설·현대 해석)은 근거 자료에 넣지 않거나, `note`로 "원문 근거 아님"을 밝힙니다.
 
 ## 『궁통보감(窮通寶鑑)』 — `gungtong-bogam/`
+
+`johu_evidence.json`, `five_elements.json`, `corrections.json`은 엔진이 `source_ref`로 읽으므로 패키지 데이터 디렉터리로 옮겼습니다(경로는 아래 표). 나머지는 이 디렉터리에 둡니다.
 출처: [위키문헌 『窮通寶鑑』](https://zh.wikisource.org/wiki/%E7%AA%AE%E9%80%9A%E5%AF%B6%E9%91%91) 원문(raw wikitext, 2026-10-10 수집). 고전 원문은 저작권 보호 기간이 지났습니다. 위키문헌 편집본은 CC BY-SA 라이선스이므로 출처를 표기합니다.
 
 | 파일 | 내용 | 문구 활용 예 |
 | --- | --- | --- |
 | `source.wikitext` | 원문 전체 (수집 원본, 수정 금지) | - |
 | `entries.json` | 일간 → 계절(三春~三冬) → 월 항목 구조. 문단, 계절 총론, 예시 명조 70개 표 | 사주 예시, 테스트 사례 |
-| `johu_evidence.json` | 일간 × 월지 120칸: 조후용신, 오행, 근거 수준, 원문 첫 문장(`key_sentence`), 전체 문단, 정정 이력 | Pro 바텀시트의 "왜 이 기운이 필요한가" 근거 문장 |
-| `five_elements.json` | 「五行總論」의 오행별 방위·색·수·성정, 억부 원리 | 행운의 컬러·숫자·방향 근거, 감성 코멘트 |
-| `corrections.json` | 통용 정리표를 원문 기준으로 정정한 11칸과 근거 문장 | - |
+| `core/src/myungri_engine/references/data/gungtong_bogam/johu_evidence.json` | 일간 × 월지 120칸: 조후용신, 오행, 근거 수준, 원문 첫 문장(`key_sentence`), 전체 문단, 정정 이력 | Pro 바텀시트의 "왜 이 기운이 필요한가" 근거 문장 |
+| `core/src/myungri_engine/references/data/gungtong_bogam/five_elements.json` | 「五行總論」의 오행별 방위·색·수·성정, 억부 원리 | 행운의 컬러·숫자·방향 근거, 감성 코멘트 |
+| `core/src/myungri_engine/references/data/gungtong_bogam/corrections.json` | 통용 정리표를 원문 기준으로 정정한 11칸과 근거 문장 | - |
 | `verification-report.md` | 조후표 ↔ 원문 120칸 대조 결과 (자동 생성) | - |
 | `tools/parse_source.py` | 원문 파서 | - |
 | `tools/build_evidence.py` | 위 JSON과 리포트 생성기 | - |

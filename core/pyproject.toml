@@ -1,0 +1,53 @@
+[project]
+name = "myungri-engine"
+version = "0.1.0"
+description = "명리 엔진: 원국과 일진 판정을 계산하는 상태 없는 gRPC 엔진"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "lunar-python==1.4.8",
+    "grpcio==1.84.0",
+    "protobuf>=7.35.1",  # 생성 코드(engine_pb2.py)의 런타임 요구 버전
+    "tzdata>=2026.5",
+]
+
+[dependency-groups]
+dev = [
+    "grpcio-tools==1.84.0",
+    "pytest>=9",
+    "hypothesis",
+    "syrupy>=6",
+    "ruff",
+    "mypy",
+    "types-protobuf",
+    "types-grpcio>=1.84.0.20260928",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/myungri_engine"]
+artifacts = ["src/myungri_engine/references/data/**/*.json"]
+
+[tool.mypy]
+strict = true
+mypy_path = "src"
+# protoc 생성 코드는 검사하지 않는다 (tools/gen_proto.sh)
+exclude = ["src/myungri_engine/_gen/"]
+# 생성된 engine_pb2_grpc.py에는 타입 힌트가 없다
+untyped_calls_exclude = ["myungri_engine._gen"]
+
+[[tool.mypy.overrides]]
+module = "lunar_python.*"
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 110
+extend-exclude = ["docs", "src/myungri_engine/_gen"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["slow: 분포 보정 등 느린 테스트"]

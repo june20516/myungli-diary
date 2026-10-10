@@ -1,0 +1,7174 @@
+# serializer version: 1
+# name: test_chart_regression[general_female_2]
+  dict({
+    'chart': dict({
+      'gongmang': list([
+        'SHIN',
+        'YU',
+      ]),
+      'hidden_stems': dict({
+        'Position.DAY_BRANCH': list([
+          list([
+            'MU',
+            'PYEONJAE',
+          ]),
+          list([
+            'SIN',
+            'JEONGGWAN',
+          ]),
+          list([
+            'JEONG',
+            'SANGGWAN',
+          ]),
+        ]),
+        'Position.HOUR_BRANCH': list([
+          list([
+            'EUL',
+            'GEOPJAE',
+          ]),
+        ]),
+        'Position.MONTH_BRANCH': list([
+          list([
+            'GYE',
+            'JEONGIN',
+          ]),
+        ]),
+        'Position.YEAR_BRANCH': list([
+          list([
+            'SIN',
+            'JEONGGWAN',
+          ]),
+        ]),
+      }),
+      'notices': list([
+      ]),
+      'pillars': dict({
+        'day': dict({
+          'branch': 'SUL',
+          'stem': 'GAP',
+        }),
+        'hour': dict({
+          'branch': 'MYO',
+          'stem': 'JEONG',
+        }),
+        'month': dict({
+          'branch': 'JA',
+          'stem': 'BYEONG',
+        }),
+        'year': dict({
+          'branch': 'YU',
+          'stem': 'GI',
+        }),
+      }),
+      'shinsal': list([
+        dict({
+          'kind': 'DOHWA',
+          'position': 'HOUR_BRANCH',
+        }),
+        dict({
+          'kind': 'HWAGAE',
+          'position': 'DAY_BRANCH',
+        }),
+        dict({
+          'kind': 'YANGIN',
+          'position': 'HOUR_BRANCH',
+        }),
+        dict({
+          'kind': 'GONGMANG',
+          'position': 'YEAR_BRANCH',
+        }),
+      ]),
+      'ten_gods': dict({
+        'Position.DAY_BRANCH': 'PYEONJAE',
+        'Position.HOUR_BRANCH': 'GEOPJAE',
+        'Position.HOUR_STEM': 'SANGGWAN',
+        'Position.MONTH_BRANCH': 'JEONGIN',
+        'Position.MONTH_STEM': 'SIKSIN',
+        'Position.YEAR_BRANCH': 'JEONGGWAN',
+        'Position.YEAR_STEM': 'JEONGJAE',
+      }),
+      'twelve_stages': dict({
+        'Position.DAY_BRANCH': 'YANG',
+        'Position.HOUR_BRANCH': 'JEWANG',
+        'Position.MONTH_BRANCH': 'MOKYOK',
+        'Position.YEAR_BRANCH': 'TAE',
+      }),
+    }),
+    'luck': dict({
+      'forward': True,
+      'notices': list([
+      ]),
+      'periods': list([
+        dict({
+          'branch_ten_god': 'JEONGJAE',
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'JEONG',
+          }),
+          'start_age': 3,
+          'start_age_korean': 5,
+          'start_year': 1973,
+          'stem_ten_god': 'SANGGWAN',
+          'twelve_stage': 'GWANDAE',
+        }),
+        dict({
+          'branch_ten_god': 'BIGYEON',
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'MU',
+          }),
+          'start_age': 13,
+          'start_age_korean': 15,
+          'start_year': 1983,
+          'stem_ten_god': 'PYEONJAE',
+          'twelve_stage': 'GEONROK',
+        }),
+        dict({
+          'branch_ten_god': 'GEOPJAE',
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'GI',
+          }),
+          'start_age': 23,
+          'start_age_korean': 25,
+          'start_year': 1993,
+          'stem_ten_god': 'JEONGJAE',
+          'twelve_stage': 'JEWANG',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONJAE',
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'GYEONG',
+          }),
+          'start_age': 33,
+          'start_age_korean': 35,
+          'start_year': 2003,
+          'stem_ten_god': 'PYEONGWAN',
+          'twelve_stage': 'SOE',
+        }),
+        dict({
+          'branch_ten_god': 'SIKSIN',
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'SIN',
+          }),
+          'start_age': 43,
+          'start_age_korean': 45,
+          'start_year': 2013,
+          'stem_ten_god': 'JEONGGWAN',
+          'twelve_stage': 'BYEONG',
+        }),
+        dict({
+          'branch_ten_god': 'SANGGWAN',
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'IM',
+          }),
+          'start_age': 53,
+          'start_age_korean': 55,
+          'start_year': 2023,
+          'stem_ten_god': 'PYEONIN',
+          'twelve_stage': 'SA',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGJAE',
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'GYE',
+          }),
+          'start_age': 63,
+          'start_age_korean': 65,
+          'start_year': 2033,
+          'stem_ten_god': 'JEONGIN',
+          'twelve_stage': 'MYO',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONGWAN',
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'GAP',
+          }),
+          'start_age': 73,
+          'start_age_korean': 75,
+          'start_year': 2043,
+          'stem_ten_god': 'BIGYEON',
+          'twelve_stage': 'JEOL',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGGWAN',
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'EUL',
+          }),
+          'start_age': 83,
+          'start_age_korean': 85,
+          'start_year': 2053,
+          'stem_ten_god': 'GEOPJAE',
+          'twelve_stage': 'TAE',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONJAE',
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'BYEONG',
+          }),
+          'start_age': 93,
+          'start_age_korean': 95,
+          'start_year': 2063,
+          'stem_ten_god': 'SIKSIN',
+          'twelve_stage': 'YANG',
+        }),
+      ]),
+      'start_months': 11,
+      'start_years': 3,
+      'years': list([
+        dict({
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'GYE',
+          }),
+          'relations_with_natal': list([
+            'BRANCH_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'JEONGIN',
+          'year': 2023,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'GAP',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'BRANCH_HAP',
+          ]),
+          'ten_god': 'BIGYEON',
+          'year': 2024,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'EUL',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'GEOPJAE',
+          'year': 2025,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'BYEONG',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+          ]),
+          'ten_god': 'SIKSIN',
+          'year': 2026,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'JEONG',
+          }),
+          'relations_with_natal': list([
+            'HYEONG',
+          ]),
+          'ten_god': 'SANGGWAN',
+          'year': 2027,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'PYEONJAE',
+          'year': 2028,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'CHUNG',
+            'HYEONG',
+          ]),
+          'ten_god': 'JEONGJAE',
+          'year': 2029,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'relations_with_natal': list([
+            'BRANCH_HAP',
+          ]),
+          'ten_god': 'PYEONGWAN',
+          'year': 2030,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+          ]),
+          'ten_god': 'JEONGGWAN',
+          'year': 2031,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'PYEONIN',
+          'year': 2032,
+        }),
+      ]),
+    }),
+    'notices': list([
+    ]),
+    'strength': dict({
+      'element_weights': dict({
+        'Element.EARTH': 1.9,
+        'Element.FIRE': 2.15,
+        'Element.METAL': 1.95,
+        'Element.WATER': 3.0,
+        'Element.WOOD': 1.5,
+      }),
+      'level': 'NEUTRAL',
+      'score': 42.857142857142854,
+    }),
+    'yongsin': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'NEUTRAL',
+          }),
+          'rule_id': 'yongsin/johu_neutral',
+          'source_ref': 'gungtong-bogam/johu_evidence#甲.子',
+        }),
+      ]),
+      'gisin': 'WATER',
+      'huisin': 'WOOD',
+      'johu_stem': 'JEONG',
+      'method': 'JOHU_NEUTRAL',
+      'tonggwan': 'WOOD',
+      'yongsin': 'FIRE',
+    }),
+    'yongsin_judgment': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'NEUTRAL',
+          }),
+          'rule_id': 'yongsin/johu_neutral',
+          'source_ref': 'gungtong-bogam/johu_evidence#甲.子',
+        }),
+      ]),
+      'message_key': 'yongsin.method.johu_neutral',
+      'params': dict({
+        'gisin': 'WATER',
+        'huisin': 'WOOD',
+        'tonggwan': 'WOOD',
+        'yongsin': 'FIRE',
+      }),
+    }),
+  })
+# ---
+# name: test_chart_regression[general_male_1]
+  dict({
+    'chart': dict({
+      'gongmang': list([
+        'IN',
+        'MYO',
+      ]),
+      'hidden_stems': dict({
+        'Position.DAY_BRANCH': list([
+          list([
+            'GYEONG',
+            'SIKSIN',
+          ]),
+          list([
+            'IM',
+            'PYEONJAE',
+          ]),
+          list([
+            'MU',
+            'BIGYEON',
+          ]),
+        ]),
+        'Position.HOUR_BRANCH': list([
+          list([
+            'GI',
+            'GEOPJAE',
+          ]),
+          list([
+            'JEONG',
+            'JEONGIN',
+          ]),
+          list([
+            'EUL',
+            'JEONGGWAN',
+          ]),
+        ]),
+        'Position.MONTH_BRANCH': list([
+          list([
+            'EUL',
+            'JEONGGWAN',
+          ]),
+        ]),
+        'Position.YEAR_BRANCH': list([
+          list([
+            'GI',
+            'GEOPJAE',
+          ]),
+          list([
+            'GYE',
+            'JEONGJAE',
+          ]),
+          list([
+            'SIN',
+            'SANGGWAN',
+          ]),
+        ]),
+      }),
+      'notices': list([
+      ]),
+      'pillars': dict({
+        'day': dict({
+          'branch': 'SHIN',
+          'stem': 'MU',
+        }),
+        'hour': dict({
+          'branch': 'MI',
+          'stem': 'GI',
+        }),
+        'month': dict({
+          'branch': 'MYO',
+          'stem': 'GI',
+        }),
+        'year': dict({
+          'branch': 'CHUK',
+          'stem': 'EUL',
+        }),
+      }),
+      'shinsal': list([
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'YEAR_BRANCH',
+        }),
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'HOUR_BRANCH',
+        }),
+        dict({
+          'kind': 'HWAGAE',
+          'position': 'YEAR_BRANCH',
+        }),
+        dict({
+          'kind': 'GONGMANG',
+          'position': 'MONTH_BRANCH',
+        }),
+      ]),
+      'ten_gods': dict({
+        'Position.DAY_BRANCH': 'SIKSIN',
+        'Position.HOUR_BRANCH': 'GEOPJAE',
+        'Position.HOUR_STEM': 'GEOPJAE',
+        'Position.MONTH_BRANCH': 'JEONGGWAN',
+        'Position.MONTH_STEM': 'GEOPJAE',
+        'Position.YEAR_BRANCH': 'GEOPJAE',
+        'Position.YEAR_STEM': 'JEONGGWAN',
+      }),
+      'twelve_stages': dict({
+        'Position.DAY_BRANCH': 'BYEONG',
+        'Position.HOUR_BRANCH': 'SOE',
+        'Position.MONTH_BRANCH': 'MOKYOK',
+        'Position.YEAR_BRANCH': 'YANG',
+      }),
+    }),
+    'luck': dict({
+      'forward': False,
+      'notices': list([
+      ]),
+      'periods': list([
+        dict({
+          'branch_ten_god': 'PYEONGWAN',
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'MU',
+          }),
+          'start_age': 1,
+          'start_age_korean': 2,
+          'start_year': 1986,
+          'stem_ten_god': 'BIGYEON',
+          'twelve_stage': 'JANGSAENG',
+        }),
+        dict({
+          'branch_ten_god': 'GEOPJAE',
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'JEONG',
+          }),
+          'start_age': 11,
+          'start_age_korean': 12,
+          'start_year': 1996,
+          'stem_ten_god': 'JEONGIN',
+          'twelve_stage': 'YANG',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGJAE',
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'BYEONG',
+          }),
+          'start_age': 21,
+          'start_age_korean': 22,
+          'start_year': 2006,
+          'stem_ten_god': 'PYEONIN',
+          'twelve_stage': 'TAE',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONJAE',
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'EUL',
+          }),
+          'start_age': 31,
+          'start_age_korean': 32,
+          'start_year': 2016,
+          'stem_ten_god': 'JEONGGWAN',
+          'twelve_stage': 'JEOL',
+        }),
+        dict({
+          'branch_ten_god': 'BIGYEON',
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GAP',
+          }),
+          'start_age': 41,
+          'start_age_korean': 42,
+          'start_year': 2026,
+          'stem_ten_god': 'PYEONGWAN',
+          'twelve_stage': 'MYO',
+        }),
+        dict({
+          'branch_ten_god': 'SANGGWAN',
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GYE',
+          }),
+          'start_age': 51,
+          'start_age_korean': 52,
+          'start_year': 2036,
+          'stem_ten_god': 'JEONGJAE',
+          'twelve_stage': 'SA',
+        }),
+        dict({
+          'branch_ten_god': 'SIKSIN',
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'IM',
+          }),
+          'start_age': 61,
+          'start_age_korean': 62,
+          'start_year': 2046,
+          'stem_ten_god': 'PYEONJAE',
+          'twelve_stage': 'BYEONG',
+        }),
+        dict({
+          'branch_ten_god': 'GEOPJAE',
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'SIN',
+          }),
+          'start_age': 71,
+          'start_age_korean': 72,
+          'start_year': 2056,
+          'stem_ten_god': 'SANGGWAN',
+          'twelve_stage': 'SOE',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGIN',
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'GYEONG',
+          }),
+          'start_age': 81,
+          'start_age_korean': 82,
+          'start_year': 2066,
+          'stem_ten_god': 'SIKSIN',
+          'twelve_stage': 'JEWANG',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONIN',
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'GI',
+          }),
+          'start_age': 91,
+          'start_age_korean': 92,
+          'start_year': 2076,
+          'stem_ten_god': 'GEOPJAE',
+          'twelve_stage': 'GEONROK',
+        }),
+      ]),
+      'start_months': 6,
+      'start_years': 1,
+      'years': list([
+        dict({
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'BYEONG',
+          }),
+          'relations_with_natal': list([
+            'BRANCH_HAP',
+          ]),
+          'ten_god': 'PYEONIN',
+          'year': 2026,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'JEONG',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+            'HYEONG',
+          ]),
+          'ten_god': 'JEONGIN',
+          'year': 2027,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'BIGYEON',
+          'year': 2028,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+          ]),
+          'ten_god': 'GEOPJAE',
+          'year': 2029,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'BRANCH_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'SIKSIN',
+          'year': 2030,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'SANGGWAN',
+          'year': 2031,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'relations_with_natal': list([
+            'BRANCH_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'PYEONJAE',
+          'year': 2032,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'GYE',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'CHUNG',
+            'HYEONG',
+          ]),
+          'ten_god': 'JEONGJAE',
+          'year': 2033,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'GAP',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'CHUNG',
+            'HYEONG',
+          ]),
+          'ten_god': 'PYEONGWAN',
+          'year': 2034,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'EUL',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'JEONGGWAN',
+          'year': 2035,
+        }),
+      ]),
+    }),
+    'notices': list([
+    ]),
+    'strength': dict({
+      'element_weights': dict({
+        'Element.EARTH': 3.9499999999999997,
+        'Element.FIRE': 0.44999999999999996,
+        'Element.METAL': 1.0499999999999998,
+        'Element.WATER': 0.8999999999999999,
+        'Element.WOOD': 4.15,
+      }),
+      'level': 'NEUTRAL',
+      'score': 41.9047619047619,
+    }),
+    'yongsin': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'NEUTRAL',
+          }),
+          'rule_id': 'yongsin/johu_neutral',
+          'source_ref': 'gungtong-bogam/johu_evidence#戊.卯',
+        }),
+      ]),
+      'gisin': 'WATER',
+      'huisin': 'WOOD',
+      'johu_stem': 'BYEONG',
+      'method': 'JOHU_NEUTRAL',
+      'tonggwan': 'WOOD',
+      'yongsin': 'FIRE',
+    }),
+    'yongsin_judgment': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'NEUTRAL',
+          }),
+          'rule_id': 'yongsin/johu_neutral',
+          'source_ref': 'gungtong-bogam/johu_evidence#戊.卯',
+        }),
+      ]),
+      'message_key': 'yongsin.method.johu_neutral',
+      'params': dict({
+        'gisin': 'WATER',
+        'huisin': 'WOOD',
+        'tonggwan': 'WOOD',
+        'yongsin': 'FIRE',
+      }),
+    }),
+  })
+# ---
+# name: test_chart_regression[lunar_leap_month]
+  dict({
+    'chart': dict({
+      'gongmang': list([
+        'MI',
+        'O',
+      ]),
+      'hidden_stems': dict({
+        'Position.DAY_BRANCH': list([
+          list([
+            'BYEONG',
+            'JEONGJAE',
+          ]),
+          list([
+            'GYEONG',
+            'JEONGIN',
+          ]),
+          list([
+            'MU',
+            'JEONGGWAN',
+          ]),
+        ]),
+        'Position.HOUR_BRANCH': list([
+          list([
+            'BYEONG',
+            'JEONGJAE',
+          ]),
+          list([
+            'GYEONG',
+            'JEONGIN',
+          ]),
+          list([
+            'MU',
+            'JEONGGWAN',
+          ]),
+        ]),
+        'Position.MONTH_BRANCH': list([
+          list([
+            'EUL',
+            'SIKSIN',
+          ]),
+        ]),
+        'Position.YEAR_BRANCH': list([
+          list([
+            'EUL',
+            'SIKSIN',
+          ]),
+        ]),
+      }),
+      'notices': list([
+        dict({
+          'code': 'NEAR_SOLAR_TERM',
+          'detail': dict({
+          }),
+        }),
+      ]),
+      'pillars': dict({
+        'day': dict({
+          'branch': 'SA',
+          'stem': 'GYE',
+        }),
+        'hour': dict({
+          'branch': 'SA',
+          'stem': 'JEONG',
+        }),
+        'month': dict({
+          'branch': 'MYO',
+          'stem': 'EUL',
+        }),
+        'year': dict({
+          'branch': 'MYO',
+          'stem': 'GYE',
+        }),
+      }),
+      'shinsal': list([
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'YEAR_BRANCH',
+        }),
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'MONTH_BRANCH',
+        }),
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'DAY_BRANCH',
+        }),
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'HOUR_BRANCH',
+        }),
+        dict({
+          'kind': 'YEOKMA',
+          'position': 'DAY_BRANCH',
+        }),
+        dict({
+          'kind': 'YEOKMA',
+          'position': 'HOUR_BRANCH',
+        }),
+      ]),
+      'ten_gods': dict({
+        'Position.DAY_BRANCH': 'JEONGJAE',
+        'Position.HOUR_BRANCH': 'JEONGJAE',
+        'Position.HOUR_STEM': 'PYEONJAE',
+        'Position.MONTH_BRANCH': 'SIKSIN',
+        'Position.MONTH_STEM': 'SIKSIN',
+        'Position.YEAR_BRANCH': 'SIKSIN',
+        'Position.YEAR_STEM': 'BIGYEON',
+      }),
+      'twelve_stages': dict({
+        'Position.DAY_BRANCH': 'TAE',
+        'Position.HOUR_BRANCH': 'TAE',
+        'Position.MONTH_BRANCH': 'JANGSAENG',
+        'Position.YEAR_BRANCH': 'JANGSAENG',
+      }),
+    }),
+    'luck': dict({
+      'forward': True,
+      'notices': list([
+      ]),
+      'periods': list([
+        dict({
+          'branch_ten_god': 'JEONGGWAN',
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'BYEONG',
+          }),
+          'start_age': 0,
+          'start_age_korean': 1,
+          'start_year': 2023,
+          'stem_ten_god': 'JEONGJAE',
+          'twelve_stage': 'YANG',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGJAE',
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'JEONG',
+          }),
+          'start_age': 10,
+          'start_age_korean': 11,
+          'start_year': 2033,
+          'stem_ten_god': 'PYEONJAE',
+          'twelve_stage': 'TAE',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONJAE',
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'MU',
+          }),
+          'start_age': 20,
+          'start_age_korean': 21,
+          'start_year': 2043,
+          'stem_ten_god': 'JEONGGWAN',
+          'twelve_stage': 'JEOL',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONGWAN',
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'GI',
+          }),
+          'start_age': 30,
+          'start_age_korean': 31,
+          'start_year': 2053,
+          'stem_ten_god': 'PYEONGWAN',
+          'twelve_stage': 'MYO',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGIN',
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'GYEONG',
+          }),
+          'start_age': 40,
+          'start_age_korean': 41,
+          'start_year': 2063,
+          'stem_ten_god': 'JEONGIN',
+          'twelve_stage': 'SA',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONIN',
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'SIN',
+          }),
+          'start_age': 50,
+          'start_age_korean': 51,
+          'start_year': 2073,
+          'stem_ten_god': 'PYEONIN',
+          'twelve_stage': 'BYEONG',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGGWAN',
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'IM',
+          }),
+          'start_age': 60,
+          'start_age_korean': 61,
+          'start_year': 2083,
+          'stem_ten_god': 'GEOPJAE',
+          'twelve_stage': 'SOE',
+        }),
+        dict({
+          'branch_ten_god': 'GEOPJAE',
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'GYE',
+          }),
+          'start_age': 70,
+          'start_age_korean': 71,
+          'start_year': 2093,
+          'stem_ten_god': 'BIGYEON',
+          'twelve_stage': 'JEWANG',
+        }),
+        dict({
+          'branch_ten_god': 'BIGYEON',
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'GAP',
+          }),
+          'start_age': 80,
+          'start_age_korean': 81,
+          'start_year': 2103,
+          'stem_ten_god': 'SANGGWAN',
+          'twelve_stage': 'GEONROK',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONGWAN',
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'EUL',
+          }),
+          'start_age': 90,
+          'start_age_korean': 91,
+          'start_year': 2113,
+          'stem_ten_god': 'SIKSIN',
+          'twelve_stage': 'GWANDAE',
+        }),
+      ]),
+      'start_months': 0,
+      'start_years': 0,
+      'years': list([
+        dict({
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'GYE',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'BIGYEON',
+          'year': 2023,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'GAP',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'SANGGWAN',
+          'year': 2024,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'EUL',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'SIKSIN',
+          'year': 2025,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'BYEONG',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'JEONGJAE',
+          'year': 2026,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'JEONG',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'PYEONJAE',
+          'year': 2027,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'BRANCH_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'JEONGGWAN',
+          'year': 2028,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+          ]),
+          'ten_god': 'PYEONGWAN',
+          'year': 2029,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'BRANCH_HAP',
+          ]),
+          'ten_god': 'JEONGIN',
+          'year': 2030,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+          ]),
+          'ten_god': 'PYEONIN',
+          'year': 2031,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'GEOPJAE',
+          'year': 2032,
+        }),
+      ]),
+    }),
+    'notices': list([
+      dict({
+        'code': 'NEAR_SOLAR_TERM',
+        'detail': dict({
+        }),
+      }),
+    ]),
+    'strength': dict({
+      'element_weights': dict({
+        'Element.EARTH': 0.30000000000000004,
+        'Element.FIRE': 2.8,
+        'Element.METAL': 0.8999999999999999,
+        'Element.WATER': 1.0,
+        'Element.WOOD': 5.5,
+      }),
+      'level': 'VERY_WEAK',
+      'score': 18.095238095238095,
+    }),
+    'yongsin': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'VERY_WEAK',
+            'strength_score': '18.0952',
+          }),
+          'rule_id': 'yongsin/eokbu',
+          'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+        }),
+      ]),
+      'gisin': 'FIRE',
+      'huisin': 'EARTH',
+      'johu_stem': None,
+      'method': 'EOKBU',
+      'tonggwan': 'EARTH',
+      'yongsin': 'METAL',
+    }),
+    'yongsin_judgment': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'VERY_WEAK',
+            'strength_score': '18.0952',
+          }),
+          'rule_id': 'yongsin/eokbu',
+          'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+        }),
+      ]),
+      'message_key': 'yongsin.method.eokbu',
+      'params': dict({
+        'gisin': 'FIRE',
+        'huisin': 'EARTH',
+        'tonggwan': 'EARTH',
+        'yongsin': 'METAL',
+      }),
+    }),
+  })
+# ---
+# name: test_chart_regression[time_unknown]
+  dict({
+    'chart': dict({
+      'gongmang': list([
+        'JIN',
+        'SA',
+      ]),
+      'hidden_stems': dict({
+        'Position.DAY_BRANCH': list([
+          list([
+            'SIN',
+            'PYEONJAE',
+          ]),
+        ]),
+        'Position.MONTH_BRANCH': list([
+          list([
+            'GI',
+            'SIKSIN',
+          ]),
+          list([
+            'JEONG',
+            'BIGYEON',
+          ]),
+          list([
+            'EUL',
+            'PYEONIN',
+          ]),
+        ]),
+        'Position.YEAR_BRANCH': list([
+          list([
+            'JEONG',
+            'BIGYEON',
+          ]),
+          list([
+            'GI',
+            'SIKSIN',
+          ]),
+        ]),
+      }),
+      'notices': list([
+        dict({
+          'code': 'TIME_UNKNOWN',
+          'detail': dict({
+          }),
+        }),
+      ]),
+      'pillars': dict({
+        'day': dict({
+          'branch': 'YU',
+          'stem': 'JEONG',
+        }),
+        'hour': None,
+        'month': dict({
+          'branch': 'MI',
+          'stem': 'GI',
+        }),
+        'year': dict({
+          'branch': 'O',
+          'stem': 'MU',
+        }),
+      }),
+      'shinsal': list([
+        dict({
+          'kind': 'CHEONEUL_GWIIN',
+          'position': 'DAY_BRANCH',
+        }),
+        dict({
+          'kind': 'DOHWA',
+          'position': 'YEAR_BRANCH',
+        }),
+      ]),
+      'ten_gods': dict({
+        'Position.DAY_BRANCH': 'PYEONJAE',
+        'Position.MONTH_BRANCH': 'SIKSIN',
+        'Position.MONTH_STEM': 'SIKSIN',
+        'Position.YEAR_BRANCH': 'BIGYEON',
+        'Position.YEAR_STEM': 'SANGGWAN',
+      }),
+      'twelve_stages': dict({
+        'Position.DAY_BRANCH': 'JANGSAENG',
+        'Position.MONTH_BRANCH': 'GWANDAE',
+        'Position.YEAR_BRANCH': 'GEONROK',
+      }),
+    }),
+    'luck': dict({
+      'forward': False,
+      'notices': list([
+        dict({
+          'code': 'DAYUN_START_APPROXIMATE',
+          'detail': dict({
+          }),
+        }),
+      ]),
+      'periods': list([
+        dict({
+          'branch_ten_god': 'BIGYEON',
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'MU',
+          }),
+          'start_age': 8,
+          'start_age_korean': 10,
+          'start_year': 1987,
+          'stem_ten_god': 'SANGGWAN',
+          'twelve_stage': 'GEONROK',
+        }),
+        dict({
+          'branch_ten_god': 'GEOPJAE',
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'JEONG',
+          }),
+          'start_age': 18,
+          'start_age_korean': 20,
+          'start_year': 1997,
+          'stem_ten_god': 'BIGYEON',
+          'twelve_stage': 'JEWANG',
+        }),
+        dict({
+          'branch_ten_god': 'SANGGWAN',
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'BYEONG',
+          }),
+          'start_age': 28,
+          'start_age_korean': 30,
+          'start_year': 2007,
+          'stem_ten_god': 'GEOPJAE',
+          'twelve_stage': 'SOE',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONIN',
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'EUL',
+          }),
+          'start_age': 38,
+          'start_age_korean': 40,
+          'start_year': 2017,
+          'stem_ten_god': 'PYEONIN',
+          'twelve_stage': 'BYEONG',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGIN',
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'GAP',
+          }),
+          'start_age': 48,
+          'start_age_korean': 50,
+          'start_year': 2027,
+          'stem_ten_god': 'JEONGIN',
+          'twelve_stage': 'SA',
+        }),
+        dict({
+          'branch_ten_god': 'SIKSIN',
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'GYE',
+          }),
+          'start_age': 58,
+          'start_age_korean': 60,
+          'start_year': 2037,
+          'stem_ten_god': 'PYEONGWAN',
+          'twelve_stage': 'MYO',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONGWAN',
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'start_age': 68,
+          'start_age_korean': 70,
+          'start_year': 2047,
+          'stem_ten_god': 'JEONGGWAN',
+          'twelve_stage': 'JEOL',
+        }),
+        dict({
+          'branch_ten_god': 'JEONGGWAN',
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'start_age': 78,
+          'start_age_korean': 80,
+          'start_year': 2057,
+          'stem_ten_god': 'PYEONJAE',
+          'twelve_stage': 'TAE',
+        }),
+        dict({
+          'branch_ten_god': 'SANGGWAN',
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'start_age': 88,
+          'start_age_korean': 90,
+          'start_year': 2067,
+          'stem_ten_god': 'JEONGJAE',
+          'twelve_stage': 'YANG',
+        }),
+        dict({
+          'branch_ten_god': 'PYEONJAE',
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'start_age': 98,
+          'start_age_korean': 100,
+          'start_year': 2077,
+          'stem_ten_god': 'SIKSIN',
+          'twelve_stage': 'JANGSAENG',
+        }),
+      ]),
+      'start_months': 10,
+      'start_years': 8,
+      'years': list([
+        dict({
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'JEONG',
+          }),
+          'relations_with_natal': list([
+            'HYEONG',
+          ]),
+          'ten_god': 'BIGYEON',
+          'year': 2017,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'MU',
+          }),
+          'relations_with_natal': list([
+            'HYEONG',
+          ]),
+          'ten_god': 'SANGGWAN',
+          'year': 2018,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'GI',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'SIKSIN',
+          'year': 2019,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'GYEONG',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+          ]),
+          'ten_god': 'JEONGJAE',
+          'year': 2020,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'SIN',
+          }),
+          'relations_with_natal': list([
+            'CHUNG',
+            'HYEONG',
+          ]),
+          'ten_god': 'PYEONJAE',
+          'year': 2021,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'IM',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+          ]),
+          'ten_god': 'JEONGGWAN',
+          'year': 2022,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'GYE',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'CHUNG',
+          ]),
+          'ten_god': 'PYEONGWAN',
+          'year': 2023,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'GAP',
+          }),
+          'relations_with_natal': list([
+            'STEM_HAP',
+            'BRANCH_HAP',
+          ]),
+          'ten_god': 'JEONGIN',
+          'year': 2024,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'EUL',
+          }),
+          'relations_with_natal': list([
+          ]),
+          'ten_god': 'PYEONIN',
+          'year': 2025,
+        }),
+        dict({
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'BYEONG',
+          }),
+          'relations_with_natal': list([
+            'BRANCH_HAP',
+            'HYEONG',
+          ]),
+          'ten_god': 'GEOPJAE',
+          'year': 2026,
+        }),
+      ]),
+    }),
+    'notices': list([
+      dict({
+        'code': 'TIME_UNKNOWN',
+        'detail': dict({
+        }),
+      }),
+      dict({
+        'code': 'DAYUN_START_APPROXIMATE',
+        'detail': dict({
+        }),
+      }),
+    ]),
+    'strength': dict({
+      'element_weights': dict({
+        'Element.EARTH': 4.25,
+        'Element.FIRE': 1.9499999999999997,
+        'Element.METAL': 1.5,
+        'Element.WATER': 0.0,
+        'Element.WOOD': 0.30000000000000004,
+      }),
+      'level': 'WEAK',
+      'score': 28.125,
+    }),
+    'yongsin': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'WEAK',
+            'strength_score': '28.1250',
+          }),
+          'rule_id': 'yongsin/eokbu',
+          'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+        }),
+      ]),
+      'gisin': 'METAL',
+      'huisin': 'WATER',
+      'johu_stem': None,
+      'method': 'EOKBU',
+      'tonggwan': 'WATER',
+      'yongsin': 'WOOD',
+    }),
+    'yongsin_judgment': dict({
+      'evidence': list([
+        dict({
+          'detail': dict({
+            'strength_level': 'WEAK',
+            'strength_score': '28.1250',
+          }),
+          'rule_id': 'yongsin/eokbu',
+          'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+        }),
+      ]),
+      'message_key': 'yongsin.method.eokbu',
+      'params': dict({
+        'gisin': 'METAL',
+        'huisin': 'WATER',
+        'tonggwan': 'WATER',
+        'yongsin': 'WOOD',
+      }),
+    }),
+  })
+# ---
+# name: test_month_regression[general_female_2]
+  dict({
+    'days': list([
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-01',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-02',
+          'is_leap_month': False,
+          'lunar_day': 22,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,chung_other:-1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-03',
+          'is_leap_month': False,
+          'lunar_day': 23,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-04',
+          'is_leap_month': False,
+          'lunar_day': 24,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-05',
+          'is_leap_month': False,
+          'lunar_day': 25,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-06',
+          'is_leap_month': False,
+          'lunar_day': 26,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-07',
+          'is_leap_month': False,
+          'lunar_day': 27,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-08',
+          'is_leap_month': False,
+          'lunar_day': 28,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'EUL',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-08T15:29:17+09:00',
+            'kind': 'HALLO',
+            'name': '寒露',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-09',
+          'is_leap_month': False,
+          'lunar_day': 29,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.ten_god_rush.siksang',
+        'info': dict({
+          'date': '2026-10-10',
+          'is_leap_month': False,
+          'lunar_day': 30,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-11',
+          'is_leap_month': False,
+          'lunar_day': 1,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-12',
+          'is_leap_month': False,
+          'lunar_day': 2,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-13',
+          'is_leap_month': False,
+          'lunar_day': 3,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-14',
+          'is_leap_month': False,
+          'lunar_day': 4,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,chung_other:-1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-15',
+          'is_leap_month': False,
+          'lunar_day': 5,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-16',
+          'is_leap_month': False,
+          'lunar_day': 6,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-17',
+          'is_leap_month': False,
+          'lunar_day': 7,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-18',
+          'is_leap_month': False,
+          'lunar_day': 8,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yongsin_day',
+        'info': dict({
+          'date': '2026-10-19',
+          'is_leap_month': False,
+          'lunar_day': 9,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-20',
+          'is_leap_month': False,
+          'lunar_day': 10,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-21',
+          'is_leap_month': False,
+          'lunar_day': 11,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-22',
+          'is_leap_month': False,
+          'lunar_day': 12,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-23',
+          'is_leap_month': False,
+          'lunar_day': 13,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-23T18:37:57+09:00',
+            'kind': 'SANGGANG',
+            'name': '霜降',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-24',
+          'is_leap_month': False,
+          'lunar_day': 14,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-25',
+          'is_leap_month': False,
+          'lunar_day': 15,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-26',
+          'is_leap_month': False,
+          'lunar_day': 16,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,chung_other:-1,hyeong:-1',
+                'score': '-3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -3,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-27',
+          'is_leap_month': False,
+          'lunar_day': 17,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-28',
+          'is_leap_month': False,
+          'lunar_day': 18,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': None,
+        'info': dict({
+          'date': '2026-10-29',
+          'is_leap_month': False,
+          'lunar_day': 19,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hyeong:-1',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-30',
+          'is_leap_month': False,
+          'lunar_day': 20,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': None,
+        'info': dict({
+          'date': '2026-10-31',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+    ]),
+    'notices': list([
+    ]),
+  })
+# ---
+# name: test_month_regression[general_male_1]
+  dict({
+    'days': list([
+      dict({
+        'featured_tag': None,
+        'info': dict({
+          'date': '2026-10-01',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-02',
+          'is_leap_month': False,
+          'lunar_day': 22,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_day_or_month:-2',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-03',
+          'is_leap_month': False,
+          'lunar_day': 23,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-04',
+          'is_leap_month': False,
+          'lunar_day': 24,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-05',
+          'is_leap_month': False,
+          'lunar_day': 25,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-06',
+          'is_leap_month': False,
+          'lunar_day': 26,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,chung_other:-1,hyeong:-1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-07',
+          'is_leap_month': False,
+          'lunar_day': 27,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,chung_day_or_month:-2,hyeong:-1',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.ten_god_rush.gwanseong',
+        'info': dict({
+          'date': '2026-10-08',
+          'is_leap_month': False,
+          'lunar_day': 28,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'EUL',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-08T15:29:17+09:00',
+            'kind': 'HALLO',
+            'name': '寒露',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.hwagae',
+        'info': dict({
+          'date': '2026-10-09',
+          'is_leap_month': False,
+          'lunar_day': 29,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-10',
+          'is_leap_month': False,
+          'lunar_day': 30,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-11',
+          'is_leap_month': False,
+          'lunar_day': 1,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-12',
+          'is_leap_month': False,
+          'lunar_day': 2,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,chung_other:-1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-13',
+          'is_leap_month': False,
+          'lunar_day': 3,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-14',
+          'is_leap_month': False,
+          'lunar_day': 4,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_day_or_month:-2',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-15',
+          'is_leap_month': False,
+          'lunar_day': 5,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-16',
+          'is_leap_month': False,
+          'lunar_day': 6,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-17',
+          'is_leap_month': False,
+          'lunar_day': 7,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-18',
+          'is_leap_month': False,
+          'lunar_day': 8,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,chung_other:-1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-19',
+          'is_leap_month': False,
+          'lunar_day': 9,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-20',
+          'is_leap_month': False,
+          'lunar_day': 10,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.ten_god_rush.bigyeop',
+        'info': dict({
+          'date': '2026-10-21',
+          'is_leap_month': False,
+          'lunar_day': 11,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-22',
+          'is_leap_month': False,
+          'lunar_day': 12,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-23',
+          'is_leap_month': False,
+          'lunar_day': 13,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-23T18:37:57+09:00',
+            'kind': 'SANGGANG',
+            'name': '霜降',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-24',
+          'is_leap_month': False,
+          'lunar_day': 14,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,chung_other:-1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': None,
+        'info': dict({
+          'date': '2026-10-25',
+          'is_leap_month': False,
+          'lunar_day': 15,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-26',
+          'is_leap_month': False,
+          'lunar_day': 16,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,chung_day_or_month:-2',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-27',
+          'is_leap_month': False,
+          'lunar_day': 17,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-28',
+          'is_leap_month': False,
+          'lunar_day': 18,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-29',
+          'is_leap_month': False,
+          'lunar_day': 19,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-30',
+          'is_leap_month': False,
+          'lunar_day': 20,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,chung_other:-1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-31',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_day_or_month:-2,hyeong:-1',
+                'score': '-3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -3,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -3,
+        }),
+      }),
+    ]),
+    'notices': list([
+    ]),
+  })
+# ---
+# name: test_month_regression[lunar_leap_month]
+  dict({
+    'days': list([
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-01',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-02',
+          'is_leap_month': False,
+          'lunar_day': 22,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2,chung_other:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-03',
+          'is_leap_month': False,
+          'lunar_day': 23,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-04',
+          'is_leap_month': False,
+          'lunar_day': 24,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2,chung_other:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-05',
+          'is_leap_month': False,
+          'lunar_day': 25,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.hwagae',
+        'info': dict({
+          'date': '2026-10-06',
+          'is_leap_month': False,
+          'lunar_day': 26,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.ten_god_rush.siksang',
+        'info': dict({
+          'date': '2026-10-07',
+          'is_leap_month': False,
+          'lunar_day': 27,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.ten_god_rush.siksang',
+        'info': dict({
+          'date': '2026-10-08',
+          'is_leap_month': False,
+          'lunar_day': 28,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'EUL',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-08T15:29:17+09:00',
+            'kind': 'HALLO',
+            'name': '寒露',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': None,
+        'info': dict({
+          'date': '2026-10-09',
+          'is_leap_month': False,
+          'lunar_day': 29,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.ten_god_rush.jaeseong',
+        'info': dict({
+          'date': '2026-10-10',
+          'is_leap_month': False,
+          'lunar_day': 30,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-11',
+          'is_leap_month': False,
+          'lunar_day': 1,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-12',
+          'is_leap_month': False,
+          'lunar_day': 2,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-13',
+          'is_leap_month': False,
+          'lunar_day': 3,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-14',
+          'is_leap_month': False,
+          'lunar_day': 4,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2,chung_other:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-15',
+          'is_leap_month': False,
+          'lunar_day': 5,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-16',
+          'is_leap_month': False,
+          'lunar_day': 6,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_day_or_month:-2,chung_other:-1',
+                'score': '-3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -3,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.dohwa',
+        'info': dict({
+          'date': '2026-10-17',
+          'is_leap_month': False,
+          'lunar_day': 7,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.hwagae',
+        'info': dict({
+          'date': '2026-10-18',
+          'is_leap_month': False,
+          'lunar_day': 8,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': None,
+        'info': dict({
+          'date': '2026-10-19',
+          'is_leap_month': False,
+          'lunar_day': 9,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hyeong:-1',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.cheoneul_gwiin',
+        'info': dict({
+          'date': '2026-10-20',
+          'is_leap_month': False,
+          'lunar_day': 10,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-21',
+          'is_leap_month': False,
+          'lunar_day': 11,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-22',
+          'is_leap_month': False,
+          'lunar_day': 12,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-23',
+          'is_leap_month': False,
+          'lunar_day': 13,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-23T18:37:57+09:00',
+            'kind': 'SANGGANG',
+            'name': '霜降',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-24',
+          'is_leap_month': False,
+          'lunar_day': 14,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-25',
+          'is_leap_month': False,
+          'lunar_day': 15,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-26',
+          'is_leap_month': False,
+          'lunar_day': 16,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2,chung_other:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-27',
+          'is_leap_month': False,
+          'lunar_day': 17,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-28',
+          'is_leap_month': False,
+          'lunar_day': 18,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_day_or_month:-2,chung_other:-1',
+                'score': '-3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -3,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.dohwa',
+        'info': dict({
+          'date': '2026-10-29',
+          'is_leap_month': False,
+          'lunar_day': 19,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hyeong:-1',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.hwagae',
+        'info': dict({
+          'date': '2026-10-30',
+          'is_leap_month': False,
+          'lunar_day': 20,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-31',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+    ]),
+    'notices': list([
+      dict({
+        'code': 'NEAR_SOLAR_TERM',
+        'detail': dict({
+        }),
+      }),
+    ]),
+  })
+# ---
+# name: test_month_regression[time_unknown]
+  dict({
+    'days': list([
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-01',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.cheoneul_gwiin',
+        'info': dict({
+          'date': '2026-10-02',
+          'is_leap_month': False,
+          'lunar_day': 22,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hyeong:-1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.hwagae',
+        'info': dict({
+          'date': '2026-10-03',
+          'is_leap_month': False,
+          'lunar_day': 23,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hyeong:-1',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-04',
+          'is_leap_month': False,
+          'lunar_day': 24,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-05',
+          'is_leap_month': False,
+          'lunar_day': 25,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,chung_other:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-06',
+          'is_leap_month': False,
+          'lunar_day': 26,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,chung_day_or_month:-2,hyeong:-1',
+                'score': '-2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -2,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-07',
+          'is_leap_month': False,
+          'lunar_day': 27,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-08',
+          'is_leap_month': False,
+          'lunar_day': 28,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'EUL',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-08T15:29:17+09:00',
+            'kind': 'HALLO',
+            'name': '寒露',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-09',
+          'is_leap_month': False,
+          'lunar_day': 29,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-10',
+          'is_leap_month': False,
+          'lunar_day': 30,
+          'lunar_month': 8,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-11',
+          'is_leap_month': False,
+          'lunar_day': 1,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-12',
+          'is_leap_month': False,
+          'lunar_day': 2,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-13',
+          'is_leap_month': False,
+          'lunar_day': 3,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.cheoneul_gwiin',
+        'info': dict({
+          'date': '2026-10-14',
+          'is_leap_month': False,
+          'lunar_day': 4,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hyeong:-1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-15',
+          'is_leap_month': False,
+          'lunar_day': 5,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1,hyeong:-1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-16',
+          'is_leap_month': False,
+          'lunar_day': 6,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1',
+                'score': '3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 3,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-17',
+          'is_leap_month': False,
+          'lunar_day': 7,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,chung_other:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-18',
+          'is_leap_month': False,
+          'lunar_day': 8,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yongsin_day',
+        'info': dict({
+          'date': '2026-10-19',
+          'is_leap_month': False,
+          'lunar_day': 9,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-20',
+          'is_leap_month': False,
+          'lunar_day': 10,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MYO',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,chung_day_or_month:-2',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-21',
+          'is_leap_month': False,
+          'lunar_day': 11,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JIN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'hap:+1',
+                'score': '1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.gongmang',
+        'info': dict({
+          'date': '2026-10-22',
+          'is_leap_month': False,
+          'lunar_day': 12,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SA',
+            'stem': 'GI',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': '',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-23',
+          'is_leap_month': False,
+          'lunar_day': 13,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'O',
+            'stem': 'GYEONG',
+          }),
+          'solar_term': dict({
+            'at': '2026-10-23T18:37:57+09:00',
+            'kind': 'SANGGANG',
+            'name': '霜降',
+          }),
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1,hyeong:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-24',
+          'is_leap_month': False,
+          'lunar_day': 14,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'MI',
+            'stem': 'SIN',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-25',
+          'is_leap_month': False,
+          'lunar_day': 15,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SHIN',
+            'stem': 'IM',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gisin_day:-1,hap:+1',
+                'score': '0',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': 0,
+          }),
+        }),
+        'kind': 'GISIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gisin_day',
+              -1,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': 0,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-26',
+          'is_leap_month': False,
+          'lunar_day': 16,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'YU',
+            'stem': 'GYE',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.harmony',
+        'info': dict({
+          'date': '2026-10-27',
+          'is_leap_month': False,
+          'lunar_day': 17,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'SUL',
+            'stem': 'GAP',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2,hap:+1,hyeong:-1',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+            list([
+              'hap',
+              1,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yeokma',
+        'info': dict({
+          'date': '2026-10-28',
+          'is_leap_month': False,
+          'lunar_day': 18,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'HAE',
+            'stem': 'EUL',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'gwiin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'GWIIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'gwiin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.clash',
+        'info': dict({
+          'date': '2026-10-29',
+          'is_leap_month': False,
+          'lunar_day': 19,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'JA',
+            'stem': 'BYEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_other:-1',
+                'score': '-1',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.neutral',
+          'params': dict({
+            'score': -1,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_other',
+              -1,
+            ]),
+          ]),
+          'level': 'NEUTRAL',
+          'score': -1,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.big_change',
+        'info': dict({
+          'date': '2026-10-30',
+          'is_leap_month': False,
+          'lunar_day': 20,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'CHUK',
+            'stem': 'JEONG',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'chung_day_or_month:-2,hyeong:-1',
+                'score': '-3',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.caution',
+          'params': dict({
+            'score': -3,
+          }),
+        }),
+        'kind': 'ORDINARY_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'chung_day_or_month',
+              -2,
+            ]),
+            list([
+              'hyeong',
+              -1,
+            ]),
+          ]),
+          'level': 'CAUTION',
+          'score': -3,
+        }),
+      }),
+      dict({
+        'featured_tag': 'tag.yongsin_day',
+        'info': dict({
+          'date': '2026-10-31',
+          'is_leap_month': False,
+          'lunar_day': 21,
+          'lunar_month': 9,
+          'pillar': dict({
+            'branch': 'IN',
+            'stem': 'MU',
+          }),
+          'solar_term': None,
+        }),
+        'judgment': dict({
+          'evidence': list([
+            dict({
+              'detail': dict({
+                'breakdown': 'yongsin_day:+2',
+                'score': '2',
+              }),
+              'rule_id': 'calendar/score',
+              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+            }),
+          ]),
+          'message_key': 'calendar.good',
+          'params': dict({
+            'score': 2,
+          }),
+        }),
+        'kind': 'YONGSIN_DAY',
+        'luck': dict({
+          'breakdown': list([
+            list([
+              'yongsin_day',
+              2,
+            ]),
+          ]),
+          'level': 'GOOD',
+          'score': 2,
+        }),
+      }),
+    ]),
+    'notices': list([
+      dict({
+        'code': 'TIME_UNKNOWN',
+        'detail': dict({
+        }),
+      }),
+    ]),
+  })
+# ---
