@@ -12,7 +12,7 @@ from itertools import product
 from pathlib import Path
 
 from mlw.model import SENTENCE_TYPES, Entry, Finding, Limit, RuleSet, Slot
-from mlw.placeholders import parse
+from mlw.placeholders import parse, parse_tokens
 from mlw.sentence import detectable_rules, matches, normalize_for_detection
 
 DAY_KINDS: tuple[str, ...] = ("gwiin_day", "yongsin_day", "gisin_day", "ordinary_day")
@@ -157,7 +157,29 @@ def _entry_count(entry: Entry, limit: Limit, rules: RuleSet) -> int:
             return 0
     if selector.rule is not None:
         return int(_hits_rule(entry, selector.rule, rules))
+    if selector.lexicon is not None:
+        words = selector.lexicon
+        normalized = _normalized_or_none(entry)
+        return int(normalized is not None and any(word in normalized for word in words))
+    if selector.token is not None or selector.token_entries is not None:
+        count = _token_count(entry)
+        return count if selector.token is not None else int(count > 0)
     return 0
+
+
+def _normalized_or_none(entry: Entry) -> str | None:
+    try:
+        return normalize_for_detection(entry.text)
+    except ValueError:
+        # 문법 오류는 문장 단위 검사가 보고합니다.
+        return None
+
+
+def _token_count(entry: Entry) -> int:
+    try:
+        return len(parse_tokens(entry.text))
+    except ValueError:
+        return 0
 
 
 def _hits_rule(entry: Entry, rule_id: str, rules: RuleSet) -> bool:

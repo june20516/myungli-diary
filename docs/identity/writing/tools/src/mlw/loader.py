@@ -51,7 +51,9 @@ STYLE_KEYS = {"id", "name", "severity", "detect", "exempt_purposes", "examples"}
 LIMIT_KEYS = {"id", "name", "scope", "count", "max", "severity"}
 DETECT_KEYS = {"kind", "pattern", "words", "langs"}
 EXAMPLE_KEYS = {"lang", "slot_purpose", "text"}
-COUNT_KEYS = ("placeholder", "type", "rule")
+COUNT_KEYS = ("placeholder", "type", "rule", "lexicon", "token", "token_entries")
+COUNT_STRING_KEYS = ("placeholder", "type", "rule")
+COUNT_TRUE_KEYS = ("token", "token_entries")
 
 
 class _Problems:
@@ -245,10 +247,31 @@ def _parse_count(item: _Item) -> CountSelector | None:
         return None
     filled = [key for key in COUNT_KEYS if raw.get(key) is not None]
     unknown = sorted(set(raw) - set(COUNT_KEYS), key=str)
-    if unknown or len(filled) != 1 or not isinstance(raw[filled[0]], str):
-        item.fail(f"count에는 {', '.join(COUNT_KEYS)} 중 문자열 하나만 채워야 합니다")
+    if unknown or len(filled) != 1 or not _valid_count_value(filled[0], raw[filled[0]]):
+        item.fail(
+            f"count에는 {', '.join(COUNT_KEYS)} 중 하나만 채워야 합니다 "
+            "(placeholder·type·rule은 문자열, lexicon은 문자열 목록, token·token_entries는 true)"
+        )
         return None
-    return CountSelector(**{filled[0]: cast(str, raw[filled[0]])})
+    key = filled[0]
+    if key == "lexicon":
+        return CountSelector(lexicon=tuple(cast(list[str], raw[key])))
+    if key in COUNT_TRUE_KEYS:
+        return CountSelector(token=True) if key == "token" else CountSelector(token_entries=True)
+    text = cast(str, raw[key])
+    return CountSelector(
+        placeholder=text if key == "placeholder" else None,
+        type=text if key == "type" else None,
+        rule=text if key == "rule" else None,
+    )
+
+
+def _valid_count_value(key: str, value: object) -> bool:
+    if key in COUNT_STRING_KEYS:
+        return isinstance(value, str)
+    if key in COUNT_TRUE_KEYS:
+        return value is True
+    return isinstance(value, list) and bool(value) and all(isinstance(word, str) for word in value)
 
 
 def _parse_max(item: _Item) -> dict[str, int | None] | None:

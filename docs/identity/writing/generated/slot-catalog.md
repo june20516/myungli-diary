@@ -19,7 +19,7 @@
 | daily.guide | guide | - | 2 | 20 | ko -, en -, ja - |
 | daily.number | info | - | 1 | 4 | ko -, en -, ja - |
 | daily.tag_label | info | - | 1 | 15 | ko -, en -, ja - |
-| glossary.value_name | info | - | 1 | 65 | ko -, en -, ja - |
+| glossary.value_name | info | - | 1 | 69 | ko -, en -, ja - |
 | settings.calculation_basis | info | - | 1 | 1 | ko -, en -, ja - |
 | ui.depth.default_label | info | - | 1 | 1 | ko -, en -, ja - |
 | ui.depth.evidence | info | - | 1 | 1 | ko -, en -, ja - |

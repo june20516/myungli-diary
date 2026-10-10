@@ -27,3 +27,24 @@
   count: {placeholder: name}
   max: {en: null}
   severity: warn
+
+- id: limit.L5
+  name: 같은 문장 틀은 한 화면에 한 번 (선택 조건 틀)
+  scope: screen
+  count: {lexicon: ["고른다면"]}
+  max: {ko: 1}
+  severity: warn
+
+- id: limit.L6
+  name: 용어 토큰은 한 화면에 최대 2개
+  scope: screen
+  count: {token: true}
+  max: {ko: 2, ja: 2, en: 2}
+  severity: error
+
+- id: limit.L7
+  name: 용어 토큰은 한 문장에 모은다
+  scope: screen
+  count: {token_entries: true}
+  max: {ko: 1, ja: 1, en: 1}
+  severity: error

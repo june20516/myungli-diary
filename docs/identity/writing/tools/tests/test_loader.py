@@ -28,7 +28,7 @@ def test_load_rules_reads_seed_files() -> None:
     assert rules.slop["slop.P8"].detect is not None
     assert rules.slop["slop.P8"].detect.langs == frozenset()
     # 라운드 결과로 규칙이 늘어나므로 초기 규칙을 포함하는지만 확인합니다.
-    assert {"limit.L1", "limit.L2", "limit.L3", "limit.L4"} <= set(rules.limits)
+    assert {"limit.L1", "limit.L2", "limit.L3", "limit.L4", "limit.L5", "limit.L6", "limit.L7"} <= set(rules.limits)
     assert {"style.S1", "style.S2"} <= set(rules.style)
 
 
@@ -82,3 +82,32 @@ def test_limit_max_int_expands_to_all_langs() -> None:
     assert rules.limits["limit.L2"].max == {"ko": None, "en": None, "ja": None}
     assert rules.limits["limit.L4"].max == {"en": None}
     assert rules.limits["limit.L3"].count.type == "care"
+
+
+def test_new_count_selectors_load() -> None:
+    limits = load_rules(RULES_DIR).limits
+    assert limits["limit.L5"].count.lexicon == ("고른다면",)
+    assert limits["limit.L5"].max == {"ko": 1}
+    assert limits["limit.L6"].count.token is True
+    assert limits["limit.L7"].count.token_entries is True
+
+
+@pytest.mark.parametrize(
+    "count",
+    [
+        "{token: true, type: care}",
+        '{lexicon: ["a"], token_entries: true}',
+        "{token: false}",
+        "{lexicon: []}",
+        "{token_entries: 1}",
+    ],
+)
+def test_count_must_fill_exactly_one(tmp_path: Path, count: str) -> None:
+    copy_seed_rules(tmp_path)
+    (tmp_path / "limits.yaml").write_text(
+        f"- id: limit.X\n  name: 시험\n  scope: screen\n  count: {count}\n  max: 1\n  severity: error\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(LoadError) as raised:
+        load_rules(tmp_path)
+    assert [finding.rule_id for finding in raised.value.findings] == ["load.schema"]

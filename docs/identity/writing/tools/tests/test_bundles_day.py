@@ -184,3 +184,40 @@ def test_rule_count_limit_over_two_entries_is_finding() -> None:
     limit = make_limit("limit.R", CountSelector(rule="style.test"), 1)
     findings = check_days({}, entries, [limit], ("ko",), RULES)
     assert [(finding.rule_id, finding.line) for finding in findings] == [("limit.R", 20)]
+
+
+def screen_entries(head_text: str, guide_text: str) -> list[Entry]:
+    return [
+        make_entry("daily.fortune.head", HEAD_KEY, head_text, 10, "advice"),
+        make_entry("daily.guide", GUIDE_KEY, guide_text, 20),
+    ]
+
+
+def limit_findings(entries: list[Entry], selector: CountSelector, maximum: int, rule_id: str) -> list[str]:
+    limit = make_limit(rule_id, selector, maximum)
+    findings = check_days({}, entries, [limit], ("ko",), RULES)
+    return [finding.rule_id for finding in findings if finding.rule_id == rule_id]
+
+
+def test_lexicon_count_over_limit() -> None:
+    selector = CountSelector(lexicon=("고른다면",))
+    over = screen_entries("장소를 고른다면 북쪽이 좋아요.", "하나를 고른다면 차가 좋아요.")
+    assert limit_findings(over, selector, 1, "limit.L5") == ["limit.L5"]
+    ok = screen_entries("장소를 고른다면 북쪽이 좋아요.", "차가 좋아요.")
+    assert limit_findings(ok, selector, 1, "limit.L5") == []
+
+
+def test_token_count_over_limit() -> None:
+    selector = CountSelector(token=True)
+    over = screen_entries("[[인성]]과 [[재성]]이 와요.", "[[관성]]도 와요.")
+    assert limit_findings(over, selector, 2, "limit.L6") == ["limit.L6"]
+    ok = screen_entries("[[인성]]과 [[재성]]이 와요.", "차가 좋아요.")
+    assert limit_findings(ok, selector, 2, "limit.L6") == []
+
+
+def test_token_entries_count_over_limit() -> None:
+    selector = CountSelector(token_entries=True)
+    scattered = screen_entries("[[인성]]이 와요.", "[[재성]]도 와요.")
+    assert limit_findings(scattered, selector, 1, "limit.L7") == ["limit.L7"]
+    gathered = screen_entries("[[인성]]과 [[재성]]이 와요.", "차가 좋아요.")
+    assert limit_findings(gathered, selector, 1, "limit.L7") == []

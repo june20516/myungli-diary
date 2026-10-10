@@ -6,7 +6,7 @@ import pytest
 from mlw.loader import load_rules
 from mlw.model import Detect, Entry, Examples, RuleSet, StyleRule
 from mlw.paths import RULES_DIR
-from mlw.sentence import check_sentence
+from mlw.sentence import check_sentence, normalize_for_detection
 
 
 def make_entry(text: str, *, sentence_type: str | None = None) -> Entry:
@@ -68,3 +68,23 @@ def test_bad_placeholder_syntax_reported(rules: RuleSet) -> None:
 def test_rule_detected_after_normalization(rules: RuleSet) -> None:
     findings = check_sentence(make_entry("{name}님, 좋은 날이에요!"), "info", rules, None, {})
     assert "slop.P8" in [f.rule_id for f in findings]
+
+
+def test_token_brackets_removed_in_normalization() -> None:
+    text = "[[인성]](이)가 들어와 무언가를 배우기 좋은 날이에요."
+    assert normalize_for_detection(text) == "인성이 들어와 무언가를 배우기 좋은 날이에요."
+
+
+def test_token_brackets_not_counted_in_length(rules: RuleSet) -> None:
+    entry = make_entry("[[인성]]이 와요")
+    assert check_sentence(entry, "info", rules, 6, {}) == []
+    findings = check_sentence(entry, "info", rules, 5, {})
+    assert [f.rule_id for f in findings] == ["style.length"]
+    assert "6자" in findings[0].message
+
+
+def test_bad_token_syntax_reported(rules: RuleSet) -> None:
+    findings = check_sentence(make_entry("[[인성이 와요"), "info", rules, None, {})
+    assert [(f.rule_id, f.severity) for f in findings] == [("token.syntax", "error")]
+    findings = check_sentence(make_entry("[[]]가 와요"), "info", rules, None, {})
+    assert [f.rule_id for f in findings] == ["token.syntax"]

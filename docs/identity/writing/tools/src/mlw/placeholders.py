@@ -26,7 +26,8 @@ class Placeholder:
 def _placeholder_pattern() -> regex.Pattern[str]:
     markers = sorted((pair.marker for pair in default_josa_data().pairs), key=len, reverse=True)
     josa = "|".join(regex.escape(marker) for marker in markers)
-    suffix = f"(?P<josa>{josa})?" if markers else ""
+    # 용어 토큰의 닫는 `]]`가 자리표시자와 조사 표기 사이에 올 수 있습니다.
+    suffix = f"(?:(?:\\]\\])?(?P<josa>{josa}))?" if markers else ""
     return regex.compile(rf"\{{(?P<name>[^{{}}:\s]+)(?::(?P<category>[^{{}}\s]+))?\}}{suffix}")
 
 
@@ -46,8 +47,50 @@ def parse(text: str) -> list[Placeholder]:
     return [_to_placeholder(match) for match in _PATTERN.finditer(text)]
 
 
+@dataclass(frozen=True)
+class Token:
+    """용어 토큰 `[[...]]` 하나입니다. `text`는 대괄호 안쪽 원문, `start`·`end`는 `[[`부터 `]]` 끝까지의 위치입니다."""
+
+    text: str
+    start: int
+    end: int
+
+
+TOKEN_OPEN = "[["
+TOKEN_CLOSE = "]]"
+
+
+def parse_tokens(text: str) -> list[Token]:
+    """문장 속 용어 토큰을 순서대로 돌려줍니다. 짝이 안 맞거나 중첩되거나 비면 ValueError입니다."""
+    tokens: list[Token] = []
+    position = 0
+    while True:
+        start = text.find(TOKEN_OPEN, position)
+        stray_close = text.find(TOKEN_CLOSE, position, start if start >= 0 else len(text))
+        if stray_close >= 0:
+            raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
+        if start < 0:
+            return tokens
+        close = text.find(TOKEN_CLOSE, start + len(TOKEN_OPEN))
+        if close < 0:
+            raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
+        inner = text[start + len(TOKEN_OPEN) : close]
+        if TOKEN_OPEN in inner or not inner.strip():
+            raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
+        end = close + len(TOKEN_CLOSE)
+        tokens.append(Token(inner, start, end))
+        position = end
+
+
+def strip_token_marks(text: str) -> str:
+    """용어 토큰의 `[[`, `]]`를 지웁니다. 문법이 틀리면 ValueError입니다."""
+    parse_tokens(text)
+    return text.replace(TOKEN_OPEN, "").replace(TOKEN_CLOSE, "")
+
+
 def substitute(text: str, value_of: Callable[[Placeholder], str]) -> str:
     """자리표시자를 값으로 바꾸고 조사 표기를 렌더합니다. 문법이 틀리면 ValueError입니다."""
+    text = strip_token_marks(text)
     parse(text)
 
     def replace(match: regex.Match[str]) -> str:

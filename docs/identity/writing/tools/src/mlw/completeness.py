@@ -51,6 +51,7 @@ def glossary_values() -> dict[str, tuple[str, ...]]:
         "direction8": _enum_value_names(engine_pb2.Direction8),
         "shinsal": _enum_value_names(engine_pb2.Shinsal),
         "day_kind": _enum_value_names(engine_pb2.DayKind),
+        "relation": _enum_value_names(engine_pb2.RelationKind),
     }
 
 

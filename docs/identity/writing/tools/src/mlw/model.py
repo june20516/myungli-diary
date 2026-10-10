@@ -75,11 +75,17 @@ class SlopRule:
 
 @dataclass(frozen=True)
 class CountSelector:
-    """셋 중 하나만 채웁니다."""
+    """여섯 중 하나만 채웁니다."""
 
     placeholder: str | None = None
     type: str | None = None
     rule: str | None = None
+    # 정규화 텍스트에 목록 단어가 하나라도 든 원고 수를 셉니다.
+    lexicon: tuple[str, ...] | None = None
+    # 원고 안의 용어 토큰 개수를 셉니다. `true`만 허용합니다.
+    token: bool | None = None
+    # 용어 토큰이 하나 이상 든 원고 수를 셉니다. `true`만 허용합니다.
+    token_entries: bool | None = None
 
 
 @dataclass(frozen=True)

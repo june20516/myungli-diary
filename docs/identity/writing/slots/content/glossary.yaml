@@ -82,5 +82,9 @@
     - day_kind.yongsin_day
     - day_kind.gisin_day
     - day_kind.ordinary_day
+    - relation.stem_hap
+    - relation.branch_hap
+    - relation.chung
+    - relation.hyeong
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}

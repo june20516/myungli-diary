@@ -162,3 +162,7 @@ def test_glossary_values_names() -> None:
     assert values["element"] == ("wood", "fire", "earth", "metal", "water")
     assert values["day_kind"] == ("gwiin_day", "yongsin_day", "gisin_day", "ordinary_day")
     assert values["stem"][0] == "gap"
+
+
+def test_glossary_values_relation() -> None:
+    assert glossary_values()["relation"] == ("stem_hap", "branch_hap", "chung", "hyeong")

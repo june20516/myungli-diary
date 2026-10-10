@@ -5,13 +5,14 @@ from collections.abc import Mapping
 import regex
 
 from mlw.model import Detect, Entry, Finding, RuleSet, Severity, SlopRule, StyleRule
-from mlw.placeholders import parse, substitute
+from mlw.placeholders import parse, parse_tokens, strip_token_marks, substitute
 
 # 규칙 탐지용 정규화에서 자리표시자 자리에 들어가는 값입니다.
 DETECTION_VALUE = "값"
 CARE = "care"
 RULE_LENGTH = "style.length"
 RULE_PLACEHOLDER_SYNTAX = "placeholder.syntax"
+RULE_TOKEN_SYNTAX = "token.syntax"
 
 
 def matches(detect: Detect, lang: str, text: str) -> bool:
@@ -30,12 +31,16 @@ def detectable_rules(rules: RuleSet) -> list[SlopRule | StyleRule]:
 
 
 def normalize_for_detection(text: str) -> str:
-    """자리표시자를 값으로 바꾸고 조사를 렌더합니다. 문법이 틀리면 ValueError입니다."""
-    return substitute(text, lambda _placeholder: DETECTION_VALUE)
+    """용어 토큰 표기를 지우고 자리표시자를 값으로 바꾼 뒤 조사를 렌더합니다. 문법이 틀리면 ValueError입니다."""
+    return substitute(strip_token_marks(text), lambda _placeholder: DETECTION_VALUE)
 
 
 def _rendered_length(text: str, longest_values: Mapping[str, str]) -> int | None:
-    """가장 긴 값으로 렌더한 글자 수입니다. 값이 없는 자리표시자가 있으면 None입니다."""
+    """가장 긴 값으로 렌더한 글자 수입니다. 값이 없는 자리표시자가 있으면 None입니다.
+
+    용어 토큰의 `[[`, `]]`는 글자 수에 넣지 않습니다.
+    """
+    text = strip_token_marks(text)
     if any(placeholder.key not in longest_values for placeholder in parse(text)):
         return None
     return len(substitute(text, lambda placeholder: longest_values[placeholder.key]))
@@ -51,6 +56,10 @@ def check_sentence(
     def finding(rule_id: str, severity: Severity, message: str) -> Finding:
         return Finding(entry.file, entry.line, rule_id, severity, message)
 
+    try:
+        parse_tokens(entry.text)
+    except ValueError as error:
+        return [finding(RULE_TOKEN_SYNTAX, "error", str(error))]
     try:
         normalized = normalize_for_detection(entry.text)
     except ValueError as error:
