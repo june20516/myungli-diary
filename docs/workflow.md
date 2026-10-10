@@ -10,8 +10,10 @@
 | **core 세션** | `core/` | 명리 엔진(Python)의 설계 → 계획 → 구현 → 마무리 | 다른 서브 프로젝트 코드, 루트 문서 수정 |
 | **server 세션** | `server/` | 메인 API 서버(Go)의 설계 → 계획 → 구현 → 마무리 | 위와 같음 |
 | **app 세션** | `app/` | 모바일 앱(Flutter)의 설계 → 계획 → 구현 → 마무리 | 위와 같음 |
+| **writing 세션** | `docs/identity/writing/` | 라이팅 시스템과 콘텐츠 문장의 설계 → 계획 → 실행 → 마무리 | 위와 같음 |
+| **design 세션** | `docs/identity/design/` | 시각 정체성·디자인 토큰·컴포넌트 명세의 설계 → 계획 → 실행 → 마무리 | 위와 같음 |
 
-**원칙:** 각 서브 프로젝트는 자기 작업을 **스스로 열고 스스로 닫습니다.** 서브 프로젝트끼리는 상대 코드를 직접 고치지 않고, **계약 파일**과 **요청함**으로만 주고받습니다.
+**원칙:** 각 서브 프로젝트와 작업 단위(writing, design)는 자기 작업을 **스스로 열고 스스로 닫습니다.** 서브 프로젝트끼리는 상대 코드를 직접 고치지 않고, **계약 파일**과 **요청함**으로만 주고받습니다.
 
 ## 2. 소유권 (누가 어디를 고칠 수 있나)
 
@@ -22,8 +24,10 @@
 | `app/` | app | |
 | `proto/myungri/engine/`, `proto/buf.yaml` | core | 엔진 gRPC 계약의 제공자 |
 | `.github/workflows/<서브 프로젝트>.yml` | 해당 서브 프로젝트 | |
+| `docs/identity/writing/` | writing | |
+| `docs/identity/design/` | design | |
 | `docs/coordination/` | 모두 | 요청·보고 문서 **작성**은 누구나, 상태 변경 규칙은 §5 |
-| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/decisions.md`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
+| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/decisions.md`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
 
 ## 3. 서브 프로젝트의 작업 주기
 
@@ -40,11 +44,11 @@
    - 제공 계약이 바뀌었으면 버전을 올립니다.
    - `docs/coordination/`에 **완료 보고**를 남깁니다.
 
-suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberpowers/plans/` 경로는 쓰지 않습니다. 서브 프로젝트는 위 경로를, 지휘 세션은 `docs/specs/`, `docs/plans/`를 씁니다.
+suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberpowers/plans/` 경로는 쓰지 않습니다. 서브 프로젝트는 위 경로를, 지휘 세션은 `docs/specs/`, `docs/plans/`를 씁니다. 작업 단위는 이미 `docs/` 안에 있으므로 `docs/identity/<writing|design>/specs/`, `plans/`를 씁니다.
 
 ## 4. 결정 로그
 * **둘 이상의 서브 프로젝트나 제품 전체에 걸친 결정:** `docs/decisions.md` (번호 `D<n>`, 지휘 세션만 기록)
-* **한 서브 프로젝트 안의 결정:** `<서브 프로젝트>/docs/decisions.md` (번호 core `C<n>`, server `S<n>`, app `A<n>`)
+* **한 서브 프로젝트 안의 결정:** `<서브 프로젝트>/docs/decisions.md` (번호 core `C<n>`, server `S<n>`, app `A<n>`). 작업 단위는 `docs/identity/<writing|design>/decisions.md` (번호 writing `W<n>`, design `V<n>`)
 * 서브 프로젝트 결정이 루트 결정과 부딪히면 구현을 멈추고 요청함으로 올립니다.
 
 ## 5. 계약과 요청함
@@ -55,7 +59,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 하위 호환이 깨지는 변경은 다음 절차를 따릅니다: ① 요청함에 공지 ② 계약 버전 올림 ③ 사용하는 쪽이 대응을 마쳤다고 보고한 뒤 이전 버전 제거.
 
 ### 5.2. 요청함 `docs/coordination/`
-* 파일 이름: `YYYY-MM-DD-<보내는 쪽>-to-<받는 쪽>-<짧은 주제>.md`. `<보내는 쪽>`/`<받는 쪽>`은 `root`, `core`, `server`, `app` 중 하나입니다.
+* 파일 이름: `YYYY-MM-DD-<보내는 쪽>-to-<받는 쪽>-<짧은 주제>.md`. `<보내는 쪽>`/`<받는 쪽>`은 `root`, `core`, `server`, `app`, `writing`, `design` 중 하나입니다.
 * 형식은 `docs/coordination/TEMPLATE.md`를 따릅니다.
 * 상태 흐름: `open` → (지휘 세션 검토) → `accepted` 또는 `rejected` → (받는 쪽 처리) → `done`.
   * `accepted`/`rejected`는 지휘 세션만 바꿉니다.
@@ -65,7 +69,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 
 ## 6. Git
 * 저장소: `june20516/myungli-diary` (모노레포, D33).
-* 브랜치 이름: `<서브 프로젝트>/<주제>` (예: `core/engine-mvp`). 지휘 세션은 `root/<주제>`.
+* 브랜치 이름: `<서브 프로젝트>/<주제>` (예: `core/engine-mvp`). 작업 단위는 `writing/<주제>`, `design/<주제>`. 지휘 세션은 `root/<주제>`.
 * 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git switch -c core/engine-mvp --no-track main`. 만든 직후 `git status -sb`로 확인합니다.
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
 * commit 메시지의 범위 표기: `feat(core): …`, `fix(server): …`, `docs(root): …`.

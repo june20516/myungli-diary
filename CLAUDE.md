@@ -5,11 +5,12 @@
 ## 나는 어떤 세션인가
 * 작업 디렉터리가 **저장소 루트**면 → **지휘 세션**입니다. 아래 "지휘 세션" 절을 따릅니다.
 * 작업 디렉터리가 `core/`, `server/`, `app/` 아래면 → 그 **서브 프로젝트 세션**입니다. 그 디렉터리의 `CLAUDE.md`를 따르고, 자기 소유 경로(`docs/workflow.md` §2) 밖은 고치지 않습니다.
+* 작업 디렉터리가 `docs/identity/writing/` 또는 `docs/identity/design/` 아래면 → 그 **작업 단위 세션**(writing / design)입니다. 서브 프로젝트 세션과 같은 규칙을 따릅니다.
 
 ## 공통 규칙
 * 서브 프로젝트끼리는 **계약 파일**(`docs/contracts/README.md`)과 **요청함**(`docs/coordination/`)으로만 주고받습니다. 상대 서브 프로젝트의 코드를 직접 고치지 않습니다.
 * 제품 결정의 기준은 [`docs/decisions.md`](docs/decisions.md)(D1~)입니다. 서브 프로젝트 결정이 이와 부딪히면 구현을 멈추고 요청함으로 올립니다.
-* spec과 계획은 서브 프로젝트의 `docs/specs/`, `docs/plans/`에 둡니다. suberpowers 기본 경로(`docs/suberpowers/…`)는 쓰지 않습니다.
+* spec과 계획은 서브 프로젝트의 `docs/specs/`, `docs/plans/`에 둡니다. 작업 단위는 `docs/identity/<writing|design>/specs/`, `plans/`에 둡니다. suberpowers 기본 경로(`docs/suberpowers/…`)는 쓰지 않습니다.
 * 같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다. 동시에 진행하려면 `git worktree`를 씁니다.
 
 ## 지휘 세션
@@ -26,3 +27,4 @@
 | 계약 목록 | `docs/contracts/README.md` |
 | 요청함 | `docs/coordination/` |
 | 엔진 위키·spec·계획·원전 근거 | `core/docs/` |
+| 정체성 기준 (브랜드·라이팅·디자인) | `docs/identity/` |

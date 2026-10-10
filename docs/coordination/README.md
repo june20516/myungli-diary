@@ -3,7 +3,7 @@
 서브 프로젝트 사이의 요청과 보고를 문서로 주고받는 곳입니다. 규칙은 `docs/workflow.md` §5.2에 있습니다.
 
 * 파일 이름: `YYYY-MM-DD-<보내는 쪽>-to-<받는 쪽>-<짧은 주제>.md`
-  * `<보내는 쪽>`/`<받는 쪽>`: `root`, `core`, `server`, `app`
+  * `<보내는 쪽>`/`<받는 쪽>`: `root`, `core`, `server`, `app`, `writing`, `design`
 * 형식: [`TEMPLATE.md`](TEMPLATE.md)
 * 상태: `open` → `accepted` / `rejected` (지휘 세션) → `done` (받는 쪽)
 * 완료 보고(`<서브 프로젝트>-to-root`)는 `done`으로 바로 써도 됩니다.
