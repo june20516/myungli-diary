@@ -7,7 +7,9 @@ import argparse
 import json
 import sys
 from collections.abc import Mapping, Sequence
+from datetime import date
 from pathlib import Path
+from typing import cast
 
 from mlw import paths
 from mlw.arb import check_arb
@@ -23,6 +25,9 @@ NAME_PARAM = "name"
 # 호칭 최대 길이를 채우는 글자입니다. 글자 수만 세므로 무엇이든 됩니다.
 NAME_FILLER = "가"
 RULE_JSON = "load.json"
+# 고정 자료 하루 항목(DayKeys)의 필드입니다.
+REQUIRED_DAY_FIELDS = ("head", "guide", "color", "direction", "number", "focus")
+OPTIONAL_DAY_FIELDS = ("tag_sentence", "tag_label")
 EXIT_ERROR = 1
 EXIT_LOAD_ERROR = 2
 
@@ -93,6 +98,8 @@ def _read_json(path: Path) -> object:
     """JSON 파일을 읽습니다. 없거나 깨졌으면 `LoadError`입니다."""
     try:
         return json.loads(path.read_text(encoding="utf-8"))
+    except UnicodeDecodeError as error:
+        raise _json_error(path, 1, "UTF-8 파일이 아닙니다") from error
     except OSError as error:
         raise _json_error(path, 1, f"파일을 읽을 수 없습니다: {error.strerror or error}") from error
     except json.JSONDecodeError as error:
@@ -106,11 +113,52 @@ def _read_message_keys(path: Path) -> list[str]:
     return [str(key) for key in data]
 
 
+def _fixture_problem(data: object) -> str | None:
+    """고정 자료 구조가 `check_weeks`의 기대와 어긋나면 이유를, 맞으면 None을 돌려줍니다."""
+    if not isinstance(data, dict):
+        return "고정 자료는 JSON 객체여야 합니다"
+    start = data.get("start")
+    try:
+        date.fromisoformat(start if isinstance(start, str) else "")
+    except ValueError:
+        return f"'start'는 ISO 날짜(YYYY-MM-DD) 문자열이어야 합니다: {start!r}"
+    samples = data.get("samples")
+    if not isinstance(samples, list):
+        return "'samples'는 목록이어야 합니다"
+    for index, sample in enumerate(samples):
+        where = f"samples[{index}]"
+        if not isinstance(sample, dict):
+            return f"{where}는 객체여야 합니다"
+        if not isinstance(sample.get("birth_id"), str):
+            return f"{where}.birth_id는 문자열이어야 합니다"
+        days = sample.get("days")
+        if not isinstance(days, list):
+            return f"{where}.days는 목록이어야 합니다"
+        for day_index, day in enumerate(days):
+            problem = _day_problem(day, f"{where}.days[{day_index}]")
+            if problem is not None:
+                return problem
+    return None
+
+
+def _day_problem(day: object, where: str) -> str | None:
+    if not isinstance(day, dict):
+        return f"{where}는 객체여야 합니다"
+    for name in REQUIRED_DAY_FIELDS:
+        if not isinstance(day.get(name), str):
+            return f"{where}.{name}은(는) 문자열이어야 합니다"
+    for name in OPTIONAL_DAY_FIELDS:
+        if name not in day or not (day[name] is None or isinstance(day[name], str)):
+            return f"{where}.{name}은(는) 문자열 또는 null이어야 합니다"
+    return None
+
+
 def _read_fixture(path: Path) -> dict[str, object]:
     data = _read_json(path)
-    if not isinstance(data, dict):
-        raise _json_error(path, 1, "고정 자료는 JSON 객체여야 합니다")
-    return data
+    problem = _fixture_problem(data)
+    if problem is not None:
+        raise _json_error(path, 1, problem)
+    return cast(dict[str, object], data)
 
 
 def _check(args: argparse.Namespace) -> int:

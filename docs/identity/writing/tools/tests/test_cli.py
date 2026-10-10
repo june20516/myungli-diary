@@ -1,5 +1,6 @@
 """mlw 명령 테스트."""
 
+import json
 import re
 import shutil
 from pathlib import Path
@@ -90,3 +91,61 @@ def test_cli_broken_json_file_is_load_error(tmp_path: Path, capsys: pytest.Captu
         assert "Traceback" not in captured.out + captured.err
         assert FINDING_LINE.match(captured.out.splitlines()[0])
         assert "load.json" in captured.out
+
+
+DAY = {
+    "head": "fortune.yongsin_day.inseong",
+    "tag_sentence": None,
+    "guide": "guide.clash",
+    "color": "color.yongsin_day",
+    "direction": "direction.day_kind.yongsin",
+    "number": "number.yongsin_day",
+    "focus": "focus_time.gwiin",
+    "tag_label": None,
+}
+
+
+def fixture_json(**changes: object) -> str:
+    fixture: dict[str, object] = {"start": "2026-11-02", "samples": [{"birth_id": "b01", "days": [DAY]}]}
+    return json.dumps(fixture | changes)
+
+
+def sample_json(days: object, birth_id: object = "b01") -> str:
+    return fixture_json(samples=[{"birth_id": birth_id, "days": days}])
+
+
+def assert_json_load_error(path: Path, option: str, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["check", str(CONTENT_DIR), "--partial", option, str(path)]) == 2
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out + captured.err
+    assert FINDING_LINE.match(captured.out.splitlines()[0])
+    assert captured.out.splitlines()[0].startswith(f"{path}:1 load.json error")
+
+
+def test_cli_non_utf8_file_is_load_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    path = tmp_path / "latin.json"
+    path.write_bytes(b"[\xff\xfe]")
+    assert_json_load_error(path, "--message-keys", capsys)
+    assert_json_load_error(path, "--fixture", capsys)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        fixture_json(start="내일"),
+        fixture_json(samples={"b01": 1}),
+        fixture_json(samples=[1]),
+        sample_json([DAY], birth_id=1),
+        sample_json("x"),
+        sample_json([1]),
+        sample_json([{k: v for k, v in DAY.items() if k != "guide"}]),
+        sample_json([DAY | {"head": None}]),
+        sample_json([DAY | {"tag_label": 3}]),
+    ],
+)
+def test_cli_bad_fixture_structure_is_load_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], body: str
+) -> None:
+    path = tmp_path / "fixture.json"
+    path.write_text(body, encoding="utf-8")
+    assert_json_load_error(path, "--fixture", capsys)
