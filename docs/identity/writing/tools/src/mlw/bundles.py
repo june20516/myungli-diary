@@ -56,7 +56,6 @@ SLOT_TAG_LABEL = "daily.tag_label"
 # 유형 순환을 따르는 슬롯입니다.
 TYPED_SLOTS = frozenset({SLOT_HEAD, SLOT_TAG})
 SCREEN_SCOPES: tuple[str, ...] = ("screen", "day")
-WEEK_LENGTH = 7
 ROTATION_OFFSETS: tuple[int, ...] = (0, 1, 2)
 FIXTURE_PATH = Path("fixtures/week_samples.json")
 STALE_RULE_ID = "week.fixture_stale"
@@ -356,7 +355,7 @@ def check_weeks(
     message_keys: Sequence[str],
     fixture_path: Path = FIXTURE_PATH,
 ) -> list[Finding]:
-    """고정 자료의 실제 날짜 순서로 유형 순환을 흉내 내 연속 7일 창마다 한 주 상한을 확인합니다.
+    """고정 자료의 실제 날짜 순서로 유형 순환을 흉내 내 상한마다 자기 `window`일 연속 창으로 한 주 상한을 확인합니다.
 
     순환은 사용자별로 키마다 따로 돌고, 유형 시작 위치 0·1·2와 가이드 변주 시작 위치를 독립으로 모두 조합해 검사합니다.
     같은 (규칙 ID, 파일, 줄)의 finding은 한 번만 냅니다.
@@ -374,13 +373,21 @@ def check_weeks(
         for birth_id, start, days in samples:
             for offset, variant_offset in product(ROTATION_OFFSETS, range(variants)):
                 per_day = _rotate(days, entries_by, lang, offset, variant_offset, variants)
-                for first, window in enumerate(week_windows(per_day, WEEK_LENGTH)):
-                    when = f"{start + timedelta(days=first)}부터 7일" if start else f"{first + 1}일째부터 7일"
-                    where = f"표본 {birth_id} {when} (유형 시작 {offset}, 가이드 변주 시작 {variant_offset + 1})"
-                    week_entries = [entry for day_entries in window for entry in day_entries]
-                    for finding in check_limits(week_entries, active, "week", lang, where, rules):
-                        identity = (finding.rule_id, str(finding.file), finding.line)
-                        if identity not in seen:
-                            seen.add(identity)
-                            findings.append(finding)
+                for length in sorted({limit.window for limit in active}):
+                    same_length = [limit for limit in active if limit.window == length]
+                    for first, window in enumerate(week_windows(per_day, length)):
+                        when = (
+                            f"{start + timedelta(days=first)}부터 {length}일"
+                            if start
+                            else f"{first + 1}일째부터 {length}일"
+                        )
+                        where = (
+                            f"표본 {birth_id} {when} (유형 시작 {offset}, 가이드 변주 시작 {variant_offset + 1})"
+                        )
+                        week_entries = [entry for day_entries in window for entry in day_entries]
+                        for finding in check_limits(week_entries, same_length, "week", lang, where, rules):
+                            identity = (finding.rule_id, str(finding.file), finding.line)
+                            if identity not in seen:
+                                seen.add(identity)
+                                findings.append(finding)
     return findings

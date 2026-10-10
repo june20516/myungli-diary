@@ -48,7 +48,9 @@ YAML_RULE_ID = "load.yaml"
 
 SLOP_KEYS = {"id", "name", "judge", "severity", "detect", "rubric", "exempt_purposes", "examples"}
 STYLE_KEYS = {"id", "name", "severity", "detect", "exempt_purposes", "examples"}
-LIMIT_KEYS = {"id", "name", "scope", "count", "max", "severity"}
+LIMIT_KEYS = {"id", "name", "scope", "count", "max", "severity", "window"}
+MIN_WINDOW = 2
+MAX_WINDOW = 7
 DETECT_KEYS = {"kind", "pattern", "words", "langs"}
 EXAMPLE_KEYS = {"lang", "slot_purpose", "text"}
 COUNT_KEYS = ("placeholder", "type", "rule", "lexicon", "token", "token_entries")
@@ -299,6 +301,19 @@ def _is_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
+def _parse_window(item: _Item, scope: str | None) -> int | None:
+    if "window" not in item.data:
+        return MAX_WINDOW
+    raw = item.data["window"]
+    if scope != "week":
+        item.fail("'window'는 scope가 week일 때만 쓸 수 있습니다")
+        return None
+    if not _is_int(raw) or not MIN_WINDOW <= cast(int, raw) <= MAX_WINDOW:
+        item.fail(f"'window'는 {MIN_WINDOW}~{MAX_WINDOW}의 정수여야 합니다")
+        return None
+    return cast(int, raw)
+
+
 def _parse_limit(data: dict[str, object], line: int, problems: _Problems) -> Limit | None:
     item = _Item(data, line, problems)
     item.check_unknown_keys(LIMIT_KEYS)
@@ -308,9 +323,10 @@ def _parse_limit(data: dict[str, object], line: int, problems: _Problems) -> Lim
     severity = item.choice("severity", SEVERITIES)
     count = _parse_count(item)
     max_by_lang = _parse_max(item)
+    window = _parse_window(item, scope)
     if rule_id is None or name is None or scope is None or severity is None:
         return None
-    if count is None or max_by_lang is None:
+    if count is None or max_by_lang is None or window is None:
         return None
     return Limit(
         id=rule_id,
@@ -320,6 +336,7 @@ def _parse_limit(data: dict[str, object], line: int, problems: _Problems) -> Lim
         max=max_by_lang,
         severity=cast(Severity, severity),
         line=line,
+        window=window,
     )
 
 

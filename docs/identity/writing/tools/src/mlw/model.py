@@ -98,6 +98,8 @@ class Limit:
     max: dict[str, int | None]
     severity: Severity
     line: int
+    # scope가 week일 때 검사하는 연속 일수입니다(2~7). 다른 scope에서는 쓰지 않습니다.
+    window: int = 7
 
 
 @dataclass(frozen=True)

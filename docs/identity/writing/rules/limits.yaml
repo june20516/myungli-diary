@@ -11,21 +11,21 @@
   name: 돌봄 유형 하루 상한
   scope: day
   count: {type: care}
-  max: null
+  max: {ko: 2, ja: 2, en: 2}
   severity: warn
 
 - id: limit.L3
   name: 돌봄 유형 한 주 상한
   scope: week
   count: {type: care}
-  max: null
+  max: {ko: 7, ja: 7, en: 7}
   severity: warn
 
 - id: limit.L4
   name: 영어 호칭 한 주 상한
   scope: week
   count: {placeholder: name}
-  max: {en: null}
+  max: {en: 2}
   severity: warn
 
 - id: limit.L5
@@ -48,3 +48,11 @@
   count: {token_entries: true}
   max: {ko: 1, ja: 1, en: 1}
   severity: error
+
+- id: limit.L8
+  name: '"괜찮아요"는 이틀 연속 나오지 않게'
+  scope: week
+  window: 2
+  count: {lexicon: ["괜찮아요"]}
+  max: {ko: 1}
+  severity: warn

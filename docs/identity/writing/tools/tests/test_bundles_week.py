@@ -141,3 +141,54 @@ def test_type_and_guide_variant_starts_are_combined() -> None:
     limit = Limit("limit.L4", "호칭", "week", CountSelector(placeholder="name"), max_by_lang, "warn", 1)
     findings = check_weeks({}, entries, [limit], ["ko"], RULES, fixture_of([day_keys()] * 7), MESSAGE_KEYS)
     assert [finding.rule_id for finding in findings] == ["limit.L4"]
+
+
+OK_KEY = "fortune.ordinary_day.biggeop"
+PLAIN_KEY = "fortune.ordinary_day.jaesung"
+OTHER_KEYS = [OK_KEY, PLAIN_KEY, "fortune.ordinary_day.gwansal"]
+
+
+def two_day_limit() -> Limit:
+    return Limit(
+        "limit.L8",
+        "괜찮아요 연속 이틀",
+        "week",
+        CountSelector(lexicon=("괜찮아요",)),
+        {"ko": 1},
+        "warn",
+        1,
+        window=2,
+    )
+
+
+def phrase_entries(key: str, text: str, first_line: int) -> list[Entry]:
+    return [
+        Entry(FILE, first_line + index, "daily.fortune.head", key, type_, 1, "ko", text if index == 0 else "다른 말")
+        for index, type_ in enumerate(("advice", "state", "care"))
+    ]
+
+
+def phrase_fixture(order: list[str]) -> dict[str, object]:
+    return fixture_of([day_keys(key) for key in order])
+
+
+def phrase_entries_all() -> list[Entry]:
+    return (
+        phrase_entries(OTHER_KEYS[0], "괜찮아요", 10)
+        + phrase_entries(OTHER_KEYS[1], "괜찮아요", 20)
+        + phrase_entries(OTHER_KEYS[2], "다른 말", 30)
+    )
+
+
+def test_two_day_window_catches_consecutive_days() -> None:
+    fixture = phrase_fixture([OTHER_KEYS[0], OTHER_KEYS[1], OTHER_KEYS[2]])
+    keys = MESSAGE_KEYS + OTHER_KEYS
+    findings = check_weeks({}, phrase_entries_all(), [two_day_limit()], ["ko"], RULES, fixture, keys)
+    assert [finding.rule_id for finding in findings] == ["limit.L8"]
+    assert "2026-11-02부터 2일" in findings[0].message
+
+
+def test_two_day_window_ignores_separated_days() -> None:
+    fixture = phrase_fixture([OTHER_KEYS[0], OTHER_KEYS[2], OTHER_KEYS[1]])
+    keys = MESSAGE_KEYS + OTHER_KEYS
+    assert check_weeks({}, phrase_entries_all(), [two_day_limit()], ["ko"], RULES, fixture, keys) == []

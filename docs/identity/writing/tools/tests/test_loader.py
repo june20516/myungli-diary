@@ -79,8 +79,8 @@ def test_limit_max_int_expands_to_all_langs() -> None:
     rules = load_rules(RULES_DIR)
     assert rules.limits["limit.L1"].max == {"ko": 1, "en": 1, "ja": 1}
     assert rules.limits["limit.L1"].count.placeholder == "name"
-    assert rules.limits["limit.L2"].max == {"ko": None, "en": None, "ja": None}
-    assert rules.limits["limit.L4"].max == {"en": None}
+    assert rules.limits["limit.L2"].max == {"ko": 2, "en": 2, "ja": 2}
+    assert rules.limits["limit.L4"].max == {"en": 2}
     assert rules.limits["limit.L3"].count.type == "care"
 
 
@@ -108,6 +108,37 @@ def test_count_must_fill_exactly_one(tmp_path: Path, count: str) -> None:
         f"- id: limit.X\n  name: 시험\n  scope: screen\n  count: {count}\n  max: 1\n  severity: error\n",
         encoding="utf-8",
     )
+    with pytest.raises(LoadError) as raised:
+        load_rules(tmp_path)
+    assert [finding.rule_id for finding in raised.value.findings] == ["load.schema"]
+
+
+def write_limit(directory: Path, scope: str, window_line: str) -> None:
+    copy_seed_rules(directory)
+    (directory / "limits.yaml").write_text(
+        f"- id: limit.X\n  name: 시험\n  scope: {scope}\n{window_line}"
+        '  count: {type: care}\n  max: 1\n  severity: warn\n',
+        encoding="utf-8",
+    )
+
+
+def test_window_defaults_to_seven_and_loads_two() -> None:
+    limits = load_rules(RULES_DIR).limits
+    assert limits["limit.L3"].window == 7
+    assert limits["limit.L8"].window == 2
+
+
+def test_window_on_week_scope_loads(tmp_path: Path) -> None:
+    write_limit(tmp_path, "week", "  window: 3\n")
+    assert load_rules(tmp_path).limits["limit.X"].window == 3
+
+
+@pytest.mark.parametrize(
+    ("scope", "window"),
+    [("day", "2"), ("week", "1"), ("week", "8"), ("week", "true")],
+)
+def test_invalid_window_is_schema_error(tmp_path: Path, scope: str, window: str) -> None:
+    write_limit(tmp_path, scope, f"  window: {window}\n")
     with pytest.raises(LoadError) as raised:
         load_rules(tmp_path)
     assert [finding.rule_id for finding in raised.value.findings] == ["load.schema"]
