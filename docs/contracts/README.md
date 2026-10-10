@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | 엔진 gRPC API | `proto/myungri/engine/v1/engine.proto` | core | server | v1 | 설계됨, 파일 미생성 (core Task 14) | 엔진 spec §9 |
 | 메시지 키 목록 | `core/message_keys.json` | core | server (콘텐츠 시드 검사) | - | 설계됨, 파일 미생성 (core Task 2) | 엔진 spec §10 |
-| 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (Pro 화면) | - | 설계됨 | 엔진 spec §11 |
+| 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | 설계됨 | 엔진 spec §11 |
 | 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | - | 설계됨 | 엔진 spec §12, D31 |
 | REST API (앱 ↔ 서버) | (server 설계 때 정함) | server | app | v1 | 미설계 (S3) | D26 |
 | 디자인 토큰 (오행 팔레트·타이포) | `docs/background/06-design-system.md` | 지휘 | app | - | 원칙만 있음 | 06 |
