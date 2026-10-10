@@ -358,24 +358,58 @@ function renderRoute() {
   document.getElementById("issues").innerHTML = listItems(DATA.issues, "열린 Issue가 없습니다");
 }
 
+const SCREEN_LABELS = {
+  presentation: { page: "페이지", "half-sheet": "하프 시트", "full-sheet": "풀 시트", system: "시스템" },
+  auth: { guest: "로그인 전", member: "로그인 필요", any: "누구나" },
+};
+
+function screenCard(s) {
+  const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
+  const cover = arts.find((a) => a.status === "chosen") || arts[0];
+  const counts = s.provisional ? [] : [`슬롯 ${(s.slots || []).length}`, `컴포넌트 ${(s.components || []).length}`];
+  return `<button class="card" type="button" data-id="${esc(s.id)}">${cover ? `<img src="${imgSrc(cover.path)}" alt="" loading="lazy">` : ""}
+    <h3>${esc(s.title)} <span class="muted" style="font-size:.75rem;font-weight:400">${esc(s.id)}</span></h3>
+    <span class="muted" style="font-size:.85rem">${esc(s.purpose || s.summary || "")}</span>
+    <span class="meta">${[...counts, `산출물 ${arts.length}`].map((t) => `<span>${esc(t)}</span>`).join("")}</span></button>`;
+}
+
+function openScreen(id) {
+  const s = DATA.screens.find((x) => x.id === id);
+  if (!s) return;
+  const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
+  const pills = s.provisional ? `<span class="pill todo">임시 화면</span>` : [
+    SCREEN_LABELS.presentation[s.presentation] || s.presentation,
+    SCREEN_LABELS.auth[s.auth] || s.auth,
+    ...(s.depths || []),
+  ].map((t) => `<span class="pill">${esc(t)}</span>`).join(" ");
+  const slots = (s.slots || []).map((slot) => `<li><code>${esc(slot.id)}</code> <span class="pill ${slot.source === "content" ? "doing" : "todo"}">${esc(slot.source)}</span><br><span class="muted">${esc(slot.role)}</span></li>`).join("");
+  const states = (s.states || []).map((st) => `<li><code>${esc(st.id)}</code> <span class="muted">${esc(st.note || "")}</span></li>`).join("");
+  const exits = (s.exits || []).map((e) => `<button class="chip" type="button" data-go="${esc(e.to)}">${esc(e.trigger)} → ${esc(e.to)}</button>`).join("");
+  const comps = (s.components || []).map((c) => `<code>${esc(c)}</code>`).join(" ");
+  const section = (title, body) => body ? `<div><h3>${title}</h3>${body}</div>` : "";
+  openSheet(`<header>${pills}<button class="close" type="button">닫기</button></header>
+    <h2 id="sheet-title">${esc(s.title)} <span class="muted" style="font-size:.8rem;font-weight:400">${esc(s.id)}</span></h2>
+    <p style="margin:0">${esc(s.purpose || s.summary || "")}</p>
+    ${section("나가는 경로", exits && `<div class="chips">${exits}</div>`)}
+    ${section(`문장 슬롯 ${(s.slots || []).length}`, slots && `<ul class="plain">${slots}</ul>`)}
+    ${section("컴포넌트", comps && `<p style="margin:0;line-height:1.9">${comps}</p>`)}
+    ${section("상태", states && `<ul class="plain">${states}</ul>`)}
+    ${section("결정", (s.decisions || []).length ? `<p class="muted" style="margin:0">${esc(s.decisions.join(" · "))}</p>` : "")}
+    <div><h3>시안·스크린샷</h3>${thumbs(arts)}</div>`);
+  document.getElementById("sheet").querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => openScreen(b.dataset.go)));
+}
+
 function renderScreens() {
   document.getElementById("screens-notice").hidden = !DATA.screens.some((s) => s.provisional);
+  const tabs = DATA.screen_tabs || [];
+  const groups = tabs.length
+    ? [...tabs.map((t) => ({ title: `${t.title} 탭`, items: DATA.screens.filter((s) => s.tab === t.id) })),
+       { title: "탭 밖 (시작·온보딩)", items: DATA.screens.filter((s) => !tabs.some((t) => t.id === s.tab)) }]
+    : [{ title: "", items: DATA.screens }];
   const el = document.getElementById("screens");
-  el.innerHTML = DATA.screens.map((s) => {
-    const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
-    const cover = arts.find((a) => a.status === "chosen") || arts[0];
-    return `<button class="card" type="button" data-id="${esc(s.id)}">${cover ? `<img src="${imgSrc(cover.path)}" alt="" loading="lazy">` : ""}
-      <h3>${esc(s.title)}</h3><span class="muted" style="font-size:.85rem">${esc(s.summary || "")}</span>
-      <span class="meta"><span>산출물 ${arts.length}</span></span></button>`;
-  }).join("");
-  el.querySelectorAll("button.card").forEach((b) => b.addEventListener("click", () => {
-    const s = DATA.screens.find((x) => x.id === b.dataset.id);
-    const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
-    openSheet(`<header>${s.provisional ? `<span class="pill todo">임시 화면</span>` : ""}<button class="close" type="button">닫기</button></header>
-      <h2 id="sheet-title">${esc(s.title)}</h2><p style="margin:0">${esc(s.summary || "")}</p>
-      <div><h3>시안·스크린샷</h3>${thumbs(arts)}</div>
-      <p class="muted" style="font-size:.85rem">문장 슬롯·컴포넌트·엔진 데이터는 IA(D39)가 나오면 이 화면에 연결됩니다.</p>`);
-  }));
+  el.className = "";
+  el.innerHTML = groups.filter((g) => g.items.length).map((g) => `${g.title ? `<h3 class="label" style="margin:18px 0 8px">${esc(g.title)} · ${g.items.length}</h3>` : ""}<div class="cards">${g.items.map(screenCard).join("")}</div>`).join("");
+  el.querySelectorAll("button.card").forEach((b) => b.addEventListener("click", () => openScreen(b.dataset.id)));
 }
 
 function renderIdentity() {

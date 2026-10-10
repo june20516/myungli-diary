@@ -18,7 +18,7 @@
 | 모든 결정 로그(D·C·S·A·W·V) | 결정 |
 | 모든 `artifacts/index.json`과 이미지 | 산출물, 역·화면 상세 |
 | `docs/identity/README.md` | 정체성, 머리글 컨셉 문장 |
-| `docs/ia/screens.json` (IA, 없으면 MVP 임시 화면 목록) | 화면 |
+| `docs/ia/screens.json` (IA, 없으면 MVP 임시 화면 목록) | 화면(탭별 묶음, 슬롯·컴포넌트·상태·경로 상세) |
 | `gh issue list` (실패하면 빈 목록) | 열린 Issue, 역 상세 |
 
 ## 갱신 (지휘 세션 정기 일과)
