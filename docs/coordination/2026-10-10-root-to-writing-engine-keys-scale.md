@@ -7,6 +7,8 @@ created: 2026-10-10
 related: [core/message_keys.json, D27, D40, D42, W0, W1]
 ---
 
+> 이관됨: GitHub Issue #8. 이후 진행은 Issue에서 합니다.
+
 # 엔진 메시지 키 규모와 W0에 반영할 항목
 
 ## 무엇이 필요한가
