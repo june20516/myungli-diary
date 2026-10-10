@@ -1,0 +1,6 @@
+# judge 필드가 빠진 규칙입니다.
+
+- id: slop.X1
+  name: 판정 방식이 없는 규칙
+  severity: warn
+  rubric: 아무 기준

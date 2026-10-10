@@ -1,0 +1,36 @@
+# 콘텐츠 슬롯: 명식(chart)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   core/src/myungri_engine/composers/chart.py
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드 R1~R7 결과(W6~W13)로 채웠습니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+# params는 매개변수 -> 값 종류 맵입니다. 값 종류는 `_schema.yaml`의 keys 설명을 봅니다. `name`은 적지 않습니다.
+
+- id: chart.yongsin_method
+  where: 명식 화면 용신 산출 방법 설명
+  purpose: info
+  user_state: 나의 사주 화면에서 내 용신이 어떻게 정해졌는지 궁금해 엽니다.
+  structure: 한두 문장. 판정 방식을 쉬운 말로 말하고, 용신·희신을 토큰으로 둘 수 있습니다. 원전 근거는 근거(evidence) 단계로 미룹니다.
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {yongsin: [element, color], huisin: [element, color], gisin: [element, color], tonggwan: [element, color]}
+      keys:
+        - yongsin.method.eokbu
+        - yongsin.method.johu
+        - yongsin.method.johu_neutral
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: yongsin.method.johu, text: "태어난 계절의 온도를 맞추는 오행으로 [[용신]]을 정했어요.", why: "판정 방식을 일상어로", source: writing}
+      - {lang: ko, key: yongsin.method.eokbu, text: "넘치는 기운은 덜고 모자란 기운을 채우는 쪽으로 [[용신]]을 골랐어요.", why: "억부를 쉬운 말로", source: writing}
+    bad:
+      - {lang: ko, text: "조후(계절의 온도 조절)를 기준으로 용신을 산출합니다.", why: "괄호 풀이 style.S1, 합니다체 style.S3, 기술 어휘 slop.P9", source: writing}
+  depth:
+    explain: 판정 방식의 뜻
+    evidence: 조후표·억부 점수와 원전
+  endings: ["~정했어요", "~골랐어요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.

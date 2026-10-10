@@ -40,22 +40,32 @@
 | 검사기 | **제공** | server 시드 CI, app CI |
 | 호칭·조사 처리 규칙 | **제공** (W0에서 형식을 정해 계약 등록을 요청) | server |
 | 글자 수 상한 | **주고받음** (요청함) | design |
-| `core/message_keys.json` | **사용** (W1, core C2 이후) | core |
+| `core/message_keys.json` | **사용** (W1) | core — C2 완료로 사용 가능 |
 
-## 현재 상태 (2026-10-10, 지휘 세션 작성)
-* **설계 시작 전**입니다.
-* IA(D39)는 지휘 세션이 아직 만들지 않았습니다. 그래서 W0은 슬롯 명세 틀, slop 패턴, 검수 절차, 검사기부터 시작합니다.
+## 현재 상태 (2026-10-11, writing 세션 작성)
+* **W0이 끝났습니다.** 브랜치는 `writing/system-foundation`이고 main에는 아직 병합하지 않았습니다.
+* 산출물 위치
+  * 가이드: `guide/` (보이스·톤, 검수 절차, 호칭·조사)
+  * 규칙: `rules/` (slop, limits, style, josa)
+  * 슬롯 명세: `slots/_schema.yaml`, `slots/content/`(콘텐츠 슬롯 15개), `slots/ui/depth.yaml`
+  * 검사기: `tools/` (`mlw`), 예시 원고: `content/ko/example.yaml`
+  * 생성 문서: `generated/`, 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `decisions.md`
+* 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | ...>`.
+  * 원고 검사: `mlw check docs/identity/writing/content` (미완성 원고는 `--partial`)
+  * 생성 문서 최신 여부: `mlw gen-docs --check`
+* 결정은 W1~W15입니다(`decisions.md`). 라운드 R1~R7 결과가 반영되어 있습니다.
+* 보낸 요청(W0 완료 보고: `docs/coordination/2026-10-11-writing-to-root-w0-done.md`)
+  * 지휘: D40 범위 확인, 계약 3개 등록과 메시지 키별 매개변수 목록
+  * design: 글자 수 상한 초안
+  * server: 호칭·조사 규칙과 시드 변환 안내
 
 ## 다음 할 일
-1. 읽을 것:
-   - [`../README.md`](../README.md)와 [브랜드 기반 spec](../../specs/2026-10-10-brand-foundation-design.md)
-   - `docs/decisions.md`의 D13, D19~D24, D27, D28, D36~D40
-   - `docs/background/` 00·03 (원문의 예시 문구는 slop 사례로 읽습니다)
-2. worktree와 브랜치를 만들고 그 안으로 옮겨 세션을 시작합니다. 원래 checkout은 다른 세션이 다른 브랜치로 쓰고 있을 수 있고, 그 브랜치에는 `docs/identity/`가 없을 수 있습니다. 그래서 원래 checkout의 이 디렉터리로 들어가지 않고, 아래 명령을 저장소 루트에서 그대로 실행합니다.
-   ```
-   git fetch origin
-   git worktree add ../myungli-diary-writing -b writing/system-foundation --no-track origin/main
-   cd ../myungli-diary-writing/docs/identity/writing && claude
-   ```
-3. brainstorming으로 W0 spec을 작성합니다 → `docs/identity/writing/specs/`
-4. 친숙도 검수 라운드는 사용자와 n지선다로 진행합니다.
+1. **열린 요청의 응답을 기다립니다.**
+   - 지휘: D40 범위 확인(`2026-10-10-writing-to-root-d40-scope`), 계약 등록(`2026-10-11-writing-to-root-contracts`)
+   - design: 글자 수 상한(`2026-10-11-writing-to-design-length`). 값이 오면 `slots/*.yaml`의 `max_length`에 반영합니다.
+   - server: 조사 렌더러와 시드 CI(`2026-10-11-writing-to-server-josa`)
+2. **IA(D39)가 나오면** `slots/ui/` 목록을 만듭니다. 지금은 깊이 이름(`ui/depth.yaml`)만 있습니다.
+3. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
+4. **W1:** 콘텐츠 3개 언어 원고를 쓰고 원어민 검수를 받습니다. 사용자용 태그라인·스토어 문구도 W1입니다.
+   - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
+5. 작업 전에 `git log`와 `decisions.md`를 읽고, 이 브랜치가 main에 병합됐는지 확인합니다.

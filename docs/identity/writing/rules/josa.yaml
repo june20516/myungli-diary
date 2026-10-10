@@ -1,0 +1,153 @@
+# 조사 쌍, 읽는 소리, 호칭 입력 검증 규칙. server(Go) 렌더러와 맺는 계약입니다.
+# examples는 server 테스트 자료로도 그대로 씁니다.
+
+# 원고 표기 6쌍. 앞 값의 마지막 글자 받침으로 고릅니다.
+# rieul을 적으면 ㄹ 받침일 때 그 값을, 적지 않으면 with_batchim을 씁니다.
+# fallback은 받침을 판정할 수 없을 때 쓰는 병기형입니다.
+# (으)로와 (이)에요는 병기형이 어색해 표기를 그대로 둡니다.
+pairs:
+  - marker: "(이)가"
+    with_batchim: "이"
+    without_batchim: "가"
+    fallback: "이(가)"
+  - marker: "(은)는"
+    with_batchim: "은"
+    without_batchim: "는"
+    fallback: "은(는)"
+  - marker: "(을)를"
+    with_batchim: "을"
+    without_batchim: "를"
+    fallback: "을(를)"
+  - marker: "(과)와"
+    with_batchim: "과"
+    without_batchim: "와"
+    fallback: "과(와)"
+  - marker: "(으)로"
+    with_batchim: "으로"
+    without_batchim: "로"
+    rieul: "로"
+    fallback: "(으)로"
+  - marker: "(이)에요"
+    with_batchim: "이에요"
+    without_batchim: "예요"
+    fallback: "(이)에요"
+
+# 숫자·영문·한자로 끝나는 값을 읽는 소리(한글)로 바꾸는 표입니다.
+# 한계: 여러 글자 영문 값은 마지막 글자의 알파벳 이름으로만 판정합니다.
+# 예를 들어 Bob은 B의 "비"로 읽어 받침 없음이 되지만 실제 읽기 "밥"은 받침이 있습니다.
+# 값 이름 사전(glossary)이 한글 이름을 주므로 실제 문장에서는 드뭅니다.
+readings:
+  digits:
+    "0": 영
+    "1": 일
+    "2": 이
+    "3": 삼
+    "4": 사
+    "5": 오
+    "6": 육
+    "7": 칠
+    "8": 팔
+    "9": 구
+  # 끝에서 연속한 0의 개수별 읽기. 개수가 가장 큰 키보다 많으면 가장 큰 키를 씁니다.
+  trailing_zeros:
+    1: 십
+    2: 백
+    3: 천
+    4: 만
+  latin:
+    A: 에이
+    B: 비
+    C: 씨
+    D: 디
+    E: 이
+    F: 에프
+    G: 지
+    H: 에이치
+    I: 아이
+    J: 제이
+    K: 케이
+    L: 엘
+    M: 엠
+    N: 엔
+    O: 오
+    P: 피
+    Q: 큐
+    R: 알
+    S: 에스
+    T: 티
+    U: 유
+    V: 브이
+    W: 더블유
+    X: 엑스
+    Y: 와이
+    Z: 제트
+  # 천간 10자, 지지 12자
+  hanja:
+    甲: 갑
+    乙: 을
+    丙: 병
+    丁: 정
+    戊: 무
+    己: 기
+    庚: 경
+    辛: 신
+    壬: 임
+    癸: 계
+    子: 자
+    丑: 축
+    寅: 인
+    卯: 묘
+    辰: 진
+    巳: 사
+    午: 오
+    未: 미
+    申: 신
+    酉: 유
+    戌: 술
+    亥: 해
+
+name_rules:
+  max_length:
+    ko: 10
+    ja: 10
+    en: 20
+  # 끝에서 반복해서 떼고 저장합니다.
+  strip_suffix:
+    ko: ["님"]
+  # 떼지 않고 경고만 합니다.
+  warn_suffix:
+    ja: ["さん", "様", "ちゃん"]
+  # 원고 표기(자리표시자 `{}`, 용어 토큰 `[[ ]]`, 조사 표기 `( )`)와 섞이지 않게 받지 않는 글자입니다.
+  forbidden_chars: ["{", "}", "[", "]", "(", ")"]
+  # 호칭 입력 → 저장값과 알림·거부 코드. 기준 구현은 normalize_name입니다. value가 null이면 거부입니다.
+  examples:
+    - {lang: ko, input: " 민지님 ", value: "민지", codes: [name.suffix_stripped]}
+    - {lang: ko, input: "민지(이)가", value: null, codes: [name.invalid_char]}
+    - {lang: en, input: "a]]", value: null, codes: [name.invalid_char]}
+    - {lang: ko, input: "{name}", value: null, codes: [name.invalid_char]}
+    - {lang: ja, input: "ゆきさん", value: "ゆきさん", codes: [name.suffix_warning]}
+    - {lang: en, input: "Sam", value: "Sam", codes: []}
+
+examples:
+  - {text: "남색(이)가", expected: "남색이"}
+  - {text: "파랑(이)가", expected: "파랑이"}
+  - {text: "하늘(으)로", expected: "하늘로"}
+  - {text: "동쪽(으)로", expected: "동쪽으로"}
+  - {text: "서(으)로", expected: "서로"}
+  - {text: "1(이)에요", expected: "1이에요"}
+  - {text: "2(이)에요", expected: "2예요"}
+  - {text: "10(은)는", expected: "10은"}
+  - {text: "L(으)로", expected: "L로"}
+  - {text: "A(과)와", expected: "A와"}
+  - {text: "甲(을)를", expected: "甲을"}
+  - {text: "丑(이)가", expected: "丑이"}
+  - {text: "★(이)가", expected: "★이(가)"}
+  - {text: "보라(이)가", expected: "보라가"}
+  - {text: "0(이)가", expected: "0이"}
+  - {text: "100(은)는", expected: "100은"}
+  - {text: "1000(을)를", expected: "1000을"}
+  - {text: "1,000(을)를", expected: "1,000을"}
+  - {text: "10000(이)에요", expected: "10000이에요"}
+  - {text: "100000(과)와", expected: "100000과"}
+  - {text: "★(으)로", expected: "★(으)로"}
+  - {text: "★(이)에요", expected: "★(이)에요"}

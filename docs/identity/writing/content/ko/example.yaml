@@ -1,0 +1,5 @@
+# 라운드 전 임시 원고입니다. 검사기가 동작하는지 보이려고 둔 예시이며, 라운드에서 확정한 문장으로 바꿉니다.
+- {slot: daily.color, key: color.gisin_day, text: "{element:color}(이)가 오늘 잘 맞아요."}
+- {slot: daily.color, key: color.gwiin_day, text: "{element:color}(이)가 오늘 잘 맞아요."}
+- {slot: daily.color, key: color.ordinary_day, text: "{element:color}(이)가 오늘 잘 맞아요."}
+- {slot: daily.color, key: color.yongsin_day, text: "{element:color}(이)가 오늘 잘 맞아요."}

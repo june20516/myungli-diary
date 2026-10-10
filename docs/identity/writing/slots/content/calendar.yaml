@@ -1,0 +1,105 @@
+# 콘텐츠 슬롯: 달력(calendar)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   core/src/myungri_engine/composers/month.py, rules/calendar_luck.py
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드 R1~R7 결과(W6~W13)로 채웠습니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+# params는 매개변수 -> 값 종류 맵입니다. 값 종류는 `_schema.yaml`의 keys 설명을 봅니다. `name`은 적지 않습니다.
+
+- id: calendar.day_level
+  where: 월간 달력 날짜 운 등급
+  purpose: info
+  user_state: 한 달 달력을 훑으며 날짜마다 붙은 등급을 봅니다.
+  structure: 짧은 명사구나 한 문장. 좋음·보통·조심 정도를 담백하게 말합니다. 강조는 점 색(design)이 맡습니다.
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {score: number}
+      keys:
+        - calendar.caution
+        - calendar.good
+        - calendar.neutral
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calendar.good, text: "잘 풀리는 날", why: "담백한 명사구", source: writing}
+      - {lang: ko, key: calendar.caution, text: "조심할 날", why: "겁주지 않는 명사구", source: writing}
+    bad:
+      - {lang: ko, key: calendar.good, text: "대길일!", why: "들뜬 강조 slop.P8", source: writing}
+  endings: []
+  a11y:
+    truncation: 칩이나 표 칸 안에서 잘리지 않게 짧게 씁니다.
+    screen_reader: 이름 그대로 읽습니다.
+
+- id: calendar.score_item
+  where: 월간 달력 점수 구성 (MonthDay.score_items[].id)
+  purpose: info
+  user_state: 달력 날짜를 탭해 왜 그 등급인지 볼 때 점수 구성을 봅니다.
+  structure: 명사구 하나. 점수 구성 이름 그대로 씁니다. 합·충·형은 용어 토큰 범주입니다.
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - gwiin_day
+    - yongsin_day
+    - gisin_day
+    - hap
+    - chung_day_or_month
+    - chung_other
+    - hyeong
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: hap, text: "합", why: "이름 그대로", source: writing}
+      - {lang: ko, key: chung_day_or_month, text: "일지나 월지와의 충", why: "어느 자리와 부딪히는지 구체적", source: writing}
+    bad:
+      - {lang: ko, key: chung_other, text: "충(부딪힘)", why: "괄호 풀이 style.S1", source: writing}
+  depth:
+    explain: 이 칩은 풀이 단계에서 보입니다.
+  endings: []
+  a11y:
+    truncation: 칩이나 표 칸 안에서 잘리지 않게 짧게 씁니다.
+    screen_reader: 이름 그대로 읽습니다.
+
+- id: calendar.solar_term
+  where: 월간 달력 절기 이름 (SolarTermKind)
+  purpose: info
+  user_state: 달력에서 절기가 든 날을 알아봅니다.
+  structure: 절기 이름 하나. 한국어는 한글 이름(입춘, 경칩)을 씁니다.
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sohan
+    - daehan
+    - ipchun
+    - usu
+    - gyeongchip
+    - chunbun
+    - cheongmyeong
+    - gogu
+    - ipha
+    - soman
+    - mangjong
+    - haji
+    - soseo
+    - daeseo
+    - ipchu
+    - cheoseo
+    - baengno
+    - chubun
+    - hallo
+    - sanggang
+    - ipdong
+    - soseol
+    - daeseol
+    - dongji
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: ipchun, text: "입춘", why: "이름 그대로", source: writing}
+    bad:
+      - {lang: ko, key: ipchun, text: "입춘(立春)", why: "괄호 병기 style.S1 취지", source: writing}
+  endings: []
+  a11y:
+    truncation: 칩이나 표 칸 안에서 잘리지 않게 짧게 씁니다.
+    screen_reader: 이름 그대로 읽습니다.

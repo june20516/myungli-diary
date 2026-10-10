@@ -1,0 +1,139 @@
+# slop 패턴 (docs/identity/README.md "slop 패턴"의 8개에서 출발합니다)
+# judge: rule은 detect로 기계가 판정하고, llm은 rubric으로 사람이나 모델이 판정합니다.
+# 원칙 0에 따라 위로·공감 슬롯(care)은 P1에서 예외입니다.
+
+- id: slop.P1
+  name: 목적 없는 자리의 과한 추상화
+  judge: llm
+  severity: warn
+  rubric: 기능·정보 슬롯에서 무엇이, 어디서, 어떻게인지 말하지 않는 문장인가. 실제로 일어나는 결과를 쓰지 않았다면 해당합니다.
+  exempt_purposes: [care]
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "흐름이 보여요."}
+      - {lang: ko, slot_purpose: guide, text: "나를 알게 돼요."}
+    pass:
+      - {lang: ko, slot_purpose: care, text: "마음이 무거웠다면 오늘은 조금 쉬어 가도 괜찮아요."}
+
+- id: slop.P2
+  name: 정의형 소개
+  judge: rule
+  severity: warn
+  detect:
+    kind: regex
+    pattern: '^\S+(은|는) .+(한|인) \S+(입니다|이에요|예요)[.]?$'
+    langs: [ko]
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "명리일기는 하루를 위한 앱입니다."}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "오늘의 일진을 보고 하루를 기록해요."}
+
+- id: slop.P3
+  name: 사물 주어 의인화
+  judge: llm
+  severity: warn
+  rubric: 사주를 아는 일기장처럼 사물이 알고 느끼게 하는 영어식 관계절인가. 사물을 주어로 세워 사람의 행위를 시키면 해당합니다.
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "사주를 아는 일기장"}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "사주를 바탕으로 쓰는 일기장"}
+
+- id: slop.P4a
+  name: 기획 용어 노출
+  judge: rule
+  severity: error
+  detect:
+    kind: lexicon
+    words: ["사용자", "콘텐츠", "유저"]
+    langs: [ko]
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "사용자가 입력한 날짜를 확인해요."}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "입력하신 날짜를 확인해요."}
+
+- id: slop.P4b
+  name: 시점 혼재
+  judge: llm
+  severity: warn
+  rubric: 한 문장에서 "내"와 "사용자"처럼 화자와 호칭의 시점이 섞이는가.
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "내 사주를 사용자에게 보여줘요."}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "내 사주를 보여줘요."}
+
+- id: slop.P5
+  name: 번역 슬로건
+  judge: rule
+  severity: warn
+  detect:
+    kind: lexicon
+    words: ["주인공은", "언제나 당신", "당신만을 위한"]
+    langs: [ko]
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "인생의 주인공은 언제나 당신"}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "오늘 하루를 기록해요."}
+
+- id: slop.P6
+  name: 자기 성격 형용
+  judge: llm
+  severity: warn
+  rubric: 차분하게 알려드려요처럼 톤 규칙을 문장에 꺼내 놓았는가. 성격은 문장으로 드러내야 합니다.
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "차분하게 알려드려요."}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "오늘의 일진을 알려드려요."}
+
+- id: slop.P7
+  name: 내용 없는 균형 병렬
+  judge: rule
+  severity: warn
+  detect:
+    kind: regex
+    pattern: '\S+도 \S+도 아닌'
+    langs: [ko]
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "운명도 우연도 아닌 나의 하루"}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "오늘 하루의 기록"}
+
+- id: slop.P8
+  name: 들뜬 강조
+  judge: rule
+  severity: error
+  detect:
+    kind: regex
+    pattern: '[!！]|\p{Extended_Pictographic}'
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "오늘은 좋은 날이에요!"}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "오늘은 좋은 날이에요."}
+
+- id: slop.P9
+  name: 문어투·기술 어휘
+  judge: llm
+  severity: warn
+  rubric: 말로는 잘 쓰지 않는 문어투 동사("스며드는", "익히기")나 한자어 기술 용어("학습 효율")를 썼는가. 일상에서 말로 쓰는 쉬운 동사·명사(배우기, 잘 맞아요)로 바꿀 수 있으면 해당합니다. 명리 용어 토큰은 대상이 아닙니다.
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "학습 효율이 높은 날이에요."}
+      - {lang: ko, slot_purpose: info, text: "배운 것이 잘 스며드는 날이에요."}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "무언가를 배우기 좋은 날이에요."}

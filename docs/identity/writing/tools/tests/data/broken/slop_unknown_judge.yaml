@@ -1,0 +1,7 @@
+# judge 값이 허용 범위 밖인 규칙입니다.
+
+- id: slop.X1
+  name: 알 수 없는 판정 방식
+  judge: maybe
+  severity: warn
+  rubric: 아무 기준
