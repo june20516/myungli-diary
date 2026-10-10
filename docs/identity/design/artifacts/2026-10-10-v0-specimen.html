@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>명리일기 시각 정체성 견본</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@400&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css" rel="stylesheet">
+<style>
+  /* ===== 값: tools/palette.py 결과와 같아야 합니다 (tools/test_specimen.py가 검사) ===== */
+  :root {
+    --sage-50: #f2f9f3; --sage-100: #e8f2e9; --sage-200: #d4e3d6; --sage-300: #b8cebc; --sage-400: #96b49b;
+    --sage-500: #749a7b; --sage-600: #597f61; --sage-700: #47634c; --sage-800: #354838; --sage-900: #242f26;
+    --coral-50: #fef4f2; --coral-100: #ffe9e5; --coral-200: #f6d5d1; --coral-300: #e8bbb4; --coral-400: #d79990;
+    --coral-500: #c4776d; --coral-600: #a75c53; --coral-700: #814942; --coral-800: #5d3631; --coral-900: #3b2522;
+    --neutral-50: #f7f7f6; --neutral-100: #eeeeed; --neutral-200: #dededc; --neutral-300: #c7c7c5; --neutral-400: #ababa7;
+    --neutral-500: #8f908b; --neutral-600: #747570; --neutral-700: #5b5b57; --neutral-800: #424340; --neutral-900: #2b2b2a;
+    --neutral-950: #1b1b1a;
+
+    --ohaeng-wood-swatch: #418e47; --ohaeng-wood-tint: #dff1df; --ohaeng-wood-ink: #2f5831; --ohaeng-wood-tint_dark: #213321; --ohaeng-wood-ink_dark: #c4e1c4;
+    --ohaeng-fire-swatch: #d24d45; --ohaeng-fire-tint: #ffe4e0; --ohaeng-fire-ink: #733a35; --ohaeng-fire-tint_dark: #402623; --ohaeng-fire-ink_dark: #f7ccc6;
+    --ohaeng-earth-swatch: #dea645; --ohaeng-earth-tint: #f7e9d5; --ohaeng-earth-ink: #65470f; --ohaeng-earth-tint_dark: #392b16; --ohaeng-earth-ink_dark: #ead4b3;
+    --ohaeng-metal-swatch: #b4bfca; --ohaeng-metal-tint: #e8ebef; --ohaeng-metal-ink: #454e58; --ohaeng-metal-tint_dark: #2a2e33; --ohaeng-metal-ink_dark: #d3d8de;
+    --ohaeng-water-swatch: #153e78; --ohaeng-water-tint: #e0ecfe; --ohaeng-water-ink: #304d78; --ohaeng-water-tint_dark: #212e42; --ohaeng-water-ink_dark: #c4d9f9;
+
+    --white: #ffffff;
+    --gradient-light-0: #eef4ef; --gradient-light-1: #fbefee;
+    --gradient-dark-0: #162017; --gradient-dark-1: #271818;
+
+    /* 의미 역할 (spec §3.2) */
+    --role-light-bg-base: var(--neutral-50); --role-dark-bg-base: var(--neutral-950);
+    --role-light-bg-sheet: var(--white); --role-dark-bg-sheet: var(--neutral-900);
+    --role-light-text-primary: var(--neutral-900); --role-dark-text-primary: var(--neutral-100);
+    --role-light-text-secondary: var(--neutral-700); --role-dark-text-secondary: var(--neutral-400);
+    --role-light-line: var(--neutral-200); --role-dark-line: var(--neutral-800);
+    --role-light-action-primary: var(--sage-700); --role-dark-action-primary: var(--sage-300);
+    --role-light-action-on-primary: var(--white); --role-dark-action-on-primary: var(--neutral-950);
+    --role-light-term-bg: var(--sage-100); --role-dark-term-bg: var(--sage-800);
+    --role-light-term-fg: var(--sage-700); --role-dark-term-fg: var(--sage-200);
+    --role-light-badge-good-bg: var(--coral-600); --role-dark-badge-good-bg: var(--coral-300);
+    --role-light-badge-good-fg: var(--white); --role-dark-badge-good-fg: var(--neutral-900);
+    --role-light-gradient-today: linear-gradient(160deg, var(--gradient-light-0), var(--gradient-light-1));
+    --role-dark-gradient-today: linear-gradient(160deg, var(--gradient-dark-0), var(--gradient-dark-1));
+
+    --font-body: 'Gowun Dodum', sans-serif;
+    --font-body-ja: 'Zen Maru Gothic', sans-serif;
+    --font-ui: 'Pretendard', sans-serif;
+    --font-ui-ja: 'Pretendard JP', sans-serif;
+  }
+
+  /* 페이지 바탕은 보는 사람의 모드를 따릅니다. 견본 패널은 .mode-light / .mode-dark로 고정합니다. */
+  :root, .mode-light {
+    --bg-base: var(--role-light-bg-base); --bg-sheet: var(--role-light-bg-sheet);
+    --text-primary: var(--role-light-text-primary); --text-secondary: var(--role-light-text-secondary);
+    --line: var(--role-light-line);
+    --action-primary: var(--role-light-action-primary); --action-on-primary: var(--role-light-action-on-primary);
+    --term-bg: var(--role-light-term-bg); --term-fg: var(--role-light-term-fg);
+    --badge-good-bg: var(--role-light-badge-good-bg); --badge-good-fg: var(--role-light-badge-good-fg);
+    --gradient-today: var(--role-light-gradient-today);
+    --chip-bg: rgba(255, 255, 255, .7);
+    --swatch-ring: rgba(43, 43, 42, .18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-base: var(--role-dark-bg-base); --bg-sheet: var(--role-dark-bg-sheet);
+      --text-primary: var(--role-dark-text-primary); --text-secondary: var(--role-dark-text-secondary);
+      --line: var(--role-dark-line);
+      --action-primary: var(--role-dark-action-primary); --action-on-primary: var(--role-dark-action-on-primary);
+      --term-bg: var(--role-dark-term-bg); --term-fg: var(--role-dark-term-fg);
+      --badge-good-bg: var(--role-dark-badge-good-bg); --badge-good-fg: var(--role-dark-badge-good-fg);
+      --gradient-today: var(--role-dark-gradient-today);
+      --chip-bg: rgba(255, 255, 255, .08);
+      --swatch-ring: rgba(238, 238, 237, .3);
+    }
+  }
+  .mode-dark {
+    --bg-base: var(--role-dark-bg-base); --bg-sheet: var(--role-dark-bg-sheet);
+    --text-primary: var(--role-dark-text-primary); --text-secondary: var(--role-dark-text-secondary);
+    --line: var(--role-dark-line);
+    --action-primary: var(--role-dark-action-primary); --action-on-primary: var(--role-dark-action-on-primary);
+    --term-bg: var(--role-dark-term-bg); --term-fg: var(--role-dark-term-fg);
+    --badge-good-bg: var(--role-dark-badge-good-bg); --badge-good-fg: var(--role-dark-badge-good-fg);
+    --gradient-today: var(--role-dark-gradient-today);
+    --chip-bg: rgba(255, 255, 255, .08);
+    --swatch-ring: rgba(238, 238, 237, .3);
+  }
+
+  /* ===== 페이지 ===== */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-base); color: var(--text-primary); font-family: var(--font-ui); }
+  main { max-width: 1040px; margin: 0 auto; padding: 40px 16px 80px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; }
+  h2 { font-size: 16px; font-weight: 600; margin: 48px 0 6px; }
+  .lead, .note { color: var(--text-secondary); font-size: 13px; line-height: 1.6; margin: 0 0 16px; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .panel { background: var(--bg-base); color: var(--text-primary); border: 1px solid var(--line); border-radius: 20px; padding: 18px; }
+  .panel-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin: 0 0 12px; }
+
+  /* 원시 팔레트 */
+  .scale-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin: 12px 0 4px; }
+  .scale { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: 10px; overflow: hidden; }
+  .scale div { height: 52px; font-size: 10px; font-weight: 500; display: flex; flex-direction: column; justify-content: flex-end; padding: 4px; line-height: 1.3; }
+
+  /* 역할 표 */
+  .roles { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .roles td { padding: 8px 4px; border-top: 1px solid var(--line); vertical-align: middle; }
+  .sample { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+  .ratio { color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+  /* 오행 */
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .swatch { text-align: center; font-size: 11px; font-weight: 500; }
+  .swatch i { display: block; height: 40px; border-radius: 10px; margin-bottom: 4px; box-shadow: inset 0 0 0 1px var(--swatch-ring); }
+  .pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+  .cell { border-radius: 8px; text-align: center; padding: 8px 0; font-family: var(--font-ui-ja); font-weight: 700; font-size: 17px; line-height: 1; }
+  .cell small { display: block; font-family: var(--font-ui); font-weight: 500; font-size: 10px; margin-top: 4px; }
+
+  /* 그라데이션 */
+  .gradient { height: 140px; border-radius: 20px; background: var(--gradient-today); color: var(--text-primary); padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .gradient b { font-family: var(--font-body); font-weight: 400; font-size: 17px; }
+  .gradient span { font-size: 12px; color: var(--text-secondary); }
+
+  /* 타이포 */
+  .type td { padding: 10px 4px; border-top: 1px solid var(--line); vertical-align: top; }
+  .type .spec { color: var(--text-secondary); font-size: 11px; white-space: nowrap; width: 140px; }
+  .t-card { font-family: var(--font-body); font-size: 17px; line-height: 1.65; }
+  .t-body { font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+  .t-title { font-size: 20px; line-height: 1.3; font-weight: 600; }
+  .t-subtitle { font-size: 16px; line-height: 1.4; font-weight: 600; }
+  .t-label { font-size: 13px; line-height: 1.3; font-weight: 500; }
+  .t-caption { font-size: 11px; line-height: 1.3; font-weight: 500; }
+  [lang="ja"] .t-card, [lang="ja"].t-card, [lang="ja"] .t-body, [lang="ja"].t-body { font-family: var(--font-body-ja); }
+  [lang="ja"].t-title, [lang="ja"].t-subtitle, [lang="ja"].t-label, [lang="ja"].t-caption { font-family: var(--font-ui-ja); }
+
+  /* 데일리 카드 L1 */
+  .phone { width: 300px; height: 380px; margin: 0 auto; border-radius: 28px; padding: 24px 22px; background: var(--gradient-today); color: var(--text-primary); display: flex; flex-direction: column; }
+  .date { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+  .badge { align-self: flex-start; margin: 14px 0 12px; padding: 4px 10px; border-radius: 999px; background: var(--badge-good-bg); color: var(--badge-good-fg); font-size: 12px; font-weight: 600; }
+  .message { font-family: var(--font-body); font-size: 17px; line-height: 1.65; margin: 0; }
+  .term { background: var(--term-bg); color: var(--term-fg); border-radius: 4px; padding: 0 4px; }
+  .chips { margin-top: auto; display: flex; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; background: var(--chip-bg); font-size: 12px; font-weight: 500; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 1px var(--swatch-ring); }
+
+  /* 로고 */
+  .icons { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; }
+  .icons figure { margin: 0; text-align: center; font-size: 10px; color: var(--text-secondary); }
+  .icons img { display: block; margin-bottom: 4px; }
+  .masks { display: flex; gap: 16px; flex-wrap: wrap; }
+  .mask { position: relative; width: 96px; height: 96px; overflow: hidden; }
+  .mask img { position: absolute; inset: -6.67%; width: 113.3%; height: 113.3%; }
+  .logo-row { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>명리일기 시각 정체성 V0 견본</h1>
+    <picture>
+      <source srcset="../logo/lockup-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="../logo/lockup.svg" alt="명리일기" height="48">
+    </picture>
+  </header>
+  <p class="lead">기준: <code>visual-identity.md</code> · 근거: <code>specs/2026-10-10-visual-identity-design.md</code> · 값의 출처: <code>tools/palette.py</code>. 이 페이지는 보는 사람의 라이트·다크 설정을 따르고, 비교 패널은 양쪽 모드를 함께 보여줍니다.</p>
+
+  <h2>원시 팔레트</h2>
+  <p class="note">OKLCH 고정 명도 단계. 화면은 이 값을 직접 쓰지 않고 아래 의미 역할만 씁니다.</p>
+  <div id="scales"></div>
+
+  <h2>의미 역할과 대비</h2>
+  <p class="note">글자 조합은 모두 4.5:1 이상입니다(<code>palette.py --check</code> 32/32).</p>
+  <div class="pair">
+    <div class="panel mode-light">
+      <p class="panel-title">라이트</p>
+      <table class="roles">
+        <tr><td>본문 글자 / 기본 바탕</td><td><span class="sample" style="background:var(--bg-base);color:var(--text-primary)">가나다 Aa</span></td><td class="ratio">13.22</td></tr>
+        <tr><td>보조 글자 / 시트</td><td><span class="sample" style="background:var(--bg-sheet);color:var(--text-secondary)">가나다 Aa</span></td><td class="ratio">6.82</td></tr>
+        <tr><td>주 버튼</td><td><span class="sample" style="background:var(--action-primary);color:var(--action-on-primary)">저장하기</span></td><td class="ratio">6.65</td></tr>
+        <tr><td>용어 토큰</td><td><span class="sample" style="background:var(--term-bg);color:var(--term-fg)">수 기운</span></td><td class="ratio">5.80</td></tr>
+        <tr><td>좋은 날 배지</td><td><span class="sample" style="background:var(--badge-good-bg);color:var(--badge-good-fg)">좋은 날</span></td><td class="ratio">4.89</td></tr>
+      </table>
+    </div>
+    <div class="panel mode-dark">
+      <p class="panel-title">다크</p>
+      <table class="roles">
+        <tr><td>본문 글자 / 기본 바탕</td><td><span class="sample" style="background:var(--bg-base);color:var(--text-primary)">가나다 Aa</span></td><td class="ratio">14.85</td></tr>
+        <tr><td>보조 글자 / 시트</td><td><span class="sample" style="background:var(--bg-sheet);color:var(--text-secondary)">가나다 Aa</span></td><td class="ratio">6.15</td></tr>
+        <tr><td>주 버튼</td><td><span class="sample" style="background:var(--action-primary);color:var(--action-on-primary)">저장하기</span></td><td class="ratio">10.34</td></tr>
+        <tr><td>용어 토큰</td><td><span class="sample" style="background:var(--term-bg);color:var(--term-fg)">수 기운</span></td><td class="ratio">7.38</td></tr>
+        <tr><td>좋은 날 배지</td><td><span class="sample" style="background:var(--badge-good-bg);color:var(--badge-good-fg)">좋은 날</span></td><td class="ratio">8.23</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h2>오행 팔레트 (데이터 전용)</h2>
+  <p class="note">견본은 실제 옷 색을 가리키므로 모드와 관계없이 같은 값이고, 항상 얇은 테두리를 둡니다. 원국표 한자는 Pretendard JP입니다.</p>
+  <div class="pair">
+    <div class="panel mode-light">
+      <p class="panel-title">라이트</p>
+      <div class="swatches">
+        <div class="swatch"><i style="background:var(--ohaeng-wood-swatch)"></i>목</div>
+        <div class="swatch"><i style="background:var(--ohaeng-fire-swatch)"></i>화</div>
+        <div class="swatch"><i style="background:var(--ohaeng-earth-swatch)"></i>토</div>
+        <div class="swatch"><i style="background:var(--ohaeng-metal-swatch)"></i>금</div>
+        <div class="swatch"><i style="background:var(--ohaeng-water-swatch)"></i>수</div>
+      </div>
+      <div class="pillars">
+        <div class="cell" style="background:var(--ohaeng-wood-tint);color:var(--ohaeng-wood-ink)">甲<small>목</small></div>
+        <div class="cell" style="background:var(--ohaeng-fire-tint);color:var(--ohaeng-fire-ink)">丙<small>화</small></div>
+        <div class="cell" style="background:var(--ohaeng-earth-tint);color:var(--ohaeng-earth-ink)">戊<small>토</small></div>
+        <div class="cell" style="background:var(--ohaeng-metal-tint);color:var(--ohaeng-metal-ink)">庚<small>금</small></div>
+        <div class="cell" style="background:var(--ohaeng-water-tint);color:var(--ohaeng-water-ink)">壬<small>수</small></div>
+      </div>
+    </div>
+    <div class="panel mode-dark">
+      <p class="panel-title">다크</p>
+      <div class="swatches">
+        <div class="swatch"><i style="background:var(--ohaeng-wood-swatch)"></i>목</div>
+        <div class="swatch"><i style="background:var(--ohaeng-fire-swatch)"></i>화</div>
+        <div class="swatch"><i style="background:var(--ohaeng-earth-swatch)"></i>토</div>
+        <div class="swatch"><i style="background:var(--ohaeng-metal-swatch)"></i>금</div>
+        <div class="swatch"><i style="background:var(--ohaeng-water-swatch)"></i>수</div>
+      </div>
+      <div class="pillars">
+        <div class="cell" style="background:var(--ohaeng-wood-tint_dark);color:var(--ohaeng-wood-ink_dark)">甲<small>목</small></div>
+        <div class="cell" style="background:var(--ohaeng-fire-tint_dark);color:var(--ohaeng-fire-ink_dark)">丙<small>화</small></div>
+        <div class="cell" style="background:var(--ohaeng-earth-tint_dark);color:var(--ohaeng-earth-ink_dark)">戊<small>토</small></div>
+        <div class="cell" style="background:var(--ohaeng-metal-tint_dark);color:var(--ohaeng-metal-ink_dark)">庚<small>금</small></div>
+        <div class="cell" style="background:var(--ohaeng-water-tint_dark);color:var(--ohaeng-water-ink_dark)">壬<small>수</small></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>그라데이션 <code>gradient.today</code></h2>
+  <p class="note">데일리 카드·온보딩·공유 이미지에만 씁니다. 공유 이미지는 라이트로 고정합니다. 위에는 본문·보조 글자만 올립니다.</p>
+  <div class="pair">
+    <div class="gradient mode-light"><b>오늘을 보여주는 바탕</b><span>라이트 · 160°</span></div>
+    <div class="gradient mode-dark"><b>오늘을 보여주는 바탕</b><span>다크 · 160°</span></div>
+  </div>
+
+  <h2>타이포그래피</h2>
+  <p class="note">문장은 둥근 고딕 400 한 굵기, 숫자·라벨·데이터는 Pretendard. 예문은 견본용이며 실제 문구는 writing이 정합니다.</p>
+  <div class="panel">
+    <table class="type" style="width:100%;border-collapse:collapse">
+      <tr><td class="spec">카드 문장 17 / 1.65 / 400</td><td>
+        <div class="t-card">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요.</div>
+        <div class="t-card">Jiyun, the water energy you need comes in today.</div>
+        <div class="t-card" lang="ja">ジユンさんに必要な水の気が入る日です。</div>
+      </td></tr>
+      <tr><td class="spec">일반 본문 15 / 1.6 / 400</td><td>
+        <div class="t-body">미뤄 둔 연락을 하기 좋아요. 오늘 있었던 일을 짧게 적어 보세요.</div>
+        <div class="t-body" lang="ja">先延ばしにしていた連絡をするのに良い日です。</div>
+      </td></tr>
+      <tr><td class="spec">화면 제목 20 / 1.3 / 600</td><td><div class="t-title">나의 사주</div><div class="t-title" lang="ja">私の四柱</div></td></tr>
+      <tr><td class="spec">소제목 16 / 1.4 / 600</td><td><div class="t-subtitle">오행 분포</div></td></tr>
+      <tr><td class="spec">라벨·칩·배지 12~14 / 1.3 / 500~600</td><td><div class="t-label">행운 색 · 방향 · 숫자 1 · 6</div></td></tr>
+      <tr><td class="spec">캡션·날짜 11~12 / 1.3 / 500</td><td><div class="t-caption">10월 10일 토요일</div></td></tr>
+    </table>
+  </div>
+
+  <h2>데일리 카드 L1</h2>
+  <p class="note">흰 패널 없이 그라데이션 위에 날짜 → 날의 성격 배지 → 문장 → 반투명 칩 한 줄. 행운 값은 예시입니다.</p>
+  <div class="pair">
+    <div class="mode-light"><div class="phone">
+      <div class="date">10월 10일 토요일</div>
+      <span class="badge">좋은 날</span>
+      <p class="message">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+      <div class="chips"><span class="chip"><span class="dot" style="background:var(--ohaeng-water-swatch)"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+    </div></div>
+    <div class="mode-dark"><div class="phone">
+      <div class="date">10월 10일 토요일</div>
+      <span class="badge">좋은 날</span>
+      <p class="message">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+      <div class="chips"><span class="chip"><span class="dot" style="background:var(--ohaeng-water-swatch)"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+    </div></div>
+  </div>
+
+  <h2>로고</h2>
+  <p class="note">60px 이상은 큰 원형, 48px 이하는 작은 원형. 원본은 풀블리드 정사각이고 아래 둥근 모서리는 플랫폼 마스크를 흉내 낸 것입니다.</p>
+  <div class="pair">
+    <div class="panel mode-light">
+      <p class="panel-title">라이트</p>
+      <div class="icons">
+        <figure><img src="../logo/icon-large.svg" width="180" height="180" style="border-radius:40px" alt="">180</figure>
+        <figure><img src="../logo/icon-large.svg" width="60" height="60" style="border-radius:13px" alt="">60</figure>
+        <figure><img src="../logo/icon-small.svg" width="40" height="40" style="border-radius:9px" alt="">40</figure>
+        <figure><img src="../logo/icon-small.svg" width="29" height="29" style="border-radius:6px" alt="">29</figure>
+        <figure><img src="../logo/icon-small.svg" width="20" height="20" style="border-radius:4px" alt="">20</figure>
+      </div>
+      <div class="logo-row"><img src="../logo/wordmark.svg" height="40" alt="명리일기"><img src="../logo/lockup.svg" height="56" alt="명리일기"></div>
+    </div>
+    <div class="panel mode-dark">
+      <p class="panel-title">다크</p>
+      <div class="icons">
+        <figure><img src="../logo/icon-large.svg" width="180" height="180" style="border-radius:40px" alt="">180</figure>
+        <figure><img src="../logo/icon-large.svg" width="60" height="60" style="border-radius:13px" alt="">60</figure>
+        <figure><img src="../logo/icon-small.svg" width="40" height="40" style="border-radius:9px" alt="">40</figure>
+        <figure><img src="../logo/icon-small.svg" width="29" height="29" style="border-radius:6px" alt="">29</figure>
+        <figure><img src="../logo/icon-small.svg" width="20" height="20" style="border-radius:4px" alt="">20</figure>
+      </div>
+      <div class="logo-row"><img src="../logo/wordmark-dark.svg" height="40" alt="명리일기"><img src="../logo/lockup-dark.svg" height="56" alt="명리일기"></div>
+    </div>
+  </div>
+  <h2>Android 적응형 아이콘</h2>
+  <p class="note">배경·전경 레이어를 원·둥근 사각·사각 마스크에 넣은 모습입니다.</p>
+  <div class="masks">
+    <div class="mask" style="border-radius:50%"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
+    <div class="mask" style="border-radius:22%"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
+    <div class="mask"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
+  </div>
+</main>
+<script>
+  // 원시 팔레트 띠: :root의 CSS 변수에서 값을 읽어 그립니다.
+  const SCALES = {
+    sage: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
+    coral: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
+    neutral: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+  };
+  const rootStyle = getComputedStyle(document.documentElement);
+  const container = document.getElementById('scales');
+  for (const [name, steps] of Object.entries(SCALES)) {
+    const label = document.createElement('div');
+    label.className = 'scale-name';
+    label.textContent = name;
+    const strip = document.createElement('div');
+    strip.className = 'scale';
+    for (const step of steps) {
+      const cell = document.createElement('div');
+      cell.style.background = `var(--${name}-${step})`;
+      cell.style.color = step >= 500 ? 'var(--white)' : 'var(--neutral-900)';
+      cell.innerHTML = `${step}<br>${rootStyle.getPropertyValue(`--${name}-${step}`).trim()}`;
+      strip.appendChild(cell);
+    }
+    container.append(label, strip);
+  }
+</script>
+</body>
+</html>
