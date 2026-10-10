@@ -106,10 +106,45 @@ class StyleRule:
 
 
 @dataclass(frozen=True)
+class JosaPair:
+    marker: str
+    with_batchim: str
+    without_batchim: str
+    # 받침을 판정할 수 없을 때 쓰는 병기형입니다.
+    fallback: str
+    # ㄹ 받침일 때만 다른 값을 쓰는 쌍에 채웁니다.
+    rieul: str | None = None
+
+
+@dataclass(frozen=True)
+class JosaReadings:
+    """숫자·영문·한자를 한글 독음으로 바꾸는 표."""
+
+    digits: dict[str, str]
+    trailing_zeros: dict[int, str]
+    latin: dict[str, str]
+    hanja: dict[str, str]
+
+
+@dataclass(frozen=True)
+class NameRules:
+    max_length: dict[str, int]
+    strip_suffix: dict[str, tuple[str, ...]]
+    warn_suffix: dict[str, tuple[str, ...]]
+
+
+@dataclass(frozen=True)
+class JosaExample:
+    text: str
+    expected: str
+
+
+@dataclass(frozen=True)
 class JosaData:
-    pairs: tuple[object, ...]
-    name_rules: dict[str, object]
-    examples: tuple[object, ...]
+    pairs: tuple[JosaPair, ...]
+    readings: JosaReadings
+    name_rules: NameRules
+    examples: tuple[JosaExample, ...]
 
 
 @dataclass(frozen=True)

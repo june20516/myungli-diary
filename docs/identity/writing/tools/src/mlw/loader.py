@@ -24,9 +24,13 @@ from mlw.model import (
     Examples,
     Finding,
     JosaData,
+    JosaExample,
+    JosaPair,
+    JosaReadings,
     Judge,
     Limit,
     LoadError,
+    NameRules,
     RuleSet,
     Scope,
     Severity,
@@ -322,8 +326,129 @@ def _load_list[T](
     return parsed
 
 
+JOSA_KEYS = {"pairs", "readings", "name_rules", "examples"}
+PAIR_KEYS = {"marker", "with_batchim", "without_batchim", "rieul", "fallback"}
+READINGS_KEYS = {"digits", "trailing_zeros", "latin", "hanja"}
+NAME_RULES_KEYS = {"max_length", "strip_suffix", "warn_suffix"}
+JOSA_EXAMPLE_KEYS = {"text", "expected"}
+
+
+def _required_mapping(item: _Item, key: str) -> dict[str, object]:
+    raw = item.mapping(key)
+    if raw is None:
+        if key not in item.data:
+            item.fail(f"필수 필드 '{key}'가 없습니다")
+        return {}
+    return raw
+
+
+def _string_map(item: _Item, key: str) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for name, value in _required_mapping(item, key).items():
+        if isinstance(value, str):
+            result[str(name)] = value
+        else:
+            item.fail(f"{key}.{name}은(는) 문자열이어야 합니다")
+    return result
+
+
+def _trailing_zeros(item: _Item) -> dict[int, str]:
+    result: dict[int, str] = {}
+    for count, reading in _required_mapping(item, "trailing_zeros").items():
+        if _is_int(count) and isinstance(reading, str):
+            result[cast(int, count)] = reading
+        else:
+            item.fail("trailing_zeros는 '정수: 문자열' 매핑이어야 합니다")
+    return result
+
+
+def _int_by_lang(item: _Item, key: str) -> dict[str, int]:
+    result: dict[str, int] = {}
+    for lang, value in _required_mapping(item, key).items():
+        if lang not in LANGS:
+            item.fail(f"{key}의 언어 '{lang}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}")
+        elif isinstance(value, int) and not isinstance(value, bool):
+            result[lang] = value
+        else:
+            item.fail(f"{key}.{lang}은(는) 정수여야 합니다")
+    return result
+
+
+def _suffixes_by_lang(item: _Item, key: str) -> dict[str, tuple[str, ...]]:
+    result: dict[str, tuple[str, ...]] = {}
+    for lang, value in _required_mapping(item, key).items():
+        if lang not in LANGS:
+            item.fail(f"{key}의 언어 '{lang}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}")
+        elif isinstance(value, list) and all(isinstance(entry, str) for entry in value):
+            result[lang] = tuple(cast(list[str], value))
+        else:
+            item.fail(f"{key}.{lang}은(는) 문자열 리스트여야 합니다")
+    return result
+
+
+def _parse_pair(raw: object, item: _Item) -> JosaPair | None:
+    if not isinstance(raw, dict):
+        item.fail("pairs의 항목은 매핑이어야 합니다")
+        return None
+    sub = _Item(cast(dict[str, object], raw), item.line, item.problems)
+    sub.check_unknown_keys(PAIR_KEYS)
+    marker = sub.text("marker")
+    with_batchim = sub.text("with_batchim")
+    without_batchim = sub.text("without_batchim")
+    fallback = sub.text("fallback")
+    rieul = sub.text("rieul", required=False)
+    if marker is None or with_batchim is None or without_batchim is None or fallback is None:
+        return None
+    return JosaPair(marker, with_batchim, without_batchim, fallback, rieul)
+
+
+def _parse_readings(item: _Item) -> JosaReadings:
+    sub = _Item(_required_mapping(item, "readings"), item.line, item.problems)
+    sub.check_unknown_keys(READINGS_KEYS)
+    return JosaReadings(
+        digits=_string_map(sub, "digits"),
+        trailing_zeros=_trailing_zeros(sub),
+        latin=_string_map(sub, "latin"),
+        hanja=_string_map(sub, "hanja"),
+    )
+
+
+def _parse_name_rules(item: _Item) -> NameRules:
+    sub = _Item(_required_mapping(item, "name_rules"), item.line, item.problems)
+    sub.check_unknown_keys(NAME_RULES_KEYS)
+    return NameRules(
+        max_length=_int_by_lang(sub, "max_length"),
+        strip_suffix=_suffixes_by_lang(sub, "strip_suffix"),
+        warn_suffix=_suffixes_by_lang(sub, "warn_suffix"),
+    )
+
+
+def _parse_josa_examples(item: _Item) -> tuple[JosaExample, ...]:
+    raw = item.data.get("examples")
+    if not isinstance(raw, list):
+        item.fail("'examples'는 리스트여야 합니다")
+        return ()
+    examples: list[JosaExample] = []
+    for entry in raw:
+        if not isinstance(entry, dict):
+            item.fail("examples의 항목은 매핑이어야 합니다")
+            continue
+        sub = _Item(cast(dict[str, object], entry), item.line, item.problems)
+        sub.check_unknown_keys(JOSA_EXAMPLE_KEYS)
+        text = sub.text("text")
+        expected = sub.text("expected")
+        if text is not None and expected is not None:
+            examples.append(JosaExample(text, expected))
+    return tuple(examples)
+
+
 def _load_josa(path: Path, problems: _Problems) -> JosaData:
-    empty = JosaData(pairs=(), name_rules={}, examples=())
+    empty = JosaData(
+        pairs=(),
+        readings=JosaReadings({}, {}, {}, {}),
+        name_rules=NameRules({}, {}, {}),
+        examples=(),
+    )
     try:
         raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (yaml.YAMLError, OSError) as error:
@@ -336,20 +461,28 @@ def _load_josa(path: Path, problems: _Problems) -> JosaData:
     if not isinstance(raw, dict):
         problems.add(1, "josa.yaml의 최상위는 매핑이어야 합니다")
         return empty
-    data = cast(dict[str, object], raw)
-    pairs = data.get("pairs", [])
-    name_rules = data.get("name_rules", {})
-    examples = data.get("examples", [])
-    if not isinstance(pairs, list) or not isinstance(name_rules, dict) or not isinstance(examples, list):
-        problems.add(1, "josa.yaml의 pairs·examples는 리스트, name_rules는 매핑이어야 합니다")
-        return empty
-    for key in sorted(set(data) - {"pairs", "name_rules", "examples"}, key=str):
-        problems.add(1, f"알 수 없는 필드 '{key}'입니다")
+    item = _Item(cast(dict[str, object], raw), 1, problems)
+    item.check_unknown_keys(JOSA_KEYS)
+    raw_pairs = item.data.get("pairs")
+    if not isinstance(raw_pairs, list):
+        item.fail("'pairs'는 리스트여야 합니다")
+        raw_pairs = []
+    pairs = [pair for entry in raw_pairs if (pair := _parse_pair(entry, item)) is not None]
     return JosaData(
-        pairs=tuple(cast(list[object], pairs)),
-        name_rules=cast(dict[str, object], name_rules),
-        examples=tuple(cast(list[object], examples)),
+        pairs=tuple(pairs),
+        readings=_parse_readings(item),
+        name_rules=_parse_name_rules(item),
+        examples=_parse_josa_examples(item),
     )
+
+
+def load_josa(rules_dir: Path) -> JosaData:
+    """`rules_dir/josa.yaml`만 읽습니다. 문제가 있으면 `LoadError`를 던집니다."""
+    problems = _Problems(rules_dir / "josa.yaml")
+    josa = _load_josa(problems.file, problems)
+    if problems.findings:
+        raise LoadError(problems.findings)
+    return josa
 
 
 def load_rules(rules_dir: Path) -> RuleSet:
