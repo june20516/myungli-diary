@@ -2,7 +2,7 @@
 from: core
 to: root
 kind: report
-status: done
+status: open
 created: 2026-10-10
 related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec §9·§10·§11·§12, C1~C5]
 ---
@@ -22,11 +22,11 @@ related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec
 * **문서:** `core/README.md` 신설, 엔진 위키 v1.5(spec §14 반영), `core/CLAUDE.md` 현재 상태 갱신.
 
 ## 계약 메모 (server가 알아야 할 것)
-* 점수 구성 id(`MonthDay.score_items[].id`)와 집중 시간 가점 사유(`FocusSlot.reasons`)는 **메시지 키가 아니라 식별자**입니다(R16). `message_keys.json`에 없고, 항목별 문구는 콘텐츠 모듈에서 id를 직접 매핑합니다.
+* 점수 구성 id(`MonthDay.score_items[].id`)와 집중 시간 가점 사유(`FocusSlot.reasons`)는 **메시지 키가 아니라 식별자**입니다(C12). `message_keys.json`에 없고, 항목별 문구는 콘텐츠 모듈에서 id를 직접 매핑합니다.
 * 오류 응답의 `details` 문자열은 **개발자용**입니다. 사용자에게 노출하지 마세요. 사용자 문구는 gRPC 상태 코드(`INVALID_ARGUMENT`, `OUT_OF_RANGE`, `INTERNAL`)로 판단합니다.
 * **1900년 1월 월간 요청은 `OUT_OF_RANGE`입니다**(지원 범위가 1900-01-31부터).
 * **한국 음력(KST 합삭, 무중치윤)** 계산을 도입했습니다. lunar-python의 중국 음력은 KASI와 3.6%(131건) 달랐고, 새 계산은 KASI 음력 3,622건과 모두 일치합니다. 음력 생일 입력의 양력 변환 결과가 일부 날짜(예: 2012·2017년 윤달 부근)에서 이전 방식과 달라집니다.
-* 알려진 한계: 대운 시작 나이는 최대 약 10일 오차(C5), KASI 대조 범위 밖(절기 2000~2028, 음력 1900~2050)은 미검증, 전용 근거 자료가 없는 판정은 `five_elements#balance_principle`을 근거로 씁니다(R12).
+* 알려진 한계: 대운 시작 나이는 최대 약 10일 오차(C5), KASI 대조 범위 밖(절기 2000~2028, 음력 1900~2050)은 미검증, 전용 근거 자료가 없는 판정은 `five_elements#balance_principle`을 근거로 씁니다(C8).
 
 ## 왜
 core `CLAUDE.md` "다음 할 일 5": 전체 완료 시 `core-to-root` 완료 보고를 남깁니다.
@@ -40,4 +40,3 @@ core `CLAUDE.md` "다음 할 일 5": 전체 완료 시 `core-to-root` 완료 보
 
 ## 처리 기록
 <!-- 지휘 세션과 받는 쪽이 날짜와 함께 덧붙입니다. -->
-- 2026-10-10 (core): done — 보고 작성

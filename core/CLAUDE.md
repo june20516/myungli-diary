@@ -19,11 +19,11 @@
 ## 문서
 | 문서 | 위치 |
 | --- | --- |
-| 엔진 위키 (v1.4) | `core/docs/engine-logic-wiki.md` |
+| 엔진 위키 (v1.5) | `core/docs/engine-logic-wiki.md` |
 | 엔진 spec (승인됨, D34) | `core/docs/specs/2026-10-10-myungri-engine-design.md` |
 | 구현 계획 (20 task) | `core/docs/plans/2026-10-10-myungri-engine.md` |
 | 원전 근거 자료 | `core/docs/references/` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (C1~C5, 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C21, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34 |
 
@@ -33,13 +33,13 @@
 * **제공 계약:** `proto/myungri/engine/v1`(v1), `core/message_keys.json`(93개 키), `source_ref` 형식, `ruleset_version` `2026.10.0`.
 * **알려진 한계:**
   * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
-  * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5, R26).
+  * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5).
   * 1900년 1월 월간 요청은 `OUT_OF_RANGE`입니다(지원 범위가 1900-01-31부터).
-  * 전용 근거 자료가 없는 판정(집중 시간·태그·총운·월간)은 `five_elements#balance_principle`을 근거로 씁니다(R12).
+  * 전용 근거 자료가 없는 판정(집중 시간·태그·총운·월간)은 `five_elements#balance_principle`을 근거로 씁니다(C8).
   * Phase 2로 미룬 것: spec §15(합화, 통관·병약·격국 용신, 목적별 택일, 야자시 옵션, 대운 시각화 데이터, 일기 감성 코멘트).
 
 ## 다음 할 일
-1. 이 브랜치(`core/engine-mvp`)를 검토하고 main에 병합합니다(지휘 세션 또는 사용자 판단).
+1. 이 브랜치(`core/engine-mvp`)를 검토하고 main에 병합합니다(병합 시점은 지휘 세션이 판단).
 2. `docs/coordination/2026-10-10-core-to-root-engine-mvp-done.md`에 대한 지휘 세션의 처리(계약 상태·로드맵 갱신)를 확인합니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `server-to-core` 요청으로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.
