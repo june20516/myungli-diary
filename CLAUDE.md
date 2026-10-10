@@ -25,6 +25,7 @@
 | 제품·아키텍처 결정 | `docs/decisions.md` |
 | 통합 로드맵 | `docs/roadmap.md` |
 | 계약 목록 | `docs/contracts/README.md` |
+| 제품 지도 (비공개 페이지) | https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC (갱신: `tools/product-map/README.md`) |
 | 요청함 | GitHub Issues (이관 전 문서 보관: `docs/coordination/`) |
 | 엔진 위키·spec·계획·원전 근거 | `core/docs/` |
 | 정체성 기준 (브랜드·라이팅·디자인) | `docs/identity/` |

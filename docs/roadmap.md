@@ -2,6 +2,8 @@
 
 지휘 세션이 관리합니다. 제품 단계(Phase 1~3)는 `docs/background/05-roadmap.md`를 따르고, 이 문서는 **Phase 1(MVP) 안에서 서브 프로젝트들이 어떤 순서로 맞물리는지**를 다룹니다.
 
+**제품 지도:** https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC (노선도로 진행 상태를 봅니다. 지휘 세션이 정기 일과에서 갱신합니다.)
+
 ## 마일스톤
 
 | ID | 마일스톤 | 담당 | 선행 조건 | 끝나면 열리는 것 | 상태 |
