@@ -103,6 +103,17 @@ input[type="search"] { width: 100%; font: inherit; padding: 9px 12px; border-rad
 .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .thumbs figure { margin: 0; font-size: .78rem; }
 .thumbs img { border-radius: 8px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; width: 100%; }
+.box-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.box-head h2 { margin: 0; }
+button.zoom-btn { margin-left: auto; font: inherit; font-size: .8rem; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+img.zoomable { cursor: zoom-in; }
+.viewer { position: fixed; inset: 0; z-index: 30; background: var(--bg); display: flex; flex-direction: column; }
+.viewer .bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; border-bottom: 1px solid var(--line); }
+.viewer .bar h2 { margin: 0; font-size: 1rem; flex: 1 1 200px; min-width: 0; }
+.viewer .bar button { font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); border-radius: 999px; padding: 4px 12px; cursor: pointer; min-width: 2.6rem; }
+.viewer .bar output { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 3.2rem; text-align: center; }
+.viewer .stage { flex: 1; overflow: auto; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+.viewer .stage > * { display: block; max-width: none; height: auto; margin: 0 auto; background: var(--surface-solid); border-radius: 8px; }
 @media (prefers-reduced-motion: no-preference) { .sheet { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(12px); opacity: .6; } } }
 </style>
 
@@ -123,7 +134,7 @@ input[type="search"] { width: 100%; font: inherit; padding: 9px 12px; border-rad
 
   <section class="panel" id="tab-route">
     <div class="box">
-      <h2>어디까지 왔나</h2>
+      <div class="box-head"><h2>어디까지 왔나</h2><button class="zoom-btn" type="button" data-zoom-target="metro">크게 보기</button></div>
       <div class="legend"><span class="lg-done">완료</span><span class="lg-ready">다음 역(선행 조건이 모두 끝남)</span><span class="lg-todo">아직</span></div>
       <div class="metro-scroll"><svg class="metro" id="metro" role="group" aria-label="마일스톤 노선도"></svg></div>
       <p class="muted" style="margin:6px 0 0;font-size:.8rem">역을 누르면 그 마일스톤의 상세가 열립니다. 점선은 다른 노선에서 기다리는 선행 조건입니다.</p>
@@ -145,9 +156,9 @@ input[type="search"] { width: 100%; font: inherit; padding: 9px 12px; border-rad
 
   <section class="panel" id="tab-logic" hidden>
     <div class="box">
-      <h2>하루를 판정하는 흐름</h2>
+      <div class="box-head"><h2>하루를 판정하는 흐름</h2><button class="zoom-btn" type="button" data-zoom-target="logic-diagram">크게 보기</button></div>
       <p class="muted" style="margin-top:0">모든 데일리 결과는 일진 × 원국입니다(D13). 날의 성격 4단계(D19)가 행운 정보를 정하고, 엔진은 메시지 키만 내며 문장은 server 콘텐츠 모듈이 만듭니다(D27).</p>
-      <pre class="mermaid">
+      <div id="logic-diagram"><pre class="mermaid">
 flowchart LR
   B[출생 정보<br/>시각 변환·한국 음력 D41] --> W[원국<br/>사주팔자·십성·신살]
   W --> Y[용신<br/>조후 우선 D7]
@@ -161,7 +172,7 @@ flowchart LR
   G & U & X & N --> L[행운 색·방향·숫자 D25<br/>집중 시간 D21]
   L --> K[메시지 키 + 근거]
   K --> C[콘텐츠 모듈<br/>문장 유형 D40·호칭 D36]
-      </pre>
+      </pre></div>
     </div>
   </section>
 
@@ -182,6 +193,17 @@ flowchart LR
 
 <div class="sheet-back" id="sheet-back" hidden></div>
 <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden></aside>
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title" hidden>
+  <div class="bar">
+    <h2 id="viewer-title"></h2>
+    <button type="button" id="zoom-out" aria-label="축소">−</button>
+    <output id="zoom-level" aria-live="polite">100%</output>
+    <button type="button" id="zoom-in" aria-label="확대">+</button>
+    <button type="button" id="zoom-fit">화면에 맞춤</button>
+    <button type="button" id="viewer-close">닫기</button>
+  </div>
+  <div class="stage" id="viewer-stage"></div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script>
@@ -281,7 +303,7 @@ function stateLabel(m) { return m.state === "done" ? "완료" : m.state === "doi
 
 function thumbs(items) {
   if (!items.length) return `<p class="muted">아직 없음</p>`;
-  return `<div class="thumbs">${items.map((a) => `<figure><img src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy"><figcaption>${esc(a.title)} <span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span></figcaption></figure>`).join("")}</div>`;
+  return `<div class="thumbs">${items.map((a) => `<figure><img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy"><figcaption>${esc(a.title)} <span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span></figcaption></figure>`).join("")}</div>`;
 }
 function issueList(items) {
   if (!items.length) return `<p class="muted">없음</p>`;
@@ -355,7 +377,7 @@ function renderGallery() {
       `<span style="width:12px"></span>` + chip("status", "all", "모든 상태") + statuses.map((s) => chip("status", s, STATUS_NAMES[s] || s)).join("");
     const items = DATA.artifacts.filter((a) => (state.unit === "all" || a.unit === state.unit) && (state.status === "all" || a.status === state.status));
     document.getElementById("gallery").innerHTML = items.map((a) => `<div class="card">
-      <img src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy">
+      <img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy">
       <h3>${esc(a.title)}</h3><span style="font-size:.85rem">${esc(a.note)}</span>
       <span class="meta"><span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span><span>${esc(UNIT_NAMES[a.unit] || a.unit)}</span><span>${esc(a.milestone)}</span><span>${esc(a.date)}</span></span></div>`).join("") ||
       `<p class="muted">조건에 맞는 산출물이 없습니다.</p>`;
@@ -381,6 +403,70 @@ function renderDecisions() {
   draw();
 }
 
+// 확대 보기: 원본 크기(base)에 배율(scale)을 곱해 너비를 정하고, 넘치는 부분은 stage 스크롤로 봅니다.
+const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
+const viewer = { el: null, base: 0, scale: 1 };
+function applyZoom() {
+  if (!viewer.el) return;
+  const width = Math.round(viewer.base * viewer.scale);
+  if (viewer.el.tagName.toLowerCase() === "svg") viewer.el.setAttribute("width", width), viewer.el.removeAttribute("height");
+  viewer.el.style.width = width + "px";
+  document.getElementById("zoom-level").textContent = Math.round(viewer.scale * 100) + "%";
+}
+function fitZoom() {
+  const stage = document.getElementById("viewer-stage");
+  viewer.scale = Math.max(0.1, (stage.clientWidth - 32) / viewer.base);
+  applyZoom();
+}
+function stepZoom(direction) {
+  const next = direction > 0 ? ZOOM_STEPS.find((s) => s > viewer.scale + 0.01) : [...ZOOM_STEPS].reverse().find((s) => s < viewer.scale - 0.01);
+  if (next) { viewer.scale = next; applyZoom(); }
+}
+function openViewer(node, base, title) {
+  const stage = document.getElementById("viewer-stage");
+  stage.replaceChildren(node);
+  viewer.el = node; viewer.base = Math.max(1, base);
+  document.getElementById("viewer-title").textContent = title;
+  document.getElementById("viewer").hidden = false;
+  fitZoom();
+  document.getElementById("viewer-close").focus();
+}
+function closeViewer() { document.getElementById("viewer").hidden = true; document.getElementById("viewer-stage").replaceChildren(); viewer.el = null; }
+function zoomSvgFrom(container, title) {
+  const svg = container.querySelector("svg");
+  if (!svg) {
+    const pre = container.querySelector("pre");
+    if (pre) openViewer(Object.assign(document.createElement("pre"), { textContent: pre.textContent, style: "white-space:pre;padding:12px" }), 720, title);
+    return;
+  }
+  const clone = svg.cloneNode(true);
+  const viewBox = (svg.getAttribute("viewBox") || "").split(/[\s,]+/).map(Number);
+  const base = viewBox.length === 4 && viewBox[2] > 0 ? viewBox[2] : svg.getBoundingClientRect().width;
+  clone.removeAttribute("style");
+  openViewer(clone, base, title);
+}
+document.addEventListener("click", (e) => {
+  const img = e.target.closest("img.zoomable");
+  if (img) {
+    e.preventDefault(); e.stopPropagation();
+    const big = new Image(); big.src = img.src; big.alt = img.alt;
+    openViewer(big, img.naturalWidth || 1200, img.alt);
+    return;
+  }
+  const btn = e.target.closest("button[data-zoom-target]");
+  if (btn) zoomSvgFrom(document.getElementById(btn.dataset.zoomTarget), btn.closest(".box").querySelector("h2").textContent);
+}, true);
+document.getElementById("zoom-in").addEventListener("click", () => stepZoom(1));
+document.getElementById("zoom-out").addEventListener("click", () => stepZoom(-1));
+document.getElementById("zoom-fit").addEventListener("click", fitZoom);
+document.getElementById("viewer-close").addEventListener("click", closeViewer);
+document.getElementById("viewer-stage").addEventListener("wheel", (e) => { if (e.ctrlKey) { e.preventDefault(); stepZoom(e.deltaY < 0 ? 1 : -1); } }, { passive: false });
+document.addEventListener("keydown", (e) => {
+  if (document.getElementById("viewer").hidden) return;
+  if (e.key === "+" || e.key === "=") stepZoom(1);
+  if (e.key === "-") stepZoom(-1);
+});
+
 const TABS = ["route", "screens", "identity", "logic", "gallery", "decisions"];
 function showTab() {
   const current = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "route";
@@ -390,7 +476,7 @@ function showTab() {
 }
 
 document.getElementById("sheet-back").addEventListener("click", closeSheet);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (!document.getElementById("viewer").hidden) closeViewer(); else closeSheet(); } });
 window.addEventListener("hashchange", showTab);
 showTab();
 

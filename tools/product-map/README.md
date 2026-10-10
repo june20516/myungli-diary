@@ -3,6 +3,7 @@
 저장소를 원본으로 만드는 비공개 claude.ai 페이지입니다: **https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC**
 
 * 탭: 노선도(기본) · 화면 · 정체성 · 로직 · 산출물 · 결정. 역이나 화면을 누르면 시트로 상세가 열립니다.
+* 크게 보기: 산출물 이미지를 누르거나 노선도·로직의 "크게 보기"를 누르면 확대 창이 열립니다(축소·맞춤·확대, Ctrl+휠, +/- 키).
 * 설계: `docs/specs/2026-10-10-collab-workflow-design.md` §7
 * 레이아웃 선택 기록: `docs/artifacts/index.json`의 `product-map-layout`
 
