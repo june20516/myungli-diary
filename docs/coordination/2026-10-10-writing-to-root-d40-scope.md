@@ -2,7 +2,7 @@
 from: writing
 to: root
 kind: request
-status: open
+status: accepted
 created: 2026-10-10
 related: [D40, W4, W0 spec §4.2]
 ---
@@ -43,3 +43,4 @@ D40은 "콘텐츠 문장은 문장 유형(조언·상태·돌봄) 축으로 만�
 
 ## 처리 기록
 - 2026-10-10 (writing): open
+- 2026-10-11 (root): accepted — 총운 슬롯으로 좁히는 해석을 수락하고 D57로 기록. 덧붙여 반응은 사용자 성향 자료로, 유형 가중치는 사용자에게 붙임(D57②). W4는 잠정에서 확정으로 바꿔 주세요
