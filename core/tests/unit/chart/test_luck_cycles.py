@@ -1,5 +1,7 @@
 from datetime import date, time
 
+import pytest
+
 from myungri_engine.calendar_core import lunar_adapter
 from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
 from myungri_engine.chart.luck_cycles import LuckCycles, build_luck_cycles
@@ -33,7 +35,45 @@ def test_luck_periods_count_and_ages() -> None:
     assert len(result.periods) == 10
     ages = [p.start_age for p in result.periods]
     assert ages == [result.start_years + 10 * i for i in range(10)]
-    assert all(p.start_age_korean == p.start_age + 1 for p in result.periods)
+    birth_year = 1990
+    assert all(p.start_age_korean == p.start_year - birth_year + 1 for p in result.periods)
+    assert [p.start_year for p in result.periods] == [result.periods[0].start_year + 10 * i for i in range(10)]
+
+
+# 기댓값: lunar-python DaYun.getStartYear()·getStartAge()(虚岁) (getDaYun(11)[1:]의 첫 대운)
+@pytest.mark.parametrize(
+    ("birth", "gender", "start", "first_start_year", "first_age_korean"),
+    [
+        # 3년 7개월 10일 → 1962-06-07 시작: 개월 수 때문에 해가 넘어간다
+        (date(1958, 10, 28), Gender.MALE, (3, 7), 1962, 5),
+        # 6년 5개월 → 1965-03-28 시작
+        (date(1958, 10, 28), Gender.FEMALE, (6, 5), 1965, 8),
+        # 4년 3개월 → 1990-02-20 시작
+        (date(1985, 11, 20), Gender.MALE, (4, 3), 1990, 6),
+        # 6년 7개월 10일 → 1996-12-27 시작: 해가 넘어가지 않는다
+        (date(1990, 5, 17), Gender.MALE, (6, 7), 1996, 7),
+    ],
+)
+def test_period_start_year_and_korean_age_match_lunar_python(
+    birth: date, gender: Gender, start: tuple[int, int], first_start_year: int, first_age_korean: int
+) -> None:
+    hour = time(14, 0) if birth.year == 1985 else time(10, 30) if birth.year == 1990 else time(10, 0)
+    moment = make_moment(birth, hour, gender)
+    result = build_luck_cycles(moment, gender, lunar_adapter.pillars_for(moment), date(2026, 10, 10))
+    assert (result.start_years, result.start_months) == start
+    first = result.periods[0]
+    assert first.start_age == start[0]
+    assert first.start_age_korean == first_age_korean
+    assert result.periods[1].start_age_korean == first_age_korean + 10
+    assert (first.start_year, result.periods[1].start_year) == (first_start_year, first_start_year + 10)
+
+
+def test_years_follow_actual_period_start_year() -> None:
+    # 1985-11-20 남: 대운이 1990, 2000, ...년에 시작한다. 1999년은 아직 첫 대운 구간이다.
+    moment = make_moment(date(1985, 11, 20), time(14, 0), Gender.MALE)
+    natal = lunar_adapter.pillars_for(moment)
+    assert build_luck_cycles(moment, Gender.MALE, natal, date(1999, 12, 31)).years[0].year == 1990
+    assert build_luck_cycles(moment, Gender.MALE, natal, date(2000, 1, 1)).years[0].year == 2000
 
 
 def test_time_unknown_luck_notice() -> None:
@@ -47,12 +87,13 @@ def test_years_cover_the_period_containing_as_of() -> None:
     years = [y.year for y in result.years]
     assert len(years) == 10 and years == list(range(years[0], years[0] + 10))
     assert years[0] <= 2026 <= years[-1]
-    assert years[0] == 1990 + result.start_years + 10 * ((2026 - 1990 - result.start_years) // 10)
+    first_start = result.periods[0].start_year
+    assert years[0] == first_start + 10 * ((2026 - first_start) // 10)
 
 
 def test_years_before_first_period_use_first_period() -> None:
     result = cycles(Gender.MALE, as_of=date(1990, 6, 1))
-    assert result.years[0].year == 1990 + result.start_years
+    assert result.years[0].year == result.periods[0].start_year
 
 
 def test_year_pillar_and_ten_god_known_values() -> None:

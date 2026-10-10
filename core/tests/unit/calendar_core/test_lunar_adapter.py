@@ -284,8 +284,9 @@ def test_month_days_term_date_shifts_with_timezone() -> None:
 def test_luck_cycles_raw_forward_male_yang_year() -> None:
     m = moment(date(2024, 3, 15), time(12, 0))  # 甲辰년 丁卯월, 양년 남성 → 순행
     # 절기 비교용 3/15 11:00 → 다음 절입(청명) 4/4 15:02: 20일 + 2시진 → 6년 8개월 (lunar-python 1.4.8 실행값)
-    years, months, cycles = la.luck_cycles_raw(m, Gender.MALE)
-    assert (years, months) == (6, 8)
+    raw = la.luck_cycles_raw(m, Gender.MALE)
+    assert (raw.start_years, raw.start_months) == (6, 8)
+    cycles = raw.pillars
     assert len(cycles) == 10
     assert cycles[0] == Pillar(S.MU, B.JIN)
     assert cycles[1] == Pillar(S.GI, B.SA)
@@ -294,7 +295,8 @@ def test_luck_cycles_raw_forward_male_yang_year() -> None:
 def test_luck_cycles_raw_backward_female_yang_year() -> None:
     m = moment(date(2024, 3, 15), time(12, 0), gender=Gender.FEMALE)
     # 직전 절입(경칩) 3/5 10:22 → 3/15 11:00: 10일 + 1시진 → 3년 4개월 (lunar-python 1.4.8 실행값)
-    years, months, cycles = la.luck_cycles_raw(m, Gender.FEMALE)
-    assert (years, months) == (3, 4)
+    raw = la.luck_cycles_raw(m, Gender.FEMALE)
+    assert (raw.start_years, raw.start_months) == (3, 4)
+    cycles = raw.pillars
     assert cycles[0] == Pillar(S.BYEONG, B.IN)
     assert cycles[1] == Pillar(S.EUL, B.CHUK)

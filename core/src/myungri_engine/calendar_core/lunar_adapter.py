@@ -98,6 +98,16 @@ class HourSlot:
 
 
 @dataclass(frozen=True, slots=True)
+class LuckCyclesRaw:
+    """대운 시작까지의 기간(연·개월·일)과 대운 간지 10개. 시작 시점 = 출생 시점 + 이 기간 (spec 5.3)."""
+
+    start_years: int
+    start_months: int
+    start_days: int
+    pillars: tuple[Pillar, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class DayInfo:
     """월간 캘린더의 하루. solar_term은 (JIE_QI 원문 한자, 현재 시간대의 입절 시각)."""
 
@@ -260,14 +270,14 @@ def nearest_solar_term_minutes(utc: datetime) -> float:
 # --- 대운 ---
 
 
-def luck_cycles_raw(moment: BirthMoment, gender: Gender) -> tuple[int, int, tuple[Pillar, ...]]:
-    """대운 시작 연수·개월과 대운 간지 10개 (spec 5.3). 시작 전 구간(간지 없음)은 뺀다."""
+def luck_cycles_raw(moment: BirthMoment, gender: Gender) -> LuckCyclesRaw:
+    """대운 시작까지의 연·개월·일과 대운 간지 10개 (spec 5.3). 시작 전 구간(간지 없음)은 뺀다."""
     eight_char = EightChar.fromLunar(_lunar_at(moment.solar_term_wallclock))
     lunar_gender = 1 if gender is Gender.MALE else 0  # lunar-python 규약: 1 = 남, 0 = 여
     yun = eight_char.getYun(lunar_gender, LUCK_SECT)
     da_yun = yun.getDaYun(LUCK_CYCLE_COUNT + 1)[1:]
     cycles = tuple(_pillar_from_ganzhi(str(cycle.getGanZhi())) for cycle in da_yun)
-    return int(yun.getStartYear()), int(yun.getStartMonth()), cycles
+    return LuckCyclesRaw(int(yun.getStartYear()), int(yun.getStartMonth()), int(yun.getStartDay()), cycles)
 
 
 # --- 내부 도우미 ---

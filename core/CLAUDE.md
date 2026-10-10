@@ -19,7 +19,7 @@
 ## 문서
 | 문서 | 위치 |
 | --- | --- |
-| 엔진 위키 (v1.5) | `core/docs/engine-logic-wiki.md` |
+| 엔진 위키 (v1.6) | `core/docs/engine-logic-wiki.md` |
 | 엔진 spec (승인됨, D34) | `core/docs/specs/2026-10-10-myungri-engine-design.md` |
 | 구현 계획 (20 task) | `core/docs/plans/2026-10-10-myungri-engine.md` |
 | 원전 근거 자료 | `core/docs/references/` |

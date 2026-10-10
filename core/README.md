@@ -4,7 +4,7 @@
 문장은 만들지 않고 메시지 키, 매개변수, 근거만 반환합니다.
 
 * 설계: [`docs/specs/2026-10-10-myungri-engine-design.md`](docs/specs/2026-10-10-myungri-engine-design.md)
-* 연산 로직 위키(v1.5): [`docs/engine-logic-wiki.md`](docs/engine-logic-wiki.md)
+* 연산 로직 위키(v1.6): [`docs/engine-logic-wiki.md`](docs/engine-logic-wiki.md)
 * core 결정 로그(C1~C5): [`docs/decisions.md`](docs/decisions.md)
 * 필요한 도구: [uv](https://docs.astral.sh/uv/)(Python 3.13), proto 검사에 [buf](https://buf.build/)
 
