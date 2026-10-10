@@ -19,6 +19,7 @@ UNKNOWN_TIME_FALLBACK = time(12, 0)
 SECONDS_PER_DEGREE = 240  # 경도 1도 = 시간 4분
 ZI_HOUR_START_HOUR = 23
 ZI_HOUR_END_HOUR = 0
+NEAR_SOLAR_TERM_MINUTES = 120  # 절입 전후 안내 범위 (spec 4.3, D32)
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,17 +56,25 @@ def validate_civil_date(d: date) -> None:
 
 
 def resolve_birth_moment(birth: BirthInput) -> BirthMoment:
-    if birth.calendar is CalendarType.LUNAR:
-        raise NotImplementedError("음력 입력은 Task 5에서 lunar_to_solar와 함께 연결합니다.")
+    # lunar_adapter가 이 모듈의 BirthMoment를 쓰므로, 순환 import를 피해 함수 안에서 import한다.
+    from myungri_engine.calendar_core import lunar_adapter
 
-    validate_civil_date(birth.date)
-    zone = _load_zone(birth.timezone)
+    # 음력 입력은 먼저 양력으로 바꾼다. 그해에 없는 윤달·날짜면 InvalidInputError (spec 3).
+    solar_date = (
+        birth.date
+        if birth.calendar is CalendarType.SOLAR
+        else lunar_adapter.lunar_to_solar(
+            birth.date.year, birth.date.month, birth.date.day, birth.is_leap_month
+        )
+    )
+    validate_civil_date(solar_date)
+    zone = load_zone(birth.timezone)
     time_known = birth.time is not None
     local_time = birth.time if birth.time is not None else UNKNOWN_TIME_FALLBACK
-    local_naive = datetime.combine(birth.date, local_time)
+    local_naive = datetime.combine(solar_date, local_time)
 
     utc, local_notices = _local_to_utc(local_naive, zone)
-    standard_offset = _standard_offset_hours(utc, zone)
+    standard_offset = standard_offset_hours(utc, zone)
     longitude = (
         birth.longitude
         if birth.longitude is not None
@@ -80,11 +89,16 @@ def resolve_birth_moment(birth: BirthInput) -> BirthMoment:
         notices.extend(local_notices)
         if corrected_local.hour in (ZI_HOUR_START_HOUR, ZI_HOUR_END_HOUR):
             notices.append(Notice(NoticeCode.ZI_HOUR_NEXT_DAY))
+        if lunar_adapter.nearest_solar_term_minutes(utc) <= NEAR_SOLAR_TERM_MINUTES:
+            notices.append(Notice(NoticeCode.NEAR_SOLAR_TERM))
     else:
         notices.append(Notice(NoticeCode.TIME_UNKNOWN))
+        jie_dates = {jie.astimezone(zone).date() for jie in lunar_adapter.jie_times_around(utc)}
+        if solar_date in jie_dates:
+            notices.append(Notice(NoticeCode.NEAR_SOLAR_TERM))
 
     return BirthMoment(
-        solar_date=birth.date,
+        solar_date=solar_date,
         utc=utc if time_known else None,
         solar_term_wallclock=solar_term_wallclock,
         corrected_local=corrected_local,
@@ -93,7 +107,7 @@ def resolve_birth_moment(birth: BirthInput) -> BirthMoment:
     )
 
 
-def _load_zone(name: str) -> ZoneInfo:
+def load_zone(name: str) -> ZoneInfo:
     try:
         return ZoneInfo(name)
     except (ZoneInfoNotFoundError, ValueError) as error:
@@ -116,7 +130,7 @@ def _local_to_utc(local_naive: datetime, zone: ZoneInfo) -> tuple[datetime, tupl
     return first_utc, ()
 
 
-def _standard_offset_hours(utc: datetime, zone: ZoneInfo) -> float:
+def standard_offset_hours(utc: datetime, zone: ZoneInfo) -> float:
     """출생 시점의 표준 오프셋(서머타임 제외)을 시간 단위로 돌려준다."""
     local = utc.astimezone(zone)
     offset = local.utcoffset()

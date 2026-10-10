@@ -110,10 +110,9 @@ def test_unknown_timezone(tz: str) -> None:
         resolve_birth_moment(seoul(date(2024, 3, 15), time(12, 0), tz=tz))
 
 
-def test_lunar_not_implemented_yet() -> None:
-    birth = BirthInput(CalendarType.LUNAR, False, date(2024, 2, 5), None, Gender.FEMALE, "Asia/Seoul", None)
-    with pytest.raises(NotImplementedError):
-        resolve_birth_moment(birth)
+def test_lunar_input_resolved_as_solar_date() -> None:
+    birth = BirthInput(CalendarType.LUNAR, False, date(2024, 1, 1), None, Gender.FEMALE, "Asia/Seoul", None)
+    assert resolve_birth_moment(birth).solar_date == date(2024, 2, 10)  # 2024 설날
 
 
 def test_civil_date_range() -> None:

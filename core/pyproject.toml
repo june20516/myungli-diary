@@ -34,6 +34,10 @@ artifacts = ["src/myungri_engine/references/data/**/*.json"]
 strict = true
 mypy_path = "src"
 
+[[tool.mypy.overrides]]
+module = "lunar_python.*"
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 110
 extend-exclude = ["docs"]
