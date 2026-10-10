@@ -53,7 +53,7 @@ jobs:
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
           echo "$changed"
-          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
+          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
             echo "docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
