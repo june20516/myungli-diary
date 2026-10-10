@@ -8,6 +8,7 @@ dependencies = [
     "lunar-python==1.4.8",
     "grpcio==1.84.0",
     "protobuf",
+    "tzdata>=2026.5",
 ]
 
 [dependency-groups]
