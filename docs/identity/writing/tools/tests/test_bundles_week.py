@@ -4,7 +4,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from mlw.bundles import DayKeys, _rotate, check_weeks, week_windows
+from mlw.bundles import SLOT_GUIDE, DayKeys, _rotate, check_weeks, week_windows
 from mlw.josa import default_josa_data
 from mlw.model import SENTENCE_TYPES, CountSelector, Entry, Limit, RuleSet
 
@@ -192,3 +192,36 @@ def test_two_day_window_ignores_separated_days() -> None:
     fixture = phrase_fixture([OTHER_KEYS[0], OTHER_KEYS[2], OTHER_KEYS[1]])
     keys = MESSAGE_KEYS + OTHER_KEYS
     assert check_weeks({}, phrase_entries_all(), [two_day_limit()], ["ko"], RULES, fixture, keys) == []
+
+
+def seven_day_limit() -> Limit:
+    return Limit(
+        "limit.L9",
+        "괜찮아요 한 주",
+        "week",
+        CountSelector(lexicon=("괜찮아요",)),
+        {"ko": 1},
+        "warn",
+        2,
+    )
+
+
+def test_each_limit_uses_its_own_window() -> None:
+    third = "fortune.ordinary_day.extra"
+    plain = OTHER_KEYS[2]
+    entries = phrase_entries_all() + phrase_entries(third, "괜찮아요", 40)
+    # 괜찮아요가 1·3·5일째에만 나와 이틀 연속은 없지만 7일 안에는 3번 있습니다.
+    order = [OTHER_KEYS[0], plain, OTHER_KEYS[1], plain, third, plain, plain]
+    keys = MESSAGE_KEYS + OTHER_KEYS + [third]
+    limits = [two_day_limit(), seven_day_limit()]
+    findings = check_weeks({}, entries, limits, ["ko"], RULES, phrase_fixture(order), keys)
+    assert {finding.rule_id for finding in findings} == {"limit.L9"}
+
+
+def test_two_day_window_counts_two_entries_of_one_day() -> None:
+    guide = Entry(FILE, 50, SLOT_GUIDE, GUIDE_KEY, "advice", 1, "ko", "괜찮아요")
+    entries = phrase_entries(OTHER_KEYS[0], "괜찮아요", 10) + [guide]
+    fixture = phrase_fixture([OTHER_KEYS[0], OTHER_KEYS[2]])
+    keys = MESSAGE_KEYS + OTHER_KEYS
+    findings = check_weeks({}, entries, [two_day_limit()], ["ko"], RULES, fixture, keys)
+    assert {finding.rule_id for finding in findings} == {"limit.L8"}
