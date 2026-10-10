@@ -173,7 +173,7 @@ docs/identity/design/components/
 | --- | --- | --- |
 | `color.scrim` | neutral-950 알파 0.32 | `#000000` 알파 0.50 |
 | `color.inverse.bg` / `color.inverse.fg` 토스트 | neutral-900 / neutral-100 | neutral-100 / neutral-900 |
-| `color.disabled.bg` / `color.disabled.fg` | neutral-100 / neutral-400 | neutral-800 / neutral-600 |
+| `color.disabled.bg` / `color.disabled.fg` | neutral-100 / neutral-600 | neutral-800 / neutral-500 |
 | `color.bar.bg` 반투명 탭 바 | `#ffffff` 알파 0.62 | neutral-900 알파 0.62 |
 | `color.seal.fill` | → `action.primary` | → `action.primary` |
 | `color.seal.soft` | sage-700 알파 0.22 | sage-200 알파 0.28 |
