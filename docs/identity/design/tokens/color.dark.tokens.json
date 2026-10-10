@@ -1,0 +1,334 @@
+{
+  "color": {
+    "bg": {
+      "base": {
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "기본 바탕"
+      },
+      "sheet": {
+        "$type": "color",
+        "$value": "{color.neutral.900}",
+        "$description": "시트·패널 바탕"
+      }
+    },
+    "text": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.neutral.100}",
+        "$description": "본문 글자"
+      },
+      "secondary": {
+        "$type": "color",
+        "$value": "{color.neutral.400}",
+        "$description": "보조 글자"
+      }
+    },
+    "line": {
+      "$type": "color",
+      "$value": "{color.neutral.800}",
+      "$description": "선"
+    },
+    "action": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.sage.300}",
+        "$description": "주 버튼 바탕"
+      },
+      "on-primary": {
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "주 버튼 글자"
+      }
+    },
+    "term": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.sage.800}",
+        "$description": "용어 토큰 바탕 (굵게 하지 않음)"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "{color.sage.200}",
+        "$description": "용어 토큰 글자"
+      }
+    },
+    "badge": {
+      "good": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.coral.300}",
+          "$description": "좋은 날(YONGSIN_DAY) 배지 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.neutral.900}",
+          "$description": "좋은 날 배지 글자"
+        }
+      },
+      "gwiin": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.coral.800}",
+          "$description": "귀인의 날(GWIIN_DAY) 배지 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.coral.200}",
+          "$description": "귀인의 날 배지 글자"
+        }
+      },
+      "gisin": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.neutral.800}",
+          "$description": "기신의 날(GISIN_DAY) 배지 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.neutral.200}",
+          "$description": "기신의 날 배지 글자"
+        }
+      },
+      "ordinary": {
+        "border": {
+          "$type": "color",
+          "$value": "{color.neutral.700}",
+          "$description": "평범한 날(ORDINARY_DAY) 배지 테두리. 바탕은 없음"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.neutral.400}",
+          "$description": "평범한 날 배지 글자"
+        }
+      }
+    },
+    "calendar": {
+      "good": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.coral.900}",
+          "$description": "캘린더 LuckLevel GOOD 날짜 칸 채우기. NEUTRAL은 채우지 않음"
+        }
+      },
+      "caution": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.neutral.900}",
+          "$description": "캘린더 LuckLevel CAUTION 날짜 칸 채우기"
+        }
+      }
+    },
+    "chip": {
+      "bg": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hex": "#ffffff",
+          "alpha": 0.08
+        },
+        "$description": "칩 바탕 (반투명 흰색)"
+      }
+    },
+    "swatch": {
+      "border": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9333,
+            0.9333,
+            0.9294
+          ],
+          "hex": "#eeeeed",
+          "alpha": 0.28
+        },
+        "$description": "오행 견본 테두리"
+      }
+    },
+    "ohaeng": {
+      "wood": {
+        "bg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1294,
+              0.2,
+              0.1294
+            ],
+            "hex": "#213321"
+          },
+          "$description": "원국표 칸처럼 글자가 얹히는 오행 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7686,
+              0.8824,
+              0.7686
+            ],
+            "hex": "#c4e1c4"
+          },
+          "$description": "오행 글자"
+        }
+      },
+      "fire": {
+        "bg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.251,
+              0.149,
+              0.1373
+            ],
+            "hex": "#402623"
+          },
+          "$description": "원국표 칸처럼 글자가 얹히는 오행 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9686,
+              0.8,
+              0.7765
+            ],
+            "hex": "#f7ccc6"
+          },
+          "$description": "오행 글자"
+        }
+      },
+      "earth": {
+        "bg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.2235,
+              0.1686,
+              0.0863
+            ],
+            "hex": "#392b16"
+          },
+          "$description": "원국표 칸처럼 글자가 얹히는 오행 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9176,
+              0.8314,
+              0.702
+            ],
+            "hex": "#ead4b3"
+          },
+          "$description": "오행 글자"
+        }
+      },
+      "metal": {
+        "bg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1647,
+              0.1804,
+              0.2
+            ],
+            "hex": "#2a2e33"
+          },
+          "$description": "원국표 칸처럼 글자가 얹히는 오행 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8275,
+              0.8471,
+              0.8706
+            ],
+            "hex": "#d3d8de"
+          },
+          "$description": "오행 글자"
+        }
+      },
+      "water": {
+        "bg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1294,
+              0.1804,
+              0.2588
+            ],
+            "hex": "#212e42"
+          },
+          "$description": "원국표 칸처럼 글자가 얹히는 오행 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7686,
+              0.851,
+              0.9765
+            ],
+            "hex": "#c4d9f9"
+          },
+          "$description": "오행 글자"
+        }
+      }
+    }
+  },
+  "gradient": {
+    "today": {
+      "$type": "gradient",
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0863,
+              0.1255,
+              0.0902
+            ],
+            "hex": "#162017"
+          },
+          "position": 0.0
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1529,
+              0.0941,
+              0.0941
+            ],
+            "hex": "#271818"
+          },
+          "position": 1.0
+        }
+      ],
+      "$description": "데일리 카드·온보딩·공유 이미지에만 씁니다. 단색으로 바뀌어도 깨지지 않게 씁니다",
+      "$extensions": {
+        "myungli-diary": {
+          "angle": 160
+        }
+      }
+    }
+  }
+}
