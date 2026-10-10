@@ -1,0 +1,162 @@
+"""`mlw` 명령: 앞선 검사를 하나로 묶습니다.
+
+종료 코드: error가 있으면 1, YAML 로드·구조 오류면 2, 그 밖에는 0.
+"""
+
+import argparse
+import json
+import sys
+from collections.abc import Mapping, Sequence
+from pathlib import Path
+
+from mlw import paths
+from mlw.arb import check_arb
+from mlw.bundles import check_days, check_weeks
+from mlw.completeness import RULE_MISSING, check_completeness, glossary_values
+from mlw.loader import load_content, load_rules, load_slots
+from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
+from mlw.placeholders import parse
+from mlw.sentence import check_sentence
+
+GLOSSARY_SLOT = "glossary.value_name"
+NAME_PARAM = "name"
+# 호칭 최대 길이를 채우는 글자입니다. 글자 수만 세므로 무엇이든 됩니다.
+NAME_FILLER = "가"
+UI_GROUP = "ui"
+EXIT_ERROR = 1
+EXIT_LOAD_ERROR = 2
+
+
+def _longest_by_category(entries: Sequence[Entry], lang: str) -> dict[str, str]:
+    """같은 언어의 값 이름 원고 중 범주별로 가장 긴 값입니다. 키는 `<범주>.<값>`의 범주입니다."""
+    longest: dict[str, str] = {}
+    for entry in entries:
+        if entry.slot != GLOSSARY_SLOT or entry.lang != lang:
+            continue
+        category = entry.key.split(".")[0]
+        if len(entry.text) > len(longest.get(category, "")):
+            longest[category] = entry.text
+    return longest
+
+
+def longest_values_for(entries: Sequence[Entry], lang: str, rules: RuleSet) -> dict[str, str]:
+    """글자 수 검사에 쓸 자리표시자 키(`name:category` 형태) -> 가장 긴 값입니다.
+
+    값이 없는 범주와 상한이 없는 호칭은 넣지 않습니다. 그러면 그 항목의 글자 수 검사는 건너뜁니다.
+    """
+    by_category = _longest_by_category(entries, lang)
+    values: dict[str, str] = {}
+    name_max = rules.josa.name_rules.max_length.get(lang)
+    if name_max is not None:
+        values[NAME_PARAM] = NAME_FILLER * name_max
+    categories = glossary_values()
+    for entry in entries:
+        try:
+            placeholders = parse(entry.text)
+        except ValueError:
+            continue
+        for placeholder in placeholders:
+            category = placeholder.category or placeholder.name
+            if category in categories and category in by_category:
+                values[placeholder.key] = by_category[category]
+    return values
+
+
+def _sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules: RuleSet) -> list[Finding]:
+    longest = {lang: longest_values_for(entries, lang, rules) for lang in LANGS}
+    findings: list[Finding] = []
+    for entry in entries:
+        slot = slots.get(entry.slot)
+        if slot is None:
+            continue
+        findings.extend(
+            check_sentence(entry, slot.purpose, rules, slot.max_length.get(entry.lang), longest[entry.lang])
+        )
+    return findings
+
+
+def _sorted(findings: Sequence[Finding]) -> list[Finding]:
+    return sorted(findings, key=lambda finding: (str(finding.file), finding.line))
+
+
+def _print_findings(findings: Sequence[Finding]) -> int:
+    for finding in _sorted(findings):
+        print(finding.format())
+    return EXIT_ERROR if any(finding.severity == "error" for finding in findings) else 0
+
+
+def _check(args: argparse.Namespace) -> int:
+    rules = load_rules(args.rules_dir)
+    all_slots = load_slots(args.slots_dir, rules)
+    # ARB 화면 문구 슬롯은 원고(content/)가 없으므로 원고 검사에서 뺍니다.
+    slots = {slot_id: slot for slot_id, slot in all_slots.items() if slot.file.parent.name != UI_GROUP}
+    entries = load_content(args.content)
+    message_keys: list[str] = json.loads(args.message_keys.read_text(encoding="utf-8"))
+    fixture = json.loads(args.fixture.read_text(encoding="utf-8"))
+
+    completeness = check_completeness(slots, entries, message_keys, LANGS)
+    if args.partial:
+        completeness = [finding for finding in completeness if finding.rule_id != RULE_MISSING]
+    findings = [
+        *completeness,
+        *_sentence_findings(slots, entries, rules),
+        *check_days(slots, entries, rules.limits.values(), LANGS, rules),
+        *check_weeks(
+            slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture
+        ),
+    ]
+    return _print_findings(findings)
+
+
+def _check_arb(args: argparse.Namespace) -> int:
+    rules = load_rules(args.rules_dir)
+    slots = load_slots(args.slots_dir, rules)
+    return _print_findings(check_arb(args.arb_files, slots, rules))
+
+
+def _gen_week_fixture(args: argparse.Namespace) -> int:
+    # grpc 의존 모듈은 이 하위 명령에서만 불러옵니다.
+    from mlw import week_fixture
+
+    return week_fixture.main(["--engine", args.engine])
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="mlw", description="명리일기 라이팅 검사기")
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    def add_dirs(command: argparse.ArgumentParser) -> None:
+        command.add_argument("--rules-dir", type=Path, default=paths.RULES_DIR, help="규칙 디렉터리")
+        command.add_argument("--slots-dir", type=Path, default=paths.SLOTS_DIR, help="슬롯 명세 디렉터리")
+
+    check = commands.add_parser("check", help="원고를 검사합니다")
+    check.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
+    check.add_argument("--partial", action="store_true", help="없는 원고(complete.missing)를 보고하지 않습니다")
+    check.add_argument("--message-keys", type=Path, default=paths.MESSAGE_KEYS_FILE, help="메시지 키 파일")
+    check.add_argument("--fixture", type=Path, default=paths.FIXTURE_FILE, help="한 주 검사 고정 자료")
+    add_dirs(check)
+    check.set_defaults(handler=_check)
+
+    check_arb_command = commands.add_parser("check-arb", help="ARB 파일을 검사합니다")
+    check_arb_command.add_argument("arb_files", nargs="+", type=Path, metavar="arb", help="ARB 파일")
+    add_dirs(check_arb_command)
+    check_arb_command.set_defaults(handler=_check_arb)
+
+    fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")
+    fixture.add_argument("--engine", required=True, help="엔진 주소, 예: localhost:50051")
+    fixture.set_defaults(handler=_gen_week_fixture)
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
+    try:
+        return int(args.handler(args))
+    except LoadError as error:
+        for finding in _sorted(error.findings):
+            print(finding.format())
+        return EXIT_LOAD_ERROR
+
+
+if __name__ == "__main__":
+    sys.exit(main())

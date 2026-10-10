@@ -1,0 +1,52 @@
+# 화면 문구 슬롯: 깊이 단계(depth)
+#
+# keys는 ARB 메시지 이름입니다. ARB 파일은 `mlw check-arb`가 검사하고, 원고(content/)는 두지 않습니다.
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 라운드(W0 Task 11~13)에서 채웁니다.
+
+- id: ui.depth.default_label
+  where: 깊이 단계 선택의 기본 단계 이름
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - ui.depth.default_label
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+
+- id: ui.depth.surface
+  where: 깊이 단계 표면 단계(첫 단계)의 안내
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - ui.depth.surface
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+
+- id: ui.depth.explain
+  where: 깊이 단계 풀이 단계(둘째 단계)의 안내
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - ui.depth.explain
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+
+- id: ui.depth.evidence
+  where: 깊이 단계 근거 단계(셋째 단계)의 안내
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - ui.depth.evidence
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}

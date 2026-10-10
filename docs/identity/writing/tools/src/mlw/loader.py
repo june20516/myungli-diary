@@ -745,8 +745,12 @@ def _check_references(slots: dict[str, Slot], rules: RuleSet, findings: list[Fin
                 findings.append(Finding(slot.file, slot.line, UNKNOWN_SLOT_ID, "error", message))
 
 
+# 콘텐츠 슬롯(content)과 ARB 화면 문구 슬롯(ui)의 하위 디렉터리입니다.
+SLOT_GROUPS = ("content", "ui")
+
+
 def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
-    """`slots_dir/content/*.yaml`의 슬롯을 읽습니다. `_schema.yaml`이 검증 기준입니다.
+    """`slots_dir/content/*.yaml`과 `slots_dir/ui/*.yaml`의 슬롯을 읽습니다. `_schema.yaml`이 검증 기준입니다.
 
     문제가 있으면 모두 모아 `LoadError`를 던집니다.
     """
@@ -754,7 +758,8 @@ def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
     schema = _load_schema(schema_problems.file, schema_problems)
     findings = list(schema_problems.findings)
     slots: dict[str, Slot] = {}
-    for path in sorted((slots_dir / "content").glob("*.yaml")):
+    paths = [path for group in SLOT_GROUPS for path in sorted((slots_dir / group).glob("*.yaml"))]
+    for path in paths:
         problems = _Problems(path)
         for data, line in _read_items(path, problems) or []:
             slot = _parse_slot(data, line, path, schema, problems)
