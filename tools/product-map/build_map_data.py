@@ -22,6 +22,13 @@ DECISION_LOGS = (
     "docs/identity/design/decisions.md",
 )
 IA_PATH = "docs/ia/screens.json"
+# 아이디어 함 (docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.7)
+IDEAS_PATH = "docs/ideas.md"
+IDEA_COLUMNS = ("id", "날짜", "아이디어", "출처", "범위", "수익", "상태", "메모")
+IDEA_KEYS = ("id", "date", "idea", "source", "scope", "revenue", "status", "memo")
+IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S+)")
+IDEA_STATES = {"대기": "waiting", "보류": "held", "기각": "rejected"}
+UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 ARTIFACT_UNITS = (
     ("docs/identity/design/", "design"),
     ("docs/identity/writing/", "writing"),
@@ -181,6 +188,73 @@ def collect_screen_tabs(root: Path) -> list[dict[str, object]]:
     return list(tabs) if isinstance(tabs, list) else []
 
 
+def _idea_cells(line: str) -> list[str]:
+    cells = UNESCAPED_PIPE.split(line.strip().strip("|"))
+    return [cell.strip().replace("\\|", "|") for cell in cells]
+
+
+def _idea_rows(text: str) -> list[list[str]] | None:
+    """머리가 IDEA_COLUMNS인 첫 표의 데이터 행. 표가 없으면 None."""
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith("|") and tuple(_idea_cells(line)) == IDEA_COLUMNS:
+            rows = []
+            for row in lines[index + 2:]:
+                if not row.startswith("|"):
+                    break
+                rows.append(_idea_cells(row))
+            return rows
+    return None
+
+
+def _idea(cells: list[str]) -> dict[str, str]:
+    idea = dict(zip(IDEA_KEYS, cells + [""] * (len(IDEA_KEYS) - len(cells))))
+    match = IDEA_STATUS_PATTERN.fullmatch(idea["status"])
+    idea["decision"] = (match.group(1) or "") if match else ""
+    idea["review"] = (match.group(2) or "") if match else ""
+    if not match:
+        idea["state"] = "unknown"
+    elif idea["decision"]:
+        idea["state"] = "adopted"
+    elif idea["review"]:
+        idea["state"] = "review"
+    else:
+        idea["state"] = IDEA_STATES[idea["status"]]
+    return idea
+
+
+def _review_doc(root: Path, relative: str) -> dict[str, str]:
+    path = root / relative
+    try:
+        text = path.read_text(encoding="utf-8") if path.is_file() else ""
+    except UnicodeDecodeError:
+        text = ""
+    title = re.search(r"^# (.+)$", text, re.M)
+    status = re.search(r"^\* 상태: (.+)$", text, re.M)
+    return {
+        "path": relative,
+        "title": title.group(1).strip() if title else relative,
+        "status": status.group(1).strip() if status else "",
+    }
+
+
+def collect_ideas(root: Path) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """아이디어 함의 행과, 검토 중인 문서(처음 나온 순서, 한 번씩)."""
+    path = root / IDEAS_PATH
+    if not path.exists():
+        return [], []
+    try:
+        rows = _idea_rows(path.read_text(encoding="utf-8"))
+    except UnicodeDecodeError:
+        rows = None
+    if rows is None:
+        print(f"건너뜀: {IDEAS_PATH} 아이디어 표를 찾지 못했습니다", file=sys.stderr)
+        return [], []
+    ideas = [_idea(cells) for cells in rows]
+    review_paths = list(dict.fromkeys(idea["review"] for idea in ideas if idea["review"]))
+    return ideas, [_review_doc(root, relative) for relative in review_paths]
+
+
 def _read(root: Path, relative: str) -> str:
     path = root / relative
     return path.read_text(encoding="utf-8") if path.exists() else ""
@@ -189,6 +263,7 @@ def _read(root: Path, relative: str) -> str:
 def build(root: Path) -> dict[str, object]:
     roadmap = _read(root, "docs/roadmap.md")
     issues = collect_issues(root)
+    ideas, idea_reviews = collect_ideas(root)
     decisions = [
         decision
         for log in DECISION_LOGS
@@ -201,6 +276,8 @@ def build(root: Path) -> dict[str, object]:
         "identity": parse_identity(_read(root, "docs/identity/README.md")),
         "screens": collect_screens(root),
         "screen_tabs": collect_screen_tabs(root),
+        "ideas": ideas,
+        "idea_reviews": idea_reviews,
         "artifacts": collect_artifacts(root),
         "decisions": decisions,
         "issues": issues or [],
