@@ -38,3 +38,4 @@ app/ios/.symlinks/
 app/android/.gradle/
 app/android/local.properties
 *.iml
+.suberpowers/

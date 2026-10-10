@@ -1,6 +1,6 @@
 ---
-from: core | server | app | root
-to: core | server | app | root
+from: core | server | app | writing | design | root
+to: core | server | app | writing | design | root
 kind: request | report | notice      # 요청 / 완료 보고 / 하위 호환이 깨지는 변경 공지
 status: open                          # open → accepted | rejected → done
 created: YYYY-MM-DD

@@ -13,15 +13,21 @@
 | S1 | server 설계 (spec·계획) | server | R0 | S2 | 시작 전 (C1과 병행 가능) |
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | 시작 전 |
 | S3 | **REST API v1 동결** | server | S2 | A2, I2 | 시작 전 |
-| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0 | A2 | 시작 전 (C1·S1과 병행 가능) |
+| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0 (설계는 B0 이후 병행 가능, UI 구현은 V2 이후) | A2 | 시작 전 (C1·S1과 병행 가능) |
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
-| W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | 지휘 → server 시드 | C2(`message_keys.json`) | I3 | 시작 전 |
+| B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
+| IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | 시작 전 |
+| W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | 시작 전 |
+| V0 | 시각 정체성 | design | B0 | V1 | 시작 전 |
+| V1 | **디자인 토큰 동결** | design | V0 | V2, A1 | 시작 전 |
+| V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | 시작 전 |
+| W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | 시작 전 |
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3 | - |
 | I2 | 통합 2: app ↔ server | 지휘 판단 | A2, S3 | I3 | - |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E | 지휘 판단 | I1, I2, W1 | I4 | - |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3 | Phase 2 | - |
 
-**병행 가능 구간:** C1 · S1 · A1은 서로 기다리지 않습니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6).
+**병행 가능 구간:** C1 · S1 · A1은 서로 기다리지 않습니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다.
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
@@ -29,7 +35,7 @@
 | 한국천문연구원 API 키 (data.go.kr: 24절기·음양력) | core Task 18 | 사용자 |
 | `buf` 설치 | core Task 14 | core 세션 |
 | Apple Developer / Google Play 개발자 계정 | I4 (빌드 배포는 A1부터 필요할 수 있음) | 사용자 |
-| 영어·일본어 원어민 검수 | W1 | 사용자 |
+| 영어·일본어 원어민 검수 | W1 | 사용자 (writing W1) |
 | 배포 플랫폼 선정 (서버·엔진) | S1 | 지휘 + server |
 
 ## 지휘 세션 미결 (서브 프로젝트 설계 전에 정할 것)
@@ -37,6 +43,8 @@
 | --- | --- | --- |
 | 해시태그 회고 모아보기를 MVP에 넣을지 | server, app | 00 §3.4, 06 §4 (태그 칩이 회고 진입점) |
 | 오프라인 작성 + Sync-token 동기화를 MVP에 넣을지 | server, app | 02 §2.2 |
-| 캘린더 길흉 점의 색 규칙 | app | 06 §2, 엔진 spec §8 (`LuckLevel` 3단계) |
+| MVP 화면 목록 작성 | app, writing, design | D39 |
 | 소셜 로그인 제공자 (1~2개) | server, app | 04 §4.1 |
 | 서버·엔진 배포 플랫폼 | server, core | D33 |
+
+* 이관됨: "캘린더 길흉 점의 색 규칙"은 design V1 토큰에서 정합니다(2026-10-10, 브랜드 기반 spec §11).
