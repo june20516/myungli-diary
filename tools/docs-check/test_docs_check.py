@@ -164,6 +164,135 @@ class DecisionTests(RepoTestCase):
         self.assertEqual(docs_check.check_decision_ids(self.root), [])
 
 
+def ia_screen(**overrides: object) -> dict[str, object]:
+    screen: dict[str, object] = {
+        "id": "today",
+        "title": "오늘",
+        "tab": "today",
+        "presentation": "page",
+        "auth": "member",
+        "purpose": "오늘 일진을 풀어 보여줍니다",
+        "depths": ["surface", "explain", "evidence"],
+        "states": [{"id": "loading", "note": "스켈레톤"}],
+        "slots": [{"id": "today.fortune.head", "source": "content", "role": "총운 첫 문장, 호칭 자리"}],
+        "components": ["day-character"],
+        "exits": [],
+        "decisions": ["D13"],
+    }
+    screen.update(overrides)
+    return screen
+
+
+def ia_doc(**overrides: object) -> dict[str, object]:
+    doc: dict[str, object] = {
+        "version": 1,
+        "tabs": [{"id": "today", "title": "오늘", "root": "today"}],
+        "components": [{"id": "day-character", "role": "날의 성격"}],
+        "screens": [ia_screen()],
+    }
+    doc.update(overrides)
+    return doc
+
+
+class IaTests(RepoTestCase):
+    def write_ia(self, doc: object) -> None:
+        write(self.root, "docs/decisions.md", "| D13 | 2026-10-10 | x | x | x |\n")
+        text = doc if isinstance(doc, str) else json.dumps(doc, ensure_ascii=False)
+        write(self.root, docs_check.IA_PATH, text)
+
+    def problems_for(self, doc: object) -> list[str]:
+        self.write_ia(doc)
+        return docs_check.check_ia(self.root)
+
+    def assert_reported(self, doc: object, *needles: str) -> None:
+        problems = self.problems_for(doc)
+        joined = "\n".join(problems)
+        for needle in needles:
+            self.assertIn(needle, joined, problems)
+
+    def test_absent_file_is_ok(self) -> None:
+        self.assertEqual(docs_check.check_ia(self.root), [])
+
+    def test_valid_doc_is_ok(self) -> None:
+        self.assertEqual(self.problems_for(ia_doc()), [])
+
+    def test_invalid_json(self) -> None:
+        problems = self.problems_for("{")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("JSON 형식 오류", problems[0])
+
+    def test_top_level_must_be_object(self) -> None:
+        self.assert_reported([], "최상위는 객체")
+
+    def test_version_must_be_positive_int(self) -> None:
+        for bad in (True, 0, "1"):
+            with self.subTest(version=bad):
+                self.assert_reported(ia_doc(version=bad), "version")
+
+    def test_missing_screen_key_reported(self) -> None:
+        screen = ia_screen()
+        del screen["purpose"]
+        self.assert_reported(ia_doc(screens=[screen]), "[today]", "purpose")
+
+    def test_wrong_field_type_reported(self) -> None:
+        self.assert_reported(ia_doc(screens=[ia_screen(slots="x")]), "[today]", "slots")
+
+    def test_non_object_items_reported(self) -> None:
+        self.assert_reported(ia_doc(screens=["x"], tabs=[1], components=[None]), "객체")
+
+    def test_bad_enum_values(self) -> None:
+        cases = {
+            "modal": ia_screen(presentation="modal"),
+            "user": ia_screen(auth="user"),
+            "deep": ia_screen(depths=["deep"]),
+            "busy": ia_screen(states=[{"id": "busy"}]),
+            "server": ia_screen(slots=[{"id": "today.a.b", "source": "server", "role": "r"}]),
+        }
+        for value, screen in cases.items():
+            with self.subTest(value=value):
+                self.assert_reported(ia_doc(screens=[screen]), value)
+
+    def test_duplicate_screen_id(self) -> None:
+        self.assert_reported(ia_doc(screens=[ia_screen(), ia_screen()]), "화면 id 중복")
+
+    def test_duplicate_slot_id_across_screens(self) -> None:
+        other = ia_screen(id="today-x", tab=None, slots=[{"id": "today.fortune.head", "source": "ui", "role": "r"}])
+        self.assert_reported(ia_doc(screens=[ia_screen(), other]), "슬롯 id 중복")
+
+    def test_slot_prefix_must_match_screen(self) -> None:
+        slots = [{"id": "today-x.a.b", "source": "ui", "role": "r"}]
+        self.assert_reported(ia_doc(screens=[ia_screen(slots=slots)]), "화면 id로 시작")
+
+    def test_slot_needs_three_parts(self) -> None:
+        slots = [{"id": "today.head", "source": "ui", "role": "r"}]
+        self.assert_reported(ia_doc(screens=[ia_screen(slots=slots)]), "슬롯 id 형식")
+
+    def test_unknown_references(self) -> None:
+        cases = {
+            "nowhere": ia_doc(screens=[ia_screen(exits=[{"to": "nowhere", "trigger": "누름"}])]),
+            "nope": ia_doc(screens=[ia_screen(tab="nope")]),
+            "lost": ia_doc(tabs=[{"id": "today", "title": "오늘", "root": "lost"}]),
+            "ghost": ia_doc(screens=[ia_screen(components=["ghost"])]),
+        }
+        for value, doc in cases.items():
+            with self.subTest(value=value):
+                self.assert_reported(doc, value)
+
+    def test_unknown_decision_id(self) -> None:
+        self.assert_reported(ia_doc(screens=[ia_screen(decisions=["D999"])]), "D999")
+
+    def test_two_address_slots_reported(self) -> None:
+        slots = [
+            {"id": "today.fortune.head", "source": "content", "role": "호칭 자리"},
+            {"id": "today.fortune.body", "source": "content", "role": "호칭 자리"},
+        ]
+        self.assert_reported(ia_doc(screens=[ia_screen(slots=slots)]), "호칭 자리")
+
+    def test_main_reports_ia_problem(self) -> None:
+        self.write_ia("{")
+        self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
+
+
 class MainTests(RepoTestCase):
     def test_main_returns_zero_on_clean_repo(self) -> None:
         write(self.root, "a.md", "# a")
