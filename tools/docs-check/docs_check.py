@@ -51,9 +51,16 @@ def _check_artifact_entry(entry: dict[str, object], index_dir: Path) -> list[str
     if "status" in entry and entry["status"] not in ARTIFACT_STATUSES:
         reasons.append(f"status 값 오류: {entry['status']}")
     for field in ("file", "source"):
-        name = entry.get(field)
-        if isinstance(name, str) and not (index_dir / name).exists():
+        if field not in entry:
+            continue
+        name = entry[field]
+        if not isinstance(name, str) or not name:
+            reasons.append(f"{field} 값은 비어 있지 않은 문자열이어야 합니다")
+        elif not (index_dir / name).is_file():
             reasons.append(f"{field} 파일 없음: {name}")
+    for field in ("screens", "decisions"):
+        if field in entry and not isinstance(entry[field], list):
+            reasons.append(f"{field} 값은 배열이어야 합니다")
     return reasons
 
 

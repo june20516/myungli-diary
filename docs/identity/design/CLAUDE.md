@@ -17,7 +17,7 @@
 * 사용자는 제품 작업을 컴포넌트부터 설계하기를 원합니다. app의 UI 구현은 V2 뒤에 시작합니다.
 
 ## 고칠 수 있는 곳
-`docs/identity/design/`, GitHub Issues(요청·보고 작성, `gh issue list --label to:design`). 받은 요청: Issue #6(산출물 축적). 그 밖은 읽기만 합니다.
+`docs/identity/design/`, GitHub Issues(요청·보고 작성, `gh issue list --label to:design`). 받은 요청: Issue #6(산출물 축적). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
 ## 계약
 | 계약 | 역할 | 상대 |
@@ -44,4 +44,4 @@
    cd ../myungli-diary-design/docs/identity/design && claude
    ```
 3. brainstorming으로 V0 spec을 작성합니다 → `docs/identity/design/specs/`
-4. 토큰 파일 형식(JSON 등)과 Dart 코드 생성 방식은 app과 Issue로 합의합니다.
+4. 토큰 파일 형식(JSON 등)과 Dart 코드 생성 방식은 app과 요청함으로 합의합니다.

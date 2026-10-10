@@ -92,6 +92,32 @@ class ArtifactTests(RepoTestCase):
         self.assertEqual(len(problems), 1)
         self.assertIn("note", problems[0])
 
+    def test_empty_file_value_reported(self) -> None:
+        self.write_index([artifact_entry(file="")])
+        problems = docs_check.check_artifacts(self.root)
+        self.assertTrue(problems)
+        self.assertIn("file", problems[0])
+
+    def test_non_string_file_reported(self) -> None:
+        self.write_index([artifact_entry(file=5)])
+        problems = docs_check.check_artifacts(self.root)
+        self.assertTrue(problems)
+        self.assertIn("file", problems[0])
+
+    def test_file_pointing_to_directory_reported(self) -> None:
+        (self.root / "docs/artifacts/sub").mkdir(parents=True)
+        self.write_index([artifact_entry(file="sub")])
+        problems = docs_check.check_artifacts(self.root)
+        self.assertTrue(problems)
+        self.assertIn("파일 없음", problems[0])
+
+    def test_screens_must_be_list(self) -> None:
+        write(self.root, "docs/artifacts/a1.png", "png")
+        self.write_index([artifact_entry(screens="daily")])
+        problems = docs_check.check_artifacts(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("screens", problems[0])
+
     def test_duplicate_id_reported(self) -> None:
         write(self.root, "docs/artifacts/a1.png", "png")
         self.write_index([artifact_entry(), artifact_entry()])

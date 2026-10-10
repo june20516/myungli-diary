@@ -63,7 +63,9 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 하위 호환이 깨지는 변경은 다음 절차를 따릅니다: ① `kind:notice` Issue로 공지 ② 계약 버전 올림 ③ 사용하는 쪽이 대응을 마쳤다고 보고한 뒤 이전 버전 제거.
 
 ### 5.2. 요청함: GitHub Issues (D44)
-* 브랜치와 상관없이 모든 세션이 같은 목록을 봅니다. 양식: `gh issue create --template <request|report|notice|task>.yml`
+* 브랜치와 상관없이 모든 세션이 같은 목록을 봅니다.
+* **여는 법:** 세션(CLI)은 `gh issue create --title "<제목>" --label from:<단위>,to:<단위>,kind:<종류> --milestone <로드맵 ID> --body-file <본문 파일>`. 라벨이 받는 쪽 목록(`gh issue list --label to:<단위>`)을 정하므로 `from`·`to`·`kind`를 빠짐없이 붙입니다. 본문 항목은 무엇이 필요한가(또는 무엇을 했는가)·왜·영향·관련입니다. `.github/ISSUE_TEMPLATE/`의 양식은 웹 화면용입니다(양식의 선택 값은 라벨이 되지 않으므로 웹에서도 라벨을 직접 붙입니다).
+* **닫기:** PR로 처리했다면 PR 본문에 `Closes #<번호>`를 적어 병합 때 자동으로 닫습니다.
 * **라벨:** `from:<단위>`, `to:<단위>`(단위: `root`, `core`, `server`, `app`, `writing`, `design`), `kind:request`·`kind:report`·`kind:notice`·`kind:task`, `blocking`(다른 작업을 막음)
 * **상태:** 열림 → 지휘 세션이 `accepted` 또는 `rejected` 라벨(거절은 닫음) → 받는 쪽이 처리하고 닫음. 완료 보고(`kind:report`)는 지휘 세션이 확인하고 닫습니다.
 * **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다.

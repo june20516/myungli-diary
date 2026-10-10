@@ -59,7 +59,7 @@
    | `**/*.md`, `**/artifacts/**` | docs |
    * 아직 없는 단위(server·app·writing·design 검사)는 해당 단위가 자기 workflow를 만들 때 연결합니다. 그때까지 `ci-gate`는 그 경로를 통과로 처리합니다.
 3. **서비스 workflow의 호출 방식:** 각 단위 workflow는 `workflow_call`로 호출할 수 있게 둡니다. job 이름은 `<단위>-<검사>` 규칙을 따릅니다(예: `core-check`, `core-proto`). `core.yml`의 전환은 core에 요청합니다.
-   * **전환 규칙:** 단위 workflow가 `workflow_call`을 지원하면 그 workflow의 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지). 그래야 같은 검사가 두 번 돌지 않습니다. 전환 전까지는 그 단위의 기존 workflow가 따로 돌고, `ci-gate`는 그 단위를 판정에 넣지 않습니다.
+   * **전환 규칙 (3단계, 검사가 비는 구간이 없게):** ① 단위가 `workflow_call`만 더합니다(기존 트리거를 유지). ② 지휘가 `ci-gate`에 그 단위의 경로와 `uses:` job을 연결합니다. ③ 단위가 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지). ①~② 사이에는 검사가 두 번 돌 수 있지만, 검사가 하나도 돌지 않는 구간은 생기지 않습니다. 전환 전까지 `ci-gate`는 그 단위를 판정에 넣지 않습니다.
 4. **docs 검사 (`ci-gate` 안, 지휘 소유)**
    * 상대 경로 링크 검사
    * 모든 `artifacts/index.json`의 형식 검사: 필수 필드, `kind`·`status` 값, 가리키는 파일 존재

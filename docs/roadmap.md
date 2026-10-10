@@ -19,8 +19,8 @@
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | 시작 전 |
-| W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | 시작 전 |
-| V0 | 시각 정체성 | design | B0 | V1 | 시작 전 |
+| W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | **진행 중** |
+| V0 | 시각 정체성 | design | B0 | V1 | **진행 중** (완료 보고, 브랜치 `design/visual-identity` 병합 대기) |
 | V1 | **디자인 토큰 동결** | design | V0 | V2, A1 | 시작 전 |
 | V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | 시작 전 |
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | 시작 전 |

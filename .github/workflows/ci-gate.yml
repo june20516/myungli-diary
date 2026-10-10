@@ -3,11 +3,12 @@
 # * 필수 검사 이름은 `ci-gate` 하나입니다. 경로 필터가 걸린 workflow를 필수로 두면
 #   해당 경로를 건드리지 않은 PR이 "대기"에 멈추므로, 판정은 항상 이 job이 냅니다.
 # * 새 단위 검사를 붙이는 방법 (docs/specs/2026-10-10-collab-workflow-design.md §4.1):
-#   1. 단위 workflow에 `on: workflow_call`을 더하고 `pull_request`·`push` 트리거를 지웁니다
-#      (`schedule`·`workflow_dispatch`는 유지). 같은 검사가 두 번 돌지 않게 하기 위해서입니다.
-#   2. 아래 `changes` job에 그 단위의 경로 출력을 더합니다(계약 경로는 주는 쪽·쓰는 쪽 모두).
-#   3. `uses: ./.github/workflows/<단위>.yml` job을 더하고 `ci-gate`의 needs에 넣습니다.
-#   전환 전까지 그 단위의 기존 workflow는 따로 돌고, 이 판정에는 들어가지 않습니다.
+#   1. (단위) 단위 workflow에 `on: workflow_call`만 더합니다. 기존 트리거를 유지합니다.
+#   2. (지휘) 아래 `changes` job에 그 단위의 경로 출력을 더하고(계약 경로는 주는 쪽·쓰는 쪽 모두),
+#      `uses: ./.github/workflows/<단위>.yml` job을 더해 `ci-gate`의 needs에 넣습니다.
+#   3. (단위) 단위 workflow의 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지).
+#   이 순서면 검사가 하나도 돌지 않는 구간이 생기지 않습니다. 전환 전까지 그 단위는 이 판정에 들어가지 않습니다.
+# * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
 
 name: ci-gate
 
@@ -19,7 +20,8 @@ on:
 
 concurrency:
   group: ci-gate-${{ github.ref }}
-  cancel-in-progress: true
+  # PR은 새 commit이 오면 앞선 실행을 취소합니다. main push는 커밋마다 판정을 남기려고 취소하지 않습니다.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read

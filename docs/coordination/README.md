@@ -3,7 +3,8 @@
 **2026-10-10부터 요청함은 GitHub Issues입니다(D44).** 이 디렉터리는 이관 전 문서의 보관소입니다. 규칙은 `docs/workflow.md` §5.2에 있습니다.
 
 ## Issue로 요청·보고하기
-* 양식으로 엽니다: `gh issue create --template request.yml` (`report.yml`, `notice.yml`, `task.yml`)
+* 여는 법(CLI): `gh issue create --title "<제목>" --label from:<단위>,to:<단위>,kind:<종류> --milestone <로드맵 ID> --body-file <본문 파일>`. 웹에서는 양식을 고른 뒤 라벨을 직접 붙입니다.
+* PR로 처리했다면 PR 본문에 `Closes #<번호>`를 적어 병합 때 닫습니다.
 * 내 앞으로 온 것 보기: `gh issue list --label to:<단위>` (단위: `root`, `core`, `server`, `app`, `writing`, `design`)
 * 라벨
   | 라벨 | 뜻 |

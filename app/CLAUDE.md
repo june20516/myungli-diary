@@ -28,7 +28,7 @@
 * **MVP 범위 밖:** SNS 공유, 궁합, 일기 감성 코멘트(LLM)는 Phase 2 이후입니다 (05, D22·D23)
 
 ## 고칠 수 있는 곳
-`app/`, `.github/workflows/app.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:app`). 그 밖은 읽기만 합니다.
+`app/`, `.github/workflows/app.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:app`). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
 ## 계약
 | 계약 | 역할 | 상대 |
