@@ -4,7 +4,7 @@ to: root
 kind: report
 status: open
 created: 2026-10-10
-related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec §9·§10·§11·§12, C1~C5]
+related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec §9·§10·§11·§12, C1~C21]
 ---
 
 # 엔진 MVP 구현 완료: server가 실제 엔진을 호출할 수 있습니다
