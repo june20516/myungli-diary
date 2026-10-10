@@ -33,6 +33,8 @@ artifacts = ["src/myungri_engine/references/data/**/*.json"]
 [tool.mypy]
 strict = true
 mypy_path = "src"
+# protoc 생성 코드는 검사하지 않는다 (tools/gen_proto.sh)
+exclude = ["src/myungri_engine/_gen/"]
 
 [[tool.mypy.overrides]]
 module = "lunar_python.*"
@@ -40,7 +42,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 110
-extend-exclude = ["docs"]
+extend-exclude = ["docs", "src/myungri_engine/_gen"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

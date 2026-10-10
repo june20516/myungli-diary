@@ -1,0 +1,14 @@
+version: v2
+modules:
+  - path: .
+lint:
+  use:
+    - STANDARD
+  # spec §9가 서비스·요청·응답 이름(MyungriEngine, ChartRequest 등)을 고정하므로 이름 규칙 세 개만 뺍니다.
+  except:
+    - SERVICE_SUFFIX
+    - RPC_REQUEST_STANDARD_NAME
+    - RPC_RESPONSE_STANDARD_NAME
+breaking:
+  use:
+    - FILE
