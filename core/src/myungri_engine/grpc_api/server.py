@@ -1,0 +1,80 @@
+"""MyungriEngine gRPC 서버 (spec 9, 11)."""
+
+from __future__ import annotations
+
+from collections.abc import Iterator
+from concurrent import futures
+from typing import Final
+
+import grpc
+
+from myungri_engine._gen.myungri.engine.v1 import engine_pb2 as pb
+from myungri_engine._gen.myungri.engine.v1 import engine_pb2_grpc as pb_grpc
+from myungri_engine.composers.chart import compose_chart
+from myungri_engine.composers.daily import compose_daily
+from myungri_engine.composers.month import compose_month
+from myungri_engine.domain.enums import Branch, Stem
+from myungri_engine.domain.errors import InvalidInputError
+from myungri_engine.grpc_api import mapping
+from myungri_engine.grpc_api.errors import run_or_abort
+from myungri_engine.references import loader
+
+DEFAULT_PORT: Final = 50051
+MAX_WORKERS: Final = 8
+
+
+class MyungriEngineServicer(pb_grpc.MyungriEngineServicer):
+    def GetChart(self, request: pb.ChartRequest, context: grpc.ServicerContext) -> pb.ChartResponse:
+        def compute() -> pb.ChartResponse:
+            birth = mapping.birth_from_proto(_required_birth(request))
+            as_of = mapping.date_from_proto(request.as_of)
+            return mapping.chart_to_proto(compose_chart(birth, as_of))
+
+        return run_or_abort(context, compute)
+
+    def GetDaily(self, request: pb.DailyRequest, context: grpc.ServicerContext) -> pb.DailyResponse:
+        def compute() -> pb.DailyResponse:
+            birth = mapping.birth_from_proto(_required_birth(request))
+            target = mapping.date_from_proto(request.date)
+            current_timezone = mapping.timezone_from_proto(request.current_timezone)
+            return mapping.daily_to_proto(compose_daily(birth, target, current_timezone))
+
+        return run_or_abort(context, compute)
+
+    def GetMonthCalendar(self, request: pb.MonthRequest, context: grpc.ServicerContext) -> pb.MonthResponse:
+        def compute() -> pb.MonthResponse:
+            birth = mapping.birth_from_proto(_required_birth(request))
+            current_timezone = mapping.timezone_from_proto(request.current_timezone)
+            return mapping.month_to_proto(compose_month(birth, request.year, request.month, current_timezone))
+
+        return run_or_abort(context, compute)
+
+
+def _required_birth(request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest) -> pb.BirthInfo:
+    if not request.HasField("birth"):
+        raise InvalidInputError("출생 정보가 없습니다.")
+    return request.birth
+
+
+def all_reference_refs() -> Iterator[str]:
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸과 오행 근거 전부."""
+    yield from (loader.johu_ref(stem, branch) for stem in Stem for branch in Branch)
+    yield from loader.FIVE_ELEMENTS_REF.values()
+
+
+def start(port: int = DEFAULT_PORT) -> tuple[grpc.Server, int]:
+    """근거 데이터를 검증한 뒤 서버를 시작하고 (서버, 실제 바인딩 포트)를 돌려준다.
+
+    port=0이면 임의 포트에 바인딩한다. 근거 데이터에 없는 키가 있으면 KeyError로 시작하지 않는다(spec 11).
+    """
+    loader.validate_refs(all_reference_refs())
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
+    pb_grpc.add_MyungriEngineServicer_to_server(MyungriEngineServicer(), server)
+    bound_port = server.add_insecure_port(f"[::]:{port}")
+    server.start()
+    return server, bound_port
+
+
+def serve(port: int = DEFAULT_PORT) -> grpc.Server:
+    server, _ = start(port)
+    return server

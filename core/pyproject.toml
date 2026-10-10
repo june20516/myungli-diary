@@ -20,6 +20,7 @@ dev = [
     "ruff",
     "mypy",
     "types-protobuf",
+    "types-grpcio>=1.84.0.20260928",
 ]
 
 [build-system]
@@ -35,6 +36,8 @@ strict = true
 mypy_path = "src"
 # protoc 생성 코드는 검사하지 않는다 (tools/gen_proto.sh)
 exclude = ["src/myungri_engine/_gen/"]
+# 생성된 engine_pb2_grpc.py에는 타입 힌트가 없다
+untyped_calls_exclude = ["myungri_engine._gen"]
 
 [[tool.mypy.overrides]]
 module = "lunar_python.*"
