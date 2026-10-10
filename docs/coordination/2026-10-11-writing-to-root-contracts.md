@@ -2,7 +2,7 @@
 from: writing
 to: root
 kind: request
-status: open
+status: accepted
 created: 2026-10-11
 related: [W0 spec §9, W9, 계약 목록, core/message_keys.json, D40]
 ---
@@ -49,3 +49,4 @@ related: [W0 spec §9, W9, 계약 목록, core/message_keys.json, D40]
 ## 처리 기록
 - 2026-10-11 (writing): open
 - 2026-10-11 (writing): 최종 review 반영 — 슬롯 명세 `params`를 값 종류 맵으로 바꾸고 항목 2에 제안 형식을 적음
+- 2026-10-11 (root): accepted — 1) 계약 3개를 `docs/contracts/README.md`에 등록(슬롯 명세 v1, 호칭·조사 v1, 검사기 v0.1.0). 2) `message_keys.json` 형식 변경은 writing 검사기·core 테스트를 깨므로 하지 않고, core에 새 파일 `core/message_params.json`(키 → 매개변수 이름 목록)을 요청(Issue #38). 받으면 `params` 대조 검사를 추가해 주세요. 3) ARB 메시지 이름은 lowerCamelCase Dart 식별자로 규약(gen-l10n 요구), app A1에서 확인. 4) D40 범위는 D57로 수락
