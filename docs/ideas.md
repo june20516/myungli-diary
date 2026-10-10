@@ -17,9 +17,9 @@
 
 | id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| I1 | 2026-10-11 | 오늘에 대해 묻기 (LLM 질문권, 묶음 구매) | 조사 | Phase 2 | 유료 후보 | 검토 docs/business/cycles/2026-10-11-launch-payment.md | 조사 1순위. D24에 따라 LLM은 Phase 2. Co–Star 질문 묶음 |
-| I2 | 2026-10-11 | 일기 회고 요약 (주·월 일기를 일진 흐름과 엮은 LLM 요약) | 조사 | Phase 2 | 유료 후보 | 검토 docs/business/cycles/2026-10-11-launch-payment.md | 일기가 쌓여야 가치. Day One Gold |
-| I3 | 2026-10-11 | 기간 리포트 (다음 달·연간 길흉 흐름, 건별) | 조사 | 미정 | 유료 후보 | 검토 docs/business/cycles/2026-10-11-launch-payment.md | LLM 없이 가능. MVP라면 D47⑥ 개정 필요 |
-| I4 | 2026-10-11 | 궁합·지인 원국 슬롯 추가 | 조사 | Phase 2 | 유료 후보 | 검토 docs/business/cycles/2026-10-11-launch-payment.md | D18에서 궁합은 Phase 2. The Pattern 슬롯 |
-| I5 | 2026-10-11 | 일기 사진 첨부·여러 기기 확장 | 조사 | Phase 2 | 유료 후보 | 검토 docs/business/cycles/2026-10-11-launch-payment.md | Day One Silver |
-| I6 | 2026-10-11 | 광고 제거 | 조사 | 미정 | 유료 후보 | 검토 docs/business/cycles/2026-10-11-launch-payment.md | 광고를 넣을 때만 해당. 점신 |
+| I1 | 2026-10-11 | 오늘에 대해 묻기 (LLM 질문권, 묶음 구매) | 조사 | Phase 2 | 유료 후보 | 보류 | 구독 결제(MVP 이후) 사이클에서 다시 봄. 조사 1순위. D24에 따라 LLM은 Phase 2. Co–Star 질문 묶음 |
+| I2 | 2026-10-11 | 일기 회고 요약 (주·월 일기를 일진 흐름과 엮은 LLM 요약) | 조사 | Phase 2 | 유료 후보 | 보류 | 구독 결제(MVP 이후) 사이클에서 다시 봄. 일기가 쌓여야 가치. Day One Gold |
+| I3 | 2026-10-11 | 기간 리포트 (다음 달·연간 길흉 흐름, 건별) | 조사 | 미정 | 유료 후보 | 보류 | MVP는 광고 모델로 정함(D53). LLM 없이 가능. MVP라면 D47⑥ 개정 필요 |
+| I4 | 2026-10-11 | 궁합·지인 원국 슬롯 추가 | 조사 | Phase 2 | 유료 후보 | 보류 | 구독 결제(MVP 이후) 사이클에서 다시 봄. D18에서 궁합은 Phase 2. The Pattern 슬롯 |
+| I5 | 2026-10-11 | 일기 사진 첨부·여러 기기 확장 | 조사 | Phase 2 | 유료 후보 | 보류 | 구독 결제(MVP 이후) 사이클에서 다시 봄. Day One Silver |
+| I6 | 2026-10-11 | 광고 제거 | 조사 | MVP | 유료 후보 | 채택 D53 | 1개월 광고 제거권으로 채택. 광고를 넣을 때만 해당. 점신 |

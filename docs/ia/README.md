@@ -28,7 +28,7 @@ flowchart LR
   preview -->|저장하고 계속하기 / 공유| login
   welcome -->|이미 계정이 있어요| login
   login -->|새 계정| consent
-  consent -->|미리보기를 거침| notify-ask --> today
+  consent -->|미리보기를 거침| notify-ask --> ad-consent --> today
   consent -->|미리보기 없이 옴| onboard-call
   login -->|사주가 저장된 계정| today
 ```
