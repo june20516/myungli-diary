@@ -27,7 +27,7 @@
 | `docs/identity/writing/` | writing | |
 | `docs/identity/design/` | design | |
 | `docs/coordination/` | 모두 | 요청·보고 문서 **작성**은 누구나, 상태 변경 규칙은 §5 |
-| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/decisions.md`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
+| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
 
 ## 3. 서브 프로젝트의 작업 주기
 
@@ -76,3 +76,19 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다.** 서브 프로젝트를 동시에 진행하려면 서브 프로젝트마다 `git worktree`를 따로 만듭니다(using-git-worktrees skill).
 * **새 세션은 worktree를 먼저 만들고 그 안에서 시작합니다.** 원래 checkout은 다른 세션의 브랜치에 있을 수 있어서, 새 디렉터리(예: `docs/identity/`)가 아직 없을 수 있습니다. 착수 안내는 `git fetch origin` → `git worktree add ../<이름> -b <브랜치> --no-track origin/main` → `cd ../<이름>/<시작 디렉터리> && claude`를 한 덩어리로 적습니다.
 * 릴리스 태그에는 접두어를 붙입니다: `core/v1.0.0`.
+
+## 7. 시각 산출물 (`artifacts/`)
+지휘 세션이 만드는 **제품 지도**(비공개 claude.ai 페이지)는 각 `artifacts/index.json`을 읽어 그립니다. 시안·컨셉·스크린샷 같은 시각 산출물은 다음 규칙으로 저장소에 쌓습니다. (2026-10-10 임시 확정. 지도 화면과 갱신 절차는 협업 워크플로 spec에서 정합니다.)
+
+* **위치:** 자기 소유 경로 안의 `artifacts/`
+  | 소유 | 위치 |
+  | --- | --- |
+  | 지휘 | `docs/artifacts/` |
+  | design | `docs/identity/design/artifacts/` |
+  | writing | `docs/identity/writing/artifacts/` |
+  | app | `app/docs/artifacts/` (화면 스크린샷) |
+* **파일 이름:** `YYYY-MM-DD-<짧은 이름>.<png|svg|webp|html|pdf>`. HTML 시안에는 같은 이름의 PNG를 함께 둡니다(GitHub에서 보이도록).
+* **목록:** 같은 디렉터리의 `index.json`(JSON 배열). 예시는 `docs/artifacts/index.json`입니다.
+  * 필드: `id`, `title`, `kind`(`concept`·`mockup`·`component`·`screenshot`·`token-sheet`·`copy-sample`), `file`, `source`(선택), `date`, `milestone`, `screens`(IA 화면 id, IA 전에는 빈 배열), `decisions`, `status`(`draft`·`chosen`·`rejected`·`superseded`), `note`(한 줄)
+* **탈락한 시안도 지우지 않고** `status: rejected`로 남깁니다.
+* **용량:** 이미지 한 장 2MB 이하. Git LFS는 쓰지 않습니다.

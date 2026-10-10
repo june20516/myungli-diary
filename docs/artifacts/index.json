@@ -1,0 +1,41 @@
+[
+  {
+    "id": "brand-v1-first-impression",
+    "title": "브랜드 첫인상 방향 비교 (종이 일기장 / 만세력 / 차분한 데이터 / 현행 06)",
+    "kind": "concept",
+    "file": "2026-10-10-brand-v1-first-impression.png",
+    "source": "2026-10-10-brand-v1-first-impression.html",
+    "date": "2026-10-10",
+    "milestone": "B0",
+    "screens": [],
+    "decisions": ["D38"],
+    "status": "superseded",
+    "note": "색·톤은 현행 06(D), 정보 가시성은 차분한 데이터(C)를 골라 조합 요청"
+  },
+  {
+    "id": "brand-v2-tone-combination",
+    "title": "D+C 조합: 그라데이션 유지 / 단색 파스텔 / 오늘의 오행 색",
+    "kind": "concept",
+    "file": "2026-10-10-brand-v2-tone-combination.png",
+    "source": "2026-10-10-brand-v2-tone-combination.html",
+    "date": "2026-10-10",
+    "milestone": "B0",
+    "screens": [],
+    "decisions": ["D38"],
+    "status": "chosen",
+    "note": "E1 그라데이션 + 둥근 고딕 채택(써보고 불쾌하면 리뉴얼). 흰 패널 + 3칸 격자 레이아웃은 탈락"
+  },
+  {
+    "id": "brand-v3-daily-card-layout",
+    "title": "데일리 카드 레이아웃 비교 (L1~L4)",
+    "kind": "mockup",
+    "file": "2026-10-10-brand-v3-daily-card-layout.png",
+    "source": "2026-10-10-brand-v3-daily-card-layout.html",
+    "date": "2026-10-10",
+    "milestone": "B0",
+    "screens": [],
+    "decisions": ["D38"],
+    "status": "chosen",
+    "note": "L1 채택: 흰 패널 없이 그라데이션 위 문장, 행운 정보는 아래 반투명 칩 한 줄. 행운 값은 예시"
+  }
+]

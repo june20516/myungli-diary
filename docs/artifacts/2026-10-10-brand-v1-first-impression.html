@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Suberpowers Brainstorming</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+<style>
+  .phone { width: 300px; margin: 0 auto; border-radius: 22px; padding: 22px 20px 26px; box-sizing: border-box; min-height: 300px; }
+  .date { font-size: 12px; letter-spacing: .02em; margin-bottom: 18px; }
+  .badge { display: inline-block; font-size: 12px; padding: 3px 9px; margin-bottom: 14px; }
+  .msg { font-size: 17px; line-height: 1.65; margin: 0 0 18px; }
+  .meta { display: flex; gap: 8px; font-size: 12px; }
+  .meta span { padding: 4px 8px; }
+
+  /* A. 종이 일기장 */
+  .a { background: #f6f2ea; color: #23201b; font-family: 'Gowun Batang', serif; box-shadow: inset 0 0 0 1px #e4ddcf; }
+  .a .date { color: #7a7266; }
+  .a .badge { border: 1.5px solid #1f4e79; color: #1f4e79; border-radius: 3px; transform: rotate(-2deg); font-weight: 700; }
+  .a .term { border-bottom: 1.5px dotted #1f4e79; color: #1f4e79; }
+  .a .meta span { border: 1px solid #d9d1c2; border-radius: 3px; color: #5b554b; }
+
+  /* B. 만세력 현대화 */
+  .b { background: #fbfaf7; color: #1b1b1b; font-family: 'Noto Serif KR', serif; border-top: 6px solid #b23a2b; }
+  .b .date { display: flex; justify-content: space-between; border-bottom: 1px solid #1b1b1b; padding-bottom: 8px; color: #1b1b1b; }
+  .b .badge { background: #b23a2b; color: #fff; border-radius: 0; font-weight: 600; }
+  .b .term { color: #b23a2b; font-weight: 600; }
+  .b .meta span { border: 1px solid #1b1b1b; border-radius: 0; }
+
+  /* C. 차분한 데이터 */
+  .c { background: #ffffff; color: #17191c; font-family: 'Pretendard', sans-serif; box-shadow: 0 0 0 1px #e6e8eb; }
+  .c .date { color: #6b7280; font-weight: 500; }
+  .c .badge { background: #e7eef6; color: #1d4f86; border-radius: 6px; font-weight: 600; }
+  .c .term { background: #e7eef6; color: #1d4f86; border-radius: 4px; padding: 0 4px; font-weight: 600; }
+  .c .msg { font-weight: 500; letter-spacing: -.01em; }
+  .c .meta span { background: #f3f4f6; border-radius: 6px; color: #374151; }
+
+  /* D. 현행 06 문서 */
+  .d { background: linear-gradient(160deg, #eef4ef, #fbefee); color: #3a3a3a; font-family: 'Gowun Dodum', sans-serif; border-radius: 28px; }
+  .d .date { color: #8a8f8a; }
+  .d .badge { background: #f4b6ae; color: #fff; border-radius: 999px; }
+  .d .term { color: #6c9a7a; font-weight: 700; }
+  .d .meta span { background: #ffffffaa; border-radius: 999px; color: #6b6b6b; }
+</style>
+
+<h2>명리일기의 첫인상은 어느 쪽인가요?</h2>
+<p class="subtitle">같은 카드(용신일 아침, 호칭 "지윤")를 네 방향으로 그렸습니다. 문장은 1~5라운드 규칙 그대로이고, 색·글꼴·표시 방식만 다릅니다. 밑줄·색으로 표시된 "수 기운"이 용어 토큰입니다.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone a">
+        <div class="date">10월 10일 토요일</div>
+        <div class="badge">좋은 날</div>
+        <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+        <div class="meta"><span>남색</span><span>북쪽</span><span>1 · 6</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 종이 일기장</h3>
+      <p>미색 종이, 먹색 글씨, 바탕체 계열. 좋은 날 표시는 도장처럼 찍힙니다. "내 기록을 같이 보는 일기장"(라운드 1)을 그대로 옮긴 방향.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone b">
+        <div class="date"><span>10월 10일 토요일</span><span>日辰</span></div>
+        <div class="badge">좋은 날</div>
+        <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+        <div class="meta"><span>남색</span><span>북쪽</span><span>1 · 6</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 만세력 현대화</h3>
+      <p>만세력 책의 괘선과 주홍(朱) 한 색. 명조체, 각진 모서리. 명리라는 출처를 숨기지 않고 단정하게 드러내는 방향.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone c">
+        <div class="date">10월 10일 토요일</div>
+        <div class="badge">좋은 날</div>
+        <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+        <div class="meta"><span>남색</span><span>북쪽</span><span>1 · 6</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 차분한 데이터</h3>
+      <p>흰 바탕, 고딕, 칩 위주. 날씨·금융 앱처럼 정보를 정돈해 보여주는 방향. 신비감보다 신뢰감.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone d">
+        <div class="date">10월 10일 토요일</div>
+        <div class="badge">좋은 날</div>
+        <p class="msg">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
+        <div class="meta"><span>남색</span><span>북쪽</span><span>1 · 6</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. 현행 06 문서</h3>
+      <p>06 디자인 시스템 원문(세이지 그린·코랄 핑크 파스텔, 둥근 고딕)을 그대로 옮긴 비교 기준.</p>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</body>
+</html>
