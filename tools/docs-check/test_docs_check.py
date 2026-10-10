@@ -1,6 +1,7 @@
 """docs_check의 테스트. 실행: python3 -I -m unittest -q (이 디렉터리에서)"""
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -312,6 +313,115 @@ class IaTests(RepoTestCase):
 
     def test_main_reports_ia_problem(self) -> None:
         self.write_ia("{")
+        self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
+
+
+IDEAS_HEADER = "| id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모 |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+IDEAS_NO_TABLE = (
+    "docs/ideas.md: 아이디어 표가 없습니다 "
+    "(머리: id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모)"
+)
+
+
+def idea_row(
+    idea_id: str = "I1", source: str = "사용자", scope: str = "Phase 2",
+    revenue: str = "유료 후보", status: str = "대기", memo: str = "",
+) -> str:
+    return f"| {idea_id} | 2026-10-11 | 주간 리포트 | {source} | {scope} | {revenue} | {status} | {memo} |"
+
+
+def idea_doc(*rows: str) -> str:
+    return "# 아이디어 함\n\n" + IDEAS_HEADER + "".join(row + "\n" for row in rows)
+
+
+class IdeaTests(RepoTestCase):
+    def write_ideas(self, *rows: str) -> None:
+        write(self.root, "docs/ideas.md", idea_doc(*rows))
+
+    def test_missing_file_is_ok(self) -> None:
+        self.assertEqual(docs_check.check_ideas(self.root), [])
+
+    def test_header_only_is_ok(self) -> None:
+        self.write_ideas()
+        self.assertEqual(docs_check.check_ideas(self.root), [])
+
+    def test_valid_rows_pass(self) -> None:
+        write(self.root, "docs/decisions.md", "| D23 | 2026-10-10 | 수익 | x | y |\n")
+        write(self.root, "docs/business/cycles/c.md", "# c\n")
+        self.write_ideas(
+            idea_row("I1"),
+            idea_row("I2", status="채택 D23"),
+            idea_row("I3", status="검토 docs/business/cycles/c.md", scope="MVP"),
+            idea_row("I4", status="보류", revenue="무관"),
+            idea_row("I5", status="기각", revenue="무료", scope="미정"),
+            idea_row("I6", source="Issue #4", revenue="미정"),
+            idea_row("I7", source="조사"),
+        )
+        self.assertEqual(docs_check.check_ideas(self.root), [])
+
+    def test_reports_missing_table(self) -> None:
+        write(self.root, "docs/ideas.md", "| id | 아이디어 |\n| --- | --- |\n| I1 | x |\n")
+        self.assertEqual(docs_check.check_ideas(self.root), [IDEAS_NO_TABLE])
+
+    def test_reports_cell_count(self) -> None:
+        self.write_ideas("| I1 | 2026-10-11 | x | 사용자 | MVP | 무관 | 대기 |")
+        self.assertEqual(
+            docs_check.check_ideas(self.root), ["docs/ideas.md [I1]: 칸 수가 8이 아닙니다 (7)"]
+        )
+
+    def test_escaped_pipe_is_one_cell(self) -> None:
+        self.write_ideas(idea_row(memo="a \\| b"))
+        self.assertEqual(docs_check.check_ideas(self.root), [])
+
+    def test_reports_bad_and_duplicate_id(self) -> None:
+        self.write_ideas(idea_row("x1"), idea_row("I1"), idea_row("I1"))
+        self.assertEqual(docs_check.check_ideas(self.root), [
+            "docs/ideas.md [x1]: id 형식은 I<숫자>입니다",
+            "docs/ideas.md [I1]: id 중복",
+        ])
+
+    def test_reports_unknown_values(self) -> None:
+        self.write_ideas(
+            idea_row("I1", source="친구"),
+            idea_row("I2", scope="Phase 3"),
+            idea_row("I3", revenue="유료"),
+        )
+        self.assertEqual(docs_check.check_ideas(self.root), [
+            "docs/ideas.md [I1]: 출처 값이 아닙니다: 친구",
+            "docs/ideas.md [I2]: 범위 값이 아닙니다: Phase 3",
+            "docs/ideas.md [I3]: 수익 값이 아닙니다: 유료",
+        ])
+
+    def test_reports_malformed_status(self) -> None:
+        write(self.root, "docs/decisions.md", "| D23 | 2026-10-10 | 수익 | x | y |\n")
+        self.write_ideas(idea_row("I1", status="채택  D23"), idea_row("I2", status="**대기**"))
+        self.assertEqual(docs_check.check_ideas(self.root), [
+            "docs/ideas.md [I1]: 상태 값이 아닙니다: 채택  D23",
+            "docs/ideas.md [I2]: 상태 값이 아닙니다: **대기**",
+        ])
+
+    def test_reports_unknown_decision(self) -> None:
+        self.write_ideas(idea_row(status="채택 D99"))
+        self.assertEqual(docs_check.check_ideas(self.root), ["docs/ideas.md [I1]: 없는 결정: D99"])
+
+    def test_reports_missing_review_doc(self) -> None:
+        self.write_ideas(idea_row(status="검토 docs/none.md"))
+        self.assertEqual(
+            docs_check.check_ideas(self.root), ["docs/ideas.md [I1]: 검토 문서가 없습니다: docs/none.md"]
+        )
+
+    def test_rejects_review_path_outside_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as outside:
+            target = write(Path(outside), "x.md", "# x")
+            relative = os.path.relpath(target, self.root)
+            self.write_ideas(idea_row("I1", status=f"검토 {relative}"), idea_row("I2", status=f"검토 {target}"))
+            self.assertEqual(docs_check.check_ideas(self.root), [
+                f"docs/ideas.md [I1]: 검토 문서가 없습니다: {relative}",
+                f"docs/ideas.md [I2]: 검토 문서가 없습니다: {target}",
+            ])
+
+    def test_main_reports_idea_problem(self) -> None:
+        self.write_ideas(idea_row(source="친구"))
         self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
 
 

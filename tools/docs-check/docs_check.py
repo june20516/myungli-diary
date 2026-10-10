@@ -1,8 +1,9 @@
-"""저장소 문서 검사: 상대 링크, artifacts/index.json 형식, 결정 번호 중복, IA 계약.
+"""저장소 문서 검사: 상대 링크, artifacts/index.json 형식, 결정 번호 중복, IA 계약, 아이디어 함.
 
 실행: python3 -I tools/docs-check/docs_check.py [저장소 루트]
 규칙 근거: docs/workflow.md §7, docs/specs/2026-10-10-collab-workflow-design.md §4.1,
-          docs/specs/2026-10-11-ia-design.md §5·§9 (IA)
+          docs/specs/2026-10-11-ia-design.md §5·§9 (IA),
+          docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.6 (아이디어 함)
 """
 
 import json
@@ -39,6 +40,15 @@ IA_SCREEN_FIELDS = {
     "purpose": str, "depths": list, "states": list, "slots": list,
     "components": list, "exits": list, "decisions": list,
 }
+
+IDEAS_PATH = "docs/ideas.md"
+IDEA_COLUMNS = ("id", "날짜", "아이디어", "출처", "범위", "수익", "상태", "메모")
+IDEA_ID_PATTERN = re.compile(r"I[1-9]\d*")
+IDEA_SOURCE_PATTERN = re.compile(r"사용자|조사|Issue #\d+")
+IDEA_SCOPES = {"MVP", "Phase 2", "미정"}
+IDEA_REVENUES = {"무관", "무료", "유료 후보", "미정"}
+IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S+)")
+UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 
 
 def _files(root: Path, pattern: str) -> list[Path]:
@@ -296,10 +306,80 @@ def check_ia(root: Path) -> list[str]:
     return [p if p.startswith(IA_PATH) else f"{IA_PATH} {p}" for p in problems]
 
 
+def _idea_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in UNESCAPED_PIPE.split(line.strip().strip("|"))]
+
+
+def _idea_rows(text: str) -> list[list[str]] | None:
+    """머리가 IDEA_COLUMNS인 첫 표의 데이터 행. 표가 없으면 None."""
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith("|") and tuple(_idea_cells(line)) == IDEA_COLUMNS:
+            rows = []
+            for row in lines[index + 2:]:
+                if not row.startswith("|"):
+                    break
+                rows.append(_idea_cells(row))
+            return rows
+    return None
+
+
+def _review_doc_exists(root: Path, relative: str) -> bool:
+    if Path(relative).is_absolute():
+        return False
+    target = (root / relative).resolve()
+    return target.is_relative_to(root.resolve()) and target.is_file()
+
+
+def _check_idea_row(
+    cells: list[str], root: Path, decision_ids: set[str], seen: set[str]
+) -> list[str]:
+    if len(cells) != len(IDEA_COLUMNS):
+        return [f"칸 수가 {len(IDEA_COLUMNS)}이 아닙니다 ({len(cells)})"]
+    idea_id, _, _, source, scope, revenue, status, _ = cells
+    problems = []
+    if not IDEA_ID_PATTERN.fullmatch(idea_id):
+        problems.append("id 형식은 I<숫자>입니다")
+    elif idea_id in seen:
+        problems.append("id 중복")
+    seen.add(idea_id)
+    if not IDEA_SOURCE_PATTERN.fullmatch(source):
+        problems.append(f"출처 값이 아닙니다: {source}")
+    if scope not in IDEA_SCOPES:
+        problems.append(f"범위 값이 아닙니다: {scope}")
+    if revenue not in IDEA_REVENUES:
+        problems.append(f"수익 값이 아닙니다: {revenue}")
+    match = IDEA_STATUS_PATTERN.fullmatch(status)
+    if not match:
+        problems.append(f"상태 값이 아닙니다: {status}")
+    elif match.group(1) and match.group(1) not in decision_ids:
+        problems.append(f"없는 결정: {match.group(1)}")
+    elif match.group(2) and not _review_doc_exists(root, match.group(2)):
+        problems.append(f"검토 문서가 없습니다: {match.group(2)}")
+    return problems
+
+
+def check_ideas(root: Path) -> list[str]:
+    path = root / IDEAS_PATH
+    if not path.exists():
+        return []
+    rows = _idea_rows(path.read_text(encoding="utf-8"))
+    if rows is None:
+        return [f"{IDEAS_PATH}: 아이디어 표가 없습니다 (머리: {' | '.join(IDEA_COLUMNS)})"]
+    decision_ids = _decision_ids(root)
+    seen: set[str] = set()
+    return [
+        f"{IDEAS_PATH} [{cells[0]}]: {reason}"
+        for cells in rows
+        for reason in _check_idea_row(cells, root, decision_ids, seen)
+    ]
+
+
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     problems = (
         check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_ia(root)
+        + check_ideas(root)
     )
     if problems:
         print("\n".join(problems))
