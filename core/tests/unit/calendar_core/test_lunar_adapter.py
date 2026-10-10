@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
+from myungri_engine.calendar_core import korean_lunar
 from myungri_engine.calendar_core import lunar_adapter as la
 from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, LunarDate, resolve_birth_moment
 from myungri_engine.domain.enums import Branch as B
@@ -288,6 +289,15 @@ def test_month_days_solar_term_kinds_cover_year_in_order() -> None:
         if day.solar_term is not None
     ]
     assert kinds == list(SolarTermKind)
+
+
+def test_warm_up_fills_slow_caches() -> None:
+    # 12운성 표와 한국 음력 달력은 첫 생성이 수백 ms 걸리므로 서버 시작 때 미리 만든다
+    la._twelve_stage_table.cache_clear()
+    korean_lunar._calendar.cache_clear()
+    la.warm_up()
+    assert la._twelve_stage_table.cache_info().currsize == 1
+    assert korean_lunar._calendar.cache_info().currsize == 1
 
 
 # --- 대운 ---

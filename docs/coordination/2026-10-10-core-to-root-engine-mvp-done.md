@@ -4,7 +4,7 @@ to: root
 kind: report
 status: open
 created: 2026-10-10
-related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec §9·§10·§11·§12, C1~C21]
+related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec §9·§10·§11·§12, C1~C26]
 ---
 
 # 엔진 MVP 구현 완료: server가 실제 엔진을 호출할 수 있습니다
@@ -13,13 +13,13 @@ related: [D27, D31, D33, D34, engine.proto v1, core/message_keys.json, core spec
 계획의 20개 task를 모두 마쳤습니다(브랜치 `core/engine-mvp`). 원국 계산, 신강·신약과 용신, 데일리 판정, 월간 캘린더, gRPC 서버, CI와 문서가 들어 있습니다.
 
 * **제공 계약과 버전**
-  * `proto/myungri/engine/v1/engine.proto`: **v1**, 패키지 `myungri.engine.v1`. 서비스 `MyungriEngine`의 `GetChart`·`GetDaily`·`GetMonthCalendar`. 이전 `core-to-server` 보고(proto v1 확정)에서 바뀐 것은 없습니다.
+  * `proto/myungri/engine/v1/engine.proto`: **v1**, 패키지 `myungri.engine.v1`. 서비스 `MyungriEngine`의 `GetChart`·`GetDaily`·`GetMonthCalendar`. 이전 `core-to-server` 보고(proto v1 확정) 뒤 하위 호환 추가만 있었습니다: 절기 종류 `SolarTermKind`와 `SolarTerm.kind`(C26), 요청 필수 필드 명시(그 보고의 '추가 변경' 절).
   * `core/message_keys.json`: 메시지 키 **93개**(정렬된 JSON 배열).
   * `source_ref` 형식: `<자료 디렉터리>/<파일 이름(확장자 제외)>#<키 경로>` (spec §11).
-  * `ResponseMeta.ruleset_version`: **`2026.10.0`**. 엔진 패키지 버전(`engine_version`)은 `0.1.0`입니다(spec §12에서 두 값은 별개이며 ruleset만 규칙 변경 때 올립니다).
+  * `ResponseMeta.ruleset_version`: **`2026.10.1`**(`2026.10.0` → `2026.10.1`: 대운 한국식 나이·세운 구간 연도 정정(C22)과 절기 `kind` 추가로 출력이 바뀌었고, 원국·월간 회귀 스냅샷을 추가했습니다). 엔진 패키지 버전(`engine_version`)은 `0.1.0`입니다(spec §12에서 두 값은 별개이며 ruleset만 규칙 변경 때 올립니다).
 * **실행:** `cd core && uv sync && uv run python -m myungri_engine --port 50051`. server는 대역 대신 이 서버를 호출할 수 있습니다.
-* **CI:** `.github/workflows/core.yml`(경로 필터). ruff, mypy, pytest(slow 제외), 생성 코드 일치, `buf lint`, PR에서 `buf breaking`(main에 proto 설정이 있을 때만)을 돌립니다. slow 테스트는 수동 실행과 주 1회 스케줄입니다.
-* **문서:** `core/README.md` 신설, 엔진 위키 v1.5(spec §14 반영), `core/CLAUDE.md` 현재 상태 갱신.
+* **CI:** `.github/workflows/core.yml`(경로 필터). ruff, mypy, pytest(slow 제외), 생성 코드 일치, `buf lint`, PR에서 `buf breaking`(PR 기준 커밋과 비교, 기준 커밋에 proto 설정이 있을 때만)을 돌립니다. slow 테스트는 수동 실행과 주 1회 스케줄입니다.
+* **문서:** `core/README.md` 신설, 엔진 위키 v1.6(spec §14 반영, 대운 한국식 나이 기준 추가), `core/CLAUDE.md` 현재 상태 갱신.
 
 ## 계약 메모 (server가 알아야 할 것)
 * 점수 구성 id(`MonthDay.score_items[].id`)와 집중 시간 가점 사유(`FocusSlot.reasons`)는 **메시지 키가 아니라 식별자**입니다(C12). `message_keys.json`에 없고, 항목별 문구는 콘텐츠 모듈에서 id를 직접 매핑합니다.

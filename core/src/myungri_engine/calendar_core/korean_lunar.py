@@ -113,6 +113,11 @@ def lunar_to_solar(year: int, month: int, day: int, is_leap_month: bool) -> date
     return lunar_month.start + timedelta(days=day - 1)
 
 
+def warm_up() -> None:
+    """1900~2099년 달력을 미리 만든다. 첫 변환 때 드는 생성 시간을 서버 시작 때 치른다."""
+    _calendar()
+
+
 # --- 달력 생성 ---
 
 

@@ -29,8 +29,8 @@
 
 ## 현재 상태 (엔진 MVP 완료, 2026-10-10)
 * **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, gRPC 서버(`uv run python -m myungri_engine --port 50051`).
-* **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 30일), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
-* **제공 계약:** `proto/myungri/engine/v1`(v1), `core/message_keys.json`(93개 키), `source_ref` 형식, `ruleset_version` `2026.10.0`.
+* **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
+* **제공 계약:** `proto/myungri/engine/v1`(v1), `core/message_keys.json`(93개 키), `source_ref` 형식, `ruleset_version` `2026.10.1`.
 * **알려진 한계:**
   * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
   * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5).

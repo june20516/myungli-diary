@@ -55,7 +55,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungriEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.10.0"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.10.1"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -219,6 +219,26 @@ def test_missing_birth_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> N
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
+def details_of(call: grpc.RpcError) -> str:
+    details: str = call.details()  # type: ignore[attr-defined]
+    return details
+
+
+def test_missing_required_fields_are_invalid_argument_with_field_name(stub: pb_grpc.MyungriEngineStub) -> None:
+    birth = solar_birth(1985, 3, 10)
+    calls = [
+        ("as_of", lambda: stub.GetChart(pb.ChartRequest(birth=birth))),
+        ("date", lambda: stub.GetDaily(pb.DailyRequest(birth=birth, current_timezone=SEOUL))),
+        ("year", lambda: stub.GetMonthCalendar(pb.MonthRequest(birth=birth, month=10, current_timezone=SEOUL))),
+        ("month", lambda: stub.GetMonthCalendar(pb.MonthRequest(birth=birth, year=2026, current_timezone=SEOUL))),
+    ]
+    for field_name, call in calls:
+        with pytest.raises(grpc.RpcError) as caught:
+            call()
+        assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT, field_name
+        assert details_of(caught.value) == f"{field_name}가 없습니다."
+
+
 def test_daily_request_fields_validated(stub: pb_grpc.MyungriEngineStub) -> None:
     birth = solar_birth(1985, 3, 10)
     bad_requests = [
@@ -260,6 +280,15 @@ def test_unexpected_error_is_internal_without_details(
     assert status_of(caught.value) == grpc.StatusCode.INTERNAL
     assert caught.value.details() == INTERNAL_MESSAGE  # type: ignore[attr-defined]
     assert "secret" not in INTERNAL_MESSAGE
+
+
+def test_start_validates_refs_then_warms_up_caches(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(server_module.loader, "validate_refs", lambda _refs: calls.append("validate_refs"))
+    monkeypatch.setattr(server_module.lunar_adapter, "warm_up", lambda: calls.append("warm_up"))
+    running, _ = server_module.start(0)
+    running.stop(grace=None)
+    assert calls == ["validate_refs", "warm_up"]
 
 
 def test_start_refuses_when_reference_data_missing(monkeypatch: pytest.MonkeyPatch) -> None:

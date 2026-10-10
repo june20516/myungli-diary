@@ -47,6 +47,8 @@ core `CLAUDE.md` "다음 할 일 4": proto v1이 확정되면 server가 엔진 �
 
 * **절기 종류 `SolarTermKind`(새 enum)와 `SolarTerm.kind = 3`(새 필드):** `MonthDay.solar_term`의 절기는 `kind`로 식별해 주세요. 값은 `SOLAR_TERM_KIND_SOHAN`(1, 소한)부터 `SOLAR_TERM_KIND_DONGJI`(24, 동지)까지 양력 1월부터의 한 해 순서이고, 이름은 한국어 로마자 표기입니다(예: `IPCHUN` 입춘, `GYEONGCHIP` 경칩, `GOGU` 곡우). 화면 문구는 콘텐츠 모듈이 `kind`로 언어별 이름을 만듭니다.
   * `SolarTerm.name`은 lunar-python의 **간체 한자 표기**(예: `惊蛰`, `谷雨`, `小满`)라 한국식 정자(驚蟄·穀雨·小滿)와 다릅니다. 참고용으로만 두며, 매핑·비교에는 쓰지 마세요.
+* **필수 필드 명시:** `ChartRequest.as_of`, `DailyRequest.date`, `MonthRequest.year`·`month`(0은 값 없음)가 없으면 `INVALID_ARGUMENT`이고 `details`는 `as_of가 없습니다.`처럼 필드 이름을 담습니다(개발자용). `birth`와 `current_timezone`도 기존대로 필수입니다.
+* **`ruleset_version` `2026.10.0` → `2026.10.1`:** 대운 한국식 나이(`LuckPeriod.start_age_korean`)와 세운 구간(`ChartResponse.seun`) 연도를 실제 대운 시작 연도 기준으로 정정했습니다(core C22, 이전 값은 개월 수 때문에 해가 넘어가는 경우 1년 작았음). 절기 `kind`가 추가되어 월간 출력도 바뀝니다. `2026.10.0`으로 저장·캐시한 결과는 대운·세운 값이 다를 수 있습니다(D31).
 
 ## 처리 기록
 <!-- 지휘 세션과 받는 쪽이 날짜와 함께 덧붙입니다. -->

@@ -22,8 +22,6 @@ jobs:
         working-directory: core
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # buf breaking이 main 브랜치를 비교 대상으로 읽는다.
       - uses: astral-sh/setup-uv@v7
         with:
           version: "0.11.3"
@@ -44,11 +42,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # main에 proto/buf.yaml이 아직 없으면(proto를 처음 들이는 PR) breaking 비교 대상이 없어 실패하므로 건너뛴다.
-      - name: main에 proto 설정이 있는지 확인
+      # PR 기준 커밋에 proto/buf.yaml이 아직 없으면(proto를 처음 들이는 PR) breaking 비교 대상이 없어 실패하므로 건너뛴다.
+      - name: PR 기준 커밋에 proto 설정이 있는지 확인
         id: main_proto
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          if git cat-file -e origin/main:proto/buf.yaml 2>/dev/null; then
+          if [ -n "$BASE_SHA" ] && git cat-file -e "$BASE_SHA:proto/buf.yaml" 2>/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -60,7 +60,8 @@ jobs:
           lint: true
           format: false
           breaking: ${{ github.event_name == 'pull_request' && steps.main_proto.outputs.exists == 'true' }}
-          breaking_against: ".git#branch=main,subdir=proto"
+          # Actions 체크아웃에는 로컬 main 브랜치가 없으므로 PR 기준 커밋을 저장소 URL로 직접 가리킨다.
+          breaking_against: "${{ github.event.repository.clone_url }}#format=git,commit=${{ github.event.pull_request.base.sha }},subdir=proto"
           push: false
           archive: false
           pr_comment: false

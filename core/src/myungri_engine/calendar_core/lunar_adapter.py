@@ -156,6 +156,15 @@ class DayInfo:
     solar_term: SolarTermEntry | None
 
 
+# --- 준비 ---
+
+
+def warm_up() -> None:
+    """첫 요청이 느리지 않도록 12운성 표와 한국 음력 달력 캐시를 미리 만든다(서버 시작 때 호출)."""
+    _twelve_stage_table()
+    korean_lunar.warm_up()
+
+
 # --- 음력 변환 ---
 
 
