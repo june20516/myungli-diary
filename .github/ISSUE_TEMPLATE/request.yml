@@ -1,0 +1,54 @@
+name: "요청 (request)"
+description: "다른 단위에 무언가를 해 달라고 요청합니다"
+labels: ["kind:request"]
+body:
+  - type: markdown
+    attributes:
+      value: "라벨 `from:<단위>`·`to:<단위>`를 붙이고, 해당 마일스톤을 지정합니다. 결정이 생기면 결정 로그(D·C·S·A·W·V)에 기록하고 번호를 여기에 남깁니다. 규약: docs/workflow.md §5.2"
+  - type: dropdown
+    id: from
+    attributes:
+      label: 보내는 쪽
+      options:
+        - root
+        - core
+        - server
+        - app
+        - writing
+        - design
+    validations:
+      required: true
+  - type: dropdown
+    id: to
+    attributes:
+      label: 받는 쪽
+      options:
+        - root
+        - core
+        - server
+        - app
+        - writing
+        - design
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 무엇이 필요한가
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 왜
+      description: 근거가 되는 결정·spec·버그
+  - type: textarea
+    id: impact
+    attributes:
+      label: 영향
+      description: 영향받는 단위와 계약, 하위 호환이 깨지는지
+  - type: input
+    id: related
+    attributes:
+      label: 관련
+      description: "결정 번호, 계약 이름, spec 절 (예: D40, engine.proto v1)"
