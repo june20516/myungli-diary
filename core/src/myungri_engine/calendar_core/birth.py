@@ -3,9 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, time, timedelta, timezone
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from datetime import UTC, date, datetime, time
+from zoneinfo import ZoneInfo
 
+from myungri_engine.calendar_core import lunar_adapter
+from myungri_engine.calendar_core.time_basis import (
+    SOLAR_TERM_TIMEZONE,
+    load_zone,
+    longitude_correction,
+    standard_offset_hours,
+)
 from myungri_engine.constants.longitudes import representative_longitude
 from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode
 from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
@@ -14,21 +21,32 @@ from myungri_engine.domain.models import Notice
 SUPPORTED_MIN_DATE = date(1900, 1, 31)
 SUPPORTED_MAX_DATE = date(2099, 12, 31)
 
-SOLAR_TERM_TIMEZONE = timezone(timedelta(hours=8))  # lunar-python 절기 시각 기준
 UNKNOWN_TIME_FALLBACK = time(12, 0)
-SECONDS_PER_DEGREE = 240  # 경도 1도 = 시간 4분
 ZI_HOUR_START_HOUR = 23
 ZI_HOUR_END_HOUR = 0
 NEAR_SOLAR_TERM_MINUTES = 120  # 절입 전후 안내 범위 (spec 4.3, D32)
 
 
 @dataclass(frozen=True, slots=True)
+class LunarDate:
+    """음력 연·월·일. 양력 달력에 없는 월일(예: 음력 2월 30일)도 담을 수 있다."""
+
+    year: int
+    month: int
+    day: int
+
+
+@dataclass(frozen=True, slots=True)
 class BirthInput:
-    """출생 입력. 음력이면 date의 연·월·일을 음력 값으로 해석한다."""
+    """출생 입력.
+
+    SOLAR면 date는 양력 date여야 한다. LUNAR면 LunarDate 또는 date를 받으며, date면 그 연·월·일을
+    음력 값으로 해석한다.
+    """
 
     calendar: CalendarType
     is_leap_month: bool
-    date: date
+    date: date | LunarDate
     time: time | None
     gender: Gender
     timezone: str
@@ -56,17 +74,7 @@ def validate_civil_date(d: date) -> None:
 
 
 def resolve_birth_moment(birth: BirthInput) -> BirthMoment:
-    # lunar_adapter가 이 모듈의 BirthMoment를 쓰므로, 순환 import를 피해 함수 안에서 import한다.
-    from myungri_engine.calendar_core import lunar_adapter
-
-    # 음력 입력은 먼저 양력으로 바꾼다. 그해에 없는 윤달·날짜면 InvalidInputError (spec 3).
-    solar_date = (
-        birth.date
-        if birth.calendar is CalendarType.SOLAR
-        else lunar_adapter.lunar_to_solar(
-            birth.date.year, birth.date.month, birth.date.day, birth.is_leap_month
-        )
-    )
+    solar_date = _solar_date_of(birth)
     validate_civil_date(solar_date)
     zone = load_zone(birth.timezone)
     time_known = birth.time is not None
@@ -82,7 +90,7 @@ def resolve_birth_moment(birth: BirthInput) -> BirthMoment:
     )
 
     solar_term_wallclock = utc.astimezone(SOLAR_TERM_TIMEZONE).replace(tzinfo=None)
-    corrected_local = utc.replace(tzinfo=None) + timedelta(seconds=round(longitude * SECONDS_PER_DEGREE))
+    corrected_local = utc.replace(tzinfo=None) + longitude_correction(longitude)
 
     notices: list[Notice] = []
     if time_known:
@@ -107,11 +115,14 @@ def resolve_birth_moment(birth: BirthInput) -> BirthMoment:
     )
 
 
-def load_zone(name: str) -> ZoneInfo:
-    try:
-        return ZoneInfo(name)
-    except (ZoneInfoNotFoundError, ValueError) as error:
-        raise InvalidInputError(f"알 수 없는 시간대입니다: {name!r}") from error
+def _solar_date_of(birth: BirthInput) -> date:
+    """음력 입력은 양력으로 바꾼다. 그해에 없는 윤달·날짜면 InvalidInputError (spec 3)."""
+    if birth.calendar is CalendarType.SOLAR:
+        if isinstance(birth.date, LunarDate):
+            raise InvalidInputError("양력 입력에는 LunarDate를 쓸 수 없습니다.")
+        return birth.date
+    lunar = birth.date
+    return lunar_adapter.lunar_to_solar(lunar.year, lunar.month, lunar.day, birth.is_leap_month)
 
 
 def _local_to_utc(local_naive: datetime, zone: ZoneInfo) -> tuple[datetime, tuple[Notice, ...]]:
@@ -128,12 +139,3 @@ def _local_to_utc(local_naive: datetime, zone: ZoneInfo) -> tuple[datetime, tupl
     if first_utc != second_utc:
         return first_utc, (Notice(NoticeCode.AMBIGUOUS_LOCAL_TIME),)
     return first_utc, ()
-
-
-def standard_offset_hours(utc: datetime, zone: ZoneInfo) -> float:
-    """출생 시점의 표준 오프셋(서머타임 제외)을 시간 단위로 돌려준다."""
-    local = utc.astimezone(zone)
-    offset = local.utcoffset()
-    dst = local.dst() or timedelta(0)
-    assert offset is not None
-    return (offset - dst).total_seconds() / 3600

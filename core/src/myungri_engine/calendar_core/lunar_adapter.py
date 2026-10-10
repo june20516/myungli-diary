@@ -11,23 +11,26 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from enum import Enum, auto
 from functools import cache
-from typing import Final
+from typing import TYPE_CHECKING, Final
 from zoneinfo import ZoneInfo
 
 from lunar_python import EightChar, Lunar, LunarYear, Solar
 from lunar_python.util import LunarUtil
 
-from myungri_engine.calendar_core.birth import (
-    SECONDS_PER_DEGREE,
+from myungri_engine.calendar_core.time_basis import (
     SOLAR_TERM_TIMEZONE,
-    BirthMoment,
     load_zone,
+    longitude_correction,
     standard_offset_hours,
 )
 from myungri_engine.constants.longitudes import representative_longitude
 from myungri_engine.domain.enums import Branch, Direction8, Gender, Stem, TwelveStage
 from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungri_engine.domain.models import FourPillars, Pillar
+
+if TYPE_CHECKING:
+    # birth가 이 모듈을 import하므로, BirthMoment는 타입 검사에서만 import한다.
+    from myungri_engine.calendar_core.birth import BirthMoment
 
 LUNAR_MIN_YEAR = 1900
 LUNAR_MAX_YEAR = 2099
@@ -332,7 +335,7 @@ def _longitude_correction(civil_date: date, timezone_name: str, zone: ZoneInfo) 
     """그 날짜 정오의 표준 오프셋으로 대표 경도를 정하고, 보정 시각 = UTC + 이 값이다."""
     noon_utc = datetime.combine(civil_date, time(12), tzinfo=zone).astimezone(UTC)
     longitude = representative_longitude(timezone_name, standard_offset_hours(noon_utc, zone))
-    return timedelta(seconds=round(longitude * SECONDS_PER_DEGREE))
+    return longitude_correction(longitude)
 
 
 def _corrected_to_local(corrected: datetime, correction: timedelta, zone: ZoneInfo) -> datetime:

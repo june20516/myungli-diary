@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from myungri_engine.calendar_core import lunar_adapter as la
-from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
+from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, LunarDate, resolve_birth_moment
 from myungri_engine.domain.enums import Branch as B
 from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode, TwelveStage
 from myungri_engine.domain.enums import Direction8 as D
@@ -150,6 +150,31 @@ def test_lunar_birth_input_converted() -> None:
     assert m.solar_date == date(2023, 3, 22)
 
 
+def lunar_birth(d: LunarDate, leap: bool = False) -> BirthMoment:
+    return resolve_birth_moment(
+        BirthInput(CalendarType.LUNAR, leap, d, time(12, 0), Gender.MALE, "Asia/Seoul", None)
+    )
+
+
+def test_lunar_date_day_30_converted() -> None:
+    # 양력 달력에 없는 월일. 2024년 음력 2월은 30일까지, 2017년 윤6월도 30일까지 (lunar-python 1.4.8)
+    assert lunar_birth(LunarDate(2024, 2, 30)).solar_date == date(2024, 4, 8)
+    assert lunar_birth(LunarDate(2017, 6, 30), leap=True).solar_date == date(2017, 8, 21)
+
+
+def test_lunar_date_day_30_in_29_day_month_rejected() -> None:
+    with pytest.raises(InvalidInputError):
+        lunar_birth(LunarDate(2022, 2, 30))  # 2022년 음력 2월은 29일까지
+
+
+def test_solar_input_rejects_lunar_date() -> None:
+    birth = BirthInput(
+        CalendarType.SOLAR, False, LunarDate(2024, 2, 1), time(12, 0), Gender.MALE, "Asia/Seoul", None
+    )
+    with pytest.raises(InvalidInputError):
+        resolve_birth_moment(birth)
+
+
 def test_lunar_birth_input_invalid_leap_month() -> None:
     with pytest.raises(InvalidInputError):
         moment(date(2024, 2, 1), time(12, 0), cal=CalendarType.LUNAR, leap=True)
@@ -258,14 +283,18 @@ def test_month_days_term_date_shifts_with_timezone() -> None:
 
 def test_luck_cycles_raw_forward_male_yang_year() -> None:
     m = moment(date(2024, 3, 15), time(12, 0))  # 甲辰년 丁卯월, 양년 남성 → 순행
+    # 절기 비교용 3/15 11:00 → 다음 절입(청명) 4/4 15:02: 20일 + 2시진 → 6년 8개월 (lunar-python 1.4.8 실행값)
     years, months, cycles = la.luck_cycles_raw(m, Gender.MALE)
+    assert (years, months) == (6, 8)
     assert len(cycles) == 10
     assert cycles[0] == Pillar(S.MU, B.JIN)
     assert cycles[1] == Pillar(S.GI, B.SA)
-    assert 0 <= years <= 10 and 0 <= months < 12
 
 
 def test_luck_cycles_raw_backward_female_yang_year() -> None:
     m = moment(date(2024, 3, 15), time(12, 0), gender=Gender.FEMALE)
-    _, _, cycles = la.luck_cycles_raw(m, Gender.FEMALE)
+    # 직전 절입(경칩) 3/5 10:22 → 3/15 11:00: 10일 + 1시진 → 3년 4개월 (lunar-python 1.4.8 실행값)
+    years, months, cycles = la.luck_cycles_raw(m, Gender.FEMALE)
+    assert (years, months) == (3, 4)
     assert cycles[0] == Pillar(S.BYEONG, B.IN)
+    assert cycles[1] == Pillar(S.EUL, B.CHUK)
