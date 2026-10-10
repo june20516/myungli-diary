@@ -1,5 +1,6 @@
 """문장 단위 검사: slop·문체 규칙, 글자 수, 자리표시자 문법."""
 
+import unicodedata
 from collections.abc import Mapping
 
 import regex
@@ -71,7 +72,7 @@ def check_sentence(
     for rule in detectable_rules(rules):
         if rule.detect is None or effective_purpose in rule.exempt_purposes:
             continue
-        text = entry.text if rule.detect.raw else normalized
+        text = unicodedata.normalize("NFC", entry.text) if rule.detect.raw else normalized
         if matches(rule.detect, entry.lang, text):
             findings.append(finding(rule.id, rule.severity, rule.name))
 

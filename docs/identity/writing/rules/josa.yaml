@@ -133,5 +133,10 @@ examples:
   - {text: "丑(이)가", expected: "丑이"}
   - {text: "★(이)가", expected: "★이(가)"}
   - {text: "보라(이)가", expected: "보라가"}
+  - {text: "0(이)가", expected: "0이"}
+  - {text: "100(은)는", expected: "100은"}
+  - {text: "1000(을)를", expected: "1000을"}
+  - {text: "10000(이)에요", expected: "10000이에요"}
+  - {text: "100000(과)와", expected: "100000과"}
   - {text: "★(으)로", expected: "★(으)로"}
   - {text: "★(이)에요", expected: "★(이)에요"}

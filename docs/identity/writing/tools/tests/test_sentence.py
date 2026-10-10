@@ -1,3 +1,4 @@
+import unicodedata
 from dataclasses import replace
 from pathlib import Path
 
@@ -109,3 +110,9 @@ def test_honorific_suffix_ja_requires_san(rules: RuleSet) -> None:
 def test_honorific_suffix_not_required_in_english(rules: RuleSet) -> None:
     entry = replace(make_entry("How was your day, {name}?"), lang="en")
     assert check_sentence(entry, "guide", rules, None, {}) == []
+
+
+def test_honorific_suffix_check_applies_nfc_to_raw_text(rules: RuleSet) -> None:
+    nfd_text = unicodedata.normalize("NFD", "{name}님의 오늘 하루는 어땠나요?")
+    assert nfd_text != "{name}님의 오늘 하루는 어땠나요?"
+    assert check_sentence(make_entry(nfd_text), "guide", rules, None, {}) == []

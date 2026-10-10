@@ -1,6 +1,6 @@
 import pytest
 
-from mlw.placeholders import Placeholder, Token, parse, parse_tokens
+from mlw.placeholders import Placeholder, Token, parse, parse_tokens, substitute
 
 
 def test_parse() -> None:
@@ -35,3 +35,8 @@ def test_parse_finds_placeholder_inside_token() -> None:
 def test_parse_tokens_errors(text: str) -> None:
     with pytest.raises(ValueError):
         parse_tokens(text)
+
+
+@pytest.mark.parametrize(("value", "expected"), [("보라", "보라가 와요"), ("남색", "남색이 와요")])
+def test_substitute_josa_after_token_follows_value(value: str, expected: str) -> None:
+    assert substitute("[[{x:cat}]](이)가 와요", lambda _placeholder: value) == expected
