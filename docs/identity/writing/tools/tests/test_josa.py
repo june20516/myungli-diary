@@ -1,3 +1,5 @@
+import unicodedata
+
 import pytest
 
 from mlw.josa import Batchim, NameResult, default_josa_data, final_batchim, normalize_name, render_josa
@@ -18,6 +20,8 @@ EXPLICIT_CASES = [
     ("丑(이)가", "丑이"),
     ("★(이)가", "★이(가)"),
     ("보라(이)가", "보라가"),
+    ("★(으)로", "★(으)로"),
+    ("★(이)에요", "★(이)에요"),
 ]
 
 
@@ -112,3 +116,23 @@ def test_normalize_name_control_character() -> None:
 
 def test_normalize_name_plain() -> None:
     assert normalize_name("en", "Sam") == NameResult("Sam", ())
+
+
+def test_normalize_name_applies_nfc_before_checks() -> None:
+    nfd = unicodedata.normalize("NFD", "민지님")
+    assert nfd != "민지님"
+    assert normalize_name("ko", nfd) == NameResult("민지", ("name.suffix_stripped",))
+
+
+def test_normalize_name_nfd_ten_syllables_is_not_too_long() -> None:
+    nfd = unicodedata.normalize("NFD", "가" * 10)
+    assert normalize_name("ko", nfd) == NameResult("가" * 10, ())
+
+
+def test_render_josa_applies_nfc() -> None:
+    assert render_josa(unicodedata.normalize("NFD", "남색(이)가")) == "남색이"
+
+
+def test_final_batchim_applies_nfc() -> None:
+    assert final_batchim(unicodedata.normalize("NFD", "남색")) is Batchim.OTHER
+    assert final_batchim(unicodedata.normalize("NFD", "보라")) is Batchim.NONE

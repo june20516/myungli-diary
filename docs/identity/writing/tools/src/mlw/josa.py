@@ -88,6 +88,7 @@ def _reading(text: str, data: JosaData) -> str | None:
 
 def final_batchim(text: str, data: JosaData | None = None) -> Batchim | None:
     """`text`의 마지막 글자(읽는 소리 기준)의 받침을 판정합니다. 판정할 수 없으면 None입니다."""
+    text = unicodedata.normalize("NFC", text)
     if not text:
         return None
     rules = data if data is not None else default_josa_data()
@@ -112,6 +113,7 @@ def _choose(pair: JosaPair, batchim: Batchim | None) -> str:
 
 def render_josa(text: str, data: JosaData | None = None) -> str:
     """`X(이)가` 같은 조사 표기를 앞 글자의 받침에 맞게 바꿉니다. 판정할 수 없으면 병기형을 씁니다."""
+    text = unicodedata.normalize("NFC", text)
     rules = data if data is not None else default_josa_data()
     if not rules.pairs:
         return text
@@ -128,7 +130,7 @@ def render_josa(text: str, data: JosaData | None = None) -> str:
 def normalize_name(lang: str, raw: str, data: JosaData | None = None) -> NameResult:
     """호칭 입력을 검증하고 저장할 값으로 정규화합니다. 거부하면 value는 None이고 코드는 거부 사유뿐입니다."""
     rules = (data if data is not None else default_josa_data()).name_rules
-    name = raw.strip()
+    name = unicodedata.normalize("NFC", raw).strip()
     if any(unicodedata.category(char) == "Cc" for char in name):
         return NameResult(None, (CODE_CONTROL,))
     if _EMOJI.search(name):
