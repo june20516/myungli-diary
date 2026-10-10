@@ -1,0 +1,57 @@
+"""원고 문장의 자리표시자 `{param}` / `{param:category}` 파싱과 치환.
+
+자리표시자 바로 뒤에는 조사 표기(`(이)가` 등)가 올 수 있습니다.
+"""
+
+from collections.abc import Callable
+from dataclasses import dataclass
+
+import regex
+
+from mlw.josa import default_josa_data, render_josa
+
+
+@dataclass(frozen=True)
+class Placeholder:
+    name: str
+    category: str | None
+    josa: str | None
+
+    @property
+    def key(self) -> str:
+        """값 표에서 찾는 키입니다. 범주가 있으면 `name:category`입니다."""
+        return self.name if self.category is None else f"{self.name}:{self.category}"
+
+
+def _placeholder_pattern() -> regex.Pattern[str]:
+    markers = sorted((pair.marker for pair in default_josa_data().pairs), key=len, reverse=True)
+    josa = "|".join(regex.escape(marker) for marker in markers)
+    suffix = f"(?P<josa>{josa})?" if markers else ""
+    return regex.compile(rf"\{{(?P<name>[^{{}}:\s]+)(?::(?P<category>[^{{}}\s]+))?\}}{suffix}")
+
+
+_PATTERN = _placeholder_pattern()
+
+
+def _to_placeholder(match: regex.Match[str]) -> Placeholder:
+    groups = match.groupdict()
+    return Placeholder(name=groups["name"], category=groups["category"], josa=groups.get("josa"))
+
+
+def parse(text: str) -> list[Placeholder]:
+    """문장 속 자리표시자를 순서대로 돌려줍니다. 문법이 틀리면 ValueError입니다."""
+    leftover = _PATTERN.sub("", text)
+    if "{" in leftover or "}" in leftover:
+        raise ValueError(f"자리표시자 문법이 올바르지 않습니다: {text!r}")
+    return [_to_placeholder(match) for match in _PATTERN.finditer(text)]
+
+
+def substitute(text: str, value_of: Callable[[Placeholder], str]) -> str:
+    """자리표시자를 값으로 바꾸고 조사 표기를 렌더합니다. 문법이 틀리면 ValueError입니다."""
+    parse(text)
+
+    def replace(match: regex.Match[str]) -> str:
+        placeholder = _to_placeholder(match)
+        return value_of(placeholder) + (placeholder.josa or "")
+
+    return render_josa(_PATTERN.sub(replace, text))

@@ -153,3 +153,17 @@ class RuleSet:
     limits: dict[str, Limit]
     style: dict[str, StyleRule]
     josa: JosaData
+
+
+@dataclass(frozen=True)
+class Entry:
+    """원고 한 문장(변형 하나)입니다."""
+
+    file: Path
+    line: int
+    slot: str
+    key: str
+    type: str | None
+    variant: int
+    lang: str
+    text: str
