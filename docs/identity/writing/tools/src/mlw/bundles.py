@@ -8,6 +8,7 @@ from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
+from functools import cache
 from itertools import product
 from pathlib import Path
 
@@ -159,42 +160,50 @@ def _entry_count(entry: Entry, limit: Limit, rules: RuleSet) -> int:
     if selector.type is not None:
         return int(entry.type == selector.type)
     if selector.placeholder is not None:
-        try:
-            return sum(placeholder.name == selector.placeholder for placeholder in parse(entry.text))
-        except ValueError:
-            # 문법 오류는 문장 단위 검사가 보고합니다.
-            return 0
+        return _placeholder_names(entry.text).count(selector.placeholder)
     if selector.rule is not None:
         return int(_hits_rule(entry, selector.rule, rules))
     if selector.lexicon is not None:
         words = selector.lexicon
-        normalized = _normalized_or_none(entry)
+        normalized = _normalized_or_none(entry.text)
         return int(normalized is not None and any(word in normalized for word in words))
     if selector.token is not None or selector.token_entries is not None:
-        count = _token_count(entry)
+        count = _token_count(entry.text)
         return count if selector.token is not None else int(count > 0)
     return 0
 
 
-def _normalized_or_none(entry: Entry) -> str | None:
+# 묶음 검사는 같은 문장을 조합마다 다시 셉니다. 아래 셋은 문장 텍스트만으로 정해지므로 결과를 캐시합니다.
+# 문법 오류는 문장 단위 검사가 보고하므로 여기서는 0개·None으로 봅니다.
+
+
+@cache
+def _placeholder_names(text: str) -> tuple[str, ...]:
     try:
-        return normalize_for_detection(entry.text)
+        return tuple(placeholder.name for placeholder in parse(text))
     except ValueError:
-        # 문법 오류는 문장 단위 검사가 보고합니다.
+        return ()
+
+
+@cache
+def _normalized_or_none(text: str) -> str | None:
+    try:
+        return normalize_for_detection(text)
+    except ValueError:
         return None
 
 
-def _token_count(entry: Entry) -> int:
+@cache
+def _token_count(text: str) -> int:
     try:
-        return len(parse_tokens(entry.text))
+        return len(parse_tokens(text))
     except ValueError:
         return 0
 
 
 def _hits_rule(entry: Entry, rule_id: str, rules: RuleSet) -> bool:
-    try:
-        normalized = normalize_for_detection(entry.text)
-    except ValueError:
+    normalized = _normalized_or_none(entry.text)
+    if normalized is None:
         return False
     return any(
         rule.id == rule_id and rule.detect is not None and matches(rule.detect, entry.lang, normalized)
