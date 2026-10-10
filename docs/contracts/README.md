@@ -4,10 +4,10 @@
 
 | 계약 | 원본 위치 | 제공 | 사용 | 버전 | 상태 | 설계 근거 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 엔진 gRPC API | `proto/myungri/engine/v1/engine.proto` | core | server | v1 | 설계됨, 파일 미생성 (core Task 14) | 엔진 spec §9 |
-| 메시지 키 목록 | `core/message_keys.json` | core | server (콘텐츠 시드 검사), writing (W1 콘텐츠 작성) | - | 설계됨, 파일 미생성 (core Task 2) | 엔진 spec §10 |
-| 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | 설계됨 | 엔진 spec §11 |
-| 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | - | 설계됨 | 엔진 spec §12, D31 |
+| 엔진 gRPC API | `proto/myungri/engine/v1/engine.proto` | core | server | v1 | **구현 완료** (PR #1 병합 대기). 지원 범위 양력 1900-01-31 ~ 2099-12-31, 밖이면 `OUT_OF_RANGE` | 엔진 spec §9, D41 |
+| 메시지 키 목록 | `core/message_keys.json` | core | server (콘텐츠 시드 검사), writing (W1 콘텐츠 작성) | - | **구현 완료**, 93개 (PR #1 병합 대기) | 엔진 spec §10 |
+| 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | **구현 완료** (PR #1) | 엔진 spec §11 |
+| 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | ruleset `2026.10.1`, engine `0.1.0` | **구현 완료** (PR #1) | 엔진 spec §12, D31 |
 | REST API (앱 ↔ 서버) | (server 설계 때 정함) | server | app | v1 | 미설계 (S3) | D26 |
 | 디자인 토큰 (오행 팔레트·타이포·그라데이션) | `docs/identity/design/tokens/` | design | app | - | 미설계 (V1에서 동결) | 브랜드 기반 spec §9, 06 |
 | 브랜드 기반 | `docs/identity/README.md` | 지휘 | writing, design | - | 확정 (B0) | 브랜드 기반 spec, D38 |
