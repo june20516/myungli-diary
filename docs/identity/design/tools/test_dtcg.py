@@ -128,6 +128,33 @@ def test_reports_token_that_is_group_in_another_file():
     assert any("color.ohaeng.wood" in problem and "그룹" in problem for problem in problems), problems
 
 
+def test_reports_typed_node_without_value():
+    documents = clean_documents()
+    documents["primitive.tokens.json"]["color"]["black"] = {"$type": "color", "$valu": WHITE}
+    problems = find_problems(documents)
+    assert any("color.black" in problem and "$value" in problem for problem in problems), problems
+
+
+def test_checks_second_definition_of_duplicate_name():
+    documents = clean_documents()
+    documents["color.light.tokens.json"]["color"]["white"] = color(
+        {"colorSpace": "srgb", "components": [0, 0, 0], "hex": "#ffffff"})
+    problems = find_problems(documents)
+    assert any("정의됨" in problem for problem in problems), problems
+    assert any("color.light.tokens.json: color.white: components" in problem for problem in problems), problems
+
+
+def test_reports_reference_to_wrong_type():
+    documents = clean_documents()
+    documents["typography.tokens.json"]["type"]["title"]["$value"]["fontFamily"] = "{color.white}"
+    documents["color.light.tokens.json"]["color"]["bg"]["sheet"]["$value"] = "{space.16}"
+    problems = find_problems(documents)
+    assert any("type.title" in problem and "color.white" in problem and "fontFamily" in problem
+               for problem in problems), problems
+    assert any("color.bg.sheet" in problem and "space.16" in problem and "dimension" in problem
+               for problem in problems), problems
+
+
 def test_resolve_follows_reference_chain():
     tokens = {"a": color("{b}"), "b": color("{c}"), "c": color(WHITE)}
     assert resolve("a", tokens) == WHITE

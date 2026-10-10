@@ -133,10 +133,12 @@ V0의 범위 값(라벨 12~14, 캡션 11~12)을 단일 값으로 나눴고, `dis
   * `components`는 hex 각 채널을 255로 나눠 소수 넷째 자리에서 반올림한 값입니다. 기준값은 `hex`입니다.
   * 투명도가 있으면 `alpha`를 더합니다.
 * **치수:** `{"value": 16, "unit": "px"}`입니다.
-* **참조:** 의미 역할은 원시 값을 `"{color.sage.700}"`처럼 가리킵니다. 원시 팔레트에 없는 값(그라데이션 색, 오행 바탕·글자)만 값을 직접 적습니다.
+* **참조:** 의미 역할은 원시 값을 `"{color.sage.700}"`처럼 가리킵니다. 다음 두 경우만 값을 직접 적습니다.
+  * 원시 팔레트에 없는 값: 그라데이션 색, 오행 바탕·글자
+  * 알파가 있는 색: `chip.bg`, `swatch.border`. 참조는 `$value` 전체를 가리켜 알파를 덧붙일 수 없기 때문입니다.
 * **글자:** `typography` 복합 토큰의 다섯 항목(`fontFamily`·`fontSize`·`fontWeight`·`letterSpacing`·`lineHeight`)을 모두 적습니다. `fontFamily`는 `{font.family.*}` 참조입니다.
-* **그라데이션:** `gradient` 토큰(`[{color, position}]`)으로 적습니다. 규격에 각도가 없어 `$extensions`에 `{"myungli-diary": {"angle": 160}}`으로 적습니다.
-* **확장 키:** 이 저장소의 확장 키는 `myungli-diary` 하나입니다.
+* **그라데이션:** `gradient` 토큰(`[{color, position}]`)으로 적습니다. 규격에 각도가 없어 `$extensions`에 `{"io.github.june20516.myungli-diary": {"angle": 160}}`으로 적습니다.
+* **확장 키:** 이 저장소의 확장 키는 `io.github.june20516.myungli-diary` 하나입니다. DTCG 권장대로 역도메인 표기를 씁니다.
 * 모드는 DTCG Resolver Module을 쓰지 않고 파일로 나눕니다. 규격 상태가 출처마다 다르게 적혀 있어서입니다(W3C 공동체 그룹 보고서는 안정판, designtokens.org 초안 페이지는 미리보기).
 
 ### 6.2. 파일과 조합

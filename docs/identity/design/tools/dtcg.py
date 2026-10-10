@@ -89,11 +89,11 @@ def _font_family_problems(value: object) -> list[str]:
     return [f"fontFamily 값 오류: {value!r}"]
 
 
-def _check_value(token_type: str, value: object, references: list[str]) -> list[str]:
-    """값을 검사하고, 발견한 참조 이름을 references에 모읍니다."""
+def _check_value(token_type: str, value: object, references: list[tuple[str, str, str]], where: str = "") -> list[str]:
+    """값을 검사하고, 발견한 참조를 (대상 이름, 기대 타입, 위치)로 references에 모읍니다."""
     target = _reference_target(value)
     if target is not None:
-        references.append(target)
+        references.append((target, token_type, where))
         return []
     if token_type == "color":
         return _color_problems(value)
@@ -108,11 +108,11 @@ def _check_value(token_type: str, value: object, references: list[str]) -> list[
         sub_types = {"fontFamily": "fontFamily", "fontSize": "dimension", "letterSpacing": "dimension"}
         for key, sub_type in sub_types.items():
             if key in value:
-                problems += [f"{key}: {problem}" for problem in _check_value(sub_type, value[key], references)]
-        for key in ("fontWeight", "lineHeight"):
+                problems += [f"{key}: {problem}" for problem in _check_value(sub_type, value[key], references, key)]
+        for key, sub_type in (("fontWeight", "fontWeight"), ("lineHeight", "number")):
             item = value.get(key)
             if key in value and _reference_target(item) is not None:
-                references.append(_reference_target(item))
+                references.append((_reference_target(item), sub_type, key))
             elif key in value and (isinstance(item, bool) or not isinstance(item, (int, float))):
                 problems.append(f"{key}가 숫자가 아님: {item!r}")
         return problems
@@ -124,7 +124,8 @@ def _check_value(token_type: str, value: object, references: list[str]) -> list[
             if not isinstance(stop, dict) or "color" not in stop or "position" not in stop:
                 problems.append(f"stop[{index}]에 color·position 없음")
                 continue
-            problems += [f"stop[{index}] {problem}" for problem in _check_value("color", stop["color"], references)]
+            problems += [f"stop[{index}] {problem}"
+                         for problem in _check_value("color", stop["color"], references, f"stop[{index}]")]
             position = stop["position"]
             if isinstance(position, bool) or not isinstance(position, (int, float)) or not 0 <= position <= 1:
                 problems.append(f"stop[{index}] position이 0~1 숫자가 아님: {position!r}")
@@ -132,19 +133,40 @@ def _check_value(token_type: str, value: object, references: list[str]) -> list[
     return []
 
 
-def _nested_token_names(document: dict) -> list[str]:
-    """`$value`가 있으면서 하위 토큰·그룹도 가진 이름(토큰이면서 그룹)."""
-    names = []
+def _structure_problems(document: dict) -> list[str]:
+    """문서 하나 안의 구조 문제: 토큰이면서 그룹인 이름, `$type`만 있고 `$value`가 없는 노드."""
+    problems = []
 
     def walk(node: dict, path: list[str]) -> None:
         children = {key: child for key, child in node.items() if not key.startswith("$") and isinstance(child, dict)}
+        name = ".".join(path)
         if "$value" in node and children:
-            names.append(".".join(path))
+            problems.append(f"{name}: 토큰이면서 그룹임")
+        if "$type" in node and "$value" not in node and not children:
+            problems.append(f"{name}: $type이 있는데 $value가 없음 (키 오타?)")
         for key, child in children.items():
             walk(child, path + [key])
 
     walk(document, [])
-    return names
+    return problems
+
+
+def _token_problems(token: dict, tokens: dict[str, dict]) -> list[str]:
+    """토큰 하나의 타입·값·참조 문제. tokens는 참조를 찾을 전체 토큰입니다."""
+    token_type = token.get("$type")
+    if token_type is None:
+        return ["$type 없음"]
+    if token_type not in ALLOWED_TYPES:
+        return [f"허용하지 않는 $type {token_type}"]
+    references: list[tuple[str, str, str]] = []
+    problems = _check_value(token_type, token["$value"], references)
+    for target, expected_type, where in references:
+        place = f"{where}의 " if where else ""
+        if target not in tokens:
+            problems.append(f"{place}깨진 참조 {{{target}}}")
+        elif tokens[target].get("$type") != expected_type:
+            problems.append(f"{place}참조 {{{target}}}의 타입 {tokens[target].get('$type')}이 기대한 {expected_type}가 아님")
+    return problems
 
 
 def find_problems(documents: dict[str, dict]) -> list[str]:
@@ -152,10 +174,11 @@ def find_problems(documents: dict[str, dict]) -> list[str]:
     problems: list[str] = []
     owner: dict[str, str] = {}
     all_tokens: dict[str, dict] = {}
+    definitions: list[tuple[str, str, dict]] = []
     for file_name, document in documents.items():
-        for name in _nested_token_names(document):
-            problems.append(f"{file_name}: {name}: 토큰이면서 그룹임")
+        problems += [f"{file_name}: {problem}" for problem in _structure_problems(document)]
         for name, token in flatten(document).items():
+            definitions.append((file_name, name, token))
             if name in owner:
                 problems.append(f"{name}: {owner[name]}와 {file_name}에 모두 정의됨")
                 continue
@@ -168,17 +191,7 @@ def find_problems(documents: dict[str, dict]) -> list[str]:
         if children:
             problems.append(f"{owner[name]}: {name}: 토큰이면서 그룹임 ({owner[children[0]]}의 {children[0]})")
 
-    for name, token in all_tokens.items():
-        token_type = token.get("$type")
-        if token_type is None:
-            problems.append(f"{owner[name]}: {name}: $type 없음")
-            continue
-        if token_type not in ALLOWED_TYPES:
-            problems.append(f"{owner[name]}: {name}: 허용하지 않는 $type {token_type}")
-            continue
-        references: list[str] = []
-        problems += [f"{owner[name]}: {name}: {problem}" for problem in _check_value(token_type, token["$value"], references)]
-        for target in references:
-            if target not in all_tokens:
-                problems.append(f"{owner[name]}: {name}: 깨진 참조 {{{target}}}")
+    # 중복된 이름의 두 번째 정의도 값은 검사해, 중복을 고친 뒤에야 다음 문제가 드러나지 않게 합니다.
+    for file_name, name, token in definitions:
+        problems += [f"{file_name}: {name}: {problem}" for problem in _token_problems(token, all_tokens)]
     return problems

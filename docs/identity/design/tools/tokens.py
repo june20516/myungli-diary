@@ -15,7 +15,7 @@ from palette import WHITE, build_palette
 
 DESIGN_DIR = pathlib.Path(__file__).resolve().parent.parent
 TOKENS_DIR = DESIGN_DIR / "tokens"
-EXTENSION_KEY = "myungli-diary"
+EXTENSION_KEY = "io.github.june20516.myungli-diary"  # DTCG 권장대로 역도메인 표기
 GRADIENT_ANGLE = 160
 
 SPACES = (2, 4, 8, 12, 16, 20, 24, 32, 48)
@@ -90,9 +90,15 @@ def color_value(hex_color: str, alpha: float | None = None) -> dict:
     return value
 
 
+def _name_order(name: str) -> list[tuple[int, int | str]]:
+    """이름을 점으로 나눠, 숫자 부분은 숫자로 비교합니다(neutral.50이 neutral.100보다 앞)."""
+    return [(0, int(part)) if part.isdigit() else (1, part) for part in name.split(".")]
+
+
 def reference_or_value(hex_color: str, primitives: dict[str, str]) -> str | dict:
-    """같은 hex의 원시 토큰이 있으면 참조(여럿이면 이름순 첫 번째), 없으면 색 값."""
-    matches = sorted(name for name, primitive_hex in primitives.items() if primitive_hex == hex_color)
+    """같은 hex의 원시 토큰이 있으면 참조(여럿이면 이름순 첫 번째, 단계는 숫자 순), 없으면 색 값."""
+    matches = sorted((name for name, primitive_hex in primitives.items() if primitive_hex == hex_color),
+                     key=_name_order)
     if matches:
         return "{" + matches[0] + "}"
     return color_value(hex_color)

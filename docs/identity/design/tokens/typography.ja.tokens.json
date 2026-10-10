@@ -203,7 +203,7 @@
         },
         "$description": "캘린더 날짜 (고정폭 숫자)",
         "$extensions": {
-          "myungli-diary": {
+          "io.github.june20516.myungli-diary": {
             "fontFeatures": [
               "tnum"
             ]
@@ -227,7 +227,7 @@
         },
         "$description": "대운·세운 표의 나이·연도 (고정폭 숫자)",
         "$extensions": {
-          "myungli-diary": {
+          "io.github.june20516.myungli-diary": {
             "fontFeatures": [
               "tnum"
             ]

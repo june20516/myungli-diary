@@ -129,7 +129,7 @@
   /* 역할 표 */
   .roles { width: 100%; border-collapse: collapse; font-size: 13px; }
   .roles td { padding: 8px 4px; border-top: 1px solid var(--line); vertical-align: middle; }
-  .sample { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+  .sample { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-weight: 600; font-size: 12px; }
   .ratio { color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 
   /* 오행 */
@@ -166,7 +166,7 @@
 
   /* 배지 */
   .badge-row { height: auto; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 8px; }
-  .pill { padding: 5px 11px; border-radius: 999px; font-size: 13px; font-weight: 500; letter-spacing: -0.26px; }
+  .pill { padding: 5px 11px; border-radius: 9999px; font-size: 13px; font-weight: 500; letter-spacing: -0.26px; }
 
   /* 캘린더 */
   .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
@@ -186,11 +186,11 @@
   /* 데일리 카드 L1 */
   .phone { width: 300px; height: 380px; margin: 0 auto; border-radius: 28px; padding: 24px 22px; background: var(--gradient-today); color: var(--text-primary); display: flex; flex-direction: column; }
   .date { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
-  .badge { align-self: flex-start; margin: 14px 0 12px; padding: 4px 10px; border-radius: 999px; background: var(--badge-good-bg); color: var(--badge-good-fg); font-size: 12px; font-weight: 600; }
+  .badge { align-self: flex-start; margin: 14px 0 12px; padding: 4px 10px; border-radius: 9999px; background: var(--badge-good-bg); color: var(--badge-good-fg); font-size: 12px; font-weight: 600; }
   .message { font-family: var(--font-body); font-size: 17px; line-height: 1.65; margin: 0; }
   .term { background: var(--term-bg); color: var(--term-fg); border-radius: 4px; padding: 0 4px; }
   .chips { margin-top: auto; display: flex; gap: 6px; }
-  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; background: var(--chip-bg); font-size: 12px; font-weight: 500; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 9999px; background: var(--chip-bg); font-size: 12px; font-weight: 500; }
   .dot { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 1px var(--swatch-ring); }
 
   /* 로고 */
@@ -353,7 +353,7 @@
   </div>
 
   <h2>간격과 반경</h2>
-  <p class="note">간격은 4px 단위, 이름은 px 값(<code>space.*</code>). 반경은 크기 이름(<code>radius.*</code>). 어느 컴포넌트가 어느 값을 쓰는지는 V2에서 정합니다.</p>
+  <p class="note">간격은 4px 기준(2는 미세 조정용), 이름은 px 값(<code>space.*</code>). 반경은 크기 이름(<code>radius.*</code>). 어느 컴포넌트가 어느 값을 쓰는지는 V2에서 정합니다.</p>
   <div class="pair">
     <div class="panel">
       <p class="panel-title">space</p>

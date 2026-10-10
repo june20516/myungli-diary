@@ -32,9 +32,13 @@
   * 기준값은 `hex`입니다. `components`는 hex 채널을 255로 나눠 소수 넷째 자리에서 반올림한 값입니다.
   * 투명도가 있으면 `alpha`(0~1)가 붙습니다. 해당 토큰은 `color.chip.bg`(라이트 0.70 / 다크 0.08)와 `color.swatch.border`(0.18 / 0.28)입니다. 알파는 hex에 넣지 않습니다.
 * **참조:** `"{color.sage.700}"`처럼 다른 토큰의 `$value` 전체를 가리킵니다. 참조는 같은 테마 조합 안에서 모두 풀립니다.
+  * 의미 역할은 원시 팔레트를 참조합니다.
+  * 다음 두 경우만 값을 직접 적습니다.
+    * 원시 팔레트에 없는 색: 그라데이션, 오행 바탕·글자
+    * 알파가 있는 색: `chip.bg`, `swatch.border`. 참조에는 알파를 덧붙일 수 없기 때문입니다.
 * **치수:** `{"value": 16, "unit": "px"}`. 단위는 px만 씁니다. Flutter 논리 픽셀로 그대로 씁니다.
 * **글자:** `typography` 복합 토큰의 `fontFamily`(참조)·`fontSize`·`fontWeight`·`letterSpacing`·`lineHeight`. `lineHeight`는 글자 크기에 곱하는 배수입니다.
-* **확장 (`$extensions`의 `myungli-diary` 키):**
+* **확장 (`$extensions`의 `io.github.june20516.myungli-diary` 키, DTCG 권장 역도메인 표기):**
   * `gradient.today`의 `angle`: 160(도). DTCG 규격에 각도가 없어 확장으로 적습니다.
   * `type.numeric.*`의 `fontFeatures`: `["tnum"]`(고정폭 숫자).
 * **설명:** 토큰마다 쓰임새가 `$description`에 있습니다.
@@ -75,7 +79,12 @@ python3 docs/identity/design/tools/tokens.py     # 저장소 루트에서
 ```
 
 * 색은 `tools/palette.py`, 타이포·간격·반경은 `tools/tokens.py`의 상수를 고칩니다.
-* `tools/test_tokens.py`가 세 가지를 확인합니다.
-  * 커밋된 파일이 생성기 출력과 같은지
-  * DTCG 형식에 맞는지
+* `tools/test_tokens.py`가 확인하는 것:
+  * 커밋된 파일이 생성기 출력과 바이트 단위로 같은지, 두 번 만들어도 같은지
+  * 테마 조합 4가지(라이트·다크 × ko·ja) 각각이 DTCG 형식에 맞는지(`tools/dtcg.py`)
+    * 타입, 값 형식, 깨진 참조, 참조 대상 타입
+    * 파일 간 이름 중복, 토큰이면서 그룹인 이름
   * 짝 파일의 토큰 이름이 같은지
+  * 참조를 푼 색 역할 값이 `palette.py`와 같은지
+  * 알파 색, 오행, 그라데이션, 간격·반경, 글자 스타일 값이 spec과 같은지
+* 글자 조합 대비는 `python3 docs/identity/design/tools/palette.py --check`로 확인합니다.

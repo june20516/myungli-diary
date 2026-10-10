@@ -325,7 +325,7 @@
       ],
       "$description": "데일리 카드·온보딩·공유 이미지에만 씁니다. 단색으로 바뀌어도 깨지지 않게 씁니다",
       "$extensions": {
-        "myungli-diary": {
+        "io.github.june20516.myungli-diary": {
           "angle": 160
         }
       }

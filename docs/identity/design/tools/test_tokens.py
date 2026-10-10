@@ -62,6 +62,11 @@ def test_duplicate_hex_picks_first_name():
     assert reference_or_value("#ffffff", {"color.white": "#ffffff", "color.a": "#ffffff"}) == "{color.a}"
 
 
+def test_duplicate_hex_orders_steps_by_number():
+    primitives = {"color.neutral.100": "#eeeeed", "color.neutral.50": "#eeeeed"}
+    assert reference_or_value("#eeeeed", primitives) == "{color.neutral.50}"
+
+
 def test_color_value_components_and_alpha():
     assert color_value("#47634c") == {
         "colorSpace": "srgb", "components": [0.2784, 0.3882, 0.298], "hex": "#47634c"}
@@ -87,7 +92,7 @@ def test_ohaeng_and_gradient():
     assert dark["color.ohaeng.wood.fg"]["$value"]["hex"] == palette["ohaeng"]["wood"]["ink_dark"]
     gradient = dark["gradient.today"]
     assert [stop["color"]["hex"] for stop in gradient["$value"]] == palette["gradient"]["dark"]
-    assert gradient["$extensions"] == {"myungli-diary": {"angle": 160}}
+    assert gradient["$extensions"] == {"io.github.june20516.myungli-diary": {"angle": 160}}
 
 
 def test_space_and_radius():
@@ -110,7 +115,8 @@ def test_typography_values():
     assert ja["type.label.lg"]["$value"]["letterSpacing"] == {"value": 0, "unit": "px"}
     assert ko["type.sentence.card"]["$value"]["letterSpacing"] == {"value": 0, "unit": "px"}
     assert ko["type.hanja.pillar"]["$value"]["fontFamily"] == "{font.family.hanja}"
-    assert ko["type.numeric.calendar"]["$extensions"] == {"myungli-diary": {"fontFeatures": ["tnum"]}}
+    assert ko["type.numeric.calendar"]["$extensions"] == {
+        "io.github.june20516.myungli-diary": {"fontFeatures": ["tnum"]}}
     assert ko["font.family.sentence"]["$value"] == ["Gowun Dodum", "Pretendard", "sans-serif"]
     assert ja["font.family.ui"]["$value"] == ["Pretendard JP", "sans-serif"]
     assert set(name for name in ko if name.startswith("type.")) == {
