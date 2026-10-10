@@ -7,6 +7,8 @@
 * 설계: `docs/specs/2026-10-10-collab-workflow-design.md` §7
 * 레이아웃 선택 기록: `docs/artifacts/index.json`의 `product-map-layout`
 
+로직 탭의 흐름도는 데이터가 아니라 페이지 틀에 있습니다. 엔진 판정 흐름(D19 등)이 바뀌면 `page/index.html`의 mermaid 블록을 고칩니다.
+
 ## 무엇을 읽나
 `build_map_data.py`가 아래를 읽어 `data.json`을 만들고, 산출물 이미지를 `images/<저장소 경로>`로 복사합니다.
 
