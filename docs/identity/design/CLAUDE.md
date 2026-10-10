@@ -46,7 +46,7 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **V2 컴포넌트 명세**는 MVP 화면 목록(IA, D39)이 나온 뒤 시작합니다. V1에서 V2로 넘긴 것:
+1. **V2 컴포넌트 명세: 착수 가능.** IA 계약 v1(`docs/ia/screens.json`, 컴포넌트 39개, 화면 31개)이 main에 들어왔습니다. Issue #16을 따릅니다. 새 브랜치에서 시작합니다. V1에서 V2로 넘긴 것:
    - 컴포넌트별 토큰 사용
    - 일기·일정 표시 점, 오늘·선택 표시
    - 시스템 글자 크기 상한
