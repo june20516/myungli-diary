@@ -17,22 +17,26 @@
 * 사용자는 제품 작업을 컴포넌트부터 설계하기를 원합니다. app의 UI 구현은 V2 뒤에 시작합니다.
 
 ## 고칠 수 있는 곳
-`docs/identity/design/`, GitHub Issues(요청·보고 작성, `gh issue list --label to:design`). 받은 요청: Issue #6(산출물 축적). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
+`docs/identity/design/`, GitHub Issues(요청·보고 작성, `gh issue list --label to:design`). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
 | 브랜드 기반 (`docs/identity/README.md`) | **사용** | 지휘 |
 | MVP 화면 목록 (IA, D39) | **사용** (V2의 선행 조건) | 지휘 |
-| 디자인 토큰 | **제공** (V1에서 동결) | app |
+| 디자인 토큰 (`tokens/`, 계약 1.0.0) | **제공** (마일스톤 V1에서 동결) | app |
 | 컴포넌트 명세 | **제공** | app |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
-## 현재 상태 (2026-10-10, design 세션 작성)
-* **V0 시각 정체성 완료** (브랜치 `design/visual-identity`).
+## 현재 상태 (2026-10-11, design 세션 작성)
+* **마일스톤 V1 디자인 토큰 동결** (브랜치 `design/tokens`, 계약 1.0.0).
+  * 토큰: [`tokens/`](tokens/README.md) 다섯 파일. 생성: 저장소 루트에서 `python3 docs/identity/design/tools/tokens.py`. 손으로 고치지 않습니다.
+  * 근거: [V1 spec](specs/2026-10-11-design-tokens-design.md), 결정 V8~V12. 대비 검사 52/52.
+  * 길흉 표시는 점이 아니라 칸 채우기입니다(결정 V10).
+* **V0 시각 정체성 완료** (PR #10).
   * 기준 문서: [`visual-identity.md`](visual-identity.md). 시각에 관해서는 06을 대체합니다.
   * 근거: [V0 spec](specs/2026-10-10-visual-identity-design.md), 결정 V1~V7([`decisions.md`](decisions.md)).
-  * 색 값의 출처: [`tools/palette.py`](tools/palette.py) (`--check`로 대비 검사, 32/32 통과).
+  * 색 값의 출처: [`tools/palette.py`](tools/palette.py) (`--check`로 대비 검사).
   * 로고 원본: [`logo/`](logo/), 견본: [`specimen/index.html`](specimen/index.html), 시안 기록: [`artifacts/index.json`](artifacts/index.json).
 * 테스트: 저장소 루트에서 `uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q`
 * 고운돋움 TTF는 저장소에 넣지 않습니다(`.suberpowers/fonts/GowunDodum-Regular.ttf`). 받는 곳: `https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf`
@@ -42,9 +46,10 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **V1 디자인 토큰 동결**
-   - 토큰 데이터 형식과 Dart 코드 생성 방식을 app과 요청함으로 합의합니다. `palette.py`의 JSON 출력이 출발점입니다.
-   - 날의 성격 배지 나머지 3종(귀인의 날·기신의 날·평범한 날)의 색을 정합니다.
-   - 캘린더 길흉 점(엔진 `LuckLevel` 3단계)의 색 규칙을 정합니다.
-   - 일본어 줄 간격을 실제 문장으로 확인합니다.
-2. **V2 컴포넌트 명세**는 MVP 화면 목록(IA, D39)이 나온 뒤 시작합니다.
+1. **V2 컴포넌트 명세**는 MVP 화면 목록(IA, D39)이 나온 뒤 시작합니다. V1에서 V2로 넘긴 것:
+   - 컴포넌트별 토큰 사용
+   - 일기·일정 표시 점, 오늘·선택 표시
+   - 시스템 글자 크기 상한
+   - 길흉을 글·스크린리더로 전하는 방법
+2. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+3. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
