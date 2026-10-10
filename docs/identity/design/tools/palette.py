@@ -111,12 +111,16 @@ def _relative_luminance(hex_color: str) -> float:
     return 0.2126 * linearize(red) + 0.7152 * linearize(green) + 0.0722 * linearize(blue)
 
 
-def contrast_ratio(foreground: str, background: str) -> float:
-    """WCAG 2 대비 비율을 소수 둘째 자리로 반올림해 돌려줍니다."""
+def _unrounded_contrast(foreground: str, background: str) -> float:
     lighter, darker = sorted(
         (_relative_luminance(foreground), _relative_luminance(background)), reverse=True
     )
-    return round((lighter + 0.05) / (darker + 0.05), 2)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def contrast_ratio(foreground: str, background: str) -> float:
+    """WCAG 2 대비 비율을 소수 둘째 자리로 반올림해 돌려줍니다(표시용)."""
+    return round(_unrounded_contrast(foreground, background), 2)
 
 
 def brand_scale(hue: float, peak_chroma: float, steps: tuple[int, ...]) -> dict[int, str]:
@@ -209,10 +213,13 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
 
 
 def check_contrast(palette: dict) -> list[ContrastResult]:
-    """모든 글자 조합의 대비를 계산해 기준(4.5:1) 통과 여부와 함께 돌려줍니다."""
+    """모든 글자 조합의 대비를 계산해 기준(4.5:1) 통과 여부와 함께 돌려줍니다.
+
+    비교는 반올림하지 않은 값으로 합니다. 4.496이 4.50으로 반올림되어 통과하지 않게 하려는 것입니다.
+    """
     results = []
     for name, foreground, background in _text_pairs(palette):
-        ratio = contrast_ratio(foreground, background)
+        ratio = _unrounded_contrast(foreground, background)
         results.append(ContrastResult(name, foreground, background, ratio, ratio >= MIN_TEXT_CONTRAST))
     return results
 

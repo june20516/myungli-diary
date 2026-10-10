@@ -8,7 +8,7 @@ DESIGN_DIR = TOOLS_DIR.parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 from palette import build_palette  # noqa: E402
-from svg_colors import colors_in_markup, palette_colors  # noqa: E402
+from svg_colors import colors_in_markup, palette_colors, unsupported_colors_in_markup  # noqa: E402
 
 SPECIMEN = DESIGN_DIR / "specimen" / "index.html"
 
@@ -30,7 +30,12 @@ def test_specimen_variables_match_palette():
 
 def test_specimen_uses_only_palette_colors():
     stray = colors_in_markup(SPECIMEN.read_text()) - palette_colors(build_palette()) - {"#ffffff"}
-    assert stray == set(), sorted(stray)
+    assert stray == set(), f"{SPECIMEN.name}: 팔레트 밖 색 {sorted(stray)}"
+
+
+def test_specimen_has_no_unsupported_colors():
+    found = unsupported_colors_in_markup(SPECIMEN.read_text())
+    assert found == set(), f"{SPECIMEN.name}: 검사할 수 없는 색 표기 {sorted(found)}"
 
 
 def test_specimen_references_existing_logos():

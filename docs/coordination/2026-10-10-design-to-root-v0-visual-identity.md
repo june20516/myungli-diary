@@ -21,7 +21,7 @@ related: [V0, 브랜드 기반(docs/identity/README.md), docs/background/06-desi
   * 타이포는 문장 고운돋움/Zen Maru Gothic, UI는 Pretendard/Pretendard JP입니다.
   * 로고는 세이지 공책과 낙관 아이콘, 고운돋움 아웃라인 워드마크입니다.
 * **산출물:** `tools/palette.py`(생성기·대비 검사기, 32/32 통과), `logo/`(앱 아이콘 큰·작은 원형, Android 적응형, 워드마크, 가로 조합), `specimen/index.html`(견본).
-* **시각 산출물 요청(`2026-10-10-root-to-design-artifacts`) 반영:** `docs/identity/design/artifacts/`에 7건을 등록했습니다(chosen 4, superseded 3). 탈락한 안도 note에 남겼습니다. 요청 문서 상태는 지휘 세션의 accepted를 기다립니다.
+* **시각 산출물 요청(`2026-10-10-root-to-design-artifacts`) 반영:** `docs/identity/design/artifacts/`에 7건을 등록했습니다(chosen 5, superseded 2). 탈락한 안도 note에 남겼습니다. 요청 문서 상태는 지휘 세션의 accepted를 기다립니다.
 
 ## 지휘 세션이 알아야 할 것
 1. **브랜드 기반 README "시각 방향"의 시안 값과 달라진 점:** README가 "참고용, 확정은 design"이라고 둔 값입니다.

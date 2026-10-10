@@ -11,7 +11,7 @@ REPO_ROOT = DESIGN_DIR.parents[2]
 sys.path.insert(0, str(TOOLS_DIR))
 
 from palette import build_palette  # noqa: E402
-from svg_colors import colors_in_markup, palette_colors  # noqa: E402
+from svg_colors import colors_in_markup, palette_colors, unsupported_colors_in_markup  # noqa: E402
 from wordmark import wordmark_svg  # noqa: E402
 
 SVG = "{http://www.w3.org/2000/svg}"
@@ -41,5 +41,7 @@ def test_wordmark_rejects_missing_glyph(font_path):
 
 @pytest.mark.parametrize("name", ["wordmark.svg", "wordmark-dark.svg", "lockup.svg", "lockup-dark.svg"])
 def test_logo_files_use_palette_colors(name):
-    stray = colors_in_markup((LOGO / name).read_text()) - palette_colors(build_palette()) - {"#ffffff"}
-    assert stray == set()
+    markup = (LOGO / name).read_text()
+    stray = colors_in_markup(markup) - palette_colors(build_palette()) - {"#ffffff"}
+    assert stray == set(), f"{name}: 팔레트 밖 색 {sorted(stray)}"
+    assert unsupported_colors_in_markup(markup) == set(), name

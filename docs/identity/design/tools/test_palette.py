@@ -70,9 +70,16 @@ def test_gradient_matches_spec():
 def test_all_text_pairs_pass():
     results = check_contrast(build_palette())
     assert [r.name for r in results if not r.passed] == []
-    ratios = {r.name: r.ratio for r in results}
+    ratios = {r.name: round(r.ratio, 2) for r in results}
     assert ratios["light badge.good"] == 4.89
     assert ratios["light term"] == 5.80
+
+
+def test_check_contrast_compares_unrounded_ratio():
+    palette = build_palette()
+    palette["roles"]["light"]["badge.good.bg"] = "#6363f8"  # 흰 글자 대비 4.496, 반올림하면 4.50
+    result = next(r for r in check_contrast(palette) if r.name == "light badge.good")
+    assert result.passed is False
 
 
 def test_check_contrast_flags_failure():

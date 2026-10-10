@@ -10,7 +10,7 @@ DESIGN_DIR = TOOLS_DIR.parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 from palette import build_palette  # noqa: E402
-from svg_colors import colors_in_markup, palette_colors  # noqa: E402
+from svg_colors import colors_in_markup, palette_colors, unsupported_colors_in_markup  # noqa: E402
 
 SVG = "{http://www.w3.org/2000/svg}"
 LOGO = DESIGN_DIR / "logo"
@@ -49,3 +49,22 @@ def test_android_foreground_sits_in_safe_zone():
 
 def test_colors_in_markup_finds_uppercase():
     assert colors_in_markup('fill="#A75C53"') == {"#a75c53"}
+
+
+def test_colors_in_markup_converts_rgb_functions():
+    assert colors_in_markup("rgba(43, 43, 42, .18) rgb(255,255,255)") == {"#2b2b2a", "#ffffff"}
+
+
+def test_unsupported_colors_are_reported():
+    markup = "#abc #a75c5380 hsl(0 0% 0%) oklch(0.5 0.1 20) color-mix(in srgb, #a75c53, #ffffff)"
+    assert unsupported_colors_in_markup(markup) == {"#abc", "#a75c5380", "hsl(", "oklch(", "color-mix("}
+
+
+def test_unsupported_colors_ignore_fragment_references():
+    assert unsupported_colors_in_markup('url(#background-0) href="#lf" &#123; #a75c53') == set()
+
+
+@pytest.mark.parametrize("name", ICONS)
+def test_icon_has_no_unsupported_colors(name):
+    found = unsupported_colors_in_markup((LOGO / name).read_text())
+    assert found == set(), f"{name}: 검사할 수 없는 색 표기 {sorted(found)}"
