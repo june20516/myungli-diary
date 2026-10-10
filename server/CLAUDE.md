@@ -3,7 +3,8 @@
 이 디렉터리에서 시작한 세션은 **server 세션**입니다. 루트 `CLAUDE.md`와 [`docs/workflow.md`](../docs/workflow.md)의 공통 규약을 함께 따릅니다.
 
 ## 범위 (MVP, 루트 결정 기준)
-* 인증: JWT, 소셜 로그인 1~2개 (04 §4.1)
+* 인증: 카카오·Apple 로그인, 제공자 토큰 검증 후 자체 JWT 발급, 계정과 제공자 연결을 나눠 저장 (D55)
+* 배포: GCP Cloud Run(server·엔진 각각, 엔진은 내부 전용 gRPC), Cloud SQL PostgreSQL, Artifact Registry, Secret Manager, GitHub Actions + Workload Identity Federation (D56)
 * 사용자 프로필: 출생 정보 저장. 생년월일시, 음력·윤달(KASI 한국 음력, D41), 시간 모름, 성별, 출생 시간대·(선택) 경도 (D18·D29). 호칭 필수 (D36). 생년월일 지원 범위 양력 1900-01-31 ~ 2099-12-31 (D41)
 * 일기 CRUD: 저장 시 엔진의 태그 키 전체와 `ruleset_version`을 함께 기록 (엔진 spec §7.7·§12). **하루 1편**(날짜 유일), 지난 날 쓰기 가능, 미래 불가 (D49). 태그별 일기 조회 (D47①)
 * 기기 간 동기화: MVP는 앱의 로컬 초안만입니다. 저장은 온라인에서만 하고, 동기화·충돌 처리는 Phase 2입니다 (D47②)
@@ -33,12 +34,12 @@
 * **설계(S1) 착수 가능**입니다. 디렉터리는 비어 있습니다. 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 notice: Issue #7 (D36·D37·D40), S1 착수 안내 Issue(마일스톤 S1). 앞으로 받은 요청은 `gh issue list --label to:server`.
-* **지휘 미결 두 가지가 S1 범위에 걸려 있습니다:** 소셜 로그인 제공자, 서버·엔진 배포 플랫폼(`docs/roadmap.md` "지휘 세션 미결"). spec을 쓰다 이 결정이 필요해지면 `to:root` Issue로 올립니다.
+* 지휘 미결이었던 소셜 로그인 제공자와 배포 플랫폼은 D55·D56으로 정해졌습니다. 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
 1. 읽을 것:
    - `docs/background/` 00~06, 특히 01·02·04
-   - `docs/decisions.md` (특히 D47~D54)
+   - `docs/decisions.md` (특히 D47~D56)
    - 엔진 spec `core/docs/specs/2026-10-10-myungri-engine-design.md` §9~§12 (내가 쓸 계약)
    - IA spec `docs/specs/2026-10-11-ia-design.md` §10 (server 범위), `docs/ia/README.md`
    - 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md` §2.2·§4 (결제·entitlement)
