@@ -7,6 +7,8 @@ created: 2026-10-10
 related: [D37, D11, D16, 엔진 spec §2·§5·§8, source_ref 계약]
 ---
 
+> 이관됨: GitHub Issue #4. 이후 진행은 Issue에서 합니다.
+
 # 정보 깊이 용어 개정: Easy/Pro → surface / explain / evidence (D37)
 
 ## 무엇이 필요한가

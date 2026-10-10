@@ -1,0 +1,493 @@
+<title>명리일기 지도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 탭 여섯 개(노선도 기본). 역·화면 상세는 시트(휴대폰 아래, 넓은 화면 오른쪽). 톤은 브랜드 기반(파스텔 그라데이션 + 둥근 고딕) */
+:root {
+  --bg: #f3f5f1; --bg-grad-a: #eef4ef; --bg-grad-b: #fbefee;
+  --surface: #ffffffd9; --surface-solid: #ffffff; --line: #2f31331a;
+  --fg: #2f3133; --muted: #6b716b; --accent: #c0675c; --accent-soft: #fbe3df;
+  --term: #4f7f5e; --term-soft: #e3efe6;
+  --done: #6c9a7a; --doing: #d98a7e; --todo: #b8bdb7; --ready: #c0675c;
+  --l-root: #8a7fb0; --l-core: #6c9a7a; --l-server: #8c97a6; --l-design: #c0675c;
+  --l-writing: #c29a5b; --l-app: #2f5378; --l-int: #4c4f52;
+  --font-display: 'Gowun Dodum', 'Apple SD Gothic Neo', sans-serif;
+  --font-ui: 'IBM Plex Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1b1d1c; --bg-grad-a: #1e2420; --bg-grad-b: #261f1f; --surface: #262a28e6; --surface-solid: #262a28;
+  --line: #ffffff1f; --fg: #e8ebe7; --muted: #a2a8a1; --accent: #e8968b; --accent-soft: #4a2f2b;
+  --term: #9cc7a8; --term-soft: #2c3b31; --done: #86b694; --doing: #e8968b; --todo: #5d625d; --ready: #e8968b;
+  --l-root: #a99fd1; --l-core: #86b694; --l-server: #a9b3c1; --l-design: #e8968b; --l-writing: #d8b47a; --l-app: #7fa3cc; --l-int: #c5c8c4;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #1b1d1c; --bg-grad-a: #1e2420; --bg-grad-b: #261f1f; --surface: #262a28e6; --surface-solid: #262a28;
+  --line: #ffffff1f; --fg: #e8ebe7; --muted: #a2a8a1; --accent: #e8968b; --accent-soft: #4a2f2b;
+  --term: #9cc7a8; --term-soft: #2c3b31; --done: #86b694; --doing: #e8968b; --todo: #5d625d; --ready: #e8968b;
+  --l-root: #a99fd1; --l-core: #86b694; --l-server: #a9b3c1; --l-design: #e8968b; --l-writing: #d8b47a; --l-app: #7fa3cc; --l-int: #c5c8c4;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); background-image: linear-gradient(160deg, var(--bg-grad-a), var(--bg-grad-b)); background-attachment: fixed;
+  color: var(--fg); font-family: var(--font-ui); font-size: 15px; line-height: 1.6; min-height: 100%; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 48px; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+h1 { font-family: var(--font-display); font-weight: 400; font-size: 1.6rem; margin: 0; text-wrap: balance; }
+.concept { color: var(--muted); font-size: .9rem; }
+.stamp { margin-left: auto; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+nav.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+nav.tabs a { flex: none; text-decoration: none; color: var(--fg); padding: 7px 14px; border-radius: 999px; background: var(--surface); font-size: .9rem; border: 1px solid transparent; }
+nav.tabs a[aria-current="page"] { background: var(--fg); color: var(--bg); }
+nav.tabs a:focus-visible, button:focus-visible, .station:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+section.panel { display: flex; flex-direction: column; gap: 14px; }
+.box { background: var(--surface); border-radius: 16px; padding: 14px 16px; min-width: 0; }
+h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; margin: 0 0 6px; }
+h3 { font-size: .95rem; margin: 0 0 4px; font-weight: 600; }
+.label { font-size: .72rem; letter-spacing: .06em; color: var(--muted); }
+.muted { color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.pill { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 999px; background: var(--term-soft); color: var(--term); white-space: nowrap; }
+.pill.done { background: var(--term-soft); color: var(--term); }
+.pill.doing, .pill.ready { background: var(--accent-soft); color: var(--accent); }
+.pill.todo { background: var(--line); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+button.chip { font: inherit; font-size: .8rem; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+button.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* 노선도 */
+.metro-scroll { overflow-x: auto; }
+.metro { display: block; }
+.metro text { fill: var(--fg); font-family: var(--font-ui); }
+.metro .line-label { font-size: 12px; fill: var(--muted); }
+.metro .st-label { font-size: 11px; font-variant-numeric: tabular-nums; }
+.station { cursor: pointer; }
+.station:hover circle { stroke-width: 3; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; border: 2px solid var(--fg); }
+.legend .lg-done::before { background: var(--fg); } .legend .lg-ready::before { border-color: var(--ready); background: var(--accent-soft); } .legend .lg-todo::before { background: var(--surface-solid); }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: .78rem; }
+.table-scroll { overflow-x: auto; }
+ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+a { color: var(--term); }
+
+/* 화면·산출물 */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; border: 0; text-align: left; font: inherit; color: inherit; }
+button.card { cursor: pointer; }
+.card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 10px; background: var(--line); max-width: 100%; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: .75rem; color: var(--muted); }
+.notice { background: var(--accent-soft); color: var(--fg); border-radius: 12px; padding: 10px 14px; font-size: .88rem; }
+
+/* 정체성 */
+.prose { max-width: 68ch; }
+.prose h2 { margin-top: 18px; }
+.prose table { margin-block: 8px; }
+.prose blockquote { margin: 8px 0; padding: 4px 14px; border-left: 3px solid var(--term); font-family: var(--font-display); font-size: 1.1rem; }
+
+/* 결정 */
+input[type="search"] { width: 100%; font: inherit; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); }
+.decision { display: grid; grid-template-columns: 4.2rem 1fr; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.decision b { font-variant-numeric: tabular-nums; }
+.decision .src { grid-column: 2; font-size: .75rem; color: var(--muted); }
+
+/* 시트 */
+.sheet-back { position: fixed; inset: 0; background: #0000004d; z-index: 20; }
+.sheet { position: fixed; z-index: 21; background: var(--surface-solid); color: var(--fg); overflow-y: auto; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px;
+  left: 0; right: 0; bottom: 0; max-height: 78%; border-radius: 20px 20px 0 0; }
+@media (min-width: 860px) { .sheet { left: auto; top: 0; width: 420px; max-height: none; border-radius: 20px 0 0 20px; padding-top: calc(18px + env(safe-area-inset-top, 0px)); } }
+.sheet header { align-items: center; }
+.sheet button.close { margin-left: auto; font: inherit; border: 0; background: var(--line); color: var(--fg); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.thumbs figure { margin: 0; font-size: .78rem; }
+.thumbs img { border-radius: 8px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; width: 100%; }
+.box-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.box-head h2 { margin: 0; }
+button.zoom-btn { margin-left: auto; font: inherit; font-size: .8rem; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+img.zoomable { cursor: zoom-in; }
+.viewer { position: fixed; inset: 0; z-index: 30; background: var(--bg); display: flex; flex-direction: column; }
+.viewer .bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; border-bottom: 1px solid var(--line); }
+.viewer .bar h2 { margin: 0; font-size: 1rem; flex: 1 1 200px; min-width: 0; }
+.viewer .bar button { font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--surface-solid); color: var(--fg); border-radius: 999px; padding: 4px 12px; cursor: pointer; min-width: 2.6rem; }
+.viewer .bar output { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 3.2rem; text-align: center; }
+.viewer .stage { flex: 1; overflow: auto; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+.viewer .stage > * { display: block; max-width: none; height: auto; margin: 0 auto; background: var(--surface-solid); border-radius: 8px; }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(12px); opacity: .6; } } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>명리일기 지도</h1>
+    <span class="concept" id="concept"></span>
+    <span class="stamp" id="stamp">데이터를 불러오는 중</span>
+  </header>
+  <nav class="tabs" aria-label="지도 영역">
+    <a href="#route" data-tab="route">노선도</a>
+    <a href="#screens" data-tab="screens">화면</a>
+    <a href="#identity" data-tab="identity">정체성</a>
+    <a href="#logic" data-tab="logic">로직</a>
+    <a href="#gallery" data-tab="gallery">산출물</a>
+    <a href="#decisions" data-tab="decisions">결정</a>
+  </nav>
+
+  <section class="panel" id="tab-route">
+    <div class="box">
+      <div class="box-head"><h2>어디까지 왔나</h2><button class="zoom-btn" type="button" data-zoom-target="metro">크게 보기</button></div>
+      <div class="legend"><span class="lg-done">완료</span><span class="lg-ready">다음 역(선행 조건이 모두 끝남)</span><span class="lg-todo">아직</span></div>
+      <div class="metro-scroll"><svg class="metro" id="metro" role="group" aria-label="마일스톤 노선도"></svg></div>
+      <p class="muted" style="margin:6px 0 0;font-size:.8rem">역을 누르면 그 마일스톤의 상세가 열립니다. 점선은 다른 노선에서 기다리는 선행 조건입니다.</p>
+    </div>
+    <div class="grid2">
+      <div class="box"><h2>지금 진행 순서</h2><div class="table-scroll"><table id="order"></table></div></div>
+      <div class="box"><h2>열린 Issue</h2><ul class="plain" id="issues"></ul></div>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-screens" hidden>
+    <div class="notice" id="screens-notice" hidden>IA(D39)가 아직 없어 MVP 범위로 만든 임시 화면 목록입니다.</div>
+    <div class="cards" id="screens"></div>
+  </section>
+
+  <section class="panel" id="tab-identity" hidden>
+    <div class="box prose" id="identity"></div>
+  </section>
+
+  <section class="panel" id="tab-logic" hidden>
+    <div class="box">
+      <div class="box-head"><h2>하루를 판정하는 흐름</h2><button class="zoom-btn" type="button" data-zoom-target="logic-diagram">크게 보기</button></div>
+      <p class="muted" style="margin-top:0">모든 데일리 결과는 일진 × 원국입니다(D13). 날의 성격 4단계(D19)가 행운 정보를 정하고, 엔진은 메시지 키만 내며 문장은 server 콘텐츠 모듈이 만듭니다(D27).</p>
+      <div id="logic-diagram"><pre class="mermaid">
+flowchart LR
+  B[출생 정보<br/>시각 변환·한국 음력 D41] --> W[원국<br/>사주팔자·십성·신살]
+  W --> Y[용신<br/>조후 우선 D7]
+  T[오늘 일진<br/>현재 시간대 D30] --> J
+  W --> J{날의 성격 D19}
+  Y --> J
+  J -->|귀인의 날| G[귀인 방위]
+  J -->|용신의 날| U[용신 유지·좋은 날 D20]
+  J -->|기신의 날| X[통관 오행]
+  J -->|평범한 날| N[길신 방위]
+  G & U & X & N --> L[행운 색·방향·숫자 D25<br/>집중 시간 D21]
+  L --> K[메시지 키 + 근거]
+  K --> C[콘텐츠 모듈<br/>문장 유형 D40·호칭 D36]
+      </pre></div>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-gallery" hidden>
+    <div class="box"><div class="chips" id="gallery-filters" role="group" aria-label="산출물 거르기"></div></div>
+    <div class="cards" id="gallery"></div>
+  </section>
+
+  <section class="panel" id="tab-decisions" hidden>
+    <div class="box" style="display:flex;flex-direction:column;gap:10px">
+      <label for="decision-search" class="label">결정 검색 (번호·분류·내용)</label>
+      <input type="search" id="decision-search" placeholder="예: 음력, D40, 문구">
+      <div class="chips" id="decision-filters" role="group" aria-label="결정 로그 거르기"></div>
+    </div>
+    <div class="box" id="decisions"></div>
+  </section>
+</div>
+
+<div class="sheet-back" id="sheet-back" hidden></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden></aside>
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title" hidden>
+  <div class="bar">
+    <h2 id="viewer-title"></h2>
+    <button type="button" id="zoom-out" aria-label="축소">−</button>
+    <output id="zoom-level" aria-live="polite">100%</output>
+    <button type="button" id="zoom-in" aria-label="확대">+</button>
+    <button type="button" id="zoom-fit">화면에 맞춤</button>
+    <button type="button" id="viewer-close">닫기</button>
+  </div>
+  <div class="stage" id="viewer-stage"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+const LINES = [
+  { key: "root", name: "지휘", color: "--l-root" },
+  { key: "core", name: "core", color: "--l-core" },
+  { key: "server", name: "server", color: "--l-server" },
+  { key: "design", name: "design", color: "--l-design" },
+  { key: "writing", name: "writing", color: "--l-writing" },
+  { key: "app", name: "app", color: "--l-app" },
+  { key: "int", name: "통합", color: "--l-int" },
+];
+const UNIT_NAMES = { root: "지휘", core: "core", server: "server", app: "app", writing: "writing", design: "design" };
+const STATUS_NAMES = { draft: "초안", chosen: "채택", rejected: "탈락", superseded: "대체됨" };
+let DATA = null;
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const imgSrc = (path) => "images/" + path.split("/").map(encodeURIComponent).join("/");
+
+function lineOf(owner) {
+  if (/판단|\+/.test(owner)) return "int";
+  if (owner.startsWith("지휘")) return "root";
+  const key = owner.split(/[\s→]/)[0];
+  return LINES.some((l) => l.key === key) ? key : "root";
+}
+function reqIds(text) { return (text.match(/\b(?:R0|B0|IA|[CSAWVI]\d)\b/g) || []); }
+
+function layoutMetro(milestones) {
+  const byId = Object.fromEntries(milestones.map((m) => [m.id, m]));
+  const depth = {};
+  const depthOf = (id, seen = new Set()) => {
+    if (id in depth) return depth[id];
+    if (seen.has(id) || !byId[id]) return 0;
+    seen.add(id);
+    const reqs = reqIds(byId[id].requires).filter((r) => byId[r]);
+    depth[id] = reqs.length ? 1 + Math.max(...reqs.map((r) => depthOf(r, seen))) : 0;
+    return depth[id];
+  };
+  milestones.forEach((m) => depthOf(m.id));
+  // 같은 노선의 같은 칸에 역이 둘 오면 뒤의 역을 오른쪽으로 밉니다(예: R0와 B0).
+  const taken = new Set();
+  milestones.forEach((m) => {
+    const line = lineOf(m.owner);
+    while (taken.has(line + ":" + depth[m.id])) depth[m.id] += 1;
+    taken.add(line + ":" + depth[m.id]);
+  });
+  return milestones.map((m) => {
+    const reqs = reqIds(m.requires).filter((r) => byId[r]);
+    const ready = m.state !== "done" && reqs.every((r) => byId[r].state === "done");
+    return { ...m, line: lineOf(m.owner), depth: depth[m.id], reqs, ready };
+  });
+}
+
+function renderMetro() {
+  const svg = document.getElementById("metro");
+  const stations = layoutMetro(DATA.milestones);
+  const used = LINES.filter((l) => stations.some((s) => s.line === l.key));
+  const colW = 86, rowH = 58, left = 70, top = 26;
+  const maxDepth = Math.max(0, ...stations.map((s) => s.depth));
+  const width = left + (maxDepth + 1) * colW + 30, height = top + used.length * rowH + 4;
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("width", width); svg.setAttribute("height", height);
+  const pos = {};
+  stations.forEach((s) => { pos[s.id] = { x: left + s.depth * colW + colW / 2, y: top + used.findIndex((l) => l.key === s.line) * rowH + 12 }; });
+  let out = "";
+  stations.forEach((s) => s.reqs.forEach((r) => {
+    const a = pos[r], b = pos[s.id];
+    if (!a || stations.find((x) => x.id === r).line === s.line) return;
+    out += `<path d="M${a.x} ${a.y} C${(a.x + b.x) / 2} ${a.y}, ${(a.x + b.x) / 2} ${b.y}, ${b.x} ${b.y}" fill="none" stroke="${cssVar("--muted")}" stroke-width="1" stroke-dasharray="3 4" opacity=".6"/>`;
+  }));
+  used.forEach((l, i) => {
+    const y = top + i * rowH + 12;
+    const xs = stations.filter((s) => s.line === l.key).map((s) => pos[s.id].x).sort((a, b) => a - b);
+    out += `<text class="line-label" x="8" y="${y + 4}">${esc(l.name)}</text>`;
+    if (xs.length > 1) out += `<path d="M${xs[0]} ${y} H${xs[xs.length - 1]}" stroke="${cssVar(l.color)}" stroke-width="6" stroke-linecap="round" fill="none"/>`;
+  });
+  stations.forEach((s) => {
+    const { x, y } = pos[s.id];
+    const color = cssVar(LINES.find((l) => l.key === s.line).color);
+    const fill = s.state === "done" ? color : s.ready ? cssVar("--accent-soft") : cssVar("--surface-solid");
+    const stroke = s.ready ? cssVar("--ready") : cssVar("--fg");
+    const label = `${s.id} ${s.title}, ${s.state === "done" ? "완료" : s.ready ? "다음 역" : "아직"}`;
+    out += `<g class="station" tabindex="0" role="button" aria-label="${esc(label)}" data-id="${esc(s.id)}">
+      <circle cx="${x}" cy="${y}" r="${s.ready ? 9 : 7}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+      <text class="st-label" x="${x}" y="${y + 24}" text-anchor="middle">${esc(s.id)}</text></g>`;
+  });
+  svg.innerHTML = out;
+  svg.querySelectorAll(".station").forEach((g) => {
+    const open = () => openMilestone(g.dataset.id);
+    g.addEventListener("click", open);
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+  });
+}
+
+function stateLabel(m) { return m.state === "done" ? "완료" : m.state === "doing" ? "진행 중" : "아직"; }
+
+function thumbs(items) {
+  if (!items.length) return `<p class="muted">아직 없음</p>`;
+  return `<div class="thumbs">${items.map((a) => `<figure><img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy"><figcaption>${esc(a.title)} <span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span></figcaption></figure>`).join("")}</div>`;
+}
+function issueList(items) {
+  if (!items.length) return `<p class="muted">없음</p>`;
+  return `<ul class="plain">${items.map((i) => `<li><a href="${esc(i.url)}" target="_blank" rel="noopener">#${i.number} ${esc(i.title)}</a><div class="chips" style="margin-top:3px">${i.labels.map((l) => `<span class="pill todo">${esc(l)}</span>`).join("")}</div></li>`).join("")}</ul>`;
+}
+
+function openSheet(html) {
+  const sheet = document.getElementById("sheet");
+  sheet.innerHTML = html;
+  sheet.hidden = false; document.getElementById("sheet-back").hidden = false;
+  sheet.querySelector("button.close").addEventListener("click", closeSheet);
+  sheet.querySelector("button.close").focus();
+}
+function closeSheet() { document.getElementById("sheet").hidden = true; document.getElementById("sheet-back").hidden = true; }
+
+function openMilestone(id) {
+  const m = layoutMetro(DATA.milestones).find((x) => x.id === id);
+  const arts = DATA.artifacts.filter((a) => a.milestone === id);
+  const iss = DATA.issues.filter((i) => i.milestone === id);
+  const pill = m.state === "done" ? "done" : m.ready ? "ready" : m.state;
+  openSheet(`<header><span class="pill ${pill}">${m.ready ? "다음 역" : stateLabel(m)}</span><button class="close" type="button">닫기</button></header>
+    <h2 id="sheet-title">${esc(m.id)} · ${esc(m.title)}</h2>
+    <table><tr><th>담당</th><td>${esc(m.owner)}</td></tr><tr><th>선행 조건</th><td>${esc(m.requires)}</td></tr>
+    <tr><th>끝나면 열리는 것</th><td>${esc(m.unlocks)}</td></tr><tr><th>상태</th><td>${esc(m.status)}</td></tr></table>
+    <div><h3>산출물</h3>${thumbs(arts)}</div><div><h3>Issue</h3>${issueList(iss)}</div>`);
+}
+
+function renderRoute() {
+  renderMetro();
+  document.getElementById("order").innerHTML = `<tr><th>순서</th><th>담당</th><th>할 일</th><th>막는 것</th></tr>` +
+    (DATA.current_order.map((o) => `<tr><td>${esc(o.step)}</td><td>${esc(o.owner)}</td><td>${esc(o.task)}</td><td>${esc(o.blocks)}</td></tr>`).join("") ||
+     `<tr><td colspan="4" class="muted">로드맵에 진행 순서가 없습니다</td></tr>`);
+  document.getElementById("issues").innerHTML = DATA.issues.length ? issueList(DATA.issues).replace(/^<ul class="plain">|<\/ul>$/g, "") : `<li class="muted">열린 Issue가 없습니다(또는 갱신 때 gh 인증이 없었습니다)</li>`;
+}
+
+function renderScreens() {
+  document.getElementById("screens-notice").hidden = !DATA.screens.some((s) => s.provisional);
+  const el = document.getElementById("screens");
+  el.innerHTML = DATA.screens.map((s) => {
+    const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
+    const cover = arts.find((a) => a.status === "chosen") || arts[0];
+    return `<button class="card" type="button" data-id="${esc(s.id)}">${cover ? `<img src="${imgSrc(cover.path)}" alt="" loading="lazy">` : ""}
+      <h3>${esc(s.title)}</h3><span class="muted" style="font-size:.85rem">${esc(s.summary || "")}</span>
+      <span class="meta"><span>산출물 ${arts.length}</span></span></button>`;
+  }).join("");
+  el.querySelectorAll("button.card").forEach((b) => b.addEventListener("click", () => {
+    const s = DATA.screens.find((x) => x.id === b.dataset.id);
+    const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
+    openSheet(`<header>${s.provisional ? `<span class="pill todo">임시 화면</span>` : ""}<button class="close" type="button">닫기</button></header>
+      <h2 id="sheet-title">${esc(s.title)}</h2><p style="margin:0">${esc(s.summary || "")}</p>
+      <div><h3>시안·스크린샷</h3>${thumbs(arts)}</div>
+      <p class="muted" style="font-size:.85rem">문장 슬롯·컴포넌트·엔진 데이터는 IA(D39)가 나오면 이 화면에 연결됩니다.</p>`);
+  }));
+}
+
+function renderIdentity() {
+  const sections = DATA.identity.sections || {};
+  const md = Object.entries(sections).map(([h, body]) => `## ${h}\n\n${body}`).join("\n\n");
+  const el = document.getElementById("identity");
+  el.innerHTML = window.marked ? window.marked.parse(md) : `<pre style="white-space:pre-wrap">${esc(md)}</pre>`;
+}
+
+function renderGallery() {
+  const filters = document.getElementById("gallery-filters");
+  const units = [...new Set(DATA.artifacts.map((a) => a.unit))];
+  const statuses = [...new Set(DATA.artifacts.map((a) => a.status))];
+  const state = { unit: "all", status: "all" };
+  const chip = (group, value, text) => `<button class="chip" type="button" data-group="${group}" data-value="${esc(value)}" aria-pressed="${state[group] === value}">${esc(text)}</button>`;
+  const draw = () => {
+    filters.innerHTML = chip("unit", "all", "모든 단위") + units.map((u) => chip("unit", u, UNIT_NAMES[u] || u)).join("") +
+      `<span style="width:12px"></span>` + chip("status", "all", "모든 상태") + statuses.map((s) => chip("status", s, STATUS_NAMES[s] || s)).join("");
+    const items = DATA.artifacts.filter((a) => (state.unit === "all" || a.unit === state.unit) && (state.status === "all" || a.status === state.status));
+    document.getElementById("gallery").innerHTML = items.map((a) => `<div class="card">
+      <img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy">
+      <h3>${esc(a.title)}</h3><span style="font-size:.85rem">${esc(a.note)}</span>
+      <span class="meta"><span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span><span>${esc(UNIT_NAMES[a.unit] || a.unit)}</span><span>${esc(a.milestone)}</span><span>${esc(a.date)}</span></span></div>`).join("") ||
+      `<p class="muted">조건에 맞는 산출물이 없습니다.</p>`;
+    filters.querySelectorAll("button.chip").forEach((b) => b.addEventListener("click", () => { state[b.dataset.group] = b.dataset.value; draw(); }));
+  };
+  draw();
+}
+
+function renderDecisions() {
+  const prefixes = [...new Set(DATA.decisions.map((d) => d.id[0]))];
+  const state = { prefix: "all", q: "" };
+  const filters = document.getElementById("decision-filters");
+  const draw = () => {
+    filters.innerHTML = [["all", "전체"], ...prefixes.map((p) => [p, p + "#"])].map(([v, t]) => `<button class="chip" type="button" data-value="${v}" aria-pressed="${state.prefix === v}">${t}</button>`).join("");
+    filters.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { state.prefix = b.dataset.value; draw(); }));
+    const q = state.q.trim().toLowerCase();
+    const items = DATA.decisions.filter((d) => (state.prefix === "all" || d.id[0] === state.prefix) &&
+      (!q || `${d.id} ${d.area} ${d.text}`.toLowerCase().includes(q))).slice().reverse();
+    document.getElementById("decisions").innerHTML = items.map((d) => `<div class="decision"><b>${esc(d.id)}</b><span><span class="pill todo">${esc(d.area)}</span> ${esc(d.text)}</span><span class="src">${esc(d.date)} · ${esc(d.source)}</span></div>`).join("") ||
+      `<p class="muted">맞는 결정이 없습니다.</p>`;
+  };
+  document.getElementById("decision-search").addEventListener("input", (e) => { state.q = e.target.value; draw(); });
+  draw();
+}
+
+// 확대 보기: 원본 크기(base)에 배율(scale)을 곱해 너비를 정하고, 넘치는 부분은 stage 스크롤로 봅니다.
+const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
+const viewer = { el: null, base: 0, scale: 1 };
+function applyZoom() {
+  if (!viewer.el) return;
+  const width = Math.round(viewer.base * viewer.scale);
+  if (viewer.el.tagName.toLowerCase() === "svg") viewer.el.setAttribute("width", width), viewer.el.removeAttribute("height");
+  viewer.el.style.width = width + "px";
+  document.getElementById("zoom-level").textContent = Math.round(viewer.scale * 100) + "%";
+}
+function fitZoom() {
+  const stage = document.getElementById("viewer-stage");
+  viewer.scale = Math.max(0.1, (stage.clientWidth - 32) / viewer.base);
+  applyZoom();
+}
+function stepZoom(direction) {
+  const next = direction > 0 ? ZOOM_STEPS.find((s) => s > viewer.scale + 0.01) : [...ZOOM_STEPS].reverse().find((s) => s < viewer.scale - 0.01);
+  if (next) { viewer.scale = next; applyZoom(); }
+}
+function openViewer(node, base, title) {
+  const stage = document.getElementById("viewer-stage");
+  stage.replaceChildren(node);
+  viewer.el = node; viewer.base = Math.max(1, base);
+  document.getElementById("viewer-title").textContent = title;
+  document.getElementById("viewer").hidden = false;
+  fitZoom();
+  document.getElementById("viewer-close").focus();
+}
+function closeViewer() { document.getElementById("viewer").hidden = true; document.getElementById("viewer-stage").replaceChildren(); viewer.el = null; }
+function zoomSvgFrom(container, title) {
+  const svg = container.querySelector("svg");
+  if (!svg) {
+    const pre = container.querySelector("pre");
+    if (pre) openViewer(Object.assign(document.createElement("pre"), { textContent: pre.textContent, style: "white-space:pre;padding:12px" }), 720, title);
+    return;
+  }
+  const clone = svg.cloneNode(true);
+  const viewBox = (svg.getAttribute("viewBox") || "").split(/[\s,]+/).map(Number);
+  const base = viewBox.length === 4 && viewBox[2] > 0 ? viewBox[2] : svg.getBoundingClientRect().width;
+  clone.removeAttribute("style");
+  openViewer(clone, base, title);
+}
+document.addEventListener("click", (e) => {
+  const img = e.target.closest("img.zoomable");
+  if (img) {
+    e.preventDefault(); e.stopPropagation();
+    const big = new Image(); big.src = img.src; big.alt = img.alt;
+    openViewer(big, img.naturalWidth || 1200, img.alt);
+    return;
+  }
+  const btn = e.target.closest("button[data-zoom-target]");
+  if (btn) zoomSvgFrom(document.getElementById(btn.dataset.zoomTarget), btn.closest(".box").querySelector("h2").textContent);
+}, true);
+document.getElementById("zoom-in").addEventListener("click", () => stepZoom(1));
+document.getElementById("zoom-out").addEventListener("click", () => stepZoom(-1));
+document.getElementById("zoom-fit").addEventListener("click", fitZoom);
+document.getElementById("viewer-close").addEventListener("click", closeViewer);
+document.getElementById("viewer-stage").addEventListener("wheel", (e) => { if (e.ctrlKey) { e.preventDefault(); stepZoom(e.deltaY < 0 ? 1 : -1); } }, { passive: false });
+document.addEventListener("keydown", (e) => {
+  if (document.getElementById("viewer").hidden) return;
+  if (e.key === "+" || e.key === "=") stepZoom(1);
+  if (e.key === "-") stepZoom(-1);
+});
+
+const TABS = ["route", "screens", "identity", "logic", "gallery", "decisions"];
+function showTab() {
+  const current = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "route";
+  TABS.forEach((t) => { document.getElementById("tab-" + t).hidden = t !== current; });
+  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === current ? "page" : "false"));
+  closeSheet();
+}
+
+document.getElementById("sheet-back").addEventListener("click", closeSheet);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (!document.getElementById("viewer").hidden) closeViewer(); else closeSheet(); } });
+window.addEventListener("hashchange", showTab);
+showTab();
+
+fetch("data.json").then((r) => r.json()).then((data) => {
+  DATA = data;
+  document.getElementById("concept").textContent = data.identity.concept || "";
+  const when = new Date(data.generated_at);
+  document.getElementById("stamp").textContent = "갱신 " + when.toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
+  renderRoute(); renderScreens(); renderIdentity(); renderGallery(); renderDecisions();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderMetro);
+}).catch(() => {
+  document.getElementById("stamp").textContent = "data.json을 읽지 못했습니다. 지휘 세션이 tools/product-map/README.md 순서로 다시 publish해야 합니다.";
+});
+</script>

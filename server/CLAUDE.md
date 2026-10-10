@@ -14,7 +14,7 @@
 * **MVP 범위 밖:** LLM 기능은 Phase 2 유료입니다 (D22·D23). 목적별 택일, 외부 캘린더 연동도 범위 밖입니다
 
 ## 고칠 수 있는 곳
-`server/`, `.github/workflows/server.yml`, `docs/coordination/`(요청·보고 작성). 그 밖은 읽기만 합니다.
+`server/`, `.github/workflows/server.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:server`). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
 ## 계약
 | 계약 | 역할 | 상대 |
@@ -26,8 +26,8 @@
 
 ## 현재 상태 (2026-10-10, 지휘 세션 작성)
 * **설계 시작 전**입니다. 디렉터리가 비어 있습니다.
-* 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`와 core 완료 보고에 있습니다.
-* 받은 notice: `docs/coordination/2026-10-10-root-to-server-identity-impact.md` (D36·D37·D40).
+* 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
+* 받은 notice: Issue #7 (D36·D37·D40). 앞으로 받은 요청은 `gh issue list --label to:server`.
 
 ## 다음 할 일
 1. 읽을 것:
@@ -42,4 +42,4 @@
    ```
 3. brainstorming으로 server spec을 작성합니다 → `server/docs/specs/`
    - 먼저 루트 미결(`docs/roadmap.md` "지휘 세션 미결")에서 server에 걸린 항목을 지휘 세션에 확인합니다.
-4. REST API v1의 초안이 정해지면 `server-to-root` 요청으로 계약 등록을 요청합니다. app이 이 계약에 기대어 개발합니다.
+4. REST API v1의 초안이 정해지면 `from:server`·`to:root` Issue로 계약 등록을 요청합니다. app이 이 계약에 기대어 개발합니다.

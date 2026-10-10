@@ -1,0 +1,93 @@
+# ci-gate: 모든 PR과 main push에서 항상 도는 단일 판정 workflow (지휘 소유)
+#
+# * 필수 검사 이름은 `ci-gate` 하나입니다. 경로 필터가 걸린 workflow를 필수로 두면
+#   해당 경로를 건드리지 않은 PR이 "대기"에 멈추므로, 판정은 항상 이 job이 냅니다.
+# * 새 단위 검사를 붙이는 방법 (docs/specs/2026-10-10-collab-workflow-design.md §4.1):
+#   1. (단위) 단위 workflow에 `on: workflow_call`만 더합니다. 기존 트리거를 유지합니다.
+#   2. (지휘) 아래 `changes` job에 그 단위의 경로 출력을 더하고(계약 경로는 주는 쪽·쓰는 쪽 모두),
+#      `uses: ./.github/workflows/<단위>.yml` job을 더해 `ci-gate`의 needs에 넣습니다.
+#   3. (단위) 단위 workflow의 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지).
+#   이 순서면 검사가 하나도 돌지 않는 구간이 생기지 않습니다. 전환 전까지 그 단위는 이 판정에 들어가지 않습니다.
+# * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
+
+name: ci-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-gate-${{ github.ref }}
+  # PR은 새 commit이 오면 앞선 실행을 취소합니다. main push는 커밋마다 판정을 남기려고 취소하지 않습니다.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.detect.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 바뀐 경로 판별
+        id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            base="$PR_BASE"
+          elif [ "$EVENT" = "push" ] && [ -n "$PUSH_BEFORE" ] && ! echo "$PUSH_BEFORE" | grep -qE '^0+$'; then
+            base="$PUSH_BEFORE"
+          else
+            # workflow_dispatch 등 비교 기준이 없으면 아무 검사도 고르지 않습니다.
+            echo "docs=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$base"...HEAD)
+          echo "$changed"
+          if echo "$changed" | grep -qE '\.md$|/artifacts/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  docs:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: docs 검사 테스트
+        working-directory: tools/docs-check
+        run: python3 -I -m unittest -q
+      - name: docs 검사 (링크·artifacts·결정 번호)
+        run: python3 -I tools/docs-check/docs_check.py .
+
+  ci-gate:
+    needs: [changes, docs]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 판정
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "결과: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "실패한 검사가 있습니다: $result"; exit 1 ;;
+            esac
+          done
+          echo "ci-gate 통과"

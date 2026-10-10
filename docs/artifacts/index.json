@@ -8,7 +8,9 @@
     "date": "2026-10-10",
     "milestone": "B0",
     "screens": [],
-    "decisions": ["D38"],
+    "decisions": [
+      "D38"
+    ],
     "status": "superseded",
     "note": "색·톤은 현행 06(D), 정보 가시성은 차분한 데이터(C)를 골라 조합 요청"
   },
@@ -21,7 +23,9 @@
     "date": "2026-10-10",
     "milestone": "B0",
     "screens": [],
-    "decisions": ["D38"],
+    "decisions": [
+      "D38"
+    ],
     "status": "chosen",
     "note": "E1 그라데이션 + 둥근 고딕 채택(써보고 불쾌하면 리뉴얼). 흰 패널 + 3칸 격자 레이아웃은 탈락"
   },
@@ -34,8 +38,25 @@
     "date": "2026-10-10",
     "milestone": "B0",
     "screens": [],
-    "decisions": ["D38"],
+    "decisions": [
+      "D38"
+    ],
     "status": "chosen",
     "note": "L1 채택: 흰 패널 없이 그라데이션 위 문장, 행운 정보는 아래 반투명 칩 한 줄. 행운 값은 예시"
+  },
+  {
+    "id": "product-map-layout",
+    "title": "제품 지도 레이아웃 비교 (한 장 대시보드 / 화면 중심 / 노선도)",
+    "kind": "mockup",
+    "file": "2026-10-10-product-map-layout.png",
+    "source": "2026-10-10-product-map-layout.html",
+    "date": "2026-10-10",
+    "milestone": "B0",
+    "screens": [],
+    "decisions": [
+      "D45"
+    ],
+    "status": "chosen",
+    "note": "노선도(C)를 기본 탭으로, 화면(B)과 대등한 탭 구조. 역을 누르면 시트로 상세"
   }
 ]

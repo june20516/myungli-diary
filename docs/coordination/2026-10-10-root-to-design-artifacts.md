@@ -7,6 +7,8 @@ created: 2026-10-10
 related: [docs/workflow.md §7, docs/artifacts/index.json, 제품 지도]
 ---
 
+> 이관됨: GitHub Issue #6. 이후 진행은 Issue에서 합니다.
+
 # 시각 산출물을 `artifacts/`에 쌓아 주세요 (제품 지도 준비)
 
 ## 무엇이 필요한가

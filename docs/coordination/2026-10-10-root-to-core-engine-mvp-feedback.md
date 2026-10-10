@@ -7,6 +7,8 @@ created: 2026-10-10
 related: [2026-10-10-core-to-root-engine-mvp-done, 2026-10-10-root-to-core-depth-terminology, D37, D41, D42, PR #1]
 ---
 
+> 이관됨: GitHub Issue #5. 이후 진행은 Issue에서 합니다.
+
 # 엔진 MVP 완료 보고 검토 결과와 후속 요청
 
 ## 무엇이 필요한가
@@ -21,7 +23,7 @@ related: [2026-10-10-core-to-root-engine-mvp-done, 2026-10-10-root-to-core-depth
 5. **관찰 (조치 불필요):** 회귀 스냅샷 `test_daily_snapshots.ambr`가 약 2.5MB라 규칙 변경 시 diff 검토가 어렵습니다. 다음 규칙 변경 때 스냅샷을 나누거나 요약 해시로 바꾸는 방안을 검토해 주세요.
 
 ## 왜
-core 완료 보고(`2026-10-10-core-to-root-engine-mvp-done.md`)와 자시 확인 보고에 대한 지휘 세션의 처리입니다.
+core 완료 보고(`archive/2026-10-10-core-to-root-engine-mvp-done.md`)와 자시 확인 보고에 대한 지휘 세션의 처리입니다.
 
 ## 영향
 core 문서와 CI만 관련됩니다. 계약 변경은 없습니다.

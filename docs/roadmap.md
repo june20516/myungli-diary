@@ -2,6 +2,8 @@
 
 지휘 세션이 관리합니다. 제품 단계(Phase 1~3)는 `docs/background/05-roadmap.md`를 따르고, 이 문서는 **Phase 1(MVP) 안에서 서브 프로젝트들이 어떤 순서로 맞물리는지**를 다룹니다.
 
+**제품 지도:** https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC (노선도로 진행 상태를 봅니다. 지휘 세션이 정기 일과에서 갱신합니다.)
+
 ## 마일스톤
 
 | ID | 마일스톤 | 담당 | 선행 조건 | 끝나면 열리는 것 | 상태 |
@@ -17,8 +19,8 @@
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | 시작 전 |
-| W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | 시작 전 |
-| V0 | 시각 정체성 | design | B0 | V1 | 시작 전 |
+| W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | **진행 중** |
+| V0 | 시각 정체성 | design | B0 | V1 | **진행 중** (완료 보고, 브랜치 `design/visual-identity` 병합 대기) |
 | V1 | **디자인 토큰 동결** | design | V0 | V2, A1 | 시작 전 |
 | V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | 시작 전 |
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | 시작 전 |
@@ -42,7 +44,7 @@
 | 병행 | server | S1 설계 시작 가능. 1·2의 결정을 받는 대로 반영 | S2 |
 | 병행 | writing·design | W0, V0 진행 중 | W1, V1 |
 | 3 | app | IA가 나온 뒤 A1 설계 시작 | A2 |
-| 여유 | core | 후속 요청(`docs/coordination/2026-10-10-root-to-core-engine-mvp-feedback.md`) | 없음 |
+| 여유 | core | 후속 요청(Issue #4·#5·#9) | 없음 |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |

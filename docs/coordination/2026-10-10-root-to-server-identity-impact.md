@@ -7,6 +7,8 @@ created: 2026-10-10
 related: [D36, D37, D38, D40, 브랜드 기반 spec §6·§8·§12, docs/identity/README.md]
 ---
 
+> 이관됨: GitHub Issue #7. 이후 진행은 Issue에서 합니다.
+
 # 브랜드 기반 결정이 server 설계(S1)에 주는 영향
 
 ## 무엇이 필요한가
