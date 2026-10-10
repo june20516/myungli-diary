@@ -137,10 +137,23 @@ class JosaReadings:
 
 
 @dataclass(frozen=True)
+class NameExample:
+    """호칭 입력 하나와 기준 구현(`normalize_name`)의 결과입니다. 거부하면 value는 None입니다."""
+
+    lang: str
+    input: str
+    value: str | None
+    codes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class NameRules:
     max_length: dict[str, int]
     strip_suffix: dict[str, tuple[str, ...]]
     warn_suffix: dict[str, tuple[str, ...]]
+    # 원고 표기(자리표시자·조사·용어 토큰)와 섞이지 않게 호칭에 받지 않는 글자입니다.
+    forbidden_chars: tuple[str, ...] = ()
+    examples: tuple[NameExample, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -165,6 +178,31 @@ class RuleSet:
     josa: JosaData
 
 
+ParamKindName = Literal["glossary", "list", "number", "none"]
+PARAM_KIND_NUMBER = "number"
+PARAM_KIND_NONE = "none"
+# `list:<범주>` 표기의 접두어입니다.
+PARAM_KIND_LIST_PREFIX = "list:"
+
+
+@dataclass(frozen=True)
+class ParamKind:
+    """매개변수 값을 문장에 렌더하는 방식입니다(슬롯 명세 `params` 맵의 값).
+
+    * glossary: 값 이름 사전 범주로 바꿉니다. `categories`의 첫째가 기본 범주, 나머지는 `{p:cat}`로 고르는 범주입니다.
+    * list: 목록 값의 원소마다 `categories[0]` 범주 이름으로 바꿔 `, `로 잇습니다.
+    * number: 숫자를 그대로 씁니다.
+    * none: 문장에 쓸 수 없는 값입니다.
+    """
+
+    kind: ParamKindName
+    categories: tuple[str, ...] = ()
+
+    @property
+    def default_category(self) -> str | None:
+        return self.categories[0] if self.categories else None
+
+
 @dataclass(frozen=True)
 class Slot:
     """콘텐츠 슬롯 명세 하나(spec §4.1)입니다. 미정 필드는 빈 값으로 읽습니다."""
@@ -176,8 +214,8 @@ class Slot:
     types: tuple[str, ...]
     # 유형마다(유형이 없으면 키마다) 필요한 변주 수입니다.
     variants: int
-    # 메시지 키 또는 식별자 -> 허용 매개변수 이름
-    keys: dict[str, tuple[str, ...]]
+    # 메시지 키 또는 식별자 -> 매개변수 이름 -> 값 종류. `name`은 따로 적지 않아도 어느 슬롯에서나 씁니다.
+    keys: dict[str, dict[str, ParamKind]]
     co_display: tuple[str, ...]
     # 언어별 글자 수 상한. None은 아직 정하지 않음입니다.
     max_length: dict[str, int | None]

@@ -17,7 +17,7 @@ server 콘텐츠 모듈이 아래를 따라 주세요.
    * 렌더 순서
    * 병기형 조사 표기
    * 영문 판정의 한계
-2. **테스트 자료:** `docs/identity/writing/rules/josa.yaml`의 `examples`(표기된 원고 → 렌더 결과)를 Go 테스트가 그대로 읽어 씁니다. 판정이 다르면 기준 구현(`tools/src/mlw/josa.py`, `placeholders.py`)과 `examples`를 따릅니다.
+2. **테스트 자료:** `docs/identity/writing/rules/josa.yaml`의 `examples`(표기된 원고 → 렌더 결과)와 `name_rules.examples`(호칭 입력 → 저장값·코드)를 Go 테스트가 그대로 읽어 씁니다. 호칭에는 `{ } [ ] ( )`를 받지 않습니다(`name.invalid_char`). 매개변수 값은 슬롯 명세 `params`의 값 종류대로 렌더합니다(`honorific-josa.md` "값 종류별 렌더"). 판정이 다르면 기준 구현(`tools/src/mlw/josa.py`, `placeholders.py`)과 `examples`를 따릅니다.
 3. **원고 → 시드 변환 전 검사:** 시드 CI에서 변환 전에 아래 명령을 저장소 루트에서 실행합니다. 종료 코드가 0이 아니면 변환하지 않습니다.
    ```
    uv run --project docs/identity/writing/tools mlw check <원고 경로>

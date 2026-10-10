@@ -26,6 +26,7 @@ CODE_EMPTY = "name.empty"
 CODE_TOO_LONG = "name.too_long"
 CODE_EMOJI = "name.emoji"
 CODE_CONTROL = "name.control"
+CODE_INVALID_CHAR = "name.invalid_char"
 CODE_SUFFIX_STRIPPED = "name.suffix_stripped"
 CODE_SUFFIX_WARNING = "name.suffix_warning"
 
@@ -135,6 +136,8 @@ def normalize_name(lang: str, raw: str, data: JosaData | None = None) -> NameRes
         return NameResult(None, (CODE_CONTROL,))
     if _EMOJI.search(name):
         return NameResult(None, (CODE_EMOJI,))
+    if any(char in rules.forbidden_chars for char in name):
+        return NameResult(None, (CODE_INVALID_CHAR,))
 
     codes: list[str] = []
     suffixes = rules.strip_suffix.get(lang, ())

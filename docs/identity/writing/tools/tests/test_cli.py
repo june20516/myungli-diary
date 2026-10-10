@@ -7,7 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from mlw.cli import main
+from mlw.cli import longest_by_category, longest_values_for, main
+from mlw.model import Entry, ParamKind
 from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
 
 FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
@@ -194,3 +195,71 @@ def test_cli_check_applies_slot_forbidden(tmp_path: Path, capsys: pytest.Capture
     slots_dir = copy_slots_with(tmp_path, "daily.color", "forbidden: [slop.P8]")
     assert main([*base, "--slots-dir", str(slots_dir)]) == 1
     assert "slop.P8" in capsys.readouterr().out
+
+
+def glossary(key: str, text: str) -> Entry:
+    return Entry(Path("g.yaml"), 1, "glossary.value_name", key, None, 1, "ko", text)
+
+
+GLOSSARY = [
+    glossary("element.wood", "나무"),
+    glossary("element.water", "물"),
+    glossary("color.wood", "초록색"),
+    glossary("branch.zi", "자시"),
+    glossary("branch.chou", "축시"),
+    glossary("branch.yin", "인시예요"),
+]
+PARAMS = {
+    "element": ParamKind("glossary", ("element", "color")),
+    "branches": ParamKind("list", ("branch",)),
+    "score": ParamKind("number"),
+    "role": ParamKind("none"),
+}
+
+
+def values_of(text: str) -> tuple[dict[str, str], list[str]]:
+    entry = Entry(Path("a.yaml"), 1, "daily.color", "color.gwiin_day", None, 1, "ko", text)
+    return longest_values_for(entry, PARAMS, longest_by_category(GLOSSARY, "ko"), name_max=3)
+
+
+def test_longest_value_uses_default_category() -> None:
+    assert values_of("{element}(이)가 좋아요.") == ({"element": "나무"}, [])
+
+
+def test_longest_value_uses_chosen_category() -> None:
+    assert values_of("{element:color}(이)가 좋아요.") == ({"element:color": "초록색"}, [])
+
+
+def test_longest_value_for_list_joins_longest_items() -> None:
+    assert values_of("{branches}에 집중해 보세요.") == ({"branches": "인시예요, 자시"}, [])
+
+
+def test_longest_value_for_name_and_number() -> None:
+    # 숫자는 값 범위를 모르므로 값을 두지 않습니다. 글자 수 검사는 건너뜁니다(Ruling 2).
+    assert values_of("{name}님 {score}점") == ({"name": "가가가"}, [])
+
+
+@pytest.mark.parametrize("text", ["{role} 좋아요.", "{nowhere} 좋아요.", "{element:stem} 좋아요."])
+def test_unresolvable_placeholder_is_reported(text: str) -> None:
+    values, unresolved = values_of(text)
+    assert values == {}
+    assert len(unresolved) == 1
+
+
+def test_cli_check_warns_length_unknown(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    slots_dir = copy_slots_with(tmp_path, "daily.color", "max_length: {ko: 30, en: null, ja: null}")
+    daily = slots_dir / "content" / "daily.yaml"
+    text = daily.read_text(encoding="utf-8")
+    start = text.index("- id: daily.color")
+    old_limit = "  max_length: {ko: null, en: null, ja: null}\n"
+    limit_at = text.index(old_limit, start)
+    daily.write_text(text[:limit_at] + text[limit_at + len(old_limit) :], encoding="utf-8")
+    content = tmp_path / "content"
+    (content / "ko").mkdir(parents=True)
+    (content / "ko" / "color.yaml").write_text(
+        '- {slot: daily.color, key: color.gwiin_day, text: "{role} 색이 잘 맞아요."}\n', encoding="utf-8"
+    )
+    assert main(["check", str(content), "--partial", "--slots-dir", str(slots_dir)]) == 1
+    out = capsys.readouterr().out
+    assert "complete.unrenderable_param error" in out
+    assert "style.length_unknown warn" in out

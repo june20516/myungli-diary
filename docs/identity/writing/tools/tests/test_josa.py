@@ -136,3 +136,19 @@ def test_render_josa_applies_nfc() -> None:
 def test_final_batchim_applies_nfc() -> None:
     assert final_batchim(unicodedata.normalize("NFD", "남색")) is Batchim.OTHER
     assert final_batchim(unicodedata.normalize("NFD", "보라")) is Batchim.NONE
+
+
+@pytest.mark.parametrize(("lang", "raw"), [("ko", "민지(이)가"), ("en", "a]]"), ("ko", "{name}"), ("ja", "[[ゆき")])
+def test_normalize_name_rejects_markup_characters(lang: str, raw: str) -> None:
+    assert normalize_name(lang, raw) == NameResult(None, ("name.invalid_char",))
+
+
+def test_name_rules_list_forbidden_characters() -> None:
+    assert set(default_josa_data().name_rules.forbidden_chars) == set("{}[]()")
+
+
+def test_name_examples_match_reference() -> None:
+    examples = default_josa_data().name_rules.examples
+    assert examples
+    for example in examples:
+        assert normalize_name(example.lang, example.input) == NameResult(example.value, example.codes)

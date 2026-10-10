@@ -4,6 +4,7 @@
 #   core/src/myungri_engine/composers/daily.py, rules/messages.py
 # max_length는 design과 조정하기 전까지 언어별 `null`입니다.
 # keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+# params는 매개변수 -> 값 종류 맵입니다. 값 종류는 `_schema.yaml`의 keys 설명을 봅니다. `name`은 적지 않습니다.
 # examples 항목: lang, key(있으면), type(있으면), text, why, source
 #   source: round-R<n>-<문항> = 라운드에서 사용자가 고르거나 걸러낸 문장
 #           writing = 라운드 규칙(W6~W12)을 적용해 writing 세션이 쓴 문장
@@ -24,7 +25,7 @@
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [day_kind, ten_god, element, emphasis, name]
+    - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
       keys:
         - fortune.gisin_day.bigyeop
         - fortune.gisin_day.gwanseong
@@ -86,7 +87,7 @@
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [day_kind, ten_god, element, emphasis, name]
+    - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
       keys:
         - fortune.tag.big_change
         - fortune.tag.cheoneul_gwiin
@@ -128,7 +129,7 @@
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 3}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [ten_god, element]
+    - params: {ten_god: [ten_god, ten_god_group], element: [element, color]}
       keys:
         - guide.big_change
         - guide.cheoneul_gwiin
@@ -176,7 +177,7 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [element, role]
+    - params: {element: [element, color], role: none}
       keys:
         - color.gisin_day
         - color.gwiin_day
@@ -208,7 +209,7 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [direction, rule_id]
+    - params: {direction: [direction8], rule_id: none}
       keys:
         - direction.day_kind.gisin
         - direction.day_kind.gwiin
@@ -238,7 +239,7 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [number, element]
+    - params: {number: number, element: [element, color]}
       keys:
         - number.gisin_day
         - number.gwiin_day
@@ -267,7 +268,7 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [branches, score]
+    - params: {branches: list:branch, score: number}
       keys:
         - focus_time.fallback
         - focus_time.gwiin

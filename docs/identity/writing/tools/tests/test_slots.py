@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from mlw.completeness import glossary_values
+from mlw.glossary import glossary_values
 from mlw.loader import load_content, load_rules, load_slots
-from mlw.model import LoadError, RuleSet
+from mlw.model import LoadError, ParamKind, RuleSet
 from mlw.paths import RULES_DIR, SLOTS_DIR
 
 MESSAGE_KEYS_PATH = Path(__file__).resolve().parents[5] / "core" / "message_keys.json"
@@ -28,7 +28,7 @@ VALID_SLOT = """\
   tone: {}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: [element]
+    - params: {element: [element, color]}
       keys: [a.one, a.two]
     - b.plain
   examples: {good: [], bad: []}
@@ -86,14 +86,54 @@ def test_slot_counts_match_spec(rules: RuleSet) -> None:
     assert slots["daily.guide"].variants == 2
     assert len(slots["calendar.score_item"].keys) == 7
     assert len(slots["calendar.solar_term"].keys) == 24
-    assert slots["daily.fortune.head"].keys["fortune.yongsin_day.siksang"] == (
-        "day_kind",
-        "ten_god",
-        "element",
-        "emphasis",
-        "name",
+    assert slots["daily.fortune.head"].keys["fortune.yongsin_day.siksang"] == {
+        "day_kind": ParamKind("glossary", ("day_kind",)),
+        "ten_god": ParamKind("glossary", ("ten_god", "ten_god_group")),
+        "element": ParamKind("glossary", ("element", "color")),
+        "emphasis": ParamKind("none"),
+    }
+    assert slots["settings.calculation_basis"].keys == {"notice.calculation_basis": {}}
+
+
+def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
+    slots = load_slots(SLOTS_DIR, rules)
+    element = ParamKind("glossary", ("element", "color"))
+    assert slots["daily.focus_time"].keys["focus_time.hap"] == {
+        "branches": ParamKind("list", ("branch",)),
+        "score": ParamKind("number"),
+    }
+    assert slots["daily.number"].keys["number.gwiin_day"] == {"number": ParamKind("number"), "element": element}
+    assert slots["daily.color"].keys["color.gwiin_day"] == {"element": element, "role": ParamKind("none")}
+    assert slots["daily.direction"].keys["direction.day_kind.gwiin"] == {
+        "direction": ParamKind("glossary", ("direction8",)),
+        "rule_id": ParamKind("none"),
+    }
+    assert slots["daily.guide"].keys["guide.clash"] == {
+        "ten_god": ParamKind("glossary", ("ten_god", "ten_god_group")),
+        "element": element,
+    }
+    assert slots["chart.yongsin_method"].keys["yongsin.method.eokbu"] == dict.fromkeys(
+        ("yongsin", "huisin", "gisin", "tonggwan"), element
     )
-    assert slots["settings.calculation_basis"].keys == {"notice.calculation_basis": ()}
+    assert slots["calendar.day_level"].keys["calendar.good"] == {"score": ParamKind("number")}
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        "[element]",
+        "{element: [colour]}",
+        "{element: []}",
+        "{branches: list:nope}",
+        "{score: numbr}",
+        "{name: none}",
+    ],
+)
+def test_bad_params_are_schema_errors(tmp_path: Path, rules: RuleSet, params: str) -> None:
+    slot_yaml = VALID_SLOT.replace("{element: [element, color]}", params)
+    with pytest.raises(LoadError) as raised:
+        load_slots(make_slots_dir(tmp_path, slot_yaml), rules)
+    assert {finding.rule_id for finding in raised.value.findings} == {"load.schema"}
 
 
 def test_fortune_slots_are_info_with_three_types(rules: RuleSet) -> None:
@@ -119,7 +159,8 @@ def test_max_length_is_null_per_language(rules: RuleSet) -> None:
 def test_valid_slot_is_loaded(tmp_path: Path, rules: RuleSet) -> None:
     slots = load_slots(make_slots_dir(tmp_path, VALID_SLOT), rules)
     slot = slots["test.slot"]
-    assert slot.keys == {"a.one": ("element",), "a.two": ("element",), "b.plain": ()}
+    element = {"element": ParamKind("glossary", ("element", "color"))}
+    assert slot.keys == {"a.one": element, "a.two": element, "b.plain": {}}
     assert slot.types == ()
     assert slot.variants == 1
     assert slot.line == 1

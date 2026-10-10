@@ -3,7 +3,7 @@
 from collections.abc import Callable, Mapping
 from pathlib import Path
 
-from mlw.model import LANGS, Detect, JosaPair, RuleSet, Slot
+from mlw.model import LANGS, PARAM_KIND_LIST_PREFIX, Detect, JosaPair, ParamKind, RuleSet, Slot
 
 HEADER = "<!-- mlw gen-docs로 생성. 직접 고치지 않습니다 -->"
 RULE_STALE = "docs.stale"
@@ -52,6 +52,23 @@ def _render_slop(rules: RuleSet) -> str:
     return _document("slop 패턴", "원본은 `rules/slop.yaml`입니다. 판정이 `llm`인 규칙은 루브릭으로 사람이 봅니다.", table)
 
 
+def _param_kind_text(kind: ParamKind) -> str:
+    if kind.kind == "glossary":
+        return ", ".join(kind.categories)
+    if kind.kind == "list":
+        return f"{PARAM_KIND_LIST_PREFIX}{kind.categories[0]}"
+    return kind.kind
+
+
+def _params_text(slot: Slot) -> str:
+    """슬롯의 키들이 쓰는 매개변수와 값 종류를 처음 나온 순서로 모읍니다."""
+    params: dict[str, ParamKind] = {}
+    for key_params in slot.keys.values():
+        for name, kind in key_params.items():
+            params.setdefault(name, kind)
+    return "<br>".join(f"`{name}`: {_param_kind_text(kind)}" for name, kind in params.items()) or NONE_TEXT
+
+
 def _render_slots(slots: Mapping[str, Slot]) -> str:
     rows: list[tuple[str, ...]] = []
     for slot_id in sorted(slots):
@@ -67,11 +84,16 @@ def _render_slots(slots: Mapping[str, Slot]) -> str:
                 ", ".join(slot.types) or NONE_TEXT,
                 str(slot.variants),
                 str(len(slot.keys)),
+                _params_text(slot),
                 limits,
             )
         )
-    table = _table(("ID", "목적", "유형", "변주", "키 수", "글자 수 상한"), rows)
-    return _document("슬롯 목록", "원본은 `slots/`의 YAML입니다. 글자 수 상한의 `-`는 아직 정하지 않음입니다.", table)
+    table = _table(("ID", "목적", "유형", "변주", "키 수", "매개변수: 값 종류", "글자 수 상한"), rows)
+    description = (
+        "원본은 `slots/`의 YAML입니다. 글자 수 상한의 `-`는 아직 정하지 않음입니다. "
+        "값 종류는 범주 목록(첫째가 기본), `list:<범주>`, `number`, `none`이고 `name`은 어느 슬롯에서나 씁니다."
+    )
+    return _document("슬롯 목록", description, table)
 
 
 def _pair_examples(pair: JosaPair, rules: RuleSet) -> str:

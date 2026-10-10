@@ -41,6 +41,16 @@ def test_slot_doc_lists_every_slot(rules: RuleSet, slots: dict[str, Slot]) -> No
         assert sum(1 for line in lines if line.startswith(f"| {slot_id} |")) == 1
 
 
+def test_slot_doc_shows_param_kinds(rules: RuleSet, slots: dict[str, Slot]) -> None:
+    lines = render_docs(rules, slots)["slot-catalog.md"].splitlines()
+    [focus] = [line for line in lines if line.startswith("| daily.focus_time |")]
+    assert "`branches`: list:branch" in focus
+    assert "`score`: number" in focus
+    [color] = [line for line in lines if line.startswith("| daily.color |")]
+    assert "`element`: element, color" in color
+    assert "`role`: none" in color
+
+
 def test_header_warns_generated(rules: RuleSet, slots: dict[str, Slot]) -> None:
     for content in render_docs(rules, slots).values():
         assert content.splitlines()[0] == HEADER

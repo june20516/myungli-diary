@@ -7,11 +7,8 @@ from collections import Counter
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-from google.protobuf.internal.enum_type_wrapper import EnumTypeWrapper
-
-from mlw._gen.myungri.engine.v1 import engine_pb2
-from mlw.model import Entry, Finding, Slot
-from mlw.placeholders import parse
+from mlw.model import Entry, Finding, ParamKind, Slot
+from mlw.placeholders import Placeholder, parse
 
 RULE_MISSING = "complete.missing"
 RULE_UNKNOWN_SLOT = "complete.unknown_slot"
@@ -21,66 +18,57 @@ RULE_BAD_TYPE = "complete.bad_type"
 RULE_BAD_VARIANT = "complete.bad_variant"
 RULE_DUPLICATE = "complete.duplicate"
 RULE_UNKNOWN_PARAM = "complete.unknown_param"
-RULE_UNKNOWN_CATEGORY = "complete.unknown_category"
+RULE_BAD_CATEGORY = "complete.bad_category"
+RULE_UNRENDERABLE_PARAM = "complete.unrenderable_param"
 RULE_UNSLOTTED_KEY = "complete.unslotted_key"
 
-# 어느 슬롯에서나 쓸 수 있는 매개변수입니다(호칭).
-ALWAYS_ALLOWED_PARAMS = frozenset({"name"})
+# 어느 슬롯에서나 쓸 수 있는 매개변수입니다(호칭). 범주를 붙이지 않습니다.
+NAME_PARAM = "name"
 MESSAGE_KEYS_FILE = Path("core/message_keys.json")
-# proto enum이 아니라서 여기서 직접 정하는 십성 그룹 값입니다.
-TEN_GOD_GROUPS: tuple[str, ...] = ("bigyeop", "siksang", "jaeseong", "gwanseong", "inseong")
-
-
-def _enum_value_names(enum: EnumTypeWrapper) -> tuple[str, ...]:
-    """`<ENUM>_UNSPECIFIED`를 빼고 접두어를 뗀 소문자 값 이름입니다."""
-    names = list(enum.keys())
-    prefix = names[0].removesuffix("UNSPECIFIED")
-    return tuple(name.removeprefix(prefix).lower() for name in names[1:])
-
-
-def glossary_values() -> dict[str, tuple[str, ...]]:
-    """값 이름 사전의 범주별 값 목록입니다. `color`는 `element`와 같은 값 집합입니다."""
-    elements = _enum_value_names(engine_pb2.Element)
-    return {
-        "element": elements,
-        "color": elements,
-        "stem": _enum_value_names(engine_pb2.Stem),
-        "branch": _enum_value_names(engine_pb2.Branch),
-        "ten_god": _enum_value_names(engine_pb2.TenGod),
-        "ten_god_group": TEN_GOD_GROUPS,
-        "direction8": _enum_value_names(engine_pb2.Direction8),
-        "shinsal": _enum_value_names(engine_pb2.Shinsal),
-        "day_kind": _enum_value_names(engine_pb2.DayKind),
-        "relation": _enum_value_names(engine_pb2.RelationKind),
-    }
 
 
 def _entry_finding(entry: Entry, rule_id: str, message: str) -> Finding:
     return Finding(entry.file, entry.line, rule_id, "error", message)
 
 
-def _check_placeholders(entry: Entry, slot: Slot, categories: frozenset[str]) -> list[Finding]:
+def _category_problem(placeholder: Placeholder, kind: ParamKind | None) -> str | None:
+    """`{p:cat}`의 범주가 그 매개변수에 허용되지 않으면 이유를 돌려줍니다. `kind`가 None이면 호칭입니다."""
+    if placeholder.category is None:
+        return None
+    if kind is not None and kind.kind == "glossary":
+        if placeholder.category in kind.categories:
+            return None
+        allowed = ", ".join(kind.categories)
+        return f"'{{{placeholder.name}}}'에 쓸 수 없는 범주 '{placeholder.category}'입니다. 허용: {allowed}"
+    return f"'{{{placeholder.name}}}'에는 범주를 붙일 수 없습니다 (현재 '{placeholder.category}')"
+
+
+def _check_placeholders(entry: Entry, slot: Slot) -> list[Finding]:
     try:
         placeholders = parse(entry.text)
     except ValueError:
         # 문법 오류는 문장 단위 검사가 보고합니다.
         return []
-    allowed = ALWAYS_ALLOWED_PARAMS | set(slot.keys[entry.key])
+    params = slot.keys[entry.key]
     findings: list[Finding] = []
     for placeholder in placeholders:
-        if placeholder.name not in allowed:
-            allowed_text = ", ".join(sorted(allowed))
+        kind = params.get(placeholder.name)
+        if placeholder.name != NAME_PARAM and kind is None:
+            allowed_text = ", ".join(sorted({NAME_PARAM, *params}))
             message = f"키 '{entry.key}'에 없는 매개변수 '{{{placeholder.name}}}'입니다. 허용: {allowed_text}"
             findings.append(_entry_finding(entry, RULE_UNKNOWN_PARAM, message))
-        if placeholder.category is not None and placeholder.category not in categories:
-            message = f"알 수 없는 범주 '{placeholder.category}'입니다. 허용: {', '.join(sorted(categories))}"
-            findings.append(_entry_finding(entry, RULE_UNKNOWN_CATEGORY, message))
+            continue
+        if kind is not None and kind.kind == "none":
+            message = f"'{{{placeholder.name}}}'은(는) 문장에 쓸 수 없는 값입니다(값 종류 none)"
+            findings.append(_entry_finding(entry, RULE_UNRENDERABLE_PARAM, message))
+            continue
+        problem = _category_problem(placeholder, kind)
+        if problem is not None:
+            findings.append(_entry_finding(entry, RULE_BAD_CATEGORY, problem))
     return findings
 
 
-def _check_entry(
-    entry: Entry, slots: Mapping[str, Slot], langs: Sequence[str], categories: frozenset[str]
-) -> tuple[list[Finding], bool]:
+def _check_entry(entry: Entry, slots: Mapping[str, Slot], langs: Sequence[str]) -> tuple[list[Finding], bool]:
     """원고 하나를 검사합니다. 두 번째 값은 명세 안의 (슬롯, 키, 유형, 변주)인지 여부입니다."""
     slot = slots.get(entry.slot)
     if slot is None:
@@ -107,7 +95,7 @@ def _check_entry(
         findings.append(_entry_finding(entry, RULE_BAD_VARIANT, message))
         placed = False
     if entry.key in slot.keys:
-        findings.extend(_check_placeholders(entry, slot, categories))
+        findings.extend(_check_placeholders(entry, slot))
     return findings, placed
 
 
@@ -135,12 +123,11 @@ def check_completeness(
     langs: Sequence[str],
 ) -> list[Finding]:
     """완결성 문제를 모두 돌려줍니다. 모두 `error`입니다."""
-    categories = frozenset(glossary_values())
     findings: list[Finding] = []
     present: set[tuple[str, str, str | None, int, str]] = set()
     seen: Counter[tuple[str, str, str | None, int, str]] = Counter()
     for entry in entries:
-        entry_findings, placed = _check_entry(entry, slots, langs, categories)
+        entry_findings, placed = _check_entry(entry, slots, langs)
         findings.extend(entry_findings)
         if not placed:
             continue

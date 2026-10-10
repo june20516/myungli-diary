@@ -2,18 +2,26 @@
 
 from pathlib import Path
 
-from mlw.completeness import check_completeness, glossary_values
-from mlw.model import Entry, Finding, Slot
+from mlw.completeness import check_completeness
+from mlw.glossary import glossary_values
+from mlw.model import Entry, Finding, ParamKind, Slot
 
 FILE = Path("slots/content/daily.yaml")
 KEY = "fortune.yongsin_day.siksang"
 OTHER_KEY = "fortune.yongsin_day.jaeseong"
 LANGS = ("ko",)
+TYPES = ("advice", "state", "care")
+DEFAULT_PARAMS = {
+    "element": ParamKind("glossary", ("element", "color")),
+    "emphasis": ParamKind("none"),
+    "score": ParamKind("number"),
+    "branches": ParamKind("list", ("branch",)),
+}
 
 
 def make_slot(
     slot_id: str = "daily.fortune.head",
-    keys: dict[str, tuple[str, ...]] | None = None,
+    keys: dict[str, dict[str, ParamKind]] | None = None,
     types: tuple[str, ...] = ("advice", "state", "care"),
     variants: int = 1,
 ) -> Slot:
@@ -23,7 +31,7 @@ def make_slot(
         purpose="info",
         types=types,
         variants=variants,
-        keys=keys if keys is not None else {KEY: ("element", "name")},
+        keys=keys if keys is not None else {KEY: DEFAULT_PARAMS},
         co_display=(),
         max_length={"ko": None, "en": None, "ja": None},
         allowed=frozenset(),
@@ -89,17 +97,41 @@ def test_placeholder_not_in_params() -> None:
 
 
 def test_name_is_always_allowed() -> None:
-    slot = make_slot(keys={KEY: ()})
+    slot = make_slot(keys={KEY: {}})
     entries = [make_entry(type_=type_, text="{name}님, 쉬세요.") for type_ in ("advice", "state", "care")]
     assert check(slot, entries) == []
 
 
+def typed_entries(text: str) -> list[Entry]:
+    return [make_entry(type_=type_, text=text) for type_ in TYPES]
+
+
 def test_placeholder_category_must_be_glossary_category() -> None:
-    entries = [
-        make_entry(type_=type_, text="{element:colour}이(가) 좋아요.")
-        for type_ in ("advice", "state", "care")
-    ]
-    assert rule_ids(check(make_slot(), entries)) == ["complete.unknown_category"] * 3
+    findings = check(make_slot(), typed_entries("{element:colour}(이)가 좋아요."))
+    assert rule_ids(findings) == ["complete.bad_category"] * 3
+    assert "color" in findings[0].message
+
+
+def test_category_must_be_allowed_for_param() -> None:
+    findings = check(make_slot(), typed_entries("{element:stem}(이)가 좋아요."))
+    assert rule_ids(findings) == ["complete.bad_category"] * 3
+
+
+def test_number_and_list_params_take_no_category() -> None:
+    assert rule_ids(check(make_slot(), typed_entries("{score:element}점이에요."))) == ["complete.bad_category"] * 3
+    findings = check(make_slot(), typed_entries("{branches:stem}에 집중해 보세요."))
+    assert rule_ids(findings) == ["complete.bad_category"] * 3
+    assert check(make_slot(), typed_entries("{branches}에 {score}점이에요.")) == []
+
+
+def test_name_takes_no_category() -> None:
+    assert rule_ids(check(make_slot(), typed_entries("{name:color}님, 쉬세요."))) == ["complete.bad_category"] * 3
+
+
+def test_none_param_cannot_be_rendered() -> None:
+    findings = check(make_slot(), typed_entries("{emphasis} 좋은 날이에요."))
+    assert rule_ids(findings) == ["complete.unrenderable_param"] * 3
+    assert "emphasis" in findings[0].message
 
 
 def test_known_category_passes() -> None:

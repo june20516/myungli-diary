@@ -11,10 +11,14 @@ from typing import cast
 import regex
 import yaml
 
+from mlw.glossary import glossary_values
 from mlw.model import (
     DETECT_KINDS,
     JUDGES,
     LANGS,
+    PARAM_KIND_LIST_PREFIX,
+    PARAM_KIND_NONE,
+    PARAM_KIND_NUMBER,
     PURPOSES,
     SCOPES,
     SENTENCE_TYPES,
@@ -33,7 +37,9 @@ from mlw.model import (
     Judge,
     Limit,
     LoadError,
+    NameExample,
     NameRules,
+    ParamKind,
     RuleSet,
     Scope,
     Severity,
@@ -385,7 +391,8 @@ def _load_list[T](
 JOSA_KEYS = {"pairs", "readings", "name_rules", "examples"}
 PAIR_KEYS = {"marker", "with_batchim", "without_batchim", "rieul", "fallback"}
 READINGS_KEYS = {"digits", "trailing_zeros", "latin", "hanja"}
-NAME_RULES_KEYS = {"max_length", "strip_suffix", "warn_suffix"}
+NAME_RULES_KEYS = {"max_length", "strip_suffix", "warn_suffix", "forbidden_chars", "examples"}
+NAME_EXAMPLE_KEYS = {"lang", "input", "value", "codes"}
 JOSA_EXAMPLE_KEYS = {"text", "expected"}
 
 
@@ -469,6 +476,37 @@ def _parse_readings(item: _Item) -> JosaReadings:
     )
 
 
+def _forbidden_chars(item: _Item) -> tuple[str, ...]:
+    chars = item.string_list("forbidden_chars")
+    for char in chars:
+        if len(char) != 1:
+            item.fail(f"forbidden_chars의 항목은 한 글자여야 합니다: {char!r}")
+    return tuple(char for char in chars if len(char) == 1)
+
+
+def _parse_name_example(raw: object, item: _Item) -> NameExample | None:
+    if not isinstance(raw, dict):
+        item.fail("name_rules.examples의 항목은 매핑이어야 합니다")
+        return None
+    sub = _Item(cast(dict[str, object], raw), item.line, item.problems)
+    sub.check_unknown_keys(NAME_EXAMPLE_KEYS)
+    lang = sub.choice("lang", LANGS)
+    raw_input = sub.text("input")
+    value = sub.text("value", required=False)
+    codes = sub.string_list("codes")
+    if lang is None or raw_input is None:
+        return None
+    return NameExample(lang, raw_input, value, codes)
+
+
+def _name_examples(item: _Item) -> tuple[NameExample, ...]:
+    raw = item.data.get("examples", [])
+    if not isinstance(raw, list):
+        item.fail("name_rules.examples는 리스트여야 합니다")
+        return ()
+    return tuple(example for entry in raw if (example := _parse_name_example(entry, item)) is not None)
+
+
 def _parse_name_rules(item: _Item) -> NameRules:
     sub = _Item(_required_mapping(item, "name_rules"), item.line, item.problems)
     sub.check_unknown_keys(NAME_RULES_KEYS)
@@ -476,6 +514,8 @@ def _parse_name_rules(item: _Item) -> NameRules:
         max_length=_int_by_lang(sub, "max_length"),
         strip_suffix=_suffixes_by_lang(sub, "strip_suffix"),
         warn_suffix=_suffixes_by_lang(sub, "warn_suffix"),
+        forbidden_chars=_forbidden_chars(sub),
+        examples=_name_examples(sub),
     )
 
 
@@ -573,6 +613,8 @@ SCHEMA_FIELD_KEYS = {"name", "required", "type", "description"}
 TONE_AXES: tuple[str, ...] = ("진지", "격식", "존중", "담백")
 VARIANTS_KEYS = {"count", "rotation"}
 KEY_GROUP_KEYS = {"params", "keys"}
+# 어느 슬롯에서나 쓰는 호칭 매개변수입니다.
+NAME_PARAM = "name"
 EXAMPLE_SIDES = ("good", "bad")
 ENUM_PATTERN = regex.compile(r"enum\[([^\]]*)\]")
 
@@ -658,24 +700,73 @@ def _plain_text(data: dict[str, object], name: str) -> str | None:
     return value if isinstance(value, str) else None
 
 
-def _parse_key_groups(item: _Item) -> dict[str, tuple[str, ...]]:
-    keys: dict[str, tuple[str, ...]] = {}
+def _parse_param_kind(item: _Item, param: str, raw: object) -> ParamKind | None:
+    """`params` 맵의 값 하나를 읽습니다. 범주 목록, `list:<범주>`, `number`, `none` 중 하나입니다."""
+    categories = glossary_values()
+    allowed_text = ", ".join(sorted(categories))
+    if isinstance(raw, list) and raw and all(isinstance(entry, str) for entry in raw):
+        names = tuple(cast(list[str], raw))
+        unknown = [name for name in names if name not in categories]
+        if unknown:
+            item.fail(f"params.{param}의 범주 {', '.join(unknown)}이(가) 없습니다. 허용 값: {allowed_text}")
+            return None
+        return ParamKind("glossary", names)
+    if raw == PARAM_KIND_NUMBER:
+        return ParamKind("number")
+    if raw == PARAM_KIND_NONE:
+        return ParamKind("none")
+    if isinstance(raw, str) and raw.startswith(PARAM_KIND_LIST_PREFIX):
+        category = raw.removeprefix(PARAM_KIND_LIST_PREFIX)
+        if category not in categories:
+            item.fail(f"params.{param}의 목록 범주 '{category}'가 없습니다. 허용 값: {allowed_text}")
+            return None
+        return ParamKind("list", (category,))
+    item.fail(
+        f"params.{param}의 값 종류 {raw!r}을(를) 알 수 없습니다. "
+        "범주 목록, 'list:<범주>', 'number', 'none' 중 하나여야 합니다"
+    )
+    return None
 
-    def add(key: str, params: tuple[str, ...]) -> None:
+
+def _parse_params(group: _Item) -> dict[str, ParamKind]:
+    raw = group.data.get("params")
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        group.fail("'params'는 매개변수 이름 -> 값 종류 매핑이어야 합니다")
+        return {}
+    params: dict[str, ParamKind] = {}
+    for param, raw_kind in cast(dict[object, object], raw).items():
+        if not isinstance(param, str):
+            group.fail(f"params의 매개변수 이름은 문자열이어야 합니다: {param!r}")
+            continue
+        if param == NAME_PARAM:
+            group.fail("'name'은 모든 슬롯에서 쓸 수 있으므로 params에 적지 않습니다")
+            continue
+        kind = _parse_param_kind(group, param, raw_kind)
+        if kind is not None:
+            params[param] = kind
+    return params
+
+
+def _parse_key_groups(item: _Item) -> dict[str, dict[str, ParamKind]]:
+    keys: dict[str, dict[str, ParamKind]] = {}
+
+    def add(key: str, params: dict[str, ParamKind]) -> None:
         if key in keys:
             item.fail(f"keys에 '{key}'가 중복됩니다")
         keys[key] = params
 
     for entry in cast(list[object], item.data["keys"]):
         if isinstance(entry, str):
-            add(entry, ())
+            add(entry, {})
             continue
         if not isinstance(entry, dict):
             item.fail("keys의 항목은 문자열 또는 매핑이어야 합니다")
             continue
         group = _Item(cast(dict[str, object], entry), item.line, item.problems)
         group.check_unknown_keys(KEY_GROUP_KEYS)
-        params = group.string_list("params")
+        params = _parse_params(group)
         names = group.string_list("keys")
         if not names:
             item.fail("keys 묶음에는 비어 있지 않은 'keys'가 필요합니다")

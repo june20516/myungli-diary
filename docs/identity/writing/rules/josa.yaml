@@ -117,6 +117,16 @@ name_rules:
   # 떼지 않고 경고만 합니다.
   warn_suffix:
     ja: ["さん", "様", "ちゃん"]
+  # 원고 표기(자리표시자 `{}`, 용어 토큰 `[[ ]]`, 조사 표기 `( )`)와 섞이지 않게 받지 않는 글자입니다.
+  forbidden_chars: ["{", "}", "[", "]", "(", ")"]
+  # 호칭 입력 → 저장값과 알림·거부 코드. 기준 구현은 normalize_name입니다. value가 null이면 거부입니다.
+  examples:
+    - {lang: ko, input: " 민지님 ", value: "민지", codes: [name.suffix_stripped]}
+    - {lang: ko, input: "민지(이)가", value: null, codes: [name.invalid_char]}
+    - {lang: en, input: "a]]", value: null, codes: [name.invalid_char]}
+    - {lang: ko, input: "{name}", value: null, codes: [name.invalid_char]}
+    - {lang: ja, input: "ゆきさん", value: "ゆきさん", codes: [name.suffix_warning]}
+    - {lang: en, input: "Sam", value: "Sam", codes: []}
 
 examples:
   - {text: "남색(이)가", expected: "남색이"}

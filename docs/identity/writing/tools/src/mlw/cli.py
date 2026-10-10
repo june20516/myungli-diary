@@ -14,11 +14,11 @@ from typing import cast
 from mlw import paths
 from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
-from mlw.completeness import RULE_MISSING, check_completeness, glossary_values
+from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
 from mlw.loader import UI_GROUP, load_content, load_rules, load_slots
-from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
-from mlw.placeholders import parse
+from mlw.model import LANGS, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
+from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
 
 GLOSSARY_SLOT = "glossary.value_name"
@@ -26,6 +26,11 @@ NAME_PARAM = "name"
 # 호칭 최대 길이를 채우는 글자입니다. 글자 수만 세므로 무엇이든 됩니다.
 NAME_FILLER = "가"
 RULE_JSON = "load.json"
+RULE_LENGTH_UNKNOWN = "style.length_unknown"
+# 목록 값(`list:<범주>`)을 잇는 구분자입니다.
+LIST_SEPARATOR = ", "
+# 목록 값의 최대 원소 수입니다. 유일한 목록 매개변수인 집중 시간 branches의 엔진 상한(MAX_PICKS)과 같습니다.
+LIST_MAX_ITEMS = 2
 # 고정 자료 하루 항목(DayKeys)의 필드입니다.
 REQUIRED_DAY_FIELDS = ("head", "guide", "color", "direction", "number", "focus")
 OPTIONAL_DAY_FIELDS = ("tag_sentence", "tag_label")
@@ -33,55 +38,89 @@ EXIT_ERROR = 1
 EXIT_LOAD_ERROR = 2
 
 
-def _longest_by_category(entries: Sequence[Entry], lang: str) -> dict[str, str]:
-    """같은 언어의 값 이름 원고 중 범주별로 가장 긴 값입니다. 키는 `<범주>.<값>`의 범주입니다."""
-    longest: dict[str, str] = {}
+def longest_by_category(entries: Sequence[Entry], lang: str) -> dict[str, tuple[str, ...]]:
+    """같은 언어의 값 이름 원고를 범주별로 긴 순서대로 모읍니다. 범주는 키 `<범주>.<값>`의 앞부분입니다."""
+    by_category: dict[str, list[str]] = {}
     for entry in entries:
-        if entry.slot != GLOSSARY_SLOT or entry.lang != lang:
-            continue
-        category = entry.key.split(".")[0]
-        if len(entry.text) > len(longest.get(category, "")):
-            longest[category] = entry.text
-    return longest
+        if entry.slot == GLOSSARY_SLOT and entry.lang == lang:
+            by_category.setdefault(entry.key.split(".")[0], []).append(entry.text)
+    return {category: tuple(sorted(texts, key=len, reverse=True)) for category, texts in by_category.items()}
 
 
-def longest_values_for(entries: Sequence[Entry], lang: str, rules: RuleSet) -> dict[str, str]:
-    """글자 수 검사에 쓸 자리표시자 키(`name:category` 형태) -> 가장 긴 값입니다.
+def _longest_value(placeholder: Placeholder, kind: ParamKind, by_category: Mapping[str, Sequence[str]]) -> str | None:
+    """값 종류 규칙으로 가장 긴 렌더 값을 구합니다. 범주를 해석할 수 없으면 ValueError, 값이 없으면 None입니다."""
+    if kind.kind == "glossary":
+        category = placeholder.category or kind.default_category
+        if category not in kind.categories:
+            raise ValueError(placeholder.key)
+        values = by_category.get(category or "", ())
+        return values[0] if values else None
+    if placeholder.category is not None or kind.kind == "none":
+        raise ValueError(placeholder.key)
+    if kind.kind == "list":
+        values = by_category.get(kind.categories[0], ())
+        return LIST_SEPARATOR.join(values[:LIST_MAX_ITEMS]) if values else None
+    # number: 값 범위를 모르므로 값을 두지 않습니다.
+    return None
 
-    값이 없는 범주와 상한이 없는 호칭은 넣지 않습니다. 그러면 그 항목의 글자 수 검사는 건너뜁니다.
+
+def longest_values_for(
+    entry: Entry,
+    params: Mapping[str, ParamKind],
+    by_category: Mapping[str, Sequence[str]],
+    name_max: int | None,
+) -> tuple[dict[str, str], list[str]]:
+    """원고 하나의 글자 수 검사에 쓸 값과, 범주를 해석할 수 없는 자리표시자 목록입니다.
+
+    값은 자리표시자 키(`name` 또는 `name:category`) -> 가장 긴 렌더 값입니다. 값이 없는 범주, 숫자,
+    상한이 없는 호칭은 넣지 않습니다. 그러면 그 원고의 글자 수 검사는 건너뜁니다(Ruling 2).
     """
-    by_category = _longest_by_category(entries, lang)
+    try:
+        placeholders = parse(entry.text)
+    except ValueError:
+        # 문법 오류는 문장 단위 검사가 보고합니다.
+        return {}, []
     values: dict[str, str] = {}
-    name_max = rules.josa.name_rules.max_length.get(lang)
-    if name_max is not None:
-        values[NAME_PARAM] = NAME_FILLER * name_max
-    categories = glossary_values()
-    for entry in entries:
-        try:
-            placeholders = parse(entry.text)
-        except ValueError:
+    unresolved: list[str] = []
+    for placeholder in placeholders:
+        if placeholder.name == NAME_PARAM and placeholder.category is None:
+            if name_max is not None:
+                values[NAME_PARAM] = NAME_FILLER * name_max
             continue
-        for placeholder in placeholders:
-            category = placeholder.category or placeholder.name
-            if category in categories and category in by_category:
-                values[placeholder.key] = by_category[category]
-    return values
+        kind = params.get(placeholder.name)
+        try:
+            if kind is None:
+                raise ValueError(placeholder.key)
+            value = _longest_value(placeholder, kind, by_category)
+        except ValueError:
+            unresolved.append(placeholder.key)
+            continue
+        if value is not None:
+            values[placeholder.key] = value
+    return values, unresolved
 
 
 def _sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules: RuleSet) -> list[Finding]:
-    longest = {lang: longest_values_for(entries, lang, rules) for lang in LANGS}
+    by_lang = {lang: longest_by_category(entries, lang) for lang in LANGS}
     findings: list[Finding] = []
     for entry in entries:
         slot = slots.get(entry.slot)
         if slot is None:
             continue
+        max_length = slot.max_length.get(entry.lang)
+        name_max = rules.josa.name_rules.max_length.get(entry.lang)
+        params = slot.keys.get(entry.key, {})
+        values, unresolved = longest_values_for(entry, params, by_lang.get(entry.lang, {}), name_max)
+        if max_length is not None and unresolved:
+            message = f"자리표시자 {', '.join(unresolved)}의 범주를 해석할 수 없어 글자 수를 계산하지 못했습니다"
+            findings.append(Finding(entry.file, entry.line, RULE_LENGTH_UNKNOWN, "warn", message))
         findings.extend(
             check_sentence(
                 entry,
                 slot.purpose,
                 rules,
-                slot.max_length.get(entry.lang),
-                longest[entry.lang],
+                max_length,
+                values,
                 allowed=slot.allowed,
                 forbidden=slot.forbidden,
             )
