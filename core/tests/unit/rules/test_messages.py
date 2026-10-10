@@ -2,8 +2,8 @@ import random
 from collections.abc import Callable
 
 from myungri_engine.chart.shinsal import activated, shinsal_branches
-from myungri_engine.constants.message_keys import ALL_KEYS
-from myungri_engine.domain.enums import Branch, DayKind, Element, Stem
+from myungri_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
+from myungri_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
 from myungri_engine.domain.models import FourPillars, Judgment, Pillar
 from myungri_engine.rules.messages import fortune, guide_question
 from myungri_engine.rules.relations import find_relations
@@ -77,3 +77,19 @@ def test_all_emitted_keys_registered(winter_gap: YongsinResult) -> None:
         emitted.update(tags.all_keys)
         emitted.update(j.message_key for j in judgments)
     assert emitted <= ALL_KEYS
+
+
+def test_all_fortune_keys_registered() -> None:
+    for kind in DayKind:
+        for group in TenGodGroup:
+            assert f"fortune.{kind.name.lower()}.{group.name.lower()}" in ALL_KEYS
+
+
+def test_all_tag_derived_keys_registered() -> None:
+    for tag in TAG_KEYS:
+        suffix = tag.removeprefix("tag.")
+        assert tag in ALL_KEYS
+        assert f"fortune.tag.{suffix}" in ALL_KEYS
+        assert f"guide.{suffix}" in ALL_KEYS
+    for group in TenGodGroup:
+        assert f"guide.ten_god.{group.name.lower()}" in ALL_KEYS

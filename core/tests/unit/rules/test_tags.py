@@ -109,3 +109,10 @@ def test_all_keys_superset_of_featured(pillar_of: PillarOf) -> None:
     assert set(result.featured) <= set(result.all_keys)
     assert len(result.featured) <= 2
     assert result.evidence
+
+
+def test_suppressed_hap_not_harmony(pillar_of: PillarOf) -> None:
+    natal = _natal(pillar_of, "壬申", "乙巳", "己午")
+    rels = (Relation(RelationKind.BRANCH_HAP, Position.YEAR_BRANCH, RelationKind.CHUNG),)
+    result = select_tags(natal, pillar_of("丙子"), rels, (), DayKind.ORDINARY_DAY)
+    assert "tag.harmony" not in result.all_keys

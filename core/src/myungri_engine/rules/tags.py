@@ -23,13 +23,6 @@ TAG_BIG_CHANGE: Final = "tag.big_change"
 TAG_CLASH: Final = "tag.clash"
 TAG_HARMONY: Final = "tag.harmony"
 
-_RUSH_GROUP_ORDER: Final = (
-    TenGodGroup.GWANSEONG,
-    TenGodGroup.BIGYEOP,
-    TenGodGroup.JAESEONG,
-    TenGodGroup.SIKSANG,
-    TenGodGroup.INSEONG,
-)
 _SHINSAL_TAGS: Final[tuple[tuple[Shinsal, str], ...]] = (
     (Shinsal.GONGMANG, "tag.gongmang"),
     (Shinsal.YEOKMA, "tag.yeokma"),
@@ -83,8 +76,8 @@ def _relation_tags(relations: Sequence[Relation]) -> tuple[str, ...]:
         tags.append(TAG_BIG_CHANGE)
     if any(rel.natal_position not in CLASH_BIG_CHANGE_POSITIONS for rel in chungs):
         tags.append(TAG_CLASH)
-    # 탐합망충으로 충이 무효가 된 경우에도 합은 있으므로 전체 관계에서 찾는다.
-    if any(rel.kind in (RelationKind.STEM_HAP, RelationKind.BRANCH_HAP) for rel in relations):
+    # 합은 탐합망충에서 무효가 되지 않으므로, 충이 무효가 된 날에도 활성 합으로 남는다.
+    if any(rel.kind in (RelationKind.STEM_HAP, RelationKind.BRANCH_HAP) for rel in live):
         tags.append(TAG_HARMONY)
     return tuple(tags)
 
