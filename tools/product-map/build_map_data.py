@@ -28,7 +28,7 @@ ARTIFACT_UNITS = (
     ("app/", "app"),
     ("docs/", "root"),
 )
-# IA(D39)가 나오기 전까지 쓰는 MVP 임시 화면 목록 (04 MVP 명세, D16·D18·D22·D36)
+# IA 파일이 없거나 깨졌을 때 쓰는 MVP 임시 화면 목록 (04 MVP 명세, D16·D18·D22·D36)
 PROVISIONAL_SCREENS = (
     ("onboarding", "온보딩", "생년월일시·음력·시간 모름·성별·호칭 입력, 소셜 로그인"),
     ("daily", "데일리", "날의 성격, 총운 문장, 행운 색·방향·숫자·집중 시간, 해시태그"),
@@ -153,7 +153,13 @@ def collect_issues(root: Path) -> list[dict[str, object]] | None:
 def collect_screens(root: Path) -> list[dict[str, object]]:
     ia = root / IA_PATH
     if ia.exists():
-        return list(json.loads(ia.read_text(encoding="utf-8")))
+        try:
+            doc = json.loads(ia.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            doc = None
+        if isinstance(doc, dict) and isinstance(doc.get("screens"), list):
+            return doc["screens"]
+        print(f"건너뜀: {IA_PATH} 형식 오류, 임시 화면 목록을 씁니다", file=sys.stderr)
     return [
         {"id": sid, "title": title, "summary": summary, "provisional": True}
         for sid, title, summary in PROVISIONAL_SCREENS
