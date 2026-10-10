@@ -29,7 +29,7 @@
   * 영어·일본어는 같은 기준으로 레퍼런스를 고르되, 원어민 검수를 대신하지 않습니다.
 
 ## 고칠 수 있는 곳
-`docs/identity/writing/`, `docs/coordination/`(요청·보고 작성). 그 밖은 읽기만 합니다. 콘텐츠를 server 시드 파일로 넣는 일은 server가 합니다.
+`docs/identity/writing/`, GitHub Issues(요청·보고 작성, `gh issue list --label to:writing`). 받은 notice: Issue #8(메시지 키 규모). 그 밖은 읽기만 합니다. 콘텐츠를 server 시드 파일로 넣는 일은 server가 합니다.
 
 ## 계약
 | 계약 | 역할 | 상대 |

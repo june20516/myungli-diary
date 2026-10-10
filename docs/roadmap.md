@@ -42,7 +42,7 @@
 | 병행 | server | S1 설계 시작 가능. 1·2의 결정을 받는 대로 반영 | S2 |
 | 병행 | writing·design | W0, V0 진행 중 | W1, V1 |
 | 3 | app | IA가 나온 뒤 A1 설계 시작 | A2 |
-| 여유 | core | 후속 요청(`docs/coordination/2026-10-10-root-to-core-engine-mvp-feedback.md`) | 없음 |
+| 여유 | core | 후속 요청(Issue #4·#5·#9) | 없음 |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |

@@ -6,8 +6,8 @@
 출생 정보로 원국을 세우고, 일진 × 원국(D13)으로 데일리·월간 판정을 계산해 gRPC로 반환하는 **상태 없는** 엔진입니다. 문장은 만들지 않습니다(D27). 메시지 키, 매개변수, 근거만 반환합니다.
 
 ## 고칠 수 있는 곳
-`core/`, `proto/myungri/engine/`, `proto/buf.yaml`, `.github/workflows/core.yml`, `docs/coordination/`(요청·보고 작성).
-그 밖은 읽기만 합니다. 바꿔야 하면 `docs/coordination/`에 `core-to-<받는 쪽>` 요청을 남깁니다.
+`core/`, `proto/myungri/engine/`, `proto/buf.yaml`, `.github/workflows/core.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:core`).
+그 밖은 읽기만 합니다. 바꿔야 하면 `from:core` Issue로 요청합니다.
 
 ## 계약
 | 계약 | 역할 | 사용하는 쪽 |
@@ -40,6 +40,6 @@
 
 ## 다음 할 일
 1. 이 브랜치(`core/engine-mvp`)를 검토하고 main에 병합합니다(병합 시점은 지휘 세션이 판단).
-2. `docs/coordination/2026-10-10-core-to-root-engine-mvp-done.md`에 대한 지휘 세션의 처리(계약 상태·로드맵 갱신)를 확인합니다.
+2. 완료 보고(`docs/coordination/archive/2026-10-10-core-to-root-engine-mvp-done.md`)는 지휘 세션이 처리했습니다(PR #1 병합). 남은 일은 `gh issue list --label to:core`: 후속 요청 #5, 용어 정리 #4, core.yml 전환 #9.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `server-to-core` 요청으로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.
