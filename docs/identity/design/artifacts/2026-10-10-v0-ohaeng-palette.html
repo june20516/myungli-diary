@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V0 오행 팔레트</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+<style>html, body, .main { height: auto; overflow: visible; }</style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  .ohp { font-family: 'Pretendard', sans-serif; }
+  .pair { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .pane { width: 300px; border-radius: 20px; padding: 16px; box-sizing: border-box; }
+  .pane.l { background: #f4f4f2; color: #2b2b2a; }
+  .pane.d { background: #1b1b1a; color: #eeeeed; }
+  .k { font: 600 11px 'Pretendard', sans-serif; opacity: .7; margin: 12px 0 6px; }
+  .k:first-child { margin-top: 0; }
+  .sws { display: flex; gap: 8px; }
+  .sw { flex: 1; text-align: center; font: 500 11px 'Pretendard', sans-serif; }
+  .sw i { display: block; height: 34px; border-radius: 10px; margin-bottom: 4px; }
+  .l .sw i { box-shadow: inset 0 0 0 1px rgba(43,43,42,.15); }
+  .d .sw i { box-shadow: inset 0 0 0 1px rgba(238,238,237,.2); }
+  .bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; }
+  .legend { display: flex; justify-content: space-between; font: 500 10px 'Pretendard', sans-serif; opacity: .75; margin-top: 4px; }
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .cell { border-radius: 8px; text-align: center; padding: 6px 0; font: 700 17px 'Pretendard', sans-serif; }
+  .cell small { display: block; font: 500 10px 'Pretendard', sans-serif; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; font: 500 12px 'Pretendard', sans-serif; padding: 6px 10px; border-radius: 999px; }
+  .l .chip { background: rgba(255,255,255,.8); } .d .chip { background: rgba(255,255,255,.08); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .l .dot { box-shadow: 0 0 0 1px rgba(43,43,42,.2); } .d .dot { box-shadow: 0 0 0 1px rgba(238,238,237,.35); }
+</style>
+
+<h2>오행 팔레트 (데이터 전용)</h2>
+<p class="subtitle">행운 색 견본·오행 분포·원국표에만 씁니다. 견본(swatch)은 바탕과 대비가 낮은 색(토·금, 다크의 수)이 있어 모든 견본에 얇은 테두리를 둡니다. 원국표 칸의 옅은 바탕 + 진한 글자는 두 안이 같고(대비 7:1 이상), 견본 색만 다릅니다.</p>
+
+<div class="cards">
+  <div class="card" data-choice="ohaeng-a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="pair">
+        <div class="pane l">
+          <div class="k">견본</div>
+          <div class="sws">
+            <div class="sw"><i style="background:#73a074"></i>목</div>
+            <div class="sw"><i style="background:#d2736a"></i>화</div>
+            <div class="sw"><i style="background:#d9b887"></i>토</div>
+            <div class="sw"><i style="background:#ced5dc"></i>금</div>
+            <div class="sw"><i style="background:#2d4870"></i>수</div>
+          </div>
+          <div class="k">오행 분포</div>
+          <div class="bar"><span style="flex:2;background:#73a074"></span><span style="flex:1;background:#d2736a"></span><span style="flex:3;background:#d9b887"></span><span style="flex:1;background:#ced5dc"></span><span style="flex:1;background:#2d4870"></span></div>
+          <div class="legend"><span>목 2</span><span>화 1</span><span>토 3</span><span>금 1</span><span>수 1</span></div>
+          <div class="k">원국표</div>
+          <div class="pillars">
+            <div class="cell" style="background:#dff1df;color:#2f5831">甲<small>목</small></div>
+            <div class="cell" style="background:#ffe4e0;color:#733a35">午<small>화</small></div>
+            <div class="cell" style="background:#f7e9d5;color:#65470f">戊<small>토</small></div>
+            <div class="cell" style="background:#e0ecfe;color:#304d78">子<small>수</small></div>
+          </div>
+          <div class="k">행운 색 칩</div>
+          <span class="chip"><span class="dot" style="background:#2d4870"></span>남색</span>
+          <span class="chip"><span class="dot" style="background:#ced5dc"></span>은색</span>
+        </div>
+        <div class="pane d">
+          <div class="k">견본</div>
+          <div class="sws">
+            <div class="sw"><i style="background:#73a074"></i>목</div>
+            <div class="sw"><i style="background:#d2736a"></i>화</div>
+            <div class="sw"><i style="background:#d9b887"></i>토</div>
+            <div class="sw"><i style="background:#ced5dc"></i>금</div>
+            <div class="sw"><i style="background:#2d4870"></i>수</div>
+          </div>
+          <div class="k">오행 분포</div>
+          <div class="bar"><span style="flex:2;background:#73a074"></span><span style="flex:1;background:#d2736a"></span><span style="flex:3;background:#d9b887"></span><span style="flex:1;background:#ced5dc"></span><span style="flex:1;background:#2d4870"></span></div>
+          <div class="legend"><span>목 2</span><span>화 1</span><span>토 3</span><span>금 1</span><span>수 1</span></div>
+          <div class="k">원국표</div>
+          <div class="pillars">
+            <div class="cell" style="background:#213321;color:#c4e1c4">甲<small>목</small></div>
+            <div class="cell" style="background:#402623;color:#f7ccc6">午<small>화</small></div>
+            <div class="cell" style="background:#392b16;color:#ead4b3">戊<small>토</small></div>
+            <div class="cell" style="background:#212e42;color:#c4d9f9">子<small>수</small></div>
+          </div>
+          <div class="k">행운 색 칩</div>
+          <span class="chip"><span class="dot" style="background:#2d4870"></span>남색</span>
+          <span class="chip"><span class="dot" style="background:#ced5dc"></span>은색</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A. 파스텔 오행 (06 원문에 가까움)</h3><p>세이지·코랄·샌드·실버·네이비. 화면 톤과 잘 섞입니다. 대신 목·화가 브랜드 sage·coral과 거의 같아 “강조색인지 오행인지” 헷갈릴 수 있습니다.</p></div>
+  </div>
+
+  <div class="card" data-choice="ohaeng-b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="pair">
+        <div class="pane l">
+          <div class="k">견본</div>
+          <div class="sws">
+            <div class="sw"><i style="background:#418e47"></i>목</div>
+            <div class="sw"><i style="background:#d24d45"></i>화</div>
+            <div class="sw"><i style="background:#dea645"></i>토</div>
+            <div class="sw"><i style="background:#b4bfca"></i>금</div>
+            <div class="sw"><i style="background:#153e78"></i>수</div>
+          </div>
+          <div class="k">오행 분포</div>
+          <div class="bar"><span style="flex:2;background:#418e47"></span><span style="flex:1;background:#d24d45"></span><span style="flex:3;background:#dea645"></span><span style="flex:1;background:#b4bfca"></span><span style="flex:1;background:#153e78"></span></div>
+          <div class="legend"><span>목 2</span><span>화 1</span><span>토 3</span><span>금 1</span><span>수 1</span></div>
+          <div class="k">원국표</div>
+          <div class="pillars">
+            <div class="cell" style="background:#dff1df;color:#2f5831">甲<small>목</small></div>
+            <div class="cell" style="background:#ffe4e0;color:#733a35">午<small>화</small></div>
+            <div class="cell" style="background:#f7e9d5;color:#65470f">戊<small>토</small></div>
+            <div class="cell" style="background:#e0ecfe;color:#304d78">子<small>수</small></div>
+          </div>
+          <div class="k">행운 색 칩</div>
+          <span class="chip"><span class="dot" style="background:#153e78"></span>남색</span>
+          <span class="chip"><span class="dot" style="background:#b4bfca"></span>은색</span>
+        </div>
+        <div class="pane d">
+          <div class="k">견본</div>
+          <div class="sws">
+            <div class="sw"><i style="background:#418e47"></i>목</div>
+            <div class="sw"><i style="background:#d24d45"></i>화</div>
+            <div class="sw"><i style="background:#dea645"></i>토</div>
+            <div class="sw"><i style="background:#b4bfca"></i>금</div>
+            <div class="sw"><i style="background:#153e78"></i>수</div>
+          </div>
+          <div class="k">오행 분포</div>
+          <div class="bar"><span style="flex:2;background:#418e47"></span><span style="flex:1;background:#d24d45"></span><span style="flex:3;background:#dea645"></span><span style="flex:1;background:#b4bfca"></span><span style="flex:1;background:#153e78"></span></div>
+          <div class="legend"><span>목 2</span><span>화 1</span><span>토 3</span><span>금 1</span><span>수 1</span></div>
+          <div class="k">원국표</div>
+          <div class="pillars">
+            <div class="cell" style="background:#213321;color:#c4e1c4">甲<small>목</small></div>
+            <div class="cell" style="background:#402623;color:#f7ccc6">午<small>화</small></div>
+            <div class="cell" style="background:#392b16;color:#ead4b3">戊<small>토</small></div>
+            <div class="cell" style="background:#212e42;color:#c4d9f9">子<small>수</small></div>
+          </div>
+          <div class="k">행운 색 칩</div>
+          <span class="chip"><span class="dot" style="background:#153e78"></span>남색</span>
+          <span class="chip"><span class="dot" style="background:#b4bfca"></span>은색</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B. 선명한 오행 (오방색 현대화)</h3><p>채도를 올려 다섯 색이 서로, 그리고 브랜드 파스텔과 분명히 갈립니다. 행운 색 견본이 실제 옷 색에 가깝습니다. 화면에서 데이터 부분이 조금 더 튑니다.</p></div>
+  </div>
+</div>
+<p class="subtitle">원국표 금(金) 칸 예시는 생략했지만 바탕 #e8ebef / 글자 #454e58(다크 #2a2e33 / #d3d8de)로, 수(水)의 푸른 바탕과 구분되게 채도를 낮췄습니다.</p>
+
+    </div>
+  </div>
+
+</body>
+</html>

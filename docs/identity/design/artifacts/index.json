@@ -1,0 +1,113 @@
+[
+  {
+    "id": "design-v0-brand-palette",
+    "title": "브랜드 팔레트(sage·coral·neutral)와 좋은 날 배지 처리 A/B",
+    "kind": "token-sheet",
+    "file": "2026-10-10-v0-brand-palette.png",
+    "source": "2026-10-10-v0-brand-palette.html",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V1",
+      "V3"
+    ],
+    "status": "chosen",
+    "note": "배지 B(진한 코랄 + 흰 글자, 다크는 반전) 채택, A(옅은 배지) 탈락. 950 단계는 neutral에만 남김"
+  },
+  {
+    "id": "design-v0-ohaeng-palette",
+    "title": "오행 팔레트 A(파스텔) / B(선명한 오방색 현대화)",
+    "kind": "token-sheet",
+    "file": "2026-10-10-v0-ohaeng-palette.png",
+    "source": "2026-10-10-v0-ohaeng-palette.html",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V2"
+    ],
+    "status": "chosen",
+    "note": "B 채택: 브랜드 색과 갈리는 선명한 오행 견본. A는 목·화가 브랜드 sage·coral과 겹쳐 탈락"
+  },
+  {
+    "id": "design-v0-logo-concepts",
+    "title": "앱 아이콘 3종(일기장 / 日 / 낙관)과 워드마크 2종",
+    "kind": "concept",
+    "file": "2026-10-10-v0-logo-concepts.png",
+    "source": "2026-10-10-v0-logo-concepts.html",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V7"
+    ],
+    "status": "superseded",
+    "note": "워드마크 A(고운돋움) 채택. 아이콘은 일기장에 낙관을 녹이는 결합안 요청으로 이어짐(日 단독안 탈락)"
+  },
+  {
+    "id": "design-v0-logo-diary-seal",
+    "title": "일기장 + 낙관 결합안 1-a(표지) / 1-b(책갈피 끝) / 1-c(펼친 일기)",
+    "kind": "concept",
+    "file": "2026-10-10-v0-logo-diary-seal.png",
+    "source": "2026-10-10-v0-logo-diary-seal.html",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V7"
+    ],
+    "status": "superseded",
+    "note": "1-a 선택 후 낙관 30° 회전·공책 확대·작은 크기 보정을 요청. 1-b·1-c 탈락"
+  },
+  {
+    "id": "design-v0-logo-diary-seal-v2",
+    "title": "앱 아이콘 1-a 수정: 낙관 반시계 30°, 공책 확대, 크기별 원형(60px 이상 / 48px 이하)",
+    "kind": "concept",
+    "file": "2026-10-10-v0-logo-diary-seal-v2.png",
+    "source": "2026-10-10-v0-logo-diary-seal-v2.html",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V7"
+    ],
+    "status": "chosen",
+    "note": "앱 아이콘 방향 확정. 정식 SVG(풀블리드, Android 적응형 분리)는 V0 실행에서 그림"
+  },
+  {
+    "id": "design-v0-specimen",
+    "title": "V0 시각 정체성 견본: 팔레트·의미 역할·오행·그라데이션·타이포·데일리 카드·로고 (라이트/다크)",
+    "kind": "token-sheet",
+    "file": "2026-10-10-v0-specimen.png",
+    "source": "2026-10-10-v0-specimen.html",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V6"
+    ],
+    "status": "chosen",
+    "note": "V0 확정 값의 견본. 다크 화면은 2026-10-10-v0-specimen-dark.png. 원본은 specimen/index.html"
+  },
+  {
+    "id": "design-v0-logo-final",
+    "title": "V0 로고 일체: 앱 아이콘(큰·작은 원형), 워드마크, 가로 조합 (라이트/다크)",
+    "kind": "concept",
+    "file": "2026-10-10-v0-logo-final.png",
+    "source": "2026-10-10-v0-logo-final.svg",
+    "date": "2026-10-10",
+    "milestone": "V0",
+    "screens": [],
+    "decisions": [
+      "V7"
+    ],
+    "status": "chosen",
+    "note": "logo/ 원본을 인라인한 사본(tools/logo_sheet.py로 재생성). 모서리는 미리보기용 마스크"
+  }
+]
