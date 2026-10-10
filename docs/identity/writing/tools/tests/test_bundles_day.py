@@ -5,12 +5,17 @@ from pathlib import Path
 from typing import cast
 
 from mlw.bundles import DayKeys, assemble, check_days, check_limits, enumerate_days
-from mlw.model import CountSelector, Entry, Limit, Scope, Slot
+from mlw.josa import default_josa_data
+from mlw.model import CountSelector, Detect, Entry, Examples, Limit, RuleSet, Scope, Slot, StyleRule
 
 HEAD_KEY = "fortune.ordinary_day.siksang"
 TAG_KEY = "fortune.tag.clash"
 GUIDE_KEY = "guide.clash"
 FILE = Path("content/ko/daily.yaml")
+TEST_RULE = StyleRule(
+    "style.test", "시험 규칙", "error", Detect("lexicon", words=("쉬어",)), frozenset(), Examples(), 1
+)
+RULES = RuleSet({}, {}, {TEST_RULE.id: TEST_RULE}, default_josa_data())
 
 
 def make_entry(
@@ -80,6 +85,8 @@ def test_enumerate_days_respects_engine_rules() -> None:
         suffix = day.tag_sentence.removeprefix("fortune.tag.")
         assert day.guide == f"guide.{suffix}"
         assert day.tag_label == f"tag.{suffix}"
+        if suffix.startswith("ten_god_rush."):
+            assert suffix.removeprefix("ten_god_rush.") == group
         if suffix == "gwiin_day":
             assert kind == "gwiin_day"
         if suffix == "yongsin_day":
@@ -88,7 +95,7 @@ def test_enumerate_days_respects_engine_rules() -> None:
 
 def test_enumerate_days_counts() -> None:
     days = list(enumerate_days())
-    assert len(days) == (15 + 15 + 14 + 14) * 5 * 5
+    assert len(days) == (11 + 11 + 10 + 10) * 5 * 5
     assert {day.focus for day in days} == {
         "focus_time.fallback",
         "focus_time.gwiin",
@@ -104,7 +111,7 @@ def test_name_twice_on_screen_is_error() -> None:
         make_entry("daily.guide", GUIDE_KEY, "{name}님, 천천히 하세요.", 20),
     ]
     limit = make_limit("limit.L1", CountSelector(placeholder="name"), 1)
-    findings = check_days({}, entries, [limit], ("ko",))
+    findings = check_days({}, entries, [limit], ("ko",), RULES)
     l1 = [finding for finding in findings if finding.rule_id == "limit.L1"]
     assert len(l1) == 1
     assert (l1[0].file, l1[0].line) == (FILE, 20)
@@ -115,7 +122,7 @@ def test_null_limit_is_skipped() -> None:
         make_entry("daily.fortune.head", HEAD_KEY, "가", 10, type_) for type_ in ("advice", "state", "care")
     ]
     limit = make_limit("limit.L2", CountSelector(type="care"), None, scope="day")
-    assert check_days({}, entries, [limit], ("ko",)) == []
+    assert check_days({}, entries, [limit], ("ko",), RULES) == []
 
 
 def test_rotation_positions_all_checked() -> None:
@@ -129,7 +136,7 @@ def test_rotation_positions_all_checked() -> None:
     assert types_by_rotation == [["advice", "advice"], ["state", "state"], ["care", "care"]]
 
     limit = make_limit("limit.L2", CountSelector(type="care"), 1, scope="day")
-    findings = check_days({}, entries, [limit], ("ko",))
+    findings = check_days({}, entries, [limit], ("ko",), RULES)
     assert [(finding.rule_id, finding.line) for finding in findings] == [("limit.L2", 22)]
 
 
@@ -140,7 +147,7 @@ def test_guide_variants_both_checked() -> None:
         make_entry("daily.guide", GUIDE_KEY, "{name}님", 21, variant=2),
     ]
     limit = make_limit("limit.L1", CountSelector(placeholder="name"), 1)
-    findings = check_days({}, entries, [limit], ("ko",))
+    findings = check_days({}, entries, [limit], ("ko",), RULES)
     assert [finding.line for finding in findings] == [21]
 
 
@@ -151,19 +158,29 @@ def test_guide_variant_count_comes_from_slot() -> None:
     ]
     limit = make_limit("limit.L1", CountSelector(placeholder="name"), 1)
     only_first = {"daily.guide": make_slot("daily.guide", 1)}
-    assert check_days(only_first, entries, [limit], ("ko",)) == []
+    assert check_days(only_first, entries, [limit], ("ko",), RULES) == []
 
 
 def test_check_limits_filters_by_scope_and_lang() -> None:
     entries = [make_entry("daily.fortune.head", HEAD_KEY, "{name} {name}", 10, "advice")]
     limit = make_limit("limit.L1", CountSelector(placeholder="name"), 1)
-    assert len(check_limits(entries, [limit], "screen", "ko", "시험")) == 1
-    assert check_limits(entries, [limit], "day", "ko", "시험") == []
+    assert len(check_limits(entries, [limit], "screen", "ko", "시험", RULES)) == 1
+    assert check_limits(entries, [limit], "day", "ko", "시험", RULES) == []
     korean_only = Limit("limit.L1", "시험", "screen", limit.count, {"ko": 1, "ja": None}, "error", 1)
-    assert check_limits(entries, [korean_only], "screen", "ja", "시험") == []
-    assert check_limits(entries, [korean_only], "screen", "en", "시험") == []
+    assert check_limits(entries, [korean_only], "screen", "ja", "시험", RULES) == []
+    assert check_limits(entries, [korean_only], "screen", "en", "시험", RULES) == []
 
 
 def test_missing_entries_are_not_counted() -> None:
     limit = make_limit("limit.L1", CountSelector(placeholder="name"), 1)
-    assert check_days({}, [], [limit], ("ko",)) == []
+    assert check_days({}, [], [limit], ("ko",), RULES) == []
+
+
+def test_rule_count_limit_over_two_entries_is_finding() -> None:
+    entries = [
+        make_entry("daily.fortune.head", HEAD_KEY, "쉬어 가세요.", 10, "advice"),
+        make_entry("daily.guide", GUIDE_KEY, "쉬어도 됩니다.", 20),
+    ]
+    limit = make_limit("limit.R", CountSelector(rule="style.test"), 1)
+    findings = check_days({}, entries, [limit], ("ko",), RULES)
+    assert [(finding.rule_id, finding.line) for finding in findings] == [("limit.R", 20)]

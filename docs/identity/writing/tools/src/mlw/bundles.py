@@ -38,6 +38,7 @@ COMMON_TAGS: tuple[str, ...] = (
 )
 # 해당 날의 성격에서만 대표 태그가 되는 태그입니다.
 KIND_ONLY_TAGS: Mapping[str, str] = {"gwiin_day": "gwiin_day", "yongsin_day": "yongsin_day"}
+RUSH_PREFIX = "ten_god_rush."
 DEFAULT_GUIDE_VARIANTS = 2
 
 SLOT_HEAD = "daily.fortune.head"
@@ -89,8 +90,9 @@ class Bundle:
     keys: tuple[tuple[str, str], ...]
 
 
-def _tags_for(kind: str) -> list[str]:
-    tags = list(COMMON_TAGS)
+def _tags_for(kind: str, group: str) -> list[str]:
+    """일진 천간과 지지 정기의 십성 그룹이 같을 때만 그 그룹의 쏠림 태그가 나옵니다."""
+    tags = [tag for tag in COMMON_TAGS if not tag.startswith(RUSH_PREFIX) or tag == f"{RUSH_PREFIX}{group}"]
     if kind in KIND_ONLY_TAGS:
         tags.append(KIND_ONLY_TAGS[kind])
     return tags
@@ -100,7 +102,7 @@ def enumerate_days() -> Iterator[DayKeys]:
     """날의 성격 x 십성 그룹 x 대표 태그(없음 포함) x 집중 시간 키를 모두 만듭니다."""
     for kind in DAY_KINDS:
         for group in TEN_GOD_GROUPS:
-            for tag in (None, *_tags_for(kind)):
+            for tag in (None, *_tags_for(kind, group)):
                 for focus in FOCUS_KEYS:
                     yield DayKeys(
                         head=f"fortune.{kind}.{group}",
@@ -135,7 +137,7 @@ def assemble(
     return picked
 
 
-def _entry_count(entry: Entry, limit: Limit, rules: RuleSet | None) -> int:
+def _entry_count(entry: Entry, limit: Limit, rules: RuleSet) -> int:
     selector = limit.count
     if selector.type is not None:
         return int(entry.type == selector.type)
@@ -145,7 +147,7 @@ def _entry_count(entry: Entry, limit: Limit, rules: RuleSet | None) -> int:
         except ValueError:
             # 문법 오류는 문장 단위 검사가 보고합니다.
             return 0
-    if selector.rule is not None and rules is not None:
+    if selector.rule is not None:
         return int(_hits_rule(entry, selector.rule, rules))
     return 0
 
@@ -167,7 +169,7 @@ def check_limits(
     scope: str,
     lang: str,
     where: str,
-    rules: RuleSet | None = None,
+    rules: RuleSet,
 ) -> list[Finding]:
     """묶음 하나가 `scope` 범위 상한을 넘는지 봅니다. 상한을 처음 넘게 만든 원고 위치로 보고합니다."""
     findings: list[Finding] = []
@@ -197,7 +199,7 @@ def check_days(
     entries: Sequence[Entry],
     limits: Iterable[Limit],
     langs: Sequence[str],
-    rules: RuleSet | None = None,
+    rules: RuleSet,
 ) -> list[Finding]:
     """모든 하루 조합 x 순환 위치 x 가이드 변주에 화면·하루 상한을 검사합니다.
 
