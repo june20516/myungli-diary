@@ -109,5 +109,85 @@
     ],
     "status": "chosen",
     "note": "logo/ 원본을 인라인한 사본(tools/logo_sheet.py로 재생성). 모서리는 미리보기용 마스크"
+  },
+  {
+    "id": "design-v1-day-badges-luck-dots",
+    "title": "날의 성격 배지 4종(귀인 sage 안)과 캘린더 길흉 점 A/B/C",
+    "kind": "concept",
+    "file": "2026-10-11-v1-day-badges-luck-dots.png",
+    "source": "2026-10-11-v1-day-badges-luck-dots.html",
+    "date": "2026-10-11",
+    "milestone": "V1",
+    "screens": [],
+    "decisions": [
+      "V10"
+    ],
+    "status": "superseded",
+    "note": "점은 일정·이벤트로 읽혀 칸 채우기로 바뀜. 귀인의 날 sage 안은 결정 V8(좋은 쪽은 coral)에 따라 coral로 바뀜"
+  },
+  {
+    "id": "design-v1-luck-cell-tint",
+    "title": "캘린더 길흉 칸 채우기 A(아주 옅게) / B(한 단계 진하게)",
+    "kind": "concept",
+    "file": "2026-10-11-v1-luck-cell-tint.png",
+    "source": "2026-10-11-v1-luck-cell-tint.html",
+    "date": "2026-10-11",
+    "milestone": "V1",
+    "screens": [],
+    "decisions": [
+      "V10"
+    ],
+    "status": "chosen",
+    "note": "A 채택. B는 확인해야 할 무언가가 있는 느낌이라 탈락. 점은 일기·일정 표시용으로 남김"
+  },
+  {
+    "id": "design-v1-color-meaning",
+    "title": "색의 의미 규칙과 배지·용어 토큰·버튼·캘린더 적용",
+    "kind": "concept",
+    "file": "2026-10-11-v1-color-meaning.png",
+    "source": "2026-10-11-v1-color-meaning.html",
+    "date": "2026-10-11",
+    "milestone": "V1",
+    "screens": [],
+    "decisions": [
+      "V8",
+      "V10"
+    ],
+    "status": "chosen",
+    "note": "sage=나와 기록·조작, coral=오늘의 좋은 기운, neutral=그 밖. 귀인의 날은 옅은 coral"
+  },
+  {
+    "id": "design-v1-ja-line-height",
+    "title": "일본어 줄 간격 A(1.65/1.6) / B(1.75/1.7) / C(1.85/1.8)",
+    "kind": "copy-sample",
+    "file": "2026-10-11-v1-ja-line-height.png",
+    "source": "2026-10-11-v1-ja-line-height.html",
+    "date": "2026-10-11",
+    "milestone": "V1",
+    "screens": [],
+    "decisions": [
+      "V11"
+    ],
+    "status": "chosen",
+    "note": "B 채택. 예문은 임시이며 W1 원어민 검수 문장으로 다시 확인"
+  },
+  {
+    "id": "design-v1-specimen",
+    "title": "시각 정체성 견본 V1 판 (배지·캘린더·타이포·일본어·간격·반경)",
+    "kind": "token-sheet",
+    "file": "2026-10-11-v1-specimen.png",
+    "source": "../specimen/index.html",
+    "date": "2026-10-11",
+    "milestone": "V1",
+    "screens": [],
+    "decisions": [
+      "V8",
+      "V9",
+      "V10",
+      "V11",
+      "V12"
+    ],
+    "status": "chosen",
+    "note": "라이트 캡처. 다크 캡처는 2026-10-11-v1-specimen-dark.png"
   }
 ]

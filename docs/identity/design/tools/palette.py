@@ -1,6 +1,7 @@
 """명리일기 V0 색 체계 생성기와 대비 검사기.
 
-spec: docs/identity/design/specs/2026-10-10-visual-identity-design.md §3·§4
+spec: docs/identity/design/specs/2026-10-10-visual-identity-design.md §3·§4,
+      docs/identity/design/specs/2026-10-11-design-tokens-design.md §3·§7 (V1 역할)
 
 사용법:
     python3 palette.py            # 팔레트 전체를 JSON으로 출력
@@ -160,6 +161,14 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "term.fg": sage[700],
             "badge.good.bg": coral[600],
             "badge.good.fg": WHITE,
+            "badge.gwiin.bg": coral[100],
+            "badge.gwiin.fg": coral[700],
+            "badge.gisin.bg": neutral[100],
+            "badge.gisin.fg": neutral[700],
+            "badge.ordinary.border": neutral[300],
+            "badge.ordinary.fg": neutral[700],
+            "calendar.good.bg": coral[100],
+            "calendar.caution.bg": neutral[100],
         },
         "dark": {
             "bg.base": neutral[950],
@@ -173,6 +182,14 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "term.fg": sage[200],
             "badge.good.bg": coral[300],
             "badge.good.fg": neutral[900],
+            "badge.gwiin.bg": coral[800],
+            "badge.gwiin.fg": coral[200],
+            "badge.gisin.bg": neutral[800],
+            "badge.gisin.fg": neutral[200],
+            "badge.ordinary.border": neutral[700],
+            "badge.ordinary.fg": neutral[400],
+            "calendar.good.bg": coral[900],
+            "calendar.caution.bg": neutral[900],
         },
     }
 
@@ -206,6 +223,16 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
         pairs.append((f"{mode} action.primary", roles["action.on-primary"], roles["action.primary"]))
         pairs.append((f"{mode} term", roles["term.fg"], roles["term.bg"]))
         pairs.append((f"{mode} badge.good", roles["badge.good.fg"], roles["badge.good.bg"]))
+        pairs.append((f"{mode} badge.gwiin", roles["badge.gwiin.fg"], roles["badge.gwiin.bg"]))
+        pairs.append((f"{mode} badge.gisin", roles["badge.gisin.fg"], roles["badge.gisin.bg"]))
+        # 평범한 날 배지는 바탕이 없어, 놓일 수 있는 모든 바탕에서 검사합니다 (V1 spec §3.1)
+        ordinary_backgrounds = [("bg.base", roles["bg.base"]), ("bg.sheet", roles["bg.sheet"])]
+        ordinary_backgrounds += [(f"gradient[{index}]", stop) for index, stop in enumerate(palette["gradient"][mode])]
+        for background_name, background in ordinary_backgrounds:
+            pairs.append((f"{mode} badge.ordinary.fg on {background_name}", roles["badge.ordinary.fg"], background))
+        for text_role in ("text.primary", "text.secondary"):
+            for cell_role in ("calendar.good.bg", "calendar.caution.bg"):
+                pairs.append((f"{mode} {text_role} on {cell_role}", roles[text_role], roles[cell_role]))
         ink, tint = ("ink", "tint") if mode == "light" else ("ink_dark", "tint_dark")
         for element, colors in palette["ohaeng"].items():
             pairs.append((f"{mode} ohaeng.{element}", colors[ink], colors[tint]))

@@ -42,6 +42,15 @@
     --role-light-term-fg: var(--sage-700); --role-dark-term-fg: var(--sage-200);
     --role-light-badge-good-bg: var(--coral-600); --role-dark-badge-good-bg: var(--coral-300);
     --role-light-badge-good-fg: var(--white); --role-dark-badge-good-fg: var(--neutral-900);
+    /* V1 역할 (V1 spec §3) */
+    --role-light-badge-gwiin-bg: var(--coral-100); --role-dark-badge-gwiin-bg: var(--coral-800);
+    --role-light-badge-gwiin-fg: var(--coral-700); --role-dark-badge-gwiin-fg: var(--coral-200);
+    --role-light-badge-gisin-bg: var(--neutral-100); --role-dark-badge-gisin-bg: var(--neutral-800);
+    --role-light-badge-gisin-fg: var(--neutral-700); --role-dark-badge-gisin-fg: var(--neutral-200);
+    --role-light-badge-ordinary-border: var(--neutral-300); --role-dark-badge-ordinary-border: var(--neutral-700);
+    --role-light-badge-ordinary-fg: var(--neutral-700); --role-dark-badge-ordinary-fg: var(--neutral-400);
+    --role-light-calendar-good-bg: var(--coral-100); --role-dark-calendar-good-bg: var(--coral-900);
+    --role-light-calendar-caution-bg: var(--neutral-100); --role-dark-calendar-caution-bg: var(--neutral-900);
     --role-light-gradient-today: linear-gradient(160deg, var(--gradient-light-0), var(--gradient-light-1));
     --role-dark-gradient-today: linear-gradient(160deg, var(--gradient-dark-0), var(--gradient-dark-1));
 
@@ -59,6 +68,10 @@
     --action-primary: var(--role-light-action-primary); --action-on-primary: var(--role-light-action-on-primary);
     --term-bg: var(--role-light-term-bg); --term-fg: var(--role-light-term-fg);
     --badge-good-bg: var(--role-light-badge-good-bg); --badge-good-fg: var(--role-light-badge-good-fg);
+    --badge-gwiin-bg: var(--role-light-badge-gwiin-bg); --badge-gwiin-fg: var(--role-light-badge-gwiin-fg);
+    --badge-gisin-bg: var(--role-light-badge-gisin-bg); --badge-gisin-fg: var(--role-light-badge-gisin-fg);
+    --badge-ordinary-border: var(--role-light-badge-ordinary-border); --badge-ordinary-fg: var(--role-light-badge-ordinary-fg);
+    --calendar-good-bg: var(--role-light-calendar-good-bg); --calendar-caution-bg: var(--role-light-calendar-caution-bg);
     --gradient-today: var(--role-light-gradient-today);
     --chip-bg: rgba(255, 255, 255, .7);
     --swatch-ring: rgba(43, 43, 42, .18);
@@ -71,9 +84,13 @@
       --action-primary: var(--role-dark-action-primary); --action-on-primary: var(--role-dark-action-on-primary);
       --term-bg: var(--role-dark-term-bg); --term-fg: var(--role-dark-term-fg);
       --badge-good-bg: var(--role-dark-badge-good-bg); --badge-good-fg: var(--role-dark-badge-good-fg);
+      --badge-gwiin-bg: var(--role-dark-badge-gwiin-bg); --badge-gwiin-fg: var(--role-dark-badge-gwiin-fg);
+      --badge-gisin-bg: var(--role-dark-badge-gisin-bg); --badge-gisin-fg: var(--role-dark-badge-gisin-fg);
+      --badge-ordinary-border: var(--role-dark-badge-ordinary-border); --badge-ordinary-fg: var(--role-dark-badge-ordinary-fg);
+      --calendar-good-bg: var(--role-dark-calendar-good-bg); --calendar-caution-bg: var(--role-dark-calendar-caution-bg);
       --gradient-today: var(--role-dark-gradient-today);
       --chip-bg: rgba(255, 255, 255, .08);
-      --swatch-ring: rgba(238, 238, 237, .3);
+      --swatch-ring: rgba(238, 238, 237, .28);
     }
   }
   .mode-dark {
@@ -83,9 +100,13 @@
     --action-primary: var(--role-dark-action-primary); --action-on-primary: var(--role-dark-action-on-primary);
     --term-bg: var(--role-dark-term-bg); --term-fg: var(--role-dark-term-fg);
     --badge-good-bg: var(--role-dark-badge-good-bg); --badge-good-fg: var(--role-dark-badge-good-fg);
+    --badge-gwiin-bg: var(--role-dark-badge-gwiin-bg); --badge-gwiin-fg: var(--role-dark-badge-gwiin-fg);
+    --badge-gisin-bg: var(--role-dark-badge-gisin-bg); --badge-gisin-fg: var(--role-dark-badge-gisin-fg);
+    --badge-ordinary-border: var(--role-dark-badge-ordinary-border); --badge-ordinary-fg: var(--role-dark-badge-ordinary-fg);
+    --calendar-good-bg: var(--role-dark-calendar-good-bg); --calendar-caution-bg: var(--role-dark-calendar-caution-bg);
     --gradient-today: var(--role-dark-gradient-today);
     --chip-bg: rgba(255, 255, 255, .08);
-    --swatch-ring: rgba(238, 238, 237, .3);
+    --swatch-ring: rgba(238, 238, 237, .28);
   }
 
   /* ===== 페이지 ===== */
@@ -108,7 +129,7 @@
   /* 역할 표 */
   .roles { width: 100%; border-collapse: collapse; font-size: 13px; }
   .roles td { padding: 8px 4px; border-top: 1px solid var(--line); vertical-align: middle; }
-  .sample { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+  .sample { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-weight: 600; font-size: 12px; }
   .ratio { color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 
   /* 오행 */
@@ -127,23 +148,49 @@
   /* 타이포 */
   .type td { padding: 10px 4px; border-top: 1px solid var(--line); vertical-align: top; }
   .type .spec { color: var(--text-secondary); font-size: 11px; white-space: nowrap; width: 140px; }
-  .t-card { font-family: var(--font-body); font-size: 17px; line-height: 1.65; }
-  .t-body { font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
-  .t-title { font-size: 20px; line-height: 1.3; font-weight: 600; }
-  .t-subtitle { font-size: 16px; line-height: 1.4; font-weight: 600; }
-  .t-label { font-size: 13px; line-height: 1.3; font-weight: 500; }
-  .t-caption { font-size: 11px; line-height: 1.3; font-weight: 500; }
-  [lang="ja"] .t-card, [lang="ja"].t-card, [lang="ja"] .t-body, [lang="ja"].t-body { font-family: var(--font-body-ja); }
-  [lang="ja"].t-title, [lang="ja"].t-subtitle, [lang="ja"].t-label, [lang="ja"].t-caption { font-family: var(--font-ui-ja); }
+  .t-card { font-family: var(--font-body); font-size: 17px; line-height: 1.65; margin: 0 0 8px; }
+  .t-body { font-family: var(--font-body); font-size: 15px; line-height: 1.6; margin: 0; }
+  .t-display { font-size: 24px; line-height: 1.25; font-weight: 600; letter-spacing: -0.48px; }
+  .t-title { font-size: 20px; line-height: 1.3; font-weight: 600; letter-spacing: -0.4px; }
+  .t-subtitle { font-size: 16px; line-height: 1.4; font-weight: 600; letter-spacing: -0.32px; }
+  .t-label-lg { font-size: 14px; line-height: 1.3; font-weight: 600; letter-spacing: -0.28px; }
+  .t-label-md { font-size: 13px; line-height: 1.3; font-weight: 500; letter-spacing: -0.26px; }
+  .t-caption-md { font-size: 12px; line-height: 1.3; font-weight: 500; letter-spacing: -0.24px; }
+  .t-caption-sm { font-size: 11px; line-height: 1.3; font-weight: 500; letter-spacing: -0.22px; }
+  .t-numeric-calendar { font-size: 14px; line-height: 1.2; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .t-numeric-table { font-size: 13px; line-height: 1.3; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .t-hanja { font-family: var(--font-ui-ja); font-size: 17px; line-height: 1; font-weight: 700; }
+  [lang="ja"] .t-card, [lang="ja"].t-card { font-family: var(--font-body-ja); line-height: 1.75; }
+  [lang="ja"] .t-body, [lang="ja"].t-body { font-family: var(--font-body-ja); line-height: 1.7; }
+  [lang="ja"].t-title, [lang="ja"] .panel-title { font-family: var(--font-ui-ja); letter-spacing: 0; }
+
+  /* 배지 */
+  .badge-row { height: auto; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 8px; }
+  .pill { padding: 5px 11px; border-radius: 9999px; font-size: 13px; font-weight: 500; letter-spacing: -0.26px; }
+
+  /* 캘린더 */
+  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .calendar .day { border-radius: 8px; padding: 8px 0; font-size: 14px; line-height: 1.2; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .calendar .good { background: var(--calendar-good-bg); }
+  .calendar .caution { background: var(--calendar-caution-bg); }
+  .legend { grid-column: 1 / -1; display: flex; gap: 12px; justify-content: flex-start; font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -1px; margin-right: 4px; }
+
+  /* 간격·반경 */
+  .spaces div { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-variant-numeric: tabular-nums; }
+  .spaces i { display: block; height: 12px; background: var(--action-primary); }
+  .radii { display: flex; flex-wrap: wrap; gap: 14px; }
+  .radii div { font-size: 12px; color: var(--text-secondary); text-align: center; }
+  .radii i { display: block; width: 56px; height: 56px; background: var(--term-bg); box-shadow: inset 0 0 0 1px var(--line); margin-bottom: 4px; }
 
   /* 데일리 카드 L1 */
   .phone { width: 300px; height: 380px; margin: 0 auto; border-radius: 28px; padding: 24px 22px; background: var(--gradient-today); color: var(--text-primary); display: flex; flex-direction: column; }
   .date { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
-  .badge { align-self: flex-start; margin: 14px 0 12px; padding: 4px 10px; border-radius: 999px; background: var(--badge-good-bg); color: var(--badge-good-fg); font-size: 12px; font-weight: 600; }
+  .badge { align-self: flex-start; margin: 14px 0 12px; padding: 4px 10px; border-radius: 9999px; background: var(--badge-good-bg); color: var(--badge-good-fg); font-size: 12px; font-weight: 600; }
   .message { font-family: var(--font-body); font-size: 17px; line-height: 1.65; margin: 0; }
   .term { background: var(--term-bg); color: var(--term-fg); border-radius: 4px; padding: 0 4px; }
   .chips { margin-top: auto; display: flex; gap: 6px; }
-  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; background: var(--chip-bg); font-size: 12px; font-weight: 500; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 9999px; background: var(--chip-bg); font-size: 12px; font-weight: 500; }
   .dot { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 1px var(--swatch-ring); }
 
   /* 로고 */
@@ -159,20 +206,20 @@
 <body>
 <main>
   <header>
-    <h1>명리일기 시각 정체성 V0 견본</h1>
+    <h1>명리일기 시각 정체성 견본 (V0·V1)</h1>
     <picture>
       <source srcset="../logo/lockup-dark.svg" media="(prefers-color-scheme: dark)">
       <img src="../logo/lockup.svg" alt="명리일기" height="48">
     </picture>
   </header>
-  <p class="lead">기준: <code>visual-identity.md</code> · 근거: <code>specs/2026-10-10-visual-identity-design.md</code> · 값의 출처: <code>tools/palette.py</code>. 이 페이지는 보는 사람의 라이트·다크 설정을 따르고, 비교 패널은 양쪽 모드를 함께 보여줍니다.</p>
+  <p class="lead">기준: <code>visual-identity.md</code> · 근거: <code>specs/2026-10-10-visual-identity-design.md</code>, <code>specs/2026-10-11-design-tokens-design.md</code> · 값의 출처: <code>tools/palette.py</code> · 토큰: <code>tokens/</code>. 이 페이지는 보는 사람의 라이트·다크 설정을 따르고, 비교 패널은 양쪽 모드를 함께 보여줍니다.</p>
 
   <h2>원시 팔레트</h2>
   <p class="note">OKLCH 고정 명도 단계. 화면은 이 값을 직접 쓰지 않고 아래 의미 역할만 씁니다.</p>
   <div id="scales"></div>
 
   <h2>의미 역할과 대비</h2>
-  <p class="note">글자 조합은 모두 4.5:1 이상입니다(<code>palette.py --check</code> 32/32).</p>
+  <p class="note">글자 조합은 모두 4.5:1 이상입니다(<code>palette.py --check</code> 52/52).</p>
   <div class="pair">
     <div class="panel mode-light">
       <p class="panel-title">라이트</p>
@@ -242,24 +289,88 @@
     <div class="gradient mode-dark"><b>오늘을 보여주는 바탕</b><span>다크 · 160°</span></div>
   </div>
 
+  <h2>날의 성격 배지</h2>
+  <p class="note">좋은 쪽은 coral, 그 밖은 neutral(결정 V8). 강도는 좋은 날(채움) &gt; 귀인의 날(옅은 coral) &gt; 기신의 날(옅은 회색) &gt; 평범한 날(테두리만)입니다.</p>
+  <div class="pair">
+    <div class="gradient mode-light badge-row">
+      <span class="pill" style="background:var(--badge-good-bg);color:var(--badge-good-fg)">좋은 날</span>
+      <span class="pill" style="background:var(--badge-gwiin-bg);color:var(--badge-gwiin-fg)">귀인의 날</span>
+      <span class="pill" style="background:var(--badge-gisin-bg);color:var(--badge-gisin-fg)">기신의 날</span>
+      <span class="pill" style="box-shadow:inset 0 0 0 1px var(--badge-ordinary-border);color:var(--badge-ordinary-fg)">평범한 날</span>
+    </div>
+    <div class="gradient mode-dark badge-row">
+      <span class="pill" style="background:var(--badge-good-bg);color:var(--badge-good-fg)">좋은 날</span>
+      <span class="pill" style="background:var(--badge-gwiin-bg);color:var(--badge-gwiin-fg)">귀인의 날</span>
+      <span class="pill" style="background:var(--badge-gisin-bg);color:var(--badge-gisin-fg)">기신의 날</span>
+      <span class="pill" style="box-shadow:inset 0 0 0 1px var(--badge-ordinary-border);color:var(--badge-ordinary-fg)">평범한 날</span>
+    </div>
+  </div>
+
+  <h2>캘린더 길흉</h2>
+  <p class="note">엔진 <code>LuckLevel</code>을 날짜 칸 채우기로 보여줍니다. 보통은 채우지 않습니다. 점은 일기·일정 표시용으로 남겨 둡니다(V2). 색만으로는 전달되지 않으므로 글·스크린리더로도 전합니다(V2).</p>
+  <div class="pair">
+    <div class="panel mode-light"><p class="panel-title">라이트</p><div class="calendar" data-calendar></div></div>
+    <div class="panel mode-dark"><p class="panel-title">다크</p><div class="calendar" data-calendar></div></div>
+  </div>
+
   <h2>타이포그래피</h2>
-  <p class="note">문장은 둥근 고딕 400 한 굵기, 숫자·라벨·데이터는 Pretendard. 예문은 견본용이며 실제 문구는 writing이 정합니다.</p>
+  <p class="note">문장은 둥근 고딕 400 한 굵기, UI·숫자·데이터는 Pretendard. 한국어 UI 자간은 글자 크기의 -2%, 숫자 스타일은 고정폭 숫자(tnum). 예문은 견본용이며 실제 문구는 writing이 정합니다.</p>
   <div class="panel">
     <table class="type" style="width:100%;border-collapse:collapse">
-      <tr><td class="spec">카드 문장 17 / 1.65 / 400</td><td>
+      <tr><td class="spec">type.sentence.card<br>17 / 1.65 (ja 1.75) / 400</td><td>
         <div class="t-card">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요.</div>
         <div class="t-card">Jiyun, the water energy you need comes in today.</div>
-        <div class="t-card" lang="ja">ジユンさんに必要な水の気が入る日です。</div>
       </td></tr>
-      <tr><td class="spec">일반 본문 15 / 1.6 / 400</td><td>
+      <tr><td class="spec">type.sentence.body<br>15 / 1.6 (ja 1.7) / 400</td><td>
         <div class="t-body">미뤄 둔 연락을 하기 좋아요. 오늘 있었던 일을 짧게 적어 보세요.</div>
-        <div class="t-body" lang="ja">先延ばしにしていた連絡をするのに良い日です。</div>
       </td></tr>
-      <tr><td class="spec">화면 제목 20 / 1.3 / 600</td><td><div class="t-title">나의 사주</div><div class="t-title" lang="ja">私の四柱</div></td></tr>
-      <tr><td class="spec">소제목 16 / 1.4 / 600</td><td><div class="t-subtitle">오행 분포</div></td></tr>
-      <tr><td class="spec">라벨·칩·배지 12~14 / 1.3 / 500~600</td><td><div class="t-label">행운 색 · 방향 · 숫자 1 · 6</div></td></tr>
-      <tr><td class="spec">캡션·날짜 11~12 / 1.3 / 500</td><td><div class="t-caption">10월 10일 토요일</div></td></tr>
+      <tr><td class="spec">type.display<br>24 / 1.25 / 600</td><td><div class="t-display">계수(癸水)</div></td></tr>
+      <tr><td class="spec">type.title<br>20 / 1.3 / 600</td><td><div class="t-title">나의 사주</div><div class="t-title" lang="ja">私の四柱</div></td></tr>
+      <tr><td class="spec">type.subtitle<br>16 / 1.4 / 600</td><td><div class="t-subtitle">오행 분포</div></td></tr>
+      <tr><td class="spec">type.label.lg<br>14 / 1.3 / 600</td><td><div class="t-label-lg">일기 쓰기</div></td></tr>
+      <tr><td class="spec">type.label.md<br>13 / 1.3 / 500</td><td><div class="t-label-md">행운 색 · 방향 · 숫자 1 · 6</div></td></tr>
+      <tr><td class="spec">type.caption.md<br>12 / 1.3 / 500</td><td><div class="t-caption-md">10월 10일 토요일</div></td></tr>
+      <tr><td class="spec">type.caption.sm<br>11 / 1.3 / 500</td><td><div class="t-caption-sm">정관 · 편인 · 식신</div></td></tr>
+      <tr><td class="spec">type.numeric.calendar<br>14 / 1.2 / 500 · tnum</td><td><div class="t-numeric-calendar">1 2 3 11 18 21 28 31</div></td></tr>
+      <tr><td class="spec">type.numeric.table<br>13 / 1.3 / 500 · tnum</td><td><div class="t-numeric-table">3 · 13 · 23 · 33 · 2026 · 2036</div></td></tr>
+      <tr><td class="spec">type.hanja.pillar<br>17 / 1.0 / 700</td><td><div class="t-hanja">甲 丙 戊 庚 壬 子 午 卯 酉</div></td></tr>
     </table>
+  </div>
+
+  <h2>일본어 줄 간격</h2>
+  <p class="note">한자·가나가 섞여 빽빽한 일본어는 한국어보다 줄 간격을 넓힙니다(결정 V11). 예문은 임시이며 W1 원어민 검수 문장으로 다시 확인합니다.</p>
+  <div class="pair">
+    <div class="panel">
+      <p class="panel-title">한국어 · 카드 1.65 / 본문 1.6</p>
+      <p class="t-card">오늘은 <span class="term">식신</span>의 기운이 도와요. 서두르기보다 주변을 정리하는 쪽이 마음 편한 날이에요.</p>
+      <p class="t-body">오후는 집중하기 좋은 시간이에요. 중요한 연락은 그 전에 끝내 두면 차분하게 보낼 수 있어요.</p>
+    </div>
+    <div class="panel" lang="ja">
+      <p class="panel-title">日本語 · カード 1.75 / 本文 1.7</p>
+      <p class="t-card">今日は<span class="term">食神</span>の気が味方します。急ぐよりも、身の回りを整えるほうが心地よい日です。</p>
+      <p class="t-body">午後は集中しやすい時間帯です。大事な連絡はその前に済ませておくと、落ち着いて過ごせます。</p>
+    </div>
+  </div>
+
+  <h2>간격과 반경</h2>
+  <p class="note">간격은 4px 기준(2는 미세 조정용), 이름은 px 값(<code>space.*</code>). 반경은 크기 이름(<code>radius.*</code>). 어느 컴포넌트가 어느 값을 쓰는지는 V2에서 정합니다.</p>
+  <div class="pair">
+    <div class="panel">
+      <p class="panel-title">space</p>
+      <div class="spaces">
+        <div><i style="width:2px"></i>2</div><div><i style="width:4px"></i>4</div><div><i style="width:8px"></i>8</div>
+        <div><i style="width:12px"></i>12</div><div><i style="width:16px"></i>16</div><div><i style="width:20px"></i>20</div>
+        <div><i style="width:24px"></i>24</div><div><i style="width:32px"></i>32</div><div><i style="width:48px"></i>48</div>
+      </div>
+    </div>
+    <div class="panel">
+      <p class="panel-title">radius</p>
+      <div class="radii">
+        <div><i style="border-radius:4px"></i>xs 4</div><div><i style="border-radius:8px"></i>sm 8</div>
+        <div><i style="border-radius:12px"></i>md 12</div><div><i style="border-radius:20px"></i>lg 20</div>
+        <div><i style="border-radius:28px"></i>xl 28</div><div><i style="border-radius:9999px;width:72px"></i>full</div>
+      </div>
+    </div>
   </div>
 
   <h2>데일리 카드 L1</h2>
@@ -336,6 +447,23 @@
       strip.appendChild(cell);
     }
     container.append(label, strip);
+  }
+
+  // 캘린더 길흉 예시: g = GOOD, c = CAUTION, 그 밖은 NEUTRAL(채우지 않음). 날짜와 길흉은 예시입니다.
+  const LUCK = 'nngnncnngnnncngnnnnncn';
+  for (const calendar of document.querySelectorAll('[data-calendar]')) {
+    [...LUCK].forEach((level, index) => {
+      const day = document.createElement('div');
+      day.className = 'day' + (level === 'g' ? ' good' : level === 'c' ? ' caution' : '');
+      day.textContent = index + 1;
+      calendar.appendChild(day);
+    });
+    const legend = document.createElement('div');
+    legend.className = 'legend';
+    legend.innerHTML = '<span><i style="background:var(--calendar-good-bg)"></i>좋음</span>'
+      + '<span><i style="box-shadow:inset 0 0 0 1px var(--line)"></i>보통</span>'
+      + '<span><i style="background:var(--calendar-caution-bg)"></i>주의</span>';
+    calendar.appendChild(legend);
   }
 </script>
 </body>

@@ -109,3 +109,35 @@ def test_cli_check_reports_failure(monkeypatch, capsys):
     assert palette.main(["--check"]) == 1
     output = capsys.readouterr().out
     assert "FAIL  1.73  light badge.good" in output
+
+
+V1_ROLES = {
+    "light": {"badge.gwiin.bg": ("coral", 100), "badge.gwiin.fg": ("coral", 700),
+              "badge.gisin.bg": ("neutral", 100), "badge.gisin.fg": ("neutral", 700),
+              "badge.ordinary.border": ("neutral", 300), "badge.ordinary.fg": ("neutral", 700),
+              "calendar.good.bg": ("coral", 100), "calendar.caution.bg": ("neutral", 100)},
+    "dark": {"badge.gwiin.bg": ("coral", 800), "badge.gwiin.fg": ("coral", 200),
+             "badge.gisin.bg": ("neutral", 800), "badge.gisin.fg": ("neutral", 200),
+             "badge.ordinary.border": ("neutral", 700), "badge.ordinary.fg": ("neutral", 400),
+             "calendar.good.bg": ("coral", 900), "calendar.caution.bg": ("neutral", 900)},
+}
+
+
+def test_v1_roles_follow_spec():
+    palette = build_palette()
+    for mode, roles in V1_ROLES.items():
+        for role, (scale, step) in roles.items():
+            assert palette["roles"][mode][role] == palette["brand"][scale][step], (mode, role)
+
+
+def test_contrast_covers_v1_pairs():
+    names = {result.name for result in check_contrast(build_palette())}
+    assert len(names) == 52
+    for mode in ("light", "dark"):
+        assert f"{mode} badge.gwiin" in names
+        assert f"{mode} badge.gisin" in names
+        for background in ("bg.base", "bg.sheet", "gradient[0]", "gradient[1]"):
+            assert f"{mode} badge.ordinary.fg on {background}" in names
+        for text_role in ("text.primary", "text.secondary"):
+            for cell in ("calendar.good.bg", "calendar.caution.bg"):
+                assert f"{mode} {text_role} on {cell}" in names

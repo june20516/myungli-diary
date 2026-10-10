@@ -1,0 +1,258 @@
+{
+  "font": {
+    "family": {
+      "sentence": {
+        "$type": "fontFamily",
+        "$value": [
+          "Gowun Dodum",
+          "Pretendard",
+          "sans-serif"
+        ]
+      },
+      "ui": {
+        "$type": "fontFamily",
+        "$value": [
+          "Pretendard",
+          "sans-serif"
+        ]
+      },
+      "hanja": {
+        "$type": "fontFamily",
+        "$value": [
+          "Pretendard JP",
+          "sans-serif"
+        ]
+      }
+    }
+  },
+  "type": {
+    "sentence": {
+      "card": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.sentence}",
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "fontWeight": 400,
+          "letterSpacing": {
+            "value": 0,
+            "unit": "px"
+          },
+          "lineHeight": 1.65
+        },
+        "$description": "카드 문장"
+      },
+      "body": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.sentence}",
+          "fontSize": {
+            "value": 15,
+            "unit": "px"
+          },
+          "fontWeight": 400,
+          "letterSpacing": {
+            "value": 0,
+            "unit": "px"
+          },
+          "lineHeight": 1.6
+        },
+        "$description": "일반 본문 (일기, 풀이)"
+      }
+    },
+    "display": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.ui}",
+        "fontSize": {
+          "value": 24,
+          "unit": "px"
+        },
+        "fontWeight": 600,
+        "letterSpacing": {
+          "value": -0.48,
+          "unit": "px"
+        },
+        "lineHeight": 1.25
+      },
+      "$description": "큰 제목"
+    },
+    "title": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.ui}",
+        "fontSize": {
+          "value": 20,
+          "unit": "px"
+        },
+        "fontWeight": 600,
+        "letterSpacing": {
+          "value": -0.4,
+          "unit": "px"
+        },
+        "lineHeight": 1.3
+      },
+      "$description": "화면 제목"
+    },
+    "subtitle": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.ui}",
+        "fontSize": {
+          "value": 16,
+          "unit": "px"
+        },
+        "fontWeight": 600,
+        "letterSpacing": {
+          "value": -0.32,
+          "unit": "px"
+        },
+        "lineHeight": 1.4
+      },
+      "$description": "소제목"
+    },
+    "label": {
+      "lg": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.ui}",
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "fontWeight": 600,
+          "letterSpacing": {
+            "value": -0.28,
+            "unit": "px"
+          },
+          "lineHeight": 1.3
+        },
+        "$description": "버튼·탭"
+      },
+      "md": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.ui}",
+          "fontSize": {
+            "value": 13,
+            "unit": "px"
+          },
+          "fontWeight": 500,
+          "letterSpacing": {
+            "value": -0.26,
+            "unit": "px"
+          },
+          "lineHeight": 1.3
+        },
+        "$description": "칩·배지"
+      }
+    },
+    "caption": {
+      "md": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.ui}",
+          "fontSize": {
+            "value": 12,
+            "unit": "px"
+          },
+          "fontWeight": 500,
+          "letterSpacing": {
+            "value": -0.24,
+            "unit": "px"
+          },
+          "lineHeight": 1.3
+        },
+        "$description": "캡션·날짜"
+      },
+      "sm": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.ui}",
+          "fontSize": {
+            "value": 11,
+            "unit": "px"
+          },
+          "fontWeight": 500,
+          "letterSpacing": {
+            "value": -0.22,
+            "unit": "px"
+          },
+          "lineHeight": 1.3
+        },
+        "$description": "원국표 칸 아래 표기"
+      }
+    },
+    "numeric": {
+      "calendar": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.ui}",
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "fontWeight": 500,
+          "letterSpacing": {
+            "value": 0,
+            "unit": "px"
+          },
+          "lineHeight": 1.2
+        },
+        "$description": "캘린더 날짜 (고정폭 숫자)",
+        "$extensions": {
+          "io.github.june20516.myungli-diary": {
+            "fontFeatures": [
+              "tnum"
+            ]
+          }
+        }
+      },
+      "table": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.ui}",
+          "fontSize": {
+            "value": 13,
+            "unit": "px"
+          },
+          "fontWeight": 500,
+          "letterSpacing": {
+            "value": 0,
+            "unit": "px"
+          },
+          "lineHeight": 1.3
+        },
+        "$description": "대운·세운 표의 나이·연도 (고정폭 숫자)",
+        "$extensions": {
+          "io.github.june20516.myungli-diary": {
+            "fontFeatures": [
+              "tnum"
+            ]
+          }
+        }
+      }
+    },
+    "hanja": {
+      "pillar": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.hanja}",
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "letterSpacing": {
+            "value": 0,
+            "unit": "px"
+          },
+          "lineHeight": 1.0
+        },
+        "$description": "원국표 한자"
+      }
+    }
+  }
+}
