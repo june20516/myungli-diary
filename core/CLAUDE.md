@@ -23,19 +23,23 @@
 | 엔진 spec (승인됨, D34) | `core/docs/specs/2026-10-10-myungri-engine-design.md` |
 | 구현 계획 (20 task) | `core/docs/plans/2026-10-10-myungri-engine.md` |
 | 원전 근거 자료 | `core/docs/references/` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (아직 없음, 첫 결정 때 만듦. 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (C1~C5, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34 |
 
-## 현재 상태 (2026-10-10, 지휘 세션 작성)
-* spec 승인 완료, 구현 계획 작성 완료. **구현은 시작 전입니다.**
-* 계획의 실행 방식으로는 **subagent-driven**을 권장합니다. 이유: task 20개가 서로의 인터페이스에 연쇄적으로 기대고, 엔진 오류가 모든 사용자의 결과에 퍼집니다. 사용자에게 확인한 뒤 시작합니다.
+## 현재 상태 (엔진 MVP 완료, 2026-10-10)
+* **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, gRPC 서버(`uv run python -m myungri_engine --port 50051`).
+* **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 30일), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
+* **제공 계약:** `proto/myungri/engine/v1`(v1), `core/message_keys.json`(93개 키), `source_ref` 형식, `ruleset_version` `2026.10.0`.
+* **알려진 한계:**
+  * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
+  * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5, R26).
+  * 1900년 1월 월간 요청은 `OUT_OF_RANGE`입니다(지원 범위가 1900-01-31부터).
+  * 전용 근거 자료가 없는 판정(집중 시간·태그·총운·월간)은 `five_elements#balance_principle`을 근거로 씁니다(R12).
+  * Phase 2로 미룬 것: spec §15(합화, 통관·병약·격국 용신, 목적별 택일, 야자시 옵션, 대운 시각화 데이터, 일기 감성 코멘트).
 
 ## 다음 할 일
-1. 작업 브랜치를 만듭니다: `git switch -c core/engine-mvp --no-track main`
-2. 계획 `core/docs/plans/2026-10-10-myungri-engine.md`를 Task 1부터 실행합니다.
-3. 미리 준비할 것:
-   - **Task 14 전:** `buf` 설치 (`brew install bufbuild/buf/buf`)
-   - **Task 18 전:** 사용자가 공공데이터포털에서 한국천문연구원 API 키를 발급받아야 합니다. 대상은 24절기 정보와 음양력 정보입니다. 키는 `KASI_SERVICE_KEY` 환경 변수로만 쓰고 저장소에 넣지 않습니다.
-4. **Task 14(proto v1) 완료 시:** server가 엔진 대역으로 개발을 시작할 수 있습니다. `docs/coordination/`에 `core-to-server` 보고를 남깁니다.
-5. **전체 완료 시:** 이 파일의 "현재 상태"를 고치고, `core-to-root` 완료 보고를 남깁니다(계획 Task 20).
+1. 이 브랜치(`core/engine-mvp`)를 검토하고 main에 병합합니다(지휘 세션 또는 사용자 판단).
+2. `docs/coordination/2026-10-10-core-to-root-engine-mvp-done.md`에 대한 지휘 세션의 처리(계약 상태·로드맵 갱신)를 확인합니다.
+3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `server-to-core` 요청으로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
+4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.

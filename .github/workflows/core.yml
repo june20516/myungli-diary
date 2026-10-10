@@ -1,0 +1,82 @@
+name: core
+
+on:
+  push:
+    paths: ["core/**", "proto/**", ".github/workflows/core.yml"]
+  pull_request:
+    paths: ["core/**", "proto/**", ".github/workflows/core.yml"]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1" # 매주 월요일 03:00 UTC: slow 테스트
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # slow 테스트는 아래 slow job에서만 돌린다.
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # buf breaking이 main 브랜치를 비교 대상으로 읽는다.
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.3"
+          python-version: "3.13"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run mypy src tools
+      - run: uv run pytest -q -m "not slow"
+      - name: 생성 코드가 proto와 일치하는지 확인
+        run: |
+          bash tools/gen_proto.sh
+          git diff --exit-code src/myungri_engine/_gen
+
+  proto:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # main에 proto/buf.yaml이 아직 없으면(proto를 처음 들이는 PR) breaking 비교 대상이 없어 실패하므로 건너뛴다.
+      - name: main에 proto 설정이 있는지 확인
+        id: main_proto
+        run: |
+          if git cat-file -e origin/main:proto/buf.yaml 2>/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: bufbuild/buf-action@v1.6.0
+        with:
+          version: "1.73.0"
+          input: proto
+          lint: true
+          format: false
+          breaking: ${{ github.event_name == 'pull_request' && steps.main_proto.outputs.exists == 'true' }}
+          breaking_against: ".git#branch=main,subdir=proto"
+          push: false
+          archive: false
+          pr_comment: false
+
+  slow:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.3"
+          python-version: "3.13"
+      - run: uv sync --frozen
+      - run: uv run pytest -q -m slow
