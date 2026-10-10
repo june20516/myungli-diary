@@ -117,3 +117,10 @@ def test_typography_values():
         "type.sentence.card", "type.sentence.body", "type.display", "type.title", "type.subtitle",
         "type.label.lg", "type.label.md", "type.caption.md", "type.caption.sm",
         "type.numeric.calendar", "type.numeric.table", "type.hanja.pillar"}
+
+
+def test_readme_states_version_and_lists_files():
+    readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "계약 버전: 1.0.0" in readme
+    for name in FILES:
+        assert name in readme
