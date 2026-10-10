@@ -26,3 +26,19 @@
       - {lang: ko, slot_purpose: info, text: "조금 쉬어 가도 좋아요..."}
     pass:
       - {lang: ko, slot_purpose: info, text: "조금 쉬어 가도 좋아요."}
+
+- id: style.S3
+  name: 해요체로 맺기 (합니다체 금지)
+  severity: error
+  detect:
+    kind: regex
+    pattern: '(니다|니까)(?=[.?!]|\s|$)'
+    langs: [ko]
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "오늘 맞는 색은 남색입니다."}
+      - {lang: ko, slot_purpose: care, text: "할 일이 많은 날입니다. 무리하지 않는 편이 좋습니다."}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "오늘은 남색이 잘 맞아요."}
+      - {lang: ko, slot_purpose: guide, text: "민지님의 오늘 하루는 어땠나요?"}

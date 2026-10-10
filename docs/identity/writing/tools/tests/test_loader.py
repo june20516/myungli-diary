@@ -27,8 +27,9 @@ def test_load_rules_reads_seed_files() -> None:
     assert rules.slop["slop.P1"].exempt_purposes == frozenset({"care"})
     assert rules.slop["slop.P8"].detect is not None
     assert rules.slop["slop.P8"].detect.langs == frozenset()
-    assert set(rules.limits) == {"limit.L1", "limit.L2", "limit.L3", "limit.L4"}
-    assert set(rules.style) == {"style.S1", "style.S2"}
+    # 라운드 결과로 규칙이 늘어나므로 초기 규칙을 포함하는지만 확인합니다.
+    assert {"limit.L1", "limit.L2", "limit.L3", "limit.L4"} <= set(rules.limits)
+    assert {"style.S1", "style.S2"} <= set(rules.style)
 
 
 def test_load_with_lines_reports_item_start_lines() -> None:

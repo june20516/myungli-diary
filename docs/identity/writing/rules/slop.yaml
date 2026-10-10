@@ -124,3 +124,16 @@
       - {lang: ko, slot_purpose: info, text: "오늘은 좋은 날이에요!"}
     pass:
       - {lang: ko, slot_purpose: info, text: "오늘은 좋은 날이에요."}
+
+- id: slop.P9
+  name: 문어투·기술 어휘
+  judge: llm
+  severity: warn
+  rubric: 말로는 잘 쓰지 않는 문어투 동사("스며드는", "익히기")나 한자어 기술 용어("학습 효율")를 썼는가. 일상에서 말로 쓰는 쉬운 동사·명사(배우기, 잘 맞아요)로 바꿀 수 있으면 해당합니다. 명리 용어 토큰은 대상이 아닙니다.
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "학습 효율이 높은 날이에요."}
+      - {lang: ko, slot_purpose: info, text: "배운 것이 잘 스며드는 날이에요."}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "무언가를 배우기 좋은 날이에요."}

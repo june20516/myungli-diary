@@ -1,0 +1,38 @@
+[
+  {
+    "id": "round-R1",
+    "title": "라운드 R1 — 문장 맺음 (정보·안내·돌봄)",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R1.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W6", "W10"],
+    "status": "chosen",
+    "note": "모든 목적 해요체, 안내는 호칭 + 질문형, 돌봄은 지시하지 않음(후보)"
+  },
+  {
+    "id": "round-R2",
+    "title": "라운드 R2 — 구두점·리듬",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R2.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W7", "W8"],
+    "status": "chosen",
+    "note": "헤드라인은 짧은 한 문장, 정보 카드는 형태를 섞고 같은 화면에서 같은 틀 반복 금지"
+  },
+  {
+    "id": "round-R3",
+    "title": "라운드 R3 — 어휘와 용어 토큰",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R3.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W9"],
+    "status": "chosen",
+    "note": "쉬운 일상어, 토큰 6범주, 화면 최대 2개를 한 문장에"
+  }
+]
