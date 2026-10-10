@@ -104,6 +104,17 @@ class RepoTests(unittest.TestCase):
         self.assertEqual(data["identity"]["concept"], "오늘 일진을 풀어주는 앱")
         self.assertIn("원칙", data["identity"]["sections"])
 
+    def test_collect_screens_reads_object_format(self) -> None:
+        doc = {"version": 1, "tabs": [], "components": [], "screens": [{"id": "today", "title": "오늘"}]}
+        write(self.root, "docs/ia/screens.json", json.dumps(doc))
+        self.assertEqual([s["id"] for s in build_map_data.collect_screens(self.root)], ["today"])
+
+    def test_collect_screens_falls_back_on_malformed(self) -> None:
+        write(self.root, "docs/ia/screens.json", "{")
+        with contextlib.redirect_stderr(io.StringIO()):
+            screens = build_map_data.collect_screens(self.root)
+        self.assertTrue(screens[0]["provisional"])
+
     def test_malformed_index_is_skipped(self) -> None:
         write(self.root, "docs/identity/writing/artifacts/index.json", "{not json")
         write(self.root, "app/docs/artifacts/index.json", json.dumps([{"id": "nofile"}]))
