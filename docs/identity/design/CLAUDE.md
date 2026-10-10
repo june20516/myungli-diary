@@ -28,20 +28,19 @@
 | 컴포넌트 명세 | **제공** | app |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
-## 현재 상태 (2026-10-10, 지휘 세션 작성)
-* **설계 시작 전**입니다.
-* 브랜드 기반 시안은 지휘 세션 로컬(`.suberpowers/brainstorm/`, git 제외)에만 있습니다. V0에서 정식 시안으로 다시 그립니다. 시안 색 값은 README "시각 방향"에 있습니다.
+## 현재 상태 (2026-10-10, design 세션 작성)
+* **V0 시각 정체성 완료** (브랜치 `design/visual-identity`).
+  * 기준 문서: [`visual-identity.md`](visual-identity.md). 시각에 관해서는 06을 대체합니다.
+  * 근거: [V0 spec](specs/2026-10-10-visual-identity-design.md), 결정 V1~V7([`decisions.md`](decisions.md)).
+  * 색 값의 출처: [`tools/palette.py`](tools/palette.py) (`--check`로 대비 검사, 32/32 통과).
+  * 로고 원본: [`logo/`](logo/), 견본: [`specimen/index.html`](specimen/index.html), 시안 기록: [`artifacts/index.json`](artifacts/index.json).
+* 테스트: 저장소 루트에서 `uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q`
+* 워드마크를 다시 만들려면 고운돋움 TTF가 필요합니다(`.suberpowers/fonts/`, 저장소에 넣지 않음). 받는 곳: `https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf`
 
 ## 다음 할 일
-1. 읽을 것:
-   - [`../README.md`](../README.md)와 [브랜드 기반 spec](../../specs/2026-10-10-brand-foundation-design.md) §7·§9
-   - `docs/background/06-design-system.md`
-   - `docs/decisions.md`의 D16, D19, D20, D36, D37
-2. worktree와 브랜치를 만들고 그 안으로 옮겨 세션을 시작합니다. 원래 checkout은 다른 세션이 다른 브랜치로 쓰고 있을 수 있고, 그 브랜치에는 `docs/identity/`가 없을 수 있습니다. 그래서 원래 checkout의 이 디렉터리로 들어가지 않고, 아래 명령을 저장소 루트에서 그대로 실행합니다.
-   ```
-   git fetch origin
-   git worktree add ../myungli-diary-design -b design/visual-identity --no-track origin/main
-   cd ../myungli-diary-design/docs/identity/design && claude
-   ```
-3. brainstorming으로 V0 spec을 작성합니다 → `docs/identity/design/specs/`
-4. 토큰 파일 형식(JSON 등)과 Dart 코드 생성 방식은 app과 요청함으로 합의합니다.
+1. **V1 디자인 토큰 동결**
+   - 토큰 데이터 형식과 Dart 코드 생성 방식을 app과 요청함으로 합의합니다. `palette.py`의 JSON 출력이 출발점입니다.
+   - 날의 성격 배지 나머지 3종(귀인의 날·기신의 날·평범한 날)의 색을 정합니다.
+   - 캘린더 길흉 점(엔진 `LuckLevel` 3단계)의 색 규칙을 정합니다.
+   - 일본어 줄 간격을 실제 문장으로 확인합니다.
+2. **V2 컴포넌트 명세**는 MVP 화면 목록(IA, D39)이 나온 뒤 시작합니다.
