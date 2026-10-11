@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 만세력 표</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/light/style.css">
+<style>
+  .sm { font-family:Pretendard,sans-serif; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(390px,1fr)); gap:16px; }
+  .col { background:#eeeeed; border-radius:28px; padding:16px; color:#2b2b2a; }
+  .col h3 { margin:0 0 4px; font-size:16px; }
+  .col p.desc { margin:0 0 10px; font-size:12.5px; color:#5b5b57; line-height:1.5; min-height:40px; }
+  .mode-bar { font-size:12px; margin-bottom:8px; display:inline-block; }
+  .phone { position:relative; max-width:375px; height:760px; margin:0 auto; border-radius:24px; overflow:hidden; background:var(--bg-base); color:var(--text-1); }
+  .scroll { position:absolute; inset:0; overflow-y:auto; padding:20px 16px 24px; }
+  .light { --bg-base:#f7f7f6; --bg-sheet:#ffffff; --text-1:#2b2b2a; --text-2:#5b5b57; --muted:#8f908b; --line:#dededc; --primary:#47634c; --on-primary:#fff; --term-bg:#e8f2e9; --term-fg:#47634c;
+    --wood-t:#dff1df; --wood-i:#2f5831; --fire-t:#ffe4e0; --fire-i:#733a35; --earth-t:#f7e9d5; --earth-i:#65470f; --metal-t:#e8ebef; --metal-i:#454e58; --water-t:#e0ecfe; --water-i:#304d78; }
+  .dark  { --bg-base:#1b1b1a; --bg-sheet:#2b2b2a; --text-1:#eeeeed; --text-2:#ababa7; --muted:#8f908b; --line:#424340; --primary:#b8cebc; --on-primary:#1b1b1a; --term-bg:#354838; --term-fg:#d4e3d6;
+    --wood-t:#213321; --wood-i:#c4e1c4; --fire-t:#402623; --fire-i:#f7ccc6; --earth-t:#392b16; --earth-i:#ead4b3; --metal-t:#2a2e33; --metal-i:#d3d8de; --water-t:#212e42; --water-i:#c4d9f9; }
+  .ab { display:flex; align-items:center; gap:8px; height:40px; } .ab i { font-size:24px; } .ab .t { font-weight:600; font-size:16px; flex:1; }
+  .seg { display:flex; background:var(--bg-sheet); border:1px solid var(--line); border-radius:9999px; padding:3px; margin:10px 0 16px; }
+  .seg span { flex:1; text-align:center; padding:7px 0; font-size:13px; color:var(--text-2); border-radius:9999px; }
+  .seg span.sel { background:var(--primary); color:var(--on-primary); font-weight:600; }
+  .sec { font-size:13px; font-weight:600; margin:4px 2px 8px; display:flex; align-items:center; gap:6px; }
+  .sec .term { font-weight:500; }
+  .term { background:var(--term-bg); color:var(--term-fg); border-radius:4px; padding:0 4px; }
+  .box { background:var(--bg-sheet); border-radius:20px; padding:12px; margin-bottom:16px; }
+  .hz { font-family:'Pretendard JP',Pretendard,sans-serif; }
+  .mini { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:30px; height:30px; border-radius:6px; background:var(--t); color:var(--i); font-size:15px; font-weight:700; line-height:1; }
+
+  /* A 격자 */
+  .mt { display:grid; grid-template-columns:52px repeat(4,1fr); row-gap:0; font-size:13px; }
+  .mt > div { padding:8px 2px; text-align:center; border-top:1px solid var(--line); }
+  .mt > .rh { text-align:left; color:var(--text-2); font-size:12px; padding-left:2px; }
+  .mt > .top { border-top:0; padding-top:2px; }
+  .mt .sub { display:block; font-size:10.5px; color:var(--text-2); margin-top:2px; }
+  .mt .pair { display:flex; justify-content:center; gap:3px; }
+
+  /* B 기둥 카드 */
+  .pc { display:flex; gap:12px; align-items:flex-start; padding:10px 2px; }
+  .pc + .pc { border-top:1px solid var(--line); }
+  .pc .gz { display:flex; flex-direction:column; gap:3px; align-items:center; width:44px; flex:none; }
+  .pc .gz small { font-size:11px; color:var(--text-2); }
+  .pc dl { margin:0; display:grid; grid-template-columns:56px 1fr; row-gap:4px; font-size:13px; flex:1; }
+  .pc dt { color:var(--text-2); font-size:12px; } .pc dd { margin:0; }
+
+  /* 대운 */
+  .dy { display:flex; gap:6px; overflow-x:auto; padding:8px 4px 4px; margin:0 -4px; }
+  .dc { position:relative; flex:0 0 52px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0 8px; border-radius:12px; }
+  .dc .age { font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .dc .yr { font-size:10.5px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .dc.now, .sc.now { background:var(--term-bg); }
+  .dc.now .age, .dc.now .yr { color:var(--primary); font-weight:700; }
+  .now-tag { font-size:10px; font-weight:700; color:var(--primary); }
+  .sy { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:6px; }
+  .sc { position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0 8px; border-radius:12px; }
+  .sc .yr { font-size:11px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .sc.now .yr { color:var(--primary); font-weight:700; }
+  .note { font-size:11.5px; color:var(--muted); margin-top:8px; }
+</style>
+
+<h2>만세력·대운 탭: 만세력 표 배치 두 가지 + 대운·세운 제안</h2>
+<p class="subtitle">같은 예시 사주. 지장간·12운성은 lunar-python 값, 신살은 엔진을 거치지 않은 예시입니다. 대운 줄은 옆으로 넘겨 보세요.</p>
+
+<div class="sm">
+  <div class="grid">
+    <div class="col"><h3>A. 원국표에 맞춘 격자</h3><p class="desc">네 기둥을 원국표와 같은 열 순서로 두고, 왼쪽 행 머리(지장간·12운성·신살)로 읽습니다. 한눈에 비교됩니다.</p><label class="mode-bar"><input type="checkbox" class="dk"> 다크 모드</label><div class="phone light" data-kind="A"></div></div>
+    <div class="col"><h3>B. 기둥별 묶음</h3><p class="desc">기둥 하나씩 세로로 펼쳐 읽습니다. 좁은 화면에서 글자가 크고 줄바꿈이 없지만, 기둥끼리 비교는 덜 됩니다.</p><label class="mode-bar"><input type="checkbox" class="dk"> 다크 모드</label><div class="phone light" data-kind="B"></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var KO = { '甲':'갑','乙':'을','丙':'병','丁':'정','戊':'무','己':'기','庚':'경','辛':'신','壬':'임','癸':'계','子':'자','丑':'축','寅':'인','卯':'묘','辰':'진','巳':'사','午':'오','未':'미','申':'신','酉':'유','戌':'술','亥':'해' };
+  var WX = { '甲':'wood','乙':'wood','丙':'fire','丁':'fire','戊':'earth','己':'earth','庚':'metal','辛':'metal','壬':'water','癸':'water',
+             '寅':'wood','卯':'wood','巳':'fire','午':'fire','辰':'earth','戌':'earth','丑':'earth','未':'earth','申':'metal','酉':'metal','亥':'water','子':'water' };
+  var SEAL_D = 'M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z';
+  var RING = '<svg viewBox="-1 -1 22 22"><path d="' + SEAL_D + '" transform="rotate(-8 10 10)" vector-effect="non-scaling-stroke" style="fill:none;stroke:var(--primary);stroke-width:1.6"/></svg>';
+  function mini(ch) { var w = WX[ch]; return '<span class="mini hz" style="--t:var(--' + w + '-t);--i:var(--' + w + '-i)">' + ch + '</span>'; }
+  // 시·일·월·연
+  var P = [
+    { h:'시주', g:'庚', z:'辰', hide:['戊','乙','癸'], un:'양', sal:'화개' },
+    { h:'일주', g:'庚', z:'辰', hide:['戊','乙','癸'], un:'양', sal:'화개' },
+    { h:'월주', g:'辛', z:'巳', hide:['丙','庚','戊'], un:'장생', sal:'역마' },
+    { h:'연주', g:'庚', z:'午', hide:['丁','己'], un:'목욕', sal:'도화' }
+  ];
+  var DY = [[4,1993,'庚辰'],[14,2003,'己卯'],[24,2013,'戊寅'],[34,2023,'丁丑'],[44,2033,'丙子'],[54,2043,'乙亥'],[64,2053,'甲戌'],[74,2063,'癸酉'],[84,2073,'壬申']];
+  var SY = [[2023,'癸卯'],[2024,'甲辰'],[2025,'乙巳'],[2026,'丙午'],[2027,'丁未'],[2028,'戊申'],[2029,'己酉'],[2030,'庚戌'],[2031,'辛亥'],[2032,'壬子']];
+  function manseA() {
+    var h = '<div class="mt"><div class="rh top"></div>' + P.map(function (p) { return '<div class="top" style="font-size:12px;color:var(--text-2)">' + p.h + '</div>'; }).join('');
+    h += '<div class="rh top"></div>' + P.map(function (p) { return '<div class="top"><span class="pair">' + mini(p.g) + '</span></div>'; }).join('');
+    h += '<div class="rh top"></div>' + P.map(function (p) { return '<div class="top" style="padding-top:0"><span class="pair">' + mini(p.z) + '</span></div>'; }).join('');
+    h += '<div class="rh"><span class="term">지장간</span></div>' + P.map(function (p) { return '<div><span class="hz">' + p.hide.join(' ') + '</span><span class="sub">' + p.hide.map(function (c) { return KO[c]; }).join(' ') + '</span></div>'; }).join('');
+    h += '<div class="rh"><span class="term">12운성</span></div>' + P.map(function (p) { return '<div>' + p.un + '</div>'; }).join('');
+    h += '<div class="rh"><span class="term">신살</span></div>' + P.map(function (p) { return '<div>' + p.sal + '</div>'; }).join('');
+    return h + '</div>';
+  }
+  function manseB() {
+    return P.map(function (p) {
+      return '<div class="pc"><div class="gz">' + mini(p.g) + mini(p.z) + '<small>' + p.h + '</small></div><dl>' +
+        '<dt><span class="term">지장간</span></dt><dd><span class="hz">' + p.hide.join(' ') + '</span> (' + p.hide.map(function (c) { return KO[c]; }).join('·') + ')</dd>' +
+        '<dt><span class="term">12운성</span></dt><dd>' + p.un + '</dd><dt><span class="term">신살</span></dt><dd>' + p.sal + '</dd></dl></div>';
+    }).join('');
+  }
+  function daeun() {
+    var h = '<div class="sec"><span class="term">대운</span><span style="font-weight:400;color:var(--text-2);font-size:12px">10년마다 바뀌는 큰 흐름</span></div><div class="box"><div class="dy">';
+    h += DY.map(function (d) {
+      var now = d[1] === 2023;
+      return '<div class="dc' + (now ? ' now' : '') + '"><span class="age">' + d[0] + '세</span>' + mini(d[2][0]) + mini(d[2][1]) + '<span class="yr">' + d[1] + '</span>' + (now ? '<span class="now-tag">지금</span>' : '') + '</div>';
+    }).join('');
+    h += '</div></div><div class="sec"><span class="term">세운</span><span style="font-weight:400;color:var(--text-2);font-size:12px">지금 대운(34세~) 안의 해마다 흐름</span></div><div class="box"><div class="sy">';
+    h += SY.map(function (s) {
+      var now = s[0] === 2026;
+      return '<div class="sc' + (now ? ' now' : '') + '"><span class="yr">' + s[0] + '</span>' + mini(s[1][0]) + mini(s[1][1]) + (now ? '<span class="now-tag">올해</span>' : '') + '</div>';
+    }).join('');
+    return h + '</div><div class="note">나이는 한국식 나이(core C22). 지금 대운과 올해는 기둥 바탕을 옅은 sage로 채우고 나이·연도를 sage 굵게 표시합니다.</div></div>';
+  }
+  document.querySelectorAll('.col').forEach(function (col) {
+    var p = col.querySelector('.phone'), k = p.getAttribute('data-kind');
+    p.innerHTML = '<div class="scroll"><div class="ab"><i class="ph-light ph-caret-left"></i><span class="t">사주 표</span></div>' +
+      '<div class="seg"><span>원국·오행</span><span class="sel">만세력·대운</span></div>' +
+      '<div class="sec">만세력 기본 표</div><div class="box">' + (k === 'A' ? manseA() : manseB()) + '</div>' + daeun() + '</div>';
+    col.querySelector('.dk').addEventListener('change', function (e) {
+      p.classList.toggle('dark', e.target.checked); p.classList.toggle('light', !e.target.checked);
+    });
+  });
+})();
+</script>
+
+    </div>
+  </div>
+
+</body>
+</html>

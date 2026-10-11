@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import re
 
-ALLOWED_TYPES = {"color", "dimension", "fontFamily", "typography", "gradient"}
+ALLOWED_TYPES = {"color", "dimension", "fontFamily", "typography", "gradient", "duration", "cubicBezier", "shadow"}
 TYPOGRAPHY_KEYS = ("fontFamily", "fontSize", "fontWeight", "letterSpacing", "lineHeight")
+SHADOW_DIMENSION_KEYS = ("offsetX", "offsetY", "blur", "spread")
 REFERENCE = re.compile(r"^\{([^{}]+)\}$")
 HEX = re.compile(r"^#[0-9a-f]{6}$")
 
@@ -83,6 +84,30 @@ def _dimension_problems(value: object) -> list[str]:
     return problems
 
 
+def _is_number(value: object) -> bool:
+    return not isinstance(value, bool) and isinstance(value, (int, float))
+
+
+def _duration_problems(value: object) -> list[str]:
+    if not isinstance(value, dict):
+        return ["duration 값이 객체가 아님"]
+    problems = []
+    number = value.get("value")
+    if not _is_number(number) or number < 0:
+        problems.append(f"duration value가 0 이상 숫자가 아님: {number!r}")
+    if value.get("unit") not in ("ms", "s"):
+        problems.append(f"duration 단위가 ms·s가 아님: {value.get('unit')!r}")
+    return problems
+
+
+def _cubic_bezier_problems(value: object) -> list[str]:
+    if not isinstance(value, list) or len(value) != 4 or not all(_is_number(item) for item in value):
+        return [f"cubicBezier 값이 숫자 4개가 아님: {value!r}"]
+    if not (0 <= value[0] <= 1 and 0 <= value[2] <= 1):
+        return [f"cubicBezier x1·x2가 0~1이 아님: {value!r}"]
+    return []
+
+
 def _font_family_problems(value: object) -> list[str]:
     if isinstance(value, str) or (isinstance(value, list) and value and all(isinstance(item, str) for item in value)):
         return []
@@ -101,6 +126,22 @@ def _check_value(token_type: str, value: object, references: list[tuple[str, str
         return _dimension_problems(value)
     if token_type == "fontFamily":
         return _font_family_problems(value)
+    if token_type == "duration":
+        return _duration_problems(value)
+    if token_type == "cubicBezier":
+        return _cubic_bezier_problems(value)
+    if token_type == "shadow":
+        if not isinstance(value, dict):
+            return ["shadow 값이 객체가 아님"]
+        problems = [f"shadow에 {key} 없음" for key in ("color",) + SHADOW_DIMENSION_KEYS if key not in value]
+        if "color" in value:
+            problems += [f"color: {problem}" for problem in _check_value("color", value["color"], references, "color")]
+        for key in SHADOW_DIMENSION_KEYS:
+            if key in value:
+                problems += [f"{key}: {problem}" for problem in _check_value("dimension", value[key], references, key)]
+        if "inset" in value and not isinstance(value["inset"], bool):
+            problems.append(f"inset이 bool이 아님: {value['inset']!r}")
+        return problems
     if token_type == "typography":
         if not isinstance(value, dict):
             return ["typography 값이 객체가 아님"]

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 공유 이미지</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
+<style>
+  .sh { font-family:Pretendard,sans-serif; --text-1:#2b2b2a; --text-2:#5b5b57; --term-bg:#e8f2e9; --term-fg:#47634c; --chip-bg:rgba(255,255,255,.70); --badge-good-bg:#a75c53; }
+  .bar { display:flex; gap:16px; align-items:center; margin:4px 0 16px; font-size:14px; color:#d4d4d2; }
+  .row { display:flex; gap:24px; align-items:flex-end; flex-wrap:wrap; }
+  .opt { display:flex; flex-direction:column; gap:8px; }
+  .opt h3 { margin:0; font-size:15px; color:#eeeeed; }
+  .opt p { margin:0 0 6px; font-size:12.5px; color:#ababa7; max-width:300px; line-height:1.5; }
+  .img { position:relative; width:var(--w); height:var(--h); border-radius:14px; overflow:hidden; background:linear-gradient(160deg,#eef4ef,#fbefee); color:var(--text-1);
+         display:flex; flex-direction:column; padding:var(--pad); box-sizing:border-box; box-shadow:0 8px 28px rgba(0,0,0,.35); }
+  .date { font-size:13px; color:var(--text-2); }
+  .badge { align-self:flex-start; margin-top:10px; background:var(--badge-good-bg); color:#fff; border-radius:9999px; padding:4px 11px; font-size:12px; font-weight:500; }
+  .reason { font-size:12px; color:var(--text-2); margin-top:6px; }
+  .sent { font-family:'Gowun Dodum',sans-serif; font-size:var(--fs); line-height:1.65; margin-top:14px; }
+  .sent p { margin:0 0 6px; color:var(--text-1); font-size:var(--fs); line-height:1.65; }
+  .term { background:var(--term-bg); color:var(--term-fg); border-radius:4px; padding:0 4px; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+  .chip { display:inline-flex; align-items:center; gap:5px; background:var(--chip-bg); border-radius:9999px; padding:5px 10px; font-size:11.5px; font-weight:500; }
+  .chip i { font-size:13px; color:var(--text-2); }
+  .sw { width:11px; height:11px; border-radius:3px; background:#418e47; box-shadow:inset 0 0 0 1px rgba(43,43,42,.18); }
+  .sp { flex:1; }
+  .foot { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .foot img { height:var(--logo); }
+  .foot small { font-size:10.5px; color:var(--text-2); }
+  .no-name .name { display:none; }
+</style>
+
+<h2>공유 이미지(share-image): 비율과 담을 내용</h2>
+<p class="subtitle">세 이미지 모두 라이트 고정(V5), 오늘 화면(L1)과 같은 그라데이션·문장·칩, 아래에 로고 조합(앱 이름). 비율만 다릅니다. 실제 크기의 약 1/3로 줄여 보여 드립니다.</p>
+
+<div class="sh">
+  <div class="bar"><label><input type="checkbox" id="nm" checked> 호칭("하늘님") 넣기</label></div>
+  <div class="row" id="row">
+    <div class="opt"><h3>A. 9:16 스토리</h3><p>인스타그램·카카오톡 스토리 전체 화면. 문장 전체와 칩이 여유 있게 들어갑니다.</p>
+      <div class="img" style="--w:270px;--h:480px;--pad:30px 24px 24px;--fs:16px;--logo:30px">
+        <div class="date">2026년 10월 11일 토요일</div><div class="badge">좋은 날</div><div class="reason">용신인 나무의 기운이 들어오는 날이에요</div>
+        <div class="sent"><p><span class="name">하늘님, </span>오늘은 마음 가는 일부터 천천히 시작해도 좋은 날이에요.</p><p>내 사주의 <span class="term">용신</span>인 나무가 힘을 보태 주니, 미뤄 둔 연락을 하나 해 보세요.</p></div>
+        <div class="chips"><span class="chip"><span class="sw"></span>초록</span><span class="chip"><i class="ph ph-compass"></i>동쪽</span><span class="chip"><i class="ph ph-hash"></i>3·8</span><span class="chip"><i class="ph ph-hourglass-simple"></i>오전 9–11시</span></div>
+        <div class="sp"></div><div class="foot"><img src="../logo/lockup.svg" alt="명리일기"><small>나만의 일진 일기</small></div>
+      </div></div>
+    <div class="opt"><h3>B. 4:5 피드</h3><p>인스타그램 피드에 가장 크게 보이는 세로 비율. 문장 두 줄과 칩까지 들어갑니다.</p>
+      <div class="img" style="--w:300px;--h:375px;--pad:24px 22px 20px;--fs:15px;--logo:26px">
+        <div class="date">2026년 10월 11일 토요일</div><div class="badge">좋은 날</div>
+        <div class="sent"><p><span class="name">하늘님, </span>오늘은 마음 가는 일부터 천천히 시작해도 좋은 날이에요.</p><p>내 사주의 <span class="term">용신</span>인 나무가 힘을 보태 주니, 미뤄 둔 연락을 하나 해 보세요.</p></div>
+        <div class="chips"><span class="chip"><span class="sw"></span>초록</span><span class="chip"><i class="ph ph-compass"></i>동쪽</span><span class="chip"><i class="ph ph-hash"></i>3·8</span></div>
+        <div class="sp"></div><div class="foot"><img src="../logo/lockup.svg" alt="명리일기"><small>나만의 일진 일기</small></div>
+      </div></div>
+    <div class="opt"><h3>C. 1:1 정사각</h3><p>어디에 올려도 잘리지 않는 비율. 첫 문장과 칩만 남기고 나머지는 덜어 냅니다.</p>
+      <div class="img" style="--w:320px;--h:320px;--pad:22px 22px 18px;--fs:15px;--logo:24px">
+        <div class="date">2026년 10월 11일 토요일</div><div class="badge">좋은 날</div>
+        <div class="sent"><p><span class="name">하늘님, </span>오늘은 마음 가는 일부터 천천히 시작해도 좋은 날이에요.</p></div>
+        <div class="chips"><span class="chip"><span class="sw"></span>초록</span><span class="chip"><i class="ph ph-compass"></i>동쪽</span><span class="chip"><i class="ph ph-hash"></i>3·8</span></div>
+        <div class="sp"></div><div class="foot"><img src="../logo/lockup.svg" alt="명리일기"><small>나만의 일진 일기</small></div>
+      </div></div>
+  </div>
+</div>
+
+<script>
+document.getElementById('nm').addEventListener('change', function (e) {
+  document.getElementById('row').classList.toggle('no-name', !e.target.checked);
+});
+</script>
+
+    </div>
+  </div>
+
+</body>
+</html>

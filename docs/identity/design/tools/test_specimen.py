@@ -54,3 +54,25 @@ def test_specimen_references_existing_logos():
     assert sources
     for source in sources:
         assert (DESIGN_DIR / "logo" / source).exists(), source
+
+
+# V2 spec §8
+def test_specimen_has_v2_section():
+    html = SPECIMEN.read_text(encoding="utf-8")
+    assert 'id="v2-elements"' in html
+    for element in ("seal-fill", "seal-soft", "seal-outline", "tag-good", "tag-bad", "tag-neutral", "status-tag",
+                    "caution-mark"):
+        assert f'data-element="{element}"' in html, element
+    assert "../components/README.md" in html
+
+
+def test_specimen_has_motion_samples():
+    html = SPECIMEN.read_text(encoding="utf-8")
+    for pattern in ("appear.seep", "select.seep-slide", "loading.breathe", "seal.stamp", "mark.underline-grow", "press.ink"):
+        assert f'data-pattern="{pattern}"' in html, pattern
+    assert "prefers-reduced-motion" in html
+
+
+def test_specimen_seal_uses_logo_path():
+    html = SPECIMEN.read_text(encoding="utf-8")
+    assert "M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" in html

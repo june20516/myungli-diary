@@ -1,0 +1,158 @@
+{
+  "version": "1.0.0",
+  "elements": {
+    "seal": {
+      "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
+      "path": "M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z",
+      "viewBox": [0, 0, 20, 20],
+      "rotate": -8,
+      "contentAlign": "center",
+      "variants": {
+        "fill": { "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "knockUse": "날짜 숫자를 가는 양각으로 새김, 아이콘은 knock 대신 color.action.on-primary" },
+        "soft": { "color": "{color.seal.soft}", "contentColor": "{color.text.primary}" },
+        "outline": { "color": "{color.seal.fill}", "width": { "value": 1.6, "unit": "px" } }
+      },
+      "sizes": [
+        { "size": { "value": 26, "unit": "px" }, "where": ["day-cell"] },
+        { "size": { "value": 34, "unit": "px" }, "where": ["tab-bar", "reaction-button", "diary-row"] },
+        { "size": { "value": 52, "unit": "px" }, "where": ["guide-question-card"] },
+        { "size": { "value": 64, "unit": "px" }, "where": ["diary-editor"] }
+      ],
+      "uses": ["seal.stamp", "seal.erase"],
+      "overlap": "겹치는 반투명 도장·길흉 바탕을 섞어 그대로 보임(빼기 처리 없음)"
+    },
+    "ohaeng.cell": {
+      "summary": "오행 칸: 오행 바탕 + 오행 글자",
+      "radius": "{radius.sm}",
+      "byElement": {
+        "wood": { "bg": "{color.ohaeng.wood.bg}", "fg": "{color.ohaeng.wood.fg}" },
+        "fire": { "bg": "{color.ohaeng.fire.bg}", "fg": "{color.ohaeng.fire.fg}" },
+        "earth": { "bg": "{color.ohaeng.earth.bg}", "fg": "{color.ohaeng.earth.fg}" },
+        "metal": { "bg": "{color.ohaeng.metal.bg}", "fg": "{color.ohaeng.metal.fg}" },
+        "water": { "bg": "{color.ohaeng.water.bg}", "fg": "{color.ohaeng.water.fg}" }
+      },
+      "sizes": {
+        "pillar": { "height": { "value": 66, "unit": "px" }, "hanja": "{type.hanja.pillar}", "reading": "{type.caption.sm}" },
+        "mini": { "width": { "value": 30, "unit": "px" }, "height": { "value": 30, "unit": "px" }, "hanjaSize": { "value": 15, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}" }
+      },
+      "textScaleMax": 1.3
+    },
+    "ohaeng.swatch": {
+      "summary": "오행 견본: 색 자체를 보여 주는 자리",
+      "byElement": {
+        "wood": "{color.ohaeng.wood.swatch}",
+        "fire": "{color.ohaeng.fire.swatch}",
+        "earth": "{color.ohaeng.earth.swatch}",
+        "metal": "{color.ohaeng.metal.swatch}",
+        "water": "{color.ohaeng.water.swatch}"
+      },
+      "border": { "color": "{color.swatch.border}", "width": { "value": 1, "unit": "px" } }
+    },
+    "tone": {
+      "summary": "길흉 톤: 배지·태그 칩·달력 칸이 같은 매핑을 씀 (결정 V8·V10)",
+      "good": {
+        "meaning": "좋음·귀인 (coral 계열)",
+        "tag": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" },
+        "calendarFill": "{color.calendar.good.bg}",
+        "badges": ["{color.badge.good.bg}", "{color.badge.gwiin.bg}"]
+      },
+      "bad": {
+        "meaning": "나쁨 (neutral 채움)",
+        "tag": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" },
+        "calendarFill": "{color.calendar.caution.bg}",
+        "badges": ["{color.badge.gisin.bg}"]
+      },
+      "neutral": {
+        "meaning": "중립·평범 (테두리만)",
+        "tag": { "border": "{color.tag.neutral.border}", "fg": "{color.tag.neutral.fg}" },
+        "calendarFill": null,
+        "badges": ["{color.badge.ordinary.border}"]
+      },
+      "a11y": "색만으로 전하지 않음: 스크린리더 라벨에 길흉 낱말을 넣음"
+    },
+    "tag.status": {
+      "summary": "상태 꼬리표: 옅은 sage 알약 (진행 중·다음·지금·올해)",
+      "bg": "{color.status.bg}",
+      "fg": "{color.status.fg}",
+      "type": "{type.label.md}",
+      "radius": "{radius.full}",
+      "padding": { "x": { "value": 8, "unit": "px" }, "y": { "value": 2, "unit": "px" } }
+    },
+    "tag.me": {
+      "summary": "'나' 꼬리표: 내가 해당하는 칸 표시",
+      "bg": "{color.action.primary}",
+      "fg": "{color.action.on-primary}",
+      "fontSize": { "value": 10, "unit": "px" },
+      "fontWeight": 700,
+      "fontFamily": "{font.family.ui}",
+      "radius": "{radius.full}",
+      "position": "top-end-corner-overlap",
+      "clippedByCell": false
+    },
+    "highlight.current": {
+      "summary": "현재 강조: 기둥·칸 바탕 옅은 sage + 글자 sage 굵게",
+      "bg": "{color.status.bg}",
+      "fg": "{color.action.primary}",
+      "fontWeight": 700,
+      "outlineSeal": false
+    },
+    "mark.underline-grow": {
+      "summary": "펼침 밑줄: 숫자 아래 둥근 막대",
+      "color": "{color.action.primary}",
+      "width": { "value": 14, "unit": "px" },
+      "height": { "value": 2, "unit": "px" },
+      "radius": "{radius.full}",
+      "gap": { "value": 2, "unit": "px" },
+      "uses": ["mark.underline-grow"]
+    },
+    "mark.caution": {
+      "summary": "경고 표시: 되돌릴 수 없는 동작. 빨간색 없음 (결정 V18)",
+      "icon": { "set": "phosphor", "name": "warning-circle", "weight": "fill" },
+      "color": "inherit-text",
+      "size": "cap-height-of-text",
+      "placement": "before-text-inline"
+    },
+    "link.inline-nowrap": {
+      "summary": "끊기지 않는 링크: 문장 끝 링크를 한 덩어리로",
+      "wrap": "whole-unit",
+      "joiners": ["U+00A0", "U+2060"],
+      "a11y": { "separateFocus": true, "role": "link" }
+    },
+    "surface.paper": {
+      "summary": "종이: 일기 쓰기·보기",
+      "bg": "{color.bg.sheet}",
+      "radius": "{radius.lg}",
+      "padding": "{space.16}",
+      "sealReserve": { "size": { "value": 64, "unit": "px" }, "gap": "{space.12}", "align": "bottom-end", "alwaysReserved": true }
+    },
+    "rail.timeline": {
+      "summary": "세로 흐름 줄: 일기 목록 날짜 축",
+      "color": "{color.timeline.line}",
+      "width": { "value": 1.5, "unit": "px" },
+      "position": "date-column-center",
+      "span": "요일 아래에서 다음 날짜까지"
+    },
+    "term": {
+      "summary": "용어 표시 (굵게 하지 않음, 결정 V0)",
+      "bg": "{color.term.bg}",
+      "fg": "{color.term.fg}",
+      "radius": "{radius.xs}",
+      "fontWeight": "inherit",
+      "padding": { "x": { "value": 3, "unit": "px" } }
+    },
+    "skeleton.bone": {
+      "summary": "skeleton 자리: 실제 요소와 같은 크기·반경",
+      "color": "{color.skeleton.bone}",
+      "shape": "same-as-content",
+      "uses": ["loading.breathe"]
+    },
+    "icon": {
+      "summary": "아이콘: Phosphor (결정 V15)",
+      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_flutter" },
+      "weights": { "default": "light", "selected": "regular", "caution": "fill" },
+      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)"],
+      "sizes": { "tab": { "value": 24, "unit": "px" }, "bar": { "value": 24, "unit": "px" }, "inline": { "value": 16, "unit": "px" }, "state": { "value": 28, "unit": "px" } },
+      "custom": "세트에 없는 것(오행·절기·시간 모름 등)만 Phosphor 24 격자와 획 규칙으로 직접 그림"
+    }
+  }
+}

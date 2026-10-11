@@ -11,7 +11,7 @@ TOOLS_DIR = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 import palette  # noqa: E402
-from palette import build_palette, check_contrast, contrast_ratio, oklch_to_hex  # noqa: E402
+from palette import _text_pairs, build_palette, check_contrast, composite, contrast_ratio, oklch_to_hex  # noqa: E402
 
 PALETTE_PY = str(TOOLS_DIR / "palette.py")
 
@@ -132,7 +132,7 @@ def test_v1_roles_follow_spec():
 
 def test_contrast_covers_v1_pairs():
     names = {result.name for result in check_contrast(build_palette())}
-    assert len(names) == 52
+    assert len(names) == 52 + 26 + 8  # V1 52개 + V2 모드당 13개 + 옅은 도장 위 sage 글자 모드당 4개
     for mode in ("light", "dark"):
         assert f"{mode} badge.gwiin" in names
         assert f"{mode} badge.gisin" in names
@@ -141,3 +141,50 @@ def test_contrast_covers_v1_pairs():
         for text_role in ("text.primary", "text.secondary"):
             for cell in ("calendar.good.bg", "calendar.caution.bg"):
                 assert f"{mode} {text_role} on {cell}" in names
+
+
+# V2 spec(2026-10-11-components-design.md) §5.3
+def test_v2_roles_follow_spec():
+    built = build_palette()
+    roles, neutral = built["roles"], built["brand"]["neutral"]
+    assert roles["light"]["disabled.fg"] == neutral[600] and roles["dark"]["disabled.fg"] == neutral[500]
+    assert roles["light"]["inverse.bg"] == neutral[900] and roles["dark"]["inverse.bg"] == neutral[100]
+    assert roles["light"]["tag.good.bg"] == roles["light"]["badge.gwiin.bg"]
+
+
+def test_composite():
+    assert composite("#000000", 0.5, "#ffffff") == "#808080"
+    assert composite("#47634c", 0.0, "#ffe9e5") == "#ffe9e5"
+
+
+def test_contrast_covers_v2_pairs():
+    names = {name for name, _, _ in _text_pairs(build_palette())}
+    for mode in ("light", "dark"):
+        for pair in ("tag.good", "tag.bad", "inverse", "seal.knock on seal.fill", "status",
+                     "calendar.weekday.sun on bg.base", "calendar.weekday.sat on bg.base"):
+            assert f"{mode} {pair}" in names
+        for cell in ("bg.base", "calendar.good.bg", "calendar.caution.bg"):
+            assert f"{mode} text.primary on seal.soft over {cell}" in names
+        assert f"{mode} tag.neutral.fg on bg.sheet" in names
+
+
+def test_seal_soft_composite_pairs_pass():
+    results = {result.name: result for result in check_contrast(build_palette())}
+    soft = [result for name, result in results.items() if "seal.soft over" in name]
+    assert len(soft) == 6 + 8 and all(result.passed for result in soft)
+
+
+def test_sage_text_on_soft_seal_uses_on_soft_role():
+    palette = build_palette()
+    roles, sage = palette["roles"], palette["brand"]["sage"]
+    assert roles["light"]["seal.on-soft"] == sage[800] and roles["dark"]["seal.on-soft"] == sage[200]
+    names = {name for name, _, _ in _text_pairs(palette)}
+    for mode in ("light", "dark"):
+        for cell in ("bg.base", "bg.sheet", "calendar.good.bg", "calendar.caution.bg"):
+            assert f"{mode} seal.on-soft on seal.soft over {cell}" in names
+
+
+def test_disabled_pair_uses_three_to_one():
+    results = {result.name: result for result in check_contrast(build_palette())}
+    assert results["light disabled"].passed and results["dark disabled"].passed
+    assert results["light disabled"].ratio >= 3.0

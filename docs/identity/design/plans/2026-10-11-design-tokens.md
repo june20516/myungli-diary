@@ -2,7 +2,7 @@
 
 > **agentic worker에게:** REQUIRED SUB-SKILL: 이 plan을 task 단위로 구현하려면 suberpower:subagent-driven-development(권장) 또는 suberpower:executing-plans를 사용하세요. Step은 추적을 위해 checkbox(`- [ ]`) 문법을 사용합니다.
 
-**Goal:** V0 값과 V1 새 값(배지 3종, 캘린더 칸 채우기, 타이포 추가, 간격·반경)을 DTCG 토큰 파일 다섯 개로 생성해 계약 1.0.0으로 동결합니다.
+**Goal:** V0 값과 V1 새 값(배지 3종, 캘린더 칸 채우기, 타이포 추가, 간격·반경)을 DTCG 토큰 파일 다섯 개로 생성해 계약 1.0.0으로 freeze합니다.
 
 **Architecture:**
 * `palette.py`가 색의 단일 출처입니다. 이번에 새 역할과 대비 조합을 더합니다.
@@ -489,7 +489,7 @@ Expected: 전부 통과, `52/52`.
   - 길흉은 칸 채우기이고, `NEUTRAL`은 토큰이 없다는 것
 - **root 앞 report:**
   - 완료 보고
-  - 계약 목록의 디자인 토큰 상태를 "동결 1.0.0"으로 바꿔 달라는 요청
+  - 계약 목록의 디자인 토큰 상태를 "freeze 1.0.0"으로 바꿔 달라는 요청
   - 길흉 표시가 점에서 칸 채우기로 바뀐 것: 엔진 spec §8과 `app/CLAUDE.md`의 "길흉 점" 표기
   - 결정 V8 요약
   - PR 번호(병합 전이면 브랜치 이름)

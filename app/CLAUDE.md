@@ -23,7 +23,7 @@
 * **캘린더:** 월간 길흉(날짜 칸 채우기, design 결정 V10), 음력 날짜, 절기 (04 §4.4, D18-⑧). 기본 일정(제목·날짜·종일 또는 시간·메모, D47③). 다른 날 전체 풀이는 없고 그날 성격 한 줄만 (D47⑥)
 * **일기:** 텍스트 작성, 작성 전 가이드 질문, 저장 후 해시태그 칩 (04 §4.3, D22, 06 §4). 하루 1편, 지난 날 쓰기 가능 (D49). 태그를 누르면 같은 태그의 일기 목록 (D47①). 오프라인은 로컬 초안만 (D47②)
 * **공유:** 오늘 카드 이미지 공유, 로그인 필요 (D47④). 일기는 공유하지 않습니다
-* **수익 (D53·D54):** 탭 루트 4곳 하단 적응형 배너 광고(AdMob 기본안), 광고 동의(iOS ATT, 필요한 지역 UMP)는 이 기기에서 처음 광고를 보이기 전에, 1개월 광고 제거권 인앱결제(자동 갱신 없음, 잠정 ₩2,500, RevenueCat 기본안)와 구매 복원
+* **수익 (D53·D54):** 탭 루트 4곳 하단 적응형 배너 광고(AdMob 기본안), 광고 동의(iOS ATT, 필요한 지역 UMP)는 이 기기에서 처음 광고를 보이기 전에, 1개월 광고 제거권 인앱결제(자동 갱신 없음, 잠정 ₩2,500, RevenueCat 기본안)와 구매 복원. 근거 시트의 잠금 안내와 보상형 광고(D60): 사용자가 고를 때만, 매번 보상 고지 후, 광고가 준비됐을 때만 버튼을 켬. SSV `userId`로 계정을 넘기고 server 권한을 받아 엶
 * **알림 수신:** 아침 운세 (D18-⑨)
 * **안내 문구:** 엔진 notice를 안내 문구로 보여줍니다. 예: 자시 출생 계산 기준(D6), 시간 모름, 절입 전후 출생. 계산 기준 안내에 "동경 127.5° 기준 -30분 보정, 진태양시 미적용"을 넣습니다 (D42, 우선순위 낮음)
 * **다국어:** 한국어·영어·일본어. UI 문자열은 ARB로 관리하고, 콘텐츠 문장은 서버가 렌더해 줍니다. app은 문장을 고르거나 조사를 붙이지 않고, 받은 그날 응답을 캐시해 오프라인에 보입니다 (D27·D28·D59). ARB 메시지 이름은 lowerCamelCase Dart 식별자이며, writing `slots/ui/`와 검사기 `mlw check-arb`가 이 규약을 전제합니다. A1에서 어긋나면 요청함으로 알립니다
@@ -39,22 +39,23 @@
 | --- | --- | --- |
 | REST API v1 (server 설계 후 `docs/contracts/README.md`에 등록) | **사용** | server |
 | `source_ref`·enum 값 (엔진 spec §9·§11, server가 그대로 전달) | **사용** (`evidence` 단계 표시) | core → server |
-| 디자인 토큰 1.0.0 (`docs/identity/design/tokens/`, Dart 코드 생성은 app) | **사용** | design |
+| 디자인 토큰 1.1.0 (`docs/identity/design/tokens/`, Dart 코드 생성은 app) | **사용** | design |
+| 컴포넌트 명세 1.0.0 (`docs/identity/design/components/`) | **사용** | design |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 
 ## 현재 상태 (2026-10-11, 지휘 세션 작성)
 * **설계(A1) 착수 가능**입니다. 디렉터리는 비어 있습니다. 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * REST API가 아직 없습니다. 설계와 화면 구현은 대역(mock) 데이터로 시작할 수 있습니다. 대역의 형태는 엔진 spec §9의 응답 구조를 참고합니다.
-* 받은 notice: Issue #19(디자인 토큰 1.0.0), A1 착수 안내 Issue(마일스톤 A1). 앞으로 받은 요청은 `gh issue list --label to:app`.
-* UI 구현은 design V2(컴포넌트 명세) 이후입니다. 설계와 화면 흐름·상태 관리는 지금 시작할 수 있습니다.
+* 받은 notice: Issue #19(디자인 토큰 1.0.0), Issue #44(컴포넌트 명세 1.0.0·토큰 1.1.0), A1 착수 안내 Issue(마일스톤 A1). 앞으로 받은 요청은 `gh issue list --label to:app`.
+* design V2(컴포넌트 명세)가 끝나 UI 구현까지 시작할 수 있습니다. 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
 1. 읽을 것:
    - `docs/identity/README.md` (정체성 기준, 06보다 우선)
-   - `docs/ia/README.md`와 `docs/ia/screens.json` (화면 34개, 상태·경로·인증 갈래)
+   - `docs/ia/README.md`와 `docs/ia/screens.json` (화면 35개, 상태·경로·인증 갈래)
    - IA spec `docs/specs/2026-10-11-ia-design.md` §3·§10
    - `docs/background/` 00~06, 특히 03·04·06
-   - `docs/decisions.md` (특히 D47~D59)
+   - `docs/decisions.md` (특히 D47~D60)
    - 엔진 spec §7~§9 (화면에 보일 데이터)
 2. worktree와 브랜치를 만들고 그 안에서 세션을 시작합니다. 원래 checkout은 다른 세션이 쓰고 있을 수 있으므로, 저장소 루트에서 그대로 실행합니다.
    ```
@@ -64,5 +65,5 @@
    ```
 3. brainstorming으로 app spec을 작성합니다 → `app/docs/specs/`
    - 상태 관리(Provider / Riverpod)는 app 내부 결정(`A<n>`)입니다.
-   - 디자인 토큰은 계약 1.0.0으로 freeze됐습니다(`docs/identity/design/tokens/README.md`, Issue #19). 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).
+   - 디자인 토큰은 계약 1.1.0(`docs/identity/design/tokens/README.md`), 컴포넌트는 명세 1.0.0(`docs/identity/design/components/README.md`, Issue #44)입니다. 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).
    - 광고·인앱결제 SDK 선택(AdMob, RevenueCat 기본안)은 app spec에서 확정합니다. 계정 준비는 사용자 몫입니다(`docs/roadmap.md` 외부 준비물).

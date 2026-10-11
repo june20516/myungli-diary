@@ -1069,7 +1069,7 @@
       "tab": "today",
       "presentation": "full-sheet",
       "auth": "member",
-      "purpose": "evidence 깊이로 판정 근거와 원전을 보여줍니다. 모든 화면이 함께 씁니다",
+      "purpose": "evidence 깊이로 판정 근거·원전과 원국 개인 해석(\"내 사주에서는\")을 보여줍니다. 근거·해석 열람 권한이 없으면 잠금 안내를 보입니다(D60). 모든 화면이 함께 씁니다",
       "depths": [
         "evidence"
       ],
@@ -1093,17 +1093,58 @@
           "id": "evidence-sheet.source.quote",
           "source": "content",
           "role": "원전 인용"
+        },
+        {
+          "id": "evidence-sheet.personal.body",
+          "source": "content",
+          "role": "원국 개인 해석(\"내 사주에서는\"). 사주 표·만세력·대운 표의 용어에서 열었을 때"
+        },
+        {
+          "id": "evidence-sheet.lock.head",
+          "source": "ui",
+          "role": "근거와 해석이 잠겨 있다는 안내"
+        },
+        {
+          "id": "evidence-sheet.lock.reward",
+          "source": "ui",
+          "role": "보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)"
+        },
+        {
+          "id": "evidence-sheet.lock.cta",
+          "source": "ui",
+          "role": "광고 보고 열기 버튼"
+        },
+        {
+          "id": "evidence-sheet.lock.pass",
+          "source": "ui",
+          "role": "광고 제거권으로도 열린다는 안내와 링크"
+        },
+        {
+          "id": "evidence-sheet.lock.unavailable",
+          "source": "ui",
+          "role": "지금 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)"
         }
       ],
       "components": [
         "sheet",
         "sentence-block",
-        "saju-pillars"
+        "saju-pillars",
+        "primary-button"
       ],
-      "exits": [],
+      "exits": [
+        {
+          "to": "system-rewarded-ad",
+          "trigger": "광고 보고 열기"
+        },
+        {
+          "to": "ad-free",
+          "trigger": "광고 제거권 안내"
+        }
+      ],
       "decisions": [
         "D37",
-        "D39"
+        "D39",
+        "D60"
       ]
     },
     {
@@ -1738,7 +1779,7 @@
         {
           "id": "saju-chart.yongsin.basis",
           "source": "content",
-          "role": "용신 판정 근거"
+          "role": "용신 판정 근거. 근거·해석 열람 권한이 없으면 잠김 표시(D60)"
         },
         {
           "id": "saju-chart.time-unknown.notice",
@@ -1760,12 +1801,17 @@
         {
           "to": "explain-sheet",
           "trigger": "용어 토큰"
+        },
+        {
+          "to": "evidence-sheet",
+          "trigger": "잠긴 근거 열기"
         }
       ],
       "decisions": [
         "D16",
         "D18",
-        "D39"
+        "D39",
+        "D60"
       ]
     },
     {
@@ -1872,7 +1918,7 @@
         {
           "id": "ad-free.offer.head",
           "source": "ui",
-          "role": "광고 제거권이 주는 것 한 줄"
+          "role": "광고 제거권이 주는 것 한 줄(배너 제거, 근거·해석 열림, D60)"
         },
         {
           "id": "ad-free.offer.price",
@@ -1911,7 +1957,8 @@
         }
       ],
       "decisions": [
-        "D53"
+        "D53",
+        "D60"
       ]
     },
     {
@@ -1933,6 +1980,27 @@
       ],
       "decisions": [
         "D53"
+      ]
+    },
+    {
+      "id": "system-rewarded-ad",
+      "title": "보상형 광고",
+      "tab": null,
+      "presentation": "system",
+      "auth": "member",
+      "purpose": "AdMob 보상형 광고 전면 재생입니다. 끝까지 보면 server가 확인(SSV)한 뒤 오늘 자정까지 근거·해석이 열립니다. 닫으면 아무것도 바뀌지 않습니다",
+      "depths": [],
+      "states": [],
+      "slots": [],
+      "components": [],
+      "exits": [
+        {
+          "to": "evidence-sheet",
+          "trigger": "시청 완료 또는 닫기"
+        }
+      ],
+      "decisions": [
+        "D60"
       ]
     },
     {

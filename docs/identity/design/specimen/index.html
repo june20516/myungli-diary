@@ -51,6 +51,19 @@
     --role-light-badge-ordinary-fg: var(--neutral-700); --role-dark-badge-ordinary-fg: var(--neutral-400);
     --role-light-calendar-good-bg: var(--coral-100); --role-dark-calendar-good-bg: var(--coral-900);
     --role-light-calendar-caution-bg: var(--neutral-100); --role-dark-calendar-caution-bg: var(--neutral-900);
+    /* V2 역할 (V2 spec §5.3) */
+    --role-light-inverse-bg: var(--neutral-900); --role-dark-inverse-bg: var(--neutral-100);
+    --role-light-inverse-fg: var(--neutral-100); --role-dark-inverse-fg: var(--neutral-900);
+    --role-light-disabled-bg: var(--neutral-100); --role-dark-disabled-bg: var(--neutral-800);
+    --role-light-disabled-fg: var(--neutral-600); --role-dark-disabled-fg: var(--neutral-500);
+    --role-light-seal-knock: var(--sage-50); --role-dark-seal-knock: var(--neutral-900);
+    --role-light-seal-on-soft: var(--sage-800); --role-dark-seal-on-soft: var(--sage-200);
+    --role-light-tag-good-bg: var(--coral-100); --role-dark-tag-good-bg: var(--coral-800);
+    --role-light-tag-good-fg: var(--coral-700); --role-dark-tag-good-fg: var(--coral-200);
+    --role-light-tag-bad-bg: var(--neutral-100); --role-dark-tag-bad-bg: var(--neutral-800);
+    --role-light-tag-bad-fg: var(--neutral-700); --role-dark-tag-bad-fg: var(--neutral-200);
+    --role-light-tag-neutral-border: var(--neutral-300); --role-dark-tag-neutral-border: var(--neutral-700);
+    --role-light-tag-neutral-fg: var(--neutral-700); --role-dark-tag-neutral-fg: var(--neutral-400);
     --role-light-gradient-today: linear-gradient(160deg, var(--gradient-light-0), var(--gradient-light-1));
     --role-dark-gradient-today: linear-gradient(160deg, var(--gradient-dark-0), var(--gradient-dark-1));
 
@@ -75,6 +88,13 @@
     --gradient-today: var(--role-light-gradient-today);
     --chip-bg: rgba(255, 255, 255, .7);
     --swatch-ring: rgba(43, 43, 42, .18);
+    --inverse-bg: var(--role-light-inverse-bg); --inverse-fg: var(--role-light-inverse-fg);
+    --disabled-bg: var(--role-light-disabled-bg); --disabled-fg: var(--role-light-disabled-fg);
+    --seal-knock: var(--role-light-seal-knock); --tag-good-bg: var(--role-light-tag-good-bg);
+    --tag-good-fg: var(--role-light-tag-good-fg); --tag-bad-bg: var(--role-light-tag-bad-bg);
+    --tag-bad-fg: var(--role-light-tag-bad-fg); --tag-neutral-border: var(--role-light-tag-neutral-border);
+    --tag-neutral-fg: var(--role-light-tag-neutral-fg);
+    --seal-soft: rgba(71, 99, 76, .22);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -91,6 +111,13 @@
       --gradient-today: var(--role-dark-gradient-today);
       --chip-bg: rgba(255, 255, 255, .08);
       --swatch-ring: rgba(238, 238, 237, .28);
+      --inverse-bg: var(--role-dark-inverse-bg); --inverse-fg: var(--role-dark-inverse-fg);
+      --disabled-bg: var(--role-dark-disabled-bg); --disabled-fg: var(--role-dark-disabled-fg);
+      --seal-knock: var(--role-dark-seal-knock); --tag-good-bg: var(--role-dark-tag-good-bg);
+      --tag-good-fg: var(--role-dark-tag-good-fg); --tag-bad-bg: var(--role-dark-tag-bad-bg);
+      --tag-bad-fg: var(--role-dark-tag-bad-fg); --tag-neutral-border: var(--role-dark-tag-neutral-border);
+      --tag-neutral-fg: var(--role-dark-tag-neutral-fg);
+      --seal-soft: rgba(212, 227, 214, .28);
     }
   }
   .mode-dark {
@@ -107,6 +134,13 @@
     --gradient-today: var(--role-dark-gradient-today);
     --chip-bg: rgba(255, 255, 255, .08);
     --swatch-ring: rgba(238, 238, 237, .28);
+    --inverse-bg: var(--role-dark-inverse-bg); --inverse-fg: var(--role-dark-inverse-fg);
+    --disabled-bg: var(--role-dark-disabled-bg); --disabled-fg: var(--role-dark-disabled-fg);
+    --seal-knock: var(--role-dark-seal-knock); --tag-good-bg: var(--role-dark-tag-good-bg);
+    --tag-good-fg: var(--role-dark-tag-good-fg); --tag-bad-bg: var(--role-dark-tag-bad-bg);
+    --tag-bad-fg: var(--role-dark-tag-bad-fg); --tag-neutral-border: var(--role-dark-tag-neutral-border);
+    --tag-neutral-fg: var(--role-dark-tag-neutral-fg);
+    --seal-soft: rgba(212, 227, 214, .28);
   }
 
   /* ===== 페이지 ===== */
@@ -201,6 +235,51 @@
   .mask { position: relative; width: 96px; height: 96px; overflow: hidden; }
   .mask img { position: absolute; inset: -6.67%; width: 113.3%; height: 113.3%; }
   .logo-row { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+
+  /* V2 요소 */
+  .v2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-bottom: 14px; }
+  .v2-item { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); }
+  .seal { position: relative; width: 34px; height: 34px; display: grid; place-items: center; }
+  .seal svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-8deg); overflow: visible; }
+  .seal b { position: relative; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .seal.lg { width: 64px; height: 64px; }
+  .seal.lg b { font-size: 13px; font-weight: 400; letter-spacing: .5px; }
+  .tag { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+  .status { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 13px; font-weight: 500; background: var(--term-bg); color: var(--term-fg); }
+  .caution { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; }
+  .caution svg { width: 1em; height: 1em; }
+  .patterns { font-size: 13px; line-height: 1.7; margin: 0; padding-left: 18px; }
+  .patterns code { font-size: 12px; }
+
+  /* V2 움직임 견본: 패턴 한 번 + 쉼을 되풀이합니다 (components/interaction.json 값) */
+  .motions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .motion { background: var(--bg-sheet); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 11px; color: var(--text-secondary); }
+  .stage { position: relative; width: 120px; height: 48px; display: grid; place-items: center; overflow: hidden; border-radius: 12px; }
+  .m-appear { padding: 8px 14px; border-radius: 9999px; background: var(--inverse-bg); color: var(--inverse-fg); font-size: 12px; animation: m-appear 2400ms infinite; }
+  @keyframes m-appear { 0% { opacity: 0; filter: blur(8px); animation-timing-function: cubic-bezier(.2,.7,.2,1); } 13.3% { opacity: 1; filter: blur(0); } 75% { opacity: 1; filter: blur(0); animation-timing-function: cubic-bezier(.4,0,.2,1); } 83.3%, 100% { opacity: 0; filter: blur(8px); } }
+  .m-track { position: relative; width: 120px; height: 34px; border-radius: 9999px; border: 1px solid var(--line); background: var(--bg-sheet); }
+  .m-pill { position: absolute; top: 3px; width: 56px; height: 26px; border-radius: 9999px; background: var(--action-primary); }
+  .m-pill.a { left: 3px; animation: m-out-a 3000ms infinite; }
+  .m-pill.b { left: 59px; animation: m-in-b 3000ms infinite; }
+  @keyframes m-in-b { 0%, 49.9% { opacity: 0; } 50% { opacity: 0; transform: translateX(-8px) scale(.92); filter: blur(6px); animation-timing-function: cubic-bezier(.2,.7,.2,1); } 61.3%, 100% { opacity: 1; transform: none; filter: blur(0); } }
+  @keyframes m-out-a { 0%, 50% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: cubic-bezier(.4,0,.2,1); } 59.3%, 100% { opacity: 0; transform: scale(1.06); filter: blur(6px); } }
+  .m-bones { display: grid; gap: 6px; width: 110px; }
+  .m-bones i { display: block; height: 8px; border-radius: 4px; background: var(--text-primary); opacity: .07; animation: m-breathe 1800ms cubic-bezier(.4,0,.2,1) infinite alternate; }
+  .m-bones i:nth-child(2) { animation-delay: 150ms; width: 85%; }
+  .m-bones i:nth-child(3) { animation-delay: 300ms; width: 60%; }
+  @keyframes m-breathe { from { opacity: .04; } to { opacity: .09; } }
+  .m-stamp { animation: m-stamp 2400ms infinite; }
+  @keyframes m-stamp { 0% { opacity: 0; transform: scale(1.2); filter: blur(3px); animation-timing-function: cubic-bezier(.5,0,.9,.6); } 7.6% { opacity: .55; transform: scale(1); filter: blur(1.5px); animation-timing-function: cubic-bezier(.2,.7,.2,1); } 21.7% { opacity: 1; filter: blur(0); } 80% { opacity: 1; filter: blur(0); } 88.3%, 100% { opacity: 0; filter: blur(5px); } }
+  .m-under { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 14px; font-weight: 700; color: var(--action-primary); }
+  .m-under i { display: block; width: 14px; height: 2px; border-radius: 9999px; background: var(--action-primary); animation: m-grow 2400ms infinite; }
+  @keyframes m-grow { 0% { transform: scaleX(0); animation-timing-function: cubic-bezier(.2,.7,.2,1); } 17.5%, 80% { transform: scaleX(1); } 90%, 100% { transform: scaleX(0); } }
+  .m-button { position: relative; overflow: hidden; width: 120px; height: 44px; border-radius: 12px; background: var(--action-primary); color: var(--action-on-primary); font-size: 14px; font-weight: 600; display: grid; place-items: center; }
+  .m-button i { position: absolute; left: 30%; top: 60%; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .12) 0, rgba(255, 255, 255, .12) 45%, rgba(255, 255, 255, 0) 70%); animation: m-ink 2400ms infinite; }
+  @keyframes m-ink { 0% { transform: scale(0); opacity: 1; animation-timing-function: cubic-bezier(.2,.7,.2,1); } 21.7% { transform: scale(1); opacity: 1; animation-timing-function: cubic-bezier(.2,.7,.2,1); } 39.2%, 100% { transform: scale(1.15); opacity: 0; } }
+  @keyframes m-fade { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .motions .stage * { animation: m-fade 2400ms infinite !important; filter: none !important; transform: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -423,6 +502,64 @@
     <div class="mask" style="border-radius:22%"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
     <div class="mask"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
   </div>
+  <h2 id="v2-elements">V2 요소와 상호작용</h2>
+  <p class="note">낙관 도장 세 변형, 태그 칩 길흉 톤, 상태 꼬리표, 경고 표시입니다. 글자는 자리 채우기입니다. 전체 명세는 <a href="../components/README.md">컴포넌트 명세</a>에 있습니다.</p>
+  <div class="pair">
+    <div class="panel mode-light">
+      <p class="panel-title">라이트</p>
+      <div class="v2-row">
+        <div class="v2-item" data-element="seal-fill"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--action-on-primary)"></b></span>fill</div>
+        <div class="v2-item"><span class="seal lg"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--seal-knock)">10.11</b></span>fill 64 · 날짜</div>
+        <div class="v2-item" data-element="seal-soft"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--seal-soft)"/></svg><b style="color:var(--text-primary)">11</b></span>soft</div>
+        <div class="v2-item" data-element="seal-outline"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:none;stroke:var(--action-primary);stroke-width:1.6px;vector-effect:non-scaling-stroke"/></svg><b style="color:var(--text-primary)">11</b></span>outline</div>
+      </div>
+      <div class="v2-row">
+        <span class="tag" data-element="tag-good" style="background:var(--tag-good-bg);color:var(--tag-good-fg)">#좋은태그</span>
+        <span class="tag" data-element="tag-bad" style="background:var(--tag-bad-bg);color:var(--tag-bad-fg)">#나쁜태그</span>
+        <span class="tag" data-element="tag-neutral" style="box-shadow:inset 0 0 0 1px var(--tag-neutral-border);color:var(--tag-neutral-fg)">#중립태그</span>
+        <span class="status" data-element="status-tag">진행 중</span>
+      </div>
+      <div class="v2-row">
+        <span class="caution" data-element="caution-mark"><svg viewBox="0 0 256 256" aria-hidden="true"><path style="fill:currentColor" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm-8 56a8 8 0 0 1 16 0v56a8 8 0 0 1-16 0Zm8 104a12 12 0 1 1 12-12a12 12 0 0 1-12 12Z"/></svg>되돌릴 수 없는 동작</span>
+        <span class="tag" style="background:var(--inverse-bg);color:var(--inverse-fg)">토스트</span>
+        <span class="tag" style="background:var(--disabled-bg);color:var(--disabled-fg)">비활성</span>
+      </div>
+    </div>
+    <div class="panel mode-dark">
+      <p class="panel-title">다크</p>
+      <div class="v2-row">
+        <div class="v2-item" data-element="seal-fill"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--action-on-primary)"></b></span>fill</div>
+        <div class="v2-item"><span class="seal lg"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--seal-knock)">10.11</b></span>fill 64 · 날짜</div>
+        <div class="v2-item" data-element="seal-soft"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--seal-soft)"/></svg><b style="color:var(--text-primary)">11</b></span>soft</div>
+        <div class="v2-item" data-element="seal-outline"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:none;stroke:var(--action-primary);stroke-width:1.6px;vector-effect:non-scaling-stroke"/></svg><b style="color:var(--text-primary)">11</b></span>outline</div>
+      </div>
+      <div class="v2-row">
+        <span class="tag" data-element="tag-good" style="background:var(--tag-good-bg);color:var(--tag-good-fg)">#좋은태그</span>
+        <span class="tag" data-element="tag-bad" style="background:var(--tag-bad-bg);color:var(--tag-bad-fg)">#나쁜태그</span>
+        <span class="tag" data-element="tag-neutral" style="box-shadow:inset 0 0 0 1px var(--tag-neutral-border);color:var(--tag-neutral-fg)">#중립태그</span>
+        <span class="status" data-element="status-tag">진행 중</span>
+      </div>
+      <div class="v2-row">
+        <span class="caution" data-element="caution-mark"><svg viewBox="0 0 256 256" aria-hidden="true"><path style="fill:currentColor" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm-8 56a8 8 0 0 1 16 0v56a8 8 0 0 1-16 0Zm8 104a12 12 0 1 1 12-12a12 12 0 0 1-12 12Z"/></svg>되돌릴 수 없는 동작</span>
+        <span class="tag" style="background:var(--inverse-bg);color:var(--inverse-fg)">토스트</span>
+        <span class="tag" style="background:var(--disabled-bg);color:var(--disabled-fg)">비활성</span>
+      </div>
+    </div>
+  </div>
+  <p class="note">상호작용 패턴(<a href="../components/interaction.md">interaction.md</a>):</p>
+  <div class="motions">
+    <div class="motion"><div class="stage"><span class="m-button" data-pattern="press.ink">버튼<i></i></span></div>press.ink 먹 번짐</div>
+    <div class="motion"><div class="stage"><span class="m-appear" data-pattern="appear.seep">저장됐어요</span></div>appear·disappear.seep 스밈</div>
+    <div class="motion"><div class="stage"><span class="m-track" data-pattern="select.seep-slide"><i class="m-pill a"></i><i class="m-pill b"></i></span></div>select.seep-slide 스밈 이동</div>
+    <div class="motion"><div class="stage"><span class="m-bones" data-pattern="loading.breathe"><i></i><i></i><i></i></span></div>loading.breathe 먹 숨쉬기</div>
+    <div class="motion"><div class="stage"><span class="m-stamp" data-pattern="seal.stamp"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--action-on-primary)"></b></span></span></div>seal.stamp · seal.erase</div>
+    <div class="motion"><div class="stage"><span class="m-under" data-pattern="mark.underline-grow">16<i></i></span></div>mark.underline-grow</div>
+  </div>
+  <ul class="patterns">
+    <li><code>press.ink</code> 먹 번짐 · <code>appear.seep</code>/<code>disappear.seep</code> 스밈 · <code>select.seep-slide</code> 스밈 이동 15%</li>
+    <li><code>loading.breathe</code> 먹 숨쉬기(스피너 없음) · <code>seal.stamp</code>/<code>seal.erase</code> 도장 찍힘·지워짐 · <code>mark.underline-grow</code> 펼침 밑줄</li>
+    <li><code>sheet.enter</code>/<code>sheet.exit</code>/<code>sheet.stack</code> 시트 · <code>focus.ring</code> 포커스 테두리</li>
+  </ul>
 </main>
 <script>
   // 원시 팔레트 띠: :root의 CSS 변수에서 값을 읽어 그립니다.

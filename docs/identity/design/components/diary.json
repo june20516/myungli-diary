@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "group": "diary",
+  "components": [
+    {
+      "id": "diary-row",
+      "summary": "일기 목록 한 줄: 흐름 줄 위 날짜 + 카드",
+      "uses": ["rail.timeline", "seal", "press.ink"],
+      "parts": {
+        "dateColumn": { "width": { "value": 44, "unit": "px" }, "align": "center" },
+        "number": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 18, "unit": "px" }, "fontWeight": 600, "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
+        "seal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 34, "unit": "px" }, "position": "behind-number-center" },
+        "weekday": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": { "value": 4, "unit": "px" } },
+        "rail": { "element": "rail.timeline", "from": "below-weekday", "to": "next-date" },
+        "card": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}", "marginStart": "{space.12}", "marginBottom": "{space.12}" },
+        "badge": { "component": "day-character", "part": "badge" },
+        "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}" },
+        "tag": { "component": "tag-chip", "count": 1, "marginTop": "{space.12}" }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink", "note": "카드 안에서만" },
+        "loading": { "note": "날짜 열은 바로, 카드는 skeleton" }
+      },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "날짜 요일, 배지, 미리보기 첫 줄, 태그", "minTarget": 48 },
+      "rules": [
+        "날짜는 카드 밖 왼쪽 열에 둔다. 숫자는 옅은 도장 가운데.",
+        "흐름 줄은 요일 아래에서 시작해 다음 날짜까지 이어진다. 마지막 줄 뒤에는 줄이 없다.",
+        "같은 달이 바뀌는 자리에 달 머리(type.subtitle)를 둔다."
+      ]
+    },
+    {
+      "id": "diary-editor",
+      "summary": "일기 본문 입력과 보기 (종이)",
+      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep"],
+      "variants": [
+        { "id": "edit", "when": "쓰기·고치기", "parts": { "body": { "editable": true } } },
+        { "id": "view", "when": "보기(diary-view)", "parts": { "body": { "editable": false }, "seal": { "visible": true }, "tags": { "visible": true } } }
+      ],
+      "parts": {
+        "paper": { "element": "surface.paper" },
+        "date": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+        "question": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "optional": true },
+        "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "minLines": 8, "placeholderFg": "{color.text.secondary}" },
+        "seal": { "element": "seal", "variant": "fill", "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "size": { "value": 64, "unit": "px" }, "content": "날짜(M.D)", "position": "paper-bottom-end-reserve" },
+        "tags": { "component": "tag-chip", "gap": "{space.8}", "marginTop": "{space.16}" }
+      },
+      "states": {
+        "saving": { "pattern": "loading.breathe", "note": "저장 버튼 점 숨쉬기" },
+        "saved": { "pattern": "seal.stamp", "parts": { "seal": { "visible": true } } }
+      },
+      "motion": {
+        "saveSequence": [
+          { "step": "button-breathe", "pattern": "loading.breathe" },
+          { "step": "scroll-to-paper-bottom", "duration": "{motion.duration.medium}", "easing": "{motion.easing.standard}" },
+          { "step": "stamp", "pattern": "seal.stamp" },
+          { "step": "tags", "pattern": "appear.seep" },
+          { "step": "toast", "component": "toast" }
+        ]
+      },
+      "haptic": [{ "when": "도장이 찍힘", "strength": "light" }],
+      "a11y": { "role": "textbox", "label": "일기 본문", "savedAnnounced": "저장됨 + 대표 태그", "minTarget": 48 },
+      "rules": [
+        "종이 아래 여백에 64px 도장 자리를 쓰는 중에도 늘 비워 둔다. 글이 길어도 도장이 글을 덮지 않는다.",
+        "해시태그를 쓰는 입력이 없다. 태그는 저장할 때 엔진이 붙인다.",
+        "저장 순서: 버튼 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 대표 태그 칩 스밈 → 토스트.",
+        "저장 응답이 오기 전에는 도장을 찍지 않는다. 실패하면 버튼이 돌아오고 오류 토스트.",
+        "보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그 칩."
+      ]
+    },
+    {
+      "id": "draft-indicator",
+      "summary": "초안 저장 상태 (app-bar 오른쪽)",
+      "uses": ["icon", "appear.seep", "loading.breathe"],
+      "parts": {
+        "container": { "gap": { "value": 4, "unit": "px" }, "position": "app-bar-end-before-actions" },
+        "icon": { "size": { "value": 16, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "label": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" }
+      },
+      "states": {
+        "local": { "pattern": "appear.seep", "parts": { "icon": { "name": "cloud" } }, "note": "기기에 초안 저장됨" },
+        "saving": { "pattern": "loading.breathe", "parts": { "icon": { "visible": false } }, "note": "점 세 개" },
+        "saved": { "pattern": "appear.seep", "parts": { "icon": { "name": "check" } }, "note": "서버에 저장됨" }
+      },
+      "haptic": [],
+      "a11y": { "role": "status", "liveRegion": "polite", "label": "상태 글자" },
+      "rules": ["상태가 바뀔 때만 appear.seep으로 바꿔 그린다. 같은 상태가 반복되면 움직이지 않는다."]
+    },
+    {
+      "id": "tag-chip",
+      "summary": "명리 태그 칩 (길흉 톤). 누르면 태그 모아보기",
+      "uses": ["tone", "press.ink", "appear.seep"],
+      "variants": [
+        { "id": "good", "when": "길한 태그", "parts": { "chip": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" } } },
+        { "id": "bad", "when": "흉한 태그", "parts": { "chip": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } } },
+        { "id": "neutral", "when": "중립 태그", "parts": { "chip": { "bg": "transparent", "border": { "color": "{color.tag.neutral.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.tag.neutral.fg}" } } }
+      ],
+      "parts": {
+        "chip": { "radius": "{radius.full}", "type": "{type.label.md}", "fontSize": { "value": 12, "unit": "px" }, "height": { "value": 26, "unit": "px" }, "paddingX": { "value": 10, "unit": "px" } },
+        "text": { "prefix": "#" }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink" },
+        "appearing": { "pattern": "appear.seep", "note": "저장 순간" }
+      },
+      "haptic": [],
+      "a11y": { "role": "link", "label": "태그 이름 + 길흉 낱말", "colorIndependent": true, "minTarget": 44, "hitSlop": "위아래 9px" },
+      "rules": [
+        "목록·보기·저장 순간(diary-edit)에 같은 컴포넌트를 쓴다.",
+        "톤은 엔진이 준 태그의 길흉 값을 따른다(배지와 같은 V8 규칙)."
+      ]
+    }
+  ]
+}
