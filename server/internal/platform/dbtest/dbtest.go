@@ -94,7 +94,11 @@ func setup() (shared, error) {
 		return shared{}, fmt.Errorf("컨테이너 시작(Docker가 켜져 있어야 합니다): %w", err)
 	}
 	// 정리는 testcontainers reaper에 맡깁니다. 실패 경로에서만 직접 끕니다.
+	var adminPool *pgxpool.Pool
 	terminateOnError := func(err error) (shared, error) {
+		if adminPool != nil {
+			adminPool.Close()
+		}
 		_ = testcontainers.TerminateContainer(container)
 		return shared{}, err
 	}
@@ -109,10 +113,11 @@ func setup() (shared, error) {
 	}
 	state := shared{baseURL: baseURL}
 
-	state.adminPool, err = postgres.Open(ctx, state.databaseURL(adminDB))
+	adminPool, err = postgres.Open(ctx, state.databaseURL(adminDB))
 	if err != nil {
 		return terminateOnError(fmt.Errorf("관리용 연결: %w", err))
 	}
+	state.adminPool = adminPool
 	if _, err := state.adminPool.Exec(ctx, "CREATE DATABASE "+templateDB); err != nil {
 		return terminateOnError(fmt.Errorf("template DB 생성: %w", err))
 	}

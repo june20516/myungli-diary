@@ -2,9 +2,9 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"path"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,11 +21,15 @@ type MigrationStatus struct {
 	Applied bool
 }
 
-// Migrate는 migration을 실행합니다. direction은 up(전부 적용), down(하나 되돌림), status(상태를 stdout에 출력)입니다.
+// ErrNothingToRollBack은 적용된 migration이 없어 down으로 되돌릴 것이 없을 때 반환됩니다.
+var ErrNothingToRollBack = errors.New("되돌릴 migration이 없습니다")
+
+// Migrate는 migration을 실행합니다. direction은 up(전부 적용) 또는 down(하나 되돌림)입니다.
+//
+// 처음 계획(up/down/status)과 달리 status는 받지 않습니다. 출력이 필요한 status는 Status의 결과를
+// 호출자가 주입된 writer에 쓰도록 했습니다. 그래서 Migrate는 어디에도 출력하지 않습니다.
+// 적용된 migration이 없을 때 down은 ErrNothingToRollBack을 반환합니다.
 func Migrate(ctx context.Context, pool *pgxpool.Pool, direction string) error {
-	if direction == "status" {
-		return printStatus(ctx, pool)
-	}
 	if direction != "up" && direction != "down" {
 		return fmt.Errorf("알 수 없는 migrate 방향 %q", direction)
 	}
@@ -41,7 +45,10 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, direction string) error {
 	} else {
 		_, err = provider.Down(ctx)
 	}
-	if err != nil {
+	switch {
+	case direction == "down" && (errors.Is(err, goose.ErrNoNextVersion) || errors.Is(err, goose.ErrNoCurrentVersion)):
+		return ErrNothingToRollBack
+	case err != nil:
 		return fmt.Errorf("migrate %s: %w", direction, err)
 	}
 	return nil
@@ -67,21 +74,6 @@ func Status(ctx context.Context, pool *pgxpool.Pool) ([]MigrationStatus, error) 
 		})
 	}
 	return statuses, nil
-}
-
-func printStatus(ctx context.Context, pool *pgxpool.Pool) error {
-	statuses, err := Status(ctx, pool)
-	if err != nil {
-		return err
-	}
-	for _, status := range statuses {
-		state := "Pending"
-		if status.Applied {
-			state = "Applied"
-		}
-		fmt.Fprintf(os.Stdout, "%-8s %s\n", state, status.Source)
-	}
-	return nil
 }
 
 // migrationsFS는 embed된 파일에서 migrations 디렉터리를 루트로 잘라 냅니다.

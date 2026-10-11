@@ -6,8 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"slices"
 	"strings"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
@@ -40,7 +43,7 @@ func (e *loggedError) Error() string { return e.err.Error() }
 func (e *loggedError) Unwrap() error { return e.err }
 
 // Command는 하위 명령 하나입니다. args에는 하위 명령 이름 뒤의 인자가 들어옵니다.
-type Command func(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) error
+type Command func(ctx context.Context, args []string, getenv func(string) string, stdout, stderr io.Writer) error
 
 // commands는 하위 명령 테이블입니다.
 var commands = map[string]Command{
@@ -60,8 +63,9 @@ commands:
 
 // Run은 하위 명령을 실행하고 종료 코드를 반환합니다.
 // 0은 성공, 1은 실행 오류, 2는 사용법 오류입니다.
-// getenv는 설정 값(환경 변수)을 읽는 함수이며, 테스트에서 대체할 수 있도록 주입합니다.
-func Run(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) int {
+// getenv는 설정 값(환경 변수)을 읽는 함수이고, stdout·stderr는 각각 명령 결과와 로그·오류를 쓸 곳입니다.
+// 모두 테스트에서 대체할 수 있도록 주입합니다.
+func Run(ctx context.Context, args []string, getenv func(string) string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		fmt.Fprintln(stderr, usageText)
 		return exitUsage
@@ -73,7 +77,7 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stderr 
 		return exitUsage
 	}
 
-	err := command(ctx, args[1:], getenv, stderr)
+	err := command(ctx, args[1:], getenv, stdout, stderr)
 	if err == nil {
 		return exitOK
 	}
@@ -94,7 +98,7 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stderr 
 }
 
 // runServe는 Task 6에서 서버 시작 동작을 연결합니다.
-func runServe(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
+func runServe(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server serve")
 	}
@@ -104,7 +108,7 @@ func runServe(_ context.Context, args []string, _ func(string) string, _ io.Writ
 var migrateDirections = []string{"up", "down", "status"}
 
 // runMigrate는 DB에 migration을 적용하거나 되돌리거나 상태를 보여 줍니다.
-func runMigrate(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) error {
+func runMigrate(ctx context.Context, args []string, getenv func(string) string, stdout, stderr io.Writer) error {
 	if len(args) != 1 || !slices.Contains(migrateDirections, args[0]) {
 		return usageErrorf("usage: server migrate %s", strings.Join(migrateDirections, "|"))
 	}
@@ -127,6 +131,9 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 	}
 	defer pool.Close()
 
+	if direction == "status" {
+		return printStatus(ctx, pool, stdout, logger)
+	}
 	if err := postgres.Migrate(ctx, pool, direction); err != nil {
 		logger.ErrorContext(ctx, "migration 실패", "direction", direction, "error", err)
 		return &loggedError{err: err}
@@ -135,8 +142,25 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 	return nil
 }
 
+// printStatus는 migration 적용 상태를 표로 stdout에 씁니다.
+func printStatus(ctx context.Context, pool *pgxpool.Pool, stdout io.Writer, logger *slog.Logger) error {
+	statuses, err := postgres.Status(ctx, pool)
+	if err != nil {
+		logger.ErrorContext(ctx, "migration 상태 조회 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	for _, status := range statuses {
+		state := "Pending"
+		if status.Applied {
+			state = "Applied"
+		}
+		fmt.Fprintf(stdout, "%-8s %s\n", state, status.Source)
+	}
+	return nil
+}
+
 // runSeed는 P4에서 채웁니다.
-func runSeed(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
+func runSeed(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server seed")
 	}
@@ -146,7 +170,7 @@ func runSeed(_ context.Context, args []string, _ func(string) string, _ io.Write
 var jobNames = []string{"precompute", "notify", "retention"}
 
 // runJob은 작업 이름을 검증합니다. 각 작업은 P4·P8에서 채웁니다.
-func runJob(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
+func runJob(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
 	if len(args) != 1 || !slices.Contains(jobNames, args[0]) {
 		return usageErrorf("usage: server job %s", strings.Join(jobNames, "|"))
 	}

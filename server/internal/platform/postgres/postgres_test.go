@@ -54,3 +54,19 @@ func TestDBTest_IsolatedDatabases(t *testing.T) {
 		t.Errorf("두 테스트 DB 이름이 같습니다: %q", names[0])
 	}
 }
+
+func TestDBTest_ChangesInOneDatabaseAreInvisibleToAnother(t *testing.T) {
+	ctx := context.Background()
+	first, second := dbtest.New(t), dbtest.New(t)
+
+	if _, err := first.Exec(ctx, "CREATE TABLE only_in_first (id int)"); err != nil {
+		t.Fatalf("테이블 생성: %v", err)
+	}
+	var exists bool
+	if err := second.QueryRow(ctx, "SELECT to_regclass('only_in_first') IS NOT NULL").Scan(&exists); err != nil {
+		t.Fatalf("조회: %v", err)
+	}
+	if exists {
+		t.Error("한 DB에서 만든 테이블이 다른 DB에서 보입니다")
+	}
+}

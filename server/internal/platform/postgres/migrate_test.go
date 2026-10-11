@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
@@ -13,7 +14,7 @@ func TestMigrate_UpDownUp(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 
-	for _, direction := range []string{"down", "up", "down", "up", "status"} {
+	for _, direction := range []string{"down", "up", "down", "up"} {
 		if err := postgres.Migrate(ctx, pool, direction); err != nil {
 			t.Fatalf("Migrate(%s): %v", direction, err)
 		}
@@ -30,8 +31,22 @@ func TestMigrate_UpDownUp(t *testing.T) {
 
 func TestMigrate_UnknownDirection(t *testing.T) {
 	pool := dbtest.New(t)
-	if err := postgres.Migrate(context.Background(), pool, "sideways"); err == nil {
-		t.Error("알 수 없는 방향인데 오류가 없습니다")
+	for _, direction := range []string{"sideways", "status"} {
+		if err := postgres.Migrate(context.Background(), pool, direction); err == nil {
+			t.Errorf("%q는 Migrate가 받지 않는 방향인데 오류가 없습니다", direction)
+		}
+	}
+}
+
+func TestMigrate_DownWithNothingApplied_ReturnsErrNothingToRollBack(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+
+	if err := postgres.Migrate(ctx, pool, "down"); err != nil {
+		t.Fatalf("첫 down: %v", err)
+	}
+	if err := postgres.Migrate(ctx, pool, "down"); !errors.Is(err, postgres.ErrNothingToRollBack) {
+		t.Errorf("두 번째 down 오류 = %v, want ErrNothingToRollBack", err)
 	}
 }
 
