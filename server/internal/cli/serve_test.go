@@ -14,9 +14,10 @@ import (
 
 func TestServe_GracefulShutdown(t *testing.T) {
 	started := make(chan struct{})
+	release := make(chan struct{})
 	handler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		close(started)
-		time.Sleep(2 * time.Second)
+		<-release
 		w.WriteHeader(http.StatusOK)
 	})
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
@@ -44,11 +45,15 @@ func TestServe_GracefulShutdown(t *testing.T) {
 	<-started
 	cancel()
 
+	// 요청이 아직 처리 중이므로 serve는 반환하지 않아야 합니다.
 	select {
 	case err := <-serveDone:
 		t.Fatalf("처리 중인 요청이 끝나기 전에 serve가 반환됨: %v", err)
-	case <-time.After(500 * time.Millisecond):
+	case <-time.After(200 * time.Millisecond):
 	}
+
+	close(release)
+
 	if status := <-statusCh; status != http.StatusOK {
 		t.Errorf("진행 중이던 요청 status = %d, want 200", status)
 	}
@@ -72,7 +77,7 @@ func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 		done <- Run(ctx, []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
 	}()
 
-	time.Sleep(300 * time.Millisecond)
+	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
 	cancel()
 
 	select {
@@ -94,4 +99,21 @@ func freePort(t *testing.T) string {
 	}
 	defer listener.Close()
 	return strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
+}
+
+// waitForHealthz는 url이 200을 줄 때까지 짧은 간격으로 확인합니다. 5초 안에 안 되면 실패합니다.
+func waitForHealthz(t *testing.T, url string) {
+	t.Helper()
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		resp, err := http.Get(url)
+		if err == nil {
+			resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				return
+			}
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatalf("%s가 5초 안에 200을 주지 않았습니다", url)
 }

@@ -56,6 +56,8 @@ func serveHTTP(ctx context.Context, listener net.Listener, handler http.Handler,
 	server := &http.Server{
 		Handler:           handler,
 		ReadHeaderTimeout: readHeaderTimeout,
+		// net/http 내부 오류도 구조화 로그로 남깁니다.
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelWarn),
 	}
 
 	serveErr := make(chan error, 1)
@@ -73,6 +75,8 @@ func serveHTTP(ctx context.Context, listener net.Listener, handler http.Handler,
 	defer cancel()
 	logger.InfoContext(shutdownCtx, "종료 신호 수신, 처리 중인 요청을 마칩니다")
 	if err := server.Shutdown(shutdownCtx); err != nil {
+		// 제한 시간 안에 끝나지 않은 연결은 강제로 닫습니다.
+		_ = server.Close()
 		return fmt.Errorf("shutdown: %w", err)
 	}
 	if err := <-serveErr; !errors.Is(err, http.ErrServerClosed) {

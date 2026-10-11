@@ -4,6 +4,7 @@ package httpapi
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 
@@ -25,7 +26,8 @@ type Deps struct {
 }
 
 // NewHandler는 공통 미들웨어를 입힌 http.Handler를 만듭니다.
-// 미들웨어는 바깥부터 trace, panic 복구, 본문 상한, 접근 로그 순서입니다.
+// 미들웨어는 바깥부터 trace, 접근 로그, panic 복구, 본문 상한 순서입니다.
+// 접근 로그가 복구·상한보다 바깥이라 413과 panic 500도 실제 상태로 기록됩니다.
 // routes가 nil이 아니면 mux에 경로를 등록하게 합니다.
 func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 	mux := http.NewServeMux()
@@ -35,9 +37,9 @@ func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 	}
 
 	var handler http.Handler = newRouter(mux)
-	handler = accessLog(deps, handler)
 	handler = limitBody(handler)
 	handler = recoverPanic(deps, handler)
+	handler = accessLog(deps, handler)
 	return logging.WithTrace(handler)
 }
 
@@ -91,20 +93,31 @@ func (p *probeWriter) Write(b []byte) (int, error) {
 }
 
 // DecodeJSON은 요청 본문을 v로 읽습니다. 실패하면 problem 응답을 쓰고 false를 돌려줍니다.
-// 본문이 상한을 넘으면 413 request.too_large, JSON이 아니면 400 request.invalid_json입니다.
+// 본문이 상한을 넘으면 413 request.too_large, JSON 문법이 틀리거나 값 뒤에 데이터가
+// 더 있으면 400 request.malformed입니다.
 func DecodeJSON(w http.ResponseWriter, r *http.Request, v any) bool {
-	err := json.NewDecoder(r.Body).Decode(v)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(v)
 	if err == nil {
-		return true
+		// 값 하나만 허용합니다. 뒤에 아무것도 없어야 io.EOF가 돌아옵니다.
+		err = decoder.Decode(&struct{}{})
+		if errors.Is(err, io.EOF) {
+			return true
+		}
+		if err == nil {
+			err = errTrailingData
+		}
 	}
 	var tooLarge *http.MaxBytesError
 	if errors.As(err, &tooLarge) {
 		writeTooLarge(w, r)
 		return false
 	}
-	problem.Write(w, r, problem.New(http.StatusBadRequest, "request.invalid_json", "Request body is not valid JSON"))
+	problem.Write(w, r, problem.New(http.StatusBadRequest, "request.malformed", "Request body is malformed"))
 	return false
 }
+
+var errTrailingData = errors.New("JSON 값 뒤에 데이터가 더 있습니다")
 
 func writeTooLarge(w http.ResponseWriter, r *http.Request) {
 	problem.Write(w, r, problem.New(http.StatusRequestEntityTooLarge, "request.too_large", "Request body is too large"))

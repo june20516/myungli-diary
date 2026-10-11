@@ -161,7 +161,7 @@ func TestHandler_BodyTooLargeByContentLength(t *testing.T) {
 	}
 }
 
-func TestDecodeJSON_InvalidJSON(t *testing.T) {
+func TestDecodeJSON_SyntaxError(t *testing.T) {
 	handler, _ := newTestHandler(t, func(mux *http.ServeMux) {
 		mux.HandleFunc("POST /v1/x", func(w http.ResponseWriter, r *http.Request) {
 			var v map[string]any
@@ -174,7 +174,7 @@ func TestDecodeJSON_InvalidJSON(t *testing.T) {
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400", rec.Code)
 	}
-	if p := decodeProblem(t, rec); p.Code != "request.invalid_json" {
+	if p := decodeProblem(t, rec); p.Code != "request.malformed" {
 		t.Errorf("code = %q", p.Code)
 	}
 }
