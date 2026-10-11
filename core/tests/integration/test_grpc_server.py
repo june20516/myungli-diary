@@ -1,5 +1,6 @@
 # in-process gRPC 서버와 실제 채널(임의 포트)로 엔진 진입점을 검사한다 (spec 9, 11, 12)
 from collections.abc import Iterator
+from datetime import datetime
 
 import grpc
 import pytest
@@ -321,3 +322,24 @@ def test_start_refuses_when_reference_data_missing(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(server_module.loader, "validate_refs", fail)
     with pytest.raises(KeyError):
         server_module.start(0)
+
+
+def test_get_birth_hour(stub: pb_grpc.MyungriEngineStub) -> None:
+    response = stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 5, 4, 0)))
+    assert response.branch == pb.BRANCH_IN
+    assert response.start.ToDatetime() == datetime(1990, 5, 4, 18, 30)  # KST 03:30
+    assert response.end.ToDatetime() == datetime(1990, 5, 4, 20, 30)  # KST 05:30
+    assert response.meta.engine_version == ENGINE_VERSION
+
+
+def test_get_birth_hour_without_time_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 5, hour=None)))
+    assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+    assert "birth.time" in details_of(caught.value)
+
+
+def test_get_birth_hour_out_of_range_date(stub: pb_grpc.MyungriEngineStub) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1899, 6, 1)))
+    assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE

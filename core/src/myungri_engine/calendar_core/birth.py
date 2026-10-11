@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, time
+from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from myungri_engine.calendar_core import lunar_adapter
@@ -14,7 +14,7 @@ from myungri_engine.calendar_core.time_basis import (
     standard_offset_hours,
 )
 from myungri_engine.constants.longitudes import representative_longitude
-from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode
+from myungri_engine.domain.enums import Branch, CalendarType, Gender, NoticeCode
 from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungri_engine.domain.models import Notice
 
@@ -25,6 +25,7 @@ UNKNOWN_TIME_FALLBACK = time(12, 0)
 ZI_HOUR_START_HOUR = 23
 ZI_HOUR_END_HOUR = 0
 NEAR_SOLAR_TERM_MINUTES = 120  # 절입 전후 안내 범위 (spec 4.3, D32)
+HOUR_BRANCH_SPAN = timedelta(hours=2)
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,6 +66,16 @@ class BirthMoment:
     solar_term_wallclock: datetime
     corrected_local: datetime
     time_known: bool
+    notices: tuple[Notice, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class BirthHour:
+    """출생 시각이 속한 시진. start·end는 UTC 절대 시각이다(반열린 구간 [start, end))."""
+
+    branch: Branch
+    start: datetime
+    end: datetime
     notices: tuple[Notice, ...]
 
 
@@ -139,3 +150,25 @@ def _local_to_utc(local_naive: datetime, zone: ZoneInfo) -> tuple[datetime, tupl
     if first_utc != second_utc:
         return first_utc, (Notice(NoticeCode.AMBIGUOUS_LOCAL_TIME),)
     return first_utc, ()
+
+
+def birth_hour(birth: BirthInput) -> BirthHour:
+    """출생 시각의 시진과 그 절대 시각 구간을 구한다.
+
+    원국과 같은 출생 시각 해석(resolve_birth_moment)을 쓴다. 시진 경계는 보정 시각의 홀수 정시이고,
+    경도 보정을 거꾸로 빼서 절대 시각으로 바꾼다. 시간 모름은 날짜 범위 검사보다 먼저 거절한다.
+    """
+    if birth.time is None:
+        raise InvalidInputError("birth.time가 없습니다.")
+    moment = resolve_birth_moment(birth)
+    if moment.utc is None:
+        raise InvalidInputError("birth.time가 없습니다.")
+
+    correction = moment.corrected_local - moment.utc.replace(tzinfo=None)
+    corrected = moment.corrected_local
+    # 홀수 시각(23, 1, 3, ...)이 시진의 시작이므로 짝수 시각이면 한 시간 앞으로 당긴다.
+    hours_since_start = 0 if corrected.hour % 2 == 1 else 1
+    start_corrected = corrected.replace(minute=0, second=0, microsecond=0) - timedelta(hours=hours_since_start)
+    branch = list(Branch)[((start_corrected.hour + 1) // 2) % len(Branch)]
+    start_utc = (start_corrected - correction).replace(tzinfo=UTC)
+    return BirthHour(branch, start_utc, start_utc + HOUR_BRANCH_SPAN, moment.notices)

@@ -14,7 +14,7 @@ from enum import Enum
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from myungri_engine._gen.myungri.engine.v1 import engine_pb2 as pb
-from myungri_engine.calendar_core.birth import BirthInput, LunarDate
+from myungri_engine.calendar_core.birth import BirthHour, BirthInput, LunarDate
 from myungri_engine.chart.personal_target import PersonalReading
 from myungri_engine.chart.positions import Position
 from myungri_engine.composers.chart import ChartView
@@ -230,6 +230,15 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
         fortune=[_judgment(judgment) for judgment in view.fortune],
         guide=_judgment(view.guide),
         meta=_meta(view.notices),
+    )
+
+
+def birth_hour_to_proto(hour: BirthHour) -> pb.BirthHourResponse:
+    return pb.BirthHourResponse(
+        branch=_name(_PREFIX_BRANCH, hour.branch),
+        start=_timestamp(hour.start),
+        end=_timestamp(hour.end),
+        meta=_meta(hour.notices),
     )
 
 

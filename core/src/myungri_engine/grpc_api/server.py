@@ -11,6 +11,7 @@ import grpc
 from myungri_engine._gen.myungri.engine.v1 import engine_pb2 as pb
 from myungri_engine._gen.myungri.engine.v1 import engine_pb2_grpc as pb_grpc
 from myungri_engine.calendar_core import lunar_adapter
+from myungri_engine.calendar_core.birth import birth_hour
 from myungri_engine.composers.chart import compose_chart
 from myungri_engine.composers.daily import compose_daily
 from myungri_engine.composers.month import compose_month
@@ -52,8 +53,16 @@ class MyungriEngineServicer(pb_grpc.MyungriEngineServicer):
 
         return run_or_abort(context, compute)
 
+    def GetBirthHour(self, request: pb.BirthHourRequest, context: grpc.ServicerContext) -> pb.BirthHourResponse:
+        def compute() -> pb.BirthHourResponse:
+            birth = mapping.birth_from_proto(_required_birth(request))
+            return mapping.birth_hour_to_proto(birth_hour(birth))
 
-def _required_birth(request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest) -> pb.BirthInfo:
+        return run_or_abort(context, compute)
+
+
+def _required_birth(request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest | pb.BirthHourRequest
+) -> pb.BirthInfo:
     if not request.HasField("birth"):
         raise InvalidInputError("출생 정보가 없습니다.")
     return request.birth

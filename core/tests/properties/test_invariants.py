@@ -7,7 +7,8 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from myungri_engine.calendar_core import lunar_adapter
-from myungri_engine.calendar_core.birth import BirthInput
+from myungri_engine.calendar_core.birth import BirthInput, birth_hour, resolve_birth_moment
+from myungri_engine.chart.pillars import build_chart
 from myungri_engine.composers.daily import DailyView, compose_daily
 from myungri_engine.constants.message_keys import ALL_KEYS
 from myungri_engine.domain.enums import Branch, CalendarType, Gender
@@ -33,6 +34,12 @@ birth_inputs = st.builds(
     timezone=st.sampled_from([SEOUL, SEOUL, SEOUL, "America/New_York"]),
     longitude=st.none(),
 )
+
+
+@PROPERTY_SETTINGS
+@given(birth=birth_inputs.filter(lambda b: b.time is not None))
+def test_birth_hour_branch_matches_chart_hour_pillar(birth: BirthInput) -> None:
+    assert birth_hour(birth).branch == build_chart(resolve_birth_moment(birth)).pillars.hour.branch
 
 
 def _cycle_index(pillar: Pillar) -> int:

@@ -841,3 +841,21 @@ class ScoreItem(_message.Message):
     id: str
     score: int
     def __init__(self, id: _Optional[str] = ..., score: _Optional[int] = ...) -> None: ...
+
+class BirthHourRequest(_message.Message):
+    __slots__ = ("birth",)
+    BIRTH_FIELD_NUMBER: _ClassVar[int]
+    birth: BirthInfo
+    def __init__(self, birth: _Optional[_Union[BirthInfo, _Mapping]] = ...) -> None: ...
+
+class BirthHourResponse(_message.Message):
+    __slots__ = ("branch", "start", "end", "meta")
+    BRANCH_FIELD_NUMBER: _ClassVar[int]
+    START_FIELD_NUMBER: _ClassVar[int]
+    END_FIELD_NUMBER: _ClassVar[int]
+    META_FIELD_NUMBER: _ClassVar[int]
+    branch: Branch
+    start: _timestamp_pb2.Timestamp
+    end: _timestamp_pb2.Timestamp
+    meta: ResponseMeta
+    def __init__(self, branch: _Optional[_Union[Branch, str]] = ..., start: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., end: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...
