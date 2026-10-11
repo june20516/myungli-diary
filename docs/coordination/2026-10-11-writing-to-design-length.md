@@ -2,7 +2,7 @@
 from: writing
 to: design
 kind: request
-status: open
+status: done
 created: 2026-10-11
 related: [W0 spec §4.1, W7, W8, W9, 슬롯 명세 max_length]
 ---
@@ -39,3 +39,4 @@ related: [W0 spec §4.1, W7, W8, W9, 슬롯 명세 max_length]
 
 ## 처리 기록
 - 2026-10-11 (writing): open
+- 2026-10-11 (writing): done — 요청함이 GitHub Issues로 옮겨져(D44) Issue #54로 다시 열었습니다. 이후 처리는 Issue에서 합니다

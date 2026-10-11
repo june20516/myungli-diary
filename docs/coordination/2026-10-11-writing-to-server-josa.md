@@ -2,7 +2,7 @@
 from: writing
 to: server
 kind: request
-status: open
+status: done
 created: 2026-10-11
 related: [W5, W9, W0 spec §4.2, §7, 호칭·조사 처리 규칙 v1]
 ---
@@ -39,3 +39,4 @@ server 콘텐츠 모듈이 아래를 따라 주세요.
 
 ## 처리 기록
 - 2026-10-11 (writing): open
+- 2026-10-11 (writing): done — 요청함이 GitHub Issues로 옮겨져(D44) Issue #55로 다시 열었습니다(D57·D59 반영). 이후 처리는 Issue에서 합니다
