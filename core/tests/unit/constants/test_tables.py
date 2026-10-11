@@ -83,7 +83,8 @@ def test_representative_longitude():
 
 
 def test_message_keys_registry():
-    assert message_keys.require("fortune.gwiin_day.siksang") == "fortune.gwiin_day.siksang"
+    params = {"day_kind": "GWIIN_DAY", "ten_god": "SIKSIN", "element": "WOOD", "emphasis": "NONE"}
+    assert message_keys.require("fortune.gwiin_day.siksang", params) == "fortune.gwiin_day.siksang"
     assert "fortune.tag.big_change" in message_keys.ALL_KEYS
     assert "guide.ten_god_rush.jaeseong" in message_keys.ALL_KEYS
     assert "tag.ten_god_rush.inseong" in message_keys.ALL_KEYS
@@ -101,3 +102,35 @@ def test_unknown_message_key_rejected():
 def test_exported_key_list_up_to_date():
     exported = json.loads((CORE_DIR / "message_keys.json").read_text(encoding="utf-8"))
     assert exported == sorted(message_keys.ALL_KEYS)
+
+
+def test_message_params_declared_per_key():
+    assert message_keys.KEY_PARAMS["focus_time.hap"] == ("branches", "score")
+    assert message_keys.KEY_PARAMS["calendar.good"] == ("score",)
+    assert message_keys.KEY_PARAMS["tag.clash"] == ()
+    assert frozenset(message_keys.KEY_PARAMS) == message_keys.ALL_KEYS
+
+
+def test_require_accepts_declared_params():
+    assert message_keys.require("calendar.good", {"score": 3}) == "calendar.good"
+    assert message_keys.require("tag.clash") == "tag.clash"
+
+
+@pytest.mark.parametrize(
+    "params",
+    [{}, {"score": 3, "extra": 1}, {"level": 3}],
+)
+def test_require_rejects_mismatched_params(params):
+    with pytest.raises(KeyError):
+        message_keys.require("calendar.good", params)
+
+
+def test_exported_param_list_up_to_date():
+    exported = json.loads((CORE_DIR / "message_params.json").read_text(encoding="utf-8"))
+    assert exported == {key: list(message_keys.KEY_PARAMS[key]) for key in sorted(message_keys.KEY_PARAMS)}
+
+
+def test_exported_param_keys_match_key_list():
+    keys = json.loads((CORE_DIR / "message_keys.json").read_text(encoding="utf-8"))
+    params = json.loads((CORE_DIR / "message_params.json").read_text(encoding="utf-8"))
+    assert sorted(params) == keys

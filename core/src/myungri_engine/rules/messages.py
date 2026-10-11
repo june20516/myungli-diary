@@ -41,7 +41,7 @@ def fortune(
     }
     detail = {"day_kind": kind.name, "ten_god": god.name, "group": god.group.name}
     head = Judgment(
-        message_key=require(f"fortune.{kind.name.lower()}.{god.group.name.lower()}"),
+        message_key=require(f"fortune.{kind.name.lower()}.{god.group.name.lower()}", params),
         params=params,
         evidence=(_evidence("fortune/day_kind", detail), *yongsin.evidence),
     )
@@ -49,7 +49,7 @@ def fortune(
         return (head,)
     tag_detail = {**detail, "featured": featured[0]}
     tag_sentence = Judgment(
-        message_key=require(f"fortune.tag.{_tag_suffix(featured[0])}"),
+        message_key=require(f"fortune.tag.{_tag_suffix(featured[0])}", params),
         params=params,
         evidence=(_evidence("fortune/tag", tag_detail), *yongsin.evidence),
     )
@@ -64,8 +64,9 @@ def guide_question(day: Pillar, natal_day_stem: Stem, featured: Sequence[str]) -
     else:
         key = f"guide.ten_god.{god.group.name.lower()}"
         basis = god.group.name
+    params = {"ten_god": god.name, "element": day.stem.element.name}
     return Judgment(
-        message_key=require(key),
-        params={"ten_god": god.name, "element": day.stem.element.name},
+        message_key=require(key, params),
+        params=params,
         evidence=(_evidence("guide/question", {"basis": basis, "ten_god": god.name}),),
     )

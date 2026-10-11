@@ -89,8 +89,9 @@ def _luck_judgment(luck: LuckScore) -> Judgment:
         source_ref=FIVE_ELEMENTS_REF["balance_principle"],
         detail={"breakdown": breakdown, "score": str(luck.score)},
     )
+    params = {"score": luck.score}
     return Judgment(
-        message_key=require(f"calendar.{luck.level.name.lower()}"),
-        params={"score": luck.score},
+        message_key=require(f"calendar.{luck.level.name.lower()}", params),
+        params=params,
         evidence=(evidence,),
     )

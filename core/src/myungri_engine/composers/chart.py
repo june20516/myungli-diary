@@ -65,14 +65,15 @@ def merge_notices(*groups: Iterable[Notice]) -> tuple[Notice, ...]:
 
 
 def yongsin_judgment(yongsin: YongsinResult) -> Judgment:
+    params = {
+        "yongsin": yongsin.yongsin.name,
+        "huisin": yongsin.huisin.name,
+        "gisin": yongsin.gisin.name,
+        "tonggwan": yongsin.tonggwan.name,
+    }
     return Judgment(
-        message_key=require(f"yongsin.method.{yongsin.method.name.lower()}"),
-        params={
-            "yongsin": yongsin.yongsin.name,
-            "huisin": yongsin.huisin.name,
-            "gisin": yongsin.gisin.name,
-            "tonggwan": yongsin.tonggwan.name,
-        },
+        message_key=require(f"yongsin.method.{yongsin.method.name.lower()}", params),
+        params=params,
         evidence=yongsin.evidence,
     )
 
