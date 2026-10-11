@@ -16,7 +16,7 @@
 | 슬롯 명세 (원고 표기 포함: `{param}`, `{param:범주}`, 조사 표기 6쌍, 용어 토큰 `[[...]]`) | `docs/identity/writing/slots/` (`_schema.yaml`, `content/`, `ui/`, 읽는 문서 `generated/slot-catalog.md`) | writing | server, app | v1 | **확정** (W0, PR #36 `7698f52`). 콘텐츠 슬롯 15개(메시지 키 93개), `ui/`는 깊이 이름만. 문장 유형 범위는 D57 | 브랜드 기반 spec §8, W0 spec, writing 결정 W1~W15 |
 | 호칭·조사 처리 규칙 (렌더 순서 포함) | `docs/identity/writing/guide/honorific-josa.md`, `rules/josa.yaml` | writing | server (콘텐츠 모듈) | v1 | **확정** (W0, PR #36). 호칭 접미사는 원고에 직접 씀(렌더러는 붙이지 않음) | D36, W0 spec |
 | 라이팅 검사기 (`mlw` CLI, 패키지 `myungli-writing`) | `docs/identity/writing/tools/`. 저장소 루트에서 `uv run --project docs/identity/writing/tools mlw <명령>` | writing | server (시드 CI), app (CI, `check-arb`) | v0.1.0 | **확정** (W0, PR #36). 명령 `check`·`check-arb`·`gen-docs`·`gen-week-fixture` | 브랜드 기반 spec §8, W0 spec |
-| 메시지 키별 매개변수 | `core/message_params.json` (예정, 키 → 매개변수 이름 목록) | core | writing (슬롯 `params` 대조), server | - | 요청함 (Issue #38). `message_keys.json` 형식은 그대로 두고 새 파일로 추가 | D27, `writing-to-root-contracts` |
+| 메시지 키별 매개변수 | `core/message_params.json` (키 → 매개변수 이름 목록) | core | writing (슬롯 `params` 대조), server | - | **구현 완료**, 93개 키 (PR #57 `d33573e`). `message_keys.json`과 키 집합이 같고, 엔진이 판정을 만들 때 선언과 대조함. `message_keys.json` 형식은 그대로 | D27, `writing-to-root-contracts`, Issue #38 |
 
 ## 생성 코드
 * proto에서 생성한 코드는 사용하는 서비스마다 자기 디렉터리에 commit합니다(D33).

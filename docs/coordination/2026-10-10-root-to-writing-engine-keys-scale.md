@@ -7,7 +7,7 @@ created: 2026-10-10
 related: [core/message_keys.json, D27, D40, D42, W0, W1]
 ---
 
-> 이관됨: GitHub Issue #8. 이후 진행은 Issue에서 합니다.
+> 이관됨: GitHub Issue #8. 이후 진행은 Issue에서 합니다. Issue 닫힘(2026-10-11). writing spec이 이 파일을 링크로 가리켜 archive로 옮기지 않습니다.
 
 # 엔진 메시지 키 규모와 W0에 반영할 항목
 

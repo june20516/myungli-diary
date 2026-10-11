@@ -7,7 +7,7 @@ created: 2026-10-10
 related: [D27, D31, D33, engine.proto v1, core/message_keys.json, core spec §9·§10·§11·§12]
 ---
 
-> 이관됨: GitHub Issue #3. 이후 진행은 Issue에서 합니다.
+> 이관됨: GitHub Issue #3. 이후 진행은 Issue에서 합니다. Issue 닫힘(2026-10-11). server/CLAUDE.md가 이 경로를 적어 두어 archive로 옮기지 않습니다.
 
 # 엔진 gRPC 계약 v1(proto) 확정: 엔진 대역으로 개발을 시작할 수 있습니다
 
