@@ -259,16 +259,22 @@ func TestContract_NoOpenAPI31OnlySyntax(t *testing.T) {
 	walkNoOpenAPI31OnlySyntax(t, loadYAML(t))
 }
 
-// walkNoOpenAPI31OnlySyntax는 3.1에서만 뜻이 있는 const·webhooks 키와 $ref 형제 키를 찾아 실패로 기록합니다.
+// walkNoOpenAPI31OnlySyntax는 3.1에서만 뜻이 있는 const·webhooks 키, 숫자형 exclusiveMinimum·exclusiveMaximum
+// (3.0에서는 bool), $ref 형제 키를 찾아 실패로 기록합니다.
+// server의 요청 검증은 계약 사본을 3.0.3으로 읽으므로(internal/httpapi/validate.go) 이 검사가 그 전제를 지킵니다.
 func walkNoOpenAPI31OnlySyntax(t *testing.T, node *yaml.Node) {
 	t.Helper()
 	if node.Kind == yaml.MappingNode {
 		hasRef := false
 		for i := 0; i+1 < len(node.Content); i += 2 {
-			key := node.Content[i]
+			key, value := node.Content[i], node.Content[i+1]
 			switch key.Value {
 			case "const", "webhooks":
 				t.Errorf("line %d: 3.1 전용 키워드 %s", key.Line, key.Value)
+			case "exclusiveMinimum", "exclusiveMaximum":
+				if value.Tag != "!!bool" {
+					t.Errorf("line %d: 3.1 전용 숫자형 %s", key.Line, key.Value)
+				}
 			case "$ref":
 				hasRef = true
 			}

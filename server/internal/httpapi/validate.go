@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"log/slog"
+	"mime"
 	"net/http"
 	"strings"
 
@@ -25,12 +28,12 @@ const (
 	// validationOpenAPIVersion은 검증용 spec 사본의 버전입니다. ValidateRequests 주석을 보세요.
 	validationOpenAPIVersion = "3.0.3"
 
-	// kin-openapi가 Content-Type 불일치와 본문 디코드 실패에 쓰는 RequestError.Reason입니다.
-	// 이 두 경우는 타입으로 구분되지 않아 문구로 가려냅니다(테스트가 이 문구의 변화를 잡습니다).
-	reasonUnexpectedContentType = "header Content-Type has unexpected value"
-	reasonBodyDecodeFailed      = "failed to decode request body"
+	// kin-openapi가 본문 디코드 실패에 쓰는 RequestError.Reason입니다. 스키마 위반(같은 RequestError, 다른 Reason)과
+	// 타입으로 구분되지 않아 문구로 가려냅니다(TestAPI_MalformedJSONReturns400Malformed가 문구의 변화를 잡습니다).
+	reasonBodyDecodeFailed = "failed to decode request body"
 )
 
+// init의 등록은 kin-openapi 패키지 전역 상태라 httpapi를 import한 바이너리 전체(테스트 포함)에 적용됩니다.
 func init() {
 	// JSON 본문과 PATCH 본문(JSON Merge Patch)을 같은 규칙의 JSON으로 디코드합니다.
 	openapi3filter.RegisterBodyDecoder(contentTypeJSON, decodeSingleJSONBody)
@@ -70,9 +73,16 @@ func decodeSingleJSONBody(body io.Reader, _ http.Header, _ *openapi3.SchemaRef, 
 // 검증은 spec 사본의 버전을 3.0.3으로 낮춰 kin-openapi의 built-in validator로 합니다. kin-openapi(v0.142)는 3.1 문서를
 // JSON Schema 2020-12 validator로 검사하는데, 이 경로는 format(date 등)을 검사하지 않고 오류의 위치·keyword를
 // 구조화해 주지 않습니다(errors[].field를 만들 수 없음). 계약은 3.0과 겹치는 keyword만 쓰므로 3.0 의미로 검사해도
-// 계약의 뜻이 바뀌지 않습니다.
-// 계약에 3.1 전용 keyword(type 배열, const 등)를 쓰게 되면 이 방식을 다시 정해야 합니다.
-func ValidateRequests(spec *openapi3.T) func(http.Handler) http.Handler {
+// 계약의 뜻이 바뀌지 않습니다. 이 전제는 api/contract_test.go의 TestContract_NoOpenAPI31OnlySyntax와
+// TestContract_NoNullTypes(const·webhooks·숫자형 exclusiveMinimum/Maximum·type 배열·null 금지)가 지킵니다.
+//
+// HEAD 요청은 GET으로 바꾼 사본으로 검증하고 그 사본을 핸들러에 넘깁니다. ServeMux는 GET 라우트로 HEAD도 받는데
+// 계약에는 HEAD operation이 없으므로, GET과 같은 규칙을 적용해 검증 우회를 막습니다(RFC 9110 §9.3.2).
+// 응답 본문은 net/http가 원래 요청이 HEAD임을 보고 버립니다.
+//
+// logger에는 계약 router가 라우트를 찾지 못하거나 분류되지 않는 오류가 생겼을 때만 오류 타입과 route 패턴을 남깁니다.
+// 요청 값은 남기지 않습니다.
+func ValidateRequests(spec *openapi3.T, logger *slog.Logger) func(http.Handler) http.Handler {
 	// 호출자의 spec은 바꾸지 않습니다. 검증기가 Host를 servers와 대조하지 않게 servers도 비웁니다.
 	validationSpec := *spec
 	validationSpec.OpenAPI = validationOpenAPIVersion
@@ -87,14 +97,16 @@ func ValidateRequests(spec *openapi3.T) func(http.Handler) http.Handler {
 			AuthenticationFunc: func(context.Context, *openapi3filter.AuthenticationInput) error { return nil },
 		},
 		SilenceServersWarning: true,
-		ErrorHandlerWithOpts:  writeValidationProblem,
+		ErrorHandlerWithOpts: func(ctx context.Context, err error, w http.ResponseWriter, r *http.Request, opts nethttpmiddleware.ErrorHandlerOpts) {
+			writeValidationProblem(ctx, logger, err, w, r, opts)
+		},
 	}
+	// 계약 router(gorillamux)는 여기서 한 번만 만들고 모든 라우트가 함께 씁니다.
+	validate := nethttpmiddleware.OapiRequestValidatorWithOptions(&validationSpec, options)
 
 	return func(next http.Handler) http.Handler {
-		validator := nethttpmiddleware.OapiRequestValidatorWithOptions(&validationSpec, options)(next)
+		validator := validate(next)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// ServeMux는 GET 라우트로 HEAD도 받습니다. 계약에는 HEAD operation이 없으므로
-			// HEAD를 GET과 같은 규칙으로 검증해 검증을 우회하는 경로를 막습니다(RFC 9110 §9.3.2).
 			if r.Method == http.MethodHead {
 				r = r.Clone(r.Context())
 				r.Method = http.MethodGet
@@ -105,34 +117,53 @@ func ValidateRequests(spec *openapi3.T) func(http.Handler) http.Handler {
 }
 
 // writeValidationProblem은 nethttp-middleware의 검증 실패를 problem 응답으로 씁니다.
-func writeValidationProblem(_ context.Context, err error, w http.ResponseWriter, r *http.Request, opts nethttpmiddleware.ErrorHandlerOpts) {
+func writeValidationProblem(ctx context.Context, logger *slog.Logger, err error, w http.ResponseWriter, r *http.Request, opts nethttpmiddleware.ErrorHandlerOpts) {
 	if opts.MatchedRoute == nil {
 		// ServeMux가 고른 라우트를 계약 router가 찾지 못한 경우입니다(경로 정규화 차이 등). 검증 없이 넘기지 않습니다.
+		logger.ErrorContext(ctx, "계약 router가 라우트를 찾지 못함", "route", r.Pattern, "errorType", fmt.Sprintf("%T", err))
 		problem.Write(w, r, problem.New(http.StatusNotFound, "route.not_found", "Route not found"))
 		return
 	}
-	problem.Write(w, r, validationProblem(err))
+	p, classified := validationProblem(err, unsupportedMediaType(r, opts.MatchedRoute.Route.Operation))
+	if !classified {
+		logger.ErrorContext(ctx, "분류되지 않는 검증 오류", "route", r.Pattern, "errorType", fmt.Sprintf("%T", err))
+	}
+	problem.Write(w, r, p)
+}
+
+// unsupportedMediaType은 operation이 본문을 받는데 요청 Content-Type(파라미터 제외)이 계약의 content에 없는지 봅니다.
+func unsupportedMediaType(r *http.Request, operation *openapi3.Operation) bool {
+	if operation == nil || operation.RequestBody == nil || operation.RequestBody.Value == nil {
+		return false
+	}
+	mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil {
+		mediaType = ""
+	}
+	return operation.RequestBody.Value.Content.Get(mediaType) == nil
 }
 
 // validationProblem은 검증 오류를 상태와 코드로 분류합니다. 우선순위는 413, 415, 400 malformed, 400 invalid입니다.
-func validationProblem(err error) problem.Problem {
+// mediaTypeUnsupported는 요청 Content-Type이 계약에 없는지입니다. 분류하지 못하면 500과 false를 돌려줍니다.
+func validationProblem(err error, mediaTypeUnsupported bool) (problem.Problem, bool) {
 	var tooLarge *http.MaxBytesError
 	if errors.As(err, &tooLarge) {
-		return problem.New(http.StatusRequestEntityTooLarge, "request.too_large", "Request body is too large")
+		return problem.New(http.StatusRequestEntityTooLarge, "request.too_large", "Request body is too large"), true
 	}
 
 	requestErrors, ok := collectRequestErrors(err)
 	if !ok {
 		// 인증 통과 함수를 쓰므로 RequestError가 아닌 오류는 생기지 않아야 합니다.
-		return problem.New(http.StatusInternalServerError, "internal", "Internal server error")
+		return problem.New(http.StatusInternalServerError, "internal", "Internal server error"), false
 	}
 
 	var fieldErrors []problem.FieldError
-	unsupportedMediaType, malformed := false, false
+	unsupported, malformed := false, false
 	for _, requestError := range requestErrors {
 		switch {
-		case requestError.RequestBody != nil && strings.HasPrefix(requestError.Reason, reasonUnexpectedContentType):
-			unsupportedMediaType = true
+		// 본문이 비어 있으면 Content-Type과 관계없이 필수 본문 누락(400)입니다.
+		case requestError.RequestBody != nil && mediaTypeUnsupported && !errors.Is(requestError.Err, openapi3filter.ErrInvalidRequired):
+			unsupported = true
 		case requestError.RequestBody != nil && requestError.Reason == reasonBodyDecodeFailed:
 			malformed = true
 		case requestError.Parameter != nil:
@@ -143,14 +174,14 @@ func validationProblem(err error) problem.Problem {
 	}
 
 	switch {
-	case unsupportedMediaType:
-		return problem.New(http.StatusUnsupportedMediaType, codeUnsupportedMediaType, "Unsupported request content type")
+	case unsupported:
+		return problem.New(http.StatusUnsupportedMediaType, codeUnsupportedMediaType, "Unsupported request content type"), true
 	case malformed:
-		return problem.New(http.StatusBadRequest, codeRequestMalformed, "Request body is malformed")
+		return problem.New(http.StatusBadRequest, codeRequestMalformed, "Request body is malformed"), true
 	}
 	p := problem.New(http.StatusBadRequest, codeRequestInvalid, "Request does not match the contract")
 	p.Errors = fieldErrors
-	return p
+	return p, true
 }
 
 // collectRequestErrors는 MultiError를 펼쳐 RequestError 목록을 돌려줍니다. 다른 종류가 섞이면 false입니다.

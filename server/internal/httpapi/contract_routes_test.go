@@ -2,6 +2,7 @@ package httpapi_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -28,7 +29,7 @@ func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 		t.Fatalf("계약 읽기: %v", err)
 	}
 	deps, logs := newTestDeps()
-	validate := httpapi.ValidateRequests(spec)
+	validate := httpapi.ValidateRequests(spec, deps.Logger)
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
 	})
@@ -165,6 +166,68 @@ func TestAPI_WrongContentTypeReturns415(t *testing.T) {
 	}
 }
 
+// 415 판정은 요청 media type(파라미터 제외)이 계약 content에 있는지로 합니다.
+func TestAPI_ContentTypeIsJudgedByMediaType(t *testing.T) {
+	handler, _ := newAPIHandler(t)
+	cases := []struct {
+		name, contentType, body string
+		want                    int
+	}{
+		{"charset 파라미터는 무시", "application/json; charset=utf-8", `{"body":"오늘"}`, http.StatusNotImplemented},
+		{"Content-Type 없음", "", `{"body":"오늘"}`, http.StatusUnsupportedMediaType},
+		{"PUT에 merge-patch", contentTypeMergePatch, `{"body":"오늘"}`, http.StatusUnsupportedMediaType},
+		{"빈 본문은 형식과 관계없이 400", "text/plain", "", http.StatusBadRequest},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPut, "/v1/diaries/2026-10-11", strings.NewReader(tc.body))
+			if tc.contentType != "" {
+				req.Header.Set("Content-Type", tc.contentType)
+			}
+
+			rec := serve(handler, req)
+
+			if rec.Code != tc.want {
+				t.Fatalf("status = %d, want %d, body = %s", rec.Code, tc.want, rec.Body.String())
+			}
+		})
+	}
+}
+
+// 계약 router가 라우트를 찾지 못하면 404 problem을 쓰고, 요청 값 없이 오류 타입과 route 패턴만 로그로 남깁니다.
+func TestValidateRequests_UnknownContractRouteIsLogged(t *testing.T) {
+	spec, err := gen.GetSwagger()
+	if err != nil {
+		t.Fatalf("계약 읽기: %v", err)
+	}
+	deps, logs := newTestDeps()
+	validate := httpapi.ValidateRequests(spec, deps.Logger)
+	called := false
+	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
+		// ServeMux에는 있지만 계약에는 없는 라우트로 계약 router의 미발견 경로를 만듭니다.
+		mux.Handle("GET /v1/extra/{id}", validate(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { called = true })))
+	})
+
+	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/extra/secret-id?token=secret-value", nil))
+
+	if rec.Code != http.StatusNotFound || called {
+		t.Fatalf("status = %d, called = %v, want 404 and 핸들러 미호출", rec.Code, called)
+	}
+	if p := decodeProblem(t, rec); p.Code != "route.not_found" {
+		t.Errorf("code = %q", p.Code)
+	}
+	var entry map[string]any
+	if err := json.Unmarshal([]byte(strings.SplitN(logs.String(), "\n", 2)[0]), &entry); err != nil {
+		t.Fatalf("로그 파싱: %v, logs = %q", err, logs.String())
+	}
+	if entry["severity"] != "ERROR" || entry["route"] != "GET /v1/extra/{id}" || entry["errorType"] == nil {
+		t.Errorf("로그 = %v, want ERROR·route 패턴·errorType", entry)
+	}
+	if strings.Contains(logs.String(), "secret-id") || strings.Contains(logs.String(), "secret-value") {
+		t.Errorf("로그에 요청 값이 남음: %q", logs.String())
+	}
+}
+
 func TestAPI_MalformedJSONReturns400Malformed(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
@@ -256,7 +319,8 @@ func TestAPI_MergePatchBodyIsValidated(t *testing.T) {
 	expectInvalid(t, rec, "/honorific")
 }
 
-// ServeMux는 GET 라우트로 HEAD도 받으므로, HEAD도 GET과 같은 규칙으로 검증해야 우회 경로가 생기지 않습니다.
+// ServeMux는 GET 라우트로 HEAD도 받으므로, 검증은 HEAD를 GET으로 바꾼 사본으로 검증하고 그 사본을 핸들러에 넘깁니다.
+// 그래야 HEAD로 검증을 우회하는 경로가 생기지 않습니다.
 func TestAPI_HeadIsValidatedLikeGet(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
@@ -427,7 +491,8 @@ func TestValidateRequests_KeepsRawQueryAndBody(t *testing.T) {
 		gotBody = string(data)
 		w.WriteHeader(http.StatusNoContent)
 	})
-	handler := httpapi.ValidateRequests(spec)(next)
+	deps, _ := newTestDeps()
+	handler := httpapi.ValidateRequests(spec, deps.Logger)(next)
 
 	rawQuery := "transaction_id=t%2Bx&timestamp=1&key_id=1&signature=s%3D%3D&custom_data=a+b"
 	rec := httptest.NewRecorder()

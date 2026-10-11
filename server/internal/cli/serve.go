@@ -42,7 +42,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		return &loggedError{err: err}
 	}
 	deps := httpapi.Deps{Logger: logger, Clock: clock.System{}}
-	validate := httpapi.ValidateRequests(spec)
+	validate := httpapi.ValidateRequests(spec, deps.Logger)
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
 	})
