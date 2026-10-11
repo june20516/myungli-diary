@@ -288,6 +288,22 @@ def test_day_cell_layer_order_and_event_rules():
     assert "진행 중" in rules and "다음" in rules and "하루 종일" in rules
 
 
+def test_committed_component_files_pass_all_checks():
+    ia = json.loads(IA_PATH.read_text(encoding="utf-8"))
+    problems = find_problems(load_documents(COMPONENTS_DIR), ia, token_names_by_theme(TOKENS_DIR), COMPONENTS_DIR)
+    assert problems == []
+
+
+def test_all_spec_files_are_present():
+    names = set(load_documents(COMPONENTS_DIR))
+    assert names == set(components.GROUPS) | set(components.COMMON)
+
+
+def test_cli_exit_code_is_zero(capsys):
+    assert components.main() == 0
+    assert "OK" in capsys.readouterr().out
+
+
 def test_state_map_matches_spec():
     state_map = load_documents(COMPONENTS_DIR)["feedback"]["stateMap"]
     assert state_map == {"loading": "skeleton", "empty": "empty-state", "error": "error-state",
