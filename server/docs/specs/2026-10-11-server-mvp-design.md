@@ -242,7 +242,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * **일기 날짜(D49):** 오늘 이후 날짜는 422 `diary.future_date`입니다. 지운 일기를 되살리려는 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`입니다.
 * **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다.
 * **일기 동시 저장:** 기기 동기화는 MVP 범위 밖이라(D47②) 마지막 쓰기가 남습니다.
-* **날짜 경로 검증:** `/daily/{date}`, `/calendar/{year}/{month}`의 날짜는 형식이 틀리면 400 `request.invalid`, 형식은 맞지만 D41 범위 밖이면 422 `date.out_of_range`, 존재하지 않는 날짜(예 2월 31일)면 422 `date.invalid`입니다.
+* **날짜 경로 검증:** `/calendar/{year}/{month}`는 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 그 안이지만 D41 범위를 벗어나면 422 `date.out_of_range`입니다. `/daily/{date}`의 날짜는 형식이 틀리거나 달력에 없는 날짜(예 `2026-02-30`, `format: date` 위반)면 400 `request.invalid`, 형식은 맞지만 D41 범위 밖이면 422 `date.out_of_range`입니다. 422 `date.invalid`는 정수 필드 객체 `LunarOrSolarDate`(예 양력 2월 31일)에만 씁니다.
 * **미리보기(D50):** 출생 정보·현재 시간대를 받아 오늘의 데일리 중 surface만 돌려줍니다. 호칭을 받지 않으므로 호칭이 들어가는 슬롯은 호칭 없는 변주를 쓰도록 writing에 확인합니다(§13). 기기 해시(`device_hash`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 기기 식별값은 재설치로 바뀔 수 있어 1회 제한은 최선 노력입니다.
 * **시진 확인(D58):** 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 시간을 고칠 때마다 부르는 요청이라 1회 제한 대신 기기·IP별 요청 한도(분당 30회)를 둡니다. 엔진 RPC는 core가 추가하는 대로 붙입니다.
 
@@ -415,18 +415,18 @@ RFC 9457 `application/problem+json`을 씁니다.
 
 ### 11.2 요청 처리
 
-400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은 모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 422는 스키마로 표현할 수 없는 의미 검사(D41 범위 밖, 존재하지 않는 날짜, 상태-값 짝 위반, 엔진 판정과 업무 규칙)에만 씁니다.
+400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은 모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 422는 스키마로 표현할 수 없는 의미 검사(D41 범위 밖, `LunarOrSolarDate`의 없는 날짜, 상태-값 짝 위반, 엔진 판정과 업무 규칙)에만 씁니다. `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 형식 위반이라 400입니다.
 
 | 상황 | 상태 | `code` 예 |
 | --- | --- | --- |
 | JSON 문법 오류, 값 뒤에 데이터가 더 있음 | 400 | `request.malformed` |
-| 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, 최솟값·최댓값, `format`). 예 알림 시각의 분이 5의 배수가 아님 | 400 | `request.invalid` (`errors[].code`는 위반한 keyword) |
+| 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, 최솟값·최댓값, `format`). 예 알림 시각의 분이 5의 배수가 아님, `format: date`의 없는 날짜 `2026-02-30` | 400 | `request.invalid` (`errors[].code`는 위반한 keyword) |
 | 경로에 등록된 라우트가 없음, 경로 정리가 필요한 경로(예 `/v1//me`) | 404 | `route.not_found` |
 | 라우트는 있지만 메서드가 다름 (`Allow` 헤더) | 405 | `method.not_allowed` |
 | 요청 본문이 1 MiB를 넘음 | 413 | `request.too_large` |
 | 지원하지 않는 요청 Content-Type | 415 | `request.unsupported_media_type` |
 | 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖 | 422 | `date.out_of_range`, 출생 정보는 `birth.out_of_range` |
-| 존재하지 않는 날짜(예 2월 31일) | 422 | `date.invalid` |
+| 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜는 위 400 행 | 422 | `date.invalid` |
 | 상태-값 짝 위반: `BirthTime`(`status`·`value`), `BirthPlace`(`status`·`cityId`), 양력인데 `isLeapMonth` true, `NotificationSetting`(`status`·`time`), `ScheduleInput`·`SchedulePatch`(`allDay`·`time`) | 422 | `request.inconsistent` (`errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`) |
 | 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid`, `name.emoji` |
 | access token 없음·만료·위조 (`WWW-Authenticate: Bearer error="invalid_token"`, RFC 6750) | 401 | `auth.token_expired`, `auth.token_invalid` |
