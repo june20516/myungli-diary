@@ -31,13 +31,13 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 | **참고** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
 ## 현재 상태 (2026-10-11, server 세션 갱신)
-* **설계(S1) spec 승인, 구현 P1 진행 중**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~)에 모읍니다. 작업 브랜치는 `server/design`(worktree `../myungli-diary-server`)입니다.
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~)에 모읍니다. 작업 브랜치는 `server/design`(worktree `../myungli-diary-server`)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 notice: Issue #3(엔진 계약), #7(D36·D37·D40), #29(S1 착수, D55~D60), #55(호칭·조사 규칙 사용법). 모두 spec에 반영했습니다. 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 지휘 미결이었던 소셜 로그인 제공자와 배포 플랫폼은 D55·D56으로 정해졌습니다. 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P1(기반과 REST 계약 초안) 실행 중입니다: `docs/plans/2026-10-11-p1-foundation.md`. 끝나면 PR을 열고 REST API v1 계약 등록을 `from:server`·`to:root` Issue로 요청합니다.
-2. P2부터는 앞 계획이 병합된 뒤 실제 코드를 보고 씁니다(`docs/plans/README.md`).
+1. P1 PR의 병합과 REST API v1 계약 등록·ci-gate 연결(root 요청 Issue)을 기다립니다. 계약 원본은 `api/openapi.yaml`(1.0.0-draft)입니다.
+2. 병합되면 P2(인증·계정·약관) 계획을 씁니다. 앞 계획에서 넘어온 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
 3. 보낸 요청의 답을 기다립니다: #48(root, 알림 슬롯·재구매 연장 등), #49(core, `ruleset_version` 조회 RPC).
