@@ -451,6 +451,11 @@
           "id": "onboard-time.unknown.note",
           "source": "ui",
           "role": "3주로 계산한다는 안내"
+        },
+        {
+          "id": "onboard-time.hour.confirm",
+          "source": "content",
+          "role": "엔진이 계산한 시진과 벽시계 범위 확인 줄(예: 인시 03:30~05:30). 기기 지역이 한국일 때만 (D58)"
         }
       ],
       "components": [
@@ -472,7 +477,8 @@
       "decisions": [
         "D18",
         "D32",
-        "D39"
+        "D39",
+        "D58"
       ]
     },
     {
@@ -1116,6 +1122,16 @@
           "role": "이미지 아래 앱 이름"
         },
         {
+          "id": "share-preview.image.tagline",
+          "source": "ui",
+          "role": "공유 이미지 태그라인"
+        },
+        {
+          "id": "share-preview.ratio.label",
+          "source": "ui",
+          "role": "공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
+        },
+        {
           "id": "share-preview.cta.share",
           "source": "ui",
           "role": "공유 버튼"
@@ -1124,6 +1140,7 @@
       "components": [
         "sheet",
         "share-image",
+        "segmented",
         "primary-button"
       ],
       "exits": [
@@ -1484,6 +1501,7 @@
         "diary-editor",
         "draft-indicator",
         "notice-banner",
+        "tag-chip",
         "toast",
         "primary-button"
       ],
