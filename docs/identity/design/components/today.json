@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "group": "today",
+  "components": [
+    {
+      "id": "day-character",
+      "summary": "날의 성격 배지와 이유 한 줄",
+      "uses": ["tone"],
+      "variants": [
+        { "id": "good", "when": "YONGSIN_DAY", "parts": { "badge": { "bg": "{color.badge.good.bg}", "fg": "{color.badge.good.fg}" } } },
+        { "id": "gwiin", "when": "GWIIN_DAY", "parts": { "badge": { "bg": "{color.badge.gwiin.bg}", "fg": "{color.badge.gwiin.fg}" } } },
+        { "id": "gisin", "when": "GISIN_DAY", "parts": { "badge": { "bg": "{color.badge.gisin.bg}", "fg": "{color.badge.gisin.fg}" } } },
+        { "id": "ordinary", "when": "ORDINARY_DAY", "parts": { "badge": { "bg": "transparent", "border": { "color": "{color.badge.ordinary.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.badge.ordinary.fg}" } } }
+      ],
+      "parts": {
+        "badge": { "radius": "{radius.full}", "type": "{type.label.md}", "paddingX": { "value": 10, "unit": "px" }, "height": { "value": 26, "unit": "px" } },
+        "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "trailing": "depth-link inline-end" }
+      },
+      "states": {},
+      "haptic": [],
+      "a11y": { "role": "text", "label": "배지 글자 + 이유", "colorIndependent": true },
+      "rules": ["배지는 글자로 날의 성격을 말한다. 색만으로 전하지 않는다.", "이유 줄 끝에 depth-link inline-end가 붙는다."]
+    },
+    {
+      "id": "lucky-card",
+      "summary": "행운 항목 칩. 누르면 설명 한 줄이 스밈",
+      "uses": ["press.ink", "appear.seep", "disappear.seep", "icon"],
+      "variants": [
+        { "id": "color", "when": "행운 색", "uses": ["ohaeng.swatch"], "parts": { "lead": { "swatch": { "size": { "value": 14, "unit": "px" }, "radius": "{radius.full}" } } } },
+        { "id": "direction", "when": "행운 방향", "parts": { "lead": { "icon": "compass" } } },
+        { "id": "number", "when": "행운 숫자", "parts": { "lead": { "icon": "hash" } } },
+        { "id": "time", "when": "행운 시간", "parts": { "lead": { "icon": "clock" } } }
+      ],
+      "parts": {
+        "chip": { "bg": "{color.chip.bg}", "radius": "{radius.full}", "height": { "value": 34, "unit": "px" }, "paddingX": "{space.12}", "gap": { "value": 6, "unit": "px" } },
+        "lead": { "iconWeight": "regular", "iconSize": { "value": 16, "unit": "px" }, "iconColor": "{color.text.secondary}" },
+        "value": { "type": "{type.label.md}", "fg": "{color.text.primary}" },
+        "row": { "gap": "{space.8}", "wrap": true },
+        "explain": { "bg": "{color.chip.bg}", "radius": "{radius.md}", "padding": "{space.12}", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink" },
+        "open": { "pattern": "appear.seep", "parts": { "chip": { "innerBorder": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" } } }, "explain": { "visible": true } } },
+        "closed": { "pattern": "disappear.seep", "parts": { "explain": { "visible": false } } }
+      },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "항목 이름 + 값", "expandedAnnounced": true, "minTarget": 44 },
+      "rules": [
+        "한 번에 하나만 열린다. 다른 칩을 누르면 열린 설명이 바뀐다.",
+        "칩 줄은 화면 폭에 따라 두 줄로 넘어간다. 설명 상자는 칩 줄 아래 전체 폭으로 열린다."
+      ]
+    },
+    {
+      "id": "guide-question-card",
+      "summary": "가이드 질문과 쓰기 입구",
+      "uses": ["seal", "press.ink"],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.20}" },
+        "eyebrow": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+        "question": { "component": "sentence-block", "variant": "card", "marginTop": "{space.8}" },
+        "action": { "marginTop": "{space.16}" }
+      },
+      "states": {
+        "before": { "parts": { "action": { "component": "primary-button", "variant": "filled" } } },
+        "after": {
+          "parts": {
+            "question": { "fg": "{color.text.secondary}" },
+            "action": { "component": "primary-button", "variant": "quiet", "align": "center" },
+            "seal": { "element": "seal", "variant": "soft", "size": { "value": 52, "unit": "px" }, "layer": "behind-action-label", "align": "center" }
+          }
+        }
+      },
+      "haptic": [],
+      "a11y": { "role": "group", "label": "질문", "stateAnnounced": "일기를 썼으면 '오늘 일기 씀'" },
+      "rules": ["일기를 쓴 뒤 도장은 버튼 글자 뒤 층에 둔다(일기 종이 도장과 같은 모양, 옅은 변형)."]
+    },
+    {
+      "id": "share-image",
+      "summary": "공유 이미지 틀 (라이트 고정)",
+      "uses": ["ohaeng.swatch"],
+      "variants": [
+        { "id": "story", "when": "9:16", "parts": { "canvas": { "ratio": "9:16", "width": { "value": 1080, "unit": "px" }, "height": { "value": 1920, "unit": "px" } }, "reason": { "visible": true }, "sentence": { "lines": "all" }, "chips": { "count": 4 } } },
+        { "id": "feed", "when": "4:5", "parts": { "canvas": { "ratio": "4:5", "width": { "value": 1080, "unit": "px" }, "height": { "value": 1350, "unit": "px" } }, "reason": { "visible": false }, "sentence": { "lines": 2 }, "chips": { "count": 3 } } },
+        { "id": "square", "when": "1:1", "parts": { "canvas": { "ratio": "1:1", "width": { "value": 1080, "unit": "px" }, "height": { "value": 1080, "unit": "px" } }, "reason": { "visible": false }, "sentence": { "lines": "first-sentence" }, "chips": { "count": 3 } } }
+      ],
+      "parts": {
+        "canvas": { "bg": "{gradient.today}", "theme": "light-fixed" },
+        "date": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+        "badge": { "component": "day-character", "part": "badge" },
+        "sentence": { "component": "sentence-block", "variant": "card", "honorific": true },
+        "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
+        "chips": { "component": "lucky-card", "interactive": false },
+        "logo": { "asset": "logo/lockup.svg" },
+        "footer": { "slot": "image.footer", "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
+        "preview": { "shadow": "{shadow.raised}", "radius": "{radius.md}" },
+        "ratioPicker": { "component": "segmented", "position": "above-preview" }
+      },
+      "states": { "ratioChanged": { "pattern": "appear.seep" } },
+      "haptic": [],
+      "a11y": { "role": "image", "label": "오늘 문장 이미지 미리보기", "altText": "문장 전체" },
+      "rules": [
+        "다크 모드에서도 라이트 토큰으로 그린다(결정 V5).",
+        "비율은 공유 미리보기 시트 위 segmented로 사용자가 고른다(IA 추가 요청 Issue #35).",
+        "그림 크기는 1080px 폭 기준. 화면 미리보기는 이를 줄여 보인다."
+      ]
+    }
+  ]
+}

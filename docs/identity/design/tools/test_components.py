@@ -246,6 +246,48 @@ def test_generic_spec_values():
     assert "loading.breathe" in json.dumps(c["primary-button"]["states"]["loading"])
 
 
+BRAND_GROUPS = ("sentence", "today", "calendar", "diary", "saju")
+
+
+# 브랜드 묶음 (V2 spec §6.5~§6.9)
+def test_brand_groups_contain_spec_components():
+    documents = load_documents(COMPONENTS_DIR)
+    ids = {group: {c["id"] for c in documents[group]["components"]} for group in BRAND_GROUPS}
+    assert ids == {
+        "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button"},
+        "today": {"day-character", "lucky-card", "guide-question-card", "share-image"},
+        "calendar": {"calendar-month", "day-cell", "event-row"},
+        "diary": {"diary-row", "diary-editor", "draft-indicator", "tag-chip"},
+        "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table"},
+    }
+
+
+def test_brand_spec_values():
+    c = components_by_id(BRAND_GROUPS)
+    assert variant_ids(c["share-image"]) == {"story", "feed", "square"}
+    assert variant_ids(c["term-token"]) >= {"inline", "label"} and "locked" in json.dumps(c["term-token"])
+    assert variant_ids(c["event-row"]) == {"summary", "list"}
+    assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}
+    assert variant_ids(c["depth-link"]) == {"inline-end", "block"}
+    assert set(c["guide-question-card"]["states"]) >= {"before", "after"}
+    assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
+    day = json.dumps(c["day-cell"])
+    assert "{color.seal.soft}" in day and "outline" in day and "mark.underline-grow" in day
+    assert "{color.tag.good.bg}" in json.dumps(c["tag-chip"]) and "tone" in c["tag-chip"]["uses"]
+    assert "link.inline-nowrap" in json.dumps(c["depth-link"])
+    assert "tag.me" in c["saju-pillars"]["uses"] and "highlight.current" in c["daeun-table"]["uses"]
+    assert "surface.paper" in c["diary-editor"]["uses"] and "rail.timeline" in c["diary-row"]["uses"]
+    assert "seal.stamp" in json.dumps(c["reaction-button"]) and "seal.stamp" in json.dumps(c["diary-editor"])
+
+
+def test_day_cell_layer_order_and_event_rules():
+    c = components_by_id(BRAND_GROUPS)
+    assert c["day-cell"]["parts"]["layers"]["order"] == [
+        "luck-fill", "diary-seal", "today-outline", "number", "selected-underline", "event-dot"]
+    rules = " ".join(c["event-row"]["rules"])
+    assert "진행 중" in rules and "다음" in rules and "하루 종일" in rules
+
+
 def test_state_map_matches_spec():
     state_map = load_documents(COMPONENTS_DIR)["feedback"]["stateMap"]
     assert state_map == {"loading": "skeleton", "empty": "empty-state", "error": "error-state",

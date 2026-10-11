@@ -1,0 +1,119 @@
+{
+  "version": "1.0.0",
+  "group": "calendar",
+  "components": [
+    {
+      "id": "calendar-month",
+      "summary": "한 달 격자",
+      "uses": ["appear.seep", "press.ink", "icon"],
+      "parts": {
+        "header": { "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" }, "prev": { "icon": "caret-left", "weight": "light", "target": { "value": 44, "unit": "px" } }, "next": { "icon": "caret-right", "weight": "light", "target": { "value": 44, "unit": "px" } } },
+        "weekdays": {
+          "type": "{type.caption.md}",
+          "fg": "{color.text.secondary}",
+          "sun": "{color.calendar.weekday.sun}",
+          "sat": "{color.calendar.weekday.sat}",
+          "height": { "value": 28, "unit": "px" }
+        },
+        "grid": { "columns": 7, "rowGap": { "value": 2, "unit": "px" }, "columnGap": { "value": 2, "unit": "px" }, "cell": "day-cell" },
+        "legend": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "swatch": { "size": { "value": 10, "unit": "px" }, "radius": "{radius.xs}" }, "optional": true }
+      },
+      "states": {
+        "monthChanged": { "pattern": "appear.seep", "note": "격자만 바뀜, 머리는 그대로" },
+        "loading": { "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
+      },
+      "haptic": [],
+      "a11y": { "role": "grid", "label": "N년 M월", "swipe": "좌우로 달 넘김", "minTarget": 44 },
+      "rules": [
+        "요일 머리만 일(화 ink)·토(토 ink) 색을 쓴다. 날짜 숫자에는 요일 색을 넣지 않는다.",
+        "좌우로 밀거나 이전·다음을 누르면 달이 넘어간다. 움직임은 appear.seep(가로 이동 없음).",
+        "주 시작은 일요일."
+      ]
+    },
+    {
+      "id": "day-cell",
+      "summary": "날짜 칸 (길흉 채우기·음력·절기·일기 도장·오늘·선택·일정)",
+      "uses": ["tone", "seal", "mark.underline-grow", "press.ink"],
+      "parts": {
+        "container": { "height": { "value": 62, "unit": "px" }, "radius": "{radius.sm}" },
+        "luckFill": { "good": "{color.calendar.good.bg}", "caution": "{color.calendar.caution.bg}", "neutral": "transparent" },
+        "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": { "value": 6, "unit": "px" } },
+        "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
+        "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
+        "diarySeal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
+        "todayOutline": { "element": "seal", "variant": "outline", "color": "{color.seal.fill}", "width": { "value": 1.6, "unit": "px" }, "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
+        "selectedUnderline": { "element": "mark.underline-grow", "position": "under-number" },
+        "eventDot": { "color": "{color.action.primary}", "size": { "value": 5, "unit": "px" }, "radius": "{radius.full}", "position": "under-lunar" },
+        "layers": { "order": ["luck-fill", "diary-seal", "today-outline", "number", "selected-underline", "event-dot"] }
+      },
+      "states": {
+        "diaryWritten": { "parts": { "diarySeal": { "visible": true } } },
+        "today": { "parts": { "todayOutline": { "visible": true } } },
+        "selected": { "pattern": "mark.underline-grow", "parts": { "number": { "fg": "{color.action.primary}", "fontWeight": 700 }, "selectedUnderline": { "visible": true } } },
+        "hasEvent": { "parts": { "eventDot": { "visible": true } } },
+        "outsideMonth": { "parts": { "number": { "opacity": 0.35 }, "luckFill": { "visible": false } } },
+        "pressed": { "pattern": "press.ink" },
+        "disabled": { "parts": { "number": { "fg": "{color.disabled.fg}" } }, "note": "date-picker calendar 변형의 미래 날짜" }
+      },
+      "haptic": [],
+      "a11y": {
+        "role": "gridcell",
+        "label": "M월 D일 요일, 음력 M.D 또는 절기, 길흉 낱말, 일기 씀, 일정 N개, 오늘",
+        "colorIndependent": true,
+        "selectedAnnounced": true,
+        "textScaleMax": 1.3,
+        "minTarget": 44
+      },
+      "rules": [
+        "표시는 모두 같은 자리에서 겹쳐 그린다(빼기 처리 없음). 반투명 도장이 길흉 바탕과 섞여 보이는 것은 의도다.",
+        "겹침 순서(아래부터): 길흉 바탕 → 일기 도장 soft → 오늘 윤곽 → 숫자 → 선택 밑줄 → 일정 점.",
+        "일기 도장과 오늘 윤곽은 같은 크기·자리(숫자 상자 가운데 26px)다.",
+        "음력은 초하루만 'M.1', 절기 날은 절기 이름(굵게), 그 밖에는 일(日)만.",
+        "길흉은 색만으로 전하지 않는다. 스크린리더 라벨에 길흉 낱말을 넣는다.",
+        "시스템 글자 크기는 1.3배까지만 키운다. 그 위 설정에서는 칸 높이를 늘린다."
+      ]
+    },
+    {
+      "id": "event-row",
+      "summary": "일정 한 줄 (오늘 요약 / 그날 목록)",
+      "uses": ["tag.status", "press.ink", "icon"],
+      "variants": [
+        {
+          "id": "summary",
+          "when": "오늘 화면 요약 한 줄",
+          "uses": ["tag.status"],
+          "parts": {
+            "status": { "element": "tag.status", "values": ["in-progress", "next"] },
+            "time": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"] },
+            "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
+            "more": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
+            "allPast": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" }
+          }
+        },
+        {
+          "id": "list",
+          "when": "그날 시트의 일정 목록",
+          "parts": {
+            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}" },
+            "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
+            "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
+            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
+            "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet" } }
+          }
+        }
+      ],
+      "parts": {},
+      "states": { "pressed": { "pattern": "press.ink" } },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "상태 + 시각 + 제목", "minTarget": 48 },
+      "rules": [
+        "summary는 지금 시각 기준으로 하나를 고른다: 진행 중 일정 > 다음 일정 > 모두 지남.",
+        "하루 종일 일정은 진행 중으로 보지만, 시각이 있는 진행 중·다음 일정이 있으면 그 일정이 앞선다.",
+        "진행 중·다음 일정 말고도 일정이 더 있으면 '외 N개'를 붙인다.",
+        "그날 일정이 모두 지났으면 개수 문장 한 줄만 보인다.",
+        "list의 시각 칸에는 하루 종일도 같은 폭으로 들어간다.",
+        "일정이 없으면 빈 문장 + '일정 추가' quiet 버튼."
+      ]
+    }
+  ]
+}
