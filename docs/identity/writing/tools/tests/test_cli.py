@@ -73,7 +73,7 @@ def test_cli_check_arb_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[
 
 def test_cli_missing_json_file_is_load_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     missing = tmp_path / "nothing.json"
-    for option in ("--message-keys", "--fixture"):
+    for option in ("--message-keys", "--message-params", "--fixture"):
         assert main(["check", str(CONTENT_DIR), "--partial", option, str(missing)]) == 2
         captured = capsys.readouterr()
         assert "Traceback" not in captured.out + captured.err
@@ -86,7 +86,19 @@ def test_cli_broken_json_file_is_load_error(tmp_path: Path, capsys: pytest.Captu
     broken.write_text("[\n  1,\n  oops\n]\n", encoding="utf-8")
     wrong_shape = tmp_path / "shape.json"
     wrong_shape.write_text('{"a": 1}', encoding="utf-8")
-    for option, path in (("--message-keys", broken), ("--fixture", broken), ("--message-keys", wrong_shape)):
+    params_list = tmp_path / "params_list.json"
+    params_list.write_text('["score"]', encoding="utf-8")
+    params_values = tmp_path / "params_values.json"
+    params_values.write_text('{"calendar.good": "score"}', encoding="utf-8")
+    cases = (
+        ("--message-keys", broken),
+        ("--message-params", broken),
+        ("--fixture", broken),
+        ("--message-keys", wrong_shape),
+        ("--message-params", params_list),
+        ("--message-params", params_values),
+    )
+    for option, path in cases:
         assert main(["check", str(CONTENT_DIR), "--partial", option, str(path)]) == 2
         captured = capsys.readouterr()
         assert "Traceback" not in captured.out + captured.err

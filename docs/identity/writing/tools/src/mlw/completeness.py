@@ -21,6 +21,7 @@ RULE_UNKNOWN_PARAM = "complete.unknown_param"
 RULE_BAD_CATEGORY = "complete.bad_category"
 RULE_UNRENDERABLE_PARAM = "complete.unrenderable_param"
 RULE_UNSLOTTED_KEY = "complete.unslotted_key"
+RULE_PARAM_MISMATCH = "complete.param_mismatch"
 
 # 어느 슬롯에서나 쓸 수 있는 매개변수입니다(호칭). 범주를 붙이지 않습니다.
 NAME_PARAM = "name"
@@ -116,13 +117,39 @@ def _missing_findings(
     return findings
 
 
+def check_params(slots: Mapping[str, Slot], message_params: Mapping[str, Sequence[str]]) -> list[Finding]:
+    """슬롯 명세 `params`가 core의 키별 매개변수(`core/message_params.json`)와 같은지 봅니다.
+
+    `name`(호칭)은 엔진 매개변수가 아니라 비교하지 않습니다. 슬롯에 없는 키는 `complete.unslotted_key`가 맡습니다.
+    """
+    findings: list[Finding] = []
+    for slot in slots.values():
+        for key, params in slot.keys.items():
+            if key not in message_params:
+                continue
+            core_only = sorted(set(message_params[key]) - set(params))
+            spec_only = sorted(set(params) - set(message_params[key]))
+            if not core_only and not spec_only:
+                continue
+            message = (
+                f"메시지 키 '{key}'의 매개변수가 core와 다릅니다: "
+                f"core에만 {core_only or '없음'}, 명세에만 {spec_only or '없음'}"
+            )
+            findings.append(Finding(slot.file, slot.line, RULE_PARAM_MISMATCH, "error", message))
+    return findings
+
+
 def check_completeness(
     slots: Mapping[str, Slot],
     entries: Sequence[Entry],
     message_keys: Sequence[str],
     langs: Sequence[str],
+    message_params: Mapping[str, Sequence[str]] | None = None,
 ) -> list[Finding]:
-    """완결성 문제를 모두 돌려줍니다. 모두 `error`입니다."""
+    """완결성 문제를 모두 돌려줍니다. 모두 `error`입니다.
+
+    `message_params`가 None이면 매개변수 대조(`check_params`)를 건너뜁니다.
+    """
     findings: list[Finding] = []
     present: set[tuple[str, str, str | None, int, str]] = set()
     seen: Counter[tuple[str, str, str | None, int, str]] = Counter()
@@ -143,4 +170,6 @@ def check_completeness(
         if key not in slotted_keys:
             message = f"메시지 키 '{key}'를 담는 슬롯이 없습니다"
             findings.append(Finding(MESSAGE_KEYS_FILE, 1, RULE_UNSLOTTED_KEY, "error", message))
+    if message_params is not None:
+        findings.extend(check_params(slots, message_params))
     return findings

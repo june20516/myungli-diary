@@ -6,12 +6,14 @@ on:
       - "docs/identity/writing/**"
       - ".github/workflows/writing.yml"
       - "core/message_keys.json"
+      - "core/message_params.json"
       - "proto/**"
   pull_request:
     paths:
       - "docs/identity/writing/**"
       - ".github/workflows/writing.yml"
       - "core/message_keys.json"
+      - "core/message_params.json"
       - "proto/**"
   workflow_dispatch:
 

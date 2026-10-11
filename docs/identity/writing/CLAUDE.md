@@ -51,7 +51,7 @@
   * 검사기: `tools/` (`mlw`), 예시 원고: `content/ko/example.yaml`
   * 생성 문서: `generated/`, 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `decisions.md`
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | ...>`.
-  * 원고 검사: `mlw check docs/identity/writing/content` (미완성 원고는 `--partial`)
+  * 원고 검사: `mlw check docs/identity/writing/content` (미완성 원고는 `--partial`). 슬롯 `params`를 `core/message_params.json`과 대조합니다.
   * 생성 문서 최신 여부: `mlw gen-docs --check`
 * 결정은 W1~W15입니다(`decisions.md`). 라운드 R1~R7 결과가 반영되어 있습니다. W4는 D57로 확정됐습니다.
 * 지휘가 정한 것 중 writing에 닿는 것
@@ -73,7 +73,6 @@
 3. **보낸 요청의 응답을 기다립니다.**
    - design #54: 글자 수 상한. 값이 오면 `slots/*.yaml`의 `max_length`에 반영합니다.
    - server #55: 조사 렌더러와 시드 CI
-   - core #38: `core/message_params.json`. 받으면 슬롯 `params` 대조 검사를 추가합니다.
 4. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
 5. **W1:** 콘텐츠 3개 언어 원고를 쓰고 원어민 검수를 받습니다. 원국 개인 해석과 사용자용 태그라인·스토어 문구도 W1입니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.

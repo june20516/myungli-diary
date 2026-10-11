@@ -51,6 +51,7 @@
     ③ number: 숫자를 그대로 씁니다.
     ④ none: 문장에 쓸 수 없는 값입니다.
     name(호칭)은 모든 슬롯에서 쓸 수 있으므로 적지 않습니다.
+    메시지 키의 매개변수 이름은 core/message_params.json과 같아야 합니다(complete.param_mismatch).
 - name: variants
   required: false
   type: map

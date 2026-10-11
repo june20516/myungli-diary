@@ -5,10 +5,11 @@ from pathlib import Path
 
 import pytest
 
+from mlw.completeness import check_params
 from mlw.glossary import glossary_values
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.model import LoadError, ParamKind, RuleSet
-from mlw.paths import RULES_DIR, SLOTS_DIR
+from mlw.paths import MESSAGE_PARAMS_FILE, RULES_DIR, SLOTS_DIR
 
 MESSAGE_KEYS_PATH = Path(__file__).resolve().parents[5] / "core" / "message_keys.json"
 # 메시지 키가 아니라 식별자를 키로 갖는 슬롯입니다.
@@ -62,6 +63,13 @@ def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
     }
     assert len(message_keys) == 93
     assert covered == message_keys
+
+
+def test_slot_params_match_core_message_params(rules: RuleSet) -> None:
+    slots = load_slots(SLOTS_DIR, rules)
+    message_params = json.loads(MESSAGE_PARAMS_FILE.read_text(encoding="utf-8"))
+    assert set(message_params) == set(json.loads(MESSAGE_KEYS_PATH.read_text(encoding="utf-8")))
+    assert check_params(slots, message_params) == []
 
 
 def test_identifier_slots_do_not_collide_with_message_keys(rules: RuleSet) -> None:
