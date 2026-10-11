@@ -2,7 +2,7 @@
 
 * 상태: 초안 (사용자 검토 대기)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
-* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29, 결정 D26~D59, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
+* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D60, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
 * server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다. 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
@@ -16,6 +16,7 @@ server는 app이 쓰는 유일한 API입니다. 다음을 맡습니다.
 * 로그인 없는 요청 두 가지: 미리보기 1회(D50)와 시진 확인(D58)
 * 아침 운세 알림 (D18⑨)
 * 광고 제거권 entitlement와 RevenueCat 연동 (D53·D54)
+* 근거·해석 열람 권한: AdMob 보상형 광고 SSV 콜백으로 그날 자정까지 부여, 광고 제거권 기간에도 부여. 권한이 없으면 잠긴 내용을 응답에 담지 않음 (D60)
 * 도시 목록, 최소 앱 버전 응답 (IA spec §10)
 
 범위 밖: LLM 기능, 기기 간 일기 동기화(D47②), 반복 일정·일정 알림·외부 캘린더, 구독 결제, 반응을 쓴 적응형 문장 선택(Phase 2, D57③).
@@ -52,7 +53,7 @@ server/
     engine/            gRPC 클라이언트 인터페이스, 실제 구현, 테스트 대역
     content/           템플릿 저장소, 렌더러(값 치환·조사·용어 토큰), 문장 선택·순환, 반응
     notify/            기기 토큰, FCM 발송
-    billing/           entitlement, RevenueCat webhook·동기화
+    billing/           entitlement(광고 제거·근거 열람), RevenueCat webhook·동기화, AdMob SSV 검증
     city/              도시 목록 (정적 파일 내장)
     ratelimit/         PostgreSQL 기반 요청 한도
     platform/          DB, 설정, Clock, 로깅·추적
@@ -68,7 +69,7 @@ server/
 * `cmd`와 `httpapi`가 도메인 패키지를 조립합니다. 도메인 패키지끼리는 인터페이스로만 기댑니다.
 * `fortune`은 `engine`과 `content`에 기대고, `content`는 다른 도메인을 모릅니다.
 * 날짜·시간대 계산은 모두 주입한 `Clock`으로 합니다. 자정 경계와 시간대 테스트를 결정적으로 돌리기 위해서입니다.
-* 외부 의존(엔진, FCM, 카카오·Apple, RevenueCat, App Check)은 모두 인터페이스 뒤에 두고 테스트 대역을 둡니다.
+* 외부 의존(엔진, FCM, 카카오·Apple, RevenueCat, AdMob 검증 키, App Check)은 모두 인터페이스 뒤에 두고 테스트 대역을 둡니다.
 
 ### 2.3 기술 선택 (S3)
 
@@ -159,7 +160,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | --- | --- | --- |
 | `devices` | account_id, fcm_token(unique, nullable), platform, active, last_seen_at | 무효 토큰이면 active=false. 익명화 때 토큰을 지움 |
 | `notification_log` | account_id, local_date, sent_at, result | unique(account_id, local_date) |
-| `entitlements` | account_id, entitlement(`ad_free`), expires_at, synced_at | 판정은 `expires_at > now()`. 구독도 같은 모양으로 담을 수 있음 (D53) |
+| `entitlement_grants` | account_id, entitlement(`ad_free`·`insight`), source(`ad_free_pass`·`rewarded_ad`·`subscription`), source_ref(구매 id·`transaction_id`), starts_at, expires_at, revoked_at | 권한 부여 한 건이 한 행입니다. 판정은 같은 entitlement의 유효한 행(`revoked_at`이 없고 `starts_at ≤ now < expires_at`)이 하나라도 있는지입니다. 출처를 기록하라는 D60④를 이 구조가 만족하고, 구독도 같은 모양으로 담습니다 (D53·D60) |
+| `reward_events` | transaction_id(unique), account_id, ad_unit, reward_item, raw_query, received_at | AdMob SSV 원본. 같은 `transaction_id`는 한 번만 처리 (D60④) |
 | `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
 | `preview_usage` | device_hash(unique), used_at | 지우지 않음. 지우면 1회 제한이 풀림 |
 | `rate_limits` | key, window_start, count | 정리 대상 |
@@ -230,7 +232,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 일기 | `GET /v1/diaries?from&to&tag&cursor`, `GET`·`PUT`·`DELETE /v1/diaries/{date}`, `POST /v1/diaries/{date}/restore` | `PUT`은 멱등 upsert. 응답에 대표 태그 (Issue #31) |
 | 일정 | `GET /v1/schedules?from&to`, `POST /v1/schedules`, `PATCH`·`DELETE /v1/schedules/{id}`, `POST /v1/schedules/{id}/restore` | |
 | 알림 기기 | `POST /v1/devices`, `DELETE /v1/devices/{id}` | 같은 토큰이 다시 오면 소유 계정을 옮김 |
-| 결제 | `GET /v1/me/entitlements`, `POST /v1/billing/restore`, `POST /webhooks/revenuecat` | §10 |
+| 결제 | `GET /v1/me/entitlements`, `POST /v1/billing/restore`, `POST /webhooks/revenuecat`, `GET /webhooks/admob-ssv` | §10 |
 | 참조 | `GET /v1/cities?q=&lang=`, `GET /v1/app-config`, `GET /v1/glossary` | 도시는 ETag. app-config는 플랫폼별 최소 앱 버전. glossary는 enum 값(오행·십성·태그 등)의 언어별 이름 사전(writing `glossary.value_name` 등)으로, 응답마다 이름을 싣는 대신 한 번 받아 둠(ETag) |
 | 운영 | `GET /healthz` | |
 
@@ -297,6 +299,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 위치 숫자는 Dart(UTF-16)와 Go(UTF-8)가 글자를 세는 방식이 달라 어긋나기 쉽습니다. `term` 값과 표시 방식은 app·design과 정합니다(§13).
 
 * 데일리 응답에는 세 깊이(surface / explain / evidence)를 한 번에 담습니다. 크기가 작고, 펼칠 때마다 다시 부르지 않게 하려는 것입니다.
+* **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①).
 * 실행 중에 템플릿이 없으면(CI가 막으므로 원래 일어나지 않음) 그 슬롯만 빼고 오류 로그를 남깁니다.
 
 ## 7. 엔진 연동과 캐시 (D26·D31)
@@ -361,7 +364,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 | `profiles` | 호칭을 `deleted user`로 바꿈. 출생 정보와 `birth_hash`는 비움(anonymized_at 기록) |
 | `diaries`, `schedules` | 본문·가이드 질문·제목·메모를 비움. 날짜와 태그는 남김 |
 | `devices` | 토큰을 지우고 비활성 |
-| 남기는 것 | `consents`, `daily_selections`, `rotation_state`, `reactions`, `entitlements`, `billing_events`, `notification_log` |
+| 남기는 것 | `consents`, `daily_selections`, `rotation_state`, `reactions`, `entitlement_grants`, `billing_events`, `reward_events`, `notification_log` |
 
 * **출생 정보는 가짜 값으로 채우지 않고 비웁니다.** 더미 생일은 통계에서 진짜 값과 섞입니다. 왜 비었는지는 `anonymized_at`이 설명합니다.
 * **`birth_hash`도 비웁니다.** 생년월일시는 경우의 수가 작아서 해시만 남아도 원래 값을 되찾을 수 있습니다. 캐시 행은 계정과 연결되지 않으므로 그대로 두었다가 보존 기간이 지나면 지웁니다.
@@ -369,19 +372,29 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 * **남기는 태그·메시지 키에 대한 판단:** 이 값들은 원국에서 나오므로, 날짜별로 쌓이면 원국을 어느 정도 거꾸로 짐작할 수 있습니다. 하지만 원국이 같은 사람은 많아서, 이것만으로는 생년월일시도 개인도 특정하지 못합니다. 그래서 남깁니다.
 * RevenueCat의 고객 기록은 지우지 않습니다. app_user_id가 계정 UUID라 개인을 가리키지 않고, 결제 기록 보관 의무가 있기 때문입니다.
 
-## 10. 결제 (D53·D54, S11)
+## 10. 결제와 권한 (D53·D54·D60, S11·S14)
 
 * app은 RevenueCat `app_user_id`를 계정 id로 맞춥니다(`Purchases.logIn`).
 * **webhook은 신호로만 씁니다.**
   1. RevenueCat에 설정한 Authorization 헤더 값을 검증합니다.
   2. 원본 이벤트를 `billing_events`에 저장합니다. 같은 `event_id`는 한 번만 처리합니다.
-  3. RevenueCat REST API로 그 고객의 구매 내역을 다시 조회해 `entitlements`를 맞춥니다.
+  3. RevenueCat REST API로 그 고객의 구매 내역을 다시 조회해 `entitlement_grants`를 맞춥니다.
   4. 2xx로 응답합니다. 이벤트 순서가 뒤바뀌거나 중복돼도 결과가 같습니다.
 * `POST /v1/billing/restore`도 3번의 같은 동기화 함수를 씁니다. 비갱신 상품은 스토어가 복원해 주지 않으므로 server가 복원합니다.
 * **만료일 계산:** 광고 제거권 구매를 구매일 순으로 보며 `만료일 = max(직전 만료일, 구매일) + 1개월`로 이어 붙입니다.
   * 만료 전 재구매를 이어 붙이는 규칙은 결정 문서에 없는 제품 결정입니다. 기본값으로 두고 지휘 세션에 확인을 요청합니다(§13).
   * 환불된 구매는 빼고 다시 계산합니다. 환불이 RevenueCat 구매 내역에 어떻게 표시되는지는 구현할 때 RevenueCat 문서로 확인합니다.
-* 광고 제거 여부는 `GET /v1/me`와 `GET /v1/me/entitlements`로 알려 줍니다.
+* 광고 제거권 구매를 동기화할 때 같은 기간의 `insight` 권한도 출처 `ad_free_pass`로 함께 부여합니다(D60③). 환불로 광고 제거권이 줄면 이 권한도 같이 줄입니다.
+* 광고 제거 여부와 근거 열람 권한은 `GET /v1/me`와 `GET /v1/me/entitlements`로 알려 줍니다. 근거 열람 권한은 만료 시각과 출처를 함께 보냅니다.
+
+### 10.1 보상형 광고 SSV (D60, S14)
+
+1. app은 보상형 광고를 띄울 때 SSV 옵션의 `user_id`에 계정 id를 넣습니다.
+2. AdMob이 `GET /webhooks/admob-ssv?...&signature=…&key_id=…`로 부릅니다. server는 서명 대상 문자열(쿼리에서 `signature` 앞까지)을 AdMob 공개 키(`https://www.gstatic.com/admob/reward/verifier-keys.json`, `key_id`로 고름)로 ECDSA 검증합니다. 공개 키는 캐시하되, 모르는 `key_id`가 오면 다시 받습니다.
+3. 검증에 실패하면 401로 응답하고 아무것도 부여하지 않습니다.
+4. `transaction_id`로 `reward_events`에 한 번만 저장하고, 같은 트랜잭션에서 `insight` 권한을 출처 `rewarded_ad`로 부여합니다. 만료는 그 계정의 **현재 시간대 기준 다음 자정**입니다(D60③). 같은 `transaction_id`가 다시 오면 아무것도 하지 않고 200을 돌려줍니다.
+5. `user_id`가 없거나 존재하지 않는 계정이면 이벤트만 기록하고 200을 돌려줍니다. AdMob이 재시도하지 않게 하기 위해서이며, 로그에 경고를 남깁니다.
+6. 쿼리의 `timestamp`가 현재보다 1시간 넘게 오래됐으면 재전송 공격으로 보고 부여하지 않습니다(401).
 
 ## 11. 오류 (S10)
 
@@ -434,6 +447,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 | RevenueCat webhook | 인증 헤더 불일치 | 401 |
 | RevenueCat webhook | 저장·동기화 실패 | 500. RevenueCat이 2xx가 아니면 다시 보내므로 재처리에 맡김 |
 | RevenueCat REST (`restore`) | 장애 | 503, `billing.provider_unavailable` |
+| AdMob SSV | 서명 검증 실패, 오래된 timestamp | 401, `reward.invalid_signature`·`reward.expired` |
+| AdMob 검증 키 | 키 목록을 받지 못함 | 503. AdMob이 다시 보냄 |
 | DB | serialization 실패, deadlock | server 안에서 트랜잭션을 최대 3번 재시도 |
 | DB | unique 위반(경합) | 도메인 결과로 바꿈. 예: 선택 기록 경합은 다시 읽음 |
 | DB | 연결 실패 | 503, `service.unavailable` |
@@ -482,6 +497,7 @@ CI(`.github/workflows/server.yml`, `server/**`·`proto/**`·`docs/identity/writi
 | Kakao Developers | 앱 등록, 카카오 로그인과 OpenID Connect 사용 설정, 플랫폼(번들 ID·패키지명·키 해시), admin key |
 | Apple Developer | App ID에 Sign in with Apple. Android 웹 흐름용 Services ID와 Return URL(`/v1/auth/apple/callback`). Sign in with Apple 키(.p8), Team ID, Key ID |
 | RevenueCat | 프로젝트와 상품. webhook URL과 Authorization 헤더 값, secret API key |
+| AdMob | 보상형 광고 단위와 SSV 콜백 URL(`/webhooks/admob-ssv`) 등록 |
 
 ## 14. 다른 쪽에 보낼 요청
 

@@ -17,3 +17,4 @@ server 안에서 정한 사항을 모읍니다. 제품 결정(D#)과 부딪히�
 | S11 | 2026-10-11 | 결제 | RevenueCat webhook은 신호로만 쓰고, 받을 때마다 RevenueCat REST로 구매 내역을 다시 조회해 entitlement를 맞춥니다. 복원도 같은 함수입니다 | spec §10 |
 | S12 | 2026-10-11 | 배포 | staging·prod 두 GCP 프로젝트. main 병합 → staging 자동, prod는 GitHub environment 승인. 콘텐츠 시드는 원고를 변환한 파일을 `server/`에 commit해 이미지에 포함합니다 | spec §6.1·§13 |
 | S13 | 2026-10-11 | 알림 | 알림 시각은 5분 단위입니다. `job notify`가 5분마다 최근 60분 안의 미발송 대상에게 FCM HTTP v1로 보내고, `notification_log`로 하루 한 번을 지킵니다. 알림 문장은 개인화하되 호칭을 쓰지 않습니다. 큐(Cloud Tasks)는 spec §8.2 기준을 넘을 때 도입합니다 | 사용자 결정 (호칭 없음), spec §8.2 |
+| S14 | 2026-10-11 | 권한 | 근거 열람 권한(D60)은 `entitlement_grants`에 부여 건마다 한 행으로 출처(`ad_free_pass`·`rewarded_ad`·`subscription`)와 함께 기록합니다. AdMob SSV는 server가 직접 받아 ECDSA 검증·`transaction_id` 멱등 처리 후 계정 현재 시간대의 다음 자정까지 부여합니다. 권한이 없으면 잠긴 내용을 빼고, 응답마다 `evidenceAccess`(`unlocked`·`locked`)로 잠김을 명시합니다(S5 원칙) | D60, spec §6.4·§10.1 |
