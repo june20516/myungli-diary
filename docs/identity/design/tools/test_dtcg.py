@@ -164,3 +164,26 @@ def test_resolve_rejects_cycle():
     tokens = {"a": color("{b}"), "b": color("{a}")}
     with pytest.raises(KeyError):
         resolve("a", tokens)
+
+
+def test_duration_value():
+    assert find_problems({"a": {"d": {"$type": "duration", "$value": {"value": 200, "unit": "ms"}}}}) == []
+    assert find_problems({"a": {"d": {"$type": "duration", "$value": {"value": 200, "unit": "px"}}}})
+    assert find_problems({"a": {"d": {"$type": "duration", "$value": {"value": -1, "unit": "ms"}}}})
+
+
+def test_cubic_bezier_value():
+    assert find_problems({"a": {"e": {"$type": "cubicBezier", "$value": [0.2, 0.7, 0.2, 1]}}}) == []
+    assert find_problems({"a": {"e": {"$type": "cubicBezier", "$value": [1.2, 0, 0.2, 1]}}})  # x는 0~1
+    assert find_problems({"a": {"e": {"$type": "cubicBezier", "$value": [0.2, 0.7, 0.2]}}})
+
+
+def test_shadow_value():
+    shadow = {"color": {"colorSpace": "srgb", "components": [0.1686, 0.1686, 0.1647], "hex": "#2b2b2a", "alpha": 0.14},
+              "offsetX": {"value": 0, "unit": "px"}, "offsetY": {"value": 4, "unit": "px"},
+              "blur": {"value": 16, "unit": "px"}, "spread": {"value": 0, "unit": "px"}}
+    assert find_problems({"a": {"s": {"$type": "shadow", "$value": shadow}}}) == []
+    broken = dict(shadow)
+    del broken["blur"]
+    assert find_problems({"a": {"s": {"$type": "shadow", "$value": broken}}})
+    assert find_problems({"a": {"s": {"$type": "shadow", "$value": dict(shadow, inset="no")}}})

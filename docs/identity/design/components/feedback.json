@@ -1,0 +1,147 @@
+{
+  "version": "1.0.0",
+  "group": "feedback",
+  "stateMap": {
+    "loading": "skeleton",
+    "empty": "empty-state",
+    "error": "error-state",
+    "offline": "notice-banner",
+    "draft": ["draft-indicator", "notice-banner"],
+    "time-unknown": "notice-banner",
+    "out-of-range": "input-step"
+  },
+  "components": [
+    {
+      "id": "dialog",
+      "summary": "확인 창",
+      "uses": ["appear.seep", "disappear.seep", "press.ink"],
+      "variants": [
+        { "id": "confirm", "when": "일반 확인" },
+        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 계정 삭제)", "uses": ["mark.caution"], "a11y": { "focusOnOpen": "cancel", "dismissOnScrim": false },
+          "parts": {
+            "title": { "leading": "mark.caution" },
+            "confirm": { "fg": "{color.text.primary}", "fontWeight": 700 },
+            "cancel": { "fg": "{color.action.primary}" }
+          } }
+      ],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "marginX": { "value": 28, "unit": "px" }, "padding": "{space.24}" },
+        "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" },
+        "body": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" },
+        "actions": { "align": "end", "gap": "{space.8}", "marginTop": "{space.20}" },
+        "confirm": { "type": "{type.label.lg}", "fg": "{color.action.primary}", "minTarget": 44 },
+        "cancel": { "type": "{type.label.lg}", "fg": "{color.text.secondary}", "minTarget": 44 },
+        "scrim": { "color": "{color.scrim}" }
+      },
+      "states": {
+        "opening": { "pattern": "appear.seep" },
+        "closing": { "pattern": "disappear.seep" },
+        "pressed": { "pattern": "press.ink", "note": "버튼 글자 둘레에서만" }
+      },
+      "haptic": [{ "when": "destructive 변형의 확정 버튼을 누름", "strength": "medium" }],
+      "a11y": { "role": "alertdialog", "label": "제목", "description": "본문", "focusOnOpen": "confirm", "minTarget": 44 },
+      "rules": [
+        "되돌릴 수 없는 동작에 빨간색을 쓰지 않는다. 제목 앞 mark.caution과 굵은 본문색 확정 버튼으로 구분한다.",
+        "destructive 변형은 처음 초점과 기본 동작을 취소에 둔다.",
+        "바깥을 누르면 취소와 같다. destructive는 바깥 누르기로 닫지 않는다."
+      ]
+    },
+    {
+      "id": "toast",
+      "summary": "짧은 알림. 반전색 알약",
+      "uses": ["appear.seep", "disappear.seep"],
+      "parts": {
+        "container": { "bg": "{color.inverse.bg}", "radius": "{radius.full}", "paddingX": "{space.16}", "paddingY": "{space.12}", "maxWidth": "100% - 40px", "position": "above-tab-bar", "gap": "{space.16}" },
+        "label": { "type": "{type.body.ui}", "fg": "{color.inverse.fg}", "maxLines": 2 },
+        "icon": { "size": { "value": 16, "unit": "px" }, "weight": "regular", "color": "{color.inverse.fg}", "optional": true }
+      },
+      "states": {
+        "showing": { "pattern": "appear.seep" },
+        "hiding": { "pattern": "disappear.seep", "after": "{motion.duration.toast-hold}" }
+      },
+      "haptic": [],
+      "a11y": { "role": "status", "liveRegion": "polite", "label": "글자 그대로" },
+      "rules": [
+        "광고 배너(ad-banner)가 보이면 배너 위 16px, 탭 바만 있으면 탭 바 위 16px, 없으면 아래 안전 영역 위 16px에 뜬다.",
+        "새 토스트가 오면 이전 토스트는 바로 disappear.seep으로 사라지고 하나만 보인다.",
+        "누르는 동작을 담지 않는다. 되돌리기가 필요한 일은 확인 창으로 한다."
+      ]
+    },
+    {
+      "id": "notice-banner",
+      "summary": "화면 맨 위 내용 첫 줄의 안내 (오프라인·시간 모름·초안)",
+      "uses": ["icon", "appear.seep", "disappear.seep"],
+      "variants": [
+        { "id": "offline", "when": "연결 없음, 받아둔 내용을 보여 줄 때", "parts": { "icon": { "name": "wifi-slash" } } },
+        { "id": "time-unknown", "when": "출생 시간을 모름(시주 없음)", "parts": { "icon": { "name": "clock" } } },
+        { "id": "draft", "when": "이어 쓸 초안이 있음", "parts": { "icon": { "name": "note-pencil" } } }
+      ],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "padding": "{space.12}", "gap": "{space.8}", "marginBottom": "{space.16}" },
+        "icon": { "size": { "value": 16, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "label": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" }
+      },
+      "states": {
+        "showing": { "pattern": "appear.seep" },
+        "resolved": { "pattern": "disappear.seep" }
+      },
+      "haptic": [],
+      "a11y": { "role": "status", "liveRegion": "polite", "label": "글자 그대로" },
+      "rules": [
+        "떠 있지 않다. 화면 내용의 첫 줄로 함께 스크롤된다.",
+        "닫기 버튼이 없다. 상태가 풀리면 저절로 사라진다."
+      ]
+    },
+    {
+      "id": "skeleton",
+      "summary": "불러오는 중 자리. 스피너 대신",
+      "uses": ["skeleton.bone", "loading.breathe"],
+      "parts": {
+        "bone": { "color": "{color.skeleton.bone}", "shape": "same-as-content" },
+        "textLine": { "height": "글자 줄 높이의 60%", "radius": "{radius.xs}", "lastLineWidth": "60%" }
+      },
+      "states": { "loading": { "pattern": "loading.breathe", "note": "줄마다 150ms 어긋남" } },
+      "haptic": [],
+      "a11y": { "role": "progressbar", "label": "불러오는 중", "hiddenChildren": true },
+      "rules": [
+        "실제로 올 요소와 같은 자리·크기·반경으로 그린다.",
+        "내용이 오면 skeleton은 바로 빠지고 내용이 appear.seep으로 나타난다.",
+        "300ms 안에 끝나는 불러오기에는 skeleton을 보이지 않는다."
+      ]
+    },
+    {
+      "id": "empty-state",
+      "summary": "비어 있을 때: sage 원 안 아이콘 + 문장 + 주 버튼",
+      "uses": ["icon"],
+      "parts": {
+        "circle": { "size": { "value": 56, "unit": "px" }, "bg": "{color.status.bg}", "radius": "{radius.full}" },
+        "icon": { "size": { "value": 28, "unit": "px" }, "weight": "light", "color": "{color.action.primary}" },
+        "sentence": { "type": "{type.sentence.body}", "fg": "{color.text.secondary}", "align": "center", "marginTop": "{space.16}" },
+        "action": { "component": "primary-button", "variant": "filled", "marginTop": "{space.24}", "optional": true }
+      },
+      "states": {},
+      "haptic": [],
+      "a11y": { "role": "group", "label": "문장 그대로", "decorativeIcon": true },
+      "rules": ["화면 가운데보다 조금 위(세로 40%)에 둔다."]
+    },
+    {
+      "id": "error-state",
+      "summary": "오류일 때: sage 원 안 아이콘 + 문장 + 다시 시도",
+      "uses": ["icon"],
+      "variants": [
+        { "id": "generic", "when": "불러오기 실패", "parts": { "icon": { "name": "cloud-warning" } } },
+        { "id": "offline", "when": "연결 없음 + 받아둔 내용도 없음", "parts": { "icon": { "name": "wifi-slash" } } }
+      ],
+      "parts": {
+        "circle": { "size": { "value": 56, "unit": "px" }, "bg": "{color.status.bg}", "radius": "{radius.full}" },
+        "icon": { "size": { "value": 28, "unit": "px" }, "weight": "light", "color": "{color.action.primary}" },
+        "sentence": { "type": "{type.sentence.body}", "fg": "{color.text.secondary}", "align": "center", "marginTop": "{space.16}" },
+        "retry": { "component": "primary-button", "variant": "quiet", "marginTop": "{space.20}" }
+      },
+      "states": {},
+      "haptic": [],
+      "a11y": { "role": "alert", "label": "문장 그대로", "decorativeIcon": true },
+      "rules": ["빨간색을 쓰지 않는다.", "다시 시도를 누르면 그 자리에 skeleton이 다시 나온다."]
+    }
+  ]
+}

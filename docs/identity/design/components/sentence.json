@@ -1,0 +1,112 @@
+{
+  "version": "1.0.0",
+  "group": "sentence",
+  "components": [
+    {
+      "id": "sentence-block",
+      "summary": "콘텐츠 문장 덩어리 (호칭 자리 포함)",
+      "uses": ["term"],
+      "variants": [
+        { "id": "card", "when": "오늘 카드·공유 이미지·질문 카드의 큰 문장", "parts": { "text": { "type": "{type.sentence.card}" } } },
+        { "id": "body", "when": "풀이·일기·설명 본문", "parts": { "text": { "type": "{type.sentence.body}" } } },
+        { "id": "preview", "when": "일기 목록 미리보기", "parts": { "text": { "type": "{type.sentence.body}", "fontSize": { "value": 14.5, "unit": "px" }, "maxLines": 2, "overflow": "ellipsis" } } }
+      ],
+      "parts": {
+        "text": { "fg": "{color.text.primary}", "wordBreak": "keep-all" },
+        "honorific": { "slot": "user-honorific", "style": "same-as-text" },
+        "paragraphGap": "{space.12}"
+      },
+      "states": {},
+      "haptic": [],
+      "a11y": { "role": "text", "label": "문장 그대로", "terms": "용어는 term-token으로 따로 초점" },
+      "rules": [
+        "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
+        "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
+        "문장 끝에 depth-link가 붙을 수 있다(inline-end)."
+      ]
+    },
+    {
+      "id": "term-token",
+      "summary": "명리 용어 표시. 누르면 풀이 시트",
+      "uses": ["term", "press.ink", "sheet.enter"],
+      "variants": [
+        { "id": "inline", "when": "문장 안", "parts": { "chip": { "type": "inherit", "paddingX": { "value": 3, "unit": "px" } } } },
+        { "id": "label", "when": "표 행 머리, 십성 줄", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": { "value": 4, "unit": "px" } } } }
+      ],
+      "parts": {
+        "chip": { "bg": "{color.term.bg}", "fg": "{color.term.fg}", "radius": "{radius.xs}", "fontWeight": "inherit" },
+        "explainSheet": {
+          "container": { "component": "sheet", "variant": "half" },
+          "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
+          "hanja": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+          "general": { "component": "sentence-block", "variant": "body" },
+          "mine": { "bg": "{color.status.bg}", "radius": "{radius.md}", "padding": "{space.16}", "label": { "type": "{type.label.md}", "fg": "{color.status.fg}" }, "body": { "component": "sentence-block", "variant": "body" }, "marginTop": "{space.16}" }
+        }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink" },
+        "locked": {
+          "note": "MVP 화면에는 나오지 않음(D53: MVP 유료는 광고 제거권뿐). 개인 해석 유료화 아이디어 I7을 위해 준비해 둔 변형",
+          "parts": {
+            "explainSheet": {
+              "mine": {
+                "body": { "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false },
+                "lock": { "icon": "lock-simple", "weight": "regular", "size": { "value": 20, "unit": "px" }, "color": "{color.status.fg}", "align": "center" },
+                "unlockHint": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center" },
+                "unlockAction": { "component": "primary-button", "variant": "quiet" }
+              }
+            }
+          }
+        }
+      },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "용어 + '풀이 보기'", "lockedLabel": "잠긴 풀이 안내", "minTarget": 44, "hitSlop": "줄 높이까지 위아래로 넓힘" },
+      "rules": [
+        "용어를 굵게 하지 않는다(결정 V0). 바탕과 글자색으로만 구분한다.",
+        "풀이 시트는 일반 뜻이 먼저, 그 아래 '내 사주에서는' 상자.",
+        "잠김 변형은 일반 뜻을 열어 두고 '내 사주에서는' 상자만 흐리게 잠근다. 잠긴 글자는 실제 내용을 내려받지 않고 자리 채우기 글을 흐리게 그린다."
+      ]
+    },
+    {
+      "id": "depth-link",
+      "summary": "한 단계 깊이로 가는 링크 ('근거 보기 ›')",
+      "uses": ["press.ink", "sheet.enter"],
+      "variants": [
+        { "id": "inline-end", "when": "이유 문장 끝에 붙임", "uses": ["link.inline-nowrap"], "parts": { "label": { "joiners": "link.inline-nowrap", "gapBefore": "U+00A0" } } },
+        { "id": "block", "when": "나 탭처럼 문단 아래 따로 놓임", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } } }
+      ],
+      "parts": {
+        "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
+        "chevron": { "glyph": "›", "inline": true }
+      },
+      "states": { "pressed": { "pattern": "press.ink", "note": "링크 글자 둘레에서만" } },
+      "haptic": [],
+      "a11y": { "role": "link", "label": "글자 그대로", "separateFocus": true, "minTarget": 44 },
+      "rules": [
+        "inline-end는 링크 전체가 한 덩어리다. 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 넘어간다.",
+        "누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack)."
+      ]
+    },
+    {
+      "id": "reaction-button",
+      "summary": "문장 반응(좋아요). 누르면 낙관 도장",
+      "uses": ["seal", "seal.stamp", "seal.erase", "icon"],
+      "parts": {
+        "target": { "size": { "value": 44, "unit": "px" } },
+        "heart": { "icon": "heart", "weight": "light", "size": { "value": 22, "unit": "px" }, "color": "{color.text.secondary}" },
+        "seal": { "element": "seal", "variant": "fill", "size": { "value": 34, "unit": "px" }, "visible": false },
+        "placement": { "align": "end", "marginTop": "{space.8}" }
+      },
+      "states": {
+        "on": { "pattern": "seal.stamp", "parts": { "seal": { "visible": true, "color": "{color.seal.fill}" }, "heart": { "weight": "regular", "color": "{color.action.on-primary}" } } },
+        "off": { "pattern": "seal.erase", "parts": { "seal": { "visible": false } } }
+      },
+      "haptic": [{ "when": "켬", "strength": "light" }],
+      "a11y": { "role": "toggle-button", "label": "이 문장 좋아요", "stateAnnounced": true, "minTarget": 44 },
+      "rules": [
+        "문장 아래 오른쪽에 홀로 둔다. 근거 보기 링크와 같은 줄에 두지 않는다.",
+        "끌 때는 햅틱이 없다."
+      ]
+    }
+  ]
+}

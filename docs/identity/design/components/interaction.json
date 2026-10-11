@@ -1,0 +1,160 @@
+{
+  "version": "1.0.0",
+  "patterns": {
+    "press.ink": {
+      "summary": "먹 번짐: 모든 눌림",
+      "duration": "{motion.duration.stamp}",
+      "easing": "{motion.easing.seep}",
+      "ink": {
+        "shape": "radial-gradient",
+        "origin": "touch-point",
+        "edge": "soft",
+        "color": "component-foreground",
+        "alpha": 0.12,
+        "radius": "farthest-corner"
+      },
+      "release": {
+        "duration": "{motion.duration.long}",
+        "easing": "{motion.easing.seep}",
+        "scale": [1, 1.15],
+        "opacity": [1, 0]
+      },
+      "clip": "inner-layer",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "appear.seep": {
+      "summary": "스밈 나타남: 토스트·배너·확인 창·풀이 내용",
+      "duration": "{motion.duration.medium}",
+      "easing": "{motion.easing.seep}",
+      "from": { "blur": { "value": 8, "unit": "px" }, "opacity": 0 },
+      "to": { "blur": { "value": 0, "unit": "px" }, "opacity": 1 },
+      "blurTarget": "self",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "opacity-only"
+    },
+    "disappear.seep": {
+      "summary": "스밈 사라짐: appear.seep의 반대",
+      "duration": "{motion.duration.short}",
+      "easing": "{motion.easing.standard}",
+      "from": { "blur": { "value": 0, "unit": "px" }, "opacity": 1 },
+      "to": { "blur": { "value": 8, "unit": "px" }, "opacity": 0 },
+      "blurTarget": "self",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "opacity-only"
+    },
+    "select.seep-slide": {
+      "summary": "스밈 이동: segmented·탭 선택 표시가 옮겨 감",
+      "duration": "{motion.duration.select}",
+      "easing": "{motion.easing.seep}",
+      "distance": 0.15,
+      "incoming": {
+        "from": { "offset": "previous-side", "blur": { "value": 6, "unit": "px" }, "scale": 0.92, "opacity": 0 },
+        "to": { "offset": 0, "blur": { "value": 0, "unit": "px" }, "scale": 1, "opacity": 1 }
+      },
+      "outgoing": {
+        "duration": "{motion.duration.fade}",
+        "easing": "{motion.easing.standard}",
+        "from": { "blur": { "value": 0, "unit": "px" }, "scale": 1, "opacity": 1 },
+        "to": { "blur": { "value": 6, "unit": "px" }, "scale": 1.06, "opacity": 0 }
+      },
+      "reduceMotion": "opacity-only",
+      "lowEnd": "opacity-only"
+    },
+    "loading.breathe": {
+      "summary": "먹 숨쉬기: skeleton, 버튼 처리 중 점 세 개",
+      "duration": "{motion.duration.breathe}",
+      "easing": "{motion.easing.standard}",
+      "opacity": [0.55, 1],
+      "repeat": "infinite-alternate",
+      "stagger": { "value": 150, "unit": "ms" },
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "seal.stamp": {
+      "summary": "낙관 도장이 찍히고 배어듦",
+      "duration": "{motion.duration.stamp}",
+      "easing": "{motion.easing.seep}",
+      "keyframes": [
+        { "offset": 0, "scale": 1.2, "opacity": 0, "blur": { "value": 3, "unit": "px" } },
+        { "offset": 0.35, "scale": 1, "opacity": 0.55, "blur": { "value": 1.5, "unit": "px" }, "easing": "{motion.easing.stamp-press}" },
+        { "offset": 1, "scale": 1, "opacity": 1, "blur": { "value": 0, "unit": "px" }, "easing": "{motion.easing.seep}" }
+      ],
+      "blurTarget": "self",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "no-blur"
+    },
+    "seal.erase": {
+      "summary": "낙관 도장이 번지며 지워짐",
+      "duration": "{motion.duration.short}",
+      "easing": "{motion.easing.standard}",
+      "from": { "blur": { "value": 0, "unit": "px" }, "opacity": 1 },
+      "to": { "blur": { "value": 5, "unit": "px" }, "opacity": 0 },
+      "blurTarget": "self",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "opacity-only"
+    },
+    "mark.underline-grow": {
+      "summary": "펼침 밑줄: 가운데에서 좌우로 자람",
+      "duration": "{motion.duration.long}",
+      "easing": "{motion.easing.seep}",
+      "from": { "scaleX": 0 },
+      "to": { "scaleX": 1 },
+      "origin": "center",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "sheet.enter": {
+      "summary": "시트가 아래에서 올라옴",
+      "duration": "{motion.duration.long}",
+      "easing": "{motion.easing.enter}",
+      "from": { "translateY": "100%" },
+      "to": { "translateY": "0%" },
+      "scrim": { "duration": "{motion.duration.fade}", "easing": "{motion.easing.standard}", "opacity": [0, 1], "color": "{color.scrim}" },
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "sheet.exit": {
+      "summary": "시트가 아래로 내려감",
+      "duration": "{motion.duration.medium}",
+      "easing": "{motion.easing.exit}",
+      "from": { "translateY": "0%" },
+      "to": { "translateY": "100%" },
+      "scrim": { "duration": "{motion.duration.fade}", "easing": "{motion.easing.standard}", "opacity": [1, 0], "color": "{color.scrim}" },
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "sheet.stack": {
+      "summary": "시트가 깊어질 때 새 시트가 위에 쌓임",
+      "duration": "{motion.duration.long}",
+      "easing": "{motion.easing.enter}",
+      "incoming": "sheet.enter",
+      "screenBelow": { "scale": 0.92, "brightness": 0.9 },
+      "sheetBelow": { "translateY": { "value": -30, "unit": "px" }, "scale": 0.94, "brightness": 0.95 },
+      "properties": ["transform", "brightness-overlay"],
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "focus.ring": {
+      "summary": "입력 포커스 테두리",
+      "duration": "{motion.duration.short}",
+      "easing": "{motion.easing.standard}",
+      "from": { "borderWidth": { "value": 1, "unit": "px" }, "borderColor": "{color.line}" },
+      "to": { "borderWidth": { "value": 2, "unit": "px" }, "borderColor": "{color.action.primary}" },
+      "reduceMotion": "instant",
+      "lowEnd": "same"
+    }
+  },
+  "haptics": {
+    "followsSystemSetting": true,
+    "selection": ["segmented 선택 바뀜", "탭 바뀜", "체크 켜고 끔", "날짜·시간 휠 눈금"],
+    "light": ["일기 저장", "동의 완료", "반응(좋아요)"],
+    "medium": ["되돌릴 수 없는 동작 확인(일기 삭제, 계정 삭제)"],
+    "none": ["일반 버튼", "목록 줄", "링크"]
+  },
+  "fallbacks": {
+    "reduceMotion": "모든 패턴에서 이동·크기·흐림을 빼고 투명도 변화만 남깁니다. 패턴의 reduceMotion 값이 opacity-only이면 이 규칙, instant이면 시간 0으로 바로 바뀝니다.",
+    "reduceTransparency": "반투명 탭 바(color.bar.bg)를 불투명 color.bg.sheet로 바꿉니다.",
+    "lowEnd": "흐림은 대상 자신에게만 겁니다(배경 흐림 아님). 프레임이 떨어지는 기기에서는 lowEnd 값대로 흐림을 뺍니다(opacity-only: 투명도만, no-blur: 흐림만 빼고 크기 변화는 유지, same: 그대로)."
+  }
+}

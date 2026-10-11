@@ -1,0 +1,95 @@
+{
+  "version": "1.0.0",
+  "group": "saju",
+  "components": [
+    {
+      "id": "saju-pillars",
+      "summary": "원국표 (시·일·월·연)",
+      "uses": ["ohaeng.cell", "tag.me", "term"],
+      "parts": {
+        "columns": { "order": ["hour", "day", "month", "year"], "gap": { "value": 6, "unit": "px" } },
+        "header": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "center" },
+        "stemTenGod": { "component": "term-token", "variant": "label", "position": "above-stem" },
+        "stem": { "element": "ohaeng.cell", "size": "pillar" },
+        "branch": { "element": "ohaeng.cell", "size": "pillar", "marginTop": { "value": 4, "unit": "px" } },
+        "branchTenGod": { "component": "term-token", "variant": "label", "position": "below-branch", "basis": "정기" },
+        "dayMaster": {
+          "border": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" }, "inset": true },
+          "tag": { "element": "tag.me" },
+          "tenGodLabel": { "component": "term-token", "variant": "label", "term": "일간" }
+        }
+      },
+      "states": {
+        "time-unknown": { "parts": { "columns": { "hour": "empty-dashed" } }, "note": "시주 칸을 비우고 화면에 notice-banner time-unknown" },
+        "loading": { "note": "칸 모양 skeleton" }
+      },
+      "haptic": [],
+      "a11y": { "role": "table", "label": "원국표", "cellLabel": "기둥 이름, 천간·지지 한자와 독음, 오행, 십성", "textScaleMax": 1.3 },
+      "rules": [
+        "열 순서와 배치는 다른 만세력과 같게 둔다(대조·신뢰).",
+        "'나' 꼬리표는 칸이 자르지 않게 칸 밖 층에 그린다.",
+        "시간 모름이면 시주 칸은 점선 테두리 빈 칸이다."
+      ]
+    },
+    {
+      "id": "ohaeng-bar",
+      "summary": "오행 분포",
+      "uses": ["ohaeng.swatch"],
+      "parts": {
+        "bar": { "height": { "value": 10, "unit": "px" }, "radius": "{radius.full}", "segmentGap": { "value": 2, "unit": "px" }, "fill": "ohaeng.swatch 비례" },
+        "legend": { "columns": 5, "marginTop": "{space.12}" },
+        "swatch": { "element": "ohaeng.swatch", "size": { "value": 12, "unit": "px" }, "radius": "{radius.full}" },
+        "name": { "type": "{type.caption.md}", "fg": "{color.text.primary}" },
+        "count": { "type": "{type.numeric.table}", "fg": "{color.text.primary}" }
+      },
+      "states": {
+        "zero": { "parts": { "swatch": { "opacity": 0.35 }, "count": { "fg": "{color.text.secondary}" } } }
+      },
+      "haptic": [],
+      "a11y": { "role": "img", "label": "목 N, 화 N, 토 N, 금 N, 수 N" },
+      "rules": ["막대 순서는 목·화·토·금·수.", "0개인 오행은 막대에 칸이 없고 범례 견본만 흐리다."]
+    },
+    {
+      "id": "manse-table",
+      "summary": "만세력 기본 표 (십성·지장간·12운성·신살)",
+      "uses": ["ohaeng.cell", "term"],
+      "parts": {
+        "grid": { "columns": ["hour", "day", "month", "year"], "rowHeaderWidth": { "value": 52, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
+        "rowHeader": { "component": "term-token", "variant": "label", "rows": ["지장간", "12운성", "신살"] },
+        "top": { "stem": { "element": "ohaeng.cell", "size": "mini" }, "branch": { "element": "ohaeng.cell", "size": "mini" } },
+        "value": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "align": "center" },
+        "hiddenStems": { "hanja": { "fontFamily": "{font.family.hanja}" }, "reading": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}" } }
+      },
+      "states": { "time-unknown": { "parts": { "grid": { "hour": "empty" } } } },
+      "haptic": [],
+      "a11y": { "role": "table", "label": "만세력 표", "rowHeaderAnnounced": true, "textScaleMax": 1.3 },
+      "rules": ["열 순서는 원국표와 같다.", "행 머리 용어는 모두 term-token(누르면 풀이)."]
+    },
+    {
+      "id": "daeun-table",
+      "summary": "대운·세운 표",
+      "uses": ["ohaeng.cell", "highlight.current", "tag.status"],
+      "parts": {
+        "daeun": {
+          "scroll": "horizontal",
+          "pillar": { "width": { "value": 52, "unit": "px" }, "gap": { "value": 4, "unit": "px" } },
+          "age": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "basis": "한국식 나이 (core C22)" },
+          "cells": { "element": "ohaeng.cell", "size": "mini", "count": 2 },
+          "startYear": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}" }
+        },
+        "seun": { "grid": { "columns": 5, "rows": 2 }, "scope": "지금 대운 10년", "cells": { "element": "ohaeng.cell", "size": "mini" }, "year": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}" } },
+        "currentLabel": { "element": "tag.status" }
+      },
+      "states": {
+        "current": { "parts": { "daeun": { "pillar": { "element": "highlight.current", "bg": "{color.status.bg}" }, "age": { "fg": "{color.action.primary}", "fontWeight": 700 } }, "currentLabel": { "visible": true } }, "note": "지금 대운 기둥 + '지금'" },
+        "thisYear": { "parts": { "seun": { "cell": { "element": "highlight.current", "bg": "{color.status.bg}" }, "year": { "fg": "{color.action.primary}", "fontWeight": 700 } }, "currentLabel": { "visible": true } }, "note": "올해 세운 칸 + '올해'" }
+      },
+      "haptic": [],
+      "a11y": { "role": "table", "label": "대운 N세부터 …", "currentAnnounced": "지금·올해", "textScaleMax": 1.3 },
+      "rules": [
+        "처음 열 때 지금 대운이 보이게 가로로 넘겨 둔다(움직임 없이).",
+        "지금·올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만."
+      ]
+    }
+  ]
+}

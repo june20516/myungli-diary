@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 달력 표시 비교안</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/light/style.css">
+<style>
+  .cal { font-family:Pretendard,sans-serif; }
+  .cal-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:20px; }
+  .col { background:#eeeeed; border-radius:28px; padding:16px; color:#2b2b2a; }
+  .col h3 { margin:0 0 4px; font-size:16px; }
+  .col p.desc { margin:0 0 12px; font-size:12.5px; color:#5b5b57; line-height:1.5; min-height:56px; }
+  .mode-bar { font-size:12px; margin-bottom:8px; display:inline-block; }
+  .phone { max-width:375px; margin:0 auto; border-radius:24px; overflow:hidden; padding:16px 12px 20px; box-sizing:border-box; background:var(--bg-base); color:var(--text-1); }
+  .light { --bg-base:#f7f7f6; --bg-sheet:#ffffff; --text-1:#2b2b2a; --text-2:#5b5b57; --muted:#8f908b; --primary:#47634c; --on-primary:#ffffff;
+           --good:#ffe9e5; --caution:#eeeeed; --line:#dededc; --fire:#733a35; --earth:#65470f; --fold:#dededc; }
+  .dark  { --bg-base:#1b1b1a; --bg-sheet:#2b2b2a; --text-1:#eeeeed; --text-2:#ababa7; --muted:#8f908b; --primary:#b8cebc; --on-primary:#1b1b1a;
+           --good:#3b2522; --caution:#2b2b2a; --line:#424340; --fire:#f7ccc6; --earth:#ead4b3; --fold:#424340; }
+  .mh { display:flex; align-items:center; justify-content:space-between; padding:4px 6px 12px; }
+  .mh b { font-size:20px; letter-spacing:-0.4px; } .mh i { font-size:22px; color:var(--text-2); margin-left:14px; }
+  .wk, .days { display:grid; grid-template-columns:repeat(7,1fr); }
+  .wk span { text-align:center; font-size:12px; color:var(--text-2); padding-bottom:6px; font-weight:500; }
+  .wk span.sun { color:var(--fire); font-weight:600; } .wk span.sat { color:var(--earth); font-weight:600; }
+  .cell { position:relative; height:62px; margin:2px; border-radius:8px; display:flex; flex-direction:column; align-items:center; padding-top:6px; box-sizing:border-box; cursor:pointer; user-select:none; isolation:isolate; overflow:hidden; }
+  .cell.good { background:var(--good); } .cell.caution { background:var(--caution); }
+  .num { position:relative; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:500; font-variant-numeric:tabular-nums; z-index:1; }
+  .cell.today .num::after { content:''; position:absolute; inset:0; border-radius:14px; box-shadow:inset 0 0 0 1.5px var(--primary); }
+  .st { position:absolute; left:50%; top:6px; width:30px; height:30px; margin-left:-15px; opacity:0; z-index:0; }
+  .st svg { width:100%; height:100%; transform:rotate(-8deg); } .st path { fill:var(--primary); }
+  .cell.sel .st { opacity:1; } .cell.sel .num { color:var(--on-primary) !important; } .cell.sel.today .num::after { display:none; }
+  .lunar { font-size:10.5px; color:var(--muted); margin-top:1px; font-variant-numeric:tabular-nums; }
+  .lunar.term { color:var(--text-2); font-weight:600; }
+  .marks { display:flex; gap:3px; margin-top:3px; height:5px; align-items:center; }
+  .ev-dot { width:5px; height:5px; border-radius:3px; background:var(--primary); }
+  .ev-bar { width:12px; height:3px; border-radius:2px; background:var(--primary); }
+  /* C 모서리 작은 낙관 */
+  .mini { position:absolute; right:4px; top:4px; width:9px; height:9px; }
+  .mini svg { width:100%; height:100%; transform:rotate(-8deg); } .mini path { fill:var(--primary); }
+  /* D 귀 접힘 */
+  .fold { position:absolute; right:0; bottom:0; width:0; height:0; border-style:solid; border-width:11px 11px 0 0; border-color:var(--primary) var(--bg-base) transparent transparent; opacity:.9; }
+  /* E 먹이 짙은 숫자 */
+  .E .cell.diary .num { color:var(--primary); font-weight:700; }
+  .legend { display:flex; gap:14px; justify-content:center; font-size:11.5px; color:var(--text-2); margin-top:12px; flex-wrap:wrap; align-items:center; }
+  .legend span { display:inline-flex; align-items:center; gap:5px; }
+  .legend .sw { width:14px; height:10px; border-radius:3px; }
+  .legend .mini, .legend .fold { position:relative; right:auto; top:auto; }
+  .legend .fold { bottom:auto; }
+  .legend .numx { color:var(--primary); font-weight:700; font-size:12px; }
+</style>
+
+<h2>달력: 일기·일정 표시 새 안 + 요일 오행색</h2>
+<p class="subtitle">요일 이름만 오행색입니다(토=토, 일=화). 날짜를 누르면 선택 도장이 옮겨 갑니다. 세 칸은 일기·일정 표시만 다릅니다.</p>
+
+<div class="cal">
+  <div class="cal-grid">
+    <div class="col" data-kind="C"><h3>C. 모서리 작은 낙관</h3><p class="desc">일기 쓴 날은 칸 오른쪽 위에 작은 낙관. 다 쓴 원고에 찍는 도장입니다. 일정은 날짜 아래 점. 선택 도장과는 크기·자리가 다릅니다.</p>
+      <label class="mode-bar"><input type="checkbox" class="dk"> 다크 모드</label><div class="phone light C"></div></div>
+    <div class="col" data-kind="D"><h3>D. 귀 접힘 (오른쪽 아래)</h3><p class="desc">일기 쓴 날은 칸 오른쪽 아래 모서리가 종이 귀처럼 접힙니다. 책장을 넘기는 귀퉁이 자리입니다. 일정은 날짜 아래 점.</p>
+      <label class="mode-bar"><input type="checkbox" class="dk"> 다크 모드</label><div class="phone light D"></div></div>
+    <div class="col" data-kind="E"><h3>E. 먹이 짙은 숫자</h3><p class="desc">일기 쓴 날은 날짜 숫자가 sage 먹색으로 짙고 굵어집니다. 일정은 날짜 아래 짧은 막대.</p>
+      <label class="mode-bar"><input type="checkbox" class="dk"> 다크 모드</label><div class="phone light E"></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DAYS = [[1,8,21],[2,8,22],[3,8,23],[4,8,24],[5,8,25],[6,8,26],[7,8,27],[8,8,28,'한로'],[9,8,29],[10,8,30],[11,9,1],[12,9,2],[13,9,3],[14,9,4],[15,9,5],[16,9,6],[17,9,7],[18,9,8],[19,9,9],[20,9,10],[21,9,11],[22,9,12],[23,9,13,'상강'],[24,9,14],[25,9,15],[26,9,16],[27,9,17],[28,9,18],[29,9,19],[30,9,20],[31,9,21]];
+  var LUCK = { 2:'good', 6:'caution', 9:'good', 11:'good', 14:'caution', 17:'good', 20:'caution', 23:'good', 26:'caution', 29:'good' };
+  var DIARY = [1,2,3,5,6,8,9,10];
+  var EVENT = [3,7,11,15,16,24];
+  var TODAY = 11;
+  var SEAL = '<svg viewBox="0 0 20 20"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg>';
+  var STAMP = [
+    { offset:0, transform:'scale(1.2)', filter:'blur(3px)', opacity:0, easing:'cubic-bezier(0.5,0,0.9,0.6)' },
+    { offset:0.35, transform:'scale(1)', filter:'blur(1.5px)', opacity:0.55, easing:'cubic-bezier(0.2,0.7,0.2,1)' },
+    { offset:1, transform:'scale(1)', filter:'blur(0px)', opacity:1 } ];
+  var firstDow = new Date(2026, 9, 1).getDay();
+  function lunarLabel(d) {
+    if (d[3]) return '<span class="lunar term">' + d[3] + '</span>';
+    return '<span class="lunar">' + (d[2] === 1 ? d[1] + '.1' : d[2]) + '</span>';
+  }
+  function render(phone, kind) {
+    var wk = ['일','월','화','수','목','금','토'].map(function (w, i) {
+      return '<span class="' + (i === 0 ? 'sun' : i === 6 ? 'sat' : '') + '">' + w + '</span>';
+    }).join('');
+    var html = '<div class="mh"><b>2026년 10월</b><span><i class="ph-light ph-caret-left"></i><i class="ph-light ph-caret-right"></i></span></div><div class="wk">' + wk + '</div><div class="days">';
+    for (var b = 0; b < firstDow; b++) html += '<div></div>';
+    DAYS.forEach(function (d) {
+      var n = d[0], hasDiary = DIARY.indexOf(n) >= 0, hasEvent = EVENT.indexOf(n) >= 0;
+      var cls = 'cell' + (LUCK[n] ? ' ' + LUCK[n] : '') + (n === TODAY ? ' today sel' : '') + (hasDiary ? ' diary' : '');
+      var deco = '';
+      if (hasDiary && kind === 'C') deco = '<span class="mini">' + SEAL + '</span>';
+      if (hasDiary && kind === 'D') deco = '<span class="fold"></span>';
+      var ev = hasEvent ? (kind === 'E' ? '<i class="ev-bar"></i>' : '<i class="ev-dot"></i>') : '';
+      html += '<div class="' + cls + '" data-n="' + n + '">' + deco + '<span class="st">' + SEAL + '</span><span class="num">' + n + '</span>' + lunarLabel(d) + '<span class="marks">' + ev + '</span></div>';
+    });
+    var diaryLegend = kind === 'C' ? '<span><span class="mini" style="width:10px;height:10px;display:inline-block">' + SEAL + '</span>일기</span>'
+      : kind === 'D' ? '<span><span class="fold" style="display:inline-block"></span>일기</span>'
+      : '<span><span class="numx">12</span>일기</span>';
+    var evLegend = kind === 'E' ? '<span><i class="ev-bar"></i>일정</span>' : '<span><i class="ev-dot"></i>일정</span>';
+    html += '</div><div class="legend"><span><i class="sw" style="background:var(--good)"></i>좋은 날</span><span><i class="sw" style="background:var(--caution)"></i>주의할 날</span>' + diaryLegend + evLegend + '</div>';
+    phone.innerHTML = html;
+    phone.querySelectorAll('.cell').forEach(function (c) {
+      c.addEventListener('click', function () {
+        var prev = phone.querySelector('.cell.sel');
+        if (prev === c) return;
+        if (prev) {
+          prev.classList.remove('sel');
+          var ps = prev.querySelector('.st'); ps.getAnimations().forEach(function (a) { a.cancel(); });
+          var o = ps.animate([{ opacity:1, filter:'blur(0px)' }, { opacity:0, filter:'blur(5px)' }], { duration:200 }); o.onfinish = function () { o.cancel(); };
+        }
+        c.classList.add('sel');
+        c.querySelector('.st').animate(STAMP, { duration:520, fill:'both' });
+      });
+    });
+  }
+  document.querySelectorAll('.col').forEach(function (col) {
+    var phone = col.querySelector('.phone'), kind = col.getAttribute('data-kind');
+    render(phone, kind);
+    col.querySelector('.dk').addEventListener('change', function (e) {
+      phone.classList.toggle('dark', e.target.checked); phone.classList.toggle('light', !e.target.checked);
+    });
+  });
+})();
+</script>
+
+    </div>
+  </div>
+
+</body>
+</html>

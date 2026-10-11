@@ -189,5 +189,433 @@
     ],
     "status": "chosen",
     "note": "라이트 캡처. 다크 캡처는 2026-10-11-v1-specimen-dark.png"
+  },
+  {
+    "id": "design-v2-press-feedback",
+    "title": "눌림 피드백 비교",
+    "kind": "concept",
+    "file": "2026-10-11-v2-press-feedback.png",
+    "source": "2026-10-11-v2-press-feedback.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [],
+    "decisions": [
+      "V14"
+    ],
+    "status": "chosen",
+    "note": "B 먹 번짐 채택(원형 그라데이션, 알파 0.12)"
+  },
+  {
+    "id": "design-v2-appear",
+    "title": "나타남·사라짐 비교",
+    "kind": "concept",
+    "file": "2026-10-11-v2-appear.png",
+    "source": "2026-10-11-v2-appear.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [],
+    "decisions": [
+      "V14"
+    ],
+    "status": "chosen",
+    "note": "B 스밈 채택(제자리 흐림 + 투명도)"
+  },
+  {
+    "id": "design-v2-select",
+    "title": "선택 이동: 스밈 + 이동 거리",
+    "kind": "concept",
+    "file": "2026-10-11-v2-select.png",
+    "source": "2026-10-11-v2-select.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [],
+    "decisions": [
+      "V14"
+    ],
+    "status": "chosen",
+    "note": "이동 15% 채택"
+  },
+  {
+    "id": "design-v2-skeleton",
+    "title": "불러오는 중 표시 비교",
+    "kind": "concept",
+    "file": "2026-10-11-v2-skeleton.png",
+    "source": "2026-10-11-v2-skeleton.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "launch"
+    ],
+    "decisions": [
+      "V14"
+    ],
+    "status": "chosen",
+    "note": "B 먹 숨쉬기 채택, 스피너 없음"
+  },
+  {
+    "id": "design-v2-focus",
+    "title": "입력 포커스 표시",
+    "kind": "concept",
+    "file": "2026-10-11-v2-focus.png",
+    "source": "2026-10-11-v2-focus.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "onboard-call"
+    ],
+    "decisions": [
+      "V14"
+    ],
+    "status": "chosen",
+    "note": "A sage 2px 테두리 채택(바탕 변화 없음)"
+  },
+  {
+    "id": "design-v2-frame",
+    "title": "화면 틀 A/B/C",
+    "kind": "concept",
+    "file": "2026-10-11-v2-frame.png",
+    "source": "2026-10-11-v2-frame.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "today",
+      "calendar",
+      "diary-list",
+      "my-saju"
+    ],
+    "decisions": [
+      "V17"
+    ],
+    "status": "chosen",
+    "note": "C 스며든 틀 채택: 작은 제목 왼쪽, 반투명 탭 바"
+  },
+  {
+    "id": "design-v2-kit",
+    "title": "범용 컴포넌트 묶음(버튼·토스트·배너·빈 상태)",
+    "kind": "concept",
+    "file": "2026-10-11-v2-kit.png",
+    "source": "2026-10-11-v2-kit.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [],
+    "decisions": [
+      "V13"
+    ],
+    "status": "chosen",
+    "note": "버튼 둥근 사각 radius.md 채택"
+  },
+  {
+    "id": "design-v2-caution-mark",
+    "title": "경고 표시 그림 비교",
+    "kind": "concept",
+    "file": "2026-10-11-v2-caution-mark.png",
+    "source": "2026-10-11-v2-caution-mark.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "account-delete"
+    ],
+    "decisions": [
+      "V18"
+    ],
+    "status": "superseded",
+    "note": "B 모양만 채택, 실제 그림은 Phosphor warning-circle Fill로 대체"
+  },
+  {
+    "id": "design-v2-icon-sets",
+    "title": "무료 아이콘 세트 비교",
+    "kind": "concept",
+    "file": "2026-10-11-v2-icon-sets.png",
+    "source": "2026-10-11-v2-icon-sets.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [],
+    "decisions": [
+      "V15"
+    ],
+    "status": "chosen",
+    "note": "Phosphor 채택(Light/Regular)"
+  },
+  {
+    "id": "design-v2-tab-seal",
+    "title": "선택된 탭 브랜드 표시",
+    "kind": "concept",
+    "file": "2026-10-11-v2-tab-seal.png",
+    "source": "2026-10-11-v2-tab-seal.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "V15",
+      "V16"
+    ],
+    "status": "chosen",
+    "note": "B 낙관 도장 채택"
+  },
+  {
+    "id": "design-v2-stamp-easing",
+    "title": "도장 찍힘 움직임 곡선",
+    "kind": "concept",
+    "file": "2026-10-11-v2-stamp-easing.png",
+    "source": "2026-10-11-v2-stamp-easing.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [],
+    "decisions": [
+      "V16"
+    ],
+    "status": "chosen",
+    "note": "C 찍고 배어듦 520ms 두 구간 채택"
+  },
+  {
+    "id": "design-v2-birth-date",
+    "title": "생일 날짜 입력",
+    "kind": "concept",
+    "file": "2026-10-11-v2-birth-date.png",
+    "source": "2026-10-11-v2-birth-date.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "onboard-birth"
+    ],
+    "decisions": [
+      "V13"
+    ],
+    "status": "chosen",
+    "note": "A 휠 + 월 휠 안 윤달 채택"
+  },
+  {
+    "id": "design-v2-birth-time",
+    "title": "출생 시간 입력",
+    "kind": "concept",
+    "file": "2026-10-11-v2-birth-time.png",
+    "source": "2026-10-11-v2-birth-time.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "onboard-time"
+    ],
+    "decisions": [
+      "V13"
+    ],
+    "status": "chosen",
+    "note": "A 휠 + 모름 체크 채택"
+  },
+  {
+    "id": "design-v2-sheet",
+    "title": "시트 깊어짐과 닫기 규칙",
+    "kind": "concept",
+    "file": "2026-10-11-v2-sheet.png",
+    "source": "2026-10-11-v2-sheet.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "explain-sheet",
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "V17"
+    ],
+    "status": "chosen",
+    "note": "A 겹쳐 쌓기, 닫기 1(뒤로·끌어내리기 한 단계, 바깥 누르기 모두) 채택"
+  },
+  {
+    "id": "design-v2-today",
+    "title": "오늘 화면: 근거 보기와 하트 자리",
+    "kind": "concept",
+    "file": "2026-10-11-v2-today.png",
+    "source": "2026-10-11-v2-today.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "V20"
+    ],
+    "status": "chosen",
+    "note": "0-나(끊기지 않는 링크) + 하트 문장 아래 홀로 채택"
+  },
+  {
+    "id": "design-v2-calendar-alternatives",
+    "title": "달력 표시 비교안",
+    "kind": "concept",
+    "file": "2026-10-11-v2-calendar-alternatives.png",
+    "source": "2026-10-11-v2-calendar-alternatives.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "calendar"
+    ],
+    "decisions": [
+      "V19"
+    ],
+    "status": "superseded",
+    "note": "고른 판(design-v2-calendar)으로 대체"
+  },
+  {
+    "id": "design-v2-calendar",
+    "title": "달력 표시 체계(고른 판)",
+    "kind": "concept",
+    "file": "2026-10-11-v2-calendar.png",
+    "source": "2026-10-11-v2-calendar.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "calendar"
+    ],
+    "decisions": [
+      "V19"
+    ],
+    "status": "chosen",
+    "note": "일기 옅은 도장·오늘 윤곽·선택 굵은 숫자 + 펼침 밑줄·일정 점, 요일 머리만 오행색"
+  },
+  {
+    "id": "design-v2-diary-save",
+    "title": "일기 저장 도장 자리",
+    "kind": "concept",
+    "file": "2026-10-11-v2-diary-save.png",
+    "source": "2026-10-11-v2-diary-save.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "diary-edit",
+      "diary-view"
+    ],
+    "decisions": [
+      "V20"
+    ],
+    "status": "chosen",
+    "note": "3 종이 아래 여백에 늘 도장 자리 채택"
+  },
+  {
+    "id": "design-v2-diary-list",
+    "title": "일기 목록 줄",
+    "kind": "concept",
+    "file": "2026-10-11-v2-diary-list.png",
+    "source": "2026-10-11-v2-diary-list.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "diary-list"
+    ],
+    "decisions": [
+      "V20"
+    ],
+    "status": "chosen",
+    "note": "가 세로 흐름 줄 + 카드 밖 날짜 채택"
+  },
+  {
+    "id": "design-v2-tag-chip",
+    "title": "태그 칩 색",
+    "kind": "concept",
+    "file": "2026-10-11-v2-tag-chip.png",
+    "source": "2026-10-11-v2-tag-chip.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "diary-list",
+      "diary-view"
+    ],
+    "decisions": [
+      "V20"
+    ],
+    "status": "chosen",
+    "note": "B 길흉 톤 채택(배지와 같은 V8 규칙)"
+  },
+  {
+    "id": "design-v2-saju-pillars",
+    "title": "원국표",
+    "kind": "concept",
+    "file": "2026-10-11-v2-saju-pillars.png",
+    "source": "2026-10-11-v2-saju-pillars.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "saju-chart",
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "V21"
+    ],
+    "status": "chosen",
+    "note": "A 오행 바탕 + 일간 '나' 꼬리표 채택"
+  },
+  {
+    "id": "design-v2-saju-manse",
+    "title": "만세력 표",
+    "kind": "concept",
+    "file": "2026-10-11-v2-saju-manse.png",
+    "source": "2026-10-11-v2-saju-manse.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [
+      "V21"
+    ],
+    "status": "chosen",
+    "note": "A 원국표 열 순서 격자 채택"
+  },
+  {
+    "id": "design-v2-saju-flow",
+    "title": "대운·세운 표",
+    "kind": "concept",
+    "file": "2026-10-11-v2-saju-flow.png",
+    "source": "2026-10-11-v2-saju-flow.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [
+      "V21"
+    ],
+    "status": "chosen",
+    "note": "지금·올해 현재 강조(옅은 sage)"
+  },
+  {
+    "id": "design-v2-share-image",
+    "title": "공유 이미지",
+    "kind": "concept",
+    "file": "2026-10-11-v2-share-image.png",
+    "source": "2026-10-11-v2-share-image.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "share-preview"
+    ],
+    "decisions": [
+      "V22"
+    ],
+    "status": "chosen",
+    "note": "라이트 고정, 호칭 포함, 스토리·피드·정사각 세 비율"
+  },
+  {
+    "id": "design-v2-rest",
+    "title": "나머지 컴포넌트(질문 카드·일정 줄·풀이 잠김·공유 미리보기·날짜 고르기)",
+    "kind": "concept",
+    "file": "2026-10-11-v2-rest.png",
+    "source": "2026-10-11-v2-rest.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "today",
+      "day-sheet",
+      "explain-sheet",
+      "share-preview",
+      "diary-list"
+    ],
+    "decisions": [
+      "V19",
+      "V20",
+      "V21",
+      "V22"
+    ],
+    "status": "chosen",
+    "note": "질문 카드 일기 후 버튼 뒤 도장, 일정 요약 지금 시각 기준"
   }
 ]

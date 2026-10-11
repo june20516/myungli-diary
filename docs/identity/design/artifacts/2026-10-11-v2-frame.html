@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 화면 틀 A/B/C</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  .fr { --bg-base:#f7f7f6; --bg-sheet:#ffffff; --text-1:#2b2b2a; --text-2:#5b5b57; --muted:#8f908b; --line:#dededc;
+        --primary:#47634c; --sage-100:#e8f2e9; --coral-600:#a75c53; font-family:Pretendard,sans-serif; color:var(--text-1); }
+  .fr-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; margin-bottom:28px; }
+  .fr-set h3 { margin:0 0 4px; font-size:17px; }
+  .fr-set p.desc { margin:0 0 12px; font-size:13px; color:var(--text-2); line-height:1.5; min-height:40px; }
+  .pair { display:flex; gap:10px; }
+  .ph { position:relative; flex:1; height:420px; border-radius:24px; overflow:hidden; font-size:12px; }
+  .ph.today { background:linear-gradient(160deg,#eef4ef,#fbefee); }
+  .ph.inner { background:var(--bg-base); }
+  .sb { height:22px; }
+  .ab { display:flex; align-items:center; height:44px; padding:0 12px; gap:8px; }
+  .ab .t { font-weight:600; font-size:15px; }
+  .ab .sp { flex:1; }
+  .ic { width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; color:var(--text-1); }
+  .ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .big { font-size:24px; font-weight:700; padding:4px 16px 8px; }
+  .body { padding:6px 16px; font-family:'Gowun Dodum',sans-serif; font-size:14px; line-height:1.65; }
+  .body small { display:block; font-family:Pretendard,sans-serif; font-size:11px; color:var(--text-2); }
+  .badge { display:inline-block; background:var(--coral-600); color:#fff; border-radius:9999px; padding:3px 10px; font-family:Pretendard,sans-serif; font-size:11px; font-weight:600; margin:6px 0 8px; }
+  .chips { display:flex; gap:6px; margin-top:12px; }
+  .chip { background:rgba(255,255,255,.7); border-radius:9999px; padding:4px 10px; font-family:Pretendard,sans-serif; font-size:10.5px; }
+  .tb { position:absolute; left:0; right:0; bottom:0; display:flex; padding:6px 4px 14px; }
+  .tb .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px; color:var(--muted); }
+  .tb .tab svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .tb .tab.sel { color:var(--primary); font-weight:600; }
+  .tb .tab .ink { position:absolute; }
+  .diary { padding:6px 16px; font-family:'Gowun Dodum',sans-serif; font-size:13.5px; line-height:1.7; }
+  .diary small { display:block; font-family:Pretendard,sans-serif; font-size:11px; color:var(--text-2); margin-bottom:4px; }
+
+  /* A 단정한 틀 */
+  .A .today .tb { background:var(--bg-sheet); border-top:1px solid var(--line); }
+  /* B 떠 있는 틀 */
+  .B .today .tb { left:12px; right:12px; bottom:12px; border-radius:28px; background:var(--bg-sheet);
+                  box-shadow:0 2px 6px rgba(43,43,42,.06), 0 10px 24px rgba(43,43,42,.10); padding:8px 4px; }
+  .B .inner .ab { margin:0; }
+  /* C 스며든 틀 */
+  .C .today .tb { background:rgba(255,255,255,.62); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+  .C .inner .ab .t { flex:1; text-align:left; }
+
+  .tab.sel .bg { position:absolute; width:44px; height:30px; border-radius:10px; background:var(--sage-100); z-index:-1; margin-top:-5px; }
+  .tab { position:relative; isolation:isolate; }
+</style>
+
+<h2>화면 틀: 탭 첫 화면과 안쪽 화면</h2>
+<p class="subtitle">세 쌍 모두 왼쪽은 탭 첫 화면(오늘), 오른쪽은 안쪽 화면(일기 보기)입니다. 탭 선택 표시는 앞서 정한 sage 자국입니다.</p>
+
+<div class="fr">
+  <div class="fr-row">
+    <div class="fr-set A">
+      <h3>A. 단정한 틀</h3>
+      <p class="desc">탭 첫 화면은 큰 제목("오늘")을 왼쪽에 둡니다. 탭 바는 흰 바탕에 위쪽 가는 선이 있습니다. 안쪽 화면은 가운데 제목입니다.</p>
+      <div class="pair">
+        <div class="ph today">
+          <div class="sb"></div>
+          <div class="ab"><span class="sp"></span><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg></span></div>
+          <div class="big">오늘</div>
+          <div class="body"><small>10월 11일 토요일</small><span class="badge">좋은 날</span><br>오늘은 마음 가는 일부터 천천히 시작해도 좋은 날이에요.<div class="chips"><span class="chip">● 연두</span><span class="chip">동쪽</span><span class="chip">3·8</span></div></div>
+          <div class="tb">
+            <div class="tab sel"><span class="bg"></span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"/></svg>오늘</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>달력</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/></svg>일기</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>나</div>
+          </div>
+        </div>
+        <div class="ph inner">
+          <div class="sb"></div>
+          <div class="ab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span><span class="sp"></span><span class="t">10월 9일 일기</span><span class="sp"></span><span class="ic"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></div>
+          <div class="diary"><small>귀인의 날</small>점심에 오래된 친구에게서 연락이 왔다. 별일 아닌 안부였는데 하루가 조금 가벼워졌다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-set B">
+      <h3>B. 떠 있는 틀</h3>
+      <p class="desc">탭 첫 화면엔 제목 없이 동작 아이콘만 둡니다(날짜가 제목 역할). 탭 바는 둥근 알약 모양으로 떠 있습니다.</p>
+      <div class="pair">
+        <div class="ph today">
+          <div class="sb"></div>
+          <div class="ab"><span class="sp"></span><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg></span></div>
+          <div class="body" style="padding-top:18px"><small style="font-size:15px;font-weight:700;color:#2b2b2a">10월 11일 토요일</small><span class="badge">좋은 날</span><br>오늘은 마음 가는 일부터 천천히 시작해도 좋은 날이에요.<div class="chips"><span class="chip">● 연두</span><span class="chip">동쪽</span><span class="chip">3·8</span></div></div>
+          <div class="tb">
+            <div class="tab sel"><span class="bg"></span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"/></svg>오늘</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>달력</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/></svg>일기</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>나</div>
+          </div>
+        </div>
+        <div class="ph inner">
+          <div class="sb"></div>
+          <div class="ab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span><span class="sp"></span><span class="t">10월 9일 일기</span><span class="sp"></span><span class="ic"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></div>
+          <div class="diary"><small>귀인의 날</small>점심에 오래된 친구에게서 연락이 왔다. 별일 아닌 안부였는데 하루가 조금 가벼워졌다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-set C">
+      <h3>C. 스며든 틀</h3>
+      <p class="desc">탭 첫 화면은 작은 제목을 왼쪽에 둡니다. 탭 바는 반투명해 그라데이션이 비쳐 보입니다. 안쪽 화면 제목도 왼쪽 정렬입니다.</p>
+      <div class="pair">
+        <div class="ph today">
+          <div class="sb"></div>
+          <div class="ab"><span class="t" style="padding-left:4px">오늘</span><span class="sp"></span><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg></span></div>
+          <div class="body" style="padding-top:10px"><small>10월 11일 토요일</small><span class="badge">좋은 날</span><br>오늘은 마음 가는 일부터 천천히 시작해도 좋은 날이에요.<div class="chips"><span class="chip">● 연두</span><span class="chip">동쪽</span><span class="chip">3·8</span></div></div>
+          <div class="tb">
+            <div class="tab sel"><span class="bg"></span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"/></svg>오늘</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>달력</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/></svg>일기</div>
+            <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>나</div>
+          </div>
+        </div>
+        <div class="ph inner">
+          <div class="sb"></div>
+          <div class="ab"><span class="ic"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span><span class="t">10월 9일 일기</span><span class="ic"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></div>
+          <div class="diary"><small>귀인의 날</small>점심에 오래된 친구에게서 연락이 왔다. 별일 아닌 안부였는데 하루가 조금 가벼워졌다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="options">
+    <div class="option" data-choice="a" onclick="toggleSelect(this)"><div class="letter">A</div><div class="content"><h3>단정한 틀</h3></div></div>
+    <div class="option" data-choice="b" onclick="toggleSelect(this)"><div class="letter">B</div><div class="content"><h3>떠 있는 틀</h3></div></div>
+    <div class="option" data-choice="c" onclick="toggleSelect(this)"><div class="letter">C</div><div class="content"><h3>스며든 틀</h3></div></div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</body>
+</html>

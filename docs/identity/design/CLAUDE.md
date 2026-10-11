@@ -8,9 +8,9 @@
 | 산출물 | 받는 쪽 | 마일스톤 |
 | --- | --- | --- |
 | 시각 정체성: 로고 방향, 그라데이션 규칙, 오행 팔레트, 타이포 | 모두 | V0 |
-| 디자인 토큰 (`tokens/`, 데이터 파일) | app (Dart 코드 생성) | V1 동결 |
+| 디자인 토큰 (`tokens/`, 데이터 파일) | app (Dart 코드 생성) | V1 freeze |
 | 캘린더 길흉 표시 규칙 (엔진 spec §8 `LuckLevel` 3단계, 루트 미결에서 이관). 점이 아니라 날짜 칸 채우기(결정 V10) | app | V1 |
-| 컴포넌트 명세 (`components/`): 데일리 카드(L1 레이아웃), 용어 토큰, 날의 성격 배지, 칩, 깊이 시트 단계 | app | V2 |
+| 컴포넌트 명세 (`components/`, 계약 1.0.0): IA 컴포넌트 41개 + 상호작용 패턴·요소 | app | V2 |
 
 * `docs/background/06-design-system.md`는 V0의 입력입니다. V0 결과가 정체성 기준으로 06을 대체합니다.
 * 그라데이션은 조건부 선택입니다(README "시각 방향"). 토큰 하나로 묶어, 리뉴얼할 때 그 토큰만 바꾸면 되게 합니다.
@@ -24,12 +24,16 @@
 | --- | --- | --- |
 | 브랜드 기반 (`docs/identity/README.md`) | **사용** | 지휘 |
 | MVP 화면 목록 (IA, D39) | **사용** (V2의 선행 조건) | 지휘 |
-| 디자인 토큰 (`tokens/`, 계약 1.0.0) | **제공** (마일스톤 V1에서 동결) | app |
-| 컴포넌트 명세 | **제공** | app |
+| 디자인 토큰 (`tokens/`, 계약 1.1.0) | **제공** (V1 freeze 1.0.0, V2에서 추가만) | app |
+| 컴포넌트 명세 (`components/`, 계약 1.0.0) | **제공** | app |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
 ## 현재 상태 (2026-10-11, design 세션 작성)
-* **마일스톤 V1 디자인 토큰 동결** (브랜치 `design/tokens`, 계약 1.0.0).
+* **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`, 컴포넌트 계약 1.0.0, 토큰 1.1.0).
+  * 명세: [`components/`](components/README.md) JSON(사실) + MD(설명) 11쌍. 공통 `interaction`(패턴 12개)·`elements`(요소 15개).
+  * 검사: 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA 41개·토큰 참조·요소·패턴·상태 대응표·짝 MD).
+  * 근거: [V2 spec](specs/2026-10-11-components-design.md), 결정 V13~V24. 대비 검사 86/86(비활성 글자 3:1).
+* **마일스톤 V1 디자인 토큰 freeze** (브랜치 `design/tokens`, 계약 1.0.0).
   * 토큰: [`tokens/`](tokens/README.md) 다섯 파일. 생성: 저장소 루트에서 `python3 docs/identity/design/tools/tokens.py`. 손으로 고치지 않습니다.
   * 근거: [V1 spec](specs/2026-10-11-design-tokens-design.md), 결정 V8~V12. 대비 검사 52/52.
   * 길흉 표시는 점이 아니라 칸 채우기입니다(결정 V10).
@@ -46,10 +50,6 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **V2 컴포넌트 명세: 착수 가능.** IA 계약 v1(`docs/ia/screens.json`, 컴포넌트 39개, 화면 31개)이 main에 들어왔습니다. Issue #16을 따릅니다. 새 브랜치에서 시작합니다. V1에서 V2로 넘긴 것:
-   - 컴포넌트별 토큰 사용
-   - 일기·일정 표시 점, 오늘·선택 표시
-   - 시스템 글자 크기 상한
-   - 길흉을 글·스크린리더로 전하는 방법
+1. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. 풀이 잠김 변형은 MVP에 쓰지 않습니다(D53, 아이디어 I7).
 2. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
 3. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
