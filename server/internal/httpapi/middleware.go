@@ -58,7 +58,7 @@ func recoverPanic(deps Deps, next http.Handler) http.Handler {
 				return
 			}
 			// 연결 중단을 알리는 관례적 panic은 net/http가 처리하도록 다시 던집니다.
-			if value == http.ErrAbortHandler {
+			if value == http.ErrAbortHandler { //nolint:errorlint // recover 값은 error가 아닌 any이고 net/http도 ==로 비교합니다
 				panic(value)
 			}
 			deps.Logger.ErrorContext(r.Context(), "panic 복구", "panic", value, "stack", string(debug.Stack()))

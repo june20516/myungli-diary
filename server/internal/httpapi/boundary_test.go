@@ -19,7 +19,7 @@ func TestDecodeJSON_TrailingData(t *testing.T) {
 		})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodPost, "/v1/x", strings.NewReader(`{} {}`)))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/x", strings.NewReader(`{} {}`)))
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400", rec.Code)
@@ -39,7 +39,7 @@ func TestDecodeJSON_AcceptsSingleValueWithTrailingWhitespace(t *testing.T) {
 		})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodPost, "/v1/x", strings.NewReader("{\"a\":1}\n")))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/x", strings.NewReader("{\"a\":1}\n")))
 
 	if rec.Code != http.StatusNoContent {
 		t.Errorf("status = %d, want 204", rec.Code)
@@ -71,12 +71,12 @@ func TestHandler_AccessLog_RecordsActualStatusOfPanicAnd413(t *testing.T) {
 		mux.HandleFunc("POST /v1/x", func(http.ResponseWriter, *http.Request) {})
 	})
 
-	serve(handler, httptest.NewRequest(http.MethodGet, "/boom", nil))
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/boom", nil))
 	if got := lastAccessLog(t, logs)["status"]; got != float64(500) {
 		t.Errorf("panic 요청 로그 status = %v, want 500", got)
 	}
 
-	serve(handler, httptest.NewRequest(http.MethodPost, "/v1/x", strings.NewReader(strings.Repeat("x", 5<<20))))
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/x", strings.NewReader(strings.Repeat("x", 5<<20))))
 	if got := lastAccessLog(t, logs)["status"]; got != float64(413) {
 		t.Errorf("413 요청 로그 status = %v, want 413", got)
 	}
@@ -91,7 +91,7 @@ func TestHandler_PanicBeforeHeader_ClearsHeadersButKeepsTraceID(t *testing.T) {
 		})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/boom", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/boom", nil))
 
 	if rec.Header().Get("X-Leak") != "" || rec.Header().Get("Set-Cookie") != "" {
 		t.Errorf("핸들러가 설정한 헤더가 남음: %v", rec.Header())
@@ -120,9 +120,9 @@ func TestHandler_PanicAfterHeader_AbortsConnection(t *testing.T) {
 		})
 	})
 
-	got := servePanics(handler, httptest.NewRequest(http.MethodGet, "/boom", nil))
+	got := servePanics(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/boom", nil))
 
-	if got != http.ErrAbortHandler {
+	if got != http.ErrAbortHandler { //nolint:errorlint // recover한 any 값이라 errors.Is를 쓸 수 없습니다
 		t.Errorf("전파된 panic = %v, want http.ErrAbortHandler", got)
 	}
 	if !strings.Contains(logs.String(), "stack") {
@@ -135,9 +135,9 @@ func TestHandler_ErrAbortHandlerIsRethrownWithoutErrorLog(t *testing.T) {
 		mux.HandleFunc("GET /abort", func(http.ResponseWriter, *http.Request) { panic(http.ErrAbortHandler) })
 	})
 
-	got := servePanics(handler, httptest.NewRequest(http.MethodGet, "/abort", nil))
+	got := servePanics(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/abort", nil))
 
-	if got != http.ErrAbortHandler {
+	if got != http.ErrAbortHandler { //nolint:errorlint // recover한 any 값이라 errors.Is를 쓸 수 없습니다
 		t.Errorf("전파된 panic = %v, want http.ErrAbortHandler", got)
 	}
 	if strings.Contains(logs.String(), "panic 복구") {
@@ -148,7 +148,7 @@ func TestHandler_ErrAbortHandlerIsRethrownWithoutErrorLog(t *testing.T) {
 func TestHandler_HeadHealthz(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodHead, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodHead, "/healthz", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", rec.Code)
@@ -160,7 +160,7 @@ func TestHandler_MethodNotAllowed_AllowHeaderExactValue(t *testing.T) {
 		mux.HandleFunc("GET /v1/x", func(http.ResponseWriter, *http.Request) {})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodDelete, "/v1/x", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodDelete, "/v1/x", nil))
 
 	if got := rec.Header().Get("Allow"); got != "GET, HEAD" {
 		t.Errorf("Allow = %q, want %q", got, "GET, HEAD")

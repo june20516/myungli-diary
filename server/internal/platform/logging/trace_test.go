@@ -17,7 +17,7 @@ func serveWithTrace(t *testing.T, traceparent string) (string, *httptest.Respons
 	handler := logging.WithTrace(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctxTraceID = logging.TraceID(r.Context())
 	}))
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 	if traceparent != "" {
 		req.Header.Set("traceparent", traceparent)
 	}

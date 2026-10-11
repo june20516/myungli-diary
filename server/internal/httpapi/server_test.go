@@ -61,7 +61,7 @@ func decodeProblem(t *testing.T, rec *httptest.ResponseRecorder) problem.Problem
 func TestHandler_Healthz(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
@@ -74,7 +74,7 @@ func TestHandler_Healthz(t *testing.T) {
 func TestHandler_UnknownRoute(t *testing.T) {
 	handler, _ := newTestHandler(t, nil)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/nope", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/nope", nil))
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", rec.Code)
@@ -89,7 +89,7 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 		mux.HandleFunc("GET /v1/x", func(w http.ResponseWriter, _ *http.Request) {})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodDelete, "/v1/x", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodDelete, "/v1/x", nil))
 
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("status = %d, want 405", rec.Code)
@@ -109,7 +109,7 @@ func TestHandler_PanicRecovered(t *testing.T) {
 		})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/boom", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/boom", nil))
 
 	if rec.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", rec.Code)
@@ -137,7 +137,7 @@ func TestHandler_BodyTooLarge(t *testing.T) {
 	})
 	// Content-Length를 알 수 없는 스트림으로 보내 읽는 도중 상한에 걸리게 합니다.
 	body := io.MultiReader(strings.NewReader(`{"a":"`), strings.NewReader(strings.Repeat("x", 5<<20)), strings.NewReader(`"}`))
-	req := httptest.NewRequest(http.MethodPost, "/v1/x", body)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/x", body)
 	req.ContentLength = -1
 
 	rec := serve(handler, req)
@@ -155,7 +155,7 @@ func TestHandler_BodyTooLargeByContentLength(t *testing.T) {
 	handler, _ := newTestHandler(t, func(mux *http.ServeMux) {
 		mux.HandleFunc("POST /v1/x", func(http.ResponseWriter, *http.Request) { called = true })
 	})
-	req := httptest.NewRequest(http.MethodPost, "/v1/x", strings.NewReader(strings.Repeat("x", 5<<20)))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/x", strings.NewReader(strings.Repeat("x", 5<<20)))
 
 	rec := serve(handler, req)
 
@@ -175,7 +175,7 @@ func TestDecodeJSON_SyntaxError(t *testing.T) {
 		})
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodPost, "/v1/x", strings.NewReader("{not json")))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/x", strings.NewReader("{not json")))
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400", rec.Code)
@@ -192,7 +192,7 @@ func TestHandler_AccessLog_UsesRoutePatternNotActualPath(t *testing.T) {
 		})
 	})
 
-	serve(handler, httptest.NewRequest(http.MethodGet, "/v1/diaries/1990-05-17?token=secret", nil))
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries/1990-05-17?token=secret", nil))
 
 	var entry map[string]any
 	if err := json.Unmarshal(bytes.TrimSpace(logs.Bytes()), &entry); err != nil {
@@ -212,7 +212,7 @@ func TestHandler_AccessLog_UsesRoutePatternNotActualPath(t *testing.T) {
 func TestHandler_TraceHeaderOnResponse(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
 
 	if rec.Header().Get("X-Trace-Id") == "" {
 		t.Error("X-Trace-Id 헤더가 없습니다")

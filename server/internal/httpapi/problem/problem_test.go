@@ -10,8 +10,9 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 )
 
-func newRequest(traceID string) *http.Request {
-	r := httptest.NewRequest(http.MethodGet, "/x", nil)
+func newRequest(t *testing.T, traceID string) *http.Request {
+	t.Helper()
+	r := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/x", nil)
 	return r.WithContext(logging.ContextWithTraceID(r.Context(), traceID))
 }
 
@@ -19,7 +20,7 @@ func TestWrite_SetsHeadersAndFields(t *testing.T) {
 	rec := httptest.NewRecorder()
 	p := problem.New(422, "diary.future_date", "Diary date is in the future")
 
-	problem.Write(rec, newRequest("abc123"), p)
+	problem.Write(rec, newRequest(t, "abc123"), p)
 
 	if rec.Code != 422 {
 		t.Errorf("status = %d, want 422", rec.Code)
@@ -56,7 +57,7 @@ func TestWrite_IncludesDetailAndErrors(t *testing.T) {
 	p.Detail = "see errors"
 	p.Errors = []problem.FieldError{{Field: "date", Code: "required"}}
 
-	problem.Write(rec, newRequest("t"), p)
+	problem.Write(rec, newRequest(t, "t"), p)
 
 	var body problem.Problem
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
@@ -71,7 +72,7 @@ func TestWrite_IncludesDetailAndErrors(t *testing.T) {
 func TestWrite_401OmitsWWWAuthenticate(t *testing.T) {
 	rec := httptest.NewRecorder()
 
-	problem.Write(rec, newRequest("t"), problem.New(401, "reward.invalid_signature", "Invalid signature"))
+	problem.Write(rec, newRequest(t, "t"), problem.New(401, "reward.invalid_signature", "Invalid signature"))
 
 	if rec.Code != 401 {
 		t.Errorf("status = %d, want 401", rec.Code)
@@ -84,7 +85,7 @@ func TestWrite_401OmitsWWWAuthenticate(t *testing.T) {
 func TestWriteBearerChallenge_AddsWWWAuthenticate(t *testing.T) {
 	rec := httptest.NewRecorder()
 
-	problem.WriteBearerChallenge(rec, newRequest("t"), problem.New(401, "auth.token_invalid", "Invalid token"))
+	problem.WriteBearerChallenge(rec, newRequest(t, "t"), problem.New(401, "auth.token_invalid", "Invalid token"))
 
 	if rec.Code != 401 {
 		t.Errorf("status = %d, want 401", rec.Code)
@@ -104,7 +105,7 @@ func TestWriteBearerChallenge_AddsWWWAuthenticate(t *testing.T) {
 func TestWrite_Non401OmitsWWWAuthenticate(t *testing.T) {
 	rec := httptest.NewRecorder()
 
-	problem.Write(rec, newRequest("t"), problem.New(403, "auth.forbidden", "Forbidden"))
+	problem.Write(rec, newRequest(t, "t"), problem.New(403, "auth.forbidden", "Forbidden"))
 
 	if got := rec.Header().Get("WWW-Authenticate"); got != "" {
 		t.Errorf("WWW-Authenticate = %q, want empty", got)

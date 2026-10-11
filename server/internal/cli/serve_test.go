@@ -20,7 +20,7 @@ func TestServe_GracefulShutdown(t *testing.T) {
 		<-release
 		w.WriteHeader(http.StatusOK)
 	})
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	listener, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("Listen: %v", err)
 	}
@@ -33,12 +33,12 @@ func TestServe_GracefulShutdown(t *testing.T) {
 
 	statusCh := make(chan int, 1)
 	go func() {
-		resp, err := http.Get("http://" + listener.Addr().String() + "/slow")
+		resp, err := getWithContext(t.Context(), http.DefaultClient, "http://"+listener.Addr().String()+"/slow")
 		if err != nil {
 			statusCh <- -1
 			return
 		}
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		statusCh <- resp.StatusCode
 	}()
 
@@ -94,12 +94,12 @@ func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 	// 계약 라우트가 등록돼 있고 아직 구현하지 않은 operation은 501입니다.
 	// 종료를 늦추지 않게 본문을 끝까지 읽고 유휴 연결을 닫습니다.
 	client := &http.Client{Timeout: 2 * time.Second}
-	resp, err := client.Get("http://127.0.0.1:" + env["PORT"] + "/v1/me")
+	resp, err := getWithContext(t.Context(), client, "http://127.0.0.1:"+env["PORT"]+"/v1/me")
 	if err != nil {
 		t.Fatalf("GET /v1/me: %v", err)
 	}
 	_, _ = io.Copy(io.Discard, resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	client.CloseIdleConnections()
 	if resp.StatusCode != http.StatusNotImplemented {
 		t.Errorf("GET /v1/me status = %d, want 501", resp.StatusCode)
@@ -119,11 +119,11 @@ func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 // freePort는 지금 비어 있는 포트 번호를 돌려줍니다.
 func freePort(t *testing.T) string {
 	t.Helper()
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	listener, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("Listen: %v", err)
 	}
-	defer listener.Close()
+	defer func() { _ = listener.Close() }()
 	return strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
 }
 
@@ -133,9 +133,9 @@ func waitForHealthz(t *testing.T, url string) {
 	client := &http.Client{Timeout: 500 * time.Millisecond}
 	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
-		resp, err := client.Get(url)
+		resp, err := getWithContext(t.Context(), client, url)
 		if err == nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if resp.StatusCode == http.StatusOK {
 				return
 			}
@@ -143,4 +143,13 @@ func waitForHealthz(t *testing.T, url string) {
 		time.Sleep(20 * time.Millisecond)
 	}
 	t.Fatalf("%s가 5초 안에 200을 주지 않았습니다", url)
+}
+
+// getWithContext는 ctx를 실어 GET 요청을 보냅니다.
+func getWithContext(ctx context.Context, client *http.Client, url string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	return client.Do(req)
 }

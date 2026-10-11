@@ -85,7 +85,7 @@ func TestRun_MigrateWithoutDatabaseURL_Exits1(t *testing.T) {
 }
 
 func TestRun_MigrateUnreachableDatabase_FailsFastWithCauseWithoutPassword(t *testing.T) {
-	env := map[string]string{"DATABASE_URL": "postgres://u:s3cr3t-pw@127.0.0.1:1/x"}
+	env := map[string]string{"DATABASE_URL": "postgres://u:s3cr3t-pw@127.0.0.1:1/x"} //nolint:gosec // 비밀번호가 로그에 새지 않는지 확인하려는 가짜 값입니다
 
 	start := time.Now()
 	code, _, stderr := runCLIWithEnv(t, env, "migrate", "up")

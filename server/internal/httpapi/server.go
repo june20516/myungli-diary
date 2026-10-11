@@ -35,7 +35,7 @@ func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 		routes(mux)
 	}
 
-	var handler http.Handler = newRouter(mux)
+	handler := newRouter(mux)
 	handler = limitBody(handler)
 	handler = recoverPanic(deps, handler)
 	handler = accessLog(deps, handler)

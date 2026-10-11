@@ -36,7 +36,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
-	spec, err := gen.GetSwagger()
+	spec, err := gen.GetSpec()
 	if err != nil {
 		logger.ErrorContext(ctx, "계약 읽기 실패", "error", err)
 		return &loggedError{err: err}
@@ -47,7 +47,8 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
 	})
 
-	listener, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(cfg.Port)))
+	var listenConfig net.ListenConfig
+	listener, err := listenConfig.Listen(ctx, "tcp", net.JoinHostPort("", strconv.Itoa(cfg.Port)))
 	if err != nil {
 		logger.ErrorContext(ctx, "포트 열기 실패", "port", cfg.Port, "error", err)
 		return &loggedError{err: err}

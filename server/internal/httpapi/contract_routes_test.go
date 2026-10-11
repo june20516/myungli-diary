@@ -24,7 +24,7 @@ const (
 // newAPIHandler는 계약 라우트 전체를 미구현 핸들러로 등록한 Handler를 만듭니다.
 func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 	t.Helper()
-	spec, err := gen.GetSwagger()
+	spec, err := gen.GetSpec()
 	if err != nil {
 		t.Fatalf("계약 읽기: %v", err)
 	}
@@ -36,8 +36,9 @@ func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 	return handler, logs
 }
 
-func newBodyRequest(method, target, contentType, body string) *http.Request {
-	req := httptest.NewRequest(method, target, strings.NewReader(body))
+func newBodyRequest(t *testing.T, method, target, contentType, body string) *http.Request {
+	t.Helper()
+	req := httptest.NewRequestWithContext(t.Context(), method, target, strings.NewReader(body))
 	req.Header.Set("Content-Type", contentType)
 	return req
 }
@@ -86,7 +87,7 @@ func profileWithNotificationTime(clock string) string {
 func TestAPI_ValidRequestReturns501(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/me", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil))
 
 	if rec.Code != http.StatusNotImplemented {
 		t.Fatalf("status = %d, want 501, body = %s", rec.Code, rec.Body.String())
@@ -99,7 +100,7 @@ func TestAPI_ValidRequestReturns501(t *testing.T) {
 func TestAPI_InvalidDatePathReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/daily/2026-13-40", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2026-13-40", nil))
 
 	expectInvalid(t, rec, "date")
 }
@@ -108,10 +109,10 @@ func TestAPI_InvalidDatePathReturns400(t *testing.T) {
 func TestAPI_NonexistentDateReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/daily/2026-02-30", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2026-02-30", nil))
 	expectInvalid(t, rec, "date")
 
-	rec = serve(handler, newBodyRequest(http.MethodPost, "/v1/schedules", contentTypeJSON, `{"date":"2026-02-30","allDay":true,"title":"점심"}`))
+	rec = serve(handler, newBodyRequest(t, http.MethodPost, "/v1/schedules", contentTypeJSON, `{"date":"2026-02-30","allDay":true,"title":"점심"}`))
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("본문 status = %d, want 400, body = %s", rec.Code, rec.Body.String())
 	}
@@ -123,7 +124,7 @@ func TestAPI_NonexistentDateReturns400(t *testing.T) {
 func TestAPI_InvalidQueryReturns400WithParameterName(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/diaries?limit=0", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries?limit=0", nil))
 
 	expectInvalid(t, rec, "limit")
 }
@@ -131,7 +132,7 @@ func TestAPI_InvalidQueryReturns400WithParameterName(t *testing.T) {
 func TestAPI_MissingRequiredQueryReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/schedules?from=2026-10-01", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/schedules?from=2026-10-01", nil))
 
 	expectInvalid(t, rec, "to")
 }
@@ -139,7 +140,7 @@ func TestAPI_MissingRequiredQueryReturns400(t *testing.T) {
 func TestAPI_MissingRequiredFieldReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{}`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{}`))
 
 	expectInvalid(t, rec, "/body")
 }
@@ -148,7 +149,7 @@ func TestAPI_NestedFieldErrorUsesJSONPointer(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 	body := strings.Replace(profileWithNotificationTime("07:05"), `"day":17`, `"day":40`, 1)
 
-	rec := serve(handler, newBodyRequest(http.MethodPut, "/v1/me/profile", contentTypeJSON, body))
+	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, body))
 
 	expectInvalid(t, rec, "/birth/date/day")
 }
@@ -156,7 +157,7 @@ func TestAPI_NestedFieldErrorUsesJSONPointer(t *testing.T) {
 func TestAPI_WrongContentTypeReturns415(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(http.MethodPut, "/v1/diaries/2026-10-11", "text/plain", `{"body":"오늘"}`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", "text/plain", `{"body":"오늘"}`))
 
 	if rec.Code != http.StatusUnsupportedMediaType {
 		t.Fatalf("status = %d, want 415, body = %s", rec.Code, rec.Body.String())
@@ -180,7 +181,7 @@ func TestAPI_ContentTypeIsJudgedByMediaType(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodPut, "/v1/diaries/2026-10-11", strings.NewReader(tc.body))
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodPut, "/v1/diaries/2026-10-11", strings.NewReader(tc.body))
 			if tc.contentType != "" {
 				req.Header.Set("Content-Type", tc.contentType)
 			}
@@ -196,7 +197,7 @@ func TestAPI_ContentTypeIsJudgedByMediaType(t *testing.T) {
 
 // 계약 router가 라우트를 찾지 못하면 404 problem을 쓰고, 요청 값 없이 오류 타입과 route 패턴만 로그로 남깁니다.
 func TestValidateRequests_UnknownContractRouteIsLogged(t *testing.T) {
-	spec, err := gen.GetSwagger()
+	spec, err := gen.GetSpec()
 	if err != nil {
 		t.Fatalf("계약 읽기: %v", err)
 	}
@@ -208,7 +209,7 @@ func TestValidateRequests_UnknownContractRouteIsLogged(t *testing.T) {
 		mux.Handle("GET /v1/extra/{id}", validate(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { called = true })))
 	})
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/extra/secret-id?token=secret-value", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/extra/secret-id?token=secret-value", nil))
 
 	if rec.Code != http.StatusNotFound || called {
 		t.Fatalf("status = %d, called = %v, want 404 and 핸들러 미호출", rec.Code, called)
@@ -231,7 +232,7 @@ func TestValidateRequests_UnknownContractRouteIsLogged(t *testing.T) {
 func TestAPI_MalformedJSONReturns400Malformed(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{"body":`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{"body":`))
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400, body = %s", rec.Code, rec.Body.String())
@@ -252,7 +253,7 @@ func TestAPI_TrailingDataReturns400Malformed(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			rec := serve(handler, newBodyRequest(tc.method, tc.target, tc.contentType, `{"body":"a","title":"a"} {}`))
+			rec := serve(handler, newBodyRequest(t, tc.method, tc.target, tc.contentType, `{"body":"a","title":"a"} {}`))
 
 			if rec.Code != http.StatusBadRequest {
 				t.Fatalf("status = %d, want 400, body = %s", rec.Code, rec.Body.String())
@@ -268,7 +269,7 @@ func TestAPI_BodyTooLargeReturns413(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 	// Content-Length를 알 수 없는 스트림으로 보내 검증이 본문을 읽는 도중 상한에 걸리게 합니다.
 	body := io.MultiReader(strings.NewReader(`{"body":"`), strings.NewReader(strings.Repeat("x", 2<<20)), strings.NewReader(`"}`))
-	req := httptest.NewRequest(http.MethodPut, "/v1/diaries/2026-10-11", body)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPut, "/v1/diaries/2026-10-11", body)
 	req.Header.Set("Content-Type", contentTypeJSON)
 	req.ContentLength = -1
 
@@ -285,7 +286,7 @@ func TestAPI_BodyTooLargeReturns413(t *testing.T) {
 func TestAPI_NotificationTimeGranularity(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:03")))
+	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:03")))
 
 	expectInvalid(t, rec, "/notification/time")
 }
@@ -302,7 +303,7 @@ func TestAPI_MergePatchBodiesAreAccepted(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			rec := serve(handler, newBodyRequest(http.MethodPatch, tc.target, contentTypeMergePatch, tc.body))
+			rec := serve(handler, newBodyRequest(t, http.MethodPatch, tc.target, contentTypeMergePatch, tc.body))
 
 			if rec.Code != http.StatusNotImplemented {
 				t.Fatalf("status = %d, want 501, body = %s", rec.Code, rec.Body.String())
@@ -314,7 +315,7 @@ func TestAPI_MergePatchBodiesAreAccepted(t *testing.T) {
 func TestAPI_MergePatchBodyIsValidated(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(http.MethodPatch, "/v1/me/profile", contentTypeMergePatch, `{"honorific":""}`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPatch, "/v1/me/profile", contentTypeMergePatch, `{"honorific":""}`))
 
 	expectInvalid(t, rec, "/honorific")
 }
@@ -324,13 +325,13 @@ func TestAPI_MergePatchBodyIsValidated(t *testing.T) {
 func TestAPI_HeadIsValidatedLikeGet(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodHead, "/v1/daily/2026-13-40", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodHead, "/v1/daily/2026-13-40", nil))
 	if rec.Code != http.StatusBadRequest {
 		t.Errorf("잘못된 날짜 status = %d, want 400", rec.Code)
 	}
 
 	// 검증을 통과한 HEAD는 경로 값을 그대로 가진 채 핸들러에 닿습니다.
-	rec = serve(handler, httptest.NewRequest(http.MethodHead, "/v1/daily/2026-10-11", nil))
+	rec = serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodHead, "/v1/daily/2026-10-11", nil))
 	if rec.Code != http.StatusNotImplemented {
 		t.Errorf("유효한 날짜 status = %d, want 501", rec.Code)
 	}
@@ -339,7 +340,7 @@ func TestAPI_HeadIsValidatedLikeGet(t *testing.T) {
 func TestAPI_UnknownRouteStaysProblem404(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/v1/nope", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/nope", nil))
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", rec.Code)
@@ -352,7 +353,7 @@ func TestAPI_UnknownRouteStaysProblem404(t *testing.T) {
 func TestAPI_WrongMethodStaysProblem405(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodPost, "/v1/me", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/me", nil))
 
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("status = %d, want 405", rec.Code)
@@ -365,7 +366,7 @@ func TestAPI_WrongMethodStaysProblem405(t *testing.T) {
 func TestAPI_AccessLogUsesContractRoute(t *testing.T) {
 	handler, logs := newAPIHandler(t)
 
-	serve(handler, httptest.NewRequest(http.MethodGet, "/v1/diaries/2026-10-11", nil))
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries/2026-10-11", nil))
 
 	if got := lastAccessLog(t, logs)["route"]; got != "GET /v1/diaries/{date}" {
 		t.Errorf("route = %v", got)
@@ -375,7 +376,7 @@ func TestAPI_AccessLogUsesContractRoute(t *testing.T) {
 func TestNewHandler_HealthzIsOnlyContractRoute(t *testing.T) {
 	handler, _ := newTestHandler(t, nil)
 
-	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
 
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("status = %d, want 404 (healthz는 RegisterAPI가 등록합니다)", rec.Code)
@@ -434,7 +435,7 @@ var minimalRequests = map[string]operationRequest{
 }
 
 func TestAPI_EveryOperationIsRouted(t *testing.T) {
-	spec, err := gen.GetSwagger()
+	spec, err := gen.GetSpec()
 	if err != nil {
 		t.Fatalf("계약 읽기: %v", err)
 	}
@@ -459,9 +460,9 @@ func TestAPI_EveryOperationIsRouted(t *testing.T) {
 			}
 			var req *http.Request
 			if fixture.body == "" {
-				req = httptest.NewRequest(fixture.method, fixture.target, nil)
+				req = httptest.NewRequestWithContext(t.Context(), fixture.method, fixture.target, nil)
 			} else {
-				req = newBodyRequest(fixture.method, fixture.target, fixture.contentType, fixture.body)
+				req = newBodyRequest(t, fixture.method, fixture.target, fixture.contentType, fixture.body)
 			}
 
 			rec := serve(handler, req)
@@ -480,7 +481,7 @@ func TestAPI_EveryOperationIsRouted(t *testing.T) {
 // TestValidateRequests_KeepsRawQueryAndBody는 검증이 원본 쿼리 문자열과 본문을 바꾸지 않는지 확인합니다.
 // admobRewardCallback은 원본 쿼리 문자열로 서명을 검증하므로 순서·인코딩이 그대로여야 합니다.
 func TestValidateRequests_KeepsRawQueryAndBody(t *testing.T) {
-	spec, err := gen.GetSwagger()
+	spec, err := gen.GetSpec()
 	if err != nil {
 		t.Fatalf("계약 읽기: %v", err)
 	}
@@ -496,21 +497,21 @@ func TestValidateRequests_KeepsRawQueryAndBody(t *testing.T) {
 
 	rawQuery := "transaction_id=t%2Bx&timestamp=1&key_id=1&signature=s%3D%3D&custom_data=a+b"
 	rec := httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/webhooks/admob-ssv?"+rawQuery, nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/webhooks/admob-ssv?"+rawQuery, nil))
 	if rec.Code != http.StatusNoContent || gotQuery != rawQuery {
 		t.Errorf("status = %d, RawQuery = %q, want %q", rec.Code, gotQuery, rawQuery)
 	}
 
 	// limit에는 default가 있지만 검증은 쿼리에 채워 넣지 않습니다.
 	rec = httptest.NewRecorder()
-	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/v1/diaries", nil))
+	handler.ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries", nil))
 	if rec.Code != http.StatusNoContent || gotQuery != "" {
 		t.Errorf("status = %d, RawQuery = %q, want empty", rec.Code, gotQuery)
 	}
 
 	body := `{"body":"오늘"}`
 	rec = httptest.NewRecorder()
-	handler.ServeHTTP(rec, newBodyRequest(http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, body))
+	handler.ServeHTTP(rec, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, body))
 	if rec.Code != http.StatusNoContent || gotBody != body {
 		t.Errorf("status = %d, body = %q, want %q", rec.Code, gotBody, body)
 	}

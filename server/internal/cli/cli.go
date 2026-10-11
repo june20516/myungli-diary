@@ -67,13 +67,13 @@ commands:
 // 모두 테스트에서 대체할 수 있도록 주입합니다.
 func Run(ctx context.Context, args []string, getenv func(string) string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, usageText)
+		_, _ = fmt.Fprintln(stderr, usageText)
 		return exitUsage
 	}
 
 	command, ok := commands[args[0]]
 	if !ok {
-		fmt.Fprintf(stderr, "unknown command %q\n%s\n", args[0], usageText)
+		_, _ = fmt.Fprintf(stderr, "unknown command %q\n%s\n", args[0], usageText)
 		return exitUsage
 	}
 
@@ -90,10 +90,10 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout,
 	// 사용법 오류는 메시지가 이미 "usage: ..."이므로 접두어 없이 한 번만 출력합니다.
 	var usageErr *usageError
 	if errors.As(err, &usageErr) {
-		fmt.Fprintln(stderr, usageErr)
+		_, _ = fmt.Fprintln(stderr, usageErr)
 		return exitUsage
 	}
-	fmt.Fprintf(stderr, "%s: %v\n", args[0], err)
+	_, _ = fmt.Fprintf(stderr, "%s: %v\n", args[0], err)
 	return exitError
 }
 
@@ -146,7 +146,7 @@ func printStatus(ctx context.Context, pool *pgxpool.Pool, stdout io.Writer, logg
 		if status.Applied {
 			state = "Applied"
 		}
-		fmt.Fprintf(stdout, "%-8s %s\n", state, status.Source)
+		_, _ = fmt.Fprintf(stdout, "%-8s %s\n", state, status.Source)
 	}
 	return nil
 }
