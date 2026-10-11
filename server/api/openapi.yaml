@@ -8,18 +8,27 @@ info:
     공통 규약
     * JSON 필드는 camelCase입니다. 단, Apple이 보내는 `appleCallback`의 form 필드는 Apple이 정한 이름을 그대로 씁니다.
     * 날짜는 `YYYY-MM-DD`(`format: date`), 시각은 RFC 3339(`format: date-time`)입니다.
+    * 시각(`date-time`)은 기본이 UTC이고, 화면 표시용 시각(`FocusSlot.start`·`end`, `CalendarDay.solarTerm.at`)만 프로필 현재 시간대의 offset으로 보냅니다.
     * 사용자의 선택(예: 출생 시각 모름, 출생지 건너뜀, 알림 끔)은 상태 필드로 보냅니다. 필드를 빼거나 `null`을 보내는 것으로 뜻을 담지 않습니다.
       생략 가능한 필드를 생략하면 "값 없음"만 뜻합니다. 이 계약에는 `null` 값이 없습니다.
     * PATCH(`application/merge-patch+json`)에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다. `null`로 필드를 지우지 않습니다.
     * 요청 본문 상한은 1 MiB입니다. 넘으면 413 `request.too_large`입니다.
-    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다.
+    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
     * 생성하는 POST(`createSchedule`, `registerDevice`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
-    * 문장 필드는 조각 배열(`Text`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
+    * 문장 필드는 조각 배열(`RenderedText`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
     * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
 
     오류
     * 모든 오류는 RFC 9457 `application/problem+json`(`Problem`)입니다. app은 `code`를 보고 자기 UI 문구로 보여 줍니다. `title`은 개발자용 영어입니다.
     * `type`은 `https://api.myungli.app/problems/<code>`입니다.
+
+    근거 열람 권한 (D60)
+    * 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거, 원전, 원국 개인 해석, 용신 근거)을 응답에 담지 않고 `evidenceAccess: locked`로 표시합니다.
+      근거가 원래 없는 것과 잠겨서 빠진 것을 `evidenceAccess`로 구분합니다. surface·explain과 사주 표·만세력·대운 표의 데이터는 잠그지 않습니다.
+
+    설계 메모 (하위 호환 추가 예정)
+    * 깊이 `explain`의 풀이 문장은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `SlotText`에 필드를 더합니다.
+    * 원국 개인 해석은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `Chart`에 선택 필드로 더하고 근거 열람 권한으로 잠급니다.
 servers:
   - url: /
 security:
@@ -319,7 +328,7 @@ paths:
       operationId: updateProfile
       summary: 프로필 수정
       description: |
-        보낸 필드만 바꿉니다(JSON Merge Patch). `birth`는 통째로 바꿉니다.
+        보낸 필드만 바꿉니다(JSON Merge Patch). `birth`와 `notification`은 통째로 바꿉니다.
         기기 시간대가 바뀌면 app이 `currentTimezone`을 보내 알립니다. 프로필이 없으면 409 `profile.required`입니다.
       requestBody:
         required: true
@@ -547,6 +556,7 @@ paths:
           description: 생략하면 프로필 언어입니다.
           schema:
             $ref: '#/components/schemas/Language'
+        - $ref: '#/components/parameters/IfNoneMatch'
       responses:
         '200':
           description: 이름 사전
@@ -557,6 +567,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Glossary'
+        '304':
+          $ref: '#/components/responses/NotModified'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -944,7 +956,10 @@ paths:
     patch:
       operationId: updateSchedule
       summary: 일정 수정
-      description: 보낸 필드만 바꿉니다(JSON Merge Patch). `allDay`를 true로 바꾸면 `time`은 사라집니다.
+      description: |
+        보낸 필드만 바꿉니다(JSON Merge Patch).
+        `allDay`를 true로 바꾸면 `time`이 지워집니다. `allDay`를 false로 바꾸면서 `time`을 보내지 않았고 기존에도 없으면 422 `schedule.time_required`입니다.
+        `memo`는 빈 문자열을 보내 지웁니다.
       requestBody:
         required: true
         content:
@@ -1154,7 +1169,7 @@ paths:
       summary: RevenueCat webhook
       description: |
         RevenueCat이 부르는 주소입니다. app은 부르지 않습니다.
-        Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401).
+        Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401). 그래서 security와 parameter로 적지 않습니다.
         저장·동기화에 실패하면 500을 돌려주고 RevenueCat의 재전송에 맡깁니다.
       security: []
       requestBody:
@@ -1177,6 +1192,78 @@ paths:
           $ref: '#/components/responses/UnsupportedMediaType'
         '500':
           $ref: '#/components/responses/InternalError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /webhooks/admob-ssv:
+    get:
+      operationId: admobRewardCallback
+      summary: AdMob 보상형 광고 SSV 콜백
+      description: |
+        AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다.
+        서명은 핸들러가 원본 쿼리 문자열(`signature` 앞까지)로 AdMob 공개 키(`key_id`로 고름)를 써 ECDSA 검증합니다.
+        `user_id`는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 `transaction_id`는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다.
+        검증되면 근거 열람 권한(`insight`)을 출처 `rewarded_ad`로 그 계정 현재 시간대의 다음 자정까지 부여합니다.
+        서명 검증 실패는 401 `reward.invalid_signature`, 1시간 넘게 오래된 `timestamp`는 401 `reward.expired`입니다. 검증 키 목록을 받지 못하면 503입니다.
+      security: []
+      parameters:
+        - name: key_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: transaction_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: ad_network
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: ad_unit
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: reward_amount
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: reward_item
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: custom_data
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 처리됨(이미 처리한 `transaction_id`, 없는 계정 포함)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
         default:
           $ref: '#/components/responses/UnexpectedError'
 
@@ -1207,6 +1294,7 @@ paths:
             minimum: 1
             maximum: 50
             default: 20
+        - $ref: '#/components/parameters/IfNoneMatch'
       responses:
         '200':
           description: 도시 목록
@@ -1217,10 +1305,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CityList'
+        '304':
+          $ref: '#/components/responses/NotModified'
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
         default:
           $ref: '#/components/responses/UnexpectedError'
 
@@ -1239,6 +1331,8 @@ paths:
                 $ref: '#/components/schemas/AppConfig'
         '500':
           $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
         default:
           $ref: '#/components/responses/UnexpectedError'
 
@@ -1246,6 +1340,7 @@ paths:
     get:
       operationId: getHealth
       summary: 헬스 체크
+      description: 정상이면 200, 비정상이면 503입니다.
       security: []
       responses:
         '200':
@@ -1256,6 +1351,8 @@ paths:
                 $ref: '#/components/schemas/Health'
         '500':
           $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
         default:
           $ref: '#/components/responses/UnexpectedError'
 
@@ -1290,6 +1387,14 @@ components:
         minLength: 1
         maxLength: 255
 
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: 앞 응답의 `ETag`. 같으면 본문 없이 304를 돌려줍니다.
+      schema:
+        type: string
+
   headers:
     Location:
       description: 이동하거나 새로 만든 리소스의 주소
@@ -1310,6 +1415,11 @@ components:
         type: string
 
   responses:
+    NotModified:
+      description: '`If-None-Match`가 현재 `ETag`와 같음. 본문이 없습니다.'
+      headers:
+        ETag:
+          $ref: '#/components/headers/ETag'
     BadRequest:
       description: 요청 형식 오류. JSON 문법 오류는 `request.malformed`, 타입·필수 필드 등 스키마 위반은 `request.invalid`입니다.
       content:
@@ -1318,7 +1428,8 @@ components:
             $ref: '#/components/schemas/Problem'
     Unauthorized:
       description: |
-        인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `app_check.invalid`.
+        인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `app_check.invalid`,
+        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청일 때만 붙습니다.
       headers:
         WWW-Authenticate:
           $ref: '#/components/headers/WWWAuthenticate'
@@ -1351,7 +1462,7 @@ components:
           schema:
             $ref: '#/components/schemas/Problem'
     UnsupportedMediaType:
-      description: 지원하지 않는 요청 Content-Type
+      description: 지원하지 않는 요청 Content-Type(`request.unsupported_media_type`).
       content:
         application/problem+json:
           schema:
@@ -1359,7 +1470,7 @@ components:
     UnprocessableEntity:
       description: |
         의미상 처리할 수 없음. 예 `diary.future_date`, `date.out_of_range`, `birth.out_of_range`, `birth.invalid`,
-        `name.emoji` 등 호칭 규칙 위반, `notify.time_granularity`, `idempotency.mismatch`.
+        `name.emoji` 등 호칭 규칙 위반, `notify.time_granularity`, `schedule.time_required`, `idempotency.mismatch`.
       content:
         application/problem+json:
           schema:
@@ -1448,12 +1559,13 @@ components:
       properties:
         field:
           type: string
+          description: 요청 본문 안의 위치. JSON Pointer(RFC 6901)입니다(예 `/birth/date/day`).
         code:
           type: string
     Language:
       type: string
       enum: [ko, en, ja]
-    Text:
+    RenderedText:
       type: object
       description: 렌더된 문장. 용어 토큰은 위치 숫자 대신 조각 배열로 나눕니다.
       required: [segments]
@@ -1488,7 +1600,7 @@ components:
           type: string
           enum: [advice, state, care, '1', '2', single]
         text:
-          $ref: '#/components/schemas/Text'
+          $ref: '#/components/schemas/RenderedText'
         reactable:
           type: boolean
         reaction:
@@ -1497,6 +1609,7 @@ components:
           description: 이 사용자가 남긴 반응. 반응이 없으면 생략합니다.
         evidence:
           type: array
+          description: 판정 근거. 응답의 `evidenceAccess`가 `unlocked`일 때만 담깁니다.
           items:
             $ref: '#/components/schemas/Evidence'
     Evidence:
@@ -1511,6 +1624,12 @@ components:
           type: object
           additionalProperties:
             type: string
+    EvidenceAccess:
+      type: string
+      enum: [unlocked, locked]
+      description: |
+        근거 열람 권한 상태(D60). 권한이 없으면 `locked`이고, evidence 깊이의 해석(판정 근거, 원전, 원국 개인 해석, 용신 근거)을 응답에서 뺍니다.
+        surface·explain과 표 데이터는 잠그지 않습니다. 근거가 원래 없는 것과 잠겨서 빠진 것을 이 값으로 구분합니다.
     Notice:
       type: object
       required: [code, text]
@@ -1518,7 +1637,7 @@ components:
         code:
           $ref: '#/components/schemas/NoticeCode'
         text:
-          $ref: '#/components/schemas/Text'
+          $ref: '#/components/schemas/RenderedText'
     NoticeCode:
       type: string
       enum:
@@ -1537,7 +1656,7 @@ components:
     Branch:
       type: string
       enum: [ja, chuk, in, myo, jin, sa, o, mi, shin, yu, sul, hae]
-    Element:
+    FiveElement:
       type: string
       enum: [wood, fire, earth, metal, water]
     ElementRole:
@@ -1663,7 +1782,7 @@ components:
           description: 삭제 대기 중이던 계정이 이 로그인으로 되돌아왔는지
     Me:
       type: object
-      required: [accountId, status, consentRequired, requiredConsents, hasProfile, adFree]
+      required: [accountId, status, consentRequired, requiredConsents, hasProfile, adFree, insight]
       properties:
         accountId:
           type: string
@@ -1686,6 +1805,8 @@ components:
           type: boolean
         adFree:
           $ref: '#/components/schemas/AdFree'
+        insight:
+          $ref: '#/components/schemas/Insight'
     ConsentDocument:
       type: object
       required: [document, version]
@@ -1778,7 +1899,7 @@ components:
     CalendarType:
       type: string
       enum: [solar, lunar]
-    Notification:
+    NotificationSetting:
       type: object
       description: '`status`가 `enabled`일 때만 `time`이 있습니다.'
       required: [status]
@@ -1807,10 +1928,12 @@ components:
         birth:
           $ref: '#/components/schemas/Birth'
         notification:
-          $ref: '#/components/schemas/Notification'
+          $ref: '#/components/schemas/NotificationSetting'
     ProfilePatch:
       type: object
-      description: '`ProfileInput`의 모든 필드를 생략할 수 있습니다. 생략은 "바꾸지 않음"입니다. `birth`는 통째로 바꿉니다.'
+      description: |
+        `ProfileInput`의 모든 필드를 생략할 수 있습니다. 생략은 "바꾸지 않음"입니다.
+        `birth`와 `notification`은 안쪽 필드를 합치지 않고 통째로 바꿉니다.
       properties:
         honorific:
           type: string
@@ -1825,7 +1948,7 @@ components:
         birth:
           $ref: '#/components/schemas/Birth'
         notification:
-          $ref: '#/components/schemas/Notification'
+          $ref: '#/components/schemas/NotificationSetting'
     Profile:
       type: object
       required: [honorific, language, currentTimezone, birth, notification]
@@ -1843,7 +1966,7 @@ components:
         birth:
           $ref: '#/components/schemas/Birth'
         notification:
-          $ref: '#/components/schemas/Notification'
+          $ref: '#/components/schemas/NotificationSetting'
     ProfileResponse:
       type: object
       required: [profile, warnings]
@@ -1856,7 +1979,7 @@ components:
           items:
             $ref: '#/components/schemas/FieldError'
 
-    # ---- 운세 ----
+    # ---- 운세 공용 ----
     Pillar:
       type: object
       required: [stem, branch]
@@ -1876,47 +1999,55 @@ components:
           type: string
           enum: [good, bad, neutral]
           description: 태그의 길흉. 엔진 spec §7.7 표의 값입니다.
+    Fortune:
+      type: object
+      description: 총운. `tag`는 대표 태그가 있을 때의 보조 문장입니다.
+      required: [head]
+      properties:
+        head:
+          $ref: '#/components/schemas/SlotText'
+        tag:
+          $ref: '#/components/schemas/SlotText'
+    DayTags:
+      type: object
+      required: [featured, all]
+      properties:
+        featured:
+          type: array
+          description: 화면에 보일 대표 태그 0~2개
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/Tag'
+        all:
+          type: array
+          description: 전체 태그 키
+          items:
+            type: string
+
+    # ---- 하루 운세 ----
     Daily:
       type: object
-      required: [date, rulesetVersion, dayPillar, dayKind, fortune, guide, cards, tags, relations, notices]
+      required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, fortune, guide, cards, tags, relations, notices]
       properties:
         date:
           type: string
           format: date
         rulesetVersion:
           type: string
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
         dayPillar:
           $ref: '#/components/schemas/Pillar'
         dayKind:
           $ref: '#/components/schemas/DayKind'
         fortune:
-          type: object
-          description: 총운. `tag`는 대표 태그가 있을 때의 보조 문장입니다.
-          required: [head]
-          properties:
-            head:
-              $ref: '#/components/schemas/SlotText'
-            tag:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/Fortune'
         guide:
           $ref: '#/components/schemas/SlotText'
         cards:
           $ref: '#/components/schemas/DailyCards'
         tags:
-          type: object
-          required: [featured, all]
-          properties:
-            featured:
-              type: array
-              description: 화면에 보일 대표 태그 0~2개
-              maxItems: 2
-              items:
-                $ref: '#/components/schemas/Tag'
-            all:
-              type: array
-              description: 전체 태그 키
-              items:
-                type: string
+          $ref: '#/components/schemas/DayTags'
         relations:
           type: array
           description: 일진과 원국의 관계
@@ -1931,45 +2062,53 @@ components:
       required: [color, direction, number, focusTime]
       properties:
         color:
-          type: object
-          required: [element, role, text]
-          properties:
-            element:
-              $ref: '#/components/schemas/Element'
-            role:
-              $ref: '#/components/schemas/ElementRole'
-            text:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/ColorCard'
         direction:
-          type: object
-          required: [direction, text]
-          properties:
-            direction:
-              $ref: '#/components/schemas/Direction'
-            text:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/DirectionCard'
         number:
-          type: object
-          required: [number, text]
-          properties:
-            number:
-              type: integer
-            text:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/NumberCard'
         focusTime:
-          type: object
-          required: [picks, fallback, text]
-          properties:
-            picks:
-              type: array
-              minItems: 1
-              maxItems: 2
-              items:
-                $ref: '#/components/schemas/FocusSlot'
-            fallback:
-              type: boolean
-            text:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/FocusTimeCard'
+    ColorCard:
+      type: object
+      required: [element, role, text]
+      properties:
+        element:
+          $ref: '#/components/schemas/FiveElement'
+        role:
+          $ref: '#/components/schemas/ElementRole'
+        text:
+          $ref: '#/components/schemas/SlotText'
+    DirectionCard:
+      type: object
+      required: [direction, text]
+      properties:
+        direction:
+          $ref: '#/components/schemas/Direction'
+        text:
+          $ref: '#/components/schemas/SlotText'
+    NumberCard:
+      type: object
+      required: [number, text]
+      properties:
+        number:
+          type: integer
+        text:
+          $ref: '#/components/schemas/SlotText'
+    FocusTimeCard:
+      type: object
+      required: [picks, fallback, text]
+      properties:
+        picks:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/FocusSlot'
+        fallback:
+          type: boolean
+        text:
+          $ref: '#/components/schemas/SlotText'
     FocusSlot:
       type: object
       required: [branch, pillar, start, end, huangdaoLucky, score, reasons]
@@ -2010,10 +2149,13 @@ components:
           type: boolean
         suppressedBy:
           $ref: '#/components/schemas/RelationKind'
+
+    # ---- 나의 사주 ----
     Chart:
       type: object
       required:
         - rulesetVersion
+        - evidenceAccess
         - pillars
         - tenGods
         - hiddenStems
@@ -2029,67 +2171,26 @@ components:
       properties:
         rulesetVersion:
           type: string
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
         pillars:
-          type: object
-          description: 원국 네 기둥. 출생 시각이 `unknown`이면 `hour`를 생략합니다.
-          required: [year, month, day]
-          properties:
-            year:
-              $ref: '#/components/schemas/Pillar'
-            month:
-              $ref: '#/components/schemas/Pillar'
-            day:
-              $ref: '#/components/schemas/Pillar'
-            hour:
-              $ref: '#/components/schemas/Pillar'
+          $ref: '#/components/schemas/ChartPillars'
         tenGods:
           type: array
           items:
-            type: object
-            required: [position, tenGod]
-            properties:
-              position:
-                $ref: '#/components/schemas/Position'
-              tenGod:
-                $ref: '#/components/schemas/TenGod'
+            $ref: '#/components/schemas/TenGodAt'
         hiddenStems:
           type: array
           items:
-            type: object
-            required: [position, stems]
-            properties:
-              position:
-                $ref: '#/components/schemas/Position'
-              stems:
-                type: array
-                items:
-                  type: object
-                  required: [stem, tenGod]
-                  properties:
-                    stem:
-                      $ref: '#/components/schemas/Stem'
-                    tenGod:
-                      $ref: '#/components/schemas/TenGod'
+            $ref: '#/components/schemas/HiddenStemsAt'
         twelveStages:
           type: array
           items:
-            type: object
-            required: [position, stage]
-            properties:
-              position:
-                $ref: '#/components/schemas/Position'
-              stage:
-                $ref: '#/components/schemas/TwelveStage'
+            $ref: '#/components/schemas/TwelveStageAt'
         shinsal:
           type: array
           items:
-            type: object
-            required: [kind, position]
-            properties:
-              kind:
-                $ref: '#/components/schemas/ShinsalKind'
-              position:
-                $ref: '#/components/schemas/Position'
+            $ref: '#/components/schemas/ShinsalAt'
         gongmang:
           type: array
           items:
@@ -2097,94 +2198,165 @@ components:
         elementWeights:
           type: array
           items:
-            type: object
-            required: [element, weight]
-            properties:
-              element:
-                $ref: '#/components/schemas/Element'
-              weight:
-                type: number
+            $ref: '#/components/schemas/ElementWeight'
         strength:
-          type: object
-          required: [score, level]
-          properties:
-            score:
-              type: number
-            level:
-              $ref: '#/components/schemas/StrengthLevel'
+          $ref: '#/components/schemas/Strength'
         yongsin:
-          type: object
-          description: '`johuStem`은 조후 천간이 없으면 생략합니다.'
-          required: [yongsin, huisin, gisin, tonggwan, method, text]
-          properties:
-            yongsin:
-              $ref: '#/components/schemas/Element'
-            huisin:
-              $ref: '#/components/schemas/Element'
-            gisin:
-              $ref: '#/components/schemas/Element'
-            tonggwan:
-              $ref: '#/components/schemas/Element'
-            method:
-              $ref: '#/components/schemas/YongsinMethod'
-            johuStem:
-              $ref: '#/components/schemas/Stem'
-            text:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/Yongsin'
         daeun:
-          type: object
-          required: [forward, startYears, startMonths, periods]
-          properties:
-            forward:
-              type: boolean
-              description: 순행 여부
-            startYears:
-              type: integer
-            startMonths:
-              type: integer
-            periods:
-              type: array
-              items:
-                type: object
-                required: [pillar, startAge, startAgeKorean, stemTenGod, branchTenGod, twelveStage]
-                properties:
-                  pillar:
-                    $ref: '#/components/schemas/Pillar'
-                  startAge:
-                    type: integer
-                    description: 만 나이
-                  startAgeKorean:
-                    type: integer
-                    description: 한국식 나이
-                  stemTenGod:
-                    $ref: '#/components/schemas/TenGod'
-                  branchTenGod:
-                    $ref: '#/components/schemas/TenGod'
-                  twelveStage:
-                    $ref: '#/components/schemas/TwelveStage'
+          $ref: '#/components/schemas/Daeun'
         seun:
           type: array
           items:
-            type: object
-            required: [year, pillar, tenGod, relationsWithNatal]
-            properties:
-              year:
-                type: integer
-              pillar:
-                $ref: '#/components/schemas/Pillar'
-              tenGod:
-                $ref: '#/components/schemas/TenGod'
-              relationsWithNatal:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RelationKind'
+            $ref: '#/components/schemas/SeunYear'
         notices:
           type: array
           items:
             $ref: '#/components/schemas/Notice'
+    ChartPillars:
+      type: object
+      description: 원국 네 기둥. 출생 시각이 `unknown`이면 `hour`를 생략합니다.
+      required: [year, month, day]
+      properties:
+        year:
+          $ref: '#/components/schemas/Pillar'
+        month:
+          $ref: '#/components/schemas/Pillar'
+        day:
+          $ref: '#/components/schemas/Pillar'
+        hour:
+          $ref: '#/components/schemas/Pillar'
+    TenGodAt:
+      type: object
+      required: [position, tenGod]
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        tenGod:
+          $ref: '#/components/schemas/TenGod'
+    HiddenStemsAt:
+      type: object
+      required: [position, stems]
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        stems:
+          type: array
+          items:
+            $ref: '#/components/schemas/HiddenStem'
+    HiddenStem:
+      type: object
+      required: [stem, tenGod]
+      properties:
+        stem:
+          $ref: '#/components/schemas/Stem'
+        tenGod:
+          $ref: '#/components/schemas/TenGod'
+    TwelveStageAt:
+      type: object
+      required: [position, stage]
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        stage:
+          $ref: '#/components/schemas/TwelveStage'
+    ShinsalAt:
+      type: object
+      required: [kind, position]
+      properties:
+        kind:
+          $ref: '#/components/schemas/ShinsalKind'
+        position:
+          $ref: '#/components/schemas/Position'
+    ElementWeight:
+      type: object
+      required: [element, weight]
+      properties:
+        element:
+          $ref: '#/components/schemas/FiveElement'
+        weight:
+          type: number
+    Strength:
+      type: object
+      required: [score, level]
+      properties:
+        score:
+          type: number
+        level:
+          $ref: '#/components/schemas/StrengthLevel'
+    Yongsin:
+      type: object
+      description: |
+        `johuStem`은 조후 천간이 없으면 생략합니다.
+        `basis`(용신 근거 문장)는 evidence 깊이라 응답의 `evidenceAccess`가 `locked`면 생략합니다.
+      required: [yongsin, huisin, gisin, tonggwan, method]
+      properties:
+        yongsin:
+          $ref: '#/components/schemas/FiveElement'
+        huisin:
+          $ref: '#/components/schemas/FiveElement'
+        gisin:
+          $ref: '#/components/schemas/FiveElement'
+        tonggwan:
+          $ref: '#/components/schemas/FiveElement'
+        method:
+          $ref: '#/components/schemas/YongsinMethod'
+        johuStem:
+          $ref: '#/components/schemas/Stem'
+        basis:
+          $ref: '#/components/schemas/SlotText'
+    Daeun:
+      type: object
+      required: [forward, startYears, startMonths, periods]
+      properties:
+        forward:
+          type: boolean
+          description: 순행 여부
+        startYears:
+          type: integer
+        startMonths:
+          type: integer
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DaeunPeriod'
+    DaeunPeriod:
+      type: object
+      required: [pillar, startAge, startAgeKorean, stemTenGod, branchTenGod, twelveStage]
+      properties:
+        pillar:
+          $ref: '#/components/schemas/Pillar'
+        startAge:
+          type: integer
+          description: 만 나이
+        startAgeKorean:
+          type: integer
+          description: 한국식 나이
+        stemTenGod:
+          $ref: '#/components/schemas/TenGod'
+        branchTenGod:
+          $ref: '#/components/schemas/TenGod'
+        twelveStage:
+          $ref: '#/components/schemas/TwelveStage'
+    SeunYear:
+      type: object
+      required: [year, pillar, tenGod, relationsWithNatal]
+      properties:
+        year:
+          type: integer
+        pillar:
+          $ref: '#/components/schemas/Pillar'
+        tenGod:
+          $ref: '#/components/schemas/TenGod'
+        relationsWithNatal:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationKind'
+
+    # ---- 달력 ----
     Calendar:
       type: object
-      required: [year, month, rulesetVersion, days, notices]
+      required: [year, month, rulesetVersion, evidenceAccess, days, notices]
       properties:
         year:
           type: integer
@@ -2192,6 +2364,8 @@ components:
           type: integer
         rulesetVersion:
           type: string
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
         days:
           type: array
           items:
@@ -2211,25 +2385,9 @@ components:
         pillar:
           $ref: '#/components/schemas/Pillar'
         lunar:
-          type: object
-          required: [month, day, isLeapMonth]
-          properties:
-            month:
-              type: integer
-            day:
-              type: integer
-            isLeapMonth:
-              type: boolean
+          $ref: '#/components/schemas/LunarDate'
         solarTerm:
-          type: object
-          required: [kind, at]
-          properties:
-            kind:
-              $ref: '#/components/schemas/SolarTermKind'
-            at:
-              type: string
-              format: date-time
-              description: 프로필 현재 시간대의 offset으로 나타냅니다.
+          $ref: '#/components/schemas/SolarTerm'
         dayKind:
           $ref: '#/components/schemas/DayKind'
         luckLevel:
@@ -2238,19 +2396,42 @@ components:
           type: integer
         scoreItems:
           type: array
-          description: 점수 구성 원본 값. `id`는 glossary `score_item` 범주의 키입니다.
+          description: 점수 구성 원본 값
           items:
-            type: object
-            required: [id, score]
-            properties:
-              id:
-                type: string
-              score:
-                type: integer
+            $ref: '#/components/schemas/ScoreItem'
         featuredTag:
           $ref: '#/components/schemas/Tag'
         level:
           $ref: '#/components/schemas/SlotText'
+    LunarDate:
+      type: object
+      required: [month, day, isLeapMonth]
+      properties:
+        month:
+          type: integer
+        day:
+          type: integer
+        isLeapMonth:
+          type: boolean
+    SolarTerm:
+      type: object
+      required: [kind, at]
+      properties:
+        kind:
+          $ref: '#/components/schemas/SolarTermKind'
+        at:
+          type: string
+          format: date-time
+          description: 프로필 현재 시간대의 offset으로 나타냅니다.
+    ScoreItem:
+      type: object
+      required: [id, score]
+      properties:
+        id:
+          type: string
+          description: glossary `score_item` 범주의 키
+        score:
+          type: integer
     ReactionInput:
       type: object
       required: [reaction]
@@ -2300,13 +2481,7 @@ components:
         dayKind:
           $ref: '#/components/schemas/DayKind'
         fortune:
-          type: object
-          required: [head]
-          properties:
-            head:
-              $ref: '#/components/schemas/SlotText'
-            tag:
-              $ref: '#/components/schemas/SlotText'
+          $ref: '#/components/schemas/Fortune'
         featuredTags:
           type: array
           items:
@@ -2368,21 +2543,9 @@ components:
         body:
           type: string
         guideQuestion:
-          $ref: '#/components/schemas/Text'
+          $ref: '#/components/schemas/RenderedText'
         tags:
-          type: object
-          required: [featured, all]
-          properties:
-            featured:
-              type: array
-              description: 대표 태그
-              items:
-                $ref: '#/components/schemas/Tag'
-            all:
-              type: array
-              description: 전체 태그 키
-              items:
-                type: string
+          $ref: '#/components/schemas/DayTags'
         rulesetVersion:
           type: string
         createdAt:
@@ -2442,7 +2605,10 @@ components:
           maxLength: 2000
     SchedulePatch:
       type: object
-      description: '`ScheduleInput`의 모든 필드를 생략할 수 있습니다. 생략은 "바꾸지 않음"입니다.'
+      description: |
+        `ScheduleInput`의 모든 필드를 생략할 수 있습니다. 생략은 "바꾸지 않음"입니다.
+        `allDay`를 true로 바꾸면 `time`이 지워집니다. `allDay`를 false로 바꾸면서 `time`이 없고 기존에도 없으면 422 `schedule.time_required`입니다.
+        `memo`는 빈 문자열로 지웁니다.
       properties:
         date:
           type: string
@@ -2501,8 +2667,8 @@ components:
           items:
             $ref: '#/components/schemas/Schedule'
 
-    # ---- 기기·결제 ----
-    Platform:
+    # ---- 기기·결제·권한 ----
+    DevicePlatform:
       type: string
       enum: [ios, android]
     DeviceInput:
@@ -2514,7 +2680,7 @@ components:
           minLength: 1
           maxLength: 4096
         platform:
-          $ref: '#/components/schemas/Platform'
+          $ref: '#/components/schemas/DevicePlatform'
     Device:
       type: object
       required: [id, platform]
@@ -2523,7 +2689,7 @@ components:
           type: string
           format: uuid
         platform:
-          $ref: '#/components/schemas/Platform'
+          $ref: '#/components/schemas/DevicePlatform'
     AdFree:
       type: object
       description: 광고 제거권. 만료일이 없으면 `expiresAt`을 생략합니다.
@@ -2534,12 +2700,29 @@ components:
         expiresAt:
           type: string
           format: date-time
+    Insight:
+      type: object
+      description: |
+        근거 열람 권한(D60). `active`가 true면 `expiresAt`과 `source`가 있습니다.
+        `rewarded_ad`는 보상형 광고(그날 자정까지), `ad_free_pass`는 광고 제거권 기간, `subscription`은 구독입니다.
+      required: [active]
+      properties:
+        active:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+          enum: [rewarded_ad, ad_free_pass, subscription]
     Entitlements:
       type: object
-      required: [adFree]
+      required: [adFree, insight]
       properties:
         adFree:
           $ref: '#/components/schemas/AdFree'
+        insight:
+          $ref: '#/components/schemas/Insight'
 
     # ---- 참조 ----
     City:
@@ -2573,14 +2756,16 @@ components:
       required: [minimumVersion]
       properties:
         minimumVersion:
-          type: object
-          description: 플랫폼별 최소 앱 버전(semver 문자열)
-          required: [ios, android]
-          properties:
-            ios:
-              type: string
-            android:
-              type: string
+          $ref: '#/components/schemas/MinimumVersion'
+    MinimumVersion:
+      type: object
+      description: 플랫폼별 최소 앱 버전(semver 문자열)
+      required: [ios, android]
+      properties:
+        ios:
+          type: string
+        android:
+          type: string
     Health:
       type: object
       required: [status]

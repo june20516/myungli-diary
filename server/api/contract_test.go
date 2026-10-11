@@ -24,23 +24,24 @@ var expectedOperationIDs = []string{
 	"listDiaries", "getDiary", "putDiary", "deleteDiary", "restoreDiary",
 	"listSchedules", "createSchedule", "updateSchedule", "deleteSchedule", "restoreSchedule",
 	"registerDevice", "deleteDevice",
-	"getEntitlements", "restorePurchases", "revenuecatWebhook",
+	"getEntitlements", "restorePurchases", "revenuecatWebhook", "admobRewardCallback",
 	"listCities", "getAppConfig", "getHealth",
 }
 
 // securityOverrides는 최상위 bearerAuth를 덮어쓰는 operation과 그 security scheme 이름입니다.
 // 빈 목록은 인증 없음(security: [])입니다.
 var securityOverrides = map[string][]string{
-	"loginKakao":        {},
-	"loginApple":        {},
-	"appleCallback":     {},
-	"refreshToken":      {},
-	"revenuecatWebhook": {},
-	"listCities":        {},
-	"getAppConfig":      {},
-	"getHealth":         {},
-	"createPreview":     {"appCheck"},
-	"getBirthHour":      {"appCheck"},
+	"loginKakao":          {},
+	"loginApple":          {},
+	"appleCallback":       {},
+	"refreshToken":        {},
+	"revenuecatWebhook":   {},
+	"admobRewardCallback": {},
+	"listCities":          {},
+	"getAppConfig":        {},
+	"getHealth":           {},
+	"createPreview":       {"appCheck"},
+	"getBirthHour":        {"appCheck"},
 }
 
 func loadDoc(t *testing.T) *openapi3.T {
@@ -151,6 +152,12 @@ func TestContract_SecurityByDefault(t *testing.T) {
 }
 
 func TestContract_NoNullTypes(t *testing.T) {
+	walkNoNull(t, loadYAML(t))
+}
+
+// loadYAML은 계약을 해석 없이 YAML node 트리로 읽습니다. 키워드 사용 여부처럼 kin-openapi가 지우는 정보를 볼 때 씁니다.
+func loadYAML(t *testing.T) *yaml.Node {
+	t.Helper()
 	raw, err := os.ReadFile(specPath)
 	if err != nil {
 		t.Fatalf("계약을 읽지 못함: %v", err)
@@ -159,7 +166,7 @@ func TestContract_NoNullTypes(t *testing.T) {
 	if err := yaml.Unmarshal(raw, &root); err != nil {
 		t.Fatalf("YAML 파싱 실패: %v", err)
 	}
-	walkNoNull(t, &root)
+	return &root
 }
 
 // walkNoNull은 nullable 키, null 타입, type 배열(3.1에서 null을 섞는 문법), null 값을 찾아 실패로 기록합니다.
@@ -208,6 +215,70 @@ func TestContract_CreatePostsAcceptIdempotencyKey(t *testing.T) {
 		if param.Required {
 			t.Errorf("%s: Idempotency-Key가 필수로 되어 있음", operationID)
 		}
+		schema := param.Schema.Value
+		if schema.MinLength != 1 || schema.MaxLength == nil || *schema.MaxLength != 255 {
+			t.Errorf("%s: Idempotency-Key 길이가 1~255가 아님", operationID)
+		}
+	}
+}
+
+func TestContract_ProblemRequiresCodeAndTraceID(t *testing.T) {
+	doc := loadDoc(t)
+
+	problem := doc.Components.Schemas["Problem"]
+	if problem == nil {
+		t.Fatal("Problem 스키마가 없음")
+	}
+	for _, field := range []string{"type", "title", "status", "code", "traceId"} {
+		if !slices.Contains(problem.Value.Required, field) {
+			t.Errorf("Problem.%s가 필수가 아님", field)
+		}
+	}
+}
+
+func TestContract_EvidenceAccessRequired(t *testing.T) {
+	doc := loadDoc(t)
+
+	for _, name := range []string{"Daily", "Chart", "Calendar"} {
+		schema := doc.Components.Schemas[name]
+		if schema == nil {
+			t.Errorf("%s 스키마가 없음", name)
+			continue
+		}
+		if !slices.Contains(schema.Value.Required, "evidenceAccess") {
+			t.Errorf("%s.evidenceAccess가 필수가 아님", name)
+		}
+		property := schema.Value.Properties["evidenceAccess"]
+		if property == nil || property.Ref != "#/components/schemas/EvidenceAccess" {
+			t.Errorf("%s.evidenceAccess가 EvidenceAccess 참조가 아님", name)
+		}
+	}
+}
+
+func TestContract_NoOpenAPI31OnlySyntax(t *testing.T) {
+	walkNoOpenAPI31OnlySyntax(t, loadYAML(t))
+}
+
+// walkNoOpenAPI31OnlySyntax는 3.1에서만 뜻이 있는 const·webhooks 키와 $ref 형제 키를 찾아 실패로 기록합니다.
+func walkNoOpenAPI31OnlySyntax(t *testing.T, node *yaml.Node) {
+	t.Helper()
+	if node.Kind == yaml.MappingNode {
+		hasRef := false
+		for i := 0; i+1 < len(node.Content); i += 2 {
+			key := node.Content[i]
+			switch key.Value {
+			case "const", "webhooks":
+				t.Errorf("line %d: 3.1 전용 키워드 %s", key.Line, key.Value)
+			case "$ref":
+				hasRef = true
+			}
+		}
+		if hasRef && len(node.Content) > 2 {
+			t.Errorf("line %d: $ref에 형제 키가 있음", node.Line)
+		}
+	}
+	for _, child := range node.Content {
+		walkNoOpenAPI31OnlySyntax(t, child)
 	}
 }
 
