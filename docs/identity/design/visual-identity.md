@@ -1,15 +1,15 @@
-# 명리일기 시각 정체성 기준 (V0·V1)
+# 명리일기 시각 정체성 기준 (V0·V1·V2)
 
 ## 이 문서의 위상
 * 명리일기의 색, 그라데이션, 타이포, 간격, 로고 가운데 **지금 유효한 기준**입니다. 시각에 관해서는 이 문서가 `docs/background/06-design-system.md`를 대체합니다.
 * 고치는 쪽은 design입니다. 바꿀 일이 있으면 GitHub Issue(`to:design`)로 보냅니다.
-* 왜 이렇게 정했는지는 [V0 spec](specs/2026-10-10-visual-identity-design.md)과 [V1 spec](specs/2026-10-11-design-tokens-design.md)에 있습니다. 결정은 [`decisions.md`](decisions.md)의 결정 V1~V12입니다.
+* 왜 이렇게 정했는지는 [V0 spec](specs/2026-10-10-visual-identity-design.md), [V1 spec](specs/2026-10-11-design-tokens-design.md), [V2 spec](specs/2026-10-11-components-design.md)에 있습니다. 결정은 [`decisions.md`](decisions.md)의 결정 V1~V22입니다.
 * 눈으로 보려면 [견본 페이지](specimen/index.html)를 엽니다(라이트·다크).
-* app이 읽는 데이터는 **디자인 토큰** [`tokens/`](tokens/README.md)입니다(계약 1.0.0). 이 문서와 토큰 값이 다르면 토큰이 맞고, 이 문서를 고칩니다.
+* app이 읽는 데이터는 **디자인 토큰** [`tokens/`](tokens/README.md)(계약 1.1.0)과 **컴포넌트 명세** [`components/`](components/README.md)(계약 1.0.0)입니다. 이 문서와 토큰·명세 값이 다르면 토큰·명세가 맞고, 이 문서를 고칩니다.
 * 색 값의 출처는 [`tools/palette.py`](tools/palette.py), 토큰 파일은 [`tools/tokens.py`](tools/tokens.py)가 만듭니다.
 
 ## 원칙
-* 글자가 들어가는 모든 색 조합은 대비 **4.5:1 이상**입니다. `python3 tools/palette.py --check`로 확인합니다.
+* 글자가 들어가는 모든 색 조합은 대비 **4.5:1 이상**입니다(비활성 글자만 3:1 이상). `python3 tools/palette.py --check`로 확인합니다.
 * **브랜드 색은 UI에, 오행 색은 데이터에만** 씁니다. 서로의 자리에 쓰지 않습니다.
 * 화면과 컴포넌트는 원시 팔레트가 아니라 **의미 역할**을 씁니다. 다크 모드는 역할 값만 바뀝니다.
 * 다크 모드는 MVP에 포함됩니다.
@@ -60,13 +60,36 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 | `chip.bg` 칩 바탕 | `#ffffff` 알파 0.70 | `#ffffff` 알파 0.08 |
 | `swatch.border` 오행 견본 테두리 | neutral-900 알파 0.18 | neutral-100 알파 0.28 |
 
+**V2 역할** (컴포넌트 명세에서 씀)
+
+| 역할 | 라이트 | 다크 |
+| --- | --- | --- |
+| `scrim` 시트·확인 창 바깥 덮개 | neutral-950 알파 0.32 | `#000000` 알파 0.50 |
+| `inverse.bg` / `inverse.fg` 토스트 | neutral-900 / neutral-100 | neutral-100 / neutral-900 |
+| `disabled.bg` / `disabled.fg` 비활성 (글자 대비 3:1 이상) | neutral-100 / neutral-600 | neutral-800 / neutral-500 |
+| `bar.bg` 반투명 탭 바 | `#ffffff` 알파 0.62 | neutral-900 알파 0.62 |
+| `seal.fill` 진한 낙관 도장 | → `action.primary` | → `action.primary` |
+| `seal.soft` 옅은 낙관 도장 | sage-700 알파 0.22 | sage-200 알파 0.28 |
+| `seal.knock` 도장에 새긴 날짜 | sage-50 | neutral-900 |
+| `status.bg` / `status.fg` 상태 꼬리표 | → `term.bg` / `term.fg` | → `term.bg` / `term.fg` |
+| `tag.good.bg` / `.fg` 좋은 태그 | coral-100 / coral-700 | coral-800 / coral-200 |
+| `tag.bad.bg` / `.fg` 나쁜 태그 | neutral-100 / neutral-700 | neutral-800 / neutral-200 |
+| `tag.neutral.border` / `.fg` 중립 태그 (바탕 없음) | neutral-300 / neutral-700 | neutral-700 / neutral-400 |
+| `calendar.weekday.sun` / `.sat` 달력 요일 머리 일·토 | → `ohaeng.fire.fg` / `ohaeng.earth.fg` | 같음(모드별 값) |
+| `skeleton.bone` 불러오는 중 자리 | neutral-900 알파 0.07 | neutral-100 알파 0.08 |
+| `timeline.line` 일기 목록 흐름 줄 | → `line` | → `line` |
+
+* 비활성 글자는 WCAG 1.4.3의 예외지만 3:1 이상을 지킵니다.
+* 태그 칩은 배지와 같은 길흉 톤(V8)을 씁니다.
+* 요일 머리의 일·토만 오행 글자색(화·토)을 씁니다. 오행 색을 데이터 밖에 쓰는 유일한 예외로, 날짜 숫자에는 넣지 않습니다(결정 V19).
+
 * 용어 토큰은 굵게 하지 않고 색과 바탕으로만 표시합니다.
 * 날의 성격 배지(엔진 `DayKind`)의 강도는 좋은 날 `YONGSIN_DAY`(채움) > 귀인의 날 `GWIIN_DAY`(옅은 coral) > 기신의 날 `GISIN_DAY`(옅은 회색) > 평범한 날 `ORDINARY_DAY`(테두리만) 순입니다.
 
 ### 캘린더 길흉
 * 엔진 `LuckLevel`을 **날짜 칸을 옅게 채워** 보여줍니다. `GOOD`은 `calendar.good.bg`, `CAUTION`은 `calendar.caution.bg`이고, `NEUTRAL`은 채우지 않습니다.
-* 점은 쓰지 않습니다. 점은 일기를 쓴 날이나 일정 같은 이벤트 표시로 남겨 둡니다(V2).
-* 채운 칸은 바탕과 대비가 1.1~1.2:1이라 색만으로는 뜻이 전해지지 않습니다. 날짜를 누르면 그날 정보에 글로 나오고, 스크린리더는 "좋은 날", "주의할 날"로 읽게 합니다(V2 컴포넌트 명세).
+* 길흉에는 점을 쓰지 않습니다. 달력 칸의 다른 표시는 V2에서 정했습니다(결정 V19): 일기 쓴 날은 옅은 낙관 도장, 오늘은 낙관 윤곽선, 선택은 sage 굵은 숫자 + 펼침 밑줄, 일정은 sage 점.
+* 채운 칸은 바탕과 대비가 1.1~1.2:1이라 색만으로는 뜻이 전해지지 않습니다. 날짜를 누르면 그날 정보에 글로 나오고, 스크린리더 라벨에 길흉 낱말을 넣습니다(`components/calendar.json` day-cell).
 
 ### 오행 팔레트 (데이터 전용)
 
@@ -120,6 +143,8 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 | `type.numeric.calendar` 캘린더 날짜 | ui | 14 | 500 | 1.2 | 0 / 0 |
 | `type.numeric.table` 대운·세운 표의 나이·연도 | ui | 13 | 500 | 1.3 | 0 / 0 |
 | `type.hanja.pillar` 원국표 한자 | hanja | 17 | 700 | 1.0 | 0 / 0 |
+| `type.body.ui` 확인 창 본문, 설정·일정 줄 (V2) | ui | 14 | 400 | 1.5 | -0.28 / 0 |
+| `type.caption.lg` 배너, 이유 한 줄, 도움말, 칩 설명 (V2) | ui | 13 | 400 | 1.45 | -0.26 / 0 |
 
 * 크기와 자간 단위는 px입니다.
 * 한국어 UI 자간은 글자 크기의 -2%입니다. 문장 글꼴, 일본어, 숫자, 한자는 0입니다.
@@ -128,7 +153,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 * 문장 글꼴은 400만 씁니다. 가짜 볼드를 만들지 않습니다.
 * 원국표 한자는 언어와 관계없이 Pretendard JP입니다.
 * 네 글꼴 모두 SIL OFL 1.1입니다.
-* 앱은 기기의 글자 크기 설정을 따릅니다. 원국표처럼 칸이 고정된 곳만 상한을 둡니다(상한 값은 V2).
+* 앱은 기기의 글자 크기 설정을 따릅니다. 원국표·만세력·대운 표와 달력 칸처럼 칸이 고정된 곳만 1.3배 상한을 둡니다.
 
 ## 간격과 반경
 
@@ -138,14 +163,60 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 
 | 반경 토큰 | 값 (px) | 예시 쓰임 |
 | --- | --- | --- |
-| `radius.xs` | 4 | 문장 안 용어 토큰 |
-| `radius.sm` | 8 | 캘린더 칸, 원국표 칸, 색 견본 |
-| `radius.md` | 12 | 버튼, 입력창 |
-| `radius.lg` | 20 | 카드, 패널 |
+| `radius.xs` | 4 | 문장 안 용어 토큰, skeleton 글자 줄 |
+| `radius.sm` | 8 | 캘린더 칸, 원국표 칸, 체크 상자 |
+| `radius.md` | 12 | 버튼, 입력창, 안내 배너, 설정·동의 카드, 휠 선택 띠 |
+| `radius.lg` | 20 | 카드, 확인 창, 일기 종이 |
 | `radius.xl` | 28 | 아래에서 올라오는 시트의 위쪽 모서리 |
-| `radius.full` | 9999 | 배지, 칩 |
+| `radius.full` | 9999 | 배지, 칩, 태그, 토스트, segmented, 꼬리표 |
 
-* 어느 컴포넌트가 어느 값을 쓰는지는 V2 컴포넌트 명세에서 정합니다. 그림자와 모션 토큰은 두지 않습니다.
+* 컴포넌트별 값은 [컴포넌트 명세](components/README.md)에 있습니다.
+
+## 움직임과 그림자 (V2, 토큰 1.1.0)
+
+| 토큰 | 값 | 쓰임 |
+| --- | --- | --- |
+| `motion.duration.short` / `medium` / `select` / `long` / `stamp` | 200 / 320 / 340 / 420 / 520ms | 사라짐 / 나타남 / 선택 이동 / 시트·밑줄 / 도장 |
+| `motion.duration.breathe` / `toast-hold` | 1800 / 2500ms | 숨쉬기 한 주기 / 토스트 머무름 |
+| `motion.easing.seep` / `enter` / `exit` / `stamp-press` / `standard` | (0.2,0.7,0.2,1) / (0.2,0.8,0.2,1) / (0.4,0,1,1) / (0.5,0,0.9,0.6) / (0.4,0,0.2,1) | 스밈 / 들어옴 / 나감 / 도장 누름 / 일반 |
+| `shadow.raised` | 0 4px 16px neutral-900 알파 0.14 | 공유 미리보기 이미지에만 |
+
+그림자는 공유 미리보기 한 곳에만 씁니다. 나머지 층은 바탕색과 선으로 나눕니다.
+
+## 상호작용 언어 (결정 V14)
+
+먹이 종이에 스미는 느낌을 모든 움직임의 공통 말로 씁니다. 상세는 [`components/interaction.md`](components/interaction.md).
+
+| 순간 | 패턴 |
+| --- | --- |
+| 누름 | 먹 번짐 `press.ink`: 누른 자리에서 부드러운 원형 얼룩 |
+| 나타남·사라짐 | 스밈 `appear.seep` / `disappear.seep`: 제자리에서 흐림 + 투명도 |
+| 선택 바뀜 | 스밈 이동 `select.seep-slide`: 거리의 15%만 미끄러짐 |
+| 불러오는 중 | 먹 숨쉬기 `loading.breathe`(skeleton). 스피너 없음 |
+| 기록됨 | 낙관 도장 찍힘 `seal.stamp` |
+| 시트 깊어짐 | 겹쳐 쌓기 `sheet.stack`. 뒤로·끌어내리기는 한 단계, 바깥 누르기는 모두 닫음 |
+| 입력 포커스 | 테두리 2px sage `focus.ring` |
+
+* 햅틱은 의미 있는 순간(선택 바뀜, 저장·완료, 반응, 되돌릴 수 없는 동작)에만.
+* 동작 줄이기가 켜지면 투명도 변화만 남깁니다.
+
+## 낙관 도장 (결정 V16)
+
+로고의 낙관 모양(경로 `M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z`, -8°)을 "내가 했다"는 기록의 표시로 씁니다. 변형은 진한 `fill`, 옅은 `soft`, 윤곽 `outline` 셋입니다.
+
+| 쓰는 곳 | 변형 · 크기 |
+| --- | --- |
+| 선택된 탭, 반응 하트 | fill 34 (안의 아이콘 흰색) |
+| 일기 종이 오른쪽 아래 | fill 64 (날짜를 새김) |
+| 달력 일기 쓴 날 / 오늘 | soft 26 / outline 26 |
+| 일기 목록 날짜 | soft 34 |
+| 질문 카드 "쓴 일기 보기" 버튼 뒤 | soft 52 |
+
+## 아이콘 (결정 V15·V18)
+
+* [Phosphor](https://phosphoricons.com) 2.1.2(MIT), Flutter `phosphor_flutter`. 평소·미선택 **Light**, 선택 **Regular**. Bold·Fill은 쓰지 않습니다.
+* 세트에 없는 것(오행·절기·시간 모름 등)만 Phosphor 24 격자와 획 규칙으로 직접 그립니다.
+* **빨간색을 쓰지 않습니다.** 되돌릴 수 없는 동작은 문장 앞 경고 표시(Phosphor `warning-circle` Fill, 글자색)와 굵은 본문색으로 구분합니다. Fill은 이 표시에만 씁니다.
 
 ## 로고
 

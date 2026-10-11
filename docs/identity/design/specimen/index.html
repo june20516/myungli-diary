@@ -87,6 +87,13 @@
     --gradient-today: var(--role-light-gradient-today);
     --chip-bg: rgba(255, 255, 255, .7);
     --swatch-ring: rgba(43, 43, 42, .18);
+    --inverse-bg: var(--role-light-inverse-bg); --inverse-fg: var(--role-light-inverse-fg);
+    --disabled-bg: var(--role-light-disabled-bg); --disabled-fg: var(--role-light-disabled-fg);
+    --seal-knock: var(--role-light-seal-knock); --tag-good-bg: var(--role-light-tag-good-bg);
+    --tag-good-fg: var(--role-light-tag-good-fg); --tag-bad-bg: var(--role-light-tag-bad-bg);
+    --tag-bad-fg: var(--role-light-tag-bad-fg); --tag-neutral-border: var(--role-light-tag-neutral-border);
+    --tag-neutral-fg: var(--role-light-tag-neutral-fg);
+    --seal-soft: rgba(71, 99, 76, .22);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -103,6 +110,13 @@
       --gradient-today: var(--role-dark-gradient-today);
       --chip-bg: rgba(255, 255, 255, .08);
       --swatch-ring: rgba(238, 238, 237, .28);
+      --inverse-bg: var(--role-dark-inverse-bg); --inverse-fg: var(--role-dark-inverse-fg);
+      --disabled-bg: var(--role-dark-disabled-bg); --disabled-fg: var(--role-dark-disabled-fg);
+      --seal-knock: var(--role-dark-seal-knock); --tag-good-bg: var(--role-dark-tag-good-bg);
+      --tag-good-fg: var(--role-dark-tag-good-fg); --tag-bad-bg: var(--role-dark-tag-bad-bg);
+      --tag-bad-fg: var(--role-dark-tag-bad-fg); --tag-neutral-border: var(--role-dark-tag-neutral-border);
+      --tag-neutral-fg: var(--role-dark-tag-neutral-fg);
+      --seal-soft: rgba(212, 227, 214, .28);
     }
   }
   .mode-dark {
@@ -119,6 +133,13 @@
     --gradient-today: var(--role-dark-gradient-today);
     --chip-bg: rgba(255, 255, 255, .08);
     --swatch-ring: rgba(238, 238, 237, .28);
+    --inverse-bg: var(--role-dark-inverse-bg); --inverse-fg: var(--role-dark-inverse-fg);
+    --disabled-bg: var(--role-dark-disabled-bg); --disabled-fg: var(--role-dark-disabled-fg);
+    --seal-knock: var(--role-dark-seal-knock); --tag-good-bg: var(--role-dark-tag-good-bg);
+    --tag-good-fg: var(--role-dark-tag-good-fg); --tag-bad-bg: var(--role-dark-tag-bad-bg);
+    --tag-bad-fg: var(--role-dark-tag-bad-fg); --tag-neutral-border: var(--role-dark-tag-neutral-border);
+    --tag-neutral-fg: var(--role-dark-tag-neutral-fg);
+    --seal-soft: rgba(212, 227, 214, .28);
   }
 
   /* ===== 페이지 ===== */
@@ -213,6 +234,21 @@
   .mask { position: relative; width: 96px; height: 96px; overflow: hidden; }
   .mask img { position: absolute; inset: -6.67%; width: 113.3%; height: 113.3%; }
   .logo-row { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+
+  /* V2 요소 */
+  .v2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-bottom: 14px; }
+  .v2-item { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); }
+  .seal { position: relative; width: 34px; height: 34px; display: grid; place-items: center; }
+  .seal svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-8deg); overflow: visible; }
+  .seal b { position: relative; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .seal.lg { width: 64px; height: 64px; }
+  .seal.lg b { font-size: 13px; font-weight: 400; letter-spacing: .5px; }
+  .tag { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+  .status { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 13px; font-weight: 500; background: var(--term-bg); color: var(--term-fg); }
+  .caution { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; }
+  .caution svg { width: 1em; height: 1em; }
+  .patterns { font-size: 13px; line-height: 1.7; margin: 0; padding-left: 18px; }
+  .patterns code { font-size: 12px; }
 </style>
 </head>
 <body>
@@ -435,6 +471,56 @@
     <div class="mask" style="border-radius:22%"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
     <div class="mask"><img src="../logo/icon-android-background.svg" alt=""><img src="../logo/icon-android-foreground.svg" alt=""></div>
   </div>
+  <h2 id="v2-elements">V2 요소와 상호작용</h2>
+  <p class="note">낙관 도장 세 변형, 태그 칩 길흉 톤, 상태 꼬리표, 경고 표시입니다. 글자는 자리 채우기입니다. 전체 명세는 <a href="../components/README.md">컴포넌트 명세</a>에 있습니다.</p>
+  <div class="pair">
+    <div class="panel mode-light">
+      <p class="panel-title">라이트</p>
+      <div class="v2-row">
+        <div class="v2-item" data-element="seal-fill"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--action-on-primary)"></b></span>fill</div>
+        <div class="v2-item"><span class="seal lg"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--seal-knock)">10.11</b></span>fill 64 · 날짜</div>
+        <div class="v2-item" data-element="seal-soft"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--seal-soft)"/></svg><b style="color:var(--text-primary)">11</b></span>soft</div>
+        <div class="v2-item" data-element="seal-outline"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:none;stroke:var(--action-primary);stroke-width:1.6px;vector-effect:non-scaling-stroke"/></svg><b style="color:var(--text-primary)">11</b></span>outline</div>
+      </div>
+      <div class="v2-row">
+        <span class="tag" data-element="tag-good" style="background:var(--tag-good-bg);color:var(--tag-good-fg)">#좋은태그</span>
+        <span class="tag" data-element="tag-bad" style="background:var(--tag-bad-bg);color:var(--tag-bad-fg)">#나쁜태그</span>
+        <span class="tag" data-element="tag-neutral" style="box-shadow:inset 0 0 0 1px var(--tag-neutral-border);color:var(--tag-neutral-fg)">#중립태그</span>
+        <span class="status" data-element="status-tag">진행 중</span>
+      </div>
+      <div class="v2-row">
+        <span class="caution" data-element="caution-mark"><svg viewBox="0 0 256 256" aria-hidden="true"><path style="fill:currentColor" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm-8 56a8 8 0 0 1 16 0v56a8 8 0 0 1-16 0Zm8 104a12 12 0 1 1 12-12a12 12 0 0 1-12 12Z"/></svg>되돌릴 수 없는 동작</span>
+        <span class="tag" style="background:var(--inverse-bg);color:var(--inverse-fg)">토스트</span>
+        <span class="tag" style="background:var(--disabled-bg);color:var(--disabled-fg)">비활성</span>
+      </div>
+    </div>
+    <div class="panel mode-dark">
+      <p class="panel-title">다크</p>
+      <div class="v2-row">
+        <div class="v2-item" data-element="seal-fill"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--action-on-primary)"></b></span>fill</div>
+        <div class="v2-item"><span class="seal lg"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--action-primary)"/></svg><b style="color:var(--seal-knock)">10.11</b></span>fill 64 · 날짜</div>
+        <div class="v2-item" data-element="seal-soft"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:var(--seal-soft)"/></svg><b style="color:var(--text-primary)">11</b></span>soft</div>
+        <div class="v2-item" data-element="seal-outline"><span class="seal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" style="fill:none;stroke:var(--action-primary);stroke-width:1.6px;vector-effect:non-scaling-stroke"/></svg><b style="color:var(--text-primary)">11</b></span>outline</div>
+      </div>
+      <div class="v2-row">
+        <span class="tag" data-element="tag-good" style="background:var(--tag-good-bg);color:var(--tag-good-fg)">#좋은태그</span>
+        <span class="tag" data-element="tag-bad" style="background:var(--tag-bad-bg);color:var(--tag-bad-fg)">#나쁜태그</span>
+        <span class="tag" data-element="tag-neutral" style="box-shadow:inset 0 0 0 1px var(--tag-neutral-border);color:var(--tag-neutral-fg)">#중립태그</span>
+        <span class="status" data-element="status-tag">진행 중</span>
+      </div>
+      <div class="v2-row">
+        <span class="caution" data-element="caution-mark"><svg viewBox="0 0 256 256" aria-hidden="true"><path style="fill:currentColor" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm-8 56a8 8 0 0 1 16 0v56a8 8 0 0 1-16 0Zm8 104a12 12 0 1 1 12-12a12 12 0 0 1-12 12Z"/></svg>되돌릴 수 없는 동작</span>
+        <span class="tag" style="background:var(--inverse-bg);color:var(--inverse-fg)">토스트</span>
+        <span class="tag" style="background:var(--disabled-bg);color:var(--disabled-fg)">비활성</span>
+      </div>
+    </div>
+  </div>
+  <p class="note">상호작용 패턴(<a href="../components/interaction.md">interaction.md</a>):</p>
+  <ul class="patterns">
+    <li><code>press.ink</code> 먹 번짐 · <code>appear.seep</code>/<code>disappear.seep</code> 스밈 · <code>select.seep-slide</code> 스밈 이동 15%</li>
+    <li><code>loading.breathe</code> 먹 숨쉬기(스피너 없음) · <code>seal.stamp</code>/<code>seal.erase</code> 도장 찍힘·지워짐 · <code>mark.underline-grow</code> 펼침 밑줄</li>
+    <li><code>sheet.enter</code>/<code>sheet.exit</code>/<code>sheet.stack</code> 시트 · <code>focus.ring</code> 포커스 테두리</li>
+  </ul>
 </main>
 <script>
   // 원시 팔레트 띠: :root의 CSS 변수에서 값을 읽어 그립니다.
