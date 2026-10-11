@@ -201,8 +201,9 @@ func TestHandler_AccessLog_UsesRoutePatternNotActualPath(t *testing.T) {
 	if entry["method"] != "GET" || entry["route"] != "GET /v1/diaries/{date}" || entry["status"] != float64(418) {
 		t.Errorf("접근 로그 필드 = %v", entry)
 	}
-	if _, ok := entry["latencyMs"]; !ok {
-		t.Errorf("latencyMs 없음: %v", entry)
+	// latency는 monotonic clock으로 재므로 주입한 Clock과 무관하게 존재와 0 이상만 확인합니다.
+	if latency, ok := entry["latencyMs"].(float64); !ok || latency < 0 {
+		t.Errorf("latencyMs = %v, want 0 이상의 숫자", entry["latencyMs"])
 	}
 	if strings.Contains(logs.String(), "1990-05-17") || strings.Contains(logs.String(), "secret") {
 		t.Errorf("로그에 실제 경로 값이나 query가 남음: %q", logs.String())

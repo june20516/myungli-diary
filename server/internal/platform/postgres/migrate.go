@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+	"github.com/pressly/goose/v3/lock"
 
 	"github.com/june20516/myungli-diary/server/db"
 )
@@ -89,8 +90,13 @@ func migrationsFS() fs.FS {
 // newProvider는 풀을 database/sql 연결로 감싸 goose provider를 만듭니다.
 // 반환된 함수로 provider가 쓰는 *sql.DB를 닫으며, 원래 pool은 닫지 않습니다.
 func newProvider(pool *pgxpool.Pool) (*goose.Provider, func(), error) {
+	// 여러 인스턴스가 동시에 migrate해도 하나씩 적용되도록 PostgreSQL advisory lock(session locker)을 겁니다.
+	locker, err := lock.NewPostgresSessionLocker()
+	if err != nil {
+		return nil, nil, fmt.Errorf("goose session locker: %w", err)
+	}
 	sqlDB := stdlib.OpenDBFromPool(pool)
-	provider, err := goose.NewProvider(goose.DialectPostgres, sqlDB, migrationsFS())
+	provider, err := goose.NewProvider(goose.DialectPostgres, sqlDB, migrationsFS(), goose.WithSessionLocker(locker))
 	if err != nil {
 		_ = sqlDB.Close()
 		return nil, nil, fmt.Errorf("goose provider: %w", err)

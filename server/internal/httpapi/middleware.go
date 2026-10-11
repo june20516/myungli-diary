@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
@@ -66,10 +67,11 @@ func recoverPanic(deps Deps, next http.Handler) http.Handler {
 				panic(http.ErrAbortHandler)
 			}
 			// 핸들러가 설정하다 만 헤더가 problem 응답에 섞이지 않게 비우되 trace id는 유지합니다.
+			// header.Del은 키를 정규화하므로 map에 직접 넣은 비정규화 키(예 "x-leak")를 지우지 못해 delete를 씁니다.
 			header := rec.Header()
 			for key := range header {
 				if !strings.EqualFold(key, traceIDHeader) {
-					header.Del(key)
+					delete(header, key)
 				}
 			}
 			problem.Write(rec, r, problem.New(http.StatusInternalServerError, "internal", "Internal server error"))
@@ -93,22 +95,36 @@ func limitBody(next http.Handler) http.Handler {
 
 // accessLog는 요청마다 method, route(등록 패턴), status, latencyMs를 남깁니다.
 // 실제 경로 값, query, 본문은 개인정보가 섞일 수 있어 남기지 않습니다.
-// status는 recorder가 본 실제 응답 상태이며, panic이 전파돼도 defer로 기록합니다.
+// status는 recorder가 본 실제 응답 상태입니다. panic이 전파되면(연결 중단) aborted: true로 남기고,
+// 이때 실제로 쓴 상태가 없으면 status는 0입니다. 기록한 뒤 panic을 다시 던져 net/http가 연결을 끊게 합니다.
 func accessLog(deps Deps, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := deps.Clock.Now()
+		start := time.Now() //nolint:forbidigo // latency 측정은 monotonic clock이 필요합니다(Clock.System은 UTC로 monotonic을 지움)
 		rec := asRecorder(w)
 		defer func() {
+			panicValue := recover()
+			aborted := panicValue != nil
+			status := rec.status
+			if aborted && !rec.wroteHeader {
+				status = 0
+			}
 			route := r.Pattern
 			if route == "" {
 				route = "unmatched"
 			}
-			deps.Logger.InfoContext(r.Context(), "request",
+			attrs := []any{
 				"method", r.Method,
 				"route", route,
-				"status", rec.status,
-				"latencyMs", deps.Clock.Now().Sub(start).Milliseconds(),
-			)
+				"status", status,
+				"latencyMs", time.Since(start).Milliseconds(),
+			}
+			if aborted {
+				attrs = append(attrs, "aborted", true)
+			}
+			deps.Logger.InfoContext(r.Context(), "request", attrs...)
+			if aborted {
+				panic(panicValue)
+			}
 		}()
 		next.ServeHTTP(rec, r)
 	})

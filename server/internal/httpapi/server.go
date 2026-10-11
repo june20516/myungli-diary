@@ -7,6 +7,8 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"path"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -42,28 +44,49 @@ func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 	return logging.WithTrace(handler)
 }
 
-// newRouter는 ServeMux가 내는 평문 404·405를 problem+json으로 바꿉니다.
+// newRouter는 ServeMux가 내는 평문 404·405와 경로 정리 redirect를 problem+json으로 바꿉니다.
+// 계약은 정규 경로만 정의하므로 경로 정리 redirect(예 GET /v1//me → 307)는 따르지 않고 404로 답합니다.
 func newRouter(mux *http.ServeMux) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 경로 정리 redirect는 정리된 경로의 pattern을 함께 돌려주므로 pattern만으로는 구분되지 않습니다.
+		if !isCleanPath(r.URL.EscapedPath()) {
+			writeRouteNotFound(w, r)
+			return
+		}
 		handler, pattern := mux.Handler(r)
 		if pattern != "" {
 			mux.ServeHTTP(w, r)
 			return
 		}
 
-		// 패턴이 없으면 ServeMux가 고른 핸들러(404, 405, 경로 정리 redirect)의 상태만 확인합니다.
+		// 패턴이 없으면 ServeMux가 고른 내장 핸들러(404, 405)의 상태와 헤더만 확인합니다.
 		probe := &probeWriter{header: http.Header{}}
 		handler.ServeHTTP(probe, r)
-		switch probe.status {
-		case http.StatusNotFound:
-			problem.Write(w, r, problem.New(http.StatusNotFound, "route.not_found", "Route not found"))
-		case http.StatusMethodNotAllowed:
+		if probe.status == http.StatusMethodNotAllowed {
 			w.Header().Set("Allow", probe.header.Get("Allow"))
 			problem.Write(w, r, problem.New(http.StatusMethodNotAllowed, "method.not_allowed", "Method not allowed"))
-		default:
-			handler.ServeHTTP(w, r)
+			return
 		}
+		// 404와 그 밖의 redirect는 모두 계약에 없는 경로입니다.
+		writeRouteNotFound(w, r)
 	})
+}
+
+func writeRouteNotFound(w http.ResponseWriter, r *http.Request) {
+	problem.Write(w, r, problem.New(http.StatusNotFound, "route.not_found", "Route not found"))
+}
+
+// isCleanPath는 ServeMux가 경로 정리 redirect 없이 받아들이는 정규 경로인지 확인합니다.
+// net/http의 cleanPath와 같은 규칙(path.Clean, 끝 slash 유지)입니다.
+func isCleanPath(escapedPath string) bool {
+	if escapedPath == "" || escapedPath[0] != '/' {
+		return false
+	}
+	cleaned := path.Clean(escapedPath)
+	if strings.HasSuffix(escapedPath, "/") && cleaned != "/" {
+		cleaned += "/"
+	}
+	return cleaned == escapedPath
 }
 
 // probeWriter는 ServeMux 내장 핸들러의 상태와 헤더만 모으고 본문은 버립니다.

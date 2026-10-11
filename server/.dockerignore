@@ -7,5 +7,5 @@ compose.yaml
 docs
 CLAUDE.md
 **/*_test.go
-.env*
-bin/
+**/.env*
+**/bin/

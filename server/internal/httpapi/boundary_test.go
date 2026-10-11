@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 
@@ -87,14 +88,18 @@ func TestHandler_PanicBeforeHeader_ClearsHeadersButKeepsTraceID(t *testing.T) {
 		mux.HandleFunc("GET /boom", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("X-Leak", "partial")
 			w.Header().Set("Set-Cookie", "a=b")
+			// map에 직접 넣은 비정규화 키는 Header.Del로 지워지지 않습니다.
+			w.Header()["x-raw-leak"] = []string{"partial"}
 			panic("x")
 		})
 	})
 
 	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/boom", nil))
 
-	if rec.Header().Get("X-Leak") != "" || rec.Header().Get("Set-Cookie") != "" {
-		t.Errorf("핸들러가 설정한 헤더가 남음: %v", rec.Header())
+	for key := range rec.Header() {
+		if slices.ContainsFunc([]string{"X-Leak", "Set-Cookie", "x-raw-leak"}, func(leaked string) bool { return strings.EqualFold(key, leaked) }) {
+			t.Errorf("핸들러가 설정한 헤더 %q가 남음: %v", key, rec.Header())
+		}
 	}
 	if rec.Header().Get("X-Trace-Id") == "" {
 		t.Error("X-Trace-Id가 지워졌습니다")
@@ -164,5 +169,73 @@ func TestHandler_MethodNotAllowed_AllowHeaderExactValue(t *testing.T) {
 
 	if got := rec.Header().Get("Allow"); got != "GET, HEAD" {
 		t.Errorf("Allow = %q, want %q", got, "GET, HEAD")
+	}
+}
+
+func TestHandler_AbortBeforeHeader_LogsAbortedWithZeroStatus(t *testing.T) {
+	handler, logs := newTestHandler(t, func(mux *http.ServeMux) {
+		mux.HandleFunc("GET /abort", func(http.ResponseWriter, *http.Request) { panic(http.ErrAbortHandler) })
+	})
+
+	got := servePanics(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/abort", nil))
+
+	if got != http.ErrAbortHandler { //nolint:errorlint // recover한 any 값이라 errors.Is를 쓸 수 없습니다
+		t.Errorf("전파된 panic = %v, want http.ErrAbortHandler", got)
+	}
+	entry := lastAccessLog(t, logs)
+	if entry["aborted"] != true || entry["status"] != float64(0) {
+		t.Errorf("접근 로그 = %v, want aborted true, status 0", entry)
+	}
+}
+
+func TestHandler_PanicAfterHeader_LogsAbortedWithWrittenStatus(t *testing.T) {
+	handler, logs := newTestHandler(t, func(mux *http.ServeMux) {
+		mux.HandleFunc("GET /boom", func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusAccepted)
+			panic("x")
+		})
+	})
+
+	servePanics(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/boom", nil))
+
+	entry := lastAccessLog(t, logs)
+	if entry["aborted"] != true || entry["status"] != float64(http.StatusAccepted) {
+		t.Errorf("접근 로그 = %v, want aborted true, status 202", entry)
+	}
+}
+
+func TestHandler_AccessLog_NotAbortedOnNormalResponse(t *testing.T) {
+	handler, logs := newTestHandler(t, func(mux *http.ServeMux) {
+		mux.HandleFunc("GET /v1/x", func(http.ResponseWriter, *http.Request) {})
+	})
+
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/x", nil))
+
+	entry := lastAccessLog(t, logs)
+	if _, ok := entry["aborted"]; ok || entry["status"] != float64(http.StatusOK) {
+		t.Errorf("접근 로그 = %v, want aborted 없음, status 200", entry)
+	}
+}
+
+func TestHandler_UncleanPath_IsRouteNotFoundNotRedirect(t *testing.T) {
+	called := false
+	handler, _ := newTestHandler(t, func(mux *http.ServeMux) {
+		mux.HandleFunc("GET /v1/me", func(http.ResponseWriter, *http.Request) { called = true })
+	})
+
+	for _, target := range []string{"/v1//me", "/v1/./me", "/v1/x/../me"} {
+		t.Run(target, func(t *testing.T) {
+			rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, target, nil))
+
+			if rec.Code != http.StatusNotFound || rec.Header().Get("Location") != "" {
+				t.Fatalf("status = %d, Location = %q, want 404 without redirect", rec.Code, rec.Header().Get("Location"))
+			}
+			if p := decodeProblem(t, rec); p.Code != "route.not_found" {
+				t.Errorf("code = %q", p.Code)
+			}
+		})
+	}
+	if called {
+		t.Error("정리 전 경로로 핸들러가 호출됐습니다")
 	}
 }

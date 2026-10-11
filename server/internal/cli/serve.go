@@ -20,7 +20,13 @@ import (
 
 const (
 	readHeaderTimeout = 10 * time.Second
-	shutdownTimeout   = 10 * time.Second
+	// readTimeout은 본문까지 읽는 상한입니다. 본문 상한(1 MiB)을 느리게 보내는 연결이 오래 붙어 있지 않게 합니다.
+	readTimeout = 30 * time.Second
+	// idleTimeout은 keep-alive 연결을 다음 요청 없이 유지하는 상한입니다.
+	idleTimeout = 120 * time.Second
+	// shutdownTimeout은 plan의 "최대 10초"보다 짧게 잡습니다. Cloud Run은 SIGTERM 뒤 10초에
+	// SIGKILL을 보내므로, 남은 연결 강제 종료와 종료 로그를 남길 여유 2초를 둡니다.
+	shutdownTimeout = 8 * time.Second
 )
 
 // runServe는 HTTP 서버를 시작하고 ctx가 취소되면 처리 중인 요청을 마친 뒤 종료합니다.
@@ -69,6 +75,8 @@ func serveHTTP(ctx context.Context, listener net.Listener, handler http.Handler,
 	server := &http.Server{
 		Handler:           handler,
 		ReadHeaderTimeout: readHeaderTimeout,
+		ReadTimeout:       readTimeout,
+		IdleTimeout:       idleTimeout,
 		// net/http 내부 오류도 구조화 로그로 남깁니다.
 		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelWarn),
 	}
