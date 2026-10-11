@@ -169,8 +169,9 @@ def _daeun_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple
     yongsin = natal.yongsin
     readings: list[PersonalReading] = []
     for index, period in enumerate(luck.periods):
-        next_start = luck.periods[index + 1].start_year if index + 1 < len(luck.periods) else None
-        current = period.start_year <= as_of.year and (next_start is None or as_of.year < next_start)
+        is_last = index + 1 == len(luck.periods)
+        end_year = period.start_year + 10 if is_last else luck.periods[index + 1].start_year
+        current = period.start_year <= as_of.year < end_year
         branch = period.pillar.branch
         readings.extend(
             (
@@ -212,7 +213,12 @@ def _seun_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple[
             index,
             None,
             personal.luck_ten_god_reading(
-                year_luck.ten_god, "SEUN", "STEM", year_luck.pillar.stem, year_luck.year == as_of.year, natal.yongsin
+                year_luck.ten_god,
+                "SEUN",
+                "STEM",
+                year_luck.pillar.stem,
+                year_luck.year == as_of.year,
+                natal.yongsin,
             ),
         )
         for index, year_luck in enumerate(luck.years)

@@ -54,7 +54,9 @@ class MyungriEngineServicer(pb_grpc.MyungriEngineServicer):
 
         return run_or_abort(context, compute)
 
-    def GetBirthHour(self, request: pb.BirthHourRequest, context: grpc.ServicerContext) -> pb.BirthHourResponse:
+    def GetBirthHour(
+        self, request: pb.BirthHourRequest, context: grpc.ServicerContext
+    ) -> pb.BirthHourResponse:
         def compute() -> pb.BirthHourResponse:
             birth = mapping.birth_from_proto(_required_birth(request))
             return mapping.birth_hour_to_proto(birth_hour(birth))
@@ -68,7 +70,8 @@ class MyungriEngineServicer(pb_grpc.MyungriEngineServicer):
         return run_or_abort(context, compute)
 
 
-def _required_birth(request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest | pb.BirthHourRequest
+def _required_birth(
+    request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest | pb.BirthHourRequest,
 ) -> pb.BirthInfo:
     if not request.HasField("birth"):
         raise InvalidInputError("출생 정보가 없습니다.")

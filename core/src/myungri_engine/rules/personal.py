@@ -7,8 +7,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from enum import Enum, auto
+from typing import Literal
 
 from myungri_engine.chart.positions import Position
+from myungri_engine.constants.message_keys import require
 from myungri_engine.domain.enums import Branch, Element, Shinsal, Stem, TenGod, TwelveStage
 from myungri_engine.domain.models import Evidence, FourPillars, Judgment
 from myungri_engine.references.loader import FIVE_ELEMENTS_REF
@@ -17,6 +19,9 @@ from myungri_engine.rules.strength import StrengthResult
 from myungri_engine.rules.yongsin import YongsinResult
 
 _Params = dict[str, str | int | float | bool]
+
+LuckKind = Literal["DAEUN", "SEUN"]
+PillarPart = Literal["STEM", "BRANCH"]
 
 
 class PersonalRole(Enum):
@@ -55,7 +60,9 @@ def _judgment(bundle: str, key: str, params: _Params, yongsin: YongsinResult) ->
         source_ref=FIVE_ELEMENTS_REF["balance_principle"],
         detail=detail,
     )
-    return Judgment(message_key=key, params=params, evidence=(rule_evidence, *yongsin.evidence))
+    return Judgment(
+        message_key=require(key, params), params=params, evidence=(rule_evidence, *yongsin.evidence)
+    )
 
 
 def day_master_reading(stem: Stem, strength: StrengthResult, yongsin: YongsinResult) -> Judgment:
@@ -114,8 +121,8 @@ def shinsal_reading(kind: Shinsal, position: Position, branch: Branch, yongsin: 
 
 def luck_ten_god_reading(
     god: TenGod,
-    luck: str,
-    part: str,
+    luck: LuckKind,
+    part: PillarPart,
     stem: Stem,
     current: bool,
     yongsin: YongsinResult,

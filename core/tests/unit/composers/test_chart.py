@@ -125,3 +125,51 @@ def test_multiple_shinsal_at_one_position_are_distinct(spring_birth: BirthInput)
     assert {Shinsal.CHEONEUL_GWIIN, Shinsal.HWAGAE} <= year_branch_kinds
     pairs = [(reading.position, reading.shinsal) for reading in _readings_of(view, PersonalTermKind.SHINSAL)]
     assert len(pairs) == len(set(pairs))
+
+
+DAEUN_KINDS = (
+    PersonalTermKind.DAEUN_STEM_TEN_GOD,
+    PersonalTermKind.DAEUN_BRANCH_TEN_GOD,
+    PersonalTermKind.DAEUN_TWELVE_STAGE,
+)
+
+
+def _current_daeun_indexes(view: ChartView) -> set[int]:
+    return {
+        reading.index
+        for kind in DAEUN_KINDS
+        for reading in _readings_of(view, kind)
+        if reading.judgment.params["current"]
+    }
+
+
+def test_current_boundary_switches_at_next_start_year(spring_birth: BirthInput) -> None:
+    periods = compose_chart(spring_birth, date(2026, 10, 10)).luck.periods
+    boundary_year = periods[1].start_year
+    on_boundary = compose_chart(spring_birth, date(boundary_year, 6, 1))
+    before_boundary = compose_chart(spring_birth, date(boundary_year - 1, 6, 1))
+    assert _current_daeun_indexes(on_boundary) == {1}
+    assert _current_daeun_indexes(before_boundary) == {0}
+
+
+def test_last_period_is_current_only_for_ten_years(spring_birth: BirthInput) -> None:
+    periods = compose_chart(spring_birth, date(2026, 10, 10)).luck.periods
+    last_start = periods[-1].start_year
+    assert _current_daeun_indexes(compose_chart(spring_birth, date(last_start, 6, 1))) == {len(periods) - 1}
+    assert _current_daeun_indexes(compose_chart(spring_birth, date(last_start + 10, 6, 1))) == set()
+
+
+def test_personal_readings_kind_order(spring_birth: BirthInput) -> None:
+    view = compose_chart(spring_birth, date(2026, 10, 10))
+    kinds = [reading.kind for reading in view.personal_readings]
+    periods = len(view.luck.periods)
+    expected = (
+        [PersonalTermKind.DAY_MASTER]
+        + [PersonalTermKind.TEN_GOD] * len(_readings_of(view, PersonalTermKind.TEN_GOD))
+        + [PersonalTermKind.HIDDEN_TEN_GOD] * len(_readings_of(view, PersonalTermKind.HIDDEN_TEN_GOD))
+        + [PersonalTermKind.TWELVE_STAGE] * len(_readings_of(view, PersonalTermKind.TWELVE_STAGE))
+        + [PersonalTermKind.SHINSAL] * len(_readings_of(view, PersonalTermKind.SHINSAL))
+        + list(DAEUN_KINDS) * periods
+        + [PersonalTermKind.SEUN_TEN_GOD] * len(view.luck.years)
+    )
+    assert kinds == expected

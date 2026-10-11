@@ -82,12 +82,18 @@ def test_chart_personal_readings(stub: pb_grpc.MyungriEngineStub) -> None:
     assert all(reading.position == pb.POSITION_UNSPECIFIED for reading in seun)
 
     shinsal = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_SHINSAL]
+    assert shinsal
     assert all(reading.shinsal != pb.SHINSAL_UNSPECIFIED for reading in shinsal)
     assert all(
         reading.shinsal == pb.SHINSAL_UNSPECIFIED
         for reading in readings
         if reading.kind != pb.PERSONAL_TERM_KIND_SHINSAL
     )
+
+    daeun_stem = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD]
+    assert [reading.index for reading in daeun_stem] == list(range(10))
+    hidden = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_HIDDEN_TEN_GOD]
+    assert hidden[0].index == 0
 
 
 def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungriEngineStub) -> None:

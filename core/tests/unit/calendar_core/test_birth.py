@@ -11,6 +11,7 @@ from myungri_engine.calendar_core.birth import (
     resolve_birth_moment,
     validate_civil_date,
 )
+from myungri_engine.chart.pillars import build_chart
 from myungri_engine.domain.enums import Branch, CalendarType, Gender, NoticeCode
 from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
 
@@ -189,5 +190,15 @@ def test_unknown_time_rejected() -> None:
 
 
 def test_unknown_time_checked_before_range() -> None:
-    with pytest.raises(InvalidInputError):
+    with pytest.raises(InvalidInputError, match="birth.time"):
         birth_hour(seoul(date(1800, 1, 1)))
+
+
+def test_dst_overlap_notice_and_branch_match_chart() -> None:
+    # 1987-10-11 03:00 KDT가 02:00 KST로 돌아가 02:30이 두 번 나온다.
+    birth = seoul(date(1987, 10, 11), time(2, 30))
+    moment = resolve_birth_moment(birth)
+    hour = birth_hour(birth)
+    assert NoticeCode.AMBIGUOUS_LOCAL_TIME in {n.code for n in hour.notices}
+    assert hour.notices == moment.notices
+    assert hour.branch is build_chart(moment).pillars.hour.branch

@@ -161,14 +161,16 @@ def birth_hour(birth: BirthInput) -> BirthHour:
     if birth.time is None:
         raise InvalidInputError("birth.time가 없습니다.")
     moment = resolve_birth_moment(birth)
-    if moment.utc is None:
+    if moment.utc is None:  # 시간 검사 뒤라 도달하지 않음, mypy 좁히기용
         raise InvalidInputError("birth.time가 없습니다.")
 
     correction = moment.corrected_local - moment.utc.replace(tzinfo=None)
     corrected = moment.corrected_local
     # 홀수 시각(23, 1, 3, ...)이 시진의 시작이므로 짝수 시각이면 한 시간 앞으로 당긴다.
     hours_since_start = 0 if corrected.hour % 2 == 1 else 1
-    start_corrected = corrected.replace(minute=0, second=0, microsecond=0) - timedelta(hours=hours_since_start)
+    start_corrected = corrected.replace(minute=0, second=0, microsecond=0) - timedelta(
+        hours=hours_since_start
+    )
     branch = list(Branch)[((start_corrected.hour + 1) // 2) % len(Branch)]
     start_utc = (start_corrected - correction).replace(tzinfo=UTC)
     return BirthHour(branch, start_utc, start_utc + HOUR_BRANCH_SPAN, moment.notices)

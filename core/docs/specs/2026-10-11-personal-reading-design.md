@@ -37,7 +37,7 @@
 | `yongsin`, `gisin` | `Element` 이름 | 일간 해석에 쓰는 용신·기신 오행 |
 | `luck` | `DAEUN`, `SEUN` | 운의 종류 |
 | `part` | `STEM`, `BRANCH` | 운 기둥의 천간·지지 |
-| `current` | 참·거짓 | 그 대운·세운이 `as_of` 기준 지금인지. 첫 대운 전이거나 세운 목록에 `as_of` 연도가 없으면 모두 거짓 |
+| `current` | 참·거짓 | 그 대운·세운이 `as_of` 기준 지금인지. 첫 대운 전이거나 세운 목록에 `as_of` 연도가 없으면 모두 거짓. 마지막 대운은 시작 후 10년까지 |
 
 ### 2.2 메시지 키 (C27)
 
@@ -102,14 +102,14 @@ message ChartResponse {
 
 * 모든 판정에 근거가 있어야 한다는 불변 조건(spec §13.4)을 지킵니다.
 * 각 Judgment의 근거는 두 가지입니다.
-  * 규칙 근거: `rule_id`는 `personal/<묶음>` 형식입니다(예: `personal/ten_god`, `personal/luck_ten_god`). `detail`에는 자리·용어·오행·역할을 담습니다.
+  * 규칙 근거: `rule_id`는 `personal/<묶음>` 형식입니다(예: `personal/ten_god`, `personal/luck_ten_god`). `detail`에는 그 Judgment의 매개변수 값(자리·오행·역할 등)을 문자열로 담습니다. 용어는 메시지 키에 들어 있습니다.
   * 역할 판정 근거: 용신 판정의 근거(`yongsin.evidence`)를 그대로 붙입니다.
 * 자리 의미(궁위)를 다룬 원전 자료는 아직 없습니다. 그래서 C8처럼 `gungtong-bogam/five_elements#balance_principle`을 `source_ref`로 씁니다. 궁위 원전이 들어오면 규칙 근거만 바꿉니다(출력이 바뀌므로 그때 `ruleset_version`을 올림).
 
 ### 2.5 구조
 
 * `rules/personal.py`(새 파일): 순수 함수만 둡니다.
-  * `element_role(element, yongsin) -> str`: 역할을 정합니다.
+  * `element_role(element, yongsin) -> PersonalRole`: 역할(용신·희신·기신·그 밖 enum)을 정합니다.
   * 키 묶음마다 하나씩, Judgment를 만드는 함수를 둡니다.
 * `composers/chart.py`: `compose_chart`가 원국·대운·세운을 돌며 `PersonalReading` 목록을 만들어 `ChartView.personal_readings`에 담습니다.
 * `chart/personal_target.py`(새 파일): `PersonalReading`을 둡니다. `Position`이 `chart` 계층에 있어 `domain`에 두면 계층이 거꾸로 됩니다. `PersonalTermKind` enum은 `domain/enums.py`에 둡니다.

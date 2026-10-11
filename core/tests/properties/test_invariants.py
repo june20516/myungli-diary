@@ -11,7 +11,7 @@ from myungri_engine.calendar_core.birth import BirthInput, birth_hour, resolve_b
 from myungri_engine.chart.pillars import build_chart
 from myungri_engine.composers.chart import compose_chart
 from myungri_engine.composers.daily import DailyView, compose_daily
-from myungri_engine.constants.message_keys import ALL_KEYS
+from myungri_engine.constants.message_keys import ALL_KEYS, require
 from myungri_engine.domain.enums import Branch, CalendarType, Gender
 from myungri_engine.domain.models import Judgment, Pillar
 from myungri_engine.references import loader
@@ -86,6 +86,7 @@ def test_all_personal_readings_have_evidence(birth: BirthInput, as_of: date) -> 
     for reading in readings:
         judgment = reading.judgment
         assert judgment.message_key in ALL_KEYS
+        require(judgment.message_key, judgment.params)  # 매개변수 이름까지 선언과 같아야 한다
         assert judgment.evidence, judgment.message_key
         loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
     identities = [(r.kind, r.position, r.index, r.shinsal) for r in readings]

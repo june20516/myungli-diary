@@ -1,3 +1,5 @@
+import pytest
+
 from myungri_engine.chart.positions import Position
 from myungri_engine.constants.message_keys import require
 from myungri_engine.domain.enums import (
@@ -14,6 +16,7 @@ from myungri_engine.domain.models import Evidence, FourPillars, Pillar
 from myungri_engine.references.loader import FIVE_ELEMENTS_REF
 from myungri_engine.rules.personal import (
     PersonalRole,
+    _judgment,
     day_master_reading,
     element_role,
     luck_ten_god_reading,
@@ -171,3 +174,13 @@ def test_every_reading_has_balance_and_yongsin_evidence():
             k: str(v).lower() if isinstance(v, bool) else str(v) for k, v in judgment.params.items()
         }
         assert judgment.evidence[1:] == yongsin.evidence
+
+
+def test_judgment_rejects_params_differing_from_declaration():
+    with pytest.raises(KeyError):
+        _judgment("day_master", "personal.day_master.gap", {"strength": "STRONG"}, make_yongsin())
+
+
+def test_day_master_reading_passes_non_strong_level_name():
+    judgment = day_master_reading(Stem.GAP, make_strength(StrengthLevel.VERY_WEAK), make_yongsin())
+    assert judgment.params["strength"] == "VERY_WEAK"
