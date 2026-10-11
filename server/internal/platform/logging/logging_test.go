@@ -101,3 +101,52 @@ func TestNew_RespectsLevel(t *testing.T) {
 		t.Errorf("레벨 미만 로그가 기록되었습니다: %s", buf.String())
 	}
 }
+
+func TestNew_KeepsTraceTopLevelInsideGroup(t *testing.T) {
+	var buf bytes.Buffer
+	logger := logging.New(&buf, slog.LevelInfo, "p")
+	ctx := logging.ContextWithTraceID(context.Background(), sampleTraceID)
+
+	logger.WithGroup("g").With("a", 1).InfoContext(ctx, "x", "b", 2)
+
+	entry := decodeLine(t, &buf)
+	if entry["traceId"] != sampleTraceID {
+		t.Errorf("최상위 traceId = %v", entry["traceId"])
+	}
+	if entry["logging.googleapis.com/trace"] != "projects/p/traces/"+sampleTraceID {
+		t.Errorf("최상위 trace 키 = %v", entry["logging.googleapis.com/trace"])
+	}
+	group, ok := entry["g"].(map[string]any)
+	if !ok {
+		t.Fatalf("g group이 없습니다: %v", entry)
+	}
+	if group["a"] != float64(1) || group["b"] != float64(2) {
+		t.Errorf("g = %v, want a=1 b=2", group)
+	}
+	if _, ok := group["traceId"]; ok {
+		t.Error("traceId가 group 안에 들어갔습니다")
+	}
+}
+
+func TestNew_MapsLevelsToSeverity(t *testing.T) {
+	tests := []struct {
+		level slog.Level
+		want  string
+	}{
+		{slog.LevelDebug, "DEBUG"},
+		{slog.LevelInfo, "INFO"},
+		{slog.LevelWarn, "WARNING"},
+		{slog.LevelError, "ERROR"},
+		{slog.LevelInfo + 2, "INFO"},
+		{slog.LevelError + 4, "ERROR"},
+		{slog.LevelDebug - 4, "DEBUG"},
+	}
+	for _, tt := range tests {
+		var buf bytes.Buffer
+		logger := logging.New(&buf, slog.LevelDebug-8, "")
+		logger.Log(context.Background(), tt.level, "x")
+		if got := decodeLine(t, &buf)["severity"]; got != tt.want {
+			t.Errorf("level %d: severity = %v, want %s", tt.level, got, tt.want)
+		}
+	}
+}

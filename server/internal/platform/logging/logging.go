@@ -6,6 +6,7 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"slices"
 )
 
 const (
@@ -23,7 +24,7 @@ func New(w io.Writer, level slog.Level, projectID string) *slog.Logger {
 		Level:       level,
 		ReplaceAttr: replaceForCloudLogging,
 	})
-	return slog.New(&traceHandler{Handler: jsonHandler, projectID: projectID})
+	return slog.New(newTraceHandler(jsonHandler, projectID))
 }
 
 // replaceForCloudLogging은 최상위 level, msg 키를 Cloud Logging 키로 바꿉니다.
@@ -44,34 +45,83 @@ func replaceForCloudLogging(groups []string, attr slog.Attr) slog.Attr {
 	return attr
 }
 
-// severity는 slog 레벨을 Cloud Logging severity 이름으로 바꿉니다.
+// severity는 slog 레벨을 가장 가까운 Cloud Logging 표준 severity로 바꿉니다.
 func severity(level slog.Level) string {
-	if level == slog.LevelWarn {
+	switch {
+	case level >= slog.LevelError:
+		return "ERROR"
+	case level >= slog.LevelWarn:
 		return "WARNING"
+	case level >= slog.LevelInfo:
+		return "INFO"
+	default:
+		return "DEBUG"
 	}
-	return level.String()
 }
 
-// traceHandler는 ctx의 trace id를 로그 속성으로 붙이는 slog.Handler wrapper입니다.
+// frame은 WithGroup 하나로 열린 범위입니다. group이 비어 있으면 최상위 범위입니다.
+type frame struct {
+	group string
+	attrs []slog.Attr
+}
+
+// traceHandler는 ctx의 trace id를 최상위 속성으로 붙이는 slog.Handler입니다.
+// WithGroup이 trace 키를 group 안으로 밀어 넣지 않도록, group·attr 연산을 직접 보관했다가
+// Handle에서 중첩 group으로 조립해 base handler에 넘깁니다.
 type traceHandler struct {
-	slog.Handler
+	base      slog.Handler
 	projectID string
+	frames    []frame // 항상 최상위 frame을 첫 원소로 가집니다.
+}
+
+func newTraceHandler(base slog.Handler, projectID string) *traceHandler {
+	return &traceHandler{base: base, projectID: projectID, frames: []frame{{}}}
+}
+
+func (h *traceHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.base.Enabled(ctx, level)
 }
 
 func (h *traceHandler) Handle(ctx context.Context, record slog.Record) error {
-	if traceID := TraceID(ctx); traceID != "" {
-		record.AddAttrs(slog.String(traceIDAttr, traceID))
-		if h.projectID != "" {
-			record.AddAttrs(slog.String(cloudTrace, "projects/"+h.projectID+"/traces/"+traceID))
+	attrs := make([]slog.Attr, 0, record.NumAttrs())
+	record.Attrs(func(attr slog.Attr) bool {
+		attrs = append(attrs, attr)
+		return true
+	})
+	for i := len(h.frames) - 1; i >= 0; i-- {
+		f := h.frames[i]
+		attrs = append(slices.Clone(f.attrs), attrs...)
+		if f.group != "" {
+			attrs = []slog.Attr{{Key: f.group, Value: slog.GroupValue(attrs...)}}
 		}
 	}
-	return h.Handler.Handle(ctx, record)
+
+	// 원본 record는 건드리지 않고 새 record를 만듭니다.
+	out := slog.NewRecord(record.Time, record.Level, record.Message, record.PC)
+	out.AddAttrs(attrs...)
+	if traceID := TraceID(ctx); traceID != "" {
+		out.AddAttrs(slog.String(traceIDAttr, traceID))
+		if h.projectID != "" {
+			out.AddAttrs(slog.String(cloudTrace, "projects/"+h.projectID+"/traces/"+traceID))
+		}
+	}
+	return h.base.Handle(ctx, out)
 }
 
 func (h *traceHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &traceHandler{Handler: h.Handler.WithAttrs(attrs), projectID: h.projectID}
+	if len(attrs) == 0 {
+		return h
+	}
+	frames := slices.Clone(h.frames)
+	last := &frames[len(frames)-1]
+	last.attrs = append(slices.Clone(last.attrs), attrs...)
+	return &traceHandler{base: h.base, projectID: h.projectID, frames: frames}
 }
 
 func (h *traceHandler) WithGroup(name string) slog.Handler {
-	return &traceHandler{Handler: h.Handler.WithGroup(name), projectID: h.projectID}
+	if name == "" {
+		return h
+	}
+	frames := append(slices.Clone(h.frames), frame{group: name})
+	return &traceHandler{base: h.base, projectID: h.projectID, frames: frames}
 }
