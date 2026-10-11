@@ -170,3 +170,40 @@ def test_paths_point_to_design_and_ia():
     assert COMPONENTS_DIR == DESIGN_DIR / "components"
     assert IA_PATH.name == "screens.json" and IA_PATH.exists()
     assert callable(components.main)
+
+
+# 실제 명세 파일 (V2 spec §3·§4)
+def test_common_files_define_spec_ids():
+    docs = load_documents(COMPONENTS_DIR)
+    assert set(docs["interaction"]["patterns"]) == {
+        "press.ink", "appear.seep", "disappear.seep", "select.seep-slide", "loading.breathe", "seal.stamp",
+        "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring"}
+    assert set(docs["elements"]["elements"]) == {
+        "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
+        "mark.underline-grow", "mark.caution", "link.inline-nowrap", "surface.paper", "rail.timeline", "term",
+        "skeleton.bone", "icon"}
+
+
+def test_seal_element_matches_logo():
+    seal = load_documents(COMPONENTS_DIR)["elements"]["elements"]["seal"]
+    assert seal["path"] == "M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"
+    assert seal["rotate"] == -8 and set(seal["variants"]) == {"fill", "soft", "outline"}
+    assert seal["path"] in (DESIGN_DIR / "logo" / "icon-large.svg").read_text(encoding="utf-8")
+    assert seal["variants"]["soft"]["color"] == "{color.seal.soft}"
+    assert seal["contentAlign"] == "center"
+
+
+def test_seal_stamp_pattern_values():
+    patterns = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]
+    stamp = patterns["seal.stamp"]
+    assert stamp["duration"] == "{motion.duration.stamp}"
+    assert [frame["offset"] for frame in stamp["keyframes"]] == [0, 0.35, 1]
+    assert patterns["select.seep-slide"]["distance"] == 0.15
+    assert all("reduceMotion" in pattern for pattern in patterns.values())
+
+
+def test_common_files_pass_reference_checks():
+    docs = {name: document for name, document in load_documents(COMPONENTS_DIR).items()
+            if name in components.COMMON}
+    ia = {"components": [], "screens": []}
+    assert find_problems(docs, ia, token_names_by_theme(TOKENS_DIR)) == []

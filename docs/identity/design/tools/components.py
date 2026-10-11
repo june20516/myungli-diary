@@ -23,7 +23,7 @@ GROUPS = ("frame", "feedback", "input", "action", "sentence", "today", "calendar
 COMMON = ("interaction", "elements")
 DOCUMENT_FIELDS = {"version", "group", "components"}
 STATE_MAP_GROUP = "feedback"
-COMMON_FIELDS = {"interaction": {"version", "patterns", "haptics"}, "elements": {"version", "elements"}}
+COMMON_FIELDS = {"interaction": {"version", "patterns", "haptics", "fallbacks"}, "elements": {"version", "elements"}}
 COMPONENT_FIELDS = {"id", "summary", "uses", "variants", "parts", "states", "motion", "haptic", "a11y", "rules"}
 PATTERN_REQUIRED = ("summary", "duration", "easing", "reduceMotion")
 
