@@ -212,7 +212,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 ### 5.1 공통 규약
 
 * 경로 버전 `/v1`. JSON 필드는 camelCase(Google API 가이드, proto JSON 매핑과 같음).
-* 날짜 `YYYY-MM-DD`, 시각은 RFC 3339 UTC.
+* 날짜 `YYYY-MM-DD`, 시각은 RFC 3339입니다. 시각은 기본이 UTC이고, 화면 표시용 시각(`FocusSlot.start`·`end`, `CalendarDay.solarTerm.at`)만 프로필 현재 시간대의 offset으로 보냅니다.
 * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
 * 생성하는 POST는 `Idempotency-Key` 헤더를 받습니다(IETF `draft-ietf-httpapi-idempotency-key-header`). 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
 * 사용자의 선택은 상태 필드로 보냅니다(§3.2). 필드를 빼거나 `null`을 보내는 것으로 "모름"을 뜻하게 하지 않습니다. PATCH에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다.
@@ -242,7 +242,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * **일기 날짜(D49):** 오늘 이후 날짜는 422 `diary.future_date`입니다. 지운 일기를 되살리려는 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`입니다.
 * **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다.
 * **일기 동시 저장:** 기기 동기화는 MVP 범위 밖이라(D47②) 마지막 쓰기가 남습니다.
-* **날짜 경로 검증:** `/daily/{date}`, `/calendar/{year}/{month}`의 날짜는 D41 범위로 먼저 검증해 422 `date.out_of_range`를 보냅니다.
+* **날짜 경로 검증:** `/daily/{date}`, `/calendar/{year}/{month}`의 날짜는 형식이 틀리면 400 `request.invalid`, 형식은 맞지만 D41 범위 밖이면 422 `date.out_of_range`, 존재하지 않는 날짜(예 2월 31일)면 422 `date.invalid`입니다.
 * **미리보기(D50):** 출생 정보·현재 시간대를 받아 오늘의 데일리 중 surface만 돌려줍니다. 호칭을 받지 않으므로 호칭이 들어가는 슬롯은 호칭 없는 변주를 쓰도록 writing에 확인합니다(§13). 기기 해시(`device_hash`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 기기 식별값은 재설치로 바뀔 수 있어 1회 제한은 최선 노력입니다.
 * **시진 확인(D58):** 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 시간을 고칠 때마다 부르는 요청이라 1회 제한 대신 기기·IP별 요청 한도(분당 30회)를 둡니다. 엔진 RPC는 core가 추가하는 대로 붙입니다.
 
@@ -338,7 +338,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 
 ### 8.2 `job notify` (5분마다, S13)
 
-* 알림 시각은 5분 단위로 받습니다. REST에서 분이 5의 배수가 아니면 422 `notify.time_granularity`입니다.
+* 알림 시각은 5분 단위로 받습니다. 계약의 `pattern`으로 표현되므로 REST에서 분이 5의 배수가 아니면 `pattern` 위반 400 `request.invalid`입니다(§11.2).
 * 대상: `notify_status = enabled`이고, 현재 시간대의 현지 알림 시각이 [지금−60분, 지금]이며, 그 현지 날짜의 `notification_log`가 없는 사용자. Job이 멈췄다 돌아와도 1시간 안의 누락분만 보냅니다.
 * 내용: 그날 데일리를 §6.2로 선택(알림이 그날 첫 요청이면 여기서 선택이 정해짐)하고, 알림 슬롯 문장을 호칭 없이 렌더합니다. 알림 슬롯은 IA에 추가를 요청합니다(§13).
 * 발송: FCM HTTP v1. 일괄 발송 API가 없으므로 메시지를 하나씩 동시에 보냅니다(동시 50개).
@@ -415,10 +415,20 @@ RFC 9457 `application/problem+json`을 씁니다.
 
 ### 11.2 요청 처리
 
+400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은 모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 422는 스키마로 표현할 수 없는 의미 검사(D41 범위 밖, 존재하지 않는 날짜, 상태-값 짝 위반, 엔진 판정과 업무 규칙)에만 씁니다.
+
 | 상황 | 상태 | `code` 예 |
 | --- | --- | --- |
-| JSON 문법 오류, 타입·필수 필드 위반(OpenAPI 스키마) | 400 | `request.malformed`, `request.invalid` |
-| 의미상 불가: 미래 날짜, 범위 밖 날짜, 호칭 규칙 위반, 알림 시각 단위 | 422 | `diary.future_date`, `date.out_of_range`, `birth.out_of_range`, `birth.invalid`, `name.emoji`, `notify.time_granularity` |
+| JSON 문법 오류, 값 뒤에 데이터가 더 있음 | 400 | `request.malformed` |
+| 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, 최솟값·최댓값, `format`). 예 알림 시각의 분이 5의 배수가 아님 | 400 | `request.invalid` (`errors[].code`는 위반한 keyword) |
+| 경로에 등록된 라우트가 없음, 경로 정리가 필요한 경로(예 `/v1//me`) | 404 | `route.not_found` |
+| 라우트는 있지만 메서드가 다름 (`Allow` 헤더) | 405 | `method.not_allowed` |
+| 요청 본문이 1 MiB를 넘음 | 413 | `request.too_large` |
+| 지원하지 않는 요청 Content-Type | 415 | `request.unsupported_media_type` |
+| 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖 | 422 | `date.out_of_range`, 출생 정보는 `birth.out_of_range` |
+| 존재하지 않는 날짜(예 2월 31일) | 422 | `date.invalid` |
+| 상태-값 짝 위반: `BirthTime`(`status`·`value`), `BirthPlace`(`status`·`cityId`), 양력인데 `isLeapMonth` true, `NotificationSetting`(`status`·`time`), `ScheduleInput`·`SchedulePatch`(`allDay`·`time`) | 422 | `request.inconsistent` (`errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`) |
+| 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid`, `name.emoji` |
 | access token 없음·만료·위조 (`WWW-Authenticate: Bearer error="invalid_token"`, RFC 6750) | 401 | `auth.token_expired`, `auth.token_invalid` |
 | refresh token 재사용 감지 | 401 | `auth.refresh_reused` |
 | 제공자 토큰 검증 실패 | 401 | `auth.provider_token_invalid` |
@@ -431,6 +441,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
 | 요청 한도 초과 (`Retry-After`) | 429 | `rate_limited` |
+| 계약에는 있지만 아직 구현하지 않은 operation | 501 | `not_implemented` |
 
 `name.suffix_stripped`, `name.suffix_warning`은 오류가 아닙니다. 저장한 값과 함께 200 응답의 `warnings`에 담습니다. 호칭 오류 코드는 계약 `josa.yaml`의 `name_rules`를 따릅니다.
 
