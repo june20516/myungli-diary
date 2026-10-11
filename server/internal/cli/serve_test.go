@@ -69,13 +69,26 @@ func TestServe_GracefulShutdown(t *testing.T) {
 
 func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	env := map[string]string{"PORT": freePort(t)}
 	var stdout, stderr bytes.Buffer
 
 	done := make(chan int, 1)
+	finished := make(chan struct{})
 	go func() {
+		defer close(finished)
 		done <- Run(ctx, []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
 	}()
+
+	// 테스트가 어떻게 끝나든 Run goroutine이 남지 않게 취소하고 종료를 기다립니다.
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case <-finished:
+		case <-time.After(5 * time.Second):
+			t.Error("Run goroutine이 종료되지 않았습니다")
+		}
+	})
 
 	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
 	cancel()
@@ -104,9 +117,10 @@ func freePort(t *testing.T) string {
 // waitForHealthz는 url이 200을 줄 때까지 짧은 간격으로 확인합니다. 5초 안에 안 되면 실패합니다.
 func waitForHealthz(t *testing.T, url string) {
 	t.Helper()
+	client := &http.Client{Timeout: 500 * time.Millisecond}
 	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
-		resp, err := http.Get(url)
+		resp, err := client.Get(url)
 		if err == nil {
 			resp.Body.Close()
 			if resp.StatusCode == http.StatusOK {
