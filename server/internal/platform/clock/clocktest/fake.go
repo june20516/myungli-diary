@@ -17,9 +17,9 @@ type Fake struct {
 	now time.Time
 }
 
-// New는 주어진 시각으로 시작하는 Fake를 만듭니다.
+// New는 주어진 시각을 UTC로 바꿔 시작하는 Fake를 만듭니다.
 func New(t time.Time) *Fake {
-	return &Fake{now: t}
+	return &Fake{now: t.UTC()}
 }
 
 // Now는 Fake가 가진 현재 시각을 돌려줍니다.
@@ -29,11 +29,11 @@ func (f *Fake) Now() time.Time {
 	return f.now
 }
 
-// Set은 Fake의 현재 시각을 t로 바꿉니다.
+// Set은 Fake의 현재 시각을 t(UTC로 변환한 값)로 바꿉니다.
 func (f *Fake) Set(t time.Time) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	f.now = t
+	f.now = t.UTC()
 }
 
 // Advance는 Fake의 현재 시각을 d만큼 앞으로 옮깁니다.

@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 )
 
@@ -51,9 +50,18 @@ func TestFake_ConcurrentAccess(t *testing.T) {
 	}
 }
 
-func TestSystem_ReturnsUTC(t *testing.T) {
-	var c clock.Clock = clock.System{}
-	if got := c.Now().Location(); got != time.UTC {
-		t.Errorf("System.Now().Location() = %v, want UTC", got)
+func TestFake_NormalizesToUTC(t *testing.T) {
+	kst := time.FixedZone("KST", 9*60*60)
+	input := time.Date(2026, 10, 11, 9, 0, 0, 0, kst) // UTC 2026-10-11T00:00Z와 같은 순간
+
+	fake := clocktest.New(input)
+	if got := fake.Now(); got.Location() != time.UTC || !got.Equal(input) {
+		t.Errorf("New: Now() = %v (Location %v), want same instant in UTC", got, got.Location())
+	}
+
+	setInput := time.Date(2030, 1, 2, 12, 0, 0, 0, kst)
+	fake.Set(setInput)
+	if got := fake.Now(); got.Location() != time.UTC || !got.Equal(setInput) {
+		t.Errorf("Set: Now() = %v (Location %v), want same instant in UTC", got, got.Location())
 	}
 }
