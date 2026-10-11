@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 선택된 탭 브랜드 표시</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/light/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/duotone/style.css">
+<style>
+  .tbz { font-family:Pretendard,sans-serif; }
+  .tbz-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:760px) { .tbz-grid { grid-template-columns:1fr; } }
+  .mode { border-radius:20px; padding:20px; background:var(--bg-base); color:var(--text-1); }
+  .mode.light { --bg-base:#f7f7f6; --bg-sheet:#ffffff; --text-1:#2b2b2a; --text-2:#5b5b57; --muted:#8f908b; --primary:#47634c; --on-primary:#ffffff; --sage-100:#e8f2e9; }
+  .mode.dark  { --bg-base:#1b1b1a; --bg-sheet:#2b2b2a; --text-1:#eeeeed; --text-2:#ababa7; --muted:#8f908b; --primary:#b8cebc; --on-primary:#1b1b1a; --sage-100:#354838; }
+  .mode h3 { margin:0 0 6px; font-size:15px; }
+  .opt { margin-top:16px; }
+  .opt .lbl { font-size:13px; font-weight:600; margin-bottom:2px; }
+  .opt .sub { font-size:12px; color:var(--text-2); margin-bottom:8px; }
+  .tb { display:flex; background:var(--bg-sheet); border-radius:20px; padding:10px 4px 8px; }
+  .tab { position:relative; isolation:isolate; flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px;
+         color:var(--muted); cursor:pointer; user-select:none; transition: color 260ms ease; }
+  .tab .ic { position:relative; width:36px; height:30px; display:flex; align-items:center; justify-content:center; }
+  .tab i { font-size:24px; position:relative; z-index:1; transition: color 260ms ease; }
+  .tab.sel { color:var(--primary); font-weight:600; }
+  .seep { opacity:0; filter:blur(5px); transform:scale(.9); transition: opacity 340ms cubic-bezier(.2,.7,.2,1), filter 340ms cubic-bezier(.2,.7,.2,1), transform 340ms cubic-bezier(.2,.7,.2,1); }
+  .tab.sel .seep { opacity:1; filter:blur(0); transform:scale(1); }
+
+  /* A 기본안: sage 자국 */
+  .A .mark { position:absolute; top:-2px; left:50%; width:48px; height:34px; margin-left:-24px; border-radius:12px; background:var(--sage-100); z-index:0; }
+
+  /* B 낙관 도장 */
+  .B .stamp { position:absolute; left:50%; top:50%; width:34px; height:34px; margin:-17px 0 0 -17px; z-index:0; }
+  .B .stamp svg { width:100%; height:100%; transform:rotate(-8deg); }
+  .B .stamp path { fill:var(--primary); }
+  .B .tab.sel i { color:var(--on-primary); }
+  .B .tab .stamp.seep { transform:scale(1.25); }
+  .B .tab.sel .stamp.seep { transform:scale(1); }
+
+  /* C 먹 스민 아이콘 (duotone, sage) */
+  .C .tab.sel i { color:var(--primary); }
+  .C .tab.sel i.ph-duotone:before { opacity:.45; }
+
+  /* D 붓 자국 */
+  .D .tb { padding-bottom:14px; }
+  .D .brush { position:absolute; left:50%; bottom:-3px; width:34px; height:7px; margin-left:-17px; z-index:-1; }
+  .D .brush path { fill:var(--primary); opacity:.85; }
+  .D .tab .brush.seep { transform:scaleX(.4); transform-origin:left; }
+  .D .tab.sel .brush.seep { transform:scaleX(1); }
+  .D .lab { position:relative; }
+</style>
+
+<h2>선택된 탭을 브랜드답게: 네 가지</h2>
+<p class="subtitle">아이콘은 미선택 Light, 선택 Regular입니다(C만 선택에 Duotone). Bold·Fill은 쓰지 않습니다. 탭을 눌러 보세요.</p>
+
+<div class="tbz">
+  <div class="tbz-grid">
+    <div class="mode light"><h3>라이트 모드</h3><div class="slot"></div></div>
+    <div class="mode dark"><h3>다크 모드</h3><div class="slot"></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var tabs = [['sun','오늘'],['calendar-blank','달력'],['notebook','일기'],['user','나']];
+  var SEAL = '<svg viewBox="0 0 20 20"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg>';
+  var BRUSH = '<svg viewBox="0 0 34 8" preserveAspectRatio="none"><path d="M1 5.2 C6 3.2 14 2.4 22 2.6 C27 2.7 31 3.1 33 3.9 C31.5 5.1 26 5.9 20 6.1 C13 6.3 6 6.3 1.6 6.6 C0.6 6.6 0.4 5.6 1 5.2 Z"/></svg>';
+  var options = [
+    ['A', '기본안: sage 자국', '지금까지의 안. 아이콘 뒤 옅은 sage 둥근 사각.'],
+    ['B', '낙관 도장', '로고 낙관 모양의 sage 도장이 스며 찍히고, 아이콘이 그 위에 하얗게 파입니다.'],
+    ['C', '먹 스민 아이콘', '선택된 아이콘 안쪽에 sage 먹이 옅게 스밉니다(Duotone).'],
+    ['D', '붓 자국', '글자 아래에 붓으로 그은 sage 획이 번지며 그어집니다.']
+  ];
+  function iconClass(kind, on, n) {
+    if (!on) return 'ph-light ph-' + n;
+    if (kind === 'C') return 'ph-duotone ph-' + n;
+    return 'ph ph-' + n;
+  }
+  function tabHtml(kind, i, on) {
+    var t = tabs[i], deco = '';
+    if (kind === 'A') deco = '<span class="mark seep"></span>';
+    if (kind === 'B') deco = '<span class="stamp seep">' + SEAL + '</span>';
+    var brush = kind === 'D' ? '<span class="brush seep">' + BRUSH + '</span>' : '';
+    return '<div class="tab' + (on ? ' sel' : '') + '" data-i="' + i + '"><span class="ic">' + deco +
+           '<i class="' + iconClass(kind, on, t[0]) + '"></i></span><span class="lab">' + t[1] + brush + '</span></div>';
+  }
+  document.querySelectorAll('.mode').forEach(function (mode) {
+    var slot = mode.querySelector('.slot');
+    slot.innerHTML = options.map(function (o) {
+      return '<div class="opt ' + o[0] + '"><div class="lbl">' + o[0] + '. ' + o[1] + '</div><div class="sub">' + o[2] + '</div>' +
+             '<div class="tb" data-kind="' + o[0] + '">' + tabs.map(function (_, i) { return tabHtml(o[0], i, i === 0); }).join('') + '</div></div>';
+    }).join('');
+    slot.querySelectorAll('.tb').forEach(function (tb) {
+      var kind = tb.getAttribute('data-kind');
+      tb.addEventListener('click', function (e) {
+        var tab = e.target.closest('.tab'); if (!tab) return;
+        var next = parseInt(tab.getAttribute('data-i'), 10);
+        tb.querySelectorAll('.tab').forEach(function (el, i) {
+          var on = i === next;
+          el.classList.toggle('sel', on);
+          el.querySelector('i').className = iconClass(kind, on, tabs[i][0]);
+        });
+      });
+    });
+  });
+})();
+</script>
+
+    </div>
+  </div>
+
+</body>
+</html>

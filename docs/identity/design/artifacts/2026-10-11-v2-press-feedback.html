@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 눌림 피드백 비교</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  .pf { --bg-base:#f7f7f6; --bg-sheet:#ffffff; --text-1:#2b2b2a; --text-2:#5b5b57; --line:#dededc;
+        --primary:#47634c; --on-primary:#ffffff; --term-bg:#e8f2e9; --term-fg:#47634c;
+        --slow:1; font-family: Pretendard, sans-serif; }
+  .pf-toolbar { display:flex; gap:12px; align-items:center; margin:8px 0 20px; font-size:14px; }
+  .pf-toolbar label { display:flex; gap:6px; align-items:center; cursor:pointer; }
+  .pf-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }
+  .pf-col { background:var(--bg-base); border-radius:20px; padding:20px 16px; color:var(--text-1); }
+  .pf-col h3 { margin:0 0 4px; font-size:17px; }
+  .pf-col p.desc { margin:0 0 16px; font-size:13px; color:var(--text-2); line-height:1.5; min-height:58px; }
+  .pf-stack { display:flex; flex-direction:column; gap:14px; }
+  .t { position:relative; overflow:hidden; -webkit-tap-highlight-color:transparent; user-select:none; cursor:pointer; }
+  .btn { background:var(--primary); color:var(--on-primary); border-radius:9999px; height:52px; display:flex;
+         align-items:center; justify-content:center; font-weight:600; font-size:16px; }
+  .row { background:var(--bg-sheet); border-radius:12px; padding:16px; display:flex; justify-content:space-between;
+         font-size:15px; }
+  .row span:last-child { color:var(--text-2); }
+  .chip { align-self:flex-start; background:var(--term-bg); color:var(--term-fg); border-radius:9999px;
+          padding:6px 14px; font-size:13px; font-weight:500; }
+  .card { background:var(--bg-sheet); border-radius:20px; padding:18px; font-family:'Gowun Dodum', sans-serif;
+          font-size:17px; line-height:1.65; }
+  .card small { display:block; font-family:Pretendard, sans-serif; font-size:13px; color:var(--text-2); margin-bottom:6px; }
+
+  /* A. 살짝 눌림 */
+  .A .t { transition: transform calc(220ms * var(--slow)) cubic-bezier(.2,.8,.2,1), filter calc(220ms * var(--slow)) ease; }
+  .A .t.down { transform: scale(.97); filter: brightness(.94); transition-duration: calc(90ms * var(--slow)); }
+
+  /* B. 먹 번짐 */
+  .B .ink { position:absolute; border-radius:50%; pointer-events:none; background:currentColor; opacity:0;
+            transform:translate(-50%,-50%) scale(0); }
+  .B .btn .ink { background:#ffffff; }
+  .B .ink.grow { animation: inkgrow calc(520ms * var(--slow)) cubic-bezier(.2,.7,.2,1) forwards; }
+  .B .ink.fade { animation: inkfade calc(420ms * var(--slow)) ease forwards; }
+  @keyframes inkgrow { from { opacity:.0; transform:translate(-50%,-50%) scale(0); filter:blur(6px);}
+                       to { opacity:.12; transform:translate(-50%,-50%) scale(1); filter:blur(10px);} }
+  @keyframes inkfade { from { opacity:.12; transform:translate(-50%,-50%) scale(1); filter:blur(10px);}
+                       to { opacity:0; transform:translate(-50%,-50%) scale(1.15); filter:blur(16px);} }
+
+  /* C. 종이 가라앉음 */
+  .C .t { box-shadow: 0 1px 2px rgba(43,43,42,.06), 0 4px 12px rgba(43,43,42,.08);
+          transition: transform calc(240ms * var(--slow)) cubic-bezier(.2,.8,.2,1), box-shadow calc(240ms * var(--slow)) ease; }
+  .C .chip { box-shadow:none; }
+  .C .t.down { transform: translateY(1.5px); box-shadow: 0 0 1px rgba(43,43,42,.10), 0 1px 2px rgba(43,43,42,.06);
+               transition-duration: calc(90ms * var(--slow)); }
+  .C .chip.down { box-shadow:none; }
+</style>
+
+<h2>눌림 피드백: 어느 쪽이 명리일기답게 느껴지시나요?</h2>
+<p class="subtitle">세 칸의 버튼·설정 줄·칩·카드를 직접 누르고 떼 보세요. 누르고 있으면 눌린 상태가 유지됩니다.</p>
+
+<div class="pf">
+  <div class="pf-toolbar">
+    <label><input type="checkbox" id="pf-slow"> 4배 느리게 보기</label>
+  </div>
+
+  <div class="pf-grid">
+    <div class="pf-col A">
+      <h3>A. 살짝 눌림</h3>
+      <p class="desc">누르는 순간 3% 작아지고 조금 어두워집니다. 떼면 부드럽게 돌아옵니다. 단정하고 빠릅니다.</p>
+      <div class="pf-stack">
+        <div class="t btn">오늘 일기 쓰기</div>
+        <div class="t row"><span>알림 시간</span><span>오전 8:00 ›</span></div>
+        <div class="t chip">#산책</div>
+        <div class="t card"><small>오늘의 질문</small>오늘 마음이 가볍게 움직인 순간이 있었나요?</div>
+      </div>
+    </div>
+
+    <div class="pf-col B">
+      <h3>B. 먹 번짐</h3>
+      <p class="desc">누른 자리에서 옅은 얼룩이 종이에 먹이 스미듯 번지고, 떼면 흐려지며 사라집니다. 물결 효과와 달리 테두리가 없습니다.</p>
+      <div class="pf-stack">
+        <div class="t btn">오늘 일기 쓰기</div>
+        <div class="t row"><span>알림 시간</span><span>오전 8:00 ›</span></div>
+        <div class="t chip">#산책</div>
+        <div class="t card"><small>오늘의 질문</small>오늘 마음이 가볍게 움직인 순간이 있었나요?</div>
+      </div>
+    </div>
+
+    <div class="pf-col C">
+      <h3>C. 종이 가라앉음</h3>
+      <p class="desc">평소에는 종이처럼 살짝 떠 있다가, 누르면 바닥에 닿듯 그림자가 줄며 1.5px 내려앉습니다.</p>
+      <div class="pf-stack">
+        <div class="t btn">오늘 일기 쓰기</div>
+        <div class="t row"><span>알림 시간</span><span>오전 8:00 ›</span></div>
+        <div class="t chip">#산책</div>
+        <div class="t card"><small>오늘의 질문</small>오늘 마음이 가볍게 움직인 순간이 있었나요?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="options" style="margin-top:24px">
+    <div class="option" data-choice="a" onclick="toggleSelect(this)"><div class="letter">A</div><div class="content"><h3>살짝 눌림</h3></div></div>
+    <div class="option" data-choice="b" onclick="toggleSelect(this)"><div class="letter">B</div><div class="content"><h3>먹 번짐</h3></div></div>
+    <div class="option" data-choice="c" onclick="toggleSelect(this)"><div class="letter">C</div><div class="content"><h3>종이 가라앉음</h3></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var root = document.querySelector('.pf');
+  document.getElementById('pf-slow').addEventListener('change', function (e) {
+    root.style.setProperty('--slow', e.target.checked ? 4 : 1);
+  });
+  function slow() { return parseFloat(getComputedStyle(root).getPropertyValue('--slow')) || 1; }
+
+  root.querySelectorAll('.t').forEach(function (el) {
+    var ink = null;
+    function down(ev) {
+      el.classList.add('down');
+      if (el.closest('.B')) {
+        var r = el.getBoundingClientRect();
+        var size = Math.max(r.width, r.height) * 1.6;
+        ink = document.createElement('span');
+        ink.className = 'ink grow';
+        ink.style.width = ink.style.height = size + 'px';
+        ink.style.left = (ev.clientX - r.left) + 'px';
+        ink.style.top = (ev.clientY - r.top) + 'px';
+        el.appendChild(ink);
+      }
+    }
+    function up() {
+      el.classList.remove('down');
+      if (ink) {
+        var old = ink; ink = null;
+        old.classList.remove('grow'); old.classList.add('fade');
+        setTimeout(function () { old.remove(); }, 450 * slow());
+      }
+    }
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointerleave', up);
+    el.addEventListener('pointercancel', up);
+  });
+})();
+</script>
+
+    </div>
+  </div>
+
+</body>
+</html>

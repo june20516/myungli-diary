@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>V2 대운·세운 표</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- BRANDING -->
+    <div class="status">연결 중…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/light/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
+<style>
+  .fl { font-family:Pretendard,sans-serif; --bg-base:#f7f7f6; --bg-sheet:#ffffff; --text-1:#2b2b2a; --text-2:#5b5b57; --muted:#8f908b; --line:#dededc; --primary:#47634c; --on-primary:#fff;
+        --term-bg:#e8f2e9; --term-fg:#47634c; --chip-bg:rgba(255,255,255,.7);
+        --wood-t:#dff1df; --wood-i:#2f5831; --fire-t:#ffe4e0; --fire-i:#733a35; --earth-t:#f7e9d5; --earth-i:#65470f; --metal-t:#e8ebef; --metal-i:#454e58; --water-t:#e0ecfe; --water-i:#304d78; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(390px,1fr)); gap:16px; }
+  .col { background:#eeeeed; border-radius:28px; padding:16px; color:#2b2b2a; }
+  .col h3 { margin:0 0 4px; font-size:16px; }
+  .col p.desc { margin:0 0 10px; font-size:12.5px; color:#5b5b57; line-height:1.55; min-height:76px; }
+  .col p.desc b { color:#47634c; }
+  .phone { position:relative; max-width:375px; height:700px; margin:0 auto; border-radius:24px; overflow:hidden; background:var(--bg-base); color:var(--text-1); }
+  .phone.grad { background:linear-gradient(160deg,#eef4ef,#fbefee); }
+  .scroll { position:absolute; inset:0 0 72px 0; overflow-y:auto; padding:20px 16px 24px; }
+  .ab { display:flex; align-items:center; gap:8px; height:40px; } .ab i { font-size:24px; } .ab .t { font-weight:600; font-size:16px; flex:1; }
+  .t-ink { position:relative; overflow:hidden; cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none; }
+  .ink { position:absolute; border-radius:50%; pointer-events:none; background:currentColor; opacity:0; transform:translate(-50%,-50%) scale(0); }
+  .ink.grow { animation: inkgrow 520ms cubic-bezier(.2,.7,.2,1) forwards; } .ink.fade { animation: inkfade 420ms ease forwards; }
+  @keyframes inkgrow { from { opacity:0; transform:translate(-50%,-50%) scale(0); filter:blur(6px);} to { opacity:.12; transform:translate(-50%,-50%) scale(1); filter:blur(10px);} }
+  @keyframes inkfade { from { opacity:.12; transform:translate(-50%,-50%) scale(1); filter:blur(10px);} to { opacity:0; transform:translate(-50%,-50%) scale(1.15); filter:blur(16px);} }
+  .term { background:var(--term-bg); color:var(--term-fg); border-radius:4px; padding:0 4px; }
+  .sent { font-family:'Gowun Dodum',sans-serif; font-size:17px; line-height:1.65; margin:14px 0; }
+  .label { font-size:12px; color:var(--text-2); margin-top:18px; }
+  .chips { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .chip { display:inline-flex; align-items:center; gap:6px; background:var(--chip-bg); border-radius:9999px; padding:7px 12px; font-size:13px; font-weight:500; }
+  .sw { width:14px; height:14px; border-radius:4px; box-shadow:inset 0 0 0 1px rgba(43,43,42,.18); }
+  .dl { display:inline-flex; align-items:center; gap:2px; font-size:14px; font-weight:600; color:var(--primary); margin-top:16px; padding:6px 8px; margin-left:-8px; border-radius:8px; }
+  .hint { margin-top:24px; font-size:12px; color:var(--muted); line-height:1.5; }
+  .seg { display:flex; background:var(--bg-sheet); border:1px solid var(--line); border-radius:9999px; padding:3px; margin:10px 0 16px; }
+  .seg span { flex:1; text-align:center; padding:7px 0; font-size:13px; color:var(--text-2); border-radius:9999px; }
+  .seg span.sel { background:var(--primary); color:var(--on-primary); font-weight:600; }
+  .tbl { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .hd { text-align:center; font-size:12px; color:var(--text-2); }
+  .ss { text-align:center; font-size:11px; }
+  .ss .term { font-size:11px; padding:1px 4px; }
+  .cell { position:relative; border-radius:8px; height:66px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:var(--t); color:var(--i); }
+  .cell .hz { font-size:24px; font-weight:700; line-height:1; } .cell .ko { font-size:11px; font-weight:500; }
+  .cell.me { box-shadow:inset 0 0 0 2px var(--primary); }
+  .cell.t-ink { overflow:visible; }
+  .inkbox { position:absolute; inset:0; border-radius:inherit; overflow:hidden; pointer-events:none; }
+  .me-tag { position:absolute; top:-7px; right:-5px; background:var(--primary); color:var(--on-primary); font-size:10px; font-weight:700; border-radius:9999px; padding:1px 5px; z-index:2; }
+  .tb { position:absolute; left:0; right:0; bottom:0; height:72px; display:flex; padding:8px 4px 14px; box-sizing:border-box; background:rgba(255,255,255,.62); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+  .tab { position:relative; isolation:isolate; flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; color:var(--muted); }
+  .tab .ic { position:relative; width:36px; height:30px; display:flex; align-items:center; justify-content:center; } .tab i { position:relative; z-index:1; font-size:24px; }
+  .tab .st { position:absolute; left:50%; top:50%; width:34px; height:34px; margin:-17px 0 0 -17px; } .tab .st svg { width:100%; height:100%; transform:rotate(-8deg); } .tab .st path { fill:var(--primary); }
+  .tab.sel { color:var(--primary); font-weight:600; } .tab.sel i { color:var(--on-primary); }
+  .scrim { position:absolute; inset:0; background:rgba(27,27,26,.32); opacity:0; pointer-events:none; transition:opacity 280ms; }
+  .scrim.on { opacity:1; pointer-events:auto; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; height:330px; background:var(--bg-sheet); border-radius:28px 28px 0 0; padding:10px 20px 24px; transform:translateY(105%); transition:transform 420ms cubic-bezier(.2,.8,.2,1); box-sizing:border-box; }
+  .sheet.open { transform:none; }
+  .handle { width:36px; height:4px; border-radius:2px; background:#c7c7c5; margin:0 auto 14px; }
+  .sheet .lv { font-size:12px; color:var(--text-2); } .sheet h4 { margin:2px 0 10px; font-size:20px; }
+  .sheet .body { font-family:'Gowun Dodum',sans-serif; font-size:15px; line-height:1.6; }
+  .sheet .mine { margin-top:12px; background:var(--term-bg); color:var(--term-fg); border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.55; }
+  .pulse { animation: pulse 1.6s ease-in-out 2; } @keyframes pulse { 50% { box-shadow:0 0 0 4px rgba(71,99,76,.18); } }
+</style>
+
+<h2>사주를 만나는 흐름: 나 탭 → 근거 보기 → 사주 표 → 풀이</h2>
+<p class="subtitle">세 화면을 왼쪽부터 차례로 눌러 보세요. 초록 글씨가 붙은 곳이 누를 수 있는 곳입니다. 문장은 모두 자리 채우기용 예시입니다.</p>
+
+<div class="fl">
+  <div class="grid">
+    <div class="col"><h3>① 나 탭 첫 화면 (surface)</h3><p class="desc"><b>1. 깊이 구조:</b> 처음엔 표가 없습니다. "나는 어떤 사람인가"를 문장으로, 용신과 행운 색을 칩으로 봅니다. 대부분의 사용자는 여기서 끝납니다. 궁금한 사람만 "근거 보기"로 내려갑니다.</p><div class="phone grad" data-step="1"></div></div>
+    <div class="col"><h3>② 근거 보기 → 사주 표 (evidence)</h3><p class="desc"><b>2. 칸마다 풀이:</b> 십성(비견·겁재·편인…)과 "일간"이 용어 토큰입니다. 눌러 보면 ③처럼 시트가 올라옵니다. <b>4. 시각 언어:</b> 칸은 오행 바탕, 일간은 sage 테두리와 "나", 누르면 먹 번짐.</p><div class="phone" data-step="2"></div></div>
+    <div class="col"><h3>③ 풀이 시트 (explain)</h3><p class="desc"><b>2. 칸마다 풀이:</b> 용어의 일반 뜻 한 줄 + "내 사주에서는" 한 줄. 표가 "읽을 수 있는 표"가 됩니다. <b>4.</b> 시트는 스밈·겹쳐 쌓기, 바깥을 누르면 닫힘.</p><div class="phone" data-step="3"></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var SEAL = '<svg viewBox="0 0 20 20"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg>';
+  var TB = '<div class="tb"><div class="tab"><span class="ic"><i class="ph-light ph-sun"></i></span>오늘</div><div class="tab"><span class="ic"><i class="ph-light ph-calendar-blank"></i></span>달력</div><div class="tab"><span class="ic"><i class="ph-light ph-notebook"></i></span>일기</div><div class="tab sel"><span class="ic"><span class="st">' + SEAL + '</span><i class="ph ph-user"></i></span>나</div></div>';
+  var TERMS = {
+    '비견': ['나와 같은 기운', '나와 같은 오행·같은 음양의 글자예요. 나를 돕는 동료이자, 내 몫을 나누는 경쟁자이기도 해요.', '내 사주에는 비견이 둘이라, 혼자보다 함께 할 때 힘이 나는 편이에요.'],
+    '겁재': ['나와 닮았지만 결이 다른 기운', '나와 같은 오행이지만 음양이 다른 글자예요. 의욕과 승부욕을 뜻해요.', '월주에 있어 젊은 시절의 추진력으로 읽어요.'],
+    '편인': ['나를 돕는 다른 결의 기운', '나를 낳아 주는 오행 가운데 음양이 같은 글자예요. 직관과 깊이 파고드는 힘을 뜻해요.', '일지와 시지에 있어 혼자 생각을 정리하는 시간이 중요해요.'],
+    '편관': ['나를 다그치는 기운', '나를 누르는 오행 가운데 음양이 같은 글자예요. 압박과 그걸 견디는 힘을 함께 뜻해요.', '월지에 있어 환경에서 오는 긴장으로 읽어요.'],
+    '정관': ['나를 바르게 세우는 기운', '나를 누르는 오행 가운데 음양이 다른 글자예요. 규칙과 책임을 뜻해요.', '연지에 있어 집안이나 어린 시절의 규칙으로 읽어요.'],
+    '일간': ['나 자신', '사주 여덟 글자 가운데 태어난 날의 천간이에요. 다른 일곱 글자는 모두 이 글자를 기준으로 읽어요.', '내 일간은 경금(庚), 단단하고 곧은 쇠의 기운이에요.']
+  };
+  function ink(el) {
+    el.addEventListener('pointerdown', function (ev) {
+      var r = el.getBoundingClientRect(), s = Math.max(r.width, r.height) * 1.6, d = document.createElement('span');
+      d.className = 'ink grow'; d.style.width = d.style.height = s + 'px';
+      d.style.left = (ev.clientX - r.left) + 'px'; d.style.top = (ev.clientY - r.top) + 'px'; (el.querySelector('.inkbox') || el).appendChild(d);
+      function up() { d.classList.remove('grow'); d.classList.add('fade'); setTimeout(function () { d.remove(); }, 450); el.removeEventListener('pointerup', up); el.removeEventListener('pointerleave', up); }
+      el.addEventListener('pointerup', up); el.addEventListener('pointerleave', up);
+    });
+  }
+  function step1() {
+    return '<div class="scroll"><div class="ab"><span class="t">나</span><i class="ph-light ph-gear-six"></i></div>' +
+      '<div class="sent">하늘님은 단단하고 곧은 쇠의 기운, <span class="term">경금</span>으로 태어났어요. 한번 정한 일은 끝까지 밀고 가는 힘이 있어요.</div>' +
+      '<div class="label">나를 돕는 기운</div><div class="chips"><span class="chip"><span class="term" style="padding:0 4px">용신</span>물</span><span class="chip"><span class="sw" style="background:#153e78"></span>행운 색 남색</span></div>' +
+      '<span class="dl t-ink pulse">근거 보기 ›</span>' +
+      '<div class="hint">← 여기까지가 대부분의 사용자가 보는 화면입니다. 표는 아래 "근거 보기"를 누른 사람에게만 보입니다.</div></div>' + TB;
+  }
+  function cell(ch, ko, w, me) { return '<div class="cell t-ink' + (me ? ' me' : '') + '" style="--t:var(--' + w + '-t);--i:var(--' + w + '-i)"><span class="inkbox"></span>' + (me ? '<span class="me-tag">나</span>' : '') + '<span class="hz">' + ch + '</span><span class="ko">' + ko + '</span></div>'; }
+  function step2() {
+    var P = [['시주','庚','경','metal','비견','辰','진','earth','편인'],['일주','庚','경','metal','일간','辰','진','earth','편인'],['월주','辛','신','metal','겁재','巳','사','fire','편관'],['연주','庚','경','metal','비견','午','오','fire','정관']];
+    var h = '<div class="scroll"><div class="ab"><i class="ph-light ph-caret-left"></i><span class="t">사주 표</span></div><div class="seg"><span class="sel">원국·오행</span><span>만세력·대운</span></div><div class="tbl">';
+    P.forEach(function (p) { h += '<div class="hd">' + p[0] + '</div>'; });
+    P.forEach(function (p) { h += '<div class="ss"><span class="term t-ink" data-term="' + p[4] + '">' + p[4] + '</span></div>'; });
+    P.forEach(function (p) { h += cell(p[1], p[2], p[3], p[4] === '일간'); });
+    P.forEach(function (p) { h += cell(p[5], p[6], p[7], false); });
+    P.forEach(function (p) { h += '<div class="ss"><span class="term t-ink" data-term="' + p[8] + '">' + p[8] + '</span></div>'; });
+    return h + '</div><div class="hint">초록 바탕 글자(용어 토큰)를 누르면 풀이 시트가 올라옵니다. 칸을 눌러 먹 번짐도 보세요.</div></div><div class="scrim"></div><div class="sheet"><div class="handle"></div><div class="content"></div></div>';
+  }
+  function sheetHtml(t) { var d = TERMS[t]; return '<div class="lv">풀이</div><h4>' + t + ' · ' + d[0] + '</h4><div class="body">' + d[1] + '</div><div class="mine">내 사주에서는 — ' + d[2] + '</div>'; }
+  function step3() { return step2(); }
+  document.querySelectorAll('.phone').forEach(function (p) {
+    var s = p.getAttribute('data-step');
+    p.innerHTML = s === '1' ? step1() : step2();
+    p.querySelectorAll('.t-ink').forEach(ink);
+    var sheet = p.querySelector('.sheet'), scrim = p.querySelector('.scrim');
+    if (sheet) {
+      function open(t) { sheet.querySelector('.content').innerHTML = sheetHtml(t); scrim.classList.add('on'); requestAnimationFrame(function () { sheet.classList.add('open'); }); }
+      p.querySelectorAll('[data-term]').forEach(function (el) { el.addEventListener('click', function () { open(el.getAttribute('data-term')); }); });
+      scrim.addEventListener('click', function () { sheet.classList.remove('open'); scrim.classList.remove('on'); });
+      if (s === '3') setTimeout(function () { open('편인'); }, 300);
+    }
+  });
+})();
+</script>
+
+    </div>
+  </div>
+
+</body>
+</html>
