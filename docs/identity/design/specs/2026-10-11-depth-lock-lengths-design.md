@@ -164,7 +164,7 @@ IA 컴포넌트 41개 밖의 컴포넌트를 만들 수 없으므로(검사기�
 * **#54 답**(writing): 확정 표, 절기 영어 줄임 표기 필요, 토큰 칩 답.
 * **app notice**: 컴포넌트 계약 2.0.0 변경 목록(§6).
 * **지휘 request**: IA에 다음을 추가해 주세요. 지금은 app이 문구를 하드코딩해야 합니다.
-  1. `saju-chart.components`에 `sentence-block`
+  1. `saju-chart.components`에 `sentence-block`, `evidence-sheet.components`에 `toast`(해제 실패 알림)
   2. ui 슬롯: 근거 시트 구역 제목 세 개(판정 근거·원전·내 사주에서는), 잠긴 용신 근거의 "열기", 잠금 해제 확인 실패 toast, 접근성 문구("잠김", "확인 중", 열림 알림)
   3. 계약 목록 `docs/contracts/README.md`의 컴포넌트 명세를 2.0.0·요소 16개로 고침(지휘 소유)
 
