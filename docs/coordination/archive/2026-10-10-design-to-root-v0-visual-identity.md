@@ -11,8 +11,8 @@ related: [V0, 브랜드 기반(docs/identity/README.md), docs/background/06-desi
 
 ## 무엇을 했는가
 * 브랜치 `design/visual-identity`에서 V0을 마쳤습니다. spec → plan → 실행 순서입니다.
-* **기준 문서:** [`docs/identity/design/visual-identity.md`](../identity/design/visual-identity.md). 시각(색·그라데이션·타이포·로고)에 관해서는 이 문서가 `docs/background/06-design-system.md`를 대체합니다.
-* **결정:** design 결정 V1~V7 ([`decisions.md`](../identity/design/decisions.md)). 요약:
+* **기준 문서:** [`docs/identity/design/visual-identity.md`](../../identity/design/visual-identity.md). 시각(색·그라데이션·타이포·로고)에 관해서는 이 문서가 `docs/background/06-design-system.md`를 대체합니다.
+* **결정:** design 결정 V1~V7 ([`decisions.md`](../../identity/design/decisions.md)). 요약:
   * 색은 OKLCH 규칙으로 만들고 화면은 의미 역할만 씁니다.
   * 브랜드 팔레트(UI)와 오행 팔레트(데이터)를 분리합니다.
   * 글자 조합은 대비 4.5:1 이상입니다.

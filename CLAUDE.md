@@ -16,7 +16,15 @@
 ## 지휘 세션
 * 맡는 일: 통합 로드맵([`docs/roadmap.md`](docs/roadmap.md)), 계약 목록 관리, 요청함(Issues) 분류(`accepted`/`rejected` 라벨), 둘 이상에 걸친 결정 기록, 서브 프로젝트 착수 안내(각 `CLAUDE.md`의 "현재 상태"와 "다음 할 일" 초안), 통합 시점 판단.
 * 하지 않는 일: 서브 프로젝트 코드를 구현하지 않습니다.
-* **정기 일과**(세션을 열 때마다): ① 열린 Issue 분류(`gh issue list`) ② `docs/roadmap.md` "현재 진행 순서" 갱신 ③ 제품 지도 갱신(`tools/product-map/README.md`).
+* **정기 일과**(세션을 열 때마다):
+  1. 요청함 정리(`gh issue list`). 닫는 조건은 `docs/workflow.md` §5.2입니다.
+     * 새 요청에 `accepted`/`rejected` 라벨을 붙입니다.
+     * 완료 보고(`kind:report`)를 확인하고 닫습니다.
+     * 처리했다는 코멘트가 달렸는데 열려 있는 Issue를 닫거나, 받는 쪽에 닫아 달라고 남깁니다.
+     * 일을 시키는 공지는 `kind:request`로 바꿉니다.
+     * 닫힌 Issue의 `docs/coordination/` 원문을 `archive/`로 옮깁니다.
+  2. `docs/roadmap.md` "현재 진행 순서"를 갱신합니다.
+  3. 제품 지도를 갱신합니다(`tools/product-map/README.md`).
 
 ## 문서 위치
 | 문서 | 위치 |
