@@ -12,13 +12,17 @@ from myungri_engine.calendar_core.birth import (
     resolve_birth_moment,
     validate_civil_date,
 )
+from myungri_engine.calendar_core.lunar_adapter import hidden_stems
 from myungri_engine.chart.luck_cycles import LuckCycles, build_luck_cycles
+from myungri_engine.chart.personal_target import PersonalReading
 from myungri_engine.chart.pillars import Chart, build_chart
+from myungri_engine.chart.positions import BRANCH_POSITIONS, Position
 from myungri_engine.chart.shinsal import shinsal_branches
 from myungri_engine.constants.gwiin import CHEONEUL_GWIIN
 from myungri_engine.constants.message_keys import require
-from myungri_engine.domain.enums import Branch, Shinsal
-from myungri_engine.domain.models import Judgment, Notice
+from myungri_engine.domain.enums import Branch, PersonalTermKind, Shinsal
+from myungri_engine.domain.models import FourPillars, Judgment, Notice, Pillar
+from myungri_engine.rules import personal
 from myungri_engine.rules.strength import StrengthResult, compute_strength
 from myungri_engine.rules.yongsin import YongsinResult, determine_yongsin
 
@@ -43,6 +47,7 @@ class ChartView:
     yongsin_judgment: Judgment
     luck: LuckCycles
     notices: tuple[Notice, ...]
+    personal_readings: tuple[PersonalReading, ...]
 
 
 def prepare_natal(birth: BirthInput) -> NatalContext:
@@ -89,4 +94,126 @@ def compose_chart(birth: BirthInput, as_of: date) -> ChartView:
         yongsin_judgment=yongsin_judgment(natal.yongsin),
         luck=luck,
         notices=merge_notices(natal.chart.notices, luck.notices),
+        personal_readings=_personal_readings(natal, luck, as_of),
+    )
+
+
+def _pillar_at(pillars: FourPillars, position: Position) -> Pillar:
+    """자리에 해당하는 기둥. 시주가 없는 자리는 요청할 수 없다."""
+    by_position = {
+        Position.YEAR_STEM: pillars.year,
+        Position.YEAR_BRANCH: pillars.year,
+        Position.MONTH_STEM: pillars.month,
+        Position.MONTH_BRANCH: pillars.month,
+        Position.DAY_STEM: pillars.day,
+        Position.DAY_BRANCH: pillars.day,
+        Position.HOUR_STEM: pillars.hour,
+        Position.HOUR_BRANCH: pillars.hour,
+    }
+    pillar = by_position[position]
+    if pillar is None:
+        raise ValueError(f"시주가 없어 {position.name} 자리를 찾을 수 없습니다")
+    return pillar
+
+
+def _personal_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple[PersonalReading, ...]:
+    """일간, 원국 십성, 지장간, 12운성, 신살, 대운, 세운 순서의 개인 해석 목록."""
+    return (
+        *_natal_readings(natal),
+        *_daeun_readings(natal, luck, as_of),
+        *_seun_readings(natal, luck, as_of),
+    )
+
+
+def _natal_readings(natal: NatalContext) -> tuple[PersonalReading, ...]:
+    chart, strength, yongsin = natal.chart, natal.strength, natal.yongsin
+    pillars = chart.pillars
+    readings = [
+        PersonalReading(
+            PersonalTermKind.DAY_MASTER,
+            Position.DAY_STEM,
+            0,
+            None,
+            personal.day_master_reading(pillars.day.stem, strength, yongsin),
+        )
+    ]
+    for position in Position:
+        if position not in chart.ten_gods:
+            continue
+        pillar = _pillar_at(pillars, position)
+        stem = pillar.stem if position not in BRANCH_POSITIONS else hidden_stems(pillar.branch)[0]
+        judgment = personal.ten_god_reading(
+            chart.ten_gods[position], position, False, stem, pillars, strength, yongsin
+        )
+        readings.append(PersonalReading(PersonalTermKind.TEN_GOD, position, 0, None, judgment))
+    for position in BRANCH_POSITIONS:
+        for index, (stem, god) in enumerate(chart.hidden_stems.get(position, ())):
+            judgment = personal.ten_god_reading(god, position, True, stem, pillars, strength, yongsin)
+            readings.append(PersonalReading(PersonalTermKind.HIDDEN_TEN_GOD, position, index, None, judgment))
+    for position in BRANCH_POSITIONS:
+        if position not in chart.twelve_stages:
+            continue
+        branch = _pillar_at(pillars, position).branch
+        judgment = personal.twelve_stage_reading(
+            chart.twelve_stages[position], position, branch, strength, yongsin
+        )
+        readings.append(PersonalReading(PersonalTermKind.TWELVE_STAGE, position, 0, None, judgment))
+    for hit in chart.shinsal:
+        branch = _pillar_at(pillars, hit.position).branch
+        judgment = personal.shinsal_reading(hit.kind, hit.position, branch, yongsin)
+        readings.append(PersonalReading(PersonalTermKind.SHINSAL, hit.position, 0, hit.kind, judgment))
+    return tuple(readings)
+
+
+def _daeun_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple[PersonalReading, ...]:
+    yongsin = natal.yongsin
+    readings: list[PersonalReading] = []
+    for index, period in enumerate(luck.periods):
+        next_start = luck.periods[index + 1].start_year if index + 1 < len(luck.periods) else None
+        current = period.start_year <= as_of.year and (next_start is None or as_of.year < next_start)
+        branch = period.pillar.branch
+        readings.extend(
+            (
+                PersonalReading(
+                    PersonalTermKind.DAEUN_STEM_TEN_GOD,
+                    None,
+                    index,
+                    None,
+                    personal.luck_ten_god_reading(
+                        period.stem_ten_god, "DAEUN", "STEM", period.pillar.stem, current, yongsin
+                    ),
+                ),
+                PersonalReading(
+                    PersonalTermKind.DAEUN_BRANCH_TEN_GOD,
+                    None,
+                    index,
+                    None,
+                    personal.luck_ten_god_reading(
+                        period.branch_ten_god, "DAEUN", "BRANCH", hidden_stems(branch)[0], current, yongsin
+                    ),
+                ),
+                PersonalReading(
+                    PersonalTermKind.DAEUN_TWELVE_STAGE,
+                    None,
+                    index,
+                    None,
+                    personal.luck_twelve_stage_reading(period.twelve_stage, branch, current, yongsin),
+                ),
+            )
+        )
+    return tuple(readings)
+
+
+def _seun_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple[PersonalReading, ...]:
+    return tuple(
+        PersonalReading(
+            PersonalTermKind.SEUN_TEN_GOD,
+            None,
+            index,
+            None,
+            personal.luck_ten_god_reading(
+                year_luck.ten_god, "SEUN", "STEM", year_luck.pillar.stem, year_luck.year == as_of.year, natal.yongsin
+            ),
+        )
+        for index, year_luck in enumerate(luck.years)
     )
