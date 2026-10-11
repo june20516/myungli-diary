@@ -8,6 +8,10 @@ import (
 	"io"
 	"slices"
 	"strings"
+
+	"github.com/june20516/myungli-diary/server/internal/platform/config"
+	"github.com/june20516/myungli-diary/server/internal/platform/logging"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 // ErrNotImplemented는 아직 채워지지 않은 하위 명령이 반환합니다(seed, job *은 P4·P8에서 채웁니다).
@@ -29,8 +33,13 @@ func usageErrorf(format string, args ...any) error {
 	return &usageError{msg: fmt.Sprintf(format, args...)}
 }
 
+// loggedError는 이미 구조화 로그로 남긴 실행 오류입니다. Run이 같은 내용을 다시 출력하지 않도록 구분합니다.
+type loggedError struct{ err error }
+
+func (e *loggedError) Error() string { return e.err.Error() }
+func (e *loggedError) Unwrap() error { return e.err }
+
 // Command는 하위 명령 하나입니다. args에는 하위 명령 이름 뒤의 인자가 들어옵니다.
-// getenv는 설정 값(환경 변수)을 읽는 함수이며, 테스트에서 대체할 수 있도록 주입합니다.
 type Command func(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) error
 
 // commands는 하위 명령 테이블입니다.
@@ -51,6 +60,7 @@ commands:
 
 // Run은 하위 명령을 실행하고 종료 코드를 반환합니다.
 // 0은 성공, 1은 실행 오류, 2는 사용법 오류입니다.
+// getenv는 설정 값(환경 변수)을 읽는 함수이며, 테스트에서 대체할 수 있도록 주입합니다.
 func Run(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) int {
 	if len(args) == 0 {
 		fmt.Fprintln(stderr, usageText)
@@ -68,6 +78,11 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stderr 
 		return exitOK
 	}
 
+	// 이미 구조화 로그로 남긴 오류는 다시 출력하지 않습니다.
+	var logged *loggedError
+	if errors.As(err, &logged) {
+		return exitError
+	}
 	// 사용법 오류는 메시지가 이미 "usage: ..."이므로 접두어 없이 한 번만 출력합니다.
 	var usageErr *usageError
 	if errors.As(err, &usageErr) {
@@ -88,12 +103,36 @@ func runServe(_ context.Context, args []string, _ func(string) string, _ io.Writ
 
 var migrateDirections = []string{"up", "down", "status"}
 
-// runMigrate는 Task 5에서 마이그레이션 동작을 연결합니다.
-func runMigrate(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
+// runMigrate는 DB에 migration을 적용하거나 되돌리거나 상태를 보여 줍니다.
+func runMigrate(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) error {
 	if len(args) != 1 || !slices.Contains(migrateDirections, args[0]) {
 		return usageErrorf("usage: server migrate %s", strings.Join(migrateDirections, "|"))
 	}
-	return ErrNotImplemented
+	direction := args[0]
+
+	cfg, err := config.Load(getenv)
+	if err != nil {
+		return err
+	}
+	if err := cfg.RequireDatabase(); err != nil {
+		return err
+	}
+	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
+
+	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
+	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	defer pool.Close()
+
+	if err := postgres.Migrate(ctx, pool, direction); err != nil {
+		logger.ErrorContext(ctx, "migration 실패", "direction", direction, "error", err)
+		return &loggedError{err: err}
+	}
+	logger.InfoContext(ctx, "migration 완료", "direction", direction)
+	return nil
 }
 
 // runSeed는 P4에서 채웁니다.

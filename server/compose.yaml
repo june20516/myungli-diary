@@ -1,0 +1,15 @@
+# 로컬 개발용 PostgreSQL입니다. 비밀번호는 로컬 전용 값입니다.
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myungli
+      POSTGRES_PASSWORD: myungli
+      POSTGRES_DB: myungli
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myungli -d myungli"]
+      interval: 2s
+      timeout: 3s
+      retries: 15

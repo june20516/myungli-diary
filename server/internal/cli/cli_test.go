@@ -5,6 +5,9 @@ import (
 	"context"
 	"strings"
 	"testing"
+
+	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 func runCLI(t *testing.T, args ...string) (int, string) {
@@ -63,15 +66,59 @@ func TestRun_MigrateWithoutDirection_Exits2(t *testing.T) {
 	}
 }
 
-// 유효한 migrate 입력은 아직 동작이 없어 ErrNotImplemented로 exit 1이 됩니다.
-// Task 5에서 실제 마이그레이션이 연결되면 이 테스트도 그에 맞게 바뀝니다.
-func TestRun_MigrateUp_NotImplementedYet_Exits1(t *testing.T) {
+func TestRun_MigrateWithoutDatabaseURL_Exits1(t *testing.T) {
 	code, stderr := runCLI(t, "migrate", "up")
 	if code != 1 {
 		t.Errorf("종료 코드 = %d, want 1", code)
 	}
-	if !strings.Contains(stderr, "not implemented") {
-		t.Errorf("stderr에 not implemented 없음: %q", stderr)
+	if !strings.Contains(stderr, "DATABASE_URL") {
+		t.Errorf("stderr에 DATABASE_URL 안내 없음: %q", stderr)
+	}
+}
+
+func TestRun_MigrateUnreachableDatabase_Exits1WithoutLeakingPassword(t *testing.T) {
+	var stderr bytes.Buffer
+	getenv := func(key string) string {
+		if key == "DATABASE_URL" {
+			return "postgres://u:s3cr3t-pw@127.0.0.1:1/x"
+		}
+		return ""
+	}
+	code := Run(context.Background(), []string{"migrate", "status"}, getenv, &stderr)
+	if code != 1 {
+		t.Errorf("종료 코드 = %d, want 1", code)
+	}
+	if stderr.Len() == 0 {
+		t.Error("실패 원인이 로그로 남지 않았습니다")
+	}
+	if strings.Contains(stderr.String(), "s3cr3t-pw") {
+		t.Errorf("로그에 비밀번호가 포함됨: %q", stderr.String())
+	}
+}
+
+func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	getenv := func(key string) string {
+		if key == "DATABASE_URL" {
+			return pool.Config().ConnString()
+		}
+		return ""
+	}
+
+	for _, direction := range []string{"down", "up", "status"} {
+		var stderr bytes.Buffer
+		if code := Run(ctx, []string{"migrate", direction}, getenv, &stderr); code != 0 {
+			t.Fatalf("migrate %s 종료 코드 = %d, stderr = %q", direction, code, stderr.String())
+		}
+	}
+
+	statuses, err := postgres.Status(ctx, pool)
+	if err != nil {
+		t.Fatalf("Status: %v", err)
+	}
+	if len(statuses) != 1 || !statuses[0].Applied {
+		t.Errorf("migrate up 뒤 status = %+v, want 00001 applied", statuses)
 	}
 }
 
