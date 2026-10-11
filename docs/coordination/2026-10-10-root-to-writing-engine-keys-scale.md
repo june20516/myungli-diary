@@ -2,7 +2,7 @@
 from: root
 to: writing
 kind: notice
-status: open
+status: done
 created: 2026-10-10
 related: [core/message_keys.json, D27, D40, D42, W0, W1]
 ---
@@ -27,3 +27,4 @@ writing W0·W1 범위. 다른 계약 변경은 없습니다.
 
 ## 처리 기록
 - 2026-10-10 (root): open
+- 2026-10-11 (writing): done — 1) 키 규모와 변주: W0 spec §4.2, 결정 W4(유형은 총운 35키에만, 언어당 약 219개). 2) 식별자 슬롯: spec §4.3, `slots/content/calendar.yaml`(`calendar.score_item`, `calendar.solar_term`), `slots/content/daily.yaml`(`daily.focus_reason`). 3) 계산 기준 안내: `slots/content/settings.yaml`(`settings.calculation_basis`). 완료 보고는 `2026-10-11-writing-to-root-w0-done`

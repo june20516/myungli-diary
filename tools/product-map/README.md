@@ -2,7 +2,7 @@
 
 저장소를 원본으로 만드는 비공개 claude.ai 페이지입니다: **https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC**
 
-* 탭: 노선도(기본) · 화면 · 정체성 · 로직 · 산출물 · 결정. 역이나 화면을 누르면 시트로 상세가 열립니다.
+* 탭: 노선도(기본) · 화면 · 정체성 · 로직 · 산출물 · 아이디어 · 결정. 역이나 화면, 아이디어를 누르면 시트로 상세가 열립니다.
 * 크게 보기: 산출물 이미지를 누르거나 노선도·로직의 "크게 보기"를 누르면 확대 창이 열립니다(축소·맞춤·확대, Ctrl+휠, +/- 키).
 * 설계: `docs/specs/2026-10-10-collab-workflow-design.md` §7
 * 레이아웃 선택 기록: `docs/artifacts/index.json`의 `product-map-layout`
@@ -19,6 +19,7 @@
 | 모든 `artifacts/index.json`과 이미지 | 산출물, 역·화면 상세 |
 | `docs/identity/README.md` | 정체성, 머리글 컨셉 문장 |
 | `docs/ia/screens.json` (IA, 없으면 MVP 임시 화면 목록) | 화면(탭별 묶음, 슬롯·컴포넌트·상태·경로 상세) |
+| `docs/ideas.md`, 그 `검토` 상태가 가리키는 문서의 첫 제목·`상태:` 줄 | 아이디어(흐름 보드: 대기 → 검토 중 → 채택 → 보류·기각) |
 | `gh issue list` (실패하면 빈 목록) | 열린 Issue, 역 상세 |
 
 ## 갱신 (지휘 세션 정기 일과)

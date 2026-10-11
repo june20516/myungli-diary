@@ -1,0 +1,86 @@
+[
+  {
+    "id": "round-R1",
+    "title": "라운드 R1 — 문장 맺음 (정보·안내·돌봄)",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R1.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W6", "W10"],
+    "status": "chosen",
+    "note": "모든 목적 해요체, 안내는 호칭 + 질문형, 돌봄은 지시하지 않음(후보)"
+  },
+  {
+    "id": "round-R2",
+    "title": "라운드 R2 — 구두점·리듬",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R2.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W7", "W8"],
+    "status": "chosen",
+    "note": "헤드라인은 짧은 한 문장, 정보 카드는 형태를 섞고 같은 화면에서 같은 틀 반복 금지"
+  },
+  {
+    "id": "round-R3",
+    "title": "라운드 R3 — 어휘와 용어 토큰",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R3.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W9"],
+    "status": "chosen",
+    "note": "쉬운 일상어, 토큰 6범주, 화면 최대 2개를 한 문장에"
+  },
+  {
+    "id": "round-R4",
+    "title": "라운드 R4 — 총운 유형별 예문 (키 3 × 유형 3)",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R4.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W11", "W12"],
+    "status": "chosen",
+    "note": "조언은 행동 하나 + ~해 보세요, 돌봄은 행동을 시키지 않고 형태를 넓힘"
+  },
+  {
+    "id": "round-R5",
+    "title": "라운드 R5 — 빈도 상한",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R5.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W12", "W14"],
+    "status": "chosen",
+    "note": "돌봄 하루 2·한 주 7, 괜찮아요 이틀 연속 금지, 영어 호칭 한 주 2"
+  },
+  {
+    "id": "round-R6",
+    "title": "라운드 R6 — 가이드 질문의 형태",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R6.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W13"],
+    "status": "chosen",
+    "note": "구체적인 것 하나, 변주 1 권유형 · 변주 2 질문형"
+  },
+  {
+    "id": "round-R7",
+    "title": "라운드 R7 — 깊이 단계 이름",
+    "kind": "copy-sample",
+    "file": "2026-10-11-round-R7.md",
+    "date": "2026-10-11",
+    "milestone": "W0",
+    "screens": [],
+    "decisions": ["W15"],
+    "status": "chosen",
+    "note": "요약 / 풀이 / 원리, 설정 이름 '얼마나 자세히 볼까요'"
+  }
+]

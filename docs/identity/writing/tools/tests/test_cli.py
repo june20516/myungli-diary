@@ -1,0 +1,265 @@
+"""mlw 명령 테스트."""
+
+import json
+import re
+import shutil
+from pathlib import Path
+
+import pytest
+
+from mlw.cli import longest_by_category, longest_values_for, main
+from mlw.model import Entry, ParamKind
+from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
+
+FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
+BAD_CONTENT = """\
+- {slot: daily.color, key: color.gisin_day, text: "{element:color}(이)가 좋아요!"}
+- {slot: daily.color, key: color.gwiin_day, text: "{element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.ordinary_day, text: "{element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.yongsin_day, text: "{element:color}(이)가 잘 맞아요."}
+"""
+
+
+def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["check", str(CONTENT_DIR), "--partial"]) == 0
+    assert capsys.readouterr().out == ""
+
+
+def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    clean = tmp_path / "clean"
+    shutil.copytree(CONTENT_DIR, clean)
+    assert main(["check", str(clean), "--partial"]) == 0
+
+    bad = tmp_path / "bad"
+    (bad / "ko").mkdir(parents=True)
+    (bad / "ko" / "color.yaml").write_text(BAD_CONTENT, encoding="utf-8")
+    capsys.readouterr()
+    assert main(["check", str(bad), "--partial"]) == 1
+    lines = capsys.readouterr().out.splitlines()
+    assert FINDING_LINE.match(lines[0])
+    assert "slop.P8" in lines[0]
+
+
+def test_cli_without_partial_reports_missing(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["check", str(CONTENT_DIR)]) == 1
+    assert "complete.missing" in capsys.readouterr().out
+
+
+def test_cli_output_sorted_by_file_and_line(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["check", str(CONTENT_DIR)]) == 1
+    parsed = [line.split(" ")[0].rsplit(":", 1) for line in capsys.readouterr().out.splitlines()]
+    keys = [(file, int(line)) for file, line in parsed]
+    assert keys == sorted(keys)
+
+
+def test_cli_load_error_exit_code(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    rules_dir = tmp_path / "rules"
+    rules_dir.mkdir()
+    (rules_dir / "slop.yaml").write_text("- {id: slop.X}\n", encoding="utf-8")
+    assert main(["check", str(CONTENT_DIR), "--rules-dir", str(rules_dir)]) == 2
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out + captured.err
+    assert FINDING_LINE.match(captured.out.splitlines()[0])
+
+
+def test_cli_check_arb_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    arb = tmp_path / "app_ko.arb"
+    arb.write_text('{\n  "@@locale": "ko",\n  "hello": "반가워요!"\n}\n', encoding="utf-8")
+    assert main(["check-arb", str(arb)]) == 1
+    assert f"{arb}:3 slop.P8 error" in capsys.readouterr().out
+    arb.write_text('{\n  "@@locale": "ko",\n  "hello": "반가워요"\n}\n', encoding="utf-8")
+    assert main(["check-arb", str(arb)]) == 0
+
+
+def test_cli_missing_json_file_is_load_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    missing = tmp_path / "nothing.json"
+    for option in ("--message-keys", "--fixture"):
+        assert main(["check", str(CONTENT_DIR), "--partial", option, str(missing)]) == 2
+        captured = capsys.readouterr()
+        assert "Traceback" not in captured.out + captured.err
+        assert FINDING_LINE.match(captured.out.splitlines()[0])
+        assert "load.json" in captured.out
+
+
+def test_cli_broken_json_file_is_load_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    broken = tmp_path / "broken.json"
+    broken.write_text("[\n  1,\n  oops\n]\n", encoding="utf-8")
+    wrong_shape = tmp_path / "shape.json"
+    wrong_shape.write_text('{"a": 1}', encoding="utf-8")
+    for option, path in (("--message-keys", broken), ("--fixture", broken), ("--message-keys", wrong_shape)):
+        assert main(["check", str(CONTENT_DIR), "--partial", option, str(path)]) == 2
+        captured = capsys.readouterr()
+        assert "Traceback" not in captured.out + captured.err
+        assert FINDING_LINE.match(captured.out.splitlines()[0])
+        assert "load.json" in captured.out
+
+
+DAY = {
+    "head": "fortune.yongsin_day.inseong",
+    "tag_sentence": None,
+    "guide": "guide.clash",
+    "color": "color.yongsin_day",
+    "direction": "direction.day_kind.yongsin",
+    "number": "number.yongsin_day",
+    "focus": "focus_time.gwiin",
+    "tag_label": None,
+}
+
+
+def fixture_json(**changes: object) -> str:
+    fixture: dict[str, object] = {"start": "2026-11-02", "samples": [{"birth_id": "b01", "days": [DAY]}]}
+    return json.dumps(fixture | changes)
+
+
+def sample_json(days: object, birth_id: object = "b01") -> str:
+    return fixture_json(samples=[{"birth_id": birth_id, "days": days}])
+
+
+def assert_json_load_error(path: Path, option: str, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["check", str(CONTENT_DIR), "--partial", option, str(path)]) == 2
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out + captured.err
+    assert FINDING_LINE.match(captured.out.splitlines()[0])
+    assert captured.out.splitlines()[0].startswith(f"{path}:1 load.json error")
+
+
+def test_cli_non_utf8_file_is_load_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    path = tmp_path / "latin.json"
+    path.write_bytes(b"[\xff\xfe]")
+    assert_json_load_error(path, "--message-keys", capsys)
+    assert_json_load_error(path, "--fixture", capsys)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        fixture_json(start="내일"),
+        fixture_json(samples={"b01": 1}),
+        fixture_json(samples=[1]),
+        sample_json([DAY], birth_id=1),
+        sample_json("x"),
+        sample_json([1]),
+        sample_json([{k: v for k, v in DAY.items() if k != "guide"}]),
+        sample_json([DAY | {"head": None}]),
+        sample_json([DAY | {"tag_label": 3}]),
+    ],
+)
+def test_cli_bad_fixture_structure_is_load_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], body: str
+) -> None:
+    path = tmp_path / "fixture.json"
+    path.write_text(body, encoding="utf-8")
+    assert_json_load_error(path, "--fixture", capsys)
+
+
+def copy_slots_with(tmp_path: Path, slot_id: str, extra_line: str) -> Path:
+    """슬롯 명세를 복사하고 `slot_id` 슬롯에 필드 한 줄을 덧붙입니다."""
+    slots_dir = tmp_path / "slots"
+    shutil.copytree(SLOTS_DIR, slots_dir)
+    daily = slots_dir / "content" / "daily.yaml"
+    marker = f"- id: {slot_id}\n"
+    text = daily.read_text(encoding="utf-8")
+    assert marker in text
+    daily.write_text(text.replace(marker, f"{marker}  {extra_line}\n"), encoding="utf-8")
+    return slots_dir
+
+
+def write_bad_content(tmp_path: Path) -> Path:
+    content = tmp_path / "content"
+    (content / "ko").mkdir(parents=True)
+    (content / "ko" / "color.yaml").write_text(BAD_CONTENT, encoding="utf-8")
+    return content
+
+
+def test_cli_check_applies_slot_allowed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    slots_dir = copy_slots_with(tmp_path, "daily.color", "allowed: [slop.P8]")
+    content = write_bad_content(tmp_path)
+    assert main(["check", str(content), "--partial", "--slots-dir", str(slots_dir)]) == 0
+    assert "slop.P8" not in capsys.readouterr().out
+
+
+def test_cli_check_applies_slot_forbidden(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    # 규칙 사본에서 slop.P8이 info 목적을 예외로 두게 바꿉니다. info 슬롯이 forbidden에 적으면 그래도 적용합니다.
+    rules_dir = tmp_path / "rules"
+    shutil.copytree(RULES_DIR, rules_dir)
+    slop = rules_dir / "slop.yaml"
+    text = slop.read_text(encoding="utf-8")
+    p8 = text.index("- id: slop.P8")
+    exempt_at = text.index("exempt_purposes: []", p8)
+    slop.write_text(text[:exempt_at] + "exempt_purposes: [info]" + text[exempt_at + len("exempt_purposes: []") :], encoding="utf-8")
+    content = write_bad_content(tmp_path)
+    base = ["check", str(content), "--partial", "--rules-dir", str(rules_dir)]
+
+    assert main([*base, "--slots-dir", str(SLOTS_DIR)]) == 0
+    assert "slop.P8" not in capsys.readouterr().out
+    slots_dir = copy_slots_with(tmp_path, "daily.color", "forbidden: [slop.P8]")
+    assert main([*base, "--slots-dir", str(slots_dir)]) == 1
+    assert "slop.P8" in capsys.readouterr().out
+
+
+def glossary(key: str, text: str) -> Entry:
+    return Entry(Path("g.yaml"), 1, "glossary.value_name", key, None, 1, "ko", text)
+
+
+GLOSSARY = [
+    glossary("element.wood", "나무"),
+    glossary("element.water", "물"),
+    glossary("color.wood", "초록색"),
+    glossary("branch.zi", "자시"),
+    glossary("branch.chou", "축시"),
+    glossary("branch.yin", "인시예요"),
+]
+PARAMS = {
+    "element": ParamKind("glossary", ("element", "color")),
+    "branches": ParamKind("list", ("branch",)),
+    "score": ParamKind("number"),
+    "role": ParamKind("none"),
+}
+
+
+def values_of(text: str) -> tuple[dict[str, str], list[str]]:
+    entry = Entry(Path("a.yaml"), 1, "daily.color", "color.gwiin_day", None, 1, "ko", text)
+    return longest_values_for(entry, PARAMS, longest_by_category(GLOSSARY, "ko"), name_max=3)
+
+
+def test_longest_value_uses_default_category() -> None:
+    assert values_of("{element}(이)가 좋아요.") == ({"element": "나무"}, [])
+
+
+def test_longest_value_uses_chosen_category() -> None:
+    assert values_of("{element:color}(이)가 좋아요.") == ({"element:color": "초록색"}, [])
+
+
+def test_longest_value_for_list_joins_longest_items() -> None:
+    assert values_of("{branches}에 집중해 보세요.") == ({"branches": "인시예요, 자시"}, [])
+
+
+def test_longest_value_for_name_and_number() -> None:
+    # 숫자는 값 범위를 모르므로 값을 두지 않습니다. 글자 수 검사는 건너뜁니다(Ruling 2).
+    assert values_of("{name}님 {score}점") == ({"name": "가가가"}, [])
+
+
+@pytest.mark.parametrize("text", ["{role} 좋아요.", "{nowhere} 좋아요.", "{element:stem} 좋아요."])
+def test_unresolvable_placeholder_is_reported(text: str) -> None:
+    values, unresolved = values_of(text)
+    assert values == {}
+    assert len(unresolved) == 1
+
+
+def test_cli_check_warns_length_unknown(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    slots_dir = copy_slots_with(tmp_path, "daily.color", "max_length: {ko: 30, en: null, ja: null}")
+    daily = slots_dir / "content" / "daily.yaml"
+    text = daily.read_text(encoding="utf-8")
+    start = text.index("- id: daily.color")
+    old_limit = "  max_length: {ko: null, en: null, ja: null}\n"
+    limit_at = text.index(old_limit, start)
+    daily.write_text(text[:limit_at] + text[limit_at + len(old_limit) :], encoding="utf-8")
+    content = tmp_path / "content"
+    (content / "ko").mkdir(parents=True)
+    (content / "ko" / "color.yaml").write_text(
+        '- {slot: daily.color, key: color.gwiin_day, text: "{role} 색이 잘 맞아요."}\n', encoding="utf-8"
+    )
+    assert main(["check", str(content), "--partial", "--slots-dir", str(slots_dir)]) == 1
+    out = capsys.readouterr().out
+    assert "complete.unrenderable_param error" in out
+    assert "style.length_unknown warn" in out

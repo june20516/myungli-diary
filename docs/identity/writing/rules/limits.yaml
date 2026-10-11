@@ -1,0 +1,45 @@
+# 빈도·밀도 상한. max가 null이면 아직 정하지 않은 값이며 검사에서 건너뜁니다.
+# limit.L2·L3(돌봄 유형 하루 2·한 주 7, W14)은 server 유형 순환 계약으로 옮겼습니다. 두 ID는 다시 쓰지 않습니다.
+
+- id: limit.L1
+  name: 호칭은 한 화면에 한 번
+  scope: screen
+  count: {placeholder: name}
+  max: {ko: 1, ja: 1, en: 1}
+  severity: error
+
+- id: limit.L4
+  name: 영어 호칭 한 주 상한
+  scope: week
+  count: {placeholder: name}
+  max: {en: 2}
+  severity: warn
+
+- id: limit.L5
+  name: 같은 문장 틀은 한 화면에 한 번 (선택 조건 틀)
+  scope: screen
+  count: {lexicon: ["고른다면"]}
+  max: {ko: 1}
+  severity: warn
+
+- id: limit.L6
+  name: 용어 토큰은 한 화면에 최대 2개
+  scope: screen
+  count: {token: true}
+  max: {ko: 2, ja: 2, en: 2}
+  severity: error
+
+- id: limit.L7
+  name: 용어 토큰은 한 문장에 모은다
+  scope: screen
+  count: {token_entries: true}
+  max: {ko: 1, ja: 1, en: 1}
+  severity: error
+
+- id: limit.L8
+  name: '"괜찮아요"는 이틀 연속 나오지 않게'
+  scope: week
+  window: 2
+  count: {lexicon: ["괜찮아요"]}
+  max: {ko: 1}
+  severity: warn

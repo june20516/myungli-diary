@@ -1,0 +1,2857 @@
+{
+  "engine_version": "0.1.0",
+  "ruleset_version": "2026.10.1",
+  "start": "2026-11-02",
+  "samples": [
+    {
+      "birth_id": "b01",
+      "days": [
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.ten_god_rush.gwanseong",
+          "guide": "guide.ten_god_rush.gwanseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.gwanseong"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.bigyeop",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.ten_god_rush.jaeseong",
+          "guide": "guide.ten_god_rush.jaeseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.ten_god_rush.jaeseong"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.gongmang"
+        }
+      ]
+    },
+    {
+      "birth_id": "b02",
+      "days": [
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.dohwa",
+          "guide": "guide.dohwa",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.dohwa"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.ten_god_rush.siksang",
+          "guide": "guide.ten_god_rush.siksang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.siksang"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.dohwa",
+          "guide": "guide.dohwa",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.dohwa"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        }
+      ]
+    },
+    {
+      "birth_id": "b03",
+      "days": [
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.gwanseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.gwanseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.gwanseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.dohwa",
+          "guide": "guide.dohwa",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.dohwa"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.inseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.bigyeop",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.siksang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.ten_god_rush.jaeseong",
+          "guide": "guide.ten_god_rush.jaeseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.jaeseong"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.gwanseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.bigyeop",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.ten_god_rush.siksang",
+          "guide": "guide.ten_god_rush.siksang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.siksang"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        }
+      ]
+    },
+    {
+      "birth_id": "b04",
+      "days": [
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.ten_god_rush.gwanseong",
+          "guide": "guide.ten_god_rush.gwanseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.gwanseong"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        }
+      ]
+    },
+    {
+      "birth_id": "b05",
+      "days": [
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.ten_god_rush.siksang",
+          "guide": "guide.ten_god_rush.siksang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.siksang"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.jaeseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.gwanseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.ten_god_rush.siksang",
+          "guide": "guide.ten_god_rush.siksang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.siksang"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.ten_god_rush.bigyeop",
+          "guide": "guide.ten_god_rush.bigyeop",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.ten_god_rush.bigyeop"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.big_change"
+        }
+      ]
+    },
+    {
+      "birth_id": "b06",
+      "days": [
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.gwanseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.dohwa",
+          "guide": "guide.dohwa",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.dohwa"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.inseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.dohwa",
+          "guide": "guide.dohwa",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.dohwa"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        }
+      ]
+    },
+    {
+      "birth_id": "b07",
+      "days": [
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gwiin_day.jaeseong",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.inseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.yongsin_day.bigyeop",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.inseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.gongmang"
+        }
+      ]
+    },
+    {
+      "birth_id": "b08",
+      "days": [
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.bigyeop",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.jaeseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.ten_god_rush.inseong",
+          "guide": "guide.ten_god_rush.inseong",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.ten_god_rush.inseong"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.jaeseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.clash"
+        }
+      ]
+    },
+    {
+      "birth_id": "b09",
+      "days": [
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.yongsin_day.bigyeop",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.inseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.inseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.bigyeop",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.hwagae",
+          "guide": "guide.hwagae",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.hwagae"
+        },
+        {
+          "head": "fortune.yongsin_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.inseong",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.bigyeop",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.clash",
+          "guide": "guide.clash",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.clash"
+        },
+        {
+          "head": "fortune.yongsin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        }
+      ]
+    },
+    {
+      "birth_id": "b10",
+      "days": [
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.gongmang",
+          "guide": "guide.gongmang",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.gongmang"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.yongsin_day",
+          "guide": "guide.yongsin_day",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yongsin_day"
+        },
+        {
+          "head": "fortune.yongsin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.cheoneul_gwiin",
+          "guide": "guide.cheoneul_gwiin",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.cheoneul_gwiin"
+        },
+        {
+          "head": "fortune.gisin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": null,
+          "guide": "guide.ten_god.jaeseong",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": null
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.gwanseong",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.yongsin_day.inseong",
+          "tag_sentence": "fortune.tag.big_change",
+          "guide": "guide.big_change",
+          "color": "color.yongsin_day",
+          "direction": "direction.day_kind.yongsin",
+          "number": "number.yongsin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.big_change"
+        },
+        {
+          "head": "fortune.ordinary_day.bigyeop",
+          "tag_sentence": "fortune.tag.yeokma",
+          "guide": "guide.yeokma",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.yeokma"
+        },
+        {
+          "head": "fortune.gwiin_day.bigyeop",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gwiin_day.siksang",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gwiin_day",
+          "direction": "direction.day_kind.gwiin",
+          "number": "number.gwiin_day",
+          "focus": "focus_time.gwiin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.gisin_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.gisin_day",
+          "direction": "direction.day_kind.gisin",
+          "number": "number.gisin_day",
+          "focus": "focus_time.yongsin",
+          "tag_label": "tag.harmony"
+        }
+      ]
+    }
+  ]
+}

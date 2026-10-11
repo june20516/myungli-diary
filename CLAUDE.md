@@ -24,6 +24,8 @@
 | 제품 배경 (00~06) | `docs/background/` |
 | 제품·아키텍처 결정 | `docs/decisions.md` |
 | 통합 로드맵 | `docs/roadmap.md` |
+| 제품 아이디어 함 | `docs/ideas.md` |
+| 수익화 결정 체계 | `docs/business/` |
 | 계약 목록 | `docs/contracts/README.md` |
 | 제품 지도 (비공개 페이지) | https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC (갱신: `tools/product-map/README.md`) |
 | 요청함 | GitHub Issues (이관 전 문서 보관: `docs/coordination/`) |

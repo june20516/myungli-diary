@@ -1,0 +1,79 @@
+# 슬롯 명세 틀 (spec §4.1). 로더는 이 파일을 슬롯 검증 기준으로 씁니다.
+
+- name: id
+  required: true
+  type: string
+  description: 슬롯 식별자 (예 daily.fortune.head)
+- name: where
+  required: true
+  type: string
+  description: 사용 위치인 화면·컴포넌트. IA가 나오면 IA 화면 id로 연결합니다.
+- name: purpose
+  required: true
+  type: "enum[info, guide, care]"
+  description: 정보, 안내·기능 설명, 위로·공감. 원칙 0의 허용 범위를 정하는 축입니다.
+- name: user_state
+  required: true
+  type: string
+  description: 언제 어떤 상태로 보는가
+- name: structure
+  required: true
+  type: string
+  description: 문장 구조인 문장 수와 순서
+- name: types
+  required: false
+  type: "list[enum[advice, state, care]]"
+  description: 적용하는 문장 유형. 없으면 생략합니다.
+- name: depth
+  required: false
+  type: map
+  description: 깊이 단계(D37)와 단계별 허용 용어 범주
+- name: endings
+  required: false
+  type: "list[string]"
+  description: 우선 문장 맺음 (style.yaml 참조)
+- name: tone
+  required: true
+  type: "map[string, int 1..5]"
+  description: 톤 좌표인 진지·격식·존중·담백 각 1~5
+- name: max_length
+  required: true
+  type: "map[lang, int | null]"
+  description: 언어별 글자 수 상한. design과 조정하며 null이면 아직 정하지 않았습니다.
+- name: keys
+  required: true
+  type: "list[string | map]"
+  description: >-
+    메시지 키 또는 식별자 목록과 키별 매개변수. 항목은 문자열(매개변수 없는 키) 또는 {params, keys} 맵입니다.
+    params는 매개변수 -> 값 종류 맵이고 값 종류는 넷 중 하나입니다.
+    ① glossary 범주 목록(예 [element, color]): 첫째가 기본 범주, 나머지는 {p:cat}로 고를 수 있는 범주.
+    ② list:<범주>(예 list:branch): 목록 값을 범주 이름으로 바꿔 ", "로 잇습니다.
+    ③ number: 숫자를 그대로 씁니다.
+    ④ none: 문장에 쓸 수 없는 값입니다.
+    name(호칭)은 모든 슬롯에서 쓸 수 있으므로 적지 않습니다.
+- name: variants
+  required: false
+  type: map
+  description: 유형별 변주 수와 순환 규칙
+- name: allowed
+  required: false
+  type: "list[string]"
+  description: 목적별 허용 표현. 원칙 0 예외로 허용하는 slop·문체 규칙 ID. 검사기는 이 슬롯에서 그 규칙을 건너뜁니다.
+- name: forbidden
+  required: false
+  type: "list[string]"
+  description: >-
+    이 슬롯에서 추가로 금지하는 규칙 ID. 검사기는 규칙의 exempt_purposes와 관계없이 이 슬롯에 적용합니다.
+    judge가 llm인 규칙은 CI 문장 검사에서 돌지 않으므로 적어도 CI에서는 효과가 없습니다(LLM 판정 명령의 몫).
+- name: examples
+  required: true
+  type: "map[good|bad, list[map]]"
+  description: 언어별 좋은 예와 나쁜 예, 이유 포함
+- name: co_display
+  required: false
+  type: "list[string]"
+  description: 같은 화면에 함께 나오는 슬롯 id. 빈도·밀도 검사용입니다.
+- name: a11y
+  required: false
+  type: map
+  description: 잘림 처리와 스크린리더 읽기

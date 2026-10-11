@@ -12,14 +12,14 @@
 | C1 | 엔진 기반: 시각 변환·원국·판정 규칙 (계획 Task 1~13) | core | R0 | C2 | **완료** (main 병합 완료, PR #1 `ec4fc90`) |
 | C2 | **엔진 gRPC 계약 v1 freeze** (Task 14) | core | C1 | S2, I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`) |
 | C3 | 엔진 완성: 서버·골든 테스트·CI (Task 15~20) | core | C2 | I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`, CI check·proto·slow 통과) |
-| S1 | server 설계 (spec·계획) | server | R0, M0 | S2 | 시작 전 (M0 뒤 착수) |
+| S1 | server 설계 (spec·계획) | server | R0, M0 | S2 | 시작 전 (착수 가능) |
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | 시작 전 |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | 시작 전 |
-| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0 (UI 구현은 V2 이후) | A2 | 시작 전 (M0 뒤 착수, S1과 병행 가능) |
+| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0 (UI 구현은 V2 이후) | A2 | 시작 전 (착수 가능, S1과 병행 가능) |
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | **완료** (D47~D51, `docs/ia/screens.json` v1) |
-| M0 | 수익화 결정 체계 수립과 첫 사이클, MVP 범위 재검증 | 지휘 | IA | S1·A1 착수 | 시작 전 |
+| M0 | 수익화 결정 체계 수립과 첫 사이클, MVP 범위 재검증 | 지휘 | IA | S1·A1 착수 | **완료** (D53, `docs/business/`) |
 | W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | **진행 중** |
 | V0 | 시각 정체성 | design | B0 | V1 | **완료** (PR #10 `77b7e4f`, 결정 V1~V7) |
 | V1 | **디자인 토큰 freeze** | design | V0 | V2, A1 | **완료** (PR #18 `d049e08`, 계약 1.0.0, 결정 V8~V12) |
@@ -35,15 +35,13 @@
 ## 현재 진행 순서 (2026-10-11 기준)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **지금 막고 있는 것은 지휘 세션의 M0입니다.** IA는 끝났고, server·app 착수는 수익화 사이클(M0)로 MVP 범위를 다시 확인한 뒤 엽니다.
-* **가장 긴 경로:** M0 → V2 → A1 UI 구현 → A2 → I2·I3.
+* **M0가 끝났습니다(D53).** MVP에 광고와 1개월 광고 제거권이 들어갔고, server·app 착수가 열렸습니다. 소셜 로그인(카카오·Apple, D55)과 배포 플랫폼(GCP Cloud Run + Cloud SQL, D56)도 정해져 S1 범위를 막는 것이 없습니다.
+* **가장 긴 경로:** V2 → A1 UI 구현 → A2 → I2·I3.
 
 | 순서 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 1 | 지휘 | M0: 수익화 결정 체계 수립과 첫 사이클, 결과로 MVP 범위(IA 포함) 재검증 | S1·A1 착수 |
-| 2 | 지휘 | 미결 결정: 소셜 로그인 제공자, 배포 플랫폼 | S1 범위 |
 | 병행 | writing·design | W0 슬롯 목록을 IA(`docs/ia/screens.json`)에 맞춤. V2(컴포넌트 명세, IA 컴포넌트 목록, Issue #16) 착수. V1은 완료 | W1, A1 UI 구현 |
-| 3 | server·app | M0 뒤 S1·A1 착수 (IA spec §10의 범위) | S2, A2 |
+| 1 | server·app | S1·A1 착수 (IA spec §10의 범위, D53~D56 포함) | S2, A2 |
 | 여유 | core | 후속 요청(Issue #4·#5·#9) | 없음 |
 
 ## 외부 준비물
@@ -53,13 +51,17 @@
 | `buf` 설치 | core Task 14 | core 세션 |
 | Apple Developer / Google Play 개발자 계정 | I4 (빌드 배포는 A1부터 필요할 수 있음) | 사용자 |
 | 영어·일본어 원어민 검수 | W1 | 사용자 (writing W1) |
-| 배포 플랫폼 선정 (서버·엔진) | S1 | 지휘 + server |
+| ~~배포 플랫폼 선정 (서버·엔진)~~ | S1 | **결정 완료** (D56: GCP Cloud Run + Cloud SQL) |
+| GCP 프로젝트 준비: 결제 계정, Artifact Registry·Cloud Run·Cloud SQL·Secret Manager API 사용 설정, GitHub Actions용 Workload Identity Federation (D56) | S1 배포 단계 | 사용자 (설정 절차는 server가 안내) |
+| Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키) (D55) | S1·A1 로그인 연동 | 사용자 |
+| 사업자등록, 통신판매업 신고, 스토어 세금·정산 계좌 (D53) | 출시 전 (I4) | 사용자 |
+| AdMob 계정, RevenueCat 계정 (D53) | A1 연동 시점 | 사용자 |
 | ~~KASI 자료(테스트 fixture 약 520KB)의 저장소 재배포 허용 범위 확인~~ | 저장소 공개 전 | **확인 완료** (2026-10-10): 공공데이터포털 음양력 정보(15012679)·특일 정보(15012690) 모두 "이용허락범위 제한 없음", 무료. 출처 표기는 core에 요청 |
 
 ## 지휘 세션 미결 (서브 프로젝트 설계 전에 정할 것)
 | 항목 | 걸린 곳 | 근거 |
 | --- | --- | --- |
-| 소셜 로그인 제공자 (1~2개) | server, app | 04 §4.1 |
-| 서버·엔진 배포 플랫폼 | server, core | D33 |
+| (없음) | | |
 
+* 결정됨: 소셜 로그인 제공자는 D55(카카오·Apple), 서버·엔진 배포 플랫폼은 D56(GCP)입니다(2026-10-11).
 * 이관 후 결정됨: "캘린더 길흉 점의 색 규칙"은 design V1에서 정했습니다. 점이 아니라 날짜 칸을 옅게 채웁니다(2026-10-11, design 결정 V10, PR #18).
