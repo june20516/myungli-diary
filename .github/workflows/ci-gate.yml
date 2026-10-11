@@ -8,12 +8,15 @@
 #      `uses: ./.github/workflows/<단위>.yml` job을 더해 `ci-gate`의 needs에 넣습니다.
 #   3. (단위) 단위 workflow의 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지).
 #   이 순서면 검사가 하나도 돌지 않는 구간이 생기지 않습니다. 전환 전까지 그 단위는 이 판정에 들어가지 않습니다.
+# * PR 본문 검사(pr-body): 처리한 Issue는 `Closes #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2).
+#   본문만 고쳐도 다시 판정하도록 `edited`에서도 돕니다.
 # * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
 
 name: ci-gate
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
   workflow_dispatch:
@@ -31,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       docs: ${{ steps.detect.outputs.docs }}
+      core: ${{ steps.detect.outputs.core }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,6 +53,7 @@ jobs:
           else
             # workflow_dispatch 등 비교 기준이 없으면 아무 검사도 고르지 않습니다.
             echo "docs=false" >> "$GITHUB_OUTPUT"
+            echo "core=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -57,6 +62,12 @@ jobs:
             echo "docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
+          fi
+          # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있습니다.
+          if echo "$changed" | grep -qE '^core/|^proto/|^\.github/workflows/(core|ci-gate)\.yml$'; then
+            echo "core=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "core=false" >> "$GITHUB_OUTPUT"
           fi
 
   docs:
@@ -74,8 +85,36 @@ jobs:
       - name: docs 검사 (링크·artifacts·결정 번호)
         run: python3 -I tools/docs-check/docs_check.py .
 
+  pr-body:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 처리한 Issue 표기 확인
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python3 -I - <<'PY'
+          import os, re, sys
+          # 템플릿 안내 주석은 빼고 봅니다. 주석에도 예시 문구가 들어 있기 때문입니다.
+          body = re.sub(r"<!--.*?-->", "", os.environ.get("BODY") or "", flags=re.S)
+          closes = re.findall(r"(?im)^[\s*-]*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)", body)
+          none = re.search(r"(?m)^[\s*-]*처리한 Issue:\s*없음", body)
+          if closes:
+              print("처리한 Issue: " + ", ".join("#" + n for n in closes))
+          elif none:
+              print("처리한 Issue: 없음")
+          else:
+              print("PR 본문에 `Closes #<번호>` 또는 `처리한 Issue: 없음`이 없습니다 (docs/workflow.md §5.2).")
+              sys.exit(1)
+          PY
+
+  core:
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
+    uses: ./.github/workflows/core.yml
+
   ci-gate:
-    needs: [changes, docs]
+    needs: [changes, docs, pr-body, core]
     if: always()
     runs-on: ubuntu-latest
     steps:

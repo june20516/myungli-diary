@@ -45,7 +45,7 @@
    1. `git merge origin/main`
    2. 자기 `CLAUDE.md`의 "현재 상태" 갱신. 제공 계약이 바뀌었으면 버전을 올립니다.
    3. 산출물을 `artifacts/index.json`에 등록(§7)
-   4. 관련 Issue 갱신·닫기. 마일스톤을 끝냈으면 `kind:report` Issue로 완료 보고
+   4. 관련 Issue 닫기(닫는 조건은 §5.2). 마일스톤을 끝냈으면 `kind:report` Issue로 완료 보고
    5. PR → `ci-gate` 통과 → 병합(§6)
 
 suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberpowers/plans/` 경로는 쓰지 않습니다. 서브 프로젝트는 위 경로를, 지휘 세션은 `docs/specs/`, `docs/plans/`를 씁니다. 작업 단위는 이미 `docs/` 안에 있으므로 `docs/identity/<writing|design>/specs/`, `plans/`를 씁니다.
@@ -66,7 +66,16 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 ### 5.2. 요청함: GitHub Issues (D44)
 * 브랜치와 상관없이 모든 세션이 같은 목록을 봅니다.
 * **여는 법:** 세션(CLI)은 `gh issue create --title "<제목>" --label from:<단위>,to:<단위>,kind:<종류> --milestone <로드맵 ID> --body-file <본문 파일>`. 라벨이 받는 쪽 목록(`gh issue list --label to:<단위>`)을 정하므로 `from`·`to`·`kind`를 빠짐없이 붙입니다. 본문 항목은 무엇이 필요한가(또는 무엇을 했는가)·왜·영향·관련입니다. `.github/ISSUE_TEMPLATE/`의 양식은 웹 화면용입니다(양식의 선택 값은 라벨이 되지 않으므로 웹에서도 라벨을 직접 붙입니다).
-* **닫기:** PR로 처리했다면 PR 본문에 `Closes #<번호>`를 적어 병합 때 자동으로 닫습니다.
+* **닫기:** 열린 Issue는 남은 일만 보여야 합니다. 처리했다는 코멘트만 남기고 열어 두지 않습니다. 종류마다 닫는 조건이 있습니다.
+  | 종류 | 닫는 때 | 닫는 쪽 |
+  | --- | --- | --- |
+  | `kind:request` | 요청을 처리한 PR이 병합될 때. PR 본문의 `Closes #<번호>`로 자동으로 닫힙니다 | 받는 쪽 |
+  | `kind:notice` | 받는 쪽이 읽고 자기 `CLAUDE.md`(현재 상태·다음 할 일)에 반영했을 때. 반영한 위치를 코멘트로 남깁니다. 지휘 세션이 착수 안내로 받는 쪽 `CLAUDE.md`를 이미 고쳤다면 지휘 세션이 닫습니다. 진행 추적은 로드맵이 맡습니다 | 받는 쪽 |
+  | `kind:report` | 지휘 세션이 확인했을 때 | 지휘 |
+  | `kind:task` | 작업이 끝났을 때 | 받는 쪽 |
+* **받는 쪽에 일을 시키는 공지는 `kind:request`로 엽니다.** 공지(`kind:notice`)는 알리기만 합니다. 수령으로 닫혀도 남은 일이 목록에서 사라지지 않게 하려는 것입니다.
+* **일부만 처리했으면** 처리한 부분으로 닫고, 남은 부분은 새 Issue로 엽니다. 새 Issue 번호를 닫는 코멘트에 남깁니다.
+* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다. 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `ci-gate`의 `pr-body` 검사가 둘 중 하나가 있는지 확인합니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다.
 * **라벨:** `from:<단위>`, `to:<단위>`(단위: `root`, `core`, `server`, `app`, `writing`, `design`), `kind:request`·`kind:report`·`kind:notice`·`kind:task`, `blocking`(다른 작업을 막음)
 * **상태:** 열림 → 지휘 세션이 `accepted` 또는 `rejected` 라벨(거절은 닫음) → 받는 쪽이 처리하고 닫음. 완료 보고(`kind:report`)는 지휘 세션이 확인하고 닫습니다.
 * **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다.

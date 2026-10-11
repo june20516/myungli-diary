@@ -1,6 +1,6 @@
 # core 내부 결정 로그
 
-core 엔진 안에서만 영향이 있는 결정을 남깁니다. 번호는 `C1`부터 매깁니다. 둘 이상의 서브 프로젝트에 걸치는 결정은 루트 [`docs/decisions.md`](../../docs/decisions.md)(D1~)에 있고, 여기 결정이 그것과 부딪히면 `docs/coordination/`으로 올립니다.
+core 엔진 안에서만 영향이 있는 결정을 남깁니다. 번호는 `C1`부터 매깁니다. 둘 이상의 서브 프로젝트에 걸치는 결정은 루트 [`docs/decisions.md`](../../docs/decisions.md)(D1~)에 있고, 여기 결정이 그것과 부딪히면 GitHub Issue(`from:core`)로 올립니다.
 
 | 번호 | 날짜 | 영역 | 결정 | 근거 |
 | --- | --- | --- | --- | --- |

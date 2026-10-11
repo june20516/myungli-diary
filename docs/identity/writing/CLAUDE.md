@@ -43,7 +43,7 @@
 | `core/message_keys.json` | **사용** (W1) | core — C2 완료로 사용 가능 |
 
 ## 현재 상태 (2026-10-11, writing 세션 작성)
-* **W0이 끝났습니다.** 브랜치는 `writing/system-foundation`이고 main에는 아직 병합하지 않았습니다.
+* **W0이 끝났고 main에 병합했습니다**(PR #36 `7698f52`). 계약 3개(슬롯 명세 v1, 호칭·조사 v1, 검사기 v0.1.0)가 `docs/contracts/README.md`에 등록됐습니다.
 * 산출물 위치
   * 가이드: `guide/` (보이스·톤, 검수 절차, 호칭·조사)
   * 규칙: `rules/` (slop, limits, style, josa)
@@ -53,19 +53,27 @@
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | ...>`.
   * 원고 검사: `mlw check docs/identity/writing/content` (미완성 원고는 `--partial`)
   * 생성 문서 최신 여부: `mlw gen-docs --check`
-* 결정은 W1~W15입니다(`decisions.md`). 라운드 R1~R7 결과가 반영되어 있습니다.
-* 보낸 요청(W0 완료 보고: `docs/coordination/2026-10-11-writing-to-root-w0-done.md`)
-  * 지휘: D40 범위 확인, 계약 3개 등록과 메시지 키별 매개변수 목록
-  * design: 글자 수 상한 초안
-  * server: 호칭·조사 규칙과 시드 변환 안내
+* 결정은 W1~W15입니다(`decisions.md`). 라운드 R1~R7 결과가 반영되어 있습니다. W4는 D57로 확정됐습니다.
+* 지휘가 정한 것 중 writing에 닿는 것
+  * D57: 문장 유형은 총운 슬롯에만 씁니다. 반응은 사용자 성향 자료입니다.
+  * D59: 콘텐츠 문장의 저장·선택·렌더는 server가 합니다. 돌봄 상한(W14)도 server 선택 기록이 지킵니다. UI 문구(ARB)는 app이 합니다.
+  * D60: evidence의 해석은 잠깁니다. 원국 개인 해석 원고가 W1에 더해집니다.
+  * ARB 메시지 이름은 lowerCamelCase입니다.
+* 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2). `docs/coordination/`의 W0 요청 문서는 모두 처리됐거나 Issue로 옮겼습니다.
 
 ## 다음 할 일
-1. **열린 요청의 응답을 기다립니다.**
-   - 지휘: D40 범위 확인(`2026-10-10-writing-to-root-d40-scope`), 계약 등록(`2026-10-11-writing-to-root-contracts`)
-   - design: 글자 수 상한(`2026-10-11-writing-to-design-length`). 값이 오면 `slots/*.yaml`의 `max_length`에 반영합니다.
-   - server: 조사 렌더러와 시드 CI(`2026-10-11-writing-to-server-josa`)
-2. **IA(D39)가 나오면** `slots/ui/` 목록을 만듭니다. 지금은 깊이 이름(`ui/depth.yaml`)만 있습니다.
-3. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
-4. **W1:** 콘텐츠 3개 언어 원고를 쓰고 원어민 검수를 받습니다. 사용자용 태그라인·스토어 문구도 W1입니다.
+1. **writing 앞으로 온 Issue**(`gh issue list --label to:writing`)를 처리합니다. 모두 `slots/`(특히 `slots/ui/`)에 반영할 일입니다. 지금은 깊이 이름(`ui/depth.yaml`)만 있습니다.
+   - #15: IA v1 슬롯 목록(지금 109개)에 맞춥니다.
+   - #27: 광고 제거권 ui 슬롯 6개를 반영합니다.
+   - #42: V2 새 슬롯 3개(`onboard-time.hour.confirm`은 content)와 기존 슬롯 변형 3개를 반영합니다.
+   - #52: D60 잠금 ui 슬롯 5개와 `evidence-sheet.personal.body`를 반영합니다. `ad-free.offer.head`는 역할이 바뀌었습니다.
+2. **지휘가 전달할 server 질문에 답합니다**(#48)
+   - 항목 4: 로그인 없는 미리보기에서 호칭이 든 문장을 어떻게 보일지 정합니다.
+   - 항목 1: 아침 알림 슬롯(호칭 없음)은 IA에 추가되면 반영합니다.
+3. **보낸 요청의 응답을 기다립니다.**
+   - design #54: 글자 수 상한. 값이 오면 `slots/*.yaml`의 `max_length`에 반영합니다.
+   - server #55: 조사 렌더러와 시드 CI
+   - core #38: `core/message_params.json`. 받으면 슬롯 `params` 대조 검사를 추가합니다.
+4. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
+5. **W1:** 콘텐츠 3개 언어 원고를 쓰고 원어민 검수를 받습니다. 원국 개인 해석과 사용자용 태그라인·스토어 문구도 W1입니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
-5. 작업 전에 `git log`와 `decisions.md`를 읽고, 이 브랜치가 main에 병합됐는지 확인합니다.

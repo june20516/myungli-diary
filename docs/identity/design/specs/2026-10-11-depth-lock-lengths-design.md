@@ -157,7 +157,6 @@ IA 컴포넌트 41개 밖의 컴포넌트를 만들 수 없으므로(검사기�
 * `tools/components.py`(`CONTRACT_VERSION`), `tools/test_components.py`(버전 문자열)
 * `lengths.md`(새), `tools/lengths.py`·`tools/test_lengths.py`(새)
 * `decisions.md` V25~V27, `artifacts/index.json` + 시안 HTML·PNG(`design-v2-evidence-lock`), `CLAUDE.md` 현재 상태
-* `docs/coordination/2026-10-11-writing-to-design-length.md` 상태 `done`(받는 쪽 처리)
 
 ## 8. 전달
 
