@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "group": "action",
   "components": [
     {
@@ -60,9 +60,9 @@
       "uses": ["press.ink", "icon"],
       "variants": [
         { "id": "icon", "when": "app-bar 동작", "parts": { "icon": { "name": "export", "weight": "light", "size": { "value": 24, "unit": "px" }, "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" } } },
-        { "id": "pill", "when": "본문 안 공유 입구(미리보기 화면)",
+        { "id": "soft", "when": "본문 안 공유 입구(미리보기 화면)",
           "parts": {
-            "container": { "bg": "{color.status.bg}", "radius": "{radius.full}", "height": { "value": 36, "unit": "px" }, "paddingX": "{space.16}", "gap": "{space.8}" },
+            "container": { "bg": "{color.status.bg}", "radius": "{radius.md}", "height": { "value": 36, "unit": "px" }, "paddingX": "{space.16}", "gap": "{space.8}" },
             "icon": { "name": "export", "weight": "regular", "size": { "value": 16, "unit": "px" }, "color": "{color.status.fg}" },
             "label": { "type": "{type.label.md}", "fg": "{color.status.fg}" }
           } }

@@ -2,7 +2,7 @@
 from: writing
 to: design
 kind: request
-status: open
+status: done
 created: 2026-10-11
 related: [W0 spec §4.1, W7, W8, W9, 슬롯 명세 max_length]
 ---
@@ -39,3 +39,4 @@ related: [W0 spec §4.1, W7, W8, W9, 슬롯 명세 max_length]
 
 ## 처리 기록
 - 2026-10-11 (writing): open
+- 2026-10-11 (design): done. 확정값과 계산 근거는 `docs/identity/design/lengths.md`(결정 V27). 초안보다 줄어든 곳은 `daily.guide` 36, `calendar.solar_term` 4(en 6자, 영어 줄임 표기 필요), `ui.depth.surface`·`explain`·`evidence` 8입니다. 용어 토큰이 든 문장의 상한은 따로 두지 않습니다. 진행은 Issue #54

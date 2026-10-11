@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -153,6 +153,15 @@
       "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)"],
       "sizes": { "tab": { "value": 24, "unit": "px" }, "bar": { "value": 24, "unit": "px" }, "inline": { "value": 16, "unit": "px" }, "state": { "value": 28, "unit": "px" } },
       "custom": "세트에 없는 것(오행·절기·시간 모름 등)만 Phosphor 24 격자와 획 규칙으로 직접 그림"
+    },
+    "lock.veil": {
+      "summary": "잠긴 구역 하나: 또렷한 제목 + 흐린 자리 채우기 본문 (D60, 결정 V25)",
+      "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": { "value": 14, "unit": "px" }, "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": { "value": 4, "unit": "px" } },
+      "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": { "value": 6, "unit": "px" } },
+      "placeholder": "실제 내용은 내려받지 않음. 자리 채우기 글을 server가 준 길이 힌트만큼, 없으면 두 줄",
+      "a11y": { "label": "구역 제목 + '잠김'", "bodyExcluded": true },
+      "reduceMotion": "흐림은 대상 자신의 효과라 그대로 둠(결정 V14)",
+      "where": ["depth-link evidenceSheet basis·source·personal", "sentence-block locked"]
     }
   }
 }

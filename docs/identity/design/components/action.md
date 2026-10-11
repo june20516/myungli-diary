@@ -1,6 +1,6 @@
 # action: 동작 (`action.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §2.2·§6.4, 결정 V13·V14·V18
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §2.2·§6.4, 결정 V13·V14·V18·V26
 * 시안: `design-v2-kit`(둥근 사각 버튼), `design-v2-press-feedback`(먹 번짐)
 
 ## primary-button
@@ -30,9 +30,9 @@
 
 ## share-button
 
-* 쓰는 화면: preview(`pill`), today(`icon`)
+* 쓰는 화면: preview(`soft`), today(`icon`)
 * `icon`: app-bar 동작, Phosphor `export` Light 24, 터치 44.
-* `pill`: 옅은 sage 알약(`status.bg`) + `export` Regular 16 + 글자(`type.label.md`, `status.fg`).
+* `soft`: 옅은 sage 둥근 사각(`status.bg`, `radius.md`, 높이 36) + `export` Regular 16 + 글자(`type.label.md`, `status.fg`). 동작이므로 둥근 사각입니다(README 모양 규칙, 결정 V26). 2.0.0 전 이름은 `pill`(알약)이었습니다.
 * 누르면 share-preview 시트(비율 고르기 + 미리보기 + 공유)를 엽니다. 시스템 공유 창은 그 시트에서 엽니다.
 
 ## settings-row

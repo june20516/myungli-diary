@@ -1,9 +1,9 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 1.0.0 · 토큰 계약 1.1.0 이상을 기대합니다.
+컴포넌트 계약 2.0.0 · 토큰 계약 1.1.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md), 결정 V13~V22([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v1([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), 결정 V13~V27([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v1([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
 * 명세는 특정 위젯 라이브러리에 묶이지 않습니다. Material 대응은 각 `.md`에 참고 힌트로만 적습니다.
 * 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
 
@@ -37,7 +37,7 @@
 | 파일 | 담는 것 |
 | --- | --- |
 | `interaction.json` | 공통 상호작용 패턴 12개, 햅틱, 동작 줄이기·투명도 줄이기·저사양 대체 규칙 |
-| `elements.json` | 반복 요소 15개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시 등) |
+| `elements.json` | 반복 요소 16개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역 등) |
 | `frame.json` | tab-bar, app-bar, sheet, ad-banner |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
 | `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row |
@@ -58,6 +58,8 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 * 생김새는 두 플랫폼에서 하나입니다. 뒤로 가기 제스처, 시스템 공유, 스크롤 튕김, 키보드는 플랫폼 방식을 따릅니다.
 * 기기의 글자 크기 설정을 따릅니다. 칸이 고정된 표(원국표·만세력·대운, 달력 칸)만 1.3배 상한을 둡니다(`a11y.textScaleMax`).
 * 길흉은 색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말을 넣습니다.
+* **모양 규칙(결정 V26):** 누르면 무언가를 실행하는 동작(버튼: 저장·로그인·공유·광고 보고 열기 등)은 둥근 사각(`radius.md`), 값·상태를 보여 주거나 고르는 것(배지·칩·꼬리표·segmented·toast)은 알약(`radius.full`)입니다. 행운 칩·태그 칩처럼 눌러서 그 값을 펼치거나 모아 보는 것도 값 표시이므로 알약입니다. 예외는 없습니다.
+* **화면 좌우 여백(결정 V26):** 페이지 화면의 좌우 여백은 `space.20`입니다(시트 안쪽 여백과 같음). app-bar만 아이콘 터치 영역 때문에 `space.16`입니다.
 
 ## 버전
 
@@ -72,6 +74,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
 | 1.0.0 | 2026-10-11 | 마일스톤 V2: IA 컴포넌트 41개, 패턴 12개, 요소 15개 |
+| 2.0.0 | 2026-10-11 | 근거 깊이 잠금(D60): 풀이 시트의 '내 사주에서는' 상자와 `term-token` `locked` 빠짐, 근거 시트 구성 `depth-link.evidenceSheet`와 잠김 상태 4개, `sentence-block` `locked`, 요소 `lock.veil`. `share-button` `pill` → `soft`(둥근 사각). 모양 규칙·화면 여백 |
 
 ## 검사 (design)
 

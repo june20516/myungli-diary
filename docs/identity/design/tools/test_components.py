@@ -13,6 +13,8 @@ from components import (COMPONENTS_DIR, IA_PATH, find_problems, load_documents, 
                         token_names_by_theme)
 from tokens import TOKENS_DIR  # noqa: E402
 
+VERSION = components.CONTRACT_VERSION
+
 IA = {
     "components": [{"id": "a"}, {"id": "b"}, {"id": "state-x"}],
     "screens": [{"id": "s", "states": [{"id": "loading"}]}, {"id": "t", "states": []}],
@@ -24,21 +26,21 @@ TOKENS = {theme: set(BASE_TOKENS) for theme in ("light-ko", "light-ja", "dark-ko
 def valid_docs():
     return {
         "interaction": {
-            "version": "1.0.0",
+            "version": VERSION,
             "patterns": {"p": {"summary": "패턴", "duration": "{motion.duration.medium}",
                                "easing": "{motion.easing.seep}", "reduceMotion": "opacity-only",
                                "keyframes": [{"offset": 0}, {"offset": 1, "color": "{color.text.primary}"}]}},
             "haptics": {"selection": ["선택이 바뀜"]},
         },
-        "elements": {"version": "1.0.0", "elements": {"el": {"summary": "요소"}}},
-        "frame": {"version": "1.0.0", "group": "frame", "components": [
+        "elements": {"version": VERSION, "elements": {"el": {"summary": "요소"}}},
+        "frame": {"version": VERSION, "group": "frame", "components": [
             {"id": "a", "summary": "가", "uses": ["el", "p"],
              "variants": [{"id": "v", "parts": {"label": {"fg": "{color.text.primary}"}}}],
              "parts": {"container": {"radius": "{radius.md}"}},
              "states": {"pressed": {"pattern": "p", "parts": {"x": {"bg": "{color.text.primary}"}}}}},
             {"id": "b", "summary": "나"},
         ]},
-        "feedback": {"version": "1.0.0", "group": "feedback", "stateMap": {"loading": "state-x"},
+        "feedback": {"version": VERSION, "group": "feedback", "stateMap": {"loading": "state-x"},
                      "components": [{"id": "state-x", "summary": "상태"}]},
     }
 
@@ -197,13 +199,13 @@ def test_markdown_pair_and_readme(tmp_path):
     assert has(problems, "feedback.md")
     assert not has(problems, "frame.md")
     assert has(problems, "README", "feedback.json")
-    assert has(problems, "README", "컴포넌트 계약 1.0.0")
+    assert has(problems, "README", f"컴포넌트 계약 {VERSION}")
 
 
 def test_load_documents_reads_json_by_stem(tmp_path):
-    (tmp_path / "frame.json").write_text(json.dumps({"version": "1.0.0"}), encoding="utf-8")
+    (tmp_path / "frame.json").write_text(json.dumps({"version": VERSION}), encoding="utf-8")
     (tmp_path / "frame.md").write_text("설명", encoding="utf-8")
-    assert load_documents(tmp_path) == {"frame": {"version": "1.0.0"}}
+    assert load_documents(tmp_path) == {"frame": {"version": VERSION}}
 
 
 def test_token_names_by_theme_reads_committed_tokens():
@@ -228,7 +230,7 @@ def test_common_files_define_spec_ids():
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "link.inline-nowrap", "surface.paper", "rail.timeline", "term",
-        "skeleton.bone", "icon"}
+        "skeleton.bone", "icon", "lock.veil"}
 
 
 def test_seal_element_matches_logo():
@@ -306,7 +308,7 @@ def test_generic_spec_values():
     assert variant_ids(c["sheet"]) == {"half", "full"}
     assert variant_ids(c["date-picker"]) == {"birth", "calendar"}
     assert variant_ids(c["time-picker"]) == {"birth", "notify"}
-    assert variant_ids(c["share-button"]) == {"icon", "pill"}
+    assert variant_ids(c["share-button"]) == {"icon", "soft"}
     assert "seal" in c["tab-bar"]["uses"] and "select.seep-slide" in c["segmented"]["uses"]
     assert c["toast"]["parts"]["container"]["bg"] == "{color.inverse.bg}"
     assert c["tab-bar"]["parts"]["container"]["bg"] == "{color.bar.bg}"
@@ -334,7 +336,7 @@ def test_brand_groups_contain_spec_components():
 def test_brand_spec_values():
     c = components_by_id(BRAND_GROUPS)
     assert variant_ids(c["share-image"]) == {"story", "feed", "square"}
-    assert variant_ids(c["term-token"]) >= {"inline", "label"} and "locked" in json.dumps(c["term-token"])
+    assert variant_ids(c["term-token"]) >= {"inline", "label"}
     assert variant_ids(c["event-row"]) == {"summary", "list"}
     assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}
     assert variant_ids(c["depth-link"]) == {"inline-end", "block"}
@@ -378,3 +380,52 @@ def test_state_map_matches_spec():
     assert state_map == {"loading": "skeleton", "empty": "empty-state", "error": "error-state",
                          "offline": "notice-banner", "draft": ["draft-indicator", "notice-banner"],
                          "time-unknown": "notice-banner", "out-of-range": "input-step"}
+
+
+# 근거 깊이 잠금과 모양 규칙 (depth-lock spec §2~§4)
+def test_explain_sheet_has_no_personal_box_or_lock():
+    term = components_by_id(BRAND_GROUPS)["term-token"]
+    explain = term["parts"]["explainSheet"]
+    assert "mine" not in explain and {"general", "todayReason", "evidenceLink"} <= set(explain)
+    assert explain["evidenceLink"]["component"] == "depth-link"
+    assert "locked" not in term["states"] and "lockedLabel" not in term["a11y"]
+
+
+def test_evidence_sheet_lock_states():
+    link = components_by_id(BRAND_GROUPS)["depth-link"]
+    sheet = link["parts"]["evidenceSheet"]
+    assert sheet["container"] == {"component": "sheet", "variant": "full"}
+    assert {"pillars", "basis", "source", "personal"} <= set(sheet)
+    assert set(link["states"]) == {"pressed", "locked", "lockedNoAd", "unlocking", "unlocked"}
+    locked = link["states"]["locked"]["parts"]["evidenceSheet"]
+    assert all(locked[section]["element"] == "lock.veil" for section in ("basis", "source", "personal"))
+    assert locked["lockPanel"]["cta"] == {"component": "primary-button", "variant": "filled", "slot": "evidence-sheet.lock.cta"}
+    assert "lock.veil" in link["uses"]
+    no_ad = link["states"]["lockedNoAd"]["parts"]["evidenceSheet"]["lockPanel"]
+    assert no_ad["cta"]["state"] == "disabled" and no_ad["unavailable"]["slot"] == "evidence-sheet.lock.unavailable"
+    assert link["states"]["unlocking"]["parts"]["evidenceSheet"]["lockPanel"]["cta"]["state"] == "loading"
+    assert link["states"]["unlocked"]["pattern"] == "appear.seep"
+
+
+def test_locked_sentence_uses_veil():
+    block = components_by_id(BRAND_GROUPS)["sentence-block"]
+    assert block["states"]["locked"]["parts"]["text"]["element"] == "lock.veil"
+    assert "lock.veil" in block["uses"]
+
+
+def test_lock_veil_reuses_v2_blur_values():
+    veil = load_documents(COMPONENTS_DIR)["elements"]["elements"]["lock.veil"]
+    assert veil["body"]["blur"] == {"value": 6, "unit": "px"} and veil["body"]["opacity"] == 0.5
+    assert veil["body"]["selectable"] is False and veil["title"]["icon"] == "lock-simple"
+
+
+def test_actions_are_rounded_rectangles():
+    c = components_by_id(("frame", "feedback", "input", "action"))
+    soft = next(v for v in c["share-button"]["variants"] if v["id"] == "soft")
+    assert soft["parts"]["container"]["radius"] == "{radius.md}"
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
+
+
+def test_contract_version_is_2():
+    assert VERSION == "2.0.0"
