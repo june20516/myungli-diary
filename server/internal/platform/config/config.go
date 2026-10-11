@@ -56,10 +56,11 @@ func Load(getenv func(string) string) (Config, error) {
 	}
 
 	port, err := parsePort(orDefault(getenv("PORT"), strconv.Itoa(defaultPort)))
-	if err != nil {
+	if err == nil {
+		cfg.Port = port
+	} else {
 		errs = append(errs, err)
 	}
-	cfg.Port = port
 
 	rawLevel := orDefault(getenv("LOG_LEVEL"), defaultLogLevel)
 	level, ok := logLevels[rawLevel]

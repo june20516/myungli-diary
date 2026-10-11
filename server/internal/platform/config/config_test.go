@@ -88,6 +88,23 @@ func TestLoad_InvalidLogLevel(t *testing.T) {
 	}
 }
 
+func TestLoad_LogLevelIsCaseSensitive(t *testing.T) {
+	_, err := Load(fakeEnv(map[string]string{"LOG_LEVEL": "INFO"}))
+	if err == nil || !strings.Contains(err.Error(), "LOG_LEVEL") {
+		t.Fatalf("Load() error = %v, want error for uppercase LOG_LEVEL", err)
+	}
+}
+
+func TestLoad_EmptyPortUsesDefault(t *testing.T) {
+	cfg, err := Load(fakeEnv(map[string]string{"PORT": ""}))
+	if err != nil {
+		t.Fatalf("Load() error = %v, want nil", err)
+	}
+	if cfg.Port != 8080 {
+		t.Errorf("Port = %d, want 8080", cfg.Port)
+	}
+}
+
 func TestLoad_CollectsAllErrors(t *testing.T) {
 	_, err := Load(fakeEnv(map[string]string{"APP_ENV": "dev", "PORT": "0", "LOG_LEVEL": "verbose"}))
 	if err == nil {
