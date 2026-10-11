@@ -9,6 +9,7 @@ from hypothesis import strategies as st
 from myungri_engine.calendar_core import lunar_adapter
 from myungri_engine.calendar_core.birth import BirthInput, birth_hour, resolve_birth_moment
 from myungri_engine.chart.pillars import build_chart
+from myungri_engine.composers.chart import compose_chart
 from myungri_engine.composers.daily import DailyView, compose_daily
 from myungri_engine.constants.message_keys import ALL_KEYS
 from myungri_engine.domain.enums import Branch, CalendarType, Gender
@@ -76,6 +77,19 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
         assert judgment.message_key in ALL_KEYS
         assert judgment.evidence, judgment.message_key
         loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+
+
+@PROPERTY_SETTINGS
+@given(birth=birth_inputs, as_of=daily_dates)
+def test_all_personal_readings_have_evidence(birth: BirthInput, as_of: date) -> None:
+    readings = compose_chart(birth, as_of).personal_readings
+    for reading in readings:
+        judgment = reading.judgment
+        assert judgment.message_key in ALL_KEYS
+        assert judgment.evidence, judgment.message_key
+        loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+    identities = [(r.kind, r.position, r.index, r.shinsal) for r in readings]
+    assert len(identities) == len(set(identities))
 
 
 def _evidence_fingerprint(view: DailyView) -> tuple[object, ...]:
