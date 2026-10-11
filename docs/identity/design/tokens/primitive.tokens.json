@@ -576,5 +576,139 @@
         "unit": "px"
       }
     }
+  },
+  "motion": {
+    "duration": {
+      "short": {
+        "$type": "duration",
+        "$value": {
+          "value": 200,
+          "unit": "ms"
+        }
+      },
+      "medium": {
+        "$type": "duration",
+        "$value": {
+          "value": 320,
+          "unit": "ms"
+        }
+      },
+      "select": {
+        "$type": "duration",
+        "$value": {
+          "value": 340,
+          "unit": "ms"
+        }
+      },
+      "long": {
+        "$type": "duration",
+        "$value": {
+          "value": 420,
+          "unit": "ms"
+        }
+      },
+      "stamp": {
+        "$type": "duration",
+        "$value": {
+          "value": 520,
+          "unit": "ms"
+        }
+      },
+      "breathe": {
+        "$type": "duration",
+        "$value": {
+          "value": 1800,
+          "unit": "ms"
+        }
+      },
+      "toast-hold": {
+        "$type": "duration",
+        "$value": {
+          "value": 2500,
+          "unit": "ms"
+        }
+      }
+    },
+    "easing": {
+      "seep": {
+        "$type": "cubicBezier",
+        "$value": [
+          0.2,
+          0.7,
+          0.2,
+          1
+        ]
+      },
+      "enter": {
+        "$type": "cubicBezier",
+        "$value": [
+          0.2,
+          0.8,
+          0.2,
+          1
+        ]
+      },
+      "exit": {
+        "$type": "cubicBezier",
+        "$value": [
+          0.4,
+          0,
+          1,
+          1
+        ]
+      },
+      "stamp-press": {
+        "$type": "cubicBezier",
+        "$value": [
+          0.5,
+          0,
+          0.9,
+          0.6
+        ]
+      },
+      "standard": {
+        "$type": "cubicBezier",
+        "$value": [
+          0.4,
+          0,
+          0.2,
+          1
+        ]
+      }
+    }
+  },
+  "shadow": {
+    "raised": {
+      "$type": "shadow",
+      "$value": {
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1686,
+            0.1686,
+            0.1647
+          ],
+          "hex": "#2b2b2a",
+          "alpha": 0.14
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 4,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 16,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "공유 미리보기 이미지"
+    }
   }
 }

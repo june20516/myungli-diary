@@ -117,6 +117,106 @@
           "$value": "{color.neutral.900}",
           "$description": "캘린더 LuckLevel CAUTION 날짜 칸 채우기"
         }
+      },
+      "weekday": {
+        "sun": {
+          "$type": "color",
+          "$value": "{color.ohaeng.fire.fg}",
+          "$description": "달력 요일 머리 '일'. 날짜 숫자에는 쓰지 않음"
+        },
+        "sat": {
+          "$type": "color",
+          "$value": "{color.ohaeng.earth.fg}",
+          "$description": "달력 요일 머리 '토'. 날짜 숫자에는 쓰지 않음"
+        }
+      }
+    },
+    "inverse": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.neutral.100}",
+        "$description": "토스트 바탕 (반전색)"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "{color.neutral.900}",
+        "$description": "토스트 글자 (반전색)"
+      }
+    },
+    "disabled": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.neutral.800}",
+        "$description": "비활성 버튼 바탕"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "{color.neutral.500}",
+        "$description": "비활성 글자. 대비 3:1 이상 (WCAG 1.4.3 비활성 예외)"
+      }
+    },
+    "seal": {
+      "knock": {
+        "$type": "color",
+        "$value": "{color.neutral.900}",
+        "$description": "진한 낙관 도장 위에 새기는 날짜 숫자"
+      },
+      "fill": {
+        "$type": "color",
+        "$value": "{color.action.primary}",
+        "$description": "진한 낙관 도장 (선택된 탭, 반응, 일기 종이, 달력 오늘 윤곽선)"
+      },
+      "soft": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8314,
+            0.8902,
+            0.8392
+          ],
+          "hex": "#d4e3d6",
+          "alpha": 0.28
+        },
+        "$description": "옅은 낙관 도장 (달력 일기 쓴 날, 일기 목록, 질문 카드 버튼 뒤)"
+      }
+    },
+    "tag": {
+      "good": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.coral.800}",
+          "$description": "좋은 태그 칩 바탕 (배지 귀인과 같은 톤)"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.coral.200}",
+          "$description": "좋은 태그 칩 글자"
+        }
+      },
+      "bad": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.neutral.800}",
+          "$description": "나쁜 태그 칩 바탕"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.neutral.200}",
+          "$description": "나쁜 태그 칩 글자"
+        }
+      },
+      "neutral": {
+        "border": {
+          "$type": "color",
+          "$value": "{color.neutral.700}",
+          "$description": "중립 태그 칩 테두리. 바탕은 없음"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{color.neutral.400}",
+          "$description": "중립 태그 칩 글자"
+        }
       }
     },
     "chip": {
@@ -149,6 +249,71 @@
           "alpha": 0.28
         },
         "$description": "오행 견본 테두리"
+      }
+    },
+    "status": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.term.bg}",
+        "$description": "상태 꼬리표 바탕 (진행 중·다음·지금·올해)"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "{color.term.fg}",
+        "$description": "상태 꼬리표 글자"
+      }
+    },
+    "timeline": {
+      "line": {
+        "$type": "color",
+        "$value": "{color.line}",
+        "$description": "일기 목록 세로 흐름 줄"
+      }
+    },
+    "scrim": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "hex": "#000000",
+        "alpha": 0.5
+      },
+      "$description": "시트·확인 창 바깥 덮개"
+    },
+    "bar": {
+      "bg": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1686,
+            0.1686,
+            0.1647
+          ],
+          "hex": "#2b2b2a",
+          "alpha": 0.62
+        },
+        "$description": "반투명 탭 바 바탕. 투명도 줄이기가 켜지면 bg.sheet"
+      }
+    },
+    "skeleton": {
+      "bone": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9333,
+            0.9333,
+            0.9294
+          ],
+          "hex": "#eeeeed",
+          "alpha": 0.08
+        },
+        "$description": "skeleton 자리"
       }
     },
     "ohaeng": {

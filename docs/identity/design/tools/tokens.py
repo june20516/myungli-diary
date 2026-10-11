@@ -1,6 +1,7 @@
 """palette.py 결과와 타이포·간격·반경 상수로 DTCG 토큰 파일 다섯 개를 만듭니다.
 
-spec: docs/identity/design/specs/2026-10-11-design-tokens-design.md §4~§7
+spec: docs/identity/design/specs/2026-10-11-design-tokens-design.md §4~§7,
+      docs/identity/design/specs/2026-10-11-components-design.md §5 (1.1.0)
 토큰 파일은 손으로 고치지 않고, 이 파일이나 palette.py를 고친 뒤 다시 만듭니다.
 
 사용법 (저장소 루트에서):
@@ -11,7 +12,7 @@ from __future__ import annotations
 import json
 import pathlib
 
-from palette import WHITE, build_palette
+from palette import SEAL_SOFT, WHITE, build_palette
 
 DESIGN_DIR = pathlib.Path(__file__).resolve().parent.parent
 TOKENS_DIR = DESIGN_DIR / "tokens"
@@ -45,7 +46,51 @@ ROLE_DESCRIPTIONS = {
     "badge.ordinary.fg": "평범한 날 배지 글자",
     "calendar.good.bg": "캘린더 LuckLevel GOOD 날짜 칸 채우기. NEUTRAL은 채우지 않음",
     "calendar.caution.bg": "캘린더 LuckLevel CAUTION 날짜 칸 채우기",
+    "inverse.bg": "토스트 바탕 (반전색)",
+    "inverse.fg": "토스트 글자 (반전색)",
+    "disabled.bg": "비활성 버튼 바탕",
+    "disabled.fg": "비활성 글자. 대비 3:1 이상 (WCAG 1.4.3 비활성 예외)",
+    "seal.knock": "진한 낙관 도장 위에 새기는 날짜 숫자",
+    "tag.good.bg": "좋은 태그 칩 바탕 (배지 귀인과 같은 톤)",
+    "tag.good.fg": "좋은 태그 칩 글자",
+    "tag.bad.bg": "나쁜 태그 칩 바탕",
+    "tag.bad.fg": "나쁜 태그 칩 글자",
+    "tag.neutral.border": "중립 태그 칩 테두리. 바탕은 없음",
+    "tag.neutral.fg": "중립 태그 칩 글자",
 }
+
+# 다른 역할을 그대로 가리키는 V2 역할 (V2 spec §5.3)
+REFERENCE_ROLES = {
+    "seal.fill": ("action.primary", "진한 낙관 도장 (선택된 탭, 반응, 일기 종이, 달력 오늘 윤곽선)"),
+    "status.bg": ("term.bg", "상태 꼬리표 바탕 (진행 중·다음·지금·올해)"),
+    "status.fg": ("term.fg", "상태 꼬리표 글자"),
+    "calendar.weekday.sun": ("ohaeng.fire.fg", "달력 요일 머리 '일'. 날짜 숫자에는 쓰지 않음"),
+    "calendar.weekday.sat": ("ohaeng.earth.fg", "달력 요일 머리 '토'. 날짜 숫자에는 쓰지 않음"),
+    "timeline.line": ("line", "일기 목록 세로 흐름 줄"),
+}
+
+# 알파가 있는 V2 역할: 이름 → 모드 → (원시 이름: neutral·sage 단계 또는 white·black, 알파), 설명 (V2 spec §5.3)
+ALPHA_ROLES = {
+    "scrim": ({"light": ("neutral", 950, 0.32), "dark": ("black", None, 0.50)}, "시트·확인 창 바깥 덮개"),
+    "bar.bg": ({"light": ("white", None, 0.62), "dark": ("neutral", 900, 0.62)},
+               "반투명 탭 바 바탕. 투명도 줄이기가 켜지면 bg.sheet"),
+    "skeleton.bone": ({"light": ("neutral", 900, 0.07), "dark": ("neutral", 100, 0.08)}, "skeleton 자리"),
+}
+SEAL_SOFT_DESCRIPTION = "옅은 낙관 도장 (달력 일기 쓴 날, 일기 목록, 질문 카드 버튼 뒤)"
+BLACK = "#000000"
+
+# 움직임 (V2 spec §5.1)
+MOTION_DURATIONS = {"short": 200, "medium": 320, "select": 340, "long": 420, "stamp": 520,
+                    "breathe": 1800, "toast-hold": 2500}
+MOTION_EASINGS = {
+    "seep": [0.2, 0.7, 0.2, 1],
+    "enter": [0.2, 0.8, 0.2, 1],
+    "exit": [0.4, 0, 1, 1],
+    "stamp-press": [0.5, 0, 0.9, 0.6],
+    "standard": [0.4, 0, 0.2, 1],
+}
+# 그림자: 이름 → (neutral 단계, 알파, offsetX, offsetY, blur, spread, 설명) (V2 spec §5.2)
+SHADOWS = {"raised": (900, 0.14, 0, 4, 16, 0, "공유 미리보기 이미지")}
 
 FONT_FAMILIES = {
     "ko": {
@@ -74,6 +119,8 @@ TYPE_STYLES = {
     "numeric.calendar": ("ui", 14, 500, 1.2, 1.2, "캘린더 날짜 (고정폭 숫자)"),
     "numeric.table": ("ui", 13, 500, 1.3, 1.3, "대운·세운 표의 나이·연도 (고정폭 숫자)"),
     "hanja.pillar": ("hanja", 17, 700, 1.0, 1.0, "원국표 한자"),
+    "body.ui": ("ui", 14, 400, 1.5, 1.5, "확인 창 본문, 설정 줄, 일정 줄, 행 머리 표의 값"),
+    "caption.lg": ("ui", 13, 400, 1.45, 1.45, "배너, 이유 한 줄, 도움말, 칩 설명"),
 }
 KO_UI_LETTER_SPACING = -0.02  # 글자 크기의 -2%, px로 환산 (spec §4.2)
 
@@ -151,7 +198,28 @@ def _primitive_document(palette: dict) -> dict:
         _place(document, f"space.{value}", _token("dimension", _px(value)))
     for name, value in RADII.items():
         _place(document, f"radius.{name}", _token("dimension", _px(value)))
+    for name, milliseconds in MOTION_DURATIONS.items():
+        _place(document, f"motion.duration.{name}", _token("duration", {"value": milliseconds, "unit": "ms"}))
+    for name, curve in MOTION_EASINGS.items():
+        _place(document, f"motion.easing.{name}", _token("cubicBezier", list(curve)))
+    for name, (step, alpha, offset_x, offset_y, blur, spread, description) in SHADOWS.items():
+        _place(document, f"shadow.{name}", _token("shadow", {
+            "color": color_value(palette["brand"]["neutral"][step], alpha),
+            "offsetX": _px(offset_x),
+            "offsetY": _px(offset_y),
+            "blur": _px(blur),
+            "spread": _px(spread),
+        }, description))
     return document
+
+
+def _alpha_base(brand: dict[str, dict[int, str]], source: tuple[str, int | None, float]) -> str:
+    scale, step, _ = source
+    if scale == "white":
+        return WHITE
+    if scale == "black":
+        return BLACK
+    return brand[scale][step]
 
 
 def _color_document(palette: dict, mode: str) -> dict:
@@ -165,6 +233,13 @@ def _color_document(palette: dict, mode: str) -> dict:
     border_step, border_alpha = SWATCH_BORDER[mode]
     _place(document, "color.swatch.border", _token(
         "color", color_value(brand["neutral"][border_step], border_alpha), "오행 견본 테두리"))
+    for role, (target, description) in REFERENCE_ROLES.items():
+        _place(document, f"color.{role}", _token("color", "{color." + target + "}", description))
+    for role, (by_mode, description) in ALPHA_ROLES.items():
+        _place(document, f"color.{role}", _token("color", color_value(_alpha_base(brand, by_mode[mode]), by_mode[mode][2]),
+                                                 description))
+    scale, step, alpha = SEAL_SOFT[mode]
+    _place(document, "color.seal.soft", _token("color", color_value(brand[scale][step], alpha), SEAL_SOFT_DESCRIPTION))
     background, foreground = ("tint", "ink") if mode == "light" else ("tint_dark", "ink_dark")
     for element, colors in palette["ohaeng"].items():
         _place(document, f"color.ohaeng.{element}.bg", _token(
