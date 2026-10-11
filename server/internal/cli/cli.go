@@ -29,11 +29,9 @@ func usageErrorf(format string, args ...any) error {
 	return &usageError{msg: fmt.Sprintf(format, args...)}
 }
 
-// ConfigSource는 설정 값(환경 변수)을 읽는 함수입니다. 테스트에서 대체할 수 있도록 주입합니다.
-type ConfigSource func(key string) string
-
 // Command는 하위 명령 하나입니다. args에는 하위 명령 이름 뒤의 인자가 들어옵니다.
-type Command func(ctx context.Context, args []string, cfg ConfigSource, stderr io.Writer) error
+// getenv는 설정 값(환경 변수)을 읽는 함수이며, 테스트에서 대체할 수 있도록 주입합니다.
+type Command func(ctx context.Context, args []string, getenv func(string) string, stderr io.Writer) error
 
 // commands는 하위 명령 테이블입니다.
 var commands = map[string]Command{
@@ -70,16 +68,18 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stderr 
 		return exitOK
 	}
 
-	fmt.Fprintf(stderr, "%s: %v\n", args[0], err)
+	// 사용법 오류는 메시지가 이미 "usage: ..."이므로 접두어 없이 한 번만 출력합니다.
 	var usageErr *usageError
 	if errors.As(err, &usageErr) {
+		fmt.Fprintln(stderr, usageErr)
 		return exitUsage
 	}
+	fmt.Fprintf(stderr, "%s: %v\n", args[0], err)
 	return exitError
 }
 
 // runServe는 Task 6에서 서버 시작 동작을 연결합니다.
-func runServe(_ context.Context, args []string, _ ConfigSource, _ io.Writer) error {
+func runServe(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server serve")
 	}
@@ -89,7 +89,7 @@ func runServe(_ context.Context, args []string, _ ConfigSource, _ io.Writer) err
 var migrateDirections = []string{"up", "down", "status"}
 
 // runMigrate는 Task 5에서 마이그레이션 동작을 연결합니다.
-func runMigrate(_ context.Context, args []string, _ ConfigSource, _ io.Writer) error {
+func runMigrate(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
 	if len(args) != 1 || !slices.Contains(migrateDirections, args[0]) {
 		return usageErrorf("usage: server migrate %s", strings.Join(migrateDirections, "|"))
 	}
@@ -97,7 +97,7 @@ func runMigrate(_ context.Context, args []string, _ ConfigSource, _ io.Writer) e
 }
 
 // runSeed는 P4에서 채웁니다.
-func runSeed(_ context.Context, args []string, _ ConfigSource, _ io.Writer) error {
+func runSeed(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server seed")
 	}
@@ -107,7 +107,7 @@ func runSeed(_ context.Context, args []string, _ ConfigSource, _ io.Writer) erro
 var jobNames = []string{"precompute", "notify", "retention"}
 
 // runJob은 작업 이름을 검증합니다. 각 작업은 P4·P8에서 채웁니다.
-func runJob(_ context.Context, args []string, _ ConfigSource, _ io.Writer) error {
+func runJob(_ context.Context, args []string, _ func(string) string, _ io.Writer) error {
 	if len(args) != 1 || !slices.Contains(jobNames, args[0]) {
 		return usageErrorf("usage: server job %s", strings.Join(jobNames, "|"))
 	}
