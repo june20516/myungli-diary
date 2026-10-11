@@ -1,0 +1,188 @@
+{
+  "version": "1.0.0",
+  "group": "input",
+  "components": [
+    {
+      "id": "input-step",
+      "summary": "질문 하나짜리 입력 화면 틀",
+      "uses": ["appear.seep"],
+      "variants": [
+        { "id": "onboarding", "when": "온보딩 단계(진행 막대 보임)", "parts": { "progress": { "visible": true } } },
+        { "id": "standalone", "when": "알림 시간 묻기처럼 한 번만 묻는 화면", "parts": { "progress": { "visible": false } } }
+      ],
+      "parts": {
+        "progress": { "height": { "value": 3, "unit": "px" }, "track": "{color.line}", "fill": "{color.action.primary}", "radius": "{radius.full}" },
+        "question": { "type": "{type.title}", "fg": "{color.text.primary}", "marginTop": "{space.24}" },
+        "input": { "marginTop": "{space.24}" },
+        "help": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" },
+        "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}" },
+        "bottomAction": { "component": "primary-button", "variant": "filled", "position": "bottom-fixed", "keyboard": "rides-above", "paddingX": "{space.20}", "paddingBottom": "{space.16}" }
+      },
+      "states": {
+        "out-of-range": { "parts": { "errorLine": { "visible": true }, "bottomAction": { "state": "disabled" } }, "pattern": "appear.seep" },
+        "valid": { "parts": { "errorLine": { "visible": false } } }
+      },
+      "haptic": [],
+      "a11y": { "role": "form", "label": "질문", "errorAnnounced": "liveRegion-assertive", "progressLabel": "N단계 중 M단계" },
+      "rules": [
+        "진행 막대는 단계가 넘어갈 때 채움 너비만 standard 곡선 320ms로 늘어난다.",
+        "오류 줄은 빨간색 없이 mark.caution + 본문색으로 쓴다.",
+        "아래 버튼은 키보드가 열리면 키보드 위에 붙는다."
+      ]
+    },
+    {
+      "id": "text-field",
+      "summary": "글자 입력",
+      "uses": ["focus.ring"],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
+        "text": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 17, "unit": "px" }, "fontWeight": 400, "fg": "{color.text.primary}" },
+        "placeholder": { "fg": "{color.text.secondary}" },
+        "counter": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "optional": true },
+        "clear": { "icon": "x-circle", "weight": "light", "size": { "value": 20, "unit": "px" }, "color": "{color.text.secondary}" }
+      },
+      "states": {
+        "focused": { "pattern": "focus.ring" },
+        "disabled": { "parts": { "container": { "bg": "{color.disabled.bg}" }, "text": { "fg": "{color.disabled.fg}" } } },
+        "error": { "parts": { "container": { "border": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" } } } }, "note": "오류 줄은 input-step이 그린다" }
+      },
+      "haptic": [],
+      "a11y": { "role": "textbox", "label": "질문 또는 칸 이름", "minTarget": 48 },
+      "rules": [
+        "포커스에 바탕색을 바꾸지 않는다. 테두리만 2px action.primary.",
+        "지우기 아이콘은 글자가 있고 포커스가 있을 때만 보인다."
+      ]
+    },
+    {
+      "id": "date-picker",
+      "summary": "날짜(양력·음력, 윤달)",
+      "uses": ["select.seep-slide", "appear.seep", "mark.underline-grow", "seal"],
+      "variants": [
+        {
+          "id": "birth",
+          "when": "생일 입력",
+          "parts": {
+            "calendarType": { "component": "segmented", "options": ["solar", "lunar"] },
+            "wheels": { "columns": ["year", "month", "day"], "visibleRows": 5, "rowHeight": { "value": 40, "unit": "px" }, "type": "{type.subtitle}", "fg": "{color.text.primary}", "fadeEdges": true },
+            "selectionBand": { "bg": "{color.status.bg}", "radius": "{radius.md}" },
+            "leapMonth": { "rule": "음력이고 그해에 윤달이 있을 때만 월 휠의 해당 달 다음에 '윤N월'을 끼운다" },
+            "solarConfirm": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "when": "음력 선택 시", "pattern": "appear.seep" },
+            "range": { "min": "1900-01-31", "max": "2099-12-31", "outside": "input-step out-of-range" }
+          }
+        },
+        {
+          "id": "calendar",
+          "when": "일기 목록에서 날짜로 가기 (시트 안)",
+          "uses": ["seal", "mark.underline-grow"],
+          "parts": {
+            "container": { "component": "sheet", "variant": "half" },
+            "month": { "component": "calendar-month", "luckFill": false },
+            "futureDays": { "fg": "{color.disabled.fg}", "enabled": false },
+            "bottomAction": { "component": "primary-button", "variant": "filled", "label": "고른 날짜를 담은 문구" }
+          }
+        }
+      ],
+      "parts": {},
+      "states": {
+        "wheelTick": { "note": "휠이 한 칸 넘어갈 때마다 햅틱 selection" },
+        "out-of-range": { "note": "input-step의 오류 줄" }
+      },
+      "haptic": [{ "when": "휠 눈금 하나 넘어감", "strength": "selection" }, { "when": "양력·음력 바뀜", "strength": "selection" }],
+      "a11y": { "role": "adjustable", "label": "년·월·일 각각", "valueAnnounced": "윤달은 '윤'을 붙여 읽음", "minTarget": 44 },
+      "rules": [
+        "calendar 변형은 calendar-month와 같은 표시(일기 쓴 날 옅은 도장, 오늘 윤곽, 선택 굵은 숫자 + 밑줄)를 쓰고 길흉 칸 채우기만 뺀다.",
+        "미래 날짜는 흐리게 막는다(누를 수 없음).",
+        "birth 변형의 음력 날짜는 양력으로 바꾼 날짜를 확인 줄에 보인다."
+      ]
+    },
+    {
+      "id": "time-picker",
+      "summary": "시간('모름' 포함)",
+      "uses": ["appear.seep"],
+      "variants": [
+        {
+          "id": "birth",
+          "when": "출생 시간",
+          "parts": {
+            "wheels": { "columns": ["meridiem", "hour", "minute"], "visibleRows": 5, "rowHeight": { "value": 40, "unit": "px" }, "type": "{type.subtitle}" },
+            "unknown": { "component": "check-row", "style": "inline", "label": "모름" },
+            "unknownNotice": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "pattern": "appear.seep" },
+            "sijinConfirm": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "source": "engine", "optional": true }
+          }
+        },
+        { "id": "notify", "when": "알림 시간, 일정 시간", "parts": { "wheels": { "columns": ["meridiem", "hour", "minute"], "minuteStep": 5 } } }
+      ],
+      "parts": {
+        "selectionBand": { "bg": "{color.status.bg}", "radius": "{radius.md}" }
+      },
+      "states": {
+        "unknown": { "parts": { "wheels": { "opacity": 0.35, "blur": { "value": 1.5, "unit": "px" }, "enabled": false }, "unknownNotice": { "visible": true } } }
+      },
+      "haptic": [{ "when": "휠 눈금 하나 넘어감", "strength": "selection" }, { "when": "모름 켜고 끔", "strength": "selection" }],
+      "a11y": { "role": "adjustable", "label": "오전·오후, 시, 분 각각", "minTarget": 44 },
+      "rules": [
+        "출생 기록의 벽시계 시각을 그대로 받는다(보정하지 않음).",
+        "시진 확인 줄은 엔진이 계산한 시진을 받을 수 있을 때만 보인다(Issue #35). 받을 수 없으면 줄을 뺀다.",
+        "notify 변형에는 모름이 없다."
+      ]
+    },
+    {
+      "id": "segmented",
+      "summary": "몇 개 중 하나 고르기",
+      "uses": ["select.seep-slide", "press.ink"],
+      "parts": {
+        "track": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "height": { "value": 40, "unit": "px" }, "padding": { "value": 3, "unit": "px" } },
+        "indicator": { "bg": "{color.action.primary}", "radius": "{radius.full}" },
+        "label": { "type": "{type.label.lg}", "fg": "{color.text.secondary}" }
+      },
+      "states": {
+        "selected": { "pattern": "select.seep-slide", "parts": { "label": { "fg": "{color.action.on-primary}" } } },
+        "pressed": { "pattern": "press.ink" },
+        "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } }
+      },
+      "haptic": [{ "when": "선택이 바뀜", "strength": "selection" }],
+      "a11y": { "role": "radio-group", "itemRole": "radio", "label": "무엇을 고르는지", "minTarget": 44 },
+      "rules": ["항목은 2~4개. 항목 너비는 같다.", "항목 글자는 한 줄이다. 넘치면 글자를 줄이거나 자르지 않고, 화면 설계에서 항목 수나 문구를 줄인다."]
+    },
+    {
+      "id": "city-search",
+      "summary": "도시 검색과 결과 목록",
+      "uses": ["focus.ring", "press.ink", "icon"],
+      "parts": {
+        "field": { "component": "text-field", "leadingIcon": "magnifying-glass" },
+        "results": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "marginTop": "{space.12}" },
+        "row": { "minHeight": { "value": 56, "unit": "px" }, "paddingX": "{space.16}" },
+        "city": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
+        "region": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+        "match": { "fontWeight": 600 }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink" },
+        "loading": { "note": "결과 자리에 skeleton 줄 3개" },
+        "empty": { "note": "empty-state" }
+      },
+      "haptic": [],
+      "a11y": { "role": "combobox", "label": "도시 이름", "resultsAnnounced": "결과 N개", "minTarget": 48 },
+      "rules": ["결과 줄은 settings-row와 같은 묶음 카드 모양이다.", "글자를 칠 때마다 결과가 바뀌어도 목록을 움직이지 않고 바꿔 그린다."]
+    },
+    {
+      "id": "check-row",
+      "summary": "동의 항목 한 줄",
+      "uses": ["press.ink"],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "padding": "{space.16}", "gap": "{space.12}", "marginBottom": "{space.8}" },
+        "box": { "size": { "value": 24, "unit": "px" }, "radius": "{radius.sm}", "border": { "color": "{color.line}", "width": { "value": 1.5, "unit": "px" } } },
+        "label": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
+        "view": { "type": "{type.label.md}", "fg": "{color.action.primary}", "optional": true }
+      },
+      "states": {
+        "checked": { "parts": { "box": { "bg": "{color.action.primary}", "border": { "color": "{color.action.primary}" }, "check": { "color": "{color.action.on-primary}", "draw": "stroke-0-to-1", "drawDuration": "{motion.duration.short}", "drawEasing": "{motion.easing.seep}" } } } },
+        "pressed": { "pattern": "press.ink" },
+        "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } }
+      },
+      "haptic": [{ "when": "켜고 끔", "strength": "selection" }],
+      "a11y": { "role": "checkbox", "label": "항목 글자", "viewLinkSeparateFocus": true, "minTarget": 48 },
+      "rules": ["줄마다 떨어진 카드로 둔다.", "'보기'를 누르면 체크가 바뀌지 않고 약관을 연다."]
+    }
+  ]
+}

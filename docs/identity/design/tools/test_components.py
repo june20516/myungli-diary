@@ -207,3 +207,47 @@ def test_common_files_pass_reference_checks():
             if name in components.COMMON}
     ia = {"components": [], "screens": []}
     assert find_problems(docs, ia, token_names_by_theme(TOKENS_DIR)) == []
+
+
+def components_by_id(groups):
+    documents = load_documents(COMPONENTS_DIR)
+    return {component["id"]: component for group in groups for component in documents[group]["components"]}
+
+
+def variant_ids(component):
+    return {variant["id"] for variant in component["variants"]}
+
+
+# 범용 묶음 (V2 spec §6.1~§6.4)
+def test_generic_groups_contain_spec_components():
+    documents = load_documents(COMPONENTS_DIR)
+    ids = {group: {c["id"] for c in documents[group]["components"]} for group in ("frame", "feedback", "input", "action")}
+    assert ids["frame"] == {"tab-bar", "app-bar", "sheet"}
+    assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
+    assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
+                            "check-row"}
+    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row"}
+
+
+def test_generic_spec_values():
+    c = components_by_id(("frame", "feedback", "input", "action"))
+    assert c["primary-button"]["parts"]["container"]["radius"] == "{radius.md}"
+    assert variant_ids(c["primary-button"]) == {"filled", "quiet", "destructive"}
+    assert variant_ids(c["app-bar"]) == {"tab-root", "inner"}
+    assert variant_ids(c["sheet"]) == {"half", "full"}
+    assert variant_ids(c["date-picker"]) == {"birth", "calendar"}
+    assert variant_ids(c["time-picker"]) == {"birth", "notify"}
+    assert variant_ids(c["share-button"]) == {"icon", "pill"}
+    assert "seal" in c["tab-bar"]["uses"] and "select.seep-slide" in c["segmented"]["uses"]
+    assert c["toast"]["parts"]["container"]["bg"] == "{color.inverse.bg}"
+    assert c["tab-bar"]["parts"]["container"]["bg"] == "{color.bar.bg}"
+    assert "mark.caution" in json.dumps(c["dialog"])
+    assert "focus.ring" in json.dumps(c["text-field"])
+    assert "loading.breathe" in json.dumps(c["primary-button"]["states"]["loading"])
+
+
+def test_state_map_matches_spec():
+    state_map = load_documents(COMPONENTS_DIR)["feedback"]["stateMap"]
+    assert state_map == {"loading": "skeleton", "empty": "empty-state", "error": "error-state",
+                         "offline": "notice-banner", "draft": ["draft-indicator", "notice-banner"],
+                         "time-unknown": "notice-banner", "out-of-range": "input-step"}

@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "group": "frame",
+  "components": [
+    {
+      "id": "tab-bar",
+      "summary": "아래 탭 4개. 반투명 바탕 + 뒤 흐림",
+      "uses": ["seal", "icon", "seal.stamp", "seal.erase"],
+      "parts": {
+        "container": {
+          "bg": "{color.bar.bg}",
+          "backdropBlur": { "value": 20, "unit": "px" },
+          "height": { "value": 72, "unit": "px" },
+          "safeAreaBottom": "extra",
+          "topBorder": { "color": "{color.line}", "width": { "value": 0.5, "unit": "px" } }
+        },
+        "tab": { "count": 4, "minTarget": 48 },
+        "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "label": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
+        "seal": { "element": "seal", "variant": "fill", "size": { "value": 34, "unit": "px" } }
+      },
+      "states": {
+        "selected": {
+          "pattern": "seal.stamp",
+          "parts": {
+            "seal": { "visible": true, "color": "{color.seal.fill}" },
+            "icon": { "weight": "regular", "color": "{color.action.on-primary}" },
+            "label": { "fg": "{color.action.primary}", "fontWeight": 600 }
+          }
+        },
+        "unselected": { "pattern": "seal.erase", "parts": { "seal": { "visible": false } } },
+        "reduceTransparency": { "parts": { "container": { "bg": "{color.bg.sheet}", "backdropBlur": { "value": 0, "unit": "px" } } } }
+      },
+      "haptic": [{ "when": "선택한 탭이 바뀜", "strength": "selection" }],
+      "a11y": { "role": "tab-list", "itemRole": "tab", "label": "탭 이름", "selectedAnnounced": true, "minTarget": 48 },
+      "rules": [
+        "선택이 바뀌면 이전 탭 도장은 seal.erase, 새 탭 도장은 seal.stamp로 동시에 움직인다.",
+        "이미 선택된 탭을 다시 누르면 그 탭 첫 화면 맨 위로 올라가고 도장은 다시 찍지 않는다.",
+        "탭 바 뒤로 내용이 비쳐 지나간다. 화면 맨 아래 내용은 탭 바 높이만큼 여백을 둔다."
+      ]
+    },
+    {
+      "id": "app-bar",
+      "summary": "화면 위 제목·뒤로·동작 아이콘. 바탕 없음",
+      "uses": ["icon", "press.ink"],
+      "variants": [
+        { "id": "tab-root", "when": "탭 첫 화면", "parts": { "title": { "type": "{type.subtitle}", "align": "start" } } },
+        { "id": "inner", "when": "안쪽 화면", "parts": { "back": { "icon": "caret-left", "visible": true }, "title": { "type": "{type.subtitle}", "align": "start" } } }
+      ],
+      "parts": {
+        "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" }, "paddingX": "{space.16}" },
+        "title": { "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
+        "action": { "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 }
+      },
+      "states": { "pressed": { "pattern": "press.ink", "note": "뒤로·동작 아이콘의 44px 원 안에서만" } },
+      "haptic": [],
+      "a11y": { "role": "header", "label": "화면 제목", "backLabel": "뒤로", "minTarget": 44 },
+      "rules": [
+        "바탕을 칠하지 않는다. 내용이 스크롤되어 아래로 지나가도 그림자·선을 더하지 않는다.",
+        "오른쪽 동작은 두 개까지. 초안 상태(draft-indicator)는 동작 왼쪽에 둔다."
+      ]
+    },
+    {
+      "id": "sheet",
+      "summary": "하프·풀 시트 틀. 깊어지면 위에 겹쳐 쌓임",
+      "uses": ["sheet.enter", "sheet.exit", "sheet.stack"],
+      "variants": [
+        { "id": "half", "when": "풀이·근거·그날·공유 미리보기처럼 짧은 내용", "parts": { "container": { "maxHeight": "60%" } } },
+        { "id": "full", "when": "긴 목록·설정 안쪽", "parts": { "container": { "maxHeight": "100% - top-safe-area - 12px" } } }
+      ],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radiusTop": "{radius.xl}", "paddingX": "{space.20}", "paddingBottom": "{space.24}" },
+        "handle": { "width": { "value": 36, "unit": "px" }, "height": { "value": 4, "unit": "px" }, "radius": "{radius.full}", "color": "{color.line}", "marginTop": "{space.8}" },
+        "scrim": { "color": "{color.scrim}" }
+      },
+      "states": {
+        "opening": { "pattern": "sheet.enter" },
+        "closing": { "pattern": "sheet.exit" },
+        "stacked": { "pattern": "sheet.stack", "note": "새 시트는 새 route" }
+      },
+      "haptic": [],
+      "a11y": { "role": "dialog", "label": "시트 제목", "modal": true, "dismissLabel": "닫기", "focusOnOpen": "first-heading" },
+      "rules": [
+        "뒤로 가기와 끌어내리기는 맨 위 시트 하나만 닫는다.",
+        "바깥(덮개)을 누르면 쌓인 시트를 모두 닫는다.",
+        "깊어짐은 이동·크기만 움직인다. 시트 높이를 움직이지 않는다."
+      ]
+    }
+  ]
+}

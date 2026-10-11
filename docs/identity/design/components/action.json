@@ -1,0 +1,100 @@
+{
+  "version": "1.0.0",
+  "group": "action",
+  "components": [
+    {
+      "id": "primary-button",
+      "summary": "주 동작 버튼",
+      "uses": ["press.ink", "loading.breathe"],
+      "variants": [
+        { "id": "filled", "when": "화면의 주 동작" },
+        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 쓴 일기 보기)",
+          "parts": { "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" } }, "label": { "fg": "{color.action.primary}" } } },
+        { "id": "destructive", "when": "되돌릴 수 없는 동작", "uses": ["mark.caution"],
+          "parts": { "container": { "bg": "{color.text.primary}" }, "label": { "fg": "{color.bg.sheet}", "leading": "mark.caution" } } }
+      ],
+      "parts": {
+        "container": { "bg": "{color.action.primary}", "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.20}", "width": "fill" },
+        "label": { "fg": "{color.action.on-primary}", "type": "{type.label.lg}", "maxLines": 1 },
+        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": { "value": 6, "unit": "px" }, "color": "label-color" }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink" },
+        "disabled": { "parts": { "container": { "bg": "{color.disabled.bg}" }, "label": { "fg": "{color.disabled.fg}" } } },
+        "loading": { "pattern": "loading.breathe", "note": "글자 자리에 점 세 개. 너비는 그대로", "parts": { "label": { "visible": false }, "dots": { "visible": true } } }
+      },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "글자 그대로", "busyAnnounced": "처리 중", "minTarget": 48 },
+      "rules": [
+        "스피너를 쓰지 않는다. 처리 중은 점 숨쉬기가 유일한 대체다.",
+        "처리 중에는 다시 누를 수 없다.",
+        "quiet 변형은 disabled에서 바탕 없이 글자만 color.disabled.fg다."
+      ]
+    },
+    {
+      "id": "social-login-button",
+      "summary": "소셜 로그인 버튼 (틀만, 제공자는 지휘 미결)",
+      "uses": ["press.ink"],
+      "parts": {
+        "container": { "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "width": "fill" },
+        "stack": { "gap": "{space.12}" },
+        "logo": { "source": "provider-official-asset", "size": { "value": 20, "unit": "px" } },
+        "label": { "source": "provider-official-guide" }
+      },
+      "states": { "pressed": { "pattern": "press.ink" }, "loading": { "pattern": "loading.breathe" } },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "제공자 공식 문구", "minTarget": 48 },
+      "rules": [
+        "색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 쓴다. 아이콘 세트에서 가져오지 않는다.",
+        "반경·높이·쌓기 간격만 이 명세를 따른다(제공자 가이드가 허용하는 범위에서)."
+      ]
+    },
+    {
+      "id": "share-button",
+      "summary": "공유",
+      "uses": ["press.ink", "icon"],
+      "variants": [
+        { "id": "icon", "when": "app-bar 동작", "parts": { "icon": { "name": "export", "weight": "light", "size": { "value": 24, "unit": "px" }, "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" } } },
+        { "id": "pill", "when": "본문 안 공유 입구(미리보기 화면)",
+          "parts": {
+            "container": { "bg": "{color.status.bg}", "radius": "{radius.full}", "height": { "value": 36, "unit": "px" }, "paddingX": "{space.16}", "gap": "{space.8}" },
+            "icon": { "name": "export", "weight": "regular", "size": { "value": 16, "unit": "px" }, "color": "{color.status.fg}" },
+            "label": { "type": "{type.label.md}", "fg": "{color.status.fg}" }
+          } }
+      ],
+      "parts": {},
+      "states": { "pressed": { "pattern": "press.ink" } },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "공유", "minTarget": 44 },
+      "rules": ["누르면 share-preview 시트를 연다. 시스템 공유 창은 그 시트의 공유 버튼에서 연다."]
+    },
+    {
+      "id": "settings-row",
+      "summary": "설정 한 줄",
+      "uses": ["press.ink", "icon"],
+      "variants": [
+        { "id": "navigate", "when": "다음 화면으로", "parts": { "chevron": { "visible": true } } },
+        { "id": "value", "when": "값을 고름(시트)", "parts": { "value": { "visible": true }, "chevron": { "visible": true } } },
+        { "id": "toggle", "when": "켜고 끔", "parts": { "toggle": { "visible": true }, "chevron": { "visible": false } } },
+        { "id": "destructive", "when": "로그아웃·계정 삭제", "uses": ["mark.caution"], "parts": { "label": { "fg": "{color.text.primary}", "fontWeight": 600, "leading": "mark.caution" }, "chevron": { "visible": false } } }
+      ],
+      "parts": {
+        "group": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "marginBottom": "{space.20}" },
+        "row": { "minHeight": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
+        "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" }, "insetStart": "{space.16}" },
+        "label": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
+        "value": { "type": "{type.body.ui}", "fg": "{color.text.secondary}" },
+        "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
+        "toggle": { "trackOn": "{color.action.primary}", "trackOff": "{color.line}", "thumb": "{color.bg.sheet}" },
+        "groupTitle": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}" }
+      },
+      "states": {
+        "pressed": { "pattern": "press.ink" },
+        "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } }
+      },
+      "haptic": [{ "when": "toggle 변형 켜고 끔", "strength": "selection" }],
+      "a11y": { "role": "button", "label": "글자 + 값", "toggleRole": "switch", "minTarget": 48 },
+      "rules": ["묶음 카드 안에서 1px 선으로 나눈다. 카드 사이는 20px 띄운다."]
+    }
+  ]
+}
