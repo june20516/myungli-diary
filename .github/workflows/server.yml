@@ -6,6 +6,11 @@ on:
     paths: ["server/**", ".github/workflows/server.yml"]
   pull_request:
     paths: ["server/**", ".github/workflows/server.yml"]
+  workflow_call:
+
+concurrency:
+  group: server-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -21,6 +26,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
       - run: go vet ./...
       - uses: golangci/golangci-lint-action@v8
         with:
@@ -31,5 +37,10 @@ jobs:
       - name: 생성 코드가 계약과 일치하는지 확인
         run: |
           go generate ./...
-          git diff --exit-code
-      - run: docker build .
+          # untracked 새 파일도 잡으려고 git diff 대신 status를 본다.
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
+            exit 1
+          fi
+      - name: 이미지 빌드
+        run: docker build --build-arg GO_VERSION="$(go list -m -f '{{.GoVersion}}')" .

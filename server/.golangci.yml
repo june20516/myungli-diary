@@ -11,6 +11,7 @@ linters:
     - forbidigo
   settings:
     forbidigo:
+      analyze-types: true
       forbid:
         # 시간은 Clock으로만 읽는다. time.Now는 internal/platform/clock에서만 허용한다.
         - pattern: ^time\.Now$

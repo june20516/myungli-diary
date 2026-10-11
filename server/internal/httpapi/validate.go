@@ -187,7 +187,7 @@ func validationProblem(err error, mediaTypeUnsupported bool) (problem.Problem, b
 // collectRequestErrors는 MultiError를 펼쳐 RequestError 목록을 돌려줍니다. 다른 종류가 섞이면 false입니다.
 // RequestError 안쪽에도 MultiError가 있으므로 errors.As가 아니라 바깥 타입으로 가립니다.
 func collectRequestErrors(err error) ([]*openapi3filter.RequestError, bool) {
-	switch typed := err.(type) { //nolint:errorlint // 바깥 타입으로만 가르려는 의도입니다(위 주석 참고)
+	switch typed := err.(type) { //nolint:errorlint // MultiError가 RequestError 안쪽에도 있어 errors.As 대신 바깥 타입으로 가르는 것이 의도입니다
 	case *openapi3filter.RequestError:
 		return []*openapi3filter.RequestError{typed}, true
 	case openapi3.MultiError:
@@ -210,7 +210,7 @@ func collectRequestErrors(err error) ([]*openapi3filter.RequestError, bool) {
 // errors[].code는 위반한 JSON Schema keyword(required, pattern, minimum, format 등)이고,
 // parameter를 타입으로 읽지 못하면 type입니다.
 func fieldErrorsOf(err error, base string, inBody bool) []problem.FieldError {
-	switch typed := err.(type) { //nolint:errorlint // 바깥 타입으로만 가르려는 의도입니다(위 주석 참고)
+	switch typed := err.(type) { //nolint:errorlint // MultiError가 RequestError 안쪽에도 있어 errors.As 대신 바깥 타입으로 가르는 것이 의도입니다
 	case openapi3.MultiError:
 		var all []problem.FieldError
 		for _, inner := range typed {
