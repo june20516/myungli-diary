@@ -93,7 +93,7 @@
             "evidenceSheet": {
               "basis": { "element": "lock.veil" },
               "source": { "element": "lock.veil", "bg": "transparent", "padding": 0 },
-              "personal": { "element": "lock.veil" },
+              "personal": { "element": "lock.veil", "when": "열렸을 때와 같음(사주 표 계열에서 열었을 때만). 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘" },
               "contentPaddingBottom": "lock-panel-height",
               "lockPanel": {
                 "position": "pinned-bottom",
@@ -140,7 +140,9 @@
         "근거 시트에서 잠기는 것은 판정 근거·원전·내 사주에서는 세 구역뿐이다. 제목과 원국표는 늘 보인다(D60).",
         "잠긴 구역은 열렸을 때와 같은 자리에 lock.veil로 그리고, 잠금 안내는 시트 아래에 고정한다(시안 B).",
         "광고를 중간에 닫고 돌아오면 locked 그대로, 알림 없음.",
-        "자정이 지나 권한이 끝나도 보고 있던 시트는 바꾸지 않는다. 다음에 여는 시트부터 locked."
+        "자정이 지나 권한이 끝나도 보고 있던 시트는 바꾸지 않는다. 다음에 여는 시트부터 locked.",
+        "잠금 안내 문구와 버튼은 잠긴 구역이 둘이든 셋이든 같다(보상은 그날 근거·해석 전부).",
+        "시트 불러오는 중(IA loading)은 잠김 여부를 알기 전이라 시트 전체 skeleton, 불러오지 못함(IA error)은 error-state. 잠김 상태는 불러온 뒤에만 정해진다."
       ]
     },
     {

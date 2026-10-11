@@ -5,7 +5,7 @@
 * 고치는 쪽은 design입니다. 바꿀 일이 있으면 GitHub Issue(`to:design`)로 보냅니다.
 * 왜 이렇게 정했는지는 [V0 spec](specs/2026-10-10-visual-identity-design.md), [V1 spec](specs/2026-10-11-design-tokens-design.md), [V2 spec](specs/2026-10-11-components-design.md)에 있습니다. 결정은 [`decisions.md`](decisions.md)의 결정 V1~V24입니다.
 * 눈으로 보려면 [견본 페이지](specimen/index.html)를 엽니다(라이트·다크).
-* app이 읽는 데이터는 **디자인 토큰** [`tokens/`](tokens/README.md)(계약 1.1.0)과 **컴포넌트 명세** [`components/`](components/README.md)(계약 1.0.0)입니다. 이 문서와 토큰·명세 값이 다르면 토큰·명세가 맞고, 이 문서를 고칩니다.
+* app이 읽는 데이터는 **디자인 토큰** [`tokens/`](tokens/README.md)(계약 1.1.0)과 **컴포넌트 명세** [`components/`](components/README.md)(계약 2.0.0)입니다. 이 문서와 토큰·명세 값이 다르면 토큰·명세가 맞고, 이 문서를 고칩니다.
 * 색 값의 출처는 [`tools/palette.py`](tools/palette.py), 토큰 파일은 [`tools/tokens.py`](tools/tokens.py)가 만듭니다.
 
 ## 원칙

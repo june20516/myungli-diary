@@ -8,11 +8,13 @@ spec: docs/identity/design/specs/2026-10-11-depth-lock-lengths-design.md §5
 
 계산 방법:
 * 기준 화면 폭 360px, 화면 좌우 여백 space.20 → 본문 폭 320px. 칸 폭은 각 컴포넌트 명세의 안쪽 여백을 뺀 값입니다.
-* ko 문장 자리: writing 라운드 원고(R1~R7)의 문장을 이어 붙여 어절 단위(keep-all)로 줄을 채우고,
+* ko 문장 자리: writing 라운드 원고(R1~R7, 중복 제거)의 문장을 이어 붙여 어절 단위(keep-all)로 줄을 채우고,
   꽉 찬 줄 글자 수의 하위 10%를 한 줄 글자 수로 봅니다. 상한 = 한 줄 글자 수 × 줄 수.
-* ko 이름 자리(한 줄): 띄어쓰기 없는 한글로 칸 폭을 채운 글자 수입니다.
-* ja: 글자 단위 줄바꿈 + 금칙 처리. 줄마다 한 글자를 금칙 여유로 뺍니다.
-  문장 글꼴은 Zen Maru Gothic의 가나·한자 평균 폭, UI 글꼴은 전각 1em으로 봅니다.
+  경험값이라 어절이 길게 몰린 문장은 상한 안이어도 한 줄 더 쓸 수 있습니다(문장 칸은 자르지 않고 줄이 늚).
+* ko 이름 자리(한 줄): 띄어쓰기 없는 한글로 칸 폭을 채운 글자 수입니다. 가장 넓은 경우라 상한 안이면 늘 들어갑니다.
+* ja: 글자 단위 줄바꿈 + 금칙 처리. 줄마다 한 글자를 금칙 여유로 뺍니다. 자간은 0으로 봅니다.
+  문장 글꼴은 Zen Maru Gothic의 가나·한자 평균 폭, UI 글꼴(Pretendard JP, 측정 파일 없음)은 전각 1em으로 봅니다.
+  Pretendard 가나는 1em보다 좁으므로 이 값은 보수적입니다.
 * en: 글꼴의 라틴 소문자 폭을 영어 글자 빈도로 가중 평균하고, 줄마다 평균 단어(4.7자 + 띄어쓰기)의 절반을 줄바꿈 손실로 뺍니다.
 """
 from __future__ import annotations
@@ -63,24 +65,25 @@ class Target:
     lines: int
     sentence: bool
     draft: int | None
-    reserve_chars: int = 0  # 같은 줄 오른쪽 값 자리(같은 글자 스타일의 한글 글자 수)만큼 폭을 뺌
+    prefix: str = ""  # 이름 앞에 늘 붙는 글자(예: 태그 칩의 '#'). 실제 폭만큼 칸에서 뺌
+    reserve_slot: str | None = None  # 같은 줄 오른쪽 값 자리. 그 슬롯의 ko 확정 글자 수만큼 폭을 뺌
 
 
 TARGETS = (
-    Target(("daily.fortune.head", "daily.fortune.tag"), "today sentence-block card", "sentence", 17, 0, CONTENT_WIDTH, 2, True, 32),
+    Target(("daily.fortune.head", "daily.fortune.tag"), "today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today)", "sentence", 17, 0, CONTENT_WIDTH, 2, True, 32),
     Target(("daily.guide",), "guide-question-card question (안쪽 space.20)", "sentence", 17, 0, CONTENT_WIDTH - 40, 2, True, 40),
     Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card explain (안쪽 space.12)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 24, 2, True, 36),
     Target(("daily.focus_reason",), "lucky-card explain 안 한 줄", "ui-400", 13, -0.26, CONTENT_WIDTH - 24, 1, False, 10),
-    Target(("daily.tag_label",), "tag-chip (# 포함, 좌우 10px)", "ui-500", 12, -0.24, CONTENT_WIDTH - 20 - 8, 1, False, 10),
+    Target(("daily.tag_label",), "tag-chip ('#' 뒤, 좌우 10px)", "ui-500", 12, -0.24, CONTENT_WIDTH - 20, 1, False, 10, prefix="#"),
     Target(("calendar.day_level",), "day-character badge (좌우 10px)", "ui-500", 13, -0.26, CONTENT_WIDTH - 20, 1, False, 10),
     Target(("calendar.score_item",), "term-token label (좌우 4px)", "ui-500", 12, -0.24, CONTENT_WIDTH - 8, 1, False, 10),
     Target(("calendar.solar_term",), "day-cell lunar 줄 (칸 폭 44px, 굵게)", "ui-700", 10.5, -0.22, (CONTENT_WIDTH - 2 * 6) / 7, 1, False, 10),
-    Target(("glossary.value_name",), "lucky-card chip 값 (좌우 12px, 아이콘 16 + 간격 6)", "ui-500", 13, -0.26, CONTENT_WIDTH - 24 - 16 - 6, 1, False, 10),
+    Target(("glossary.value_name",), "lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6)", "ui-500", 13, -0.26, CONTENT_WIDTH - 24 - 16 - 6, 1, False, 10),
     Target(("ui.depth.surface", "ui.depth.explain", "ui.depth.evidence"), "segmented 세 칸 중 한 칸",
            "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * 3) / 3, 1, False, 10),
-    Target(("ui.depth.default_label",), "settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름 8자)",
-           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, 10, reserve_chars=8),
+    Target(("ui.depth.default_label",), "settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, 10, reserve_slot="ui.depth.surface"),
 )
 
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
@@ -120,8 +123,8 @@ class Fonts:
 
 
 def corpus_sentences(rounds_dir: pathlib.Path = ROUNDS_DIR) -> list[str]:
-    """라운드 기록 표의 선택지 문장(한글 문장만, "다 별로" 제외)."""
-    sentences = []
+    """라운드 기록 표의 선택지 문장(한글 문장만, "다 별로" 제외, 처음 나온 순서로 중복 제거)."""
+    sentences: list[str] = []
     row = re.compile(r"^\|\s*\d+\s*\|\s*(.+?)\s*\|")
     for path in sorted(rounds_dir.glob("*-round-R*.md")):
         for line in path.read_text(encoding="utf-8").splitlines():
@@ -129,7 +132,8 @@ def corpus_sentences(rounds_dir: pathlib.Path = ROUNDS_DIR) -> list[str]:
             if not match:
                 continue
             text = match.group(1).replace("**", "").strip()
-            if re.search(r"[가-힣]", text) and re.search(r"[.?!]$", text) and "다 별로" not in text:
+            if (re.search(r"[가-힣]", text) and re.search(r"[.?!]$", text) and "다 별로" not in text
+                    and text not in sentences):
                 sentences.append(text)
     return sentences
 
@@ -197,20 +201,30 @@ class Result:
         return min(draft, computed)
 
 
-def measure(fonts: Fonts, words: list[str]) -> list[Result]:
+def free_width(target: Target, advances: dict[int, float], finals: dict[str, int]) -> float:
+    """앞에 붙는 글자와 오른쪽 값 자리를 뺀, 이름이 쓸 수 있는 폭."""
+    width = target.width - text_width(target.prefix, advances, target.size, target.tracking)
+    if target.reserve_slot:
+        width -= finals[target.reserve_slot] * (advances[ord("가")] * target.size + target.tracking)
+    return round(width, 1)
+
+
+def measure(fonts: Fonts, words: list[str], targets: tuple[Target, ...] = TARGETS) -> list[Result]:
+    """targets 순서대로 잽니다. reserve_slot은 앞에서 잰 슬롯이어야 합니다."""
     results = []
-    for target in TARGETS:
+    finals: dict[str, int] = {}
+    for target in targets:
         ko_advances = fonts.ko(target.font)
-        if target.reserve_chars:
-            reserved = target.reserve_chars * (ko_advances[ord("가")] * target.size + target.tracking)
-            target = replace(target, width=round(target.width - reserved, 1), reserve_chars=0)
+        target = replace(target, width=free_width(target, ko_advances, finals), prefix="", reserve_slot=None)
         if target.sentence:
             ko = ko_line_chars(words, ko_advances, target.size, target.tracking, target.width) * target.lines
         else:
             ko = ko_name_chars(ko_advances, target.size, target.tracking, target.width) * target.lines
         ja = ja_line_chars(fonts.ja(target.font), target.size, target.width) * target.lines
         en = en_line_chars(ko_advances, target.size, target.tracking, target.width) * target.lines
-        results.append(Result(target, ko, ja, en))
+        result = Result(target, ko, ja, en)
+        finals.update({slot: result.final("ko") for slot in target.slots})
+        results.append(result)
     return results
 
 
