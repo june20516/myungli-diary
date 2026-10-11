@@ -1,7 +1,8 @@
 """명리일기 V0 색 체계 생성기와 대비 검사기.
 
 spec: docs/identity/design/specs/2026-10-10-visual-identity-design.md §3·§4,
-      docs/identity/design/specs/2026-10-11-design-tokens-design.md §3·§7 (V1 역할)
+      docs/identity/design/specs/2026-10-11-design-tokens-design.md §3·§7 (V1 역할),
+      docs/identity/design/specs/2026-10-11-components-design.md §5.3 (V2 역할)
 
 사용법:
     python3 palette.py            # 팔레트 전체를 JSON으로 출력
@@ -16,6 +17,10 @@ import sys
 from dataclasses import dataclass
 
 MIN_TEXT_CONTRAST = 4.5
+# 비활성 글자는 WCAG 1.4.3 예외지만 3:1은 지킵니다 (V2 spec §5.3)
+MIN_DISABLED_CONTRAST = 3.0
+# 옅은 낙관 도장: 모드 → (팔레트, 단계, 알파) (V2 spec §5.3)
+SEAL_SOFT = {"light": ("sage", 700, 0.22), "dark": ("sage", 200, 0.28)}
 
 # 모든 팔레트가 공유하는 명도 단계 (spec §3.1)
 LIGHTNESS_BY_STEP = {
@@ -119,6 +124,16 @@ def _unrounded_contrast(foreground: str, background: str) -> float:
     return (lighter + 0.05) / (darker + 0.05)
 
 
+def composite(foreground_hex: str, alpha: float, background_hex: str) -> str:
+    """반투명 글자·도장을 바탕 위에 겹친 색. 화면 합성처럼 sRGB 감마 값에서 섞습니다."""
+    channels = []
+    for index in (1, 3, 5):
+        top = int(foreground_hex[index:index + 2], 16)
+        bottom = int(background_hex[index:index + 2], 16)
+        channels.append(round(top * alpha + bottom * (1 - alpha)))
+    return "#" + "".join(f"{channel:02x}" for channel in channels)
+
+
 def contrast_ratio(foreground: str, background: str) -> float:
     """WCAG 2 대비 비율을 소수 둘째 자리로 반올림해 돌려줍니다(표시용)."""
     return round(_unrounded_contrast(foreground, background), 2)
@@ -169,6 +184,17 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "badge.ordinary.fg": neutral[700],
             "calendar.good.bg": coral[100],
             "calendar.caution.bg": neutral[100],
+            "inverse.bg": neutral[900],
+            "inverse.fg": neutral[100],
+            "disabled.bg": neutral[100],
+            "disabled.fg": neutral[600],
+            "seal.knock": sage[50],
+            "tag.good.bg": coral[100],
+            "tag.good.fg": coral[700],
+            "tag.bad.bg": neutral[100],
+            "tag.bad.fg": neutral[700],
+            "tag.neutral.border": neutral[300],
+            "tag.neutral.fg": neutral[700],
         },
         "dark": {
             "bg.base": neutral[950],
@@ -190,6 +216,17 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "badge.ordinary.fg": neutral[400],
             "calendar.good.bg": coral[900],
             "calendar.caution.bg": neutral[900],
+            "inverse.bg": neutral[100],
+            "inverse.fg": neutral[900],
+            "disabled.bg": neutral[800],
+            "disabled.fg": neutral[500],
+            "seal.knock": neutral[900],
+            "tag.good.bg": coral[800],
+            "tag.good.fg": coral[200],
+            "tag.bad.bg": neutral[800],
+            "tag.bad.fg": neutral[200],
+            "tag.neutral.border": neutral[700],
+            "tag.neutral.fg": neutral[400],
         },
     }
 
@@ -236,6 +273,29 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
         ink, tint = ("ink", "tint") if mode == "light" else ("ink_dark", "tint_dark")
         for element, colors in palette["ohaeng"].items():
             pairs.append((f"{mode} ohaeng.{element}", colors[ink], colors[tint]))
+        pairs += _v2_pairs(palette, mode, roles, ink)
+    return pairs
+
+
+def _v2_pairs(palette: dict, mode: str, roles: dict[str, str], ink: str) -> list[tuple[str, str, str]]:
+    """V2 역할 조합 (V2 spec §5.3)."""
+    pairs = [
+        (f"{mode} tag.good", roles["tag.good.fg"], roles["tag.good.bg"]),
+        (f"{mode} tag.bad", roles["tag.bad.fg"], roles["tag.bad.bg"]),
+        (f"{mode} tag.neutral.fg on bg.sheet", roles["tag.neutral.fg"], roles["bg.sheet"]),
+        (f"{mode} tag.neutral.fg on bg.base", roles["tag.neutral.fg"], roles["bg.base"]),
+        (f"{mode} inverse", roles["inverse.fg"], roles["inverse.bg"]),
+        (f"{mode} disabled", roles["disabled.fg"], roles["disabled.bg"]),
+        (f"{mode} status", roles["term.fg"], roles["term.bg"]),
+        (f"{mode} seal.knock on seal.fill", roles["seal.knock"], roles["action.primary"]),
+        (f"{mode} calendar.weekday.sun on bg.base", palette["ohaeng"]["fire"][ink], roles["bg.base"]),
+        (f"{mode} calendar.weekday.sat on bg.base", palette["ohaeng"]["earth"][ink], roles["bg.base"]),
+    ]
+    scale, step, alpha = SEAL_SOFT[mode]
+    seal = palette["brand"][scale][step]
+    for cell_role in ("bg.base", "calendar.good.bg", "calendar.caution.bg"):
+        stamped = composite(seal, alpha, roles[cell_role])
+        pairs.append((f"{mode} text.primary on seal.soft over {cell_role}", roles["text.primary"], stamped))
     return pairs
 
 
@@ -247,7 +307,8 @@ def check_contrast(palette: dict) -> list[ContrastResult]:
     results = []
     for name, foreground, background in _text_pairs(palette):
         ratio = _unrounded_contrast(foreground, background)
-        results.append(ContrastResult(name, foreground, background, ratio, ratio >= MIN_TEXT_CONTRAST))
+        minimum = MIN_DISABLED_CONTRAST if name.endswith(" disabled") else MIN_TEXT_CONTRAST
+        results.append(ContrastResult(name, foreground, background, ratio, ratio >= minimum))
     return results
 
 
@@ -262,7 +323,8 @@ def main(argv: list[str]) -> int:
         mark = "ok  " if result.passed else "FAIL"
         print(f"{mark} {result.ratio:>5.2f}  {result.name}  ({result.foreground} on {result.background})")
     failures = [result for result in results if not result.passed]
-    print(f"\n{len(results) - len(failures)}/{len(results)} 조합 통과 (기준 {MIN_TEXT_CONTRAST}:1)")
+    print(f"\n{len(results) - len(failures)}/{len(results)} 조합 통과 "
+          f"(기준 {MIN_TEXT_CONTRAST}:1, 비활성 글자 {MIN_DISABLED_CONTRAST}:1)")
     return 1 if failures else 0
 
 
