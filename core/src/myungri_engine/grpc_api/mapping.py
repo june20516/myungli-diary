@@ -15,6 +15,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from myungri_engine._gen.myungri.engine.v1 import engine_pb2 as pb
 from myungri_engine.calendar_core.birth import BirthInput, LunarDate
+from myungri_engine.chart.personal_target import PersonalReading
 from myungri_engine.chart.positions import Position
 from myungri_engine.composers.chart import ChartView
 from myungri_engine.composers.daily import DailyView
@@ -48,6 +49,7 @@ _PREFIX_ELEMENT_ROLE = "ELEMENT_ROLE"
 _PREFIX_CALENDAR_TYPE = "CALENDAR_TYPE"
 _PREFIX_GENDER = "GENDER"
 _PREFIX_SOLAR_TERM_KIND = "SOLAR_TERM_KIND"
+_PREFIX_PERSONAL_TERM_KIND = "PERSONAL_TERM_KIND"
 _UNSPECIFIED = "UNSPECIFIED"
 
 
@@ -193,6 +195,7 @@ def chart_to_proto(view: ChartView) -> pb.ChartResponse:
             for year in luck.years
         ],
         meta=_meta(view.notices),
+        personal_readings=[_personal_reading(reading) for reading in view.personal_readings],
     )
 
 
@@ -294,6 +297,16 @@ def _four_pillars(pillars: FourPillars) -> pb.FourPillars:
 
 def _pillar(pillar: Pillar) -> pb.Pillar:
     return pb.Pillar(stem=_name(_PREFIX_STEM, pillar.stem), branch=_name(_PREFIX_BRANCH, pillar.branch))
+
+
+def _personal_reading(reading: PersonalReading) -> pb.PersonalReading:
+    return pb.PersonalReading(
+        kind=_name(_PREFIX_PERSONAL_TERM_KIND, reading.kind),
+        position=_optional_name(_PREFIX_POSITION, reading.position),
+        index=reading.index,
+        shinsal=_optional_name(_PREFIX_SHINSAL, reading.shinsal),
+        judgment=_judgment(reading.judgment),
+    )
 
 
 def _judgment(judgment: Judgment) -> pb.Judgment:

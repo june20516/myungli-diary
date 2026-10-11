@@ -39,6 +39,7 @@ DOMAIN_TO_PROTO_ENUMS: tuple[tuple[type[Enum], str, str], ...] = (
     (RelationKind, "RelationKind", "RELATION_KIND"),
     (ElementRole, "ElementRole", "ELEMENT_ROLE"),
     (enums.SolarTermKind, "SolarTermKind", "SOLAR_TERM_KIND"),
+    (enums.PersonalTermKind, "PersonalTermKind", "PERSONAL_TERM_KIND"),
 )
 
 

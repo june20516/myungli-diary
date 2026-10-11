@@ -66,6 +66,29 @@ def test_get_chart_roundtrip(stub: pb_grpc.MyungriEngineStub) -> None:
     assert len(response.gongmang) == 2
 
 
+def test_chart_personal_readings(stub: pb_grpc.MyungriEngineStub) -> None:
+    response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
+
+    readings = response.personal_readings
+    first = readings[0]
+    assert first.kind == pb.PERSONAL_TERM_KIND_DAY_MASTER
+    assert first.position == pb.POSITION_DAY_STEM
+    assert first.judgment.message_key.startswith("personal.day_master.")
+    assert len(first.judgment.evidence) >= 1
+
+    seun = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_SEUN_TEN_GOD]
+    assert len(seun) == len(response.seun)
+    assert all(reading.position == pb.POSITION_UNSPECIFIED for reading in seun)
+
+    shinsal = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_SHINSAL]
+    assert all(reading.shinsal != pb.SHINSAL_UNSPECIFIED for reading in shinsal)
+    assert all(
+        reading.shinsal == pb.SHINSAL_UNSPECIFIED
+        for reading in readings
+        if reading.kind != pb.PERSONAL_TERM_KIND_SHINSAL
+    )
+
+
 def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungriEngineStub) -> None:
     response = stub.GetDaily(
         pb.DailyRequest(

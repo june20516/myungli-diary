@@ -11,7 +11,8 @@
 // * 공통 값: LocalDate·LocalTime(현지 달력 날짜·시각), Pillar(간지 한 기둥), FourPillars(네 기둥).
 // * 판정: Judgment(메시지 키 + 매개변수 + 근거 목록), Evidence(규칙 id + source_ref + 세부), Param(매개변수 값).
 // * 응답 공통: ResponseMeta(엔진·규칙 버전, Notice 목록). Notice는 계산은 되지만 민감한 상황 알림입니다(D32).
-// * ChartResponse: 원국 표(기둥·십성·지장간·12운성·신살·공망), 오행 분포, 강약, 용신, 대운 표, 세운 표.
+// * ChartResponse: 원국 표(기둥·십성·지장간·12운성·신살·공망), 오행 분포, 강약, 용신, 대운 표, 세운 표,
+//   원국 개인 해석 목록(PersonalReading, D60).
 // * DailyResponse: 일진, 날의 성격, 카드 4종(컬러·방향·숫자·집중 시간, 각각 Judgment + 원본 값),
 //   일진×원국 합충형, 태그 키(대표·전체), 총운·가이드 질문 Judgment.
 // * MonthResponse: 날짜별 MonthDay(일진, 음력, 절기, 날의 성격, 길흉 점수·수준·구성, 대표 태그 키,
@@ -256,6 +257,20 @@ enum SolarTermKind {
   SOLAR_TERM_KIND_DONGJI = 24; // 동지 冬至
 }
 
+// 원국 개인 해석("내 사주에서는")이 가리키는 용어 (D60).
+enum PersonalTermKind {
+  PERSONAL_TERM_KIND_UNSPECIFIED = 0;
+  PERSONAL_TERM_KIND_DAY_MASTER = 1; // 일간. position = DAY_STEM
+  PERSONAL_TERM_KIND_TEN_GOD = 2; // 원국 천간·지지의 십성. position
+  PERSONAL_TERM_KIND_HIDDEN_TEN_GOD = 3; // 지장간의 십성. position(지지) + index(지장간 순서, 0이 정기)
+  PERSONAL_TERM_KIND_TWELVE_STAGE = 4; // 원국 지지의 12운성. position
+  PERSONAL_TERM_KIND_SHINSAL = 5; // 원국 신살. position + shinsal
+  PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD = 6; // index = DaeunTable.periods 순서
+  PERSONAL_TERM_KIND_DAEUN_BRANCH_TEN_GOD = 7;
+  PERSONAL_TERM_KIND_DAEUN_TWELVE_STAGE = 8;
+  PERSONAL_TERM_KIND_SEUN_TEN_GOD = 9; // index = ChartResponse.seun 순서
+}
+
 // ---------------------------------------------------------------------------
 // 공통 값
 // ---------------------------------------------------------------------------
@@ -375,6 +390,18 @@ message ChartResponse {
   DaeunTable daeun = 10;
   repeated YearLuck seun = 11; // 현재 대운 구간의 10년
   ResponseMeta meta = 12;
+  // evidence 깊이의 원국 개인 해석(D60). 열람 권한이 없으면 server가 이 필드를 응답에서 뺍니다.
+  repeated PersonalReading personal_readings = 13;
+}
+
+// 순서: 일간 → 원국 십성(자리 순) → 지장간 → 12운성 → 신살 → 대운(구간마다 천간·지지·12운성) → 세운.
+// 앱은 누른 용어의 (kind, position, index, shinsal)로 해석을 찾습니다.
+message PersonalReading {
+  PersonalTermKind kind = 1;
+  Position position = 2; // 원국 용어만. 대운·세운은 UNSPECIFIED
+  int32 index = 3; // HIDDEN·DAEUN·SEUN만 의미. 그 밖은 0
+  Shinsal shinsal = 4; // SHINSAL만. 그 밖은 UNSPECIFIED
+  Judgment judgment = 5;
 }
 
 message PositionTenGod {

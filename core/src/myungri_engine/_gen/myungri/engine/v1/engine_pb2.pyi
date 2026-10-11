@@ -208,6 +208,19 @@ class SolarTermKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     SOLAR_TERM_KIND_SOSEOL: _ClassVar[SolarTermKind]
     SOLAR_TERM_KIND_DAESEOL: _ClassVar[SolarTermKind]
     SOLAR_TERM_KIND_DONGJI: _ClassVar[SolarTermKind]
+
+class PersonalTermKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    PERSONAL_TERM_KIND_UNSPECIFIED: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_DAY_MASTER: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_TEN_GOD: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_HIDDEN_TEN_GOD: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_TWELVE_STAGE: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_SHINSAL: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_DAEUN_BRANCH_TEN_GOD: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_DAEUN_TWELVE_STAGE: _ClassVar[PersonalTermKind]
+    PERSONAL_TERM_KIND_SEUN_TEN_GOD: _ClassVar[PersonalTermKind]
 CALENDAR_TYPE_UNSPECIFIED: CalendarType
 CALENDAR_TYPE_SOLAR: CalendarType
 CALENDAR_TYPE_LUNAR: CalendarType
@@ -353,6 +366,16 @@ SOLAR_TERM_KIND_IPDONG: SolarTermKind
 SOLAR_TERM_KIND_SOSEOL: SolarTermKind
 SOLAR_TERM_KIND_DAESEOL: SolarTermKind
 SOLAR_TERM_KIND_DONGJI: SolarTermKind
+PERSONAL_TERM_KIND_UNSPECIFIED: PersonalTermKind
+PERSONAL_TERM_KIND_DAY_MASTER: PersonalTermKind
+PERSONAL_TERM_KIND_TEN_GOD: PersonalTermKind
+PERSONAL_TERM_KIND_HIDDEN_TEN_GOD: PersonalTermKind
+PERSONAL_TERM_KIND_TWELVE_STAGE: PersonalTermKind
+PERSONAL_TERM_KIND_SHINSAL: PersonalTermKind
+PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD: PersonalTermKind
+PERSONAL_TERM_KIND_DAEUN_BRANCH_TEN_GOD: PersonalTermKind
+PERSONAL_TERM_KIND_DAEUN_TWELVE_STAGE: PersonalTermKind
+PERSONAL_TERM_KIND_SEUN_TEN_GOD: PersonalTermKind
 
 class LocalDate(_message.Message):
     __slots__ = ("year", "month", "day")
@@ -512,7 +535,7 @@ class ResponseMeta(_message.Message):
     def __init__(self, engine_version: _Optional[str] = ..., ruleset_version: _Optional[str] = ..., notices: _Optional[_Iterable[_Union[Notice, _Mapping]]] = ...) -> None: ...
 
 class ChartResponse(_message.Message):
-    __slots__ = ("pillars", "ten_gods", "hidden_stems", "twelve_stages", "shinsal", "gongmang", "element_weights", "strength", "yongsin", "daeun", "seun", "meta")
+    __slots__ = ("pillars", "ten_gods", "hidden_stems", "twelve_stages", "shinsal", "gongmang", "element_weights", "strength", "yongsin", "daeun", "seun", "meta", "personal_readings")
     PILLARS_FIELD_NUMBER: _ClassVar[int]
     TEN_GODS_FIELD_NUMBER: _ClassVar[int]
     HIDDEN_STEMS_FIELD_NUMBER: _ClassVar[int]
@@ -525,6 +548,7 @@ class ChartResponse(_message.Message):
     DAEUN_FIELD_NUMBER: _ClassVar[int]
     SEUN_FIELD_NUMBER: _ClassVar[int]
     META_FIELD_NUMBER: _ClassVar[int]
+    PERSONAL_READINGS_FIELD_NUMBER: _ClassVar[int]
     pillars: FourPillars
     ten_gods: _containers.RepeatedCompositeFieldContainer[PositionTenGod]
     hidden_stems: _containers.RepeatedCompositeFieldContainer[PositionHiddenStems]
@@ -537,7 +561,22 @@ class ChartResponse(_message.Message):
     daeun: DaeunTable
     seun: _containers.RepeatedCompositeFieldContainer[YearLuck]
     meta: ResponseMeta
-    def __init__(self, pillars: _Optional[_Union[FourPillars, _Mapping]] = ..., ten_gods: _Optional[_Iterable[_Union[PositionTenGod, _Mapping]]] = ..., hidden_stems: _Optional[_Iterable[_Union[PositionHiddenStems, _Mapping]]] = ..., twelve_stages: _Optional[_Iterable[_Union[PositionTwelveStage, _Mapping]]] = ..., shinsal: _Optional[_Iterable[_Union[ShinsalHit, _Mapping]]] = ..., gongmang: _Optional[_Iterable[_Union[Branch, str]]] = ..., element_weights: _Optional[_Iterable[_Union[ElementWeight, _Mapping]]] = ..., strength: _Optional[_Union[Strength, _Mapping]] = ..., yongsin: _Optional[_Union[YongsinInfo, _Mapping]] = ..., daeun: _Optional[_Union[DaeunTable, _Mapping]] = ..., seun: _Optional[_Iterable[_Union[YearLuck, _Mapping]]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...
+    personal_readings: _containers.RepeatedCompositeFieldContainer[PersonalReading]
+    def __init__(self, pillars: _Optional[_Union[FourPillars, _Mapping]] = ..., ten_gods: _Optional[_Iterable[_Union[PositionTenGod, _Mapping]]] = ..., hidden_stems: _Optional[_Iterable[_Union[PositionHiddenStems, _Mapping]]] = ..., twelve_stages: _Optional[_Iterable[_Union[PositionTwelveStage, _Mapping]]] = ..., shinsal: _Optional[_Iterable[_Union[ShinsalHit, _Mapping]]] = ..., gongmang: _Optional[_Iterable[_Union[Branch, str]]] = ..., element_weights: _Optional[_Iterable[_Union[ElementWeight, _Mapping]]] = ..., strength: _Optional[_Union[Strength, _Mapping]] = ..., yongsin: _Optional[_Union[YongsinInfo, _Mapping]] = ..., daeun: _Optional[_Union[DaeunTable, _Mapping]] = ..., seun: _Optional[_Iterable[_Union[YearLuck, _Mapping]]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., personal_readings: _Optional[_Iterable[_Union[PersonalReading, _Mapping]]] = ...) -> None: ...
+
+class PersonalReading(_message.Message):
+    __slots__ = ("kind", "position", "index", "shinsal", "judgment")
+    KIND_FIELD_NUMBER: _ClassVar[int]
+    POSITION_FIELD_NUMBER: _ClassVar[int]
+    INDEX_FIELD_NUMBER: _ClassVar[int]
+    SHINSAL_FIELD_NUMBER: _ClassVar[int]
+    JUDGMENT_FIELD_NUMBER: _ClassVar[int]
+    kind: PersonalTermKind
+    position: Position
+    index: int
+    shinsal: Shinsal
+    judgment: Judgment
+    def __init__(self, kind: _Optional[_Union[PersonalTermKind, str]] = ..., position: _Optional[_Union[Position, str]] = ..., index: _Optional[int] = ..., shinsal: _Optional[_Union[Shinsal, str]] = ..., judgment: _Optional[_Union[Judgment, _Mapping]] = ...) -> None: ...
 
 class PositionTenGod(_message.Message):
     __slots__ = ("position", "ten_god")
