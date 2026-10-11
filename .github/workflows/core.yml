@@ -5,6 +5,8 @@ on:
     paths: ["core/**", "proto/**", ".github/workflows/core.yml"]
   pull_request:
     paths: ["core/**", "proto/**", ".github/workflows/core.yml"]
+  # ci-gate가 이 workflow를 호출한다(D44). 지휘 세션이 ci-gate에 연결한 뒤 위 push·pull_request 트리거를 지운다.
+  workflow_call:
   workflow_dispatch:
   schedule:
     - cron: "0 3 * * 1" # 매주 월요일 03:00 UTC: slow 테스트
@@ -13,7 +15,43 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  # slow 테스트(KASI 골든·분포 보정)는 엔진 정확성의 근거라서, 계산·규칙·근거 데이터·의존성을 바꾸는 변경에서도 돌린다.
+  core-paths:
+    runs-on: ubuntu-latest
+    outputs:
+      slow: ${{ steps.detect.outputs.slow }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: slow 테스트를 돌릴 변경인지 판별
+        id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT" = "schedule" ] || [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "slow=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$EVENT" = "pull_request" ]; then
+            base="$PR_BASE"
+          elif [ "$EVENT" = "push" ] && [ -n "$PUSH_BEFORE" ] && ! echo "$PUSH_BEFORE" | grep -qE '^0+$'; then
+            base="$PUSH_BEFORE"
+          else
+            echo "slow=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
+          echo "$changed"
+          if echo "$changed" | grep -qE '^core/src/myungri_engine/(calendar_core|rules|references)/|^core/uv\.lock$|^core/tests/golden/|^\.github/workflows/core\.yml$'; then
+            echo "slow=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "slow=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  core-check:
     # slow 테스트는 아래 slow job에서만 돌린다.
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
@@ -35,7 +73,7 @@ jobs:
           bash tools/gen_proto.sh
           git diff --exit-code src/myungri_engine/_gen
 
-  proto:
+  core-proto:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
@@ -66,8 +104,9 @@ jobs:
           archive: false
           pr_comment: false
 
-  slow:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+  core-slow:
+    needs: core-paths
+    if: needs.core-paths.outputs.slow == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:

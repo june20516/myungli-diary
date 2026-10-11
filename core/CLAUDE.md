@@ -13,13 +13,14 @@
 | 계약 | 역할 | 사용하는 쪽 |
 | --- | --- | --- |
 | `proto/myungri/engine/v1/engine.proto` (gRPC) | **제공** | server |
-| `core/message_keys.json` (메시지 키 목록) | **제공** | server (콘텐츠 모듈) |
-| `source_ref` 형식 (spec §11) | **제공** | server, app (Pro 화면의 근거 표시) |
+| `core/message_keys.json` (메시지 키 목록) | **제공** | server (콘텐츠 모듈), writing |
+| `core/message_params.json` (메시지 키별 매개변수 이름) | **제공** | server, writing |
+| `source_ref` 형식 (spec §11) | **제공** | server, app (`evidence` 깊이의 근거 표시) |
 
 ## 문서
 | 문서 | 위치 |
 | --- | --- |
-| 엔진 위키 (v1.6) | `core/docs/engine-logic-wiki.md` |
+| 엔진 위키 (v1.7) | `core/docs/engine-logic-wiki.md` |
 | 엔진 spec (승인됨, D34) | `core/docs/specs/2026-10-10-myungri-engine-design.md` |
 | 구현 계획 (20 task) | `core/docs/plans/2026-10-10-myungri-engine.md` |
 | 원전 근거 자료 | `core/docs/references/` |
@@ -30,7 +31,7 @@
 ## 현재 상태 (엔진 MVP 완료, 2026-10-10)
 * **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, gRPC 서버(`uv run python -m myungri_engine --port 50051`).
 * **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
-* **제공 계약:** `proto/myungri/engine/v1`(v1), `core/message_keys.json`(93개 키), `source_ref` 형식, `ruleset_version` `2026.10.1`.
+* **제공 계약:** `proto/myungri/engine/v1`(v1), `core/message_keys.json`(93개 키), `core/message_params.json`(키별 매개변수 이름, #38), `source_ref` 형식, `ruleset_version` `2026.10.1`.
 * **알려진 한계:**
   * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
   * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5).
@@ -40,6 +41,10 @@
 
 ## 다음 할 일
 1. 엔진 MVP는 main에 병합됐습니다(PR #1). 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
-2. 완료 보고(`docs/coordination/archive/2026-10-10-core-to-root-engine-mvp-done.md`)는 지휘 세션이 처리했습니다(PR #1 병합). 남은 일은 `gh issue list --label to:core`: 후속 요청 #5, 용어 정리 #4, core.yml 전환 #9.
+2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-11 기준:
+   * **#9 3단계:** 지휘 세션이 ci-gate에 core를 연결했다고 알리면 `core.yml`의 `push`·`pull_request` 트리거를 지웁니다(1단계는 `core/followups`에서 처리).
+   * **#51:** 원국 개인 해석 메시지 키(D60). 키 규모가 writing 원고 범위를 정하므로 brainstorming → spec부터 진행합니다. 같은 proto 추가인 #41(출생 시진 RPC)·#49(`ruleset_version` 조회 RPC)를 함께 묶는 것을 권합니다. 그 PR에서 `buf breaking` 비교가 실제로 도는지 확인합니다(#5-1 후속).
+   * **#34:** 엔진 컨테이너 이미지와 Cloud Run 실행 조건. server S1 배포 단계 전까지.
+   * #5-5(회귀 스냅샷 분할 검토)는 다음 규칙 변경 때 봅니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.

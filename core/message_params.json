@@ -1,0 +1,402 @@
+{
+  "calendar.caution": [
+    "score"
+  ],
+  "calendar.good": [
+    "score"
+  ],
+  "calendar.neutral": [
+    "score"
+  ],
+  "color.gisin_day": [
+    "element",
+    "role"
+  ],
+  "color.gwiin_day": [
+    "element",
+    "role"
+  ],
+  "color.ordinary_day": [
+    "element",
+    "role"
+  ],
+  "color.yongsin_day": [
+    "element",
+    "role"
+  ],
+  "direction.day_kind.gisin": [
+    "direction",
+    "rule_id"
+  ],
+  "direction.day_kind.gwiin": [
+    "direction",
+    "rule_id"
+  ],
+  "direction.day_kind.ordinary": [
+    "direction",
+    "rule_id"
+  ],
+  "direction.day_kind.yongsin": [
+    "direction",
+    "rule_id"
+  ],
+  "focus_time.fallback": [
+    "branches",
+    "score"
+  ],
+  "focus_time.gwiin": [
+    "branches",
+    "score"
+  ],
+  "focus_time.hap": [
+    "branches",
+    "score"
+  ],
+  "focus_time.huisin": [
+    "branches",
+    "score"
+  ],
+  "focus_time.yongsin": [
+    "branches",
+    "score"
+  ],
+  "fortune.gisin_day.bigyeop": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gisin_day.gwanseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gisin_day.inseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gisin_day.jaeseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gisin_day.siksang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gwiin_day.bigyeop": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gwiin_day.gwanseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gwiin_day.inseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gwiin_day.jaeseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.gwiin_day.siksang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.ordinary_day.bigyeop": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.ordinary_day.gwanseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.ordinary_day.inseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.ordinary_day.jaeseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.ordinary_day.siksang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.big_change": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.cheoneul_gwiin": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.clash": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.dohwa": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.gongmang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.gwiin_day": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.harmony": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.hwagae": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.ten_god_rush.bigyeop": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.ten_god_rush.gwanseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.ten_god_rush.inseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.ten_god_rush.jaeseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.ten_god_rush.siksang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.yeokma": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.yongsin_day": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.yongsin_day.bigyeop": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.yongsin_day.gwanseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.yongsin_day.inseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.yongsin_day.jaeseong": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.yongsin_day.siksang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "guide.big_change": [
+    "ten_god",
+    "element"
+  ],
+  "guide.cheoneul_gwiin": [
+    "ten_god",
+    "element"
+  ],
+  "guide.clash": [
+    "ten_god",
+    "element"
+  ],
+  "guide.dohwa": [
+    "ten_god",
+    "element"
+  ],
+  "guide.gongmang": [
+    "ten_god",
+    "element"
+  ],
+  "guide.gwiin_day": [
+    "ten_god",
+    "element"
+  ],
+  "guide.harmony": [
+    "ten_god",
+    "element"
+  ],
+  "guide.hwagae": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god.bigyeop": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god.gwanseong": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god.inseong": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god.jaeseong": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god.siksang": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god_rush.bigyeop": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god_rush.gwanseong": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god_rush.inseong": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god_rush.jaeseong": [
+    "ten_god",
+    "element"
+  ],
+  "guide.ten_god_rush.siksang": [
+    "ten_god",
+    "element"
+  ],
+  "guide.yeokma": [
+    "ten_god",
+    "element"
+  ],
+  "guide.yongsin_day": [
+    "ten_god",
+    "element"
+  ],
+  "number.gisin_day": [
+    "number",
+    "element"
+  ],
+  "number.gwiin_day": [
+    "number",
+    "element"
+  ],
+  "number.ordinary_day": [
+    "number",
+    "element"
+  ],
+  "number.yongsin_day": [
+    "number",
+    "element"
+  ],
+  "tag.big_change": [],
+  "tag.cheoneul_gwiin": [],
+  "tag.clash": [],
+  "tag.dohwa": [],
+  "tag.gongmang": [],
+  "tag.gwiin_day": [],
+  "tag.harmony": [],
+  "tag.hwagae": [],
+  "tag.ten_god_rush.bigyeop": [],
+  "tag.ten_god_rush.gwanseong": [],
+  "tag.ten_god_rush.inseong": [],
+  "tag.ten_god_rush.jaeseong": [],
+  "tag.ten_god_rush.siksang": [],
+  "tag.yeokma": [],
+  "tag.yongsin_day": [],
+  "yongsin.method.eokbu": [
+    "yongsin",
+    "huisin",
+    "gisin",
+    "tonggwan"
+  ],
+  "yongsin.method.johu": [
+    "yongsin",
+    "huisin",
+    "gisin",
+    "tonggwan"
+  ],
+  "yongsin.method.johu_neutral": [
+    "yongsin",
+    "huisin",
+    "gisin",
+    "tonggwan"
+  ]
+}

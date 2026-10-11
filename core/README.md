@@ -4,7 +4,7 @@
 문장은 만들지 않고 메시지 키, 매개변수, 근거만 반환합니다.
 
 * 설계: [`docs/specs/2026-10-10-myungri-engine-design.md`](docs/specs/2026-10-10-myungri-engine-design.md)
-* 연산 로직 위키(v1.6): [`docs/engine-logic-wiki.md`](docs/engine-logic-wiki.md)
+* 연산 로직 위키(v1.7): [`docs/engine-logic-wiki.md`](docs/engine-logic-wiki.md)
 * core 결정 로그(C1~C5): [`docs/decisions.md`](docs/decisions.md)
 * 필요한 도구: [uv](https://docs.astral.sh/uv/)(Python 3.13), proto 검사에 [buf](https://buf.build/)
 
@@ -40,6 +40,17 @@ git diff --exit-code src/myungri_engine/_gen   # 변경이 없어야 합니다
 (cd ../proto && buf lint)
 ```
 
+## 메시지 키와 매개변수 목록
+
+키와 키별 매개변수 이름은 `src/myungri_engine/constants/message_keys.py`의 `KEY_PARAMS` 한 곳에서 선언합니다.
+엔진이 판정을 만들 때 `require(key, params)`가 실제 매개변수 이름이 선언과 같은지 확인합니다.
+선언을 바꾸면 계약 파일 두 개를 다시 만들어 commit합니다. 테스트가 코드와 파일의 일치를 검사합니다.
+
+```bash
+uv run python -m myungri_engine.constants.message_keys > message_keys.json
+uv run python -m myungri_engine.constants.message_keys params > message_params.json
+```
+
 ## 강약 보정 상수
 
 `constants/calibration.py`의 신강·신약 경계값과 조후 기준값은 무작위 출생 분포(난수 시드 고정)에서 산출합니다.
@@ -54,6 +65,8 @@ uv run python tools/calibrate_strength.py --write   # 산출값으로 상수 파
 ## KASI 자료 수집
 
 절기·음양력 골든 fixture는 공공데이터포털의 한국천문연구원 API로 받습니다. 키는 **환경 변수 `KASI_SERVICE_KEY`로만** 넘기고 저장소에 넣지 않습니다(`core/.env`는 git이 무시합니다).
+
+출처: 한국천문연구원, 공공데이터포털(음양력 정보 15012679, 특일 정보 15012690). 두 데이터셋 모두 이용허락범위 제한이 없습니다.
 
 ```bash
 export KASI_SERVICE_KEY="<발급받은 키>"
@@ -74,4 +87,4 @@ uv run python tools/fetch_kasi.py --years 2000-2028
    ```bash
    UPDATE_RULESET_HASH=1 uv run pytest tests/unit/test_ruleset_version.py
    ```
-4. 서버가 일기 태그와 캐시에 `ruleset_version`을 쓰므로(D31), 값이 바뀌었음을 `docs/coordination/`으로 알립니다.
+4. 서버가 일기 태그와 캐시에 `ruleset_version`을 쓰므로(D31), 값이 바뀌었음을 `from:core` GitHub Issue로 알립니다.

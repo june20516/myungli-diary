@@ -82,17 +82,19 @@ def _kind_key(kind: DayKind) -> str:
 
 
 def _color_judgment(kind: DayKind, pick: ElementPick) -> Judgment:
+    params = {"element": pick.element.name, "role": pick.role.name}
     return Judgment(
-        message_key=require(f"color.{_kind_key(kind)}"),
-        params={"element": pick.element.name, "role": pick.role.name},
+        message_key=require(f"color.{_kind_key(kind)}", params),
+        params=params,
         evidence=pick.evidence,
     )
 
 
 def _direction_judgment(kind: DayKind, pick: DirectionPick) -> Judgment:
+    params = {"direction": pick.direction.name, "rule_id": pick.rule_id}
     return Judgment(
-        message_key=require(f"direction.day_kind.{_kind_key(kind).removesuffix('_day')}"),
-        params={"direction": pick.direction.name, "rule_id": pick.rule_id},
+        message_key=require(f"direction.day_kind.{_kind_key(kind).removesuffix('_day')}", params),
+        params=params,
         evidence=pick.evidence,
     )
 
@@ -109,9 +111,10 @@ def _number_judgment(kind: DayKind, number: int, color: ElementPick, day: Pillar
             "parity": "odd" if day.stem.is_yang else "even",
         },
     )
+    params: dict[str, str | int | float | bool] = {"number": number, "element": color.element.name}
     return Judgment(
-        message_key=require(f"number.{_kind_key(kind)}"),
-        params={"number": number, "element": color.element.name},
+        message_key=require(f"number.{_kind_key(kind)}", params),
+        params=params,
         evidence=(evidence,),
     )
 
@@ -120,11 +123,12 @@ def _focus_judgment(focus: FocusResult) -> Judgment:
     """fallback이거나 1등 시진에 가점 사유가 없으면 fallback 키, 아니면 1등의 첫 사유 키."""
     top = focus.picks[0]
     reason = FOCUS_FALLBACK_REASON if focus.fallback or not top.reasons else top.reasons[0]
+    params: dict[str, str | int | float | bool] = {
+        "branches": ",".join(pick.slot.branch.name for pick in focus.picks),
+        "score": top.score,
+    }
     return Judgment(
-        message_key=require(f"focus_time.{reason}"),
-        params={
-            "branches": ",".join(pick.slot.branch.name for pick in focus.picks),
-            "score": top.score,
-        },
+        message_key=require(f"focus_time.{reason}", params),
+        params=params,
         evidence=focus.evidence,
     )
