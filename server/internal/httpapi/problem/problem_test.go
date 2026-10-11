@@ -67,13 +67,37 @@ func TestWrite_IncludesDetailAndErrors(t *testing.T) {
 	}
 }
 
-func TestWrite_401AddsWWWAuthenticate(t *testing.T) {
+// 계약: WWW-Authenticate는 bearer 요청의 401에만 붙습니다. 일반 401(예 webhook 서명 실패)에는 붙이지 않습니다.
+func TestWrite_401OmitsWWWAuthenticate(t *testing.T) {
 	rec := httptest.NewRecorder()
 
-	problem.Write(rec, newRequest("t"), problem.New(401, "auth.invalid_token", "Invalid token"))
+	problem.Write(rec, newRequest("t"), problem.New(401, "reward.invalid_signature", "Invalid signature"))
 
+	if rec.Code != 401 {
+		t.Errorf("status = %d, want 401", rec.Code)
+	}
+	if got := rec.Header().Get("WWW-Authenticate"); got != "" {
+		t.Errorf("WWW-Authenticate = %q, want empty", got)
+	}
+}
+
+func TestWriteBearerChallenge_AddsWWWAuthenticate(t *testing.T) {
+	rec := httptest.NewRecorder()
+
+	problem.WriteBearerChallenge(rec, newRequest("t"), problem.New(401, "auth.token_invalid", "Invalid token"))
+
+	if rec.Code != 401 {
+		t.Errorf("status = %d, want 401", rec.Code)
+	}
 	if got := rec.Header().Get("WWW-Authenticate"); got != `Bearer error="invalid_token"` {
 		t.Errorf("WWW-Authenticate = %q", got)
+	}
+	var body problem.Problem
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("본문 파싱: %v", err)
+	}
+	if body.Code != "auth.token_invalid" || body.TraceID != "t" {
+		t.Errorf("body = %+v", body)
 	}
 }
 

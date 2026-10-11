@@ -36,16 +36,20 @@ func New(status int, code, title string) Problem {
 }
 
 // Write는 Problem을 응답으로 씁니다. Type은 코드로, TraceID는 요청 ctx에서 채웁니다.
-// 상태가 401이면 WWW-Authenticate 헤더도 붙입니다.
+// WWW-Authenticate는 붙이지 않습니다. bearer 인증 실패는 WriteBearerChallenge를 씁니다.
 func Write(w http.ResponseWriter, r *http.Request, p Problem) {
 	p.Type = typePrefix + p.Code
 	p.TraceID = logging.TraceID(r.Context())
 
 	w.Header().Set("Content-Type", contentType)
-	if p.Status == http.StatusUnauthorized {
-		w.Header().Set("WWW-Authenticate", `Bearer error="invalid_token"`)
-	}
 	w.WriteHeader(p.Status)
 	// 헤더를 이미 보냈으므로 쓰기 실패(연결 끊김)는 호출자가 할 수 있는 일이 없습니다.
 	_ = json.NewEncoder(w).Encode(p)
+}
+
+// WriteBearerChallenge는 bearer 인증에 실패한 요청의 401 Problem을 RFC 6750 WWW-Authenticate 헤더와 함께 씁니다.
+// 계약상 이 헤더는 bearer 요청의 401에만 붙으므로, webhook 서명 실패 같은 그 밖의 401은 Write를 씁니다.
+func WriteBearerChallenge(w http.ResponseWriter, r *http.Request, p Problem) {
+	w.Header().Set("WWW-Authenticate", `Bearer error="invalid_token"`)
+	Write(w, r, p)
 }

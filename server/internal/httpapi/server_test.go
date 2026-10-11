@@ -17,14 +17,20 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 )
 
-// newTestHandler는 로그를 buffer에 모으는 Handler를 만듭니다.
-func newTestHandler(t *testing.T, routes func(mux *http.ServeMux)) (http.Handler, *bytes.Buffer) {
-	t.Helper()
+// newTestDeps는 로그를 buffer에 모으는 Deps를 만듭니다.
+func newTestDeps() (httpapi.Deps, *bytes.Buffer) {
 	logs := &bytes.Buffer{}
 	deps := httpapi.Deps{
 		Logger: logging.New(logs, slog.LevelDebug, ""),
 		Clock:  clocktest.New(time.Date(2026, 10, 11, 0, 0, 0, 0, time.UTC)),
 	}
+	return deps, logs
+}
+
+// newTestHandler는 로그를 buffer에 모으는 Handler를 만듭니다.
+func newTestHandler(t *testing.T, routes func(mux *http.ServeMux)) (http.Handler, *bytes.Buffer) {
+	t.Helper()
+	deps, logs := newTestDeps()
 	return httpapi.NewHandler(deps, routes), logs
 }
 
@@ -53,7 +59,7 @@ func decodeProblem(t *testing.T, rec *httptest.ResponseRecorder) problem.Problem
 }
 
 func TestHandler_Healthz(t *testing.T) {
-	handler, _ := newTestHandler(t, nil)
+	handler, _ := newAPIHandler(t)
 
 	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/healthz", nil))
 
@@ -204,7 +210,7 @@ func TestHandler_AccessLog_UsesRoutePatternNotActualPath(t *testing.T) {
 }
 
 func TestHandler_TraceHeaderOnResponse(t *testing.T) {
-	handler, _ := newTestHandler(t, nil)
+	handler, _ := newAPIHandler(t)
 
 	rec := serve(handler, httptest.NewRequest(http.MethodGet, "/healthz", nil))
 

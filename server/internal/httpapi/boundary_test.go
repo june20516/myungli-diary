@@ -146,7 +146,7 @@ func TestHandler_ErrAbortHandlerIsRethrownWithoutErrorLog(t *testing.T) {
 }
 
 func TestHandler_HeadHealthz(t *testing.T) {
-	handler, _ := newTestHandler(t, nil)
+	handler, _ := newAPIHandler(t)
 
 	rec := serve(handler, httptest.NewRequest(http.MethodHead, "/healthz", nil))
 

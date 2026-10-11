@@ -91,6 +91,19 @@ func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 	})
 
 	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
+	// 계약 라우트가 등록돼 있고 아직 구현하지 않은 operation은 501입니다.
+	// 종료를 늦추지 않게 본문을 끝까지 읽고 유휴 연결을 닫습니다.
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get("http://127.0.0.1:" + env["PORT"] + "/v1/me")
+	if err != nil {
+		t.Fatalf("GET /v1/me: %v", err)
+	}
+	_, _ = io.Copy(io.Discard, resp.Body)
+	resp.Body.Close()
+	client.CloseIdleConnections()
+	if resp.StatusCode != http.StatusNotImplemented {
+		t.Errorf("GET /v1/me status = %d, want 501", resp.StatusCode)
+	}
 	cancel()
 
 	select {

@@ -1,0 +1,8 @@
+# oapi-codegen 설정입니다. 생성: cd server && go generate ./api/...
+package: gen
+output: ../internal/httpapi/gen/api.gen.go
+generate:
+  models: true
+  std-http-server: true
+  strict-server: true
+  embedded-spec: true

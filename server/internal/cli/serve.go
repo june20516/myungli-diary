@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
+	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
@@ -34,13 +35,24 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
+	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
+	spec, err := gen.GetSwagger()
+	if err != nil {
+		logger.ErrorContext(ctx, "계약 읽기 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	deps := httpapi.Deps{Logger: logger, Clock: clock.System{}}
+	validate := httpapi.ValidateRequests(spec)
+	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
+		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
+	})
+
 	listener, err := net.Listen("tcp", net.JoinHostPort("", strconv.Itoa(cfg.Port)))
 	if err != nil {
 		logger.ErrorContext(ctx, "포트 열기 실패", "port", cfg.Port, "error", err)
 		return &loggedError{err: err}
 	}
 
-	handler := httpapi.NewHandler(httpapi.Deps{Logger: logger, Clock: clock.System{}}, nil)
 	logger.InfoContext(ctx, "서버 시작", "port", cfg.Port, "env", cfg.Env)
 	if err := serveHTTP(ctx, listener, handler, logger); err != nil {
 		logger.ErrorContext(ctx, "서버 종료 오류", "error", err)

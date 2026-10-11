@@ -28,10 +28,9 @@ type Deps struct {
 // NewHandler는 공통 미들웨어를 입힌 http.Handler를 만듭니다.
 // 미들웨어는 바깥부터 trace, 접근 로그, panic 복구, 본문 상한 순서입니다.
 // 접근 로그가 복구·상한보다 바깥이라 413과 panic 500도 실제 상태로 기록됩니다.
-// routes가 nil이 아니면 mux에 경로를 등록하게 합니다.
+// routes가 nil이 아니면 mux에 경로를 등록하게 합니다. 계약 라우트(/healthz 포함)는 routes에서 RegisterAPI로 등록합니다.
 func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 	mux := http.NewServeMux()
-	registerHealthz(mux)
 	if routes != nil {
 		routes(mux)
 	}
@@ -41,14 +40,6 @@ func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 	handler = recoverPanic(deps, handler)
 	handler = accessLog(deps, handler)
 	return logging.WithTrace(handler)
-}
-
-// registerHealthz는 GET /healthz를 등록합니다. OpenAPI 생성 라우트로 옮길 때 이 함수만 지웁니다.
-func registerHealthz(mux *http.ServeMux) {
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-	})
 }
 
 // newRouter는 ServeMux가 내는 평문 404·405를 problem+json으로 바꿉니다.

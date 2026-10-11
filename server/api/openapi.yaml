@@ -1559,9 +1559,14 @@ components:
       properties:
         field:
           type: string
-          description: 요청 본문 안의 위치. JSON Pointer(RFC 6901)입니다(예 `/birth/date/day`).
+          description: |
+            위반 위치. 요청 본문 안이면 JSON Pointer(RFC 6901)입니다(예 `/birth/date/day`, 본문 전체는 빈 문자열).
+            경로·쿼리·헤더 parameter면 계약의 parameter 이름입니다(예 `date`, `limit`). JSON Pointer는 `/`로 시작하거나 비어 있어 둘은 겹치지 않습니다.
         code:
           type: string
+          description: |
+            `request.invalid`에서는 위반한 JSON Schema keyword(예 `required`, `pattern`, `minimum`, `format`)이고, parameter를 타입으로 읽지 못하면 `type`입니다.
+            그 밖(예 `ProfileResponse.warnings`)에서는 그 응답이 정한 코드입니다.
     Language:
       type: string
       enum: [ko, en, ja]
