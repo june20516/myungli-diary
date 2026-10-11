@@ -97,14 +97,6 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout,
 	return exitError
 }
 
-// runServe는 Task 6에서 서버 시작 동작을 연결합니다.
-func runServe(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
-	if len(args) != 0 {
-		return usageErrorf("usage: server serve")
-	}
-	return ErrNotImplemented
-}
-
 var migrateDirections = []string{"up", "down", "status"}
 
 // runMigrate는 DB에 migration을 적용하거나 되돌리거나 상태를 보여 줍니다.
