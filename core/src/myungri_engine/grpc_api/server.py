@@ -20,6 +20,7 @@ from myungri_engine.domain.errors import InvalidInputError
 from myungri_engine.grpc_api import mapping
 from myungri_engine.grpc_api.errors import run_or_abort
 from myungri_engine.references import loader
+from myungri_engine.version import ENGINE_VERSION, RULESET_VERSION
 
 DEFAULT_PORT: Final = 50051
 MAX_WORKERS: Final = 8
@@ -57,6 +58,12 @@ class MyungriEngineServicer(pb_grpc.MyungriEngineServicer):
         def compute() -> pb.BirthHourResponse:
             birth = mapping.birth_from_proto(_required_birth(request))
             return mapping.birth_hour_to_proto(birth_hour(birth))
+
+        return run_or_abort(context, compute)
+
+    def GetInfo(self, request: pb.InfoRequest, context: grpc.ServicerContext) -> pb.InfoResponse:
+        def compute() -> pb.InfoResponse:
+            return pb.InfoResponse(engine_version=ENGINE_VERSION, ruleset_version=RULESET_VERSION)
 
         return run_or_abort(context, compute)
 

@@ -343,3 +343,9 @@ def test_get_birth_hour_out_of_range_date(stub: pb_grpc.MyungriEngineStub) -> No
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1899, 6, 1)))
     assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE
+
+
+def test_get_info(stub: pb_grpc.MyungriEngineStub) -> None:
+    response = stub.GetInfo(pb.InfoRequest())
+    assert response.engine_version == ENGINE_VERSION
+    assert response.ruleset_version == RULESET_VERSION

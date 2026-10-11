@@ -859,3 +859,15 @@ class BirthHourResponse(_message.Message):
     end: _timestamp_pb2.Timestamp
     meta: ResponseMeta
     def __init__(self, branch: _Optional[_Union[Branch, str]] = ..., start: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., end: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...
+
+class InfoRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class InfoResponse(_message.Message):
+    __slots__ = ("engine_version", "ruleset_version")
+    ENGINE_VERSION_FIELD_NUMBER: _ClassVar[int]
+    RULESET_VERSION_FIELD_NUMBER: _ClassVar[int]
+    engine_version: str
+    ruleset_version: str
+    def __init__(self, engine_version: _Optional[str] = ..., ruleset_version: _Optional[str] = ...) -> None: ...

@@ -6,7 +6,7 @@
 // 식별자뿐입니다.
 //
 // 메시지 개요
-// * 서비스 MyungriEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진).
+// * 서비스 MyungriEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전).
 // * 입력: BirthInfo(출생 정보), ChartRequest / DailyRequest / MonthRequest. spec §3·§9 원문 그대로입니다.
 // * 공통 값: LocalDate·LocalTime(현지 달력 날짜·시각), Pillar(간지 한 기둥), FourPillars(네 기둥).
 // * 판정: Judgment(메시지 키 + 매개변수 + 근거 목록), Evidence(규칙 id + source_ref + 세부), Param(매개변수 값).
@@ -36,6 +36,7 @@ service MyungriEngine {
   rpc GetDaily(DailyRequest) returns (DailyResponse);
   rpc GetMonthCalendar(MonthRequest) returns (MonthResponse);
   rpc GetBirthHour(BirthHourRequest) returns (BirthHourResponse);
+  rpc GetInfo(InfoRequest) returns (InfoResponse);
 }
 
 // ---------------------------------------------------------------------------
@@ -595,4 +596,15 @@ message BirthHourResponse {
   google.protobuf.Timestamp start = 2;
   google.protobuf.Timestamp end = 3;
   ResponseMeta meta = 4; // 출생 시각 해석의 notice 그대로(자시 경계, 서머타임 공백·중복, 절입 근처)
+}
+
+// ---------------------------------------------------------------------------
+// GetInfo: 엔진·규칙 버전
+// ---------------------------------------------------------------------------
+
+message InfoRequest {}
+
+message InfoResponse {
+  string engine_version = 1;
+  string ruleset_version = 2;
 }
