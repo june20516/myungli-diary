@@ -138,6 +138,7 @@ def test_motion_and_shadow_tokens():
     tokens = flatten(build_token_files()["primitive.tokens.json"])
     assert tokens["motion.duration.stamp"]["$value"] == {"value": 520, "unit": "ms"}
     assert tokens["motion.duration.toast-hold"]["$value"] == {"value": 2500, "unit": "ms"}
+    assert tokens["motion.duration.fade"]["$value"] == {"value": 280, "unit": "ms"}
     assert tokens["motion.easing.seep"]["$value"] == [0.2, 0.7, 0.2, 1]
     assert tokens["motion.easing.stamp-press"]["$value"] == [0.5, 0, 0.9, 0.6]
     assert tokens["shadow.raised"]["$type"] == "shadow"

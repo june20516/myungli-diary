@@ -189,6 +189,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "disabled.bg": neutral[100],
             "disabled.fg": neutral[600],
             "seal.knock": sage[50],
+            "seal.on-soft": sage[800],
             "tag.good.bg": coral[100],
             "tag.good.fg": coral[700],
             "tag.bad.bg": neutral[100],
@@ -221,6 +222,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "disabled.bg": neutral[800],
             "disabled.fg": neutral[500],
             "seal.knock": neutral[900],
+            "seal.on-soft": sage[200],
             "tag.good.bg": coral[800],
             "tag.good.fg": coral[200],
             "tag.bad.bg": neutral[800],
@@ -296,6 +298,10 @@ def _v2_pairs(palette: dict, mode: str, roles: dict[str, str], ink: str) -> list
     for cell_role in ("bg.base", "calendar.good.bg", "calendar.caution.bg"):
         stamped = composite(seal, alpha, roles[cell_role])
         pairs.append((f"{mode} text.primary on seal.soft over {cell_role}", roles["text.primary"], stamped))
+    # 옅은 도장 위의 sage 글자(선택된 날 숫자, 질문 카드 버튼 글자)는 action.primary 대신 seal.on-soft
+    for cell_role in ("bg.base", "bg.sheet", "calendar.good.bg", "calendar.caution.bg"):
+        stamped = composite(seal, alpha, roles[cell_role])
+        pairs.append((f"{mode} seal.on-soft on seal.soft over {cell_role}", roles["seal.on-soft"], stamped))
     return pairs
 
 

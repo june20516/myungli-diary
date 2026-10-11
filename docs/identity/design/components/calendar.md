@@ -21,6 +21,7 @@
 | 일기 쓴 날 | `seal` soft 26px, 숫자 상자 가운데, 숫자는 본문색 |
 | 오늘 | `seal` outline 1.6px 26px (일기 도장과 같은 크기·자리) |
 | 선택 | 숫자 `action.primary` 700 + 펼침 밑줄(`mark.underline-grow`, 가운데에서 좌우로 420ms) |
+| 선택 + 일기 쓴 날 | 숫자 `seal.on-soft` 700(옅은 도장 위에서 대비 4.5:1을 지키는 한 단계 진한 sage, 결정 V24) + 밑줄 |
 | 일정 | 음력 아래 `action.primary` 점 5px |
 | 음력 | `type.caption.sm` 10.5px `text.secondary`. 초하루 "M.1", 절기 날은 절기 이름 굵게, 그 밖에는 일만 |
 | 다른 달 날짜 | 숫자 투명도 0.35, 길흉 채우기 없음 |

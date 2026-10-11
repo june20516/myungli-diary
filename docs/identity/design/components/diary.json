@@ -106,7 +106,7 @@
       "haptic": [],
       "a11y": { "role": "link", "label": "태그 이름 + 길흉 낱말", "colorIndependent": true, "minTarget": 44, "hitSlop": "위아래 9px" },
       "rules": [
-        "목록·보기·저장 순간에 같은 컴포넌트를 쓴다(저장 순간 IA 반영은 Issue #31).",
+        "목록·보기·저장 순간(diary-edit)에 같은 컴포넌트를 쓴다.",
         "톤은 엔진이 준 태그의 길흉 값을 따른다(배지와 같은 V8 규칙)."
       ]
     }

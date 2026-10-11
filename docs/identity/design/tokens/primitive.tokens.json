@@ -586,6 +586,13 @@
           "unit": "ms"
         }
       },
+      "fade": {
+        "$type": "duration",
+        "$value": {
+          "value": 280,
+          "unit": "ms"
+        }
+      },
       "medium": {
         "$type": "duration",
         "$value": {

@@ -46,7 +46,7 @@
       "states": {
         "pressed": { "pattern": "press.ink" },
         "locked": {
-          "note": "무엇을 잠글지는 M0에서 정함 (Issue #32)",
+          "note": "MVP 화면에는 나오지 않음(D53: MVP 유료는 광고 제거권뿐). 개인 해석 유료화 아이디어 I7을 위해 준비해 둔 변형",
           "parts": {
             "explainSheet": {
               "mine": {

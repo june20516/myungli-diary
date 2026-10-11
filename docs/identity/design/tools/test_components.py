@@ -143,6 +143,53 @@ def test_state_map_target_must_be_component():
     assert has(find_problems(docs, IA, TOKENS), "없는-컴포넌트")
 
 
+def test_nested_pattern_duration_must_be_reference():
+    docs = valid_docs()
+    docs["interaction"]["patterns"]["p"]["outgoing"] = {"duration": {"value": 260, "unit": "ms"}}
+    docs["frame"]["components"][0]["motion"] = {"steps": [{"easing": [0.2, 0.7, 0.2, 1]}]}
+    problems = find_problems(docs, IA, TOKENS)
+    assert has(problems, "outgoing.duration") and has(problems, "steps[0].easing")
+
+
+def test_reference_inside_longer_string_is_reported():
+    docs = valid_docs()
+    docs["frame"]["components"][1]["parts"] = {"x": {"border": "1px {color.text.primary}"}}
+    assert has(find_problems(docs, IA, TOKENS), "1px {color.text.primary}")
+
+
+def test_malformed_shapes_are_reported_not_raised():
+    docs = valid_docs()
+    docs["frame"]["components"][0]["states"]["pressed"]["pattern"] = ["p"]
+    docs["frame"]["components"][0]["uses"] = {"el": True}
+    docs["feedback"]["stateMap"] = ["loading"]
+    problems = find_problems(docs, IA, TOKENS)
+    assert has(problems, "pattern") and has(problems, "uses") and has(problems, "stateMap")
+    docs = valid_docs()
+    docs["frame"]["components"] = {"a": {}}
+    assert has(find_problems(docs, IA, TOKENS), "components")
+
+
+def test_component_and_element_links_must_exist():
+    docs = valid_docs()
+    docs["frame"]["components"][1]["parts"] = {"x": {"component": "없는-컴포넌트"}, "y": {"element": "없는-요소"}}
+    problems = find_problems(docs, IA, TOKENS)
+    assert has(problems, "없는-컴포넌트") and has(problems, "없는-요소")
+
+
+def test_duplicate_variant_id_is_reported():
+    docs = valid_docs()
+    docs["frame"]["components"][0]["variants"].append({"id": "v"})
+    assert has(find_problems(docs, IA, TOKENS), "a", "v", "변형")
+
+
+def test_reduce_motion_and_haptic_values_are_checked():
+    docs = valid_docs()
+    docs["interaction"]["patterns"]["p"]["reduceMotion"] = ""
+    docs["frame"]["components"][0]["haptic"] = [{"when": "x", "strength": "heavy"}]
+    problems = find_problems(docs, IA, TOKENS)
+    assert has(problems, "reduceMotion") and has(problems, "heavy")
+
+
 def test_markdown_pair_and_readme(tmp_path):
     (tmp_path / "frame.md").write_text("설명", encoding="utf-8")
     (tmp_path / "README.md").write_text("frame.json", encoding="utf-8")
@@ -222,11 +269,33 @@ def variant_ids(component):
 def test_generic_groups_contain_spec_components():
     documents = load_documents(COMPONENTS_DIR)
     ids = {group: {c["id"] for c in documents[group]["components"]} for group in ("frame", "feedback", "input", "action")}
-    assert ids["frame"] == {"tab-bar", "app-bar", "sheet"}
+    assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner"}
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
                             "check-row"}
-    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row"}
+    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card"}
+
+
+# main IA 변경(D53)과 최종 리뷰 반영
+def test_ad_banner_sits_above_tab_bar_with_bar_background():
+    c = components_by_id(("frame", "feedback"))
+    banner = c["ad-banner"]
+    assert banner["parts"]["container"]["bg"] == "{color.bar.bg}"
+    assert banner["parts"]["container"]["position"] == "above-tab-bar"
+    assert {"adFree", "noFill"} <= set(banner["states"])
+    assert "ad-banner" in " ".join(c["toast"]["rules"])
+
+
+def test_offer_card_states():
+    offer = components_by_id(("action",))["offer-card"]
+    assert {"available", "active"} <= set(offer["states"])
+    assert offer["parts"]["container"]["radius"] == "{radius.lg}"
+
+
+def test_sage_text_on_soft_seal_uses_on_soft_token():
+    c = components_by_id(("calendar", "today"))
+    assert c["day-cell"]["states"]["selectedOnDiary"]["parts"]["number"]["fg"] == "{color.seal.on-soft}"
+    assert "{color.seal.on-soft}" in json.dumps(c["guide-question-card"]["states"]["after"])
 
 
 def test_generic_spec_values():

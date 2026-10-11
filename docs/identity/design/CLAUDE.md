@@ -10,7 +10,7 @@
 | 시각 정체성: 로고 방향, 그라데이션 규칙, 오행 팔레트, 타이포 | 모두 | V0 |
 | 디자인 토큰 (`tokens/`, 데이터 파일) | app (Dart 코드 생성) | V1 freeze |
 | 캘린더 길흉 표시 규칙 (엔진 spec §8 `LuckLevel` 3단계, 루트 미결에서 이관). 점이 아니라 날짜 칸 채우기(결정 V10) | app | V1 |
-| 컴포넌트 명세 (`components/`, 계약 1.0.0): IA 컴포넌트 39개 + 상호작용 패턴·요소 | app | V2 |
+| 컴포넌트 명세 (`components/`, 계약 1.0.0): IA 컴포넌트 41개 + 상호작용 패턴·요소 | app | V2 |
 
 * `docs/background/06-design-system.md`는 V0의 입력입니다. V0 결과가 정체성 기준으로 06을 대체합니다.
 * 그라데이션은 조건부 선택입니다(README "시각 방향"). 토큰 하나로 묶어, 리뉴얼할 때 그 토큰만 바꾸면 되게 합니다.
@@ -31,8 +31,8 @@
 ## 현재 상태 (2026-10-11, design 세션 작성)
 * **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`, 컴포넌트 계약 1.0.0, 토큰 1.1.0).
   * 명세: [`components/`](components/README.md) JSON(사실) + MD(설명) 11쌍. 공통 `interaction`(패턴 12개)·`elements`(요소 15개).
-  * 검사: 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA 39개·토큰 참조·요소·패턴·상태 대응표·짝 MD).
-  * 근거: [V2 spec](specs/2026-10-11-components-design.md), 결정 V13~V22. 대비 검사 78/78(비활성 글자 3:1).
+  * 검사: 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA 41개·토큰 참조·요소·패턴·상태 대응표·짝 MD).
+  * 근거: [V2 spec](specs/2026-10-11-components-design.md), 결정 V13~V24. 대비 검사 86/86(비활성 글자 3:1).
 * **마일스톤 V1 디자인 토큰 freeze** (브랜치 `design/tokens`, 계약 1.0.0).
   * 토큰: [`tokens/`](tokens/README.md) 다섯 파일. 생성: 저장소 루트에서 `python3 docs/identity/design/tools/tokens.py`. 손으로 고치지 않습니다.
   * 근거: [V1 spec](specs/2026-10-11-design-tokens-design.md), 결정 V8~V12. 대비 검사 52/52.
@@ -50,6 +50,6 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **V2 마무리 후 회신 대기:** 지휘 세션의 Issue 처리 — #31(diary-edit에 tag-chip), #35(share-preview segmented, 엔진 시진 값, writing 문구 자리), M0의 #32(풀이 잠김 범위). 회신에 따라 명세를 부 버전으로 고칩니다.
+1. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. 풀이 잠김 변형은 MVP에 쓰지 않습니다(D53, 아이디어 I7).
 2. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
 3. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

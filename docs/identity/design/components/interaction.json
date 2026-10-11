@@ -53,7 +53,7 @@
         "to": { "offset": 0, "blur": { "value": 0, "unit": "px" }, "scale": 1, "opacity": 1 }
       },
       "outgoing": {
-        "duration": { "value": 260, "unit": "ms" },
+        "duration": "{motion.duration.fade}",
         "easing": "{motion.easing.standard}",
         "from": { "blur": { "value": 0, "unit": "px" }, "scale": 1, "opacity": 1 },
         "to": { "blur": { "value": 6, "unit": "px" }, "scale": 1.06, "opacity": 0 }
@@ -110,7 +110,7 @@
       "easing": "{motion.easing.enter}",
       "from": { "translateY": "100%" },
       "to": { "translateY": "0%" },
-      "scrim": { "duration": { "value": 280, "unit": "ms" }, "easing": "{motion.easing.standard}", "opacity": [0, 1], "color": "{color.scrim}" },
+      "scrim": { "duration": "{motion.duration.fade}", "easing": "{motion.easing.standard}", "opacity": [0, 1], "color": "{color.scrim}" },
       "reduceMotion": "opacity-only",
       "lowEnd": "same"
     },
@@ -120,7 +120,7 @@
       "easing": "{motion.easing.exit}",
       "from": { "translateY": "0%" },
       "to": { "translateY": "100%" },
-      "scrim": { "duration": { "value": 280, "unit": "ms" }, "easing": "{motion.easing.standard}", "opacity": [1, 0], "color": "{color.scrim}" },
+      "scrim": { "duration": "{motion.duration.fade}", "easing": "{motion.easing.standard}", "opacity": [1, 0], "color": "{color.scrim}" },
       "reduceMotion": "opacity-only",
       "lowEnd": "same"
     },

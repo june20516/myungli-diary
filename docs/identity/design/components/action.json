@@ -33,8 +33,12 @@
     },
     {
       "id": "social-login-button",
-      "summary": "소셜 로그인 버튼 (틀만, 제공자는 지휘 미결)",
+      "summary": "소셜 로그인 버튼: 카카오·Apple (D55)",
       "uses": ["press.ink"],
+      "variants": [
+        { "id": "kakao", "when": "카카오 로그인 (위)", "parts": { "container": { "style": "kakao-login-design-guide" } } },
+        { "id": "apple", "when": "Apple로 로그인 (아래). iOS·Android 모두 보임, Android는 웹 흐름", "parts": { "container": { "style": "sign-in-with-apple-hig", "lightMode": "black", "darkMode": "white" } } }
+      ],
       "parts": {
         "container": { "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "width": "fill" },
         "stack": { "gap": "{space.12}" },
@@ -46,7 +50,8 @@
       "a11y": { "role": "button", "label": "제공자 공식 문구", "minTarget": 48 },
       "rules": [
         "색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 쓴다. 아이콘 세트에서 가져오지 않는다.",
-        "반경·높이·쌓기 간격만 이 명세를 따른다(제공자 가이드가 허용하는 범위에서)."
+        "반경·높이·쌓기 간격만 이 명세를 따른다(제공자 가이드가 허용하는 범위에서).",
+        "순서는 카카오 위, Apple 아래. 두 버튼은 같은 크기다(App Store 가이드라인 4.8의 등가 로그인)."
       ]
     },
     {
@@ -95,6 +100,37 @@
       "haptic": [{ "when": "toggle 변형 켜고 끔", "strength": "selection" }],
       "a11y": { "role": "button", "label": "글자 + 값", "toggleRole": "switch", "minTarget": 48 },
       "rules": ["묶음 카드 안에서 1px 선으로 나눈다. 카드 사이는 20px 띄운다."]
+    },
+    {
+      "id": "offer-card",
+      "summary": "광고 제거권 상품 설명·가격·기간 카드 (D53·D54)",
+      "uses": ["icon", "tag.status", "appear.seep"],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.20}" },
+        "icon": { "name": "sparkle", "weight": "light", "size": { "value": 28, "unit": "px" }, "color": "{color.action.primary}" },
+        "head": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "ad-free.offer.head", "marginTop": "{space.12}" },
+        "price": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "ad-free.offer.price", "marginTop": "{space.16}", "fontFeatures": ["tnum"] },
+        "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "note": "1개월, 자동 갱신 아님" },
+        "status": { "element": "tag.status", "slot": "ad-free.status.remaining" },
+        "remaining": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
+        "buy": { "component": "primary-button", "variant": "filled", "marginTop": "{space.20}" },
+        "restore": { "component": "primary-button", "variant": "quiet", "slot": "ad-free.restore.cta" },
+        "legal": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slot": "ad-free.legal.notice", "marginTop": "{space.12}" }
+      },
+      "states": {
+        "available": { "parts": { "status": { "visible": false }, "remaining": { "visible": false }, "buy": { "visible": true } } },
+        "active": { "pattern": "appear.seep", "parts": { "status": { "visible": true }, "remaining": { "visible": true }, "buy": { "visible": false } }, "note": "이용 중: 꼬리표 + 남은 기간·만료일" },
+        "purchasing": { "parts": { "buy": { "state": "loading" } } },
+        "offline": { "parts": { "buy": { "state": "disabled" }, "restore": { "state": "disabled" } }, "note": "화면 위 notice-banner offline" }
+      },
+      "haptic": [{ "when": "구매·복원 완료", "strength": "light" }],
+      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 '자동 갱신 아님'을 함께 읽음" },
+      "rules": [
+        "가격·기간·자동 갱신 아님 고지는 구매 버튼보다 위에, 같은 카드 안에서 보인다.",
+        "이용 중에는 구매 버튼 대신 남은 기간을 보이고, 만료되면 available로 돌아간다.",
+        "구매 복원은 상태와 관계없이 늘 보인다.",
+        "빨간색·카운트다운·과장 표시를 쓰지 않는다."
+      ]
     }
   ]
 }

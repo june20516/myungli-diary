@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 import sys
 
 from dtcg import REFERENCE, flatten
@@ -26,6 +27,11 @@ STATE_MAP_GROUP = "feedback"
 COMMON_FIELDS = {"interaction": {"version", "patterns", "haptics", "fallbacks"}, "elements": {"version", "elements"}}
 COMPONENT_FIELDS = {"id", "summary", "uses", "variants", "parts", "states", "motion", "haptic", "a11y", "rules"}
 PATTERN_REQUIRED = ("summary", "duration", "easing", "reduceMotion")
+REDUCE_MOTION_VALUES = ("opacity-only", "instant")
+HAPTIC_STRENGTHS = ("selection", "light", "medium")
+# 시간·곡선 키: duration, easing, 그리고 drawDuration처럼 Duration·Easing으로 끝나는 키
+TIMING_KEY = re.compile(r"^(duration|easing)$|(Duration|Easing)$")
+EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 
 # 테마 조합 이름 → (색 모드 파일, 글자 언어 파일). primitive는 모든 조합에 들어갑니다.
 THEMES = {
@@ -75,6 +81,14 @@ def _references(document: dict) -> list[tuple[str, str]]:
     return found
 
 
+def _component_list(document: dict) -> list[dict]:
+    """모양이 맞는 컴포넌트만. 모양 문제는 _component_shape_problems가 알립니다."""
+    components = document.get("components", [])
+    if not isinstance(components, list):
+        return []
+    return [component for component in components if isinstance(component, dict)]
+
+
 def _field_problems(name: str, document: dict) -> list[str]:
     if name in COMMON:
         allowed = COMMON_FIELDS[name]
@@ -88,7 +102,7 @@ def _field_problems(name: str, document: dict) -> list[str]:
     if name in GROUPS:
         if document.get("group") != name:
             problems.append(f"{name}.json: group이 파일 이름과 다름: {document.get('group')!r}")
-        for index, component in enumerate(document.get("components", [])):
+        for index, component in enumerate(_component_list(document)):
             label = component.get("id", f"components[{index}]")
             problems += [f"{name}.json: {label}: 허용하지 않는 필드 {field}"
                          for field in component if field not in COMPONENT_FIELDS]
@@ -100,7 +114,7 @@ def _ia_problems(documents: dict[str, dict], ia: dict) -> list[str]:
     expected = {component["id"] for component in ia["components"]}
     owners: dict[str, list[str]] = {}
     for name in GROUPS:
-        for component in documents.get(name, {}).get("components", []):
+        for component in _component_list(documents.get(name, {})):
             if "id" in component:
                 owners.setdefault(component["id"], []).append(name)
     problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners))]
@@ -122,18 +136,76 @@ def _reference_problems(documents: dict[str, dict], token_names: dict[str, set[s
     return problems
 
 
-def _usage_problems(documents: dict[str, dict]) -> list[str]:
+def _embedded_reference_problems(documents: dict[str, dict]) -> list[str]:
+    """`"1px {color.line}"`처럼 문자열 중간에 섞인 참조는 검사기가 풀 수 없으므로 문제로 봅니다."""
+    problems = []
+    for name, document in documents.items():
+        for place, _, value in _walk(document, ""):
+            if isinstance(value, str) and EMBEDDED_REFERENCE.search(value) and not REFERENCE.match(value):
+                problems.append(f"{name}.json: {place}: 문자열 안에 섞인 토큰 참조 {value!r} (값 하나에 참조 하나만)")
+    return problems
+
+
+def _usage_problems(documents: dict[str, dict], ia: dict) -> list[str]:
     patterns = set(documents.get("interaction", {}).get("patterns", {}))
     elements = set(documents.get("elements", {}).get("elements", {}))
+    components = {component["id"] for component in ia["components"]}
     problems = []
     for name, document in documents.items():
         for place, key, value in _walk(document, ""):
             if key == "uses":
-                for used in value if isinstance(value, list) else [value]:
+                if not (isinstance(value, list) and all(isinstance(used, str) for used in value)):
+                    problems.append(f"{name}.json: {place}: uses는 id 문자열 목록이어야 함: {value!r}")
+                    continue
+                for used in value:
                     if used not in patterns | elements:
                         problems.append(f"{name}.json: {place}: 없는 요소·패턴 {used!r}")
-            elif key == "pattern" and value not in patterns:
-                problems.append(f"{name}.json: {place}: 없는 패턴 {value!r}")
+            elif key == "pattern" and (not isinstance(value, str) or value not in patterns):
+                problems.append(f"{name}.json: {place}: 없는 패턴 {value!r} (pattern은 패턴 id 하나)")
+            elif key == "component" and name in GROUPS and value not in components:
+                problems.append(f"{name}.json: {place}: IA에 없는 컴포넌트 {value!r}")
+            elif key == "element" and value not in elements:
+                problems.append(f"{name}.json: {place}: 없는 요소 {value!r}")
+    return problems
+
+
+def _timing_problems(documents: dict[str, dict]) -> list[str]:
+    """시간·곡선은 깊이와 관계없이 motion 토큰을 가리킵니다 (spec §3.1)."""
+    problems = []
+    for name, document in documents.items():
+        for place, key, value in _walk(document, ""):
+            if isinstance(key, str) and TIMING_KEY.search(key) and not (isinstance(value, str) and REFERENCE.match(value)):
+                problems.append(f"{name}.json: {place}: 시간·곡선이 토큰 참조가 아님: {value!r}")
+    return problems
+
+
+def _component_shape_problems(documents: dict[str, dict]) -> list[str]:
+    problems = []
+    for name in GROUPS:
+        document = documents.get(name)
+        if document is None:
+            continue
+        components = document.get("components", [])
+        if not isinstance(components, list) or not all(isinstance(component, dict) for component in components):
+            problems.append(f"{name}.json: components는 컴포넌트 객체 목록이어야 함")
+            continue
+        for component in components:
+            label = component.get("id", "?")
+            variants = component.get("variants", [])
+            if not isinstance(variants, list) or not all(isinstance(variant, dict) and "id" in variant for variant in variants):
+                problems.append(f"{name}.json: {label}: variants는 id가 있는 객체 목록이어야 함")
+                continue
+            ids = [variant["id"] for variant in variants]
+            problems += [f"{name}.json: {label}: 변형 {variant_id} 두 번 이상 나옴"
+                         for variant_id in sorted({i for i in ids if ids.count(i) > 1})]
+            haptic = component.get("haptic", [])
+            if not isinstance(haptic, list):
+                problems.append(f"{name}.json: {label}: haptic은 목록이어야 함")
+                continue
+            for moment in haptic:
+                strength = moment.get("strength") if isinstance(moment, dict) else None
+                if strength not in HAPTIC_STRENGTHS:
+                    problems.append(f"{name}.json: {label}: 햅틱 세기 {strength!r}는 {', '.join(HAPTIC_STRENGTHS)} 밖")
     return problems
 
 
@@ -141,10 +213,9 @@ def _pattern_problems(documents: dict[str, dict]) -> list[str]:
     problems = []
     for pattern_id, pattern in documents.get("interaction", {}).get("patterns", {}).items():
         problems += [f"interaction.json: {pattern_id}: {field} 없음" for field in PATTERN_REQUIRED if field not in pattern]
-        for field in ("duration", "easing"):
-            value = pattern.get(field)
-            if field in pattern and not (isinstance(value, str) and REFERENCE.match(value)):
-                problems.append(f"interaction.json: {pattern_id}: {field}가 토큰 참조가 아님: {value!r}")
+        if "reduceMotion" in pattern and pattern["reduceMotion"] not in REDUCE_MOTION_VALUES:
+            problems.append(f"interaction.json: {pattern_id}: reduceMotion {pattern['reduceMotion']!r}는 "
+                            f"{', '.join(REDUCE_MOTION_VALUES)} 밖")
     return problems
 
 
@@ -152,6 +223,8 @@ def _state_map_problems(documents: dict[str, dict], ia: dict) -> list[str]:
     components = {component["id"] for component in ia["components"]}
     states = {state["id"] for screen in ia["screens"] for state in screen.get("states", [])}
     state_map = documents.get(STATE_MAP_GROUP, {}).get("stateMap", {})
+    if not isinstance(state_map, dict):
+        return [f"{STATE_MAP_GROUP}.json: stateMap은 상태 id → 컴포넌트 id 객체여야 함"]
     problems = [f"{STATE_MAP_GROUP}.json: stateMap에 IA 상태 {state} 없음" for state in sorted(states - set(state_map))]
     for state, targets in state_map.items():
         if state not in states:
@@ -180,9 +253,12 @@ def find_problems(documents: dict[str, dict], ia: dict, token_names: dict[str, s
     problems: list[str] = []
     for name, document in documents.items():
         problems += _field_problems(name, document)
+    problems += _component_shape_problems(documents)
     problems += _ia_problems(documents, ia)
     problems += _reference_problems(documents, token_names)
-    problems += _usage_problems(documents)
+    problems += _embedded_reference_problems(documents)
+    problems += _usage_problems(documents, ia)
+    problems += _timing_problems(documents)
     problems += _pattern_problems(documents)
     problems += _state_map_problems(documents, ia)
     if directory is not None:

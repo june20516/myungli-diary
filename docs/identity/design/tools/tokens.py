@@ -51,6 +51,7 @@ ROLE_DESCRIPTIONS = {
     "disabled.bg": "비활성 버튼 바탕",
     "disabled.fg": "비활성 글자. 대비 3:1 이상 (WCAG 1.4.3 비활성 예외)",
     "seal.knock": "진한 낙관 도장 위에 새기는 날짜 숫자",
+    "seal.on-soft": "옅은 낙관 도장 위의 sage 글자 (선택된 날 숫자, 질문 카드 버튼 글자). action.primary 대신",
     "tag.good.bg": "좋은 태그 칩 바탕 (배지 귀인과 같은 톤)",
     "tag.good.fg": "좋은 태그 칩 글자",
     "tag.bad.bg": "나쁜 태그 칩 바탕",
@@ -80,7 +81,7 @@ SEAL_SOFT_DESCRIPTION = "옅은 낙관 도장 (달력 일기 쓴 날, 일기 목
 BLACK = "#000000"
 
 # 움직임 (V2 spec §5.1)
-MOTION_DURATIONS = {"short": 200, "medium": 320, "select": 340, "long": 420, "stamp": 520,
+MOTION_DURATIONS = {"short": 200, "fade": 280, "medium": 320, "select": 340, "long": 420, "stamp": 520,
                     "breathe": 1800, "toast-hold": 2500}
 MOTION_EASINGS = {
     "seep": [0.2, 0.7, 0.2, 1],

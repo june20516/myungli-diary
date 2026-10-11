@@ -2,7 +2,7 @@
 
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md) §3, 결정 V14
 * 모든 컴포넌트는 이 패턴만 씁니다. **명세에 적지 않은 효과는 쓰지 않습니다.** 위젯 라이브러리의 기본 물결 효과, 그림자, 표면 색조, 상태 겹침 색은 끄고 이 패턴을 입힙니다.
-* 시간과 곡선은 토큰(`motion.duration.*`, `motion.easing.*`)을 가리킵니다. 토큰이 없는 보조 값(예: 이전 선택 표시의 260ms)만 직접 적습니다.
+* 시간과 곡선은 토큰(`motion.duration.*`, `motion.easing.*`)을 가리킵니다. 구성 요소의 하위 시간(이전 선택 표시, 바깥 덮개)도 토큰입니다. 시간 길이가 아닌 간격(`loading.breathe`의 줄 사이 150ms 어긋남)만 직접 적습니다.
 
 ## 패턴
 
@@ -11,13 +11,13 @@
 | `press.ink` 먹 번짐 | 모든 눌림 | 누른 자리에서 가장자리가 부드러운 원형 얼룩이 번집니다(그 컴포넌트 글자색, 알파 0.12). 떼면 1.15배로 번지며 사라집니다 | 자람 `stamp`(520) `seep`, 사라짐 `long`(420) `seep` |
 | `appear.seep` 스밈 | 토스트·배너·확인 창·풀이 내용 | 제자리에서 흐림 8px→0, 투명도 0→1 | `medium`(320) `seep` |
 | `disappear.seep` | 위의 사라짐 | 흐림 0→8px, 투명도 1→0 | `short`(200) `standard` |
-| `select.seep-slide` 스밈 이동 | segmented·탭 선택 표시 | 새 표시가 이전 자리 쪽에서 거리의 15%만큼 미끄러져 들어오며 흐림 6px→0, 크기 0.92→1. 이전 표시는 제자리에서 흐림 0→6px·투명도 1→0·크기 1→1.06(260ms) | `select`(340) `seep` |
+| `select.seep-slide` 스밈 이동 | segmented·탭 선택 표시 | 새 표시가 이전 자리 쪽에서 거리의 15%만큼 미끄러져 들어오며 흐림 6px→0, 크기 0.92→1. 이전 표시는 제자리에서 흐림 0→6px·투명도 1→0·크기 1→1.06(`fade` 280ms) | `select`(340) `seep` |
 | `loading.breathe` 먹 숨쉬기 | skeleton, 버튼 처리 중 점 세 개 | 투명도 0.55↔1, 줄마다 150ms씩 어긋남 | `breathe`(1800) `standard` |
 | `seal.stamp` 찍고 배어듦 | 도장 찍힘 | ① 0~35%: 크기 1.2→1, 투명도 0→0.55, 흐림 3→1.5px, `stamp-press` ② 35~100%: 투명도 0.55→1, 흐림 1.5→0, `seep` | `stamp`(520) |
 | `seal.erase` | 도장 지워짐 | 흐림 0→5px, 투명도 1→0 | `short`(200) `standard` |
 | `mark.underline-grow` 펼침 밑줄 | 달력 선택 밑줄 | 가로 크기 0→1, 가운데 기준 | `long`(420) `seep` |
-| `sheet.enter` | 시트 열림 | 아래에서 올라옴. 바깥 덮개 280ms 투명도 | `long`(420) `enter` |
-| `sheet.exit` | 시트 닫힘 | 아래로 내려감. 바깥 덮개 280ms 투명도 | `medium`(320) `exit` |
+| `sheet.enter` | 시트 열림 | 아래에서 올라옴. 바깥 덮개 `fade`(280ms) 투명도 | `long`(420) `enter` |
+| `sheet.exit` | 시트 닫힘 | 아래로 내려감. 바깥 덮개 `fade`(280ms) 투명도 | `medium`(320) `exit` |
 | `sheet.stack` 겹쳐 쌓기 | 시트 깊어짐 | 새 시트가 위에 쌓이고, 아래 화면은 크기 0.92·밝기 0.9, 아래 시트는 위로 30px·크기 0.94·밝기 0.95 | `long`(420) `enter` |
 | `focus.ring` | 입력 포커스 | 테두리 1px `line` → 2px `action.primary`. 바탕은 바뀌지 않음 | `short`(200) `standard` |
 

@@ -3,7 +3,7 @@
 ## 이 문서의 위상
 * 명리일기의 색, 그라데이션, 타이포, 간격, 로고 가운데 **지금 유효한 기준**입니다. 시각에 관해서는 이 문서가 `docs/background/06-design-system.md`를 대체합니다.
 * 고치는 쪽은 design입니다. 바꿀 일이 있으면 GitHub Issue(`to:design`)로 보냅니다.
-* 왜 이렇게 정했는지는 [V0 spec](specs/2026-10-10-visual-identity-design.md), [V1 spec](specs/2026-10-11-design-tokens-design.md), [V2 spec](specs/2026-10-11-components-design.md)에 있습니다. 결정은 [`decisions.md`](decisions.md)의 결정 V1~V22입니다.
+* 왜 이렇게 정했는지는 [V0 spec](specs/2026-10-10-visual-identity-design.md), [V1 spec](specs/2026-10-11-design-tokens-design.md), [V2 spec](specs/2026-10-11-components-design.md)에 있습니다. 결정은 [`decisions.md`](decisions.md)의 결정 V1~V24입니다.
 * 눈으로 보려면 [견본 페이지](specimen/index.html)를 엽니다(라이트·다크).
 * app이 읽는 데이터는 **디자인 토큰** [`tokens/`](tokens/README.md)(계약 1.1.0)과 **컴포넌트 명세** [`components/`](components/README.md)(계약 1.0.0)입니다. 이 문서와 토큰·명세 값이 다르면 토큰·명세가 맞고, 이 문서를 고칩니다.
 * 색 값의 출처는 [`tools/palette.py`](tools/palette.py), 토큰 파일은 [`tools/tokens.py`](tools/tokens.py)가 만듭니다.
@@ -71,6 +71,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 | `seal.fill` 진한 낙관 도장 | → `action.primary` | → `action.primary` |
 | `seal.soft` 옅은 낙관 도장 | sage-700 알파 0.22 | sage-200 알파 0.28 |
 | `seal.knock` 도장에 새긴 날짜 | sage-50 | neutral-900 |
+| `seal.on-soft` 옅은 도장 위 sage 글자 | sage-800 | sage-200 |
 | `status.bg` / `status.fg` 상태 꼬리표 | → `term.bg` / `term.fg` | → `term.bg` / `term.fg` |
 | `tag.good.bg` / `.fg` 좋은 태그 | coral-100 / coral-700 | coral-800 / coral-200 |
 | `tag.bad.bg` / `.fg` 나쁜 태그 | neutral-100 / neutral-700 | neutral-800 / neutral-200 |
@@ -176,7 +177,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 
 | 토큰 | 값 | 쓰임 |
 | --- | --- | --- |
-| `motion.duration.short` / `medium` / `select` / `long` / `stamp` | 200 / 320 / 340 / 420 / 520ms | 사라짐 / 나타남 / 선택 이동 / 시트·밑줄 / 도장 |
+| `motion.duration.short` / `fade` / `medium` / `select` / `long` / `stamp` | 200 / 280 / 320 / 340 / 420 / 520ms | 사라짐 / 덮개·이전 선택 표시 / 나타남 / 선택 이동 / 시트·밑줄 / 도장 |
 | `motion.duration.breathe` / `toast-hold` | 1800 / 2500ms | 숨쉬기 한 주기 / 토스트 머무름 |
 | `motion.easing.seep` / `enter` / `exit` / `stamp-press` / `standard` | (0.2,0.7,0.2,1) / (0.2,0.8,0.2,1) / (0.4,0,1,1) / (0.5,0,0.9,0.6) / (0.4,0,0.2,1) | 스밈 / 들어옴 / 나감 / 도장 누름 / 일반 |
 | `shadow.raised` | 0 4px 16px neutral-900 알파 0.14 | 공유 미리보기 이미지에만 |
@@ -206,7 +207,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 
 | 쓰는 곳 | 변형 · 크기 |
 | --- | --- |
-| 선택된 탭, 반응 하트 | fill 34 (안의 아이콘 흰색) |
+| 선택된 탭, 반응 하트 | fill 34 (안의 아이콘 `action.on-primary`) |
 | 일기 종이 오른쪽 아래 | fill 64 (날짜를 새김) |
 | 달력 일기 쓴 날 / 오늘 | soft 26 / outline 26 |
 | 일기 목록 날짜 | soft 34 |
@@ -214,7 +215,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 
 ## 아이콘 (결정 V15·V18)
 
-* [Phosphor](https://phosphoricons.com) 2.1.2(MIT), Flutter `phosphor_flutter`. 평소·미선택 **Light**, 선택 **Regular**. Bold·Fill은 쓰지 않습니다.
+* [Phosphor](https://phosphoricons.com) 2.1.2(MIT), Flutter `phosphor_flutter`. 평소·미선택 **Light**, 선택 **Regular**. Bold는 쓰지 않고, Fill은 경고 표시에만 씁니다.
 * 세트에 없는 것(오행·절기·시간 모름 등)만 Phosphor 24 격자와 획 규칙으로 직접 그립니다.
 * **빨간색을 쓰지 않습니다.** 되돌릴 수 없는 동작은 문장 앞 경고 표시(Phosphor `warning-circle` Fill, 글자색)와 굵은 본문색으로 구분합니다. Fill은 이 표시에만 씁니다.
 

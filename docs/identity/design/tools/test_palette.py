@@ -132,7 +132,7 @@ def test_v1_roles_follow_spec():
 
 def test_contrast_covers_v1_pairs():
     names = {result.name for result in check_contrast(build_palette())}
-    assert len(names) == 52 + 26  # V1 52개 + V2 모드당 13개 (V2 spec §5.3)
+    assert len(names) == 52 + 26 + 8  # V1 52개 + V2 모드당 13개 + 옅은 도장 위 sage 글자 모드당 4개
     for mode in ("light", "dark"):
         assert f"{mode} badge.gwiin" in names
         assert f"{mode} badge.gisin" in names
@@ -171,7 +171,17 @@ def test_contrast_covers_v2_pairs():
 def test_seal_soft_composite_pairs_pass():
     results = {result.name: result for result in check_contrast(build_palette())}
     soft = [result for name, result in results.items() if "seal.soft over" in name]
-    assert len(soft) == 6 and all(result.passed for result in soft)
+    assert len(soft) == 6 + 8 and all(result.passed for result in soft)
+
+
+def test_sage_text_on_soft_seal_uses_on_soft_role():
+    palette = build_palette()
+    roles, sage = palette["roles"], palette["brand"]["sage"]
+    assert roles["light"]["seal.on-soft"] == sage[800] and roles["dark"]["seal.on-soft"] == sage[200]
+    names = {name for name, _, _ in _text_pairs(palette)}
+    for mode in ("light", "dark"):
+        for cell in ("bg.base", "bg.sheet", "calendar.good.bg", "calendar.caution.bg"):
+            assert f"{mode} seal.on-soft on seal.soft over {cell}" in names
 
 
 def test_disabled_pair_uses_three_to_one():

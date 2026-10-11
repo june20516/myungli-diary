@@ -37,11 +37,11 @@
 | `saving` | 점 숨쉬기 | 보내는 중 |
 | `saved` | check | 서버에 저장됨 |
 
-상태가 바뀔 때만 `appear.seep`으로 바꿔 그립니다. 문구 3종은 writing에 전달합니다(Issue #35).
+상태가 바뀔 때만 `appear.seep`으로 바꿔 그립니다. 문구 3종은 writing 몫입니다.
 
 ## tag-chip
 
-* 쓰는 화면: diary-list, diary-view, (저장 순간 diary-edit — IA 반영 요청 Issue #31)
+* 쓰는 화면: diary-list, diary-view, diary-edit(저장 순간)
 * "#이름", `radius.full`, `type.label.md` 12px, 높이 26.
 * 톤은 엔진이 준 태그의 길흉을 따릅니다(배지와 같은 V8 규칙, `tone` 요소):
 

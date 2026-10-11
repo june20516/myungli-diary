@@ -105,9 +105,9 @@
           "when": "출생 시간",
           "parts": {
             "wheels": { "columns": ["meridiem", "hour", "minute"], "visibleRows": 5, "rowHeight": { "value": 40, "unit": "px" }, "type": "{type.subtitle}" },
-            "unknown": { "component": "check-row", "style": "inline", "label": "모름" },
+            "unknown": { "component": "check-row", "variant": "inline", "label": "모름" },
             "unknownNotice": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "pattern": "appear.seep" },
-            "sijinConfirm": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "source": "engine", "optional": true }
+            "sijinConfirm": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "onboard-time.hour.confirm", "source": "engine-sijin", "pattern": "appear.seep", "visibleWhen": "device-region-KR" }
           }
         },
         { "id": "notify", "when": "알림 시간, 일정 시간", "parts": { "wheels": { "columns": ["meridiem", "hour", "minute"], "minuteStep": 5 } } }
@@ -116,13 +116,15 @@
         "selectionBand": { "bg": "{color.status.bg}", "radius": "{radius.md}" }
       },
       "states": {
-        "unknown": { "parts": { "wheels": { "opacity": 0.35, "blur": { "value": 1.5, "unit": "px" }, "enabled": false }, "unknownNotice": { "visible": true } } }
+        "unknown": { "parts": { "wheels": { "opacity": 0.35, "blur": { "value": 1.5, "unit": "px" }, "enabled": false }, "unknownNotice": { "visible": true }, "sijinConfirm": { "visible": false } } },
+        "outsideKorea": { "parts": { "sijinConfirm": { "visible": false } }, "note": "기기 지역이 한국 밖이면 확인 줄을 그리지 않음 (D58)" }
       },
       "haptic": [{ "when": "휠 눈금 하나 넘어감", "strength": "selection" }, { "when": "모름 켜고 끔", "strength": "selection" }],
       "a11y": { "role": "adjustable", "label": "오전·오후, 시, 분 각각", "minTarget": 44 },
       "rules": [
         "출생 기록의 벽시계 시각을 그대로 받는다(보정하지 않음).",
-        "시진 확인 줄은 엔진이 계산한 시진을 받을 수 있을 때만 보인다(Issue #35). 받을 수 없으면 줄을 뺀다.",
+        "시진 확인 줄(슬롯 onboard-time.hour.confirm)은 기기 지역이 한국일 때만 보인다. 값은 엔진이 대표 경도·Asia/Seoul로 계산한 시진과 그 벽시계 범위다(D58). 휠이 멈추면 새 값으로 appear.seep.",
+        "한국 밖이거나 '모름'을 켜면 확인 줄을 그리지 않고 그 자리를 비워 두지 않는다.",
         "notify 변형에는 모름이 없다."
       ]
     },
@@ -169,6 +171,10 @@
       "id": "check-row",
       "summary": "동의 항목 한 줄",
       "uses": ["press.ink"],
+      "variants": [
+        { "id": "card", "when": "동의 항목: 줄마다 떨어진 카드" },
+        { "id": "inline", "when": "다른 입력 아래 붙는 체크 하나(시간 '모름')", "parts": { "container": { "bg": "transparent", "padding": { "value": 0, "unit": "px" }, "marginBottom": { "value": 0, "unit": "px" }, "minHeight": { "value": 44, "unit": "px" } }, "view": { "visible": false } } }
+      ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "padding": "{space.16}", "gap": "{space.12}", "marginBottom": "{space.8}" },
         "box": { "size": { "value": 24, "unit": "px" }, "radius": "{radius.sm}", "border": { "color": "{color.line}", "width": { "value": 1.5, "unit": "px" } } },

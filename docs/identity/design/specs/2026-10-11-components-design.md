@@ -291,3 +291,19 @@ docs/identity/design/components/
 * 오늘 일진을 원국표에 겹쳐 보는 화면(사용자 결정으로 하지 않음).
 * 유료 범위와 결제 화면(M0).
 * 소셜 로그인 제공자 선정(지휘).
+
+## 11. 최종 리뷰 반영 (2026-10-11)
+
+
+
+구현 뒤 브랜치 전체 리뷰와 main 병합으로 바뀐 것입니다. 위 절과 다르면 이 절이 맞습니다.
+
+
+
+* **IA 41개:** main의 IA에 `ad-banner`(frame, 결정 V23: 탭 바 바로 위에 함께 고정)와 `offer-card`(action, D53·D54)가 더해져 명세도 41개입니다.
+
+* **토큰 추가 (1.1.0 안):** `motion.duration.fade` 280ms(바깥 덮개, 이전 선택 표시가 사라짐. §3.1의 260·280ms를 하나로), `color.seal.on-soft`(라이트 sage-800 / 다크 sage-200, 결정 V24). 토큰이 없던 §3.1의 300ms·160ms·`ease`·`ease-in-out`은 `medium`·`short`·`standard`로 씁니다.
+
+* **검사 강화 (§7):** 깊이와 관계없이 `duration`·`easing`(과 `…Duration`·`…Easing`) 키는 토큰 참조, 문자열 안에 섞인 참조 금지, `component`·`element` 링크와 변형 id 겹침, 햅틱 세기·`reduceMotion` 값, 이상한 모양 입력은 오류 대신 문제 문장.
+
+* **지휘 결정 반영:** 소셜 로그인 카카오·Apple(D55), 시진 확인 줄은 기기 지역이 한국일 때만·대표 경도·`Asia/Seoul`·슬롯 `onboard-time.hour.confirm`(D58), 풀이 잠김 변형은 MVP 화면에 쓰지 않음(D53, 아이디어 I7).

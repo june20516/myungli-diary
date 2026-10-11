@@ -32,7 +32,7 @@
 | 상태 | 질문 | 동작 | 도장 |
 | --- | --- | --- | --- |
 | `before` | `type.sentence.card` 본문색 | 주 버튼 "일기 쓰기" | 없음 |
-| `after` | `text.secondary`로 흐림 | 가운데 조용한 버튼 "쓴 일기 보기" | 버튼 글자 뒤 층에 `seal` soft 52px |
+| `after` | `text.secondary`로 흐림 | 가운데 조용한 버튼 "쓴 일기 보기"(글자 `seal.on-soft`) | 버튼 글자 뒤 층에 `seal` soft 52px |
 
 도장 위치 규칙: 일기 종이는 오른쪽 아래, 질문 카드는 버튼 뒤, 날짜 숫자에 찍는 곳(달력·일기 목록)은 숫자 뒤(elements.md).
 
@@ -48,6 +48,6 @@
 | `feed` | 4:5, 1080×1350 | 없음 | 두 줄 | 3 |
 | `square` | 1:1, 1080×1080 | 없음 | 첫 문장 | 3 |
 
-* 공유 미리보기 시트 위 segmented로 사용자가 비율을 고릅니다(IA 추가 요청 Issue #35). 바뀔 때 미리보기가 `appear.seep`.
+* 공유 미리보기 시트 위 segmented로 사용자가 비율을 고릅니다. 바뀔 때 미리보기가 `appear.seep`.
 * 미리보기에는 `shadow.raised`(이 토큰을 쓰는 유일한 곳).
 * 태그라인 자리는 writing W1.

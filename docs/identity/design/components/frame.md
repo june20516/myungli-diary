@@ -14,7 +14,7 @@
 | 상태 | 아이콘 | 글자 | 도장 |
 | --- | --- | --- | --- |
 | 미선택 | Light, `text.secondary` | `text.secondary` | 없음 |
-| 선택 | Regular, 흰색(`action.on-primary`) | `action.primary` 600 | `seal` fill 34px가 아이콘 뒤에 `seal.stamp` |
+| 선택 | Regular, `action.on-primary`(라이트 흰색, 다크 neutral-950) | `action.primary` 600 | `seal` fill 34px가 아이콘 뒤에 `seal.stamp` |
 | 투명도 줄이기 | | | 바탕 `bg.sheet` 불투명, 흐림 없음 |
 
 * 선택이 바뀌면 이전 도장은 `seal.erase`, 새 도장은 `seal.stamp`가 동시에 움직이고 햅틱 selection이 울립니다.
@@ -48,3 +48,31 @@
 
 * 깊어짐은 이동·크기·덮개만 움직입니다. 시트 높이를 움직이면 Flutter·웹 모두 끊겨 보여서 쓰지 않습니다(시안 비교에서 확인).
 * Material 힌트: `showModalBottomSheet` 대신 route 기반 시트(`ModalBottomSheetRoute` 또는 자체 route)로 쌓기를 구현합니다.
+
+## ad-banner
+
+* 쓰는 화면: today, calendar, diary-list, my-saju (탭 첫 화면만, D53)
+* 결정 V23: **탭 바 바로 위에 붙어 함께 고정**됩니다. 같은 반투명 `bar.bg`와 뒤 흐림을 써서 탭 바와 한 덩어리로 보이고, 내용은 둘 뒤로 지나갑니다. 탭 바 위 0.5px 선은 배너 위로 옮깁니다.
+* 광고는 네트워크의 고정형 적응형 배너(화면 폭, 높이는 네트워크가 정함)입니다. 명세는 틀(바탕·선·위치)만 정하고, 광고 안은 네트워크가 그립니다.
+
+| 상태 | 모습 |
+| --- | --- |
+| `loading` | 자리를 잡지 않음(빈 띠를 보이지 않음) |
+| `loaded` | `appear.seep`으로 나타남 |
+| `noFill` | 광고가 없으면 `disappear.seep`으로 자리째 사라짐 |
+| `adFree` | 광고 제거 기간에는 숨김 |
+| `noConsent` | 광고 동의(ATT·UMP)를 받기 전에는 숨김 |
+| `reduceTransparency` | 바탕 `bg.sheet` 불투명 |
+
+* 배너 높이가 생기거나 사라지면 아래 내용 여백도 함께 바뀌고, 스크롤 위치는 지킵니다. 토스트는 배너 위 16px에 뜹니다.
+
+```
+┌────────────────────┐
+│ 오늘          ⋯     │
+│  …내용 스크롤…       │
+│  …(배너·탭 바 뒤로)… │
+├────────────────────┤  ← 0.5px line
+│ [  적응형 배너 광고 ] │  ← bar.bg 반투명
+│ 오늘  달력  일기  나 │  ← 탭 바(같은 바탕)
+└────────────────────┘
+```

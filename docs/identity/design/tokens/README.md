@@ -80,7 +80,7 @@
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
 | 1.0.0 | 2026-10-11 | 마일스톤 V1 freeze |
-| 1.1.0 | 2026-10-11 | 추가: `motion.duration.*`·`motion.easing.*`·`shadow.raised`, V2 역할 색(토스트·비활성·덮개·탭 바·도장·상태 꼬리표·태그·요일·skeleton·흐름 줄), 글자 스타일 `type.body.ui`·`type.caption.lg` (마일스톤 V2) |
+| 1.1.0 | 2026-10-11 | 추가: `motion.duration.*`(short·fade·medium·select·long·stamp·breathe·toast-hold)·`motion.easing.*`·`shadow.raised`, V2 역할 색(토스트·비활성·덮개·탭 바·도장·도장 위 글자·상태 꼬리표·태그·요일·skeleton·흐름 줄), 글자 스타일 `type.body.ui`·`type.caption.lg` (마일스톤 V2) |
 
 주 버전 변경은 `docs/workflow.md` §5.1을 따릅니다. 순서는 `kind:notice` Issue로 공지 → 버전 올림 → app 대응 보고 뒤 이전 이름 제거입니다.
 

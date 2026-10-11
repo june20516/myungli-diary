@@ -66,6 +66,13 @@ def test_specimen_has_v2_section():
     assert "../components/README.md" in html
 
 
+def test_specimen_has_motion_samples():
+    html = SPECIMEN.read_text(encoding="utf-8")
+    for pattern in ("appear.seep", "select.seep-slide", "loading.breathe", "seal.stamp", "mark.underline-grow", "press.ink"):
+        assert f'data-pattern="{pattern}"' in html, pattern
+    assert "prefers-reduced-motion" in html
+
+
 def test_specimen_seal_uses_logo_path():
     html = SPECIMEN.read_text(encoding="utf-8")
     assert "M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" in html

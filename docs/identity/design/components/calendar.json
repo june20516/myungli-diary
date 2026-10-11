@@ -50,6 +50,7 @@
         "diaryWritten": { "parts": { "diarySeal": { "visible": true } } },
         "today": { "parts": { "todayOutline": { "visible": true } } },
         "selected": { "pattern": "mark.underline-grow", "parts": { "number": { "fg": "{color.action.primary}", "fontWeight": 700 }, "selectedUnderline": { "visible": true } } },
+        "selectedOnDiary": { "parts": { "number": { "fg": "{color.seal.on-soft}", "fontWeight": 700 } }, "note": "선택 + 일기 쓴 날: 옅은 도장 위 sage 숫자는 대비를 위해 seal.on-soft" },
         "hasEvent": { "parts": { "eventDot": { "visible": true } } },
         "outsideMonth": { "parts": { "number": { "opacity": 0.35 }, "luckFill": { "visible": false } } },
         "pressed": { "pattern": "press.ink" },

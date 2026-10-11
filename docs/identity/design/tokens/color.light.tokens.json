@@ -161,6 +161,11 @@
         "$value": "{color.sage.50}",
         "$description": "진한 낙관 도장 위에 새기는 날짜 숫자"
       },
+      "on-soft": {
+        "$type": "color",
+        "$value": "{color.sage.800}",
+        "$description": "옅은 낙관 도장 위의 sage 글자 (선택된 날 숫자, 질문 카드 버튼 글자). action.primary 대신"
+      },
       "fill": {
         "$type": "color",
         "$value": "{color.action.primary}",

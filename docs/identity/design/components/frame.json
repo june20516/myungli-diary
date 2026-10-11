@@ -36,7 +36,8 @@
       "rules": [
         "선택이 바뀌면 이전 탭 도장은 seal.erase, 새 탭 도장은 seal.stamp로 동시에 움직인다.",
         "이미 선택된 탭을 다시 누르면 그 탭 첫 화면 맨 위로 올라가고 도장은 다시 찍지 않는다.",
-        "탭 바 뒤로 내용이 비쳐 지나간다. 화면 맨 아래 내용은 탭 바 높이만큼 여백을 둔다."
+        "탭 바 뒤로 내용이 비쳐 지나간다. 화면 맨 아래 내용은 탭 바(와 광고 배너) 높이만큼 여백을 둔다.",
+        "광고 배너가 있으면 탭 바 위 0.5px 선은 배너 위로 옮겨, 배너와 탭 바가 한 덩어리로 보이게 한다."
       ]
     },
     {
@@ -84,6 +85,37 @@
         "뒤로 가기와 끌어내리기는 맨 위 시트 하나만 닫는다.",
         "바깥(덮개)을 누르면 쌓인 시트를 모두 닫는다.",
         "깊어짐은 이동·크기만 움직인다. 시트 높이를 움직이지 않는다."
+      ]
+    },
+    {
+      "id": "ad-banner",
+      "summary": "탭 첫 화면 하단 적응형 배너 광고 자리 (D53). 탭 바 바로 위에 함께 고정",
+      "uses": ["appear.seep", "disappear.seep"],
+      "parts": {
+        "container": {
+          "bg": "{color.bar.bg}",
+          "backdropBlur": { "value": 20, "unit": "px" },
+          "position": "above-tab-bar",
+          "topBorder": { "color": "{color.line}", "width": { "value": 0.5, "unit": "px" } },
+          "paddingY": "{space.4}"
+        },
+        "ad": { "source": "ad-network-anchored-adaptive-banner", "width": "screen-width", "height": "network-decided", "align": "center" }
+      },
+      "states": {
+        "loading": { "note": "높이를 미리 잡지 않음(빈 띠를 보이지 않음)", "parts": { "container": { "visible": false } } },
+        "loaded": { "pattern": "appear.seep", "parts": { "container": { "visible": true } } },
+        "noFill": { "pattern": "disappear.seep", "parts": { "container": { "visible": false } }, "note": "광고가 없으면 자리째 사라짐" },
+        "adFree": { "parts": { "container": { "visible": false } }, "note": "광고 제거 기간(D53)" },
+        "noConsent": { "parts": { "container": { "visible": false } }, "note": "광고 동의(ATT·UMP)를 받기 전" },
+        "reduceTransparency": { "parts": { "container": { "bg": "{color.bg.sheet}", "backdropBlur": { "value": 0, "unit": "px" } } } }
+      },
+      "haptic": [],
+      "a11y": { "role": "region", "label": "광고", "content": "광고 네트워크가 제공" },
+      "rules": [
+        "탭 첫 화면 4곳(today·calendar·diary-list·my-saju)에만 둔다. 시트·일기·온보딩·미리보기에는 넣지 않는다(D53).",
+        "탭 바 바로 위에 붙어 함께 고정되고 같은 반투명 바탕·뒤 흐림을 쓴다. 내용은 둘 뒤로 지나간다.",
+        "광고 안의 색·글꼴은 네트워크가 그린다. 명세는 틀(바탕·선·위치)만 정한다.",
+        "높이가 생기거나 사라질 때 아래 내용 여백이 함께 바뀌며 화면이 튀지 않게 스크롤 위치를 지킨다."
       ]
     }
   ]

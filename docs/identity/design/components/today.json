@@ -65,7 +65,7 @@
         "after": {
           "parts": {
             "question": { "fg": "{color.text.secondary}" },
-            "action": { "component": "primary-button", "variant": "quiet", "align": "center" },
+            "action": { "component": "primary-button", "variant": "quiet", "align": "center", "labelFg": "{color.seal.on-soft}" },
             "seal": { "element": "seal", "variant": "soft", "size": { "value": 52, "unit": "px" }, "layer": "behind-action-label", "align": "center" }
           }
         }
@@ -100,7 +100,7 @@
       "a11y": { "role": "image", "label": "오늘 문장 이미지 미리보기", "altText": "문장 전체" },
       "rules": [
         "다크 모드에서도 라이트 토큰으로 그린다(결정 V5).",
-        "비율은 공유 미리보기 시트 위 segmented로 사용자가 고른다(IA 추가 요청 Issue #35).",
+        "비율은 공유 미리보기 시트 위 segmented로 사용자가 고른다.",
         "그림 크기는 1080px 폭 기준. 화면 미리보기는 이를 줄여 보인다."
       ]
     }

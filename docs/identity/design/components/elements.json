@@ -8,7 +8,7 @@
       "rotate": -8,
       "contentAlign": "center",
       "variants": {
-        "fill": { "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "knockUse": "날짜 숫자를 가는 양각으로 새김, 아이콘은 knock 대신 흰색(color.action.on-primary)" },
+        "fill": { "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "knockUse": "날짜 숫자를 가는 양각으로 새김, 아이콘은 knock 대신 color.action.on-primary" },
         "soft": { "color": "{color.seal.soft}", "contentColor": "{color.text.primary}" },
         "outline": { "color": "{color.seal.fill}", "width": { "value": 1.6, "unit": "px" } }
       },

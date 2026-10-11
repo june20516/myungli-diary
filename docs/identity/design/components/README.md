@@ -11,10 +11,10 @@
 
 * **JSON은 사실, Markdown은 설명입니다.** JSON에는 변형·구성 요소별 토큰·크기·상태별 차이·쓰는 요소와 패턴·햅틱·접근성만 있습니다. 이유·배치·쓰는 화면·시안은 같은 이름의 `.md`에 있습니다.
 * **토큰 참조:** `"{color.action.primary}"`처럼 중괄호로 토큰 이름을 가리킵니다(DTCG 참조 표기). 모든 참조는 테마 조합 4가지(라이트·다크 × ko·ja) 모두에서 풀립니다.
-* **직접 값:** 그 컴포넌트에서만 쓰는 치수는 `{"value": 52, "unit": "px"}`, 시간은 `{"value": 260, "unit": "ms"}`로 적습니다.
+* **직접 값:** 그 컴포넌트에서만 쓰는 치수는 `{"value": 52, "unit": "px"}`, 시간·곡선은 깊이와 관계없이 모두 `motion.*` 토큰을 가리킵니다(검사기가 확인). 줄 사이 어긋남(`stagger`)처럼 시간 길이가 아닌 간격만 `{"value": 150, "unit": "ms"}`로 적습니다.
 * **`uses`:** 쓰는 요소(`elements.json`)와 상호작용 패턴(`interaction.json`)의 id 목록입니다.
 * **`pattern`:** 상태가 바뀔 때 쓰는 상호작용 패턴 id입니다.
-* **`states`:** 기본 모습(`parts`)에서 달라지는 것만 적습니다.
+* **`states`:** 기본 모습(`parts`)에서 달라지는 것만 적습니다. IA 화면 상태와 같은 상태는 IA id 그대로(`time-unknown`, `out-of-range`), 그 밖의 상태는 camelCase(`selectedOnDiary`)로 적습니다.
 * **`component` / `element`:** 구성 요소가 다른 컴포넌트·요소를 그대로 쓴다는 뜻입니다.
 
 컴포넌트 하나의 필드:
@@ -38,17 +38,17 @@
 | --- | --- |
 | `interaction.json` | 공통 상호작용 패턴 12개, 햅틱, 동작 줄이기·투명도 줄이기·저사양 대체 규칙 |
 | `elements.json` | 반복 요소 15개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시 등) |
-| `frame.json` | tab-bar, app-bar, sheet |
+| `frame.json` | tab-bar, app-bar, sheet, ad-banner |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
 | `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row |
-| `action.json` | primary-button, social-login-button, share-button, settings-row |
+| `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card |
 | `sentence.json` | sentence-block, term-token, depth-link, reaction-button |
 | `today.json` | day-character, lucky-card, guide-question-card, share-image |
 | `calendar.json` | calendar-month, day-cell, event-row |
 | `diary.json` | diary-row, diary-editor, draft-indicator, tag-chip |
 | `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table |
 
-IA 컴포넌트 39개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다.
+IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
 
 ## 공통 규칙
 
@@ -71,7 +71,7 @@ IA 컴포넌트 39개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
-| 1.0.0 | 2026-10-11 | 마일스톤 V2: IA 컴포넌트 39개, 패턴 12개, 요소 15개 |
+| 1.0.0 | 2026-10-11 | 마일스톤 V2: IA 컴포넌트 41개, 패턴 12개, 요소 15개 |
 
 ## 검사 (design)
 
@@ -81,7 +81,9 @@ python3 docs/identity/design/tools/components.py     # 저장소 루트에서
 
 검사하는 것(`tools/test_components.py`가 커밋된 파일에 돌림):
 
-* IA 컴포넌트 39개 id가 정확히 한 번(빠짐·넘침·겹침)
+* IA 컴포넌트 41개 id가 정확히 한 번(빠짐·넘침·겹침)
+* 구성 요소가 가리키는 `component`(IA 컴포넌트)·`element`(요소)가 있음, 변형 id 겹침 없음, 햅틱 세기는 selection·light·medium
+* 문자열 중간에 섞인 `{토큰}` 없음(값 하나에 참조 하나)
 * 모든 `{토큰}` 참조가 테마 조합 4가지 모두에 있음(깊이와 관계없이)
 * `uses`·`pattern`이 요소·패턴 id를 가리킴, 패턴의 시간·곡선은 토큰 참조, 모든 패턴에 동작 줄이기 대체
 * `stateMap`이 IA 화면 상태 전부를 덮고 IA 컴포넌트를 가리킴

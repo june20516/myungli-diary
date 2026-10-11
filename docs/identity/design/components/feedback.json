@@ -17,7 +17,7 @@
       "uses": ["appear.seep", "disappear.seep", "press.ink"],
       "variants": [
         { "id": "confirm", "when": "일반 확인" },
-        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 계정 삭제)", "uses": ["mark.caution"],
+        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 계정 삭제)", "uses": ["mark.caution"], "a11y": { "focusOnOpen": "cancel", "dismissOnScrim": false },
           "parts": {
             "title": { "leading": "mark.caution" },
             "confirm": { "fg": "{color.text.primary}", "fontWeight": 700 },
@@ -39,7 +39,7 @@
         "pressed": { "pattern": "press.ink", "note": "버튼 글자 둘레에서만" }
       },
       "haptic": [{ "when": "destructive 변형의 확정 버튼을 누름", "strength": "medium" }],
-      "a11y": { "role": "alertdialog", "label": "제목", "description": "본문", "focusOnOpen": "cancel", "minTarget": 44 },
+      "a11y": { "role": "alertdialog", "label": "제목", "description": "본문", "focusOnOpen": "confirm", "minTarget": 44 },
       "rules": [
         "되돌릴 수 없는 동작에 빨간색을 쓰지 않는다. 제목 앞 mark.caution과 굵은 본문색 확정 버튼으로 구분한다.",
         "destructive 변형은 처음 초점과 기본 동작을 취소에 둔다.",
@@ -62,7 +62,7 @@
       "haptic": [],
       "a11y": { "role": "status", "liveRegion": "polite", "label": "글자 그대로" },
       "rules": [
-        "탭 바가 있으면 탭 바 위 16px, 없으면 아래 안전 영역 위 16px에 뜬다.",
+        "광고 배너(ad-banner)가 보이면 배너 위 16px, 탭 바만 있으면 탭 바 위 16px, 없으면 아래 안전 영역 위 16px에 뜬다.",
         "새 토스트가 오면 이전 토스트는 바로 disappear.seep으로 사라지고 하나만 보인다.",
         "누르는 동작을 담지 않는다. 되돌리기가 필요한 일은 확인 창으로 한다."
       ]
