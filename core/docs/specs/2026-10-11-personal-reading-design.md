@@ -31,13 +31,13 @@
 | --- | --- | --- |
 | `place` | `YEAR_STEM` ~ `HOUR_BRANCH`(원국 자리), `<지지 자리>_HIDDEN`(그 지지의 지장간) | 용어가 놓인 자리. 문장에서 자리별 의미(연주·월주·일주·시주, 천간·지지)를 고르는 데 씁니다 |
 | `element` | `WOOD` 등 `Element` 이름 | 그 용어 글자의 오행 |
-| `role` | `YONGSIN`, `HUISIN`, `GISIN`, `NEUTRAL` | 그 오행이 내 원국에서 맡는 역할. 위 순서로 먼저 맞는 것 하나. 통관은 희신과 같은 오행이라 따로 두지 않습니다 |
+| `role` | `YONGSIN`, `HUISIN`, `GISIN`, `NEUTRAL` | 그 오행이 내 원국에서 맡는 역할. 위 순서로 먼저 맞는 것 하나. 통관은 희신과 같은 오행이라 따로 두지 않습니다. 데일리 컬러 카드의 역할 값(`YONGSIN`·`TONGGWAN`)과는 다른 집합입니다 |
 | `group_count` | 정수 | 원국(일간 제외 천간 + 지지 정기)에 같은 십성 묶음(비겁·식상·재성·관성·인성)이 몇 개 있는지. 태그의 십성 쏠림과 같은 계산입니다 |
 | `strength` | `StrengthLevel` 이름 | 신강·신약 등급 |
 | `yongsin`, `gisin` | `Element` 이름 | 일간 해석에 쓰는 용신·기신 오행 |
 | `luck` | `DAEUN`, `SEUN` | 운의 종류 |
 | `part` | `STEM`, `BRANCH` | 운 기둥의 천간·지지 |
-| `current` | 참·거짓 | 그 대운·세운이 `as_of` 기준 지금인지 |
+| `current` | 참·거짓 | 그 대운·세운이 `as_of` 기준 지금인지. 첫 대운 전이거나 세운 목록에 `as_of` 연도가 없으면 모두 거짓 |
 
 ### 2.2 메시지 키 (C27)
 
@@ -112,7 +112,7 @@ message ChartResponse {
   * `element_role(element, yongsin) -> str`: 역할을 정합니다.
   * 키 묶음마다 하나씩, Judgment를 만드는 함수를 둡니다.
 * `composers/chart.py`: `compose_chart`가 원국·대운·세운을 돌며 `PersonalReading` 목록을 만들어 `ChartView.personal_readings`에 담습니다.
-* `domain/models.py`: `PersonalReading`과 `PersonalTermKind`를 추가합니다. enum은 `domain/enums.py`에 둡니다.
+* `chart/personal_target.py`(새 파일): `PersonalReading`을 둡니다. `Position`이 `chart` 계층에 있어 `domain`에 두면 계층이 거꾸로 됩니다. `PersonalTermKind` enum은 `domain/enums.py`에 둡니다.
 * `grpc_api/mapping.py`: 도메인 값을 proto로 옮깁니다.
 * 십성 묶음 개수 계산(`tags._natal_group_count`)은 공용 함수로 옮겨 태그와 개인 해석이 함께 씁니다. 동작은 바꾸지 않습니다.
 * 키와 매개변수는 `KEY_PARAMS`에 선언합니다. `require(key, params)`가 실제 매개변수가 선언과 같은지 확인합니다(#38).
@@ -135,7 +135,7 @@ message BirthHourResponse {
   Branch branch = 1;
   google.protobuf.Timestamp start = 2;
   google.protobuf.Timestamp end = 3;
-  ResponseMeta meta = 4; // 자시 경계·서머타임 공백·중복 notice 포함
+  ResponseMeta meta = 4; // 출생 시각 해석의 notice 그대로(자시 경계, 서머타임 공백·중복, 절입 근처)
 }
 ```
 
@@ -146,7 +146,7 @@ message BirthHourResponse {
   * 공백·중복 시각 처리
 * 시진 경계는 보정 시각의 홀수 정시(23:00, 01:00, …)입니다. 그 구간에서 경도 보정을 거꾸로 빼서 절대 시각으로 바꿉니다. 예: 서울 1990-05-05 04:00 출생이면 인시이고, 구간은 KST 03:30~05:30입니다.
 * 자시는 자시 통합(D6)에 따라 보정 23:00~01:00 한 구간입니다.
-* 시간 모름이면 `INVALID_ARGUMENT`(필드 `birth.time`)를 냅니다. 범위 밖 날짜는 다른 RPC와 같이 `OUT_OF_RANGE`입니다.
+* 시간 모름이면 `INVALID_ARGUMENT`(필드 `birth.time`)를 냅니다. 날짜 범위보다 먼저 검사합니다. 시간이 있고 범위 밖 날짜면 다른 RPC와 같이 `OUT_OF_RANGE`입니다.
 * 원국 전체를 계산하지 않으므로 호출 비용이 작습니다. 비로그인 온보딩에서도 쓸 수 있습니다.
 
 ## 4. 엔진 정보 RPC (#49)
@@ -171,7 +171,7 @@ message InfoResponse {
 | 규칙 단위 | `element_role`의 우선순위(용신 > 희신 > 기신 > 그 밖), 묶음별 키·매개변수·근거, `place` 표기(지장간 `_HIDDEN`) |
 | composer | 원국 표의 모든 십성·지장간·12운성·신살 자리에 해석이 하나씩 있음. 대운 10구간 × 3, 세운 수만큼 있음. `current`가 `as_of`의 대운·세운 하나에만 참. 시간 모름이면 시주 자리 없음 |
 | 불변 조건 | 무작위 원국에서 모든 해석에 근거가 있고 키가 등록돼 있음(`require`가 매개변수까지 확인) |
-| 시진 | 서울 일반 시각(인시 03:30~05:30), 자시 통합 경계(보정 23:00 전후), 1987 서머타임, 1955 UTC+8:30, 경도 입력, 시간 모름 `INVALID_ARGUMENT` |
+| 시진 | 서울 일반 시각(인시 03:30~05:30), 자시 통합 경계(보정 23:00 전후), 1987 서머타임, UTC+8:30 시기(1956 서머타임, 1958 표준), 경도 입력, 시간 모름 `INVALID_ARGUMENT`(범위 검사보다 먼저) |
 | gRPC 통합 | `GetChart`의 `personal_readings` 변환, `GetBirthHour`, `GetInfo`, 오류 코드 |
 | 스냅샷 | 원국 스냅샷 갱신, `ruleset_version` 해시 기록 갱신 |
 | 계약 | `buf lint`, `buf breaking`(이 PR에서 실제 비교되는지 확인), 생성 코드 일치, `message_keys.json`·`message_params.json` 갱신 |

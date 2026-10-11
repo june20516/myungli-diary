@@ -30,7 +30,7 @@
 
 1. 시간 모름 원국: 시주 자리(`HOUR_STEM`·`HOUR_BRANCH`)와 그 지장간의 개인 해석이 없어야 합니다. 시진 RPC는 `INVALID_ARGUMENT`입니다.
 2. 한 자리에 신살이 둘 이상인 원국: 신살마다 해석이 하나씩 있고, `shinsal` 값으로 구분돼야 합니다.
-3. `as_of`가 첫 대운 시작 전(대운 시작 나이 이전): 모든 대운의 `current`가 거짓이어야 합니다. 세운은 `as_of` 연도 하나만 참입니다.
+3. `as_of`가 첫 대운 시작 전이거나 세운 목록 밖: 모든 대운의 `current`가 거짓이고, 세운 목록(첫 대운 구간의 10년, `chart/luck_cycles.py`)에 `as_of` 연도가 없으면 세운 `current`도 모두 거짓이어야 합니다.
 4. 서머타임 공백·중복 시각에 태어난 경우: 시진 RPC도 원국과 같은 해석(공백은 뒤로 밀기, 중복은 앞)을 쓰고, 같은 notice를 냅니다.
 5. 보정 시각 자시(23:00~00:59) 출생: 시진 구간은 보정 23:00에 시작해 다음 날 01:00에 끝나는 한 구간입니다.
 
@@ -77,23 +77,24 @@ def test_matches_tag_rush_rule(): ...  # tags._rush_tags가 쓰는 개수와 같
 **Interfaces:**
 - Consumes: `natal_group_count` (Task 1), `YongsinResult`, `StrengthResult`
 - Produces (모두 `Judgment` 반환):
-  * `element_role(element: Element, yongsin: YongsinResult) -> str` — `"YONGSIN"`, `"HUISIN"`, `"GISIN"`, `"NEUTRAL"` 중 하나이고, 이 순서로 먼저 맞는 값을 고릅니다.
+  * `PersonalRole(Enum)`: `YONGSIN`, `HUISIN`, `GISIN`, `NEUTRAL`(`rules/personal.py`). 데일리 컬러의 `ElementRole`과 값 집합이 다르므로 따로 둡니다. 매개변수에는 `.name`을 넣습니다.
+  * `element_role(element: Element, yongsin: YongsinResult) -> PersonalRole` — 용신, 희신, 기신 순서로 먼저 맞는 값이고, 어디에도 맞지 않으면 `NEUTRAL`입니다.
   * `day_master_reading(stem: Stem, strength: StrengthResult, yongsin: YongsinResult) -> Judgment` — 키 `personal.day_master.<stem>`, 매개변수 `strength`, `yongsin`, `gisin`
-  * `ten_god_reading(god: TenGod, place: str, stem: Stem, natal: FourPillars, strength: StrengthResult, yongsin: YongsinResult) -> Judgment` — 키 `personal.ten_god.<god>`, 매개변수 `place`, `element`(stem의 오행), `role`, `group_count`, `strength`
+  * `ten_god_reading(god: TenGod, position: Position, hidden: bool, stem: Stem, natal: FourPillars, strength: StrengthResult, yongsin: YongsinResult) -> Judgment` — 키 `personal.ten_god.<god>`, 매개변수 `place`, `element`(stem의 오행), `role`, `group_count`(`natal_group_count(natal, god.group)`), `strength`. 지지 자리는 정기 천간을 `stem`으로 넘깁니다
   * `twelve_stage_reading(stage: TwelveStage, position: Position, branch: Branch, strength, yongsin) -> Judgment` — 키 `personal.twelve_stage.<stage>`, 매개변수 `place`, `element`(branch의 오행), `role`, `strength`
   * `shinsal_reading(kind: Shinsal, position: Position, branch: Branch, yongsin) -> Judgment` — 키 `personal.shinsal.<kind>`, 매개변수 `place`, `element`, `role`
   * `luck_ten_god_reading(god: TenGod, luck: str, part: str, stem: Stem, current: bool, yongsin) -> Judgment` — 키 `personal.luck.ten_god.<god>`, 매개변수 `luck`(`"DAEUN"`·`"SEUN"`), `part`(`"STEM"`·`"BRANCH"`), `element`, `role`, `current`. 지지는 정기 천간을 넘깁니다.
   * `luck_twelve_stage_reading(stage: TwelveStage, branch: Branch, current: bool, yongsin) -> Judgment` — 키 `personal.luck.twelve_stage.<stage>`, 매개변수 `element`, `role`, `current`
-  * `place` 값: 원국 자리는 `Position.name`, 지장간은 `f"{position.name}_HIDDEN"`입니다.
+  * `place` 값: 원국 자리는 `position.name`, 지장간(`hidden=True`)은 `f"{position.name}_HIDDEN"`입니다. `place`는 함수 안에서 만듭니다.
   * 근거: 첫 항목은 `Evidence(rule_id="personal/<묶음>", source_ref=FIVE_ELEMENTS_REF["balance_principle"], detail=<매개변수를 문자열로>)`이고, 뒤에 `*yongsin.evidence`를 붙입니다. `<묶음>`은 `day_master`, `ten_god`, `twelve_stage`, `shinsal`, `luck_ten_god`, `luck_twelve_stage`입니다.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
 ```python
 def test_element_role_priority(): ...       # 용신·희신·기신 오행이면 각 역할, 그 밖의 두 오행은 NEUTRAL
-def test_ten_god_reading_key_and_params(): ...
+def test_ten_god_reading_key_and_params(): ...  # ten_god_reading(TenGod.SIKSIN, Position.MONTH_STEM, False, ...)
     # key == "personal.ten_god.siksin", params == {"place": "MONTH_STEM", "element": "FIRE", "role": ..., "group_count": 2, "strength": "STRONG"}
-def test_hidden_place_suffix(): ...         # place == "MONTH_BRANCH_HIDDEN"
+def test_hidden_place_suffix(): ...         # hidden=True → place == "MONTH_BRANCH_HIDDEN"
 def test_luck_reading_current_flag(): ...   # params["current"] is True / False, params["luck"] == "DAEUN"
 def test_every_reading_has_balance_and_yongsin_evidence(): ...  # evidence[0].rule_id == "personal/ten_god", evidence[1:] == yongsin.evidence
 # test_tables.py
@@ -110,6 +111,8 @@ def test_personal_keys_registered(): ...
 
 **Files:**
 - Modify: `core/src/myungri_engine/composers/chart.py` (`ChartView.personal_readings: tuple[PersonalReading, ...]`)
+- Modify: `core/src/myungri_engine/version.py` (`RULESET_VERSION = "2026.10.2"`)
+- Update: `core/tests/snapshots/__snapshots__/`, `core/tests/snapshots/RULESET_HASH`
 - Test: `core/tests/unit/composers/test_chart.py`
 
 **Interfaces:**
@@ -124,8 +127,10 @@ def test_personal_keys_registered(): ...
   7. 세운: `luck.years` 순서이고 `index`는 목록 위치
 
   `current`는 다음 기준으로 정합니다.
-  * 대운: `start_year <= as_of.year < 다음 구간 start_year`인 구간 하나만 참입니다. 마지막 구간은 끝이 없습니다.
-  * 세운: `year == as_of.year`만 참입니다.
+  * 대운: `start_year <= as_of.year < 다음 구간 start_year`인 구간만 참입니다. 마지막 구간은 끝이 없습니다. 첫 구간 전이면 모두 거짓입니다.
+  * 세운: `year == as_of.year`인 항목만 참입니다. 목록에 그 연도가 없으면 모두 거짓입니다.
+
+  신살·12운성에 넘길 지지는 `chart.pillars`에서 자리의 기둥을 골라 구합니다. 도우미는 `_pillar_at(pillars: FourPillars, position: Position) -> Pillar`이고 composer 안에 둡니다.
 
 - [ ] **Step 1: 실패하는 테스트 작성** (`spring_birth`·`unknown_time_birth` 등 기존 fixture 사용)
 
@@ -137,17 +142,18 @@ def test_personal_readings_cover_luck_tables(spring_birth): ...
 def test_unknown_time_has_no_hour_readings(unknown_time_birth): ...
     # position이 HOUR_STEM·HOUR_BRANCH인 항목 없음
 def test_current_flags_follow_as_of(spring_birth): ...
-    # 대운 current 참이 정확히 하나(첫 대운 시작 뒤 as_of), 세운은 as_of 연도 하나
-def test_no_current_daeun_before_first_period(spring_birth): ...
-    # as_of가 첫 대운 start_year 이전이면 대운 current 모두 거짓 (Review Focus 3)
-def test_multiple_shinsal_at_one_position_are_distinct(): ...
-    # 한 지지에 신살이 둘 이상인 원국을 찾아 고정(테스트 안에 출생 정보 상수로), (position, shinsal) 쌍이 중복 없음 (Review Focus 2)
+    # as_of 2026-10-10: 대운 current 참이 정확히 하나, 세운은 2026년 항목 하나
+def test_no_current_before_first_period(spring_birth): ...
+    # as_of가 첫 대운 start_year 이전(예: 출생 이듬해): 대운·세운 current 모두 거짓 (Review Focus 3)
+def test_multiple_shinsal_at_one_position_are_distinct(spring_birth): ...
+    # spring_birth는 YEAR_BRANCH에 CHEONEUL_GWIIN·HWAGAE가 함께 있음: 두 해석 모두 있고 (position, shinsal) 쌍이 중복 없음 (Review Focus 2)
 ```
 
 - [ ] **Step 2: 실패 확인** — `uv run pytest tests/unit/composers/test_chart.py -q` → FAIL
 - [ ] **Step 3: `compose_chart`가 목록을 만들도록 구현** (도우미 `_personal_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple[PersonalReading, ...]`)
 - [ ] **Step 4: 통과 확인** — 같은 명령 PASS
-- [ ] **Step 5: Commit** — `feat(core): 나의 사주 view에 원국 개인 해석 목록 (#51)`
+- [ ] **Step 5: 버전과 스냅샷 갱신** — `RULESET_VERSION`을 `2026.10.2`로 올리고 README "ruleset 버전과 스냅샷 갱신" 절차 2~3을 실행합니다. 원국 스냅샷(`test_chart_regression`)에만 `personal_readings`가 더해지고 데일리·월간 스냅샷은 그대로여야 합니다. 이후 task는 도메인 view를 바꾸지 않으므로 스냅샷이 다시 바뀌면 안 됩니다. `uv run pytest -q -m "not slow"` 전체 PASS
+- [ ] **Step 6: Commit** — `feat(core): 나의 사주 view에 원국 개인 해석 목록, ruleset 2026.10.2 (#51)`
 
 ### Task 4: proto와 gRPC 매핑 — personal_readings
 
@@ -155,7 +161,8 @@ def test_multiple_shinsal_at_one_position_are_distinct(): ...
 - Modify: `proto/myungri/engine/v1/engine.proto` (spec §2.3의 `PersonalTermKind`, `PersonalReading`, `ChartResponse.personal_readings = 13`; 머리 주석의 ChartResponse 개요에 한 줄)
 - Regenerate: `core/src/myungri_engine/_gen/` (`bash tools/gen_proto.sh`)
 - Modify: `core/src/myungri_engine/grpc_api/mapping.py` (`_PREFIX_PERSONAL_TERM_KIND = "PERSONAL_TERM_KIND"`, `chart_to_proto`가 `personal_readings` 채움. `position`·`shinsal`이 None이면 `_optional_name`으로 UNSPECIFIED)
-- Test: `core/tests/integration/test_grpc_server.py`, `core/tests/unit/test_proto_generated.py`(enum 대응 검사가 있으면 새 enum 포함)
+- Modify: `core/tests/unit/test_proto_generated.py` (`DOMAIN_TO_PROTO_ENUMS`에 `(enums.PersonalTermKind, "PersonalTermKind", "PERSONAL_TERM_KIND")` 추가)
+- Test: `core/tests/integration/test_grpc_server.py`
 
 - [ ] **Step 1: 실패하는 통합 테스트 작성**
 
@@ -176,12 +183,13 @@ def test_chart_personal_readings(stub): ...
 **Files:**
 - Modify: `core/src/myungri_engine/calendar_core/birth.py`
 - Modify: `proto/myungri/engine/v1/engine.proto` (spec §3), `_gen` 재생성
-- Modify: `core/src/myungri_engine/grpc_api/server.py`, `mapping.py`
+- Modify: `core/src/myungri_engine/grpc_api/server.py` (`_required_birth`의 타입 주석 union에 `pb.BirthHourRequest` 추가), `mapping.py`
+- Modify: `core/tests/unit/test_proto_generated.py` (서비스 메서드 목록 끝에 `GetBirthHour`. proto에서도 `GetMonthCalendar` 다음에 선언)
 - Test: `core/tests/unit/calendar_core/test_birth.py`, `core/tests/integration/test_grpc_server.py`
 
 **Interfaces:**
 - Produces: frozen dataclass `BirthHour(branch: Branch, start: datetime, end: datetime, notices: tuple[Notice, ...])`. `start`·`end`는 UTC aware입니다.
-- Produces: `birth_hour(birth: BirthInput) -> BirthHour`. `birth.time is None`이면 `InvalidInputError("birth.time가 없습니다.")`를 냅니다.
+- Produces: `birth_hour(birth: BirthInput) -> BirthHour`. `birth.time is None`이면 날짜 검사보다 **먼저** `InvalidInputError("birth.time가 없습니다.")`를 냅니다. `notices`는 `resolve_birth_moment`의 notice를 그대로 씁니다(자시 경계, 서머타임 공백·중복, 절입 근처).
 - Produces: `mapping.birth_hour_to_proto(hour: BirthHour) -> pb.BirthHourResponse`
 - 알고리즘(시그니처가 정하지 못하는 부분):
 
@@ -200,38 +208,39 @@ start_utc = (start_corrected - correction).replace(tzinfo=UTC); end_utc = start_
 def test_seoul_inshi(): ...          # 1990-05-05 04:00 → IN, 03:30~05:30 KST
 def test_zi_hour_spans_midnight(): ...  # 1990-05-15 00:10 → JA, 05-14 23:30 ~ 05-15 01:30 KST (Review Focus 5)
 def test_dst_1987(): ...             # 1987-07-01 04:00 (서머타임 UTC+10, 표준시 03:00) → CHUK, 벽시계 02:30~04:30
-def test_utc_0830_period(): ...      # 1956-07-01 04:00 (UTC+8:30 시기 서머타임, +09:30) → IN, 벽시계 04:00~06:00
+def test_utc_0830_dst(): ...         # 1956-07-01 04:00 (UTC+8:30 시기 서머타임, +09:30) → IN, 벽시계 04:00~06:00
+def test_utc_0830_standard(): ...    # 1958-01-15 04:00 (+08:30, 서머타임 없음) → IN, 벽시계 03:00~05:00
 def test_dst_gap_notice_matches_chart(): ...  # 1987-05-10 02:30(공백) → notices가 resolve_birth_moment와 같음 (Review Focus 4)
 def test_explicit_longitude(): ...   # longitude=129.0 → 구간이 대표 경도보다 6분 앞당겨짐
 def test_branch_matches_chart_hour_pillar(): ...  # hypothesis: 무작위 출생에서 birth_hour().branch == build_chart().pillars.hour.branch
 def test_unknown_time_rejected(): ...  # InvalidInputError
+def test_unknown_time_checked_before_range(): ...  # 시간 없음 + 1800년 날짜 → InvalidInputError (OutOfRangeError 아님)
 # integration
 def test_get_birth_hour(stub): ...  # branch == pb.BRANCH_IN, start/end Timestamp, 시간 없음 → INVALID_ARGUMENT, details에 "birth.time"
 ```
 
-- [ ] **Step 2: 실패 확인** — `uv run pytest tests/unit/calendar_core/test_birth.py tests/integration -q` → FAIL
+- [ ] **Step 2: 실패 확인** — `uv run pytest tests/unit/calendar_core/test_birth.py tests/integration tests/unit/test_proto_generated.py -q` → FAIL
 - [ ] **Step 3: `birth_hour` 구현, proto에 `GetBirthHour`·`BirthHourRequest`·`BirthHourResponse` 추가, 재생성, servicer `GetBirthHour` 구현**(`_required_birth` 재사용, `run_or_abort`)
-- [ ] **Step 4: 통과 확인** — 같은 명령 PASS, `buf lint` 통과
+- [ ] **Step 4: 통과 확인** — 같은 명령 PASS, `uv run mypy src tools` 통과, `buf lint` 통과
 - [ ] **Step 5: Commit** — `feat(core): 출생 시각의 시진을 돌려주는 GetBirthHour RPC (#41)`
 
 ### Task 6: GetInfo
 
 **Files:**
-- Modify: `proto/myungri/engine/v1/engine.proto` (spec §4), `_gen` 재생성, `grpc_api/server.py`
+- Modify: `proto/myungri/engine/v1/engine.proto` (spec §4, `GetBirthHour` 다음에 선언), `_gen` 재생성, `grpc_api/server.py`
+- Modify: `core/tests/unit/test_proto_generated.py` (서비스 메서드 목록 끝에 `GetInfo`)
 - Test: `core/tests/integration/test_grpc_server.py`
 
 - [ ] **Step 1: 실패하는 테스트** — `test_get_info(stub)`: `resp.engine_version == ENGINE_VERSION`, `resp.ruleset_version == RULESET_VERSION` (`myungri_engine.version`)
-- [ ] **Step 2: 실패 확인** — `uv run pytest tests/integration -q -k get_info` → FAIL
+- [ ] **Step 2: 실패 확인** — `uv run pytest tests/integration tests/unit/test_proto_generated.py -q` → FAIL
 - [ ] **Step 3: proto 추가, 재생성, servicer `GetInfo` 구현**
 - [ ] **Step 4: 통과 확인** — 같은 명령 PASS
 - [ ] **Step 5: Commit** — `feat(core): 엔진·규칙 버전을 돌려주는 GetInfo RPC (#49)`
 
-### Task 7: 불변 조건, 버전, 스냅샷, 계약 파일, 문서
+### Task 7: 불변 조건, 계약 파일, 문서
 
 **Files:**
 - Modify: `core/tests/properties/test_invariants.py` (원국 개인 해석 불변 조건)
-- Modify: `core/src/myungri_engine/version.py` (`RULESET_VERSION = "2026.10.2"`)
-- Update: `core/tests/snapshots/__snapshots__/`, `core/tests/snapshots/RULESET_HASH`
 - Update: `core/message_keys.json`, `core/message_params.json`
 - Modify: `core/docs/decisions.md` (C27: spec §2.2 결정 원문), `core/CLAUDE.md` (현재 상태·계약·다음 할 일), spec 상태 `구현 완료`
 
@@ -246,15 +255,15 @@ def test_all_personal_readings_have_evidence(birth, as_of): ...
 ```
 
 - [ ] **Step 2: 실행** — `uv run pytest tests/properties -q` PASS (Task 3까지의 구현으로 통과해야 함. 실패하면 해당 task로 돌아가 고침)
-- [ ] **Step 3: README "ruleset 버전과 스냅샷 갱신" 절차 1~3 실행** — 스냅샷 diff가 원국 스냅샷의 `personal_readings` 추가뿐인지 확인합니다. 데일리·월간 스냅샷은 변화가 없어야 합니다.
+- [ ] **Step 3: 스냅샷 확인** — `uv run pytest tests/snapshots tests/unit/test_ruleset_version.py -q` PASS(Task 3 이후 변화 없음)
 - [ ] **Step 4: 계약 파일 재생성과 문서 갱신** — README "메시지 키와 매개변수 목록" 명령, `message_keys.json` 153개 확인
 - [ ] **Step 5: 전체 검증** — `uv run ruff check .`, `uv run mypy src tools`, `uv run pytest -q -m "not slow"`, `uv run pytest -q -m slow`, `bash tools/gen_proto.sh && git diff --exit-code src/myungri_engine/_gen`, `(cd ../proto && buf lint)`, `python3 -I ../tools/docs-check/docs_check.py ..` 모두 통과
-- [ ] **Step 6: Commit** — `chore(core): ruleset 2026.10.2, 스냅샷·계약 파일·문서 갱신 (#51, #41, #49)`
+- [ ] **Step 6: Commit** — `chore(core): 개인 해석 불변 조건, 계약 파일·문서 갱신 (#51, #41, #49)`
 
 ### Task 8: PR과 알림
 
 - [ ] **Step 1: push 후 PR 생성** (`main` 대상). CI의 `core-proto`에서 `buf breaking`이 실제로 실행됐는지 로그로 확인합니다(#5-1 후속).
 - [ ] **Step 2: Issue 댓글**
-  * #51: C27 키 구조, 응답 위치, 키 60개, writing 기준 값(`place`·`role` 값 목록)
+  * #51: C27 키 구조, 응답 위치, 키 60개, writing 기준 값(`place`·`role` 값 목록. `role`은 데일리 컬러의 역할 값과 집합이 다름)
   * #41, #49: RPC 이름과 메시지
   * server 앞으로 `ruleset_version` `2026.10.2` 변경 알림(`from:core`)
