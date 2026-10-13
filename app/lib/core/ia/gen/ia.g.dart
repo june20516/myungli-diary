@@ -17,6 +17,7 @@ abstract final class ScreenIds {
   static const String consent = 'consent';
   static const String notifyAsk = 'notify-ask';
   static const String systemPush = 'system-push';
+  static const String systemAppleReturn = 'system-apple-return';
   static const String adConsent = 'ad-consent';
   static const String today = 'today';
   static const String explainSheet = 'explain-sheet';
@@ -85,6 +86,14 @@ abstract final class SlotIds {
   static const String notifyAskWhyBody = 'notify-ask.why.body';
   static const String notifyAskCtaSkip = 'notify-ask.cta.skip';
   static const String systemPushMorningBody = 'system-push.morning.body';
+  static const String systemAppleReturnPageTitle =
+      'system-apple-return.page.title';
+  static const String systemAppleReturnPageBody =
+      'system-apple-return.page.body';
+  static const String systemAppleReturnPageOpen =
+      'system-apple-return.page.open';
+  static const String systemAppleReturnPageInstall =
+      'system-apple-return.page.install';
   static const String todayCharacterLabel = 'today.character.label';
   static const String todayCharacterReason = 'today.character.reason';
   static const String todayFortuneHead = 'today.fortune.head';
@@ -155,6 +164,7 @@ abstract final class SlotIds {
   static const String sajuChartTimeUnknownNotice =
       'saju-chart.time-unknown.notice';
   static const String sajuChartYongsinOpen = 'saju-chart.yongsin.open';
+  static const String sajuChartYongsinTitle = 'saju-chart.yongsin.title';
   static const String settingsDepthDesc = 'settings.depth.desc';
   static const String settingsLanguageBirthplaceNotice =
       'settings.language.birthplace-notice';
@@ -338,6 +348,15 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: [],
     exits: [IaExit(to: 'today', trigger: '알림 누름')],
+    components: [],
+  ),
+  IaScreen(
+    id: 'system-apple-return',
+    tab: null,
+    presentation: IaPresentation.system,
+    auth: IaAuth.any,
+    states: [],
+    exits: [IaExit(to: 'welcome', trigger: '앱에서 열기')],
     components: [],
   ),
   IaScreen(

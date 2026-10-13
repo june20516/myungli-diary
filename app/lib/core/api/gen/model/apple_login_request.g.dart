@@ -13,8 +13,6 @@ abstract class _$AppleLoginRequestCWProxy {
 
   AppleLoginRequest nonce(String nonce);
 
-  AppleLoginRequest clientType(AppleLoginRequestClientTypeEnum clientType);
-
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `AppleLoginRequest(...).copyWith.fieldName(value)`.
@@ -27,7 +25,6 @@ abstract class _$AppleLoginRequestCWProxy {
     String idToken,
     String authorizationCode,
     String nonce,
-    AppleLoginRequestClientTypeEnum clientType,
   });
 }
 
@@ -48,10 +45,6 @@ class _$AppleLoginRequestCWProxyImpl implements _$AppleLoginRequestCWProxy {
   @override
   AppleLoginRequest nonce(String nonce) => call(nonce: nonce);
 
-  @override
-  AppleLoginRequest clientType(AppleLoginRequestClientTypeEnum clientType) =>
-      call(clientType: clientType);
-
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `AppleLoginRequest(...).copyWith.fieldName(value)`.
@@ -65,7 +58,6 @@ class _$AppleLoginRequestCWProxyImpl implements _$AppleLoginRequestCWProxy {
     Object? idToken = const $CopyWithPlaceholder(),
     Object? authorizationCode = const $CopyWithPlaceholder(),
     Object? nonce = const $CopyWithPlaceholder(),
-    Object? clientType = const $CopyWithPlaceholder(),
   }) {
     return AppleLoginRequest(
       idToken: idToken == const $CopyWithPlaceholder() || idToken == null
@@ -82,11 +74,6 @@ class _$AppleLoginRequestCWProxyImpl implements _$AppleLoginRequestCWProxy {
           ? _value.nonce
           // ignore: cast_nullable_to_non_nullable
           : nonce as String,
-      clientType:
-          clientType == const $CopyWithPlaceholder() || clientType == null
-          ? _value.clientType
-          // ignore: cast_nullable_to_non_nullable
-          : clientType as AppleLoginRequestClientTypeEnum,
     );
   }
 }
@@ -103,35 +90,26 @@ extension $AppleLoginRequestCopyWith on AppleLoginRequest {
 // JsonSerializableGenerator
 // **************************************************************************
 
-AppleLoginRequest _$AppleLoginRequestFromJson(
-  Map<String, dynamic> json,
-) => $checkedCreate('AppleLoginRequest', json, ($checkedConvert) {
-  $checkKeys(
-    json,
-    requiredKeys: const ['idToken', 'authorizationCode', 'nonce', 'clientType'],
-  );
-  final val = AppleLoginRequest(
-    idToken: $checkedConvert('idToken', (v) => v as String),
-    authorizationCode: $checkedConvert('authorizationCode', (v) => v as String),
-    nonce: $checkedConvert('nonce', (v) => v as String),
-    clientType: $checkedConvert(
-      'clientType',
-      (v) => $enumDecode(_$AppleLoginRequestClientTypeEnumEnumMap, v),
-    ),
-  );
-  return val;
-});
+AppleLoginRequest _$AppleLoginRequestFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('AppleLoginRequest', json, ($checkedConvert) {
+      $checkKeys(
+        json,
+        requiredKeys: const ['idToken', 'authorizationCode', 'nonce'],
+      );
+      final val = AppleLoginRequest(
+        idToken: $checkedConvert('idToken', (v) => v as String),
+        authorizationCode: $checkedConvert(
+          'authorizationCode',
+          (v) => v as String,
+        ),
+        nonce: $checkedConvert('nonce', (v) => v as String),
+      );
+      return val;
+    });
 
-Map<String, dynamic> _$AppleLoginRequestToJson(
-  AppleLoginRequest instance,
-) => <String, dynamic>{
-  'idToken': instance.idToken,
-  'authorizationCode': instance.authorizationCode,
-  'nonce': instance.nonce,
-  'clientType': _$AppleLoginRequestClientTypeEnumEnumMap[instance.clientType]!,
-};
-
-const _$AppleLoginRequestClientTypeEnumEnumMap = {
-  AppleLoginRequestClientTypeEnum.native_: 'native',
-  AppleLoginRequestClientTypeEnum.web: 'web',
-};
+Map<String, dynamic> _$AppleLoginRequestToJson(AppleLoginRequest instance) =>
+    <String, dynamic>{
+      'idToken': instance.idToken,
+      'authorizationCode': instance.authorizationCode,
+      'nonce': instance.nonce,
+    };

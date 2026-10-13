@@ -2,7 +2,7 @@
 
 * 상태: 초안 (사용자 검토 대기)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
-* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D60, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
+* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
 * server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다. 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
@@ -114,7 +114,7 @@ null은 "값이 없음"만 뜻하고 사용자의 선택을 담지 않습니다.
 | --- | --- | --- |
 | `accounts` | id, status(`active`/`pending_deletion`/`deleted`), deletion_requested_at, anonymized_at, last_active_at, created_at | `last_active_at`은 인증된 요청마다 하루 1번까지 갱신 |
 | `auth_identities` | account_id, provider(`kakao`/`apple`), subject, apple_refresh_token(암호화) | unique(provider, subject). 계정 하나에 제공자 여럿을 붙일 수 있는 구조(D55④)이며, MVP는 로그인한 제공자 하나만 붙입니다 |
-| `refresh_tokens` | account_id, token_hash, family_id, expires_at, used_at, revoked_at | 쓸 때마다 교체하고, 이미 쓴 토큰을 다시 내밀면 family 전체를 폐기 |
+| `refresh_tokens` | account_id, token_hash, family_id, expires_at, used_at, replaced_by_id, revoked_at | 쓸 때마다 교체하고, 이미 쓴 토큰을 다시 내밀면 family 전체를 폐기(30초 유예, S20). replaced_by_id는 그 토큰으로 발급한 다음 토큰이며 used_at과 함께 채워집니다 |
 | `consents` | account_id, document(`terms`/`privacy`), version, agreed_at | 문서 버전이 바뀌면 다시 받음 |
 
 Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합니다. 키는 Secret Manager에 둡니다.
@@ -177,16 +177,16 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | --- | --- | --- |
 | 카카오 | OIDC `id_token`, nonce 원문 | 카카오 JWKS로 서명, `iss`·`aud`(앱 키)·`exp`·nonce 확인. subject = `sub` |
 | Apple (iOS) | `identity_token`, `authorization_code`, nonce 원문 | Apple JWKS로 검증. code를 `/auth/token`에 교환해 refresh token을 받아 암호화 저장(탈퇴 때 revoke용) |
-| Apple (Android, D55①) | 웹 흐름으로 받은 `code`, `id_token` | 위와 같고, `client_id`는 Services ID |
+| Apple (Android, D55①) | 웹 흐름: server 콜백이 Apple에서 받은 `code`, `id_token`. app은 일회용 교환 코드와 nonce 원문만 보냄 | 위와 같고, `client_id`는 Services ID. nonce 확인은 교환 단계에서 함(S22) |
 
-* Android의 Apple 웹 흐름: app이 Apple 인증 페이지를 열면 Apple이 `POST /v1/auth/apple/callback`(form_post)으로 결과를 보냅니다. server는 받은 값을 그대로 app deep link로 넘기고, app이 그 값으로 `POST /v1/auth/apple`을 부릅니다.
+* Android의 Apple 웹 흐름(S22, Issue #89): app이 Apple 인증 페이지를 열면 Apple이 `POST /v1/auth/apple/callback`(form_post)으로 결과를 보냅니다. server가 그 자리에서 id_token을 검증하고 code를 교환한 뒤, App Link로 **일회용 교환 코드와 state만** 넘깁니다. app은 `POST /v1/auth/apple/web`에 교환 코드와 nonce 원문을 보내 로그인을 마칩니다. 토큰은 URL에 실리지 않습니다. 상세: [`2026-10-13-apple-web-callback-design.md`](2026-10-13-apple-web-callback-design.md)
 * 처음 보는 (provider, subject)면 계정을 새로 만들고 응답에 `isNewAccount`와 `consentRequired`를 담습니다.
 * 이메일로 계정을 자동 연결하지 않습니다. Apple은 이메일을 숨길 수 있고, 이메일만 같다고 같은 사람이라 볼 수 없습니다.
 
 ### 4.2 토큰
 
 * access token: JWT ES256, 15분, claim은 `sub`(계정 id)·`iat`·`exp`·`jti`. 서명 키는 Secret Manager에 두고 `kid`로 교체합니다.
-* refresh token: 256비트 난수 문자열, 30일. DB에는 해시만 둡니다. 쓸 때마다 새 토큰을 주고 이전 토큰을 used로 표시합니다. used인 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다.
+* refresh token: 256비트 난수 문자열, 30일. DB에는 해시만 둡니다. 쓸 때마다 새 토큰을 주고 이전 토큰을 used로 표시합니다. used인 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다. 단, 첫 사용 뒤 30초 안(경계 포함)이고 그 다음 토큰이 아직 쓰이지 않았으면 응답 유실 재시도로 보고, 다음 토큰을 폐기한 뒤 같은 family로 새 토큰 쌍을 줍니다(S20). 첫 사용 시각은 바꾸지 않으므로 유예 창은 늘어나지 않습니다. 유예로 대체된 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다.
 
 ### 4.3 약관 동의
 
@@ -223,7 +223,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 영역 | 메서드와 경로 | 비고 |
 | --- | --- | --- |
-| 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기 |
+| 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/apple/web`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기. Android Apple 웹 로그인은 콜백이 교환 코드를 App Link로 넘기고 `apple/web`이 토큰을 발급(S22) |
+| 정적(계약 밖) | `GET /auth/apple`, `GET /.well-known/assetlinks.json` | `/auth/apple`은 App Link가 앱을 열지 못했을 때의 "앱에서 계속하기" 안내 페이지, `assetlinks.json`은 Android App Link 검증용(S22). `/v1` 밖이라 REST 계약에 넣지 않음 |
 | 계정 | `GET /v1/me`, `DELETE /v1/me`, `POST /v1/me/consents` | `GET /v1/me`에 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태 포함 |
 | 프로필 | `PUT /v1/me/profile`(첫 등록), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
@@ -264,12 +265,14 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 `GET /v1/daily/{date}`를 예로 듭니다. 알림 Job도 같은 함수를 씁니다(§8.2).
 
 1. 엔진 결과(§7)에서 슬롯마다 메시지 키를 얻습니다.
-2. 슬롯마다 `daily_selections`를 봅니다.
+2. 슬롯마다 `daily_selections`를 (계정, 날짜, 슬롯, **사주 지문**)으로 봅니다(S23, Issue #92). 사주 지문은 엔진 입력이 되는 출생 정보(생년월일시, 달력·윤달, 시간 모름, 성별, 출생 시간대·경도)를 정규화한 SHA-256입니다. 호칭·현재 시간대처럼 엔진 결과를 바꾸지 않는 값은 넣지 않습니다.
    * 기록이 있고 메시지 키가 지금 결과와 같으면 그 (키, 변주, 시드 버전)을 씁니다. 두 기기와 다시 열기가 같은 문장을 봅니다.
-   * 기록이 없거나, 출생 정보가 바뀌어 메시지 키가 달라졌으면 새로 고릅니다.
+   * 기록이 없거나 메시지 키가 달라졌으면 새로 고릅니다. 사주 정보를 바꾸면 지문이 달라지므로 같은 날이라도 새로 고릅니다. app은 사주를 바꿀 때 "오늘·달력·나의 사주가 다시 계산된다"고 알립니다(#84).
+   * 옛 지문의 기록은 지우지 않습니다. 그 기록에 붙은 문장 반응(D57)은 그대로 성향 자료로 씁니다. 일기는 그때 보인 질문의 원문을 따로 남기므로(D59④) 영향이 없습니다.
 3. 새로 고르는 규칙
    * 총운 슬롯(D57①): `rotation_state`의 `advice → state → care` 차례. 새 사용자는 `advice`부터입니다.
-   * 차례가 `care`인데 돌봄 상한(하루 2개, 최근 7일 7개, W14)에 걸리면 `care`를 건너뛰고 다음 차례를 씁니다. 상한은 `daily_selections`로 셉니다.
+   * 차례가 `care`인데 돌봄 상한(하루 2개, 최근 7일 7개, W14)에 걸리면 `care`를 건너뛰고 다음 차례를 씁니다. 상한은 `daily_selections`로 세되 (날짜, 슬롯)마다 한 번만 셉니다. 하루 안에 사주를 바꿔 같은 슬롯에 `care` 기록이 둘 생겨도 하나로 봅니다.
+   * `rotation_state`는 사주를 바꿔 다시 고를 때도 한 칸 넘깁니다. 같은 날 다시 고른 문장이 앞 문장과 같은 유형이 되지 않게 하려는 것입니다.
    * 가이드 질문: 변주 1 → 2.
    * 정보 슬롯과 식별자 문구: 변주 하나, 순환 없음.
 4. 새로 고른 결과를 기록하고 `rotation_state`를 한 칸 넘깁니다. 같은 트랜잭션에서 하고, 동시 요청은 unique 제약으로 하나만 남깁니다(진 쪽은 다시 읽음).
@@ -310,7 +313,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 2. 캐시에 있으면 씁니다.
 3. 없으면 엔진을 부르고 결과를 저장합니다. 같은 키의 동시 요청은 프로세스 안에서 `singleflight`로 한 번만 부릅니다.
 
-* **현재 `ruleset_version` 알기:** 캐시에 결과가 있으면 엔진을 부르지 않으므로, 엔진 응답만 봐서는 버전이 바뀐 것을 알 수 없습니다. 그래서 server는 시작할 때와 10분마다 엔진에 고정 입력으로 `GetChart`를 한 번 불러 버전을 갱신합니다. 엔진을 배포한 직후 최대 10분 동안은 이전 버전 캐시가 쓰일 수 있습니다. 더 나은 방법으로 core에 버전 조회 RPC를 요청합니다(§14). 이전 버전 캐시는 `job retention`이 지웁니다.
+* **현재 `ruleset_version` 알기:** 캐시에 결과가 있으면 엔진을 부르지 않으므로, 엔진 응답만 봐서는 버전이 바뀐 것을 알 수 없습니다. 그래서 server는 시작할 때와 10분마다 엔진 `GetInfo`(계산 없이 `engine_version`·`ruleset_version`만 돌려줌, Issue #49)로 버전을 갱신합니다. 엔진을 배포한 직후 최대 10분 동안은 이전 버전 캐시가 쓰일 수 있습니다. 이전 버전 캐시는 `job retention`이 지웁니다.
 * 연결: 엔진은 Cloud Run internal ingress로만 받고, server는 Direct VPC egress와 ID token으로 부릅니다(D56①). deadline은 3초입니다.
 
 ### 7.2 프로필 저장 때의 검증
@@ -340,7 +343,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 
 * 알림 시각은 5분 단위로 받습니다. 계약의 `pattern`으로 표현되므로 REST에서 분이 5의 배수가 아니면 `pattern` 위반 400 `request.invalid`입니다(§11.2).
 * 대상: `notify_status = enabled`이고, 현재 시간대의 현지 알림 시각이 [지금−60분, 지금]이며, 그 현지 날짜의 `notification_log`가 없는 사용자. Job이 멈췄다 돌아와도 1시간 안의 누락분만 보냅니다.
-* 내용: 그날 데일리를 §6.2로 선택(알림이 그날 첫 요청이면 여기서 선택이 정해짐)하고, 알림 슬롯 문장을 호칭 없이 렌더합니다. 알림 슬롯은 IA에 추가를 요청합니다(§13).
+* 내용: 그날 데일리를 §6.2로 선택(알림이 그날 첫 요청이면 여기서 선택이 정해짐)하고, 알림 슬롯 문장을 호칭 없이 렌더합니다. 알림 슬롯은 IA content 슬롯 `system-push.morning.body`입니다(D62).
 * 발송: FCM HTTP v1. 일괄 발송 API가 없으므로 메시지를 하나씩 동시에 보냅니다(동시 50개).
   * `UNREGISTERED`, 토큰 관련 `INVALID_ARGUMENT`는 기기를 비활성으로 바꿉니다.
   * `QUOTA_EXCEEDED`, `UNAVAILABLE`, `INTERNAL`은 지수 backoff로 3번까지 재시도합니다.
@@ -382,7 +385,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
   4. 2xx로 응답합니다. 이벤트 순서가 뒤바뀌거나 중복돼도 결과가 같습니다.
 * `POST /v1/billing/restore`도 3번의 같은 동기화 함수를 씁니다. 비갱신 상품은 스토어가 복원해 주지 않으므로 server가 복원합니다.
 * **만료일 계산:** 광고 제거권 구매를 구매일 순으로 보며 `만료일 = max(직전 만료일, 구매일) + 1개월`로 이어 붙입니다.
-  * 만료 전 재구매를 이어 붙이는 규칙은 결정 문서에 없는 제품 결정입니다. 기본값으로 두고 지휘 세션에 확인을 요청합니다(§13).
+  * 만료 전 재구매를 이어 붙이는 규칙은 D61로 확정됐습니다.
   * 환불된 구매는 빼고 다시 계산합니다. 환불이 RevenueCat 구매 내역에 어떻게 표시되는지는 구현할 때 RevenueCat 문서로 확인합니다.
 * 광고 제거권 구매를 동기화할 때 같은 기간의 `insight` 권한도 출처 `ad_free_pass`로 함께 부여합니다(D60③). 환불로 광고 제거권이 줄면 이 권한도 같이 줄입니다.
 * 광고 제거 여부와 근거 열람 권한은 `GET /v1/me`와 `GET /v1/me/entitlements`로 알려 줍니다. 근거 열람 권한은 만료 시각과 출처를 함께 보냅니다.
@@ -417,6 +420,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 
 400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은 모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 422는 스키마로 표현할 수 없는 의미 검사(D41 범위 밖, `LunarOrSolarDate`의 없는 날짜, 상태-값 짝 위반, 엔진 판정과 업무 규칙)에만 씁니다. `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 형식 위반이라 400입니다.
 
+기계 판독 목록은 계약 `Problem.code`의 `x-problem-codes`입니다. code를 더하거나 바꾸면 이 표와 계약을 함께 고칩니다. server는 `internal/httpapi/problem/codes.go`의 상수로만 code를 내보냅니다(S21).
+
 | 상황 | 상태 | `code` 예 |
 | --- | --- | --- |
 | JSON 문법 오류, 값 뒤에 데이터가 더 있음 | 400 | `request.malformed` |
@@ -428,7 +433,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖 | 422 | `date.out_of_range`, 출생 정보는 `birth.out_of_range` |
 | 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜는 위 400 행 | 422 | `date.invalid` |
 | 상태-값 짝 위반: `BirthTime`(`status`·`value`), `BirthPlace`(`status`·`cityId`), 양력인데 `isLeapMonth` true, `NotificationSetting`(`status`·`time`), `ScheduleInput`·`SchedulePatch`(`allDay`·`time`) | 422 | `request.inconsistent` (`errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`) |
-| 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid`, `name.emoji` |
+| 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid` |
+| 호칭 거부. 기준은 josa.yaml `name_rules`의 기준 구현(`normalize_name`): 비어 있음, 언어별 길이 초과, 이모지, 제어 문자, 받지 않는 글자. 스키마 길이(1~20) 위반은 400 `request.invalid`가 먼저 | 422 | `name.empty`, `name.too_long`, `name.emoji`, `name.control`, `name.invalid_char` |
 | access token 없음·만료·위조 (`WWW-Authenticate: Bearer error="invalid_token"`, RFC 6750) | 401 | `auth.token_expired`, `auth.token_invalid` |
 | refresh token 재사용 감지 | 401 | `auth.refresh_reused` |
 | 제공자 토큰 검증 실패 | 401 | `auth.provider_token_invalid` |
@@ -440,6 +446,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 되살리려는 날짜에 이미 일기가 있음 | 409 | `diary.date_taken` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
+| 동의한 문서 버전이 현재 버전과 다름 | 422 | `consent.version_mismatch` (`errors[].field`는 `/documents/<i>/version`) |
+| 제공자(카카오·Apple) 장애 | 503 | `auth.provider_unavailable` |
 | 요청 한도 초과 (`Retry-After`) | 429 | `rate_limited` |
 | 계약에는 있지만 아직 구현하지 않은 operation | 501 | `not_implemented` |
 
@@ -480,7 +488,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 엔진 | 평소에는 가짜 엔진. CI에서 실제 엔진 컨테이너와 맞물려 보는 계약 테스트 하나 |
 | Job | 가짜 FCM·엔진·Clock으로 대상 선정, 중복 방지, 누락분 처리, 실패율 판정을 확인 |
 
-CI(`.github/workflows/server.yml`, `server/**`·`proto/**`·`docs/identity/writing/**`·`core/message_keys.json` 경로 필터):
+CI(`.github/workflows/server.yml`, ci-gate가 `workflow_call`로 부르는 전용 workflow이며 직접 `push`·`pull_request`로는 돌지 않습니다. 경로 필터는 ci-gate가 갖습니다. 수동 실행은 `workflow_dispatch`, #102):
 
 * `go vet`, golangci-lint, `go test`
 * 생성 코드 차이 검사: sqlc, oapi-codegen, buf
@@ -497,7 +505,17 @@ CI(`.github/workflows/server.yml`, `server/**`·`proto/**`·`docs/identity/writi
 * migration은 expand/contract 방식으로 써서 이전 버전 코드와 함께 돌아도 깨지지 않게 합니다.
 * DB 연결은 Cloud SQL Go connector와 IAM 인증을 씁니다. 비밀값은 Secret Manager에 둡니다.
 
-### 13.2 사용자가 준비할 것
+### 13.2 staging E2E 지원 (S24, Issue #93)
+
+app E2E를 staging에서 사람 손 없이 돌리기 위한 장치입니다. prod에는 코드 자체가 없게 합니다.
+
+* **테스트 로그인:** `POST /test/v1/auth/login`(REST 계약 밖). Go build tag `staging`이 붙은 파일에만 라우트와 핸들러가 있어 prod 바이너리에는 컴파일되지 않습니다. staging 배포 workflow만 `-tags staging`으로 빌드합니다.
+  * 요청 헤더 `X-Test-Login-Secret`이 Secret Manager의 `TEST_LOGIN_SECRET`과 같아야 합니다(상수 시간 비교). 다르면 404로 라우트가 없는 것처럼 답합니다.
+  * 본문 `{label}`(영숫자 32자 이하)로 provider `test`, subject `<label>`인 계정을 찾거나 만들고, 정상 로그인과 같은 `LoginResponse`를 돌려줍니다. 약관 동의·삭제 흐름은 실제와 같게 거칩니다.
+  * `auth_identities.provider` CHECK에 `test`를 더하는 migration은 staging과 prod가 같습니다. prod에는 발급 경로가 없으므로 `test` 행이 생기지 않고, 테스트가 이를 확인합니다(prod 빌드에 라우트가 없음).
+* **App Check debug token:** App Check 검증(P6)은 Firebase가 debug token을 정식으로 받습니다. E2E 기기·에뮬레이터의 debug token은 staging Firebase 프로젝트 콘솔에만 등록하고 prod에는 등록하지 않습니다. server 코드는 바꾸지 않습니다. 등록 절차는 배포 단계 안내(§13.3)에 넣습니다.
+
+### 13.3 사용자가 준비할 것
 
 설정 값과 상세 절차는 배포 단계에서 server가 단계별로 안내합니다. 여기서는 무엇이 필요한지만 적습니다.
 
@@ -515,13 +533,13 @@ CI(`.github/workflows/server.yml`, `server/**`·`proto/**`·`docs/identity/writi
 | 받는 쪽 | 내용 |
 | --- | --- |
 | root (계약) | REST API v1 계약 등록: `server/api/openapi.yaml`. proto 생성 코드 위치 `server/internal/gen/enginev1/`. 초안을 먼저 계약 전용 PR로 올림 |
-| root (IA) | 알림 문장 슬롯 추가 요청(개인화하되 호칭 없음) |
-| root (제품 결정) | 광고 제거권 만료 전 재구매를 이어 붙일지 확인 |
+| root (IA) | 알림 문장 슬롯 추가 요청(개인화하되 호칭 없음). 완료: D62 |
+| root (제품 결정) | 광고 제거권 만료 전 재구매를 이어 붙일지 확인. 완료: D61 |
 | root → app·design | 문장 조각 배열 형식(§6.4)과 `term` 표시 방식 |
 | root → writing | 미리보기에서 호칭이 들어가는 슬롯을 호칭 없이 보이는 방법 |
 | root → app | GeoNames 출처 표기를 오픈소스 고지에 넣기 |
 | core (기다림) | `core/message_params.json`(Issue #38), D58 시진 RPC |
-| core (요청) | `ruleset_version` 조회 RPC (§7.1) |
+| core (요청) | `ruleset_version` 조회 RPC (§7.1). 완료: `GetInfo`, PR #67 |
 
 ## 15. 구현 순서 (계획의 큰 줄기)
 

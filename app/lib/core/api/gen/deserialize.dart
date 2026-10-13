@@ -1,6 +1,7 @@
 import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/apple_web_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour_request.dart';
@@ -106,6 +107,9 @@ ReturnType deserialize<ReturnType, BaseType>(
       return AppConfig.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'AppleLoginRequest':
       return AppleLoginRequest.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AppleWebLoginRequest':
+      return AppleWebLoginRequest.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'Birth':
       return Birth.fromJson(value as Map<String, dynamic>) as ReturnType;

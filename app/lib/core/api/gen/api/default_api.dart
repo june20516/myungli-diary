@@ -12,6 +12,7 @@ import 'package:dio/dio.dart';
 
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/apple_web_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour_request.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
@@ -188,12 +189,13 @@ class DefaultApi {
   }
 
   /// Apple 웹 로그인 콜백 (Android)
-  /// Android의 Apple 웹 흐름에서 Apple이 form_post로 부르는 주소입니다. app이 직접 부르지 않습니다. server는 받은 값을 그대로 app deep link로 넘기고(303), app은 그 값으로 &#x60;loginApple&#x60;을 부릅니다. form 필드 이름은 Apple이 정한 그대로입니다.
+  /// Android의 Apple 웹 흐름에서 Apple이 form_post로 부르는 주소입니다. app이 직접 부르지 않습니다. server는 Apple의 값을 직접 검증하고 일회용 교환 코드를 만든 뒤 app link로 303 이동시킵니다. app은 그 교환 코드로 &#x60;completeAppleWebLogin&#x60;을 부릅니다. form 필드 이름은 Apple이 정한 그대로입니다. Apple의 &#x60;code&#x60;·&#x60;id_token&#x60;·&#x60;user&#x60;는 Location에 넘기지 않습니다. &#x60;state&#x60;가 없거나 비어 있으면 400입니다.
   ///
   /// Parameters:
+  /// * [state]
+  /// * [error] - 사용자가 취소하면 Apple이 보내는 오류 코드, 예 `user_cancelled_authorize`
   /// * [code] - Apple authorization code
   /// * [idToken] - Apple identity token
-  /// * [state]
   /// * [user] - 처음 로그인할 때만 Apple이 보내는 사용자 정보(JSON 문자열)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -205,9 +207,10 @@ class DefaultApi {
   /// Returns a [Future] containing a [Response] with a [Problem] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<Problem>> appleCallback({
-    required String code,
-    required String idToken,
     required String state,
+    String? error,
+    String? code,
+    String? idToken,
     String? user,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -229,8 +232,9 @@ class DefaultApi {
 
     try {
       _bodyData = <String, dynamic>{
-        r'code': code,
-        r'id_token': idToken,
+        if (error != null) r'error': error,
+        if (code != null) r'code': code,
+        if (idToken != null) r'id_token': idToken,
         r'state': state,
         if (user != null) r'user': user,
       };
@@ -270,6 +274,93 @@ class DefaultApi {
     }
 
     return Response<Problem>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Apple 웹 로그인 완료 (Android)
+  /// &#x60;appleCallback&#x60;이 app link로 넘긴 교환 코드와 nonce 원문으로 자체 토큰을 발급합니다. 교환 코드는 일회용이고 수명이 2분입니다. nonce가 틀려도 교환 코드는 소진되지 않습니다. 교환 코드가 없거나 만료됐거나 이미 썼거나 nonce가 맞지 않으면 401 &#x60;auth.exchange_invalid&#x60;이며, 이 경우들을 구분하지 않습니다.
+  ///
+  /// Parameters:
+  /// * [appleWebLoginRequest]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [LoginResponse] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<LoginResponse>> completeAppleWebLogin({
+    required AppleWebLoginRequest appleWebLoginRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/auth/apple/web';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(appleWebLoginRequest);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    LoginResponse? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<LoginResponse, LoginResponse>(
+              rawData,
+              'LoginResponse',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<LoginResponse>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -1902,7 +1993,7 @@ class DefaultApi {
   }
 
   /// Apple 로그인
-  /// Apple &#x60;identity_token&#x60;(&#x60;idToken&#x60;), &#x60;authorization_code&#x60;, nonce 원문을 검증하고 자체 토큰을 발급합니다. iOS는 &#x60;clientType: native&#x60;, Android 웹 흐름(&#x60;appleCallback&#x60;에서 넘겨받은 값)은 &#x60;clientType: web&#x60;입니다.
+  /// Apple &#x60;identity_token&#x60;(&#x60;idToken&#x60;), &#x60;authorization_code&#x60;, nonce 원문을 검증하고 자체 토큰을 발급합니다. iOS 전용입니다. Android는 &#x60;appleCallback&#x60;과 &#x60;completeAppleWebLogin&#x60;을 씁니다.
   ///
   /// Parameters:
   /// * [appleLoginRequest]
@@ -2311,7 +2402,7 @@ class DefaultApi {
   }
 
   /// 토큰 갱신
-  /// refresh token을 새 토큰 쌍으로 바꿉니다. 이미 쓴 refresh token이 다시 오면 탈취로 보고 family 전체를 폐기합니다(401 &#x60;auth.refresh_reused&#x60;).
+  /// refresh token을 새 토큰 쌍으로 바꿉니다. 이미 쓴 refresh token이 첫 사용 뒤 30초 안에 다시 오고 그 다음 token이 아직 쓰이지 않았으면 응답 유실 재시도로 보고 새 토큰 쌍을 줍니다(앞서 준 토큰은 폐기). 이렇게 대체된 토큰이 다시 오거나 그 밖의 재사용이면 탈취로 보고 family 전체를 폐기합니다(401 &#x60;auth.refresh_reused&#x60;).
   ///
   /// Parameters:
   /// * [refreshRequest]

@@ -45,7 +45,7 @@ class Problem {
   @JsonKey(name: r'status', required: true, includeIfNull: false)
   final int status;
 
-  /// 오류 코드. app은 이 값으로 UI 문구를 고릅니다.
+  /// 오류 코드. app은 이 값으로 UI 문구를 고릅니다. 가능한 값과 상태는 `x-problem-codes`입니다. 목록에 없는 code가 오면 status 대역의 기본 문구를 씁니다(목록은 하위 호환으로 늘어납니다).
   @JsonKey(name: r'code', required: true, includeIfNull: false)
   final String code;
 

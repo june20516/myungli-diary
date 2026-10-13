@@ -44,7 +44,7 @@
 ## 다음 할 일
 1. 엔진 MVP는 main에 병합됐습니다(PR #1). 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
 2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-13 기준:
-   * **#34 후속:** 이미지 push와 Cloud Run 배포 workflow(D56 ④)는 server S1 배포 단계에서 지휘·server와 정합니다. 실행 조건은 `README.md` "컨테이너" 절에 있습니다.
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
+   * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.

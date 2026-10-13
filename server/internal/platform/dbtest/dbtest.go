@@ -46,9 +46,9 @@ var (
 	databaseSeq atomic.Int64
 )
 
-// New는 migration이 적용된 빈 데이터베이스를 만들어 연결 풀을 반환합니다.
-// 풀과 데이터베이스는 t.Cleanup에서 정리됩니다.
-func New(t testing.TB) *pgxpool.Pool {
+// NewURL은 migration이 적용된 빈 데이터베이스를 만들어 연결 주소를 반환합니다.
+// serve처럼 주소를 받아 직접 연결하는 코드를 시험할 때 씁니다. 데이터베이스는 t.Cleanup에서 지워집니다.
+func NewURL(t testing.TB) string {
 	t.Helper()
 
 	setupOnce.Do(func() { setupState, setupErr = setup() })
@@ -70,8 +70,20 @@ func New(t testing.TB) *pgxpool.Pool {
 			t.Errorf("테스트 DB 삭제: %v", err)
 		}
 	})
+	return setupState.databaseURL(name)
+}
 
-	pool, err := postgres.Open(ctx, setupState.databaseURL(name))
+// New는 migration이 적용된 빈 데이터베이스를 만들어 연결 풀을 반환합니다.
+// 풀과 데이터베이스는 t.Cleanup에서 정리됩니다.
+func New(t testing.TB) *pgxpool.Pool {
+	t.Helper()
+
+	// Cleanup은 나중에 등록된 것부터 실행되므로, 풀(나중 등록)이 먼저 닫히고 그다음 DB가 지워집니다.
+	databaseURL := NewURL(t)
+
+	ctx, cancel := context.WithTimeout(context.Background(), setupTimeout)
+	defer cancel()
+	pool, err := postgres.Open(ctx, databaseURL)
 	if err != nil {
 		t.Fatalf("테스트 DB 연결: %v", err)
 	}

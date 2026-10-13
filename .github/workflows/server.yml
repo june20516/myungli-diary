@@ -1,12 +1,9 @@
 name: server
 
+# ci-gate가 부르는 전용 workflow입니다. 직접 push·pull_request로 돌면 중복 실행되므로 트리거를 두지 않습니다(#102).
 on:
-  push:
-    branches: [main]
-    paths: ["server/**", ".github/workflows/server.yml"]
-  pull_request:
-    paths: ["server/**", ".github/workflows/server.yml"]
   workflow_call:
+  workflow_dispatch:
 
 # workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
 

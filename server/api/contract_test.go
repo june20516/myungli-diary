@@ -19,7 +19,7 @@ const problemRef = "#/components/schemas/Problem"
 
 // expectedOperationIDs는 계약의 operation 표 전체입니다.
 var expectedOperationIDs = []string{
-	"loginKakao", "loginApple", "appleCallback", "refreshToken", "logout",
+	"loginKakao", "loginApple", "appleCallback", "completeAppleWebLogin", "refreshToken", "logout",
 	"getMe", "deleteMe", "agreeConsents", "createProfile", "updateProfile",
 	"getDaily", "getChart", "getCalendar", "putReaction", "deleteReaction",
 	"getGlossary", "createPreview", "getBirthHour",
@@ -33,17 +33,18 @@ var expectedOperationIDs = []string{
 // securityOverrides는 최상위 bearerAuth를 덮어쓰는 operation과 그 security scheme 이름입니다.
 // 빈 목록은 인증 없음(security: [])입니다.
 var securityOverrides = map[string][]string{
-	"loginKakao":          {},
-	"loginApple":          {},
-	"appleCallback":       {},
-	"refreshToken":        {},
-	"revenuecatWebhook":   {},
-	"admobRewardCallback": {},
-	"listCities":          {},
-	"getAppConfig":        {},
-	"getHealth":           {},
-	"createPreview":       {"appCheck"},
-	"getBirthHour":        {"appCheck"},
+	"loginKakao":            {},
+	"loginApple":            {},
+	"appleCallback":         {},
+	"completeAppleWebLogin": {},
+	"refreshToken":          {},
+	"revenuecatWebhook":     {},
+	"admobRewardCallback":   {},
+	"listCities":            {},
+	"getAppConfig":          {},
+	"getHealth":             {},
+	"createPreview":         {"appCheck"},
+	"getBirthHour":          {"appCheck"},
 }
 
 func loadDoc(t *testing.T) *openapi3.T {
@@ -484,4 +485,249 @@ func mapKeys(content openapi3.Content) []string {
 	}
 	slices.Sort(keys)
 	return keys
+}
+
+// TestContract_LoginNonceDocumentsHashRule은 두 로그인 요청의 nonce가
+// "원문 + SHA-256 hex 규칙"과 길이 범위를 문서화하는지 확인합니다.
+func TestContract_LoginNonceDocumentsHashRule(t *testing.T) {
+	doc := loadDoc(t)
+
+	for _, name := range []string{"KakaoLoginRequest", "AppleLoginRequest"} {
+		ref := doc.Components.Schemas[name]
+		if ref == nil || ref.Value.Properties["nonce"] == nil {
+			t.Errorf("%s: nonce 속성이 없음", name)
+			continue
+		}
+		nonce := ref.Value.Properties["nonce"].Value
+		if !strings.Contains(nonce.Description, "SHA-256") {
+			t.Errorf("%s: nonce 설명에 SHA-256 규칙이 없음", name)
+		}
+		if nonce.MinLength != 16 {
+			t.Errorf("%s: nonce minLength = %d, want 16", name, nonce.MinLength)
+		}
+		if nonce.MaxLength == nil || *nonce.MaxLength != 256 {
+			t.Errorf("%s: nonce maxLength가 256이 아님", name)
+		}
+	}
+}
+
+// TestContract_AppleCallbackAcceptsCancellation은 사용자가 Apple 로그인을 취소했을 때
+// code·id_token 없이 error·state만 오는 form을 계약이 허용하는지 확인합니다.
+func TestContract_AppleCallbackAcceptsCancellation(t *testing.T) {
+	doc := loadDoc(t)
+
+	var form *openapi3.Schema
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "appleCallback" {
+			return
+		}
+		form = op.RequestBody.Value.Content["application/x-www-form-urlencoded"].Schema.Value
+	})
+	if form == nil {
+		t.Fatal("appleCallback form 스키마가 없음")
+	}
+	if len(form.Required) != 1 || form.Required[0] != "state" {
+		t.Errorf("required = %v, want [state]", form.Required)
+	}
+	if form.Properties["error"] == nil {
+		t.Error("properties에 error가 없음")
+	}
+}
+
+// TestContract_AgreeConsentsDeclares422는 동의 문서 버전 불일치(422)를 계약이 선언하는지 확인합니다.
+func TestContract_AgreeConsentsDeclares422(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "agreeConsents" {
+			return
+		}
+		found = true
+		resp := op.Responses.Value("422")
+		if resp == nil {
+			t.Error("agreeConsents.responses에 422가 없음")
+			return
+		}
+		if resp.Ref != "#/components/responses/UnprocessableEntity" {
+			t.Errorf("agreeConsents 422 = %q, want UnprocessableEntity 참조", resp.Ref)
+		}
+	})
+	if !found {
+		t.Fatal("agreeConsents operation이 없음")
+	}
+
+	unprocessable := doc.Components.Responses["UnprocessableEntity"]
+	if unprocessable == nil || unprocessable.Value == nil || unprocessable.Value.Description == nil {
+		t.Fatal("components.responses.UnprocessableEntity 설명이 없음")
+	}
+	if !strings.Contains(*unprocessable.Value.Description, "consent.version_mismatch") {
+		t.Error("UnprocessableEntity 설명에 consent.version_mismatch가 없음")
+	}
+}
+
+// TestContract_AppleCallbackDescribes400은 appleCallback 설명이 400이 되는 조건을 적는지 확인합니다.
+func TestContract_AppleCallbackDescribes400(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "appleCallback" {
+			return
+		}
+		found = true
+		const want = "`state`가 없거나 비어 있으면 400입니다."
+		if !strings.Contains(op.Description, want) {
+			t.Errorf("appleCallback 설명에 %q가 없음", want)
+		}
+		// 빈 state도 계약 검증이 거부하도록 스키마에 최소 길이를 둡니다.
+		form := op.RequestBody.Value.Content.Get("application/x-www-form-urlencoded")
+		if form == nil || form.Schema.Value.Properties["state"] == nil || form.Schema.Value.Properties["state"].Value.MinLength != 1 {
+			t.Error("appleCallback form의 state에 minLength: 1이 없음")
+		}
+		if op.Responses.Value("400") == nil {
+			t.Error("appleCallback.responses에 400이 없음")
+		}
+	})
+	if !found {
+		t.Fatal("appleCallback operation이 없음")
+	}
+}
+
+// problemCodeEntry는 Problem.code의 `x-problem-codes` 항목 하나입니다.
+type problemCodeEntry struct {
+	Status      int    `yaml:"status"`
+	Description string `yaml:"description"`
+}
+
+// loadProblemCodes는 계약 원본에서 `x-problem-codes`를 읽습니다.
+func loadProblemCodes(t *testing.T) map[string]problemCodeEntry {
+	t.Helper()
+	raw, err := os.ReadFile(specPath)
+	if err != nil {
+		t.Fatalf("계약을 읽지 못함: %v", err)
+	}
+	var spec struct {
+		Components struct {
+			Schemas struct {
+				Problem struct {
+					Properties struct {
+						Code struct {
+							Codes map[string]problemCodeEntry `yaml:"x-problem-codes"`
+						} `yaml:"code"`
+					} `yaml:"properties"`
+				} `yaml:"Problem"`
+			} `yaml:"schemas"`
+		} `yaml:"components"`
+	}
+	if err := yaml.Unmarshal(raw, &spec); err != nil {
+		t.Fatalf("YAML 파싱 실패: %v", err)
+	}
+	return spec.Components.Schemas.Problem.Properties.Code.Codes
+}
+
+// TestContract_ProblemCodesAreWellFormed는 `x-problem-codes`의 모든 항목이 HTTP 오류 상태(400~599)와
+// 비어 있지 않은 설명을 갖는지 확인합니다.
+func TestContract_ProblemCodesAreWellFormed(t *testing.T) {
+	codes := loadProblemCodes(t)
+	if len(codes) == 0 {
+		t.Fatal("Problem.code에 x-problem-codes가 없음")
+	}
+	for code, entry := range codes {
+		if entry.Status < 400 || entry.Status > 599 {
+			t.Errorf("%s: status %d가 400~599 밖임", code, entry.Status)
+		}
+		if strings.TrimSpace(entry.Description) == "" {
+			t.Errorf("%s: description이 비어 있음", code)
+		}
+	}
+}
+
+// TestContract_ProblemCodesSurviveLoad는 kin-openapi가 읽은 뒤에도 확장 필드가 남는지 확인합니다.
+// 검증용 3.0 사본은 같은 loader 결과를 변환하므로, 여기서 남으면 사본에도 남습니다.
+func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
+	doc := loadDoc(t)
+	code := doc.Components.Schemas["Problem"].Value.Properties["code"].Value
+	if _, ok := code.Extensions["x-problem-codes"]; !ok {
+		t.Error("kin-openapi가 읽은 Problem.code에 x-problem-codes가 없음")
+	}
+}
+
+func TestContract_VersionIsDraft2(t *testing.T) {
+	doc := loadDoc(t)
+	if doc.Info.Version != "1.0.0-draft.2" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.2", doc.Info.Version)
+	}
+}
+
+// TestContract_CompleteAppleWebLoginIsPublic은 교환 코드 완료 operation이 인증 없이 열려 있고
+// 요청·401 응답이 계약대로인지 확인합니다.
+func TestContract_CompleteAppleWebLoginIsPublic(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "completeAppleWebLogin" {
+			return
+		}
+		found = true
+		if op.Security == nil || len(*op.Security) != 0 {
+			t.Errorf("security = %v, want 빈 배열", op.Security)
+		}
+		body := op.RequestBody.Value.Content["application/json"].Schema.Value
+		if !slices.Equal(slices.Sorted(slices.Values(body.Required)), []string{"exchangeCode", "nonce"}) {
+			t.Errorf("required = %v, want [exchangeCode nonce]", body.Required)
+		}
+		code := body.Properties["exchangeCode"].Value
+		if code.MinLength != 43 || code.MaxLength == nil || *code.MaxLength != 43 {
+			t.Errorf("exchangeCode 길이가 43으로 고정되어 있지 않음")
+		}
+		if code.Pattern != "^[A-Za-z0-9_-]{43}$" {
+			t.Errorf("exchangeCode pattern = %q, want ^[A-Za-z0-9_-]{43}$", code.Pattern)
+		}
+		if op.Responses.Value("401") == nil {
+			t.Error("401 응답이 없음")
+		}
+	})
+	if !found {
+		t.Fatal("completeAppleWebLogin operation이 없음")
+	}
+}
+
+func TestContract_AppleLoginRequestHasNoClientType(t *testing.T) {
+	doc := loadDoc(t)
+	schema := doc.Components.Schemas["AppleLoginRequest"]
+	if schema == nil {
+		t.Fatal("AppleLoginRequest 스키마가 없음")
+	}
+	if schema.Value.Properties["clientType"] != nil {
+		t.Error("AppleLoginRequest에 clientType이 남아 있음")
+	}
+	if slices.Contains(schema.Value.Required, "clientType") {
+		t.Error("required에 clientType이 남아 있음")
+	}
+}
+
+func TestContract_AppleCallbackLocationDescribesExchange(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "appleCallback" {
+			return
+		}
+		found = true
+		desc := *op.Responses.Value("303").Value.Description
+		for _, want := range []string{"exchange", "server_error"} {
+			if !strings.Contains(desc, want) {
+				t.Errorf("303 설명에 %q가 없음", want)
+			}
+		}
+		if strings.Contains(desc, "id_token") {
+			t.Error("303 설명에 id_token이 있음(Location으로 넘기지 않습니다)")
+		}
+	})
+	if !found {
+		t.Fatal("appleCallback operation이 없음")
+	}
 }

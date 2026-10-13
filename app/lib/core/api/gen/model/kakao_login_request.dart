@@ -23,7 +23,7 @@ class KakaoLoginRequest {
   @JsonKey(name: r'idToken', required: true, includeIfNull: false)
   final String idToken;
 
-  /// nonce 원문
+  /// nonce 원문입니다. app은 제공자(카카오·Apple)에게 이 원문의 SHA-256 소문자 hex를 nonce로 보냅니다. server는 id_token의 `nonce` claim이 SHA-256(원문) hex와 같은지 확인합니다.
   @JsonKey(name: r'nonce', required: true, includeIfNull: false)
   final String nonce;
 

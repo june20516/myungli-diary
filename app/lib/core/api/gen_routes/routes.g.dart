@@ -12,6 +12,12 @@ const List<ApiRoute> apiRoutes = [
     'appleCallback',
     requiresBearer: false,
   ),
+  ApiRoute(
+    'POST',
+    '/v1/auth/apple/web',
+    'completeAppleWebLogin',
+    requiresBearer: false,
+  ),
   ApiRoute('POST', '/v1/auth/refresh', 'refreshToken', requiresBearer: false),
   ApiRoute('POST', '/v1/auth/logout', 'logout'),
   ApiRoute('GET', '/v1/me', 'getMe'),

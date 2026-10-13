@@ -23,8 +23,6 @@ class AppleLoginRequest {
     required this.authorizationCode,
 
     required this.nonce,
-
-    required this.clientType,
   });
 
   /// Apple identity_token
@@ -34,13 +32,9 @@ class AppleLoginRequest {
   @JsonKey(name: r'authorizationCode', required: true, includeIfNull: false)
   final String authorizationCode;
 
-  /// nonce 원문
+  /// nonce 원문입니다. app은 제공자(카카오·Apple)에게 이 원문의 SHA-256 소문자 hex를 nonce로 보냅니다. server는 id_token의 `nonce` claim이 SHA-256(원문) hex와 같은지 확인합니다.
   @JsonKey(name: r'nonce', required: true, includeIfNull: false)
   final String nonce;
-
-  /// iOS는 `native`, Android 웹 흐름은 `web`
-  @JsonKey(name: r'clientType', required: true, includeIfNull: false)
-  final AppleLoginRequestClientTypeEnum clientType;
 
   @override
   bool operator ==(Object other) =>
@@ -48,15 +42,11 @@ class AppleLoginRequest {
       other is AppleLoginRequest &&
           other.idToken == idToken &&
           other.authorizationCode == authorizationCode &&
-          other.nonce == nonce &&
-          other.clientType == clientType;
+          other.nonce == nonce;
 
   @override
   int get hashCode =>
-      idToken.hashCode +
-      authorizationCode.hashCode +
-      nonce.hashCode +
-      clientType.hashCode;
+      idToken.hashCode + authorizationCode.hashCode + nonce.hashCode;
 
   factory AppleLoginRequest.fromJson(Map<String, dynamic> json) =>
       _$AppleLoginRequestFromJson(json);
@@ -67,19 +57,4 @@ class AppleLoginRequest {
   String toString() {
     return toJson().toString();
   }
-}
-
-/// iOS는 `native`, Android 웹 흐름은 `web`
-enum AppleLoginRequestClientTypeEnum {
-  @JsonValue(r'native')
-  native_(r'native'),
-  @JsonValue(r'web')
-  web(r'web');
-
-  const AppleLoginRequestClientTypeEnum(this.value);
-
-  final String value;
-
-  @override
-  String toString() => value;
 }

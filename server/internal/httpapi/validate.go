@@ -10,6 +10,7 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -19,11 +20,8 @@ import (
 )
 
 const (
-	codeRequestInvalid       = "request.invalid"
-	codeRequestMalformed     = "request.malformed"
-	codeUnsupportedMediaType = "request.unsupported_media_type"
-	contentTypeJSON          = "application/json"
-	contentTypeMergePatch    = "application/merge-patch+json"
+	contentTypeJSON       = "application/json"
+	contentTypeMergePatch = "application/merge-patch+json"
 
 	// validationOpenAPIVersion은 검증용 spec 사본의 버전입니다. ValidateRequests 주석을 보세요.
 	validationOpenAPIVersion = "3.0.3"
@@ -33,13 +31,28 @@ const (
 	reasonBodyDecodeFailed = "failed to decode request body"
 )
 
+// uuidPattern은 format: uuid의 값 형태입니다(RFC 9562 모든 버전).
+const uuidPattern = `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
+
 // init의 등록은 kin-openapi 패키지 전역 상태라 httpapi를 import한 바이너리 전체(테스트 포함)에 적용됩니다.
 func init() {
 	// JSON 본문과 PATCH 본문(JSON Merge Patch)을 같은 규칙의 JSON으로 디코드합니다.
 	openapi3filter.RegisterBodyDecoder(contentTypeJSON, decodeSingleJSONBody)
 	openapi3filter.RegisterBodyDecoder(contentTypeMergePatch, decodeSingleJSONBody)
-	// kin-openapi는 date·date-time만 기본으로 검사합니다. 계약의 id(format: uuid)도 검사합니다.
-	openapi3.DefineStringFormatValidator("uuid", openapi3.NewRegexpFormatValidator(openapi3.FormatOfStringForUUIDOfRFC4122))
+	// kin-openapi의 기본 date·date-time 검사는 정규식뿐이라 2026-02-30 같은 없는 날짜를 통과시키고, 그 값이
+	// 생성 코드 디코드에서 실패하면 errors[].code가 달라집니다. 달력과 시각으로 읽히는지 직접 검사해
+	// 모든 형식 위반을 검증 단계의 format keyword로 모읍니다.
+	openapi3.DefineStringFormatValidator("date", openapi3.NewCallbackValidator(func(value string) error {
+		_, err := time.Parse(time.DateOnly, value)
+		return err
+	}))
+	openapi3.DefineStringFormatValidator("date-time", openapi3.NewCallbackValidator(func(value string) error {
+		_, err := time.Parse(time.RFC3339, value)
+		return err
+	}))
+	// 계약의 id(format: uuid)도 검사합니다. kin-openapi의 기본 패턴은 버전 1~5만 받아 서버가 발급하는
+	// UUIDv7 id를 거부하므로, 버전과 상관없이 8-4-4-4-12 형태의 16진수를 받습니다.
+	openapi3.DefineStringFormatValidator("uuid", openapi3.NewRegexpFormatValidator(uuidPattern))
 }
 
 // decodeSingleJSONBody는 kin-openapi의 JSON body decoder와 같되, DecodeJSON처럼 JSON 값 하나만 허용합니다.
@@ -93,7 +106,8 @@ func ValidateRequests(spec *openapi3.T, logger *slog.Logger) func(http.Handler) 
 			// 위반을 한 번에 모두 돌려줘 app이 필드 오류를 함께 보여 줄 수 있게 합니다.
 			MultiError:          true,
 			SkipSettingDefaults: true,
-			// 인증 검사는 P2에서 넣습니다. 그때까지 모든 security 요구를 통과시킵니다.
+			// security 요구는 여기서 검사하지 않고 모두 통과시킵니다. bearerAuth는 RegisterAPI가 이 검증 앞에
+			// 두는 Authenticate(BearerAuth)가 맡고, appCheck(createPreview·getBirthHour)는 P6이 맡습니다.
 			AuthenticationFunc: func(context.Context, *openapi3filter.AuthenticationInput) error { return nil },
 		},
 		SilenceServersWarning: true,
@@ -121,7 +135,7 @@ func writeValidationProblem(ctx context.Context, logger *slog.Logger, err error,
 	if opts.MatchedRoute == nil {
 		// ServeMux가 고른 라우트를 계약 router가 찾지 못한 경우입니다(경로 정규화 차이 등). 검증 없이 넘기지 않습니다.
 		logger.ErrorContext(ctx, "계약 router가 라우트를 찾지 못함", "route", r.Pattern, "errorType", fmt.Sprintf("%T", err))
-		problem.Write(w, r, problem.New(http.StatusNotFound, "route.not_found", "Route not found"))
+		problem.Write(w, r, problem.RouteNotFound.Problem("Route not found"))
 		return
 	}
 	p, classified := validationProblem(err, unsupportedMediaType(r, opts.MatchedRoute.Route.Operation))
@@ -148,13 +162,13 @@ func unsupportedMediaType(r *http.Request, operation *openapi3.Operation) bool {
 func validationProblem(err error, mediaTypeUnsupported bool) (problem.Problem, bool) {
 	var tooLarge *http.MaxBytesError
 	if errors.As(err, &tooLarge) {
-		return problem.New(http.StatusRequestEntityTooLarge, "request.too_large", "Request body is too large"), true
+		return problem.RequestTooLarge.Problem("Request body is too large"), true
 	}
 
 	requestErrors, ok := collectRequestErrors(err)
 	if !ok {
 		// 인증 통과 함수를 쓰므로 RequestError가 아닌 오류는 생기지 않아야 합니다.
-		return problem.New(http.StatusInternalServerError, "internal", "Internal server error"), false
+		return problem.Internal.Problem("Internal server error"), false
 	}
 
 	var fieldErrors []problem.FieldError
@@ -175,11 +189,11 @@ func validationProblem(err error, mediaTypeUnsupported bool) (problem.Problem, b
 
 	switch {
 	case unsupported:
-		return problem.New(http.StatusUnsupportedMediaType, codeUnsupportedMediaType, "Unsupported request content type"), true
+		return problem.UnsupportedMediaType.Problem("Unsupported request content type"), true
 	case malformed:
-		return problem.New(http.StatusBadRequest, codeRequestMalformed, "Request body is malformed"), true
+		return problem.RequestMalformed.Problem("Request body is malformed"), true
 	}
-	p := problem.New(http.StatusBadRequest, codeRequestInvalid, "Request does not match the contract")
+	p := problem.RequestInvalid.Problem("Request does not match the contract")
 	p.Errors = fieldErrors
 	return p, true
 }

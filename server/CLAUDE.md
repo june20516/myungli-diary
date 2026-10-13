@@ -24,20 +24,24 @@
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
-| `proto/myungri/engine/v1/engine.proto` | **사용** | core |
+| `proto/myungli/engine/v1/engine.proto` | **사용** | core |
 | `core/message_keys.json` | **사용** (콘텐츠 시드가 모든 키를 3개 언어로 갖췄는지 검사) | core |
 | REST API v1 (위치는 설계 때 정하고 `docs/contracts/README.md`에 등록 요청) | **제공** | app |
 | 슬롯 명세, 호칭·조사 처리 규칙, 라이팅 검사기 | **사용** (W0 이후) | writing |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 | **참고** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
-## 현재 상태 (2026-10-11, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~)에 모읍니다. 작업 브랜치는 `server/design`(worktree `../myungli-diary-server`)입니다.
+## 현재 상태 (2026-10-13, server 세션 갱신)
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S24)에 모읍니다. 작업 브랜치는 `server/apple-web-login`입니다.
+* P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 일회용 교환 코드·`POST /v1/auth/apple/web`·App Link 안내 페이지·assetlinks로 조립됐습니다(S22, 계약 `1.0.0-draft.2`). 새 결정은 S15(nonce)·S16(삭제 대기 계정)·S17(도메인별 sqlc)·S18(동의 문서 버전)·S19(Apple 로그인 실패 시 토큰 처리, 교환 sub 대조)·S20(refresh 재사용 30초 유예)·S22(Apple 웹 교환 코드)·S23(문장 선택 기록 지문)·S24(staging 테스트 로그인 설계)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 notice: Issue #3(엔진 계약), #7(D36·D37·D40), #29(S1 착수, D55~D60), #55(호칭·조사 규칙 사용법). 모두 spec에 반영했습니다. 앞으로 받은 요청은 `gh issue list --label to:server`.
-* 지휘 미결이었던 소셜 로그인 제공자와 배포 플랫폼은 D55·D56으로 정해졌습니다. 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
+* 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P1 PR의 병합과 REST API v1 계약 등록·ci-gate 연결(root 요청 Issue)을 기다립니다. 계약 원본은 `api/openapi.yaml`(1.0.0-draft)입니다.
-2. 병합되면 P2(인증·계정·약관) 계획을 씁니다. 앞 계획에서 넘어온 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
-3. 보낸 요청의 답을 기다립니다: #48(root, 알림 슬롯·재구매 연장 등), #49(core, `ruleset_version` 조회 RPC).
+1. **P3(프로필·엔진·캐시) 계획**을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다. P3에 함께 넣을 요청:
+   * #92 사주 정보를 바꾼 날의 문장 선택 기록 처리(D59②, app의 확인 창 #84)
+   * #79 엔진 실행 조건(포트·h2c·health). 배포 workflow `deploy-server.yml`·`deploy-engine.yml`은 server 소유입니다(D65)
+2. **#89 Apple 웹 로그인 복귀**: 완료(P2a). PR을 올린 뒤 app에 계약 변경 요청(`1.0.0-draft.2`: `completeAppleWebLogin`, Location 형식과 `error` 값, `loginApple`의 `clientType` 제거, App Link `/auth/apple`, assetlinks 지문)을 보냅니다. root에 계약 목록 버전 갱신, writing에 안내 페이지 문구 슬롯도 요청합니다.
+3. P2 반영 요청은 app에 보냈습니다(#100). app 질문이 오면 답합니다.
+4. 남은 요청: #55(호칭·조사 규칙 사용법과 원고 → 시드 변환, 콘텐츠 모듈 계획 때), #93(staging 테스트 로그인·App Check debug token)은 설계(S24)가 끝났고 구현은 P6/P9에서 합니다.

@@ -28,6 +28,7 @@ uv run python tools/check_container.py localhost:8080         # core/에서. hea
 
 * 실행에 비밀값이 필요 없습니다. `KASI_SERVICE_KEY`는 자료 수집 도구(`tools/fetch_kasi.py`)에서만 씁니다. `.dockerignore`가 허용 목록이라 `.env`는 이미지에 들어가지 않습니다.
 * Cloud Run 설정: HTTP/2 end-to-end(h2c)를 켜야 gRPC가 통합니다. startup probe는 gRPC 방식으로 서비스 이름 `myungli.engine.v1.MyungliEngine`을 씁니다.
+* 배포 workflow(`.github/workflows/deploy-engine.yml`)는 server가 맡습니다(D65). 위 실행 조건을 바꾸면 server에 Issue로 알립니다.
 
 ## 테스트와 검사
 

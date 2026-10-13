@@ -75,11 +75,11 @@ void main() {
   });
 
   group('실제 계약', () {
-    test('operation 37개가 route 표에 모두 있다', () {
-      expect(apiRoutes, hasLength(37));
+    test('operation 38개가 route 표에 모두 있다', () {
+      expect(apiRoutes, hasLength(38));
       expect(
         apiRoutes.map((route) => route.operationId).toSet(),
-        hasLength(37),
+        hasLength(38),
       );
     });
 
@@ -87,7 +87,12 @@ void main() {
       bool bearerOf(String id) =>
           apiRoutes.firstWhere((r) => r.operationId == id).requiresBearer;
       expect(bearerOf('getMe'), isTrue);
-      for (final id in ['refreshToken', 'getAppConfig', 'createPreview']) {
+      for (final id in [
+        'refreshToken',
+        'getAppConfig',
+        'createPreview',
+        'completeAppleWebLogin',
+      ]) {
         expect(bearerOf(id), isFalse, reason: id);
       }
     });
