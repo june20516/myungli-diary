@@ -20,6 +20,7 @@ String generateIaSource(Map<String, Object?> json) {
   ];
   final screenIds = [for (final screen in screens) screen['id']! as String];
 
+  // 화면 id와 슬롯 id를 한 집합으로 검사한다. IA 어휘 전체에서 lowerCamelCase 이름이 유일하도록 보수적으로 지킨다.
   _checkUniqueKeys([...screenIds, ...slotIds]);
 
   final out = StringBuffer()
@@ -95,27 +96,46 @@ IaScreen(
 
 String _stringList(List<String> values) => '[${values.map(_quote).join(', ')}]';
 
-/// Dart 작은따옴표 문자열 리터럴로 만듭니다.
+/// Dart 작은따옴표 문자열 리터럴로 만듭니다. 제어 문자는 이스케이프합니다.
 String _quote(String value) {
-  final escaped = value
-      .replaceAll(r'\', r'\\')
-      .replaceAll("'", r"\'")
-      .replaceAll(r'$', r'\$')
-      .replaceAll('\n', r'\n');
+  final escaped = value.runes.map((rune) {
+    return switch (rune) {
+      0x5C => r'\\',
+      0x27 => r"\'",
+      0x24 => r'\$',
+      0x0A => r'\n',
+      0x0D => r'\r',
+      0x09 => r'\t',
+      < 0x20 || 0x7F => '\\u{${rune.toRadixString(16)}}',
+      _ => String.fromCharCode(rune),
+    };
+  }).join();
   return "'$escaped'";
+}
+
+/// `dart format`을 거친 소스를 돌려줍니다. 생성 파일과 테스트가 같이 씁니다.
+Future<String> formatDartSource(String source) async {
+  final dir = await Directory.systemTemp.createTemp('gen_ia_');
+  try {
+    final file = File('${dir.path}/formatted.dart');
+    await file.writeAsString(source);
+    final result = await Process.run('dart', ['format', file.path]);
+    if (result.exitCode != 0) {
+      throw StateError('dart format 실패: ${result.stderr}');
+    }
+    return await file.readAsString();
+  } finally {
+    await dir.delete(recursive: true);
+  }
 }
 
 Future<void> main() async {
   final decoded = jsonDecode(await File(_inputPath).readAsString());
-  final source = generateIaSource(decoded as Map<String, Object?>);
+  final source = await formatDartSource(
+    generateIaSource(decoded as Map<String, Object?>),
+  );
 
   final output = File(_outputPath);
   await output.parent.create(recursive: true);
   await output.writeAsString(source);
-
-  final format = await Process.run('dart', ['format', _outputPath]);
-  if (format.exitCode != 0) {
-    stderr.writeln(format.stderr);
-    exit(format.exitCode);
-  }
 }

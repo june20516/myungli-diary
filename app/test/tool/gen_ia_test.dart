@@ -71,6 +71,26 @@ void main() {
       expect(source, contains(r"trigger: 'it\'s \$done'"));
     });
 
+    test('trigger의 제어 문자가 유효한 문자열 리터럴로 나온다', () {
+      final json = {
+        'screens': [
+          {
+            'id': 'a',
+            'tab': null,
+            'presentation': 'page',
+            'auth': 'any',
+            'states': <Object?>[],
+            'slots': <Object?>[],
+            'components': <Object?>[],
+            'exits': [
+              {'to': 'a', 'trigger': 'x\t\r\n\u0001\\y'},
+            ],
+          },
+        ],
+      };
+      expect(generateIaSource(json), contains(r"trigger: 'x\t\r\n\u{1}\\y'"));
+    });
+
     test('lowerCamelCase 이름이 겹치면 실패한다', () {
       final json = jsonDecode('''
 {"screens": [
@@ -104,13 +124,9 @@ void main() {
       );
     });
 
-    test('커밋된 ia.g.dart가 다시 생성한 결과와 같은 내용이다', () {
-      // dart format 차이를 피하려고 공백을 지우고 비교한다.
-      String squash(String text) => text.replaceAll(RegExp(r'[\s,]+'), '');
-      expect(
-        squash(File('lib/core/ia/gen/ia.g.dart').readAsStringSync()),
-        squash(generateIaSource(json)),
-      );
+    test('커밋된 ia.g.dart가 다시 생성한 결과와 정확히 같다', () async {
+      final regenerated = await formatDartSource(generateIaSource(json));
+      expect(File('lib/core/ia/gen/ia.g.dart').readAsStringSync(), regenerated);
     });
   });
 }
