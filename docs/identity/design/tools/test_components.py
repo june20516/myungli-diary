@@ -427,8 +427,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_1():
-    assert VERSION == "2.1.0"
+def test_contract_version_is_2_2():
+    assert VERSION == "2.2.0"
 
 
 def ia_screens():
@@ -454,8 +454,9 @@ def test_locked_sentence_open_slot():
     block = components_by_id(BRAND_GROUPS)["sentence-block"]
     assert block["states"]["locked"]["parts"]["open"]["slot"] == "saju-chart.yongsin.open"
     assert block["a11y"]["lockedLabelSlot"] == "evidence-sheet.a11y.locked"
+    assert block["a11y"]["lockedNameSlot"] == "saju-chart.yongsin.title"
     assert block["a11y"]["lockedLabel"] == "구역 이름 + '잠김', 열기는 따로 초점(link)"
-    assert {"saju-chart.yongsin.open"} <= ia_slot_ids("saju-chart")
+    assert {"saju-chart.yongsin.open", "saju-chart.yongsin.title"} <= ia_slot_ids("saju-chart")
     assert "evidence-sheet.a11y.locked" in ia_slot_ids("evidence-sheet")
 
 
