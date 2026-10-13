@@ -39,6 +39,7 @@
 - Modify: `docs/identity/design/tools/components.py:20` (`CONTRACT_VERSION`)
 - Modify: `docs/identity/design/components/*.json` 11개의 최상위 `"version"`(icon set의 `"version": "2.1.2"`는 건드리지 않음)
 - Modify: `docs/identity/design/components/README.md` (첫 줄 계약 버전, 버전 표)
+- Modify: `docs/identity/design/visual-identity.md:8`, `docs/identity/design/CLAUDE.md:13`·`:28` (현재 계약 버전 "계약 2.0.0" → "계약 2.1.0". `sentence.md:22`·`action.md:35`의 2.0.0은 변경 이력이라 그대로)
 - Test: `docs/identity/design/tools/test_components.py:430`
 
 **Interfaces:**
@@ -54,6 +55,7 @@
     ```
     | 2.1.0 | 2026-10-13 | 문장 조각(`segments`)의 용어 표시: 칩은 `term-token`이 있는 화면에서만(V28). 근거 잠금 ui 슬롯: `sentence-block` 열기, 근거 시트 구역 제목·해제 실패 toast·접근성 문구 |
     ```
+  * `visual-identity.md:8`, `CLAUDE.md:13`·`:28`의 "계약 2.0.0"을 "계약 2.1.0"으로 고칩니다.
   * README 근거 줄에 `[문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md)`을 더하고 `V13~V27`을 `V13~V28`로 고칩니다.
 - [ ] **Step 4: 전체 테스트 통과.** pytest 전체와 `python3 docs/identity/design/tools/components.py`가 문제 없이 끝나야 합니다(출력 없음, 종료 코드 0).
 - [ ] **Step 5: Commit.** `chore(design): 컴포넌트 계약 2.1.0`
@@ -124,7 +126,6 @@ def test_locked_sentence_open_slot():
     * `"term 조각은 term-token이 있는 화면(segments.term.screens)에서만 term-token inline으로 그린다. 그 밖의 화면과 공유 이미지에서는 일반 글자다(결정 V28)."`
     * `"term-token 라벨은 화면에 보이는 text를 쓴다. term 값은 풀이를 찾는 키라 읽지 않는다."`
     * `"근거 잠금은 term 표시를 바꾸지 않는다. 잠긴 내용은 오지 않고, 풀이 시트는 무료다(D60)."`
-  * 예시 화면 목록은 IA와 맞춥니다(테스트가 확인).
 - [ ] **Step 4: `sentence.md` 구현.**
   * 근거 줄에 `[문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md)`과 `V28`을 더합니다.
   * `## sentence-block`에 다음 소절을 더합니다.
