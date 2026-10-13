@@ -237,6 +237,12 @@ func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	require.Equal(t, http.StatusAccepted, deleted.status, "삭제 본문: %v", deleted.body)
 	assert.NotEmpty(t, deleted.body["deletionScheduledAt"])
 
+	// 삭제 대기 중에도 같은 access token으로 내 정보는 볼 수 있지만(복구 안내), 기능 라우트는 막힙니다.
+	pending := env.do(http.MethodGet, "/v1/me", access, nil)
+	require.Equal(t, http.StatusOK, pending.status, "삭제 대기 me 본문: %v", pending.body)
+	assert.Equal(t, "pending_deletion", pending.body["status"])
+	env.do(http.MethodGet, "/v1/chart", access, nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
+
 	// 삭제 예약 뒤 로그인 때 받은 Apple refresh token을 revoke합니다.
 	revokes := env.fake.AppleRevokeRequests()
 	require.Len(t, revokes, 1, "Apple revoke 호출 수")
@@ -256,4 +262,8 @@ func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	me := env.do(http.MethodGet, "/v1/me", access2, nil)
 	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
 	assert.Equal(t, "active", me.body["status"])
+
+	// 복구는 삭제 전 세션을 되살리지 않습니다.
+	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).
+		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 }

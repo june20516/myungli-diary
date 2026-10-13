@@ -254,6 +254,11 @@ func TestLoginKakao_RestoresPendingDeletion(t *testing.T) {
 
 	assert.Equal(t, first.AccountID, res.AccountID)
 	assert.True(t, res.RestoredFromDeletion)
+	// 삭제 요청 뒤 세션 폐기가 실패했더라도(markPendingDeletion은 토큰을 건드리지 않음) 복구가 이전 세션을 되살리지 않습니다.
+	_, err := f.service.Refresh(f.ctx, first.Tokens.RefreshToken)
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "복구 전에 받은 refresh token")
+	_, err = f.service.Refresh(f.ctx, res.Tokens.RefreshToken)
+	require.NoError(t, err, "복구 로그인이 새로 받은 refresh token")
 	assert.False(t, res.IsNewAccount)
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts WHERE id = $1 AND status = 'active' AND deletion_requested_at IS NULL`, res.AccountID))
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND provider_disconnected_at IS NULL`, res.AccountID))

@@ -2,7 +2,7 @@
 //
 // 흐름은 다음과 같습니다.
 //   - 로그인: 제공자 토큰을 검증하고 (provider, subject)로 계정을 찾거나 만듭니다.
-//     삭제 대기 계정이면 되살립니다. 로그인마다 새 refresh family를 만들고 토큰 쌍을 발급합니다.
+//     삭제 대기 계정이면 되살리고 그 계정의 이전 세션(refresh token)을 모두 폐기합니다. 로그인마다 새 refresh family를 만들고 토큰 쌍을 발급합니다.
 //   - 갱신: refresh token을 쓸 때마다 같은 family 안에서 새 토큰으로 바꿉니다(rotation).
 //     이미 쓴 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다.
 //   - 로그아웃: 그 refresh token의 family를 폐기합니다.
@@ -222,6 +222,8 @@ func (s *Service) loginOnce(ctx context.Context, providerName, subject string, a
 
 // findOrCreateAccount는 (provider, subject)의 계정을 찾거나 만듭니다.
 // 이미 있으면 계정 행을 잠근 채로 삭제 대기면 되살리고, Apple이면 refresh token을 새 값으로 바꿉니다.
+// 되살릴 때는 같은 트랜잭션에서 그 계정의 refresh token을 모두 폐기합니다. 삭제 요청 뒤의 세션 폐기가
+// 실패했더라도 삭제 전 세션이 복구와 함께 살아나지 않게 하려는 것이며, 새 family는 이 뒤에 발급합니다.
 func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, now time.Time, providerName, subject string, apple *appleGrant) (accountID uuid.UUID, isNew, restored bool, err error) {
 	existing, err := q.GetIdentity(ctx, authdb.GetIdentityParams{Provider: providerName, Subject: subject})
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -244,6 +246,9 @@ func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, no
 	}
 	if rows == 1 {
 		restored = true
+		if err := q.RevokeAccountTokens(ctx, authdb.RevokeAccountTokensParams{RevokedAt: now, AccountID: existing.AccountID}); err != nil {
+			return uuid.Nil, false, false, fmt.Errorf("복구 전 세션 폐기: %w", err)
+		}
 		if err := q.ClearProviderDisconnected(ctx, existing.AccountID); err != nil {
 			return uuid.Nil, false, false, fmt.Errorf("연결 해제 기록 지우기: %w", err)
 		}
