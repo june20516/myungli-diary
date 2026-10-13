@@ -443,17 +443,31 @@ func TestAppleCallback_MissingCodeRedirectsInvalidRequest(t *testing.T) {
 }
 
 func TestAppleCallback_MissingStateIs400(t *testing.T) {
-	fa := &fakeAuth{exchange: testExchangeCode}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa})
+	tests := []struct {
+		name string
+		form url.Values
+	}{
+		{"state 없음", url.Values{"code": {"c"}, "id_token": {"t"}}},
+		{"빈 state", url.Values{"code": {"c"}, "id_token": {"t"}, "state": {""}}},
+		{"빈 state와 Apple 오류", url.Values{"error": {"user_cancelled_authorize"}, "state": {""}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fa := &fakeAuth{exchange: testExchangeCode}
+			handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa})
 
-	req := appleCallbackRequest(t, url.Values{"code": {"c"}, "id_token": {"t"}})
-	rec := serve(handler, req)
+			req := appleCallbackRequest(t, tt.form)
+			rec := serve(handler, req)
 
-	require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
-	assert.Equal(t, "request.invalid", decodeProblem(t, rec).Code)
-	assert.Empty(t, rec.Header().Get("Location"))
-	assert.Zero(t, fa.beginCalls)
-	expectContractResponse(t, spec, req, rec)
+			require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
+			p := decodeProblem(t, rec)
+			assert.Equal(t, "request.invalid", p.Code)
+			assert.Equal(t, []string{"/state"}, fieldsOf(p))
+			assert.Empty(t, rec.Header().Get("Location"))
+			assert.Zero(t, fa.beginCalls)
+			expectContractResponse(t, spec, req, rec)
+		})
+	}
 }
 
 func TestGetHealth_NilDBIs503(t *testing.T) {

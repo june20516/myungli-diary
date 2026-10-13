@@ -126,17 +126,23 @@ func (a *API) staticRoutes() []staticRoute {
 	}
 }
 
+// appLinkErrors는 Apple 웹 콜백이 Location에 담는 error 값입니다(계약 appleCallback 303 설명).
+// 안내 페이지는 이 값만 앱에 넘깁니다.
+var appLinkErrors = map[string]bool{
+	appLinkErrorCancelled:           true,
+	appLinkErrorTokenInvalid:        true,
+	appLinkErrorProviderUnavailable: true,
+	appLinkErrorInvalidRequest:      true,
+	appLinkErrorServer:              true,
+}
+
 // serveAppLinkPage는 App Link가 앱을 열지 못해 브라우저로 온 요청에 안내 페이지를 줍니다.
-// 교환 코드가 형식에 맞으면 교환 코드와 state를 그대로 담은 intent 링크를, 아니면 스토어 링크만 보여 줍니다.
-// query에는 교환 코드가 있어 응답을 캐시하지 않고 Referer로도 내보내지 않습니다.
+// 교환 코드가 형식에 맞거나 error가 계약의 값이면 그 값과 state를 담은 intent 링크와 스토어 링크를,
+// 아니면 스토어 링크만 보여 줍니다. query에는 교환 코드가 있어 응답을 캐시하지 않고 Referer로도 내보내지 않으며,
+// query 값은 로그에 남기지 않습니다.
 func serveAppLinkPage(c AppLinkConfig, logger *slog.Logger, w http.ResponseWriter, r *http.Request) {
 	data := appLinkPageData{StoreURL: c.StoreURL}
-	query := r.URL.Query()
-	if exchange := query.Get("exchange"); exchangeCodePattern.MatchString(exchange) {
-		forward := url.Values{"exchange": {exchange}}
-		if query.Has("state") {
-			forward.Set("state", query.Get("state"))
-		}
+	if forward, ok := appLinkForwardQuery(r.URL.Query()); ok {
 		// intent: scheme은 html/template의 URL 필터가 막으므로 template.URL로 넘깁니다.
 		// query 값은 Encode로 percent-encoding되고, 속성 값은 template이 다시 HTML 이스케이프합니다.
 		data.IntentURL = template.URL(c.intentURL(forward)) //nolint:gosec // 고정 형식에 인코딩한 값만 넣습니다(위 설명)
@@ -155,6 +161,24 @@ func serveAppLinkPage(c AppLinkConfig, logger *slog.Logger, w http.ResponseWrite
 	header.Set("X-Content-Type-Options", "nosniff")
 	header.Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'")
 	writeBody(logger, w, r, body.Bytes())
+}
+
+// appLinkForwardQuery는 안내 페이지가 intent 링크로 앱에 넘길 query입니다.
+// 형식에 맞는 교환 코드(exchange)나 계약의 error 값 하나와, 있으면 state를 담습니다. 넘길 값이 없으면 false입니다.
+func appLinkForwardQuery(query url.Values) (url.Values, bool) {
+	var forward url.Values
+	switch {
+	case exchangeCodePattern.MatchString(query.Get("exchange")):
+		forward = url.Values{"exchange": {query.Get("exchange")}}
+	case appLinkErrors[query.Get("error")]:
+		forward = url.Values{"error": {query.Get("error")}}
+	default:
+		return nil, false
+	}
+	if query.Has("state") {
+		forward.Set("state", query.Get("state"))
+	}
+	return forward, true
 }
 
 // writeBody는 응답 본문을 씁니다. 실패는 대개 클라이언트가 연결을 끊은 것이라 응답을 바꿀 수 없으므로

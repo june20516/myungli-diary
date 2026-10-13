@@ -93,7 +93,9 @@ func TestAppLinkPage_MalformedExchangeShowsStoreOnly(t *testing.T) {
 	}{
 		{"query 없음", ""},
 		{"교환 코드 없음", "state=s"},
-		{"오류 결과", "error=user_cancelled_authorize&state=s"},
+		{"계약 밖 error 값", "error=invalid_scope&state=s"},
+		{"error와 HTML", url.Values{"error": {"<b>server_error</b>"}, "state": {"s"}}.Encode()},
+		{"빈 error", "error=&state=s"},
 		{"42자", url.Values{"exchange": {testExchangeCode[1:]}, "state": {"s"}}.Encode()},
 		{"44자", url.Values{"exchange": {testExchangeCode + "A"}, "state": {"s"}}.Encode()},
 		{"base64url이 아닌 문자", url.Values{"exchange": {"+" + testExchangeCode[1:]}, "state": {"s"}}.Encode()},
@@ -112,6 +114,23 @@ func TestAppLinkPage_MalformedExchangeShowsStoreOnly(t *testing.T) {
 			assert.Contains(t, body, "명리일기 앱에서 계속해 주세요.")
 			assert.NotContains(t, body, "intent:")
 			assert.Equal(t, []string{testAppLink(t).StoreURL}, pageLinks(body))
+		})
+	}
+}
+
+func TestAppLinkPage_ContractErrorForwardsToApp(t *testing.T) {
+	for _, appError := range []string{"user_cancelled_authorize", "token_invalid", "provider_unavailable", "invalid_request", "server_error"} {
+		t.Run(appError, func(t *testing.T) {
+			handler, _, logs := newHandlerAPIWithLogs(t, &httpapi.API{})
+
+			rec := getAppLinkPage(t, handler, url.Values{"error": {appError}, "state": {"state-secret"}}.Encode())
+
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			assert.Equal(t, "no-store", rec.Header().Get("Cache-Control"))
+			assert.Equal(t, "no-referrer", rec.Header().Get("Referrer-Policy"))
+			wantIntent := wantIntentLink(t, url.Values{"error": {appError}, "state": {"state-secret"}})
+			assert.Equal(t, []string{wantIntent, testAppLink(t).StoreURL}, pageLinks(rec.Body.String()))
+			assert.NotContains(t, logs.String(), "state-secret", "query 값은 로그에 남기지 않습니다")
 		})
 	}
 }

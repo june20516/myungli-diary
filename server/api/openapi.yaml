@@ -125,7 +125,7 @@ paths:
         Android의 Apple 웹 흐름에서 Apple이 form_post로 부르는 주소입니다. app이 직접 부르지 않습니다.
         server는 Apple의 값을 직접 검증하고 일회용 교환 코드를 만든 뒤 app link로 303 이동시킵니다. app은 그 교환 코드로 `completeAppleWebLogin`을 부릅니다.
         form 필드 이름은 Apple이 정한 그대로입니다.
-        Apple의 `code`·`id_token`·`user`는 Location에 넘기지 않습니다. `state`가 없으면 400입니다.
+        Apple의 `code`·`id_token`·`user`는 Location에 넘기지 않습니다. `state`가 없거나 비어 있으면 400입니다.
       security: []
       requestBody:
         required: true
@@ -146,6 +146,7 @@ paths:
                   description: Apple identity token
                 state:
                   type: string
+                  minLength: 1
                 user:
                   type: string
                   description: 처음 로그인할 때만 Apple이 보내는 사용자 정보(JSON 문자열)

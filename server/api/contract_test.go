@@ -576,9 +576,14 @@ func TestContract_AppleCallbackDescribes400(t *testing.T) {
 			return
 		}
 		found = true
-		const want = "`state`가 없으면 400입니다."
+		const want = "`state`가 없거나 비어 있으면 400입니다."
 		if !strings.Contains(op.Description, want) {
 			t.Errorf("appleCallback 설명에 %q가 없음", want)
+		}
+		// 빈 state도 계약 검증이 거부하도록 스키마에 최소 길이를 둡니다.
+		form := op.RequestBody.Value.Content.Get("application/x-www-form-urlencoded")
+		if form == nil || form.Schema.Value.Properties["state"] == nil || form.Schema.Value.Properties["state"].Value.MinLength != 1 {
+			t.Error("appleCallback form의 state에 minLength: 1이 없음")
 		}
 		if op.Responses.Value("400") == nil {
 			t.Error("appleCallback.responses에 400이 없음")
