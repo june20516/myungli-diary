@@ -38,6 +38,7 @@ jobs:
       docs: ${{ steps.detect.outputs.docs }}
       core: ${{ steps.detect.outputs.core }}
       server: ${{ steps.detect.outputs.server }}
+      app: ${{ steps.detect.outputs.app }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -58,6 +59,7 @@ jobs:
             echo "docs=false" >> "$GITHUB_OUTPUT"
             echo "core=false" >> "$GITHUB_OUTPUT"
             echo "server=false" >> "$GITHUB_OUTPUT"
+            echo "app=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -80,6 +82,12 @@ jobs:
             echo "server=true" >> "$GITHUB_OUTPUT"
           else
             echo "server=false" >> "$GITHUB_OUTPUT"
+          fi
+          # app이 쓰는 계약(REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기)이 바뀌어도 app 검사를 돌립니다(#85).
+          if echo "$code_changed" | grep -qE '^app/|^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/|^\.github/workflows/(app|ci-gate)\.yml$'; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
           fi
 
   docs:
@@ -130,8 +138,14 @@ jobs:
     if: needs.changes.outputs.server == 'true'
     uses: ./.github/workflows/server.yml
 
+  # 기기 E2E(e2e-android)는 run_e2e 기본값(false)이라 판정에 들어가지 않습니다. main push·매일 밤·수동은 app.yml이 직접 돕니다.
+  app:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    uses: ./.github/workflows/app.yml
+
   ci-gate:
-    needs: [changes, docs, pr-body, core, server]
+    needs: [changes, docs, pr-body, core, server, app]
     if: always()
     runs-on: ubuntu-latest
     steps:
