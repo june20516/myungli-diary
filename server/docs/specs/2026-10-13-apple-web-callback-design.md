@@ -33,7 +33,7 @@
    * 확인을 통과하면 사용 표시를 하고, 기존 Apple 로그인 트랜잭션(계정 찾기·만들기·복구, 토큰 발급)을 그대로 실행합니다. 응답은 `loginApple`과 같은 `LoginResponse`입니다.
 4. **실패 경로:**
    * 사용자 취소, Apple 오류, 검증 실패, 제공자 장애일 때는 303 `Location: <APP_LINK_BASE>/auth/apple?error=<값>&state=<state>`로 보냅니다.
-   * `error` 값: `user_cancelled_authorize`(Apple 값 그대로), `token_invalid`, `provider_unavailable`, `invalid_request`.
+   * `error` 값: `user_cancelled_authorize`(Apple 값 그대로), `token_invalid`, `provider_unavailable`, `invalid_request`, `server_error`(예상하지 못한 server 오류). Apple이 보낸 `error`는 `user_cancelled_authorize`만 그대로 넘기고 그 밖은 `invalid_request`로 바꿉니다.
    * `state`가 없으면 돌려보낼 곳이 없으므로 400 `request.invalid`입니다(지금과 같음).
 
 ### 2.2. 왜 안전한가
