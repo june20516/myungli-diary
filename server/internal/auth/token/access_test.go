@@ -57,6 +57,22 @@ func TestAccess_IssueThenVerifyReturnsAccount(t *testing.T) {
 	assert.Equal(t, uuid.Version(7), jti.Version())
 }
 
+// 시계에 초 미만 값이 있어도 응답의 만료 시각은 JWT exp(초 단위)와 같습니다.
+func TestAccess_IssueExpiresAtMatchesExpClaim(t *testing.T) {
+	now := testNow.Add(1234567 * time.Microsecond)
+	issuer := mustIssuer(t, newKey(t, "k1"), nil, clocktest.New(now))
+
+	raw, expiresAt, err := issuer.Issue(uuid.Must(uuid.NewV7()))
+	require.NoError(t, err)
+
+	parsed, _, err := jwt.NewParser().ParseUnverified(raw, jwt.MapClaims{})
+	require.NoError(t, err)
+	exp, err := parsed.Claims.GetExpirationTime()
+	require.NoError(t, err)
+	assert.True(t, exp.Equal(expiresAt), "exp %v, expiresAt %v", exp.Time, expiresAt)
+	assert.Equal(t, now.Add(token.AccessTTL).Truncate(time.Second), expiresAt)
+}
+
 func TestAccess_ExpiredAfter15Minutes(t *testing.T) {
 	clk := clocktest.New(testNow)
 	issuer := mustIssuer(t, newKey(t, "k1"), nil, clk)

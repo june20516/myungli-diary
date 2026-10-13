@@ -325,7 +325,8 @@ func (s *Service) issueTokens(ctx context.Context, q *authdb.Queries, now time.T
 	if err != nil {
 		return TokenPair{}, fmt.Errorf("refresh token id 생성: %w", err)
 	}
-	refreshExpiresAt := now.Add(token.RefreshTTL)
+	// DB(timestamptz)는 마이크로초 정밀도로 저장하므로, 응답 값도 같은 정밀도로 맞춰 DB 값과 일치시킵니다.
+	refreshExpiresAt := now.Add(token.RefreshTTL).Truncate(time.Microsecond)
 	if err := q.InsertRefreshToken(ctx, authdb.InsertRefreshTokenParams{
 		ID:        id,
 		AccountID: accountID,

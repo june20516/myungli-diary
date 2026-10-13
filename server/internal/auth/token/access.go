@@ -87,14 +87,15 @@ func NewAccessIssuer(current SigningKey, previous []SigningKey, clk clock.Clock)
 	return &AccessIssuer{current: current, keys: keys, clk: clk}, nil
 }
 
-// Issue는 계정의 access token을 발급합니다. expiresAt은 토큰의 exp와 같은 시각입니다.
+// Issue는 계정의 access token을 발급합니다.
+// JWT의 exp는 초 단위이므로 expiresAt도 초 단위로 내림해, 응답에 담는 만료 시각이 토큰의 exp와 정확히 같게 합니다.
 func (i *AccessIssuer) Issue(accountID uuid.UUID) (string, time.Time, error) {
 	jti, err := uuid.NewV7()
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("jti 생성: %w", err)
 	}
 	now := i.clk.Now()
-	expiresAt := now.Add(AccessTTL)
+	expiresAt := now.Add(AccessTTL).Truncate(time.Second)
 	tok := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.RegisteredClaims{
 		Subject:   accountID.String(),
 		IssuedAt:  jwt.NewNumericDate(now),

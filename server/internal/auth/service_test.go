@@ -395,6 +395,19 @@ func TestLoginApple_SuccessDoesNotRevoke(t *testing.T) {
 	assert.Empty(t, f.fake.AppleRevokeRequests())
 }
 
+// 시계에 마이크로초 미만 값이 있어도 응답의 refresh 만료 시각은 DB에 저장한 값과 같습니다.
+func TestLogin_RefreshExpiresAtMatchesDB(t *testing.T) {
+	f := newFixture(t)
+	f.clk.Advance(1234567891 * time.Nanosecond)
+
+	res := f.loginKakao(t, "kakao-1")
+
+	stored := f.refreshRow(t, res.Tokens.RefreshToken).expiresAt
+	assert.True(t, stored.Equal(res.Tokens.RefreshExpiresAt), "DB %v, 응답 %v", stored, res.Tokens.RefreshExpiresAt)
+	exp := f.clk.Now().Add(token.AccessTTL).Truncate(time.Second)
+	assert.True(t, exp.Equal(res.Tokens.AccessExpiresAt), "access 만료는 초 단위입니다")
+}
+
 func TestRefresh_RotatesWithinFamily(t *testing.T) {
 	f := newFixture(t)
 	login := f.loginKakao(t, "kakao-1")
