@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "group": "today",
   "components": [
     {
@@ -14,7 +14,7 @@
       ],
       "parts": {
         "badge": { "radius": "{radius.full}", "type": "{type.label.md}", "paddingX": { "value": 10, "unit": "px" }, "height": { "value": 26, "unit": "px" } },
-        "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "trailing": "depth-link inline-end" }
+        "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "trailing": "depth-link inline-end", "segments": "sentence-block" }
       },
       "states": {},
       "haptic": [],
@@ -36,7 +36,7 @@
         "lead": { "iconWeight": "regular", "iconSize": { "value": 16, "unit": "px" }, "iconColor": "{color.text.secondary}" },
         "value": { "type": "{type.label.md}", "fg": "{color.text.primary}" },
         "row": { "gap": "{space.8}", "wrap": true },
-        "explain": { "bg": "{color.chip.bg}", "radius": "{radius.md}", "padding": "{space.12}", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" }
+        "explain": { "bg": "{color.chip.bg}", "radius": "{radius.md}", "padding": "{space.12}", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "segments": "sentence-block" }
       },
       "states": {
         "pressed": { "pattern": "press.ink" },

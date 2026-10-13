@@ -427,5 +427,103 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2():
-    assert VERSION == "2.0.0"
+def test_contract_version_is_2_1():
+    assert VERSION == "2.1.0"
+
+
+def ia_screens():
+    return {screen["id"]: screen for screen in json.loads(IA_PATH.read_text(encoding="utf-8"))["screens"]}
+
+
+def ia_slot_ids(screen_id):
+    return {slot["id"] for slot in ia_screens()[screen_id]["slots"]}
+
+
+# 문장 조각과 잠금 슬롯 (term-segments spec §2·§3)
+def test_term_segments_draw_chip_only_where_term_token_is():
+    block = components_by_id(BRAND_GROUPS)["sentence-block"]
+    term = block["parts"]["segments"]["term"]
+    assert term["component"] == "term-token" and term["variant"] == "inline"
+    expected = {sid for sid, screen in ia_screens().items() if "term-token" in screen.get("components", [])}
+    assert set(term["screens"]) == expected
+    assert term["elsewhere"] == "plain"
+    assert block["parts"]["segments"]["plain"] == {"style": "same-as-text"}
+
+
+def test_locked_sentence_open_slot():
+    block = components_by_id(BRAND_GROUPS)["sentence-block"]
+    assert block["states"]["locked"]["parts"]["open"]["slot"] == "saju-chart.yongsin.open"
+    assert block["a11y"]["lockedLabelSlot"] == "evidence-sheet.a11y.locked"
+    assert block["a11y"]["lockedLabel"] == "구역 이름 + '잠김', 열기는 따로 초점(link)"
+    assert {"saju-chart.yongsin.open"} <= ia_slot_ids("saju-chart")
+    assert "evidence-sheet.a11y.locked" in ia_slot_ids("evidence-sheet")
+
+
+def test_evidence_sheet_section_titles_and_slots():
+    link = components_by_id(BRAND_GROUPS)["depth-link"]
+    sheet = link["parts"]["evidenceSheet"]
+    titles = {"basisTitle": "evidence-sheet.section.basis", "sourceTitle": "evidence-sheet.section.source",
+              "personalTitle": "evidence-sheet.section.personal"}
+    assert {name: sheet[name]["slot"] for name in titles} == titles
+    assert sheet["personalTitle"]["when"] == sheet["personal"]["when"]
+    locked = link["states"]["locked"]["parts"]["evidenceSheet"]
+    assert not set(titles) & set(locked)  # 제목은 잠겨도 또렷함
+    toast = link["states"]["unlocking"]["parts"]["evidenceSheet"]["failedToast"]
+    assert toast == {"component": "toast", "slot": "evidence-sheet.unlock.failed"}
+    a11y = link["a11y"]
+    assert (a11y["lockedLabelSlot"], a11y["unlockingLabelSlot"], a11y["unlockedAnnouncementSlot"]) == (
+        "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking", "evidence-sheet.a11y.unlocked")
+    assert a11y["lockedLabel"] == "구역 이름 + '잠김'" and a11y["unlockingLabel"] == "확인 중"
+    used = set(titles.values()) | {toast["slot"], a11y["lockedLabelSlot"], a11y["unlockingLabelSlot"],
+                                   a11y["unlockedAnnouncementSlot"]}
+    assert used <= ia_slot_ids("evidence-sheet")
+
+
+# 최종 리뷰 반영 (term-segments spec §2.1·§2.6)
+SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
+
+
+def _slot_values(node):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if (key == "slot" or key.endswith("Slot")) and isinstance(value, str):
+                yield value
+            yield from _slot_values(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _slot_values(value)
+
+
+def test_every_slot_exists_in_ia():
+    ia_slots = {slot["id"] for screen in ia_screens().values() for slot in screen.get("slots", [])}
+    used = {value for document in load_documents(COMPONENTS_DIR).values() for value in _slot_values(document)}
+    assert used - ia_slots == SLOTS_OUTSIDE_IA
+
+
+def test_locked_evidence_sheet_never_veils_titles():
+    locked = components_by_id(BRAND_GROUPS)["depth-link"]["states"]["locked"]["parts"]["evidenceSheet"]
+    assert not [key for key in locked if key == "sectionTitle" or key.endswith("Title")]
+
+
+def test_other_content_text_parts_follow_segments():
+    c = components_by_id(BRAND_GROUPS)
+    assert c["day-character"]["parts"]["reason"]["segments"] == "sentence-block"
+    assert c["lucky-card"]["parts"]["explain"]["segments"] == "sentence-block"
+
+
+def test_terms_inside_pressable_containers_are_plain():
+    c = components_by_id(BRAND_GROUPS)
+    term = c["sentence-block"]["parts"]["segments"]["term"]
+    pressable_with_sentence = {
+        component["id"] for component in c.values()
+        if component.get("a11y", {}).get("role") == "button"
+        and any(isinstance(part, dict) and part.get("component") == "sentence-block"
+                for part in component.get("parts", {}).values())}
+    assert term["insidePressable"]["draw"] == "plain"
+    assert set(term["insidePressable"]["containers"]) == pressable_with_sentence == {"diary-row"}
+    assert "term.bg" in term["textColorChange"] and "term.fg" in term["textColorChange"]
+
+
+def test_term_focus_rule_is_conditional():
+    a11y = components_by_id(BRAND_GROUPS)["sentence-block"]["a11y"]
+    assert a11y["terms"].startswith("term-token이 있는 화면에서는")

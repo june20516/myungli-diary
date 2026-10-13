@@ -7,7 +7,7 @@ from functools import cache
 
 from google.protobuf.internal.enum_type_wrapper import EnumTypeWrapper
 
-from mlw._gen.myungri.engine.v1 import engine_pb2
+from mlw._gen.myungli.engine.v1 import engine_pb2
 
 # proto enum이 아니라서 여기서 직접 정하는 십성 그룹 값입니다.
 TEN_GOD_GROUPS: tuple[str, ...] = ("bigyeop", "siksang", "jaeseong", "gwanseong", "inseong")

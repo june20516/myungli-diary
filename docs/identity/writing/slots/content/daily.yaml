@@ -1,7 +1,7 @@
 # 콘텐츠 슬롯: 오늘 화면(daily)
 #
 # 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
-#   core/src/myungri_engine/composers/daily.py, rules/messages.py
+#   core/src/myungli_engine/composers/daily.py, rules/messages.py
 # max_length는 design과 조정하기 전까지 언어별 `null`입니다.
 # keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
 # params는 매개변수 -> 값 종류 맵입니다. 값 종류는 `_schema.yaml`의 keys 설명을 봅니다. `name`은 적지 않습니다.

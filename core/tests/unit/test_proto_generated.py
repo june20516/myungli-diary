@@ -9,15 +9,15 @@ from pathlib import Path
 
 import pytest
 
-from myungri_engine.chart.positions import Position
-from myungri_engine.domain import enums
-from myungri_engine.rules.color import ElementRole
-from myungri_engine.rules.relations import RelationKind
+from myungli_engine.chart.positions import Position
+from myungli_engine.domain import enums
+from myungli_engine.rules.color import ElementRole
+from myungli_engine.rules.relations import RelationKind
 
 CORE_DIR = Path(__file__).resolve().parents[2]
-GEN_DIR = CORE_DIR / "src" / "myungri_engine" / "_gen"
+GEN_DIR = CORE_DIR / "src" / "myungli_engine" / "_gen"
 GEN_SCRIPT = CORE_DIR / "tools" / "gen_proto.sh"
-GEN_PACKAGE = "myungri_engine._gen.myungri.engine.v1"
+GEN_PACKAGE = "myungli_engine._gen.myungli.engine.v1"
 
 # (도메인 enum, proto enum 이름). proto 값 이름은 <PROTO_ENUM_UPPER_SNAKE>_<도메인 멤버 이름>이다.
 DOMAIN_TO_PROTO_ENUMS: tuple[tuple[type[Enum], str, str], ...] = (
@@ -71,7 +71,7 @@ def test_generated_modules_import_by_package_path() -> None:
     pb2 = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2")
     pb2_grpc = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2_grpc")
 
-    service = pb2.DESCRIPTOR.services_by_name["MyungriEngine"]
+    service = pb2.DESCRIPTOR.services_by_name["MyungliEngine"]
     assert [method.name for method in service.methods] == [
         "GetChart",
         "GetDaily",
@@ -79,8 +79,8 @@ def test_generated_modules_import_by_package_path() -> None:
         "GetBirthHour",
         "GetInfo",
     ]
-    assert hasattr(pb2_grpc, "MyungriEngineServicer")
-    assert hasattr(pb2_grpc, "add_MyungriEngineServicer_to_server")
+    assert hasattr(pb2_grpc, "MyungliEngineServicer")
+    assert hasattr(pb2_grpc, "add_MyungliEngineServicer_to_server")
 
 
 @pytest.mark.parametrize(("domain_enum", "proto_name", "prefix"), DOMAIN_TO_PROTO_ENUMS)
@@ -97,7 +97,7 @@ def test_month_day_carries_luck_judgment() -> None:
     judgment_field = pb2.MonthDay.DESCRIPTOR.fields_by_name["judgment"]
 
     assert judgment_field.number == 12
-    assert judgment_field.message_type.full_name == "myungri.engine.v1.Judgment"
+    assert judgment_field.message_type.full_name == "myungli.engine.v1.Judgment"
 
 
 def test_solar_term_carries_kind_with_new_field_number() -> None:
@@ -106,7 +106,7 @@ def test_solar_term_carries_kind_with_new_field_number() -> None:
 
     assert (fields["name"].number, fields["at"].number) == (1, 2)
     assert fields["kind"].number == 3
-    assert fields["kind"].enum_type.full_name == "myungri.engine.v1.SolarTermKind"
+    assert fields["kind"].enum_type.full_name == "myungli.engine.v1.SolarTermKind"
 
 
 def test_enum_fields_use_unspecified_instead_of_optional() -> None:

@@ -16,6 +16,7 @@
 ## 지휘 세션
 * 맡는 일: 통합 로드맵([`docs/roadmap.md`](docs/roadmap.md)), 계약 목록 관리, 요청함(Issues) 분류(`accepted`/`rejected` 라벨), 둘 이상에 걸친 결정 기록, 서브 프로젝트 착수 안내(각 `CLAUDE.md`의 "현재 상태"와 "다음 할 일" 초안), 통합 시점 판단.
 * 하지 않는 일: 서브 프로젝트 코드를 구현하지 않습니다.
+* **저장소 감시**(세션을 열면 사용자가 말하지 않아도): `tools/repo-watch/watch.sh`를 Monitor로 띄우고, 만료되면 다시 띄웁니다. 변화 알림이 오면 전체 현황을 다시 보고 아래 일과에서 해당하는 일을 처리합니다(`tools/repo-watch/README.md`).
 * **정기 일과**(세션을 열 때마다):
   1. 요청함 정리(`gh issue list`). 닫는 조건은 `docs/workflow.md` §5.2입니다.
      * 새 요청에 `accepted`/`rejected` 라벨을 붙입니다.

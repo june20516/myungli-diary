@@ -2,11 +2,11 @@ from dataclasses import replace
 
 import pytest
 
-from myungri_engine.domain.enums import DayKind, Element
-from myungri_engine.references import loader
-from myungri_engine.references.loader import FIVE_ELEMENTS_REF
-from myungri_engine.rules.color import ElementRole, lucky_element
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.domain.enums import DayKind, Element
+from myungli_engine.references import loader
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.rules.color import ElementRole, lucky_element
+from myungli_engine.rules.yongsin import YongsinResult
 
 
 @pytest.mark.parametrize(

@@ -9,8 +9,8 @@ import pytest
 from snapshot_samples import SAMPLE_BIRTHS, SEOUL, to_plain
 from syrupy.assertion import SnapshotAssertion
 
-from myungri_engine.composers.chart import compose_chart
-from myungri_engine.composers.month import compose_month
+from myungli_engine.composers.chart import compose_chart
+from myungli_engine.composers.month import compose_month
 
 AS_OF = date(2026, 10, 10)
 MONTH_YEAR, MONTH = 2026, 10

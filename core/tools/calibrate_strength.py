@@ -21,11 +21,11 @@ from datetime import date, timedelta
 from datetime import time as day_time
 from pathlib import Path
 
-from myungri_engine.calendar_core.birth import BirthInput, resolve_birth_moment
-from myungri_engine.calendar_core.lunar_adapter import pillars_for
-from myungri_engine.constants import calibration
-from myungri_engine.domain.enums import Branch, CalendarType, Element, Gender
-from myungri_engine.rules.strength import element_weights, strength_score
+from myungli_engine.calendar_core.birth import BirthInput, resolve_birth_moment
+from myungli_engine.calendar_core.lunar_adapter import pillars_for
+from myungli_engine.constants import calibration
+from myungli_engine.domain.enums import Branch, CalendarType, Element, Gender
+from myungli_engine.rules.strength import element_weights, strength_score
 
 ROUND_DIGITS = 4
 FIRST_DATE = date(1900, 1, 31)
@@ -36,7 +36,7 @@ JOHU_PERCENTILE = 60
 SUMMER_BRANCHES = frozenset({Branch.SA, Branch.O, Branch.MI})
 WINTER_BRANCHES = frozenset({Branch.HAE, Branch.JA, Branch.CHUK})
 CALIBRATION_PATH = (
-    Path(__file__).resolve().parents[1] / "src" / "myungri_engine" / "constants" / "calibration.py"
+    Path(__file__).resolve().parents[1] / "src" / "myungli_engine" / "constants" / "calibration.py"
 )
 
 Constants = tuple[tuple[float, float, float, float], float, float]

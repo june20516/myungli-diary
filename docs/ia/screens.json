@@ -1855,6 +1855,11 @@
           "id": "saju-chart.yongsin.open",
           "source": "ui",
           "role": "잠긴 용신 근거 줄의 \"열기\""
+        },
+        {
+          "id": "saju-chart.yongsin.title",
+          "source": "ui",
+          "role": "용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
         }
       ],
       "components": [
@@ -2093,12 +2098,18 @@
           "id": "profile-edit.recalc.notice",
           "source": "ui",
           "role": "바꾸면 풀이를 다시 계산한다는 안내"
+        },
+        {
+          "id": "profile-edit.recalc.confirm",
+          "source": "ui",
+          "role": "생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
         }
       ],
       "components": [
         "app-bar",
         "settings-row",
-        "notice-banner"
+        "notice-banner",
+        "dialog"
       ],
       "exits": [
         {

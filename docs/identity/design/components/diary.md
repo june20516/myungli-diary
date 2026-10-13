@@ -8,7 +8,7 @@
 * 쓰는 화면: diary-list, tag-diary
 * 왼쪽 날짜 열(44px): 숫자 18px 600(고정폭) + 뒤에 `seal` soft 34px(숫자가 도장 가운데) + 요일 `type.caption.md`.
 * 날짜 열 가운데로 `rail.timeline`(1.5px)이 요일 아래에서 다음 날짜까지 이어집니다. 마지막 줄 뒤에는 없습니다.
-* 오른쪽 카드(`bg.sheet`, `radius.lg`): 배지 → 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임) → 대표 태그 칩 하나.
+* 오른쪽 카드(`bg.sheet`, `radius.lg`): 배지 → 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임, 카드 전체가 버튼이라 용어도 일반 글자) → 대표 태그 칩 하나.
 * 달이 바뀌는 자리에 달 머리(`type.subtitle`).
 
 ## diary-editor

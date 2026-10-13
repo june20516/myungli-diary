@@ -1,7 +1,7 @@
 import pytest
 
-from myungri_engine.domain.enums import Element, Stem
-from myungri_engine.rules.number import lucky_number
+from myungli_engine.domain.enums import Element, Stem
+from myungli_engine.rules.number import lucky_number
 
 
 @pytest.mark.parametrize(

@@ -1,7 +1,7 @@
 # lunar_python은 calendar_core 안에서만 import
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[2] / "src" / "myungri_engine"
+SRC = Path(__file__).resolve().parents[2] / "src" / "myungli_engine"
 
 
 def test_lunar_python_imported_only_in_calendar_core():

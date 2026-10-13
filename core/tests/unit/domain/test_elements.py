@@ -1,5 +1,5 @@
-from myungri_engine.domain.elements import controlled_by, controls, generated_by, generates
-from myungri_engine.domain.enums import Element as E
+from myungli_engine.domain.elements import controlled_by, controls, generated_by, generates
+from myungli_engine.domain.enums import Element as E
 
 
 def test_generation_cycle():
