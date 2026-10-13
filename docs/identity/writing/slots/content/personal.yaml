@@ -1,7 +1,7 @@
 # 콘텐츠 슬롯: 원국 개인 해석(personal, "내 사주에서는", D60)
 #
 # 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
-#   core/src/myungri_engine/rules/personal.py
+#   core/src/myungli_engine/rules/personal.py
 #   core/docs/specs/2026-10-11-personal-reading-design.md §2
 # 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
 # examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 원고는 W1입니다.
