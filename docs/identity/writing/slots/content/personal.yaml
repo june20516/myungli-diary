@@ -1,0 +1,208 @@
+# 콘텐츠 슬롯: 원국 개인 해석(personal, "내 사주에서는", D60)
+#
+# 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
+#   core/src/myungri_engine/rules/personal.py
+#   core/docs/specs/2026-10-11-personal-reading-design.md §2
+# 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
+# examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 원고는 W1입니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+# params는 매개변수 -> 값 종류 맵입니다. 값 종류는 `_schema.yaml`의 keys 설명을 봅니다. `name`은 적지 않습니다.
+#
+# 개인화는 값 이름 조각으로 합니다(W16). 키는 용어 하나이고(C27), 자리·역할·강약은
+# glossary 범주 place·role·strength·luck·part의 이름을 문장에 끼워 씁니다. 키마다 언어별 문장은 하나입니다.
+# current(지금 지나는 운인지)는 참·거짓이라 문장에 쓰지 않습니다. 지금 운의 표시는 app이 표에서 합니다.
+# 모든 슬롯은 IA evidence-sheet.personal.body 자리에 들어가며, evidence 깊이에서 잠금이 풀렸을 때만 보입니다.
+
+- id: personal.day_master
+  where: 근거 시트 "내 사주에서는" 구역(IA evidence-sheet.personal.body). 사주 표에서 일간을 눌러 열었을 때
+  purpose: info
+  user_state: 나의 사주 화면에서 일간을 눌러 근거까지 펼쳤습니다. 이 글자가 내 사주에서 어떤 바탕인지 알고 싶습니다.
+  structure: >-
+    두 문장. ① 이 일간이 어떤 기운인지 한 조각과 강약({strength}). ② 그래서 어떤 오행({yongsin})이 힘이 되고
+    어떤 오행({gisin})은 덜어 내는 편이 좋은지. 일간 이름은 키에 들어 있으니 토큰([[갑목]])으로 씁니다.
+    판정 과정(점수, 조후표)은 같은 시트의 판정 근거 구역이 맡으므로 반복하지 않습니다.
+  depth:
+    evidence: 일간의 성질 × 내 강약 × 용신·기신. 일반 뜻은 explain 깊이에 있으므로 내 사주에만 해당하는 말을 씁니다.
+  endings: ["~이에요", "~편이에요", "~힘이 나요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {strength: [strength], yongsin: [element, color], gisin: [element, color]}
+      keys:
+        - personal.day_master.gap
+        - personal.day_master.eul
+        - personal.day_master.byeong
+        - personal.day_master.jeong
+        - personal.day_master.mu
+        - personal.day_master.gi
+        - personal.day_master.gyeong
+        - personal.day_master.sin
+        - personal.day_master.im
+        - personal.day_master.gye
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: personal.day_master.gap, text: "곧게 자라는 나무 같은 [[갑목]]인데, 내 사주에서는 힘이 조금 약한 편이에요. 물 기운이 곁에 있을 때 힘이 나고, 쇠 기운은 덜어 내는 편이 좋아요.", why: "일간 성질 한 조각 + 강약 + 용신·기신을 일상어로", source: writing}
+    bad:
+      - {lang: ko, key: personal.day_master.gap, text: "갑목(甲木) 일간은 신약하므로 수(水)를 용신으로 합니다.", why: "괄호 풀이 style.S1, 합니다체 style.S3, 판정 근거 구역과 중복", source: writing}
+      - {lang: ko, key: personal.day_master.gap, text: "갑목은 리더의 기운이에요. 당신은 타고난 리더예요.", why: "누구에게나 같은 일반 뜻(explain 몫), 당신 style.S6, 성격 단정", source: writing}
+  a11y:
+    truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: personal.ten_god
+  where: 근거 시트 "내 사주에서는" 구역(IA evidence-sheet.personal.body). 사주 표·만세력에서 십성이나 지장간의 십성을 눌러 열었을 때
+  purpose: info
+  user_state: 원국 표의 한 칸에 적힌 십성을 눌렀습니다. 그 자리에 그 십성이 있다는 게 나에게 무슨 뜻인지 알고 싶습니다.
+  structure: >-
+    두 문장. ① 자리({place})에 있는 이 십성이 그 자리에서 무엇을 나타내는지. ② 그 오행({element})이
+    내 사주에서 맡는 역할({role})과, 같은 묶음이 많을 때({group_count}) 그 기운이 짙다는 것.
+    강약({strength})은 이 십성이 힘이 되는지 짐이 되는지를 가를 때만 씁니다. 십성 이름은 키에 들어 있으니 토큰으로 씁니다.
+  depth:
+    evidence: 십성 × 자리 × 역할. 십성의 일반 뜻은 explain 깊이에 있습니다.
+  endings: ["~이에요", "~있어요", "~짙은 편이에요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {place: [place], element: [element, color], role: [role], group_count: number, strength: [strength]}
+      keys:
+        - personal.ten_god.bigyeon
+        - personal.ten_god.geopjae
+        - personal.ten_god.siksin
+        - personal.ten_god.sanggwan
+        - personal.ten_god.pyeonjae
+        - personal.ten_god.jeongjae
+        - personal.ten_god.pyeongwan
+        - personal.ten_god.jeonggwan
+        - personal.ten_god.pyeonin
+        - personal.ten_god.jeongin
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: personal.ten_god.siksin, text: "태어난 달의 천간에 [[식신]]이 있어, 일하고 표현하는 힘이 바탕에 깔려 있어요. 이 자리의 불 기운은 내 사주를 돕는 쪽이고, 식상이 3개라 그 기운이 짙은 편이에요.", why: "자리 의미 + 역할 + 쏠림을 사실로", source: writing}
+    bad:
+      - {lang: ko, key: personal.ten_god.siksin, text: "식신은 먹을 복을 뜻해요.", why: "자리·역할이 없는 일반 뜻(explain 몫)", source: writing}
+      - {lang: ko, key: personal.ten_god.pyeongwan, text: "기신 자리의 편관이라 평생 시달릴 수 있어요.", why: "겁주는 단정. 기신은 조심할 쪽을 알려 주는 말로 씁니다", source: writing}
+  a11y:
+    truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: personal.twelve_stage
+  where: 근거 시트 "내 사주에서는" 구역(IA evidence-sheet.personal.body). 만세력에서 원국 지지의 12운성을 눌러 열었을 때
+  purpose: info
+  user_state: 만세력의 12운성 칸을 눌렀습니다. 그 지지 자리의 기운이 어떤 상태인지 알고 싶습니다.
+  structure: >-
+    두 문장. ① 자리({place})에서 일간의 기운이 이 단계라는 것이 무엇을 나타내는지. ② 그 지지 오행({element})의
+    역할({role})과 강약({strength})에 비추어 그 기운을 어떻게 쓰면 좋은지. 12운성 이름은 토큰으로 씁니다.
+  depth:
+    evidence: 12운성 × 자리 × 역할·강약. 단계의 일반 뜻은 explain 깊이에 있습니다.
+  endings: ["~이에요", "~있어요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {place: [place], element: [element, color], role: [role], strength: [strength]}
+      keys:
+        - personal.twelve_stage.jangsaeng
+        - personal.twelve_stage.mokyok
+        - personal.twelve_stage.gwandae
+        - personal.twelve_stage.geonrok
+        - personal.twelve_stage.jewang
+        - personal.twelve_stage.soe
+        - personal.twelve_stage.byeong
+        - personal.twelve_stage.sa
+        - personal.twelve_stage.myo
+        - personal.twelve_stage.jeol
+        - personal.twelve_stage.tae
+        - personal.twelve_stage.yang
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: personal.twelve_stage.jewang, text: "태어난 날의 지지에서 내 기운이 [[제왕]]에 있어, 가까운 관계에서 힘이 가장 세게 드러나요. 다만 내 사주는 이미 힘이 센 편이라, 이 자리에서는 한발 물러서는 쪽이 균형이 맞아요.", why: "자리 의미 + 강약에 비춘 쓰임", source: writing}
+    bad:
+      - {lang: ko, key: personal.twelve_stage.sa, text: "[[사]]는 죽음을 뜻해요. 조심하세요.", why: "글자 뜻을 그대로 겁주기, 자리·역할 없음", source: writing}
+  a11y:
+    truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: personal.shinsal
+  where: 근거 시트 "내 사주에서는" 구역(IA evidence-sheet.personal.body). 만세력에서 원국 신살을 눌러 열었을 때
+  purpose: info
+  user_state: 만세력에 표시된 신살을 눌렀습니다. 이름이 낯설거나 걱정스러워 내 경우에 무슨 뜻인지 확인하려 합니다.
+  structure: >-
+    한두 문장. ① 자리({place})에 있는 이 신살이 그 자리에서 어떤 쪽으로 드러나는지. ② 그 자리 오행({element})의
+    역할({role})에 따라 살리면 좋은 쪽을 말합니다. 흉살로 불리는 신살(양인·공망 등)도 겁주지 않고 쓰임으로 씁니다.
+  depth:
+    evidence: 신살 × 자리 × 역할. 신살의 일반 뜻은 explain 깊이에 있습니다.
+  endings: ["~이에요", "~드러나요", "~살리면 좋아요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {place: [place], element: [element, color], role: [role]}
+      keys:
+        - personal.shinsal.cheoneul_gwiin
+        - personal.shinsal.dohwa
+        - personal.shinsal.yeokma
+        - personal.shinsal.hwagae
+        - personal.shinsal.yangin
+        - personal.shinsal.gongmang
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: personal.shinsal.yeokma, text: "태어난 해의 지지에 [[역마]]가 있어, 집안이나 어린 시절부터 움직임이 많은 바탕이에요. 이 자리의 나무 기운은 내 사주를 돕는 쪽이라, 옮기고 넓히는 일에서 살리면 좋아요.", why: "자리 의미 + 역할에 따른 쓰임", source: writing}
+    bad:
+      - {lang: ko, key: personal.shinsal.yangin, text: "양인살이 있으면 사고를 조심해야 해요.", why: "겁주는 단정, 자리·역할 없음", source: writing}
+  a11y:
+    truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: personal.luck
+  where: 근거 시트 "내 사주에서는" 구역(IA evidence-sheet.personal.body). 대운 표·세운 표에서 십성이나 대운 12운성을 눌러 열었을 때
+  purpose: info
+  user_state: 대운·세운 표의 한 칸을 눌렀습니다. 그 10년이나 그해가 내 사주에 어떻게 닿는지 알고 싶습니다.
+  structure: >-
+    두 문장. 원국 해석과 달리 "타고난 바탕"이 아니라 "그 시기"의 틀로 씁니다.
+    ① 십성 키: 운의 종류({luck})와 기둥의 천간·지지({part})에 든 이 십성이 그 시기에 무엇을 가져오는지.
+    12운성 키: 그 대운에서 내 기운이 이 단계라는 것이 무엇을 나타내는지.
+    ② 그 오행({element})이 내 사주에서 맡는 역할({role})에 비추어 그 시기를 어떻게 보내면 좋은지.
+    지금 지나는 운인지(current)는 문장에 쓰지 않으므로 "지금"·"올해" 같은 시점 말을 넣지 않습니다.
+  depth:
+    evidence: 운의 십성·12운성 × 역할. 일반 뜻은 explain 깊이에 있습니다.
+  endings: ["~시기예요", "~해예요", "~좋아요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {luck: [luck], part: [part], element: [element, color], role: [role], current: none}
+      keys:
+        - personal.luck.ten_god.bigyeon
+        - personal.luck.ten_god.geopjae
+        - personal.luck.ten_god.siksin
+        - personal.luck.ten_god.sanggwan
+        - personal.luck.ten_god.pyeonjae
+        - personal.luck.ten_god.jeongjae
+        - personal.luck.ten_god.pyeongwan
+        - personal.luck.ten_god.jeonggwan
+        - personal.luck.ten_god.pyeonin
+        - personal.luck.ten_god.jeongin
+    - params: {element: [element, color], role: [role], current: none}
+      keys:
+        - personal.luck.twelve_stage.jangsaeng
+        - personal.luck.twelve_stage.mokyok
+        - personal.luck.twelve_stage.gwandae
+        - personal.luck.twelve_stage.geonrok
+        - personal.luck.twelve_stage.jewang
+        - personal.luck.twelve_stage.soe
+        - personal.luck.twelve_stage.byeong
+        - personal.luck.twelve_stage.sa
+        - personal.luck.twelve_stage.myo
+        - personal.luck.twelve_stage.jeol
+        - personal.luck.twelve_stage.tae
+        - personal.luck.twelve_stage.yang
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: personal.luck.ten_god.jeongin, text: "이 대운의 천간에 [[정인]]이 들어, 배우고 기대는 일이 늘어나는 시기예요. 그 물 기운이 내 사주를 돕는 쪽이라, 공부나 자격처럼 오래 쌓는 일을 시작하기 좋아요.", why: "그 시기의 틀 + 역할에 비춘 쓰임, 시점 말 없음", source: writing}
+    bad:
+      - {lang: ko, key: personal.luck.ten_god.jeongin, text: "지금 대운에 정인이 들어와 있어요.", why: "current를 문장에 쓰지 않으므로 지난 운·다음 운에서 틀린 말이 됨", source: writing}
+  a11y:
+    truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.

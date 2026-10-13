@@ -61,7 +61,7 @@ def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
         if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name != "ui"
         for key in slot.keys
     }
-    assert len(message_keys) == 93
+    assert len(message_keys) == 153
     assert covered == message_keys
 
 
@@ -124,6 +124,48 @@ def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
         ("yongsin", "huisin", "gisin", "tonggwan"), element
     )
     assert slots["calendar.day_level"].keys["calendar.good"] == {"score": ParamKind("number")}
+
+
+def test_personal_slot_params(rules: RuleSet) -> None:
+    slots = load_slots(SLOTS_DIR, rules)
+    element = ParamKind("glossary", ("element", "color"))
+    place = ParamKind("glossary", ("place",))
+    role = ParamKind("glossary", ("role",))
+    strength = ParamKind("glossary", ("strength",))
+    assert len(slots["personal.day_master"].keys) == 10
+    assert len(slots["personal.ten_god"].keys) == 10
+    assert len(slots["personal.twelve_stage"].keys) == 12
+    assert len(slots["personal.shinsal"].keys) == 6
+    assert len(slots["personal.luck"].keys) == 22
+    assert slots["personal.day_master"].keys["personal.day_master.gap"] == {
+        "strength": strength,
+        "yongsin": element,
+        "gisin": element,
+    }
+    assert slots["personal.ten_god"].keys["personal.ten_god.siksin"] == {
+        "place": place,
+        "element": element,
+        "role": role,
+        "group_count": ParamKind("number"),
+        "strength": strength,
+    }
+    assert slots["personal.shinsal"].keys["personal.shinsal.dohwa"] == {
+        "place": place,
+        "element": element,
+        "role": role,
+    }
+    assert slots["personal.luck"].keys["personal.luck.ten_god.siksin"] == {
+        "luck": ParamKind("glossary", ("luck",)),
+        "part": ParamKind("glossary", ("part",)),
+        "element": element,
+        "role": role,
+        "current": ParamKind("none"),
+    }
+    assert slots["personal.luck"].keys["personal.luck.twelve_stage.jewang"] == {
+        "element": element,
+        "role": role,
+        "current": ParamKind("none"),
+    }
 
 
 @pytest.mark.parametrize(
