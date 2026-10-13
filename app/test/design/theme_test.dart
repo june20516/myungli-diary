@@ -12,7 +12,7 @@ import '../support/fonts.dart';
 
 /// lerp의 "다른 타입" 분기를 검사하려는 다른 ThemeExtension.
 class _OtherExtension extends ThemeExtension<_OtherExtension> {
-  const _OtherExtension();
+  const new();
 
   @override
   _OtherExtension copyWith() => this;
@@ -83,9 +83,20 @@ void main() {
       expect(theme.dialogTheme.surfaceTintColor, Colors.transparent);
     });
 
-    test('lerp는 other가 없거나 다른 타입이면 자기 자신을 돌려줍니다', () {
+    test('lerp는 other가 null이면 자기 자신을 돌려줍니다', () {
       expect(_light.lerp(null, 0.9), same(_light));
-      expect(_light.lerp(const _OtherExtension(), 0.9), same(_light));
+    });
+
+    test('lerp에 다른 ThemeExtension을 주면 covariant 검사가 거부합니다', () {
+      // other 타입은 ThemeExtension<MyungliTokens>로 좁혀져 있어 다른 확장은
+      // 본문에 닿기 전에 TypeError입니다(ThemeData.lerp도 같은 키끼리만 호출).
+      const dynamic erased = _light;
+
+      expect(
+        // ignore: avoid_dynamic_calls, 타입이 지워진 호출을 흉내냅니다.
+        () => erased.lerp(const _OtherExtension(), 0.9),
+        throwsA(isA<TypeError>()),
+      );
     });
 
     test('lerp는 t가 0.5 미만이면 자기 자신, 이상이면 other입니다', () {
