@@ -64,9 +64,15 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		return &loggedError{err: err}
 	}
 	deps := httpapi.Deps{Logger: logger, Clock: clock.System{}}
-	validate := httpapi.ValidateRequests(spec, deps.Logger)
+	routes := httpapi.Routes{
+		Spec:     spec,
+		Validate: httpapi.ValidateRequests(spec, deps.Logger),
+		// bearer 라우트를 토큰 검사 없이 그대로 통과시키는 Authenticate입니다. 모든 operation이 미구현(501)이라
+		// 계정 정보를 쓰는 핸들러가 없습니다.
+		Authenticate: func(_ httpapi.Operation, next http.Handler) http.Handler { return next },
+	}
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
-		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
+		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, routes)
 	})
 
 	var listenConfig net.ListenConfig

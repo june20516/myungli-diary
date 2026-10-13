@@ -10,6 +10,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
@@ -22,6 +25,8 @@ const (
 )
 
 // newAPIHandler는 계약 라우트 전체를 미구현 핸들러로 등록한 Handler를 만듭니다.
+// bearer 라우트는 토큰을 보지 않고 고정 계정(active, 동의 완료)을 ctx에 넣어 통과시키므로,
+// 계약 검증과 라우팅만 확인하는 테스트가 인증을 신경 쓰지 않아도 됩니다.
 func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 	t.Helper()
 	spec, err := gen.GetSpec()
@@ -29,11 +34,26 @@ func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 		t.Fatalf("계약 읽기: %v", err)
 	}
 	deps, logs := newTestDeps()
-	validate := httpapi.ValidateRequests(spec, deps.Logger)
+	routes := httpapi.Routes{
+		Spec:         spec,
+		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
+		Authenticate: authenticateFixedAccount,
+	}
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
-		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
+		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, routes)
 	})
 	return handler, logs
+}
+
+// fixedAccountID는 authenticateFixedAccount가 ctx에 넣는 계정 id입니다.
+var fixedAccountID = uuid.MustParse("0192f0a0-0000-7000-8000-0000000000aa")
+
+// authenticateFixedAccount는 토큰 검사 없이 fixedAccountID와 active 상태를 ctx에 넣는 Authenticate입니다.
+func authenticateFixedAccount(_ httpapi.Operation, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := httpapi.WithAccount(r.Context(), fixedAccountID, account.Access{Status: account.StatusActive})
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func newBodyRequest(t *testing.T, method, target, contentType, body string) *http.Request {

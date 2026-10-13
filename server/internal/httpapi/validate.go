@@ -105,7 +105,8 @@ func ValidateRequests(spec *openapi3.T, logger *slog.Logger) func(http.Handler) 
 			// 위반을 한 번에 모두 돌려줘 app이 필드 오류를 함께 보여 줄 수 있게 합니다.
 			MultiError:          true,
 			SkipSettingDefaults: true,
-			// 인증 검사는 P2에서 넣습니다. 그때까지 모든 security 요구를 통과시킵니다.
+			// security 요구는 여기서 검사하지 않고 모두 통과시킵니다. bearerAuth는 RegisterAPI가 이 검증 앞에
+			// 두는 Authenticate(BearerAuth)가 맡고, appCheck(createPreview·getBirthHour)는 P6이 맡습니다.
 			AuthenticationFunc: func(context.Context, *openapi3filter.AuthenticationInput) error { return nil },
 		},
 		SilenceServersWarning: true,
