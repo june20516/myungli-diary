@@ -1492,7 +1492,8 @@ components:
     Unauthorized:
       description: |
         인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `auth.exchange_invalid`, `app_check.invalid`,
-        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청일 때만 붙습니다.
+        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청의 401에만 붙습니다.
+        bearer 요청이 아닌 401(제공자 토큰, 교환 코드, App Check, webhook)에는 붙지 않습니다.
         webhook·App Check의 401에 challenge를 붙이지 않는 것은 RFC 9110 §15.5.2와 다른 의도한 이탈입니다.
       headers:
         WWW-Authenticate:

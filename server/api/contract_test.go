@@ -677,6 +677,9 @@ func TestContract_CompleteAppleWebLoginIsPublic(t *testing.T) {
 		if code.MinLength != 43 || code.MaxLength == nil || *code.MaxLength != 43 {
 			t.Errorf("exchangeCode 길이가 43으로 고정되어 있지 않음")
 		}
+		if code.Pattern != "^[A-Za-z0-9_-]{43}$" {
+			t.Errorf("exchangeCode pattern = %q, want ^[A-Za-z0-9_-]{43}$", code.Pattern)
+		}
 		if op.Responses.Value("401") == nil {
 			t.Error("401 응답이 없음")
 		}
