@@ -43,8 +43,15 @@
 | 컴포넌트 명세 2.0.0 (`docs/identity/design/components/`) | **사용** | design |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 
-## 현재 상태 (2026-10-13, 지휘 세션 작성)
-* **설계(A1) 착수 가능**입니다. 디렉터리는 비어 있습니다. MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
+## 현재 상태 (2026-10-13, app 세션 갱신)
+* **A1 설계 완료, 기반 구현 착수 전**입니다.
+  * spec: [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md) (승인)
+  * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A15. 핵심은 Riverpod, 생성 클라이언트와 fixture 대역, go_router, drift 사주 기반 영구 캐시, 사주 변경 확인 창, golden과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
+  * 계획 분할(spec §10): ① 기반 → ② 온보딩·로그인 → ③ 오늘·깊이 시트 → ④ 달력·일정 → ⑤ 일기 → ⑥ 나·설정 → ⑦ 수익·알림
+  * 기반 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md) (task 22개, subagent-driven으로 실행)
+* 보낸 요청(2026-10-13): #84(IA 사주 변경 확인 창, **반영됨**: 슬롯 119), #85(ci-gate 연결), #86(Crashlytics, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #87(제품 지도·통합 E2E), #88(오류 code 목록), #89(Apple App Link, 계획 7 실제 adapter를 막음), #90(ARB 키 규칙)
+* UI 문구 원고는 writing이 작업 중입니다(#15·#27·#42·#52). 그전까지는 임시 문구를 씁니다(결정 A7).
+* MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
 * **REST API 초안이 있습니다**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft, operation 37개, PR #62). 생성 코드와 대역 서버를 이 초안으로 만들 수 있습니다. freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다. 요점은 아래와 같습니다(Issue #63).
   * 오류는 RFC 9457 problem+json이고 `code`로 분기합니다. 사용자 문구는 app이 `code`로 만듭니다(D59⑤). 400은 스키마로 거르는 형식·범위 위반(`request.invalid`), 422는 의미 검사(`request.inconsistent`, `date.invalid`, 엔진 판정)입니다.
   * null을 쓰지 않습니다. "모름"·"건너뜀"·"묻지 않음"은 상태 필드로 옵니다. PATCH에서 필드가 없으면 "바꾸지 않음"입니다.
@@ -59,21 +66,6 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. 읽을 것:
-   - `docs/identity/README.md` (정체성 기준, 06보다 우선)
-   - `docs/ia/README.md`와 `docs/ia/screens.json` (화면 36개, 상태·경로·인증 갈래)
-   - IA spec `docs/specs/2026-10-11-ia-design.md` §3·§10
-   - `docs/background/` 00~06, 특히 03·04·06
-   - `docs/decisions.md` (특히 D47~D62)
-   - `server/api/openapi.yaml`과 server spec `server/docs/specs/2026-10-11-server-mvp-design.md` (화면에 올 데이터)
-2. worktree와 브랜치를 만들고 그 안에서 세션을 시작합니다. 원래 checkout은 다른 세션이 쓰고 있을 수 있으므로, 저장소 루트에서 그대로 실행합니다.
-   ```
-   git fetch origin
-   git worktree add ../myungli-diary-app -b app/design --no-track origin/main
-   cd ../myungli-diary-app && git status -sb && cd app && claude
-   ```
-3. brainstorming으로 app spec을 작성합니다 → `app/docs/specs/`
-   - 상태 관리(Provider / Riverpod)는 app 내부 결정(`A<n>`)입니다.
-   - 디자인 토큰은 계약 1.1.0(`docs/identity/design/tokens/README.md`)을, 컴포넌트는 명세 2.0.0(`docs/identity/design/components/README.md`)을 씁니다. 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).
-   - REST 생성 코드(OpenAPI → Dart)와 대역 서버 방식은 app spec에서 정합니다.
-   - 광고·인앱결제 SDK 선택(AdMob, RevenueCat 기본안)은 app spec에서 확정합니다. 계정 준비는 사용자 몫입니다(`docs/roadmap.md` 외부 준비물).
+1. 기반 계획 실행: 브랜치 `app/foundation`(`origin/main`에서 `--no-track`), [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md)를 subagent-driven-development로 실행합니다. Flutter SDK는 `~/development/flutter`(stable)에 있습니다.
+2. 기반 병합 뒤 계획 2(온보딩·로그인)를 writing-plans로 씁니다.
+3. 받은 요청은 `gh issue list --label to:app`으로 확인합니다.
