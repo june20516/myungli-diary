@@ -1,6 +1,6 @@
 # 요소 (`elements.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §4, 결정 V15·V16·V18
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §4, 결정 V15·V16·V18, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §3(`lock.veil`, 결정 V25)
 * 여러 컴포넌트가 함께 쓰는 반복 패턴입니다. 컴포넌트는 `uses`로 가리킵니다. 요소를 고치면 그 요소를 쓰는 모든 컴포넌트가 함께 바뀝니다.
 
 | 요소 | 정의 | 쓰는 곳 |
@@ -20,6 +20,7 @@
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 평소 Light · 선택 Regular | 전체 |
+| `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5) | 근거 시트 세 구역, 잠긴 용신 근거 |
 
 ## 낙관 도장 `seal`
 
@@ -62,6 +63,16 @@
 ## 끊기지 않는 링크 `link.inline-nowrap`
 
 이유 문장 끝에 붙는 "근거 보기 ›"가 줄 끝에서 둘로 갈라지지 않게 합니다. 링크 낱말 사이에 U+00A0(줄바꿈 없는 공백), 글자 사이에 U+2060(단어 결합자)을 넣어 한 덩어리로 만들고, 줄 끝에 안 들어가면 통째로 다음 줄로 넘깁니다. Flutter는 `TextSpan` + `TapGestureRecognizer`, 스크린리더 초점은 링크에 따로 줍니다.
+
+## 잠긴 구역 `lock.veil`
+
+D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
+
+* 제목: 자물쇠 `lock-simple` Regular 14 + 구역 이름(`type.label.md`, `text.secondary`). 무엇이 잠겼는지 늘 읽힙니다.
+* 본문: `type.sentence.body`를 흐림 6px, 투명도 0.5로 그리고 선택·복사를 막습니다. V2 풀이 시트 잠김 변형의 값을 그대로 옮겼습니다.
+* **실제 내용은 내려받지 않습니다**(server가 빼서 보냄, D60 ④). 흐린 글은 자리 채우기입니다. server가 길이 힌트를 주면 그 길이, 없으면 두 줄입니다.
+* 스크린리더는 "판정 근거, 잠김"처럼 제목 + "잠김"만 읽고 흐린 글은 건너뜁니다.
+* 동작 줄이기에서도 흐림은 그대로 둡니다(대상 자신의 효과, 결정 V14).
 
 ## 아이콘 `icon`
 

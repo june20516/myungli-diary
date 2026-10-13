@@ -617,5 +617,24 @@
     ],
     "status": "chosen",
     "note": "질문 카드 일기 후 버튼 뒤 도장, 일정 요약 지금 시각 기준"
+  },
+  {
+    "id": "design-v2-evidence-lock",
+    "title": "근거 시트 잠김 배치 (D60)",
+    "kind": "concept",
+    "file": "2026-10-11-v2-evidence-lock.png",
+    "source": "2026-10-11-v2-evidence-lock.html",
+    "date": "2026-10-11",
+    "milestone": "V2",
+    "screens": [
+      "evidence-sheet",
+      "saju-chart"
+    ],
+    "decisions": [
+      "V25",
+      "V26"
+    ],
+    "status": "chosen",
+    "note": "B 구역마다 흐림 + 아래 고정 안내 채택(A 안내 카드, C 겹친 안내 탈락). design-v2-rest의 풀이 시트 잠김을 대체"
   }
 ]

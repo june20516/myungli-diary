@@ -1,11 +1,11 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "group": "sentence",
   "components": [
     {
       "id": "sentence-block",
       "summary": "콘텐츠 문장 덩어리 (호칭 자리 포함)",
-      "uses": ["term"],
+      "uses": ["term", "lock.veil"],
       "variants": [
         { "id": "card", "when": "오늘 카드·공유 이미지·질문 카드의 큰 문장", "parts": { "text": { "type": "{type.sentence.card}" } } },
         { "id": "body", "when": "풀이·일기·설명 본문", "parts": { "text": { "type": "{type.sentence.body}" } } },
@@ -16,13 +16,22 @@
         "honorific": { "slot": "user-honorific", "style": "same-as-text" },
         "paragraphGap": "{space.12}"
       },
-      "states": {},
+      "states": {
+        "locked": {
+          "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
+          "parts": {
+            "text": { "element": "lock.veil", "lines": 1 },
+            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "glyph": "›", "inline": true }, "align": "end", "target": "evidence-sheet", "openState": "locked" }
+          }
+        }
+      },
       "haptic": [],
-      "a11y": { "role": "text", "label": "문장 그대로", "terms": "용어는 term-token으로 따로 초점" },
+      "a11y": { "role": "text", "label": "문장 그대로", "terms": "용어는 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)" },
       "rules": [
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
-        "문장 끝에 depth-link가 붙을 수 있다(inline-end)."
+        "문장 끝에 depth-link가 붙을 수 있다(inline-end).",
+        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기 ›'. 누르면 근거 시트가 locked로 열린다."
       ]
     },
     {
@@ -39,52 +48,101 @@
           "container": { "component": "sheet", "variant": "half" },
           "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
           "hanja": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
-          "general": { "component": "sentence-block", "variant": "body" },
-          "mine": { "bg": "{color.status.bg}", "radius": "{radius.md}", "padding": "{space.16}", "label": { "type": "{type.label.md}", "fg": "{color.status.fg}" }, "body": { "component": "sentence-block", "variant": "body" }, "marginTop": "{space.16}" }
+          "general": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.term.meaning" },
+          "todayReason": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.today.reason", "marginTop": "{space.12}", "when": "오늘 화면에서 열었을 때만" },
+          "evidenceLink": { "component": "depth-link", "variant": "block" }
         }
       },
       "states": {
-        "pressed": { "pattern": "press.ink" },
-        "locked": {
-          "note": "MVP 화면에는 나오지 않음(D53: MVP 유료는 광고 제거권뿐). 개인 해석 유료화 아이디어 I7을 위해 준비해 둔 변형",
-          "parts": {
-            "explainSheet": {
-              "mine": {
-                "body": { "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false },
-                "lock": { "icon": "lock-simple", "weight": "regular", "size": { "value": 20, "unit": "px" }, "color": "{color.status.fg}", "align": "center" },
-                "unlockHint": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center" },
-                "unlockAction": { "component": "primary-button", "variant": "quiet" }
-              }
-            }
-          }
-        }
+        "pressed": { "pattern": "press.ink" }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "용어 + '풀이 보기'", "lockedLabel": "잠긴 풀이 안내", "minTarget": 44, "hitSlop": "줄 높이까지 위아래로 넓힘" },
+      "a11y": { "role": "button", "label": "용어 + '풀이 보기'", "minTarget": 44, "hitSlop": "줄 높이까지 위아래로 넓힘" },
       "rules": [
         "용어를 굵게 하지 않는다(결정 V0). 바탕과 글자색으로만 구분한다.",
-        "풀이 시트는 일반 뜻이 먼저, 그 아래 '내 사주에서는' 상자.",
-        "잠김 변형은 일반 뜻을 열어 두고 '내 사주에서는' 상자만 흐리게 잠근다. 잠긴 글자는 실제 내용을 내려받지 않고 자리 채우기 글을 흐리게 그린다."
+        "풀이 시트는 제목·한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때) → 근거 보기. 모두 무료이고 잠기지 않는다(D60).",
+        "원국 개인 해석('내 사주에서는')은 풀이 시트에 두지 않는다. 근거 시트(depth-link evidenceSheet)에 있다."
       ]
     },
     {
       "id": "depth-link",
       "summary": "한 단계 깊이로 가는 링크 ('근거 보기 ›')",
-      "uses": ["press.ink", "sheet.enter"],
+      "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe"],
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "uses": ["link.inline-nowrap"], "parts": { "label": { "joiners": "link.inline-nowrap", "gapBefore": "U+00A0" } } },
-        { "id": "block", "when": "나 탭처럼 문단 아래 따로 놓임", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } } }
+        { "id": "block", "when": "나 탭·풀이 시트처럼 문단 아래 따로 놓임", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } } }
       ],
       "parts": {
         "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
-        "chevron": { "glyph": "›", "inline": true }
+        "chevron": { "glyph": "›", "inline": true },
+        "evidenceSheet": {
+          "container": { "component": "sheet", "variant": "full" },
+          "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
+          "pillars": { "component": "saju-pillars", "marginTop": "{space.12}", "note": "표 데이터라 무료(D60)" },
+          "sectionTitle": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.20}" },
+          "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body" },
+          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "bg": "{color.bg.base}", "radius": "{radius.md}", "padding": "{space.12}" },
+          "personal": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.personal.body", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" }
+        }
       },
-      "states": { "pressed": { "pattern": "press.ink", "note": "링크 글자 둘레에서만" } },
-      "haptic": [],
-      "a11y": { "role": "link", "label": "글자 그대로", "separateFocus": true, "minTarget": 44 },
+      "states": {
+        "pressed": { "pattern": "press.ink", "note": "링크 글자 둘레에서만" },
+        "locked": {
+          "note": "근거·해석 열람 권한 없음, 보상형 광고 준비됨(D60). 시안 B",
+          "parts": {
+            "evidenceSheet": {
+              "basis": { "element": "lock.veil" },
+              "source": { "element": "lock.veil", "bg": "transparent", "padding": 0 },
+              "personal": { "element": "lock.veil", "when": "열렸을 때와 같음(사주 표 계열에서 열었을 때만). 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘" },
+              "contentPaddingBottom": "lock-panel-height",
+              "lockPanel": {
+                "position": "pinned-bottom",
+                "bg": "{color.bg.sheet}",
+                "borderTop": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } },
+                "paddingTop": "{space.16}",
+                "paddingX": "{space.20}",
+                "paddingBottom": "{space.24}",
+                "head": { "slot": "evidence-sheet.lock.head", "icon": "lock-simple", "iconWeight": "regular", "iconSize": { "value": 16, "unit": "px" }, "iconColor": "{color.status.fg}", "type": "{type.label.lg}", "fg": "{color.text.primary}", "gap": { "value": 6, "unit": "px" } },
+                "reward": { "slot": "evidence-sheet.lock.reward", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": { "value": 6, "unit": "px" }, "order": "광고 버튼보다 먼저(AdMob 보상 고지)" },
+                "cta": { "component": "primary-button", "variant": "filled", "slot": "evidence-sheet.lock.cta" },
+                "ctaGap": "{space.12}",
+                "pass": { "slot": "evidence-sheet.lock.pass", "type": "{type.label.md}", "fg": "{color.action.primary}", "align": "center", "marginTop": "{space.12}", "target": "ad-free" }
+              }
+            }
+          }
+        },
+        "lockedNoAd": {
+          "note": "권한 없음, 보상형 광고 준비 안 됨. 광고가 준비되면 locked로(appear.seep)",
+          "parts": {
+            "evidenceSheet": {
+              "lockPanel": {
+                "cta": { "component": "primary-button", "variant": "filled", "state": "disabled" },
+                "unavailable": { "slot": "evidence-sheet.lock.unavailable", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "marginTop": "{space.8}" }
+              }
+            }
+          }
+        },
+        "unlocking": {
+          "note": "광고를 끝까지 보고 돌아와 server 확인(SSV)을 기다림. 대기 시간이 넘으면 locked로 돌아가고 toast로 알림",
+          "parts": { "evidenceSheet": { "lockPanel": { "cta": { "component": "primary-button", "variant": "filled", "state": "loading" } } } }
+        },
+        "unlocked": {
+          "pattern": "appear.seep",
+          "note": "권한 있음. locked에서 바뀔 때: 잠금 안내 영역 disappear.seep, 세 구역 skeleton(loading.breathe) → 내용 appear.seep. 처음부터 권한이 있으면 이 상태로 열림",
+          "parts": { "evidenceSheet": { "lockPanel": { "visible": false } } }
+        }
+      },
+      "haptic": [{ "when": "locked → unlocked 전환(광고 시청 뒤 열림)", "strength": "light" }],
+      "a11y": { "role": "link", "label": "글자 그대로", "separateFocus": true, "minTarget": 44, "lockedLabel": "구역 이름 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림" },
       "rules": [
         "inline-end는 링크 전체가 한 덩어리다. 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 넘어간다.",
-        "누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack)."
+        "누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack).",
+        "근거 시트에서 잠기는 것은 판정 근거·원전·내 사주에서는 세 구역뿐이다. 제목과 원국표는 늘 보인다(D60).",
+        "잠긴 구역은 열렸을 때와 같은 자리에 lock.veil로 그리고, 잠금 안내는 시트 아래에 고정한다(시안 B).",
+        "광고를 중간에 닫고 돌아오면 locked 그대로, 알림 없음.",
+        "자정이 지나 권한이 끝나도 보고 있던 시트는 바꾸지 않는다. 다음에 여는 시트부터 locked.",
+        "잠금 안내 문구와 버튼은 잠긴 구역이 둘이든 셋이든 같다(보상은 그날 근거·해석 전부).",
+        "시트 불러오는 중(IA loading)은 잠김 여부를 알기 전이라 시트 전체 skeleton, 불러오지 못함(IA error)은 error-state. 잠김 상태는 불러온 뒤에만 정해진다."
       ]
     },
     {
