@@ -72,10 +72,11 @@ type KakaoUnlinker interface {
 	Unlink(ctx context.Context, subject string) error
 }
 
-// AppleClient는 Apple id_token 검증, authorization code 교환, refresh token revoke를 합니다. *provider.Apple이 만족합니다.
+// AppleClient는 Apple id_token 검증(웹 콜백용 nonce 없는 검증 포함), authorization code 교환, refresh token revoke를 합니다. *provider.Apple이 만족합니다.
 // (provider.AppleClient는 native·web 구분 값이고, 이 인터페이스는 Apple API 호출자입니다.)
 type AppleClient interface {
 	Verify(ctx context.Context, idToken, rawNonce string, client provider.AppleClient) (provider.Identity, error)
+	VerifyWebCallback(ctx context.Context, idToken string) (identity provider.Identity, nonceClaim string, err error)
 	ExchangeCode(ctx context.Context, code string, client provider.AppleClient, wantSubject string) (refreshToken, clientID string, err error)
 	Revoke(ctx context.Context, refreshToken, clientID string) error
 }

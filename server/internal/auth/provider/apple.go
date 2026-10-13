@@ -120,6 +120,22 @@ func (a *Apple) Verify(ctx context.Context, idToken, rawNonce string, client App
 	return verifyIDToken(ctx, verifier, "Apple", idToken, rawNonce)
 }
 
+// VerifyWebCallback은 Apple 웹 콜백으로 받은 id_token을 web(ServicesID) 검증기로 검증하고
+// (subject, id_token의 nonce claim)을 돌려줍니다.
+// 콜백 시점의 server는 nonce 원문을 모르므로(앱이 나중에 교환 코드와 함께 보냅니다) 서명·iss·aud·exp·sub만 확인하고,
+// nonce 비교는 호출자가 원문을 받은 뒤에 합니다. nonce claim이 비어 있으면 나중에 비교할 수 없으므로 ErrTokenInvalid입니다.
+// 오류 분류는 Verify와 같습니다(JWKS 조회 실패는 ErrUnavailable).
+func (a *Apple) VerifyWebCallback(ctx context.Context, idToken string) (Identity, string, error) {
+	token, err := verifyIDTokenClaims(ctx, a.verifiers[AppleWeb], "Apple", idToken)
+	if err != nil {
+		return Identity{}, "", err
+	}
+	if token.Nonce == "" {
+		return Identity{}, "", fmt.Errorf("%w: Apple id_token: nonce claim이 없습니다", ErrTokenInvalid)
+	}
+	return Identity{Subject: token.Subject}, token.Nonce, nil
+}
+
 // ExchangeCode는 authorization code를 Apple /auth/token에 교환해 refresh token을 받습니다.
 // clientID는 교환에 쓴 client_id로, 나중에 Revoke에 같은 값을 넘겨야 합니다.
 //
