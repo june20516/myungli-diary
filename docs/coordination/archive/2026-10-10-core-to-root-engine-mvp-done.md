@@ -10,7 +10,7 @@ related: [D5, D6, D9, D10, D27, D31, D33, D34, engine.proto v1, core/message_key
 # 엔진 MVP 구현 완료: server가 실제 엔진을 호출할 수 있습니다
 
 ## 무엇을 했는가
-엔진 구현 계획(`core/docs/plans/2026-10-10-myungri-engine.md`)의 20개 task를 모두 마쳤습니다. 각 task마다 review를 거쳤고, 마지막에는 브랜치 전체를 한 번 더 검토해 지적 사항을 고쳤습니다.
+엔진 구현 계획(`core/docs/plans/2026-10-10-myungli-engine.md`)의 20개 task를 모두 마쳤습니다. 각 task마다 review를 거쳤고, 마지막에는 브랜치 전체를 한 번 더 검토해 지적 사항을 고쳤습니다.
 
 * **브랜치:** `core/engine-mvp` (main `1449ca2`에서 분기, main 최신 `2f97020`까지 merge함, 아직 push하지 않음)
 * **구현 범위:** 아래 기능이 들어 있습니다.
@@ -37,8 +37,8 @@ related: [D5, D6, D9, D10, D27, D31, D33, D34, engine.proto v1, core/message_key
 | 결정성(spec §1.2-4) | 같은 입력이면 같은 출력임을 불변 조건 테스트로 확인하고, `ruleset_version`을 회귀 스냅샷 해시와 연동했습니다 |
 
 ### 제공 계약과 버전
-* **`proto/myungri/engine/v1/engine.proto`: v1.**
-  * 패키지는 `myungri.engine.v1`, 서비스는 `MyungriEngine`이고 RPC는 `GetChart`·`GetDaily`·`GetMonthCalendar` 세 개입니다.
+* **`proto/myungli/engine/v1/engine.proto`: v1.**
+  * 패키지는 `myungli.engine.v1`, 서비스는 `MyungliEngine`이고 RPC는 `GetChart`·`GetDaily`·`GetMonthCalendar` 세 개입니다.
   * 이전 보고(`2026-10-10-core-to-server-engine-proto-v1.md`) 뒤에는 하위 호환 추가만 있었습니다:
     * `MonthDay.judgment`
     * 절기 종류 `SolarTermKind`와 `SolarTerm.kind`(C26)
@@ -48,7 +48,7 @@ related: [D5, D6, D9, D10, D27, D31, D33, D34, engine.proto v1, core/message_key
 * **`ruleset_version`: `2026.10.1`.**
   * `2026.10.0`에서 올린 이유는 두 가지입니다. 대운 한국식 나이·세운 구간 연도를 정정했고(C22), 절기 `kind`를 추가해 출력이 바뀌었습니다.
   * `engine_version`(패키지 버전)은 `0.1.0`입니다.
-* **실행:** `cd core && uv sync && uv run python -m myungri_engine --port 50051`
+* **실행:** `cd core && uv sync && uv run python -m myungli_engine --port 50051`
 
 ## 계약 메모 (server가 알아야 할 것)
 * 다음 두 값은 **메시지 키가 아니라 식별자**입니다(C12). 콘텐츠 모듈이 id를 직접 문구에 매핑합니다.
