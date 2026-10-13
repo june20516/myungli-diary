@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/dev/scenario_picker.dart';
 import 'package:myungli_diary/app/entry/account_linker.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/sign_out_cleaner.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
@@ -79,6 +80,8 @@ class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
     }
     // 백그라운드에서 자정이 지났을 수 있어 타이머를 기다리지 않고 바로 다시 확인합니다.
     ref.invalidate(todayProvider);
+    // 구매·보고 계정 연결이 실패했으면 다시 시도합니다(이미 연결됐으면 거름).
+    ref.read(accountLinkerProvider).linkFromEntry(ref.read(entryStateProvider));
     final offset = DateTime.now().timeZoneOffset;
     if (offset != _deviceUtcOffset) {
       _deviceUtcOffset = offset;
