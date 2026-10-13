@@ -11,6 +11,9 @@ import '../../tool/gen_api_routes.dart';
 void main() {
   group('generateApiRoutesSource', () {
     final smallSpec = <String, Object?>{
+      'security': [
+        {'bearerAuth': <Object?>[]},
+      ],
       'paths': {
         '/v1/me': {
           'parameters': <Object?>[],
@@ -37,6 +40,30 @@ void main() {
       );
     });
 
+    test('실효 security에서 requiresBearer를 파생한다', () {
+      final spec = <String, Object?>{
+        'security': [
+          {'bearerAuth': <Object?>[]},
+        ],
+        'paths': {
+          '/a': {
+            'get': {'operationId': 'inherits'},
+            'post': {'operationId': 'open', 'security': <Object?>[]},
+            'put': {
+              'operationId': 'appCheckOnly',
+              'security': [
+                {'appCheck': <Object?>[]},
+              ],
+            },
+          },
+        },
+      };
+      final source = generateApiRoutesSource(spec);
+      expect(source, contains("ApiRoute('GET', '/a', 'inherits')"));
+      expect(source, contains("'open', requiresBearer: false"));
+      expect(source, contains("'appCheckOnly', requiresBearer: false"));
+    });
+
     test('operationId가 없으면 실패한다', () {
       final spec = {
         'paths': {
@@ -54,6 +81,15 @@ void main() {
         apiRoutes.map((route) => route.operationId).toSet(),
         hasLength(37),
       );
+    });
+
+    test('requiresBearer가 계약 security와 맞는다', () {
+      bool bearerOf(String id) =>
+          apiRoutes.firstWhere((r) => r.operationId == id).requiresBearer;
+      expect(bearerOf('getMe'), isTrue);
+      for (final id in ['refreshToken', 'getAppConfig', 'createPreview']) {
+        expect(bearerOf(id), isFalse, reason: id);
+      }
     });
 
     test('커밋된 routes.g.dart가 다시 생성한 결과와 정확히 같다', () async {

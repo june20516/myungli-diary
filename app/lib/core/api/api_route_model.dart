@@ -3,7 +3,12 @@
 /// 대역 서버가 요청을 operationId로 가르는 데 씁니다. 표는 계약에서 생성합니다.
 class ApiRoute {
   /// operation 하나를 만듭니다.
-  const new(this.method, this.pathTemplate, this.operationId);
+  const new(
+    this.method,
+    this.pathTemplate,
+    this.operationId, {
+    this.requiresBearer = true,
+  });
 
   /// 대문자 HTTP method. 예: `GET`.
   final String method;
@@ -13,6 +18,9 @@ class ApiRoute {
 
   /// 계약의 operationId. 생성 클라이언트의 메서드 이름과 같습니다.
   final String operationId;
+
+  /// 계약상 bearer 인증이 필요한지. `security: []`나 appCheck만이면 false입니다.
+  final bool requiresBearer;
 
   /// [path]가 이 템플릿과 맞으면 path 매개변수를, 아니면 null을 돌려줍니다.
   Map<String, String>? pathParametersOf(String path) {

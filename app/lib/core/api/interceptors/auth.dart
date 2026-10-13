@@ -13,21 +13,6 @@ const skipAuthExtra = 'skipAuth';
 /// 요청 extra: 이미 한 번 다시 보낸 요청입니다.
 const _retriedExtra = 'authRetried';
 
-/// 계약에서 bearer가 필요 없는 operation(`security: []` 또는 appCheck만).
-const _publicOperations = {
-  'loginKakao',
-  'loginApple',
-  'appleCallback',
-  'refreshToken',
-  'createPreview',
-  'getBirthHour',
-  'revenuecatWebhook',
-  'admobRewardCallback',
-  'listCities',
-  'getAppConfig',
-  'getHealth',
-};
-
 const _tokenExpiredCode = 'auth.token_expired';
 const _refreshReusedCode = 'auth.refresh_reused';
 
@@ -175,8 +160,8 @@ final class AuthInterceptor extends Interceptor {
 
   /// 계약상 bearer가 필요한 operation인지(`security`에 bearerAuth).
   bool _requiresBearer(RequestOptions options) {
-    final route = matchRoute(options.method, options.path);
-    return route != null && !_publicOperations.contains(route.operationId);
+    // 계약에 없는 경로는 안전하게 bearer가 필요하다고 봅니다.
+    return matchRoute(options.method, options.path)?.requiresBearer ?? true;
   }
 
   String? _bearerOf(RequestOptions options) {
