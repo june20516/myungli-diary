@@ -41,8 +41,14 @@ final class PurchaseFailed extends PurchaseOutcome {
 
 /// 인앱결제(RevenueCat).
 abstract interface class Purchases {
-  /// 구매 계정을 [accountId]로 연결합니다.
+  /// 구매 계정을 [accountId]로 연결합니다. 실패하면 `AppError`를 던집니다.
   Future<void> logIn(String accountId);
+
+  /// 로그아웃할 때 구매 계정 연결을 끊습니다.
+  Future<void> logOut();
+
+  /// 구매를 복원합니다.
+  Future<PurchaseOutcome> restore();
 
   /// 살 수 있는 상품.
   Future<List<StoreProduct>> products();

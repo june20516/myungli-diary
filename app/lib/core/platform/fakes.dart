@@ -73,7 +73,14 @@ final class FakeAppCheck implements AppCheck {
 /// 푸시 대역. 사건은 [addOpen]·[addTokenRefresh]로 넣습니다.
 final class FakePushMessaging implements PushMessaging {
   /// 권한 응답과 기기 토큰을 정합니다.
-  new({this.permissionGranted = true, this.tokenValue = 'fake-push-token'});
+  new({
+    this.permissionGranted = true,
+    this.tokenValue = 'fake-push-token',
+    this.initial,
+  });
+
+  /// [initialOpen]의 응답. 앱이 꺼진 상태에서 알림으로 시작한 경우를 흉내 냅니다.
+  final PushOpen? initial;
 
   /// [requestPermission]의 응답.
   final bool permissionGranted;
@@ -97,6 +104,15 @@ final class FakePushMessaging implements PushMessaging {
   Future<String?> token() async => tokenValue;
 
   @override
+  Future<PushOpen?> initialOpen() async => initial;
+
+  /// 스트림 컨트롤러를 닫습니다.
+  Future<void> dispose() async {
+    await _opens.close();
+    await _refreshes.close();
+  }
+
+  @override
   Stream<String> get tokenRefreshes => _refreshes.stream;
 
   @override
@@ -109,7 +125,7 @@ final class FakeCrashReporter implements CrashReporter {
   new();
 
   /// 보고된 오류.
-  final errors = <Object>[];
+  final errors = <CrashSummary>[];
 
   /// 남긴 breadcrumb(화면 id).
   final breadcrumbs = <String>[];
@@ -118,7 +134,7 @@ final class FakeCrashReporter implements CrashReporter {
   String? userId;
 
   @override
-  void record(Object error, StackTrace stack) => errors.add(error);
+  void record(CrashSummary summary, StackTrace stack) => errors.add(summary);
 
   @override
   void setUser(String? accountId) {
@@ -143,13 +159,20 @@ final class FakeCrashReporter implements CrashReporter {
 /// 광고 동의 대역.
 final class FakeAdConsent implements AdConsent {
   /// 돌려줄 결과를 정합니다.
-  const new({this.result = AdConsentResult.personalized});
+  const new({
+    this.result = AdConsentResult.personalized,
+    this.simulateError = false,
+  });
 
   /// 돌려줄 결과.
   final AdConsentResult result;
 
+  /// true면 SDK 오류를 흉내 내며, 예외 없이 비맞춤으로 끝납니다.
+  final bool simulateError;
+
   @override
-  Future<AdConsentResult> gather() async => result;
+  Future<AdConsentResult> gather() async =>
+      simulateError ? AdConsentResult.nonPersonalized : result;
 }
 
 /// 광고 대역.
@@ -158,7 +181,9 @@ final class FakeAds implements Ads {
   new({
     this.bannerAvailable = true,
     this.rewardedAvailable = true,
-    this.rewardEarned = true,
+    this.rewardedResult = const RewardEarned(),
+    this.bannerFailWith,
+    this.rewardedFailWith,
   });
 
   /// false면 [loadBanner]가 null.
@@ -168,22 +193,37 @@ final class FakeAds implements Ads {
   final bool rewardedAvailable;
 
   /// [RewardedAdHandle.show]의 결과.
-  final bool rewardEarned;
+  final RewardedResult rewardedResult;
+
+  /// [loadBanner]가 던질 오류. null이면 던지지 않습니다.
+  final AppError? bannerFailWith;
+
+  /// [loadRewarded]가 던질 오류. null이면 던지지 않습니다.
+  final AppError? rewardedFailWith;
 
   /// [loadRewarded]에 넘어온 userId.
   final rewardedUserIds = <String>[];
 
   @override
-  Future<BannerAdHandle?> loadBanner({required int width}) async =>
-      bannerAvailable ? _FakeBannerAd(width: width) : null;
+  Future<BannerAdHandle?> loadBanner({required int width}) async {
+    final error = bannerFailWith;
+    if (error != null) {
+      throw error;
+    }
+    return bannerAvailable ? _FakeBannerAd(width: width) : null;
+  }
 
   @override
   Future<RewardedAdHandle?> loadRewarded({required String userId}) async {
+    final error = rewardedFailWith;
+    if (error != null) {
+      throw error;
+    }
     if (!rewardedAvailable) {
       return null;
     }
     rewardedUserIds.add(userId);
-    return _FakeRewardedAd(earned: rewardEarned);
+    return _FakeRewardedAd(result: rewardedResult);
   }
 }
 
@@ -196,17 +236,18 @@ final class _FakeBannerAd implements BannerAdHandle {
   @override
   Widget get view => SizedBox.fromSize(size: size);
 
+  /// 여러 번 불러도 안전합니다.
   @override
   void dispose() {}
 }
 
 final class _FakeRewardedAd implements RewardedAdHandle {
-  const new({required this.earned});
+  const new({required this.result});
 
-  final bool earned;
+  final RewardedResult result;
 
   @override
-  Future<bool> show() async => earned;
+  Future<RewardedResult> show() async => result;
 }
 
 /// 인앱결제 대역.
@@ -216,37 +257,71 @@ final class FakePurchases implements Purchases {
     this.catalog = const [
       StoreProduct(id: 'ad_free_1month', priceLabel: '₩2,500'),
     ],
-    this.outcome = const PurchaseSucceeded(),
+    this.outcomes = const [PurchaseSucceeded()],
+    this.restoreOutcome = const PurchaseSucceeded(),
+    this.logInFailWith,
   });
 
   /// [products]의 응답.
   final List<StoreProduct> catalog;
 
-  /// [buy]의 응답.
-  final PurchaseOutcome outcome;
+  /// [buy]의 호출마다 차례로 돌려줄 응답. 끝에 닿으면 마지막 값을 반복합니다.
+  final List<PurchaseOutcome> outcomes;
+
+  /// [restore]의 응답.
+  final PurchaseOutcome restoreOutcome;
+
+  /// [logIn]이 던질 오류. null이면 던지지 않습니다.
+  final AppError? logInFailWith;
+
+  var _buyCalls = 0;
 
   /// 마지막으로 [logIn]한 계정 id.
   String? loggedInAccountId;
 
   @override
-  Future<void> logIn(String accountId) async => loggedInAccountId = accountId;
+  Future<void> logIn(String accountId) async {
+    final error = logInFailWith;
+    if (error != null) {
+      throw error;
+    }
+    loggedInAccountId = accountId;
+  }
+
+  @override
+  Future<void> logOut() async => loggedInAccountId = null;
+
+  @override
+  Future<PurchaseOutcome> restore() async => restoreOutcome;
 
   @override
   Future<List<StoreProduct>> products() async => catalog;
 
   @override
-  Future<PurchaseOutcome> buy(String productId) async => outcome;
+  Future<PurchaseOutcome> buy(String productId) async {
+    final index = _buyCalls < outcomes.length ? _buyCalls : outcomes.length - 1;
+    _buyCalls++;
+    return outcomes[index];
+  }
 }
 
 /// 공유 시트 대역. 공유 요청을 [shared]에 모읍니다.
 final class FakeShareSheet implements ShareSheet {
-  /// 빈 기록으로 시작합니다.
-  new();
+  /// 실패 주입 여부를 정합니다.
+  new({this.failWith});
+
+  /// [sharePng]가 던질 오류. null이면 던지지 않습니다.
+  final AppError? failWith;
 
   /// 공유 요청 기록.
   final shared = <({Uint8List png, String text})>[];
 
   @override
-  Future<void> sharePng(Uint8List png, {required String text}) async =>
-      shared.add((png: png, text: text));
+  Future<void> sharePng(Uint8List png, {required String text}) async {
+    final error = failWith;
+    if (error != null) {
+      throw error;
+    }
+    shared.add((png: png, text: text));
+  }
 }

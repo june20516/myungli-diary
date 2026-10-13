@@ -1,3 +1,4 @@
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 
 final Set<String> _screenIdSet = {for (final screen in iaScreens) screen.id};
@@ -15,14 +16,42 @@ String? sanitizeBreadcrumb(String screenId) =>
 String? sanitizeAccountId(String? accountId) =>
     accountId != null && _uuidPattern.hasMatch(accountId) ? accountId : null;
 
+/// 보고해도 되는 오류 요약. 원본 오류는 넘기지 않습니다(D64 ②).
+///
+/// `toString()`·`UnexpectedError.cause`·`DioException`의 요청·응답 본문은
+/// 일기 본문이나 출생 정보를 품을 수 있어 담지 않습니다.
+final class CrashSummary {
+  /// 요약 값을 직접 담습니다.
+  const new({required this.errorType, this.code, this.status});
+
+  /// [error]에서 안전한 값(타입 이름, problem code·status)만 뽑습니다.
+  factory from(Object error) => switch (error) {
+    ProblemError(:final code, :final status) => CrashSummary(
+      errorType: 'ProblemError',
+      code: code,
+      status: status,
+    ),
+    _ => CrashSummary(errorType: error.runtimeType.toString()),
+  };
+
+  /// 오류 타입 이름.
+  final String errorType;
+
+  /// `ProblemError.code`. 없으면 null.
+  final String? code;
+
+  /// `ProblemError.status`. 없으면 null.
+  final int? status;
+}
+
 /// 비정상 종료 보고(Crashlytics).
 ///
 /// 일기 본문, 출생 정보, 호칭은 어떤 경로로도 넘기지 않습니다(D64 ②).
 /// 자유 문자열 custom key는 두지 않습니다. 구현은 [sanitizeBreadcrumb]·
 /// [sanitizeAccountId]를 거쳐야 합니다.
 abstract interface class CrashReporter {
-  /// 오류를 보고합니다.
-  void record(Object error, StackTrace stack);
+  /// 정제된 오류 요약을 보고합니다.
+  void record(CrashSummary summary, StackTrace stack);
 
   /// 사용자 식별값을 정합니다. UUID가 아니면 무시하고, null이면 지웁니다.
   void setUser(String? accountId);
