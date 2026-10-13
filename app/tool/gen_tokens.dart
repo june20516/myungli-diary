@@ -3,7 +3,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'common/dart_format.dart';
 import 'tokens/dtcg.dart';
@@ -11,13 +10,12 @@ import 'tokens/dtcg.dart';
 const _tokenDir = '../docs/identity/design/tokens';
 const _outputPath = 'lib/design/tokens/gen/tokens.g.dart';
 
-/// 생성 코드에 노출하지 않는 원시 팔레트 뿌리. 위젯은 의미 역할만 씁니다.
-const _rawPaletteRoots = [
-  'color.sage.',
-  'color.coral.',
-  'color.neutral.',
-  'color.white',
-];
+/// 생성 코드에 노출하지 않는 원시 팔레트. 위젯은 의미 역할만 씁니다.
+const _rawPaletteGroups = ['color.sage.', 'color.coral.', 'color.neutral.'];
+const _rawPaletteTokens = ['color.white'];
+
+bool _isRawPalette(String name) =>
+    _rawPaletteTokens.contains(name) || _rawPaletteGroups.any(name.startsWith);
 
 /// 테마 4조합(색 모드 × 글자 언어)을 푼 결과. 영어는 한국어 글자 파일을 씁니다.
 class TokenThemes {
@@ -75,6 +73,7 @@ String generateTokensSource(TokenThemes themes) {
     ..writeln()
     ..writeln("import 'package:flutter/animation.dart';")
     ..writeln("import 'package:flutter/painting.dart';")
+    ..writeln("import 'package:myungli_diary/design/tokens/css_gradient.dart';")
     ..writeln();
 
   _writeColors(out, themes);
@@ -123,7 +122,10 @@ Iterable<String> _namesUnder(Map<String, ResolvedToken> theme, String prefix) =>
 
 String _docComment(ResolvedToken token) {
   final description = token.description;
-  return description == null ? '' : '/// $description\n';
+  if (description == null) {
+    return '';
+  }
+  return description.split('\n').map((line) => '/// $line\n').join();
 }
 
 // ---- 값 ----
@@ -151,8 +153,7 @@ String _colorSource(Object? value) {
 // ---- 색 ----
 
 bool _isColorRole(String name) =>
-    name.startsWith('color.') &&
-    !_rawPaletteRoots.any((root) => name.startsWith(root));
+    name.startsWith('color.') && !_isRawPalette(name);
 
 void _writeColors(StringBuffer out, TokenThemes themes) {
   final names = themes.lightKo.keys.where(_isColorRole).toList();
@@ -274,7 +275,7 @@ void _writeGradients(StringBuffer out, TokenThemes themes) {
   );
 
   out
-    ..writeln('/// 그라데이션. 각도는 CSS 기준(0°=위쪽, 시계 방향)을 Alignment로 옮긴 값입니다.')
+    ..writeln('/// 그라데이션. 각도는 CSS 기준(0°=위쪽, 시계 방향)이며 박스 크기에 맞춰 변환됩니다.')
     ..writeln('final class GradientTokens {')
     ..writeln('const GradientTokens({');
   for (final name in names) {
@@ -308,23 +309,17 @@ String _gradientSource(ResolvedToken token) {
   if (angle is! num) {
     throw TokenError("'${token.name}'에 angle 확장이 없습니다.");
   }
-  final radians = angle * math.pi / 180;
-  // 진행 방향 (sin, -cos)를 화면 좌표(y 아래)로 둔 뒤, 시작점은 반대편 끝입니다.
-  final dx = math.sin(radians);
-  final dy = -math.cos(radians);
   final stops = (token.value! as List<Object?>).cast<Map<String, Object?>>();
   final colors = stops.map((stop) => _colorSource(stop['color'])).join(', ');
   final positions = stops
       .map((stop) => _number(stop['position']! as num))
       .join(', ');
+  // 박스 크기에 맞는 CSS 각도 변환은 손으로 쓴 css_gradient.dart가 합니다.
   return 'LinearGradient('
-      'begin: Alignment(${_number(_round4(-dx))}, ${_number(_round4(-dy))}), '
-      'end: Alignment(${_number(_round4(dx))}, ${_number(_round4(dy))}), '
-      'colors: [$colors], '
-      'stops: [$positions])';
+      'begin: Alignment.centerLeft, end: Alignment.centerRight, '
+      'colors: [$colors], stops: [$positions], '
+      'transform: CssAngleGradientTransform(${_number(angle)}))';
 }
-
-double _round4(double value) => (value * 10000).round() / 10000;
 
 // ---- 간격·반경 ----
 

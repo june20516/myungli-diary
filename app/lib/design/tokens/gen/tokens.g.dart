@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/painting.dart';
+import 'package:myungli_diary/design/tokens/css_gradient.dart';
 
 /// 의미 역할 색. 라이트·다크가 같은 이름을 씁니다.
 final class ColorTokens {
@@ -721,7 +722,7 @@ const jaType = TypeTokens(
   ),
 );
 
-/// 그라데이션. 각도는 CSS 기준(0°=위쪽, 시계 방향)을 Alignment로 옮긴 값입니다.
+/// 그라데이션. 각도는 CSS 기준(0°=위쪽, 시계 방향)이며 박스 크기에 맞춰 변환됩니다.
 final class GradientTokens {
   const GradientTokens({required this.today});
 
@@ -731,19 +732,21 @@ final class GradientTokens {
 
 const lightGradients = GradientTokens(
   today: LinearGradient(
-    begin: Alignment(-0.342, -0.9397),
-    end: Alignment(0.342, 0.9397),
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
     colors: [Color(0xFFEEF4EF), Color(0xFFFBEFEE)],
     stops: [0, 1],
+    transform: CssAngleGradientTransform(160),
   ),
 );
 
 const darkGradients = GradientTokens(
   today: LinearGradient(
-    begin: Alignment(-0.342, -0.9397),
-    end: Alignment(0.342, 0.9397),
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
     colors: [Color(0xFF162017), Color(0xFF271818)],
     stops: [0, 1],
+    transform: CssAngleGradientTransform(160),
   ),
 );
 

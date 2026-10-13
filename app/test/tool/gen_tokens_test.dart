@@ -1,15 +1,31 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/design/tokens/css_gradient.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../../tool/common/dart_format.dart';
 import '../../tool/gen_tokens.dart';
 import '../../tool/tokens/dtcg.dart';
+
+/// 생성 소스의 `Color(0xFF…)`·`Color.from(…)` 표기를 hex와 alpha로 읽습니다.
+({String hex, double alpha}) _parseColorSource(String text) {
+  final opaque = RegExp(r'^Color\(0xFF([0-9A-F]{6})\)$').firstMatch(text);
+  if (opaque != null) {
+    return (hex: '#${opaque.group(1)!.toLowerCase()}', alpha: 1);
+  }
+  final m = RegExp(
+    r'alpha:\s*([\d.]+),\s*red:\s*0x([0-9a-f]{2}) / 255,\s*'
+    r'green:\s*0x([0-9a-f]{2}) / 255,\s*blue:\s*0x([0-9a-f]{2}) / 255',
+  ).firstMatch(text)!;
+  return (
+    hex: '#${m.group(2)}${m.group(3)}${m.group(4)}',
+    alpha: double.parse(m.group(1)!),
+  );
+}
 
 const _tokenDir = '../docs/identity/design/tokens';
 
@@ -113,10 +129,12 @@ void main() {
   });
 
   group('generateTokensSource', () {
+    late TokenThemes themes;
     late String source;
 
     setUp(() {
-      source = generateTokensSource(loadThemes(_tokenDir));
+      themes = loadThemes(_tokenDir);
+      source = generateTokensSource(themes);
     });
 
     test('첫 줄이 생성 안내다', () {
@@ -126,18 +144,70 @@ void main() {
       );
     });
 
-    test('원시 팔레트 이름이 필드로 나오지 않는다', () {
-      // 설명 주석(///)은 원시 이름을 언급할 수 있어 코드 줄만 본다.
-      final code = source
-          .split('\n')
-          .where((line) => !line.trimLeft().startsWith('///'))
-          .join('\n');
-      for (final raw in ['sage', 'coral', 'neutral', 'white']) {
+    test('원시 팔레트 이름이 식별자(필드·상수)로 나오지 않는다', () {
+      final identifiers = [
+        ...RegExp(
+          r'^\s*final \w+ (\w+);',
+          multiLine: true,
+        ).allMatches(source).map((m) => m.group(1)!),
+        ...RegExp(
+          r'^\s*(?:static )?const (?:[\w<>]+ )?(\w+) =',
+          multiLine: true,
+        ).allMatches(source).map((m) => m.group(1)!),
+        ...RegExp(
+          r'^\s*(?:abstract )?final class (\w+)',
+          multiLine: true,
+        ).allMatches(source).map((m) => m.group(1)!),
+      ];
+      expect(identifiers.length, greaterThan(100));
+      for (final id in identifiers) {
         expect(
-          RegExp('\\b$raw', caseSensitive: false).hasMatch(code),
-          isFalse,
-          reason: '$raw가 생성 소스에 있습니다',
+          id,
+          isNot(
+            matches(
+              RegExp('^(sage|coral|neutral|white)', caseSensitive: false),
+            ),
+          ),
         );
+      }
+    });
+
+    test('모든 색 역할이 4 테마의 해석된 hex·alpha와 같다', () {
+      for (final (constName, theme) in [
+        ('lightColors', themes.lightKo),
+        ('darkColors', themes.darkKo),
+        ('lightColors', themes.lightJa),
+      ]) {
+        final block = RegExp(
+          'const $constName = ColorTokens\\((.*?)\\n\\);',
+          dotAll: true,
+        ).firstMatch(source)!.group(1)!;
+        final generated = {
+          for (final m in RegExp(
+            r'(\w+):\s*(Color(?:\.from)?\([^)]*\))',
+          ).allMatches(block))
+            m.group(1)!: m.group(2)!,
+        };
+        final roles = theme.keys.where(
+          (n) =>
+              n.startsWith('color.') &&
+              !RegExp(r'^color\.(sage|coral|neutral)\.|^color\.white$')
+                  .hasMatch(n),
+        );
+        expect(generated.length, roles.length);
+        for (final role in roles) {
+          final words = role.substring('color.'.length).split(RegExp('[.-]'));
+          final id =
+              words.first +
+              words
+                  .skip(1)
+                  .map((w) => w[0].toUpperCase() + w.substring(1))
+                  .join();
+          final expected = parseColor(theme[role]!.value);
+          final actual = _parseColorSource(generated[id]!);
+          expect(actual.hex, expected.hex, reason: role);
+          expect(actual.alpha, closeTo(expected.alpha, 1e-9), reason: role);
+        }
       }
     });
 
@@ -148,6 +218,24 @@ void main() {
         regenerated,
       );
     });
+  });
+
+  test('짝 파일의 토큰 이름이 다르면 TokenError', () {
+    final dir = Directory.systemTemp.createTempSync('tokens_pair_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    for (final name in [
+      'primitive.tokens.json',
+      'color.light.tokens.json',
+      'typography.tokens.json',
+      'typography.ja.tokens.json',
+    ]) {
+      File('$_tokenDir/$name').copySync('${dir.path}/$name');
+    }
+    final dark = _readTokenFile('color.dark.tokens.json');
+    (dark['color']! as Map<String, Object?>).remove('line');
+    File('${dir.path}/color.dark.tokens.json')
+        .writeAsStringSync(jsonEncode(dark));
+    expect(() => loadThemes(dir.path), throwsA(isA<TokenError>()));
   });
 
   group('생성된 Dart 값', () {
@@ -198,9 +286,9 @@ void main() {
       final today = lightGradients.today;
       expect(today.colors, hasLength(2));
       expect(today.stops, [0, 1]);
-      // CSS 160deg: 위에서 시계 방향 160도, 아래쪽으로 약간 오른쪽.
-      expect(today.end.resolve(TextDirection.ltr).y, greaterThan(0.9));
-      expect(today.end.resolve(TextDirection.ltr).x, greaterThan(0));
+      expect(today.begin, Alignment.centerLeft);
+      expect(today.end, Alignment.centerRight);
+      expect(today.transform, const CssAngleGradientTransform(160));
       expect(darkGradients.today.colors.first, isNot(today.colors.first));
     });
   });
