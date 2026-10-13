@@ -1,0 +1,22 @@
+import 'package:flutter/foundation.dart';
+
+/// 컴포넌트 하나가 따르는 명세 요약. 대조 테스트가 명세 JSON과 비교합니다.
+///
+/// 컴포넌트마다 `static const spec`을 두고 [implementedComponents]에 올립니다.
+@immutable
+final class ComponentSpec {
+  /// 명세 id와 변형·상태 집합으로 만듭니다.
+  const new(this.id, this.variants, this.states);
+
+  /// IA 컴포넌트 id(예: `tab-bar`).
+  final String id;
+
+  /// 명세 `variants[].id` 집합.
+  final Set<String> variants;
+
+  /// 명세 `states` 키 집합. `pressed` 같은 상호작용 상태도 그대로 담습니다.
+  final Set<String> states;
+}
+
+/// 구현을 마친 컴포넌트의 명세 목록. Task 17~19가 채웁니다.
+const List<ComponentSpec> implementedComponents = [];

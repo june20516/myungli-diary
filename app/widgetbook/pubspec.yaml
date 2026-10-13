@@ -1,0 +1,55 @@
+name: myungli_diary_widgetbook
+description: "명리일기 컴포넌트 카탈로그 (Widgetbook)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  myungli_diary:
+    path: ..
+  phosphor_glyphs: ^2.1.2+1
+  widgetbook: ^3.25.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^11.0.0
+
+flutter:
+  uses-material-design: true
+
+  # 앱의 글꼴 family는 패키지 접두사 없이 쓰이므로 같은 이름으로 다시 선언합니다.
+  # 파일은 ../assets의 것을 그대로 가리킵니다(복사하지 않음)(app/pubspec.yaml과 같은 목록).
+  fonts:
+    - family: Gowun Dodum
+      fonts:
+        - asset: ../assets/fonts/gowun_dodum/GowunDodum-Regular.ttf
+    - family: Zen Maru Gothic
+      fonts:
+        - asset: ../assets/fonts/zen_maru_gothic/ZenMaruGothic-Regular.ttf
+    - family: Pretendard
+      fonts:
+        - asset: ../assets/fonts/pretendard/Pretendard-Regular.otf
+          weight: 400
+        - asset: ../assets/fonts/pretendard/Pretendard-Medium.otf
+          weight: 500
+        - asset: ../assets/fonts/pretendard/Pretendard-SemiBold.otf
+          weight: 600
+        - asset: ../assets/fonts/pretendard/Pretendard-Bold.otf
+          weight: 700
+    - family: Pretendard JP
+      fonts:
+        - asset: ../assets/fonts/pretendard_jp/PretendardJP-Regular.otf
+          weight: 400
+        - asset: ../assets/fonts/pretendard_jp/PretendardJP-Medium.otf
+          weight: 500
+        - asset: ../assets/fonts/pretendard_jp/PretendardJP-SemiBold.otf
+          weight: 600
+        - asset: ../assets/fonts/pretendard_jp/PretendardJP-Bold.otf
+          weight: 700

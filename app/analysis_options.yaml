@@ -7,6 +7,8 @@ analyzer:
   exclude:
     - build/**
     - android/**
+    # Widgetbook은 별도 패키지라 자체 analysis_options로 따로 분석한다.
+    - widgetbook/**
     - ios/**
     # 생성 코드(gen_ia 등)는 손으로 고치지 않으므로 lint에서 제외한다.
     - lib/**/gen/**

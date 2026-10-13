@@ -24,3 +24,16 @@ Future<void> loadBundledFonts() async {
     await loader.load();
   }
 }
+
+/// 테스트에서 Phosphor 아이콘 글꼴(`phosphor_glyphs`)을 올립니다.
+///
+/// 올리지 않으면 아이콘이 빈 네모로 그려집니다.
+Future<void> loadPhosphorFonts() async {
+  for (final weight in ['Light', 'Regular', 'Fill']) {
+    final loader = FontLoader('packages/phosphor_glyphs/Phosphor-$weight')
+      ..addFont(
+        rootBundle.load('packages/phosphor_glyphs/fonts/Phosphor-$weight.ttf'),
+      );
+    await loader.load();
+  }
+}

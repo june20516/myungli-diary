@@ -26,6 +26,11 @@ on:
       - "docs/identity/writing/tools/**"
   workflow_call:
   workflow_dispatch:
+    inputs:
+      update_goldens:
+        description: "golden 기준 이미지를 Linux에서 다시 만들어 artifact로 올린다"
+        type: boolean
+        default: false
 
 # workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
 
@@ -82,7 +87,38 @@ jobs:
             python -I tool/validate_fixtures.py'
       - name: 정적 분석
         run: flutter analyze
+      - name: Widgetbook 정적 분석
+        working-directory: app/widgetbook
+        run: |
+          flutter pub get
+          flutter analyze
       - name: 테스트
         run: flutter test
       - name: Android 디버그 빌드
         run: flutter build apk --debug
+
+  # golden 기준 이미지는 Linux에서만 만든다(workflow_dispatch에서 update_goldens를 켰을 때만).
+  # 받은 artifact를 test/goldens에 덮어 commit한다.
+  update-goldens:
+    if: github.event_name == 'workflow_dispatch' && inputs.update_goldens
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: 의존성 받기
+        run: flutter pub get
+      - name: golden 갱신
+        run: flutter test --update-goldens --tags golden
+      - name: 기준 이미지 올리기
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldens
+          path: app/test/goldens/**
+          if-no-files-found: error
