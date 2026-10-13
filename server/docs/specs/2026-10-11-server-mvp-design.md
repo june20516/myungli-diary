@@ -114,7 +114,7 @@ null은 "값이 없음"만 뜻하고 사용자의 선택을 담지 않습니다.
 | --- | --- | --- |
 | `accounts` | id, status(`active`/`pending_deletion`/`deleted`), deletion_requested_at, anonymized_at, last_active_at, created_at | `last_active_at`은 인증된 요청마다 하루 1번까지 갱신 |
 | `auth_identities` | account_id, provider(`kakao`/`apple`), subject, apple_refresh_token(암호화) | unique(provider, subject). 계정 하나에 제공자 여럿을 붙일 수 있는 구조(D55④)이며, MVP는 로그인한 제공자 하나만 붙입니다 |
-| `refresh_tokens` | account_id, token_hash, family_id, expires_at, used_at, revoked_at | 쓸 때마다 교체하고, 이미 쓴 토큰을 다시 내밀면 family 전체를 폐기 |
+| `refresh_tokens` | account_id, token_hash, family_id, expires_at, used_at, replaced_by_id, revoked_at | 쓸 때마다 교체하고, 이미 쓴 토큰을 다시 내밀면 family 전체를 폐기(30초 유예, S20). replaced_by_id는 그 토큰으로 발급한 다음 토큰이며 used_at과 함께 채워집니다 |
 | `consents` | account_id, document(`terms`/`privacy`), version, agreed_at | 문서 버전이 바뀌면 다시 받음 |
 
 Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합니다. 키는 Secret Manager에 둡니다.
@@ -186,7 +186,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 ### 4.2 토큰
 
 * access token: JWT ES256, 15분, claim은 `sub`(계정 id)·`iat`·`exp`·`jti`. 서명 키는 Secret Manager에 두고 `kid`로 교체합니다.
-* refresh token: 256비트 난수 문자열, 30일. DB에는 해시만 둡니다. 쓸 때마다 새 토큰을 주고 이전 토큰을 used로 표시합니다. used인 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다.
+* refresh token: 256비트 난수 문자열, 30일. DB에는 해시만 둡니다. 쓸 때마다 새 토큰을 주고 이전 토큰을 used로 표시합니다. used인 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다. 단, 첫 사용 뒤 30초 안(경계 포함)이고 그 다음 토큰이 아직 쓰이지 않았으면 응답 유실 재시도로 보고, 다음 토큰을 폐기한 뒤 같은 family로 새 토큰 쌍을 줍니다(S20). 첫 사용 시각은 바꾸지 않으므로 유예 창은 늘어나지 않습니다.
 
 ### 4.3 약관 동의
 

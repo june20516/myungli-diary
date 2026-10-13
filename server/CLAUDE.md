@@ -31,15 +31,15 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 | **참고** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
 ## 현재 상태 (2026-10-13, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S19)에 모읍니다. 작업 브랜치는 `server/auth`입니다.
-* P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. 새 결정은 S15(nonce)·S16(삭제 대기 계정)·S17(도메인별 sqlc)·S18(동의 문서 버전)·S19(Apple 로그인 실패 시 토큰 처리, 교환 sub 대조)입니다.
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S20)에 모읍니다. 작업 브랜치는 `server/auth`입니다.
+* P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. 새 결정은 S15(nonce)·S16(삭제 대기 계정)·S17(도메인별 sqlc)·S18(동의 문서 버전)·S19(Apple 로그인 실패 시 토큰 처리, 교환 sub 대조)·S20(refresh 재사용 30초 유예)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 notice: Issue #3(엔진 계약), #7(D36·D37·D40), #29(S1 착수, D55~D60), #55(호칭·조사 규칙 사용법). 모두 spec에 반영했습니다. 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P2 PR을 올리고 병합을 기다립니다. 병합 뒤 app에 `kind:notice`로 알립니다: nonce 해시 규칙, Apple 콜백 deep link 쿼리(`error` 포함), `consent.version_mismatch`, 삭제 대기 계정의 요청 범위(S16). `APPLE_CALLBACK_DEEPLINK`의 scheme은 app과 정합니다.
+1. P2 PR을 올리고 병합을 기다립니다. 병합 뒤 app에 `kind:notice`로 알립니다: nonce 해시 규칙, Apple 콜백 deep link 쿼리(`error` 포함), `consent.version_mismatch`, 삭제 대기 계정의 요청 범위(S16), refresh는 single-flight로(동시 401에서 갱신 한 번만), 응답 유실 재시도는 30초 유예(S20). `APPLE_CALLBACK_DEEPLINK`의 scheme은 app과 정합니다.
 2. REST API v1 계약 등록·ci-gate 연결(root 요청 Issue)을 기다립니다. 계약 원본은 `api/openapi.yaml`(1.0.0-draft)입니다.
 3. 병합되면 P3(프로필·엔진·캐시) 계획을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
 4. 보낸 요청의 답을 기다립니다: #48(root, 알림 슬롯·재구매 연장 등), #49(core, `ruleset_version` 조회 RPC).

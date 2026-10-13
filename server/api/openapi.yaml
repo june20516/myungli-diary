@@ -170,7 +170,7 @@ paths:
     post:
       operationId: refreshToken
       summary: 토큰 갱신
-      description: refresh token을 새 토큰 쌍으로 바꿉니다. 이미 쓴 refresh token이 다시 오면 탈취로 보고 family 전체를 폐기합니다(401 `auth.refresh_reused`).
+      description: refresh token을 새 토큰 쌍으로 바꿉니다. 이미 쓴 refresh token이 첫 사용 뒤 30초 안에 다시 오고 그 다음 token이 아직 쓰이지 않았으면 응답 유실 재시도로 보고 새 토큰 쌍을 줍니다(앞서 준 토큰은 폐기). 그 밖의 재사용은 탈취로 보고 family 전체를 폐기합니다(401 `auth.refresh_reused`).
       security: []
       requestBody:
         required: true
