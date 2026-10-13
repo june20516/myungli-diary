@@ -35,6 +35,7 @@ jobs:
     outputs:
       docs: ${{ steps.detect.outputs.docs }}
       core: ${{ steps.detect.outputs.core }}
+      server: ${{ steps.detect.outputs.server }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,6 +55,7 @@ jobs:
             # workflow_dispatch 등 비교 기준이 없으면 아무 검사도 고르지 않습니다.
             echo "docs=false" >> "$GITHUB_OUTPUT"
             echo "core=false" >> "$GITHUB_OUTPUT"
+            echo "server=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -68,6 +70,12 @@ jobs:
             echo "core=true" >> "$GITHUB_OUTPUT"
           else
             echo "core=false" >> "$GITHUB_OUTPUT"
+          fi
+          # server가 쓰는 계약(proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙)이 바뀌어도 server 검사를 돌립니다.
+          if echo "$changed" | grep -qE '^server/|^proto/|^core/message_(keys|params)\.json$|^docs/identity/writing/|^\.github/workflows/(server|ci-gate)\.yml$'; then
+            echo "server=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "server=false" >> "$GITHUB_OUTPUT"
           fi
 
   docs:
@@ -113,8 +121,13 @@ jobs:
     if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/core.yml
 
+  server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    uses: ./.github/workflows/server.yml
+
   ci-gate:
-    needs: [changes, docs, pr-body, core]
+    needs: [changes, docs, pr-body, core, server]
     if: always()
     runs-on: ubuntu-latest
     steps:

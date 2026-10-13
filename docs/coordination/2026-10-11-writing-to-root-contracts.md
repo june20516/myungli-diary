@@ -7,6 +7,8 @@ created: 2026-10-11
 related: [W0 spec §9, W9, 계약 목록, core/message_keys.json, D40]
 ---
 
+> 이관됨: GitHub Issue #38. Issue 닫힘. 계약 목록과 writing spec·계획이 이 경로를 가리켜 archive로 옮기지 않습니다.
+
 # 제공 계약 3개 등록과 메시지 키별 매개변수 목록 요청
 
 ## 무엇이 필요한가

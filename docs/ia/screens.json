@@ -849,6 +849,35 @@
       ]
     },
     {
+      "id": "system-push",
+      "title": "아침 알림",
+      "tab": null,
+      "presentation": "system",
+      "auth": "member",
+      "purpose": "아침 운세 알림을 OS 알림으로 보입니다. 잠금 화면에 보이므로 호칭을 넣지 않습니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "system-push.morning.body",
+          "source": "content",
+          "role": "아침 운세 알림 문장. 그날 데일리로 개인화하고 호칭은 넣지 않음(잠금 화면)"
+        }
+      ],
+      "components": [],
+      "exits": [
+        {
+          "to": "today",
+          "trigger": "알림 누름"
+        }
+      ],
+      "decisions": [
+        "D18",
+        "D39",
+        "D62"
+      ]
+    },
+    {
       "id": "ad-consent",
       "title": "광고 동의",
       "tab": null,
@@ -1123,13 +1152,49 @@
           "id": "evidence-sheet.lock.unavailable",
           "source": "ui",
           "role": "지금 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)"
+        },
+        {
+          "id": "evidence-sheet.section.basis",
+          "source": "ui",
+          "role": "구역 제목: 판정 근거. 잠겼을 때도 또렷하게 보임"
+        },
+        {
+          "id": "evidence-sheet.section.source",
+          "source": "ui",
+          "role": "구역 제목: 원전. 잠겼을 때도 또렷하게 보임"
+        },
+        {
+          "id": "evidence-sheet.section.personal",
+          "source": "ui",
+          "role": "구역 제목: 내 사주에서는. 잠겼을 때도 또렷하게 보임"
+        },
+        {
+          "id": "evidence-sheet.unlock.failed",
+          "source": "ui",
+          "role": "광고를 끝까지 봤는데 server 확인(SSV)이 오지 않을 때의 toast"
+        },
+        {
+          "id": "evidence-sheet.a11y.locked",
+          "source": "ui",
+          "role": "접근성 문구: 잠긴 구역을 읽을 때 \"잠김\""
+        },
+        {
+          "id": "evidence-sheet.a11y.checking",
+          "source": "ui",
+          "role": "접근성 문구: 잠금 해제를 확인하는 동안의 버튼 상태 \"확인 중\""
+        },
+        {
+          "id": "evidence-sheet.a11y.unlocked",
+          "source": "ui",
+          "role": "접근성 문구: 근거와 해석이 열렸을 때 한 번 알림"
         }
       ],
       "components": [
         "sheet",
         "sentence-block",
         "saju-pillars",
-        "primary-button"
+        "primary-button",
+        "toast"
       ],
       "exits": [
         {
@@ -1785,6 +1850,11 @@
           "id": "saju-chart.time-unknown.notice",
           "source": "ui",
           "role": "시간 모름으로 시주가 빠졌다는 안내"
+        },
+        {
+          "id": "saju-chart.yongsin.open",
+          "source": "ui",
+          "role": "잠긴 용신 근거 줄의 \"열기\""
         }
       ],
       "components": [
@@ -1795,7 +1865,8 @@
         "daeun-table",
         "term-token",
         "notice-banner",
-        "segmented"
+        "segmented",
+        "sentence-block"
       ],
       "exits": [
         {

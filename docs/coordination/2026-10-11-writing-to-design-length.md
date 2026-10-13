@@ -7,6 +7,8 @@ created: 2026-10-11
 related: [W0 spec §4.1, W7, W8, W9, 슬롯 명세 max_length]
 ---
 
+> 이관됨: GitHub Issue #54. Issue 닫힘(2026-10-13, PR #66). writing spec·계획이 이 경로를 가리켜 archive로 옮기지 않습니다.
+
 # 슬롯별 글자 수 상한 초안과 레이아웃 기준 조정 요청
 
 ## 무엇이 필요한가

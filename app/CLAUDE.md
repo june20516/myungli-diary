@@ -37,26 +37,35 @@
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
-| REST API v1 (server 설계 후 `docs/contracts/README.md`에 등록) | **사용** | server |
+| REST API `server/api/openapi.yaml` 1.0.0-draft (freeze는 S3) | **사용** | server |
 | `source_ref`·enum 값 (엔진 spec §9·§11, server가 그대로 전달) | **사용** (`evidence` 단계 표시) | core → server |
 | 디자인 토큰 1.1.0 (`docs/identity/design/tokens/`, Dart 코드 생성은 app) | **사용** | design |
-| 컴포넌트 명세 1.0.0 (`docs/identity/design/components/`) | **사용** | design |
+| 컴포넌트 명세 2.0.0 (`docs/identity/design/components/`) | **사용** | design |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 
-## 현재 상태 (2026-10-11, 지휘 세션 작성)
-* **설계(A1) 착수 가능**입니다. 디렉터리는 비어 있습니다. 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
-* REST API가 아직 없습니다. 설계와 화면 구현은 대역(mock) 데이터로 시작할 수 있습니다. 대역의 형태는 엔진 spec §9의 응답 구조를 참고합니다.
-* 받은 notice: Issue #19(디자인 토큰 1.0.0), Issue #44(컴포넌트 명세 1.0.0·토큰 1.1.0), A1 착수 안내 Issue(마일스톤 A1). 앞으로 받은 요청은 `gh issue list --label to:app`.
-* design V2(컴포넌트 명세)가 끝나 UI 구현까지 시작할 수 있습니다. 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
+## 현재 상태 (2026-10-13, 지휘 세션 작성)
+* **설계(A1) 착수 가능**입니다. 디렉터리는 비어 있습니다. MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
+* **REST API 초안이 있습니다**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft, operation 37개, PR #62). 생성 코드와 대역 서버를 이 초안으로 만들 수 있습니다. freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다. 요점은 아래와 같습니다(Issue #63).
+  * 오류는 RFC 9457 problem+json이고 `code`로 분기합니다. 사용자 문구는 app이 `code`로 만듭니다(D59⑤). 400은 스키마로 거르는 형식·범위 위반(`request.invalid`), 422는 의미 검사(`request.inconsistent`, `date.invalid`, 엔진 판정)입니다.
+  * null을 쓰지 않습니다. "모름"·"건너뜀"·"묻지 않음"은 상태 필드로 옵니다. PATCH에서 필드가 없으면 "바꾸지 않음"입니다.
+  * 근거 열람 권한은 응답의 `evidenceAccess`(`unlocked`·`locked`)로 옵니다(D60).
+  * 콘텐츠 문장은 조각 배열 `segments`로 옵니다. 용어 조각에는 `term`이 붙습니다. 위치 숫자는 쓰지 않습니다(server 결정 S9). `term` 조각의 표시는 design이 정합니다.
+  * 시각은 기본 UTC입니다. 화면 표시용 시각(집중 시간, 절기 시각)만 프로필 시간대 offset으로 옵니다.
+* **컴포넌트 명세는 2.0.0입니다**(PR #66, Issue #65). 근거 깊이 잠금(근거 시트 잠김 4상태, `lock.veil`, `sentence-block` `locked`), 모양 규칙(동작은 둥근 사각, 표시·고르기는 알약), 화면 좌우 여백 `space.20`, 글자 수 상한이 들어갔습니다.
+* **IA v1에 추가된 것**(2026-10-13, 추가만): 근거 시트 구역 제목·해제 실패 toast·접근성 문구 ui 슬롯, `saju-chart.yongsin.open`, 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62). 화면 36·슬롯 118입니다.
+* 광고 제거권을 만료 전에 다시 사면 남은 기간에 이어 붙습니다(D61). 계산은 server가 합니다.
+* 도시 목록은 GeoNames `cities15000`(CC BY 4.0)으로 server가 만듭니다. **앱 오픈소스 고지(`legal`)에 출처를 표기합니다**(Issue #48 항목 5).
+* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), A1 착수 안내(#30). 앞으로 받은 요청은 `gh issue list --label to:app`.
+* 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
 1. 읽을 것:
    - `docs/identity/README.md` (정체성 기준, 06보다 우선)
-   - `docs/ia/README.md`와 `docs/ia/screens.json` (화면 35개, 상태·경로·인증 갈래)
+   - `docs/ia/README.md`와 `docs/ia/screens.json` (화면 36개, 상태·경로·인증 갈래)
    - IA spec `docs/specs/2026-10-11-ia-design.md` §3·§10
    - `docs/background/` 00~06, 특히 03·04·06
-   - `docs/decisions.md` (특히 D47~D60)
-   - 엔진 spec §7~§9 (화면에 보일 데이터)
+   - `docs/decisions.md` (특히 D47~D62)
+   - `server/api/openapi.yaml`과 server spec `server/docs/specs/2026-10-11-server-mvp-design.md` (화면에 올 데이터)
 2. worktree와 브랜치를 만들고 그 안에서 세션을 시작합니다. 원래 checkout은 다른 세션이 쓰고 있을 수 있으므로, 저장소 루트에서 그대로 실행합니다.
    ```
    git fetch origin
@@ -65,5 +74,6 @@
    ```
 3. brainstorming으로 app spec을 작성합니다 → `app/docs/specs/`
    - 상태 관리(Provider / Riverpod)는 app 내부 결정(`A<n>`)입니다.
-   - 디자인 토큰은 계약 1.1.0(`docs/identity/design/tokens/README.md`), 컴포넌트는 명세 1.0.0(`docs/identity/design/components/README.md`, Issue #44)입니다. 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).
+   - 디자인 토큰은 계약 1.1.0(`docs/identity/design/tokens/README.md`)을, 컴포넌트는 명세 2.0.0(`docs/identity/design/components/README.md`)을 씁니다. 캘린더 길흉은 점이 아니라 날짜 칸 채우기입니다(design 결정 V10).
+   - REST 생성 코드(OpenAPI → Dart)와 대역 서버 방식은 app spec에서 정합니다.
    - 광고·인앱결제 SDK 선택(AdMob, RevenueCat 기본안)은 app spec에서 확정합니다. 계정 준비는 사용자 몫입니다(`docs/roadmap.md` 외부 준비물).
