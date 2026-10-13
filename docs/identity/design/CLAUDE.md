@@ -28,13 +28,18 @@
 | 컴포넌트 명세 (`components/`, 계약 2.1.0) | **제공** | app |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
-## 현재 상태 (2026-10-11, design 세션 작성)
-* **V2 후속: 근거 깊이 잠금·글자 수 상한** (브랜치 `design/v2-followups`, **컴포넌트 계약 2.0.0**, Issue #53·#54).
+## 현재 상태 (2026-10-13, design 세션 작성)
+* **문장 조각 용어 표시·근거 잠금 슬롯** (브랜치 `design/lock-slots`, **컴포넌트 계약 2.1.0**, Issue #68).
+  * `sentence-block.parts.segments`: `term` 조각은 `term-token`이 있는 화면에서만 칩(`term-token` `inline`), 그 밖은 일반 글자. 용어와 붙은 조사는 한 덩어리로 줄바꿈.
+  * IA v1 추가분(#70) 슬롯: `sentence-block` 열기(`saju-chart.yongsin.open`), 근거 시트 구역 제목 3개·해제 실패 toast·접근성 문구 3개.
+  * 슬롯 이름과 `term-token` 화면 목록은 테스트가 IA에서 읽어 비교합니다.
+  * 근거: [spec](specs/2026-10-13-term-segments-lock-slots-design.md), 결정 V28.
+* **V2 후속: 근거 깊이 잠금·글자 수 상한** (브랜치 `design/v2-followups`, 그때 컴포넌트 계약 2.0.0. 지금은 위 2.1.0, Issue #53·#54).
   * 근거 시트 구성과 잠김 상태 4개(`depth-link.evidenceSheet`), 요소 `lock.veil`, `sentence-block` `locked`. 풀이 시트의 개인 해석 상자와 `term-token` 잠김은 뺌(D60).
   * 공통 규칙: 동작 = 둥근 사각, 표시·고르기 = 알약(예외 없음), 화면 좌우 여백 `space.20`.
   * 글자 수 상한: [`lengths.md`](lengths.md), 도구 `tools/lengths.py`(측정 글꼴은 `.suberpowers/fonts`, 없으면 표 비교 테스트 skip).
   * 근거: [spec](specs/2026-10-11-depth-lock-lengths-design.md), 결정 V25~V27.
-* **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`, 그때 컴포넌트 계약 1.0.0, 토큰 1.1.0. 지금은 위 2.0.0).
+* **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`, 그때 컴포넌트 계약 1.0.0, 토큰 1.1.0. 지금은 위 2.1.0).
   * 명세: [`components/`](components/README.md) JSON(사실) + MD(설명) 11쌍. 공통 `interaction`(패턴 12개)·`elements`(요소 15개, 2.0.0에서 16개).
   * 검사: 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA 41개·토큰 참조·요소·패턴·상태 대응표·짝 MD).
   * 근거: [V2 spec](specs/2026-10-11-components-design.md), 결정 V13~V24. 대비 검사 86/86(비활성 글자 3:1).
@@ -56,6 +61,5 @@
 
 ## 다음 할 일
 1. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.
-2. **지휘 요청 결과 반영:** IA `saju-chart`에 `sentence-block` 추가, 근거 시트 ui 슬롯(구역 제목·"열기"·해제 실패 toast·접근성 문구). 슬롯 이름이 정해지면 `sentence-block`·`depth-link` 명세에 적습니다.
-3. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-4. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+2. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+3. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
