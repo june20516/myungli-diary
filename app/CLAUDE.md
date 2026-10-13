@@ -43,29 +43,42 @@
 | 컴포넌트 명세 2.0.0 (`docs/identity/design/components/`) | **사용** | design |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 
-## 현재 상태 (2026-10-13, app 세션 갱신)
-* **A1 설계 완료, 기반 구현 착수 전**입니다.
-  * spec: [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md) (승인)
-  * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A15. 핵심은 Riverpod, 생성 클라이언트와 fixture 대역, go_router, drift 사주 기반 영구 캐시, 사주 변경 확인 창, golden과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
-  * 계획 분할(spec §10): ① 기반 → ② 온보딩·로그인 → ③ 오늘·깊이 시트 → ④ 달력·일정 → ⑤ 일기 → ⑥ 나·설정 → ⑦ 수익·알림
-  * 기반 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md) (task 22개, subagent-driven으로 실행)
-* 보낸 요청(2026-10-13): #84(IA 사주 변경 확인 창, **반영됨**: 슬롯 119), #85(ci-gate 연결), #86(Crashlytics, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #87(제품 지도·통합 E2E), #88(오류 code 목록), #89(Apple App Link, 계획 7 실제 adapter를 막음), #90(ARB 키 규칙)
-* UI 문구 원고는 writing이 작업 중입니다(#15·#27·#42·#52). 그전까지는 임시 문구를 씁니다(결정 A7).
+## 현재 상태 (2026-10-14, app 세션 갱신)
+* **기반 계획(task 1~22) 완료**입니다. 브랜치 `app/foundation`이고 PR 예정입니다. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
+  * spec: [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md) (승인), 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md)
+  * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A16. Riverpod(코드 생성 없음), 생성 클라이언트와 fixture 대역, go_router, drift 영구 캐시, 사주 변경 확인 창, golden(Linux)과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
+  * **REST 생성기(A16):** openapi-generator 7.26.0 `dart-dio`(Docker 이미지 고정)입니다. `swagger_parser`는 path 수준 `parameters` 생성 실패와 merge-patch Content-Type 누락으로 탈락했습니다.
+  * **글꼴 측정(Task 5):** debug apk 170,321,244 B(약 163 MiB, AOT·압축 전), `assets/fonts` 31M(Gowun Dodum 7.2M, Zen Maru Gothic 3.8M, Pretendard 4종 6.3M, Pretendard JP 4종 15M). subset 여부는 release 빌드 크기로 다시 판단합니다(I4).
+  * **만들어 둔 것:** 앱 셸과 fake 모드(시나리오 6개, 개발 메뉴), 라우터·진입 갈래, drift, 토큰·테마·글꼴, 오류 문구 표, 플랫폼 인터페이스와 대역, 공통 컴포넌트(frame·feedback·sentence)와 Widgetbook, golden 기반, IA id 상수 생성, E2E 뼈대(Patrol, 커버리지 도구, 스크린샷 등록, `e2e-android` job)입니다.
+  * **E2E 커버리지(도구로 확인, 2026-10-14):** 경로 3/76, 상태 1/54, 결정 1/6. CI가 이 값보다 줄면 막습니다(`tool/coverage_baseline.json`). 화면을 구현하는 계획마다 올립니다.
+* 보낸 요청: #84(IA 사주 변경 확인 창, 닫힘·반영됨: 슬롯 119), #86(Crashlytics, 닫힘, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #88(오류 code 목록, 닫힘), #89(Apple App Link, 닫힘. 실제 adapter는 계획 7에서 server 결과를 따름). **열려 있음:** #85(ci-gate에 app CI 연결), #87(제품 지도의 E2E 결과 표시와 통합 E2E 재사용), #90(ARB 키를 IA 슬롯 id의 lowerCamelCase로, writing).
+* UI 문구 원고는 writing이 작업 중입니다(#15·#27·#42·#52). 그전까지는 IA 슬롯 id의 lowerCamelCase 키와 임시 문구를 씁니다(결정 A7).
+* **아직 남은 외부 준비물(계획 7·출시 전):** 카카오·Apple·Firebase(FCM, Crashlytics)·AdMob·RevenueCat 계정과 키, Android App Link 도메인 검증. 사용자 몫입니다(`docs/roadmap.md` 외부 준비물). Android SDK 라이선스 동의는 로컬에서 Android 빌드가 막히면 확인합니다.
 * MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
-* **REST API 초안이 있습니다**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft, operation 37개, PR #62). 생성 코드와 대역 서버를 이 초안으로 만들 수 있습니다. freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다. 요점은 아래와 같습니다(Issue #63).
-  * 오류는 RFC 9457 problem+json이고 `code`로 분기합니다. 사용자 문구는 app이 `code`로 만듭니다(D59⑤). 400은 스키마로 거르는 형식·범위 위반(`request.invalid`), 422는 의미 검사(`request.inconsistent`, `date.invalid`, 엔진 판정)입니다.
+* **REST API 초안**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft, operation 37개). freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다(Issue #63).
+  * 오류는 RFC 9457 problem+json이고 `code`로 분기합니다. 사용자 문구는 app이 `code`로 만듭니다(D59⑤). 400은 형식·범위 위반(`request.invalid`), 422는 의미 검사(`request.inconsistent`, `date.invalid`, 엔진 판정)입니다.
   * null을 쓰지 않습니다. "모름"·"건너뜀"·"묻지 않음"은 상태 필드로 옵니다. PATCH에서 필드가 없으면 "바꾸지 않음"입니다.
   * 근거 열람 권한은 응답의 `evidenceAccess`(`unlocked`·`locked`)로 옵니다(D60).
   * 콘텐츠 문장은 조각 배열 `segments`로 옵니다. 용어 조각에는 `term`이 붙습니다. 위치 숫자는 쓰지 않습니다(server 결정 S9). `term` 조각의 표시는 design이 정합니다.
   * 시각은 기본 UTC입니다. 화면 표시용 시각(집중 시간, 절기 시각)만 프로필 시간대 offset으로 옵니다.
-* **컴포넌트 명세는 2.0.0입니다**(PR #66, Issue #65). 근거 깊이 잠금(근거 시트 잠김 4상태, `lock.veil`, `sentence-block` `locked`), 모양 규칙(동작은 둥근 사각, 표시·고르기는 알약), 화면 좌우 여백 `space.20`, 글자 수 상한이 들어갔습니다.
-* **IA v1에 추가된 것**(2026-10-13, 추가만): 근거 시트 구역 제목·해제 실패 toast·접근성 문구 ui 슬롯, `saju-chart.yongsin.open`, 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62). 화면 36·슬롯 118입니다.
+* **컴포넌트 명세 2.0.0**: 근거 깊이 잠금(잠김 4상태, `lock.veil`, `sentence-block` `locked`), 모양 규칙(동작은 둥근 사각, 표시·고르기는 알약), 화면 좌우 여백 `space.20`, 글자 수 상한이 들어갔습니다(PR #66, Issue #65).
+* **IA v1**: 화면 36·슬롯 119. 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62)가 있습니다.
 * 광고 제거권을 만료 전에 다시 사면 남은 기간에 이어 붙습니다(D61). 계산은 server가 합니다.
 * 도시 목록은 GeoNames `cities15000`(CC BY 4.0)으로 server가 만듭니다. **앱 오픈소스 고지(`legal`)에 출처를 표기합니다**(Issue #48 항목 5).
 * 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), A1 착수 안내(#30). 앞으로 받은 요청은 `gh issue list --label to:app`.
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. 기반 계획 실행: 브랜치 `app/foundation`(`origin/main`에서 `--no-track`), [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md)를 subagent-driven-development로 실행합니다. Flutter SDK는 `~/development/flutter`(stable)에 있습니다.
-2. 기반 병합 뒤 계획 2(온보딩·로그인)를 writing-plans로 씁니다.
-3. 받은 요청은 `gh issue list --label to:app`으로 확인합니다.
+1. **기반 PR 병합.** `app/foundation` → `main`. `ci-gate` 연결(#85) 뒤에는 app CI가 판정에 포함되며, 연결되면 `app.yml`의 `pull_request` 트리거를 지휘 세션이 지웁니다. 병합 전 `git merge origin/main`.
+2. **계획 2(온보딩·로그인)를 writing-plans로** 씁니다(`app/docs/plans/`). 화면: `launch`·`force-update`·`welcome`·`onboard-*`·`birthplace`·`preview`·`login`·`consent`·`notify-ask`·`ad-consent`. 기반에서 넘어온 것:
+   * `primary-button`(action.json)을 이 계획에서 만들고, ErrorState·EmptyState·근거 잠금 안내의 임시 `FeedbackTextAction`을 교체합니다.
+   * 약관 동의 직후에는 "프로필 저장 → `entryStateProvider.notifier.refresh()`" 순서입니다(먼저 refresh하면 profileRequired로 `/onboard-call`에 튕깁니다).
+   * 딥링크·알림 열기 뒤 원래 목적지로 돌아가는 방식을 설계합니다. 진입 갈래가 entry null이면 모든 경로를 `/launch`로 보내므로(`PushMessaging.initialOpen()` 포함) 진입 뒤 복귀가 필요합니다.
+   * `profileTimezoneProvider`의 http 기본값 `Asia/Seoul`을 프로필 `currentTimezone`으로 바꾸고, 기기 시간대가 바뀌면 `PATCH /v1/me/profile`을 보냅니다(앱 셸의 훅 자리).
+   * 온보딩 입력 저장소(OnboardingInputs 테이블)의 읽기·쓰기 API를 만들고, 프로필 저장에 성공하면 지웁니다.
+   * 화면마다 `covers(...)` 선언과 흐름 테스트를 더하고 커버리지 baseline을 올립니다(`dart run tool/ia_coverage.dart --update-baseline`).
+3. **이후 계획으로 넘긴 사항**
+   * 계획 3(오늘·깊이 시트): 시트 3개(explain·evidence·day-sheet)의 IA states 처리 등록 방식을 정하고 `test/contract/ia_pending.dart`의 `pendingStateScreens`에서 지웁니다(ratchet). 표시용 시각(`FocusSlot.start·end`, `SolarTerm.at`)은 생성 모델이 UTC로 바꾸므로 화면에서 프로필 시간대로 변환합니다(계획 4 달력 절기도). 근거 잠금 해제 중 "세 구역 skeleton" 단계와 시간 초과 toast(`evidence-sheet.unlock.failed`)는 화면 흐름 몫입니다. 보상형 광고 뒤 권한 확인 폴링은 fixture `sequence`로 재현합니다.
+   * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다.
+4. **출시 전(I4) 확인:** 글꼴 31M를 release 빌드 다운로드 크기로 보고 subset 여부 재판단. Pretendard 업스트림 저작권 고지(Inter·Source Han Sans·M PLUS 1p `NOTICE.txt`)가 법적으로 충분한지 라이선스 검토.
+5. 받은 요청은 `gh issue list --label to:app`으로 확인합니다. 기반 PR 때 design에 보내는 notice(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘 선택, 컴포넌트 변형 등)의 답도 확인합니다.
