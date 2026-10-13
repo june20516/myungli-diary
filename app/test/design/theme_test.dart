@@ -10,6 +10,18 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/fonts.dart';
 
+/// lerp의 "다른 타입" 분기를 검사하려는 다른 ThemeExtension.
+class _OtherExtension extends ThemeExtension<_OtherExtension> {
+  const _OtherExtension();
+
+  @override
+  _OtherExtension copyWith() => this;
+
+  @override
+  _OtherExtension lerp(ThemeExtension<_OtherExtension>? other, double t) =>
+      this;
+}
+
 const _light = MyungliTokens(
   colors: lightColors,
   typography: koType,
@@ -73,6 +85,7 @@ void main() {
 
     test('lerp는 other가 없거나 다른 타입이면 자기 자신을 돌려줍니다', () {
       expect(_light.lerp(null, 0.9), same(_light));
+      expect(_light.lerp(const _OtherExtension(), 0.9), same(_light));
     });
 
     test('lerp는 t가 0.5 미만이면 자기 자신, 이상이면 other입니다', () {
