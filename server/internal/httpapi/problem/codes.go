@@ -33,6 +33,10 @@ var (
 	RequestInconsistent      = Code{"request.inconsistent", http.StatusUnprocessableEntity}
 	BirthInvalid             = Code{"birth.invalid", http.StatusUnprocessableEntity}
 	DiaryFutureDate          = Code{"diary.future_date", http.StatusUnprocessableEntity}
+	NameEmpty                = Code{"name.empty", http.StatusUnprocessableEntity}
+	NameTooLong              = Code{"name.too_long", http.StatusUnprocessableEntity}
+	NameEmoji                = Code{"name.emoji", http.StatusUnprocessableEntity}
+	NameControl              = Code{"name.control", http.StatusUnprocessableEntity}
 	NameInvalidChar          = Code{"name.invalid_char", http.StatusUnprocessableEntity}
 	IdempotencyMismatch      = Code{"idempotency.mismatch", http.StatusUnprocessableEntity}
 	ConsentVersionMismatch   = Code{"consent.version_mismatch", http.StatusUnprocessableEntity}
@@ -69,7 +73,7 @@ func AllCodes() []Code {
 	return []Code{
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
 		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate,
-		NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
+		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AppCheckInvalid,
 		ConsentRequired, PreviewUsed, DiaryNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
 		RateLimited, NotImplemented,

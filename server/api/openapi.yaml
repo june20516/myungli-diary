@@ -1496,7 +1496,7 @@ components:
         * `request.inconsistent`: 상태-값 짝 위반. `errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`
           (대상 `BirthTime`, `BirthPlace`, 양력의 `isLeapMonth`, `NotificationSetting`, `ScheduleInput`·`SchedulePatch`)
         * `consent.version_mismatch`: 동의한 문서 버전이 현재 버전과 다름. `errors[].field`는 `/documents/<i>/version`
-        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `name.invalid_char`(호칭 규칙 위반), `idempotency.mismatch`
+        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, 호칭 거부(`name.empty`·`name.too_long`·`name.emoji`·`name.control`·`name.invalid_char`, josa.yaml name_rules의 기준 구현 normalize_name), `idempotency.mismatch`
       content:
         application/problem+json:
           schema:
@@ -1648,9 +1648,21 @@ components:
             diary.future_date:
               status: 422
               description: '오늘 이후 날짜의 일기'
+            name.empty:
+              status: 422
+              description: '호칭 거부: 공백과 접미사를 떼고 나면 비어 있음'
+            name.too_long:
+              status: 422
+              description: '호칭 거부: 언어별 최대 길이(ko·ja 10, en 20)를 넘음'
+            name.emoji:
+              status: 422
+              description: '호칭 거부: 이모지를 포함함'
+            name.control:
+              status: 422
+              description: '호칭 거부: 제어 문자를 포함함'
             name.invalid_char:
               status: 422
-              description: '호칭 규칙 위반: 쓸 수 없는 글자(josa.yaml name_rules)'
+              description: '호칭 거부: 받지 않는 글자({ } [ ] ( ))를 포함함'
             idempotency.mismatch:
               status: 422
               description: '같은 Idempotency-Key에 다른 본문'

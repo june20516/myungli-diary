@@ -115,7 +115,8 @@ func TestProblemCodes_AllCodesListsEveryDeclaredCode(t *testing.T) {
 //   - code 자리의 리터럴: problem.New의 두 번째 인자, 키가 code인 필드, Error{Code: ...}
 //   - 어디에 있든 registry에 등록된 code와 같은 리터럴
 //
-// 테스트 파일과 생성 코드(gen)는 보지 않습니다. FieldError.Code의 keyword("required" 등)는
+// 잡는 범위는 위 두 가지뿐입니다. 상수·변수 경유, problem.Code{...} 합성 리터럴, 대입(x.Code = "...")으로
+// 만드는 우회는 못 잡습니다. 테스트 파일과 생성 코드(gen)는 보지 않습니다. FieldError.Code의 keyword("required" 등)는
 // 등록된 code가 아니고 code 자리 규칙에도 걸리지 않으므로 허용됩니다.
 func TestProblemCodes_NoLiteralCodesOutsideRegistry(t *testing.T) {
 	registered := make(map[string]bool)
