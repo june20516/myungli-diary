@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
 
@@ -194,6 +195,11 @@ func TestRun_ServeRejectsUnparsableAuthSettings(t *testing.T) {
 		{"Apple 개인 키가 PEM이 아님", "APPLE_PRIVATE_KEY", secret},
 		{"딥링크에 scheme이 없음", "APPLE_CALLBACK_DEEPLINK", "auth/apple/" + secret},
 		{"딥링크를 해석할 수 없음", "APPLE_CALLBACK_DEEPLINK", "myungli://auth/%zz" + secret},
+		{"딥링크 scheme이 javascript", "APPLE_CALLBACK_DEEPLINK", "javascript:alert('" + secret + "')"},
+		{"딥링크 scheme이 대문자 JavaScript", "APPLE_CALLBACK_DEEPLINK", "JavaScript:alert('" + secret + "')"},
+		{"딥링크 scheme이 data", "APPLE_CALLBACK_DEEPLINK", "data:text/html," + secret},
+		{"딥링크 scheme이 file", "APPLE_CALLBACK_DEEPLINK", "file:///tmp/" + secret},
+		{"딥링크 scheme이 vbscript", "APPLE_CALLBACK_DEEPLINK", "vbscript:" + secret},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -224,6 +230,29 @@ func TestRun_ServeRejectsUnparsableAuthSettings(t *testing.T) {
 				t.Errorf("키 검사 전에 DB에 연결했습니다: %q", stderr.String())
 			}
 		})
+	}
+}
+
+func TestParseAuthSettings_AcceptsAppSchemeAndHTTPS(t *testing.T) {
+	for _, link := range []string{"myungli://auth/apple", "https://app.myungli.example/auth/apple"} {
+		t.Run(link, func(t *testing.T) {
+			env := testAuthEnv(t)
+			env["APPLE_CALLBACK_DEEPLINK"] = link
+			cfg, err := config.LoadAuth(func(key string) string { return env[key] })
+			if err != nil {
+				t.Fatalf("LoadAuth: %v", err)
+			}
+
+			if _, err := parseAuthSettings(cfg); err != nil {
+				t.Errorf("parseAuthSettings(%q) error = %v, want nil", link, err)
+			}
+		})
+	}
+}
+
+func TestNewProviderHTTPClient_HasTimeout(t *testing.T) {
+	if got := newProviderHTTPClient().Timeout; got != 5*time.Second {
+		t.Errorf("Timeout = %v, want 5s", got)
 	}
 }
 

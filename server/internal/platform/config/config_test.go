@@ -185,6 +185,36 @@ func TestLoadAuth_ReportsAllMissingRequired(t *testing.T) {
 	}
 }
 
+func TestLoadAuth_WhitespaceOnlyIsMissing(t *testing.T) {
+	env := completeAuthEnv()
+	env["KAKAO_APP_KEY"] = " \n\t "
+	env["JWT_PREVIOUS_KEY_ID"] = "  "
+	env["JWT_PREVIOUS_KEY"] = "k"
+
+	_, err := LoadAuth(fakeEnv(env))
+	if err == nil {
+		t.Fatal("LoadAuth() error = nil, want error")
+	}
+	for _, name := range []string{"KAKAO_APP_KEY", "JWT_PREVIOUS_KEY_ID"} {
+		if !strings.Contains(err.Error(), name) {
+			t.Errorf("오류에 %s가 없습니다: %v", name, err)
+		}
+	}
+}
+
+func TestLoadAuth_TrimsValues(t *testing.T) {
+	env := completeAuthEnv()
+	env["APPLE_TEAM_ID"] = "  TEAM01\n"
+
+	cfg, err := LoadAuth(fakeEnv(env))
+	if err != nil {
+		t.Fatalf("LoadAuth() error = %v, want nil", err)
+	}
+	if cfg.AppleTeamID != "TEAM01" {
+		t.Errorf("AppleTeamID = %q, want %q", cfg.AppleTeamID, "TEAM01")
+	}
+}
+
 func TestLoadAuth_PreviousKeyNeedsBothIDAndValue(t *testing.T) {
 	tests := []struct {
 		name string

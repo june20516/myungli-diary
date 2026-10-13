@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
@@ -77,7 +78,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Pool:   pool,
 		Logger: logger,
 		Clock:  clock.System{},
-		HTTP:   &http.Client{Timeout: providerHTTPTimeout},
+		HTTP:   newProviderHTTPClient(),
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
 	})
@@ -155,9 +156,13 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 	}
 
 	// 콜백이 이 값에 쿼리를 붙여 redirect하므로, 앱이 받을 수 있는 scheme이 있는 URL이어야 합니다.
+	// 브라우저에서 스크립트·로컬 파일을 여는 scheme은 막습니다(url.Parse가 scheme을 소문자로 바꿉니다).
 	deepLink, err := url.Parse(cfg.AppleCallbackDeepLink)
 	if err != nil || deepLink.Scheme == "" {
 		return authSettings{}, errors.New("APPLE_CALLBACK_DEEPLINK는 scheme이 있는 URL이어야 합니다")
+	}
+	if slices.Contains(forbiddenDeepLinkSchemes, deepLink.Scheme) {
+		return authSettings{}, errors.New("APPLE_CALLBACK_DEEPLINK에 쓸 수 없는 scheme입니다(app custom scheme이나 https를 씁니다)")
 	}
 
 	return authSettings{
@@ -167,6 +172,16 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		box:             box,
 		applePrivate:    appleKey.Private,
 	}, nil
+}
+
+// forbiddenDeepLinkSchemes는 APPLE_CALLBACK_DEEPLINK에 쓸 수 없는 scheme입니다.
+// redirect 대상이 스크립트를 실행하거나 데이터·로컬 파일을 여는 scheme이면 콜백이 공격 경로가 됩니다.
+var forbiddenDeepLinkSchemes = []string{"javascript", "data", "file", "vbscript"}
+
+// newProviderHTTPClient는 외부 제공자 호출에 쓰는 운영용 http.Client를 만듭니다.
+// 호출 한 번의 상한(providerHTTPTimeout)을 client에도 둬, provider의 호출별 deadline이 빠진 경로도 묶입니다.
+func newProviderHTTPClient() *http.Client {
+	return &http.Client{Timeout: providerHTTPTimeout}
 }
 
 // providerURLs는 제공자 엔드포인트 주소입니다. 빈 값은 provider의 기본값(실제 제공자 주소)을 씁니다.

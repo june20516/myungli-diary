@@ -123,9 +123,11 @@ type AuthConfig struct {
 	AppleWebRedirectURI, AppleCallbackDeepLink string
 }
 
-// LoadAuth는 getenv로 인증 설정을 읽습니다. 필수 값이 빈 변수와 이전 키의 짝 오류를 모두 모아
-// errors.Join으로 돌려줍니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+// LoadAuth는 getenv로 인증 설정을 읽습니다. 값은 앞뒤 공백(줄바꿈 포함)을 지운 뒤 쓰므로 공백뿐인 값은 빈 값입니다.
+// 필수 값이 빈 변수와 이전 키의 짝 오류를 모두 모아 errors.Join으로 돌려줍니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
 func LoadAuth(getenv func(string) string) (AuthConfig, error) {
+	// Secret Manager에서 넣은 값에 끝 줄바꿈이 붙는 일이 흔해 공백을 지웁니다.
+	getenv = trimmedEnv(getenv)
 	var missing []string
 	require := func(name string) string {
 		value := getenv(name)
@@ -167,6 +169,11 @@ func LoadAuth(getenv func(string) string) (AuthConfig, error) {
 		return AuthConfig{}, err
 	}
 	return cfg, nil
+}
+
+// trimmedEnv는 getenv가 돌려주는 값의 앞뒤 공백을 지우는 getenv를 만듭니다.
+func trimmedEnv(getenv func(string) string) func(string) string {
+	return func(name string) string { return strings.TrimSpace(getenv(name)) }
 }
 
 // requirePair는 선택 항목인 이전 키의 ID와 값이 둘 다 있거나 둘 다 없는지 검사합니다.
