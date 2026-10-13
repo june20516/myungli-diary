@@ -5,16 +5,18 @@
 * 마일스톤: A1 (app 설계, 대역 데이터로 화면 구현)
 * 관련 결정: app 결정 A1~A13([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
 * 쓰는 계약
-  * REST API `server/api/openapi.yaml` 1.0.0-draft
+  * REST API `server/api/openapi.yaml` 1.0.0-draft.2
   * IA `docs/ia/screens.json` v1
   * 디자인 토큰 1.1.0
-  * 컴포넌트 명세 2.0.0
+  * 컴포넌트 명세 2.2.0
   * 슬롯 명세 v1
   * 라이팅 검사기 `mlw` v0.1.0
+* 개정 기록
+  * 2026-10-14: 기반 계획 최종 review 반영. 계약을 REST 1.0.0-draft.2(Apple 로그인 `clientType` 제거, iOS `loginApple`·Android `completeAppleWebLogin` 분리, nonce 원문·해시 규칙)와 컴포넌트 2.2.0(V28 용어 칩 화면 한정, 잠김 라벨 구역 이름)으로 맞춤. 수치를 IA v1 현재 값(화면 37, 슬롯 124, operation 38)으로 고침. App Check 대상은 계약 `security`에서 생성(§4.1). 로그아웃 정리 경로·백업 정책(§4.4), 계정 연결(§7), `workflow_call`의 E2E 조건(§9)을 더함. 생성기는 결정 A16으로 확정
 
 ## 1. 목적과 범위
 
-app이 화면 36개, 컴포넌트 41개, 슬롯 118개, REST operation 37개를 **계약을 기준으로 어긋남 없이 오래 유지할 수 있는 구조**를 정합니다. 기준은 "안정적으로 지속 가능한 개발"입니다. 구체적으로는 다음과 같습니다.
+app이 화면 37개, 컴포넌트 41개, 슬롯 124개(그중 app이 그리는 것 120개), REST operation 38개를 **계약을 기준으로 어긋남 없이 오래 유지할 수 있는 구조**를 정합니다. 기준은 "안정적으로 지속 가능한 개발"입니다. 구체적으로는 다음과 같습니다.
 
 * 계약 파일이 원본이고 app 코드는 그것을 생성하거나 대조합니다. 계약이 바뀌면 컴파일 오류나 CI 실패로 먼저 드러납니다.
 * 외부 SDK와 server는 모두 인터페이스 뒤에 두고 대역을 함께 둡니다. 계정 준비나 server 진행을 기다리지 않고 전 흐름을 개발하고 테스트합니다.
@@ -90,16 +92,17 @@ app/
 ### 4.1 통신 (결정 A2)
 
 * `openapi.yaml`에서 Dart 모델과 클라이언트를 생성해 `core/api/gen/`에 commit합니다(D33 관례).
-  * 생성기 후보: ① 순수 Dart인 `swagger_parser`(우선), ② `openapi-generator` `dart-dio`.
-  * 기반 계획에서 실제로 생성해 보고 확정합니다. 계약은 `oneOf`·`allOf`·`discriminator`가 없는 평범한 형태여서 둘 다 처리할 수 있습니다.
+  * 생성기는 `openapi-generator` 7.26.0 `dart-dio`(Docker 이미지 고정)입니다(결정 A16). `swagger_parser`는 path 수준 `parameters` 생성 실패와 merge-patch Content-Type 누락으로 탈락했습니다.
+  * route 표(`core/api/gen_routes/`)도 계약에서 생성합니다. operation마다 `requiresBearer`(`security`의 bearerAuth)와 `requiresAppCheck`(`security`의 appCheck)를 냅니다.
 * HTTP는 Dio입니다. interceptor 순서는 다음과 같습니다.
   1. **공통 헤더:**
      * 비로그인 요청에는 `Accept-Language`를 붙입니다.
-     * `createPreview`·`getBirthHour`에는 `X-Firebase-AppCheck`를 붙입니다.
+     * 계약 `security`에 appCheck가 있는 operation(지금은 `createPreview`·`getBirthHour`)에는 `X-Firebase-AppCheck`를 붙입니다. 대상은 생성된 `requiresAppCheck`로 정하므로 server가 대상을 늘려도 따라갑니다.
   2. **인증:**
      * bearer를 붙입니다.
      * 401 `auth.token_expired`면 refresh를 **한 번만** 하고 원 요청을 다시 보냅니다. 동시에 실패한 요청들은 같은 refresh를 기다립니다.
-     * `auth.refresh_reused`나 refresh 실패면 로그아웃 상태로 바꿉니다.
+     * refresh가 거부되면(401, `auth.refresh_reused`) 로그아웃합니다. 연결 오류·시간 초과·5xx·503 `auth.provider_unavailable`은 토큰을 남깁니다.
+     * 403 `consent.required`면 진입 갈래를 다시 계산하게 알립니다(토큰은 그대로).
   3. **대역:** fake 모드에서만 끼웁니다(§4.2).
 * access token은 메모리에, refresh token은 보안 저장소(Keychain·Keystore)에 둡니다.
 * `Idempotency-Key`(`createSchedule`·`registerDevice`)는 사용자 동작 하나마다 UUID를 만들고, 재시도에도 같은 키를 씁니다.
@@ -124,7 +127,11 @@ app/
 
 ### 4.4 로컬 저장과 캐시 (결정 A5)
 
-로컬 DB는 **drift(SQLite)**입니다. 타입 안전한 질의와 스키마 마이그레이션 도구·테스트가 있어, 앱 업데이트 때 로컬 데이터가 깨지지 않게 지킬 수 있습니다. 모든 행의 키에는 계정 id가 들어갑니다. 로그아웃·계정 삭제 때 그 계정의 행을 모두 지웁니다.
+로컬 DB는 **drift(SQLite)**입니다. 타입 안전한 질의와 스키마 마이그레이션 도구·테스트가 있어, 앱 업데이트 때 로컬 데이터가 깨지지 않게 지킬 수 있습니다. 캐시·일기 초안 행의 키에는 계정 id가 들어가고, 읽기·쓰기는 그 계정으로 한정합니다.
+
+**로그아웃 정리.** 모든 로그아웃은 `TokenStore.signOut`의 `signedOut` 이벤트 하나를 거칩니다. 경로는 refresh 거부, `getMe` 401, 삭제 대기 계정(S16), 자발적 로그아웃입니다. 삭제 대기 계정과 자발적 로그아웃은 `revokeAndSignOut`으로 server `logout`(refresh token 폐기)을 먼저 시도하고, 실패해도 로컬 로그아웃은 합니다. 이벤트를 받으면 모든 계정의 캐시·일기 초안과 온보딩 입력을 지웁니다(기기 플래그는 남김). 기기에는 한 번에 한 계정만 로그인하므로 계정 id를 기억하지 않고 지워, 이번 실행에서 내 정보를 받기 전에 로그아웃돼도 정리됩니다. 계정 삭제(계획 6)도 같은 이벤트를 거칩니다.
+
+**백업과 다시 설치.** Android는 클라우드 백업과 기기 간 이전에서 앱 데이터를 모두 뺍니다(`allowBackup="false"`, `dataExtractionRules`). 일기 초안과 출생 정보를 보호하고, 새 기기의 Keystore 키로 풀 수 없는 보안 저장소 값이 옮겨지지 않게 합니다. iOS Keychain은 앱을 지워도 남으므로, 진입 계산이 설치 표시(기기 플래그)가 없으면 다시 설치한 것으로 보고 이전 설치의 refresh token을 버립니다.
 
 **사주 기반 영구 캐시: 달력(`getCalendar`), 나의 사주(`getChart`)**
 * 달력의 길흉과 나의 사주는 (내 사주, 그 달·그해)로 정해집니다. server도 `birth_hash + rulesetVersion + 연·월 + 시간대`로 캐시합니다. 그날 문장(`level`)도 server가 (계정, 날짜, 슬롯)마다 한 번 골라 고정합니다(D59②).
@@ -224,7 +231,8 @@ app/
 * 공용 위젯 하나가 `RenderedText.segments`를 `Text.rich`로 그립니다. app은 문장을 고르거나 조사를 붙이지 않습니다(D59).
 * `term` 조각은 `term-token`(색 표시, 누르면 풀이 시트)으로 그립니다. 표시 방식의 남은 결정(server spec §13, Issue #48 항목 3)은 design이 정하는 대로 따릅니다.
 * enum 값(오행·십성·태그 등)의 표시 이름은 `getGlossary`에서 받습니다. 원국표의 천간·지지 한자는 고정값이라 app이 가집니다.
-* 근거 잠금(D60)은 응답의 `evidenceAccess`로만 판단합니다. 잠긴 상태의 표시는 컴포넌트 명세 2.0.0 `depth-link.evidenceSheet`의 잠김 4상태와 `sentence-block` `locked`를 따릅니다.
+* 근거 잠금(D60)은 응답의 `evidenceAccess`로만 판단합니다. 잠긴 상태의 표시는 컴포넌트 명세 2.2.0 `depth-link.evidenceSheet`의 잠김 4상태와 `sentence-block` `locked`를 따릅니다. 잠긴 문장의 스크린리더 라벨은 "구역 이름(`a11y.lockedNameSlot`), 잠김"입니다.
+* 용어 조각(`term`)은 IA에 `term-token`이 있는 화면의 슬롯에서만 칩으로 그리고, 그 밖과 미리보기(`diary-row`)·공유 이미지는 일반 글자입니다(V28, 컴포넌트 2.1.0).
 
 ### 6.6 IA id 부착
 
@@ -240,13 +248,14 @@ app/
 
 | 영역 | 설계 |
 | --- | --- |
-| 카카오 로그인 (D55) | 카카오 SDK로 OIDC `id_token`을 받습니다. app이 만든 nonce를 함께 보냅니다(`loginKakao`) |
-| Apple 로그인 iOS | 네이티브 로그인, `clientType: native` |
-| Apple 로그인 Android (결정 A12) | Custom Tabs로 Apple 인증을 엽니다. server 콜백(`appleCallback`)의 303이 **Android App Link**(https, 도메인 검증)로 app에 돌아옵니다. app은 자기가 만든 `state`가 맞는지 확인한 뒤 `loginApple(clientType: web)`을 부릅니다. custom scheme보다 다른 앱의 가로채기에 안전합니다. Location 형식은 server에 요청합니다(§11) |
-| 로그인 뒤 | RevenueCat `logIn(accountId)`, FCM 기기 등록(알림을 켠 경우) |
-| App Check | iOS App Attest, Android Play Integrity. 비로그인 요청에만 붙입니다 |
+| nonce (#100) | app이 원문 nonce(16~256자)를 만들어 server에는 원문을, 제공자(카카오·Apple)에는 SHA-256 소문자 hex를 보냅니다 |
+| 카카오 로그인 (D55) | 카카오 SDK로 OIDC `id_token`을 받아 원문 nonce와 함께 `loginKakao`로 보냅니다 |
+| Apple 로그인 iOS | 네이티브 로그인 뒤 `loginApple`(원문 nonce) |
+| Apple 로그인 Android (결정 A12, #114) | Custom Tabs로 Apple 인증을 엽니다. server 콜백(`appleCallback`)의 303이 **Android App Link** `/auth/apple`(https, 도메인 검증)로 app에 돌아옵니다. app은 자기가 만든 `state`가 맞는지 먼저 확인하고, 받은 교환 코드(2분 일회용)로 `completeAppleWebLogin`을 부릅니다. custom scheme보다 다른 앱의 가로채기에 안전합니다. 앱이 열리지 않으면 server 안내 페이지(`system-apple-return`, D66)가 보입니다 |
+| 로그인 뒤·세션 복원 | 계정 id의 출처는 진입 계산의 내 정보(`meProvider`) 하나입니다. 계정 연결 담당(`AccountLinker`)이 그 값이 생기거나 바뀌면 RevenueCat `logIn(accountId)`와 Crashlytics `setUser(accountId)`를 부르고, 로그아웃 이벤트에서 `logOut()`·`setUser(null)`을 부릅니다. 로그인 화면도 로그인 뒤 진입을 다시 계산하므로 새 로그인과 앱을 다시 연 경우가 같은 곳을 거칩니다. FCM 기기 등록(알림을 켠 경우)은 계획 7입니다 |
+| App Check | iOS App Attest, Android Play Integrity. 계약 `security`에 appCheck가 있는 operation(`createPreview`·`getBirthHour`)에만 붙입니다(§4.1) |
 | 알림 (D18⑨·D62) | `notify-ask`에서 시각을 고르면 권한을 요청하고 `registerDevice`로 등록합니다. 토큰이 바뀌면 다시 등록하고, 로그아웃하면 `deleteDevice`로 해제합니다. 알림을 누르면 `today`로 갑니다(로그아웃 상태면 `welcome`) |
-| 비정상 종료 보고 (결정 A10, D64) | Firebase Crashlytics. 로그·custom key·breadcrumb에 일기 본문, 출생 정보, 호칭을 넣지 않습니다(D64 ②). 사용자 식별값은 계정 id(UUID)뿐이고, breadcrumb은 IA 화면 id만 받습니다 |
+| 비정상 종료 보고 (결정 A10, D64) | Firebase Crashlytics. 로그·custom key·breadcrumb에 일기 본문, 출생 정보, 호칭을 넣지 않습니다(D64 ②). 사용자 식별값은 계정 id(UUID)뿐이고, breadcrumb은 IA 화면 id만 받습니다. 라우터의 현재 경로가 바뀔 때마다 화면 id를 남깁니다(탭 전환·redirect 포함) |
 | 광고 동의 (D53④) | 이 기기에서 처음 광고를 보이기 전에 UMP(필요한 지역) → iOS ATT 순서로 한 번 받습니다. 거절해도 비맞춤 광고로 계속합니다. 동의를 받았다는 기기 플래그는 로컬에 둡니다 |
 | 배너 (D53①) | 적응형 배너를 탭 루트 4곳 하단에만 둡니다. `adFree.active`면 자리째 숨깁니다. 불러오지 못하면 자리를 비우고 레이아웃이 튀지 않게 합니다 |
 | 보상형 광고 (D60) | 근거 시트의 잠금 안내에서 사용자가 고를 때만 띄웁니다. 매번 보상을 먼저 알리고, 광고가 준비됐을 때만 버튼을 켭니다. SSV `userId`는 계정 id입니다. 다 보면 "확인 중" 상태로 `getEntitlements`를 2초 간격으로 최대 30초 동안 다시 묻습니다(값은 상수 하나로 두고 A2에서 실측해 조정). `insight.active`가 되면 열고(§4.4 잠금 해제 캐시 규칙), 30초 안에 안 되면 `evidence-sheet.unlock.failed` toast를 보입니다. 권한은 server만 부여하며 app이 스스로 열지 않습니다 |
@@ -329,7 +338,7 @@ IA·결정 로그·계약이 기계가 읽을 수 있는 형태로 있으므로,
 * **기기 E2E job**은 Android 에뮬레이터(Linux, KVM)에서 Patrol을 돌립니다.
   * 비공개 저장소의 무료 플랜이라 Actions 사용 시간이 제한되므로 PR마다 돌리지 않습니다. `main` 병합 뒤, 매일 밤, 수동 실행으로 돕니다.
   * PR에서는 위젯 수준 앱 흐름 테스트가 같은 흐름을 지킵니다.
-  * 이 job은 `ci-gate` 판정에 넣지 않고, 실패하면 Issue로 다룹니다.
+  * 이 job은 `ci-gate` 판정에 넣지 않고, 실패하면 Issue로 다룹니다. 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행(`github.workflow == 'app'`)일 때만 이벤트로 켜고 `workflow_call`로 불리면 입력 `run_e2e`(기본 false)로만 켭니다.
 
 **산출물:** E2E가 만든 화면 스크린샷과 커버리지 보고서를 `app/docs/artifacts/`에 두고 `index.json`에 등록합니다(workflow §7, §8.1).
 
