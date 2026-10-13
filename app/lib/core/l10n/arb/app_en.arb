@@ -7,6 +7,7 @@
   "errorUnexpected": "Something unexpected happened.",
   "errorNotImplemented": "This is not available yet.",
   "appTitle": "Myungli Diary",
+  "bootstrapFailed": "The app could not start. Please close it completely and open it again.",
   "actionRetry": "Try again",
   "traceIdLabel": "Reference {traceId}",
   "tabToday": "Today",

@@ -31,6 +31,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appTitle => '命理日記';
 
   @override
+  String get bootstrapFailed => 'アプリを起動できませんでした。アプリを完全に終了してから、もう一度開いてください。';
+
+  @override
   String get actionRetry => 'もう一度試す';
 
   @override

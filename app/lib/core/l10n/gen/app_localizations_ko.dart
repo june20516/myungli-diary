@@ -31,6 +31,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => '명리일기';
 
   @override
+  String get bootstrapFailed => '앱을 시작하지 못했어요. 앱을 완전히 종료한 뒤 다시 열어 주세요.';
+
+  @override
   String get actionRetry => '다시 시도';
 
   @override

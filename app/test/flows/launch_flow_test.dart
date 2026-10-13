@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +11,17 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 
 import '../support/app_harness.dart';
+
+/// 보내는 요청 수를 세는 interceptor. 오프라인으로 실패할 요청도 셉니다.
+class _CountingInterceptor extends Interceptor {
+  int requests = 0;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    requests++;
+    handler.next(options);
+  }
+}
 
 void main() {
   const flows = {
@@ -32,6 +44,8 @@ void main() {
     tester,
   ) async {
     final container = await pumpApp(tester, scenario: 'offline');
+    final counter = _CountingInterceptor();
+    container.read(dioProvider).interceptors.insert(0, counter);
 
     expect(find.byKey(const ValueKey(ScreenIds.launch)), findsOneWidget);
     final errorState = tester.widget<ErrorState>(find.byType(ErrorState));
@@ -40,8 +54,10 @@ void main() {
     expect(find.text('다시 시도'), findsOneWidget);
 
     // 다시 시도는 진입 계산을 다시 합니다(대역은 계속 오프라인이라 오류 그대로).
+    expect(counter.requests, 0);
     await tester.tap(find.text('다시 시도'));
-    await tester.pumpAndSettle();
+    await settleEntry(tester, container);
+    expect(counter.requests, greaterThan(0));
     expect(container.read(entryStateProvider).hasError, isTrue);
     expect(find.byType(ErrorState), findsOneWidget);
   });

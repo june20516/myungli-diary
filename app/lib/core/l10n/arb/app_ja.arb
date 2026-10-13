@@ -7,6 +7,7 @@
   "errorUnexpected": "予期しない問題が発生しました。",
   "errorNotImplemented": "まだ準備中です。",
   "appTitle": "命理日記",
+  "bootstrapFailed": "アプリを起動できませんでした。アプリを完全に終了してから、もう一度開いてください。",
   "actionRetry": "もう一度試す",
   "traceIdLabel": "お問い合わせ番号 {traceId}",
   "tabToday": "今日",

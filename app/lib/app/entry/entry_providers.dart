@@ -131,6 +131,12 @@ final meProvider = Provider<Me?>(
   (ref) => ref.watch(entryStateProvider).value?.me,
 );
 
+/// 이 기기에서 광고 동의를 거쳤는지. 진입 계산이 끝날 때마다 다시 읽습니다.
+final adConsentGivenProvider = FutureProvider<bool>((ref) {
+  ref.watch(entryStateProvider);
+  return ref.watch(deviceFlagsStoreProvider).readBool(adConsentDoneKey);
+});
+
 /// 앱 루트 `ProviderScope`에 넣는 override. 계정 id를 [meProvider]에서 채웁니다.
 final List<Override> entryOverrides = [
   currentAccountIdProvider.overrideWith((ref) {

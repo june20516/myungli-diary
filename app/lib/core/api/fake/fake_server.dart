@@ -105,23 +105,33 @@ final class FakeServerInterceptor extends Interceptor {
 
   Future<_Fixture?> _findFixture(ApiRoute route, String path) async {
     final parameters = route.pathParametersOf(path) ?? const {};
-    final names = [
+    final found = await findFixtureSource([
       if (parameters.isNotEmpty)
         '${route.operationId}__${parameters.values.join('-')}.json',
       '${route.operationId}.json',
-    ];
+    ]);
+    if (found == null) {
+      return null;
+    }
+    final responses = _parseFixture(found.source, found.key);
+    final count = _callCounts[found.key] ?? 0;
+    _callCounts[found.key] = count + 1;
+    // 목록을 넘으면 마지막 응답을 되풀이합니다.
+    return responses[count < responses.length ? count : responses.length - 1];
+  }
+
+  /// [names] 순서(바깥은 [Scenario.lineage] 순서)로 처음 찾은 fixture 파일의 key와 본문.
+  ///
+  /// 없으면 null입니다. 요청 응답과 앱 시작 코드(토큰 심기)가 같은 조회를 씁니다.
+  Future<({String key, String source})?> findFixtureSource(
+    List<String> names,
+  ) async {
     for (final scenarioId in scenario.lineage) {
       for (final name in names) {
         final key = 'fixtures/$scenarioId/$name';
         final source = await _tryLoad(key);
         if (source != null) {
-          final responses = _parseFixture(source, key);
-          final count = _callCounts[key] ?? 0;
-          _callCounts[key] = count + 1;
-          // 목록을 넘으면 마지막 응답을 되풀이합니다.
-          return responses[count < responses.length
-              ? count
-              : responses.length - 1];
+          return (key: key, source: source);
         }
       }
     }

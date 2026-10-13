@@ -89,19 +89,32 @@ class DeviceFlags extends Table {
   tables: [CachedResponses, DiaryDrafts, OnboardingInputs, DeviceFlags],
 )
 class AppDatabase extends _$AppDatabase {
-  /// 기기 파일 DB를 엽니다.
-  new() : super(driftDatabase(name: 'myungli_diary'));
+  /// 기기 파일 DB를 엽니다. [name]이 다르면 다른 파일입니다(fake 모드는 운영과 분리).
+  new({String name = defaultDatabaseName}) : super(driftDatabase(name: name));
 
   /// 주어진 실행기로 엽니다. 테스트는 메모리 DB를 넘깁니다.
   new forExecutor(super.e);
 
   @override
   int get schemaVersion => 1;
+
+  /// 모든 표의 행을 지웁니다. fake 모드가 시작할 때 시나리오가 섞이지 않게 씁니다.
+  Future<void> clearAll() => transaction(() async {
+    for (final table in allTables) {
+      await delete(table).go();
+    }
+  });
 }
+
+/// 운영 DB 파일 이름.
+const defaultDatabaseName = 'myungli_diary';
+
+/// 열 DB 파일 이름. fake 모드가 운영 DB와 분리하려고 override합니다.
+final databaseNameProvider = Provider<String>((ref) => defaultDatabaseName);
 
 /// 앱 로컬 DB. 닫는 일은 provider가 맡습니다.
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
-  final database = AppDatabase();
+  final database = AppDatabase(name: ref.watch(databaseNameProvider));
   ref.onDispose(database.close);
   return database;
 });

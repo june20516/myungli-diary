@@ -33,6 +33,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Myungli Diary';
 
   @override
+  String get bootstrapFailed =>
+      'The app could not start. Please close it completely and open it again.';
+
+  @override
   String get actionRetry => 'Try again';
 
   @override

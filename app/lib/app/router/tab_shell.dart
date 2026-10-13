@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
-import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
@@ -17,12 +16,6 @@ const List<String> tabRoots = [
   ScreenIds.diaryList,
   ScreenIds.mySaju,
 ];
-
-/// 이 기기에서 광고 동의를 거쳤는지. 진입 계산이 끝날 때마다 다시 읽습니다.
-final adConsentGivenProvider = FutureProvider<bool>((ref) {
-  ref.watch(entryStateProvider);
-  return ref.watch(deviceFlagsStoreProvider).readBool(adConsentDoneKey);
-});
 
 /// 탭 4개 셸: 화면 내용 위에 하단 틀([MyungliBottomBar])을 얹습니다.
 ///

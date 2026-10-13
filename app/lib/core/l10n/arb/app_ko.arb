@@ -28,6 +28,10 @@
   "@appTitle": {
     "description": "임시. 앱 이름(작업 전환기 등에 보임)"
   },
+  "bootstrapFailed": "앱을 시작하지 못했어요. 앱을 완전히 종료한 뒤 다시 열어 주세요.",
+  "@bootstrapFailed": {
+    "description": "임시. 앱 시작 준비가 실패했을 때의 안내 문구"
+  },
   "actionRetry": "다시 시도",
   "@actionRetry": {
     "description": "임시. 오류 뒤 다시 시도 버튼 문구"

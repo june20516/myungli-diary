@@ -23,7 +23,9 @@ final class ScreenSpec {
 /// 기반에서는 모두 [PlaceholderScreen]이고, 화면 task가 하나씩 교체합니다.
 final Map<String, ScreenSpec> screenRegistry = {
   for (final screen in iaScreens)
-    if (screen.presentation == IaPresentation.page)
+    // launch는 아래에서 본체로 등록합니다.
+    if (screen.presentation == IaPresentation.page &&
+        screen.id != ScreenIds.launch)
       screen.id: ScreenSpec(
         screen.id,
         (context) => PlaceholderScreen(screen.id),

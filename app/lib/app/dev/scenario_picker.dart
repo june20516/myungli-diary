@@ -9,7 +9,7 @@ import 'package:myungli_diary/app/myungli_app.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
-import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/storage/app_database.dart';
 
 // 개발 메뉴는 debug 빌드의 fake 모드에서만 쓰며(호출하는 쪽이 `kDebugMode`로 가름)
 // 사용자에게 보이지 않으므로 문구를 ARB로 옮기지 않습니다.
@@ -32,11 +32,14 @@ class DevRestartScope extends InheritedWidget {
 
 /// debug fake 모드의 앱 최상위: 컨테이너를 들고 있다가 시나리오가 바뀌면 새로 만듭니다.
 class DevHost extends StatefulWidget {
-  /// [initial] 컨테이너로 시작합니다.
-  const new({required this.initial, super.key});
+  /// [initial] 컨테이너로 시작하고, 시나리오가 바뀌면 [createContainer]로 새로 만듭니다.
+  const new({required this.initial, required this.createContainer, super.key});
 
   /// 처음 쓸 컨테이너.
   final ProviderContainer initial;
+
+  /// 시나리오 id의 컨테이너를 만듭니다(`bootstrap`).
+  final Future<ProviderContainer> Function(String scenarioId) createContainer;
 
   @override
   State<DevHost> createState() => _DevHostState();
@@ -44,6 +47,7 @@ class DevHost extends StatefulWidget {
 
 class _DevHostState extends State<DevHost> {
   ProviderContainer? _container;
+  Object? _failure;
 
   @override
   void initState() {
@@ -59,26 +63,77 @@ class _DevHostState extends State<DevHost> {
 
   Future<void> _restart(String scenarioId) async {
     final old = _container;
-    setState(() => _container = null);
-    old?.dispose();
-    final next = await bootstrap(mode: ApiMode.fake, scenarioId: scenarioId);
-    if (!mounted) {
-      next.dispose();
-      return;
+    setState(() {
+      _container = null;
+      _failure = null;
+    });
+    if (old != null) {
+      // 같은 DB 파일을 새로 열기 전에 이전 연결이 닫히길 기다립니다.
+      final database = old.read(appDatabaseProvider);
+      old.dispose();
+      await database.close();
     }
-    setState(() => _container = next);
+    try {
+      final next = await widget.createContainer(scenarioId);
+      if (!mounted) {
+        next.dispose();
+        return;
+      }
+      setState(() => _container = next);
+    } on Object catch (error) {
+      if (mounted) {
+        setState(() => _failure = error);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final container = _container;
     if (container == null) {
-      return const ColoredBox(color: Color(0xFF000000));
+      return _DevStatus(failure: _failure, onRestart: _restart);
     }
     return UncontrolledProviderScope(
       key: ObjectKey(container),
       container: container,
       child: DevRestartScope(restart: _restart, child: const MyungliApp()),
+    );
+  }
+}
+
+/// 다시 시작하는 동안(또는 실패했을 때)의 화면. 검은 화면을 남기지 않습니다.
+class _DevStatus extends StatelessWidget {
+  const new({required this.failure, required this.onRestart});
+
+  final Object? failure;
+  final Future<void> Function(String scenarioId) onRestart;
+
+  @override
+  Widget build(BuildContext context) {
+    final error = failure;
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: ColoredBox(
+        color: const Color(0xFFFFFFFF),
+        child: Center(
+          child: error == null
+              ? const Text('시나리오를 다시 시작하는 중')
+              : Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('시나리오를 시작하지 못했습니다'),
+                      Text('$error'),
+                      GestureDetector(
+                        onTap: () => unawaited(onRestart(defaultScenarioId)),
+                        child: const Text('기본 시나리오로 다시 시작'),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }

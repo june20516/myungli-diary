@@ -213,6 +213,7 @@ void main() {
     });
 
     testWidgets('탭 4개를 오갈 수 있습니다', (tester) async {
+      final semantics = tester.ensureSemantics();
       final router = await pumpRouter(tester, EntryState.ready);
       expect(currentPath(router), '/today');
       for (final tab in ['calendar', 'diary-list', 'my-saju', 'today']) {
@@ -226,7 +227,13 @@ void main() {
         await tester.pumpAndSettle();
         expect(currentPath(router), '/$tab');
         expect(find.byKey(Key(tab)), findsOneWidget);
+        // 탭 바의 탭은 화면 이름(ko)으로 읽힙니다.
+        expect(
+          find.bySemanticsLabel(RegExp(['오늘', '달력', '일기', '나'][index])),
+          findsWidgets,
+        );
       }
+      semantics.dispose();
     });
   });
 }

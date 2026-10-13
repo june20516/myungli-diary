@@ -142,6 +142,12 @@ abstract class AppLocalizations {
   /// **'명리일기'**
   String get appTitle;
 
+  /// 임시. 앱 시작 준비가 실패했을 때의 안내 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 시작하지 못했어요. 앱을 완전히 종료한 뒤 다시 열어 주세요.'**
+  String get bootstrapFailed;
+
   /// 임시. 오류 뒤 다시 시도 버튼 문구
   ///
   /// In ko, this message translates to:
