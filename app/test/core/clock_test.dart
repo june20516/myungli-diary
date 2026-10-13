@@ -3,10 +3,6 @@ import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:myungli_diary/core/api/api_providers.dart';
-import 'package:myungli_diary/core/api/fake/fake_server.dart';
-import 'package:myungli_diary/core/api/fake/scenario.dart';
-import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 
@@ -244,55 +240,24 @@ void main() {
   });
 
   group('provider', () {
-    Scenario scenario() => Scenario(
-      id: 's',
-      today: CalendarDate(2026, 10, 13),
-      timezone: 'Asia/Seoul',
-    );
-
-    ProviderContainer container(ApiMode mode) {
-      final c = ProviderContainer(
-        overrides: [
-          apiModeProvider.overrideWithValue(mode),
-          scenarioProvider.overrideWithValue(scenario()),
-        ],
-      );
-      addTearDown(c.dispose);
-      return c;
-    }
-
-    test('fake 모드는 시나리오 timezone 현지 정오에 고정되고 오늘이 시나리오 today다', () {
-      final c = container(ApiMode.fake);
-      expect(c.read(clockProvider).nowUtc(), DateTime.utc(2026, 10, 13, 3));
-      expect(c.read(profileTimezoneProvider), 'Asia/Seoul');
-      expect(c.read(todayProvider), CalendarDate(2026, 10, 13));
+    test('noonClockOn은 그 날짜의 시간대 현지 정오에 고정된 시계다', () {
+      final clock = noonClockOn(CalendarDate(2026, 10, 13), 'Asia/Seoul');
+      expect(clock.nowUtc(), DateTime.utc(2026, 10, 13, 3));
+      expect(clock.advances, isFalse);
     });
 
-    test('시나리오 timezone이 모르는 이름이면 ArgumentError', () {
-      final c = ProviderContainer(
-        overrides: [
-          apiModeProvider.overrideWithValue(ApiMode.fake),
-          scenarioProvider.overrideWithValue(
-            Scenario(
-              id: 's',
-              today: CalendarDate(2026, 10, 13),
-              timezone: 'Mars/Olympus',
-            ),
-          ),
-        ],
-      );
-      addTearDown(c.dispose);
-      // Riverpod이 provider 오류를 ProviderException으로 감싸므로 원인 문구로 확인한다.
+    test('noonClockOn은 모르는 시간대면 ArgumentError', () {
       expect(
-        () => c.read(clockProvider),
-        throwsA(
-          isA<Object>().having(
-            (e) => e.toString(),
-            'message',
-            contains('모르는 시간대입니다'),
-          ),
-        ),
+        () => noonClockOn(CalendarDate(2026, 10, 13), 'Mars/Olympus'),
+        throwsArgumentError,
       );
+    });
+
+    test('기본값은 기기 시계와 임시 프로필 시간대 Asia/Seoul이다', () {
+      final c = ProviderContainer();
+      addTearDown(c.dispose);
+      expect(c.read(clockProvider), isA<SystemClock>());
+      expect(c.read(profileTimezoneProvider), 'Asia/Seoul');
     });
 
     test('todayProvider는 자정을 넘기면 한 번 새 날짜로 갱신된다', () {
@@ -333,8 +298,16 @@ void main() {
 
     test('고정 시계면 todayProvider는 타이머를 만들지 않는다', () {
       fakeAsync((async) {
-        container(ApiMode.fake).read(todayProvider);
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(
+              noonClockOn(CalendarDate(2026, 10, 13), 'Asia/Seoul'),
+            ),
+          ],
+        );
+        expect(c.read(todayProvider), CalendarDate(2026, 10, 13));
         expect(async.pendingTimers, isEmpty);
+        c.dispose();
       });
     });
 
@@ -351,11 +324,6 @@ void main() {
         expect(errors, hasLength(1));
         unawaited(sub.cancel());
       });
-    });
-
-    test('http 모드는 SystemClock이다', () {
-      final c = container(ApiMode.http);
-      expect(c.read(clockProvider), isA<SystemClock>());
     });
   });
 }

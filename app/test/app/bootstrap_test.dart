@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -66,6 +68,18 @@ void main() {
       expect(recorded, isNot(contains('1990')));
       expect(recorded, isNot(contains('민수')));
     });
+  });
+
+  test('fake 모드는 시나리오 today의 현지 정오 시계와 시나리오 시간대를 씁니다', () async {
+    final container = await bootstrapForTest('member');
+    addTearDown(container.dispose);
+    // member: 2026-10-13, Asia/Seoul → 정오 = UTC 03:00
+    expect(
+      container.read(clockProvider).nowUtc(),
+      DateTime.utc(2026, 10, 13, 3),
+    );
+    expect(container.read(profileTimezoneProvider), 'Asia/Seoul');
+    expect(container.read(todayProvider), CalendarDate(2026, 10, 13));
   });
 
   test('없는 시나리오면 bootstrap이 던집니다', () {

@@ -35,6 +35,7 @@ var _fontLicensesRegistered = false;
 /// 않습니다. fake 모드에서는 [scenarioId](생략하면 `SCENARIO` dart-define, 그것도 없으면
 /// [defaultScenarioId])의 시나리오와 대역 서버를 연결하고, 운영과 분리된 DB를 비워
 /// 시나리오가 섞이지 않게 하며, 시나리오의 로그인 상태에 맞춰 토큰을 심거나 비웁니다.
+/// 시계와 프로필 시간대는 시나리오 `today`의 현지 정오와 시나리오 timezone으로 바꿉니다.
 /// 테스트는 [installErrorHandlers]를 꺼 테스트 틀의 오류 처리를 지킵니다.
 ///
 /// 컨테이너를 만든 뒤의 준비가 실패하면 오류 요약을 보고하고 컨테이너를 닫은 뒤 다시 던집니다.
@@ -66,6 +67,10 @@ Future<ProviderContainer> bootstrap({
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),
         scenarioProvider.overrideWithValue(scenario),
+        clockProvider.overrideWithValue(
+          noonClockOn(scenario.today, scenario.timezone),
+        ),
+        profileTimezoneProvider.overrideWithValue(scenario.timezone),
         fakeServerProvider.overrideWith(
           (ref) => ref.watch(fakeServerInterceptorProvider),
         ),

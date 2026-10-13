@@ -1,9 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myungli_diary/core/api/api_providers.dart';
-import 'package:myungli_diary/core/api/fake/fake_server.dart';
-import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -109,33 +106,23 @@ Stream<CalendarDate> dayChanges(
   return controller.stream;
 }
 
-/// 현재 시계. fake 모드는 시나리오 `today`의 현지 정오에 고정하고, http 모드는 기기 시계입니다.
-final clockProvider = Provider<Clock>((ref) {
-  if (ref.watch(apiModeProvider) == ApiMode.http) {
-    return const SystemClock();
-  }
-  final scenario = ref.watch(scenarioProvider);
-  final today = scenario.today;
-  final noon = tz.TZDateTime(
-    _locationOf(scenario.timezone),
-    today.year,
-    today.month,
-    today.day,
-    12,
-  );
-  return FixedClock(noon);
-});
+/// [date]의 [ianaTimezone] 현지 정오에 고정된 시계. fake 모드 시작 코드가 시나리오
+/// `today`로 [clockProvider]를 override할 때 씁니다.
+///
+/// 모르는 IANA 이름이면 [ArgumentError]입니다.
+Clock noonClockOn(CalendarDate date, String ianaTimezone) => FixedClock(
+  tz.TZDateTime(_locationOf(ianaTimezone), date.year, date.month, date.day, 12),
+);
+
+/// 현재 시계. 기본은 기기 시계이고, fake 모드는 시작 코드(bootstrap)가 [noonClockOn]으로
+/// override합니다.
+final clockProvider = Provider<Clock>((ref) => const SystemClock());
 
 /// 프로필 시간대(IANA). "오늘"의 기준입니다.
 ///
-/// fake 모드는 시나리오 timezone입니다. http 모드는 임시로 `Asia/Seoul`이며
-/// 계획 2에서 프로필 값으로 교체합니다.
-final profileTimezoneProvider = Provider<String>((ref) {
-  if (ref.watch(apiModeProvider) == ApiMode.fake) {
-    return ref.watch(scenarioProvider).timezone;
-  }
-  return 'Asia/Seoul';
-});
+/// 기본은 임시로 `Asia/Seoul`이며 계획 2에서 프로필 값으로 교체합니다. fake 모드는
+/// 시작 코드(bootstrap)가 시나리오 timezone으로 override합니다.
+final profileTimezoneProvider = Provider<String>((ref) => 'Asia/Seoul');
 
 /// 프로필 시간대 기준 오늘 날짜.
 ///
