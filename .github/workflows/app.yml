@@ -54,6 +54,8 @@ jobs:
         run: flutter pub get
       - name: 포맷 확인
         run: dart format --output=none --set-exit-if-changed .
+      - name: 생성 코드 차이 확인
+        run: dart run tool/gen_ia.dart && git diff --exit-code
       - name: 정적 분석
         run: flutter analyze
       - name: 테스트
