@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 
+import '../../tool/common/dart_format.dart';
 import '../../tool/gen_ia.dart';
 
 void main() {
@@ -89,6 +90,26 @@ void main() {
         ],
       };
       expect(generateIaSource(json), contains(r"trigger: 'x\t\r\n\u{1}\\y'"));
+    });
+
+    test('0x7F(DEL)도 이스케이프한다', () {
+      final json = {
+        'screens': [
+          {
+            'id': 'a',
+            'tab': null,
+            'presentation': 'page',
+            'auth': 'any',
+            'states': <Object?>[],
+            'slots': <Object?>[],
+            'components': <Object?>[],
+            'exits': [
+              {'to': 'a', 'trigger': 'x\u007fy'},
+            ],
+          },
+        ],
+      };
+      expect(generateIaSource(json), contains(r"trigger: 'x\u{7f}y'"));
     });
 
     test('lowerCamelCase 이름이 겹치면 실패한다', () {

@@ -6,6 +6,8 @@ import 'dart:io';
 
 import 'package:myungli_diary/core/ia/ia_model.dart';
 
+import 'common/dart_format.dart';
+
 const _inputPath = '../docs/ia/screens.json';
 const _outputPath = 'lib/core/ia/gen/ia.g.dart';
 
@@ -111,22 +113,6 @@ String _quote(String value) {
     };
   }).join();
   return "'$escaped'";
-}
-
-/// `dart format`을 거친 소스를 돌려줍니다. 생성 파일과 테스트가 같이 씁니다.
-Future<String> formatDartSource(String source) async {
-  final dir = await Directory.systemTemp.createTemp('gen_ia_');
-  try {
-    final file = File('${dir.path}/formatted.dart');
-    await file.writeAsString(source);
-    final result = await Process.run('dart', ['format', file.path]);
-    if (result.exitCode != 0) {
-      throw StateError('dart format 실패: ${result.stderr}');
-    }
-    return await file.readAsString();
-  } finally {
-    await dir.delete(recursive: true);
-  }
 }
 
 Future<void> main() async {
