@@ -190,6 +190,48 @@ func TestSchema_RefreshTokenHashIsUnique(t *testing.T) {
 	wantSQLState(t, err, uniqueViolation)
 }
 
+func TestSchema_RefreshTokenUsedAndReplacedComeTogether(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+		t.Fatal(err)
+	}
+	const (
+		usedID = "00000000-0000-7000-8000-0000000000c1"
+		nextID = "00000000-0000-7000-8000-0000000000c2"
+	)
+	const insert = `INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
+		VALUES ($1, $2, $3, '00000000-0000-7000-8000-0000000000f1', now())`
+	for i, id := range []string{usedID, nextID} {
+		if _, err := pool.Exec(ctx, insert, id, accountA, []byte{byte(i + 1)}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tests := []struct {
+		name string
+		sql  string
+		want string
+	}{
+		{name: "used_at만 있음", sql: `UPDATE refresh_tokens SET used_at = now() WHERE id = $1`, want: checkViolation},
+		{name: "replaced_by_id만 있음", sql: `UPDATE refresh_tokens SET replaced_by_id = '` + nextID + `' WHERE id = $1`, want: checkViolation},
+		{name: "없는 토큰을 가리킴", sql: `UPDATE refresh_tokens SET used_at = now(), replaced_by_id = '00000000-0000-7000-8000-0000000000c9' WHERE id = $1`, want: foreignKeyViolation},
+		{name: "둘 다 있음", sql: `UPDATE refresh_tokens SET used_at = now(), replaced_by_id = '` + nextID + `' WHERE id = $1`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := pool.Exec(ctx, tt.sql, usedID)
+			if tt.want == "" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				return
+			}
+			wantSQLState(t, err, tt.want)
+		})
+	}
+}
+
 func TestSchema_ConsentDocumentAndUniqueness(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)

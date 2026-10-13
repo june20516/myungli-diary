@@ -60,8 +60,12 @@ CREATE TABLE refresh_tokens (
     family_id  uuid        NOT NULL,
     expires_at timestamptz NOT NULL,
     used_at    timestamptz,
+    -- 이 토큰을 써서 발급한 다음 토큰입니다. 첫 사용 때 used_at과 함께 기록하고,
+    -- 유예 시간 안의 재전송(응답 유실 재시도, server 결정 S20)으로 다시 발급하면 그 토큰으로 바꿉니다.
+    replaced_by_id uuid    REFERENCES refresh_tokens (id) ON DELETE RESTRICT,
     revoked_at timestamptz,
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT refresh_tokens_used_replaced_check CHECK ((used_at IS NULL) = (replaced_by_id IS NULL))
 );
 
 CREATE INDEX refresh_tokens_family_id_idx ON refresh_tokens (family_id);

@@ -113,8 +113,30 @@ func (q *Queries) GetIdentity(ctx context.Context, arg GetIdentityParams) (GetId
 	return i, err
 }
 
+const getRefreshTokenByIDForUpdate = `-- name: GetRefreshTokenByIDForUpdate :one
+SELECT id, used_at, revoked_at
+FROM refresh_tokens
+WHERE id = $1
+FOR UPDATE
+`
+
+type GetRefreshTokenByIDForUpdateRow struct {
+	ID        uuid.UUID
+	UsedAt    *time.Time
+	RevokedAt *time.Time
+}
+
+// GetRefreshTokenByIDForUpdate는 id로 refresh 행을 잠그고 사용·폐기 상태를 돌려줍니다.
+// 유예 처리에서 이미 쓴 토큰의 다음 토큰을 확인할 때 씁니다.
+func (q *Queries) GetRefreshTokenByIDForUpdate(ctx context.Context, id uuid.UUID) (GetRefreshTokenByIDForUpdateRow, error) {
+	row := q.db.QueryRow(ctx, getRefreshTokenByIDForUpdate, id)
+	var i GetRefreshTokenByIDForUpdateRow
+	err := row.Scan(&i.ID, &i.UsedAt, &i.RevokedAt)
+	return i, err
+}
+
 const getRefreshTokenForUpdate = `-- name: GetRefreshTokenForUpdate :one
-SELECT t.id, t.account_id, t.token_hash, t.family_id, t.expires_at, t.used_at, t.revoked_at,
+SELECT t.id, t.account_id, t.token_hash, t.family_id, t.expires_at, t.used_at, t.replaced_by_id, t.revoked_at,
        a.status AS account_status
 FROM refresh_tokens t
 JOIN accounts a ON a.id = t.account_id
@@ -129,6 +151,7 @@ type GetRefreshTokenForUpdateRow struct {
 	FamilyID      uuid.UUID
 	ExpiresAt     time.Time
 	UsedAt        *time.Time
+	ReplacedByID  uuid.NullUUID
 	RevokedAt     *time.Time
 	AccountStatus string
 }
@@ -145,6 +168,7 @@ func (q *Queries) GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte
 		&i.FamilyID,
 		&i.ExpiresAt,
 		&i.UsedAt,
+		&i.ReplacedByID,
 		&i.RevokedAt,
 		&i.AccountStatus,
 	)
@@ -258,17 +282,20 @@ func (q *Queries) MarkProviderDisconnected(ctx context.Context, arg MarkProvider
 
 const markRefreshTokenUsed = `-- name: MarkRefreshTokenUsed :execrows
 UPDATE refresh_tokens
-SET used_at = $1::timestamptz
-WHERE id = $2 AND used_at IS NULL
+SET used_at = $1::timestamptz, replaced_by_id = $2::uuid
+WHERE id = $3 AND used_at IS NULL
 `
 
 type MarkRefreshTokenUsedParams struct {
-	UsedAt time.Time
-	ID     uuid.UUID
+	UsedAt       time.Time
+	ReplacedByID uuid.UUID
+	ID           uuid.UUID
 }
 
+// MarkRefreshTokenUsed는 토큰을 쓴 시각과 그 대신 발급한 다음 토큰을 기록합니다.
+// 다음 토큰은 replaced_by_id 외래 키 때문에 먼저 저장돼 있어야 합니다.
 func (q *Queries) MarkRefreshTokenUsed(ctx context.Context, arg MarkRefreshTokenUsedParams) (int64, error) {
-	result, err := q.db.Exec(ctx, markRefreshTokenUsed, arg.UsedAt, arg.ID)
+	result, err := q.db.Exec(ctx, markRefreshTokenUsed, arg.UsedAt, arg.ReplacedByID, arg.ID)
 	if err != nil {
 		return 0, err
 	}
@@ -320,6 +347,46 @@ type RevokeFamilyParams struct {
 func (q *Queries) RevokeFamily(ctx context.Context, arg RevokeFamilyParams) error {
 	_, err := q.db.Exec(ctx, revokeFamily, arg.RevokedAt, arg.FamilyID)
 	return err
+}
+
+const revokeRefreshToken = `-- name: RevokeRefreshToken :execrows
+UPDATE refresh_tokens
+SET revoked_at = $1::timestamptz
+WHERE id = $2 AND revoked_at IS NULL
+`
+
+type RevokeRefreshTokenParams struct {
+	RevokedAt time.Time
+	ID        uuid.UUID
+}
+
+// RevokeRefreshToken은 아직 폐기되지 않은 토큰 하나를 폐기합니다. 바뀐 행 수를 돌려줍니다.
+func (q *Queries) RevokeRefreshToken(ctx context.Context, arg RevokeRefreshTokenParams) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeRefreshToken, arg.RevokedAt, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const setRefreshTokenReplacedBy = `-- name: SetRefreshTokenReplacedBy :execrows
+UPDATE refresh_tokens
+SET replaced_by_id = $1::uuid
+WHERE id = $2 AND used_at IS NOT NULL
+`
+
+type SetRefreshTokenReplacedByParams struct {
+	ReplacedByID uuid.UUID
+	ID           uuid.UUID
+}
+
+// SetRefreshTokenReplacedBy는 이미 쓴 토큰의 다음 토큰을 바꿉니다. used_at은 그대로 둡니다(유예 창이 늘어나지 않게).
+func (q *Queries) SetRefreshTokenReplacedBy(ctx context.Context, arg SetRefreshTokenReplacedByParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setRefreshTokenReplacedBy, arg.ReplacedByID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateAppleToken = `-- name: UpdateAppleToken :exec

@@ -42,17 +42,39 @@ VALUES (@id, @account_id, @token_hash, @family_id, @expires_at);
 -- GetRefreshTokenForUpdate는 refresh 행을 잠그고 계정 status를 함께 돌려줍니다.
 -- 동시에 같은 토큰으로 refresh하면 한쪽이 잠금을 기다린 뒤 used_at을 보게 됩니다.
 -- name: GetRefreshTokenForUpdate :one
-SELECT t.id, t.account_id, t.token_hash, t.family_id, t.expires_at, t.used_at, t.revoked_at,
+SELECT t.id, t.account_id, t.token_hash, t.family_id, t.expires_at, t.used_at, t.replaced_by_id, t.revoked_at,
        a.status AS account_status
 FROM refresh_tokens t
 JOIN accounts a ON a.id = t.account_id
 WHERE t.token_hash = @token_hash
 FOR UPDATE OF t;
 
+-- MarkRefreshTokenUsed는 토큰을 쓴 시각과 그 대신 발급한 다음 토큰을 기록합니다.
+-- 다음 토큰은 replaced_by_id 외래 키 때문에 먼저 저장돼 있어야 합니다.
 -- name: MarkRefreshTokenUsed :execrows
 UPDATE refresh_tokens
-SET used_at = @used_at::timestamptz
+SET used_at = @used_at::timestamptz, replaced_by_id = @replaced_by_id::uuid
 WHERE id = @id AND used_at IS NULL;
+
+-- GetRefreshTokenByIDForUpdate는 id로 refresh 행을 잠그고 사용·폐기 상태를 돌려줍니다.
+-- 유예 처리에서 이미 쓴 토큰의 다음 토큰을 확인할 때 씁니다.
+-- name: GetRefreshTokenByIDForUpdate :one
+SELECT id, used_at, revoked_at
+FROM refresh_tokens
+WHERE id = @id
+FOR UPDATE;
+
+-- RevokeRefreshToken은 아직 폐기되지 않은 토큰 하나를 폐기합니다. 바뀐 행 수를 돌려줍니다.
+-- name: RevokeRefreshToken :execrows
+UPDATE refresh_tokens
+SET revoked_at = @revoked_at::timestamptz
+WHERE id = @id AND revoked_at IS NULL;
+
+-- SetRefreshTokenReplacedBy는 이미 쓴 토큰의 다음 토큰을 바꿉니다. used_at은 그대로 둡니다(유예 창이 늘어나지 않게).
+-- name: SetRefreshTokenReplacedBy :execrows
+UPDATE refresh_tokens
+SET replaced_by_id = @replaced_by_id::uuid
+WHERE id = @id AND used_at IS NOT NULL;
 
 -- name: RevokeFamily :exec
 UPDATE refresh_tokens

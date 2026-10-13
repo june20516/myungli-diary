@@ -44,12 +44,13 @@ type Consent struct {
 }
 
 type RefreshToken struct {
-	ID        uuid.UUID
-	AccountID uuid.UUID
-	TokenHash []byte
-	FamilyID  uuid.UUID
-	ExpiresAt time.Time
-	UsedAt    *time.Time
-	RevokedAt *time.Time
-	CreatedAt time.Time
+	ID           uuid.UUID
+	AccountID    uuid.UUID
+	TokenHash    []byte
+	FamilyID     uuid.UUID
+	ExpiresAt    time.Time
+	UsedAt       *time.Time
+	ReplacedByID uuid.NullUUID
+	RevokedAt    *time.Time
+	CreatedAt    time.Time
 }

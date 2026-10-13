@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/account"
+	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
@@ -210,7 +211,14 @@ func TestAuthFlow_KakaoLoginConsentMeRefreshLogout(t *testing.T) {
 	_, rotated := refreshed.tokens(t)
 	assert.NotEqual(t, refresh, rotated, "갱신하면 refresh token이 바뀝니다")
 
-	// 이미 쓴 refresh token을 다시 보내면 탈취로 보고 거절합니다.
+	// 응답을 받지 못한 앱의 재시도처럼, 이미 쓴 refresh token을 유예 시간 안에 다시 보내면 새 토큰 쌍을 줍니다.
+	retried := env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh})
+	require.Equal(t, http.StatusOK, retried.status, "유예 안 재전송 본문: %v", retried.body)
+	_, retriedRefresh := retried.tokens(t)
+	assert.NotEqual(t, rotated, retriedRefresh, "앞서 준 토큰과 다른 토큰입니다")
+
+	// 유예 시간이 지난 뒤 이미 쓴 refresh token을 다시 보내면 탈취로 보고 거절합니다.
+	env.clk.Advance(auth.RefreshReuseGrace + time.Second)
 	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).
 		requireProblem(t, http.StatusUnauthorized, "auth.refresh_reused")
 

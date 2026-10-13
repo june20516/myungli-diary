@@ -6,7 +6,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"errors"
 	"net/http"
 	"sync"
 	"testing"
@@ -452,6 +451,7 @@ func TestRefresh_ReuseRevokesFamily(t *testing.T) {
 	a := login.Tokens.RefreshToken
 	b, err := f.service.Refresh(f.ctx, a)
 	require.NoError(t, err)
+	f.clk.Advance(auth.RefreshReuseGrace + time.Second) // 유예 시간 밖
 
 	_, err = f.service.Refresh(f.ctx, a)
 	require.ErrorIs(t, err, auth.ErrRefreshReused)
@@ -464,10 +464,121 @@ func TestRefresh_ReuseRevokesFamily(t *testing.T) {
 	require.NoError(t, err, "다른 family는 그대로입니다")
 }
 
-// Review Focus 1: 같은 refresh token으로 동시에 두 번 갱신하면 하나만 성공하고, 다른 하나는 재사용으로 family를 폐기합니다.
-func TestRefresh_ConcurrentSameTokenOneWins(t *testing.T) {
+// liveTokens는 family에서 아직 쓸 수 있는(미사용·미폐기) refresh token 수를 셉니다.
+func (f *fixture) liveTokens(t *testing.T, familyID uuid.UUID) int {
+	t.Helper()
+	return f.count(t, `SELECT count(*) FROM refresh_tokens WHERE family_id = $1 AND used_at IS NULL AND revoked_at IS NULL`, familyID)
+}
+
+func TestRefresh_RetryWithinGraceIssuesNewToken(t *testing.T) {
 	f := newFixture(t)
 	login := f.loginKakao(t, "kakao-1")
+	a := login.Tokens.RefreshToken
+	b, err := f.service.Refresh(f.ctx, a)
+	require.NoError(t, err)
+	usedAt := *f.refreshRow(t, a).usedAt
+	f.clk.Advance(10 * time.Second)
+
+	// 응답(b)을 받지 못한 앱이 a로 다시 갱신합니다.
+	c, err := f.service.Refresh(f.ctx, a)
+
+	require.NoError(t, err, "유예 시간 안의 재전송은 성공합니다")
+	assert.NotEqual(t, b.RefreshToken, c.RefreshToken)
+	now := testNow.Add(10 * time.Second)
+	assert.Equal(t, now.Add(token.RefreshTTL), c.RefreshExpiresAt)
+	assert.Equal(t, now.Add(token.AccessTTL), c.AccessExpiresAt)
+	assert.NotEmpty(t, c.AccessToken)
+
+	family := f.refreshRow(t, a).familyID
+	assert.Equal(t, family, f.refreshRow(t, c.RefreshToken).familyID, "같은 family에서 발급합니다")
+	assert.True(t, f.refreshRow(t, a).usedAt.Equal(usedAt), "a의 첫 사용 시각은 바뀌지 않습니다")
+	assert.Equal(t, 1, f.count(t,
+		`SELECT count(*) FROM refresh_tokens a JOIN refresh_tokens c ON c.id = a.replaced_by_id
+		 WHERE a.token_hash = $1 AND c.token_hash = $2`,
+		token.HashRefreshToken(a), token.HashRefreshToken(c.RefreshToken)), "a의 다음 token은 c입니다")
+
+	_, err = f.service.Refresh(f.ctx, b.RefreshToken)
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "유실된 응답의 token(b)은 폐기됩니다")
+	_, err = f.service.Refresh(f.ctx, c.RefreshToken)
+	require.NoError(t, err, "c는 갱신할 수 있습니다")
+	assert.Equal(t, 1, f.liveTokens(t, family))
+}
+
+func TestRefresh_GraceBoundary(t *testing.T) {
+	tests := []struct {
+		name    string
+		elapsed time.Duration
+		wantErr error
+	}{
+		{name: "정확히 유예 시간이면 유예", elapsed: auth.RefreshReuseGrace},
+		{name: "유예 시간을 1ns 넘으면 재사용", elapsed: auth.RefreshReuseGrace + time.Nanosecond, wantErr: auth.ErrRefreshReused},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			login := f.loginKakao(t, "kakao-1")
+			a := login.Tokens.RefreshToken
+			b, err := f.service.Refresh(f.ctx, a)
+			require.NoError(t, err)
+			f.clk.Advance(tt.elapsed)
+
+			_, err = f.service.Refresh(f.ctx, a)
+
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+			_, err = f.service.Refresh(f.ctx, b.RefreshToken)
+			require.ErrorIs(t, err, auth.ErrRefreshInvalid, "family가 폐기되어 b도 무효입니다")
+			assert.Equal(t, 0, f.liveTokens(t, f.refreshRow(t, a).familyID))
+		})
+	}
+}
+
+func TestRefresh_ReuseAfterSuccessorUsedRevokesFamily(t *testing.T) {
+	f := newFixture(t)
+	login := f.loginKakao(t, "kakao-1")
+	a := login.Tokens.RefreshToken
+	b, err := f.service.Refresh(f.ctx, a)
+	require.NoError(t, err)
+	c, err := f.service.Refresh(f.ctx, b.RefreshToken)
+	require.NoError(t, err)
+	f.clk.Advance(5 * time.Second)
+
+	// b가 이미 쓰였으므로 a의 재전송은 응답 유실 재시도가 아닙니다.
+	_, err = f.service.Refresh(f.ctx, a)
+	require.ErrorIs(t, err, auth.ErrRefreshReused)
+
+	_, err = f.service.Refresh(f.ctx, c.RefreshToken)
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "family가 폐기되어 c도 무효입니다")
+}
+
+func TestRefresh_GraceDoesNotExtendWindow(t *testing.T) {
+	f := newFixture(t)
+	login := f.loginKakao(t, "kakao-1")
+	a := login.Tokens.RefreshToken
+	_, err := f.service.Refresh(f.ctx, a)
+	require.NoError(t, err)
+
+	f.clk.Advance(20 * time.Second)
+	c, err := f.service.Refresh(f.ctx, a)
+	require.NoError(t, err, "첫 사용 뒤 20초: 유예")
+
+	f.clk.Advance(20 * time.Second)
+	_, err = f.service.Refresh(f.ctx, a)
+	require.ErrorIs(t, err, auth.ErrRefreshReused, "첫 사용 뒤 40초: 유예 창은 다시 열리지 않습니다")
+	_, err = f.service.Refresh(f.ctx, c.RefreshToken)
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "family가 폐기되어 c도 무효입니다")
+}
+
+// Review Focus 1: 같은 refresh token으로 동시에 두 번 갱신하면 둘 다 성공합니다.
+// 한쪽은 정상 갱신, 다른 쪽은 행 잠금을 기다린 뒤 유예 처리(앞서 발급한 token 폐기 후 새로 발급)가 됩니다.
+// 그래서 먼저 끝난 쪽이 받은 token은 폐기되고, 나중 쪽 token 하나만 family에 살아 있습니다.
+func TestRefresh_ConcurrentSameTokenBothSucceed(t *testing.T) {
+	f := newFixture(t)
+	login := f.loginKakao(t, "kakao-1")
+	family := f.refreshRow(t, login.Tokens.RefreshToken).familyID
 
 	const workers = 2
 	pairs := make([]auth.TokenPair, workers)
@@ -476,24 +587,20 @@ func TestRefresh_ConcurrentSameTokenOneWins(t *testing.T) {
 		pairs[i], errs[i] = f.service.Refresh(f.ctx, login.Tokens.RefreshToken)
 	})
 
-	var winner auth.TokenPair
-	successes, reused := 0, 0
 	for i, err := range errs {
-		switch {
-		case err == nil:
-			successes++
-			winner = pairs[i]
-		case errors.Is(err, auth.ErrRefreshReused):
-			reused++
-		default:
-			t.Fatalf("예상하지 못한 오류: %v", err)
-		}
+		require.NoError(t, err, "요청 %d", i)
 	}
-	assert.Equal(t, 1, successes)
-	assert.Equal(t, 1, reused)
+	require.Equal(t, 1, f.liveTokens(t, family), "family에 살아 있는 token은 하나입니다")
 
-	_, err := f.service.Refresh(f.ctx, winner.RefreshToken)
-	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "성공한 쪽이 받은 새 토큰도 폐기됩니다")
+	// 어느 쪽이 나중에 끝났는지는 DB에 살아 있는 token으로 알아냅니다.
+	live, revoked := pairs[0], pairs[1]
+	if f.refreshRow(t, live.RefreshToken).revokedAt != nil {
+		live, revoked = revoked, live
+	}
+	_, err := f.service.Refresh(f.ctx, revoked.RefreshToken)
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "먼저 끝난 쪽 token은 폐기됩니다")
+	_, err = f.service.Refresh(f.ctx, live.RefreshToken)
+	require.NoError(t, err, "나중 쪽 token은 갱신할 수 있습니다")
 }
 
 func TestRefresh_ExpiredOrUnknownIsInvalid(t *testing.T) {

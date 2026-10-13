@@ -17,6 +17,9 @@ type Querier interface {
 	// GetIdentity는 제공자 연결과 계정 status를 함께 읽고 계정 행을 잠급니다.
 	// 같은 계정에 대한 동시 로그인·복구가 한 줄로 처리됩니다.
 	GetIdentity(ctx context.Context, arg GetIdentityParams) (GetIdentityRow, error)
+	// GetRefreshTokenByIDForUpdate는 id로 refresh 행을 잠그고 사용·폐기 상태를 돌려줍니다.
+	// 유예 처리에서 이미 쓴 토큰의 다음 토큰을 확인할 때 씁니다.
+	GetRefreshTokenByIDForUpdate(ctx context.Context, id uuid.UUID) (GetRefreshTokenByIDForUpdateRow, error)
 	// GetRefreshTokenForUpdate는 refresh 행을 잠그고 계정 status를 함께 돌려줍니다.
 	// 동시에 같은 토큰으로 refresh하면 한쪽이 잠금을 기다린 뒤 used_at을 보게 됩니다.
 	GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte) (GetRefreshTokenForUpdateRow, error)
@@ -27,11 +30,17 @@ type Querier interface {
 	LockAccountStatus(ctx context.Context, id uuid.UUID) (string, error)
 	// MarkProviderDisconnected는 Apple 토큰 세 열을 비우고 연결 해제 시각을 기록합니다.
 	MarkProviderDisconnected(ctx context.Context, arg MarkProviderDisconnectedParams) error
+	// MarkRefreshTokenUsed는 토큰을 쓴 시각과 그 대신 발급한 다음 토큰을 기록합니다.
+	// 다음 토큰은 replaced_by_id 외래 키 때문에 먼저 저장돼 있어야 합니다.
 	MarkRefreshTokenUsed(ctx context.Context, arg MarkRefreshTokenUsedParams) (int64, error)
 	// RestoreAccount는 삭제 대기 계정을 되살립니다. 갱신된 행 수를 돌려줍니다.
 	RestoreAccount(ctx context.Context, id uuid.UUID) (int64, error)
 	RevokeAccountTokens(ctx context.Context, arg RevokeAccountTokensParams) error
 	RevokeFamily(ctx context.Context, arg RevokeFamilyParams) error
+	// RevokeRefreshToken은 아직 폐기되지 않은 토큰 하나를 폐기합니다. 바뀐 행 수를 돌려줍니다.
+	RevokeRefreshToken(ctx context.Context, arg RevokeRefreshTokenParams) (int64, error)
+	// SetRefreshTokenReplacedBy는 이미 쓴 토큰의 다음 토큰을 바꿉니다. used_at은 그대로 둡니다(유예 창이 늘어나지 않게).
+	SetRefreshTokenReplacedBy(ctx context.Context, arg SetRefreshTokenReplacedByParams) (int64, error)
 	UpdateAppleToken(ctx context.Context, arg UpdateAppleTokenParams) error
 }
 

@@ -4,7 +4,8 @@
 //   - 로그인: 제공자 토큰을 검증하고 (provider, subject)로 계정을 찾거나 만듭니다.
 //     삭제 대기 계정이면 되살리고 그 계정의 이전 세션(refresh token)을 모두 폐기합니다. 로그인마다 새 refresh family를 만들고 토큰 쌍을 발급합니다.
 //   - 갱신: refresh token을 쓸 때마다 같은 family 안에서 새 토큰으로 바꿉니다(rotation).
-//     이미 쓴 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다.
+//     이미 쓴 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다. 단, 첫 사용 뒤 RefreshReuseGrace 안이고
+//     그 다음 토큰이 아직 쓰이지 않았으면 응답 유실 재시도로 보고 새 토큰을 발급합니다(server 결정 S20).
 //   - 로그아웃: 그 refresh token의 family를 폐기합니다.
 //   - 제공자 연결 해제: 계정 삭제 때 Apple refresh token을 revoke하고 카카오 연결을 끊습니다.
 //
@@ -50,6 +51,11 @@ const identityUniqueConstraint = "auth_identities_provider_subject_key"
 
 // sqlStateUniqueViolation은 unique 위반 SQLSTATE입니다.
 const sqlStateUniqueViolation = "23505"
+
+// RefreshReuseGrace는 이미 쓴 refresh token을 응답 유실 재시도로 보고 받아 주는 시간입니다(server 결정 S20).
+// server가 갱신을 commit했지만 응답이 앱에 닿기 전에 연결이 끊기면, 앱은 예전 token으로 다시 갱신할 수밖에 없습니다.
+// 첫 사용 뒤 이 시간 안(경계 포함)이고 그 다음 token이 아직 쓰이지 않았으면 탈취가 아니라 재시도로 봅니다.
+const RefreshReuseGrace = 30 * time.Second
 
 // KakaoVerifier는 카카오 id_token을 검증합니다. *provider.Kakao가 만족합니다.
 type KakaoVerifier interface {
@@ -211,7 +217,7 @@ func (s *Service) loginOnce(ctx context.Context, providerName, subject string, a
 		if err != nil {
 			return fmt.Errorf("family id 생성: %w", err)
 		}
-		tokens, err := s.issueTokens(ctx, q, now, accountID, familyID)
+		tokens, _, err := s.issueTokens(ctx, q, now, accountID, familyID)
 		if err != nil {
 			return err
 		}
@@ -317,14 +323,15 @@ func isIdentityConflict(err error) bool {
 }
 
 // issueTokens는 familyID에 새 refresh token을 저장하고 access token과 함께 돌려줍니다.
-func (s *Service) issueTokens(ctx context.Context, q *authdb.Queries, now time.Time, accountID, familyID uuid.UUID) (TokenPair, error) {
+// 저장한 refresh token의 id도 돌려줍니다. 갱신 때 앞 토큰의 replaced_by_id로 기록합니다.
+func (s *Service) issueTokens(ctx context.Context, q *authdb.Queries, now time.Time, accountID, familyID uuid.UUID) (TokenPair, uuid.UUID, error) {
 	raw, hash, err := token.NewRefreshToken()
 	if err != nil {
-		return TokenPair{}, err
+		return TokenPair{}, uuid.Nil, err
 	}
 	id, err := uuid.NewV7()
 	if err != nil {
-		return TokenPair{}, fmt.Errorf("refresh token id 생성: %w", err)
+		return TokenPair{}, uuid.Nil, fmt.Errorf("refresh token id 생성: %w", err)
 	}
 	// DB(timestamptz)는 마이크로초 정밀도로 저장하므로, 응답 값도 같은 정밀도로 맞춰 DB 값과 일치시킵니다.
 	refreshExpiresAt := now.Add(token.RefreshTTL).Truncate(time.Microsecond)
@@ -335,35 +342,39 @@ func (s *Service) issueTokens(ctx context.Context, q *authdb.Queries, now time.T
 		FamilyID:  familyID,
 		ExpiresAt: refreshExpiresAt,
 	}); err != nil {
-		return TokenPair{}, fmt.Errorf("refresh token 저장: %w", err)
+		return TokenPair{}, uuid.Nil, fmt.Errorf("refresh token 저장: %w", err)
 	}
 	access, accessExpiresAt, err := s.access.Issue(accountID)
 	if err != nil {
-		return TokenPair{}, fmt.Errorf("access token 발급: %w", err)
+		return TokenPair{}, uuid.Nil, fmt.Errorf("access token 발급: %w", err)
 	}
 	return TokenPair{
 		AccessToken:      access,
 		AccessExpiresAt:  accessExpiresAt,
 		RefreshToken:     raw,
 		RefreshExpiresAt: refreshExpiresAt,
-	}, nil
+	}, id, nil
 }
 
 // Refresh는 refresh token을 같은 family의 새 토큰 쌍으로 바꿉니다.
 //
 //   - 없음·만료·폐기·계정이 active가 아님: ErrRefreshInvalid
-//   - 이미 쓴 토큰: family 전체를 폐기하고(commit까지 마친 뒤) ErrRefreshReused
+//   - 이미 쓴 토큰이 첫 사용 뒤 RefreshReuseGrace 안(경계 포함)에 다시 왔고 그 다음 토큰이 아직 미사용·미폐기:
+//     응답 유실 재시도로 봅니다. 다음 토큰을 폐기하고 같은 family로 새 토큰 쌍을 줍니다(retryLostResponse).
+//   - 그 밖에 이미 쓴 토큰: family 전체를 폐기하고(commit까지 마친 뒤) ErrRefreshReused
 //
-// refresh 행을 잠그고 처리하므로, 같은 토큰으로 동시에 두 번 부르면 하나만 성공하고 다른 하나는 재사용이 됩니다.
+// refresh 행을 잠그고 처리하므로, 같은 토큰으로 동시에 두 번 부르면 한쪽이 정상 갱신한 뒤
+// 다른 쪽이 잠금을 기다렸다가 유예 처리됩니다. 둘 다 성공하지만 살아 남는 토큰은 나중 쪽 하나입니다.
 func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, error) {
 	hash := token.HashRefreshToken(rawRefresh)
 	var (
-		pair            TokenPair
-		reused          bool
-		reusedAccountID uuid.UUID
+		pair      TokenPair
+		reused    bool
+		retried   bool
+		accountID uuid.UUID
 	)
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
-		pair, reused, reusedAccountID = TokenPair{}, false, uuid.Nil
+		pair, reused, retried, accountID = TokenPair{}, false, false, uuid.Nil
 		q := authdb.New(tx)
 		now := s.clock.Now()
 
@@ -377,16 +388,31 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 		if row.RevokedAt != nil || !now.Before(row.ExpiresAt) || row.AccountStatus != statusActive {
 			return ErrRefreshInvalid
 		}
+		accountID = row.AccountID
 		if row.UsedAt != nil {
+			retryPair, ok, err := s.retryLostResponse(ctx, q, now, row)
+			if err != nil {
+				return err
+			}
+			if ok {
+				pair, retried = retryPair, true
+				return nil
+			}
 			// 폐기를 남겨야 하므로 오류를 돌려주지 않고 commit합니다. 오류는 commit 뒤에 돌려줍니다.
 			if err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: now, FamilyID: row.FamilyID}); err != nil {
 				return fmt.Errorf("family 폐기: %w", err)
 			}
-			reused, reusedAccountID = true, row.AccountID
+			reused = true
 			return nil
 		}
 
-		marked, err := q.MarkRefreshTokenUsed(ctx, authdb.MarkRefreshTokenUsedParams{UsedAt: now, ID: row.ID})
+		// replaced_by_id 외래 키 때문에 다음 토큰을 먼저 저장하고 나서 사용을 기록합니다.
+		var nextID uuid.UUID
+		pair, nextID, err = s.issueTokens(ctx, q, now, row.AccountID, row.FamilyID)
+		if err != nil {
+			return err
+		}
+		marked, err := q.MarkRefreshTokenUsed(ctx, authdb.MarkRefreshTokenUsedParams{UsedAt: now, ReplacedByID: nextID, ID: row.ID})
 		if err != nil {
 			return fmt.Errorf("refresh token 사용 기록: %w", err)
 		}
@@ -394,8 +420,7 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 			// 행을 잠근 뒤 used_at이 비어 있음을 확인했으므로 일어나지 않아야 합니다.
 			return fmt.Errorf("refresh token 사용 기록: %d행이 바뀌었습니다", marked)
 		}
-		pair, err = s.issueTokens(ctx, q, now, row.AccountID, row.FamilyID)
-		return err
+		return nil
 	})
 	if err != nil {
 		if errors.Is(err, ErrRefreshInvalid) {
@@ -404,10 +429,52 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 		return TokenPair{}, fmt.Errorf("refresh: %w", err)
 	}
 	if reused {
-		s.logger.WarnContext(ctx, "refresh token 재사용 감지, family 폐기", "accountId", reusedAccountID)
+		s.logger.WarnContext(ctx, "refresh token 재사용 감지, family 폐기", "accountId", accountID)
 		return TokenPair{}, ErrRefreshReused
 	}
+	if retried {
+		s.logger.InfoContext(ctx, "refresh token 유예 시간 안 재전송, 새 토큰 발급", "accountId", accountID)
+	}
 	return pair, nil
+}
+
+// retryLostResponse는 이미 쓴 토큰(used)의 재전송이 응답 유실 재시도인지 보고, 맞으면 새 토큰 쌍을 발급합니다.
+// 재시도가 아니면 ok=false를 돌려주고 아무것도 바꾸지 않습니다. used 행은 호출자가 잠근 상태여야 합니다.
+//
+// 재시도의 조건은 첫 사용 뒤 RefreshReuseGrace 안(경계 포함)이고, 그 다음 토큰이 아직 미사용·미폐기인 것입니다.
+// 다음 토큰을 잠그고 조건을 확인한 뒤 폐기하고, 같은 family로 새 토큰을 발급해 used의 replaced_by_id로 기록합니다.
+// used_at은 바꾸지 않으므로 유예 창은 첫 사용 시각을 기준으로 늘어나지 않습니다.
+func (s *Service) retryLostResponse(ctx context.Context, q *authdb.Queries, now time.Time, used authdb.GetRefreshTokenForUpdateRow) (TokenPair, bool, error) {
+	if used.UsedAt == nil || !used.ReplacedByID.Valid || now.Sub(*used.UsedAt) > RefreshReuseGrace {
+		return TokenPair{}, false, nil
+	}
+	next, err := q.GetRefreshTokenByIDForUpdate(ctx, used.ReplacedByID.UUID)
+	if err != nil {
+		return TokenPair{}, false, fmt.Errorf("다음 refresh token 조회: %w", err)
+	}
+	if next.UsedAt != nil || next.RevokedAt != nil {
+		return TokenPair{}, false, nil
+	}
+	revoked, err := q.RevokeRefreshToken(ctx, authdb.RevokeRefreshTokenParams{RevokedAt: now, ID: next.ID})
+	if err != nil {
+		return TokenPair{}, false, fmt.Errorf("다음 refresh token 폐기: %w", err)
+	}
+	if revoked != 1 {
+		// 행을 잠근 뒤 revoked_at이 비어 있음을 확인했으므로 일어나지 않아야 합니다.
+		return TokenPair{}, false, fmt.Errorf("다음 refresh token 폐기: %d행이 바뀌었습니다", revoked)
+	}
+	pair, newID, err := s.issueTokens(ctx, q, now, used.AccountID, used.FamilyID)
+	if err != nil {
+		return TokenPair{}, false, err
+	}
+	replaced, err := q.SetRefreshTokenReplacedBy(ctx, authdb.SetRefreshTokenReplacedByParams{ReplacedByID: newID, ID: used.ID})
+	if err != nil {
+		return TokenPair{}, false, fmt.Errorf("다음 refresh token 기록: %w", err)
+	}
+	if replaced != 1 {
+		return TokenPair{}, false, fmt.Errorf("다음 refresh token 기록: %d행이 바뀌었습니다", replaced)
+	}
+	return pair, true, nil
 }
 
 // Logout은 refresh token이 accountID의 것이면 그 family를 폐기합니다.
