@@ -26,7 +26,8 @@ while true; do
   sleep 60
   cur=$(snapshot) || continue
   [ -n "$cur" ] || continue
-  # 새로 생긴 줄(새 항목 또는 상태가 바뀐 항목)만 알립니다.
+  # 한 번도 본 적 없는 줄(새 항목 또는 상태가 바뀐 항목)만 알립니다.
+  # prev는 지금까지 본 줄을 모두 쌓아 둡니다. 조회 범위(최근 N개)에서 빠졌다가 다시 들어온 줄을 또 알리지 않으려는 것입니다.
   comm -13 "$STATE_DIR/prev" <(printf '%s\n' "$cur") | sed 's/^/변화: /'
-  printf '%s\n' "$cur" > "$STATE_DIR/prev"
+  sort -u "$STATE_DIR/prev" <(printf '%s\n' "$cur") > "$STATE_DIR/prev.next" && mv "$STATE_DIR/prev.next" "$STATE_DIR/prev"
 done
