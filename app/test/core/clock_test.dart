@@ -17,7 +17,21 @@ final class _MutableClock implements Clock {
   DateTime now;
 
   @override
+  bool get advances => true;
+
+  @override
   DateTime nowUtc() => now;
+}
+
+final class _ThrowingClock implements Clock {
+  bool shouldThrow = false;
+
+  @override
+  bool get advances => true;
+
+  @override
+  DateTime nowUtc() =>
+      shouldThrow ? throw StateError('boom') : DateTime.utc(2026, 10, 13);
 }
 
 void main() {
@@ -38,6 +52,34 @@ void main() {
           reason: bad,
         );
       }
+    });
+
+    test('한 자리 월·일은 0으로 채워 toIso', () {
+      expect(CalendarDate(2026, 1, 5).toIso(), '2026-01-05');
+    });
+
+    test('생성자에 없는 날짜를 주면 ArgumentError', () {
+      expect(() => CalendarDate(2026, 2, 30), throwsArgumentError);
+    });
+
+    test('compareTo는 월과 일도 비교한다', () {
+      expect(
+        CalendarDate(2026, 3, 1).compareTo(CalendarDate(2026, 4, 1)),
+        lessThan(0),
+      );
+      expect(
+        CalendarDate(2026, 4, 1).compareTo(CalendarDate(2026, 3, 31)),
+        greaterThan(0),
+      );
+      expect(
+        CalendarDate(2026, 3, 5).compareTo(CalendarDate(2026, 3, 9)),
+        lessThan(0),
+      );
+      expect(
+        CalendarDate(2026, 3, 9).compareTo(CalendarDate(2026, 3, 5)),
+        greaterThan(0),
+      );
+      expect(CalendarDate(2026, 3, 9).compareTo(CalendarDate(2026, 3, 9)), 0);
     });
 
     test('같음과 순서', () {
@@ -142,9 +184,9 @@ void main() {
 
     test('뉴욕 서머타임 종료일(2026-11-01) 자정 전후에 하루만 바뀐다', () {
       fakeAsync((async) {
-        // 뉴욕 11-01 00:00 EDT = UTC 04:00. 11-01 01:30은 두 번 옴(EDT, EST).
+        // 뉴욕 11-01 00:00 EDT = UTC 04:00. 01:00~02:00는 두 번 옴(EDT, EST).
+        // 시작: UTC 10-31 23:59 = 뉴욕 10-31 19:59 EDT.
         final clock = _MutableClock(DateTime.utc(2026, 10, 31, 23, 59));
-        // 10-31 19:59 EDT 에서 시작해 11-02 00:00 EST(UTC 05:00)를 지나 진행.
         final seen = <CalendarDate>[];
         final sub = dayChanges(
           clock,
@@ -152,8 +194,8 @@ void main() {
           tick: const Duration(minutes: 1),
         ).listen(seen.add);
 
-        // 시작: 뉴욕 10-31 19:59. 자정(UTC 04:00)까지 4시간 1분.
-        final end = DateTime.utc(2026, 11, 1, 6); // 뉴욕 11-01 01:00 EST
+        // 자정(UTC 04:00)을 넘겨 UTC 06:00(뉴욕 01:00 EST)까지 진행.
+        final end = DateTime.utc(2026, 11, 1, 6);
         while (clock.now.isBefore(end)) {
           clock.now = clock.now.add(const Duration(minutes: 1));
           async.elapse(const Duration(minutes: 1));
@@ -176,7 +218,7 @@ void main() {
           CalendarDate(2026, 11, 1),
         );
 
-        // 01:30이 두 번 오는 구간(UTC 05:30 EST)을 지나도 다시 내보내지 않는다.
+        // 뉴욕 01:30이 두 번 오는 구간(UTC 05:30, 06:30)을 지나도 다시 내보내지 않는다.
         final after = DateTime.utc(2026, 11, 1, 8);
         while (clock.now.isBefore(after)) {
           clock.now = clock.now.add(const Duration(minutes: 1));
@@ -224,6 +266,91 @@ void main() {
       expect(c.read(clockProvider).nowUtc(), DateTime.utc(2026, 10, 13, 3));
       expect(c.read(profileTimezoneProvider), 'Asia/Seoul');
       expect(c.read(todayProvider), CalendarDate(2026, 10, 13));
+    });
+
+    test('시나리오 timezone이 모르는 이름이면 ArgumentError', () {
+      final c = ProviderContainer(
+        overrides: [
+          apiModeProvider.overrideWithValue(ApiMode.fake),
+          scenarioProvider.overrideWithValue(
+            Scenario(
+              id: 's',
+              today: CalendarDate(2026, 10, 13),
+              timezone: 'Mars/Olympus',
+            ),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      // Riverpod이 provider 오류를 ProviderException으로 감싸므로 원인 문구로 확인한다.
+      expect(
+        () => c.read(clockProvider),
+        throwsA(
+          isA<Object>().having(
+            (e) => e.toString(),
+            'message',
+            contains('모르는 시간대입니다'),
+          ),
+        ),
+      );
+    });
+
+    test('todayProvider는 자정을 넘기면 한 번 새 날짜로 갱신된다', () {
+      fakeAsync((async) {
+        // 서울 10-13 23:59 = UTC 14:59
+        final clock = _MutableClock(DateTime.utc(2026, 10, 13, 14, 59));
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(clock),
+            profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
+          ],
+        );
+        final seen = <CalendarDate>[];
+        c.listen(
+          todayProvider,
+          (_, next) => seen.add(next),
+          fireImmediately: true,
+        );
+        expect(seen, [CalendarDate(2026, 10, 13)]);
+
+        for (var i = 0; i < 6; i++) {
+          clock.now = clock.now.add(const Duration(seconds: 30));
+          async.elapse(const Duration(seconds: 30));
+        }
+        expect(c.read(todayProvider), CalendarDate(2026, 10, 14));
+        expect(seen, [CalendarDate(2026, 10, 13), CalendarDate(2026, 10, 14)]);
+
+        for (var i = 0; i < 20; i++) {
+          clock.now = clock.now.add(const Duration(seconds: 30));
+          async.elapse(const Duration(seconds: 30));
+        }
+        expect(seen, hasLength(2));
+
+        c.dispose();
+        expect(async.pendingTimers, isEmpty);
+      });
+    });
+
+    test('고정 시계면 todayProvider는 타이머를 만들지 않는다', () {
+      fakeAsync((async) {
+        container(ApiMode.fake).read(todayProvider);
+        expect(async.pendingTimers, isEmpty);
+      });
+    });
+
+    test('dayChanges는 날짜 계산 실패를 스트림 오류로 전달한다', () {
+      fakeAsync((async) {
+        final clock = _ThrowingClock();
+        final errors = <Object>[];
+        final sub = dayChanges(
+          clock,
+          'Asia/Seoul',
+        ).listen((_) {}, onError: errors.add);
+        clock.shouldThrow = true;
+        async.elapse(const Duration(seconds: 30));
+        expect(errors, hasLength(1));
+        unawaited(sub.cancel());
+      });
     });
 
     test('http 모드는 SystemClock이다', () {

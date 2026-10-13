@@ -12,12 +12,18 @@ import 'package:timezone/timezone.dart' as tz;
 abstract interface class Clock {
   /// 지금 시각(UTC).
   DateTime nowUtc();
+
+  /// 시간이 흐르는 시계인지. false면 날짜가 바뀌지 않으므로 자정 구독이 필요 없습니다.
+  bool get advances;
 }
 
 /// 기기 시계.
 final class SystemClock implements Clock {
   /// 기기 시계를 씁니다.
   const new();
+
+  @override
+  bool get advances => true;
 
   @override
   DateTime nowUtc() => DateTime.now().toUtc();
@@ -29,6 +35,9 @@ final class FixedClock implements Clock {
   new(DateTime instant) : _instant = instant.toUtc();
 
   final DateTime _instant;
+
+  @override
+  bool get advances => false;
 
   @override
   DateTime nowUtc() => _instant;
@@ -47,18 +56,20 @@ void ensureTimeZonesInitialized() {
   _timeZonesInitialized = true;
 }
 
+tz.Location _locationOf(String ianaTimezone) {
+  ensureTimeZonesInitialized();
+  try {
+    return tz.getLocation(ianaTimezone);
+  } on tz.LocationNotFoundException {
+    throw ArgumentError.value(ianaTimezone, 'ianaTimezone', '모르는 시간대입니다.');
+  }
+}
+
 /// [clock]의 지금이 [ianaTimezone]에서 속한 달력 날짜(자정 기준)입니다.
 ///
 /// 모르는 IANA 이름이면 [ArgumentError]입니다(UTC로 대체하지 않습니다).
 CalendarDate todayIn(Clock clock, String ianaTimezone) {
-  ensureTimeZonesInitialized();
-  final tz.Location location;
-  try {
-    location = tz.getLocation(ianaTimezone);
-  } on tz.LocationNotFoundException {
-    throw ArgumentError.value(ianaTimezone, 'ianaTimezone', '모르는 시간대입니다.');
-  }
-  final local = tz.TZDateTime.from(clock.nowUtc(), location);
+  final local = tz.TZDateTime.from(clock.nowUtc(), _locationOf(ianaTimezone));
   return CalendarDate(local.year, local.month, local.day);
 }
 
@@ -66,7 +77,8 @@ CalendarDate todayIn(Clock clock, String ianaTimezone) {
 ///
 /// 구독 시점의 현재 날짜는 내보내지 않습니다(현재 값은 [todayIn]으로 읽습니다).
 /// [tick] 간격으로 [clock]을 확인하므로 자정 뒤 최대 [tick]만큼 늦게 알립니다.
-/// 구독을 취소하면 폴링도 멈춥니다.
+/// 구독을 취소하면 폴링도 멈춥니다. 단일 구독 스트림이며 pause 중에도 폴링합니다.
+/// 날짜 계산이 실패하면 스트림 오류로 전달합니다.
 Stream<CalendarDate> dayChanges(
   Clock clock,
   String ianaTimezone, {
@@ -78,10 +90,14 @@ Stream<CalendarDate> dayChanges(
     onListen: () {
       var last = todayIn(clock, ianaTimezone);
       timer = Timer.periodic(tick, (_) {
-        final current = todayIn(clock, ianaTimezone);
-        if (current != last) {
-          last = current;
-          controller.add(current);
+        try {
+          final current = todayIn(clock, ianaTimezone);
+          if (current != last) {
+            last = current;
+            controller.add(current);
+          }
+        } on Object catch (error, stackTrace) {
+          controller.addError(error, stackTrace);
         }
       });
     },
@@ -99,10 +115,9 @@ final clockProvider = Provider<Clock>((ref) {
     return const SystemClock();
   }
   final scenario = ref.watch(scenarioProvider);
-  ensureTimeZonesInitialized();
   final today = scenario.today;
   final noon = tz.TZDateTime(
-    tz.getLocation(scenario.timezone),
+    _locationOf(scenario.timezone),
     today.year,
     today.month,
     today.day,
@@ -124,7 +139,16 @@ final profileTimezoneProvider = Provider<String>((ref) {
 
 /// 프로필 시간대 기준 오늘 날짜.
 ///
-/// 자정 갱신은 [dayChanges]를 구독해 이 provider를 무효화하는 쪽(화면 계층)이 맡습니다.
+/// 시간이 흐르는 시계([Clock.advances])면 자정에 스스로 다시 계산됩니다.
 final todayProvider = Provider<CalendarDate>((ref) {
-  return todayIn(ref.watch(clockProvider), ref.watch(profileTimezoneProvider));
+  final clock = ref.watch(clockProvider);
+  final timezone = ref.watch(profileTimezoneProvider);
+  if (clock.advances) {
+    final subscription = dayChanges(clock, timezone).listen(
+      (_) => ref.invalidateSelf(),
+      onError: (Object _) => ref.invalidateSelf(),
+    );
+    ref.onDispose(subscription.cancel);
+  }
+  return todayIn(clock, timezone);
 });
