@@ -42,6 +42,8 @@ permissions:
 
 jobs:
   checks:
+    # 밤 schedule 실행은 e2e-android만 돈다.
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     # Gradle이 걸려 runner를 오래 점유하지 않게 상한을 둔다.
     timeout-minutes: 30
@@ -143,7 +145,8 @@ jobs:
           profile: pixel_6
           disable-animations: true
           working-directory: app
-          script: patrol test -t patrol_test --dart-define=API_MODE=fake --screenshots-output-dir build/e2e-native-screenshots
+          # sh 한 줄이라 pipefail 없이 로그를 파일로 받고, 실패하면 로그를 보여 준다.
+          script: mkdir -p build && patrol test -t patrol_test --dart-define=API_MODE=fake --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; exit 1; }
         env:
           PATROL_ANALYTICS_ENABLED: "false"
       # Patrol 파일 이름(<타임스탬프>_<태그>.png)을 <화면>__<상태|default>.png로 모은다.
@@ -156,12 +159,16 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-screenshots
-          path: app/build/e2e-screenshots/**
+          path: |
+            app/build/e2e-screenshots/**
+            app/build/e2e-native-screenshots/**
+            app/build/patrol.log
           if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.
   # checks와 같은 트리거·경로로 돈다(workflow 수준 on).
   goldens:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

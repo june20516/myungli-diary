@@ -9,7 +9,9 @@
     "screens": [
       "welcome"
     ],
-    "decisions": [],
+    "decisions": [
+      "D50"
+    ],
     "status": "draft",
     "note": "Patrol E2E가 welcome 화면(default)에 도착해 남긴 캡처"
   }

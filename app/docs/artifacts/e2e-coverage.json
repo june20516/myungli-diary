@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T15:29:10.225716Z",
+  "generatedAt": "2026-10-13T15:35:38.431628Z",
   "exits": {
     "covered": 3,
     "total": 76,
@@ -80,13 +80,13 @@
     ],
     "coveredBy": {
       "launch>force-update": [
-        "test/flows/launch_flow_test.dart:38"
+        "test/flows/launch_flow_test.dart:49 force-update 시나리오는 force-update 화면에 도착합니다"
       ],
       "launch>today": [
-        "test/flows/launch_flow_test.dart:35"
+        "test/flows/launch_flow_test.dart:44 member 시나리오는 today 화면에 도착합니다"
       ],
       "launch>welcome": [
-        "test/flows/launch_flow_test.dart:33",
+        "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
     }
@@ -151,7 +151,7 @@
     ],
     "coveredBy": {
       "launch:offline": [
-        "test/flows/launch_flow_test.dart:55 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
+        "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
       ]
     }
   },
@@ -167,7 +167,7 @@
     ],
     "coveredBy": {
       "D50": [
-        "test/flows/launch_flow_test.dart:33",
+        "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
     }

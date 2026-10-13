@@ -25,29 +25,39 @@ class _CountingInterceptor extends Interceptor {
 }
 
 void main() {
-  // 시나리오별 도착 화면과, 그 흐름이 덮는 IA 경로·결정. consent-required와
-  // profile-required의 도착은 launch의 exits에 없어 경로를 선언하지 않습니다.
-  const flows = <String, (String, Covers)>{
-    'new-user': (
-      ScreenIds.welcome,
-      Covers(exits: ['launch>welcome'], decisions: ['D50']),
-    ),
-    'member': (ScreenIds.today, Covers(exits: ['launch>today'])),
-    'force-update': (
-      ScreenIds.forceUpdate,
-      Covers(exits: ['launch>force-update']),
-    ),
-    'consent-required': (ScreenIds.consent, Covers()),
-    'profile-required': (ScreenIds.onboardCall, Covers()),
-  };
+  Future<void> expectArrival(
+    WidgetTester tester,
+    String scenario,
+    String screenId,
+  ) async {
+    await pumpApp(tester, scenario: scenario);
 
-  for (final MapEntry(key: scenario, value: (screenId, _)) in flows.entries) {
-    testWidgets('$scenario 시나리오는 $screenId 화면에 도착합니다', (tester) async {
-      await pumpApp(tester, scenario: scenario);
-
-      expect(find.byKey(ValueKey(screenId)), findsOneWidget);
-    });
+    expect(find.byKey(ValueKey(screenId)), findsOneWidget);
   }
+
+  testWidgets('new-user 시나리오는 welcome 화면에 도착합니다', (tester) async {
+    covers(const Covers(exits: ['launch>welcome'], decisions: ['D50']));
+    await expectArrival(tester, 'new-user', ScreenIds.welcome);
+  });
+
+  testWidgets('member 시나리오는 today 화면에 도착합니다', (tester) async {
+    covers(const Covers(exits: ['launch>today']));
+    await expectArrival(tester, 'member', ScreenIds.today);
+  });
+
+  testWidgets('force-update 시나리오는 force-update 화면에 도착합니다', (tester) async {
+    covers(const Covers(exits: ['launch>force-update']));
+    await expectArrival(tester, 'force-update', ScreenIds.forceUpdate);
+  });
+
+  // 아래 두 도착은 launch의 exits에 없어 덮는 경로를 선언하지 않습니다.
+  testWidgets('consent-required 시나리오는 consent 화면에 도착합니다', (tester) async {
+    await expectArrival(tester, 'consent-required', ScreenIds.consent);
+  });
+
+  testWidgets('profile-required 시나리오는 onboard-call 화면에 도착합니다', (tester) async {
+    await expectArrival(tester, 'profile-required', ScreenIds.onboardCall);
+  });
 
   testWidgets('offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다', (
     tester,

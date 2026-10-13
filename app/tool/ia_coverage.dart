@@ -3,6 +3,7 @@
 //   dart run tool/ia_coverage.dart                   보고서 쓰기
 //   dart run tool/ia_coverage.dart --check           baseline보다 줄면 종료 코드 1 (쓰지 않음)
 //   dart run tool/ia_coverage.dart --update-baseline 보고서와 baseline을 지금 결과로 쓰기
+// ratchet은 개수만 비교하므로 덮는 항목이 바뀌어도 개수가 같으면 통과합니다.
 
 import 'dart:convert';
 import 'dart:io';
@@ -61,12 +62,20 @@ const _testFunctions = {
   'patrolWidgetTest',
 };
 
-/// [source]에서 `Covers` 생성 표현식을 모두 읽습니다. 문자열 리터럴이 아니면 [CoverageError].
+/// [source]에서 `covers(const Covers(...))` 선언을 모두 읽습니다.
+///
+/// 선언 형태는 이 한 가지뿐입니다. `Covers`를 다른 곳(변수·맵·접두어 import)에 쓰거나
+/// 문자열 리터럴이 아닌 값을 넣거나 문법 오류가 있으면 [CoverageError]입니다.
 List<CoverDeclaration> parseDeclarations(
   String source, {
   required String file,
 }) {
   final result = parseString(content: source, throwIfDiagnostics: false);
+  if (result.errors.isNotEmpty) {
+    final first = result.errors.first;
+    final line = result.lineInfo.getLocation(first.offset).lineNumber;
+    throw CoverageError('$file:$line: 문법 오류로 읽을 수 없습니다: ${first.message}');
+  }
   final visitor = _CoversVisitor(file: file, lineInfo: result.lineInfo);
   result.unit.accept(visitor);
   return visitor.declarations;
@@ -79,26 +88,55 @@ class _CoversVisitor extends RecursiveAstVisitor<void> {
   final LineInfo lineInfo;
   final declarations = <CoverDeclaration>[];
 
+  String _where(AstNode node) =>
+      '$file:${lineInfo.getLocation(node.offset).lineNumber}';
+
+  // 올바른 `const Covers(...)`는 covers() 안에서 읽고 하위로 내려가지 않으므로,
+  // 여기에 도달하는 Covers는 모두 허용하지 않는 위치입니다.
   @override
   void visitInstanceCreationExpression(InstanceCreationExpression node) {
     if (node.constructorName.type.name.lexeme == 'Covers') {
-      _record(node, node.argumentList);
+      throw CoverageError(
+        '${_where(node)}: Covers는 covers(const Covers(...)) 형태로만 선언합니다.',
+      );
     }
     super.visitInstanceCreationExpression(node);
   }
 
-  // `const` 안에서 생략된 `Covers(...)`는 해석 전에는 메서드 호출로 읽힙니다.
   @override
   void visitMethodInvocation(MethodInvocation node) {
-    if (node.target == null && node.methodName.name == 'Covers') {
-      _record(node, node.argumentList);
+    final name = node.methodName.name;
+    if (name == 'Covers') {
+      throw CoverageError(
+        '${_where(node)}: Covers는 covers(const Covers(...)) 형태로만 선언합니다.',
+      );
+    }
+    if (name == 'covers') {
+      if (node.target != null) {
+        throw CoverageError('${_where(node)}: covers()에 접두어를 붙일 수 없습니다.');
+      }
+      _record(node);
+      return;
     }
     super.visitMethodInvocation(node);
   }
 
-  void _record(AstNode node, ArgumentList arguments) {
-    final line = lineInfo.getLocation(node.offset).lineNumber;
-    final where = '$file:$line';
+  void _record(MethodInvocation call) {
+    final where = _where(call);
+    final arguments = call.argumentList.arguments;
+    final creation = arguments.length == 1
+        ? arguments.single.argumentExpression
+        : null;
+    if (creation is! InstanceCreationExpression ||
+        creation.keyword?.lexeme != 'const' ||
+        creation.constructorName.type.importPrefix != null ||
+        creation.constructorName.type.name.lexeme != 'Covers') {
+      throw CoverageError('$where: covers()에는 const Covers(...) 하나만 넣습니다.');
+    }
+    _readCovers(call, creation.argumentList, where);
+  }
+
+  void _readCovers(AstNode node, ArgumentList arguments, String where) {
     final values = <String, List<String>>{};
     for (final argument in arguments.arguments) {
       if (argument is! NamedArgument) {
@@ -258,15 +296,27 @@ Map<String, Object?> buildReport({
   };
 }
 
+int _coveredCount(Map<String, Object?> data, String kind, String origin) {
+  final section = data[kind];
+  final covered = section is Map<String, Object?> ? section['covered'] : null;
+  if (covered is! int) {
+    throw CoverageError('$origin에 $kind.covered(정수)가 없습니다.');
+  }
+  return covered;
+}
+
 /// 보고서 covered 수가 baseline보다 줄어든 항목을 설명합니다. 줄지 않았으면 빈 목록.
+///
+/// 한계: 개수만 비교하므로 덮는 항목이 바뀌어도 개수가 같으면 통과합니다.
+/// baseline에 키가 없으면 어느 키인지 담은 [CoverageError]입니다.
 List<String> findRegressions({
   required Map<String, Object?> report,
   required Map<String, Object?> baseline,
 }) {
   final regressions = <String>[];
   for (final kind in ['exits', 'states', 'decisions']) {
-    final now = (report[kind]! as Map<String, Object?>)['covered']! as int;
-    final before = (baseline[kind]! as Map<String, Object?>)['covered']! as int;
+    final now = _coveredCount(report, kind, '보고서');
+    final before = _coveredCount(baseline, kind, 'coverage_baseline.json');
     if (now < before) {
       regressions.add('$kind: $before → $now');
     }

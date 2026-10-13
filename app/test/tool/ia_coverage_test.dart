@@ -111,7 +111,7 @@ void main() {
       'decisions': {'covered': decisions},
     };
 
-    test('baseline보다 줄면 알려 주고 같거나 늘면 비웁니다', () {
+    test('경로가 줄면 알려 주고 같거나 늘면 비웁니다', () {
       expect(
         findRegressions(report: counts(1, 2, 3), baseline: counts(2, 2, 3)),
         ['exits: 2 → 1'],
@@ -121,41 +121,82 @@ void main() {
         isEmpty,
       );
     });
+
+    test('상태가 줄면 알려 줍니다', () {
+      expect(
+        findRegressions(report: counts(2, 1, 3), baseline: counts(2, 2, 3)),
+        ['states: 2 → 1'],
+      );
+    });
+
+    test('결정이 줄면 알려 줍니다', () {
+      expect(
+        findRegressions(report: counts(2, 2, 2), baseline: counts(2, 2, 3)),
+        ['decisions: 3 → 2'],
+      );
+    });
+
+    test('baseline에 키가 없으면 어느 키인지 담은 오류입니다', () {
+      expect(
+        () => findRegressions(
+          report: counts(1, 1, 1),
+          baseline: {
+            'exits': {'covered': 1},
+            'decisions': {'covered': 1},
+          },
+        ),
+        throwsA(
+          isA<CoverageError>().having(
+            (error) => error.message,
+            'message',
+            allOf(contains('states'), contains('coverage_baseline.json')),
+          ),
+        ),
+      );
+    });
   });
 
   group('parseDeclarations', () {
-    test('const Covers와 const 안에서 생략된 Covers를 읽고 테스트 이름을 붙입니다', () {
+    test('covers(const Covers) 선언을 읽고 테스트 이름을 붙입니다', () {
       final declarations = parseDeclarations('''
 void main() {
-  const mapped = {'a': (1, Covers(exits: ['launch>today']))};
   testWidgets('도착합니다', (tester) async {
     covers(const Covers(exits: ['launch>welcome'], decisions: ['D50']));
+  });
+  test('빈 선언', () {
+    covers(const Covers());
   });
 }
 ''', file: 'a_test.dart');
 
       expect(declarations, hasLength(2));
-      expect(declarations[0].exits, ['launch>today']);
-      expect(declarations[1].exits, ['launch>welcome']);
-      expect(declarations[1].decisions, ['D50']);
-      expect(declarations[1].origin, 'a_test.dart:4 도착합니다');
+      expect(declarations[0].exits, ['launch>welcome']);
+      expect(declarations[0].decisions, ['D50']);
+      expect(declarations[0].origin, 'a_test.dart:3 도착합니다');
+      expect(declarations[1].exits, isEmpty);
     });
 
+    void expectError(String body) => expect(
+      () => parseDeclarations(body, file: 'a_test.dart'),
+      throwsA(isA<CoverageError>()),
+      reason: body,
+    );
+
     test('변수나 보간은 오류입니다', () {
-      expect(
-        () => parseDeclarations(
-          'final x = Covers(exits: [path]);',
-          file: 'a_test.dart',
-        ),
-        throwsA(isA<CoverageError>()),
-      );
-      expect(
-        () => parseDeclarations(
-          r"final x = Covers(exits: ['a>$b']);",
-          file: 'a_test.dart',
-        ),
-        throwsA(isA<CoverageError>()),
-      );
+      expectError('void f() { covers(const Covers(exits: [path])); }');
+      expectError(r"void f() { covers(const Covers(exits: ['a>$b'])); }");
+    });
+
+    test('covers() 밖의 Covers(맵·변수·const 생략)는 오류입니다', () {
+      expectError("final x = {'a': (1, Covers(exits: ['launch>today']))};");
+      expectError("const x = Covers(exits: ['launch>today']);");
+      expectError("void f() { covers(Covers(exits: ['launch>today'])); }");
+    });
+
+    test('접두어 import와 문법 오류는 오류입니다', () {
+      expectError('void f() { p.covers(const Covers()); }');
+      expectError('void f() { covers(const p.Covers()); }');
+      expectError('void f() { covers(const Covers(exits: [ );');
     });
   });
 

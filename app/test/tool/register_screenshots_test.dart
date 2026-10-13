@@ -123,4 +123,49 @@ void main() {
       throwsA(isA<ScreenshotError>()),
     );
   });
+
+  test('과거 날짜로 다시 등록해도 더 최신 항목은 대체하지 않습니다', () {
+    shot('welcome__default.png');
+    registerScreenshots(
+      sourceDir: source,
+      artifactsDir: artifacts,
+      date: '2026-10-14',
+    );
+    registerScreenshots(
+      sourceDir: source,
+      artifactsDir: artifacts,
+      date: '2026-10-13',
+    );
+
+    final byDate = {
+      for (final entry in readIndex()) entry['date']: entry['status'],
+    };
+    expect(byDate, {'2026-10-14': 'draft', '2026-10-13': 'superseded'});
+  });
+
+  test('decisions와 source를 index.json에 남기고 없는 결정은 오류입니다', () {
+    shot('welcome__default.png');
+    registerScreenshots(
+      sourceDir: source,
+      artifactsDir: artifacts,
+      date: '2026-10-14',
+      decisions: ['D50'],
+      knownDecisions: {'D50'},
+      source: 'welcome.html',
+    );
+
+    final entry = readIndex().single;
+    expect(entry['decisions'], ['D50']);
+    expect(entry['source'], 'welcome.html');
+    expect(
+      () => registerScreenshots(
+        sourceDir: source,
+        artifactsDir: artifacts,
+        date: '2026-10-14',
+        decisions: ['D999'],
+        knownDecisions: {'D50'},
+      ),
+      throwsA(isA<ScreenshotError>()),
+    );
+  });
 }
