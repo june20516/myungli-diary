@@ -55,11 +55,11 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 | --- | --- | --- |
 | 1 | 제목(`type.title`) | 무료 |
 | 2 | 원국표(`saju-pillars`) | 무료(표 데이터) |
-| 3 | 판정 근거(`evidence-sheet.basis.body`) | 잠김 |
-| 4 | 원전(`evidence-sheet.source.quote`, `bg.base` 상자) | 잠김 |
-| 5 | 내 사주에서는(`evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 잠김 |
+| 3 | 판정 근거(제목 `evidence-sheet.section.basis`, 본문 `evidence-sheet.basis.body`) | 본문만 잠김 |
+| 4 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, `bg.base` 상자) | 본문만 잠김 |
+| 5 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
 
-구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다.
+구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다(`sectionTitle` 스타일, 구역마다 `basisTitle`·`sourceTitle`·`personalTitle`). **구역 제목은 잠겨도 또렷하게 보입니다.** `lock.veil`은 본문에만 씌웁니다.
 
 ### 잠김과 해제 (시안 B, 결정 V25)
 
@@ -71,8 +71,9 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 | `unlocked` | 권한 있음 | 안내 영역 없음, 세 구역 본문 |
 
 * **광고를 끝까지 보고 돌아옴**: `unlocking` → 권한이 오면 안내 영역 `disappear.seep`, 세 구역 skeleton → 내용 `appear.seep`, 햅틱 light, 스크린리더에 열렸다고 한 번 알림.
-* **확인이 오지 않음**(대기 시간은 app이 server 확인 흐름에 맞춰 정함): `locked`로 돌아가고 `toast`로 알립니다(문구 슬롯은 지휘에 요청함).
+* **확인이 오지 않음**(대기 시간은 app이 server 확인 흐름에 맞춰 정함): `locked`로 돌아가고 `toast`로 알립니다(`failedToast`, 문구 슬롯 `evidence-sheet.unlock.failed`).
 * **중간에 닫음**: `locked` 그대로, 알림 없음.
+* 접근성 문구 슬롯: 잠김 `evidence-sheet.a11y.locked`, 확인 중 `evidence-sheet.a11y.checking`, 열림 알림 `evidence-sheet.a11y.unlocked`(`a11y.*Slot`).
 * 처음부터 권한이 있으면(그날 이미 열었거나 광고 제거권 기간) `unlocked`로 엽니다.
 * 자정이 지나 권한이 끝나도 보고 있던 시트는 바꾸지 않습니다. 다음에 여는 시트부터 `locked`입니다.
 * 안내 영역 높이만큼 본문 아래 여백을 둬서 마지막 구역이 가려지지 않게 합니다.

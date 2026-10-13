@@ -457,3 +457,23 @@ def test_locked_sentence_open_slot():
     assert block["a11y"]["lockedLabel"] == "구역 이름 + '잠김', 열기는 따로 초점(link)"
     assert {"saju-chart.yongsin.open"} <= ia_slot_ids("saju-chart")
     assert "evidence-sheet.a11y.locked" in ia_slot_ids("evidence-sheet")
+
+
+def test_evidence_sheet_section_titles_and_slots():
+    link = components_by_id(BRAND_GROUPS)["depth-link"]
+    sheet = link["parts"]["evidenceSheet"]
+    titles = {"basisTitle": "evidence-sheet.section.basis", "sourceTitle": "evidence-sheet.section.source",
+              "personalTitle": "evidence-sheet.section.personal"}
+    assert {name: sheet[name]["slot"] for name in titles} == titles
+    assert sheet["personalTitle"]["when"] == sheet["personal"]["when"]
+    locked = link["states"]["locked"]["parts"]["evidenceSheet"]
+    assert not set(titles) & set(locked)  # 제목은 잠겨도 또렷함
+    toast = link["states"]["unlocking"]["parts"]["evidenceSheet"]["failedToast"]
+    assert toast == {"component": "toast", "slot": "evidence-sheet.unlock.failed"}
+    a11y = link["a11y"]
+    assert (a11y["lockedLabelSlot"], a11y["unlockingLabelSlot"], a11y["unlockedAnnouncementSlot"]) == (
+        "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking", "evidence-sheet.a11y.unlocked")
+    assert a11y["lockedLabel"] == "구역 이름 + '잠김'" and a11y["unlockingLabel"] == "확인 중"
+    used = set(titles.values()) | {toast["slot"], a11y["lockedLabelSlot"], a11y["unlockingLabelSlot"],
+                                   a11y["unlockedAnnouncementSlot"]}
+    assert used <= ia_slot_ids("evidence-sheet")
