@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
-import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -132,8 +132,13 @@ Widget _adBanner({
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AdBanner(adFree: adFree, consentGiven: consent),
-          MyungliTabBar(index: 0, onSelect: (_) {}, topBorder: false),
+          MyungliBottomBar(
+            index: 0,
+            onSelect: (_) {},
+            showAd: true,
+            adFree: adFree,
+            consentGiven: consent,
+          ),
         ],
       ),
     ),
@@ -217,7 +222,7 @@ final WidgetbookFolder frameDirectory = WidgetbookFolder(
       ],
     ),
     WidgetbookComponent(
-      name: 'ad-banner',
+      name: 'ad-banner (하단 틀 안)',
       useCases: [
         WidgetbookUseCase(
           name: 'loaded',

@@ -8,10 +8,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -38,11 +40,12 @@ final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 Widget _app(
   Widget home, {
   FakeAds? ads,
+  Ads? overrideAds,
   MotionPrefs prefs = _normal,
   Locale locale = const Locale('ko'),
 }) {
   return ProviderScope(
-    overrides: [adsProvider.overrideWithValue(ads ?? FakeAds())],
+    overrides: [adsProvider.overrideWithValue(overrideAds ?? ads ?? FakeAds())],
     child: MaterialApp(
       navigatorKey: _navigatorKey,
       locale: locale,
@@ -55,6 +58,37 @@ Widget _app(
       ),
     ),
   );
+}
+
+/// 불러오기·해제 횟수를 세는 광고 대역. 배너 안에 접근성 노드가 있습니다.
+class _CountingAds implements Ads {
+  int loaded = 0;
+  int disposed = 0;
+
+  @override
+  Future<BannerAdHandle?> loadBanner({required int width}) async {
+    loaded++;
+    return _CountingBanner(() => disposed++);
+  }
+
+  @override
+  Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
+      null;
+}
+
+class _CountingBanner implements BannerAdHandle {
+  new(this._onDispose);
+
+  final VoidCallback _onDispose;
+
+  @override
+  Size get size => const Size(320, 50);
+
+  @override
+  Widget get view => Semantics(label: '광고 내용', child: const SizedBox());
+
+  @override
+  void dispose() => _onDispose();
 }
 
 /// 기기에 울린 햅틱 종류를 모읍니다.
@@ -604,6 +638,287 @@ void main() {
       expect(node.role, SemanticsRole.region);
       expect(node.label, '광고');
       handle.dispose();
+    });
+  });
+
+  group('bottom-bar', () {
+    Widget bottom({
+      bool showAd = true,
+      bool adFree = false,
+      bool consent = true,
+      FakeAds? ads,
+      ValueChanged<double>? onHeight,
+    }) => _app(
+      MyungliBottomBar(
+        index: 0,
+        onSelect: (_) {},
+        showAd: showAd,
+        adFree: adFree,
+        consentGiven: consent,
+        onHeightChanged: onHeight,
+      ),
+      ads: ads,
+    );
+
+    /// 위 0.5px 선 개수(하단 틀 안).
+    int lines(WidgetTester tester) => tester
+        .widgetList<DecoratedBox>(
+          find.descendant(
+            of: find.byType(MyungliBottomBar),
+            matching: find.byType(DecoratedBox),
+          ),
+        )
+        .where((box) {
+          final decoration = box.decoration;
+          return decoration is BoxDecoration &&
+              decoration.border is Border &&
+              (decoration.border! as Border).top.width == 0.5;
+        })
+        .length;
+
+    bool lineIsAboveBanner(WidgetTester tester) {
+      final banner = tester.getTopLeft(
+        find.byKey(const ValueKey('ad-banner.region')),
+      );
+      final tabs = tester.getTopLeft(
+        find.byKey(const ValueKey('tab-bar.top-border')),
+      );
+      return banner.dy < tabs.dy;
+    }
+
+    testWidgets('바탕과 흐림은 하나이고 배너가 loaded면 선은 배너 위에 하나', (tester) async {
+      await tester.pumpWidget(bottom());
+      await tester.pumpAndSettle();
+      expect(find.byType(BackdropFilter), findsOneWidget);
+      expect(find.byKey(const ValueKey('ad-banner.surface')), findsNothing);
+      expect(lines(tester), 1);
+      expect(lineIsAboveBanner(tester), isTrue);
+    });
+
+    for (final (name, ads, adFree, consent, showAd) in [
+      ('noFill', FakeAds(bannerAvailable: false), false, true, true),
+      ('adFree', null, true, true, true),
+      ('noConsent', null, false, false, true),
+      ('탭 루트가 아닌 화면', null, false, true, false),
+    ]) {
+      testWidgets('$name이면 선은 탭 바 위에 하나', (tester) async {
+        await tester.pumpWidget(
+          bottom(ads: ads, adFree: adFree, consent: consent, showAd: showAd),
+        );
+        await tester.pumpAndSettle();
+        expect(lines(tester), 1);
+        expect(find.byKey(const ValueKey('ad-banner.region')), findsNothing);
+      });
+    }
+
+    testWidgets('loading 동안에도 선은 하나, loaded가 되면 배너 위로 옮겨 갑니다', (tester) async {
+      await tester.pumpWidget(bottom());
+      expect(lines(tester), 1);
+      expect(find.byKey(const ValueKey('ad-banner.region')), findsNothing);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(lines(tester), 1);
+      await tester.pumpAndSettle();
+      expect(lines(tester), 1);
+      expect(lineIsAboveBanner(tester), isTrue);
+    });
+
+    testWidgets('광고 제거가 켜지면 선이 탭 바 위로 돌아옵니다', (tester) async {
+      await tester.pumpWidget(bottom());
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(bottom(adFree: true));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(lines(tester), 1);
+      await tester.pumpAndSettle();
+      expect(lines(tester), 1);
+      expect(find.byKey(const ValueKey('ad-banner.region')), findsNothing);
+    });
+
+    testWidgets('높이 알림: 상태마다 탭 바 + 안전 영역 + 배너', (tester) async {
+      tester.view
+        ..devicePixelRatio = 1
+        ..padding = const FakeViewPadding(bottom: 34)
+        ..viewPadding = const FakeViewPadding(bottom: 34);
+      addTearDown(() {
+        tester.view
+          ..resetDevicePixelRatio()
+          ..resetPadding()
+          ..resetViewPadding();
+      });
+      final heights = <double>[];
+      await tester.pumpWidget(bottom(onHeight: heights.add));
+      await tester.pump();
+      expect(heights.last, 72 + 34); // loading
+      await tester.pumpAndSettle();
+      expect(heights.last, 72 + 34 + 58.5); // loaded
+      await tester.pumpWidget(bottom(adFree: true, onHeight: heights.add));
+      await tester.pumpAndSettle();
+      expect(heights.last, 72 + 34); // adFree
+      await tester.pumpWidget(
+        bottom(ads: FakeAds(bannerAvailable: false), onHeight: heights.add),
+      );
+      await tester.pumpAndSettle();
+      expect(heights.last, 72 + 34); // noFill
+      await tester.pumpWidget(bottom(consent: false, onHeight: heights.add));
+      await tester.pumpAndSettle();
+      expect(heights.last, 72 + 34); // noConsent
+    });
+  });
+
+  group('ad-banner 보강', () {
+    testWidgets('광고 제거 뒤 광고를 놓고, 다시 켜지면 새로 불러옵니다', (tester) async {
+      final ads = _CountingAds();
+      Widget build({required bool adFree}) =>
+          _app(AdBanner(adFree: adFree, consentGiven: true), overrideAds: ads);
+      await tester.pumpWidget(build(adFree: false));
+      await tester.pumpAndSettle();
+      expect(ads.loaded, 1);
+      await tester.pumpWidget(build(adFree: true));
+      await tester.pumpAndSettle();
+      expect(ads.disposed, 1);
+      await tester.pumpWidget(build(adFree: false));
+      await tester.pumpAndSettle();
+      expect(ads.loaded, 2);
+    });
+
+    testWidgets('광고 네트워크의 접근성 노드가 보입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const AdBanner(adFree: false, consentGiven: true),
+          overrideAds: _CountingAds(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('광고 내용'), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  group('sheet 보강', () {
+    Future<void> openList(WidgetTester tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const SizedBox.expand()));
+      unawaited(
+        showMyungliSheet<void>(
+          _navigatorKey.currentContext!,
+          size: SheetSize.half,
+          builder: (_) => ListView(
+            key: const ValueKey('sheet-list'),
+            children: [
+              for (var i = 0; i < 40; i++)
+                SizedBox(height: 48, child: Text('항목 $i')),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('본문이 맨 위일 때 본문에서 끌어내리면 닫힙니다', (tester) async {
+      await openList(tester);
+      await tester.fling(
+        find.byKey(const ValueKey('sheet-list')),
+        const Offset(0, 300),
+        1500,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsNothing);
+    });
+
+    testWidgets('본문이 스크롤된 상태에서는 스크롤만 합니다', (tester) async {
+      await openList(tester);
+      final list = find.byKey(const ValueKey('sheet-list'));
+      await tester.drag(list, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      final top = tester.getTopLeft(find.byType(MyungliSheetFrame)).dy;
+      await tester.drag(list, const Offset(0, 100));
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      expect(tester.getTopLeft(find.byType(MyungliSheetFrame)).dy, top);
+    });
+
+    testWidgets('첫 제목으로 스크린리더 초점이 갑니다(첫 SheetHeading만)', (tester) async {
+      final handle = tester.ensureSemantics();
+      final messages = <Object?>[];
+      tester.binding.defaultBinaryMessenger
+          .setMockDecodedMessageHandler<dynamic>(SystemChannels.accessibility, (
+            message,
+          ) async {
+            messages.add(message);
+            return null;
+          });
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<dynamic>(
+              SystemChannels.accessibility,
+              null,
+            ),
+      );
+      await tester.pumpWidget(_app(const SizedBox.expand()));
+      unawaited(
+        showMyungliSheet<void>(
+          _navigatorKey.currentContext!,
+          size: SheetSize.half,
+          builder: (_) => const Column(
+            children: [
+              SheetHeading(child: Text('첫 제목')),
+              SheetHeading(child: Text('둘째 제목')),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final focus = messages
+          .whereType<Map<Object?, Object?>>()
+          .where((m) => m['type'] == 'focus')
+          .toList();
+      expect(focus, hasLength(1));
+      handle.dispose();
+    });
+
+    testWidgets('쌓여도 덮개는 하나이고 아래 화면이 0.92배로 물러납니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _app(
+          const SheetScreenBelow(
+            child: SizedBox.expand(key: ValueKey('screen')),
+          ),
+        ),
+      );
+      final screen = find.byKey(const ValueKey('screen'));
+      double width() =>
+          tester.getBottomRight(screen).dx - tester.getTopLeft(screen).dx;
+      expect(width(), 400);
+      unawaited(
+        showMyungliSheet<void>(
+          _navigatorKey.currentContext!,
+          size: SheetSize.half,
+          builder: (context) => TextButton(
+            onPressed: () => showMyungliSheet<void>(
+              context,
+              size: SheetSize.half,
+              builder: (_) => const SizedBox(height: 100),
+            ),
+            child: const Text('깊이'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(width(), 400); // 첫 시트만으로는 화면이 물러나지 않습니다.
+      await tester.tap(find.text('깊이'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('sheet.scrim')), findsOneWidget);
+      expect(width(), closeTo(400 * 0.92, 0.5));
+      _navigatorKey.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(width(), closeTo(400, 0.5));
     });
   });
 }

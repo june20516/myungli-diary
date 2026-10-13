@@ -47,13 +47,15 @@ void goldenTest(
 /// 격자의 가로는 글자 크기, 세로는 밝기×언어입니다. [fixedCells]가 true면
 /// 칸이 고정된 컴포넌트 안의 글자 배율이 2.0에서도 1.3에 멈추는지 확인합니다.
 /// 측정 대상은 [fixedCellTarget]이 돌려주는 finder(칸 안에서 찾음)이고, 없으면
-/// 첫 [Text]입니다. 측정 방식은 [effectiveTextScale]을 봅니다.
+/// 첫 [Text]입니다. 측정 방식은 [effectiveTextScale]을 봅니다. [settle]이 있으면 첫 프레임
+/// 뒤에 `tester.pump()` 대신 이것을 실행합니다.
 Future<void> goldenMatrix(
   WidgetTester tester,
   String name,
   Widget Function() build, {
   bool fixedCells = false,
   Finder Function()? fixedCellTarget,
+  Future<void> Function(WidgetTester tester)? settle,
 }) async {
   final gridKey = GlobalKey();
   final width =
@@ -106,7 +108,8 @@ Future<void> goldenMatrix(
       ),
     ),
   );
-  await tester.pump();
+  // 비동기로 채워지는 칸(광고 불러오기 등)은 [settle]로 기다립니다.
+  await (settle?.call(tester) ?? tester.pump());
 
   if (fixedCells) {
     for (final brightness in goldenBrightnesses) {

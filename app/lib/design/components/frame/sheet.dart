@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
@@ -152,17 +153,142 @@ Future<T?> showMyungliSheet<T>(
   required WidgetBuilder builder,
   String? semanticLabel,
 }) {
+  // 시트 안에서 여는 시트는 아래 시트의 덮개를 그대로 쓰고 자기 덮개는 더하지 않습니다.
+  final underSheet = ModalRoute.of(context) is _SheetRoute;
   return Navigator.of(context).push<T>(
-    _SheetRoute<T>(size: size, builder: builder, semanticLabel: semanticLabel),
+    _SheetRoute<T>(
+      size: size,
+      builder: builder,
+      semanticLabel: semanticLabel,
+      underSheet: underSheet,
+    ),
   );
 }
 
+/// 시트가 시트 위에 쌓이는 동안 아래 화면에 걸 `sheet.stack` 진행(`screenBelow`).
+final ValueNotifier<Animation<double>> _screenBelowProgress =
+    ValueNotifier<Animation<double>>(kAlwaysDismissedAnimation);
+
+/// 화면 셸이 화면 내용을 감싸 두면, 시트가 시트 위에 쌓일 때 화면이 0.92배·밝기 0.9로 물러납니다.
+///
+/// 구조는 항상 같고(내용의 상태가 유지됨) 쌓이지 않을 때는 진행 0이라 아무것도 바꾸지 않습니다.
+class SheetScreenBelow extends StatelessWidget {
+  /// 화면 내용을 감쌉니다.
+  const new({required this.child, super.key});
+
+  /// 화면 내용.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Animation<double>>(
+      valueListenable: _screenBelowProgress,
+      builder: (context, progress, child) => animate(
+        InteractionPattern.sheetStack,
+        t: progress,
+        prefs: MotionPrefs.of(context),
+        child: child!,
+      ),
+      child: child,
+    );
+  }
+}
+
+/// 시트 안 첫 제목. 시트가 열리면 스크린리더 초점이 여기로 옵니다(`focusOnOpen: first-heading`).
+///
+/// 시트 안에서 이 위젯을 여러 개 쓰면 먼저 만들어진 하나만 초점을 받습니다. 쓰지 않으면
+/// 시트 이름([showMyungliSheet]의 `semanticLabel`)만 알려지고 초점은 플랫폼 기본을 따릅니다.
+class SheetHeading extends StatefulWidget {
+  /// 제목을 header 의미로 감쌉니다.
+  const new({required this.child, super.key});
+
+  /// 제목 위젯.
+  final Widget child;
+
+  @override
+  State<SheetHeading> createState() => _SheetHeadingState();
+}
+
+class _SheetHeadingState extends State<SheetHeading> {
+  @override
+  void initState() {
+    super.initState();
+    final claim = context
+        .getInheritedWidgetOfExactType<_HeadingClaimScope>()
+        ?.claim;
+    if (claim == null || claim.taken) return;
+    claim.taken = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.findRenderObject()?.sendSemanticsEvent(
+        const FocusSemanticEvent(),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      Semantics(header: true, child: widget.child);
+}
+
+class _HeadingClaim {
+  bool taken = false;
+}
+
+class _HeadingClaimScope extends InheritedWidget {
+  const new({required this.claim, required super.child});
+
+  final _HeadingClaim claim;
+
+  @override
+  bool updateShouldNotify(_HeadingClaimScope oldWidget) => false;
+}
+
+/// 시트 안 스크롤은 늘어나는 효과 없이 맨 위·아래에서 멈춥니다(끌어내리기와 겹치지 않게).
+class _SheetScrollBehavior extends ScrollBehavior {
+  const new();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const ClampingScrollPhysics();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
+}
+
 class _SheetRoute<T> extends PopupRoute<T> {
-  new({required this.size, required this.builder, this.semanticLabel});
+  new({
+    required this.size,
+    required this.builder,
+    required this.underSheet,
+    this.semanticLabel,
+  });
 
   final SheetSize size;
+  final bool underSheet;
   final WidgetBuilder builder;
   final String? semanticLabel;
+
+  @override
+  void install() {
+    super.install();
+    if (underSheet) _screenBelowProgress.value = animation!;
+  }
+
+  @override
+  void dispose() {
+    final progress = animation;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (identical(_screenBelowProgress.value, progress)) {
+        _screenBelowProgress.value = kAlwaysDismissedAnimation;
+      }
+    });
+    super.dispose();
+  }
 
   @override
   bool get barrierDismissible => false;
@@ -233,6 +359,7 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
   double _drag = 0;
   double _dragFrom = 0;
   final GlobalKey _frameKey = GlobalKey();
+  final _HeadingClaim _headingClaim = _HeadingClaim();
 
   double get _snapCurve => Curves.easeOut.transform(_snap.value);
 
@@ -247,8 +374,29 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     setState(() => _drag = math.max(0, _drag + details.delta.dy));
   }
 
-  void _onDragEnd(DragEndDetails details) {
-    final velocity = details.velocity.pixelsPerSecond.dy;
+  void _onDragEnd(DragEndDetails details) =>
+      _finishDrag(details.velocity.pixelsPerSecond.dy);
+
+  /// 본문이 맨 위일 때 아래로 끄는 것은 시트가, 그 밖에는 스크롤이 받습니다.
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    if (n is OverscrollNotification && n.dragDetails != null) {
+      if (n.overscroll < 0) {
+        _snap.stop();
+        setState(() => _drag += -n.overscroll);
+      }
+    } else if (n is ScrollUpdateNotification &&
+        n.dragDetails != null &&
+        _drag > 0 &&
+        (n.scrollDelta ?? 0) > 0) {
+      setState(() => _drag = math.max(0, _drag - n.scrollDelta!));
+    } else if (n is ScrollEndNotification && _drag > 0) {
+      _finishDrag(n.dragDetails?.velocity.pixelsPerSecond.dy ?? 0);
+    }
+    return false;
+  }
+
+  void _finishDrag(double velocity) {
     final sheetHeight = _frameKey.currentContext?.size?.height ?? 0;
     if (_drag > sheetHeight * _dismissFraction || velocity > _dismissVelocity) {
       Navigator.of(context).pop();
@@ -281,7 +429,16 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
           semanticLabel: widget.route.semanticLabel,
           onDragUpdate: _onDragUpdate,
           onDragEnd: _onDragEnd,
-          child: Builder(builder: widget.route.builder),
+          child: _HeadingClaimScope(
+            claim: _headingClaim,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: ScrollConfiguration(
+                behavior: const _SheetScrollBehavior(),
+                child: Builder(builder: widget.route.builder),
+              ),
+            ),
+          ),
         );
         final sheet = animate(
           InteractionPattern.sheetStack,
@@ -292,23 +449,33 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
         );
         return Stack(
           children: [
-            Positioned.fill(
-              child: Semantics(
-                button: true,
-                label: l10n.sheetDismiss,
-                onTap: _dismissAll,
-                child: ExcludeSemantics(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _dismissAll,
-                    child: KeyedSubtree(
-                      key: const ValueKey('sheet.scrim'),
-                      child: animateScrim(pattern, t: t, prefs: prefs),
+            if (widget.route.underSheet)
+              // 덮개는 아래 시트의 것을 쓰고, 바깥 누르기만 이 층에서 받습니다.
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _dismissAll,
+                  child: const SizedBox.expand(),
+                ),
+              )
+            else
+              Positioned.fill(
+                child: Semantics(
+                  button: true,
+                  label: l10n.sheetDismiss,
+                  onTap: _dismissAll,
+                  child: ExcludeSemantics(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _dismissAll,
+                      child: KeyedSubtree(
+                        key: const ValueKey('sheet.scrim'),
+                        child: animateScrim(pattern, t: t, prefs: prefs),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Transform.translate(

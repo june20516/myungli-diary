@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/frame/frame_surface.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
@@ -13,14 +13,8 @@ import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
-/// 탭 바 뒤 흐림(px). `frame.json` `tab-bar.container.backdropBlur`.
-const double frameBackdropBlur = 20;
-
 /// 탭 바 높이(px). 아래 안전 영역은 따로 더합니다.
 const double tabBarHeight = 72;
-
-/// 탭 바·광고 배너 위 선 두께(px).
-const double frameTopBorderWidth = 0.5;
 
 /// 탭 하나의 최소 터치 크기(px).
 const double tabMinTarget = 48;
@@ -43,35 +37,6 @@ const List<AppGlyph> _tabGlyphs = [
   AppGlyph(light: PhosphorIconsLight.user, regular: PhosphorIconsRegular.user),
 ];
 
-/// 반투명 틀 바탕. 투명도 줄이기면 `bg.sheet` 불투명에 흐림 없음(탭 바·광고 배너 공통).
-class FrameSurface extends StatelessWidget {
-  /// 바탕을 만듭니다. [surfaceKey]는 테스트가 색을 읽는 자리입니다.
-  const new({required this.surfaceKey, required this.child, super.key});
-
-  /// 바탕 [ColoredBox]에 붙는 키.
-  final Key surfaceKey;
-
-  /// 바탕 위에 올릴 내용.
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.tokens.colors;
-    if (MotionPrefs.of(context).reduceTransparency) {
-      return ColoredBox(key: surfaceKey, color: colors.bgSheet, child: child);
-    }
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(
-          sigmaX: frameBackdropBlur,
-          sigmaY: frameBackdropBlur,
-        ),
-        child: ColoredBox(key: surfaceKey, color: colors.barBg, child: child),
-      ),
-    );
-  }
-}
-
 /// 아래 탭 4개. 반투명 바탕 + 뒤 흐림, 선택한 탭에 낙관 도장이 찍힙니다.
 ///
 /// 다른 탭을 누르면 [onSelect]와 selection 햅틱, 이미 선택된 탭을 다시 누르면
@@ -82,7 +47,6 @@ class MyungliTabBar extends StatelessWidget {
     required this.index,
     required this.onSelect,
     this.onScrollToTop,
-    this.topBorder = true,
     super.key,
   });
 
@@ -102,58 +66,87 @@ class MyungliTabBar extends StatelessWidget {
   /// 선택된 탭을 다시 눌렀을 때(그 탭 첫 화면 맨 위로).
   final VoidCallback? onScrollToTop;
 
-  /// 위 0.5px 선을 그릴지. 광고 배너가 위에 있으면 선이 배너 위로 옮겨 가므로 false.
+  @override
+  Widget build(BuildContext context) {
+    return FrameSurface(
+      surfaceKey: const ValueKey('tab-bar.surface'),
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewPaddingOf(context).bottom,
+        ),
+        child: TabBarRow(
+          index: index,
+          onSelect: onSelect,
+          onScrollToTop: onScrollToTop,
+        ),
+      ),
+    );
+  }
+}
+
+/// 탭 4개의 줄(바탕·안전 영역 제외). 하단 틀(`MyungliBottomBar`)이 배너와 한 바탕을 나눠 쓰려고
+/// 바탕 없이 이 줄만 가져다 씁니다.
+class TabBarRow extends StatelessWidget {
+  /// 탭 줄을 만듭니다. [topBorder]는 하단 틀이 배너 유무에 따라 정합니다.
+  const new({
+    required this.index,
+    required this.onSelect,
+    this.onScrollToTop,
+    this.topBorder = true,
+    super.key,
+  });
+
+  /// 선택된 탭.
+  final int index;
+
+  /// 선택이 바뀔 때.
+  final ValueChanged<int> onSelect;
+
+  /// 선택된 탭을 다시 눌렀을 때.
+  final VoidCallback? onScrollToTop;
+
+  /// 위 0.5px 선을 그릴지(배너가 보이면 선이 배너 위로 가므로 false).
   final bool topBorder;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final labels = [l10n.tabToday, l10n.tabCalendar, l10n.tabDiary, l10n.tabMe];
-    final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
     final line = context.tokens.colors.line;
     return Semantics(
       role: SemanticsRole.tabBar,
       container: true,
-      child: FrameSurface(
-        surfaceKey: const ValueKey('tab-bar.surface'),
-        child: Padding(
-          padding: EdgeInsets.only(bottom: safeBottom),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: tabBarHeight),
-            child: DecoratedBox(
-              key: const ValueKey('tab-bar.top-border'),
-              decoration: BoxDecoration(
-                border: topBorder
-                    ? Border(
-                        top: BorderSide(
-                          color: line,
-                          width: frameTopBorderWidth,
-                        ),
-                      )
-                    : null,
-              ),
-              child: Row(
-                children: [
-                  for (var i = 0; i < labels.length; i++)
-                    Expanded(
-                      child: _TabItem(
-                        key: ValueKey('tab-bar.tab.$i'),
-                        glyph: _tabGlyphs[i],
-                        label: labels[i],
-                        selected: i == index,
-                        onTap: () {
-                          if (i == index) {
-                            onScrollToTop?.call();
-                            return;
-                          }
-                          unawaited(Haptics.selection());
-                          onSelect(i);
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: tabBarHeight),
+        child: DecoratedBox(
+          key: const ValueKey('tab-bar.top-border'),
+          decoration: BoxDecoration(
+            border: topBorder
+                ? Border(
+                    top: BorderSide(color: line, width: frameTopBorderWidth),
+                  )
+                : null,
+          ),
+          child: Row(
+            children: [
+              for (var i = 0; i < labels.length; i++)
+                Expanded(
+                  child: _TabItem(
+                    key: ValueKey('tab-bar.tab.$i'),
+                    glyph: _tabGlyphs[i],
+                    label: labels[i],
+                    selected: i == index,
+                    onTap: () {
+                      if (i == index) {
+                        onScrollToTop?.call();
+                        return;
+                      }
+                      unawaited(Haptics.selection());
+                      onSelect(i);
+                    },
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -285,6 +278,8 @@ class _TabItemState extends State<_TabItem> with TickerProviderStateMixin {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
+                  // 글자 배율이 커져도 탭 4개가 한 줄에 들어가야 하므로(탭 너비 고정)
+                  // 라벨은 줄바꿈 대신 너비에 맞춰 줄입니다.
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(widget.label, maxLines: 1, style: labelStyle),

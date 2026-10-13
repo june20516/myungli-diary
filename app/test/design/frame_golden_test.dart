@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:myungli_diary/design/components/frame/ad_banner.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -104,20 +107,25 @@ Widget _appBars() => Column(
   ],
 );
 
-Widget _sheetScene({
-  required double maxHeight,
-  required double sceneHeight,
-  bool stacked = false,
-}) {
+Widget _sheetScene({required SheetSize size, bool stacked = false}) {
+  const sceneHeight = 320.0;
+  // 장면 높이를 화면 높이로 보고 half(60%)·full(위 안전 영역 0 + 12)을 같은 식으로 구합니다.
+  final maxHeight = switch (size) {
+    SheetSize.half => sceneHeight * sheetHalfFraction,
+    SheetSize.full => sceneHeight - sheetFullTopGap,
+  };
   return Builder(
     builder: (context) {
       final colors = context.tokens.colors;
       Widget frame() => MyungliSheetFrame(
         maxHeight: maxHeight,
         semanticLabel: '풀이',
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Text('오늘은 힘을 얻는 날입니다. 서두르지 말고 한 가지에 집중해 보세요.'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Text(
+            '오늘은 힘을 얻는 날입니다. 서두르지 말고 한 가지에 집중해 보세요. ' * 6,
+            overflow: TextOverflow.clip,
+          ),
         ),
       );
       return SizedBox(
@@ -151,37 +159,44 @@ Widget _sheets() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
   spacing: 12,
   children: [
-    _sheetScene(maxHeight: 200, sceneHeight: 260),
-    _sheetScene(maxHeight: 240, sceneHeight: 260, stacked: true),
+    _sheetScene(size: SheetSize.half),
+    _sheetScene(size: SheetSize.full),
+    _sheetScene(size: SheetSize.half, stacked: true),
   ],
 );
 
-Widget _adBanners() {
-  Widget banner() => AdBannerFrame(
-    child: Builder(
-      builder: (context) => SizedBox(
-        width: 320,
-        height: 50,
-        child: ColoredBox(color: context.tokens.colors.line),
-      ),
-    ),
-  );
-  Widget stack() => _Behind(
-    height: 220,
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        banner(),
-        MyungliTabBar(index: 0, onSelect: (_) {}, topBorder: false),
-      ],
-    ),
+/// 하단 틀: 배너가 보일 때(선이 배너 위), 투명도 줄이기, 배너 없음(선이 탭 바 위).
+Widget _bottomBars() {
+  Widget scene({required bool adFree, MotionPrefs? prefs}) => Builder(
+    builder: (context) {
+      // 적응형 배너는 화면 폭으로 불러오므로 칸 폭을 화면 폭으로 줍니다.
+      Widget bar = MediaQuery(
+        data: MediaQuery.of(context).copyWith(size: const Size(336, 800)),
+        child: ProviderScope(
+          overrides: [adsProvider.overrideWithValue(FakeAds())],
+          child: _Behind(
+            height: 220,
+            child: MyungliBottomBar(
+              index: 0,
+              onSelect: (_) {},
+              showAd: true,
+              adFree: adFree,
+              consentGiven: true,
+            ),
+          ),
+        ),
+      );
+      if (prefs != null) bar = MotionPrefsScope(prefs: prefs, child: bar);
+      return bar;
+    },
   );
   return Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     spacing: 12,
     children: [
-      stack(),
-      MotionPrefsScope(prefs: _transparent, child: stack()),
+      scene(adFree: false),
+      scene(adFree: false, prefs: _transparent),
+      scene(adFree: true),
     ],
   );
 }
@@ -204,7 +219,12 @@ void main() {
     await goldenMatrix(tester, 'frame_sheet', _sheets);
   });
 
-  goldenTest('ad-banner: 탭 바 위에 한 덩어리, 투명도 줄이기', (tester) async {
-    await goldenMatrix(tester, 'frame_ad_banner', _adBanners);
+  goldenTest('하단 틀: 배너와 탭 바 한 덩어리, 투명도 줄이기, 배너 없음', (tester) async {
+    await goldenMatrix(
+      tester,
+      'frame_bottom_bar',
+      _bottomBars,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
   });
 }
