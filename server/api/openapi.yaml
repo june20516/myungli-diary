@@ -1496,7 +1496,7 @@ components:
         * `request.inconsistent`: 상태-값 짝 위반. `errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`
           (대상 `BirthTime`, `BirthPlace`, 양력의 `isLeapMonth`, `NotificationSetting`, `ScheduleInput`·`SchedulePatch`)
         * `consent.version_mismatch`: 동의한 문서 버전이 현재 버전과 다름. `errors[].field`는 `/documents/<i>/version`
-        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `name.emoji` 등 호칭 규칙 위반, `idempotency.mismatch`
+        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `name.invalid_char`(호칭 규칙 위반), `idempotency.mismatch`
       content:
         application/problem+json:
           schema:
@@ -1648,9 +1648,6 @@ components:
             diary.future_date:
               status: 422
               description: '오늘 이후 날짜의 일기'
-            name.emoji:
-              status: 422
-              description: '호칭 규칙 위반: 이모지(spec 표의 예시 코드)'
             name.invalid_char:
               status: 422
               description: '호칭 규칙 위반: 쓸 수 없는 글자(josa.yaml name_rules)'

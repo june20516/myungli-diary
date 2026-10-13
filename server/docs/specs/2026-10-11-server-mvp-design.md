@@ -430,7 +430,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖 | 422 | `date.out_of_range`, 출생 정보는 `birth.out_of_range` |
 | 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜는 위 400 행 | 422 | `date.invalid` |
 | 상태-값 짝 위반: `BirthTime`(`status`·`value`), `BirthPlace`(`status`·`cityId`), 양력인데 `isLeapMonth` true, `NotificationSetting`(`status`·`time`), `ScheduleInput`·`SchedulePatch`(`allDay`·`time`) | 422 | `request.inconsistent` (`errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`) |
-| 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid`, `name.emoji` |
+| 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid`, `name.invalid_char` |
 | access token 없음·만료·위조 (`WWW-Authenticate: Bearer error="invalid_token"`, RFC 6750) | 401 | `auth.token_expired`, `auth.token_invalid` |
 | refresh token 재사용 감지 | 401 | `auth.refresh_reused` |
 | 제공자 토큰 검증 실패 | 401 | `auth.provider_token_invalid` |
