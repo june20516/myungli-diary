@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -105,6 +106,7 @@ func TestInTx_StopsRetryingWhenContextIsDone(t *testing.T) {
 
 // insertActiveAccount는 트랜잭션 안에서 active 계정 한 행을 넣습니다.
 func insertActiveAccount(ctx context.Context, tx pgx.Tx) error {
-	_, err := tx.Exec(ctx, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', now())`, accountA)
+	_, err := tx.Exec(ctx, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', $2)`,
+		accountA, time.Date(2026, 10, 13, 9, 0, 0, 0, time.UTC))
 	return err
 }

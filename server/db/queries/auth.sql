@@ -79,3 +79,8 @@ SET apple_refresh_token = NULL,
     apple_client_id = NULL,
     provider_disconnected_at = @disconnected_at::timestamptz
 WHERE id = @id;
+
+-- LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
+-- 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
+-- name: LockAccountStatus :one
+SELECT status FROM accounts WHERE id = @id FOR UPDATE;

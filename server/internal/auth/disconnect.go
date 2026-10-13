@@ -6,9 +6,11 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 // DisconnectProviders는 계정에 붙은 제공자 연결 중 아직 해제하지 않은 것을 모두 해제합니다.
@@ -16,7 +18,7 @@ import (
 //   - Apple: 저장한 refresh token을 복호화해 revoke합니다.
 //   - 카카오: 앱과의 연결을 끊습니다(unlink).
 //
-// 성공한 연결은 Apple 토큰 열을 비우고 해제 시각을 기록합니다. 하나가 실패해도 나머지를 시도하고,
+// 성공한 연결은 계정이 아직 삭제 대기일 때만 Apple 토큰 열을 비우고 해제 시각을 기록합니다(markDisconnected). 하나가 실패해도 나머지를 시도하고,
 // 실패들을 errors.Join으로 묶어 돌려줍니다. 실패한 연결은 그대로 남으므로 같은 함수를 다시 부르면
 // 남은 것만 처리합니다(계정 삭제 직후와 job retention 재시도가 같은 함수를 씀).
 func (s *Service) DisconnectProviders(ctx context.Context, accountID uuid.UUID) error {
@@ -32,18 +34,57 @@ func (s *Service) DisconnectProviders(ctx context.Context, accountID uuid.UUID) 
 			continue
 		}
 		if err := s.disconnect(ctx, identity); err != nil {
-			s.logger.WarnContext(ctx, "제공자 연결 해제 실패", "accountId", accountID, "provider", identity.Provider)
+			s.logger.WarnContext(ctx, "제공자 연결 해제 실패",
+				"accountId", accountID, "provider", identity.Provider, "reason", disconnectFailureReason(err))
 			errs = append(errs, err)
 			continue
 		}
-		if err := q.MarkProviderDisconnected(ctx, authdb.MarkProviderDisconnectedParams{
-			DisconnectedAt: s.clock.Now(),
-			ID:             identity.ID,
-		}); err != nil {
+		if err := s.markDisconnected(ctx, identity); err != nil {
 			errs = append(errs, fmt.Errorf("%s 연결 해제 기록: %w", identity.Provider, err))
 		}
 	}
 	return errors.Join(errs...)
+}
+
+// markDisconnected는 계정 행을 잠근 뒤, 계정이 아직 삭제 대기일 때만 연결 해제를 기록합니다.
+//
+// 제공자 호출과 기록 사이에 복구 로그인이 끼어들면 계정은 active가 되고, 그 identity에는 복구 로그인이
+// 새로 받은 Apple 토큰이 저장돼 있습니다. 그때 기록하면 살아 있는 연결을 '해제됨'으로 덮으므로 기록하지 않습니다.
+// 복구 로그인도 같은 계정 행을 잠그므로(GetIdentity) 두 쪽이 한 줄로 처리됩니다.
+func (s *Service) markDisconnected(ctx context.Context, identity authdb.ListIdentitiesRow) error {
+	return postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := authdb.New(tx)
+		status, err := q.LockAccountStatus(ctx, identity.AccountID)
+		if err != nil {
+			return fmt.Errorf("계정 잠금: %w", err)
+		}
+		if status != statusPendingDeletion {
+			s.logger.InfoContext(ctx, "계정이 삭제 대기가 아니어서 연결 해제를 기록하지 않음",
+				"accountId", identity.AccountID, "provider", identity.Provider)
+			return nil
+		}
+		return q.MarkProviderDisconnected(ctx, authdb.MarkProviderDisconnectedParams{
+			DisconnectedAt: s.clock.Now(),
+			ID:             identity.ID,
+		})
+	})
+}
+
+// errDecrypt는 저장한 Apple refresh token을 복호화하지 못했음을 나타냅니다. 실패 사유 분류에 씁니다.
+var errDecrypt = errors.New("decrypt failed")
+
+// disconnectFailureReason은 연결 해제 실패를 로그용 사유로 분류합니다. 원인 문구는 담지 않습니다.
+func disconnectFailureReason(err error) string {
+	switch {
+	case errors.Is(err, provider.ErrUnavailable):
+		return "unavailable"
+	case errors.Is(err, provider.ErrTokenInvalid):
+		return "token_invalid"
+	case errors.Is(err, errDecrypt):
+		return "decrypt"
+	default:
+		return "other"
+	}
 }
 
 // disconnect는 제공자 연결 하나를 해제하는 외부 호출을 합니다.
@@ -70,7 +111,7 @@ func (s *Service) revokeApple(ctx context.Context, identity authdb.ListIdentitie
 	}
 	plain, err := s.box.Open(identity.AppleRefreshToken, identity.AppleTokenKeyID.String, identity.ID[:])
 	if err != nil {
-		return fmt.Errorf("apple refresh token 복호화: %w", err)
+		return fmt.Errorf("%w: apple refresh token 복호화: %w", errDecrypt, err)
 	}
 	err = s.apple.Revoke(ctx, string(plain), identity.AppleClientID.String)
 	if errors.Is(err, provider.ErrTokenInvalid) {

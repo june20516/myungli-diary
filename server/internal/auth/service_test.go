@@ -40,7 +40,8 @@ type fixture struct {
 	service *auth.Service
 }
 
-func newFixture(t *testing.T) *fixture {
+// newFixture는 fixture를 만듭니다. opts로 서비스 의존성을 바꿀 수 있습니다(예: 제공자 호출을 감싸 끼어들기).
+func newFixture(t *testing.T, opts ...func(*auth.ServiceDeps)) *fixture {
 	t.Helper()
 	clk := clocktest.New(testNow)
 	fake := providertest.New(t)
@@ -54,14 +55,18 @@ func newFixture(t *testing.T) *fixture {
 	require.NoError(t, err)
 
 	kakao := fake.NewKakao(t, clk)
-	service := auth.NewService(pool, auth.ServiceDeps{
+	deps := auth.ServiceDeps{
 		Kakao:       kakao,
 		Apple:       fake.NewApple(t, clk),
 		KakaoUnlink: kakao,
 		Access:      access,
 		Box:         box,
 		Clock:       clk,
-	})
+	}
+	for _, opt := range opts {
+		opt(&deps)
+	}
+	service := auth.NewService(pool, deps)
 	return &fixture{ctx: context.Background(), pool: pool, clk: clk, fake: fake, box: box, service: service}
 }
 
@@ -359,6 +364,31 @@ func TestLoginApple_FailedCodeExchangeCreatesNothing(t *testing.T) {
 			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM refresh_tokens`))
 		})
 	}
+}
+
+func TestLoginApple_FailedTransactionRevokesExchangedToken(t *testing.T) {
+	f := newFixture(t)
+	first := f.loginApple(t, "apple-1")
+	f.exec(t, `UPDATE accounts SET status = 'deleted', deletion_requested_at = $2, anonymized_at = $2 WHERE id = $1`, first.AccountID, testNow)
+	f.fake.SetAppleTokenResponse(http.StatusOK, `{"refresh_token":"unsaved-refresh"}`)
+	idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
+
+	_, err := f.service.LoginApple(f.ctx, idToken, "auth-code", testNonce, provider.AppleNative)
+
+	require.Error(t, err)
+	assert.NotErrorIs(t, err, auth.ErrProviderTokenInvalid, "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
+	revokes := f.fake.AppleRevokeRequests()
+	require.Len(t, revokes, 1, "저장하지 못한 토큰은 바로 revoke합니다")
+	assert.Equal(t, "unsaved-refresh", revokes[0].Form.Get("token"))
+	assert.Equal(t, providertest.AppleBundleID, revokes[0].Form.Get("client_id"))
+}
+
+func TestLoginApple_SuccessDoesNotRevoke(t *testing.T) {
+	f := newFixture(t)
+
+	f.loginApple(t, "apple-1")
+
+	assert.Empty(t, f.fake.AppleRevokeRequests())
 }
 
 func TestRefresh_RotatesWithinFamily(t *testing.T) {

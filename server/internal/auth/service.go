@@ -40,8 +40,9 @@ const (
 
 // DB의 accounts.status 값입니다.
 const (
-	statusActive  = "active"
-	statusDeleted = "deleted"
+	statusActive          = "active"
+	statusPendingDeletion = "pending_deletion"
+	statusDeleted         = "deleted"
 )
 
 // identityUniqueConstraint는 (provider, subject) unique 제약 이름입니다. 동시 첫 로그인 경합을 알아보는 데 씁니다.
@@ -155,7 +156,21 @@ func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, ra
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "exchange_code")
 	}
-	return s.login(ctx, providerApple, identity.Subject, &appleGrant{refreshToken: refreshToken, clientID: clientID})
+	result, err := s.login(ctx, providerApple, identity.Subject, &appleGrant{refreshToken: refreshToken, clientID: clientID})
+	if err != nil {
+		s.revokeUnusedAppleToken(ctx, refreshToken, clientID)
+		return LoginResult{}, err
+	}
+	return result, nil
+}
+
+// revokeUnusedAppleToken은 code 교환으로 받았지만 저장하지 못한 Apple refresh token을 revoke합니다.
+// 저장하지 못한 토큰은 탈퇴 때 revoke할 방법이 없으므로 바로 폐기합니다. best-effort이며 실패는 경고 로그만 남깁니다.
+// 요청이 끊겨도 정리는 하도록 ctx의 취소를 물려받지 않습니다(호출마다 provider의 5초 deadline이 있음).
+func (s *Service) revokeUnusedAppleToken(ctx context.Context, refreshToken, clientID string) {
+	if err := s.apple.Revoke(context.WithoutCancel(ctx), refreshToken, clientID); err != nil {
+		s.logger.WarnContext(ctx, "로그인 실패 뒤 Apple refresh token revoke 실패", "provider", providerApple, "step", "revoke_unused")
+	}
 }
 
 // providerError는 제공자 오류를 이 패키지의 sentinel로 바꿉니다.
@@ -346,11 +361,12 @@ func (s *Service) issueTokens(ctx context.Context, q *authdb.Queries, now time.T
 func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, error) {
 	hash := token.HashRefreshToken(rawRefresh)
 	var (
-		pair   TokenPair
-		reused bool
+		pair            TokenPair
+		reused          bool
+		reusedAccountID uuid.UUID
 	)
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
-		pair, reused = TokenPair{}, false
+		pair, reused, reusedAccountID = TokenPair{}, false, uuid.Nil
 		q := authdb.New(tx)
 		now := s.clock.Now()
 
@@ -369,7 +385,7 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 			if err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: now, FamilyID: row.FamilyID}); err != nil {
 				return fmt.Errorf("family 폐기: %w", err)
 			}
-			reused = true
+			reused, reusedAccountID = true, row.AccountID
 			return nil
 		}
 
@@ -391,7 +407,7 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 		return TokenPair{}, fmt.Errorf("refresh: %w", err)
 	}
 	if reused {
-		s.logger.WarnContext(ctx, "refresh token 재사용 감지, family 폐기")
+		s.logger.WarnContext(ctx, "refresh token 재사용 감지, family 폐기", "accountId", reusedAccountID)
 		return TokenPair{}, ErrRefreshReused
 	}
 	return pair, nil

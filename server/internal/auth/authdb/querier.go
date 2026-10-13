@@ -22,6 +22,9 @@ type Querier interface {
 	GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte) (GetRefreshTokenForUpdateRow, error)
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
 	ListIdentities(ctx context.Context, accountID uuid.UUID) ([]ListIdentitiesRow, error)
+	// LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
+	// 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
+	LockAccountStatus(ctx context.Context, id uuid.UUID) (string, error)
 	// MarkProviderDisconnected는 Apple 토큰 세 열을 비우고 연결 해제 시각을 기록합니다.
 	MarkProviderDisconnected(ctx context.Context, arg MarkProviderDisconnectedParams) error
 	MarkRefreshTokenUsed(ctx context.Context, arg MarkRefreshTokenUsedParams) (int64, error)

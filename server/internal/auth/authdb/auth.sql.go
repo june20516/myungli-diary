@@ -223,6 +223,19 @@ func (q *Queries) ListIdentities(ctx context.Context, accountID uuid.UUID) ([]Li
 	return items, nil
 }
 
+const lockAccountStatus = `-- name: LockAccountStatus :one
+SELECT status FROM accounts WHERE id = $1 FOR UPDATE
+`
+
+// LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
+// 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
+func (q *Queries) LockAccountStatus(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, lockAccountStatus, id)
+	var status string
+	err := row.Scan(&status)
+	return status, err
+}
+
 const markProviderDisconnected = `-- name: MarkProviderDisconnected :exec
 UPDATE auth_identities
 SET apple_refresh_token = NULL,
