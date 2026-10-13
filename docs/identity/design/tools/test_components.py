@@ -427,5 +427,5 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2():
-    assert VERSION == "2.0.0"
+def test_contract_version_is_2_1():
+    assert VERSION == "2.1.0"
