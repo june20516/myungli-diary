@@ -3,7 +3,7 @@ SELECT status, deletion_requested_at, last_active_at
 FROM accounts
 WHERE id = @id;
 
--- TouchLastActive는 저장된 값보다 새 시각일 때만 갱신합니다(쓰기 빈도를 줄입니다).
+-- TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
 -- name: TouchLastActive :execrows
 UPDATE accounts
 SET last_active_at = @last_active_at
@@ -23,5 +23,5 @@ ON CONFLICT (account_id, document, version) DO NOTHING;
 -- RequestDeletion은 활성 계정을 삭제 대기로 바꾸고 갱신된 행 수를 돌려줍니다.
 -- name: RequestDeletion :execrows
 UPDATE accounts
-SET status = 'pending_deletion', deletion_requested_at = @deletion_requested_at
+SET status = 'pending_deletion', deletion_requested_at = @deletion_requested_at::timestamptz
 WHERE id = @id AND status = 'active';

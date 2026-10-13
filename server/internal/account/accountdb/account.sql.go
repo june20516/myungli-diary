@@ -91,12 +91,12 @@ func (q *Queries) ListConsents(ctx context.Context, accountID uuid.UUID) ([]List
 
 const requestDeletion = `-- name: RequestDeletion :execrows
 UPDATE accounts
-SET status = 'pending_deletion', deletion_requested_at = $1
+SET status = 'pending_deletion', deletion_requested_at = $1::timestamptz
 WHERE id = $2 AND status = 'active'
 `
 
 type RequestDeletionParams struct {
-	DeletionRequestedAt *time.Time
+	DeletionRequestedAt time.Time
 	ID                  uuid.UUID
 }
 
@@ -120,7 +120,7 @@ type TouchLastActiveParams struct {
 	ID           uuid.UUID
 }
 
-// TouchLastActive는 저장된 값보다 새 시각일 때만 갱신합니다(쓰기 빈도를 줄입니다).
+// TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
 func (q *Queries) TouchLastActive(ctx context.Context, arg TouchLastActiveParams) (int64, error) {
 	result, err := q.db.Exec(ctx, touchLastActive, arg.LastActiveAt, arg.ID)
 	if err != nil {

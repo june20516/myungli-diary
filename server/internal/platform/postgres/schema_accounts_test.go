@@ -94,21 +94,38 @@ func TestSchema_KakaoIdentityRejectsAppleColumns(t *testing.T) {
 }
 
 func TestSchema_AppleTokenColumnsComeTogether(t *testing.T) {
-	ctx := context.Background()
-	pool := dbtest.New(t)
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
-		t.Fatal(err)
+	tests := []struct {
+		name      string
+		token     string // SQL 리터럴. 'NULL'이면 비어 있는 열입니다.
+		keyID     string
+		clientID  string
+		wantState string
+	}{
+		{"세 열 모두 있음", `'\x01'`, `'key'`, `'client'`, ""},
+		{"세 열 모두 없음", "NULL", "NULL", "NULL", ""},
+		{"token만 있음", `'\x01'`, "NULL", "NULL", checkViolation},
+		{"key_id만 있음", "NULL", `'key'`, "NULL", checkViolation},
+		{"client_id만 있음", "NULL", "NULL", `'client'`, checkViolation},
+		{"client_id만 없음", `'\x01'`, `'key'`, "NULL", checkViolation},
 	}
-	_, err := pool.Exec(ctx, `INSERT INTO auth_identities (id, account_id, provider, subject, apple_refresh_token)
-		VALUES ('00000000-0000-7000-8000-0000000000a1', $1, 'apple', 'a-1', '\x01')`, accountA)
-	wantSQLState(t, err, checkViolation)
-
-	// 세 열이 모두 있으면 apple 연결은 저장됩니다.
-	_, err = pool.Exec(ctx, `INSERT INTO auth_identities
-		(id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id)
-		VALUES ('00000000-0000-7000-8000-0000000000a2', $1, 'apple', 'a-2', '\x01', 'key', 'client')`, accountA)
-	if err != nil {
-		t.Fatalf("세 열이 모두 있는 apple 연결은 저장돼야 합니다: %v", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			pool := dbtest.New(t)
+			if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+				t.Fatal(err)
+			}
+			_, err := pool.Exec(ctx, `INSERT INTO auth_identities
+				(id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id)
+				VALUES ('00000000-0000-7000-8000-0000000000a1', $1, 'apple', 'a-1', `+tt.token+`, `+tt.keyID+`, `+tt.clientID+`)`, accountA)
+			if tt.wantState == "" {
+				if err != nil {
+					t.Fatalf("성공해야 하는데 %v", err)
+				}
+				return
+			}
+			wantSQLState(t, err, tt.wantState)
+		})
 	}
 }
 
@@ -156,4 +173,44 @@ func TestSchema_MigrationDownUp(t *testing.T) {
 	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
 		t.Fatalf("다시 올린 뒤 accounts에 쓸 수 있어야 합니다: %v", err)
 	}
+}
+
+func TestSchema_RefreshTokenHashIsUnique(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+		t.Fatal(err)
+	}
+	const insert = `INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
+		VALUES ($1, $2, '\xabcd', '00000000-0000-7000-8000-0000000000f1', now())`
+	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000b1", accountA); err != nil {
+		t.Fatal(err)
+	}
+	_, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000b2", accountA)
+	wantSQLState(t, err, uniqueViolation)
+}
+
+func TestSchema_ConsentDocumentAndUniqueness(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+		t.Fatal(err)
+	}
+	const insert = `INSERT INTO consents (id, account_id, document, version, agreed_at) VALUES ($1, $2, $3, $4, now())`
+
+	_, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c1", accountA, "marketing", "v1")
+	wantSQLState(t, err, checkViolation)
+
+	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c2", accountA, "terms", "v1"); err != nil {
+		t.Fatal(err)
+	}
+	// 다른 문서나 다른 버전은 따로 저장됩니다.
+	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c3", accountA, "privacy", "v1"); err != nil {
+		t.Fatalf("다른 document는 저장돼야 합니다: %v", err)
+	}
+	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c4", accountA, "terms", "v2"); err != nil {
+		t.Fatalf("다른 version은 저장돼야 합니다: %v", err)
+	}
+	_, err = pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c5", accountA, "terms", "v1")
+	wantSQLState(t, err, uniqueViolation)
 }

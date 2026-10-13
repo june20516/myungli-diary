@@ -16,7 +16,7 @@ type Querier interface {
 	ListConsents(ctx context.Context, accountID uuid.UUID) ([]ListConsentsRow, error)
 	// RequestDeletion은 활성 계정을 삭제 대기로 바꾸고 갱신된 행 수를 돌려줍니다.
 	RequestDeletion(ctx context.Context, arg RequestDeletionParams) (int64, error)
-	// TouchLastActive는 저장된 값보다 새 시각일 때만 갱신합니다(쓰기 빈도를 줄입니다).
+	// TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
 	TouchLastActive(ctx context.Context, arg TouchLastActiveParams) (int64, error)
 }
 

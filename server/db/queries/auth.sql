@@ -51,17 +51,17 @@ FOR UPDATE OF t;
 
 -- name: MarkRefreshTokenUsed :execrows
 UPDATE refresh_tokens
-SET used_at = @used_at
+SET used_at = @used_at::timestamptz
 WHERE id = @id AND used_at IS NULL;
 
 -- name: RevokeFamily :exec
 UPDATE refresh_tokens
-SET revoked_at = @revoked_at
+SET revoked_at = @revoked_at::timestamptz
 WHERE family_id = @family_id AND revoked_at IS NULL;
 
 -- name: RevokeAccountTokens :exec
 UPDATE refresh_tokens
-SET revoked_at = @revoked_at
+SET revoked_at = @revoked_at::timestamptz
 WHERE account_id = @account_id AND revoked_at IS NULL;
 
 -- name: ListIdentities :many
@@ -77,5 +77,5 @@ UPDATE auth_identities
 SET apple_refresh_token = NULL,
     apple_token_key_id = NULL,
     apple_client_id = NULL,
-    provider_disconnected_at = @disconnected_at
+    provider_disconnected_at = @disconnected_at::timestamptz
 WHERE id = @id;

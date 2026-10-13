@@ -228,12 +228,12 @@ UPDATE auth_identities
 SET apple_refresh_token = NULL,
     apple_token_key_id = NULL,
     apple_client_id = NULL,
-    provider_disconnected_at = $1
+    provider_disconnected_at = $1::timestamptz
 WHERE id = $2
 `
 
 type MarkProviderDisconnectedParams struct {
-	DisconnectedAt *time.Time
+	DisconnectedAt time.Time
 	ID             uuid.UUID
 }
 
@@ -245,12 +245,12 @@ func (q *Queries) MarkProviderDisconnected(ctx context.Context, arg MarkProvider
 
 const markRefreshTokenUsed = `-- name: MarkRefreshTokenUsed :execrows
 UPDATE refresh_tokens
-SET used_at = $1
+SET used_at = $1::timestamptz
 WHERE id = $2 AND used_at IS NULL
 `
 
 type MarkRefreshTokenUsedParams struct {
-	UsedAt *time.Time
+	UsedAt time.Time
 	ID     uuid.UUID
 }
 
@@ -279,12 +279,12 @@ func (q *Queries) RestoreAccount(ctx context.Context, id uuid.UUID) (int64, erro
 
 const revokeAccountTokens = `-- name: RevokeAccountTokens :exec
 UPDATE refresh_tokens
-SET revoked_at = $1
+SET revoked_at = $1::timestamptz
 WHERE account_id = $2 AND revoked_at IS NULL
 `
 
 type RevokeAccountTokensParams struct {
-	RevokedAt *time.Time
+	RevokedAt time.Time
 	AccountID uuid.UUID
 }
 
@@ -295,12 +295,12 @@ func (q *Queries) RevokeAccountTokens(ctx context.Context, arg RevokeAccountToke
 
 const revokeFamily = `-- name: RevokeFamily :exec
 UPDATE refresh_tokens
-SET revoked_at = $1
+SET revoked_at = $1::timestamptz
 WHERE family_id = $2 AND revoked_at IS NULL
 `
 
 type RevokeFamilyParams struct {
-	RevokedAt *time.Time
+	RevokedAt time.Time
 	FamilyID  uuid.UUID
 }
 

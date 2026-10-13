@@ -27,6 +27,7 @@ CREATE TABLE auth_identities (
     account_id               uuid        NOT NULL REFERENCES accounts (id) ON DELETE RESTRICT,
     provider                 text        NOT NULL CHECK (provider IN ('kakao', 'apple')),
     subject                  text        NOT NULL,
+    -- secretbox(AES-GCM)로 암호화한 값입니다. 키 id는 apple_token_key_id에 둡니다.
     apple_refresh_token      bytea,
     apple_token_key_id       text,
     apple_client_id          text,
