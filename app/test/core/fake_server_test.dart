@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:yaml/yaml.dart';
 
@@ -49,7 +50,7 @@ ByteData _manifestOf(Iterable<String> keys) =>
 Scenario _scenario(String id, {List<String>? lineage, bool offline = false}) =>
     Scenario(
       id: id,
-      today: DateTime(2026, 10, 13),
+      today: CalendarDate(2026, 10, 13),
       timezone: 'Asia/Seoul',
       offline: offline,
       lineage: lineage,
@@ -217,7 +218,7 @@ void main() {
         'offline',
       ]);
       final newUser = scenarios.first;
-      expect(newUser.today, DateTime(2026, 10, 13));
+      expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
       expect(scenarios.where((s) => s.signedIn), hasLength(5));
@@ -415,7 +416,7 @@ void main() {
     test('delayMs만큼 기다린 뒤 답한다', () async {
       final scenario = Scenario(
         id: 's',
-        today: DateTime(2026, 10, 13),
+        today: CalendarDate(2026, 10, 13),
         timezone: 'Asia/Seoul',
         delay: const Duration(milliseconds: 80),
       );

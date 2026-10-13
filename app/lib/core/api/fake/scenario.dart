@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 
 /// 대역 서버 시나리오 하나: 앱이 보게 될 "오늘"과 네트워크 상태입니다.
 ///
@@ -20,8 +21,8 @@ final class Scenario {
   /// 시나리오 id. fixture 폴더 이름입니다.
   final String id;
 
-  /// 시나리오의 오늘(날짜만 의미가 있습니다).
-  final DateTime today;
+  /// 시나리오의 오늘(프로필 시간대 기준 달력 날짜).
+  final CalendarDate today;
 
   /// IANA 시간대 이름. 예: `Asia/Seoul`.
   final String timezone;
@@ -107,8 +108,10 @@ Scenario _build(String id, Map<String, Object?> json, List<String> lineage) {
   if (today is! String || timezone is! String) {
     throw ScenarioFormatException('$id: today와 timezone이 필요합니다.');
   }
-  final date = DateTime.tryParse(today);
-  if (date == null) {
+  final CalendarDate date;
+  try {
+    date = CalendarDate.parse(today);
+  } on FormatException {
     throw ScenarioFormatException('$id: today 형식이 잘못됐습니다: $today');
   }
   final delayMs = json['delayMs'];
@@ -123,7 +126,7 @@ Scenario _build(String id, Map<String, Object?> json, List<String> lineage) {
   }
   return Scenario(
     id: id,
-    today: DateTime(date.year, date.month, date.day),
+    today: date,
     timezone: timezone,
     offline: network == 'offline',
     delay: Duration(milliseconds: (delayMs as int?) ?? 0),
