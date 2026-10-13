@@ -16,3 +16,4 @@ app 안의 결정입니다(번호 `A<n>`, `docs/workflow.md` §4). 마일스톤 
 | A10 | 2026-10-13 | 운영 | 비정상 종료 보고에 **Firebase Crashlytics**를 씁니다 | 사용자 승인, spec §7 |
 | A11 | 2026-10-13 | 도구 | Flutter는 **stable 채널을 따라가고** 정확한 SDK 버전은 고정하지 않습니다(커뮤니티 표준). `pubspec.lock`은 commit하고 안정판 의존성만 씁니다 | 사용자 결정, spec §9 |
 | A12 | 2026-10-13 | 인증 | Android의 Apple 로그인은 Custom Tabs + **Android App Link** 복귀로 받고, app이 `state`를 확인합니다 | 사용자 승인, spec §7 |
+| A13 | 2026-10-13 | 테스트 | **문서 기반 E2E**: Patrol로 기기 E2E를 돌리고, 테스트는 IA 화면·슬롯 id(Key·Semantics `identifier`)로 자리를 찾습니다. 각 테스트가 덮는 IA 경로·상태·결정을 선언하고, 도구가 `screens.json`과 대조해 커버리지 보고서를 만들며 CI는 커버리지 감소를 막습니다. 같은 E2E를 A2·I2·I3에서 http 모드로 재사용합니다 | 사용자 제안·승인, spec §6.6·§8.1 |

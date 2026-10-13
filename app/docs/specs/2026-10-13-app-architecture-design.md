@@ -3,7 +3,7 @@
 * 작성: app 세션, 2026-10-13
 * 상태: 검토 대기
 * 마일스톤: A1 (app 설계, 대역 데이터로 화면 구현)
-* 관련 결정: app 결정 A1~A12([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
+* 관련 결정: app 결정 A1~A13([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
 * 쓰는 계약
   * REST API `server/api/openapi.yaml` 1.0.0-draft
   * IA `docs/ia/screens.json` v1
@@ -48,8 +48,9 @@ app/
       presentation/        # 화면 (IA 화면 id 하나당 하나)
   widgetbook/              # 컴포넌트 카탈로그 앱 (app을 path 의존)
   fixtures/<시나리오>/       # 대역 JSON (assets, 스키마 검증 대상)
-  tool/                    # 토큰 생성기, fixture 검증기
-  test/  integration_test/
+  tool/                    # 토큰 생성기, fixture 검증기, E2E 커버리지 보고 도구
+  test/                    # 단위·위젯·golden·앱 흐름·계약 대조
+  patrol_test/             # 기기 E2E (Patrol, §8.1)
   docs/  specs/ plans/ artifacts/
 ```
 
@@ -225,6 +226,12 @@ app/
 * enum 값(오행·십성·태그 등)의 표시 이름은 `getGlossary`에서 받습니다. 원국표의 천간·지지 한자는 고정값이라 app이 가집니다.
 * 근거 잠금(D60)은 응답의 `evidenceAccess`로만 판단합니다. 잠긴 상태의 표시는 컴포넌트 명세 2.0.0 `depth-link.evidenceSheet`의 잠김 4상태와 `sentence-block` `locked`를 따릅니다.
 
+### 6.6 IA id 부착
+
+* 화면 뿌리 위젯에는 IA 화면 id를, 슬롯을 그리는 위젯에는 IA 슬롯 id를 **Key와 Semantics `identifier`로 함께** 붙입니다. 예: `today`, `today.guide.question`.
+* id 문자열은 `screens.json`에서 생성한 Dart 상수만 씁니다. 손으로 적은 문자열은 쓰지 않으며, IA가 id를 바꾸면 컴파일 오류로 드러납니다.
+* 테스트(§8)는 이 id로 화면과 자리를 찾습니다. Semantics `identifier`는 사용자에게 보이지도 읽히지도 않으므로 접근성 라벨과 겹치지 않습니다.
+
 ## 7. 플랫폼 연동 (결정 A9·A10·A12)
 
 **모든 외부 SDK는 `core/platform/`의 인터페이스 뒤에 두고 대역 구현을 함께 둡니다(결정 A9).**
@@ -258,9 +265,33 @@ app/
 | 위젯 | 화면마다 IA `states` 전부(fixture 시나리오로) | CI |
 | golden | 컴포넌트 조합(§6.3) | CI (Linux 기준) |
 | 앱 흐름 | fake 모드 앱 전체를 위젯 테스트로 띄워 주요 흐름을 끝까지 실행합니다. 흐름: 온보딩 → 미리보기 → 로그인 → 오늘, 일기 쓰기와 오프라인 초안, 근거 잠금 해제, 사주 변경 확인, 광고 제거권 구매 | CI |
-| 기기 | `integration_test`로 같은 흐름을 iOS·Android 기기나 에뮬레이터에서 실행 | 로컬, 계획마다 마무리 때 |
+| 기기 E2E | Patrol로 실제 iOS·Android 위에서 흐름 전체와 네이티브 화면(권한 대화상자, 알림 누르기, 네트워크 끊김, 다크 모드)까지 실행(§8.1) | CI(Android 에뮬레이터, 병합 뒤·매일 밤·수동), 로컬(iOS·Android, 계획마다 마무리 때) |
 | 계약 대조 | IA 대조(§3), 컴포넌트 명세 대조(§6.3), fixture 스키마 검증(§4.2), 생성 코드 차이 0, `mlw check-arb` | CI |
 | DB 마이그레이션 | drift 스키마 버전마다 이전 → 다음 마이그레이션 테스트 | CI |
+
+### 8.1 문서 기반 E2E (결정 A13)
+
+IA·결정 로그·계약이 기계가 읽을 수 있는 형태로 있으므로, E2E는 이 문서를 명세로 삼습니다.
+
+* **도구는 Patrol입니다.**
+  * Flutter 전용이고 `integration_test` 위에서 돕니다. 네이티브 화면(권한 대화상자, 알림, 시스템 설정)을 다룰 수 있습니다.
+  * app 코드와 언어가 같아 fixture 시나리오, IA id 상수(§6.6), provider override를 그대로 공유합니다.
+* **문서의 어휘로 씁니다.** 테스트는 IA 화면·슬롯 id로 자리를 찾습니다. 예: "`today`에서 `today.guide.question`을 누르면 `diary-edit`".
+* **덮는 범위를 선언합니다.** 각 E2E와 앱 흐름 테스트는 덮는 대상을 메타데이터로 적습니다.
+  * IA 경로: `today→diary-edit`
+  * 화면 상태: `diary-edit:offline`
+  * 결정: `D49`
+* **커버리지 보고서**
+  * `tool/`의 도구가 위 선언을 `screens.json`과 결정 로그에 대조해 JSON과 표를 만듭니다.
+  * 담는 것: 덮지 못한 경로·상태, 결정 → 테스트 표.
+  * CI는 커버리지가 줄어들면 실패합니다(ratchet). 계획 2~7을 진행하며 IA 경로·상태 100%까지 올립니다.
+  * 결정은 동작으로 확인할 수 있는 것만 대상입니다. 대상 목록은 보고서 설정 파일에 둡니다.
+* **시나리오 이름은 문서 조건으로 짓습니다.** 예: `time-unknown`, `evidence-locked`, `ad-free-active`, `offline`, `preview-used`.
+* **같은 E2E를 두 모드로 돌립니다.** A1은 fake 모드입니다. A2·I2·I3에서는 http 모드로 스테이징 server를 상대로 같은 테스트를 돌립니다. 지휘 세션의 통합 마일스톤이 이 E2E를 재사용할 수 있습니다.
+* **스크린샷이 저절로 쌓입니다.**
+  * E2E가 IA 화면·상태에 도착하면 캡처합니다.
+  * 캡처는 `app/docs/artifacts/`에 저장하고 `index.json`에 등록합니다(`kind: screenshot`, `screens`에 IA id).
+  * 커버리지 보고서 JSON도 함께 두어, 제품 지도가 화면별 E2E 결과를 보일 수 있게 합니다(§11 제안).
 
 ## 9. 도구와 CI (결정 A11)
 
@@ -290,12 +321,17 @@ app/
   2. 생성 코드 차이 확인: openapi, 토큰, `build_runner`, l10n
   3. fixture 스키마 검증
   4. 테스트(단위·위젯·golden·앱 흐름·계약 대조·마이그레이션)
-  5. `mlw check-arb`
-  6. Android debug 빌드
+  5. E2E 커버리지 보고서(선언 대조, ratchet)
+  6. `mlw check-arb`
+  7. Android debug 빌드
 * iOS 빌드는 규약대로 로컬 Mac에서 합니다(workflow §8).
 * golden 갱신용 수동 실행 job(`workflow_dispatch`)을 둡니다.
+* **기기 E2E job**은 Android 에뮬레이터(Linux, KVM)에서 Patrol을 돌립니다.
+  * 비공개 저장소의 무료 플랜이라 Actions 사용 시간이 제한되므로 PR마다 돌리지 않습니다. `main` 병합 뒤, 매일 밤, 수동 실행으로 돕니다.
+  * PR에서는 위젯 수준 앱 흐름 테스트가 같은 흐름을 지킵니다.
+  * 이 job은 `ci-gate` 판정에 넣지 않고, 실패하면 Issue로 다룹니다.
 
-**산출물:** 계획마다 fake 모드 화면 스크린샷을 `app/docs/artifacts/`에 남기고 `index.json`에 등록합니다(workflow §7).
+**산출물:** E2E가 만든 화면 스크린샷과 커버리지 보고서를 `app/docs/artifacts/`에 두고 `index.json`에 등록합니다(workflow §7, §8.1).
 
 ## 10. 계획 분할
 
@@ -303,7 +339,7 @@ app/
 
 | 순서 | 계획 | 내용 |
 | --- | --- | --- |
-| 1 | 기반 | 프로젝트 생성, 구조, lint, CI, `.vscode`, 토큰 생성·테마·글꼴, 생성 클라이언트·대역 interceptor·fixture 검증, drift, `Clock`, 라우터·진입 갈래, l10n 뼈대·오류 문구 표, 플랫폼 인터페이스와 대역, Widgetbook·golden 기반, 공통 컴포넌트(frame·feedback·sentence) |
+| 1 | 기반 | 프로젝트 생성, 구조, lint, CI, `.vscode`, 토큰 생성·테마·글꼴, 생성 클라이언트·대역 interceptor·fixture 검증, drift, `Clock`, 라우터·진입 갈래, l10n 뼈대·오류 문구 표, 플랫폼 인터페이스와 대역, Widgetbook·golden 기반, IA id 상수 생성, E2E 뼈대(Patrol 설정, 커버리지 도구, 에뮬레이터 CI job, 스크린샷 등록), 공통 컴포넌트(frame·feedback·sentence) |
 | 2 | 온보딩·로그인 | `launch`·`force-update`·`welcome`·`onboard-*`·`birthplace`·`preview`·`login`·`consent`·`notify-ask`·`ad-consent`, 로그인 adapter(대역), 온보딩 입력 보존 |
 | 3 | 오늘·깊이 시트 | `today`, `explain-sheet`, `evidence-sheet`(잠금 4상태), 반응, `share-preview`, 그날 캐시 |
 | 4 | 달력·일정 | `calendar`(사주 기반 영구 캐시·미리 받기), `day-sheet`, `event-edit` |
@@ -322,6 +358,7 @@ spec 승인 뒤 Issue로 보냅니다.
 | root | request | IA `profile-edit`에 컴포넌트 `dialog`와 슬롯 `profile-edit.recalc.confirm`(ui) 추가(§5, 추가만이라 v1 유지) | 계획 6 |
 | root | request | `ci-gate`에 `app.yml` 연결(§9) | 아니요 (그전까지 `app.yml`이 단독으로 돎) |
 | root | notice | Crashlytics 사용(결정 A10). 개인정보 처리방침 수집 항목에 반영 | 아니요 |
+| root | request | 제품 지도에 app E2E 커버리지 보고서(화면별 E2E 결과)를 보이기, 통합 마일스톤(I2·I3)에서 app E2E를 http 모드로 재사용하기(결정 A13) | 아니요 |
 | server | request | `Problem.code` 목록을 openapi에 기계가 읽을 형태로 넣기(예: `x-problem-codes`), §4.3 | 아니요 |
 | server | request | Apple 웹 콜백 303의 Location을 Android App Link 형식으로 정하기(결정 A12), §7 | 계획 7의 실제 adapter |
 | writing | request | ui 슬롯의 ARB 키 이름을 IA 슬롯 id의 lowerCamelCase로 맞추기(결정 A7), §6.4 | 아니요 |
