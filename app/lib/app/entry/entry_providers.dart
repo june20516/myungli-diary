@@ -41,6 +41,9 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
   /// build를 다시 돌리므로 겹친 계산은 Riverpod이 오래된 결과를 버립니다.
   /// 계산 중에도 이전 값이 남아 라우터는 launch로 되돌아가지 않습니다.
   Future<void> refresh() async {
+    if (!ref.mounted) {
+      return;
+    }
     ref.invalidateSelf();
     try {
       await future;

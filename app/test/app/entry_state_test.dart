@@ -357,6 +357,26 @@ void main() {
       expect(c.read(meProvider), isNull);
     });
 
+    test('성공한 뒤 refresh가 실패하면 이전 값을 유지한 채 hasError', () async {
+      await signIn();
+      final c = container();
+      await c.read(entryStateProvider.future);
+      api.meError = _status(500);
+      await c.read(entryStateProvider.notifier).refresh();
+      final state = c.read(entryStateProvider);
+      expect(state.hasError, isTrue);
+      expect(state.value?.entry, EntryState.ready);
+    });
+
+    test('dispose 뒤 refresh는 예외 없이 끝납니다', () async {
+      await signIn();
+      final c = container();
+      await c.read(entryStateProvider.future);
+      final notifier = c.read(entryStateProvider.notifier);
+      c.dispose();
+      await notifier.refresh();
+    });
+
     test('refresh가 겹치면 마지막 요청의 결과만 반영합니다', () async {
       await signIn();
       final c = container();
