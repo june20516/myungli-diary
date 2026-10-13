@@ -1,0 +1,11 @@
+{
+  "exits": {
+    "covered": 3
+  },
+  "states": {
+    "covered": 1
+  },
+  "decisions": {
+    "covered": 1
+  }
+}

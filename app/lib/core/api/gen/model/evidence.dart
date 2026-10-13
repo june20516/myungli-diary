@@ -1,0 +1,51 @@
+//
+// AUTO-GENERATED FILE, DO NOT MODIFY!
+//
+
+// ignore_for_file: unused_element
+import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'evidence.g.dart';
+
+@CopyWith()
+@JsonSerializable(
+  checked: true,
+  createToJson: true,
+  disallowUnrecognizedKeys: false,
+  explicitToJson: true,
+)
+class Evidence {
+  /// Returns a new [Evidence] instance.
+  Evidence({required this.ruleId, required this.sourceRef, this.detail});
+
+  @JsonKey(name: r'ruleId', required: true, includeIfNull: false)
+  final String ruleId;
+
+  @JsonKey(name: r'sourceRef', required: true, includeIfNull: false)
+  final String sourceRef;
+
+  @JsonKey(name: r'detail', required: false, includeIfNull: false)
+  final Map<String, String>? detail;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Evidence &&
+          other.ruleId == ruleId &&
+          other.sourceRef == sourceRef &&
+          other.detail == detail;
+
+  @override
+  int get hashCode => ruleId.hashCode + sourceRef.hashCode + detail.hashCode;
+
+  factory Evidence.fromJson(Map<String, dynamic> json) =>
+      _$EvidenceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$EvidenceToJson(this);
+
+  @override
+  String toString() {
+    return toJson().toString();
+  }
+}

@@ -1,0 +1,16 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+plugins:
+  riverpod_lint: ^3.1.9
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    # Widgetbook은 별도 패키지라 자체 analysis_options로 따로 분석한다.
+    - widgetbook/**
+    - ios/**
+    # 생성 코드(gen_ia 등)는 손으로 고치지 않으므로 lint에서 제외한다.
+    - lib/**/gen/**
+    # drift_dev가 만든 스키마 버전별 코드.
+    - test/**/drift_schema/**
