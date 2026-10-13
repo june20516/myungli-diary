@@ -16,6 +16,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 const (
@@ -30,7 +31,7 @@ const (
 )
 
 // runServe는 HTTP 서버를 시작하고 ctx가 취소되면 처리 중인 요청을 마친 뒤 종료합니다.
-// P1의 serve는 DB를 열지 않습니다(DB를 쓰는 핸들러는 이후 계획에서 추가합니다).
+// 시작할 때 DB 설정과 인증 설정을 검사하고 DB에 연결하며, 하나라도 실패하면 서버를 열지 않고 끝납니다.
 func runServe(ctx context.Context, args []string, getenv func(string) string, _, stderr io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server serve")
@@ -39,7 +40,22 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	if err := cfg.RequireDatabase(); err != nil {
+		return err
+	}
+	// 인증 서비스 조립(키 파싱, provider, auth, account)은 Task 12에서 이 설정으로 합니다.
+	if _, err := config.LoadAuth(getenv); err != nil {
+		return err
+	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
+
+	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
+	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	defer pool.Close()
 
 	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
 	spec, err := gen.GetSpec()

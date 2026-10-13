@@ -3,13 +3,22 @@ package cli
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
 
 func TestServe_GracefulShutdown(t *testing.T) {
@@ -67,10 +76,12 @@ func TestServe_GracefulShutdown(t *testing.T) {
 	}
 }
 
-func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
+func TestRun_ServeStartsAndStopsOnCancel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	env := map[string]string{"PORT": freePort(t)}
+	env := testAuthEnv(t)
+	env["PORT"] = freePort(t)
+	env["DATABASE_URL"] = dbtest.NewURL(t)
 	var stdout, stderr bytes.Buffer
 
 	done := make(chan int, 1)
@@ -92,6 +103,7 @@ func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 
 	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
 	// 계약 라우트가 등록돼 있고 아직 구현하지 않은 operation은 501입니다.
+	// (인증 서비스를 조립하는 Task 12 이후에는 토큰 없는 요청이 401이 됩니다.)
 	// 종료를 늦추지 않게 본문을 끝까지 읽고 유휴 연결을 닫습니다.
 	client := &http.Client{Timeout: 2 * time.Second}
 	resp, err := getWithContext(t.Context(), client, "http://127.0.0.1:"+env["PORT"]+"/v1/me")
@@ -113,6 +125,94 @@ func TestRun_ServeStartsWithoutDatabaseURLAndStopsOnCancel(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("ctx 취소 뒤 serve가 종료되지 않았습니다")
+	}
+}
+
+func TestRun_ServeRequiresDatabaseURL(t *testing.T) {
+	env := testAuthEnv(t)
+	env["PORT"] = freePort(t)
+	var stdout, stderr bytes.Buffer
+
+	code := Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+	if code != 1 {
+		t.Errorf("종료 코드 = %d, want 1", code)
+	}
+	if !strings.Contains(stderr.String(), "DATABASE_URL") {
+		t.Errorf("stderr에 DATABASE_URL이 없습니다: %q", stderr.String())
+	}
+}
+
+func TestRun_ServeFailsFastWhenDatabaseUnreachable(t *testing.T) {
+	env := testAuthEnv(t)
+	env["PORT"] = freePort(t)
+	env["DATABASE_URL"] = "postgres://x:pw-secret@127.0.0.1:1/x"
+	var stdout, stderr bytes.Buffer
+
+	done := make(chan int, 1)
+	go func() {
+		done <- Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+	}()
+
+	select {
+	case code := <-done:
+		if code != 1 {
+			t.Errorf("종료 코드 = %d, want 1", code)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("DB에 연결할 수 없는데 5초 안에 종료하지 않았습니다")
+	}
+	if !strings.Contains(stderr.String(), "DB 연결 실패") {
+		t.Errorf("stderr에 \"DB 연결 실패\"가 없습니다: %q", stderr.String())
+	}
+	if strings.Contains(stderr.String(), "pw-secret") {
+		t.Errorf("stderr에 연결 주소의 비밀번호가 남았습니다: %q", stderr.String())
+	}
+}
+
+func TestRun_ServeRequiresAuthConfig(t *testing.T) {
+	env := map[string]string{"PORT": freePort(t), "DATABASE_URL": "postgres://x@127.0.0.1:1/x"}
+	var stdout, stderr bytes.Buffer
+
+	code := Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+	if code != 1 {
+		t.Errorf("종료 코드 = %d, want 1", code)
+	}
+	if !strings.Contains(stderr.String(), "JWT_SIGNING_KEY") {
+		t.Errorf("stderr에 누락된 변수 이름이 없습니다: %q", stderr.String())
+	}
+}
+
+// testAuthEnv는 인증 설정 17개 중 필수 값을 채운 환경을 만듭니다.
+// JWT 키는 실제로 파싱되는 P-256 PKCS8 PEM이고, 토큰 암호 키는 32바이트 난수의 base64(표준)입니다.
+func testAuthEnv(t *testing.T) map[string]string {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("P-256 키 생성: %v", err)
+	}
+	der, err := x509.MarshalPKCS8PrivateKey(key)
+	if err != nil {
+		t.Fatalf("PKCS8 변환: %v", err)
+	}
+	keyPEM := string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der}))
+	tokenKey := make([]byte, 32)
+	if _, err := rand.Read(tokenKey); err != nil {
+		t.Fatalf("난수 생성: %v", err)
+	}
+	return map[string]string{
+		"JWT_SIGNING_KEY_ID":      "jwt-test-1",
+		"JWT_SIGNING_KEY":         keyPEM,
+		"TOKEN_ENCRYPTION_KEY_ID": "tok-test-1",
+		"TOKEN_ENCRYPTION_KEY":    base64.StdEncoding.EncodeToString(tokenKey),
+		"KAKAO_APP_KEY":           "kakao-app-key",
+		"KAKAO_ADMIN_KEY":         "kakao-admin-key",
+		"APPLE_TEAM_ID":           "TEAMID0001",
+		"APPLE_KEY_ID":            "KEYID00001",
+		"APPLE_PRIVATE_KEY":       keyPEM,
+		"APPLE_BUNDLE_ID":         "app.myungli.test",
+		"APPLE_SERVICES_ID":       "app.myungli.test.web",
+		"APPLE_WEB_REDIRECT_URI":  "https://api.example.test/v1/auth/apple/callback",
+		"APPLE_CALLBACK_DEEPLINK": "myungli://auth/apple",
 	}
 }
 

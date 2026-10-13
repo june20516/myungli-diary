@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"strings"
 )
 
 // 기본값입니다.
@@ -99,4 +100,79 @@ func orDefault(value, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+// AuthConfig는 인증에 쓰는 키와 제공자 설정입니다. 값의 형식(PEM, base64 등)은 읽는 쪽이 파싱하며,
+// 여기서는 필수 값이 채워져 있는지만 검사합니다. 로컬 실행도 같은 규칙이고 대체 값을 만들지 않습니다.
+type AuthConfig struct {
+	// JWTKeyID·JWTKeyPEM은 access token 서명 키(ES256, PKCS8 PEM)의 ID와 값입니다.
+	JWTKeyID, JWTKeyPEM string
+	// JWTPreviousKeyID·JWTPreviousKeyPEM은 키 교체 기간에 검증만 하는 이전 서명 키입니다(선택, 둘이 함께).
+	JWTPreviousKeyID, JWTPreviousKeyPEM string
+	// TokenKeyID·TokenKey는 제공자 토큰을 암호화하는 AES-256 키(base64)의 ID와 값입니다.
+	TokenKeyID, TokenKey string
+	// TokenPreviousKeyID·TokenPreviousKey는 복호화만 하는 이전 암호 키입니다(선택, 둘이 함께).
+	TokenPreviousKeyID, TokenPreviousKey string
+	// KakaoAppKey는 카카오 앱 키(id_token 검증의 audience)이고, KakaoAdminKey는 unlink 호출용 어드민 키입니다.
+	KakaoAppKey, KakaoAdminKey string
+	// AppleTeamID·AppleKeyID·ApplePrivateKeyPEM은 Apple client secret(ES256 JWT)을 만드는 재료입니다.
+	AppleTeamID, AppleKeyID, ApplePrivateKeyPEM string
+	// AppleBundleID는 앱 로그인의 audience이고, AppleServicesID는 웹 로그인의 audience입니다.
+	AppleBundleID, AppleServicesID string
+	// AppleWebRedirectURI는 Apple이 code를 돌려보내는 주소이고, AppleCallbackDeepLink는 server가 앱으로 넘기는 딥링크입니다.
+	AppleWebRedirectURI, AppleCallbackDeepLink string
+}
+
+// LoadAuth는 getenv로 인증 설정을 읽습니다. 필수 값이 빈 변수와 이전 키의 짝 오류를 모두 모아
+// errors.Join으로 돌려줍니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadAuth(getenv func(string) string) (AuthConfig, error) {
+	var missing []string
+	require := func(name string) string {
+		value := getenv(name)
+		if value == "" {
+			missing = append(missing, name)
+		}
+		return value
+	}
+
+	cfg := AuthConfig{
+		JWTKeyID:              require("JWT_SIGNING_KEY_ID"),
+		JWTKeyPEM:             require("JWT_SIGNING_KEY"),
+		JWTPreviousKeyID:      getenv("JWT_PREVIOUS_KEY_ID"),
+		JWTPreviousKeyPEM:     getenv("JWT_PREVIOUS_KEY"),
+		TokenKeyID:            require("TOKEN_ENCRYPTION_KEY_ID"),
+		TokenKey:              require("TOKEN_ENCRYPTION_KEY"),
+		TokenPreviousKeyID:    getenv("TOKEN_PREVIOUS_KEY_ID"),
+		TokenPreviousKey:      getenv("TOKEN_PREVIOUS_KEY"),
+		KakaoAppKey:           require("KAKAO_APP_KEY"),
+		KakaoAdminKey:         require("KAKAO_ADMIN_KEY"),
+		AppleTeamID:           require("APPLE_TEAM_ID"),
+		AppleKeyID:            require("APPLE_KEY_ID"),
+		ApplePrivateKeyPEM:    require("APPLE_PRIVATE_KEY"),
+		AppleBundleID:         require("APPLE_BUNDLE_ID"),
+		AppleServicesID:       require("APPLE_SERVICES_ID"),
+		AppleWebRedirectURI:   require("APPLE_WEB_REDIRECT_URI"),
+		AppleCallbackDeepLink: require("APPLE_CALLBACK_DEEPLINK"),
+	}
+
+	var errs []error
+	if len(missing) > 0 {
+		errs = append(errs, fmt.Errorf("필수 인증 설정이 없습니다: %s", strings.Join(missing, ", ")))
+	}
+	errs = append(errs,
+		requirePair("JWT_PREVIOUS_KEY_ID", cfg.JWTPreviousKeyID, "JWT_PREVIOUS_KEY", cfg.JWTPreviousKeyPEM),
+		requirePair("TOKEN_PREVIOUS_KEY_ID", cfg.TokenPreviousKeyID, "TOKEN_PREVIOUS_KEY", cfg.TokenPreviousKey),
+	)
+	if err := errors.Join(errs...); err != nil {
+		return AuthConfig{}, err
+	}
+	return cfg, nil
+}
+
+// requirePair는 선택 항목인 이전 키의 ID와 값이 둘 다 있거나 둘 다 없는지 검사합니다.
+func requirePair(idName, id, valueName, value string) error {
+	if (id == "") != (value == "") {
+		return fmt.Errorf("%s와 %s는 함께 설정해야 합니다", idName, valueName)
+	}
+	return nil
 }
