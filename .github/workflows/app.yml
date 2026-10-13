@@ -58,6 +58,13 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v7
+      # Android 빌드(NDK·CMake 설치 포함)가 ubuntu-latest 기본 여유 공간을 넘으므로,
+      # 이 job이 쓰지 않는 사전 설치 도구를 지운다. Android SDK와 Docker는 남긴다.
+      - name: runner 디스크 확보
+        working-directory: .
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          df -h /
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -128,6 +135,13 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v7
+      # Android 빌드(NDK·CMake 설치 포함)가 ubuntu-latest 기본 여유 공간을 넘으므로,
+      # 이 job이 쓰지 않는 사전 설치 도구를 지운다. Android SDK와 Docker는 남긴다.
+      - name: runner 디스크 확보
+        working-directory: .
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          df -h /
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
