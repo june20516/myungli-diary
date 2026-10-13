@@ -1,4 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/design/components/frame/ad_banner.dart';
+import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 
 /// 컴포넌트 하나가 따르는 명세 요약. 대조 테스트가 명세 JSON과 비교합니다.
 ///
@@ -19,4 +23,9 @@ final class ComponentSpec {
 }
 
 /// 구현을 마친 컴포넌트의 명세 목록. Task 17~19가 채웁니다.
-const List<ComponentSpec> implementedComponents = [];
+const List<ComponentSpec> implementedComponents = [
+  MyungliTabBar.spec,
+  MyungliAppBar.spec,
+  MyungliSheetFrame.spec,
+  AdBanner.spec,
+];

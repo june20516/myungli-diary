@@ -37,5 +37,33 @@
         "example": "abc123"
       }
     }
+  },
+  "tabToday": "오늘",
+  "@tabToday": {
+    "description": "임시. 탭 바 '오늘' 탭 이름"
+  },
+  "tabCalendar": "달력",
+  "@tabCalendar": {
+    "description": "임시. 탭 바 '달력' 탭 이름"
+  },
+  "tabDiary": "일기",
+  "@tabDiary": {
+    "description": "임시. 탭 바 '일기' 탭 이름"
+  },
+  "tabMe": "나",
+  "@tabMe": {
+    "description": "임시. 탭 바 '나' 탭 이름"
+  },
+  "appBarBack": "뒤로",
+  "@appBarBack": {
+    "description": "임시. 앱 바 뒤로 버튼의 스크린리더 라벨"
+  },
+  "sheetDismiss": "닫기",
+  "@sheetDismiss": {
+    "description": "임시. 시트 바깥 덮개·닫기의 스크린리더 라벨"
+  },
+  "adBannerLabel": "광고",
+  "@adBannerLabel": {
+    "description": "임시. 광고 배너 영역의 스크린리더 라벨"
   }
 }

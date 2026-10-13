@@ -36,4 +36,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String traceIdLabel(String traceId) {
     return 'Reference $traceId';
   }
+
+  @override
+  String get tabToday => 'Today';
+
+  @override
+  String get tabCalendar => 'Calendar';
+
+  @override
+  String get tabDiary => 'Diary';
+
+  @override
+  String get tabMe => 'Me';
+
+  @override
+  String get appBarBack => 'Back';
+
+  @override
+  String get sheetDismiss => 'Close';
+
+  @override
+  String get adBannerLabel => 'Ad';
 }

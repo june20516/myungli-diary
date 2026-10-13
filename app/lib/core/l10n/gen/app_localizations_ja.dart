@@ -34,4 +34,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String traceIdLabel(String traceId) {
     return 'お問い合わせ番号 $traceId';
   }
+
+  @override
+  String get tabToday => '今日';
+
+  @override
+  String get tabCalendar => 'カレンダー';
+
+  @override
+  String get tabDiary => '日記';
+
+  @override
+  String get tabMe => '私';
+
+  @override
+  String get appBarBack => '戻る';
+
+  @override
+  String get sheetDismiss => '閉じる';
+
+  @override
+  String get adBannerLabel => '広告';
 }

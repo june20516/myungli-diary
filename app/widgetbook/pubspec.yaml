@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_riverpod: ^3.4.3
   myungli_diary:
     path: ..
   phosphor_glyphs: ^2.1.2+1

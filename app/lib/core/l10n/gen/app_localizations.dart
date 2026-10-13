@@ -147,6 +147,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'문의 번호 {traceId}'**
   String traceIdLabel(String traceId);
+
+  /// 임시. 탭 바 '오늘' 탭 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get tabToday;
+
+  /// 임시. 탭 바 '달력' 탭 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'달력'**
+  String get tabCalendar;
+
+  /// 임시. 탭 바 '일기' 탭 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'일기'**
+  String get tabDiary;
+
+  /// 임시. 탭 바 '나' 탭 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get tabMe;
+
+  /// 임시. 앱 바 뒤로 버튼의 스크린리더 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'뒤로'**
+  String get appBarBack;
+
+  /// 임시. 시트 바깥 덮개·닫기의 스크린리더 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get sheetDismiss;
+
+  /// 임시. 광고 배너 영역의 스크린리더 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'광고'**
+  String get adBannerLabel;
 }
 
 class _AppLocalizationsDelegate

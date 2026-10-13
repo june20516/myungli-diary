@@ -7,5 +7,12 @@
   "errorUnexpected": "Something unexpected happened.",
   "errorNotImplemented": "This is not available yet.",
   "actionRetry": "Try again",
-  "traceIdLabel": "Reference {traceId}"
+  "traceIdLabel": "Reference {traceId}",
+  "tabToday": "Today",
+  "tabCalendar": "Calendar",
+  "tabDiary": "Diary",
+  "tabMe": "Me",
+  "appBarBack": "Back",
+  "sheetDismiss": "Close",
+  "adBannerLabel": "Ad"
 }

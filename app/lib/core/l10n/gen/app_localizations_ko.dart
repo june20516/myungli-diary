@@ -34,4 +34,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String traceIdLabel(String traceId) {
     return '문의 번호 $traceId';
   }
+
+  @override
+  String get tabToday => '오늘';
+
+  @override
+  String get tabCalendar => '달력';
+
+  @override
+  String get tabDiary => '일기';
+
+  @override
+  String get tabMe => '나';
+
+  @override
+  String get appBarBack => '뒤로';
+
+  @override
+  String get sheetDismiss => '닫기';
+
+  @override
+  String get adBannerLabel => '광고';
 }
