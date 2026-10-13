@@ -1279,4 +1279,70 @@ void main() {
       expect(ring(), findsNothing);
     });
   });
+
+  group('라운드 3', () {
+    testWidgets('열림 알림 노드는 비어 있지 않은 영역을 갖습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      Widget sheet(DepthLinkState state) => _app(
+        SizedBox(
+          width: 360,
+          height: 400,
+          child: EvidenceSheetBody(
+            state: state,
+            title: '식신',
+            basis: state == DepthLinkState.unlocked
+                ? _text([Segment(text: '근거')])
+                : null,
+            source: state == DepthLinkState.unlocked
+                ? _text([Segment(text: '원전')])
+                : null,
+            animated: false,
+          ),
+        ),
+      );
+      await tester.pumpWidget(sheet(DepthLinkState.unlocking));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(sheet(DepthLinkState.unlocked));
+      await tester.pumpAndSettle();
+      final node = tester.getSemantics(find.bySemanticsLabel('근거와 해석이 열렸어요'));
+      expect(node.rect.isEmpty, isFalse);
+      expect(node.getSemanticsData().flagsCollection.isLiveRegion, isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('ko 문장의 낭독 노드: 원문 그대로, 조각나지 않고, 칩은 용어+조사', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          RenderedTextView(
+            text: _text([
+              Segment(text: '오늘은 마음이 차분해서 '),
+              Segment(text: '식신', term: 'TenGod.SIKSIN'),
+              Segment(text: '의 기운으로 이야기를 풀어내요.'),
+            ]),
+            style: _style,
+            onTerm: (_) {},
+          ),
+        ),
+      );
+      final labels = <String>[];
+      void collect(SemanticsNode node) {
+        final label = node.getSemanticsData().label;
+        if (label.isNotEmpty) labels.add(label);
+        node.visitChildren((c) {
+          collect(c);
+          return true;
+        });
+      }
+
+      collect(_rootSemantics(tester));
+      expect(labels.where((l) => l.contains(wordJoiner)), isEmpty);
+      // 일반 글자는 조각나지 않고 앞·뒤 문장이 각각 한 노드입니다.
+      expect(labels.where((l) => l.contains('오늘은 마음이 차분해서')), hasLength(1));
+      expect(labels.where((l) => l.contains('기운으로 이야기를 풀어내요.')), hasLength(1));
+      expect(labels, contains('식신의 풀이 보기'));
+      expect(labels.where((l) => l.contains('TenGod')), isEmpty);
+      handle.dispose();
+    });
+  });
 }

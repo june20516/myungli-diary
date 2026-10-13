@@ -115,11 +115,24 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       children: [
         // 열림 알림은 스크롤해도 뷰포트 밖으로 밀려나지 않게 스크롤 영역 밖 위쪽에 둡니다.
         if (_justUnlocked)
-          LiveAnnouncement(
-            identifier: SlotIds.evidenceSheetA11yUnlocked,
-            label: l10n.evidenceSheetA11yUnlocked,
-            role: SemanticsRole.status,
-            child: const SizedBox.shrink(),
+          // 레이아웃 높이는 0이지만 알림 노드는 1x1 영역을 가져 TalkBack이 놓치지 않습니다.
+          SizedBox(
+            height: 0,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  width: 1,
+                  height: 1,
+                  child: LiveAnnouncement(
+                    identifier: SlotIds.evidenceSheetA11yUnlocked,
+                    label: l10n.evidenceSheetA11yUnlocked,
+                    role: SemanticsRole.status,
+                    child: const SizedBox.shrink(),
+                  ),
+                ),
+              ],
+            ),
           ),
         Flexible(
           child: SingleChildScrollView(
