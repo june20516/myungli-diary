@@ -29,7 +29,6 @@ final fakeServerInterceptorProvider = Provider<Interceptor?>((ref) {
   );
 });
 
-const _missingAssetMessage = 'Unable to load asset';
 const _problemType = 'https://api.myungli.app/problems';
 const _fakeTraceId = 'fake-server';
 
@@ -80,6 +79,7 @@ final class FakeServerInterceptor extends Interceptor {
       );
       return;
     }
+    _operationCounts[route.operationId] = callCountOf(route.operationId) + 1;
     final fixture = await _findFixture(route, routePathOf(options));
     _respond(
       options,
@@ -93,6 +93,12 @@ final class FakeServerInterceptor extends Interceptor {
           ),
     );
   }
+
+  final _operationCounts = <String, int>{};
+
+  /// [operationId]로 지금까지 들어온(오프라인이 아닌) 요청 수. 테스트용입니다.
+  @visibleForTesting
+  int callCountOf(String operationId) => _operationCounts[operationId] ?? 0;
 
   /// fixture 파일 경로별 지금까지의 호출 수(`sequence` 순서용).
   final _callCounts = <String, int>{};
@@ -122,18 +128,17 @@ final class FakeServerInterceptor extends Interceptor {
     return null;
   }
 
-  /// 번들에 없는 asset이면 null이고, 그 밖의 읽기 오류는 그대로 던집니다.
+  Future<Set<String>>? _assetKeys;
+
+  /// 번들 manifest에 없는 key면 null이고, 있는 key의 읽기 오류는 그대로 던집니다.
   Future<String?> _tryLoad(String key) async {
-    try {
-      return await bundle.loadString(key);
-      // 없는 asset은 번들이 FlutterError('Unable to load asset')로 알립니다.
-      // ignore: avoid_catching_errors
-    } on FlutterError catch (error) {
-      if (error.message.startsWith(_missingAssetMessage)) {
-        return null;
-      }
-      rethrow;
-    }
+    final keys = await (_assetKeys ??= _loadAssetKeys());
+    return keys.contains(key) ? await bundle.loadString(key) : null;
+  }
+
+  Future<Set<String>> _loadAssetKeys() async {
+    final manifest = await AssetManifest.loadFromAssetBundle(bundle);
+    return manifest.listAssets().toSet();
   }
 
   void _respond(
@@ -196,8 +201,10 @@ List<_Fixture> _parseFixture(String source, String name) {
   final json = jsonDecode(source);
   if (json is Map<String, Object?> && json.containsKey('sequence')) {
     final sequence = json['sequence'];
-    if (sequence is! List<Object?> || sequence.isEmpty) {
-      throw FormatException('sequence는 비어 있지 않은 배열이어야 합니다: $name');
+    if (json.length != 1 || sequence is! List<Object?> || sequence.isEmpty) {
+      throw FormatException(
+        'sequence는 비어 있지 않은 배열이어야 하고 다른 키와 함께 쓸 수 없습니다: $name',
+      );
     }
     return [for (final item in sequence) _parseResponse(item, name)];
   }

@@ -23,12 +23,11 @@ class _MemoryBundle extends CachingAssetBundle {
 
   final Map<String, String> files;
 
-  /// 읽기를 시도한 key 기록.
-  final loads = <String>[];
-
   @override
   Future<ByteData> load(String key) async {
-    loads.add(key);
+    if (key == 'AssetManifest.bin') {
+      return _manifestOf(files.keys);
+    }
     final source = files[key];
     if (source == null) {
       throw FlutterError('Unable to load asset: "$key".');
@@ -37,6 +36,15 @@ class _MemoryBundle extends CachingAssetBundle {
     return ByteData.sublistView(bytes);
   }
 }
+
+/// `AssetManifest.bin` 내용: key마다 변형 하나.
+ByteData _manifestOf(Iterable<String> keys) =>
+    const StandardMessageCodec().encodeMessage({
+      for (final key in keys)
+        key: [
+          {'asset': key},
+        ],
+    })!;
 
 Scenario _scenario(String id, {List<String>? lineage, bool offline = false}) =>
     Scenario(
@@ -328,22 +336,21 @@ void main() {
 
     tearDown(() => tokens.dispose());
 
-    DefaultApi api(_MemoryBundle bundle) => DefaultApi(
-      buildDio(
-        mode: ApiMode.fake,
-        baseUrl: Uri.parse('http://localhost:8080'),
-        tokens: tokens,
-        appCheck: _FakeAppCheck(),
-        locale: () => const Locale('ko'),
-        fakeServer: FakeServerInterceptor(
-          scenario: _scenario('s'),
-          bundle: bundle,
-        ),
-      ),
-    );
+    late FakeServerInterceptor fake;
 
-    int refreshCalls(_MemoryBundle bundle) =>
-        bundle.loads.where((k) => k.endsWith('refreshToken.json')).length;
+    DefaultApi api(_MemoryBundle bundle) {
+      fake = FakeServerInterceptor(scenario: _scenario('s'), bundle: bundle);
+      return DefaultApi(
+        buildDio(
+          mode: ApiMode.fake,
+          baseUrl: Uri.parse('http://localhost:8080'),
+          tokens: tokens,
+          appCheck: _FakeAppCheck(),
+          locale: () => const Locale('ko'),
+          fakeServer: fake,
+        ),
+      );
+    }
 
     test('401 만료 -> refresh 1회 -> 토큰 저장 -> 재시도 성공', () async {
       final bundle = _MemoryBundle({
@@ -355,7 +362,8 @@ void main() {
       final response = await api(bundle).getMe();
       expect(response.statusCode, 200);
       expect(response.data!.hasProfile, isTrue);
-      expect(refreshCalls(bundle), 1);
+      expect(fake.callCountOf('refreshToken'), 1);
+      expect(fake.callCountOf('getMe'), 2);
       expect(tokens.accessToken, 'fake-new-access');
       expect(await tokens.refreshToken(), 'fake-new-refresh');
     });
@@ -369,8 +377,25 @@ void main() {
       expect(error, isA<ProblemError>());
       expect((error as ProblemError).code, 'auth.token_expired');
       expect(error.status, 401);
-      expect(refreshCalls(bundle), 1);
+      expect(fake.callCountOf('refreshToken'), 1);
+      expect(fake.callCountOf('getMe'), 2);
     });
+  });
+
+  test('sequence가 다른 키와 섞이거나 비면 형식 오류', () async {
+    for (final source in [
+      '{"sequence": [], "status": 200}',
+      '{"sequence": []}',
+      '{"sequence": [{"status": 200}], "body": 1}',
+    ]) {
+      final bundle = _MemoryBundle({'fixtures/s/getMe.json': source});
+      try {
+        await _api(_scenario('s'), bundle).getMe();
+        fail('오류가 나야 합니다: $source');
+      } on DioException catch (e) {
+        expect(e.error, isA<FormatException>(), reason: source);
+      }
+    }
   });
 
   group('asset 읽기', () {
@@ -490,8 +515,13 @@ void main() {
   });
 }
 
-/// 읽을 때마다 "없는 asset"이 아닌 오류를 내는 번들.
+/// manifest에는 있지만 읽으면 실패하는 번들.
 class _BrokenBundle extends CachingAssetBundle {
   @override
-  Future<ByteData> load(String key) async => throw FlutterError('디스크 오류');
+  Future<ByteData> load(String key) async {
+    if (key == 'AssetManifest.bin') {
+      return _manifestOf(['fixtures/s/getMe.json']);
+    }
+    throw FlutterError('디스크 오류');
+  }
 }
