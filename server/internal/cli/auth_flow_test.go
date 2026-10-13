@@ -173,7 +173,7 @@ func (e *flowEnv) loginAppleNative(subject string) flowResponse {
 	e.t.Helper()
 	idToken := e.fake.SignIDToken(providertest.AppleClaims(subject, flowNonce, provider.AppleNative, e.clk.Now()))
 	return e.do(http.MethodPost, "/v1/auth/apple", "", map[string]string{
-		"idToken": idToken, "authorizationCode": providertest.AppleCode(subject), "nonce": flowNonce, "clientType": "native",
+		"idToken": idToken, "authorizationCode": providertest.AppleCode(subject), "nonce": flowNonce,
 	})
 }
 

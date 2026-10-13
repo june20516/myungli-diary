@@ -163,28 +163,17 @@ func TestLoginKakao_ProviderInvalidIs401WithoutChallenge(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-func TestLoginApple_PassesClientType(t *testing.T) {
-	tests := []struct {
-		clientType string
-		want       provider.AppleClient
-	}{
-		{"native", provider.AppleNative},
-		{"web", provider.AppleWeb},
-	}
-	for _, tt := range tests {
-		t.Run(tt.clientType, func(t *testing.T) {
-			fa := &fakeAuth{login: auth.LoginResult{AccountID: testAccountID, Tokens: testTokenPair(), RestoredFromDeletion: true}}
-			handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa, Accounts: &fakeAccounts{}})
+// TestLoginApple_UsesNativeClient는 loginApple이 iOS 전용이라 항상 앱 client로 검증을 맡기는지 확인합니다.
+func TestLoginApple_UsesNativeClient(t *testing.T) {
+	fa := &fakeAuth{login: auth.LoginResult{AccountID: testAccountID, Tokens: testTokenPair(), RestoredFromDeletion: true}}
+	handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa, Accounts: &fakeAccounts{}})
 
-			req := postJSON(t, "/v1/auth/apple",
-				`{"idToken":"id","authorizationCode":"code","nonce":"0123456789abcdef","clientType":"`+tt.clientType+`"}`)
-			rec := serve(handler, req)
+	req := postJSON(t, "/v1/auth/apple", `{"idToken":"id","authorizationCode":"code","nonce":"0123456789abcdef"}`)
+	rec := serve(handler, req)
 
-			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
-			expectContractResponse(t, spec, req, rec)
-			assert.Equal(t, tt.want, fa.gotClient)
-		})
-	}
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
+	assert.Equal(t, provider.AppleNative, fa.gotClient)
 }
 
 func TestRefreshToken_ReturnsTokenPair(t *testing.T) {

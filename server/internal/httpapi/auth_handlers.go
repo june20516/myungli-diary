@@ -49,13 +49,9 @@ func (a *API) LoginKakao(ctx context.Context, req gen.LoginKakaoRequestObject) (
 }
 
 // LoginApple은 Apple id_token과 authorization code를 검증하고 자체 토큰을 발급합니다.
-// clientType이 Apple client_id(앱 BundleID 또는 웹 ServicesID)를 정합니다.
+// 이 operation은 iOS 전용이므로 Apple client_id는 앱 BundleID(provider.AppleNative)로 고정합니다.
 func (a *API) LoginApple(ctx context.Context, req gen.LoginAppleRequestObject) (gen.LoginAppleResponseObject, error) {
-	client := provider.AppleNative
-	if req.Body.ClientType == gen.Web {
-		client = provider.AppleWeb
-	}
-	res, err := a.Auth.LoginApple(ctx, req.Body.IdToken, req.Body.AuthorizationCode, req.Body.Nonce, client)
+	res, err := a.Auth.LoginApple(ctx, req.Body.IdToken, req.Body.AuthorizationCode, req.Body.Nonce, provider.AppleNative)
 	if err != nil {
 		return nil, err
 	}
