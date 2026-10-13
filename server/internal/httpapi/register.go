@@ -39,17 +39,6 @@ func (v validatingMux) HandleFunc(pattern string, handler func(http.ResponseWrit
 
 func (v validatingMux) ServeHTTP(w http.ResponseWriter, r *http.Request) { v.mux.ServeHTTP(w, r) }
 
-// writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
-// ErrNotImplemented는 501, 그 밖은 로그를 남기고 500입니다.
-func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
-	if errors.Is(err, ErrNotImplemented) {
-		problem.Write(w, r, problem.New(http.StatusNotImplemented, "not_implemented", "Not implemented"))
-		return
-	}
-	deps.Logger.ErrorContext(r.Context(), "핸들러 오류", "error", err)
-	problem.Write(w, r, problem.New(http.StatusInternalServerError, "internal", "Internal server error"))
-}
-
 // writeParameterError는 생성 코드가 parameter를 Go 타입으로 바꾸지 못한 경우를 400 request.invalid로 씁니다.
 // 날짜 형식은 검증 단계가 먼저 format 위반으로 잡으므로, 이 경로는 검증을 통과한 값이 생성 타입으로
 // 바뀌지 않는 예외 상황에서만 닿습니다.
