@@ -9,6 +9,7 @@ import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 
 class _FixedEntry extends EntryController {
@@ -212,6 +213,29 @@ void main() {
       expect(find.byKey(const Key('legal')), findsOneWidget);
     });
 
+    testWidgets('IA에 없는 경로는 갈래의 첫 화면으로 보냅니다', (tester) async {
+      final router = await pumpRouter(
+        tester,
+        EntryState.ready,
+        initial: '/auth/apple',
+      );
+      expect(currentPath(router), '/today');
+      expect(find.byKey(const Key('today')), findsOneWidget);
+
+      router.go('/no-such-screen');
+      await tester.pumpAndSettle();
+      expect(currentPath(router), '/today');
+    });
+
+    testWidgets('로그아웃 상태에서 IA에 없는 경로는 /welcome', (tester) async {
+      final router = await pumpRouter(
+        tester,
+        EntryState.signedOut,
+        initial: '/no-such-screen',
+      );
+      expect(currentPath(router), '/welcome');
+    });
+
     testWidgets('탭 4개를 오갈 수 있습니다', (tester) async {
       final semantics = tester.ensureSemantics();
       final router = await pumpRouter(tester, EntryState.ready);
@@ -227,10 +251,16 @@ void main() {
         await tester.pumpAndSettle();
         expect(currentPath(router), '/$tab');
         expect(find.byKey(Key(tab)), findsOneWidget);
-        // 탭 바의 탭은 화면 이름(ko)으로 읽힙니다.
+        // 탭 바의 탭은 화면 이름(ko)으로 읽힙니다. 화면 본문의 같은 글자와 섞이지
+        // 않게 탭 바 안에서만 찾습니다.
         expect(
-          find.bySemanticsLabel(RegExp(['오늘', '달력', '일기', '나'][index])),
-          findsWidgets,
+          find.descendant(
+            of: find.byType(TabBarRow),
+            matching: find.bySemanticsLabel(
+              RegExp(['오늘', '달력', '일기', '나'][index]),
+            ),
+          ),
+          findsOneWidget,
         );
       }
       semantics.dispose();

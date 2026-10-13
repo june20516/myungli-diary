@@ -66,6 +66,13 @@ String? entryRedirect({required EntryState? entry, required String path}) {
   };
 }
 
+/// IA에 없는 경로(예 App Link `/auth/apple`)가 들어왔을 때 보낼 곳.
+///
+/// 계산 전이면 launch, 아니면 갈래의 첫 화면입니다. `/auth/apple` 복귀는 계획 7에서
+/// 전용 처리로 이 경로보다 먼저 가로챕니다.
+String unknownPathTarget(EntryState? entry) =>
+    entry == null ? pathOf(ScreenIds.launch) : _homeOf(entry);
+
 /// 탭 루트는 셸이 [SheetScreenBelow]로 감싸므로, 그 밖의 화면만 [wrap]으로 감쌉니다.
 GoRoute _routeOf(String id, {bool wrap = false}) => GoRoute(
   name: id,
@@ -94,6 +101,9 @@ GoRouter buildRouter(Ref ref) {
     refreshListenable: refresh,
     redirect: (context, state) =>
         entryRedirect(entry: ref.read(entryProvider), path: state.uri.path),
+    // 기본 오류 페이지 대신 갈래의 첫 화면으로 보냅니다.
+    onException: (context, state, router) =>
+        router.go(unknownPathTarget(ref.read(entryProvider))),
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
