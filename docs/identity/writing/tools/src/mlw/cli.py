@@ -16,6 +16,7 @@ from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
+from mlw.ia import check_ia, load_ia
 from mlw.loader import UI_GROUP, load_content, load_rules, load_slots
 from mlw.model import LANGS, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
@@ -228,11 +229,13 @@ def _check(args: argparse.Namespace) -> int:
     message_keys = _read_message_keys(args.message_keys)
     message_params = _read_message_params(args.message_params)
     fixture = _read_fixture(args.fixture)
+    ia = load_ia(args.ia)
 
     completeness = check_completeness(slots, entries, message_keys, LANGS, message_params)
     if args.partial:
         completeness = [finding for finding in completeness if finding.rule_id != RULE_MISSING]
     findings = [
+        *check_ia(all_slots, ia),
         *completeness,
         *_sentence_findings(slots, entries, rules),
         *check_days(slots, entries, rules.limits.values(), LANGS, rules),
@@ -278,6 +281,9 @@ def _build_parser() -> argparse.ArgumentParser:
         command.add_argument("--rules-dir", type=Path, default=paths.RULES_DIR, help="규칙 디렉터리")
         command.add_argument("--slots-dir", type=Path, default=paths.SLOTS_DIR, help="슬롯 명세 디렉터리")
 
+    def add_ia(command: argparse.ArgumentParser) -> None:
+        command.add_argument("--ia", type=Path, default=paths.IA_FILE, help="IA 계약 파일(screens.json)")
+
     check = commands.add_parser("check", help="원고를 검사합니다")
     check.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
     check.add_argument("--partial", action="store_true", help="없는 원고(complete.missing)를 보고하지 않습니다")
@@ -287,6 +293,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     check.add_argument("--fixture", type=Path, default=paths.FIXTURE_FILE, help="한 주 검사 고정 자료")
     add_dirs(check)
+    add_ia(check)
     check.set_defaults(handler=_check)
 
     check_arb_command = commands.add_parser("check-arb", help="ARB 파일을 검사합니다")
@@ -298,6 +305,7 @@ def _build_parser() -> argparse.ArgumentParser:
     gen_docs.add_argument("--check", action="store_true", help="쓰지 않고 오래된 문서가 있으면 종료 코드 1입니다")
     gen_docs.add_argument("--out-dir", type=Path, default=paths.GENERATED_DIR, help="생성 문서 디렉터리")
     add_dirs(gen_docs)
+    add_ia(gen_docs)
     gen_docs.set_defaults(handler=_gen_docs)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")

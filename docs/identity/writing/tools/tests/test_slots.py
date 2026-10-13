@@ -352,3 +352,8 @@ def test_vocative_must_be_bool(tmp_path: Path, rules: RuleSet) -> None:
     with pytest.raises(LoadError) as error:
         load_slots(make_slots_dir(tmp_path, V11_SLOT.replace("vocative: true", 'vocative: "yes"')), rules)
     assert "'vocative'" in str(error.value)
+
+
+def test_empty_keys_slot_loads(tmp_path: Path, rules: RuleSet) -> None:
+    yaml_text = VALID_SLOT.split("  keys:")[0] + "  keys: []\n  examples: {good: [], bad: []}\n"
+    assert load_slots(make_slots_dir(tmp_path, yaml_text), rules)["test.slot"].keys == {}
