@@ -7,8 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from mlw.cli import longest_by_category, longest_values_for, main
-from mlw.model import Entry, ParamKind
+from mlw.cli import longest_by_category, longest_values_for, main, sentence_findings
+from mlw.loader import load_rules
+from mlw.model import Entry, ParamKind, Slot
 from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
 
 FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
@@ -282,3 +283,58 @@ def test_cli_check_warns_length_unknown(tmp_path: Path, capsys: pytest.CaptureFi
     out = capsys.readouterr().out
     assert "complete.unrenderable_param error" in out
     assert "style.length_unknown warn" in out
+
+
+def test_cli_check_includes_ui_manuscripts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "ui.yaml").write_text(
+        '- {slot: ui.depth.surface, key: depthSurface, text: "[[요약]]"}\n', encoding="utf-8"
+    )
+    main(["check", str(tmp_path / "content"), "--partial"])
+    assert "ui.markup" in capsys.readouterr().out
+
+
+def test_vocative_sentence_findings_are_not_duplicated() -> None:
+    slot = Slot(
+        id="s.slot",
+        where="시험",
+        purpose="info",
+        types=(),
+        variants=1,
+        keys={"k": {}},
+        co_display=(),
+        max_length={"ko": None, "en": None, "ja": None},
+        allowed=frozenset(),
+        forbidden=frozenset(),
+        examples={},
+        line=1,
+        file=Path("slots/content/test.yaml"),
+        vocative=True,
+    )
+    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "{name}님, 오늘은 맑습니다.")
+    findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
+    assert [finding.rule_id for finding in findings].count("style.S3") == 1
+
+
+def test_vocative_stripped_text_is_checked_for_length() -> None:
+    slot = Slot(
+        id="s.slot",
+        where="시험",
+        purpose="info",
+        types=(),
+        variants=1,
+        keys={"k": {}},
+        co_display=(),
+        max_length={"ko": 5, "en": None, "ja": None},
+        allowed=frozenset(),
+        forbidden=frozenset(),
+        examples={},
+        line=1,
+        file=Path("slots/content/test.yaml"),
+        vocative=True,
+    )
+    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "{name}님, 가나다라마바.")
+    findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
+    messages = [finding.message for finding in findings if finding.rule_id == "style.length"]
+    assert any("호칭 없이" in message for message in messages)
