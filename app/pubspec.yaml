@@ -100,3 +100,10 @@ flutter:
     - assets/fonts/pretendard/NOTICE.txt
     - assets/fonts/pretendard_jp/OFL.txt
     - assets/fonts/pretendard_jp/NOTICE.txt
+    # 대역 서버 fixture(디렉터리는 하위를 싣지 않으므로 시나리오마다 적습니다).
+    - fixtures/
+    - fixtures/new-user/
+    - fixtures/member/
+    - fixtures/consent-required/
+    - fixtures/profile-required/
+    - fixtures/force-update/

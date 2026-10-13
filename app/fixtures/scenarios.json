@@ -1,0 +1,55 @@
+[
+  {
+    "id": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 토큰이 없고 앱 설정만 받을 수 있습니다."
+  },
+  {
+    "id": "member",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 약관에 동의했고 프로필이 있습니다."
+  },
+  {
+    "id": "consent-required",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인했지만 약관 동의가 필요합니다."
+  },
+  {
+    "id": "profile-required",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "약관에 동의했지만 프로필이 없습니다."
+  },
+  {
+    "id": "force-update",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "최소 앱 버전이 99.0.0이라 업데이트가 필요합니다."
+  },
+  {
+    "id": "offline",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "offline",
+    "signedIn": true,
+    "description": "네트워크에 연결할 수 없습니다."
+  }
+]

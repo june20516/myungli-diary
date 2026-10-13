@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "body": {
+    "accessToken": "fake-access-token",
+    "accessTokenExpiresAt": "2026-10-13T01:00:00Z",
+    "refreshToken": "fake-refresh-token",
+    "refreshTokenExpiresAt": "2026-11-12T00:00:00Z"
+  }
+}
