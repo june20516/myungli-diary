@@ -50,6 +50,7 @@ dependencies:
   pub_semver: ^2.2.1
   timezone: ^0.11.2
 dev_dependencies:
+  analyzer: ^14.5.0
   build_runner: ^2.16.2
   copy_with_extension_gen: ^18.0.0
   drift_dev: ^2.35.1
@@ -57,9 +58,20 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   json_serializable: ^6.14.1
+  patrol: ^4.10.0
   riverpod_lint: ^3.1.9
   very_good_analysis: ^11.0.0
   yaml: ^3.1.4
+
+# Patrol E2E(결정 A13). 테스트는 patrol_test/ 아래에 둡니다.
+patrol:
+  app_name: 명리일기
+  android:
+    package_name: app.myungli.diary
+  ios:
+    bundle_id: app.myungli.diary
+  # 실패한 화면을 Android에서 자동 캡처합니다.
+  screenshot_on_failure: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

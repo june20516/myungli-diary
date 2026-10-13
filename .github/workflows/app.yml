@@ -24,6 +24,9 @@ on:
       - "docs/identity/design/components/**"
       - "docs/identity/writing/slots/**"
       - "docs/identity/writing/tools/**"
+  # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
+  schedule:
+    - cron: "0 18 * * *"
   workflow_call:
   workflow_dispatch:
     inputs:
@@ -87,6 +90,9 @@ jobs:
             python -I tool/validate_fixtures.py'
       - name: 정적 분석
         run: flutter analyze
+      # 흐름 테스트·E2E의 Covers 선언을 IA와 대조하고, 커버리지가 baseline보다 줄면 실패한다.
+      - name: E2E 커버리지 ratchet
+        run: dart run tool/ia_coverage.dart --check
       - name: Widgetbook 정적 분석
         working-directory: app/widgetbook
         run: |
@@ -97,6 +103,61 @@ jobs:
         run: flutter test --exclude-tags golden
       - name: Android 디버그 빌드
         run: flutter build apk --debug
+
+  # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
+  e2e-android:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - name: 의존성 받기
+        run: flutter pub get
+      - name: patrol_cli 설치
+        run: dart pub global activate patrol_cli 4.8.0
+      # 에뮬레이터 가속(KVM)을 켠다.
+      - name: KVM 켜기
+        working-directory: .
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Patrol E2E (fake 모드)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          working-directory: app
+          script: patrol test -t patrol_test --dart-define=API_MODE=fake --screenshots-output-dir build/e2e-native-screenshots
+        env:
+          PATROL_ANALYTICS_ENABLED: "false"
+      # Patrol 파일 이름(<타임스탬프>_<태그>.png)을 <화면>__<상태|default>.png로 모은다.
+      - name: 스크린샷 모으기
+        if: always()
+        continue-on-error: true
+        run: tool/collect_e2e_screenshots.sh build/e2e-native-screenshots build/e2e-screenshots
+      - name: 스크린샷 올리기
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: app/build/e2e-screenshots/**
+          if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.
   # checks와 같은 트리거·경로로 돈다(workflow 수준 on).

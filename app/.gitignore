@@ -50,3 +50,7 @@ app.*.map.json
 
 # 저장소 루트의 .vscode/ 무시를 이 디렉터리에서는 풉니다(공용 설정 공유).
 !.vscode/
+
+# Patrol이 가져온 네이티브 스크린샷(임시)
+/patrol_test/screenshots/
+/patrol_test/test_bundle.dart
