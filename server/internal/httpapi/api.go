@@ -9,7 +9,6 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
-	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
@@ -20,7 +19,7 @@ const healthPingTimeout = time.Second
 // AuthService는 핸들러가 쓰는 인증 서비스입니다. *auth.Service가 만족합니다.
 type AuthService interface {
 	LoginKakao(ctx context.Context, idToken, rawNonce string) (auth.LoginResult, error)
-	LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string, client provider.AppleClient) (auth.LoginResult, error)
+	LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string) (auth.LoginResult, error)
 	Refresh(ctx context.Context, rawRefresh string) (auth.TokenPair, error)
 	Logout(ctx context.Context, accountID uuid.UUID, rawRefresh string) error
 }

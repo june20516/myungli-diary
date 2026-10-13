@@ -5,7 +5,6 @@ import (
 	"net/url"
 
 	"github.com/june20516/myungli-diary/server/internal/auth"
-	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
@@ -49,9 +48,9 @@ func (a *API) LoginKakao(ctx context.Context, req gen.LoginKakaoRequestObject) (
 }
 
 // LoginApple은 Apple id_token과 authorization code를 검증하고 자체 토큰을 발급합니다.
-// 이 operation은 iOS 전용이므로 Apple client_id는 앱 BundleID(provider.AppleNative)로 고정합니다.
+// 이 operation은 iOS 전용이며, 서비스의 LoginApple이 Apple client_id를 앱 BundleID로 고정합니다.
 func (a *API) LoginApple(ctx context.Context, req gen.LoginAppleRequestObject) (gen.LoginAppleResponseObject, error) {
-	res, err := a.Auth.LoginApple(ctx, req.Body.IdToken, req.Body.AuthorizationCode, req.Body.Nonce, provider.AppleNative)
+	res, err := a.Auth.LoginApple(ctx, req.Body.IdToken, req.Body.AuthorizationCode, req.Body.Nonce)
 	if err != nil {
 		return nil, err
 	}

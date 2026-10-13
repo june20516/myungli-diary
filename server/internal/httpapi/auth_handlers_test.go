@@ -21,7 +21,6 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
-	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
@@ -33,20 +32,18 @@ var handlerNow = time.Date(2026, 10, 13, 9, 0, 0, 0, time.UTC)
 
 // fakeAuth는 AuthService 대역입니다. 받은 인자를 기록하고 정해 둔 결과를 돌려줍니다.
 type fakeAuth struct {
-	login     auth.LoginResult
-	pair      auth.TokenPair
-	err       error
-	gotClient provider.AppleClient
-	gotAcct   uuid.UUID
-	gotRaw    string
+	login   auth.LoginResult
+	pair    auth.TokenPair
+	err     error
+	gotAcct uuid.UUID
+	gotRaw  string
 }
 
 func (f *fakeAuth) LoginKakao(context.Context, string, string) (auth.LoginResult, error) {
 	return f.login, f.err
 }
 
-func (f *fakeAuth) LoginApple(_ context.Context, _, _, _ string, client provider.AppleClient) (auth.LoginResult, error) {
-	f.gotClient = client
+func (f *fakeAuth) LoginApple(context.Context, string, string, string) (auth.LoginResult, error) {
 	return f.login, f.err
 }
 
@@ -163,8 +160,8 @@ func TestLoginKakao_ProviderInvalidIs401WithoutChallenge(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-// TestLoginApple_UsesNativeClient는 loginApple이 iOS 전용이라 항상 앱 client로 검증을 맡기는지 확인합니다.
-func TestLoginApple_UsesNativeClient(t *testing.T) {
+// TestLoginApple_ReturnsLogin은 loginApple이 서비스의 로그인 결과를 계약 응답으로 돌려주는지 확인합니다.
+func TestLoginApple_ReturnsLogin(t *testing.T) {
 	fa := &fakeAuth{login: auth.LoginResult{AccountID: testAccountID, Tokens: testTokenPair(), RestoredFromDeletion: true}}
 	handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa, Accounts: &fakeAccounts{}})
 
@@ -173,7 +170,6 @@ func TestLoginApple_UsesNativeClient(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectContractResponse(t, spec, req, rec)
-	assert.Equal(t, provider.AppleNative, fa.gotClient)
 }
 
 func TestRefreshToken_ReturnsTokenPair(t *testing.T) {

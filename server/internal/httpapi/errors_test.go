@@ -76,6 +76,7 @@ func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
 		{name: "제공자 장애", err: fmt.Errorf("x: %w", auth.ErrProviderUnavailable), wantStatus: http.StatusServiceUnavailable, wantCode: "auth.provider_unavailable"},
 		{name: "refresh 무효", err: fmt.Errorf("x: %w", auth.ErrRefreshInvalid), wantStatus: http.StatusUnauthorized, wantCode: "auth.token_invalid"},
 		{name: "refresh 재사용", err: fmt.Errorf("x: %w", auth.ErrRefreshReused), wantStatus: http.StatusUnauthorized, wantCode: "auth.refresh_reused"},
+		{name: "교환 코드 무효", err: fmt.Errorf("x: %w", auth.ErrExchangeInvalid), wantStatus: http.StatusUnauthorized, wantCode: "auth.exchange_invalid"},
 		{name: "계정 없음", err: fmt.Errorf("x: %w", account.ErrNotFound), wantStatus: http.StatusUnauthorized, wantCode: "auth.token_invalid", wantBearer: true},
 	}
 	for _, tt := range tests {

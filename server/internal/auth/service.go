@@ -3,6 +3,8 @@
 // 흐름은 다음과 같습니다.
 //   - 로그인: 제공자 토큰을 검증하고 (provider, subject)로 계정을 찾거나 만듭니다.
 //     삭제 대기 계정이면 되살리고 그 계정의 이전 세션(refresh token)을 모두 폐기합니다. 로그인마다 새 refresh family를 만들고 토큰 쌍을 발급합니다.
+//   - Apple 웹 로그인(Android): 콜백에서 제공자 검증·code 교환을 마치고 결과를 잠시 저장한 뒤 일회용 교환 코드를 주고(BeginAppleWebLogin),
+//     앱이 교환 코드와 nonce 원문을 보내면 위 로그인과 같은 단계로 마칩니다(CompleteAppleWebLogin).
 //   - 갱신: refresh token을 쓸 때마다 같은 family 안에서 새 토큰으로 바꿉니다(rotation).
 //     이미 쓴 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다. 단, 첫 사용 뒤 RefreshReuseGrace 안이고
 //     그 다음 토큰이 아직 쓰이지 않았으면 응답 유실 재시도로 보고 새 토큰을 발급합니다(server 결정 S20).
@@ -153,10 +155,11 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerKakao, "verify")
 	}
-	return s.login(ctx, providerKakao, identity.Subject, nil)
+	return s.login(ctx, providerKakao, fixedTarget(identity.Subject, nil))
 }
 
-// LoginApple은 Apple id_token과 authorization code로 로그인합니다.
+// LoginApple은 iOS 앱이 받은 Apple id_token과 authorization code로 로그인합니다.
+// Apple client_id는 앱 BundleID(provider.AppleNative)로 고정합니다. Android의 웹 로그인은 BeginAppleWebLogin·CompleteAppleWebLogin입니다.
 // id_token을 검증한 뒤 code를 교환해 Apple refresh token을 받습니다. 교환 응답의 id_token sub가 로그인 id_token의
 // sub와 다르면 ErrProviderTokenInvalid입니다. 교환에 실패하면 로그인도 실패하며 DB에 아무것도 남기지 않습니다.
 // 받은 refresh token은 암호화해 저장하고, 이미 있는 연결이면 새 값으로 바꿉니다.
@@ -166,17 +169,17 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 // 연결 행이 있으면(기존 사용자의 일시 오류, 동시 첫 로그인에서 먼저 commit된 연결, 익명화된 계정 등) revoke하지 않습니다.
 // Apple의 revoke는 그 사용자의 앱 승인 전체를 끊어 저장된 연결까지 무효로 만들기 때문입니다.
 // 연결 행 조회나 revoke가 실패해도 원래 로그인 오류를 그대로 돌려줍니다(revokeUnsavedAppleGrant).
-func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string, client provider.AppleClient) (LoginResult, error) {
-	identity, err := s.apple.Verify(ctx, idToken, rawNonce, client)
+func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string) (LoginResult, error) {
+	identity, err := s.apple.Verify(ctx, idToken, rawNonce, provider.AppleNative)
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "verify")
 	}
-	refreshToken, clientID, err := s.apple.ExchangeCode(ctx, authorizationCode, client, identity.Subject)
+	refreshToken, clientID, err := s.apple.ExchangeCode(ctx, authorizationCode, provider.AppleNative, identity.Subject)
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "exchange_code")
 	}
 	grant := &appleGrant{refreshToken: refreshToken, clientID: clientID}
-	result, err := s.login(ctx, providerApple, identity.Subject, grant)
+	result, err := s.login(ctx, providerApple, fixedTarget(identity.Subject, grant))
 	if err != nil {
 		s.revokeUnsavedAppleGrant(ctx, identity.Subject, grant)
 		return LoginResult{}, err
@@ -226,13 +229,31 @@ func (s *Service) providerError(ctx context.Context, err error, providerName, st
 	}
 }
 
+// loginTarget은 로그인 트랜잭션이 찾거나 만들 연결입니다. apple은 Apple 로그인일 때만 있습니다.
+type loginTarget struct {
+	subject string
+	apple   *appleGrant
+}
+
+// prepareLogin은 로그인 트랜잭션 첫머리에서 같은 트랜잭션(q)으로 실행해 로그인할 연결을 정합니다.
+// 오류를 돌려주면 트랜잭션 전체가 rollback되므로, 여기서 바꾼 행(예: 교환 코드 소진)도 함께 되돌아갑니다.
+// 트랜잭션이 다시 실행될 수 있으므로 여러 번 불려도 결과가 같아야 합니다.
+type prepareLogin func(ctx context.Context, q *authdb.Queries, now time.Time) (loginTarget, error)
+
+// fixedTarget은 트랜잭션 전에 이미 정해진 연결로 로그인하는 prepareLogin입니다(카카오·iOS Apple).
+func fixedTarget(subject string, apple *appleGrant) prepareLogin {
+	return func(context.Context, *authdb.Queries, time.Time) (loginTarget, error) {
+		return loginTarget{subject: subject, apple: apple}, nil
+	}
+}
+
 // login은 로그인 트랜잭션을 실행합니다.
 // 같은 (provider, subject)의 첫 로그인이 동시에 오면 한쪽이 identity insert에서 unique 위반을 받습니다.
-// 그때는 트랜잭션을 처음부터 한 번 다시 실행해, 먼저 commit된 identity와 계정을 씁니다.
-func (s *Service) login(ctx context.Context, providerName, subject string, apple *appleGrant) (LoginResult, error) {
-	result, err := s.loginOnce(ctx, providerName, subject, apple)
+// 그때는 트랜잭션을 처음부터(prepare 포함) 한 번 다시 실행해, 먼저 commit된 identity와 계정을 씁니다.
+func (s *Service) login(ctx context.Context, providerName string, prepare prepareLogin) (LoginResult, error) {
+	result, err := s.loginOnce(ctx, providerName, prepare)
 	if isIdentityConflict(err) {
-		result, err = s.loginOnce(ctx, providerName, subject, apple)
+		result, err = s.loginOnce(ctx, providerName, prepare)
 	}
 	if err != nil {
 		return LoginResult{}, fmt.Errorf("%s 로그인: %w", providerName, err)
@@ -240,8 +261,8 @@ func (s *Service) login(ctx context.Context, providerName, subject string, apple
 	return result, nil
 }
 
-// loginOnce는 로그인 트랜잭션 한 번입니다.
-func (s *Service) loginOnce(ctx context.Context, providerName, subject string, apple *appleGrant) (LoginResult, error) {
+// loginOnce는 로그인 트랜잭션 한 번입니다. prepare로 연결을 정한 뒤 계정을 찾거나 만들고 토큰을 발급합니다.
+func (s *Service) loginOnce(ctx context.Context, providerName string, prepare prepareLogin) (LoginResult, error) {
 	var result LoginResult
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		// InTx가 다시 실행할 수 있으므로 결과를 매번 새로 채웁니다.
@@ -249,7 +270,11 @@ func (s *Service) loginOnce(ctx context.Context, providerName, subject string, a
 		q := authdb.New(tx)
 		now := s.clock.Now()
 
-		accountID, isNew, restored, err := s.findOrCreateAccount(ctx, q, now, providerName, subject, apple)
+		target, err := prepare(ctx, q, now)
+		if err != nil {
+			return err
+		}
+		accountID, isNew, restored, err := s.findOrCreateAccount(ctx, q, now, providerName, target.subject, target.apple)
 		if err != nil {
 			return err
 		}
