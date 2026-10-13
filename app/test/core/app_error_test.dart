@@ -102,6 +102,16 @@ void main() {
       }
     });
 
+    test('application/problem+json-seq는 problem이 아니다', () {
+      final error = appErrorFrom(
+        _badResponse(400, {
+          'status': 400,
+          'code': 'request.invalid',
+        }, contentType: 'application/problem+json-seq'),
+      );
+      expect(error, isA<UnexpectedError>());
+    });
+
     test('JSON 텍스트(String) 본문도 파싱', () {
       final error = appErrorFrom(
         _badResponse(

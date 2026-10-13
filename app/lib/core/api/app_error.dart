@@ -91,11 +91,13 @@ ProblemError? _parseProblem(Response<Object?>? response) {
   if (response == null) {
     return null;
   }
-  final contentType = response.headers
+  final mediaType = response.headers
       .value(Headers.contentTypeHeader)
-      ?.trim()
+      ?.split(';')
+      .first
+      .trim()
       .toLowerCase();
-  if (contentType == null || !contentType.startsWith(_problemContentType)) {
+  if (mediaType != _problemContentType) {
     return null;
   }
   final body = _decodeBody(response.data);
