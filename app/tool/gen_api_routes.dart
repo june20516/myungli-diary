@@ -10,8 +10,12 @@ const _outputPath = 'lib/core/api/gen_routes/routes.g.dart';
 const _httpMethods = ['get', 'put', 'post', 'delete', 'patch'];
 
 /// operation의 실효 security(operation 것이 있으면 그것, 없으면 전역)가
-/// bearerAuth를 요구하는지.
-bool _requiresBearer(Map<String, Object?> operation, Object? globalSecurity) {
+/// [scheme] 보안 스키마를 요구하는지.
+bool _requiresScheme(
+  Map<String, Object?> operation,
+  Object? globalSecurity,
+  String scheme,
+) {
   final security = operation.containsKey('security')
       ? operation['security']
       : globalSecurity;
@@ -20,8 +24,7 @@ bool _requiresBearer(Map<String, Object?> operation, Object? globalSecurity) {
   }
   return security.any(
     (requirement) =>
-        requirement is Map<String, Object?> &&
-        requirement.containsKey('bearerAuth'),
+        requirement is Map<String, Object?> && requirement.containsKey(scheme),
   );
 }
 
@@ -48,10 +51,13 @@ String generateApiRoutesSource(Map<String, Object?> spec) {
           '${method.toUpperCase()} ${pathEntry.key}에 operationId가 없습니다.',
         );
       }
-      final bearer = _requiresBearer(operation, spec['security']);
+      final global = spec['security'];
+      final bearer = _requiresScheme(operation, global, 'bearerAuth');
+      final appCheck = _requiresScheme(operation, global, 'appCheck');
       out.writeln(
         "ApiRoute('${method.toUpperCase()}', '${pathEntry.key}', "
-        "'$operationId'${bearer ? '' : ', requiresBearer: false'}),",
+        "'$operationId'${bearer ? '' : ', requiresBearer: false'}"
+        "${appCheck ? ', requiresAppCheck: true' : ''}),",
       );
     }
   }

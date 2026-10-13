@@ -61,7 +61,13 @@ void main() {
       final source = generateApiRoutesSource(spec);
       expect(source, contains("ApiRoute('GET', '/a', 'inherits')"));
       expect(source, contains("'open', requiresBearer: false"));
-      expect(source, contains("'appCheckOnly', requiresBearer: false"));
+      expect(
+        source,
+        contains(
+          "'appCheckOnly', requiresBearer: false, requiresAppCheck: true",
+        ),
+      );
+      expect(source, isNot(contains("'inherits', requiresAppCheck")));
     });
 
     test('operationId가 없으면 실패한다', () {
@@ -95,6 +101,16 @@ void main() {
       ]) {
         expect(bearerOf(id), isFalse, reason: id);
       }
+    });
+
+    test('requiresAppCheck가 계약 security의 appCheck와 맞는다', () {
+      expect(
+        {
+          for (final route in apiRoutes)
+            if (route.requiresAppCheck) route.operationId,
+        },
+        {'createPreview', 'getBirthHour'},
+      );
     });
 
     test('커밋된 routes.g.dart가 다시 생성한 결과와 정확히 같다', () async {

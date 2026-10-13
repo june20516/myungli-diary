@@ -9,13 +9,11 @@ abstract interface class AppCheckTokenSource {
   Future<String> token();
 }
 
-/// App Check가 필요한 operationId(계약 보안 스키마 `appCheck`).
-const _appCheckOperations = {'createPreview', 'getBirthHour'};
-
 /// 공통 헤더를 붙입니다.
 ///
 /// * `Accept-Language`: access token이 없는 요청에만(bearer 요청은 프로필 언어).
-/// * `X-Firebase-AppCheck`: `createPreview`·`getBirthHour`에만.
+/// * `X-Firebase-AppCheck`: 계약 `security`에 appCheck가 있는 operation에만
+///   (생성된 `ApiRoute.requiresAppCheck`).
 final class CommonHeadersInterceptor extends Interceptor {
   /// 헤더 interceptor를 만듭니다.
   new({required this.tokens, required this.appCheck, required this.locale});
@@ -39,7 +37,7 @@ final class CommonHeadersInterceptor extends Interceptor {
         options.headers['Accept-Language'] = locale().languageCode;
       }
       final route = matchRoute(options.method, routePathOf(options));
-      if (route != null && _appCheckOperations.contains(route.operationId)) {
+      if (route?.requiresAppCheck ?? false) {
         options.headers['X-Firebase-AppCheck'] = await appCheck.token();
       }
     } on Object catch (error, stackTrace) {

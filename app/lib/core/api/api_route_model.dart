@@ -1,6 +1,7 @@
 /// 계약의 operation 하나: HTTP method, 경로 템플릿, operationId.
 ///
-/// 대역 서버가 요청을 operationId로 가르는 데 씁니다. 표는 계약에서 생성합니다.
+/// 대역 서버가 요청을 operationId로 가르고, interceptor가 인증·App Check 헤더를
+/// 정하는 데 씁니다. 표는 계약에서 생성합니다.
 class ApiRoute {
   /// operation 하나를 만듭니다.
   const new(
@@ -8,6 +9,7 @@ class ApiRoute {
     this.pathTemplate,
     this.operationId, {
     this.requiresBearer = true,
+    this.requiresAppCheck = false,
   });
 
   /// 대문자 HTTP method. 예: `GET`.
@@ -21,6 +23,9 @@ class ApiRoute {
 
   /// 계약상 bearer 인증이 필요한지. `security: []`나 appCheck만이면 false입니다.
   final bool requiresBearer;
+
+  /// 계약상 App Check 토큰(`X-Firebase-AppCheck`)이 필요한지(`security`에 appCheck).
+  final bool requiresAppCheck;
 
   /// [path]가 이 템플릿과 맞으면 path 매개변수를, 아니면 null을 돌려줍니다.
   Map<String, String>? pathParametersOf(String path) {
