@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from mlw.completeness import check_completeness
+from mlw.completeness import check_completeness, check_params
 from mlw.glossary import glossary_values
 from mlw.model import Entry, Finding, ParamKind, Slot
 
@@ -182,6 +182,43 @@ def test_message_key_without_slot_reported() -> None:
     [finding] = findings
     assert finding.rule_id == "complete.unslotted_key"
     assert OTHER_KEY in finding.message
+
+
+def test_message_params_matching_spec_pass() -> None:
+    slot = make_slot(types=())
+    message_params = {KEY: ["branches", "element", "emphasis", "score"]}
+    assert check_params({slot.id: slot}, message_params) == []
+
+
+def test_message_params_only_in_core_reported() -> None:
+    slot = make_slot(types=())
+    message_params = {KEY: ["branches", "element", "emphasis", "score", "direction"]}
+    [finding] = check_params({slot.id: slot}, message_params)
+    assert finding.rule_id == "complete.param_mismatch"
+    assert finding.severity == "error"
+    assert (finding.file, finding.line) == (FILE, 3)
+    assert KEY in finding.message
+    assert "direction" in finding.message
+
+
+def test_message_params_only_in_spec_reported() -> None:
+    slot = make_slot(types=())
+    [finding] = check_params({slot.id: slot}, {KEY: ["element", "emphasis", "score"]})
+    assert finding.rule_id == "complete.param_mismatch"
+    assert "branches" in finding.message
+
+
+def test_message_params_skip_unslotted_keys() -> None:
+    slot = make_slot(types=())
+    assert check_params({slot.id: slot}, {OTHER_KEY: ["score"]}) == []
+
+
+def test_check_completeness_includes_param_mismatch() -> None:
+    slot = make_slot(types=())
+    findings = check_completeness(
+        {slot.id: slot}, [make_entry(type_=None)], (KEY,), LANGS, message_params={KEY: ["score"]}
+    )
+    assert rule_ids(findings) == ["complete.param_mismatch"]
 
 
 def test_malformed_placeholder_is_left_to_sentence_check() -> None:

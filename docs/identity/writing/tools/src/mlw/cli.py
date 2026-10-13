@@ -162,6 +162,15 @@ def _read_message_keys(path: Path) -> list[str]:
     return [str(key) for key in data]
 
 
+def _read_message_params(path: Path) -> dict[str, list[str]]:
+    data = _read_json(path)
+    if not isinstance(data, dict) or not all(
+        isinstance(params, list) and all(isinstance(param, str) for param in params) for params in data.values()
+    ):
+        raise _json_error(path, 1, "매개변수 파일은 키 → 문자열 목록인 객체여야 합니다")
+    return {str(key): [str(param) for param in params] for key, params in data.items()}
+
+
 def _fixture_problem(data: object) -> str | None:
     """고정 자료 구조가 `check_weeks`의 기대와 어긋나면 이유를, 맞으면 None을 돌려줍니다."""
     if not isinstance(data, dict):
@@ -217,9 +226,10 @@ def _check(args: argparse.Namespace) -> int:
     slots = {slot_id: slot for slot_id, slot in all_slots.items() if slot.file.parent.name != UI_GROUP}
     entries = load_content(args.content)
     message_keys = _read_message_keys(args.message_keys)
+    message_params = _read_message_params(args.message_params)
     fixture = _read_fixture(args.fixture)
 
-    completeness = check_completeness(slots, entries, message_keys, LANGS)
+    completeness = check_completeness(slots, entries, message_keys, LANGS, message_params)
     if args.partial:
         completeness = [finding for finding in completeness if finding.rule_id != RULE_MISSING]
     findings = [
@@ -272,6 +282,9 @@ def _build_parser() -> argparse.ArgumentParser:
     check.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
     check.add_argument("--partial", action="store_true", help="없는 원고(complete.missing)를 보고하지 않습니다")
     check.add_argument("--message-keys", type=Path, default=paths.MESSAGE_KEYS_FILE, help="메시지 키 파일")
+    check.add_argument(
+        "--message-params", type=Path, default=paths.MESSAGE_PARAMS_FILE, help="메시지 키별 매개변수 파일"
+    )
     check.add_argument("--fixture", type=Path, default=paths.FIXTURE_FILE, help="한 주 검사 고정 자료")
     add_dirs(check)
     check.set_defaults(handler=_check)
