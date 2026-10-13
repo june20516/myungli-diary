@@ -27,7 +27,13 @@ on:
   # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
   schedule:
     - cron: "0 18 * * *"
+  # ci-gate가 부르면 e2e-android는 돌지 않는다(판정에 넣지 않음). run_e2e로만 켤 수 있다.
   workflow_call:
+    inputs:
+      run_e2e:
+        description: "재사용 호출에서도 기기 E2E(e2e-android)를 돌린다"
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       update_goldens:
@@ -107,8 +113,14 @@ jobs:
         run: flutter build apk --debug
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
+  # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 main push 등)라
+  # 이벤트만으로는 거를 수 없다. 호출되면 github.workflow가 호출 측 이름이 되므로, 직접 실행
+  # (github.workflow == 'app')일 때만 이벤트로 켜고, 호출되면 run_e2e 입력으로만 켠다.
   e2e-android:
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: >-
+      (github.workflow == 'app' &&
+        (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'))
+      || (github.workflow != 'app' && inputs.run_e2e == true)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
@@ -166,7 +178,7 @@ jobs:
           if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.
-  # checks와 같은 트리거·경로로 돈다(workflow 수준 on).
+  # checks와 같은 조건으로 돈다: workflow 수준 on(경로 포함)을 따르되 밤 schedule 실행은 뺀다.
   goldens:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest

@@ -133,4 +133,4 @@ patrol test -t patrol_test --dart-define=API_MODE=fake
 | `update-goldens` | 수동(`update_goldens`) | golden을 Linux에서 다시 만들어 artifact로 올림 |
 | `e2e-android` | `main` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |
 
-`workflow_call`을 지원합니다. `ci-gate` 연결은 Issue #85에서 진행합니다.
+`workflow_call`을 지원합니다. 호출되면 `e2e-android`는 돌지 않아 호출 측 판정에 들어가지 않습니다(입력 `run_e2e: true`로만 켬). 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행 여부는 `github.workflow == 'app'`으로 가립니다. `ci-gate` 연결은 Issue #85에서 진행합니다.
