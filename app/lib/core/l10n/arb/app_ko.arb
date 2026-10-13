@@ -81,5 +81,67 @@
   "traceIdCopied": "문의 번호를 복사했어요.",
   "@traceIdCopied": {
     "description": "임시. 문의 번호를 길게 눌러 복사한 뒤의 토스트 문구"
+  },
+  "evidenceSheetSectionBasis": "판정 근거",
+  "@evidenceSheetSectionBasis": {
+    "description": "임시. 근거 시트 구역 제목: 판정 근거"
+  },
+  "evidenceSheetSectionSource": "원전",
+  "@evidenceSheetSectionSource": {
+    "description": "임시. 근거 시트 구역 제목: 원전"
+  },
+  "evidenceSheetSectionPersonal": "내 사주에서는",
+  "@evidenceSheetSectionPersonal": {
+    "description": "임시. 근거 시트 구역 제목: 내 사주에서는"
+  },
+  "evidenceSheetLockHead": "근거와 해석이 잠겨 있어요",
+  "@evidenceSheetLockHead": {
+    "description": "임시. 근거와 해석이 잠겨 있다는 안내"
+  },
+  "evidenceSheetLockReward": "광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열려요.",
+  "@evidenceSheetLockReward": {
+    "description": "임시. 보상 고지(광고 전 매번)"
+  },
+  "evidenceSheetLockCta": "광고 보고 열기",
+  "@evidenceSheetLockCta": {
+    "description": "임시. 광고 보고 열기 버튼"
+  },
+  "evidenceSheetLockPass": "광고 제거권이 있으면 바로 열려요 ›",
+  "@evidenceSheetLockPass": {
+    "description": "임시. 광고 제거권 안내와 링크"
+  },
+  "evidenceSheetLockUnavailable": "지금 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 와 주세요.",
+  "@evidenceSheetLockUnavailable": {
+    "description": "임시. 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)"
+  },
+  "evidenceSheetA11yLocked": "잠김",
+  "@evidenceSheetA11yLocked": {
+    "description": "임시. 접근성: 잠긴 구역 뒤에 붙는 '잠김'"
+  },
+  "evidenceSheetA11yChecking": "확인 중",
+  "@evidenceSheetA11yChecking": {
+    "description": "임시. 접근성: 잠금 해제를 확인하는 동안 버튼 상태"
+  },
+  "evidenceSheetA11yUnlocked": "근거와 해석이 열렸어요",
+  "@evidenceSheetA11yUnlocked": {
+    "description": "임시. 접근성: 근거와 해석이 열렸을 때 한 번 알림"
+  },
+  "sajuChartYongsinOpen": "열기",
+  "@sajuChartYongsinOpen": {
+    "description": "임시. 잠긴 용신 근거 줄의 '열기'"
+  },
+  "todayReactionLabel": "이 문장 좋아요",
+  "@todayReactionLabel": {
+    "description": "임시. 좋아요 반응 접근성 라벨"
+  },
+  "termTokenSemantics": "{term} 풀이 보기",
+  "@termTokenSemantics": {
+    "description": "임시. 용어 토큰의 스크린리더 라벨(IA 슬롯 없음)",
+    "placeholders": {
+      "term": {
+        "type": "String",
+        "example": "식신"
+      }
+    }
   }
 }

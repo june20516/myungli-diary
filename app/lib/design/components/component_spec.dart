@@ -9,6 +9,10 @@ import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/sentence/term_token.dart';
 
 /// 컴포넌트 하나가 따르는 명세 요약. 대조 테스트가 명세 JSON과 비교합니다.
 ///
@@ -40,4 +44,8 @@ const List<ComponentSpec> implementedComponents = [
   SkeletonBlock.spec,
   EmptyState.spec,
   ErrorState.spec,
+  SentenceBlock.spec,
+  TermToken.spec,
+  DepthLink.spec,
+  ReactionButton.spec,
 ];

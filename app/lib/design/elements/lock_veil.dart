@@ -15,7 +15,16 @@ class LockVeil extends StatelessWidget {
     required this.semanticLabel,
     this.lengthHint,
     super.key,
-  }) : assert(lengthHint == null || lengthHint > 0, 'lengthHint는 양수여야 합니다.');
+  }) : assert(lengthHint == null || lengthHint > 0, 'lengthHint는 양수여야 합니다.'),
+       _singleLine = false;
+
+  /// 제목 없이 흐린 한 줄만 그리는 모양(`sentence-block` `locked`, `lines: 1`).
+  ///
+  /// 스크린리더 라벨은 "잠김" 같은 [semanticLabel]만 읽습니다.
+  const new line({required this.semanticLabel, super.key})
+    : title = null,
+      lengthHint = null,
+      _singleLine = true;
 
   /// 흐린 본문을 찾는 테스트용 키.
   static const Key bodyKey = ValueKey('lock-veil-body');
@@ -26,8 +35,10 @@ class LockVeil extends StatelessWidget {
   // 트리에서도 빠지는 자리 채움 글이라 ARB를 거치지 않습니다(예외).
   static const String _filler = '가나다라마바사아자차카타파하고노도로모보소오조초코토포호';
 
-  /// 구역 제목(ARB 문구).
-  final String title;
+  /// 구역 제목(ARB 문구). [LockVeil.line]이면 없습니다.
+  final String? title;
+
+  final bool _singleLine;
 
   /// 스크린리더 라벨: 구역 제목 + "잠김"(ARB 문구). 흐린 본문은 읽지 않습니다.
   final String semanticLabel;
@@ -39,6 +50,7 @@ class LockVeil extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final hint = lengthHint;
+    final title = this.title;
     final placeholder = hint == null
         ? List.filled(20, _filler).join()
         : List.generate(hint, (i) => _filler[i % _filler.length]).join();
@@ -50,26 +62,28 @@ class LockVeil extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                PhosphorIconsRegular.lockSimple,
-                size: 14,
-                color: tokens.colors.textSecondary,
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  title,
-                  style: tokens.typography.labelMd.copyWith(
-                    color: tokens.colors.textSecondary,
+          if (title != null) ...[
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  PhosphorIconsRegular.lockSimple,
+                  size: 14,
+                  color: tokens.colors.textSecondary,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    title,
+                    style: tokens.typography.labelMd.copyWith(
+                      color: tokens.colors.textSecondary,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
+              ],
+            ),
+            const SizedBox(height: 6),
+          ],
           // 선택·복사를 막고 흐림과 투명도를 본문 자신에게만 겁니다.
           SelectionContainer.disabled(
             key: bodyKey,
@@ -83,8 +97,10 @@ class LockVeil extends StatelessWidget {
                 ),
                 child: Text(
                   placeholder,
-                  maxLines: hint == null ? 2 : null,
-                  overflow: hint == null ? TextOverflow.clip : null,
+                  maxLines: _singleLine ? 1 : (hint == null ? 2 : null),
+                  overflow: _singleLine || hint == null
+                      ? TextOverflow.clip
+                      : null,
                   style: tokens.typography.sentenceBody.copyWith(
                     color: tokens.colors.textPrimary,
                   ),

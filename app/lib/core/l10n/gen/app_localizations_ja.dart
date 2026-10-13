@@ -67,4 +67,49 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get traceIdCopied => 'お問い合わせ番号をコピーしました。';
+
+  @override
+  String get evidenceSheetSectionBasis => '判定の根拠';
+
+  @override
+  String get evidenceSheetSectionSource => '原典';
+
+  @override
+  String get evidenceSheetSectionPersonal => 'あなたの命式では';
+
+  @override
+  String get evidenceSheetLockHead => '根拠と解釈はロックされています';
+
+  @override
+  String get evidenceSheetLockReward => '広告を1本見ると、今日一日、根拠と解釈がすべて開きます。';
+
+  @override
+  String get evidenceSheetLockCta => '広告を見て開く';
+
+  @override
+  String get evidenceSheetLockPass => '広告削除パスがあればすぐに開きます ›';
+
+  @override
+  String get evidenceSheetLockUnavailable =>
+      '今は表示できる広告がありません。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get evidenceSheetA11yLocked => 'ロック中';
+
+  @override
+  String get evidenceSheetA11yChecking => '確認中';
+
+  @override
+  String get evidenceSheetA11yUnlocked => '根拠と解釈が開きました';
+
+  @override
+  String get sajuChartYongsinOpen => '開く';
+
+  @override
+  String get todayReactionLabel => 'この文に共感';
+
+  @override
+  String termTokenSemantics(String term) {
+    return '$termの解説を見る';
+  }
 }

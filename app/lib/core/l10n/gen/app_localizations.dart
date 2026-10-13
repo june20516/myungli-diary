@@ -213,6 +213,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'문의 번호를 복사했어요.'**
   String get traceIdCopied;
+
+  /// 임시. 근거 시트 구역 제목: 판정 근거
+  ///
+  /// In ko, this message translates to:
+  /// **'판정 근거'**
+  String get evidenceSheetSectionBasis;
+
+  /// 임시. 근거 시트 구역 제목: 원전
+  ///
+  /// In ko, this message translates to:
+  /// **'원전'**
+  String get evidenceSheetSectionSource;
+
+  /// 임시. 근거 시트 구역 제목: 내 사주에서는
+  ///
+  /// In ko, this message translates to:
+  /// **'내 사주에서는'**
+  String get evidenceSheetSectionPersonal;
+
+  /// 임시. 근거와 해석이 잠겨 있다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'근거와 해석이 잠겨 있어요'**
+  String get evidenceSheetLockHead;
+
+  /// 임시. 보상 고지(광고 전 매번)
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열려요.'**
+  String get evidenceSheetLockReward;
+
+  /// 임시. 광고 보고 열기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 보고 열기'**
+  String get evidenceSheetLockCta;
+
+  /// 임시. 광고 제거권 안내와 링크
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 제거권이 있으면 바로 열려요 ›'**
+  String get evidenceSheetLockPass;
+
+  /// 임시. 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 와 주세요.'**
+  String get evidenceSheetLockUnavailable;
+
+  /// 임시. 접근성: 잠긴 구역 뒤에 붙는 '잠김'
+  ///
+  /// In ko, this message translates to:
+  /// **'잠김'**
+  String get evidenceSheetA11yLocked;
+
+  /// 임시. 접근성: 잠금 해제를 확인하는 동안 버튼 상태
+  ///
+  /// In ko, this message translates to:
+  /// **'확인 중'**
+  String get evidenceSheetA11yChecking;
+
+  /// 임시. 접근성: 근거와 해석이 열렸을 때 한 번 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'근거와 해석이 열렸어요'**
+  String get evidenceSheetA11yUnlocked;
+
+  /// 임시. 잠긴 용신 근거 줄의 '열기'
+  ///
+  /// In ko, this message translates to:
+  /// **'열기'**
+  String get sajuChartYongsinOpen;
+
+  /// 임시. 좋아요 반응 접근성 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'이 문장 좋아요'**
+  String get todayReactionLabel;
+
+  /// 임시. 용어 토큰의 스크린리더 라벨(IA 슬롯 없음)
+  ///
+  /// In ko, this message translates to:
+  /// **'{term} 풀이 보기'**
+  String termTokenSemantics(String term);
 }
 
 class _AppLocalizationsDelegate

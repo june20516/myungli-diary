@@ -18,5 +18,27 @@
   "noticeOffline": "インターネットに接続されていないため、保存済みの内容を表示しています。",
   "emptyStateDefault": "まだ表示できる内容がありません。",
   "skeletonLabel": "読み込み中",
-  "traceIdCopied": "お問い合わせ番号をコピーしました。"
+  "traceIdCopied": "お問い合わせ番号をコピーしました。",
+  "evidenceSheetSectionBasis": "判定の根拠",
+  "evidenceSheetSectionSource": "原典",
+  "evidenceSheetSectionPersonal": "あなたの命式では",
+  "evidenceSheetLockHead": "根拠と解釈はロックされています",
+  "evidenceSheetLockReward": "広告を1本見ると、今日一日、根拠と解釈がすべて開きます。",
+  "evidenceSheetLockCta": "広告を見て開く",
+  "evidenceSheetLockPass": "広告削除パスがあればすぐに開きます ›",
+  "evidenceSheetLockUnavailable": "今は表示できる広告がありません。しばらくしてからもう一度お試しください。",
+  "evidenceSheetA11yLocked": "ロック中",
+  "evidenceSheetA11yChecking": "確認中",
+  "evidenceSheetA11yUnlocked": "根拠と解釈が開きました",
+  "sajuChartYongsinOpen": "開く",
+  "todayReactionLabel": "この文に共感",
+  "termTokenSemantics": "{term}の解説を見る",
+  "@termTokenSemantics": {
+    "placeholders": {
+      "term": {
+        "type": "String",
+        "example": "식신"
+      }
+    }
+  }
 }

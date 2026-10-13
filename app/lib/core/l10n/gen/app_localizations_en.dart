@@ -70,4 +70,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get traceIdCopied => 'Reference copied.';
+
+  @override
+  String get evidenceSheetSectionBasis => 'Basis';
+
+  @override
+  String get evidenceSheetSectionSource => 'Source text';
+
+  @override
+  String get evidenceSheetSectionPersonal => 'In your chart';
+
+  @override
+  String get evidenceSheetLockHead => 'The basis and reading are locked';
+
+  @override
+  String get evidenceSheetLockReward =>
+      'Watch one ad to unlock the basis and reading for today.';
+
+  @override
+  String get evidenceSheetLockCta => 'Watch ad to unlock';
+
+  @override
+  String get evidenceSheetLockPass => 'Ad-free pass unlocks it right away ›';
+
+  @override
+  String get evidenceSheetLockUnavailable =>
+      'No ad is available right now. Please check back soon.';
+
+  @override
+  String get evidenceSheetA11yLocked => 'Locked';
+
+  @override
+  String get evidenceSheetA11yChecking => 'Checking';
+
+  @override
+  String get evidenceSheetA11yUnlocked => 'The basis and reading are now open';
+
+  @override
+  String get sajuChartYongsinOpen => 'Open';
+
+  @override
+  String get todayReactionLabel => 'Like this sentence';
+
+  @override
+  String termTokenSemantics(String term) {
+    return 'View the meaning of $term';
+  }
 }

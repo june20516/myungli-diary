@@ -18,5 +18,27 @@
   "noticeOffline": "You are offline, so this shows what was saved earlier.",
   "emptyStateDefault": "There is nothing to show yet.",
   "skeletonLabel": "Loading",
-  "traceIdCopied": "Reference copied."
+  "traceIdCopied": "Reference copied.",
+  "evidenceSheetSectionBasis": "Basis",
+  "evidenceSheetSectionSource": "Source text",
+  "evidenceSheetSectionPersonal": "In your chart",
+  "evidenceSheetLockHead": "The basis and reading are locked",
+  "evidenceSheetLockReward": "Watch one ad to unlock the basis and reading for today.",
+  "evidenceSheetLockCta": "Watch ad to unlock",
+  "evidenceSheetLockPass": "Ad-free pass unlocks it right away ›",
+  "evidenceSheetLockUnavailable": "No ad is available right now. Please check back soon.",
+  "evidenceSheetA11yLocked": "Locked",
+  "evidenceSheetA11yChecking": "Checking",
+  "evidenceSheetA11yUnlocked": "The basis and reading are now open",
+  "sajuChartYongsinOpen": "Open",
+  "todayReactionLabel": "Like this sentence",
+  "termTokenSemantics": "View the meaning of {term}",
+  "@termTokenSemantics": {
+    "placeholders": {
+      "term": {
+        "type": "String",
+        "example": "식신"
+      }
+    }
+  }
 }
