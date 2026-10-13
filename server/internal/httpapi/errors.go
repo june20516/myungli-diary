@@ -50,12 +50,13 @@ type domainError struct {
 }
 
 // domainErrors는 도메인 sentinel을 응답으로 바꾸는 표입니다. errors.Is로 위에서부터 찾습니다.
-// refresh token 오류는 bearer 인증(access token) 실패가 아니므로 WWW-Authenticate를 붙이지 않습니다.
+// refresh token·교환 코드 오류는 bearer 인증(access token) 실패가 아니므로 WWW-Authenticate를 붙이지 않습니다.
 var domainErrors = []domainError{
 	{target: auth.ErrProviderTokenInvalid, code: problem.AuthProviderTokenInvalid, title: "Provider token invalid"},
 	{target: auth.ErrProviderUnavailable, code: problem.AuthProviderUnavailable, title: "Provider unavailable"},
 	{target: auth.ErrRefreshInvalid, code: problem.AuthTokenInvalid, title: "Refresh token invalid"},
 	{target: auth.ErrRefreshReused, code: problem.AuthRefreshReused, title: "Refresh token reused"},
+	{target: auth.ErrExchangeInvalid, code: problem.AuthExchangeInvalid, title: "Exchange code invalid"},
 	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }

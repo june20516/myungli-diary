@@ -13,6 +13,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -78,19 +80,22 @@ func flowAuthConfig(t *testing.T) config.AuthConfig {
 	_, err := rand.Read(tokenKey)
 	require.NoError(t, err)
 	return config.AuthConfig{
-		JWTKeyID:              "jwt-flow-1",
-		JWTKeyPEM:             newP256PEM(t),
-		TokenKeyID:            "tok-flow-1",
-		TokenKey:              base64.StdEncoding.EncodeToString(tokenKey),
-		KakaoAppKey:           providertest.KakaoAppKey,
-		KakaoAdminKey:         providertest.KakaoAdminKey,
-		AppleTeamID:           providertest.AppleTeamID,
-		AppleKeyID:            providertest.AppleKeyID,
-		ApplePrivateKeyPEM:    newP256PEM(t),
-		AppleBundleID:         providertest.AppleBundleID,
-		AppleServicesID:       providertest.AppleServicesID,
-		AppleWebRedirectURI:   providertest.AppleWebRedirectURI,
-		AppleCallbackDeepLink: "myungli://auth/apple",
+		JWTKeyID:            "jwt-flow-1",
+		JWTKeyPEM:           newP256PEM(t),
+		TokenKeyID:          "tok-flow-1",
+		TokenKey:            base64.StdEncoding.EncodeToString(tokenKey),
+		KakaoAppKey:         providertest.KakaoAppKey,
+		KakaoAdminKey:       providertest.KakaoAdminKey,
+		AppleTeamID:         providertest.AppleTeamID,
+		AppleKeyID:          providertest.AppleKeyID,
+		ApplePrivateKeyPEM:  newP256PEM(t),
+		AppleBundleID:       providertest.AppleBundleID,
+		AppleServicesID:     providertest.AppleServicesID,
+		AppleWebRedirectURI: providertest.AppleWebRedirectURI,
+		AppLinkBase:         "https://app.myungli.example",
+		AndroidAppPackage:   "app.myungli.test",
+		AndroidCertSHA256:   testCertSHA256,
+		AndroidStoreURL:     testStoreURL,
 	}
 }
 
@@ -173,7 +178,7 @@ func (e *flowEnv) loginAppleNative(subject string) flowResponse {
 	e.t.Helper()
 	idToken := e.fake.SignIDToken(providertest.AppleClaims(subject, flowNonce, provider.AppleNative, e.clk.Now()))
 	return e.do(http.MethodPost, "/v1/auth/apple", "", map[string]string{
-		"idToken": idToken, "authorizationCode": providertest.AppleCode(subject), "nonce": flowNonce, "clientType": "native",
+		"idToken": idToken, "authorizationCode": providertest.AppleCode(subject), "nonce": flowNonce,
 	})
 }
 
@@ -276,4 +281,82 @@ func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	// 복구는 삭제 전 세션을 되살리지 않습니다.
 	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).
 		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
+}
+
+// postAppleCallback은 Apple 웹 콜백(form_post)을 보내고 redirect를 따라가지 않은 응답을 돌려줍니다.
+// 본문은 쓰지 않으므로 함수 안에서 닫습니다.
+func (e *flowEnv) postAppleCallback(form url.Values) (status int, location string) {
+	e.t.Helper()
+	client := *e.client
+	client.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+	req, err := http.NewRequestWithContext(e.t.Context(), http.MethodPost, e.url+"/v1/auth/apple/callback", strings.NewReader(form.Encode()))
+	require.NoError(e.t, err)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := client.Do(req)
+	require.NoError(e.t, err)
+	require.NoError(e.t, resp.Body.Close())
+	return resp.StatusCode, resp.Header.Get("Location")
+}
+
+func TestAuthFlow_AndroidAppleWebLogin(t *testing.T) {
+	env := newFlowEnv(t)
+
+	// Apple 웹 흐름: id_token의 aud는 ServicesID, nonce claim은 앱이 만든 nonce 원문의 SHA-256 hex입니다.
+	const subject = "apple-web-flow-subject"
+	idToken := env.fake.SignIDToken(providertest.AppleClaims(subject, flowNonce, provider.AppleWeb, env.clk.Now()))
+	const state = "flow-state-0123456789"
+
+	// 콜백은 303으로 App Link에 교환 코드와 state만 넘깁니다.
+	status, rawLocation := env.postAppleCallback(url.Values{
+		"code": {providertest.AppleCode(subject)}, "id_token": {idToken}, "state": {state},
+	})
+	require.Equal(t, http.StatusSeeOther, status)
+	location, err := url.Parse(rawLocation)
+	require.NoError(t, err)
+	assert.Equal(t, "app.myungli.example", location.Host)
+	assert.Equal(t, "/auth/apple", location.Path)
+	exchange := location.Query().Get("exchange")
+	require.NotEmpty(t, exchange, "Location: %s", location)
+	assert.Equal(t, state, location.Query().Get("state"), "보낸 state를 그대로 돌려줍니다")
+	assert.Empty(t, location.Query().Get("error"))
+	// id_token·code·user 같은 Apple 값은 URL에 실리지 않습니다.
+	queryKeys := make([]string, 0, len(location.Query()))
+	for key := range location.Query() {
+		queryKeys = append(queryKeys, key)
+	}
+	assert.ElementsMatch(t, []string{"exchange", "state"}, queryKeys, "query는 exchange·state뿐입니다")
+
+	// App Link가 앱을 열지 못하면 브라우저가 이 경로를 서버에서 받아 안내 페이지를 봅니다.
+	pageReq, err := http.NewRequestWithContext(t.Context(), http.MethodGet, env.url+"/auth/apple?"+location.RawQuery, nil)
+	require.NoError(t, err)
+	pageResp, err := env.client.Do(pageReq)
+	require.NoError(t, err)
+	defer func() { _ = pageResp.Body.Close() }()
+	pageBody, err := io.ReadAll(pageResp.Body)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, pageResp.StatusCode)
+	assert.Contains(t, pageResp.Header.Get("Content-Type"), "text/html")
+	assert.Contains(t, string(pageBody), "intent://app.myungli.example/auth/apple", "앱에서 열기 intent 링크")
+	assert.Contains(t, string(pageBody), testStoreURL, "스토어 링크")
+
+	// 틀린 nonce는 거절하되 교환 코드를 소진하지 않습니다.
+	completePath := "/v1/auth/apple/web"
+	env.do(http.MethodPost, completePath, "", map[string]string{
+		"exchangeCode": exchange, "nonce": "wrong-nonce-0123456789",
+	}).requireProblem(t, http.StatusUnauthorized, "auth.exchange_invalid")
+
+	complete := env.do(http.MethodPost, completePath, "", map[string]string{"exchangeCode": exchange, "nonce": flowNonce})
+	require.Equal(t, http.StatusOK, complete.status, "완료 본문: %v", complete.body)
+	assert.Equal(t, true, complete.body["isNewAccount"])
+	assert.Equal(t, true, complete.body["consentRequired"])
+	access, _ := complete.tokens(t)
+
+	// 교환 코드는 일회용입니다.
+	env.do(http.MethodPost, completePath, "", map[string]string{"exchangeCode": exchange, "nonce": flowNonce}).
+		requireProblem(t, http.StatusUnauthorized, "auth.exchange_invalid")
+
+	// 동의 전에도 /v1/me는 열려 있습니다(기능 라우트만 막힘).
+	me := env.do(http.MethodGet, "/v1/me", access, nil)
+	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
+	assert.Equal(t, true, me.body["consentRequired"])
 }

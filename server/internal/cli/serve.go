@@ -10,8 +10,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"slices"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -104,7 +105,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 }
 
 // authSettings는 AuthConfig의 키를 파싱하고 값을 검증한 결과입니다.
-// 문자열 설정(제공자 ID, 딥링크 등)은 config에 그대로 두고, 파싱이 필요한 키만 따로 담습니다.
+// 문자열 설정(제공자 ID 등)은 config에 그대로 두고, 파싱이 필요한 키만 따로 담습니다.
 type authSettings struct {
 	config config.AuthConfig
 	// signing은 access token 발급 키이고, previousSigning은 키 교체 중 검증에만 쓰는 이전 키입니다(없으면 비어 있음).
@@ -114,9 +115,11 @@ type authSettings struct {
 	box *secretbox.Box
 	// applePrivate는 Apple client secret(ES256 JWT)을 서명하는 .p8 키입니다.
 	applePrivate *ecdsa.PrivateKey
+	// appLink는 Apple 웹 콜백의 redirect 주소, 안내 페이지, assetlinks.json에 쓰는 Android App Link 설정입니다.
+	appLink httpapi.AppLinkConfig
 }
 
-// parseAuthSettings는 키를 파싱하고 딥링크를 검증합니다. 실패하면 문제가 된 환경 변수 이름을 담은 오류를 돌려줍니다.
+// parseAuthSettings는 키를 파싱하고 App Link 설정을 검증합니다. 실패하면 문제가 된 환경 변수 이름을 담은 오류를 돌려줍니다.
 // 오류 문구에는 설정 값을 넣지 않습니다(url.Parse 오류처럼 값을 담는 오류는 감싸지 않습니다).
 func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 	signing, err := token.ParseSigningKey(cfg.JWTKeyID, cfg.JWTKeyPEM)
@@ -155,14 +158,9 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		return authSettings{}, fmt.Errorf("APPLE_PRIVATE_KEY: %w", err)
 	}
 
-	// 콜백이 이 값에 쿼리를 붙여 redirect하므로, 앱이 받을 수 있는 scheme이 있는 URL이어야 합니다.
-	// 브라우저에서 스크립트·로컬 파일을 여는 scheme은 막습니다(url.Parse가 scheme을 소문자로 바꿉니다).
-	deepLink, err := url.Parse(cfg.AppleCallbackDeepLink)
-	if err != nil || deepLink.Scheme == "" {
-		return authSettings{}, errors.New("APPLE_CALLBACK_DEEPLINK는 scheme이 있는 URL이어야 합니다")
-	}
-	if slices.Contains(forbiddenDeepLinkSchemes, deepLink.Scheme) {
-		return authSettings{}, errors.New("APPLE_CALLBACK_DEEPLINK에 쓸 수 없는 scheme입니다(app custom scheme이나 https를 씁니다)")
+	appLink, err := parseAppLink(cfg)
+	if err != nil {
+		return authSettings{}, err
 	}
 
 	return authSettings{
@@ -171,12 +169,56 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		previousSigning: previousSigning,
 		box:             box,
 		applePrivate:    appleKey.Private,
+		appLink:         appLink,
 	}, nil
 }
 
-// forbiddenDeepLinkSchemes는 APPLE_CALLBACK_DEEPLINK에 쓸 수 없는 scheme입니다.
-// redirect 대상이 스크립트를 실행하거나 데이터·로컬 파일을 여는 scheme이면 콜백이 공격 경로가 됩니다.
-var forbiddenDeepLinkSchemes = []string{"javascript", "data", "file", "vbscript"}
+// androidPackagePattern은 Android 패키지 이름 형식입니다. 점으로 나눈 조각이 둘 이상이고,
+// 조각마다 영문자로 시작해 영문자·숫자·밑줄만 씁니다.
+var androidPackagePattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$`)
+
+// certSHA256Pattern은 서명 인증서 SHA-256 지문 형식입니다. 32바이트를 대문자 hex 두 자리씩 콜론으로 잇습니다.
+var certSHA256Pattern = regexp.MustCompile(`^[0-9A-F]{2}(:[0-9A-F]{2}){31}$`)
+
+// parseAppLink는 Android App Link 설정을 검증해 httpapi.AppLinkConfig로 만듭니다.
+// 오류 문구에는 변수 이름만 담고 값은 담지 않습니다.
+func parseAppLink(cfg config.AuthConfig) (httpapi.AppLinkConfig, error) {
+	// Apple 웹 콜백이 이 주소의 /auth/apple로 redirect하므로 path가 없어야 하고, App Link는 https만 됩니다.
+	base, ok := parseHTTPSURL(cfg.AppLinkBase)
+	if !ok || (base.Path != "" && base.Path != "/") || base.RawQuery != "" || base.Fragment != "" || base.User != nil {
+		return httpapi.AppLinkConfig{}, errors.New("APP_LINK_BASE는 path·query가 없는 https URL이어야 합니다")
+	}
+	if !androidPackagePattern.MatchString(cfg.AndroidAppPackage) {
+		return httpapi.AppLinkConfig{}, errors.New("ANDROID_APP_PACKAGE는 Android 패키지 이름 형식(예 app.myungli)이어야 합니다")
+	}
+	var certs []string
+	for _, cert := range strings.Split(cfg.AndroidCertSHA256, ",") {
+		cert = strings.TrimSpace(cert)
+		if !certSHA256Pattern.MatchString(cert) {
+			return httpapi.AppLinkConfig{}, errors.New("ANDROID_CERT_SHA256은 쉼표로 나눈 SHA-256 지문(AA:BB:… 대문자 32바이트)이어야 합니다")
+		}
+		certs = append(certs, cert)
+	}
+	if _, ok := parseHTTPSURL(cfg.AndroidStoreURL); !ok {
+		return httpapi.AppLinkConfig{}, errors.New("ANDROID_STORE_URL은 host가 있는 https URL이어야 합니다")
+	}
+	return httpapi.AppLinkConfig{
+		Base:       base,
+		Package:    cfg.AndroidAppPackage,
+		CertSHA256: certs,
+		StoreURL:   cfg.AndroidStoreURL,
+	}, nil
+}
+
+// parseHTTPSURL은 raw가 host가 있는 https URL이면 해석 결과를 돌려줍니다.
+// url.Parse 오류는 값을 담으므로 감싸지 않고 성공 여부만 돌려줍니다.
+func parseHTTPSURL(raw string) (*url.URL, bool) {
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme != "https" || u.Host == "" {
+		return nil, false
+	}
+	return u, true
+}
 
 // newProviderHTTPClient는 외부 제공자 호출에 쓰는 운영용 http.Client를 만듭니다.
 // 호출 한 번의 상한(providerHTTPTimeout)을 client에도 둬, provider의 호출별 deadline이 빠진 경로도 묶입니다.
@@ -265,10 +307,11 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
 	}
 	api := &httpapi.API{
-		Auth:                  authService,
-		Accounts:              accountService,
-		DB:                    deps.Pool,
-		AppleCallbackDeepLink: cfg.AppleCallbackDeepLink,
+		Auth:     authService,
+		Accounts: accountService,
+		DB:       deps.Pool,
+		Logger:   deps.Logger,
+		AppLink:  settings.appLink,
 	}
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)

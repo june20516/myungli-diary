@@ -21,6 +21,19 @@ type Account struct {
 	UpdatedAt           time.Time
 }
 
+type AppleWebLogin struct {
+	ID                uuid.UUID
+	ExchangeHash      []byte
+	Subject           string
+	NonceHash         string
+	AppleRefreshToken []byte
+	AppleTokenKeyID   string
+	AppleClientID     string
+	ExpiresAt         time.Time
+	ConsumedAt        *time.Time
+	CreatedAt         time.Time
+}
+
 type AuthIdentity struct {
 	ID                     uuid.UUID
 	AccountID              uuid.UUID

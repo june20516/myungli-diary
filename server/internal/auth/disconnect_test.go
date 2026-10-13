@@ -158,7 +158,7 @@ func TestDisconnectProviders_RestoredDuringRevokeKeepsNewConnection(t *testing.T
 	restore := func() {
 		// 복구 로그인과 같은 결과: 계정이 active로 돌아오고 새 Apple 토큰이 저장됩니다.
 		idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
-		res, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce, provider.AppleNative)
+		res, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce)
 		require.NoError(t, err)
 		require.True(t, res.RestoredFromDeletion)
 	}
