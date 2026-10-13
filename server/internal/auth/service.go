@@ -53,6 +53,10 @@ const identityUniqueConstraint = "auth_identities_provider_subject_key"
 // sqlStateUniqueViolation은 unique 위반 SQLSTATE입니다.
 const sqlStateUniqueViolation = "23505"
 
+// identityLookupTimeout은 Apple 로그인 실패 뒤 연결 행을 조회할 때 주는 최대 시간입니다.
+// 요청 취소와 분리한 context에서 조회하므로, DB가 응답하지 않아도 이 시간 안에 정리를 포기하게 합니다.
+const identityLookupTimeout = 3 * time.Second
+
 // RefreshReuseGrace는 이미 쓴 refresh token을 응답 유실 재시도로 보고 받아 주는 시간입니다(server 결정 S20).
 // server가 갱신을 commit했지만 응답이 앱에 닿기 전에 연결이 끊기면, 앱은 예전 token으로 다시 갱신할 수밖에 없습니다.
 // 첫 사용 뒤 이 시간 안(경계 포함)이고 그 다음 token이 아직 쓰이지 않았으면 탈취가 아니라 재시도로 봅니다.
@@ -182,12 +186,15 @@ func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, ra
 // revokeUnsavedAppleGrant는 로그인 트랜잭션이 실패해 저장하지 못한 Apple refresh token을, 그 subject의 연결 행이
 // 없을 때만 revoke합니다. 결과는 로그로만 남기고 호출자에게 돌려주지 않습니다.
 //
-// 연결 행 조회는 트랜잭션 밖의 잠금 없는 조회입니다. 조회가 실패하면 revoke하지 않습니다.
+// 연결 행 조회는 트랜잭션 밖의 잠금 없는 조회이며 identityLookupTimeout 안에 끝나야 합니다.
+// 조회가 실패하거나 시간을 넘기면 revoke하지 않습니다.
 // 잘못 끊어 기존 연결을 무효로 만드는 것보다 Apple 목록에 앱이 남는 쪽이 덜 해롭기 때문입니다.
 // 요청이 취소된 뒤에도 정리를 마치도록 context의 취소는 떼어 내지만, provider 호출 자체의 deadline은 그대로 걸립니다.
 func (s *Service) revokeUnsavedAppleGrant(ctx context.Context, subject string, grant *appleGrant) {
 	ctx = context.WithoutCancel(ctx)
-	exists, err := authdb.New(s.pool).IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerApple, Subject: subject})
+	lookupCtx, cancel := context.WithTimeout(ctx, identityLookupTimeout)
+	defer cancel()
+	exists, err := authdb.New(s.pool).IdentityExists(lookupCtx, authdb.IdentityExistsParams{Provider: providerApple, Subject: subject})
 	if err != nil {
 		s.logger.WarnContext(ctx, "Apple 연결 행 조회 실패, 교환한 토큰을 revoke하지 않음", "provider", providerApple, "step", "identity_exists")
 		return
