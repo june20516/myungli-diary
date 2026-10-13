@@ -4,29 +4,29 @@
 
 원본은 `slots/`의 YAML입니다. 글자 수 상한의 `-`는 아직 정하지 않음입니다. 값 종류는 범주 목록(첫째가 기본), `list:<범주>`, `number`, `none`이고 `name`은 어느 슬롯에서나 씁니다.
 
-| ID | 목적 | 유형 | 변주 | 키 수 | 매개변수: 값 종류 | 글자 수 상한 |
-| --- | --- | --- | --- | --- | --- | --- |
-| calendar.day_level | info | - | 1 | 3 | `score`: number | ko -, en -, ja - |
-| calendar.score_item | info | - | 1 | 7 | - | ko -, en -, ja - |
-| calendar.solar_term | info | - | 1 | 24 | - | ko -, en -, ja - |
-| chart.yongsin_method | info | - | 1 | 3 | `yongsin`: element, color<br>`huisin`: element, color<br>`gisin`: element, color<br>`tonggwan`: element, color | ko -, en -, ja - |
-| daily.color | info | - | 1 | 4 | `element`: element, color<br>`role`: none | ko -, en -, ja - |
-| daily.direction | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none | ko -, en -, ja - |
-| daily.focus_reason | info | - | 1 | 4 | - | ko -, en -, ja - |
-| daily.focus_time | info | - | 1 | 5 | `branches`: list:branch<br>`score`: number | ko -, en -, ja - |
-| daily.fortune.head | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko -, en -, ja - |
-| daily.fortune.tag | info | advice, state, care | 1 | 15 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko -, en -, ja - |
-| daily.guide | guide | - | 2 | 20 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko -, en -, ja - |
-| daily.number | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko -, en -, ja - |
-| daily.tag_label | info | - | 1 | 15 | - | ko -, en -, ja - |
-| glossary.value_name | info | - | 1 | 94 | - | ko -, en -, ja - |
-| personal.day_master | info | - | 1 | 10 | `strength`: strength<br>`yongsin`: element, color<br>`gisin`: element, color | ko -, en -, ja - |
-| personal.luck | info | - | 1 | 22 | `luck`: luck<br>`part`: part<br>`element`: element, color<br>`role`: role<br>`current`: none | ko -, en -, ja - |
-| personal.shinsal | info | - | 1 | 6 | `place`: place<br>`element`: element, color<br>`role`: role | ko -, en -, ja - |
-| personal.ten_god | info | - | 1 | 10 | `place`: place<br>`element`: element, color<br>`role`: role<br>`group_count`: number<br>`strength`: strength | ko -, en -, ja - |
-| personal.twelve_stage | info | - | 1 | 12 | `place`: place<br>`element`: element, color<br>`role`: role<br>`strength`: strength | ko -, en -, ja - |
-| settings.calculation_basis | info | - | 1 | 1 | - | ko -, en -, ja - |
-| ui.depth.default_label | info | - | 1 | 1 | - | ko -, en -, ja - |
-| ui.depth.evidence | info | - | 1 | 1 | - | ko -, en -, ja - |
-| ui.depth.explain | info | - | 1 | 1 | - | ko -, en -, ja - |
-| ui.depth.surface | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ID | 자리 | 목적 | 유형 | 변주 | 키 수 | 매개변수: 값 종류 | 글자 수 상한 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| calendar.day_level | - | info | - | 1 | 3 | `score`: number | ko -, en -, ja - |
+| calendar.score_item | - | info | - | 1 | 7 | - | ko -, en -, ja - |
+| calendar.solar_term | - | info | - | 1 | 24 | - | ko -, en -, ja - |
+| chart.yongsin_method | - | info | - | 1 | 3 | `yongsin`: element, color<br>`huisin`: element, color<br>`gisin`: element, color<br>`tonggwan`: element, color | ko -, en -, ja - |
+| daily.color | - | info | - | 1 | 4 | `element`: element, color<br>`role`: none | ko -, en -, ja - |
+| daily.direction | - | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none | ko -, en -, ja - |
+| daily.focus_reason | - | info | - | 1 | 4 | - | ko -, en -, ja - |
+| daily.focus_time | - | info | - | 1 | 5 | `branches`: list:branch<br>`score`: number | ko -, en -, ja - |
+| daily.fortune.head | - | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko -, en -, ja - |
+| daily.fortune.tag | - | info | advice, state, care | 1 | 15 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko -, en -, ja - |
+| daily.guide | - | guide | - | 2 | 20 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko -, en -, ja - |
+| daily.number | - | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko -, en -, ja - |
+| daily.tag_label | - | info | - | 1 | 15 | - | ko -, en -, ja - |
+| glossary.value_name | - | info | - | 1 | 94 | - | ko -, en -, ja - |
+| personal.day_master | - | info | - | 1 | 10 | `strength`: strength<br>`yongsin`: element, color<br>`gisin`: element, color | ko -, en -, ja - |
+| personal.luck | - | info | - | 1 | 22 | `luck`: luck<br>`part`: part<br>`element`: element, color<br>`role`: role<br>`current`: none | ko -, en -, ja - |
+| personal.shinsal | - | info | - | 1 | 6 | `place`: place<br>`element`: element, color<br>`role`: role | ko -, en -, ja - |
+| personal.ten_god | - | info | - | 1 | 10 | `place`: place<br>`element`: element, color<br>`role`: role<br>`group_count`: number<br>`strength`: strength | ko -, en -, ja - |
+| personal.twelve_stage | - | info | - | 1 | 12 | `place`: place<br>`element`: element, color<br>`role`: role<br>`strength`: strength | ko -, en -, ja - |
+| settings.calculation_basis | - | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.depth.default_label | - | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.depth.evidence | - | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.depth.explain | - | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.depth.surface | - | info | - | 1 | 1 | - | ko -, en -, ja - |

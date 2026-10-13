@@ -296,7 +296,7 @@ def _check_arb(args: argparse.Namespace) -> int:
 
 def _gen_docs(args: argparse.Namespace) -> int:
     rules = load_rules(args.rules_dir)
-    docs = render_docs(rules, load_slots(args.slots_dir, rules))
+    docs = render_docs(rules, load_slots(args.slots_dir, rules), load_ia(args.ia), load_content(args.content))
     if not args.check:
         write_docs(args.out_dir, docs)
         return 0
@@ -346,6 +346,7 @@ def _build_parser() -> argparse.ArgumentParser:
     gen_docs = commands.add_parser("gen-docs", help="규칙·슬롯 YAML에서 문서를 생성합니다")
     gen_docs.add_argument("--check", action="store_true", help="쓰지 않고 오래된 문서가 있으면 종료 코드 1입니다")
     gen_docs.add_argument("--out-dir", type=Path, default=paths.GENERATED_DIR, help="생성 문서 디렉터리")
+    gen_docs.add_argument("--content", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리(ui ARB 생성용)")
     add_dirs(gen_docs)
     add_ia(gen_docs)
     gen_docs.set_defaults(handler=_gen_docs)
