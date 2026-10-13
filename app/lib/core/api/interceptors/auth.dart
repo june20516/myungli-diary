@@ -1,0 +1,133 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
+
+/// 요청 extra: 이 요청은 인증 interceptor를 건너뜁니다(refresh 자체, 무한 루프 방지).
+const skipAuthExtra = 'skipAuth';
+
+/// 요청 extra: 이미 한 번 다시 보낸 요청입니다.
+const _retriedExtra = 'authRetried';
+
+const _tokenExpiredCode = 'auth.token_expired';
+const _refreshReusedCode = 'auth.refresh_reused';
+
+/// bearer를 붙이고, 401 `auth.token_expired`면 refresh 후 원 요청을 한 번 다시 보냅니다.
+///
+/// refresh는 진행 중인 Future를 공유해 동시에 한 번만 보냅니다.
+/// `QueuedInterceptor`는 401이 아닌 요청까지 줄 세우므로 쓰지 않습니다.
+final class AuthInterceptor extends Interceptor {
+  /// [dio]는 재시도와 refresh 요청을 보내는 같은 인스턴스입니다.
+  new({required this.dio, required this.tokens});
+
+  /// 재시도·refresh에 쓰는 Dio.
+  final Dio dio;
+
+  /// 토큰 보관소.
+  final TokenStore tokens;
+
+  Future<DioException?>? _inflightRefresh;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final accessToken = tokens.accessToken;
+    if (accessToken != null && options.extra[skipAuthExtra] != true) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
+    }
+    handler.next(options);
+  }
+
+  @override
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final options = err.requestOptions;
+    if (err.response?.statusCode != 401 ||
+        options.extra[skipAuthExtra] == true ||
+        options.extra[_retriedExtra] == true ||
+        _problemCodeOf(err) != _tokenExpiredCode) {
+      handler.next(err);
+      return;
+    }
+
+    // 다른 요청의 refresh가 이미 끝났다면 새 토큰으로 다시 보내기만 합니다.
+    final sentWith = _bearerOf(options);
+    if (sentWith == null || sentWith == tokens.accessToken) {
+      final failure = await (_inflightRefresh ??= _refresh());
+      if (failure != null) {
+        handler.reject(failure.copyWith(requestOptions: options));
+        return;
+      }
+    }
+    await _retry(options, handler);
+  }
+
+  Future<void> _retry(
+    RequestOptions options,
+    ErrorInterceptorHandler handler,
+  ) async {
+    options.extra[_retriedExtra] = true;
+    try {
+      handler.resolve(await dio.fetch<Object?>(options));
+    } on DioException catch (e) {
+      handler.reject(e);
+    }
+  }
+
+  /// refresh를 한 번 보냅니다. 성공이면 null, 실패면 원 요청에 돌려줄 오류입니다.
+  Future<DioException?> _refresh() async {
+    try {
+      final refreshToken = await tokens.refreshToken();
+      if (refreshToken == null) {
+        await tokens.signOut();
+        return _unauthorized();
+      }
+      final response = await DefaultApi(dio).refreshToken(
+        refreshRequest: RefreshRequest(refreshToken: refreshToken),
+        extra: {skipAuthExtra: true},
+      );
+      final pair = response.data;
+      if (pair == null) {
+        return DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          message: 'refresh 응답 본문이 없습니다.',
+        );
+      }
+      await tokens.save(pair);
+      return null;
+    } on DioException catch (e) {
+      // 거부(401·재사용)일 때만 로그아웃합니다. 네트워크·시간 초과·5xx는
+      // refresh token을 남기고 그 오류를 그대로 돌려줍니다.
+      if (e.response?.statusCode == 401 ||
+          _problemCodeOf(e) == _refreshReusedCode) {
+        await tokens.signOut();
+      }
+      return e;
+    } finally {
+      _inflightRefresh = null;
+    }
+  }
+
+  DioException _unauthorized() => DioException(
+    requestOptions: RequestOptions(path: '/v1/auth/refresh'),
+    message: 'refresh token이 없습니다.',
+  );
+
+  String? _bearerOf(RequestOptions options) {
+    final header = options.headers['Authorization'];
+    if (header is String && header.startsWith('Bearer ')) {
+      return header.substring('Bearer '.length);
+    }
+    return null;
+  }
+
+  String? _problemCodeOf(DioException e) {
+    final error = appErrorFrom(e);
+    return error is ProblemError ? error.code : null;
+  }
+}

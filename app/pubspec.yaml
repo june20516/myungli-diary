@@ -37,6 +37,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_riverpod: ^3.4.3
+  flutter_secure_storage: ^11.2.0
   intl: ^0.20.3
   json_annotation: ^4.12.0
 
@@ -46,6 +48,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   json_serializable: ^6.14.1
+  riverpod_lint: ^3.1.9
   very_good_analysis: ^11.0.0
   yaml: ^3.1.4
 
