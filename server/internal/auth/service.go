@@ -65,7 +65,7 @@ type KakaoUnlinker interface {
 // (provider.AppleClient는 native·web 구분 값이고, 이 인터페이스는 Apple API 호출자입니다.)
 type AppleClient interface {
 	Verify(ctx context.Context, idToken, rawNonce string, client provider.AppleClient) (provider.Identity, error)
-	ExchangeCode(ctx context.Context, code string, client provider.AppleClient) (refreshToken, clientID string, err error)
+	ExchangeCode(ctx context.Context, code string, client provider.AppleClient, wantSubject string) (refreshToken, clientID string, err error)
 	Revoke(ctx context.Context, refreshToken, clientID string) error
 }
 
@@ -145,7 +145,8 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 }
 
 // LoginApple은 Apple id_token과 authorization code로 로그인합니다.
-// id_token을 검증한 뒤 code를 교환해 Apple refresh token을 받습니다. 교환에 실패하면 로그인도 실패하며 DB에 아무것도 남기지 않습니다.
+// id_token을 검증한 뒤 code를 교환해 Apple refresh token을 받습니다. 교환 응답의 id_token sub가 로그인 id_token의
+// sub와 다르면 ErrProviderTokenInvalid입니다. 교환에 실패하면 로그인도 실패하며 DB에 아무것도 남기지 않습니다.
 // 받은 refresh token은 암호화해 저장하고, 이미 있는 연결이면 새 값으로 바꿉니다.
 //
 // 트랜잭션이 실패하면 교환한 refresh token은 저장하지 않고 버립니다. revoke는 하지 않습니다.
@@ -156,7 +157,7 @@ func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, ra
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "verify")
 	}
-	refreshToken, clientID, err := s.apple.ExchangeCode(ctx, authorizationCode, client)
+	refreshToken, clientID, err := s.apple.ExchangeCode(ctx, authorizationCode, client, identity.Subject)
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "exchange_code")
 	}

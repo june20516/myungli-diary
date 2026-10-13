@@ -122,11 +122,16 @@ func (a *Apple) Verify(ctx context.Context, idToken, rawNonce string, client App
 
 // ExchangeCode는 authorization code를 Apple /auth/token에 교환해 refresh token을 받습니다.
 // clientID는 교환에 쓴 client_id로, 나중에 Revoke에 같은 값을 넘겨야 합니다.
-//   - 400 invalid_grant(만료·재사용된 code): ErrTokenInvalid
-//   - 연결 실패·timeout·5xx·429, 2xx인데 해석할 수 없거나 refresh_token이 없는 응답: ErrUnavailable
+//
+// 응답의 id_token을 같은 client의 검증기로 검증(nonce는 교환 응답에 없을 수 있어 보지 않음)하고, 그 sub가
+// wantSubject(앞서 검증한 로그인 id_token의 sub)와 같은지 확인합니다. 다른 사용자의 code를 끼워 넣어
+// 그 사용자의 Apple refresh token이 이 계정에 저장되는 일을 막습니다.
+//   - 400 invalid_grant(만료·재사용된 code), 응답 id_token 검증 실패·sub 불일치: ErrTokenInvalid
+//   - 연결 실패·timeout·5xx·429, 2xx인데 해석할 수 없거나 refresh_token·id_token이 없는 응답,
+//     id_token 검증용 JWKS 조회 실패: ErrUnavailable
 //     (code는 받아들여졌는데 Apple 응답이 깨진 것이므로 사용자 탓이 아닙니다)
 //   - 그 밖의 거절(invalid_client 등 우리 설정 문제): 일반 오류
-func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClient) (refreshToken, clientID string, err error) {
+func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClient, wantSubject string) (refreshToken, clientID string, err error) {
 	clientID, err = a.clientID(client)
 	if err != nil {
 		return "", "", err
@@ -155,12 +160,24 @@ func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClien
 
 	var body struct {
 		RefreshToken string `json:"refresh_token"`
+		IDToken      string `json:"id_token"`
 	}
 	if err := json.Unmarshal(resp.body, &body); err != nil {
 		return "", "", fmt.Errorf("%w: Apple token: 2xx 응답을 해석하지 못했습니다", ErrUnavailable)
 	}
 	if body.RefreshToken == "" {
 		return "", "", fmt.Errorf("%w: Apple token: 2xx 응답에 refresh_token이 없습니다", ErrUnavailable)
+	}
+	if body.IDToken == "" {
+		return "", "", fmt.Errorf("%w: Apple token: 2xx 응답에 id_token이 없습니다", ErrUnavailable)
+	}
+	// clientID 조회에 성공했으므로 client는 native·web 중 하나이고 검증기가 있습니다.
+	exchanged, err := verifyIDTokenClaims(ctx, a.verifiers[client], "Apple token", body.IDToken)
+	if err != nil {
+		return "", "", err
+	}
+	if exchanged.Subject != wantSubject {
+		return "", "", fmt.Errorf("%w: Apple token: 교환한 id_token의 sub가 로그인 id_token과 다릅니다", ErrTokenInvalid)
 	}
 	return body.RefreshToken, clientID, nil
 }

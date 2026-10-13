@@ -44,6 +44,8 @@ func newFlowEnv(t *testing.T) *flowEnv {
 	t.Helper()
 	fake := providertest.New(t)
 	clk := clocktest.New(time.Date(2026, 10, 13, 9, 0, 0, 0, time.UTC))
+	// Apple token 대역이 돌려주는 id_token의 exp를 server와 같은 시계로 정합니다.
+	fake.SetClock(clk)
 
 	settings, err := parseAuthSettings(flowAuthConfig(t))
 	require.NoError(t, err, "인증 설정 파싱")
@@ -170,7 +172,7 @@ func (e *flowEnv) loginAppleNative(subject string) flowResponse {
 	e.t.Helper()
 	idToken := e.fake.SignIDToken(providertest.AppleClaims(subject, flowNonce, provider.AppleNative, e.clk.Now()))
 	return e.do(http.MethodPost, "/v1/auth/apple", "", map[string]string{
-		"idToken": idToken, "authorizationCode": "flow-auth-code", "nonce": flowNonce, "clientType": "native",
+		"idToken": idToken, "authorizationCode": providertest.AppleCode(subject), "nonce": flowNonce, "clientType": "native",
 	})
 }
 

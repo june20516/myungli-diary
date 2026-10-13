@@ -16,10 +16,10 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 )
 
-const (
-	testAppleSubject = "001234.abcdef0123456789.0123"
-	testAppleCode    = "c0de-from-apple"
-)
+const testAppleSubject = "001234.abcdef0123456789.0123"
+
+// testAppleCode는 testAppleSubject의 authorization code입니다. 대역은 교환하면 이 subject의 id_token을 돌려줍니다.
+var testAppleCode = providertest.AppleCode(testAppleSubject)
 
 func newApple(t *testing.T) (*provider.Apple, *providertest.Server) {
 	t.Helper()
@@ -116,7 +116,7 @@ func TestApple_ExchangeCodeSendsSignedClientSecret(t *testing.T) {
 		t.Run(string(tt.client), func(t *testing.T) {
 			apple, fake := newApple(t)
 
-			refreshToken, clientID, err := apple.ExchangeCode(context.Background(), testAppleCode, tt.client)
+			refreshToken, clientID, err := apple.ExchangeCode(context.Background(), testAppleCode, tt.client, testAppleSubject)
 
 			require.NoError(t, err)
 			assert.Equal(t, providertest.AppleRefreshToken, refreshToken)
@@ -154,7 +154,7 @@ func TestApple_ExchangeInvalidGrantIsTokenInvalid(t *testing.T) {
 	apple, fake := newApple(t)
 	fake.SetAppleTokenResponse(http.StatusBadRequest, `{"error":"invalid_grant","error_description":"code expired"}`)
 
-	_, _, err := apple.ExchangeCode(context.Background(), testAppleCode, provider.AppleNative)
+	_, _, err := apple.ExchangeCode(context.Background(), testAppleCode, provider.AppleNative, testAppleSubject)
 
 	require.ErrorIs(t, err, provider.ErrTokenInvalid)
 	assert.NotContains(t, err.Error(), testAppleCode)
@@ -169,6 +169,8 @@ func TestApple_ExchangeOtherFailures(t *testing.T) {
 		wantErr error // nil이면 두 sentinel 어느 쪽도 아닌 일반 오류
 	}{
 		{"refresh_token 없음은 장애", http.StatusOK, `{"access_token":"a","token_type":"Bearer","id_token":"x"}`, provider.ErrUnavailable},
+		{"id_token 없음은 장애", http.StatusOK, `{"access_token":"a","token_type":"Bearer","refresh_token":"r"}`, provider.ErrUnavailable},
+		{"id_token 서명이 틀리면 토큰 오류", http.StatusOK, `{"refresh_token":"r","id_token":"e30.e30.c2ln"}`, provider.ErrTokenInvalid},
 		{"200 본문이 JSON 아님은 장애", http.StatusOK, `oops`, provider.ErrUnavailable},
 		{"invalid_client는 설정 오류", http.StatusBadRequest, `{"error":"invalid_client"}`, nil},
 		{"429는 장애", http.StatusTooManyRequests, ``, provider.ErrUnavailable},
@@ -178,7 +180,7 @@ func TestApple_ExchangeOtherFailures(t *testing.T) {
 			apple, fake := newApple(t)
 			fake.SetAppleTokenResponse(tt.status, tt.body)
 
-			refreshToken, _, err := apple.ExchangeCode(context.Background(), testAppleCode, provider.AppleNative)
+			refreshToken, _, err := apple.ExchangeCode(context.Background(), testAppleCode, provider.AppleNative, testAppleSubject)
 
 			require.Error(t, err)
 			assert.Empty(t, refreshToken)
@@ -190,6 +192,28 @@ func TestApple_ExchangeOtherFailures(t *testing.T) {
 			assert.NotErrorIs(t, err, provider.ErrUnavailable)
 		})
 	}
+}
+
+// 교환 응답 id_token의 sub가 로그인 id_token의 sub와 다르면 토큰 오류입니다(다른 사용자의 code).
+func TestApple_ExchangeSubjectMismatchIsTokenInvalid(t *testing.T) {
+	apple, _ := newApple(t)
+
+	refreshToken, _, err := apple.ExchangeCode(context.Background(), providertest.AppleCode("other-subject"), provider.AppleNative, testAppleSubject)
+
+	require.ErrorIs(t, err, provider.ErrTokenInvalid)
+	assert.Empty(t, refreshToken)
+	assert.NotContains(t, err.Error(), "other-subject", "오류 문구에 subject를 넣지 않습니다")
+}
+
+// 교환 응답 id_token은 교환에 쓴 client의 aud로 검증합니다.
+func TestApple_ExchangeVerifiesIDTokenAudiencePerClient(t *testing.T) {
+	apple, fake := newApple(t)
+	claims := providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleWeb, testNow)
+	fake.SetAppleTokenResponse(http.StatusOK, `{"refresh_token":"r","id_token":"`+fake.SignIDToken(claims)+`"}`)
+
+	_, _, err := apple.ExchangeCode(context.Background(), testAppleCode, provider.AppleNative, testAppleSubject)
+
+	require.ErrorIs(t, err, provider.ErrTokenInvalid)
 }
 
 func TestApple_TokenEndpoint5xxIsUnavailable(t *testing.T) {
@@ -221,7 +245,7 @@ func TestApple_TokenEndpoint5xxIsUnavailable(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 			defer cancel()
 
-			_, _, err := apple.ExchangeCode(ctx, testAppleCode, provider.AppleNative)
+			_, _, err := apple.ExchangeCode(ctx, testAppleCode, provider.AppleNative, testAppleSubject)
 
 			require.ErrorIs(t, err, provider.ErrUnavailable)
 			assert.NotErrorIs(t, err, provider.ErrTokenInvalid)

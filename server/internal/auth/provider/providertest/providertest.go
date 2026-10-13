@@ -3,6 +3,7 @@
 // 하나의 httptest.Server가 다음 엔드포인트를 모두 내줍니다.
 //   - JWKS(카카오·Apple 공용): 테스트용 RSA 키의 공개 키 목록
 //   - Apple /auth/token, /auth/revoke
+//     (/auth/token은 AppleCode로 만든 code를 받으면 그 subject로 서명한 id_token과 refresh token을 돌려줍니다)
 //   - 카카오 /v1/user/unlink
 //
 // 받은 요청의 form을 기록하고, 응답 상태·본문을 바꿀 수 있어 장애 상황을 흉내 낼 수 있습니다.
@@ -24,6 +25,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -57,6 +59,13 @@ const (
 	AppleRefreshToken = "providertest-apple-refresh-token"
 )
 
+// appleCodePrefix는 AppleCode가 만드는 authorization code의 앞부분입니다. 뒤에 subject가 붙습니다.
+const appleCodePrefix = "providertest-code:"
+
+// AppleCode는 subject의 Apple authorization code를 만듭니다.
+// 실제 Apple code가 한 사용자에게 묶이듯, token 대역은 이 code를 교환하면 sub가 subject인 id_token을 돌려줍니다.
+func AppleCode(subject string) string { return appleCodePrefix + subject }
+
 // Request는 대역 엔드포인트가 받은 요청 한 건입니다.
 type Request struct {
 	Header http.Header
@@ -87,8 +96,14 @@ type Server struct {
 	jwksStatus int
 	jwksHits   int
 	token      endpoint
-	revoke     endpoint
-	unlink     endpoint
+	// tokenOverride가 true면 token 엔드포인트가 SetAppleTokenResponse로 정한 상태·본문을 그대로 돌려줍니다.
+	tokenOverride bool
+	// appleRefresh는 token 엔드포인트가 기본 응답에 담는 refresh token입니다.
+	appleRefresh string
+	// clock은 token 엔드포인트가 만드는 id_token의 iat·exp 기준 시각입니다. AppleConfig가 정합니다.
+	clock  clock.Clock
+	revoke endpoint
+	unlink endpoint
 }
 
 // New는 대역 서버를 띄우고, 테스트가 끝나면 닫도록 t.Cleanup에 등록합니다.
@@ -99,15 +114,12 @@ func New(t testing.TB) *Server {
 		t.Fatalf("providertest: Apple 키 생성 실패: %v", err)
 	}
 	s := &Server{
-		appleKey:   appleKey,
-		jwksStatus: http.StatusOK,
-		token: endpoint{
-			status: http.StatusOK,
-			body: fmt.Sprintf(`{"access_token":"providertest-access","token_type":"Bearer","expires_in":3600,`+
-				`"refresh_token":%q,"id_token":"providertest-id-token"}`, AppleRefreshToken),
-		},
-		revoke: endpoint{status: http.StatusOK},
-		unlink: endpoint{status: http.StatusOK, body: `{"id":1}`},
+		appleKey:     appleKey,
+		jwksStatus:   http.StatusOK,
+		appleRefresh: AppleRefreshToken,
+		clock:        clock.System{},
+		revoke:       endpoint{status: http.StatusOK},
+		unlink:       endpoint{status: http.StatusOK, body: `{"id":1}`},
 	}
 	if err := s.rotate(); err != nil {
 		t.Fatalf("providertest: RSA 키 생성 실패: %v", err)
@@ -115,7 +127,7 @@ func New(t testing.TB) *Server {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET "+JWKSPath, s.serveJWKS)
-	mux.HandleFunc("POST "+AppleTokenPath, s.recordAndRespond(&s.token))
+	mux.HandleFunc("POST "+AppleTokenPath, s.serveAppleToken)
 	mux.HandleFunc("POST "+AppleRevokePath, s.recordAndRespond(&s.revoke))
 	mux.HandleFunc("POST "+KakaoUnlinkPath, s.recordAndRespond(&s.unlink))
 	s.srv = httptest.NewServer(mux)
@@ -160,8 +172,9 @@ func (s *Server) KakaoConfig(clk clock.Clock) provider.KakaoConfig {
 }
 
 // AppleConfig는 이 대역 서버를 가리키는 Apple 설정을 돌려줍니다.
-// client_secret의 iat·exp는 clk에서 읽습니다.
+// client_secret의 iat·exp는 clk에서 읽습니다. token 대역이 돌려주는 id_token의 iat·exp도 clk를 기준으로 합니다.
 func (s *Server) AppleConfig(clk clock.Clock) provider.AppleConfig {
+	s.SetClock(clk)
 	return provider.AppleConfig{
 		TeamID:         AppleTeamID,
 		KeyID:          AppleKeyID,
@@ -281,9 +294,28 @@ func (s *Server) JWKSHits() int {
 	return s.jwksHits
 }
 
-// SetAppleTokenResponse는 Apple /auth/token 대역의 응답 상태와 본문(JSON)을 바꿉니다.
+// SetAppleTokenResponse는 Apple /auth/token 대역이 code와 상관없이 이 상태와 본문(JSON)을 그대로 돌려주게 합니다.
+// 장애나 깨진 응답을 흉내 낼 때 씁니다.
 func (s *Server) SetAppleTokenResponse(status int, body string) {
+	s.mu.Lock()
+	s.tokenOverride = true
+	s.mu.Unlock()
 	s.setResponse(&s.token, status, body)
+}
+
+// SetClock은 token 대역이 만드는 id_token의 iat·exp 기준 시계를 바꿉니다.
+// AppleConfig를 거치지 않고 Apple 설정을 직접 만드는 테스트가 검증 쪽과 같은 시계를 맞출 때 씁니다.
+func (s *Server) SetClock(clk clock.Clock) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.clock = clk
+}
+
+// SetAppleRefreshToken은 Apple /auth/token 대역의 기본 응답이 담는 refresh token을 바꿉니다.
+func (s *Server) SetAppleRefreshToken(refreshToken string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.appleRefresh = refreshToken
 }
 
 // AppleTokenRequests는 Apple /auth/token 대역이 받은 요청을 순서대로 돌려줍니다.
@@ -357,6 +389,53 @@ func (s *Server) serveJWKS(w http.ResponseWriter, _ *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(set); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// serveAppleToken은 Apple /auth/token 대역입니다. 받은 요청을 기록합니다.
+// SetAppleTokenResponse로 응답을 정했으면 그대로 돌려줍니다. 아니면 AppleCode로 만든 code만 받아,
+// 그 subject와 요청의 client_id(aud)로 서명한 id_token과 refresh token을 돌려주고, 그 밖의 code는 400 invalid_grant입니다.
+func (s *Server) serveAppleToken(w http.ResponseWriter, r *http.Request) {
+	s.mu.Lock()
+	override := s.tokenOverride
+	s.mu.Unlock()
+	if override {
+		s.recordAndRespond(&s.token)(w, r)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	s.mu.Lock()
+	s.token.requests = append(s.token.requests, Request{Header: r.Header.Clone(), Form: r.PostForm})
+	refresh, now := s.appleRefresh, s.clock.Now()
+	s.mu.Unlock()
+
+	w.Header().Set("Content-Type", "application/json")
+	subject, ok := strings.CutPrefix(r.PostForm.Get("code"), appleCodePrefix)
+	if !ok || subject == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		// header를 이미 보냈으므로 쓰기 실패를 알릴 방법이 없습니다.
+		_, _ = io.WriteString(w, `{"error":"invalid_grant"}`)
+		return
+	}
+	idToken := s.SignIDToken(map[string]any{
+		"iss": AppleIssuer,
+		"aud": r.PostForm.Get("client_id"),
+		"sub": subject,
+		"iat": now.Unix(),
+		"exp": now.Add(time.Hour).Unix(),
+	})
+	body := map[string]any{
+		"access_token":  "providertest-access",
+		"token_type":    "Bearer",
+		"expires_in":    3600,
+		"refresh_token": refresh,
+		"id_token":      idToken,
+	}
+	if err := json.NewEncoder(w).Encode(body); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

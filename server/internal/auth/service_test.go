@@ -87,7 +87,7 @@ func (f *fixture) loginKakao(t *testing.T, subject string) auth.LoginResult {
 func (f *fixture) loginApple(t *testing.T, subject string) auth.LoginResult {
 	t.Helper()
 	idToken := f.fake.SignIDToken(providertest.AppleClaims(subject, testNonce, provider.AppleNative, f.clk.Now()))
-	res, err := f.service.LoginApple(f.ctx, idToken, "auth-code", testNonce, provider.AppleNative)
+	res, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode(subject), testNonce, provider.AppleNative)
 	require.NoError(t, err)
 	return res
 }
@@ -335,7 +335,7 @@ func TestLoginApple_StoresEncryptedRefreshTokenAndClientID(t *testing.T) {
 	assert.Equal(t, providertest.AppleBundleID, clientID)
 
 	// 다시 로그인하면 새로 받은 refresh token으로 바꿔 저장합니다.
-	f.fake.SetAppleTokenResponse(http.StatusOK, `{"refresh_token":"second-refresh"}`)
+	f.fake.SetAppleRefreshToken("second-refresh")
 	again := f.loginApple(t, "apple-1")
 	assert.Equal(t, res.AccountID, again.AccountID)
 	require.NoError(t, f.pool.QueryRow(f.ctx,
@@ -361,7 +361,7 @@ func TestLoginApple_FailedCodeExchangeCreatesNothing(t *testing.T) {
 			f.fake.SetAppleTokenResponse(tt.status, tt.body)
 			idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
 
-			_, err := f.service.LoginApple(f.ctx, idToken, "auth-code", testNonce, provider.AppleNative)
+			_, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce, provider.AppleNative)
 
 			require.ErrorIs(t, err, tt.want)
 			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
@@ -372,14 +372,28 @@ func TestLoginApple_FailedCodeExchangeCreatesNothing(t *testing.T) {
 }
 
 // 트랜잭션이 실패해도 교환한 토큰을 revoke하지 않습니다. revoke는 사용자의 앱 승인 전체를 끊기 때문입니다.
+// 교환 응답 id_token의 sub가 로그인 id_token과 다르면(다른 사용자의 code) 로그인을 거절하고 아무것도 남기지 않습니다.
+func TestLoginApple_ExchangedSubjectMismatchCreatesNothing(t *testing.T) {
+	f := newFixture(t)
+	idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
+
+	_, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-2"), testNonce, provider.AppleNative)
+
+	require.ErrorIs(t, err, auth.ErrProviderTokenInvalid)
+	assert.NotErrorIs(t, err, provider.ErrTokenInvalid, "제공자 오류 원인을 응답 경로로 넘기지 않습니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM auth_identities`))
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM refresh_tokens`))
+}
+
 func TestLoginApple_FailedTransactionDoesNotRevoke(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginApple(t, "apple-1")
 	f.exec(t, `UPDATE accounts SET status = 'deleted', deletion_requested_at = $2, anonymized_at = $2 WHERE id = $1`, first.AccountID, testNow)
-	f.fake.SetAppleTokenResponse(http.StatusOK, `{"refresh_token":"unsaved-refresh"}`)
+	f.fake.SetAppleRefreshToken("unsaved-refresh")
 	idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
 
-	_, err := f.service.LoginApple(f.ctx, idToken, "auth-code", testNonce, provider.AppleNative)
+	_, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce, provider.AppleNative)
 
 	require.ErrorContains(t, err, "익명화된 계정", "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
 	assert.NotErrorIs(t, err, auth.ErrProviderTokenInvalid)
