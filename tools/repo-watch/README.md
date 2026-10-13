@@ -13,4 +13,4 @@
 2. 정기 일과(루트 `CLAUDE.md`)에서 해당하는 일을 처리합니다. PR 병합은 사용자가 합니다.
 
 ## 출력
-`변화: PR #<번호> <OPEN|MERGED|CLOSED> <제목>`, `변화: Issue #<번호> <OPEN|CLOSED> <제목>`, `변화: main-ci <sha> <status> <conclusion>`. 조회가 하나라도 실패한 회차는 건너뜁니다.
+`변화: PR #<번호> <OPEN|MERGED|CLOSED> <제목>`, `변화: Issue #<번호> <OPEN|CLOSED> <제목>`, `변화: main-ci <sha> <conclusion>`(최근 5개 실행 중 끝난 것만, 결과가 나올 때 한 번). 조회가 하나라도 실패한 회차는 건너뜁니다.

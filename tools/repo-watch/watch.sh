@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 요청함(Issue)·PR·main ci-gate 변화를 1분마다 비교해, 바뀐 것만 한 줄씩 출력합니다.
+# 요청함(Issue)·PR·main ci-gate 결과(끝난 실행만, 최근 5개) 변화를 1분마다 비교해, 바뀐 것만 한 줄씩 출력합니다.
 # 출력 한 줄이 지휘 세션의 알림 하나가 됩니다. 상태는 STATE_DIR에 두어 다시 띄워도 이어집니다.
 set -u
 REPO=june20516/myungli-diary
@@ -14,8 +14,9 @@ snapshot() {
       --json number,state,title --jq '.[] | "PR #\(.number) \(.state) \(.title)"' &&
     gh issue list -R "$REPO" --state all --limit 40 \
       --json number,state,title --jq '.[] | "Issue #\(.number) \(.state) \(.title)"' &&
-    gh run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 1 \
-      --json headSha,status,conclusion --jq '.[] | "main-ci \(.headSha[0:7]) \(.status) \(.conclusion)"'
+    gh run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 5 \
+      --json headSha,status,conclusion \
+      --jq '.[] | select(.status == "completed") | "main-ci \(.headSha[0:7]) \(.conclusion)"'
   } 2>/dev/null) || return 1
   printf '%s\n' "$out" | sort
 }
