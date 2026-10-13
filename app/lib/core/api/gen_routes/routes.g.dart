@@ -1,0 +1,48 @@
+// 생성 코드: tool/gen_api.sh. 손으로 고치지 않습니다.
+
+import 'package:myungli_diary/core/api/api_route.dart';
+
+/// 계약의 operation 전부.
+const List<ApiRoute> apiRoutes = [
+  ApiRoute('POST', '/v1/auth/kakao', 'loginKakao'),
+  ApiRoute('POST', '/v1/auth/apple', 'loginApple'),
+  ApiRoute('POST', '/v1/auth/apple/callback', 'appleCallback'),
+  ApiRoute('POST', '/v1/auth/refresh', 'refreshToken'),
+  ApiRoute('POST', '/v1/auth/logout', 'logout'),
+  ApiRoute('GET', '/v1/me', 'getMe'),
+  ApiRoute('DELETE', '/v1/me', 'deleteMe'),
+  ApiRoute('POST', '/v1/me/consents', 'agreeConsents'),
+  ApiRoute('PUT', '/v1/me/profile', 'createProfile'),
+  ApiRoute('PATCH', '/v1/me/profile', 'updateProfile'),
+  ApiRoute('GET', '/v1/daily/{date}', 'getDaily'),
+  ApiRoute('GET', '/v1/chart', 'getChart'),
+  ApiRoute('GET', '/v1/calendar/{year}/{month}', 'getCalendar'),
+  ApiRoute('PUT', '/v1/daily/{date}/slots/{slot}/reaction', 'putReaction'),
+  ApiRoute(
+    'DELETE',
+    '/v1/daily/{date}/slots/{slot}/reaction',
+    'deleteReaction',
+  ),
+  ApiRoute('GET', '/v1/glossary', 'getGlossary'),
+  ApiRoute('POST', '/v1/preview', 'createPreview'),
+  ApiRoute('POST', '/v1/birth-hour', 'getBirthHour'),
+  ApiRoute('GET', '/v1/diaries', 'listDiaries'),
+  ApiRoute('GET', '/v1/diaries/{date}', 'getDiary'),
+  ApiRoute('PUT', '/v1/diaries/{date}', 'putDiary'),
+  ApiRoute('DELETE', '/v1/diaries/{date}', 'deleteDiary'),
+  ApiRoute('POST', '/v1/diaries/{date}/restore', 'restoreDiary'),
+  ApiRoute('GET', '/v1/schedules', 'listSchedules'),
+  ApiRoute('POST', '/v1/schedules', 'createSchedule'),
+  ApiRoute('DELETE', '/v1/schedules/{id}', 'deleteSchedule'),
+  ApiRoute('PATCH', '/v1/schedules/{id}', 'updateSchedule'),
+  ApiRoute('POST', '/v1/schedules/{id}/restore', 'restoreSchedule'),
+  ApiRoute('POST', '/v1/devices', 'registerDevice'),
+  ApiRoute('DELETE', '/v1/devices/{id}', 'deleteDevice'),
+  ApiRoute('GET', '/v1/me/entitlements', 'getEntitlements'),
+  ApiRoute('POST', '/v1/billing/restore', 'restorePurchases'),
+  ApiRoute('POST', '/webhooks/revenuecat', 'revenuecatWebhook'),
+  ApiRoute('GET', '/webhooks/admob-ssv', 'admobRewardCallback'),
+  ApiRoute('GET', '/v1/cities', 'listCities'),
+  ApiRoute('GET', '/v1/app-config', 'getAppConfig'),
+  ApiRoute('GET', '/healthz', 'getHealth'),
+];

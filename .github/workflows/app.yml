@@ -61,6 +61,8 @@ jobs:
           dart run tool/gen_ia.dart
           dart run tool/gen_tokens.dart
           flutter gen-l10n
+          # openapi-generator를 Docker 이미지로 돌린다.
+          tool/gen_api.sh
           # 수정된 파일과 commit되지 않은 새 파일을 모두 잡는다.
           changes="$(git status --porcelain -- .)"
           if [ -n "$changes" ]; then
