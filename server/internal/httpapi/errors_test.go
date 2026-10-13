@@ -61,7 +61,7 @@ func TestWriteHandlerError_BearerChallengeAddsHeader(t *testing.T) {
 
 func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
 	original := domainErrors
-	domainErrors = append([]domainError{{target: errTestSentinel, status: http.StatusUnauthorized, code: "auth.test", title: "Test"}}, original...)
+	domainErrors = append([]domainError{{target: errTestSentinel, code: problem.Code{Value: "auth.test", Status: http.StatusUnauthorized}, title: "Test"}}, original...)
 	t.Cleanup(func() { domainErrors = original })
 
 	tests := []struct {

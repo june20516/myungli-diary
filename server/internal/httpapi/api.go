@@ -2,7 +2,6 @@ package httpapi
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +11,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
+	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
 
 // healthPingTimeout은 헬스 체크가 DB 응답을 기다리는 최대 시간입니다.
@@ -50,12 +50,12 @@ var _ gen.StrictServerInterface = (*API)(nil)
 // DB가 설정되지 않은 것도 조립 실수이므로 503으로 드러냅니다.
 func (a *API) GetHealth(ctx context.Context, _ gen.GetHealthRequestObject) (gen.GetHealthResponseObject, error) {
 	if a.DB == nil {
-		return nil, &Error{Status: http.StatusServiceUnavailable, Code: codeServiceUnavailable, Title: "Service unavailable"}
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	}
 	pingCtx, cancel := context.WithTimeout(ctx, healthPingTimeout)
 	defer cancel()
 	if err := a.DB.Ping(pingCtx); err != nil {
-		return nil, &Error{Status: http.StatusServiceUnavailable, Code: codeServiceUnavailable, Title: "Service unavailable"}
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	}
 	return gen.GetHealth200JSONResponse{Status: gen.Ok}, nil
 }

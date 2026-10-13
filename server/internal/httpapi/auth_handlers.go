@@ -2,7 +2,6 @@ package httpapi
 
 import (
 	"context"
-	"net/http"
 	"net/url"
 
 	"github.com/june20516/myungli-diary/server/internal/auth"
@@ -89,7 +88,11 @@ func (a *API) Logout(ctx context.Context, req gen.LogoutRequestObject) (gen.Logo
 }
 
 // errNoAccount는 인증 middleware를 거치지 않아 ctx에 계정이 없을 때의 오류입니다(조립 실수 방어).
-var errNoAccount = &Error{Status: http.StatusUnauthorized, Code: codeTokenInvalid, Title: "Token invalid", BearerChallenge: true}
+var errNoAccount = func() *Error {
+	e := newError(problem.AuthTokenInvalid, "Token invalid")
+	e.BearerChallenge = true
+	return e
+}()
 
 // AppleCallback은 Apple 웹 흐름의 form_post 콜백을 앱 deep link로 303 redirect합니다.
 // 받은 값(code, id_token, user)은 deep link 쿼리로만 넘기고 로그에 남기지 않습니다.
@@ -109,10 +112,9 @@ func (a *API) AppleCallback(_ context.Context, req gen.AppleCallbackRequestObjec
 			missing = append(missing, problem.FieldError{Field: "/id_token", Code: "required"})
 		}
 		if len(missing) > 0 {
-			return nil, &Error{
-				Status: http.StatusBadRequest, Code: codeRequestInvalid,
-				Title: "Request does not match the contract", Errors: missing,
-			}
+			e := newError(problem.RequestInvalid, "Request does not match the contract")
+			e.Errors = missing
+			return nil, e
 		}
 		query.Set("code", *form.Code)
 		query.Set("id_token", *form.IdToken)

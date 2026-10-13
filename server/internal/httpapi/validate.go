@@ -20,11 +20,8 @@ import (
 )
 
 const (
-	codeRequestInvalid       = "request.invalid"
-	codeRequestMalformed     = "request.malformed"
-	codeUnsupportedMediaType = "request.unsupported_media_type"
-	contentTypeJSON          = "application/json"
-	contentTypeMergePatch    = "application/merge-patch+json"
+	contentTypeJSON       = "application/json"
+	contentTypeMergePatch = "application/merge-patch+json"
 
 	// validationOpenAPIVersion은 검증용 spec 사본의 버전입니다. ValidateRequests 주석을 보세요.
 	validationOpenAPIVersion = "3.0.3"
@@ -138,7 +135,7 @@ func writeValidationProblem(ctx context.Context, logger *slog.Logger, err error,
 	if opts.MatchedRoute == nil {
 		// ServeMux가 고른 라우트를 계약 router가 찾지 못한 경우입니다(경로 정규화 차이 등). 검증 없이 넘기지 않습니다.
 		logger.ErrorContext(ctx, "계약 router가 라우트를 찾지 못함", "route", r.Pattern, "errorType", fmt.Sprintf("%T", err))
-		problem.Write(w, r, problem.New(http.StatusNotFound, "route.not_found", "Route not found"))
+		problem.Write(w, r, problem.RouteNotFound.Problem("Route not found"))
 		return
 	}
 	p, classified := validationProblem(err, unsupportedMediaType(r, opts.MatchedRoute.Route.Operation))
@@ -165,13 +162,13 @@ func unsupportedMediaType(r *http.Request, operation *openapi3.Operation) bool {
 func validationProblem(err error, mediaTypeUnsupported bool) (problem.Problem, bool) {
 	var tooLarge *http.MaxBytesError
 	if errors.As(err, &tooLarge) {
-		return problem.New(http.StatusRequestEntityTooLarge, "request.too_large", "Request body is too large"), true
+		return problem.RequestTooLarge.Problem("Request body is too large"), true
 	}
 
 	requestErrors, ok := collectRequestErrors(err)
 	if !ok {
 		// 인증 통과 함수를 쓰므로 RequestError가 아닌 오류는 생기지 않아야 합니다.
-		return problem.New(http.StatusInternalServerError, "internal", "Internal server error"), false
+		return problem.Internal.Problem("Internal server error"), false
 	}
 
 	var fieldErrors []problem.FieldError
@@ -192,11 +189,11 @@ func validationProblem(err error, mediaTypeUnsupported bool) (problem.Problem, b
 
 	switch {
 	case unsupported:
-		return problem.New(http.StatusUnsupportedMediaType, codeUnsupportedMediaType, "Unsupported request content type"), true
+		return problem.UnsupportedMediaType.Problem("Unsupported request content type"), true
 	case malformed:
-		return problem.New(http.StatusBadRequest, codeRequestMalformed, "Request body is malformed"), true
+		return problem.RequestMalformed.Problem("Request body is malformed"), true
 	}
-	p := problem.New(http.StatusBadRequest, codeRequestInvalid, "Request does not match the contract")
+	p := problem.RequestInvalid.Problem("Request does not match the contract")
 	p.Errors = fieldErrors
 	return p, true
 }

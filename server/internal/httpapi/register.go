@@ -39,7 +39,7 @@ func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, 
 		// 검증을 통과한 본문이 생성 타입으로 디코드되지 않는 예외 경로입니다. 날짜·시각 형식은 검증 단계(validate.go의
 		// format validator)가 먼저 잡으므로 정상 요청에서는 닿지 않습니다.
 		RequestErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, _ error) {
-			problem.Write(w, r, problem.New(http.StatusBadRequest, codeRequestInvalid, "Request does not match the contract"))
+			problem.Write(w, r, problem.RequestInvalid.Problem("Request does not match the contract"))
 		},
 		ResponseErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
 			writeHandlerError(deps, w, r, err)
@@ -115,7 +115,7 @@ func contractOperationID(id string) string {
 // 날짜 형식은 검증 단계가 먼저 format 위반으로 잡으므로, 이 경로는 검증을 통과한 값이 생성 타입으로
 // 바뀌지 않는 예외 상황에서만 닿습니다.
 func writeParameterError(w http.ResponseWriter, r *http.Request, err error) {
-	p := problem.New(http.StatusBadRequest, codeRequestInvalid, "Request does not match the contract")
+	p := problem.RequestInvalid.Problem("Request does not match the contract")
 	if fieldError, ok := parameterFieldError(err); ok {
 		p.Errors = []problem.FieldError{fieldError}
 	}
