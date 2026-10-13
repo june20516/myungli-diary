@@ -29,6 +29,9 @@ type Routes struct {
 // 인증이 검증보다 바깥이라 토큰 없는 요청은 본문이 틀려도 400이 아니라 401을 받습니다.
 // 라우트가 mux에 직접 등록되므로 접근 로그의 route와 404·405 problem은 다른 라우트와 같게 동작합니다.
 //
+// impl이 계약 밖 정적 경로(App Link 안내 페이지 GET /auth/apple, GET /.well-known/assetlinks.json)를 내주면
+// (*API가 그렇습니다) 인증·계약 검증 없이 mux에 직접 등록합니다. 요청 로그 등 NewHandler의 middleware는 그대로 거칩니다.
+//
 // 생성 코드가 등록하는 pattern(예 "GET /v1/me")이 routes.Spec에 없거나 routes의 필드가 비어 있으면
 // 시작 시점의 조립 버그이므로 panic합니다.
 func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, routes Routes) {
@@ -49,6 +52,11 @@ func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, 
 		BaseRouter:       contractMux{mux: mux, routes: routes},
 		ErrorHandlerFunc: writeParameterError,
 	})
+	if router, ok := impl.(staticRouter); ok {
+		for _, route := range router.staticRoutes() {
+			mux.Handle(route.pattern, route.handler)
+		}
+	}
 }
 
 // contractMux는 생성 코드가 등록하는 라우트마다 계약의 operation을 찾아 인증·검증 middleware를 감싸 mux에 등록합니다.

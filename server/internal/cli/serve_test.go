@@ -13,6 +13,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -193,13 +194,23 @@ func TestRun_ServeRejectsUnparsableAuthSettings(t *testing.T) {
 		{"토큰 암호 키가 base64가 아님", "TOKEN_ENCRYPTION_KEY", secret + "!"},
 		{"이전 토큰 암호 키가 base64가 아님", "TOKEN_PREVIOUS_KEY", secret + "!"},
 		{"Apple 개인 키가 PEM이 아님", "APPLE_PRIVATE_KEY", secret},
-		{"딥링크에 scheme이 없음", "APPLE_CALLBACK_DEEPLINK", "auth/apple/" + secret},
-		{"딥링크를 해석할 수 없음", "APPLE_CALLBACK_DEEPLINK", "myungli://auth/%zz" + secret},
-		{"딥링크 scheme이 javascript", "APPLE_CALLBACK_DEEPLINK", "javascript:alert('" + secret + "')"},
-		{"딥링크 scheme이 대문자 JavaScript", "APPLE_CALLBACK_DEEPLINK", "JavaScript:alert('" + secret + "')"},
-		{"딥링크 scheme이 data", "APPLE_CALLBACK_DEEPLINK", "data:text/html," + secret},
-		{"딥링크 scheme이 file", "APPLE_CALLBACK_DEEPLINK", "file:///tmp/" + secret},
-		{"딥링크 scheme이 vbscript", "APPLE_CALLBACK_DEEPLINK", "vbscript:" + secret},
+		{"App Link 주소가 http", "APP_LINK_BASE", "http://" + secret + ".example"},
+		{"App Link 주소에 host가 없음", "APP_LINK_BASE", "https:///" + secret},
+		{"App Link 주소에 path가 있음", "APP_LINK_BASE", "https://app.myungli.example/" + secret},
+		{"App Link 주소에 query가 있음", "APP_LINK_BASE", "https://app.myungli.example/?q=" + secret},
+		{"App Link 주소를 해석할 수 없음", "APP_LINK_BASE", "https://app.myungli.example/%zz" + secret},
+		{"App Link 주소가 scheme 없는 값", "APP_LINK_BASE", secret},
+		{"스토어 주소가 http", "ANDROID_STORE_URL", "http://play.example/" + secret},
+		{"스토어 주소에 host가 없음", "ANDROID_STORE_URL", "https:///" + secret},
+		{"스토어 주소가 javascript", "ANDROID_STORE_URL", "javascript:alert('" + secret + "')"},
+		{"패키지 이름에 점이 없음", "ANDROID_APP_PACKAGE", "leakchecksecretvalue"},
+		{"패키지 이름이 숫자로 시작하는 조각", "ANDROID_APP_PACKAGE", "app.1" + "leakchecksecret"},
+		{"패키지 이름에 쓸 수 없는 문자", "ANDROID_APP_PACKAGE", "app.myungli-" + secret},
+		{"지문이 hex 형식이 아님", "ANDROID_CERT_SHA256", secret},
+		{"지문이 소문자", "ANDROID_CERT_SHA256", strings.ToLower(testCertSHA256)},
+		{"지문 길이가 31바이트", "ANDROID_CERT_SHA256", testCertSHA256[3:]},
+		{"지문 목록에 빈 값", "ANDROID_CERT_SHA256", testCertSHA256 + ","},
+		{"지문 목록의 두 번째 값이 틀림", "ANDROID_CERT_SHA256", testCertSHA256 + "," + secret},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -233,18 +244,36 @@ func TestRun_ServeRejectsUnparsableAuthSettings(t *testing.T) {
 	}
 }
 
-func TestParseAuthSettings_AcceptsAppSchemeAndHTTPS(t *testing.T) {
-	for _, link := range []string{"myungli://auth/apple", "https://app.myungli.example/auth/apple"} {
-		t.Run(link, func(t *testing.T) {
+func TestParseAuthSettings_AcceptsAppLinkSettings(t *testing.T) {
+	tests := []struct {
+		name, base, certs string
+		wantCerts         []string
+	}{
+		{"path 없음, 지문 하나", "https://app.myungli.example", testCertSHA256, []string{testCertSHA256}},
+		{"path가 /, 지문 둘(공백 포함)", "https://app.myungli.example:8443/", testCertSHA256 + " , " + otherCertSHA256, []string{testCertSHA256, otherCertSHA256}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			env := testAuthEnv(t)
-			env["APPLE_CALLBACK_DEEPLINK"] = link
+			env["APP_LINK_BASE"] = tt.base
+			env["ANDROID_CERT_SHA256"] = tt.certs
 			cfg, err := config.LoadAuth(func(key string) string { return env[key] })
 			if err != nil {
 				t.Fatalf("LoadAuth: %v", err)
 			}
 
-			if _, err := parseAuthSettings(cfg); err != nil {
-				t.Errorf("parseAuthSettings(%q) error = %v, want nil", link, err)
+			settings, err := parseAuthSettings(cfg)
+			if err != nil {
+				t.Fatalf("parseAuthSettings error = %v, want nil", err)
+			}
+			if got := settings.appLink.Base.String(); got != tt.base {
+				t.Errorf("Base = %q, want %q", got, tt.base)
+			}
+			if got := settings.appLink.CertSHA256; !slices.Equal(got, tt.wantCerts) {
+				t.Errorf("CertSHA256 = %v, want %v", got, tt.wantCerts)
+			}
+			if settings.appLink.Package != "app.myungli.test" || settings.appLink.StoreURL != testStoreURL {
+				t.Errorf("Package·StoreURL = %q·%q", settings.appLink.Package, settings.appLink.StoreURL)
 			}
 		})
 	}
@@ -256,7 +285,16 @@ func TestNewProviderHTTPClient_HasTimeout(t *testing.T) {
 	}
 }
 
-// testAuthEnv는 인증 설정 17개 중 필수 값을 채운 환경을 만듭니다.
+// testCertSHA256·otherCertSHA256은 Android 서명 인증서 SHA-256 지문 형식의 테스트 값입니다.
+const (
+	testCertSHA256  = "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5"
+	otherCertSHA256 = "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99"
+)
+
+// testStoreURL은 테스트의 Play 스토어 주소입니다.
+const testStoreURL = "https://play.google.com/store/apps/details?id=app.myungli.test"
+
+// testAuthEnv는 인증 설정 20개 중 필수 값 16개를 채운 환경을 만듭니다.
 // JWT 키는 실제로 파싱되는 P-256 PKCS8 PEM이고, 토큰 암호 키는 32바이트 난수의 base64(표준)입니다.
 func testAuthEnv(t *testing.T) map[string]string {
 	t.Helper()
@@ -286,7 +324,10 @@ func testAuthEnv(t *testing.T) map[string]string {
 		"APPLE_BUNDLE_ID":         "app.myungli.test",
 		"APPLE_SERVICES_ID":       "app.myungli.test.web",
 		"APPLE_WEB_REDIRECT_URI":  "https://api.example.test/v1/auth/apple/callback",
-		"APPLE_CALLBACK_DEEPLINK": "myungli://auth/apple",
+		"APP_LINK_BASE":           "https://app.myungli.example",
+		"ANDROID_APP_PACKAGE":     "app.myungli.test",
+		"ANDROID_CERT_SHA256":     testCertSHA256,
+		"ANDROID_STORE_URL":       testStoreURL,
 	}
 }
 

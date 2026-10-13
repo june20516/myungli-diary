@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +21,10 @@ const healthPingTimeout = time.Second
 type AuthService interface {
 	LoginKakao(ctx context.Context, idToken, rawNonce string) (auth.LoginResult, error)
 	LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string) (auth.LoginResult, error)
+	// BeginAppleWebLogin은 Apple 웹 콜백의 값을 검증·교환해 저장하고 일회용 교환 코드를 돌려줍니다.
+	BeginAppleWebLogin(ctx context.Context, idToken, authorizationCode string) (exchangeCode string, err error)
+	// CompleteAppleWebLogin은 교환 코드와 nonce 원문으로 로그인을 마칩니다.
+	CompleteAppleWebLogin(ctx context.Context, exchangeCode, rawNonce string) (auth.LoginResult, error)
 	Refresh(ctx context.Context, rawRefresh string) (auth.TokenPair, error)
 	Logout(ctx context.Context, accountID uuid.UUID, rawRefresh string) error
 }
@@ -39,8 +44,10 @@ type API struct {
 	Accounts AccountService
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
-	// AppleCallbackDeepLink는 Apple 웹 흐름 콜백이 앱으로 돌려보낼 deep link입니다.
-	AppleCallbackDeepLink string
+	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)가 원인을 남길 때 씁니다.
+	Logger *slog.Logger
+	// AppLink는 Apple 웹 콜백의 redirect 주소, 안내 페이지, assetlinks.json을 만드는 Android App Link 설정입니다.
+	AppLink AppLinkConfig
 }
 
 var _ gen.StrictServerInterface = (*API)(nil)

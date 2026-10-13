@@ -78,19 +78,22 @@ func flowAuthConfig(t *testing.T) config.AuthConfig {
 	_, err := rand.Read(tokenKey)
 	require.NoError(t, err)
 	return config.AuthConfig{
-		JWTKeyID:              "jwt-flow-1",
-		JWTKeyPEM:             newP256PEM(t),
-		TokenKeyID:            "tok-flow-1",
-		TokenKey:              base64.StdEncoding.EncodeToString(tokenKey),
-		KakaoAppKey:           providertest.KakaoAppKey,
-		KakaoAdminKey:         providertest.KakaoAdminKey,
-		AppleTeamID:           providertest.AppleTeamID,
-		AppleKeyID:            providertest.AppleKeyID,
-		ApplePrivateKeyPEM:    newP256PEM(t),
-		AppleBundleID:         providertest.AppleBundleID,
-		AppleServicesID:       providertest.AppleServicesID,
-		AppleWebRedirectURI:   providertest.AppleWebRedirectURI,
-		AppleCallbackDeepLink: "myungli://auth/apple",
+		JWTKeyID:            "jwt-flow-1",
+		JWTKeyPEM:           newP256PEM(t),
+		TokenKeyID:          "tok-flow-1",
+		TokenKey:            base64.StdEncoding.EncodeToString(tokenKey),
+		KakaoAppKey:         providertest.KakaoAppKey,
+		KakaoAdminKey:       providertest.KakaoAdminKey,
+		AppleTeamID:         providertest.AppleTeamID,
+		AppleKeyID:          providertest.AppleKeyID,
+		ApplePrivateKeyPEM:  newP256PEM(t),
+		AppleBundleID:       providertest.AppleBundleID,
+		AppleServicesID:     providertest.AppleServicesID,
+		AppleWebRedirectURI: providertest.AppleWebRedirectURI,
+		AppLinkBase:         "https://app.myungli.example",
+		AndroidAppPackage:   "app.myungli.test",
+		AndroidCertSHA256:   testCertSHA256,
+		AndroidStoreURL:     testStoreURL,
 	}
 }
 
