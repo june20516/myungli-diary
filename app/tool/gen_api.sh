@@ -30,9 +30,9 @@ rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 cp -R "$WORK_DIR/lib/core/api/gen/." "$OUTPUT_DIR/"
 
-# json_serializable·copy_with 코드(.g.dart)는 build_runner가 만든다.
-dart run build_runner build --delete-conflicting-outputs \
-  --build-filter "$OUTPUT_DIR/**"
+# json_serializable·copy_with·drift 코드(.g.dart)는 build_runner가 만든다.
+# 필터를 주면 필터 밖 생성물을 지우므로 전체를 한 번 돌린다.
+dart run build_runner build --delete-conflicting-outputs
 dart format "$OUTPUT_DIR" >/dev/null
 
 dart run tool/gen_api_routes.dart

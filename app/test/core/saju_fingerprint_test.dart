@@ -86,4 +86,37 @@ void main() {
       isNot(base),
     );
   });
+
+  test('정규화 형식이 바뀌지 않는다(golden)', () {
+    expect(
+      sajuFingerprint(_profile()),
+      '624074eb40d9edbbd010014cf2374c93b66f010dd26ceb5c45fd2f052a6b8ed2',
+    );
+  });
+
+  test('중첩 맵의 삽입 순서만 달라도 같은 정규화 결과다', () {
+    final a = {
+      'b': {
+        'y': 1,
+        'x': [
+          2,
+          {'q': 1, 'p': 2},
+        ],
+      },
+      'a': 'v',
+    };
+    final b = {
+      'a': 'v',
+      'b': {
+        'x': [
+          2,
+          {'p': 2, 'q': 1},
+        ],
+        'y': 1,
+      },
+    };
+
+    expect(canonicalJson(a), canonicalJson(b));
+    expect(canonicalJson(a), '{"a":"v","b":{"x":[2,{"p":2,"q":1}],"y":1}}');
+  });
 }

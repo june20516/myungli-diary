@@ -224,7 +224,7 @@ void main() {
     test('clearAccount는 그 계정의 캐시·초안만 지우고 나머지는 남긴다', () async {
       await seed();
 
-      await store.clearAccount('a');
+      await store.clearAccount();
 
       final other = CacheStore(database, accountId: 'b');
       expect(await store.read(CacheKind.daily, 'k'), isNull);
@@ -238,7 +238,7 @@ void main() {
     test('clearOnSignOut은 캐시·초안·온보딩 입력을 지우고 기기 플래그는 남긴다', () async {
       await seed();
 
-      await store.clearOnSignOut('a');
+      await store.clearOnSignOut();
 
       expect(await store.read(CacheKind.daily, 'k'), isNull);
       final drafts = await database.select(database.diaryDrafts).get();

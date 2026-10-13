@@ -66,8 +66,8 @@ class OnboardingInputs extends Table {
   @override
   Set<Column<Object>> get primaryKey => {id};
 
-  @override
   /// id가 1인 행만 허용합니다.
+  @override
   List<String> get customConstraints => ['CHECK (id = 1)'];
 }
 

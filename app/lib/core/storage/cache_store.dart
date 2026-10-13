@@ -102,6 +102,9 @@ final class CacheStore {
         .go();
   }
 
+  /// 새 응답을 쓰기 전에 먼저 관찰해야 합니다. 쓰고 나서 관찰하면 방금 쓴 응답이
+  /// 옛 규칙의 캐시로 함께 지워집니다.
+  ///
   /// 규칙 버전이 저장된 값과 다르면 사주 기반 캐시(달력·나의 사주)를 모두 지우고
   /// true를 돌려줍니다. 규칙은 계정과 무관하므로 모든 계정의 캐시를 지웁니다.
   /// 처음 부르면 값만 저장하고 false입니다.
@@ -147,7 +150,7 @@ final class CacheStore {
   }
 
   /// 이 계정의 캐시와 일기 초안을 지웁니다. 온보딩 입력과 기기 플래그는 남깁니다.
-  Future<void> clearAccount(String accountId) {
+  Future<void> clearAccount() {
     return _database.transaction(() async {
       await (_database.delete(
         _database.cachedResponses,
@@ -164,9 +167,9 @@ final class CacheStore {
 
   /// 로그아웃 정리. 캐시·초안·온보딩 입력을 지우고 기기 플래그는 남깁니다.
   /// 다른 계정으로 로그인했을 때 이전 계정의 데이터가 보이지 않게 합니다.
-  Future<void> clearOnSignOut(String accountId) {
+  Future<void> clearOnSignOut() {
     return _database.transaction(() async {
-      await clearAccount(accountId);
+      await clearAccount();
       await clearOnboardingInputs();
     });
   }
