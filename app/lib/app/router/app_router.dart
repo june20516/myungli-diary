@@ -80,7 +80,7 @@ GoRoute _routeOf(String id) => GoRoute(
 GoRouter buildRouter(Ref ref) {
   final refresh = ValueNotifier<int>(0);
   ref
-    ..listen(entryStateProvider, (_, _) => refresh.value++)
+    ..listen(entryProvider, (_, _) => refresh.value++)
     ..onDispose(refresh.dispose);
 
   final tabRootSet = _tabRoots.toSet();
@@ -92,10 +92,8 @@ GoRouter buildRouter(Ref ref) {
   final router = GoRouter(
     initialLocation: pathOf(ScreenIds.launch),
     refreshListenable: refresh,
-    redirect: (context, state) => entryRedirect(
-      entry: ref.read(entryStateProvider).value,
-      path: state.uri.path,
-    ),
+    redirect: (context, state) =>
+        entryRedirect(entry: ref.read(entryProvider), path: state.uri.path),
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => _TabShell(shell),

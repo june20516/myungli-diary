@@ -15,7 +15,7 @@ class _FixedEntry extends EntryController {
   final EntryState value;
 
   @override
-  Future<EntryState> build() async => value;
+  Future<EntrySnapshot> build() async => EntrySnapshot(value, null);
 }
 
 Future<GoRouter> pumpRouter(
@@ -174,6 +174,7 @@ void main() {
       );
       expect(currentPath(router), '/welcome');
       expect(find.byKey(const Key('welcome')), findsOneWidget);
+      expect(find.bySemanticsIdentifier('welcome'), findsOneWidget);
     });
 
     testWidgets('ready에서 /welcome으로 가면 /today', (tester) async {
@@ -210,6 +211,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(currentPath(router), '/$tab');
         expect(find.byKey(Key(tab)), findsOneWidget);
+        expect(find.bySemanticsIdentifier('tab-$tab'), findsOneWidget);
       }
     });
   });
