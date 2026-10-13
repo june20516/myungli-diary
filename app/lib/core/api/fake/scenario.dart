@@ -112,12 +112,21 @@ Scenario _build(String id, Map<String, Object?> json, List<String> lineage) {
     throw ScenarioFormatException('$id: today 형식이 잘못됐습니다: $today');
   }
   final delayMs = json['delayMs'];
+  if (delayMs != null && (delayMs is! int || delayMs < 0)) {
+    throw ScenarioFormatException('$id: delayMs는 0 이상의 정수여야 합니다: $delayMs');
+  }
+  final network = json['network'] ?? 'online';
+  if (network != 'online' && network != 'offline') {
+    throw ScenarioFormatException(
+      '$id: network는 online 또는 offline이어야 합니다: $network',
+    );
+  }
   return Scenario(
     id: id,
     today: DateTime(date.year, date.month, date.day),
     timezone: timezone,
-    offline: json['network'] == 'offline',
-    delay: Duration(milliseconds: delayMs is int ? delayMs : 0),
+    offline: network == 'offline',
+    delay: Duration(milliseconds: (delayMs as int?) ?? 0),
     signedIn: json['signedIn'] == true,
     lineage: lineage,
   );

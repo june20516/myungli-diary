@@ -161,7 +161,8 @@ final class AuthInterceptor extends Interceptor {
   /// 계약상 bearer가 필요한 operation인지(`security`에 bearerAuth).
   bool _requiresBearer(RequestOptions options) {
     // 계약에 없는 경로는 안전하게 bearer가 필요하다고 봅니다.
-    return matchRoute(options.method, options.path)?.requiresBearer ?? true;
+    return matchRoute(options.method, routePathOf(options))?.requiresBearer ??
+        true;
   }
 
   String? _bearerOf(RequestOptions options) {

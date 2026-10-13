@@ -1,13 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/api_route.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
+import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
+import 'package:myungli_diary/core/storage/secure_store.dart';
+import 'package:yaml/yaml.dart';
 
 /// 문자열 맵을 번들처럼 쓰는 테스트용 [AssetBundle]. 없는 키는 [FlutterError]입니다.
 class _MemoryBundle extends CachingAssetBundle {
@@ -15,8 +23,12 @@ class _MemoryBundle extends CachingAssetBundle {
 
   final Map<String, String> files;
 
+  /// 읽기를 시도한 key 기록.
+  final loads = <String>[];
+
   @override
   Future<ByteData> load(String key) async {
+    loads.add(key);
     final source = files[key];
     if (source == null) {
       throw FlutterError('Unable to load asset: "$key".');
@@ -41,6 +53,45 @@ Dio _dio(Scenario scenario, AssetBundle bundle) => Dio(
 
 DefaultApi _api(Scenario scenario, AssetBundle bundle) =>
     DefaultApi(_dio(scenario, bundle));
+
+class _FakeAppCheck implements AppCheckTokenSource {
+  @override
+  Future<String> token() async => 'app-check';
+}
+
+const Map<String, Object?> _expiredProblem = {
+  'status': 401,
+  'body': {
+    'type': 'https://api.myungli.app/problems/auth.token_expired',
+    'title': 'Token expired',
+    'status': 401,
+    'code': 'auth.token_expired',
+    'traceId': 't',
+  },
+};
+
+final Map<String, Object?> _meResponse = {
+  'status': 200,
+  'body': {
+    'accountId': '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
+    'status': 'active',
+    'consentRequired': false,
+    'requiredConsents': <Object?>[],
+    'hasProfile': true,
+    'adFree': {'active': false},
+    'insight': {'active': false},
+  },
+};
+
+const Map<String, Object?> _tokenResponse = {
+  'status': 200,
+  'body': {
+    'accessToken': 'fake-new-access',
+    'accessTokenExpiresAt': '2026-10-13T01:00:00Z',
+    'refreshToken': 'fake-new-refresh',
+    'refreshTokenExpiresAt': '2026-11-12T00:00:00Z',
+  },
+};
 
 String _calendar(int status, [String marker = 'x']) => jsonEncode({
   'status': status,
@@ -209,4 +260,238 @@ void main() {
       );
     });
   });
+
+  group('sequence', () {
+    test('n번째 호출은 n번째 응답이고 넘으면 마지막을 되풀이한다', () async {
+      final bundle = _MemoryBundle({
+        'fixtures/s/getCalendar.json': jsonEncode({
+          'sequence': [
+            {
+              'status': 200,
+              'body': {'marker': 'first'},
+            },
+            {
+              'status': 200,
+              'body': {'marker': 'second'},
+            },
+          ],
+        }),
+      });
+      final dio = _dio(_scenario('s'), bundle);
+      Future<Object?> marker() async =>
+          (await dio.get<Map<String, Object?>>('/v1/calendar/2026/10'))
+              .data!['marker'];
+      expect(await marker(), 'first');
+      expect(await marker(), 'second');
+      expect(await marker(), 'second');
+    });
+
+    test('호출 수는 인스턴스마다 새로 센다', () async {
+      final bundle = _MemoryBundle({
+        'fixtures/s/getCalendar.json': jsonEncode({
+          'sequence': [
+            {
+              'status': 200,
+              'body': {'marker': 'first'},
+            },
+            {
+              'status': 200,
+              'body': {'marker': 'second'},
+            },
+          ],
+        }),
+      });
+      for (var i = 0; i < 2; i++) {
+        final dio = _dio(_scenario('s'), bundle);
+        final response = await dio.get<Map<String, Object?>>(
+          '/v1/calendar/2026/10',
+        );
+        expect(response.data!['marker'], 'first');
+      }
+    });
+  });
+
+  group('fake 모드 인증 흐름', () {
+    late TokenStore tokens;
+
+    setUp(() async {
+      tokens = TokenStore(MemorySecureStore());
+      await tokens.save(
+        TokenPair(
+          accessToken: 'old-access',
+          accessTokenExpiresAt: DateTime.utc(2026, 10, 13),
+          refreshToken: 'old-refresh',
+          refreshTokenExpiresAt: DateTime.utc(2026, 11),
+        ),
+      );
+    });
+
+    tearDown(() => tokens.dispose());
+
+    DefaultApi api(_MemoryBundle bundle) => DefaultApi(
+      buildDio(
+        mode: ApiMode.fake,
+        baseUrl: Uri.parse('http://localhost:8080'),
+        tokens: tokens,
+        appCheck: _FakeAppCheck(),
+        locale: () => const Locale('ko'),
+        fakeServer: FakeServerInterceptor(
+          scenario: _scenario('s'),
+          bundle: bundle,
+        ),
+      ),
+    );
+
+    int refreshCalls(_MemoryBundle bundle) =>
+        bundle.loads.where((k) => k.endsWith('refreshToken.json')).length;
+
+    test('401 만료 -> refresh 1회 -> 토큰 저장 -> 재시도 성공', () async {
+      final bundle = _MemoryBundle({
+        'fixtures/s/getMe.json': jsonEncode({
+          'sequence': [_expiredProblem, _meResponse],
+        }),
+        'fixtures/s/refreshToken.json': jsonEncode(_tokenResponse),
+      });
+      final response = await api(bundle).getMe();
+      expect(response.statusCode, 200);
+      expect(response.data!.hasProfile, isTrue);
+      expect(refreshCalls(bundle), 1);
+      expect(tokens.accessToken, 'fake-new-access');
+      expect(await tokens.refreshToken(), 'fake-new-refresh');
+    });
+
+    test('항상 401이면 refresh 1회 뒤 재시도도 401로 ProblemError', () async {
+      final bundle = _MemoryBundle({
+        'fixtures/s/getMe.json': jsonEncode(_expiredProblem),
+        'fixtures/s/refreshToken.json': jsonEncode(_tokenResponse),
+      });
+      final error = await _errorOf(() => api(bundle).getMe());
+      expect(error, isA<ProblemError>());
+      expect((error as ProblemError).code, 'auth.token_expired');
+      expect(error.status, 401);
+      expect(refreshCalls(bundle), 1);
+    });
+  });
+
+  group('asset 읽기', () {
+    test('번들에 없음이 아닌 읽기 오류는 501로 삼키지 않고 드러낸다', () async {
+      final bundle = _BrokenBundle();
+      try {
+        await _api(_scenario('s'), bundle).getMe();
+        fail('오류가 나야 합니다.');
+      } on DioException catch (e) {
+        expect(e.error, isA<FlutterError>());
+        expect(e.response, isNull);
+      }
+    });
+  });
+
+  group('delay', () {
+    test('delayMs만큼 기다린 뒤 답한다', () async {
+      final scenario = Scenario(
+        id: 's',
+        today: DateTime(2026, 10, 13),
+        timezone: 'Asia/Seoul',
+        delay: const Duration(milliseconds: 80),
+      );
+      final bundle = _MemoryBundle({
+        'fixtures/s/getMe.json': jsonEncode(_meResponse),
+      });
+      final stopwatch = Stopwatch()..start();
+      await _api(scenario, bundle).getMe();
+      expect(stopwatch.elapsedMilliseconds, greaterThanOrEqualTo(80));
+    });
+  });
+
+  group('scenarios.json 값 검사', () {
+    String one(String extra) =>
+        '[{"id": "a", "today": "2026-10-13", "timezone": "Asia/Seoul"$extra}]';
+
+    test('delayMs가 정수가 아니거나 음수면 오류다', () {
+      for (final bad in ['"100"', '1.5', '-1', 'true']) {
+        expect(
+          () => parseScenarios(one(', "delayMs": $bad')),
+          throwsA(isA<ScenarioFormatException>()),
+          reason: bad,
+        );
+      }
+      expect(
+        parseScenarios(one(', "delayMs": 25')).single.delay,
+        const Duration(milliseconds: 25),
+      );
+    });
+
+    test('network가 online·offline이 아니면 오류다', () {
+      expect(
+        () => parseScenarios(one(', "network": "flaky"')),
+        throwsA(isA<ScenarioFormatException>()),
+      );
+      expect(
+        parseScenarios(one(', "network": "offline"')).single.offline,
+        isTrue,
+      );
+    });
+  });
+
+  group('fixtures 폴더 가드', () {
+    final folders = Directory('fixtures')
+        .listSync()
+        .whereType<Directory>()
+        .map((d) => d.uri.pathSegments.where((s) => s.isNotEmpty).last)
+        .toSet();
+    final pubspec =
+        loadYaml(File('pubspec.yaml').readAsStringSync()) as YamlMap;
+    final assets = ((pubspec['flutter'] as YamlMap)['assets'] as YamlList)
+        .cast<String>()
+        .toSet();
+    final scenarios = parseScenarios(
+      File('fixtures/scenarios.json').readAsStringSync(),
+    );
+
+    test('모든 fixtures 하위 폴더와 fixtures/ 자체가 pubspec assets에 있다', () {
+      expect(assets, contains('fixtures/'));
+      for (final folder in folders) {
+        expect(assets, contains('fixtures/$folder/'), reason: folder);
+      }
+    });
+
+    test('pubspec의 fixtures asset은 실제 폴더를 가리킨다', () {
+      for (final asset in assets.where(
+        (a) => a.startsWith('fixtures/') && a != 'fixtures/',
+      )) {
+        expect(Directory(asset).existsSync(), isTrue, reason: asset);
+      }
+    });
+
+    test('폴더 이름은 모두 시나리오 id이고, 폴더 없는 시나리오는 extends가 있다', () {
+      final ids = scenarios.map((s) => s.id).toSet();
+      expect(
+        ids.containsAll(folders),
+        isTrue,
+        reason: '시나리오 없는 폴더: ${folders.difference(ids)}',
+      );
+      for (final scenario in scenarios.where((s) => !folders.contains(s.id))) {
+        expect(
+          scenario.lineage.length,
+          greaterThan(1),
+          reason: '${scenario.id}: fixture 폴더도 extends도 없습니다',
+        );
+      }
+    });
+  });
+
+  test('routePathOf는 base URL의 path 접두어를 뗀다', () {
+    String pathOf(String base, String path) =>
+        routePathOf(RequestOptions(baseUrl: base, path: path));
+    expect(pathOf('http://h:8080', '/v1/me'), '/v1/me');
+    expect(pathOf('https://h/api/', '/v1/me'), '/v1/me');
+    expect(pathOf('https://h/api', '/v1/me'), '/v1/me');
+    expect(matchRoute('GET', pathOf('https://h/api', '/v1/me')), isNotNull);
+  });
+}
+
+/// 읽을 때마다 "없는 asset"이 아닌 오류를 내는 번들.
+class _BrokenBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async => throw FlutterError('디스크 오류');
 }

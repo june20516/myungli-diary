@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:myungli_diary/core/api/api_route_model.dart';
 import 'package:myungli_diary/core/api/gen_routes/routes.g.dart';
 
@@ -19,4 +20,17 @@ ApiRoute? matchRoute(String method, String path) {
     }
   }
   return best;
+}
+
+/// 요청의 경로에서 base URL의 path 접두어를 뗀, 계약 기준 경로를 돌려줍니다.
+///
+/// 예: baseUrl `https://host/api`, 요청 `/v1/me` -> `/v1/me`.
+String routePathOf(RequestOptions options) {
+  final path = options.uri.path;
+  final prefix = Uri.parse(options.baseUrl).path
+      .replaceFirst(RegExp(r'/+$'), '');
+  if (prefix.isNotEmpty && path.startsWith('$prefix/')) {
+    return path.substring(prefix.length);
+  }
+  return path;
 }

@@ -29,6 +29,7 @@ final fakeServerInterceptorProvider = Provider<Interceptor?>((ref) {
   );
 });
 
+const _missingAssetMessage = 'Unable to load asset';
 const _problemType = 'https://api.myungli.app/problems';
 const _fakeTraceId = 'fake-server';
 
@@ -58,13 +59,14 @@ final class FakeServerInterceptor extends Interceptor {
           requestOptions: options,
           reason: '대역 서버: ${scenario.id} 시나리오는 오프라인입니다.',
         ),
+        true,
       );
       return;
     }
     if (scenario.delay > Duration.zero) {
       await Future<void>.delayed(scenario.delay);
     }
-    final route = matchRoute(options.method, options.uri.path);
+    final route = matchRoute(options.method, routePathOf(options));
     if (route == null) {
       _respond(
         options,
@@ -73,12 +75,12 @@ final class FakeServerInterceptor extends Interceptor {
           404,
           'route.not_found',
           'Route not found',
-          '${options.method} ${options.uri.path}',
+          '${options.method} ${routePathOf(options)}',
         ),
       );
       return;
     }
-    final fixture = await _findFixture(route, options.uri.path);
+    final fixture = await _findFixture(route, routePathOf(options));
     _respond(
       options,
       handler,
@@ -92,6 +94,9 @@ final class FakeServerInterceptor extends Interceptor {
     );
   }
 
+  /// fixture 파일 경로별 지금까지의 호출 수(`sequence` 순서용).
+  final _callCounts = <String, int>{};
+
   Future<_Fixture?> _findFixture(ApiRoute route, String path) async {
     final parameters = route.pathParametersOf(path) ?? const {};
     final names = [
@@ -101,22 +106,33 @@ final class FakeServerInterceptor extends Interceptor {
     ];
     for (final scenarioId in scenario.lineage) {
       for (final name in names) {
-        final source = await _tryLoad('fixtures/$scenarioId/$name');
+        final key = 'fixtures/$scenarioId/$name';
+        final source = await _tryLoad(key);
         if (source != null) {
-          return _parseFixture(source, '$scenarioId/$name');
+          final responses = _parseFixture(source, key);
+          final count = _callCounts[key] ?? 0;
+          _callCounts[key] = count + 1;
+          // 목록을 넘으면 마지막 응답을 되풀이합니다.
+          return responses[count < responses.length
+              ? count
+              : responses.length - 1];
         }
       }
     }
     return null;
   }
 
+  /// 번들에 없는 asset이면 null이고, 그 밖의 읽기 오류는 그대로 던집니다.
   Future<String?> _tryLoad(String key) async {
     try {
       return await bundle.loadString(key);
-      // 없는 asset은 번들이 FlutterError로 알립니다.
+      // 없는 asset은 번들이 FlutterError('Unable to load asset')로 알립니다.
       // ignore: avoid_catching_errors
-    } on FlutterError {
-      return null;
+    } on FlutterError catch (error) {
+      if (error.message.startsWith(_missingAssetMessage)) {
+        return null;
+      }
+      rethrow;
     }
   }
 
@@ -143,7 +159,7 @@ final class FakeServerInterceptor extends Interceptor {
         true,
       );
     } else {
-      handler.resolve(response);
+      handler.resolve(response, true);
     }
   }
 
@@ -175,8 +191,20 @@ final class _Fixture {
   final Object? body;
 }
 
-_Fixture _parseFixture(String source, String name) {
+/// fixture 파일을 응답 목록으로 읽습니다. 단일 형식이면 하나짜리 목록입니다.
+List<_Fixture> _parseFixture(String source, String name) {
   final json = jsonDecode(source);
+  if (json is Map<String, Object?> && json.containsKey('sequence')) {
+    final sequence = json['sequence'];
+    if (sequence is! List<Object?> || sequence.isEmpty) {
+      throw FormatException('sequence는 비어 있지 않은 배열이어야 합니다: $name');
+    }
+    return [for (final item in sequence) _parseResponse(item, name)];
+  }
+  return [_parseResponse(json, name)];
+}
+
+_Fixture _parseResponse(Object? json, String name) {
   if (json is! Map<String, Object?> || json['status'] is! int) {
     throw FormatException('fixture에 정수 status가 필요합니다: $name');
   }

@@ -1,16 +1,18 @@
 """대역 서버 fixture를 계약(openapi.yaml) 스키마로 검증합니다.
 
-app/에서 실행합니다.
-    uv run --with jsonschema --with pyyaml --with referencing python -I tool/validate_fixtures.py
+app/에서 실행합니다(rfc3339-validator는 `date-time` format 검사에 필요합니다).
+    uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validator python -I tool/validate_fixtures.py
 
 각 `fixtures/<시나리오>/<operationId>[__<매개변수>].json`의 `body`를 그 operation의
-`status`(없으면 `default`) 응답 스키마로 검증합니다. 실패하면 파일과 JSON Pointer를
+`status`(없으면 `default`) 응답 스키마로 검증합니다. `{ "sequence": [응답, ...] }`
+형식이면 각 응답을 같은 규칙으로 검증합니다. 실패하면 파일과 JSON Pointer를
 출력하고 종료 코드 1입니다.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -37,11 +39,23 @@ class Contract:
         resource = Resource.from_contents(spec, default_specification=DRAFT202012)
         self.registry = Registry().with_resource(SPEC_URI, resource)
         self.operations: dict[str, dict[str, Any]] = {}
-        for item in spec["paths"].values():
+        # operationId -> 경로 템플릿 순서의 path 매개변수 스키마 목록
+        self.path_parameters: dict[str, list[dict[str, Any]]] = {}
+        for template, item in spec["paths"].items():
+            declared = {}
+            for parameter in item.get("parameters", []):
+                parameter = self.resolve_ref(parameter)
+                if parameter.get("in") == "path":
+                    declared[parameter["name"]] = parameter.get("schema", {})
+            names = re.findall(r"\{([^}]+)\}", template)
             for method in HTTP_METHODS:
                 operation = item.get(method)
                 if operation:
-                    self.operations[operation["operationId"]] = operation
+                    operation_id = operation["operationId"]
+                    self.operations[operation_id] = operation
+                    self.path_parameters[operation_id] = [
+                        declared.get(name, {}) for name in names
+                    ]
 
     @classmethod
     def load(cls, path: Path = OPENAPI_PATH) -> "Contract":
@@ -69,17 +83,34 @@ def validate_fixture(
     contract: Contract, operation_id: str, fixture: Any
 ) -> list[str]:
     """fixture 하나를 검증하고 오류 문구 목록을 돌려줍니다(없으면 빈 목록)."""
-    operation = contract.operations.get(operation_id)
-    if operation is None:
+    if operation_id not in contract.operations:
         return [f"계약에 없는 operationId: {operation_id}"]
+    if isinstance(fixture, dict) and "sequence" in fixture:
+        sequence = fixture["sequence"]
+        if set(fixture) != {"sequence"} or not isinstance(sequence, list) or not sequence:
+            return ["/sequence: sequence는 비어 있지 않은 배열이어야 하고 다른 키와 함께 쓸 수 없습니다"]
+        errors: list[str] = []
+        for index, response in enumerate(sequence):
+            errors += validate_response(
+                contract, operation_id, response, f"/sequence/{index}"
+            )
+        return errors
+    return validate_response(contract, operation_id, fixture, "")
+
+
+def validate_response(
+    contract: Contract, operation_id: str, fixture: Any, prefix: str
+) -> list[str]:
+    """`{status, headers?, body?}` 응답 하나를 검증합니다. [prefix]는 오류 위치 접두어입니다."""
+    operation = contract.operations[operation_id]
     if not isinstance(fixture, dict) or not isinstance(fixture.get("status"), int):
-        return ["fixture는 정수 status가 있는 객체여야 합니다"]
+        return [f"{prefix}: 응답은 정수 status가 있는 객체여야 합니다"]
 
     status = fixture["status"]
     responses = operation["responses"]
     key = str(status) if str(status) in responses else "default"
     if key not in responses:
-        return [f"{operation_id}에 status {status}도 default도 없습니다"]
+        return [f"{prefix}: {operation_id}에 status {status}도 default도 없습니다"]
     response = contract.resolve_ref(responses[key])
 
     headers = {k.lower(): v for k, v in (fixture.get("headers") or {}).items()}
@@ -92,11 +123,11 @@ def validate_fixture(
     content = response.get("content") or {}
     if "body" not in fixture or fixture["body"] is None:
         if content:
-            return [f"/body: 본문이 필요합니다 ({media_type})"]
+            return [f"{prefix}/body: 본문이 필요합니다 ({media_type})"]
         return []
     if media_type not in content:
         return [
-            f"/headers/content-type: {operation_id} {key} 응답에 "
+            f"{prefix}/headers/content-type: {operation_id} {key} 응답에 "
             f"{media_type} 본문이 없습니다 (있는 것: {', '.join(content) or '없음'})"
         ]
 
@@ -106,12 +137,57 @@ def validate_fixture(
         registry=contract.registry,
         format_checker=Draft202012Validator.FORMAT_CHECKER,
     )
-    errors = sorted(
+    errors_sorted = sorted(
         validator.iter_errors(fixture["body"]), key=lambda e: list(e.absolute_path)
     )
     return [
-        f"{_pointer(['body', *error.absolute_path])}: {error.message}"
-        for error in errors
+        f"{_pointer([*prefix.split('/')[1:], 'body', *error.absolute_path])}: {error.message}"
+        for error in errors_sorted
+    ]
+
+
+def check_file_name(contract: Contract, file: Path) -> list[str]:
+    """`<operationId>__<값>-<값>.json`의 값이 path 매개변수 스키마와 맞는지 검사합니다.
+
+    값 자체에 `-`가 있을 수 있어(예 날짜) `-` 조각을 매개변수 수만큼 이어 붙이는
+    모든 방법 중 스키마를 모두 만족하는 것이 하나라도 있으면 통과합니다.
+    """
+    operation_id, separator, suffix = file.stem.partition("__")
+    schemas = contract.path_parameters.get(operation_id)
+    if schemas is None:
+        return []  # 계약에 없는 operationId는 validate_fixture가 알립니다.
+    if not separator:
+        return []
+    if not schemas:
+        return [f"path 매개변수가 없는 {operation_id}에 `__{suffix}`가 붙었습니다"]
+    pieces = suffix.split("-")
+
+    def fits(schema: dict[str, Any], value: str) -> bool:
+        instance: Any = value
+        if schema.get("type") == "integer":
+            if not re.fullmatch(r"-?\d+", value):
+                return False
+            instance = int(value)
+        validator = Draft202012Validator(
+            _absolute_refs(schema),
+            registry=contract.registry,
+            format_checker=Draft202012Validator.FORMAT_CHECKER,
+        )
+        return validator.is_valid(instance)
+
+    def split(start: int, index: int) -> bool:
+        if index == len(schemas):
+            return start == len(pieces)
+        for end in range(start + 1, len(pieces) + 1):
+            if fits(schemas[index], "-".join(pieces[start:end])) and split(end, index + 1):
+                return True
+        return False
+
+    if split(0, 0):
+        return []
+    return [
+        f"파일 이름의 값 `{suffix}`이 {operation_id}의 path 매개변수 "
+        f"{len(schemas)}개와 맞지 않습니다"
     ]
 
 
@@ -148,6 +224,8 @@ def validate_all(contract: Contract, fixtures_dir: Path = FIXTURES_DIR) -> tuple
         except json.JSONDecodeError as error:
             failures.append(f"{relative}: JSON 문법 오류: {error}")
             continue
+        for message in check_file_name(contract, file):
+            failures.append(f"{relative}: {message}")
         for message in validate_fixture(contract, operation_id_of(file), fixture):
             failures.append(f"{relative}: {message}")
     return count, failures

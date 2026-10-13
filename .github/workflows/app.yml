@@ -77,8 +77,9 @@ jobs:
         run: uv run --project docs/identity/writing/tools mlw check-arb app/lib/core/l10n/arb/*.arb
       - name: fixture 스키마 검증
         run: |
-          uv run --with jsonschema --with pyyaml --with referencing python -I tool/validate_fixtures.py
-          uv run --with jsonschema --with pyyaml --with referencing python -I tool/test_validate_fixtures.py
+          uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validator sh -c '
+            python -I tool/test_validate_fixtures.py &&
+            python -I tool/validate_fixtures.py'
       - name: 정적 분석
         run: flutter analyze
       - name: 테스트

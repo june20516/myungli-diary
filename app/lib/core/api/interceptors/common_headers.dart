@@ -38,7 +38,7 @@ final class CommonHeadersInterceptor extends Interceptor {
       if (tokens.accessToken == null) {
         options.headers['Accept-Language'] = locale().languageCode;
       }
-      final route = matchRoute(options.method, options.path);
+      final route = matchRoute(options.method, routePathOf(options));
       if (route != null && _appCheckOperations.contains(route.operationId)) {
         options.headers['X-Firebase-AppCheck'] = await appCheck.token();
       }

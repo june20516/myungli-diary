@@ -1,7 +1,7 @@
 """validate_fixtures.py 테스트.
 
 app/에서 실행합니다.
-    uv run --with jsonschema --with pyyaml --with referencing python -I tool/test_validate_fixtures.py
+    uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validator python -I tool/test_validate_fixtures.py
 """
 
 import importlib.util
@@ -89,9 +89,65 @@ class ValidateFixtureTest(unittest.TestCase):
         )
         self.assertIn("content-type", errors[0])
 
+    def test_date_time_format_is_checked(self):
+        errors = self.check(
+            "getMe",
+            {
+                "status": 200,
+                "body": _me_body(status="pending_deletion", deletionScheduledAt="내일"),
+            },
+        )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("/body/deletionScheduledAt", errors[0])
+
+    def test_sequence_validates_every_response(self):
+        problem = {
+            "type": "https://api.myungli.app/problems/auth.token_expired",
+            "title": "Expired",
+            "status": 401,
+            "code": "auth.token_expired",
+            "traceId": "t",
+        }
+        good = {"sequence": [{"status": 401, "body": problem}, {"status": 200, "body": _me_body()}]}
+        self.assertEqual(self.check("getMe", good), [])
+        bad = {"sequence": [{"status": 401, "body": problem}, {"status": 200, "body": _me_body(hasProfile=None)}]}
+        errors = self.check("getMe", bad)
+        self.assertEqual(len(errors), 1)
+        self.assertTrue(errors[0].startswith("/sequence/1/body"), errors[0])
+        self.assertIn("hasProfile", errors[0])
+
+    def test_sequence_must_be_a_non_empty_array_alone(self):
+        self.assertNotEqual(self.check("getMe", {"sequence": []}), [])
+        self.assertNotEqual(
+            self.check("getMe", {"sequence": [{"status": 200}], "status": 200}), []
+        )
+
     def test_unknown_operation_fails(self):
         errors = self.check("noSuchOperation", {"status": 200, "body": {}})
         self.assertIn("noSuchOperation", errors[0])
+
+
+class FileNameTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.contract = validate_fixtures.Contract.load()
+
+    def names(self, name):
+        return validate_fixtures.check_file_name(self.contract, Path(name))
+
+    def test_matching_parameter_values_pass(self):
+        self.assertEqual(self.names("getCalendar__2026-10.json"), [])
+        self.assertEqual(self.names("getDaily__2026-10-13.json"), [])
+        self.assertEqual(self.names("getMe.json"), [])
+
+    def test_wrong_piece_count_or_value_fails(self):
+        self.assertNotEqual(self.names("getCalendar__2026.json"), [])
+        self.assertNotEqual(self.names("getCalendar__2026-10-13.json"), [])
+        self.assertNotEqual(self.names("getCalendar__2026-13.json"), [])
+        self.assertNotEqual(self.names("getDaily__2026-10.json"), [])
+
+    def test_parameters_on_operation_without_path_parameters_fail(self):
+        self.assertNotEqual(self.names("getMe__2026.json"), [])
 
 
 class ValidateAllTest(unittest.TestCase):
