@@ -506,7 +506,13 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     final navigator = Navigator.of(context);
     if (!widget.route.isCurrent) {
       // 손을 뗀 뒤 닫기 판정 전에 위에 다른 route(예 용어 설명 시트)가 열렸습니다.
-      // `maybePop`은 맨 위를 닫으므로 이 시트만 뺍니다.
+      // `maybePop`은 맨 위를 닫으므로 이 시트만 뺍니다. `removeRoute`는 `PopScope`를
+      // 거치지 않으므로, 이 시트가 닫기를 막으면 빼지 않고 제자리로 돌아옵니다.
+      if (widget.route.popDisposition == RoutePopDisposition.doNotPop) {
+        _dismissing = false;
+        if (_bounce == 0) _settleBack();
+        return;
+      }
       navigator.removeRoute(widget.route);
       return;
     }

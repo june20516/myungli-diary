@@ -1012,6 +1012,54 @@ void main() {
       }
     });
 
+    testWidgets('겹친 뒤 닫기 판정이 와도 PopScope가 막으면 끌던 시트를 빼지 않습니다', (tester) async {
+      // iOS bounce 본문은 손을 뗀 뒤 첫 관성 프레임에서 닫기를 판정합니다. 그 사이
+      // 용어 칩 등으로 설명 시트가 겹쳐 열리면, 닫기가 맨 위(새 시트)를 닫으면 안 됩니다.
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await openBody(
+          tester,
+          (_) => PopScope(
+            canPop: false,
+            child: ListView(
+              key: const ValueKey('sheet-body'),
+              children: [
+                for (var i = 0; i < 40; i++)
+                  SizedBox(height: 48, child: Text('아래 $i')),
+              ],
+            ),
+          ),
+        );
+        final base = tester.binding.currentSystemFrameTimeStamp;
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(const ValueKey('sheet-body'))),
+        );
+        for (var i = 0; i <= 6; i++) {
+          await gesture.moveBy(
+            Offset(0, i == 0 ? 30 : 15),
+            timeStamp: base + Duration(milliseconds: 8 * i),
+          );
+        }
+        await gesture.up(timeStamp: base + const Duration(milliseconds: 56));
+        unawaited(
+          showMyungliSheet<void>(
+            _navigatorKey.currentContext!,
+            size: SheetSize.half,
+            builder: (_) => const Text('위 시트'),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.pumpAndSettle();
+
+        expect(find.text('위 시트'), findsOneWidget);
+        expect(find.text('아래 0'), findsOneWidget);
+        expect(find.byType(MyungliSheetFrame), findsNWidgets(2));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
     testWidgets('ios: 짧게 끌다 멈춘 뒤 놓으면 닫히지 않습니다', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       try {
