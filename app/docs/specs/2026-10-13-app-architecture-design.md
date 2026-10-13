@@ -12,7 +12,7 @@
   * 슬롯 명세 v1
   * 라이팅 검사기 `mlw` v0.1.0
 * 개정 기록
-  * 2026-10-14: 기반 계획 최종 review 반영. 계약을 REST 1.0.0-draft.2(Apple 로그인 `clientType` 제거, iOS `loginApple`·Android `completeAppleWebLogin` 분리, nonce 원문·해시 규칙)와 컴포넌트 2.2.0(V28 용어 칩 화면 한정, 잠김 라벨 구역 이름)으로 맞춤. 수치를 IA v1 현재 값(화면 37, 슬롯 124, operation 38)으로 고침. App Check 대상은 계약 `security`에서 생성(§4.1). 로그아웃 정리 경로·백업 정책(§4.4), 계정 연결(§7), `workflow_call`의 E2E 조건(§9)을 더함. 생성기는 결정 A16으로 확정
+  * 2026-10-14: 기반 계획 최종 review 반영. 계약을 REST 1.0.0-draft.2(Apple 로그인 `clientType` 제거, iOS `loginApple`·Android `completeAppleWebLogin` 분리, nonce 원문·해시 규칙)와 컴포넌트 2.2.0(V28 용어 칩 화면 한정, 잠김 라벨 구역 이름)으로 맞춤. 수치를 IA v1 현재 값(화면 37, 슬롯 124, operation 38)으로 고침. App Check 대상은 계약 `security`에서 생성(§4.1). 로그아웃 정리 경로·백업 정책(Android·iOS, §4.4), 계정 연결(§7), `workflow_call`의 E2E 조건(§9)을 더함. 생성기는 결정 A16으로 확정
 
 ## 1. 목적과 범위
 
@@ -131,7 +131,7 @@ app/
 
 **로그아웃 정리.** 모든 로그아웃은 `TokenStore.signOut`의 `signedOut` 이벤트 하나를 거칩니다. 경로는 refresh 거부, `getMe` 401, 삭제 대기 계정(S16), 자발적 로그아웃입니다. 삭제 대기 계정과 자발적 로그아웃은 `revokeAndSignOut`으로 server `logout`(refresh token 폐기)을 먼저 시도하고, 실패해도 로컬 로그아웃은 합니다. 이벤트를 받으면 모든 계정의 캐시·일기 초안과 온보딩 입력을 지웁니다(기기 플래그는 남김). 기기에는 한 번에 한 계정만 로그인하므로 계정 id를 기억하지 않고 지워, 이번 실행에서 내 정보를 받기 전에 로그아웃돼도 정리됩니다. 계정 삭제(계획 6)도 같은 이벤트를 거칩니다.
 
-**백업과 다시 설치.** Android는 클라우드 백업과 기기 간 이전에서 앱 데이터를 모두 뺍니다(`allowBackup="false"`, `dataExtractionRules`). 일기 초안과 출생 정보를 보호하고, 새 기기의 Keystore 키로 풀 수 없는 보안 저장소 값이 옮겨지지 않게 합니다. iOS Keychain은 앱을 지워도 남으므로, 진입 계산이 설치 표시(기기 플래그)가 없으면 다시 설치한 것으로 보고 이전 설치의 refresh token을 버립니다.
+**백업과 다시 설치.** Android는 클라우드 백업과 기기 간 이전에서 앱 데이터를 모두 뺍니다(`allowBackup="false"`, `dataExtractionRules`). 일기 초안과 출생 정보를 보호하고, 새 기기의 Keystore 키로 풀 수 없는 보안 저장소 값이 옮겨지지 않게 합니다. iOS는 DB를 Application Support/Database에 두고 `AppDelegate`가 그 디렉터리를 iCloud·기기 백업에서 뺍니다(`isExcludedFromBackup`). Keychain 값은 `first_unlock_this_device`(이 기기 전용)라 백업으로 새 기기에 옮겨지지 않습니다. iOS Keychain은 앱을 지워도 남으므로, 진입 계산이 설치 표시(기기 플래그)가 없으면 다시 설치한 것으로 보고 이전 설치의 refresh token을 버립니다.
 
 **사주 기반 영구 캐시: 달력(`getCalendar`), 나의 사주(`getChart`)**
 * 달력의 길흉과 나의 사주는 (내 사주, 그 달·그해)로 정해집니다. server도 `birth_hash + rulesetVersion + 연·월 + 시간대`로 캐시합니다. 그날 문장(`level`)도 server가 (계정, 날짜, 슬롯)마다 한 번 골라 고정합니다(D59②).
