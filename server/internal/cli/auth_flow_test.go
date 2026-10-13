@@ -317,8 +317,14 @@ func TestAuthFlow_AndroidAppleWebLogin(t *testing.T) {
 	assert.Equal(t, "/auth/apple", location.Path)
 	exchange := location.Query().Get("exchange")
 	require.NotEmpty(t, exchange, "Location: %s", location)
-	assert.Equal(t, state, location.Query().Get("state"))
+	assert.Equal(t, state, location.Query().Get("state"), "보낸 state를 그대로 돌려줍니다")
 	assert.Empty(t, location.Query().Get("error"))
+	// id_token·code·user 같은 Apple 값은 URL에 실리지 않습니다.
+	queryKeys := make([]string, 0, len(location.Query()))
+	for key := range location.Query() {
+		queryKeys = append(queryKeys, key)
+	}
+	assert.ElementsMatch(t, []string{"exchange", "state"}, queryKeys, "query는 exchange·state뿐입니다")
 
 	// App Link가 앱을 열지 못하면 브라우저가 이 경로를 서버에서 받아 안내 페이지를 봅니다.
 	pageReq, err := http.NewRequestWithContext(t.Context(), http.MethodGet, env.url+"/auth/apple?"+location.RawQuery, nil)
