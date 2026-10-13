@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from concurrent import futures
+from dataclasses import dataclass
 from typing import Final
 
 import grpc
+from grpc_health.v1 import health, health_pb2, health_pb2_grpc
 
 from myungli_engine._gen.myungli.engine.v1 import engine_pb2 as pb
 from myungli_engine._gen.myungli.engine.v1 import engine_pb2_grpc as pb_grpc
@@ -24,6 +26,7 @@ from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
 
 DEFAULT_PORT: Final = 50051
 MAX_WORKERS: Final = 8
+ENGINE_SERVICE_NAME: Final = pb.DESCRIPTOR.services_by_name["MyungliEngine"].full_name
 
 
 class MyungliEngineServicer(pb_grpc.MyungliEngineServicer):
@@ -99,20 +102,37 @@ def all_reference_refs() -> Iterator[str]:
     yield from loader.FIVE_ELEMENTS_REF.values()
 
 
-def start(port: int = DEFAULT_PORT) -> tuple[grpc.Server, int]:
-    """근거 데이터를 검증하고 계산 캐시를 데운 뒤 서버를 시작해 (서버, 실제 바인딩 포트)를 돌려준다.
+@dataclass(frozen=True)
+class RunningEngine:
+    """시작된 엔진 서버와 그 health 상태."""
 
-    port=0이면 임의 포트에 바인딩한다. 근거 데이터에 없는 키가 있으면 KeyError로 시작하지 않는다(spec 11).
+    server: grpc.Server
+    port: int
+    health: health.HealthServicer
+
+    def begin_shutdown(self) -> None:
+        """health를 모두 NOT_SERVING으로 바꾼다. 이후 상태 변경은 무시된다."""
+        self.health.enter_graceful_shutdown()
+
+    def stop(self, grace: float | None) -> None:
+        self.server.stop(grace=grace).wait()
+
+
+def start(port: int = DEFAULT_PORT) -> RunningEngine:
+    """근거 데이터를 검증하고 계산 캐시를 데운 뒤 서버를 시작한다.
+
+    port=0이면 임의 포트에 바인딩하고, 실제 포트는 RunningEngine.port에 있다.
+    근거 데이터에 없는 키가 있으면 KeyError로 시작하지 않는다(spec 11).
+    준비가 끝난 뒤에만 health(전체 "", 엔진 서비스)를 SERVING으로 둔다.
     """
     loader.validate_refs(all_reference_refs())
     lunar_adapter.warm_up()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     pb_grpc.add_MyungliEngineServicer_to_server(MyungliEngineServicer(), server)
+    health_servicer = health.HealthServicer()
+    health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)
     bound_port = server.add_insecure_port(f"[::]:{port}")
     server.start()
-    return server, bound_port
-
-
-def serve(port: int = DEFAULT_PORT) -> grpc.Server:
-    server, _ = start(port)
-    return server
+    for service in ("", ENGINE_SERVICE_NAME):
+        health_servicer.set(service, health_pb2.HealthCheckResponse.SERVING)
+    return RunningEngine(server=server, port=bound_port, health=health_servicer)

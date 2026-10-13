@@ -9,6 +9,7 @@ dependencies = [
     "grpcio==1.84.0",
     "protobuf>=7.35.1",  # 생성 코드(engine_pb2.py)의 런타임 요구 버전
     "tzdata>=2026.5",
+    "grpcio-health-checking==1.84.0",
 ]
 
 [dependency-groups]
@@ -41,6 +42,11 @@ untyped_calls_exclude = ["myungli_engine._gen"]
 
 [[tool.mypy.overrides]]
 module = "lunar_python.*"
+ignore_missing_imports = true
+
+# grpcio-health-checking은 py.typed를 두지 않는다
+[[tool.mypy.overrides]]
+module = "grpc_health.*"
 ignore_missing_imports = true
 
 [tool.ruff]

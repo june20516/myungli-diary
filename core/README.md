@@ -16,6 +16,19 @@ uv sync
 uv run python -m myungli_engine --port 50051   # gRPC 서버
 ```
 
+포트는 `--port` 인자 → `PORT` 환경 변수 → 50051 순으로 정합니다. 서버는 엔진 서비스와 함께 gRPC health checking(`grpc.health.v1.Health`)을 제공합니다. 준비(근거 데이터 검증, 캐시 예열)가 끝나면 전체(`""`)와 `myungli.engine.v1.MyungliEngine`이 `SERVING`이 됩니다. SIGTERM을 받으면 `NOT_SERVING`으로 바꾸고 8초 안에 종료합니다.
+
+## 컨테이너 (Cloud Run, D56)
+
+```bash
+docker build -t myungli-engine core                          # 저장소 루트에서. 빌드 맥락은 core/만(D33)
+docker run --rm -e PORT=8080 -p 8080:8080 myungli-engine
+uv run python tools/check_container.py localhost:8080         # core/에서. health와 GetInfo 확인
+```
+
+* 실행에 비밀값이 필요 없습니다. `KASI_SERVICE_KEY`는 자료 수집 도구(`tools/fetch_kasi.py`)에서만 씁니다. `.dockerignore`가 허용 목록이라 `.env`는 이미지에 들어가지 않습니다.
+* Cloud Run 설정: HTTP/2 end-to-end(h2c)를 켜야 gRPC가 통합니다. startup probe는 gRPC 방식으로 서비스 이름 `myungli.engine.v1.MyungliEngine`을 씁니다.
+
 ## 테스트와 검사
 
 ```bash
@@ -27,7 +40,7 @@ uv run mypy src tools
 ```
 
 KASI 골든은 저장된 fixture(`tests/golden/fixtures/`)만 읽고 네트워크를 쓰지 않습니다.
-CI는 기본 검사를 push·PR마다, slow 테스트를 수동 실행과 매주 한 번 돌립니다(`.github/workflows/core.yml`).
+CI(`.github/workflows/core.yml`)는 PR과 main push에서 ci-gate가 불러 기본 검사와 이미지 검사를 돌립니다. slow 테스트는 계산·규칙·근거 데이터를 바꾸는 변경, 수동 실행, 매주 한 번 돌립니다.
 
 ## proto 코드 생성
 

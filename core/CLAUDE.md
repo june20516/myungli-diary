@@ -31,7 +31,7 @@
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34 |
 
 ## 현재 상태 (엔진 MVP 완료, 원국 개인 해석 추가, 2026-10-11)
-* **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), gRPC 서버(`uv run python -m myungli_engine --port 50051`).
+* **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).
 * **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
 * **제공 계약:** `proto/myungli/engine/v1`(v1), `core/message_keys.json`(153개 키), `core/message_params.json`(키별 매개변수 이름, #38), `source_ref` 형식, `ruleset_version` `2026.10.2`.
 * **알려진 한계:**
@@ -44,8 +44,7 @@
 ## 다음 할 일
 1. 엔진 MVP는 main에 병합됐습니다(PR #1). 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
 2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-13 기준:
-   * **#74:** 로마자 표기 통일(`myungli`). `core/rename-myungli`는 혼자 병합하지 않고 writing PR과 함께 들어갑니다.
-   * **#34:** 엔진 컨테이너 이미지와 Cloud Run 실행 조건. server S1 배포 단계 전까지.
+   * **#34 후속:** 이미지 push와 Cloud Run 배포 workflow(D56 ④)는 server S1 배포 단계에서 지휘·server와 정합니다. 실행 조건은 `README.md` "컨테이너" 절에 있습니다.
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.
