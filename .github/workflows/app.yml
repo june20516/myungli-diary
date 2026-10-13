@@ -3,6 +3,7 @@ name: app
 on:
   push:
     branches: [main]
+    # 경로 목록은 push·pull_request 두 곳을 함께 고칩니다.
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
@@ -32,6 +33,8 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    # Gradle이 걸려 runner를 오래 점유하지 않게 상한을 둔다.
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: app
@@ -46,6 +49,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
       - name: 의존성 받기
         run: flutter pub get
       - name: 포맷 확인
