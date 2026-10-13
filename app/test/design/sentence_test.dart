@@ -496,7 +496,31 @@ void main() {
       expect(find.byType(TermToken), findsNothing);
     });
 
-    testWidgets('locked: 본문은 트리에 없고 스크린리더는 "잠김"과 열기만 읽습니다', (tester) async {
+    testWidgets('locked 라벨의 구역 이름은 로케일 문구입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          SentenceBlock(
+            variant: SentenceBlockVariant.body,
+            text: _siksin,
+            locked: true,
+          ),
+          locale: const Locale('en'),
+        ),
+      );
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      expect(
+        find.bySemanticsLabel(
+          '${l10n.sajuChartYongsinTitle}, ${l10n.evidenceSheetA11yLocked}',
+        ),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('locked: 본문은 트리에 없고 스크린리더는 구역 이름·"잠김"과 열기만 읽습니다', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       var opened = 0;
       await tester.pumpWidget(
@@ -511,7 +535,8 @@ void main() {
       );
       expect(_allText(tester), isNot(contains('오늘은')));
       expect(find.bySemanticsLabel(RegExp('오늘은')), findsNothing);
-      expect(find.bySemanticsLabel('잠김'), findsOneWidget);
+      // 구역 이름(a11y.lockedNameSlot) + "잠김" (컴포넌트 2.2.0)
+      expect(find.bySemanticsLabel('용신 판정 근거, 잠김'), findsOneWidget);
       // 흐린 자리 채우기 글도 읽히지 않습니다.
       expect(find.bySemanticsLabel(RegExp('가나다')), findsNothing);
       final open = find.bySemanticsLabel('열기');

@@ -57,6 +57,13 @@ class SentenceBlock extends StatelessWidget {
     {'locked'},
   );
 
+  /// 잠김 라벨 앞부분(구역 이름) 슬롯(`a11y.lockedNameSlot`, 컴포넌트 2.2.0).
+  /// 잠긴 문장은 지금 사주 표 용신 판정 근거에만 쓰여 이름이 하나입니다.
+  static const String lockedNameSlotId = SlotIds.sajuChartYongsinTitle;
+
+  /// 잠김 라벨 뒷부분("잠김") 슬롯(`a11y.lockedLabelSlot`).
+  static const String lockedLabelSlotId = SlotIds.evidenceSheetA11yLocked;
+
   /// 변형.
   final SentenceBlockVariant variant;
 
@@ -136,8 +143,12 @@ class SentenceBlock extends StatelessWidget {
       children: [
         Expanded(
           child: LockVeil.line(
-            semanticLabel: l10n.evidenceSheetA11yLocked,
-            a11ySlotId: SlotIds.evidenceSheetA11yLocked,
+            // [lockedNameSlotId] 문구 + [lockedLabelSlotId] 문구.
+            semanticLabel: [
+              l10n.sajuChartYongsinTitle,
+              l10n.evidenceSheetA11yLocked,
+            ].join(', '),
+            a11ySlotId: lockedLabelSlotId,
           ),
         ),
         if (onOpenLocked != null)

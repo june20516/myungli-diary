@@ -232,6 +232,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sajuChartYongsinOpen => '열기';
 
   @override
+  String get sajuChartYongsinTitle => '용신 판정 근거';
+
+  @override
   String get todayReactionLabel => '이 문장 좋아요';
 
   @override

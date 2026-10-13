@@ -72,6 +72,7 @@
   "evidenceSheetA11yChecking": "Checking",
   "evidenceSheetA11yUnlocked": "The basis and reading are now open",
   "sajuChartYongsinOpen": "Open",
+  "sajuChartYongsinTitle": "Yongsin basis",
   "todayReactionLabel": "Like this sentence",
   "termTokenSemantics": "View the meaning of {term}",
   "@termTokenSemantics": {

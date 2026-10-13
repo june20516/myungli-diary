@@ -532,6 +532,12 @@ abstract class AppLocalizations {
   /// **'열기'**
   String get sajuChartYongsinOpen;
 
+  /// 임시. 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분
+  ///
+  /// In ko, this message translates to:
+  /// **'용신 판정 근거'**
+  String get sajuChartYongsinTitle;
+
   /// 임시. 좋아요 반응 접근성 라벨
   ///
   /// In ko, this message translates to:

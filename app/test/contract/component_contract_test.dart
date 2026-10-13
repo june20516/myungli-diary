@@ -5,6 +5,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -113,6 +114,12 @@ void main() {
         expectSpecMatches(spec, specs[spec.id]!);
       });
     }
+
+    test('sentence-block: 잠김 라벨 슬롯이 명세 a11y와 같습니다 (2.2.0)', () {
+      final a11y = _map(specs['sentence-block']!['a11y']);
+      expect(a11y['lockedNameSlot'], SentenceBlock.lockedNameSlotId);
+      expect(a11y['lockedLabelSlot'], SentenceBlock.lockedLabelSlotId);
+    });
   });
 
   group('InteractionPattern 대조', () {

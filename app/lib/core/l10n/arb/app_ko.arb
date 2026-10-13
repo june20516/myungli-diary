@@ -294,6 +294,10 @@
   "@sajuChartYongsinOpen": {
     "description": "임시. 잠긴 용신 근거 줄의 '열기'"
   },
+  "sajuChartYongsinTitle": "용신 판정 근거",
+  "@sajuChartYongsinTitle": {
+    "description": "임시. 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
+  },
   "todayReactionLabel": "이 문장 좋아요",
   "@todayReactionLabel": {
     "description": "임시. 좋아요 반응 접근성 라벨"

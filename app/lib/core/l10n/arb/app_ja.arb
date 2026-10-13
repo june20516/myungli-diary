@@ -72,6 +72,7 @@
   "evidenceSheetA11yChecking": "確認中",
   "evidenceSheetA11yUnlocked": "根拠と解釈が開きました",
   "sajuChartYongsinOpen": "開く",
+  "sajuChartYongsinTitle": "用神の判定根拠",
   "todayReactionLabel": "この文に共感",
   "termTokenSemantics": "{term}の解説を見る",
   "@termTokenSemantics": {

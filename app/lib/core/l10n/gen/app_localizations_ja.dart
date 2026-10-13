@@ -231,6 +231,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sajuChartYongsinOpen => '開く';
 
   @override
+  String get sajuChartYongsinTitle => '用神の判定根拠';
+
+  @override
   String get todayReactionLabel => 'この文に共感';
 
   @override
