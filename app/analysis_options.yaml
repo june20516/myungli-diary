@@ -10,3 +10,5 @@ analyzer:
     - ios/**
     # 생성 코드(gen_ia 등)는 손으로 고치지 않으므로 lint에서 제외한다.
     - lib/**/gen/**
+    # drift_dev가 만든 스키마 버전별 코드.
+    - test/**/drift_schema/**
