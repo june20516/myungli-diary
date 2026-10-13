@@ -392,8 +392,8 @@ const scheduleID = "0b6f8b52-3a4f-4f0e-9f57-0d2f7c3c1a10"
 
 // minimalRequests는 계약의 모든 operation에 대한 유효한 최소 요청입니다.
 var minimalRequests = map[string]operationRequest{
-	"loginKakao":     {http.MethodPost, "/v1/auth/kakao", contentTypeJSON, `{"idToken":"t","nonce":"n"}`},
-	"loginApple":     {http.MethodPost, "/v1/auth/apple", contentTypeJSON, `{"idToken":"t","authorizationCode":"c","nonce":"n","clientType":"native"}`},
+	"loginKakao":     {http.MethodPost, "/v1/auth/kakao", contentTypeJSON, `{"idToken":"t","nonce":"nonce-0123456789ab"}`},
+	"loginApple":     {http.MethodPost, "/v1/auth/apple", contentTypeJSON, `{"idToken":"t","authorizationCode":"c","nonce":"nonce-0123456789ab","clientType":"native"}`},
 	"appleCallback":  {http.MethodPost, "/v1/auth/apple/callback", contentTypeForm, `code=c&id_token=t&state=s`},
 	"refreshToken":   {http.MethodPost, "/v1/auth/refresh", contentTypeJSON, `{"refreshToken":"r"}`},
 	"logout":         {http.MethodPost, "/v1/auth/logout", contentTypeJSON, `{"refreshToken":"r"}`},

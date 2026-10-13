@@ -485,3 +485,69 @@ func mapKeys(content openapi3.Content) []string {
 	slices.Sort(keys)
 	return keys
 }
+
+// TestContract_LoginNonceDocumentsHashRule은 두 로그인 요청의 nonce가
+// "원문 + SHA-256 hex 규칙"과 길이 범위를 문서화하는지 확인합니다.
+func TestContract_LoginNonceDocumentsHashRule(t *testing.T) {
+	doc := loadDoc(t)
+
+	for _, name := range []string{"KakaoLoginRequest", "AppleLoginRequest"} {
+		ref := doc.Components.Schemas[name]
+		if ref == nil || ref.Value.Properties["nonce"] == nil {
+			t.Errorf("%s: nonce 속성이 없음", name)
+			continue
+		}
+		nonce := ref.Value.Properties["nonce"].Value
+		if !strings.Contains(nonce.Description, "SHA-256") {
+			t.Errorf("%s: nonce 설명에 SHA-256 규칙이 없음", name)
+		}
+		if nonce.MinLength != 16 {
+			t.Errorf("%s: nonce minLength = %d, want 16", name, nonce.MinLength)
+		}
+		if nonce.MaxLength == nil || *nonce.MaxLength != 256 {
+			t.Errorf("%s: nonce maxLength가 256이 아님", name)
+		}
+	}
+}
+
+// TestContract_AppleCallbackAcceptsCancellation은 사용자가 Apple 로그인을 취소했을 때
+// code·id_token 없이 error·state만 오는 form을 계약이 허용하는지 확인합니다.
+func TestContract_AppleCallbackAcceptsCancellation(t *testing.T) {
+	doc := loadDoc(t)
+
+	var form *openapi3.Schema
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "appleCallback" {
+			return
+		}
+		form = op.RequestBody.Value.Content["application/x-www-form-urlencoded"].Schema.Value
+	})
+	if form == nil {
+		t.Fatal("appleCallback form 스키마가 없음")
+	}
+	if len(form.Required) != 1 || form.Required[0] != "state" {
+		t.Errorf("required = %v, want [state]", form.Required)
+	}
+	if form.Properties["error"] == nil {
+		t.Error("properties에 error가 없음")
+	}
+}
+
+// TestContract_AgreeConsentsDeclares422는 동의 문서 버전 불일치(422)를 계약이 선언하는지 확인합니다.
+func TestContract_AgreeConsentsDeclares422(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "agreeConsents" {
+			return
+		}
+		found = true
+		if op.Responses.Value("422") == nil {
+			t.Error("agreeConsents.responses에 422가 없음")
+		}
+	})
+	if !found {
+		t.Fatal("agreeConsents operation이 없음")
+	}
+}

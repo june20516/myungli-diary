@@ -125,6 +125,7 @@ paths:
         Android의 Apple 웹 흐름에서 Apple이 form_post로 부르는 주소입니다. app이 직접 부르지 않습니다.
         server는 받은 값을 그대로 app deep link로 넘기고(303), app은 그 값으로 `loginApple`을 부릅니다.
         form 필드 이름은 Apple이 정한 그대로입니다.
+        `error`가 있으면 `error`·`state`를, 없으면 `code`·`id_token`·`state`·`user`를 deep link 쿼리로 넘깁니다. `error`도 `code`도 `id_token`도 없으면 400입니다.
       security: []
       requestBody:
         required: true
@@ -132,8 +133,11 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               type: object
-              required: [code, id_token, state]
+              required: [state]
               properties:
+                error:
+                  type: string
+                  description: 사용자가 취소하면 Apple이 보내는 오류 코드, 예 `user_cancelled_authorize`
                 code:
                   type: string
                   description: Apple authorization code
@@ -287,6 +291,8 @@ paths:
           $ref: '#/components/responses/PayloadTooLarge'
         '415':
           $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalError'
         '503':
@@ -1489,6 +1495,7 @@ components:
         * `date.invalid`: 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 400 `request.invalid`입니다.
         * `request.inconsistent`: 상태-값 짝 위반. `errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`
           (대상 `BirthTime`, `BirthPlace`, 양력의 `isLeapMonth`, `NotificationSetting`, `ScheduleInput`·`SchedulePatch`)
+        * `consent.version_mismatch`: 동의한 문서 버전이 현재 버전과 다름. `errors[].field`는 `/documents/<i>/version`
         * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `name.emoji` 등 호칭 규칙 위반, `idempotency.mismatch`
       content:
         application/problem+json:
@@ -1755,7 +1762,9 @@ components:
           description: 카카오 OIDC id_token
         nonce:
           type: string
-          description: nonce 원문
+          description: nonce 원문입니다. app은 제공자(카카오·Apple)에게 이 원문의 SHA-256 소문자 hex를 nonce로 보냅니다. server는 id_token의 `nonce` claim이 SHA-256(원문) hex와 같은지 확인합니다.
+          minLength: 16
+          maxLength: 256
     AppleLoginRequest:
       type: object
       required: [idToken, authorizationCode, nonce, clientType]
@@ -1767,7 +1776,9 @@ components:
           type: string
         nonce:
           type: string
-          description: nonce 원문
+          description: nonce 원문입니다. app은 제공자(카카오·Apple)에게 이 원문의 SHA-256 소문자 hex를 nonce로 보냅니다. server는 id_token의 `nonce` claim이 SHA-256(원문) hex와 같은지 확인합니다.
+          minLength: 16
+          maxLength: 256
         clientType:
           type: string
           enum: [native, web]
