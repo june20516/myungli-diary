@@ -12,10 +12,21 @@ abstract interface class SecureStore {
   Future<void> delete(String key);
 }
 
+/// 앱이 쓰는 기기 보안 저장소 설정.
+///
+/// iOS Keychain 값은 `first_unlock_this_device`입니다. 이 기기 전용이라 암호화 백업·
+/// 기기 이전으로 새 기기에 옮겨지지 않고(Android 백업 끔과 대칭), 첫 잠금 해제 뒤에는
+/// 백그라운드에서도 읽을 수 있습니다. iCloud Keychain 동기화는 하지 않습니다.
+const FlutterSecureStorage defaultSecureStorage = FlutterSecureStorage(
+  iOptions: IOSOptions(
+    accessibility: KeychainAccessibility.first_unlock_this_device,
+  ),
+);
+
 /// 기기 보안 저장소(iOS Keychain, Android Keystore) 구현입니다.
 final class FlutterSecureStore implements SecureStore {
   /// 저장소를 만듭니다. 테스트에서는 storage를 바꿔 끼웁니다.
-  const new([this._storage = const FlutterSecureStorage()]);
+  const new([this._storage = defaultSecureStorage]);
 
   final FlutterSecureStorage _storage;
 

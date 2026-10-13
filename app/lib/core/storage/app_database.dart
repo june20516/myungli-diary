@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
 
@@ -90,7 +94,16 @@ class DeviceFlags extends Table {
 )
 class AppDatabase extends _$AppDatabase {
   /// 기기 파일 DB를 엽니다. [name]이 다르면 다른 파일입니다(fake 모드는 운영과 분리).
-  new({String name = defaultDatabaseName}) : super(driftDatabase(name: name));
+  /// 위치는 [databaseDirectoryPath]입니다.
+  new({String name = defaultDatabaseName})
+    : super(
+        driftDatabase(
+          name: name,
+          native: const DriftNativeOptions(
+            databaseDirectory: _databaseDirectory,
+          ),
+        ),
+      );
 
   /// 주어진 실행기로 엽니다. 테스트는 메모리 DB를 넘깁니다.
   new forExecutor(super.e);
@@ -114,6 +127,38 @@ class AppDatabase extends _$AppDatabase {
       await delete(table).go();
     }
   });
+}
+
+/// iOS에서 DB를 두는 Application Support 아래 디렉터리 이름.
+///
+/// `ios/Runner/AppDelegate.swift`가 실행할 때 이 디렉터리를 만들고 iCloud·기기 백업에서
+/// 뺍니다(`isExcludedFromBackup`). 일기 초안과 출생 정보가 새 기기로 옮겨지지 않게 하는
+/// Android 백업 끔과 대칭입니다. 이름을 바꾸면 두 곳을 함께 고칩니다.
+const iosDatabaseDirectoryName = 'Database';
+
+/// DB 파일을 둘 디렉터리. iOS는 백업에서 뺀 전용 디렉터리, 그 밖은 drift 기본(문서
+/// 디렉터리)입니다.
+String databaseDirectoryPath({
+  required TargetPlatform platform,
+  required String applicationSupport,
+  required String documents,
+}) => platform == TargetPlatform.iOS
+    ? '$applicationSupport/$iosDatabaseDirectoryName'
+    : documents;
+
+Future<Object> _databaseDirectory() async {
+  final platform = defaultTargetPlatform;
+  final path = databaseDirectoryPath(
+    platform: platform,
+    applicationSupport: platform == TargetPlatform.iOS
+        ? (await getApplicationSupportDirectory()).path
+        : '',
+    documents: platform == TargetPlatform.iOS
+        ? ''
+        : (await getApplicationDocumentsDirectory()).path,
+  );
+  // AppDelegate가 먼저 만들지만, 없으면 여기서 만듭니다.
+  return await Directory(path).create(recursive: true);
 }
 
 /// 운영 DB 파일 이름.
