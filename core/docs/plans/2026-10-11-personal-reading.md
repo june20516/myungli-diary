@@ -39,10 +39,10 @@
 ### Task 1: 십성 묶음 개수 공용화와 개인 해석 도메인 타입
 
 **Files:**
-- Create: `core/src/myungri_engine/rules/group_count.py`
-- Modify: `core/src/myungri_engine/rules/tags.py` (`_natal_group_count`를 새 모듈 호출로 바꿈)
-- Modify: `core/src/myungri_engine/domain/enums.py` (`PersonalTermKind` 추가)
-- Create: `core/src/myungri_engine/chart/personal_target.py` (`PersonalReading`)
+- Create: `core/src/myungli_engine/rules/group_count.py`
+- Modify: `core/src/myungli_engine/rules/tags.py` (`_natal_group_count`를 새 모듈 호출로 바꿈)
+- Modify: `core/src/myungli_engine/domain/enums.py` (`PersonalTermKind` 추가)
+- Create: `core/src/myungli_engine/chart/personal_target.py` (`PersonalReading`)
 - Test: `core/tests/unit/rules/test_group_count.py`
 
 **Interfaces:**
@@ -70,8 +70,8 @@ def test_matches_tag_rush_rule(): ...  # tags._rush_tags가 쓰는 개수와 같
 ### Task 2: 개인 해석 규칙과 메시지 키
 
 **Files:**
-- Create: `core/src/myungri_engine/rules/personal.py`
-- Modify: `core/src/myungri_engine/constants/message_keys.py` (키 60개)
+- Create: `core/src/myungli_engine/rules/personal.py`
+- Modify: `core/src/myungli_engine/constants/message_keys.py` (키 60개)
 - Test: `core/tests/unit/rules/test_personal.py`, `core/tests/unit/constants/test_tables.py`
 
 **Interfaces:**
@@ -110,8 +110,8 @@ def test_personal_keys_registered(): ...
 ### Task 3: 원국 composer에 개인 해석 목록
 
 **Files:**
-- Modify: `core/src/myungri_engine/composers/chart.py` (`ChartView.personal_readings: tuple[PersonalReading, ...]`)
-- Modify: `core/src/myungri_engine/version.py` (`RULESET_VERSION = "2026.10.2"`)
+- Modify: `core/src/myungli_engine/composers/chart.py` (`ChartView.personal_readings: tuple[PersonalReading, ...]`)
+- Modify: `core/src/myungli_engine/version.py` (`RULESET_VERSION = "2026.10.2"`)
 - Update: `core/tests/snapshots/__snapshots__/`, `core/tests/snapshots/RULESET_HASH`
 - Test: `core/tests/unit/composers/test_chart.py`
 
@@ -158,9 +158,9 @@ def test_multiple_shinsal_at_one_position_are_distinct(spring_birth): ...
 ### Task 4: proto와 gRPC 매핑 — personal_readings
 
 **Files:**
-- Modify: `proto/myungri/engine/v1/engine.proto` (spec §2.3의 `PersonalTermKind`, `PersonalReading`, `ChartResponse.personal_readings = 13`; 머리 주석의 ChartResponse 개요에 한 줄)
-- Regenerate: `core/src/myungri_engine/_gen/` (`bash tools/gen_proto.sh`)
-- Modify: `core/src/myungri_engine/grpc_api/mapping.py` (`_PREFIX_PERSONAL_TERM_KIND = "PERSONAL_TERM_KIND"`, `chart_to_proto`가 `personal_readings` 채움. `position`·`shinsal`이 None이면 `_optional_name`으로 UNSPECIFIED)
+- Modify: `proto/myungli/engine/v1/engine.proto` (spec §2.3의 `PersonalTermKind`, `PersonalReading`, `ChartResponse.personal_readings = 13`; 머리 주석의 ChartResponse 개요에 한 줄)
+- Regenerate: `core/src/myungli_engine/_gen/` (`bash tools/gen_proto.sh`)
+- Modify: `core/src/myungli_engine/grpc_api/mapping.py` (`_PREFIX_PERSONAL_TERM_KIND = "PERSONAL_TERM_KIND"`, `chart_to_proto`가 `personal_readings` 채움. `position`·`shinsal`이 None이면 `_optional_name`으로 UNSPECIFIED)
 - Modify: `core/tests/unit/test_proto_generated.py` (`DOMAIN_TO_PROTO_ENUMS`에 `(enums.PersonalTermKind, "PersonalTermKind", "PERSONAL_TERM_KIND")` 추가)
 - Test: `core/tests/integration/test_grpc_server.py`
 
@@ -181,9 +181,9 @@ def test_chart_personal_readings(stub): ...
 ### Task 5: 출생 시진 계산과 GetBirthHour
 
 **Files:**
-- Modify: `core/src/myungri_engine/calendar_core/birth.py`
-- Modify: `proto/myungri/engine/v1/engine.proto` (spec §3), `_gen` 재생성
-- Modify: `core/src/myungri_engine/grpc_api/server.py` (`_required_birth`의 타입 주석 union에 `pb.BirthHourRequest` 추가), `mapping.py`
+- Modify: `core/src/myungli_engine/calendar_core/birth.py`
+- Modify: `proto/myungli/engine/v1/engine.proto` (spec §3), `_gen` 재생성
+- Modify: `core/src/myungli_engine/grpc_api/server.py` (`_required_birth`의 타입 주석 union에 `pb.BirthHourRequest` 추가), `mapping.py`
 - Modify: `core/tests/unit/test_proto_generated.py` (서비스 메서드 목록 끝에 `GetBirthHour`. proto에서도 `GetMonthCalendar` 다음에 선언)
 - Test: `core/tests/unit/calendar_core/test_birth.py`, `core/tests/integration/test_grpc_server.py`
 
@@ -227,11 +227,11 @@ def test_get_birth_hour(stub): ...  # branch == pb.BRANCH_IN, start/end Timestam
 ### Task 6: GetInfo
 
 **Files:**
-- Modify: `proto/myungri/engine/v1/engine.proto` (spec §4, `GetBirthHour` 다음에 선언), `_gen` 재생성, `grpc_api/server.py`
+- Modify: `proto/myungli/engine/v1/engine.proto` (spec §4, `GetBirthHour` 다음에 선언), `_gen` 재생성, `grpc_api/server.py`
 - Modify: `core/tests/unit/test_proto_generated.py` (서비스 메서드 목록 끝에 `GetInfo`)
 - Test: `core/tests/integration/test_grpc_server.py`
 
-- [ ] **Step 1: 실패하는 테스트** — `test_get_info(stub)`: `resp.engine_version == ENGINE_VERSION`, `resp.ruleset_version == RULESET_VERSION` (`myungri_engine.version`)
+- [ ] **Step 1: 실패하는 테스트** — `test_get_info(stub)`: `resp.engine_version == ENGINE_VERSION`, `resp.ruleset_version == RULESET_VERSION` (`myungli_engine.version`)
 - [ ] **Step 2: 실패 확인** — `uv run pytest tests/integration tests/unit/test_proto_generated.py -q` → FAIL
 - [ ] **Step 3: proto 추가, 재생성, servicer `GetInfo` 구현**
 - [ ] **Step 4: 통과 확인** — 같은 명령 PASS
@@ -257,7 +257,7 @@ def test_all_personal_readings_have_evidence(birth, as_of): ...
 - [ ] **Step 2: 실행** — `uv run pytest tests/properties -q` PASS (Task 3까지의 구현으로 통과해야 함. 실패하면 해당 task로 돌아가 고침)
 - [ ] **Step 3: 스냅샷 확인** — `uv run pytest tests/snapshots tests/unit/test_ruleset_version.py -q` PASS(Task 3 이후 변화 없음)
 - [ ] **Step 4: 계약 파일 재생성과 문서 갱신** — README "메시지 키와 매개변수 목록" 명령, `message_keys.json` 153개 확인
-- [ ] **Step 5: 전체 검증** — `uv run ruff check .`, `uv run mypy src tools`, `uv run pytest -q -m "not slow"`, `uv run pytest -q -m slow`, `bash tools/gen_proto.sh && git diff --exit-code src/myungri_engine/_gen`, `(cd ../proto && buf lint)`, `python3 -I ../tools/docs-check/docs_check.py ..` 모두 통과
+- [ ] **Step 5: 전체 검증** — `uv run ruff check .`, `uv run mypy src tools`, `uv run pytest -q -m "not slow"`, `uv run pytest -q -m slow`, `bash tools/gen_proto.sh && git diff --exit-code src/myungli_engine/_gen`, `(cd ../proto && buf lint)`, `python3 -I ../tools/docs-check/docs_check.py ..` 모두 통과
 - [ ] **Step 6: Commit** — `chore(core): 개인 해석 불변 조건, 계약 파일·문서 갱신 (#51, #41, #49)`
 
 ### Task 8: PR과 알림

@@ -5,11 +5,11 @@ from datetime import datetime
 import grpc
 import pytest
 
-from myungri_engine._gen.myungri.engine.v1 import engine_pb2 as pb
-from myungri_engine._gen.myungri.engine.v1 import engine_pb2_grpc as pb_grpc
-from myungri_engine.grpc_api import server as server_module
-from myungri_engine.grpc_api.errors import INTERNAL_MESSAGE
-from myungri_engine.version import ENGINE_VERSION, RULESET_VERSION
+from myungli_engine._gen.myungli.engine.v1 import engine_pb2 as pb
+from myungli_engine._gen.myungli.engine.v1 import engine_pb2_grpc as pb_grpc
+from myungli_engine.grpc_api import server as server_module
+from myungli_engine.grpc_api.errors import INTERNAL_MESSAGE
+from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
 
 SEOUL = "Asia/Seoul"
 AS_OF = pb.LocalDate(year=2026, month=10, day=10)
@@ -35,11 +35,11 @@ def solar_birth(
 
 
 @pytest.fixture(scope="module")
-def stub() -> Iterator[pb_grpc.MyungriEngineStub]:
+def stub() -> Iterator[pb_grpc.MyungliEngineStub]:
     running, port = server_module.start(0)
     channel = grpc.insecure_channel(f"localhost:{port}")
     try:
-        yield pb_grpc.MyungriEngineStub(channel)
+        yield pb_grpc.MyungliEngineStub(channel)
     finally:
         channel.close()
         running.stop(grace=None)
@@ -53,7 +53,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 # --- brief 필수 7개 ---
 
 
-def test_get_chart_roundtrip(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
     assert response.meta.ruleset_version == RULESET_VERSION == "2026.10.2"
@@ -67,7 +67,7 @@ def test_get_chart_roundtrip(stub: pb_grpc.MyungriEngineStub) -> None:
     assert len(response.gongmang) == 2
 
 
-def test_chart_personal_readings(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_chart_personal_readings(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
     readings = response.personal_readings
@@ -96,7 +96,7 @@ def test_chart_personal_readings(stub: pb_grpc.MyungriEngineStub) -> None:
     assert hidden[0].index == 0
 
 
-def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetDaily(
         pb.DailyRequest(
             birth=solar_birth(1985, 3, 10),
@@ -123,7 +123,7 @@ def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungriEngineStub) -> N
     assert response.guide.message_key
 
 
-def test_get_month_calendar_day_count(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_month_calendar_day_count(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetMonthCalendar(
         pb.MonthRequest(birth=solar_birth(1985, 3, 10), year=2026, month=2, current_timezone=SEOUL)
     )
@@ -137,19 +137,19 @@ def test_get_month_calendar_day_count(stub: pb_grpc.MyungriEngineStub) -> None:
     assert terms == [(4, pb.SOLAR_TERM_KIND_IPCHUN), (19, pb.SOLAR_TERM_KIND_USU)]
 
 
-def test_invalid_solar_date_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_invalid_solar_date_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetChart(pb.ChartRequest(birth=solar_birth(2023, 2, 29), as_of=AS_OF))
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_out_of_range_is_out_of_range(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_out_of_range_is_out_of_range(stub: pb_grpc.MyungliEngineStub) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetChart(pb.ChartRequest(birth=solar_birth(1899, 6, 1), as_of=AS_OF))
     assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE
 
 
-def test_unspecified_gender_rejected(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_unspecified_gender_rejected(stub: pb_grpc.MyungliEngineStub) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetChart(
             pb.ChartRequest(birth=solar_birth(1985, 3, 10, gender=pb.GENDER_UNSPECIFIED), as_of=AS_OF)
@@ -157,7 +157,7 @@ def test_unspecified_gender_rejected(stub: pb_grpc.MyungriEngineStub) -> None:
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_notices_mapped(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_notices_mapped(stub: pb_grpc.MyungliEngineStub) -> None:
     # 서울 00:10 출생 -> 보정 시각 23:40, 자시
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1990, 5, 15, 0, 10), as_of=AS_OF))
     assert pb.NOTICE_CODE_ZI_HOUR_NEXT_DAY in [notice.code for notice in response.meta.notices]
@@ -166,7 +166,7 @@ def test_notices_mapped(stub: pb_grpc.MyungriEngineStub) -> None:
 # --- 음력 30일 입력 ---
 
 
-def test_lunar_thirtieth_day_accepted(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_lunar_thirtieth_day_accepted(stub: pb_grpc.MyungliEngineStub) -> None:
     birth = pb.BirthInfo(
         calendar=pb.CALENDAR_TYPE_LUNAR,
         date=pb.LocalDate(year=2024, month=2, day=30),
@@ -181,7 +181,7 @@ def test_lunar_thirtieth_day_accepted(stub: pb_grpc.MyungriEngineStub) -> None:
 # --- 입력 검증과 오류 매핑 ---
 
 
-def test_time_unknown_has_no_hour_pillar(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_time_unknown_has_no_hour_pillar(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1978, 8, 3, hour=None), as_of=AS_OF))
     assert not response.pillars.HasField("hour")
     assert pb.NOTICE_CODE_TIME_UNKNOWN in [notice.code for notice in response.meta.notices]
@@ -229,13 +229,13 @@ def test_time_unknown_has_no_hour_pillar(stub: pb_grpc.MyungriEngineStub) -> Non
     ids=["hour-24", "minute-60", "calendar-unspecified", "empty-timezone", "longitude-181", "longitude-nan",
          "missing-leap-month"],
 )
-def test_invalid_birth_is_invalid_argument(stub: pb_grpc.MyungriEngineStub, birth: pb.BirthInfo) -> None:
+def test_invalid_birth_is_invalid_argument(stub: pb_grpc.MyungliEngineStub, birth: pb.BirthInfo) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetChart(pb.ChartRequest(birth=birth, as_of=AS_OF))
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_unknown_enum_number_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_unknown_enum_number_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
     birth = solar_birth(1985, 3, 10)
     birth.calendar = 99  # type: ignore[assignment]
     with pytest.raises(grpc.RpcError) as caught:
@@ -243,7 +243,7 @@ def test_unknown_enum_number_is_invalid_argument(stub: pb_grpc.MyungriEngineStub
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_missing_birth_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_missing_birth_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetChart(pb.ChartRequest(as_of=AS_OF))
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
@@ -254,7 +254,7 @@ def details_of(call: grpc.RpcError) -> str:
     return details
 
 
-def test_missing_required_fields_are_invalid_argument_with_field_name(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_missing_required_fields_are_invalid_argument_with_field_name(stub: pb_grpc.MyungliEngineStub) -> None:
     birth = solar_birth(1985, 3, 10)
     calls = [
         ("as_of", lambda: stub.GetChart(pb.ChartRequest(birth=birth))),
@@ -269,7 +269,7 @@ def test_missing_required_fields_are_invalid_argument_with_field_name(stub: pb_g
         assert details_of(caught.value) == f"{field_name}가 없습니다."
 
 
-def test_daily_request_fields_validated(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_daily_request_fields_validated(stub: pb_grpc.MyungliEngineStub) -> None:
     birth = solar_birth(1985, 3, 10)
     bad_requests = [
         pb.DailyRequest(birth=birth, date=pb.LocalDate(year=2026, month=2, day=30), current_timezone=SEOUL),
@@ -282,7 +282,7 @@ def test_daily_request_fields_validated(stub: pb_grpc.MyungriEngineStub) -> None
         assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_month_request_fields_validated(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_month_request_fields_validated(stub: pb_grpc.MyungliEngineStub) -> None:
     birth = solar_birth(1985, 3, 10)
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetMonthCalendar(pb.MonthRequest(birth=birth, year=2026, month=13, current_timezone=SEOUL))
@@ -298,7 +298,7 @@ def test_month_request_fields_validated(stub: pb_grpc.MyungriEngineStub) -> None
 
 
 def test_unexpected_error_is_internal_without_details(
-    stub: pb_grpc.MyungriEngineStub, monkeypatch: pytest.MonkeyPatch
+    stub: pb_grpc.MyungliEngineStub, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     def explode(*_args: object) -> object:
         raise RuntimeError("/secret/path/engine.py line 42")
@@ -330,7 +330,7 @@ def test_start_refuses_when_reference_data_missing(monkeypatch: pytest.MonkeyPat
         server_module.start(0)
 
 
-def test_get_birth_hour(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_birth_hour(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 5, 4, 0)))
     assert response.branch == pb.BRANCH_IN
     assert response.start.ToDatetime() == datetime(1990, 5, 4, 18, 30)  # KST 03:30
@@ -338,20 +338,20 @@ def test_get_birth_hour(stub: pb_grpc.MyungriEngineStub) -> None:
     assert response.meta.engine_version == ENGINE_VERSION
 
 
-def test_get_birth_hour_without_time_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_birth_hour_without_time_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 5, hour=None)))
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
     assert "birth.time" in details_of(caught.value)
 
 
-def test_get_birth_hour_out_of_range_date(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_birth_hour_out_of_range_date(stub: pb_grpc.MyungliEngineStub) -> None:
     with pytest.raises(grpc.RpcError) as caught:
         stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1899, 6, 1)))
     assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE
 
 
-def test_get_info(stub: pb_grpc.MyungriEngineStub) -> None:
+def test_get_info(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetInfo(pb.InfoRequest())
     assert response.engine_version == ENGINE_VERSION
     assert response.ruleset_version == RULESET_VERSION

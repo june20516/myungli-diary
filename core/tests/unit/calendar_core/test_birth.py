@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from myungri_engine.calendar_core.birth import (
+from myungli_engine.calendar_core.birth import (
     BirthHour,
     BirthInput,
     BirthMoment,
@@ -11,9 +11,9 @@ from myungri_engine.calendar_core.birth import (
     resolve_birth_moment,
     validate_civil_date,
 )
-from myungri_engine.chart.pillars import build_chart
-from myungri_engine.domain.enums import Branch, CalendarType, Gender, NoticeCode
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.chart.pillars import build_chart
+from myungli_engine.domain.enums import Branch, CalendarType, Gender, NoticeCode
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 
 
 def seoul(

@@ -2,9 +2,9 @@ from typing import cast
 
 import pytest
 
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.references import loader
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.references import loader
 
 
 def test_resolve_johu_cell() -> None:

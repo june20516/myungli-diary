@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from mlw._gen.myungri.engine.v1 import engine_pb2
+from mlw._gen.myungli.engine.v1 import engine_pb2
 from mlw.bundles import DayKeys
 from mlw.week_fixture import DAYS, SAMPLE_BIRTHS, START_DATE, day_keys_from_response
 

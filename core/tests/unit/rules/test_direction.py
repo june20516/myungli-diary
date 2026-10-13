@@ -2,13 +2,13 @@ from collections.abc import Callable
 
 import pytest
 
-from myungri_engine.calendar_core.lunar_adapter import DeityKind
-from myungri_engine.domain.enums import Branch, DayKind, Direction8, Element
-from myungri_engine.domain.models import Pillar
-from myungri_engine.references import loader
-from myungri_engine.rules.day_kind import classify_day
-from myungri_engine.rules.direction import lucky_direction
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.calendar_core.lunar_adapter import DeityKind
+from myungli_engine.domain.enums import Branch, DayKind, Direction8, Element
+from myungli_engine.domain.models import Pillar
+from myungli_engine.references import loader
+from myungli_engine.rules.day_kind import classify_day
+from myungli_engine.rules.direction import lucky_direction
+from myungli_engine.rules.yongsin import YongsinResult
 
 D = Direction8
 Deities = tuple[tuple[DeityKind, Direction8], ...]

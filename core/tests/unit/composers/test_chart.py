@@ -2,12 +2,12 @@ from datetime import date
 
 import pytest
 
-from myungri_engine.calendar_core.birth import BirthInput
-from myungri_engine.chart.personal_target import PersonalReading
-from myungri_engine.chart.positions import BRANCH_POSITIONS, Position
-from myungri_engine.composers.chart import ChartView, compose_chart
-from myungri_engine.domain.enums import NoticeCode, PersonalTermKind, Shinsal
-from myungri_engine.domain.errors import OutOfRangeError
+from myungli_engine.calendar_core.birth import BirthInput
+from myungli_engine.chart.personal_target import PersonalReading
+from myungli_engine.chart.positions import BRANCH_POSITIONS, Position
+from myungli_engine.composers.chart import ChartView, compose_chart
+from myungli_engine.domain.enums import NoticeCode, PersonalTermKind, Shinsal
+from myungli_engine.domain.errors import OutOfRangeError
 
 
 def test_chart_notices_propagated(zi_hour_birth: BirthInput) -> None:

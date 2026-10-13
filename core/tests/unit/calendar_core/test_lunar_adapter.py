@@ -4,15 +4,15 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from myungri_engine.calendar_core import korean_lunar
-from myungri_engine.calendar_core import lunar_adapter as la
-from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, LunarDate, resolve_birth_moment
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode, SolarTermKind, TwelveStage
-from myungri_engine.domain.enums import Direction8 as D
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
-from myungri_engine.domain.models import Pillar
+from myungli_engine.calendar_core import korean_lunar
+from myungli_engine.calendar_core import lunar_adapter as la
+from myungli_engine.calendar_core.birth import BirthInput, BirthMoment, LunarDate, resolve_birth_moment
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import CalendarType, Gender, NoticeCode, SolarTermKind, TwelveStage
+from myungli_engine.domain.enums import Direction8 as D
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.domain.models import Pillar
 
 SEOUL = ZoneInfo("Asia/Seoul")
 
