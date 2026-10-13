@@ -87,7 +87,7 @@ jobs:
             exit 1
           fi
       # 저장소 루트의 검사기를 쓰므로 이 단계만 루트에서 실행한다.
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
       - name: ARB 문구 검사
         working-directory: .
         run: uv run --project docs/identity/writing/tools mlw check-arb app/lib/core/l10n/arb/*.arb
