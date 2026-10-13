@@ -34,8 +34,9 @@ app이 `sentence-block` 안에서 `term` 조각을 명세만 보고 그릴 수 �
 | 화면 | `term` 조각 |
 | --- | --- |
 | IA `components`에 `term-token`이 있는 화면: today, day-sheet, tag-diary, my-saju, saju-chart | `term-token` `inline`. 누르면 풀이 시트 |
-| 그 밖의 `sentence-block` 화면: explain-sheet, evidence-sheet, preview, diary-edit, diary-view 등 | 일반 글자. 앞뒤 조각과 같은 스타일이고 누를 수 없음 |
+| 그 밖의 `sentence-block` 화면: explain-sheet, evidence-sheet, `preview` 화면(온보딩 미리보기), diary-edit, diary-view 등 | 일반 글자. 앞뒤 조각과 같은 스타일이고 누를 수 없음 |
 | 공유 이미지(`share-image`) | 일반 글자. 이미지는 누를 수 없음 |
+| 카드 전체가 버튼인 곳(`diary-row`) 안 | 일반 글자(§2.6) |
 
 * 따로 변형을 만들지 않습니다. 문장 안 용어는 이미 `term-token` `inline`(글자 스타일 그대로, 좌우 3px)입니다.
 * 근거: IA가 화면별로 `term-token`을 둔 곳이 곧 풀이로 들어갈 수 있는 곳입니다. 풀이 시트(explain)와 근거 시트(evidence)는 그보다 깊은 단계입니다. 그 안의 용어까지 누를 수 있게 하면 시트가 끝없이 쌓이고, 깊이 순서(surface → explain → evidence)가 돌아 버립니다.
@@ -71,6 +72,13 @@ app이 `sentence-block` 안에서 `term` 조각을 명세만 보고 그릴 수 �
 * 잠긴 내용(판정 근거·원전·내 사주에서는·`saju-chart.yongsin.basis`)은 권한이 없으면 server가 응답에 담지 않습니다(S14). `lock.veil`은 글자가 없는 흐린 막대이므로 그 안에 `term` 조각이 없습니다.
 * 풀이 시트는 무료입니다(D60 ①). 근거가 잠겨 있어도 `term-token`은 그대로 누를 수 있습니다.
 * 열린 근거 시트 안의 `term` 조각은 §2.1에 따라 일반 글자입니다.
+
+### 2.6. 다른 구성 요소와 누를 수 있는 카드 (최종 리뷰 반영)
+
+* `sentence-block` 밖에서 콘텐츠 문장(`RenderedText`)을 그리는 `day-character` 이유 줄과 `lucky-card` 설명도 같은 규칙을 따릅니다(`"segments": "sentence-block"`). day-sheet가 칩 화면인 것은 이유 줄 때문입니다.
+* 카드 전체가 버튼인 곳(지금은 `diary-row`) 안에서는 칩 화면이어도 일반 글자입니다(`insidePressable`). 누를 것 안에 누를 것을 두지 않고, 미리보기 말줄임이 칩을 자르지 않게 하려는 것입니다. 테스트가 `a11y.role`이 button이면서 `sentence-block`을 품은 컴포넌트를 찾아 이 목록과 맞춥니다.
+* 문장 글자색이 상태로 바뀌어도(질문 카드 `after`의 `text.secondary`) 칩은 `term.bg`·`term.fg` 그대로입니다(`textColorChange`).
+* `sentence-block` `locked` 라벨의 "구역 이름"은 사주 표에 그 줄의 이름 슬롯이 없어 지휘에 요청합니다(§5).
 
 ## 3. 근거 잠금 ui 슬롯 반영
 
@@ -109,7 +117,7 @@ app이 `sentence-block` 안에서 `term` 조각을 명세만 보고 그릴 수 �
 
 * #68 답 코멘트: §2 요약과 명세 위치. 처리한 쪽이 닫는 규칙은 `docs/workflow.md` §5.2를 따릅니다.
 * app 앞 notice(`kind:notice`, `to:app`): 컴포넌트 계약 2.1.0. 조각 그리기 규칙과 근거 잠금 슬롯이 들어갔음을 알립니다.
-* 지휘에는 따로 요청할 것이 없습니다. 계약 목록의 버전 갱신은 notice를 보고 지휘가 합니다.
+* 지휘 앞 request(`kind:request`, `to:root`): IA `saju-chart`에 용신 근거 줄의 이름 슬롯(잠김 접근성 라벨의 "구역 이름")을 요청합니다. 계약 목록의 버전 갱신은 notice를 보고 지휘가 합니다.
 
 ## 6. 검사
 

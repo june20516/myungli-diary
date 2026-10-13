@@ -11,7 +11,7 @@
 * 변형 `card`(`type.sentence.card` 17px) / `body`(`type.sentence.body` 15px) / `preview`(일기 목록, 14.5px 두 줄 말줄임).
 * 한국어는 어절 단위 줄바꿈(keep-all), 일본어는 글자 단위 + 금칙 처리.
 * 호칭은 문장 안의 자리로만 들어갑니다. 굵게 하거나 색을 바꾸지 않습니다.
-* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 흐린 한 줄(`lock.veil`) + 오른쪽 끝 "열기 ›". 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더의 "잠김"은 `evidence-sheet.a11y.locked`입니다.
+* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 흐린 한 줄(`lock.veil`) + 오른쪽 끝 "열기 ›". 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더의 "잠김"은 `evidence-sheet.a11y.locked`입니다. 라벨 앞의 "구역 이름"은 사주 표에 그 줄의 이름 슬롯이 없어 지휘에 요청합니다.
 
 ### 문장 조각 (`parts.segments`, 결정 V28)
 
@@ -20,13 +20,16 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 | 화면 | `term` 조각 |
 | --- | --- |
 | IA에 `term-token`이 있는 화면: today, day-sheet, tag-diary, my-saju, saju-chart | `term-token` `inline`. 누르면 풀이 시트 |
-| 그 밖의 화면(explain-sheet, evidence-sheet, preview, diary-edit, diary-view 등) | 일반 글자. 앞뒤 조각과 같은 스타일이고 누를 수 없음 |
+| 그 밖의 화면(explain-sheet, evidence-sheet, `preview` 화면(온보딩 미리보기), diary-edit, diary-view 등) | 일반 글자. 앞뒤 조각과 같은 스타일이고 누를 수 없음 |
 | 공유 이미지(`share-image`) | 일반 글자 |
+| 카드 전체가 버튼인 곳(`diary-row`, 일기 목록 미리보기) 안 | 일반 글자(`insidePressable`). tag-diary 화면이어도 같음 |
 
 * **칩은 누를 수 있다는 표시**라서 누를 수 있는 곳에서만 그립니다. 풀이·근거 시트 안의 용어까지 누르게 하면 시트가 끝없이 쌓이고 깊이 순서(surface → explain → evidence)가 돕니다. 같은 질문 문장이 today에서는 칩, diary-edit에서는 일반 글자인 차이는 받아들입니다.
+* 누를 것 안에 누를 것을 두지 않습니다. 그래서 `diary-row` 미리보기에는 칩이 없고, 두 줄 말줄임이 칩을 반쯤 자르는 일도 없습니다. 질문 카드(`guide-question-card`)는 카드가 버튼이 아니라(동작은 따로 있는 버튼) 칩을 그립니다. `after` 상태에서 문장 글자색이 `text.secondary`로 바뀌어도 칩은 `term.bg`·`term.fg` 그대로입니다(`textColorChange`).
+* `sentence-block` 밖에서 콘텐츠 문장을 그리는 `day-character` 이유 줄과 `lucky-card` 설명도 이 규칙을 따릅니다(`"segments": "sentence-block"`). day-sheet가 칩 화면인 것은 이유 줄 때문입니다.
 * 조각은 순서대로 한 문단으로 잇습니다. 경계에 공백·줄바꿈을 넣지 않고, 공백은 `text` 안의 것만 씁니다. 호칭 자리와 문장 끝 `depth-link`의 규칙은 같습니다.
 * **줄바꿈:** 용어 안에서 끊지 않습니다. 한국어는 공백 없이 붙은 조사까지 한 덩어리라 "편관 / 의"로 갈라지지 않습니다(keep-all 어절과 같은 결과). 일본어는 용어 앞뒤에서만 글자 단위 + 금칙으로 끊습니다. 용어가 한 줄보다 길 때만 용어 안에서 끊습니다. 구현 방법(텍스트 배경 span, 위젯 span, joiner)은 app이 고릅니다.
-* **접근성:** `term-token` 라벨은 화면에 보이는 `text` + "풀이 보기"입니다. `term` 값은 풀이를 찾는 키라 읽지 않습니다. 일반 글자로 그린 용어는 따로 초점을 받지 않습니다.
+* **접근성:** `term-token`이 있는 화면에서는 용어마다 따로 초점을 받습니다. `term-token` 라벨은 화면에 보이는 `text` + "풀이 보기"입니다. `term` 값은 풀이를 찾는 키라 읽지 않습니다. 일반 글자로 그린 용어는 따로 초점을 받지 않습니다.
 * **근거 잠금과 무관합니다.** 잠긴 내용은 server가 보내지 않으므로 `lock.veil` 안에 조각이 없고, 풀이 시트는 무료라 `term-token`은 늘 눌립니다(D60).
 * 고르지 않은 안: 어디서나 칩 + 어디서나 누름(시트가 계속 쌓임, IA 여러 화면 변경), 어디서나 칩 + 일부는 누를 수 없음(표시가 거짓이 됨).
 
