@@ -39,7 +39,7 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P2 PR을 올리고 병합을 기다립니다. 병합 뒤 app에 `kind:notice`로 알립니다: nonce 해시 규칙, Apple 콜백 deep link 쿼리(`error` 포함), `consent.version_mismatch`, 삭제 대기 계정의 요청 범위(S16), refresh는 single-flight로(동시 401에서 갱신 한 번만), 응답 유실 재시도는 30초 유예(S20). `APPLE_CALLBACK_DEEPLINK`의 scheme은 app과 정합니다.
-2. REST API v1 계약 등록·ci-gate 연결(root 요청 Issue)을 기다립니다. 계약 원본은 `api/openapi.yaml`(1.0.0-draft)입니다.
+1. P2 PR의 병합을 기다립니다. app notice(#100)는 보냈습니다.
+2. #89(설계 승인 대기), #92·#93(결정 대기)을 기다립니다.
 3. 병합되면 P3(프로필·엔진·캐시) 계획을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
 4. 보낸 요청의 답을 기다립니다: #48(root, 알림 슬롯·재구매 연장 등), #49(core, `ruleset_version` 조회 RPC).
