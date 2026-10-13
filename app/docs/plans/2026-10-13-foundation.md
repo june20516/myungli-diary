@@ -164,7 +164,7 @@
 - [ ] **Step 5:** 테스트 → PASS. `flutter build apk --debug`로 빌드한 뒤 `ls -l build/app/outputs/flutter-apk/app-debug.apk`의 크기와 `du -sh assets/fonts`를 이 plan 파일의 Task 5 아래 "측정" 줄에 적습니다(spec §6.2 판단 근거).
 - [ ] **Step 6:** Commit `feat(app): 테마 확장과 글꼴(OFL) 포함`
 
-측정: (Step 5에서 채움)
+측정: debug apk 170,321,244 B (약 163 MiB, 디버그 빌드라 AOT·압축 전), assets/fonts 31M (Gowun Dodum 7.2M, Zen Maru Gothic 3.8M, Pretendard 4종 6.3M, Pretendard JP 4종 15M).
 
 ### Task 6: 다국어 뼈대
 
