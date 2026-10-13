@@ -12,10 +12,17 @@ import 'package:myungli_diary/core/platform/social_auth.dart';
 // App Check는 `appCheckProvider`(api_providers.dart)에 있습니다.
 
 /// 카카오 로그인.
-final kakaoAuthProvider = Provider<KakaoAuth>((ref) => const FakeKakaoAuth());
+final kakaoAuthProvider = Provider<KakaoAuth>((ref) => FakeKakaoAuth());
 
-/// Apple 로그인.
-final appleAuthProvider = Provider<AppleAuth>((ref) => const FakeAppleAuth());
+/// iOS Apple 로그인.
+final appleNativeAuthProvider = Provider<AppleNativeAuth>(
+  (ref) => FakeAppleNativeAuth(),
+);
+
+/// Android Apple 웹 로그인.
+final appleWebAuthProvider = Provider<AppleWebAuth>(
+  (ref) => FakeAppleWebAuth(),
+);
 
 /// 푸시 알림.
 final pushMessagingProvider = Provider<PushMessaging>(

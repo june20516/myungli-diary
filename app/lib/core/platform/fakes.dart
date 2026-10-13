@@ -7,7 +7,9 @@ import 'package:myungli_diary/core/ia/ia_ids.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
+import 'package:myungli_diary/core/platform/apple_web_return.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
 import 'package:myungli_diary/core/platform/share.dart';
@@ -16,46 +18,98 @@ import 'package:myungli_diary/core/platform/social_auth.dart';
 /// 카카오 로그인 대역.
 final class FakeKakaoAuth implements KakaoAuth {
   /// [failWith]를 주면 그 오류로 실패합니다.
-  const new({this.failWith});
+  new({this.failWith});
 
   /// 던질 오류. null이면 성공.
   final AppError? failWith;
 
+  /// 제공자에게 보낸 nonce(해시) 기록.
+  final providerNonces = <String>[];
+
   @override
-  Future<KakaoCredential> signIn({required String nonce}) async {
+  Future<KakaoCredential> signIn({required String rawNonce}) async {
     final error = failWith;
     if (error != null) {
       throw error;
     }
+    providerNonces.add(hashNonce(rawNonce));
     return const KakaoCredential(idToken: 'fake-kakao-id-token');
   }
 }
 
-/// Apple 로그인 대역.
-final class FakeAppleAuth implements AppleAuth {
+/// iOS Apple 로그인 대역.
+final class FakeAppleNativeAuth implements AppleNativeAuth {
   /// [failWith]를 주면 그 오류로 실패합니다.
-  const new({this.failWith, this.clientType = AppleClientType.native});
+  new({this.failWith});
 
   /// 던질 오류. null이면 성공.
   final AppError? failWith;
 
-  /// 돌려줄 로그인 흐름.
-  final AppleClientType clientType;
+  /// 제공자에게 보낸 nonce(해시) 기록.
+  final providerNonces = <String>[];
 
   @override
-  Future<AppleCredential> signIn({
-    required String nonce,
-    required String state,
-  }) async {
+  Future<AppleNativeCredential> signIn({required String rawNonce}) async {
     final error = failWith;
     if (error != null) {
       throw error;
     }
-    return AppleCredential(
+    providerNonces.add(hashNonce(rawNonce));
+    return const AppleNativeCredential(
       idToken: 'fake-apple-id-token',
       authorizationCode: 'fake-apple-authorization-code',
-      clientType: clientType,
     );
+  }
+}
+
+/// Android Apple 웹 로그인 대역. 실제 adapter와 같은 authorize URL과 복귀 해석을 씁니다.
+final class FakeAppleWebAuth implements AppleWebAuth {
+  /// 복귀 query와 실패 주입을 정합니다.
+  new({
+    this.failWith,
+    this.returnQuery = const {'exchange': fakeAppleExchangeCode},
+    this.returnedState,
+    NonceGenerator? generator,
+  }) : _generator = generator ?? NonceGenerator();
+
+  /// 대역이 기본으로 돌려주는 교환 코드(계약 형식 43자).
+  static const fakeAppleExchangeCode =
+      'fakeAppleExchangeCode0000000000000000000000';
+
+  /// 던질 오류. null이면 복귀를 흉내 냅니다.
+  final AppError? failWith;
+
+  /// 복귀 query 중 `state`를 뺀 값(`exchange` 또는 `error`).
+  final Map<String, String> returnQuery;
+
+  /// 복귀에 실을 `state`. null이면 연 URL의 `state`를 그대로 돌려줍니다.
+  final String? returnedState;
+
+  final NonceGenerator _generator;
+
+  /// 연 authorize URL 기록.
+  final openedUris = <Uri>[];
+
+  @override
+  Future<AppleWebResult> signIn({required String rawNonce}) async {
+    final error = failWith;
+    if (error != null) {
+      throw error;
+    }
+    final state = _generator.generate();
+    openedUris.add(
+      buildAppleAuthorizeUri(
+        clientId: 'fake.services.id',
+        redirectUri: Uri.parse('https://fake.invalid/v1/auth/apple/callback'),
+        hashedNonce: hashNonce(rawNonce),
+        state: state,
+      ),
+    );
+    final link = Uri.https('fake.invalid', '/auth/apple', {
+      ...returnQuery,
+      'state': returnedState ?? state,
+    });
+    return parseAppleWebReturn(link, expectedState: state);
   }
 }
 

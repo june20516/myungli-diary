@@ -10,9 +10,12 @@ import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
+
+const _rawNonce = 'raw-nonce-0123456789';
 
 void main() {
   group('Ads', () {
@@ -76,29 +79,72 @@ void main() {
 
   group('로그인', () {
     test('카카오 대역은 비어 있지 않은 idToken', () async {
-      final credential = await const FakeKakaoAuth().signIn(nonce: 'n');
+      final credential = await FakeKakaoAuth().signIn(rawNonce: _rawNonce);
       expect(credential.idToken, isNotEmpty);
+    });
+
+    test('카카오 대역은 제공자에게 원문의 해시를 보낸다', () async {
+      final auth = FakeKakaoAuth();
+      await auth.signIn(rawNonce: _rawNonce);
+      expect(auth.providerNonces, [hashNonce(_rawNonce)]);
     });
 
     test('카카오 대역은 주입한 오류로 실패한다', () async {
-      const auth = FakeKakaoAuth(failWith: OfflineError());
-      await expectLater(auth.signIn(nonce: 'n'), throwsA(isA<OfflineError>()));
+      final auth = FakeKakaoAuth(failWith: const OfflineError());
+      await expectLater(
+        auth.signIn(rawNonce: _rawNonce),
+        throwsA(isA<OfflineError>()),
+      );
     });
 
-    test('Apple 대역은 idToken·authorizationCode·clientType을 낸다', () async {
-      final credential = await const FakeAppleAuth(
-        clientType: AppleClientType.web,
-      ).signIn(nonce: 'n', state: 's');
+    test('Apple native 대역은 idToken·authorizationCode를 내고 해시를 보낸다', () async {
+      final auth = FakeAppleNativeAuth();
+      final credential = await auth.signIn(rawNonce: _rawNonce);
       expect(credential.idToken, isNotEmpty);
       expect(credential.authorizationCode, isNotEmpty);
-      expect(credential.clientType, AppleClientType.web);
+      expect(auth.providerNonces, [hashNonce(_rawNonce)]);
     });
 
-    test('Apple 대역은 주입한 오류로 실패한다', () async {
-      const auth = FakeAppleAuth(failWith: TimeoutError());
+    test('Apple native 대역은 주입한 오류로 실패한다', () async {
+      final auth = FakeAppleNativeAuth(failWith: const TimeoutError());
       await expectLater(
-        auth.signIn(nonce: 'n', state: 's'),
+        auth.signIn(rawNonce: _rawNonce),
         throwsA(isA<TimeoutError>()),
+      );
+    });
+
+    test('Apple 웹 대역은 해시 nonce·state로 authorize URL을 열고 교환 코드를 낸다', () async {
+      final auth = FakeAppleWebAuth();
+      final result = await auth.signIn(rawNonce: _rawNonce);
+      expect(result, isA<AppleWebExchange>());
+      final opened = auth.openedUris.single;
+      expect(opened.queryParameters['nonce'], hashNonce(_rawNonce));
+      expect(opened.queryParameters['state'], isNotEmpty);
+    });
+
+    test('Apple 웹 대역은 복귀 error를 돌려준다', () async {
+      final auth = FakeAppleWebAuth(
+        returnQuery: const {'error': 'user_cancelled_authorize'},
+      );
+      expect(
+        await auth.signIn(rawNonce: _rawNonce),
+        const AppleWebFailure(AppleWebError.userCancelled),
+      );
+    });
+
+    test('Apple 웹 대역은 다른 state의 복귀를 거절한다', () async {
+      final auth = FakeAppleWebAuth(returnedState: 'forged');
+      expect(
+        await auth.signIn(rawNonce: _rawNonce),
+        const AppleWebFailure(AppleWebError.stateMismatch),
+      );
+    });
+
+    test('Apple 웹 대역은 주입한 오류로 실패한다', () async {
+      final auth = FakeAppleWebAuth(failWith: const OfflineError());
+      await expectLater(
+        auth.signIn(rawNonce: _rawNonce),
+        throwsA(isA<OfflineError>()),
       );
     });
   });
