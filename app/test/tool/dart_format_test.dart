@@ -17,6 +17,15 @@ dependencies:
       expect(dartLanguageVersion(pubspec), '3.13');
     });
 
+    test('sdk: 다음 줄의 숫자는 읽지 않는다', () {
+      const pubspec = '''
+environment:
+  sdk:
+  version: 3.9.0
+''';
+      expect(() => dartLanguageVersion(pubspec), throwsStateError);
+    });
+
     test('범위 표기와 주석 줄이 있어도 읽는다', () {
       const pubspec = '''
 environment:

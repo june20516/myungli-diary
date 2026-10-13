@@ -211,6 +211,27 @@ void main() {
       }
     });
 
+    test(r'$description의 개행은 줄마다 ///로 나온다', () {
+      final token = themes.lightKo['color.bg.base']!;
+      final edited = TokenThemes(
+        lightKo: {
+          ...themes.lightKo,
+          token.name: ResolvedToken(
+            name: token.name,
+            type: token.type,
+            value: token.value,
+            description: '첫째 줄\n둘째 줄',
+            extensions: token.extensions,
+          ),
+        },
+        darkKo: themes.darkKo,
+        lightJa: themes.lightJa,
+      );
+      final out = generateTokensSource(edited);
+      expect(out, matches(RegExp(r'^\s*/// 첫째 줄$', multiLine: true)));
+      expect(out, matches(RegExp(r'^\s*/// 둘째 줄$', multiLine: true)));
+    });
+
     test('커밋된 tokens.g.dart가 다시 생성한 결과와 정확히 같다', () async {
       final regenerated = await formatDartSource(source);
       expect(
@@ -232,10 +253,23 @@ void main() {
       File('$_tokenDir/$name').copySync('${dir.path}/$name');
     }
     final dark = _readTokenFile('color.dark.tokens.json');
-    (dark['color']! as Map<String, Object?>).remove('line');
+    // 다른 토큰이 참조하지 않는 리프를 지워, 깨진 참조가 아닌 짝 검사가 걸리게 한다.
+    final colors = dark['color']! as Map<String, Object?>;
+    (colors['skeleton']! as Map<String, Object?>).remove('bone');
     File('${dir.path}/color.dark.tokens.json')
         .writeAsStringSync(jsonEncode(dark));
-    expect(() => loadThemes(dir.path), throwsA(isA<TokenError>()));
+    expect(
+      () => loadThemes(dir.path),
+      throwsA(
+        isA<TokenError>()
+            .having((e) => e.message, 'message', contains('짝 파일'))
+            .having(
+              (e) => e.message,
+              'message',
+              contains('color.skeleton.bone'),
+            ),
+      ),
+    );
   });
 
   group('생성된 Dart 값', () {

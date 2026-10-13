@@ -44,6 +44,16 @@ void main() {
       expectOffset(line.end, 233.19538060, 246.15310703, tol: 1e-6);
     });
 
+    test('원점이 아닌 박스: 중심이 (190, 120)', () {
+      const bounds = Rect.fromLTWH(10, 20, 360, 200);
+      final line = cssGradientLine(bounds, degrees);
+      expectOffset(line.start, 136.80461940, -26.15310703, tol: 1e-6);
+      expectOffset(line.end, 243.19538060, 266.15310703, tol: 1e-6);
+      final mapped = _mapped(bounds, degrees);
+      expectOffset(mapped.start, line.start.dx, line.start.dy);
+      expectOffset(mapped.end, line.end.dx, line.end.dy);
+    });
+
     test('0°는 아래에서 위, 90°는 왼쪽에서 오른쪽', () {
       const bounds = Rect.fromLTWH(10, 20, 100, 60);
       final up = cssGradientLine(bounds, 0);
