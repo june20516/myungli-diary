@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/ia/ia_lookup.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -22,6 +23,11 @@ enum SentenceBlockVariant {
 
 /// 콘텐츠 문장 덩어리(`sentence-block`). 조각 배열은 [RenderedTextView]가 그립니다.
 ///
+/// 용어 조각(V28): [termStyle]을 주지 않으면 [slotId]의 화면(첫 마디)이 IA에서
+/// `term-token`을 쓰는 화면일 때만 칩, 그 밖과 [slotId]가 없을 때는 일반 글자입니다.
+/// [SentenceBlockVariant.preview](`diary-row`)는 항상 일반 글자입니다.
+/// 공유 이미지처럼 화면과 관계없이 일반 글자여야 하면 [TermStyle.plain]을 줍니다.
+///
 /// 호칭은 server가 문장 안에 넣어 보내므로 굵게 하거나 색을 바꾸지 않고 그대로 그립니다.
 /// [locked]면 근거·해석 열람 권한이 없는 문장(D60)이라 본문을 그리지 않고, 흐린 한 줄
 /// (`lock.veil`)과 오른쪽 끝 "열기 ›"만 둡니다. 잠긴 내용은 server가 보내지 않으므로
@@ -33,12 +39,14 @@ class SentenceBlock extends StatelessWidget {
     required this.text,
     this.locked = false,
     this.slotId,
+    this.termStyle,
     this.onTerm,
     this.onOpenLocked,
     this.trailing,
     super.key,
   }) : assert(
-         variant != SentenceBlockVariant.preview || onTerm == null,
+         variant != SentenceBlockVariant.preview ||
+             (onTerm == null && termStyle != TermStyle.chip),
          'preview는 카드 전체가 버튼인 곳(diary-row)에 놓이므로 용어를 누를 수 없습니다.',
        );
 
@@ -61,7 +69,10 @@ class SentenceBlock extends StatelessWidget {
   /// 이 문장이 채우는 IA 슬롯 id(`SlotIds`). 있으면 Key와 Semantics `identifier`로 붙습니다.
   final String? slotId;
 
-  /// 용어 조각을 눌렀을 때. `term-token`이 있는 화면에서만 줍니다. 없으면 일반 글자입니다.
+  /// `term` 조각 표시를 직접 정합니다. null이면 IA로 정합니다(클래스 설명).
+  final TermStyle? termStyle;
+
+  /// 용어 칩을 눌렀을 때. 칩으로 그려질 때 필요합니다.
   final ValueChanged<String>? onTerm;
 
   /// 잠긴 문장의 "열기 ›"를 눌렀을 때(근거 시트를 잠김 상태로 엽니다).
@@ -89,17 +100,34 @@ class SentenceBlock extends StatelessWidget {
       SentenceBlockVariant.preview => typography.sentenceBody,
     };
     final preview = variant == SentenceBlockVariant.preview;
+    final terms = _resolveTermStyle();
+    assert(
+      terms == TermStyle.plain || onTerm != null,
+      '$slotId는 term-token 화면의 문장이라 칩으로 그립니다. onTerm을 주세요.',
+    );
     return RenderedTextView(
       text: text,
       style: base.copyWith(
         color: context.tokens.colors.textPrimary,
         fontSize: preview ? _previewFontSize : null,
       ),
+      termStyle: onTerm == null ? TermStyle.plain : terms,
       onTerm: onTerm,
       trailing: trailing,
       maxLines: preview ? _previewMaxLines : null,
       overflow: preview ? TextOverflow.ellipsis : TextOverflow.clip,
     );
+  }
+
+  TermStyle _resolveTermStyle() {
+    if (variant == SentenceBlockVariant.preview) return TermStyle.plain;
+    final explicit = termStyle;
+    if (explicit != null) return explicit;
+    final id = slotId;
+    if (id == null) return TermStyle.plain;
+    return screenHasComponent(screenIdOfSlot(id), _termTokenComponent)
+        ? TermStyle.chip
+        : TermStyle.plain;
   }
 
   Widget _buildLocked(BuildContext context) {
@@ -123,6 +151,7 @@ class SentenceBlock extends StatelessWidget {
     );
   }
 
+  static const String _termTokenComponent = 'term-token';
   static const double _previewFontSize = 14.5;
   static const int _previewMaxLines = 2;
 }

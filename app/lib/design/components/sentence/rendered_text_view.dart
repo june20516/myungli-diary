@@ -4,15 +4,25 @@ import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 
+/// `term` 조각을 그리는 방식(결정 V28).
+enum TermStyle {
+  /// `term-token` `inline` 칩. 누르면 `onTerm`에 `term` 값을 넘깁니다.
+  chip,
+
+  /// 일반 글자. 누를 수 없습니다.
+  plain,
+}
+
 /// server가 렌더한 문장 조각 배열(`RenderedText.segments`)을 그대로 그립니다.
 ///
 /// app은 문장을 고르거나 조사를 붙이지 않습니다. 조각을 순서대로 이어 하나의
 /// [Text.rich]로 그려 줄바꿈이 문장 전체에서 자연스럽게 일어나게 하고, 조각 경계에
 /// 공백이나 줄바꿈을 넣지 않습니다(결정 V28).
 ///
-/// [onTerm]이 있으면 `term`이 있는 조각을 `term-token` `inline`으로 그리고 누르면
-/// `term` 값을 넘깁니다. 없으면 `term` 조각도 일반 글자입니다. `term-token`이 없는
-/// 화면, 공유 이미지, 카드 전체가 버튼인 곳(`diary-row`) 안에서는 [onTerm]을 주지 않습니다.
+/// [termStyle]이 [TermStyle.chip]이면 `term`이 있는 조각을 `term-token` `inline`으로
+/// 그리고 누르면 [onTerm]에 `term` 값을 넘깁니다. 기본 [TermStyle.plain]이면 `term`
+/// 조각도 일반 글자입니다. 칩은 IA에 `term-token`이 있는 화면에서만 씁니다(V28,
+/// `SentenceBlock`이 정합니다). 공유 이미지와 `diary-row` 안은 항상 일반 글자입니다.
 ///
 /// 한국어는 어절 단위로만 줄을 바꿉니다(`keep-all`, [applyKeepAll]). 스크린리더 라벨과
 /// [onTerm]에 넘기는 값은 원문입니다.
@@ -24,12 +34,16 @@ class RenderedTextView extends StatelessWidget {
   const new({
     required this.text,
     required this.style,
+    this.termStyle = TermStyle.plain,
     this.onTerm,
     this.trailing,
     this.maxLines,
     this.overflow = TextOverflow.clip,
     super.key,
-  });
+  }) : assert(
+         termStyle == TermStyle.plain || onTerm != null,
+         '칩으로 그리려면 onTerm을 줘야 합니다.',
+       );
 
   /// 조각 배열. 비어 있으면 아무것도 그리지 않습니다.
   final RenderedText text;
@@ -37,7 +51,10 @@ class RenderedTextView extends StatelessWidget {
   /// 문장 글자 스타일(글자색 포함). 조각 모두와 용어 칩의 바탕 스타일입니다.
   final TextStyle style;
 
-  /// 용어 조각을 눌렀을 때 `term` 값을 받습니다. null이면 용어도 일반 글자입니다.
+  /// `term` 조각을 그리는 방식.
+  final TermStyle termStyle;
+
+  /// 칩을 눌렀을 때 `term` 값을 받습니다. [TermStyle.chip]이면 필요합니다.
   final ValueChanged<String>? onTerm;
 
   /// 문장 끝에 붙는 위젯(`depth-link` `inline-end`). 줄 끝에 다 들어가지 않으면
@@ -105,7 +122,7 @@ class RenderedTextView extends StatelessWidget {
     final segment = segments[index];
     final term = segment.term;
     final onTerm = this.onTerm;
-    if (term != null && onTerm != null) {
+    if (term != null && onTerm != null && termStyle == TermStyle.chip) {
       final before = glueParticles ? _attachedBefore(segments, index) : '';
       final after = glueParticles ? _attachedAfter(segments, index) : '';
       return [
@@ -143,7 +160,8 @@ class RenderedTextView extends StatelessWidget {
   bool _takesHead(List<Segment> segments, int index) =>
       index < segments.length && _isChip(segments[index]);
 
-  bool _isChip(Segment s) => s.term != null && onTerm != null;
+  bool _isChip(Segment s) =>
+      s.term != null && onTerm != null && termStyle == TermStyle.chip;
 
   /// 용어 앞 일반 조각 끝의 공백 없는 글자.
   String _attachedBefore(List<Segment> segments, int index) {

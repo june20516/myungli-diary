@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
+import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
@@ -34,6 +35,9 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
               child: SentenceBlock(
                 variant: variant,
                 text: _sample,
+                termStyle: variant == SentenceBlockVariant.preview
+                    ? null
+                    : TermStyle.chip,
                 onTerm: variant == SentenceBlockVariant.preview ? null : (_) {},
               ),
             ),

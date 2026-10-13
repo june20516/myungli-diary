@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
+import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -40,11 +41,13 @@ Widget _sentenceBlocks() => Builder(
         SentenceBlock(
           variant: SentenceBlockVariant.card,
           text: text,
+          termStyle: TermStyle.chip,
           onTerm: (_) {},
         ),
         SentenceBlock(
           variant: SentenceBlockVariant.body,
           text: text,
+          termStyle: TermStyle.chip,
           onTerm: (_) {},
         ),
         SentenceBlock(

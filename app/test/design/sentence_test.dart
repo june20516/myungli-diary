@@ -91,7 +91,12 @@ void main() {
       final tapped = <String>[];
       await tester.pumpWidget(
         _app(
-          RenderedTextView(text: _siksin, style: _style, onTerm: tapped.add),
+          RenderedTextView(
+            termStyle: TermStyle.chip,
+            text: _siksin,
+            style: _style,
+            onTerm: tapped.add,
+          ),
         ),
       );
       // 조각마다 따로 줄을 바꾸지 않고 Text.rich 하나로 그립니다.
@@ -129,7 +134,14 @@ void main() {
 
     testWidgets('빈 segments는 아무것도 그리지 않습니다', (tester) async {
       await tester.pumpWidget(
-        _app(RenderedTextView(text: _text([]), style: _style, onTerm: (_) {})),
+        _app(
+          RenderedTextView(
+            termStyle: TermStyle.chip,
+            text: _text([]),
+            style: _style,
+            onTerm: (_) {},
+          ),
+        ),
       );
       expect(find.byType(RichText), findsNothing);
       expect(tester.getSize(find.byType(RenderedTextView)), Size.zero);
@@ -137,7 +149,14 @@ void main() {
 
     testWidgets('한국어는 용어 뒤 조사까지 한 덩어리로 묶습니다', (tester) async {
       await tester.pumpWidget(
-        _app(RenderedTextView(text: _siksin, style: _style, onTerm: (_) {})),
+        _app(
+          RenderedTextView(
+            termStyle: TermStyle.chip,
+            text: _siksin,
+            style: _style,
+            onTerm: (_) {},
+          ),
+        ),
       );
       // 칩 옆에 붙은 "의"는 칩과 같은 덩어리(위젯)에 있고, 바깥 문단에는 남지 않습니다.
       final outer = tester
@@ -159,6 +178,7 @@ void main() {
       await tester.pumpWidget(
         _app(
           RenderedTextView(
+            termStyle: TermStyle.chip,
             text: _text([
               Segment(text: '今日は'),
               Segment(text: '食神', term: 'TenGod.SIKSIN'),
@@ -191,7 +211,14 @@ void main() {
     testWidgets('용어 라벨은 "용어 + 풀이 보기"로 읽고 term 값은 읽지 않습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        _app(RenderedTextView(text: _siksin, style: _style, onTerm: (_) {})),
+        _app(
+          RenderedTextView(
+            termStyle: TermStyle.chip,
+            text: _siksin,
+            style: _style,
+            onTerm: (_) {},
+          ),
+        ),
       );
       expect(find.bySemanticsLabel('식신의 풀이 보기'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('TenGod')), findsNothing);
@@ -335,6 +362,129 @@ void main() {
         SlotIds.explainSheetTermMeaning,
       );
       handle.dispose();
+    });
+
+    group('용어 표시(V28)', () {
+      Future<void> pump(WidgetTester tester, SentenceBlock block) =>
+          tester.pumpWidget(_app(block));
+
+      testWidgets('term-token이 있는 화면(today) 슬롯은 칩입니다', (tester) async {
+        final tapped = <String>[];
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.card,
+            text: _siksin,
+            slotId: SlotIds.todayFortuneBody,
+            onTerm: tapped.add,
+          ),
+        );
+        expect(find.byType(TermToken), findsOneWidget);
+        await tester.tap(find.text('식신'));
+        expect(tapped, ['TenGod.SIKSIN']);
+      });
+
+      testWidgets('saju-chart 슬롯도 칩입니다', (tester) async {
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.body,
+            text: _siksin,
+            slotId: SlotIds.sajuChartYongsinBasis,
+            onTerm: (_) {},
+          ),
+        );
+        expect(find.byType(TermToken), findsOneWidget);
+      });
+
+      testWidgets(
+        'term-token이 없는 화면(evidence-sheet) 슬롯은 onTerm이 있어도 일반 글자입니다',
+        (tester) async {
+          await pump(
+            tester,
+            SentenceBlock(
+              variant: SentenceBlockVariant.body,
+              text: _siksin,
+              slotId: SlotIds.evidenceSheetBasisBody,
+              onTerm: (_) {},
+            ),
+          );
+          expect(find.byType(TermToken), findsNothing);
+          expect(_allText(tester), '오늘은 식신의 날이에요.');
+        },
+      );
+
+      testWidgets('slotId가 없으면 일반 글자, 명시한 chip이면 칩입니다', (tester) async {
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.body,
+            text: _siksin,
+            onTerm: (_) {},
+          ),
+        );
+        expect(find.byType(TermToken), findsNothing);
+
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.body,
+            text: _siksin,
+            termStyle: TermStyle.chip,
+            onTerm: (_) {},
+          ),
+        );
+        expect(find.byType(TermToken), findsOneWidget);
+      });
+
+      testWidgets('명시한 plain은 term-token 화면 슬롯에서도 일반 글자(공유 이미지)', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.card,
+            text: _siksin,
+            slotId: SlotIds.todayFortuneBody,
+            termStyle: TermStyle.plain,
+          ),
+        );
+        expect(find.byType(TermToken), findsNothing);
+      });
+
+      testWidgets('preview(diary-row)는 term-token 화면 슬롯에서도 일반 글자입니다', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.preview,
+            text: _siksin,
+            slotId: SlotIds.todayFortuneBody,
+          ),
+        );
+        expect(find.byType(TermToken), findsNothing);
+      });
+
+      test('preview에 chip을 명시하면 assert로 드러납니다', () {
+        expect(
+          () => SentenceBlock(
+            variant: SentenceBlockVariant.preview,
+            text: _siksin,
+            termStyle: TermStyle.chip,
+          ),
+          throwsAssertionError,
+        );
+      });
+
+      testWidgets('RenderedTextView 기본은 plain이라 onTerm이 있어도 일반 글자입니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          _app(RenderedTextView(text: _siksin, style: _style, onTerm: (_) {})),
+        );
+        expect(find.byType(TermToken), findsNothing);
+      });
     });
 
     testWidgets('카드 전체가 버튼인 곳(onTerm 없음)은 용어도 일반 글자입니다', (tester) async {
@@ -739,7 +889,12 @@ void main() {
         _app(
           SizedBox(
             width: narrow,
-            child: RenderedTextView(text: text, style: _style, onTerm: (_) {}),
+            child: RenderedTextView(
+              termStyle: TermStyle.chip,
+              text: text,
+              style: _style,
+              onTerm: (_) {},
+            ),
           ),
         ),
       );
@@ -773,7 +928,14 @@ void main() {
       final handle = tester.ensureSemantics();
       final tapped = <String>[];
       await tester.pumpWidget(
-        _app(RenderedTextView(text: text, style: _style, onTerm: tapped.add)),
+        _app(
+          RenderedTextView(
+            termStyle: TermStyle.chip,
+            text: text,
+            style: _style,
+            onTerm: tapped.add,
+          ),
+        ),
       );
       expect(
         outerParagraph(tester).text.toPlainText(includeSemanticsLabels: false),
@@ -834,6 +996,7 @@ void main() {
       await tester.pumpWidget(
         _app(
           RenderedTextView(
+            termStyle: TermStyle.chip,
             text: _text([
               Segment(text: 'The ('),
               Segment(text: 'Siksin', term: 'TenGod.SIKSIN'),
@@ -864,6 +1027,7 @@ void main() {
       await tester.pumpWidget(
         _app(
           RenderedTextView(
+            termStyle: TermStyle.chip,
             text: _text([
               Segment(text: '식신', term: 'a'),
               Segment(text: '와'),
@@ -884,6 +1048,7 @@ void main() {
       await tester.pumpWidget(
         _app(
           RenderedTextView(
+            termStyle: TermStyle.chip,
             text: _text([
               Segment(text: '식신', term: 'a'),
               Segment(text: '과 그리고 '),
@@ -1315,6 +1480,7 @@ void main() {
       await tester.pumpWidget(
         _app(
           RenderedTextView(
+            termStyle: TermStyle.chip,
             text: _text([
               Segment(text: '오늘은 마음이 차분해서 '),
               Segment(text: '식신', term: 'TenGod.SIKSIN'),
