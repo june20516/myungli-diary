@@ -2,7 +2,7 @@
 
 * 상태: 초안 (사용자 검토 대기)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
-* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D60, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
+* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
 * server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다. 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
@@ -310,7 +310,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 2. 캐시에 있으면 씁니다.
 3. 없으면 엔진을 부르고 결과를 저장합니다. 같은 키의 동시 요청은 프로세스 안에서 `singleflight`로 한 번만 부릅니다.
 
-* **현재 `ruleset_version` 알기:** 캐시에 결과가 있으면 엔진을 부르지 않으므로, 엔진 응답만 봐서는 버전이 바뀐 것을 알 수 없습니다. 그래서 server는 시작할 때와 10분마다 엔진에 고정 입력으로 `GetChart`를 한 번 불러 버전을 갱신합니다. 엔진을 배포한 직후 최대 10분 동안은 이전 버전 캐시가 쓰일 수 있습니다. 더 나은 방법으로 core에 버전 조회 RPC를 요청합니다(§14). 이전 버전 캐시는 `job retention`이 지웁니다.
+* **현재 `ruleset_version` 알기:** 캐시에 결과가 있으면 엔진을 부르지 않으므로, 엔진 응답만 봐서는 버전이 바뀐 것을 알 수 없습니다. 그래서 server는 시작할 때와 10분마다 엔진 `GetInfo`(계산 없이 `engine_version`·`ruleset_version`만 돌려줌, Issue #49)로 버전을 갱신합니다. 엔진을 배포한 직후 최대 10분 동안은 이전 버전 캐시가 쓰일 수 있습니다. 이전 버전 캐시는 `job retention`이 지웁니다.
 * 연결: 엔진은 Cloud Run internal ingress로만 받고, server는 Direct VPC egress와 ID token으로 부릅니다(D56①). deadline은 3초입니다.
 
 ### 7.2 프로필 저장 때의 검증
@@ -340,7 +340,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 
 * 알림 시각은 5분 단위로 받습니다. 계약의 `pattern`으로 표현되므로 REST에서 분이 5의 배수가 아니면 `pattern` 위반 400 `request.invalid`입니다(§11.2).
 * 대상: `notify_status = enabled`이고, 현재 시간대의 현지 알림 시각이 [지금−60분, 지금]이며, 그 현지 날짜의 `notification_log`가 없는 사용자. Job이 멈췄다 돌아와도 1시간 안의 누락분만 보냅니다.
-* 내용: 그날 데일리를 §6.2로 선택(알림이 그날 첫 요청이면 여기서 선택이 정해짐)하고, 알림 슬롯 문장을 호칭 없이 렌더합니다. 알림 슬롯은 IA에 추가를 요청합니다(§13).
+* 내용: 그날 데일리를 §6.2로 선택(알림이 그날 첫 요청이면 여기서 선택이 정해짐)하고, 알림 슬롯 문장을 호칭 없이 렌더합니다. 알림 슬롯은 IA content 슬롯 `system-push.morning.body`입니다(D62).
 * 발송: FCM HTTP v1. 일괄 발송 API가 없으므로 메시지를 하나씩 동시에 보냅니다(동시 50개).
   * `UNREGISTERED`, 토큰 관련 `INVALID_ARGUMENT`는 기기를 비활성으로 바꿉니다.
   * `QUOTA_EXCEEDED`, `UNAVAILABLE`, `INTERNAL`은 지수 backoff로 3번까지 재시도합니다.
@@ -382,7 +382,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
   4. 2xx로 응답합니다. 이벤트 순서가 뒤바뀌거나 중복돼도 결과가 같습니다.
 * `POST /v1/billing/restore`도 3번의 같은 동기화 함수를 씁니다. 비갱신 상품은 스토어가 복원해 주지 않으므로 server가 복원합니다.
 * **만료일 계산:** 광고 제거권 구매를 구매일 순으로 보며 `만료일 = max(직전 만료일, 구매일) + 1개월`로 이어 붙입니다.
-  * 만료 전 재구매를 이어 붙이는 규칙은 결정 문서에 없는 제품 결정입니다. 기본값으로 두고 지휘 세션에 확인을 요청합니다(§13).
+  * 만료 전 재구매를 이어 붙이는 규칙은 D61로 확정됐습니다.
   * 환불된 구매는 빼고 다시 계산합니다. 환불이 RevenueCat 구매 내역에 어떻게 표시되는지는 구현할 때 RevenueCat 문서로 확인합니다.
 * 광고 제거권 구매를 동기화할 때 같은 기간의 `insight` 권한도 출처 `ad_free_pass`로 함께 부여합니다(D60③). 환불로 광고 제거권이 줄면 이 권한도 같이 줄입니다.
 * 광고 제거 여부와 근거 열람 권한은 `GET /v1/me`와 `GET /v1/me/entitlements`로 알려 줍니다. 근거 열람 권한은 만료 시각과 출처를 함께 보냅니다.
@@ -515,13 +515,13 @@ CI(`.github/workflows/server.yml`, `server/**`·`proto/**`·`docs/identity/writi
 | 받는 쪽 | 내용 |
 | --- | --- |
 | root (계약) | REST API v1 계약 등록: `server/api/openapi.yaml`. proto 생성 코드 위치 `server/internal/gen/enginev1/`. 초안을 먼저 계약 전용 PR로 올림 |
-| root (IA) | 알림 문장 슬롯 추가 요청(개인화하되 호칭 없음) |
-| root (제품 결정) | 광고 제거권 만료 전 재구매를 이어 붙일지 확인 |
+| root (IA) | 알림 문장 슬롯 추가 요청(개인화하되 호칭 없음). 완료: D62 |
+| root (제품 결정) | 광고 제거권 만료 전 재구매를 이어 붙일지 확인. 완료: D61 |
 | root → app·design | 문장 조각 배열 형식(§6.4)과 `term` 표시 방식 |
 | root → writing | 미리보기에서 호칭이 들어가는 슬롯을 호칭 없이 보이는 방법 |
 | root → app | GeoNames 출처 표기를 오픈소스 고지에 넣기 |
 | core (기다림) | `core/message_params.json`(Issue #38), D58 시진 RPC |
-| core (요청) | `ruleset_version` 조회 RPC (§7.1) |
+| core (요청) | `ruleset_version` 조회 RPC (§7.1). 완료: `GetInfo`, PR #67 |
 
 ## 15. 구현 순서 (계획의 큰 줄기)
 
