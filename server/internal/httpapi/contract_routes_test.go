@@ -126,7 +126,6 @@ func TestAPI_InvalidDatePathReturns400(t *testing.T) {
 	expectInvalid(t, rec, "date")
 }
 
-// format: date 정규식은 2026-02-30을 통과시키므로, 생성 코드가 Go 타입으로 바꿀 때 400이 되어야 합니다.
 // expectFormatViolation은 400 request.invalid이고 errors가 정확히 [{field, code: "format"}]인지 확인합니다.
 func expectFormatViolation(t *testing.T, rec *httptest.ResponseRecorder, field string) {
 	t.Helper()

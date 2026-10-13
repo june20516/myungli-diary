@@ -46,7 +46,7 @@ func TestJWKSFailureReason(t *testing.T) {
 	require.NoError(t, err)
 	resp, clientTimeoutErr := (&http.Client{Timeout: 50 * time.Millisecond}).Do(req)
 	if resp != nil {
-		closeBody(resp.Body)
+		require.NoError(t, resp.Body.Close())
 	}
 	require.Error(t, clientTimeoutErr)
 	require.ErrorIs(t, clientTimeoutErr, context.DeadlineExceeded, "순서가 중요한 이유: client Timeout도 DeadlineExceeded입니다")

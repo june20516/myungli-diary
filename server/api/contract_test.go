@@ -543,11 +543,47 @@ func TestContract_AgreeConsentsDeclares422(t *testing.T) {
 			return
 		}
 		found = true
-		if op.Responses.Value("422") == nil {
+		resp := op.Responses.Value("422")
+		if resp == nil {
 			t.Error("agreeConsents.responses에 422가 없음")
+			return
+		}
+		if resp.Ref != "#/components/responses/UnprocessableEntity" {
+			t.Errorf("agreeConsents 422 = %q, want UnprocessableEntity 참조", resp.Ref)
 		}
 	})
 	if !found {
 		t.Fatal("agreeConsents operation이 없음")
+	}
+
+	unprocessable := doc.Components.Responses["UnprocessableEntity"]
+	if unprocessable == nil || unprocessable.Value == nil || unprocessable.Value.Description == nil {
+		t.Fatal("components.responses.UnprocessableEntity 설명이 없음")
+	}
+	if !strings.Contains(*unprocessable.Value.Description, "consent.version_mismatch") {
+		t.Error("UnprocessableEntity 설명에 consent.version_mismatch가 없음")
+	}
+}
+
+// TestContract_AppleCallbackDescribes400은 appleCallback 설명이 400이 되는 조건을 적는지 확인합니다.
+func TestContract_AppleCallbackDescribes400(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "appleCallback" {
+			return
+		}
+		found = true
+		const want = "`error`도 `code`도 `id_token`도 없으면 400입니다."
+		if !strings.Contains(op.Description, want) {
+			t.Errorf("appleCallback 설명에 %q가 없음", want)
+		}
+		if op.Responses.Value("400") == nil {
+			t.Error("appleCallback.responses에 400이 없음")
+		}
+	})
+	if !found {
+		t.Fatal("appleCallback operation이 없음")
 	}
 }

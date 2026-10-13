@@ -29,7 +29,8 @@ const (
 	pgForeignKeyViolation = "23503"
 )
 
-// ErrNotFound는 계정이 없거나 이미 삭제(익명화)됐을 때 돌려줍니다.
+// ErrNotFound는 계정 행이 없을 때 돌려줍니다.
+// 삭제 예약(RequestDeletion)만은 익명화가 끝난(deleted) 계정도 예약할 대상이 없으므로 이 오류로 돌려줍니다.
 var ErrNotFound = errors.New("account: not found")
 
 // ConsentVersionMismatchError는 동의 요청 항목의 버전이 현재 버전과 다를 때의 오류입니다.
