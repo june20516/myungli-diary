@@ -55,4 +55,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get adBannerLabel => '광고';
+
+  @override
+  String get noticeOffline => '인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.';
+
+  @override
+  String get emptyStateDefault => '아직 보여 드릴 내용이 없어요.';
+
+  @override
+  String get skeletonLabel => '불러오는 중';
+
+  @override
+  String get traceIdCopied => '문의 번호를 복사했어요.';
 }

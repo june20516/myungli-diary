@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary_widgetbook/elements_directory.dart';
+import 'package:myungli_diary_widgetbook/feedback_directory.dart';
 import 'package:myungli_diary_widgetbook/frame_directory.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -16,7 +17,7 @@ class MyungliWidgetbook extends StatelessWidget {
   Widget build(BuildContext context) {
     const koreanLocale = Locale('ko');
     return Widgetbook.material(
-      directories: [elementsDirectory, frameDirectory],
+      directories: [elementsDirectory, frameDirectory, feedbackDirectory],
       addons: [
         MaterialThemeAddon(
           themes: [

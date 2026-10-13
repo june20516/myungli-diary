@@ -65,5 +65,21 @@
   "adBannerLabel": "광고",
   "@adBannerLabel": {
     "description": "임시. 광고 배너 영역의 스크린리더 라벨"
+  },
+  "noticeOffline": "인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.",
+  "@noticeOffline": {
+    "description": "임시. 오프라인 안내 배너 문구"
+  },
+  "emptyStateDefault": "아직 보여 드릴 내용이 없어요.",
+  "@emptyStateDefault": {
+    "description": "임시. 빈 상태 기본 문장"
+  },
+  "skeletonLabel": "불러오는 중",
+  "@skeletonLabel": {
+    "description": "임시. 불러오는 중 자리의 스크린리더 라벨"
+  },
+  "traceIdCopied": "문의 번호를 복사했어요.",
+  "@traceIdCopied": {
+    "description": "임시. 문의 번호를 길게 눌러 복사한 뒤의 토스트 문구"
   }
 }

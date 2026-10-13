@@ -14,5 +14,9 @@
   "tabMe": "Me",
   "appBarBack": "Back",
   "sheetDismiss": "Close",
-  "adBannerLabel": "Ad"
+  "adBannerLabel": "Ad",
+  "noticeOffline": "You are offline, so this shows what was saved earlier.",
+  "emptyStateDefault": "There is nothing to show yet.",
+  "skeletonLabel": "Loading",
+  "traceIdCopied": "Reference copied."
 }

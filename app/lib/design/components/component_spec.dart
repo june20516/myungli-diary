@@ -1,4 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/design/components/feedback/dialog.dart';
+import 'package:myungli_diary/design/components/feedback/empty_state.dart';
+import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
@@ -28,4 +34,10 @@ const List<ComponentSpec> implementedComponents = [
   MyungliAppBar.spec,
   MyungliSheetFrame.spec,
   AdBanner.spec,
+  MyungliDialog.spec,
+  MyungliToast.spec,
+  NoticeBanner.spec,
+  SkeletonBlock.spec,
+  EmptyState.spec,
+  ErrorState.spec,
 ];

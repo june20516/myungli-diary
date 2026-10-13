@@ -1,0 +1,652 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/feedback/dialog.dart';
+import 'package:myungli_diary/design/components/feedback/empty_state.dart';
+import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+Widget _app(Widget home, {Locale locale = const Locale('ko')}) => MaterialApp(
+  navigatorKey: _navigatorKey,
+  locale: locale,
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  theme: buildTheme(brightness: Brightness.light, locale: locale),
+  home: Scaffold(body: home),
+);
+
+List<String> _recordHaptics(WidgetTester tester) {
+  final calls = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        calls.add(call.arguments as String);
+      }
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      null,
+    ),
+  );
+  return calls;
+}
+
+const ProblemError _problem = ProblemError(
+  code: 'x',
+  status: 500,
+  fieldErrors: [],
+  traceId: 'trace-abc',
+);
+
+class _Probe extends AsyncNotifier<String> {
+  @override
+  Future<String> build() async => '캐시';
+
+  void fail(Object error) => state = AsyncError(error, StackTrace.empty);
+
+  void reload() => state = const AsyncLoading();
+}
+
+class _Failing extends AsyncNotifier<String> {
+  @override
+  Future<String> build() async => throw const TimeoutError();
+
+  void reload() => state = const AsyncLoading();
+}
+
+final _probe = AsyncNotifierProvider<_Probe, String>(_Probe.new);
+final _failing = AsyncNotifierProvider<_Failing, String>(
+  _Failing.new,
+  retry: (_, _) => null,
+);
+
+/// Riverpod이 만드는 그대로의 상태를 얻습니다(값을 가진 채 실패, 값을 가진 채 갱신 중 등).
+Future<AsyncValue<String>> _states(
+  WidgetTester tester,
+  void Function(_Probe probe) step,
+) async {
+  final container = ProviderContainer();
+  addTearDown(container.dispose);
+  await tester.runAsync(() => container.read(_probe.future));
+  step(container.read(_probe.notifier));
+  // AsyncValue는 Future가 아니라 값입니다(린트 오탐).
+  // ignore: async_return_with_no_await
+  return container.read(_probe);
+}
+
+/// 값 없이 실패한 뒤 다시 불러오는 중인 상태.
+Future<AsyncValue<String>> _afterFailedLoad(WidgetTester tester) async {
+  final container = ProviderContainer();
+  addTearDown(container.dispose);
+  final sub = container.listen(_failing, (_, _) {});
+  addTearDown(sub.close);
+  await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+  container.read(_failing.notifier).reload();
+  // AsyncValue는 Future가 아니라 값입니다(린트 오탐).
+  // ignore: async_return_with_no_await
+  return container.read(_failing);
+}
+
+Widget _view(
+  AsyncValue<String> value, {
+  bool Function(String)? isEmpty,
+  VoidCallback? onRetry,
+}) => _app(
+  ScreenStateView<String>(
+    value: value,
+    onRetry: onRetry ?? () {},
+    isEmpty: isEmpty,
+    data: (v) => Center(child: Text('값:$v')),
+  ),
+);
+
+void main() {
+  group('dialog', () {
+    Future<bool> open(
+      WidgetTester tester,
+      DialogVariant variant, {
+      List<bool>? result,
+    }) async {
+      await tester.pumpWidget(_app(const SizedBox.expand()));
+      final future = showMyungliDialog(
+        _navigatorKey.currentContext!,
+        variant: variant,
+        title: '일기를 지울까요?',
+        body: '지우면 되돌릴 수 없어요.',
+        confirm: '지우기',
+        cancel: '취소',
+      );
+      unawaited(future.then((v) => result?.add(v)));
+      await tester.pumpAndSettle();
+      return true;
+    }
+
+    testWidgets('destructive: 처음 초점은 취소입니다', (tester) async {
+      await open(tester, DialogVariant.destructive);
+      expect(Focus.of(tester.element(find.text('취소'))).hasPrimaryFocus, isTrue);
+      expect(
+        Focus.of(tester.element(find.text('지우기'))).hasPrimaryFocus,
+        isFalse,
+      );
+    });
+
+    testWidgets('confirm: 처음 초점은 확정입니다', (tester) async {
+      await open(tester, DialogVariant.confirm);
+      expect(
+        Focus.of(tester.element(find.text('지우기'))).hasPrimaryFocus,
+        isTrue,
+      );
+    });
+
+    testWidgets('destructive: 경고 표시가 제목 앞에 있고 빨간색이 없습니다', (tester) async {
+      await open(tester, DialogVariant.destructive);
+      final icon = tester.widget<Icon>(
+        find.descendant(
+          of: find.byType(DialogCard),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(icon.icon, const AppIcon.caution().icon.light);
+      final tokens = tester.element(find.byType(DialogCard)).tokens;
+      final confirm = tester.widget<Text>(find.text('지우기'));
+      expect(confirm.style!.color, tokens.colors.textPrimary);
+      expect(confirm.style!.fontWeight, FontWeight.w700);
+      final cancel = tester.widget<Text>(find.text('취소'));
+      expect(cancel.style!.color, tokens.colors.actionPrimary);
+    });
+
+    testWidgets('confirm에는 경고 표시가 없습니다', (tester) async {
+      await open(tester, DialogVariant.confirm);
+      expect(
+        find.descendant(
+          of: find.byType(DialogCard),
+          matching: find.byType(Icon),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('destructive: 바깥을 눌러도 닫히지 않습니다', (tester) async {
+      await open(tester, DialogVariant.destructive);
+      await tester.tapAt(const Offset(4, 4));
+      await tester.pumpAndSettle();
+      expect(find.byType(DialogCard), findsOneWidget);
+    });
+
+    testWidgets('confirm: 바깥을 누르면 false로 닫힙니다', (tester) async {
+      final results = <bool>[];
+      await open(tester, DialogVariant.confirm, result: results);
+      await tester.tapAt(const Offset(4, 4));
+      await tester.pumpAndSettle();
+      expect(find.byType(DialogCard), findsNothing);
+      expect(results, [false]);
+    });
+
+    testWidgets('확정은 true, 취소는 false', (tester) async {
+      final results = <bool>[];
+      await open(tester, DialogVariant.destructive, result: results);
+      await tester.tap(find.text('지우기'));
+      await tester.pumpAndSettle();
+      await open(tester, DialogVariant.destructive, result: results);
+      await tester.tap(find.text('취소'));
+      await tester.pumpAndSettle();
+      expect(results, [true, false]);
+    });
+
+    testWidgets('햅틱 medium은 destructive 확정에서만 울립니다', (tester) async {
+      final haptics = _recordHaptics(tester);
+      await open(tester, DialogVariant.destructive);
+      await tester.tap(find.text('취소'));
+      await tester.pumpAndSettle();
+      expect(haptics, isEmpty);
+      await open(tester, DialogVariant.destructive);
+      await tester.tap(find.text('지우기'));
+      await tester.pumpAndSettle();
+      expect(haptics, ['HapticFeedbackType.mediumImpact']);
+      haptics.clear();
+      await open(tester, DialogVariant.confirm);
+      await tester.tap(find.text('지우기'));
+      await tester.pumpAndSettle();
+      expect(haptics, isEmpty);
+    });
+
+    testWidgets('버튼 터치 영역은 44 이상입니다', (tester) async {
+      await open(tester, DialogVariant.destructive);
+      for (final label in ['취소', '지우기']) {
+        final box = tester.getSize(
+          find
+              .ancestor(
+                of: find.text(label),
+                matching: find.byType(ConstrainedBox),
+              )
+              .first,
+        );
+        expect(box.height, greaterThanOrEqualTo(44), reason: label);
+        expect(box.width, greaterThanOrEqualTo(44), reason: label);
+      }
+    });
+
+    testWidgets('alertdialog 의미와 제목 라벨', (tester) async {
+      final handle = tester.ensureSemantics();
+      await open(tester, DialogVariant.destructive);
+      expect(
+        tester.getSemantics(find.byType(DialogCard)),
+        matchesSemantics(
+          label: '일기를 지울까요?',
+          scopesRoute: true,
+          namesRoute: true,
+        ),
+      );
+      handle.dispose();
+    });
+  });
+
+  group('toast', () {
+    const hostKey = ValueKey('toast-host');
+    Future<void> pumpHost(WidgetTester tester) =>
+        tester.pumpWidget(_app(const SizedBox.expand(key: hostKey)));
+    BuildContext hostContext(WidgetTester tester) =>
+        tester.element(find.byKey(hostKey));
+
+    testWidgets('2.5초 뒤 사라집니다', (tester) async {
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '저장했어요');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.text('저장했어요'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 2400));
+      expect(find.text('저장했어요'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
+      expect(find.text('저장했어요'), findsNothing);
+    });
+
+    testWidgets('새 토스트가 오면 하나만 남습니다', (tester) async {
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '하나');
+      await tester.pump(const Duration(milliseconds: 600));
+      showMyungliToast(hostContext(tester), '둘');
+      await tester.pumpAndSettle();
+      expect(find.text('하나'), findsNothing);
+      expect(find.text('둘'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      expect(find.text('둘'), findsNothing);
+    });
+
+    testWidgets('위치: 하단 틀 위 16px, 없으면 안전 영역 위 16px', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '위치', bottomBarHeight: 120);
+      await tester.pumpAndSettle();
+      expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 136);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      showMyungliToast(hostContext(tester), '위치');
+      await tester.pumpAndSettle();
+      expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 16);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
+    testWidgets('알약이고 반전색이며 live region입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '저장했어요');
+      await tester.pumpAndSettle();
+      final decoration =
+          tester
+                  .widget<DecoratedBox>(
+                    find.descendant(
+                      of: find.byType(ToastPill),
+                      matching: find.byType(DecoratedBox),
+                    ),
+                  )
+                  .decoration
+              as BoxDecoration;
+      final tokens = tester.element(find.byType(ToastPill)).tokens;
+      expect(decoration.color, tokens.colors.inverseBg);
+      expect(decoration.borderRadius, BorderRadius.circular(Radii.full));
+      expect(
+        tester.getSemantics(find.byType(ToastPill)),
+        matchesSemantics(label: '저장했어요', isLiveRegion: true),
+      );
+      handle.dispose();
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+  });
+
+  group('notice-banner', () {
+    testWidgets('present가 false가 되면 사라진 뒤 자리를 비웁니다', (tester) async {
+      Widget banner({required bool present}) => _app(
+        NoticeBanner(
+          variant: NoticeBannerVariant.draft,
+          message: '이어 쓸 일기가 있어요',
+          present: present,
+        ),
+      );
+      await tester.pumpWidget(banner(present: true));
+      await tester.pumpAndSettle();
+      expect(find.text('이어 쓸 일기가 있어요'), findsOneWidget);
+      expect(find.byType(IconButton), findsNothing);
+      await tester.pumpWidget(banner(present: false));
+      await tester.pumpAndSettle();
+      expect(find.text('이어 쓸 일기가 있어요'), findsNothing);
+    });
+
+    testWidgets('변형마다 아이콘이 다릅니다', (tester) async {
+      final seen = <IconData>{};
+      for (final variant in NoticeBannerVariant.values) {
+        await tester.pumpWidget(
+          _app(NoticeBanner(variant: variant, message: variant.name)),
+        );
+        await tester.pumpAndSettle();
+        seen.add(tester.widget<Icon>(find.byType(Icon)).icon!);
+      }
+      expect(seen, hasLength(3));
+    });
+  });
+
+  group('skeleton', () {
+    testWidgets('300ms 안에는 보이지 않고 그 뒤에 나타납니다', (tester) async {
+      await tester.pumpWidget(_app(const SkeletonBlock()));
+      await tester.pump(const Duration(milliseconds: 299));
+      expect(find.byType(SkeletonBone), findsNothing);
+      await tester.pump(const Duration(milliseconds: 2));
+      expect(find.byType(SkeletonBone), findsNWidgets(3));
+    });
+
+    testWidgets('글줄 높이는 줄 높이의 60%, 마지막 줄은 너비 60%', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 300,
+            child: SkeletonBlock(delay: Duration.zero),
+          ),
+        ),
+      );
+      final sizes = [
+        for (var i = 0; i < 3; i++)
+          tester.getSize(find.byType(SkeletonBone).at(i)),
+      ];
+      expect(sizes[0].width, 300);
+      expect(sizes[2].width, closeTo(180, 0.01));
+      final tokens = tester.element(find.byType(SkeletonBlock)).tokens;
+      final style = tokens.typography.bodyUi;
+      expect(
+        sizes[0].height,
+        closeTo(style.fontSize! * style.height! * 0.6, 0.01),
+      );
+    });
+
+    testWidgets('읽어 주는 라벨은 불러오는 중이고 자식은 숨깁니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      expect(find.bySemanticsLabel('불러오는 중'), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  group('empty-state', () {
+    testWidgets('문장과 주 버튼을 보이고 세로 40% 자리에 둡니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 1000)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _app(
+          EmptyState(
+            body: '아직 쓴 일기가 없어요',
+            action: TextButton(onPressed: () {}, child: const Text('쓰기')),
+          ),
+        ),
+      );
+      expect(find.text('아직 쓴 일기가 없어요'), findsOneWidget);
+      expect(find.text('쓰기'), findsOneWidget);
+      final circle = tester.getRect(
+        find.byWidgetPredicate(
+          (w) => w is SizedBox && w.width == 56 && w.height == 56,
+        ),
+      );
+      final stack = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(EmptyState),
+              matching: find.byType(Column),
+            )
+            .first,
+      );
+      expect(circle.center.dx, 200);
+      // 내용 가운데가 부모(Scaffold 몸통)의 세로 40%.
+      final body = tester.getRect(find.byType(CustomSingleChildLayout));
+      expect(stack.center.dy, closeTo(body.top + body.height * 0.4, 1));
+    });
+  });
+
+  group('error-state', () {
+    testWidgets('OfflineError는 offline 변형입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(ErrorState(error: const OfflineError(), onRetry: () {})),
+      );
+      final state = tester.widget<ErrorState>(find.byType(ErrorState));
+      expect(state.variant, ErrorStateVariant.offline);
+      expect(find.text('인터넷에 연결되어 있지 않아요.'), findsOneWidget);
+      expect(
+        tester.widget<Icon>(find.byType(Icon)).icon,
+        ErrorStateVariant.offline.glyph.light,
+      );
+    });
+
+    testWidgets('그 밖의 오류는 generic 변형이고 다시 시도가 있습니다', (tester) async {
+      var retried = 0;
+      await tester.pumpWidget(
+        _app(ErrorState(error: const TimeoutError(), onRetry: () => retried++)),
+      );
+      expect(
+        tester.widget<ErrorState>(find.byType(ErrorState)).variant,
+        ErrorStateVariant.generic,
+      );
+      await tester.tap(find.text('다시 시도'));
+      expect(retried, 1);
+    });
+
+    testWidgets('traceId가 있으면 문의 번호를 보이고 길게 눌러 복사합니다', (tester) async {
+      String? copied;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied =
+                (call.arguments as Map<Object?, Object?>)['text']! as String;
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await tester.pumpWidget(
+        _app(ErrorState(error: _problem, onRetry: () {})),
+      );
+      expect(find.text('문의 번호 trace-abc'), findsOneWidget);
+      await tester.longPress(find.text('문의 번호 trace-abc'));
+      await tester.pump();
+      expect(copied, 'trace-abc');
+      expect(find.text('문의 번호를 복사했어요.'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
+    testWidgets('traceId가 비어 있으면 문의 번호를 보이지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          ErrorState(
+            error: const ProblemError(
+              code: 'x',
+              status: 500,
+              fieldErrors: [],
+              traceId: '',
+            ),
+            onRetry: () {},
+          ),
+        ),
+      );
+      expect(find.textContaining('문의 번호'), findsNothing);
+    });
+  });
+
+  group('ScreenStateView', () {
+    testWidgets('로딩은 skeleton이고 스피너가 없습니다', (tester) async {
+      await tester.pumpWidget(_view(const AsyncLoading<String>()));
+      await tester.pump(const Duration(milliseconds: 301));
+      expect(find.byType(SkeletonBone), findsWidgets);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(find.byType(CupertinoActivityIndicator), findsNothing);
+      expect(find.byType(RefreshProgressIndicator), findsNothing);
+    });
+
+    testWidgets('값이 있으면 데이터를 보입니다', (tester) async {
+      await tester.pumpWidget(_view(const AsyncData('a')));
+      await tester.pumpAndSettle();
+      expect(find.text('값:a'), findsOneWidget);
+      expect(find.byType(NoticeBanner), findsOneWidget); // present=false: 빈 자리
+      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+    });
+
+    testWidgets('값 없는 OfflineError는 error-state offline', (tester) async {
+      await tester.pumpWidget(
+        _view(const AsyncError<String>(OfflineError(), StackTrace.empty)),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<ErrorState>(find.byType(ErrorState)).variant,
+        ErrorStateVariant.offline,
+      );
+      expect(find.byType(NoticeBanner), findsNothing);
+    });
+
+    testWidgets('값 없는 ProblemError는 generic이고 traceId를 보입니다', (tester) async {
+      await tester.pumpWidget(
+        _view(const AsyncError<String>(_problem, StackTrace.empty)),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<ErrorState>(find.byType(ErrorState)).variant,
+        ErrorStateVariant.generic,
+      );
+      expect(find.text('문의 번호 trace-abc'), findsOneWidget);
+    });
+
+    testWidgets('AppError가 아닌 오류도 예기치 못한 오류로 보입니다', (tester) async {
+      await tester.pumpWidget(
+        _view(AsyncError<String>(StateError('x'), StackTrace.empty)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('예기치 못한 문제가 생겼어요.'), findsOneWidget);
+    });
+
+    testWidgets('캐시가 있는 오프라인은 데이터와 offline 배너를 함께 보입니다', (tester) async {
+      await tester.pumpWidget(
+        _view(await _states(tester, (p) => p.fail(const OfflineError()))),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('값:캐시'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsOneWidget);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+
+    testWidgets('연결이 돌아오면 배너가 사라지고 데이터는 남습니다', (tester) async {
+      final offline = await _states(
+        tester,
+        (p) => p.fail(const OfflineError()),
+      );
+      expect(offline.hasValue && offline.hasError, isTrue);
+      await tester.pumpWidget(_view(offline));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(_view(const AsyncData('새값')));
+      await tester.pumpAndSettle();
+      expect(find.text('값:새값'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+    });
+
+    testWidgets('값이 있는 갱신 중에는 데이터를 그대로 보입니다', (tester) async {
+      await tester.pumpWidget(_view(await _states(tester, (p) => p.reload())));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('값:캐시'), findsOneWidget);
+      expect(find.byType(SkeletonBone), findsNothing);
+    });
+
+    testWidgets('오류 뒤 다시 시도 중(값 없음)이면 그 자리에 skeleton', (tester) async {
+      await tester.pumpWidget(_view(await _afterFailedLoad(tester)));
+      await tester.pump(const Duration(milliseconds: 301));
+      expect(find.byType(SkeletonBone), findsWidgets);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+
+    testWidgets('isEmpty면 empty-state', (tester) async {
+      await tester.pumpWidget(
+        _view(const AsyncData(''), isEmpty: (v) => v.isEmpty),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(EmptyState), findsOneWidget);
+      expect(find.text('아직 보여 드릴 내용이 없어요.'), findsOneWidget);
+    });
+
+    testWidgets('dataWithNotice는 배너를 내용 안에 놓습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          ScreenStateView<String>(
+            value: await _states(tester, (p) => p.fail(const OfflineError())),
+            onRetry: () {},
+            dataWithNotice: (v, notice) =>
+                ListView(children: [notice, Text('값:$v')]),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byType(ListView),
+          matching: find.byType(NoticeBanner),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('다시 시도 버튼이 onRetry를 부릅니다', (tester) async {
+      var retried = 0;
+      await tester.pumpWidget(
+        _view(
+          const AsyncError<String>(TimeoutError(), StackTrace.empty),
+          onRetry: () => retried++,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('다시 시도'));
+      expect(retried, 1);
+    });
+  });
+}

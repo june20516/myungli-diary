@@ -57,4 +57,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adBannerLabel => 'Ad';
+
+  @override
+  String get noticeOffline =>
+      'You are offline, so this shows what was saved earlier.';
+
+  @override
+  String get emptyStateDefault => 'There is nothing to show yet.';
+
+  @override
+  String get skeletonLabel => 'Loading';
+
+  @override
+  String get traceIdCopied => 'Reference copied.';
 }

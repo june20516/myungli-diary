@@ -189,6 +189,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'광고'**
   String get adBannerLabel;
+
+  /// 임시. 오프라인 안내 배너 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'**
+  String get noticeOffline;
+
+  /// 임시. 빈 상태 기본 문장
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 보여 드릴 내용이 없어요.'**
+  String get emptyStateDefault;
+
+  /// 임시. 불러오는 중 자리의 스크린리더 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오는 중'**
+  String get skeletonLabel;
+
+  /// 임시. 문의 번호를 길게 눌러 복사한 뒤의 토스트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'문의 번호를 복사했어요.'**
+  String get traceIdCopied;
 }
 
 class _AppLocalizationsDelegate

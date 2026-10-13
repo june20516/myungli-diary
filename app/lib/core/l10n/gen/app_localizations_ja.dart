@@ -55,4 +55,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get adBannerLabel => '広告';
+
+  @override
+  String get noticeOffline => 'インターネットに接続されていないため、保存済みの内容を表示しています。';
+
+  @override
+  String get emptyStateDefault => 'まだ表示できる内容がありません。';
+
+  @override
+  String get skeletonLabel => '読み込み中';
+
+  @override
+  String get traceIdCopied => 'お問い合わせ番号をコピーしました。';
 }
