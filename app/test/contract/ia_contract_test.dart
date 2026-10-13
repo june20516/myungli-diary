@@ -49,14 +49,13 @@ Set<String> _routeNames(List<RouteBase> routes) => {
   ],
 };
 
-/// 탭 루트 route 이름 집합. 최상위 StatefulShellRoute의 branch 첫 route입니다.
-Set<String> _tabRootNames(List<RouteBase> routes) => {
+/// 탭 루트 route 이름 목록(branch 순서). 각 branch 최상위 route의 이름입니다.
+List<String> _tabRootNames(List<RouteBase> routes) => [
   for (final route in routes)
     if (route is StatefulShellRoute)
       for (final branch in route.branches)
-        for (final child in branch.routes)
-          if (child is GoRoute && child.name != null) child.name!,
-};
+        if (branch.routes.first case final GoRoute root) root.name!,
+];
 
 void main() {
   final json =
@@ -67,10 +66,11 @@ void main() {
       _IaEntry(screen! as Map<String, Object?>),
   ];
   final screenIds = {for (final screen in screens) screen.id};
-  final tabRoots = {
+  final tabRootList = [
     for (final tab in json['tabs']! as List<Object?>)
       (tab! as Map<String, Object?>)['root']! as String,
-  };
+  ];
+  final tabRoots = tabRootList.toSet();
 
   late ProviderContainer container;
   late List<RouteBase> routes;
@@ -93,7 +93,11 @@ void main() {
 
   test('탭 루트 4곳이 IA tabs[].root와 같다', () {
     expect(tabRoots, hasLength(4));
-    expect(_tabRootNames(routes), tabRoots);
+    expect(_tabRootNames(routes).toSet(), tabRoots);
+  });
+
+  test('탭 순서가 IA tabs 배열 순서와 같다', () {
+    expect(_tabRootNames(routes), tabRootList);
   });
 
   test('pending이 아닌 화면은 handledStates가 IA states와 같다', () {
