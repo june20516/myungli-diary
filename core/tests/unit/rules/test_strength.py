@@ -1,11 +1,11 @@
 import pytest
 
-from myungri_engine.constants.calibration import STRENGTH_THRESHOLDS
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import Element, StrengthLevel
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.domain.models import FourPillars, Pillar
-from myungri_engine.rules.strength import compute_strength, element_weights, level_for_score
+from myungli_engine.constants.calibration import STRENGTH_THRESHOLDS
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import Element, StrengthLevel
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.models import FourPillars, Pillar
+from myungli_engine.rules.strength import compute_strength, element_weights, level_for_score
 
 # 庚午년 辛巳월 庚辰일 辛巳시. 일간 庚(금)은 제외.
 CHART = FourPillars(

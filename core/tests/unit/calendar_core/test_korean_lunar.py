@@ -4,8 +4,8 @@ from datetime import date
 
 import pytest
 
-from myungri_engine.calendar_core import korean_lunar as kl
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.calendar_core import korean_lunar as kl
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 
 
 def test_solar_to_lunar_ordinary_and_leap_months() -> None:

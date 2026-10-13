@@ -1,9 +1,9 @@
-# myungri-engine
+# myungli-engine
 
 명리 엔진(Python). 출생 정보로 원국을 세우고 일진 × 원국 판정을 계산해 gRPC로 반환하는 상태 없는 엔진입니다.
 문장은 만들지 않고 메시지 키, 매개변수, 근거만 반환합니다.
 
-* 설계: [`docs/specs/2026-10-10-myungri-engine-design.md`](docs/specs/2026-10-10-myungri-engine-design.md)
+* 설계: [`docs/specs/2026-10-10-myungli-engine-design.md`](docs/specs/2026-10-10-myungli-engine-design.md)
 * 연산 로직 위키(v1.7): [`docs/engine-logic-wiki.md`](docs/engine-logic-wiki.md)
 * core 결정 로그(C1~C5): [`docs/decisions.md`](docs/decisions.md)
 * 필요한 도구: [uv](https://docs.astral.sh/uv/)(Python 3.13), proto 검사에 [buf](https://buf.build/)
@@ -13,7 +13,7 @@
 ```bash
 cd core
 uv sync
-uv run python -m myungri_engine --port 50051   # gRPC 서버
+uv run python -m myungli_engine --port 50051   # gRPC 서버
 ```
 
 ## 테스트와 검사
@@ -31,24 +31,24 @@ CI는 기본 검사를 push·PR마다, slow 테스트를 수동 실행과 매주
 
 ## proto 코드 생성
 
-`proto/myungri/engine/v1/engine.proto`에서 Python 코드를 만들어 `src/myungri_engine/_gen/`에 commit합니다(D33).
+`proto/myungli/engine/v1/engine.proto`에서 Python 코드를 만들어 `src/myungli_engine/_gen/`에 commit합니다(D33).
 proto를 고치면 다시 생성하고, CI가 생성물과 proto의 일치를 검사합니다.
 
 ```bash
 bash tools/gen_proto.sh
-git diff --exit-code src/myungri_engine/_gen   # 변경이 없어야 합니다
+git diff --exit-code src/myungli_engine/_gen   # 변경이 없어야 합니다
 (cd ../proto && buf lint)
 ```
 
 ## 메시지 키와 매개변수 목록
 
-키와 키별 매개변수 이름은 `src/myungri_engine/constants/message_keys.py`의 `KEY_PARAMS` 한 곳에서 선언합니다.
+키와 키별 매개변수 이름은 `src/myungli_engine/constants/message_keys.py`의 `KEY_PARAMS` 한 곳에서 선언합니다.
 엔진이 판정을 만들 때 `require(key, params)`가 실제 매개변수 이름이 선언과 같은지 확인합니다.
 선언을 바꾸면 계약 파일 두 개를 다시 만들어 commit합니다. 테스트가 코드와 파일의 일치를 검사합니다.
 
 ```bash
-uv run python -m myungri_engine.constants.message_keys > message_keys.json
-uv run python -m myungri_engine.constants.message_keys params > message_params.json
+uv run python -m myungli_engine.constants.message_keys > message_keys.json
+uv run python -m myungli_engine.constants.message_keys params > message_params.json
 ```
 
 ## 강약 보정 상수
@@ -78,7 +78,7 @@ uv run python tools/fetch_kasi.py --years 2000-2028
 
 규칙·상수·근거 데이터가 바뀌어 출력이 달라지면 `ruleset_version`을 올립니다(spec §12). 순서는 다음과 같습니다.
 
-1. `src/myungri_engine/version.py`의 `RULESET_VERSION`을 올립니다.
+1. `src/myungli_engine/version.py`의 `RULESET_VERSION`을 올립니다.
 2. 회귀 스냅샷을 갱신하고 diff가 의도한 변화인지 확인합니다.
    ```bash
    uv run pytest tests/snapshots --snapshot-update

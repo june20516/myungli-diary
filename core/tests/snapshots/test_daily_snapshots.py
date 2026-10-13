@@ -6,8 +6,8 @@ import pytest
 from snapshot_samples import SAMPLE_BIRTHS, SEOUL, to_plain
 from syrupy.assertion import SnapshotAssertion
 
-from myungri_engine.composers.daily import compose_daily
-from myungri_engine.domain.enums import Gender
+from myungli_engine.composers.daily import compose_daily
+from myungli_engine.domain.enums import Gender
 
 START = date(2026, 10, 1)
 DAY_COUNT = 30

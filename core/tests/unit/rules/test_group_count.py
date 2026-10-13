@@ -1,10 +1,10 @@
 from collections.abc import Callable
 from unittest.mock import patch
 
-from myungri_engine.domain.enums import TenGodGroup
-from myungri_engine.domain.models import FourPillars, Pillar
-from myungri_engine.rules import tags
-from myungri_engine.rules.group_count import natal_group_count
+from myungli_engine.domain.enums import TenGodGroup
+from myungli_engine.domain.models import FourPillars, Pillar
+from myungli_engine.rules import tags
+from myungli_engine.rules.group_count import natal_group_count
 
 PillarOf = Callable[[str], Pillar]
 

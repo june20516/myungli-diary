@@ -2,10 +2,10 @@ from collections.abc import Callable
 
 import pytest
 
-from myungri_engine.domain.enums import Branch, DayKind
-from myungri_engine.domain.models import Pillar
-from myungri_engine.rules.day_kind import classify_day
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.domain.enums import Branch, DayKind
+from myungli_engine.domain.models import Pillar
+from myungli_engine.rules.day_kind import classify_day
+from myungli_engine.rules.yongsin import YongsinResult
 
 
 @pytest.mark.parametrize(

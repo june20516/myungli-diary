@@ -1,8 +1,8 @@
 import pytest
 
-from myungri_engine.chart.positions import Position
-from myungri_engine.constants.message_keys import require
-from myungri_engine.domain.enums import (
+from myungli_engine.chart.positions import Position
+from myungli_engine.constants.message_keys import require
+from myungli_engine.domain.enums import (
     Branch,
     Element,
     Shinsal,
@@ -12,9 +12,9 @@ from myungri_engine.domain.enums import (
     TwelveStage,
     YongsinMethod,
 )
-from myungri_engine.domain.models import Evidence, FourPillars, Pillar
-from myungri_engine.references.loader import FIVE_ELEMENTS_REF
-from myungri_engine.rules.personal import (
+from myungli_engine.domain.models import Evidence, FourPillars, Pillar
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.rules.personal import (
     PersonalRole,
     _judgment,
     day_master_reading,
@@ -25,8 +25,8 @@ from myungri_engine.rules.personal import (
     ten_god_reading,
     twelve_stage_reading,
 )
-from myungri_engine.rules.strength import StrengthResult
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.rules.strength import StrengthResult
+from myungli_engine.rules.yongsin import YongsinResult
 
 YONGSIN_EVIDENCE = (Evidence(rule_id="yongsin/test", source_ref="ref", detail={"k": "v"}),)
 

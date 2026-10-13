@@ -1,6 +1,6 @@
 # 엔진 위키 검토 메모 (이력)
 
-원래 `docs/background/README.md`에 있던 메모를 2026-10-10에 옮겼습니다. 미결 항목은 모두 엔진 spec(`core/docs/specs/2026-10-10-myungri-engine-design.md`, D34 승인)에서 확정되었습니다.
+원래 `docs/background/README.md`에 있던 메모를 2026-10-10에 옮겼습니다. 미결 항목은 모두 엔진 spec(`core/docs/specs/2026-10-10-myungli-engine-design.md`, D34 승인)에서 확정되었습니다.
 
 ## 검토 메모 (v1.4 기준)
 

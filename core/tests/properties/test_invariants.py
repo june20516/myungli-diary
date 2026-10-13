@@ -6,15 +6,15 @@ from datetime import date, time, timedelta
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from myungri_engine.calendar_core import lunar_adapter
-from myungri_engine.calendar_core.birth import BirthInput, birth_hour, resolve_birth_moment
-from myungri_engine.chart.pillars import build_chart
-from myungri_engine.composers.chart import compose_chart
-from myungri_engine.composers.daily import DailyView, compose_daily
-from myungri_engine.constants.message_keys import ALL_KEYS, require
-from myungri_engine.domain.enums import Branch, CalendarType, Gender
-from myungri_engine.domain.models import Judgment, Pillar
-from myungri_engine.references import loader
+from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core.birth import BirthInput, birth_hour, resolve_birth_moment
+from myungli_engine.chart.pillars import build_chart
+from myungli_engine.composers.chart import compose_chart
+from myungli_engine.composers.daily import DailyView, compose_daily
+from myungli_engine.constants.message_keys import ALL_KEYS, require
+from myungli_engine.domain.enums import Branch, CalendarType, Gender
+from myungli_engine.domain.models import Judgment, Pillar
+from myungli_engine.references import loader
 
 SEOUL = "Asia/Seoul"
 PROPERTY_SETTINGS = settings(max_examples=300, deadline=None, derandomize=True)

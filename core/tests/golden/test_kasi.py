@@ -14,8 +14,8 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from myungri_engine.calendar_core.lunar_adapter import DayInfo, lunar_to_solar, month_days
-from myungri_engine.domain.errors import InvalidInputError
+from myungli_engine.calendar_core.lunar_adapter import DayInfo, lunar_to_solar, month_days
+from myungli_engine.domain.errors import InvalidInputError
 
 # 음력 검사가 1,800여 개월의 month_days를 계산해 30초 남짓 걸린다.
 pytestmark = pytest.mark.slow

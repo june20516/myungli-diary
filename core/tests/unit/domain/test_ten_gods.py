@@ -1,9 +1,9 @@
 import pytest
 
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.domain.enums import TenGod as T
-from myungri_engine.domain.enums import TenGodGroup as G
-from myungri_engine.domain.ten_gods import ten_god
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.enums import TenGod as T
+from myungli_engine.domain.enums import TenGodGroup as G
+from myungli_engine.domain.ten_gods import ten_god
 
 
 @pytest.mark.parametrize(
