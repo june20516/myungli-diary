@@ -39,6 +39,7 @@ DOMAIN_TO_PROTO_ENUMS: tuple[tuple[type[Enum], str, str], ...] = (
     (RelationKind, "RelationKind", "RELATION_KIND"),
     (ElementRole, "ElementRole", "ELEMENT_ROLE"),
     (enums.SolarTermKind, "SolarTermKind", "SOLAR_TERM_KIND"),
+    (enums.PersonalTermKind, "PersonalTermKind", "PERSONAL_TERM_KIND"),
 )
 
 
@@ -71,7 +72,13 @@ def test_generated_modules_import_by_package_path() -> None:
     pb2_grpc = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2_grpc")
 
     service = pb2.DESCRIPTOR.services_by_name["MyungriEngine"]
-    assert [method.name for method in service.methods] == ["GetChart", "GetDaily", "GetMonthCalendar"]
+    assert [method.name for method in service.methods] == [
+        "GetChart",
+        "GetDaily",
+        "GetMonthCalendar",
+        "GetBirthHour",
+        "GetInfo",
+    ]
     assert hasattr(pb2_grpc, "MyungriEngineServicer")
     assert hasattr(pb2_grpc, "add_MyungriEngineServicer_to_server")
 

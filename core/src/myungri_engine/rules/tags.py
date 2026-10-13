@@ -13,6 +13,7 @@ from myungri_engine.domain.enums import DayKind, Shinsal, TenGodGroup
 from myungri_engine.domain.models import Evidence, FourPillars, Pillar
 from myungri_engine.domain.ten_gods import ten_god
 from myungri_engine.references.loader import FIVE_ELEMENTS_REF
+from myungri_engine.rules.group_count import natal_group_count
 from myungri_engine.rules.relations import Relation, RelationKind, active
 
 MAX_FEATURED: Final = 2
@@ -88,18 +89,9 @@ def _rush_tags(natal: FourPillars, day: Pillar) -> tuple[str, ...]:
     branch_group = ten_god(day_stem, hidden_stems(day.branch)[0]).group
     if stem_group is not branch_group:
         return ()
-    if _natal_group_count(natal, stem_group) < RUSH_MIN_NATAL_COUNT:
+    if natal_group_count(natal, stem_group) < RUSH_MIN_NATAL_COUNT:
         return ()
     return (rush_tag_key(stem_group),)
-
-
-def _natal_group_count(natal: FourPillars, group: TenGodGroup) -> int:
-    """일간을 뺀 천간과 각 지지 정기 중 해당 그룹의 개수. 시주를 모르면 제외한다."""
-    day_stem = natal.day.stem
-    pillars = [natal.year, natal.month, natal.day] + ([natal.hour] if natal.hour else [])
-    stems = [natal.year.stem, natal.month.stem] + ([natal.hour.stem] if natal.hour else [])
-    stems += [hidden_stems(pillar.branch)[0] for pillar in pillars]
-    return sum(ten_god(day_stem, stem).group is group for stem in stems)
 
 
 def _shinsal_tags(activated: Sequence[Shinsal]) -> tuple[str, ...]:

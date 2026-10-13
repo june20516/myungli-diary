@@ -1,5 +1,6 @@
 # in-process gRPC 서버와 실제 채널(임의 포트)로 엔진 진입점을 검사한다 (spec 9, 11, 12)
 from collections.abc import Iterator
+from datetime import datetime
 
 import grpc
 import pytest
@@ -55,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungriEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.10.1"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.10.2"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -64,6 +65,35 @@ def test_get_chart_roundtrip(stub: pb_grpc.MyungriEngineStub) -> None:
     assert response.yongsin.judgment.message_key.startswith("yongsin.method.")
     assert len(response.yongsin.judgment.evidence) >= 1
     assert len(response.gongmang) == 2
+
+
+def test_chart_personal_readings(stub: pb_grpc.MyungriEngineStub) -> None:
+    response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
+
+    readings = response.personal_readings
+    first = readings[0]
+    assert first.kind == pb.PERSONAL_TERM_KIND_DAY_MASTER
+    assert first.position == pb.POSITION_DAY_STEM
+    assert first.judgment.message_key.startswith("personal.day_master.")
+    assert len(first.judgment.evidence) >= 1
+
+    seun = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_SEUN_TEN_GOD]
+    assert len(seun) == len(response.seun)
+    assert all(reading.position == pb.POSITION_UNSPECIFIED for reading in seun)
+
+    shinsal = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_SHINSAL]
+    assert shinsal
+    assert all(reading.shinsal != pb.SHINSAL_UNSPECIFIED for reading in shinsal)
+    assert all(
+        reading.shinsal == pb.SHINSAL_UNSPECIFIED
+        for reading in readings
+        if reading.kind != pb.PERSONAL_TERM_KIND_SHINSAL
+    )
+
+    daeun_stem = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD]
+    assert [reading.index for reading in daeun_stem] == list(range(10))
+    hidden = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_HIDDEN_TEN_GOD]
+    assert hidden[0].index == 0
 
 
 def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungriEngineStub) -> None:
@@ -298,3 +328,30 @@ def test_start_refuses_when_reference_data_missing(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(server_module.loader, "validate_refs", fail)
     with pytest.raises(KeyError):
         server_module.start(0)
+
+
+def test_get_birth_hour(stub: pb_grpc.MyungriEngineStub) -> None:
+    response = stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 5, 4, 0)))
+    assert response.branch == pb.BRANCH_IN
+    assert response.start.ToDatetime() == datetime(1990, 5, 4, 18, 30)  # KST 03:30
+    assert response.end.ToDatetime() == datetime(1990, 5, 4, 20, 30)  # KST 05:30
+    assert response.meta.engine_version == ENGINE_VERSION
+
+
+def test_get_birth_hour_without_time_is_invalid_argument(stub: pb_grpc.MyungriEngineStub) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 5, hour=None)))
+    assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+    assert "birth.time" in details_of(caught.value)
+
+
+def test_get_birth_hour_out_of_range_date(stub: pb_grpc.MyungriEngineStub) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1899, 6, 1)))
+    assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE
+
+
+def test_get_info(stub: pb_grpc.MyungriEngineStub) -> None:
+    response = stub.GetInfo(pb.InfoRequest())
+    assert response.engine_version == ENGINE_VERSION
+    assert response.ruleset_version == RULESET_VERSION

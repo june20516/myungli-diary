@@ -134,3 +134,18 @@ def test_exported_param_keys_match_key_list():
     keys = json.loads((CORE_DIR / "message_keys.json").read_text(encoding="utf-8"))
     params = json.loads((CORE_DIR / "message_params.json").read_text(encoding="utf-8"))
     assert sorted(params) == keys
+
+
+def test_personal_keys_registered():
+    personal = [key for key in message_keys.ALL_KEYS if key.startswith("personal.")]
+    assert len(personal) == 60
+    assert len(message_keys.ALL_KEYS) == 153
+    assert message_keys.KEY_PARAMS["personal.ten_god.siksin"] == (
+        "place",
+        "element",
+        "role",
+        "group_count",
+        "strength",
+    )
+    assert message_keys.KEY_PARAMS["personal.day_master.gap"] == ("strength", "yongsin", "gisin")
+    assert message_keys.KEY_PARAMS["personal.luck.twelve_stage.jewang"] == ("element", "role", "current")

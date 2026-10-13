@@ -1,14 +1,18 @@
-from datetime import UTC, date, datetime, time
+from datetime import UTC, date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 import pytest
 
 from myungri_engine.calendar_core.birth import (
+    BirthHour,
     BirthInput,
     BirthMoment,
+    birth_hour,
     resolve_birth_moment,
     validate_civil_date,
 )
-from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode
+from myungri_engine.chart.pillars import build_chart
+from myungri_engine.domain.enums import Branch, CalendarType, Gender, NoticeCode
 from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
 
 
@@ -122,3 +126,79 @@ def test_civil_date_range() -> None:
         validate_civil_date(date(2100, 1, 1))
     with pytest.raises(OutOfRangeError):
         validate_civil_date(date(1900, 1, 30))
+
+
+SEOUL_ZONE = ZoneInfo("Asia/Seoul")
+
+
+def wallclock_span(hour: BirthHour) -> tuple[datetime, datetime]:
+    """시진 구간을 출생 시간대(서울) 벽시계로 바꿔 비교하기 쉽게 한다."""
+    return (
+        hour.start.astimezone(SEOUL_ZONE).replace(tzinfo=None),
+        hour.end.astimezone(SEOUL_ZONE).replace(tzinfo=None),
+    )
+
+
+def test_seoul_inshi() -> None:
+    hour = birth_hour(seoul(date(1990, 5, 5), time(4, 0)))
+    assert hour.branch is Branch.IN
+    assert wallclock_span(hour) == (datetime(1990, 5, 5, 3, 30), datetime(1990, 5, 5, 5, 30))
+
+
+def test_zi_hour_spans_midnight() -> None:
+    hour = birth_hour(seoul(date(1990, 5, 15), time(0, 10)))
+    assert hour.branch is Branch.JA
+    assert wallclock_span(hour) == (datetime(1990, 5, 14, 23, 30), datetime(1990, 5, 15, 1, 30))
+    assert NoticeCode.ZI_HOUR_NEXT_DAY in {n.code for n in hour.notices}
+
+
+def test_dst_1987() -> None:
+    hour = birth_hour(seoul(date(1987, 7, 1), time(4, 0)))
+    assert hour.branch is Branch.CHUK
+    assert wallclock_span(hour) == (datetime(1987, 7, 1, 2, 30), datetime(1987, 7, 1, 4, 30))
+
+
+def test_utc_0830_dst() -> None:
+    hour = birth_hour(seoul(date(1956, 7, 1), time(4, 0)))
+    assert hour.branch is Branch.IN
+    assert wallclock_span(hour) == (datetime(1956, 7, 1, 4, 0), datetime(1956, 7, 1, 6, 0))
+
+
+def test_utc_0830_standard() -> None:
+    hour = birth_hour(seoul(date(1958, 1, 15), time(4, 0)))
+    assert hour.branch is Branch.IN
+    assert wallclock_span(hour) == (datetime(1958, 1, 15, 3, 0), datetime(1958, 1, 15, 5, 0))
+
+
+def test_dst_gap_notice_matches_chart() -> None:
+    birth = seoul(date(1987, 5, 10), time(2, 30))
+    hour = birth_hour(birth)
+    assert NoticeCode.NONEXISTENT_LOCAL_TIME in {n.code for n in hour.notices}
+    assert hour.notices == resolve_birth_moment(birth).notices
+
+
+def test_explicit_longitude() -> None:
+    default = birth_hour(seoul(date(1990, 5, 5), time(4, 0)))
+    explicit = birth_hour(seoul(date(1990, 5, 5), time(4, 0), lon=129.0))
+    assert default.start - explicit.start == timedelta(minutes=6)
+    assert default.end - explicit.end == timedelta(minutes=6)
+
+
+def test_unknown_time_rejected() -> None:
+    with pytest.raises(InvalidInputError, match="birth.time"):
+        birth_hour(seoul(date(1990, 5, 5)))
+
+
+def test_unknown_time_checked_before_range() -> None:
+    with pytest.raises(InvalidInputError, match="birth.time"):
+        birth_hour(seoul(date(1800, 1, 1)))
+
+
+def test_dst_overlap_notice_and_branch_match_chart() -> None:
+    # 1987-10-11 03:00 KDT가 02:00 KST로 돌아가 02:30이 두 번 나온다.
+    birth = seoul(date(1987, 10, 11), time(2, 30))
+    moment = resolve_birth_moment(birth)
+    hour = birth_hour(birth)
+    assert NoticeCode.AMBIGUOUS_LOCAL_TIME in {n.code for n in hour.notices}
+    assert hour.notices == moment.notices
+    assert hour.branch is build_chart(moment).pillars.hour.branch

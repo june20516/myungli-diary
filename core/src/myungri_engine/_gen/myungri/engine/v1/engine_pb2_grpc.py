@@ -49,6 +49,16 @@ class MyungriEngineStub:
                 request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.SerializeToString,
                 response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.FromString,
                 _registered_method=True)
+        self.GetBirthHour = channel.unary_unary(
+                '/myungri.engine.v1.MyungriEngine/GetBirthHour',
+                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.SerializeToString,
+                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.FromString,
+                _registered_method=True)
+        self.GetInfo = channel.unary_unary(
+                '/myungri.engine.v1.MyungriEngine/GetInfo',
+                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
+                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
+                _registered_method=True)
 
 
 class MyungriEngineServicer:
@@ -72,6 +82,18 @@ class MyungriEngineServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetBirthHour(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MyungriEngineServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -89,6 +111,16 @@ def add_MyungriEngineServicer_to_server(servicer, server):
                     servicer.GetMonthCalendar,
                     request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.FromString,
                     response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.SerializeToString,
+            ),
+            'GetBirthHour': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetBirthHour,
+                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.FromString,
+                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.SerializeToString,
+            ),
+            'GetInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetInfo,
+                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.FromString,
+                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -172,6 +204,60 @@ class MyungriEngine:
             '/myungri.engine.v1.MyungriEngine/GetMonthCalendar',
             myungri_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.SerializeToString,
             myungri_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetBirthHour(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myungri.engine.v1.MyungriEngine/GetBirthHour',
+            myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.SerializeToString,
+            myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myungri.engine.v1.MyungriEngine/GetInfo',
+            myungri_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
+            myungri_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
             options,
             channel_credentials,
             insecure,

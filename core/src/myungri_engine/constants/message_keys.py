@@ -11,16 +11,21 @@ from __future__ import annotations
 import json
 import sys
 from collections.abc import Iterable, Mapping
+from enum import Enum
 
-from myungri_engine.domain.enums import DayKind, TenGodGroup
+from myungri_engine.domain.enums import DayKind, Shinsal, Stem, TenGod, TenGodGroup, TwelveStage
 
 
-def _lower(member: DayKind | TenGodGroup) -> str:
+def _lower(member: Enum) -> str:
     return member.name.lower()
 
 
 _DAY_KINDS = tuple(_lower(kind) for kind in DayKind)
 _GROUPS = tuple(_lower(group) for group in TenGodGroup)
+_STEMS = tuple(_lower(stem) for stem in Stem)
+_TEN_GODS = tuple(_lower(god) for god in TenGod)
+_TWELVE_STAGES = tuple(_lower(stage) for stage in TwelveStage)
+_SHINSALS = tuple(_lower(kind) for kind in Shinsal)
 
 TAG_KEYS: frozenset[str] = frozenset(
     {
@@ -72,6 +77,23 @@ KEY_PARAMS: dict[str, tuple[str, ...]] = {
         ("yongsin", "huisin", "gisin", "tonggwan"),
     ),
     **_declare((f"calendar.{level}" for level in ("good", "neutral", "caution")), ("score",)),
+    **_declare((f"personal.day_master.{stem}" for stem in _STEMS), ("strength", "yongsin", "gisin")),
+    **_declare(
+        (f"personal.ten_god.{god}" for god in _TEN_GODS),
+        ("place", "element", "role", "group_count", "strength"),
+    ),
+    **_declare(
+        (f"personal.twelve_stage.{stage}" for stage in _TWELVE_STAGES),
+        ("place", "element", "role", "strength"),
+    ),
+    **_declare((f"personal.shinsal.{kind}" for kind in _SHINSALS), ("place", "element", "role")),
+    **_declare(
+        (f"personal.luck.ten_god.{god}" for god in _TEN_GODS),
+        ("luck", "part", "element", "role", "current"),
+    ),
+    **_declare(
+        (f"personal.luck.twelve_stage.{stage}" for stage in _TWELVE_STAGES), ("element", "role", "current")
+    ),
 }
 
 ALL_KEYS: frozenset[str] = frozenset(KEY_PARAMS)
@@ -84,7 +106,9 @@ def require(key: str, params: Mapping[str, object] | None = None) -> str:
     declared = set(KEY_PARAMS[key])
     given = set(params or {})
     if given != declared:
-        raise KeyError(f"메시지 키 {key!r}의 매개변수가 선언과 다릅니다: {sorted(given)} != {sorted(declared)}")
+        raise KeyError(
+            f"메시지 키 {key!r}의 매개변수가 선언과 다릅니다: {sorted(given)} != {sorted(declared)}"
+        )
     return key
 
 
