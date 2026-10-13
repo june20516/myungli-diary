@@ -1,6 +1,6 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 2.1.0 · 토큰 계약 1.1.0 이상을 기대합니다.
+컴포넌트 계약 2.2.0 · 토큰 계약 1.1.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), 결정 V13~V28([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v1([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
@@ -76,6 +76,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 1.0.0 | 2026-10-11 | 마일스톤 V2: IA 컴포넌트 41개, 패턴 12개, 요소 15개 |
 | 2.0.0 | 2026-10-11 | 근거 깊이 잠금(D60): 풀이 시트의 '내 사주에서는' 상자와 `term-token` `locked` 빠짐, 근거 시트 구성 `depth-link.evidenceSheet`와 잠김 상태 4개, `sentence-block` `locked`, 요소 `lock.veil`. `share-button` `pill` → `soft`(둥근 사각). 모양 규칙·화면 여백 |
 | 2.1.0 | 2026-10-13 | 문장 조각(`segments`)의 용어 표시: 칩은 `term-token`이 있는 화면에서만(V28). 근거 잠금 ui 슬롯: `sentence-block` 열기, 근거 시트 구역 제목·해제 실패 toast·접근성 문구 |
+| 2.2.0 | 2026-10-13 | `sentence-block` 잠김 라벨의 구역 이름 슬롯 `a11y.lockedNameSlot`(`saju-chart.yongsin.title`, #81) |
 
 ## 검사 (design)
 

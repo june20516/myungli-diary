@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
+  "version": "2.2.0",
   "group": "sentence",
   "components": [
     {
@@ -39,7 +39,7 @@
         }
       },
       "haptic": [],
-      "a11y": { "role": "text", "label": "문장 그대로", "terms": "term-token이 있는 화면에서는 용어를 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)", "lockedLabelSlot": "evidence-sheet.a11y.locked", "plainTerm": "일반 글자로 그린 term 조각은 따로 초점 없이 문장과 함께 읽음" },
+      "a11y": { "role": "text", "label": "문장 그대로", "terms": "term-token이 있는 화면에서는 용어를 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)", "lockedLabelSlot": "evidence-sheet.a11y.locked", "lockedNameSlot": "saju-chart.yongsin.title", "plainTerm": "일반 글자로 그린 term 조각은 따로 초점 없이 문장과 함께 읽음" },
       "rules": [
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
