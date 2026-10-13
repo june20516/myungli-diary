@@ -13,7 +13,7 @@ from typing import Literal
 
 import grpc
 
-from mlw._gen.myungri.engine.v1 import engine_pb2, engine_pb2_grpc
+from mlw._gen.myungli.engine.v1 import engine_pb2, engine_pb2_grpc
 from mlw.bundles import DayKeys
 
 START_DATE = date(2026, 11, 2)
@@ -97,7 +97,7 @@ def generate(address: str) -> dict[str, object]:
     ruleset_versions: list[str] = []
     samples: list[dict[str, object]] = []
     with grpc.insecure_channel(address) as channel:
-        stub = engine_pb2_grpc.MyungriEngineStub(channel)
+        stub = engine_pb2_grpc.MyungliEngineStub(channel)
         for sample in SAMPLE_BIRTHS:
             days: list[dict[str, str | None]] = []
             for offset in range(DAYS):

@@ -3,10 +3,10 @@ from datetime import date
 
 import pytest
 
-from myungri_engine.calendar_core import lunar_adapter as la
-from myungri_engine.domain.enums import Branch, Direction8, Element, Stem, YongsinMethod
-from myungri_engine.domain.models import Pillar
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.calendar_core import lunar_adapter as la
+from myungli_engine.domain.enums import Branch, Direction8, Element, Stem, YongsinMethod
+from myungli_engine.domain.models import Pillar
+from myungli_engine.rules.yongsin import YongsinResult
 
 
 def pillar_of(ganzhi: str) -> Pillar:

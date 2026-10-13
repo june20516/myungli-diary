@@ -1,14 +1,14 @@
 import pytest
 
-from myungri_engine.constants.calibration import JOHU_SUMMER_FIRE_SHARE, JOHU_WINTER_WATER_SHARE
-from myungri_engine.domain.elements import controlled_by, generated_by
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import Element, StrengthLevel, YongsinMethod
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.domain.models import FourPillars, Pillar
-from myungri_engine.references import loader
-from myungri_engine.rules.strength import StrengthResult
-from myungri_engine.rules.yongsin import determine_yongsin
+from myungli_engine.constants.calibration import JOHU_SUMMER_FIRE_SHARE, JOHU_WINTER_WATER_SHARE
+from myungli_engine.domain.elements import controlled_by, generated_by
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import Element, StrengthLevel, YongsinMethod
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.models import FourPillars, Pillar
+from myungli_engine.references import loader
+from myungli_engine.rules.strength import StrengthResult
+from myungli_engine.rules.yongsin import determine_yongsin
 
 
 def pillars(day_stem: S, month_branch: B) -> FourPillars:

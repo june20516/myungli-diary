@@ -366,6 +366,358 @@
     "number",
     "element"
   ],
+  "personal.day_master.byeong": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.eul": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.gap": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.gi": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.gye": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.gyeong": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.im": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.jeong": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.mu": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.day_master.sin": [
+    "strength",
+    "yongsin",
+    "gisin"
+  ],
+  "personal.luck.ten_god.bigyeon": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.geopjae": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.jeonggwan": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.jeongin": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.jeongjae": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.pyeongwan": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.pyeonin": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.pyeonjae": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.sanggwan": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.ten_god.siksin": [
+    "luck",
+    "part",
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.byeong": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.geonrok": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.gwandae": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.jangsaeng": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.jeol": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.jewang": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.mokyok": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.myo": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.sa": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.soe": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.tae": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.luck.twelve_stage.yang": [
+    "element",
+    "role",
+    "current"
+  ],
+  "personal.shinsal.cheoneul_gwiin": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.dohwa": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.gongmang": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.hwagae": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.yangin": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.yeokma": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.ten_god.bigyeon": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.geopjae": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.jeonggwan": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.jeongin": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.jeongjae": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.pyeongwan": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.pyeonin": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.pyeonjae": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.sanggwan": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.ten_god.siksin": [
+    "place",
+    "element",
+    "role",
+    "group_count",
+    "strength"
+  ],
+  "personal.twelve_stage.byeong": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.geonrok": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.gwandae": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.jangsaeng": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.jeol": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.jewang": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.mokyok": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.myo": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.sa": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.soe": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.tae": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
+  "personal.twelve_stage.yang": [
+    "place",
+    "element",
+    "role",
+    "strength"
+  ],
   "tag.big_change": [],
   "tag.cheoneul_gwiin": [],
   "tag.clash": [],

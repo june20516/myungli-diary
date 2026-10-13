@@ -1,8 +1,8 @@
-from myungri_engine.chart.positions import Position
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.domain.models import FourPillars, Pillar
-from myungri_engine.rules.relations import Relation, RelationKind, active, find_relations
+from myungli_engine.chart.positions import Position
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.models import FourPillars, Pillar
+from myungli_engine.rules.relations import Relation, RelationKind, active, find_relations
 
 
 def natal_with(

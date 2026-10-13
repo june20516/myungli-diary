@@ -5,8 +5,8 @@ from dataclasses import fields, is_dataclass
 from datetime import date, datetime, time
 from enum import Enum
 
-from myungri_engine.calendar_core.birth import BirthInput, LunarDate
-from myungri_engine.domain.enums import CalendarType, Gender
+from myungli_engine.calendar_core.birth import BirthInput, LunarDate
+from myungli_engine.domain.enums import CalendarType, Gender
 
 SEOUL = "Asia/Seoul"
 

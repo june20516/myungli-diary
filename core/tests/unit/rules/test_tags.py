@@ -1,10 +1,10 @@
 from collections.abc import Callable
 
-from myungri_engine.chart.positions import Position
-from myungri_engine.domain.enums import DayKind, Shinsal
-from myungri_engine.domain.models import FourPillars, Pillar
-from myungri_engine.rules.relations import Relation, RelationKind, find_relations
-from myungri_engine.rules.tags import select_tags
+from myungli_engine.chart.positions import Position
+from myungli_engine.domain.enums import DayKind, Shinsal
+from myungli_engine.domain.models import FourPillars, Pillar
+from myungli_engine.rules.relations import Relation, RelationKind, find_relations
+from myungli_engine.rules.tags import select_tags
 
 PillarOf = Callable[[str], Pillar]
 

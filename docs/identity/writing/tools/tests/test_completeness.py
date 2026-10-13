@@ -235,3 +235,25 @@ def test_glossary_values_names() -> None:
 
 def test_glossary_values_relation() -> None:
     assert glossary_values()["relation"] == ("stem_hap", "branch_hap", "chung", "hyeong")
+
+
+def test_glossary_values_personal() -> None:
+    values = glossary_values()
+    assert values["place"] == (
+        "year_stem",
+        "year_branch",
+        "month_stem",
+        "month_branch",
+        "day_stem",
+        "day_branch",
+        "hour_stem",
+        "hour_branch",
+        "year_branch_hidden",
+        "month_branch_hidden",
+        "day_branch_hidden",
+        "hour_branch_hidden",
+    )
+    assert values["role"] == ("yongsin", "huisin", "gisin", "neutral")
+    assert values["strength"] == ("very_weak", "weak", "neutral", "strong", "very_strong")
+    assert values["luck"] == ("daeun", "seun")
+    assert values["part"] == ("stem", "branch")

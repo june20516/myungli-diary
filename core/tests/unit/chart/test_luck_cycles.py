@@ -2,11 +2,11 @@ from datetime import date, time
 
 import pytest
 
-from myungri_engine.calendar_core import lunar_adapter
-from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
-from myungri_engine.chart.luck_cycles import LuckCycles, build_luck_cycles
-from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode
-from myungri_engine.rules.relations import RelationKind, active, find_relations
+from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
+from myungli_engine.chart.luck_cycles import LuckCycles, build_luck_cycles
+from myungli_engine.domain.enums import CalendarType, Gender, NoticeCode
+from myungli_engine.rules.relations import RelationKind, active, find_relations
 
 
 def make_moment(d: date, t: time | None, gender: Gender) -> BirthMoment:

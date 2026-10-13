@@ -22,7 +22,7 @@
 | `core/` | core | |
 | `server/` | server | |
 | `app/` | app | |
-| `proto/myungri/engine/`, `proto/buf.yaml` | core | 엔진 gRPC 계약의 제공자 |
+| `proto/myungli/engine/`, `proto/buf.yaml` | core | 엔진 gRPC 계약의 제공자 |
 | `.github/workflows/<서브 프로젝트 또는 작업 단위>.yml` | 해당 서브 프로젝트·작업 단위 | 예: `writing.yml`(검사기 자체의 CI). server·app이 자기 CI에서 검사기를 실행하는 단계는 server·app 소유 |
 | `docs/identity/writing/` | writing | |
 | `docs/identity/design/` | design | |
@@ -92,8 +92,13 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git worktree add ../myungli-diary-core -b core/<주제> --no-track origin/main`. 만든 직후 `git status -sb`로 확인합니다.
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
 * commit 메시지의 범위 표기: `feat(core): …`, `fix(server): …`, `docs(root): …`.
-* **같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다.** 서브 프로젝트를 동시에 진행하려면 서브 프로젝트마다 `git worktree`를 따로 만듭니다(using-git-worktrees skill).
-* **새 세션은 worktree를 먼저 만들고 그 안에서 시작합니다.** 원래 checkout은 다른 세션의 브랜치에 있을 수 있어서, 새 디렉터리(예: `docs/identity/`)가 아직 없을 수 있습니다. 착수 안내는 `git fetch origin` → `git worktree add ../<이름> -b <브랜치> --no-track origin/main` → `cd ../<이름>/<시작 디렉터리> && claude`를 한 덩어리로 적습니다.
+* **같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다.** 그래서 디렉터리를 단위마다 하나씩 고정해 둡니다.
+  | 디렉터리 | 쓰는 세션 |
+  | --- | --- |
+  | `myungli-diary` (본 저장소) | 지휘 |
+  | `../myungli-diary-<단위>` (`git worktree`) | core, server, app, writing, design |
+* **단위의 worktree는 한 번 만들고 재사용합니다.** 브랜치가 병합되면 디렉터리를 새로 만들지 않고 그 안에서 브랜치만 바꿉니다: `git fetch origin && git switch -c <단위>/<주제> --no-track origin/main && git push -u origin <단위>/<주제>`. 단위의 worktree가 아직 없을 때만 `git worktree add ../myungli-diary-<단위> -b <브랜치> --no-track origin/main`으로 만듭니다.
+* **착수 안내는 한 덩어리 명령으로 적습니다.** 그 디렉터리가 지금 어느 브랜치에 있든 따라 할 수 있게, `cd ../myungli-diary-<단위>` → 위의 브랜치 바꾸기(없으면 worktree 만들기) → `cd <시작 디렉터리> && claude` 순서로 씁니다. 다른 단위 브랜치 위에 쌓아야 하면 `origin/main`에서 딴 뒤 그 브랜치를 `git merge`합니다.
 * 릴리스 태그에는 접두어를 붙입니다: `core/v1.0.0`.
 
 ## 7. 시각 산출물 (`artifacts/`)

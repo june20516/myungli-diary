@@ -4,27 +4,27 @@ from pathlib import Path
 
 import pytest
 
-from myungri_engine.constants import message_keys
-from myungri_engine.constants.directions import BAGUA_ELEMENT, BRANCH_DIRECTION, ELEMENT_DIRECTION
-from myungri_engine.constants.gwiin import CHEONEUL_GWIIN
-from myungri_engine.constants.johu import JOHU_YONGSIN
-from myungri_engine.constants.longitudes import representative_longitude
-from myungri_engine.constants.numbers import HADO
-from myungri_engine.constants.relations import (
+from myungli_engine.constants import message_keys
+from myungli_engine.constants.directions import BAGUA_ELEMENT, BRANCH_DIRECTION, ELEMENT_DIRECTION
+from myungli_engine.constants.gwiin import CHEONEUL_GWIIN
+from myungli_engine.constants.johu import JOHU_YONGSIN
+from myungli_engine.constants.longitudes import representative_longitude
+from myungli_engine.constants.numbers import HADO
+from myungli_engine.constants.relations import (
     BRANCH_CHUNG,
     BRANCH_HAP,
     BRANCH_HYEONG_GROUPS,
     SELF_HYEONG,
     STEM_HAP,
 )
-from myungri_engine.constants.shinsal import DOHWA, HWAGAE, YANGIN, YEOKMA
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import Direction8
-from myungri_engine.domain.enums import Element as E
-from myungri_engine.domain.enums import Stem as S
+from myungli_engine.constants.shinsal import DOHWA, HWAGAE, YANGIN, YEOKMA
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import Direction8
+from myungli_engine.domain.enums import Element as E
+from myungli_engine.domain.enums import Stem as S
 
 CORE_DIR = Path(__file__).resolve().parents[3]
-CORRECTIONS = CORE_DIR / "src/myungri_engine/references/data/gungtong_bogam/corrections.json"
+CORRECTIONS = CORE_DIR / "src/myungli_engine/references/data/gungtong_bogam/corrections.json"
 
 
 def test_johu_has_120_cells_and_matches_corrections():
@@ -35,7 +35,7 @@ def test_johu_has_120_cells_and_matches_corrections():
 
 
 def test_johu_hanja_table_is_pure_literal():
-    source = (CORE_DIR / "src/myungri_engine/constants/johu.py").read_text(encoding="utf-8")
+    source = (CORE_DIR / "src/myungli_engine/constants/johu.py").read_text(encoding="utf-8")
     for node in ast.parse(source).body:
         if isinstance(node, ast.AnnAssign) and getattr(node.target, "id", "") == "JOHU_TABLE_HANJA":
             assert node.value is not None
@@ -134,3 +134,18 @@ def test_exported_param_keys_match_key_list():
     keys = json.loads((CORE_DIR / "message_keys.json").read_text(encoding="utf-8"))
     params = json.loads((CORE_DIR / "message_params.json").read_text(encoding="utf-8"))
     assert sorted(params) == keys
+
+
+def test_personal_keys_registered():
+    personal = [key for key in message_keys.ALL_KEYS if key.startswith("personal.")]
+    assert len(personal) == 60
+    assert len(message_keys.ALL_KEYS) == 153
+    assert message_keys.KEY_PARAMS["personal.ten_god.siksin"] == (
+        "place",
+        "element",
+        "role",
+        "group_count",
+        "strength",
+    )
+    assert message_keys.KEY_PARAMS["personal.day_master.gap"] == ("strength", "yongsin", "gisin")
+    assert message_keys.KEY_PARAMS["personal.luck.twelve_stage.jewang"] == ("element", "role", "current")
