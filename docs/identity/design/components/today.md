@@ -6,7 +6,7 @@
 ## day-character
 
 * 쓰는 화면: preview, today, day-sheet, diary-view
-* 배지(`radius.full`, `type.label.md`, 높이 26) + 이유 한 줄(`type.caption.lg` `text.secondary`) + 끝에 depth-link `inline-end`.
+* 배지(`radius.full`, `type.label.md`, 높이 26) + 이유 한 줄(`type.caption.lg` `text.secondary`) + 끝에 depth-link `inline-end`. 이유 줄의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다(today·day-sheet에서 칩).
 
 | 변형 | 엔진 `DayKind` | 배지 |
 | --- | --- | --- |
@@ -21,7 +21,7 @@
 
 * 쓰는 화면: today, my-saju
 * 칩(`chip.bg` 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`.
-* 누르면 칩 안쪽에 1.5px `action.primary` 테두리가 생기고, 칩 줄 아래에 설명 한 줄이 `appear.seep`(칩 바탕 `radius.md` 상자). 다시 누르면 닫힘. 한 번에 하나만 열립니다.
+* 누르면 칩 안쪽에 1.5px `action.primary` 테두리가 생기고, 칩 줄 아래에 설명 한 줄이 `appear.seep`(칩 바탕 `radius.md` 상자). 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 다시 누르면 닫힘. 한 번에 하나만 열립니다.
 * 칩 줄은 화면 폭에 따라 두 줄로 넘어갑니다.
 
 ## guide-question-card
