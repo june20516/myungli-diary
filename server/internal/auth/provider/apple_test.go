@@ -170,7 +170,6 @@ func TestApple_ExchangeOtherFailures(t *testing.T) {
 	}{
 		{"refresh_token 없음은 장애", http.StatusOK, `{"access_token":"a","token_type":"Bearer","id_token":"x"}`, provider.ErrUnavailable},
 		{"id_token 없음은 장애", http.StatusOK, `{"access_token":"a","token_type":"Bearer","refresh_token":"r"}`, provider.ErrUnavailable},
-		{"id_token 서명이 틀리면 토큰 오류", http.StatusOK, `{"refresh_token":"r","id_token":"e30.e30.c2ln"}`, provider.ErrTokenInvalid},
 		{"200 본문이 JSON 아님은 장애", http.StatusOK, `oops`, provider.ErrUnavailable},
 		{"invalid_client는 설정 오류", http.StatusBadRequest, `{"error":"invalid_client"}`, nil},
 		{"429는 장애", http.StatusTooManyRequests, ``, provider.ErrUnavailable},
@@ -203,6 +202,20 @@ func TestApple_ExchangeSubjectMismatchIsTokenInvalid(t *testing.T) {
 	require.ErrorIs(t, err, provider.ErrTokenInvalid)
 	assert.Empty(t, refreshToken)
 	assert.NotContains(t, err.Error(), "other-subject", "오류 문구에 subject를 넣지 않습니다")
+}
+
+// 교환 응답 id_token이 JWKS에 없는 다른 키로 서명됐으면 토큰 오류입니다.
+func TestApple_ExchangeIDTokenSignedByOtherKeyIsTokenInvalid(t *testing.T) {
+	apple, fake := newApple(t)
+	// 다른 대역 서버의 키는 fake의 JWKS에 없으므로 서명 검증에 실패합니다.
+	other := providertest.New(t)
+	claims := providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleNative, testNow)
+	fake.SetAppleTokenResponse(http.StatusOK, `{"refresh_token":"r","id_token":"`+other.SignIDToken(claims)+`"}`)
+
+	_, _, err := apple.ExchangeCode(context.Background(), testAppleCode, provider.AppleNative, testAppleSubject)
+
+	require.ErrorIs(t, err, provider.ErrTokenInvalid)
+	assert.Contains(t, err.Error(), "서명 검증 실패")
 }
 
 // 교환 응답 id_token은 교환에 쓴 client의 aud로 검증합니다.

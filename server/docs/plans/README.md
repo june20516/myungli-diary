@@ -36,7 +36,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 
 **P8 (Job)**
 * 계정 삭제 때 기기 비활성: `devices`가 생기면 `RequestDeletion`에 추가합니다.
-* `job retention`이 `DisconnectProviders`를 재시도하고 만료된 refresh token을 지웁니다. `DisconnectProviders`는 `pending_deletion` 계정에만 부릅니다(active 계정에 부르면 제공자 쪽만 끊기고 기록은 남지 않습니다).
+* `job retention`이 `DisconnectProviders`를 재시도하고 만료된 refresh token을 지웁니다. `DisconnectProviders`는 계정이 `pending_deletion`일 때만 외부 호출과 기록을 하고, 그 밖의 상태(active·deleted)에서는 아무것도 하지 않습니다. 그래서 retention은 **연결 해제 재시도를 익명화(`deleted` 전환)보다 먼저** 해야 합니다. 익명화한 뒤에는 남은 연결을 더 이상 끊을 수 없습니다.
 * 클라이언트가 연결을 끊은 요청(`context.Canceled`)이 500과 오류 로그로 남는 잡음을 정리합니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다.
 

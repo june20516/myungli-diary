@@ -371,7 +371,6 @@ func TestLoginApple_FailedCodeExchangeCreatesNothing(t *testing.T) {
 	}
 }
 
-// 트랜잭션이 실패해도 교환한 토큰을 revoke하지 않습니다. revoke는 사용자의 앱 승인 전체를 끊기 때문입니다.
 // 교환 응답 id_token의 sub가 로그인 id_token과 다르면(다른 사용자의 code) 로그인을 거절하고 아무것도 남기지 않습니다.
 func TestLoginApple_ExchangedSubjectMismatchCreatesNothing(t *testing.T) {
 	f := newFixture(t)
@@ -386,6 +385,7 @@ func TestLoginApple_ExchangedSubjectMismatchCreatesNothing(t *testing.T) {
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM refresh_tokens`))
 }
 
+// 트랜잭션이 실패해도 교환한 토큰을 revoke하지 않습니다. revoke는 사용자의 앱 승인 전체를 끊기 때문입니다.
 func TestLoginApple_FailedTransactionDoesNotRevoke(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginApple(t, "apple-1")
