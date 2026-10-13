@@ -155,6 +155,7 @@ func TestLoadAuth_ReadsAllValues(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadAuth() error = %v, want nil", err)
 	}
+	//nolint:gosec // 환경 변수 이름을 흉내 낸 테스트 값이며 실제 자격 증명이 아닙니다
 	want := AuthConfig{
 		JWTKeyID: "v-JWT_SIGNING_KEY_ID", JWTKeyPEM: "v-JWT_SIGNING_KEY",
 		JWTPreviousKeyID: "jwt-prev-id", JWTPreviousKeyPEM: "jwt-prev",

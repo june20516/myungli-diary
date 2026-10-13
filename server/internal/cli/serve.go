@@ -2,15 +2,24 @@ package cli
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/june20516/myungli-diary/server/internal/account"
+	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/auth/provider"
+	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
+	"github.com/june20516/myungli-diary/server/internal/auth/token"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
@@ -28,6 +37,8 @@ const (
 	// shutdownTimeout은 plan의 "최대 10초"보다 짧게 잡습니다. Cloud Run은 SIGTERM 뒤 10초에
 	// SIGKILL을 보내므로, 남은 연결 강제 종료와 종료 로그를 남길 여유 2초를 둡니다.
 	shutdownTimeout = 8 * time.Second
+	// providerHTTPTimeout은 외부 제공자(카카오·Apple) 호출 한 번의 상한입니다. provider도 호출마다 같은 deadline을 둡니다.
+	providerHTTPTimeout = 5 * time.Second
 )
 
 // runServe는 HTTP 서버를 시작하고 ctx가 취소되면 처리 중인 요청을 마친 뒤 종료합니다.
@@ -43,8 +54,13 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err := cfg.RequireDatabase(); err != nil {
 		return err
 	}
-	// 인증 서비스 조립(키 파싱, provider, auth, account)은 Task 12에서 이 설정으로 합니다.
-	if _, err := config.LoadAuth(getenv); err != nil {
+	authCfg, err := config.LoadAuth(getenv)
+	if err != nil {
+		return err
+	}
+	// 키 형식 오류는 DB에 연결하기 전에 드러냅니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+	settings, err := parseAuthSettings(authCfg)
+	if err != nil {
 		return err
 	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
@@ -57,23 +73,18 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}
 	defer pool.Close()
 
-	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
-	spec, err := gen.GetSpec()
+	handler, err := newServer(settings, serverDeps{
+		Pool:   pool,
+		Logger: logger,
+		Clock:  clock.System{},
+		HTTP:   &http.Client{Timeout: providerHTTPTimeout},
+		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
+		Providers: providerURLs{},
+	})
 	if err != nil {
-		logger.ErrorContext(ctx, "계약 읽기 실패", "error", err)
+		logger.ErrorContext(ctx, "서버 조립 실패", "error", err)
 		return &loggedError{err: err}
 	}
-	deps := httpapi.Deps{Logger: logger, Clock: clock.System{}}
-	routes := httpapi.Routes{
-		Spec:     spec,
-		Validate: httpapi.ValidateRequests(spec, deps.Logger),
-		// bearer 라우트를 토큰 검사 없이 그대로 통과시키는 Authenticate입니다. 모든 operation이 미구현(501)이라
-		// 계정 정보를 쓰는 핸들러가 없습니다.
-		Authenticate: func(_ httpapi.Operation, next http.Handler) http.Handler { return next },
-	}
-	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
-		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, routes)
-	})
 
 	var listenConfig net.ListenConfig
 	listener, err := listenConfig.Listen(ctx, "tcp", net.JoinHostPort("", strconv.Itoa(cfg.Port)))
@@ -89,6 +100,164 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}
 	logger.InfoContext(ctx, "서버 종료")
 	return nil
+}
+
+// authSettings는 AuthConfig의 키를 파싱하고 값을 검증한 결과입니다.
+// 문자열 설정(제공자 ID, 딥링크 등)은 config에 그대로 두고, 파싱이 필요한 키만 따로 담습니다.
+type authSettings struct {
+	config config.AuthConfig
+	// signing은 access token 발급 키이고, previousSigning은 키 교체 중 검증에만 쓰는 이전 키입니다(없으면 비어 있음).
+	signing         token.SigningKey
+	previousSigning []token.SigningKey
+	// box는 제공자 토큰(Apple refresh token)을 암호화·복호화합니다.
+	box *secretbox.Box
+	// applePrivate는 Apple client secret(ES256 JWT)을 서명하는 .p8 키입니다.
+	applePrivate *ecdsa.PrivateKey
+}
+
+// parseAuthSettings는 키를 파싱하고 딥링크를 검증합니다. 실패하면 문제가 된 환경 변수 이름을 담은 오류를 돌려줍니다.
+// 오류 문구에는 설정 값을 넣지 않습니다(url.Parse 오류처럼 값을 담는 오류는 감싸지 않습니다).
+func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
+	signing, err := token.ParseSigningKey(cfg.JWTKeyID, cfg.JWTKeyPEM)
+	if err != nil {
+		return authSettings{}, fmt.Errorf("JWT_SIGNING_KEY: %w", err)
+	}
+	var previousSigning []token.SigningKey
+	if cfg.JWTPreviousKeyID != "" {
+		previous, err := token.ParseSigningKey(cfg.JWTPreviousKeyID, cfg.JWTPreviousKeyPEM)
+		if err != nil {
+			return authSettings{}, fmt.Errorf("JWT_PREVIOUS_KEY: %w", err)
+		}
+		previousSigning = append(previousSigning, previous)
+	}
+
+	boxKey, err := secretbox.ParseKey(cfg.TokenKeyID, cfg.TokenKey)
+	if err != nil {
+		return authSettings{}, fmt.Errorf("TOKEN_ENCRYPTION_KEY: %w", err)
+	}
+	var previousBoxKeys []secretbox.Key
+	if cfg.TokenPreviousKeyID != "" {
+		previous, err := secretbox.ParseKey(cfg.TokenPreviousKeyID, cfg.TokenPreviousKey)
+		if err != nil {
+			return authSettings{}, fmt.Errorf("TOKEN_PREVIOUS_KEY: %w", err)
+		}
+		previousBoxKeys = append(previousBoxKeys, previous)
+	}
+	box, err := secretbox.New(boxKey, previousBoxKeys)
+	if err != nil {
+		return authSettings{}, fmt.Errorf("TOKEN_ENCRYPTION_KEY·TOKEN_PREVIOUS_KEY: %w", err)
+	}
+
+	// Apple .p8도 PKCS8 PEM의 P-256 EC 키라 access token 서명 키와 같은 규칙으로 읽습니다.
+	appleKey, err := token.ParseSigningKey(cfg.AppleKeyID, cfg.ApplePrivateKeyPEM)
+	if err != nil {
+		return authSettings{}, fmt.Errorf("APPLE_PRIVATE_KEY: %w", err)
+	}
+
+	// 콜백이 이 값에 쿼리를 붙여 redirect하므로, 앱이 받을 수 있는 scheme이 있는 URL이어야 합니다.
+	deepLink, err := url.Parse(cfg.AppleCallbackDeepLink)
+	if err != nil || deepLink.Scheme == "" {
+		return authSettings{}, errors.New("APPLE_CALLBACK_DEEPLINK는 scheme이 있는 URL이어야 합니다")
+	}
+
+	return authSettings{
+		config:          cfg,
+		signing:         signing,
+		previousSigning: previousSigning,
+		box:             box,
+		applePrivate:    appleKey.Private,
+	}, nil
+}
+
+// providerURLs는 제공자 엔드포인트 주소입니다. 빈 값은 provider의 기본값(실제 제공자 주소)을 씁니다.
+// 테스트는 providertest 대역 주소를 넣습니다.
+type providerURLs struct {
+	KakaoJWKS, KakaoUnlink             string
+	AppleJWKS, AppleToken, AppleRevoke string
+}
+
+// serverDeps는 newServer가 바깥에서 받는 의존성입니다.
+type serverDeps struct {
+	// Pool은 서비스와 헬스 체크가 쓰는 DB 연결입니다.
+	Pool   *pgxpool.Pool
+	Logger *slog.Logger
+	Clock  clock.Clock
+	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
+	HTTP      *http.Client
+	Providers providerURLs
+}
+
+// newServer는 인증·계정 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
+//
+// 의존 방향은 핸들러(httpapi.API) → 서비스(auth·account) → provider·DB입니다.
+// bearer 라우트는 BearerAuth가 access token을 검증하고 계정 접근 상태(동의, 삭제 대기)를 확인한 뒤 핸들러로 넘깁니다.
+func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
+	cfg := settings.config
+
+	access, err := token.NewAccessIssuer(settings.signing, settings.previousSigning, deps.Clock)
+	if err != nil {
+		return nil, fmt.Errorf("access token 발급기: %w", err)
+	}
+	kakao, err := provider.NewKakao(provider.KakaoConfig{
+		AppKey:    cfg.KakaoAppKey,
+		AdminKey:  cfg.KakaoAdminKey,
+		JWKSURL:   deps.Providers.KakaoJWKS,
+		UnlinkURL: deps.Providers.KakaoUnlink,
+		HTTP:      deps.HTTP,
+		Clock:     deps.Clock,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("provider kakao: %w", err)
+	}
+	apple, err := provider.NewApple(provider.AppleConfig{
+		TeamID:         cfg.AppleTeamID,
+		KeyID:          cfg.AppleKeyID,
+		PrivateKey:     settings.applePrivate,
+		BundleID:       cfg.AppleBundleID,
+		ServicesID:     cfg.AppleServicesID,
+		WebRedirectURI: cfg.AppleWebRedirectURI,
+		JWKSURL:        deps.Providers.AppleJWKS,
+		TokenURL:       deps.Providers.AppleToken,
+		RevokeURL:      deps.Providers.AppleRevoke,
+		HTTP:           deps.HTTP,
+		Clock:          deps.Clock,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("provider apple: %w", err)
+	}
+
+	authService := auth.NewService(deps.Pool, auth.ServiceDeps{
+		Kakao:       kakao,
+		Apple:       apple,
+		KakaoUnlink: kakao,
+		Access:      access,
+		Box:         settings.box,
+		Clock:       deps.Clock,
+		Logger:      deps.Logger,
+	})
+	// 계정 삭제 예약 뒤 세션 폐기와 제공자 연결 해제는 auth 서비스가 맡습니다.
+	accountService := account.NewService(deps.Pool, authService, deps.Clock, deps.Logger)
+
+	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
+	spec, err := gen.GetSpec()
+	if err != nil {
+		return nil, fmt.Errorf("계약 읽기: %w", err)
+	}
+	httpDeps := httpapi.Deps{Logger: deps.Logger, Clock: deps.Clock, DB: deps.Pool}
+	routes := httpapi.Routes{
+		Spec:         spec,
+		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
+		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
+	}
+	api := &httpapi.API{
+		Auth:                  authService,
+		Accounts:              accountService,
+		DB:                    deps.Pool,
+		AppleCallbackDeepLink: cfg.AppleCallbackDeepLink,
+	}
+	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
+		httpapi.RegisterAPI(mux, api, httpDeps, routes)
+	}), nil
 }
 
 // serveHTTP는 listener로 handler를 서비스합니다.

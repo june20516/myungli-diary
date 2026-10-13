@@ -102,8 +102,7 @@ func TestRun_ServeStartsAndStopsOnCancel(t *testing.T) {
 	})
 
 	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
-	// 계약 라우트가 등록돼 있고 아직 구현하지 않은 operation은 501입니다.
-	// (인증 서비스를 조립하는 Task 12 이후에는 토큰 없는 요청이 401이 됩니다.)
+	// 인증을 조립했으므로 bearer 라우트에 토큰 없이 보낸 요청은 401입니다.
 	// 종료를 늦추지 않게 본문을 끝까지 읽고 유휴 연결을 닫습니다.
 	client := &http.Client{Timeout: 2 * time.Second}
 	resp, err := getWithContext(t.Context(), client, "http://127.0.0.1:"+env["PORT"]+"/v1/me")
@@ -113,8 +112,8 @@ func TestRun_ServeStartsAndStopsOnCancel(t *testing.T) {
 	_, _ = io.Copy(io.Discard, resp.Body)
 	_ = resp.Body.Close()
 	client.CloseIdleConnections()
-	if resp.StatusCode != http.StatusNotImplemented {
-		t.Errorf("GET /v1/me status = %d, want 501", resp.StatusCode)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Errorf("GET /v1/me status = %d, want 401", resp.StatusCode)
 	}
 	cancel()
 
@@ -179,6 +178,52 @@ func TestRun_ServeRequiresAuthConfig(t *testing.T) {
 	}
 	if !strings.Contains(stderr.String(), "JWT_SIGNING_KEY") {
 		t.Errorf("stderr에 누락된 변수 이름이 없습니다: %q", stderr.String())
+	}
+}
+
+func TestRun_ServeRejectsUnparsableAuthSettings(t *testing.T) {
+	// secret은 로그에 나오면 안 되는 값입니다. 오류에는 변수 이름만 있어야 합니다.
+	const secret = "leak-check-secret-value" //nolint:gosec // 로그 유출 검사용 테스트 값이며 실제 자격 증명이 아닙니다
+	tests := []struct {
+		name, key, value string
+	}{
+		{"JWT 서명 키가 PEM이 아님", "JWT_SIGNING_KEY", secret},
+		{"이전 JWT 키가 PEM이 아님", "JWT_PREVIOUS_KEY", secret},
+		{"토큰 암호 키가 base64가 아님", "TOKEN_ENCRYPTION_KEY", secret + "!"},
+		{"이전 토큰 암호 키가 base64가 아님", "TOKEN_PREVIOUS_KEY", secret + "!"},
+		{"Apple 개인 키가 PEM이 아님", "APPLE_PRIVATE_KEY", secret},
+		{"딥링크에 scheme이 없음", "APPLE_CALLBACK_DEEPLINK", "auth/apple/" + secret},
+		{"딥링크를 해석할 수 없음", "APPLE_CALLBACK_DEEPLINK", "myungli://auth/%zz" + secret},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			env := testAuthEnv(t)
+			env["PORT"] = freePort(t)
+			// 키 검사는 DB 연결보다 먼저이므로 닿지 않는 주소여도 키 오류로 끝나야 합니다.
+			env["DATABASE_URL"] = "postgres://x@127.0.0.1:1/x"
+			env[tt.key] = tt.value
+			if tt.key == "JWT_PREVIOUS_KEY" {
+				env["JWT_PREVIOUS_KEY_ID"] = "jwt-prev"
+			}
+			if tt.key == "TOKEN_PREVIOUS_KEY" {
+				env["TOKEN_PREVIOUS_KEY_ID"] = "tok-prev"
+			}
+			var stdout, stderr bytes.Buffer
+
+			code := Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+			if code != 1 {
+				t.Errorf("종료 코드 = %d, want 1", code)
+			}
+			if !strings.Contains(stderr.String(), tt.key) {
+				t.Errorf("stderr에 변수 이름 %s가 없습니다: %q", tt.key, stderr.String())
+			}
+			if strings.Contains(stderr.String(), secret) {
+				t.Errorf("stderr에 설정 값이 남았습니다: %q", stderr.String())
+			}
+			if strings.Contains(stderr.String(), "DB 연결 실패") {
+				t.Errorf("키 검사 전에 DB에 연결했습니다: %q", stderr.String())
+			}
+		})
 	}
 }
 
