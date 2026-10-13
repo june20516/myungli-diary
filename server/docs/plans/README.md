@@ -7,7 +7,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | 순서 | 계획 | spec 절 | 상태 |
 | --- | --- | --- | --- |
 | P1 | [기반과 REST 계약 초안](2026-10-11-p1-foundation.md): 모듈, 하위 명령, 설정, Clock, 로깅, DB·migration, HTTP 뼈대, 오류 형식, `openapi.yaml` 초안, 생성 코드, CI, 이미지 | §2, §5, §11.1, §12, §13.1 일부 | **완료** |
-| P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구 | §3.3 계정, §4 | 계획 |
+| P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구 | §3.3 계정, §4 | **완료** |
 | P3 | 프로필·엔진·캐시: 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 | §3.2, §3.3 프로필·캐시, §7 | 대기 |
 | P4 | 콘텐츠: 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응 | §6 | 대기 |
 | P5 | 일기·일정: soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록 | §5.3, §3.3 일기 | 대기 |
@@ -22,22 +22,29 @@ P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 
 
 P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 근거는 commit 메시지와 코드 주석에 있습니다.
 
-**P2 (인증·계정·약관)**
-* 인증 위치: 요청 검증은 라우트마다 strict handler를 감싸고 그 안에서 `AuthenticationFunc`가 돕니다. 인증을 별도 middleware로 두면 검증보다 안쪽이 되어 인증 안 된 요청이 400 필드 상세를 먼저 받습니다. `AuthenticationFunc`에서 인증하거나 `RegisterAPI`가 auth → validate 순으로 감싸게 하고, "토큰 없음 + 잘못된 본문 → 401"을 테스트로 고정합니다.
-* 401 응답: 일반 `problem.Write`는 `WWW-Authenticate`를 붙이지 않습니다. bearer 인증 실패에는 `problem.WriteBearerChallenge`를 씁니다.
-* 오류 경로 단일화: strict handler의 오류는 `httpapi.Error{Status, Code}` 같은 타입을 반환하고 `ResponseErrorHandlerFunc`에서 `problem.Write`로 쓰는 한 갈래로 만듭니다. 핸들러 오류 로그가 pgx 오류 detail로 개인정보를 남기지 않게 정제 규칙을 둡니다.
-* `errors[].code` 통일: 지금 본문 형식 오류는 `errors[]` 없이 400을 내고, 경로 parameter는 code가 `type`으로 나옵니다. 필드별 code 체계를 정해 맞춥니다.
-* serve가 DB를 열기 시작하면 `RequireDatabase`·`postgres.Open`을 붙이고, "DB가 꺼져 있으면 5초 안에 0이 아닌 코드로 종료"를 serve에도 테스트로 고정합니다.
-* 요청 검증은 parameter 기본값을 채우지 않습니다. `limit` 같은 기본값은 핸들러가 적용합니다.
-* 상태-값 짝 위반(422 `request.inconsistent`, `required_by_status`·`forbidden_by_status`)과 422 `date.invalid`(`LunarOrSolarDate`만)는 계약에만 있고 아직 구현이 없습니다.
-
 **P3 (프로필·엔진·캐시)**
+* `getMe.hasProfile`을 채웁니다.
+* 상태-값 짝 위반(422 `request.inconsistent`)과 422 `date.invalid`(`LunarOrSolarDate`만)는 계약에만 있고 구현이 없습니다. 프로필에서 처음 쓰입니다.
 * 범위에 일부만 걸친 달(1900년 1월)은 엔진이 `OUT_OF_RANGE`를 내므로 422 `date.out_of_range`로 매핑합니다.
 
+**P5 (일기·일정)**
+* 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 이어받아 일정에도 씁니다.
+
 **P7 (결제와 권한)**
+* `getMe.adFree`·`insight`를 채웁니다.
 * AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
 
+**P8 (Job)**
+* 계정 삭제 때 기기 비활성: `devices`가 생기면 `RequestDeletion`에 추가합니다.
+* `job retention`이 `DisconnectProviders`를 재시도하고 만료된 refresh token을 지웁니다. `DisconnectProviders`는 `pending_deletion` 계정에만 부릅니다(active 계정에 부르면 제공자 쪽만 끊기고 기록은 남지 않습니다).
+* 클라이언트가 연결을 끊은 요청(`context.Canceled`)이 500과 오류 로그로 남는 잡음을 정리합니다.
+* 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다.
+
 **P9 (배포)**
+* 인증 설정 17개를 Secret Manager에 둡니다(`config.LoadAuth`의 이름 그대로). 필수 13개: `JWT_SIGNING_KEY_ID`, `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY_ID`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_APP_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `APPLE_BUNDLE_ID`, `APPLE_SERVICES_ID`, `APPLE_WEB_REDIRECT_URI`, `APPLE_CALLBACK_DEEPLINK`. 선택 4개(키 교체 때만, ID와 값이 짝): `JWT_PREVIOUS_KEY_ID`, `JWT_PREVIOUS_KEY`, `TOKEN_PREVIOUS_KEY_ID`, `TOKEN_PREVIOUS_KEY`.
+* 시작 때 키·설정을 파싱하고 실패하면 종료 코드 1입니다. 키 ID가 중복되거나 비어 있어도 시작에 실패합니다.
+* Apple refresh token은 AES-GCM(secretbox)으로 암호화하고 associated data로 `auth_identities` 행 id를 묶습니다.
+* `APPLE_CALLBACK_DEEPLINK`의 scheme은 app과 정합니다.
 * Cloud Run은 `GOOGLE_CLOUD_PROJECT`를 자동으로 넣지 않으므로 배포 설정에 명시해야 로그의 trace 상관관계가 켜집니다. `X-Cloud-Trace-Context`만 오는 경로가 있는지 확인합니다.
 * Cloud SQL Go connector를 쓰려면 `postgres.Open`이 `*pgxpool.Config`나 dial 옵션을 받도록 바꿉니다.
 * ci-gate 연결 2단계(지휘)가 끝나면 `server.yml`의 `pull_request`·`push` 트리거를 지웁니다(3단계).
