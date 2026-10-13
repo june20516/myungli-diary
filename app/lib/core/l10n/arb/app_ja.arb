@@ -6,6 +6,7 @@
   "errorServer": "サーバーで問題が発生しました。しばらくしてからもう一度お試しください。",
   "errorUnexpected": "予期しない問題が発生しました。",
   "errorNotImplemented": "まだ準備中です。",
+  "appTitle": "命理日記",
   "actionRetry": "もう一度試す",
   "traceIdLabel": "お問い合わせ番号 {traceId}",
   "tabToday": "今日",

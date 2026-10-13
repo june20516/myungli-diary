@@ -5,7 +5,6 @@
 /// 빈 집합이 목표입니다. 시트 화면은 registry에 없으므로 시트를 만드는 계획이
 /// registry에 등록하면서 지웁니다.
 const Set<String> pendingStateScreens = {
-  'launch',
   'onboard-birth',
   'onboard-time',
   'birthplace',

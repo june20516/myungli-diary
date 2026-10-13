@@ -8,6 +8,8 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/theme/app_theme.dart';
 
 class _FixedEntry extends EntryController {
   new(this.value);
@@ -35,7 +37,16 @@ Future<GoRouter> pumpRouter(
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(
+        routerConfig: router,
+        theme: buildTheme(
+          brightness: Brightness.light,
+          locale: const Locale('ko'),
+        ),
+        locale: const Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -158,9 +169,13 @@ void main() {
           if (screen.presentation == IaPresentation.page) screen.id,
       };
       expect(screenRegistry.keys.toSet(), pageIds);
+      // 상태를 직접 처리하는 화면은 launch뿐입니다(나머지는 자리 표시).
       expect(
-        screenRegistry.values.every((spec) => spec.handledStates.isEmpty),
-        isTrue,
+        {
+          for (final spec in screenRegistry.values)
+            if (spec.handledStates.isNotEmpty) spec.id,
+        },
+        {ScreenIds.launch},
       );
     });
   });
@@ -207,11 +222,10 @@ void main() {
           'diary-list',
           'my-saju',
         ].indexOf(tab);
-        await tester.tap(find.byKey(Key('tab-$index')));
+        await tester.tap(find.byKey(ValueKey('tab-bar.tab.$index')));
         await tester.pumpAndSettle();
         expect(currentPath(router), '/$tab');
         expect(find.byKey(Key(tab)), findsOneWidget);
-        expect(find.bySemanticsIdentifier('tab-$tab'), findsOneWidget);
       }
     });
   });

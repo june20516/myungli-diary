@@ -24,6 +24,10 @@
   "@errorNotImplemented": {
     "description": "임시. 아직 구현되지 않은 기능의 안내 문구"
   },
+  "appTitle": "명리일기",
+  "@appTitle": {
+    "description": "임시. 앱 이름(작업 전환기 등에 보임)"
+  },
   "actionRetry": "다시 시도",
   "@actionRetry": {
     "description": "임시. 오류 뒤 다시 시도 버튼 문구"

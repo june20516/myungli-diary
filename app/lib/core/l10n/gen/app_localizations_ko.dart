@@ -28,6 +28,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorNotImplemented => '아직 준비 중이에요.';
 
   @override
+  String get appTitle => '명리일기';
+
+  @override
   String get actionRetry => '다시 시도';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/app/router/placeholder_screen.dart';
+import 'package:myungli_diary/app/screens/launch_screen.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 
@@ -27,4 +28,11 @@ final Map<String, ScreenSpec> screenRegistry = {
         screen.id,
         (context) => PlaceholderScreen(screen.id),
       ),
+  ScreenIds.launch: const ScreenSpec(
+    ScreenIds.launch,
+    _buildLaunch,
+    handledStates: launchHandledStates,
+  ),
 };
+
+Widget _buildLaunch(BuildContext context) => const LaunchScreen();

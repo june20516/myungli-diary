@@ -136,6 +136,12 @@ abstract class AppLocalizations {
   /// **'아직 준비 중이에요.'**
   String get errorNotImplemented;
 
+  /// 임시. 앱 이름(작업 전환기 등에 보임)
+  ///
+  /// In ko, this message translates to:
+  /// **'명리일기'**
+  String get appTitle;
+
   /// 임시. 오류 뒤 다시 시도 버튼 문구
   ///
   /// In ko, this message translates to:

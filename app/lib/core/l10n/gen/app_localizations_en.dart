@@ -30,6 +30,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNotImplemented => 'This is not available yet.';
 
   @override
+  String get appTitle => 'Myungli Diary';
+
+  @override
   String get actionRetry => 'Try again';
 
   @override

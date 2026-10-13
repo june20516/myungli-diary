@@ -6,6 +6,7 @@
   "errorServer": "Something went wrong on the server. Please try again in a moment.",
   "errorUnexpected": "Something unexpected happened.",
   "errorNotImplemented": "This is not available yet.",
+  "appTitle": "Myungli Diary",
   "actionRetry": "Try again",
   "traceIdLabel": "Reference {traceId}",
   "tabToday": "Today",

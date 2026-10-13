@@ -28,6 +28,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorNotImplemented => 'まだ準備中です。';
 
   @override
+  String get appTitle => '命理日記';
+
+  @override
   String get actionRetry => 'もう一度試す';
 
   @override

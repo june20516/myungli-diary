@@ -33,6 +33,14 @@ final class TokenStore {
     _accessToken = pair.accessToken;
   }
 
+  /// refresh token만 심습니다. access token은 비워 두어 첫 요청이 세션 복원(refresh)을 거칩니다.
+  ///
+  /// 앱을 다시 실행한 상태를 만드는 fake 모드 시작 코드가 씁니다.
+  Future<void> seedRefreshToken(String refreshToken) async {
+    _accessToken = null;
+    await _secureStore.write(_refreshKey, refreshToken);
+  }
+
   /// 저장된 refresh token. 없으면 null입니다.
   Future<String?> refreshToken() => _secureStore.read(_refreshKey);
 

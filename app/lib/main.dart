@@ -1,16 +1,22 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/app/bootstrap.dart';
+import 'package:myungli_diary/app/dev/scenario_picker.dart';
+import 'package:myungli_diary/app/myungli_app.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/http_client.dart';
 
-void main() {
-  runApp(const MyungliApp());
-}
-
-/// 앱 루트 위젯입니다. 이후 task에서 라우터 기반으로 바뀝니다.
-class MyungliApp extends StatelessWidget {
-  /// 앱 루트 위젯을 만듭니다.
-  const new({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(home: SizedBox.shrink());
-  }
+Future<void> main() async {
+  final container = await bootstrap();
+  // debug의 fake 모드는 시나리오를 바꿔 다시 시작할 수 있는 개발용 최상위를 씁니다.
+  final devMode = kDebugMode && container.read(apiModeProvider) == ApiMode.fake;
+  runApp(
+    devMode
+        ? DevHost(initial: container)
+        : UncontrolledProviderScope(
+            container: container,
+            child: const MyungliApp(),
+          ),
+  );
 }

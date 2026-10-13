@@ -133,7 +133,11 @@ final class FakeServerInterceptor extends Interceptor {
   /// 번들 manifest에 없는 key면 null이고, 있는 key의 읽기 오류는 그대로 던집니다.
   Future<String?> _tryLoad(String key) async {
     final keys = await (_assetKeys ??= _loadAssetKeys());
-    return keys.contains(key) ? await bundle.loadString(key) : null;
+    // 번들이 읽은 Future를 붙들어 두지 않게 합니다. fixture는 개발·테스트에서만 읽고,
+    // widget 테스트에서는 이전 테스트의 가짜 시계에 묶인 Future가 다음 테스트를 멈춥니다.
+    return keys.contains(key)
+        ? await bundle.loadString(key, cache: false)
+        : null;
   }
 
   Future<Set<String>> _loadAssetKeys() async {

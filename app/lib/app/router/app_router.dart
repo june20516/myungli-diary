@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
+import 'package:myungli_diary/app/router/tab_shell.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/design/components/frame/sheet.dart';
 
 /// IA 화면 id의 경로.
 String pathOf(String screenId) => '/$screenId';
@@ -62,18 +64,14 @@ String? entryRedirect({required EntryState? entry, required String path}) {
   };
 }
 
-/// 탭 id 순서. IA `tabs`와 같습니다.
-const List<String> _tabRoots = [
-  ScreenIds.today,
-  ScreenIds.calendar,
-  ScreenIds.diaryList,
-  ScreenIds.mySaju,
-];
-
-GoRoute _routeOf(String id) => GoRoute(
+/// 탭 루트는 셸이 [SheetScreenBelow]로 감싸므로, 그 밖의 화면만 [wrap]으로 감쌉니다.
+GoRoute _routeOf(String id, {bool wrap = false}) => GoRoute(
   name: id,
   path: pathOf(id),
-  builder: (context, state) => screenRegistry[id]!.builder(context),
+  builder: (context, state) {
+    final screen = screenRegistry[id]!.builder(context);
+    return wrap ? SheetScreenBelow(child: screen) : screen;
+  },
 );
 
 /// 앱 라우터를 만듭니다. 경로와 이름은 IA 화면 id입니다.
@@ -83,10 +81,10 @@ GoRouter buildRouter(Ref ref) {
     ..listen(entryProvider, (_, _) => refresh.value++)
     ..onDispose(refresh.dispose);
 
-  final tabRootSet = _tabRoots.toSet();
+  final tabRootSet = tabRoots.toSet();
   final otherPages = [
     for (final id in screenRegistry.keys)
-      if (!tabRootSet.contains(id)) _routeOf(id),
+      if (!tabRootSet.contains(id)) _routeOf(id, wrap: true),
   ];
 
   final router = GoRouter(
@@ -96,9 +94,10 @@ GoRouter buildRouter(Ref ref) {
         entryRedirect(entry: ref.read(entryProvider), path: state.uri.path),
     routes: [
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => _TabShell(shell),
+        builder: (context, state, shell) =>
+            TabShell(shell, path: state.uri.path),
         branches: [
-          for (final id in _tabRoots)
+          for (final id in tabRoots)
             StatefulShellBranch(routes: [_routeOf(id)]),
         ],
       ),
@@ -111,39 +110,3 @@ GoRouter buildRouter(Ref ref) {
 
 /// 앱 라우터.
 final routerProvider = Provider<GoRouter>(buildRouter);
-
-/// 탭 4개 셸. 실제 탭 바는 디자인 구현 task가 바꿉니다.
-class _TabShell extends StatelessWidget {
-  const new(this.shell);
-
-  final StatefulNavigationShell shell;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: shell,
-      bottomNavigationBar: Row(
-        children: [
-          for (final (index, id) in _tabRoots.indexed)
-            Expanded(
-              child: Semantics(
-                identifier: 'tab-$id',
-                child: IconButton(
-                  key: Key('tab-$index'),
-                  icon: Icon(
-                    shell.currentIndex == index
-                        ? Icons.circle
-                        : Icons.circle_outlined,
-                  ),
-                  onPressed: () => shell.goBranch(
-                    index,
-                    initialLocation: index == shell.currentIndex,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
