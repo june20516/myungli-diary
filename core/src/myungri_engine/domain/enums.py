@@ -204,6 +204,20 @@ class Shinsal(Enum):
     GONGMANG = auto()
 
 
+class PersonalTermKind(Enum):
+    """개인 해석이 풀어 주는 용어의 종류."""
+
+    DAY_MASTER = auto()
+    TEN_GOD = auto()
+    HIDDEN_TEN_GOD = auto()
+    TWELVE_STAGE = auto()
+    SHINSAL = auto()
+    DAEUN_STEM_TEN_GOD = auto()
+    DAEUN_BRANCH_TEN_GOD = auto()
+    DAEUN_TWELVE_STAGE = auto()
+    SEUN_TEN_GOD = auto()
+
+
 class TwelveStage(Enum):
     JANGSAENG = auto()
     MOKYOK = auto()

@@ -9,12 +9,17 @@
 
 # 키는 `<범주>.<값>`입니다. 값은 proto enum에서 UNSPECIFIED를 빼고 접두어를 제거한 소문자입니다.
 # color는 element와 같은 값 집합입니다(`{element:color}`). ten_god_group은 proto enum이 아니라 여기서 정합니다.
+# place는 원국 자리 8개와 지지 자리의 지장간 4개(`_hidden`)입니다. role·luck·part는 proto enum이 아니라
+# core 개인 해석 매개변수에서 옮겨 여기서 정합니다(W16).
 
 - id: glossary.value_name
   where: 문장 매개변수로 들어가는 값의 언어별 이름
   purpose: info
   user_state: 문장 안에 들어간 값(색, 방향, 십성 이름)을 읽습니다.
-  structure: 값 이름 하나. 색은 일상에서 쓰는 색 이름(남색, 초록), 방향은 동·서·남·북과 북동 같은 8방위, 명리 용어는 한글 이름을 씁니다.
+  structure: >-
+    값 이름 하나. 색은 일상에서 쓰는 색 이름(남색, 초록), 방향은 동·서·남·북과 북동 같은 8방위, 명리 용어는 한글 이름을 씁니다.
+    개인 해석 조각(W16)은 문장 안에 끼워 읽히는 명사구로 씁니다. place는 "태어난 달의 천간"처럼 자리를 풀어 쓰고,
+    role은 "내 사주를 돕는 쪽"처럼 역할을, strength·luck·part는 "힘이 센 편"·"대운"·"천간"처럼 씁니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -87,6 +92,31 @@
     - relation.branch_hap
     - relation.chung
     - relation.hyeong
+    - place.year_stem
+    - place.year_branch
+    - place.month_stem
+    - place.month_branch
+    - place.day_stem
+    - place.day_branch
+    - place.hour_stem
+    - place.hour_branch
+    - place.year_branch_hidden
+    - place.month_branch_hidden
+    - place.day_branch_hidden
+    - place.hour_branch_hidden
+    - role.yongsin
+    - role.huisin
+    - role.gisin
+    - role.neutral
+    - strength.very_weak
+    - strength.weak
+    - strength.neutral
+    - strength.strong
+    - strength.very_strong
+    - luck.daeun
+    - luck.seun
+    - part.stem
+    - part.branch
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
