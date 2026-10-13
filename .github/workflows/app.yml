@@ -55,7 +55,12 @@ jobs:
       - name: 포맷 확인
         run: dart format --output=none --set-exit-if-changed .
       - name: 생성 코드 차이 확인
-        run: dart run tool/gen_ia.dart && dart run tool/gen_tokens.dart && git diff --exit-code
+        run: dart run tool/gen_ia.dart && dart run tool/gen_tokens.dart && flutter gen-l10n && git diff --exit-code
+      # 저장소 루트의 검사기를 쓰므로 이 단계만 루트에서 실행한다.
+      - uses: astral-sh/setup-uv@v6
+      - name: ARB 문구 검사
+        working-directory: .
+        run: uv run --project docs/identity/writing/tools mlw check-arb app/lib/core/l10n/arb/*.arb
       - name: 정적 분석
         run: flutter analyze
       - name: 테스트

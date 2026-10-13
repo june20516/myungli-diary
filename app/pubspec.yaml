@@ -33,6 +33,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +53,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
 
   # 브랜드 글꼴(모두 SIL OFL 1.1). family 이름은 디자인 토큰 값 그대로입니다.
   fonts:

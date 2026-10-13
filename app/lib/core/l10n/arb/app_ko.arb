@@ -1,0 +1,41 @@
+{
+  "@@locale": "ko",
+  "errorOffline": "인터넷에 연결되어 있지 않아요.",
+  "@errorOffline": {
+    "description": "임시. 네트워크 연결이 없을 때의 오류 문구"
+  },
+  "errorTimeout": "응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
+  "@errorTimeout": {
+    "description": "임시. 요청 시간이 초과됐을 때의 오류 문구"
+  },
+  "errorClient": "요청을 처리하지 못했어요.",
+  "@errorClient": {
+    "description": "임시. 요청이 거절됐을 때(4xx)의 오류 문구"
+  },
+  "errorServer": "서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+  "@errorServer": {
+    "description": "임시. 서버 오류(5xx)의 오류 문구"
+  },
+  "errorUnexpected": "예기치 못한 문제가 생겼어요.",
+  "@errorUnexpected": {
+    "description": "임시. 분류되지 않은 오류 문구"
+  },
+  "errorNotImplemented": "아직 준비 중이에요.",
+  "@errorNotImplemented": {
+    "description": "임시. 아직 구현되지 않은 기능의 안내 문구"
+  },
+  "actionRetry": "다시 시도",
+  "@actionRetry": {
+    "description": "임시. 오류 뒤 다시 시도 버튼 문구"
+  },
+  "traceIdLabel": "문의 번호 {traceId}",
+  "@traceIdLabel": {
+    "description": "임시. 오류 화면에 보이는 추적 번호 표시",
+    "placeholders": {
+      "traceId": {
+        "type": "String",
+        "example": "abc123"
+      }
+    }
+  }
+}

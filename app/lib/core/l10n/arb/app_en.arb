@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "errorOffline": "You are not connected to the internet.",
+  "errorTimeout": "The response is taking too long. Please try again in a moment.",
+  "errorClient": "The request could not be processed.",
+  "errorServer": "Something went wrong on the server. Please try again in a moment.",
+  "errorUnexpected": "Something unexpected happened.",
+  "errorNotImplemented": "This is not available yet.",
+  "actionRetry": "Try again",
+  "traceIdLabel": "Reference {traceId}"
+}

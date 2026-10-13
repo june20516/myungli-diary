@@ -1,0 +1,11 @@
+{
+  "@@locale": "ja",
+  "errorOffline": "インターネットに接続されていません。",
+  "errorTimeout": "応答に時間がかかっています。しばらくしてからもう一度お試しください。",
+  "errorClient": "リクエストを処理できませんでした。",
+  "errorServer": "サーバーで問題が発生しました。しばらくしてからもう一度お試しください。",
+  "errorUnexpected": "予期しない問題が発生しました。",
+  "errorNotImplemented": "まだ準備中です。",
+  "actionRetry": "もう一度試す",
+  "traceIdLabel": "お問い合わせ番号 {traceId}"
+}
