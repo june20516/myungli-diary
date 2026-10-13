@@ -69,6 +69,30 @@ jobs:
           bash tools/gen_proto.sh
           git diff --exit-code src/myungli_engine/_gen
 
+  # 엔진 컨테이너 이미지(#34, D56): core/만으로 빌드되고 PORT로 떠서 health와 GetInfo에 답하는지 본다.
+  core-image:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.3"
+          python-version: "3.13"
+      - run: uv sync --frozen
+      - run: docker build -t myungli-engine:ci .
+      - name: PORT=8080으로 실행하고 health와 GetInfo 확인
+        run: |
+          docker run -d --name engine -e PORT=8080 -p 8080:8080 myungli-engine:ci
+          if ! uv run python tools/check_container.py localhost:8080; then
+            docker logs engine
+            exit 1
+          fi
+          docker stop engine
+
   core-proto:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest

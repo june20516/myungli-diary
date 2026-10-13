@@ -36,8 +36,8 @@ def solar_birth(
 
 @pytest.fixture(scope="module")
 def stub() -> Iterator[pb_grpc.MyungliEngineStub]:
-    running, port = server_module.start(0)
-    channel = grpc.insecure_channel(f"localhost:{port}")
+    running = server_module.start(0)
+    channel = grpc.insecure_channel(f"localhost:{running.port}")
     try:
         yield pb_grpc.MyungliEngineStub(channel)
     finally:
@@ -316,7 +316,7 @@ def test_start_validates_refs_then_warms_up_caches(monkeypatch: pytest.MonkeyPat
     calls: list[str] = []
     monkeypatch.setattr(server_module.loader, "validate_refs", lambda _refs: calls.append("validate_refs"))
     monkeypatch.setattr(server_module.lunar_adapter, "warm_up", lambda: calls.append("warm_up"))
-    running, _ = server_module.start(0)
+    running = server_module.start(0)
     running.stop(grace=None)
     assert calls == ["validate_refs", "warm_up"]
 
