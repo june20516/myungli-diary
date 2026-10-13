@@ -39,7 +39,9 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P2 PR을 올리고 병합을 기다립니다. 병합 뒤 app에 `kind:notice`로 알립니다: nonce 해시 규칙, Apple 콜백 deep link 쿼리(`error` 포함), `consent.version_mismatch`, 삭제 대기 계정의 요청 범위(S16), refresh는 single-flight로(동시 401에서 갱신 한 번만), 응답 유실 재시도는 30초 유예(S20). `APPLE_CALLBACK_DEEPLINK`의 scheme은 app과 정합니다.
-2. REST API v1 계약 등록·ci-gate 연결(root 요청 Issue)을 기다립니다. 계약 원본은 `api/openapi.yaml`(1.0.0-draft)입니다.
-3. 병합되면 P3(프로필·엔진·캐시) 계획을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
-4. 보낸 요청의 답을 기다립니다: #48(root, 알림 슬롯·재구매 연장 등), #49(core, `ruleset_version` 조회 RPC).
+1. **app에 P2 notice**(`kind:notice`, to:app): nonce 해시 규칙, Apple 콜백 deep link 쿼리(`error` 포함), `consent.version_mismatch`, 삭제 대기 계정의 요청 범위(S16), refresh는 single-flight로(동시 401에서 갱신 한 번만), 응답 유실 재시도는 30초 유예(S20). `APPLE_CALLBACK_DEEPLINK`의 형식은 #89에서 정합니다.
+2. **P3(프로필·엔진·캐시) 계획**을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다. P3에 함께 넣을 요청:
+   * #92 사주 정보를 바꾼 날의 문장 선택 기록 처리(D59②, app의 확인 창 #84)
+   * #79 엔진 실행 조건(포트·h2c·health). 배포 workflow `deploy-server.yml`·`deploy-engine.yml`은 server 소유입니다(D65)
+3. **계약 정리 요청**(P3와 같은 PR이나 따로): #88 오류 code 목록 `x-problem-codes`(P2에서 더한 `auth.provider_unavailable`·`consent.version_mismatch` 포함)와 누락 검사 테스트, #89 Apple 웹 로그인 복귀(토큰을 query에 싣지 않는 방식, 앱이 열리지 않을 때의 페이지). #89는 app 계획 7(실제 로그인 연동) 전까지입니다.
+4. 남은 요청: #55(호칭·조사 규칙 사용법과 원고 → 시드 변환, 콘텐츠 모듈 계획 때), #93(staging 테스트 로그인·App Check debug token, I2 전까지).
