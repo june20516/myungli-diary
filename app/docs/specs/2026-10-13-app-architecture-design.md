@@ -246,7 +246,7 @@ app/
 | 로그인 뒤 | RevenueCat `logIn(accountId)`, FCM 기기 등록(알림을 켠 경우) |
 | App Check | iOS App Attest, Android Play Integrity. 비로그인 요청에만 붙입니다 |
 | 알림 (D18⑨·D62) | `notify-ask`에서 시각을 고르면 권한을 요청하고 `registerDevice`로 등록합니다. 토큰이 바뀌면 다시 등록하고, 로그아웃하면 `deleteDevice`로 해제합니다. 알림을 누르면 `today`로 갑니다(로그아웃 상태면 `welcome`) |
-| 비정상 종료 보고 (결정 A10) | Firebase Crashlytics. 개인정보 처리방침에 수집 항목을 반영하도록 지휘 세션에 알립니다(§11) |
+| 비정상 종료 보고 (결정 A10, D64) | Firebase Crashlytics. 로그·custom key·breadcrumb에 일기 본문, 출생 정보, 호칭을 넣지 않습니다(D64 ②). 사용자 식별값은 계정 id(UUID)뿐이고, breadcrumb은 IA 화면 id만 받습니다 |
 | 광고 동의 (D53④) | 이 기기에서 처음 광고를 보이기 전에 UMP(필요한 지역) → iOS ATT 순서로 한 번 받습니다. 거절해도 비맞춤 광고로 계속합니다. 동의를 받았다는 기기 플래그는 로컬에 둡니다 |
 | 배너 (D53①) | 적응형 배너를 탭 루트 4곳 하단에만 둡니다. `adFree.active`면 자리째 숨깁니다. 불러오지 못하면 자리를 비우고 레이아웃이 튀지 않게 합니다 |
 | 보상형 광고 (D60) | 근거 시트의 잠금 안내에서 사용자가 고를 때만 띄웁니다. 매번 보상을 먼저 알리고, 광고가 준비됐을 때만 버튼을 켭니다. SSV `userId`는 계정 id입니다. 다 보면 "확인 중" 상태로 `getEntitlements`를 2초 간격으로 최대 30초 동안 다시 묻습니다(값은 상수 하나로 두고 A2에서 실측해 조정). `insight.active`가 되면 열고(§4.4 잠금 해제 캐시 규칙), 30초 안에 안 되면 `evidence-sheet.unlock.failed` toast를 보입니다. 권한은 server만 부여하며 app이 스스로 열지 않습니다 |

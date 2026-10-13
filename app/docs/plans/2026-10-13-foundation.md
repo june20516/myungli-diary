@@ -28,6 +28,7 @@
 * 화면 뿌리와 슬롯 위젯에는 생성된 IA id 상수를 Key와 Semantics `identifier`로 붙입니다(spec §6.6).
 * 코드 주석은 저장소 관례대로 한국어로 씁니다. commit 메시지는 `feat(app): …`, `test(app): …`, `ci(app): …`, `docs(app): …` 형식입니다.
 * TDD: 모든 task는 실패하는 테스트로 시작합니다.
+* 비정상 종료 보고(Crashlytics)의 로그·custom key·breadcrumb에 **일기 본문, 출생 정보, 호칭을 넣지 않습니다**(D64 ②). 계정 id(UUID)만 사용자 식별값으로 씁니다.
 
 ## Review Focus
 
@@ -83,7 +84,7 @@
 **Interfaces:**
 - Produces:
   * `abstract final class ScreenIds { static const String today = 'today'; … }`: 화면 36개. 이름은 id의 lowerCamelCase입니다(`onboard-call` → `onboardCall`).
-  * `abstract final class SlotIds { static const String todayGuideQuestion = 'today.guide.question'; … }`: 슬롯 118개. 이름은 슬롯 id의 lowerCamelCase입니다(A7 규칙과 같음).
+  * `abstract final class SlotIds { static const String todayGuideQuestion = 'today.guide.question'; … }`: 슬롯 전부(2026-10-13 기준 119개). 이름은 슬롯 id의 lowerCamelCase입니다(A7 규칙과 같음).
   * `const List<IaScreen> iaScreens`. `IaScreen` 필드는 `id`, `tab`(String?), `presentation`(`IaPresentation` enum: page·halfSheet·fullSheet·system), `auth`(`IaAuth`: guest·member·any), `states`(List\<String>), `exits`(List\<IaExit(to, trigger)>), `components`(List\<String>)입니다.
   * `String iaKey(String id)`: id → lowerCamelCase 변환 함수. 생성기와 ARB 규칙이 같이 씁니다.
   * 명령: `dart run tool/gen_ia.dart`(입력 `../docs/ia/screens.json`, 출력 `lib/core/ia/gen/ia.g.dart`)
@@ -95,7 +96,7 @@
   * 작은 JSON 문자열을 생성 함수 `String generateIaSource(Map<String, Object?> json)`에 넣으면 `ScreenIds`·`SlotIds`·`iaScreens` 선언이 담긴 문자열이 나오는지 확인합니다.
 - [ ] **Step 2:** `flutter test test/tool/gen_ia_test.dart` → FAIL
 - [ ] **Step 3:** `tool/gen_ia.dart`에 `iaKey`(`lib/core/ia/ia_model.dart`에 두고 tool이 import)와 `generateIaSource`, 파일 쓰기 `main`을 구현합니다. 출력 첫 줄은 `// 생성 코드: dart run tool/gen_ia.dart. 손으로 고치지 않습니다.`이고, `dart format`을 적용한 결과를 씁니다.
-- [ ] **Step 4:** 테스트 → PASS. `dart run tool/gen_ia.dart`를 실행하고, `grep -c "static const String" lib/core/ia/gen/ia.g.dart`가 154(36+118)인지 확인합니다.
+- [ ] **Step 4:** 테스트 → PASS. `dart run tool/gen_ia.dart`를 실행하고, `grep -c "static const String" lib/core/ia/gen/ia.g.dart`가 `screens.json`의 화면 수 + 슬롯 수(지금 36+119=155)와 같은지 확인합니다.
 - [ ] **Step 5:** `app.yml`에 단계 "생성 코드 차이 확인"(`dart run tool/gen_ia.dart && git diff --exit-code`)을 더합니다.
 - [ ] **Step 6:** Commit `feat(app): IA id 상수 생성`
 
@@ -388,7 +389,7 @@
   * `AppleAuth { Future<AppleCredential> signIn({required String nonce, required String state}); }`, `AppleCredential(idToken, authorizationCode, clientType)`
   * `AppCheck implements AppCheckTokenSource`(Task 9)
   * `PushMessaging { Future<bool> requestPermission(); Future<String?> token(); Stream<String> tokenRefreshes; Stream<PushOpen> opens; }`
-  * `CrashReporter { void record(Object error, StackTrace stack); void setUser(String? accountId); }`
+  * `CrashReporter { void record(Object error, StackTrace stack); void setUser(String? accountId); void breadcrumb(String screenId); }`. 자유 문자열 custom key는 두지 않습니다. `breadcrumb`은 `ScreenIds`에 있는 값만 받고(assert), 이것으로 D64 ②를 인터페이스에서 막습니다.
   * `AdConsent { Future<AdConsentResult> gather(); }`, `AdConsentResult { personalized, nonPersonalized }`
   * `Ads { Future<BannerAdHandle?> loadBanner({required int width}); Future<RewardedAdHandle?> loadRewarded({required String userId}); }`, `BannerAdHandle { Widget get view; Size get size; void dispose(); }`, `RewardedAdHandle { Future<bool> show(); }`
   * `Purchases { Future<void> logIn(String accountId); Future<List<StoreProduct>> products(); Future<PurchaseOutcome> buy(String productId); }`
@@ -401,6 +402,7 @@
   * `FakeAds()`의 handle `.show()` → `true`
   * `FakeKakaoAuth().signIn(nonce: 'n')`의 `idToken`이 비어 있지 않습니다.
   * `FakePushMessaging.opens`에 넣은 값이 그대로 나옵니다.
+  * `FakeCrashReporter.breadcrumb('today')`는 기록되고, IA 화면 id가 아닌 값(예 `'1990-01-01'`)은 assert 실패입니다(D64 ②).
 - [ ] **Step 2:** 테스트 → FAIL
 - [ ] **Step 3:** 구현합니다.
 - [ ] **Step 4:** 테스트 → PASS

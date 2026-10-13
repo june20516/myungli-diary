@@ -49,7 +49,7 @@
   * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A15. 핵심은 Riverpod, 생성 클라이언트와 fixture 대역, go_router, drift 사주 기반 영구 캐시, 사주 변경 확인 창, golden과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
   * 계획 분할(spec §10): ① 기반 → ② 온보딩·로그인 → ③ 오늘·깊이 시트 → ④ 달력·일정 → ⑤ 일기 → ⑥ 나·설정 → ⑦ 수익·알림
   * 기반 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md) (task 22개, subagent-driven으로 실행)
-* 보낸 요청(2026-10-13): #84(IA 사주 변경 확인 창, 계획 6을 막음), #85(ci-gate 연결), #86(Crashlytics notice), #87(제품 지도·통합 E2E), #88(오류 code 목록), #89(Apple App Link, 계획 7 실제 adapter를 막음), #90(ARB 키 규칙)
+* 보낸 요청(2026-10-13): #84(IA 사주 변경 확인 창, **반영됨**: 슬롯 119), #85(ci-gate 연결), #86(Crashlytics, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #87(제품 지도·통합 E2E), #88(오류 code 목록), #89(Apple App Link, 계획 7 실제 adapter를 막음), #90(ARB 키 규칙)
 * UI 문구 원고는 writing이 작업 중입니다(#15·#27·#42·#52). 그전까지는 임시 문구를 씁니다(결정 A7).
 * MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
 * **REST API 초안이 있습니다**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft, operation 37개, PR #62). 생성 코드와 대역 서버를 이 초안으로 만들 수 있습니다. freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다. 요점은 아래와 같습니다(Issue #63).
