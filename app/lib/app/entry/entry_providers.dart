@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,27 +28,25 @@ final targetPlatformProvider = Provider<TargetPlatform>(
 /// `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 통신이 실패하면 오류 상태가
 /// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 로그아웃으로 봅니다.
 class EntryController extends AsyncNotifier<EntrySnapshot> {
-  int _generation = 0;
-
   @override
   Future<EntrySnapshot> build() {
-    _generation++;
     final tokens = ref.watch(tokenStoreProvider);
-    final subscription = tokens.events.listen((_) => unawaited(refresh()));
+    final subscription = tokens.events.listen((_) => ref.invalidateSelf());
     ref.onDispose(subscription.cancel);
     return _compute();
   }
 
-  /// 로딩 화면을 거치지 않고 다시 계산합니다. 로그인·온보딩·약관 동의가 끝나면 부릅니다.
+  /// 다시 계산하고 끝나면 돌아옵니다. 로그인·온보딩·약관 동의가 끝나면 부릅니다.
   ///
-  /// 계산이 겹치면 마지막에 요청한 결과만 반영하고, dispose 뒤에는 쓰지 않습니다.
+  /// build를 다시 돌리므로 겹친 계산은 Riverpod이 오래된 결과를 버립니다.
+  /// 계산 중에도 이전 값이 남아 라우터는 launch로 되돌아가지 않습니다.
   Future<void> refresh() async {
-    final generation = ++_generation;
-    final result = await AsyncValue.guard(_compute);
-    if (!ref.mounted || generation != _generation) {
-      return;
+    ref.invalidateSelf();
+    try {
+      await future;
+    } on Object {
+      // 실패는 state(AsyncError)로 드러납니다.
     }
-    state = result;
   }
 
   Future<EntrySnapshot> _compute() async {

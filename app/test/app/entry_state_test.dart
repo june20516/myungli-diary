@@ -336,6 +336,27 @@ void main() {
       );
     });
 
+    test('build 진행 중 signedOut 이벤트가 오면 두 번째 계산 결과가 남습니다', () async {
+      await signIn();
+      final first = Completer<Me>();
+      api.meQueue.add(first);
+      final c = container();
+      final signedOut = Completer<void>();
+      c.listen(entryStateProvider, (_, next) {
+        if (next.value?.entry == EntryState.signedOut) {
+          signedOut.complete();
+        }
+      });
+      // 첫 계산이 getMe에서 멈춘 동안 로그아웃됩니다.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await tokens.signOut();
+      await signedOut.future;
+      first.complete(meWith(accountId: 'old'));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(c.read(entryStateProvider).value?.entry, EntryState.signedOut);
+      expect(c.read(meProvider), isNull);
+    });
+
     test('refresh가 겹치면 마지막 요청의 결과만 반영합니다', () async {
       await signIn();
       final c = container();
