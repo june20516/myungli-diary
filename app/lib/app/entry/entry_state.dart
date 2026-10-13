@@ -27,6 +27,7 @@ enum EntryState {
 /// 진입 갈래를 판정합니다. 순서는 IA spec §3입니다.
 ///
 /// 업데이트 강제 > 로그아웃 > 약관 미동의 > 프로필 없음 > 광고 동의 전 > 완료.
+/// 삭제 대기 계정(server 결정 S16)은 로그아웃으로 봅니다.
 EntryState computeEntry({
   required Version appVersion,
   required Version minimumVersion,
@@ -37,7 +38,7 @@ EntryState computeEntry({
   if (appVersion < minimumVersion) {
     return EntryState.forceUpdate;
   }
-  if (!hasSession || me == null) {
+  if (!hasSession || me == null || isPendingDeletion(me)) {
     return EntryState.signedOut;
   }
   if (me.consentRequired) {
@@ -51,6 +52,9 @@ EntryState computeEntry({
   }
   return EntryState.ready;
 }
+
+/// 삭제 대기 계정인지. 남은 토큰으로는 getMe·deleteMe·logout만 됩니다(S16).
+bool isPendingDeletion(Me me) => me.status == MeStatusEnum.pendingDeletion;
 
 /// 진입 갈래와 그때 받은 내 정보. 로그아웃이면 [me]가 null입니다.
 @immutable

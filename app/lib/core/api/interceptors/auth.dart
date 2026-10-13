@@ -15,8 +15,12 @@ const _retriedExtra = 'authRetried';
 
 const _tokenExpiredCode = 'auth.token_expired';
 const _refreshReusedCode = 'auth.refresh_reused';
+const _consentRequiredCode = 'consent.required';
 
 /// bearer를 붙이고, 401 `auth.token_expired`면 refresh 후 원 요청을 한 번 다시 보냅니다.
+///
+/// 403 `consent.required`면 [AuthEvent.consentRequired]를 알리고 원 요청은 그 오류로 끝냅니다.
+/// 그 밖(5xx, `auth.provider_unavailable` 포함)은 로그아웃하지 않고 그대로 돌려줍니다.
 ///
 /// refresh는 진행 중인 Future를 공유해 동시에 한 번만 보냅니다.
 /// `QueuedInterceptor`는 401이 아닌 요청까지 줄 세우므로 쓰지 않습니다.
@@ -68,6 +72,12 @@ final class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     final options = err.requestOptions;
+    if (err.response?.statusCode == 403 &&
+        _problemCodeOf(err) == _consentRequiredCode) {
+      tokens.notifyConsentRequired();
+      handler.next(err);
+      return;
+    }
     final currentToken = tokens.accessToken;
     if (err.response?.statusCode != 401 ||
         options.extra[skipAuthExtra] == true ||

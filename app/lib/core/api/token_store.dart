@@ -7,6 +7,10 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 enum AuthEvent {
   /// refresh가 거부돼 로그아웃됐습니다. 로그인 화면으로 보내야 합니다.
   signedOut,
+
+  /// bearer 요청이 403 `consent.required`를 받았습니다. 토큰은 그대로이고
+  /// 진입 갈래를 다시 계산해 약관 동의로 보내야 합니다.
+  consentRequired,
 }
 
 /// 토큰 보관소입니다. access token은 메모리에만, refresh token은 보안 저장소에 둡니다.
@@ -55,6 +59,9 @@ final class TokenStore {
     await clear();
     _events.add(AuthEvent.signedOut);
   }
+
+  /// 약관 동의가 필요해졌음을 알립니다. 토큰은 지우지 않습니다.
+  void notifyConsentRequired() => _events.add(AuthEvent.consentRequired);
 
   /// 스트림을 닫습니다.
   Future<void> dispose() => _events.close();

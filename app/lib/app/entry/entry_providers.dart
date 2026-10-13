@@ -27,6 +27,8 @@ final targetPlatformProvider = Provider<TargetPlatform>(
 ///
 /// `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 통신이 실패하면 오류 상태가
 /// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 로그아웃으로 봅니다.
+/// 삭제 대기 계정이면 토큰을 지우고(`TokenStore.signOut`) 로그아웃으로 봅니다.
+/// 토큰 이벤트(로그아웃, 약관 동의 필요)를 받으면 다시 계산합니다.
 class EntryController extends AsyncNotifier<EntrySnapshot> {
   @override
   Future<EntrySnapshot> build() {
@@ -79,6 +81,12 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
           rethrow;
         }
       }
+    }
+
+    if (me != null && isPendingDeletion(me)) {
+      // signOut 이벤트로 다시 계산되며, 그때는 세션이 없어 getMe를 부르지 않습니다.
+      await tokens.signOut();
+      return const EntrySnapshot(EntryState.signedOut, null);
     }
 
     EntryState compute({required bool adConsentDone}) => computeEntry(

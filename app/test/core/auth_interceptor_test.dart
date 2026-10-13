@@ -228,6 +228,87 @@ void main() {
     expect(await tokens.refreshToken(), 'old-refresh');
   });
 
+  test('refresh가 503 auth.provider_unavailable이어도 로그아웃하지 않는다', () async {
+    final adapter = server(
+      onRefresh: (_) => _problem(503, 'auth.provider_unavailable'),
+    );
+    final events = <AuthEvent>[];
+    tokens.events.listen(events.add);
+
+    Object? caught;
+    try {
+      await build(adapter).get<Object?>('/v1/me');
+    } on DioException catch (e) {
+      caught = appErrorFrom(e);
+    }
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      caught,
+      isA<ProblemError>().having(
+        (e) => e.code,
+        'code',
+        'auth.provider_unavailable',
+      ),
+    );
+    expect(events, isEmpty);
+    expect(await tokens.refreshToken(), 'old-refresh');
+  });
+
+  test('요청이 503 auth.provider_unavailable이면 refresh·로그아웃 없이 실패한다', () async {
+    final adapter = _Adapter((_) => _problem(503, 'auth.provider_unavailable'));
+    final events = <AuthEvent>[];
+    tokens.events.listen(events.add);
+
+    await expectLater(
+      build(adapter).get<Object?>('/v1/me'),
+      throwsA(isA<DioException>()),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    expect(adapter.count('/v1/auth/refresh'), 0);
+    expect(events, isEmpty);
+    expect(tokens.accessToken, 'old-access');
+  });
+
+  test('403 consent.required면 consentRequired를 알리고 그 오류로 끝난다', () async {
+    final adapter = _Adapter((_) => _problem(403, 'consent.required'));
+    final events = <AuthEvent>[];
+    tokens.events.listen(events.add);
+
+    Object? caught;
+    try {
+      await build(adapter).get<Object?>('/v1/chart');
+    } on DioException catch (e) {
+      caught = appErrorFrom(e);
+    }
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      caught,
+      isA<ProblemError>()
+          .having((e) => e.status, 'status', 403)
+          .having((e) => e.code, 'code', 'consent.required'),
+    );
+    expect(events, [AuthEvent.consentRequired]);
+    expect(adapter.requests, hasLength(1));
+    expect(tokens.accessToken, 'old-access');
+  });
+
+  test('consent.required가 아닌 403은 알리지 않는다', () async {
+    final adapter = _Adapter((_) => _problem(403, 'preview.used'));
+    final events = <AuthEvent>[];
+    tokens.events.listen(events.add);
+
+    await expectLater(
+      build(adapter).get<Object?>('/v1/chart'),
+      throwsA(isA<DioException>()),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    expect(events, isEmpty);
+  });
+
   test('재시도도 401이면 refresh를 되풀이하지 않고 그대로 실패한다', () async {
     final adapter = _Adapter((options) {
       if (options.path == '/v1/auth/refresh') {

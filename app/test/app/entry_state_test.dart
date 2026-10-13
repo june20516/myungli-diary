@@ -28,9 +28,11 @@ Me meWith({
   bool consentRequired = false,
   bool hasProfile = true,
   String accountId = 'acc-1',
+  bool pendingDeletion = false,
 }) => Me.fromJson({
   'accountId': accountId,
-  'status': 'active',
+  'status': pendingDeletion ? 'pending_deletion' : 'active',
+  if (pendingDeletion) 'deletionScheduledAt': '2026-11-13T00:00:00Z',
   'consentRequired': consentRequired,
   'requiredConsents': <String>[],
   'hasProfile': hasProfile,
@@ -123,6 +125,24 @@ void main() {
 
     test('모두 갖추면 ready', () {
       expect(compute(me: meWith()), EntryState.ready);
+    });
+
+    test('삭제 대기 계정은 다른 조건과 상관없이 signedOut (S16)', () {
+      expect(compute(me: meWith(pendingDeletion: true)), EntryState.signedOut);
+      expect(
+        compute(
+          me: meWith(pendingDeletion: true, consentRequired: true),
+          adConsentDone: false,
+        ),
+        EntryState.signedOut,
+      );
+    });
+
+    test('삭제 대기여도 forceUpdate가 먼저입니다', () {
+      expect(
+        compute(minimum: '1.0.1', me: meWith(pendingDeletion: true)),
+        EntryState.forceUpdate,
+      );
     });
 
     test('빌드 번호는 버전 비교에 영향이 없습니다', () {
@@ -282,6 +302,38 @@ void main() {
       await tokens.signOut();
       await signedOut.future;
       expect(c.read(meProvider), isNull);
+    });
+
+    test('삭제 대기 계정이면 signOut해 토큰을 지우고 signedOut', () async {
+      await signIn();
+      api.me = meWith(pendingDeletion: true);
+      final events = <AuthEvent>[];
+      tokens.events.listen(events.add);
+      final c = container();
+      final snapshot = await c.read(entryStateProvider.future);
+      expect(snapshot.entry, EntryState.signedOut);
+      expect(snapshot.me, isNull);
+      expect(tokens.accessToken, isNull);
+      expect(await tokens.refreshToken(), isNull);
+      expect(events, contains(AuthEvent.signedOut));
+    });
+
+    test('consentRequired 이벤트를 받으면 다시 계산합니다', () async {
+      await signIn();
+      final c = container();
+      expect((await c.read(entryStateProvider.future)).entry, EntryState.ready);
+      api.me = meWith(consentRequired: true);
+      final recomputed = Completer<void>();
+      c.listen(entryStateProvider, (_, next) {
+        if (next.value?.entry == EntryState.consentRequired) {
+          recomputed.complete();
+        }
+      });
+      tokens.notifyConsentRequired();
+      await recomputed.future;
+      expect(api.meCalls, 2);
+      // 토큰은 그대로입니다(로그아웃이 아님).
+      expect(tokens.accessToken, 'access');
     });
 
     test('problem 본문이 있는 401도 signedOut', () async {
