@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 /// 모든 통신 실패를 하나로 모은 타입입니다.
@@ -74,11 +76,11 @@ AppError appErrorFrom(DioException e) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
+    case DioExceptionType.transformTimeout:
       return const TimeoutError();
     case DioExceptionType.badResponse:
       return _parseProblem(e.response) ?? UnexpectedError(e);
     case DioExceptionType.cancel:
-    case DioExceptionType.transformTimeout:
     case DioExceptionType.badCertificate:
     case DioExceptionType.unknown:
       return UnexpectedError(e);
@@ -89,11 +91,14 @@ ProblemError? _parseProblem(Response<Object?>? response) {
   if (response == null) {
     return null;
   }
-  final contentType = response.headers.value(Headers.contentTypeHeader);
+  final contentType = response.headers
+      .value(Headers.contentTypeHeader)
+      ?.trim()
+      .toLowerCase();
   if (contentType == null || !contentType.startsWith(_problemContentType)) {
     return null;
   }
-  final body = response.data;
+  final body = _decodeBody(response.data);
   if (body is! Map<String, Object?>) {
     return null;
   }
@@ -105,10 +110,23 @@ ProblemError? _parseProblem(Response<Object?>? response) {
   final traceId = body['traceId'];
   return ProblemError(
     code: code,
-    status: status,
+    // 문구 대역은 실제 전송 상태 기준이라 HTTP status를 우선합니다.
+    status: response.statusCode ?? status,
     fieldErrors: _parseFieldErrors(body['errors']),
     traceId: traceId is String ? traceId : '',
   );
+}
+
+/// `responseType: plain` 등으로 JSON 텍스트가 오면 해석합니다.
+Object? _decodeBody(Object? data) {
+  if (data is! String) {
+    return data;
+  }
+  try {
+    return jsonDecode(data);
+  } on FormatException {
+    return null;
+  }
 }
 
 List<FieldProblem> _parseFieldErrors(Object? raw) {
