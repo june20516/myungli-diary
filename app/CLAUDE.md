@@ -37,14 +37,14 @@
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
-| REST API `server/api/openapi.yaml` 1.0.0-draft (freeze는 S3) | **사용** | server |
+| REST API `server/api/openapi.yaml` 1.0.0-draft.2 (freeze는 S3) | **사용** | server |
 | `source_ref`·enum 값 (엔진 spec §9·§11, server가 그대로 전달) | **사용** (`evidence` 단계 표시) | core → server |
 | 디자인 토큰 1.1.0 (`docs/identity/design/tokens/`, Dart 코드 생성은 app) | **사용** | design |
-| 컴포넌트 명세 2.0.0 (`docs/identity/design/components/`) | **사용** | design |
+| 컴포넌트 명세 2.2.0 (`docs/identity/design/components/`) | **사용** | design |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 
 ## 현재 상태 (2026-10-14, app 세션 갱신)
-* **기반 계획(task 1~22) 완료**입니다. 브랜치 `app/foundation`이고 PR 예정입니다. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
+* **기반 계획(task 1~23) 완료**입니다. task 23에서 main을 병합하고 REST draft.2·인증 규칙·컴포넌트 2.2.0을 기반 코드가 닿는 범위만 반영했습니다. 브랜치 `app/foundation`이고 PR 예정입니다. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
   * spec: [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md) (승인), 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md)
   * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A16. Riverpod(코드 생성 없음), 생성 클라이언트와 fixture 대역, go_router, drift 영구 캐시, 사주 변경 확인 창, golden(Linux)과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
   * **REST 생성기(A16):** openapi-generator 7.26.0 `dart-dio`(Docker 이미지 고정)입니다. `swagger_parser`는 path 수준 `parameters` 생성 실패와 merge-patch Content-Type 누락으로 탈락했습니다.
@@ -55,17 +55,21 @@
 * UI 문구 원고는 writing이 작업 중입니다(#15·#27·#42·#52). 그전까지는 IA 슬롯 id의 lowerCamelCase 키와 임시 문구를 씁니다(결정 A7).
 * **아직 남은 외부 준비물(계획 7·출시 전):** 카카오·Apple·Firebase(FCM, Crashlytics)·AdMob·RevenueCat 계정과 키, Android App Link 도메인 검증. 사용자 몫입니다(`docs/roadmap.md` 외부 준비물). Android SDK 라이선스 동의는 로컬에서 Android 빌드가 막히면 확인합니다.
 * MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
-* **REST API 초안**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft, operation 37개). freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다(Issue #63).
+* **REST API 초안**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft.2, operation 38개). freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다(Issue #63).
   * 오류는 RFC 9457 problem+json이고 `code`로 분기합니다. 사용자 문구는 app이 `code`로 만듭니다(D59⑤). 400은 형식·범위 위반(`request.invalid`), 422는 의미 검사(`request.inconsistent`, `date.invalid`, 엔진 판정)입니다.
   * null을 쓰지 않습니다. "모름"·"건너뜀"·"묻지 않음"은 상태 필드로 옵니다. PATCH에서 필드가 없으면 "바꾸지 않음"입니다.
   * 근거 열람 권한은 응답의 `evidenceAccess`(`unlocked`·`locked`)로 옵니다(D60).
   * 콘텐츠 문장은 조각 배열 `segments`로 옵니다. 용어 조각에는 `term`이 붙습니다. 위치 숫자는 쓰지 않습니다(server 결정 S9). `term` 조각의 표시는 design이 정합니다.
   * 시각은 기본 UTC입니다. 화면 표시용 시각(집중 시간, 절기 시각)만 프로필 시간대 offset으로 옵니다.
-* **컴포넌트 명세 2.0.0**: 근거 깊이 잠금(잠김 4상태, `lock.veil`, `sentence-block` `locked`), 모양 규칙(동작은 둥근 사각, 표시·고르기는 알약), 화면 좌우 여백 `space.20`, 글자 수 상한이 들어갔습니다(PR #66, Issue #65).
-* **IA v1**: 화면 36·슬롯 119. 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62)가 있습니다.
+  * **오류 code 목록**은 `Problem.code`의 `x-problem-codes`입니다(#88). 사용자에게 보일 수 있는 code는 모두 `problemMessages`(`lib/core/l10n/error_messages.dart`)에 임시 문구가 있고, ARB 키는 `error` + code의 lowerCamelCase입니다(`auth.exchange_invalid` → `errorAuthExchangeInvalid`). `reward.*`는 AdMob SSV 웹훅 전용이라 뺍니다. 계약 대조는 `test/contract/problem_codes_contract_test.dart`입니다.
+  * **인증 규칙(#100·#114, draft.2):** nonce 원문(16~256자)은 server에, SHA-256 소문자 hex는 제공자에 보냅니다(`lib/core/platform/nonce.dart`). Apple은 iOS native(`AppleNativeAuth` → `loginApple`)와 Android 웹(`AppleWebAuth`, authorize URL·App Link `/auth/apple` 복귀의 `state` 검증 → `completeAppleWebLogin`)으로 나뉩니다(`clientType` 제거). 삭제 대기 계정(`status: pending_deletion`)은 진입 계산이 `signOut`하고 로그아웃 갈래로 보냅니다. 403 `consent.required`는 `AuthEvent.consentRequired`로 진입을 다시 계산합니다. 503 `auth.provider_unavailable`은 로그아웃하지 않습니다.
+* **컴포넌트 명세 2.2.0**: 2.0.0에 근거 깊이 잠금(잠김 4상태, `lock.veil`, `sentence-block` `locked`), 모양 규칙(동작은 둥근 사각, 표시·고르기는 알약), 화면 좌우 여백 `space.20`, 글자 수 상한이 들어갔습니다(PR #66, Issue #65).
+  * 2.1.0(#82, 결정 V28): `term` 조각은 IA에 `term-token`이 있는 화면(today·day-sheet·tag-diary·my-saju·saju-chart)에서만 칩입니다. `SentenceBlock`이 slotId 첫 마디 화면으로 정하고(`termStyle`로 직접 정할 수도 있음), preview(`diary-row`)와 공유 이미지는 일반 글자입니다(`RenderedTextView.termStyle`, `lib/core/ia/ia_lookup.dart`).
+  * 2.2.0(#81): 잠긴 문장 라벨은 "구역 이름(`saju-chart.yongsin.title`), 잠김"입니다(`SentenceBlock.lockedNameSlotId`).
+* **IA v1**: 화면 37·슬롯 124(그중 `system-apple-return.page.*` 4개는 server 안내 페이지 문구라 app이 그리지 않으므로 app이 쓰는 슬롯은 120). 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62)와 `system-apple-return`(Android Apple 로그인 복귀를 앱이 열지 못할 때의 server 안내 페이지, D66)이 있습니다.
 * 광고 제거권을 만료 전에 다시 사면 남은 기간에 이어 붙습니다(D61). 계산은 server가 합니다.
 * 도시 목록은 GeoNames `cities15000`(CC BY 4.0)으로 server가 만듭니다. **앱 오픈소스 고지(`legal`)에 출처를 표기합니다**(Issue #48 항목 5).
-* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), A1 착수 안내(#30). 앞으로 받은 요청은 `gh issue list --label to:app`.
+* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), #82(컴포넌트 2.1.0·2.2.0: `term` 표시는 `RenderedTextView`·`SentenceBlock`, 잠김 라벨 이름은 `SentenceBlock` locked에 반영), A1 착수 안내(#30). 받은 요청 #100(인증 규칙)·#114(Apple 웹 로그인 draft.2)는 기반 범위만 반영했고 남은 일은 아래 계획 2·7입니다. 앞으로 받은 요청은 `gh issue list --label to:app`.
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
@@ -77,8 +81,9 @@
    * `profileTimezoneProvider`의 http 기본값 `Asia/Seoul`을 프로필 `currentTimezone`으로 바꾸고, 기기 시간대가 바뀌면 `PATCH /v1/me/profile`을 보냅니다(앱 셸의 훅 자리).
    * 온보딩 입력 저장소(OnboardingInputs 테이블)의 읽기·쓰기 API를 만들고, 프로필 저장에 성공하면 지웁니다.
    * 화면마다 `covers(...)` 선언과 흐름 테스트를 더하고 커버리지 baseline을 올립니다(`dart run tool/ia_coverage.dart --update-baseline`).
+   * 로그인 화면(#100·#114): 원문 nonce를 `NonceGenerator`로 만들어 adapter와 server에 넘기고, Android는 `AppleWebAuth` 결과의 교환 코드로 `completeAppleWebLogin`을 부릅니다. `auth.exchange_invalid`(2분 일회용)와 `AppleWebError`(취소·state 불일치 등)별 안내, 503 `auth.provider_unavailable`은 재시도 안내입니다. 약관 동의 화면은 422 `consent.version_mismatch`(`errors[].field` `/documents/<i>/version`)를 받으면 문서를 다시 받습니다.
 3. **이후 계획으로 넘긴 사항**
    * 계획 3(오늘·깊이 시트): 시트 3개(explain·evidence·day-sheet)의 IA states 처리 등록 방식을 정하고 `test/contract/ia_pending.dart`의 `pendingStateScreens`에서 지웁니다(ratchet). 표시용 시각(`FocusSlot.start·end`, `SolarTerm.at`)은 생성 모델이 UTC로 바꾸므로 화면에서 프로필 시간대로 변환합니다(계획 4 달력 절기도). 근거 잠금 해제 중 "세 구역 skeleton" 단계와 시간 초과 toast(`evidence-sheet.unlock.failed`)는 화면 흐름 몫입니다. 보상형 광고 뒤 권한 확인 폴링은 fixture `sequence`로 재현합니다.
-   * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다.
+   * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
 4. **출시 전(I4) 확인:** 글꼴 31M를 release 빌드 다운로드 크기로 보고 subset 여부 재판단. Pretendard 업스트림 저작권 고지(Inter·Source Han Sans·M PLUS 1p `NOTICE.txt`)가 법적으로 충분한지 라이선스 검토.
 5. 받은 요청은 `gh issue list --label to:app`으로 확인합니다. 기반 PR 때 design에 보내는 notice(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘 선택, 컴포넌트 변형 등)의 답도 확인합니다.
