@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
@@ -68,12 +69,14 @@ func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
 		err        error
 		wantStatus int
 		wantCode   string
+		wantBearer bool
 	}{
 		{name: "테스트 sentinel", err: fmt.Errorf("x: %w", errTestSentinel), wantStatus: http.StatusUnauthorized, wantCode: "auth.test"},
 		{name: "제공자 토큰 오류", err: fmt.Errorf("x: %w", auth.ErrProviderTokenInvalid), wantStatus: http.StatusUnauthorized, wantCode: "auth.provider_token_invalid"},
 		{name: "제공자 장애", err: fmt.Errorf("x: %w", auth.ErrProviderUnavailable), wantStatus: http.StatusServiceUnavailable, wantCode: "auth.provider_unavailable"},
 		{name: "refresh 무효", err: fmt.Errorf("x: %w", auth.ErrRefreshInvalid), wantStatus: http.StatusUnauthorized, wantCode: "auth.token_invalid"},
 		{name: "refresh 재사용", err: fmt.Errorf("x: %w", auth.ErrRefreshReused), wantStatus: http.StatusUnauthorized, wantCode: "auth.refresh_reused"},
+		{name: "계정 없음", err: fmt.Errorf("x: %w", account.ErrNotFound), wantStatus: http.StatusUnauthorized, wantCode: "auth.token_invalid", wantBearer: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -81,7 +84,11 @@ func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
 
 			assert.Equal(t, tt.wantStatus, rec.Code)
 			assert.Equal(t, tt.wantCode, p.Code)
-			assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
+			if tt.wantBearer {
+				assert.Equal(t, `Bearer error="invalid_token"`, rec.Header().Get("WWW-Authenticate"))
+			} else {
+				assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
+			}
 		})
 	}
 }
