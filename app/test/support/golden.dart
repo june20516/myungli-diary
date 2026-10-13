@@ -158,11 +158,16 @@ double _scaleInCell(
   return effectiveTextScale(tester, found);
 }
 
-/// [target] 첫 번째 글자 위젯이 실제로 받는 글자 배율(10pt 글자의 그려지는 크기 ÷ 1).
+/// [target] 첫 번째 글자 위젯이 실제로 받는 글자 배율(10pt 글자가 그려지는 크기).
 ///
-/// 대상 위치의 `MediaQuery.textScalerOf`(상한을 `MediaQuery`로 건 경우)와, 대상이
-/// [Text]·[RichText]면 그 위젯의 `textScaler`(직접 건 경우)를 모두 보고 더 작은
-/// 쪽을 실효 배율로 삼습니다. 대상이 없으면(아이콘만 있는 칸 등) 실패합니다.
+/// Flutter 동작과 같은 규칙입니다.
+/// - [Text]: 자체 `textScaler`가 있으면 그것, 없으면 `MediaQuery.textScalerOf`
+///   (`flutter/lib/src/widgets/text.dart`).
+/// - [RichText]: MediaQuery를 보지 않고 자체 `textScaler`만 씁니다. 기본값은
+///   `TextScaler.noScaling`(`flutter/lib/src/widgets/basic.dart`).
+/// - 그 밖의 위젯: `MediaQuery.textScalerOf`.
+///
+/// 대상이 없으면(아이콘만 있는 칸 등) 실패합니다.
 double effectiveTextScale(WidgetTester tester, Finder target) {
   expect(
     target,
@@ -172,18 +177,12 @@ double effectiveTextScale(WidgetTester tester, Finder target) {
         'fixedCellTarget으로 대상을 고르세요.',
   );
   final element = target.evaluate().first;
-  var scale = MediaQuery.textScalerOf(element).scale(10);
-  final widget = element.widget;
-  final own = switch (widget) {
-    Text(:final textScaler) => textScaler,
+  final scaler = switch (element.widget) {
+    Text(:final textScaler) => textScaler ?? MediaQuery.textScalerOf(element),
     RichText(:final textScaler) => textScaler,
-    _ => null,
+    _ => MediaQuery.textScalerOf(element),
   };
-  if (own != null) {
-    final ownScale = own.scale(10);
-    if (ownScale < scale) scale = ownScale;
-  }
-  return scale;
+  return scaler.scale(10);
 }
 
 Key _cellKey(Brightness brightness, Locale locale, double scale) =>

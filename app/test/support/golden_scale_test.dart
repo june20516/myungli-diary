@@ -20,11 +20,9 @@ void main() {
     testWidgets('MediaQuery로 건 상한', (tester) async {
       await tester.pumpWidget(
         _at20(
-          Builder(
-            builder: (context) => MediaQuery.withClampedTextScaling(
-              maxScaleFactor: 1.3,
-              child: const Text('13'),
-            ),
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.3,
+            child: const Text('13'),
           ),
         ),
       );
@@ -64,7 +62,42 @@ void main() {
       );
     });
 
-    testWidgets('상한 없는 RichText는 상한이 없다고 보지 않고 실제 값을 잽니다', (tester) async {
+    testWidgets(
+      'MediaQuery clamp 1.3 + Text(textScaler: linear(2))는 20(상한 누락)',
+      (tester) async {
+        await tester.pumpWidget(
+          _at20(
+            MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.3,
+              child: const Text('13', textScaler: TextScaler.linear(2)),
+            ),
+          ),
+        );
+        expect(
+          effectiveTextScale(tester, find.byType(Text)),
+          closeTo(20, 0.001),
+        );
+      },
+    );
+
+    testWidgets('자체 scaler 없는 RichText는 MediaQuery를 무시해 10(noScaling)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _at20(
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.3,
+            child: RichText(text: const TextSpan(text: '13')),
+          ),
+        ),
+      );
+      expect(
+        effectiveTextScale(tester, find.byType(RichText).first),
+        closeTo(10, 0.001),
+      );
+    });
+
+    testWidgets('RichText에 MediaQuery 값을 직접 넘기면 그 값(20)', (tester) async {
       await tester.pumpWidget(
         _at20(
           Builder(
