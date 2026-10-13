@@ -38,6 +38,9 @@ type SigningKey struct {
 
 // ParseSigningKey는 PKCS8 PEM 형식의 EC 개인 키를 읽습니다. P-256 곡선이 아니면 오류입니다.
 func ParseSigningKey(id, pemPKCS8 string) (SigningKey, error) {
+	if id == "" {
+		return SigningKey{}, errors.New("서명 키: id가 비어 있습니다")
+	}
 	block, _ := pem.Decode([]byte(pemPKCS8))
 	if block == nil {
 		return SigningKey{}, errors.New("서명 키: PEM 블록이 없습니다")
@@ -65,12 +68,23 @@ type AccessIssuer struct {
 }
 
 // NewAccessIssuer는 AccessIssuer를 만듭니다.
-func NewAccessIssuer(current SigningKey, previous []SigningKey, clk clock.Clock) *AccessIssuer {
-	keys := map[string]*ecdsa.PublicKey{current.ID: &current.Private.PublicKey}
-	for _, k := range previous {
+// 빈 ID, current를 포함한 중복 ID, 개인 키가 없는 항목은 오류입니다.
+// (중복을 허용하면 한 kid가 다른 키로 덮여 새 토큰이 모두 무효가 될 수 있습니다.)
+func NewAccessIssuer(current SigningKey, previous []SigningKey, clk clock.Clock) (*AccessIssuer, error) {
+	keys := make(map[string]*ecdsa.PublicKey, len(previous)+1)
+	for _, k := range append([]SigningKey{current}, previous...) {
+		if k.ID == "" {
+			return nil, errors.New("서명 키: id가 비어 있습니다")
+		}
+		if k.Private == nil {
+			return nil, fmt.Errorf("서명 키 %q: 개인 키가 없습니다", k.ID)
+		}
+		if _, dup := keys[k.ID]; dup {
+			return nil, fmt.Errorf("서명 키 %q: id가 중복됩니다", k.ID)
+		}
 		keys[k.ID] = &k.Private.PublicKey
 	}
-	return &AccessIssuer{current: current, keys: keys, clk: clk}
+	return &AccessIssuer{current: current, keys: keys, clk: clk}, nil
 }
 
 // Issue는 계정의 access token을 발급합니다. expiresAt은 토큰의 exp와 같은 시각입니다.
@@ -111,7 +125,7 @@ func (i *AccessIssuer) Verify(raw string) (uuid.UUID, error) {
 		return uuid.Nil, ErrAccessInvalid
 	}
 	id, err := uuid.Parse(claims.Subject)
-	if err != nil {
+	if err != nil || id == uuid.Nil {
 		return uuid.Nil, ErrAccessInvalid
 	}
 	return id, nil
