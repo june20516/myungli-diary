@@ -49,7 +49,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).
 
 ## 구조
-`lib/`은 `app`(부트스트랩·라우터·개발 메뉴), `core`(api·storage·l10n·clock·platform·ia), `design`(토큰·테마·컴포넌트), `features/<영역>`(data·application·presentation)로 나뉩니다. 별도 도메인 계층은 없고 repository가 생성 모델을 돌려줍니다. 자세한 구조와 이유는 spec [§2](docs/specs/2026-10-13-app-architecture-design.md)에 있습니다.
+`lib/`은 `app`(부트스트랩·라우터·개발 메뉴), `core`(api·storage·l10n·clock·platform·ia), `design`(토큰·테마·컴포넌트), `features/<영역>`(data·application·presentation)로 나뉩니다. `features/`는 화면을 구현하는 계획 2부터 생깁니다. `testing/covers.dart`는 E2E·흐름 테스트가 덮는 IA 경로·상태·결정을 선언하는 `Covers`입니다. 별도 도메인 계층은 없고 repository가 생성 모델을 돌려줍니다. 자세한 구조와 이유는 spec [§2](docs/specs/2026-10-13-app-architecture-design.md)에 있습니다.
 
 ## 생성 코드
 생성 코드는 commit하며 **손대지 않습니다.** 원본(계약·ARB)을 고친 뒤 아래 명령으로 다시 만듭니다. 모두 `app/`에서 실행합니다.
@@ -69,7 +69,8 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 ## fixture 추가와 검증
 fake 모드의 대역 응답은 `fixtures/<시나리오>/` 아래 JSON입니다.
 
-* 파일 이름: `<operationId>.json`, 경로·쿼리 매개변수별로는 `<operationId>__<값>.json`(값이 여럿이면 `-`로 잇습니다). 매개변수 파일을 먼저 찾고, 없으면 기본 파일을, 그래도 없으면 `extends`의 부모 시나리오를 차례로 봅니다.
+* 파일 이름: `<operationId>.json`, 경로 매개변수가 있는 operation은 값별로 `<operationId>__<값>.json`(값이 여럿이면 `-`로 잇습니다). 쿼리 매개변수는 지원하지 않으며, 경로 매개변수가 없는 operation에 `__`가 붙으면 검증이 실패합니다.
+* 찾는 순서: 시나리오 lineage가 바깥입니다(자기 자신 → 부모 → 조상). 각 시나리오 안에서 매개변수 파일을 먼저, 없으면 기본 파일을 봅니다. 그래서 자식의 기본 파일이 부모의 매개변수 파일보다 먼저 쓰입니다.
 * 내용: `{ "status": 200, "headers": {…}, "body": {…} }`. `status`는 필수이고 그 operation에 정의된 응답(없으면 `default`)의 스키마로 검증합니다.
 * 같은 요청을 여러 번 불러 응답이 바뀌어야 하면(예: 권한 확인 폴링) `{ "sequence": [응답, 응답, …] }` 형식을 씁니다. `sequence`는 다른 키와 함께 쓸 수 없고 비어 있으면 안 됩니다. 호출 순서대로 응답합니다.
 * 새 시나리오는 `fixtures/scenarios.json`에 등록합니다.
