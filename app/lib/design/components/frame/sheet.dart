@@ -37,6 +37,10 @@ const double sheetHandleHeight = 4;
 const double _dismissFraction = 0.25;
 
 /// 마지막 이동 뒤 이 시간이 지나 놓으면 멈춘 것으로 보아 속도를 0으로 칩니다.
+///
+/// 실기기에서는 보조 판정입니다. 실제로는 `VelocityTracker`가 마지막 표본 뒤 40ms가
+/// 지나면 속도를 0으로 내는 판정(샘플링 시계의 Stopwatch)이 먼저 작동합니다. 이 값은
+/// 이벤트 시각(프레임 시각)만으로도 멈춤을 판정하는 하한입니다.
 const Duration _staleSample = Duration(milliseconds: 80);
 
 /// 끌어내려 닫는 기준 속도(px/s).
@@ -496,11 +500,18 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     _settleBack();
   }
 
-  /// 맨 위 시트를 닫습니다. `PopScope`가 막아 닫히지 않으면 제자리로 돌아옵니다.
+  /// 이 시트를 닫습니다. `PopScope`가 막아 닫히지 않으면 제자리로 돌아옵니다.
   Future<void> _dismiss() async {
     _dismissing = true;
+    final navigator = Navigator.of(context);
+    if (!widget.route.isCurrent) {
+      // 손을 뗀 뒤 닫기 판정 전에 위에 다른 route(예 용어 설명 시트)가 열렸습니다.
+      // `maybePop`은 맨 위를 닫으므로 이 시트만 뺍니다.
+      navigator.removeRoute(widget.route);
+      return;
+    }
     // `maybePop`은 `PopScope`가 막아도 true를 주므로, route가 실제로 빠졌는지 봅니다.
-    await Navigator.of(context).maybePop();
+    await navigator.maybePop();
     if (!mounted || !widget.route.isActive) return;
     _dismissing = false;
     // 본문이 bounce로 되돌아오는 중이면 그 값이 시트를 끌고 가므로 따로 움직이지 않습니다.

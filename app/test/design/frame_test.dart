@@ -967,6 +967,51 @@ void main() {
       return gesture;
     }
 
+    testWidgets('놓은 뒤 닫기 판정 전에 위에 다른 시트가 열리면 끌던 시트만 닫습니다', (tester) async {
+      // iOS bounce 본문은 손을 뗀 뒤 첫 관성 프레임에서 닫기를 판정합니다. 그 사이
+      // 용어 칩 등으로 설명 시트가 겹쳐 열리면, 닫기가 맨 위(새 시트)를 닫으면 안 됩니다.
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await openBody(
+          tester,
+          (_) => ListView(
+            key: const ValueKey('sheet-body'),
+            children: [
+              for (var i = 0; i < 40; i++)
+                SizedBox(height: 48, child: Text('아래 $i')),
+            ],
+          ),
+        );
+        final base = tester.binding.currentSystemFrameTimeStamp;
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(const ValueKey('sheet-body'))),
+        );
+        for (var i = 0; i <= 6; i++) {
+          await gesture.moveBy(
+            Offset(0, i == 0 ? 30 : 15),
+            timeStamp: base + Duration(milliseconds: 8 * i),
+          );
+        }
+        await gesture.up(timeStamp: base + const Duration(milliseconds: 56));
+        unawaited(
+          showMyungliSheet<void>(
+            _navigatorKey.currentContext!,
+            size: SheetSize.half,
+            builder: (_) => const Text('위 시트'),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.pumpAndSettle();
+
+        expect(find.text('위 시트'), findsOneWidget);
+        expect(find.text('아래 0'), findsNothing);
+        expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
     testWidgets('ios: 짧게 끌다 멈춘 뒤 놓으면 닫히지 않습니다', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       try {
@@ -979,6 +1024,38 @@ void main() {
         await gesture.up();
         await tester.pumpAndSettle();
         expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    // 속도 추정기(VelocityTracker)의 정지 판정 시계는 flutter_test 바인딩이 가짜 시계
+    // (debugSamplingClock)로 바꿔 주므로, 빠른 놓기도 결정적으로 확인할 수 있습니다.
+    testWidgets('ios: 빠르게 끌고 바로 놓으면 거리가 짧아도 닫힙니다', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await openBody(tester, (_) => list(40));
+        final base = tester.binding.currentSystemFrameTimeStamp;
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(const ValueKey('sheet-body'))),
+        );
+        // 8ms마다 15px씩(약 1,900px/s) 끌고, 시간을 흘리지 않고 바로 놓습니다.
+        for (var i = 0; i <= 6; i++) {
+          await gesture.moveBy(
+            Offset(0, i == 0 ? 30 : 15),
+            timeStamp: base + Duration(milliseconds: 8 * i),
+          );
+        }
+        final frame = find.byType(MyungliSheetFrame);
+        final sheetHeight = tester.getSize(frame).height;
+        await gesture.up(timeStamp: base + const Duration(milliseconds: 56));
+        // iOS bounce 본문은 놓은 뒤 첫 관성 프레임에서 놓기를 판정합니다. pumpAndSettle의
+        // 첫 프레임(100ms)은 정지로 판정되므로 실제 기기처럼 16ms 프레임으로 넘깁니다.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.pumpAndSettle();
+        expect(frame, findsNothing);
+        expect(120, lessThan(sheetHeight * 0.25), reason: '거리로는 닫히지 않는 양');
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
