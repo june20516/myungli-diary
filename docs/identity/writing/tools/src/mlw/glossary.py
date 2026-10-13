@@ -3,6 +3,7 @@
 값은 proto enum에서 나옵니다. 로더와 완결성 검사가 함께 쓰므로 다른 mlw 모듈에 기대지 않습니다.
 """
 
+from collections.abc import Iterable
 from functools import cache
 
 from google.protobuf.internal.enum_type_wrapper import EnumTypeWrapper
@@ -17,6 +18,19 @@ LUCK_KINDS: tuple[str, ...] = ("daeun", "seun")
 PILLAR_PARTS: tuple[str, ...] = ("stem", "branch")
 # 지장간 자리는 지지 자리 이름에 이 접미사를 붙입니다(core `_place`).
 HIDDEN_SUFFIX = "_hidden"
+# 용어 토큰과 풀이 시트(`term.meaning`)가 다루는 glossary 범주입니다. 태그(`tag.*`)는 `term_ids`가 더합니다.
+TERM_CATEGORIES: tuple[str, ...] = (
+    "element",
+    "stem",
+    "branch",
+    "ten_god",
+    "ten_god_group",
+    "shinsal",
+    "day_kind",
+    "relation",
+    "role",
+    "luck",
+)
 
 
 def _enum_value_names(enum: EnumTypeWrapper) -> tuple[str, ...]:
@@ -54,3 +68,10 @@ def glossary_values() -> dict[str, tuple[str, ...]]:
         "luck": LUCK_KINDS,
         "part": PILLAR_PARTS,
     }
+
+
+def term_ids(tag_keys: Iterable[str]) -> tuple[str, ...]:
+    """용어 id 목록입니다. 용어 범주의 `<범주>.<값>` 다음에 태그 이름 키를 정렬해 붙입니다."""
+    values = glossary_values()
+    glossary_terms = tuple(f"{category}.{value}" for category in TERM_CATEGORIES for value in values[category])
+    return glossary_terms + tuple(sorted(tag_keys))

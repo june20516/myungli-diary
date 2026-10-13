@@ -338,3 +338,13 @@ def test_vocative_stripped_text_is_checked_for_length() -> None:
     findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
     messages = [finding.message for finding in findings if finding.rule_id == "style.length"]
     assert any("호칭 없이" in message for message in messages)
+
+
+def test_cli_check_reports_unknown_term(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "t.yaml").write_text(
+        '- {slot: daily.color, key: color.gisin_day, text: "[[색|nope.id]]이 잘 맞아요."}\n', encoding="utf-8"
+    )
+    main(["check", str(tmp_path / "content"), "--partial"])
+    assert "token.term" in capsys.readouterr().out

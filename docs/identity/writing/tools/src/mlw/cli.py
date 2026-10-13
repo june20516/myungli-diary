@@ -23,8 +23,11 @@ from mlw.markup import check_name_position, check_ui_markup, strip_vocative
 from mlw.model import LANGS, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
+from mlw.terms import check_tokens
 
 GLOSSARY_SLOT = "glossary.value_name"
+# 태그 이름 메시지 키의 접두어입니다. 용어 id에 들어갑니다.
+TAG_KEY_PREFIX = "tag."
 NAME_PARAM = "name"
 # 호칭 최대 길이를 채우는 글자입니다. 글자 수만 세므로 무엇이든 됩니다.
 NAME_FILLER = "가"
@@ -276,6 +279,7 @@ def _check(args: argparse.Namespace) -> int:
         *completeness,
         *sentence_findings(all_slots, entries, rules),
         *markup_findings(all_slots, entries),
+        *check_tokens(entries, all_slots, [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]),
         *check_days(content_slots, entries, rules.limits.values(), LANGS, rules),
         *check_weeks(
             content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture
