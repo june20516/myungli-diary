@@ -10,6 +10,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
@@ -22,6 +26,8 @@ const (
 )
 
 // newAPIHandler는 계약 라우트 전체를 미구현 핸들러로 등록한 Handler를 만듭니다.
+// bearer 라우트는 토큰을 보지 않고 고정 계정(active, 동의 완료)을 ctx에 넣어 통과시키므로,
+// 계약 검증과 라우팅만 확인하는 테스트가 인증을 신경 쓰지 않아도 됩니다.
 func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 	t.Helper()
 	spec, err := gen.GetSpec()
@@ -29,11 +35,26 @@ func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 		t.Fatalf("계약 읽기: %v", err)
 	}
 	deps, logs := newTestDeps()
-	validate := httpapi.ValidateRequests(spec, deps.Logger)
+	routes := httpapi.Routes{
+		Spec:         spec,
+		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
+		Authenticate: authenticateFixedAccount,
+	}
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
-		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, validate)
+		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, routes)
 	})
 	return handler, logs
+}
+
+// fixedAccountID는 authenticateFixedAccount가 ctx에 넣는 계정 id입니다.
+var fixedAccountID = uuid.MustParse("0192f0a0-0000-7000-8000-0000000000aa")
+
+// authenticateFixedAccount는 토큰 검사 없이 fixedAccountID와 active 상태를 ctx에 넣는 Authenticate입니다.
+func authenticateFixedAccount(_ httpapi.Operation, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := httpapi.WithAccount(r.Context(), fixedAccountID, account.Access{Status: account.StatusActive})
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func newBodyRequest(t *testing.T, method, target, contentType, body string) *http.Request {
@@ -105,20 +126,44 @@ func TestAPI_InvalidDatePathReturns400(t *testing.T) {
 	expectInvalid(t, rec, "date")
 }
 
-// format: date 정규식은 2026-02-30을 통과시키므로, 생성 코드가 Go 타입으로 바꿀 때 400이 되어야 합니다.
+// expectFormatViolation은 400 request.invalid이고 errors가 정확히 [{field, code: "format"}]인지 확인합니다.
+func expectFormatViolation(t *testing.T, rec *httptest.ResponseRecorder, field string) {
+	t.Helper()
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400, body = %s", rec.Code, rec.Body.String())
+	}
+	p := decodeProblem(t, rec)
+	if p.Code != "request.invalid" {
+		t.Errorf("code = %q, want request.invalid", p.Code)
+	}
+	want := []problem.FieldError{{Field: field, Code: "format"}}
+	if !slices.Equal(p.Errors, want) {
+		t.Errorf("errors = %+v, want %+v", p.Errors, want)
+	}
+}
+
+// 달력에 없는 날짜는 생성 코드 디코드가 아니라 검증 단계에서 format 위반으로 잡힙니다.
 func TestAPI_NonexistentDateReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
 	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2026-02-30", nil))
-	expectInvalid(t, rec, "date")
+	expectFormatViolation(t, rec, "date")
 
 	rec = serve(handler, newBodyRequest(t, http.MethodPost, "/v1/schedules", contentTypeJSON, `{"date":"2026-02-30","allDay":true,"title":"점심"}`))
-	if rec.Code != http.StatusBadRequest {
-		t.Fatalf("본문 status = %d, want 400, body = %s", rec.Code, rec.Body.String())
+	expectFormatViolation(t, rec, "/date")
+}
+
+// 윤일은 윤년에만 유효합니다.
+func TestAPI_LeapDayIsValidOnlyInLeapYears(t *testing.T) {
+	handler, _ := newAPIHandler(t)
+
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2028-02-29", nil))
+	if rec.Code != http.StatusNotImplemented {
+		t.Errorf("2028-02-29 status = %d, want 501, body = %s", rec.Code, rec.Body.String())
 	}
-	if p := decodeProblem(t, rec); p.Code != "request.invalid" {
-		t.Errorf("본문 code = %q, want request.invalid", p.Code)
-	}
+
+	rec = serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2027-02-29", nil))
+	expectFormatViolation(t, rec, "date")
 }
 
 func TestAPI_InvalidQueryReturns400WithParameterName(t *testing.T) {
@@ -392,8 +437,8 @@ const scheduleID = "0b6f8b52-3a4f-4f0e-9f57-0d2f7c3c1a10"
 
 // minimalRequests는 계약의 모든 operation에 대한 유효한 최소 요청입니다.
 var minimalRequests = map[string]operationRequest{
-	"loginKakao":     {http.MethodPost, "/v1/auth/kakao", contentTypeJSON, `{"idToken":"t","nonce":"n"}`},
-	"loginApple":     {http.MethodPost, "/v1/auth/apple", contentTypeJSON, `{"idToken":"t","authorizationCode":"c","nonce":"n","clientType":"native"}`},
+	"loginKakao":     {http.MethodPost, "/v1/auth/kakao", contentTypeJSON, `{"idToken":"t","nonce":"nonce-0123456789ab"}`},
+	"loginApple":     {http.MethodPost, "/v1/auth/apple", contentTypeJSON, `{"idToken":"t","authorizationCode":"c","nonce":"nonce-0123456789ab","clientType":"native"}`},
 	"appleCallback":  {http.MethodPost, "/v1/auth/apple/callback", contentTypeForm, `code=c&id_token=t&state=s`},
 	"refreshToken":   {http.MethodPost, "/v1/auth/refresh", contentTypeJSON, `{"refreshToken":"r"}`},
 	"logout":         {http.MethodPost, "/v1/auth/logout", contentTypeJSON, `{"refreshToken":"r"}`},
@@ -515,4 +560,13 @@ func TestValidateRequests_KeepsRawQueryAndBody(t *testing.T) {
 	if rec.Code != http.StatusNoContent || gotBody != body {
 		t.Errorf("status = %d, body = %q, want %q", rec.Code, gotBody, body)
 	}
+}
+
+func TestAPI_UUIDv7PathIDIsAccepted(t *testing.T) {
+	handler, _ := newAPIHandler(t)
+
+	// 서버가 발급하는 id는 UUIDv7입니다. 계약 검증이 버전 때문에 거부하면 안 됩니다.
+	rec := serve(handler, newBodyRequest(t, http.MethodDelete, "/v1/schedules/"+uuid.Must(uuid.NewV7()).String(), contentTypeJSON, ``))
+
+	assert.Equal(t, http.StatusNotImplemented, rec.Code, rec.Body.String())
 }
