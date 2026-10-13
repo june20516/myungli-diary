@@ -945,6 +945,146 @@ void main() {
       }
     });
 
+    Future<TestGesture> dragSlowlyThenStop(
+      WidgetTester tester,
+      Finder body, {
+      required bool waitBeforeRelease,
+    }) async {
+      final base = tester.binding.currentSystemFrameTimeStamp;
+      final gesture = await tester.startGesture(tester.getCenter(body));
+      await gesture.moveBy(const Offset(0, 30), timeStamp: base);
+      await tester.pump(const Duration(milliseconds: 16));
+      for (var i = 1; i <= 4; i++) {
+        await gesture.moveBy(
+          const Offset(0, 20),
+          timeStamp: tester.binding.currentSystemFrameTimeStamp,
+        );
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      if (waitBeforeRelease) {
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+      return gesture;
+    }
+
+    testWidgets('ios: 짧게 끌다 멈춘 뒤 놓으면 닫히지 않습니다', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await openBody(tester, (_) => list(40));
+        final gesture = await dragSlowlyThenStop(
+          tester,
+          find.byKey(const ValueKey('sheet-body')),
+          waitBeforeRelease: true,
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('ios: bounce 상쇄로 빈 띠가 없고 놓은 뒤 복귀가 튀지 않습니다', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await openBody(tester, (_) => list(40));
+        final frame = find.byType(MyungliSheetFrame);
+        final body = find.byKey(const ValueKey('sheet-body'));
+        final item = find.text('항목 0');
+        final baseTop = tester.getTopLeft(frame).dy;
+        final baseBottom = tester.getBottomLeft(body).dy;
+        final baseRel = tester.getTopLeft(item).dy - baseTop;
+        final gesture = await dragSlowlyThenStop(
+          tester,
+          body,
+          waitBeforeRelease: true,
+        );
+        final moved = tester.getTopLeft(frame).dy - baseTop;
+        expect(moved, greaterThan(0));
+        // 본문 아래 끝이 시트와 같은 양만 움직여 빈 띠가 생기지 않습니다.
+        expect(tester.getBottomLeft(body).dy - baseBottom, closeTo(moved, 1));
+        expect(
+          tester.getTopLeft(item).dy - tester.getTopLeft(frame).dy,
+          closeTo(baseRel, 1),
+        );
+        await gesture.up();
+        // 놓은 뒤 되돌아오는 구간을 프레임마다 봅니다.
+        var previous = tester.getTopLeft(frame).dy;
+        for (var i = 0; i < 60; i++) {
+          await tester.pump(const Duration(milliseconds: 16));
+          final top = tester.getTopLeft(frame).dy;
+          expect(top, lessThanOrEqualTo(previous + 0.5), reason: 'frame $i');
+          expect(
+            tester.getTopLeft(item).dy - top,
+            closeTo(baseRel, 1),
+            reason: 'frame $i',
+          );
+          expect(
+            tester.getBottomLeft(body).dy - baseBottom,
+            closeTo(top - baseTop, 1),
+            reason: 'frame $i',
+          );
+          previous = top;
+        }
+        expect(tester.getTopLeft(frame).dy, closeTo(baseTop, 0.5));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('끌기가 취소되면 제자리로 돌아옵니다', (tester) async {
+      await openBody(
+        tester,
+        (_) => const Column(
+          key: ValueKey('sheet-body'),
+          children: [SizedBox(height: 100, width: 300, child: Text('내용'))],
+        ),
+      );
+      final frame = find.byType(MyungliSheetFrame);
+      final baseTop = tester.getTopLeft(frame).dy;
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const ValueKey('sheet-body'))),
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await tester.pump();
+      await gesture.moveBy(const Offset(0, 80));
+      await tester.pump();
+      expect(tester.getTopLeft(frame).dy, greaterThan(baseTop));
+      await gesture.cancel();
+      await tester.pumpAndSettle();
+      expect(frame, findsOneWidget);
+      expect(tester.getTopLeft(frame).dy, closeTo(baseTop, 0.5));
+    });
+
+    testWidgets('닫기가 막히면(PopScope) 시트가 제자리로 돌아오고 다시 끌 수 있습니다', (tester) async {
+      await openBody(
+        tester,
+        (_) => const PopScope(
+          canPop: false,
+          child: Column(
+            key: ValueKey('sheet-body'),
+            children: [SizedBox(height: 100, width: 300, child: Text('내용'))],
+          ),
+        ),
+      );
+      final frame = find.byType(MyungliSheetFrame);
+      final body = find.byKey(const ValueKey('sheet-body'));
+      final baseTop = tester.getTopLeft(frame).dy;
+      await tester.fling(body, const Offset(0, 400), 2500);
+      await tester.pumpAndSettle();
+      expect(frame, findsOneWidget);
+      expect(tester.getTopLeft(frame).dy, closeTo(baseTop, 0.5));
+      // 복구 뒤에도 끌기가 동작합니다.
+      final gesture = await tester.startGesture(tester.getCenter(body));
+      await gesture.moveBy(const Offset(0, 30));
+      await tester.pump();
+      await gesture.moveBy(const Offset(0, 60));
+      await tester.pump();
+      expect(tester.getTopLeft(frame).dy, greaterThan(baseTop));
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('첫 제목으로 스크린리더 초점이 갑니다(첫 SheetHeading만)', (tester) async {
       final handle = tester.ensureSemantics();
       final messages = <Object?>[];
