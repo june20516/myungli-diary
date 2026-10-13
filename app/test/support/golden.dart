@@ -46,11 +46,14 @@ void goldenTest(
 ///
 /// 격자의 가로는 글자 크기, 세로는 밝기×언어입니다. [fixedCells]가 true면
 /// 칸이 고정된 컴포넌트 안의 글자 배율이 2.0에서도 1.3에 멈추는지 확인합니다.
+/// 측정 대상은 [fixedCellTarget]이 돌려주는 finder(칸 안에서 찾음)이고, 없으면
+/// 첫 [Text]입니다. 측정 방식은 [effectiveTextScale]을 봅니다.
 Future<void> goldenMatrix(
   WidgetTester tester,
   String name,
   Widget Function() build, {
   bool fixedCells = false,
+  Finder Function()? fixedCellTarget,
 }) async {
   final gridKey = GlobalKey();
   final width =
@@ -108,8 +111,20 @@ Future<void> goldenMatrix(
   if (fixedCells) {
     for (final brightness in goldenBrightnesses) {
       for (final locale in goldenLocales) {
-        final at13 = _effectiveScale(tester, brightness, locale, 1.3);
-        final at20 = _effectiveScale(tester, brightness, locale, 2);
+        final at13 = _scaleInCell(
+          tester,
+          brightness,
+          locale,
+          1.3,
+          fixedCellTarget,
+        );
+        final at20 = _scaleInCell(
+          tester,
+          brightness,
+          locale,
+          2,
+          fixedCellTarget,
+        );
         // 10pt 글자가 실제로 얼마로 그려지는지 읽습니다. 상한이 없으면 2.0 칸은 20입니다.
         expect(
           at13,
@@ -128,22 +143,47 @@ Future<void> goldenMatrix(
   await expectLater(find.byKey(gridKey), matchesGoldenFile('$name.png'));
 }
 
-/// 칸 안 첫 [Text]가 받는 실효 글자 배율(10pt 글자의 그려지는 크기 ÷ 10 × 10).
-///
-/// 고정 칸 컴포넌트가 안쪽에서 `MediaQuery.withClampedTextScaling` 등으로 상한을
-/// 두면 2.0 칸에서도 1.3 칸과 같은 값이 나옵니다. 글자가 없으면 실패합니다.
-double _effectiveScale(
+double _scaleInCell(
   WidgetTester tester,
   Brightness brightness,
   Locale locale,
   double scale,
+  Finder Function()? target,
 ) {
-  final texts = find.descendant(
+  final matching = target?.call() ?? find.byType(Text);
+  final found = find.descendant(
     of: find.byKey(_contentKey(brightness, locale, scale)),
-    matching: find.byType(Text),
+    matching: matching,
   );
-  expect(texts, findsWidgets, reason: 'fixedCells 대상에는 글자가 있어야 합니다');
-  return MediaQuery.textScalerOf(tester.element(texts.first)).scale(10);
+  return effectiveTextScale(tester, found);
+}
+
+/// [target] 첫 번째 글자 위젯이 실제로 받는 글자 배율(10pt 글자의 그려지는 크기 ÷ 1).
+///
+/// 대상 위치의 `MediaQuery.textScalerOf`(상한을 `MediaQuery`로 건 경우)와, 대상이
+/// [Text]·[RichText]면 그 위젯의 `textScaler`(직접 건 경우)를 모두 보고 더 작은
+/// 쪽을 실효 배율로 삼습니다. 대상이 없으면(아이콘만 있는 칸 등) 실패합니다.
+double effectiveTextScale(WidgetTester tester, Finder target) {
+  expect(
+    target,
+    findsWidgets,
+    reason:
+        '글자 크기 상한을 잴 글자(Text·RichText) 대상이 없습니다. '
+        'fixedCellTarget으로 대상을 고르세요.',
+  );
+  final element = target.evaluate().first;
+  var scale = MediaQuery.textScalerOf(element).scale(10);
+  final widget = element.widget;
+  final own = switch (widget) {
+    Text(:final textScaler) => textScaler,
+    RichText(:final textScaler) => textScaler,
+    _ => null,
+  };
+  if (own != null) {
+    final ownScale = own.scale(10);
+    if (ownScale < scale) scale = ownScale;
+  }
+  return scale;
 }
 
 Key _cellKey(Brightness brightness, Locale locale, double scale) =>

@@ -112,7 +112,7 @@ jobs:
         id: golden-flutter
         working-directory: .
         run: |
-          version="$(grep -v '^[[:space:]]*#' app/tool/golden_flutter_version | grep -v '^[[:space:]]*$' | head -n 1 | tr -d '[:space:]')"
+          version="$(app/tool/golden_flutter_version.sh)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: subosito/flutter-action@v2
         with:
@@ -139,7 +139,7 @@ jobs:
         id: golden-flutter
         working-directory: .
         run: |
-          version="$(grep -v '^[[:space:]]*#' app/tool/golden_flutter_version | grep -v '^[[:space:]]*$' | head -n 1 | tr -d '[:space:]')"
+          version="$(app/tool/golden_flutter_version.sh)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: subosito/flutter-action@v2
         with:

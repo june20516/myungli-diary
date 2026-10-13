@@ -16,12 +16,7 @@ app_dir="$(cd "$(dirname "$0")/.." && pwd)"
 repo_root="$(cd "$app_dir/.." && pwd)"
 platform="${DOCKER_PLATFORM:-linux/amd64}"
 
-# 주석(#)과 빈 줄을 뺀 첫 줄이 버전입니다.
-version="$(grep -v '^[[:space:]]*#' "$app_dir/tool/golden_flutter_version" | grep -v '^[[:space:]]*$' | head -n 1 | tr -d '[:space:]')"
-if [ -z "$version" ]; then
-  echo "tool/golden_flutter_version에 버전이 없습니다." >&2
-  exit 1
-fi
+version="$("$app_dir/tool/golden_flutter_version.sh")"
 
 image="ghcr.io/cirruslabs/flutter:$version"
 if ! docker manifest inspect "$image" >/dev/null 2>&1; then
