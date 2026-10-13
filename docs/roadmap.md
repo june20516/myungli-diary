@@ -13,7 +13,7 @@
 | C2 | **엔진 gRPC 계약 v1 freeze** (Task 14) | core | C1 | S2, I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`) |
 | C3 | 엔진 완성: 서버·골든 테스트·CI (Task 15~20) | core | C2 | I1 | **완료** (main 병합 완료, PR #1 `ec4fc90`, CI check·proto·slow 통과). 후속: 엔진 컨테이너 이미지·health PR #80(#34, 실행 조건 #79) |
 | S1 | server 설계 (spec·계획) | server | R0, M0 | S2 | **완료** (PR #62 `8528022`, server 결정 S1~) |
-| S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, 다음 P3 프로필·엔진·캐시) |
+| S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, P2a Apple 웹 로그인 복귀 PR #113, 다음 P3 프로필·엔진·캐시) |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | 시작 전 |
 | A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **진행 중** (아키텍처 spec·결정 A1~A15·기반 계획 PR #95, 기반 구현 `app/foundation`) |
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
@@ -23,7 +23,7 @@
 | W0 | 라이팅 시스템 기반: 보이스·톤 가이드, 슬롯 명세, slop 패턴, 검수 절차, 검사기 | writing | B0 (슬롯 목록은 IA) | W1 | **완료** (PR #36 `7698f52`, 결정 W1~W15, 계약: 슬롯 명세·호칭 조사·검사기) |
 | V0 | 시각 정체성 | design | B0 | V1 | **완료** (PR #10 `77b7e4f`, 결정 V1~V7) |
 | V1 | **디자인 토큰 freeze** | design | V0 | V2, A1 | **완료** (PR #18 `d049e08`, 계약 1.0.0, 결정 V8~V12) |
-| V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | **완료** (PR #43 `47a1867`, 컴포넌트 계약 1.0.0, 토큰 1.1.0, 결정 V13~V24). 후속 PR #66 `b1317e4`: 컴포넌트 2.0.0(근거 잠금, D60), 결정 V25~V27. PR #83: 2.1.0(문장 조각 `term` 표시, 근거 잠금 슬롯), 결정 V28 |
+| V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | **완료** (PR #43 `47a1867`, 컴포넌트 계약 1.0.0, 토큰 1.1.0, 결정 V13~V24). 후속 PR #66 `b1317e4`: 컴포넌트 2.0.0(근거 잠금, D60), 결정 V25~V27. PR #83: 2.1.0(문장 조각 `term` 표시, 근거 잠금 슬롯), 결정 V28. PR #110: 2.2.0(용신 근거 줄 이름 슬롯) |
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | 시작 전 (착수 가능) |
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3 | - |
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3 | - |
@@ -37,14 +37,13 @@
 
 * **동시에 도는 세션은 둘까지입니다.** 길게 가는 단위 하나(가장 긴 경로)와, 짧게 끝내고 닫는 단위 하나입니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
 * **가장 긴 경로:** A1(진행 중) → A2 → I2·I3. app은 쉬지 않고 돕니다. 콘텐츠 쪽은 W1 → I3입니다.
-* **core는 S2 배포 전 할 일을 마쳤습니다**(#67·#72·#80). 남은 것은 #59뿐이라 필요할 때만 엽니다. design은 컴포넌트 2.1.0(#83)까지 마쳤고 app 질문과 #81 후속만 받습니다.
+* **core는 S2 배포 전 할 일을 마쳤습니다**(#67·#72·#80). 남은 것은 #59뿐이라 필요할 때만 엽니다. design은 컴포넌트 2.2.0(#83·#110, #81 후속 포함)까지 마쳤고 app 질문만 받습니다.
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
 | 1 (지금) | app | A1 기반 구현(`app/foundation`). 받은 notice #82(컴포넌트 2.1.0), server P2 반영 요청 #100(인증 adapter는 대역으로 두고 규칙만). app.yml이 병합되면 지휘가 ci-gate에 연결(#85) | A2, I2 |
-| 1 (지금) | design | IA `saju-chart.yongsin.title`(#81)을 `sentence-block` `locked`에 적기. 짧게 끝내고 닫음 | A1 일부 |
-| 2 (A1 화면 골격 이후) | server | P2 완료(PR #99, app 반영 요청 #100). 다음 P3 프로필·엔진·캐시와 #92(사주 변경일 문장 선택)·#79(엔진 실행 조건, D65 배포 workflow), #89(Apple 웹 로그인 복귀, 설계 초안 사용자 승인 대기), #55. 오류 code 목록 #88과 server CI 트리거 정리 #102는 PR #105로 끝남 | S3 |
-| 2 | writing | ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90) | A1 문구, I3 |
+| 1 (지금, design 다음) | writing | ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90), #116(Apple 로그인 복귀 안내 페이지 content 슬롯, D66) | A1 문구, I3 |
+| 2 (A1 화면 골격 이후) | server | P2·P2a 완료(PR #99·#113, app 반영 요청 #100·#114). 다음 P3 프로필·엔진·캐시(S23 사주 변경일 문장 선택 구현 포함)와 #79(엔진 실행 조건, D65 배포 workflow), #55. 끝난 것: #88·#102(PR #105), #89·#92·#93(PR #113, 구현은 P3·P6·P9) | S3 |
 | 3 (P2 병합 뒤) | writing | W1 콘텐츠 원고. 원어민 검수는 사용자 준비물 | I3 |
 | 3 | server | S3(REST v1 freeze), #93(staging 테스트 로그인·App Check debug token) | A2, I2 |
 | 필요할 때 | core | #59(buf breaking 실제 비교, 스냅샷 분할) | - |
@@ -60,7 +59,7 @@
 | GCP 프로젝트 준비: 결제 계정, Artifact Registry·Cloud Run·Cloud SQL·Secret Manager API 사용 설정, GitHub Actions용 Workload Identity Federation (D56) | S1 배포 단계 | 사용자 (설정 절차는 server가 안내) |
 | Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키) (D55) | S1·A1 로그인 연동 | 사용자 |
 | 개인정보 처리방침과 스토어 개인정보 표시 작성: Firebase(App Check·FCM·Crashlytics) 국외 이전, 카카오·Apple 로그인, AdMob·RevenueCat (D64) | 출시 전 (I4) | 사용자 (초안은 지휘) |
-| 서비스 도메인 구입: API 주소, Android App Link·`assetlinks.json` 호스팅, Apple Services ID 복귀 주소 (#89) | A1 실제 로그인 연동 전 | 사용자 |
+| 서비스 도메인 구입: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json` 호스팅, Apple Services ID 복귀 주소 (#89, S22) | A1 실제 로그인 연동 전, 늦어도 server 배포(P9) 전 | 사용자 |
 | 사업자등록, 통신판매업 신고, 스토어 세금·정산 계좌 (D53) | 출시 전 (I4) | 사용자 |
 | AdMob 계정, RevenueCat 계정 (D53) | A1 연동 시점 | 사용자 |
 | AdMob 보상형 광고 단위 생성, SSV 콜백 URL 설정(server가 주소 안내) (D60) | S2·A1 연동 시점 | 사용자 |
