@@ -83,6 +83,17 @@ void main() {
       expect(route?.pathParametersOf(path), {'year': '2026', 'month': '10'});
     });
 
+    test('반응 PUT·DELETE는 날짜와 슬롯 매개변수를 푼다', () {
+      const path = '/v1/daily/2026-10-13/slots/today.fortune.head/reaction';
+      const parameters = {'date': '2026-10-13', 'slot': 'today.fortune.head'};
+      final put = matchRoute('PUT', path);
+      expect(put?.operationId, 'putReaction');
+      expect(put?.pathParametersOf(path), parameters);
+      final delete = matchRoute('DELETE', path);
+      expect(delete?.operationId, 'deleteReaction');
+      expect(delete?.pathParametersOf(path), parameters);
+    });
+
     test('method 소문자도 받고, method가 다르면 찾지 못한다', () {
       expect(matchRoute('get', '/v1/me')?.operationId, 'getMe');
       expect(matchRoute('DELETE', '/v1/me')?.operationId, 'deleteMe');

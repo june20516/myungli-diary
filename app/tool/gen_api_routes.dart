@@ -15,7 +15,7 @@ String generateApiRoutesSource(Map<String, Object?> spec) {
   final out = StringBuffer()
     ..writeln('// 생성 코드: tool/gen_api.sh. 손으로 고치지 않습니다.')
     ..writeln()
-    ..writeln("import 'package:myungli_diary/core/api/api_route.dart';")
+    ..writeln("import 'package:myungli_diary/core/api/api_route_model.dart';")
     ..writeln()
     ..writeln('/// 계약의 operation 전부.')
     ..writeln('const List<ApiRoute> apiRoutes = [');

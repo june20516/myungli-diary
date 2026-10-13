@@ -1,6 +1,6 @@
 // 생성 코드: tool/gen_api.sh. 손으로 고치지 않습니다.
 
-import 'package:myungli_diary/core/api/api_route.dart';
+import 'package:myungli_diary/core/api/api_route_model.dart';
 
 /// 계약의 operation 전부.
 const List<ApiRoute> apiRoutes = [

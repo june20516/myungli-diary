@@ -1,0 +1,3 @@
+# 경로는 생성 출력 루트 기준입니다.
+lib/core/api/gen/auth/**
+lib/core/api/gen/api.dart
