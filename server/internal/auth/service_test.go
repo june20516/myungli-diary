@@ -370,6 +370,18 @@ func TestLoginApple_FailedCodeExchangeCreatesNothing(t *testing.T) {
 	}
 }
 
+// LoginApple은 iOS 전용이라 native client(BundleID)로만 검증합니다. web(ServicesID) aud의 id_token은 거절합니다.
+func TestLoginApple_RejectsWebAudience(t *testing.T) {
+	f := newFixture(t)
+	idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleWeb, f.clk.Now()))
+
+	_, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce)
+
+	require.ErrorIs(t, err, auth.ErrProviderTokenInvalid)
+	assert.Empty(t, f.fake.AppleTokenRequests(), "검증에 실패하면 code를 교환하지 않습니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
+}
+
 // 교환 응답 id_token의 sub가 로그인 id_token과 다르면(다른 사용자의 code) 로그인을 거절하고 아무것도 남기지 않습니다.
 func TestLoginApple_ExchangedSubjectMismatchCreatesNothing(t *testing.T) {
 	f := newFixture(t)

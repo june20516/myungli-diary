@@ -338,16 +338,19 @@ func TestApple_VerifyWebCallbackRejectsNativeAudience(t *testing.T) {
 	_, _, err := apple.VerifyWebCallback(context.Background(), idToken)
 
 	require.ErrorIs(t, err, provider.ErrTokenInvalid)
+	assert.NotContains(t, err.Error(), idToken)
 }
 
 func TestApple_VerifyWebCallbackRequiresNonceClaim(t *testing.T) {
 	apple, fake := newApple(t)
 	claims := providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleWeb, testNow)
 	delete(claims, "nonce")
+	idToken := fake.SignIDToken(claims)
 
-	_, _, err := apple.VerifyWebCallback(context.Background(), fake.SignIDToken(claims))
+	_, _, err := apple.VerifyWebCallback(context.Background(), idToken)
 
 	require.ErrorIs(t, err, provider.ErrTokenInvalid)
+	assert.NotContains(t, err.Error(), idToken)
 }
 
 func TestApple_VerifyWebCallbackJWKSDownIsUnavailable(t *testing.T) {
@@ -358,4 +361,5 @@ func TestApple_VerifyWebCallbackJWKSDownIsUnavailable(t *testing.T) {
 	_, _, err := apple.VerifyWebCallback(context.Background(), idToken)
 
 	require.ErrorIs(t, err, provider.ErrUnavailable)
+	assert.NotContains(t, err.Error(), idToken)
 }

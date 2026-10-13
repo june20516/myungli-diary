@@ -35,6 +35,9 @@ var nonceHashPattern = regexp.MustCompile(`^[0-9a-f]{64}$`)
 // 행 id를 aad로 묶어 암호화합니다. 계정은 아직 만들지 않습니다(CompleteAppleWebLogin에서 만듭니다).
 //
 // 제공자 토큰이 틀리면 ErrProviderTokenInvalid, 제공자 장애면 ErrProviderUnavailable을 돌려줍니다.
+//
+// code 교환 뒤 저장까지 가지 못하면 교환한 refresh token은 어디에도 남지 않습니다. 그때는 LoginApple과 같은
+// 규칙(server 결정 S19)으로, 그 subject의 연결 행이 없을 때만 revoke하고 원래 오류를 그대로 돌려줍니다(revokeUnsavedAppleGrant).
 func (s *Service) BeginAppleWebLogin(ctx context.Context, idToken, authorizationCode string) (string, error) {
 	identity, nonceClaim, err := s.apple.VerifyWebCallback(ctx, idToken)
 	if err != nil {
@@ -47,12 +50,22 @@ func (s *Service) BeginAppleWebLogin(ctx context.Context, idToken, authorization
 	if err != nil {
 		return "", s.providerError(ctx, err, providerApple, "exchange_code")
 	}
+	grant := &appleGrant{refreshToken: refreshToken, clientID: clientID}
+	exchangeCode, err := s.storeAppleWebLogin(ctx, identity.Subject, nonceClaim, grant)
+	if err != nil {
+		s.revokeUnsavedAppleGrant(ctx, identity.Subject, grant)
+		return "", err
+	}
+	return exchangeCode, nil
+}
 
+// storeAppleWebLogin은 교환 결과를 apple_web_logins에 저장하고 일회용 교환 코드를 돌려줍니다.
+func (s *Service) storeAppleWebLogin(ctx context.Context, subject, nonceClaim string, grant *appleGrant) (string, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return "", fmt.Errorf("apple 웹 로그인 id 생성: %w", err)
 	}
-	sealed, keyID, err := s.box.Seal([]byte(refreshToken), id[:])
+	sealed, keyID, err := s.box.Seal([]byte(grant.refreshToken), id[:])
 	if err != nil {
 		return "", fmt.Errorf("apple refresh token 암호화: %w", err)
 	}
@@ -66,11 +79,11 @@ func (s *Service) BeginAppleWebLogin(ctx context.Context, idToken, authorization
 	if err := authdb.New(s.pool).InsertAppleWebLogin(ctx, authdb.InsertAppleWebLoginParams{
 		ID:                id,
 		ExchangeHash:      exchangeHash,
-		Subject:           identity.Subject,
+		Subject:           subject,
 		NonceHash:         nonceClaim,
 		AppleRefreshToken: sealed,
 		AppleTokenKeyID:   keyID,
-		AppleClientID:     clientID,
+		AppleClientID:     grant.clientID,
 		ExpiresAt:         expiresAt,
 	}); err != nil {
 		return "", fmt.Errorf("apple 웹 로그인 저장: %w", err)
@@ -144,7 +157,11 @@ func (s *Service) consumeAppleWebLogin(ctx context.Context, q *authdb.Queries, n
 }
 
 // nonceHashMatches는 저장한 nonce claim이 hex(sha256(rawNonce))와 같은지 상수 시간으로 비교합니다.
+// 어느 쪽이든 비어 있으면 비교할 값이 없는 것이므로 불일치로 봅니다.
 func nonceHashMatches(nonceHash, rawNonce string) bool {
+	if rawNonce == "" || nonceHash == "" {
+		return false
+	}
 	sum := sha256.Sum256([]byte(rawNonce))
 	want := hex.EncodeToString(sum[:])
 	return subtle.ConstantTimeCompare([]byte(want), []byte(nonceHash)) == 1

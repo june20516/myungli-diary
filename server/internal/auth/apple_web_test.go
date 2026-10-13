@@ -2,6 +2,7 @@ package auth_test
 
 import (
 	"crypto/sha256"
+	"errors"
 	"net/http"
 	"testing"
 	"time"
@@ -202,21 +203,32 @@ func TestCompleteAppleWebLogin_UnknownCodeIsInvalid(t *testing.T) {
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
 }
 
-// Review Focus 1: nonce가 틀려도 교환 코드를 소진하지 않습니다. 코드를 가로챈 쪽이 정상 사용자의 로그인을 망칠 수 없게 합니다.
+// Review Focus 1: nonce가 틀리거나 비어 있어도 교환 코드를 소진하지 않습니다. 코드를 가로챈 쪽이 정상 사용자의 로그인을 망칠 수 없게 합니다.
 func TestCompleteAppleWebLogin_WrongNonceDoesNotConsume(t *testing.T) {
-	f := newFixture(t)
-	code := f.beginAppleWeb(t, "apple-1")
+	tests := []struct {
+		name     string
+		rawNonce string
+	}{
+		{name: "다른 nonce", rawNonce: "wrong-raw-nonce"},
+		{name: "빈 nonce", rawNonce: ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			code := f.beginAppleWeb(t, "apple-1")
 
-	_, err := f.service.CompleteAppleWebLogin(f.ctx, code, "wrong-raw-nonce")
+			_, err := f.service.CompleteAppleWebLogin(f.ctx, code, tt.rawNonce)
 
-	require.ErrorIs(t, err, auth.ErrExchangeInvalid)
-	assert.Nil(t, f.appleWebRow(t, code).consumedAt)
-	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
+			require.ErrorIs(t, err, auth.ErrExchangeInvalid)
+			assert.Nil(t, f.appleWebRow(t, code).consumedAt)
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
 
-	res, err := f.service.CompleteAppleWebLogin(f.ctx, code, testNonce)
-	require.NoError(t, err, "맞는 nonce로 다시 시도하면 성공합니다")
-	assert.True(t, res.IsNewAccount)
-	assert.NotNil(t, f.appleWebRow(t, code).consumedAt)
+			res, err := f.service.CompleteAppleWebLogin(f.ctx, code, testNonce)
+			require.NoError(t, err, "맞는 nonce로 다시 시도하면 성공합니다")
+			assert.True(t, res.IsNewAccount)
+			assert.NotNil(t, f.appleWebRow(t, code).consumedAt)
+		})
+	}
 }
 
 func TestCompleteAppleWebLogin_ExpiredIsInvalid(t *testing.T) {
@@ -265,8 +277,10 @@ func TestCompleteAppleWebLogin_ConcurrentSameCodeOneWins(t *testing.T) {
 		switch {
 		case err == nil:
 			succeeded++
-		case assert.ErrorIs(t, err, auth.ErrExchangeInvalid):
+		case errors.Is(err, auth.ErrExchangeInvalid):
 			invalid++
+		default:
+			t.Errorf("예상하지 못한 오류: %v", err)
 		}
 	}
 	assert.Equal(t, 1, succeeded)
@@ -326,4 +340,48 @@ func TestCompleteAppleWebLogin_RestoresPendingDeletion(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "web-refresh", string(plain), "웹 로그인에서 받은 토큰으로 바꿔 저장합니다")
 	assert.Equal(t, providertest.AppleServicesID, clientID)
+}
+
+// failAppleWebLoginInserts는 이 테스트 DB에서 apple_web_logins insert가 실패하도록 trigger를 겁니다.
+// code 교환을 마친 뒤 저장 단계에서 실제 DB 오류가 나게 하려는 것입니다.
+func (f *fixture) failAppleWebLoginInserts(t *testing.T) {
+	t.Helper()
+	f.exec(t, `CREATE FUNCTION test_fail_apple_web_insert() RETURNS trigger LANGUAGE plpgsql AS $$
+		BEGIN RAISE EXCEPTION 'test: apple web login insert 실패'; END $$`)
+	f.exec(t, `CREATE TRIGGER test_fail_apple_web_insert BEFORE INSERT ON apple_web_logins
+		FOR EACH ROW EXECUTE FUNCTION test_fail_apple_web_insert()`)
+}
+
+// 교환 뒤 저장에 실패하면 S19 규칙대로, 연결 행이 없는 subject일 때만 교환한 토큰을 revoke하고 원래 오류를 돌려줍니다.
+func TestBeginAppleWebLogin_StoreFailureRevokesOnlyWithoutIdentity(t *testing.T) {
+	tests := []struct {
+		name        string
+		existing    bool
+		wantRevokes int
+	}{
+		{name: "처음 보는 subject는 revoke", existing: false, wantRevokes: 1},
+		{name: "연결 행이 있으면 revoke하지 않음", existing: true, wantRevokes: 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			if tt.existing {
+				f.loginApple(t, "apple-1")
+			}
+			f.failAppleWebLoginInserts(t)
+			f.fake.SetAppleRefreshToken("unsaved-web-refresh")
+
+			code, err := f.service.BeginAppleWebLogin(f.ctx, f.appleWebToken("apple-1"), providertest.AppleCode("apple-1"))
+
+			require.ErrorContains(t, err, "test: apple web login insert 실패", "원래 오류를 그대로 돌려줍니다")
+			assert.NotErrorIs(t, err, auth.ErrProviderUnavailable)
+			assert.Empty(t, code)
+			revokes := f.fake.AppleRevokeRequests()
+			require.Len(t, revokes, tt.wantRevokes)
+			if tt.wantRevokes == 1 {
+				assert.Equal(t, "unsaved-web-refresh", revokes[0].Form.Get("token"))
+				assert.Equal(t, providertest.AppleServicesID, revokes[0].Form.Get("client_id"))
+			}
+		})
+	}
 }
