@@ -194,8 +194,8 @@ func TestBearer_ConsentRequiredBlocksOtherOperations(t *testing.T) {
 		t.Run(tt.method+" "+tt.target, func(t *testing.T) {
 			rec := serve(handler, bearerRequest(t, tt.method, tt.target, tt.body))
 
-			assert.NotEqual(t, http.StatusForbidden, rec.Code, "body = %s", rec.Body.String())
-			assert.NotEqual(t, http.StatusUnauthorized, rec.Code, "body = %s", rec.Body.String())
+			// 관문을 통과하면 미구현 핸들러가 501로 답합니다.
+			assert.Equal(t, http.StatusNotImplemented, rec.Code, "body = %s", rec.Body.String())
 		})
 	}
 }
@@ -331,31 +331,47 @@ func TestRegisterAPI_EveryBearerOperationIsGuarded(t *testing.T) {
 	assert.Positive(t, guarded)
 }
 
-// Authenticate가 받는 Operation.ID는 계약의 operationId 표기(lowerCamelCase)입니다. 관문의 허용 목록이 이 표기를 씁니다.
+// Authenticate가 받는 Operation.ID 집합은 원본 계약(api/openapi.yaml)에서 security가 bearerAuth인 operationId
+// 집합과 같아야 합니다. 관문의 허용 목록이 계약 표기(예 "getMe")를 쓰므로, 내장 spec의 operationId 표기가
+// 계약과 달라지거나 bearer 분류가 어긋나면 여기서 실패합니다.
 func TestRegisterAPI_PassesContractOperationIDs(t *testing.T) {
+	contract, err := openapi3.NewLoader().LoadFromFile(contractSpecPath)
+	require.NoError(t, err)
+	want := map[string]bool{}
+	for _, item := range contract.Paths.Map() {
+		for _, operation := range item.Operations() {
+			requirements := contract.Security
+			if operation.Security != nil {
+				requirements = *operation.Security
+			}
+			if requiresBearer(requirements) {
+				want[operation.OperationID] = true
+			}
+		}
+	}
+	require.NotEmpty(t, want)
+
 	spec, err := gen.GetSpec()
 	require.NoError(t, err)
 	deps, _ := newTestDeps()
-	seen := map[string]bool{}
+	got := map[string]bool{}
 	routes := httpapi.Routes{
 		Spec:     spec,
 		Validate: func(next http.Handler) http.Handler { return next },
 		Authenticate: func(op httpapi.Operation, next http.Handler) http.Handler {
 			assert.True(t, op.Bearer, op.ID)
-			seen[op.ID] = true
+			got[op.ID] = true
 			return next
 		},
 	}
 
 	httpapi.RegisterAPI(http.NewServeMux(), httpapi.Unimplemented{}, deps, routes)
 
-	for _, id := range []string{"getMe", "deleteMe", "logout", "agreeConsents", "getChart"} {
-		assert.True(t, seen[id], "%s가 bearer 라우트로 등록되지 않았습니다: %v", id, seen)
-	}
-	for _, public := range []string{"refreshToken", "loginKakao", "getHealth", "createPreview"} {
-		assert.False(t, seen[public], "%s는 bearer 라우트가 아닙니다", public)
-	}
+	assert.Equal(t, want, got)
 }
+
+// contractSpecPath는 이 패키지 디렉터리에서 본 원본 계약 파일 경로입니다.
+const contractSpecPath = "../../api/openapi.yaml"
 
 func requiresBearer(requirements openapi3.SecurityRequirements) bool {
 	for _, requirement := range requirements {

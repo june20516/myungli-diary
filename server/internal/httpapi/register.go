@@ -94,6 +94,7 @@ func operationFor(spec *openapi3.T, pattern string) Operation {
 	for _, requirement := range requirements {
 		if _, ok := requirement[securitySchemeBearer]; ok {
 			bearer = true
+			break
 		}
 	}
 	return Operation{ID: contractOperationID(operation.OperationID), Bearer: bearer}
