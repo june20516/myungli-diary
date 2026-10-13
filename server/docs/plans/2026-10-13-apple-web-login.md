@@ -14,7 +14,7 @@
 
 - P1·P2의 Global Constraints를 모두 이어받습니다(`2026-10-11-p1-foundation.md`, `2026-10-13-p2-auth-account.md`): 작업 범위 `server/`, `go tool` 고정, 생성 코드 commit, 시간은 `Clock`, ID는 `uuid.NewV7()`, 업무 시각은 쿼리 인자, 행 물리 삭제 금지·FK `ON DELETE RESTRICT`, 상태와 값 짝은 CHECK, 로그 금지 항목, problem+json, OpenAPI 3.1 전용 문법 금지, 커밋 꼬리말.
 - 교환 코드: 256비트 난수 base64url(패딩 없음), DB에는 SHA-256만, 수명 2분(`AppleWebExchangeTTL = 2 * time.Minute`), 일회용. nonce가 틀려도 소진하지 않습니다.
-- 로그에 남기지 않는 값에 교환 코드, App Link의 query, Apple `user`가 더해집니다.
+- server(애플리케이션) 로그에 남기지 않는 값에 교환 코드, App Link의 query, Apple `user`가 더해집니다. Cloud Run 요청 로그는 별개입니다(S22 설계 §2.3).
 - 오류 code는 `internal/httpapi/problem/codes.go` registry와 계약 `x-problem-codes`에 함께 넣습니다(S21). 새 code는 `auth.exchange_invalid`(401) 하나입니다.
 - 계약 `info.version`은 `1.0.0-draft.2`(하위 호환이 깨지는 변경: `loginApple`의 `clientType` 제거).
 
@@ -23,7 +23,7 @@
 1. 교환 코드를 가로챈 쪽이 nonce를 틀리게 보냄 → 401 `auth.exchange_invalid`이고 그 코드는 소진되지 않아, 정상 app이 맞는 nonce로 2분 안에 성공합니다. (Task 4)
 2. 같은 교환 코드로 동시에 두 번 완료 요청 → 정확히 하나만 로그인되고 다른 하나는 401. (Task 4)
 3. 콜백에서 Apple이 일시 장애(JWKS·token 5xx) → 400 화면이 아니라 App Link로 `error=provider_unavailable`이 가서 app이 재시도를 안내합니다. (Task 5)
-4. App Link가 앱을 열지 못해 브라우저가 `GET /auth/apple?exchange=…`를 염 → 안내 HTML, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, 교환 코드는 intent 링크로만 전달, 요청 로그에 query 없음. (Task 5)
+4. App Link가 앱을 열지 못해 브라우저가 `GET /auth/apple?exchange=…`를 염 → 안내 HTML, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, 교환 코드는 intent 링크로만 전달, server 로그에 query 없음. (Task 5)
 5. 완료 요청에서 로그인 트랜잭션이 실패(DB 오류) → 교환 코드는 소진되지 않고, 2분 안 재시도로 성공합니다. (Task 4)
 
 ---

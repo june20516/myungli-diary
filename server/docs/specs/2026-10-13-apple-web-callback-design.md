@@ -50,7 +50,8 @@
 * 요청이 오면, 앱이 없거나 링크 검증이 안 된 경우입니다. 이때 "앱에서 계속하기" 안내 HTML을 돌려줍니다.
   * Android intent 링크와 스토어 링크를 담고, 교환 코드는 그대로 intent에 넘깁니다.
   * intent에는 형식에 맞는 `exchange`나 계약의 `error` 다섯 값 하나와 `state`만 다시 담습니다(그 밖의 query는 버립니다). 둘 다 해당하지 않으면 스토어 링크만 보여 줍니다.
-  * 페이지는 query 값을 로그에 남기지 않고, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`를 겁니다.
+  * 페이지는 query 값을 server(애플리케이션) 로그에 남기지 않고, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`를 겁니다.
+  * Cloud Run이 자동으로 남기는 요청 로그(`httpRequest.requestUrl`)에는 query가 들어갑니다. 이 위험은 받아들입니다. 교환 코드는 nonce 원문 없이 쓸 수 없고, 수명이 2분이며 일회용이고, App Link가 동작하면 이 요청 자체가 오지 않기 때문입니다. 배포(P9)에서 `/auth/apple` 요청 로그 제외 필터를 검토합니다.
 * 문구는 writing 슬롯이 필요합니다. 첫 구현은 고정 한국어 한 문장으로 하고, writing에 요청합니다.
 * `/.well-known/assetlinks.json`도 server가 내줍니다. 값은 설정 `ANDROID_APP_PACKAGE`, `ANDROID_CERT_SHA256`(여러 개 가능)에서 만듭니다.
 
@@ -84,7 +85,7 @@
 * nonce 원문이 틀리면 401이고, 그 교환 코드는 소진되지 않습니다. 맞는 nonce로 재시도하면 성공합니다(§4 1번).
 * 만료(2분+1초) → 401.
 * 취소·검증 실패·제공자 장애는 `error` 값을 담아 303.
-* 안내 페이지와 assetlinks.json의 헤더와 내용, 로그에 query가 없음.
+* 안내 페이지와 assetlinks.json의 헤더와 내용, server 로그에 query가 없음.
 * e2e: Android Apple 흐름 전체, 기존 iOS(native) 흐름은 그대로.
 
 ## 4. 정한 점 (2026-10-13 사용자 승인)
