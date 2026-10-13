@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/animation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
@@ -119,6 +121,27 @@ void main() {
       final a11y = _map(specs['sentence-block']!['a11y']);
       expect(a11y['lockedNameSlot'], SentenceBlock.lockedNameSlotId);
       expect(a11y['lockedLabelSlot'], SentenceBlock.lockedLabelSlotId);
+    });
+
+    test('sentence-block: 잠김 라벨 문구가 두 슬롯의 ARB 문구에서 옵니다', () {
+      expect(SentenceBlock.lockedLabelTexts.keys, [
+        SentenceBlock.lockedNameSlotId,
+        SentenceBlock.lockedLabelSlotId,
+      ]);
+      for (final locale in ['ko', 'en', 'ja']) {
+        final arb = jsonDecode(
+          File('lib/core/l10n/arb/app_$locale.arb').readAsStringSync(),
+        ) as Map<String, Object?>;
+        final l10n = lookupAppLocalizations(Locale(locale));
+        for (final MapEntry(key: slotId, value: textOf)
+            in SentenceBlock.lockedLabelTexts.entries) {
+          expect(
+            textOf(l10n),
+            arb[iaKey(slotId)],
+            reason: '$locale $slotId의 ARB 키 ${iaKey(slotId)}',
+          );
+        }
+      }
     });
   });
 

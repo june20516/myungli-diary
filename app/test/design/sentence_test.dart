@@ -384,6 +384,35 @@ void main() {
         expect(tapped, ['TenGod.SIKSIN']);
       });
 
+      testWidgets('term-token 화면 슬롯이라도 용어 조각이 없으면 onTerm 없이 그립니다', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.card,
+            text: _text([Segment(text: '오늘은 차분한 하루입니다.')]),
+            slotId: SlotIds.todayFortuneBody,
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        expect(find.text('오늘은 차분한 하루입니다.'), findsOneWidget);
+      });
+
+      testWidgets('term-token 화면 슬롯에 용어 조각이 있는데 onTerm이 없으면 assert', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          SentenceBlock(
+            variant: SentenceBlockVariant.card,
+            text: _siksin,
+            slotId: SlotIds.todayFortuneBody,
+          ),
+        );
+        expect(tester.takeException(), isA<AssertionError>());
+      });
+
       testWidgets('saju-chart 슬롯도 칩입니다', (tester) async {
         await pump(
           tester,

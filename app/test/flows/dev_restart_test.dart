@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/dev/scenario_picker.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
@@ -78,5 +79,31 @@ void main() {
     });
     expect(leftovers!.cache, isNull);
     expect(leftovers.flag, isFalse);
+  });
+
+  test('재시작 정리는 만든 적 없는 DB를 열지 않고, 연 DB는 닫습니다', () async {
+    var created = 0;
+    ProviderContainer containerWithCountingDatabase() => ProviderContainer(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) {
+          created++;
+          return AppDatabase.forExecutor(NativeDatabase.memory());
+        }),
+      ],
+    );
+
+    await disposeClosingDatabase(containerWithCountingDatabase());
+    expect(created, 0);
+
+    final used = containerWithCountingDatabase();
+    final database = used.read(appDatabaseProvider);
+    await database.customSelect('SELECT 1').get();
+    await disposeClosingDatabase(used);
+    expect(created, 1);
+    await expectLater(
+      database.customSelect('SELECT 1').get(),
+      throwsA(anything),
+      reason: '닫힌 DB',
+    );
   });
 }

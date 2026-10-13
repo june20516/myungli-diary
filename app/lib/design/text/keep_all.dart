@@ -16,6 +16,11 @@ const String wordJoiner = '⁠';
 ///
 /// 결과는 화면에 그리는 용도입니다. 스크린리더 라벨과 풀이 키 같은 값에는 원문을 쓰고,
 /// `TextSpan.semanticsLabel`에 원문을 넘기세요.
+///
+/// 한계(server가 만든 NFC 콘텐츠 문장을 전제): 한글 옆의 결합 부호 둘레는 결합자를 넣지
+/// 않아 그 자리에서 끊길 수 있습니다(글자가 사라지거나 넘치지는 않음). NFD 조합형 자모
+/// (U+1100~11FF)도 한글로 보아 자모 사이에 결합자를 넣으므로, NFD 입력이 생기면 다시
+/// 봅니다.
 String applyKeepAll(Locale locale, String text) {
   if (locale.languageCode != 'ko') return text;
   final buffer = StringBuffer();
@@ -32,6 +37,8 @@ String applyKeepAll(Locale locale, String text) {
 ///
 /// 자간(`letterSpacing`)은 글자마다 얹히므로 제로 폭 결합자에도 붙어 어절 폭이 달라집니다.
 /// 결합자 span은 자간 0이고 스크린리더 라벨이 비어 있어, 폭과 낭독은 원문과 같습니다.
+///
+/// 글자 사이마다 span이 생기므로 짧은 콘텐츠 문장용입니다. 긴 본문(일기)에는 쓰지 마세요.
 List<InlineSpan> keepAllSpans(Locale locale, String text) {
   final parts = applyKeepAll(locale, text).split(wordJoiner);
   return [

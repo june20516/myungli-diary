@@ -64,6 +64,16 @@ class SentenceBlock extends StatelessWidget {
   /// 잠김 라벨 뒷부분("잠김") 슬롯(`a11y.lockedLabelSlot`).
   static const String lockedLabelSlotId = SlotIds.evidenceSheetA11yLocked;
 
+  /// 잠김 라벨 슬롯의 문구(슬롯 id → ARB getter). 라벨은 이 순서로 잇습니다.
+  ///
+  /// 대조 테스트가 각 getter가 그 슬롯의 ARB 키(`iaKey`) 문구를 내는지 확인하므로,
+  /// 명세의 슬롯이 바뀌어 상수를 고치면 여기 getter도 함께 고쳐야 통과합니다.
+  static final Map<String, String Function(AppLocalizations)> lockedLabelTexts =
+      {
+        lockedNameSlotId: (l10n) => l10n.sajuChartYongsinTitle,
+        lockedLabelSlotId: (l10n) => l10n.evidenceSheetA11yLocked,
+      };
+
   /// 변형.
   final SentenceBlockVariant variant;
 
@@ -79,7 +89,8 @@ class SentenceBlock extends StatelessWidget {
   /// `term` 조각 표시를 직접 정합니다. null이면 IA로 정합니다(클래스 설명).
   final TermStyle? termStyle;
 
-  /// 용어 칩을 눌렀을 때. 칩으로 그려질 때 필요합니다.
+  /// 용어 칩을 눌렀을 때. 칩으로 그려질 때(term-token 화면 슬롯의 문장에 `term` 조각이
+  /// 있을 때) 필요합니다. 용어가 없는 문장에는 주지 않아도 됩니다.
   final ValueChanged<String>? onTerm;
 
   /// 잠긴 문장의 "열기 ›"를 눌렀을 때(근거 시트를 잠김 상태로 엽니다).
@@ -109,8 +120,10 @@ class SentenceBlock extends StatelessWidget {
     final preview = variant == SentenceBlockVariant.preview;
     final terms = _resolveTermStyle();
     assert(
-      terms == TermStyle.plain || onTerm != null,
-      '$slotId는 term-token 화면의 문장이라 칩으로 그립니다. onTerm을 주세요.',
+      terms == TermStyle.plain ||
+          onTerm != null ||
+          !text.segments.any((segment) => segment.term != null),
+      '$slotId는 term-token 화면의 용어 문장이라 칩으로 그립니다. onTerm을 주세요.',
     );
     return RenderedTextView(
       text: text,
@@ -143,10 +156,9 @@ class SentenceBlock extends StatelessWidget {
       children: [
         Expanded(
           child: LockVeil.line(
-            // [lockedNameSlotId] 문구 + [lockedLabelSlotId] 문구.
+            // 구역 이름 + "잠김"(컴포넌트 2.2.0).
             semanticLabel: [
-              l10n.sajuChartYongsinTitle,
-              l10n.evidenceSheetA11yLocked,
+              for (final textOf in lockedLabelTexts.values) textOf(l10n),
             ].join(', '),
             a11ySlotId: lockedLabelSlotId,
           ),

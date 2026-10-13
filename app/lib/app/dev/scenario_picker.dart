@@ -68,10 +68,7 @@ class _DevHostState extends State<DevHost> {
       _failure = null;
     });
     if (old != null) {
-      // 같은 DB 파일을 새로 열기 전에 이전 연결이 닫히길 기다립니다.
-      final database = old.read(appDatabaseProvider);
-      old.dispose();
-      await database.close();
+      await disposeClosingDatabase(old);
     }
     try {
       final next = await widget.createContainer(scenarioId);
@@ -232,4 +229,16 @@ class _ScenarioListState extends State<_ScenarioList> {
       ),
     );
   }
+}
+
+/// [container]를 닫고, 그 컨테이너가 연 로컬 DB가 있으면 연결이 닫힐 때까지 기다립니다.
+///
+/// 같은 DB 파일을 새 컨테이너가 열기 전에 부릅니다. DB provider를 만든 적이 없으면
+/// 닫으려고 새로 만들지 않습니다.
+Future<void> disposeClosingDatabase(ProviderContainer container) async {
+  final database = container.exists(appDatabaseProvider)
+      ? container.read(appDatabaseProvider)
+      : null;
+  container.dispose();
+  await database?.close();
 }

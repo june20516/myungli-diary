@@ -188,7 +188,8 @@ double _scaleInCell(
 ///   `TextScaler.noScaling`(`flutter/lib/src/widgets/basic.dart`).
 /// - 그 밖의 위젯: `MediaQuery.textScalerOf`.
 ///
-/// 대상이 없으면(아이콘만 있는 칸 등) 실패합니다.
+/// 대상이 없으면(아이콘만 있는 칸 등) 실패합니다. deprecated `Text.textScaleFactor`
+/// 분기는 다루지 않습니다(코드베이스는 `textScaler`만 쓰고 lint가 deprecated 사용을 막음).
 double effectiveTextScale(WidgetTester tester, Finder target) {
   expect(
     target,
