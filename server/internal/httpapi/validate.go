@@ -10,6 +10,7 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -38,7 +39,18 @@ func init() {
 	// JSON 본문과 PATCH 본문(JSON Merge Patch)을 같은 규칙의 JSON으로 디코드합니다.
 	openapi3filter.RegisterBodyDecoder(contentTypeJSON, decodeSingleJSONBody)
 	openapi3filter.RegisterBodyDecoder(contentTypeMergePatch, decodeSingleJSONBody)
-	// kin-openapi는 date·date-time만 기본으로 검사합니다. 계약의 id(format: uuid)도 검사합니다.
+	// kin-openapi의 기본 date·date-time 검사는 정규식뿐이라 2026-02-30 같은 없는 날짜를 통과시키고, 그 값이
+	// 생성 코드 디코드에서 실패하면 errors[].code가 달라집니다. 달력과 시각으로 읽히는지 직접 검사해
+	// 모든 형식 위반을 검증 단계의 format keyword로 모읍니다.
+	openapi3.DefineStringFormatValidator("date", openapi3.NewCallbackValidator(func(value string) error {
+		_, err := time.Parse(time.DateOnly, value)
+		return err
+	}))
+	openapi3.DefineStringFormatValidator("date-time", openapi3.NewCallbackValidator(func(value string) error {
+		_, err := time.Parse(time.RFC3339, value)
+		return err
+	}))
+	// 계약의 id(format: uuid)도 검사합니다.
 	openapi3.DefineStringFormatValidator("uuid", openapi3.NewRegexpFormatValidator(openapi3.FormatOfStringForUUIDOfRFC4122))
 }
 

@@ -106,19 +106,44 @@ func TestAPI_InvalidDatePathReturns400(t *testing.T) {
 }
 
 // format: date 정규식은 2026-02-30을 통과시키므로, 생성 코드가 Go 타입으로 바꿀 때 400이 되어야 합니다.
+// expectFormatViolation은 400 request.invalid이고 errors가 정확히 [{field, code: "format"}]인지 확인합니다.
+func expectFormatViolation(t *testing.T, rec *httptest.ResponseRecorder, field string) {
+	t.Helper()
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400, body = %s", rec.Code, rec.Body.String())
+	}
+	p := decodeProblem(t, rec)
+	if p.Code != "request.invalid" {
+		t.Errorf("code = %q, want request.invalid", p.Code)
+	}
+	want := []problem.FieldError{{Field: field, Code: "format"}}
+	if !slices.Equal(p.Errors, want) {
+		t.Errorf("errors = %+v, want %+v", p.Errors, want)
+	}
+}
+
+// 달력에 없는 날짜는 생성 코드 디코드가 아니라 검증 단계에서 format 위반으로 잡힙니다.
 func TestAPI_NonexistentDateReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
 	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2026-02-30", nil))
-	expectInvalid(t, rec, "date")
+	expectFormatViolation(t, rec, "date")
 
 	rec = serve(handler, newBodyRequest(t, http.MethodPost, "/v1/schedules", contentTypeJSON, `{"date":"2026-02-30","allDay":true,"title":"점심"}`))
-	if rec.Code != http.StatusBadRequest {
-		t.Fatalf("본문 status = %d, want 400, body = %s", rec.Code, rec.Body.String())
+	expectFormatViolation(t, rec, "/date")
+}
+
+// 윤일은 윤년에만 유효합니다.
+func TestAPI_LeapDayIsValidOnlyInLeapYears(t *testing.T) {
+	handler, _ := newAPIHandler(t)
+
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2028-02-29", nil))
+	if rec.Code != http.StatusNotImplemented {
+		t.Errorf("2028-02-29 status = %d, want 501, body = %s", rec.Code, rec.Body.String())
 	}
-	if p := decodeProblem(t, rec); p.Code != "request.invalid" {
-		t.Errorf("본문 code = %q, want request.invalid", p.Code)
-	}
+
+	rec = serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/daily/2027-02-29", nil))
+	expectFormatViolation(t, rec, "date")
 }
 
 func TestAPI_InvalidQueryReturns400WithParameterName(t *testing.T) {
