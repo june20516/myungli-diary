@@ -6,6 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 
 const _arbDir = 'lib/core/l10n/arb';
+const _foundationKeys = {
+  'errorOffline',
+  'errorTimeout',
+  'errorClient',
+  'errorServer',
+  'errorUnexpected',
+  'errorNotImplemented',
+  'actionRetry',
+  'traceIdLabel',
+};
 const _locales = ['ko', 'en', 'ja'];
 
 /// 메타데이터(`@…`)를 뺀 메시지 키 집합입니다.
@@ -34,6 +44,7 @@ void main() {
   test('세 ARB의 메시지 키 집합이 같습니다', () {
     final ko = _messageKeys('ko');
 
+    expect(ko, containsAll(_foundationKeys));
     expect(_messageKeys('en'), ko);
     expect(_messageKeys('ja'), ko);
   });

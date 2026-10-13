@@ -12,6 +12,7 @@ on:
       - "docs/identity/design/tokens/**"
       - "docs/identity/design/components/**"
       - "docs/identity/writing/slots/**"
+      - "docs/identity/writing/tools/**"
   # ci-gate 연결(#85) 전까지 pull_request 트리거를 유지한다. 연결 후에는 지휘 세션이 지운다.
   pull_request:
     paths:
@@ -22,6 +23,7 @@ on:
       - "docs/identity/design/tokens/**"
       - "docs/identity/design/components/**"
       - "docs/identity/writing/slots/**"
+      - "docs/identity/writing/tools/**"
   workflow_call:
   workflow_dispatch:
 
@@ -55,7 +57,17 @@ jobs:
       - name: 포맷 확인
         run: dart format --output=none --set-exit-if-changed .
       - name: 생성 코드 차이 확인
-        run: dart run tool/gen_ia.dart && dart run tool/gen_tokens.dart && flutter gen-l10n && git diff --exit-code
+        run: |
+          dart run tool/gen_ia.dart
+          dart run tool/gen_tokens.dart
+          flutter gen-l10n
+          # 수정된 파일과 commit되지 않은 새 파일을 모두 잡는다.
+          changes="$(git status --porcelain -- .)"
+          if [ -n "$changes" ]; then
+            echo "생성 코드가 commit된 것과 다릅니다:"
+            echo "$changes"
+            exit 1
+          fi
       # 저장소 루트의 검사기를 쓰므로 이 단계만 루트에서 실행한다.
       - uses: astral-sh/setup-uv@v6
       - name: ARB 문구 검사
