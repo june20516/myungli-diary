@@ -49,10 +49,12 @@ class DepthLink extends StatelessWidget {
     required this.variant,
     required this.label,
     required this.onTap,
+    this.slotId,
     super.key,
   });
 
-  /// 명세 대조용 요약.
+  /// 명세 대조용 요약. `locked` 이하 네 상태는 링크가 여는 근거 시트의 상태입니다
+  /// (`DepthLinkState`, 그리는 쪽은 `EvidenceSheetBody`). 링크 자신의 상태는 `pressed`뿐입니다.
   static const ComponentSpec spec = ComponentSpec(
     'depth-link',
     {'inline-end', 'block'},
@@ -68,6 +70,9 @@ class DepthLink extends StatelessWidget {
   /// 눌렀을 때(한 단계 깊은 시트 열기).
   final VoidCallback onTap;
 
+  /// 이 링크가 그리는 IA 슬롯 id(`SlotIds`). 있으면 Key와 Semantics `identifier`로 붙습니다.
+  final String? slotId;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
@@ -76,6 +81,7 @@ class DepthLink extends StatelessWidget {
       child: PressInkTarget(
         link: true,
         semanticLabel: label,
+        identifier: slotId,
         onTap: onTap,
         borderRadius: radius,
         inkColor: tokens.colors.actionPrimary,
@@ -88,14 +94,18 @@ class DepthLink extends StatelessWidget {
         ),
       ),
     );
+    final id = slotId;
+    final keyed = id == null
+        ? link
+        : KeyedSubtree(key: ValueKey(id), child: link);
     return switch (variant) {
-      DepthLinkVariant.inlineEnd => link,
+      DepthLinkVariant.inlineEnd => keyed,
       DepthLinkVariant.block => Padding(
         padding: const EdgeInsets.only(top: Space.s12),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
           heightFactor: 1,
-          child: link,
+          child: keyed,
         ),
       ),
     };

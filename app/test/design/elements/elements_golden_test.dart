@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -7,7 +6,6 @@ import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/term_mark.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
-import '../../support/fonts.dart';
 import '../../support/golden.dart';
 
 const AppGlyph _heart = AppGlyph(
@@ -79,11 +77,6 @@ Widget _fixedCell() => MediaQuery.withClampedTextScaling(
 );
 
 void main() {
-  setUpAll(() async {
-    await loadBundledFonts();
-    await loadPhosphorFonts();
-  });
-
   goldenTest('요소 모음', (tester) async {
     await goldenMatrix(tester, 'elements', _elements);
   });

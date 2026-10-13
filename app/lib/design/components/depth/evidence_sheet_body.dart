@@ -5,10 +5,10 @@ import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
-import 'package:myungli_diary/design/components/sentence/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
@@ -113,6 +113,14 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // 열림 알림은 스크롤해도 뷰포트 밖으로 밀려나지 않게 스크롤 영역 밖 위쪽에 둡니다.
+        if (_justUnlocked)
+          LiveAnnouncement(
+            identifier: SlotIds.evidenceSheetA11yUnlocked,
+            label: l10n.evidenceSheetA11yUnlocked,
+            role: SemanticsRole.status,
+            child: const SizedBox.square(dimension: 1),
+          ),
         Flexible(
           child: SingleChildScrollView(
             child: Column(
@@ -133,12 +141,14 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                   context,
                   title: l10n.evidenceSheetSectionBasis,
                   text: widget.basis,
+                  titleSlotId: SlotIds.evidenceSheetSectionBasis,
                   slotId: SlotIds.evidenceSheetBasisBody,
                 ),
                 _section(
                   context,
                   title: l10n.evidenceSheetSectionSource,
                   text: widget.source,
+                  titleSlotId: SlotIds.evidenceSheetSectionSource,
                   slotId: SlotIds.evidenceSheetSourceQuote,
                   quote: true,
                 ),
@@ -147,13 +157,8 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     context,
                     title: l10n.evidenceSheetSectionPersonal,
                     text: widget.personal,
+                    titleSlotId: SlotIds.evidenceSheetSectionPersonal,
                     slotId: SlotIds.evidenceSheetPersonalBody,
-                  ),
-                if (_justUnlocked)
-                  LiveAnnouncement(
-                    label: l10n.evidenceSheetA11yUnlocked,
-                    role: SemanticsRole.status,
-                    child: const SizedBox.square(dimension: 1),
                   ),
               ],
             ),
@@ -178,16 +183,24 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     BuildContext context, {
     required String title,
     required RenderedText? text,
+    required String titleSlotId,
     required String slotId,
     bool quote = false,
   }) {
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
     final Widget content;
+    assert(
+      !_unlocked || text != null,
+      '권한이 있는데($slotId) 본문이 없습니다. server가 잠기지 않은 구역 본문을 보내야 합니다.',
+    );
     if (!_unlocked || text == null) {
       content = LockVeil(
         title: title,
         semanticLabel: '$title, ${l10n.evidenceSheetA11yLocked}',
+        titleSlotId: titleSlotId,
+        bodySlotId: slotId,
+        a11ySlotId: SlotIds.evidenceSheetA11yLocked,
       );
     } else {
       final block = SentenceBlock(
@@ -198,10 +211,16 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            style: tokens.typography.labelMd.copyWith(
-              color: tokens.colors.textSecondary,
+          KeyedSubtree(
+            key: ValueKey(titleSlotId),
+            child: Semantics(
+              identifier: titleSlotId,
+              child: Text(
+                title,
+                style: tokens.typography.labelMd.copyWith(
+                  color: tokens.colors.textSecondary,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: Space.s8),

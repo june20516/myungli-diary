@@ -14,6 +14,9 @@ class LockVeil extends StatelessWidget {
     required this.title,
     required this.semanticLabel,
     this.lengthHint,
+    this.titleSlotId,
+    this.bodySlotId,
+    this.a11ySlotId,
     super.key,
   }) : assert(lengthHint == null || lengthHint > 0, 'lengthHint는 양수여야 합니다.'),
        _singleLine = false;
@@ -21,10 +24,15 @@ class LockVeil extends StatelessWidget {
   /// 제목 없이 흐린 한 줄만 그리는 모양(`sentence-block` `locked`, `lines: 1`).
   ///
   /// 스크린리더 라벨은 "잠김" 같은 [semanticLabel]만 읽습니다.
-  const new line({required this.semanticLabel, super.key})
-    : title = null,
-      lengthHint = null,
-      _singleLine = true;
+  const new line({
+    required this.semanticLabel,
+    this.bodySlotId,
+    this.a11ySlotId,
+    super.key,
+  }) : title = null,
+       titleSlotId = null,
+       lengthHint = null,
+       _singleLine = true;
 
   /// 흐린 본문을 찾는 테스트용 키.
   static const Key bodyKey = ValueKey('lock-veil-body');
@@ -43,6 +51,16 @@ class LockVeil extends StatelessWidget {
   /// 스크린리더 라벨: 구역 제목 + "잠김"(ARB 문구). 흐린 본문은 읽지 않습니다.
   final String semanticLabel;
 
+  /// 제목이 채우는 IA 슬롯 id. 있으면 제목에 Key와 Semantics `identifier`를 붙입니다.
+  final String? titleSlotId;
+
+  /// 본문 자리가 채우는 IA 슬롯 id(예: `evidence-sheet.basis.body`). Key와 `identifier`.
+  final String? bodySlotId;
+
+  /// 스크린리더 "잠김" 문구의 IA 슬롯 id(`evidence-sheet.a11y.locked`).
+  /// 라벨 노드의 `identifier`입니다.
+  final String? a11ySlotId;
+
   /// server가 준 본문 길이 힌트(글자 수). 없으면 두 줄입니다.
   final int? lengthHint;
 
@@ -54,62 +72,75 @@ class LockVeil extends StatelessWidget {
     final placeholder = hint == null
         ? List.filled(20, _filler).join()
         : List.generate(hint, (i) => _filler[i % _filler.length]).join();
+    final body = SelectionContainer.disabled(
+      key: bodyKey,
+      child: Opacity(
+        opacity: _bodyOpacity,
+        child: ImageFiltered(
+          imageFilter: ui.ImageFilter.blur(
+            sigmaX: _blurSigma,
+            sigmaY: _blurSigma,
+            tileMode: TileMode.decal,
+          ),
+          child: Text(
+            placeholder,
+            maxLines: _singleLine ? 1 : (hint == null ? 2 : null),
+            overflow: _singleLine || hint == null ? TextOverflow.clip : null,
+            style: tokens.typography.sentenceBody.copyWith(
+              color: tokens.colors.textPrimary,
+            ),
+          ),
+        ),
+      ),
+    );
+    // 라벨 노드가 제목 + "잠김"을 읽고, 제목·본문 자리는 슬롯 id만 가진 빈 노드입니다.
+    // 흐린 자리 채우기 글과 제목 글자는 읽지 않습니다.
     return Semantics(
       container: true,
       label: semanticLabel,
-      excludeSemantics: true,
+      identifier: a11ySlotId,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (title != null) ...[
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  PhosphorIconsRegular.lockSimple,
-                  size: 14,
-                  color: tokens.colors.textSecondary,
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    title,
-                    style: tokens.typography.labelMd.copyWith(
-                      color: tokens.colors.textSecondary,
+            _slot(
+              titleSlotId,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    PhosphorIconsRegular.lockSimple,
+                    size: 14,
+                    color: tokens.colors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: tokens.typography.labelMd.copyWith(
+                        color: tokens.colors.textSecondary,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 6),
           ],
-          // 선택·복사를 막고 흐림과 투명도를 본문 자신에게만 겁니다.
-          SelectionContainer.disabled(
-            key: bodyKey,
-            child: Opacity(
-              opacity: _bodyOpacity,
-              child: ImageFiltered(
-                imageFilter: ui.ImageFilter.blur(
-                  sigmaX: _blurSigma,
-                  sigmaY: _blurSigma,
-                  tileMode: TileMode.decal,
-                ),
-                child: Text(
-                  placeholder,
-                  maxLines: _singleLine ? 1 : (hint == null ? 2 : null),
-                  overflow: _singleLine || hint == null
-                      ? TextOverflow.clip
-                      : null,
-                  style: tokens.typography.sentenceBody.copyWith(
-                    color: tokens.colors.textPrimary,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          _slot(bodySlotId, body),
         ],
       ),
+    );
+  }
+
+  /// 슬롯 id가 있으면 Key와 빈 `identifier` 노드를 붙이고, 안의 글자는 읽지 않습니다.
+  Widget _slot(String? id, Widget child) {
+    final hidden = ExcludeSemantics(child: child);
+    if (id == null) return hidden;
+    return KeyedSubtree(
+      key: ValueKey(id),
+      child: Semantics(container: true, identifier: id, child: hidden),
     );
   }
 }

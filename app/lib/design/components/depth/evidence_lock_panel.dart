@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
@@ -28,7 +29,7 @@ class EvidenceLockPanel extends StatelessWidget {
   }) : assert(state != DepthLinkState.unlocked, '권한이 있으면 안내 영역을 그리지 않습니다.');
 
   /// 광고 버튼을 찾는 테스트용 키.
-  static const Key ctaKey = ValueKey('evidence-lock-cta');
+  static const Key ctaKey = ValueKey(SlotIds.evidenceSheetLockCta);
 
   /// 처리 중 점을 찾는 테스트용 키.
   static const Key dotsKey = ValueKey('evidence-lock-dots');
@@ -79,30 +80,36 @@ class EvidenceLockPanel extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        PhosphorIconsRegular.lockSimple,
-                        size: _iconSize,
-                        color: colors.statusFg,
-                      ),
-                      const SizedBox(width: _gap),
-                      Flexible(
-                        child: Text(
-                          l10n.evidenceSheetLockHead,
-                          style: typography.labelLg.copyWith(
-                            color: colors.textPrimary,
+                  _slot(
+                    SlotIds.evidenceSheetLockHead,
+                    Row(
+                      children: [
+                        Icon(
+                          PhosphorIconsRegular.lockSimple,
+                          size: _iconSize,
+                          color: colors.statusFg,
+                        ),
+                        const SizedBox(width: _gap),
+                        Flexible(
+                          child: Text(
+                            l10n.evidenceSheetLockHead,
+                            style: typography.labelLg.copyWith(
+                              color: colors.textPrimary,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: _gap),
                   // 보상 고지는 광고 버튼보다 먼저 보입니다(AdMob 보상 고지).
-                  Text(
-                    l10n.evidenceSheetLockReward,
-                    style: typography.captionLg.copyWith(
-                      color: colors.textSecondary,
+                  _slot(
+                    SlotIds.evidenceSheetLockReward,
+                    Text(
+                      l10n.evidenceSheetLockReward,
+                      style: typography.captionLg.copyWith(
+                        color: colors.textSecondary,
+                      ),
                     ),
                   ),
                   const SizedBox(height: Space.s12),
@@ -110,11 +117,14 @@ class EvidenceLockPanel extends StatelessWidget {
                   if (state == DepthLinkState.lockedNoAd)
                     Padding(
                       padding: const EdgeInsets.only(top: Space.s8),
-                      child: Text(
-                        l10n.evidenceSheetLockUnavailable,
-                        textAlign: TextAlign.center,
-                        style: typography.captionLg.copyWith(
-                          color: colors.textSecondary,
+                      child: _slot(
+                        SlotIds.evidenceSheetLockUnavailable,
+                        Text(
+                          l10n.evidenceSheetLockUnavailable,
+                          textAlign: TextAlign.center,
+                          style: typography.captionLg.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ),
                     ),
@@ -122,20 +132,24 @@ class EvidenceLockPanel extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: Space.s12),
                       child: VerticalHitSlop(
-                        child: Center(
-                          child: PressInkTarget(
-                            link: true,
-                            semanticLabel: l10n.evidenceSheetLockPass,
-                            onTap: onPass!,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(Radii.xs),
-                            ),
-                            inkColor: colors.actionPrimary,
-                            child: Text(
-                              l10n.evidenceSheetLockPass,
-                              textAlign: TextAlign.center,
-                              style: typography.labelMd.copyWith(
-                                color: colors.actionPrimary,
+                        child: KeyedSubtree(
+                          key: const ValueKey(SlotIds.evidenceSheetLockPass),
+                          child: Center(
+                            child: PressInkTarget(
+                              link: true,
+                              identifier: SlotIds.evidenceSheetLockPass,
+                              semanticLabel: l10n.evidenceSheetLockPass,
+                              onTap: onPass!,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(Radii.xs),
+                              ),
+                              inkColor: colors.actionPrimary,
+                              child: Text(
+                                l10n.evidenceSheetLockPass,
+                                textAlign: TextAlign.center,
+                                style: typography.labelMd.copyWith(
+                                  color: colors.actionPrimary,
+                                ),
                               ),
                             ),
                           ),
@@ -150,6 +164,12 @@ class EvidenceLockPanel extends StatelessWidget {
       },
     );
   }
+
+  /// 슬롯 id를 Key와 Semantics `identifier`로 붙입니다(글자는 그대로 읽힙니다).
+  static Widget _slot(String id, Widget child) => KeyedSubtree(
+    key: ValueKey(id),
+    child: Semantics(identifier: id, child: child),
+  );
 
   /// 임시: 계획 2에서 `primary-button` `filled`(`disabled`·`loading`)로 교체합니다.
   Widget _buildCta(BuildContext context) {
@@ -182,6 +202,7 @@ class EvidenceLockPanel extends StatelessWidget {
     if (enabled) {
       return PressInkTarget(
         semanticLabel: label,
+        identifier: SlotIds.evidenceSheetLockCta,
         onTap: onWatchAd!,
         borderRadius: radius,
         inkColor: colors.actionOnPrimary,
@@ -193,6 +214,9 @@ class EvidenceLockPanel extends StatelessWidget {
       container: true,
       button: true,
       enabled: false,
+      identifier: busy
+          ? SlotIds.evidenceSheetA11yChecking
+          : SlotIds.evidenceSheetLockCta,
       label: busy ? l10n.evidenceSheetA11yChecking : label,
       child: ExcludeSemantics(child: face),
     );

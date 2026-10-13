@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -36,7 +37,10 @@ class SentenceBlock extends StatelessWidget {
     this.onOpenLocked,
     this.trailing,
     super.key,
-  });
+  }) : assert(
+         variant != SentenceBlockVariant.preview || onTerm == null,
+         'preview는 카드 전체가 버튼인 곳(diary-row)에 놓이므로 용어를 누를 수 없습니다.',
+       );
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
@@ -103,12 +107,16 @@ class SentenceBlock extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: LockVeil.line(semanticLabel: l10n.evidenceSheetA11yLocked),
+          child: LockVeil.line(
+            semanticLabel: l10n.evidenceSheetA11yLocked,
+            a11ySlotId: SlotIds.evidenceSheetA11yLocked,
+          ),
         ),
         if (onOpenLocked != null)
           DepthLink(
             variant: DepthLinkVariant.inlineEnd,
             label: l10n.sajuChartYongsinOpen,
+            slotId: SlotIds.sajuChartYongsinOpen,
             onTap: onOpenLocked!,
           ),
       ],

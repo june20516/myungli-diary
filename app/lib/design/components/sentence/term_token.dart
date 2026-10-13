@@ -3,6 +3,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
+import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -54,7 +55,8 @@ class TermToken extends StatelessWidget {
   /// `label`은 무시하고 `type.caption.md`를 씁니다.
   final TextStyle? textStyle;
 
-  /// 칩 바로 앞에 공백 없이 붙은 글자. 칩 밖이라 눌리지 않지만 한 덩어리로 줄이 바뀝니다.
+  /// 칩 바로 앞에 공백 없이 붙은 글자. 칩 밖이라 눌리지 않지만 한 덩어리로 줄이 바뀌고,
+  /// 스크린리더 라벨은 칩 라벨에 묶입니다.
   final String? before;
 
   /// 칩 바로 뒤에 공백 없이 붙은 글자(한국어 조사). [before]와 같습니다.
@@ -62,6 +64,7 @@ class TermToken extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
     final tokens = context.tokens;
     final colors = tokens.colors;
     final base = switch (variant) {
@@ -75,7 +78,9 @@ class TermToken extends StatelessWidget {
     };
     const radius = BorderRadius.all(Radius.circular(Radii.xs));
     final chip = PressInkTarget(
-      semanticLabel: AppLocalizations.of(context).termTokenSemantics(label),
+      // 붙은 글자(조사)도 칩과 같은 낭독 정지점에 묶어 따로 읽히지 않게 합니다.
+      semanticLabel: AppLocalizations.of(context)
+          .termTokenSemantics('${before ?? ''}$label${after ?? ''}'),
       onTap: onTap,
       borderRadius: radius,
       inkColor: colors.termFg,
@@ -95,9 +100,15 @@ class TermToken extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          if (before != null) Text(before!, style: base),
+          if (before != null)
+            ExcludeSemantics(
+              child: Text(applyKeepAll(locale, before!), style: base),
+            ),
           chip,
-          if (after != null) Text(after!, style: base),
+          if (after != null)
+            ExcludeSemantics(
+              child: Text(applyKeepAll(locale, after!), style: base),
+            ),
         ],
       ),
     );

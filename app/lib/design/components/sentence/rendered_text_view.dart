@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/text/keep_all.dart';
 
 /// server가 렌더한 문장 조각 배열(`RenderedText.segments`)을 그대로 그립니다.
 ///
@@ -12,6 +13,9 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 /// [onTerm]이 있으면 `term`이 있는 조각을 `term-token` `inline`으로 그리고 누르면
 /// `term` 값을 넘깁니다. 없으면 `term` 조각도 일반 글자입니다. `term-token`이 없는
 /// 화면, 공유 이미지, 카드 전체가 버튼인 곳(`diary-row`) 안에서는 [onTerm]을 주지 않습니다.
+///
+/// 한국어는 어절 단위로만 줄을 바꿉니다(`keep-all`, [applyKeepAll]). 스크린리더 라벨과
+/// [onTerm]에 넘기는 값은 원문입니다.
 ///
 /// 줄바꿈: 용어 칩은 한 덩어리로 줄이 바뀝니다. 한국어·영어는 공백 없이 붙은 앞뒤
 /// 글자(조사)까지 같은 덩어리에 묶고, 일본어는 용어 앞뒤에서만 글자 단위로 끊습니다.
@@ -50,13 +54,14 @@ class RenderedTextView extends StatelessWidget {
   Widget build(BuildContext context) {
     final segments = text.segments.where((s) => s.text.isNotEmpty).toList();
     if (segments.isEmpty) return const SizedBox.shrink();
-    final glueParticles = _glueParticles(Localizations.localeOf(context));
+    final locale = Localizations.localeOf(context);
+    final glueParticles = _glueParticles(locale);
     final children = <InlineSpan>[
       for (var i = 0; i < segments.length; i++)
-        ..._spansFor(segments, i, glueParticles),
+        ..._spansFor(segments, i, glueParticles, locale),
       if (trailing != null) ...[
         // 링크 앞 틈은 줄바꿈 없는 공백입니다.
-        const TextSpan(text: ' '),
+        const TextSpan(text: '\u00A0\u2060'),
         WidgetSpan(
           alignment: PlaceholderAlignment.baseline,
           baseline: TextBaseline.alphabetic,
@@ -76,6 +81,7 @@ class RenderedTextView extends StatelessWidget {
     List<Segment> segments,
     int index,
     bool glueParticles,
+    Locale locale,
   ) {
     final segment = segments[index];
     final term = segment.term;
@@ -106,7 +112,8 @@ class RenderedTextView extends StatelessWidget {
         ? value.length - _trailingGlue(value.substring(start)).length
         : value.length;
     if (start >= end) return const [];
-    return [TextSpan(text: value.substring(start, end))];
+    final shown = value.substring(start, end);
+    return [TextSpan(text: applyKeepAll(locale, shown), semanticsLabel: shown)];
   }
 
   /// [index]가 일반 조각이고 바로 앞 용어에 붙은 글자를 내줘야 하는지.

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -138,22 +139,39 @@ class _ReactionButtonState extends State<ReactionButton>
       padding: const EdgeInsets.only(top: Space.s8),
       child: Align(
         alignment: AlignmentDirectional.centerEnd,
-        child: Semantics(
-          container: true,
-          button: true,
-          toggled: widget.on,
-          label: widget.semanticsLabel,
-          onTap: _toggle,
-          child: ExcludeSemantics(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _toggle,
-              child: SizedBox.square(
-                key: ReactionButton.targetKey,
-                dimension: sentenceMinTarget,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [if (!widget.on) heartOff, ?sealLayer],
+        // 라벨 슬롯(`today.reaction.label`)을 이 버튼이 그립니다.
+        child: KeyedSubtree(
+          key: const ValueKey(SlotIds.todayReactionLabel),
+          child: Semantics(
+            container: true,
+            button: true,
+            toggled: widget.on,
+            identifier: SlotIds.todayReactionLabel,
+            label: widget.semanticsLabel,
+            onTap: _toggle,
+            child: ExcludeSemantics(
+              // 키보드·스위치 접근도 같은 동작으로 켜고 끕니다.
+              child: FocusableActionDetector(
+                mouseCursor: SystemMouseCursors.click,
+                actions: {
+                  ActivateIntent: CallbackAction<ActivateIntent>(
+                    onInvoke: (_) {
+                      _toggle();
+                      return null;
+                    },
+                  ),
+                },
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _toggle,
+                  child: SizedBox.square(
+                    key: ReactionButton.targetKey,
+                    dimension: sentenceMinTarget,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [if (!widget.on) heartOff, ?sealLayer],
+                    ),
+                  ),
                 ),
               ),
             ),

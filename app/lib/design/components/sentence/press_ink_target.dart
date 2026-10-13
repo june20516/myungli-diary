@@ -16,6 +16,7 @@ class PressInkTarget extends StatefulWidget {
     required this.borderRadius,
     required this.child,
     this.link = false,
+    this.identifier,
     this.inkColor,
     super.key,
   });
@@ -28,6 +29,9 @@ class PressInkTarget extends StatefulWidget {
 
   /// 얼룩을 자를 모서리.
   final BorderRadius borderRadius;
+
+  /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
+  final String? identifier;
 
   /// true면 링크, false면 버튼으로 읽습니다.
   final bool link;
@@ -84,6 +88,7 @@ class _PressInkTargetState extends State<PressInkTarget>
       container: true,
       button: !widget.link,
       link: widget.link,
+      identifier: widget.identifier,
       label: widget.semanticLabel,
       onTap: widget.onTap,
       child: ExcludeSemantics(

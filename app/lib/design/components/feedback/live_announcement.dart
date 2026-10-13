@@ -13,6 +13,7 @@ class LiveAnnouncement extends StatelessWidget {
     required this.label,
     required this.role,
     required this.child,
+    this.identifier,
     super.key,
   });
 
@@ -22,6 +23,9 @@ class LiveAnnouncement extends StatelessWidget {
   /// 명세가 정한 역할(`status` 또는 `alert`).
   final SemanticsRole role;
 
+  /// IA 슬롯 id. 있으면 바깥 노드의 Semantics `identifier`로 붙입니다.
+  final String? identifier;
+
   /// 시각 내용.
   final Widget child;
 
@@ -29,6 +33,7 @@ class LiveAnnouncement extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       liveRegion: true,
+      identifier: identifier,
       label: label,
       child: Semantics(
         container: true,

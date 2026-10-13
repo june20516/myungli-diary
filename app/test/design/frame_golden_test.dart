@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -13,7 +12,6 @@ import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
-import '../support/fonts.dart';
 import '../support/golden.dart';
 
 const MotionPrefs _transparent = MotionPrefs(
@@ -202,11 +200,6 @@ Widget _bottomBars() {
 }
 
 void main() {
-  setUpAll(() async {
-    await loadBundledFonts();
-    await loadPhosphorFonts();
-  });
-
   goldenTest('tab-bar: 선택·투명도 줄이기', (tester) async {
     await goldenMatrix(tester, 'frame_tab_bar', _tabBars);
   });

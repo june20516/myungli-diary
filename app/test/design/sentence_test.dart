@@ -1,23 +1,26 @@
 import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
+import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
-import 'package:myungli_diary/design/components/sentence/evidence_lock_panel.dart';
-import 'package:myungli_diary/design/components/sentence/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/elements/seal.dart';
+import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 Widget _app(
   Widget home, {
@@ -66,6 +69,9 @@ List<String> _recordHaptics(WidgetTester tester) {
 SemanticsData _semantics(WidgetTester tester, Finder finder) =>
     tester.getSemantics(finder).getSemanticsData();
 
+SemanticsNode _rootSemantics(WidgetTester tester) =>
+    tester.binding.renderViews.first.owner!.semanticsOwner!.rootSemanticsNode!;
+
 /// Text.rich가 감싼 바깥 span 안, 문장 span의 스타일.
 TextStyle _childStyle(RichText richText) =>
     (richText.text as TextSpan).children!.whereType<TextSpan>().first.style!;
@@ -86,7 +92,14 @@ void main() {
         ),
       );
       // 조각마다 따로 줄을 바꾸지 않고 Text.rich 하나로 그립니다.
-      expect(find.byType(Text), findsWidgets);
+      expect(
+        find.descendant(
+          of: find.byType(RenderedTextView),
+          matching: find.byType(RichText),
+        ),
+        findsNWidgets(3),
+        reason: '문장 Text.rich 하나 + 칩 글자 + 붙은 조사(조각마다 따로 그리지 않음)',
+      );
       expect(_allText(tester), contains('오늘은 '));
       expect(find.byType(TermToken), findsOneWidget);
 
@@ -177,7 +190,7 @@ void main() {
       await tester.pumpWidget(
         _app(RenderedTextView(text: _siksin, style: _style, onTerm: (_) {})),
       );
-      expect(find.bySemanticsLabel('식신 풀이 보기'), findsOneWidget);
+      expect(find.bySemanticsLabel('식신의 풀이 보기'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('TenGod')), findsNothing);
       handle.dispose();
     });
@@ -626,18 +639,510 @@ void main() {
       expect(target.right, 360);
     });
 
-    testWidgets('켜진 도장은 seal.fill 색입니다', (tester) async {
+    testWidgets(
+      '켜면 seal fill 안에 Regular 하트(on-primary), 끄면 Light 하트(secondary)',
+      (tester) async {
+        Future<void> pump({required bool on}) async {
+          await tester.pumpWidget(
+            _app(
+              ReactionButton(
+                on: on,
+                onChanged: (_) {},
+                semanticsLabel: '이 문장 좋아요',
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+        }
+
+        await pump(on: true);
+        final colors = tester
+            .element(find.byType(ReactionButton))
+            .tokens
+            .colors;
+        final seal = tester.widget<Seal>(find.byType(Seal));
+        expect(seal.variant, SealVariant.fill);
+        expect(seal.size, SealSize.row);
+        var heart = tester.widget<Icon>(
+          find.descendant(of: find.byType(Seal), matching: find.byType(Icon)),
+        );
+        expect(heart.icon, PhosphorIconsRegular.heart);
+        expect(heart.color, colors.actionOnPrimary);
+
+        await pump(on: false);
+        expect(find.byType(Seal), findsNothing);
+        heart = tester.widget<Icon>(find.byType(Icon));
+        expect(heart.icon, PhosphorIconsLight.heart);
+        expect(heart.color, colors.textSecondary);
+      },
+    );
+
+    testWidgets('키보드 확정(ActivateIntent)으로도 켜집니다', (tester) async {
+      final changes = <bool>[];
       await tester.pumpWidget(
         _app(
           ReactionButton(
-            on: true,
-            onChanged: (_) {},
+            on: false,
+            onChanged: changes.add,
             semanticsLabel: '이 문장 좋아요',
           ),
         ),
       );
+      Actions.invoke(
+        tester.element(find.byKey(ReactionButton.targetKey)),
+        const ActivateIntent(),
+      );
+      expect(changes, [true]);
+    });
+  });
+
+  group('keep-all (한국어 어절 단위 줄바꿈)', () {
+    const narrow = 150.0;
+    final text = _text([
+      Segment(text: '오늘은 마음이 차분하고 단정해서 '),
+      Segment(text: '식신', term: 'TenGod.SIKSIN'),
+      Segment(text: '의 기운으로 이야기를 천천히 풀어내기 좋은 하루입니다.'),
+    ]);
+
+    RenderParagraph outerParagraph(WidgetTester tester) =>
+        tester.renderObject<RenderParagraph>(
+          find
+              .descendant(
+                of: find.byType(RenderedTextView),
+                matching: find.byType(RichText),
+              )
+              .first,
+        );
+
+    /// 줄이 시작하는 글자 위치(첫 줄 제외)의 바로 앞 글자들.
+    List<String> charsBeforeLineStarts(RenderParagraph paragraph) {
+      final plain = paragraph.text.toPlainText(includeSemanticsLabels: false);
+      final starts = <int>[];
+      double? lineTop;
+      for (var i = 0; i < plain.length; i++) {
+        final boxes = paragraph.getBoxesForSelection(
+          TextSelection(baseOffset: i, extentOffset: i + 1),
+        );
+        if (boxes.isEmpty) continue;
+        final top = boxes.first.top;
+        if (lineTop != null && top > lineTop + 1) starts.add(i);
+        lineTop = top;
+      }
+      return [for (final start in starts) plain[start - 1]];
+    }
+
+    testWidgets('한국어는 어절 안에서 끊기지 않고 공백에서만 줄이 바뀝니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: narrow,
+            child: RenderedTextView(text: text, style: _style, onTerm: (_) {}),
+          ),
+        ),
+      );
+      final before = charsBeforeLineStarts(outerParagraph(tester));
+      expect(before, isNotEmpty);
+      expect(
+        before,
+        everyElement(anyOf(' ', '\uFFFC')),
+        reason: '줄 시작 바로 앞은 공백이거나 칩 덩어리(어절 경계)',
+      );
+    });
+
+    testWidgets('결합자 없이는 어절 중간에서 끊깁니다(대조)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: narrow,
+            child: Text.rich(
+              TextSpan(text: '이야기를천천히풀어내기좋은하루입니다오늘은마음이차분합니다', style: _style),
+            ),
+          ),
+        ),
+      );
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.byType(RichText).last,
+      );
+      expect(charsBeforeLineStarts(paragraph), isNot(everyElement(' ')));
+    });
+
+    testWidgets('스크린리더 라벨과 onTerm 값에는 결합자가 없습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final tapped = <String>[];
+      await tester.pumpWidget(
+        _app(RenderedTextView(text: text, style: _style, onTerm: tapped.add)),
+      );
+      expect(
+        outerParagraph(tester).text.toPlainText(includeSemanticsLabels: false),
+        contains(wordJoiner),
+        reason: '그릴 글자에는 결합자가 있음',
+      );
+      final labels = <String>[];
+      void collect(SemanticsNode node) {
+        labels.add(node.getSemanticsData().label);
+        node.visitChildren((c) {
+          collect(c);
+          return true;
+        });
+      }
+
+      collect(_rootSemantics(tester));
+      expect(labels.where((l) => l.contains(wordJoiner)), isEmpty);
+      expect(labels.any((l) => l.contains('오늘은 마음이')), isTrue);
+      await tester.tap(find.text('식신'));
+      expect(tapped.single, 'TenGod.SIKSIN');
+      handle.dispose();
+    });
+
+    for (final locale in const [Locale('en'), Locale('ja')]) {
+      testWidgets('${locale.languageCode}에는 적용하지 않습니다', (tester) async {
+        await tester.pumpWidget(
+          _app(
+            RenderedTextView(
+              text: _text([Segment(text: 'Today is calm 今日は穏やか')]),
+              style: _style,
+            ),
+            locale: locale,
+          ),
+        );
+        expect(_allText(tester), isNot(contains(wordJoiner)));
+      });
+    }
+  });
+
+  group('붙은 글자와 연속 칩', () {
+    List<TermToken> tokens(WidgetTester tester) =>
+        tester.widgetList<TermToken>(find.byType(TermToken)).toList();
+
+    String outerText(WidgetTester tester) => tester
+        .widget<RichText>(
+          find
+              .descendant(
+                of: find.byType(RenderedTextView),
+                matching: find.byType(RichText),
+              )
+              .first,
+        )
+        .text
+        .toPlainText(includePlaceholders: false);
+
+    testWidgets("영어: 's와 문장부호가 칩에 붙고 라벨에도 묶입니다", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          RenderedTextView(
+            text: _text([
+              Segment(text: 'The ('),
+              Segment(text: 'Siksin', term: 'TenGod.SIKSIN'),
+              Segment(text: "'s) day, "),
+              Segment(text: 'Jeonggwan', term: 'TenGod.JEONGGWAN'),
+              Segment(text: ', calm.'),
+            ]),
+            style: _style,
+            onTerm: (_) {},
+          ),
+          locale: const Locale('en'),
+        ),
+      );
+      final found = tokens(tester);
+      expect(found[0].before, '(');
+      expect(found[0].after, "'s)");
+      expect(found[1].before, isNull);
+      expect(found[1].after, ',');
+      expect(outerText(tester), 'The  day,  calm.');
+      expect(
+        find.bySemanticsLabel("View the meaning of (Siksin's)"),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('연속 칩 사이 한 글자 조각은 앞 칩이 가져갑니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          RenderedTextView(
+            text: _text([
+              Segment(text: '식신', term: 'a'),
+              Segment(text: '와'),
+              Segment(text: '정관', term: 'b'),
+            ]),
+            style: _style,
+            onTerm: (_) {},
+          ),
+        ),
+      );
+      final found = tokens(tester);
+      expect(found[0].after, '와');
+      expect(found[1].before, isNull);
+      expect(outerText(tester), isEmpty);
+    });
+
+    testWidgets('연속 칩 사이 조각은 앞뒤 칩이 나눠 가집니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          RenderedTextView(
+            text: _text([
+              Segment(text: '식신', term: 'a'),
+              Segment(text: '과 그리고 '),
+              Segment(text: '정관', term: 'b'),
+            ]),
+            style: _style,
+            onTerm: (_) {},
+          ),
+        ),
+      );
+      final found = tokens(tester);
+      expect(found[0].after, '과');
+      expect(found[1].before, isNull, reason: '"그리고 " 뒤 공백이라 붙은 글자 없음');
+      expect(outerText(tester), ' 그리고 ');
+    });
+  });
+
+  group('inline-end 줄바꿈', () {
+    testWidgets('링크가 다음 줄로 넘어가면 마지막 낱말도 함께 넘어갑니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 170,
+            child: RenderedTextView(
+              text: _text([Segment(text: '이유를 한 줄로 적은 문장 마지막낱말')]),
+              style: _style,
+              trailing: const Text('근거 보기 ›', softWrap: false),
+            ),
+          ),
+        ),
+      );
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.byType(RichText).first,
+      );
+      final plain = paragraph.text.toPlainText(includeSemanticsLabels: false);
+      final lastWord = plain.indexOf('마지막낱말');
+      final wordTop = paragraph
+          .localToGlobal(
+            paragraph.getOffsetForCaret(
+              TextPosition(offset: lastWord),
+              Rect.zero,
+            ),
+          )
+          .dy;
+      final linkTop = tester.getTopLeft(find.text('근거 보기 ›')).dy;
+      // 한 줄 높이(24)보다 가깝다 = 같은 줄.
+      expect((linkTop - wordTop).abs(), lessThan(12));
+    });
+  });
+
+  group('IA 슬롯 id', () {
+    Set<String> identifiers(WidgetTester tester) {
+      final ids = <String>{};
+      void visit(SemanticsNode node) {
+        ids.add(node.getSemanticsData().identifier);
+        node.visitChildren((c) {
+          visit(c);
+          return true;
+        });
+      }
+
+      visit(_rootSemantics(tester));
+      return ids;
+    }
+
+    void expectSlots(
+      WidgetTester tester,
+      Iterable<String> keys, [
+      Iterable<String> semanticsOnly = const [],
+    ]) {
+      final ids = identifiers(tester);
+      for (final id in keys) {
+        expect(find.byKey(ValueKey(id)), findsOneWidget, reason: 'Key $id');
+        expect(ids, contains(id), reason: 'identifier $id');
+      }
+      for (final id in semanticsOnly) {
+        expect(ids, contains(id), reason: 'identifier $id');
+      }
+    }
+
+    testWidgets('locked: 구역 제목·본문 자리·안내 영역·접근성 문구', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 700,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.locked,
+              title: '식신',
+              showPersonal: true,
+              onWatchAd: () {},
+              onPass: () {},
+            ),
+          ),
+        ),
+      );
       await tester.pumpAndSettle();
-      expect(find.byKey(ReactionButton.sealKey), findsOneWidget);
+      expectSlots(
+        tester,
+        [
+          SlotIds.evidenceSheetSectionBasis,
+          SlotIds.evidenceSheetSectionSource,
+          SlotIds.evidenceSheetSectionPersonal,
+          SlotIds.evidenceSheetBasisBody,
+          SlotIds.evidenceSheetSourceQuote,
+          SlotIds.evidenceSheetPersonalBody,
+          SlotIds.evidenceSheetLockHead,
+          SlotIds.evidenceSheetLockReward,
+          SlotIds.evidenceSheetLockCta,
+          SlotIds.evidenceSheetLockPass,
+        ],
+        [SlotIds.evidenceSheetA11yLocked],
+      );
+      handle.dispose();
+    });
+
+    testWidgets('lockedNoAd: unavailable, unlocking: a11y.checking', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      Future<void> pump(DepthLinkState state) async {
+        await tester.pumpWidget(
+          _app(
+            SizedBox(
+              width: 360,
+              height: 700,
+              child: EvidenceSheetBody(
+                state: state,
+                title: '식신',
+                onWatchAd: () {},
+                animated: false,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await pump(DepthLinkState.lockedNoAd);
+      expectSlots(tester, [SlotIds.evidenceSheetLockUnavailable]);
+      await pump(DepthLinkState.unlocking);
+      expect(identifiers(tester), contains(SlotIds.evidenceSheetA11yChecking));
+      handle.dispose();
+    });
+
+    testWidgets('unlocked: 구역 제목과 본문 슬롯', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 700,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '식신',
+              basis: _text([Segment(text: '근거')]),
+              source: _text([Segment(text: '원전')]),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expectSlots(tester, [
+        SlotIds.evidenceSheetSectionBasis,
+        SlotIds.evidenceSheetSectionSource,
+        SlotIds.evidenceSheetBasisBody,
+        SlotIds.evidenceSheetSourceQuote,
+      ]);
+      handle.dispose();
+    });
+
+    testWidgets('잠긴 sentence-block: 열기와 접근성 문구, 반응 버튼: 라벨', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              SentenceBlock(
+                variant: SentenceBlockVariant.body,
+                text: _siksin,
+                locked: true,
+                onOpenLocked: () {},
+              ),
+              ReactionButton(
+                on: false,
+                onChanged: (_) {},
+                semanticsLabel: '이 문장 좋아요',
+              ),
+            ],
+          ),
+        ),
+      );
+      expectSlots(
+        tester,
+        [SlotIds.sajuChartYongsinOpen, SlotIds.todayReactionLabel],
+        [SlotIds.evidenceSheetA11yLocked],
+      );
+      handle.dispose();
+    });
+  });
+
+  group('근거 시트 보강', () {
+    testWidgets('긴 본문을 스크롤해도 열림 알림 노드가 남습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final long = _text([Segment(text: List.filled(80, '긴 본문 한 줄 ').join())]);
+      Widget sheet(DepthLinkState state) => _app(
+        SizedBox(
+          width: 360,
+          height: 300,
+          child: EvidenceSheetBody(
+            state: state,
+            title: '식신',
+            basis: state == DepthLinkState.unlocked ? long : null,
+            source: state == DepthLinkState.unlocked ? long : null,
+            animated: false,
+          ),
+        ),
+      );
+      await tester.pumpWidget(sheet(DepthLinkState.unlocking));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(sheet(DepthLinkState.unlocked));
+      await tester.pumpAndSettle();
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -1500),
+      );
+      await tester.pumpAndSettle();
+      final announcement = find.bySemanticsLabel('근거와 해석이 열렸어요');
+      expect(announcement, findsOneWidget);
+      expect(
+        _semantics(tester, announcement).identifier,
+        SlotIds.evidenceSheetA11yUnlocked,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('권한이 있는데 본문이 없으면 debug assert로 드러납니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 360,
+            height: 300,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '식신',
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isA<AssertionError>());
+    });
+
+    test('preview에 onTerm을 주면 assert로 드러납니다', () {
+      expect(
+        () => SentenceBlock(
+          variant: SentenceBlockVariant.preview,
+          text: _siksin,
+          onTerm: (_) {},
+        ),
+        throwsAssertionError,
+      );
     });
   });
 }

@@ -7,6 +7,22 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
+import 'fonts.dart';
+
+Future<void>? _fontsLoaded;
+
+/// 앱 글꼴과 Phosphor 아이콘 글꼴을 테스트 프로세스(파일)당 한 번만 올립니다.
+///
+/// [goldenTest]와 [goldenMatrix]가 부르므로 golden 테스트 파일은 따로 올리지 않습니다.
+/// 올리지 않으면 글자와 아이콘이 상자로 그려집니다. 파일 읽기가 가짜 시계 안에서 멈추지
+/// 않도록 호출하는 쪽이 `tester.runAsync`로 부릅니다(Future를 실제 시계에서 만들어 캐시).
+Future<void> ensureGoldenFonts() => _fontsLoaded ??= _loadFonts();
+
+Future<void> _loadFonts() async {
+  await loadBundledFonts();
+  await loadPhosphorFonts();
+}
+
 /// golden 테스트에 붙는 태그. `dart_test.yaml`에 선언돼 있습니다.
 const String goldenTag = 'golden';
 
@@ -37,6 +53,7 @@ void goldenTest(
       );
       return;
     }
+    await tester.runAsync(ensureGoldenFonts);
     await body(tester);
   }, tags: goldenTag);
 }
@@ -57,6 +74,7 @@ Future<void> goldenMatrix(
   Finder Function()? fixedCellTarget,
   Future<void> Function(WidgetTester tester)? settle,
 }) async {
+  await tester.runAsync(ensureGoldenFonts);
   final gridKey = GlobalKey();
   final width =
       goldenTextScales.length * goldenCellWidth +

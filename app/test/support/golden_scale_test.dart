@@ -11,6 +11,27 @@ Widget _at20(Widget child) => MaterialApp(
 );
 
 void main() {
+  testWidgets('ensureGoldenFonts 뒤에는 앱 글꼴이 Ahem과 다른 폭으로 그려집니다', (tester) async {
+    double widthOf(String family) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: '명리일기 Hello 123',
+          style: TextStyle(fontFamily: family),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      return painter.width;
+    }
+
+    final fallback = widthOf('NoSuchFamily');
+    await tester.runAsync(ensureGoldenFonts);
+    // 두 번째 호출은 같은 Future를 돌려줘 다시 올리지 않습니다.
+    expect(identical(ensureGoldenFonts(), ensureGoldenFonts()), isTrue);
+    for (final family in ['Gowun Dodum', 'Pretendard']) {
+      expect(widthOf(family), isNot(fallback), reason: family);
+    }
+  });
+
   group('effectiveTextScale', () {
     testWidgets('상한이 없으면 기기 배율 그대로', (tester) async {
       await tester.pumpWidget(_at20(const Text('13')));
