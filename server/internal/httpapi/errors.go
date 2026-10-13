@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 
+	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
 
@@ -47,8 +48,13 @@ type domainError struct {
 }
 
 // domainErrors는 도메인 sentinel을 응답으로 바꾸는 표입니다. errors.Is로 위에서부터 찾습니다.
-// auth·account 패키지의 sentinel 행은 해당 패키지를 만드는 task가 더합니다.
-var domainErrors = []domainError{}
+// refresh token 오류는 bearer 인증(access token) 실패가 아니므로 WWW-Authenticate를 붙이지 않습니다.
+var domainErrors = []domainError{
+	{target: auth.ErrProviderTokenInvalid, status: http.StatusUnauthorized, code: "auth.provider_token_invalid", title: "Provider token invalid"},
+	{target: auth.ErrProviderUnavailable, status: http.StatusServiceUnavailable, code: "auth.provider_unavailable", title: "Provider unavailable"},
+	{target: auth.ErrRefreshInvalid, status: http.StatusUnauthorized, code: "auth.token_invalid", title: "Refresh token invalid"},
+	{target: auth.ErrRefreshReused, status: http.StatusUnauthorized, code: "auth.refresh_reused", title: "Refresh token reused"},
+}
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
 // 순서: ErrNotImplemented(501), *Error(그대로), domainErrors 표, DB 연결 실패(503), 그 밖(500).

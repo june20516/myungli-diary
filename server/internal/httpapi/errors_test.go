@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
 
@@ -27,7 +29,7 @@ func serveHandlerError(t *testing.T, err error) (*httptest.ResponseRecorder, pro
 	logs := &bytes.Buffer{}
 	deps := Deps{Logger: slog.New(slog.NewTextHandler(logs, nil))}
 	rec := httptest.NewRecorder()
-	writeHandlerError(deps, rec, httptest.NewRequest(http.MethodGet, "/x", nil), err)
+	writeHandlerError(deps, rec, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/x", nil), err)
 	var p problem.Problem
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &p))
 	return rec, p, logs.String()
@@ -61,11 +63,27 @@ func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
 	domainErrors = append([]domainError{{target: errTestSentinel, status: http.StatusUnauthorized, code: "auth.test", title: "Test"}}, original...)
 	t.Cleanup(func() { domainErrors = original })
 
-	rec, p, _ := serveHandlerError(t, fmt.Errorf("x: %w", errTestSentinel))
+	tests := []struct {
+		name       string
+		err        error
+		wantStatus int
+		wantCode   string
+	}{
+		{name: "테스트 sentinel", err: fmt.Errorf("x: %w", errTestSentinel), wantStatus: http.StatusUnauthorized, wantCode: "auth.test"},
+		{name: "제공자 토큰 오류", err: fmt.Errorf("x: %w", auth.ErrProviderTokenInvalid), wantStatus: http.StatusUnauthorized, wantCode: "auth.provider_token_invalid"},
+		{name: "제공자 장애", err: fmt.Errorf("x: %w", auth.ErrProviderUnavailable), wantStatus: http.StatusServiceUnavailable, wantCode: "auth.provider_unavailable"},
+		{name: "refresh 무효", err: fmt.Errorf("x: %w", auth.ErrRefreshInvalid), wantStatus: http.StatusUnauthorized, wantCode: "auth.token_invalid"},
+		{name: "refresh 재사용", err: fmt.Errorf("x: %w", auth.ErrRefreshReused), wantStatus: http.StatusUnauthorized, wantCode: "auth.refresh_reused"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rec, p, _ := serveHandlerError(t, tt.err)
 
-	assert.Equal(t, http.StatusUnauthorized, rec.Code)
-	assert.Equal(t, "auth.test", p.Code)
-	assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
+			assert.Equal(t, tt.wantStatus, rec.Code)
+			assert.Equal(t, tt.wantCode, p.Code)
+			assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
+		})
+	}
 }
 
 func TestWriteHandlerError_ConnectErrorIs503(t *testing.T) {
