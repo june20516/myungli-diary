@@ -34,6 +34,9 @@ const (
 	reasonBodyDecodeFailed = "failed to decode request body"
 )
 
+// uuidPattern은 format: uuid의 값 형태입니다(RFC 9562 모든 버전).
+const uuidPattern = `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
+
 // init의 등록은 kin-openapi 패키지 전역 상태라 httpapi를 import한 바이너리 전체(테스트 포함)에 적용됩니다.
 func init() {
 	// JSON 본문과 PATCH 본문(JSON Merge Patch)을 같은 규칙의 JSON으로 디코드합니다.
@@ -50,8 +53,9 @@ func init() {
 		_, err := time.Parse(time.RFC3339, value)
 		return err
 	}))
-	// 계약의 id(format: uuid)도 검사합니다.
-	openapi3.DefineStringFormatValidator("uuid", openapi3.NewRegexpFormatValidator(openapi3.FormatOfStringForUUIDOfRFC4122))
+	// 계약의 id(format: uuid)도 검사합니다. kin-openapi의 기본 패턴은 버전 1~5만 받아 서버가 발급하는
+	// UUIDv7 id를 거부하므로, 버전과 상관없이 8-4-4-4-12 형태의 16진수를 받습니다.
+	openapi3.DefineStringFormatValidator("uuid", openapi3.NewRegexpFormatValidator(uuidPattern))
 }
 
 // decodeSingleJSONBody는 kin-openapi의 JSON body decoder와 같되, DecodeJSON처럼 JSON 값 하나만 허용합니다.

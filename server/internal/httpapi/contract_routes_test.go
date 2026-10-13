@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
@@ -560,4 +561,13 @@ func TestValidateRequests_KeepsRawQueryAndBody(t *testing.T) {
 	if rec.Code != http.StatusNoContent || gotBody != body {
 		t.Errorf("status = %d, body = %q, want %q", rec.Code, gotBody, body)
 	}
+}
+
+func TestAPI_UUIDv7PathIDIsAccepted(t *testing.T) {
+	handler, _ := newAPIHandler(t)
+
+	// 서버가 발급하는 id는 UUIDv7입니다. 계약 검증이 버전 때문에 거부하면 안 됩니다.
+	rec := serve(handler, newBodyRequest(t, http.MethodDelete, "/v1/schedules/"+uuid.Must(uuid.NewV7()).String(), contentTypeJSON, ``))
+
+	assert.Equal(t, http.StatusNotImplemented, rec.Code, rec.Body.String())
 }
