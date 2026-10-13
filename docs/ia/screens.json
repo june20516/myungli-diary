@@ -1855,6 +1855,11 @@
           "id": "saju-chart.yongsin.open",
           "source": "ui",
           "role": "잠긴 용신 근거 줄의 \"열기\""
+        },
+        {
+          "id": "saju-chart.yongsin.title",
+          "source": "ui",
+          "role": "용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
         }
       ],
       "components": [
