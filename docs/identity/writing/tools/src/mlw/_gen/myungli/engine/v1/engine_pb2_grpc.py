@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from mlw._gen.myungri.engine.v1 import engine_pb2 as myungri_dot_engine_dot_v1_dot_engine__pb2
+from mlw._gen.myungli.engine.v1 import engine_pb2 as myungli_dot_engine_dot_v1_dot_engine__pb2
 
 GRPC_GENERATED_VERSION = '1.84.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in myungri/engine/v1/engine_pb2_grpc.py depends on'
+        + ' but the generated code in myungli/engine/v1/engine_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class MyungriEngineStub:
+class MyungliEngineStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -35,33 +35,33 @@ class MyungriEngineStub:
             channel: A grpc.Channel.
         """
         self.GetChart = channel.unary_unary(
-                '/myungri.engine.v1.MyungriEngine/GetChart',
-                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.ChartRequest.SerializeToString,
-                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.ChartResponse.FromString,
+                '/myungli.engine.v1.MyungliEngine/GetChart',
+                request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.ChartRequest.SerializeToString,
+                response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.ChartResponse.FromString,
                 _registered_method=True)
         self.GetDaily = channel.unary_unary(
-                '/myungri.engine.v1.MyungriEngine/GetDaily',
-                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.DailyRequest.SerializeToString,
-                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.DailyResponse.FromString,
+                '/myungli.engine.v1.MyungliEngine/GetDaily',
+                request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.DailyRequest.SerializeToString,
+                response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.DailyResponse.FromString,
                 _registered_method=True)
         self.GetMonthCalendar = channel.unary_unary(
-                '/myungri.engine.v1.MyungriEngine/GetMonthCalendar',
-                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.SerializeToString,
-                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.FromString,
+                '/myungli.engine.v1.MyungliEngine/GetMonthCalendar',
+                request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.SerializeToString,
+                response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.FromString,
                 _registered_method=True)
         self.GetBirthHour = channel.unary_unary(
-                '/myungri.engine.v1.MyungriEngine/GetBirthHour',
-                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.SerializeToString,
-                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.FromString,
+                '/myungli.engine.v1.MyungliEngine/GetBirthHour',
+                request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.SerializeToString,
+                response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.FromString,
                 _registered_method=True)
         self.GetInfo = channel.unary_unary(
-                '/myungri.engine.v1.MyungriEngine/GetInfo',
-                request_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
-                response_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
+                '/myungli.engine.v1.MyungliEngine/GetInfo',
+                request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
+                response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
                 _registered_method=True)
 
 
-class MyungriEngineServicer:
+class MyungliEngineServicer:
     """Missing associated documentation comment in .proto file."""
 
     def GetChart(self, request, context):
@@ -95,42 +95,42 @@ class MyungriEngineServicer:
         raise NotImplementedError('Method not implemented!')
 
 
-def add_MyungriEngineServicer_to_server(servicer, server):
+def add_MyungliEngineServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetChart': grpc.unary_unary_rpc_method_handler(
                     servicer.GetChart,
-                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.ChartRequest.FromString,
-                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.ChartResponse.SerializeToString,
+                    request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.ChartRequest.FromString,
+                    response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.ChartResponse.SerializeToString,
             ),
             'GetDaily': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDaily,
-                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.DailyRequest.FromString,
-                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.DailyResponse.SerializeToString,
+                    request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.DailyRequest.FromString,
+                    response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.DailyResponse.SerializeToString,
             ),
             'GetMonthCalendar': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMonthCalendar,
-                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.FromString,
-                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.SerializeToString,
+                    request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.FromString,
+                    response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.SerializeToString,
             ),
             'GetBirthHour': grpc.unary_unary_rpc_method_handler(
                     servicer.GetBirthHour,
-                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.FromString,
-                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.SerializeToString,
+                    request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.FromString,
+                    response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.SerializeToString,
             ),
             'GetInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.GetInfo,
-                    request_deserializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.FromString,
-                    response_serializer=myungri_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.SerializeToString,
+                    request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.FromString,
+                    response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'myungri.engine.v1.MyungriEngine', rpc_method_handlers)
+            'myungli.engine.v1.MyungliEngine', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('myungri.engine.v1.MyungriEngine', rpc_method_handlers)
+    server.add_registered_method_handlers('myungli.engine.v1.MyungliEngine', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class MyungriEngine:
+class MyungliEngine:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -147,9 +147,9 @@ class MyungriEngine:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/myungri.engine.v1.MyungriEngine/GetChart',
-            myungri_dot_engine_dot_v1_dot_engine__pb2.ChartRequest.SerializeToString,
-            myungri_dot_engine_dot_v1_dot_engine__pb2.ChartResponse.FromString,
+            '/myungli.engine.v1.MyungliEngine/GetChart',
+            myungli_dot_engine_dot_v1_dot_engine__pb2.ChartRequest.SerializeToString,
+            myungli_dot_engine_dot_v1_dot_engine__pb2.ChartResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -174,9 +174,9 @@ class MyungriEngine:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/myungri.engine.v1.MyungriEngine/GetDaily',
-            myungri_dot_engine_dot_v1_dot_engine__pb2.DailyRequest.SerializeToString,
-            myungri_dot_engine_dot_v1_dot_engine__pb2.DailyResponse.FromString,
+            '/myungli.engine.v1.MyungliEngine/GetDaily',
+            myungli_dot_engine_dot_v1_dot_engine__pb2.DailyRequest.SerializeToString,
+            myungli_dot_engine_dot_v1_dot_engine__pb2.DailyResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -201,9 +201,9 @@ class MyungriEngine:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/myungri.engine.v1.MyungriEngine/GetMonthCalendar',
-            myungri_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.SerializeToString,
-            myungri_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.FromString,
+            '/myungli.engine.v1.MyungliEngine/GetMonthCalendar',
+            myungli_dot_engine_dot_v1_dot_engine__pb2.MonthRequest.SerializeToString,
+            myungli_dot_engine_dot_v1_dot_engine__pb2.MonthResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -228,9 +228,9 @@ class MyungriEngine:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/myungri.engine.v1.MyungriEngine/GetBirthHour',
-            myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.SerializeToString,
-            myungri_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.FromString,
+            '/myungli.engine.v1.MyungliEngine/GetBirthHour',
+            myungli_dot_engine_dot_v1_dot_engine__pb2.BirthHourRequest.SerializeToString,
+            myungli_dot_engine_dot_v1_dot_engine__pb2.BirthHourResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -255,9 +255,9 @@ class MyungriEngine:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/myungri.engine.v1.MyungriEngine/GetInfo',
-            myungri_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
-            myungri_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
+            '/myungli.engine.v1.MyungliEngine/GetInfo',
+            myungli_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
+            myungli_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
             options,
             channel_credentials,
             insecure,
