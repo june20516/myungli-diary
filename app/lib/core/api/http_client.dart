@@ -36,6 +36,23 @@ ApiMode apiModeFromEnvironment({
   return mode;
 }
 
+/// `API_BASE_URL` dart-define을 읽습니다.
+///
+/// release 빌드에서 값이 비어 있으면 [StateError]이고, debug에서는
+/// `http://localhost:8080`을 기본값으로 씁니다.
+Uri baseUrlFromEnvironment({
+  String value = const String.fromEnvironment('API_BASE_URL'),
+  bool isRelease = kReleaseMode,
+}) {
+  if (value.isNotEmpty) {
+    return Uri.parse(value);
+  }
+  if (isRelease) {
+    throw StateError('release 빌드에는 API_BASE_URL이 필요합니다.');
+  }
+  return Uri.parse('http://localhost:8080');
+}
+
 /// 멱등 요청 헤더(`Idempotency-Key`)를 붙이는 옵션.
 Options idempotent(String key) => Options(headers: {'Idempotency-Key': key});
 

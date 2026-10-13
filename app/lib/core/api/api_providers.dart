@@ -11,14 +11,7 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 final apiModeProvider = Provider<ApiMode>((ref) => apiModeFromEnvironment());
 
 /// server 주소.
-final baseUrlProvider = Provider<Uri>(
-  (ref) => Uri.parse(
-    const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://localhost:8080',
-    ),
-  ),
-);
+final baseUrlProvider = Provider<Uri>((ref) => baseUrlFromEnvironment());
 
 /// 앱 로케일. 앱이 사용자 설정으로 덮어씁니다.
 final localeProvider = Provider<Locale>(

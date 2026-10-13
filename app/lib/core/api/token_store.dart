@@ -28,8 +28,9 @@ final class TokenStore {
 
   /// 새 토큰 쌍을 저장합니다.
   Future<void> save(TokenPair pair) async {
-    _accessToken = pair.accessToken;
+    // 저장이 실패하면 메모리도 바꾸지 않아 옛·새 토큰이 섞이지 않습니다.
     await _secureStore.write(_refreshKey, pair.refreshToken);
+    _accessToken = pair.accessToken;
   }
 
   /// 저장된 refresh token. 없으면 null입니다.

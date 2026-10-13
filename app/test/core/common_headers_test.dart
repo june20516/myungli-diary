@@ -105,6 +105,23 @@ void main() {
     });
   });
 
+  group('baseUrlFromEnvironment', () {
+    test('값이 있으면 그 값을 쓴다', () {
+      expect(
+        baseUrlFromEnvironment(value: 'https://api.test', isRelease: true),
+        Uri.parse('https://api.test'),
+      );
+    });
+
+    test('debug에서 값이 비면 localhost', () {
+      expect(baseUrlFromEnvironment(), Uri.parse('http://localhost:8080'));
+    });
+
+    test('release에서 값이 비면 StateError', () {
+      expect(() => baseUrlFromEnvironment(isRelease: true), throwsStateError);
+    });
+  });
+
   test('fake 모드에 fakeServer가 없으면 StateError', () {
     expect(
       () => buildDio(

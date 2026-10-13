@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:myungli_diary/core/api/api_route.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
@@ -11,6 +12,21 @@ const skipAuthExtra = 'skipAuth';
 
 /// 요청 extra: 이미 한 번 다시 보낸 요청입니다.
 const _retriedExtra = 'authRetried';
+
+/// 계약에서 bearer가 필요 없는 operation(`security: []` 또는 appCheck만).
+const _publicOperations = {
+  'loginKakao',
+  'loginApple',
+  'appleCallback',
+  'refreshToken',
+  'createPreview',
+  'getBirthHour',
+  'revenuecatWebhook',
+  'admobRewardCallback',
+  'listCities',
+  'getAppConfig',
+  'getHealth',
+};
 
 const _tokenExpiredCode = 'auth.token_expired';
 const _refreshReusedCode = 'auth.refresh_reused';
@@ -32,10 +48,31 @@ final class AuthInterceptor extends Interceptor {
   Future<DioException?>? _inflightRefresh;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (options.extra[skipAuthExtra] == true) {
+      handler.next(options);
+      return;
+    }
+    // 앱을 다시 실행한 직후: access token은 없고 refresh token만 있습니다.
+    if (tokens.accessToken == null &&
+        _requiresBearer(options) &&
+        await tokens.refreshToken() != null &&
+        // 읽는 사이 다른 요청의 refresh가 끝났을 수 있습니다.
+        tokens.accessToken == null) {
+      final failure = await (_inflightRefresh ??= _refresh());
+      if (failure != null) {
+        handler.reject(failure.copyWith(requestOptions: options));
+        return;
+      }
+    }
     final accessToken = tokens.accessToken;
-    if (accessToken != null && options.extra[skipAuthExtra] != true) {
+    if (accessToken != null) {
       options.headers['Authorization'] = 'Bearer $accessToken';
+    } else {
+      options.headers.remove('Authorization');
     }
     handler.next(options);
   }
@@ -46,17 +83,19 @@ final class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     final options = err.requestOptions;
+    final currentToken = tokens.accessToken;
     if (err.response?.statusCode != 401 ||
         options.extra[skipAuthExtra] == true ||
         options.extra[_retriedExtra] == true ||
-        _problemCodeOf(err) != _tokenExpiredCode) {
+        _problemCodeOf(err) != _tokenExpiredCode ||
+        // 로그아웃된 뒤 늦게 온 401은 다시 보내지 않습니다.
+        currentToken == null) {
       handler.next(err);
       return;
     }
 
     // 다른 요청의 refresh가 이미 끝났다면 새 토큰으로 다시 보내기만 합니다.
-    final sentWith = _bearerOf(options);
-    if (sentWith == null || sentWith == tokens.accessToken) {
+    if (_bearerOf(options) == currentToken) {
       final failure = await (_inflightRefresh ??= _refresh());
       if (failure != null) {
         handler.reject(failure.copyWith(requestOptions: options));
@@ -113,10 +152,32 @@ final class AuthInterceptor extends Interceptor {
     }
   }
 
-  DioException _unauthorized() => DioException(
-    requestOptions: RequestOptions(path: '/v1/auth/refresh'),
-    message: 'refresh token이 없습니다.',
-  );
+  /// refresh token이 없을 때 돌려주는 401 problem 오류.
+  DioException _unauthorized() {
+    final requestOptions = RequestOptions(path: '/v1/auth/refresh');
+    return DioException.badResponse(
+      statusCode: 401,
+      requestOptions: requestOptions,
+      response: Response<Object?>(
+        requestOptions: requestOptions,
+        statusCode: 401,
+        headers: Headers.fromMap({
+          Headers.contentTypeHeader: ['application/problem+json'],
+        }),
+        data: {
+          'status': 401,
+          'code': 'auth.refresh_missing',
+          'title': 'refresh token이 없습니다.',
+        },
+      ),
+    );
+  }
+
+  /// 계약상 bearer가 필요한 operation인지(`security`에 bearerAuth).
+  bool _requiresBearer(RequestOptions options) {
+    final route = matchRoute(options.method, options.path);
+    return route != null && !_publicOperations.contains(route.operationId);
+  }
 
   String? _bearerOf(RequestOptions options) {
     final header = options.headers['Authorization'];
