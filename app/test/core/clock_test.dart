@@ -180,7 +180,7 @@ void main() {
 
     test('뉴욕 서머타임 종료일(2026-11-01) 자정 전후에 하루만 바뀐다', () {
       fakeAsync((async) {
-        // 뉴욕 11-01 00:00 EDT = UTC 04:00. 01:00~02:00는 두 번 옴(EDT, EST).
+        // 뉴욕 11-01 00:00 EDT = UTC 04:00. 01:00~01:59가 두 번 옴(EDT, EST).
         // 시작: UTC 10-31 23:59 = 뉴욕 10-31 19:59 EDT.
         final clock = _MutableClock(DateTime.utc(2026, 10, 31, 23, 59));
         final seen = <CalendarDate>[];

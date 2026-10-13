@@ -370,8 +370,12 @@ void main() {
     });
 
     test('항상 401이면 refresh 1회 뒤 재시도도 401로 ProblemError', () async {
+      // 세 번째 호출은 200입니다. 재시도 가드가 빠지면 세 번째까지 가서 성공하므로
+      // 시간 초과가 아니라 단언으로 실패합니다.
       final bundle = _MemoryBundle({
-        'fixtures/s/getMe.json': jsonEncode(_expiredProblem),
+        'fixtures/s/getMe.json': jsonEncode({
+          'sequence': [_expiredProblem, _expiredProblem, _meResponse],
+        }),
         'fixtures/s/refreshToken.json': jsonEncode(_tokenResponse),
       });
       final error = await _errorOf(() => api(bundle).getMe());
@@ -400,6 +404,22 @@ void main() {
   });
 
   group('asset 읽기', () {
+    test('manifest 읽기가 한 번 실패해도 다음 요청은 다시 읽는다', () async {
+      final bundle = _FlakyManifestBundle({
+        'fixtures/s/getMe.json': jsonEncode(_meResponse),
+      });
+      final dioApi = _api(_scenario('s'), bundle);
+      try {
+        await dioApi.getMe();
+        fail('첫 요청은 manifest 오류여야 합니다.');
+      } on DioException catch (e) {
+        expect(e.error, isA<FlutterError>());
+      }
+      final response = await dioApi.getMe();
+      expect(response.statusCode, 200);
+      expect(bundle.manifestLoads, 2);
+    });
+
     test('번들에 없음이 아닌 읽기 오류는 501로 삼키지 않고 드러낸다', () async {
       final bundle = _BrokenBundle();
       try {
@@ -524,5 +544,23 @@ class _BrokenBundle extends CachingAssetBundle {
       return _manifestOf(['fixtures/s/getMe.json']);
     }
     throw FlutterError('디스크 오류');
+  }
+}
+
+/// 첫 manifest 읽기만 실패하는 번들.
+class _FlakyManifestBundle extends _MemoryBundle {
+  new(super.files);
+
+  int manifestLoads = 0;
+
+  @override
+  Future<ByteData> load(String key) async {
+    if (key == 'AssetManifest.bin') {
+      manifestLoads++;
+      if (manifestLoads == 1) {
+        throw FlutterError('manifest 디스크 오류');
+      }
+    }
+    return await super.load(key);
   }
 }

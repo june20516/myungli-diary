@@ -3,16 +3,23 @@ import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 
+/// [failWrites]를 켜면 쓰기가 실패하는 저장소.
 class _FailingWriteStore implements SecureStore {
-  @override
-  Future<String?> read(String key) async => null;
+  bool failWrites = true;
+  final _values = <String, String>{};
 
   @override
-  Future<void> delete(String key) async {}
+  Future<String?> read(String key) async => _values[key];
+
+  @override
+  Future<void> delete(String key) async => _values.remove(key);
 
   @override
   Future<void> write(String key, String value) async {
-    throw StateError('저장 실패');
+    if (failWrites) {
+      throw StateError('저장 실패');
+    }
+    _values[key] = value;
   }
 }
 
@@ -30,5 +37,17 @@ void main() {
     await expectLater(tokens.save(_pair('new')), throwsStateError);
 
     expect(tokens.accessToken, isNull);
+  });
+
+  test('저장이 실패하면 기존 access·refresh token이 그대로 남는다', () async {
+    final store = _FailingWriteStore()..failWrites = false;
+    final tokens = TokenStore(store);
+    await tokens.save(_pair('old'));
+
+    store.failWrites = true;
+    await expectLater(tokens.save(_pair('new')), throwsStateError);
+
+    expect(tokens.accessToken, 'old');
+    expect(await tokens.refreshToken(), 'refresh-old');
   });
 }

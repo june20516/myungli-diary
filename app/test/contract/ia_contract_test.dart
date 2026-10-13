@@ -50,12 +50,20 @@ Set<String> _routeNames(List<RouteBase> routes) => {
 };
 
 /// 탭 루트 route 이름 목록(branch 순서). 각 branch 최상위 route의 이름입니다.
+///
+/// 이름 없는 탭 루트가 있으면 무엇이 틀렸는지 알 수 있게 그 경로로 실패합니다.
 List<String> _tabRootNames(List<RouteBase> routes) => [
   for (final route in routes)
     if (route is StatefulShellRoute)
       for (final branch in route.branches)
-        if (branch.routes.first case final GoRoute root) root.name!,
+        if (branch.routes.first case final GoRoute root) _nameOf(root),
 ];
+
+String _nameOf(GoRoute root) {
+  final name = root.name;
+  expect(name, isNotNull, reason: '탭 루트 ${root.path}에 route 이름(IA id)이 없습니다');
+  return name!;
+}
 
 void main() {
   final json =

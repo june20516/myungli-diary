@@ -116,7 +116,10 @@ void main() {
       },
     };
 
-    expect(canonicalJson(a), canonicalJson(b));
-    expect(canonicalJson(a), '{"a":"v","b":{"x":[2,{"p":2,"q":1}],"y":1}}');
+    expect(fingerprintCanonicalJson(a), fingerprintCanonicalJson(b));
+    expect(
+      fingerprintCanonicalJson(a),
+      '{"a":"v","b":{"x":[2,{"p":2,"q":1}],"y":1}}',
+    );
   });
 }

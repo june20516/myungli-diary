@@ -1,5 +1,4 @@
 import 'package:myungli_diary/core/api/app_error.dart';
-import 'package:myungli_diary/core/ia/ia_ids.dart';
 
 final RegExp _uuidPattern = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
@@ -43,7 +42,7 @@ final class CrashSummary {
 /// 비정상 종료 보고(Crashlytics).
 ///
 /// 일기 본문, 출생 정보, 호칭은 어떤 경로로도 넘기지 않습니다(D64 ②).
-/// 자유 문자열 custom key는 두지 않습니다. 구현은 [sanitizeScreenId]·
+/// 자유 문자열 custom key는 두지 않습니다. 구현은 `sanitizeScreenId`(ia_ids.dart)·
 /// [sanitizeAccountId]를 거쳐야 합니다.
 abstract interface class CrashReporter {
   /// 정제된 오류 요약을 보고합니다.

@@ -9,17 +9,18 @@ import 'package:myungli_diary/core/api/gen/model/profile.dart';
 /// 호칭·언어·알림은 사주를 바꾸지 않으므로 넣지 않습니다.
 /// 키를 정렬한 JSON을 SHA-256으로 해시해 hex로 돌려줍니다.
 String sajuFingerprint(Profile profile) {
-  final canonical = canonicalJson(<String, Object?>{
+  final canonical = fingerprintCanonicalJson(<String, Object?>{
     'birth': profile.birth.toJson(),
     'currentTimezone': profile.currentTimezone,
   });
   return sha256.convert(utf8.encode(canonical)).toString();
 }
 
-/// 중첩 맵까지 키를 정렬해 같은 값이면 같은 문자열이 되게 합니다.
+/// 사주 지문 입력의 정규 JSON. 중첩 맵까지 키를 정렬해 같은 값이면 같은 문자열이
+/// 되게 합니다. 지문 전용이라 다른 용도의 정규화에 쓰지 않습니다.
 ///
 /// 형식이 바뀌면 모든 지문이 바뀌어 캐시가 조용히 무효화되므로 테스트로 고정합니다.
-String canonicalJson(Object? value) => jsonEncode(_sorted(value));
+String fingerprintCanonicalJson(Object? value) => jsonEncode(_sorted(value));
 
 Object? _sorted(Object? value) {
   if (value is Map) {

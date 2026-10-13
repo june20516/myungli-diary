@@ -22,6 +22,21 @@ class _OtherExtension extends ThemeExtension<_OtherExtension> {
       this;
 }
 
+/// `ThemeExtension<MyungliTokens>`를 따르지만 [MyungliTokens]가 아닌 확장.
+/// lerp의 `is!` 분기(타입 검사를 통과한 다른 구현)를 검사합니다.
+class _ForeignTokens extends ThemeExtension<MyungliTokens> {
+  const new();
+
+  @override
+  ThemeExtension<MyungliTokens> copyWith() => this;
+
+  @override
+  ThemeExtension<MyungliTokens> lerp(
+    ThemeExtension<MyungliTokens>? other,
+    double t,
+  ) => this;
+}
+
 const _light = MyungliTokens(
   colors: lightColors,
   typography: koType,
@@ -97,6 +112,10 @@ void main() {
         () => erased.lerp(const _OtherExtension(), 0.9),
         throwsA(isA<TypeError>()),
       );
+    });
+
+    test('lerp에 MyungliTokens가 아닌 같은 키의 확장을 주면 자기 자신입니다', () {
+      expect(_light.lerp(const _ForeignTokens(), 0.9), same(_light));
     });
 
     test('lerp는 t가 0.5 미만이면 자기 자신, 이상이면 other입니다', () {
