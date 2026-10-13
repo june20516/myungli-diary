@@ -3,17 +3,14 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// 아이콘 굵기. 평소·미선택은 [light], 선택은 [regular]입니다.
 ///
-/// [fill]은 경고 표시(`mark.caution`) 전용이라 [AppIcon.caution]만 씁니다.
-/// Bold·Thin·Duotone은 아예 두지 않습니다.
+/// Bold·Thin·Duotone은 두지 않습니다. Fill은 경고 표시([AppIcon.caution])만
+/// 쓰므로 이 타입으로는 고를 수 없습니다.
 enum AppIconWeight {
   /// 평소·미선택.
   light,
 
   /// 선택.
   regular,
-
-  /// 경고 표시 전용.
-  fill,
 }
 
 /// 아이콘 크기(`elements.json` `icon.sizes`).
@@ -35,12 +32,6 @@ enum AppIconSize {
   /// 논리 픽셀.
   final double logical;
 }
-
-// 경고 표시는 Fill 한 가지뿐이라 쌍의 두 값을 같게 둡니다.
-const AppGlyph _cautionGlyph = AppGlyph(
-  light: PhosphorIconsFill.warningCircle,
-  regular: PhosphorIconsFill.warningCircle,
-);
 
 /// 같은 글리프의 Light·Regular 한 쌍.
 ///
@@ -71,24 +62,25 @@ class AppIcon extends StatelessWidget {
     this.color,
     this.semanticLabel,
     super.key,
-  }) : assert(
-         weight != AppIconWeight.fill,
-         'fill은 경고 표시(mark.caution) 전용입니다. AppIcon.caution을 쓰세요.',
-       );
+  }) : _caution = false;
 
-  /// 경고 표시(`mark.caution`): `warning-circle` Fill. 색은 놓인 글자색을 따릅니다.
-  const new caution({
-    this.size = AppIconSize.inline,
-    this.color,
-    this.semanticLabel,
-    super.key,
-  }) : icon = _cautionGlyph,
-       weight = AppIconWeight.fill;
+  /// 경고 표시(`mark.caution`): `warning-circle` Fill.
+  ///
+  /// 크기는 주변 글자 높이(cap height)에, 색은 주변 글자색에 맞춥니다.
+  const new caution({this.semanticLabel, super.key})
+    : icon = _cautionGlyph,
+      size = AppIconSize.inline,
+      weight = AppIconWeight.light,
+      color = null,
+      _caution = true;
+
+  /// 영문 대문자 높이 ÷ 글자 크기. Pretendard 기준 근사값입니다.
+  static const double capHeightRatio = 0.7;
 
   /// 그릴 글리프.
   final AppGlyph icon;
 
-  /// 크기.
+  /// 크기. [AppIcon.caution]에서는 쓰지 않습니다.
   final AppIconSize size;
 
   /// 굵기.
@@ -100,13 +92,25 @@ class AppIcon extends StatelessWidget {
   /// 스크린리더 라벨. 없으면 꾸밈 아이콘으로 읽지 않습니다.
   final String? semanticLabel;
 
+  final bool _caution;
+
   @override
   Widget build(BuildContext context) {
+    if (_caution) {
+      final style = DefaultTextStyle.of(context).style;
+      final fontSize = MediaQuery.textScalerOf(context)
+          .scale(style.fontSize ?? kDefaultFontSize);
+      return Icon(
+        PhosphorIconsFill.warningCircle,
+        size: fontSize * capHeightRatio,
+        color: style.color,
+        semanticLabel: semanticLabel,
+      );
+    }
     return Icon(
       switch (weight) {
         AppIconWeight.light => icon.light,
         AppIconWeight.regular => icon.regular,
-        AppIconWeight.fill => PhosphorIconsFill.warningCircle,
       },
       size: size.logical,
       color: color,
@@ -114,3 +118,9 @@ class AppIcon extends StatelessWidget {
     );
   }
 }
+
+// 경고 표시는 Fill 한 가지뿐이라 쌍의 두 값을 같게 둡니다.
+const AppGlyph _cautionGlyph = AppGlyph(
+  light: PhosphorIconsFill.warningCircle,
+  regular: PhosphorIconsFill.warningCircle,
+);

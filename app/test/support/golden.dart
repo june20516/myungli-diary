@@ -45,7 +45,7 @@ void goldenTest(
 /// `test/goldens/<name>.png`와 비교합니다.
 ///
 /// 격자의 가로는 글자 크기, 세로는 밝기×언어입니다. [fixedCells]가 true면
-/// 칸이 고정된 컴포넌트가 2.0에서도 1.3과 같은 크기에 멈추는지 확인합니다.
+/// 칸이 고정된 컴포넌트 안의 글자 배율이 2.0에서도 1.3에 멈추는지 확인합니다.
 Future<void> goldenMatrix(
   WidgetTester tester,
   String name,
@@ -108,15 +108,17 @@ Future<void> goldenMatrix(
   if (fixedCells) {
     for (final brightness in goldenBrightnesses) {
       for (final locale in goldenLocales) {
-        final at13 = tester.getSize(
-          find.byKey(_contentKey(brightness, locale, 1.3)),
-        );
-        final at20 = tester.getSize(
-          find.byKey(_contentKey(brightness, locale, 2)),
+        final at13 = _effectiveScale(tester, brightness, locale, 1.3);
+        final at20 = _effectiveScale(tester, brightness, locale, 2);
+        // 10pt 글자가 실제로 얼마로 그려지는지 읽습니다. 상한이 없으면 2.0 칸은 20입니다.
+        expect(
+          at13,
+          closeTo(13, 0.001),
+          reason: '$name ${brightness.name} $locale: 1.3 칸의 실효 배율',
         );
         expect(
           at20,
-          at13,
+          closeTo(at13, 0.001),
           reason: '$name ${brightness.name} $locale: 고정 칸은 2.0에서 1.3에 멈춰야 합니다',
         );
       }
@@ -124,6 +126,24 @@ Future<void> goldenMatrix(
   }
 
   await expectLater(find.byKey(gridKey), matchesGoldenFile('$name.png'));
+}
+
+/// 칸 안 첫 [Text]가 받는 실효 글자 배율(10pt 글자의 그려지는 크기 ÷ 10 × 10).
+///
+/// 고정 칸 컴포넌트가 안쪽에서 `MediaQuery.withClampedTextScaling` 등으로 상한을
+/// 두면 2.0 칸에서도 1.3 칸과 같은 값이 나옵니다. 글자가 없으면 실패합니다.
+double _effectiveScale(
+  WidgetTester tester,
+  Brightness brightness,
+  Locale locale,
+  double scale,
+) {
+  final texts = find.descendant(
+    of: find.byKey(_contentKey(brightness, locale, scale)),
+    matching: find.byType(Text),
+  );
+  expect(texts, findsWidgets, reason: 'fixedCells 대상에는 글자가 있어야 합니다');
+  return MediaQuery.textScalerOf(tester.element(texts.first)).scale(10);
 }
 
 Key _cellKey(Brightness brightness, Locale locale, double scale) =>

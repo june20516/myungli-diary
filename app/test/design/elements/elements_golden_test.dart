@@ -72,6 +72,12 @@ Widget _elements() {
   );
 }
 
+/// 글자를 담은 고정 칸: 글자 크기 상한 1.3을 안쪽에서 겁니다.
+Widget _fixedCell() => MediaQuery.withClampedTextScaling(
+  maxScaleFactor: 1.3,
+  child: const Seal(size: SealSize.cell, child: Text('13')),
+);
+
 void main() {
   setUpAll(() async {
     await loadBundledFonts();
@@ -86,10 +92,7 @@ void main() {
     await goldenMatrix(
       tester,
       'elements_fixed_cell',
-      () => MediaQuery.withClampedTextScaling(
-        maxScaleFactor: 1.3,
-        child: const Seal(size: SealSize.cell, child: Text('13')),
-      ),
+      _fixedCell,
       fixedCells: true,
     );
   });

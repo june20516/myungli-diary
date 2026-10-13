@@ -6,6 +6,7 @@ import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/term_mark.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 const AppGlyph _heart = AppGlyph(
@@ -36,14 +37,28 @@ void main() {
       expect(icons[1].icon!.fontFamily, 'Phosphor-Regular');
     });
 
-    test('fill 굵기는 assert 실패입니다', () {
-      const weight = AppIconWeight.fill;
-      expect(() => AppIcon(_heart, weight: weight), throwsAssertionError);
+    test('공개 굵기 타입은 light·regular뿐입니다(fill은 caution 전용)', () {
+      expect(AppIconWeight.values, [
+        AppIconWeight.light,
+        AppIconWeight.regular,
+      ]);
     });
 
-    testWidgets('caution은 fill 경고 표시입니다', (tester) async {
-      await tester.pumpWidget(_app(const AppIcon.caution()));
+    testWidgets('caution은 주변 글자 높이·색을 따릅니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: DefaultTextStyle(
+              style: TextStyle(fontSize: 20, color: Color(0xFF123456)),
+              child: AppIcon.caution(),
+            ),
+          ),
+        ),
+      );
       final icon = tester.widget<Icon>(find.byType(Icon));
+      expect(icon.size, closeTo(20 * 2 * AppIcon.capHeightRatio, 0.001));
+      expect(icon.color, const Color(0xFF123456));
       expect(icon.icon!.fontFamily, 'Phosphor-Fill');
       expect(icon.icon, PhosphorIconsFill.warningCircle);
     });
@@ -57,6 +72,42 @@ void main() {
   });
 
   group('Seal', () {
+    testWidgets('fill: 글자는 knock, 아이콘은 on-primary', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const Column(
+            children: [
+              Seal(size: SealSize.paper, child: Text('13')),
+              Seal(size: SealSize.row, child: AppIcon(_heart)),
+            ],
+          ),
+        ),
+      );
+      const colors = lightColors;
+      final text = tester.widget<Text>(find.text('13'));
+      final style = DefaultTextStyle.of(tester.element(find.text('13'))).style;
+      expect(text.style, isNull);
+      expect(style.color, colors.sealKnock);
+      final iconTheme = IconTheme.of(tester.element(find.byType(Icon)));
+      expect(iconTheme.color, colors.actionOnPrimary);
+    });
+
+    testWidgets('soft: 글자·아이콘 모두 본문색', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const Seal(
+            size: SealSize.row,
+            variant: SealVariant.soft,
+            child: AppIcon(_heart),
+          ),
+        ),
+      );
+      expect(
+        IconTheme.of(tester.element(find.byType(Icon))).color,
+        lightColors.textPrimary,
+      );
+    });
+
     testWidgets('크기 안에 내용이 가운데 놓입니다', (tester) async {
       await tester.pumpWidget(
         _app(const Seal(size: SealSize.paper, child: Text('13'))),
@@ -102,6 +153,14 @@ void main() {
   });
 
   group('LockVeil', () {
+    test('lengthHint는 양수여야 합니다', () {
+      const hint = 0;
+      expect(
+        () => LockVeil(title: 't', semanticLabel: 't', lengthHint: hint),
+        throwsAssertionError,
+      );
+    });
+
     testWidgets('제목은 또렷하고 본문은 흐리며 읽지 않습니다', (tester) async {
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(

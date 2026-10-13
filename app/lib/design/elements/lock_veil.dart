@@ -15,13 +15,15 @@ class LockVeil extends StatelessWidget {
     required this.semanticLabel,
     this.lengthHint,
     super.key,
-  });
+  }) : assert(lengthHint == null || lengthHint > 0, 'lengthHint는 양수여야 합니다.');
 
   /// 흐린 본문을 찾는 테스트용 키.
   static const Key bodyKey = ValueKey('lock-veil-body');
 
   static const double _blurSigma = 6;
   static const double _bodyOpacity = 0.5;
+  // 보이는 문구가 아닙니다. 흐림 6px·투명도 0.5로 읽을 수 없게 그려지고 접근성
+  // 트리에서도 빠지는 자리 채움 글이라 ARB를 거치지 않습니다(예외).
   static const String _filler = '가나다라마바사아자차카타파하고노도로모보소오조초코토포호';
 
   /// 구역 제목(ARB 문구).

@@ -166,10 +166,103 @@ enum InteractionPattern {
 }
 
 /// `press.ink`를 뗄 때 얼룩이 번지며 사라지는 시간.
-const Duration pressInkReleaseDuration = Motion.long;
+const Duration pressInkReleaseDuration = PatternValues.releaseDuration;
 
 /// `loading.breathe`에서 줄마다 어긋나는 간격(명세가 직접 적은 값).
-const Duration breatheStagger = Duration(milliseconds: 150);
+const Duration breatheStagger = PatternValues.breatheStagger;
+
+/// `interaction.json`의 숫자 값. 구현은 이 상수만 쓰고, 계약 테스트가 JSON과 대조합니다.
+abstract final class PatternValues {
+  /// `press.ink` 얼룩 알파.
+  static const double inkAlpha = 0.12;
+
+  /// `press.ink` 뗄 때 번지는 배율.
+  static const double inkReleaseScale = 1.15;
+
+  /// `press.ink` 뗄 때 시간·곡선.
+  static const Duration releaseDuration = Motion.long;
+
+  /// `press.ink` 뗄 때 시간·곡선 값.
+  static const Cubic releaseEasing = Motion.seep;
+
+  /// `appear.seep`·`disappear.seep` 흐림(px).
+  static const double appearBlur = 8;
+
+  /// `select.seep-slide` 들어오는 표시.
+  static const double selectDistance = 0.15;
+
+  /// `select.seep-slide` 들어오는 표시 값.
+  static const double selectBlur = 6;
+
+  /// `select.seep-slide` 들어오는 표시 값.
+  static const double selectIncomingScale = 0.92;
+
+  /// `select.seep-slide` 나가는 표시.
+  static const double selectOutgoingScale = 1.06;
+
+  /// `select.seep-slide` 나가는 표시 값.
+  static const Duration selectOutgoingDuration = Motion.fade;
+
+  /// `select.seep-slide` 나가는 표시 값.
+  static const Cubic selectOutgoingEasing = Motion.standard;
+
+  /// `loading.breathe` 투명도 하한과 줄 사이 어긋남.
+  static const double breatheMinOpacity = 0.55;
+
+  /// `loading.breathe` 투명도 하한과 줄 사이 어긋남 값.
+  static const Duration breatheStagger = Duration(milliseconds: 150);
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선.
+  static const double stampSplit = 0.35;
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선 값.
+  static const double stampStartScale = 1.2;
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선 값.
+  static const double stampSplitOpacity = 0.55;
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선 값.
+  static const double stampStartBlur = 3;
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선 값.
+  static const double stampSplitBlur = 1.5;
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선 값.
+  static const Cubic stampFirstEasing = Motion.stampPress;
+
+  /// `seal.stamp` 첫 구간(0~35%)의 끝 지점·값과 곡선 값.
+  static const Cubic stampSecondEasing = Motion.seep;
+
+  /// `seal.erase` 흐림(px).
+  static const double eraseBlur = 5;
+
+  /// `sheet.enter`·`sheet.exit` 덮개 시간·곡선.
+  static const Duration scrimDuration = Motion.fade;
+
+  /// `sheet.enter`·`sheet.exit` 덮개 시간·곡선 값.
+  static const Cubic scrimEasing = Motion.standard;
+
+  /// `sheet.stack` 아래 화면.
+  static const double stackScreenScale = 0.92;
+
+  /// `sheet.stack` 아래 화면 값.
+  static const double stackScreenBrightness = 0.9;
+
+  /// `sheet.stack` 아래 시트.
+  static const double stackSheetTranslateY = -30;
+
+  /// `sheet.stack` 아래 시트 값.
+  static const double stackSheetScale = 0.94;
+
+  /// `sheet.stack` 아래 시트 값.
+  static const double stackSheetBrightness = 0.95;
+
+  /// `focus.ring` 테두리 두께(px).
+  static const double focusFromWidth = 1;
+
+  /// `focus.ring` 테두리 두께(px) 값.
+  static const double focusToWidth = 2;
+}
 
 /// `sheet.stack`에서 물러나는 층의 종류.
 enum StackLayer {
@@ -304,9 +397,9 @@ Widget animateScrim(
         1,
         effect.progress *
             pattern.duration.inMicroseconds /
-            Motion.fade.inMicroseconds,
+            PatternValues.scrimDuration.inMicroseconds,
       );
-      final eased = Motion.standard.transform(local.toDouble());
+      final eased = PatternValues.scrimEasing.transform(local.toDouble());
       final opacity = pattern == InteractionPattern.sheetEnter
           ? eased
           : 1 - eased;
@@ -370,13 +463,17 @@ Widget _fade(double opacity, Widget child) =>
 
 Widget _appearSeep(_Effect e, Widget child) {
   final v = e.eased;
-  final body = e.noBlur ? child : _blurSelf(8 * (1 - v), child);
+  final body = e.noBlur
+      ? child
+      : _blurSelf(PatternValues.appearBlur * (1 - v), child);
   return _fade(v, body);
 }
 
 Widget _disappearSeep(_Effect e, Widget child) {
   final v = e.eased;
-  final body = e.noBlur ? child : _blurSelf(8 * v, child);
+  final body = e.noBlur
+      ? child
+      : _blurSelf(PatternValues.appearBlur * v, child);
   return _fade(1 - v, body);
 }
 
@@ -387,13 +484,16 @@ Widget _selectSlide(_Effect e, PatternOptions o, Widget child) {
       1,
       e.progress *
           InteractionPattern.selectSeepSlide.duration.inMicroseconds /
-          Motion.fade.inMicroseconds,
+          PatternValues.selectOutgoingDuration.inMicroseconds,
     );
-    final v = Motion.standard.transform(local.toDouble());
+    final v = PatternValues.selectOutgoingEasing.transform(local.toDouble());
     if (e.opacityOnly) return _fade(1 - v, child);
     return _fade(
       1 - v,
-      Transform.scale(scale: 1 + 0.06 * v, child: _blurSelf(6 * v, child)),
+      Transform.scale(
+        scale: 1 + (PatternValues.selectOutgoingScale - 1) * v,
+        child: _blurSelf(PatternValues.selectBlur * v, child),
+      ),
     );
   }
   final v = e.eased;
@@ -401,10 +501,12 @@ Widget _selectSlide(_Effect e, PatternOptions o, Widget child) {
   return _fade(
     v,
     FractionalTranslation(
-      translation: o.previousSide * (0.15 * (1 - v)),
+      translation: o.previousSide * (PatternValues.selectDistance * (1 - v)),
       child: Transform.scale(
-        scale: 0.92 + 0.08 * v,
-        child: _blurSelf(6 * (1 - v), child),
+        scale:
+            PatternValues.selectIncomingScale +
+            (1 - PatternValues.selectIncomingScale) * v,
+        child: _blurSelf(PatternValues.selectBlur * (1 - v), child),
       ),
     ),
   );
@@ -427,7 +529,10 @@ Widget _breathe(
   final shifted = (phase - shift) % 1;
   final folded = shifted < 0.5 ? shifted * 2 : 2 - shifted * 2;
   final v = e.pattern.curve.transform(folded);
-  return _fade(0.55 + 0.45 * v, child);
+  return _fade(
+    PatternValues.breatheMinOpacity + (1 - PatternValues.breatheMinOpacity) * v,
+    child,
+  );
 }
 
 Widget _sealStamp(_Effect e, Widget child) {
@@ -435,16 +540,24 @@ Widget _sealStamp(_Effect e, Widget child) {
   final double scale;
   final double opacity;
   final double blur;
-  if (p < 0.35) {
-    final l = Motion.stampPress.transform(p / 0.35);
-    scale = 1.2 - 0.2 * l;
-    opacity = 0.55 * l;
-    blur = 3 - 1.5 * l;
+  const split = PatternValues.stampSplit;
+  const midOpacity = PatternValues.stampSplitOpacity;
+  const midBlur = PatternValues.stampSplitBlur;
+  if (p < split) {
+    final l = PatternValues.stampFirstEasing.transform(p / split);
+    scale =
+        PatternValues.stampStartScale - (PatternValues.stampStartScale - 1) * l;
+    opacity = midOpacity * l;
+    blur =
+        PatternValues.stampStartBlur -
+        (PatternValues.stampStartBlur - midBlur) * l;
   } else {
-    final l = Motion.seep.transform((p - 0.35) / 0.65);
+    final l = PatternValues.stampSecondEasing.transform(
+      (p - split) / (1 - split),
+    );
     scale = 1;
-    opacity = 0.55 + 0.45 * l;
-    blur = 1.5 * (1 - l);
+    opacity = midOpacity + (1 - midOpacity) * l;
+    blur = midBlur * (1 - l);
   }
   if (e.opacityOnly) return _fade(opacity, child);
   final scaled = Transform.scale(scale: scale, child: child);
@@ -453,7 +566,7 @@ Widget _sealStamp(_Effect e, Widget child) {
 
 Widget _sealErase(_Effect e, Widget child) {
   final v = e.eased;
-  final body = e.noBlur ? child : _blurSelf(5 * v, child);
+  final body = e.noBlur ? child : _blurSelf(PatternValues.eraseBlur * v, child);
   return _fade(1 - v, body);
 }
 
@@ -479,7 +592,10 @@ Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
   final v = e.eased;
   final isSheet = o.stackLayer == StackLayer.sheet;
   // 밝기는 필터가 아니라 검은 덮개의 투명도로 냅니다(밝기 0.9 → 덮개 0.1).
-  final veil = (isSheet ? 0.05 : 0.1) * v;
+  final brightness = isSheet
+      ? PatternValues.stackSheetBrightness
+      : PatternValues.stackScreenBrightness;
+  final veil = (1 - brightness) * v;
   final dimmed = Stack(
     children: [
       child,
@@ -493,11 +609,20 @@ Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
     ],
   );
   if (e.opacityOnly) return dimmed;
-  final scale = isSheet ? 1 - 0.06 * v : 1 - 0.08 * v;
+  final scale =
+      1 -
+      (1 -
+              (isSheet
+                  ? PatternValues.stackSheetScale
+                  : PatternValues.stackScreenScale)) *
+          v;
   return Transform(
     alignment: Alignment.center,
-    transform: Matrix4.translationValues(0, isSheet ? -30 * v : 0, 0)
-      ..scaleByDouble(scale, scale, 1, 1),
+    transform: Matrix4.translationValues(
+      0,
+      isSheet ? PatternValues.stackSheetTranslateY * v : 0,
+      0,
+    )..scaleByDouble(scale, scale, 1, 1),
     child: dimmed,
   );
 }
@@ -515,7 +640,9 @@ Widget _focusRing(
     decoration: BoxDecoration(
       borderRadius: o.borderRadius,
       border: Border.all(
-        width: 1 + v,
+        width:
+            PatternValues.focusFromWidth +
+            (PatternValues.focusToWidth - PatternValues.focusFromWidth) * v,
         color: Color.lerp(colors.line, colors.actionPrimary, v)!,
       ),
     ),
@@ -530,7 +657,9 @@ Widget _pressInk(
   Widget child,
 ) {
   final release = o.release?.value ?? 0;
-  final releaseEased = Motion.seep.transform(release.clamp(0, 1));
+  final releaseEased = PatternValues.releaseEasing.transform(
+    release.clamp(0, 1),
+  );
   return Stack(
     children: [
       child,
@@ -563,8 +692,6 @@ class _InkPainter extends CustomPainter {
     required this.borderRadius,
   });
 
-  static const double _alpha = 0.12;
-
   final Color color;
   final Alignment origin;
   final double grow;
@@ -583,7 +710,8 @@ class _InkPainter extends CustomPainter {
       bounds.bottomLeft,
       bounds.bottomRight,
     ].map((corner) => (corner - center).distance).reduce(math.max);
-    final alpha = _alpha * (1 - release);
+    final alpha = PatternValues.inkAlpha * (1 - release);
+    if (alpha <= 0) return;
     if (fadeOnly) {
       // 동작 줄이기: 번짐 없이 전체가 투명도만 바뀝니다.
       canvas.drawRect(
@@ -592,7 +720,8 @@ class _InkPainter extends CustomPainter {
       );
       return;
     }
-    final radius = farthest * grow * (1 + 0.15 * release);
+    final radius =
+        farthest * grow * (1 + (PatternValues.inkReleaseScale - 1) * release);
     if (radius <= 0) return;
     final tint = color.withValues(alpha: alpha);
     canvas.drawCircle(

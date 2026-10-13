@@ -92,12 +92,39 @@ jobs:
         run: |
           flutter pub get
           flutter analyze
+      # golden은 Flutter 버전을 고정한 goldens job이 비교한다(stable 추종과 분리).
       - name: 테스트
-        run: flutter test
+        run: flutter test --exclude-tags golden
       - name: Android 디버그 빌드
         run: flutter build apk --debug
 
-  # golden 기준 이미지는 Linux에서만 만든다(workflow_dispatch에서 update_goldens를 켰을 때만).
+  # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.
+  # checks와 같은 트리거·경로로 돈다(workflow 수준 on).
+  goldens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - name: golden Flutter 버전 읽기
+        id: golden-flutter
+        working-directory: .
+        run: |
+          version="$(grep -v '^[[:space:]]*#' app/tool/golden_flutter_version | grep -v '^[[:space:]]*$' | head -n 1 | tr -d '[:space:]')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ steps.golden-flutter.outputs.version }}
+          cache: true
+      - name: 의존성 받기
+        run: flutter pub get
+      - name: golden 비교
+        run: flutter test --tags golden
+
+  # golden 기준 이미지는 Linux에서만 만든다(workflow_dispatch에서 update_goldens를 켰을 때만). 버전은 goldens job과 같다.
   # 받은 artifact를 test/goldens에 덮어 commit한다.
   update-goldens:
     if: github.event_name == 'workflow_dispatch' && inputs.update_goldens
@@ -108,9 +135,16 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
+      - name: golden Flutter 버전 읽기
+        id: golden-flutter
+        working-directory: .
+        run: |
+          version="$(grep -v '^[[:space:]]*#' app/tool/golden_flutter_version | grep -v '^[[:space:]]*$' | head -n 1 | tr -d '[:space:]')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: ${{ steps.golden-flutter.outputs.version }}
           cache: true
       - name: 의존성 받기
         run: flutter pub get

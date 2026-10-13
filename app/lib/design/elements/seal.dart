@@ -54,7 +54,8 @@ class Seal extends StatelessWidget {
   /// 변형.
   final SealVariant variant;
 
-  /// 안 내용 색. 없으면 변형의 기본(fill: `seal.knock`, 그 밖: `text.primary`).
+  /// 안 내용 색(글자·아이콘 모두). 없으면 변형의 기본: fill은 글자 `seal.knock`·
+  /// 아이콘 `action.on-primary`, 그 밖은 `text.primary`.
   final Color? contentColor;
 
   /// 안의 내용(날짜 숫자, 아이콘 등). 없을 수 있습니다.
@@ -67,12 +68,12 @@ class Seal extends StatelessWidget {
       SealVariant.fill || SealVariant.outline => colors.sealFill,
       SealVariant.soft => colors.sealSoft,
     };
-    final inner =
-        contentColor ??
-        switch (variant) {
-          SealVariant.fill => colors.sealKnock,
-          SealVariant.soft || SealVariant.outline => colors.textPrimary,
-        };
+    // 명세: fill에서 날짜 글자는 knock으로 새기고 아이콘은 action.on-primary.
+    final isFill = variant == SealVariant.fill;
+    final textColor =
+        contentColor ?? (isFill ? colors.sealKnock : colors.textPrimary);
+    final iconColor =
+        contentColor ?? (isFill ? colors.actionOnPrimary : colors.textPrimary);
     return SizedBox.square(
       dimension: size.logical,
       child: CustomPaint(
@@ -84,9 +85,9 @@ class Seal extends StatelessWidget {
             ? null
             : Center(
                 child: IconTheme.merge(
-                  data: IconThemeData(color: inner),
+                  data: IconThemeData(color: iconColor),
                   child: DefaultTextStyle.merge(
-                    style: TextStyle(color: inner),
+                    style: TextStyle(color: textColor),
                     // 글자 크기를 키워도 도장 영역을 넘지 않게 줄입니다.
                     child: FittedBox(child: child),
                   ),
