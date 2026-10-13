@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
+import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -27,20 +29,13 @@ _ToastSession? _activeToast;
 
 /// 토스트를 보입니다. 한 번에 하나만 보이며, 새 토스트가 오면 이전 것은 바로 사라집니다.
 ///
-/// [bottomBarHeight]는 보이는 하단 틀(탭 바 + 안전 영역 + 광고 배너)의 높이입니다.
-/// `MyungliBottomBar.onHeightChanged`로 받은 값을 넘기면 그 위 16px에 뜨고, 0이면 아래 안전 영역
-/// 위 16px에 뜹니다. [icon]은 선택이며 누르는 동작은 담지 않습니다.
-void showMyungliToast(
-  BuildContext context,
-  String message, {
-  AppGlyph? icon,
-  double bottomBarHeight = 0,
-}) {
+/// 위치는 [BottomBarInsetScope]의 하단 틀 높이 위 16px이고, 범위가 없으면 아래 안전 영역
+/// 위 16px입니다. [icon]은 선택이며 누르는 동작은 담지 않습니다.
+void showMyungliToast(BuildContext context, String message, {AppGlyph? icon}) {
   final overlay = Overlay.of(context, rootOverlay: true);
+  final barHeight = BottomBarInsetScope.of(context);
   final bottom =
-      (bottomBarHeight > 0
-          ? bottomBarHeight
-          : MediaQuery.viewPaddingOf(context).bottom) +
+      (barHeight > 0 ? barHeight : MediaQuery.viewPaddingOf(context).bottom) +
       MyungliToast.gapAbove;
   _activeToast?.dismiss();
   final session = _ToastSession();
@@ -107,8 +102,9 @@ class ToastPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    // role status는 정중한(polite) 알림을 뜻하므로 liveRegion을 따로 켜지 않습니다.
     return Semantics(
-      liveRegion: true,
+      role: SemanticsRole.status,
       label: message,
       child: ExcludeSemantics(
         child: DecoratedBox(

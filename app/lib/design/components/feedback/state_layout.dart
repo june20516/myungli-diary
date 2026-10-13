@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -43,7 +44,9 @@ class StateLayout extends StatelessWidget {
           children: [
             Semantics(
               container: true,
-              liveRegion: alert,
+              // 명세 role: 오류는 alert. 빈 상태의 group은 대응하는 SemanticsRole이 없어
+              // 하나의 묶음 노드(container)로 둡니다.
+              role: alert ? SemanticsRole.alert : SemanticsRole.none,
               label: sentence,
               child: ExcludeSemantics(
                 child: Column(
@@ -100,7 +103,7 @@ class _FortyPercent extends StatelessWidget {
           ? CustomSingleChildLayout(
               delegate: const _FortyPercentDelegate(),
               // 글자를 크게 키워 내용이 높이를 넘으면 스크롤됩니다.
-              child: SingleChildScrollView(child: child),
+              child: SingleChildScrollView(primary: false, child: child),
             )
           : child,
     );

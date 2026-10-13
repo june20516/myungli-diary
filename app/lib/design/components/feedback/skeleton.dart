@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
@@ -67,7 +68,12 @@ class _SkeletonBlockState extends State<SkeletonBlock> {
   @override
   Widget build(BuildContext context) {
     if (!_visible) return const SizedBox.shrink();
+    // progressbar 역할은 값·범위가 필수라 0..100의 0으로 둡니다(진행률은 알 수 없음).
     return Semantics(
+      role: SemanticsRole.progressBar,
+      value: '0',
+      minValue: '0',
+      maxValue: '100',
       label: AppLocalizations.of(context).skeletonLabel,
       child: ExcludeSemantics(
         child:

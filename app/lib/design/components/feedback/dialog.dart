@@ -228,10 +228,16 @@ class DialogCard extends StatelessWidget {
               ),
               if (body != null) ...[
                 const SizedBox(height: Space.s8),
-                Text(
-                  body!,
-                  style: tokens.typography.bodyUi.copyWith(
-                    color: colors.textSecondary,
+                // 큰 글자·긴 본문에서는 본문만 스크롤하고 제목·버튼은 늘 보입니다.
+                Flexible(
+                  child: SingleChildScrollView(
+                    primary: false,
+                    child: Text(
+                      body!,
+                      style: tokens.typography.bodyUi.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
               ],

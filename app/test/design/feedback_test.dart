@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -14,6 +17,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
+import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
@@ -22,14 +26,26 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-Widget _app(Widget home, {Locale locale = const Locale('ko')}) => MaterialApp(
-  navigatorKey: _navigatorKey,
-  locale: locale,
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  theme: buildTheme(brightness: Brightness.light, locale: locale),
-  home: Scaffold(body: home),
+Widget _app(
+  Widget home, {
+  Locale locale = const Locale('ko'),
+  FakeCrashReporter? crash,
+}) => ProviderScope(
+  overrides: [
+    crashReporterProvider.overrideWithValue(crash ?? FakeCrashReporter()),
+  ],
+  child: MaterialApp(
+    navigatorKey: _navigatorKey,
+    locale: locale,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    theme: buildTheme(brightness: Brightness.light, locale: locale),
+    home: Scaffold(body: home),
+  ),
 );
+
+SemanticsRole _roleOf(WidgetTester tester, Finder finder) =>
+    tester.getSemantics(finder).getSemanticsData().role;
 
 List<String> _recordHaptics(WidgetTester tester) {
   final calls = <String>[];
@@ -111,11 +127,15 @@ Widget _view(
   AsyncValue<String> value, {
   bool Function(String)? isEmpty,
   VoidCallback? onRetry,
+  void Function(AppError)? onStaleError,
+  FakeCrashReporter? crash,
 }) => _app(
+  crash: crash,
   ScreenStateView<String>(
     value: value,
     onRetry: onRetry ?? () {},
     isEmpty: isEmpty,
+    onStaleError: onStaleError,
     data: (v) => Center(child: Text('값:$v')),
   ),
 );
@@ -293,23 +313,56 @@ void main() {
       expect(find.text('둘'), findsNothing);
     });
 
-    testWidgets('위치: 하단 틀 위 16px, 없으면 안전 영역 위 16px', (tester) async {
+    testWidgets('위치: BottomBarInsetScope 높이 위 16px, 없으면 안전 영역 위 16px', (
+      tester,
+    ) async {
       tester.view
         ..physicalSize = const Size(400, 800)
         ..devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      await pumpHost(tester);
-      showMyungliToast(hostContext(tester), '위치', bottomBarHeight: 120);
+      await tester.pumpWidget(
+        _app(
+          const BottomBarInsetScope(
+            height: 120,
+            child: SizedBox.expand(key: hostKey),
+          ),
+        ),
+      );
+      showMyungliToast(hostContext(tester), '위치');
       await tester.pumpAndSettle();
       expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 136);
       await tester.pumpAndSettle(const Duration(seconds: 3));
+      await pumpHost(tester);
       showMyungliToast(hostContext(tester), '위치');
       await tester.pumpAndSettle();
       expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 16);
       await tester.pumpAndSettle(const Duration(seconds: 3));
     });
 
-    testWidgets('알약이고 반전색이며 live region입니다', (tester) async {
+    testWidgets('scope 높이가 바뀌면 다음 토스트부터 따라갑니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      Widget host(double height) => _app(
+        BottomBarInsetScope(
+          height: height,
+          child: const SizedBox.expand(key: hostKey),
+        ),
+      );
+      await tester.pumpWidget(host(50));
+      showMyungliToast(hostContext(tester), '위치');
+      await tester.pumpAndSettle();
+      expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 66);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pumpWidget(host(90));
+      showMyungliToast(hostContext(tester), '위치');
+      await tester.pumpAndSettle();
+      expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 106);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
+    testWidgets('알약이고 반전색이며 status 역할입니다', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpHost(tester);
       showMyungliToast(hostContext(tester), '저장했어요');
@@ -329,7 +382,7 @@ void main() {
       expect(decoration.borderRadius, BorderRadius.circular(Radii.full));
       expect(
         tester.getSemantics(find.byType(ToastPill)),
-        matchesSemantics(label: '저장했어요', isLiveRegion: true),
+        matchesSemantics(label: '저장했어요', role: SemanticsRole.status),
       );
       handle.dispose();
       await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -647,6 +700,143 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('다시 시도'));
       expect(retried, 1);
+    });
+  });
+
+  group('a11y role (명세)', () {
+    testWidgets('toast: status', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const ToastPill(message: '저장했어요')));
+      expect(_roleOf(tester, find.byType(ToastPill)), SemanticsRole.status);
+      handle.dispose();
+    });
+
+    testWidgets('notice-banner: status', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const NoticeBanner(variant: NoticeBannerVariant.draft, message: '초안'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        _roleOf(tester, find.bySemanticsLabel('초안')),
+        SemanticsRole.status,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('skeleton: progressbar', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      expect(
+        _roleOf(tester, find.byType(SkeletonBlock)),
+        SemanticsRole.progressBar,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('error-state: alert', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(ErrorState(error: const TimeoutError(), onRetry: () {})),
+      );
+      expect(
+        _roleOf(tester, find.bySemanticsLabel(RegExp('응답이 늦어'))),
+        SemanticsRole.alert,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('empty-state: 하나의 묶음 노드(group)로 문장을 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const EmptyState(body: '비었어요')));
+      final data = tester
+          .getSemantics(find.bySemanticsLabel('비었어요'))
+          .getSemanticsData();
+      expect(data.label, '비었어요');
+      // SemanticsRole에 group이 없어 role은 none이고 묶음(container)으로 둡니다.
+      expect(data.role, SemanticsRole.none);
+      handle.dispose();
+    });
+  });
+
+  group('추가 동작', () {
+    testWidgets('dialog: 2.0배 긴 본문에서도 넘치지 않고 버튼이 보입니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(360, 640)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(360, 640),
+            textScaler: TextScaler.linear(2),
+          ),
+          child: _app(const SizedBox.expand()),
+        ),
+      );
+      unawaited(
+        showMyungliDialog(
+          _navigatorKey.currentContext!,
+          variant: DialogVariant.destructive,
+          title: '일기를 지울까요?',
+          body: List.filled(40, '지우면 되돌릴 수 없어요.').join(' '),
+          confirm: '지우기',
+          cancel: '취소',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('지우기'), findsOneWidget);
+      expect(tester.getRect(find.text('지우기')).bottom, lessThanOrEqualTo(640));
+    });
+
+    testWidgets('값이 있고 500: 데이터 유지, 화면 안 표시 없음, onStaleError는 한 번', (
+      tester,
+    ) async {
+      final errors = <AppError>[];
+      final stale = await _states(tester, (p) => p.fail(_problem));
+      await tester.pumpWidget(_view(stale, onStaleError: errors.add));
+      await tester.pumpAndSettle();
+      expect(find.text('값:캐시'), findsOneWidget);
+      expect(find.byType(ErrorState), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(errors, [_problem]);
+      // 같은 값으로 다시 그려도 반복해 알리지 않습니다.
+      await tester.pumpWidget(_view(stale, onStaleError: errors.add));
+      await tester.pumpAndSettle();
+      expect(errors, hasLength(1));
+    });
+
+    testWidgets('값이 있고 오프라인이면 onStaleError를 부르지 않습니다', (tester) async {
+      final errors = <AppError>[];
+      final stale = await _states(tester, (p) => p.fail(const OfflineError()));
+      await tester.pumpWidget(_view(stale, onStaleError: errors.add));
+      await tester.pumpAndSettle();
+      expect(errors, isEmpty);
+    });
+
+    testWidgets('AppError가 아닌 오류는 크래시 보고에 한 번 기록합니다', (tester) async {
+      final crash = FakeCrashReporter();
+      final value = AsyncError<String>(StateError('x'), StackTrace.empty);
+      await tester.pumpWidget(_view(value, crash: crash));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(_view(value, crash: crash));
+      await tester.pumpAndSettle();
+      expect(crash.errors.map((e) => e.errorType), ['UnexpectedError']);
+    });
+
+    testWidgets('AppError는 크래시 보고에 기록하지 않습니다', (tester) async {
+      final crash = FakeCrashReporter();
+      await tester.pumpWidget(
+        _view(
+          const AsyncError<String>(_problem, StackTrace.empty),
+          crash: crash,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(crash.errors, isEmpty);
     });
   });
 }

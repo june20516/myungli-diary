@@ -5,6 +5,7 @@ import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
@@ -141,9 +142,10 @@ final WidgetbookFolder feedbackDirectory = WidgetbookFolder(
             child: _fixedHeight(
               EmptyState(
                 body: '아직 쓴 일기가 없어요. 오늘의 한 줄부터 남겨 볼까요?',
-                action: FilledButton(
+                action: FeedbackTextAction(
+                  label: '일기 쓰기',
+                  style: const TextStyle(fontSize: 14),
                   onPressed: () {},
-                  child: const Text('일기 쓰기'),
                 ),
               ),
             ),

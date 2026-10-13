@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -73,8 +74,9 @@ class NoticeBanner extends StatelessWidget {
     final colors = tokens.colors;
     return SeepPresence(
       present: present,
+      // role status는 정중한(polite) 알림을 뜻하므로 liveRegion을 따로 켜지 않습니다.
       child: Semantics(
-        liveRegion: true,
+        role: SemanticsRole.status,
         label: message,
         child: ExcludeSemantics(
           child: Padding(

@@ -5,9 +5,11 @@ import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -91,10 +93,18 @@ Widget _skeletons() => const Column(
 );
 
 Widget _empty() => SizedBox(
-  height: 320,
+  height: 440,
   child: EmptyState(
     body: '아직 쓴 일기가 없어요. 오늘의 한 줄부터 남겨 볼까요?',
-    action: FilledButton(onPressed: () {}, child: const Text('일기 쓰기')),
+    action: Builder(
+      builder: (context) => FeedbackTextAction(
+        label: '일기 쓰기',
+        style: context.tokens.typography.labelLg.copyWith(
+          color: context.tokens.colors.actionPrimary,
+        ),
+        onPressed: () {},
+      ),
+    ),
   ),
 );
 
@@ -102,15 +112,15 @@ Widget _errors() => Column(
   spacing: 12,
   children: [
     SizedBox(
-      height: 300,
+      height: 440,
       child: ErrorState(error: const TimeoutError(), onRetry: () {}),
     ),
     SizedBox(
-      height: 300,
+      height: 440,
       child: ErrorState(error: const OfflineError(), onRetry: () {}),
     ),
     SizedBox(
-      height: 320,
+      height: 440,
       child: ErrorState(
         error: const ProblemError(
           code: 'x',

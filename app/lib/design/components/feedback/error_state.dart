@@ -80,6 +80,7 @@ class ErrorState extends StatelessWidget {
       alert: true,
       children: [
         const SizedBox(height: Space.s20),
+        // 임시: 계획 2에서 `primary-button` quiet로 교체합니다.
         FeedbackTextAction(
           label: l10n.actionRetry,
           style: tokens.typography.labelLg.copyWith(
