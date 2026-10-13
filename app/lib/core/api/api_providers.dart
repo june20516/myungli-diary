@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
+import 'package:myungli_diary/core/platform/app_check.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 
 /// 통신 방식.
@@ -30,10 +32,8 @@ final tokenStoreProvider = Provider<TokenStore>((ref) {
   return store;
 });
 
-/// App Check 토큰 출처. Firebase 연동 전까지는 override해야 합니다.
-final appCheckProvider = Provider<AppCheckTokenSource>(
-  (ref) => throw UnimplementedError('appCheckProvider를 override하세요.'),
-);
+/// App Check. 기본은 대역이고, Firebase adapter는 override로 끼웁니다.
+final appCheckProvider = Provider<AppCheck>((ref) => const FakeAppCheck());
 
 /// 대역 서버 interceptor. fake 모드에서만 쓰며 대역 서버 task가 override합니다.
 final fakeServerProvider = Provider<Interceptor?>((ref) => null);
