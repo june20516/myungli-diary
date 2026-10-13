@@ -147,6 +147,10 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 // LoginApple은 Apple id_token과 authorization code로 로그인합니다.
 // id_token을 검증한 뒤 code를 교환해 Apple refresh token을 받습니다. 교환에 실패하면 로그인도 실패하며 DB에 아무것도 남기지 않습니다.
 // 받은 refresh token은 암호화해 저장하고, 이미 있는 연결이면 새 값으로 바꿉니다.
+//
+// 트랜잭션이 실패하면 교환한 refresh token은 저장하지 않고 버립니다. revoke는 하지 않습니다.
+// Apple의 revoke는 그 사용자의 앱 승인 전체를 끊으므로, 일시적인 DB 오류나 동시 첫 로그인에서 진 경우에
+// revoke하면 DB에 저장된 기존(또는 먼저 commit된) Apple 연결까지 무효가 되기 때문입니다.
 func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string, client provider.AppleClient) (LoginResult, error) {
 	identity, err := s.apple.Verify(ctx, idToken, rawNonce, client)
 	if err != nil {
@@ -156,21 +160,7 @@ func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, ra
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "exchange_code")
 	}
-	result, err := s.login(ctx, providerApple, identity.Subject, &appleGrant{refreshToken: refreshToken, clientID: clientID})
-	if err != nil {
-		s.revokeUnusedAppleToken(ctx, refreshToken, clientID)
-		return LoginResult{}, err
-	}
-	return result, nil
-}
-
-// revokeUnusedAppleToken은 code 교환으로 받았지만 저장하지 못한 Apple refresh token을 revoke합니다.
-// 저장하지 못한 토큰은 탈퇴 때 revoke할 방법이 없으므로 바로 폐기합니다. best-effort이며 실패는 경고 로그만 남깁니다.
-// 요청이 끊겨도 정리는 하도록 ctx의 취소를 물려받지 않습니다(호출마다 provider의 5초 deadline이 있음).
-func (s *Service) revokeUnusedAppleToken(ctx context.Context, refreshToken, clientID string) {
-	if err := s.apple.Revoke(context.WithoutCancel(ctx), refreshToken, clientID); err != nil {
-		s.logger.WarnContext(ctx, "로그인 실패 뒤 Apple refresh token revoke 실패", "provider", providerApple, "step", "revoke_unused")
-	}
+	return s.login(ctx, providerApple, identity.Subject, &appleGrant{refreshToken: refreshToken, clientID: clientID})
 }
 
 // providerError는 제공자 오류를 이 패키지의 sentinel로 바꿉니다.

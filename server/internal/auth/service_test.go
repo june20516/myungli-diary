@@ -366,7 +366,8 @@ func TestLoginApple_FailedCodeExchangeCreatesNothing(t *testing.T) {
 	}
 }
 
-func TestLoginApple_FailedTransactionRevokesExchangedToken(t *testing.T) {
+// 트랜잭션이 실패해도 교환한 토큰을 revoke하지 않습니다. revoke는 사용자의 앱 승인 전체를 끊기 때문입니다.
+func TestLoginApple_FailedTransactionDoesNotRevoke(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginApple(t, "apple-1")
 	f.exec(t, `UPDATE accounts SET status = 'deleted', deletion_requested_at = $2, anonymized_at = $2 WHERE id = $1`, first.AccountID, testNow)
@@ -375,12 +376,10 @@ func TestLoginApple_FailedTransactionRevokesExchangedToken(t *testing.T) {
 
 	_, err := f.service.LoginApple(f.ctx, idToken, "auth-code", testNonce, provider.AppleNative)
 
-	require.Error(t, err)
-	assert.NotErrorIs(t, err, auth.ErrProviderTokenInvalid, "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
-	revokes := f.fake.AppleRevokeRequests()
-	require.Len(t, revokes, 1, "저장하지 못한 토큰은 바로 revoke합니다")
-	assert.Equal(t, "unsaved-refresh", revokes[0].Form.Get("token"))
-	assert.Equal(t, providertest.AppleBundleID, revokes[0].Form.Get("client_id"))
+	require.ErrorContains(t, err, "익명화된 계정", "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
+	assert.NotErrorIs(t, err, auth.ErrProviderTokenInvalid)
+	assert.NotErrorIs(t, err, auth.ErrProviderUnavailable)
+	assert.Empty(t, f.fake.AppleRevokeRequests())
 }
 
 func TestLoginApple_SuccessDoesNotRevoke(t *testing.T) {
