@@ -24,7 +24,7 @@
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
-| `proto/myungri/engine/v1/engine.proto` | **사용** | core |
+| `proto/myungli/engine/v1/engine.proto` | **사용** | core |
 | `core/message_keys.json` | **사용** (콘텐츠 시드가 모든 키를 3개 언어로 갖췄는지 검사) | core |
 | REST API v1 (위치는 설계 때 정하고 `docs/contracts/README.md`에 등록 요청) | **제공** | app |
 | 슬롯 명세, 호칭·조사 처리 규칙, 라이팅 검사기 | **사용** (W0 이후) | writing |
