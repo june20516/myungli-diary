@@ -112,7 +112,7 @@ Future<void> _restoreScenarioSession(
 ) async {
   final tokens = container.read(tokenStoreProvider);
   if (!scenario.signedIn) {
-    await tokens.clear();
+    await tokens.discardWithoutEvent();
     return;
   }
   final server = container.read(fakeServerInterceptorProvider);

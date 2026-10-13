@@ -546,7 +546,7 @@ void main() {
 
       final pending = dio.get<Object?>('/v1/me');
       await Future<void>.delayed(const Duration(milliseconds: 5));
-      await tokens.clear();
+      await tokens.discardWithoutEvent();
 
       await expectLater(pending, throwsA(isA<DioException>()));
       expect(adapter.count('/v1/me'), 1);
@@ -554,7 +554,7 @@ void main() {
     });
 
     test('토큰이 없으면 남아 있던 Authorization 헤더를 지운다', () async {
-      await tokens.clear();
+      await tokens.discardWithoutEvent();
       final adapter = _Adapter((_) => _json(200, {}));
 
       await build(adapter).get<Object?>(

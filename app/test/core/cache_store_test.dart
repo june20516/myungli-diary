@@ -235,14 +235,13 @@ void main() {
       expect(await count(database.deviceFlags), 1);
     });
 
-    test('clearOnSignOut은 캐시·초안·온보딩 입력을 지우고 기기 플래그는 남긴다', () async {
+    test('clearSignedOutData는 모든 계정의 캐시·초안과 온보딩 입력을 지우고 기기 플래그는 남긴다', () async {
       await seed();
 
-      await store.clearOnSignOut();
+      await database.clearSignedOutData();
 
-      expect(await store.read(CacheKind.daily, 'k'), isNull);
-      final drafts = await database.select(database.diaryDrafts).get();
-      expect(drafts.map((d) => d.accountId), ['b']);
+      expect(await count(database.cachedResponses), 0);
+      expect(await count(database.diaryDrafts), 0);
       expect(await count(database.onboardingInputs), 0);
       expect(await count(database.deviceFlags), 1);
     });

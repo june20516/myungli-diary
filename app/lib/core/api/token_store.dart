@@ -5,7 +5,8 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 
 /// 인증 상태 변화 이벤트입니다.
 enum AuthEvent {
-  /// refresh가 거부돼 로그아웃됐습니다. 로그인 화면으로 보내야 합니다.
+  /// 로그아웃됐습니다(refresh 거부, `getMe` 401, 삭제 대기 계정, 자발적 로그아웃).
+  /// 로컬 정리·외부 SDK 연결 해제·진입 재계산이 이 이벤트를 듣습니다.
   signedOut,
 
   /// bearer 요청이 403 `consent.required`를 받았습니다. 토큰은 그대로이고
@@ -48,15 +49,21 @@ final class TokenStore {
   /// 저장된 refresh token. 없으면 null입니다.
   Future<String?> refreshToken() => _secureStore.read(_refreshKey);
 
-  /// 토큰을 모두 지웁니다. 이벤트는 내지 않습니다(자발적 로그아웃용).
-  Future<void> clear() async {
+  /// 이벤트 없이 토큰을 지웁니다. 로그아웃이 아닙니다.
+  ///
+  /// fake 모드 시작 코드가 시나리오의 로그아웃 상태를 만들 때(정리할 이전 실행이 없음)와
+  /// 테스트만 씁니다. 로그아웃은 어떤 경로든 [signOut]을 거쳐야 로컬 정리가 돕니다.
+  Future<void> discardWithoutEvent() async {
     _accessToken = null;
     await _secureStore.delete(_refreshKey);
   }
 
-  /// 토큰을 지우고 [AuthEvent.signedOut]을 알립니다(refresh 거부 때).
+  /// 토큰을 지우고 [AuthEvent.signedOut]을 알립니다. 모든 로그아웃의 단일 진입점입니다.
+  ///
+  /// server에 refresh token 폐기까지 하려면(자발적 로그아웃, 삭제 대기 계정)
+  /// `revokeAndSignOut`(app/entry/sign_out.dart)를 씁니다.
   Future<void> signOut() async {
-    await clear();
+    await discardWithoutEvent();
     _events.add(AuthEvent.signedOut);
   }
 

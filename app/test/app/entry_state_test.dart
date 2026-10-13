@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
+import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
@@ -232,6 +233,42 @@ void main() {
       );
     });
 
+    test('getMe가 401이면 남은 토큰을 지우고 signedOut 이벤트를 냅니다', () async {
+      await signIn();
+      api.meError = _status(401);
+      final events = <AuthEvent>[];
+      tokens.events.listen(events.add);
+      final c = container();
+      await c.read(entryStateProvider.future);
+      await Future<void>.delayed(Duration.zero);
+      expect(tokens.accessToken, isNull);
+      expect(await tokens.refreshToken(), isNull);
+      expect(events, contains(AuthEvent.signedOut));
+      expect(api.logoutTokens, isEmpty, reason: '거부된 토큰으로는 폐기를 부르지 않습니다');
+    });
+
+    test('getMe 401 전에 이미 로그아웃됐으면 signedOut을 다시 내지 않습니다', () async {
+      await signIn();
+      // interceptor가 refresh 거부로 이미 로그아웃한 경우입니다.
+      api
+        ..meError = _status(401)
+        ..beforeMeError = tokens.signOut;
+      final events = <AuthEvent>[];
+      tokens.events.listen(events.add);
+      final c = container();
+      // 앱에서는 라우터가 듣고 있어 계산 중 무효화되면 다시 계산합니다.
+      final signedOut = Completer<void>();
+      c.listen(entryStateProvider, (_, next) {
+        if (next.value?.entry == EntryState.signedOut &&
+            !signedOut.isCompleted) {
+          signedOut.complete();
+        }
+      }, fireImmediately: true);
+      await signedOut.future;
+      await Future<void>.delayed(Duration.zero);
+      expect(events, [AuthEvent.signedOut]);
+    });
+
     test('getMe가 그 밖의 오류면 AsyncError', () async {
       await signIn();
       api.meError = _status(500);
@@ -316,6 +353,21 @@ void main() {
       expect(tokens.accessToken, isNull);
       expect(await tokens.refreshToken(), isNull);
       expect(events, contains(AuthEvent.signedOut));
+      expect(api.logoutTokens, [
+        'refresh',
+      ], reason: 'server에 refresh token 폐기를 시도합니다');
+    });
+
+    test('삭제 대기 계정의 server logout이 실패해도 로컬 로그아웃은 합니다', () async {
+      await signIn();
+      api
+        ..me = meWith(pendingDeletion: true)
+        ..logoutError = _status(503);
+      final c = container();
+      final snapshot = await c.read(entryStateProvider.future);
+      expect(snapshot.entry, EntryState.signedOut);
+      expect(api.logoutTokens, ['refresh']);
+      expect(await tokens.refreshToken(), isNull);
     });
 
     test('consentRequired 이벤트를 받으면 다시 계산합니다', () async {
@@ -492,6 +544,9 @@ class _Api implements DefaultApi {
   int meCalls = 0;
   DioException? configError;
   DioException? meError;
+  Future<void> Function()? beforeMeError;
+  DioException? logoutError;
+  final logoutTokens = <String>[];
   Me? me;
   AppConfig? config;
   final meQueue = <Completer<Me>>[];
@@ -529,6 +584,7 @@ class _Api implements DefaultApi {
   }) async {
     meCalls++;
     if (meError != null) {
+      await beforeMeError?.call();
       throw meError!;
     }
     if (meQueue.isNotEmpty) {
@@ -539,6 +595,23 @@ class _Api implements DefaultApi {
       );
     }
     return Response(requestOptions: RequestOptions(), data: me ?? meWith());
+  }
+
+  @override
+  Future<Response<void>> logout({
+    required RefreshRequest refreshRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    logoutTokens.add(refreshRequest.refreshToken);
+    if (logoutError != null) {
+      throw logoutError!;
+    }
+    return Response(requestOptions: RequestOptions(), statusCode: 204);
   }
 
   @override

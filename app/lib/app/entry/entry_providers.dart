@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/entry/entry_state.dart';
+import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
@@ -26,9 +27,13 @@ final targetPlatformProvider = Provider<TargetPlatform>(
 /// 진입 갈래를 계산합니다.
 ///
 /// `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 통신이 실패하면 오류 상태가
-/// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 로그아웃으로 봅니다.
-/// 삭제 대기 계정이면 토큰을 지우고(`TokenStore.signOut`) 로그아웃으로 봅니다.
-/// 토큰 이벤트(로그아웃, 약관 동의 필요)를 받으면 다시 계산합니다.
+/// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 남은 토큰을 지우고
+/// (`TokenStore.signOut`) 로그아웃으로 봅니다. 삭제 대기 계정이면 server에 토큰 폐기를
+/// 시도한 뒤 로그아웃합니다([revokeAndSignOut]). 어느 쪽이든 `signedOut` 이벤트가 나가
+/// 로컬 정리가 돕니다. 토큰 이벤트(로그아웃, 약관 동의 필요)를 받으면 다시 계산합니다.
+///
+/// 이 계산이 내는 [meProvider]가 세션 복원과 로그인 뒤 계정 연결의 유일한 출처입니다
+/// (`AccountLinker`).
 class EntryController extends AsyncNotifier<EntrySnapshot> {
   @override
   Future<EntrySnapshot> build() {
@@ -71,21 +76,21 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     if (hasSession && appVersion >= minimum) {
       try {
         me = await _call(api.getMe);
-      } on ProblemError catch (e) {
-        if (e.status != 401) {
+      } on AppError catch (e) {
+        if (!_isUnauthorized(e)) {
           rethrow;
         }
-      } on UnexpectedError catch (e) {
-        final cause = e.cause;
-        if (cause is! DioException || cause.response?.statusCode != 401) {
-          rethrow;
+        // refresh 거부로 interceptor가 이미 로그아웃했다면 이벤트를 두 번 내지 않습니다.
+        if (tokens.accessToken != null || await tokens.refreshToken() != null) {
+          await tokens.signOut();
         }
+        return const EntrySnapshot(EntryState.signedOut, null);
       }
     }
 
     if (me != null && isPendingDeletion(me)) {
       // signOut 이벤트로 다시 계산되며, 그때는 세션이 없어 getMe를 부르지 않습니다.
-      await tokens.signOut();
+      await revokeAndSignOut(api: api, tokens: tokens);
       return const EntrySnapshot(EntryState.signedOut, null);
     }
 
@@ -107,6 +112,13 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     await flags.writeBool(adConsentDoneKey, value: true);
     return EntrySnapshot(compute(adConsentDone: true), me);
   }
+
+  bool _isUnauthorized(AppError error) => switch (error) {
+    ProblemError(:final status) => status == 401,
+    UnexpectedError(:final cause) =>
+      cause is DioException && cause.response?.statusCode == 401,
+    _ => false,
+  };
 
   Future<T> _call<T>(Future<Response<T>> Function() request) async {
     try {

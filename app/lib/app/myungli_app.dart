@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/dev/scenario_picker.dart';
+import 'package:myungli_diary/app/entry/account_linker.dart';
 import 'package:myungli_diary/app/entry/sign_out_cleaner.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
@@ -17,8 +18,10 @@ class MyungliApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 로그아웃 정리 담당을 앱이 떠 있는 동안 붙들어 둡니다.
-    ref.watch(signOutCleanerProvider);
+    // 계정 연결·로그아웃 정리 담당을 앱이 떠 있는 동안 붙들어 둡니다.
+    ref
+      ..watch(accountLinkerProvider)
+      ..watch(signOutCleanerProvider);
     final locale = ref.watch(localeProvider);
     final showDevMenu =
         kDebugMode && ref.watch(apiModeProvider) == ApiMode.fake;

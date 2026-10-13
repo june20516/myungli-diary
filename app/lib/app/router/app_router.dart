@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
+import 'package:myungli_diary/app/router/screen_breadcrumbs.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/app/router/tab_shell.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 
 /// IA 화면 id의 경로.
@@ -104,7 +106,13 @@ GoRouter buildRouter(Ref ref) {
       ...otherPages,
     ],
   );
-  ref.onDispose(router.dispose);
+  final stopBreadcrumbs = listenScreenBreadcrumbs(
+    router,
+    ref.read(crashReporterProvider),
+  );
+  ref
+    ..onDispose(stopBreadcrumbs)
+    ..onDispose(router.dispose);
   return router;
 }
 

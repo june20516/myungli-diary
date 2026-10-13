@@ -150,6 +150,9 @@ final class CacheStore {
   }
 
   /// 이 계정의 캐시와 일기 초안을 지웁니다. 온보딩 입력과 기기 플래그는 남깁니다.
+  ///
+  /// 로그아웃 정리는 계정 id를 모를 때도 돌아야 하므로 이 메서드가 아니라
+  /// `AppDatabase.clearSignedOutData`를 씁니다.
   Future<void> clearAccount() {
     return _database.transaction(() async {
       await (_database.delete(
@@ -164,15 +167,6 @@ final class CacheStore {
   /// 온보딩 입력(계정 없는 단일 행)을 지웁니다.
   Future<void> clearOnboardingInputs() =>
       _database.delete(_database.onboardingInputs).go();
-
-  /// 로그아웃 정리. 캐시·초안·온보딩 입력을 지우고 기기 플래그는 남깁니다.
-  /// 다른 계정으로 로그인했을 때 이전 계정의 데이터가 보이지 않게 합니다.
-  Future<void> clearOnSignOut() {
-    return _database.transaction(() async {
-      await clearAccount();
-      await clearOnboardingInputs();
-    });
-  }
 }
 
 /// 현재 로그인한 계정 id. 인증 흐름이 override합니다.
