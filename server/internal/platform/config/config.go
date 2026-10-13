@@ -119,8 +119,17 @@ type AuthConfig struct {
 	AppleTeamID, AppleKeyID, ApplePrivateKeyPEM string
 	// AppleBundleID는 앱 로그인의 audience이고, AppleServicesID는 웹 로그인의 audience입니다.
 	AppleBundleID, AppleServicesID string
-	// AppleWebRedirectURI는 Apple이 code를 돌려보내는 주소이고, AppleCallbackDeepLink는 server가 앱으로 넘기는 딥링크입니다.
-	AppleWebRedirectURI, AppleCallbackDeepLink string
+	// AppleWebRedirectURI는 Apple이 웹 로그인 결과(form_post)를 보내는 server 주소입니다.
+	AppleWebRedirectURI string
+	// AppLinkBase는 Android App Link 주소(https, path 없음)입니다. Apple 웹 콜백은 이 주소의 /auth/apple로
+	// 교환 코드를 넘기고, 같은 도메인이 안내 페이지와 /.well-known/assetlinks.json을 내줍니다.
+	AppLinkBase string
+	// AndroidAppPackage는 App Link를 받을 Android 앱의 패키지 이름입니다(assetlinks.json, intent 링크).
+	AndroidAppPackage string
+	// AndroidCertSHA256은 Android 앱 서명 인증서의 SHA-256 지문을 쉼표로 이은 값입니다(assetlinks.json).
+	AndroidCertSHA256 string
+	// AndroidStoreURL은 앱이 설치되지 않았을 때 안내 페이지가 보내는 스토어 주소입니다.
+	AndroidStoreURL string
 }
 
 // LoadAuth는 getenv로 인증 설정을 읽습니다. 값은 앞뒤 공백(줄바꿈 포함)을 지운 뒤 쓰므로 공백뿐인 값은 빈 값입니다.
@@ -138,23 +147,26 @@ func LoadAuth(getenv func(string) string) (AuthConfig, error) {
 	}
 
 	cfg := AuthConfig{
-		JWTKeyID:              require("JWT_SIGNING_KEY_ID"),
-		JWTKeyPEM:             require("JWT_SIGNING_KEY"),
-		JWTPreviousKeyID:      getenv("JWT_PREVIOUS_KEY_ID"),
-		JWTPreviousKeyPEM:     getenv("JWT_PREVIOUS_KEY"),
-		TokenKeyID:            require("TOKEN_ENCRYPTION_KEY_ID"),
-		TokenKey:              require("TOKEN_ENCRYPTION_KEY"),
-		TokenPreviousKeyID:    getenv("TOKEN_PREVIOUS_KEY_ID"),
-		TokenPreviousKey:      getenv("TOKEN_PREVIOUS_KEY"),
-		KakaoAppKey:           require("KAKAO_APP_KEY"),
-		KakaoAdminKey:         require("KAKAO_ADMIN_KEY"),
-		AppleTeamID:           require("APPLE_TEAM_ID"),
-		AppleKeyID:            require("APPLE_KEY_ID"),
-		ApplePrivateKeyPEM:    require("APPLE_PRIVATE_KEY"),
-		AppleBundleID:         require("APPLE_BUNDLE_ID"),
-		AppleServicesID:       require("APPLE_SERVICES_ID"),
-		AppleWebRedirectURI:   require("APPLE_WEB_REDIRECT_URI"),
-		AppleCallbackDeepLink: require("APPLE_CALLBACK_DEEPLINK"),
+		JWTKeyID:            require("JWT_SIGNING_KEY_ID"),
+		JWTKeyPEM:           require("JWT_SIGNING_KEY"),
+		JWTPreviousKeyID:    getenv("JWT_PREVIOUS_KEY_ID"),
+		JWTPreviousKeyPEM:   getenv("JWT_PREVIOUS_KEY"),
+		TokenKeyID:          require("TOKEN_ENCRYPTION_KEY_ID"),
+		TokenKey:            require("TOKEN_ENCRYPTION_KEY"),
+		TokenPreviousKeyID:  getenv("TOKEN_PREVIOUS_KEY_ID"),
+		TokenPreviousKey:    getenv("TOKEN_PREVIOUS_KEY"),
+		KakaoAppKey:         require("KAKAO_APP_KEY"),
+		KakaoAdminKey:       require("KAKAO_ADMIN_KEY"),
+		AppleTeamID:         require("APPLE_TEAM_ID"),
+		AppleKeyID:          require("APPLE_KEY_ID"),
+		ApplePrivateKeyPEM:  require("APPLE_PRIVATE_KEY"),
+		AppleBundleID:       require("APPLE_BUNDLE_ID"),
+		AppleServicesID:     require("APPLE_SERVICES_ID"),
+		AppleWebRedirectURI: require("APPLE_WEB_REDIRECT_URI"),
+		AppLinkBase:         require("APP_LINK_BASE"),
+		AndroidAppPackage:   require("ANDROID_APP_PACKAGE"),
+		AndroidCertSHA256:   require("ANDROID_CERT_SHA256"),
+		AndroidStoreURL:     require("ANDROID_STORE_URL"),
 	}
 
 	var errs []error

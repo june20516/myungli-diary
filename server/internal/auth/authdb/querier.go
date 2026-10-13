@@ -12,8 +12,12 @@ import (
 
 type Querier interface {
 	ClearProviderDisconnected(ctx context.Context, accountID uuid.UUID) error
+	// ConsumeAppleWebLogin은 아직 소진되지 않은 행만 소진 처리합니다. 바뀐 행 수가 0이면 이미 소진된 것입니다.
+	ConsumeAppleWebLogin(ctx context.Context, arg ConsumeAppleWebLoginParams) (int64, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) error
 	CreateIdentity(ctx context.Context, arg CreateIdentityParams) error
+	// GetAppleWebLoginForUpdate는 교환 코드 해시로 행을 읽고 잠급니다. 같은 코드의 동시 교환이 한 줄로 처리됩니다.
+	GetAppleWebLoginForUpdate(ctx context.Context, exchangeHash []byte) (GetAppleWebLoginForUpdateRow, error)
 	// GetIdentity는 제공자 연결과 계정 status를 함께 읽고 계정 행을 잠급니다.
 	// 같은 계정에 대한 동시 로그인·복구가 한 줄로 처리됩니다.
 	GetIdentity(ctx context.Context, arg GetIdentityParams) (GetIdentityRow, error)
@@ -26,6 +30,8 @@ type Querier interface {
 	// IdentityExists는 (provider, subject) 연결 행이 있는지 잠그지 않고 확인합니다.
 	// Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때 씁니다.
 	IdentityExists(ctx context.Context, arg IdentityExistsParams) (bool, error)
+	// InsertAppleWebLogin은 Apple 웹 콜백이 교환한 결과를 교환 코드 해시와 함께 저장합니다.
+	InsertAppleWebLogin(ctx context.Context, arg InsertAppleWebLoginParams) error
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
 	ListIdentities(ctx context.Context, accountID uuid.UUID) ([]ListIdentitiesRow, error)
 	// LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.

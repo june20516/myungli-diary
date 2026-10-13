@@ -114,3 +114,26 @@ WHERE id = @id;
 -- 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
 -- name: LockAccountStatus :one
 SELECT status FROM accounts WHERE id = @id FOR UPDATE;
+
+-- InsertAppleWebLogin은 Apple 웹 콜백이 교환한 결과를 교환 코드 해시와 함께 저장합니다.
+-- name: InsertAppleWebLogin :exec
+INSERT INTO apple_web_logins (
+    id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id, expires_at
+) VALUES (
+    @id, @exchange_hash, @subject, @nonce_hash, @apple_refresh_token, @apple_token_key_id, @apple_client_id,
+    @expires_at::timestamptz
+);
+
+-- GetAppleWebLoginForUpdate는 교환 코드 해시로 행을 읽고 잠급니다. 같은 코드의 동시 교환이 한 줄로 처리됩니다.
+-- name: GetAppleWebLoginForUpdate :one
+SELECT id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id,
+       expires_at, consumed_at
+FROM apple_web_logins
+WHERE exchange_hash = @exchange_hash
+FOR UPDATE;
+
+-- ConsumeAppleWebLogin은 아직 소진되지 않은 행만 소진 처리합니다. 바뀐 행 수가 0이면 이미 소진된 것입니다.
+-- name: ConsumeAppleWebLogin :execrows
+UPDATE apple_web_logins
+SET consumed_at = @consumed_at::timestamptz
+WHERE id = @id AND consumed_at IS NULL;

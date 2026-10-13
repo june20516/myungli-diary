@@ -24,6 +24,26 @@ func (q *Queries) ClearProviderDisconnected(ctx context.Context, accountID uuid.
 	return err
 }
 
+const consumeAppleWebLogin = `-- name: ConsumeAppleWebLogin :execrows
+UPDATE apple_web_logins
+SET consumed_at = $1::timestamptz
+WHERE id = $2 AND consumed_at IS NULL
+`
+
+type ConsumeAppleWebLoginParams struct {
+	ConsumedAt time.Time
+	ID         uuid.UUID
+}
+
+// ConsumeAppleWebLogin은 아직 소진되지 않은 행만 소진 처리합니다. 바뀐 행 수가 0이면 이미 소진된 것입니다.
+func (q *Queries) ConsumeAppleWebLogin(ctx context.Context, arg ConsumeAppleWebLoginParams) (int64, error) {
+	result, err := q.db.Exec(ctx, consumeAppleWebLogin, arg.ConsumedAt, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const createAccount = `-- name: CreateAccount :exec
 INSERT INTO accounts (id, status, last_active_at)
 VALUES ($1, 'active', $2)
@@ -65,6 +85,44 @@ func (q *Queries) CreateIdentity(ctx context.Context, arg CreateIdentityParams) 
 		arg.AppleClientID,
 	)
 	return err
+}
+
+const getAppleWebLoginForUpdate = `-- name: GetAppleWebLoginForUpdate :one
+SELECT id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id,
+       expires_at, consumed_at
+FROM apple_web_logins
+WHERE exchange_hash = $1
+FOR UPDATE
+`
+
+type GetAppleWebLoginForUpdateRow struct {
+	ID                uuid.UUID
+	ExchangeHash      []byte
+	Subject           string
+	NonceHash         string
+	AppleRefreshToken []byte
+	AppleTokenKeyID   string
+	AppleClientID     string
+	ExpiresAt         time.Time
+	ConsumedAt        *time.Time
+}
+
+// GetAppleWebLoginForUpdate는 교환 코드 해시로 행을 읽고 잠급니다. 같은 코드의 동시 교환이 한 줄로 처리됩니다.
+func (q *Queries) GetAppleWebLoginForUpdate(ctx context.Context, exchangeHash []byte) (GetAppleWebLoginForUpdateRow, error) {
+	row := q.db.QueryRow(ctx, getAppleWebLoginForUpdate, exchangeHash)
+	var i GetAppleWebLoginForUpdateRow
+	err := row.Scan(
+		&i.ID,
+		&i.ExchangeHash,
+		&i.Subject,
+		&i.NonceHash,
+		&i.AppleRefreshToken,
+		&i.AppleTokenKeyID,
+		&i.AppleClientID,
+		&i.ExpiresAt,
+		&i.ConsumedAt,
+	)
+	return i, err
 }
 
 const getIdentity = `-- name: GetIdentity :one
@@ -193,6 +251,41 @@ func (q *Queries) IdentityExists(ctx context.Context, arg IdentityExistsParams) 
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const insertAppleWebLogin = `-- name: InsertAppleWebLogin :exec
+INSERT INTO apple_web_logins (
+    id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id, expires_at
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7,
+    $8::timestamptz
+)
+`
+
+type InsertAppleWebLoginParams struct {
+	ID                uuid.UUID
+	ExchangeHash      []byte
+	Subject           string
+	NonceHash         string
+	AppleRefreshToken []byte
+	AppleTokenKeyID   string
+	AppleClientID     string
+	ExpiresAt         time.Time
+}
+
+// InsertAppleWebLogin은 Apple 웹 콜백이 교환한 결과를 교환 코드 해시와 함께 저장합니다.
+func (q *Queries) InsertAppleWebLogin(ctx context.Context, arg InsertAppleWebLoginParams) error {
+	_, err := q.db.Exec(ctx, insertAppleWebLogin,
+		arg.ID,
+		arg.ExchangeHash,
+		arg.Subject,
+		arg.NonceHash,
+		arg.AppleRefreshToken,
+		arg.AppleTokenKeyID,
+		arg.AppleClientID,
+		arg.ExpiresAt,
+	)
+	return err
 }
 
 const insertRefreshToken = `-- name: InsertRefreshToken :exec

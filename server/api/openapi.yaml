@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft
+  version: 1.0.0-draft.2
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -87,7 +87,7 @@ paths:
       summary: Apple 로그인
       description: |
         Apple `identity_token`(`idToken`), `authorization_code`, nonce 원문을 검증하고 자체 토큰을 발급합니다.
-        iOS는 `clientType: native`, Android 웹 흐름(`appleCallback`에서 넘겨받은 값)은 `clientType: web`입니다.
+        iOS 전용입니다. Android는 `appleCallback`과 `completeAppleWebLogin`을 씁니다.
       security: []
       requestBody:
         required: true
@@ -123,9 +123,9 @@ paths:
       summary: Apple 웹 로그인 콜백 (Android)
       description: |
         Android의 Apple 웹 흐름에서 Apple이 form_post로 부르는 주소입니다. app이 직접 부르지 않습니다.
-        server는 받은 값을 그대로 app deep link로 넘기고(303), app은 그 값으로 `loginApple`을 부릅니다.
+        server는 Apple의 값을 직접 검증하고 일회용 교환 코드를 만든 뒤 app link로 303 이동시킵니다. app은 그 교환 코드로 `completeAppleWebLogin`을 부릅니다.
         form 필드 이름은 Apple이 정한 그대로입니다.
-        `error`가 있으면 `error`·`state`를, 없으면 `code`·`id_token`·`state`·`user`를 deep link 쿼리로 넘깁니다. `error`도 `code`도 `id_token`도 없으면 400입니다.
+        Apple의 `code`·`id_token`·`user`는 Location에 넘기지 않습니다. `state`가 없거나 비어 있으면 400입니다.
       security: []
       requestBody:
         required: true
@@ -146,12 +146,17 @@ paths:
                   description: Apple identity token
                 state:
                   type: string
+                  minLength: 1
                 user:
                   type: string
                   description: 처음 로그인할 때만 Apple이 보내는 사용자 정보(JSON 문자열)
       responses:
         '303':
-          description: app deep link로 이동
+          description: |
+            app link로 이동합니다. `Location`은 `<APP_LINK_BASE>/auth/apple?exchange=<교환 코드>&state=<state>`이고,
+            실패하면 `<APP_LINK_BASE>/auth/apple?error=<값>&state=<state>`입니다.
+            `error` 값은 `user_cancelled_authorize`, `token_invalid`, `provider_unavailable`, `invalid_request`, `server_error`입니다.
+            Apple이 보낸 토큰·authorization code·사용자 정보는 Location에 넘기지 않습니다(`appleCallback` 설명 참고).
           headers:
             Location:
               $ref: '#/components/headers/Location'
@@ -163,6 +168,45 @@ paths:
           $ref: '#/components/responses/UnsupportedMediaType'
         '500':
           $ref: '#/components/responses/InternalError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/auth/apple/web:
+    post:
+      operationId: completeAppleWebLogin
+      summary: Apple 웹 로그인 완료 (Android)
+      description: |
+        `appleCallback`이 app link로 넘긴 교환 코드와 nonce 원문으로 자체 토큰을 발급합니다.
+        교환 코드는 일회용이고 수명이 2분입니다. nonce가 틀려도 교환 코드는 소진되지 않습니다.
+        교환 코드가 없거나 만료됐거나 이미 썼거나 nonce가 맞지 않으면 401 `auth.exchange_invalid`이며, 이 경우들을 구분하지 않습니다.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppleWebLoginRequest'
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
         default:
           $ref: '#/components/responses/UnexpectedError'
 
@@ -1448,8 +1492,9 @@ components:
             $ref: '#/components/schemas/Problem'
     Unauthorized:
       description: |
-        인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `app_check.invalid`,
-        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청일 때만 붙습니다.
+        인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `auth.exchange_invalid`, `app_check.invalid`,
+        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청의 401에만 붙습니다.
+        bearer 요청이 아닌 401(제공자 토큰, 교환 코드, App Check, webhook)에는 붙지 않습니다.
         webhook·App Check의 401에 challenge를 붙이지 않는 것은 RFC 9110 §15.5.2와 다른 의도한 이탈입니다.
       headers:
         WWW-Authenticate:
@@ -1591,6 +1636,9 @@ components:
             auth.provider_token_invalid:
               status: 401
               description: '카카오·Apple 제공자 토큰 검증 실패'
+            auth.exchange_invalid:
+              status: 401
+              description: 'Apple 웹 로그인 교환 코드가 없음·만료·이미 씀, 또는 nonce 불일치(구분하지 않음)'
             app_check.invalid:
               status: 401
               description: 'App Check 토큰 검증 실패'
@@ -1893,7 +1941,7 @@ components:
           maxLength: 256
     AppleLoginRequest:
       type: object
-      required: [idToken, authorizationCode, nonce, clientType]
+      required: [idToken, authorizationCode, nonce]
       properties:
         idToken:
           type: string
@@ -1905,10 +1953,21 @@ components:
           description: nonce 원문입니다. app은 제공자(카카오·Apple)에게 이 원문의 SHA-256 소문자 hex를 nonce로 보냅니다. server는 id_token의 `nonce` claim이 SHA-256(원문) hex와 같은지 확인합니다.
           minLength: 16
           maxLength: 256
-        clientType:
+    AppleWebLoginRequest:
+      type: object
+      required: [exchangeCode, nonce]
+      properties:
+        exchangeCode:
           type: string
-          enum: [native, web]
-          description: iOS는 `native`, Android 웹 흐름은 `web`
+          description: '`appleCallback`이 app link로 넘긴 교환 코드(256비트 난수의 base64url, 패딩 없음)'
+          minLength: 43
+          maxLength: 43
+          pattern: '^[A-Za-z0-9_-]{43}$'
+        nonce:
+          type: string
+          description: nonce 원문입니다. app은 제공자(카카오·Apple)에게 이 원문의 SHA-256 소문자 hex를 nonce로 보냅니다. server는 Apple id_token의 `nonce` claim이 SHA-256(원문) hex와 같은지 확인합니다.
+          minLength: 16
+          maxLength: 256
     RefreshRequest:
       type: object
       required: [refreshToken]

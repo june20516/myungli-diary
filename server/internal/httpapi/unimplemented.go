@@ -36,6 +36,10 @@ func (Unimplemented) AppleCallback(context.Context, gen.AppleCallbackRequestObje
 	return nil, ErrNotImplemented
 }
 
+func (Unimplemented) CompleteAppleWebLogin(context.Context, gen.CompleteAppleWebLoginRequestObject) (gen.CompleteAppleWebLoginResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
 func (Unimplemented) LoginKakao(context.Context, gen.LoginKakaoRequestObject) (gen.LoginKakaoResponseObject, error) {
 	return nil, ErrNotImplemented
 }

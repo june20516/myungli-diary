@@ -44,6 +44,7 @@ var (
 	AuthTokenInvalid         = Code{"auth.token_invalid", http.StatusUnauthorized} //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
 	AuthRefreshReused        = Code{"auth.refresh_reused", http.StatusUnauthorized}
 	AuthProviderTokenInvalid = Code{"auth.provider_token_invalid", http.StatusUnauthorized}
+	AuthExchangeInvalid      = Code{"auth.exchange_invalid", http.StatusUnauthorized}
 	AppCheckInvalid          = Code{"app_check.invalid", http.StatusUnauthorized}
 	ConsentRequired          = Code{"consent.required", http.StatusForbidden}
 	PreviewUsed              = Code{"preview.used", http.StatusForbidden}
@@ -74,7 +75,7 @@ func AllCodes() []Code {
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
 		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate,
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
-		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AppCheckInvalid,
+		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,
 		ConsentRequired, PreviewUsed, DiaryNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
 		RateLimited, NotImplemented,
 		EngineUnavailable, EngineTimeout, EngineError, AuthProviderUnavailable, BillingUnavailable,

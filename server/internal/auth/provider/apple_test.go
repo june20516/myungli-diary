@@ -318,3 +318,48 @@ func TestApple_RevokeFailures(t *testing.T) {
 		})
 	}
 }
+
+func TestApple_VerifyWebCallbackReturnsSubjectAndNonce(t *testing.T) {
+	apple, fake := newApple(t)
+	claims := providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleWeb, testNow)
+	idToken := fake.SignIDToken(claims)
+
+	identity, nonce, err := apple.VerifyWebCallback(context.Background(), idToken)
+
+	require.NoError(t, err)
+	assert.Equal(t, provider.Identity{Subject: testAppleSubject}, identity)
+	assert.Equal(t, providertest.HashNonce(testRawNonce), nonce)
+}
+
+func TestApple_VerifyWebCallbackRejectsNativeAudience(t *testing.T) {
+	apple, fake := newApple(t)
+	idToken := fake.SignIDToken(providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleNative, testNow))
+
+	_, _, err := apple.VerifyWebCallback(context.Background(), idToken)
+
+	require.ErrorIs(t, err, provider.ErrTokenInvalid)
+	assert.NotContains(t, err.Error(), idToken)
+}
+
+func TestApple_VerifyWebCallbackRequiresNonceClaim(t *testing.T) {
+	apple, fake := newApple(t)
+	claims := providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleWeb, testNow)
+	delete(claims, "nonce")
+	idToken := fake.SignIDToken(claims)
+
+	_, _, err := apple.VerifyWebCallback(context.Background(), idToken)
+
+	require.ErrorIs(t, err, provider.ErrTokenInvalid)
+	assert.NotContains(t, err.Error(), idToken)
+}
+
+func TestApple_VerifyWebCallbackJWKSDownIsUnavailable(t *testing.T) {
+	apple, fake := newApple(t)
+	fake.SetJWKSStatus(http.StatusBadGateway)
+	idToken := fake.SignIDToken(providertest.AppleClaims(testAppleSubject, testRawNonce, provider.AppleWeb, testNow))
+
+	_, _, err := apple.VerifyWebCallback(context.Background(), idToken)
+
+	require.ErrorIs(t, err, provider.ErrUnavailable)
+	assert.NotContains(t, err.Error(), idToken)
+}

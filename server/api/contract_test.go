@@ -19,7 +19,7 @@ const problemRef = "#/components/schemas/Problem"
 
 // expectedOperationIDs는 계약의 operation 표 전체입니다.
 var expectedOperationIDs = []string{
-	"loginKakao", "loginApple", "appleCallback", "refreshToken", "logout",
+	"loginKakao", "loginApple", "appleCallback", "completeAppleWebLogin", "refreshToken", "logout",
 	"getMe", "deleteMe", "agreeConsents", "createProfile", "updateProfile",
 	"getDaily", "getChart", "getCalendar", "putReaction", "deleteReaction",
 	"getGlossary", "createPreview", "getBirthHour",
@@ -33,17 +33,18 @@ var expectedOperationIDs = []string{
 // securityOverrides는 최상위 bearerAuth를 덮어쓰는 operation과 그 security scheme 이름입니다.
 // 빈 목록은 인증 없음(security: [])입니다.
 var securityOverrides = map[string][]string{
-	"loginKakao":          {},
-	"loginApple":          {},
-	"appleCallback":       {},
-	"refreshToken":        {},
-	"revenuecatWebhook":   {},
-	"admobRewardCallback": {},
-	"listCities":          {},
-	"getAppConfig":        {},
-	"getHealth":           {},
-	"createPreview":       {"appCheck"},
-	"getBirthHour":        {"appCheck"},
+	"loginKakao":            {},
+	"loginApple":            {},
+	"appleCallback":         {},
+	"completeAppleWebLogin": {},
+	"refreshToken":          {},
+	"revenuecatWebhook":     {},
+	"admobRewardCallback":   {},
+	"listCities":            {},
+	"getAppConfig":          {},
+	"getHealth":             {},
+	"createPreview":         {"appCheck"},
+	"getBirthHour":          {"appCheck"},
 }
 
 func loadDoc(t *testing.T) *openapi3.T {
@@ -575,9 +576,14 @@ func TestContract_AppleCallbackDescribes400(t *testing.T) {
 			return
 		}
 		found = true
-		const want = "`error`도 `code`도 `id_token`도 없으면 400입니다."
+		const want = "`state`가 없거나 비어 있으면 400입니다."
 		if !strings.Contains(op.Description, want) {
 			t.Errorf("appleCallback 설명에 %q가 없음", want)
+		}
+		// 빈 state도 계약 검증이 거부하도록 스키마에 최소 길이를 둡니다.
+		form := op.RequestBody.Value.Content.Get("application/x-www-form-urlencoded")
+		if form == nil || form.Schema.Value.Properties["state"] == nil || form.Schema.Value.Properties["state"].Value.MinLength != 1 {
+			t.Error("appleCallback form의 state에 minLength: 1이 없음")
 		}
 		if op.Responses.Value("400") == nil {
 			t.Error("appleCallback.responses에 400이 없음")
@@ -644,5 +650,84 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	code := doc.Components.Schemas["Problem"].Value.Properties["code"].Value
 	if _, ok := code.Extensions["x-problem-codes"]; !ok {
 		t.Error("kin-openapi가 읽은 Problem.code에 x-problem-codes가 없음")
+	}
+}
+
+func TestContract_VersionIsDraft2(t *testing.T) {
+	doc := loadDoc(t)
+	if doc.Info.Version != "1.0.0-draft.2" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.2", doc.Info.Version)
+	}
+}
+
+// TestContract_CompleteAppleWebLoginIsPublic은 교환 코드 완료 operation이 인증 없이 열려 있고
+// 요청·401 응답이 계약대로인지 확인합니다.
+func TestContract_CompleteAppleWebLoginIsPublic(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "completeAppleWebLogin" {
+			return
+		}
+		found = true
+		if op.Security == nil || len(*op.Security) != 0 {
+			t.Errorf("security = %v, want 빈 배열", op.Security)
+		}
+		body := op.RequestBody.Value.Content["application/json"].Schema.Value
+		if !slices.Equal(slices.Sorted(slices.Values(body.Required)), []string{"exchangeCode", "nonce"}) {
+			t.Errorf("required = %v, want [exchangeCode nonce]", body.Required)
+		}
+		code := body.Properties["exchangeCode"].Value
+		if code.MinLength != 43 || code.MaxLength == nil || *code.MaxLength != 43 {
+			t.Errorf("exchangeCode 길이가 43으로 고정되어 있지 않음")
+		}
+		if code.Pattern != "^[A-Za-z0-9_-]{43}$" {
+			t.Errorf("exchangeCode pattern = %q, want ^[A-Za-z0-9_-]{43}$", code.Pattern)
+		}
+		if op.Responses.Value("401") == nil {
+			t.Error("401 응답이 없음")
+		}
+	})
+	if !found {
+		t.Fatal("completeAppleWebLogin operation이 없음")
+	}
+}
+
+func TestContract_AppleLoginRequestHasNoClientType(t *testing.T) {
+	doc := loadDoc(t)
+	schema := doc.Components.Schemas["AppleLoginRequest"]
+	if schema == nil {
+		t.Fatal("AppleLoginRequest 스키마가 없음")
+	}
+	if schema.Value.Properties["clientType"] != nil {
+		t.Error("AppleLoginRequest에 clientType이 남아 있음")
+	}
+	if slices.Contains(schema.Value.Required, "clientType") {
+		t.Error("required에 clientType이 남아 있음")
+	}
+}
+
+func TestContract_AppleCallbackLocationDescribesExchange(t *testing.T) {
+	doc := loadDoc(t)
+
+	found := false
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID != "appleCallback" {
+			return
+		}
+		found = true
+		desc := *op.Responses.Value("303").Value.Description
+		for _, want := range []string{"exchange", "server_error"} {
+			if !strings.Contains(desc, want) {
+				t.Errorf("303 설명에 %q가 없음", want)
+			}
+		}
+		if strings.Contains(desc, "id_token") {
+			t.Error("303 설명에 id_token이 있음(Location으로 넘기지 않습니다)")
+		}
+	})
+	if !found {
+		t.Fatal("appleCallback operation이 없음")
 	}
 }

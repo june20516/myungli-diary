@@ -13,4 +13,7 @@ var (
 	ErrRefreshInvalid = errors.New("auth: refresh token invalid")
 	// ErrRefreshReused는 이미 쓴 refresh token이 다시 와서 그 family를 폐기했을 때 돌려줍니다(401 auth.refresh_reused).
 	ErrRefreshReused = errors.New("auth: refresh token reused")
+	// ErrExchangeInvalid는 Apple 웹 로그인 교환 코드가 없거나 만료됐거나 이미 쓰였거나 nonce가 맞지 않을 때 돌려줍니다
+	// (401 auth.exchange_invalid). 넷을 구분하지 않아 교환 코드의 상태를 드러내지 않습니다.
+	ErrExchangeInvalid = errors.New("auth: exchange code invalid")
 )

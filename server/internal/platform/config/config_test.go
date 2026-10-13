@@ -132,7 +132,8 @@ var requiredAuthVars = []string{
 	"TOKEN_ENCRYPTION_KEY_ID", "TOKEN_ENCRYPTION_KEY",
 	"KAKAO_APP_KEY", "KAKAO_ADMIN_KEY",
 	"APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY", "APPLE_BUNDLE_ID",
-	"APPLE_SERVICES_ID", "APPLE_WEB_REDIRECT_URI", "APPLE_CALLBACK_DEEPLINK",
+	"APPLE_SERVICES_ID", "APPLE_WEB_REDIRECT_URI",
+	"APP_LINK_BASE", "ANDROID_APP_PACKAGE", "ANDROID_CERT_SHA256", "ANDROID_STORE_URL",
 }
 
 // completeAuthEnv는 필수 변수를 모두 채운 환경을 만듭니다. 값은 "v-<이름>"입니다.
@@ -164,9 +165,12 @@ func TestLoadAuth_ReadsAllValues(t *testing.T) {
 		KakaoAppKey: "v-KAKAO_APP_KEY", KakaoAdminKey: "v-KAKAO_ADMIN_KEY",
 		AppleTeamID: "v-APPLE_TEAM_ID", AppleKeyID: "v-APPLE_KEY_ID",
 		ApplePrivateKeyPEM: "v-APPLE_PRIVATE_KEY", AppleBundleID: "v-APPLE_BUNDLE_ID",
-		AppleServicesID:       "v-APPLE_SERVICES_ID",
-		AppleWebRedirectURI:   "v-APPLE_WEB_REDIRECT_URI",
-		AppleCallbackDeepLink: "v-APPLE_CALLBACK_DEEPLINK",
+		AppleServicesID:     "v-APPLE_SERVICES_ID",
+		AppleWebRedirectURI: "v-APPLE_WEB_REDIRECT_URI",
+		AppLinkBase:         "v-APP_LINK_BASE",
+		AndroidAppPackage:   "v-ANDROID_APP_PACKAGE",
+		AndroidCertSHA256:   "v-ANDROID_CERT_SHA256",
+		AndroidStoreURL:     "v-ANDROID_STORE_URL",
 	}
 	if cfg != want {
 		t.Errorf("LoadAuth() = %+v, want %+v", cfg, want)
@@ -174,6 +178,9 @@ func TestLoadAuth_ReadsAllValues(t *testing.T) {
 }
 
 func TestLoadAuth_ReportsAllMissingRequired(t *testing.T) {
+	if len(requiredAuthVars) != 16 {
+		t.Fatalf("필수 변수 표 = %d개, want 16", len(requiredAuthVars))
+	}
 	_, err := LoadAuth(fakeEnv(nil))
 	if err == nil {
 		t.Fatal("LoadAuth() error = nil, want error")
@@ -182,6 +189,10 @@ func TestLoadAuth_ReportsAllMissingRequired(t *testing.T) {
 		if !strings.Contains(err.Error(), name) {
 			t.Errorf("오류에 %s가 없습니다: %v", name, err)
 		}
+	}
+	// 대체된 옛 변수는 더 이상 요구하지 않습니다.
+	if strings.Contains(err.Error(), "APPLE_CALLBACK_DEEPLINK") {
+		t.Errorf("오류에 쓰지 않는 APPLE_CALLBACK_DEEPLINK가 있습니다: %v", err)
 	}
 }
 

@@ -177,9 +177,9 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | --- | --- | --- |
 | 카카오 | OIDC `id_token`, nonce 원문 | 카카오 JWKS로 서명, `iss`·`aud`(앱 키)·`exp`·nonce 확인. subject = `sub` |
 | Apple (iOS) | `identity_token`, `authorization_code`, nonce 원문 | Apple JWKS로 검증. code를 `/auth/token`에 교환해 refresh token을 받아 암호화 저장(탈퇴 때 revoke용) |
-| Apple (Android, D55①) | 웹 흐름으로 받은 `code`, `id_token` | 위와 같고, `client_id`는 Services ID |
+| Apple (Android, D55①) | 웹 흐름: server 콜백이 Apple에서 받은 `code`, `id_token`. app은 일회용 교환 코드와 nonce 원문만 보냄 | 위와 같고, `client_id`는 Services ID. nonce 확인은 교환 단계에서 함(S22) |
 
-* Android의 Apple 웹 흐름: app이 Apple 인증 페이지를 열면 Apple이 `POST /v1/auth/apple/callback`(form_post)으로 결과를 보냅니다. server는 받은 값을 그대로 app deep link로 넘기고, app이 그 값으로 `POST /v1/auth/apple`을 부릅니다.
+* Android의 Apple 웹 흐름(S22, Issue #89): app이 Apple 인증 페이지를 열면 Apple이 `POST /v1/auth/apple/callback`(form_post)으로 결과를 보냅니다. server가 그 자리에서 id_token을 검증하고 code를 교환한 뒤, App Link로 **일회용 교환 코드와 state만** 넘깁니다. app은 `POST /v1/auth/apple/web`에 교환 코드와 nonce 원문을 보내 로그인을 마칩니다. 토큰은 URL에 실리지 않습니다. 상세: [`2026-10-13-apple-web-callback-design.md`](2026-10-13-apple-web-callback-design.md)
 * 처음 보는 (provider, subject)면 계정을 새로 만들고 응답에 `isNewAccount`와 `consentRequired`를 담습니다.
 * 이메일로 계정을 자동 연결하지 않습니다. Apple은 이메일을 숨길 수 있고, 이메일만 같다고 같은 사람이라 볼 수 없습니다.
 
@@ -223,7 +223,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 영역 | 메서드와 경로 | 비고 |
 | --- | --- | --- |
-| 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기 |
+| 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/apple/web`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기. Android Apple 웹 로그인은 콜백이 교환 코드를 App Link로 넘기고 `apple/web`이 토큰을 발급(S22) |
+| 정적(계약 밖) | `GET /auth/apple`, `GET /.well-known/assetlinks.json` | `/auth/apple`은 App Link가 앱을 열지 못했을 때의 "앱에서 계속하기" 안내 페이지, `assetlinks.json`은 Android App Link 검증용(S22). `/v1` 밖이라 REST 계약에 넣지 않음 |
 | 계정 | `GET /v1/me`, `DELETE /v1/me`, `POST /v1/me/consents` | `GET /v1/me`에 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태 포함 |
 | 프로필 | `PUT /v1/me/profile`(첫 등록), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
@@ -264,12 +265,14 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 `GET /v1/daily/{date}`를 예로 듭니다. 알림 Job도 같은 함수를 씁니다(§8.2).
 
 1. 엔진 결과(§7)에서 슬롯마다 메시지 키를 얻습니다.
-2. 슬롯마다 `daily_selections`를 봅니다.
+2. 슬롯마다 `daily_selections`를 (계정, 날짜, 슬롯, **사주 지문**)으로 봅니다(S23, Issue #92). 사주 지문은 엔진 입력이 되는 출생 정보(생년월일시, 달력·윤달, 시간 모름, 성별, 출생 시간대·경도)를 정규화한 SHA-256입니다. 호칭·현재 시간대처럼 엔진 결과를 바꾸지 않는 값은 넣지 않습니다.
    * 기록이 있고 메시지 키가 지금 결과와 같으면 그 (키, 변주, 시드 버전)을 씁니다. 두 기기와 다시 열기가 같은 문장을 봅니다.
-   * 기록이 없거나, 출생 정보가 바뀌어 메시지 키가 달라졌으면 새로 고릅니다.
+   * 기록이 없거나 메시지 키가 달라졌으면 새로 고릅니다. 사주 정보를 바꾸면 지문이 달라지므로 같은 날이라도 새로 고릅니다. app은 사주를 바꿀 때 "오늘·달력·나의 사주가 다시 계산된다"고 알립니다(#84).
+   * 옛 지문의 기록은 지우지 않습니다. 그 기록에 붙은 문장 반응(D57)은 그대로 성향 자료로 씁니다. 일기는 그때 보인 질문의 원문을 따로 남기므로(D59④) 영향이 없습니다.
 3. 새로 고르는 규칙
    * 총운 슬롯(D57①): `rotation_state`의 `advice → state → care` 차례. 새 사용자는 `advice`부터입니다.
-   * 차례가 `care`인데 돌봄 상한(하루 2개, 최근 7일 7개, W14)에 걸리면 `care`를 건너뛰고 다음 차례를 씁니다. 상한은 `daily_selections`로 셉니다.
+   * 차례가 `care`인데 돌봄 상한(하루 2개, 최근 7일 7개, W14)에 걸리면 `care`를 건너뛰고 다음 차례를 씁니다. 상한은 `daily_selections`로 세되 (날짜, 슬롯)마다 한 번만 셉니다. 하루 안에 사주를 바꿔 같은 슬롯에 `care` 기록이 둘 생겨도 하나로 봅니다.
+   * `rotation_state`는 사주를 바꿔 다시 고를 때도 한 칸 넘깁니다. 같은 날 다시 고른 문장이 앞 문장과 같은 유형이 되지 않게 하려는 것입니다.
    * 가이드 질문: 변주 1 → 2.
    * 정보 슬롯과 식별자 문구: 변주 하나, 순환 없음.
 4. 새로 고른 결과를 기록하고 `rotation_state`를 한 칸 넘깁니다. 같은 트랜잭션에서 하고, 동시 요청은 unique 제약으로 하나만 남깁니다(진 쪽은 다시 읽음).
@@ -502,7 +505,17 @@ CI(`.github/workflows/server.yml`, ci-gate가 `workflow_call`로 부르는 전�
 * migration은 expand/contract 방식으로 써서 이전 버전 코드와 함께 돌아도 깨지지 않게 합니다.
 * DB 연결은 Cloud SQL Go connector와 IAM 인증을 씁니다. 비밀값은 Secret Manager에 둡니다.
 
-### 13.2 사용자가 준비할 것
+### 13.2 staging E2E 지원 (S24, Issue #93)
+
+app E2E를 staging에서 사람 손 없이 돌리기 위한 장치입니다. prod에는 코드 자체가 없게 합니다.
+
+* **테스트 로그인:** `POST /test/v1/auth/login`(REST 계약 밖). Go build tag `staging`이 붙은 파일에만 라우트와 핸들러가 있어 prod 바이너리에는 컴파일되지 않습니다. staging 배포 workflow만 `-tags staging`으로 빌드합니다.
+  * 요청 헤더 `X-Test-Login-Secret`이 Secret Manager의 `TEST_LOGIN_SECRET`과 같아야 합니다(상수 시간 비교). 다르면 404로 라우트가 없는 것처럼 답합니다.
+  * 본문 `{label}`(영숫자 32자 이하)로 provider `test`, subject `<label>`인 계정을 찾거나 만들고, 정상 로그인과 같은 `LoginResponse`를 돌려줍니다. 약관 동의·삭제 흐름은 실제와 같게 거칩니다.
+  * `auth_identities.provider` CHECK에 `test`를 더하는 migration은 staging과 prod가 같습니다. prod에는 발급 경로가 없으므로 `test` 행이 생기지 않고, 테스트가 이를 확인합니다(prod 빌드에 라우트가 없음).
+* **App Check debug token:** App Check 검증(P6)은 Firebase가 debug token을 정식으로 받습니다. E2E 기기·에뮬레이터의 debug token은 staging Firebase 프로젝트 콘솔에만 등록하고 prod에는 등록하지 않습니다. server 코드는 바꾸지 않습니다. 등록 절차는 배포 단계 안내(§13.3)에 넣습니다.
+
+### 13.3 사용자가 준비할 것
 
 설정 값과 상세 절차는 배포 단계에서 server가 단계별로 안내합니다. 여기서는 무엇이 필요한지만 적습니다.
 
