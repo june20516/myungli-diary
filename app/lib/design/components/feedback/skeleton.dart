@@ -68,12 +68,10 @@ class _SkeletonBlockState extends State<SkeletonBlock> {
   @override
   Widget build(BuildContext context) {
     if (!_visible) return const SizedBox.shrink();
-    // progressbar 역할은 값·범위가 필수라 0..100의 0으로 둡니다(진행률은 알 수 없음).
+    // 명세 role progressbar의 불확정 로딩은 progressBar가 값·범위를 요구해
+    // loadingSpinner로 둡니다(값 검사 없음).
     return Semantics(
-      role: SemanticsRole.progressBar,
-      value: '0',
-      minValue: '0',
-      maxValue: '100',
+      role: SemanticsRole.loadingSpinner,
       label: AppLocalizations.of(context).skeletonLabel,
       child: ExcludeSemantics(
         child:

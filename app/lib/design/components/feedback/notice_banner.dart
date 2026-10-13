@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -74,43 +75,40 @@ class NoticeBanner extends StatelessWidget {
     final colors = tokens.colors;
     return SeepPresence(
       present: present,
-      // role status는 정중한(polite) 알림을 뜻하므로 liveRegion을 따로 켜지 않습니다.
-      child: Semantics(
-        role: SemanticsRole.status,
+      child: LiveAnnouncement(
         label: message,
-        child: ExcludeSemantics(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: Space.s16),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.bgSheet,
-                borderRadius: BorderRadius.circular(Radii.md),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(Space.s12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      // 아이콘 16px을 글줄 첫 줄 가운데에 맞춥니다.
-                      padding: const EdgeInsets.only(top: 1),
-                      child: AppIcon(
-                        variant.glyph,
-                        size: AppIconSize.inline,
+        role: SemanticsRole.status,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: Space.s16),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.bgSheet,
+              borderRadius: BorderRadius.circular(Radii.md),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(Space.s12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    // 아이콘 16px을 글줄 첫 줄 가운데에 맞춥니다.
+                    padding: const EdgeInsets.only(top: 1),
+                    child: AppIcon(
+                      variant.glyph,
+                      size: AppIconSize.inline,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: Space.s8),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: tokens.typography.captionLg.copyWith(
                         color: colors.textSecondary,
                       ),
                     ),
-                    const SizedBox(width: Space.s8),
-                    Expanded(
-                      child: Text(
-                        message,
-                        style: tokens.typography.captionLg.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

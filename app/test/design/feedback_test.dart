@@ -47,6 +47,41 @@ Widget _app(
 SemanticsRole _roleOf(WidgetTester tester, Finder finder) =>
     tester.getSemantics(finder).getSemanticsData().role;
 
+/// [finder] 노드와 그 아래 시맨틱 노드의 데이터를 모읍니다.
+List<SemanticsData> _treeData(WidgetTester tester, Finder finder) {
+  final result = <SemanticsData>[];
+  void visit(SemanticsNode node) {
+    result.add(node.getSemanticsData());
+    node.visitChildren((child) {
+      visit(child);
+      return true;
+    });
+  }
+
+  visit(tester.getSemantics(finder));
+  return result;
+}
+
+/// 바깥 노드는 label을 가진 liveRegion(모바일 알림), 안쪽 노드는 [role]만 가진 별도 노드.
+void _expectAnnouncement(
+  WidgetTester tester,
+  String label,
+  SemanticsRole role,
+) {
+  final data = _treeData(tester, find.bySemanticsLabel(label));
+  expect(data.first.label, label);
+  expect(data.first.flagsCollection.isLiveRegion, isTrue);
+  expect(
+    data.first.role,
+    isNot(role),
+    reason: '바깥 노드는 role과 liveRegion을 함께 갖지 않음',
+  );
+  final inner = data.skip(1).where((d) => d.role == role);
+  expect(inner, hasLength(1), reason: '안쪽 노드가 명세 role을 가짐');
+  expect(inner.single.label, isEmpty);
+  expect(inner.single.flagsCollection.isLiveRegion, isFalse);
+}
+
 List<String> _recordHaptics(WidgetTester tester) {
   final calls = <String>[];
   tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
@@ -362,7 +397,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
     });
 
-    testWidgets('알약이고 반전색이며 status 역할입니다', (tester) async {
+    testWidgets('알약이고 반전색이며 live region입니다', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpHost(tester);
       showMyungliToast(hostContext(tester), '저장했어요');
@@ -382,7 +417,7 @@ void main() {
       expect(decoration.borderRadius, BorderRadius.circular(Radii.full));
       expect(
         tester.getSemantics(find.byType(ToastPill)),
-        matchesSemantics(label: '저장했어요', role: SemanticsRole.status),
+        matchesSemantics(label: '저장했어요', isLiveRegion: true),
       );
       handle.dispose();
       await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -703,15 +738,17 @@ void main() {
     });
   });
 
-  group('a11y role (명세)', () {
-    testWidgets('toast: status', (tester) async {
+  group('a11y role (명세) + 모바일 liveRegion', () {
+    testWidgets('toast: status role 노드 + liveRegion 노드', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(const ToastPill(message: '저장했어요')));
-      expect(_roleOf(tester, find.byType(ToastPill)), SemanticsRole.status);
+      _expectAnnouncement(tester, '저장했어요', SemanticsRole.status);
       handle.dispose();
     });
 
-    testWidgets('notice-banner: status', (tester) async {
+    testWidgets('notice-banner: status role 노드 + liveRegion 노드', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
@@ -719,31 +756,29 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(
-        _roleOf(tester, find.bySemanticsLabel('초안')),
-        SemanticsRole.status,
-      );
+      _expectAnnouncement(tester, '초안', SemanticsRole.status);
       handle.dispose();
     });
 
-    testWidgets('skeleton: progressbar', (tester) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
-      expect(
-        _roleOf(tester, find.byType(SkeletonBlock)),
-        SemanticsRole.progressBar,
-      );
-      handle.dispose();
-    });
-
-    testWidgets('error-state: alert', (tester) async {
+    testWidgets('error-state: alert role 노드 + liveRegion 노드', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(ErrorState(error: const TimeoutError(), onRetry: () {})),
       );
-      expect(
-        _roleOf(tester, find.bySemanticsLabel(RegExp('응답이 늦어'))),
+      _expectAnnouncement(
+        tester,
+        '응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.',
         SemanticsRole.alert,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('skeleton: loadingSpinner', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      expect(
+        _roleOf(tester, find.byType(SkeletonBlock)),
+        SemanticsRole.loadingSpinner,
       );
       handle.dispose();
     });

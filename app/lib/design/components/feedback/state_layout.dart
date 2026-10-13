@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -32,6 +33,21 @@ class StateLayout extends StatelessWidget {
   /// 원 지름(px).
   static const double circleSize = 56;
 
+  /// 오류는 모바일에서 자동으로 읽히는 알림(`alert` role + liveRegion), 빈 상태는 하나의
+  /// 묶음 노드입니다. 빈 상태의 명세 role `group`은 대응하는 `SemanticsRole`이 없어
+  /// container로 대신합니다.
+  Widget _announced(Widget visual) => alert
+      ? LiveAnnouncement(
+          label: sentence,
+          role: SemanticsRole.alert,
+          child: visual,
+        )
+      : Semantics(
+          container: true,
+          label: sentence,
+          child: ExcludeSemantics(child: visual),
+        );
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
@@ -42,42 +58,35 @@ class StateLayout extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Semantics(
-              container: true,
-              // 명세 role: 오류는 alert. 빈 상태의 group은 대응하는 SemanticsRole이 없어
-              // 하나의 묶음 노드(container)로 둡니다.
-              role: alert ? SemanticsRole.alert : SemanticsRole.none,
-              label: sentence,
-              child: ExcludeSemantics(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: colors.statusBg,
-                        borderRadius: BorderRadius.circular(Radii.full),
-                      ),
-                      child: SizedBox.square(
-                        dimension: circleSize,
-                        child: Center(
-                          child: AppIcon(
-                            icon,
-                            size: AppIconSize.state,
-                            color: colors.actionPrimary,
-                          ),
+            _announced(
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: colors.statusBg,
+                      borderRadius: BorderRadius.circular(Radii.full),
+                    ),
+                    child: SizedBox.square(
+                      dimension: circleSize,
+                      child: Center(
+                        child: AppIcon(
+                          icon,
+                          size: AppIconSize.state,
+                          color: colors.actionPrimary,
                         ),
                       ),
                     ),
-                    const SizedBox(height: Space.s16),
-                    Text(
-                      sentence,
-                      textAlign: TextAlign.center,
-                      style: tokens.typography.sentenceBody.copyWith(
-                        color: colors.textSecondary,
-                      ),
+                  ),
+                  const SizedBox(height: Space.s16),
+                  Text(
+                    sentence,
+                    textAlign: TextAlign.center,
+                    style: tokens.typography.sentenceBody.copyWith(
+                      color: colors.textSecondary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             ...children,

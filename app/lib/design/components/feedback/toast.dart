@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -102,45 +103,42 @@ class ToastPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    // role status는 정중한(polite) 알림을 뜻하므로 liveRegion을 따로 켜지 않습니다.
-    return Semantics(
-      role: SemanticsRole.status,
+    return LiveAnnouncement(
       label: message,
-      child: ExcludeSemantics(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.inverseBg,
-            borderRadius: BorderRadius.circular(Radii.full),
+      role: SemanticsRole.status,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.inverseBg,
+          borderRadius: BorderRadius.circular(Radii.full),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Space.s16,
+            vertical: Space.s12,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Space.s16,
-              vertical: Space.s12,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  AppIcon(
-                    icon!,
-                    size: AppIconSize.inline,
-                    weight: AppIconWeight.regular,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                AppIcon(
+                  icon!,
+                  size: AppIconSize.inline,
+                  weight: AppIconWeight.regular,
+                  color: colors.inverseFg,
+                ),
+                const SizedBox(width: Space.s16),
+              ],
+              Flexible(
+                child: Text(
+                  message,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.typography.bodyUi.copyWith(
                     color: colors.inverseFg,
                   ),
-                  const SizedBox(width: Space.s16),
-                ],
-                Flexible(
-                  child: Text(
-                    message,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: tokens.typography.bodyUi.copyWith(
-                      color: colors.inverseFg,
-                    ),
-                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
