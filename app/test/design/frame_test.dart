@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' show Tristate;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -796,7 +797,7 @@ void main() {
   });
 
   group('sheet 보강', () {
-    Future<void> openList(WidgetTester tester) async {
+    Future<void> openBody(WidgetTester tester, WidgetBuilder body) async {
       tester.view
         ..physicalSize = const Size(400, 900)
         ..devicePixelRatio = 1;
@@ -806,39 +807,142 @@ void main() {
         showMyungliSheet<void>(
           _navigatorKey.currentContext!,
           size: SheetSize.half,
-          builder: (_) => ListView(
-            key: const ValueKey('sheet-list'),
-            children: [
-              for (var i = 0; i < 40; i++)
-                SizedBox(height: 48, child: Text('항목 $i')),
-            ],
-          ),
+          builder: body,
         ),
       );
       await tester.pumpAndSettle();
     }
 
-    testWidgets('본문이 맨 위일 때 본문에서 끌어내리면 닫힙니다', (tester) async {
-      await openList(tester);
-      await tester.fling(
-        find.byKey(const ValueKey('sheet-list')),
-        const Offset(0, 300),
-        1500,
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(MyungliSheetFrame), findsNothing);
+    Widget list(int count) => ListView(
+      key: const ValueKey('sheet-body'),
+      children: [
+        for (var i = 0; i < count; i++)
+          SizedBox(height: 48, child: Text('항목 $i')),
+      ],
+    );
+
+    // 플랫폼마다 본문 스크롤 물리(Clamping·Bouncing)가 달라 둘 다 확인합니다.
+    for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+      final bodies = <String, WidgetBuilder>{
+        '스크롤 없는 Column': (_) => const Column(
+          key: ValueKey('sheet-body'),
+          children: [SizedBox(height: 100, width: 300, child: Text('내용'))],
+        ),
+        '짧은 ListView': (_) => SizedBox(height: 150, child: list(2)),
+        '긴 ListView': (_) => list(40),
+      };
+      for (final entry in bodies.entries) {
+        testWidgets('${platform.name}: ${entry.key}에서 끌어내리면 닫힙니다', (
+          tester,
+        ) async {
+          debugDefaultTargetPlatformOverride = platform;
+          try {
+            await openBody(tester, entry.value);
+            await tester.fling(
+              find.byKey(const ValueKey('sheet-body')),
+              const Offset(0, 400),
+              2500,
+            );
+            await tester.pumpAndSettle();
+            expect(find.byType(MyungliSheetFrame), findsNothing);
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        });
+      }
+
+      testWidgets('${platform.name}: 긴 본문이 스크롤된 상태에서는 스크롤만 합니다', (
+        tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = platform;
+        try {
+          await openBody(tester, (_) => list(40));
+          final body = find.byKey(const ValueKey('sheet-body'));
+          await tester.drag(body, const Offset(0, -300));
+          await tester.pumpAndSettle();
+          final top = tester.getTopLeft(find.byType(MyungliSheetFrame)).dy;
+          await tester.drag(body, const Offset(0, 100));
+          await tester.pumpAndSettle();
+          expect(find.byType(MyungliSheetFrame), findsOneWidget);
+          expect(tester.getTopLeft(find.byType(MyungliSheetFrame)).dy, top);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets('${platform.name}: 조금 끌었다 놓으면 제자리로 돌아옵니다', (tester) async {
+        debugDefaultTargetPlatformOverride = platform;
+        try {
+          await openBody(tester, (_) => list(40));
+          final frame = find.byType(MyungliSheetFrame);
+          final top = tester.getTopLeft(frame).dy;
+          await tester.drag(
+            find.byKey(const ValueKey('sheet-body')),
+            const Offset(0, 40),
+          );
+          await tester.pumpAndSettle();
+          expect(frame, findsOneWidget);
+          expect(tester.getTopLeft(frame).dy, closeTo(top, 0.5));
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+    }
+
+    testWidgets('android: 시트를 올리는 동안 본문은 스크롤되지 않습니다', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        await openBody(tester, (_) => list(40));
+        final body = find.byKey(const ValueKey('sheet-body'));
+        final position = tester
+            .state<ScrollableState>(find.byType(Scrollable))
+            .position;
+        final gesture = await tester.startGesture(tester.getCenter(body));
+        // 드래그 인식 거리(slop)를 먼저 넘깁니다.
+        await gesture.moveBy(const Offset(0, 30));
+        await tester.pump();
+        await gesture.moveBy(const Offset(0, 100));
+        await tester.pump();
+        final dragged = tester.getTopLeft(find.byType(MyungliSheetFrame)).dy;
+        await gesture.moveBy(const Offset(0, -60));
+        await tester.pump();
+        expect(position.pixels, 0);
+        expect(
+          tester.getTopLeft(find.byType(MyungliSheetFrame)).dy,
+          lessThan(dragged),
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
-    testWidgets('본문이 스크롤된 상태에서는 스크롤만 합니다', (tester) async {
-      await openList(tester);
-      final list = find.byKey(const ValueKey('sheet-list'));
-      await tester.drag(list, const Offset(0, -300));
-      await tester.pumpAndSettle();
-      final top = tester.getTopLeft(find.byType(MyungliSheetFrame)).dy;
-      await tester.drag(list, const Offset(0, 100));
-      await tester.pumpAndSettle();
-      expect(find.byType(MyungliSheetFrame), findsOneWidget);
-      expect(tester.getTopLeft(find.byType(MyungliSheetFrame)).dy, top);
+    testWidgets('ios: 끄는 동안 본문은 시트 이동분만큼 되올려 이중으로 움직이지 않습니다', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await openBody(tester, (_) => list(40));
+        final body = find.byKey(const ValueKey('sheet-body'));
+        final firstItem = find.text('항목 0');
+        final before = tester.getTopLeft(firstItem).dy;
+        final gesture = await tester.startGesture(tester.getCenter(body));
+        await gesture.moveBy(const Offset(0, 30));
+        await tester.pump();
+        await gesture.moveBy(const Offset(0, 120));
+        await tester.pump();
+        final sheetMoved = tester.getTopLeft(find.byType(MyungliSheetFrame)).dy;
+        // 시트 안에서 본문은 제자리입니다(시트 이동만 보임).
+        expect(sheetMoved, greaterThan(900 - 540));
+        final frameTop = sheetMoved;
+        expect(
+          tester.getTopLeft(firstItem).dy - frameTop,
+          closeTo(before - (900 - 540), 1),
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
     testWidgets('첫 제목으로 스크린리더 초점이 갑니다(첫 SheetHeading만)', (tester) async {

@@ -94,29 +94,30 @@ class MyungliSheetFrame extends StatelessWidget {
       label: semanticLabel,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxHeight),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.bgSheet,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(Radii.xl),
+        // 스크롤할 수 없는 본문은 Scrollable이 드래그를 가져가지 않으므로 이 인식기가 받습니다.
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragUpdate: onDragUpdate,
+          onVerticalDragEnd: onDragEnd,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.bgSheet,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(Radii.xl),
+              ),
             ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              Space.s20,
-              0,
-              Space.s20,
-              Space.s24 + MediaQuery.viewPaddingOf(context).bottom,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onVerticalDragUpdate: onDragUpdate,
-                  onVerticalDragEnd: onDragEnd,
-                  child: Padding(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                Space.s20,
+                0,
+                Space.s20,
+                Space.s24 + MediaQuery.viewPaddingOf(context).bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
                     padding: const EdgeInsets.only(top: Space.s8),
                     child: Center(
                       child: DecoratedBox(
@@ -132,9 +133,9 @@ class MyungliSheetFrame extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
-                Flexible(child: child),
-              ],
+                  Flexible(child: child),
+                ],
+              ),
             ),
           ),
         ),
@@ -244,22 +245,6 @@ class _HeadingClaimScope extends InheritedWidget {
   bool updateShouldNotify(_HeadingClaimScope oldWidget) => false;
 }
 
-/// 시트 안 스크롤은 늘어나는 효과 없이 맨 위·아래에서 멈춥니다(끌어내리기와 겹치지 않게).
-class _SheetScrollBehavior extends ScrollBehavior {
-  const new();
-
-  @override
-  ScrollPhysics getScrollPhysics(BuildContext context) =>
-      const ClampingScrollPhysics();
-
-  @override
-  Widget buildOverscrollIndicator(
-    BuildContext context,
-    Widget child,
-    ScrollableDetails details,
-  ) => child;
-}
-
 class _SheetRoute<T> extends PopupRoute<T> {
   new({
     required this.size,
@@ -358,6 +343,14 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
 
   double _drag = 0;
   double _dragFrom = 0;
+
+  /// iOS 같은 Bouncing 본문이 맨 위에서 밀려난 양. 시트가 그만큼 따라 내려가므로 본문은
+  /// 같은 양만큼 되올려 이중으로 움직여 보이지 않게 합니다.
+  double _bounce = 0;
+  bool _scrollDragging = false;
+  bool _dismissing = false;
+  Duration? _lastStamp;
+  double _velocity = 0;
   final GlobalKey _frameKey = GlobalKey();
   final _HeadingClaim _headingClaim = _HeadingClaim();
 
@@ -369,36 +362,105 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     super.dispose();
   }
 
+  /// 드래그 이벤트 시각으로 아래 방향 속도(px/s)를 어림합니다.
+  void _trackVelocity(DragUpdateDetails details) {
+    final stamp = details.sourceTimeStamp;
+    final last = _lastStamp;
+    _lastStamp = stamp;
+    if (stamp == null || last == null || stamp <= last) return;
+    _velocity =
+        details.delta.dy /
+        (stamp - last).inMicroseconds *
+        Duration.microsecondsPerSecond;
+  }
+
+  void _resetTracking() {
+    _lastStamp = null;
+    _velocity = 0;
+    _scrollDragging = false;
+  }
+
+  /// 본문 바깥(시트 프레임)에서 받은 드래그: 스크롤할 수 없는 본문.
   void _onDragUpdate(DragUpdateDetails details) {
+    if (_dismissing) return;
     _snap.stop();
+    _trackVelocity(details);
     setState(() => _drag = math.max(0, _drag + details.delta.dy));
   }
 
   void _onDragEnd(DragEndDetails details) =>
       _finishDrag(details.velocity.pixelsPerSecond.dy);
 
-  /// 본문이 맨 위일 때 아래로 끄는 것은 시트가, 그 밖에는 스크롤이 받습니다.
+  /// 긴 스크롤 본문: 맨 위에서 넘치는 양을 시트 끌기로 씁니다.
+  ///
+  /// - Clamping 계열(Android): `OverscrollNotification`.
+  /// - Bouncing 계열(iOS): `pixels < minScrollExtent`인 스크롤 갱신.
+  /// 본문이 스크롤 중이면(맨 위가 아니면) 스크롤이 먼저입니다.
   bool _onScroll(ScrollNotification n) {
-    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    if (n is OverscrollNotification && n.dragDetails != null) {
-      if (n.overscroll < 0) {
+    if (_dismissing || n.depth != 0 || n.metrics.axis != Axis.vertical) {
+      return false;
+    }
+    final metrics = n.metrics;
+    switch (n) {
+      case OverscrollNotification(:final dragDetails?, :final overscroll)
+          when overscroll < 0:
         _snap.stop();
-        setState(() => _drag += -n.overscroll);
-      }
-    } else if (n is ScrollUpdateNotification &&
-        n.dragDetails != null &&
-        _drag > 0 &&
-        (n.scrollDelta ?? 0) > 0) {
-      setState(() => _drag = math.max(0, _drag - n.scrollDelta!));
-    } else if (n is ScrollEndNotification && _drag > 0) {
-      _finishDrag(n.dragDetails?.velocity.pixelsPerSecond.dy ?? 0);
+        _scrollDragging = true;
+        _trackVelocity(dragDetails);
+        setState(() => _drag += -overscroll);
+      case ScrollUpdateNotification()
+          when metrics.pixels < metrics.minScrollExtent:
+        final amount = metrics.minScrollExtent - metrics.pixels;
+        if (n.dragDetails != null) {
+          _snap.stop();
+          _scrollDragging = true;
+          _trackVelocity(n.dragDetails!);
+        } else if (_scrollDragging) {
+          // 손을 뗀 순간: 이후의 되돌아옴은 본문 bounce가 끌고 가고 시트가 따라갑니다.
+          _scrollDragging = false;
+          if (_shouldDismiss(amount, _velocity)) {
+            _dismissing = true;
+            Navigator.of(context).pop();
+            return false;
+          }
+        }
+        setState(() {
+          _drag = amount;
+          _bounce = amount;
+        });
+      case ScrollUpdateNotification() when _bounce > 0:
+        // bounce가 끝나 제자리로 돌아옴.
+        _bounce = 0;
+        _drag = 0;
+        setState(() {});
+      case ScrollUpdateNotification(:final scrollDelta?, :final dragDetails?)
+          when _drag > 0 && scrollDelta > 0:
+        // 시트를 올리는 중: 본문이 함께 스크롤되지 않게 올린 만큼 되돌립니다.
+        final absorbed = math.min(scrollDelta, _drag);
+        Scrollable.maybeOf(n.context!)?.position.correctBy(-absorbed);
+        _trackVelocity(dragDetails);
+        setState(() => _drag -= absorbed);
+      case ScrollEndNotification() when _scrollDragging && _drag > 0:
+        final velocity =
+            n.dragDetails?.velocity.pixelsPerSecond.dy ?? _velocity;
+        _scrollDragging = false;
+        _finishDrag(velocity);
+      default:
+        break;
     }
     return false;
   }
 
-  void _finishDrag(double velocity) {
+  bool _shouldDismiss(double distance, double velocity) {
     final sheetHeight = _frameKey.currentContext?.size?.height ?? 0;
-    if (_drag > sheetHeight * _dismissFraction || velocity > _dismissVelocity) {
+    return distance > sheetHeight * _dismissFraction ||
+        velocity > _dismissVelocity;
+  }
+
+  void _finishDrag(double velocity) {
+    _resetTracking();
+    if (_shouldDismiss(_drag, velocity)) {
+      _dismissing = true;
       Navigator.of(context).pop();
       return;
     }
@@ -433,8 +495,9 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
             claim: _headingClaim,
             child: NotificationListener<ScrollNotification>(
               onNotification: _onScroll,
-              child: ScrollConfiguration(
-                behavior: const _SheetScrollBehavior(),
+              // Bouncing 본문이 밀려난 만큼 되올려, 시트 이동과 이중으로 보이지 않게 합니다.
+              child: Transform.translate(
+                offset: Offset(0, -_bounce),
                 child: Builder(builder: widget.route.builder),
               ),
             ),
