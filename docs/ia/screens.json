@@ -878,6 +878,49 @@
       ]
     },
     {
+      "id": "system-apple-return",
+      "title": "Apple 로그인 복귀 안내",
+      "tab": null,
+      "presentation": "system",
+      "auth": "any",
+      "purpose": "Android에서 Apple 로그인 뒤 App Link가 앱을 열지 못하면 브라우저에 server가 내주는 안내 페이지입니다(server S22). 앱에서 계속하도록 안내합니다",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "system-apple-return.page.title",
+          "source": "content",
+          "role": "안내 페이지 제목"
+        },
+        {
+          "id": "system-apple-return.page.body",
+          "source": "content",
+          "role": "앱에서 로그인을 이어 가라는 안내. 오류 결과로 왔어도 같은 문구(오류 처리는 앱이 함)"
+        },
+        {
+          "id": "system-apple-return.page.open",
+          "source": "content",
+          "role": "앱에서 열기 링크 이름(앱이 있을 때 intent)"
+        },
+        {
+          "id": "system-apple-return.page.install",
+          "source": "content",
+          "role": "앱 설치하기 링크 이름(스토어)"
+        }
+      ],
+      "components": [],
+      "exits": [
+        {
+          "to": "welcome",
+          "trigger": "앱에서 열기"
+        }
+      ],
+      "decisions": [
+        "D55",
+        "D66"
+      ]
+    },
+    {
       "id": "ad-consent",
       "title": "광고 동의",
       "tab": null,
