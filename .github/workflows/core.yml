@@ -1,11 +1,7 @@
 name: core
 
 on:
-  push:
-    paths: ["core/**", "proto/**", ".github/workflows/core.yml"]
-  pull_request:
-    paths: ["core/**", "proto/**", ".github/workflows/core.yml"]
-  # ci-gate가 이 workflow를 호출한다(D44). 지휘 세션이 ci-gate에 연결한 뒤 위 push·pull_request 트리거를 지운다.
+  # PR과 main push에서는 ci-gate가 이 workflow를 호출한다(D44). 호출된 실행의 github.event_name은 호출한 쪽 이벤트다.
   workflow_call:
   workflow_dispatch:
   schedule:
