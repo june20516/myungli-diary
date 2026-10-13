@@ -65,14 +65,16 @@ jobs:
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
           fi
+          # 단위 검사(core·server)는 문서(.md)를 읽지 않으므로, .md만 바뀐 경우에는 고르지 않습니다(docs 검사만 돕니다).
+          code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
           # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있습니다.
-          if echo "$changed" | grep -qE '^core/|^proto/|^\.github/workflows/(core|ci-gate)\.yml$'; then
+          if echo "$code_changed" | grep -qE '^core/|^proto/|^\.github/workflows/(core|ci-gate)\.yml$'; then
             echo "core=true" >> "$GITHUB_OUTPUT"
           else
             echo "core=false" >> "$GITHUB_OUTPUT"
           fi
           # server가 쓰는 계약(proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙)이 바뀌어도 server 검사를 돌립니다.
-          if echo "$changed" | grep -qE '^server/|^proto/|^core/message_(keys|params)\.json$|^docs/identity/writing/|^\.github/workflows/(server|ci-gate)\.yml$'; then
+          if echo "$code_changed" | grep -qE '^server/|^proto/|^core/message_(keys|params)\.json$|^docs/identity/writing/|^\.github/workflows/(server|ci-gate)\.yml$'; then
             echo "server=true" >> "$GITHUB_OUTPUT"
           else
             echo "server=false" >> "$GITHUB_OUTPUT"
