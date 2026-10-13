@@ -119,7 +119,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
             identifier: SlotIds.evidenceSheetA11yUnlocked,
             label: l10n.evidenceSheetA11yUnlocked,
             role: SemanticsRole.status,
-            child: const SizedBox.square(dimension: 1),
+            child: const SizedBox.shrink(),
           ),
         Flexible(
           child: SingleChildScrollView(

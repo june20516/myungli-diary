@@ -102,12 +102,18 @@ class TermToken extends StatelessWidget {
         children: [
           if (before != null)
             ExcludeSemantics(
-              child: Text(applyKeepAll(locale, before!), style: base),
+              child: Text.rich(
+                TextSpan(children: keepAllSpans(locale, before!)),
+                style: base,
+              ),
             ),
           chip,
           if (after != null)
             ExcludeSemantics(
-              child: Text(applyKeepAll(locale, after!), style: base),
+              child: Text.rich(
+                TextSpan(children: keepAllSpans(locale, after!)),
+                style: base,
+              ),
             ),
         ],
       ),

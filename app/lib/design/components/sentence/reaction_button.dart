@@ -68,6 +68,26 @@ class _ReactionButtonState extends State<ReactionButton>
     value: widget.on ? 0 : 1,
   )..addStatusListener(_onEraseStatus);
 
+  // 키보드·스위치 초점이 오면 `focus.ring`으로 테두리가 두꺼워지며 나타납니다.
+  late final AnimationController _focus = AnimationController(
+    vsync: this,
+    duration: InteractionPattern.focusRing.duration,
+  )..addStatusListener(_onFocusStatus);
+  bool _focused = false;
+
+  void _onFocusStatus(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed && mounted) setState(() {});
+  }
+
+  void _onFocusHighlight(bool value) {
+    setState(() => _focused = value);
+    if (value) {
+      _focus.forward();
+    } else {
+      _focus.reverse();
+    }
+  }
+
   void _onEraseStatus(AnimationStatus status) {
     if (status == AnimationStatus.completed && mounted) setState(() {});
   }
@@ -87,6 +107,7 @@ class _ReactionButtonState extends State<ReactionButton>
   void dispose() {
     _stamp.dispose();
     _erase.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -95,6 +116,21 @@ class _ReactionButtonState extends State<ReactionButton>
     // 켤 때만 손끝에 알립니다. 끌 때는 햅틱이 없습니다.
     if (next) unawaited(Haptics.light());
     widget.onChanged(next);
+  }
+
+  /// 초점이 없고 사라짐도 끝났으면 테두리를 그리지 않습니다(`focus.ring`의 시작 값도
+  /// 테두리라 늘 그리면 평소에 선이 보입니다).
+  Widget _withRing(MotionPrefs prefs, Widget child) {
+    if (!_focused && _focus.isDismissed) return child;
+    return animate(
+      InteractionPattern.focusRing,
+      t: _focus,
+      prefs: prefs,
+      options: PatternOptions(
+        borderRadius: BorderRadius.circular(sentenceMinTarget / 2),
+      ),
+      child: child,
+    );
   }
 
   @override
@@ -153,6 +189,7 @@ class _ReactionButtonState extends State<ReactionButton>
               // 키보드·스위치 접근도 같은 동작으로 켜고 끕니다.
               child: FocusableActionDetector(
                 mouseCursor: SystemMouseCursors.click,
+                onShowFocusHighlight: _onFocusHighlight,
                 actions: {
                   ActivateIntent: CallbackAction<ActivateIntent>(
                     onInvoke: (_) {
@@ -164,12 +201,15 @@ class _ReactionButtonState extends State<ReactionButton>
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: _toggle,
-                  child: SizedBox.square(
-                    key: ReactionButton.targetKey,
-                    dimension: sentenceMinTarget,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [if (!widget.on) heartOff, ?sealLayer],
+                  child: _withRing(
+                    prefs,
+                    SizedBox.square(
+                      key: ReactionButton.targetKey,
+                      dimension: sentenceMinTarget,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [if (!widget.on) heartOff, ?sealLayer],
+                      ),
                     ),
                   ),
                 ),

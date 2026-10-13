@@ -52,7 +52,9 @@ class RenderedTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final segments = text.segments.where((s) => s.text.isNotEmpty).toList();
+    final segments = _mergePlain(
+      text.segments.where((s) => s.text.isNotEmpty).toList(),
+    );
     if (segments.isEmpty) return const SizedBox.shrink();
     final locale = Localizations.localeOf(context);
     final glueParticles = _glueParticles(locale);
@@ -60,7 +62,8 @@ class RenderedTextView extends StatelessWidget {
       for (var i = 0; i < segments.length; i++)
         ..._spansFor(segments, i, glueParticles, locale),
       if (trailing != null) ...[
-        // 링크 앞 틈은 줄바꿈 없는 공백입니다.
+        // 링크 앞 틈은 줄바꿈 없는 공백(U+00A0)과 결합자(U+2060)라
+        // 마지막 낱말과 링크가 함께 넘어갑니다.
         const TextSpan(text: '\u00A0\u2060'),
         WidgetSpan(
           alignment: PlaceholderAlignment.baseline,
@@ -74,6 +77,22 @@ class RenderedTextView extends StatelessWidget {
       maxLines: maxLines,
       overflow: overflow,
     );
+  }
+
+  /// 칩이 아닌 조각이 이어지면 하나로 합칩니다. 어절이 조각 경계에 걸려도 keep-all이
+  /// 경계를 넘어 적용됩니다.
+  List<Segment> _mergePlain(List<Segment> segments) {
+    final merged = <Segment>[];
+    for (final segment in segments) {
+      if (merged.isNotEmpty && !_isChip(merged.last) && !_isChip(segment)) {
+        merged[merged.length - 1] = Segment(
+          text: merged.last.text + segment.text,
+        );
+      } else {
+        merged.add(segment);
+      }
+    }
+    return merged;
   }
 
   /// 조각 [index]를 그릴 span들. 앞뒤 조각의 붙은 글자를 용어가 가져가면 그만큼 뺍니다.
@@ -113,7 +132,7 @@ class RenderedTextView extends StatelessWidget {
         : value.length;
     if (start >= end) return const [];
     final shown = value.substring(start, end);
-    return [TextSpan(text: applyKeepAll(locale, shown), semanticsLabel: shown)];
+    return keepAllSpans(locale, shown);
   }
 
   /// [index]가 일반 조각이고 바로 앞 용어에 붙은 글자를 내줘야 하는지.

@@ -16,11 +16,14 @@ import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
+import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
+
+import '../support/golden.dart' show ensureGoldenFonts;
 
 Widget _app(
   Widget home, {
@@ -1143,6 +1146,137 @@ void main() {
         ),
         throwsAssertionError,
       );
+    });
+  });
+
+  group('keep-all 안전 경계 (라운드 2)', () {
+    const ko = Locale('ko');
+
+    test('이모지 ZWJ·변이 선택자·결합 부호·서로게이트는 그대로 보존됩니다', () {
+      const input = '한글 👨\u200D👩\u200D👧 한\uFE0F글 e\u0301한 가\u0301나 😀한 가나';
+      final output = applyKeepAll(ko, input);
+      expect(output.replaceAll(wordJoiner, ''), input, reason: '코드 유닛 보존');
+      // 한글끼리만 결합자가 들어갑니다.
+      expect(output, contains('가\u2060나'));
+      expect(output, contains('한\uFE0F글'), reason: '변이 선택자 둘레에는 없음');
+      expect(output, contains('e\u0301한'));
+      expect(output, contains('가\u0301나'));
+      expect(output, contains('😀한'), reason: 'BMP 밖 글자 옆에는 없음');
+      expect(output, contains('👨\u200D👩\u200D👧'));
+    });
+
+    test('한글과 문장부호·숫자·영문 사이는 묶고 공백은 건너뜁니다', () {
+      expect(applyKeepAll(ko, '한글.'), '한\u2060글\u2060.');
+      expect(applyKeepAll(ko, 'A한 B'), 'A\u2060한 B');
+      expect(applyKeepAll(ko, 'ab cd'), 'ab cd', reason: '한글이 없으면 그대로');
+    });
+
+    testWidgets('이웃한 일반 조각 경계의 어절도 끊기지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          RenderedTextView(
+            text: _text([Segment(text: '한국'), Segment(text: '어절 끝')]),
+            style: _style,
+          ),
+        ),
+      );
+      final plain = tester
+          .widget<RichText>(find.byType(RichText).first)
+          .text
+          .toPlainText(includeSemanticsLabels: false);
+      expect(plain, contains('국\u2060어'));
+    });
+
+    testWidgets('결합자가 있어도 음수 자간에서 폭이 같습니다', (tester) async {
+      await tester.runAsync(ensureGoldenFonts);
+      const text = '오늘은 마음이 차분하고 단정해서 이야기를 풀어냅니다';
+      double widthOf(List<InlineSpan> spans) => (TextPainter(
+        text: TextSpan(
+          children: spans,
+          style: const TextStyle(
+            fontFamily: 'Gowun Dodum',
+            fontFamilyFallback: ['Pretendard'],
+            fontSize: 15,
+            letterSpacing: -0.5,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout()).width;
+      // 결합자를 글자에 그대로 넣으면 자간이 얹혀 어절이 좁아집니다(대조).
+      final naive = widthOf([TextSpan(text: applyKeepAll(ko, text))]);
+      final plain = widthOf([const TextSpan(text: text)]);
+      expect((naive - plain).abs(), greaterThan(1));
+      // keepAllSpans는 결합자 자간을 0으로 두어 폭이 같습니다.
+      expect((widthOf(keepAllSpans(ko, text)) - plain).abs(), lessThan(1));
+    });
+  });
+
+  group('근거 시트 열림 알림과 반응 포커스 (라운드 2)', () {
+    testWidgets('열림 알림이 있어도 본문 위치는 그대로입니다', (tester) async {
+      Widget sheet(DepthLinkState state) => _app(
+        SizedBox(
+          width: 360,
+          height: 400,
+          child: EvidenceSheetBody(
+            state: state,
+            title: '식신',
+            basis: state == DepthLinkState.unlocked
+                ? _text([Segment(text: '근거')])
+                : null,
+            source: state == DepthLinkState.unlocked
+                ? _text([Segment(text: '원전')])
+                : null,
+            animated: false,
+          ),
+        ),
+      );
+      await tester.pumpWidget(sheet(DepthLinkState.unlocked));
+      await tester.pumpAndSettle();
+      final withoutAnnouncement = tester.getTopLeft(find.text('식신'));
+      await tester.pumpWidget(sheet(DepthLinkState.unlocking));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(sheet(DepthLinkState.unlocked));
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.text('식신')), withoutAnnouncement);
+    });
+
+    testWidgets('키보드 초점이 오면 focus.ring 테두리가 나타나고 떠나면 사라집니다', (tester) async {
+      Finder ring() => find.descendant(
+        of: find.byType(ReactionButton),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is DecoratedBox &&
+              w.position == DecorationPosition.foreground &&
+              (w.decoration as BoxDecoration).border != null,
+        ),
+      );
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              ReactionButton(
+                on: false,
+                onChanged: (_) {},
+                semanticsLabel: '이 문장 좋아요',
+              ),
+              const TextField(),
+            ],
+          ),
+        ),
+      );
+      expect(ring(), findsNothing, reason: '초점 전에는 선이 없음');
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(ring(), findsOneWidget);
+      final decoration =
+          tester.widget<DecoratedBox>(ring()).decoration as BoxDecoration;
+      final colors = tester.element(find.byType(ReactionButton)).tokens.colors;
+      final border = decoration.border! as Border;
+      expect(border.top.color, colors.actionPrimary);
+      expect(border.top.width, PatternValues.focusToWidth);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(ring(), findsNothing);
     });
   });
 }
