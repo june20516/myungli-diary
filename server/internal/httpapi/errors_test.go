@@ -98,7 +98,19 @@ func TestWriteHandlerError_ConnectErrorIs503(t *testing.T) {
 
 	assert.Equal(t, http.StatusServiceUnavailable, rec.Code)
 	assert.Equal(t, "service.unavailable", p.Code)
-	assert.NotEmpty(t, logs)
+	assert.Contains(t, logs, "errorType=*fmt.wrapError")
+}
+
+func TestWriteHandlerError_ExplicitErrorWithInvalidStatusIs500(t *testing.T) {
+	for _, status := range []int{0, 99, 600, -1} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			rec, p, logs := serveHandlerError(t, &Error{Status: status, Code: "auth.test", Title: "Test"})
+
+			assert.Equal(t, http.StatusInternalServerError, rec.Code)
+			assert.Equal(t, "internal", p.Code)
+			assert.Contains(t, logs, "errorType=*httpapi.Error")
+		})
+	}
 }
 
 func TestWriteHandlerError_UnknownErrorIs500AndLogsType(t *testing.T) {

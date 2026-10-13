@@ -95,23 +95,24 @@ func newJWKSClient(base *http.Client) *http.Client {
 
 // jwksFailureReason은 KeySet 오류가 JWKS를 받아 오지 못해서 난 것이면 본문 없는 사유와 true를 돌려줍니다.
 //   - jwksFetchError: jwksTransport가 만든 오류(연결 실패, 2xx 아님, 본문 이상). 사유는 그 reason입니다.
+//   - url.Error: http.Client 단계의 실패(client Timeout 등). client Timeout 오류도
+//     context.DeadlineExceeded로 판별되므로 context 오류보다 먼저 봐야 "client timeout"으로 나뉩니다.
 //   - context 오류: 요청 deadline이 지나 JWKS 결과를 기다리지 않고 돌아온 경우
-//   - url.Error: http.Client 단계의 실패(client Timeout 등)
 func jwksFailureReason(err error) (string, bool) {
 	var fetchErr *jwksFetchError
 	var urlErr *url.Error
 	switch {
 	case errors.As(err, &fetchErr):
 		return fetchErr.reason, true
-	case errors.Is(err, context.DeadlineExceeded):
-		return "요청 deadline 초과", true
-	case errors.Is(err, context.Canceled):
-		return "요청 취소", true
 	case errors.As(err, &urlErr):
 		if urlErr.Timeout() {
 			return "client timeout", true
 		}
 		return "요청 실패", true
+	case errors.Is(err, context.DeadlineExceeded):
+		return "요청 deadline 초과", true
+	case errors.Is(err, context.Canceled):
+		return "요청 취소", true
 	default:
 		return "", false
 	}

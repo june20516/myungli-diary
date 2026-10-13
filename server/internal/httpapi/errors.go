@@ -26,6 +26,7 @@ const (
 )
 
 // Error는 핸들러가 계약에 적힌 오류(상태, 코드, 필드 오류)를 그대로 지정할 때 돌려주는 오류입니다.
+// Status가 0이거나 HTTP 상태 범위(100~599) 밖이면 프로그램 오류로 보고 500 internal로 답합니다.
 type Error struct {
 	Status int
 	Code   string
@@ -60,7 +61,7 @@ var domainErrors = []domainError{
 }
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
-// 순서: ErrNotImplemented(501), *Error(그대로), domainErrors 표, DB 연결 실패(503), 그 밖(500).
+// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), domainErrors 표, DB 연결 실패(503), 그 밖(500).
 func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
 	if errors.Is(err, ErrNotImplemented) {
 		problem.Write(w, r, problem.New(http.StatusNotImplemented, "not_implemented", "Not implemented"))
@@ -68,7 +69,12 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 	}
 
 	var explicit *Error
-	if errors.As(err, &explicit) {
+	if errors.As(err, &explicit) && !validHTTPStatus(explicit.Status) {
+		logHandlerError(r.Context(), deps.Logger, err)
+		problem.Write(w, r, problem.New(http.StatusInternalServerError, codeInternal, "Internal server error"))
+		return
+	}
+	if explicit != nil {
 		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
 		p.Errors = explicit.Errors
 		writeProblem(w, r, p, explicit.BearerChallenge)
@@ -93,6 +99,11 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 
 	logHandlerError(r.Context(), deps.Logger, err)
 	problem.Write(w, r, problem.New(http.StatusInternalServerError, codeInternal, "Internal server error"))
+}
+
+// validHTTPStatus는 status가 응답에 쓸 수 있는 HTTP 상태 코드(100~599)인지 알려 줍니다.
+func validHTTPStatus(status int) bool {
+	return status >= 100 && status <= 599
 }
 
 // writeProblem은 bearer 인증 실패 여부에 따라 헤더를 달리해 problem을 씁니다.
