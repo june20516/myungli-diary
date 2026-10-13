@@ -28,6 +28,126 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorNotImplemented => '아직 준비 중이에요.';
 
   @override
+  String get errorRequestMalformed => '요청을 처리하지 못했어요.';
+
+  @override
+  String get errorRequestInvalid => '입력한 값을 다시 확인해 주세요.';
+
+  @override
+  String get errorAuthTokenExpired => '로그인이 만료됐어요. 다시 로그인해 주세요.';
+
+  @override
+  String get errorAuthTokenInvalid => '다시 로그인해 주세요.';
+
+  @override
+  String get errorAuthRefreshReused => '보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.';
+
+  @override
+  String get errorAuthProviderTokenInvalid => '로그인하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get errorAuthExchangeInvalid => '로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.';
+
+  @override
+  String get errorAppCheckInvalid => '앱을 확인하지 못했어요. 앱을 최신 버전으로 업데이트해 주세요.';
+
+  @override
+  String get errorConsentRequired => '약관 동의가 필요해요.';
+
+  @override
+  String get errorPreviewUsed => '미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요.';
+
+  @override
+  String get errorRouteNotFound => '요청을 처리하지 못했어요. 앱을 업데이트해 주세요.';
+
+  @override
+  String get errorDiaryNotFound => '일기를 찾지 못했어요.';
+
+  @override
+  String get errorMethodNotAllowed => '요청을 처리하지 못했어요. 앱을 업데이트해 주세요.';
+
+  @override
+  String get errorProfileRequired => '먼저 생년월일시를 입력해 주세요.';
+
+  @override
+  String get errorDiaryDateTaken => '그날에는 이미 일기가 있어요.';
+
+  @override
+  String get errorIdempotencyInProgress => '처리 중이에요. 잠시 후 다시 확인해 주세요.';
+
+  @override
+  String get errorRequestTooLarge => '내용이 너무 길어요.';
+
+  @override
+  String get errorRequestUnsupportedMediaType => '요청을 처리하지 못했어요. 앱을 업데이트해 주세요.';
+
+  @override
+  String get errorDateOutOfRange =>
+      '1900년 1월 31일부터 2099년 12월 31일까지의 날짜만 볼 수 있어요.';
+
+  @override
+  String get errorBirthOutOfRange =>
+      '1900년 1월 31일부터 2099년 12월 31일 사이의 생년월일을 입력해 주세요.';
+
+  @override
+  String get errorDateInvalid => '달력에 없는 날짜예요.';
+
+  @override
+  String get errorRequestInconsistent => '입력한 값을 다시 확인해 주세요.';
+
+  @override
+  String get errorBirthInvalid => '입력한 생년월일시를 다시 확인해 주세요.';
+
+  @override
+  String get errorDiaryFutureDate => '오늘 이후의 일기는 쓸 수 없어요.';
+
+  @override
+  String get errorNameEmpty => '부를 이름을 입력해 주세요.';
+
+  @override
+  String get errorNameTooLong => '부를 이름이 너무 길어요.';
+
+  @override
+  String get errorNameEmoji => '부를 이름에는 이모지를 쓸 수 없어요.';
+
+  @override
+  String get errorNameControl => '부를 이름에 쓸 수 없는 글자가 있어요.';
+
+  @override
+  String get errorNameInvalidChar => '부를 이름에는 괄호를 쓸 수 없어요.';
+
+  @override
+  String get errorIdempotencyMismatch => '요청을 처리하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get errorConsentVersionMismatch => '약관이 바뀌었어요. 다시 확인해 주세요.';
+
+  @override
+  String get errorRateLimited => '요청이 많아요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get errorInternal => '서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get errorEngineError => '풀이를 계산하지 못했어요.';
+
+  @override
+  String get errorEngineUnavailable => '풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get errorAuthProviderUnavailable => '지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get errorBillingProviderUnavailable =>
+      '지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get errorServiceUnavailable => '잠시 서비스를 이용할 수 없어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get errorEngineTimeout => '풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get appTitle => '명리일기';
 
   @override

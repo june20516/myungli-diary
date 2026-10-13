@@ -24,6 +24,162 @@
   "@errorNotImplemented": {
     "description": "임시. 아직 구현되지 않은 기능의 안내 문구"
   },
+  "errorRequestMalformed": "요청을 처리하지 못했어요.",
+  "@errorRequestMalformed": {
+    "description": "임시. 요청 본문을 읽지 못했을 때(400 request.malformed)의 오류 문구"
+  },
+  "errorRequestInvalid": "입력한 값을 다시 확인해 주세요.",
+  "@errorRequestInvalid": {
+    "description": "임시. 입력 형식·범위가 맞지 않을 때(400 request.invalid)의 오류 문구"
+  },
+  "errorAuthTokenExpired": "로그인이 만료됐어요. 다시 로그인해 주세요.",
+  "@errorAuthTokenExpired": {
+    "description": "임시. 로그인 유지 시간이 지났을 때(401 auth.token_expired)의 오류 문구"
+  },
+  "errorAuthTokenInvalid": "다시 로그인해 주세요.",
+  "@errorAuthTokenInvalid": {
+    "description": "임시. 로그인 정보가 유효하지 않을 때(401 auth.token_invalid)의 오류 문구"
+  },
+  "errorAuthRefreshReused": "보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.",
+  "@errorAuthRefreshReused": {
+    "description": "임시. 로그인 갱신이 재사용으로 거절됐을 때(401 auth.refresh_reused)의 오류 문구"
+  },
+  "errorAuthProviderTokenInvalid": "로그인하지 못했어요. 다시 시도해 주세요.",
+  "@errorAuthProviderTokenInvalid": {
+    "description": "임시. 카카오·Apple 로그인 확인에 실패했을 때(401 auth.provider_token_invalid)의 오류 문구"
+  },
+  "errorAuthExchangeInvalid": "로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.",
+  "@errorAuthExchangeInvalid": {
+    "description": "임시. Apple 웹 로그인 복귀 코드가 만료·사용됨일 때(401 auth.exchange_invalid)의 오류 문구"
+  },
+  "errorAppCheckInvalid": "앱을 확인하지 못했어요. 앱을 최신 버전으로 업데이트해 주세요.",
+  "@errorAppCheckInvalid": {
+    "description": "임시. 앱 무결성 확인에 실패했을 때(401 app_check.invalid)의 오류 문구"
+  },
+  "errorConsentRequired": "약관 동의가 필요해요.",
+  "@errorConsentRequired": {
+    "description": "임시. 약관 동의가 필요할 때(403 consent.required)의 오류 문구"
+  },
+  "errorPreviewUsed": "미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요.",
+  "@errorPreviewUsed": {
+    "description": "임시. 미리보기를 이미 썼을 때(403 preview.used)의 오류 문구"
+  },
+  "errorRouteNotFound": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
+  "@errorRouteNotFound": {
+    "description": "임시. 요청 경로가 없을 때(404 route.not_found)의 오류 문구"
+  },
+  "errorDiaryNotFound": "일기를 찾지 못했어요.",
+  "@errorDiaryNotFound": {
+    "description": "임시. 일기를 찾지 못했을 때(404 diary.not_found)의 오류 문구"
+  },
+  "errorMethodNotAllowed": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
+  "@errorMethodNotAllowed": {
+    "description": "임시. 요청 방식이 맞지 않을 때(405 method.not_allowed)의 오류 문구"
+  },
+  "errorProfileRequired": "먼저 생년월일시를 입력해 주세요.",
+  "@errorProfileRequired": {
+    "description": "임시. 프로필 없이 운세·일기를 요청했을 때(409 profile.required)의 오류 문구"
+  },
+  "errorDiaryDateTaken": "그날에는 이미 일기가 있어요.",
+  "@errorDiaryDateTaken": {
+    "description": "임시. 되살리려는 날짜에 일기가 이미 있을 때(409 diary.date_taken)의 오류 문구"
+  },
+  "errorIdempotencyInProgress": "처리 중이에요. 잠시 후 다시 확인해 주세요.",
+  "@errorIdempotencyInProgress": {
+    "description": "임시. 같은 요청이 처리 중일 때(409 idempotency.in_progress)의 오류 문구"
+  },
+  "errorRequestTooLarge": "내용이 너무 길어요.",
+  "@errorRequestTooLarge": {
+    "description": "임시. 요청이 너무 클 때(413 request.too_large)의 오류 문구"
+  },
+  "errorRequestUnsupportedMediaType": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
+  "@errorRequestUnsupportedMediaType": {
+    "description": "임시. 요청 형식을 지원하지 않을 때(415 request.unsupported_media_type)의 오류 문구"
+  },
+  "errorDateOutOfRange": "1900년 1월 31일부터 2099년 12월 31일까지의 날짜만 볼 수 있어요.",
+  "@errorDateOutOfRange": {
+    "description": "임시. 지원 범위 밖 날짜일 때(422 date.out_of_range)의 오류 문구"
+  },
+  "errorBirthOutOfRange": "1900년 1월 31일부터 2099년 12월 31일 사이의 생년월일을 입력해 주세요.",
+  "@errorBirthOutOfRange": {
+    "description": "임시. 지원 범위 밖 출생 정보일 때(422 birth.out_of_range)의 오류 문구"
+  },
+  "errorDateInvalid": "달력에 없는 날짜예요.",
+  "@errorDateInvalid": {
+    "description": "임시. 달력에 없는 날짜일 때(422 date.invalid)의 오류 문구"
+  },
+  "errorRequestInconsistent": "입력한 값을 다시 확인해 주세요.",
+  "@errorRequestInconsistent": {
+    "description": "임시. 입력 값끼리 맞지 않을 때(422 request.inconsistent)의 오류 문구"
+  },
+  "errorBirthInvalid": "입력한 생년월일시를 다시 확인해 주세요.",
+  "@errorBirthInvalid": {
+    "description": "임시. 계산할 수 없는 출생 정보일 때(422 birth.invalid)의 오류 문구"
+  },
+  "errorDiaryFutureDate": "오늘 이후의 일기는 쓸 수 없어요.",
+  "@errorDiaryFutureDate": {
+    "description": "임시. 앞으로의 날짜에 일기를 쓰려 할 때(422 diary.future_date)의 오류 문구"
+  },
+  "errorNameEmpty": "부를 이름을 입력해 주세요.",
+  "@errorNameEmpty": {
+    "description": "임시. 호칭이 비어 있을 때(422 name.empty)의 오류 문구"
+  },
+  "errorNameTooLong": "부를 이름이 너무 길어요.",
+  "@errorNameTooLong": {
+    "description": "임시. 호칭이 너무 길 때(422 name.too_long)의 오류 문구"
+  },
+  "errorNameEmoji": "부를 이름에는 이모지를 쓸 수 없어요.",
+  "@errorNameEmoji": {
+    "description": "임시. 호칭에 이모지가 있을 때(422 name.emoji)의 오류 문구"
+  },
+  "errorNameControl": "부를 이름에 쓸 수 없는 글자가 있어요.",
+  "@errorNameControl": {
+    "description": "임시. 호칭에 제어 문자가 있을 때(422 name.control)의 오류 문구"
+  },
+  "errorNameInvalidChar": "부를 이름에는 괄호를 쓸 수 없어요.",
+  "@errorNameInvalidChar": {
+    "description": "임시. 호칭에 괄호 등 받지 않는 글자가 있을 때(422 name.invalid_char)의 오류 문구"
+  },
+  "errorIdempotencyMismatch": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
+  "@errorIdempotencyMismatch": {
+    "description": "임시. 같은 요청 키에 다른 내용일 때(422 idempotency.mismatch)의 오류 문구"
+  },
+  "errorConsentVersionMismatch": "약관이 바뀌었어요. 다시 확인해 주세요.",
+  "@errorConsentVersionMismatch": {
+    "description": "임시. 동의한 약관 버전이 바뀌었을 때(422 consent.version_mismatch)의 오류 문구"
+  },
+  "errorRateLimited": "요청이 많아요. 잠시 후 다시 시도해 주세요.",
+  "@errorRateLimited": {
+    "description": "임시. 요청이 너무 잦을 때(429 rate_limited)의 오류 문구"
+  },
+  "errorInternal": "서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+  "@errorInternal": {
+    "description": "임시. 예상하지 못한 서버 오류(500 internal)의 오류 문구"
+  },
+  "errorEngineError": "풀이를 계산하지 못했어요.",
+  "@errorEngineError": {
+    "description": "임시. 풀이 계산 오류(502 engine.error)의 오류 문구"
+  },
+  "errorEngineUnavailable": "풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+  "@errorEngineUnavailable": {
+    "description": "임시. 풀이 계산 서버에 연결하지 못할 때(503 engine.unavailable)의 오류 문구"
+  },
+  "errorAuthProviderUnavailable": "지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "@errorAuthProviderUnavailable": {
+    "description": "임시. 카카오·Apple 장애로 로그인하지 못할 때(503 auth.provider_unavailable)의 오류 문구"
+  },
+  "errorBillingProviderUnavailable": "지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "@errorBillingProviderUnavailable": {
+    "description": "임시. 결제 서비스 장애일 때(503 billing.provider_unavailable)의 오류 문구"
+  },
+  "errorServiceUnavailable": "잠시 서비스를 이용할 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "@errorServiceUnavailable": {
+    "description": "임시. 서버가 일시적으로 처리하지 못할 때(503 service.unavailable)의 오류 문구"
+  },
+  "errorEngineTimeout": "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
+  "@errorEngineTimeout": {
+    "description": "임시. 풀이 계산 시간이 초과됐을 때(504 engine.timeout)의 오류 문구"
+  },
   "appTitle": "명리일기",
   "@appTitle": {
     "description": "임시. 앱 이름(작업 전환기 등에 보임)"
