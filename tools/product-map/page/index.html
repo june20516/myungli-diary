@@ -63,6 +63,11 @@ button.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); bord
 .metro .st-label { font-size: 11px; font-variant-numeric: tabular-nums; }
 .station { cursor: pointer; }
 .station:hover circle { stroke-width: 3; }
+/* 다른 노선의 선행 조건 점선: 평소에는 옅게, 역을 가리키면 그 역에 이어진 선만 진하게 */
+.dep { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 4; opacity: .18; transition: opacity .15s; }
+.metro.focused .dep { opacity: .06; }
+.metro.focused .dep.on { opacity: 1; stroke: var(--accent); stroke-width: 1.6; }
+.metro.focused .station:not(.on) { opacity: .45; }
 .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: var(--muted); }
 .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; border: 2px solid var(--fg); }
 .legend .lg-done::before { background: var(--fg); } .legend .lg-ready::before { border-color: var(--ready); background: var(--accent-soft); } .legend .lg-todo::before { background: var(--surface-solid); }
@@ -148,7 +153,7 @@ img.zoomable { cursor: zoom-in; }
       <div class="box-head"><h2>어디까지 왔나</h2><button class="zoom-btn" type="button" data-zoom-target="metro">크게 보기</button></div>
       <div class="legend"><span class="lg-done">완료</span><span class="lg-ready">다음 역(선행 조건이 모두 끝남)</span><span class="lg-todo">아직</span></div>
       <div class="metro-scroll"><svg class="metro" id="metro" role="group" aria-label="마일스톤 노선도"></svg></div>
-      <p class="muted" style="margin:6px 0 0;font-size:.8rem">역을 누르면 그 마일스톤의 상세가 열립니다. 점선은 다른 노선에서 기다리는 선행 조건입니다.</p>
+      <p class="muted" style="margin:6px 0 0;font-size:.8rem">역을 누르면 그 마일스톤의 상세가 열립니다. 점선은 다른 노선에서 기다리는 선행 조건이고, 역을 가리키면 그 역에 이어진 점선만 진하게 보입니다.</p>
     </div>
     <div class="grid2">
       <div class="box"><h2>지금 진행 순서</h2><div class="table-scroll"><table id="order"></table></div></div>
@@ -246,27 +251,27 @@ function lineOf(owner) {
   const key = owner.split(/[\s→]/)[0];
   return LINES.some((l) => l.key === key) ? key : "root";
 }
-function reqIds(text) { return (text.match(/\b(?:R0|B0|IA|[CSAWVI]\d)\b/g) || []); }
+function reqIds(text) { return (text.match(/\b(?:R0|B0|IA|[CSAWVIM]\d)\b/g) || []); }
 
 function layoutMetro(milestones) {
   const byId = Object.fromEntries(milestones.map((m) => [m.id, m]));
   const depth = {};
-  const depthOf = (id, seen = new Set()) => {
+  const taken = new Set();
+  // 칸은 선행 역의 칸(밀린 뒤의 칸)보다 하나 오른쪽입니다.
+  // 같은 노선의 같은 칸에 역이 이미 있으면 오른쪽으로 밉니다(예: R0와 B0). 선행 역을 먼저 놓으므로 민 결과가 뒤 역에 이어집니다.
+  const place = (id, seen = new Set()) => {
     if (id in depth) return depth[id];
     if (seen.has(id) || !byId[id]) return 0;
     seen.add(id);
     const reqs = reqIds(byId[id].requires).filter((r) => byId[r]);
-    depth[id] = reqs.length ? 1 + Math.max(...reqs.map((r) => depthOf(r, seen))) : 0;
-    return depth[id];
+    let column = reqs.length ? 1 + Math.max(...reqs.map((r) => place(r, seen))) : 0;
+    const line = lineOf(byId[id].owner);
+    while (taken.has(line + ":" + column)) column += 1;
+    taken.add(line + ":" + column);
+    depth[id] = column;
+    return column;
   };
-  milestones.forEach((m) => depthOf(m.id));
-  // 같은 노선의 같은 칸에 역이 둘 오면 뒤의 역을 오른쪽으로 밉니다(예: R0와 B0).
-  const taken = new Set();
-  milestones.forEach((m) => {
-    const line = lineOf(m.owner);
-    while (taken.has(line + ":" + depth[m.id])) depth[m.id] += 1;
-    taken.add(line + ":" + depth[m.id]);
-  });
+  milestones.forEach((m) => place(m.id));
   return milestones.map((m) => {
     const reqs = reqIds(m.requires).filter((r) => byId[r]);
     const ready = m.state !== "done" && reqs.every((r) => byId[r].state === "done");
@@ -285,18 +290,20 @@ function renderMetro() {
   svg.setAttribute("width", width); svg.setAttribute("height", height);
   const pos = {};
   stations.forEach((s) => { pos[s.id] = { x: left + s.depth * colW + colW / 2, y: top + used.findIndex((l) => l.key === s.line) * rowH + 12 }; });
-  let out = "";
+  let out = `<g class="deps-back">`;
   stations.forEach((s) => s.reqs.forEach((r) => {
     const a = pos[r], b = pos[s.id];
     if (!a || stations.find((x) => x.id === r).line === s.line) return;
-    out += `<path d="M${a.x} ${a.y} C${(a.x + b.x) / 2} ${a.y}, ${(a.x + b.x) / 2} ${b.y}, ${b.x} ${b.y}" fill="none" stroke="${cssVar("--muted")}" stroke-width="1" stroke-dasharray="3 4" opacity=".6"/>`;
+    out += `<path class="dep" data-from="${esc(r)}" data-to="${esc(s.id)}" d="M${a.x} ${a.y} C${(a.x + b.x) / 2} ${a.y}, ${(a.x + b.x) / 2} ${b.y}, ${b.x} ${b.y}"/>`;
   }));
+  out += `</g>`;
   used.forEach((l, i) => {
     const y = top + i * rowH + 12;
     const xs = stations.filter((s) => s.line === l.key).map((s) => pos[s.id].x).sort((a, b) => a - b);
     out += `<text class="line-label" x="8" y="${y + 4}">${esc(l.name)}</text>`;
     if (xs.length > 1) out += `<path d="M${xs[0]} ${y} H${xs[xs.length - 1]}" stroke="${cssVar(l.color)}" stroke-width="6" stroke-linecap="round" fill="none"/>`;
   });
+  out += `<g class="deps-front"></g>`;
   stations.forEach((s) => {
     const { x, y } = pos[s.id];
     const color = cssVar(LINES.find((l) => l.key === s.line).color);
@@ -308,8 +315,34 @@ function renderMetro() {
       <text class="st-label" x="${x}" y="${y + 24}" text-anchor="middle">${esc(s.id)}</text></g>`;
   });
   svg.innerHTML = out;
+  bindMetro(svg, openMilestone);
+}
+
+// 역 상호작용: 가리키거나 누르면 강조하고, 누르면 onOpen(역 id)을 부릅니다. 노선도와 크게 보기 사본이 함께 씁니다.
+function bindMetro(svg, onOpen) {
+  // 가리키거나 초점이 간 역과, 점선으로 이어진 역(선행·후행)만 진하게 보입니다.
+  // 진한 점선은 노선 선 위·역 아래 층(deps-front)으로 옮겨 가려지지 않게 하고, 풀리면 제자리로 돌립니다.
+  // 시트를 닫으면 초점이 그 역으로 돌아오므로 강조도 이어집니다.
+  const back = svg.querySelector(".deps-back"), front = svg.querySelector(".deps-front");
+  const deps = [...svg.querySelectorAll(".dep")];
+  const highlight = (id) => {
+    svg.classList.toggle("focused", Boolean(id));
+    const linked = new Set(id ? [id] : []);
+    deps.forEach((p) => {
+      const on = Boolean(id) && (p.dataset.from === id || p.dataset.to === id);
+      p.classList.toggle("on", on);
+      if (on) { linked.add(p.dataset.from); linked.add(p.dataset.to); }
+    });
+    deps.forEach((p) => (p.classList.contains("on") ? front : back).appendChild(p));
+    svg.querySelectorAll(".station").forEach((g) => g.classList.toggle("on", linked.has(g.dataset.id)));
+  };
+  const focusedId = () => (svg.contains(document.activeElement) ? document.activeElement.dataset.id : null);
   svg.querySelectorAll(".station").forEach((g) => {
-    const open = () => openMilestone(g.dataset.id);
+    const open = () => onOpen(g.dataset.id);
+    g.addEventListener("mouseenter", () => highlight(g.dataset.id));
+    g.addEventListener("mouseleave", () => highlight(focusedId()));
+    g.addEventListener("focus", () => highlight(g.dataset.id));
+    g.addEventListener("blur", () => highlight(focusedId()));
     g.addEventListener("click", open);
     g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
   });
@@ -573,7 +606,7 @@ function closeViewer() {
   if (viewer.returnFocus && document.contains(viewer.returnFocus)) viewer.returnFocus.focus();
 }
 function zoomSvgFrom(container, title) {
-  const svg = container.querySelector("svg");
+  const svg = container.matches("svg") ? container : container.querySelector("svg");
   if (!svg) {
     const pre = container.querySelector("pre");
     if (pre) openViewer(Object.assign(document.createElement("pre"), { textContent: pre.textContent, style: "white-space:pre;padding:12px" }), 720, title);
@@ -583,6 +616,12 @@ function zoomSvgFrom(container, title) {
   const viewBox = (svg.getAttribute("viewBox") || "").split(/[\s,]+/).map(Number);
   const base = viewBox.length === 4 && viewBox[2] > 0 ? viewBox[2] : svg.getBoundingClientRect().width;
   clone.removeAttribute("style");
+  clone.removeAttribute("id");
+  if (svg.id === "metro") {
+    // 사본은 이벤트를 물려받지 않으므로 다시 붙입니다. 시트는 크게 보기 창 아래 층이라 창을 닫고 엽니다.
+    clone.classList.remove("focused");
+    bindMetro(clone, (id) => { closeViewer(); openMilestone(id); });
+  }
   openViewer(clone, base, title);
 }
 document.addEventListener("click", (e) => {
