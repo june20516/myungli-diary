@@ -26,7 +26,8 @@ final targetPlatformProvider = Provider<TargetPlatform>(
 
 /// 진입 갈래를 계산합니다.
 ///
-/// `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 통신이 실패하면 오류 상태가
+/// 설치 확인 → `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 설치 표시
+/// ([installedKey])가 없으면 다시 설치한 것이라 이전 설치의 토큰을 버립니다. 통신이 실패하면 오류 상태가
 /// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 남은 토큰을 지우고
 /// (`TokenStore.signOut`) 로그아웃으로 봅니다. 삭제 대기 계정이면 server에 토큰 폐기를
 /// 시도한 뒤 로그아웃합니다([revokeAndSignOut]). 어느 쪽이든 `signedOut` 이벤트가 나가
@@ -64,6 +65,13 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     final tokens = ref.read(tokenStoreProvider);
     final flags = ref.read(deviceFlagsStoreProvider);
     final appVersion = await ref.read(appVersionProvider.future);
+
+    if (!await flags.readBool(installedKey)) {
+      // 다시 설치: 이전 설치의 Keychain 토큰은 버립니다. DB가 비어 있어 정리할
+      // 로컬 데이터가 없으므로 로그아웃 이벤트는 내지 않습니다.
+      await tokens.discardWithoutEvent();
+      await flags.writeBool(installedKey, value: true);
+    }
 
     final config = await _call(api.getAppConfig);
     final minimum = parseAppVersion(

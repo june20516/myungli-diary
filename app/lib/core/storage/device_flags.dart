@@ -4,6 +4,13 @@ import 'package:myungli_diary/core/storage/app_database.dart';
 /// 이 기기에서 광고 동의를 한 번 거쳤는지 나타내는 [DeviceFlags] 키.
 const adConsentDoneKey = 'ad.consentDone';
 
+/// 이 설치에서 앱을 한 번 실행했는지 나타내는 [DeviceFlags] 키.
+///
+/// 앱을 지우면 DB는 사라지지만 iOS Keychain의 값(refresh token)은 남습니다. 이 표시가
+/// 없으면 다시 설치한 것으로 보고 보안 저장소의 이전 값을 버립니다. 로그아웃 정리는
+/// 기기 플래그를 남기므로 이 표시도 남습니다.
+const installedKey = 'app.installed';
+
 const _trueValue = 'true';
 const _falseValue = 'false';
 

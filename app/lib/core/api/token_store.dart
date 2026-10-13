@@ -51,8 +51,9 @@ final class TokenStore {
 
   /// 이벤트 없이 토큰을 지웁니다. 로그아웃이 아닙니다.
   ///
-  /// fake 모드 시작 코드가 시나리오의 로그아웃 상태를 만들 때(정리할 이전 실행이 없음)와
-  /// 테스트만 씁니다. 로그아웃은 어떤 경로든 [signOut]을 거쳐야 로컬 정리가 돕니다.
+  /// 정리할 로컬 데이터가 없는 경우만 씁니다: fake 모드 시작 코드가 시나리오의
+  /// 로그아웃 상태를 만들 때, 진입 계산이 다시 설치된 앱에서 이전 설치의 토큰을
+  /// 버릴 때, 테스트. 로그아웃은 어떤 경로든 [signOut]을 거쳐야 로컬 정리가 돕니다.
   Future<void> discardWithoutEvent() async {
     _accessToken = null;
     await _secureStore.delete(_refreshKey);

@@ -15,6 +15,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
+import 'package:myungli_diary/core/storage/device_flags.dart';
 
 /// fake 모드에서 시나리오를 정하지 않았을 때 쓰는 시나리오.
 const defaultScenarioId = 'new-user';
@@ -79,6 +80,10 @@ Future<ProviderContainer> bootstrap({
   try {
     if (scenario != null) {
       await container.read(appDatabaseProvider).clearAll();
+      // 비운 DB는 다시 설치한 것처럼 보이므로, 심을 토큰이 버려지지 않게 설치 표시를 남깁니다.
+      await container
+          .read(deviceFlagsStoreProvider)
+          .writeBool(installedKey, value: true);
       await _restoreScenarioSession(container, scenario);
     }
   } on Object catch (error, stack) {

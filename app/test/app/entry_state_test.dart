@@ -166,11 +166,13 @@ void main() {
     late TokenStore tokens;
     late FakeAdConsentCounter consent;
 
-    setUp(() {
+    setUp(() async {
       database = AppDatabase.forExecutor(NativeDatabase.memory());
       api = _Api();
       tokens = TokenStore(_MemorySecureStore());
       consent = FakeAdConsentCounter();
+      // 이 기기에 이미 설치돼 실행된 적이 있는 상태입니다.
+      await DeviceFlagsStore(database).writeBool(installedKey, value: true);
     });
 
     tearDown(() async {
@@ -208,6 +210,31 @@ void main() {
         EntryState.signedOut,
       );
       expect(api.meCalls, 0);
+    });
+
+    test('설치 표시가 없으면(다시 설치) 이전 설치의 토큰을 버리고 signedOut', () async {
+      await signIn();
+      await (database.delete(
+        database.deviceFlags,
+      )..where((t) => t.key.equals(installedKey))).go();
+      final events = <AuthEvent>[];
+      tokens.events.listen(events.add);
+      final c = container();
+      expect(
+        (await c.read(entryStateProvider.future)).entry,
+        EntryState.signedOut,
+      );
+      expect(api.meCalls, 0);
+      expect(await tokens.refreshToken(), isNull);
+      expect(events, isEmpty, reason: '정리할 이전 데이터가 없어 로그아웃이 아닙니다');
+      expect(await DeviceFlagsStore(database).readBool(installedKey), isTrue);
+    });
+
+    test('설치 표시가 있으면 토큰을 그대로 씁니다', () async {
+      await signIn();
+      final c = container();
+      expect((await c.read(entryStateProvider.future)).entry, EntryState.ready);
+      expect(await tokens.refreshToken(), 'refresh');
     });
 
     test('getAppConfig가 실패하면 AsyncError', () async {
