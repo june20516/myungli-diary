@@ -18,6 +18,10 @@ import (
 //   - Apple: 저장한 refresh token을 복호화해 revoke합니다.
 //   - 카카오: 앱과의 연결을 끊습니다(unlink).
 //
+// 각 연결의 외부 호출 직전에 계정이 아직 삭제 대기인지 확인하고(stillPendingDeletion), 아니면(복구 로그인으로
+// active가 됐거나 계정이 없으면) 그 연결은 건너뜁니다. 확인과 외부 호출 사이에 끼어드는 복구 로그인은 막지 못하며,
+// 그 경합은 markDisconnected가 기록을 생략하는 것으로만 줄입니다.
+//
 // 성공한 연결은 계정이 아직 삭제 대기일 때만 Apple 토큰 열을 비우고 해제 시각을 기록합니다(markDisconnected). 하나가 실패해도 나머지를 시도하고,
 // 실패들을 errors.Join으로 묶어 돌려줍니다. 실패한 연결은 그대로 남으므로 같은 함수를 다시 부르면
 // 남은 것만 처리합니다(계정 삭제 직후와 job retention 재시도가 같은 함수를 씀).
@@ -33,6 +37,16 @@ func (s *Service) DisconnectProviders(ctx context.Context, accountID uuid.UUID) 
 		if identity.ProviderDisconnectedAt != nil {
 			continue
 		}
+		pending, err := s.stillPendingDeletion(ctx, accountID)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("%s 연결 해제 전 계정 확인: %w", identity.Provider, err))
+			continue
+		}
+		if !pending {
+			s.logger.InfoContext(ctx, "계정이 삭제 대기가 아니어서 연결 해제를 건너뜀",
+				"accountId", accountID, "provider", identity.Provider)
+			continue
+		}
 		if err := s.disconnect(ctx, identity); err != nil {
 			s.logger.WarnContext(ctx, "제공자 연결 해제 실패",
 				"accountId", accountID, "provider", identity.Provider, "reason", disconnectFailureReason(err))
@@ -44,6 +58,26 @@ func (s *Service) DisconnectProviders(ctx context.Context, accountID uuid.UUID) 
 		}
 	}
 	return errors.Join(errs...)
+}
+
+// stillPendingDeletion은 계정 행을 잠깐 잠가 status를 읽고, 삭제 대기인지 알려 줍니다.
+// 트랜잭션은 확인만 하고 바로 끝내므로, 외부 호출 동안 계정 행을 잠그고 있지 않습니다.
+// 계정 행이 없으면 해제할 대상이 아니므로 false입니다.
+func (s *Service) stillPendingDeletion(ctx context.Context, accountID uuid.UUID) (bool, error) {
+	var pending bool
+	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+		status, err := authdb.New(tx).LockAccountStatus(ctx, accountID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			pending = false
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("계정 잠금: %w", err)
+		}
+		pending = status == statusPendingDeletion
+		return nil
+	})
+	return pending, err
 }
 
 // markDisconnected는 계정 행을 잠근 뒤, 계정이 아직 삭제 대기일 때만 연결 해제를 기록합니다.

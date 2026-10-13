@@ -76,6 +76,23 @@ func TestDisconnectProviders_RevokesAppleAndUnlinksKakao(t *testing.T) {
 	assert.Len(t, f.fake.KakaoUnlinkRequests(), 1)
 }
 
+// 삭제 대기가 아닌(active) 계정에는 외부 해제 호출을 하지 않고 기록도 남기지 않습니다.
+func TestDisconnectProviders_ActiveAccountCallsNothing(t *testing.T) {
+	f := newFixture(t)
+	res := f.loginApple(t, "apple-1")
+	f.exec(t, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'kakao', 'kakao-1')`,
+		uuid.Must(uuid.NewV7()), res.AccountID)
+
+	require.NoError(t, f.service.DisconnectProviders(f.ctx, res.AccountID))
+
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+	assert.Empty(t, f.fake.KakaoUnlinkRequests())
+	for _, prov := range []string{"apple", "kakao"} {
+		assert.Nil(t, f.identityState(t, res.AccountID, prov).disconnectedAt, prov)
+	}
+	assert.True(t, f.identityState(t, res.AccountID, "apple").hasAppleToken)
+}
+
 func TestDisconnectProviders_PartialFailureKeepsUndone(t *testing.T) {
 	f := newFixture(t)
 	accountID := f.appleAndKakaoAccount(t)
