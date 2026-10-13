@@ -42,7 +42,7 @@
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
 | 1 (지금) | app | A1 기반 구현(`app/foundation`). 받은 notice #82(컴포넌트 2.1.0), server P2 반영 요청 #100(인증 adapter는 대역으로 두고 규칙만). app.yml이 병합되면 지휘가 ci-gate에 연결(#85) | A2, I2 |
-| 1 (지금, design 다음) | writing | ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90) | A1 문구, I3 |
+| 1 (지금, design 다음) | writing | ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90), #116(Apple 로그인 복귀 안내 페이지 content 슬롯, D66) | A1 문구, I3 |
 | 2 (A1 화면 골격 이후) | server | P2·P2a 완료(PR #99·#113, app 반영 요청 #100·#114). 다음 P3 프로필·엔진·캐시(S23 사주 변경일 문장 선택 구현 포함)와 #79(엔진 실행 조건, D65 배포 workflow), #55. 끝난 것: #88·#102(PR #105), #89·#92·#93(PR #113, 구현은 P3·P6·P9) | S3 |
 | 3 (P2 병합 뒤) | writing | W1 콘텐츠 원고. 원어민 검수는 사용자 준비물 | I3 |
 | 3 | server | S3(REST v1 freeze), #93(staging 테스트 로그인·App Check debug token) | A2, I2 |
