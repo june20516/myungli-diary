@@ -1,0 +1,12 @@
+Pretendard is based on the following Font Software, all licensed under the
+SIL Open Font License, Version 1.1 (the license text is in OFL.txt).
+Credits follow the Pretendard README (https://github.com/orioncactus/pretendard);
+copyright lines are taken from each upstream project's license file.
+
+Inter
+Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
+
+Source Han Sans (Korean glyphs)
+Copyright 2014-2025 Adobe (http://www.adobe.com/), with Reserved Font
+Name 'Source'. Source is a trademark of Adobe in the United States
+and/or other countries.

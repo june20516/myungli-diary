@@ -1,12 +1,29 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/licenses.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
+import '../support/fonts.dart';
+
+const _light = MyungliTokens(
+  colors: lightColors,
+  typography: koType,
+  gradients: lightGradients,
+);
+const _dark = MyungliTokens(
+  colors: darkColors,
+  typography: jaType,
+  gradients: darkGradients,
+);
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('buildTheme', () {
     test('ja 다크는 darkColors와 jaType(Zen Maru Gothic)을 씁니다', () {
       final theme = buildTheme(
@@ -54,15 +71,22 @@ void main() {
       expect(theme.dialogTheme.surfaceTintColor, Colors.transparent);
     });
 
-    test('lerp는 같은 값을 돌려줍니다', () {
-      const tokens = MyungliTokens(
-        colors: lightColors,
-        typography: koType,
-        gradients: lightGradients,
-      );
+    test('lerp는 other가 없거나 다른 타입이면 자기 자신을 돌려줍니다', () {
+      expect(_light.lerp(null, 0.9), same(_light));
+    });
 
-      expect(tokens.lerp(null, 0.5), same(tokens));
-      expect(tokens.copyWith(), isA<MyungliTokens>());
+    test('lerp는 t가 0.5 미만이면 자기 자신, 이상이면 other입니다', () {
+      expect(_light.lerp(_dark, 0.49), same(_light));
+      expect(_light.lerp(_dark, 0.5), same(_dark));
+    });
+
+    test('copyWith는 바꾼 필드만 반영합니다', () {
+      final changed = _light.copyWith(typography: jaType);
+
+      expect(changed.typography, jaType);
+      expect(changed.colors, _light.colors);
+      expect(changed.gradients, _light.gradients);
+      expect(_light.copyWith().typography, koType);
     });
   });
 
@@ -94,9 +118,14 @@ void main() {
       'Pretendard',
       'Pretendard JP',
     });
-    for (final family in families) {
-      expect(pubspec, contains('- family: $family'));
-    }
+    // 줄 전체 일치: `Pretendard`가 `Pretendard JP` 줄에 걸리지 않게 합니다.
+    final declared = RegExp(
+      r'^\s*- family: (.+)$',
+      multiLine: true,
+    ).allMatches(pubspec).map((m) => m.group(1)!.trim()).toSet();
+
+    expect(declared, families);
+    expect({for (final f in bundledFonts) f.family}, families);
   });
 
   test('pubspec.yaml이 선언한 글꼴·라이선스 파일이 모두 있습니다', () {
@@ -109,6 +138,53 @@ void main() {
     expect(assets, isNotEmpty);
     for (final path in assets) {
       expect(File(path).existsSync(), isTrue, reason: path);
+    }
+  });
+
+  test('글꼴 목록의 라이선스 파일이 pubspec assets에 선언돼 있습니다', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+
+    for (final font in bundledFonts) {
+      for (final file in font.licenseFiles) {
+        expect(
+          pubspec,
+          contains('    - assets/fonts/${font.folder}/$file\n'),
+          reason: '${font.folder}/$file',
+        );
+      }
+    }
+  });
+
+  test('registerFontLicenses는 네 글꼴의 라이선스 본문을 더합니다', () async {
+    registerFontLicenses();
+    final entries = await LicenseRegistry.licenses.toList();
+
+    for (final font in bundledFonts) {
+      final entry = entries.where((e) => e.packages.contains(font.family));
+      expect(entry, hasLength(1), reason: font.family);
+      final text = entry.single.paragraphs.map((p) => p.text).join('\n');
+      expect(text, contains('SIL OPEN FONT LICENSE'), reason: font.family);
+    }
+  });
+
+  test('loadBundledFonts 뒤에는 테스트 기본 글꼴(Ahem)과 다른 폭으로 그려집니다', () async {
+    const sample = '명리일기 Hello 123';
+    double widthOf(String family) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: sample,
+          style: TextStyle(fontFamily: family),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      return painter.width;
+    }
+
+    final fallbackWidth = widthOf('NoSuchFamily');
+    await loadBundledFonts();
+
+    for (final font in bundledFonts) {
+      expect(widthOf(font.family), isNot(fallbackWidth), reason: font.family);
     }
   });
 }

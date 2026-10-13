@@ -84,4 +84,6 @@ flutter:
     - assets/fonts/gowun_dodum/OFL.txt
     - assets/fonts/zen_maru_gothic/OFL.txt
     - assets/fonts/pretendard/OFL.txt
+    - assets/fonts/pretendard/NOTICE.txt
     - assets/fonts/pretendard_jp/OFL.txt
+    - assets/fonts/pretendard_jp/NOTICE.txt

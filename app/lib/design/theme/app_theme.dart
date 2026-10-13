@@ -17,6 +17,8 @@ ThemeData buildTheme({required Brightness brightness, required Locale locale}) {
     onPrimary: colors.actionOnPrimary,
     secondary: colors.actionPrimary,
     onSecondary: colors.actionOnPrimary,
+    // 명세에 error 역할이 없고 Material의 error 표시(오류 밑줄·SnackBar 등)는
+    // 쓰지 않습니다. 필수 인자라서 가장 가까운 '나쁨' 태그 색으로 채웁니다.
     error: colors.tagBadFg,
     onError: colors.tagBadBg,
     surface: colors.bgBase,
