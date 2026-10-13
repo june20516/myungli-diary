@@ -333,7 +333,7 @@ func (q *Queries) RevokeAccountTokens(ctx context.Context, arg RevokeAccountToke
 	return err
 }
 
-const revokeFamily = `-- name: RevokeFamily :exec
+const revokeFamily = `-- name: RevokeFamily :execrows
 UPDATE refresh_tokens
 SET revoked_at = $1::timestamptz
 WHERE family_id = $2 AND revoked_at IS NULL
@@ -344,9 +344,13 @@ type RevokeFamilyParams struct {
 	FamilyID  uuid.UUID
 }
 
-func (q *Queries) RevokeFamily(ctx context.Context, arg RevokeFamilyParams) error {
-	_, err := q.db.Exec(ctx, revokeFamily, arg.RevokedAt, arg.FamilyID)
-	return err
+// RevokeFamily는 family에서 아직 폐기되지 않은 토큰을 모두 폐기합니다. 바뀐 행 수를 돌려줍니다.
+func (q *Queries) RevokeFamily(ctx context.Context, arg RevokeFamilyParams) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeFamily, arg.RevokedAt, arg.FamilyID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const revokeRefreshToken = `-- name: RevokeRefreshToken :execrows

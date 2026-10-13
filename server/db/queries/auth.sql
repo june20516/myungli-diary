@@ -76,7 +76,8 @@ UPDATE refresh_tokens
 SET replaced_by_id = @replaced_by_id::uuid
 WHERE id = @id AND used_at IS NOT NULL;
 
--- name: RevokeFamily :exec
+-- RevokeFamily는 family에서 아직 폐기되지 않은 토큰을 모두 폐기합니다. 바뀐 행 수를 돌려줍니다.
+-- name: RevokeFamily :execrows
 UPDATE refresh_tokens
 SET revoked_at = @revoked_at::timestamptz
 WHERE family_id = @family_id AND revoked_at IS NULL;

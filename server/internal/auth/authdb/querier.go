@@ -36,7 +36,8 @@ type Querier interface {
 	// RestoreAccount는 삭제 대기 계정을 되살립니다. 갱신된 행 수를 돌려줍니다.
 	RestoreAccount(ctx context.Context, id uuid.UUID) (int64, error)
 	RevokeAccountTokens(ctx context.Context, arg RevokeAccountTokensParams) error
-	RevokeFamily(ctx context.Context, arg RevokeFamilyParams) error
+	// RevokeFamily는 family에서 아직 폐기되지 않은 토큰을 모두 폐기합니다. 바뀐 행 수를 돌려줍니다.
+	RevokeFamily(ctx context.Context, arg RevokeFamilyParams) (int64, error)
 	// RevokeRefreshToken은 아직 폐기되지 않은 토큰 하나를 폐기합니다. 바뀐 행 수를 돌려줍니다.
 	RevokeRefreshToken(ctx context.Context, arg RevokeRefreshTokenParams) (int64, error)
 	// SetRefreshTokenReplacedBy는 이미 쓴 토큰의 다음 토큰을 바꿉니다. used_at은 그대로 둡니다(유예 창이 늘어나지 않게).

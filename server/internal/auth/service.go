@@ -6,6 +6,7 @@
 //   - 갱신: refresh token을 쓸 때마다 같은 family 안에서 새 토큰으로 바꿉니다(rotation).
 //     이미 쓴 토큰이 다시 오면 탈취로 보고 family 전체를 폐기합니다. 단, 첫 사용 뒤 RefreshReuseGrace 안이고
 //     그 다음 토큰이 아직 쓰이지 않았으면 응답 유실 재시도로 보고 새 토큰을 발급합니다(server 결정 S20).
+//     이렇게 대체된 토큰이 다시 와도 탈취로 보고 family 전체를 폐기합니다.
 //   - 로그아웃: 그 refresh token의 family를 폐기합니다.
 //   - 제공자 연결 해제: 계정 삭제 때 Apple refresh token을 revoke하고 카카오 연결을 끊습니다.
 //
@@ -362,9 +363,11 @@ func (s *Service) issueTokens(ctx context.Context, q *authdb.Queries, now time.T
 //   - 이미 쓴 토큰이 첫 사용 뒤 RefreshReuseGrace 안(경계 포함)에 다시 왔고 그 다음 토큰이 아직 미사용·미폐기:
 //     응답 유실 재시도로 봅니다. 다음 토큰을 폐기하고 같은 family로 새 토큰 쌍을 줍니다(retryLostResponse).
 //   - 그 밖에 이미 쓴 토큰: family 전체를 폐기하고(commit까지 마친 뒤) ErrRefreshReused
+//   - 유예 처리로 대체되어 폐기된 토큰(family에 아직 살아 있는 토큰이 있음): 같은 방식으로 family 폐기 후 ErrRefreshReused
 //
 // refresh 행을 잠그고 처리하므로, 같은 토큰으로 동시에 두 번 부르면 한쪽이 정상 갱신한 뒤
-// 다른 쪽이 잠금을 기다렸다가 유예 처리됩니다. 둘 다 성공하지만 살아 남는 토큰은 나중 쪽 하나입니다.
+// 다른 쪽이 잠금을 기다렸다가 유예 처리됩니다. 둘 다 성공하지만 살아 남는 토큰은 나중 쪽 하나이며,
+// 먼저 받은 쪽 토큰을 다시 쓰면 재사용으로 family가 폐기됩니다. 그래서 앱은 갱신을 한 번에 하나만 보내야 합니다.
 func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, error) {
 	hash := token.HashRefreshToken(rawRefresh)
 	var (
@@ -385,10 +388,26 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 		if err != nil {
 			return fmt.Errorf("refresh token 조회: %w", err)
 		}
-		if row.RevokedAt != nil || !now.Before(row.ExpiresAt) || row.AccountStatus != statusActive {
+		accountID = row.AccountID
+		if row.RevokedAt != nil {
+			// 로그아웃·재사용 감지·계정 단위 폐기는 family 전체를 폐기하므로, 폐기된 토큰의 family에
+			// 아직 살아 있는 토큰이 있다면 그 토큰은 유예 처리로 대체된 것입니다(retryLostResponse).
+			// 대체된 토큰이 다시 온다는 것은 그것을 받은 쪽이 따로 있었다는 뜻이므로 탈취로 봅니다.
+			// 이를 막지 않으면 유예 창에 끼어든 쪽이 토큰을 계속 회전시키며 세션을 유지할 수 있습니다.
+			revoked, err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: now, FamilyID: row.FamilyID})
+			if err != nil {
+				return fmt.Errorf("family 폐기: %w", err)
+			}
+			if revoked == 0 {
+				return ErrRefreshInvalid
+			}
+			// 폐기를 남겨야 하므로 오류를 돌려주지 않고 commit합니다. 오류는 commit 뒤에 돌려줍니다.
+			reused = true
+			return nil
+		}
+		if !now.Before(row.ExpiresAt) || row.AccountStatus != statusActive {
 			return ErrRefreshInvalid
 		}
-		accountID = row.AccountID
 		if row.UsedAt != nil {
 			retryPair, ok, err := s.retryLostResponse(ctx, q, now, row)
 			if err != nil {
@@ -399,7 +418,7 @@ func (s *Service) Refresh(ctx context.Context, rawRefresh string) (TokenPair, er
 				return nil
 			}
 			// 폐기를 남겨야 하므로 오류를 돌려주지 않고 commit합니다. 오류는 commit 뒤에 돌려줍니다.
-			if err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: now, FamilyID: row.FamilyID}); err != nil {
+			if _, err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: now, FamilyID: row.FamilyID}); err != nil {
 				return fmt.Errorf("family 폐기: %w", err)
 			}
 			reused = true
@@ -493,7 +512,7 @@ func (s *Service) Logout(ctx context.Context, accountID uuid.UUID, rawRefresh st
 		if row.AccountID != accountID {
 			return nil
 		}
-		if err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: s.clock.Now(), FamilyID: row.FamilyID}); err != nil {
+		if _, err := q.RevokeFamily(ctx, authdb.RevokeFamilyParams{RevokedAt: s.clock.Now(), FamilyID: row.FamilyID}); err != nil {
 			return fmt.Errorf("family 폐기: %w", err)
 		}
 		return nil
