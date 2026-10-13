@@ -24,7 +24,7 @@ const (
 func newApple(t *testing.T) (*provider.Apple, *providertest.Server) {
 	t.Helper()
 	fake := providertest.New(t)
-	return provider.NewApple(fake.AppleConfig(clocktest.New(testNow))), fake
+	return mustApple(t, fake.AppleConfig(clocktest.New(testNow))), fake
 }
 
 func TestApple_VerifyAcceptsValidTokenPerClient(t *testing.T) {
@@ -168,8 +168,8 @@ func TestApple_ExchangeOtherFailures(t *testing.T) {
 		body    string
 		wantErr error // nil이면 두 sentinel 어느 쪽도 아닌 일반 오류
 	}{
-		{"refresh_token 없음", http.StatusOK, `{"access_token":"a","token_type":"Bearer","id_token":"x"}`, provider.ErrTokenInvalid},
-		{"200 본문이 JSON 아님", http.StatusOK, `oops`, provider.ErrTokenInvalid},
+		{"refresh_token 없음은 장애", http.StatusOK, `{"access_token":"a","token_type":"Bearer","id_token":"x"}`, provider.ErrUnavailable},
+		{"200 본문이 JSON 아님은 장애", http.StatusOK, `oops`, provider.ErrUnavailable},
 		{"invalid_client는 설정 오류", http.StatusBadRequest, `{"error":"invalid_client"}`, nil},
 		{"429는 장애", http.StatusTooManyRequests, ``, provider.ErrUnavailable},
 	}
@@ -217,7 +217,7 @@ func TestApple_TokenEndpoint5xxIsUnavailable(t *testing.T) {
 			fake := providertest.New(t)
 			cfg := fake.AppleConfig(clocktest.New(testNow))
 			tt.setup(t, fake, &cfg)
-			apple := provider.NewApple(cfg)
+			apple := mustApple(t, cfg)
 			ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 			defer cancel()
 

@@ -178,6 +178,26 @@ func (s *Server) AppleConfig(clk clock.Clock) provider.AppleConfig {
 	}
 }
 
+// NewKakao는 KakaoConfig(clk)로 provider.Kakao를 만듭니다. 설정 오류면 테스트를 멈춥니다.
+func (s *Server) NewKakao(t testing.TB, clk clock.Clock) *provider.Kakao {
+	t.Helper()
+	kakao, err := provider.NewKakao(s.KakaoConfig(clk))
+	if err != nil {
+		t.Fatalf("providertest: NewKakao: %v", err)
+	}
+	return kakao
+}
+
+// NewApple은 AppleConfig(clk)로 provider.Apple을 만듭니다. 설정 오류면 테스트를 멈춥니다.
+func (s *Server) NewApple(t testing.TB, clk clock.Clock) *provider.Apple {
+	t.Helper()
+	apple, err := provider.NewApple(s.AppleConfig(clk))
+	if err != nil {
+		t.Fatalf("providertest: NewApple: %v", err)
+	}
+	return apple
+}
+
 // HashNonce는 nonce 원문을 id_token의 nonce claim 값(hex(sha256(원문)))으로 바꿉니다.
 func HashNonce(rawNonce string) string {
 	sum := sha256.Sum256([]byte(rawNonce))
@@ -357,9 +377,7 @@ func (s *Server) recordAndRespond(e *endpoint) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 		}
 		w.WriteHeader(status)
-		if _, err := io.WriteString(w, body); err != nil {
-			// header를 이미 보냈으므로 더 알릴 방법이 없습니다. 쓰기 실패는 클라이언트 쪽 읽기 오류로 드러납니다.
-			return
-		}
+		// header를 이미 보냈으므로 쓰기 실패를 알릴 방법이 없습니다. 실패는 클라이언트 쪽 읽기 오류로 드러납니다.
+		_, _ = io.WriteString(w, body)
 	}
 }

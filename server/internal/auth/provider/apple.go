@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -78,8 +77,20 @@ type Apple struct {
 	verifiers map[AppleClient]*oidc.IDTokenVerifier
 }
 
-// NewApple은 cfg로 Apple을 만듭니다. native·web 검증기는 JWKS 캐시 하나를 함께 씁니다.
-func NewApple(cfg AppleConfig) *Apple {
+// NewApple은 cfg로 Apple을 만듭니다.
+// TeamID·KeyID·PrivateKey·BundleID·ServicesID·WebRedirectURI가 비면 오류입니다.
+// native·web 검증기는 JWKS 캐시 하나를 함께 씁니다.
+func NewApple(cfg AppleConfig) (*Apple, error) {
+	if err := checkRequired("Apple",
+		requiredField{"TeamID", cfg.TeamID == ""},
+		requiredField{"KeyID", cfg.KeyID == ""},
+		requiredField{"PrivateKey", cfg.PrivateKey == nil},
+		requiredField{"BundleID", cfg.BundleID == ""},
+		requiredField{"ServicesID", cfg.ServicesID == ""},
+		requiredField{"WebRedirectURI", cfg.WebRedirectURI == ""},
+	); err != nil {
+		return nil, err
+	}
 	cfg.Issuer = orDefault(cfg.Issuer, DefaultAppleIssuer)
 	cfg.JWKSURL = orDefault(cfg.JWKSURL, DefaultAppleJWKSURL)
 	cfg.TokenURL = orDefault(cfg.TokenURL, DefaultAppleTokenURL)
@@ -96,7 +107,7 @@ func NewApple(cfg AppleConfig) *Apple {
 			AppleNative: newVerifier(cfg.Issuer, cfg.BundleID, keySet, clk),
 			AppleWeb:    newVerifier(cfg.Issuer, cfg.ServicesID, keySet, clk),
 		},
-	}
+	}, nil
 }
 
 // Verify는 Apple id_token을 검증합니다.
@@ -111,8 +122,9 @@ func (a *Apple) Verify(ctx context.Context, idToken, rawNonce string, client App
 
 // ExchangeCode는 authorization code를 Apple /auth/token에 교환해 refresh token을 받습니다.
 // clientID는 교환에 쓴 client_id로, 나중에 Revoke에 같은 값을 넘겨야 합니다.
-//   - 400 invalid_grant(만료·재사용된 code), 응답에 refresh_token이 없음: ErrTokenInvalid
-//   - 연결 실패·timeout·5xx·429: ErrUnavailable
+//   - 400 invalid_grant(만료·재사용된 code): ErrTokenInvalid
+//   - 연결 실패·timeout·5xx·429, 2xx인데 해석할 수 없거나 refresh_token이 없는 응답: ErrUnavailable
+//     (code는 받아들여졌는데 Apple 응답이 깨진 것이므로 사용자 탓이 아닙니다)
 //   - 그 밖의 거절(invalid_client 등 우리 설정 문제): 일반 오류
 func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClient) (refreshToken, clientID string, err error) {
 	clientID, err = a.clientID(client)
@@ -145,10 +157,10 @@ func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClien
 		RefreshToken string `json:"refresh_token"`
 	}
 	if err := json.Unmarshal(resp.body, &body); err != nil {
-		return "", "", fmt.Errorf("%w: Apple token: 응답을 해석하지 못했습니다", ErrTokenInvalid)
+		return "", "", fmt.Errorf("%w: Apple token: 2xx 응답을 해석하지 못했습니다", ErrUnavailable)
 	}
 	if body.RefreshToken == "" {
-		return "", "", fmt.Errorf("%w: Apple token: 응답에 refresh_token이 없습니다", ErrTokenInvalid)
+		return "", "", fmt.Errorf("%w: Apple token: 2xx 응답에 refresh_token이 없습니다", ErrUnavailable)
 	}
 	return body.RefreshToken, clientID, nil
 }
@@ -189,9 +201,6 @@ func (a *Apple) clientID(client AppleClient) (string, error) {
 // clientSecret은 Apple이 요구하는 client_secret JWT를 만듭니다.
 // ES256 서명, header kid=KeyID, claim iss=TeamID·iat=지금·exp=iat+5분·aud=https://appleid.apple.com·sub=clientID.
 func (a *Apple) clientSecret(clientID string) (string, error) {
-	if a.cfg.PrivateKey == nil {
-		return "", errors.New("Apple client_secret: 서명 키가 없습니다")
-	}
 	now := a.clock.Now()
 	claims := jwt.RegisteredClaims{
 		Issuer:    a.cfg.TeamID,

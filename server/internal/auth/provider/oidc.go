@@ -78,7 +78,8 @@ func (t jwksTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 // newJWKSClient는 주입받은 client를 바탕으로 JWKS 전용 client를 만듭니다.
-// 원본 client는 건드리지 않고 복사본에 jwksTransport와 Timeout을 씌웁니다.
+// 원본 client는 건드리지 않고 복사본에 jwksTransport를 씌웁니다.
+// Timeout은 원본에 없거나 requestTimeout보다 길 때만 requestTimeout으로 줄입니다.
 func newJWKSClient(base *http.Client) *http.Client {
 	jwksClient := *base
 	transport := base.Transport
@@ -86,28 +87,42 @@ func newJWKSClient(base *http.Client) *http.Client {
 		transport = http.DefaultTransport
 	}
 	jwksClient.Transport = jwksTransport{base: transport}
-	jwksClient.Timeout = requestTimeout
+	if base.Timeout == 0 || base.Timeout > requestTimeout {
+		jwksClient.Timeout = requestTimeout
+	}
 	return &jwksClient
 }
 
-// isJWKSFailure는 KeySet 오류가 JWKS를 받아 오지 못해서 난 것인지 판별합니다.
-//   - jwksFetchError: jwksTransport가 만든 오류(연결 실패, 2xx 아님, 본문 이상)
-//   - url.Error: http.Client 단계의 실패(client Timeout 등)
+// jwksFailureReason은 KeySet 오류가 JWKS를 받아 오지 못해서 난 것이면 본문 없는 사유와 true를 돌려줍니다.
+//   - jwksFetchError: jwksTransport가 만든 오류(연결 실패, 2xx 아님, 본문 이상). 사유는 그 reason입니다.
 //   - context 오류: 요청 deadline이 지나 JWKS 결과를 기다리지 않고 돌아온 경우
-func isJWKSFailure(err error) bool {
+//   - url.Error: http.Client 단계의 실패(client Timeout 등)
+func jwksFailureReason(err error) (string, bool) {
 	var fetchErr *jwksFetchError
 	var urlErr *url.Error
-	return errors.As(err, &fetchErr) ||
-		errors.As(err, &urlErr) ||
-		errors.Is(err, context.DeadlineExceeded) ||
-		errors.Is(err, context.Canceled)
+	switch {
+	case errors.As(err, &fetchErr):
+		return fetchErr.reason, true
+	case errors.Is(err, context.DeadlineExceeded):
+		return "요청 deadline 초과", true
+	case errors.Is(err, context.Canceled):
+		return "요청 취소", true
+	case errors.As(err, &urlErr):
+		if urlErr.Timeout() {
+			return "client timeout", true
+		}
+		return "요청 실패", true
+	default:
+		return "", false
+	}
 }
 
 // verifyRecord는 Verify 호출 하나 동안 KeySet이 겪은 일을 남기는 칸입니다.
 // go-oidc는 KeySet을 Verify와 같은 고루틴에서 부르므로 잠금이 필요 없습니다.
 type verifyRecord struct {
-	keySetFailed bool // 서명 검증 단계에서 실패했는지
-	jwksFailed   bool // 그 실패가 JWKS 조회 실패인지
+	keySetFailed bool   // 서명 검증 단계에서 실패했는지
+	jwksFailed   bool   // 그 실패가 JWKS 조회 실패인지
+	jwksReason   string // JWKS 조회 실패 사유. 상태 코드 등 본문 없는 짧은 문구입니다
 }
 
 type verifyRecordKey struct{}
@@ -123,7 +138,7 @@ func (k recordingKeySet) VerifySignature(ctx context.Context, jwt string) ([]byt
 	if err != nil {
 		if record, ok := ctx.Value(verifyRecordKey{}).(*verifyRecord); ok {
 			record.keySetFailed = true
-			record.jwksFailed = isJWKSFailure(err)
+			record.jwksReason, record.jwksFailed = jwksFailureReason(err)
 		}
 		return nil, err
 	}
@@ -159,7 +174,7 @@ func verifyIDToken(ctx context.Context, verifier *oidc.IDTokenVerifier, name, id
 	case err == nil:
 	case record.jwksFailed:
 		// 원인 문구에 JWKS 응답 본문이 섞일 수 있어 go-oidc 오류 문구는 넣지 않습니다.
-		return Identity{}, fmt.Errorf("%w: %s id_token: JWKS를 받아 오지 못했습니다", ErrUnavailable, name)
+		return Identity{}, fmt.Errorf("%w: %s id_token: JWKS 조회 실패: %s", ErrUnavailable, name, record.jwksReason)
 	case record.keySetFailed:
 		return Identity{}, fmt.Errorf("%w: %s id_token: 서명 검증 실패", ErrTokenInvalid, name)
 	default:

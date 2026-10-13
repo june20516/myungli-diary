@@ -25,7 +25,7 @@ const (
 func newKakao(t *testing.T) (*provider.Kakao, *providertest.Server) {
 	t.Helper()
 	fake := providertest.New(t)
-	return provider.NewKakao(fake.KakaoConfig(clocktest.New(testNow))), fake
+	return mustKakao(t, fake.KakaoConfig(clocktest.New(testNow))), fake
 }
 
 func TestKakao_VerifyAcceptsValidToken(t *testing.T) {
@@ -106,25 +106,26 @@ func TestKakao_NonceComparesSHA256Hex(t *testing.T) {
 
 func TestKakao_JWKSDownIsUnavailable(t *testing.T) {
 	tests := []struct {
-		name  string
-		setup func(t *testing.T, fake *providertest.Server) provider.KakaoConfig
+		name       string
+		setup      func(t *testing.T, fake *providertest.Server) provider.KakaoConfig
+		wantReason string
 	}{
 		{"JWKS 500", func(t *testing.T, fake *providertest.Server) provider.KakaoConfig {
 			fake.SetJWKSStatus(http.StatusInternalServerError)
 			return fake.KakaoConfig(clocktest.New(testNow))
-		}},
+		}, "상태 500"},
 		{"JWKS 연결 거부", func(t *testing.T, fake *providertest.Server) provider.KakaoConfig {
 			closed := httptest.NewServer(http.NotFoundHandler())
 			closed.Close()
 			cfg := fake.KakaoConfig(clocktest.New(testNow))
 			cfg.JWKSURL = closed.URL
 			return cfg
-		}},
+		}, "요청 실패"},
 		{"JWKS 응답 지연(요청 deadline 초과)", func(t *testing.T, fake *providertest.Server) provider.KakaoConfig {
 			cfg := fake.KakaoConfig(clocktest.New(testNow))
 			cfg.JWKSURL = hangingServer(t).URL
 			return cfg
-		}},
+		}, "요청 deadline 초과"},
 		{"JWKS 200 이지만 JSON 아님", func(t *testing.T, fake *providertest.Server) provider.KakaoConfig {
 			garbage := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				_, err := w.Write([]byte("<html>maintenance</html>"))
@@ -134,12 +135,12 @@ func TestKakao_JWKSDownIsUnavailable(t *testing.T) {
 			cfg := fake.KakaoConfig(clocktest.New(testNow))
 			cfg.JWKSURL = garbage.URL
 			return cfg
-		}},
+		}, "JSON이 아닌 응답"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fake := providertest.New(t)
-			kakao := provider.NewKakao(tt.setup(t, fake))
+			kakao := mustKakao(t, tt.setup(t, fake))
 			idToken := fake.SignIDToken(providertest.KakaoClaims(testSubject, testRawNonce, testNow))
 
 			ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
@@ -148,6 +149,8 @@ func TestKakao_JWKSDownIsUnavailable(t *testing.T) {
 
 			require.ErrorIs(t, err, provider.ErrUnavailable)
 			assert.NotErrorIs(t, err, provider.ErrTokenInvalid)
+			assert.Contains(t, err.Error(), tt.wantReason)
+			assert.NotContains(t, err.Error(), "maintenance", "오류 문구에 JWKS 응답 본문을 넣지 않습니다")
 		})
 	}
 }
@@ -236,7 +239,7 @@ func TestKakao_UnlinkConnectionRefusedIsUnavailable(t *testing.T) {
 	closed.Close()
 	cfg := fake.KakaoConfig(clocktest.New(testNow))
 	cfg.UnlinkURL = closed.URL
-	kakao := provider.NewKakao(cfg)
+	kakao := mustKakao(t, cfg)
 
 	err := kakao.Unlink(context.Background(), testSubject)
 

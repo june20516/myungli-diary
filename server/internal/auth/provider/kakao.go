@@ -47,8 +47,15 @@ type Kakao struct {
 	unlinkURL string
 }
 
-// NewKakao는 cfg로 Kakao를 만듭니다. JWKS는 첫 검증 때 받아 오고 이후 캐시합니다.
-func NewKakao(cfg KakaoConfig) *Kakao {
+// NewKakao는 cfg로 Kakao를 만듭니다. AppKey·AdminKey가 비면 오류입니다.
+// JWKS는 첫 검증 때 받아 오고 이후 캐시합니다.
+func NewKakao(cfg KakaoConfig) (*Kakao, error) {
+	if err := checkRequired("카카오",
+		requiredField{"AppKey", cfg.AppKey == ""},
+		requiredField{"AdminKey", cfg.AdminKey == ""},
+	); err != nil {
+		return nil, err
+	}
 	issuer := orDefault(cfg.Issuer, DefaultKakaoIssuer)
 	jwksURL := orDefault(cfg.JWKSURL, DefaultKakaoJWKSURL)
 	client := orDefaultClient(cfg.HTTP)
@@ -59,7 +66,7 @@ func NewKakao(cfg KakaoConfig) *Kakao {
 		http:      client,
 		adminKey:  cfg.AdminKey,
 		unlinkURL: orDefault(cfg.UnlinkURL, DefaultKakaoUnlinkURL),
-	}
+	}, nil
 }
 
 // Verify는 카카오 id_token을 검증합니다.

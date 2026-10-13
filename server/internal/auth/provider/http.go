@@ -64,7 +64,5 @@ func isSuccessStatus(status int) bool {
 
 // closeBody는 응답 본문을 닫습니다. 다 읽은 본문을 닫다 난 오류는 결과에 영향이 없어 버립니다.
 func closeBody(body io.Closer) {
-	if err := body.Close(); err != nil {
-		return
-	}
+	_ = body.Close()
 }
