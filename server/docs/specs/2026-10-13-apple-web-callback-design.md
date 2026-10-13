@@ -34,7 +34,7 @@
 4. **실패 경로:**
    * 사용자 취소, Apple 오류, 검증 실패, 제공자 장애일 때는 303 `Location: <APP_LINK_BASE>/auth/apple?error=<값>&state=<state>`로 보냅니다.
    * `error` 값: `user_cancelled_authorize`(Apple 값 그대로), `token_invalid`, `provider_unavailable`, `invalid_request`, `server_error`(예상하지 못한 server 오류). Apple이 보낸 `error`는 `user_cancelled_authorize`만 그대로 넘기고 그 밖은 `invalid_request`로 바꿉니다.
-   * `state`가 없으면 돌려보낼 곳이 없으므로 400 `request.invalid`입니다(지금과 같음).
+   * `state`가 없거나 비어 있으면 돌려보낼 곳이 없으므로 400 `request.invalid`입니다.
 
 ### 2.2. 왜 안전한가
 
@@ -49,6 +49,7 @@
 * `<APP_LINK_BASE>/auth/apple`은 server가 내주는 `GET` 페이지입니다. App Link가 동작하면 OS가 앱을 열어 이 요청은 오지 않습니다.
 * 요청이 오면, 앱이 없거나 링크 검증이 안 된 경우입니다. 이때 "앱에서 계속하기" 안내 HTML을 돌려줍니다.
   * Android intent 링크와 스토어 링크를 담고, 교환 코드는 그대로 intent에 넘깁니다.
+  * intent에는 형식에 맞는 `exchange`나 계약의 `error` 다섯 값 하나와 `state`만 다시 담습니다(그 밖의 query는 버립니다). 둘 다 해당하지 않으면 스토어 링크만 보여 줍니다.
   * 페이지는 query 값을 로그에 남기지 않고, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`를 겁니다.
 * 문구는 writing 슬롯이 필요합니다. 첫 구현은 고정 한국어 한 문장으로 하고, writing에 요청합니다.
 * `/.well-known/assetlinks.json`도 server가 내줍니다. 값은 설정 `ANDROID_APP_PACKAGE`, `ANDROID_CERT_SHA256`(여러 개 가능)에서 만듭니다.
@@ -80,7 +81,7 @@
 ## 3. 테스트 관점
 
 * 정상 흐름: 콜백 → 303 Location에 교환 코드와 state만 있음(id_token·code 없음) → `completeAppleWebLogin` 200 → 같은 교환 코드를 다시 쓰면 401.
-* nonce 원문이 틀리면 401이고, 그 교환 코드는 소진되지 않습니다. 맞는 nonce로 재시도하면 성공합니다(아래 4-1).
+* nonce 원문이 틀리면 401이고, 그 교환 코드는 소진되지 않습니다. 맞는 nonce로 재시도하면 성공합니다(§4 1번).
 * 만료(2분+1초) → 401.
 * 취소·검증 실패·제공자 장애는 `error` 값을 담아 303.
 * 안내 페이지와 assetlinks.json의 헤더와 내용, 로그에 query가 없음.
@@ -88,6 +89,6 @@
 
 ## 4. 정한 점 (2026-10-13 사용자 승인)
 
-1. **nonce가 틀려도 교환 코드를 소진하지 않습니다.** 소진하면 코드를 가로챈 쪽이 한 번 틀리게 시도하는 것만으로 정상 사용자의 로그인을 망칠 수 있습니다. 소진하지 않아도 nonce 원문(16자 이상 무작위)을 2분 안에 맞히는 것은 사실상 불가능합니다.
+1. **(결정됨, 구현 반영)** **nonce가 틀려도 교환 코드를 소진하지 않습니다.** 소진하면 코드를 가로챈 쪽이 한 번 틀리게 시도하는 것만으로 정상 사용자의 로그인을 망칠 수 있습니다. 소진하지 않아도 nonce 원문(16자 이상 무작위)을 2분 안에 맞히는 것은 사실상 불가능합니다.
 2. 안내 페이지 문구는 첫 구현에서 고정 한국어 한 문장으로 두고, writing에 슬롯을 요청합니다.
 3. `loginApple`의 `clientType: web` 제거는 하위 호환이 깨지므로 `info.version`을 `1.0.0-draft.2`로 올리고, app에 notice, 지휘에 계약 목록 갱신을 요청합니다.

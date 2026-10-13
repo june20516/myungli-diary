@@ -223,7 +223,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 영역 | 메서드와 경로 | 비고 |
 | --- | --- | --- |
-| 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기 |
+| 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/apple/web`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기. Android Apple 웹 로그인은 콜백이 교환 코드를 App Link로 넘기고 `apple/web`이 토큰을 발급(S22) |
+| 정적(계약 밖) | `GET /auth/apple`, `GET /.well-known/assetlinks.json` | `/auth/apple`은 App Link가 앱을 열지 못했을 때의 "앱에서 계속하기" 안내 페이지, `assetlinks.json`은 Android App Link 검증용(S22). `/v1` 밖이라 REST 계약에 넣지 않음 |
 | 계정 | `GET /v1/me`, `DELETE /v1/me`, `POST /v1/me/consents` | `GET /v1/me`에 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태 포함 |
 | 프로필 | `PUT /v1/me/profile`(첫 등록), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
