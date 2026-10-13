@@ -6,13 +6,15 @@ from datetime import date, time, timedelta
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from myungri_engine.calendar_core import lunar_adapter
-from myungri_engine.calendar_core.birth import BirthInput
-from myungri_engine.composers.daily import DailyView, compose_daily
-from myungri_engine.constants.message_keys import ALL_KEYS
-from myungri_engine.domain.enums import Branch, CalendarType, Gender
-from myungri_engine.domain.models import Judgment, Pillar
-from myungri_engine.references import loader
+from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core.birth import BirthInput, birth_hour, resolve_birth_moment
+from myungli_engine.chart.pillars import build_chart
+from myungli_engine.composers.chart import compose_chart
+from myungli_engine.composers.daily import DailyView, compose_daily
+from myungli_engine.constants.message_keys import ALL_KEYS, require
+from myungli_engine.domain.enums import Branch, CalendarType, Gender
+from myungli_engine.domain.models import Judgment, Pillar
+from myungli_engine.references import loader
 
 SEOUL = "Asia/Seoul"
 PROPERTY_SETTINGS = settings(max_examples=300, deadline=None, derandomize=True)
@@ -33,6 +35,12 @@ birth_inputs = st.builds(
     timezone=st.sampled_from([SEOUL, SEOUL, SEOUL, "America/New_York"]),
     longitude=st.none(),
 )
+
+
+@PROPERTY_SETTINGS
+@given(birth=birth_inputs.filter(lambda b: b.time is not None))
+def test_birth_hour_branch_matches_chart_hour_pillar(birth: BirthInput) -> None:
+    assert birth_hour(birth).branch == build_chart(resolve_birth_moment(birth)).pillars.hour.branch
 
 
 def _cycle_index(pillar: Pillar) -> int:
@@ -69,6 +77,20 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
         assert judgment.message_key in ALL_KEYS
         assert judgment.evidence, judgment.message_key
         loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+
+
+@PROPERTY_SETTINGS
+@given(birth=birth_inputs, as_of=daily_dates)
+def test_all_personal_readings_have_evidence(birth: BirthInput, as_of: date) -> None:
+    readings = compose_chart(birth, as_of).personal_readings
+    for reading in readings:
+        judgment = reading.judgment
+        assert judgment.message_key in ALL_KEYS
+        require(judgment.message_key, judgment.params)  # 매개변수 이름까지 선언과 같아야 한다
+        assert judgment.evidence, judgment.message_key
+        loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+    identities = [(r.kind, r.position, r.index, r.shinsal) for r in readings]
+    assert len(identities) == len(set(identities))
 
 
 def _evidence_fingerprint(view: DailyView) -> tuple[object, ...]:

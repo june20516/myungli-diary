@@ -1,14 +1,14 @@
 import random
 from collections.abc import Callable
 
-from myungri_engine.chart.shinsal import activated, shinsal_branches
-from myungri_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
-from myungri_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
-from myungri_engine.domain.models import FourPillars, Judgment, Pillar
-from myungri_engine.rules.messages import fortune, guide_question
-from myungri_engine.rules.relations import find_relations
-from myungri_engine.rules.tags import select_tags
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.chart.shinsal import activated, shinsal_branches
+from myungli_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
+from myungli_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
+from myungli_engine.domain.models import FourPillars, Judgment, Pillar
+from myungli_engine.rules.messages import fortune, guide_question
+from myungli_engine.rules.relations import find_relations
+from myungli_engine.rules.tags import select_tags
+from myungli_engine.rules.yongsin import YongsinResult
 
 PillarOf = Callable[[str], Pillar]
 

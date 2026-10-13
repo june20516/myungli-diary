@@ -17,7 +17,7 @@
 * 패키지 관례는 `core/pyproject.toml`을 따릅니다: `requires-python = ">=3.13"`, hatchling, `src/` 레이아웃, ruff `line-length = 110`, mypy `strict = true`, 생성 코드(`src/mlw/_gen/`)는 ruff·mypy 제외.
 * 패키지 이름 `myungli-writing`, import 이름 `mlw`, 콘솔 스크립트 `mlw = "mlw.cli:main"`.
 * 실행 형태: 저장소 루트에서 `uv run --project docs/identity/writing/tools mlw <명령>`. 경로 인자가 없으면 기준 디렉터리는 `docs/identity/writing/`(패키지 위치에서 계산)입니다.
-* 메시지 키 원본: `core/message_keys.json`(93개). enum 원본: `proto/myungri/engine/v1/engine.proto`를 `tools/gen_proto.sh`로 생성한 `mlw._gen`.
+* 메시지 키 원본: `core/message_keys.json`(93개). enum 원본: `proto/myungli/engine/v1/engine.proto`를 `tools/gen_proto.sh`로 생성한 `mlw._gen`.
 * 언어 코드: `ko`, `en`, `ja`. 문장 유형: `advice`, `state`, `care`. 슬롯 목적: `info`, `guide`, `care`. 심각도: `error`, `warn`. 범위(scope): `sentence`, `slot`, `screen`, `day`, `week`.
 * 결과 출력 한 줄 형식: `<파일>:<줄> <규칙ID> <심각도> <메시지>`. `error`가 하나라도 있으면 종료 코드 1, YAML 로드·구조 오류면 2, 그 밖에는 0.
 * 문서·주석·메시지는 한국어 경어체, 이 저장소 문서 문체(짧은 문장, "~합니다")를 따릅니다.
@@ -195,7 +195,7 @@ docs/identity/writing/
   - `check_completeness(slots: Mapping[str, Slot], entries: Sequence[Entry], message_keys: Sequence[str], langs: Sequence[str]) -> list[Finding]`.
   - `glossary_values() -> dict[str, tuple[str, ...]]`: 범주 → enum 값 이름 목록(`mlw._gen`에서 `UNSPECIFIED`를 뺀 값, 접두어 제거).
 
-- [ ] **Step 1: `gen_proto.sh` 작성과 생성** — `core/tools/gen_proto.sh`와 같은 방식으로 `proto/myungri/engine/v1/engine.proto`에서 `src/mlw/_gen/`에 Python 코드와 grpc 스텁을 만듭니다. 생성 결과를 커밋합니다.
+- [ ] **Step 1: `gen_proto.sh` 작성과 생성** — `core/tools/gen_proto.sh`와 같은 방식으로 `proto/myungli/engine/v1/engine.proto`에서 `src/mlw/_gen/`에 Python 코드와 grpc 스텁을 만듭니다. 생성 결과를 커밋합니다.
 - [ ] **Step 2: 슬롯 YAML 작성** — 슬롯 ID와 키(spec §4.2·§4.3). `max_length`는 Task 15(design 요청) 전까지 `null`.
   | 파일 | 슬롯 ID | purpose | types | variants | 키 → 매개변수 |
   | --- | --- | --- | --- | --- | --- |
@@ -215,7 +215,7 @@ docs/identity/writing/
   | settings | `settings.calculation_basis` | info | - | 1 | `notice.calculation_basis` → 없음 |
   | glossary | `glossary.value_name` | info | - | 1 | 범주 `element, element_color, stem, branch, ten_god, ten_god_group, direction8, shinsal, day_kind`의 값 → 없음 |
   * `daily.*` 슬롯의 `co_display`는 같은 파일의 다른 `daily.*` 슬롯 전부입니다.
-  * 키별 매개변수는 `core/src/myungri_engine/composers/daily.py`, `rules/messages.py`에서 옮긴 값임을 파일 머리 주석에 적습니다.
+  * 키별 매개변수는 `core/src/myungli_engine/composers/daily.py`, `rules/messages.py`에서 옮긴 값임을 파일 머리 주석에 적습니다.
   * `ten_god_group` 값: `bigyeop, siksang, jaeseong, gwanseong, inseong`(proto enum이 아니므로 YAML에 직접 둠).
 - [ ] **Step 3: 실패하는 테스트 작성**
   * `test_content_slots_cover_message_keys`: `daily/chart/calendar` 슬롯의 메시지 키 합집합 == `message_keys.json` 93개 집합.
@@ -271,7 +271,7 @@ docs/identity/writing/
   * `current_timezone = "Asia/Seoul"`, 연결은 `grpc.insecure_channel(address)`.
 - [ ] **Step 3: 실제 엔진으로 고정 자료 생성**
   ```bash
-  (cd core && uv sync --frozen && uv run python -m myungri_engine --port 50051) &
+  (cd core && uv sync --frozen && uv run python -m myungli_engine --port 50051) &
   uv run --project docs/identity/writing/tools mlw gen-week-fixture --engine localhost:50051 \
     > docs/identity/writing/tools/fixtures/week_samples.json
   ```

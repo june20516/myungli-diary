@@ -14,15 +14,15 @@ related: [D27, D31, D33, engine.proto v1, core/message_keys.json, core spec §9�
 ## 무엇을 했는가
 엔진 gRPC 계약 v1을 commit했습니다. server는 이 계약으로 엔진 대역(stub/fake)을 만들어 개발을 시작할 수 있습니다.
 
-* **proto 위치:** `proto/myungri/engine/v1/engine.proto`. buf 설정은 `proto/buf.yaml`(lint STANDARD, breaking FILE)입니다.
+* **proto 위치:** `proto/myungli/engine/v1/engine.proto`. buf 설정은 `proto/buf.yaml`(lint STANDARD, breaking FILE)입니다.
   * spec §9가 서비스·요청·응답 이름을 고정하므로 lint 규칙 `SERVICE_SUFFIX`, `RPC_REQUEST_STANDARD_NAME`, `RPC_RESPONSE_STANDARD_NAME`만 뺐습니다.
   * `option go_package`는 넣지 않았습니다. Go import 경로는 server가 정하는 값이므로 `buf.gen.yaml`의 managed mode(`go_package_prefix`)나 `M` 옵션으로 지정해 주세요. proto 파일에 넣어야 하면 `server-to-core` 요청으로 알려 주세요.
-* **패키지:** `myungri.engine.v1`
-* **서비스 `MyungriEngine`의 RPC 3개:**
+* **패키지:** `myungli.engine.v1`
+* **서비스 `MyungliEngine`의 RPC 3개:**
   * `GetChart(ChartRequest) returns (ChartResponse)`: 나의 사주
   * `GetDaily(DailyRequest) returns (DailyResponse)`: 데일리
   * `GetMonthCalendar(MonthRequest) returns (MonthResponse)`: 월간 캘린더
-* **생성 코드 위치 정책(D33):** 생성 코드는 서비스마다 자기 디렉터리에 commit합니다. core는 `core/src/myungri_engine/_gen/`(`core/tools/gen_proto.sh`로 생성)에 둡니다. server는 Go 생성 코드를 `server/` 안에 직접 생성해 commit해 주세요. core의 생성물을 가져다 쓰지 않습니다.
+* **생성 코드 위치 정책(D33):** 생성 코드는 서비스마다 자기 디렉터리에 commit합니다. core는 `core/src/myungli_engine/_gen/`(`core/tools/gen_proto.sh`로 생성)에 둡니다. server는 Go 생성 코드를 `server/` 안에 직접 생성해 commit해 주세요. core의 생성물을 가져다 쓰지 않습니다.
 * **메시지 키 목록:** `core/message_keys.json`(정렬된 JSON 배열)입니다. `Judgment.message_key`(카드·용신·총운·가이드·`MonthDay.judgment` 포함), `featured_tags`, `all_tags`, `MonthDay.featured_tag`에 오는 값은 모두 이 목록에 있습니다. 콘텐츠 모듈 시드가 모든 키를 3개 언어(D28)로 갖는지 server 쪽 테스트로 검사할 수 있습니다.
 * **`source_ref` 형식(spec §11):** `<자료 디렉터리>/<파일 이름(확장자 제외)>#<키 경로>`. 예: `gungtong-bogam/johu_evidence#甲.子`, `gungtong-bogam/five_elements#direction`. `Evidence.source_ref`에 들어가며, `evidence` 깊이의 근거 표시에 씁니다(D37).
 * **점수 구성 id(`MonthDay.score_items[].id`):** `gwiin_day`, `yongsin_day`, `gisin_day`, `hap`, `chung_day_or_month`, `chung_other`, `hyeong`. **메시지 키가 아니라 식별자**이므로 `message_keys.json`에는 없습니다.
@@ -41,7 +41,7 @@ core `CLAUDE.md` "다음 할 일 4": proto v1이 확정되면 server가 엔진 �
 
 ## 영향
 * server: 이 계약으로 Go 코드 생성과 엔진 대역 구현을 시작할 수 있습니다.
-* **엔진 구현은 아직 진행 중입니다.** 화면 단위 조립, gRPC 서버 실행(`uv run python -m myungri_engine --port 50051`), 회귀 스냅샷은 이후 task에서 진행하며, 완료되면 `core-to-root` 완료 보고로 알립니다. 그 전까지 실제 엔진 서버는 띄울 수 없습니다.
+* **엔진 구현은 아직 진행 중입니다.** 화면 단위 조립, gRPC 서버 실행(`uv run python -m myungli_engine --port 50051`), 회귀 스냅샷은 이후 task에서 진행하며, 완료되면 `core-to-root` 완료 보고로 알립니다. 그 전까지 실제 엔진 서버는 띄울 수 없습니다.
 * 이후 proto 변경은 `buf breaking`(FILE)으로 검사하며, 하위 호환이 깨지는 변경은 `notice`로 따로 공지합니다.
 
 ## 추가 변경 (2026-10-10, 브랜치 최종 리뷰 반영)

@@ -1,11 +1,11 @@
 import pytest
 
-from myungri_engine.calendar_core.birth import BirthInput, BirthMoment
-from myungri_engine.chart import pillars
-from myungri_engine.composers import chart as chart_composer
-from myungri_engine.composers.month import compose_month
-from myungri_engine.domain.enums import NoticeCode
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.calendar_core.birth import BirthInput, BirthMoment
+from myungli_engine.chart import pillars
+from myungli_engine.composers import chart as chart_composer
+from myungli_engine.composers.month import compose_month
+from myungli_engine.domain.enums import NoticeCode
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 
 SEOUL = "Asia/Seoul"
 

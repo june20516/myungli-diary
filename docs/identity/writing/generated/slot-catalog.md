@@ -19,7 +19,12 @@
 | daily.guide | guide | - | 2 | 20 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko -, en -, ja - |
 | daily.number | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko -, en -, ja - |
 | daily.tag_label | info | - | 1 | 15 | - | ko -, en -, ja - |
-| glossary.value_name | info | - | 1 | 69 | - | ko -, en -, ja - |
+| glossary.value_name | info | - | 1 | 94 | - | ko -, en -, ja - |
+| personal.day_master | info | - | 1 | 10 | `strength`: strength<br>`yongsin`: element, color<br>`gisin`: element, color | ko -, en -, ja - |
+| personal.luck | info | - | 1 | 22 | `luck`: luck<br>`part`: part<br>`element`: element, color<br>`role`: role<br>`current`: none | ko -, en -, ja - |
+| personal.shinsal | info | - | 1 | 6 | `place`: place<br>`element`: element, color<br>`role`: role | ko -, en -, ja - |
+| personal.ten_god | info | - | 1 | 10 | `place`: place<br>`element`: element, color<br>`role`: role<br>`group_count`: number<br>`strength`: strength | ko -, en -, ja - |
+| personal.twelve_stage | info | - | 1 | 12 | `place`: place<br>`element`: element, color<br>`role`: role<br>`strength`: strength | ko -, en -, ja - |
 | settings.calculation_basis | info | - | 1 | 1 | - | ko -, en -, ja - |
 | ui.depth.default_label | info | - | 1 | 1 | - | ko -, en -, ja - |
 | ui.depth.evidence | info | - | 1 | 1 | - | ko -, en -, ja - |

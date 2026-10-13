@@ -1,11 +1,11 @@
 from datetime import date, time
 
-from myungri_engine.calendar_core import lunar_adapter
-from myungri_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
-from myungri_engine.chart.pillars import Position, build_chart
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import CalendarType, Gender, NoticeCode, TenGod, TwelveStage
-from myungri_engine.domain.enums import Stem as S
+from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core.birth import BirthInput, BirthMoment, resolve_birth_moment
+from myungli_engine.chart.pillars import Position, build_chart
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import CalendarType, Gender, NoticeCode, TenGod, TwelveStage
+from myungli_engine.domain.enums import Stem as S
 
 
 def make_moment(d: date, t: time | None) -> BirthMoment:

@@ -2,8 +2,8 @@ from datetime import date, time
 
 import pytest
 
-from myungri_engine.calendar_core.birth import BirthInput
-from myungri_engine.domain.enums import CalendarType, Gender
+from myungli_engine.calendar_core.birth import BirthInput
+from myungli_engine.domain.enums import CalendarType, Gender
 
 
 def solar_birth(d: date, t: time | None, gender: Gender = Gender.MALE) -> BirthInput:

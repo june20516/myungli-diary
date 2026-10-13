@@ -1,7 +1,7 @@
 # 콘텐츠 슬롯: 달력(calendar)
 #
 # 키별 매개변수는 엔진 코드에서 옮긴 값입니다.
-#   core/src/myungri_engine/composers/month.py, rules/calendar_luck.py
+#   core/src/myungli_engine/composers/month.py, rules/calendar_luck.py
 # 아직 정해지지 않은 필드는 "미정" 표현으로 둡니다. 문자열은 `미정`, 맵은 `{}`,
 # examples는 `{good: [], bad: []}`, max_length는 언어별 `null`입니다. 라운드 R1~R7 결과(W6~W13)로 채웠습니다.
 # keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.

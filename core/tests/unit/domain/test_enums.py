@@ -1,7 +1,7 @@
 import pytest
 
-from myungri_engine.domain.enums import Branch, NoticeCode, Stem
-from myungri_engine.domain.enums import Element as E
+from myungli_engine.domain.enums import Branch, NoticeCode, Stem
+from myungli_engine.domain.enums import Element as E
 
 
 def test_stem_properties():

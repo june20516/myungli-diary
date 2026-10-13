@@ -1,9 +1,9 @@
-from myungri_engine.chart.positions import Position
-from myungri_engine.chart.shinsal import ShinsalHit, activated, natal_shinsal, shinsal_branches
-from myungri_engine.domain.enums import Branch as B
-from myungri_engine.domain.enums import Shinsal
-from myungri_engine.domain.enums import Stem as S
-from myungri_engine.domain.models import FourPillars, Pillar
+from myungli_engine.chart.positions import Position
+from myungli_engine.chart.shinsal import ShinsalHit, activated, natal_shinsal, shinsal_branches
+from myungli_engine.domain.enums import Branch as B
+from myungli_engine.domain.enums import Shinsal
+from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.models import FourPillars, Pillar
 
 
 def pillars(year: Pillar, month: Pillar, day: Pillar, hour: Pillar | None) -> FourPillars:

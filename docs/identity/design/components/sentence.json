@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "group": "sentence",
   "components": [
     {
@@ -14,24 +14,41 @@
       "parts": {
         "text": { "fg": "{color.text.primary}", "wordBreak": "keep-all" },
         "honorific": { "slot": "user-honorific", "style": "same-as-text" },
-        "paragraphGap": "{space.12}"
+        "paragraphGap": "{space.12}",
+        "segments": {
+          "join": "조각을 순서대로 한 문단으로 잇는다. 경계에 공백·줄바꿈을 넣지 않는다",
+          "plain": { "style": "same-as-text" },
+          "term": {
+            "component": "term-token",
+            "variant": "inline",
+            "screens": ["today", "day-sheet", "tag-diary", "my-saju", "saju-chart"],
+            "elsewhere": "plain",
+            "insidePressable": { "containers": ["diary-row"], "draw": "plain", "note": "카드 전체가 버튼인 곳 안에서는 일반 글자. 누를 것 안에 누를 것을 두지 않고, preview 말줄임이 칩을 자르지 않게" },
+            "textColorChange": "문장 글자색이 상태로 바뀌어도(예: guide-question-card after) 칩은 term.bg·term.fg 그대로",
+            "wrap": "용어 안에서 끊지 않음. 한국어는 공백 없이 붙은 앞뒤 글자(조사)까지 한 덩어리, 일본어는 용어 앞뒤만 글자 단위 + 금칙. 용어가 한 줄보다 길 때만 용어 안에서 끊음"
+          }
+        }
       },
       "states": {
         "locked": {
           "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
           "parts": {
             "text": { "element": "lock.veil", "lines": 1 },
-            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "glyph": "›", "inline": true }, "align": "end", "target": "evidence-sheet", "openState": "locked" }
+            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "glyph": "›", "inline": true }, "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
           }
         }
       },
       "haptic": [],
-      "a11y": { "role": "text", "label": "문장 그대로", "terms": "용어는 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)" },
+      "a11y": { "role": "text", "label": "문장 그대로", "terms": "term-token이 있는 화면에서는 용어를 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)", "lockedLabelSlot": "evidence-sheet.a11y.locked", "plainTerm": "일반 글자로 그린 term 조각은 따로 초점 없이 문장과 함께 읽음" },
       "rules": [
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
         "문장 끝에 depth-link가 붙을 수 있다(inline-end).",
-        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기 ›'. 누르면 근거 시트가 locked로 열린다."
+        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기 ›'. 누르면 근거 시트가 locked로 열린다.",
+        "term 조각은 term-token이 있는 화면(segments.term.screens)에서만 term-token inline으로 그린다. 그 밖의 화면, 공유 이미지, 카드 전체가 버튼인 곳(diary-row) 안에서는 일반 글자다(결정 V28).",
+        "콘텐츠 문장을 그리는 다른 구성 요소(day-character reason, lucky-card explain)도 segments 규칙을 따른다.",
+        "term-token 라벨은 화면에 보이는 text를 쓴다. term 값은 풀이를 찾는 키라 읽지 않는다.",
+        "근거 잠금은 term 표시를 바꾸지 않는다. 잠긴 내용은 오지 않고, 풀이 시트는 무료다(D60)."
       ]
     },
     {
@@ -80,6 +97,9 @@
           "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
           "pillars": { "component": "saju-pillars", "marginTop": "{space.12}", "note": "표 데이터라 무료(D60)" },
           "sectionTitle": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.20}" },
+          "basisTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.basis" },
+          "sourceTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.source" },
+          "personalTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.personal", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
           "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body" },
           "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "bg": "{color.bg.base}", "radius": "{radius.md}", "padding": "{space.12}" },
           "personal": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.personal.body", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" }
@@ -124,7 +144,7 @@
         },
         "unlocking": {
           "note": "광고를 끝까지 보고 돌아와 server 확인(SSV)을 기다림. 대기 시간이 넘으면 locked로 돌아가고 toast로 알림",
-          "parts": { "evidenceSheet": { "lockPanel": { "cta": { "component": "primary-button", "variant": "filled", "state": "loading" } } } }
+          "parts": { "evidenceSheet": { "lockPanel": { "cta": { "component": "primary-button", "variant": "filled", "state": "loading" } }, "failedToast": { "component": "toast", "slot": "evidence-sheet.unlock.failed" } } }
         },
         "unlocked": {
           "pattern": "appear.seep",
@@ -133,11 +153,12 @@
         }
       },
       "haptic": [{ "when": "locked → unlocked 전환(광고 시청 뒤 열림)", "strength": "light" }],
-      "a11y": { "role": "link", "label": "글자 그대로", "separateFocus": true, "minTarget": 44, "lockedLabel": "구역 이름 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림" },
+      "a11y": { "role": "link", "label": "글자 그대로", "separateFocus": true, "minTarget": 44, "lockedLabel": "구역 이름 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
       "rules": [
         "inline-end는 링크 전체가 한 덩어리다. 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 넘어간다.",
         "누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack).",
         "근거 시트에서 잠기는 것은 판정 근거·원전·내 사주에서는 세 구역뿐이다. 제목과 원국표는 늘 보인다(D60).",
+        "구역 제목(basisTitle·sourceTitle·personalTitle)은 잠겨도 흐리지 않는다. lock.veil은 본문에만 씌운다.",
         "잠긴 구역은 열렸을 때와 같은 자리에 lock.veil로 그리고, 잠금 안내는 시트 아래에 고정한다(시안 B).",
         "광고를 중간에 닫고 돌아오면 locked 그대로, 알림 없음.",
         "자정이 지나 권한이 끝나도 보고 있던 시트는 바꾸지 않는다. 다음에 여는 시트부터 locked.",

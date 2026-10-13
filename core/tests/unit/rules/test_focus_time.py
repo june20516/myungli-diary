@@ -2,14 +2,14 @@ from collections.abc import Callable
 from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 
-from myungri_engine.calendar_core import lunar_adapter as la
-from myungri_engine.calendar_core.lunar_adapter import HourSlot
-from myungri_engine.domain.enums import Branch
-from myungri_engine.domain.models import Evidence, FourPillars, Pillar
-from myungri_engine.references import loader
-from myungri_engine.references.loader import FIVE_ELEMENTS_REF
-from myungri_engine.rules.focus_time import pick_focus_times, score_slot
-from myungri_engine.rules.yongsin import YongsinResult
+from myungli_engine.calendar_core import lunar_adapter as la
+from myungli_engine.calendar_core.lunar_adapter import HourSlot
+from myungli_engine.domain.enums import Branch
+from myungli_engine.domain.models import Evidence, FourPillars, Pillar
+from myungli_engine.references import loader
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.rules.focus_time import pick_focus_times, score_slot
+from myungli_engine.rules.yongsin import YongsinResult
 
 PillarOf = Callable[[str], Pillar]
 CANDIDATE_BRANCHES = {Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL}

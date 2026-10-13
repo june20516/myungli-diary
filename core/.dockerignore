@@ -1,0 +1,7 @@
+# 허용 목록: 이미지 빌드에 필요한 파일만 맥락에 넣는다(.env 같은 비밀 파일이 들어가지 않게).
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+**/__pycache__

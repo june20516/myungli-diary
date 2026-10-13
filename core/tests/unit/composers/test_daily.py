@@ -2,17 +2,17 @@ from datetime import date
 
 import pytest
 
-from myungri_engine.calendar_core import lunar_adapter
-from myungri_engine.calendar_core.birth import BirthInput
-from myungri_engine.composers.chart import compose_chart
-from myungri_engine.composers.daily import DailyView, compose_daily
-from myungri_engine.composers.month import compose_month
-from myungri_engine.constants.message_keys import ALL_KEYS
-from myungri_engine.domain.enums import NoticeCode
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
-from myungri_engine.domain.models import Judgment
-from myungri_engine.references import loader
-from myungri_engine.rules import focus_time
+from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core.birth import BirthInput
+from myungli_engine.composers.chart import compose_chart
+from myungli_engine.composers.daily import DailyView, compose_daily
+from myungli_engine.composers.month import compose_month
+from myungli_engine.constants.message_keys import ALL_KEYS
+from myungli_engine.domain.enums import NoticeCode
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.domain.models import Judgment
+from myungli_engine.references import loader
+from myungli_engine.rules import focus_time
 
 TARGET = date(2026, 10, 10)
 SEOUL = "Asia/Seoul"

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from myungri_engine.version import RULESET_VERSION
+from myungli_engine.version import RULESET_VERSION
 
 SNAPSHOT_DIR = Path(__file__).parent.parent / "snapshots" / "__snapshots__"
 RECORD_FILE = Path(__file__).parent.parent / "snapshots" / "RULESET_HASH"

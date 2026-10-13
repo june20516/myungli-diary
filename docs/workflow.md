@@ -22,7 +22,7 @@
 | `core/` | core | |
 | `server/` | server | |
 | `app/` | app | |
-| `proto/myungri/engine/`, `proto/buf.yaml` | core | 엔진 gRPC 계약의 제공자 |
+| `proto/myungli/engine/`, `proto/buf.yaml` | core | 엔진 gRPC 계약의 제공자 |
 | `.github/workflows/<서브 프로젝트 또는 작업 단위>.yml` | 해당 서브 프로젝트·작업 단위 | 예: `writing.yml`(검사기 자체의 CI). server·app이 자기 CI에서 검사기를 실행하는 단계는 server·app 소유 |
 | `docs/identity/writing/` | writing | |
 | `docs/identity/design/` | design | |

@@ -17,7 +17,7 @@ from tokens import DESIGN_DIR, TOKENS_DIR
 
 COMPONENTS_DIR = DESIGN_DIR / "components"
 IA_PATH = DESIGN_DIR.parent.parent / "ia" / "screens.json"
-CONTRACT_VERSION = "2.0.0"
+CONTRACT_VERSION = "2.1.0"
 CONTRACT_LINE = f"컴포넌트 계약 {CONTRACT_VERSION}"
 
 GROUPS = ("frame", "feedback", "input", "action", "sentence", "today", "calendar", "diary", "saju")
