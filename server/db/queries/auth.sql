@@ -13,6 +13,13 @@ JOIN accounts a ON a.id = i.account_id
 WHERE i.provider = @provider AND i.subject = @subject
 FOR UPDATE OF a;
 
+-- IdentityExists는 (provider, subject) 연결 행이 있는지 잠그지 않고 확인합니다.
+-- Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때 씁니다.
+-- name: IdentityExists :one
+SELECT EXISTS (
+    SELECT 1 FROM auth_identities WHERE provider = @provider AND subject = @subject
+);
+
 -- name: CreateIdentity :exec
 INSERT INTO auth_identities (id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id)
 VALUES (@id, @account_id, @provider, @subject, @apple_refresh_token, @apple_token_key_id, @apple_client_id);

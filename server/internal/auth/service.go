@@ -156,9 +156,11 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 // sub와 다르면 ErrProviderTokenInvalid입니다. 교환에 실패하면 로그인도 실패하며 DB에 아무것도 남기지 않습니다.
 // 받은 refresh token은 암호화해 저장하고, 이미 있는 연결이면 새 값으로 바꿉니다.
 //
-// 트랜잭션이 실패하면 교환한 refresh token은 저장하지 않고 버립니다. revoke는 하지 않습니다.
-// Apple의 revoke는 그 사용자의 앱 승인 전체를 끊으므로, 일시적인 DB 오류나 동시 첫 로그인에서 진 경우에
-// revoke하면 DB에 저장된 기존(또는 먼저 commit된) Apple 연결까지 무효가 되기 때문입니다.
+// 로그인 트랜잭션이 실패하면 교환한 refresh token은 저장하지 않습니다. 그 subject의 연결 행이 없을 때만
+// revoke해, 처음 로그인하다 실패한 사용자의 Apple 설정 목록(Sign in with Apple)에 앱이 남지 않게 합니다.
+// 연결 행이 있으면(기존 사용자의 일시 오류, 동시 첫 로그인에서 먼저 commit된 연결, 익명화된 계정 등) revoke하지 않습니다.
+// Apple의 revoke는 그 사용자의 앱 승인 전체를 끊어 저장된 연결까지 무효로 만들기 때문입니다.
+// 연결 행 조회나 revoke가 실패해도 원래 로그인 오류를 그대로 돌려줍니다(revokeUnsavedAppleGrant).
 func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string, client provider.AppleClient) (LoginResult, error) {
 	identity, err := s.apple.Verify(ctx, idToken, rawNonce, client)
 	if err != nil {
@@ -168,7 +170,36 @@ func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, ra
 	if err != nil {
 		return LoginResult{}, s.providerError(ctx, err, providerApple, "exchange_code")
 	}
-	return s.login(ctx, providerApple, identity.Subject, &appleGrant{refreshToken: refreshToken, clientID: clientID})
+	grant := &appleGrant{refreshToken: refreshToken, clientID: clientID}
+	result, err := s.login(ctx, providerApple, identity.Subject, grant)
+	if err != nil {
+		s.revokeUnsavedAppleGrant(ctx, identity.Subject, grant)
+		return LoginResult{}, err
+	}
+	return result, nil
+}
+
+// revokeUnsavedAppleGrant는 로그인 트랜잭션이 실패해 저장하지 못한 Apple refresh token을, 그 subject의 연결 행이
+// 없을 때만 revoke합니다. 결과는 로그로만 남기고 호출자에게 돌려주지 않습니다.
+//
+// 연결 행 조회는 트랜잭션 밖의 잠금 없는 조회입니다. 조회가 실패하면 revoke하지 않습니다.
+// 잘못 끊어 기존 연결을 무효로 만드는 것보다 Apple 목록에 앱이 남는 쪽이 덜 해롭기 때문입니다.
+// 요청이 취소된 뒤에도 정리를 마치도록 context의 취소는 떼어 내지만, provider 호출 자체의 deadline은 그대로 걸립니다.
+func (s *Service) revokeUnsavedAppleGrant(ctx context.Context, subject string, grant *appleGrant) {
+	ctx = context.WithoutCancel(ctx)
+	exists, err := authdb.New(s.pool).IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerApple, Subject: subject})
+	if err != nil {
+		s.logger.WarnContext(ctx, "Apple 연결 행 조회 실패, 교환한 토큰을 revoke하지 않음", "provider", providerApple, "step", "identity_exists")
+		return
+	}
+	if exists {
+		return
+	}
+	if err := s.apple.Revoke(ctx, grant.refreshToken, grant.clientID); err != nil {
+		s.logger.WarnContext(ctx, "저장하지 못한 Apple 토큰 revoke 실패", "provider", providerApple, "step", "revoke_unsaved")
+		return
+	}
+	s.logger.InfoContext(ctx, "저장하지 못한 Apple 토큰 revoke", "provider", providerApple, "step", "revoke_unsaved")
 }
 
 // providerError는 제공자 오류를 이 패키지의 sentinel로 바꿉니다.

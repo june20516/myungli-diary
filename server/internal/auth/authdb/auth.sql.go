@@ -175,6 +175,26 @@ func (q *Queries) GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte
 	return i, err
 }
 
+const identityExists = `-- name: IdentityExists :one
+SELECT EXISTS (
+    SELECT 1 FROM auth_identities WHERE provider = $1 AND subject = $2
+)
+`
+
+type IdentityExistsParams struct {
+	Provider string
+	Subject  string
+}
+
+// IdentityExists는 (provider, subject) 연결 행이 있는지 잠그지 않고 확인합니다.
+// Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때 씁니다.
+func (q *Queries) IdentityExists(ctx context.Context, arg IdentityExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, identityExists, arg.Provider, arg.Subject)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const insertRefreshToken = `-- name: InsertRefreshToken :exec
 INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
 VALUES ($1, $2, $3, $4, $5)

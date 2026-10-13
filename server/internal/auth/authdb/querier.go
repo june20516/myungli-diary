@@ -23,6 +23,9 @@ type Querier interface {
 	// GetRefreshTokenForUpdate는 refresh 행을 잠그고 계정 status를 함께 돌려줍니다.
 	// 동시에 같은 토큰으로 refresh하면 한쪽이 잠금을 기다린 뒤 used_at을 보게 됩니다.
 	GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte) (GetRefreshTokenForUpdateRow, error)
+	// IdentityExists는 (provider, subject) 연결 행이 있는지 잠그지 않고 확인합니다.
+	// Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때 씁니다.
+	IdentityExists(ctx context.Context, arg IdentityExistsParams) (bool, error)
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
 	ListIdentities(ctx context.Context, accountID uuid.UUID) ([]ListIdentitiesRow, error)
 	// LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.

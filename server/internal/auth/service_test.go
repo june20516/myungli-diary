@@ -384,7 +384,7 @@ func TestLoginApple_ExchangedSubjectMismatchCreatesNothing(t *testing.T) {
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM refresh_tokens`))
 }
 
-// 트랜잭션이 실패해도 교환한 토큰을 revoke하지 않습니다. revoke는 사용자의 앱 승인 전체를 끊기 때문입니다.
+// 연결 행이 있는 subject의 트랜잭션이 실패하면 교환한 토큰을 revoke하지 않습니다. revoke는 사용자의 앱 승인 전체를 끊기 때문입니다.
 func TestLoginApple_FailedTransactionDoesNotRevoke(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginApple(t, "apple-1")
@@ -398,6 +398,48 @@ func TestLoginApple_FailedTransactionDoesNotRevoke(t *testing.T) {
 	assert.NotErrorIs(t, err, auth.ErrProviderTokenInvalid)
 	assert.NotErrorIs(t, err, auth.ErrProviderUnavailable)
 	assert.Empty(t, f.fake.AppleRevokeRequests())
+}
+
+// failRefreshTokenInserts는 이 테스트 DB에서 refresh_tokens insert가 실패하도록 trigger를 겁니다.
+// 로그인 트랜잭션은 계정·연결 행을 넣은 뒤 마지막에 refresh token을 넣으므로, 그 시점의 DB 오류로 전체가 rollback됩니다.
+// 서비스에 테스트용 실패 지점을 두지 않고 실제 DB 오류로 트랜잭션을 실패시키려는 것입니다.
+func (f *fixture) failRefreshTokenInserts(t *testing.T) {
+	t.Helper()
+	f.exec(t, `CREATE FUNCTION test_fail_refresh_insert() RETURNS trigger LANGUAGE plpgsql AS $$
+		BEGIN RAISE EXCEPTION 'test: refresh token insert 실패'; END $$`)
+	f.exec(t, `CREATE TRIGGER test_fail_refresh_insert BEFORE INSERT ON refresh_tokens
+		FOR EACH ROW EXECUTE FUNCTION test_fail_refresh_insert()`)
+}
+
+// 처음 로그인하는 사용자의 트랜잭션이 실패하면 연결 행이 남지 않으므로, 교환한 토큰을 revoke해 Apple 설정 목록에 앱이 남지 않게 합니다.
+func TestLoginApple_FirstLoginFailureRevokesExchangedToken(t *testing.T) {
+	tests := []struct {
+		name         string
+		revokeStatus int
+	}{
+		{name: "revoke 성공", revokeStatus: http.StatusOK},
+		{name: "revoke 실패여도 원래 오류", revokeStatus: http.StatusServiceUnavailable},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			f.failRefreshTokenInserts(t)
+			f.fake.SetAppleRefreshToken("unsaved-refresh")
+			f.fake.SetAppleRevokeResponse(tt.revokeStatus, "")
+			idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
+
+			_, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce, provider.AppleNative)
+
+			require.ErrorContains(t, err, "test: refresh token insert 실패", "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
+			assert.NotErrorIs(t, err, auth.ErrProviderUnavailable)
+			revokes := f.fake.AppleRevokeRequests()
+			require.Len(t, revokes, 1)
+			assert.Equal(t, "unsaved-refresh", revokes[0].Form.Get("token"))
+			assert.Equal(t, providertest.AppleBundleID, revokes[0].Form.Get("client_id"))
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM auth_identities`))
+		})
+	}
 }
 
 func TestLoginApple_SuccessDoesNotRevoke(t *testing.T) {
