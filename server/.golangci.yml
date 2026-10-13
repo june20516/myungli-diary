@@ -1,0 +1,30 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    - errorlint
+    - gosec
+    - bodyclose
+    - noctx
+    - sqlclosecheck
+    - forbidigo
+  settings:
+    forbidigo:
+      analyze-types: true
+      forbid:
+        # 시간은 Clock으로만 읽는다. time.Now는 internal/platform/clock에서만 허용한다.
+        - pattern: ^time\.Now$
+          msg: time.Now 대신 clock.Clock을 주입해 쓰세요(internal/platform/clock에서만 허용)
+  exclusions:
+    generated: strict
+    rules:
+      # 테스트는 경과 시간 측정이 필요해 time.Now를 허용한다.
+      - path: _test\.go
+        linters:
+          - forbidigo
+      - path: internal/platform/clock/
+        linters:
+          - forbidigo
+    paths:
+      - internal/httpapi/gen

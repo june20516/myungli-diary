@@ -1,0 +1,44 @@
+name: server
+
+on:
+  push:
+    branches: [main]
+    paths: ["server/**", ".github/workflows/server.yml"]
+  pull_request:
+    paths: ["server/**", ".github/workflows/server.yml"]
+  workflow_call:
+
+# workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - run: go vet ./...
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.14.0
+          working-directory: server
+      # testcontainers가 ubuntu runner의 Docker로 PostgreSQL을 띄운다.
+      - run: go test -race ./...
+      - name: 생성 코드가 계약과 일치하는지 확인
+        run: |
+          go generate ./...
+          # untracked 새 파일도 잡으려고 git diff 대신 status를 본다.
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
+            exit 1
+          fi
+      - name: 이미지 빌드
+        run: docker build --build-arg GO_VERSION="$(go list -m -f '{{.GoVersion}}')" .

@@ -1,0 +1,2819 @@
+openapi: 3.1.0
+info:
+  title: 명리일기 API
+  version: 1.0.0-draft
+  description: |
+    명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
+
+    공통 규약
+    * JSON 필드는 camelCase입니다. 단, Apple이 보내는 `appleCallback`의 form 필드는 Apple이 정한 이름을 그대로 씁니다.
+    * 날짜는 `YYYY-MM-DD`(`format: date`), 시각은 RFC 3339(`format: date-time`)입니다.
+    * 시각(`date-time`)은 기본이 UTC이고, 화면 표시용 시각(`FocusSlot.start`·`end`, `CalendarDay.solarTerm.at`)만 프로필 현재 시간대의 offset으로 보냅니다.
+    * 사용자의 선택(예: 출생 시각 모름, 출생지 건너뜀, 알림 끔)은 상태 필드로 보냅니다. 필드를 빼거나 `null`을 보내는 것으로 뜻을 담지 않습니다.
+      생략 가능한 필드를 생략하면 "값 없음"만 뜻합니다. 이 계약에는 `null` 값이 없습니다.
+    * PATCH(`application/merge-patch+json`)에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다. `null`로 필드를 지우지 않습니다.
+    * 요청 본문 상한은 1 MiB입니다. 넘으면 413 `request.too_large`입니다.
+    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
+    * 생성하는 POST(`createSchedule`, `registerDevice`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
+    * 문장 필드는 조각 배열(`RenderedText`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
+    * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
+
+    오류
+    * 모든 오류는 RFC 9457 `application/problem+json`(`Problem`)입니다. app은 `code`를 보고 자기 UI 문구로 보여 줍니다. `title`은 개발자용 영어입니다.
+    * `type`은 `https://api.myungli.app/problems/<code>`입니다.
+    * 400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은
+      모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 예를 들어 알림 시각의 분이 5의 배수가 아니면 `pattern` 위반 400입니다.
+    * 422는 스키마로 표현할 수 없는 의미 검사에만 씁니다.
+      * 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖인 날짜: `date.out_of_range`, 출생 정보는 `birth.out_of_range`
+      * 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일): `date.invalid`.
+        `format: date` 문자열(경로 parameter `date`, `ScheduleInput.date`·`SchedulePatch.date` 등)의 없는 날짜(예 `2026-02-30`)는
+        스키마 형식 위반이라 422가 아니라 400 `request.invalid`입니다.
+      * 상태-값 짝 위반: `request.inconsistent`. `errors[].field`는 JSON Pointer, `errors[].code`는 상태가 요구하는 값이 없으면
+        `required_by_status`, 상태가 허용하지 않는 값이 있으면 `forbidden_by_status`입니다. 대상은 `BirthTime`(`status`·`value`),
+        `BirthPlace`(`status`·`cityId`), 양력(`calendar: solar`)인데 `isLeapMonth`가 true, `NotificationSetting`(`status`·`time`),
+        `ScheduleInput`·`SchedulePatch`(`allDay`·`time`)입니다.
+      * 엔진 판정과 업무 규칙: 예 `birth.invalid`, `diary.future_date`, 호칭 규칙 위반, `idempotency.mismatch`
+
+    근거 열람 권한 (D60)
+    * 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거, 원전, 원국 개인 해석, 용신 근거)을 응답에 담지 않고 `evidenceAccess: locked`로 표시합니다.
+      근거가 원래 없는 것과 잠겨서 빠진 것을 `evidenceAccess`로 구분합니다. surface·explain과 사주 표·만세력·대운 표의 데이터는 잠그지 않습니다.
+
+    설계 메모 (하위 호환 추가 예정)
+    * 깊이 `explain`의 풀이 문장은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `SlotText`에 필드를 더합니다.
+    * 원국 개인 해석은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `Chart`에 선택 필드로 더하고 근거 열람 권한으로 잠급니다.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+
+paths:
+  /v1/auth/kakao:
+    post:
+      operationId: loginKakao
+      summary: 카카오 로그인
+      description: 카카오 OIDC `id_token`과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 처음 보는 계정이면 새로 만듭니다.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KakaoLoginRequest'
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/auth/apple:
+    post:
+      operationId: loginApple
+      summary: Apple 로그인
+      description: |
+        Apple `identity_token`(`idToken`), `authorization_code`, nonce 원문을 검증하고 자체 토큰을 발급합니다.
+        iOS는 `clientType: native`, Android 웹 흐름(`appleCallback`에서 넘겨받은 값)은 `clientType: web`입니다.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppleLoginRequest'
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/auth/apple/callback:
+    post:
+      operationId: appleCallback
+      summary: Apple 웹 로그인 콜백 (Android)
+      description: |
+        Android의 Apple 웹 흐름에서 Apple이 form_post로 부르는 주소입니다. app이 직접 부르지 않습니다.
+        server는 받은 값을 그대로 app deep link로 넘기고(303), app은 그 값으로 `loginApple`을 부릅니다.
+        form 필드 이름은 Apple이 정한 그대로입니다.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [code, id_token, state]
+              properties:
+                code:
+                  type: string
+                  description: Apple authorization code
+                id_token:
+                  type: string
+                  description: Apple identity token
+                state:
+                  type: string
+                user:
+                  type: string
+                  description: 처음 로그인할 때만 Apple이 보내는 사용자 정보(JSON 문자열)
+      responses:
+        '303':
+          description: app deep link로 이동
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: 토큰 갱신
+      description: refresh token을 새 토큰 쌍으로 바꿉니다. 이미 쓴 refresh token이 다시 오면 탈취로 보고 family 전체를 폐기합니다(401 `auth.refresh_reused`).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: 새 토큰 쌍
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/auth/logout:
+    post:
+      operationId: logout
+      summary: 로그아웃
+      description: 보낸 refresh token의 family를 폐기합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '204':
+          description: 로그아웃 완료
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/me:
+    get:
+      operationId: getMe
+      summary: 내 계정 상태
+      description: 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태를 돌려줍니다. 약관 동의 전에도 부를 수 있습니다.
+      responses:
+        '200':
+          description: 계정 상태
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: deleteMe
+      summary: 계정 삭제 요청
+      description: 계정을 삭제 대기(`pending_deletion`)로 바꿉니다. 30일 안에 같은 제공자로 로그인하면 되돌아오고, 지나면 익명화합니다.
+      responses:
+        '202':
+          description: 삭제 예약됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletionScheduled'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/me/consents:
+    post:
+      operationId: agreeConsents
+      summary: 약관 동의
+      description: 현재 버전 문서에 동의합니다. 동의 전에는 `getMe`, 동의, 로그아웃, 계정 삭제 말고는 403 `consent.required`입니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentRequest'
+      responses:
+        '204':
+          description: 동의 기록됨
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/me/profile:
+    put:
+      operationId: createProfile
+      summary: 프로필 첫 등록
+      description: |
+        프로필을 처음 등록합니다. 출생 정보는 저장 전에 엔진으로 검증합니다(422 `birth.invalid`·`birth.out_of_range`).
+        호칭 경고(`name.suffix_stripped`·`name.suffix_warning`)는 오류가 아니며 200 응답의 `warnings`에 담깁니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileInput'
+      responses:
+        '200':
+          description: 저장된 프로필
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    patch:
+      operationId: updateProfile
+      summary: 프로필 수정
+      description: |
+        보낸 필드만 바꿉니다(JSON Merge Patch). `birth`와 `notification`은 통째로 바꿉니다.
+        기기 시간대가 바뀌면 app이 `currentTimezone`을 보내 알립니다. 프로필이 없으면 409 `profile.required`입니다.
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/ProfilePatch'
+      responses:
+        '200':
+          description: 저장된 프로필
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/daily/{date}:
+    parameters:
+      - $ref: '#/components/parameters/Date'
+    get:
+      operationId: getDaily
+      summary: 하루 운세
+      description: |
+        그날의 데일리(일진, 총운, 가이드 질문, 카드, 태그, 관계)를 돌려줍니다. 세 깊이(surface·explain·evidence)를 한 번에 담습니다.
+        형식이 틀리거나 달력에 없는 날짜(예 `2026-02-30`)는 400 `request.invalid`, 형식은 맞지만 D41 지원 범위 밖이면 422 `date.out_of_range`입니다. 프로필이 없으면 409 `profile.required`입니다.
+      responses:
+        '200':
+          description: 하루 운세
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Daily'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/chart:
+    get:
+      operationId: getChart
+      summary: 나의 사주
+      description: 원국, 십성, 지장간, 십이운성, 신살, 오행 비중, 신강약, 용신, 대운, 세운을 돌려줍니다. 프로필이 없으면 409 `profile.required`입니다.
+      responses:
+        '200':
+          description: 사주 원국
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chart'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/calendar/{year}/{month}:
+    parameters:
+      - name: year
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1900
+          maximum: 2099
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+    get:
+      operationId: getCalendar
+      summary: 달력
+      description: 한 달의 날짜별 일진, 음력, 절기, 길흉 수준을 돌려줍니다. `year`·`month`가 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 스키마 범위 안이지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31)를 벗어나면 422 `date.out_of_range`입니다. 프로필이 없으면 409 `profile.required`입니다.
+      responses:
+        '200':
+          description: 한 달 달력
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calendar'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/daily/{date}/slots/{slot}/reaction:
+    parameters:
+      - $ref: '#/components/parameters/Date'
+      - name: slot
+        in: path
+        required: true
+        description: writing 슬롯 id(예 `daily.fortune.head`)
+        schema:
+          type: string
+          minLength: 1
+    put:
+      operationId: putReaction
+      summary: 문장 반응 남기기
+      description: 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 선택 기록이 없거나 반응할 수 없는 슬롯이면 404입니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionInput'
+      responses:
+        '204':
+          description: 반응 저장됨
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: deleteReaction
+      summary: 문장 반응 지우기
+      responses:
+        '204':
+          description: 반응 지워짐
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/glossary:
+    get:
+      operationId: getGlossary
+      summary: 용어 이름 사전
+      description: enum 값(오행·십성·태그 등)의 언어별 이름 사전입니다. 응답마다 이름을 싣는 대신 한 번 받아 둡니다(`ETag`).
+      parameters:
+        - name: lang
+          in: query
+          required: false
+          description: 생략하면 프로필 언어입니다.
+          schema:
+            $ref: '#/components/schemas/Language'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: 이름 사전
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Glossary'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/preview:
+    post:
+      operationId: createPreview
+      summary: 비로그인 미리보기
+      description: |
+        출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다.
+        App Check가 필요합니다. 설치(`installationId`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다.
+        언어는 `Accept-Language`를 씁니다.
+      security:
+        - appCheck: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewRequest'
+      responses:
+        '200':
+          description: 미리보기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/birth-hour:
+    post:
+      operationId: getBirthHour
+      summary: 시진 확인
+      description: |
+        출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다.
+        App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        엔진 RPC가 생기기 전까지는 501을 돌려줍니다.
+      security:
+        - appCheck: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BirthHourRequest'
+      responses:
+        '200':
+          description: 시진
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BirthHour'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/diaries:
+    get:
+      operationId: listDiaries
+      summary: 일기 목록
+      description: 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순입니다.
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: tag
+          in: query
+          required: false
+          description: 태그 키. 그 태그가 붙은 일기만 돌려줍니다.
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          required: false
+          description: 앞 응답의 `nextCursor`
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        '200':
+          description: 일기 목록
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiaryList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/diaries/{date}:
+    parameters:
+      - $ref: '#/components/parameters/Date'
+    get:
+      operationId: getDiary
+      summary: 일기 읽기
+      responses:
+        '200':
+          description: 일기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    put:
+      operationId: putDiary
+      summary: 일기 쓰기
+      description: |
+        그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다.
+        오늘 이후 날짜는 422 `diary.future_date`입니다. 저장할 때 그날 엔진 결과의 태그와 `rulesetVersion`, 가이드 질문을 함께 기록합니다.
+        프로필이 없으면 409 `profile.required`입니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiaryInput'
+      responses:
+        '200':
+          description: 고친 일기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diary'
+        '201':
+          description: 새로 쓴 일기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: deleteDiary
+      summary: 일기 지우기
+      description: 일기를 지웁니다. 지운 일기는 `restoreDiary`로 되살릴 수 있습니다.
+      responses:
+        '204':
+          description: 지워짐
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/diaries/{date}/restore:
+    parameters:
+      - $ref: '#/components/parameters/Date'
+    post:
+      operationId: restoreDiary
+      summary: 지운 일기 되살리기
+      description: 그 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`입니다.
+      responses:
+        '200':
+          description: 되살린 일기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/schedules:
+    get:
+      operationId: listSchedules
+      summary: 일정 목록
+      description: '`from`부터 `to`까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내입니다.'
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 일정 목록
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    post:
+      operationId: createSchedule
+      summary: 일정 만들기
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleInput'
+      responses:
+        '201':
+          description: 만든 일정
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/schedules/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      operationId: updateSchedule
+      summary: 일정 수정
+      description: |
+        보낸 필드만 바꿉니다(JSON Merge Patch).
+        `allDay`를 true로 바꾸면 `time`이 지워집니다. 짝 위반(`allDay`·`time`)은 422 `request.inconsistent`입니다(`SchedulePatch` 참고).
+        `memo`는 빈 문자열을 보내 지웁니다.
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/SchedulePatch'
+      responses:
+        '200':
+          description: 고친 일정
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: deleteSchedule
+      summary: 일정 지우기
+      description: 일정을 지웁니다. 지운 일정은 `restoreSchedule`로 되살릴 수 있습니다.
+      responses:
+        '204':
+          description: 지워짐
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/schedules/{id}/restore:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: restoreSchedule
+      summary: 지운 일정 되살리기
+      responses:
+        '200':
+          description: 되살린 일정
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/devices:
+    post:
+      operationId: registerDevice
+      summary: 알림 기기 등록
+      description: FCM 토큰을 등록합니다. 같은 토큰이 다시 오면 소유 계정을 요청한 계정으로 옮깁니다.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceInput'
+      responses:
+        '201':
+          description: 등록된 기기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/devices/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      operationId: deleteDevice
+      summary: 알림 기기 해제
+      responses:
+        '204':
+          description: 해제됨
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/me/entitlements:
+    get:
+      operationId: getEntitlements
+      summary: 이용권 상태
+      responses:
+        '200':
+          description: 이용권 상태
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entitlements'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/billing/restore:
+    post:
+      operationId: restorePurchases
+      summary: 구매 복원
+      description: RevenueCat 구매 내역을 다시 조회해 이용권을 맞춥니다. RevenueCat 장애는 503 `billing.provider_unavailable`입니다.
+      responses:
+        '200':
+          description: 복원 뒤 이용권 상태
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entitlements'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /webhooks/revenuecat:
+    post:
+      operationId: revenuecatWebhook
+      summary: RevenueCat webhook
+      description: |
+        RevenueCat이 부르는 주소입니다. app은 부르지 않습니다.
+        Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401). 그래서 security와 parameter로 적지 않습니다.
+        저장·동기화에 실패하면 500을 돌려주고 RevenueCat의 재전송에 맡깁니다.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: RevenueCat webhook 이벤트 원문
+      responses:
+        '200':
+          description: 처리됨
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /webhooks/admob-ssv:
+    get:
+      operationId: admobRewardCallback
+      summary: AdMob 보상형 광고 SSV 콜백
+      description: |
+        AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다.
+        서명은 핸들러가 원본 쿼리 문자열(`signature` 앞까지)로 AdMob 공개 키(`key_id`로 고름)를 써 ECDSA 검증합니다.
+        `user_id`는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 `transaction_id`는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다.
+        검증되면 근거 열람 권한(`insight`)을 출처 `rewarded_ad`로 그 계정 현재 시간대의 다음 자정까지 부여합니다.
+        서명 검증 실패는 401 `reward.invalid_signature`, 1시간 넘게 오래된 `timestamp`는 401 `reward.expired`입니다. 검증 키 목록을 받지 못하면 503입니다.
+      security: []
+      parameters:
+        - name: key_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: transaction_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: ad_network
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: ad_unit
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: reward_amount
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: reward_item
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: custom_data
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 처리됨(이미 처리한 `transaction_id`, 없는 계정 포함)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/cities:
+    get:
+      operationId: listCities
+      summary: 도시 검색
+      description: 출생지 도시를 이름으로 찾습니다(`ETag`). 언어는 `lang`, 생략하면 `Accept-Language`입니다.
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50
+        - name: lang
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Language'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: 도시 목록
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityList'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/app-config:
+    get:
+      operationId: getAppConfig
+      summary: 앱 설정
+      description: 플랫폼별 최소 앱 버전입니다.
+      security: []
+      responses:
+        '200':
+          description: 앱 설정
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppConfig'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /healthz:
+    get:
+      operationId: getHealth
+      summary: 헬스 체크
+      description: 정상이면 200, 비정상이면 503입니다.
+      security: []
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: server가 발급한 access token(JWT, 15분)
+    appCheck:
+      type: apiKey
+      in: header
+      name: X-Firebase-AppCheck
+      description: Firebase App Check 토큰. 비로그인 요청(`createPreview`, `getBirthHour`)에 필요합니다.
+
+  parameters:
+    Date:
+      name: date
+      in: path
+      required: true
+      schema:
+        type: string
+        format: date
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 같은 키로 다시 보내면 24시간 동안 같은 응답을 돌려줍니다(IETF draft-ietf-httpapi-idempotency-key-header).
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: 앞 응답의 `ETag`. 같으면 본문 없이 304를 돌려줍니다.
+      schema:
+        type: string
+
+  headers:
+    Location:
+      description: 이동하거나 새로 만든 리소스의 주소
+      schema:
+        type: string
+    ETag:
+      description: 응답 본문의 버전 식별자
+      schema:
+        type: string
+    RetryAfter:
+      description: 다시 시도하기까지 기다릴 초
+      schema:
+        type: integer
+        minimum: 0
+    WWWAuthenticate:
+      description: RFC 6750 형식, 예 `Bearer error="invalid_token"`
+      schema:
+        type: string
+
+  responses:
+    NotModified:
+      description: '`If-None-Match`가 현재 `ETag`와 같음. 본문이 없습니다.'
+      headers:
+        ETag:
+          $ref: '#/components/headers/ETag'
+    BadRequest:
+      description: |
+        요청 형식 오류. JSON 문법 오류는 `request.malformed`, 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이,
+        `minimum`·`maximum`, `format`)은 모두 `request.invalid`이며 `errors[].code`(위반한 keyword)로 구분합니다.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: |
+        인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `app_check.invalid`,
+        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청일 때만 붙습니다.
+        webhook·App Check의 401에 challenge를 붙이지 않는 것은 RFC 9110 §15.5.2와 다른 의도한 이탈입니다.
+      headers:
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: 권한 없음. 약관 미동의·문서 버전 변경은 `consent.required`, 미리보기를 이미 썼으면 `preview.used`입니다.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: 리소스가 없음. 남의 리소스도 404로 보내 존재 여부를 숨깁니다(예 `diary.not_found`).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: 상태 충돌. `profile.required`, `diary.date_taken`, `idempotency.in_progress`.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    PayloadTooLarge:
+      description: 요청 본문이 1 MiB를 넘음(`request.too_large`).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    UnsupportedMediaType:
+      description: 지원하지 않는 요청 Content-Type(`request.unsupported_media_type`).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    UnprocessableEntity:
+      description: |
+        형식은 맞지만 스키마로 표현할 수 없는 의미 검사에 걸림. 형식·범위 위반은 422가 아니라 400 `request.invalid`입니다.
+        * `date.out_of_range`·`birth.out_of_range`: 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖
+        * `date.invalid`: 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 400 `request.invalid`입니다.
+        * `request.inconsistent`: 상태-값 짝 위반. `errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`
+          (대상 `BirthTime`, `BirthPlace`, 양력의 `isLeapMonth`, `NotificationSetting`, `ScheduleInput`·`SchedulePatch`)
+        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `name.emoji` 등 호칭 규칙 위반, `idempotency.mismatch`
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: 요청 한도 초과(`rate_limited`).
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    InternalError:
+      description: 예상하지 못한 오류(`internal`). 상세는 server 로그에만 남습니다.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotImplemented:
+      description: 아직 제공하지 않는 기능
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    BadGateway:
+      description: 엔진 내부 오류(`engine.error`). 다시 시도해도 같을 가능성이 큽니다.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ServiceUnavailable:
+      description: |
+        일시적으로 처리할 수 없음. `engine.unavailable`, `service.unavailable`, `auth.provider_unavailable`, `billing.provider_unavailable`.
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    GatewayTimeout:
+      description: 엔진 응답 시간 초과(`engine.timeout`).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    UnexpectedError:
+      description: 위에 적지 않은 그 밖의 오류
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    # ---- 공통 ----
+    Problem:
+      type: object
+      description: RFC 9457 오류 응답
+      required: [type, title, status, code, traceId]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: '`https://api.myungli.app/problems/<code>`'
+        title:
+          type: string
+          description: 개발자용 영어 제목. 사용자에게 보이지 않습니다.
+        status:
+          type: integer
+        code:
+          type: string
+          description: 오류 코드. app은 이 값으로 UI 문구를 고릅니다.
+        traceId:
+          type: string
+          description: 문의가 왔을 때 server 로그를 찾는 값
+        detail:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+    FieldError:
+      type: object
+      required: [field, code]
+      properties:
+        field:
+          type: string
+          description: |
+            위반 위치. 요청 본문 안이면 JSON Pointer(RFC 6901)입니다(예 `/birth/date/day`, 본문 전체는 빈 문자열).
+            경로·쿼리·헤더 parameter면 계약의 parameter 이름입니다(예 `date`, `limit`). JSON Pointer는 `/`로 시작하거나 비어 있어 둘은 겹치지 않습니다.
+        code:
+          type: string
+          description: |
+            `request.invalid`에서는 위반한 JSON Schema keyword(예 `required`, `pattern`, `minimum`, `format`)이고, parameter를 타입으로 읽지 못하면 `type`입니다.
+            `request.inconsistent`에서는 `required_by_status`(상태가 요구하는 값이 없음) 또는 `forbidden_by_status`(상태가 허용하지 않는 값이 있음)입니다.
+            그 밖(예 `ProfileResponse.warnings`)에서는 그 응답이 정한 코드입니다.
+    Language:
+      type: string
+      enum: [ko, en, ja]
+    RenderedText:
+      type: object
+      description: 렌더된 문장. 용어 토큰은 위치 숫자 대신 조각 배열로 나눕니다.
+      required: [segments]
+      properties:
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+    Segment:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        term:
+          type: string
+          description: 이 조각이 용어면 그 용어 값
+    SlotText:
+      type: object
+      description: |
+        writing 슬롯 하나의 문장입니다.
+        깊이 `explain`의 풀이 문장은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 이 스키마에 필드를 더하는 하위 호환 변경으로 넣습니다.
+        `evidence` 깊이는 `evidence` 필드의 원본 값입니다.
+      required: [slot, messageKey, variant, text, reactable]
+      properties:
+        slot:
+          type: string
+          description: writing 슬롯 id(예 `daily.fortune.head`)
+        messageKey:
+          type: string
+        variant:
+          type: string
+          enum: [advice, state, care, '1', '2', single]
+        text:
+          $ref: '#/components/schemas/RenderedText'
+        reactable:
+          type: boolean
+        reaction:
+          type: string
+          enum: [like]
+          description: 이 사용자가 남긴 반응. 반응이 없으면 생략합니다.
+        evidence:
+          type: array
+          description: 판정 근거. 응답의 `evidenceAccess`가 `unlocked`일 때만 담깁니다.
+          items:
+            $ref: '#/components/schemas/Evidence'
+    Evidence:
+      type: object
+      required: [ruleId, sourceRef]
+      properties:
+        ruleId:
+          type: string
+        sourceRef:
+          type: string
+        detail:
+          type: object
+          additionalProperties:
+            type: string
+    EvidenceAccess:
+      type: string
+      enum: [unlocked, locked]
+      description: |
+        근거 열람 권한 상태(D60). 권한이 없으면 `locked`이고, evidence 깊이의 해석(판정 근거, 원전, 원국 개인 해석, 용신 근거)을 응답에서 뺍니다.
+        surface·explain과 표 데이터는 잠그지 않습니다. 근거가 원래 없는 것과 잠겨서 빠진 것을 이 값으로 구분합니다.
+    Notice:
+      type: object
+      required: [code, text]
+      properties:
+        code:
+          $ref: '#/components/schemas/NoticeCode'
+        text:
+          $ref: '#/components/schemas/RenderedText'
+    NoticeCode:
+      type: string
+      enum:
+        - ambiguous_local_time
+        - nonexistent_local_time
+        - zi_hour_next_day
+        - time_unknown
+        - near_solar_term
+        - dayun_start_approximate
+        - focus_time_fallback
+
+    # ---- 엔진 enum (proto enum 이름에서 접두어를 떼고 소문자로, glossary 키 규칙과 같음) ----
+    Stem:
+      type: string
+      enum: [gap, eul, byeong, jeong, mu, gi, gyeong, sin, im, gye]
+    Branch:
+      type: string
+      enum: [ja, chuk, in, myo, jin, sa, o, mi, shin, yu, sul, hae]
+    FiveElement:
+      type: string
+      enum: [wood, fire, earth, metal, water]
+    ElementRole:
+      type: string
+      enum: [yongsin, tonggwan]
+    TenGod:
+      type: string
+      enum: [bigyeon, geopjae, siksin, sanggwan, pyeonjae, jeongjae, pyeongwan, jeonggwan, pyeonin, jeongin]
+    TwelveStage:
+      type: string
+      enum: [jangsaeng, mokyok, gwandae, geonrok, jewang, soe, byeong, sa, myo, jeol, tae, yang]
+    ShinsalKind:
+      type: string
+      enum: [cheoneul_gwiin, dohwa, yeokma, hwagae, yangin, gongmang]
+    Position:
+      type: string
+      enum: [year_stem, year_branch, month_stem, month_branch, day_stem, day_branch, hour_stem, hour_branch]
+    Direction:
+      type: string
+      enum: [n, ne, e, se, s, sw, w, nw]
+    DayKind:
+      type: string
+      enum: [gwiin_day, yongsin_day, gisin_day, ordinary_day]
+    StrengthLevel:
+      type: string
+      enum: [very_weak, weak, neutral, strong, very_strong]
+    YongsinMethod:
+      type: string
+      enum: [johu, johu_neutral, eokbu]
+    LuckLevel:
+      type: string
+      enum: [good, neutral, caution]
+    RelationKind:
+      type: string
+      enum: [stem_hap, branch_hap, chung, hyeong]
+    SolarTermKind:
+      type: string
+      enum:
+        - sohan
+        - daehan
+        - ipchun
+        - usu
+        - gyeongchip
+        - chunbun
+        - cheongmyeong
+        - gogu
+        - ipha
+        - soman
+        - mangjong
+        - haji
+        - soseo
+        - daeseo
+        - ipchu
+        - cheoseo
+        - baengno
+        - chubun
+        - hallo
+        - sanggang
+        - ipdong
+        - soseol
+        - daeseol
+        - dongji
+
+    # ---- 인증·계정 ----
+    KakaoLoginRequest:
+      type: object
+      required: [idToken, nonce]
+      properties:
+        idToken:
+          type: string
+          description: 카카오 OIDC id_token
+        nonce:
+          type: string
+          description: nonce 원문
+    AppleLoginRequest:
+      type: object
+      required: [idToken, authorizationCode, nonce, clientType]
+      properties:
+        idToken:
+          type: string
+          description: Apple identity_token
+        authorizationCode:
+          type: string
+        nonce:
+          type: string
+          description: nonce 원문
+        clientType:
+          type: string
+          enum: [native, web]
+          description: iOS는 `native`, Android 웹 흐름은 `web`
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    TokenPair:
+      type: object
+      required: [accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt]
+      properties:
+        accessToken:
+          type: string
+        accessTokenExpiresAt:
+          type: string
+          format: date-time
+        refreshToken:
+          type: string
+        refreshTokenExpiresAt:
+          type: string
+          format: date-time
+    LoginResponse:
+      type: object
+      required: [tokens, isNewAccount, consentRequired, restoredFromDeletion]
+      properties:
+        tokens:
+          $ref: '#/components/schemas/TokenPair'
+        isNewAccount:
+          type: boolean
+        consentRequired:
+          type: boolean
+        restoredFromDeletion:
+          type: boolean
+          description: 삭제 대기 중이던 계정이 이 로그인으로 되돌아왔는지
+    Me:
+      type: object
+      required: [accountId, status, consentRequired, requiredConsents, hasProfile, adFree, insight]
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, pending_deletion]
+        deletionScheduledAt:
+          type: string
+          format: date-time
+          description: '`status`가 `pending_deletion`일 때만 있습니다.'
+        consentRequired:
+          type: boolean
+        requiredConsents:
+          type: array
+          description: 동의해야 할 문서와 현재 버전
+          items:
+            $ref: '#/components/schemas/ConsentDocument'
+        hasProfile:
+          type: boolean
+        adFree:
+          $ref: '#/components/schemas/AdFree'
+        insight:
+          $ref: '#/components/schemas/Insight'
+    ConsentDocument:
+      type: object
+      required: [document, version]
+      properties:
+        document:
+          type: string
+          enum: [terms, privacy]
+        version:
+          type: string
+    ConsentRequest:
+      type: object
+      required: [documents]
+      properties:
+        documents:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ConsentDocument'
+    DeletionScheduled:
+      type: object
+      required: [deletionScheduledAt]
+      properties:
+        deletionScheduledAt:
+          type: string
+          format: date-time
+
+    # ---- 프로필 ----
+    LunarOrSolarDate:
+      type: object
+      description: |
+        달력 날짜. 음력 30일이 있어 `format: date`를 쓰지 않습니다.
+        양력인데 달력에 없는 날짜(예 2월 31일)면 422 `date.invalid`, 음력 날짜가 실제로 있는지는 엔진 판정(422 `birth.invalid`)입니다.
+      required: [year, month, day]
+      properties:
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2099
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        day:
+          type: integer
+          minimum: 1
+          maximum: 31
+    BirthTime:
+      type: object
+      description: |
+        `status`가 `known`일 때만 `value`가 있습니다. `unknown`은 사용자가 "모름"을 고른 것입니다.
+        `known`인데 `value`가 없으면 422 `request.inconsistent`(`required_by_status`), `unknown`인데 `value`가 있으면 `forbidden_by_status`입니다.
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [known, unknown]
+        value:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM
+    BirthPlace:
+      type: object
+      description: |
+        `status`가 `city`일 때만 `cityId`가 있습니다. `not_asked`는 묻지 않음(한국 기기), `skipped`는 물었지만 건너뜀입니다.
+        `city`인데 `cityId`가 없으면 422 `request.inconsistent`(`required_by_status`), 그 밖의 상태인데 `cityId`가 있으면 `forbidden_by_status`입니다.
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [not_asked, skipped, city]
+        cityId:
+          type: string
+          description: '`City.id`'
+    Birth:
+      type: object
+      required: [calendar, date, isLeapMonth, time, gender, timezone, place]
+      properties:
+        calendar:
+          $ref: '#/components/schemas/CalendarType'
+        date:
+          $ref: '#/components/schemas/LunarOrSolarDate'
+        isLeapMonth:
+          type: boolean
+          description: |
+            `calendar`가 `solar`면 false입니다. 양력인데 true면 422 `request.inconsistent`(`forbidden_by_status`)입니다.
+            음력 날짜가 존재하지 않으면(예 윤달이 없는 달의 윤달) 엔진 판정 422 `birth.invalid`입니다.
+        time:
+          $ref: '#/components/schemas/BirthTime'
+        gender:
+          type: string
+          enum: [male, female]
+        timezone:
+          type: string
+          description: 출생 시간대 IANA 이름(예 `Asia/Seoul`)
+        place:
+          $ref: '#/components/schemas/BirthPlace'
+    CalendarType:
+      type: string
+      enum: [solar, lunar]
+    NotificationSetting:
+      type: object
+      description: |
+        `status`가 `enabled`일 때만 `time`이 있습니다.
+        `enabled`인데 `time`이 없으면 422 `request.inconsistent`(`required_by_status`), 그 밖의 상태인데 `time`이 있으면 `forbidden_by_status`입니다.
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [not_asked, enabled, disabled]
+        time:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][05]$'
+          description: HH:MM. 분은 5의 배수이며, 아니면 `pattern` 위반 400 `request.invalid`입니다.
+    ProfileInput:
+      type: object
+      required: [honorific, language, currentTimezone, birth, notification]
+      properties:
+        honorific:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: 호칭
+        language:
+          $ref: '#/components/schemas/Language'
+        currentTimezone:
+          type: string
+          description: 현재 기기 시간대 IANA 이름. "오늘"의 기준입니다.
+        birth:
+          $ref: '#/components/schemas/Birth'
+        notification:
+          $ref: '#/components/schemas/NotificationSetting'
+    ProfilePatch:
+      type: object
+      description: |
+        `ProfileInput`의 모든 필드를 생략할 수 있습니다. 생략은 "바꾸지 않음"입니다.
+        `birth`와 `notification`은 안쪽 필드를 합치지 않고 통째로 바꿉니다.
+      properties:
+        honorific:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: 호칭
+        language:
+          $ref: '#/components/schemas/Language'
+        currentTimezone:
+          type: string
+          description: 현재 기기 시간대 IANA 이름
+        birth:
+          $ref: '#/components/schemas/Birth'
+        notification:
+          $ref: '#/components/schemas/NotificationSetting'
+    Profile:
+      type: object
+      required: [honorific, language, currentTimezone, birth, notification]
+      properties:
+        honorific:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: 호칭
+        language:
+          $ref: '#/components/schemas/Language'
+        currentTimezone:
+          type: string
+          description: 현재 기기 시간대 IANA 이름
+        birth:
+          $ref: '#/components/schemas/Birth'
+        notification:
+          $ref: '#/components/schemas/NotificationSetting'
+    ProfileResponse:
+      type: object
+      required: [profile, warnings]
+      properties:
+        profile:
+          $ref: '#/components/schemas/Profile'
+        warnings:
+          type: array
+          description: 오류가 아닌 호칭 경고. `code`는 `name.suffix_stripped` 또는 `name.suffix_warning`입니다.
+          items:
+            $ref: '#/components/schemas/FieldError'
+
+    # ---- 운세 공용 ----
+    Pillar:
+      type: object
+      required: [stem, branch]
+      properties:
+        stem:
+          $ref: '#/components/schemas/Stem'
+        branch:
+          $ref: '#/components/schemas/Branch'
+    Tag:
+      type: object
+      required: [key, polarity]
+      properties:
+        key:
+          type: string
+          description: 태그 키(glossary `tag` 범주의 키)
+        polarity:
+          type: string
+          enum: [good, bad, neutral]
+          description: 태그의 길흉. 엔진 spec §7.7 표의 값입니다.
+    Fortune:
+      type: object
+      description: 총운. `tag`는 대표 태그가 있을 때의 보조 문장입니다.
+      required: [head]
+      properties:
+        head:
+          $ref: '#/components/schemas/SlotText'
+        tag:
+          $ref: '#/components/schemas/SlotText'
+    DayTags:
+      type: object
+      required: [featured, all]
+      properties:
+        featured:
+          type: array
+          description: 화면에 보일 대표 태그 0~2개
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/Tag'
+        all:
+          type: array
+          description: 전체 태그 키
+          items:
+            type: string
+
+    # ---- 하루 운세 ----
+    Daily:
+      type: object
+      required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, fortune, guide, cards, tags, relations, notices]
+      properties:
+        date:
+          type: string
+          format: date
+        rulesetVersion:
+          type: string
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
+        dayPillar:
+          $ref: '#/components/schemas/Pillar'
+        dayKind:
+          $ref: '#/components/schemas/DayKind'
+        fortune:
+          $ref: '#/components/schemas/Fortune'
+        guide:
+          $ref: '#/components/schemas/SlotText'
+        cards:
+          $ref: '#/components/schemas/DailyCards'
+        tags:
+          $ref: '#/components/schemas/DayTags'
+        relations:
+          type: array
+          description: 일진과 원국의 관계
+          items:
+            $ref: '#/components/schemas/Relation'
+        notices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+    DailyCards:
+      type: object
+      required: [color, direction, number, focusTime]
+      properties:
+        color:
+          $ref: '#/components/schemas/ColorCard'
+        direction:
+          $ref: '#/components/schemas/DirectionCard'
+        number:
+          $ref: '#/components/schemas/NumberCard'
+        focusTime:
+          $ref: '#/components/schemas/FocusTimeCard'
+    ColorCard:
+      type: object
+      required: [element, role, text]
+      properties:
+        element:
+          $ref: '#/components/schemas/FiveElement'
+        role:
+          $ref: '#/components/schemas/ElementRole'
+        text:
+          $ref: '#/components/schemas/SlotText'
+    DirectionCard:
+      type: object
+      required: [direction, text]
+      properties:
+        direction:
+          $ref: '#/components/schemas/Direction'
+        text:
+          $ref: '#/components/schemas/SlotText'
+    NumberCard:
+      type: object
+      required: [number, text]
+      properties:
+        number:
+          type: integer
+        text:
+          $ref: '#/components/schemas/SlotText'
+    FocusTimeCard:
+      type: object
+      required: [picks, fallback, text]
+      properties:
+        picks:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/FocusSlot'
+        fallback:
+          type: boolean
+        text:
+          $ref: '#/components/schemas/SlotText'
+    FocusSlot:
+      type: object
+      required: [branch, pillar, start, end, huangdaoLucky, score, reasons]
+      properties:
+        branch:
+          $ref: '#/components/schemas/Branch'
+        pillar:
+          $ref: '#/components/schemas/Pillar'
+        start:
+          type: string
+          format: date-time
+          description: 프로필 현재 시간대의 offset으로 나타냅니다.
+        end:
+          type: string
+          format: date-time
+          description: 프로필 현재 시간대의 offset으로 나타냅니다.
+        huangdaoLucky:
+          type: boolean
+          description: 황도길시
+        score:
+          type: integer
+        reasons:
+          type: array
+          description: 가점 사유 식별자(glossary `focus_reason` 범주의 키)
+          items:
+            type: string
+            enum: [gwiin, yongsin, huisin, hap]
+    Relation:
+      type: object
+      description: '`suppressedBy`는 `suppressed`가 true일 때만 있습니다.'
+      required: [kind, natalPosition, suppressed]
+      properties:
+        kind:
+          $ref: '#/components/schemas/RelationKind'
+        natalPosition:
+          $ref: '#/components/schemas/Position'
+        suppressed:
+          type: boolean
+        suppressedBy:
+          $ref: '#/components/schemas/RelationKind'
+
+    # ---- 나의 사주 ----
+    Chart:
+      type: object
+      required:
+        - rulesetVersion
+        - evidenceAccess
+        - pillars
+        - tenGods
+        - hiddenStems
+        - twelveStages
+        - shinsal
+        - gongmang
+        - elementWeights
+        - strength
+        - yongsin
+        - daeun
+        - seun
+        - notices
+      properties:
+        rulesetVersion:
+          type: string
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
+        pillars:
+          $ref: '#/components/schemas/ChartPillars'
+        tenGods:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenGodAt'
+        hiddenStems:
+          type: array
+          items:
+            $ref: '#/components/schemas/HiddenStemsAt'
+        twelveStages:
+          type: array
+          items:
+            $ref: '#/components/schemas/TwelveStageAt'
+        shinsal:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShinsalAt'
+        gongmang:
+          type: array
+          items:
+            $ref: '#/components/schemas/Branch'
+        elementWeights:
+          type: array
+          items:
+            $ref: '#/components/schemas/ElementWeight'
+        strength:
+          $ref: '#/components/schemas/Strength'
+        yongsin:
+          $ref: '#/components/schemas/Yongsin'
+        daeun:
+          $ref: '#/components/schemas/Daeun'
+        seun:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeunYear'
+        notices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+    ChartPillars:
+      type: object
+      description: 원국 네 기둥. 출생 시각이 `unknown`이면 `hour`를 생략합니다.
+      required: [year, month, day]
+      properties:
+        year:
+          $ref: '#/components/schemas/Pillar'
+        month:
+          $ref: '#/components/schemas/Pillar'
+        day:
+          $ref: '#/components/schemas/Pillar'
+        hour:
+          $ref: '#/components/schemas/Pillar'
+    TenGodAt:
+      type: object
+      required: [position, tenGod]
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        tenGod:
+          $ref: '#/components/schemas/TenGod'
+    HiddenStemsAt:
+      type: object
+      required: [position, stems]
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        stems:
+          type: array
+          items:
+            $ref: '#/components/schemas/HiddenStem'
+    HiddenStem:
+      type: object
+      required: [stem, tenGod]
+      properties:
+        stem:
+          $ref: '#/components/schemas/Stem'
+        tenGod:
+          $ref: '#/components/schemas/TenGod'
+    TwelveStageAt:
+      type: object
+      required: [position, stage]
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        stage:
+          $ref: '#/components/schemas/TwelveStage'
+    ShinsalAt:
+      type: object
+      required: [kind, position]
+      properties:
+        kind:
+          $ref: '#/components/schemas/ShinsalKind'
+        position:
+          $ref: '#/components/schemas/Position'
+    ElementWeight:
+      type: object
+      required: [element, weight]
+      properties:
+        element:
+          $ref: '#/components/schemas/FiveElement'
+        weight:
+          type: number
+    Strength:
+      type: object
+      required: [score, level]
+      properties:
+        score:
+          type: number
+        level:
+          $ref: '#/components/schemas/StrengthLevel'
+    Yongsin:
+      type: object
+      description: |
+        `johuStem`은 조후 천간이 없으면 생략합니다.
+        `basis`(용신 근거 문장)는 evidence 깊이라 응답의 `evidenceAccess`가 `locked`면 생략합니다.
+      required: [yongsin, huisin, gisin, tonggwan, method]
+      properties:
+        yongsin:
+          $ref: '#/components/schemas/FiveElement'
+        huisin:
+          $ref: '#/components/schemas/FiveElement'
+        gisin:
+          $ref: '#/components/schemas/FiveElement'
+        tonggwan:
+          $ref: '#/components/schemas/FiveElement'
+        method:
+          $ref: '#/components/schemas/YongsinMethod'
+        johuStem:
+          $ref: '#/components/schemas/Stem'
+        basis:
+          $ref: '#/components/schemas/SlotText'
+    Daeun:
+      type: object
+      required: [forward, startYears, startMonths, periods]
+      properties:
+        forward:
+          type: boolean
+          description: 순행 여부
+        startYears:
+          type: integer
+        startMonths:
+          type: integer
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DaeunPeriod'
+    DaeunPeriod:
+      type: object
+      required: [pillar, startAge, startAgeKorean, stemTenGod, branchTenGod, twelveStage]
+      properties:
+        pillar:
+          $ref: '#/components/schemas/Pillar'
+        startAge:
+          type: integer
+          description: 만 나이
+        startAgeKorean:
+          type: integer
+          description: 한국식 나이
+        stemTenGod:
+          $ref: '#/components/schemas/TenGod'
+        branchTenGod:
+          $ref: '#/components/schemas/TenGod'
+        twelveStage:
+          $ref: '#/components/schemas/TwelveStage'
+    SeunYear:
+      type: object
+      required: [year, pillar, tenGod, relationsWithNatal]
+      properties:
+        year:
+          type: integer
+        pillar:
+          $ref: '#/components/schemas/Pillar'
+        tenGod:
+          $ref: '#/components/schemas/TenGod'
+        relationsWithNatal:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationKind'
+
+    # ---- 달력 ----
+    Calendar:
+      type: object
+      required: [year, month, rulesetVersion, evidenceAccess, days, notices]
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+        rulesetVersion:
+          type: string
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/CalendarDay'
+        notices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+    CalendarDay:
+      type: object
+      description: '`solarTerm`은 입절일에만, `featuredTag`는 대표 태그가 있는 날에만 있습니다.'
+      required: [date, pillar, lunar, dayKind, luckLevel, score, scoreItems, level]
+      properties:
+        date:
+          type: string
+          format: date
+        pillar:
+          $ref: '#/components/schemas/Pillar'
+        lunar:
+          $ref: '#/components/schemas/LunarDate'
+        solarTerm:
+          $ref: '#/components/schemas/SolarTerm'
+        dayKind:
+          $ref: '#/components/schemas/DayKind'
+        luckLevel:
+          $ref: '#/components/schemas/LuckLevel'
+        score:
+          type: integer
+        scoreItems:
+          type: array
+          description: 점수 구성 원본 값
+          items:
+            $ref: '#/components/schemas/ScoreItem'
+        featuredTag:
+          $ref: '#/components/schemas/Tag'
+        level:
+          $ref: '#/components/schemas/SlotText'
+    LunarDate:
+      type: object
+      required: [month, day, isLeapMonth]
+      properties:
+        month:
+          type: integer
+        day:
+          type: integer
+        isLeapMonth:
+          type: boolean
+    SolarTerm:
+      type: object
+      required: [kind, at]
+      properties:
+        kind:
+          $ref: '#/components/schemas/SolarTermKind'
+        at:
+          type: string
+          format: date-time
+          description: 프로필 현재 시간대의 offset으로 나타냅니다.
+    ScoreItem:
+      type: object
+      required: [id, score]
+      properties:
+        id:
+          type: string
+          description: glossary `score_item` 범주의 키
+        score:
+          type: integer
+    ReactionInput:
+      type: object
+      required: [reaction]
+      properties:
+        reaction:
+          type: string
+          enum: [like]
+    Glossary:
+      type: object
+      required: [seedVersion, lang, values]
+      properties:
+        seedVersion:
+          type: string
+        lang:
+          $ref: '#/components/schemas/Language'
+        values:
+          type: object
+          description: |
+            범주 → (값 → 이름). 범주는 writing `glossary.value_name` 키의 `<범주>`, 그리고 `tag`·`focus_reason`·`score_item`·`solar_term`입니다.
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+
+    # ---- 비로그인 ----
+    PreviewRequest:
+      type: object
+      required: [installationId, currentTimezone, birth]
+      properties:
+        installationId:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: 앱 설치마다 만든 무작위 값
+        currentTimezone:
+          type: string
+          description: 현재 기기 시간대 IANA 이름
+        birth:
+          $ref: '#/components/schemas/Birth'
+    Preview:
+      type: object
+      description: |
+        로그인 없는 미리보기 결과. `evidenceAccess`는 항상 `locked`입니다. 미리보기는 근거 열람 권한과 무관하게 evidence 깊이를 담지 않으며,
+        근거가 원래 없는 것과 구분하려고 이 값을 둡니다.
+      required: [date, evidenceAccess, dayKind, fortune, featuredTags, notices]
+      properties:
+        date:
+          type: string
+          format: date
+        evidenceAccess:
+          $ref: '#/components/schemas/EvidenceAccess'
+        dayKind:
+          $ref: '#/components/schemas/DayKind'
+        fortune:
+          $ref: '#/components/schemas/Fortune'
+        featuredTags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        notices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notice'
+    BirthHourRequest:
+      type: object
+      required: [installationId, calendar, date, isLeapMonth, time]
+      properties:
+        installationId:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: 앱 설치마다 만든 무작위 값
+        calendar:
+          $ref: '#/components/schemas/CalendarType'
+        date:
+          $ref: '#/components/schemas/LunarOrSolarDate'
+        isLeapMonth:
+          type: boolean
+          description: '`calendar`가 `solar`면 false입니다. 양력인데 true면 422 `request.inconsistent`(`forbidden_by_status`)입니다.'
+        time:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM
+    BirthHour:
+      type: object
+      required: [branch, start, end]
+      properties:
+        branch:
+          $ref: '#/components/schemas/Branch'
+        start:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM, 벽시계 기준
+        end:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM, 벽시계 기준
+
+    # ---- 일기 ----
+    DiaryInput:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 10000
+    Diary:
+      type: object
+      required: [date, body, tags, rulesetVersion, createdAt, updatedAt]
+      properties:
+        date:
+          type: string
+          format: date
+        body:
+          type: string
+        guideQuestion:
+          $ref: '#/components/schemas/RenderedText'
+        tags:
+          $ref: '#/components/schemas/DayTags'
+        rulesetVersion:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DiaryList:
+      type: object
+      description: '`nextCursor`가 없으면 마지막 쪽입니다.'
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiarySummary'
+        nextCursor:
+          type: string
+    DiarySummary:
+      type: object
+      required: [date, excerpt, featuredTags]
+      properties:
+        date:
+          type: string
+          format: date
+        excerpt:
+          type: string
+          description: 본문 앞 100자
+        featuredTags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+
+    # ---- 일정 ----
+    ScheduleInput:
+      type: object
+      description: |
+        `time`은 `allDay`가 false일 때만 있습니다. `allDay`가 false인데 `time`이 없으면 422 `request.inconsistent`(`required_by_status`),
+        `allDay`가 true인데 `time`이 있으면 `forbidden_by_status`입니다.
+      required: [date, allDay, title]
+      properties:
+        date:
+          type: string
+          format: date
+        allDay:
+          type: boolean
+        time:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        memo:
+          type: string
+          minLength: 0
+          maxLength: 2000
+    SchedulePatch:
+      type: object
+      description: |
+        `ScheduleInput`의 모든 필드를 생략할 수 있습니다. 생략은 "바꾸지 않음"입니다.
+        `allDay`를 true로 바꾸면 `time`이 지워집니다. 적용한 결과로 짝을 검사합니다. `allDay`를 false로 바꾸면서 `time`이 없고 기존에도 없으면
+        422 `request.inconsistent`(`required_by_status`, field `/time`), 결과가 `allDay` true인데 `time`을 함께 보내면 `forbidden_by_status`입니다.
+        `memo`는 빈 문자열로 지웁니다.
+      properties:
+        date:
+          type: string
+          format: date
+        allDay:
+          type: boolean
+        time:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        memo:
+          type: string
+          minLength: 0
+          maxLength: 2000
+    Schedule:
+      type: object
+      description: '`time`은 `allDay`가 false일 때만 있습니다.'
+      required: [id, date, allDay, title, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        allDay:
+          type: boolean
+        time:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          description: HH:MM
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        memo:
+          type: string
+          minLength: 0
+          maxLength: 2000
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ScheduleList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
+
+    # ---- 기기·결제·권한 ----
+    DevicePlatform:
+      type: string
+      enum: [ios, android]
+    DeviceInput:
+      type: object
+      required: [fcmToken, platform]
+      properties:
+        fcmToken:
+          type: string
+          minLength: 1
+          maxLength: 4096
+        platform:
+          $ref: '#/components/schemas/DevicePlatform'
+    Device:
+      type: object
+      required: [id, platform]
+      properties:
+        id:
+          type: string
+          format: uuid
+        platform:
+          $ref: '#/components/schemas/DevicePlatform'
+    AdFree:
+      type: object
+      description: 광고 제거권. 만료일이 없으면 `expiresAt`을 생략합니다.
+      required: [active]
+      properties:
+        active:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+    Insight:
+      type: object
+      description: |
+        근거 열람 권한(D60). `active`가 true면 `expiresAt`과 `source`가 있습니다.
+        여러 부여(예 보상형 광고와 광고 제거권)가 겹치면 만료가 가장 늦은 부여의 `expiresAt`·`source`를 보냅니다.
+        `rewarded_ad`는 보상형 광고(그날 자정까지), `ad_free_pass`는 광고 제거권 기간, `subscription`은 구독입니다.
+      required: [active]
+      properties:
+        active:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+          enum: [rewarded_ad, ad_free_pass, subscription]
+    Entitlements:
+      type: object
+      required: [adFree, insight]
+      properties:
+        adFree:
+          $ref: '#/components/schemas/AdFree'
+        insight:
+          $ref: '#/components/schemas/Insight'
+
+    # ---- 참조 ----
+    City:
+      type: object
+      required: [id, name, country, timezone]
+      properties:
+        id:
+          type: string
+          description: GeoNames id
+        name:
+          type: string
+        country:
+          type: string
+          pattern: '^[A-Z]{2}$'
+          description: ISO 3166-1 alpha-2
+        timezone:
+          type: string
+          description: IANA 이름
+    CityList:
+      type: object
+      required: [dataVersion, items]
+      properties:
+        dataVersion:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/City'
+    AppConfig:
+      type: object
+      required: [minimumVersion]
+      properties:
+        minimumVersion:
+          $ref: '#/components/schemas/MinimumVersion'
+    MinimumVersion:
+      type: object
+      description: 플랫폼별 최소 앱 버전(semver 문자열)
+      required: [ios, android]
+      properties:
+        ios:
+          type: string
+        android:
+          type: string
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]

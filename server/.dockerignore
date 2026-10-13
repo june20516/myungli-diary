@@ -1,0 +1,11 @@
+.git
+.gitignore
+.golangci.yml
+Dockerfile
+.dockerignore
+compose.yaml
+docs
+CLAUDE.md
+**/*_test.go
+**/.env*
+**/bin/
