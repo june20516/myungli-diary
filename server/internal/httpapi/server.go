@@ -64,7 +64,7 @@ func newRouter(mux *http.ServeMux) http.Handler {
 		handler.ServeHTTP(probe, r)
 		if probe.status == http.StatusMethodNotAllowed {
 			w.Header().Set("Allow", probe.header.Get("Allow"))
-			problem.Write(w, r, problem.New(http.StatusMethodNotAllowed, "method.not_allowed", "Method not allowed"))
+			problem.Write(w, r, problem.MethodNotAllowed.Problem("Method not allowed"))
 			return
 		}
 		// 404와 그 밖의 redirect는 모두 계약에 없는 경로입니다.
@@ -73,7 +73,7 @@ func newRouter(mux *http.ServeMux) http.Handler {
 }
 
 func writeRouteNotFound(w http.ResponseWriter, r *http.Request) {
-	problem.Write(w, r, problem.New(http.StatusNotFound, "route.not_found", "Route not found"))
+	problem.Write(w, r, problem.RouteNotFound.Problem("Route not found"))
 }
 
 // isCleanPath는 ServeMux가 경로 정리 redirect 없이 받아들이는 정규 경로인지 확인합니다.
@@ -127,12 +127,12 @@ func DecodeJSON(w http.ResponseWriter, r *http.Request, v any) bool {
 		writeTooLarge(w, r)
 		return false
 	}
-	problem.Write(w, r, problem.New(http.StatusBadRequest, "request.malformed", "Request body is malformed"))
+	problem.Write(w, r, problem.RequestMalformed.Problem("Request body is malformed"))
 	return false
 }
 
 var errTrailingData = errors.New("JSON 값 뒤에 데이터가 더 있습니다")
 
 func writeTooLarge(w http.ResponseWriter, r *http.Request) {
-	problem.Write(w, r, problem.New(http.StatusRequestEntityTooLarge, "request.too_large", "Request body is too large"))
+	problem.Write(w, r, problem.RequestTooLarge.Problem("Request body is too large"))
 }

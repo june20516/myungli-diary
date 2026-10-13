@@ -48,5 +48,5 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * `APPLE_CALLBACK_DEEPLINK`의 scheme은 app과 정합니다.
 * Cloud Run은 `GOOGLE_CLOUD_PROJECT`를 자동으로 넣지 않으므로 배포 설정에 명시해야 로그의 trace 상관관계가 켜집니다. `X-Cloud-Trace-Context`만 오는 경로가 있는지 확인합니다.
 * Cloud SQL Go connector를 쓰려면 `postgres.Open`이 `*pgxpool.Config`나 dial 옵션을 받도록 바꿉니다.
-* ci-gate 연결 2단계(지휘)가 끝나면 `server.yml`의 `pull_request`·`push` 트리거를 지웁니다(3단계).
+* `server.yml`은 ci-gate가 부르는 전용(`workflow_call`·`workflow_dispatch`)입니다. 직접 push·PR 트리거는 지웠습니다(#102).
 * 요청 검증은 kin-openapi가 3.1 문서에서 format을 검사하지 않아 버전만 3.0.3으로 낮춘 계약 사본으로 합니다. 계약 테스트가 3.0 Schema 키워드 allowlist로 이 전제를 지킵니다.

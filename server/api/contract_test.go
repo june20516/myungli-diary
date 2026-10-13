@@ -587,3 +587,62 @@ func TestContract_AppleCallbackDescribes400(t *testing.T) {
 		t.Fatal("appleCallback operation이 없음")
 	}
 }
+
+// problemCodeEntry는 Problem.code의 `x-problem-codes` 항목 하나입니다.
+type problemCodeEntry struct {
+	Status      int    `yaml:"status"`
+	Description string `yaml:"description"`
+}
+
+// loadProblemCodes는 계약 원본에서 `x-problem-codes`를 읽습니다.
+func loadProblemCodes(t *testing.T) map[string]problemCodeEntry {
+	t.Helper()
+	raw, err := os.ReadFile(specPath)
+	if err != nil {
+		t.Fatalf("계약을 읽지 못함: %v", err)
+	}
+	var spec struct {
+		Components struct {
+			Schemas struct {
+				Problem struct {
+					Properties struct {
+						Code struct {
+							Codes map[string]problemCodeEntry `yaml:"x-problem-codes"`
+						} `yaml:"code"`
+					} `yaml:"properties"`
+				} `yaml:"Problem"`
+			} `yaml:"schemas"`
+		} `yaml:"components"`
+	}
+	if err := yaml.Unmarshal(raw, &spec); err != nil {
+		t.Fatalf("YAML 파싱 실패: %v", err)
+	}
+	return spec.Components.Schemas.Problem.Properties.Code.Codes
+}
+
+// TestContract_ProblemCodesAreWellFormed는 `x-problem-codes`의 모든 항목이 HTTP 오류 상태(400~599)와
+// 비어 있지 않은 설명을 갖는지 확인합니다.
+func TestContract_ProblemCodesAreWellFormed(t *testing.T) {
+	codes := loadProblemCodes(t)
+	if len(codes) == 0 {
+		t.Fatal("Problem.code에 x-problem-codes가 없음")
+	}
+	for code, entry := range codes {
+		if entry.Status < 400 || entry.Status > 599 {
+			t.Errorf("%s: status %d가 400~599 밖임", code, entry.Status)
+		}
+		if strings.TrimSpace(entry.Description) == "" {
+			t.Errorf("%s: description이 비어 있음", code)
+		}
+	}
+}
+
+// TestContract_ProblemCodesSurviveLoad는 kin-openapi가 읽은 뒤에도 확장 필드가 남는지 확인합니다.
+// 검증용 3.0 사본은 같은 loader 결과를 변환하므로, 여기서 남으면 사본에도 남습니다.
+func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
+	doc := loadDoc(t)
+	code := doc.Components.Schemas["Problem"].Value.Properties["code"].Value
+	if _, ok := code.Extensions["x-problem-codes"]; !ok {
+		t.Error("kin-openapi가 읽은 Problem.code에 x-problem-codes가 없음")
+	}
+}

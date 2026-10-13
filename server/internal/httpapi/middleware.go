@@ -74,7 +74,7 @@ func recoverPanic(deps Deps, next http.Handler) http.Handler {
 					delete(header, key)
 				}
 			}
-			problem.Write(rec, r, problem.New(http.StatusInternalServerError, "internal", "Internal server error"))
+			problem.Write(rec, r, problem.Internal.Problem("Internal server error"))
 		}()
 		next.ServeHTTP(rec, r)
 	})

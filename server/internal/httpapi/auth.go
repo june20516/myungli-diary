@@ -19,10 +19,6 @@ import (
 // 먼저 401을 받습니다.
 
 const (
-	codeTokenInvalid    = "auth.token_invalid" //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
-	codeTokenExpired    = "auth.token_expired" //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
-	codeConsentRequired = "consent.required"
-
 	// bearerScheme은 Authorization 헤더의 인증 scheme입니다. 비교는 대소문자를 가리지 않습니다(RFC 9110 §11.1).
 	bearerScheme = "Bearer"
 )
@@ -88,7 +84,7 @@ func BearerAuth(tokens AccessTokenVerifier, gate AccountGate, logger *slog.Logge
 			}
 			accountID, err := tokens.Verify(accessToken)
 			if errors.Is(err, token.ErrAccessExpired) {
-				problem.WriteBearerChallenge(w, r, problem.New(http.StatusUnauthorized, codeTokenExpired, "Token expired"))
+				problem.WriteBearerChallenge(w, r, problem.AuthTokenExpired.Problem("Token expired"))
 				return
 			}
 			if err != nil {
@@ -116,7 +112,7 @@ func BearerAuth(tokens AccessTokenVerifier, gate AccountGate, logger *slog.Logge
 				return
 			}
 			if access.ConsentRequired && !allowedWhileConsentRequired[op.ID] {
-				problem.Write(w, r, problem.New(http.StatusForbidden, codeConsentRequired, "Consent required"))
+				problem.Write(w, r, problem.ConsentRequired.Problem("Consent required"))
 				return
 			}
 
@@ -137,7 +133,7 @@ func bearerToken(header string) (string, bool) {
 
 // writeTokenInvalid는 401 auth.token_invalid를 WWW-Authenticate와 함께 씁니다.
 func writeTokenInvalid(w http.ResponseWriter, r *http.Request) {
-	problem.WriteBearerChallenge(w, r, problem.New(http.StatusUnauthorized, codeTokenInvalid, "Token invalid"))
+	problem.WriteBearerChallenge(w, r, problem.AuthTokenInvalid.Problem("Token invalid"))
 }
 
 // accountContextKey는 ctx에 인증된 계정을 담는 키 타입입니다. 패키지 밖에서 같은 키를 만들 수 없게 unexported입니다.

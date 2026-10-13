@@ -1496,7 +1496,7 @@ components:
         * `request.inconsistent`: 상태-값 짝 위반. `errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`
           (대상 `BirthTime`, `BirthPlace`, 양력의 `isLeapMonth`, `NotificationSetting`, `ScheduleInput`·`SchedulePatch`)
         * `consent.version_mismatch`: 동의한 문서 버전이 현재 버전과 다름. `errors[].field`는 `/documents/<i>/version`
-        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `name.emoji` 등 호칭 규칙 위반, `idempotency.mismatch`
+        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, 호칭 거부(`name.empty`·`name.too_long`·`name.emoji`·`name.control`·`name.invalid_char`, josa.yaml name_rules의 기준 구현 normalize_name), `idempotency.mismatch`
       content:
         application/problem+json:
           schema:
@@ -1569,7 +1569,133 @@ components:
           type: integer
         code:
           type: string
-          description: 오류 코드. app은 이 값으로 UI 문구를 고릅니다.
+          description: |
+            오류 코드. app은 이 값으로 UI 문구를 고릅니다. 가능한 값과 상태는 `x-problem-codes`입니다.
+            목록에 없는 code가 오면 status 대역의 기본 문구를 씁니다(목록은 하위 호환으로 늘어납니다).
+          x-problem-codes:
+            request.malformed:
+              status: 400
+              description: 'JSON 문법 오류, 값 뒤에 데이터가 더 있음'
+            request.invalid:
+              status: 400
+              description: '스키마로 표현되는 형식·범위 위반. errors[].code는 위반한 keyword'
+            auth.token_expired:
+              status: 401
+              description: 'access token 만료. 갱신하면 됨'
+            auth.token_invalid:
+              status: 401
+              description: 'access token 없음·위조, 또는 refresh token 무효'
+            auth.refresh_reused:
+              status: 401
+              description: 'refresh token 재사용 감지. family 전체 폐기, 다시 로그인'
+            auth.provider_token_invalid:
+              status: 401
+              description: '카카오·Apple 제공자 토큰 검증 실패'
+            app_check.invalid:
+              status: 401
+              description: 'App Check 토큰 검증 실패'
+            reward.invalid_signature:
+              status: 401
+              description: 'AdMob 보상 콜백 서명 검증 실패'
+            reward.expired:
+              status: 401
+              description: 'AdMob 보상 콜백 timestamp가 1시간 넘게 오래됨'
+            consent.required:
+              status: 403
+              description: '약관 미동의 또는 문서 버전 변경'
+            preview.used:
+              status: 403
+              description: '설치당 1회인 미리보기를 이미 씀'
+            route.not_found:
+              status: 404
+              description: '등록된 라우트가 없음'
+            diary.not_found:
+              status: 404
+              description: '없는 일기. 남의 일기도 같은 응답'
+            method.not_allowed:
+              status: 405
+              description: '라우트는 있으나 메서드가 다름(Allow 헤더)'
+            profile.required:
+              status: 409
+              description: '프로필 없이 운세·일기를 요청함'
+            diary.date_taken:
+              status: 409
+              description: '되살리려는 날짜에 이미 일기가 있음'
+            idempotency.in_progress:
+              status: 409
+              description: '같은 Idempotency-Key 요청이 처리 중'
+            request.too_large:
+              status: 413
+              description: '요청 본문이 1 MiB를 넘음'
+            request.unsupported_media_type:
+              status: 415
+              description: '지원하지 않는 요청 Content-Type'
+            date.out_of_range:
+              status: 422
+              description: '형식은 맞지만 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖의 날짜'
+            birth.out_of_range:
+              status: 422
+              description: '형식은 맞지만 지원 범위 밖의 출생 정보'
+            date.invalid:
+              status: 422
+              description: 'LunarOrSolarDate가 달력에 없는 날짜(예 양력 2월 31일)'
+            request.inconsistent:
+              status: 422
+              description: '상태-값 짝 위반. errors[].code는 required_by_status 또는 forbidden_by_status'
+            birth.invalid:
+              status: 422
+              description: '엔진이 거절한 출생 정보(예 없는 음력 날짜)'
+            diary.future_date:
+              status: 422
+              description: '오늘 이후 날짜의 일기'
+            name.empty:
+              status: 422
+              description: '호칭 거부: 공백과 접미사를 떼고 나면 비어 있음'
+            name.too_long:
+              status: 422
+              description: '호칭 거부: 언어별 최대 길이(ko·ja 10, en 20)를 넘음'
+            name.emoji:
+              status: 422
+              description: '호칭 거부: 이모지를 포함함'
+            name.control:
+              status: 422
+              description: '호칭 거부: 제어 문자를 포함함'
+            name.invalid_char:
+              status: 422
+              description: '호칭 거부: 받지 않는 글자({ } [ ] ( ))를 포함함'
+            idempotency.mismatch:
+              status: 422
+              description: '같은 Idempotency-Key에 다른 본문'
+            consent.version_mismatch:
+              status: 422
+              description: '동의한 문서 버전이 현재 버전과 다름. errors[].field는 /documents/<i>/version'
+            rate_limited:
+              status: 429
+              description: '요청 한도 초과(Retry-After)'
+            internal:
+              status: 500
+              description: '예상하지 못한 server 오류. 상세는 로그에만'
+            not_implemented:
+              status: 501
+              description: '계약에는 있으나 아직 구현하지 않은 operation'
+            engine.error:
+              status: 502
+              description: '엔진 내부 오류. 다시 시도해도 같을 가능성이 큼'
+            engine.unavailable:
+              status: 503
+              description: '엔진에 연결할 수 없음(Retry-After)'
+            auth.provider_unavailable:
+              status: 503
+              description: '카카오·Apple 제공자 장애'
+            billing.provider_unavailable:
+              status: 503
+              description: 'RevenueCat 장애'
+            service.unavailable:
+              status: 503
+              description: 'DB 연결 실패 등 server가 일시적으로 처리할 수 없음'
+            engine.timeout:
+              status: 504
+              description: '엔진 응답 시간 초과'
         traceId:
           type: string
           description: 문의가 왔을 때 server 로그를 찾는 값
