@@ -313,3 +313,42 @@ def test_load_content_reports_problems_together(tmp_path: Path) -> None:
         load_content(tmp_path)
     assert len(raised.value.findings) >= 3
     assert {finding.rule_id for finding in raised.value.findings} == {"load.schema"}
+
+
+V11_SLOT = """\
+- id: test.slot
+  where: 시험 화면
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  ia: [today.guide.question]
+  components: [tag-chip]
+  select: "값 v -> 키 k"
+  vocative: true
+  keys:
+    - params: {when: text}
+      keys: [k]
+  examples: {good: [], bad: []}
+"""
+
+
+def test_slot_v11_fields(tmp_path: Path, rules: RuleSet) -> None:
+    slot = load_slots(make_slots_dir(tmp_path, V11_SLOT), rules)["test.slot"]
+    assert slot.ia == ("today.guide.question",)
+    assert slot.components == ("tag-chip",)
+    assert slot.select == "값 v -> 키 k"
+    assert slot.vocative is True
+    assert slot.keys["k"]["when"] == ParamKind("text")
+
+
+def test_slot_v11_defaults(tmp_path: Path, rules: RuleSet) -> None:
+    slot = load_slots(make_slots_dir(tmp_path, VALID_SLOT), rules)["test.slot"]
+    assert (slot.ia, slot.components, slot.select, slot.vocative) == ((), (), "", False)
+
+
+def test_vocative_must_be_bool(tmp_path: Path, rules: RuleSet) -> None:
+    with pytest.raises(LoadError) as error:
+        load_slots(make_slots_dir(tmp_path, V11_SLOT.replace("vocative: true", 'vocative: "yes"')), rules)
+    assert "'vocative'" in str(error.value)
