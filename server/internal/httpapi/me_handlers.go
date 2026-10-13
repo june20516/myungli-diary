@@ -4,11 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
+
+// codeConsentVersionMismatch는 동의 요청의 문서 버전이 현재 버전과 다를 때의 오류 코드입니다.
+const codeConsentVersionMismatch = "consent.version_mismatch"
 
 // GetMe는 계정 상태와 동의 필요 여부를 돌려줍니다.
 // hasProfile, adFree, insight는 프로필(P3)과 수익(P7)이 생길 때까지 고정값입니다.
@@ -56,10 +60,10 @@ func (a *API) AgreeConsents(ctx context.Context, req gen.AgreeConsentsRequestObj
 		var mismatch *account.ConsentVersionMismatchError
 		if errors.As(err, &mismatch) {
 			return nil, &Error{
-				Status: 422, Code: "consent.version_mismatch", Title: "Consent version mismatch",
+				Status: http.StatusUnprocessableEntity, Code: codeConsentVersionMismatch, Title: "Consent version mismatch",
 				Errors: []problem.FieldError{{
 					Field: fmt.Sprintf("/documents/%d/version", mismatch.Index),
-					Code:  "consent.version_mismatch",
+					Code:  codeConsentVersionMismatch,
 				}},
 			}
 		}

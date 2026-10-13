@@ -53,10 +53,10 @@ type domainError struct {
 var domainErrors = []domainError{
 	{target: auth.ErrProviderTokenInvalid, status: http.StatusUnauthorized, code: "auth.provider_token_invalid", title: "Provider token invalid"},
 	{target: auth.ErrProviderUnavailable, status: http.StatusServiceUnavailable, code: "auth.provider_unavailable", title: "Provider unavailable"},
-	{target: auth.ErrRefreshInvalid, status: http.StatusUnauthorized, code: "auth.token_invalid", title: "Refresh token invalid"},
+	{target: auth.ErrRefreshInvalid, status: http.StatusUnauthorized, code: codeTokenInvalid, title: "Refresh token invalid"},
 	{target: auth.ErrRefreshReused, status: http.StatusUnauthorized, code: "auth.refresh_reused", title: "Refresh token reused"},
 	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
-	{target: account.ErrNotFound, status: http.StatusUnauthorized, code: "auth.token_invalid", title: "Token invalid", bearerChallenge: true},
+	{target: account.ErrNotFound, status: http.StatusUnauthorized, code: codeTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.

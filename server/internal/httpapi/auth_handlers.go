@@ -25,6 +25,7 @@ func toGenTokenPair(p auth.TokenPair) gen.TokenPair {
 func (a *API) loginResponse(ctx context.Context, res auth.LoginResult) (gen.LoginResponse, error) {
 	me, err := a.Accounts.Me(ctx, res.AccountID)
 	if err != nil {
+		// 토큰은 이미 발급·저장됐지만 응답하지 못하므로 버려집니다. 클라이언트가 로그인을 다시 시도하면 복구됩니다.
 		return gen.LoginResponse{}, err
 	}
 	return gen.LoginResponse{
@@ -88,7 +89,7 @@ func (a *API) Logout(ctx context.Context, req gen.LogoutRequestObject) (gen.Logo
 }
 
 // errNoAccount는 인증 middleware를 거치지 않아 ctx에 계정이 없을 때의 오류입니다(조립 실수 방어).
-var errNoAccount = &Error{Status: http.StatusUnauthorized, Code: "auth.token_invalid", Title: "Token invalid", BearerChallenge: true}
+var errNoAccount = &Error{Status: http.StatusUnauthorized, Code: codeTokenInvalid, Title: "Token invalid", BearerChallenge: true}
 
 // AppleCallback은 Apple 웹 흐름의 form_post 콜백을 앱 deep link로 303 redirect합니다.
 // 받은 값(code, id_token, user)은 deep link 쿼리로만 넘기고 로그에 남기지 않습니다.

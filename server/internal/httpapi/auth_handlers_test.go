@@ -24,6 +24,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
+	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
 
 const testDeepLink = "myungli://auth/apple"
@@ -289,7 +290,7 @@ func TestAppleCallback_NeitherErrorNorCodeIs400(t *testing.T) {
 	}
 }
 
-func TestGetHealth_OKRequiresDB(t *testing.T) {
+func TestGetHealth_NilDBIs503(t *testing.T) {
 	handler, spec := newHandlerAPI(t, &httpapi.API{})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil)
@@ -297,6 +298,19 @@ func TestGetHealth_OKRequiresDB(t *testing.T) {
 
 	require.Equal(t, http.StatusServiceUnavailable, rec.Code, "DB가 없으면 503")
 	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+	expectContractResponse(t, spec, req, rec)
+}
+
+func TestGetHealth_DBPingOKIs200(t *testing.T) {
+	handler, spec := newHandlerAPI(t, &httpapi.API{DB: dbtest.New(t)})
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil)
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, "DB ping이 성공하면 200")
+	var body gen.Health
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+	assert.Equal(t, gen.Ok, body.Status)
 	expectContractResponse(t, spec, req, rec)
 }
 
