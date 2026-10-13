@@ -1,4 +1,4 @@
-import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/ia/ia_ids.dart';
 
 /// 알림을 눌러 앱이 열린 사건.
 final class PushOpen {
@@ -8,7 +8,7 @@ final class PushOpen {
   ///
   /// 모르는 값을 `today` 같은 화면으로 바꾸지 않고 사건을 무시합니다.
   static PushOpen? tryCreate(String screenId) {
-    final sanitized = sanitizeBreadcrumb(screenId);
+    final sanitized = sanitizeScreenId(screenId);
     return sanitized == null ? null : PushOpen._(screenId: sanitized);
   }
 

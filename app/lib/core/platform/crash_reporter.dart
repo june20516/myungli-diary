@@ -1,16 +1,12 @@
 import 'package:myungli_diary/core/api/app_error.dart';
-import 'package:myungli_diary/core/ia/gen/ia.g.dart';
-
-final Set<String> _screenIdSet = {for (final screen in iaScreens) screen.id};
+import 'package:myungli_diary/core/ia/ia_ids.dart';
 
 final RegExp _uuidPattern = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
   caseSensitive: false,
 );
 
-/// IA 화면 id이면 그대로, 아니면 null. release에서도 거릅니다(D64 ②).
-String? sanitizeBreadcrumb(String screenId) =>
-    _screenIdSet.contains(screenId) ? screenId : null;
+final RegExp _problemCodePattern = RegExp(r'^[a-z0-9_.]{1,64}$');
 
 /// UUID 형식이면 그대로, 아니면 null. 계정 id 밖의 값은 보내지 않습니다(D64 ②).
 String? sanitizeAccountId(String? accountId) =>
@@ -21,17 +17,17 @@ String? sanitizeAccountId(String? accountId) =>
 /// `toString()`·`UnexpectedError.cause`·`DioException`의 요청·응답 본문은
 /// 일기 본문이나 출생 정보를 품을 수 있어 담지 않습니다.
 final class CrashSummary {
-  /// 요약 값을 직접 담습니다.
-  const new({required this.errorType, this.code, this.status});
+  const new _({required this.errorType, this.code, this.status});
 
   /// [error]에서 안전한 값(타입 이름, problem code·status)만 뽑습니다.
   factory from(Object error) => switch (error) {
-    ProblemError(:final code, :final status) => CrashSummary(
+    ProblemError(:final code, :final status) => CrashSummary._(
       errorType: 'ProblemError',
-      code: code,
+      // 형식이 이상한 code는 사용자 데이터를 실을 수 있어 버립니다.
+      code: _problemCodePattern.hasMatch(code) ? code : null,
       status: status,
     ),
-    _ => CrashSummary(errorType: error.runtimeType.toString()),
+    _ => CrashSummary._(errorType: error.runtimeType.toString()),
   };
 
   /// 오류 타입 이름.
@@ -47,7 +43,7 @@ final class CrashSummary {
 /// 비정상 종료 보고(Crashlytics).
 ///
 /// 일기 본문, 출생 정보, 호칭은 어떤 경로로도 넘기지 않습니다(D64 ②).
-/// 자유 문자열 custom key는 두지 않습니다. 구현은 [sanitizeBreadcrumb]·
+/// 자유 문자열 custom key는 두지 않습니다. 구현은 [sanitizeScreenId]·
 /// [sanitizeAccountId]를 거쳐야 합니다.
 abstract interface class CrashReporter {
   /// 정제된 오류 요약을 보고합니다.

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/ia/ia_ids.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
@@ -176,9 +177,9 @@ void main() {
     });
 
     test('release에서도 걸러지도록 판별 함수가 거부한다', () {
-      expect(sanitizeBreadcrumb('today'), 'today');
-      expect(sanitizeBreadcrumb('1990-01-01'), isNull);
-      expect(sanitizeBreadcrumb('오늘 일기 본문'), isNull);
+      expect(sanitizeScreenId('today'), 'today');
+      expect(sanitizeScreenId('1990-01-01'), isNull);
+      expect(sanitizeScreenId('오늘 일기 본문'), isNull);
     });
 
     test('계정 id는 UUID만 받는다', () {
@@ -226,6 +227,21 @@ void main() {
         expect(text.contains('1990'), isFalse);
         expect(text.contains('홍길동'), isFalse);
         expect(text.contains('일기'), isFalse);
+      }
+    });
+
+    test('형식이 이상한 problem code는 버린다', () {
+      for (final code in ['홍길동 1990-05-05', 'A.B', '', 'a' * 65]) {
+        final summary = CrashSummary.from(
+          ProblemError(
+            code: code,
+            status: 422,
+            fieldErrors: const [],
+            traceId: 't',
+          ),
+        );
+        expect(summary.code, isNull, reason: code);
+        expect(summary.status, 422);
       }
     });
 

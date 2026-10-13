@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/ia/ia_ids.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
@@ -148,7 +149,7 @@ final class FakeCrashReporter implements CrashReporter {
 
   @override
   void breadcrumb(String screenId) {
-    final sanitized = sanitizeBreadcrumb(screenId);
+    final sanitized = sanitizeScreenId(screenId);
     assert(sanitized != null, 'IA 화면 id가 아닌 breadcrumb입니다(D64 ②).');
     if (sanitized != null) {
       breadcrumbs.add(sanitized);
