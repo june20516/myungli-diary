@@ -1,0 +1,537 @@
+{
+  "generatedAt": "2026-10-13T15:35:38.431628Z",
+  "exits": {
+    "covered": 3,
+    "total": 76,
+    "uncovered": [
+      "account-delete>welcome",
+      "ad-consent>today",
+      "ad-free>legal",
+      "ad-free>system-purchase",
+      "birthplace>preview",
+      "birthplace>profile-edit",
+      "birthplace>settings",
+      "calendar>day-sheet",
+      "calendar>event-edit",
+      "consent>legal",
+      "consent>notify-ask",
+      "consent>onboard-call",
+      "day-sheet>diary-edit",
+      "day-sheet>diary-view",
+      "day-sheet>event-edit",
+      "day-sheet>explain-sheet",
+      "diary-edit>diary-view",
+      "diary-list>diary-edit",
+      "diary-list>diary-view",
+      "diary-list>tag-diary",
+      "diary-view>diary-edit",
+      "diary-view>explain-sheet",
+      "diary-view>tag-diary",
+      "evidence-sheet>ad-free",
+      "evidence-sheet>system-rewarded-ad",
+      "explain-sheet>evidence-sheet",
+      "launch>ad-consent",
+      "login>ad-consent",
+      "login>consent",
+      "login>today",
+      "my-saju>explain-sheet",
+      "my-saju>saju-chart",
+      "my-saju>settings",
+      "notify-ask>ad-consent",
+      "onboard-birth>onboard-time",
+      "onboard-birth>profile-edit",
+      "onboard-call>onboard-birth",
+      "onboard-call>profile-edit",
+      "onboard-gender>birthplace",
+      "onboard-gender>preview",
+      "onboard-gender>profile-edit",
+      "onboard-time>onboard-gender",
+      "onboard-time>profile-edit",
+      "preview>login",
+      "preview>onboard-call",
+      "profile-edit>birthplace",
+      "profile-edit>onboard-birth",
+      "profile-edit>onboard-call",
+      "profile-edit>onboard-gender",
+      "profile-edit>onboard-time",
+      "saju-chart>evidence-sheet",
+      "saju-chart>explain-sheet",
+      "settings>account-delete",
+      "settings>ad-free",
+      "settings>birthplace",
+      "settings>calc-basis",
+      "settings>legal",
+      "settings>profile-edit",
+      "settings>welcome",
+      "share-preview>system-share",
+      "system-purchase>ad-free",
+      "system-push>today",
+      "system-rewarded-ad>evidence-sheet",
+      "tag-diary>diary-view",
+      "tag-diary>explain-sheet",
+      "today>day-sheet",
+      "today>diary-edit",
+      "today>diary-view",
+      "today>evidence-sheet",
+      "today>explain-sheet",
+      "today>share-preview",
+      "welcome>login",
+      "welcome>onboard-call"
+    ],
+    "coveredBy": {
+      "launch>force-update": [
+        "test/flows/launch_flow_test.dart:49 force-update 시나리오는 force-update 화면에 도착합니다"
+      ],
+      "launch>today": [
+        "test/flows/launch_flow_test.dart:44 member 시나리오는 today 화면에 도착합니다"
+      ],
+      "launch>welcome": [
+        "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
+        "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+      ]
+    }
+  },
+  "states": {
+    "covered": 1,
+    "total": 54,
+    "uncovered": [
+      "account-delete:error",
+      "ad-free:error",
+      "ad-free:loading",
+      "ad-free:offline",
+      "birthplace:empty",
+      "birthplace:error",
+      "birthplace:loading",
+      "calendar:error",
+      "calendar:loading",
+      "calendar:offline",
+      "consent:error",
+      "day-sheet:empty",
+      "day-sheet:error",
+      "day-sheet:loading",
+      "diary-edit:draft",
+      "diary-edit:error",
+      "diary-edit:loading",
+      "diary-edit:offline",
+      "diary-list:empty",
+      "diary-list:error",
+      "diary-list:loading",
+      "diary-list:offline",
+      "diary-view:error",
+      "diary-view:loading",
+      "event-edit:error",
+      "event-edit:loading",
+      "event-edit:offline",
+      "evidence-sheet:error",
+      "evidence-sheet:loading",
+      "explain-sheet:error",
+      "explain-sheet:loading",
+      "launch:loading",
+      "login:error",
+      "my-saju:error",
+      "my-saju:loading",
+      "my-saju:time-unknown",
+      "onboard-birth:out-of-range",
+      "onboard-time:time-unknown",
+      "preview:error",
+      "preview:loading",
+      "preview:offline",
+      "preview:time-unknown",
+      "profile-edit:error",
+      "saju-chart:error",
+      "saju-chart:loading",
+      "saju-chart:time-unknown",
+      "tag-diary:empty",
+      "tag-diary:error",
+      "tag-diary:loading",
+      "today:error",
+      "today:loading",
+      "today:offline",
+      "today:time-unknown"
+    ],
+    "coveredBy": {
+      "launch:offline": [
+        "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
+      ]
+    }
+  },
+  "decisions": {
+    "covered": 1,
+    "total": 6,
+    "uncovered": [
+      "D30",
+      "D47",
+      "D49",
+      "D53",
+      "D60"
+    ],
+    "coveredBy": {
+      "D50": [
+        "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
+        "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+      ]
+    }
+  },
+  "byScreen": {
+    "launch": {
+      "exits": {
+        "covered": 3,
+        "total": 4
+      },
+      "states": {
+        "covered": 1,
+        "total": 2
+      }
+    },
+    "force-update": {
+      "exits": {
+        "covered": 0,
+        "total": 0
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "welcome": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "onboard-call": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "onboard-birth": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "onboard-time": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "onboard-gender": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "birthplace": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "preview": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 4
+      }
+    },
+    "login": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "consent": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "notify-ask": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "system-push": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "ad-consent": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "today": {
+      "exits": {
+        "covered": 0,
+        "total": 6
+      },
+      "states": {
+        "covered": 0,
+        "total": 4
+      }
+    },
+    "explain-sheet": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 2
+      }
+    },
+    "evidence-sheet": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 2
+      }
+    },
+    "share-preview": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "system-share": {
+      "exits": {
+        "covered": 0,
+        "total": 0
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "calendar": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "day-sheet": {
+      "exits": {
+        "covered": 0,
+        "total": 4
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "event-edit": {
+      "exits": {
+        "covered": 0,
+        "total": 0
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "diary-list": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 4
+      }
+    },
+    "diary-edit": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 4
+      }
+    },
+    "diary-view": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 2
+      }
+    },
+    "tag-diary": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "my-saju": {
+      "exits": {
+        "covered": 0,
+        "total": 3
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "saju-chart": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "settings": {
+      "exits": {
+        "covered": 0,
+        "total": 7
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "ad-free": {
+      "exits": {
+        "covered": 0,
+        "total": 2
+      },
+      "states": {
+        "covered": 0,
+        "total": 3
+      }
+    },
+    "system-purchase": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "system-rewarded-ad": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "profile-edit": {
+      "exits": {
+        "covered": 0,
+        "total": 5
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "calc-basis": {
+      "exits": {
+        "covered": 0,
+        "total": 0
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "account-delete": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "legal": {
+      "exits": {
+        "covered": 0,
+        "total": 0
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    }
+  }
+}

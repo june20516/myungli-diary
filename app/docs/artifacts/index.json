@@ -1,0 +1,18 @@
+[
+  {
+    "id": "e2e.welcome.default.2026-10-14",
+    "title": "welcome (default) E2E 스크린샷",
+    "kind": "screenshot",
+    "file": "2026-10-14-welcome-default.png",
+    "date": "2026-10-14",
+    "milestone": "A1",
+    "screens": [
+      "welcome"
+    ],
+    "decisions": [
+      "D50"
+    ],
+    "status": "draft",
+    "note": "Patrol E2E가 welcome 화면(default)에 도착해 남긴 캡처"
+  }
+]

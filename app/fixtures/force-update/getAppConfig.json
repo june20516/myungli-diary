@@ -1,0 +1,4 @@
+{
+  "status": 200,
+  "body": { "minimumVersion": { "ios": "99.0.0", "android": "99.0.0" } }
+}

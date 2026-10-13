@@ -1,0 +1,3 @@
+# golden 기준 이미지를 만드는 Flutter 버전(한 줄). goldens_linux.sh와 CI의 goldens·update-goldens job이 읽습니다.
+# Flutter를 올릴 때 이 값을 올리고 같은 PR에서 golden을 다시 만든다(tool/goldens_linux.sh).
+3.47.7
