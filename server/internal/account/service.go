@@ -187,7 +187,8 @@ func (s *Service) RequestDeletion(ctx context.Context, id uuid.UUID) (time.Time,
 			return err
 		}
 		if rows == 1 {
-			scheduled, changed = now.Add(deletionGracePeriod), true
+			// DB는 마이크로초 정밀도로 저장하므로, 재호출이 돌려주는 값과 같도록 맞춥니다.
+			scheduled, changed = now.Truncate(time.Microsecond).Add(deletionGracePeriod), true
 			return nil
 		}
 
@@ -210,7 +211,8 @@ func (s *Service) RequestDeletion(ctx context.Context, id uuid.UUID) (time.Time,
 	}
 
 	if changed {
-		s.endSessions(ctx, id)
+		// 이미 commit된 삭제 예약의 뒷정리이므로, 클라이언트가 응답 전에 연결을 끊어 ctx가 취소돼도 끝까지 수행합니다.
+		s.endSessions(context.WithoutCancel(ctx), id)
 	}
 	return scheduled, nil
 }

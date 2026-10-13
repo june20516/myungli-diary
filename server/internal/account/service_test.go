@@ -30,15 +30,32 @@ type fakeSessions struct {
 	revokeCalls     atomic.Int32
 	disconnectCalls atomic.Int32
 	disconnectErr   error
+	revokeErr       error
+	// onRevoke가 있으면 RevokeAllSessions 시작 때 불립니다(호출자 ctx 취소 시뮬레이션).
+	onRevoke func()
+	// ctxErrs는 두 함수가 받은 ctx의 Err() 기록입니다.
+	mu      sync.Mutex
+	ctxErrs []error
 }
 
-func (f *fakeSessions) RevokeAllSessions(context.Context, uuid.UUID) error {
+func (f *fakeSessions) recordCtx(ctx context.Context) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.ctxErrs = append(f.ctxErrs, ctx.Err())
+}
+
+func (f *fakeSessions) RevokeAllSessions(ctx context.Context, _ uuid.UUID) error {
 	f.revokeCalls.Add(1)
-	return nil
+	if f.onRevoke != nil {
+		f.onRevoke()
+	}
+	f.recordCtx(ctx)
+	return f.revokeErr
 }
 
-func (f *fakeSessions) DisconnectProviders(context.Context, uuid.UUID) error {
+func (f *fakeSessions) DisconnectProviders(ctx context.Context, _ uuid.UUID) error {
 	f.disconnectCalls.Add(1)
+	f.recordCtx(ctx)
 	return f.disconnectErr
 }
 
@@ -215,6 +232,8 @@ func TestRequestDeletion_SchedulesAndEndsSessions(t *testing.T) {
 
 func TestRequestDeletion_IsIdempotent(t *testing.T) {
 	f := newFixture(t)
+	// 나노초가 있는 시각이어도 첫 호출과 재호출(DB 값)의 정밀도가 같아야 합니다.
+	f.clk.Set(testNow.Add(123456789 * time.Nanosecond))
 	first, err := f.service.RequestDeletion(f.ctx, f.id)
 	require.NoError(t, err)
 
@@ -283,4 +302,29 @@ func TestAccess_UnknownAccountIsNotFound(t *testing.T) {
 
 	_, err = f.service.Me(f.ctx, uuid.New())
 	assert.ErrorIs(t, err, account.ErrNotFound)
+}
+
+func TestRequestDeletion_RevokeFailureStillDisconnectsAndSchedules(t *testing.T) {
+	f := newFixture(t)
+	f.sessions.revokeErr = errors.New("revoke 실패")
+
+	_, err := f.service.RequestDeletion(f.ctx, f.id)
+
+	require.NoError(t, err)
+	assert.Equal(t, "pending_deletion", f.status(t))
+	assert.EqualValues(t, 1, f.sessions.disconnectCalls.Load())
+	assert.Contains(t, f.logs.String(), "level=WARN")
+}
+
+func TestRequestDeletion_EndSessionsIgnoresCallerCancellation(t *testing.T) {
+	f := newFixture(t)
+	ctx, cancel := context.WithCancel(f.ctx)
+	defer cancel()
+	f.sessions.onRevoke = cancel // commit 직후 호출자가 떠난 상황
+
+	_, err := f.service.RequestDeletion(ctx, f.id)
+
+	require.NoError(t, err)
+	assert.Equal(t, []error{nil, nil}, f.sessions.ctxErrs, "정리 함수는 취소되지 않은 ctx를 받습니다")
+	assert.Empty(t, f.logs.String())
 }
