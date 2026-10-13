@@ -78,8 +78,7 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
       minimumVersionFor(config, ref.read(targetPlatformProvider)),
     );
 
-    final hasSession =
-        tokens.accessToken != null || await tokens.refreshToken() != null;
+    final hasSession = await tokens.hasSession();
     Me? me;
     if (hasSession && appVersion >= minimum) {
       try {
@@ -89,7 +88,7 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
           rethrow;
         }
         // refresh 거부로 interceptor가 이미 로그아웃했다면 이벤트를 두 번 내지 않습니다.
-        if (tokens.accessToken != null || await tokens.refreshToken() != null) {
+        if (await tokens.hasSession()) {
           await tokens.signOut();
         }
         return const EntrySnapshot(EntryState.signedOut, null);

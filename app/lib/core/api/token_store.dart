@@ -49,6 +49,10 @@ final class TokenStore {
   /// 저장된 refresh token. 없으면 null입니다.
   Future<String?> refreshToken() => _secureStore.read(_refreshKey);
 
+  /// 남은 토큰이 있는지(access token 또는 저장된 refresh token).
+  Future<bool> hasSession() async =>
+      _accessToken != null || await refreshToken() != null;
+
   /// 이벤트 없이 토큰을 지웁니다. 로그아웃이 아닙니다.
   ///
   /// 정리할 로컬 데이터가 없는 경우만 씁니다: fake 모드 시작 코드가 시나리오의

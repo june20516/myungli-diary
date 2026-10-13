@@ -25,5 +25,18 @@ Future<void> revokeAndSignOut({
   } on Object {
     // 폐기에 실패해도 server의 refresh token은 만료로 끝납니다. 로컬 로그아웃이 우선입니다.
   }
-  await tokens.signOut();
+  // `logout`은 bearer 요청이라, access token이 만료됐고 refresh가 거부되면 interceptor가
+  // 이미 로그아웃했을 수 있습니다. 그때 signedOut을 두 번 내지 않습니다.
+  if (await _hasSessionOrUnknown(tokens)) {
+    await tokens.signOut();
+  }
+}
+
+/// 남은 토큰이 있는지. 저장소를 읽지 못하면 지우는 쪽(true)으로 봅니다.
+Future<bool> _hasSessionOrUnknown(TokenStore tokens) async {
+  try {
+    return await tokens.hasSession();
+  } on Object {
+    return true;
+  }
 }
