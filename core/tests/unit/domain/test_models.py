@@ -2,9 +2,9 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from myungri_engine.domain.enums import Branch, NoticeCode, Stem
-from myungri_engine.domain.errors import InvalidInputError, OutOfRangeError
-from myungri_engine.domain.models import Evidence, FourPillars, Judgment, Notice, Pillar
+from myungli_engine.domain.enums import Branch, NoticeCode, Stem
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.domain.models import Evidence, FourPillars, Judgment, Notice, Pillar
 
 
 def test_pillar_is_frozen_and_hashable():

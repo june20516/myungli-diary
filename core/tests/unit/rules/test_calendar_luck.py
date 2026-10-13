@@ -1,7 +1,7 @@
-from myungri_engine.chart.positions import Position
-from myungri_engine.domain.enums import DayKind, LuckLevel
-from myungri_engine.rules.calendar_luck import score_day
-from myungri_engine.rules.relations import Relation, RelationKind
+from myungli_engine.chart.positions import Position
+from myungli_engine.domain.enums import DayKind, LuckLevel
+from myungli_engine.rules.calendar_luck import score_day
+from myungli_engine.rules.relations import Relation, RelationKind
 
 
 def rel(kind: RelationKind, position: Position, suppressed_by: RelationKind | None = None) -> Relation:

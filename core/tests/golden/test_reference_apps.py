@@ -18,10 +18,10 @@ from datetime import date, time
 from functools import cache
 from pathlib import Path
 
-from myungri_engine.calendar_core.birth import BirthInput, LunarDate
-from myungri_engine.composers.chart import ChartView, compose_chart
-from myungri_engine.domain.enums import Branch, CalendarType, Gender, Stem
-from myungri_engine.domain.models import Pillar
+from myungli_engine.calendar_core.birth import BirthInput, LunarDate
+from myungli_engine.composers.chart import ChartView, compose_chart
+from myungli_engine.domain.enums import Branch, CalendarType, Gender, Stem
+from myungli_engine.domain.models import Pillar
 
 FIXTURES = Path(__file__).parent / "fixtures"
 APPS = ("forceteller", "mobiwise")
