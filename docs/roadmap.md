@@ -15,7 +15,7 @@
 | S1 | server 설계 (spec·계획) | server | R0, M0 | S2 | **완료** (PR #62 `8528022`, server 결정 S1~) |
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, P2a Apple 웹 로그인 복귀 PR #113, 다음 P3 프로필·엔진·캐시) |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | 시작 전 |
-| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **진행 중** (아키텍처 spec·결정 A1~A15·기반 계획 PR #95, 기반 구현 `app/foundation`) |
+| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **진행 중** (아키텍처 spec·결정 A1~A15 PR #95, 기반 구현 PR #117: 앱 셸·통신·캐시·디자인 시스템·플랫폼 대역·E2E 뼈대, 결정 A16. 다음 계획 2 온보딩·로그인) |
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | **완료** (D47~D51, `docs/ia/screens.json` v1) |
@@ -41,8 +41,9 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 1 (지금) | app | A1 기반 구현(`app/foundation`). 받은 notice #82(컴포넌트 2.1.0), server P2 반영 요청 #100(인증 adapter는 대역으로 두고 규칙만). app.yml이 병합되면 지휘가 ci-gate에 연결(#85) | A2, I2 |
-| 1 (지금, design 다음) | writing | ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90), #116(Apple 로그인 복귀 안내 페이지 content 슬롯, D66) | A1 문구, I3 |
+| 1 (지금) | app | A1 계획 2(온보딩·로그인: launch·welcome·onboard-*·birthplace·preview·login·consent 등). 기반 구현 PR #117 병합. 받은 요청 #100·#114(로그인 화면에서 반영), ci-gate 연결 #85(PR #125) | A2, I2 |
+| 1 (지금) | writing | **app 계획 2의 온보딩·로그인 화면이 문구를 바로 씀.** ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90), #116(Apple 로그인 복귀 안내 페이지 content 슬롯, D66) | A1 문구, I3 |
+| 1 (짧게) | design | #118: app 기반 구현의 명세 차이·임시 선택(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘, 접근성 역할, `LockVeil.line` 변형)을 명세에 반영하거나 다른 값을 정함 | - |
 | 2 (A1 화면 골격 이후) | server | P2·P2a 완료(PR #99·#113, app 반영 요청 #100·#114). 다음 P3 프로필·엔진·캐시(S23 사주 변경일 문장 선택 구현 포함)와 #79(엔진 실행 조건, D65 배포 workflow), #55. 끝난 것: #88·#102(PR #105), #89·#92·#93(PR #113, 구현은 P3·P6·P9) | S3 |
 | 3 (P2 병합 뒤) | writing | W1 콘텐츠 원고. 원어민 검수는 사용자 준비물 | I3 |
 | 3 | server | S3(REST v1 freeze), #93(staging 테스트 로그인·App Check debug token) | A2, I2 |
