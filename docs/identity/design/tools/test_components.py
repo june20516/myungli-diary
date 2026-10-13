@@ -429,3 +429,31 @@ def test_actions_are_rounded_rectangles():
 
 def test_contract_version_is_2_1():
     assert VERSION == "2.1.0"
+
+
+def ia_screens():
+    return {screen["id"]: screen for screen in json.loads(IA_PATH.read_text(encoding="utf-8"))["screens"]}
+
+
+def ia_slot_ids(screen_id):
+    return {slot["id"] for slot in ia_screens()[screen_id]["slots"]}
+
+
+# 문장 조각과 잠금 슬롯 (term-segments spec §2·§3)
+def test_term_segments_draw_chip_only_where_term_token_is():
+    block = components_by_id(BRAND_GROUPS)["sentence-block"]
+    term = block["parts"]["segments"]["term"]
+    assert term["component"] == "term-token" and term["variant"] == "inline"
+    expected = {sid for sid, screen in ia_screens().items() if "term-token" in screen.get("components", [])}
+    assert set(term["screens"]) == expected
+    assert term["elsewhere"] == "plain"
+    assert block["parts"]["segments"]["plain"] == {"style": "same-as-text"}
+
+
+def test_locked_sentence_open_slot():
+    block = components_by_id(BRAND_GROUPS)["sentence-block"]
+    assert block["states"]["locked"]["parts"]["open"]["slot"] == "saju-chart.yongsin.open"
+    assert block["a11y"]["lockedLabelSlot"] == "evidence-sheet.a11y.locked"
+    assert block["a11y"]["lockedLabel"] == "구역 이름 + '잠김', 열기는 따로 초점(link)"
+    assert {"saju-chart.yongsin.open"} <= ia_slot_ids("saju-chart")
+    assert "evidence-sheet.a11y.locked" in ia_slot_ids("evidence-sheet")

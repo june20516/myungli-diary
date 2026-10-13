@@ -14,24 +14,38 @@
       "parts": {
         "text": { "fg": "{color.text.primary}", "wordBreak": "keep-all" },
         "honorific": { "slot": "user-honorific", "style": "same-as-text" },
-        "paragraphGap": "{space.12}"
+        "paragraphGap": "{space.12}",
+        "segments": {
+          "join": "조각을 순서대로 한 문단으로 잇는다. 경계에 공백·줄바꿈을 넣지 않는다",
+          "plain": { "style": "same-as-text" },
+          "term": {
+            "component": "term-token",
+            "variant": "inline",
+            "screens": ["today", "day-sheet", "tag-diary", "my-saju", "saju-chart"],
+            "elsewhere": "plain",
+            "wrap": "용어 안에서 끊지 않음. 한국어는 공백 없이 붙은 앞뒤 글자(조사)까지 한 덩어리, 일본어는 용어 앞뒤만 글자 단위 + 금칙. 용어가 한 줄보다 길 때만 용어 안에서 끊음"
+          }
+        }
       },
       "states": {
         "locked": {
           "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
           "parts": {
             "text": { "element": "lock.veil", "lines": 1 },
-            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "glyph": "›", "inline": true }, "align": "end", "target": "evidence-sheet", "openState": "locked" }
+            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "glyph": "›", "inline": true }, "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
           }
         }
       },
       "haptic": [],
-      "a11y": { "role": "text", "label": "문장 그대로", "terms": "용어는 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)" },
+      "a11y": { "role": "text", "label": "문장 그대로", "terms": "용어는 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)", "lockedLabelSlot": "evidence-sheet.a11y.locked", "plainTerm": "일반 글자로 그린 term 조각은 따로 초점 없이 문장과 함께 읽음" },
       "rules": [
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
         "문장 끝에 depth-link가 붙을 수 있다(inline-end).",
-        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기 ›'. 누르면 근거 시트가 locked로 열린다."
+        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기 ›'. 누르면 근거 시트가 locked로 열린다.",
+        "term 조각은 term-token이 있는 화면(segments.term.screens)에서만 term-token inline으로 그린다. 그 밖의 화면과 공유 이미지에서는 일반 글자다(결정 V28).",
+        "term-token 라벨은 화면에 보이는 text를 쓴다. term 값은 풀이를 찾는 키라 읽지 않는다.",
+        "근거 잠금은 term 표시를 바꾸지 않는다. 잠긴 내용은 오지 않고, 풀이 시트는 무료다(D60)."
       ]
     },
     {
