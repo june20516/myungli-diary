@@ -417,6 +417,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 
 400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은 모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 422는 스키마로 표현할 수 없는 의미 검사(D41 범위 밖, `LunarOrSolarDate`의 없는 날짜, 상태-값 짝 위반, 엔진 판정과 업무 규칙)에만 씁니다. `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 형식 위반이라 400입니다.
 
+기계 판독 목록은 계약 `Problem.code`의 `x-problem-codes`입니다. code를 더하거나 바꾸면 이 표와 계약을 함께 고칩니다. server는 `internal/httpapi/problem/codes.go`의 상수로만 code를 내보냅니다(S21).
+
 | 상황 | 상태 | `code` 예 |
 | --- | --- | --- |
 | JSON 문법 오류, 값 뒤에 데이터가 더 있음 | 400 | `request.malformed` |
@@ -440,6 +442,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 되살리려는 날짜에 이미 일기가 있음 | 409 | `diary.date_taken` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
+| 동의한 문서 버전이 현재 버전과 다름 | 422 | `consent.version_mismatch` (`errors[].field`는 `/documents/<i>/version`) |
+| 제공자(카카오·Apple) 장애 | 503 | `auth.provider_unavailable` |
 | 요청 한도 초과 (`Retry-After`) | 429 | `rate_limited` |
 | 계약에는 있지만 아직 구현하지 않은 operation | 501 | `not_implemented` |
 

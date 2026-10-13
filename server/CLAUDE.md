@@ -31,7 +31,7 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 | **참고** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
 ## 현재 상태 (2026-10-13, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S20)에 모읍니다. 작업 브랜치는 `server/auth`입니다.
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S21)에 모읍니다. 작업 브랜치는 `server/auth`입니다.
 * P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. 새 결정은 S15(nonce)·S16(삭제 대기 계정)·S17(도메인별 sqlc)·S18(동의 문서 버전)·S19(Apple 로그인 실패 시 토큰 처리, 교환 sub 대조)·S20(refresh 재사용 30초 유예)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
