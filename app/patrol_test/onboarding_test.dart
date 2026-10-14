@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart' show find;
+import 'package:flutter_test/flutter_test.dart' show expect, find;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
+import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/testing/covers.dart';
 import 'package:patrol/patrol.dart';
 
@@ -29,7 +31,7 @@ void main() {
         decisions: ['D50', 'D53'],
       ),
     );
-    await launchApp($, scenario: 'new-user');
+    final container = await launchApp($, scenario: 'new-user');
 
     await expectScreen($, ScreenIds.welcome);
     await $(find.byKey(const ValueKey(SlotIds.welcomeCtaStart))).tap();
@@ -73,5 +75,10 @@ void main() {
     ).tap();
 
     await expectScreen($, ScreenIds.today);
+    // 프로필 저장이 끝나면 온보딩 입력은 비워집니다.
+    expect(
+      container.read(onboardingDraftProvider).value,
+      const OnboardingDraft(),
+    );
   });
 }

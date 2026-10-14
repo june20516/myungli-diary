@@ -3,7 +3,7 @@
 * 작성: app 세션, 2026-10-13
 * 상태: 승인 (2026-10-13)
 * 마일스톤: A1 (app 설계, 대역 데이터로 화면 구현)
-* 관련 결정: app 결정 A1~A13([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
+* 관련 결정: app 결정 A1~A21([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
 * 쓰는 계약
   * REST API `server/api/openapi.yaml` 1.0.0-draft.2
   * IA `docs/ia/screens.json` v1

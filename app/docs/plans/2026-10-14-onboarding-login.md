@@ -466,7 +466,7 @@
 - [ ] **Step 2:** Patrol `onboarding_test`(새 사용자 전체 흐름)와 `login_test`(기존 사용자)를 쓰고, 각 화면에 닿을 때 `expectScreen`으로 스크린샷을 남깁니다. 로컬 Android 에뮬레이터에서 실행하고 등록 도구로 `index.json`에 올립니다(README 절차). iOS 시뮬레이터에서도 한 번 돌려 결과를 report에 적습니다.
 - [ ] **Step 3:** `dart run tool/ia_coverage.dart --update-baseline` 후 `--check` → 통과. 이 계획 화면이 `pendingStateScreens`·`pendingExitScreens`에 남지 않았는지 확인합니다.
 - [ ] **Step 4:** 전체 검사: `flutter analyze`(app·widgetbook) 0, `flutter test --exclude-tags golden` 전체, golden(Linux) 차이 0, 생성 코드 차이 0, fixture 검증, `mlw check-arb`, `uvx --from actionlint-py actionlint .github/workflows/app.yml`, `flutter build apk --debug`, `flutter build ios --debug --no-codesign`.
-- [ ] **Step 5:** 문서를 고칩니다. `app/CLAUDE.md` 현재 상태(계획 2 완료, A17~A20, 커버리지 값)와 다음 할 일(계획 3, 계획 6이 받을 수정 모드 반환값과 프로필 사본, 계획 7이 받을 기기 id·스토어 앱 id·`social-login-button` 공식 자산 확인), README 시나리오 표, spec 개정 기록 한 줄.
+- [ ] **Step 5:** 문서를 고칩니다. `app/CLAUDE.md` 현재 상태(계획 2 완료, A17~A21, 커버리지 값)와 다음 할 일(계획 3, 계획 6이 받을 수정 모드 반환값과 프로필 사본, 계획 7이 받을 기기 id·스토어 앱 id·`social-login-button` 공식 자산 확인), README 시나리오 표, spec 개정 기록 한 줄.
 - [ ] **Step 6:** Commit `test(app): 온보딩·로그인 전체 흐름과 E2E, 커버리지 기준 갱신` / `docs(app): 계획 2 상태와 다음 할 일`.
 - [ ] **Step 7(controller):** 다른 단위에 Issue를 보냅니다(본문은 무엇이 필요한가·왜·영향·관련).
   * root(`kind:request`): IA 출구 `onboard-gender>notify-ask`·`birthplace>notify-ask`(로그인한 새 계정이 미리보기 없이 온보딩을 마칠 때) 추가. `preview.character.label`·`preview.fortune.body`·`onboard-time.hour.confirm`의 source와 실제 응답의 차이(A20). `consent.optional.label`에 대응하는 선택 문서가 없음
