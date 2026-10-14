@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T05:40:14.490660Z",
+  "generatedAt": "2026-10-14T05:50:12.395604Z",
   "exits": {
     "covered": 28,
     "total": 77,
@@ -57,7 +57,10 @@
     "coveredBy": {
       "ad-consent>today": [
         "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
-        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "birthplace>preview": [
         "test/flows/birthplace_flow_test.dart:128 도시를 누르면 초안에 담고 preview로 갑니다"
@@ -72,7 +75,9 @@
         "test/flows/consent_flow_test.dart:215 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
       ],
       "consent>notify-ask": [
-        "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask"
+        "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "consent>onboard-call": [
         "test/flows/consent_flow_test.dart:163 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
@@ -89,10 +94,13 @@
       ],
       "login>ad-consent": [
         "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
-        "test/flows/login_flow_test.dart:161 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
+        "test/flows/login_flow_test.dart:161 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다"
       ],
       "login>consent": [
-        "test/flows/login_flow_test.dart:91 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent"
+        "test/flows/login_flow_test.dart:91 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "login>today": [
         "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
@@ -100,17 +108,23 @@
         "test/flows/login_flow_test.dart:161 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
       ],
       "notify-ask>ad-consent": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
-        "test/flows/notify_ask_flow_test.dart:203 기기 등록이 실패하면 안내하고, 다시 눌러도 같은 Idempotency-Key로 보냅니다"
+        "test/flows/notify_ask_flow_test.dart:203 기기 등록이 실패하면 안내하고, 다시 눌러도 같은 Idempotency-Key로 보냅니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-birth>onboard-time": [
-        "test/flows/onboarding_flow_test.dart:125 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:125 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-birth>profile-edit": [
         "test/flows/onboarding_flow_test.dart:177 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
       ],
       "onboard-call>onboard-birth": [
-        "test/flows/onboarding_flow_test.dart:99 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:99 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-call>profile-edit": [
         "test/flows/onboarding_flow_test.dart:177 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
@@ -119,20 +133,26 @@
         "test/flows/onboarding_flow_test.dart:564 한국 밖 기기는 다음 → birthplace입니다"
       ],
       "onboard-gender>preview": [
-        "test/flows/onboarding_flow_test.dart:544 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:544 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-gender>profile-edit": [
         "test/flows/onboarding_flow_test.dart:659 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "onboard-time>onboard-gender": [
-        "test/flows/onboarding_flow_test.dart:377 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:377 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-time>profile-edit": [
         "test/flows/onboarding_flow_test.dart:659 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "preview>login": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/preview_flow_test.dart:39 new-user: skeleton 뒤 용신의 날 배지와 총운 문장, 저장하고 계속하기 → login",
-        "test/flows/preview_flow_test.dart:94 공유 버튼 → 로그인 안내 창 → 로그인이면 login, 닫기면 preview에 남습니다"
+        "test/flows/preview_flow_test.dart:94 공유 버튼 → 로그인 안내 창 → 로그인이면 login, 닫기면 preview에 남습니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "preview>onboard-call": [
         "test/flows/preview_flow_test.dart:115 다시 입력 → onboard-call, 호칭이 채워져 있고 같은 입력이면 미리보기를 다시 쓰지 않습니다"
@@ -142,10 +162,13 @@
         "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
       ],
       "welcome>login": [
-        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다"
+        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다"
       ],
       "welcome>onboard-call": [
-        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ]
     }
   },
@@ -251,14 +274,19 @@
         "test/flows/consent_flow_test.dart:201 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "test/flows/login_flow_test.dart:91 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/onboarding_flow_test.dart:99 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
         "test/flows/preview_flow_test.dart:39 new-user: skeleton 뒤 용신의 날 배지와 총운 문장, 저장하고 계속하기 → login",
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
-        "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+        "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "D53": [
         "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
-        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today"
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ]
     }
   },
