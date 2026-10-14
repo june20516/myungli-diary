@@ -30,19 +30,8 @@ final class ScreenSpec {
   final Set<String> exits;
 }
 
-/// page 화면 registry. 시트·system 화면은 route가 없어 넣지 않습니다.
-/// 기반에서는 모두 [PlaceholderScreen]이고, 화면 task가 하나씩 교체합니다.
-final Map<String, ScreenSpec> screenRegistry = {
-  for (final screen in iaScreens)
-    // launch는 아래에서 본체로 등록합니다.
-    if (screen.presentation == IaPresentation.page &&
-        screen.id != ScreenIds.launch &&
-        screen.id != ScreenIds.forceUpdate &&
-        screen.id != ScreenIds.welcome)
-      screen.id: ScreenSpec(
-        screen.id,
-        (context) => PlaceholderScreen(screen.id),
-      ),
+/// 본체를 만든 화면. 화면 task가 여기에 하나씩 더합니다.
+final Map<String, ScreenSpec> _implementedScreens = {
   ScreenIds.launch: const ScreenSpec(
     ScreenIds.launch,
     _buildLaunch,
@@ -63,6 +52,19 @@ final Map<String, ScreenSpec> screenRegistry = {
     _buildWelcome,
     exits: welcomeExits,
   ),
+};
+
+/// page 화면 registry. 시트·system 화면은 route가 없어 넣지 않습니다.
+/// 본체가 아직 없는 page 화면은 [PlaceholderScreen]으로 채웁니다.
+final Map<String, ScreenSpec> screenRegistry = {
+  ..._implementedScreens,
+  for (final screen in iaScreens)
+    if (screen.presentation == IaPresentation.page &&
+        !_implementedScreens.containsKey(screen.id))
+      screen.id: ScreenSpec(
+        screen.id,
+        (context) => PlaceholderScreen(screen.id),
+      ),
 };
 
 Widget _buildLaunch(BuildContext context) => const LaunchScreen();

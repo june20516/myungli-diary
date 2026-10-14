@@ -27,12 +27,30 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.onboardCall)), findsOneWidget);
 
     // 뒤로 오면 welcome입니다(push 이동).
-    tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey(SlotIds.welcomeCtaSignin)));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.login)), findsOneWidget);
+  });
+
+  testWidgets('큰 글자·작은 화면에서도 넘치지 않고 버튼에 닿습니다', (tester) async {
+    for (final scale in [2.0, 3.0]) {
+      tester.view
+        ..physicalSize = const Size(320, 568)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpApp(tester, scenario: 'new-user');
+
+      final button = find.byKey(const ValueKey(SlotIds.welcomeCtaSignin));
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: '글자 배율 $scale');
+      expect(button, findsOneWidget);
+    }
   });
 }
