@@ -107,6 +107,9 @@ jobs:
         run: |
           flutter pub get
           flutter analyze
+      - name: Widgetbook 테스트
+        working-directory: app/widgetbook
+        run: flutter test
       # golden은 Flutter 버전을 고정한 goldens job이 비교한다(stable 추종과 분리).
       - name: 테스트
         run: flutter test --exclude-tags golden

@@ -1,4 +1,7 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -57,7 +60,8 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
-    testWidgets('onPressed가 null이면 누를 수 없습니다', (tester) async {
+    testWidgets('onPressed가 null이면 꺼짐으로 읽히고 흐리게 보입니다', (tester) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         inputApp(
           const Center(
@@ -69,9 +73,74 @@ void main() {
           ),
         ),
       );
-      expect(find.bySemanticsLabel('Apple로 로그인'), findsOneWidget);
-      await tester.tap(find.byType(SocialLoginButton));
-      await tester.pump();
+      final data = tester
+          .getSemantics(find.bySemanticsLabel('Apple로 로그인'))
+          .getSemanticsData();
+      expect(data.flagsCollection.isEnabled, Tristate.isFalse);
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.4);
+      handle.dispose();
+    });
+
+    testWidgets('제공자·밝기에 맞는 공식 로고를 씁니다', (tester) async {
+      String logo() {
+        final loader =
+            tester.widget<SvgPicture>(find.byType(SvgPicture)).bytesLoader
+                as SvgAssetLoader;
+        return loader.assetName;
+      }
+
+      Future<void> pump(SocialProvider provider, Brightness brightness) async {
+        await tester.pumpWidget(
+          inputApp(
+            Center(
+              child: SocialLoginButton(
+                provider: provider,
+                label: '로그인',
+                onPressed: () {},
+              ),
+            ),
+            brightness: brightness,
+          ),
+        );
+        // 밝기가 바뀌면 테마가 보간되므로 끝까지 기다립니다.
+        await tester.pumpAndSettle();
+      }
+
+      await pump(SocialProvider.kakao, Brightness.light);
+      expect(logo(), 'assets/brand/kakao/kakao_symbol.svg');
+      await pump(SocialProvider.apple, Brightness.light);
+      expect(logo(), 'assets/brand/apple/apple_logo_white.svg');
+      await pump(SocialProvider.apple, Brightness.dark);
+      expect(logo(), 'assets/brand/apple/apple_logo_black.svg');
+    });
+
+    testWidgets('Apple 글자는 시스템 글꼴(앱 글꼴 상속 없음), 카카오는 앱 글꼴입니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: Column(
+              children: [
+                SocialLoginButton(
+                  provider: SocialProvider.apple,
+                  label: 'Apple로 로그인',
+                  onPressed: () {},
+                ),
+                SocialLoginButton(
+                  provider: SocialProvider.kakao,
+                  label: '카카오 로그인',
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      final apple = tester.widget<Text>(find.text('Apple로 로그인')).style!;
+      expect(apple.inherit, isFalse);
+      expect(apple.fontFamily, isNull);
+      final kakao = tester.widget<Text>(find.text('카카오 로그인')).style!;
+      expect(kakao.fontFamily, isNotNull);
     });
 
     testWidgets('카카오는 공식 노랑 바탕에 심볼과 레이블입니다', (tester) async {

@@ -32,6 +32,11 @@ const AppGlyph _magnifyingGlass = AppGlyph(
 /// 글자를 칠 때마다 결과가 바뀌어도 목록을 움직이지 않습니다. 이 위젯은 스크롤을 갖지
 /// 않고 화면의 스크롤 안에 놓이며, 다시 불러오는 동안(이전 값이 남은 loading)에는 이전 줄을
 /// 그대로 둬서 높이가 줄었다 늘지 않게 합니다. 결과 수는 "결과 N개"로 알립니다.
+///
+/// 명세 a11y `role: combobox`는 적용하지 않습니다. Flutter 3.47의 `SemanticsRole.comboBox`는
+/// 디버그 검사(`_unimplemented`)가 "Missing checks for role"로 오류를 내 쓰는 즉시 실패하고
+/// (flutter/flutter#159741), 입력칸은 이미 text field 의미(라벨 "도시 이름")로 읽힙니다.
+/// 플랫폼 검사가 구현되면 입력칸에 붙입니다.
 class CitySearch extends StatefulWidget {
   /// 도시 검색을 만듭니다.
   ///
@@ -137,11 +142,15 @@ class _CitySearchState extends State<CitySearch> {
     }
     // 다시 불러오는 중에는 이전 줄을 그대로 둡니다.
     final cities = results.value;
-    if (cities == null) {
+    // 이전 값이 빈 목록인 채 다시 불러오는 중이면 "찾는 도시가 없어요"가 깜빡이지 않게
+    // skeleton을 보입니다.
+    if (cities == null || (cities.isEmpty && results.isLoading)) {
       return SkeletonBlock(
         delay: widget.skeletonDelay,
         animated: widget.animated,
         child: Column(
+          // 줄이 카드 너비를 채워야 합니다(기본 가운데 정렬이면 너비 0).
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: Space.s8,
           children: [
             for (var i = 0; i < CitySearch._skeletonRows; i++)

@@ -97,6 +97,11 @@ void main() {
       );
       await tester.pump();
       expect(find.byType(SkeletonBone), findsNWidgets(3));
+      // 줄이 실제로 카드 너비를 채워 그려져야 보입니다.
+      final field = tester.getSize(find.byType(TextField)).width;
+      for (final bone in tester.widgetList(find.byType(SkeletonBone))) {
+        expect(tester.getSize(find.byWidget(bone)).width, greaterThan(field));
+      }
     });
 
     testWidgets('빈 목록이면 emptyBody가 보입니다', (tester) async {
@@ -152,6 +157,28 @@ void main() {
       await tester.tap(find.text('Busan'));
       await tester.pumpAndSettle();
       expect(selected, [_busan]);
+    });
+
+    testWidgets('이전 값이 빈 목록인 채 loading이 오면 빈 상태 대신 skeleton입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(
+          SingleChildScrollView(
+            child: _search(
+              // 이전 값을 붙인 상태는 provider가 만드는 것이라 내부 API를 씁니다.
+              // ignore: invalid_use_of_internal_member
+              results: const AsyncLoading<List<City>>().copyWithPrevious(
+                const AsyncData([]),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(EmptyState), findsNothing);
+      expect(find.text('찾는 도시가 없어요.'), findsNothing);
+      expect(find.byType(SkeletonBone), findsNWidgets(3));
     });
 
     testWidgets('결과 수를 "결과 N개"로 알립니다', (tester) async {

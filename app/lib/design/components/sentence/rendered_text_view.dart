@@ -37,6 +37,7 @@ class RenderedTextView extends StatelessWidget {
     this.termStyle = TermStyle.plain,
     this.onTerm,
     this.trailing,
+    this.hideTextSemantics = false,
     this.maxLines,
     this.overflow = TextOverflow.clip,
     super.key,
@@ -60,6 +61,10 @@ class RenderedTextView extends StatelessWidget {
   /// 문장 끝에 붙는 위젯(`depth-link` `inline-end`). 줄 끝에 다 들어가지 않으면
   /// 통째로 다음 줄로 넘어갑니다.
   final Widget? trailing;
+
+  /// true면 글자는 스크린리더에 읽히지 않고, 끼운 위젯([trailing]·용어 칩)만 자기 노드로
+  /// 초점을 받습니다. 바깥에서 글자를 합친 라벨로 이미 읽을 때 중복 낭독을 막습니다.
+  final bool hideTextSemantics;
 
   /// 최대 줄 수. 일기 목록 미리보기가 씁니다.
   final int? maxLines;
@@ -90,9 +95,31 @@ class RenderedTextView extends StatelessWidget {
       ],
     ];
     return Text.rich(
-      TextSpan(style: style, children: children),
+      TextSpan(
+        style: style,
+        children: hideTextSemantics
+            ? children.map(_silenced).toList()
+            : children,
+      ),
       maxLines: maxLines,
       overflow: overflow,
+    );
+  }
+
+  /// [span]의 글자를 읽지 않게(`semanticsLabel: ''`) 다시 만듭니다. 위젯 조각은 그대로입니다.
+  static InlineSpan _silenced(InlineSpan span) {
+    if (span is! TextSpan) return span;
+    return TextSpan(
+      text: span.text,
+      children: span.children?.map(_silenced).toList(),
+      style: span.style,
+      recognizer: span.recognizer,
+      mouseCursor: span.mouseCursor,
+      onEnter: span.onEnter,
+      onExit: span.onExit,
+      locale: span.locale,
+      spellOut: span.spellOut,
+      semanticsLabel: '',
     );
   }
 

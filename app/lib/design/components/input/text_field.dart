@@ -59,7 +59,6 @@ class MyungliTextField extends StatefulWidget {
   static const double _fontSize = 17;
   static const double _clearTarget = 48;
   static const double _clearIconSize = 20;
-  static const double _leadingIconSize = 20;
 
   /// 칸 이름(스크린리더 라벨).
   final String label;
@@ -178,9 +177,9 @@ class _MyungliTextFieldState extends State<MyungliTextField>
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: Space.s12),
                 child: ExcludeSemantics(
-                  child: Icon(
-                    leading.light,
-                    size: MyungliTextField._leadingIconSize,
+                  child: AppIcon(
+                    leading,
+                    size: AppIconSize.inline,
                     color: enabled ? colors.textSecondary : colors.disabledFg,
                   ),
                 ),

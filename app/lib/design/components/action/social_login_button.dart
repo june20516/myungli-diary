@@ -36,6 +36,7 @@ class SocialLoginButton extends StatelessWidget {
     this.loading = false,
     this.identifier,
     this.animated = true,
+    this.systemFontFamily,
     super.key,
   });
 
@@ -70,6 +71,7 @@ class SocialLoginButton extends StatelessWidget {
   static const double _logoSize = 20;
   static const double _dotSize = 6;
   static const double _dotGap = 6;
+  // 제공자 가이드와 명세에 꺼짐 정의가 없어, 브랜드 색을 바꾸지 않고 흐리게만 보입니다.
   static const double _disabledOpacity = 0.4;
 
   /// 제공자.
@@ -90,6 +92,10 @@ class SocialLoginButton extends StatelessWidget {
   /// false면 점이 숨 쉬지 않고 정지 상태로 그립니다.
   final bool animated;
 
+  /// Apple 글자의 글꼴. null이면 플랫폼 기본(시스템) 글꼴입니다. 테스트·golden에는 시스템
+  /// 글꼴이 없어 대신 쓸 글꼴을 줍니다.
+  final String? systemFontFamily;
+
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -103,7 +109,21 @@ class SocialLoginButton extends StatelessWidget {
       SocialProvider.apple => (_appleBlack, _appleWhite, _appleLogoWhite),
     };
     const radius = BorderRadius.all(Radius.circular(Radii.md));
-    final labelStyle = context.tokens.typography.labelLg.copyWith(color: fg);
+    final labelToken = context.tokens.typography.labelLg;
+    // Sign in with Apple HIG는 버튼 글자를 시스템 글꼴로 쓰게 합니다. 앱 글꼴을 상속하지 않고
+    // (`inherit: false`, family 없음) 플랫폼 기본 글꼴로 그리되, 크기·굵기·줄 높이는
+    // 명세의 label.lg(52px 면에 맞는 값)를 씁니다. 카카오는 글꼴 지정이 없어 앱 글꼴입니다.
+    final labelStyle = provider == SocialProvider.apple
+        ? TextStyle(
+            inherit: false,
+            fontFamily: systemFontFamily,
+            fontSize: labelToken.fontSize,
+            fontWeight: labelToken.fontWeight,
+            height: labelToken.height,
+            letterSpacing: labelToken.letterSpacing,
+            color: fg,
+          )
+        : labelToken.copyWith(color: fg);
 
     final face = DecoratedBox(
       key: faceKey,

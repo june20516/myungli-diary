@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
@@ -49,6 +50,8 @@ Widget _socialButtons() => Builder(
     final ja = Localizations.localeOf(context).languageCode == 'ja';
     final kakao = ja ? 'カカオでログイン' : '카카오 로그인';
     final apple = ja ? 'Appleでサインイン' : 'Apple로 로그인';
+    // golden에는 플랫폼 시스템 글꼴이 없어 앱 글꼴로 대신합니다.
+    final appFont = context.tokens.typography.labelLg.fontFamily;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: Space.s12,
@@ -61,6 +64,7 @@ Widget _socialButtons() => Builder(
         SocialLoginButton(
           provider: SocialProvider.apple,
           label: apple,
+          systemFontFamily: appFont,
           onPressed: () {},
         ),
         SocialLoginButton(
@@ -73,6 +77,7 @@ Widget _socialButtons() => Builder(
         SocialLoginButton(
           provider: SocialProvider.apple,
           label: apple,
+          systemFontFamily: appFont,
           loading: true,
           animated: false,
           onPressed: () {},
@@ -85,6 +90,7 @@ Widget _socialButtons() => Builder(
         SocialLoginButton(
           provider: SocialProvider.apple,
           label: apple,
+          systemFontFamily: appFont,
           onPressed: null,
         ),
       ],

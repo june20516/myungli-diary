@@ -113,17 +113,20 @@ class DayCharacter extends StatelessWidget {
     final spoken = hasReason
         ? '$label, ${reasonText.segments.map((s) => s.text).join()}'
         : label;
-    // 배지와 이유는 합친 라벨 하나로 읽고, 화면 글자는 같은 말을 다시 읽지 않게 숨깁니다.
-    // 이유 줄 끝 링크는 따로 초점을 받아야 하므로 링크가 있을 때만 이유 글자를 숨기지 않습니다.
+    // 배지와 이유는 합친 라벨 하나로 읽고, 화면 글자(배지·이유)는 같은 말을 다시 읽지 않게
+    // 숨깁니다. 이유 글자는 읽히지 않게 숨기고, 줄 끝에 끼운 링크(reasonTrailing)만
+    // 자기 노드로 따로 초점을 받습니다.
     return Semantics(
       container: true,
       label: spoken,
-      excludeSemantics: !(hasReason && reasonTrailing != null),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Align(alignment: AlignmentDirectional.centerStart, child: badge),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ExcludeSemantics(child: badge),
+          ),
           if (hasReason)
             Padding(
               key: reasonKey,
@@ -134,6 +137,7 @@ class DayCharacter extends StatelessWidget {
                   color: colors.textSecondary,
                 ),
                 trailing: reasonTrailing,
+                hideTextSemantics: true,
               ),
             ),
         ],
