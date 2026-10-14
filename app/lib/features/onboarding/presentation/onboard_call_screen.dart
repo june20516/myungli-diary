@@ -187,18 +187,20 @@ class _CallFormState extends ConsumerState<_CallForm> {
           draft.isCompleteFor(
             deviceRegionIsKorea: ref.read(deviceRegionIsKoreaProvider),
           );
-      if (finishes) {
-        await ref.read(onboardingFinishProvider)();
-      } else {
+      if (!finishes) {
         await context.push<void>(pathOf(ScreenIds.onboardBirth));
+        return;
       }
-    } on Object catch (error) {
-      // 저장이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다. 입력은 남습니다.
-      if (!mounted) return;
-      showMyungliToast(
-        context,
-        errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
-      );
+      try {
+        await ref.read(onboardingFinishProvider)();
+      } on Object catch (error) {
+        // 저장이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다. 입력은 남습니다.
+        if (!mounted) return;
+        showMyungliToast(
+          context,
+          errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
+        );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
