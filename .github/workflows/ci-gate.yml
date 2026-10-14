@@ -39,6 +39,7 @@ jobs:
       core: ${{ steps.detect.outputs.core }}
       server: ${{ steps.detect.outputs.server }}
       app: ${{ steps.detect.outputs.app }}
+      writing: ${{ steps.detect.outputs.writing }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -60,6 +61,7 @@ jobs:
             echo "core=false" >> "$GITHUB_OUTPUT"
             echo "server=false" >> "$GITHUB_OUTPUT"
             echo "app=false" >> "$GITHUB_OUTPUT"
+            echo "writing=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -88,6 +90,13 @@ jobs:
             echo "app=true" >> "$GITHUB_OUTPUT"
           else
             echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+          # writing은 생성 문서(.md)도 원본과 대조하므로(gen-docs --check) .md를 빼지 않습니다.
+          # 검사기가 읽는 계약(IA, 메시지 키·매개변수, proto)이 바뀌어도 돌립니다(#144).
+          if echo "$changed" | grep -qE '^docs/identity/writing/|^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/|^\.github/workflows/(writing|ci-gate)\.yml$'; then
+            echo "writing=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "writing=false" >> "$GITHUB_OUTPUT"
           fi
 
   docs:
@@ -144,8 +153,13 @@ jobs:
     if: needs.changes.outputs.app == 'true'
     uses: ./.github/workflows/app.yml
 
+  writing:
+    needs: changes
+    if: needs.changes.outputs.writing == 'true'
+    uses: ./.github/workflows/writing.yml
+
   ci-gate:
-    needs: [changes, docs, pr-body, core, server, app]
+    needs: [changes, docs, pr-body, core, server, app, writing]
     if: always()
     runs-on: ubuntu-latest
     steps:
