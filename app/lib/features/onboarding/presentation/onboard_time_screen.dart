@@ -146,9 +146,11 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
   late TimeOfDay _value = timeOfBirthTime(widget.initial) ?? _defaultTime;
   late bool _unknown = widget.initial?.status == BirthTimeStatusEnum.unknown;
 
-  /// 휠이 멈춘 것으로 본 시각. 이미 받은 값으로 열면 처음부터 확인 줄을 보이고, 값이 없는
-  /// 기본 시각은 사용자가 휠을 돌릴 때까지 묻지 않습니다.
-  late TimeOfDay? _settled = timeOfBirthTime(widget.initial);
+  /// 휠이 멈춘 것으로 본 시각. 열릴 때의 시각(기본 12:00 또는 저장된 값)도 바로 묻습니다.
+  late TimeOfDay _settled = _value;
+
+  /// 마지막으로 보인 확인 줄. 휠이 움직이거나 새 값을 기다리는 동안 그대로 두어 흔들리지 않게 합니다.
+  String? _lastConfirm;
   Timer? _debounce;
   bool _saving = false;
 
@@ -185,17 +187,24 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
     }
   }
 
-  /// 시진 확인 줄 글자. 모름이거나 휠이 아직 움직이는 중이거나 값을 못 받았으면 null입니다.
+  /// 시진 확인 줄 글자. 모름이거나 생일을 모르거나 값을 못 받았으면 null입니다.
+  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안에는 이전 줄을 그대로 둡니다.
   String? _confirmText(AppLocalizations l10n) {
     final date = widget.date;
-    final settled = _settled;
-    if (_unknown || date == null || settled == null || settled != _value) {
-      return null;
+    if (_unknown || date == null) {
+      return _lastConfirm = null;
     }
-    final hour = ref
-        .watch(birthHourProvider((date: date, time: _hhmm(settled))))
-        .value;
-    return hour == null ? null : sijinConfirmText(l10n, hour);
+    if (_settled != _value) {
+      return _lastConfirm;
+    }
+    final result = ref.watch(
+      birthHourProvider((date: date, time: _hhmm(_settled))),
+    );
+    if (result.isLoading) {
+      return _lastConfirm;
+    }
+    final hour = result.value;
+    return _lastConfirm = hour == null ? null : sijinConfirmText(l10n, hour);
   }
 
   @override
@@ -217,6 +226,8 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
         unknownLabel: l10n.timeUnknownLabel,
         unknownNotice: l10n.onboardTimeUnknownNote,
         sijinConfirm: _confirmText(l10n),
+        unknownNoticeIdentifier: SlotIds.onboardTimeUnknownNote,
+        sijinConfirmIdentifier: SlotIds.onboardTimeHourConfirm,
       ),
       actionLabel: edit ? l10n.onboardingSave : l10n.onboardingNext,
       actionLoading: _saving,

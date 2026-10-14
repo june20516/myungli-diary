@@ -42,6 +42,8 @@ class TimePicker extends StatefulWidget {
     this.unknownNotice,
     this.sijinConfirm,
     this.identifier,
+    this.unknownNoticeIdentifier,
+    this.sijinConfirmIdentifier,
     super.key,
   }) : assert(
          variant == TimePickerVariant.birth || value.minute % 5 == 0,
@@ -112,6 +114,12 @@ class TimePicker extends StatefulWidget {
 
   /// IA 슬롯 id. '모름' 체크 줄의 Semantics `identifier`에 붙습니다.
   final String? identifier;
+
+  /// IA 슬롯 id. 있으면 모름 안내 글자의 Key와 Semantics `identifier`가 됩니다.
+  final String? unknownNoticeIdentifier;
+
+  /// IA 슬롯 id. 있으면 시진 확인 줄 글자의 Key와 Semantics `identifier`가 됩니다.
+  final String? sijinConfirmIdentifier;
 
   @override
   State<TimePicker> createState() => _TimePickerState();
@@ -224,10 +232,15 @@ class _TimePickerState extends State<TimePicker> {
           present: showNotice,
           child: Padding(
             padding: const EdgeInsets.only(top: Space.s8),
-            child: Text(
-              key: TimePicker.unknownNoticeKey,
-              widget.unknownNotice ?? '',
-              style: textStyle,
+            child: Semantics(
+              identifier: widget.unknownNoticeIdentifier,
+              child: Text(
+                key: widget.unknownNoticeIdentifier == null
+                    ? TimePicker.unknownNoticeKey
+                    : ValueKey<String>(widget.unknownNoticeIdentifier!),
+                widget.unknownNotice ?? '',
+                style: textStyle,
+              ),
             ),
           ),
         ),
@@ -237,10 +250,15 @@ class _TimePickerState extends State<TimePicker> {
           present: showConfirm,
           child: Padding(
             padding: const EdgeInsets.only(top: Space.s8),
-            child: Text(
-              key: TimePicker.sijinConfirmKey,
-              _lastSijin ?? '',
-              style: textStyle,
+            child: Semantics(
+              identifier: widget.sijinConfirmIdentifier,
+              child: Text(
+                key: widget.sijinConfirmIdentifier == null
+                    ? TimePicker.sijinConfirmKey
+                    : ValueKey<String>(widget.sijinConfirmIdentifier!),
+                _lastSijin ?? '',
+                style: textStyle,
+              ),
             ),
           ),
         ),

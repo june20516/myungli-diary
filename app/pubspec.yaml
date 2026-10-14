@@ -136,3 +136,4 @@ flutter:
     - fixtures/profile-required/
     - fixtures/force-update/
     - fixtures/birth-hour-unavailable/
+    - fixtures/birth-hour-rate-limited/

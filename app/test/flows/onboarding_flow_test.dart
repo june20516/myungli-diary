@@ -115,6 +115,15 @@ Future<void> _pickTime(
   await _settleIo(tester);
 }
 
+/// 열린 직후 debounce가 지나고 fixture I/O가 끝나기를 기다립니다.
+Future<void> _settleConfirm(WidgetTester tester) async {
+  await tester.pump(const Duration(seconds: 1));
+  // 설치 id·manifest·fixture를 차례로 읽으므로 실제 I/O와 프레임을 몇 번 번갈아 돕니다.
+  for (var i = 0; i < 5; i++) {
+    await _settleIo(tester);
+  }
+}
+
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
 
@@ -411,22 +420,35 @@ void main() {
         ),
       );
       final container = await _openTime(tester);
+      final fake = _fake(container);
+      // 열자마자 기본 12:00으로 한 번 묻습니다.
+      await _settleConfirm(tester);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsOneWidget,
+      );
+      expect(fake.callCountOf('getBirthHour'), 1);
       // 기본 12:00(오후)에서 오전 4시로: 오전·오후 한 칸, 시 4칸.
       await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
 
       expect(find.textContaining('인시(03:30~05:30)'), findsOneWidget);
-      final fake = _fake(container);
-      expect(fake.callCountOf('getBirthHour'), 1);
-      final body = _bodyOf(fake.requestBodiesOf('getBirthHour').single);
+      expect(fake.callCountOf('getBirthHour'), 2);
+      final body = _bodyOf(fake.requestBodiesOf('getBirthHour').last);
       expect(body['installationId'], isA<String>());
       expect((body['installationId']! as String).isNotEmpty, isTrue);
       expect(body['time'], '04:00');
 
       await tester.tap(find.text('모름'));
       await tester.pumpAndSettle();
-      expect(find.byKey(TimePicker.unknownNoticeKey), findsOneWidget);
-      expect(find.byKey(TimePicker.sijinConfirmKey), findsNothing);
-      expect(fake.callCountOf('getBirthHour'), 1);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeUnknownNote)),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsNothing,
+      );
+      expect(fake.callCountOf('getBirthHour'), 2);
 
       await _tapNext(tester);
       expect(
@@ -438,6 +460,66 @@ void main() {
       expect(draft.time!.value, isNull);
     });
 
+    testWidgets('휠을 빠르게 여러 번 돌려도 멈춘 뒤 한 번만 묻고, 이동 중에는 이전 줄이 그대로입니다', (
+      tester,
+    ) async {
+      final container = await _openTime(tester);
+      await _settleConfirm(tester);
+      final fake = _fake(container);
+      expect(fake.callCountOf('getBirthHour'), 1);
+      const lineKey = ValueKey(SlotIds.onboardTimeHourConfirm);
+      final before = tester.getSize(find.byKey(lineKey));
+
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(
+          find.byKey(TimePicker.hourWheelKey),
+          const Offset(0, -40),
+        );
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      // 아직 멈추기 전: 요청도 없고 줄도 같은 자리에 그대로입니다.
+      expect(fake.callCountOf('getBirthHour'), 1);
+      expect(find.byKey(lineKey), findsOneWidget);
+      expect(tester.getSize(find.byKey(lineKey)).height, before.height);
+
+      await _settleConfirm(tester);
+      expect(fake.callCountOf('getBirthHour'), 2);
+      expect(find.byKey(lineKey), findsOneWidget);
+    });
+
+    testWidgets('본 적 있는 시각으로 되돌리면 다시 묻지 않습니다', (tester) async {
+      final container = await _openTime(tester);
+      await _settleConfirm(tester);
+      final fake = _fake(container);
+      await _pickTime(tester, hourSteps: 1);
+      expect(fake.callCountOf('getBirthHour'), 2);
+      await _pickTime(tester, hourSteps: -1);
+      expect(fake.callCountOf('getBirthHour'), 2);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('429(rate_limited)여도 줄 없이 입력을 이어 갑니다', (tester) async {
+      final container = await _openTime(
+        tester,
+        scenario: 'birth-hour-rate-limited',
+      );
+      await _settleConfirm(tester);
+      await _pickTime(tester, hourSteps: 1);
+      expect(_fake(container).callCountOf('getBirthHour'), 2);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsNothing,
+      );
+      await _tapNext(tester);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.onboardGender)),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('시진 확인이 실패(501)해도 줄 없이 다음으로 갑니다', (tester) async {
       final container = await _openTime(
         tester,
@@ -445,8 +527,11 @@ void main() {
       );
       await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
 
-      expect(_fake(container).callCountOf('getBirthHour'), 1);
-      expect(find.byKey(TimePicker.sijinConfirmKey), findsNothing);
+      expect(_fake(container).callCountOf('getBirthHour'), 2);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsNothing,
+      );
       await _tapNext(tester);
       expect(
         find.byKey(const ValueKey(ScreenIds.onboardGender)),
@@ -467,7 +552,10 @@ void main() {
       await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
 
       expect(_fake(container).callCountOf('getBirthHour'), 0);
-      expect(find.byKey(TimePicker.sijinConfirmKey), findsNothing);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsNothing,
+      );
     });
 
     testWidgets('시나리오 locale이 기기 로케일이 됩니다(override 없을 때)', (tester) async {

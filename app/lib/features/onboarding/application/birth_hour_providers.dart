@@ -28,11 +28,15 @@ final birthHourProvider = FutureProvider.autoDispose
       if (!ref.watch(deviceRegionIsKoreaProvider)) {
         return null;
       }
+      // 같은 생일·시각은 다시 묻지 않도록 붙들어 둡니다(분당 30회 한도). 실패는 다시 물을 수 있게
+      // 놓습니다.
+      final link = ref.keepAlive();
       try {
         return await ref
             .watch(birthHourRepositoryProvider)
             .fetch(date: query.date, time: query.time);
       } on AppError {
+        link.close();
         return null;
       }
     });

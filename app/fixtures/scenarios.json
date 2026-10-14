@@ -80,5 +80,14 @@
     "network": "online",
     "signedIn": false,
     "description": "한국 밖(기기 지역 US) 기기에서 처음 설치한 사용자. 시진 확인 줄과 출생지 질문 갈래를 확인합니다."
+  },
+  {
+    "id": "birth-hour-rate-limited",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 시진 확인(getBirthHour)이 분당 한도(429 rate_limited)에 걸려 확인 줄이 보이지 않습니다."
   }
 ]

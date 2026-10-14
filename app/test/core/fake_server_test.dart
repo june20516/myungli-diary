@@ -219,6 +219,7 @@ void main() {
         'member-overseas',
         'birth-hour-unavailable',
         'overseas',
+        'birth-hour-rate-limited',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
