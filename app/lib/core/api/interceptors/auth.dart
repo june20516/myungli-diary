@@ -10,6 +10,12 @@ import 'package:myungli_diary/core/api/token_store.dart';
 /// 요청 extra: 이 요청은 인증 interceptor를 건너뜁니다(refresh 자체, 무한 루프 방지).
 const skipAuthExtra = 'skipAuth';
 
+/// 요청 extra: bearer는 붙이되 refresh·재시도·로그아웃 처리는 하지 않습니다.
+///
+/// 새 로그인이 이전 세션의 refresh token을 폐기하는 요청처럼, 실패해도 로컬 세션을 건드리면
+/// 안 되는 요청에 씁니다.
+const skipAuthRecoveryExtra = 'skipAuthRecovery';
+
 /// 요청 extra: 이미 한 번 다시 보낸 요청입니다.
 const _retriedExtra = 'authRetried';
 
@@ -46,7 +52,8 @@ final class AuthInterceptor extends Interceptor {
       return;
     }
     // 앱을 다시 실행한 직후: access token은 없고 refresh token만 있습니다.
-    if (tokens.accessToken == null &&
+    if (options.extra[skipAuthRecoveryExtra] != true &&
+        tokens.accessToken == null &&
         _requiresBearer(options) &&
         await tokens.refreshToken() != null &&
         // 읽는 사이 다른 요청의 refresh가 끝났을 수 있습니다.
@@ -81,6 +88,7 @@ final class AuthInterceptor extends Interceptor {
     final currentToken = tokens.accessToken;
     if (err.response?.statusCode != 401 ||
         options.extra[skipAuthExtra] == true ||
+        options.extra[skipAuthRecoveryExtra] == true ||
         options.extra[_retriedExtra] == true ||
         _problemCodeOf(err) != _tokenExpiredCode ||
         // 로그아웃된 뒤 늦게 온 401은 다시 보내지 않습니다.

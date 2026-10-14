@@ -410,16 +410,24 @@ void main() {
       await signIn();
       final c = container();
       expect((await c.read(entryStateProvider.future)).entry, EntryState.ready);
+      final configCallsBefore = api.configCalls;
       final signedOut = Completer<void>();
+      var sawLoading = false;
       c.listen(entryStateProvider, (_, next) {
-        // 로그아웃 직후 값과 다시 계산한 결과가 모두 signedOut이라 여러 번 올 수 있습니다.
-        if (next.value?.entry == EntryState.signedOut &&
+        sawLoading |= next.isLoading;
+        // 로그아웃 직후 값에 이어, 다시 계산(loading)을 거친 결과가 와야 끝납니다.
+        if (sawLoading &&
+            next.value?.entry == EntryState.signedOut &&
+            !next.isLoading &&
             !signedOut.isCompleted) {
           signedOut.complete();
         }
       });
       await tokens.signOut();
       await signedOut.future;
+      expect(c.read(meProvider), isNull);
+      expect(api.configCalls, greaterThan(configCallsBefore));
+      expect(sawLoading, isTrue);
       expect(c.read(meProvider), isNull);
     });
 
@@ -626,6 +634,7 @@ class _MemorySecureStore implements SecureStore {
 
 class _Api implements DefaultApi {
   int meCalls = 0;
+  int configCalls = 0;
   DioException? configError;
   DioException? meError;
   Future<void> Function()? beforeMeError;
@@ -644,6 +653,7 @@ class _Api implements DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
+    configCalls++;
     if (configError != null) {
       throw configError!;
     }

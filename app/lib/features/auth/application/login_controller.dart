@@ -214,7 +214,11 @@ final class _Session {
   Future<AppError?> enter(LoginResponse response, DiscardNotice? notice) async {
     // 이전 세션의 토큰(진입 계산 실패 뒤 다시 로그인한 경우)이 server에 남지 않게 먼저 폐기를 시도합니다.
     // 로컬 로그아웃 이벤트는 내지 않습니다. 곧 새 토큰이 덮어씁니다.
-    await revokeStoredRefreshToken(api: api, tokens: tokens);
+    await revokeStoredRefreshToken(
+      api: api,
+      tokens: tokens,
+      recoverAuth: false,
+    );
     await tokens.save(response.tokens);
     if (await _discardsDraft(response)) {
       await notice?.call();

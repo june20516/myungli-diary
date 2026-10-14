@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
@@ -427,4 +428,78 @@ void main() {
     expect(recorder.bodies.single.toString(), contains(firstRefresh));
     expect(container.read(tokenStoreProvider).accessToken, isNotNull);
   });
+
+  testWidgets(
+    '이전 access 만료 + refresh 거부여도 다시 로그인하면 signedOut 없이 초안이 남고 새 토큰 저장',
+    (tester) async {
+      final container = await openPreviewStep(
+        tester,
+        scenario: 'login-entry-unavailable',
+      );
+      await tester.tap(_screen(SlotIds.previewCtaSave));
+      await tester.pumpAndSettle();
+      await tester.tap(_kakaoButton);
+      await _settleLogin(tester, container);
+      expect(find.byKey(loginErrorKey), findsOneWidget);
+      final firstAccess = container.read(tokenStoreProvider).accessToken;
+      expect(firstAccess, isNotNull);
+
+      // 이전 세션의 access token이 만료됐고 refresh도 거부되는 server.
+      Response<Object?> problem(RequestOptions o, int status, String code) =>
+          Response<Object?>(
+            requestOptions: o,
+            statusCode: status,
+            headers: Headers.fromMap({
+              Headers.contentTypeHeader: ['application/problem+json'],
+            }),
+            data: {'status': status, 'code': code, 'title': code},
+          );
+      final interceptors = container.read(dioProvider).interceptors;
+      interceptors.insert(
+        interceptors.length - 1,
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            final (status, code) = switch (options.path) {
+              '/v1/auth/logout' => (401, 'auth.token_expired'),
+              '/v1/auth/refresh' => (401, 'auth.refresh_reused'),
+              _ => (0, ''),
+            };
+            if (status == 0) {
+              handler.next(options);
+              return;
+            }
+            handler.reject(
+              DioException.badResponse(
+                statusCode: status,
+                requestOptions: options,
+                response: problem(options, status, code),
+              ),
+              true,
+            );
+          },
+        ),
+      );
+      var signedOutEvents = 0;
+      final subscription = container
+          .read(tokenStoreProvider)
+          .events
+          .where((e) => e == AuthEvent.signedOut)
+          .listen((_) => signedOutEvents++);
+      addTearDown(subscription.cancel);
+
+      await tester.tap(_kakaoButton);
+      await pumpUntilScreen(tester, ScreenIds.consent);
+
+      expect(signedOutEvents, 0);
+      expect(
+        container.read(onboardingDraftProvider).value,
+        isNot(const OnboardingDraft()),
+      );
+      expect(container.read(tokenStoreProvider).accessToken, isNotNull);
+      expect(
+        container.read(tokenStoreProvider).accessToken,
+        isNot(firstAccess),
+      );
+    },
+  );
 }

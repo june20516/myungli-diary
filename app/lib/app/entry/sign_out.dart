@@ -1,5 +1,6 @@
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
+import 'package:myungli_diary/core/api/interceptors/auth.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 
 /// server에 refresh token 폐기(`logout`)를 시도한 뒤 로컬에서 로그아웃합니다.
@@ -36,15 +37,20 @@ Future<bool> _hasSessionOrUnknown(TokenStore tokens) async {
 ///
 /// 새 로그인이 이전 세션의 토큰을 덮어쓰기 전에 씁니다. 실패해도 server의 refresh token은
 /// 만료로 끝나므로 오류를 삼킵니다.
+///
+/// [recoverAuth]가 false면 access token 만료 때의 refresh·로그아웃 처리를 거치지 않습니다
+/// ([skipAuthRecoveryExtra]). 새 로그인 직전처럼 이 요청의 실패가 로컬 세션을 지우면 안 될 때 씁니다.
 Future<void> revokeStoredRefreshToken({
   required DefaultApi api,
   required TokenStore tokens,
+  bool recoverAuth = true,
 }) async {
   try {
     final refreshToken = await tokens.refreshToken();
     if (refreshToken != null) {
       await api.logout(
         refreshRequest: RefreshRequest(refreshToken: refreshToken),
+        extra: recoverAuth ? null : {skipAuthRecoveryExtra: true},
       );
     }
   } on Object {
