@@ -88,7 +88,7 @@ app/
   * `profile-edit`에서 연 `onboard-*`·`birthplace`는 같은 화면을 수정 모드로 쓰고, 저장 뒤 `profile-edit`로 돌아갑니다(IA §4.1).
 * **IA 대조 테스트**(CI)는 `docs/ia/screens.json`을 읽어 다음을 확인합니다.
   * page 화면마다 route가 있는지
-  * 각 `exits`의 이동이 화면 코드의 이동 표에 있는지
+  * 화면 등록의 `exits`와 IA exits의 대상이 같은지(구현을 마친 화면부터, ratchet)
   * 화면이 자기 `states`를 모두 처리하는지(화면마다 상태 목록을 선언하고 대조)
   * 탭 루트 4곳에만 `ad-banner`가 있는지
 

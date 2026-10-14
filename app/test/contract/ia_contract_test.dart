@@ -31,12 +31,19 @@ class _IaEntry {
       components = {
         for (final component in json['components']! as List<Object?>)
           component! as String,
+      },
+      exits = {
+        for (final exit in json['exits']! as List<Object?>)
+          (exit! as Map<String, Object?>)['to']! as String,
       };
 
   final String id;
   final String presentation;
   final Set<String> states;
   final Set<String> components;
+
+  /// IA exits의 대상 화면 id 집합.
+  final Set<String> exits;
 }
 
 /// route 트리를 순회해 이름 집합을 얻습니다.
@@ -133,6 +140,38 @@ void main() {
           screen.id,
     };
     expect(finished, isEmpty, reason: 'pendingStateScreens에서 지우세요');
+  });
+
+  test('pending이 아닌 page 화면은 exits가 IA exits의 대상 집합과 같다', () {
+    for (final screen in screens) {
+      if (screen.presentation != 'page' ||
+          pendingExitScreens.contains(screen.id)) {
+        continue;
+      }
+      final exits = screenRegistry[screen.id]?.exits ?? <String>{};
+      expect(exits, screen.exits, reason: '${screen.id} 출구 불일치');
+    }
+  });
+
+  test('pendingExitScreens의 id가 모두 IA page 화면으로 실재한다', () {
+    final pageIds = {
+      for (final screen in screens)
+        if (screen.presentation == 'page') screen.id,
+    };
+    expect(pendingExitScreens.difference(pageIds), isEmpty);
+  });
+
+  test('ratchet: 출구를 마친 화면은 pendingExitScreens에서 빠져 있다', () {
+    final finished = {
+      for (final screen in screens)
+        if (pendingExitScreens.contains(screen.id) &&
+            setEquals(
+              screenRegistry[screen.id]?.exits ?? <String>{},
+              screen.exits,
+            ))
+          screen.id,
+    };
+    expect(finished, isEmpty, reason: 'pendingExitScreens에서 지우세요');
   });
 
   test('ad-banner는 탭 루트 4곳에만 있다 (D53)', () {
