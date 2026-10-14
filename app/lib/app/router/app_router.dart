@@ -73,8 +73,10 @@ String? entryRedirect({
     EntryState.consentRequired => _consentIds.contains(id) ? null : home,
     EntryState.profileRequired => _onboardingIds.contains(id) ? null : home,
     EntryState.notifyAskRequired => id == ScreenIds.notifyAsk ? null : home,
-    EntryState.adConsentRequired ||
-    EntryState.ready => screen.auth == IaAuth.guest ? home : null,
+    // notify-ask는 member 화면이지만 알림 허락 대기(A17)에만 열립니다. 끝나면 진입이 바뀌어
+    // 이 갈래로 오므로 today로 보내고, 알림으로 다시 열려는 경로도 막습니다.
+    EntryState.adConsentRequired || EntryState.ready =>
+      screen.auth == IaAuth.guest || id == ScreenIds.notifyAsk ? home : null,
   };
 }
 

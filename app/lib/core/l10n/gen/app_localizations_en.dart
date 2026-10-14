@@ -577,4 +577,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consentView => 'View';
+
+  @override
+  String get notifyAskQuestionHead => 'Want your fortune in the morning?';
+
+  @override
+  String get notifyAskWhyBody =>
+      'We will send today\'s fortune at the time you choose. You can change it anytime in settings.';
+
+  @override
+  String get notifyAskCtaSkip => 'Maybe later';
+
+  @override
+  String get notifyAskCtaAllow => 'Turn on alerts';
 }

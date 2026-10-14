@@ -539,4 +539,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get consentView => '見る';
+
+  @override
+  String get notifyAskQuestionHead => '朝の運勢をお知らせしますか？';
+
+  @override
+  String get notifyAskWhyBody => '選んだ時刻に今日の運勢を通知でお届けします。設定でいつでも変えられます。';
+
+  @override
+  String get notifyAskCtaSkip => 'あとで';
+
+  @override
+  String get notifyAskCtaAllow => '通知を受け取る';
 }

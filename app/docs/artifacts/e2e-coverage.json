@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-14T05:12:30.727341Z",
+  "generatedAt": "2026-10-14T05:32:07.981143Z",
   "exits": {
-    "covered": 27,
+    "covered": 28,
     "total": 77,
     "uncovered": [
       "account-delete>welcome",
@@ -27,7 +27,6 @@
       "my-saju>explain-sheet",
       "my-saju>saju-chart",
       "my-saju>settings",
-      "notify-ask>ad-consent",
       "profile-edit>birthplace",
       "profile-edit>onboard-birth",
       "profile-edit>onboard-call",
@@ -57,7 +56,8 @@
     ],
     "coveredBy": {
       "ad-consent>today": [
-        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today"
+        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today"
       ],
       "birthplace>preview": [
         "test/flows/birthplace_flow_test.dart:128 도시를 누르면 초안에 담고 preview로 갑니다"
@@ -69,13 +69,13 @@
         "test/flows/birthplace_flow_test.dart:223"
       ],
       "consent>legal": [
-        "test/flows/consent_flow_test.dart:197 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
+        "test/flows/consent_flow_test.dart:199 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
       ],
       "consent>notify-ask": [
         "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask"
       ],
       "consent>onboard-call": [
-        "test/flows/consent_flow_test.dart:161 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
+        "test/flows/consent_flow_test.dart:163 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
       ],
       "launch>force-update": [
         "test/flows/launch_flow_test.dart:49 force-update 시나리오는 force-update 화면에 도착합니다"
@@ -98,6 +98,10 @@
         "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
         "test/flows/login_flow_test.dart:137 returning-user: 이 기기에서 광고 동의를 이미 했으면 바로 today",
         "test/flows/login_flow_test.dart:161 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
+      ],
+      "notify-ask>ad-consent": [
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "test/flows/notify_ask_flow_test.dart:203 기기 등록이 실패하면 안내하고, 다시 눌러도 같은 Idempotency-Key로 보냅니다"
       ],
       "onboard-birth>onboard-time": [
         "test/flows/onboarding_flow_test.dart:125 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
@@ -204,7 +208,7 @@
         "test/flows/birthplace_flow_test.dart:83 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
       ],
       "consent:error": [
-        "test/flows/consent_flow_test.dart:238 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
+        "test/flows/consent_flow_test.dart:254 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
       ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
@@ -252,7 +256,8 @@
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ],
       "D53": [
-        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today"
+        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today"
       ]
     }
   },
@@ -369,7 +374,7 @@
     },
     "notify-ask": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {

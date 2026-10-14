@@ -763,5 +763,21 @@
   "consentView": "보기",
   "@consentView": {
     "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
+  },
+  "notifyAskQuestionHead": "아침 운세를 알려드릴까요?",
+  "@notifyAskQuestionHead": {
+    "description": "임시. notify-ask 질문(슬롯 notify-ask.question.head)"
+  },
+  "notifyAskWhyBody": "정한 시각에 오늘의 운세를 알림으로 보내 드려요. 설정에서 언제든 바꿀 수 있어요.",
+  "@notifyAskWhyBody": {
+    "description": "임시. 알림이 주는 것(슬롯 notify-ask.why.body)"
+  },
+  "notifyAskCtaSkip": "나중에 할게요",
+  "@notifyAskCtaSkip": {
+    "description": "임시. 건너뛰기 버튼(슬롯 notify-ask.cta.skip)"
+  },
+  "notifyAskCtaAllow": "알림 받기",
+  "@notifyAskCtaAllow": {
+    "description": "임시. 알림 허락 버튼(슬롯이 아님)"
   }
 }

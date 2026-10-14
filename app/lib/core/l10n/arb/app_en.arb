@@ -415,5 +415,21 @@
   "consentView": "View",
   "@consentView": {
     "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
+  },
+  "notifyAskQuestionHead": "Want your fortune in the morning?",
+  "@notifyAskQuestionHead": {
+    "description": "임시. notify-ask 질문(슬롯 notify-ask.question.head)"
+  },
+  "notifyAskWhyBody": "We will send today's fortune at the time you choose. You can change it anytime in settings.",
+  "@notifyAskWhyBody": {
+    "description": "임시. 알림이 주는 것(슬롯 notify-ask.why.body)"
+  },
+  "notifyAskCtaSkip": "Maybe later",
+  "@notifyAskCtaSkip": {
+    "description": "임시. 건너뛰기 버튼(슬롯 notify-ask.cta.skip)"
+  },
+  "notifyAskCtaAllow": "Turn on alerts",
+  "@notifyAskCtaAllow": {
+    "description": "임시. 알림 허락 버튼(슬롯이 아님)"
   }
 }

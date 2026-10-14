@@ -148,3 +148,4 @@ flutter:
     - fixtures/consent-mismatch/
     - fixtures/profile-invalid/
     - fixtures/profile-save-unavailable/
+    - fixtures/notify-register-unavailable/

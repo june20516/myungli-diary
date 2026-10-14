@@ -200,5 +200,14 @@
     "network": "online",
     "signedIn": false,
     "description": "처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 두 번 503 service.unavailable이고 세 번째에 저장됩니다."
+  },
+  {
+    "id": "notify-register-unavailable",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 알림 허락 뒤 기기 등록(registerDevice)이 한 번 503 service.unavailable이고 두 번째에 등록됩니다."
   }
 ]

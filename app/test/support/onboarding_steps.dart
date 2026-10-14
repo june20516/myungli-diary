@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 
 import 'app_harness.dart';
@@ -115,3 +119,28 @@ Future<void> pumpUntilScreen(WidgetTester tester, String screenId) => pumpUntil(
   tester,
   () => find.byKey(ValueKey(screenId)).evaluate().isNotEmpty,
 );
+
+/// 프로필 저장을 마친 회원이 알림 허락 대기(`notifyAskPendingKey`) 상태로 notify-ask에 닿습니다.
+///
+/// 앞 단계(미리보기·로그인·동의)는 다른 흐름 테스트가 덮으므로, 회원 시나리오로 띄운 뒤
+/// 플래그를 켜고(광고 동의는 아직 거치지 않은 기기로 되돌리고) 진입을 다시 계산해 곧바로 들어옵니다.
+Future<ProviderContainer> openNotifyAsk(
+  WidgetTester tester, {
+  String scenario = 'member',
+  List<Override> overrides = const [],
+}) async {
+  final container = await pumpApp(
+    tester,
+    scenario: scenario,
+    overrides: overrides,
+  );
+  final flags = container.read(deviceFlagsStoreProvider);
+  await tester.runAsync(() async {
+    await flags.writeBool(notifyAskPendingKey, value: true);
+    // 회원 시나리오는 시작할 때 광고 동의를 이미 거칩니다. 새 계정처럼 아직 거치지 않은 기기로 되돌립니다.
+    await flags.writeBool(adConsentDoneKey, value: false);
+  });
+  unawaited(container.read(entryStateProvider.notifier).refresh());
+  await pumpUntilScreen(tester, ScreenIds.notifyAsk);
+  return container;
+}

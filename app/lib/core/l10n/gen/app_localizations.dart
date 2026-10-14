@@ -1095,6 +1095,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'보기'**
   String get consentView;
+
+  /// 임시. notify-ask 질문(슬롯 notify-ask.question.head)
+  ///
+  /// In ko, this message translates to:
+  /// **'아침 운세를 알려드릴까요?'**
+  String get notifyAskQuestionHead;
+
+  /// 임시. 알림이 주는 것(슬롯 notify-ask.why.body)
+  ///
+  /// In ko, this message translates to:
+  /// **'정한 시각에 오늘의 운세를 알림으로 보내 드려요. 설정에서 언제든 바꿀 수 있어요.'**
+  String get notifyAskWhyBody;
+
+  /// 임시. 건너뛰기 버튼(슬롯 notify-ask.cta.skip)
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에 할게요'**
+  String get notifyAskCtaSkip;
+
+  /// 임시. 알림 허락 버튼(슬롯이 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 받기'**
+  String get notifyAskCtaAllow;
 }
 
 class _AppLocalizationsDelegate

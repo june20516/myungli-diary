@@ -139,6 +139,17 @@ void main() {
       );
     });
 
+    test('ready에서 notify-ask는 /today (알림 허락 대기가 끝난 뒤)', () {
+      expect(
+        entryRedirect(entry: EntryState.ready, path: '/notify-ask'),
+        '/today',
+      );
+      expect(
+        entryRedirect(entry: EntryState.adConsentRequired, path: '/notify-ask'),
+        '/today',
+      );
+    });
+
     test('ready에서 any 화면(/legal)은 그대로', () {
       expect(entryRedirect(entry: EntryState.ready, path: '/legal'), isNull);
     });

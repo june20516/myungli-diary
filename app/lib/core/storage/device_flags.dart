@@ -19,6 +19,11 @@ const installedKey = 'app.installed';
 /// 이 설치의 id(UUID v4)를 담는 [DeviceFlags] 키. 로그아웃해도 남습니다.
 const installationIdKey = 'app.installationId';
 
+/// 푸시 알림에 등록한 기기의 server id를 담는 [DeviceFlags] 키.
+///
+/// 기기 등록(`registerDevice`)에 성공하면 쓰고, 로그아웃 때 기기 해제(`deleteDevice`)가 읽습니다.
+const registeredDeviceIdKey = 'push.deviceId';
+
 const _trueValue = 'true';
 const _falseValue = 'false';
 

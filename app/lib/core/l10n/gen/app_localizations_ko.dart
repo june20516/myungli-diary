@@ -540,4 +540,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get consentView => '보기';
+
+  @override
+  String get notifyAskQuestionHead => '아침 운세를 알려드릴까요?';
+
+  @override
+  String get notifyAskWhyBody =>
+      '정한 시각에 오늘의 운세를 알림으로 보내 드려요. 설정에서 언제든 바꿀 수 있어요.';
+
+  @override
+  String get notifyAskCtaSkip => '나중에 할게요';
+
+  @override
+  String get notifyAskCtaAllow => '알림 받기';
 }

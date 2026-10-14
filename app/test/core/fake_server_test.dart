@@ -232,12 +232,13 @@ void main() {
         'consent-mismatch',
         'profile-invalid',
         'profile-save-unavailable',
+        'notify-register-unavailable',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(7));
+      expect(scenarios.where((s) => s.signedIn), hasLength(8));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

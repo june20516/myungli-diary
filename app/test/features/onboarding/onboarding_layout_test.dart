@@ -26,6 +26,28 @@ Future<void> _open(
 }
 
 void main() {
+  // notify-ask는 허락·건너뛰기 두 버튼이 있어, 둘 다 화면 안에서 스크롤 없이 닿아야 합니다.
+  for (final scale in [1.0, 2.0, 3.0]) {
+    testWidgets('notify-ask: 글자 $scale배에서 넘치지 않고 두 버튼에 닿습니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(320, 568)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await openNotifyAsk(tester);
+
+      expect(tester.takeException(), isNull);
+      final buttons = find.byType(PrimaryButton);
+      expect(buttons, findsNWidgets(2));
+      for (final button in buttons.evaluate()) {
+        final finder = find.byElementPredicate((e) => e == button);
+        expect(tester.getBottomLeft(finder).dy, lessThanOrEqualTo(568));
+        expect(tester.getTopLeft(finder).dy, greaterThanOrEqualTo(0));
+      }
+    });
+  }
+
   for (final screenId in [
     ScreenIds.onboardCall,
     ScreenIds.onboardBirth,
