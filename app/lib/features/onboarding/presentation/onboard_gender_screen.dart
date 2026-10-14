@@ -5,11 +5,14 @@ import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
@@ -98,6 +101,14 @@ class _GenderFormState extends ConsumerState<_GenderForm> {
           .update((d) => d.copyWith(gender: gender));
       if (!mounted) return;
       await _next();
+    } on Object catch (error) {
+      // 마무리 동작(프로필 저장)이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다.
+      // 입력은 남아 있어 뒤로 가서 고치거나 다시 누를 수 있습니다.
+      if (!mounted) return;
+      showMyungliToast(
+        context,
+        errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }

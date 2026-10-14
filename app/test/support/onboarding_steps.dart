@@ -92,3 +92,26 @@ Future<void> settlePreview(WidgetTester tester) async {
   }
   fail('미리보기 요청이 끝나지 않음');
 }
+
+/// 실제 I/O와 프레임을 번갈아 돌며 [done]이 참이 될 때까지 기다린 뒤 움직임을 끝냅니다.
+///
+/// 처리 중 점이 계속 숨 쉬어 `pumpAndSettle`이 끝나지 않으므로 고정 간격으로 프레임을 줍니다.
+Future<void> pumpUntil(WidgetTester tester, bool Function() done) async {
+  for (var i = 0; i < 100; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+    if (done()) {
+      await tester.pumpAndSettle();
+      return;
+    }
+  }
+  fail('기다리던 상태가 오지 않음');
+}
+
+/// [screenId] 화면이 보일 때까지 기다립니다.
+Future<void> pumpUntilScreen(WidgetTester tester, String screenId) => pumpUntil(
+  tester,
+  () => find.byKey(ValueKey(screenId)).evaluate().isNotEmpty,
+);

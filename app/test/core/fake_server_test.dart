@@ -228,12 +228,15 @@ void main() {
         'returning-user',
         'login-provider-down',
         'login-exchange-invalid',
+        'new-user-signin',
+        'consent-mismatch',
+        'profile-invalid',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(6));
+      expect(scenarios.where((s) => s.signedIn), hasLength(7));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

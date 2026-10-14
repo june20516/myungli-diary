@@ -15,6 +15,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -275,6 +276,47 @@ void main() {
       findsOneWidget,
     );
     handle.dispose();
+  });
+
+  testWidgets('마무리 동작이 입력 오류면 그 문구를 toast로 보입니다', (tester) async {
+    await _openBirthplace(
+      tester,
+      scenario: 'profile-required',
+      overrides: [
+        onboardingFinishProvider.overrideWithValue(
+          () async => throw const OnboardingInputRejected(
+            ProblemError(
+              code: 'birth.invalid',
+              status: 422,
+              fieldErrors: [],
+              traceId: '',
+            ),
+          ),
+        ),
+      ],
+    );
+    await _search(tester, 'new');
+    await _settleIo(tester);
+
+    await tester.tap(_newYork);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      find.text(
+        errorMessage(
+          AppLocalizationsEn(),
+          const ProblemError(
+            code: 'birth.invalid',
+            status: 422,
+            fieldErrors: [],
+            traceId: '',
+          ),
+        ),
+      ),
+      findsOneWidget,
+    );
+    await tester.pump(const Duration(seconds: 10));
   });
 
   testWidgets('마무리 동작이 실패하면 toast로 안내하고 다시 고를 수 있습니다', (tester) async {

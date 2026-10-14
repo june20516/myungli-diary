@@ -164,5 +164,32 @@
     "network": "online",
     "signedIn": false,
     "description": "처음 설치한 사용자. Android Apple 웹 로그인 완료(completeAppleWebLogin)가 401 auth.exchange_invalid(교환 코드 만료·사용됨)라 처음부터 다시 로그인 안내를 확인합니다."
+  },
+  {
+    "id": "new-user-signin",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "미리보기 없이 welcome의 \"이미 계정이 있어요\"로 로그인한 새 계정. 약관 동의 뒤 온보딩 입력을 받고(getMe: 동의 전 → 동의 뒤 → 프로필 뒤), 미리보기 없이 프로필을 저장합니다."
+  },
+  {
+    "id": "consent-mismatch",
+    "extends": "consent-required",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인했고 약관 동의가 필요한 새 계정. 동의(agreeConsents)가 422 consent.version_mismatch이고, 다시 받은 getMe의 이용약관 버전이 바뀌어 있습니다."
+  },
+  {
+    "id": "profile-invalid",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 422 birth.invalid라 입력을 다시 받아야 합니다."
   }
 ]

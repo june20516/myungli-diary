@@ -723,5 +723,45 @@
   "actionConfirm": "확인",
   "@actionConfirm": {
     "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
+  },
+  "consentTitleHead": "서비스를 쓰려면 약관에 동의해 주세요",
+  "@consentTitleHead": {
+    "description": "임시. consent 화면 제목(슬롯 consent.title.head)"
+  },
+  "consentRequiredLabel": "(필수) {document}",
+  "@consentRequiredLabel": {
+    "description": "임시. 필수 동의 항목 이름(슬롯 consent.required.label). document는 약관 문서 이름",
+    "placeholders": {
+      "document": {
+        "type": "String",
+        "example": "이용약관"
+      }
+    }
+  },
+  "consentOptionalLabel": "(선택) {document}",
+  "@consentOptionalLabel": {
+    "description": "임시. 선택 동의 항목 이름(슬롯 consent.optional.label). 계약에 선택 문서가 없어 아직 쓰지 않음",
+    "placeholders": {
+      "document": {
+        "type": "String",
+        "example": "이용약관"
+      }
+    }
+  },
+  "consentCtaAgree": "동의하고 계속하기",
+  "@consentCtaAgree": {
+    "description": "임시. 동의하고 계속 버튼(슬롯 consent.cta.agree)"
+  },
+  "consentDocumentTerms": "이용약관",
+  "@consentDocumentTerms": {
+    "description": "임시. 약관 문서 이름: 이용약관(terms, 슬롯 아님)"
+  },
+  "consentDocumentPrivacy": "개인정보 수집·이용",
+  "@consentDocumentPrivacy": {
+    "description": "임시. 약관 문서 이름: 개인정보 수집·이용(privacy, 슬롯 아님)"
+  },
+  "consentView": "보기",
+  "@consentView": {
+    "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
   }
 }

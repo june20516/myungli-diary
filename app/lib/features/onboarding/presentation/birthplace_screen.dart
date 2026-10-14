@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
-import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
@@ -16,6 +15,7 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/features/onboarding/application/city_providers.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
@@ -154,10 +154,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       if (!mounted) return;
       showMyungliToast(
         context,
-        errorMessage(
-          AppLocalizations.of(context),
-          error is AppError ? error : UnexpectedError(error),
-        ),
+        errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
       );
     } finally {
       if (mounted) setState(() => _saving = false);

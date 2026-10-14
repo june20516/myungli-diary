@@ -1,0 +1,45 @@
+{
+  "sequence": [
+    {
+      "status": 200,
+      "body": {
+        "accountId": "5d2c8e41-7a3b-4f60-b1d9-2e6f0c4a9b73",
+        "status": "active",
+        "consentRequired": true,
+        "requiredConsents": [
+          {
+            "document": "terms",
+            "version": "2026-10-01"
+          },
+          {
+            "document": "privacy",
+            "version": "2026-10-01"
+          }
+        ],
+        "hasProfile": false,
+        "adFree": {
+          "active": false
+        },
+        "insight": {
+          "active": false
+        }
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "accountId": "5d2c8e41-7a3b-4f60-b1d9-2e6f0c4a9b73",
+        "status": "active",
+        "consentRequired": false,
+        "requiredConsents": [],
+        "hasProfile": false,
+        "adFree": {
+          "active": false
+        },
+        "insight": {
+          "active": false
+        }
+      }
+    }
+  ]
+}

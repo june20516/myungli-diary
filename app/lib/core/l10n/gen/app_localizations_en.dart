@@ -551,4 +551,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionConfirm => 'OK';
+
+  @override
+  String get consentTitleHead => 'Please agree to the terms to continue';
+
+  @override
+  String consentRequiredLabel(String document) {
+    return '(Required) $document';
+  }
+
+  @override
+  String consentOptionalLabel(String document) {
+    return '(Optional) $document';
+  }
+
+  @override
+  String get consentCtaAgree => 'Agree and continue';
+
+  @override
+  String get consentDocumentTerms => 'Terms of Service';
+
+  @override
+  String get consentDocumentPrivacy =>
+      'Collection and use of personal information';
+
+  @override
+  String get consentView => 'View';
 }

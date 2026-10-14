@@ -1,14 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/field_problems.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
@@ -23,12 +31,78 @@ const Set<String> onboardCallExits = {
 /// 온보딩 첫 단계: 앱이 사용자를 부를 말(호칭)을 받습니다(D36).
 ///
 /// 수정 모드(`?mode=edit`)에서는 저장 버튼이 호칭 [String]을 `pop`으로 돌려줍니다.
-class OnboardCallScreen extends ConsumerWidget {
+///
+/// 온보딩 모드로 열릴 때 한 번 확인합니다(Review Focus 1·2).
+/// * 약관 동의 직후 프로필 저장이 입력 오류였으면 그 안내를 toast로 보이고 입력을 보여 줍니다.
+/// * 아니면, 진입이 `profileRequired`이고 입력이 완전하면(미리보기·동의 뒤 프로필 저장 전에
+///   앱이 꺼짐) 같은 질문을 다시 묻지 않고 프로필을 저장합니다. 이동은 진입 갱신이 정합니다.
+class OnboardCallScreen extends ConsumerStatefulWidget {
   /// onboard-call 화면을 만듭니다.
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OnboardCallScreen> createState() => _OnboardCallScreenState();
+}
+
+class _OnboardCallScreenState extends ConsumerState<OnboardCallScreen> {
+  bool _entryChecked = false;
+
+  /// 입력으로 프로필을 저장하는 중이면 true. 그동안 질문을 그리지 않습니다.
+  bool _resuming = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_entryChecked) return;
+    _entryChecked = true;
+    if (onboardingStepModeOf(GoRouterState.of(context)) ==
+        OnboardingStepMode.onboarding) {
+      _checkOnEntry();
+    }
+  }
+
+  void _checkOnEntry() {
+    // 첫 build 전에는 provider를 바꿀 수 없어, 무엇을 할지만 정하고 첫 프레임 뒤에 합니다.
+    final hasRejection = ref.read(onboardingRejectionNoticeProvider) != null;
+    _resuming =
+        !hasRejection && ref.read(entryProvider) == EntryState.profileRequired;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (hasRejection) {
+        final rejection = ref
+            .read(onboardingRejectionNoticeProvider.notifier)
+            .take();
+        if (rejection != null) _showError(rejection);
+      } else if (_resuming) {
+        unawaited(_resume());
+      }
+    });
+  }
+
+  Future<void> _resume() async {
+    final completer = ref.read(onboardingCompleterProvider);
+    try {
+      if (await completer.isReady()) {
+        await completer.complete();
+      }
+    } on Object catch (error) {
+      // 실패하면 질문을 보여 이어서 고치거나 다시 저장할 수 있게 합니다.
+      _showError(onboardingErrorOf(error));
+    } finally {
+      if (mounted) setState(() => _resuming = false);
+    }
+  }
+
+  void _showError(AppError error) {
+    if (!mounted) return;
+    showMyungliToast(
+      context,
+      errorMessage(AppLocalizations.of(context), error),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final routeState = GoRouterState.of(context);
     final mode = onboardingStepModeOf(routeState);
     final edit = mode == OnboardingStepMode.edit;
@@ -43,7 +117,8 @@ class OnboardCallScreen extends ConsumerWidget {
     } else {
       initial = draft?.value?.honorific;
     }
-    final ready = !(profile?.isLoading ?? draft?.isLoading ?? false);
+    final ready =
+        !_resuming && !(profile?.isLoading ?? draft?.isLoading ?? false);
     return Semantics(
       identifier: ScreenIds.onboardCall,
       child: Scaffold(

@@ -514,4 +514,29 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get actionConfirm => 'OK';
+
+  @override
+  String get consentTitleHead => 'ご利用には規約への同意が必要です';
+
+  @override
+  String consentRequiredLabel(String document) {
+    return '（必須）$document';
+  }
+
+  @override
+  String consentOptionalLabel(String document) {
+    return '（任意）$document';
+  }
+
+  @override
+  String get consentCtaAgree => '同意して続ける';
+
+  @override
+  String get consentDocumentTerms => '利用規約';
+
+  @override
+  String get consentDocumentPrivacy => '個人情報の収集・利用';
+
+  @override
+  String get consentView => '見る';
 }

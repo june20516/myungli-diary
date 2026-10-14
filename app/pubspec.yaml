@@ -144,3 +144,6 @@ flutter:
     - fixtures/returning-user/
     - fixtures/login-provider-down/
     - fixtures/login-exchange-invalid/
+    - fixtures/new-user-signin/
+    - fixtures/consent-mismatch/
+    - fixtures/profile-invalid/

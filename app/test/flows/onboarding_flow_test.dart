@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
@@ -18,6 +19,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
@@ -590,6 +592,39 @@ void main() {
         find.byKey(const ValueKey(ScreenIds.onboardGender)),
         findsOneWidget,
       );
+    });
+
+    testWidgets('마무리 동작이 입력 오류면 그 문구를 toast로 보이고 성별 화면에 남습니다', (tester) async {
+      await openTimeStep(
+        tester,
+        scenario: 'profile-required',
+        overrides: [
+          onboardingFinishProvider.overrideWithValue(
+            () async => throw const OnboardingInputRejected(
+              ProblemError(
+                code: 'birth.invalid',
+                status: 422,
+                fieldErrors: [],
+                traceId: '',
+              ),
+            ),
+          ),
+        ],
+      );
+      await openGender(tester);
+      await tester.tap(find.text('남성'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(PrimaryButton));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('입력한 생년월일시를 다시 확인해 주세요.'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.onboardGender)),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(seconds: 10));
     });
 
     testWidgets('마무리 동작이 도는 동안 다음을 다시 눌러도 한 번만 부릅니다', (tester) async {

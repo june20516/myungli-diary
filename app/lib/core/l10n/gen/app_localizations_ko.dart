@@ -515,4 +515,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get actionConfirm => '확인';
+
+  @override
+  String get consentTitleHead => '서비스를 쓰려면 약관에 동의해 주세요';
+
+  @override
+  String consentRequiredLabel(String document) {
+    return '(필수) $document';
+  }
+
+  @override
+  String consentOptionalLabel(String document) {
+    return '(선택) $document';
+  }
+
+  @override
+  String get consentCtaAgree => '동의하고 계속하기';
+
+  @override
+  String get consentDocumentTerms => '이용약관';
+
+  @override
+  String get consentDocumentPrivacy => '개인정보 수집·이용';
+
+  @override
+  String get consentView => '보기';
 }

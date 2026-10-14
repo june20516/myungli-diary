@@ -1053,6 +1053,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'확인'**
   String get actionConfirm;
+
+  /// 임시. consent 화면 제목(슬롯 consent.title.head)
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스를 쓰려면 약관에 동의해 주세요'**
+  String get consentTitleHead;
+
+  /// 임시. 필수 동의 항목 이름(슬롯 consent.required.label). document는 약관 문서 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'(필수) {document}'**
+  String consentRequiredLabel(String document);
+
+  /// 임시. 선택 동의 항목 이름(슬롯 consent.optional.label). 계약에 선택 문서가 없어 아직 쓰지 않음
+  ///
+  /// In ko, this message translates to:
+  /// **'(선택) {document}'**
+  String consentOptionalLabel(String document);
+
+  /// 임시. 동의하고 계속 버튼(슬롯 consent.cta.agree)
+  ///
+  /// In ko, this message translates to:
+  /// **'동의하고 계속하기'**
+  String get consentCtaAgree;
+
+  /// 임시. 약관 문서 이름: 이용약관(terms, 슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get consentDocumentTerms;
+
+  /// 임시. 약관 문서 이름: 개인정보 수집·이용(privacy, 슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 수집·이용'**
+  String get consentDocumentPrivacy;
+
+  /// 임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'보기'**
+  String get consentView;
 }
 
 class _AppLocalizationsDelegate
