@@ -441,8 +441,7 @@ void main() {
       await tester.tap(_kakaoButton);
       await _settleLogin(tester, container);
       expect(find.byKey(loginErrorKey), findsOneWidget);
-      final firstAccess = container.read(tokenStoreProvider).accessToken;
-      expect(firstAccess, isNotNull);
+      expect(container.read(tokenStoreProvider).accessToken, isNotNull);
 
       // 이전 세션의 access token이 만료됐고 refresh도 거부되는 server.
       Response<Object?> problem(RequestOptions o, int status, String code) =>
@@ -496,10 +495,8 @@ void main() {
         isNot(const OnboardingDraft()),
       );
       expect(container.read(tokenStoreProvider).accessToken, isNotNull);
-      expect(
-        container.read(tokenStoreProvider).accessToken,
-        isNot(firstAccess),
-      );
+      // fake server가 같은 토큰 문자열을 주므로 로그인 재요청 횟수로 새 로그인을 확인합니다.
+      expect(_fake(container).callCountOf('loginKakao'), 2);
     },
   );
 }
