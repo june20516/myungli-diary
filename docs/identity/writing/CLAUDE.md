@@ -42,10 +42,14 @@
 | 글자 수 상한 | **주고받음** (요청함) | design |
 | `core/message_keys.json` | **사용** (W1) | core — C2 완료로 사용 가능 |
 
-## 현재 상태 (2026-10-14, writing 세션 작성)
-* **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77)가 main에 있습니다.
+## 현재 상태 (2026-10-15, writing 세션 작성)
+* **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145)가 main에 있습니다.
+* **공용 ui 문구·ICU plural**(브랜치 `writing/ui-leftovers`, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22)
+  * app 임시 문구 116개를 원고로 옮겼습니다. 공용 ui 슬롯 15개(`slots/ui/common.yaml`, 키 100개)와 glossary 지지·날의 성격 이름 16개(`content/<lang>/glossary.yaml`)이고, 지지·날의 성격은 ARB로도 나갑니다.
+  * 검사기 v0.3.0: ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`).
+  * `writing.yml`은 ci-gate만 부릅니다(#148).
 * **IA 슬롯 정렬**(브랜치 `writing/ia-slots`, spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA 124자리(ui 91, content 33)를 모두 슬롯 명세에 담았습니다(PR #132 병합). IA v2(D67)에서 선택 동의 슬롯이 빠져 ui는 90자리입니다(#134). 검사기 v0.2.0이 `docs/ia/screens.json`과 대조합니다(`ia.*`).
+  * IA 124자리(ui 91, content 33)를 모두 슬롯 명세에 담았습니다(PR #132 병합). IA v2(D67·D68, PR #138)로 선택 동의 슬롯이 빠지고 시진 확인 줄·알림 허락 버튼이 들어와 ui는 92자리입니다. 검사기 v0.2.0이 `docs/ia/screens.json`과 대조합니다(`ia.*`).
   * 슬롯 명세 v1.1: `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90).
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`).
   * 호칭·조사 규칙 v1.1: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
@@ -60,7 +64,7 @@
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | check-arb>`.
   * 원고 검사: `mlw check docs/identity/writing/content --partial`. 슬롯 `params`를 `core/message_params.json`과, 슬롯 자리를 IA와 대조합니다.
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
-* 결정은 W1~W21입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯).
+* 결정은 W1~W22입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
@@ -69,10 +73,8 @@
    - core #130: `rule_id`·`source_ref` 목록 → `explain.today_reason`·`evidence.basis`·`evidence.source`의 키를 채웁니다.
    - design #131: ui 이름 자리와 새 content 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
-   - app #128(공지): ARB를 가져가는지, `@@x-generated`가 문제없는지 확인합니다.
-3. **IA v2 반영**(#134, PR #138, 브랜치 `writing/ia-v2-consent`): D67로 `consent.optional.label`을 지우고, D68로 시진 확인 줄을 ui 슬롯 `onboard-time.hour.confirm`으로 옮기고 `notify-ask.cta.allow`를 더했습니다(ui 92자리). app 최종 PR(#135)과 함께 병합합니다.
-   - **ci-gate 연결**(#144): 1단계 PR #145(`workflow_call`). 지휘가 2단계를 마치면 3단계로 writing.yml의 `push`·`pull_request` 트리거를 지웁니다.
-   - **#143 후속**(새 브랜치, 결정 W22로 기록): Issue 코멘트에 답한 대로 ① 입력칸 접근성 이름·`actionClose` 공용 ui 슬롯 ② 슬롯 밖 문구(오류·탭·접근성 라벨·성별 등) 원고, 지지·날의 성격 이름은 용어 id 이름 원고에서 ARB 생성 ③ 카카오 ja는 영문 "Login with Kakao" ④ `mlw check-arb`에 ICU plural 허용.
+3. **공용 ui 문구 PR을 병합하고** app이 가져가면(`dart run tool/import_writing_arb.dart`) #143을 닫습니다. #148은 같은 PR로 처리합니다.
+   - 새 공용 슬롯의 글자 수 상한은 design #131에 함께 요청했습니다. 답이 오면 `max_length`를 채웁니다.
 4. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
 5. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
 6. **W1:** 콘텐츠 3개 언어 원고(원국 개인 해석, 용어 뜻 77개, 일간 소개, 날의 성격 이유 포함)를 쓰고 원어민 검수를 받습니다. ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
