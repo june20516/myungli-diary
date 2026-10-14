@@ -353,13 +353,13 @@ void main() {
           if (screen.presentation == IaPresentation.page) screen.id,
       };
       expect(screenRegistry.keys.toSet(), pageIds);
-      // 상태를 직접 처리하는 화면은 launch뿐입니다(나머지는 자리 표시).
+      // 상태를 직접 처리하는 화면은 만든 화면뿐입니다(나머지는 자리 표시).
       expect(
         {
           for (final spec in screenRegistry.values)
             if (spec.handledStates.isNotEmpty) spec.id,
         },
-        {ScreenIds.launch},
+        {ScreenIds.launch, ScreenIds.onboardBirth},
       );
     });
   });

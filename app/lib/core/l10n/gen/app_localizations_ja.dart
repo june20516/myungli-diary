@@ -336,4 +336,40 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get welcomeCtaSignin => 'すでにアカウントをお持ちの方';
+
+  @override
+  String get onboardCallQuestionHead => '何とお呼びしましょうか？';
+
+  @override
+  String get onboardCallInputHint => '例：ほし';
+
+  @override
+  String get onboardCallNoteBody => '本名でなくても大丈夫です。';
+
+  @override
+  String get onboardBirthQuestionHead => 'いつお生まれですか？';
+
+  @override
+  String get onboardBirthCalendarHint => '旧暦の場合は旧暦を選び、閏月ならチェックしてください。';
+
+  @override
+  String get onboardBirthBasisNote => '韓国生まれとして計算します。';
+
+  @override
+  String get onboardBirthErrorRange => '1900年1月31日から2099年12月31日まで計算できます。';
+
+  @override
+  String get onboardingNext => '次へ';
+
+  @override
+  String get onboardingSave => '保存';
+
+  @override
+  String get calendarSolar => '新暦';
+
+  @override
+  String get calendarLunar => '旧暦';
+
+  @override
+  String get leapMonth => '閏月';
 }

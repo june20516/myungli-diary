@@ -337,4 +337,41 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get welcomeCtaSignin => '이미 계정이 있어요';
+
+  @override
+  String get onboardCallQuestionHead => '뭐라고 불러 드릴까요?';
+
+  @override
+  String get onboardCallInputHint => '예: 별님';
+
+  @override
+  String get onboardCallNoteBody => '실명이 아니어도 괜찮아요.';
+
+  @override
+  String get onboardBirthQuestionHead => '언제 태어나셨나요?';
+
+  @override
+  String get onboardBirthCalendarHint => '음력이면 음력을 고르고, 윤달이면 윤달에 체크해 주세요.';
+
+  @override
+  String get onboardBirthBasisNote => '한국에서 태어난 것으로 보고 계산해요.';
+
+  @override
+  String get onboardBirthErrorRange =>
+      '1900년 1월 31일부터 2099년 12월 31일까지 계산할 수 있어요.';
+
+  @override
+  String get onboardingNext => '다음';
+
+  @override
+  String get onboardingSave => '저장';
+
+  @override
+  String get calendarSolar => '양력';
+
+  @override
+  String get calendarLunar => '음력';
+
+  @override
+  String get leapMonth => '윤달';
 }

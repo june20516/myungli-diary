@@ -477,5 +477,53 @@
   "welcomeCtaSignin": "이미 계정이 있어요",
   "@welcomeCtaSignin": {
     "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallQuestionHead": "뭐라고 불러 드릴까요?",
+  "@onboardCallQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallInputHint": "예: 별님",
+  "@onboardCallInputHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallNoteBody": "실명이 아니어도 괜찮아요.",
+  "@onboardCallNoteBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthQuestionHead": "언제 태어나셨나요?",
+  "@onboardBirthQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthCalendarHint": "음력이면 음력을 고르고, 윤달이면 윤달에 체크해 주세요.",
+  "@onboardBirthCalendarHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthBasisNote": "한국에서 태어난 것으로 보고 계산해요.",
+  "@onboardBirthBasisNote": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthErrorRange": "1900년 1월 31일부터 2099년 12월 31일까지 계산할 수 있어요.",
+  "@onboardBirthErrorRange": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardingNext": "다음",
+  "@onboardingNext": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "onboardingSave": "저장",
+  "@onboardingSave": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "calendarSolar": "양력",
+  "@calendarSolar": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "calendarLunar": "음력",
+  "@calendarLunar": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "leapMonth": "윤달",
+  "@leapMonth": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   }
 }

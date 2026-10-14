@@ -129,5 +129,53 @@
   "welcomeCtaSignin": "すでにアカウントをお持ちの方",
   "@welcomeCtaSignin": {
     "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallQuestionHead": "何とお呼びしましょうか？",
+  "@onboardCallQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallInputHint": "例：ほし",
+  "@onboardCallInputHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallNoteBody": "本名でなくても大丈夫です。",
+  "@onboardCallNoteBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthQuestionHead": "いつお生まれですか？",
+  "@onboardBirthQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthCalendarHint": "旧暦の場合は旧暦を選び、閏月ならチェックしてください。",
+  "@onboardBirthCalendarHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthBasisNote": "韓国生まれとして計算します。",
+  "@onboardBirthBasisNote": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthErrorRange": "1900年1月31日から2099年12月31日まで計算できます。",
+  "@onboardBirthErrorRange": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardingNext": "次へ",
+  "@onboardingNext": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "onboardingSave": "保存",
+  "@onboardingSave": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "calendarSolar": "新暦",
+  "@calendarSolar": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "calendarLunar": "旧暦",
+  "@calendarLunar": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "leapMonth": "閏月",
+  "@leapMonth": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   }
 }

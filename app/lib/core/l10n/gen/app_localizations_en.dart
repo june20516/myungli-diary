@@ -365,4 +365,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeCtaSignin => 'I already have an account';
+
+  @override
+  String get onboardCallQuestionHead => 'What should I call you?';
+
+  @override
+  String get onboardCallInputHint => 'e.g. Star';
+
+  @override
+  String get onboardCallNoteBody => 'It doesn\'t have to be your real name.';
+
+  @override
+  String get onboardBirthQuestionHead => 'When were you born?';
+
+  @override
+  String get onboardBirthCalendarHint =>
+      'For the lunar calendar, pick Lunar and check Leap month if it applies.';
+
+  @override
+  String get onboardBirthBasisNote =>
+      'We calculate as if you were born in Korea.';
+
+  @override
+  String get onboardBirthErrorRange =>
+      'We can calculate from January 31, 1900 to December 31, 2099.';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingSave => 'Save';
+
+  @override
+  String get calendarSolar => 'Solar';
+
+  @override
+  String get calendarLunar => 'Lunar';
+
+  @override
+  String get leapMonth => 'Leap month';
 }

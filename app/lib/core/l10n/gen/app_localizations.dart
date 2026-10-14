@@ -705,6 +705,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'이미 계정이 있어요'**
   String get welcomeCtaSignin;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'뭐라고 불러 드릴까요?'**
+  String get onboardCallQuestionHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 별님'**
+  String get onboardCallInputHint;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'실명이 아니어도 괜찮아요.'**
+  String get onboardCallNoteBody;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'언제 태어나셨나요?'**
+  String get onboardBirthQuestionHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'음력이면 음력을 고르고, 윤달이면 윤달에 체크해 주세요.'**
+  String get onboardBirthCalendarHint;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'한국에서 태어난 것으로 보고 계산해요.'**
+  String get onboardBirthBasisNote;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'1900년 1월 31일부터 2099년 12월 31일까지 계산할 수 있어요.'**
+  String get onboardBirthErrorRange;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get onboardingNext;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get onboardingSave;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'양력'**
+  String get calendarSolar;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'음력'**
+  String get calendarLunar;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'윤달'**
+  String get leapMonth;
 }
 
 class _AppLocalizationsDelegate

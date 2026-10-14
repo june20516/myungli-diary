@@ -4,6 +4,8 @@ import 'package:myungli_diary/app/screens/launch_screen.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
+import 'package:myungli_diary/features/onboarding/presentation/onboard_birth_screen.dart';
+import 'package:myungli_diary/features/onboarding/presentation/onboard_call_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
 
 /// 화면 하나의 등록 정보.
@@ -52,6 +54,17 @@ final Map<String, ScreenSpec> _implementedScreens = {
     _buildWelcome,
     exits: welcomeExits,
   ),
+  ScreenIds.onboardCall: const ScreenSpec(
+    ScreenIds.onboardCall,
+    _buildOnboardCall,
+    exits: onboardCallExits,
+  ),
+  ScreenIds.onboardBirth: const ScreenSpec(
+    ScreenIds.onboardBirth,
+    _buildOnboardBirth,
+    handledStates: onboardBirthHandledStates,
+    exits: onboardBirthExits,
+  ),
 };
 
 /// page 화면 registry. 시트·system 화면은 route가 없어 넣지 않습니다.
@@ -72,3 +85,7 @@ Widget _buildLaunch(BuildContext context) => const LaunchScreen();
 Widget _buildForceUpdate(BuildContext context) => const ForceUpdateScreen();
 
 Widget _buildWelcome(BuildContext context) => const WelcomeScreen();
+
+Widget _buildOnboardCall(BuildContext context) => const OnboardCallScreen();
+
+Widget _buildOnboardBirth(BuildContext context) => const OnboardBirthScreen();

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-14T03:22:04.990555Z",
+  "generatedAt": "2026-10-14T03:32:02.506828Z",
   "exits": {
-    "covered": 6,
+    "covered": 10,
     "total": 77,
     "uncovered": [
       "account-delete>welcome",
@@ -38,10 +38,6 @@
       "my-saju>saju-chart",
       "my-saju>settings",
       "notify-ask>ad-consent",
-      "onboard-birth>onboard-time",
-      "onboard-birth>profile-edit",
-      "onboard-call>onboard-birth",
-      "onboard-call>profile-edit",
       "onboard-gender>birthplace",
       "onboard-gender>preview",
       "onboard-gender>profile-edit",
@@ -86,6 +82,18 @@
       "launch>welcome": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+      ],
+      "onboard-birth>onboard-time": [
+        "test/flows/onboarding_flow_test.dart:89 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
+      ],
+      "onboard-birth>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:141 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+      ],
+      "onboard-call>onboard-birth": [
+        "test/flows/onboarding_flow_test.dart:63 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다"
+      ],
+      "onboard-call>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:141 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
       ],
       "system-push>today": [
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
@@ -176,6 +184,7 @@
     "coveredBy": {
       "D50": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
+        "test/flows/onboarding_flow_test.dart:63 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
@@ -214,7 +223,7 @@
     },
     "onboard-call": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
@@ -224,7 +233,7 @@
     },
     "onboard-birth": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {

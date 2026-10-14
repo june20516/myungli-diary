@@ -6,6 +6,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 ///
 /// 화면이 충분히 크면 [actions]가 바닥에 붙고, 모자라면 [body] 뒤에 이어 붙어
 /// 스크롤로 닿습니다.
+///
+/// 입력 단계 화면은 `InputStep`을 씁니다(키보드 인셋 처리).
 class OnboardingPageLayout extends StatelessWidget {
   /// 골격을 만듭니다.
   const new({required this.body, required this.actions, super.key});

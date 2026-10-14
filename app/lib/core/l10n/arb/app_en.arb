@@ -129,5 +129,53 @@
   "welcomeCtaSignin": "I already have an account",
   "@welcomeCtaSignin": {
     "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallQuestionHead": "What should I call you?",
+  "@onboardCallQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallInputHint": "e.g. Star",
+  "@onboardCallInputHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardCallNoteBody": "It doesn't have to be your real name.",
+  "@onboardCallNoteBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthQuestionHead": "When were you born?",
+  "@onboardBirthQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthCalendarHint": "For the lunar calendar, pick Lunar and check Leap month if it applies.",
+  "@onboardBirthCalendarHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthBasisNote": "We calculate as if you were born in Korea.",
+  "@onboardBirthBasisNote": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardBirthErrorRange": "We can calculate from January 31, 1900 to December 31, 2099.",
+  "@onboardBirthErrorRange": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardingNext": "Next",
+  "@onboardingNext": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "onboardingSave": "Save",
+  "@onboardingSave": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "calendarSolar": "Solar",
+  "@calendarSolar": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "calendarLunar": "Lunar",
+  "@calendarLunar": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "leapMonth": "Leap month",
+  "@leapMonth": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   }
 }
