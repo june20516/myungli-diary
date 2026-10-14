@@ -137,3 +137,4 @@ flutter:
     - fixtures/force-update/
     - fixtures/birth-hour-unavailable/
     - fixtures/birth-hour-rate-limited/
+    - fixtures/cities-error/

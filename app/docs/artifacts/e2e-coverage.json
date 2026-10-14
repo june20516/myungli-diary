@@ -1,16 +1,13 @@
 {
-  "generatedAt": "2026-10-14T03:50:49.058744Z",
+  "generatedAt": "2026-10-14T04:10:56.427094Z",
   "exits": {
-    "covered": 15,
+    "covered": 18,
     "total": 77,
     "uncovered": [
       "account-delete>welcome",
       "ad-consent>today",
       "ad-free>legal",
       "ad-free>system-purchase",
-      "birthplace>preview",
-      "birthplace>profile-edit",
-      "birthplace>settings",
       "calendar>day-sheet",
       "calendar>event-edit",
       "consent>legal",
@@ -68,6 +65,15 @@
       "today>share-preview"
     ],
     "coveredBy": {
+      "birthplace>preview": [
+        "test/flows/birthplace_flow_test.dart:124 도시를 누르면 초안에 담고 preview로 갑니다"
+      ],
+      "birthplace>profile-edit": [
+        "test/flows/birthplace_flow_test.dart:219"
+      ],
+      "birthplace>settings": [
+        "test/flows/birthplace_flow_test.dart:219"
+      ],
       "launch>force-update": [
         "test/flows/launch_flow_test.dart:49 force-update 시나리오는 force-update 화면에 도착합니다"
       ],
@@ -79,31 +85,31 @@
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ],
       "onboard-birth>onboard-time": [
-        "test/flows/onboarding_flow_test.dart:154 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
+        "test/flows/onboarding_flow_test.dart:163 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
       ],
       "onboard-birth>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:206 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+        "test/flows/onboarding_flow_test.dart:215 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
       ],
       "onboard-call>onboard-birth": [
-        "test/flows/onboarding_flow_test.dart:128 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다"
+        "test/flows/onboarding_flow_test.dart:137 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다"
       ],
       "onboard-call>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:206 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+        "test/flows/onboarding_flow_test.dart:215 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
       ],
       "onboard-gender>birthplace": [
-        "test/flows/onboarding_flow_test.dart:514 한국 밖 기기는 다음 → birthplace입니다"
+        "test/flows/onboarding_flow_test.dart:602 한국 밖 기기는 다음 → birthplace입니다"
       ],
       "onboard-gender>preview": [
-        "test/flows/onboarding_flow_test.dart:494 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다"
+        "test/flows/onboarding_flow_test.dart:582 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다"
       ],
       "onboard-gender>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:576 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+        "test/flows/onboarding_flow_test.dart:664 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "onboard-time>onboard-gender": [
-        "test/flows/onboarding_flow_test.dart:406 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
+        "test/flows/onboarding_flow_test.dart:415 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
       ],
       "onboard-time>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:576 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+        "test/flows/onboarding_flow_test.dart:664 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "system-push>today": [
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
@@ -118,16 +124,13 @@
     }
   },
   "states": {
-    "covered": 2,
+    "covered": 5,
     "total": 54,
     "uncovered": [
       "account-delete:error",
       "ad-free:error",
       "ad-free:loading",
       "ad-free:offline",
-      "birthplace:empty",
-      "birthplace:error",
-      "birthplace:loading",
       "calendar:error",
       "calendar:loading",
       "calendar:offline",
@@ -175,11 +178,20 @@
       "today:time-unknown"
     ],
     "coveredBy": {
+      "birthplace:empty": [
+        "test/flows/birthplace_flow_test.dart:139 결과가 없으면 안내 문장이 나옵니다"
+      ],
+      "birthplace:error": [
+        "test/flows/birthplace_flow_test.dart:152 검색이 실패하면 오류 상태이고 다시 시도로 같은 질의를 다시 보냅니다"
+      ],
+      "birthplace:loading": [
+        "test/flows/birthplace_flow_test.dart:79 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
+      ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
       ],
       "onboard-time:time-unknown": [
-        "test/flows/onboarding_flow_test.dart:406 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
+        "test/flows/onboarding_flow_test.dart:415 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
       ]
     }
   },
@@ -196,7 +208,7 @@
     "coveredBy": {
       "D50": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
-        "test/flows/onboarding_flow_test.dart:128 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
+        "test/flows/onboarding_flow_test.dart:137 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
@@ -275,11 +287,11 @@
     },
     "birthplace": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },

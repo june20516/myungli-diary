@@ -89,5 +89,26 @@
     "network": "online",
     "signedIn": false,
     "description": "처음 설치한 사용자. 시진 확인(getBirthHour)이 분당 한도(429 rate_limited)에 걸려 확인 줄이 보이지 않습니다."
+  },
+  {
+    "id": "cities-error",
+    "extends": "overseas",
+    "today": "2026-10-13",
+    "timezone": "America/New_York",
+    "locale": "en-US",
+    "network": "online",
+    "signedIn": false,
+    "description": "한국 밖 기기의 처음 설치한 사용자. 도시 검색(listCities)이 503이라 출생지 오류 상태를 확인합니다."
+  },
+  {
+    "id": "cities-slow",
+    "extends": "overseas",
+    "today": "2026-10-13",
+    "timezone": "America/New_York",
+    "locale": "en-US",
+    "delayMs": 1000,
+    "network": "online",
+    "signedIn": false,
+    "description": "한국 밖 기기의 처음 설치한 사용자. 응답마다 1초가 걸려 도시 검색 중 skeleton을 확인합니다."
   }
 ]

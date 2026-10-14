@@ -435,6 +435,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardGenderWhyBody => '대운의 방향을 계산할 때 쓰여요.';
 
   @override
+  String get birthplaceQuestionHead => '어디에서 태어나셨나요?';
+
+  @override
+  String get birthplaceWhyBody => '태어난 도시의 시간대로 태어난 시각을 맞춰요.';
+
+  @override
+  String get birthplaceSearchHint => '예: 뉴욕';
+
+  @override
+  String get birthplaceEmptyBody => '찾는 도시가 없어요. 다른 이름으로 검색해 보세요.';
+
+  @override
+  String get birthplaceSearchLabel => '도시 이름';
+
+  @override
   String get genderMale => '남성';
 
   @override

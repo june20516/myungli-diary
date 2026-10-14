@@ -467,6 +467,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used to work out the direction of your major luck cycles.';
 
   @override
+  String get birthplaceQuestionHead => 'Where were you born?';
+
+  @override
+  String get birthplaceWhyBody =>
+      'The time zone of your birth city is used to set your birth time.';
+
+  @override
+  String get birthplaceSearchHint => 'e.g. New York';
+
+  @override
+  String get birthplaceEmptyBody => 'No matching city. Try another name.';
+
+  @override
+  String get birthplaceSearchLabel => 'City name';
+
+  @override
   String get genderMale => 'Male';
 
   @override

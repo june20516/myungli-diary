@@ -268,6 +268,26 @@
   "@onboardGenderWhyBody": {
     "description": "임시. 화면 문구 원고 전의 자리 문구"
   },
+  "birthplaceQuestionHead": "どこで生まれましたか？",
+  "@birthplaceQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "birthplaceWhyBody": "生まれた都市のタイムゾーンで出生時刻を合わせます。",
+  "@birthplaceWhyBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "birthplaceSearchHint": "例：ニューヨーク",
+  "@birthplaceSearchHint": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "birthplaceEmptyBody": "該当する都市がありません。別の名前で検索してください。",
+  "@birthplaceEmptyBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "birthplaceSearchLabel": "都市名",
+  "@birthplaceSearchLabel": {
+    "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)"
+  },
   "genderMale": "男性",
   "@genderMale": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"

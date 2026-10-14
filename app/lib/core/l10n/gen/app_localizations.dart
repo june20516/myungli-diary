@@ -892,6 +892,36 @@ abstract class AppLocalizations {
   /// **'대운의 방향을 계산할 때 쓰여요.'**
   String get onboardGenderWhyBody;
 
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'어디에서 태어나셨나요?'**
+  String get birthplaceQuestionHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'태어난 도시의 시간대로 태어난 시각을 맞춰요.'**
+  String get birthplaceWhyBody;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 뉴욕'**
+  String get birthplaceSearchHint;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'찾는 도시가 없어요. 다른 이름으로 검색해 보세요.'**
+  String get birthplaceEmptyBody;
+
+  /// 임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'도시 이름'**
+  String get birthplaceSearchLabel;
+
   /// 임시. 온보딩 공용 문구(슬롯 아님)
   ///
   /// In ko, this message translates to:

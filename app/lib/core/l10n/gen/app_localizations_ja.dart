@@ -433,6 +433,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardGenderWhyBody => '大運の向きを計算するのに使います。';
 
   @override
+  String get birthplaceQuestionHead => 'どこで生まれましたか？';
+
+  @override
+  String get birthplaceWhyBody => '生まれた都市のタイムゾーンで出生時刻を合わせます。';
+
+  @override
+  String get birthplaceSearchHint => '例：ニューヨーク';
+
+  @override
+  String get birthplaceEmptyBody => '該当する都市がありません。別の名前で検索してください。';
+
+  @override
+  String get birthplaceSearchLabel => '都市名';
+
+  @override
   String get genderMale => '男性';
 
   @override

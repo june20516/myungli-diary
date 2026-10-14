@@ -1,0 +1,20 @@
+{
+  "sequence": [
+    {
+      "status": 200,
+      "headers": { "ETag": "\"cities-v1\"" },
+      "body": {
+        "dataVersion": "2026.10",
+        "items": [
+          { "id": "5128581", "name": "New York City", "country": "US", "timezone": "America/New_York" },
+          { "id": "2155415", "name": "New Plymouth", "country": "NZ", "timezone": "Pacific/Auckland" },
+          { "id": "1261481", "name": "New Delhi", "country": "IN", "timezone": "Asia/Kolkata" }
+        ]
+      }
+    },
+    {
+      "status": 200,
+      "body": { "dataVersion": "2026.10", "items": [] }
+    }
+  ]
+}
