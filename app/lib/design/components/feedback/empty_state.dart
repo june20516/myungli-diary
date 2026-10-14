@@ -13,6 +13,7 @@ class EmptyState extends StatelessWidget {
     required this.body,
     this.action,
     this.icon = _defaultIcon,
+    this.identifier,
     super.key,
   });
 
@@ -33,9 +34,12 @@ class EmptyState extends StatelessWidget {
   /// 원 안 아이콘. 화면 성격에 맞게 고릅니다.
   final AppGlyph icon;
 
+  /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
+  final String? identifier;
+
   @override
   Widget build(BuildContext context) {
-    return StateLayout(
+    final layout = StateLayout(
       icon: icon,
       sentence: body,
       alert: false,
@@ -43,5 +47,7 @@ class EmptyState extends StatelessWidget {
         if (action != null) ...[const SizedBox(height: Space.s24), action!],
       ],
     );
+    final id = identifier;
+    return id == null ? layout : Semantics(identifier: id, child: layout);
   }
 }

@@ -5,10 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
@@ -146,6 +149,16 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       } else {
         await context.push<void>(pathOf(ScreenIds.preview));
       }
+    } on Object catch (error) {
+      // 마무리 동작이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다.
+      if (!mounted) return;
+      showMyungliToast(
+        context,
+        errorMessage(
+          AppLocalizations.of(context),
+          error is AppError ? error : UnexpectedError(error),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -164,6 +177,8 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       input: CitySearch(
         label: l10n.birthplaceSearchLabel,
         hint: l10n.birthplaceSearchHint,
+        hintIdentifier: SlotIds.birthplaceSearchHint,
+        emptyIdentifier: SlotIds.birthplaceEmptyBody,
         onQueryChanged: _onQueryChanged,
         results: _results,
         onSelected: _onSelected,

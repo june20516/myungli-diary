@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/error_messages.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
@@ -248,4 +251,62 @@ void main() {
       expect(container.read(onboardingDraftProvider).value?.city, isNull);
     });
   }
+
+  testWidgets('슬롯 identifier: 검색칸(search.hint)과 빈 결과 문장(empty.body)', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await _openBirthplace(tester);
+    expect(
+      find.bySemanticsIdentifier(SlotIds.birthplaceSearchHint),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier(SlotIds.birthplaceEmptyBody),
+      findsNothing,
+    );
+
+    await _search(tester, 'new');
+    await _settleIo(tester);
+    await _search(tester, 'zzzz');
+    await _settleIo(tester);
+    expect(
+      find.bySemanticsIdentifier(SlotIds.birthplaceEmptyBody),
+      findsOneWidget,
+    );
+    handle.dispose();
+  });
+
+  testWidgets('마무리 동작이 실패하면 toast로 안내하고 다시 고를 수 있습니다', (tester) async {
+    var calls = 0;
+    await _openBirthplace(
+      tester,
+      scenario: 'profile-required',
+      overrides: [
+        onboardingFinishProvider.overrideWithValue(() async {
+          calls++;
+          throw StateError('저장 실패');
+        }),
+      ],
+    );
+    await _search(tester, 'new');
+    await _settleIo(tester);
+
+    await tester.tap(_newYork);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(tester.takeException(), isNull);
+    expect(
+      find.text(
+        errorMessage(AppLocalizationsEn(), UnexpectedError(StateError('x'))),
+      ),
+      findsOneWidget,
+    );
+    await tester.pump(const Duration(seconds: 10));
+    await tester.tap(_newYork);
+    await tester.pump();
+    expect(calls, 2);
+    await tester.pump(const Duration(seconds: 10));
+  });
 }

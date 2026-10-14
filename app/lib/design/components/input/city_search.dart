@@ -51,6 +51,8 @@ class CitySearch extends StatefulWidget {
     required this.emptyBody,
     required this.onRetry,
     this.hint,
+    this.hintIdentifier,
+    this.emptyIdentifier,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
     this.animated = true,
     super.key,
@@ -77,6 +79,12 @@ class CitySearch extends StatefulWidget {
 
   /// 비었을 때 보이는 예시.
   final String? hint;
+
+  /// 입력칸(비었을 때 예시가 보이는 칸)의 IA 슬롯 id.
+  final String? hintIdentifier;
+
+  /// 빈 목록 문장의 IA 슬롯 id.
+  final String? emptyIdentifier;
 
   /// 글자가 바뀔 때 검색어 전체.
   final ValueChanged<String> onQueryChanged;
@@ -120,6 +128,7 @@ class _CitySearchState extends State<CitySearch> {
         MyungliTextField(
           label: widget.label,
           hint: widget.hint,
+          identifier: widget.hintIdentifier,
           leadingIcon: _magnifyingGlass,
           onChanged: _onChanged,
         ),
@@ -164,7 +173,12 @@ class _CitySearchState extends State<CitySearch> {
         ),
       );
     }
-    if (cities.isEmpty) return EmptyState(body: widget.emptyBody);
+    if (cities.isEmpty) {
+      return EmptyState(
+        body: widget.emptyBody,
+        identifier: widget.emptyIdentifier,
+      );
+    }
     return LiveAnnouncement(
       label: AppLocalizations.of(context).citySearchResults(cities.length),
       role: SemanticsRole.status,
