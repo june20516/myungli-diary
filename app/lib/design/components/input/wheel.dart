@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -189,6 +190,8 @@ class _WheelState extends State<Wheel> {
             WidgetsBinding.instance.addPostFrameCallback(
               (_) => _syncToParent(),
             );
+            // 그릴 것이 없어도 프레임을 불러 재맞춤이 반드시 일어나게 합니다.
+            SchedulerBinding.instance.ensureVisualUpdate();
             return false;
           },
           child: IgnorePointer(ignoring: !enabled, child: list),

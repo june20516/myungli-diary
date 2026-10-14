@@ -46,7 +46,9 @@ class TimePicker extends StatefulWidget {
   }) : assert(
          variant == TimePickerVariant.birth || value.minute % 5 == 0,
          // 분 칸이 5분 단위라 5의 배수가 아닌 값은 표시와 값이 어긋납니다.
-         // 호출하는 쪽이 가까운 5분으로 맞춰 줍니다.
+         // 알림 시각은 계약상 5분 단위입니다(`server/api/openapi.yaml`
+         // `NotificationSetting.time` 패턴). 일정 등 다른 사용처도 5분 단위로
+         // 맞춘 값을 넘겨야 합니다.
          'notify의 분은 5의 배수여야 합니다.',
        );
 

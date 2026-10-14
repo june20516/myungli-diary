@@ -140,7 +140,6 @@ void main() {
         return changes;
       }
 
-      // 오전 11시 → 시 휠 위쪽(이전 칸)이 아니라 12 칸은 11 다음이 아닌 맨 앞입니다.
       // 시 휠에서 1시 → 12시(이전 칸): 오전 1시 → 오전 12시(00:xx).
       expect(
         (await turn(
@@ -185,7 +184,7 @@ void main() {
         )).last,
         const TimeOfDay(hour: 1, minute: 15),
       );
-      // 오후 11시 → 시 휠 다음 칸은 없고, 오후 12시에서 올리면 오후 1시.
+      // 오후 12시에서 시 휠을 한 칸 올리면 오후 1시.
       expect(
         (await turn(
           const TimeOfDay(hour: 12, minute: 15),
