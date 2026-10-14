@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
@@ -288,6 +292,46 @@ Widget _timePickers() => Builder(
   },
 );
 
+/// city-search: 결과 있음·loading·빈 목록·오류.
+Widget _citySearches() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    Widget search(AsyncValue<List<City>>? results) => CitySearch(
+      label: ja ? '都市名' : '도시 이름',
+      hint: ja ? '例: ソウル' : '예: Seoul',
+      onQueryChanged: (_) {},
+      results: results,
+      onSelected: (_) {},
+      emptyBody: ja ? '見つかる都市がありません。' : '찾는 도시가 없어요.',
+      onRetry: () {},
+      skeletonDelay: Duration.zero,
+      animated: false,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s24,
+      children: [
+        search(null),
+        search(
+          AsyncData([
+            City(id: '1', name: 'Seoul', country: 'KR', timezone: 'Asia/Seoul'),
+            City(id: '2', name: 'Busan', country: 'KR', timezone: 'Asia/Seoul'),
+            City(
+              id: '3',
+              name: 'San Francisco',
+              country: 'US',
+              timezone: 'America/Los_Angeles',
+            ),
+          ]),
+        ),
+        search(const AsyncLoading()),
+        search(const AsyncData([])),
+        search(const AsyncError<List<City>>(OfflineError(), StackTrace.empty)),
+      ],
+    );
+  },
+);
+
 void main() {
   goldenTest('input-step: onboarding(valid)·standalone(out-of-range)', (
     tester,
@@ -345,6 +389,15 @@ void main() {
       tester,
       'input_time_picker',
       _timePickers,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('city-search: 비었음·결과·loading·빈 목록·오류', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_city_search',
+      _citySearches,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

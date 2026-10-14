@@ -439,5 +439,15 @@
         "example": "4"
       }
     }
+  },
+  "citySearchResults": "결과 {count}개",
+  "@citySearchResults": {
+    "description": "임시. 도시 검색 결과 수를 스크린리더가 알리는 문구(city-search resultsAnnounced \"결과 N개\")",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   }
 }

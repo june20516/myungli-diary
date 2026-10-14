@@ -100,5 +100,6 @@
   "timePickerPm": "午後",
   "timePickerHourItem": "{hour}時",
   "timePickerMinuteItem": "{minute}分",
-  "datePickerLeapMonthValue": "閏{month}月"
+  "datePickerLeapMonthValue": "閏{month}月",
+  "citySearchResults": "結果{count}件"
 }

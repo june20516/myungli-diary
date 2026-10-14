@@ -337,4 +337,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String datePickerLeapMonthValue(int month) {
     return 'Leap $month';
   }
+
+  @override
+  String citySearchResults(int count) {
+    return 'Results: $count';
+  }
 }

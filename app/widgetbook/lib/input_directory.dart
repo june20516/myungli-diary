@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
@@ -125,8 +128,53 @@ Widget _timePicker(
   );
 }
 
+/// 쳐서 바뀌는 도시 검색. 글자에 맞는 도시만 걸러 보이고 비면 빈 상태입니다.
+Widget _citySearch({bool loading = false}) {
+  final cities = [
+    City(id: '1835848', name: 'Seoul', country: 'KR', timezone: 'Asia/Seoul'),
+    City(id: '1838524', name: 'Busan', country: 'KR', timezone: 'Asia/Seoul'),
+    City(
+      id: '5391959',
+      name: 'San Francisco',
+      country: 'US',
+      timezone: 'America/Los_Angeles',
+    ),
+    City(
+      id: '2643743',
+      name: 'London',
+      country: 'GB',
+      timezone: 'Europe/London',
+    ),
+  ];
+  AsyncValue<List<City>>? results;
+  return SizedBox(
+    width: 360,
+    child: StatefulBuilder(
+      builder: (context, setState) => CitySearch(
+        label: '도시 이름',
+        hint: '예: Seoul',
+        onQueryChanged: (query) => setState(() {
+          final needle = query.trim().toLowerCase();
+          results = needle.isEmpty
+              ? null
+              : loading
+              ? const AsyncLoading()
+              : AsyncData([
+                  for (final city in cities)
+                    if (city.name.toLowerCase().contains(needle)) city,
+                ]);
+        }),
+        results: results,
+        onSelected: (_) {},
+        emptyBody: '찾는 도시가 없어요.',
+        onRetry: () {},
+      ),
+    ),
+  );
+}
+
 /// 입력 카탈로그: input-step, text-field, segmented, check-row,
-/// date-picker, time-picker.
+/// date-picker, time-picker, city-search.
 final WidgetbookFolder inputDirectory = WidgetbookFolder(
   name: '입력',
   children: [
@@ -245,6 +293,13 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
           () => _timePicker(TimePickerVariant.birth, unknown: true),
         ),
         _stage('notify(5분 단위)', () => _timePicker(TimePickerVariant.notify)),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'city-search',
+      useCases: [
+        _stage('쳐서 걸러짐(예: s, lon, zzz)', _citySearch),
+        _stage('loading(아무 글자)', () => _citySearch(loading: true)),
       ],
     ),
   ],

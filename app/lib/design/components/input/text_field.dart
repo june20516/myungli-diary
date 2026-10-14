@@ -35,6 +35,7 @@ class MyungliTextField extends StatefulWidget {
     this.maxLength,
     this.error = false,
     this.enabled = true,
+    this.leadingIcon,
     this.onChanged,
     this.onSubmitted,
     this.identifier,
@@ -58,6 +59,7 @@ class MyungliTextField extends StatefulWidget {
   static const double _fontSize = 17;
   static const double _clearTarget = 48;
   static const double _clearIconSize = 20;
+  static const double _leadingIconSize = 20;
 
   /// 칸 이름(스크린리더 라벨).
   final String label;
@@ -76,6 +78,9 @@ class MyungliTextField extends StatefulWidget {
 
   /// false면 입력할 수 없고 `disabled` 색입니다.
   final bool enabled;
+
+  /// 칸 앞에 놓는 꾸밈 아이콘(`city-search`의 `magnifying-glass`). 스크린리더는 읽지 않습니다.
+  final AppGlyph? leadingIcon;
 
   /// 글자가 바뀔 때.
   final ValueChanged<String>? onChanged;
@@ -166,8 +171,20 @@ class _MyungliTextFieldState extends State<MyungliTextField>
       builder: (context, _) {
         final showClear =
             enabled && _focus.hasFocus && _controller.text.isNotEmpty;
+        final leading = widget.leadingIcon;
         return Row(
           children: [
+            if (leading != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: Space.s12),
+                child: ExcludeSemantics(
+                  child: Icon(
+                    leading.light,
+                    size: MyungliTextField._leadingIconSize,
+                    color: enabled ? colors.textSecondary : colors.disabledFg,
+                  ),
+                ),
+              ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: Space.s8),

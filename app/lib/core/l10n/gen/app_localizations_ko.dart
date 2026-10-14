@@ -311,4 +311,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String datePickerLeapMonthValue(int month) {
     return '윤 $month월';
   }
+
+  @override
+  String citySearchResults(int count) {
+    return '결과 $count개';
+  }
 }

@@ -657,6 +657,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'윤 {month}월'**
   String datePickerLeapMonthValue(int month);
+
+  /// 임시. 도시 검색 결과 수를 스크린리더가 알리는 문구(city-search resultsAnnounced "결과 N개")
+  ///
+  /// In ko, this message translates to:
+  /// **'결과 {count}개'**
+  String citySearchResults(int count);
 }
 
 class _AppLocalizationsDelegate

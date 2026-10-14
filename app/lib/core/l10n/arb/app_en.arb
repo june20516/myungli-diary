@@ -100,5 +100,6 @@
   "timePickerPm": "PM",
   "timePickerHourItem": "{hour}",
   "timePickerMinuteItem": "{minute}",
-  "datePickerLeapMonthValue": "Leap {month}"
+  "datePickerLeapMonthValue": "Leap {month}",
+  "citySearchResults": "Results: {count}"
 }

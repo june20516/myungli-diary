@@ -310,4 +310,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String datePickerLeapMonthValue(int month) {
     return '閏$month月';
   }
+
+  @override
+  String citySearchResults(int count) {
+    return '結果$count件';
+  }
 }

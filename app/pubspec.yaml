@@ -42,6 +42,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.4.3
   flutter_secure_storage: ^11.2.0
+  flutter_svg: ^2.3.0
   flutter_timezone: ^5.1.1
   go_router: ^18.0.2
   intl: ^0.20.3
@@ -119,6 +120,8 @@ flutter:
           weight: 700
   # 글꼴 라이선스(OFL.txt)는 licenses.dart가 LicenseRegistry에 더합니다.
   assets:
+    - assets/brand/kakao/
+    - assets/brand/apple/
     - assets/fonts/gowun_dodum/OFL.txt
     - assets/fonts/zen_maru_gothic/OFL.txt
     - assets/fonts/pretendard/OFL.txt

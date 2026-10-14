@@ -7,6 +7,7 @@ import 'package:myungli_diary_widgetbook/feedback_directory.dart';
 import 'package:myungli_diary_widgetbook/frame_directory.dart';
 import 'package:myungli_diary_widgetbook/input_directory.dart';
 import 'package:myungli_diary_widgetbook/sentence_directory.dart';
+import 'package:myungli_diary_widgetbook/today_directory.dart';
 import 'package:widgetbook/widgetbook.dart';
 
 void main() => runApp(const MyungliWidgetbook());
@@ -27,6 +28,7 @@ class MyungliWidgetbook extends StatelessWidget {
         feedbackDirectory,
         sentenceDirectory,
         inputDirectory,
+        todayDirectory,
       ],
       addons: [
         MaterialThemeAddon(

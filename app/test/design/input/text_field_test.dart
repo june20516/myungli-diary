@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import 'input_harness.dart';
 
@@ -16,6 +19,26 @@ Finder _ring() => find.byWidgetPredicate(
 
 void main() {
   group('text-field', () {
+    testWidgets('leadingIcon이 있으면 칸 앞에 아이콘이 보이고 스크린리더는 읽지 않습니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: MyungliTextField(
+              label: '도시 이름',
+              leadingIcon: AppGlyph(
+                light: PhosphorIconsLight.magnifyingGlass,
+                regular: PhosphorIconsRegular.magnifyingGlass,
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.byIcon(PhosphorIconsLight.magnifyingGlass), findsOneWidget);
+      expect(find.bySemanticsLabel('도시 이름'), findsOneWidget);
+    });
+
     testWidgets('maxLength를 넘게 칠 수 없습니다', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(

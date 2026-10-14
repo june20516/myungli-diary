@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
-import 'package:myungli_diary/design/interaction/motion_prefs.dart';
-import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -129,7 +128,7 @@ class PrimaryButton extends StatelessWidget {
           child: Center(
             heightFactor: 1,
             child: loading
-                ? _BreathingDots(
+                ? BreathingDots(
                     key: dotsKey,
                     color: fg,
                     animated: animated,
@@ -187,84 +186,6 @@ class PrimaryButton extends StatelessWidget {
         inkColor: fg,
         child: wide,
       ),
-    );
-  }
-}
-
-/// 버튼 글자 자리의 점(`loading.breathe`). 줄 사이 150ms씩 어긋나 숨 쉽니다.
-class _BreathingDots extends StatefulWidget {
-  const new({
-    required this.color,
-    required this.animated,
-    required this.count,
-    required this.size,
-    required this.gap,
-    super.key,
-  });
-
-  final Color color;
-  final bool animated;
-  final int count;
-  final double size;
-  final double gap;
-
-  @override
-  State<_BreathingDots> createState() => _BreathingDotsState();
-}
-
-class _BreathingDotsState extends State<_BreathingDots>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.loadingBreathe.duration,
-  );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.animated) {
-      if (!_controller.isAnimating) _controller.repeat(reverse: true);
-    } else {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void didUpdateWidget(_BreathingDots oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.animated != widget.animated) didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final prefs = MotionPrefs.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: widget.gap,
-      children: [
-        for (var i = 0; i < widget.count; i++)
-          animate(
-            InteractionPattern.loadingBreathe,
-            t: _controller,
-            prefs: prefs,
-            options: PatternOptions(index: i),
-            child: SizedBox.square(
-              dimension: widget.size,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: widget.color,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
