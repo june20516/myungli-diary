@@ -261,6 +261,97 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('윤달이 켜져 있으면 월 휠 낭독 값에 윤을 붙입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(
+          _picker(_value(calendar: _lunar, month: 4, isLeapMonth: true)),
+        ),
+      );
+      final data = tester
+          .getSemantics(find.bySemanticsLabel('월'))
+          .getSemanticsData();
+      expect(data.value, '윤 4월');
+      expect(data.increasedValue, '윤 5월');
+      // 화면에 그려지는 칸 글자는 그대로입니다.
+      expect(_selectedLabel(tester, BirthDatePicker.monthWheelKey), '4월');
+      await tester.pumpWidget(
+        inputApp(_picker(_value(calendar: _lunar, month: 4))),
+      );
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('월'))
+            .getSemanticsData()
+            .value,
+        '4월',
+      );
+      handle.dispose();
+    });
+
+    testWidgets('양력↔음력 전환마다 selection 햅틱 한 번', (tester) async {
+      final haptics = recordHaptics(tester);
+      await tester.pumpWidget(inputApp(_picker(_value())));
+      await tester.tap(find.text('음력'));
+      await tester.pumpAndSettle();
+      expect(haptics, ['HapticFeedbackType.selectionClick']);
+      await tester.tap(find.text('양력'));
+      await tester.pumpAndSettle();
+      expect(haptics, hasLength(2));
+    });
+
+    testWidgets('빠르게 튕겨도 부모의 재빌드가 관성 스크롤을 끊지 않습니다', (tester) async {
+      final changes = <BirthDateValue>[];
+      await tester.pumpWidget(inputApp(_picker(_value(year: 1950), changes)));
+      await tester.fling(
+        find.byKey(BirthDatePicker.yearWheelKey),
+        const Offset(0, -300),
+        2000,
+      );
+      await tester.pumpAndSettle();
+      // 튕긴 만큼 여러 칸을 지나가야 하고(관성이 살아 있음), 마지막 값이 휠이 멈춘 칸입니다.
+      expect(changes.length, greaterThan(3));
+      final shown = _selectedLabel(tester, BirthDatePicker.yearWheelKey);
+      expect(shown, '${changes.last.year}년');
+      final years = [for (final c in changes) c.year];
+      for (var i = 1; i < years.length; i++) {
+        // 되돌아가는 칸이 없어야 합니다(한 방향으로 단조 증가).
+        expect(years[i], greaterThan(years[i - 1]));
+      }
+    });
+
+    testWidgets('부모가 따라 바꿔도 튕긴 휠은 따라 바꾸지 않을 때와 같은 칸에 멈춥니다', (tester) async {
+      Future<int> flingTo({required bool controlled}) async {
+        var selected = 100;
+        await tester.pumpWidget(
+          inputApp(
+            StatefulBuilder(
+              builder: (context, setState) => Wheel(
+                itemCount: 200,
+                selectedIndex: selected,
+                itemLabel: (i) => '$i',
+                semanticLabel: '시험',
+                onSelectedIndexChanged: (i) {
+                  if (controlled) {
+                    setState(() => selected = i);
+                  } else {
+                    selected = i;
+                  }
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.fling(find.byType(Wheel), const Offset(0, -300), 2000);
+        await tester.pumpAndSettle();
+        return selected;
+      }
+
+      final free = await flingTo(controlled: false);
+      final followed = await flingTo(controlled: true);
+      expect(free, greaterThan(105));
+      expect(followed, free);
+    });
+
     testWidgets('calendar 변형은 아직 구현되지 않았습니다', (tester) async {
       await tester.pumpWidget(
         inputApp(

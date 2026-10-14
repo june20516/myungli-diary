@@ -99,7 +99,7 @@ final class BirthDateValue {
   @override
   String toString() =>
       'BirthDateValue(${calendar.name} $year-$month-$day'
-      '${isLeapMonth ? ' 윤달' : ''})';
+      '${isLeapMonth ? ' leap' : ''})';
 }
 
 /// `date-picker` 변형.
@@ -227,6 +227,10 @@ class BirthDatePicker extends StatelessWidget {
               itemCount: 12,
               selectedIndex: value.month - 1,
               itemLabel: (i) => l10n.datePickerMonthItem(i + 1),
+              // 윤달이 켜져 있으면 '윤'을 붙여 읽습니다.
+              semanticItemLabel: lunar && value.isLeapMonth
+                  ? (i) => l10n.datePickerLeapMonthValue(i + 1)
+                  : null,
               onSelectedIndexChanged: (i) => _setDate(month: i + 1),
               semanticLabel: l10n.datePickerMonthLabel,
             ),

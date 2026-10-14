@@ -651,6 +651,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{minute}분'**
   String timePickerMinuteItem(String minute);
+
+  /// 임시. 윤달이 켜졌을 때 월 휠을 스크린리더가 읽는 값(date-picker, '윤'을 붙임)
+  ///
+  /// In ko, this message translates to:
+  /// **'윤 {month}월'**
+  String datePickerLeapMonthValue(int month);
 }
 
 class _AppLocalizationsDelegate

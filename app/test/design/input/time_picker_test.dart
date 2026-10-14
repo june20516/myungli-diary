@@ -125,6 +125,116 @@ void main() {
       expect(changes.last, const TimeOfDay(hour: 23, minute: 30));
     });
 
+    testWidgets('오전 12시는 0시, 오후 12시는 12시로 합쳐집니다', (tester) async {
+      Future<List<TimeOfDay>> turn(
+        TimeOfDay start,
+        Key wheel,
+        double dy,
+      ) async {
+        final changes = <TimeOfDay>[];
+        await tester.pumpWidget(
+          inputApp(_picker(value: start, changes: changes)),
+        );
+        await tester.drag(find.byKey(wheel), Offset(0, dy));
+        await tester.pumpAndSettle();
+        return changes;
+      }
+
+      // 오전 11시 → 시 휠 위쪽(이전 칸)이 아니라 12 칸은 11 다음이 아닌 맨 앞입니다.
+      // 시 휠에서 1시 → 12시(이전 칸): 오전 1시 → 오전 12시(00:xx).
+      expect(
+        (await turn(
+          const TimeOfDay(hour: 1, minute: 15),
+          TimePicker.hourWheelKey,
+          40,
+        )).last,
+        const TimeOfDay(hour: 0, minute: 15),
+      );
+      // 오후 1시 → 오후 12시(12:xx).
+      expect(
+        (await turn(
+          const TimeOfDay(hour: 13, minute: 15),
+          TimePicker.hourWheelKey,
+          40,
+        )).last,
+        const TimeOfDay(hour: 12, minute: 15),
+      );
+      // 오전 12시(00:xx) → 오후 12시(12:xx), 다시 오전으로.
+      expect(
+        (await turn(
+          const TimeOfDay(hour: 0, minute: 15),
+          TimePicker.meridiemWheelKey,
+          -40,
+        )).last,
+        const TimeOfDay(hour: 12, minute: 15),
+      );
+      expect(
+        (await turn(
+          const TimeOfDay(hour: 12, minute: 15),
+          TimePicker.meridiemWheelKey,
+          40,
+        )).last,
+        const TimeOfDay(hour: 0, minute: 15),
+      );
+      // 오전 12시에서 시 휠을 한 칸 올리면 오전 1시.
+      expect(
+        (await turn(
+          const TimeOfDay(hour: 0, minute: 15),
+          TimePicker.hourWheelKey,
+          -40,
+        )).last,
+        const TimeOfDay(hour: 1, minute: 15),
+      );
+      // 오후 11시 → 시 휠 다음 칸은 없고, 오후 12시에서 올리면 오후 1시.
+      expect(
+        (await turn(
+          const TimeOfDay(hour: 12, minute: 15),
+          TimePicker.hourWheelKey,
+          -40,
+        )).last,
+        const TimeOfDay(hour: 13, minute: 15),
+      );
+    });
+
+    testWidgets('notify 분 휠을 돌려 나가는 값은 늘 5의 배수입니다', (tester) async {
+      final changes = <TimeOfDay>[];
+      await tester.pumpWidget(
+        inputApp(
+          _picker(
+            variant: TimePickerVariant.notify,
+            value: const TimeOfDay(hour: 8, minute: 0),
+            changes: changes,
+          ),
+        ),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(
+          find.byKey(TimePicker.minuteWheelKey),
+          const Offset(0, -40),
+        );
+        await tester.pumpAndSettle();
+      }
+      await tester.drag(
+        find.byKey(TimePicker.hourWheelKey),
+        const Offset(0, -40),
+      );
+      await tester.pumpAndSettle();
+      expect(changes, isNotEmpty);
+      expect(changes.every((time) => time.minute % 5 == 0), isTrue);
+      expect(changes.last, const TimeOfDay(hour: 9, minute: 15));
+    });
+
+    testWidgets('notify에 5의 배수가 아닌 분을 주면 assert입니다', (tester) async {
+      expect(
+        () => TimePicker(
+          variant: TimePickerVariant.notify,
+          value: const TimeOfDay(hour: 8, minute: 3),
+          onChanged: (_) {},
+        ),
+        throwsAssertionError,
+      );
+    });
+
     testWidgets('휠 한 칸마다 selection 햅틱 한 번', (tester) async {
       final haptics = recordHaptics(tester);
       await tester.pumpWidget(inputApp(_picker()));

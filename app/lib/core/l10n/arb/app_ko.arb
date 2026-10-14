@@ -429,5 +429,15 @@
         "example": "05"
       }
     }
+  },
+  "datePickerLeapMonthValue": "윤 {month}월",
+  "@datePickerLeapMonthValue": {
+    "description": "임시. 윤달이 켜졌을 때 월 휠을 스크린리더가 읽는 값(date-picker, '윤'을 붙임)",
+    "placeholders": {
+      "month": {
+        "type": "int",
+        "example": "4"
+      }
+    }
   }
 }

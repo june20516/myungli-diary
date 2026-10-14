@@ -306,4 +306,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String timePickerMinuteItem(String minute) {
     return '$minute분';
   }
+
+  @override
+  String datePickerLeapMonthValue(int month) {
+    return '윤 $month월';
+  }
 }

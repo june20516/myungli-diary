@@ -99,5 +99,6 @@
   "timePickerAm": "AM",
   "timePickerPm": "PM",
   "timePickerHourItem": "{hour}",
-  "timePickerMinuteItem": "{minute}"
+  "timePickerMinuteItem": "{minute}",
+  "datePickerLeapMonthValue": "Leap {month}"
 }

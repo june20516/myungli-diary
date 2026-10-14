@@ -332,4 +332,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String timePickerMinuteItem(String minute) {
     return '$minute';
   }
+
+  @override
+  String datePickerLeapMonthValue(int month) {
+    return 'Leap $month';
+  }
 }

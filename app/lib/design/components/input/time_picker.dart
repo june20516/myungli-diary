@@ -21,8 +21,7 @@ enum TimePickerVariant {
 /// 시간 입력 휠(`time-picker`). 오전·오후, 시(12시간), 분 휠 세 줄입니다.
 ///
 /// [value]는 24시간 값입니다. 출생 시간은 벽시계 시각을 그대로 받습니다(보정 없음).
-/// `notify`의 분 휠은 5분 단위(0, 5, … 55)입니다. [value]의 분이 5의 배수가 아니면 가장
-/// 가까운 칸에 놓이고, 사용자가 휠을 돌리기 전에는 값을 바꾸지 않습니다.
+/// `notify`의 분 휠은 5분 단위(0, 5, … 55)이고 [value]의 분은 5의 배수여야 합니다(assert).
 ///
 /// `birth`에서 [unknownLabel]과 [onUnknownChanged]가 있으면 '모름' 체크
 /// ([CheckRow] inline)가 휠 아래 붙습니다. [unknown]이 켜지면 휠은
@@ -32,7 +31,8 @@ enum TimePickerVariant {
 /// 비워 두지 않습니다.
 class TimePicker extends StatefulWidget {
   /// 시간 휠을 만듭니다.
-  const new({
+  // assert가 [value]를 읽으므로 const 생성자가 아닙니다.
+  new({
     required this.variant,
     required this.value,
     required this.onChanged,
@@ -43,7 +43,12 @@ class TimePicker extends StatefulWidget {
     this.sijinConfirm,
     this.identifier,
     super.key,
-  });
+  }) : assert(
+         variant == TimePickerVariant.birth || value.minute % 5 == 0,
+         // 분 칸이 5분 단위라 5의 배수가 아닌 값은 표시와 값이 어긋납니다.
+         // 호출하는 쪽이 가까운 5분으로 맞춰 줍니다.
+         'notify의 분은 5의 배수여야 합니다.',
+       );
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
@@ -103,7 +108,7 @@ class TimePicker extends StatefulWidget {
   /// 시진 확인 줄 글자. null이면 그리지 않고 자리도 두지 않습니다.
   final String? sijinConfirm;
 
-  /// 시간 휠 첫 칸(오전·오후)의 IA 슬롯 id가 아니라 '모름' 체크의 슬롯 id.
+  /// IA 슬롯 id. '모름' 체크 줄의 Semantics `identifier`에 붙습니다.
   final String? identifier;
 
   @override

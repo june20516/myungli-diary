@@ -42,6 +42,7 @@ class Wheel extends StatefulWidget {
     required this.itemLabel,
     required this.onSelectedIndexChanged,
     required this.semanticLabel,
+    this.semanticItemLabel,
     this.enabled = true,
     this.flex = 1,
     this.identifier,
@@ -62,6 +63,9 @@ class Wheel extends StatefulWidget {
 
   /// 스크린리더 이름(무엇을 고르는 휠인지).
   final String semanticLabel;
+
+  /// 스크린리더가 읽는 칸 글자. null이면 [itemLabel]을 읽습니다(윤달의 '윤' 붙이기 등).
+  final String Function(int index)? semanticItemLabel;
 
   /// false면 끌 수 없습니다.
   final bool enabled;
@@ -95,12 +99,18 @@ class _WheelState extends State<Wheel> {
     // 스크롤 위치는 빌드 중에 건드릴 수 없어 프레임이 끝난 뒤에 옮깁니다.
     if (oldWidget.selectedIndex != widget.selectedIndex ||
         oldWidget.itemCount != widget.itemCount) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_controller.hasClients) return;
-        if (_controller.selectedItem != _clampedSelected) {
-          _controller.jumpToItem(_clampedSelected);
-        }
-      });
+      WidgetsBinding.instance.addPostFrameCallback((_) => _syncToParent());
+    }
+  }
+
+  /// 휠이 부모가 정한 칸에 있지 않으면 옮깁니다. 사용자가 끌거나 튕긴 관성이 남아 있는
+  /// 동안에는 건드리지 않습니다(부모가 앞선 칸 값으로 다시 빌드해도 관성을 끊지 않도록).
+  /// 스크롤이 멈추면 [NotificationListener]가 다시 맞춥니다.
+  void _syncToParent() {
+    if (!mounted || !_controller.hasClients) return;
+    if (_controller.position.isScrollingNotifier.value) return;
+    if (_controller.selectedItem != _clampedSelected) {
+      _controller.jumpToItem(_clampedSelected);
     }
   }
 
@@ -127,8 +137,9 @@ class _WheelState extends State<Wheel> {
     );
   }
 
-  String _labelAt(int index) =>
-      widget.itemLabel(index.clamp(0, widget.itemCount - 1));
+  String _labelAt(int index) => (widget.semanticItemLabel ?? widget.itemLabel)(
+    index.clamp(0, widget.itemCount - 1),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +184,15 @@ class _WheelState extends State<Wheel> {
           : null,
       onDecrease: enabled && selected > 0 ? () => _step(-1) : null,
       child: ExcludeSemantics(
-        child: IgnorePointer(ignoring: !enabled, child: list),
+        child: NotificationListener<ScrollEndNotification>(
+          onNotification: (_) {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _syncToParent(),
+            );
+            return false;
+          },
+          child: IgnorePointer(ignoring: !enabled, child: list),
+        ),
       ),
     );
   }
