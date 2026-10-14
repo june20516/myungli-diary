@@ -263,6 +263,10 @@
   "@loginTitleHead": {
     "description": "login.title.head: 로그인 제목"
   },
+  "notifyAskCtaAllow": "알림 받기",
+  "@notifyAskCtaAllow": {
+    "description": "notify-ask.cta.allow: 알림 허락 버튼"
+  },
   "notifyAskCtaSkip": "나중에",
   "@notifyAskCtaSkip": {
     "description": "notify-ask.cta.skip: 건너뛰기"
@@ -310,6 +314,21 @@
   "onboardGenderWhyBody": "대운이 흐르는 방향을 정할 때만 써요.",
   "@onboardGenderWhyBody": {
     "description": "onboard-gender.why.body: 대운 방향 계산에 쓴다는 이유"
+  },
+  "onboardTimeHourConfirm": "{branch}시, {start}~{end}에 태어났어요.",
+  "@onboardTimeHourConfirm": {
+    "description": "onboard-time.hour.confirm: 엔진이 계산한 시진과 벽시계 범위 확인 줄(예: 인시 03:30~05:30). 기기 지역이 한국일 때만 (D58) app이 getBirthHour 구조값(branch·start·end)을 ui 틀에 넣음(D68)",
+    "placeholders": {
+      "branch": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
   },
   "onboardTimeQuestionHead": "몇 시에 태어났나요?",
   "@onboardTimeQuestionHead": {

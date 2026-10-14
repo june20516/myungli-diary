@@ -64,13 +64,12 @@ def test_new_content_slot_keys(slots: dict[str, Slot]) -> None:
     assert slots["chart.yongsin_summary"].keys == {
         "yongsin.summary": {"yongsin": ParamKind("glossary", ("element", "color"))}
     }
-    assert slots["onboard.hour_confirm"].keys == {
-        "hour.confirm": {
-            "branch": ParamKind("glossary", ("branch",)),
-            "start": ParamKind("text"),
-            "end": ParamKind("text"),
-        }
+    # D68: 시진 확인 줄은 app이 구조값을 넣는 ui 슬롯입니다.
+    assert "onboard.hour_confirm" not in slots
+    assert slots["onboard-time.hour.confirm"].keys == {
+        "onboardTimeHourConfirm": {"branch": ParamKind("text"), "start": ParamKind("text"), "end": ParamKind("text")}
     }
+    assert set(slots["notify-ask.cta.allow"].keys) == {"notifyAskCtaAllow"}
     assert set(slots["system.apple_return"].keys) == {
         f"apple_return.{part}" for part in ("title", "body", "open", "install")
     }
@@ -86,7 +85,7 @@ def test_all_ia_covered(slots: dict[str, Slot], ia: Ia) -> None:
 def test_ui_keys_named(slots: dict[str, Slot], ia: Ia) -> None:
     errors = [finding.format() for finding in check_ia(slots, ia) if finding.severity == "error"]
     assert errors == []
-    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 90
+    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 92
 
 
 def test_ui_manuscripts_complete(slots: dict[str, Slot]) -> None:
@@ -101,7 +100,7 @@ def test_ui_manuscripts_complete(slots: dict[str, Slot]) -> None:
 
 
 def test_new_content_manuscripts_complete(slots: dict[str, Slot]) -> None:
-    targets = {slot_id: slots[slot_id] for slot_id in ("system.apple_return", "onboard.hour_confirm", "calendar.solar_term")}
+    targets = {slot_id: slots[slot_id] for slot_id in ("system.apple_return", "calendar.solar_term")}
     entries = [entry for entry in load_content(CONTENT_DIR) if entry.slot in targets]
     assert [f.message for f in check_completeness(targets, entries, [], LANGS) if f.rule_id == RULE_MISSING] == []
 

@@ -26,7 +26,6 @@ IDENTIFIER_SLOTS = {
     "explain.today_reason",
     "evidence.basis",
     "evidence.source",
-    "onboard.hour_confirm",
     "system.apple_return",
 }
 VALID_SLOT = """\

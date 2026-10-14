@@ -120,3 +120,5 @@
 - {slot: ui.depth.surface, key: depthSurface, text: "Summary"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
 - {slot: ui.depth.evidence, key: depthEvidence, text: "Basis"}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
+- {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
