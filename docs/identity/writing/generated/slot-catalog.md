@@ -32,7 +32,6 @@
 | chart.yongsin_method | saju-chart.yongsin.basis | info | - | 1 | 3 | `yongsin`: element, color<br>`huisin`: element, color<br>`gisin`: element, color<br>`tonggwan`: element, color | ko 60, en 108, ja 60 |
 | chart.yongsin_summary | my-saju.yongsin.body | info | - | 1 | 1 | `yongsin`: element, color | ko -, en -, ja - |
 | consent.cta.agree | consent.cta.agree | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| consent.optional.label | consent.optional.label | info | - | 1 | 1 | - | ko -, en -, ja - |
 | consent.required.label | consent.required.label | info | - | 1 | 2 | - | ko -, en -, ja - |
 | consent.title.head | consent.title.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | daily.color | today.lucky-color.body | info | - | 1 | 4 | `element`: element, color<br>`role`: none | ko 36, en 64, ja 36 |

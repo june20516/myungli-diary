@@ -40,7 +40,6 @@
 | login.discard.notice | ui | login.discard.notice |
 | consent.title.head | ui | consent.title.head |
 | consent.required.label | ui | consent.required.label |
-| consent.optional.label | ui | consent.optional.label |
 | consent.cta.agree | ui | consent.cta.agree |
 | notify-ask.question.head | ui | notify-ask.question.head |
 | notify-ask.why.body | ui | notify-ask.why.body |

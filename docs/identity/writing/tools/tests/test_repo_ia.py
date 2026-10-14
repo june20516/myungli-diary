@@ -86,7 +86,7 @@ def test_all_ia_covered(slots: dict[str, Slot], ia: Ia) -> None:
 def test_ui_keys_named(slots: dict[str, Slot], ia: Ia) -> None:
     errors = [finding.format() for finding in check_ia(slots, ia) if finding.severity == "error"]
     assert errors == []
-    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 91
+    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 90
 
 
 def test_ui_manuscripts_complete(slots: dict[str, Slot]) -> None:

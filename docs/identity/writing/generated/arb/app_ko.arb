@@ -95,10 +95,6 @@
   "@consentCtaAgree": {
     "description": "consent.cta.agree: 동의하고 계속 버튼"
   },
-  "consentOptionalLabel": "(선택) 새 기능 소식 받기",
-  "@consentOptionalLabel": {
-    "description": "consent.optional.label: 선택 동의 항목 이름"
-  },
   "consentRequiredLabelTerms": "(필수) 이용약관",
   "@consentRequiredLabelTerms": {
     "description": "consent.required.label: 필수 동의 항목 이름"

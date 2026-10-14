@@ -32,7 +32,6 @@
 - {slot: consent.title.head, key: consentTitleHead, text: "약관에 동의해 주세요"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(필수) 이용약관"}
 - {slot: consent.required.label, key: consentRequiredLabelPrivacy, text: "(필수) 개인정보 수집·이용"}
-- {slot: consent.optional.label, key: consentOptionalLabel, text: "(선택) 새 기능 소식 받기"}
 - {slot: consent.cta.agree, key: consentCtaAgree, text: "동의하고 계속하기"}
 - {slot: notify-ask.question.head, key: notifyAskQuestionHead, text: "아침마다 오늘 풀이를 알려 드릴까요?"}
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요."}

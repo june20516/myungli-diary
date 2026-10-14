@@ -584,25 +584,6 @@
     truncation: "한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "이름 그대로 읽습니다."
 
-- id: consent.optional.label
-  where: "약관 동의 화면(consent): 선택 동의 항목 이름"
-  purpose: info
-  user_state: "선택 동의 항목을 봅니다."
-  structure: "\"(선택)\" 뒤에 항목 이름. 항목은 지휘 확인 대상입니다."
-  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  keys:
-    - consentOptionalLabel
-  variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples:
-    good:
-      - {lang: ko, key: consentOptionalLabel, text: "(선택) 새 기능 소식 받기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
-  endings: []
-  a11y:
-    truncation: "한 줄 안에 들어가게 짧게 씁니다."
-    screen_reader: "이름 그대로 읽습니다."
-
 - id: consent.cta.agree
   where: "약관 동의 화면(consent): 동의하고 계속 버튼"
   purpose: guide
