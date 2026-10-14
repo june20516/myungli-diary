@@ -3,7 +3,7 @@ name: app
 on:
   push:
     branches: [main]
-    # 경로 목록은 push·pull_request 두 곳을 함께 고칩니다.
+    # 경로 목록은 ci-gate.yml의 app 경로와 함께 고칩니다.
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
@@ -13,17 +13,7 @@ on:
       - "docs/identity/design/components/**"
       - "docs/identity/writing/slots/**"
       - "docs/identity/writing/tools/**"
-  # ci-gate 연결(#85) 전까지 pull_request 트리거를 유지한다. 연결 후에는 지휘 세션이 지운다.
-  pull_request:
-    paths:
-      - "app/**"
-      - ".github/workflows/app.yml"
-      - "server/api/openapi.yaml"
-      - "docs/ia/screens.json"
-      - "docs/identity/design/tokens/**"
-      - "docs/identity/design/components/**"
-      - "docs/identity/writing/slots/**"
-      - "docs/identity/writing/tools/**"
+  # PR 검사는 ci-gate가 부른다(#85). push는 main 병합 뒤 기기 E2E를 돌리려고 남긴다.
   # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
   schedule:
     - cron: "0 18 * * *"
