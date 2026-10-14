@@ -9,6 +9,8 @@ import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -137,6 +139,80 @@ void main() {
       expect((await store.read())?.honorific, '둘');
     });
 
+    ProviderContainer gatedContainer(
+      _GatedStore gated, {
+      FakeCrashReporter? reporter,
+    }) {
+      final c = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(database),
+          secureStoreProvider.overrideWithValue(MemorySecureStore()),
+          onboardingDraftStoreProvider.overrideWithValue(gated),
+          if (reporter != null)
+            crashReporterProvider.overrideWithValue(reporter),
+        ],
+      );
+      addTearDown(c.dispose);
+      return c;
+    }
+
+    test('큐에서 기다리던 쓰기는 로그아웃 뒤 건너뛴다', () async {
+      final slow = _GatedStore(database, gatedWrites: 1);
+      final gated = gatedContainer(slow);
+      final notifier = gated.read(onboardingDraftProvider.notifier);
+      await gated.read(onboardingDraftProvider.future);
+      final first = notifier.update((d) => d.copyWith(honorific: '하나'));
+      final second = notifier.update((d) => d.copyWith(honorific: '둘'));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      await gated.read(tokenStoreProvider).signOut();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      slow.release();
+      await Future.wait([first, second]);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(slow.written.map((d) => d.honorific), ['하나']);
+      expect(await store.read(), isNull);
+      expect(
+        gated.read(onboardingDraftProvider).value,
+        const OnboardingDraft(),
+      );
+    });
+
+    test('처음 읽는 중에 로그아웃하면 읽은 이전 행을 올리지 않는다', () async {
+      await store.write(_draft);
+      final slow = _GatedStore(database, gateRead: true);
+      final gated = gatedContainer(slow);
+      final loading = gated.read(onboardingDraftProvider.future);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      await gated.read(tokenStoreProvider).signOut();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      slow.release();
+
+      expect(await loading, const OnboardingDraft());
+      expect(
+        gated.read(onboardingDraftProvider).value,
+        const OnboardingDraft(),
+      );
+    });
+
+    test('정리가 실패해도 미처리 오류 없이 비정상 종료 보고에 요약만 남긴다', () async {
+      final failing = _GatedStore(database)..failClear = true;
+      final reporter = FakeCrashReporter();
+      final gated = gatedContainer(failing, reporter: reporter);
+      await gated.read(onboardingDraftProvider.future);
+
+      await gated.read(tokenStoreProvider).signOut();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(reporter.errors.map((e) => e.errorType), ['StateError']);
+      expect(
+        gated.read(onboardingDraftProvider).value,
+        const OnboardingDraft(),
+      );
+    });
+
     test('쓰기가 진행되는 중에 로그아웃하면 행이 남지 않고 상태는 비어 있다', () async {
       final slow = _GatedStore(database, gatedWrites: 1);
       final gated = ProviderContainer(
@@ -220,16 +296,32 @@ void main() {
   });
 }
 
-/// 앞의 [gatedWrites]번 쓰기를 [release]까지 붙잡아 두는 저장소 대역입니다.
+/// 앞의 [gatedWrites]번 쓰기와 첫 읽기(옵션)를 [release]까지 붙잡아 두는 저장소 대역입니다.
 class _GatedStore extends OnboardingDraftStore {
   // 부모의 비공개 매개변수 이름(_database)을 쓸 수 없어 이름이 다릅니다.
   // ignore: matching_super_parameters
-  new(super.database, {required this.gatedWrites});
+  new(super.database, {this.gatedWrites = 0, this.gateRead = false});
 
   int gatedWrites;
+  final bool gateRead;
   final _gate = Completer<void>();
 
+  /// 실제로 저장한 초안(붙잡힌 쓰기는 풀린 뒤에 기록).
+  final written = <OnboardingDraft>[];
+
+  /// true면 `clear`가 실패합니다.
+  bool failClear = false;
+
   void release() => _gate.complete();
+
+  @override
+  Future<OnboardingDraft?> read() async {
+    final result = await super.read();
+    if (gateRead) {
+      await _gate.future;
+    }
+    return result;
+  }
 
   @override
   Future<void> write(OnboardingDraft draft) async {
@@ -237,6 +329,15 @@ class _GatedStore extends OnboardingDraftStore {
       gatedWrites--;
       await _gate.future;
     }
+    written.add(draft);
     await super.write(draft);
+  }
+
+  @override
+  Future<void> clear() async {
+    if (failClear) {
+      throw StateError('clear 실패');
+    }
+    await super.clear();
   }
 }

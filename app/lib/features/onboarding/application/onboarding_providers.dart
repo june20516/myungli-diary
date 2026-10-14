@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
 
@@ -18,7 +20,12 @@ class OnboardingDraftController extends AsyncNotifier<OnboardingDraft> {
         .where((event) => event == AuthEvent.signedOut)
         .listen((_) => unawaited(_discardOnSignOut()));
     ref.onDispose(subscription.cancel);
+    final startGeneration = _generation;
     final saved = await ref.read(onboardingDraftStoreProvider).read();
+    // 읽는 중에 로그아웃·clear가 있었으면 읽은 행은 이전 값이라 올리지 않습니다.
+    if (_generation != startGeneration) {
+      return const OnboardingDraft();
+    }
     return saved ?? const OnboardingDraft();
   }
 
@@ -66,8 +73,15 @@ class OnboardingDraftController extends AsyncNotifier<OnboardingDraft> {
     return _enqueue(() => ref.read(onboardingDraftStoreProvider).clear());
   }
 
-  /// 로그아웃하면 메모리 입력과 저장 행을 비웁니다.
-  Future<void> _discardOnSignOut() => _discard();
+  /// 로그아웃하면 메모리 입력과 저장 행을 비웁니다. 실패해도 미처리 오류로 남기지 않고
+  /// 오류 요약만 기록합니다(D64 ②: 입력 값은 싣지 않음).
+  Future<void> _discardOnSignOut() async {
+    try {
+      await _discard();
+    } on Object catch (error, stack) {
+      ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
+    }
+  }
 
   /// 저장한 입력과 현재 값을 지웁니다(프로필 저장에 성공한 뒤).
   Future<void> clear() => _discard();
