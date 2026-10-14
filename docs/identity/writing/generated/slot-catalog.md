@@ -79,6 +79,7 @@
 | login.discard.notice | login.discard.notice | info | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.body | login.title.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.head | login.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
+| notify-ask.cta.allow | notify-ask.cta.allow | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.cta.skip | notify-ask.cta.skip | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.question.head | notify-ask.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.why.body | notify-ask.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -91,9 +92,9 @@
 | onboard-call.question.head | onboard-call.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-gender.question.head | onboard-gender.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-gender.why.body | onboard-gender.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
+| onboard-time.hour.confirm | onboard-time.hour.confirm | info | - | 1 | 1 | `branch`: text<br>`start`: text<br>`end`: text | ko -, en -, ja - |
 | onboard-time.question.head | onboard-time.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-time.unknown.note | onboard-time.unknown.note | info | - | 1 | 1 | - | ko -, en -, ja - |
-| onboard.hour_confirm | onboard-time.hour.confirm | info | - | 1 | 1 | `branch`: branch<br>`start`: text<br>`end`: text | ko -, en -, ja - |
 | personal.day_master | evidence-sheet.personal.body | info | - | 1 | 10 | `strength`: strength<br>`yongsin`: element, color<br>`gisin`: element, color | ko -, en -, ja - |
 | personal.luck | evidence-sheet.personal.body | info | - | 1 | 22 | `luck`: luck<br>`part`: part<br>`element`: element, color<br>`role`: role<br>`current`: none | ko -, en -, ja - |
 | personal.shinsal | evidence-sheet.personal.body | info | - | 1 | 6 | `place`: place<br>`element`: element, color<br>`role`: role | ko -, en -, ja - |

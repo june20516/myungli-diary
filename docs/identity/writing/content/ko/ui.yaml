@@ -120,3 +120,5 @@
 - {slot: ui.depth.surface, key: depthSurface, text: "요약"}
 - {slot: ui.depth.explain, key: depthExplain, text: "풀이"}
 - {slot: ui.depth.evidence, key: depthEvidence, text: "원리"}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요."}
+- {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "알림 받기"}

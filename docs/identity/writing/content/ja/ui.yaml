@@ -120,3 +120,5 @@
 - {slot: ui.depth.surface, key: depthSurface, text: "要約"}
 - {slot: ui.depth.explain, key: depthExplain, text: "読み解き"}
 - {slot: ui.depth.evidence, key: depthEvidence, text: "原理"}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}の刻、{start}〜{end}に生まれました。"}
+- {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "通知を受け取る"}
