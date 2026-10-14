@@ -1226,6 +1226,84 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('링크가 감겨도 화살표가 마지막 줄 끝을 따라가고 혼자 줄을 넘지 않습니다', (tester) async {
+      // 큰 글자에서 세로로 길어져도 넘치지 않도록 화면을 크게 둡니다.
+      tester.view
+        ..physicalSize = const Size(800, 4000)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final pass = find.byKey(const ValueKey(SlotIds.evidenceSheetLockPass));
+      var wrapped = 0;
+      for (final locale in const [Locale('ko'), Locale('ja')]) {
+        final label = lookupAppLocalizations(locale).evidenceSheetLockPass;
+        for (final scale in const [1.0, 1.3, 2.0]) {
+          for (var width = 160.0; width <= 400; width += 8) {
+            await tester.pumpWidget(
+              _app(
+                locale: locale,
+                MediaQuery(
+                  data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+                  child: SizedBox(
+                    width: width,
+                    child: EvidenceLockPanel(
+                      state: DepthLinkState.locked,
+                      onPass: () {},
+                      animated: false,
+                    ),
+                  ),
+                ),
+              ),
+            );
+            final paragraph = tester.renderObject<RenderParagraph>(
+              find.descendant(
+                of: pass,
+                matching: find.byWidgetPredicate(
+                  (widget) =>
+                      widget is RichText &&
+                      widget.text.toPlainText().contains(label),
+                ),
+              ),
+            );
+            final boxes = paragraph.getBoxesForSelection(
+              TextSelection(baseOffset: 0, extentOffset: label.length),
+            );
+            final lineTops = boxes.map((box) => box.top).toSet();
+            if (lineTops.length > 1) wrapped++;
+            final lastTop = lineTops.reduce((a, b) => a > b ? a : b);
+            final lastLine = boxes
+                .where((box) => box.top == lastTop)
+                .map((box) => box.toRect())
+                .reduce((a, b) => a.expandToInclude(b))
+                .shift(paragraph.localToGlobal(Offset.zero));
+            final plain = paragraph.text.toPlainText();
+            final caret = paragraph
+                .getBoxesForSelection(
+                  TextSelection(
+                    baseOffset: plain.length - 1,
+                    extentOffset: plain.length,
+                  ),
+                )
+                .single
+                .toRect()
+                .shift(paragraph.localToGlobal(Offset.zero));
+            final where = '$locale ×$scale 폭 $width';
+            expect(
+              caret.left - lastLine.right,
+              inInclusiveRange(-1, Space.s8),
+              reason: where,
+            );
+            expect(
+              caret.center.dy,
+              inInclusiveRange(lastLine.top, lastLine.bottom),
+              reason: where,
+            );
+          }
+        }
+      }
+      // 전제: 감기는 경우를 충분히 지나갑니다.
+      expect(wrapped, greaterThan(10));
+    });
+
     testWidgets('광고 제거권 링크 끝 화살표는 컴포넌트가 그리고 읽히지 않습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
@@ -1242,24 +1320,45 @@ void main() {
       );
       final l10n = lookupAppLocalizations(const Locale('ko'));
       final pass = find.byKey(const ValueKey(SlotIds.evidenceSheetLockPass));
-      final caret = find.descendant(
-        of: pass,
-        matching: find.byIcon(PhosphorIconsRegular.caretRight),
+      final text = tester.widget<RichText>(
+        find.descendant(
+          of: pass,
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is RichText &&
+                widget.text.toPlainText().contains(l10n.evidenceSheetLockPass),
+          ),
+        ),
       );
-      expect(caret, findsOneWidget);
+      // 끝 조각이 화살표 아이콘 글리프이고 링크 색을 이어받습니다.
+      final label = (text.text as TextSpan).children!.single as TextSpan;
+      final caret = label.children!.last as TextSpan;
       expect(
-        tester.widget<Icon>(caret).color,
+        caret.text,
+        String.fromCharCode(EvidenceLockPanel.passCaret.codePoint),
+      );
+      expect(
+        caret.style!.fontFamily,
+        contains(EvidenceLockPanel.passCaret.fontFamily),
+      );
+      expect(
+        text.text.style!.color,
         tester.element(pass).tokens.colors.actionPrimary,
       );
       // 글자는 원고 그대로이고, 링크 이름에 화살표가 섞이지 않습니다.
       expect(
         find.descendant(
           of: pass,
-          matching: find.text(l10n.evidenceSheetLockPass),
+          matching: find.textContaining(l10n.evidenceSheetLockPass),
         ),
         findsOneWidget,
       );
       expect(find.bySemanticsLabel(l10n.evidenceSheetLockPass), findsOneWidget);
+      // 단어 연결 문자(U+2060)와 화살표 글리프는 낭독 라벨에 섞이지 않습니다.
+      final semantics = tester.getSemantics(
+        find.bySemanticsLabel(l10n.evidenceSheetLockPass),
+      );
+      expect(semantics.label, l10n.evidenceSheetLockPass);
       handle.dispose();
     });
 
