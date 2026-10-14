@@ -316,6 +316,13 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('inner: showBack이 false면 뒤로 버튼이 없습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(const MyungliAppBar.inner(title: '', showBack: false)),
+      );
+      expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
+    });
+
     testWidgets('동작은 두 개까지이고 각각 44 터치 영역', (tester) async {
       var taps = 0;
       AppBarAction action(String label) => AppBarAction(

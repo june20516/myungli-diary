@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
@@ -175,11 +176,29 @@ class _CallFormState extends ConsumerState<_CallForm> {
     }
     setState(() => _saving = true);
     try {
-      await ref
+      final draft = await ref
           .read(onboardingDraftProvider.notifier)
           .update((d) => d.copyWith(honorific: honorific));
       if (!mounted) return;
-      await context.push<void>(pathOf(ScreenIds.onboardBirth));
+      // 로그인한 채 입력이 이미 완전하면(앞선 저장이 실패함) 다음이 곧 다시 저장입니다.
+      // 이동은 저장 뒤 진입 갱신이 정합니다.
+      final finishes =
+          ref.read(meProvider) != null &&
+          draft.isCompleteFor(
+            deviceRegionIsKorea: ref.read(deviceRegionIsKoreaProvider),
+          );
+      if (finishes) {
+        await ref.read(onboardingFinishProvider)();
+      } else {
+        await context.push<void>(pathOf(ScreenIds.onboardBirth));
+      }
+    } on Object catch (error) {
+      // 저장이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다. 입력은 남습니다.
+      if (!mounted) return;
+      showMyungliToast(
+        context,
+        errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -120,6 +120,8 @@ void main() {
     await _signInToConsent(tester);
 
     expect(_screen(SlotIds.consentTitleHead), findsOneWidget);
+    // 갈래의 첫 화면이라 돌아갈 곳이 없어 뒤로 버튼을 두지 않습니다.
+    expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
     expect(find.byType(CheckRow), findsNWidgets(2));
     expect(find.text('(필수) 이용약관'), findsOneWidget);
     expect(find.text('(필수) 개인정보 수집·이용'), findsOneWidget);
@@ -214,6 +216,20 @@ void main() {
     expect(_screen(ScreenIds.consent), findsOneWidget);
     expect(_checked(tester, ConsentDocumentDocumentEnum.terms), isTrue);
     expect(_checked(tester, ConsentDocumentDocumentEnum.privacy), isFalse);
+  });
+
+  testWidgets('동의 줄의 Semantics identifier는 문서별로 다릅니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await pumpApp(tester, scenario: 'consent-required');
+    expect(
+      find.bySemanticsIdentifier('consent.required.label.terms'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier('consent.required.label.privacy'),
+      findsOneWidget,
+    );
+    handle.dispose();
   });
 
   testWidgets('동의 버튼을 빠르게 두 번 눌러도 agreeConsents는 한 번입니다', (tester) async {
@@ -321,5 +337,74 @@ void main() {
       container.read(onboardingDraftProvider).value,
       const OnboardingDraft(),
     );
+  });
+
+  testWidgets(
+    'profile-save-unavailable: 저장이 통신 실패면 onboard-call에서 안내하고 다음으로 다시 저장합니다',
+    (tester) async {
+      final container = await openPreviewStep(
+        tester,
+        scenario: 'profile-save-unavailable',
+      );
+      await tester.tap(_screen(SlotIds.previewCtaSave));
+      await tester.pumpAndSettle();
+      await _signInToConsent(tester);
+      await _checkAll(tester);
+
+      await _agreeUntil(tester, ScreenIds.onboardCall);
+      // 동의 직후 1회 + onboard-call 진입 때 1회에서 멈춥니다.
+      await pumpUntil(
+        tester,
+        () => find.byType(EditableText).evaluate().isNotEmpty,
+      );
+      final fake = _fake(container);
+      expect(fake.callCountOf('createProfile'), 2);
+      expect(find.text('잠시 서비스를 이용할 수 없어요. 잠시 후 다시 시도해 주세요.'), findsOneWidget);
+      expect(
+        await tester.runAsync(
+          () => container
+              .read(deviceFlagsStoreProvider)
+              .readBool(notifyAskPendingKey),
+        ),
+        isFalse,
+      );
+      expect(container.read(onboardingDraftProvider).value!.honorific, '별님');
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        '별님',
+      );
+      await tester.pump(const Duration(seconds: 10));
+      await tester.pumpAndSettle();
+      expect(fake.callCountOf('createProfile'), 2);
+
+      // 입력이 완전하므로 onboard-call의 다음이 곧 다시 저장입니다.
+      await tester.tap(find.byType(PrimaryButton));
+      await pumpUntilScreen(tester, ScreenIds.notifyAsk);
+      expect(fake.callCountOf('createProfile'), 3);
+      expect(fake.callCountOf('createPreview'), 1);
+    },
+  );
+
+  testWidgets('로그인 전에는 입력이 완전해도 onboard-call의 다음이 onboard-birth입니다', (
+    tester,
+  ) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'new-user',
+      locale: koreaLocale,
+      overrides: [
+        onboardingDraftStoreProvider.overrideWith(
+          (ref) =>
+              _SeededDraftStore(ref.watch(appDatabaseProvider), _completeDraft),
+        ),
+      ],
+    );
+    await tester.tap(_screen(SlotIds.welcomeCtaStart));
+    await tester.pumpAndSettle();
+    expect(_screen(ScreenIds.onboardCall), findsOneWidget);
+    await tapNext(tester);
+
+    expect(_screen(ScreenIds.onboardBirth), findsOneWidget);
+    expect(_fake(container).callCountOf('createProfile'), 0);
   });
 }

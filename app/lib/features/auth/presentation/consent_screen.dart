@@ -37,6 +37,13 @@ const Key consentErrorKey = ValueKey('consent.error');
 Key consentDocumentKey(ConsentDocumentDocumentEnum document) =>
     ValueKey('consent.document.${document.value}');
 
+/// 동의 줄의 Semantics identifier.
+///
+/// IA에는 필수 항목 슬롯(`consent.required.label`)이 하나뿐인데 줄은 문서마다 있어,
+/// E2E가 줄을 구분할 수 있게 슬롯 id에 문서 값(`terms`·`privacy`)을 붙입니다.
+String consentRowIdentifier(ConsentDocumentDocumentEnum document) =>
+    '${SlotIds.consentRequiredLabel}.${document.value}';
+
 /// 새 계정의 필수 약관 동의(D50).
 ///
 /// 내 정보의 `requiredConsents` 문서마다 `check-row` card를 그립니다. 계약에 선택 동의
@@ -111,7 +118,8 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              const MyungliAppBar.inner(title: ''),
+              // 진입 갈래(consentRequired)의 첫 화면이라 돌아갈 곳이 없어 뒤로 버튼을 두지 않습니다.
+              const MyungliAppBar.inner(title: '', showBack: false),
               Expanded(
                 child: OnboardingPageLayout(
                   body: [
@@ -144,7 +152,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                           viewLabel: l10n.consentView,
                           onView: () =>
                               context.push<void>(pathOf(ScreenIds.legal)),
-                          identifier: SlotIds.consentRequiredLabel,
+                          identifier: consentRowIdentifier(document.document),
                         ),
                       ),
                     ],

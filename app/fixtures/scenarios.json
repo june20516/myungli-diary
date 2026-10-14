@@ -191,5 +191,14 @@
     "network": "online",
     "signedIn": false,
     "description": "처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 422 birth.invalid라 입력을 다시 받아야 합니다."
+  },
+  {
+    "id": "profile-save-unavailable",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 두 번 503 service.unavailable이고 세 번째에 저장됩니다."
   }
 ]

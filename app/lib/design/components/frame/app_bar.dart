@@ -28,16 +28,19 @@ class MyungliAppBar extends StatelessWidget {
   const new tabRoot({required this.title, this.actions = const [], super.key})
     : onBack = null,
       status = null,
+      showBack = false,
       _inner = false;
 
   /// 안쪽 화면용: 뒤로(caret-left) + 제목 왼쪽 정렬, 동작과 초안 상태.
   ///
   /// [onBack]이 없으면 `Navigator.maybePop`입니다. [status]는 동작 왼쪽에 놓입니다.
+  /// [showBack]이 false면 뒤로 버튼을 두지 않습니다(돌아갈 곳이 없는 진입 갈래의 첫 화면).
   const new inner({
     required this.title,
     this.onBack,
     this.actions = const [],
     this.status,
+    this.showBack = true,
     super.key,
   }) : _inner = true;
 
@@ -53,6 +56,9 @@ class MyungliAppBar extends StatelessWidget {
 
   /// 안쪽 화면 뒤로 동작.
   final VoidCallback? onBack;
+
+  /// 뒤로 버튼을 그리는지. `inner`에서만 true일 수 있습니다.
+  final bool showBack;
 
   /// 오른쪽 동작([AppBarAction]) 최대 2개.
   final List<Widget> actions;
@@ -72,7 +78,7 @@ class MyungliAppBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: Space.s16),
         child: Row(
           children: [
-            if (_inner)
+            if (_inner && showBack)
               AppBarAction(
                 key: const ValueKey('app-bar.back'),
                 icon: _caretLeft,

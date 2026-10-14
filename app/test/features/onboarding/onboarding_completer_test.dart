@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart' show Locale;
@@ -11,8 +12,10 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
+import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
@@ -135,6 +138,9 @@ void main() {
     tester,
   ) async {
     final container = await _signedInWithDraft(tester, 'profile-invalid');
+    // 이 시나리오는 로그인 뒤 첫 내 정보가 약관 동의 전이라 진입이 consentRequired입니다.
+    // completer는 진입 상태를 보지 않으므로 저장 실패 동작만 확인합니다.
+    expect(container.read(entryProvider), EntryState.consentRequired);
     final completer = container.read(onboardingCompleterProvider);
     final getMeBefore = _fake(container).callCountOf('getMe');
 
@@ -195,5 +201,42 @@ void main() {
       same(offline),
     );
     expect(onboardingErrorOf(StateError('x')), isA<UnexpectedError>());
+  });
+
+  testWidgets('저장 뒤 입력 삭제 전에 중단돼도 알림 허락 대기가 켜져 있어 다음 진입이 notify-ask입니다', (
+    tester,
+  ) async {
+    final container = await _signedInWithDraft(tester, 'profile-required');
+    // 입력 삭제가 끝나지 않는(앱이 그 사이 꺼진) completer.
+    final completer = OnboardingCompleter(
+      profiles: container.read(profileRepositoryProvider),
+      readDraft: () => container.read(onboardingDraftProvider.future),
+      clearDraft: () => Completer<void>().future,
+      language: Language.ko,
+      deviceRegionIsKorea: true,
+      deviceTimezone: () async => 'Asia/Seoul',
+      flags: container.read(deviceFlagsStoreProvider),
+      refreshEntry: () => container.read(entryStateProvider.notifier).refresh(),
+      crashReporter: FakeCrashReporter(),
+    );
+    await tester.runAsync(() async {
+      unawaited(completer.complete());
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    });
+
+    expect(_fake(container).callCountOf('createProfile'), 1);
+    expect(
+      await tester.runAsync(
+        () => container
+            .read(deviceFlagsStoreProvider)
+            .readBool(notifyAskPendingKey),
+      ),
+      isTrue,
+    );
+    // 다시 열린 앱의 진입 계산.
+    await tester.runAsync(
+      () => container.read(entryStateProvider.notifier).refresh(),
+    );
+    expect(container.read(entryProvider), EntryState.notifyAskRequired);
   });
 }

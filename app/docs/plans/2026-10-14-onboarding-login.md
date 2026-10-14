@@ -415,7 +415,7 @@
 - Consumes: `CheckRow`(card), `ProfileRepository.create`, `OnboardingDraftStore`, `appLanguageProvider`, `deviceTimezoneProvider`, `notifyAskPendingKey`
 - Produces:
   - `final class ConsentRepository { Future<void> agree(List<ConsentDocument> documents); }`
-  - `final class OnboardingCompleter { Future<void> complete(); }`: `ProfileInput(honorific, language: appLanguage, currentTimezone: 기기 시간대, birth: draft.toBirth(), notification: NotificationSetting(status: not_asked))` → `ProfileRepository.create` → 초안 삭제 → `notifyAskPendingKey = true` → `entryStateProvider.notifier.refresh()`. 422 입력 오류(`birth.*`·`date.*`·`name.*`·`request.inconsistent`)는 초안을 남기고 `OnboardingInputRejected(AppError)`를 던집니다
+  - `final class OnboardingCompleter { Future<void> complete(); }`: `ProfileInput(honorific, language: appLanguage, currentTimezone: 기기 시간대, birth: draft.toBirth(), notification: NotificationSetting(status: not_asked))` → `ProfileRepository.create` → `notifyAskPendingKey = true` → 초안 삭제(플래그를 먼저 써서 그 사이 꺼져도 notify-ask를 건너뛰지 않음, 리뷰 반영) → `entryStateProvider.notifier.refresh()`. 422 입력 오류(`birth.*`·`date.*`·`name.*`·`request.inconsistent`)는 초안을 남기고 `OnboardingInputRejected(AppError)`를 던집니다
   - `onboardingFinishProvider`를 `completer.complete`로 채움
   - 진입이 `profileRequired`이고 초안이 완전하면(`isCompleteFor`) 화면을 거치지 않고 `complete()`를 부르는 자리: `EntryController`가 아니라 `onboard-call` 진입 때 한 번 확인합니다(Review Focus 1)
   - 화면 `consent`(exits `{notify-ask, onboard-call, legal}`, handledStates `{error}`)

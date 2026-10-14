@@ -77,7 +77,8 @@ class ConsentController extends AsyncNotifier<void> {
       } on OnboardingInputRejected catch (rejected) {
         notice.pending = rejected.error;
       } on AppError {
-        // 통신 실패는 onboard-call이 진입할 때 한 번 다시 저장합니다.
+        // 입력 오류(422)가 아닌 server·통신 실패는 모두 여기로 옵니다. 동의는 끝났으므로
+        // 진입을 다시 계산하고, onboard-call이 진입할 때 한 번 다시 저장합니다.
       } on Object catch (error, stack) {
         // 진단을 위해 요약(오류 타입)만 보고합니다(D64 ②: 출생 정보·호칭은 싣지 않음).
         crashReporter.record(CrashSummary.from(error), stack);

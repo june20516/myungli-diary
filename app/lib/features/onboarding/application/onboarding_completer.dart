@@ -45,7 +45,8 @@ AppError onboardingErrorOf(Object error) => switch (error) {
 /// (`onboard-gender`·`birthplace`의 다음), 프로필 저장 전에 앱이 꺼졌던 계정
 /// (`onboard-call` 진입)이 모두 여기를 거칩니다.
 ///
-/// 순서: 프로필 저장 → 입력 삭제 → 알림 허락 대기([notifyAskPendingKey]) → 진입 갱신.
+/// 순서: 프로필 저장 → 알림 허락 대기([notifyAskPendingKey]) → 입력 삭제 → 진입 갱신.
+/// 플래그를 삭제보다 먼저 써서, 저장 뒤 앱이 꺼져도 notify-ask를 건너뛰지 않습니다.
 /// 진입 갱신이 마지막이라 라우터 redirect가 `notify-ask`로 보냅니다.
 final class OnboardingCompleter {
   /// 의존성을 받습니다. 함수 인자는 부를 때마다 현재 값을 읽습니다.
@@ -109,6 +110,8 @@ final class OnboardingCompleter {
       }
       rethrow;
     }
+    // 입력 삭제보다 먼저 켭니다. 그 사이 앱이 꺼져도 다음 진입이 notify-ask를 거칩니다.
+    await _flags.writeBool(notifyAskPendingKey, value: true);
     try {
       await _clearDraft();
     } on Object catch (error, stack) {
@@ -116,7 +119,6 @@ final class OnboardingCompleter {
       // (D64 ②: 값은 싣지 않음).
       _crashReporter.record(CrashSummary.from(error), stack);
     }
-    await _flags.writeBool(notifyAskPendingKey, value: true);
     await _refreshEntry();
   }
 }

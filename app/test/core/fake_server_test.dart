@@ -231,6 +231,7 @@ void main() {
         'new-user-signin',
         'consent-mismatch',
         'profile-invalid',
+        'profile-save-unavailable',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
