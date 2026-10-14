@@ -4,9 +4,9 @@ import json
 
 import pytest
 
+from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.glossary import term_ids
 from mlw.ia import RULE_UNCOVERED, Ia, check_ia, load_ia
-from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.model import LANGS, ParamKind, RuleSet, Slot
 from mlw.paths import CONTENT_DIR, IA_FILE, MESSAGE_KEYS_FILE, RULES_DIR, SLOTS_DIR

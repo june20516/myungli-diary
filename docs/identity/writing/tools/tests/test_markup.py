@@ -77,3 +77,8 @@ def test_ui_markup_errors(text: str) -> None:
 
 def test_ui_markup_ok() -> None:
     assert check_ui_markup(entry("오늘 일정 {count}개")) == []
+
+
+def test_name_position_rejects_extra_space_after_vocative() -> None:
+    findings = check_name_position(entry("{name}님,  쉬어 가는 날이에요."), make_slot(vocative=True))
+    assert [finding.rule_id for finding in findings] == [RULE_NAME_POSITION]

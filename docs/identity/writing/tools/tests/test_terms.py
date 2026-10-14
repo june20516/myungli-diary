@@ -78,3 +78,13 @@ def test_tokens_error(text: str) -> None:
 
 def test_tokens_skip_without_glossary_for_language() -> None:
     assert token_rules("[[Seven Killings]]", "en") == []
+
+
+def test_tokens_skip_glossary_terms_without_glossary_manuscript() -> None:
+    tag_only = [GLOSSARY_KO[3], entry("[[편관]]이 와요")]
+    assert [finding.rule_id for finding in check_tokens(tag_only, SLOTS, TAG_KEYS)] == []
+
+
+def test_tag_tokens_checked_with_tag_manuscript_only() -> None:
+    tag_only = [GLOSSARY_KO[3], entry("[[도화]]가 들어요")]
+    assert check_tokens(tag_only, SLOTS, TAG_KEYS) == []

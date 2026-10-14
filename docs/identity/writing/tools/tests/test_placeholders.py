@@ -54,3 +54,8 @@ def test_strip_token_marks_drops_explicit_term() -> None:
 def test_parse_tokens_explicit_term_errors(text: str) -> None:
     with pytest.raises(ValueError):
         parse_tokens(text)
+
+
+def test_parse_tokens_rejects_second_separator() -> None:
+    with pytest.raises(ValueError):
+        parse_tokens("[[a|b|c]]")

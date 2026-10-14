@@ -82,7 +82,8 @@ def parse_tokens(text: str) -> list[Token]:
             raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
         inner = text[start + len(TOKEN_OPEN) : close]
         shown, separator, term = inner.partition(TERM_SEPARATOR)
-        if TOKEN_OPEN in inner or not shown.strip() or (separator and not term.strip()):
+        bad_term = separator and (not term.strip() or TERM_SEPARATOR in term)
+        if TOKEN_OPEN in inner or not shown.strip() or bad_term:
             raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
         end = close + len(TOKEN_CLOSE)
         tokens.append(Token(shown, start, end, term if separator else None))

@@ -34,7 +34,9 @@ def check_name_position(entry: Entry, slot: Slot) -> list[Finding]:
     count = _name_count(entry.text)
     if count == 0:
         return []
-    if slot.vocative and count == 1 and strip_vocative(entry.text, entry.lang) is not None:
+    stripped = strip_vocative(entry.text, entry.lang)
+    # 덩어리 뒤에 공백이 더 있으면 호칭을 지운 문장이 공백으로 시작합니다.
+    if slot.vocative and count == 1 and stripped is not None and not stripped[:1].isspace():
         return []
     prefix = VOCATIVE_PREFIX.get(entry.lang, "")
     if not slot.vocative:

@@ -86,7 +86,7 @@
 | `today`·`preview` `.fortune.body` | `daily.fortune.tag` | 대표 태그가 있는 날만 |
 | `today.lucky-color`·`-direction`·`-number`·`-time` `.body` | `daily.color`·`direction`·`number`·`focus_time` | 시간 사유 이름 `daily.focus_reason`은 `components: [lucky-card]` |
 | `today`·`diary-edit` `.guide.question` | `daily.guide` | |
-| `today`·`day-sheet` `.character.reason`, `event-edit.character.hint` | **새** `daily.character_reason` | 키 `character.reason.<day_kind>` 4개, `select`는 날의 성격 |
+| `today`·`day-sheet` `.character.reason`, `event-edit.character.hint` | **새** `character.reason` | 키 `character.reason.<day_kind>` 4개, `select`는 날의 성격 |
 | `explain-sheet.term.meaning`, `tag-diary.tag.meaning` | **새** `term.meaning` | 키 `term.<용어 id>`(§6) |
 | `explain-sheet.today.reason` | **새** `explain.today_reason` | 키는 core 자료 뒤(§4.3) |
 | `evidence-sheet.basis.body` | **새** `evidence.basis` | 같음 |
@@ -107,7 +107,7 @@
   * `glossary.value_name` → `lucky-card`, `saju-pillars`, `manse-table`, `daeun-table`, `ohaeng-bar`
 * 새 content 원고
   * 이번에 쓰는 것: server를 막는 `system.apple_return`(#116)과 `onboard.hour_confirm`(#42)의 3개 언어 원고
-  * W1에 쓰는 것: 나머지 새 슬롯(`character_reason`, `term.meaning`, `ilgan`, `yongsin_summary`)
+  * W1에 쓰는 것: 나머지 새 슬롯(`character.reason`, `term.meaning`, `ilgan`, `yongsin_summary`)
 
 ### 4.3 상대 자료를 기다리는 자리
 
@@ -124,7 +124,7 @@ writing은 쓸 수 있는 `rule_id`·`source_ref` 목록과 원전 원문을 모
   * ko: `{name}님, `
   * ja: `{name}さん、`
   * en: `{name}, `
-* 렌더러는 호칭이 없을 때(미리보기 D50, 아침 알림 D62, 그 밖에 호칭을 모르는 경우) 이 덩어리를 통째로 지웁니다. en은 이어지는 첫 글자를 대문자로 바꿉니다.
+* 렌더러는 호칭이 없을 때(미리보기 D50, 아침 알림 D62, 그 밖에 호칭을 모르는 경우) 이 덩어리를 통째로 지웁니다. en은 렌더가 끝난 최종 문장의 첫 글자를 대문자로 바꿉니다(지운 직후 원고에는 하지 않음).
 * 그래서 아침 알림은 그날 `daily.fortune.head`의 같은 문장 틀을 호칭 없이 씁니다. 별도 슬롯이나 변주를 두지 않습니다.
 * 검사기 `name.position`이 덩어리 모양과 위치를 지킵니다. 덩어리를 지운 문장도 문장 규칙과 글자 수 검사를 받습니다.
 
@@ -155,7 +155,7 @@ writing은 쓸 수 있는 `rule_id`·`source_ref` 목록과 원전 원문을 모
   * 24개 목록은 원고 `content/en/`의 `calendar.solar_term`에 둡니다.
   * 일본어는 절기 이름이 2~3자라 그대로 씁니다.
 * 새 슬롯과 ui 91자리 중 이름 자리(버튼, 라벨, toast, 칩)의 값은 design에 요청합니다. 오기 전까지는 `null`입니다.
-  * 문장 자리 가운데 이미 같은 칸이 있는 곳은 그 값을 씁니다. 예: `daily.character_reason`은 `day-character` 한 줄이라 상한을 design에 함께 묻습니다.
+  * 문장 자리 가운데 이미 같은 칸이 있는 곳은 그 값을 씁니다. 예: `character.reason`은 `day-character` 한 줄이라 상한을 design에 함께 묻습니다.
 
 ## 8. 바깥에 알릴 것
 
