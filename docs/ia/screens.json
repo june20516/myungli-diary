@@ -262,13 +262,13 @@
         }
       ],
       "components": [
-        "sentence-block",
         "primary-button"
       ],
       "exits": [],
       "decisions": [
         "D31",
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
@@ -303,7 +303,6 @@
         }
       ],
       "components": [
-        "sentence-block",
         "primary-button"
       ],
       "exits": [
@@ -318,7 +317,8 @@
       ],
       "decisions": [
         "D50",
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
@@ -454,8 +454,8 @@
         },
         {
           "id": "onboard-time.hour.confirm",
-          "source": "content",
-          "role": "엔진이 계산한 시진과 벽시계 범위 확인 줄(예: 인시 03:30~05:30). 기기 지역이 한국일 때만 (D58)"
+          "source": "ui",
+          "role": "엔진이 계산한 시진과 벽시계 범위 확인 줄(예: 인시 03:30~05:30). 기기 지역이 한국일 때만 (D58) app이 getBirthHour 구조값(branch·start·end)을 ui 틀에 넣음(D68)"
         }
       ],
       "components": [
@@ -478,7 +478,8 @@
         "D18",
         "D32",
         "D39",
-        "D58"
+        "D58",
+        "D68"
       ]
     },
     {
@@ -520,12 +521,17 @@
         {
           "to": "profile-edit",
           "trigger": "정보 수정에서 온 경우 저장"
+        },
+        {
+          "to": "notify-ask",
+          "trigger": "로그인한 새 계정이 미리보기 없이 온보딩을 마침(프로필 저장)"
         }
       ],
       "decisions": [
         "D18",
         "D29",
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
@@ -590,12 +596,17 @@
         {
           "to": "settings",
           "trigger": "언어 변경 안내에서 도시 선택"
+        },
+        {
+          "to": "notify-ask",
+          "trigger": "로그인한 새 계정이 미리보기 없이 온보딩을 마침(프로필 저장)"
         }
       ],
       "decisions": [
         "D29",
         "D47",
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
@@ -721,7 +732,6 @@
       ],
       "components": [
         "app-bar",
-        "sentence-block",
         "social-login-button",
         "dialog"
       ],
@@ -742,7 +752,8 @@
       "decisions": [
         "D50",
         "D39",
-        "D53"
+        "D53",
+        "D68"
       ]
     },
     {
@@ -822,6 +833,11 @@
           "role": "아침 알림이 주는 것"
         },
         {
+          "id": "notify-ask.cta.allow",
+          "source": "ui",
+          "role": "알림 허락 버튼"
+        },
+        {
           "id": "notify-ask.cta.skip",
           "source": "ui",
           "role": "건너뛰기"
@@ -841,7 +857,8 @@
       ],
       "decisions": [
         "D18",
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
@@ -2205,15 +2222,15 @@
         }
       ],
       "components": [
-        "app-bar",
-        "sentence-block"
+        "app-bar"
       ],
       "exits": [],
       "decisions": [
         "D28",
         "D41",
         "D42",
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
@@ -2254,7 +2271,6 @@
       ],
       "components": [
         "app-bar",
-        "sentence-block",
         "primary-button",
         "dialog"
       ],
@@ -2265,7 +2281,8 @@
         }
       ],
       "decisions": [
-        "D39"
+        "D39",
+        "D68"
       ]
     },
     {
