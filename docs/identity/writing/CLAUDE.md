@@ -70,7 +70,9 @@
    - design #131: ui 이름 자리와 새 content 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
    - app #128(공지): ARB를 가져가는지, `@@x-generated`가 문제없는지 확인합니다.
-3. **IA v2 반영**(#134, 브랜치 `writing/ia-v2-consent`): D67로 선택 동의를 없애 `consent.optional.label`을 지웠습니다(ui 90자리). app 최종 PR(#135)과 함께 병합합니다.
+3. **IA v2 반영**(#134, PR #138, 브랜치 `writing/ia-v2-consent`): D67로 `consent.optional.label`을 지우고, D68로 시진 확인 줄을 ui 슬롯 `onboard-time.hour.confirm`으로 옮기고 `notify-ask.cta.allow`를 더했습니다(ui 92자리). app 최종 PR(#135)과 함께 병합합니다.
+   - **ci-gate 연결**(#144): 1단계 PR #145(`workflow_call`). 지휘가 2단계를 마치면 3단계로 writing.yml의 `push`·`pull_request` 트리거를 지웁니다.
+   - **#143 후속**(새 브랜치, 결정 W22로 기록): Issue 코멘트에 답한 대로 ① 입력칸 접근성 이름·`actionClose` 공용 ui 슬롯 ② 슬롯 밖 문구(오류·탭·접근성 라벨·성별 등) 원고, 지지·날의 성격 이름은 용어 id 이름 원고에서 ARB 생성 ③ 카카오 ja는 영문 "Login with Kakao" ④ `mlw check-arb`에 ICU plural 허용.
 4. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
 5. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
 6. **W1:** 콘텐츠 3개 언어 원고(원국 개인 해석, 용어 뜻 77개, 일간 소개, 날의 성격 이유 포함)를 쓰고 원어민 검수를 받습니다. ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
