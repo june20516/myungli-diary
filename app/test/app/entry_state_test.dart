@@ -119,12 +119,15 @@ void main() {
       );
     });
 
-    test('프로필이 있고 이 기기 광고 동의 전이면 adConsentRequired', () {
-      expect(
-        compute(me: meWith(), adConsentDone: false),
-        EntryState.adConsentRequired,
-      );
-    });
+    test(
+      '프로필이 있고 알림 허락 대기가 아니며(기본값 false) 이 기기 광고 동의 전이면 adConsentRequired',
+      () {
+        expect(
+          compute(me: meWith(), adConsentDone: false),
+          EntryState.adConsentRequired,
+        );
+      },
+    );
 
     test('알림 허락 대기면 광고 동의 전보다 먼저 notifyAskRequired (A17)', () {
       expect(
@@ -145,13 +148,6 @@ void main() {
       expect(
         compute(me: meWith(hasProfile: false), notifyAskPending: true),
         EntryState.profileRequired,
-      );
-    });
-
-    test('알림 허락 대기가 아니고 광고 동의 전이면 adConsentRequired', () {
-      expect(
-        compute(me: meWith(), adConsentDone: false),
-        EntryState.adConsentRequired,
       );
     });
 

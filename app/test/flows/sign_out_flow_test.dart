@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/app/myungli_app.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -244,6 +247,34 @@ void main() {
     expect(purchases.loggedInAccountId, isNull);
     expect(crash.userId, isNull);
     expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
+  });
+
+  testWidgets('refresh·로그아웃으로 다시 계산하는 동안 진입 갈래가 null이 되지 않아 목적지를 기억하지 않습니다', (
+    tester,
+  ) async {
+    // 진입 뒤 목적지 복귀(A17)는 entry가 null일 때만 경로를 기억합니다. 다시 계산하는
+    // 동안 이전 값이 남는다는 전제가 깨지면 로그아웃한 계정의 경로가 다음 진입에 새므로
+    // 그 전제를 고정합니다.
+    final (container, _) = await launchWithLeftovers(
+      tester,
+      scenario: 'member',
+    );
+    final entries = <EntryState?>[];
+    container.listen(entryProvider, (_, next) => entries.add(next));
+    final router = container.read(routerProvider)..go('/calendar');
+    await tester.pumpAndSettle();
+
+    await tester.runAsync(container.read(entryStateProvider.notifier).refresh);
+    await _settle(tester);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/calendar');
+
+    await tester.runAsync(container.read(tokenStoreProvider).signOut);
+    await _settle(tester);
+
+    expect(entries, isNot(contains(null)));
+    expect(entries.last, EntryState.signedOut);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/welcome');
+    expect(container.read(pendingDestinationProvider), isNull);
   });
 
   testWidgets('시작 직후 refresh가 거부되면 내 정보를 받기 전이어도 로컬 데이터를 비웁니다', (tester) async {

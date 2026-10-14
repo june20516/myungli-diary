@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
@@ -12,6 +14,7 @@ import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 
@@ -22,6 +25,23 @@ class _FixedEntry extends EntryController {
 
   @override
   Future<EntrySnapshot> build() async => EntrySnapshot(value, null);
+}
+
+/// 라우터 테스트용 컨테이너. 진입 갈래는 [entry]로 바꾸고 DB는 메모리 DB를 씁니다.
+///
+/// 화면(예 today)이 DB를 읽으면 테스트마다 DB가 열립니다. 가짜 시계 안에서는 drift의
+/// `close()`가 끝나지 않아 다음 테스트에서 "AppDatabase multiple times" 경고가 나므로,
+/// 닫기는 실제 시계(`runAsync`)에서 끝까지 기다립니다.
+ProviderContainer _routerContainer(WidgetTester tester, Override entry) {
+  final database = AppDatabase.forExecutor(NativeDatabase.memory());
+  final container = ProviderContainer(
+    overrides: [entry, appDatabaseProvider.overrideWithValue(database)],
+  );
+  addTearDown(() async {
+    container.dispose();
+    await tester.runAsync(database.close);
+  });
+  return container;
 }
 
 /// 테스트가 [complete]를 부를 때까지 계산 중(entry null)으로 남는 진입 갈래.
@@ -40,10 +60,10 @@ Future<(ProviderContainer, GoRouter, _PendingEntry)> pumpPendingRouter(
   WidgetTester tester,
 ) async {
   final entry = _PendingEntry();
-  final container = ProviderContainer(
-    overrides: [entryStateProvider.overrideWith(() => entry)],
+  final container = _routerContainer(
+    tester,
+    entryStateProvider.overrideWith(() => entry),
   );
-  addTearDown(container.dispose);
   // 앱(MyungliApp)처럼 라우터를 듣고 있어야 진입 변화가 라우터에 닿습니다.
   final router = container.listen(routerProvider, (_, _) {}).read();
   await tester.pumpWidget(
@@ -70,10 +90,10 @@ Future<GoRouter> pumpRouter(
   EntryState entry, {
   String? initial,
 }) async {
-  final container = ProviderContainer(
-    overrides: [entryStateProvider.overrideWith(() => _FixedEntry(entry))],
+  final container = _routerContainer(
+    tester,
+    entryStateProvider.overrideWith(() => _FixedEntry(entry)),
   );
-  addTearDown(container.dispose);
   await container.read(entryStateProvider.future);
   final router = container.read(routerProvider);
   if (initial != null) {

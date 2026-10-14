@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -33,6 +34,23 @@ void main() {
     final router = container.read(routerProvider);
     expect(router.routerDelegate.currentConfiguration.uri.path, '/calendar');
     expect(find.byKey(const ValueKey(ScreenIds.calendar)), findsOneWidget);
+  });
+
+  testWidgets('OS가 넘긴 초기 경로(딥링크 cold start)도 진입 계산 뒤 그 화면으로 갑니다', (
+    tester,
+  ) async {
+    // 첫 프레임의 Router 파싱 중 redirect가 경로를 기억해도 provider 수정 단언이 나지 않아야 합니다.
+    tester.binding.platformDispatcher.defaultRouteNameTestValue = '/calendar';
+    addTearDown(
+      tester.binding.platformDispatcher.clearDefaultRouteNameTestValue,
+    );
+    final container = await pumpApp(tester, scenario: 'member');
+
+    expect(tester.takeException(), isNull);
+    final router = container.read(routerProvider);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/calendar');
+    expect(find.byKey(const ValueKey(ScreenIds.calendar)), findsOneWidget);
+    expect(container.read(pendingDestinationProvider), isNull);
   });
 
   testWidgets('로그아웃 상태에서 알림으로 열면 welcome입니다', (tester) async {
