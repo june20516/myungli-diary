@@ -1,0 +1,10 @@
+{
+  "status": 422,
+  "body": {
+    "type": "https://api.myungli.app/problems/birth.invalid",
+    "title": "Invalid birth",
+    "status": 422,
+    "code": "birth.invalid",
+    "traceId": "fake-server"
+  }
+}

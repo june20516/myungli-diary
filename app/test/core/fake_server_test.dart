@@ -222,6 +222,9 @@ void main() {
         'birth-hour-rate-limited',
         'cities-error',
         'cities-slow',
+        'time-unknown',
+        'preview-used',
+        'preview-invalid',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));

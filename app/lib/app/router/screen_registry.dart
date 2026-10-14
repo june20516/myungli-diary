@@ -9,6 +9,7 @@ import 'package:myungli_diary/features/onboarding/presentation/onboard_birth_scr
 import 'package:myungli_diary/features/onboarding/presentation/onboard_call_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboard_gender_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboard_time_screen.dart';
+import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
 
 /// 화면 하나의 등록 정보.
@@ -85,6 +86,12 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: birthplaceHandledStates,
     exits: birthplaceExits,
   ),
+  ScreenIds.preview: const ScreenSpec(
+    ScreenIds.preview,
+    _buildPreview,
+    handledStates: previewHandledStates,
+    exits: previewExits,
+  ),
 };
 
 /// page 화면 registry. 시트·system 화면은 route가 없어 넣지 않습니다.
@@ -115,3 +122,5 @@ Widget _buildOnboardTime(BuildContext context) => const OnboardTimeScreen();
 Widget _buildOnboardGender(BuildContext context) => const OnboardGenderScreen();
 
 Widget _buildBirthplace(BuildContext context) => const BirthplaceScreen();
+
+Widget _buildPreview(BuildContext context) => const PreviewScreen();

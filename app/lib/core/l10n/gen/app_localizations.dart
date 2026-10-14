@@ -933,6 +933,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'여성'**
   String get genderFemale;
+
+  /// 임시. IA 슬롯 preview.cta.save: 미리보기 뒤 로그인으로 잇는 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하고 계속하기'**
+  String get previewCtaSave;
+
+  /// 임시. IA 슬롯 preview.cta.restart: 온보딩 입력으로 돌아가는 링크
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 입력'**
+  String get previewCtaRestart;
+
+  /// 임시. IA 슬롯 preview.share.login-notice: 로그인 안내 창 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하면 공유할 수 있어요.'**
+  String get previewShareLoginNotice;
+
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind YONGSIN_DAY
+  ///
+  /// In ko, this message translates to:
+  /// **'용신의 날'**
+  String get dayKindYongsinDay;
+
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GWIIN_DAY
+  ///
+  /// In ko, this message translates to:
+  /// **'귀인의 날'**
+  String get dayKindGwiinDay;
+
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GISIN_DAY
+  ///
+  /// In ko, this message translates to:
+  /// **'기신의 날'**
+  String get dayKindGisinDay;
+
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ORDINARY_DAY
+  ///
+  /// In ko, this message translates to:
+  /// **'평범한 날'**
+  String get dayKindOrdinaryDay;
+
+  /// 임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'공유'**
+  String get shareLabel;
+
+  /// 임시. 확인 창의 로그인 버튼(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인'**
+  String get actionLogin;
+
+  /// 임시. 확인 창의 닫기 버튼(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get actionClose;
 }
 
 class _AppLocalizationsDelegate

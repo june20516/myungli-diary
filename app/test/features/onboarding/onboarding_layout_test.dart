@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/gen/model/birth.dart';
+import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -12,6 +14,7 @@ import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/onboarding_steps.dart';
 
 Future<void> _open(
   WidgetTester tester,
@@ -135,6 +138,52 @@ void main() {
           lessThanOrEqualTo(568 - keyboard),
         );
         expect(tester.getTopLeft(button).dy, greaterThanOrEqualTo(0));
+      });
+    }
+  }
+
+  // 미리보기: 풀이가 보이는 상태와 오류 상태 모두에서 넘치지 않고 아래 버튼 둘에 닿습니다.
+  for (final scenario in ['new-user', 'preview-used']) {
+    for (final scale in [1.0, 2.0, 3.0]) {
+      testWidgets('preview($scenario): 글자 $scale배에서 넘치지 않고 버튼에 닿습니다', (
+        tester,
+      ) async {
+        tester.view
+          ..physicalSize = const Size(320, 568)
+          ..devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        final container = await pumpApp(
+          tester,
+          scenario: scenario,
+          locale: const Locale('ko', 'KR'),
+        );
+        await tester.runAsync(
+          () => container
+              .read(onboardingDraftProvider.notifier)
+              .update(
+                (d) => d.copyWith(
+                  honorific: '별님',
+                  calendar: CalendarType.solar,
+                  date: LunarOrSolarDate(year: 1990, month: 5, day: 17),
+                  time: BirthTime(status: BirthTimeStatusEnum.unknown),
+                  gender: BirthGenderEnum.female,
+                ),
+              ),
+        );
+        await _open(tester, container, ScreenIds.preview);
+        await settlePreview(tester);
+
+        expect(tester.takeException(), isNull);
+        for (final slot in [
+          SlotIds.previewCtaSave,
+          SlotIds.previewCtaRestart,
+        ]) {
+          final box = tester.getRect(find.byKey(ValueKey(slot)));
+          expect(box.bottom, lessThanOrEqualTo(568));
+          expect(box.top, greaterThanOrEqualTo(0));
+        }
       });
     }
   }

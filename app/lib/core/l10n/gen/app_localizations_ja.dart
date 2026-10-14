@@ -452,4 +452,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get genderFemale => '女性';
+
+  @override
+  String get previewCtaSave => '保存して続ける';
+
+  @override
+  String get previewCtaRestart => '入力し直す';
+
+  @override
+  String get previewShareLoginNotice => 'ログインすると共有できます。';
+
+  @override
+  String get dayKindYongsinDay => '用神の日';
+
+  @override
+  String get dayKindGwiinDay => '貴人の日';
+
+  @override
+  String get dayKindGisinDay => '忌神の日';
+
+  @override
+  String get dayKindOrdinaryDay => '普通の日';
+
+  @override
+  String get shareLabel => '共有';
+
+  @override
+  String get actionLogin => 'ログイン';
+
+  @override
+  String get actionClose => '閉じる';
 }

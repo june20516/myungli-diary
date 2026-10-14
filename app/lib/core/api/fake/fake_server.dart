@@ -81,6 +81,10 @@ final class FakeServerInterceptor extends Interceptor {
     }
     _operationCounts[route.operationId] = callCountOf(route.operationId) + 1;
     _requestBodies.putIfAbsent(route.operationId, () => []).add(options.data);
+    _requestHeaders.putIfAbsent(route.operationId, () => []).add({
+      for (final entry in options.headers.entries)
+        entry.key.toLowerCase(): '${entry.value}',
+    });
     final fixture = await _findFixture(route, routePathOf(options));
     _respond(
       options,
@@ -107,6 +111,13 @@ final class FakeServerInterceptor extends Interceptor {
   @visibleForTesting
   List<Object?> requestBodiesOf(String operationId) =>
       List.unmodifiable(_requestBodies[operationId] ?? const []);
+
+  final _requestHeaders = <String, List<Map<String, String>>>{};
+
+  /// [operationId]로 들어온 요청 헤더를 받은 순서대로 돌려줍니다. 이름은 소문자입니다. 테스트용입니다.
+  @visibleForTesting
+  List<Map<String, String>> requestHeadersOf(String operationId) =>
+      List.unmodifiable(_requestHeaders[operationId] ?? const []);
 
   /// fixture 파일 경로별 지금까지의 호출 수(`sequence` 순서용).
   final _callCounts = <String, int>{};

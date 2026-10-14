@@ -295,5 +295,45 @@
   "genderFemale": "女性",
   "@genderFemale": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "previewCtaSave": "保存して続ける",
+  "@previewCtaSave": {
+    "description": "임시. IA 슬롯 preview.cta.save: 미리보기 뒤 로그인으로 잇는 버튼"
+  },
+  "previewCtaRestart": "入力し直す",
+  "@previewCtaRestart": {
+    "description": "임시. IA 슬롯 preview.cta.restart: 온보딩 입력으로 돌아가는 링크"
+  },
+  "previewShareLoginNotice": "ログインすると共有できます。",
+  "@previewShareLoginNotice": {
+    "description": "임시. IA 슬롯 preview.share.login-notice: 로그인 안내 창 문구"
+  },
+  "dayKindYongsinDay": "用神の日",
+  "@dayKindYongsinDay": {
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind YONGSIN_DAY"
+  },
+  "dayKindGwiinDay": "貴人の日",
+  "@dayKindGwiinDay": {
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GWIIN_DAY"
+  },
+  "dayKindGisinDay": "忌神の日",
+  "@dayKindGisinDay": {
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GISIN_DAY"
+  },
+  "dayKindOrdinaryDay": "普通の日",
+  "@dayKindOrdinaryDay": {
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ORDINARY_DAY"
+  },
+  "shareLabel": "共有",
+  "@shareLabel": {
+    "description": "임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)"
+  },
+  "actionLogin": "ログイン",
+  "@actionLogin": {
+    "description": "임시. 확인 창의 로그인 버튼(슬롯 아님)"
+  },
+  "actionClose": "閉じる",
+  "@actionClose": {
+    "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
   }
 }

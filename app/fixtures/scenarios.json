@@ -110,5 +110,32 @@
     "network": "online",
     "signedIn": false,
     "description": "한국 밖 기기의 처음 설치한 사용자. 응답마다 1초가 걸려 도시 검색 중 skeleton을 확인합니다."
+  },
+  {
+    "id": "time-unknown",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 미리보기(createPreview) 응답에 time_unknown notice가 있어 시간 모름 배너가 보입니다."
+  },
+  {
+    "id": "preview-used",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 미리보기(createPreview)가 이미 쓰여 403 preview.used로 답합니다."
+  },
+  {
+    "id": "preview-invalid",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 미리보기(createPreview)가 422 birth.invalid로 답해 입력을 다시 받아야 합니다."
   }
 ]

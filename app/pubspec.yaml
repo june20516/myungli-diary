@@ -138,3 +138,6 @@ flutter:
     - fixtures/birth-hour-unavailable/
     - fixtures/birth-hour-rate-limited/
     - fixtures/cities-error/
+    - fixtures/time-unknown/
+    - fixtures/preview-used/
+    - fixtures/preview-invalid/

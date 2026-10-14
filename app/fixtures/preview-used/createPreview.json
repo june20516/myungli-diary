@@ -1,0 +1,10 @@
+{
+  "status": 403,
+  "body": {
+    "type": "https://api.myungli.app/problems/preview.used",
+    "title": "Preview already used",
+    "status": 403,
+    "code": "preview.used",
+    "traceId": "fake-server"
+  }
+}

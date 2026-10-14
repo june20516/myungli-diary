@@ -487,4 +487,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genderFemale => 'Female';
+
+  @override
+  String get previewCtaSave => 'Save and continue';
+
+  @override
+  String get previewCtaRestart => 'Enter again';
+
+  @override
+  String get previewShareLoginNotice => 'You can share after signing in.';
+
+  @override
+  String get dayKindYongsinDay => 'Day of your Yongsin';
+
+  @override
+  String get dayKindGwiinDay => 'Day of benefactors';
+
+  @override
+  String get dayKindGisinDay => 'Day of caution';
+
+  @override
+  String get dayKindOrdinaryDay => 'Ordinary day';
+
+  @override
+  String get shareLabel => 'Share';
+
+  @override
+  String get actionLogin => 'Sign in';
+
+  @override
+  String get actionClose => 'Close';
 }

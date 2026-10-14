@@ -50,6 +50,9 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `birth-hour-rate-limited` | 처음 설치한 사용자. 시진 확인(getBirthHour)이 분당 한도(429 rate_limited)에 걸려 확인 줄이 보이지 않습니다 |
   | `cities-error` | 한국 밖 기기의 처음 설치한 사용자. 도시 검색(listCities)이 503이라 출생지 오류 상태를 확인합니다 |
   | `cities-slow` | 한국 밖 기기의 처음 설치한 사용자. 응답마다 1초가 걸려 도시 검색 중 skeleton을 확인합니다 |
+  | `time-unknown` | 처음 설치한 사용자. 미리보기(createPreview)에 time_unknown notice가 있어 시간 모름 배너가 보입니다 |
+  | `preview-used` | 처음 설치한 사용자. 미리보기(createPreview)가 이미 쓰여 403 preview.used로 답합니다 |
+  | `preview-invalid` | 처음 설치한 사용자. 미리보기(createPreview)가 422 birth.invalid로 답해 입력을 다시 받아야 합니다 |
 
   원본은 `fixtures/scenarios.json`입니다. `extends`로 다른 시나리오의 fixture를 이어받습니다.
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).

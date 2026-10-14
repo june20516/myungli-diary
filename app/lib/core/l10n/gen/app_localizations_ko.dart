@@ -454,4 +454,34 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get genderFemale => '여성';
+
+  @override
+  String get previewCtaSave => '저장하고 계속하기';
+
+  @override
+  String get previewCtaRestart => '다시 입력';
+
+  @override
+  String get previewShareLoginNotice => '로그인하면 공유할 수 있어요.';
+
+  @override
+  String get dayKindYongsinDay => '용신의 날';
+
+  @override
+  String get dayKindGwiinDay => '귀인의 날';
+
+  @override
+  String get dayKindGisinDay => '기신의 날';
+
+  @override
+  String get dayKindOrdinaryDay => '평범한 날';
+
+  @override
+  String get shareLabel => '공유';
+
+  @override
+  String get actionLogin => '로그인';
+
+  @override
+  String get actionClose => '닫기';
 }
