@@ -2,6 +2,7 @@ package provider_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -163,9 +164,16 @@ func TestKakao_JWKSRecoversAfterOutage(t *testing.T) {
 	_, err := kakao.Verify(context.Background(), idToken, testRawNonce)
 	require.ErrorIs(t, err, provider.ErrUnavailable)
 
+	// go-oidc RemoteKeySet은 기다리던 쪽에 결과를 먼저 알린 뒤에야 진행 중 조회(inflight)를 비웁니다.
+	// 그 사이에 다시 부르면 끝난 조회의 실패 결과를 한 번 더 받을 수 있으므로(#124),
+	// 복구 직후 첫 호출이 아니라 짧은 기한 안에 성공하는지를 봅니다. 그동안의 실패는 장애 분류여야 합니다.
 	fake.SetJWKSStatus(http.StatusOK)
-	_, err = kakao.Verify(context.Background(), idToken, testRawNonce)
-	require.NoError(t, err)
+	var lastErr error
+	require.Eventually(t, func() bool {
+		_, lastErr = kakao.Verify(context.Background(), idToken, testRawNonce)
+		return !errors.Is(lastErr, provider.ErrUnavailable)
+	}, 2*time.Second, 10*time.Millisecond)
+	require.NoError(t, lastErr)
 }
 
 func TestKakao_UnknownKidRefetchesJWKS(t *testing.T) {
