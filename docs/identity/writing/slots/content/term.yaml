@@ -1,0 +1,104 @@
+# 콘텐츠 슬롯: 용어 뜻(term)
+#
+# 키는 `term.<용어 id>`입니다. 용어 id는 glossary 용어 범주의 `<범주>.<값>`과 태그 이름 키(`tag.*`)이고,
+# 검사기의 `term_ids`와 같습니다(77개). server는 문장 조각의 `term`에 용어 id를 넣고, 풀이 시트는 이 문장을 엽니다.
+
+- id: term.meaning
+  where: 풀이 시트의 용어 뜻, 태그 모아보기의 태그 뜻
+  ia: [explain-sheet.term.meaning, tag-diary.tag.meaning]
+  select: "누른 토큰의 용어 id t → 키 term.<t>"
+  purpose: info
+  user_state: 문장 속 용어나 태그를 눌러 무슨 뜻인지 봅니다.
+  structure: 한두 문장. 용어를 일상어로 풀고, 사람이나 하루에서 어떻게 드러나는지 하나를 덧붙입니다. 괄호 풀이와 원리 설명은 쓰지 않습니다.
+  depth:
+    explain: 이 슬롯이 풀이 단계입니다. 원리와 근거는 근거 단계에서 씁니다.
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - term.element.wood
+    - term.element.fire
+    - term.element.earth
+    - term.element.metal
+    - term.element.water
+    - term.stem.gap
+    - term.stem.eul
+    - term.stem.byeong
+    - term.stem.jeong
+    - term.stem.mu
+    - term.stem.gi
+    - term.stem.gyeong
+    - term.stem.sin
+    - term.stem.im
+    - term.stem.gye
+    - term.branch.ja
+    - term.branch.chuk
+    - term.branch.in
+    - term.branch.myo
+    - term.branch.jin
+    - term.branch.sa
+    - term.branch.o
+    - term.branch.mi
+    - term.branch.shin
+    - term.branch.yu
+    - term.branch.sul
+    - term.branch.hae
+    - term.ten_god.bigyeon
+    - term.ten_god.geopjae
+    - term.ten_god.siksin
+    - term.ten_god.sanggwan
+    - term.ten_god.pyeonjae
+    - term.ten_god.jeongjae
+    - term.ten_god.pyeongwan
+    - term.ten_god.jeonggwan
+    - term.ten_god.pyeonin
+    - term.ten_god.jeongin
+    - term.ten_god_group.bigyeop
+    - term.ten_god_group.siksang
+    - term.ten_god_group.jaeseong
+    - term.ten_god_group.gwanseong
+    - term.ten_god_group.inseong
+    - term.shinsal.cheoneul_gwiin
+    - term.shinsal.dohwa
+    - term.shinsal.yeokma
+    - term.shinsal.hwagae
+    - term.shinsal.yangin
+    - term.shinsal.gongmang
+    - term.day_kind.gwiin_day
+    - term.day_kind.yongsin_day
+    - term.day_kind.gisin_day
+    - term.day_kind.ordinary_day
+    - term.relation.stem_hap
+    - term.relation.branch_hap
+    - term.relation.chung
+    - term.relation.hyeong
+    - term.role.yongsin
+    - term.role.huisin
+    - term.role.gisin
+    - term.role.neutral
+    - term.luck.daeun
+    - term.luck.seun
+    - term.tag.big_change
+    - term.tag.cheoneul_gwiin
+    - term.tag.clash
+    - term.tag.dohwa
+    - term.tag.gongmang
+    - term.tag.gwiin_day
+    - term.tag.harmony
+    - term.tag.hwagae
+    - term.tag.ten_god_rush.bigyeop
+    - term.tag.ten_god_rush.gwanseong
+    - term.tag.ten_god_rush.inseong
+    - term.tag.ten_god_rush.jaeseong
+    - term.tag.ten_god_rush.siksang
+    - term.tag.yeokma
+    - term.tag.yongsin_day
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: term.ten_god.pyeongwan, text: "나를 다그치고 시험하는 기운이에요. 버티는 힘을 길러 주기도 해요.", why: "일상어 풀이와 드러나는 모습", source: writing}
+    bad:
+      - {lang: ko, key: term.ten_god.pyeongwan, text: "편관(칠살)은 일간을 극하는 음양이 같은 오행입니다.", why: "괄호 풀이 style.S1, 원리 설명, 합니다체 style.S3", source: writing}
+  endings: ["~기운이에요", "~해요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.

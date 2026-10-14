@@ -267,19 +267,13 @@ def test_unresolvable_placeholder_is_reported(text: str) -> None:
 
 
 def test_cli_check_warns_length_unknown(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    slots_dir = copy_slots_with(tmp_path, "daily.color", "max_length: {ko: 30, en: null, ja: null}")
-    daily = slots_dir / "content" / "daily.yaml"
-    text = daily.read_text(encoding="utf-8")
-    start = text.index("- id: daily.color")
-    old_limit = "  max_length: {ko: null, en: null, ja: null}\n"
-    limit_at = text.index(old_limit, start)
-    daily.write_text(text[:limit_at] + text[limit_at + len(old_limit) :], encoding="utf-8")
+    # daily.color에는 design 상한(ko 36)이 있습니다.
     content = tmp_path / "content"
     (content / "ko").mkdir(parents=True)
     (content / "ko" / "color.yaml").write_text(
         '- {slot: daily.color, key: color.gwiin_day, text: "{role} 색이 잘 맞아요."}\n', encoding="utf-8"
     )
-    assert main(["check", str(content), "--partial", "--slots-dir", str(slots_dir)]) == 1
+    assert main(["check", str(content), "--partial"]) == 1
     out = capsys.readouterr().out
     assert "complete.unrenderable_param error" in out
     assert "style.length_unknown warn" in out

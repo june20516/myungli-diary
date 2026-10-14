@@ -26,6 +26,7 @@
   endings: ["~이에요", "~편이에요", "~힘이 나요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
+  ia: [evidence-sheet.personal.body]
   keys:
     - params: {strength: [strength], yongsin: [element, color], gisin: [element, color]}
       keys:
@@ -63,6 +64,7 @@
   endings: ["~이에요", "~있어요", "~짙은 편이에요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
+  ia: [evidence-sheet.personal.body]
   keys:
     - params: {place: [place], element: [element, color], role: [role], group_count: number, strength: [strength]}
       keys:
@@ -99,6 +101,7 @@
   endings: ["~이에요", "~있어요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
+  ia: [evidence-sheet.personal.body]
   keys:
     - params: {place: [place], element: [element, color], role: [role], strength: [strength]}
       keys:
@@ -136,6 +139,7 @@
   endings: ["~이에요", "~드러나요", "~살리면 좋아요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
+  ia: [evidence-sheet.personal.body]
   keys:
     - params: {place: [place], element: [element, color], role: [role]}
       keys:
@@ -170,6 +174,7 @@
   endings: ["~시기예요", "~해예요", "~좋아요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
+  ia: [evidence-sheet.personal.body]
   keys:
     - params: {luck: [luck], part: [part], element: [element, color], role: [role], current: none}
       keys:
