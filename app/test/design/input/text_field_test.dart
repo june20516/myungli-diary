@@ -39,6 +39,59 @@ void main() {
       expect(find.text('4/4'), findsOneWidget);
     });
 
+    testWidgets('칸 전체(위·아래 가장자리, 왼쪽 여백)를 눌러도 포커스가 갑니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(const Center(child: MyungliTextField(label: '호칭'))),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      final box = find.byKey(MyungliTextField.containerKey);
+      final rect = tester.getRect(box);
+      expect(rect.height, greaterThanOrEqualTo(48));
+      for (final point in [
+        rect.topLeft + const Offset(40, 2),
+        rect.bottomLeft + const Offset(40, -2),
+        rect.centerLeft + const Offset(3, 0),
+      ]) {
+        field.focusNode!.unfocus();
+        await tester.pump();
+        expect(field.focusNode!.hasFocus, isFalse);
+        await tester.tapAt(point);
+        await tester.pump();
+        expect(field.focusNode!.hasFocus, isTrue, reason: '$point');
+      }
+    });
+
+    testWidgets('disabled 칸은 눌러도 포커스가 가지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(child: MyungliTextField(label: '호칭', enabled: false)),
+        ),
+      );
+      await tester.tapAt(
+        tester.getTopLeft(find.byKey(MyungliTextField.containerKey)) +
+            const Offset(40, 2),
+      );
+      await tester.pump();
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).focusNode!.hasFocus,
+        isFalse,
+      );
+    });
+
+    testWidgets('글자 수 표시는 "글자 수 n/max"로 읽힙니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(
+          const Center(child: MyungliTextField(label: '호칭', maxLength: 10)),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '달이');
+      await tester.pump();
+      expect(find.bySemanticsLabel('글자 수 2/10'), findsOneWidget);
+      expect(find.bySemanticsLabel('2/10'), findsNothing);
+      handle.dispose();
+    });
+
     testWidgets('onSubmitted를 넘깁니다', (tester) async {
       String? submitted;
       await tester.pumpWidget(

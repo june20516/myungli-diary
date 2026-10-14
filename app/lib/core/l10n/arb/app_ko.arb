@@ -333,5 +333,19 @@
   "textFieldClear": "지우기",
   "@textFieldClear": {
     "description": "임시. 글자 입력칸의 지우기 버튼 이름(text-field clear)"
+  },
+  "textFieldCounter": "글자 수 {current}/{max}",
+  "@textFieldCounter": {
+    "description": "임시. 글자 입력칸의 글자 수 표시를 스크린리더가 읽는 문구(text-field counter)",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "2"
+      },
+      "max": {
+        "type": "int",
+        "example": "10"
+      }
+    }
   }
 }

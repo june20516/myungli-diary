@@ -173,6 +173,82 @@ void main() {
       );
     });
 
+    testWidgets("'보기'는 라벨 줄과 세로 가운데가 맞습니다", (tester) async {
+      for (final scale in [1.0, 1.3, 2.0]) {
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+            child: inputApp(_row(onChanged: (_) {}, onView: () {})),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final label = tester.getCenter(find.text('이용약관에 동의합니다')).dy;
+        final view = tester.getCenter(find.text('보기')).dy;
+        expect((label - view).abs(), lessThanOrEqualTo(1), reason: '$scale배');
+      }
+    });
+
+    testWidgets('inline 눌림 영역은 위아래로 넓어져 48 이상입니다', (tester) async {
+      final changes = <bool>[];
+      await tester.pumpWidget(
+        inputApp(_row(variant: CheckRowVariant.inline, onChanged: changes.add)),
+      );
+      await tester.pumpAndSettle();
+      final rect = tester.getRect(find.byKey(CheckRow.containerKey));
+      expect(rect.height, 44);
+      await tester.tapAt(rect.topCenter + const Offset(0, -1.5));
+      await tester.pumpAndSettle();
+      expect(changes, [true]);
+    });
+
+    testWidgets('pressed: 누르는 동안 press.ink 얼룩이 번지고 뗀 뒤 사라집니다', (tester) async {
+      await tester.pumpWidget(inputApp(_row(onChanged: (_) {})));
+      await tester.pumpAndSettle();
+      final layer = inkLayer(find.byKey(CheckRow.containerKey)).first;
+      expect(paintsInk(tester, layer), isFalse);
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('이용약관에 동의합니다')),
+      );
+      // 눌림 인식(100ms) 뒤 얼룩이 번지기 시작합니다.
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(paintsInk(tester, layer), isTrue);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(paintsInk(tester, layer), isFalse);
+    });
+
+    testWidgets('체크 표시는 켜면 중간 프레임에서 일부만 그어지고 끝에 다 그어집니다', (tester) async {
+      /// 체크 표시를 그린 선의 길이. 그리지 않았으면 -1.
+      double markLength() {
+        var length = -1.0;
+        paintsWhere(tester, find.byKey(CheckRow.checkMarkKey), (
+          method,
+          arguments,
+        ) {
+          if (method != #drawPath) return false;
+          length = (arguments[0] as Path).computeMetrics().fold<double>(
+            0,
+            (sum, metric) => sum + metric.length,
+          );
+          return true;
+        });
+        return length;
+      }
+
+      await tester.pumpWidget(inputApp(_row(onChanged: (_) {})));
+      await tester.pumpAndSettle();
+      expect(markLength(), -1, reason: '꺼져 있으면 그리지 않음');
+      await tester.pumpWidget(inputApp(_row(checked: true, onChanged: (_) {})));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final mid = markLength();
+      await tester.pumpAndSettle();
+      final full = markLength();
+      expect(mid, greaterThan(0));
+      expect(mid, lessThan(full));
+    });
+
     testWidgets('onChanged가 null이면 disabled라 눌러도 아무 일이 없습니다', (tester) async {
       final haptics = recordHaptics(tester);
       await tester.pumpWidget(inputApp(_row()));

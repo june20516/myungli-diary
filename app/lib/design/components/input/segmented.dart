@@ -36,14 +36,19 @@ final class SegmentedItem<T> {
 /// 설계의 몫입니다.
 class Segmented<T> extends StatefulWidget {
   /// 선택 상자를 만듭니다. [label]은 무엇을 고르는지(스크린리더 그룹 라벨)입니다.
-  const new({
+  // assert가 목록을 훑으므로 const 생성자가 아닙니다.
+  new({
     required this.items,
     required this.selected,
     required this.onChanged,
     required this.label,
     this.identifier,
     super.key,
-  }) : assert(items.length >= 2 && items.length <= 4, 'segmented 항목은 2~4개입니다.');
+  }) : assert(items.length >= 2 && items.length <= 4, 'segmented 항목은 2~4개입니다.'),
+       assert(
+         items.any((item) => item.value == selected),
+         'selected는 items 안의 값이어야 합니다.',
+       );
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('segmented', {}, {
@@ -236,6 +241,8 @@ class _SegmentCellState extends State<_SegmentCell>
         : selected
         ? colors.actionOnPrimary
         : colors.textSecondary;
+    // disabled: 명세는 라벨 색(`color.disabled.fg`)만 정합니다. 선택 알약이 그대로
+    // `action.primary`로 남으면 눌릴 것처럼 보여서 알약도 `color.disabled.bg`로 죽입니다.
     const radius = BorderRadius.all(Radius.circular(Radii.full));
 
     final pill = DecoratedBox(
@@ -303,7 +310,9 @@ class _SegmentCellState extends State<_SegmentCell>
           )
         : content;
 
-    // radio: 같은 그룹 안에서 하나만 checked. 눌림 노드의 button 의미는 덮어씁니다.
+    // 명세 a11y는 항목 role을 radio로 적었지만 Flutter `SemanticsRole`에는 radio가 없습니다.
+    // 그래서 Flutter 표준대로 그룹은 `radioGroup`, 항목은 `inMutuallyExclusiveGroup` +
+    // `checked`(선택된 것만 true)로 표현합니다. 눌림 노드의 button 의미는 덮어씁니다.
     return Semantics(
       container: true,
       excludeSemantics: true,

@@ -51,6 +51,35 @@ void main() {
       );
     });
 
+    test('selected가 items에 없으면 assert입니다', () {
+      expect(
+        () => Segmented<String>(
+          items: _items,
+          selected: 'z',
+          onChanged: (_) {},
+          label: 'x',
+        ),
+        throwsAssertionError,
+      );
+    });
+
+    testWidgets('pressed: 누르는 동안 press.ink 얼룩이 번지고 뗀 뒤 사라집니다', (tester) async {
+      await tester.pumpWidget(inputApp(_segmented(onChanged: (_) {})));
+      await tester.pumpAndSettle();
+      final layer = inkLayer(find.byKey(Segmented.itemKey(1)));
+      expect(paintsInk(tester, layer), isFalse);
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(Segmented.itemKey(1))),
+      );
+      // 눌림 인식(100ms) 뒤 얼룩이 번지기 시작합니다.
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(paintsInk(tester, layer), isTrue);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(paintsInk(tester, layer), isFalse);
+    });
+
     testWidgets('다른 항목을 누르면 onChanged가 그 값으로 한 번 불립니다', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(inputApp(_segmented(onChanged: changes.add)));

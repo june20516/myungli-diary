@@ -70,7 +70,7 @@ Widget _textFields() => Builder(
         MyungliTextField(
           label: '호칭',
           error: true,
-          controller: TextEditingController(text: ja ? 'ツキ😀' : '달이😀'),
+          controller: TextEditingController(text: ja ? 'ツキツキツキ' : '달이달이달이'),
         ),
         MyungliTextField(
           label: '호칭',
@@ -128,7 +128,7 @@ Widget _segmenteds() => Builder(
           items: [
             SegmentedItem(0, ja ? '女性' : '여성'),
             SegmentedItem(1, ja ? '男性' : '남성'),
-            SegmentedItem(2, ja ? '答えない' : '선택 안 함'),
+            SegmentedItem(2, ja ? '他' : '기타'),
           ],
           selected: 2,
           onChanged: (_) {},

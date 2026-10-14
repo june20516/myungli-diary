@@ -85,5 +85,6 @@
     }
   },
   "inputStepProgress": "Step {step} of {stepCount}",
-  "textFieldClear": "Clear"
+  "textFieldClear": "Clear",
+  "textFieldCounter": "{current} of {max} characters"
 }

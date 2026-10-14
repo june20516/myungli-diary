@@ -251,4 +251,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get textFieldClear => '消去';
+
+  @override
+  String textFieldCounter(int current, int max) {
+    return '文字数 $current/$max';
+  }
 }

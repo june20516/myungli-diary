@@ -143,6 +143,8 @@ class _CheckRowState extends State<CheckRow>
       animation: _draw,
       builder: (context, _) {
         final filled = widget.checked || _draw.value > 0;
+        // disabled: 명세는 라벨 색(`color.disabled.fg`)만 정합니다. 체크된 상자가
+        // `action.primary`로 남으면 눌릴 것처럼 보여서 상자 채움도 `color.disabled.fg`로 죽입니다.
         final fill = enabled ? colors.actionPrimary : colors.disabledFg;
         return DecoratedBox(
           key: CheckRow.boxKey,
@@ -210,9 +212,6 @@ class _CheckRowState extends State<CheckRow>
       onTap: enabled ? _toggle : null,
       child: toggle,
     );
-    if (!card) {
-      toggle = VerticalHitSlop(minHeight: CheckRow._minTarget, child: toggle);
-    }
 
     final viewLabel = widget.viewLabel;
     final onView = widget.onView;
@@ -230,7 +229,7 @@ class _CheckRowState extends State<CheckRow>
       ],
     );
 
-    return Padding(
+    final framed = Padding(
       padding: EdgeInsets.only(bottom: card ? Space.s8 : 0),
       child: DecoratedBox(
         key: CheckRow.containerKey,
@@ -241,6 +240,11 @@ class _CheckRowState extends State<CheckRow>
         child: line,
       ),
     );
+    // inline은 높이 44라 눌림 판정만 위아래로 48까지 넓힙니다. 판정이 안쪽 상자에서
+    // 막히지 않도록 가장 바깥에 둡니다.
+    return card
+        ? framed
+        : VerticalHitSlop(minHeight: CheckRow._minTarget, child: framed);
   }
 }
 
@@ -258,18 +262,20 @@ class _ViewLink extends StatelessWidget {
     final color = tokens.colors.actionPrimary;
     return Padding(
       padding: const EdgeInsets.only(right: Space.s4),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: CheckRow._minTarget,
-          minHeight: CheckRow._minTarget,
-        ),
-        child: PressInkTarget(
-          link: true,
-          semanticLabel: label,
-          identifier: identifier,
-          onTap: onView,
-          inkColor: color,
-          borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
+      // PressInkTarget 안쪽(Stack)이 제약을 느슨하게 풀어 주므로 최소 크기는 child에 둡니다.
+      // 그래야 눌림 영역이 48이고 글자가 그 안에서 세로 가운데에 놓입니다.
+      child: PressInkTarget(
+        link: true,
+        semanticLabel: label,
+        identifier: identifier,
+        onTap: onView,
+        inkColor: color,
+        borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: CheckRow._minTarget,
+            minHeight: CheckRow._minTarget,
+          ),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.s12),

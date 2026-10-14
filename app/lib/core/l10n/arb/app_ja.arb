@@ -85,5 +85,6 @@
     }
   },
   "inputStepProgress": "{stepCount}ステップ中{step}ステップ目",
-  "textFieldClear": "消去"
+  "textFieldClear": "消去",
+  "textFieldCounter": "文字数 {current}/{max}"
 }

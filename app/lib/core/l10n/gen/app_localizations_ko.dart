@@ -252,4 +252,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get textFieldClear => '지우기';
+
+  @override
+  String textFieldCounter(int current, int max) {
+    return '글자 수 $current/$max';
+  }
 }

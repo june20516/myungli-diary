@@ -567,6 +567,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지우기'**
   String get textFieldClear;
+
+  /// 임시. 글자 입력칸의 글자 수 표시를 스크린리더가 읽는 문구(text-field counter)
+  ///
+  /// In ko, this message translates to:
+  /// **'글자 수 {current}/{max}'**
+  String textFieldCounter(int current, int max);
 }
 
 class _AppLocalizationsDelegate

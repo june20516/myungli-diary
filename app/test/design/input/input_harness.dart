@@ -38,3 +38,29 @@ List<String> recordHaptics(WidgetTester tester) {
   );
   return calls;
 }
+
+/// [of] 안에서 `press.ink` 얼룩을 그리는 층을 찾습니다.
+Finder inkLayer(Finder of) => find.descendant(
+  of: of,
+  matching: find.byWidgetPredicate(
+    (widget) =>
+        widget is CustomPaint &&
+        widget.painter.runtimeType.toString() == '_InkPainter',
+  ),
+);
+
+/// [layer]의 paint 호출 가운데 [predicate]를 만족하는 것이 있는지.
+/// 만족하지 않는 호출은 건너뜁니다.
+bool paintsWhere(
+  WidgetTester tester,
+  Finder layer,
+  bool Function(Symbol method, List<dynamic> arguments) predicate,
+) {
+  final pattern = paints..something(predicate);
+  final matcher = pattern as Matcher;
+  return matcher.matches(tester.renderObject(layer), <dynamic, dynamic>{});
+}
+
+/// [layer]가 지금 얼룩 원을 그리고 있는지(`press.ink`의 눌림 상태).
+bool paintsInk(WidgetTester tester, Finder layer) =>
+    paintsWhere(tester, layer, (method, arguments) => method == #drawCircle);

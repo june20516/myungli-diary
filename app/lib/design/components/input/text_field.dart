@@ -213,6 +213,8 @@ class _MyungliTextFieldState extends State<MyungliTextField>
     final container = DecoratedBox(
       key: MyungliTextField.containerKey,
       decoration: BoxDecoration(
+        // disabled는 명세 `states.disabled`: 바탕 `color.disabled.bg`,
+        // 글자 `color.disabled.fg`.
         color: enabled ? colors.bgSheet : colors.disabledBg,
         borderRadius: radius,
       ),
@@ -227,6 +229,16 @@ class _MyungliTextFieldState extends State<MyungliTextField>
       ),
     );
 
+    // 글자 한 줄만 TextField의 눌림 영역이라, 칸 전체(padding·최소 높이 포함, 48 이상)를
+    // 눌러도 포커스가 가도록 감쌉니다. 지우기 버튼과 TextField는 안쪽에서 먼저 받습니다.
+    final tappable = enabled
+        ? GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _focus.requestFocus,
+            child: container,
+          )
+        : container;
+
     final Widget bordered;
     if (widget.error) {
       bordered = DecoratedBox(
@@ -235,7 +247,7 @@ class _MyungliTextFieldState extends State<MyungliTextField>
           borderRadius: radius,
           border: Border.all(width: 2, color: colors.textPrimary),
         ),
-        child: container,
+        child: tappable,
       );
     } else if (!enabled) {
       bordered = DecoratedBox(
@@ -244,7 +256,7 @@ class _MyungliTextFieldState extends State<MyungliTextField>
           borderRadius: radius,
           border: Border.all(color: colors.line),
         ),
-        child: container,
+        child: tappable,
       );
     } else {
       bordered = animate(
@@ -252,7 +264,7 @@ class _MyungliTextFieldState extends State<MyungliTextField>
         t: _ring,
         prefs: MotionPrefs.of(context),
         options: const PatternOptions(borderRadius: radius),
-        child: container,
+        child: tappable,
       );
     }
 
@@ -267,13 +279,23 @@ class _MyungliTextFieldState extends State<MyungliTextField>
             padding: const EdgeInsets.only(top: Space.s4),
             child: ListenableBuilder(
               listenable: _controller,
-              builder: (context, _) => Text(
-                '${_controller.text.characters.length}/$maxLength',
-                textAlign: TextAlign.end,
-                style: tokens.typography.captionMd.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
+              builder: (context, _) {
+                final length = _controller.text.characters.length;
+                // 스크린리더에는 "2/10" 대신 "글자 수 2/10"로 읽힙니다.
+                return Semantics(
+                  container: true,
+                  excludeSemantics: true,
+                  label: AppLocalizations.of(context)
+                      .textFieldCounter(length, maxLength),
+                  child: Text(
+                    '$length/$maxLength',
+                    textAlign: TextAlign.end,
+                    style: tokens.typography.captionMd.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
       ],
