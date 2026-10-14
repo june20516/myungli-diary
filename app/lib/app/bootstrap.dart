@@ -74,7 +74,6 @@ Future<ProviderContainer> bootstrap({
         clockProvider.overrideWithValue(
           noonClockOn(scenario.today, scenario.timezone),
         ),
-        profileTimezoneProvider.overrideWithValue(scenario.timezone),
         deviceTimezoneProvider.overrideWithValue(
           FakeDeviceTimezone(scenario.timezone),
         ),

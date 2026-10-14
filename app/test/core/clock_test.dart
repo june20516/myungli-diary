@@ -3,8 +3,12 @@ import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// 테스트가 직접 진행시키는 시계.
 final class _MutableClock implements Clock {
@@ -253,11 +257,59 @@ void main() {
       );
     });
 
-    test('기본값은 기기 시계와 임시 프로필 시간대 Asia/Seoul이다', () {
+    test('기본 시계는 기기 시계다', () {
       final c = ProviderContainer();
       addTearDown(c.dispose);
       expect(c.read(clockProvider), isA<SystemClock>());
+    });
+
+    test('프로필 시간대는 사본이 없고 기기 시간대가 Asia/Tokyo면 Asia/Tokyo다', () async {
+      final c = ProviderContainer(
+        overrides: [
+          cachedProfileProvider.overrideWith((ref) async => null),
+          deviceTimezoneProvider.overrideWithValue(
+            const FakeDeviceTimezone('Asia/Tokyo'),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      // 읽기가 시작되면 두 값이 모두 준비된 뒤 다시 계산됩니다.
       expect(c.read(profileTimezoneProvider), 'Asia/Seoul');
+      await c.read(cachedProfileProvider.future);
+      await c.read(deviceTimezoneNameProvider.future);
+      expect(c.read(profileTimezoneProvider), 'Asia/Tokyo');
+    });
+
+    test('프로필 시간대는 사본이 Europe/Paris면 Europe/Paris다', () async {
+      final c = ProviderContainer(
+        overrides: [
+          cachedProfileProvider.overrideWith(
+            (ref) async => Profile.fromJson({
+              'honorific': '하늘',
+              'language': 'ko',
+              'currentTimezone': 'Europe/Paris',
+              'birth': {
+                'calendar': 'solar',
+                'date': {'year': 1990, 'month': 5, 'day': 15},
+                'isLeapMonth': false,
+                'time': {'status': 'unknown'},
+                'gender': 'female',
+                'timezone': 'Asia/Seoul',
+                'place': {'status': 'not_asked'},
+              },
+              'notification': {'status': 'not_asked'},
+            }),
+          ),
+          deviceTimezoneProvider.overrideWithValue(
+            const FakeDeviceTimezone('Asia/Tokyo'),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      expect(c.read(profileTimezoneProvider), 'Asia/Seoul');
+      await c.read(cachedProfileProvider.future);
+      await c.read(deviceTimezoneNameProvider.future);
+      expect(c.read(profileTimezoneProvider), 'Europe/Paris');
     });
 
     test('todayProvider는 자정을 넘기면 한 번 새 날짜로 갱신된다', () {
@@ -303,6 +355,7 @@ void main() {
             clockProvider.overrideWithValue(
               noonClockOn(CalendarDate(2026, 10, 13), 'Asia/Seoul'),
             ),
+            profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
           ],
         );
         expect(c.read(todayProvider), CalendarDate(2026, 10, 13));

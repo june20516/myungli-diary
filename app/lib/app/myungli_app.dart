@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/dev/scenario_picker.dart';
 import 'package:myungli_diary/app/entry/account_linker.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/entry/sign_out_cleaner.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
@@ -12,6 +15,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 
 /// 앱 루트: 라우터, 라이트·다크 테마(기기 설정), 로케일(ko·en·ja)을 엮습니다.
 class MyungliApp extends ConsumerWidget {
@@ -24,6 +28,12 @@ class MyungliApp extends ConsumerWidget {
     ref
       ..watch(accountLinkerProvider)
       ..watch(signOutCleanerProvider);
+    // 진입이 ready가 될 때도 한 번 기기 시간대를 맞춰 봅니다.
+    ref.listen(entryProvider, (previous, next) {
+      if (next == EntryState.ready && previous != EntryState.ready) {
+        unawaited(ref.read(timezoneSyncProvider).syncIfChanged());
+      }
+    });
     final locale = ref.watch(localeProvider);
     final showDevMenu =
         kDebugMode && ref.watch(apiModeProvider) == ApiMode.fake;
@@ -61,12 +71,9 @@ class AppLifecycleHooks extends ConsumerStatefulWidget {
 
 class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
     with WidgetsBindingObserver {
-  late Duration _deviceUtcOffset;
-
   @override
   void initState() {
     super.initState();
-    _deviceUtcOffset = DateTime.now().timeZoneOffset;
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -85,18 +92,9 @@ class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
     ref.invalidate(todayProvider);
     // 구매·보고 계정 연결이 실패했으면 다시 시도합니다(이미 연결됐으면 거름).
     ref.read(accountLinkerProvider).linkFromEntry(ref.read(entryStateProvider));
-    final offset = DateTime.now().timeZoneOffset;
-    if (offset != _deviceUtcOffset) {
-      _deviceUtcOffset = offset;
-      _onDeviceTimeZoneChanged();
-    }
+    // 기기 시간대가 프로필 사본과 다르면 server에 알립니다.
+    unawaited(ref.read(timezoneSyncProvider).syncIfChanged());
   }
-
-  /// 기기 시간대가 바뀌었을 때의 자리입니다.
-  ///
-  /// 프로필 시간대 갱신(PATCH)은 계획 2에서 붙입니다. "오늘"은 프로필 시간대를
-  /// 따르므로 지금은 아무것도 바꾸지 않습니다.
-  void _onDeviceTimeZoneChanged() {}
 
   @override
   Widget build(BuildContext context) => widget.child;

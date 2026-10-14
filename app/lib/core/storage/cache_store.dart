@@ -16,6 +16,9 @@ enum CacheKind {
 
   /// 용어집.
   glossary,
+
+  /// 프로필 저장 응답의 사본(키 하나, 결정 A18).
+  profile,
 }
 
 const _keySeparator = '|';

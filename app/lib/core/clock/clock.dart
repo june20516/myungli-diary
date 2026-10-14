@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -120,9 +121,15 @@ final clockProvider = Provider<Clock>((ref) => const SystemClock());
 
 /// 프로필 시간대(IANA). "오늘"의 기준입니다.
 ///
-/// 기본은 임시로 `Asia/Seoul`이며 계획 2에서 프로필 값으로 교체합니다. fake 모드는
-/// 시작 코드(bootstrap)가 시나리오 timezone으로 override합니다.
-final profileTimezoneProvider = Provider<String>((ref) => 'Asia/Seoul');
+/// 프로필 사본의 `currentTimezone` → 없으면 기기 시간대 → 그것도 아직 못 읽었으면
+/// `Asia/Seoul`입니다(결정 A18). fake 모드는 기기 시간대가 시나리오 timezone입니다.
+final profileTimezoneProvider = Provider<String>((ref) {
+  final cached = ref.watch(cachedProfileProvider).value;
+  if (cached != null) {
+    return cached.currentTimezone;
+  }
+  return ref.watch(deviceTimezoneNameProvider).value ?? 'Asia/Seoul';
+});
 
 /// 프로필 시간대 기준 오늘 날짜.
 ///

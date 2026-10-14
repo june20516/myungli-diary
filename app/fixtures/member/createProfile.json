@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "body": {
+    "profile": {
+      "honorific": "하늘",
+      "language": "ko",
+      "currentTimezone": "Asia/Seoul",
+      "birth": {
+        "calendar": "solar",
+        "date": { "year": 1990, "month": 5, "day": 15 },
+        "isLeapMonth": false,
+        "time": { "status": "known", "value": "14:30" },
+        "gender": "female",
+        "timezone": "Asia/Seoul",
+        "place": { "status": "not_asked" }
+      },
+      "notification": { "status": "not_asked" }
+    },
+    "warnings": []
+  }
+}
