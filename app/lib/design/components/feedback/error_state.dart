@@ -46,7 +46,7 @@ enum ErrorStateVariant {
 class ErrorState extends StatelessWidget {
   /// 오류 화면을 만듭니다. 다시 시도를 누르면 [onRetry]가 불리고, 호출하는 쪽이
   /// 같은 자리에 skeleton이 다시 나오게 합니다.
-  const new({required this.error, required this.onRetry, super.key});
+  const new({required this.error, this.onRetry, super.key});
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('error-state', {
@@ -57,8 +57,8 @@ class ErrorState extends StatelessWidget {
   /// 보일 오류.
   final AppError error;
 
-  /// 다시 시도.
-  final VoidCallback onRetry;
+  /// 다시 시도. null이면 다시 시도 버튼을 그리지 않습니다(같은 요청을 되풀이해도 소용없는 오류).
+  final VoidCallback? onRetry;
 
   /// [error]에 맞는 변형.
   ErrorStateVariant get variant => error is OfflineError
@@ -78,11 +78,12 @@ class ErrorState extends StatelessWidget {
       alert: true,
       children: [
         const SizedBox(height: Space.s20),
-        PrimaryButton(
-          label: l10n.actionRetry,
-          variant: PrimaryButtonVariant.quiet,
-          onPressed: onRetry,
-        ),
+        if (onRetry != null)
+          PrimaryButton(
+            label: l10n.actionRetry,
+            variant: PrimaryButtonVariant.quiet,
+            onPressed: onRetry,
+          ),
         if (traceId != null) _TraceId(traceId: traceId),
       ],
     );

@@ -56,7 +56,8 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
   final AsyncValue<T> value;
 
   /// 오류 화면의 다시 시도. 호출하는 쪽이 provider를 다시 불러 같은 자리에 skeleton이 나오게 합니다.
-  final VoidCallback onRetry;
+  /// null이면 오류 화면에 다시 시도를 그리지 않습니다.
+  final VoidCallback? onRetry;
 
   /// 값이 있을 때의 내용(높이가 정해진 부모 전제).
   final Widget Function(T value)? data;

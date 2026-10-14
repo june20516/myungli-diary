@@ -310,19 +310,19 @@
   },
   "dayKindYongsinDay": "用神の日",
   "@dayKindYongsinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind YONGSIN_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
   },
   "dayKindGwiinDay": "貴人の日",
   "@dayKindGwiinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GWIIN_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gwiin_day"
   },
   "dayKindGisinDay": "忌神の日",
   "@dayKindGisinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GISIN_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gisin_day"
   },
   "dayKindOrdinaryDay": "普通の日",
   "@dayKindOrdinaryDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ORDINARY_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ordinary_day"
   },
   "shareLabel": "共有",
   "@shareLabel": {

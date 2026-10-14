@@ -952,25 +952,25 @@ abstract class AppLocalizations {
   /// **'로그인하면 공유할 수 있어요.'**
   String get previewShareLoginNotice;
 
-  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind YONGSIN_DAY
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day
   ///
   /// In ko, this message translates to:
   /// **'용신의 날'**
   String get dayKindYongsinDay;
 
-  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GWIIN_DAY
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gwiin_day
   ///
   /// In ko, this message translates to:
   /// **'귀인의 날'**
   String get dayKindGwiinDay;
 
-  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GISIN_DAY
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gisin_day
   ///
   /// In ko, this message translates to:
   /// **'기신의 날'**
   String get dayKindGisinDay;
 
-  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ORDINARY_DAY
+  /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ordinary_day
   ///
   /// In ko, this message translates to:
   /// **'평범한 날'**

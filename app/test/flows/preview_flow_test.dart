@@ -96,11 +96,11 @@ void main() {
 
     await tester.tap(find.text('공유'));
     await tester.pumpAndSettle();
-    expect(find.text('로그인하면 공유할 수 있어요.'), findsOneWidget);
+    expect(_slot(SlotIds.previewShareLoginNotice), findsOneWidget);
     await tester.tap(find.text('닫기'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.preview)), findsOneWidget);
-    expect(find.text('로그인하면 공유할 수 있어요.'), findsNothing);
+    expect(_slot(SlotIds.previewShareLoginNotice), findsNothing);
 
     await tester.tap(find.text('공유'));
     await tester.pumpAndSettle();
@@ -171,6 +171,7 @@ void main() {
     );
     final index = dio.interceptors.indexOf(online);
     dio.interceptors[index] = offline;
+    addTearDown(() => dio.interceptors[index] = online);
 
     await tapNext(tester);
     await tester.tap(find.text('여성'));
@@ -204,6 +205,8 @@ void main() {
     final errorState = tester.widget<ErrorState>(find.byType(ErrorState));
     expect(errorState.variant, ErrorStateVariant.generic);
     expect(find.text(AppLocalizationsKo().errorBirthInvalid), findsOneWidget);
+    // 같은 입력으로는 같은 오류라 다시 시도는 없고 다시 입력만 있습니다.
+    expect(find.text('다시 시도'), findsNothing);
     expect(find.byType(DayCharacter), findsNothing);
 
     await tester.tap(_slot(SlotIds.previewCtaRestart));
@@ -224,12 +227,26 @@ void main() {
   testWidgets('preview-used: 오류 문구를 보이되 저장하고 계속하기로 login에 갈 수 있습니다', (
     tester,
   ) async {
-    await openPreviewStep(tester, scenario: 'preview-used');
+    final container = await openPreviewStep(tester, scenario: 'preview-used');
     expect(find.byType(ErrorState), findsOneWidget);
     expect(find.textContaining('미리보기는 한 번만'), findsOneWidget);
+    expect(find.text('다시 시도'), findsNothing);
+    expect(_fake(container).callCountOf('createPreview'), 1);
 
     await tester.tap(_slot(SlotIds.previewCtaSave));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.login)), findsOneWidget);
+  });
+
+  testWidgets('다시 입력 뒤 뒤로 가면 welcome이 남아 있습니다(앱이 닫히지 않음)', (tester) async {
+    await openPreviewStep(tester);
+    await tester.tap(_slot(SlotIds.previewCtaRestart));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey(ScreenIds.onboardCall)), findsOneWidget);
+
+    final handled = await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(handled, isTrue);
+    expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
   });
 }

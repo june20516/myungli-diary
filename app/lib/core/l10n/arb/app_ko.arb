@@ -658,19 +658,19 @@
   },
   "dayKindYongsinDay": "용신의 날",
   "@dayKindYongsinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind YONGSIN_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
   },
   "dayKindGwiinDay": "귀인의 날",
   "@dayKindGwiinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GWIIN_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gwiin_day"
   },
   "dayKindGisinDay": "기신의 날",
   "@dayKindGisinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind GISIN_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gisin_day"
   },
   "dayKindOrdinaryDay": "평범한 날",
   "@dayKindOrdinaryDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ORDINARY_DAY"
+    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ordinary_day"
   },
   "shareLabel": "공유",
   "@shareLabel": {

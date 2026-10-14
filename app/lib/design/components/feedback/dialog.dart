@@ -37,7 +37,7 @@ abstract final class MyungliDialog {
 /// 확인 창을 열고 확정이면 true, 취소·바깥 누르기·뒤로 가기면 false를 돌려줍니다.
 ///
 /// destructive는 처음 초점이 취소에 있고 바깥을 눌러도 닫히지 않으며, 확정 버튼을 누르면
-/// 햅틱 medium이 울립니다.
+/// 햅틱 medium이 울립니다. [identifier]는 창이 채우는 IA 슬롯 id입니다.
 Future<bool> showMyungliDialog(
   BuildContext context, {
   required DialogVariant variant,
@@ -45,12 +45,14 @@ Future<bool> showMyungliDialog(
   required String confirm,
   required String cancel,
   String? body,
+  String? identifier,
 }) async {
   final result = await Navigator.of(context, rootNavigator: true).push<bool>(
     _DialogRoute(
       variant: variant,
       title: title,
       body: body,
+      identifier: identifier,
       confirm: confirm,
       cancel: cancel,
       prefs: MotionPrefs.of(context),
@@ -66,6 +68,7 @@ class _DialogRoute extends PopupRoute<bool> {
     required this.variant,
     required this.title,
     required this.body,
+    required this.identifier,
     required this.confirm,
     required this.cancel,
     required this.prefs,
@@ -76,6 +79,7 @@ class _DialogRoute extends PopupRoute<bool> {
   final DialogVariant variant;
   final String title;
   final String? body;
+  final String? identifier;
   final String confirm;
   final String cancel;
   final MotionPrefs prefs;
@@ -113,16 +117,28 @@ class _DialogRoute extends PopupRoute<bool> {
             padding: const EdgeInsets.symmetric(
               horizontal: MyungliDialog.marginX,
             ),
-            child: DialogCard(
-              variant: variant,
-              title: title,
-              body: body,
-              confirm: confirm,
-              cancel: cancel,
+            child: _withIdentifier(
+              DialogCard(
+                variant: variant,
+                title: title,
+                body: body,
+                confirm: confirm,
+                cancel: cancel,
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// IA 슬롯 id가 있으면 창 뿌리에 Key와 Semantics `identifier`로 붙입니다.
+  Widget _withIdentifier(Widget card) {
+    final id = identifier;
+    if (id == null) return card;
+    return KeyedSubtree(
+      key: ValueKey(id),
+      child: Semantics(identifier: id, container: true, child: card),
     );
   }
 

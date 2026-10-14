@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -52,7 +53,9 @@ class PreviewScreen extends ConsumerWidget {
               Expanded(
                 child: ScreenStateView<Preview>(
                   value: ref.watch(previewProvider),
-                  onRetry: () => ref.invalidate(previewProvider),
+                  onRetry: _retriable(ref.watch(previewProvider).error)
+                      ? () => ref.invalidate(previewProvider)
+                      : null,
                   dataWithNotice: (preview, offlineNotice) => _PreviewBody(
                     preview: preview,
                     offlineNotice: offlineNotice,
@@ -84,8 +87,7 @@ class PreviewScreen extends ConsumerWidget {
                       variant: PrimaryButtonVariant.quiet,
                       label: l10n.previewCtaRestart,
                       // 입력은 초안에 남아 있어 onboard-call이 채워진 채로 열립니다.
-                      onPressed: () =>
-                          context.go(pathOf(ScreenIds.onboardCall)),
+                      onPressed: () => _restart(context),
                     ),
                   ],
                 ),
@@ -96,6 +98,33 @@ class PreviewScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 같은 입력으로 다시 요청해도 소용없는 오류(이미 쓴 미리보기, 입력 검증 실패)가 아니면 true.
+bool _retriable(Object? error) {
+  if (error is! ProblemError) return true;
+  final code = error.code;
+  return code != 'preview.used' &&
+      code != 'request.inconsistent' &&
+      !code.startsWith('birth.') &&
+      !code.startsWith('date.') &&
+      !code.startsWith('name.');
+}
+
+/// 다시 입력: 스택에 onboard-call이 있으면 거기까지 pop해 앞 단계(welcome 등)를 보존하고,
+/// 없으면(딥링크 등) 그 경로로 이동합니다. 입력은 초안에 남아 있어 채워진 채로 열립니다.
+void _restart(BuildContext context) {
+  final router = GoRouter.of(context);
+  final target = pathOf(ScreenIds.onboardCall);
+  final inStack = router.routerDelegate.currentConfiguration.matches.any(
+    (match) => match.matchedLocation == target,
+  );
+  if (!inStack) {
+    context.go(target);
+    return;
+  }
+  Navigator.of(context)
+      .popUntil((route) => route.settings.name == ScreenIds.onboardCall);
 }
 
 class _PreviewBody extends StatelessWidget {
@@ -120,6 +149,7 @@ class _PreviewBody extends StatelessWidget {
       context,
       variant: DialogVariant.confirm,
       title: l10n.previewShareLoginNotice,
+      identifier: SlotIds.previewShareLoginNotice,
       confirm: l10n.actionLogin,
       cancel: l10n.actionClose,
     );
