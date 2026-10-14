@@ -49,9 +49,9 @@ final purchasesProvider = Provider<Purchases>((ref) => FakePurchases());
 /// OS 공유.
 final shareSheetProvider = Provider<ShareSheet>((ref) => FakeShareSheet());
 
-/// 기기 시간대. fake 모드는 시나리오 timezone으로 바꿉니다(bootstrap).
+/// 기기 시간대. 기본은 대역이고, http 모드 부팅이 실제 adapter로, fake 모드가 시나리오 timezone으로 바꿉니다.
 final deviceTimezoneProvider = Provider<DeviceTimezone>(
-  (ref) => const FlutterDeviceTimezone(),
+  (ref) => const FakeDeviceTimezone('Asia/Seoul'),
 );
 
 /// 로그인 nonce·Apple 웹 `state` 생성기.
@@ -59,7 +59,7 @@ final nonceGeneratorProvider = Provider<NonceGenerator>(
   (ref) => NonceGenerator(),
 );
 
-/// 스토어 열기.
+/// 스토어 열기. 기본은 대역이고, http 모드 부팅이 실제 adapter로 바꿉니다.
 final storeLauncherProvider = Provider<StoreLauncher>(
-  (ref) => const UrlStoreLauncher(),
+  (ref) => FakeStoreLauncher(),
 );

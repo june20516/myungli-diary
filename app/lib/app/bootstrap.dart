@@ -13,8 +13,10 @@ import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/store_launcher.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 
@@ -65,6 +67,7 @@ Future<ProviderContainer> bootstrap({
     overrides: [
       apiModeProvider.overrideWithValue(resolvedMode),
       ...entryOverrides,
+      ...realPlatformOverrides(resolvedMode),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),
         scenarioProvider.overrideWithValue(scenario),
@@ -102,6 +105,18 @@ Future<ProviderContainer> bootstrap({
   }
   return container;
 }
+
+/// 계정이 필요 없는 실제 platform adapter를 끼우는 override. fake 모드는 대역을 그대로 씁니다.
+///
+/// 계정이 필요한 adapter(카카오·Apple·Firebase·AdMob·RevenueCat)는 준비되면 여기에 더합니다.
+@visibleForTesting
+List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
+  ApiMode.fake => const [],
+  ApiMode.http => [
+    deviceTimezoneProvider.overrideWithValue(const FlutterDeviceTimezone()),
+    storeLauncherProvider.overrideWithValue(const UrlStoreLauncher()),
+  ],
+};
 
 Future<Scenario> _pickScenario(String? requestedId) async {
   final id =

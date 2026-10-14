@@ -7,14 +7,22 @@ abstract interface class StoreLauncher {
   Future<void> openStore();
 }
 
+Future<bool> _launchExternally(Uri uri) =>
+    launchUrl(uri, mode: LaunchMode.externalApplication);
+
 /// `url_launcher`로 스토어를 여는 실제 adapter.
 final class UrlStoreLauncher implements StoreLauncher {
-  /// 실제 adapter를 만듭니다.
-  const new();
+  /// 실제 adapter를 만듭니다. [launch]와 [platform]은 테스트에서 바꿉니다.
+  const new({this.launch = _launchExternally, this.platform});
 
   /// Android 스토어 주소.
   static final Uri androidUri = Uri.parse(
     'market://details?id=app.myungli.diary',
+  );
+
+  /// Android 스토어 앱이 없을 때(에뮬레이터 등) 여는 웹 주소.
+  static final Uri androidWebUri = Uri.parse(
+    'https://play.google.com/store/apps/details?id=app.myungli.diary',
   );
 
   /// iOS 스토어 주소. 앱 id가 생기기 전까지는 검색 페이지입니다.
@@ -22,11 +30,21 @@ final class UrlStoreLauncher implements StoreLauncher {
     'https://apps.apple.com/kr/search?term=myungli',
   );
 
+  /// 주소를 여는 함수. 열렸으면 true.
+  final Future<bool> Function(Uri uri) launch;
+
+  /// 대상 플랫폼. null이면 실행 중인 플랫폼입니다.
+  final TargetPlatform? platform;
+
   @override
   Future<void> openStore() async {
-    final uri = defaultTargetPlatform == TargetPlatform.android
-        ? androidUri
-        : iosUri;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final target = platform ?? defaultTargetPlatform;
+    if (target != TargetPlatform.android) {
+      await launch(iosUri);
+      return;
+    }
+    if (!await launch(androidUri)) {
+      await launch(androidWebUri);
+    }
   }
 }

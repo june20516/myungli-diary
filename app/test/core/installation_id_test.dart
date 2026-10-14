@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
+import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/core/storage/installation_id.dart';
 
 void main() {
@@ -24,5 +25,22 @@ void main() {
     final second = containerOver();
     addTearDown(second.dispose);
     expect(await second.read(installationIdProvider.future), id);
+  });
+
+  test('저장값이 UUID v4 형식이 아니면 새로 만들어 저장한다', () async {
+    final database = AppDatabase.forExecutor(NativeDatabase.memory());
+    addTearDown(database.close);
+    final store = DeviceFlagsStore(database);
+    await store.writeString(installationIdKey, value: 'broken');
+    final container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWithValue(database)],
+    );
+    addTearDown(container.dispose);
+
+    final id = await container.read(installationIdProvider.future);
+
+    expect(id, isNot('broken'));
+    expect(id, matches(RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-4')));
+    expect(await store.readString(installationIdKey), id);
   });
 }

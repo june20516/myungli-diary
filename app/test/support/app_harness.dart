@@ -17,7 +17,10 @@ import 'package:pub_semver/pub_semver.dart';
 /// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 로케일 ko.
 ///
 /// [database]를 주면 그 실행기로 DB를 엽니다(여러 컨테이너가 같은 파일을 공유할 때).
-List<Override> testOverrides({QueryExecutor Function()? database}) => [
+List<Override> testOverrides({
+  QueryExecutor Function()? database,
+  Locale locale = const Locale('ko'),
+}) => [
   appDatabaseProvider.overrideWith((ref) {
     final db = AppDatabase.forExecutor(
       database?.call() ?? NativeDatabase.memory(),
@@ -26,7 +29,7 @@ List<Override> testOverrides({QueryExecutor Function()? database}) => [
     return db;
   }),
   secureStoreProvider.overrideWithValue(MemorySecureStore()),
-  localeProvider.overrideWithValue(const Locale('ko')),
+  localeProvider.overrideWithValue(locale),
   appVersionProvider.overrideWith((ref) => Version(1, 0, 0)),
 ];
 
@@ -38,6 +41,7 @@ Future<ProviderContainer> bootstrapForTest(
   String scenario, {
   List<Override> overrides = const [],
   QueryExecutor Function()? database,
+  Locale locale = const Locale('ko'),
 }) async {
   await AssetManifest.loadFromAssetBundle(rootBundle);
   final container = await bootstrap(
@@ -45,7 +49,7 @@ Future<ProviderContainer> bootstrapForTest(
     scenarioId: scenario,
     installErrorHandlers: false,
     overrides: [
-      ...testOverrides(database: database),
+      ...testOverrides(database: database, locale: locale),
       ...overrides,
     ],
   );
@@ -76,9 +80,10 @@ Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   required String scenario,
   List<Override> overrides = const [],
+  Locale locale = const Locale('ko'),
 }) async {
   final container = (await tester.runAsync(
-    () => bootstrapForTest(scenario, overrides: overrides),
+    () => bootstrapForTest(scenario, overrides: overrides, locale: locale),
   ))!;
   addTearDown(container.dispose);
   await tester.pumpWidget(
