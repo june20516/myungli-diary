@@ -18,10 +18,15 @@ final class TimezoneSync {
   var _syncing = false;
   Future<void> _inFlight = Future.value();
 
-  /// 진행 중인 동기화가 끝나면 완료되는 Future. 테스트가 기다립니다.
+  /// 부른 시점에 진행 중인 동기화가 끝나면 완료되는 Future. 테스트가 기다립니다.
+  ///
+  /// 그 시점의 스냅샷이라 이후에 시작한 새 동기화는 따라가지 않습니다.
   Future<void> get idle => _inFlight;
 
   /// 진입이 `ready`일 때만, 사본이 없거나 기기 시간대와 다르면 `PATCH`합니다.
+  ///
+  /// 이미 진행 중이거나 진입이 `ready`가 아니면 새로 시작하지 않고, 진행 중이던(없으면
+  /// 이미 끝난) Future를 그대로 돌려줍니다.
   ///
   /// 실패는 삼키고 `CrashSummary`만 남깁니다. 사본이 그대로라 다음 호출에서 다시 보냅니다.
   Future<void> syncIfChanged() {
