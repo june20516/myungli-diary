@@ -1,6 +1,5 @@
-# 시스템 화면과 온보딩 시진 확인 줄 원고(en). 원어민 검수 전 초안입니다(W1에서 검수).
+# 시스템 화면(server가 렌더, D66) 원고(en). 원어민 검수 전 초안입니다(W1에서 검수).
 - {slot: system.apple_return, key: apple_return.title, text: "Myungli Diary"}
 - {slot: system.apple_return, key: apple_return.body, text: "Please continue signing in from the Myungli Diary app."}
 - {slot: system.apple_return, key: apple_return.open, text: "Open in app"}
 - {slot: system.apple_return, key: apple_return.install, text: "Install the app"}
-- {slot: onboard.hour_confirm, key: hour.confirm, text: "You were born in the {branch} hour, {start}–{end}."}

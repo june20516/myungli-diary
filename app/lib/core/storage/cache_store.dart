@@ -16,6 +16,9 @@ enum CacheKind {
 
   /// 용어집.
   glossary,
+
+  /// 프로필 저장 응답의 사본(키 하나, 결정 A18).
+  profile,
 }
 
 const _keySeparator = '|';
@@ -163,10 +166,6 @@ final class CacheStore {
       )..where((t) => t.accountId.equals(accountId))).go();
     });
   }
-
-  /// 온보딩 입력(계정 없는 단일 행)을 지웁니다.
-  Future<void> clearOnboardingInputs() =>
-      _database.delete(_database.onboardingInputs).go();
 }
 
 /// 현재 로그인한 계정 id. 인증 흐름이 override합니다.

@@ -7,6 +7,7 @@ import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
@@ -39,24 +40,36 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
   @override
   Future<EntrySnapshot> build() {
     final tokens = ref.watch(tokenStoreProvider);
-    final subscription = tokens.events.listen((_) => ref.invalidateSelf());
+    final subscription = tokens.events.listen((event) {
+      if (event == AuthEvent.signedOut) {
+        // 다시 계산이 실패해도 이전 계정의 갈래(ready 등)가 남지 않게 먼저 로그아웃으로 둡니다.
+        state = const AsyncData(EntrySnapshot(EntryState.signedOut, null));
+      }
+      ref.invalidateSelf();
+    });
     ref.onDispose(subscription.cancel);
     return _compute();
   }
 
   /// 다시 계산하고 끝나면 돌아옵니다. 로그인·온보딩·약관 동의가 끝나면 부릅니다.
   ///
+  /// 계산이 실패하면 그 오류를, 아니면 null을 돌려줍니다. 실패해도 state(AsyncError)에
+  /// 이전 값이 남아 갈래는 그대로이므로, 부른 화면이 이 오류를 안내하고 다시 시도를 받습니다.
+  ///
   /// build를 다시 돌리므로 겹친 계산은 Riverpod이 오래된 결과를 버립니다.
   /// 계산 중에도 이전 값이 남아 라우터는 launch로 되돌아가지 않습니다.
-  Future<void> refresh() async {
+  Future<AppError?> refresh() async {
     if (!ref.mounted) {
-      return;
+      return null;
     }
     ref.invalidateSelf();
     try {
       await future;
-    } on Object {
-      // 실패는 state(AsyncError)로 드러납니다.
+      return null;
+    } on AppError catch (error) {
+      return error;
+    } on Object catch (error) {
+      return UnexpectedError(error);
     }
   }
 
@@ -101,17 +114,20 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
       return const EntrySnapshot(EntryState.signedOut, null);
     }
 
+    final notifyAskPending = await flags.readBool(notifyAskPendingKey);
     EntryState compute({required bool adConsentDone}) => computeEntry(
       appVersion: appVersion,
       minimumVersion: minimum,
       hasSession: hasSession,
       me: me,
       adConsentDone: adConsentDone,
+      notifyAskPending: notifyAskPending,
     );
 
     final adConsentDone = await flags.readBool(adConsentDoneKey);
     final entry = compute(adConsentDone: adConsentDone);
     if (entry != EntryState.adConsentRequired) {
+      // 알림 허락 대기(notifyAskRequired)면 광고 동의는 notify-ask 뒤로 미룹니다(A17).
       return EntrySnapshot(entry, me);
     }
     // 결과(맞춤·비맞춤)와 상관없이 이 기기에서 한 번 거친 것으로 칩니다.

@@ -288,6 +288,18 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('inner: 제목이 비면 빈 header 노드를 만들지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const MyungliAppBar.inner(title: '')));
+      final headers = find.byWidgetPredicate(
+        (widget) => widget is Semantics && widget.properties.header == true,
+      );
+      expect(headers, findsNothing);
+      await tester.pumpWidget(_app(const MyungliAppBar.inner(title: '일기')));
+      expect(headers, findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('inner: 뒤로 버튼은 44 이상이고 onBack을 부릅니다', (tester) async {
       final handle = tester.ensureSemantics();
       var backs = 0;
@@ -302,6 +314,13 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('app-bar.back')));
       expect(backs, 1);
       handle.dispose();
+    });
+
+    testWidgets('inner: showBack이 false면 뒤로 버튼이 없습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(const MyungliAppBar.inner(title: '', showBack: false)),
+      );
+      expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
     });
 
     testWidgets('동작은 두 개까지이고 각각 44 터치 영역', (tester) async {

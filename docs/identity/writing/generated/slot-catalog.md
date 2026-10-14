@@ -32,7 +32,6 @@
 | chart.yongsin_method | saju-chart.yongsin.basis | info | - | 1 | 3 | `yongsin`: element, color<br>`huisin`: element, color<br>`gisin`: element, color<br>`tonggwan`: element, color | ko 60, en 108, ja 60 |
 | chart.yongsin_summary | my-saju.yongsin.body | info | - | 1 | 1 | `yongsin`: element, color | ko -, en -, ja - |
 | consent.cta.agree | consent.cta.agree | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| consent.optional.label | consent.optional.label | info | - | 1 | 1 | - | ko -, en -, ja - |
 | consent.required.label | consent.required.label | info | - | 1 | 2 | - | ko -, en -, ja - |
 | consent.title.head | consent.title.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | daily.color | today.lucky-color.body | info | - | 1 | 4 | `element`: element, color<br>`role`: none | ko 36, en 64, ja 36 |
@@ -80,6 +79,7 @@
 | login.discard.notice | login.discard.notice | info | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.body | login.title.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.head | login.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
+| notify-ask.cta.allow | notify-ask.cta.allow | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.cta.skip | notify-ask.cta.skip | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.question.head | notify-ask.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.why.body | notify-ask.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -92,9 +92,9 @@
 | onboard-call.question.head | onboard-call.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-gender.question.head | onboard-gender.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-gender.why.body | onboard-gender.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
+| onboard-time.hour.confirm | onboard-time.hour.confirm | info | - | 1 | 1 | `branch`: text<br>`start`: text<br>`end`: text | ko -, en -, ja - |
 | onboard-time.question.head | onboard-time.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-time.unknown.note | onboard-time.unknown.note | info | - | 1 | 1 | - | ko -, en -, ja - |
-| onboard.hour_confirm | onboard-time.hour.confirm | info | - | 1 | 1 | `branch`: branch<br>`start`: text<br>`end`: text | ko -, en -, ja - |
 | personal.day_master | evidence-sheet.personal.body | info | - | 1 | 10 | `strength`: strength<br>`yongsin`: element, color<br>`gisin`: element, color | ko -, en -, ja - |
 | personal.luck | evidence-sheet.personal.body | info | - | 1 | 22 | `luck`: luck<br>`part`: part<br>`element`: element, color<br>`role`: role<br>`current`: none | ko -, en -, ja - |
 | personal.shinsal | evidence-sheet.personal.body | info | - | 1 | 6 | `place`: place<br>`element`: element, color<br>`role`: role | ko -, en -, ja - |

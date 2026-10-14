@@ -1,0 +1,14 @@
+{
+  "status": 429,
+  "headers": {
+    "Content-Type": "application/problem+json",
+    "Retry-After": "30"
+  },
+  "body": {
+    "type": "https://api.myungli.app/problems/rate_limited",
+    "title": "Too many requests",
+    "status": 429,
+    "code": "rate_limited",
+    "traceId": "fake-server"
+  }
+}

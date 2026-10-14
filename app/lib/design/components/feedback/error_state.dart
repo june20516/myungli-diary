@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/state_layout.dart';
-import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
@@ -46,7 +46,7 @@ enum ErrorStateVariant {
 class ErrorState extends StatelessWidget {
   /// 오류 화면을 만듭니다. 다시 시도를 누르면 [onRetry]가 불리고, 호출하는 쪽이
   /// 같은 자리에 skeleton이 다시 나오게 합니다.
-  const new({required this.error, required this.onRetry, super.key});
+  const new({required this.error, this.onRetry, super.key});
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('error-state', {
@@ -57,8 +57,8 @@ class ErrorState extends StatelessWidget {
   /// 보일 오류.
   final AppError error;
 
-  /// 다시 시도.
-  final VoidCallback onRetry;
+  /// 다시 시도. null이면 다시 시도 버튼을 그리지 않습니다(같은 요청을 되풀이해도 소용없는 오류).
+  final VoidCallback? onRetry;
 
   /// [error]에 맞는 변형.
   ErrorStateVariant get variant => error is OfflineError
@@ -68,8 +68,6 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tokens = context.tokens;
-    final colors = tokens.colors;
     final traceId = switch (error) {
       ProblemError(:final traceId) when traceId.isNotEmpty => traceId,
       _ => null,
@@ -80,14 +78,12 @@ class ErrorState extends StatelessWidget {
       alert: true,
       children: [
         const SizedBox(height: Space.s20),
-        // 임시: 계획 2에서 `primary-button` quiet로 교체합니다.
-        FeedbackTextAction(
-          label: l10n.actionRetry,
-          style: tokens.typography.labelLg.copyWith(
-            color: colors.actionPrimary,
+        if (onRetry != null)
+          PrimaryButton(
+            label: l10n.actionRetry,
+            variant: PrimaryButtonVariant.quiet,
+            onPressed: onRetry,
           ),
-          onPressed: onRetry,
-        ),
         if (traceId != null) _TraceId(traceId: traceId),
       ],
     );

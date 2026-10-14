@@ -47,12 +47,14 @@ EntryState compute({
   bool hasSession = true,
   Me? me,
   bool adConsentDone = true,
+  bool notifyAskPending = false,
 }) => computeEntry(
   appVersion: Version.parse(app),
   minimumVersion: Version.parse(minimum),
   hasSession: hasSession,
   me: me,
   adConsentDone: adConsentDone,
+  notifyAskPending: notifyAskPending,
 );
 
 void main() {
@@ -117,10 +119,42 @@ void main() {
       );
     });
 
-    test('프로필이 있고 이 기기 광고 동의 전이면 adConsentRequired', () {
+    test(
+      '프로필이 있고 알림 허락 대기가 아니며(기본값 false) 이 기기 광고 동의 전이면 adConsentRequired',
+      () {
+        expect(
+          compute(me: meWith(), adConsentDone: false),
+          EntryState.adConsentRequired,
+        );
+      },
+    );
+
+    test('알림 허락 대기면 광고 동의 전보다 먼저 notifyAskRequired (A17)', () {
       expect(
-        compute(me: meWith(), adConsentDone: false),
-        EntryState.adConsentRequired,
+        compute(me: meWith(), notifyAskPending: true, adConsentDone: false),
+        EntryState.notifyAskRequired,
+      );
+      expect(
+        compute(me: meWith(), notifyAskPending: true),
+        EntryState.notifyAskRequired,
+      );
+    });
+
+    test('약관 미동의·프로필 없음은 알림 허락 대기보다 먼저입니다', () {
+      expect(
+        compute(me: meWith(consentRequired: true), notifyAskPending: true),
+        EntryState.consentRequired,
+      );
+      expect(
+        compute(me: meWith(hasProfile: false), notifyAskPending: true),
+        EntryState.profileRequired,
+      );
+    });
+
+    test('로그아웃이면 알림 허락 대기 플래그와 상관없이 signedOut', () {
+      expect(
+        compute(hasSession: false, notifyAskPending: true),
+        EntryState.signedOut,
       );
     });
 
@@ -330,6 +364,25 @@ void main() {
       expect(consent.calls, 1);
     });
 
+    test('알림 허락 대기 플래그가 켜져 있으면 광고 동의를 묻지 않고 notifyAskRequired', () async {
+      await signIn();
+      final flags = DeviceFlagsStore(database);
+      await flags.writeBool(notifyAskPendingKey, value: true);
+      final c = container();
+      expect(
+        (await c.read(entryStateProvider.future)).entry,
+        EntryState.notifyAskRequired,
+      );
+      expect(consent.calls, 0);
+      expect(await flags.readBool(adConsentDoneKey), isFalse);
+
+      // notify-ask가 허락·건너뛰기로 플래그를 끄면 그때 광고 동의를 받습니다.
+      await flags.writeBool(notifyAskPendingKey, value: false);
+      await c.read(entryStateProvider.notifier).refresh();
+      expect(c.read(entryProvider), EntryState.ready);
+      expect(consent.calls, 1);
+    });
+
     test('me 계정 id가 currentAccountIdProvider로 이어집니다', () async {
       await signIn();
       api.me = meWith(accountId: 'acc-9');
@@ -357,14 +410,24 @@ void main() {
       await signIn();
       final c = container();
       expect((await c.read(entryStateProvider.future)).entry, EntryState.ready);
+      final configCallsBefore = api.configCalls;
       final signedOut = Completer<void>();
+      var sawLoading = false;
       c.listen(entryStateProvider, (_, next) {
-        if (next.value?.entry == EntryState.signedOut) {
+        sawLoading |= next.isLoading;
+        // 로그아웃 직후 값에 이어, 다시 계산(loading)을 거친 결과가 와야 끝납니다.
+        if (sawLoading &&
+            next.value?.entry == EntryState.signedOut &&
+            !next.isLoading &&
+            !signedOut.isCompleted) {
           signedOut.complete();
         }
       });
       await tokens.signOut();
       await signedOut.future;
+      expect(c.read(meProvider), isNull);
+      expect(api.configCalls, greaterThan(configCallsBefore));
+      expect(sawLoading, isTrue);
       expect(c.read(meProvider), isNull);
     });
 
@@ -474,7 +537,9 @@ void main() {
       final c = container();
       final signedOut = Completer<void>();
       c.listen(entryStateProvider, (_, next) {
-        if (next.value?.entry == EntryState.signedOut) {
+        // 로그아웃 직후 값과 다시 계산한 결과가 모두 signedOut이라 여러 번 올 수 있습니다.
+        if (next.value?.entry == EntryState.signedOut &&
+            !signedOut.isCompleted) {
           signedOut.complete();
         }
       });
@@ -569,6 +634,7 @@ class _MemorySecureStore implements SecureStore {
 
 class _Api implements DefaultApi {
   int meCalls = 0;
+  int configCalls = 0;
   DioException? configError;
   DioException? meError;
   Future<void> Function()? beforeMeError;
@@ -587,6 +653,7 @@ class _Api implements DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
+    configCalls++;
     if (configError != null) {
       throw configError!;
     }

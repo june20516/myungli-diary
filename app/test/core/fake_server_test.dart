@@ -216,12 +216,37 @@ void main() {
         'profile-required',
         'force-update',
         'offline',
+        'member-overseas',
+        'birth-hour-unavailable',
+        'overseas',
+        'birth-hour-rate-limited',
+        'cities-error',
+        'cities-slow',
+        'time-unknown',
+        'preview-used',
+        'preview-invalid',
+        'returning-user',
+        'login-provider-down',
+        'login-exchange-invalid',
+        'new-user-signin',
+        'consent-mismatch',
+        'profile-invalid',
+        'profile-save-unavailable',
+        'notify-register-unavailable',
+        'consent-renewal',
+        'notify-profile-save-unavailable',
+        'profile-name-invalid',
+        'login-entry-unavailable',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(5));
+      expect(scenarios.where((s) => s.signedIn), hasLength(10));
+      expect(
+        scenarios.singleWhere((s) => s.id == 'overseas').locale,
+        const Locale('en', 'US'),
+      );
     });
 
     test('extends 순환은 오류다', () {
@@ -465,6 +490,25 @@ void main() {
         parseScenarios(one(', "delayMs": 25')).single.delay,
         const Duration(milliseconds: 25),
       );
+    });
+
+    test('locale은 언어-국가 형식으로 읽고, 없으면 null이며, 틀리면 오류다', () {
+      expect(parseScenarios(one('')).single.locale, isNull);
+      expect(
+        parseScenarios(one(', "locale": "en-US"')).single.locale,
+        const Locale('en', 'US'),
+      );
+      expect(
+        parseScenarios(one(', "locale": "ko"')).single.locale,
+        const Locale('ko'),
+      );
+      for (final bad in ['""', '"en_US"', '"e-US"', '1', '"en-USA"']) {
+        expect(
+          () => parseScenarios(one(', "locale": $bad')),
+          throwsA(isA<ScenarioFormatException>()),
+          reason: bad,
+        );
+      }
     });
 
     test('network가 online·offline이 아니면 오류다', () {

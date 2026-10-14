@@ -1,16 +1,24 @@
+import 'dart:async';
+
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+
+import '../contract/ia_pending.dart';
 
 class _FixedEntry extends EntryController {
   new(this.value);
@@ -21,15 +29,73 @@ class _FixedEntry extends EntryController {
   Future<EntrySnapshot> build() async => EntrySnapshot(value, null);
 }
 
+/// 라우터 테스트용 컨테이너. 진입 갈래는 [entry]로 바꾸고 DB는 메모리 DB를 씁니다.
+///
+/// 화면(예 today)이 DB를 읽으면 테스트마다 DB가 열립니다. 가짜 시계 안에서는 drift의
+/// `close()`가 끝나지 않아 다음 테스트에서 "AppDatabase multiple times" 경고가 나므로,
+/// 닫기는 실제 시계(`runAsync`)에서 끝까지 기다립니다.
+ProviderContainer _routerContainer(WidgetTester tester, Override entry) {
+  final database = AppDatabase.forExecutor(NativeDatabase.memory());
+  final container = ProviderContainer(
+    overrides: [entry, appDatabaseProvider.overrideWithValue(database)],
+  );
+  addTearDown(() async {
+    container.dispose();
+    await tester.runAsync(database.close);
+  });
+  return container;
+}
+
+/// 테스트가 [complete]를 부를 때까지 계산 중(entry null)으로 남는 진입 갈래.
+class _PendingEntry extends EntryController {
+  final _result = Completer<EntrySnapshot>();
+
+  @override
+  Future<EntrySnapshot> build() => _result.future;
+
+  void complete(EntryState entry) =>
+      _result.complete(EntrySnapshot(entry, null));
+}
+
+/// 진입 계산이 끝나기 전 상태로 라우터를 띄웁니다.
+Future<(ProviderContainer, GoRouter, _PendingEntry)> pumpPendingRouter(
+  WidgetTester tester,
+) async {
+  final entry = _PendingEntry();
+  final container = _routerContainer(
+    tester,
+    entryStateProvider.overrideWith(() => entry),
+  );
+  // 앱(MyungliApp)처럼 라우터를 듣고 있어야 진입 변화가 라우터에 닿습니다.
+  final router = container.listen(routerProvider, (_, _) {}).read();
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp.router(
+        routerConfig: router,
+        theme: buildTheme(
+          brightness: Brightness.light,
+          locale: const Locale('ko'),
+        ),
+        locale: const Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
+    ),
+  );
+  await tester.pump();
+  return (container, router, entry);
+}
+
 Future<GoRouter> pumpRouter(
   WidgetTester tester,
   EntryState entry, {
   String? initial,
 }) async {
-  final container = ProviderContainer(
-    overrides: [entryStateProvider.overrideWith(() => _FixedEntry(entry))],
+  final container = _routerContainer(
+    tester,
+    entryStateProvider.overrideWith(() => _FixedEntry(entry)),
   );
-  addTearDown(container.dispose);
   await container.read(entryStateProvider.future);
   final router = container.read(routerProvider);
   if (initial != null) {
@@ -61,51 +127,139 @@ void main() {
   group('entryRedirect (순수 함수)', () {
     test('signedOut에서 member 화면은 /welcome', () {
       expect(
-        entryRedirect(entry: EntryState.signedOut, path: '/today'),
+        entryRedirect(entry: EntryState.signedOut, location: '/today'),
         '/welcome',
       );
     });
 
     test('ready에서 guest 화면은 /today', () {
       expect(
-        entryRedirect(entry: EntryState.ready, path: '/welcome'),
+        entryRedirect(entry: EntryState.ready, location: '/welcome'),
+        '/today',
+      );
+    });
+
+    test('ready에서 notify-ask는 /today (알림 허락 대기가 끝난 뒤)', () {
+      expect(
+        entryRedirect(entry: EntryState.ready, location: '/notify-ask'),
+        '/today',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.adConsentRequired,
+          location: '/notify-ask',
+        ),
+        '/today',
+      );
+    });
+
+    test('ready·adConsentRequired에서 consent는 /today (관문 화면은 자기 갈래에서만)', () {
+      expect(
+        entryRedirect(entry: EntryState.ready, location: '/consent'),
+        '/today',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.adConsentRequired,
+          location: '/consent',
+        ),
+        '/today',
+      );
+    });
+
+    test('프로필 있는 갈래에서 온보딩 단계(수정 모드가 아님)는 /today', () {
+      for (final entry in [EntryState.ready, EntryState.adConsentRequired]) {
+        for (final id in [
+          'onboard-call',
+          'onboard-birth',
+          'onboard-time',
+          'onboard-gender',
+          'birthplace',
+        ]) {
+          expect(
+            entryRedirect(entry: entry, location: '/$id'),
+            '/today',
+            reason: '$entry /$id',
+          );
+          expect(
+            entryRedirect(entry: entry, location: '/$id?mode=edit'),
+            isNull,
+            reason: '$entry /$id?mode=edit (A19 수정 모드)',
+          );
+        }
+      }
+    });
+
+    test('profileRequired·signedOut에서 온보딩 단계는 그대로', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.profileRequired,
+          location: '/onboard-gender',
+        ),
+        isNull,
+      );
+      expect(
+        entryRedirect(entry: EntryState.signedOut, location: '/onboard-gender'),
+        isNull,
+      );
+    });
+
+    test('launch를 떠날 때 기억한 위치는 query까지 그대로 돌려줍니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/onboard-call?mode=edit',
+        ),
+        '/onboard-call?mode=edit',
+      );
+      // 수정 모드가 아니면 프로필 있는 갈래에서 복원하지 않습니다.
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/onboard-call',
+        ),
         '/today',
       );
     });
 
     test('ready에서 any 화면(/legal)은 그대로', () {
-      expect(entryRedirect(entry: EntryState.ready, path: '/legal'), isNull);
+      expect(
+        entryRedirect(entry: EntryState.ready, location: '/legal'),
+        isNull,
+      );
     });
 
     test('forceUpdate는 어디서든 /force-update', () {
       expect(
-        entryRedirect(entry: EntryState.forceUpdate, path: '/today'),
+        entryRedirect(entry: EntryState.forceUpdate, location: '/today'),
         '/force-update',
       );
       expect(
-        entryRedirect(entry: EntryState.forceUpdate, path: '/force-update'),
+        entryRedirect(entry: EntryState.forceUpdate, location: '/force-update'),
         isNull,
       );
     });
 
     test('consentRequired는 /consent와 /legal만 허용', () {
       expect(
-        entryRedirect(entry: EntryState.consentRequired, path: '/today'),
+        entryRedirect(entry: EntryState.consentRequired, location: '/today'),
         '/consent',
       );
       expect(
-        entryRedirect(entry: EntryState.consentRequired, path: '/consent'),
+        entryRedirect(entry: EntryState.consentRequired, location: '/consent'),
         isNull,
       );
       expect(
-        entryRedirect(entry: EntryState.consentRequired, path: '/legal'),
+        entryRedirect(entry: EntryState.consentRequired, location: '/legal'),
         isNull,
       );
     });
 
     test('profileRequired는 온보딩 경로를 그대로 둡니다', () {
       expect(
-        entryRedirect(entry: EntryState.profileRequired, path: '/today'),
+        entryRedirect(entry: EntryState.profileRequired, location: '/today'),
         '/onboard-call',
       );
       for (final path in [
@@ -117,26 +271,118 @@ void main() {
         '/legal',
       ]) {
         expect(
-          entryRedirect(entry: EntryState.profileRequired, path: path),
+          entryRedirect(entry: EntryState.profileRequired, location: path),
           isNull,
           reason: path,
         );
       }
     });
 
+    test('notifyAskRequired는 /notify-ask만 허용 (A17)', () {
+      expect(
+        entryRedirect(entry: EntryState.notifyAskRequired, location: '/today'),
+        '/notify-ask',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.notifyAskRequired,
+          location: '/notify-ask',
+        ),
+        isNull,
+      );
+      expect(
+        entryRedirect(entry: EntryState.notifyAskRequired, location: '/launch'),
+        '/notify-ask',
+      );
+    });
+
+    test('계산이 끝나면 /launch에서 기억한 목적지가 허용되면 그곳으로 갑니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/calendar',
+        ),
+        '/calendar',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/today',
+        ),
+        '/today',
+      );
+    });
+
+    test('기억한 목적지가 그 갈래에서 허용되지 않으면 첫 화면으로 갑니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.signedOut,
+          location: '/launch',
+          pending: '/today',
+        ),
+        '/welcome',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.notifyAskRequired,
+          location: '/launch',
+          pending: '/today',
+        ),
+        '/notify-ask',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/welcome',
+        ),
+        '/today',
+      );
+    });
+
+    test('기억한 목적지가 IA page 화면이 아니면 첫 화면으로 갑니다', () {
+      for (final pending in ['/auth/apple', '/launch', '/day-sheet']) {
+        expect(
+          entryRedirect(
+            entry: EntryState.ready,
+            location: '/launch',
+            pending: pending,
+          ),
+          '/today',
+          reason: pending,
+        );
+      }
+    });
+
+    test('/launch가 아닌 곳에서는 기억한 목적지를 쓰지 않습니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/welcome',
+          pending: '/calendar',
+        ),
+        '/today',
+      );
+    });
+
     test('아직 계산 전이면 /launch로 모읍니다', () {
-      expect(entryRedirect(entry: null, path: '/today'), '/launch');
-      expect(entryRedirect(entry: null, path: '/launch'), isNull);
+      expect(entryRedirect(entry: null, location: '/today'), '/launch');
+      expect(entryRedirect(entry: null, location: '/launch'), isNull);
     });
 
     test('계산이 끝나면 /launch에서 갈래의 첫 화면으로 보냅니다', () {
       expect(
-        entryRedirect(entry: EntryState.signedOut, path: '/launch'),
+        entryRedirect(entry: EntryState.signedOut, location: '/launch'),
         '/welcome',
       );
-      expect(entryRedirect(entry: EntryState.ready, path: '/launch'), '/today');
       expect(
-        entryRedirect(entry: EntryState.profileRequired, path: '/launch'),
+        entryRedirect(entry: EntryState.ready, location: '/launch'),
+        '/today',
+      );
+      expect(
+        entryRedirect(entry: EntryState.profileRequired, location: '/launch'),
         '/onboard-call',
       );
     });
@@ -151,7 +397,7 @@ void main() {
           var path = start;
           final seen = <String>{path};
           for (;;) {
-            final next = entryRedirect(entry: entry, path: path);
+            final next = entryRedirect(entry: entry, location: path);
             if (next == null) {
               break;
             }
@@ -163,6 +409,59 @@ void main() {
     });
   });
 
+  group('진입 뒤 목적지 복귀', () {
+    testWidgets('계산 전 /onboard-call?mode=edit는 query까지 기억했다가 ready면 수정 모드로', (
+      tester,
+    ) async {
+      final (container, router, entry) = await pumpPendingRouter(tester);
+      router.go('/onboard-call?mode=edit');
+      await tester.pump();
+      expect(currentPath(router), '/launch');
+      expect(
+        container.read(pendingDestinationProvider),
+        '/onboard-call?mode=edit',
+      );
+
+      entry.complete(EntryState.ready);
+      await tester.pumpAndSettle();
+      expect(
+        router.routerDelegate.currentConfiguration.uri.toString(),
+        '/onboard-call?mode=edit',
+      );
+    });
+
+    testWidgets('계산 전 /calendar는 /launch로 가고 기억했다가 ready가 되면 /calendar', (
+      tester,
+    ) async {
+      final (container, router, entry) = await pumpPendingRouter(tester);
+      router.go('/calendar');
+      await tester.pump();
+      expect(currentPath(router), '/launch');
+      expect(container.read(pendingDestinationProvider), '/calendar');
+
+      entry.complete(EntryState.ready);
+      await tester.pumpAndSettle();
+      expect(currentPath(router), '/calendar');
+      expect(
+        container.read(pendingDestinationProvider),
+        isNull,
+        reason: '비웁니다',
+      );
+    });
+
+    testWidgets('기억한 /today는 signedOut이면 /welcome', (tester) async {
+      final (container, router, entry) = await pumpPendingRouter(tester);
+      router.go('/today');
+      await tester.pump();
+      expect(container.read(pendingDestinationProvider), '/today');
+
+      entry.complete(EntryState.signedOut);
+      await tester.pumpAndSettle();
+      expect(currentPath(router), '/welcome');
+      expect(container.read(pendingDestinationProvider), isNull);
+    });
+  });
+
   group('screenRegistry', () {
     test('page 화면만 있고 모두 IA id입니다', () {
       final pageIds = {
@@ -170,13 +469,19 @@ void main() {
           if (screen.presentation == IaPresentation.page) screen.id,
       };
       expect(screenRegistry.keys.toSet(), pageIds);
-      // 상태를 직접 처리하는 화면은 launch뿐입니다(나머지는 자리 표시).
+      // 상태를 직접 처리하는 화면은 IA에 상태가 있고 ratchet에서 빠진 화면과 같습니다.
       expect(
         {
           for (final spec in screenRegistry.values)
             if (spec.handledStates.isNotEmpty) spec.id,
         },
-        {ScreenIds.launch},
+        {
+          for (final screen in iaScreens)
+            if (screen.presentation == IaPresentation.page &&
+                screen.states.isNotEmpty &&
+                !pendingStateScreens.contains(screen.id))
+              screen.id,
+        },
       );
     });
   });

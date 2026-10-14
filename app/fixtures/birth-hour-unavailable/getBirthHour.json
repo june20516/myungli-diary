@@ -1,0 +1,11 @@
+{
+  "status": 501,
+  "headers": { "Content-Type": "application/problem+json" },
+  "body": {
+    "type": "https://api.myungli.app/problems/not_implemented",
+    "title": "Not implemented",
+    "status": 501,
+    "code": "not_implemented",
+    "traceId": "fake-server"
+  }
+}

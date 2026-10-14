@@ -1,0 +1,21 @@
+{
+  "sequence": [
+    {
+      "status": 503,
+      "body": {
+        "type": "https://api.myungli.app/problems/service.unavailable",
+        "title": "Service unavailable",
+        "status": 503,
+        "code": "service.unavailable",
+        "traceId": "fake-server"
+      }
+    },
+    {
+      "status": 201,
+      "body": {
+        "id": "7c1e4a52-9b3d-4e08-a6f1-2d5b8c0e9f34",
+        "platform": "android"
+      }
+    }
+  ]
+}

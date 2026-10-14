@@ -1,0 +1,10 @@
+{
+  "status": 401,
+  "body": {
+    "type": "https://api.myungli.app/problems/auth.exchange_invalid",
+    "title": "Exchange code invalid",
+    "status": 401,
+    "code": "auth.exchange_invalid",
+    "traceId": "fake-server"
+  }
+}

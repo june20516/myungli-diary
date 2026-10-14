@@ -80,10 +80,10 @@ abstract final class SlotIds {
   static const String loginDiscardNotice = 'login.discard.notice';
   static const String consentTitleHead = 'consent.title.head';
   static const String consentRequiredLabel = 'consent.required.label';
-  static const String consentOptionalLabel = 'consent.optional.label';
   static const String consentCtaAgree = 'consent.cta.agree';
   static const String notifyAskQuestionHead = 'notify-ask.question.head';
   static const String notifyAskWhyBody = 'notify-ask.why.body';
+  static const String notifyAskCtaAllow = 'notify-ask.cta.allow';
   static const String notifyAskCtaSkip = 'notify-ask.cta.skip';
   static const String systemPushMorningBody = 'system-push.morning.body';
   static const String systemAppleReturnPageTitle =
@@ -210,7 +210,7 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.any,
     states: [],
     exits: [],
-    components: ['sentence-block', 'primary-button'],
+    components: ['primary-button'],
   ),
   IaScreen(
     id: 'welcome',
@@ -222,7 +222,7 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'onboard-call', trigger: '시작하기'),
       IaExit(to: 'login', trigger: '이미 계정이 있어요'),
     ],
-    components: ['sentence-block', 'primary-button'],
+    components: ['primary-button'],
   ),
   IaScreen(
     id: 'onboard-call',
@@ -270,6 +270,7 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'preview', trigger: '다음(기기 지역이 한국)'),
       IaExit(to: 'birthplace', trigger: '다음(기기 지역이 한국 밖)'),
       IaExit(to: 'profile-edit', trigger: '정보 수정에서 온 경우 저장'),
+      IaExit(to: 'notify-ask', trigger: '로그인한 새 계정이 미리보기 없이 온보딩을 마침(프로필 저장)'),
     ],
     components: ['app-bar', 'input-step', 'segmented', 'primary-button'],
   ),
@@ -283,6 +284,7 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'preview', trigger: '온보딩에서 도시 선택'),
       IaExit(to: 'profile-edit', trigger: '정보 수정에서 도시 선택'),
       IaExit(to: 'settings', trigger: '언어 변경 안내에서 도시 선택'),
+      IaExit(to: 'notify-ask', trigger: '로그인한 새 계정이 미리보기 없이 온보딩을 마침(프로필 저장)'),
     ],
     components: ['app-bar', 'input-step', 'city-search', 'empty-state'],
   ),
@@ -317,7 +319,7 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'today', trigger: '사주가 저장된 계정'),
       IaExit(to: 'ad-consent', trigger: '사주가 저장된 계정, 이 기기에서 광고 동의를 받지 않음'),
     ],
-    components: ['app-bar', 'sentence-block', 'social-login-button', 'dialog'],
+    components: ['app-bar', 'social-login-button', 'dialog'],
   ),
   IaScreen(
     id: 'consent',
@@ -686,7 +688,7 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: [],
     exits: [],
-    components: ['app-bar', 'sentence-block'],
+    components: ['app-bar'],
   ),
   IaScreen(
     id: 'account-delete',
@@ -695,7 +697,7 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['error'],
     exits: [IaExit(to: 'welcome', trigger: '삭제 완료')],
-    components: ['app-bar', 'sentence-block', 'primary-button', 'dialog'],
+    components: ['app-bar', 'primary-button', 'dialog'],
   ),
   IaScreen(
     id: 'legal',

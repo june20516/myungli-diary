@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -9,10 +12,18 @@ import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/city_search.dart';
+import 'package:myungli_diary/design/components/input/date_picker.dart';
+import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/components/input/text_field.dart';
+import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/components/today/day_character.dart';
 
 /// 컴포넌트 하나가 따르는 명세 요약. 대조 테스트가 명세 JSON과 비교합니다.
 ///
@@ -48,4 +59,15 @@ const List<ComponentSpec> implementedComponents = [
   TermToken.spec,
   DepthLink.spec,
   ReactionButton.spec,
+  PrimaryButton.spec,
+  InputStep.spec,
+  MyungliTextField.spec,
+  Segmented.spec,
+  CheckRow.spec,
+  BirthDatePicker.spec,
+  TimePicker.spec,
+  CitySearch.spec,
+  DayCharacter.spec,
+  ShareButton.spec,
+  SocialLoginButton.spec,
 ];

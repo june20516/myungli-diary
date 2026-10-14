@@ -8,10 +8,13 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
+
+final _ko = AppLocalizationsKo();
 
 /// 보내는 요청 수를 세는 interceptor. 오프라인으로 실패할 요청도 셉니다.
 class _CountingInterceptor extends Interceptor {
@@ -71,11 +74,11 @@ void main() {
     final errorState = tester.widget<ErrorState>(find.byType(ErrorState));
     expect(errorState.error, isA<OfflineError>());
     expect(errorState.variant, ErrorStateVariant.offline);
-    expect(find.text('다시 시도'), findsOneWidget);
+    expect(find.text(_ko.actionRetry), findsOneWidget);
 
     // 다시 시도는 진입 계산을 다시 합니다(대역은 계속 오프라인이라 오류 그대로).
     expect(counter.requests, 0);
-    await tester.tap(find.text('다시 시도'));
+    await tester.tap(find.text(_ko.actionRetry));
     await settleEntry(tester, container);
     expect(counter.requests, greaterThan(0));
     expect(container.read(entryStateProvider).hasError, isTrue);

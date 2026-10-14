@@ -38,18 +38,41 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 
   | id | 상태 |
   | --- | --- |
-  | `new-user` | 처음 설치. 토큰 없음, 앱 설정만 받을 수 있음 |
+  | `new-user` | 처음 설치. 토큰 없음. 로그인하면 새 계정(약관 동의 필요, 프로필 없음). 동의하면 미리보기 입력으로 프로필을 저장합니다 |
   | `member` | 로그인한 회원. 약관 동의, 프로필 있음 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
-  | `profile-required` | 약관 동의했지만 프로필 없음 |
+  | `profile-required` | 약관 동의했지만 프로필 없음. 프로필을 저장하면 내 정보가 프로필 있음으로 바뀝니다 |
+  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아님 |
   | `force-update` | 최소 앱 버전이 99.0.0이라 업데이트 필요 |
   | `offline` | 네트워크에 연결할 수 없음 |
+  | `overseas` | 한국 밖(기기 지역 US) 기기에서 처음 설치한 사용자. 시진 확인 줄과 출생지 질문 갈래를 확인합니다 |
+  | `birth-hour-unavailable` | 처음 설치한 사용자. 시진 확인(getBirthHour)이 아직 501이라 확인 줄이 보이지 않습니다 |
+  | `birth-hour-rate-limited` | 처음 설치한 사용자. 시진 확인(getBirthHour)이 분당 한도(429 rate_limited)에 걸려 확인 줄이 보이지 않습니다 |
+  | `cities-error` | 한국 밖 기기의 처음 설치한 사용자. 도시 검색(listCities)이 503이라 출생지 오류 상태를 확인합니다 |
+  | `cities-slow` | 한국 밖 기기의 처음 설치한 사용자. 응답마다 1초가 걸려 도시 검색 중 skeleton을 확인합니다 |
+  | `time-unknown` | 처음 설치한 사용자. 미리보기(createPreview)에 time_unknown notice가 있어 시간 모름 배너가 보입니다 |
+  | `preview-used` | 처음 설치한 사용자. 미리보기(createPreview)가 이미 쓰여 403 preview.used로 답합니다 |
+  | `preview-invalid` | 처음 설치한 사용자. 미리보기(createPreview)가 422 birth.invalid로 답해 입력을 다시 받아야 합니다 |
+  | `returning-user` | 사주가 저장된 계정으로 이 기기에 처음 로그인하는 사용자. 토큰 없음, 로그인하면 기존 계정(isNewAccount false)이고 내 정보는 `member`와 같음(약관 동의, 프로필 있음) |
+  | `login-provider-down` | 처음 설치한 사용자. 카카오 로그인(loginKakao)이 503 auth.provider_unavailable이라 로그인 오류 상태와 재시도를 확인합니다 |
+  | `login-exchange-invalid` | 처음 설치한 사용자. Android Apple 웹 로그인 완료(completeAppleWebLogin)가 401 auth.exchange_invalid라 처음부터 다시 로그인 안내를 확인합니다 |
+  | `new-user-signin` | 미리보기 없이 로그인한 새 계정. 약관 동의 뒤 onboard-call부터 입력을 받고 미리보기 없이 프로필을 저장합니다 |
+  | `consent-mismatch` | 로그인했고 약관 동의가 필요한 새 계정. 동의(agreeConsents)가 422 consent.version_mismatch이고 다시 받은 내 정보의 이용약관 버전이 바뀌어 있습니다 |
+  | `profile-invalid` | 처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 422 birth.invalid라 입력을 다시 받아야 합니다 |
+  | `profile-save-unavailable` | 처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 두 번 503 service.unavailable이고 세 번째에 저장됩니다 |
+  | `notify-register-unavailable` | 로그인한 회원. 알림 허락 뒤 기기 등록(registerDevice)이 한 번 503 service.unavailable이고 두 번째에 등록됩니다. 알림 허락 대기(notify-ask)는 기기 플래그라 시나리오가 아니라 테스트가 켭니다 |
+  | `consent-renewal` | 프로필이 있는 회원. 약관이 개정돼 동의가 필요하고, 동의하면 내 정보가 동의 완료로 바뀝니다(getMe 두 번째 응답부터). 동의 뒤 today로 가는지 확인합니다 |
+  | `notify-profile-save-unavailable` | 로그인한 회원. 알림 허락 뒤 기기 등록은 성공하지만 알림 설정 저장(updateProfile)이 한 번 503 service.unavailable이고 두 번째에 저장됩니다 |
+  | `profile-name-invalid` | 미리보기 없이 로그인한 새 계정(`new-user-signin`과 같음). 첫 프로필 저장(createProfile)이 422 name.emoji(필드 `/honorific`)이고 두 번째에 저장됩니다. 호칭 칸 오류 줄을 확인합니다 |
+  | `login-entry-unavailable` | 처음 설치한 사용자. 로그인은 성공하지만 직후 내 정보(getMe)가 한 번 503 service.unavailable이라 진입 계산이 실패합니다(login 화면 안내와 다시 시도). 두 번째부터는 약관 동의가 필요한 새 계정입니다 |
+
+  `new-user`와 `profile-required`의 내 정보(getMe)는 호출 순서대로 바뀌며 **두 번째부터 "프로필 있음"**입니다(미리보기·동의 직후 프로필 저장을 흉내 냄). 그래서 fake 모드 수동 확인에서 `new-user`로 미리보기 없이 로그인·동의하거나 `profile-required`에서 저장 없이 진입을 다시 계산해도 프로필이 생긴 것처럼 진행됩니다. 미리보기 없이 로그인한 새 계정은 `new-user-signin`으로 확인합니다.
 
   원본은 `fixtures/scenarios.json`입니다. `extends`로 다른 시나리오의 fixture를 이어받습니다.
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).
 
 ## 구조
-`lib/`은 `app`(부트스트랩·라우터·개발 메뉴), `core`(api·storage·l10n·clock·platform·ia), `design`(토큰·테마·컴포넌트), `features/<영역>`(data·application·presentation)로 나뉩니다. `features/`는 화면을 구현하는 계획 2부터 생깁니다. `testing/covers.dart`는 E2E·흐름 테스트가 덮는 IA 경로·상태·결정을 선언하는 `Covers`입니다. 별도 도메인 계층은 없고 repository가 생성 모델을 돌려줍니다. 자세한 구조와 이유는 spec [§2](docs/specs/2026-10-13-app-architecture-design.md)에 있습니다.
+`lib/`은 `app`(부트스트랩·라우터·개발 메뉴), `core`(api·storage·l10n·clock·platform·ia), `design`(토큰·테마·컴포넌트), `features/<영역>`(data·application·presentation)로 나뉩니다. `features/`는 영역별로 `onboarding`(welcome·force-update·onboard-*·birthplace·preview·notify-ask), `auth`(login·consent), `profile`(프로필 사본·시간대)가 있고 이후 계획이 영역을 더합니다. `testing/covers.dart`는 E2E·흐름 테스트가 덮는 IA 경로·상태·결정을 선언하는 `Covers`입니다. 별도 도메인 계층은 없고 repository가 생성 모델을 돌려줍니다. 자세한 구조와 이유는 spec [§2](docs/specs/2026-10-13-app-architecture-design.md)에 있습니다.
 
 ## 생성 코드
 생성 코드는 commit하며 **손대지 않습니다.** 원본(계약·ARB)을 고친 뒤 아래 명령으로 다시 만듭니다. 모두 `app/`에서 실행합니다.
@@ -65,6 +88,22 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
 * Riverpod provider는 코드 생성 없이 직접 선언합니다(결정 A15).
 * CI의 `checks` job이 위 명령을 모두 다시 돌린 뒤 `git status`가 깨끗하지 않으면 실패합니다. 원본을 고치고 생성물을 commit하지 않으면 CI가 잡습니다.
+
+## ui 원고 가져오기
+화면 문구 원고는 writing이 만든 ARB(`../docs/identity/writing/generated/arb/app_{ko,en,ja}.arb`, #128)입니다. 원고가 바뀌면 `app/`에서 다시 가져옵니다. 같은 원고로 다시 돌려도 결과가 같습니다.
+
+```sh
+dart run tool/import_writing_arb.dart
+flutter gen-l10n
+# 저장소 루트에서
+uv run --project docs/identity/writing/tools mlw check-arb app/lib/core/l10n/arb/app_ko.arb app/lib/core/l10n/arb/app_en.arb app/lib/core/l10n/arb/app_ja.arb
+```
+
+* 원고에 있는 키는 값을 원고로 바꾸고, ko의 `@키` 설명·placeholder도 원고 것으로 바꿉니다(임시 표시가 사라짐). en·ja 번역이 없는 키는 ko 문구로 채웁니다.
+* `@키` 메타데이터는 ko에만 둡니다(gen-l10n은 기준 언어 것만 읽음). 도구가 en·ja의 `@키`를 모두 지우므로 app 전용 키도 메타데이터는 ko에만 적습니다.
+* app에만 있는 키(오류 `error*`, 슬롯 밖 문구, 원고가 없는 슬롯)는 그대로 두며 `임시` 표시가 남습니다. 이 키를 고칠 때는 ARB를 직접 고칩니다.
+* `@@locale`만 app 파일 것을 두고, 원고의 `@@x-generated`는 가져오지 않습니다(app ARB는 전체가 생성물이 아니므로).
+* 원고에서 키가 바뀌면(상태 이름 접미사 등) 화면 코드가 새 키를 쓰게 고치고, 쓰지 않게 된 키를 세 ARB에서 지웁니다. 도구는 키를 지우지 않습니다.
 
 ## fixture 추가와 검증
 fake 모드의 대역 응답은 `fixtures/<시나리오>/` 아래 JSON입니다.

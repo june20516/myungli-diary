@@ -1,12 +1,36 @@
 {
-  "status": 200,
-  "body": {
-    "accountId": "0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10",
-    "status": "active",
-    "consentRequired": false,
-    "requiredConsents": [],
-    "hasProfile": false,
-    "adFree": { "active": false },
-    "insight": { "active": false }
-  }
+  "sequence": [
+    {
+      "status": 200,
+      "body": {
+        "accountId": "0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10",
+        "status": "active",
+        "consentRequired": false,
+        "requiredConsents": [],
+        "hasProfile": false,
+        "adFree": {
+          "active": false
+        },
+        "insight": {
+          "active": false
+        }
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "accountId": "0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10",
+        "status": "active",
+        "consentRequired": false,
+        "requiredConsents": [],
+        "hasProfile": true,
+        "adFree": {
+          "active": false
+        },
+        "insight": {
+          "active": false
+        }
+      }
+    }
+  ]
 }

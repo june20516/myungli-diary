@@ -32,7 +32,6 @@
 - {slot: consent.title.head, key: consentTitleHead, text: "規約に同意してください"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(必須)利用規約"}
 - {slot: consent.required.label, key: consentRequiredLabelPrivacy, text: "(必須)個人情報の収集・利用"}
-- {slot: consent.optional.label, key: consentOptionalLabel, text: "(任意)新機能のお知らせを受け取る"}
 - {slot: consent.cta.agree, key: consentCtaAgree, text: "同意して続ける"}
 - {slot: notify-ask.question.head, key: notifyAskQuestionHead, text: "毎朝、今日の読み解きをお知らせしましょうか?"}
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "通知には、その日がどんな日かと総運の一文が入ります。"}
@@ -121,3 +120,5 @@
 - {slot: ui.depth.surface, key: depthSurface, text: "要約"}
 - {slot: ui.depth.explain, key: depthExplain, text: "読み解き"}
 - {slot: ui.depth.evidence, key: depthEvidence, text: "原理"}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}の刻、{start}〜{end}に生まれました。"}
+- {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "通知を受け取る"}

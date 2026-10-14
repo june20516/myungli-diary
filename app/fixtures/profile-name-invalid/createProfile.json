@@ -1,0 +1,52 @@
+{
+  "sequence": [
+    {
+      "status": 422,
+      "body": {
+        "type": "https://api.myungli.app/problems/name.emoji",
+        "title": "Invalid honorific",
+        "status": 422,
+        "code": "name.emoji",
+        "traceId": "fake-server",
+        "errors": [
+          {
+            "field": "/honorific",
+            "code": "name.emoji"
+          }
+        ]
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "profile": {
+          "honorific": "별님",
+          "language": "ko",
+          "currentTimezone": "Asia/Seoul",
+          "birth": {
+            "calendar": "solar",
+            "date": {
+              "year": 1990,
+              "month": 5,
+              "day": 15
+            },
+            "isLeapMonth": false,
+            "time": {
+              "status": "known",
+              "value": "14:30"
+            },
+            "gender": "female",
+            "timezone": "Asia/Seoul",
+            "place": {
+              "status": "not_asked"
+            }
+          },
+          "notification": {
+            "status": "not_asked"
+          }
+        },
+        "warnings": []
+      }
+    }
+  ]
+}

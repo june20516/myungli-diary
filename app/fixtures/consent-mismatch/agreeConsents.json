@@ -1,0 +1,16 @@
+{
+  "status": 422,
+  "body": {
+    "type": "https://api.myungli.app/problems/consent.version_mismatch",
+    "title": "Consent version mismatch",
+    "status": 422,
+    "code": "consent.version_mismatch",
+    "traceId": "fake-server",
+    "errors": [
+      {
+        "field": "/documents/0/version",
+        "code": "consent.version_mismatch"
+      }
+    ]
+  }
+}

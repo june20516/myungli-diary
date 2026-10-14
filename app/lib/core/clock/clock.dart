@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -118,11 +119,16 @@ Clock noonClockOn(CalendarDate date, String ianaTimezone) => FixedClock(
 /// override합니다.
 final clockProvider = Provider<Clock>((ref) => const SystemClock());
 
+/// 기기 시간대를 읽지 못했을 때 쓰는 시간대.
+const fallbackTimezone = 'Asia/Seoul';
+
 /// 프로필 시간대(IANA). "오늘"의 기준입니다.
 ///
-/// 기본은 임시로 `Asia/Seoul`이며 계획 2에서 프로필 값으로 교체합니다. fake 모드는
-/// 시작 코드(bootstrap)가 시나리오 timezone으로 override합니다.
-final profileTimezoneProvider = Provider<String>((ref) => 'Asia/Seoul');
+/// core의 기본값은 기기 시간대 → [fallbackTimezone]입니다. 프로필 사본을 가장 먼저
+/// 보는 연결은 app 계층(`profileTimezoneOverrides`)이 override로 더합니다(결정 A18).
+final profileTimezoneProvider = Provider<String>(
+  (ref) => ref.watch(deviceTimezoneNameProvider).value ?? fallbackTimezone,
+);
 
 /// 프로필 시간대 기준 오늘 날짜.
 ///

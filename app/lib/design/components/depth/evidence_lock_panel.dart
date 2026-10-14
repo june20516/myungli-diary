@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
-import 'package:myungli_diary/design/interaction/motion_prefs.dart';
-import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -31,12 +30,14 @@ class EvidenceLockPanel extends StatelessWidget {
   /// 광고 버튼을 찾는 테스트용 키.
   static const Key ctaKey = ValueKey(SlotIds.evidenceSheetLockCta);
 
-  /// 처리 중 점을 찾는 테스트용 키.
-  static const Key dotsKey = ValueKey('evidence-lock-dots');
-
   static const double _iconSize = 16;
   static const double _gap = 6;
-  static const double _ctaHeight = 52;
+
+  /// 광고 제거권 링크 끝 화살표 아이콘.
+  static const IconData passCaret = PhosphorIconsRegular.caretRight;
+
+  /// 줄바꿈을 막는 단어 연결 문자(WORD JOINER). 화살표를 글자 끝에 붙여 둡니다.
+  static const String _wordJoiner = '\u2060';
 
   /// 열람 상태.
   final DepthLinkState state;
@@ -144,10 +145,9 @@ class EvidenceLockPanel extends StatelessWidget {
                                 Radius.circular(Radii.xs),
                               ),
                               inkColor: colors.actionPrimary,
-                              child: Text(
+                              child: _passLabel(
                                 l10n.evidenceSheetLockPass,
-                                textAlign: TextAlign.center,
-                                style: typography.labelMd.copyWith(
+                                typography.labelMd.copyWith(
                                   color: colors.actionPrimary,
                                 ),
                               ),
@@ -165,133 +165,48 @@ class EvidenceLockPanel extends StatelessWidget {
     );
   }
 
+  /// 광고 제거권 링크 글자. 끝 화살표는 문구가 아니라 컴포넌트가 그립니다(링크 색).
+  ///
+  /// 화살표는 아이콘 글꼴의 글리프를 글자 조각(`TextSpan`)으로 이어 붙입니다. 줄이 감겨도
+  /// 마지막 줄 끝을 따라가고, 앞의 단어 연결 문자(U+2060)로 화살표만 다음 줄로 넘어가지
+  /// 않습니다. `WidgetSpan`은 자리표시자 앞에서 줄이 끊겨 화살표가 홀로 남았습니다.
+  /// 링크 전체가 [PressInkTarget]의 이름 하나로 읽히므로 화살표는 읽히지 않습니다.
+  static Widget _passLabel(String label, TextStyle style) => Text.rich(
+    TextSpan(
+      text: '$label$_wordJoiner',
+      children: [
+        TextSpan(
+          text: String.fromCharCode(passCaret.codePoint),
+          style: TextStyle(
+            fontFamily: passCaret.fontFamily,
+            package: passCaret.fontPackage,
+            fontFamilyFallback: passCaret.fontFamilyFallback,
+          ),
+        ),
+      ],
+    ),
+    textAlign: TextAlign.center,
+    style: style,
+  );
+
   /// 슬롯 id를 Key와 Semantics `identifier`로 붙입니다(글자는 그대로 읽힙니다).
   static Widget _slot(String id, Widget child) => KeyedSubtree(
     key: ValueKey(id),
     child: Semantics(identifier: id, child: child),
   );
 
-  /// 임시: 계획 2에서 `primary-button` `filled`(`disabled`·`loading`)로 교체합니다.
   Widget _buildCta(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    const radius = BorderRadius.all(Radius.circular(Radii.md));
-    final label = l10n.evidenceSheetLockCta;
     final enabled = state == DepthLinkState.locked && onWatchAd != null;
-    final busy = state == DepthLinkState.unlocking;
-    final fg = enabled || busy ? colors.actionOnPrimary : colors.disabledFg;
-    final face = SizedBox(
+    return PrimaryButton(
       key: ctaKey,
-      height: _ctaHeight,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: enabled || busy ? colors.actionPrimary : colors.disabledBg,
-          borderRadius: radius,
-        ),
-        child: Center(
-          child: busy
-              ? _BreathingDots(color: fg, animated: animated)
-              : Text(
-                  label,
-                  style: tokens.typography.labelLg.copyWith(color: fg),
-                ),
-        ),
-      ),
-    );
-    if (enabled) {
-      return PressInkTarget(
-        semanticLabel: label,
-        identifier: SlotIds.evidenceSheetLockCta,
-        onTap: onWatchAd!,
-        borderRadius: radius,
-        inkColor: colors.actionOnPrimary,
-        child: face,
-      );
-    }
-    // 꺼짐·처리 중에는 눌러도 아무 일이 없고, 처리 중은 "확인 중"으로 읽습니다.
-    return Semantics(
-      container: true,
-      button: true,
-      enabled: false,
-      identifier: busy
-          ? SlotIds.evidenceSheetA11yChecking
-          : SlotIds.evidenceSheetLockCta,
-      label: busy ? l10n.evidenceSheetA11yChecking : label,
-      child: ExcludeSemantics(child: face),
-    );
-  }
-}
-
-/// 버튼 글자 자리의 점 세 개(6px, 간격 6px). 너비는 그대로, 줄 사이 150ms씩 어긋나 숨 쉽니다.
-class _BreathingDots extends StatefulWidget {
-  const new({required this.color, required this.animated});
-
-  final Color color;
-  final bool animated;
-
-  @override
-  State<_BreathingDots> createState() => _BreathingDotsState();
-}
-
-class _BreathingDotsState extends State<_BreathingDots>
-    with SingleTickerProviderStateMixin {
-  static const int _count = 3;
-  static const double _size = 6;
-  static const double _gap = 6;
-
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.loadingBreathe.duration,
-  );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.animated) {
-      if (!_controller.isAnimating) _controller.repeat(reverse: true);
-    } else {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void didUpdateWidget(_BreathingDots oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.animated != widget.animated) didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final prefs = MotionPrefs.of(context);
-    return Row(
-      key: EvidenceLockPanel.dotsKey,
-      mainAxisSize: MainAxisSize.min,
-      spacing: _gap,
-      children: [
-        for (var i = 0; i < _count; i++)
-          animate(
-            InteractionPattern.loadingBreathe,
-            t: _controller,
-            prefs: prefs,
-            options: PatternOptions(index: i),
-            child: SizedBox.square(
-              dimension: _size,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: widget.color,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-      ],
+      label: l10n.evidenceSheetLockCta,
+      onPressed: enabled ? onWatchAd : null,
+      loading: state == DepthLinkState.unlocking,
+      busyLabel: l10n.evidenceSheetA11yChecking,
+      identifier: SlotIds.evidenceSheetLockCta,
+      busyIdentifier: SlotIds.evidenceSheetA11yChecking,
+      animated: animated,
     );
   }
 }

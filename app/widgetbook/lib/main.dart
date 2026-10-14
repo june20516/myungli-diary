@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary_widgetbook/action_directory.dart';
 import 'package:myungli_diary_widgetbook/elements_directory.dart';
 import 'package:myungli_diary_widgetbook/feedback_directory.dart';
 import 'package:myungli_diary_widgetbook/frame_directory.dart';
+import 'package:myungli_diary_widgetbook/input_directory.dart';
 import 'package:myungli_diary_widgetbook/sentence_directory.dart';
+import 'package:myungli_diary_widgetbook/today_directory.dart';
 import 'package:widgetbook/widgetbook.dart';
 
 void main() => runApp(const MyungliWidgetbook());
@@ -20,9 +23,12 @@ class MyungliWidgetbook extends StatelessWidget {
     return Widgetbook.material(
       directories: [
         elementsDirectory,
+        actionDirectory,
         frameDirectory,
         feedbackDirectory,
         sentenceDirectory,
+        inputDirectory,
+        todayDirectory,
       ],
       addons: [
         MaterialThemeAddon(

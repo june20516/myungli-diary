@@ -312,6 +312,27 @@
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
+- id: onboard-time.hour.confirm
+  where: "태어난 시간 화면(onboard-time): 엔진이 계산한 시진과 벽시계 범위 확인 줄. 기기 지역이 한국일 때만(D58). app이 getBirthHour 구조값을 넣음(D68)"
+  purpose: info
+  user_state: "태어난 시간을 막 골랐고, 그 시간이 어느 시진으로 계산되는지 확인합니다."
+  structure: "한 문장. 시진 이름과 벽시계 범위. 값은 app이 넣는 문자열입니다: branch는 지지 이름, start·end는 HH:MM. ARB라 조사 표기를 쓰지 않습니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {branch: text, start: text, end: text}
+      keys: [onboardTimeHourConfirm]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요.", why: "D58 예시를 괄호 없이(style.S1)", source: writing}
+    bad:
+      - {lang: ko, text: "입력하신 시각은 {branch}시에 해당합니다.", why: "합니다체 style.S3, 범위 없음", source: writing}
+  endings: ["~태어났어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "시각 범위를 \"부터 까지\"로 읽는 것은 app이 맡습니다."
+
 - id: onboard-gender.question.head
   where: "성별 화면(onboard-gender): 성별을 묻는 질문"
   purpose: guide
@@ -584,25 +605,6 @@
     truncation: "한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "이름 그대로 읽습니다."
 
-- id: consent.optional.label
-  where: "약관 동의 화면(consent): 선택 동의 항목 이름"
-  purpose: info
-  user_state: "선택 동의 항목을 봅니다."
-  structure: "\"(선택)\" 뒤에 항목 이름. 항목은 지휘 확인 대상입니다."
-  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  keys:
-    - consentOptionalLabel
-  variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples:
-    good:
-      - {lang: ko, key: consentOptionalLabel, text: "(선택) 새 기능 소식 받기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
-  endings: []
-  a11y:
-    truncation: "한 줄 안에 들어가게 짧게 씁니다."
-    screen_reader: "이름 그대로 읽습니다."
-
 - id: consent.cta.agree
   where: "약관 동의 화면(consent): 동의하고 계속 버튼"
   purpose: guide
@@ -659,6 +661,25 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
+
+- id: notify-ask.cta.allow
+  where: "알림 허락 화면(notify-ask): 알림 허락 버튼"
+  purpose: guide
+  user_state: "아침 알림을 받기로 했습니다."
+  structure: "동작 이름 하나."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - notifyAskCtaAllow
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: notifyAskCtaAllow, text: "알림 받기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
 
 - id: notify-ask.cta.skip
   where: "알림 허락 화면(notify-ask): 건너뛰기"

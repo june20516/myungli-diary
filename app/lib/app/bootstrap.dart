@@ -7,13 +7,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
+import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/device_timezone.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/store_launcher.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 
@@ -37,6 +41,7 @@ var _fontLicensesRegistered = false;
 /// 시나리오가 섞이지 않게 하며, 시나리오의 로그인 상태에 맞춰 토큰을 심거나 비웁니다.
 /// 시계와 프로필 시간대는 시나리오 `today`의 현지 정오와 시나리오 timezone으로 바꿉니다.
 /// 테스트는 [installErrorHandlers]를 꺼 테스트 틀의 오류 처리를 지킵니다.
+/// [deviceLocale]을 주면 시나리오의 `locale`보다 먼저 쓰입니다.
 ///
 /// 컨테이너를 만든 뒤의 준비가 실패하면 오류 요약을 보고하고 컨테이너를 닫은 뒤 다시 던집니다.
 Future<ProviderContainer> bootstrap({
@@ -44,6 +49,7 @@ Future<ProviderContainer> bootstrap({
   String? scenarioId,
   List<Override> overrides = const [],
   bool installErrorHandlers = true,
+  Locale? deviceLocale,
 }) async {
   final resolvedMode = mode ?? apiModeFromEnvironment();
   if (kReleaseMode && resolvedMode == ApiMode.fake) {
@@ -60,17 +66,24 @@ Future<ProviderContainer> bootstrap({
       ? await _pickScenario(scenarioId)
       : null;
 
+  // 기기 로케일은 명시한 값, 없으면 시나리오의 값을 씁니다(둘 다 없으면 기기 값 그대로).
+  final locale = deviceLocale ?? scenario?.locale;
   final container = ProviderContainer(
     overrides: [
       apiModeProvider.overrideWithValue(resolvedMode),
+      if (locale != null) localeProvider.overrideWithValue(locale),
       ...entryOverrides,
+      ...profileTimezoneOverrides,
+      ...realPlatformOverrides(resolvedMode),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),
         scenarioProvider.overrideWithValue(scenario),
         clockProvider.overrideWithValue(
           noonClockOn(scenario.today, scenario.timezone),
         ),
-        profileTimezoneProvider.overrideWithValue(scenario.timezone),
+        deviceTimezoneProvider.overrideWithValue(
+          FakeDeviceTimezone(scenario.timezone),
+        ),
         fakeServerProvider.overrideWith(
           (ref) => ref.watch(fakeServerInterceptorProvider),
         ),
@@ -78,6 +91,13 @@ Future<ProviderContainer> bootstrap({
       ...overrides,
     ],
   );
+  // 첫 프레임이 기본 시간대로 "오늘"을 계산하지 않게 기기 시간대를 먼저 읽어 둡니다.
+  // 읽지 못하면(플러그인 오류) 기본 시간대로 시작합니다.
+  try {
+    await container.read(deviceTimezoneNameProvider.future);
+  } on Object {
+    // 기본 시간대로 계산합니다.
+  }
   final reporter = container.read(crashReporterProvider);
   if (installErrorHandlers) {
     _installErrorHandlers(reporter);
@@ -98,6 +118,18 @@ Future<ProviderContainer> bootstrap({
   }
   return container;
 }
+
+/// 계정이 필요 없는 실제 platform adapter를 끼우는 override. fake 모드는 대역을 그대로 씁니다.
+///
+/// 계정이 필요한 adapter(카카오·Apple·Firebase·AdMob·RevenueCat)는 준비되면 여기에 더합니다.
+@visibleForTesting
+List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
+  ApiMode.fake => const [],
+  ApiMode.http => [
+    deviceTimezoneProvider.overrideWithValue(const FlutterDeviceTimezone()),
+    storeLauncherProvider.overrideWithValue(const UrlStoreLauncher()),
+  ],
+};
 
 Future<Scenario> _pickScenario(String? requestedId) async {
   final id =

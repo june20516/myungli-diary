@@ -1,21 +1,14 @@
 {
-  "generatedAt": "2026-10-13T15:35:38.431628Z",
+  "generatedAt": "2026-10-14T05:50:12.395604Z",
   "exits": {
-    "covered": 3,
-    "total": 76,
+    "covered": 28,
+    "total": 77,
     "uncovered": [
       "account-delete>welcome",
-      "ad-consent>today",
       "ad-free>legal",
       "ad-free>system-purchase",
-      "birthplace>preview",
-      "birthplace>profile-edit",
-      "birthplace>settings",
       "calendar>day-sheet",
       "calendar>event-edit",
-      "consent>legal",
-      "consent>notify-ask",
-      "consent>onboard-call",
       "day-sheet>diary-edit",
       "day-sheet>diary-view",
       "day-sheet>event-edit",
@@ -31,24 +24,9 @@
       "evidence-sheet>system-rewarded-ad",
       "explain-sheet>evidence-sheet",
       "launch>ad-consent",
-      "login>ad-consent",
-      "login>consent",
-      "login>today",
       "my-saju>explain-sheet",
       "my-saju>saju-chart",
       "my-saju>settings",
-      "notify-ask>ad-consent",
-      "onboard-birth>onboard-time",
-      "onboard-birth>profile-edit",
-      "onboard-call>onboard-birth",
-      "onboard-call>profile-edit",
-      "onboard-gender>birthplace",
-      "onboard-gender>preview",
-      "onboard-gender>profile-edit",
-      "onboard-time>onboard-gender",
-      "onboard-time>profile-edit",
-      "preview>login",
-      "preview>onboard-call",
       "profile-edit>birthplace",
       "profile-edit>onboard-birth",
       "profile-edit>onboard-call",
@@ -64,8 +42,8 @@
       "settings>profile-edit",
       "settings>welcome",
       "share-preview>system-share",
+      "system-apple-return>welcome",
       "system-purchase>ad-free",
-      "system-push>today",
       "system-rewarded-ad>evidence-sheet",
       "tag-diary>diary-view",
       "tag-diary>explain-sheet",
@@ -74,11 +52,36 @@
       "today>diary-view",
       "today>evidence-sheet",
       "today>explain-sheet",
-      "today>share-preview",
-      "welcome>login",
-      "welcome>onboard-call"
+      "today>share-preview"
     ],
     "coveredBy": {
+      "ad-consent>today": [
+        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "birthplace>preview": [
+        "test/flows/birthplace_flow_test.dart:128 도시를 누르면 초안에 담고 preview로 갑니다"
+      ],
+      "birthplace>profile-edit": [
+        "test/flows/birthplace_flow_test.dart:223"
+      ],
+      "birthplace>settings": [
+        "test/flows/birthplace_flow_test.dart:223"
+      ],
+      "consent>legal": [
+        "test/flows/consent_flow_test.dart:215 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
+      ],
+      "consent>notify-ask": [
+        "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "consent>onboard-call": [
+        "test/flows/consent_flow_test.dart:163 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
+      ],
       "launch>force-update": [
         "test/flows/launch_flow_test.dart:49 force-update 시나리오는 force-update 화면에 도착합니다"
       ],
@@ -88,24 +91,98 @@
       "launch>welcome": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+      ],
+      "login>ad-consent": [
+        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/login_flow_test.dart:161 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다"
+      ],
+      "login>consent": [
+        "test/flows/login_flow_test.dart:91 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "login>today": [
+        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/login_flow_test.dart:137 returning-user: 이 기기에서 광고 동의를 이미 했으면 바로 today",
+        "test/flows/login_flow_test.dart:161 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
+      ],
+      "notify-ask>ad-consent": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "test/flows/notify_ask_flow_test.dart:203 기기 등록이 실패하면 안내하고, 다시 눌러도 같은 Idempotency-Key로 보냅니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "onboard-birth>onboard-time": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:125 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "onboard-birth>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:177 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+      ],
+      "onboard-call>onboard-birth": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:99 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "onboard-call>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:177 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+      ],
+      "onboard-gender>birthplace": [
+        "test/flows/onboarding_flow_test.dart:564 한국 밖 기기는 다음 → birthplace입니다"
+      ],
+      "onboard-gender>preview": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:544 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "onboard-gender>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:659 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+      ],
+      "onboard-time>onboard-gender": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:377 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "onboard-time>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:659 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+      ],
+      "preview>login": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/preview_flow_test.dart:39 new-user: skeleton 뒤 용신의 날 배지와 총운 문장, 저장하고 계속하기 → login",
+        "test/flows/preview_flow_test.dart:94 공유 버튼 → 로그인 안내 창 → 로그인이면 login, 닫기면 preview에 남습니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "preview>onboard-call": [
+        "test/flows/preview_flow_test.dart:115 다시 입력 → onboard-call, 호칭이 채워져 있고 같은 입력이면 미리보기를 다시 쓰지 않습니다"
+      ],
+      "system-push>today": [
+        "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
+        "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
+      ],
+      "welcome>login": [
+        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다"
+      ],
+      "welcome>onboard-call": [
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ]
     }
   },
   "states": {
-    "covered": 1,
+    "covered": 11,
     "total": 54,
     "uncovered": [
       "account-delete:error",
       "ad-free:error",
       "ad-free:loading",
       "ad-free:offline",
-      "birthplace:empty",
-      "birthplace:error",
-      "birthplace:loading",
       "calendar:error",
       "calendar:loading",
       "calendar:offline",
-      "consent:error",
       "day-sheet:empty",
       "day-sheet:error",
       "day-sheet:loading",
@@ -127,16 +204,10 @@
       "explain-sheet:error",
       "explain-sheet:loading",
       "launch:loading",
-      "login:error",
       "my-saju:error",
       "my-saju:loading",
       "my-saju:time-unknown",
       "onboard-birth:out-of-range",
-      "onboard-time:time-unknown",
-      "preview:error",
-      "preview:loading",
-      "preview:offline",
-      "preview:time-unknown",
       "profile-edit:error",
       "saju-chart:error",
       "saju-chart:loading",
@@ -150,25 +221,72 @@
       "today:time-unknown"
     ],
     "coveredBy": {
+      "birthplace:empty": [
+        "test/flows/birthplace_flow_test.dart:143 결과가 없으면 안내 문장이 나옵니다"
+      ],
+      "birthplace:error": [
+        "test/flows/birthplace_flow_test.dart:156 검색이 실패하면 오류 상태이고 다시 시도로 같은 질의를 다시 보냅니다"
+      ],
+      "birthplace:loading": [
+        "test/flows/birthplace_flow_test.dart:83 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
+      ],
+      "consent:error": [
+        "test/flows/consent_flow_test.dart:270 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
+      ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
+      ],
+      "login:error": [
+        "test/flows/login_flow_test.dart:197 login-provider-down: 재시도 안내, 토큰 없음, 다시 누르면 다시 요청",
+        "test/flows/login_flow_test.dart:218 카카오 취소는 오류 상태에 취소 안내를 보입니다",
+        "test/flows/login_flow_test.dart:241 login-exchange-invalid: Android Apple 웹 교환 코드가 만료되면 처음부터 다시 안내",
+        "test/flows/login_flow_test.dart:268 Android Apple 웹 로그인을 취소하면 취소 안내를 보이고 server를 부르지 않습니다"
+      ],
+      "onboard-time:time-unknown": [
+        "test/flows/onboarding_flow_test.dart:377 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
+      ],
+      "preview:error": [
+        "test/flows/preview_flow_test.dart:200 preview-invalid: birth.invalid 문구와 다시 입력, 입력은 그대로입니다"
+      ],
+      "preview:loading": [
+        "test/flows/preview_flow_test.dart:39 new-user: skeleton 뒤 용신의 날 배지와 총운 문장, 저장하고 계속하기 → login"
+      ],
+      "preview:offline": [
+        "test/flows/preview_flow_test.dart:158 오프라인: 오프라인 오류 상태와 다시 시도, 연결이 돌아오면 풀이를 보입니다"
+      ],
+      "preview:time-unknown": [
+        "test/flows/preview_flow_test.dart:142 time-unknown: 시간 모름 배너"
       ]
     }
   },
   "decisions": {
-    "covered": 1,
+    "covered": 2,
     "total": 6,
     "uncovered": [
       "D30",
       "D47",
       "D49",
-      "D53",
       "D60"
     ],
     "coveredBy": {
       "D50": [
+        "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
+        "test/flows/consent_flow_test.dart:201 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
-        "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+        "test/flows/login_flow_test.dart:91 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/onboarding_flow_test.dart:99 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
+        "test/flows/preview_flow_test.dart:39 new-user: skeleton 뒤 용신의 날 배지와 총운 문장, 저장하고 계속하기 → login",
+        "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
+        "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다",
+        "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "D53": [
+        "test/flows/login_flow_test.dart:113 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/new_user_flow_test.dart:48 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
+        "test/flows/notify_ask_flow_test.dart:82 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "patrol_test/onboarding_test.dart:15 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ]
     }
   },
@@ -195,7 +313,7 @@
     },
     "welcome": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
@@ -205,7 +323,7 @@
     },
     "onboard-call": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
@@ -215,7 +333,7 @@
     },
     "onboard-birth": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
@@ -225,17 +343,17 @@
     },
     "onboard-time": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },
     "onboard-gender": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
@@ -245,47 +363,47 @@
     },
     "birthplace": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },
     "preview": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
-        "covered": 0,
+        "covered": 4,
         "total": 4
       }
     },
     "login": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },
     "consent": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },
     "notify-ask": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {
@@ -294,6 +412,16 @@
       }
     },
     "system-push": {
+      "exits": {
+        "covered": 1,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "system-apple-return": {
       "exits": {
         "covered": 0,
         "total": 1
@@ -305,7 +433,7 @@
     },
     "ad-consent": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {

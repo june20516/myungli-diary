@@ -9,19 +9,21 @@ import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
 import 'package:myungli_diary/core/platform/apple_web_return.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
 import 'package:myungli_diary/core/platform/share.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
+import 'package:myungli_diary/core/platform/store_launcher.dart';
 
 /// 카카오 로그인 대역.
 final class FakeKakaoAuth implements KakaoAuth {
-  /// [failWith]를 주면 그 오류로 실패합니다.
+  /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).
   new({this.failWith});
 
-  /// 던질 오류. null이면 성공.
-  final AppError? failWith;
+  /// 던질 오류(`AppError` 또는 `SocialSignInCancelled`). null이면 성공.
+  final Exception? failWith;
 
   /// 제공자에게 보낸 nonce(해시) 기록.
   final providerNonces = <String>[];
@@ -39,11 +41,11 @@ final class FakeKakaoAuth implements KakaoAuth {
 
 /// iOS Apple 로그인 대역.
 final class FakeAppleNativeAuth implements AppleNativeAuth {
-  /// [failWith]를 주면 그 오류로 실패합니다.
+  /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).
   new({this.failWith});
 
-  /// 던질 오류. null이면 성공.
-  final AppError? failWith;
+  /// 던질 오류(`AppError` 또는 `SocialSignInCancelled`). null이면 성공.
+  final Exception? failWith;
 
   /// 제공자에게 보낸 nonce(해시) 기록.
   final providerNonces = <String>[];
@@ -378,5 +380,33 @@ final class FakeShareSheet implements ShareSheet {
       throw error;
     }
     shared.add((png: png, text: text));
+  }
+}
+
+/// 기기 시간대 대역.
+final class FakeDeviceTimezone implements DeviceTimezone {
+  /// [value]를 항상 돌려줍니다.
+  const new(this.value);
+
+  /// 돌려줄 IANA 이름.
+  final String value;
+
+  @override
+  Future<String> current() async => value;
+}
+
+/// 스토어 열기 대역. 연 횟수를 [opened]에 셉니다.
+final class FakeStoreLauncher implements StoreLauncher {
+  /// 스토어를 연 횟수(실패한 시도 포함).
+  int opened = 0;
+
+  /// 있으면 열 때 이 오류를 던집니다(스토어 앱 없음 등).
+  Exception? failure;
+
+  @override
+  Future<void> openStore() async {
+    opened++;
+    final failure = this.failure;
+    if (failure != null) throw failure;
   }
 }

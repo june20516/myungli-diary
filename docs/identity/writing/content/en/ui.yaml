@@ -32,7 +32,6 @@
 - {slot: consent.title.head, key: consentTitleHead, text: "Please review and agree"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(Required) Terms of Service"}
 - {slot: consent.required.label, key: consentRequiredLabelPrivacy, text: "(Required) Collection and use of personal information"}
-- {slot: consent.optional.label, key: consentOptionalLabel, text: "(Optional) Get news about new features"}
 - {slot: consent.cta.agree, key: consentCtaAgree, text: "Agree and continue"}
 - {slot: notify-ask.question.head, key: notifyAskQuestionHead, text: "Would you like today's reading every morning?"}
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "Each notification tells you what kind of day it is, with one line from your daily reading."}
@@ -121,3 +120,5 @@
 - {slot: ui.depth.surface, key: depthSurface, text: "Summary"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
 - {slot: ui.depth.evidence, key: depthEvidence, text: "Basis"}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
+- {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}

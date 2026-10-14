@@ -22,7 +22,7 @@
 | onboard-birth.error.range | ui | onboard-birth.error.range |
 | onboard-time.question.head | ui | onboard-time.question.head |
 | onboard-time.unknown.note | ui | onboard-time.unknown.note |
-| onboard-time.hour.confirm | content | onboard.hour_confirm |
+| onboard-time.hour.confirm | ui | onboard-time.hour.confirm |
 | onboard-gender.question.head | ui | onboard-gender.question.head |
 | onboard-gender.why.body | ui | onboard-gender.why.body |
 | birthplace.question.head | ui | birthplace.question.head |
@@ -40,10 +40,10 @@
 | login.discard.notice | ui | login.discard.notice |
 | consent.title.head | ui | consent.title.head |
 | consent.required.label | ui | consent.required.label |
-| consent.optional.label | ui | consent.optional.label |
 | consent.cta.agree | ui | consent.cta.agree |
 | notify-ask.question.head | ui | notify-ask.question.head |
 | notify-ask.why.body | ui | notify-ask.why.body |
+| notify-ask.cta.allow | ui | notify-ask.cta.allow |
 | notify-ask.cta.skip | ui | notify-ask.cta.skip |
 | system-push.morning.body | content | daily.fortune.head |
 | system-apple-return.page.title | content | system.apple_return |
