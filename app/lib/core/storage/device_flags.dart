@@ -11,6 +11,9 @@ const adConsentDoneKey = 'ad.consentDone';
 /// 기기 플래그를 남기므로 이 표시도 남습니다.
 const installedKey = 'app.installed';
 
+/// 이 설치의 id(UUID v4)를 담는 [DeviceFlags] 키. 로그아웃해도 남습니다.
+const installationIdKey = 'app.installationId';
+
 const _trueValue = 'true';
 const _falseValue = 'false';
 
@@ -22,22 +25,27 @@ final class DeviceFlagsStore {
   final AppDatabase _database;
 
   /// [key]의 값. 저장된 적 없으면 false입니다.
-  Future<bool> readBool(String key) async {
+  Future<bool> readBool(String key) async =>
+      await readString(key) == _trueValue;
+
+  /// [key]의 문자열 값. 저장된 적 없으면 null입니다.
+  Future<String?> readString(String key) async {
     final row = await (_database.select(
       _database.deviceFlags,
     )..where((t) => t.key.equals(key))).getSingleOrNull();
-    return row?.value == _trueValue;
+    return row?.value;
   }
 
-  /// [key]에 [value]를 씁니다. 같은 키면 덮어씁니다.
-  Future<void> writeBool(String key, {required bool value}) => _database
+  /// [key]에 문자열 [value]를 씁니다. 같은 키면 덮어씁니다.
+  Future<void> writeString(String key, {required String value}) => _database
       .into(_database.deviceFlags)
       .insertOnConflictUpdate(
-        DeviceFlagsCompanion.insert(
-          key: key,
-          value: value ? _trueValue : _falseValue,
-        ),
+        DeviceFlagsCompanion.insert(key: key, value: value),
       );
+
+  /// [key]에 [value]를 씁니다. 같은 키면 덮어씁니다.
+  Future<void> writeBool(String key, {required bool value}) =>
+      writeString(key, value: value ? _trueValue : _falseValue);
 }
 
 /// 기기 플래그 저장소.

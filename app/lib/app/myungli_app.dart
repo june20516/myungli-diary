@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 
 /// 앱 루트: 라우터, 라이트·다크 테마(기기 설정), 로케일(ko·en·ja)을 엮습니다.
@@ -34,6 +35,8 @@ class MyungliApp extends ConsumerWidget {
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (device, supported) =>
+          Locale(resolveAppLanguage(device ?? locale).value),
       builder: (context, child) {
         final content = child ?? const SizedBox.shrink();
         return AppLifecycleHooks(

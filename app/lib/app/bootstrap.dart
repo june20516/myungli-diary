@@ -13,6 +13,7 @@ import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
@@ -71,6 +72,9 @@ Future<ProviderContainer> bootstrap({
           noonClockOn(scenario.today, scenario.timezone),
         ),
         profileTimezoneProvider.overrideWithValue(scenario.timezone),
+        deviceTimezoneProvider.overrideWithValue(
+          FakeDeviceTimezone(scenario.timezone),
+        ),
         fakeServerProvider.overrideWith(
           (ref) => ref.watch(fakeServerInterceptorProvider),
         ),
