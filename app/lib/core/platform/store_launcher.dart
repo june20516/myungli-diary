@@ -3,8 +3,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// 스토어의 앱 페이지 열기(강제 업데이트 안내 등).
 abstract interface class StoreLauncher {
-  /// 스토어의 이 앱 페이지를 엽니다.
+  /// 스토어의 이 앱 페이지를 엽니다. 열지 못하면 [StoreUnavailable] 등 예외입니다.
   Future<void> openStore();
+}
+
+/// 스토어 페이지를 열 앱이 없어 열지 못했습니다.
+final class StoreUnavailable implements Exception {
+  /// 열지 못함.
+  const new();
 }
 
 Future<bool> _launchExternally(Uri uri) =>
@@ -40,11 +46,11 @@ final class UrlStoreLauncher implements StoreLauncher {
   Future<void> openStore() async {
     final target = platform ?? defaultTargetPlatform;
     if (target != TargetPlatform.android) {
-      await launch(iosUri);
+      if (!await launch(iosUri)) throw const StoreUnavailable();
       return;
     }
-    if (!await launch(androidUri)) {
-      await launch(androidWebUri);
+    if (!await launch(androidUri) && !await launch(androidWebUri)) {
+      throw const StoreUnavailable();
     }
   }
 }

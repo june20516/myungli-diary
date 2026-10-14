@@ -2,11 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_page_layout.dart';
+
+/// 스토어를 엽니다. 열지 못하면 빠져나갈 수 없는 화면이라 toast로 알려 다시 누르게 합니다.
+Future<void> _openStore(BuildContext context, WidgetRef ref) async {
+  final crashReporter = ref.read(crashReporterProvider);
+  try {
+    await ref.read(storeLauncherProvider).openStore();
+  } on Object catch (error, stack) {
+    // 진단을 위해 요약(오류 타입)만 보고합니다(D64 ②).
+    crashReporter.record(CrashSummary.from(error), stack);
+    if (!context.mounted) return;
+    showMyungliToast(context, AppLocalizations.of(context).errorUnexpected);
+  }
+}
 
 /// 앱 버전이 최소 버전보다 낮을 때의 안내 화면. 스토어 열기 버튼 하나뿐이고 출구가 없습니다.
 ///
@@ -59,7 +74,7 @@ class ForceUpdateScreen extends ConsumerWidget {
                   key: const ValueKey(SlotIds.forceUpdateCtaStore),
                   identifier: SlotIds.forceUpdateCtaStore,
                   label: l10n.forceUpdateCtaStore,
-                  onPressed: () => ref.read(storeLauncherProvider).openStore(),
+                  onPressed: () => _openStore(context, ref),
                 ),
               ],
             ),

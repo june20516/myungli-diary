@@ -9,7 +9,7 @@ void main() {
       platform: TargetPlatform.android,
       launch: (uri) async {
         tried.add(uri);
-        return false;
+        return uri == UrlStoreLauncher.androidWebUri;
       },
     );
     await launcher.openStore();
@@ -47,5 +47,21 @@ void main() {
     );
     await launcher.openStore();
     expect(tried, [UrlStoreLauncher.iosUri]);
+  });
+
+  test('Android에서 두 주소 모두 열지 못하면 StoreUnavailable입니다', () async {
+    final launcher = UrlStoreLauncher(
+      platform: TargetPlatform.android,
+      launch: (_) async => false,
+    );
+    await expectLater(launcher.openStore(), throwsA(isA<StoreUnavailable>()));
+  });
+
+  test('iOS에서 열지 못하면 StoreUnavailable입니다', () async {
+    final launcher = UrlStoreLauncher(
+      platform: TargetPlatform.iOS,
+      launch: (_) async => false,
+    );
+    await expectLater(launcher.openStore(), throwsA(isA<StoreUnavailable>()));
   });
 }

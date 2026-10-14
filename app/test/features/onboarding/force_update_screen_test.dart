@@ -1,10 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/store_launcher.dart';
 
 import '../../support/app_harness.dart';
+
+final _ko = AppLocalizationsKo();
 
 void main() {
   testWidgets('force-update 버튼은 스토어를 엽니다', (tester) async {
@@ -24,6 +28,33 @@ void main() {
     await tester.pump();
     final launcher = container.read(storeLauncherProvider) as FakeStoreLauncher;
     expect(launcher.opened, 1);
+  });
+
+  testWidgets('스토어를 열지 못하면 toast로 알리고 다시 누를 수 있습니다', (tester) async {
+    final container = await pumpApp(tester, scenario: 'force-update');
+    final launcher = container.read(storeLauncherProvider) as FakeStoreLauncher
+      ..failure = const StoreUnavailable();
+
+    await tester.tap(find.byKey(const ValueKey(SlotIds.forceUpdateCtaStore)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(launcher.opened, 1);
+    expect(find.text(_ko.errorUnexpected), findsOneWidget);
+    expect(
+      (container.read(
+        crashReporterProvider,
+      ) as FakeCrashReporter).errors.single.errorType,
+      'StoreUnavailable',
+    );
+
+    // toast가 사라지면 다시 누를 수 있습니다.
+    await tester.pump(const Duration(seconds: 10));
+    await tester.pumpAndSettle();
+    launcher.failure = null;
+    await tester.tap(find.byKey(const ValueKey(SlotIds.forceUpdateCtaStore)));
+    await tester.pump();
+    expect(launcher.opened, 2);
   });
 
   testWidgets('시스템 뒤로 가기를 앱이 삼켜 화면을 벗어날 수 없습니다', (tester) async {

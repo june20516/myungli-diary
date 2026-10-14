@@ -397,11 +397,16 @@ final class FakeDeviceTimezone implements DeviceTimezone {
 
 /// 스토어 열기 대역. 연 횟수를 [opened]에 셉니다.
 final class FakeStoreLauncher implements StoreLauncher {
-  /// 스토어를 연 횟수.
+  /// 스토어를 연 횟수(실패한 시도 포함).
   int opened = 0;
+
+  /// 있으면 열 때 이 오류를 던집니다(스토어 앱 없음 등).
+  Exception? failure;
 
   @override
   Future<void> openStore() async {
     opened++;
+    final failure = this.failure;
+    if (failure != null) throw failure;
   }
 }
