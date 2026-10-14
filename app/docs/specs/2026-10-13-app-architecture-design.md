@@ -332,7 +332,7 @@ IA·결정 로그·계약이 기계가 읽을 수 있는 형태로 있으므로,
   4. 테스트(단위·위젯·golden·앱 흐름·계약 대조·마이그레이션)
   5. E2E 커버리지 보고서(선언 대조, ratchet)
   6. `mlw check-arb`
-  7. Android debug 빌드
+  7. Android debug 빌드 (재사용 호출에서는 입력 `build_apk`(기본 true)를 따릅니다)
 * iOS 빌드는 규약대로 로컬 Mac에서 합니다(workflow §8).
 * golden 갱신용 수동 실행 job(`workflow_dispatch`)을 둡니다.
 * **기기 E2E job**은 Android 에뮬레이터(Linux, KVM)에서 Patrol을 돌립니다.
