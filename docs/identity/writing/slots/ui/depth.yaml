@@ -9,7 +9,7 @@
   where: 깊이 단계 선택의 기본 단계 이름
   purpose: info
   user_state: 설정에서 처음에 어느 단계까지 펼쳐 볼지 고릅니다.
-  structure: 설정 항목 이름. 질문형 해요체로 씁니다. 고를 값은 "요약부터 / 풀이부터 / 원리부터"입니다.
+  structure: 설정 항목 이름. 무엇을 펼치는지(명리 풀이)를 이름에 넣습니다(R8-8). 고를 값은 "요약부터 / 풀이부터 / 원리부터"입니다.
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: 10, en: 18, ja: 10}
   components: [settings-row]
@@ -18,10 +18,11 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, text: "얼마나 자세히 볼까요", why: "라운드 R7-2 선택", source: writing}
+      - {lang: ko, text: "명리 풀이 보기", why: "라운드 R8-8 선택(R7-2를 바꿈)", source: writing}
     bad:
       - {lang: ko, text: "펼침 기본값", why: "기획 용어 노출", source: writing}
-  endings: ["~볼까요"]
+      - {lang: ko, text: "얼마나 자세히 볼까요", why: "무엇을 펼치는지 말하지 않음(R8-8 재출제에서 탈락)", source: writing}
+  endings: []
   a11y:
     truncation: 칩이나 표 칸 안에서 잘리지 않게 짧게 씁니다.
     screen_reader: 이름 그대로 읽습니다.

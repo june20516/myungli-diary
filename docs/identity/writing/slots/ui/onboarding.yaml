@@ -75,7 +75,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: welcomeConceptHead, text: "오늘의 기운을 읽고, 하루를 적어요", why: "라운드 R8 전 초안", source: writing}
+      - {lang: ko, key: welcomeConceptHead, text: "오늘 일진을 내 사주에 맞춰 풀어 드려요", why: "라운드 R8 선택", source: writing}
     bad: []
   endings: ["~해요", "~어요"]
   a11y:
@@ -94,7 +94,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: welcomeConceptBody, text: "태어난 날로 오늘 하루를 풀어 드리고, 그날의 일기로 이어 드려요.", why: "라운드 R8 전 초안", source: writing}
+      - {lang: ko, key: welcomeConceptBody, text: "풀이에 맞춘 질문 하나로 그날 일기를 시작해요.", why: "라운드 R8 선택", source: writing}
     bad: []
   endings: ["~해요", "~어요"]
   a11y:
@@ -653,7 +653,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: notifyAskWhyBody, text: "고른 시각에 그날 풀이 한 줄을 보내 드려요.", why: "라운드 R8 전 초안", source: writing}
+      - {lang: ko, key: notifyAskWhyBody, text: "알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요.", why: "라운드 R8 선택", source: writing}
     bad: []
   endings: ["~해요", "~어요"]
   a11y:
