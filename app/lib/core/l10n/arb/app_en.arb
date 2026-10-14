@@ -86,5 +86,18 @@
   },
   "inputStepProgress": "Step {step} of {stepCount}",
   "textFieldClear": "Clear",
-  "textFieldCounter": "{current} of {max} characters"
+  "textFieldCounter": "{current} of {max} characters",
+  "datePickerYearLabel": "Year",
+  "datePickerMonthLabel": "Month",
+  "datePickerDayLabel": "Day",
+  "datePickerYearItem": "{year}",
+  "datePickerMonthItem": "{month}",
+  "datePickerDayItem": "{day}",
+  "timePickerMeridiemLabel": "AM or PM",
+  "timePickerHourLabel": "Hour",
+  "timePickerMinuteLabel": "Minute",
+  "timePickerAm": "AM",
+  "timePickerPm": "PM",
+  "timePickerHourItem": "{hour}",
+  "timePickerMinuteItem": "{minute}"
 }

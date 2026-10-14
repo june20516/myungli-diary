@@ -11,9 +11,11 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
+import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -58,4 +60,6 @@ const List<ComponentSpec> implementedComponents = [
   MyungliTextField.spec,
   Segmented.spec,
   CheckRow.spec,
+  BirthDatePicker.spec,
+  TimePicker.spec,
 ];

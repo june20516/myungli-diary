@@ -573,6 +573,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'글자 수 {current}/{max}'**
   String textFieldCounter(int current, int max);
+
+  /// 임시. 날짜 휠 중 년 휠의 스크린리더 라벨(date-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'년'**
+  String get datePickerYearLabel;
+
+  /// 임시. 날짜 휠 중 월 휠의 스크린리더 라벨(date-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get datePickerMonthLabel;
+
+  /// 임시. 날짜 휠 중 일 휠의 스크린리더 라벨(date-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'일'**
+  String get datePickerDayLabel;
+
+  /// 임시. 년 휠의 칸 글자(date-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년'**
+  String datePickerYearItem(int year);
+
+  /// 임시. 월 휠의 칸 글자(date-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월'**
+  String datePickerMonthItem(int month);
+
+  /// 임시. 일 휠의 칸 글자(date-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'{day}일'**
+  String datePickerDayItem(int day);
+
+  /// 임시. 시간 휠 중 오전·오후 휠의 스크린리더 라벨(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'오전·오후'**
+  String get timePickerMeridiemLabel;
+
+  /// 임시. 시간 휠 중 시 휠의 스크린리더 라벨(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'시'**
+  String get timePickerHourLabel;
+
+  /// 임시. 시간 휠 중 분 휠의 스크린리더 라벨(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'분'**
+  String get timePickerMinuteLabel;
+
+  /// 임시. 오전(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'오전'**
+  String get timePickerAm;
+
+  /// 임시. 오후(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'오후'**
+  String get timePickerPm;
+
+  /// 임시. 시 휠의 칸 글자(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'{hour}시'**
+  String timePickerHourItem(int hour);
+
+  /// 임시. 분 휠의 칸 글자. 두 자리로 맞춘 글자(time-picker)
+  ///
+  /// In ko, this message translates to:
+  /// **'{minute}분'**
+  String timePickerMinuteItem(String minute);
 }
 
 class _AppLocalizationsDelegate

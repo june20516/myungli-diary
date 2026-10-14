@@ -86,5 +86,18 @@
   },
   "inputStepProgress": "{stepCount}ステップ中{step}ステップ目",
   "textFieldClear": "消去",
-  "textFieldCounter": "文字数 {current}/{max}"
+  "textFieldCounter": "文字数 {current}/{max}",
+  "datePickerYearLabel": "年",
+  "datePickerMonthLabel": "月",
+  "datePickerDayLabel": "日",
+  "datePickerYearItem": "{year}年",
+  "datePickerMonthItem": "{month}月",
+  "datePickerDayItem": "{day}日",
+  "timePickerMeridiemLabel": "午前・午後",
+  "timePickerHourLabel": "時",
+  "timePickerMinuteLabel": "分",
+  "timePickerAm": "午前",
+  "timePickerPm": "午後",
+  "timePickerHourItem": "{hour}時",
+  "timePickerMinuteItem": "{minute}分"
 }

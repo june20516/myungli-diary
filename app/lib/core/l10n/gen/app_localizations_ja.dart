@@ -256,4 +256,53 @@ class AppLocalizationsJa extends AppLocalizations {
   String textFieldCounter(int current, int max) {
     return '文字数 $current/$max';
   }
+
+  @override
+  String get datePickerYearLabel => '年';
+
+  @override
+  String get datePickerMonthLabel => '月';
+
+  @override
+  String get datePickerDayLabel => '日';
+
+  @override
+  String datePickerYearItem(int year) {
+    return '$year年';
+  }
+
+  @override
+  String datePickerMonthItem(int month) {
+    return '$month月';
+  }
+
+  @override
+  String datePickerDayItem(int day) {
+    return '$day日';
+  }
+
+  @override
+  String get timePickerMeridiemLabel => '午前・午後';
+
+  @override
+  String get timePickerHourLabel => '時';
+
+  @override
+  String get timePickerMinuteLabel => '分';
+
+  @override
+  String get timePickerAm => '午前';
+
+  @override
+  String get timePickerPm => '午後';
+
+  @override
+  String timePickerHourItem(int hour) {
+    return '$hour時';
+  }
+
+  @override
+  String timePickerMinuteItem(String minute) {
+    return '$minute分';
+  }
 }

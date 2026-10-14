@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
+import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
@@ -218,6 +220,74 @@ Widget _checkRows() => Builder(
   },
 );
 
+/// date-picker: 양력 / 음력 + 윤달 체크.
+Widget _datePickers() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    Widget picker(BirthDateValue value) => BirthDatePicker(
+      value: value,
+      onChanged: (_) {},
+      calendarLabelSolar: ja ? '新暦' : '양력',
+      calendarLabelLunar: ja ? '旧暦' : '음력',
+      leapMonthLabel: ja ? '閏月' : '윤달',
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s16,
+      children: [
+        picker(
+          const BirthDateValue(
+            calendar: BirthCalendar.solar,
+            year: 1990,
+            month: 3,
+            day: 15,
+          ),
+        ),
+        picker(
+          const BirthDateValue(
+            calendar: BirthCalendar.lunar,
+            year: 2023,
+            month: 2,
+            day: 30,
+            isLeapMonth: true,
+          ),
+        ),
+      ],
+    );
+  },
+);
+
+/// time-picker: birth(시진 확인 줄)·birth(확인 줄 없음)·birth(모름)·notify.
+Widget _timePickers() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    Widget birth({bool unknown = false, String? sijin}) => TimePicker(
+      variant: TimePickerVariant.birth,
+      value: const TimeOfDay(hour: 10, minute: 30),
+      onChanged: (_) {},
+      unknown: unknown,
+      onUnknownChanged: (_) {},
+      unknownLabel: ja ? '時間は分からない' : '태어난 시간을 몰라요',
+      unknownNotice: ja ? '時間が分からなくても大丈夫です。' : '시간을 몰라도 괜찮아요.',
+      sijinConfirm: sijin,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s16,
+      children: [
+        birth(sijin: ja ? '巳の刻(09:30~11:30)' : '사시 (09:30~11:30)'),
+        birth(),
+        birth(unknown: true),
+        TimePicker(
+          variant: TimePickerVariant.notify,
+          value: const TimeOfDay(hour: 8, minute: 0),
+          onChanged: (_) {},
+        ),
+      ],
+    );
+  },
+);
+
 void main() {
   goldenTest('input-step: onboarding(valid)·standalone(out-of-range)', (
     tester,
@@ -257,6 +327,24 @@ void main() {
       tester,
       'input_check_row',
       _checkRows,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('date-picker(birth): 양력·음력+윤달 체크', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_date_picker',
+      _datePickers,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('time-picker: birth(확인 줄·없음·모름)·notify', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_time_picker',
+      _timePickers,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

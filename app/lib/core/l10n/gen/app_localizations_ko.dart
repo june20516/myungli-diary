@@ -257,4 +257,53 @@ class AppLocalizationsKo extends AppLocalizations {
   String textFieldCounter(int current, int max) {
     return '글자 수 $current/$max';
   }
+
+  @override
+  String get datePickerYearLabel => '년';
+
+  @override
+  String get datePickerMonthLabel => '월';
+
+  @override
+  String get datePickerDayLabel => '일';
+
+  @override
+  String datePickerYearItem(int year) {
+    return '$year년';
+  }
+
+  @override
+  String datePickerMonthItem(int month) {
+    return '$month월';
+  }
+
+  @override
+  String datePickerDayItem(int day) {
+    return '$day일';
+  }
+
+  @override
+  String get timePickerMeridiemLabel => '오전·오후';
+
+  @override
+  String get timePickerHourLabel => '시';
+
+  @override
+  String get timePickerMinuteLabel => '분';
+
+  @override
+  String get timePickerAm => '오전';
+
+  @override
+  String get timePickerPm => '오후';
+
+  @override
+  String timePickerHourItem(int hour) {
+    return '$hour시';
+  }
+
+  @override
+  String timePickerMinuteItem(String minute) {
+    return '$minute분';
+  }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
+import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -79,7 +81,52 @@ Widget _checkRow(
   );
 }
 
-/// 입력 카탈로그: input-step, text-field, segmented, check-row.
+/// 돌려서 바뀌는 생일 휠.
+Widget _datePicker(BirthDateValue initial) {
+  var value = initial;
+  return SizedBox(
+    width: 360,
+    child: StatefulBuilder(
+      builder: (context, setState) => BirthDatePicker(
+        value: value,
+        onChanged: (next) => setState(() => value = next),
+        calendarLabelSolar: '양력',
+        calendarLabelLunar: '음력',
+        leapMonthLabel: '윤달',
+      ),
+    ),
+  );
+}
+
+/// 돌려서 바뀌는 시간 휠.
+Widget _timePicker(
+  TimePickerVariant variant, {
+  bool unknown = false,
+  String? sijinConfirm,
+}) {
+  var value = const TimeOfDay(hour: 7, minute: 30);
+  var isUnknown = unknown;
+  return SizedBox(
+    width: 360,
+    child: StatefulBuilder(
+      builder: (context, setState) => TimePicker(
+        variant: variant,
+        value: value,
+        onChanged: (next) => setState(() => value = next),
+        unknown: isUnknown,
+        onUnknownChanged: variant == TimePickerVariant.birth
+            ? (next) => setState(() => isUnknown = next)
+            : null,
+        unknownLabel: variant == TimePickerVariant.birth ? '모름' : null,
+        unknownNotice: '시간을 몰라도 풀이할 수 있어요.',
+        sijinConfirm: sijinConfirm,
+      ),
+    ),
+  );
+}
+
+/// 입력 카탈로그: input-step, text-field, segmented, check-row,
+/// date-picker, time-picker.
 final WidgetbookFolder inputDirectory = WidgetbookFolder(
   name: '입력',
   children: [
@@ -152,6 +199,52 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
           () => _checkRow(CheckRowVariant.card, disabled: true),
         ),
         _stage('inline', () => _checkRow(CheckRowVariant.inline)),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'date-picker',
+      useCases: [
+        _stage(
+          'birth(양력)',
+          () => _datePicker(
+            const BirthDateValue(
+              calendar: BirthCalendar.solar,
+              year: 1990,
+              month: 3,
+              day: 15,
+            ),
+          ),
+        ),
+        _stage(
+          'birth(음력, 윤달 체크)',
+          () => _datePicker(
+            const BirthDateValue(
+              calendar: BirthCalendar.lunar,
+              year: 2023,
+              month: 2,
+              day: 30,
+              isLeapMonth: true,
+            ),
+          ),
+        ),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'time-picker',
+      useCases: [
+        _stage(
+          'birth(시진 확인 줄)',
+          () => _timePicker(
+            TimePickerVariant.birth,
+            sijinConfirm: '사시 (09:30~11:30)',
+          ),
+        ),
+        _stage('birth(확인 줄 없음)', () => _timePicker(TimePickerVariant.birth)),
+        _stage(
+          'birth(모름)',
+          () => _timePicker(TimePickerVariant.birth, unknown: true),
+        ),
+        _stage('notify(5분 단위)', () => _timePicker(TimePickerVariant.notify)),
       ],
     ),
   ],

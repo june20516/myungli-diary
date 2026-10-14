@@ -347,5 +347,87 @@
         "example": "10"
       }
     }
+  },
+  "datePickerYearLabel": "년",
+  "@datePickerYearLabel": {
+    "description": "임시. 날짜 휠 중 년 휠의 스크린리더 라벨(date-picker)"
+  },
+  "datePickerMonthLabel": "월",
+  "@datePickerMonthLabel": {
+    "description": "임시. 날짜 휠 중 월 휠의 스크린리더 라벨(date-picker)"
+  },
+  "datePickerDayLabel": "일",
+  "@datePickerDayLabel": {
+    "description": "임시. 날짜 휠 중 일 휠의 스크린리더 라벨(date-picker)"
+  },
+  "datePickerYearItem": "{year}년",
+  "@datePickerYearItem": {
+    "description": "임시. 년 휠의 칸 글자(date-picker)",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "1990"
+      }
+    }
+  },
+  "datePickerMonthItem": "{month}월",
+  "@datePickerMonthItem": {
+    "description": "임시. 월 휠의 칸 글자(date-picker)",
+    "placeholders": {
+      "month": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "datePickerDayItem": "{day}일",
+  "@datePickerDayItem": {
+    "description": "임시. 일 휠의 칸 글자(date-picker)",
+    "placeholders": {
+      "day": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "timePickerMeridiemLabel": "오전·오후",
+  "@timePickerMeridiemLabel": {
+    "description": "임시. 시간 휠 중 오전·오후 휠의 스크린리더 라벨(time-picker)"
+  },
+  "timePickerHourLabel": "시",
+  "@timePickerHourLabel": {
+    "description": "임시. 시간 휠 중 시 휠의 스크린리더 라벨(time-picker)"
+  },
+  "timePickerMinuteLabel": "분",
+  "@timePickerMinuteLabel": {
+    "description": "임시. 시간 휠 중 분 휠의 스크린리더 라벨(time-picker)"
+  },
+  "timePickerAm": "오전",
+  "@timePickerAm": {
+    "description": "임시. 오전(time-picker)"
+  },
+  "timePickerPm": "오후",
+  "@timePickerPm": {
+    "description": "임시. 오후(time-picker)"
+  },
+  "timePickerHourItem": "{hour}시",
+  "@timePickerHourItem": {
+    "description": "임시. 시 휠의 칸 글자(time-picker)",
+    "placeholders": {
+      "hour": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "timePickerMinuteItem": "{minute}분",
+  "@timePickerMinuteItem": {
+    "description": "임시. 분 휠의 칸 글자. 두 자리로 맞춘 글자(time-picker)",
+    "placeholders": {
+      "minute": {
+        "type": "String",
+        "example": "05"
+      }
+    }
   }
 }
