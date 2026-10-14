@@ -22,7 +22,7 @@
 | 슬롯 | components | 키 |
 | --- | --- | --- |
 | `ui.error.client` | `error-state`, `toast` | `errorOffline`, `errorTimeout`, `errorClient`, `errorServer`, `errorUnexpected`, `errorNotImplemented` |
-| `ui.error.code` | `error-state`, `toast` | 서버 오류 코드별 `error*` 38개 |
+| `ui.error.code` | `error-state`, `toast` | 서버 오류 코드별 `error*` 39개 |
 | `ui.app.name` | `app-bar` | `appTitle` (W17 앱 이름) |
 | `ui.app.bootstrap` | `error-state` | `bootstrapFailed` |
 | `ui.app.notice` | `notice-banner`, `empty-state` | `noticeOffline`, `emptyStateDefault` |

@@ -503,6 +503,153 @@
   "@todayReactionLabelSelected": {
     "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
   },
+  "actionBusy": "처리 중",
+  "@actionBusy": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  },
+  "adBannerLabel": "광고",
+  "@adBannerLabel": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  },
+  "skeletonLabel": "불러오는 중",
+  "@skeletonLabel": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  },
+  "termTokenSemantics": "{term} 뜻 보기",
+  "@termTokenSemantics": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "inputStepProgress": "{stepCount}단계 중 {step}단계",
+  "@inputStepProgress": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "stepCount": {
+        "type": "int"
+      }
+    }
+  },
+  "textFieldCounter": "{max}자 중 {current}자",
+  "@textFieldCounter": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "citySearchResults": "결과 {count, plural, other{{count}개}}",
+  "@citySearchResults": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardCallInputLabel": "불러 드릴 이름",
+  "@onboardCallInputLabel": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  },
+  "birthplaceSearchLabel": "태어난 도시 찾기",
+  "@birthplaceSearchLabel": {
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  },
+  "actionRetry": "다시 시도",
+  "@actionRetry": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "actionClose": "닫기",
+  "@actionClose": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "actionConfirm": "확인",
+  "@actionConfirm": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "onboardingNext": "다음",
+  "@onboardingNext": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "onboardingSave": "저장",
+  "@onboardingSave": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "shareLabel": "공유",
+  "@shareLabel": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "consentView": "보기",
+  "@consentView": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "textFieldClear": "지우기",
+  "@textFieldClear": {
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  },
+  "bootstrapFailed": "앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요.",
+  "@bootstrapFailed": {
+    "description": "오류 상태: 앱 시작 준비가 실패했을 때의 안내"
+  },
+  "appTitle": "명리일기",
+  "@appTitle": {
+    "description": "앱 바·작업 전환기에 보이는 앱 이름"
+  },
+  "noticeOffline": "인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.",
+  "@noticeOffline": {
+    "description": "오프라인 안내 배너와 빈 상태 기본 문장"
+  },
+  "emptyStateDefault": "아직 보여 드릴 내용이 없어요.",
+  "@emptyStateDefault": {
+    "description": "오프라인 안내 배너와 빈 상태 기본 문장"
+  },
+  "traceIdLabel": "문의 번호 {traceId}",
+  "@traceIdLabel": {
+    "description": "오류 화면의 문의 번호 표시와 복사 뒤 토스트",
+    "placeholders": {
+      "traceId": {
+        "type": "String"
+      }
+    }
+  },
+  "traceIdCopied": "문의 번호를 복사했어요.",
+  "@traceIdCopied": {
+    "description": "오류 화면의 문의 번호 표시와 복사 뒤 토스트"
+  },
+  "calendarSolar": "양력",
+  "@calendarSolar": {
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
+  "calendarLunar": "음력",
+  "@calendarLunar": {
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
+  "leapMonth": "윤달",
+  "@leapMonth": {
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
+  "timeUnknownLabel": "모름",
+  "@timeUnknownLabel": {
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
+  "genderMale": "남성",
+  "@genderMale": {
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
+  "genderFemale": "여성",
+  "@genderFemale": {
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
   "depthDefaultLabel": "명리 풀이 보기",
   "@depthDefaultLabel": {
     "description": "깊이 단계 선택의 기본 단계 이름"
@@ -518,6 +665,320 @@
   "depthSurface": "요약",
   "@depthSurface": {
     "description": "깊이 단계 표면 단계(첫 단계)의 안내"
+  },
+  "errorOffline": "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.",
+  "@errorOffline": {
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  },
+  "errorTimeout": "응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
+  "@errorTimeout": {
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  },
+  "errorClient": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
+  "@errorClient": {
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  },
+  "errorServer": "잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.",
+  "@errorServer": {
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  },
+  "errorUnexpected": "문제가 생겼어요. 다시 시도해 주세요.",
+  "@errorUnexpected": {
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  },
+  "errorNotImplemented": "아직 준비 중이에요.",
+  "@errorNotImplemented": {
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  },
+  "errorRequestMalformed": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
+  "@errorRequestMalformed": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRequestInvalid": "입력한 내용을 다시 확인해 주세요.",
+  "@errorRequestInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthTokenExpired": "로그인이 만료됐어요. 다시 로그인해 주세요.",
+  "@errorAuthTokenExpired": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthTokenInvalid": "다시 로그인해 주세요.",
+  "@errorAuthTokenInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthRefreshReused": "계정을 지키려고 로그아웃했어요. 다시 로그인해 주세요.",
+  "@errorAuthRefreshReused": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthProviderTokenInvalid": "로그인하지 못했어요. 다시 시도해 주세요.",
+  "@errorAuthProviderTokenInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthExchangeInvalid": "로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.",
+  "@errorAuthExchangeInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAppCheckInvalid": "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요.",
+  "@errorAppCheckInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorConsentRequired": "약관에 동의해야 계속할 수 있어요.",
+  "@errorConsentRequired": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorPreviewUsed": "미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요.",
+  "@errorPreviewUsed": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRouteNotFound": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
+  "@errorRouteNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDiaryNotFound": "일기를 찾지 못했어요.",
+  "@errorDiaryNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorMethodNotAllowed": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
+  "@errorMethodNotAllowed": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorProfileRequired": "먼저 태어난 날과 시간을 입력해 주세요.",
+  "@errorProfileRequired": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDiaryDateTaken": "그날에는 이미 일기가 있어요.",
+  "@errorDiaryDateTaken": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorIdempotencyInProgress": "아직 처리하고 있어요. 잠시 후 다시 확인해 주세요.",
+  "@errorIdempotencyInProgress": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRequestTooLarge": "내용이 너무 길어요. 조금 줄여 주세요.",
+  "@errorRequestTooLarge": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRequestUnsupportedMediaType": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
+  "@errorRequestUnsupportedMediaType": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDateOutOfRange": "1900년 1월 31일부터 2099년 12월 31일까지의 날짜만 볼 수 있어요.",
+  "@errorDateOutOfRange": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorBirthOutOfRange": "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.",
+  "@errorBirthOutOfRange": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDateInvalid": "달력에 없는 날짜예요.",
+  "@errorDateInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRequestInconsistent": "입력한 내용을 다시 확인해 주세요.",
+  "@errorRequestInconsistent": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorBirthInvalid": "입력한 태어난 날과 시간을 다시 확인해 주세요.",
+  "@errorBirthInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDiaryFutureDate": "오늘 이후의 일기는 쓸 수 없어요.",
+  "@errorDiaryFutureDate": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorNameEmpty": "불러 드릴 이름을 입력해 주세요.",
+  "@errorNameEmpty": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorNameTooLong": "이름이 너무 길어요. 조금 줄여 주세요.",
+  "@errorNameTooLong": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorNameEmoji": "이름에는 이모지를 쓸 수 없어요.",
+  "@errorNameEmoji": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorNameControl": "이름에 쓸 수 없는 글자가 있어요.",
+  "@errorNameControl": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorNameInvalidChar": "이름에는 괄호를 쓸 수 없어요.",
+  "@errorNameInvalidChar": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorIdempotencyMismatch": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
+  "@errorIdempotencyMismatch": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorConsentVersionMismatch": "약관이 바뀌었어요. 다시 확인해 주세요.",
+  "@errorConsentVersionMismatch": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRateLimited": "요청이 너무 많아요. 잠시 후 다시 시도해 주세요.",
+  "@errorRateLimited": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorInternal": "잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.",
+  "@errorInternal": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorEngineError": "풀이를 계산하지 못했어요. 잠시 후 다시 시도해 주세요.",
+  "@errorEngineError": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorEngineUnavailable": "풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+  "@errorEngineUnavailable": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthProviderUnavailable": "지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "@errorAuthProviderUnavailable": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorBillingProviderUnavailable": "지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "@errorBillingProviderUnavailable": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorServiceUnavailable": "지금은 앱을 쓸 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "@errorServiceUnavailable": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorEngineTimeout": "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
+  "@errorEngineTimeout": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "loginCancelled": "로그인을 취소했어요.",
+  "@loginCancelled": {
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
+  },
+  "appleWebErrorStateMismatch": "로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요.",
+  "@appleWebErrorStateMismatch": {
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
+  },
+  "appleWebErrorCancelled": "Apple 로그인을 취소했어요.",
+  "@appleWebErrorCancelled": {
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
+  },
+  "appleWebErrorOther": "Apple로 로그인하지 못했어요. 다시 시도해 주세요.",
+  "@appleWebErrorOther": {
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
+  },
+  "loginKakaoLabel": "카카오 로그인",
+  "@loginKakaoLabel": {
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
+  },
+  "loginAppleLabel": "Apple로 로그인",
+  "@loginAppleLabel": {
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
+  },
+  "appBarBack": "뒤로",
+  "@appBarBack": {
+    "description": "앱 바 뒤로 버튼과 시트 바깥 덮개의 스크린리더 이름"
+  },
+  "sheetDismiss": "닫기",
+  "@sheetDismiss": {
+    "description": "앱 바 뒤로 버튼과 시트 바깥 덮개의 스크린리더 이름"
+  },
+  "tabToday": "오늘",
+  "@tabToday": {
+    "description": "탭 바의 탭 이름"
+  },
+  "tabCalendar": "달력",
+  "@tabCalendar": {
+    "description": "탭 바의 탭 이름"
+  },
+  "tabDiary": "일기",
+  "@tabDiary": {
+    "description": "탭 바의 탭 이름"
+  },
+  "tabMe": "나",
+  "@tabMe": {
+    "description": "탭 바의 탭 이름"
+  },
+  "datePickerYearItem": "{year}년",
+  "@datePickerYearItem": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "datePickerMonthItem": "{month}월",
+  "@datePickerMonthItem": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "datePickerDayItem": "{day}일",
+  "@datePickerDayItem": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "timePickerHourItem": "{hour}시",
+  "@timePickerHourItem": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "timePickerMinuteItem": "{minute}분",
+  "@timePickerMinuteItem": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
+    "placeholders": {
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "timePickerAm": "오전",
+  "@timePickerAm": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)"
+  },
+  "timePickerPm": "오후",
+  "@timePickerPm": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)"
+  },
+  "datePickerLeapMonthValue": "윤{month}월",
+  "@datePickerLeapMonthValue": {
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "datePickerYearLabel": "연도",
+  "@datePickerYearLabel": {
+    "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "datePickerMonthLabel": "월",
+  "@datePickerMonthLabel": {
+    "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "datePickerDayLabel": "일",
+  "@datePickerDayLabel": {
+    "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "timePickerMeridiemLabel": "오전·오후",
+  "@timePickerMeridiemLabel": {
+    "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "timePickerHourLabel": "시",
+  "@timePickerHourLabel": {
+    "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "timePickerMinuteLabel": "분",
+  "@timePickerMinuteLabel": {
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "welcomeConceptBody": "풀이에 맞춘 질문 하나로 그날 일기를 시작해요.",
   "@welcomeConceptBody": {
