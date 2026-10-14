@@ -76,3 +76,13 @@ def test_new_content_slot_keys(slots: dict[str, Slot]) -> None:
     for slot_id in ("explain.today_reason", "evidence.basis", "evidence.source"):
         assert slots[slot_id].keys == {}
         assert slots[slot_id].select
+
+
+def test_all_ia_covered(slots: dict[str, Slot], ia: Ia) -> None:
+    assert [finding.message for finding in check_ia(slots, ia) if finding.rule_id == RULE_UNCOVERED] == []
+
+
+def test_ui_keys_named(slots: dict[str, Slot], ia: Ia) -> None:
+    errors = [finding.format() for finding in check_ia(slots, ia) if finding.severity == "error"]
+    assert errors == []
+    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 91

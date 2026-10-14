@@ -20,17 +20,15 @@ BAD_CONTENT = """\
 - {slot: daily.color, key: color.yongsin_day, text: "{element:color}(이)가 잘 맞아요."}
 """
 
-# 저장소 슬롯이 IA를 모두 담기 전(IA 슬롯 계획 Task 7 전)에는 ia.* 오류로 실패합니다. Task 7에서 지웁니다.
-IA_PENDING = pytest.mark.xfail(strict=True, reason="IA 슬롯을 모두 담기 전")
 
-
-@IA_PENDING
 def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["check", str(CONTENT_DIR), "--partial"]) == 0
-    assert capsys.readouterr().out == ""
+    # 근거 슬롯 셋은 core 자료를 기다리는 키 없는 틀이라 경고만 남습니다.
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 3
+    assert all(" slot.empty_keys warn " in line for line in lines)
 
 
-@IA_PENDING
 def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     clean = tmp_path / "clean"
     shutil.copytree(CONTENT_DIR, clean)
@@ -42,8 +40,8 @@ def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     capsys.readouterr()
     assert main(["check", str(bad), "--partial"]) == 1
     lines = capsys.readouterr().out.splitlines()
-    assert FINDING_LINE.match(lines[0])
-    assert "slop.P8" in lines[0]
+    assert all(FINDING_LINE.match(line) for line in lines)
+    assert any("slop.P8" in line for line in lines)
 
 
 def test_cli_without_partial_reports_missing(capsys: pytest.CaptureFixture[str]) -> None:
@@ -189,7 +187,6 @@ def write_bad_content(tmp_path: Path) -> Path:
     return content
 
 
-@IA_PENDING
 def test_cli_check_applies_slot_allowed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     slots_dir = copy_slots_with(tmp_path, "daily.color", "allowed: [slop.P8]")
     content = write_bad_content(tmp_path)
@@ -197,7 +194,6 @@ def test_cli_check_applies_slot_allowed(tmp_path: Path, capsys: pytest.CaptureFi
     assert "slop.P8" not in capsys.readouterr().out
 
 
-@IA_PENDING
 def test_cli_check_applies_slot_forbidden(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     # 규칙 사본에서 slop.P8이 info 목적을 예외로 두게 바꿉니다. info 슬롯이 forbidden에 적으면 그래도 적용합니다.
     rules_dir = tmp_path / "rules"
