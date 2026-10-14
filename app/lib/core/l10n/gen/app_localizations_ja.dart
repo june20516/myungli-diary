@@ -156,6 +156,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get actionRetry => 'もう一度試す';
 
   @override
+  String get actionBusy => '処理中';
+
+  @override
   String traceIdLabel(String traceId) {
     return 'お問い合わせ番号 $traceId';
   }

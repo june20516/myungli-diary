@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/state_layout.dart';
-import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
@@ -68,8 +68,6 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tokens = context.tokens;
-    final colors = tokens.colors;
     final traceId = switch (error) {
       ProblemError(:final traceId) when traceId.isNotEmpty => traceId,
       _ => null,
@@ -80,12 +78,9 @@ class ErrorState extends StatelessWidget {
       alert: true,
       children: [
         const SizedBox(height: Space.s20),
-        // 임시: 계획 2에서 `primary-button` quiet로 교체합니다.
-        FeedbackTextAction(
+        PrimaryButton(
           label: l10n.actionRetry,
-          style: tokens.typography.labelLg.copyWith(
-            color: colors.actionPrimary,
-          ),
+          variant: PrimaryButtonVariant.quiet,
           onPressed: onRetry,
         ),
         if (traceId != null) _TraceId(traceId: traceId),

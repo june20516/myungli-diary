@@ -388,6 +388,12 @@ abstract class AppLocalizations {
   /// **'다시 시도'**
   String get actionRetry;
 
+  /// 임시. 주 버튼이 처리 중일 때 스크린리더가 읽는 문구(primary-button busyAnnounced)
+  ///
+  /// In ko, this message translates to:
+  /// **'처리 중'**
+  String get actionBusy;
+
   /// 임시. 오류 화면에 보이는 추적 번호 표시
   ///
   /// In ko, this message translates to:

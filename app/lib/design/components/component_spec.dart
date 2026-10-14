@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -48,4 +49,5 @@ const List<ComponentSpec> implementedComponents = [
   TermToken.spec,
   DepthLink.spec,
   ReactionButton.spec,
+  PrimaryButton.spec,
 ];

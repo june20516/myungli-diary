@@ -181,6 +181,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionRetry => 'Try again';
 
   @override
+  String get actionBusy => 'Processing';
+
+  @override
   String traceIdLabel(String traceId) {
     return 'Reference $traceId';
   }

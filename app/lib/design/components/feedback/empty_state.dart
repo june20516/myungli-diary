@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/state_layout.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -27,10 +28,7 @@ class EmptyState extends StatelessWidget {
   final String body;
 
   /// 주 버튼. 없으면 문장만.
-  ///
-  /// 임시: 호출하는 쪽이 넘기는 버튼입니다. 계획 2에서 `primary-button` filled로
-  /// 교체합니다(Material 기본 버튼의 물결·그림자는 명세 밖 효과라 쓰지 않습니다).
-  final Widget? action;
+  final PrimaryButton? action;
 
   /// 원 안 아이콘. 화면 성격에 맞게 고릅니다.
   final AppGlyph icon;

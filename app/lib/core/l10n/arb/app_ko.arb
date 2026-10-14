@@ -192,6 +192,10 @@
   "@actionRetry": {
     "description": "임시. 오류 뒤 다시 시도 버튼 문구"
   },
+  "actionBusy": "처리 중",
+  "@actionBusy": {
+    "description": "임시. 주 버튼이 처리 중일 때 스크린리더가 읽는 문구(primary-button busyAnnounced)"
+  },
   "traceIdLabel": "문의 번호 {traceId}",
   "@traceIdLabel": {
     "description": "임시. 오류 화면에 보이는 추적 번호 표시",

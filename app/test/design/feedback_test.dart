@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -505,7 +506,7 @@ void main() {
         _app(
           EmptyState(
             body: '아직 쓴 일기가 없어요',
-            action: TextButton(onPressed: () {}, child: const Text('쓰기')),
+            action: PrimaryButton(label: '쓰기', onPressed: () {}),
           ),
         ),
       );

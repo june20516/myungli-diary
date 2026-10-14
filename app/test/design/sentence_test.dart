@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -727,7 +728,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.text('광고 보고 열기'), findsNothing, reason: '글자 자리에 점 세 개');
-      expect(find.byKey(EvidenceLockPanel.dotsKey), findsOneWidget);
+      expect(find.byKey(PrimaryButton.dotsKey), findsOneWidget);
       expect(find.bySemanticsLabel('확인 중'), findsOneWidget);
       await tester.tap(find.byKey(EvidenceLockPanel.ctaKey));
       expect(watched, 0);

@@ -48,6 +48,7 @@
   "appTitle": "命理日記",
   "bootstrapFailed": "アプリを起動できませんでした。アプリを完全に終了してから、もう一度開いてください。",
   "actionRetry": "もう一度試す",
+  "actionBusy": "処理中",
   "traceIdLabel": "お問い合わせ番号 {traceId}",
   "tabToday": "今日",
   "tabCalendar": "カレンダー",

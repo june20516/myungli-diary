@@ -48,6 +48,7 @@
   "appTitle": "Myungli Diary",
   "bootstrapFailed": "The app could not start. Please close it completely and open it again.",
   "actionRetry": "Try again",
+  "actionBusy": "Processing",
   "traceIdLabel": "Reference {traceId}",
   "tabToday": "Today",
   "tabCalendar": "Calendar",

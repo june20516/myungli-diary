@@ -157,6 +157,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionRetry => '다시 시도';
 
   @override
+  String get actionBusy => '처리 중';
+
+  @override
   String traceIdLabel(String traceId) {
     return '문의 번호 $traceId';
   }
