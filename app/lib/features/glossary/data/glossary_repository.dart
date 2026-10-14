@@ -82,20 +82,31 @@ final class GlossaryRepository {
         'etag': response.headers.value('etag'),
         'body': data.toJson(),
       }),
-      // 근거 잠금과 무관한 값입니다. `CacheStore.write`의 필수 인자라 채웁니다.
+      // 용어집은 근거 잠금과 무관해, 잠금 무효화 대상(`lockedKeys`)에 걸리지 않도록
+      // `unlocked`로 둡니다. `CacheStore.write`의 필수 인자입니다.
       access: EvidenceAccess.unlocked,
     );
     return GlossaryNames(data.values);
   }
 
+  /// 캐시를 읽습니다. 없거나 깨졌으면(문법 오류·모양 불일치) null입니다.
+  ///
+  /// 깨진 항목은 "캐시 없음"으로 보고 다음 200 응답이 덮어써 회복합니다.
   Future<_CachedGlossary?> _readCache(Language language) async {
     final json = await _cache.read(CacheKind.glossary, language.value);
     if (json == null) {
       return null;
     }
-    final map = jsonDecode(json) as Map<String, dynamic>;
-    final body = Glossary.fromJson(map['body'] as Map<String, dynamic>);
-    return _CachedGlossary(map['etag'] as String?, GlossaryNames(body.values));
+    try {
+      final map = jsonDecode(json) as Map<String, dynamic>;
+      final body = Glossary.fromJson(map['body'] as Map<String, dynamic>);
+      return _CachedGlossary(
+        map['etag'] as String?,
+        GlossaryNames(body.values),
+      );
+    } on Object {
+      return null;
+    }
   }
 }
 

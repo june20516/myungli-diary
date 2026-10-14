@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
@@ -15,7 +16,13 @@ final glossaryRepositoryProvider = Provider<GlossaryRepository>(
 
 /// 이름 사전. 언어는 프로필 사본의 `language`, 없으면 앱 언어입니다.
 final glossaryProvider = FutureProvider<GlossaryNames>((ref) async {
-  final profile = await ref.watch(cachedProfileProvider.future);
+  // 프로필 사본을 읽지 못해도 사전이 막히지 않게 앱 언어로 대체합니다.
+  Profile? profile;
+  try {
+    profile = await ref.watch(cachedProfileProvider.future);
+  } on Object {
+    profile = null;
+  }
   // 앱 언어는 항상 구독해, 프로필이 없다가 생겨도 다시 계산됩니다.
   final appLanguage = ref.watch(appLanguageProvider);
   final language = profile?.language ?? appLanguage;
