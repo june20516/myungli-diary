@@ -1012,7 +1012,7 @@ abstract class AppLocalizations {
   /// **'이 계정에는 이미 저장된 사주가 있어요. 방금 입력한 정보는 쓰지 않고 저장된 사주로 이어 갈게요.'**
   String get loginDiscardNotice;
 
-  /// 임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드의 언어별 공식 문구
+  /// 임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드 Label의 완성형(ko "카카오 로그인", en "Login with Kakao"). 출처: assets/brand/README.md
   ///
   /// In ko, this message translates to:
   /// **'카카오 로그인'**

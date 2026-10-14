@@ -170,8 +170,10 @@ class LoginController extends AsyncNotifier<void> {
       return const LoginCancelled();
     } on AppError catch (error) {
       return LoginFailed(error);
-    } on Object catch (error) {
-      // 토큰 저장 실패 등 통신 밖 실패도 화면이 안내할 수 있게 모읍니다.
+    } on Object catch (error, stack) {
+      // 토큰 저장 실패·SDK 예외 등 통신 밖 실패도 화면이 안내할 수 있게 모읍니다. 진단을 위해
+      // 요약(오류 타입)만 보고합니다(D64 ②: nonce·토큰·입력 값은 싣지 않음).
+      session.crashReporter.record(CrashSummary.from(error), stack);
       return LoginFailed(UnexpectedError(error));
     }
   }

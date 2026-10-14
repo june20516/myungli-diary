@@ -350,7 +350,7 @@
   },
   "loginKakaoLabel": "カカオログイン",
   "@loginKakaoLabel": {
-    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드의 언어별 공식 문구"
+    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 출처 미확인: 카카오 디자인 가이드에 일본어 레이블이 없어 임의로 옮긴 문구입니다(assets/brand/README.md)."
   },
   "loginAppleLabel": "Appleでサインイン",
   "@loginAppleLabel": {

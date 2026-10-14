@@ -262,6 +262,37 @@ void main() {
     },
   );
 
+  testWidgets('Android Apple 웹 로그인을 취소하면 취소 안내를 보이고 server를 부르지 않습니다', (
+    tester,
+  ) async {
+    covers(const Covers(states: ['login:error']));
+    final container = await pumpApp(
+      tester,
+      scenario: 'new-user',
+      overrides: [
+        targetPlatformProvider.overrideWithValue(TargetPlatform.android),
+        appleWebAuthProvider.overrideWithValue(
+          FakeAppleWebAuth(
+            returnQuery: const {'error': 'user_cancelled_authorize'},
+          ),
+        ),
+      ],
+    );
+    await _openLoginFromWelcome(tester);
+
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) => w is SocialLoginButton && w.provider == SocialProvider.apple,
+      ),
+    );
+    await _settleLogin(tester, container);
+
+    expect(find.byKey(loginErrorKey), findsOneWidget);
+    expect(find.text('Apple 로그인을 취소했어요.'), findsOneWidget);
+    expect(_fake(container).callCountOf('completeAppleWebLogin'), 0);
+    expect(container.read(tokenStoreProvider).accessToken, isNull);
+  });
+
   testWidgets('버튼을 빠르게 두 번 눌러도 loginKakao 요청은 한 번입니다', (tester) async {
     final container = await pumpApp(tester, scenario: 'new-user');
     await _openLoginFromWelcome(tester);

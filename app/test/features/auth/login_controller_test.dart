@@ -70,11 +70,15 @@ class _FakeApi implements DefaultApi {
     this.isNewAccount = true,
     this.hasProfile = false,
     this.kakaoProblem,
+    this.getMeFails = false,
     List<String> webProblems = const [],
   }) : _webProblems = [...webProblems];
 
   final bool isNewAccount;
   final bool hasProfile;
+
+  /// true면 getMe가 503으로 실패합니다.
+  final bool getMeFails;
 
   /// 카카오 로그인이 낼 problem code. null이면 성공.
   final String? kakaoProblem;
@@ -156,11 +160,27 @@ class _FakeApi implements DefaultApi {
     ProgressCallback? onReceiveProgress,
   }) async {
     getMeCalls++;
+    if (getMeFails) {
+      throw _problem(503, 'server.unavailable');
+    }
     return _ok(_me(hasProfile: hasProfile));
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
+/// 쓰기가 늘 실패하는 보안 저장소(토큰 저장 실패).
+class _FailingSecureStore implements SecureStore {
+  @override
+  Future<String?> read(String key) async => null;
+
+  @override
+  Future<void> write(String key, String value) async =>
+      throw StateError('keychain unavailable');
+
+  @override
+  Future<void> delete(String key) async {}
 }
 
 /// 진입 갱신 횟수를 세는 대역.
@@ -205,6 +225,7 @@ final class _Harness {
     required this.kakao,
     required this.appleNative,
     required this.appleWeb,
+    required this.crashReporter,
   });
 
   final ProviderContainer container;
@@ -212,6 +233,7 @@ final class _Harness {
   final FakeKakaoAuth kakao;
   final FakeAppleNativeAuth appleNative;
   final FakeAppleWebAuth appleWeb;
+  final FakeCrashReporter crashReporter;
 
   LoginController get controller =>
       container.read(loginControllerProvider.notifier);
@@ -229,17 +251,21 @@ Future<_Harness> _harness({
   _FakeApi? api,
   FakeKakaoAuth? kakao,
   FakeAppleWebAuth? appleWeb,
+  FakeAppleNativeAuth? appleNative,
+  SecureStore? secureStore,
   TargetPlatform platform = TargetPlatform.android,
   OnboardingDraft draft = const OnboardingDraft(),
 }) async {
   final server = api ?? _FakeApi();
   final kakaoAuth = kakao ?? FakeKakaoAuth();
-  final native = FakeAppleNativeAuth();
+  final native = appleNative ?? FakeAppleNativeAuth();
+  final crashReporter = FakeCrashReporter();
   final web = appleWeb ?? FakeAppleWebAuth();
   final container = ProviderContainer(
     overrides: [
       restClientProvider.overrideWithValue(server),
-      secureStoreProvider.overrideWithValue(MemorySecureStore()),
+      secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
+      crashReporterProvider.overrideWithValue(crashReporter),
       kakaoAuthProvider.overrideWithValue(kakaoAuth),
       appleNativeAuthProvider.overrideWithValue(native),
       appleWebAuthProvider.overrideWithValue(web),
@@ -258,6 +284,7 @@ Future<_Harness> _harness({
     kakao: kakaoAuth,
     appleNative: native,
     appleWeb: web,
+    crashReporter: crashReporter,
   );
 }
 
@@ -309,6 +336,28 @@ void main() {
 
       expect((outcome as LoginFailed).error, isA<OfflineError>());
       expect(h.api.kakaoRequests, isEmpty);
+    });
+
+    test('AppError가 아닌 실패는 요약만 보고하고 LoginFailed(UnexpectedError)입니다', () async {
+      final h = await _harness(secureStore: _FailingSecureStore());
+
+      final outcome = await h.controller.signInWithKakao();
+
+      expect((outcome as LoginFailed).error, isA<UnexpectedError>());
+      final reported = h.crashReporter.errors.single;
+      expect(reported.errorType, 'StateError');
+      expect(reported.code, isNull);
+      expect(h.entry.refreshes, 0);
+    });
+
+    test('AppError 실패는 보고하지 않습니다(화면이 안내함)', () async {
+      final h = await _harness(
+        api: _FakeApi(kakaoProblem: 'auth.provider_token_invalid'),
+      );
+
+      await h.controller.signInWithKakao();
+
+      expect(h.crashReporter.errors, isEmpty);
     });
 
     test('503 auth.provider_unavailable이면 LoginFailed이고 토큰이 없습니다', () async {
@@ -375,6 +424,38 @@ void main() {
       expect(request.authorizationCode, 'fake-apple-authorization-code');
       expect(h.appleNative.providerNonces.single, hashNonce(request.nonce));
     });
+
+    test('iOS native가 취소하면 LoginCancelled이고 server를 부르지 않습니다', () async {
+      final h = await _harness(
+        platform: TargetPlatform.iOS,
+        appleNative: FakeAppleNativeAuth(
+          failWith: const SocialSignInCancelled(),
+        ),
+      );
+
+      final outcome = await h.controller.signInWithApple();
+
+      expect(outcome, isA<LoginCancelled>());
+      expect(h.api.appleRequests, isEmpty);
+      expect(h.entry.refreshes, 0);
+    });
+
+    test(
+      'Android 웹 복귀가 취소면 AppleWebFailed(userCancelled)이고 server를 부르지 않습니다',
+      () async {
+        final h = await _harness(
+          appleWeb: FakeAppleWebAuth(
+            returnQuery: const {'error': 'user_cancelled_authorize'},
+          ),
+        );
+
+        final outcome = await h.controller.signInWithApple();
+
+        expect((outcome as AppleWebFailed).error, AppleWebError.userCancelled);
+        expect(h.api.webRequests, isEmpty);
+        expect(h.accessToken, isNull);
+      },
+    );
 
     test(
       '복귀 state가 다르면 server를 부르지 않고 AppleWebFailed(stateMismatch)입니다',
@@ -472,6 +553,25 @@ void main() {
       expect(notices, 0);
       expect(h.draft.clears, 0);
       expect(h.api.getMeCalls, 0);
+    });
+
+    test('사주 확인(getMe)이 실패하면 안내 없이 입력을 남기고 세션을 유지한 채 진입합니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false, getMeFails: true),
+        draft: draft,
+      );
+      var notices = 0;
+
+      final outcome = await h.controller.signInWithKakao(
+        showDiscardNotice: () async => notices++,
+      );
+
+      expect(outcome, isA<LoginSucceeded>());
+      expect(h.api.getMeCalls, 1);
+      expect(notices, 0);
+      expect(h.draft.clears, 0);
+      expect(h.accessToken, 'login-access-token');
+      expect(h.entry.refreshes, 1);
     });
 
     test('기존 계정이라도 사주가 없으면 입력을 남깁니다', () async {
