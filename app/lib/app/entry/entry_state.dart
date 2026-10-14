@@ -17,6 +17,9 @@ enum EntryState {
   /// 사주 프로필이 없습니다.
   profileRequired,
 
+  /// 이 기기에서 새 계정의 프로필을 만든 뒤 알림 허락(notify-ask)을 아직 거치지 않았습니다(A17).
+  notifyAskRequired,
+
   /// 이 기기에서 광고 동의를 받지 않았습니다. 화면 없이 SDK를 부른 뒤 다시 계산합니다.
   adConsentRequired,
 
@@ -26,13 +29,16 @@ enum EntryState {
 
 /// 진입 갈래를 판정합니다. 순서는 IA spec §3입니다.
 ///
-/// 업데이트 강제 > 로그아웃 > 약관 미동의 > 프로필 없음 > 광고 동의 전 > 완료.
-/// 삭제 대기 계정(server 결정 S16)은 로그아웃으로 봅니다.
+/// 업데이트 강제 > 로그아웃 > 약관 미동의 > 프로필 없음 > 알림 허락 대기 > 광고 동의 전 >
+/// 완료. 알림 허락 대기([notifyAskPending])는 IA 순서(프로필 저장 → notify-ask →
+/// ad-consent)를 지키려는 기기 플래그입니다(A17). 삭제 대기 계정(server 결정 S16)은
+/// 로그아웃으로 봅니다.
 EntryState computeEntry({
   required Version appVersion,
   required Version minimumVersion,
   required bool hasSession,
   required bool adConsentDone,
+  required bool notifyAskPending,
   Me? me,
 }) {
   if (appVersion < minimumVersion) {
@@ -46,6 +52,9 @@ EntryState computeEntry({
   }
   if (!me.hasProfile) {
     return EntryState.profileRequired;
+  }
+  if (notifyAskPending) {
+    return EntryState.notifyAskRequired;
   }
   if (!adConsentDone) {
     return EntryState.adConsentRequired;

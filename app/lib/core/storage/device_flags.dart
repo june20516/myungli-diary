@@ -4,6 +4,11 @@ import 'package:myungli_diary/core/storage/app_database.dart';
 /// 이 기기에서 광고 동의를 한 번 거쳤는지 나타내는 [DeviceFlags] 키.
 const adConsentDoneKey = 'ad.consentDone';
 
+/// 새 계정의 프로필을 만든 뒤 알림 허락(notify-ask)을 기다리는지 나타내는 [DeviceFlags] 키.
+///
+/// 프로필을 만들면 켜고, notify-ask가 허락하거나 건너뛰면 끕니다. 로그아웃하면 끕니다(A17).
+const notifyAskPendingKey = 'onboarding.notifyAskPending';
+
 /// 이 설치에서 앱을 한 번 실행했는지 나타내는 [DeviceFlags] 키.
 ///
 /// 앱을 지우면 DB는 사라지지만 iOS Keychain의 값(refresh token)은 남습니다. 이 표시가

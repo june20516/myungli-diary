@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
@@ -19,6 +22,47 @@ class _FixedEntry extends EntryController {
 
   @override
   Future<EntrySnapshot> build() async => EntrySnapshot(value, null);
+}
+
+/// 테스트가 [complete]를 부를 때까지 계산 중(entry null)으로 남는 진입 갈래.
+class _PendingEntry extends EntryController {
+  final _result = Completer<EntrySnapshot>();
+
+  @override
+  Future<EntrySnapshot> build() => _result.future;
+
+  void complete(EntryState entry) =>
+      _result.complete(EntrySnapshot(entry, null));
+}
+
+/// 진입 계산이 끝나기 전 상태로 라우터를 띄웁니다.
+Future<(ProviderContainer, GoRouter, _PendingEntry)> pumpPendingRouter(
+  WidgetTester tester,
+) async {
+  final entry = _PendingEntry();
+  final container = ProviderContainer(
+    overrides: [entryStateProvider.overrideWith(() => entry)],
+  );
+  addTearDown(container.dispose);
+  // 앱(MyungliApp)처럼 라우터를 듣고 있어야 진입 변화가 라우터에 닿습니다.
+  final router = container.listen(routerProvider, (_, _) {}).read();
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp.router(
+        routerConfig: router,
+        theme: buildTheme(
+          brightness: Brightness.light,
+          locale: const Locale('ko'),
+        ),
+        locale: const Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
+    ),
+  );
+  await tester.pump();
+  return (container, router, entry);
 }
 
 Future<GoRouter> pumpRouter(
@@ -124,6 +168,92 @@ void main() {
       }
     });
 
+    test('notifyAskRequired는 /notify-ask만 허용 (A17)', () {
+      expect(
+        entryRedirect(entry: EntryState.notifyAskRequired, path: '/today'),
+        '/notify-ask',
+      );
+      expect(
+        entryRedirect(entry: EntryState.notifyAskRequired, path: '/notify-ask'),
+        isNull,
+      );
+      expect(
+        entryRedirect(entry: EntryState.notifyAskRequired, path: '/launch'),
+        '/notify-ask',
+      );
+    });
+
+    test('계산이 끝나면 /launch에서 기억한 목적지가 허용되면 그곳으로 갑니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          path: '/launch',
+          pending: '/calendar',
+        ),
+        '/calendar',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          path: '/launch',
+          pending: '/today',
+        ),
+        '/today',
+      );
+    });
+
+    test('기억한 목적지가 그 갈래에서 허용되지 않으면 첫 화면으로 갑니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.signedOut,
+          path: '/launch',
+          pending: '/today',
+        ),
+        '/welcome',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.notifyAskRequired,
+          path: '/launch',
+          pending: '/today',
+        ),
+        '/notify-ask',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          path: '/launch',
+          pending: '/welcome',
+        ),
+        '/today',
+      );
+    });
+
+    test('기억한 목적지가 IA page 화면이 아니면 첫 화면으로 갑니다', () {
+      for (final pending in ['/auth/apple', '/launch', '/day-sheet']) {
+        expect(
+          entryRedirect(
+            entry: EntryState.ready,
+            path: '/launch',
+            pending: pending,
+          ),
+          '/today',
+          reason: pending,
+        );
+      }
+    });
+
+    test('/launch가 아닌 곳에서는 기억한 목적지를 쓰지 않습니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          path: '/welcome',
+          pending: '/calendar',
+        ),
+        '/today',
+      );
+    });
+
     test('아직 계산 전이면 /launch로 모읍니다', () {
       expect(entryRedirect(entry: null, path: '/today'), '/launch');
       expect(entryRedirect(entry: null, path: '/launch'), isNull);
@@ -160,6 +290,39 @@ void main() {
           }
         }
       }
+    });
+  });
+
+  group('진입 뒤 목적지 복귀', () {
+    testWidgets('계산 전 /calendar는 /launch로 가고 기억했다가 ready가 되면 /calendar', (
+      tester,
+    ) async {
+      final (container, router, entry) = await pumpPendingRouter(tester);
+      router.go('/calendar');
+      await tester.pump();
+      expect(currentPath(router), '/launch');
+      expect(container.read(pendingDestinationProvider), '/calendar');
+
+      entry.complete(EntryState.ready);
+      await tester.pumpAndSettle();
+      expect(currentPath(router), '/calendar');
+      expect(
+        container.read(pendingDestinationProvider),
+        isNull,
+        reason: '비웁니다',
+      );
+    });
+
+    testWidgets('기억한 /today는 signedOut이면 /welcome', (tester) async {
+      final (container, router, entry) = await pumpPendingRouter(tester);
+      router.go('/today');
+      await tester.pump();
+      expect(container.read(pendingDestinationProvider), '/today');
+
+      entry.complete(EntryState.signedOut);
+      await tester.pumpAndSettle();
+      expect(currentPath(router), '/welcome');
+      expect(container.read(pendingDestinationProvider), isNull);
     });
   });
 

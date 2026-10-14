@@ -122,6 +122,7 @@ typedef _Remaining = ({
   int drafts,
   int onboarding,
   bool adConsentDone,
+  bool notifyAskPending,
   String? refreshToken,
 });
 
@@ -139,6 +140,9 @@ Future<_Remaining> _remaining(
       adConsentDone: await container
           .read(deviceFlagsStoreProvider)
           .readBool(adConsentDoneKey),
+      notifyAskPending: await container
+          .read(deviceFlagsStoreProvider)
+          .readBool(notifyAskPendingKey),
       refreshToken: await container.read(tokenStoreProvider).refreshToken(),
     );
   }))!;
@@ -217,9 +221,13 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
     expect(container.read(meProvider)?.accountId, _memberAccountId);
     // 다른 실행에서 남은 데이터를 다시 심습니다(로그인 상태에서 쌓인 것).
-    await tester.runAsync(
-      () => _seedLocalData(container.read(appDatabaseProvider)),
-    );
+    // 알림 허락을 아직 거치지 않은 새 계정처럼 알림 허락 대기 플래그도 켭니다(A17).
+    await tester.runAsync(() async {
+      await _seedLocalData(container.read(appDatabaseProvider));
+      await container
+          .read(deviceFlagsStoreProvider)
+          .writeBool(notifyAskPendingKey, value: true);
+    });
 
     // AuthInterceptor가 refresh 거부(401·재사용) 때 부르는 것과 같은 경로입니다.
     await tester.runAsync(container.read(tokenStoreProvider).signOut);
@@ -228,6 +236,11 @@ void main() {
     final remaining = await _remaining(tester, container);
     _expectCleaned(remaining);
     expect(remaining.adConsentDone, isTrue, reason: '기기 플래그는 남습니다');
+    expect(
+      remaining.notifyAskPending,
+      isFalse,
+      reason: '알림 허락 대기는 그 계정의 온보딩 단계라 끕니다(A17)',
+    );
     expect(purchases.loggedInAccountId, isNull);
     expect(crash.userId, isNull);
     expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-13T15:35:38.431628Z",
+  "generatedAt": "2026-10-14T01:33:21.751161Z",
   "exits": {
-    "covered": 3,
-    "total": 76,
+    "covered": 4,
+    "total": 77,
     "uncovered": [
       "account-delete>welcome",
       "ad-consent>today",
@@ -64,8 +64,8 @@
       "settings>profile-edit",
       "settings>welcome",
       "share-preview>system-share",
+      "system-apple-return>welcome",
       "system-purchase>ad-free",
-      "system-push>today",
       "system-rewarded-ad>evidence-sheet",
       "tag-diary>diary-view",
       "tag-diary>explain-sheet",
@@ -88,6 +88,10 @@
       "launch>welcome": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+      ],
+      "system-push>today": [
+        "test/flows/push_open_flow_test.dart:14 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
+        "test/flows/push_open_flow_test.dart:51 실행 중 알림을 누르면 today로 갑니다"
       ]
     }
   },
@@ -168,6 +172,7 @@
     "coveredBy": {
       "D50": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
+        "test/flows/push_open_flow_test.dart:14 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
     }
@@ -294,6 +299,16 @@
       }
     },
     "system-push": {
+      "exits": {
+        "covered": 1,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 0
+      }
+    },
+    "system-apple-return": {
       "exits": {
         "covered": 0,
         "total": 1

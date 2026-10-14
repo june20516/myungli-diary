@@ -76,9 +76,12 @@ app/
 * **시트는 route가 아닙니다.** `explain-sheet`·`evidence-sheet`·`day-sheet`·`share-preview`는 시트 서비스로 엽니다. 어느 화면 위에서도 겹쳐 열리고, 닫히면 원래 화면으로 돌아와야 하기 때문입니다.
 * **시스템 화면은 SDK 호출입니다.** 대상은 `system-push`, `system-share`, `system-purchase`, `system-rewarded-ad`, `ad-consent`입니다.
 * **진입 갈래는 상태 하나에서 계산합니다.**
-  * 판정 순서는 `force-update` > 로그아웃 > 약관 미동의 > 프로필 없음 > 이 기기 광고 동의 전 > 완료입니다.
-  * 이 상태는 다음 값에서 나옵니다: 앱 버전과 `getAppConfig`, 토큰 유무, `getMe`(`consentRequired`·`hasProfile`·`status`), 기기 플래그(광고 동의).
+  * 판정 순서는 `force-update` > 로그아웃 > 약관 미동의 > 프로필 없음 > 알림 허락 대기 > 이 기기 광고 동의 전 > 완료입니다(알림 허락 대기는 결정 A17).
+    * 알림 허락 대기는 새 계정이 프로필을 만든 뒤 `notify-ask`를 거치기 전입니다. IA 순서(약관 동의 → 프로필 저장 → `notify-ask` → `ad-consent` → `today`)를 지키려고 광고 동의보다 먼저 봅니다. 이 갈래에서는 `notify-ask`만 열립니다.
+  * 이 상태는 다음 값에서 나옵니다: 앱 버전과 `getAppConfig`, 토큰 유무, `getMe`(`consentRequired`·`hasProfile`·`status`), 기기 플래그(광고 동의 `ad.consentDone`, 알림 허락 대기 `onboarding.notifyAskPending`).
+    * 알림 허락 대기 플래그는 프로필을 만들 때 켜고, `notify-ask`에서 허락하거나 건너뛰면 끄고, 로그아웃하면 끕니다.
   * 라우터 redirect는 이 상태만 보고 IA `auth`(guest·member·any)를 가립니다.
+  * 진입 계산 전에는 모든 경로를 `launch`로 모읍니다. 이때 들어온 경로(딥링크, 알림 열기)는 기억했다가, 계산 뒤 `launch`를 떠날 때 그 갈래가 허용하는 page 화면이면 그곳으로, 아니면 갈래의 첫 화면으로 보냅니다. 한 번 쓰면 비웁니다.
   * 갈래 규칙은 한 함수에 모으고, 표 형태로 단위 테스트합니다(IA spec §3.3의 경우 전부).
 * **온보딩 입력은 로컬에 저장합니다.**
   * 미리보기 뒤 로그인 도중 앱이 꺼져도 입력이 남습니다. 프로필 저장이 성공하면 지웁니다.

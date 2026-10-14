@@ -101,17 +101,20 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
       return const EntrySnapshot(EntryState.signedOut, null);
     }
 
+    final notifyAskPending = await flags.readBool(notifyAskPendingKey);
     EntryState compute({required bool adConsentDone}) => computeEntry(
       appVersion: appVersion,
       minimumVersion: minimum,
       hasSession: hasSession,
       me: me,
       adConsentDone: adConsentDone,
+      notifyAskPending: notifyAskPending,
     );
 
     final adConsentDone = await flags.readBool(adConsentDoneKey);
     final entry = compute(adConsentDone: adConsentDone);
     if (entry != EntryState.adConsentRequired) {
+      // 알림 허락 대기(notifyAskRequired)면 광고 동의는 notify-ask 뒤로 미룹니다(A17).
       return EntrySnapshot(entry, me);
     }
     // 결과(맞춤·비맞춤)와 상관없이 이 기기에서 한 번 거친 것으로 칩니다.
