@@ -83,5 +83,7 @@
         "example": "식신"
       }
     }
-  }
+  },
+  "inputStepProgress": "{stepCount}ステップ中{step}ステップ目",
+  "textFieldClear": "消去"
 }

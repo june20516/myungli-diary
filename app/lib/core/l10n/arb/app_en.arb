@@ -83,5 +83,7 @@
         "example": "식신"
       }
     }
-  }
+  },
+  "inputStepProgress": "Step {step} of {stepCount}",
+  "textFieldClear": "Clear"
 }

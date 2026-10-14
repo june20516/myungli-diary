@@ -243,4 +243,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String termTokenSemantics(String term) {
     return '$termの解説を見る';
   }
+
+  @override
+  String inputStepProgress(int step, int stepCount) {
+    return '$stepCountステップ中$stepステップ目';
+  }
+
+  @override
+  String get textFieldClear => '消去';
 }

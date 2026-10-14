@@ -244,4 +244,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String termTokenSemantics(String term) {
     return '$term 풀이 보기';
   }
+
+  @override
+  String inputStepProgress(int step, int stepCount) {
+    return '$stepCount단계 중 $step단계';
+  }
+
+  @override
+  String get textFieldClear => '지우기';
 }

@@ -555,6 +555,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{term} 풀이 보기'**
   String termTokenSemantics(String term);
+
+  /// 임시. 온보딩 진행 막대의 스크린리더 라벨(input-step progressLabel)
+  ///
+  /// In ko, this message translates to:
+  /// **'{stepCount}단계 중 {step}단계'**
+  String inputStepProgress(int step, int stepCount);
+
+  /// 임시. 글자 입력칸의 지우기 버튼 이름(text-field clear)
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get textFieldClear;
 }
 
 class _AppLocalizationsDelegate

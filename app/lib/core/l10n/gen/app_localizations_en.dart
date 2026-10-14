@@ -270,4 +270,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String termTokenSemantics(String term) {
     return 'View the meaning of $term';
   }
+
+  @override
+  String inputStepProgress(int step, int stepCount) {
+    return 'Step $step of $stepCount';
+  }
+
+  @override
+  String get textFieldClear => 'Clear';
 }
