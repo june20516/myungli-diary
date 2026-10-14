@@ -315,4 +315,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String citySearchResults(int count) {
     return '結果$count件';
   }
+
+  @override
+  String get forceUpdateNoticeHead => '新しいバージョンが必要です';
+
+  @override
+  String get forceUpdateNoticeBody => '引き続きご利用いただくには、最新バージョンに更新してください。';
+
+  @override
+  String get forceUpdateCtaStore => 'ストアで更新';
+
+  @override
+  String get welcomeConceptHead => '今日の自分を読み解く';
+
+  @override
+  String get welcomeConceptBody => '生年月日時から読み解いた一日を言葉で受け取り、日記と一緒に記録します。';
+
+  @override
+  String get welcomeCtaStart => 'はじめる';
+
+  @override
+  String get welcomeCtaSignin => 'すでにアカウントをお持ちの方';
 }

@@ -3,6 +3,8 @@ import 'package:myungli_diary/app/router/placeholder_screen.dart';
 import 'package:myungli_diary/app/screens/launch_screen.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
+import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
 
 /// 화면 하나의 등록 정보.
 final class ScreenSpec {
@@ -34,7 +36,9 @@ final Map<String, ScreenSpec> screenRegistry = {
   for (final screen in iaScreens)
     // launch는 아래에서 본체로 등록합니다.
     if (screen.presentation == IaPresentation.page &&
-        screen.id != ScreenIds.launch)
+        screen.id != ScreenIds.launch &&
+        screen.id != ScreenIds.forceUpdate &&
+        screen.id != ScreenIds.welcome)
       screen.id: ScreenSpec(
         screen.id,
         (context) => PlaceholderScreen(screen.id),
@@ -50,6 +54,19 @@ final Map<String, ScreenSpec> screenRegistry = {
       ScreenIds.forceUpdate,
     },
   ),
+  ScreenIds.forceUpdate: const ScreenSpec(
+    ScreenIds.forceUpdate,
+    _buildForceUpdate,
+  ),
+  ScreenIds.welcome: const ScreenSpec(
+    ScreenIds.welcome,
+    _buildWelcome,
+    exits: welcomeExits,
+  ),
 };
 
 Widget _buildLaunch(BuildContext context) => const LaunchScreen();
+
+Widget _buildForceUpdate(BuildContext context) => const ForceUpdateScreen();
+
+Widget _buildWelcome(BuildContext context) => const WelcomeScreen();

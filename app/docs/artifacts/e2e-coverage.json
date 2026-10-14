@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-14T01:33:21.751161Z",
+  "generatedAt": "2026-10-14T03:22:04.990555Z",
   "exits": {
-    "covered": 4,
+    "covered": 6,
     "total": 77,
     "uncovered": [
       "account-delete>welcome",
@@ -74,9 +74,7 @@
       "today>diary-view",
       "today>evidence-sheet",
       "today>explain-sheet",
-      "today>share-preview",
-      "welcome>login",
-      "welcome>onboard-call"
+      "today>share-preview"
     ],
     "coveredBy": {
       "launch>force-update": [
@@ -90,8 +88,14 @@
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ],
       "system-push>today": [
-        "test/flows/push_open_flow_test.dart:14 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
-        "test/flows/push_open_flow_test.dart:51 실행 중 알림을 누르면 today로 갑니다"
+        "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
+        "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
+      ],
+      "welcome>login": [
+        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다"
+      ],
+      "welcome>onboard-call": [
+        "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다"
       ]
     }
   },
@@ -172,7 +176,7 @@
     "coveredBy": {
       "D50": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
-        "test/flows/push_open_flow_test.dart:14 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
+        "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
     }
@@ -200,7 +204,7 @@
     },
     "welcome": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {

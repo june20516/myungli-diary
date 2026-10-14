@@ -663,6 +663,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결과 {count}개'**
   String citySearchResults(int count);
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'새 버전이 필요해요'**
+  String get forceUpdateNoticeHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 계속 쓰려면 최신 버전으로 업데이트해 주세요.'**
+  String get forceUpdateNoticeBody;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'스토어에서 업데이트'**
+  String get forceUpdateCtaStore;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 나를 읽어요'**
+  String get welcomeConceptHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'생년월일시로 풀이한 하루를 문장으로 만나고, 일기와 함께 기록해요.'**
+  String get welcomeConceptBody;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'시작하기'**
+  String get welcomeCtaStart;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 계정이 있어요'**
+  String get welcomeCtaSignin;
 }
 
 class _AppLocalizationsDelegate

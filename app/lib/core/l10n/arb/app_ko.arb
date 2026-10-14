@@ -449,5 +449,33 @@
         "example": "3"
       }
     }
+  },
+  "forceUpdateNoticeHead": "새 버전이 필요해요",
+  "@forceUpdateNoticeHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "forceUpdateNoticeBody": "앱을 계속 쓰려면 최신 버전으로 업데이트해 주세요.",
+  "@forceUpdateNoticeBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "forceUpdateCtaStore": "스토어에서 업데이트",
+  "@forceUpdateCtaStore": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeConceptHead": "오늘의 나를 읽어요",
+  "@welcomeConceptHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeConceptBody": "생년월일시로 풀이한 하루를 문장으로 만나고, 일기와 함께 기록해요.",
+  "@welcomeConceptBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeCtaStart": "시작하기",
+  "@welcomeCtaStart": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeCtaSignin": "이미 계정이 있어요",
+  "@welcomeCtaSignin": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
   }
 }

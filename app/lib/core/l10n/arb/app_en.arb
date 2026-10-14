@@ -101,5 +101,33 @@
   "timePickerHourItem": "{hour}",
   "timePickerMinuteItem": "{minute}",
   "datePickerLeapMonthValue": "Leap {month}",
-  "citySearchResults": "Results: {count}"
+  "citySearchResults": "Results: {count}",
+  "forceUpdateNoticeHead": "A new version is needed",
+  "@forceUpdateNoticeHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "forceUpdateNoticeBody": "Please update to the latest version to keep using the app.",
+  "@forceUpdateNoticeBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "forceUpdateCtaStore": "Update in the store",
+  "@forceUpdateCtaStore": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeConceptHead": "Read yourself today",
+  "@welcomeConceptHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeConceptBody": "Meet your day in words drawn from your birth chart, and keep it with a diary.",
+  "@welcomeConceptBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeCtaStart": "Get started",
+  "@welcomeCtaStart": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "welcomeCtaSignin": "I already have an account",
+  "@welcomeCtaSignin": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  }
 }

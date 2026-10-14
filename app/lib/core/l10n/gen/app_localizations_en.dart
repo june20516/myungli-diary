@@ -342,4 +342,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String citySearchResults(int count) {
     return 'Results: $count';
   }
+
+  @override
+  String get forceUpdateNoticeHead => 'A new version is needed';
+
+  @override
+  String get forceUpdateNoticeBody =>
+      'Please update to the latest version to keep using the app.';
+
+  @override
+  String get forceUpdateCtaStore => 'Update in the store';
+
+  @override
+  String get welcomeConceptHead => 'Read yourself today';
+
+  @override
+  String get welcomeConceptBody =>
+      'Meet your day in words drawn from your birth chart, and keep it with a diary.';
+
+  @override
+  String get welcomeCtaStart => 'Get started';
+
+  @override
+  String get welcomeCtaSignin => 'I already have an account';
 }

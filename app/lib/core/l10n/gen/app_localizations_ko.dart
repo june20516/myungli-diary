@@ -316,4 +316,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String citySearchResults(int count) {
     return '결과 $count개';
   }
+
+  @override
+  String get forceUpdateNoticeHead => '새 버전이 필요해요';
+
+  @override
+  String get forceUpdateNoticeBody => '앱을 계속 쓰려면 최신 버전으로 업데이트해 주세요.';
+
+  @override
+  String get forceUpdateCtaStore => '스토어에서 업데이트';
+
+  @override
+  String get welcomeConceptHead => '오늘의 나를 읽어요';
+
+  @override
+  String get welcomeConceptBody => '생년월일시로 풀이한 하루를 문장으로 만나고, 일기와 함께 기록해요.';
+
+  @override
+  String get welcomeCtaStart => '시작하기';
+
+  @override
+  String get welcomeCtaSignin => '이미 계정이 있어요';
 }
