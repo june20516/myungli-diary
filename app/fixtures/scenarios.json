@@ -5,7 +5,7 @@
     "timezone": "Asia/Seoul",
     "network": "online",
     "signedIn": false,
-    "description": "처음 설치한 사용자. 토큰이 없고 앱 설정만 받을 수 있습니다."
+    "description": "처음 설치한 사용자. 토큰이 없고, 로그인하면 새 계정(약관 동의 필요, 프로필 없음)입니다."
   },
   {
     "id": "member",
@@ -137,5 +137,32 @@
     "network": "online",
     "signedIn": false,
     "description": "처음 설치한 사용자. 미리보기(createPreview)가 422 birth.invalid로 답해 입력을 다시 받아야 합니다."
+  },
+  {
+    "id": "returning-user",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "사주가 저장된 계정으로 이 기기에 처음 로그인하는 사용자. 토큰이 없고, 로그인하면 기존 계정(isNewAccount false)이며 getMe는 member와 같습니다(약관 동의, 프로필 있음)."
+  },
+  {
+    "id": "login-provider-down",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. 카카오 로그인(loginKakao)이 503 auth.provider_unavailable이라 로그인 오류 상태와 재시도를 확인합니다."
+  },
+  {
+    "id": "login-exchange-invalid",
+    "extends": "new-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "처음 설치한 사용자. Android Apple 웹 로그인 완료(completeAppleWebLogin)가 401 auth.exchange_invalid(교환 코드 만료·사용됨)라 처음부터 다시 로그인 안내를 확인합니다."
   }
 ]

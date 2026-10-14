@@ -335,5 +335,45 @@
   "actionClose": "Close",
   "@actionClose": {
     "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
+  },
+  "loginTitleHead": "Sign in to continue",
+  "@loginTitleHead": {
+    "description": "임시. IA 슬롯 login.title.head: 로그인 제목"
+  },
+  "loginTitleBody": "Sign in to save your saju and get your reading every day.",
+  "@loginTitleBody": {
+    "description": "임시. IA 슬롯 login.title.body: 저장하려면 로그인한다는 설명"
+  },
+  "loginDiscardNotice": "This account already has a saved saju. We'll continue with it instead of the details you just entered.",
+  "@loginDiscardNotice": {
+    "description": "임시. IA 슬롯 login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
+  },
+  "loginKakaoLabel": "Login with Kakao",
+  "@loginKakaoLabel": {
+    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드의 언어별 공식 문구"
+  },
+  "loginAppleLabel": "Sign in with Apple",
+  "@loginAppleLabel": {
+    "description": "임시. Apple 로그인 버튼 글자(슬롯 아님). Sign in with Apple HIG의 언어별 공식 문구"
+  },
+  "loginCancelled": "Sign-in was cancelled.",
+  "@loginCancelled": {
+    "description": "임시. 로그인 오류 상태: 카카오·iOS Apple 로그인 창을 닫음(슬롯 아님)"
+  },
+  "appleWebErrorStateMismatch": "We couldn't verify the sign-in. Please sign in again from the start.",
+  "@appleWebErrorStateMismatch": {
+    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 state가 맞지 않음(슬롯 아님)"
+  },
+  "appleWebErrorCancelled": "Sign in with Apple was cancelled.",
+  "@appleWebErrorCancelled": {
+    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인을 사용자가 취소함(슬롯 아님)"
+  },
+  "appleWebErrorOther": "We couldn't sign you in with Apple. Please try again.",
+  "@appleWebErrorOther": {
+    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 그 밖 실패(슬롯 아님)"
+  },
+  "actionConfirm": "OK",
+  "@actionConfirm": {
+    "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
   }
 }

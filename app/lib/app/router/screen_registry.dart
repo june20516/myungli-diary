@@ -3,6 +3,7 @@ import 'package:myungli_diary/app/router/placeholder_screen.dart';
 import 'package:myungli_diary/app/screens/launch_screen.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboard_birth_screen.dart';
@@ -92,6 +93,12 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: previewHandledStates,
     exits: previewExits,
   ),
+  ScreenIds.login: const ScreenSpec(
+    ScreenIds.login,
+    _buildLogin,
+    handledStates: loginHandledStates,
+    exits: loginExits,
+  ),
 };
 
 /// page 화면 registry. 시트·system 화면은 route가 없어 넣지 않습니다.
@@ -124,3 +131,5 @@ Widget _buildOnboardGender(BuildContext context) => const OnboardGenderScreen();
 Widget _buildBirthplace(BuildContext context) => const BirthplaceScreen();
 
 Widget _buildPreview(BuildContext context) => const PreviewScreen();
+
+Widget _buildLogin(BuildContext context) => const LoginScreen();

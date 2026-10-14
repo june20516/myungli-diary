@@ -484,4 +484,35 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get actionClose => '닫기';
+
+  @override
+  String get loginTitleHead => '로그인하고 이어 가요';
+
+  @override
+  String get loginTitleBody => '로그인하면 사주를 저장하고 매일 오늘의 풀이를 받아 볼 수 있어요.';
+
+  @override
+  String get loginDiscardNotice =>
+      '이 계정에는 이미 저장된 사주가 있어요. 방금 입력한 정보는 쓰지 않고 저장된 사주로 이어 갈게요.';
+
+  @override
+  String get loginKakaoLabel => '카카오 로그인';
+
+  @override
+  String get loginAppleLabel => 'Apple로 로그인';
+
+  @override
+  String get loginCancelled => '로그인을 취소했어요.';
+
+  @override
+  String get appleWebErrorStateMismatch => '로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요.';
+
+  @override
+  String get appleWebErrorCancelled => 'Apple 로그인을 취소했어요.';
+
+  @override
+  String get appleWebErrorOther => 'Apple로 로그인하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get actionConfirm => '확인';
 }

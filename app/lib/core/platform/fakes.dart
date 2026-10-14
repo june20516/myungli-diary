@@ -19,11 +19,11 @@ import 'package:myungli_diary/core/platform/store_launcher.dart';
 
 /// 카카오 로그인 대역.
 final class FakeKakaoAuth implements KakaoAuth {
-  /// [failWith]를 주면 그 오류로 실패합니다.
+  /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).
   new({this.failWith});
 
-  /// 던질 오류. null이면 성공.
-  final AppError? failWith;
+  /// 던질 오류(`AppError` 또는 `SocialSignInCancelled`). null이면 성공.
+  final Exception? failWith;
 
   /// 제공자에게 보낸 nonce(해시) 기록.
   final providerNonces = <String>[];
@@ -41,11 +41,11 @@ final class FakeKakaoAuth implements KakaoAuth {
 
 /// iOS Apple 로그인 대역.
 final class FakeAppleNativeAuth implements AppleNativeAuth {
-  /// [failWith]를 주면 그 오류로 실패합니다.
+  /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).
   new({this.failWith});
 
-  /// 던질 오류. null이면 성공.
-  final AppError? failWith;
+  /// 던질 오류(`AppError` 또는 `SocialSignInCancelled`). null이면 성공.
+  final Exception? failWith;
 
   /// 제공자에게 보낸 nonce(해시) 기록.
   final providerNonces = <String>[];

@@ -97,6 +97,19 @@ void main() {
       );
     });
 
+    test('카카오·Apple native 대역은 취소를 SocialSignInCancelled로 알린다', () async {
+      await expectLater(
+        FakeKakaoAuth(failWith: const SocialSignInCancelled())
+            .signIn(rawNonce: _rawNonce),
+        throwsA(isA<SocialSignInCancelled>()),
+      );
+      await expectLater(
+        FakeAppleNativeAuth(failWith: const SocialSignInCancelled())
+            .signIn(rawNonce: _rawNonce),
+        throwsA(isA<SocialSignInCancelled>()),
+      );
+    });
+
     test('Apple native 대역은 idToken·authorizationCode를 내고 해시를 보낸다', () async {
       final auth = FakeAppleNativeAuth();
       final credential = await auth.signIn(rawNonce: _rawNonce);

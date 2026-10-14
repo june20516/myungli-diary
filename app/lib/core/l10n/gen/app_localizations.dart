@@ -993,6 +993,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'닫기'**
   String get actionClose;
+
+  /// 임시. IA 슬롯 login.title.head: 로그인 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하고 이어 가요'**
+  String get loginTitleHead;
+
+  /// 임시. IA 슬롯 login.title.body: 저장하려면 로그인한다는 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하면 사주를 저장하고 매일 오늘의 풀이를 받아 볼 수 있어요.'**
+  String get loginTitleBody;
+
+  /// 임시. IA 슬롯 login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이 계정에는 이미 저장된 사주가 있어요. 방금 입력한 정보는 쓰지 않고 저장된 사주로 이어 갈게요.'**
+  String get loginDiscardNotice;
+
+  /// 임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드의 언어별 공식 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'카카오 로그인'**
+  String get loginKakaoLabel;
+
+  /// 임시. Apple 로그인 버튼 글자(슬롯 아님). Sign in with Apple HIG의 언어별 공식 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple로 로그인'**
+  String get loginAppleLabel;
+
+  /// 임시. 로그인 오류 상태: 카카오·iOS Apple 로그인 창을 닫음(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인을 취소했어요.'**
+  String get loginCancelled;
+
+  /// 임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 state가 맞지 않음(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요.'**
+  String get appleWebErrorStateMismatch;
+
+  /// 임시. 로그인 오류 상태: Android Apple 웹 로그인을 사용자가 취소함(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple 로그인을 취소했어요.'**
+  String get appleWebErrorCancelled;
+
+  /// 임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 그 밖 실패(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple로 로그인하지 못했어요. 다시 시도해 주세요.'**
+  String get appleWebErrorOther;
+
+  /// 임시. 확인 창의 확인 버튼(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'확인'**
+  String get actionConfirm;
 }
 
 class _AppLocalizationsDelegate

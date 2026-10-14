@@ -335,5 +335,45 @@
   "actionClose": "閉じる",
   "@actionClose": {
     "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
+  },
+  "loginTitleHead": "ログインして続けましょう",
+  "@loginTitleHead": {
+    "description": "임시. IA 슬롯 login.title.head: 로그인 제목"
+  },
+  "loginTitleBody": "ログインすると四柱を保存して、毎日その日の解説を受け取れます。",
+  "@loginTitleBody": {
+    "description": "임시. IA 슬롯 login.title.body: 저장하려면 로그인한다는 설명"
+  },
+  "loginDiscardNotice": "このアカウントには保存された四柱があります。いま入力した情報は使わず、保存された四柱で続けます。",
+  "@loginDiscardNotice": {
+    "description": "임시. IA 슬롯 login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
+  },
+  "loginKakaoLabel": "カカオログイン",
+  "@loginKakaoLabel": {
+    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드의 언어별 공식 문구"
+  },
+  "loginAppleLabel": "Appleでサインイン",
+  "@loginAppleLabel": {
+    "description": "임시. Apple 로그인 버튼 글자(슬롯 아님). Sign in with Apple HIG의 언어별 공식 문구"
+  },
+  "loginCancelled": "ログインをキャンセルしました。",
+  "@loginCancelled": {
+    "description": "임시. 로그인 오류 상태: 카카오·iOS Apple 로그인 창을 닫음(슬롯 아님)"
+  },
+  "appleWebErrorStateMismatch": "ログインを確認できませんでした。最初からもう一度ログインしてください。",
+  "@appleWebErrorStateMismatch": {
+    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 state가 맞지 않음(슬롯 아님)"
+  },
+  "appleWebErrorCancelled": "Appleでのサインインをキャンセルしました。",
+  "@appleWebErrorCancelled": {
+    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인을 사용자가 취소함(슬롯 아님)"
+  },
+  "appleWebErrorOther": "Appleでサインインできませんでした。もう一度お試しください。",
+  "@appleWebErrorOther": {
+    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 그 밖 실패(슬롯 아님)"
+  },
+  "actionConfirm": "OK",
+  "@actionConfirm": {
+    "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
   }
 }

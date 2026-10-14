@@ -482,4 +482,36 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get actionClose => '閉じる';
+
+  @override
+  String get loginTitleHead => 'ログインして続けましょう';
+
+  @override
+  String get loginTitleBody => 'ログインすると四柱を保存して、毎日その日の解説を受け取れます。';
+
+  @override
+  String get loginDiscardNotice =>
+      'このアカウントには保存された四柱があります。いま入力した情報は使わず、保存された四柱で続けます。';
+
+  @override
+  String get loginKakaoLabel => 'カカオログイン';
+
+  @override
+  String get loginAppleLabel => 'Appleでサインイン';
+
+  @override
+  String get loginCancelled => 'ログインをキャンセルしました。';
+
+  @override
+  String get appleWebErrorStateMismatch =>
+      'ログインを確認できませんでした。最初からもう一度ログインしてください。';
+
+  @override
+  String get appleWebErrorCancelled => 'Appleでのサインインをキャンセルしました。';
+
+  @override
+  String get appleWebErrorOther => 'Appleでサインインできませんでした。もう一度お試しください。';
+
+  @override
+  String get actionConfirm => 'OK';
 }

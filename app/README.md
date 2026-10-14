@@ -38,7 +38,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 
   | id | 상태 |
   | --- | --- |
-  | `new-user` | 처음 설치. 토큰 없음, 앱 설정만 받을 수 있음 |
+  | `new-user` | 처음 설치. 토큰 없음. 로그인하면 새 계정(약관 동의 필요, 프로필 없음) |
   | `member` | 로그인한 회원. 약관 동의, 프로필 있음 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
   | `profile-required` | 약관 동의했지만 프로필 없음 |
@@ -53,6 +53,9 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `time-unknown` | 처음 설치한 사용자. 미리보기(createPreview)에 time_unknown notice가 있어 시간 모름 배너가 보입니다 |
   | `preview-used` | 처음 설치한 사용자. 미리보기(createPreview)가 이미 쓰여 403 preview.used로 답합니다 |
   | `preview-invalid` | 처음 설치한 사용자. 미리보기(createPreview)가 422 birth.invalid로 답해 입력을 다시 받아야 합니다 |
+  | `returning-user` | 사주가 저장된 계정으로 이 기기에 처음 로그인하는 사용자. 토큰 없음, 로그인하면 기존 계정(isNewAccount false)이고 내 정보는 `member`와 같음(약관 동의, 프로필 있음) |
+  | `login-provider-down` | 처음 설치한 사용자. 카카오 로그인(loginKakao)이 503 auth.provider_unavailable이라 로그인 오류 상태와 재시도를 확인합니다 |
+  | `login-exchange-invalid` | 처음 설치한 사용자. Android Apple 웹 로그인 완료(completeAppleWebLogin)가 401 auth.exchange_invalid라 처음부터 다시 로그인 안내를 확인합니다 |
 
   원본은 `fixtures/scenarios.json`입니다. `extends`로 다른 시나리오의 fixture를 이어받습니다.
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).

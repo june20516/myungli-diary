@@ -225,6 +225,9 @@ void main() {
         'time-unknown',
         'preview-used',
         'preview-invalid',
+        'returning-user',
+        'login-provider-down',
+        'login-exchange-invalid',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));

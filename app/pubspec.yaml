@@ -141,3 +141,6 @@ flutter:
     - fixtures/time-unknown/
     - fixtures/preview-used/
     - fixtures/preview-invalid/
+    - fixtures/returning-user/
+    - fixtures/login-provider-down/
+    - fixtures/login-exchange-invalid/

@@ -517,4 +517,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionClose => 'Close';
+
+  @override
+  String get loginTitleHead => 'Sign in to continue';
+
+  @override
+  String get loginTitleBody =>
+      'Sign in to save your saju and get your reading every day.';
+
+  @override
+  String get loginDiscardNotice =>
+      'This account already has a saved saju. We\'ll continue with it instead of the details you just entered.';
+
+  @override
+  String get loginKakaoLabel => 'Login with Kakao';
+
+  @override
+  String get loginAppleLabel => 'Sign in with Apple';
+
+  @override
+  String get loginCancelled => 'Sign-in was cancelled.';
+
+  @override
+  String get appleWebErrorStateMismatch =>
+      'We couldn\'t verify the sign-in. Please sign in again from the start.';
+
+  @override
+  String get appleWebErrorCancelled => 'Sign in with Apple was cancelled.';
+
+  @override
+  String get appleWebErrorOther =>
+      'We couldn\'t sign you in with Apple. Please try again.';
+
+  @override
+  String get actionConfirm => 'OK';
 }

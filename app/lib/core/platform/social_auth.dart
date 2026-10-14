@@ -4,6 +4,19 @@
 
 import 'package:flutter/foundation.dart';
 
+/// 사용자가 제공자 로그인 창을 닫았습니다.
+///
+/// 통신 실패가 아니라 사용자의 선택이므로 `AppError`가 아닙니다. 카카오·Apple native
+/// adapter는 SDK의 취소 결과를 이 예외로 바꿉니다. Apple 웹 흐름의 취소는 복귀 결과
+/// [AppleWebError.userCancelled]로 옵니다.
+final class SocialSignInCancelled implements Exception {
+  /// 취소.
+  const new();
+
+  @override
+  String toString() => 'SocialSignInCancelled';
+}
+
 /// 카카오 로그인 결과. 계약 `KakaoLoginRequest`의 `idToken`입니다.
 final class KakaoCredential {
   /// OIDC id_token을 담습니다.
@@ -16,7 +29,7 @@ final class KakaoCredential {
 /// 카카오 로그인.
 abstract interface class KakaoAuth {
   /// nonce 원문 [rawNonce]의 해시로 로그인하고 자격을 받습니다.
-  /// 실패하면 `AppError`를 던집니다.
+  /// 사용자가 취소하면 [SocialSignInCancelled], 그 밖의 실패는 `AppError`를 던집니다.
   Future<KakaoCredential> signIn({required String rawNonce});
 }
 
@@ -35,7 +48,7 @@ final class AppleNativeCredential {
 /// iOS 네이티브 Apple 로그인. 결과는 `loginApple`로 보냅니다.
 abstract interface class AppleNativeAuth {
   /// nonce 원문 [rawNonce]의 해시로 로그인하고 자격을 받습니다.
-  /// 실패하면 `AppError`를 던집니다.
+  /// 사용자가 취소하면 [SocialSignInCancelled], 그 밖의 실패는 `AppError`를 던집니다.
   Future<AppleNativeCredential> signIn({required String rawNonce});
 }
 
