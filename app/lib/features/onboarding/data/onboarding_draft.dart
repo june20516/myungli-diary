@@ -9,6 +9,9 @@ import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 /// 한국 출생으로 가정할 때의 시간대입니다(D29).
 const _koreaTimezone = 'Asia/Seoul';
 
+/// `HH:MM`(24시간) 형식입니다.
+final _timePattern = RegExp(r'^([01]\d|2[0-3]):[0-5]\d$');
+
 /// 로컬 저장 형식의 버전입니다.
 const _draftFormatVersion = 1;
 
@@ -138,7 +141,9 @@ final class OnboardingDraft {
   }
 
   /// 계약 모델 [Birth]로 바꿉니다. 필수 값이 비었으면 [StateError]입니다.
-  Birth toBirth() {
+  ///
+  /// 한국 기기([deviceRegionIsKorea])면 도시를 무시하고 `not_asked`·`Asia/Seoul`입니다.
+  Birth toBirth({required bool deviceRegionIsKorea}) {
     final calendar = this.calendar;
     final date = this.date;
     final time = this.time;
@@ -146,7 +151,8 @@ final class OnboardingDraft {
     if (calendar == null || date == null || time == null || gender == null) {
       throw StateError('생년월일·시간·성별을 모두 받기 전에는 Birth를 만들 수 없습니다.');
     }
-    final city = this.city;
+    // 한국 기기는 출생지를 묻지 않으므로 남은 도시가 있어도 쓰지 않습니다(D29).
+    final city = deviceRegionIsKorea ? null : this.city;
     return Birth(
       calendar: calendar,
       date: date,
@@ -177,16 +183,29 @@ final class OnboardingDraft {
       Object.hash(honorific, calendar, date, isLeapMonth, time, gender, city);
 }
 
-LunarOrSolarDate _dateFromJson(Map<String, Object?> json) => LunarOrSolarDate(
-  year: json['year']! as int,
-  month: json['month']! as int,
-  day: json['day']! as int,
-);
+LunarOrSolarDate _dateFromJson(Map<String, Object?> json) {
+  final year = json['year']! as int;
+  final month = json['month']! as int;
+  final day = json['day']! as int;
+  if (year < 1900 || year > 2099 || month < 1 || month > 12) {
+    throw FormatException('날짜 범위를 벗어났습니다: $year-$month');
+  }
+  if (day < 1 || day > 31) {
+    throw FormatException('날짜 범위를 벗어났습니다: $day일');
+  }
+  return LunarOrSolarDate(year: year, month: month, day: day);
+}
 
-BirthTime _timeFromJson(Map<String, Object?> json) => BirthTime(
-  status: BirthTimeStatusEnum.values.byName(json['status']! as String),
-  value: json['value'] as String?,
-);
+BirthTime _timeFromJson(Map<String, Object?> json) {
+  final value = json['value'] as String?;
+  if (value != null && !_timePattern.hasMatch(value)) {
+    throw FormatException('시간 형식이 아닙니다: $value');
+  }
+  return BirthTime(
+    status: BirthTimeStatusEnum.values.byName(json['status']! as String),
+    value: value,
+  );
+}
 
 City _cityFromJson(Map<String, Object?> json) => City(
   id: json['id']! as String,

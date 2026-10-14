@@ -2,11 +2,13 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
+import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
@@ -85,7 +87,10 @@ void main() {
     late ProviderContainer container;
     setUp(() {
       container = ProviderContainer(
-        overrides: [appDatabaseProvider.overrideWithValue(database)],
+        overrides: [
+          appDatabaseProvider.overrideWithValue(database),
+          secureStoreProvider.overrideWithValue(MemorySecureStore()),
+        ],
       );
     });
     tearDown(() => container.dispose());
@@ -108,6 +113,38 @@ void main() {
     test('저장한 값이 있으면 이어서 시작한다', () async {
       await store.write(_draft);
       expect(await container.read(onboardingDraftProvider.future), _draft);
+    });
+
+    test('연속 update 뒤 DB 값은 마지막 상태다', () async {
+      final notifier = container.read(onboardingDraftProvider.notifier);
+      await container.read(onboardingDraftProvider.future);
+      await Future.wait([
+        notifier.update((d) => d.copyWith(honorific: '하나')),
+        notifier.update((d) => d.copyWith(honorific: '둘')),
+        notifier.update((d) => d.copyWith(honorific: '셋')),
+      ]);
+      expect(container.read(onboardingDraftProvider).value?.honorific, '셋');
+      expect((await store.read())?.honorific, '셋');
+    });
+
+    test('로그아웃하면 메모리 입력이 비고 이전 값이 DB에 다시 쓰이지 않는다', () async {
+      await store.write(_draft);
+      await container.read(onboardingDraftProvider.future);
+
+      await container.read(tokenStoreProvider).signOut();
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        await container.read(onboardingDraftProvider.future),
+        const OnboardingDraft(),
+      );
+
+      await container
+          .read(onboardingDraftProvider.notifier)
+          .update((d) => d.copyWith(honorific: '새'));
+      final saved = await store.read();
+      expect(saved?.honorific, '새');
+      expect(saved?.date, isNull);
+      expect(saved?.gender, isNull);
     });
 
     test('clear는 저장과 상태를 지운다', () async {

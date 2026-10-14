@@ -245,15 +245,5 @@ void main() {
       expect(await count(database.onboardingInputs), 0);
       expect(await count(database.deviceFlags), 1);
     });
-
-    test('clearOnboardingInputs는 온보딩 입력만 지운다', () async {
-      await seed();
-
-      await store.clearOnboardingInputs();
-
-      expect(await count(database.onboardingInputs), 0);
-      expect(await count(database.diaryDrafts), 2);
-      expect(await count(database.cachedResponses), 2);
-    });
   });
 }

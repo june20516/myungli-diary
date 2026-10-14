@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
 
@@ -10,6 +12,12 @@ import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.da
 class OnboardingDraftController extends AsyncNotifier<OnboardingDraft> {
   @override
   Future<OnboardingDraft> build() async {
+    final subscription = ref
+        .watch(tokenStoreProvider)
+        .events
+        .where((event) => event == AuthEvent.signedOut)
+        .listen((_) => unawaited(_discardOnSignOut()));
+    ref.onDispose(subscription.cancel);
     final saved = await ref.read(onboardingDraftStoreProvider).read();
     return saved ?? const OnboardingDraft();
   }
@@ -24,8 +32,27 @@ class OnboardingDraftController extends AsyncNotifier<OnboardingDraft> {
     onError,
   }) async {
     final next = await super.update(cb, onError: onError);
-    await ref.read(onboardingDraftStoreProvider).write(next);
+    await _enqueueWrite(next);
     return next;
+  }
+
+  /// 앞선 쓰기가 끝난 뒤에 쓰도록 이어 붙여 저장 순서를 호출 순서로 맞춥니다.
+  ///
+  /// 상태는 쓰기 전에 이미 바뀌므로, 저장이 실패하면 예외만 전파됩니다.
+  Future<void> _enqueueWrite(OnboardingDraft draft) {
+    final write = _lastWrite
+        .catchError((Object _) {})
+        .then((_) => ref.read(onboardingDraftStoreProvider).write(draft));
+    _lastWrite = write;
+    return write;
+  }
+
+  Future<void> _lastWrite = Future<void>.value();
+
+  /// 로그아웃하면 메모리 입력을 비웁니다(DB 정리와 별개로 이전 값이 다시 쓰이지 않게).
+  Future<void> _discardOnSignOut() async {
+    state = const AsyncData(OnboardingDraft());
+    await ref.read(onboardingDraftStoreProvider).clear();
   }
 
   /// 저장한 입력과 현재 값을 지웁니다(프로필 저장에 성공한 뒤).

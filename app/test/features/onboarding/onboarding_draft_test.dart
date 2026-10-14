@@ -42,6 +42,46 @@ void main() {
       expect(OnboardingDraft.fromJson(draft.toJson()), draft);
     });
 
+    test('값 형식이 어긋나면 FormatException이다', () {
+      Map<String, Object?> withTime(String value) => {
+        'v': 1,
+        'time': {'status': 'known', 'value': value},
+      };
+      Map<String, Object?> withDate(int y, int m, int d) => {
+        'v': 1,
+        'date': {'year': y, 'month': m, 'day': d},
+      };
+      for (final bad in ['9:30', '24:00', '12:60', 'ab:cd', '09:30:00']) {
+        expect(
+          () => OnboardingDraft.fromJson(withTime(bad)),
+          throwsFormatException,
+          reason: bad,
+        );
+      }
+      for (final bad in [
+        withDate(1899, 5, 1),
+        withDate(2100, 5, 1),
+        withDate(1990, 0, 1),
+        withDate(1990, 13, 1),
+        withDate(1990, 5, 0),
+        withDate(1990, 5, 32),
+      ]) {
+        expect(
+          () => OnboardingDraft.fromJson(bad),
+          throwsFormatException,
+          reason: '$bad',
+        );
+      }
+      expect(
+        () => OnboardingDraft.fromJson(withTime('00:00')),
+        returnsNormally,
+      );
+      expect(
+        () => OnboardingDraft.fromJson(withTime('23:59')),
+        returnsNormally,
+      );
+    });
+
     test('빈 입력도 같다', () {
       const draft = OnboardingDraft();
       expect(OnboardingDraft.fromJson(draft.toJson()), draft);
@@ -65,34 +105,50 @@ void main() {
 
   group('toBirth', () {
     test('도시가 없으면 not_asked와 Asia/Seoul이다', () {
-      final birth = _solar().toBirth();
+      final birth = _solar().toBirth(deviceRegionIsKorea: true);
       expect(birth.place.status, BirthPlaceStatusEnum.notAsked);
       expect(birth.place.cityId, isNull);
       expect(birth.timezone, 'Asia/Seoul');
     });
 
     test('도시가 있으면 city와 그 도시의 시간대다', () {
-      final birth = _solar().copyWith(city: _newYork).toBirth();
+      final birth = _solar()
+          .copyWith(city: _newYork)
+          .toBirth(deviceRegionIsKorea: false);
       expect(birth.place.status, BirthPlaceStatusEnum.city);
       expect(birth.place.cityId, '5128581');
       expect(birth.timezone, 'America/New_York');
     });
 
     test('양력이면 윤달 표시가 있어도 isLeapMonth는 false다', () {
-      final birth = _solar().copyWith(isLeapMonth: true).toBirth();
+      final birth = _solar()
+          .copyWith(isLeapMonth: true)
+          .toBirth(deviceRegionIsKorea: true);
       expect(birth.isLeapMonth, isFalse);
     });
 
     test('음력이면 윤달을 그대로 둔다', () {
       final birth = _solar()
           .copyWith(calendar: CalendarType.lunar, isLeapMonth: true)
-          .toBirth();
+          .toBirth(deviceRegionIsKorea: true);
       expect(birth.isLeapMonth, isTrue);
       expect(birth.calendar, CalendarType.lunar);
     });
 
+    test('한국 기기면 도시가 남아 있어도 not_asked와 Asia/Seoul이다', () {
+      final birth = _solar()
+          .copyWith(city: _newYork)
+          .toBirth(deviceRegionIsKorea: true);
+      expect(birth.place.status, BirthPlaceStatusEnum.notAsked);
+      expect(birth.place.cityId, isNull);
+      expect(birth.timezone, 'Asia/Seoul');
+    });
+
     test('필수 값이 비면 StateError다', () {
-      expect(const OnboardingDraft().toBirth, throwsStateError);
+      expect(
+        () => const OnboardingDraft().toBirth(deviceRegionIsKorea: true),
+        throwsStateError,
+      );
     });
   });
 
@@ -125,7 +181,7 @@ void main() {
     });
 
     test('Birth 형식을 쓰는 곳에서 타입이 맞다', () {
-      expect(_solar().toBirth(), isA<Birth>());
+      expect(_solar().toBirth(deviceRegionIsKorea: true), isA<Birth>());
     });
   });
 
