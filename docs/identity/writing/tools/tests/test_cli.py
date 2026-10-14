@@ -7,9 +7,16 @@ from pathlib import Path
 
 import pytest
 
-from mlw.cli import longest_by_category, longest_values_for, main, sentence_findings
+from mlw.cli import (
+    longest_by_category,
+    longest_values_for,
+    main,
+    markup_findings,
+    plural_findings,
+    sentence_findings,
+)
 from mlw.loader import load_rules
-from mlw.model import Entry, ParamKind, Slot
+from mlw.model import Entry, ParamKind, ParamKindName, Slot
 from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
 
 FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
@@ -338,3 +345,66 @@ def test_cli_check_reports_unknown_term(tmp_path: Path, capsys: pytest.CaptureFi
     )
     main(["check", str(tmp_path / "content"), "--partial"])
     assert "token.term" in capsys.readouterr().out
+
+
+def plural_slot(group: str = "ui", count_kind: ParamKindName = "number") -> Slot:
+    return Slot(
+        id="ui.a11y.label",
+        where="시험",
+        purpose="info",
+        types=(),
+        variants=1,
+        keys={"citySearchResults": {"count": ParamKind(count_kind)}},
+        co_display=(),
+        max_length={"ko": None, "en": None, "ja": None},
+        allowed=frozenset(),
+        forbidden=frozenset(),
+        examples={},
+        line=1,
+        file=Path("slots") / group / "t.yaml",
+    )
+
+
+def plural_entry(text: str, lang: str = "ko") -> Entry:
+    return Entry(Path(f"content/{lang}/ui.yaml"), 2, "ui.a11y.label", "citySearchResults", None, 1, lang, text)
+
+
+def check_plural(slot: Slot, entry: Entry) -> list[str]:
+    slots = {slot.id: slot}
+    findings = [
+        *plural_findings(slots, [entry]),
+        *sentence_findings(slots, [entry], load_rules(RULES_DIR)),
+        *markup_findings(slots, [entry]),
+    ]
+    return [finding.rule_id for finding in findings]
+
+
+def test_plural_manuscript_passes() -> None:
+    assert check_plural(plural_slot(), plural_entry("결과 {count, plural, other{{count}개}}")) == []
+    en = plural_entry("{count, plural, one{{count} result} other{{count} results}}", "en")
+    assert check_plural(plural_slot(), en) == []
+
+
+def test_plural_forms_must_match_language() -> None:
+    entry = plural_entry("{count, plural, one{{count}개} other{{count}개}}")
+    assert check_plural(plural_slot(), entry) == ["icu.plural"]
+
+
+def test_plural_syntax_error_is_reported_once() -> None:
+    entry = plural_entry("결과 {count, plural, other{{count}개}")
+    assert check_plural(plural_slot(), entry).count("icu.plural") == 1
+
+
+def test_plural_variable_must_be_number() -> None:
+    entry = plural_entry("{count, plural, other{{count}개}}")
+    assert check_plural(plural_slot(count_kind="text"), entry) == ["icu.plural"]
+
+
+def test_plural_is_ui_only() -> None:
+    entry = plural_entry("{count, plural, other{{count}개}}")
+    assert check_plural(plural_slot(group="content"), entry) == ["icu.plural"]
+
+
+def test_plural_forms_are_checked_as_sentences() -> None:
+    entry = plural_entry("{count, plural, other{{count}개 찾았어요!}}")
+    assert "slop.P8" in check_plural(plural_slot(), entry)

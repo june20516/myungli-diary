@@ -5,9 +5,12 @@
 * 언어별 형태는 `PLURAL_FORMS`와 정확히 같아야 합니다.
 """
 
+import dataclasses
 from dataclasses import dataclass
 
 import regex
+
+from mlw.model import Entry
 
 RULE_PLURAL = "icu.plural"
 PLURAL_FORMS: dict[str, frozenset[str]] = {
@@ -93,3 +96,15 @@ def plural_problem(text: str, lang: str) -> str | None:
     if set(plural.forms) != expected:
         return f"{lang} plural 형태는 {', '.join(sorted(expected))}여야 합니다(현재 {', '.join(plural.forms)})"
     return None
+
+
+def expand_entry(entry: Entry) -> list[Entry]:
+    """원고를 plural 형태마다 펼친 원고 목록입니다. plural이 없거나 문법이 틀리면 `[entry]`입니다.
+
+    문법 오류는 `icu.plural` 검사가 보고하므로 여기서는 펼치지 않고 그대로 둡니다.
+    """
+    try:
+        forms = expand_plural(entry.text)
+    except ValueError:
+        return [entry]
+    return [entry] if forms == [entry.text] else [dataclasses.replace(entry, text=form) for form in forms]

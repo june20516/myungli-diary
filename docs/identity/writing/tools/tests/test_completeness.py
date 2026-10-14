@@ -257,3 +257,9 @@ def test_glossary_values_personal() -> None:
     assert values["strength"] == ("very_weak", "weak", "neutral", "strong", "very_strong")
     assert values["luck"] == ("daeun", "seun")
     assert values["part"] == ("stem", "branch")
+
+
+def test_placeholder_inside_plural_is_checked() -> None:
+    slot = make_slot(keys={KEY: {"count": ParamKind("number")}}, types=())
+    entry = make_entry(type_=None, text="{count, plural, other{{cnt}개}}")
+    assert "complete.unknown_param" in rule_ids(check(slot, [entry]))
