@@ -32,7 +32,12 @@ void main() {
         decisions: ['D50', 'D53'],
       ),
     );
-    final container = await launchApp($, scenario: 'new-user');
+    // 한국 기기 흐름(출생지 입력 없음, D29)을 기기 설정과 상관없이 확인합니다.
+    final container = await launchApp(
+      $,
+      scenario: 'new-user',
+      deviceLocale: const Locale('ko', 'KR'),
+    );
 
     await expectScreen($, ScreenIds.welcome);
     await $(find.byKey(const ValueKey(SlotIds.welcomeCtaStart))).tap();
@@ -48,7 +53,7 @@ void main() {
     await $(PrimaryButton).tap();
 
     await expectScreen($, ScreenIds.onboardGender);
-    // 기기 언어에 기대지 않게 Key로 찾습니다(0번 = 여성).
+    // 문구에 기대지 않게 Key로 찾습니다(0번 = 여성).
     await $(find.byKey(Segmented.itemKey(0))).tap();
     await $(PrimaryButton).tap();
 

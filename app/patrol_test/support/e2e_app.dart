@@ -7,13 +7,18 @@ import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:patrol/patrol.dart';
 
 /// fake 모드의 [scenario]로 앱을 띄웁니다. 모드 전환(http)은 후속 계획(A2)에서 더합니다.
+///
+/// [deviceLocale]을 주면 기기 언어·지역을 그 값으로 고정합니다. 에뮬레이터 설정에 따라
+/// 갈래(D29 출생지 입력 등)가 달라지지 않게 할 때 씁니다.
 Future<ProviderContainer> launchApp(
   PatrolIntegrationTester $, {
   required String scenario,
+  Locale? deviceLocale,
 }) async {
   final container = await bootstrap(
     mode: ApiMode.fake,
     scenarioId: scenario,
+    deviceLocale: deviceLocale,
     // Patrol의 오류 처리를 지킵니다.
     installErrorHandlers: false,
   );
