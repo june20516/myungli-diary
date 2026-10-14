@@ -1,0 +1,25 @@
+# 달력 절기 이름 원고(ko). 날짜 칸 상한 4자(lengths.md).
+- {slot: calendar.solar_term, key: sohan, text: "소한"}
+- {slot: calendar.solar_term, key: daehan, text: "대한"}
+- {slot: calendar.solar_term, key: ipchun, text: "입춘"}
+- {slot: calendar.solar_term, key: usu, text: "우수"}
+- {slot: calendar.solar_term, key: gyeongchip, text: "경칩"}
+- {slot: calendar.solar_term, key: chunbun, text: "춘분"}
+- {slot: calendar.solar_term, key: cheongmyeong, text: "청명"}
+- {slot: calendar.solar_term, key: gogu, text: "곡우"}
+- {slot: calendar.solar_term, key: ipha, text: "입하"}
+- {slot: calendar.solar_term, key: soman, text: "소만"}
+- {slot: calendar.solar_term, key: mangjong, text: "망종"}
+- {slot: calendar.solar_term, key: haji, text: "하지"}
+- {slot: calendar.solar_term, key: soseo, text: "소서"}
+- {slot: calendar.solar_term, key: daeseo, text: "대서"}
+- {slot: calendar.solar_term, key: ipchu, text: "입추"}
+- {slot: calendar.solar_term, key: cheoseo, text: "처서"}
+- {slot: calendar.solar_term, key: baengno, text: "백로"}
+- {slot: calendar.solar_term, key: chubun, text: "추분"}
+- {slot: calendar.solar_term, key: hallo, text: "한로"}
+- {slot: calendar.solar_term, key: sanggang, text: "상강"}
+- {slot: calendar.solar_term, key: ipdong, text: "입동"}
+- {slot: calendar.solar_term, key: soseol, text: "소설"}
+- {slot: calendar.solar_term, key: daeseol, text: "대설"}
+- {slot: calendar.solar_term, key: dongji, text: "동지"}

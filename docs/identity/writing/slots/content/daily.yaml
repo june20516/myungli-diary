@@ -23,7 +23,9 @@
     explain: 토큰의 뜻과 오늘 그런 이유는 풀이(하프 시트)에서 씁니다.
   endings: ["advice: ~해 보세요", "state: ~날이에요", "care: ~해도 괜찮은 날이에요, ~큰 날이에요 (괜찮아요 반복은 limit.L8)"]
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 32, en: 57, ja: 32}
+  ia: [today.fortune.head, preview.fortune.head, system-push.morning.body]
+  vocative: true
   keys:
     - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
       keys:
@@ -85,7 +87,8 @@
     explain: 태그의 뜻과 오늘 그런 이유는 풀이에서 씁니다.
   endings: ["advice: ~해 보세요", "state: ~날이에요", "care: 마음을 짚는 해요체"]
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 32, en: 57, ja: 32}
+  ia: [today.fortune.body, preview.fortune.body]
   keys:
     - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
       keys:
@@ -127,7 +130,8 @@
     surface: 토큰을 쓸 수 있지만 질문의 대상(사람, 장면, 돈)을 흐리지 않게 씁니다.
   endings: ["변주 1: ~적어 볼까요?", "변주 2: ~뭐였나요?, ~있었나요?"]
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 3}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 36, en: 70, ja: 30}
+  ia: [today.guide.question, diary-edit.guide.question]
   keys:
     - params: {ten_god: [ten_god, ten_god_group], element: [element, color]}
       keys:
@@ -175,7 +179,8 @@
     explain: 색과 오행의 관계, 오늘 그 색인 이유
   endings: ["~잘 맞아요", "~좋아요", "~을 추천해요", "~챙겨 보세요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 36, en: 64, ja: 36}
+  ia: [today.lucky-color.body]
   keys:
     - params: {element: [element, color], role: none}
       keys:
@@ -207,7 +212,8 @@
     explain: 방위와 오행, 오늘 그 방향인 이유(날의 성격 규칙)
   endings: ["~잘 맞아요", "~좋아요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 36, en: 64, ja: 36}
+  ia: [today.lucky-direction.body]
   keys:
     - params: {direction: [direction8], rule_id: none}
       keys:
@@ -237,7 +243,8 @@
     explain: 하도 수와 오행, 홀짝을 고른 이유
   endings: ["~잘 맞아요", "~좋아요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 36, en: 64, ja: 36}
+  ia: [today.lucky-number.body]
   keys:
     - params: {number: number, element: [element, color]}
       keys:
@@ -266,7 +273,8 @@
     explain: 고른 시진과 가점 사유(daily.focus_reason)
   endings: ["~좋아요", "~잘 돼요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 36, en: 64, ja: 36}
+  ia: [today.lucky-time.body]
   keys:
     - params: {branches: list:branch, score: number}
       keys:
@@ -297,7 +305,8 @@
     explain: 태그의 뜻
   endings: []
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 18, ja: 10}
+  components: [tag-chip]
   keys:
     - tag.big_change
     - tag.cheoneul_gwiin
@@ -335,7 +344,8 @@
     explain: 이 칩은 풀이 단계에서 보입니다.
   endings: []
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 18, ja: 10}
+  components: [lucky-card]
   keys:
     - gwiin
     - yongsin

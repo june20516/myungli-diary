@@ -1,0 +1,122 @@
+# 화면 문구 원고(ko). 슬롯 명세는 slots/ui/입니다.
+- {slot: force-update.notice.head, key: forceUpdateNoticeHead, text: "새 버전으로 업데이트해 주세요"}
+- {slot: force-update.notice.body, key: forceUpdateNoticeBody, text: "풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요."}
+- {slot: force-update.cta.store, key: forceUpdateCtaStore, text: "업데이트하기"}
+- {slot: welcome.concept.head, key: welcomeConceptHead, text: "오늘 일진을 내 사주에 맞춰 풀어 드려요"}
+- {slot: welcome.concept.body, key: welcomeConceptBody, text: "풀이에 맞춘 질문 하나로 그날 일기를 시작해요."}
+- {slot: welcome.cta.start, key: welcomeCtaStart, text: "시작하기"}
+- {slot: welcome.cta.signin, key: welcomeCtaSignin, text: "이미 계정이 있어요"}
+- {slot: onboard-call.question.head, key: onboardCallQuestionHead, text: "어떻게 불러 드릴까요?"}
+- {slot: onboard-call.input.hint, key: onboardCallInputHint, text: "예: 민지"}
+- {slot: onboard-call.note.body, key: onboardCallNoteBody, text: "실명이 아니어도 돼요. 나중에 바꿀 수 있어요."}
+- {slot: onboard-birth.question.head, key: onboardBirthQuestionHead, text: "언제 태어났나요?"}
+- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요."}
+- {slot: onboard-birth.basis.note, key: onboardBirthBasisNote, text: "한국에서 태어난 것을 기준으로 계산해요."}
+- {slot: onboard-birth.error.range, key: onboardBirthErrorRange, text: "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요."}
+- {slot: onboard-time.question.head, key: onboardTimeQuestionHead, text: "몇 시에 태어났나요?"}
+- {slot: onboard-time.unknown.note, key: onboardTimeUnknownNote, text: "시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요."}
+- {slot: onboard-gender.question.head, key: onboardGenderQuestionHead, text: "성별이 어떻게 되나요?"}
+- {slot: onboard-gender.why.body, key: onboardGenderWhyBody, text: "대운이 흐르는 방향을 정할 때만 써요."}
+- {slot: birthplace.question.head, key: birthplaceQuestionHead, text: "어디에서 태어났나요?"}
+- {slot: birthplace.why.body, key: birthplaceWhyBody, text: "태어난 곳의 시간대와 경도로 태어난 시를 정확히 맞춰요."}
+- {slot: birthplace.search.hint, key: birthplaceSearchHint, text: "도시 이름"}
+- {slot: birthplace.empty.body, key: birthplaceEmptyBody, text: "찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요."}
+- {slot: preview.cta.save, key: previewCtaSave, text: "저장하고 계속하기"}
+- {slot: preview.cta.restart, key: previewCtaRestart, text: "다시 입력하기"}
+- {slot: preview.share.login-notice, key: previewShareLoginNotice, text: "로그인하면 오늘 풀이를 공유할 수 있어요."}
+- {slot: preview.share.login-notice, key: previewShareLoginNoticeConfirm, text: "로그인하기"}
+- {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "닫기"}
+- {slot: login.title.head, key: loginTitleHead, text: "로그인하고 풀이를 저장해요"}
+- {slot: login.title.body, key: loginTitleBody, text: "로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요."}
+- {slot: login.discard.notice, key: loginDiscardNotice, text: "이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요."}
+- {slot: consent.title.head, key: consentTitleHead, text: "약관에 동의해 주세요"}
+- {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(필수) 이용약관"}
+- {slot: consent.required.label, key: consentRequiredLabelPrivacy, text: "(필수) 개인정보 수집·이용"}
+- {slot: consent.cta.agree, key: consentCtaAgree, text: "동의하고 계속하기"}
+- {slot: notify-ask.question.head, key: notifyAskQuestionHead, text: "아침마다 오늘 풀이를 알려 드릴까요?"}
+- {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요."}
+- {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "나중에"}
+- {slot: today.guide.cta, key: todayGuideCta, text: "일기 쓰기"}
+- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "쓴 일기 보기"}
+- {slot: today.event.summary, key: todayEventSummary, text: "오늘 일정 {count}개 · {title}"}
+- {slot: today.event.summary, key: todayEventSummaryOngoing, text: "진행 중"}
+- {slot: today.event.summary, key: todayEventSummaryNext, text: "다음"}
+- {slot: today.event.summary, key: todayEventSummaryDone, text: "오늘 일정이 모두 끝났어요"}
+- {slot: today.reaction.label, key: todayReactionLabel, text: "좋아요"}
+- {slot: today.reaction.label, key: todayReactionLabelSelected, text: "좋아요 취소"}
+- {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "명리일기"}
+- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "내 사주로 푼 오늘, 명리일기"}
+- {slot: share-preview.ratio.label, key: sharePreviewRatioLabelStory, text: "스토리"}
+- {slot: share-preview.ratio.label, key: sharePreviewRatioLabelFeed, text: "피드"}
+- {slot: share-preview.ratio.label, key: sharePreviewRatioLabelSquare, text: "정사각"}
+- {slot: share-preview.cta.share, key: sharePreviewCtaShare, text: "공유하기"}
+- {slot: calendar.legend.body, key: calendarLegendBodyGood, text: "잘 풀리는 날"}
+- {slot: calendar.legend.body, key: calendarLegendBodyCaution, text: "조심할 날"}
+- {slot: day-sheet.event.empty, key: daySheetEventEmpty, text: "이날은 일정이 없어요."}
+- {slot: day-sheet.event.add, key: daySheetEventAdd, text: "일정 추가"}
+- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "이날 일기 보기"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "이날 일기 쓰기"}
+- {slot: event-edit.title.hint, key: eventEditTitleHint, text: "일정 제목"}
+- {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "메모"}
+- {slot: event-edit.delete.confirm, key: eventEditDeleteConfirm, text: "이 일정을 지울까요?"}
+- {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmDelete, text: "지우기"}
+- {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmCancel, text: "취소"}
+- {slot: evidence-sheet.lock.head, key: evidenceSheetLockHead, text: "근거와 해석은 잠겨 있어요"}
+- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요."}
+- {slot: evidence-sheet.lock.cta, key: evidenceSheetLockCta, text: "광고 보고 열기"}
+- {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPass, text: "광고 제거권이 있으면 기간 내내 열려 있어요."}
+- {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "광고 제거 보기"}
+- {slot: evidence-sheet.lock.unavailable, key: evidenceSheetLockUnavailable, text: "지금은 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 해 주세요."}
+- {slot: evidence-sheet.section.basis, key: evidenceSheetSectionBasis, text: "판정 근거"}
+- {slot: evidence-sheet.section.source, key: evidenceSheetSectionSource, text: "원전"}
+- {slot: evidence-sheet.section.personal, key: evidenceSheetSectionPersonal, text: "내 사주에서는"}
+- {slot: evidence-sheet.unlock.failed, key: evidenceSheetUnlockFailed, text: "광고 확인이 늦어지고 있어요. 잠시 뒤에 다시 열어 주세요."}
+- {slot: evidence-sheet.a11y.locked, key: evidenceSheetA11yLocked, text: "잠김"}
+- {slot: evidence-sheet.a11y.checking, key: evidenceSheetA11yChecking, text: "확인 중"}
+- {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "근거와 해석이 열렸어요"}
+- {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?"}
+- {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "날짜 골라 쓰기"}
+- {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "오늘 있었던 일을 적어 보세요"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "기기에 임시 저장됨"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "저장 중"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaved, text: "저장됨"}
+- {slot: diary-edit.offline.notice, key: diaryEditOfflineNotice, text: "인터넷에 연결되면 저장할게요. 쓴 내용은 기기에 남아 있어요."}
+- {slot: diary-edit.saved.tags, key: diaryEditSavedTags, text: "일기에 태그가 붙었어요"}
+- {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirm, text: "이 일기를 지울까요? 지우면 되돌릴 수 없어요."}
+- {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmDelete, text: "지우기"}
+- {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "취소"}
+- {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "이 태그가 붙은 일기가 아직 없어요."}
+- {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "태어난 시간을 몰라 시주는 빼고 보여 드려요."}
+- {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "열기"}
+- {slot: saju-chart.yongsin.title, key: sajuChartYongsinTitle, text: "용신 판정 근거"}
+- {slot: settings.depth.desc, key: settingsDepthDesc, text: "풀이를 처음에 어디까지 펼쳐 볼지 골라요."}
+- {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNotice, text: "한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요."}
+- {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNoticeCta, text: "출생지 입력하기"}
+- {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "로그아웃할까요?"}
+- {slot: settings.logout.confirm, key: settingsLogoutConfirmLogout, text: "로그아웃"}
+- {slot: settings.logout.confirm, key: settingsLogoutConfirmCancel, text: "취소"}
+- {slot: settings.ad-free.label, key: settingsAdFreeLabel, text: "광고 제거"}
+- {slot: settings.ad-free.label, key: settingsAdFreeLabelActive, text: "{date}까지"}
+- {slot: profile-edit.recalc.notice, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요."}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmTitle, text: "정보를 바꿀까요?"}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmBody, text: "{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요."}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmCancel, text: "취소"}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "바꾸기"}
+- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBody, text: "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따라요."}
+- {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "계정 삭제"}
+- {slot: account-delete.data.body, key: accountDeleteDataBody, text: "계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요."}
+- {slot: account-delete.cta.delete, key: accountDeleteCtaDelete, text: "계정 지우기"}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "정말 지울까요? 지운 계정은 되돌릴 수 없어요."}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmDelete, text: "지우기"}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "취소"}
+- {slot: ad-free.offer.head, key: adFreeOfferHead, text: "한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요."}
+- {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price} · 1개월 · 자동 갱신 없음"}
+- {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}까지 광고 없이 볼 수 있어요"}
+- {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "구매 복원"}
+- {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
+- {slot: ui.depth.default_label, key: depthDefaultLabel, text: "명리 풀이 보기"}
+- {slot: ui.depth.surface, key: depthSurface, text: "요약"}
+- {slot: ui.depth.explain, key: depthExplain, text: "풀이"}
+- {slot: ui.depth.evidence, key: depthEvidence, text: "원리"}

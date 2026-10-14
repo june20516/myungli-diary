@@ -13,7 +13,8 @@
   user_state: 나의 사주 화면에서 내 용신이 어떻게 정해졌는지 궁금해 엽니다.
   structure: 한두 문장. 판정 방식을 쉬운 말로 말하고, 용신·희신을 토큰으로 둘 수 있습니다. 원전 근거는 근거(evidence) 단계로 미룹니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 60, en: 108, ja: 60}
+  ia: [saju-chart.yongsin.basis]
   keys:
     - params: {yongsin: [element, color], huisin: [element, color], gisin: [element, color], tonggwan: [element, color]}
       keys:
@@ -33,4 +34,97 @@
   endings: ["~정했어요", "~골랐어요"]
   a11y:
     truncation: 잘리지 않게 씁니다. 글자 수 상한은 design과 조정합니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+# 아래 세 슬롯은 core 메시지 키가 아니라 writing 식별자 키입니다. server가 `select`대로 키를 고릅니다.
+
+- id: chart.ilgan_head
+  where: 나의 사주 화면 일간 소개 첫 문장
+  ia: [my-saju.ilgan.head]
+  vocative: true
+  select: "ChartResponse.pillars.day.stem 값 v → 키 ilgan.head.<v>"
+  purpose: info
+  user_state: 나의 사주 탭을 열어 내가 어떤 사람으로 풀이되는지 처음 봅니다.
+  structure: >-
+    짧은 한 문장. 일간을 자연의 모습 하나로 비유해 성격의 중심을 말합니다. 호칭 덩어리로 시작할 수 있고,
+    호칭이 없으면 덩어리를 지운 문장도 그대로 읽혀야 합니다.
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - ilgan.head.gap
+    - ilgan.head.eul
+    - ilgan.head.byeong
+    - ilgan.head.jeong
+    - ilgan.head.mu
+    - ilgan.head.gi
+    - ilgan.head.gyeong
+    - ilgan.head.sin
+    - ilgan.head.im
+    - ilgan.head.gye
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: ilgan.head.gap, text: "{name}님, 곧게 자라는 큰 나무를 닮았어요.", why: "비유 하나로 중심을 말함, 호칭 덩어리", source: writing}
+    bad:
+      - {lang: ko, key: ilgan.head.gap, text: "갑목 일간은 리더십이 뛰어나고 진취적인 성향을 지닙니다.", why: "성격 형용 나열 slop.P6, 합니다체 style.S3", source: writing}
+  depth:
+    explain: 일간이라는 말의 뜻은 풀이에서 씁니다.
+  endings: ["~닮았어요", "~같아요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: chart.ilgan_body
+  where: 나의 사주 화면 일간 소개 이어지는 문장
+  ia: [my-saju.ilgan.body]
+  select: "ChartResponse.pillars.day.stem 값 v → 키 ilgan.body.<v>"
+  purpose: info
+  user_state: 첫 문장의 비유가 일상에서 어떻게 드러나는지 궁금합니다.
+  structure: 두 문장. 비유가 일상에서 드러나는 모습 하나, 그 모습이 힘이 되는 때 하나를 씁니다. 단정하거나 겁주지 않습니다.
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - ilgan.body.gap
+    - ilgan.body.eul
+    - ilgan.body.byeong
+    - ilgan.body.jeong
+    - ilgan.body.mu
+    - ilgan.body.gi
+    - ilgan.body.gyeong
+    - ilgan.body.sin
+    - ilgan.body.im
+    - ilgan.body.gye
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: ilgan.body.gap, text: "한번 정한 방향은 쉽게 바꾸지 않는 편이에요. 오래 걸리는 일을 끝까지 해낼 때 그 힘이 잘 보여요.", why: "일상의 모습과 힘이 되는 때", source: writing}
+    bad:
+      - {lang: ko, key: ilgan.body.gap, text: "고집이 세서 주변과 자주 부딪혀요.", why: "단정과 겁주기", source: writing}
+  endings: ["~편이에요", "~보여요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: chart.yongsin_summary
+  where: 나의 사주 화면 용신과 행운 색 설명
+  ia: [my-saju.yongsin.body]
+  select: "ChartResponse.yongsin의 용신 오행 → 매개변수 yongsin, 키는 yongsin.summary 하나"
+  purpose: info
+  user_state: 내게 맞는 기운과 색이 무엇인지 봅니다.
+  structure: 한두 문장. 나를 돕는 오행과 그 색을 말하고, 일상에서 쓰는 방법 하나를 덧붙일 수 있습니다.
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {yongsin: [element, color]}
+      keys:
+        - yongsin.summary
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: yongsin.summary, text: "나를 돕는 기운은 [[{yongsin}]]이에요. 그래서 {yongsin:color}(이)가 잘 맞아요.", why: "오행과 색을 이어 말함", source: writing}
+    bad:
+      - {lang: ko, key: yongsin.summary, text: "용신 {yongsin}의 행운 컬러는 {yongsin:color}입니다.", why: "외래어 섞음, 합니다체 style.S3", source: writing}
+  endings: ["~이에요", "~맞아요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
     screen_reader: 문장 그대로 읽습니다.

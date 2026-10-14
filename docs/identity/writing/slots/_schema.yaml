@@ -1,4 +1,4 @@
-# 슬롯 명세 틀 (spec §4.1). 로더는 이 파일을 슬롯 검증 기준으로 씁니다.
+# 슬롯 명세 틀 v1.1 (W0 spec §4.1, IA 슬롯 spec §2). 로더는 이 파일을 슬롯 검증 기준으로 씁니다.
 
 - name: id
   required: true
@@ -50,8 +50,31 @@
     ② list:<범주>(예 list:branch): 목록 값을 범주 이름으로 바꿔 ", "로 잇습니다.
     ③ number: 숫자를 그대로 씁니다.
     ④ none: 문장에 쓸 수 없는 값입니다.
+    ⑤ text: 렌더하는 쪽이 만든 문자열(날짜, 시각, 가격, 일정 제목)을 그대로 씁니다. 범주를 붙일 수 없습니다.
     name(호칭)은 모든 슬롯에서 쓸 수 있으므로 적지 않습니다.
     메시지 키의 매개변수 이름은 core/message_params.json과 같아야 합니다(complete.param_mismatch).
+- name: ia
+  required: false
+  type: "list[string]"
+  description: >-
+    이 슬롯의 문장이 들어가는 IA 슬롯 id(docs/ia/screens.json). 여러 개일 수 있습니다.
+    ui 슬롯은 id가 IA 슬롯 id 그대로라 적지 않습니다.
+- name: components
+  required: false
+  type: "list[string]"
+  description: IA 슬롯이 아니라 컴포넌트 안에 들어가는 이름의 자리(IA 컴포넌트 id). 예 tag-chip, day-cell
+- name: select
+  required: false
+  type: string
+  description: >-
+    렌더하는 쪽이 키를 고르는 방법. core 메시지 키가 아닌 writing 식별자 키를 쓰는 content 슬롯에 적습니다.
+    예 "DailyResponse.day_kind 값 v → 키 character.reason.<v>"
+- name: vocative
+  required: false
+  type: bool
+  description: >-
+    호칭 자리(D36). true인 슬롯만 {name}을 쓰고, 문장 맨 앞 호칭 덩어리(ko "{name}님, ", ja "{name}さん、",
+    en "{name}, ")로만 씁니다. 호칭이 없으면 렌더러가 덩어리를 지웁니다(호칭·조사 규칙 v1.1).
 - name: variants
   required: false
   type: map

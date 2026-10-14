@@ -42,37 +42,36 @@
 | 글자 수 상한 | **주고받음** (요청함) | design |
 | `core/message_keys.json` | **사용** (W1) | core — C2 완료로 사용 가능 |
 
-## 현재 상태 (2026-10-11, writing 세션 작성)
-* **W0이 끝났고 main에 병합했습니다**(PR #36 `7698f52`). 계약 3개(슬롯 명세 v1, 호칭·조사 v1, 검사기 v0.1.0)가 `docs/contracts/README.md`에 등록됐습니다.
+## 현재 상태 (2026-10-14, writing 세션 작성)
+* **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77)가 main에 있습니다.
+* **IA 슬롯 정렬**(브랜치 `writing/ia-slots`, spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
+  * IA 124자리(ui 91, content 33)를 모두 슬롯 명세에 담았습니다(PR #132 병합). IA v2(D67)에서 선택 동의 슬롯이 빠져 ui는 90자리입니다(#134). 검사기 v0.2.0이 `docs/ia/screens.json`과 대조합니다(`ia.*`).
+  * 슬롯 명세 v1.1: `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90).
+  * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`).
+  * 호칭·조사 규칙 v1.1: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
+  * 라운드 R8로 브랜드·정책 ui 문구와 앱 이름(ko 명리일기, en Myungli Diary, ja 命理日記)을 정했습니다(W17).
+  * #54 글자 수 상한을 반영했습니다. 근거 슬롯 셋은 core 목록을 기다리는 키 없는 틀입니다(W21).
 * 산출물 위치
   * 가이드: `guide/` (보이스·톤, 검수 절차, 호칭·조사)
   * 규칙: `rules/` (slop, limits, style, josa)
-  * 슬롯 명세: `slots/_schema.yaml`, `slots/content/`(콘텐츠 슬롯 15개), `slots/ui/depth.yaml`
-  * 검사기: `tools/` (`mlw`), 예시 원고: `content/ko/example.yaml`
-  * 생성 문서: `generated/`, 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `decisions.md`
-* 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | ...>`.
-  * 원고 검사: `mlw check docs/identity/writing/content` (미완성 원고는 `--partial`). 슬롯 `params`를 `core/message_params.json`과 대조합니다.
-  * 생성 문서 최신 여부: `mlw gen-docs --check`
-* 결정은 W1~W15입니다(`decisions.md`). 라운드 R1~R7 결과가 반영되어 있습니다. W4는 D57로 확정됐습니다.
-* 지휘가 정한 것 중 writing에 닿는 것
-  * D57: 문장 유형은 총운 슬롯에만 씁니다. 반응은 사용자 성향 자료입니다.
-  * D59: 콘텐츠 문장의 저장·선택·렌더는 server가 합니다. 돌봄 상한(W14)도 server 선택 기록이 지킵니다. UI 문구(ARB)는 app이 합니다.
-  * D60: evidence의 해석은 잠깁니다. 원국 개인 해석 원고가 W1에 더해집니다.
-  * ARB 메시지 이름은 lowerCamelCase입니다.
-* 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2). `docs/coordination/`의 W0 요청 문서는 모두 처리됐거나 Issue로 옮겼습니다.
+  * 슬롯 명세: `slots/_schema.yaml`, `slots/content/`, `slots/ui/`
+  * 검사기: `tools/` (`mlw`), 원고: `content/<lang>/`
+  * 생성 문서: `generated/`(슬롯 목록, IA 대응표, ARB 등), 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `plans/`, `decisions.md`
+* 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | check-arb>`.
+  * 원고 검사: `mlw check docs/identity/writing/content --partial`. 슬롯 `params`를 `core/message_params.json`과, 슬롯 자리를 IA와 대조합니다.
+  * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
+* 결정은 W1~W21입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯).
+* 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
-1. **writing 앞으로 온 Issue**(`gh issue list --label to:writing`)를 처리합니다. 모두 `slots/`(특히 `slots/ui/`)에 반영할 일입니다. 지금은 깊이 이름(`ui/depth.yaml`)만 있습니다.
-   - #15: IA v1 슬롯 목록(지금 109개)에 맞춥니다.
-   - #27: 광고 제거권 ui 슬롯 6개를 반영합니다.
-   - #42: V2 새 슬롯 3개(`onboard-time.hour.confirm`은 content)와 기존 슬롯 변형 3개를 반영합니다.
-   - #52: D60 잠금 ui 슬롯 5개와 `evidence-sheet.personal.body`를 반영합니다. `ad-free.offer.head`는 역할이 바뀌었습니다.
-2. **지휘가 전달할 server 질문에 답합니다**(#48)
-   - 항목 4: 로그인 없는 미리보기에서 호칭이 든 문장을 어떻게 보일지 정합니다.
-   - 항목 1: 아침 알림 슬롯(호칭 없음)은 IA에 추가되면 반영합니다.
-3. **보낸 요청의 응답을 기다립니다.**
-   - design #54: 글자 수 상한. 값이 오면 `slots/*.yaml`의 `max_length`에 반영합니다.
-   - server #55: 조사 렌더러와 시드 CI
-4. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
-5. **W1:** 콘텐츠 3개 언어 원고를 쓰고 원어민 검수를 받습니다. 원국 개인 해석과 사용자용 태그라인·스토어 문구도 W1입니다.
+1. **IA 슬롯 정렬은 병합됐습니다**(PR #132). #52는 원국 개인 해석 원고(W1)가 남아 열려 있습니다.
+2. **보낸 요청의 응답을 기다립니다.**
+   - core #130: `rule_id`·`source_ref` 목록 → `explain.today_reason`·`evidence.basis`·`evidence.source`의 키를 채웁니다.
+   - design #131: ui 이름 자리와 새 content 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
+   - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
+   - app #128(공지): ARB를 가져가는지, `@@x-generated`가 문제없는지 확인합니다.
+3. **IA v2 반영**(#134, 브랜치 `writing/ia-v2-consent`): D67로 선택 동의를 없애 `consent.optional.label`을 지웠습니다(ui 90자리). app 최종 PR(#135)과 함께 병합합니다.
+4. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
+5. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
+6. **W1:** 콘텐츠 3개 언어 원고(원국 개인 해석, 용어 뜻 77개, 일간 소개, 날의 성격 이유 포함)를 쓰고 원어민 검수를 받습니다. ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
