@@ -18,6 +18,8 @@ import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 
+import '../contract/ia_pending.dart';
+
 class _FixedEntry extends EntryController {
   new(this.value);
 
@@ -353,13 +355,19 @@ void main() {
           if (screen.presentation == IaPresentation.page) screen.id,
       };
       expect(screenRegistry.keys.toSet(), pageIds);
-      // 상태를 직접 처리하는 화면은 만든 화면뿐입니다(나머지는 자리 표시).
+      // 상태를 직접 처리하는 화면은 IA에 상태가 있고 ratchet에서 빠진 화면과 같습니다.
       expect(
         {
           for (final spec in screenRegistry.values)
             if (spec.handledStates.isNotEmpty) spec.id,
         },
-        {ScreenIds.launch, ScreenIds.onboardBirth},
+        {
+          for (final screen in iaScreens)
+            if (screen.presentation == IaPresentation.page &&
+                screen.states.isNotEmpty &&
+                !pendingStateScreens.contains(screen.id))
+              screen.id,
+        },
       );
     });
   });

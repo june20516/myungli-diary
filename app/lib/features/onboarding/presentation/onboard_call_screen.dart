@@ -11,6 +11,7 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// IA `onboard-call`의 출구 대상. 온보딩은 `onboard-birth`, 수정 모드는 `profile-edit`
 /// (값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다).
@@ -30,14 +31,19 @@ class OnboardCallScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final routeState = GoRouterState.of(context);
     final mode = onboardingStepModeOf(routeState);
-    final draft = ref.watch(onboardingDraftProvider);
+    final edit = mode == OnboardingStepMode.edit;
+    // 수정 모드는 extra, 없으면 프로필 사본에서 시작하고 초안은 보지 않습니다(A19).
+    final profile = edit ? ref.watch(cachedProfileProvider) : null;
+    final draft = edit ? null : ref.watch(onboardingDraftProvider);
     final String? initial;
-    if (mode == OnboardingStepMode.edit) {
-      initial = routeState.extra is String ? routeState.extra! as String : null;
+    if (edit) {
+      initial = routeState.extra is String
+          ? routeState.extra! as String
+          : profile?.value?.honorific;
     } else {
-      initial = draft.value?.honorific;
+      initial = draft?.value?.honorific;
     }
-    final ready = mode == OnboardingStepMode.edit || !draft.isLoading;
+    final ready = !(profile?.isLoading ?? draft?.isLoading ?? false);
     return Semantics(
       identifier: ScreenIds.onboardCall,
       child: Scaffold(
@@ -115,7 +121,8 @@ class _CallFormState extends ConsumerState<_CallForm> {
       stepCount: edit ? null : ref.watch(onboardingStepCountProvider),
       question: l10n.onboardCallQuestionHead,
       input: MyungliTextField(
-        label: l10n.onboardCallQuestionHead,
+        // 질문은 InputStep의 form 노드가 읽으므로 칸 이름은 예시 문구로 겹치지 않게 합니다.
+        label: l10n.onboardCallInputHint,
         controller: _controller,
         hint: l10n.onboardCallInputHint,
         maxLength: honorificMaxLength(ref.watch(appLanguageProvider)),

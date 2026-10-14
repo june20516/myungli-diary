@@ -5,12 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
+import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/presentation/onboard_birth_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -197,5 +202,136 @@ void main() {
       locale: const Locale('en', 'US'),
     );
     expect(overseas.read(onboardingStepCountProvider), 5);
+  });
+
+  group('수정 모드 시작 값', () {
+    final profile = Profile.fromJson({
+      'honorific': '하늘',
+      'language': 'ko',
+      'currentTimezone': 'Asia/Seoul',
+      'birth': {
+        'calendar': 'lunar',
+        'date': {'year': 1988, 'month': 4, 'day': 9},
+        'isLeapMonth': true,
+        'time': {'status': 'unknown'},
+        'gender': 'female',
+        'timezone': 'Asia/Seoul',
+        'place': {'status': 'not_asked'},
+      },
+      'notification': {'status': 'not_asked'},
+    });
+
+    String fieldText(WidgetTester tester) =>
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text;
+
+    testWidgets('extra가 있으면 extra, 없고 사본이 있으면 사본 값으로 시작합니다', (tester) async {
+      final container = await pumpApp(
+        tester,
+        scenario: 'member-overseas',
+        overrides: [cachedProfileProvider.overrideWith((ref) async => profile)],
+      );
+      final router = container.read(routerProvider);
+      final path = '${pathOf(ScreenIds.onboardCall)}?mode=edit';
+
+      unawaited(router.push<String>(path, extra: '구름'));
+      await tester.pumpAndSettle();
+      expect(fieldText(tester), '구름');
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      unawaited(router.push<String>(path));
+      await _settleIo(tester);
+      expect(fieldText(tester), '하늘');
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      unawaited(
+        router.push<BirthDateValue>(
+          '${pathOf(ScreenIds.onboardBirth)}?mode=edit',
+        ),
+      );
+      await _settleIo(tester);
+      final picker = tester.widget<BirthDatePicker>(
+        find.byType(BirthDatePicker),
+      );
+      expect(
+        picker.value,
+        const BirthDateValue(
+          calendar: BirthCalendar.lunar,
+          year: 1988,
+          month: 4,
+          day: 9,
+          isLeapMonth: true,
+        ),
+      );
+    });
+
+    testWidgets('extra도 사본도 없으면 호칭은 빈 칸입니다', (tester) async {
+      final container = await pumpApp(
+        tester,
+        scenario: 'member-overseas',
+        overrides: [cachedProfileProvider.overrideWith((ref) async => null)],
+      );
+      unawaited(
+        container
+            .read(routerProvider)
+            .push<String>('${pathOf(ScreenIds.onboardCall)}?mode=edit'),
+      );
+      await _settleIo(tester);
+      expect(fieldText(tester), '');
+    });
+  });
+
+  testWidgets('en 기기는 호칭을 20자까지 받습니다', (tester) async {
+    await pumpApp(
+      tester,
+      scenario: 'new-user',
+      locale: const Locale('en', 'US'),
+    );
+    await tester.tap(find.byKey(const ValueKey(SlotIds.welcomeCtaStart)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byType(EditableText),
+      'abcdefghijklmnopqrstuvwxyz',
+    );
+    await tester.pump();
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+      'abcdefghijklmnopqrst',
+    );
+  });
+
+  test('음력 윤달 생일이 초안과 화면 값 사이를 왕복해도 같습니다', () {
+    const value = BirthDateValue(
+      calendar: BirthCalendar.lunar,
+      year: 2001,
+      month: 4,
+      day: 30,
+      isLeapMonth: true,
+    );
+    final draft = const OnboardingDraft().copyWith(
+      calendar: CalendarType.lunar,
+      date: LunarOrSolarDate(year: 2001, month: 4, day: 30),
+      isLeapMonth: true,
+    );
+    expect(birthDateValueOfDraft(draft), value);
+    final back = draftWithBirthDate(const OnboardingDraft(), value);
+    expect(back.calendar, CalendarType.lunar);
+    expect(back.isLeapMonth, isTrue);
+    expect(back.date, LunarOrSolarDate(year: 2001, month: 4, day: 30));
+    // 양력으로 바꾸면 윤달 표시가 꺼집니다.
+    final solar = draftWithBirthDate(
+      back,
+      value.copyWith(calendar: BirthCalendar.solar),
+    );
+    expect(solar.calendar, CalendarType.solar);
+    expect(solar.isLeapMonth, isFalse);
+  });
+
+  testWidgets('호칭 칸 이름이 질문과 겹쳐 두 번 읽히지 않습니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _openCall(tester);
+    expect(find.bySemanticsLabel('뭐라고 불러 드릴까요?'), findsOneWidget);
+    handle.dispose();
   });
 }

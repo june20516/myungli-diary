@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
@@ -15,6 +16,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// IA `onboard-birth`의 출구 대상. 온보딩은 `onboard-time`, 수정 모드는 `profile-edit`
 /// (값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다).
@@ -34,7 +36,8 @@ const BirthDateValue _defaultBirth = BirthDateValue(
   day: 15,
 );
 
-BirthDateValue? _birthOfDraft(OnboardingDraft? draft) {
+/// 초안의 생일을 화면 값으로 바꿉니다. 달력이나 날짜가 아직 없으면 null입니다.
+BirthDateValue? birthDateValueOfDraft(OnboardingDraft? draft) {
   final date = draft?.date;
   final calendar = draft?.calendar;
   if (date == null || calendar == null) return null;
@@ -49,6 +52,35 @@ BirthDateValue? _birthOfDraft(OnboardingDraft? draft) {
   );
 }
 
+/// [draft]에 화면 값 [value]의 생일을 담습니다. 윤달 표시는 음력일 때만 남습니다.
+OnboardingDraft draftWithBirthDate(
+  OnboardingDraft draft,
+  BirthDateValue value,
+) {
+  final lunar = value.calendar == BirthCalendar.lunar;
+  return draft.copyWith(
+    calendar: lunar ? CalendarType.lunar : CalendarType.solar,
+    date: LunarOrSolarDate(
+      year: value.year,
+      month: value.month,
+      day: value.day,
+    ),
+    isLeapMonth: lunar && value.isLeapMonth,
+  );
+}
+
+BirthDateValue? _birthOfProfile(Profile? profile) {
+  if (profile == null) return null;
+  final birth = profile.birth;
+  return birthDateValueOfDraft(
+    OnboardingDraft(
+      calendar: birth.calendar,
+      date: birth.date,
+      isLeapMonth: birth.isLeapMonth,
+    ),
+  );
+}
+
 /// 온보딩 둘째 단계: 생일(양력·음력, 윤달)을 받습니다(D18·D41).
 ///
 /// 수정 모드(`?mode=edit`)에서는 저장 버튼이 [BirthDateValue]를 `pop`으로 돌려줍니다.
@@ -60,16 +92,19 @@ class OnboardBirthScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final routeState = GoRouterState.of(context);
     final mode = onboardingStepModeOf(routeState);
-    final draft = ref.watch(onboardingDraftProvider);
+    final edit = mode == OnboardingStepMode.edit;
+    // 수정 모드는 extra, 없으면 프로필 사본에서 시작하고 초안은 보지 않습니다(A19).
+    final profile = edit ? ref.watch(cachedProfileProvider) : null;
+    final draft = edit ? null : ref.watch(onboardingDraftProvider);
     final BirthDateValue? initial;
-    if (mode == OnboardingStepMode.edit) {
+    if (edit) {
       initial = routeState.extra is BirthDateValue
           ? routeState.extra! as BirthDateValue
-          : null;
+          : _birthOfProfile(profile?.value);
     } else {
-      initial = _birthOfDraft(draft.value);
+      initial = birthDateValueOfDraft(draft?.value);
     }
-    final ready = mode == OnboardingStepMode.edit || !draft.isLoading;
+    final ready = !(profile?.isLoading ?? draft?.isLoading ?? false);
     return Semantics(
       identifier: ScreenIds.onboardBirth,
       child: Scaffold(
@@ -114,20 +149,9 @@ class _BirthFormState extends ConsumerState<_BirthForm> {
     }
     setState(() => _saving = true);
     try {
-      final lunar = value.calendar == BirthCalendar.lunar;
       await ref
           .read(onboardingDraftProvider.notifier)
-          .update(
-            (d) => d.copyWith(
-              calendar: lunar ? CalendarType.lunar : CalendarType.solar,
-              date: LunarOrSolarDate(
-                year: value.year,
-                month: value.month,
-                day: value.day,
-              ),
-              isLeapMonth: lunar && value.isLeapMonth,
-            ),
-          );
+          .update((d) => draftWithBirthDate(d, value));
       if (!mounted) return;
       await context.push<void>(pathOf(ScreenIds.onboardTime));
     } finally {

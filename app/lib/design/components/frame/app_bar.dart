@@ -80,8 +80,10 @@ class MyungliAppBar extends StatelessWidget {
                 onPressed: onBack ?? () => Navigator.maybePop(context),
               ),
             Expanded(
+              // 제목이 비면(IA에 제목 슬롯이 없는 입력 화면) 빈 header를 만들지 않습니다.
               child: Semantics(
-                header: true,
+                header: title.isNotEmpty,
+                excludeSemantics: title.isEmpty,
                 child: Text(
                   title,
                   maxLines: 1,
