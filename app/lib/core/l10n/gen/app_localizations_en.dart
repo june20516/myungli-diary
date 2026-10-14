@@ -404,4 +404,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leapMonth => 'Leap month';
+
+  @override
+  String get onboardCallInputLabel => 'Name to call you';
 }

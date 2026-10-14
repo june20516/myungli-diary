@@ -121,8 +121,8 @@ class _CallFormState extends ConsumerState<_CallForm> {
       stepCount: edit ? null : ref.watch(onboardingStepCountProvider),
       question: l10n.onboardCallQuestionHead,
       input: MyungliTextField(
-        // 질문은 InputStep의 form 노드가 읽으므로 칸 이름은 예시 문구로 겹치지 않게 합니다.
-        label: l10n.onboardCallInputHint,
+        // 질문은 InputStep의 form 노드가 읽으므로 칸 이름은 목적만 말하고, 예시는 hint로만 둡니다.
+        label: l10n.onboardCallInputLabel,
         controller: _controller,
         hint: l10n.onboardCallInputHint,
         maxLength: honorificMaxLength(ref.watch(appLanguageProvider)),

@@ -374,4 +374,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get leapMonth => '윤달';
+
+  @override
+  String get onboardCallInputLabel => '호칭';
 }

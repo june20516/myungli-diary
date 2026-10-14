@@ -372,4 +372,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get leapMonth => '閏月';
+
+  @override
+  String get onboardCallInputLabel => '呼び名';
 }

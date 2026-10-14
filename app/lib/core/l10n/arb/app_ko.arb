@@ -525,5 +525,9 @@
   "leapMonth": "윤달",
   "@leapMonth": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "onboardCallInputLabel": "호칭",
+  "@onboardCallInputLabel": {
+    "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
   }
 }

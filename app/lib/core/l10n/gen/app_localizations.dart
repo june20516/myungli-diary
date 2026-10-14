@@ -777,6 +777,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'윤달'**
   String get leapMonth;
+
+  /// 임시. 호칭 입력칸의 접근성 이름(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'호칭'**
+  String get onboardCallInputLabel;
 }
 
 class _AppLocalizationsDelegate

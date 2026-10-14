@@ -332,6 +332,10 @@ void main() {
     final handle = tester.ensureSemantics();
     await _openCall(tester);
     expect(find.bySemanticsLabel('뭐라고 불러 드릴까요?'), findsOneWidget);
+    // 칸 이름은 목적만 말하고, 예시 문구와 같지 않습니다.
+    final field = tester.getSemantics(find.byType(EditableText));
+    // 이름 '호칭' 뒤에 예시가 hint로 한 번만 이어집니다.
+    expect(field.label, '호칭\n예: 별님');
     handle.dispose();
   });
 }
