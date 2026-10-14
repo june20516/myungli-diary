@@ -19,7 +19,12 @@ Future<void> _open(
 }
 
 void main() {
-  for (final screenId in [ScreenIds.onboardCall, ScreenIds.onboardBirth]) {
+  for (final screenId in [
+    ScreenIds.onboardCall,
+    ScreenIds.onboardBirth,
+    ScreenIds.onboardTime,
+    ScreenIds.onboardGender,
+  ]) {
     for (final scale in [1.0, 2.0, 3.0]) {
       for (final keyboard in [0.0, 280.0]) {
         testWidgets('$screenId: 글자 $scale배·키보드 $keyboard에서 넘치지 않고 버튼에 닿습니다', (

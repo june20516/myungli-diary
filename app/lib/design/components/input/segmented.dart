@@ -31,6 +31,9 @@ final class SegmentedItem<T> {
 /// 누르면 [onChanged]와 selection 햅틱이 한 번 나가고, 이미 고른 항목을 다시 누르면
 /// 아무 일도 없습니다. [onChanged]가 null이면 모두 disabled입니다.
 ///
+/// [selected]가 null이면(`T`가 null을 허용할 때) 아직 고르지 않은 상태라 선택 표시가
+/// 없습니다.
+///
 /// 트랙 높이 40은 최소 높이라 기기 글자 크기가 크면 함께 커집니다. 항목 글자는 줄을
 /// 바꾸지 않고 자르지도 않습니다. 넘치지 않게 문구와 항목 수를 정하는 것은 화면
 /// 설계의 몫입니다.
@@ -46,8 +49,8 @@ class Segmented<T> extends StatefulWidget {
     super.key,
   }) : assert(items.length >= 2 && items.length <= 4, 'segmented 항목은 2~4개입니다.'),
        assert(
-         items.any((item) => item.value == selected),
-         'selected는 items 안의 값이어야 합니다.',
+         selected == null || items.any((item) => item.value == selected),
+         'selected는 items 안의 값이거나, 아직 고르지 않았다면 null이어야 합니다.',
        );
 
   /// 명세 대조용 요약.

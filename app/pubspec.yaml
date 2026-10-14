@@ -135,3 +135,4 @@ flutter:
     - fixtures/consent-required/
     - fixtures/profile-required/
     - fixtures/force-update/
+    - fixtures/birth-hour-unavailable/

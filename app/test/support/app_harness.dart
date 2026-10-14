@@ -21,9 +21,11 @@ import 'package:pub_semver/pub_semver.dart';
 /// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 로케일 ko.
 ///
 /// [database]를 주면 그 실행기로 DB를 엽니다(여러 컨테이너가 같은 파일을 공유할 때).
+///
+/// [locale]이 null이면 로케일을 덮지 않아 시나리오의 `locale`이 쓰입니다.
 List<Override> testOverrides({
   QueryExecutor Function()? database,
-  Locale locale = const Locale('ko'),
+  Locale? locale = const Locale('ko'),
 }) => [
   appDatabaseProvider.overrideWith((ref) {
     final db = AppDatabase.forExecutor(
@@ -33,7 +35,7 @@ List<Override> testOverrides({
     return db;
   }),
   secureStoreProvider.overrideWithValue(MemorySecureStore()),
-  localeProvider.overrideWithValue(locale),
+  if (locale != null) localeProvider.overrideWithValue(locale),
   appVersionProvider.overrideWith((ref) => Version(1, 0, 0)),
 ];
 
@@ -45,15 +47,17 @@ Future<ProviderContainer> bootstrapForTest(
   String scenario, {
   List<Override> overrides = const [],
   QueryExecutor Function()? database,
-  Locale locale = const Locale('ko'),
+  Locale? locale = const Locale('ko'),
 }) async {
   await AssetManifest.loadFromAssetBundle(rootBundle);
   final container = await bootstrap(
     mode: ApiMode.fake,
     scenarioId: scenario,
     installErrorHandlers: false,
+    // 로케일은 bootstrap이 시나리오의 `locale`과 함께 정합니다(둘 다 덮으면 override가 겹침).
+    deviceLocale: locale,
     overrides: [
-      ...testOverrides(database: database, locale: locale),
+      ...testOverrides(database: database, locale: null),
       ...overrides,
     ],
   );
@@ -116,7 +120,7 @@ Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   required String scenario,
   List<Override> overrides = const [],
-  Locale locale = const Locale('ko'),
+  Locale? locale = const Locale('ko'),
 }) async {
   final container = (await tester.runAsync(
     () => bootstrapForTest(scenario, overrides: overrides, locale: locale),

@@ -1,15 +1,25 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/model/birth.dart';
+import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
+import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
@@ -60,6 +70,56 @@ Future<void> _dragWheel(WidgetTester tester, Key key, int steps) async {
   await tester.drag(find.byKey(key), Offset(0, -40.0 * steps));
   await tester.pumpAndSettle();
 }
+
+const Locale _korea = Locale('ko', 'KR');
+const Locale _usa = Locale('en', 'US');
+
+/// welcome(세션 있는 사용자는 onboard-call)에서 호칭·생일을 넘겨 onboard-time까지 갑니다.
+Future<ProviderContainer> _openTime(
+  WidgetTester tester, {
+  String scenario = 'new-user',
+  Locale locale = _korea,
+  List<Override> overrides = const [],
+}) async {
+  final container = await pumpApp(
+    tester,
+    scenario: scenario,
+    locale: locale,
+    overrides: overrides,
+  );
+  final start = find.byKey(const ValueKey(SlotIds.welcomeCtaStart));
+  if (start.evaluate().isNotEmpty) {
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+  }
+  await tester.enterText(find.byType(EditableText), '별님');
+  await tester.pump();
+  await _tapNext(tester);
+  await _tapNext(tester);
+  expect(find.byKey(const ValueKey(ScreenIds.onboardTime)), findsOneWidget);
+  return container;
+}
+
+/// 오전·오후 휠을 [meridiemSteps]칸, 시 휠을 [hourSteps]칸 내립니다. 휠이 멈춘 뒤 요청이 나갑니다.
+Future<void> _pickTime(
+  WidgetTester tester, {
+  required int hourSteps,
+  int meridiemSteps = 0,
+}) async {
+  if (meridiemSteps != 0) {
+    await _dragWheel(tester, TimePicker.meridiemWheelKey, meridiemSteps);
+  }
+  await _dragWheel(tester, TimePicker.hourWheelKey, hourSteps);
+  // 휠이 멈춘 뒤(debounce) 요청이 나갑니다. 가짜 시계를 넘기고 fixture I/O를 기다립니다.
+  await tester.pump(const Duration(seconds: 1));
+  await _settleIo(tester);
+}
+
+FakeServerInterceptor _fake(ProviderContainer container) =>
+    container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
+
+Map<String, Object?> _bodyOf(Object? data) =>
+    (data is String ? jsonDecode(data) : data)! as Map<String, Object?>;
 
 void main() {
   testWidgets('onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다', (
@@ -337,5 +397,228 @@ void main() {
     // 이름 '호칭' 뒤에 예시가 hint로 한 번만 이어집니다.
     expect(field.label, '호칭\n예: 별님');
     handle.dispose();
+  });
+
+  group('onboard-time', () {
+    testWidgets('04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다', (
+      tester,
+    ) async {
+      covers(
+        const Covers(
+          exits: ['onboard-time>onboard-gender'],
+          states: ['onboard-time:time-unknown'],
+          decisions: ['D58'],
+        ),
+      );
+      final container = await _openTime(tester);
+      // 기본 12:00(오후)에서 오전 4시로: 오전·오후 한 칸, 시 4칸.
+      await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
+
+      expect(find.textContaining('인시(03:30~05:30)'), findsOneWidget);
+      final fake = _fake(container);
+      expect(fake.callCountOf('getBirthHour'), 1);
+      final body = _bodyOf(fake.requestBodiesOf('getBirthHour').single);
+      expect(body['installationId'], isA<String>());
+      expect((body['installationId']! as String).isNotEmpty, isTrue);
+      expect(body['time'], '04:00');
+
+      await tester.tap(find.text('모름'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(TimePicker.unknownNoticeKey), findsOneWidget);
+      expect(find.byKey(TimePicker.sijinConfirmKey), findsNothing);
+      expect(fake.callCountOf('getBirthHour'), 1);
+
+      await _tapNext(tester);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.onboardGender)),
+        findsOneWidget,
+      );
+      final draft = container.read(onboardingDraftProvider).value!;
+      expect(draft.time!.status, BirthTimeStatusEnum.unknown);
+      expect(draft.time!.value, isNull);
+    });
+
+    testWidgets('시진 확인이 실패(501)해도 줄 없이 다음으로 갑니다', (tester) async {
+      final container = await _openTime(
+        tester,
+        scenario: 'birth-hour-unavailable',
+      );
+      await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
+
+      expect(_fake(container).callCountOf('getBirthHour'), 1);
+      expect(find.byKey(TimePicker.sijinConfirmKey), findsNothing);
+      await _tapNext(tester);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.onboardGender)),
+        findsOneWidget,
+      );
+      expect(
+        container.read(onboardingDraftProvider).value!.time,
+        BirthTime(status: BirthTimeStatusEnum.known, value: '04:00'),
+      );
+    });
+
+    testWidgets('overseas 시나리오는 확인 줄을 요청하지도 그리지도 않습니다', (tester) async {
+      final container = await _openTime(
+        tester,
+        scenario: 'overseas',
+        locale: _usa,
+      );
+      await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
+
+      expect(_fake(container).callCountOf('getBirthHour'), 0);
+      expect(find.byKey(TimePicker.sijinConfirmKey), findsNothing);
+    });
+
+    testWidgets('시나리오 locale이 기기 로케일이 됩니다(override 없을 때)', (tester) async {
+      final container = await pumpApp(
+        tester,
+        scenario: 'overseas',
+        locale: null,
+      );
+      expect(container.read(localeProvider), const Locale('en', 'US'));
+      expect(container.read(deviceRegionIsKoreaProvider), isFalse);
+    });
+  });
+
+  group('onboard-gender', () {
+    Future<void> openGender(WidgetTester tester) async {
+      await _tapNext(tester);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.onboardGender)),
+        findsOneWidget,
+      );
+    }
+
+    testWidgets('고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다', (tester) async {
+      covers(
+        const Covers(exits: ['onboard-gender>preview'], decisions: ['D29']),
+      );
+      final container = await _openTime(tester);
+      await openGender(tester);
+      expect(_next(tester).onPressed, isNull);
+
+      await tester.tap(find.text('여성'));
+      await tester.pumpAndSettle();
+      expect(_next(tester).onPressed, isNotNull);
+      await _tapNext(tester);
+
+      expect(find.byKey(const ValueKey(ScreenIds.preview)), findsOneWidget);
+      expect(
+        container.read(onboardingDraftProvider).value!.gender,
+        BirthGenderEnum.female,
+      );
+    });
+
+    testWidgets('한국 밖 기기는 다음 → birthplace입니다', (tester) async {
+      covers(
+        const Covers(exits: ['onboard-gender>birthplace'], decisions: ['D29']),
+      );
+      await _openTime(tester, scenario: 'overseas', locale: _usa);
+      await openGender(tester);
+      await tester.tap(find.text('Male'));
+      await tester.pumpAndSettle();
+      await _tapNext(tester);
+      expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
+    });
+
+    testWidgets('세션이 있으면 미리보기를 건너뛰고 마무리 동작을 부릅니다', (tester) async {
+      var finished = 0;
+      await _openTime(
+        tester,
+        scenario: 'profile-required',
+        overrides: [
+          onboardingFinishProvider.overrideWithValue(() async => finished++),
+        ],
+      );
+      await openGender(tester);
+      await tester.tap(find.text('남성'));
+      await tester.pumpAndSettle();
+      await _tapNext(tester);
+
+      expect(finished, 1);
+      expect(find.byKey(const ValueKey(ScreenIds.preview)), findsNothing);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.onboardGender)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('마무리 동작이 도는 동안 다음을 다시 눌러도 한 번만 부릅니다', (tester) async {
+      final gate = Completer<void>();
+      var finished = 0;
+      await _openTime(
+        tester,
+        scenario: 'profile-required',
+        overrides: [
+          onboardingFinishProvider.overrideWithValue(() {
+            finished++;
+            return gate.future;
+          }),
+        ],
+      );
+      await openGender(tester);
+      await tester.tap(find.text('남성'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(PrimaryButton));
+      await tester.pump();
+      await tester.tap(find.byType(PrimaryButton), warnIfMissed: false);
+      await tester.pump();
+      expect(finished, 1);
+      gate.complete();
+      await tester.pumpAndSettle();
+    });
+  });
+
+  testWidgets('수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['onboard-time>profile-edit', 'onboard-gender>profile-edit'],
+      ),
+    );
+    final container = await pumpApp(tester, scenario: 'member');
+    final router = container.read(routerProvider);
+
+    BirthTime? time;
+    unawaited(
+      router
+          .push<BirthTime>(
+            '${pathOf(ScreenIds.onboardTime)}?mode=edit',
+            extra: BirthTime(status: BirthTimeStatusEnum.known, value: '09:30'),
+          )
+          .then((value) => time = value),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('저장'), findsOneWidget);
+    final picker = tester.widget<TimePicker>(find.byType(TimePicker));
+    expect(picker.value, const TimeOfDay(hour: 9, minute: 30));
+    await _dragWheel(tester, TimePicker.hourWheelKey, 1);
+    await _tapNext(tester);
+    expect(time, BirthTime(status: BirthTimeStatusEnum.known, value: '10:30'));
+
+    BirthGenderEnum? gender;
+    unawaited(
+      router
+          .push<BirthGenderEnum>(
+            '${pathOf(ScreenIds.onboardGender)}?mode=edit',
+            extra: BirthGenderEnum.male,
+          )
+          .then((value) => gender = value),
+    );
+    await tester.pumpAndSettle();
+    final segmented = tester.widget<Segmented<BirthGenderEnum?>>(
+      find.byType(Segmented<BirthGenderEnum?>),
+    );
+    expect(segmented.selected, BirthGenderEnum.male);
+    await tester.tap(find.text('여성'));
+    await tester.pumpAndSettle();
+    await _tapNext(tester);
+    expect(gender, BirthGenderEnum.female);
+    final draft = await tester.runAsync(
+      () => container.read(onboardingDraftStoreProvider).read(),
+    );
+    expect(draft, isNull);
   });
 }

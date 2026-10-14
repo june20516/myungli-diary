@@ -375,4 +375,66 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboardCallInputLabel => '呼び名';
+
+  @override
+  String get onboardTimeQuestionHead => '何時に生まれましたか？';
+
+  @override
+  String get onboardTimeUnknownNote => '生まれた時間がわからない場合は、時柱を除いた三柱で計算します。';
+
+  @override
+  String get timeUnknownLabel => 'わからない';
+
+  @override
+  String onboardTimeHourConfirm(String branch, String start, String end) {
+    return '$branch（$start〜$end）';
+  }
+
+  @override
+  String get branchJa => '子の刻';
+
+  @override
+  String get branchChuk => '丑の刻';
+
+  @override
+  String get branchIn => '寅の刻';
+
+  @override
+  String get branchMyo => '卯の刻';
+
+  @override
+  String get branchJin => '辰の刻';
+
+  @override
+  String get branchSa => '巳の刻';
+
+  @override
+  String get branchO => '午の刻';
+
+  @override
+  String get branchMi => '未の刻';
+
+  @override
+  String get branchShin => '申の刻';
+
+  @override
+  String get branchYu => '酉の刻';
+
+  @override
+  String get branchSul => '戌の刻';
+
+  @override
+  String get branchHae => '亥の刻';
+
+  @override
+  String get onboardGenderQuestionHead => '性別を教えてください。';
+
+  @override
+  String get onboardGenderWhyBody => '大運の向きを計算するのに使います。';
+
+  @override
+  String get genderMale => '男性';
+
+  @override
+  String get genderFemale => '女性';
 }

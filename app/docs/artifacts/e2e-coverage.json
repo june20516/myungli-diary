@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-14T03:32:02.506828Z",
+  "generatedAt": "2026-10-14T03:50:49.058744Z",
   "exits": {
-    "covered": 10,
+    "covered": 15,
     "total": 77,
     "uncovered": [
       "account-delete>welcome",
@@ -38,11 +38,6 @@
       "my-saju>saju-chart",
       "my-saju>settings",
       "notify-ask>ad-consent",
-      "onboard-gender>birthplace",
-      "onboard-gender>preview",
-      "onboard-gender>profile-edit",
-      "onboard-time>onboard-gender",
-      "onboard-time>profile-edit",
       "preview>login",
       "preview>onboard-call",
       "profile-edit>birthplace",
@@ -84,16 +79,31 @@
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ],
       "onboard-birth>onboard-time": [
-        "test/flows/onboarding_flow_test.dart:89 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
+        "test/flows/onboarding_flow_test.dart:154 onboard-birth: 1990-05-17 양력 다음 → onboard-time, 뒤로 오면 값이 남습니다"
       ],
       "onboard-birth>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:141 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+        "test/flows/onboarding_flow_test.dart:206 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
       ],
       "onboard-call>onboard-birth": [
-        "test/flows/onboarding_flow_test.dart:63 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다"
+        "test/flows/onboarding_flow_test.dart:128 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다"
       ],
       "onboard-call>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:141 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+        "test/flows/onboarding_flow_test.dart:206 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
+      ],
+      "onboard-gender>birthplace": [
+        "test/flows/onboarding_flow_test.dart:514 한국 밖 기기는 다음 → birthplace입니다"
+      ],
+      "onboard-gender>preview": [
+        "test/flows/onboarding_flow_test.dart:494 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다"
+      ],
+      "onboard-gender>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:576 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+      ],
+      "onboard-time>onboard-gender": [
+        "test/flows/onboarding_flow_test.dart:406 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
+      ],
+      "onboard-time>profile-edit": [
+        "test/flows/onboarding_flow_test.dart:576 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "system-push>today": [
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
@@ -108,7 +118,7 @@
     }
   },
   "states": {
-    "covered": 1,
+    "covered": 2,
     "total": 54,
     "uncovered": [
       "account-delete:error",
@@ -148,7 +158,6 @@
       "my-saju:loading",
       "my-saju:time-unknown",
       "onboard-birth:out-of-range",
-      "onboard-time:time-unknown",
       "preview:error",
       "preview:loading",
       "preview:offline",
@@ -168,6 +177,9 @@
     "coveredBy": {
       "launch:offline": [
         "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
+      ],
+      "onboard-time:time-unknown": [
+        "test/flows/onboarding_flow_test.dart:406 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
       ]
     }
   },
@@ -184,7 +196,7 @@
     "coveredBy": {
       "D50": [
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
-        "test/flows/onboarding_flow_test.dart:63 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
+        "test/flows/onboarding_flow_test.dart:128 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ]
@@ -243,17 +255,17 @@
     },
     "onboard-time": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },
     "onboard-gender": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {

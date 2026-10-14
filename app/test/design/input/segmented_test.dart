@@ -63,6 +63,24 @@ void main() {
       );
     });
 
+    testWidgets('selected가 null이면(아직 고르지 않음) 선택 표시 없이 그립니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Segmented<String?>(
+              items: const [SegmentedItem('f', '여성'), SegmentedItem('m', '남성')],
+              selected: null,
+              onChanged: (_) {},
+              label: '성별',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(Segmented.indicatorKey), findsNothing);
+    });
+
     testWidgets('pressed: 누르는 동안 press.ink 얼룩이 번지고 뗀 뒤 사라집니다', (tester) async {
       await tester.pumpWidget(inputApp(_segmented(onChanged: (_) {})));
       await tester.pumpAndSettle();

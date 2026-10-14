@@ -181,5 +181,99 @@
   "onboardCallInputLabel": "Name to call you",
   "@onboardCallInputLabel": {
     "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
+  },
+  "onboardTimeQuestionHead": "What time were you born?",
+  "@onboardTimeQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardTimeUnknownNote": "If you don't know the time, we calculate with three pillars, leaving out the hour pillar.",
+  "@onboardTimeUnknownNote": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "timeUnknownLabel": "Don't know",
+  "@timeUnknownLabel": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "onboardTimeHourConfirm": "{branch} ({start}–{end})",
+  "@onboardTimeHourConfirm": {
+    "description": "임시. content 슬롯이지만 server가 구조값(지지·시각)만 주므로 app이 틀로 씀(A20 ③)",
+    "placeholders": {
+      "branch": {
+        "type": "String",
+        "example": "인시"
+      },
+      "start": {
+        "type": "String",
+        "example": "03:30"
+      },
+      "end": {
+        "type": "String",
+        "example": "05:30"
+      }
+    }
+  },
+  "branchJa": "Rat hour",
+  "@branchJa": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchChuk": "Ox hour",
+  "@branchChuk": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchIn": "Tiger hour",
+  "@branchIn": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchMyo": "Rabbit hour",
+  "@branchMyo": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchJin": "Dragon hour",
+  "@branchJin": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchSa": "Snake hour",
+  "@branchSa": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchO": "Horse hour",
+  "@branchO": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchMi": "Goat hour",
+  "@branchMi": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchShin": "Monkey hour",
+  "@branchShin": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchYu": "Rooster hour",
+  "@branchYu": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchSul": "Dog hour",
+  "@branchSul": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchHae": "Pig hour",
+  "@branchHae": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "onboardGenderQuestionHead": "What is your gender?",
+  "@onboardGenderQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardGenderWhyBody": "Used to work out the direction of your major luck cycles.",
+  "@onboardGenderWhyBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "genderMale": "Male",
+  "@genderMale": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "genderFemale": "Female",
+  "@genderFemale": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   }
 }

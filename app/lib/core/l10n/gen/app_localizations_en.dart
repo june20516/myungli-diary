@@ -407,4 +407,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardCallInputLabel => 'Name to call you';
+
+  @override
+  String get onboardTimeQuestionHead => 'What time were you born?';
+
+  @override
+  String get onboardTimeUnknownNote =>
+      'If you don\'t know the time, we calculate with three pillars, leaving out the hour pillar.';
+
+  @override
+  String get timeUnknownLabel => 'Don\'t know';
+
+  @override
+  String onboardTimeHourConfirm(String branch, String start, String end) {
+    return '$branch ($start–$end)';
+  }
+
+  @override
+  String get branchJa => 'Rat hour';
+
+  @override
+  String get branchChuk => 'Ox hour';
+
+  @override
+  String get branchIn => 'Tiger hour';
+
+  @override
+  String get branchMyo => 'Rabbit hour';
+
+  @override
+  String get branchJin => 'Dragon hour';
+
+  @override
+  String get branchSa => 'Snake hour';
+
+  @override
+  String get branchO => 'Horse hour';
+
+  @override
+  String get branchMi => 'Goat hour';
+
+  @override
+  String get branchShin => 'Monkey hour';
+
+  @override
+  String get branchYu => 'Rooster hour';
+
+  @override
+  String get branchSul => 'Dog hour';
+
+  @override
+  String get branchHae => 'Pig hour';
+
+  @override
+  String get onboardGenderQuestionHead => 'What is your gender?';
+
+  @override
+  String get onboardGenderWhyBody =>
+      'Used to work out the direction of your major luck cycles.';
+
+  @override
+  String get genderMale => 'Male';
+
+  @override
+  String get genderFemale => 'Female';
 }

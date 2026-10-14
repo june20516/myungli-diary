@@ -69,7 +69,8 @@ OnboardingDraft draftWithBirthDate(
   );
 }
 
-BirthDateValue? _birthOfProfile(Profile? profile) {
+/// 프로필 사본의 생일을 화면 값으로 바꿉니다. 사본이 없으면 null입니다.
+BirthDateValue? birthDateValueOfProfile(Profile? profile) {
   if (profile == null) return null;
   final birth = profile.birth;
   return birthDateValueOfDraft(
@@ -100,7 +101,7 @@ class OnboardBirthScreen extends ConsumerWidget {
     if (edit) {
       initial = routeState.extra is BirthDateValue
           ? routeState.extra! as BirthDateValue
-          : _birthOfProfile(profile?.value);
+          : birthDateValueOfProfile(profile?.value);
     } else {
       initial = birthDateValueOfDraft(draft?.value);
     }

@@ -529,5 +529,99 @@
   "onboardCallInputLabel": "호칭",
   "@onboardCallInputLabel": {
     "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
+  },
+  "onboardTimeQuestionHead": "몇 시에 태어나셨나요?",
+  "@onboardTimeQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardTimeUnknownNote": "태어난 시간을 모르면 시간 기둥을 뺀 세 기둥으로 계산해요.",
+  "@onboardTimeUnknownNote": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "timeUnknownLabel": "모름",
+  "@timeUnknownLabel": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "onboardTimeHourConfirm": "{branch}({start}~{end})",
+  "@onboardTimeHourConfirm": {
+    "description": "임시. content 슬롯이지만 server가 구조값(지지·시각)만 주므로 app이 틀로 씀(A20 ③)",
+    "placeholders": {
+      "branch": {
+        "type": "String",
+        "example": "인시"
+      },
+      "start": {
+        "type": "String",
+        "example": "03:30"
+      },
+      "end": {
+        "type": "String",
+        "example": "05:30"
+      }
+    }
+  },
+  "branchJa": "자시",
+  "@branchJa": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchChuk": "축시",
+  "@branchChuk": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchIn": "인시",
+  "@branchIn": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchMyo": "묘시",
+  "@branchMyo": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchJin": "진시",
+  "@branchJin": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchSa": "사시",
+  "@branchSa": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchO": "오시",
+  "@branchO": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchMi": "미시",
+  "@branchMi": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchShin": "신시",
+  "@branchShin": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchYu": "유시",
+  "@branchYu": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchSul": "술시",
+  "@branchSul": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "branchHae": "해시",
+  "@branchHae": {
+    "description": "임시. 지지 이름(시진 확인 줄)"
+  },
+  "onboardGenderQuestionHead": "성별을 알려 주세요.",
+  "@onboardGenderQuestionHead": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "onboardGenderWhyBody": "대운의 방향을 계산할 때 쓰여요.",
+  "@onboardGenderWhyBody": {
+    "description": "임시. 화면 문구 원고 전의 자리 문구"
+  },
+  "genderMale": "남성",
+  "@genderMale": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+  },
+  "genderFemale": "여성",
+  "@genderFemale": {
+    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   }
 }

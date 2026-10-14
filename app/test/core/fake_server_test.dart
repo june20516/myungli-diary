@@ -217,12 +217,18 @@ void main() {
         'force-update',
         'offline',
         'member-overseas',
+        'birth-hour-unavailable',
+        'overseas',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
       expect(scenarios.where((s) => s.signedIn), hasLength(6));
+      expect(
+        scenarios.singleWhere((s) => s.id == 'overseas').locale,
+        const Locale('en', 'US'),
+      );
     });
 
     test('extends 순환은 오류다', () {
@@ -466,6 +472,25 @@ void main() {
         parseScenarios(one(', "delayMs": 25')).single.delay,
         const Duration(milliseconds: 25),
       );
+    });
+
+    test('locale은 언어-국가 형식으로 읽고, 없으면 null이며, 틀리면 오류다', () {
+      expect(parseScenarios(one('')).single.locale, isNull);
+      expect(
+        parseScenarios(one(', "locale": "en-US"')).single.locale,
+        const Locale('en', 'US'),
+      );
+      expect(
+        parseScenarios(one(', "locale": "ko"')).single.locale,
+        const Locale('ko'),
+      );
+      for (final bad in ['""', '"en_US"', '"e-US"', '1', '"en-USA"']) {
+        expect(
+          () => parseScenarios(one(', "locale": $bad')),
+          throwsA(isA<ScenarioFormatException>()),
+          reason: bad,
+        );
+      }
     });
 
     test('network가 online·offline이 아니면 오류다', () {

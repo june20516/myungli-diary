@@ -783,6 +783,126 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'호칭'**
   String get onboardCallInputLabel;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'몇 시에 태어나셨나요?'**
+  String get onboardTimeQuestionHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'태어난 시간을 모르면 시간 기둥을 뺀 세 기둥으로 계산해요.'**
+  String get onboardTimeUnknownNote;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'모름'**
+  String get timeUnknownLabel;
+
+  /// 임시. content 슬롯이지만 server가 구조값(지지·시각)만 주므로 app이 틀로 씀(A20 ③)
+  ///
+  /// In ko, this message translates to:
+  /// **'{branch}({start}~{end})'**
+  String onboardTimeHourConfirm(String branch, String start, String end);
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'자시'**
+  String get branchJa;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'축시'**
+  String get branchChuk;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'인시'**
+  String get branchIn;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'묘시'**
+  String get branchMyo;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'진시'**
+  String get branchJin;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'사시'**
+  String get branchSa;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'오시'**
+  String get branchO;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'미시'**
+  String get branchMi;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'신시'**
+  String get branchShin;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'유시'**
+  String get branchYu;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'술시'**
+  String get branchSul;
+
+  /// 임시. 지지 이름(시진 확인 줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'해시'**
+  String get branchHae;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'성별을 알려 주세요.'**
+  String get onboardGenderQuestionHead;
+
+  /// 임시. 화면 문구 원고 전의 자리 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'대운의 방향을 계산할 때 쓰여요.'**
+  String get onboardGenderWhyBody;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'남성'**
+  String get genderMale;
+
+  /// 임시. 온보딩 공용 문구(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'여성'**
+  String get genderFemale;
 }
 
 class _AppLocalizationsDelegate

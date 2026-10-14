@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
 /// 대역 서버 시나리오 하나: 앱이 보게 될 "오늘"과 네트워크 상태입니다.
@@ -15,6 +16,7 @@ final class Scenario {
     this.offline = false,
     this.delay = Duration.zero,
     this.signedIn = false,
+    this.locale,
     List<String>? lineage,
   }) : lineage = List.unmodifiable(lineage ?? [id]);
 
@@ -35,6 +37,10 @@ final class Scenario {
 
   /// 앱을 켰을 때 로그인 상태인지. 토큰은 앱 시작 코드가 `refreshToken` fixture로 심습니다.
   final bool signedIn;
+
+  /// 기기 로케일. null이면 기기(또는 테스트)가 정한 값을 그대로 씁니다.
+  /// 한국 밖 기기(`en-US` 등)를 흉내 낼 때 씁니다.
+  final Locale? locale;
 
   /// fixture를 찾는 시나리오 id 순서: 자기 자신 → `extends` 부모 → 조상.
   final List<String> lineage;
@@ -126,6 +132,7 @@ Scenario _build(String id, Map<String, Object?> json, List<String> lineage) {
   }
   return Scenario(
     id: id,
+    locale: _parseLocale(id, json['locale']),
     today: date,
     timezone: timezone,
     offline: network == 'offline',
@@ -133,4 +140,18 @@ Scenario _build(String id, Map<String, Object?> json, List<String> lineage) {
     signedIn: json['signedIn'] == true,
     lineage: lineage,
   );
+}
+
+/// `<언어>` 또는 `<언어>-<국가>`(예 `ko`, `en-US`) 형식의 로케일을 읽습니다. 없으면 null입니다.
+Locale? _parseLocale(String id, Object? raw) {
+  if (raw == null) {
+    return null;
+  }
+  final match = raw is String
+      ? RegExp(r'^([a-z]{2,3})(?:-([A-Z]{2}))?$').firstMatch(raw)
+      : null;
+  if (match == null) {
+    throw ScenarioFormatException('$id: locale은 ko 또는 en-US 형식이어야 합니다: $raw');
+  }
+  return Locale(match.group(1)!, match.group(2));
 }

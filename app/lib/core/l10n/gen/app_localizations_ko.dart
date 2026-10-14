@@ -377,4 +377,66 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get onboardCallInputLabel => '호칭';
+
+  @override
+  String get onboardTimeQuestionHead => '몇 시에 태어나셨나요?';
+
+  @override
+  String get onboardTimeUnknownNote => '태어난 시간을 모르면 시간 기둥을 뺀 세 기둥으로 계산해요.';
+
+  @override
+  String get timeUnknownLabel => '모름';
+
+  @override
+  String onboardTimeHourConfirm(String branch, String start, String end) {
+    return '$branch($start~$end)';
+  }
+
+  @override
+  String get branchJa => '자시';
+
+  @override
+  String get branchChuk => '축시';
+
+  @override
+  String get branchIn => '인시';
+
+  @override
+  String get branchMyo => '묘시';
+
+  @override
+  String get branchJin => '진시';
+
+  @override
+  String get branchSa => '사시';
+
+  @override
+  String get branchO => '오시';
+
+  @override
+  String get branchMi => '미시';
+
+  @override
+  String get branchShin => '신시';
+
+  @override
+  String get branchYu => '유시';
+
+  @override
+  String get branchSul => '술시';
+
+  @override
+  String get branchHae => '해시';
+
+  @override
+  String get onboardGenderQuestionHead => '성별을 알려 주세요.';
+
+  @override
+  String get onboardGenderWhyBody => '대운의 방향을 계산할 때 쓰여요.';
+
+  @override
+  String get genderMale => '남성';
+
+  @override
+  String get genderFemale => '여성';
 }
