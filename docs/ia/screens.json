@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tabs": [
     {
       "id": "today",
@@ -771,11 +771,6 @@
           "role": "필수 동의 항목 이름"
         },
         {
-          "id": "consent.optional.label",
-          "source": "ui",
-          "role": "선택 동의 항목 이름"
-        },
-        {
           "id": "consent.cta.agree",
           "source": "ui",
           "role": "동의하고 계속 버튼"
@@ -802,7 +797,8 @@
       ],
       "decisions": [
         "D50",
-        "D39"
+        "D39",
+        "D67"
       ]
     },
     {
