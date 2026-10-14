@@ -70,7 +70,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).
 
 ## 구조
-`lib/`은 `app`(부트스트랩·라우터·개발 메뉴), `core`(api·storage·l10n·clock·platform·ia), `design`(토큰·테마·컴포넌트), `features/<영역>`(data·application·presentation)로 나뉩니다. `features/`는 화면을 구현하는 계획 2부터 생깁니다. `testing/covers.dart`는 E2E·흐름 테스트가 덮는 IA 경로·상태·결정을 선언하는 `Covers`입니다. 별도 도메인 계층은 없고 repository가 생성 모델을 돌려줍니다. 자세한 구조와 이유는 spec [§2](docs/specs/2026-10-13-app-architecture-design.md)에 있습니다.
+`lib/`은 `app`(부트스트랩·라우터·개발 메뉴), `core`(api·storage·l10n·clock·platform·ia), `design`(토큰·테마·컴포넌트), `features/<영역>`(data·application·presentation)로 나뉩니다. `features/`는 영역별로 `onboarding`(welcome·force-update·onboard-*·birthplace·preview·notify-ask), `auth`(login·consent), `profile`(프로필 사본·시간대)가 있고 이후 계획이 영역을 더합니다. `testing/covers.dart`는 E2E·흐름 테스트가 덮는 IA 경로·상태·결정을 선언하는 `Covers`입니다. 별도 도메인 계층은 없고 repository가 생성 모델을 돌려줍니다. 자세한 구조와 이유는 spec [§2](docs/specs/2026-10-13-app-architecture-design.md)에 있습니다.
 
 ## 생성 코드
 생성 코드는 commit하며 **손대지 않습니다.** 원본(계약·ARB)을 고친 뒤 아래 명령으로 다시 만듭니다. 모두 `app/`에서 실행합니다.

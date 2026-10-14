@@ -12,6 +12,7 @@
   * 슬롯 명세 v1
   * 라이팅 검사기 `mlw` v0.1.0
 * 개정 기록
+  * 2026-10-14: 계획 2(온보딩·로그인) 완료 반영. 진입 갈래 `notifyAskRequired`(A17), 프로필 사본과 시간대 동기화(A18), 수정 모드 `?mode=edit`(A19), 계약-IA 불일치 처리(A20), ui 슬롯의 일반 `Text`(A21)를 결정으로 더함
   * 2026-10-14: 기반 계획 최종 review 반영. 계약을 REST 1.0.0-draft.2(Apple 로그인 `clientType` 제거, iOS `loginApple`·Android `completeAppleWebLogin` 분리, nonce 원문·해시 규칙)와 컴포넌트 2.2.0(V28 용어 칩 화면 한정, 잠김 라벨 구역 이름)으로 맞춤. 수치를 IA v1 현재 값(화면 37, 슬롯 124, operation 38)으로 고침. App Check 대상은 계약 `security`에서 생성(§4.1). 로그아웃 정리 경로·백업 정책(Android·iOS, §4.4), 계정 연결(§7), `workflow_call`의 E2E 조건(§9)을 더함. 생성기는 결정 A16으로 확정
 
 ## 1. 목적과 범위

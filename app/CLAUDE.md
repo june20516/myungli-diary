@@ -44,6 +44,11 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 
 ## 현재 상태 (2026-10-14, app 세션 갱신)
+* **계획 2(온보딩·로그인) 완료**입니다. 브랜치 `app/onboarding`이고 PR 예정입니다(기반 PR이 먼저 병합되어야 합니다). 계획: [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md)
+  * **화면 11개:** `launch`·`force-update`·`welcome`·`onboard-call`·`onboard-birth`·`onboard-time`·`onboard-gender`·`birthplace`·`preview`·`login`·`consent`·`notify-ask`와 `ad-consent` 흐름(광고 동의 SDK는 대역)을 만들었습니다. 새 계정 흐름은 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`입니다. 로그인한 새 계정은 미리보기를 건너뛰고 저장한 뒤 `notify-ask`로 갑니다.
+  * **결정 A17~A21** (`docs/decisions.md`): A17 `notifyAskRequired` 진입 갈래, A18 프로필 사본(`cachedProfileProvider`)과 기기 시간대 동기화, A19 수정 모드(`?mode=edit`, `pop(값)`), A20 계약과 IA가 안 맞는 곳은 받을 수 있는 값으로 그림, A21 ui(ARB) 슬롯은 일반 `Text`로 그림.
+  * **새 fake 시나리오(25개 중 계획 2에서 더한 것):** 로그인·동의(`returning-user`, `new-user-signin`, `login-provider-down`, `login-exchange-invalid`, `consent-mismatch`, `consent-renewal`), 온보딩 입력(`time-unknown`, `overseas`, `member-overseas`, `birth-hour-unavailable`, `birth-hour-rate-limited`, `cities-error`, `cities-slow`), 미리보기·저장(`preview-used`, `preview-invalid`, `profile-invalid`, `profile-save-unavailable`), 알림(`notify-register-unavailable`, `notify-profile-save-unavailable`)입니다. 표는 [`README.md`](README.md)에 있습니다.
+  * **E2E 커버리지(도구로 확인, 2026-10-14):** 경로 28/77, 상태 11/54, 결정 2/6(D50·D53). 전체 흐름은 위젯 테스트 `test/flows/new_user_flow_test.dart`와 Patrol `patrol_test/onboarding_test.dart`·`login_test.dart`입니다. Patrol은 iOS 시뮬레이터(iPhone 16)에서 통과했습니다. Android 에뮬레이터는 `unauthorized`로 adb가 막혀 로컬에서 돌리지 못했고(CI `e2e-android`가 확인), 스크린샷은 iOS에서 캡처되지 않아 `docs/artifacts/index.json`에는 올리지 못했습니다.
 * **기반 계획(task 1~23) 완료**입니다. task 23에서 main을 병합하고 REST draft.2·인증 규칙·컴포넌트 2.2.0을 기반 코드가 닿는 범위만 반영했습니다. 브랜치 `app/foundation`이고 PR 예정입니다. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
   * spec: [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md) (승인), 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md)
   * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A16. Riverpod(코드 생성 없음), 생성 클라이언트와 fixture 대역, go_router, drift 영구 캐시, 사주 변경 확인 창, golden(Linux)과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
@@ -70,24 +75,27 @@
 * **IA v1**: 화면 37·슬롯 124(그중 `system-apple-return.page.*` 4개는 server 안내 페이지 문구라 app이 그리지 않으므로 app이 쓰는 슬롯은 120). 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62)와 `system-apple-return`(Android Apple 로그인 복귀를 앱이 열지 못할 때의 server 안내 페이지, D66)이 있습니다.
 * 광고 제거권을 만료 전에 다시 사면 남은 기간에 이어 붙습니다(D61). 계산은 server가 합니다.
 * 도시 목록은 GeoNames `cities15000`(CC BY 4.0)으로 server가 만듭니다. **앱 오픈소스 고지(`legal`)에 출처를 표기합니다**(Issue #48 항목 5).
-* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), #82(컴포넌트 2.1.0·2.2.0: `term` 표시는 `RenderedTextView`·`SentenceBlock`, 잠김 라벨 이름은 `SentenceBlock` locked에 반영), A1 착수 안내(#30). 받은 요청 #100(인증 규칙)·#114(Apple 웹 로그인 draft.2)는 기반 범위만 반영했고 남은 일은 아래 계획 2·7입니다. 앞으로 받은 요청은 `gh issue list --label to:app`.
+* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), #82(컴포넌트 2.1.0·2.2.0: `term` 표시는 `RenderedTextView`·`SentenceBlock`, 잠김 라벨 이름은 `SentenceBlock` locked에 반영), A1 착수 안내(#30). 받은 요청 #100(인증 규칙)·#114(Apple 웹 로그인 draft.2)는 기반 범위만 반영했고 남은 일은 아래 계획 7입니다. 앞으로 받은 요청은 `gh issue list --label to:app`.
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **기반 PR 병합.** `app/foundation` → `main`. `ci-gate` 연결(#85) 뒤에는 app CI가 판정에 포함되며, 연결되면 `app.yml`의 `pull_request` 트리거를 지휘 세션이 지웁니다. 병합 전 `git merge origin/main`. #85에 알릴 것: `app.yml`을 `workflow_call`로 부르면 `e2e-android`는 돌지 않습니다(입력 `run_e2e: true`일 때만). 직접 실행 판별은 `github.workflow == 'app'`입니다.
-2. **계획 2(온보딩·로그인)를 writing-plans로** 씁니다(`app/docs/plans/`). 화면: `launch`·`force-update`·`welcome`·`onboard-*`·`birthplace`·`preview`·`login`·`consent`·`notify-ask`·`ad-consent`. 기반에서 넘어온 것:
-   * `primary-button`(action.json)을 이 계획에서 만들고, ErrorState·EmptyState·근거 잠금 안내의 임시 `FeedbackTextAction`을 교체합니다.
-   * 약관 동의 직후에는 "프로필 저장 → `entryStateProvider.notifier.refresh()`" 순서입니다(먼저 refresh하면 profileRequired로 `/onboard-call`에 튕깁니다).
-   * 딥링크·알림 열기 뒤 원래 목적지로 돌아가는 방식을 설계합니다. 진입 갈래가 entry null이면 모든 경로를 `/launch`로 보내므로(`PushMessaging.initialOpen()` 포함) 진입 뒤 복귀가 필요합니다.
-   * `profileTimezoneProvider`의 http 기본값 `Asia/Seoul`을 프로필 `currentTimezone`으로 바꾸고, 기기 시간대가 바뀌면 `PATCH /v1/me/profile`을 보냅니다(앱 셸의 훅 자리).
-   * 온보딩 입력 저장소(OnboardingInputs 테이블)의 읽기·쓰기 API를 만들고, 프로필 저장에 성공하면 지웁니다.
-   * 화면마다 `covers(...)` 선언과 흐름 테스트를 더하고 커버리지 baseline을 올립니다(`dart run tool/ia_coverage.dart --update-baseline`).
-   * 로그인이 끝나면 토큰 저장(`TokenStore.save`) 뒤 `entryStateProvider.notifier.refresh()`만 부릅니다. 구매·비정상 종료 보고의 계정 연결은 `AccountLinker`가 `meProvider`를 보고 하므로 화면에서 `Purchases.logIn`·`setUser`를 부르지 않습니다.
-   * 로그인 화면(#100·#114): 원문 nonce를 `NonceGenerator`로 만들어 adapter와 server에 넘기고, Android는 `AppleWebAuth` 결과의 교환 코드로 `completeAppleWebLogin`을 부릅니다. `auth.exchange_invalid`(2분 일회용)와 `AppleWebError`(취소·state 불일치 등)별 안내, 503 `auth.provider_unavailable`은 재시도 안내입니다. 약관 동의 화면은 422 `consent.version_mismatch`(`errors[].field` `/documents/<i>/version`)를 받으면 문서를 다시 받습니다.
+1. **기반 PR 병합 뒤 계획 2 PR 병합.** `app/foundation` → `main`, 이어서 `app/onboarding` → `main`입니다. `ci-gate` 연결(#85) 뒤에는 app CI가 판정에 포함되며, 연결되면 `app.yml`의 `pull_request` 트리거를 지휘 세션이 지웁니다. 병합 전 `git merge origin/main`.
+2. **계획 3(오늘·깊이 시트)을 writing-plans로** 씁니다(`app/docs/plans/`). 아래 "이후 계획으로 넘긴 사항"의 계획 3 항목을 먼저 반영합니다.
 3. **이후 계획으로 넘긴 사항**
    * 계획 3(오늘·깊이 시트): 시트 3개(explain·evidence·day-sheet)의 IA states 처리 등록 방식을 정하고 `test/contract/ia_pending.dart`의 `pendingStateScreens`에서 지웁니다(ratchet). 표시용 시각(`FocusSlot.start·end`, `SolarTerm.at`)은 생성 모델이 UTC로 바꾸므로 화면에서 프로필 시간대로 변환합니다(계획 4 달력 절기도). 근거 잠금 해제 중 "세 구역 skeleton" 단계와 시간 초과 toast(`evidence-sheet.unlock.failed`)는 화면 흐름 몫입니다. 보상형 광고 뒤 권한 확인 폴링은 fixture `sequence`로 재현합니다.
    * 계획 6(설정·계정): 자발적 로그아웃과 계정 삭제(`deleteMe` 202 뒤, 계정이 삭제 대기가 되어도 토큰은 `logout`에 쓸 수 있음)는 `revokeAndSignOut`(`lib/app/entry/sign_out.dart`)을 부릅니다. 둘 다 `signedOut` 이벤트로 정리·SDK 해제·진입 재계산이 돕니다. `discardWithoutEvent`를 쓰면 정리가 돌지 않습니다.
    * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. RevenueCat·Crashlytics adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 IA 화면이 아니라 라우터 `onException`이 첫 화면으로 보내므로, 그보다 먼저 가로채는 전용 처리를 둡니다. 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
+   * 계획 4(달력): 일정 시각을 server에서 받으면 1분 단위일 수 있으나 `TimePicker` notify 변형의 분은 5의 배수 assert라(계약 `NotificationSetting.time`은 5분 단위, 일정은 app이 5분 휠로만 만듦) **event-edit이 5분으로 맞춰 넘깁니다.** 안 맞추면 debug assert입니다.
+   * 계획 6(설정·프로필 수정):
+     * `profile-edit`은 `onboard-*`·`birthplace`를 수정 모드로 열 때 현재 값을 `push` extra로 넘깁니다(호칭 `String`, 생일 `BirthDateValue`). extra가 없으면 프로필 사본(`cachedProfileProvider`)에서 시작합니다.
+     * 사본의 알림 값을 읽을 때 `updateProfile` fixture가 요청과 무관한 고정 응답인 점을 다시 확인합니다.
+     * `toBirth(deviceRegionIsKorea)`는 한국 기기면 도시가 남아 있어도 `not_asked`·`Asia/Seoul`입니다(D29). 해외 출생 한국 거주자는 `profile-edit`에서 출생지를 지정할 수 있어야 합니다.
+     * 수정 모드는 `context.pop(값)`을 받아 저장과 무거운 변경 확인 창(A6)을 합니다.
+   * 계획 7(수익·알림, 실제 adapter):
+     * 실제 로그인 adapter는 SDK 취소를 `SocialSignInCancelled`로 바꿔 던집니다(login 화면이 취소 안내를 정합니다).
+     * `push.deviceId`는 로그아웃 때 `deleteDevice` 뒤에 지웁니다(`SignOutCleaner` 연결과 함께).
+     * 스토어 앱 id(iOS App Store id, Android 스토어 URL)를 `force-update`의 스토어 열기에 연결합니다.
+     * `social-login-button` 공식 자산 확인: Apple 로고 라이선스 검토, 카카오 심볼 색(파일 #191919, 가이드 표 #000000) 확인, 카카오 버튼 ja 문구의 출처(가이드에 일본어 없음)는 writing 원고나 카카오 확인이 필요합니다.
 4. **출시 전(I4) 확인:** 실기기에서 iOS 백업 제외(설정 > iCloud > 저장 공간에 DB가 잡히지 않는지)와 기기 이전 뒤 로그아웃 상태로 시작하는지 확인합니다(기반은 빌드·단위 테스트까지만 확인).
-   * 글꼴 31M를 release 빌드 다운로드 크기로 보고 subset 여부 재판단. Pretendard 업스트림 저작권 고지(Inter·Source Han Sans·M PLUS 1p `NOTICE.txt`)가 법적으로 충분한지 라이선스 검토.
+   * 글꼴 31M를 release 빌드 다운로드 크기로 보고 subset 여부 재판단. Pretendard 업스트림 저작권 고지(Inter·Source Han Sans·M PLUS 1p `NOTICE.txt`)가 법적으로 충분한지 라이선스 검토. Apple 로고 라이선스 검토와 카카오 ja 문구 출처도 출시 전에 마칩니다.
 5. 받은 요청은 `gh issue list --label to:app`으로 확인합니다. 기반 PR 때 design에 보내는 notice(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘 선택, 컴포넌트 변형 등)의 답도 확인합니다.
