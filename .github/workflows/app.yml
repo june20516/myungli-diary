@@ -112,7 +112,7 @@ jobs:
         run: flutter test --exclude-tags golden
       # 계약 PR에서는 생성 코드 대조·analyze·테스트가 깨짐을 잡고, Gradle 문제는 app/ 변경에서만 생기므로 재사용 호출에서는 build_apk로 거른다.
       - name: Android 디버그 빌드
-        if: github.workflow == 'app' || inputs.build_apk
+        if: github.workflow == 'app' || inputs.build_apk == true
         run: flutter build apk --debug
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
