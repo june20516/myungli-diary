@@ -1,0 +1,30 @@
+# 콘텐츠 슬롯: 날의 성격 이유(character)
+#
+# core 메시지 키가 아니라 writing 식별자 키입니다. server가 `select`대로 키를 고릅니다.
+# keys는 문자열(매개변수 없는 키) 또는 `params`와 `keys`를 묶은 맵입니다.
+
+- id: character.reason
+  where: 날의 성격 배지 아래 이유 한 줄(오늘 화면, 그날 시트, 일정 편집)
+  ia: [today.character.reason, day-sheet.character.reason, event-edit.character.hint]
+  select: "DailyResponse·MonthDay의 day_kind 값 v → 키 character.reason.<v>"
+  purpose: info
+  user_state: 배지(귀인·용신·기신·평범)를 보고 왜 그런 날인지 한 줄로 알고 싶습니다.
+  structure: 짧은 한 문장. 그 날이 어떤 기운이 드는 날인지 일상어로 말합니다. 기신일도 겁주지 않고 조심할 점을 담백하게 씁니다.
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - character.reason.gwiin_day
+    - character.reason.yongsin_day
+    - character.reason.gisin_day
+    - character.reason.ordinary_day
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: character.reason.gwiin_day, text: "도와주는 사람이 곁에 오는 날이에요.", why: "귀인을 일상어로", source: writing}
+      - {lang: ko, key: character.reason.gisin_day, text: "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.", why: "겁주지 않는 조심", source: writing}
+    bad:
+      - {lang: ko, key: character.reason.gisin_day, text: "불운이 따르는 흉한 날이에요.", why: "겁주기", source: writing}
+  endings: ["~날이에요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 배지 이름 다음에 이어 읽습니다.

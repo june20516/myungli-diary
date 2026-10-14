@@ -1,0 +1,6 @@
+# 시스템 화면과 온보딩 시진 확인 줄 원고(ja). 원어민 검수 전 초안입니다(W1에서 검수).
+- {slot: system.apple_return, key: apple_return.title, text: "命理日記"}
+- {slot: system.apple_return, key: apple_return.body, text: "命理日記アプリでログインを続けてください。"}
+- {slot: system.apple_return, key: apple_return.open, text: "アプリで開く"}
+- {slot: system.apple_return, key: apple_return.install, text: "アプリをインストール"}
+- {slot: onboard.hour_confirm, key: hour.confirm, text: "{branch}の刻、{start}〜{end}に生まれました。"}

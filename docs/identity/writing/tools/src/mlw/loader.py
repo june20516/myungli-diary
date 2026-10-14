@@ -19,6 +19,7 @@ from mlw.model import (
     PARAM_KIND_LIST_PREFIX,
     PARAM_KIND_NONE,
     PARAM_KIND_NUMBER,
+    PARAM_KIND_TEXT,
     PURPOSES,
     SCOPES,
     SENTENCE_TYPES,
@@ -656,6 +657,8 @@ def _type_error(type_text: str, value: object) -> str | None:
     """값이 스키마의 타입 표기에 맞지 않으면 이유를 돌려줍니다. 알 수 없는 표기는 통과시킵니다."""
     if type_text == "string":
         return None if isinstance(value, str) else "문자열이어야 합니다"
+    if type_text == "bool":
+        return None if isinstance(value, bool) else "true 또는 false여야 합니다"
     if type_text.startswith("enum["):
         allowed = _enum_values(type_text)
         return None if value in allowed else f"허용 값은 {', '.join(allowed)}입니다"
@@ -701,7 +704,7 @@ def _plain_text(data: dict[str, object], name: str) -> str | None:
 
 
 def _parse_param_kind(item: _Item, param: str, raw: object) -> ParamKind | None:
-    """`params` 맵의 값 하나를 읽습니다. 범주 목록, `list:<범주>`, `number`, `none` 중 하나입니다."""
+    """`params` 맵의 값 하나를 읽습니다. 범주 목록, `list:<범주>`, `number`, `none`, `text` 중 하나입니다."""
     categories = glossary_values()
     allowed_text = ", ".join(sorted(categories))
     if isinstance(raw, list) and raw and all(isinstance(entry, str) for entry in raw):
@@ -715,6 +718,8 @@ def _parse_param_kind(item: _Item, param: str, raw: object) -> ParamKind | None:
         return ParamKind("number")
     if raw == PARAM_KIND_NONE:
         return ParamKind("none")
+    if raw == PARAM_KIND_TEXT:
+        return ParamKind("text")
     if isinstance(raw, str) and raw.startswith(PARAM_KIND_LIST_PREFIX):
         category = raw.removeprefix(PARAM_KIND_LIST_PREFIX)
         if category not in categories:
@@ -723,7 +728,7 @@ def _parse_param_kind(item: _Item, param: str, raw: object) -> ParamKind | None:
         return ParamKind("list", (category,))
     item.fail(
         f"params.{param}의 값 종류 {raw!r}을(를) 알 수 없습니다. "
-        "범주 목록, 'list:<범주>', 'number', 'none' 중 하나여야 합니다"
+        "범주 목록, 'list:<범주>', 'number', 'none', 'text' 중 하나여야 합니다"
     )
     return None
 
@@ -865,6 +870,10 @@ def _parse_slot(
         structure=_plain_text(data, "structure") or "",
         tone=_parse_tone(item),
         endings=item.string_list("endings"),
+        ia=item.string_list("ia"),
+        components=item.string_list("components"),
+        select=_plain_text(data, "select") or "",
+        vocative=data.get("vocative") is True,
     )
 
 

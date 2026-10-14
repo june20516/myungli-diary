@@ -11,4 +11,5 @@ GENERATED_DIR = WRITING_DIR / "generated"
 # docs/identity/writing/ -> 저장소 루트
 MESSAGE_KEYS_FILE = WRITING_DIR.parents[2] / "core" / "message_keys.json"
 MESSAGE_PARAMS_FILE = WRITING_DIR.parents[2] / "core" / "message_params.json"
+IA_FILE = WRITING_DIR.parents[2] / "docs" / "ia" / "screens.json"
 FIXTURE_FILE = WRITING_DIR / "tools" / "fixtures" / "week_samples.json"

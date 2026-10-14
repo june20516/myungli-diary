@@ -1,0 +1,25 @@
+# 달력 절기 이름 원고(en). 날짜 칸 상한 6자라 핵심 단어로 줄이고, 겹치면 점 줄임을 씁니다(IA 슬롯 spec §7). 원어민 검수 전 초안입니다.
+- {slot: calendar.solar_term, key: sohan, text: "S.Cold"}
+- {slot: calendar.solar_term, key: daehan, text: "G.Cold"}
+- {slot: calendar.solar_term, key: ipchun, text: "Spring"}
+- {slot: calendar.solar_term, key: usu, text: "Rain"}
+- {slot: calendar.solar_term, key: gyeongchip, text: "Insect"}
+- {slot: calendar.solar_term, key: chunbun, text: "Sp.Eq"}
+- {slot: calendar.solar_term, key: cheongmyeong, text: "Clear"}
+- {slot: calendar.solar_term, key: gogu, text: "Grain"}
+- {slot: calendar.solar_term, key: ipha, text: "Summer"}
+- {slot: calendar.solar_term, key: soman, text: "Buds"}
+- {slot: calendar.solar_term, key: mangjong, text: "Ear"}
+- {slot: calendar.solar_term, key: haji, text: "Su.Sol"}
+- {slot: calendar.solar_term, key: soseo, text: "S.Heat"}
+- {slot: calendar.solar_term, key: daeseo, text: "G.Heat"}
+- {slot: calendar.solar_term, key: ipchu, text: "Autumn"}
+- {slot: calendar.solar_term, key: cheoseo, text: "E.Heat"}
+- {slot: calendar.solar_term, key: baengno, text: "Dew"}
+- {slot: calendar.solar_term, key: chubun, text: "Au.Eq"}
+- {slot: calendar.solar_term, key: hallo, text: "C.Dew"}
+- {slot: calendar.solar_term, key: sanggang, text: "Frost"}
+- {slot: calendar.solar_term, key: ipdong, text: "Winter"}
+- {slot: calendar.solar_term, key: soseol, text: "S.Snow"}
+- {slot: calendar.solar_term, key: daeseol, text: "G.Snow"}
+- {slot: calendar.solar_term, key: dongji, text: "Wi.Sol"}

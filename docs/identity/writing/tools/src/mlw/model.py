@@ -178,9 +178,10 @@ class RuleSet:
     josa: JosaData
 
 
-ParamKindName = Literal["glossary", "list", "number", "none"]
+ParamKindName = Literal["glossary", "list", "number", "none", "text"]
 PARAM_KIND_NUMBER = "number"
 PARAM_KIND_NONE = "none"
+PARAM_KIND_TEXT = "text"
 # `list:<범주>` 표기의 접두어입니다.
 PARAM_KIND_LIST_PREFIX = "list:"
 
@@ -193,6 +194,7 @@ class ParamKind:
     * list: 목록 값의 원소마다 `categories[0]` 범주 이름으로 바꿔 `, `로 잇습니다.
     * number: 숫자를 그대로 씁니다.
     * none: 문장에 쓸 수 없는 값입니다.
+    * text: 렌더하는 쪽이 만든 문자열(날짜, 시각, 가격, 일정 제목)을 그대로 씁니다.
     """
 
     kind: ParamKindName
@@ -228,6 +230,14 @@ class Slot:
     structure: str = ""
     tone: dict[str, int] = field(default_factory=dict)
     endings: tuple[str, ...] = ()
+    # 문장이 들어가는 IA 슬롯 id입니다(슬롯 명세 v1.1).
+    ia: tuple[str, ...] = ()
+    # IA 슬롯이 아니라 컴포넌트 안에 들어가는 이름의 자리(IA 컴포넌트 id)입니다.
+    components: tuple[str, ...] = ()
+    # 렌더하는 쪽이 키를 고르는 방법입니다. writing 식별자 키를 쓰는 content 슬롯에 적습니다.
+    select: str = ""
+    # 호칭 자리(D36)입니다. True인 슬롯만 `{name}`을 씁니다.
+    vocative: bool = False
 
 
 @dataclass(frozen=True)

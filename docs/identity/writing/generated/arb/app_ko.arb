@@ -1,0 +1,523 @@
+{
+  "@@locale": "ko",
+  "@@x-generated": "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml)",
+  "accountDeleteCtaDelete": "계정 지우기",
+  "@accountDeleteCtaDelete": {
+    "description": "account-delete.cta.delete: 계정 삭제 버튼"
+  },
+  "accountDeleteDataBody": "계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.",
+  "@accountDeleteDataBody": {
+    "description": "account-delete.data.body: 지워지는 데이터 안내"
+  },
+  "accountDeleteDeleteConfirm": "정말 지울까요? 지운 계정은 되돌릴 수 없어요.",
+  "@accountDeleteDeleteConfirm": {
+    "description": "account-delete.delete.confirm: 최종 확인"
+  },
+  "accountDeleteDeleteConfirmDelete": "지우기",
+  "@accountDeleteDeleteConfirmDelete": {
+    "description": "account-delete.delete.confirm: 최종 확인"
+  },
+  "accountDeleteDeleteConfirmCancel": "취소",
+  "@accountDeleteDeleteConfirmCancel": {
+    "description": "account-delete.delete.confirm: 최종 확인"
+  },
+  "accountDeleteTitleHead": "계정 삭제",
+  "@accountDeleteTitleHead": {
+    "description": "account-delete.title.head: 계정 삭제 제목"
+  },
+  "adFreeLegalNotice": "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.",
+  "@adFreeLegalNotice": {
+    "description": "ad-free.legal.notice: 이용약관·개인정보처리방침 링크 안내"
+  },
+  "adFreeOfferHead": "한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요.",
+  "@adFreeOfferHead": {
+    "description": "ad-free.offer.head: 광고 제거권이 주는 것 한 줄(배너 제거, 근거·해석 열림, D60)"
+  },
+  "adFreeOfferPrice": "{price} · 1개월 · 자동 갱신 없음",
+  "@adFreeOfferPrice": {
+    "description": "ad-free.offer.price: 가격과 기간(1개월, 자동 갱신 아님) 고지",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "adFreeRestoreCta": "구매 복원",
+  "@adFreeRestoreCta": {
+    "description": "ad-free.restore.cta: 구매 복원"
+  },
+  "adFreeStatusRemaining": "{date}까지 광고 없이 볼 수 있어요",
+  "@adFreeStatusRemaining": {
+    "description": "ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "birthplaceEmptyBody": "찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.",
+  "@birthplaceEmptyBody": {
+    "description": "birthplace.empty.body: 결과가 없을 때 안내"
+  },
+  "birthplaceQuestionHead": "어디에서 태어났나요?",
+  "@birthplaceQuestionHead": {
+    "description": "birthplace.question.head: 출생지를 묻는 질문"
+  },
+  "birthplaceSearchHint": "도시 이름",
+  "@birthplaceSearchHint": {
+    "description": "birthplace.search.hint: 검색칸 예시"
+  },
+  "birthplaceWhyBody": "태어난 곳의 시간대와 경도로 태어난 시를 정확히 맞춰요.",
+  "@birthplaceWhyBody": {
+    "description": "birthplace.why.body: 출생지가 필요한 이유"
+  },
+  "calcBasisConventionBody": "명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.",
+  "@calcBasisConventionBody": {
+    "description": "calc-basis.convention.body: 한국 기준 해석 안내"
+  },
+  "calcBasisLongitudeBody": "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBody": {
+    "description": "calc-basis.longitude.body: 동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내"
+  },
+  "calcBasisLunarBody": "음력은 한국천문연구원 기준의 한국 음력을 따라요.",
+  "@calcBasisLunarBody": {
+    "description": "calc-basis.lunar.body: KASI 기준 한국 음력 안내"
+  },
+  "calendarLegendBodyGood": "잘 풀리는 날",
+  "@calendarLegendBodyGood": {
+    "description": "calendar.legend.body: 점 색의 뜻"
+  },
+  "calendarLegendBodyCaution": "조심할 날",
+  "@calendarLegendBodyCaution": {
+    "description": "calendar.legend.body: 점 색의 뜻"
+  },
+  "consentCtaAgree": "동의하고 계속하기",
+  "@consentCtaAgree": {
+    "description": "consent.cta.agree: 동의하고 계속 버튼"
+  },
+  "consentOptionalLabel": "(선택) 새 기능 소식 받기",
+  "@consentOptionalLabel": {
+    "description": "consent.optional.label: 선택 동의 항목 이름"
+  },
+  "consentRequiredLabelTerms": "(필수) 이용약관",
+  "@consentRequiredLabelTerms": {
+    "description": "consent.required.label: 필수 동의 항목 이름"
+  },
+  "consentRequiredLabelPrivacy": "(필수) 개인정보 수집·이용",
+  "@consentRequiredLabelPrivacy": {
+    "description": "consent.required.label: 필수 동의 항목 이름"
+  },
+  "consentTitleHead": "약관에 동의해 주세요",
+  "@consentTitleHead": {
+    "description": "consent.title.head: 동의 화면 제목"
+  },
+  "daySheetDiaryOpen": "이날 일기 보기",
+  "@daySheetDiaryOpen": {
+    "description": "day-sheet.diary.open: 그날 일기 보기 링크"
+  },
+  "daySheetDiaryWriteCta": "이날 일기 쓰기",
+  "@daySheetDiaryWriteCta": {
+    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘이고 일기 없음)"
+  },
+  "daySheetEventAdd": "일정 추가",
+  "@daySheetEventAdd": {
+    "description": "day-sheet.event.add: 일정 추가 버튼"
+  },
+  "daySheetEventEmpty": "이날은 일정이 없어요.",
+  "@daySheetEventEmpty": {
+    "description": "day-sheet.event.empty: 일정이 없을 때 안내"
+  },
+  "diaryEditBodyPlaceholder": "오늘 있었던 일을 적어 보세요",
+  "@diaryEditBodyPlaceholder": {
+    "description": "diary-edit.body.placeholder: 본문 입력칸 안내"
+  },
+  "diaryEditDraftStatusLocal": "기기에 임시 저장됨",
+  "@diaryEditDraftStatusLocal": {
+    "description": "diary-edit.draft.status: 초안 저장 상태"
+  },
+  "diaryEditDraftStatusSaving": "저장 중",
+  "@diaryEditDraftStatusSaving": {
+    "description": "diary-edit.draft.status: 초안 저장 상태"
+  },
+  "diaryEditDraftStatusSaved": "저장됨",
+  "@diaryEditDraftStatusSaved": {
+    "description": "diary-edit.draft.status: 초안 저장 상태"
+  },
+  "diaryEditOfflineNotice": "인터넷에 연결되면 저장할게요. 쓴 내용은 기기에 남아 있어요.",
+  "@diaryEditOfflineNotice": {
+    "description": "diary-edit.offline.notice: 연결되면 저장한다는 안내"
+  },
+  "diaryEditSavedTags": "일기에 태그가 붙었어요",
+  "@diaryEditSavedTags": {
+    "description": "diary-edit.saved.tags: 저장 뒤 붙은 태그 알림"
+  },
+  "diaryListEmptyBody": "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?",
+  "@diaryListEmptyBody": {
+    "description": "diary-list.empty.body: 쓴 일기가 없을 때 안내"
+  },
+  "diaryListPickDateCta": "날짜 골라 쓰기",
+  "@diaryListPickDateCta": {
+    "description": "diary-list.pick-date.cta: 날짜 골라 쓰기 버튼"
+  },
+  "diaryViewDeleteConfirm": "이 일기를 지울까요? 지우면 되돌릴 수 없어요.",
+  "@diaryViewDeleteConfirm": {
+    "description": "diary-view.delete.confirm: 일기 삭제 확인"
+  },
+  "diaryViewDeleteConfirmDelete": "지우기",
+  "@diaryViewDeleteConfirmDelete": {
+    "description": "diary-view.delete.confirm: 일기 삭제 확인"
+  },
+  "diaryViewDeleteConfirmCancel": "취소",
+  "@diaryViewDeleteConfirmCancel": {
+    "description": "diary-view.delete.confirm: 일기 삭제 확인"
+  },
+  "eventEditDeleteConfirm": "이 일정을 지울까요?",
+  "@eventEditDeleteConfirm": {
+    "description": "event-edit.delete.confirm: 일정 삭제 확인"
+  },
+  "eventEditDeleteConfirmDelete": "지우기",
+  "@eventEditDeleteConfirmDelete": {
+    "description": "event-edit.delete.confirm: 일정 삭제 확인"
+  },
+  "eventEditDeleteConfirmCancel": "취소",
+  "@eventEditDeleteConfirmCancel": {
+    "description": "event-edit.delete.confirm: 일정 삭제 확인"
+  },
+  "eventEditMemoHint": "메모",
+  "@eventEditMemoHint": {
+    "description": "event-edit.memo.hint: 메모 입력칸 예시"
+  },
+  "eventEditTitleHint": "일정 제목",
+  "@eventEditTitleHint": {
+    "description": "event-edit.title.hint: 제목 입력칸 예시"
+  },
+  "evidenceSheetA11yChecking": "확인 중",
+  "@evidenceSheetA11yChecking": {
+    "description": "evidence-sheet.a11y.checking: 접근성 문구: 잠금 해제를 확인하는 동안의 버튼 상태 \"확인 중\""
+  },
+  "evidenceSheetA11yLocked": "잠김",
+  "@evidenceSheetA11yLocked": {
+    "description": "evidence-sheet.a11y.locked: 접근성 문구: 잠긴 구역을 읽을 때 \"잠김\""
+  },
+  "evidenceSheetA11yUnlocked": "근거와 해석이 열렸어요",
+  "@evidenceSheetA11yUnlocked": {
+    "description": "evidence-sheet.a11y.unlocked: 접근성 문구: 근거와 해석이 열렸을 때 한 번 알림"
+  },
+  "evidenceSheetLockCta": "광고 보고 열기",
+  "@evidenceSheetLockCta": {
+    "description": "evidence-sheet.lock.cta: 광고 보고 열기 버튼"
+  },
+  "evidenceSheetLockHead": "근거와 해석은 잠겨 있어요",
+  "@evidenceSheetLockHead": {
+    "description": "evidence-sheet.lock.head: 근거와 해석이 잠겨 있다는 안내"
+  },
+  "evidenceSheetLockPass": "광고 제거권이 있으면 기간 내내 열려 있어요.",
+  "@evidenceSheetLockPass": {
+    "description": "evidence-sheet.lock.pass: 광고 제거권으로도 열린다는 안내와 링크"
+  },
+  "evidenceSheetLockPassLink": "광고 제거 보기",
+  "@evidenceSheetLockPassLink": {
+    "description": "evidence-sheet.lock.pass: 광고 제거권으로도 열린다는 안내와 링크"
+  },
+  "evidenceSheetLockReward": "광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.",
+  "@evidenceSheetLockReward": {
+    "description": "evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)"
+  },
+  "evidenceSheetLockUnavailable": "지금은 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 해 주세요.",
+  "@evidenceSheetLockUnavailable": {
+    "description": "evidence-sheet.lock.unavailable: 지금 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)"
+  },
+  "evidenceSheetSectionBasis": "판정 근거",
+  "@evidenceSheetSectionBasis": {
+    "description": "evidence-sheet.section.basis: 구역 제목: 판정 근거. 잠겼을 때도 또렷하게 보임"
+  },
+  "evidenceSheetSectionPersonal": "내 사주에서는",
+  "@evidenceSheetSectionPersonal": {
+    "description": "evidence-sheet.section.personal: 구역 제목: 내 사주에서는. 잠겼을 때도 또렷하게 보임"
+  },
+  "evidenceSheetSectionSource": "원전",
+  "@evidenceSheetSectionSource": {
+    "description": "evidence-sheet.section.source: 구역 제목: 원전. 잠겼을 때도 또렷하게 보임"
+  },
+  "evidenceSheetUnlockFailed": "광고 확인이 늦어지고 있어요. 잠시 뒤에 다시 열어 주세요.",
+  "@evidenceSheetUnlockFailed": {
+    "description": "evidence-sheet.unlock.failed: 광고를 끝까지 봤는데 server 확인(SSV)이 오지 않을 때의 toast"
+  },
+  "forceUpdateCtaStore": "업데이트하기",
+  "@forceUpdateCtaStore": {
+    "description": "force-update.cta.store: 스토어로 가는 버튼"
+  },
+  "forceUpdateNoticeBody": "풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요.",
+  "@forceUpdateNoticeBody": {
+    "description": "force-update.notice.body: 업데이트해야 하는 이유"
+  },
+  "forceUpdateNoticeHead": "새 버전으로 업데이트해 주세요",
+  "@forceUpdateNoticeHead": {
+    "description": "force-update.notice.head: 업데이트가 필요하다는 제목"
+  },
+  "loginDiscardNotice": "이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.",
+  "@loginDiscardNotice": {
+    "description": "login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
+  },
+  "loginTitleBody": "로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.",
+  "@loginTitleBody": {
+    "description": "login.title.body: 저장하려면 로그인한다는 설명"
+  },
+  "loginTitleHead": "로그인하고 풀이를 저장해요",
+  "@loginTitleHead": {
+    "description": "login.title.head: 로그인 제목"
+  },
+  "notifyAskCtaSkip": "나중에",
+  "@notifyAskCtaSkip": {
+    "description": "notify-ask.cta.skip: 건너뛰기"
+  },
+  "notifyAskQuestionHead": "아침마다 오늘 풀이를 알려 드릴까요?",
+  "@notifyAskQuestionHead": {
+    "description": "notify-ask.question.head: 알림을 받을지 묻는 질문"
+  },
+  "notifyAskWhyBody": "알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요.",
+  "@notifyAskWhyBody": {
+    "description": "notify-ask.why.body: 아침 알림이 주는 것"
+  },
+  "onboardBirthBasisNote": "한국에서 태어난 것을 기준으로 계산해요.",
+  "@onboardBirthBasisNote": {
+    "description": "onboard-birth.basis.note: 한국 출생 기준으로 계산한다는 안내"
+  },
+  "onboardBirthCalendarHint": "음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.",
+  "@onboardBirthCalendarHint": {
+    "description": "onboard-birth.calendar.hint: 음력·윤달 고르는 법"
+  },
+  "onboardBirthErrorRange": "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.",
+  "@onboardBirthErrorRange": {
+    "description": "onboard-birth.error.range: 지원 범위 밖 안내"
+  },
+  "onboardBirthQuestionHead": "언제 태어났나요?",
+  "@onboardBirthQuestionHead": {
+    "description": "onboard-birth.question.head: 생일을 묻는 질문"
+  },
+  "onboardCallInputHint": "예: 민지",
+  "@onboardCallInputHint": {
+    "description": "onboard-call.input.hint: 입력칸 예시"
+  },
+  "onboardCallNoteBody": "실명이 아니어도 돼요. 나중에 바꿀 수 있어요.",
+  "@onboardCallNoteBody": {
+    "description": "onboard-call.note.body: 실명이 아니어도 된다는 안내"
+  },
+  "onboardCallQuestionHead": "어떻게 불러 드릴까요?",
+  "@onboardCallQuestionHead": {
+    "description": "onboard-call.question.head: 호칭을 묻는 질문"
+  },
+  "onboardGenderQuestionHead": "성별이 어떻게 되나요?",
+  "@onboardGenderQuestionHead": {
+    "description": "onboard-gender.question.head: 성별을 묻는 질문"
+  },
+  "onboardGenderWhyBody": "대운이 흐르는 방향을 정할 때만 써요.",
+  "@onboardGenderWhyBody": {
+    "description": "onboard-gender.why.body: 대운 방향 계산에 쓴다는 이유"
+  },
+  "onboardTimeQuestionHead": "몇 시에 태어났나요?",
+  "@onboardTimeQuestionHead": {
+    "description": "onboard-time.question.head: 태어난 시간을 묻는 질문"
+  },
+  "onboardTimeUnknownNote": "시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.",
+  "@onboardTimeUnknownNote": {
+    "description": "onboard-time.unknown.note: 3주로 계산한다는 안내"
+  },
+  "previewCtaRestart": "다시 입력하기",
+  "@previewCtaRestart": {
+    "description": "preview.cta.restart: 다시 입력 링크"
+  },
+  "previewCtaSave": "저장하고 계속하기",
+  "@previewCtaSave": {
+    "description": "preview.cta.save: 저장하고 계속하기 버튼"
+  },
+  "previewShareLoginNotice": "로그인하면 오늘 풀이를 공유할 수 있어요.",
+  "@previewShareLoginNotice": {
+    "description": "preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창"
+  },
+  "previewShareLoginNoticeConfirm": "로그인하기",
+  "@previewShareLoginNoticeConfirm": {
+    "description": "preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창"
+  },
+  "previewShareLoginNoticeCancel": "닫기",
+  "@previewShareLoginNoticeCancel": {
+    "description": "preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창"
+  },
+  "profileEditRecalcConfirmTitle": "정보를 바꿀까요?",
+  "@profileEditRecalcConfirmTitle": {
+    "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
+  },
+  "profileEditRecalcConfirmBody": "{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.",
+  "@profileEditRecalcConfirmBody": {
+    "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "profileEditRecalcConfirmCancel": "취소",
+  "@profileEditRecalcConfirmCancel": {
+    "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
+  },
+  "profileEditRecalcConfirmSave": "바꾸기",
+  "@profileEditRecalcConfirmSave": {
+    "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
+  },
+  "profileEditRecalcNotice": "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.",
+  "@profileEditRecalcNotice": {
+    "description": "profile-edit.recalc.notice: 바꾸면 풀이를 다시 계산한다는 안내"
+  },
+  "sajuChartTimeUnknownNotice": "태어난 시간을 몰라 시주는 빼고 보여 드려요.",
+  "@sajuChartTimeUnknownNotice": {
+    "description": "saju-chart.time-unknown.notice: 시간 모름으로 시주가 빠졌다는 안내"
+  },
+  "sajuChartYongsinOpen": "열기",
+  "@sajuChartYongsinOpen": {
+    "description": "saju-chart.yongsin.open: 잠긴 용신 근거 줄의 \"열기\""
+  },
+  "sajuChartYongsinTitle": "용신 판정 근거",
+  "@sajuChartYongsinTitle": {
+    "description": "saju-chart.yongsin.title: 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
+  },
+  "settingsAdFreeLabel": "광고 제거",
+  "@settingsAdFreeLabel": {
+    "description": "settings.ad-free.label: 광고 제거 메뉴와 남은 기간 표시"
+  },
+  "settingsAdFreeLabelActive": "{date}까지",
+  "@settingsAdFreeLabelActive": {
+    "description": "settings.ad-free.label: 광고 제거 메뉴와 남은 기간 표시",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDepthDesc": "풀이를 처음에 어디까지 펼쳐 볼지 골라요.",
+  "@settingsDepthDesc": {
+    "description": "settings.depth.desc: 기본 깊이 설명"
+  },
+  "settingsLanguageBirthplaceNotice": "한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.",
+  "@settingsLanguageBirthplaceNotice": {
+    "description": "settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내"
+  },
+  "settingsLanguageBirthplaceNoticeCta": "출생지 입력하기",
+  "@settingsLanguageBirthplaceNoticeCta": {
+    "description": "settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내"
+  },
+  "settingsLogoutConfirm": "로그아웃할까요?",
+  "@settingsLogoutConfirm": {
+    "description": "settings.logout.confirm: 로그아웃 확인"
+  },
+  "settingsLogoutConfirmLogout": "로그아웃",
+  "@settingsLogoutConfirmLogout": {
+    "description": "settings.logout.confirm: 로그아웃 확인"
+  },
+  "settingsLogoutConfirmCancel": "취소",
+  "@settingsLogoutConfirmCancel": {
+    "description": "settings.logout.confirm: 로그아웃 확인"
+  },
+  "sharePreviewCtaShare": "공유하기",
+  "@sharePreviewCtaShare": {
+    "description": "share-preview.cta.share: 공유 버튼"
+  },
+  "sharePreviewImageFooter": "명리일기",
+  "@sharePreviewImageFooter": {
+    "description": "share-preview.image.footer: 이미지 아래 앱 이름"
+  },
+  "sharePreviewImageTagline": "내 사주로 푼 오늘, 명리일기",
+  "@sharePreviewImageTagline": {
+    "description": "share-preview.image.tagline: 공유 이미지 태그라인"
+  },
+  "sharePreviewRatioLabelStory": "스토리",
+  "@sharePreviewRatioLabelStory": {
+    "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
+  },
+  "sharePreviewRatioLabelFeed": "피드",
+  "@sharePreviewRatioLabelFeed": {
+    "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
+  },
+  "sharePreviewRatioLabelSquare": "정사각",
+  "@sharePreviewRatioLabelSquare": {
+    "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
+  },
+  "tagDiaryEmptyBody": "이 태그가 붙은 일기가 아직 없어요.",
+  "@tagDiaryEmptyBody": {
+    "description": "tag-diary.empty.body: 일기가 없을 때 안내"
+  },
+  "todayEventSummary": "오늘 일정 {count}개 · {title}",
+  "@todayEventSummary": {
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "todayEventSummaryOngoing": "진행 중",
+  "@todayEventSummaryOngoing": {
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정"
+  },
+  "todayEventSummaryNext": "다음",
+  "@todayEventSummaryNext": {
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정"
+  },
+  "todayEventSummaryDone": "오늘 일정이 모두 끝났어요",
+  "@todayEventSummaryDone": {
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정"
+  },
+  "todayGuideCta": "일기 쓰기",
+  "@todayGuideCta": {
+    "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
+  },
+  "todayGuideCtaWritten": "쓴 일기 보기",
+  "@todayGuideCtaWritten": {
+    "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
+  },
+  "todayReactionLabel": "좋아요",
+  "@todayReactionLabel": {
+    "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
+  },
+  "todayReactionLabelSelected": "좋아요 취소",
+  "@todayReactionLabelSelected": {
+    "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
+  },
+  "depthDefaultLabel": "명리 풀이 보기",
+  "@depthDefaultLabel": {
+    "description": "깊이 단계 선택의 기본 단계 이름"
+  },
+  "depthEvidence": "원리",
+  "@depthEvidence": {
+    "description": "깊이 단계 근거 단계(셋째 단계)의 안내"
+  },
+  "depthExplain": "풀이",
+  "@depthExplain": {
+    "description": "깊이 단계 풀이 단계(둘째 단계)의 안내"
+  },
+  "depthSurface": "요약",
+  "@depthSurface": {
+    "description": "깊이 단계 표면 단계(첫 단계)의 안내"
+  },
+  "welcomeConceptBody": "풀이에 맞춘 질문 하나로 그날 일기를 시작해요.",
+  "@welcomeConceptBody": {
+    "description": "welcome.concept.body: 앱이 해주는 일 설명"
+  },
+  "welcomeConceptHead": "오늘 일진을 내 사주에 맞춰 풀어 드려요",
+  "@welcomeConceptHead": {
+    "description": "welcome.concept.head: 컨셉 한 문장"
+  },
+  "welcomeCtaSignin": "이미 계정이 있어요",
+  "@welcomeCtaSignin": {
+    "description": "welcome.cta.signin: 이미 계정이 있어요 버튼"
+  },
+  "welcomeCtaStart": "시작하기",
+  "@welcomeCtaStart": {
+    "description": "welcome.cta.start: 시작하기 버튼"
+  }
+}
