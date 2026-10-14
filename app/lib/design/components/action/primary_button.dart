@@ -22,7 +22,7 @@ enum PrimaryButtonVariant {
 
   new(this.height);
 
-  /// 면 높이(px).
+  /// 면 최소 높이(px).
   final double height;
 }
 
@@ -117,15 +117,17 @@ class PrimaryButton extends StatelessWidget {
 
     final face = ConstrainedBox(
       key: faceKey,
-      constraints: BoxConstraints(
-        minHeight: variant.height,
-        maxHeight: variant.height,
-      ),
+      // 명세 높이는 최소값입니다. 글자 배율이 크면 잘리지 않고 면이 커집니다.
+      constraints: BoxConstraints(minHeight: variant.height),
       child: DecoratedBox(
         decoration: BoxDecoration(color: bg, borderRadius: radius),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+          padding: const EdgeInsets.symmetric(
+            horizontal: Space.s20,
+            vertical: Space.s8,
+          ),
           child: Center(
+            heightFactor: 1,
             child: loading
                 ? _BreathingDots(
                     key: dotsKey,

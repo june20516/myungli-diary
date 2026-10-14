@@ -2,6 +2,7 @@ import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsData;
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -105,6 +106,66 @@ void main() {
         expect(face.height, variant == PrimaryButtonVariant.quiet ? 44 : 52);
       });
     }
+
+    for (final variant in PrimaryButtonVariant.values) {
+      testWidgets('${variant.name}: 글자 배율 3.0에서는 면이 커지고 글자가 안에 들어갑니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(3)),
+            child: _app(
+              PrimaryButton(label: '다음', variant: variant, onPressed: () {}),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        final face = tester.getRect(find.byKey(PrimaryButton.faceKey));
+        final text = tester.getRect(find.text('다음'));
+        expect(face.height, greaterThan(variant.height));
+        expect(face.top, lessThanOrEqualTo(text.top));
+        expect(face.bottom, greaterThanOrEqualTo(text.bottom));
+      });
+    }
+
+    testWidgets('loading이면 키보드 확정으로도 onPressed가 불리지 않습니다', (tester) async {
+      var pressed = 0;
+      await tester.pumpWidget(
+        _app(
+          PrimaryButton(label: '다음', loading: true, onPressed: () => pressed++),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      for (final key in [
+        LogicalKeyboardKey.enter,
+        LogicalKeyboardKey.space,
+        LogicalKeyboardKey.numpadEnter,
+      ]) {
+        await tester.sendKeyEvent(key);
+      }
+      expect(pressed, 0);
+    });
+
+    testWidgets('disabled이면 키보드 확정에도 아무 일이 없습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(const PrimaryButton(label: '다음', onPressed: null)),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('활성이면 Enter로 확정됩니다(대조군)', (tester) async {
+      var pressed = 0;
+      await tester.pumpWidget(
+        _app(PrimaryButton(label: '다음', onPressed: () => pressed++)),
+      );
+      final focus = tester.element(find.byType(PrimaryButton));
+      FocusScope.of(focus).nextFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(pressed, 1);
+    });
 
     testWidgets('quiet: 면 높이가 44여도 위아래 2px 밖(48 안)을 눌러도 동작합니다', (tester) async {
       var pressed = 0;
