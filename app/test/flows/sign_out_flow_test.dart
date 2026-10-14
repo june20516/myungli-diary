@@ -374,4 +374,49 @@ void main() {
     expect(crash.userId, _memberAccountId);
     expect(crash.breadcrumbs, [ScreenIds.launch, ScreenIds.today]);
   });
+
+  testWidgets('로그아웃 뒤 진입 계산이 실패해도 이전 계정의 갈래를 들고 있지 않고, 다시 시도하면 welcome', (
+    tester,
+  ) async {
+    var configDown = false;
+    final (container, _) = await launchWithLeftovers(
+      tester,
+      scenario: 'member',
+    );
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(
+      interceptors.length - 1,
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          if (configDown && options.path == '/v1/app-config') {
+            handler.reject(
+              DioException.badResponse(
+                statusCode: 503,
+                requestOptions: options,
+                response: _problem(options, 503, 'service.unavailable'),
+              ),
+              true,
+            );
+          } else {
+            handler.next(options);
+          }
+        },
+      ),
+    );
+    expect(container.read(entryProvider), EntryState.ready);
+
+    configDown = true;
+    await tester.runAsync(container.read(tokenStoreProvider).signOut);
+    await _settle(tester);
+
+    expect(container.read(entryStateProvider).hasError, isTrue);
+    expect(container.read(entryProvider), EntryState.signedOut);
+    expect(find.byKey(const ValueKey(ScreenIds.today)), findsNothing);
+
+    configDown = false;
+    await tester.runAsync(container.read(entryStateProvider.notifier).refresh);
+    await _settle(tester);
+    expect(container.read(entryProvider), EntryState.signedOut);
+    expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
+  });
 }

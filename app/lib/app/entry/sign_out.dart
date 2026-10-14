@@ -15,16 +15,7 @@ Future<void> revokeAndSignOut({
   required DefaultApi api,
   required TokenStore tokens,
 }) async {
-  try {
-    final refreshToken = await tokens.refreshToken();
-    if (refreshToken != null) {
-      await api.logout(
-        refreshRequest: RefreshRequest(refreshToken: refreshToken),
-      );
-    }
-  } on Object {
-    // 폐기에 실패해도 server의 refresh token은 만료로 끝납니다. 로컬 로그아웃이 우선입니다.
-  }
+  await revokeStoredRefreshToken(api: api, tokens: tokens);
   // `logout`은 bearer 요청이라, access token이 만료됐고 refresh가 거부되면 interceptor가
   // 이미 로그아웃했을 수 있습니다. 그때 signedOut을 두 번 내지 않습니다.
   if (await _hasSessionOrUnknown(tokens)) {
@@ -38,5 +29,25 @@ Future<bool> _hasSessionOrUnknown(TokenStore tokens) async {
     return await tokens.hasSession();
   } on Object {
     return true;
+  }
+}
+
+/// 저장된 refresh token의 server 폐기(`logout`)만 시도합니다. 로컬 토큰과 이벤트는 건드리지 않습니다.
+///
+/// 새 로그인이 이전 세션의 토큰을 덮어쓰기 전에 씁니다. 실패해도 server의 refresh token은
+/// 만료로 끝나므로 오류를 삼킵니다.
+Future<void> revokeStoredRefreshToken({
+  required DefaultApi api,
+  required TokenStore tokens,
+}) async {
+  try {
+    final refreshToken = await tokens.refreshToken();
+    if (refreshToken != null) {
+      await api.logout(
+        refreshRequest: RefreshRequest(refreshToken: refreshToken),
+      );
+    }
+  } on Object {
+    // 폐기에 실패해도 server의 refresh token은 만료로 끝납니다. 로컬 로그아웃이 우선입니다.
   }
 }

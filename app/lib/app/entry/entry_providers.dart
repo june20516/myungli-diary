@@ -7,6 +7,7 @@ import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
@@ -39,7 +40,13 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
   @override
   Future<EntrySnapshot> build() {
     final tokens = ref.watch(tokenStoreProvider);
-    final subscription = tokens.events.listen((_) => ref.invalidateSelf());
+    final subscription = tokens.events.listen((event) {
+      if (event == AuthEvent.signedOut) {
+        // 다시 계산이 실패해도 이전 계정의 갈래(ready 등)가 남지 않게 먼저 로그아웃으로 둡니다.
+        state = const AsyncData(EntrySnapshot(EntryState.signedOut, null));
+      }
+      ref.invalidateSelf();
+    });
     ref.onDispose(subscription.cancel);
     return _compute();
   }

@@ -45,7 +45,9 @@ class PreviewScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     // 입력이 덜 찬 채 열렸으면(딥링크·복원) 다시 시도 대신 첫 단계에서 입력을 마저 받습니다.
     ref.listen(previewProvider, (_, next) {
-      if (next.error is OnboardingInputIncomplete) {
+      // 로그인 화면이 위에 있는 동안(기존 계정 로그인이 초안을 비우는 중)에는 끼어들지 않습니다.
+      if (next.error is OnboardingInputIncomplete &&
+          ModalRoute.of(context)?.isCurrent == true) {
         goBackToOnboardCall(context);
       }
     });

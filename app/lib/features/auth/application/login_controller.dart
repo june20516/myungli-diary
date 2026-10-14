@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -154,6 +156,7 @@ class LoginController extends AsyncNotifier<void> {
     // 화면이 닫혀 이 controller가 버려져도 시작한 로그인은 끝맺도록 의존성을 먼저 잡아 둡니다.
     final rawNonce = ref.read(nonceGeneratorProvider).generate();
     final session = _Session(
+      api: ref.read(restClientProvider),
       tokens: ref.read(tokenStoreProvider),
       repository: ref.read(authRepositoryProvider),
       entry: ref.read(entryStateProvider.notifier),
@@ -188,6 +191,7 @@ class LoginController extends AsyncNotifier<void> {
 /// 로그인 뒤 진입에 쓰는 의존성 묶음입니다.
 final class _Session {
   const new({
+    required this.api,
     required this.tokens,
     required this.repository,
     required this.entry,
@@ -196,6 +200,7 @@ final class _Session {
     required this.crashReporter,
   });
 
+  final DefaultApi api;
   final TokenStore tokens;
   final AuthRepository repository;
   final EntryController entry;
@@ -207,6 +212,9 @@ final class _Session {
   ///
   /// 진입 계산이 실패하면 그 오류를, 아니면 null을 돌려줍니다.
   Future<AppError?> enter(LoginResponse response, DiscardNotice? notice) async {
+    // 이전 세션의 토큰(진입 계산 실패 뒤 다시 로그인한 경우)이 server에 남지 않게 먼저 폐기를 시도합니다.
+    // 로컬 로그아웃 이벤트는 내지 않습니다. 곧 새 토큰이 덮어씁니다.
+    await revokeStoredRefreshToken(api: api, tokens: tokens);
     await tokens.save(response.tokens);
     if (await _discardsDraft(response)) {
       await notice?.call();

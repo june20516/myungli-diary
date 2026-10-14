@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -87,6 +88,23 @@ Future<void> _openLoginFromWelcome(WidgetTester tester) async {
   await tester.tap(_screen(SlotIds.welcomeCtaSignin));
   await tester.pumpAndSettle();
   expect(_screen(ScreenIds.login), findsOneWidget);
+}
+
+/// server `logout` 요청을 세고 성공으로 답하는 interceptor.
+final class _LogoutRecorder extends Interceptor {
+  final bodies = <Object?>[];
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.path != '/v1/auth/logout') {
+      handler.next(options);
+      return;
+    }
+    bodies.add(options.data);
+    handler.resolve(
+      Response<Object?>(requestOptions: options, statusCode: 204),
+    );
+  }
 }
 
 void main() {
@@ -330,5 +348,83 @@ void main() {
 
     expect(_fake(container).callCountOf('loginKakao'), 1);
     expect(_screen(ScreenIds.consent), findsOneWidget);
+  });
+
+  testWidgets('미리보기 → 기존 계정 로그인: 초안을 비워도 onboard-call이 끼어들지 않고 login → today', (
+    tester,
+  ) async {
+    final container = await openPreviewStep(tester, scenario: 'returning-user');
+    await tester.tap(_screen(SlotIds.previewCtaSave));
+    await tester.pumpAndSettle();
+    await tester.tap(_kakaoButton);
+    await _pumpUntil(
+      tester,
+      () => _screen(SlotIds.loginDiscardNotice).evaluate().isNotEmpty,
+      settle: false,
+    );
+    // 진입 갱신(getMe)이 느린 실제 네트워크처럼 중간 상태가 오래 보이게 늦춥니다.
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(
+      interceptors.length - 1,
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          if (options.path == '/v1/me' && options.method == 'GET') {
+            await Future<void>.delayed(const Duration(milliseconds: 300));
+          }
+          handler.next(options);
+        },
+      ),
+    );
+    await tester.tap(find.text(_ko.actionConfirm));
+    // 진입 갱신이 끝나 today에 닿을 때까지 프레임마다 끼어듦이 있는지 봅니다.
+    var interrupted = false;
+    for (
+      var i = 0;
+      i < 100 && _screen(ScreenIds.today).evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+      // 처리 중인 login 화면이 닫히거나 onboard-call이 비치면 끼어든 것입니다.
+      interrupted |=
+          _screen(ScreenIds.onboardCall).evaluate().isNotEmpty ||
+          (_screen(ScreenIds.today).evaluate().isEmpty &&
+              _screen(ScreenIds.login).evaluate().isEmpty);
+    }
+    await _settleLogin(tester, container);
+
+    expect(_screen(ScreenIds.today), findsOneWidget);
+    expect(interrupted, isFalse);
+  });
+
+  testWidgets('다시 로그인하면 이전 refresh token을 server에서 폐기하고 새 토큰 저장', (
+    tester,
+  ) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'login-entry-unavailable',
+    );
+    final recorder = _LogoutRecorder();
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, recorder);
+    await _openLoginFromWelcome(tester);
+
+    await tester.tap(_kakaoButton);
+    await _settleLogin(tester, container);
+    expect(find.byKey(loginErrorKey), findsOneWidget);
+    expect(recorder.bodies, isEmpty, reason: '이전 세션이 없으면 폐기할 것이 없습니다');
+    final firstRefresh = await tester.runAsync(
+      container.read(tokenStoreProvider).refreshToken,
+    );
+    expect(firstRefresh, isNotNull);
+
+    await tester.tap(_kakaoButton);
+    await pumpUntilScreen(tester, ScreenIds.consent);
+
+    expect(recorder.bodies, hasLength(1));
+    expect(recorder.bodies.single.toString(), contains(firstRefresh));
+    expect(container.read(tokenStoreProvider).accessToken, isNotNull);
   });
 }

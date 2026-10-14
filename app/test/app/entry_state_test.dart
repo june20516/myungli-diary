@@ -412,7 +412,9 @@ void main() {
       expect((await c.read(entryStateProvider.future)).entry, EntryState.ready);
       final signedOut = Completer<void>();
       c.listen(entryStateProvider, (_, next) {
-        if (next.value?.entry == EntryState.signedOut) {
+        // 로그아웃 직후 값과 다시 계산한 결과가 모두 signedOut이라 여러 번 올 수 있습니다.
+        if (next.value?.entry == EntryState.signedOut &&
+            !signedOut.isCompleted) {
           signedOut.complete();
         }
       });
@@ -527,7 +529,9 @@ void main() {
       final c = container();
       final signedOut = Completer<void>();
       c.listen(entryStateProvider, (_, next) {
-        if (next.value?.entry == EntryState.signedOut) {
+        // 로그아웃 직후 값과 다시 계산한 결과가 모두 signedOut이라 여러 번 올 수 있습니다.
+        if (next.value?.entry == EntryState.signedOut &&
+            !signedOut.isCompleted) {
           signedOut.complete();
         }
       });
