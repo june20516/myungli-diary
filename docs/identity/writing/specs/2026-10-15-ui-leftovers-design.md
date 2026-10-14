@@ -40,6 +40,7 @@
 * **자리표시자 값 종류는 app ARB 타입과 맞춥니다.** writing 메타데이터가 app 것을 덮어쓰기 때문입니다. `int`는 `number`, `String`은 `text`입니다(`traceId`·`term`·`minute`은 `text`, 나머지는 `number`).
 * **입력칸 접근성 이름은 hint와 다른 말로 씁니다**(#143 ①). hint가 예시("예: 민지", "도시 이름")라면 이름은 칸의 목적을 말합니다.
 * **로그인 버튼 라벨은 제공자 문구 그대로입니다**(#143 ③). 카카오는 ko "카카오 로그인", en·ja "Login with Kakao"(카카오 디자인 가이드에 일본어 지침 없음)이고, Apple은 Sign in with Apple HIG의 언어별 문구입니다. 보이스 규칙과 부딪히는 규칙은 슬롯 `allowed`에 적습니다.
+* 글자 수 상한은 모두 `null`로 두고 design #131에 함께 요청합니다.
 * 오류 문구는 "무엇이 안 됐는지 + 할 수 있는 일"을 해요체로 씁니다(W6). 사용자가 할 일이 없으면 한 문장으로 끝냅니다.
 
 ## 3. 지지·날의 성격 이름 → ARB
@@ -63,6 +64,7 @@
   * 문법 오류
   * 언어별 형태가 정확히 맞지 않음: ko·ja `other`, en `one`·`other`
   * 변수가 슬롯의 `number` 매개변수가 아님(`mlw check`만. ARB에는 슬롯이 없을 수 있음)
+  * content 슬롯 원고에 plural을 씀(server 렌더는 ICU를 읽지 않음)
 * 문장 규칙, 글자 수, ui 표기, 자리표시자 대조는 펼친 문장마다 적용합니다. `mlw check`(ui 원고)와 `mlw check-arb` 둘 다입니다.
 * 첫 쓰임은 `citySearchResults`입니다. 검사기 버전은 v0.3.0입니다.
 
