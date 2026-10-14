@@ -42,6 +42,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `member` | 로그인한 회원. 약관 동의, 프로필 있음 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
   | `profile-required` | 약관 동의했지만 프로필 없음 |
+  | `member-overseas` | `member`와 같고 기기 시간대가 America/Los_Angeles |
   | `force-update` | 최소 앱 버전이 99.0.0이라 업데이트 필요 |
   | `offline` | 네트워크에 연결할 수 없음 |
 

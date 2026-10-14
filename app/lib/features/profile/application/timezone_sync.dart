@@ -16,15 +16,23 @@ final class TimezoneSync {
 
   final Ref _ref;
   var _syncing = false;
+  Future<void> _inFlight = Future.value();
+
+  /// 진행 중인 동기화가 끝나면 완료되는 Future. 테스트가 기다립니다.
+  Future<void> get idle => _inFlight;
 
   /// 진입이 `ready`일 때만, 사본이 없거나 기기 시간대와 다르면 `PATCH`합니다.
   ///
   /// 실패는 삼키고 `CrashSummary`만 남깁니다. 사본이 그대로라 다음 호출에서 다시 보냅니다.
-  Future<void> syncIfChanged() async {
+  Future<void> syncIfChanged() {
     if (_syncing || _ref.read(entryProvider) != EntryState.ready) {
-      return;
+      return _inFlight;
     }
     _syncing = true;
+    return _inFlight = _sync();
+  }
+
+  Future<void> _sync() async {
     try {
       final repository = _ref.read(profileRepositoryProvider);
       final profile = await repository.cached();

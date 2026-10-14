@@ -82,10 +82,13 @@ void main() {
     expect(container.read(todayProvider), CalendarDate(2026, 10, 13));
   });
 
-  test('첫 프레임 전에 기기 시간대를 읽어 둡니다', () async {
-    final container = await bootstrapForTest('member');
+  test('첫 프레임 전에 기기 시간대를 읽어 두어 첫 읽기부터 그 시간대로 "오늘"을 셉니다', () async {
+    final container = await bootstrapForTest('member-overseas');
     addTearDown(container.dispose);
-    expect(container.read(deviceTimezoneNameProvider).value, 'Asia/Seoul');
+    // 동기 읽기만 합니다. 사전 읽기가 없으면 아직 로딩이라 Asia/Seoul로 계산됩니다.
+    expect(container.read(profileTimezoneProvider), 'America/Los_Angeles');
+    // 2026-10-13 12:00 LA = 10-13 19:00 UTC. Asia/Seoul이면 10-14입니다.
+    expect(container.read(todayProvider), CalendarDate(2026, 10, 13));
   });
 
   test('없는 시나리오면 bootstrap이 던집니다', () {

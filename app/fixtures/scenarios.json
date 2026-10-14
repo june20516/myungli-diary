@@ -51,5 +51,14 @@
     "network": "offline",
     "signedIn": true,
     "description": "네트워크에 연결할 수 없습니다."
+  },
+  {
+    "id": "member-overseas",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "America/Los_Angeles",
+    "network": "online",
+    "signedIn": true,
+    "description": "한국 밖(America/Los_Angeles) 기기의 회원입니다. 기기 시간대가 한국이 아닙니다."
   }
 ]

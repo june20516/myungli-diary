@@ -216,12 +216,13 @@ void main() {
         'profile-required',
         'force-update',
         'offline',
+        'member-overseas',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(5));
+      expect(scenarios.where((s) => s.signedIn), hasLength(6));
     });
 
     test('extends 순환은 오류다', () {

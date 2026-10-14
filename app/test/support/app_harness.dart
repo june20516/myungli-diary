@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
@@ -7,11 +9,13 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/myungli_app.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
+import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 /// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 로케일 ko.
@@ -70,17 +74,41 @@ Future<void> settleEntry(
     if (!container.read(entryStateProvider).isLoading) {
       await tester.pumpAndSettle();
       // 진입이 ready가 되면 앱 셸이 기기 시간대를 맞추는 요청을 보냅니다. 끝나게 둡니다.
-      for (var j = 0; j < 5; j++) {
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump();
-      }
+      await settleTimezoneSync(tester, container);
       await tester.pumpAndSettle();
       return;
     }
   }
   fail('진입 계산이 끝나지 않음');
+}
+
+/// 진행 중인 기기 시간대 동기화([TimezoneSync.idle])가 끝날 때까지 기다립니다.
+///
+/// 진입이 `ready`가 아니면 동기화가 없으므로 바로 끝납니다. 끝나지 않으면 테스트를 실패시킵니다.
+/// 가짜 시계 영역에서 시작한 await 사슬은 실제 I/O와 microtask 처리를 번갈아 거쳐야 하므로
+/// 둘을 번갈아 돌며 완료를 확인합니다.
+Future<void> settleTimezoneSync(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  if (container.read(entryProvider) != EntryState.ready) {
+    return;
+  }
+  var done = false;
+  unawaited(
+    container.read(timezoneSyncProvider).idle.whenComplete(() => done = true),
+  );
+  for (var i = 0; i < 200; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+    if (done) {
+      await tester.pump();
+      return;
+    }
+  }
+  fail('기기 시간대 동기화가 끝나지 않음');
 }
 
 /// 앱 전체를 fake 모드의 [scenario]로 띄우고 진입 계산이 끝날 때까지 기다립니다.
