@@ -18,6 +18,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/onboarding/application/preview_providers.dart';
+import 'package:myungli_diary/features/onboarding/presentation/onboarding_navigation.dart';
 
 /// IA `preview`의 출구 대상. 둘 다 진입 상태가 바뀌지 않는 이동이라 화면이 직접 이동합니다.
 const Set<String> previewExits = {ScreenIds.login, ScreenIds.onboardCall};
@@ -42,6 +43,12 @@ class PreviewScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    // 입력이 덜 찬 채 열렸으면(딥링크·복원) 다시 시도 대신 첫 단계에서 입력을 마저 받습니다.
+    ref.listen(previewProvider, (_, next) {
+      if (next.error is OnboardingInputIncomplete) {
+        goBackToOnboardCall(context);
+      }
+    });
     return Semantics(
       identifier: ScreenIds.preview,
       child: Scaffold(
@@ -49,7 +56,11 @@ class PreviewScreen extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              const MyungliAppBar.inner(title: ''),
+              MyungliAppBar.inner(
+                // 스택 바닥(갈래의 첫 화면, 딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
+                title: '',
+                showBack: MyungliAppBar.canGoBack(context),
+              ),
               Expanded(
                 child: ScreenStateView<Preview>(
                   value: ref.watch(previewProvider),
@@ -87,7 +98,7 @@ class PreviewScreen extends ConsumerWidget {
                       variant: PrimaryButtonVariant.quiet,
                       label: l10n.previewCtaRestart,
                       // 입력은 초안에 남아 있어 onboard-call이 채워진 채로 열립니다.
-                      onPressed: () => _restart(context),
+                      onPressed: () => goBackToOnboardCall(context),
                     ),
                   ],
                 ),
@@ -100,8 +111,10 @@ class PreviewScreen extends ConsumerWidget {
   }
 }
 
-/// 같은 입력으로 다시 요청해도 소용없는 오류(이미 쓴 미리보기, 입력 검증 실패)가 아니면 true.
+/// 같은 입력으로 다시 요청해도 소용없는 오류(이미 쓴 미리보기, 입력 검증 실패, 입력 미완)가
+/// 아니면 true.
 bool _retriable(Object? error) {
+  if (error is OnboardingInputIncomplete) return false;
   if (error is! ProblemError) return true;
   final code = error.code;
   return code != 'preview.used' &&
@@ -109,22 +122,6 @@ bool _retriable(Object? error) {
       !code.startsWith('birth.') &&
       !code.startsWith('date.') &&
       !code.startsWith('name.');
-}
-
-/// 다시 입력: 스택에 onboard-call이 있으면 거기까지 pop해 앞 단계(welcome 등)를 보존하고,
-/// 없으면(딥링크 등) 그 경로로 이동합니다. 입력은 초안에 남아 있어 채워진 채로 열립니다.
-void _restart(BuildContext context) {
-  final router = GoRouter.of(context);
-  final target = pathOf(ScreenIds.onboardCall);
-  final inStack = router.routerDelegate.currentConfiguration.matches.any(
-    (match) => match.matchedLocation == target,
-  );
-  if (!inStack) {
-    context.go(target);
-    return;
-  }
-  Navigator.of(context)
-      .popUntil((route) => route.settings.name == ScreenIds.onboardCall);
 }
 
 class _PreviewBody extends StatelessWidget {

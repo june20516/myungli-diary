@@ -46,17 +46,23 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
 
   /// 다시 계산하고 끝나면 돌아옵니다. 로그인·온보딩·약관 동의가 끝나면 부릅니다.
   ///
+  /// 계산이 실패하면 그 오류를, 아니면 null을 돌려줍니다. 실패해도 state(AsyncError)에
+  /// 이전 값이 남아 갈래는 그대로이므로, 부른 화면이 이 오류를 안내하고 다시 시도를 받습니다.
+  ///
   /// build를 다시 돌리므로 겹친 계산은 Riverpod이 오래된 결과를 버립니다.
   /// 계산 중에도 이전 값이 남아 라우터는 launch로 되돌아가지 않습니다.
-  Future<void> refresh() async {
+  Future<AppError?> refresh() async {
     if (!ref.mounted) {
-      return;
+      return null;
     }
     ref.invalidateSelf();
     try {
       await future;
-    } on Object {
-      // 실패는 state(AsyncError)로 드러납니다.
+      return null;
+    } on AppError catch (error) {
+      return error;
+    } on Object catch (error) {
+      return UnexpectedError(error);
     }
   }
 

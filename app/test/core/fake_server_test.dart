@@ -235,6 +235,8 @@ void main() {
         'notify-register-unavailable',
         'consent-renewal',
         'notify-profile-save-unavailable',
+        'profile-name-invalid',
+        'login-entry-unavailable',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));

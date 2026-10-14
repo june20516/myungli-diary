@@ -127,73 +127,139 @@ void main() {
   group('entryRedirect (순수 함수)', () {
     test('signedOut에서 member 화면은 /welcome', () {
       expect(
-        entryRedirect(entry: EntryState.signedOut, path: '/today'),
+        entryRedirect(entry: EntryState.signedOut, location: '/today'),
         '/welcome',
       );
     });
 
     test('ready에서 guest 화면은 /today', () {
       expect(
-        entryRedirect(entry: EntryState.ready, path: '/welcome'),
+        entryRedirect(entry: EntryState.ready, location: '/welcome'),
         '/today',
       );
     });
 
     test('ready에서 notify-ask는 /today (알림 허락 대기가 끝난 뒤)', () {
       expect(
-        entryRedirect(entry: EntryState.ready, path: '/notify-ask'),
+        entryRedirect(entry: EntryState.ready, location: '/notify-ask'),
         '/today',
       );
       expect(
-        entryRedirect(entry: EntryState.adConsentRequired, path: '/notify-ask'),
+        entryRedirect(
+          entry: EntryState.adConsentRequired,
+          location: '/notify-ask',
+        ),
         '/today',
       );
     });
 
     test('ready·adConsentRequired에서 consent는 /today (관문 화면은 자기 갈래에서만)', () {
       expect(
-        entryRedirect(entry: EntryState.ready, path: '/consent'),
+        entryRedirect(entry: EntryState.ready, location: '/consent'),
         '/today',
       );
       expect(
-        entryRedirect(entry: EntryState.adConsentRequired, path: '/consent'),
+        entryRedirect(
+          entry: EntryState.adConsentRequired,
+          location: '/consent',
+        ),
+        '/today',
+      );
+    });
+
+    test('프로필 있는 갈래에서 온보딩 단계(수정 모드가 아님)는 /today', () {
+      for (final entry in [EntryState.ready, EntryState.adConsentRequired]) {
+        for (final id in [
+          'onboard-call',
+          'onboard-birth',
+          'onboard-time',
+          'onboard-gender',
+          'birthplace',
+        ]) {
+          expect(
+            entryRedirect(entry: entry, location: '/$id'),
+            '/today',
+            reason: '$entry /$id',
+          );
+          expect(
+            entryRedirect(entry: entry, location: '/$id?mode=edit'),
+            isNull,
+            reason: '$entry /$id?mode=edit (A19 수정 모드)',
+          );
+        }
+      }
+    });
+
+    test('profileRequired·signedOut에서 온보딩 단계는 그대로', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.profileRequired,
+          location: '/onboard-gender',
+        ),
+        isNull,
+      );
+      expect(
+        entryRedirect(entry: EntryState.signedOut, location: '/onboard-gender'),
+        isNull,
+      );
+    });
+
+    test('launch를 떠날 때 기억한 위치는 query까지 그대로 돌려줍니다', () {
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/onboard-call?mode=edit',
+        ),
+        '/onboard-call?mode=edit',
+      );
+      // 수정 모드가 아니면 프로필 있는 갈래에서 복원하지 않습니다.
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/launch',
+          pending: '/onboard-call',
+        ),
         '/today',
       );
     });
 
     test('ready에서 any 화면(/legal)은 그대로', () {
-      expect(entryRedirect(entry: EntryState.ready, path: '/legal'), isNull);
+      expect(
+        entryRedirect(entry: EntryState.ready, location: '/legal'),
+        isNull,
+      );
     });
 
     test('forceUpdate는 어디서든 /force-update', () {
       expect(
-        entryRedirect(entry: EntryState.forceUpdate, path: '/today'),
+        entryRedirect(entry: EntryState.forceUpdate, location: '/today'),
         '/force-update',
       );
       expect(
-        entryRedirect(entry: EntryState.forceUpdate, path: '/force-update'),
+        entryRedirect(entry: EntryState.forceUpdate, location: '/force-update'),
         isNull,
       );
     });
 
     test('consentRequired는 /consent와 /legal만 허용', () {
       expect(
-        entryRedirect(entry: EntryState.consentRequired, path: '/today'),
+        entryRedirect(entry: EntryState.consentRequired, location: '/today'),
         '/consent',
       );
       expect(
-        entryRedirect(entry: EntryState.consentRequired, path: '/consent'),
+        entryRedirect(entry: EntryState.consentRequired, location: '/consent'),
         isNull,
       );
       expect(
-        entryRedirect(entry: EntryState.consentRequired, path: '/legal'),
+        entryRedirect(entry: EntryState.consentRequired, location: '/legal'),
         isNull,
       );
     });
 
     test('profileRequired는 온보딩 경로를 그대로 둡니다', () {
       expect(
-        entryRedirect(entry: EntryState.profileRequired, path: '/today'),
+        entryRedirect(entry: EntryState.profileRequired, location: '/today'),
         '/onboard-call',
       );
       for (final path in [
@@ -205,7 +271,7 @@ void main() {
         '/legal',
       ]) {
         expect(
-          entryRedirect(entry: EntryState.profileRequired, path: path),
+          entryRedirect(entry: EntryState.profileRequired, location: path),
           isNull,
           reason: path,
         );
@@ -214,15 +280,18 @@ void main() {
 
     test('notifyAskRequired는 /notify-ask만 허용 (A17)', () {
       expect(
-        entryRedirect(entry: EntryState.notifyAskRequired, path: '/today'),
+        entryRedirect(entry: EntryState.notifyAskRequired, location: '/today'),
         '/notify-ask',
       );
       expect(
-        entryRedirect(entry: EntryState.notifyAskRequired, path: '/notify-ask'),
+        entryRedirect(
+          entry: EntryState.notifyAskRequired,
+          location: '/notify-ask',
+        ),
         isNull,
       );
       expect(
-        entryRedirect(entry: EntryState.notifyAskRequired, path: '/launch'),
+        entryRedirect(entry: EntryState.notifyAskRequired, location: '/launch'),
         '/notify-ask',
       );
     });
@@ -231,7 +300,7 @@ void main() {
       expect(
         entryRedirect(
           entry: EntryState.ready,
-          path: '/launch',
+          location: '/launch',
           pending: '/calendar',
         ),
         '/calendar',
@@ -239,7 +308,7 @@ void main() {
       expect(
         entryRedirect(
           entry: EntryState.ready,
-          path: '/launch',
+          location: '/launch',
           pending: '/today',
         ),
         '/today',
@@ -250,7 +319,7 @@ void main() {
       expect(
         entryRedirect(
           entry: EntryState.signedOut,
-          path: '/launch',
+          location: '/launch',
           pending: '/today',
         ),
         '/welcome',
@@ -258,7 +327,7 @@ void main() {
       expect(
         entryRedirect(
           entry: EntryState.notifyAskRequired,
-          path: '/launch',
+          location: '/launch',
           pending: '/today',
         ),
         '/notify-ask',
@@ -266,7 +335,7 @@ void main() {
       expect(
         entryRedirect(
           entry: EntryState.ready,
-          path: '/launch',
+          location: '/launch',
           pending: '/welcome',
         ),
         '/today',
@@ -278,7 +347,7 @@ void main() {
         expect(
           entryRedirect(
             entry: EntryState.ready,
-            path: '/launch',
+            location: '/launch',
             pending: pending,
           ),
           '/today',
@@ -291,7 +360,7 @@ void main() {
       expect(
         entryRedirect(
           entry: EntryState.ready,
-          path: '/welcome',
+          location: '/welcome',
           pending: '/calendar',
         ),
         '/today',
@@ -299,18 +368,21 @@ void main() {
     });
 
     test('아직 계산 전이면 /launch로 모읍니다', () {
-      expect(entryRedirect(entry: null, path: '/today'), '/launch');
-      expect(entryRedirect(entry: null, path: '/launch'), isNull);
+      expect(entryRedirect(entry: null, location: '/today'), '/launch');
+      expect(entryRedirect(entry: null, location: '/launch'), isNull);
     });
 
     test('계산이 끝나면 /launch에서 갈래의 첫 화면으로 보냅니다', () {
       expect(
-        entryRedirect(entry: EntryState.signedOut, path: '/launch'),
+        entryRedirect(entry: EntryState.signedOut, location: '/launch'),
         '/welcome',
       );
-      expect(entryRedirect(entry: EntryState.ready, path: '/launch'), '/today');
       expect(
-        entryRedirect(entry: EntryState.profileRequired, path: '/launch'),
+        entryRedirect(entry: EntryState.ready, location: '/launch'),
+        '/today',
+      );
+      expect(
+        entryRedirect(entry: EntryState.profileRequired, location: '/launch'),
         '/onboard-call',
       );
     });
@@ -325,7 +397,7 @@ void main() {
           var path = start;
           final seen = <String>{path};
           for (;;) {
-            final next = entryRedirect(entry: entry, path: path);
+            final next = entryRedirect(entry: entry, location: path);
             if (next == null) {
               break;
             }
@@ -338,6 +410,26 @@ void main() {
   });
 
   group('진입 뒤 목적지 복귀', () {
+    testWidgets('계산 전 /onboard-call?mode=edit는 query까지 기억했다가 ready면 수정 모드로', (
+      tester,
+    ) async {
+      final (container, router, entry) = await pumpPendingRouter(tester);
+      router.go('/onboard-call?mode=edit');
+      await tester.pump();
+      expect(currentPath(router), '/launch');
+      expect(
+        container.read(pendingDestinationProvider),
+        '/onboard-call?mode=edit',
+      );
+
+      entry.complete(EntryState.ready);
+      await tester.pumpAndSettle();
+      expect(
+        router.routerDelegate.currentConfiguration.uri.toString(),
+        '/onboard-call?mode=edit',
+      );
+    });
+
     testWidgets('계산 전 /calendar는 /launch로 가고 기억했다가 ready가 되면 /calendar', (
       tester,
     ) async {

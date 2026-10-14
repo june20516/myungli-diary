@@ -615,7 +615,9 @@ void main() {
       );
     });
 
-    testWidgets('마무리 동작이 입력 오류면 그 문구를 toast로 보이고 성별 화면에 남습니다', (tester) async {
+    testWidgets('마무리 동작이 입력 오류면 onboard-call로 돌아가 그 문구를 toast로 보입니다', (
+      tester,
+    ) async {
       await openTimeStep(
         tester,
         scenario: 'profile-required',
@@ -639,12 +641,14 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
+      await tester.pumpAndSettle();
+
+      // 입력 오류는 첫 단계부터 고칩니다(약관 동의 직후 저장과 같은 동작). 생년월일 오류라
+      // 호칭 칸이 아닌 toast입니다.
       expect(tester.takeException(), isNull);
       expect(find.text(_ko.errorBirthInvalid), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey(ScreenIds.onboardGender)),
-        findsOneWidget,
-      );
+      expect(find.byKey(const ValueKey(ScreenIds.onboardGender)), findsNothing);
+      expect(find.byKey(const ValueKey(ScreenIds.onboardCall)), findsOneWidget);
       await tester.pump(const Duration(seconds: 10));
     });
 

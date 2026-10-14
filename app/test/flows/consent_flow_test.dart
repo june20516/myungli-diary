@@ -214,6 +214,60 @@ void main() {
     expect(_screen(ScreenIds.consent), findsNothing);
   });
 
+  testWidgets(
+    'consent-renewal: 완전한 온보딩 입력이 남은 회원이 동의해도 프로필을 덮어쓰지 않고 입력을 지웁니다',
+    (tester) async {
+      final container = await pumpApp(
+        tester,
+        scenario: 'consent-renewal',
+        locale: koreaLocale,
+        overrides: [
+          onboardingDraftStoreProvider.overrideWith(
+            (ref) => _SeededDraftStore(
+              ref.watch(appDatabaseProvider),
+              _completeDraft,
+            ),
+          ),
+        ],
+      );
+      expect(_screen(ScreenIds.consent), findsOneWidget);
+      // 남은 입력이 있는 상태(로그인 직후 삭제가 실패한 경우 등)입니다.
+      expect(
+        await tester.runAsync(
+          () => container.read(onboardingDraftProvider.future),
+        ),
+        _completeDraft,
+      );
+      await _checkAll(tester);
+
+      await _agreeUntil(tester, ScreenIds.today);
+
+      final fake = _fake(container);
+      expect(fake.callCountOf('createProfile'), 0);
+      expect(
+        await tester.runAsync(
+          () => container
+              .read(deviceFlagsStoreProvider)
+              .readBool(notifyAskPendingKey),
+        ),
+        isFalse,
+      );
+      // 프로필 있는 갈래로 진입하면 남은 입력을 지웁니다.
+      await pumpUntil(
+        tester,
+        () =>
+            container.read(onboardingDraftProvider).value ==
+            const OnboardingDraft(),
+      );
+      expect(
+        await tester.runAsync(
+          () => container.read(onboardingDraftStoreProvider).read(),
+        ),
+        isNull,
+      );
+    },
+  );
+
   testWidgets("'보기'는 legal을 열고, 돌아오면 체크가 그대로입니다", (tester) async {
     covers(const Covers(exits: ['consent>legal']));
     final container = await pumpApp(tester, scenario: 'consent-required');

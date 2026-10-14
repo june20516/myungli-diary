@@ -26,6 +26,8 @@ sealed class LoginOutcome {
 }
 
 /// 로그인했고 토큰을 저장했으며 진입 갈래를 다시 계산했습니다.
+///
+/// 토큰 저장 뒤 진입 계산이 실패하면 [LoginFailed]로 돌려줍니다(화면이 안내하고 다시 시도를 받음).
 final class LoginSucceeded extends LoginOutcome {
   /// server 응답을 담습니다.
   const new(this.response);
@@ -163,7 +165,11 @@ class LoginController extends AsyncNotifier<void> {
     try {
       final outcome = await login(rawNonce);
       if (outcome is LoginSucceeded) {
-        await session.enter(outcome.response, notice);
+        final entryError = await session.enter(outcome.response, notice);
+        if (entryError != null) {
+          // 토큰은 저장됐지만 갈래를 몰라 화면이 넘어가지 않습니다. 안내하고 다시 시도를 받습니다.
+          return LoginFailed(entryError);
+        }
       }
       return outcome;
     } on SocialSignInCancelled {
@@ -198,7 +204,9 @@ final class _Session {
   final CrashReporter crashReporter;
 
   /// 토큰을 저장하고, 필요하면 입력을 쓰지 않는다는 안내 뒤 입력을 지우고, 진입을 다시 계산합니다.
-  Future<void> enter(LoginResponse response, DiscardNotice? notice) async {
+  ///
+  /// 진입 계산이 실패하면 그 오류를, 아니면 null을 돌려줍니다.
+  Future<AppError?> enter(LoginResponse response, DiscardNotice? notice) async {
     await tokens.save(response.tokens);
     if (await _discardsDraft(response)) {
       await notice?.call();
@@ -209,7 +217,7 @@ final class _Session {
         crashReporter.record(CrashSummary.from(error), stack);
       }
     }
-    await entry.refresh();
+    return await entry.refresh();
   }
 
   /// 사주가 저장된 기존 계정이고 온보딩 입력이 남아 있으면 true.

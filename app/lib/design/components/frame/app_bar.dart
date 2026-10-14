@@ -44,6 +44,13 @@ class MyungliAppBar extends StatelessWidget {
     super.key,
   }) : _inner = true;
 
+  /// [context]의 route 아래에 돌아갈 화면이 있는지. 안쪽 화면이 [showBack]에 넘깁니다.
+  ///
+  /// 진입 갈래의 첫 화면이나 딥링크·복원으로 연 화면처럼 스택 바닥이면 뒤로 버튼이 아무
+  /// 동작도 하지 않으므로 그리지 않습니다.
+  static bool canGoBack(BuildContext context) =>
+      ModalRoute.of(context)?.impliesAppBarDismissal ?? false;
+
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'app-bar',

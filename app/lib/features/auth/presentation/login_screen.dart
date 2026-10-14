@@ -102,7 +102,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              const MyungliAppBar.inner(title: ''),
+              MyungliAppBar.inner(
+                // 스택 바닥(갈래의 첫 화면, 딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
+                title: '',
+                showBack: MyungliAppBar.canGoBack(context),
+              ),
               Expanded(
                 child: OnboardingPageLayout(
                   body: [

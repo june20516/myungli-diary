@@ -37,6 +37,7 @@ String formatNotificationTime(TimeOfDay time) =>
 ///
 /// 저장에 성공하면 알림 허락 대기 플래그를 끄고 **진입을 다시 계산**합니다. 이동은 라우터
 /// redirect가 정합니다(광고 동의 → today). 실패하면 플래그를 그대로 두고 오류를 돌려줍니다.
+/// 저장 뒤 진입 계산만 실패하면 그 오류를 돌려주고, 다시 누르면 저장부터 다시 합니다(같은 값).
 ///
 /// `Idempotency-Key`는 허락 동작 하나마다 하나이고, 실패 뒤 같은 토큰으로 다시 누르면
 /// 같은 키를 씁니다. 이미 등록한 기기는 다시 등록하지 않습니다. 처리 중에 다시 부르면 새
@@ -128,7 +129,11 @@ class NotifyAskController extends Notifier<void> {
     final entry = ref.read(entryStateProvider.notifier);
     await profiles.update(ProfilePatch(notification: setting));
     await flags.writeBool(notifyAskPendingKey, value: false);
-    await entry.refresh();
+    // 저장은 끝났지만 갈래를 몰라 화면이 넘어가지 않으면 안내하고 다시 시도를 받습니다.
+    final entryError = await entry.refresh();
+    if (entryError != null) {
+      throw entryError;
+    }
   }
 }
 

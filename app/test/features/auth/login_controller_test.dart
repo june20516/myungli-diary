@@ -194,10 +194,14 @@ class _FakeEntry extends EntryController {
   Future<EntrySnapshot> build() async =>
       const EntrySnapshot(EntryState.signedOut, null);
 
+  /// 갱신 결과. null이면 성공입니다.
+  AppError? refreshError;
+
   @override
-  Future<void> refresh() async {
+  Future<AppError?> refresh() async {
     refreshes++;
     onRefresh?.call();
+    return refreshError;
   }
 }
 
@@ -372,6 +376,19 @@ void main() {
       expect(error.status, 503);
       expect(h.accessToken, isNull);
       expect(h.entry.refreshes, 0);
+    });
+
+    test('토큰 저장 뒤 진입 계산이 실패하면 그 오류로 LoginFailed입니다', () async {
+      final h = await _harness();
+      h.entry.refreshError = const OfflineError();
+
+      final outcome = await h.controller.signInWithKakao();
+
+      expect(outcome, isA<LoginFailed>());
+      expect((outcome as LoginFailed).error, isA<OfflineError>());
+      expect(h.entry.refreshes, 1);
+      // 토큰은 저장돼 다시 누르면 새로 로그인하고 진입을 다시 계산합니다.
+      expect(h.accessToken, isNotNull);
     });
 
     test('처리 중에 다시 불러도 요청은 한 번입니다', () async {

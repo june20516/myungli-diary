@@ -41,14 +41,26 @@ final _previewMemoProvider = Provider<_PreviewMemo>((ref) {
   return memo;
 });
 
+/// 미리보기를 요청할 만큼 온보딩 입력을 다 받지 못했습니다(딥링크·복원으로 preview를 연 경우).
+///
+/// 같은 입력으로 다시 요청해도 소용없으므로 화면은 다시 시도 대신 `onboard-call`로 보냅니다.
+final class OnboardingInputIncomplete implements Exception {
+  /// 입력 미완.
+  const new();
+}
+
 /// 온보딩 입력으로 받는 첫 풀이. 같은 입력으로는 한 번만 요청합니다(설치당 1회 한도).
 ///
-/// 실패는 붙들지 않아 다시 불러 오면 다시 요청합니다.
+/// 입력이 덜 찼으면 요청하지 않고 [OnboardingInputIncomplete]입니다. 실패는 붙들지 않아
+/// 다시 불러 오면 다시 요청합니다.
 // autoDispose provider 타입 이름이 flutter_riverpod 공개 API에 없어(misc) 추론에 맡깁니다.
 // ignore: specify_nonobvious_property_types
 final previewProvider = FutureProvider.autoDispose<Preview>((ref) async {
   final draft = await ref.watch(onboardingDraftProvider.future);
   final deviceRegionIsKorea = ref.watch(deviceRegionIsKoreaProvider);
+  if (!draft.isCompleteFor(deviceRegionIsKorea: deviceRegionIsKorea)) {
+    throw const OnboardingInputIncomplete();
+  }
   final birth = draft.toBirth(deviceRegionIsKorea: deviceRegionIsKorea);
   final memo = ref.read(_previewMemoProvider);
   final saved = memo.preview;

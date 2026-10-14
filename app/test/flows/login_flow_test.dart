@@ -214,6 +214,31 @@ void main() {
     expect(find.byKey(loginErrorKey), findsOneWidget);
   });
 
+  testWidgets(
+    'login-entry-unavailable: 로그인 뒤 진입 계산이 실패하면 안내하고, 다시 누르면 consent',
+    (tester) async {
+      covers(const Covers(states: ['login:error']));
+      final container = await pumpApp(
+        tester,
+        scenario: 'login-entry-unavailable',
+      );
+      await _openLoginFromWelcome(tester);
+
+      await tester.tap(_kakaoButton);
+      await _settleLogin(tester, container);
+
+      // 화면이 아무 안내 없이 멈추지 않고 실패를 알립니다.
+      expect(_screen(ScreenIds.login), findsOneWidget);
+      expect(find.byKey(loginErrorKey), findsOneWidget);
+      expect(find.text(_ko.errorServiceUnavailable), findsOneWidget);
+      expect(_fake(container).callCountOf('getMe'), 1);
+
+      await tester.tap(_kakaoButton);
+      await pumpUntilScreen(tester, ScreenIds.consent);
+      expect(_fake(container).callCountOf('loginKakao'), 2);
+    },
+  );
+
   testWidgets('카카오 취소는 오류 상태에 취소 안내를 보입니다', (tester) async {
     covers(const Covers(states: ['login:error']));
     final container = await pumpApp(

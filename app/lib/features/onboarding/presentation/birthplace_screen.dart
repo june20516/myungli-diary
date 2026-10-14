@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -18,6 +17,7 @@ import 'package:myungli_diary/features/onboarding/application/city_providers.dar
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
+import 'package:myungli_diary/features/onboarding/presentation/onboarding_navigation.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 
 /// IA `birthplace`의 출구 대상. 온보딩은 `preview`, 수정 모드는 `profile-edit`·`settings`
@@ -37,8 +37,10 @@ const Duration _searchDebounce = Duration(milliseconds: 300);
 /// 온보딩 다섯째 단계: 한국 밖 기기에서 출생 도시를 골라 출생 시간대를 정합니다(D29).
 ///
 /// 글자 입력이 300ms 멈추면 검색하고, 도시를 누르면 곧바로 다음으로 갑니다(건너뛰기 출구는
-/// 없습니다). 온보딩에서는 초안에 담은 뒤 세션이 없으면 `preview`로, 있으면 미리보기를 건너뛰고
-/// 마무리 동작([onboardingFinishProvider])을 부릅니다. 수정 모드(`?mode=edit`)에서는 고른
+/// 없습니다). 온보딩에서는 초안에 담은 뒤, 로그인했고 프로필이 없는 계정
+/// ([finishesWithoutPreviewProvider])이면 미리보기를 건너뛰고 마무리 동작
+/// ([onboardingFinishProvider])을 부르고, 아니면 `preview`로 갑니다. 저장이 입력 오류(422)면
+/// `onboard-call`로 돌아가 고치게 합니다. 수정 모드(`?mode=edit`)에서는 고른
 /// [City]를 `pop`으로 돌려줍니다. 사본의 출생지는 도시 id뿐이라 이름을 모르므로 수정 모드도
 /// 빈 검색칸에서 시작합니다.
 class BirthplaceScreen extends ConsumerWidget {
@@ -55,7 +57,11 @@ class BirthplaceScreen extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              const MyungliAppBar.inner(title: ''),
+              MyungliAppBar.inner(
+                // 스택 바닥(갈래의 첫 화면, 딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
+                title: '',
+                showBack: MyungliAppBar.canGoBack(context),
+              ),
               Expanded(child: _BirthplaceForm(mode: mode)),
             ],
           ),
@@ -144,11 +150,15 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
           .read(onboardingDraftProvider.notifier)
           .update((d) => d.copyWith(city: city));
       if (!mounted) return;
-      if (ref.read(meProvider) != null) {
+      if (ref.read(finishesWithoutPreviewProvider)) {
         await ref.read(onboardingFinishProvider)();
       } else {
         await context.push<void>(pathOf(ScreenIds.preview));
       }
+    } on OnboardingInputRejected catch (rejected) {
+      // 입력 오류는 첫 단계(onboard-call)부터 고칩니다(약관 동의 직후 저장과 같은 동작).
+      if (!mounted) return;
+      returnToOnboardCallWith(context, ref, rejected.error);
     } on Object catch (error) {
       // 마무리 동작이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다.
       if (!mounted) return;

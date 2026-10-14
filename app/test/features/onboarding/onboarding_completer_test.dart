@@ -216,6 +216,7 @@ void main() {
       deviceRegionIsKorea: true,
       deviceTimezone: () async => 'Asia/Seoul',
       flags: container.read(deviceFlagsStoreProvider),
+      needsProfile: () => true,
       refreshEntry: () => container.read(entryStateProvider.notifier).refresh(),
       crashReporter: FakeCrashReporter(),
     );

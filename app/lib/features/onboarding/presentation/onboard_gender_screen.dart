@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -15,6 +14,7 @@ import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
+import 'package:myungli_diary/features/onboarding/presentation/onboarding_navigation.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
@@ -28,8 +28,10 @@ const Set<String> onboardGenderExits = {
 
 /// 온보딩 넷째 단계: 대운 방향 계산에 쓸 성별을 받습니다(D18).
 ///
-/// 한국 기기는 `preview`, 한국 밖은 `birthplace`로 이어지고, 세션이 있는 사용자는 미리보기를
-/// 건너뛰어 마무리 동작([onboardingFinishProvider])을 부릅니다. 수정 모드(`?mode=edit`)에서는
+/// 한국 기기는 `preview`, 한국 밖은 `birthplace`로 이어지고, 로그인했고 프로필이 없는 계정
+/// ([finishesWithoutPreviewProvider])은 미리보기를 건너뛰어 마무리 동작
+/// ([onboardingFinishProvider])을 부릅니다. 저장이 입력 오류(422)면 `onboard-call`로 돌아가
+/// 고치게 합니다. 수정 모드(`?mode=edit`)에서는
 /// 저장 버튼이 [BirthGenderEnum]을 `pop`으로 돌려줍니다.
 class OnboardGenderScreen extends ConsumerWidget {
   /// onboard-gender 화면을 만듭니다.
@@ -59,7 +61,11 @@ class OnboardGenderScreen extends ConsumerWidget {
         body: SafeArea(
           child: Column(
             children: [
-              const MyungliAppBar.inner(title: ''),
+              MyungliAppBar.inner(
+                // 스택 바닥(갈래의 첫 화면, 딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
+                title: '',
+                showBack: MyungliAppBar.canGoBack(context),
+              ),
               Expanded(
                 child: ready
                     ? _GenderForm(mode: mode, initial: initial)
@@ -101,9 +107,13 @@ class _GenderFormState extends ConsumerState<_GenderForm> {
           .update((d) => d.copyWith(gender: gender));
       if (!mounted) return;
       await _next();
+    } on OnboardingInputRejected catch (rejected) {
+      // 입력 오류는 첫 단계(onboard-call)부터 고칩니다(약관 동의 직후 저장과 같은 동작).
+      if (!mounted) return;
+      returnToOnboardCallWith(context, ref, rejected.error);
     } on Object catch (error) {
-      // 마무리 동작(프로필 저장)이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다.
-      // 입력은 남아 있어 뒤로 가서 고치거나 다시 누를 수 있습니다.
+      // 마무리 동작(프로필 저장·진입 갱신)이 실패해도 미처리 비동기 오류로 남기지 않고
+      // 안내합니다. 입력은 남아 있어 다시 누를 수 있습니다.
       if (!mounted) return;
       showMyungliToast(
         context,
@@ -114,12 +124,12 @@ class _GenderFormState extends ConsumerState<_GenderForm> {
     }
   }
 
-  /// 한국 밖은 출생지, 세션이 있으면 저장으로 마무리, 아니면 미리보기로 갑니다.
+  /// 한국 밖은 출생지, 프로필이 없는 계정이면 저장으로 마무리, 아니면 미리보기로 갑니다.
   Future<void> _next() {
     if (!ref.read(deviceRegionIsKoreaProvider)) {
       return context.push<void>(pathOf(ScreenIds.birthplace));
     }
-    if (ref.read(meProvider) != null) {
+    if (ref.read(finishesWithoutPreviewProvider)) {
       return ref.read(onboardingFinishProvider)();
     }
     return context.push<void>(pathOf(ScreenIds.preview));
