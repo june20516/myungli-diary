@@ -45,7 +45,7 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-10-14, app 세션 갱신)
-* **계획 2(온보딩·로그인) 완료**입니다. 브랜치 `app/onboarding`이고 PR 예정입니다(기반 PR #117은 2026-10-13 병합됨). 계획: [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md)
+* **계획 2(온보딩·로그인) 완료**입니다. 브랜치 `app/onboarding`이고 PR #149입니다(기반 PR #117은 2026-10-13 병합됨). 계획: [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md)
   * **화면 13개:** `launch`·`force-update`·`welcome`·`onboard-call`·`onboard-birth`·`onboard-time`·`onboard-gender`·`birthplace`·`preview`·`login`·`consent`·`notify-ask`·`ad-consent`(광고 동의 SDK는 대역)를 만들었습니다. 새 계정 흐름은 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`입니다. 로그인한 새 계정은 미리보기를 건너뛰고 저장한 뒤 `notify-ask`로 갑니다.
   * **결정 A17~A21** (`docs/decisions.md`): A17 `notifyAskRequired` 진입 갈래, A18 프로필 사본(`cachedProfileProvider`)과 기기 시간대 동기화, A19 수정 모드(`?mode=edit`, `pop(값)`), A20 계약과 IA가 안 맞는 곳은 받을 수 있는 값으로 그림, A21 ui(ARB) 슬롯은 일반 `Text`로 그림.
   * **새 fake 시나리오(27개 중 계획 2에서 더한 것):** 로그인·동의(`returning-user`, `new-user-signin`, `login-provider-down`, `login-exchange-invalid`, `login-entry-unavailable`, `consent-mismatch`, `consent-renewal`), 온보딩 입력(`time-unknown`, `overseas`, `member-overseas`, `birth-hour-unavailable`, `birth-hour-rate-limited`, `cities-error`, `cities-slow`), 미리보기·저장(`preview-used`, `preview-invalid`, `profile-invalid`, `profile-name-invalid`, `profile-save-unavailable`), 알림(`notify-register-unavailable`, `notify-profile-save-unavailable`)입니다. 표는 [`README.md`](README.md)에 있습니다.
@@ -83,7 +83,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **계획 2 PR 병합.** `app/onboarding` → `main`입니다(기반 PR #117은 병합됨). app PR 검사는 `ci-gate`가 `app.yml`을 부릅니다(#125). 병합 전 `git merge origin/main`. PR 전에 브랜치를 push하고 `gh workflow run app --ref app/onboarding`(workflow_dispatch면 `e2e-android`가 돎)으로 `e2e-android`를 이 브랜치에서 확인합니다(로컬 Android 에뮬레이터는 adb `unauthorized`).
+1. **계획 2 PR #149 병합.** `app/onboarding` → `main`입니다(기반 PR #117은 병합됨). app PR 검사는 `ci-gate`가 `app.yml`을 부릅니다(#125). 병합 전 `git merge origin/main`. PR 전에 브랜치를 push하고 `gh workflow run app --ref app/onboarding`(workflow_dispatch면 `e2e-android`가 돎)으로 `e2e-android`를 이 브랜치에서 확인합니다(로컬 Android 에뮬레이터는 adb `unauthorized`).
 2. **계획 3(오늘·깊이 시트)을 writing-plans로** 씁니다(`app/docs/plans/`). 아래 "이후 계획으로 넘긴 사항"의 계획 3 항목을 먼저 반영합니다.
 3. **이후 계획으로 넘긴 사항**
    * 계획 3(오늘·깊이 시트): **`getDaily`는 진입 ready이고 프로필 사본(`cachedProfileProvider`, A18)을 읽은 뒤 요청합니다.** 첫 계산의 날짜를 기기 시간대 초기값으로 잡았으므로 그 전에 요청하면 "오늘"이 하루 어긋날 수 있습니다. 사주 지문(`sajuFingerprint(Profile)`, spec §4.4)은 Profile 사본이 있어야 만들 수 있는데, 새 기기·재설치 회원은 사본이 없고 A18의 "사본 없으면 기기 시간대로 `updateProfile` 한 번(`TimezoneSync`)"이 성공해야 생깁니다. 그래서 `getDaily`와 오늘 캐시는 그 PATCH 뒤에 요청합니다. PATCH가 실패(오프라인)하면 캐시 키를 만들 수 없으므로 그때 `getDaily`·캐시를 어떻게 할지(캐시 없이 받기, 다시 시도 안내 등)를 계획 3에서 정하고, server에 요청한 프로필 GET이 생기면 그것으로 사본을 채웁니다. 시트 3개(explain·evidence·day-sheet)의 IA states 처리 등록 방식을 정하고 `test/contract/ia_pending.dart`의 `pendingStateScreens`에서 지웁니다(ratchet). 표시용 시각(`FocusSlot.start·end`, `SolarTerm.at`)은 생성 모델이 UTC로 바꾸므로 화면에서 프로필 시간대로 변환합니다(계획 4 달력 절기도). 근거 잠금 해제 중 "세 구역 skeleton" 단계와 시간 초과 toast(`evidence-sheet.unlock.failed`)는 화면 흐름 몫입니다. 보상형 광고 뒤 권한 확인 폴링은 fixture `sequence`로 재현합니다.
