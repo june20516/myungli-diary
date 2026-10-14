@@ -389,44 +389,44 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String onboardTimeHourConfirm(String branch, String start, String end) {
-    return '$branch($start~$end)';
+    return '$branch시, $start~$end에 태어났어요.';
   }
 
   @override
-  String get branchJa => '자시';
+  String get branchJa => '자';
 
   @override
-  String get branchChuk => '축시';
+  String get branchChuk => '축';
 
   @override
-  String get branchIn => '인시';
+  String get branchIn => '인';
 
   @override
-  String get branchMyo => '묘시';
+  String get branchMyo => '묘';
 
   @override
-  String get branchJin => '진시';
+  String get branchJin => '진';
 
   @override
-  String get branchSa => '사시';
+  String get branchSa => '사';
 
   @override
-  String get branchO => '오시';
+  String get branchO => '오';
 
   @override
-  String get branchMi => '미시';
+  String get branchMi => '미';
 
   @override
-  String get branchShin => '신시';
+  String get branchShin => '신';
 
   @override
-  String get branchYu => '유시';
+  String get branchYu => '유';
 
   @override
-  String get branchSul => '술시';
+  String get branchSul => '술';
 
   @override
-  String get branchHae => '해시';
+  String get branchHae => '해';
 
   @override
   String get onboardGenderQuestionHead => '성별이 어떻게 되나요?';

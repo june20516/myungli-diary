@@ -802,82 +802,82 @@ abstract class AppLocalizations {
   /// **'모름'**
   String get timeUnknownLabel;
 
-  /// 임시. content 슬롯이지만 server가 구조값(지지·시각)만 주므로 app이 틀로 씀(A20 ③)
+  /// onboard-time.hour.confirm: 엔진이 계산한 시진과 벽시계 범위 확인 줄(예: 인시 03:30~05:30). 기기 지역이 한국일 때만 (D58) app이 getBirthHour 구조값(branch·start·end)을 ui 틀에 넣음(D68)
   ///
   /// In ko, this message translates to:
-  /// **'{branch}({start}~{end})'**
+  /// **'{branch}시, {start}~{end}에 태어났어요.'**
   String onboardTimeHourConfirm(String branch, String start, String end);
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'자시'**
+  /// **'자'**
   String get branchJa;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'축시'**
+  /// **'축'**
   String get branchChuk;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'인시'**
+  /// **'인'**
   String get branchIn;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'묘시'**
+  /// **'묘'**
   String get branchMyo;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'진시'**
+  /// **'진'**
   String get branchJin;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'사시'**
+  /// **'사'**
   String get branchSa;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'오시'**
+  /// **'오'**
   String get branchO;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'미시'**
+  /// **'미'**
   String get branchMi;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'신시'**
+  /// **'신'**
   String get branchShin;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'유시'**
+  /// **'유'**
   String get branchYu;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'술시'**
+  /// **'술'**
   String get branchSul;
 
-  /// 임시. 지지 이름(시진 확인 줄)
+  /// 임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)
   ///
   /// In ko, this message translates to:
-  /// **'해시'**
+  /// **'해'**
   String get branchHae;
 
   /// onboard-gender.question.head: 성별을 묻는 질문
@@ -1084,7 +1084,7 @@ abstract class AppLocalizations {
   /// **'나중에'**
   String get notifyAskCtaSkip;
 
-  /// 임시. 알림 허락 버튼(슬롯이 아님)
+  /// notify-ask.cta.allow: 알림 허락 버튼
   ///
   /// In ko, this message translates to:
   /// **'알림 받기'**

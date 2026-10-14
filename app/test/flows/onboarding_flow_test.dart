@@ -410,9 +410,8 @@ void main() {
       await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
 
       expect(
-        find.textContaining(
-          _ko.onboardTimeHourConfirm(_ko.branchIn, '03:30', '05:30'),
-        ),
+        // 원고 틀이 '시'를 붙이므로 지지 이름에는 '시'가 없어야 합니다(D68).
+        find.textContaining('인시, 03:30~05:30에 태어났어요.'),
         findsOneWidget,
       );
       expect(fake.callCountOf('getBirthHour'), 2);

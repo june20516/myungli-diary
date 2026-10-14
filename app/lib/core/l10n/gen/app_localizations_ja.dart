@@ -387,44 +387,44 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String onboardTimeHourConfirm(String branch, String start, String end) {
-    return '$branch（$start〜$end）';
+    return '$branchの刻、$start〜$endに生まれました。';
   }
 
   @override
-  String get branchJa => '子の刻';
+  String get branchJa => '子';
 
   @override
-  String get branchChuk => '丑の刻';
+  String get branchChuk => '丑';
 
   @override
-  String get branchIn => '寅の刻';
+  String get branchIn => '寅';
 
   @override
-  String get branchMyo => '卯の刻';
+  String get branchMyo => '卯';
 
   @override
-  String get branchJin => '辰の刻';
+  String get branchJin => '辰';
 
   @override
-  String get branchSa => '巳の刻';
+  String get branchSa => '巳';
 
   @override
-  String get branchO => '午の刻';
+  String get branchO => '午';
 
   @override
-  String get branchMi => '未の刻';
+  String get branchMi => '未';
 
   @override
-  String get branchShin => '申の刻';
+  String get branchShin => '申';
 
   @override
-  String get branchYu => '酉の刻';
+  String get branchYu => '酉';
 
   @override
-  String get branchSul => '戌の刻';
+  String get branchSul => '戌';
 
   @override
-  String get branchHae => '亥の刻';
+  String get branchHae => '亥';
 
   @override
   String get onboardGenderQuestionHead => '性別を教えてください。';

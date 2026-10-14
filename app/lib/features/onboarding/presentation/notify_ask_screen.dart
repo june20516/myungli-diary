@@ -116,6 +116,7 @@ class _NotifyAskScreenState extends ConsumerState<NotifyAskScreen> {
                   help: l10n.notifyAskWhyBody,
                   helpIdentifier: SlotIds.notifyAskWhyBody,
                   actionLabel: l10n.notifyAskCtaAllow,
+                  actionIdentifier: SlotIds.notifyAskCtaAllow,
                   actionLoading: _busy,
                   onAction: () => _submit((c) => c.allow(_time)),
                 ),

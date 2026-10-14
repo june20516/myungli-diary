@@ -20,10 +20,12 @@ import 'package:myungli_diary/features/onboarding/application/onboarding_provide
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_navigation.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 
-/// IA `birthplace`의 출구 대상. 온보딩은 `preview`, 수정 모드는 `profile-edit`·`settings`
+/// IA `birthplace`의 출구 대상. 온보딩은 `preview`, 로그인한 새 계정은 프로필을 저장하고
+/// `notify-ask`(D68), 수정 모드는 `profile-edit`·`settings`
 /// (값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다).
 const Set<String> birthplaceExits = {
   ScreenIds.preview,
+  ScreenIds.notifyAsk,
   ScreenIds.profileEdit,
   ScreenIds.settings,
 };

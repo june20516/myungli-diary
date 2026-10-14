@@ -72,7 +72,7 @@ String _branchName(AppLocalizations l10n, Branch branch) => switch (branch) {
 };
 
 /// 시진 확인 줄 글자(`onboard-time.hour.confirm`). server는 지지와 시각 범위만 주므로
-/// app이 ARB 틀에 넣어 씁니다(A20 ③).
+/// app이 ARB 틀에 넣어 씁니다(A20 ③, IA v2에서 ui 슬롯이 됨 D68).
 String sijinConfirmText(AppLocalizations l10n, BirthHour hour) =>
     l10n.onboardTimeHourConfirm(
       _branchName(l10n, hour.branch),

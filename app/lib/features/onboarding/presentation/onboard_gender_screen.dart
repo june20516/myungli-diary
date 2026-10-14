@@ -19,10 +19,12 @@ import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_m
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// IA `onboard-gender`의 출구 대상. 온보딩은 `preview`(한국 기기)·`birthplace`(한국 밖),
-/// 수정 모드는 `profile-edit`(값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다).
+/// 로그인한 새 계정은 프로필을 저장하고 `notify-ask`(D68), 수정 모드는 `profile-edit`
+/// (값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다).
 const Set<String> onboardGenderExits = {
   ScreenIds.preview,
   ScreenIds.birthplace,
+  ScreenIds.notifyAsk,
   ScreenIds.profileEdit,
 };
 

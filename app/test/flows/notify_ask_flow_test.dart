@@ -129,6 +129,19 @@ void main() {
     expect(adConsent.gathers, gathersBefore + 1);
   });
 
+  testWidgets('허락·건너뛰기 버튼에 IA 슬롯 id가 붙습니다(D68)', (tester) async {
+    await openNotifyAsk(tester);
+
+    expect(
+      find.bySemanticsIdentifier(SlotIds.notifyAskCtaAllow),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier(SlotIds.notifyAskCtaSkip),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('기본 시각은 08:00입니다', (tester) async {
     final container = await openNotifyAsk(tester);
 

@@ -424,44 +424,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String onboardTimeHourConfirm(String branch, String start, String end) {
-    return '$branch ($start–$end)';
+    return 'You were born in the $branch hour, $start–$end.';
   }
 
   @override
-  String get branchJa => 'Rat hour';
+  String get branchJa => 'Rat';
 
   @override
-  String get branchChuk => 'Ox hour';
+  String get branchChuk => 'Ox';
 
   @override
-  String get branchIn => 'Tiger hour';
+  String get branchIn => 'Tiger';
 
   @override
-  String get branchMyo => 'Rabbit hour';
+  String get branchMyo => 'Rabbit';
 
   @override
-  String get branchJin => 'Dragon hour';
+  String get branchJin => 'Dragon';
 
   @override
-  String get branchSa => 'Snake hour';
+  String get branchSa => 'Snake';
 
   @override
-  String get branchO => 'Horse hour';
+  String get branchO => 'Horse';
 
   @override
-  String get branchMi => 'Goat hour';
+  String get branchMi => 'Goat';
 
   @override
-  String get branchShin => 'Monkey hour';
+  String get branchShin => 'Monkey';
 
   @override
-  String get branchYu => 'Rooster hour';
+  String get branchYu => 'Rooster';
 
   @override
-  String get branchSul => 'Dog hour';
+  String get branchSul => 'Dog';
 
   @override
-  String get branchHae => 'Pig hour';
+  String get branchHae => 'Pig';
 
   @override
   String get onboardGenderQuestionHead => 'What is your gender?';
@@ -575,7 +575,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifyAskCtaSkip => 'Not now';
 
   @override
-  String get notifyAskCtaAllow => 'Turn on alerts';
+  String get notifyAskCtaAllow => 'Turn on notifications';
 
   @override
   String get accountDeleteCtaDelete => 'Delete account';
