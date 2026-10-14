@@ -16,6 +16,9 @@ on:
       - "core/message_params.json"
       - "proto/**"
   workflow_dispatch:
+  workflow_call:
+
+# workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
 
 permissions:
   contents: read
