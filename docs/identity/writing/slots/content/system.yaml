@@ -1,0 +1,28 @@
+# 콘텐츠 슬롯: 시스템 화면(system)
+#
+# 앱 밖에서 server가 렌더하는 문구입니다(D66). 언어는 server가 Accept-Language로 고릅니다. 호칭은 넣지 않습니다.
+
+- id: system.apple_return
+  where: Android Apple 웹 로그인 뒤 앱이 열리지 않을 때의 안내 페이지(GET /auth/apple, server S22)
+  ia: [system-apple-return.page.title, system-apple-return.page.body, system-apple-return.page.open, system-apple-return.page.install]
+  select: "page.title → apple_return.title, page.body → apple_return.body, page.open → apple_return.open, page.install → apple_return.install"
+  purpose: guide
+  user_state: 로그인하다가 브라우저 페이지에 멈췄습니다. 앱으로 돌아가야 한다는 것만 알면 됩니다. 오류로 왔어도 같은 문구입니다(오류 처리는 앱).
+  structure: 제목은 앱 이름, 본문은 앱에서 이어 가라는 한 문장, 두 링크는 동작 이름입니다.
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - apple_return.title
+    - apple_return.body
+    - apple_return.open
+    - apple_return.install
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: apple_return.body, text: "명리일기 앱에서 이어서 로그인해 주세요.", why: "할 일 하나를 짧게", source: writing}
+    bad:
+      - {lang: ko, key: apple_return.body, text: "인증 콜백 처리가 완료되었습니다.", why: "기술 어휘 slop.P9, 합니다체 style.S3", source: writing}
+  endings: ["~주세요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 제목, 본문, 링크 순서로 읽습니다.

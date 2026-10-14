@@ -4,6 +4,7 @@
 """
 
 import argparse
+import dataclasses
 import json
 import sys
 from collections.abc import Mapping, Sequence
@@ -16,17 +17,24 @@ from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
-from mlw.loader import UI_GROUP, load_content, load_rules, load_slots
+from mlw.ia import check_ia, is_ui_slot, load_ia
+from mlw.loader import load_content, load_rules, load_slots
+from mlw.markup import check_name_position, check_ui_markup, strip_vocative
 from mlw.model import LANGS, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
+from mlw.terms import check_tokens
 
 GLOSSARY_SLOT = "glossary.value_name"
+# 태그 이름 메시지 키의 접두어입니다. 용어 id에 들어갑니다.
+TAG_KEY_PREFIX = "tag."
 NAME_PARAM = "name"
 # 호칭 최대 길이를 채우는 글자입니다. 글자 수만 세므로 무엇이든 됩니다.
 NAME_FILLER = "가"
 RULE_JSON = "load.json"
 RULE_LENGTH_UNKNOWN = "style.length_unknown"
+# 호칭 덩어리를 지운 문장에서만 나온 문제의 메시지 앞머리입니다.
+VOCATIVE_DROPPED = "호칭 없이: "
 # 목록 값(`list:<범주>`)을 잇는 구분자입니다.
 LIST_SEPARATOR = ", "
 # 목록 값의 최대 원소 수입니다. 유일한 목록 매개변수인 집중 시간 branches의 엔진 상한(MAX_PICKS)과 같습니다.
@@ -101,31 +109,64 @@ def longest_values_for(
     return values, unresolved
 
 
-def _sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules: RuleSet) -> list[Finding]:
+def _entry_sentence_findings(
+    entry: Entry, slot: Slot, rules: RuleSet, by_lang: Mapping[str, Mapping[str, Sequence[str]]]
+) -> list[Finding]:
+    max_length = slot.max_length.get(entry.lang)
+    name_max = rules.josa.name_rules.max_length.get(entry.lang)
+    params = slot.keys.get(entry.key, {})
+    values, unresolved = longest_values_for(entry, params, by_lang.get(entry.lang, {}), name_max)
+    findings: list[Finding] = []
+    if max_length is not None and unresolved:
+        message = f"자리표시자 {', '.join(unresolved)}의 범주를 해석할 수 없어 글자 수를 계산하지 못했습니다"
+        findings.append(Finding(entry.file, entry.line, RULE_LENGTH_UNKNOWN, "warn", message))
+    findings.extend(
+        check_sentence(
+            entry,
+            slot.purpose,
+            rules,
+            max_length,
+            values,
+            allowed=slot.allowed,
+            forbidden=slot.forbidden,
+        )
+    )
+    return findings
+
+
+def sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules: RuleSet) -> list[Finding]:
+    """원고마다 문장 단위 검사를 합니다. 호칭 자리 슬롯은 호칭 덩어리를 지운 문장도 검사합니다.
+
+    지운 문장에서만 나온 문제는 메시지 앞에 `호칭 없이: `를 붙이고, 같은 규칙·같은 메시지는 한 번만 냅니다.
+    """
     by_lang = {lang: longest_by_category(entries, lang) for lang in LANGS}
     findings: list[Finding] = []
     for entry in entries:
         slot = slots.get(entry.slot)
         if slot is None:
             continue
-        max_length = slot.max_length.get(entry.lang)
-        name_max = rules.josa.name_rules.max_length.get(entry.lang)
-        params = slot.keys.get(entry.key, {})
-        values, unresolved = longest_values_for(entry, params, by_lang.get(entry.lang, {}), name_max)
-        if max_length is not None and unresolved:
-            message = f"자리표시자 {', '.join(unresolved)}의 범주를 해석할 수 없어 글자 수를 계산하지 못했습니다"
-            findings.append(Finding(entry.file, entry.line, RULE_LENGTH_UNKNOWN, "warn", message))
-        findings.extend(
-            check_sentence(
-                entry,
-                slot.purpose,
-                rules,
-                max_length,
-                values,
-                allowed=slot.allowed,
-                forbidden=slot.forbidden,
-            )
-        )
+        full = _entry_sentence_findings(entry, slot, rules, by_lang)
+        findings.extend(full)
+        stripped = strip_vocative(entry.text, entry.lang) if slot.vocative else None
+        if stripped is None:
+            continue
+        seen = {(finding.rule_id, finding.message) for finding in full}
+        for finding in _entry_sentence_findings(dataclasses.replace(entry, text=stripped), slot, rules, by_lang):
+            if (finding.rule_id, finding.message) not in seen:
+                findings.append(dataclasses.replace(finding, message=f"{VOCATIVE_DROPPED}{finding.message}"))
+    return findings
+
+
+def markup_findings(slots: Mapping[str, Slot], entries: Sequence[Entry]) -> list[Finding]:
+    """호칭 덩어리 위치와 ui 원고 표기를 봅니다."""
+    findings: list[Finding] = []
+    for entry in entries:
+        slot = slots.get(entry.slot)
+        if slot is None:
+            continue
+        findings.extend(check_name_position(entry, slot))
+        if is_ui_slot(slot):
+            findings.extend(check_ui_markup(entry))
     return findings
 
 
@@ -222,22 +263,26 @@ def _read_fixture(path: Path) -> dict[str, object]:
 def _check(args: argparse.Namespace) -> int:
     rules = load_rules(args.rules_dir)
     all_slots = load_slots(args.slots_dir, rules)
-    # ARB 화면 문구 슬롯은 원고(content/)가 없으므로 원고 검사에서 뺍니다.
-    slots = {slot_id: slot for slot_id, slot in all_slots.items() if slot.file.parent.name != UI_GROUP}
+    # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui 원고는 완결성·문장·표기 검사만 받습니다.
+    content_slots = {slot_id: slot for slot_id, slot in all_slots.items() if not is_ui_slot(slot)}
     entries = load_content(args.content)
     message_keys = _read_message_keys(args.message_keys)
     message_params = _read_message_params(args.message_params)
     fixture = _read_fixture(args.fixture)
+    ia = load_ia(args.ia)
 
-    completeness = check_completeness(slots, entries, message_keys, LANGS, message_params)
+    completeness = check_completeness(all_slots, entries, message_keys, LANGS, message_params)
     if args.partial:
         completeness = [finding for finding in completeness if finding.rule_id != RULE_MISSING]
     findings = [
+        *check_ia(all_slots, ia),
         *completeness,
-        *_sentence_findings(slots, entries, rules),
-        *check_days(slots, entries, rules.limits.values(), LANGS, rules),
+        *sentence_findings(all_slots, entries, rules),
+        *markup_findings(all_slots, entries),
+        *check_tokens(entries, all_slots, [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]),
+        *check_days(content_slots, entries, rules.limits.values(), LANGS, rules),
         *check_weeks(
-            slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture
+            content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture
         ),
     ]
     return _print_findings(findings)
@@ -251,7 +296,7 @@ def _check_arb(args: argparse.Namespace) -> int:
 
 def _gen_docs(args: argparse.Namespace) -> int:
     rules = load_rules(args.rules_dir)
-    docs = render_docs(rules, load_slots(args.slots_dir, rules))
+    docs = render_docs(rules, load_slots(args.slots_dir, rules), load_ia(args.ia), load_content(args.content))
     if not args.check:
         write_docs(args.out_dir, docs)
         return 0
@@ -278,6 +323,9 @@ def _build_parser() -> argparse.ArgumentParser:
         command.add_argument("--rules-dir", type=Path, default=paths.RULES_DIR, help="규칙 디렉터리")
         command.add_argument("--slots-dir", type=Path, default=paths.SLOTS_DIR, help="슬롯 명세 디렉터리")
 
+    def add_ia(command: argparse.ArgumentParser) -> None:
+        command.add_argument("--ia", type=Path, default=paths.IA_FILE, help="IA 계약 파일(screens.json)")
+
     check = commands.add_parser("check", help="원고를 검사합니다")
     check.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
     check.add_argument("--partial", action="store_true", help="없는 원고(complete.missing)를 보고하지 않습니다")
@@ -287,6 +335,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     check.add_argument("--fixture", type=Path, default=paths.FIXTURE_FILE, help="한 주 검사 고정 자료")
     add_dirs(check)
+    add_ia(check)
     check.set_defaults(handler=_check)
 
     check_arb_command = commands.add_parser("check-arb", help="ARB 파일을 검사합니다")
@@ -297,7 +346,9 @@ def _build_parser() -> argparse.ArgumentParser:
     gen_docs = commands.add_parser("gen-docs", help="규칙·슬롯 YAML에서 문서를 생성합니다")
     gen_docs.add_argument("--check", action="store_true", help="쓰지 않고 오래된 문서가 있으면 종료 코드 1입니다")
     gen_docs.add_argument("--out-dir", type=Path, default=paths.GENERATED_DIR, help="생성 문서 디렉터리")
+    gen_docs.add_argument("--content", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리(ui ARB 생성용)")
     add_dirs(gen_docs)
+    add_ia(gen_docs)
     gen_docs.set_defaults(handler=_gen_docs)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")

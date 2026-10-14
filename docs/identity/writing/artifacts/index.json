@@ -82,5 +82,17 @@
     "decisions": ["W15"],
     "status": "chosen",
     "note": "요약 / 풀이 / 원리, 설정 이름 '얼마나 자세히 볼까요'"
+  },
+  {
+    "id": "round-R8",
+    "title": "라운드 R8 — 브랜드·정책 ui 문구",
+    "kind": "copy-sample",
+    "file": "2026-10-13-round-R8.md",
+    "date": "2026-10-14",
+    "milestone": "W0",
+    "screens": ["welcome", "notify-ask", "evidence-sheet", "ad-free", "share-preview", "settings"],
+    "decisions": ["W15", "W17"],
+    "status": "chosen",
+    "note": "컨셉·알림·보상 고지·광고 제거권·태그라인·앱 이름, 기본 깊이 이름 '명리 풀이 보기'"
   }
 ]

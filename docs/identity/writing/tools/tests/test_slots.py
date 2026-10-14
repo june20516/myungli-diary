@@ -17,8 +17,17 @@ IDENTIFIER_SLOTS = {
     "daily.focus_reason",
     "calendar.score_item",
     "calendar.solar_term",
-    "settings.calculation_basis",
     "glossary.value_name",
+    "character.reason",
+    "chart.ilgan_head",
+    "chart.ilgan_body",
+    "chart.yongsin_summary",
+    "term.meaning",
+    "explain.today_reason",
+    "evidence.basis",
+    "evidence.source",
+    "onboard.hour_confirm",
+    "system.apple_return",
 }
 VALID_SLOT = """\
 - id: test.slot
@@ -75,7 +84,7 @@ def test_slot_params_match_core_message_params(rules: RuleSet) -> None:
 def test_identifier_slots_do_not_collide_with_message_keys(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     message_keys = set(json.loads(MESSAGE_KEYS_PATH.read_text(encoding="utf-8")))
-    for slot_id in IDENTIFIER_SLOTS - {"settings.calculation_basis"}:
+    for slot_id in IDENTIFIER_SLOTS:
         assert not set(slots[slot_id].keys) & message_keys
 
 
@@ -100,7 +109,7 @@ def test_slot_counts_match_spec(rules: RuleSet) -> None:
         "element": ParamKind("glossary", ("element", "color")),
         "emphasis": ParamKind("none"),
     }
-    assert slots["settings.calculation_basis"].keys == {"notice.calculation_basis": {}}
+    assert "settings.calculation_basis" not in slots
 
 
 def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
@@ -201,9 +210,27 @@ def test_daily_slots_co_display_each_other(rules: RuleSet) -> None:
         assert set(slots[slot_id].co_display) == daily - {slot_id}
 
 
-def test_max_length_is_null_per_language(rules: RuleSet) -> None:
-    for slot in load_slots(SLOTS_DIR, rules).values():
-        assert slot.max_length == {"ko": None, "en": None, "ja": None}
+def test_lengths_from_design(rules: RuleSet) -> None:
+    """design `lengths.md` 확정값(#54)입니다."""
+    slots = load_slots(SLOTS_DIR, rules)
+    expected = {
+        "daily.fortune.head": (32, 57, 32),
+        "daily.fortune.tag": (32, 57, 32),
+        "daily.guide": (36, 70, 30),
+        "daily.color": (36, 64, 36),
+        "daily.direction": (36, 64, 36),
+        "daily.number": (36, 64, 36),
+        "daily.focus_time": (36, 64, 36),
+        "daily.focus_reason": (10, 18, 10),
+        "daily.tag_label": (10, 18, 10),
+        "calendar.day_level": (10, 18, 10),
+        "calendar.score_item": (10, 18, 10),
+        "calendar.solar_term": (4, 6, 3),
+        "glossary.value_name": (10, 18, 10),
+        "chart.yongsin_method": (60, 108, 60),
+    }
+    for slot_id, (ko, en, ja) in expected.items():
+        assert slots[slot_id].max_length == {"ko": ko, "en": en, "ja": ja}, slot_id
 
 
 def test_valid_slot_is_loaded(tmp_path: Path, rules: RuleSet) -> None:
@@ -313,3 +340,47 @@ def test_load_content_reports_problems_together(tmp_path: Path) -> None:
         load_content(tmp_path)
     assert len(raised.value.findings) >= 3
     assert {finding.rule_id for finding in raised.value.findings} == {"load.schema"}
+
+
+V11_SLOT = """\
+- id: test.slot
+  where: 시험 화면
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: null, en: null, ja: null}
+  ia: [today.guide.question]
+  components: [tag-chip]
+  select: "값 v -> 키 k"
+  vocative: true
+  keys:
+    - params: {when: text}
+      keys: [k]
+  examples: {good: [], bad: []}
+"""
+
+
+def test_slot_v11_fields(tmp_path: Path, rules: RuleSet) -> None:
+    slot = load_slots(make_slots_dir(tmp_path, V11_SLOT), rules)["test.slot"]
+    assert slot.ia == ("today.guide.question",)
+    assert slot.components == ("tag-chip",)
+    assert slot.select == "값 v -> 키 k"
+    assert slot.vocative is True
+    assert slot.keys["k"]["when"] == ParamKind("text")
+
+
+def test_slot_v11_defaults(tmp_path: Path, rules: RuleSet) -> None:
+    slot = load_slots(make_slots_dir(tmp_path, VALID_SLOT), rules)["test.slot"]
+    assert (slot.ia, slot.components, slot.select, slot.vocative) == ((), (), "", False)
+
+
+def test_vocative_must_be_bool(tmp_path: Path, rules: RuleSet) -> None:
+    with pytest.raises(LoadError) as error:
+        load_slots(make_slots_dir(tmp_path, V11_SLOT.replace("vocative: true", 'vocative: "yes"')), rules)
+    assert "'vocative'" in str(error.value)
+
+
+def test_empty_keys_slot_loads(tmp_path: Path, rules: RuleSet) -> None:
+    yaml_text = VALID_SLOT.split("  keys:")[0] + "  keys: []\n  examples: {good: [], bad: []}\n"
+    assert load_slots(make_slots_dir(tmp_path, yaml_text), rules)["test.slot"].keys == {}

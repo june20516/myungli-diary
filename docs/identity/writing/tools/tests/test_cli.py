@@ -7,8 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from mlw.cli import longest_by_category, longest_values_for, main
-from mlw.model import Entry, ParamKind
+from mlw.cli import longest_by_category, longest_values_for, main, sentence_findings
+from mlw.loader import load_rules
+from mlw.model import Entry, ParamKind, Slot
 from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
 
 FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
@@ -22,7 +23,10 @@ BAD_CONTENT = """\
 
 def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["check", str(CONTENT_DIR), "--partial"]) == 0
-    assert capsys.readouterr().out == ""
+    # 근거 슬롯 셋은 core 자료를 기다리는 키 없는 틀이라 경고만 남습니다.
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 3
+    assert all(" slot.empty_keys warn " in line for line in lines)
 
 
 def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -36,8 +40,8 @@ def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     capsys.readouterr()
     assert main(["check", str(bad), "--partial"]) == 1
     lines = capsys.readouterr().out.splitlines()
-    assert FINDING_LINE.match(lines[0])
-    assert "slop.P8" in lines[0]
+    assert all(FINDING_LINE.match(line) for line in lines)
+    assert any("slop.P8" in line for line in lines)
 
 
 def test_cli_without_partial_reports_missing(capsys: pytest.CaptureFixture[str]) -> None:
@@ -259,19 +263,78 @@ def test_unresolvable_placeholder_is_reported(text: str) -> None:
 
 
 def test_cli_check_warns_length_unknown(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    slots_dir = copy_slots_with(tmp_path, "daily.color", "max_length: {ko: 30, en: null, ja: null}")
-    daily = slots_dir / "content" / "daily.yaml"
-    text = daily.read_text(encoding="utf-8")
-    start = text.index("- id: daily.color")
-    old_limit = "  max_length: {ko: null, en: null, ja: null}\n"
-    limit_at = text.index(old_limit, start)
-    daily.write_text(text[:limit_at] + text[limit_at + len(old_limit) :], encoding="utf-8")
+    # daily.color에는 design 상한(ko 36)이 있습니다.
     content = tmp_path / "content"
     (content / "ko").mkdir(parents=True)
     (content / "ko" / "color.yaml").write_text(
         '- {slot: daily.color, key: color.gwiin_day, text: "{role} 색이 잘 맞아요."}\n', encoding="utf-8"
     )
-    assert main(["check", str(content), "--partial", "--slots-dir", str(slots_dir)]) == 1
+    assert main(["check", str(content), "--partial"]) == 1
     out = capsys.readouterr().out
     assert "complete.unrenderable_param error" in out
     assert "style.length_unknown warn" in out
+
+
+def test_cli_check_includes_ui_manuscripts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "ui.yaml").write_text(
+        '- {slot: ui.depth.surface, key: depthSurface, text: "[[요약]]"}\n', encoding="utf-8"
+    )
+    main(["check", str(tmp_path / "content"), "--partial"])
+    assert "ui.markup" in capsys.readouterr().out
+
+
+def test_vocative_sentence_findings_are_not_duplicated() -> None:
+    slot = Slot(
+        id="s.slot",
+        where="시험",
+        purpose="info",
+        types=(),
+        variants=1,
+        keys={"k": {}},
+        co_display=(),
+        max_length={"ko": None, "en": None, "ja": None},
+        allowed=frozenset(),
+        forbidden=frozenset(),
+        examples={},
+        line=1,
+        file=Path("slots/content/test.yaml"),
+        vocative=True,
+    )
+    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "{name}님, 오늘은 맑습니다.")
+    findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
+    assert [finding.rule_id for finding in findings].count("style.S3") == 1
+
+
+def test_vocative_stripped_text_is_checked_for_length() -> None:
+    slot = Slot(
+        id="s.slot",
+        where="시험",
+        purpose="info",
+        types=(),
+        variants=1,
+        keys={"k": {}},
+        co_display=(),
+        max_length={"ko": 5, "en": None, "ja": None},
+        allowed=frozenset(),
+        forbidden=frozenset(),
+        examples={},
+        line=1,
+        file=Path("slots/content/test.yaml"),
+        vocative=True,
+    )
+    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "{name}님, 가나다라마바.")
+    findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
+    messages = [finding.message for finding in findings if finding.rule_id == "style.length"]
+    assert any("호칭 없이" in message for message in messages)
+
+
+def test_cli_check_reports_unknown_term(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "t.yaml").write_text(
+        '- {slot: daily.color, key: color.gisin_day, text: "[[색|nope.id]]이 잘 맞아요."}\n', encoding="utf-8"
+    )
+    main(["check", str(tmp_path / "content"), "--partial"])
+    assert "token.term" in capsys.readouterr().out

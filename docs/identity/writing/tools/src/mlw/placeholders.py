@@ -49,15 +49,21 @@ def parse(text: str) -> list[Placeholder]:
 
 @dataclass(frozen=True)
 class Token:
-    """용어 토큰 `[[...]]` 하나입니다. `text`는 대괄호 안쪽 원문, `start`·`end`는 `[[`부터 `]]` 끝까지의 위치입니다."""
+    """용어 토큰 `[[...]]` 하나입니다.
+
+    `text`는 대괄호 안쪽 원문(`[[글자|용어 id]]`이면 `|` 앞), `start`·`end`는 `[[`부터 `]]` 끝까지의 위치,
+    `term`은 `|` 뒤에 직접 적은 용어 id입니다.
+    """
 
     text: str
     start: int
     end: int
+    term: str | None = None
 
 
 TOKEN_OPEN = "[["
 TOKEN_CLOSE = "]]"
+TERM_SEPARATOR = "|"
 
 
 def parse_tokens(text: str) -> list[Token]:
@@ -75,17 +81,21 @@ def parse_tokens(text: str) -> list[Token]:
         if close < 0:
             raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
         inner = text[start + len(TOKEN_OPEN) : close]
-        if TOKEN_OPEN in inner or not inner.strip():
+        shown, separator, term = inner.partition(TERM_SEPARATOR)
+        bad_term = separator and (not term.strip() or TERM_SEPARATOR in term)
+        if TOKEN_OPEN in inner or not shown.strip() or bad_term:
             raise ValueError(f"용어 토큰 문법이 올바르지 않습니다: {text!r}")
         end = close + len(TOKEN_CLOSE)
-        tokens.append(Token(inner, start, end))
+        tokens.append(Token(shown, start, end, term if separator else None))
         position = end
 
 
 def strip_token_marks(text: str) -> str:
-    """용어 토큰의 `[[`, `]]`를 지웁니다. 문법이 틀리면 ValueError입니다."""
-    parse_tokens(text)
-    return text.replace(TOKEN_OPEN, "").replace(TOKEN_CLOSE, "")
+    """용어 토큰의 `[[`, `]]`와 직접 적은 용어 id(`|용어 id`)를 지웁니다. 문법이 틀리면 ValueError입니다."""
+    tokens = parse_tokens(text)
+    for token in reversed(tokens):
+        text = text[: token.start] + token.text + text[token.end :]
+    return text
 
 
 def substitute(text: str, value_of: Callable[[Placeholder], str]) -> str:

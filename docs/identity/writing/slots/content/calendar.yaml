@@ -13,7 +13,8 @@
   user_state: 한 달 달력을 훑으며 날짜마다 붙은 등급을 봅니다.
   structure: 짧은 명사구나 한 문장. 좋음·보통·조심 정도를 담백하게 말합니다. 강조는 점 색(design)이 맡습니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 18, ja: 10}
+  components: [day-character, day-cell]
   keys:
     - params: {score: number}
       keys:
@@ -38,7 +39,11 @@
   user_state: 달력 날짜를 탭해 왜 그 등급인지 볼 때 점수 구성을 봅니다.
   structure: 명사구 하나. 점수 구성 이름 그대로 씁니다. 합·충·형은 용어 토큰 범주입니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 18, ja: 10}
+  components: [term-token]
+  select: >-
+    MonthDay.score_items[].id 값 v → 키 v. 풀이 시트의 용어 id는 gwiin_day·yongsin_day·gisin_day → day_kind.<v>,
+    hap → relation.branch_hap, chung_day_or_month·chung_other → relation.chung, hyeong → relation.hyeong입니다.
   keys:
     - gwiin_day
     - yongsin_day
@@ -67,7 +72,8 @@
   user_state: 달력에서 절기가 든 날을 알아봅니다.
   structure: 절기 이름 하나. 한국어는 한글 이름(입춘, 경칩)을 씁니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 4, en: 6, ja: 3}
+  components: [day-cell]
   keys:
     - sohan
     - daehan

@@ -42,11 +42,12 @@
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
 | 1 (지금) | app | A1 계획 2(온보딩·로그인: launch·welcome·onboard-*·birthplace·preview·login·consent 등). 기반 구현 PR #117 병합. 받은 요청 #100·#114(로그인 화면에서 반영), ci-gate 연결 #85(PR #125) | A2, I2 |
-| 1 (지금) | writing | **app 계획 2의 온보딩·로그인 화면이 문구를 바로 씀.** ui 슬롯 일괄: #15·#27·#42·#52·#69·#94(확인 창, `yongsin.title`, ARB 키 규칙 #90), #116(Apple 로그인 복귀 안내 페이지 content 슬롯, D66) | A1 문구, I3 |
-| 1 (짧게) | design | #118: app 기반 구현의 명세 차이·임시 선택(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘, 접근성 역할, `LockVeil.line` 변형)을 명세에 반영하거나 다른 값을 정함 | - |
+| 1 (짧게) | design | #131(ui 이름 자리·새 content 슬롯 글자 수 상한)과 #118: app 기반 구현의 명세 차이·임시 선택(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘, 접근성 역할, `LockVeil.line` 변형)을 명세에 반영하거나 다른 값을 정함 | - |
+| 1 (짧게) | writing·app | IA v2(D67, 선택 동의 제거): 지휘 draft PR #133 위에 writing #134 → app #135를 쌓아 app PR로 함께 병합 | - |
+| 1 (짧게) | core | #130(근거 문장용 `rule_id`·`source_ref` 목록 내보내기, writing W1 근거 슬롯을 막음), #120(core.yml actions) | W1 일부 |
 | 2 (A1 화면 골격 이후) | server | P2·P2a 완료(PR #99·#113, app 반영 요청 #100·#114). 다음 P3 프로필·엔진·캐시(S23 사주 변경일 문장 선택 구현 포함)와 #79(엔진 실행 조건, D65 배포 workflow), #55. 끝난 것: #88·#102(PR #105), #89·#92·#93(PR #113, 구현은 P3·P6·P9) | S3 |
-| 3 (P2 병합 뒤) | writing | W1 콘텐츠 원고. 원어민 검수는 사용자 준비물 | I3 |
-| 3 | server | S3(REST v1 freeze), #93(staging 테스트 로그인·App Check debug token) | A2, I2 |
+| 2 | writing | W1 콘텐츠 원고. ui 슬롯 91자리는 PR #132로 끝남(en·ja는 원어민 검수 전 초안). 원어민 검수는 사용자 준비물 | I3 |
+| 3 | server | S3(REST v1 freeze), staging 테스트 로그인·App Check debug token 구현(S24, P6·P9) | A2, I2 |
 | 필요할 때 | core | #59(buf breaking 실제 비교, 스냅샷 분할) | - |
 
 ## 외부 준비물
@@ -61,6 +62,7 @@
 | Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키) (D55) | S1·A1 로그인 연동 | 사용자 |
 | 개인정보 처리방침과 스토어 개인정보 표시 작성: Firebase(App Check·FCM·Crashlytics) 국외 이전, 카카오·Apple 로그인, AdMob·RevenueCat (D64) | 출시 전 (I4) | 사용자 (초안은 지휘) |
 | 서비스 도메인 구입: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json` 호스팅, Apple Services ID 복귀 주소 (#89, S22) | A1 실제 로그인 연동 전, 늦어도 server 배포(P9) 전 | 사용자 |
+| 출시 전 정책 검토: AdMob 보상형 광고 고지 문구(`evidence-sheet.lock.reward`, writing 라운드 R8-4 선택에 "끝까지"가 없음), 스토어 심사 기준 | 출시 전 (I4) | 사용자 (writing·design 지원) |
 | 사업자등록, 통신판매업 신고, 스토어 세금·정산 계좌 (D53) | 출시 전 (I4) | 사용자 |
 | AdMob 계정, RevenueCat 계정 (D53) | A1 연동 시점 | 사용자 |
 | AdMob 보상형 광고 단위 생성, SSV 콜백 URL 설정(server가 주소 안내) (D60) | S2·A1 연동 시점 | 사용자 |

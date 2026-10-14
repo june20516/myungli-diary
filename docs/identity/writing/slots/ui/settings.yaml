@@ -1,0 +1,274 @@
+# 화면 문구 슬롯: 설정·정보 수정·계산 기준·계정 삭제 화면
+#
+# id는 IA 슬롯 id 그대로입니다(슬롯 명세 v1.1). keys는 ARB 메시지 이름이고, IA id를 lowerCamelCase로 바꾼 이름에
+# 숫자(변주)나 대문자로 시작하는 상태 이름을 붙일 수 있습니다(#90, 검사기 ia.key_name).
+# 원고는 content/<lang>/ui.yaml이고, mlw gen-docs가 generated/arb/app_<lang>.arb를 만듭니다.
+# ui 원고는 앱 ARB가 렌더하므로 호칭·조사 표기·용어 토큰을 쓰지 않습니다(ui.markup).
+
+- id: settings.depth.desc
+  where: "설정 화면(settings): 기본 깊이 설명"
+  purpose: info
+  user_state: "기본 깊이 설정이 무엇인지 봅니다(W15)."
+  structure: "한 문장."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - settingsDepthDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: settingsDepthDesc, text: "풀이를 처음에 어디까지 펼쳐 볼지 골라요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~해요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: settings.language.birthplace-notice
+  where: "설정 화면(settings): 언어를 바꿀 때 출생지 입력 안내"
+  purpose: guide
+  user_state: "언어를 바꾸려 합니다(D29)."
+  structure: "두 문장과 버튼 이름(`Cta`). 한국 밖 출생이면 출생지를 넣으라는 것과 그 이유."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - settingsLanguageBirthplaceNotice
+    - settingsLanguageBirthplaceNoticeCta
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: settingsLanguageBirthplaceNotice, text: "한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: settingsLanguageBirthplaceNoticeCta, text: "출생지 입력하기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~해 주세요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: settings.logout.confirm
+  where: "설정 화면(settings): 로그아웃 확인"
+  purpose: guide
+  user_state: "로그아웃하려 합니다."
+  structure: "확인 창: 질문과 버튼 둘(`Logout`, `Cancel`)."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - settingsLogoutConfirm
+    - settingsLogoutConfirmLogout
+    - settingsLogoutConfirmCancel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: settingsLogoutConfirm, text: "로그아웃할까요?", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: settingsLogoutConfirmLogout, text: "로그아웃", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: settingsLogoutConfirmCancel, text: "취소", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~까요?"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
+
+- id: settings.ad-free.label
+  where: "설정 화면(settings): 광고 제거 메뉴와 남은 기간 표시"
+  purpose: info
+  user_state: "설정에서 광고 제거 메뉴를 봅니다."
+  structure: "메뉴 이름과, 기간이 남았을 때 오른쪽 값(`Active`)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - settingsAdFreeLabel
+    - params: {date: text}
+      keys: [settingsAdFreeLabelActive]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: settingsAdFreeLabel, text: "광고 제거", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: settingsAdFreeLabelActive, text: "{date}까지", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "이름 그대로 읽습니다."
+
+- id: profile-edit.recalc.notice
+  where: "정보 수정 화면(profile-edit): 바꾸면 풀이를 다시 계산한다는 안내"
+  purpose: info
+  user_state: "정보 수정 화면에 들어왔습니다."
+  structure: "한 문장. 무엇을 바꾸면 다시 계산하는지."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - profileEditRecalcNotice
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~해요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: profile-edit.recalc.confirm
+  where: "정보 수정 화면(profile-edit): 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
+  purpose: guide
+  user_state: "생일·시간·성별·출생지를 바꿔 저장하려 합니다(app A6)."
+  structure: "확인 창: 제목(`Title`), 본문(`Body`), 버튼 둘(`Cancel` 기본, `Save`). 본문은 두 줄이고 줄바꿈(\\n)을 그대로 보입니다. 첫 줄은 `{before} → {after}`로, 값은 app이 정보 수정 화면과 같은 표기로 만들고 바뀐 항목이 여럿이면 쉼표로 잇습니다. 둘째 줄은 영향이며 이미 쓴 일기와 태그는 그대로 남는다는 것을 꼭 말합니다(#94)."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - profileEditRecalcConfirmTitle
+    - params: {before: text, after: text}
+      keys: [profileEditRecalcConfirmBody]
+    - profileEditRecalcConfirmCancel
+    - profileEditRecalcConfirmSave
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: profileEditRecalcConfirmTitle, text: "정보를 바꿀까요?", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: profileEditRecalcConfirmBody, text: "{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: profileEditRecalcConfirmCancel, text: "취소", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: profileEditRecalcConfirmSave, text: "바꾸기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~까요?"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
+
+- id: calc-basis.convention.body
+  where: "계산 기준 화면(calc-basis): 한국 기준 해석 안내"
+  purpose: info
+  user_state: "어떤 기준으로 풀이하는지 궁금합니다(D28)."
+  structure: "한 문장."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - calcBasisConventionBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~해요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: calc-basis.longitude.body
+  where: "계산 기준 화면(calc-basis): 동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내"
+  purpose: info
+  user_state: "다른 만세력 앱과 시주가 달라 이유를 찾습니다(D42)."
+  structure: "두세 문장. 기준과 결과(경계 몇 분 안에서 달라질 수 있음)를 말합니다. 지운 content 슬롯 settings.calculation_basis를 옮겼습니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 120, en: 216, ja: 120}
+  keys:
+    - calcBasisLongitudeBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calcBasisLongitudeBody, text: "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad:
+      - {lang: ko, text: "정확한 계산을 위해 최선을 다하고 있어요.", why: "무엇을 했는지 말하지 않음 slop.P1, 자기 성격 형용 slop.P6", source: writing}
+  endings: ["~해요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: calc-basis.lunar.body
+  where: "계산 기준 화면(calc-basis): KASI 기준 한국 음력 안내"
+  purpose: info
+  user_state: "음력을 어떤 기준으로 쓰는지 궁금합니다(D41)."
+  structure: "한 문장."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - calcBasisLunarBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따라요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~해요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: account-delete.title.head
+  where: "계정 삭제 화면(account-delete): 계정 삭제 제목"
+  purpose: info
+  user_state: "계정 삭제 화면에 들어왔습니다."
+  structure: "화면 제목 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - accountDeleteTitleHead
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountDeleteTitleHead, text: "계정 삭제", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "이름 그대로 읽습니다."
+
+- id: account-delete.data.body
+  where: "계정 삭제 화면(account-delete): 지워지는 데이터 안내"
+  purpose: info
+  user_state: "무엇이 지워지는지 확인합니다(스토어 요건)."
+  structure: "한 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - accountDeleteDataBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountDeleteDataBody, text: "계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~해요", "~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: account-delete.cta.delete
+  where: "계정 삭제 화면(account-delete): 계정 삭제 버튼"
+  purpose: guide
+  user_state: "계정을 지우려 합니다."
+  structure: "동작 이름 하나."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - accountDeleteCtaDelete
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountDeleteCtaDelete, text: "계정 지우기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: account-delete.delete.confirm
+  where: "계정 삭제 화면(account-delete): 최종 확인"
+  purpose: guide
+  user_state: "마지막으로 확인합니다."
+  structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - accountDeleteDeleteConfirm
+    - accountDeleteDeleteConfirmDelete
+    - accountDeleteDeleteConfirmCancel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountDeleteDeleteConfirm, text: "정말 지울까요? 지운 계정은 되돌릴 수 없어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: accountDeleteDeleteConfirmDelete, text: "지우기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: accountDeleteDeleteConfirmCancel, text: "취소", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+    bad: []
+  endings: ["~까요?"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
