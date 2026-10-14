@@ -6,9 +6,10 @@ import pytest
 
 from mlw.glossary import term_ids
 from mlw.ia import RULE_UNCOVERED, Ia, check_ia, load_ia
-from mlw.loader import load_rules, load_slots
-from mlw.model import ParamKind, RuleSet, Slot
-from mlw.paths import IA_FILE, MESSAGE_KEYS_FILE, RULES_DIR, SLOTS_DIR
+from mlw.completeness import RULE_MISSING, check_completeness
+from mlw.loader import load_content, load_rules, load_slots
+from mlw.model import LANGS, ParamKind, RuleSet, Slot
+from mlw.paths import CONTENT_DIR, IA_FILE, MESSAGE_KEYS_FILE, RULES_DIR, SLOTS_DIR
 
 
 @pytest.fixture(scope="module")
@@ -86,3 +87,27 @@ def test_ui_keys_named(slots: dict[str, Slot], ia: Ia) -> None:
     errors = [finding.format() for finding in check_ia(slots, ia) if finding.severity == "error"]
     assert errors == []
     assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 91
+
+
+def test_ui_manuscripts_complete(slots: dict[str, Slot]) -> None:
+    ui_slots = {slot_id: slot for slot_id, slot in slots.items() if slot.file.parent.name == "ui"}
+    entries = [entry for entry in load_content(CONTENT_DIR) if entry.slot in ui_slots]
+    missing = [
+        finding.message
+        for finding in check_completeness(ui_slots, entries, [], LANGS)
+        if finding.rule_id == RULE_MISSING
+    ]
+    assert missing == []
+
+
+def test_new_content_manuscripts_complete(slots: dict[str, Slot]) -> None:
+    targets = {slot_id: slots[slot_id] for slot_id in ("system.apple_return", "onboard.hour_confirm", "calendar.solar_term")}
+    entries = [entry for entry in load_content(CONTENT_DIR) if entry.slot in targets]
+    assert [f.message for f in check_completeness(targets, entries, [], LANGS) if f.rule_id == RULE_MISSING] == []
+
+
+def test_solar_term_en_short() -> None:
+    texts = [entry.text for entry in load_content(CONTENT_DIR) if entry.slot == "calendar.solar_term" and entry.lang == "en"]
+    assert len(texts) == 24
+    assert all(len(text) <= 6 for text in texts)
+    assert len(set(texts)) == 24

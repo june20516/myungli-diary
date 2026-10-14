@@ -1,0 +1,123 @@
+# 화면 문구 원고(en). 원어민 검수 전 초안입니다(W1에서 검수). 슬롯 명세는 slots/ui/입니다.
+- {slot: force-update.notice.head, key: forceUpdateNoticeHead, text: "Please update to the new version"}
+- {slot: force-update.notice.body, key: forceUpdateNoticeBody, text: "The way readings are calculated has changed, so this version can't open them."}
+- {slot: force-update.cta.store, key: forceUpdateCtaStore, text: "Update"}
+- {slot: welcome.concept.head, key: welcomeConceptHead, text: "Today's day pillar, read for your own chart"}
+- {slot: welcome.concept.body, key: welcomeConceptBody, text: "One question based on that reading starts your diary for the day."}
+- {slot: welcome.cta.start, key: welcomeCtaStart, text: "Get started"}
+- {slot: welcome.cta.signin, key: welcomeCtaSignin, text: "I already have an account"}
+- {slot: onboard-call.question.head, key: onboardCallQuestionHead, text: "What should we call you?"}
+- {slot: onboard-call.input.hint, key: onboardCallInputHint, text: "e.g. Alex"}
+- {slot: onboard-call.note.body, key: onboardCallNoteBody, text: "It doesn't have to be your real name. You can change it later."}
+- {slot: onboard-birth.question.head, key: onboardBirthQuestionHead, text: "When were you born?"}
+- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "If your birthday is on the lunar calendar, choose Lunar, and mark Leap month if it applies."}
+- {slot: onboard-birth.basis.note, key: onboardBirthBasisNote, text: "We calculate as if you were born in Korea."}
+- {slot: onboard-birth.error.range, key: onboardBirthErrorRange, text: "We can only calculate dates from January 31, 1900 to December 31, 2099."}
+- {slot: onboard-time.question.head, key: onboardTimeQuestionHead, text: "What time were you born?"}
+- {slot: onboard-time.unknown.note, key: onboardTimeUnknownNote, text: "If you don't know the time, we read your chart from three pillars, leaving out the hour."}
+- {slot: onboard-gender.question.head, key: onboardGenderQuestionHead, text: "What is your gender?"}
+- {slot: onboard-gender.why.body, key: onboardGenderWhyBody, text: "We only use it to set the direction of your 10-year luck cycles."}
+- {slot: birthplace.question.head, key: birthplaceQuestionHead, text: "Where were you born?"}
+- {slot: birthplace.why.body, key: birthplaceWhyBody, text: "We use your birthplace's time zone and longitude to pin down your birth hour."}
+- {slot: birthplace.search.hint, key: birthplaceSearchHint, text: "City name"}
+- {slot: birthplace.empty.body, key: birthplaceEmptyBody, text: "No matching city. Try a larger city nearby."}
+- {slot: preview.cta.save, key: previewCtaSave, text: "Save and continue"}
+- {slot: preview.cta.restart, key: previewCtaRestart, text: "Start over"}
+- {slot: preview.share.login-notice, key: previewShareLoginNotice, text: "Sign in to share today's reading."}
+- {slot: preview.share.login-notice, key: previewShareLoginNoticeConfirm, text: "Sign in"}
+- {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "Close"}
+- {slot: login.title.head, key: loginTitleHead, text: "Sign in to save your reading"}
+- {slot: login.title.body, key: loginTitleBody, text: "Once you sign in, your chart and diary are available on any device."}
+- {slot: login.discard.notice, key: loginDiscardNotice, text: "If this account already has a saved chart, we'll use it instead of what you just entered."}
+- {slot: consent.title.head, key: consentTitleHead, text: "Please review and agree"}
+- {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(Required) Terms of Service"}
+- {slot: consent.required.label, key: consentRequiredLabelPrivacy, text: "(Required) Collection and use of personal information"}
+- {slot: consent.optional.label, key: consentOptionalLabel, text: "(Optional) Get news about new features"}
+- {slot: consent.cta.agree, key: consentCtaAgree, text: "Agree and continue"}
+- {slot: notify-ask.question.head, key: notifyAskQuestionHead, text: "Would you like today's reading every morning?"}
+- {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "Each notification tells you what kind of day it is, with one line from your daily reading."}
+- {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "Not now"}
+- {slot: today.guide.cta, key: todayGuideCta, text: "Write in diary"}
+- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "View diary"}
+- {slot: today.event.summary, key: todayEventSummary, text: "Events today: {count} · {title}"}
+- {slot: today.event.summary, key: todayEventSummaryOngoing, text: "Now"}
+- {slot: today.event.summary, key: todayEventSummaryNext, text: "Next"}
+- {slot: today.event.summary, key: todayEventSummaryDone, text: "All of today's events are done"}
+- {slot: today.reaction.label, key: todayReactionLabel, text: "Like"}
+- {slot: today.reaction.label, key: todayReactionLabelSelected, text: "Unlike"}
+- {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "Myungli Diary"}
+- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "Today, read for your chart · Myungli Diary"}
+- {slot: share-preview.ratio.label, key: sharePreviewRatioLabelStory, text: "Story"}
+- {slot: share-preview.ratio.label, key: sharePreviewRatioLabelFeed, text: "Feed"}
+- {slot: share-preview.ratio.label, key: sharePreviewRatioLabelSquare, text: "Square"}
+- {slot: share-preview.cta.share, key: sharePreviewCtaShare, text: "Share"}
+- {slot: calendar.legend.body, key: calendarLegendBodyGood, text: "Smooth day"}
+- {slot: calendar.legend.body, key: calendarLegendBodyCaution, text: "Careful day"}
+- {slot: day-sheet.event.empty, key: daySheetEventEmpty, text: "No events on this day."}
+- {slot: day-sheet.event.add, key: daySheetEventAdd, text: "Add event"}
+- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "View this day's diary"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "Write about this day"}
+- {slot: event-edit.title.hint, key: eventEditTitleHint, text: "Event title"}
+- {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "Notes"}
+- {slot: event-edit.delete.confirm, key: eventEditDeleteConfirm, text: "Delete this event?"}
+- {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmDelete, text: "Delete"}
+- {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmCancel, text: "Cancel"}
+- {slot: evidence-sheet.lock.head, key: evidenceSheetLockHead, text: "The basis and interpretation are locked"}
+- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "Watch one ad to see all the basis and interpretation for the rest of today."}
+- {slot: evidence-sheet.lock.cta, key: evidenceSheetLockCta, text: "Watch ad to unlock"}
+- {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPass, text: "With an ad-free pass, they stay unlocked the whole time."}
+- {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "See ad-free pass"}
+- {slot: evidence-sheet.lock.unavailable, key: evidenceSheetLockUnavailable, text: "No ads are available right now. Please try again later."}
+- {slot: evidence-sheet.section.basis, key: evidenceSheetSectionBasis, text: "Basis"}
+- {slot: evidence-sheet.section.source, key: evidenceSheetSectionSource, text: "Classical source"}
+- {slot: evidence-sheet.section.personal, key: evidenceSheetSectionPersonal, text: "In your chart"}
+- {slot: evidence-sheet.unlock.failed, key: evidenceSheetUnlockFailed, text: "Confirming the ad is taking longer than usual. Please try again shortly."}
+- {slot: evidence-sheet.a11y.locked, key: evidenceSheetA11yLocked, text: "Locked"}
+- {slot: evidence-sheet.a11y.checking, key: evidenceSheetA11yChecking, text: "Checking"}
+- {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "The basis and interpretation are unlocked"}
+- {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "No diary entries yet. Why not start with today?"}
+- {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Pick a date to write"}
+- {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft saved on this device"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "Saving"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaved, text: "Saved"}
+- {slot: diary-edit.offline.notice, key: diaryEditOfflineNotice, text: "We'll save it when you're back online. What you've written stays on this device."}
+- {slot: diary-edit.saved.tags, key: diaryEditSavedTags, text: "Tags were added to your entry"}
+- {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirm, text: "Delete this entry? This can't be undone."}
+- {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmDelete, text: "Delete"}
+- {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "Cancel"}
+- {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "No entries with this tag yet."}
+- {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "Your birth time is unknown, so the hour pillar is left out."}
+- {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "Unlock"}
+- {slot: saju-chart.yongsin.title, key: sajuChartYongsinTitle, text: "Yongsin basis"}
+- {slot: settings.depth.desc, key: settingsDepthDesc, text: "Choose how much of each reading to show at first."}
+- {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNotice, text: "If you were born outside Korea, please enter your birthplace. It helps us match your birth hour more precisely."}
+- {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNoticeCta, text: "Enter birthplace"}
+- {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "Sign out?"}
+- {slot: settings.logout.confirm, key: settingsLogoutConfirmLogout, text: "Sign out"}
+- {slot: settings.logout.confirm, key: settingsLogoutConfirmCancel, text: "Cancel"}
+- {slot: settings.ad-free.label, key: settingsAdFreeLabel, text: "Remove ads"}
+- {slot: settings.ad-free.label, key: settingsAdFreeLabelActive, text: "Until {date}"}
+- {slot: profile-edit.recalc.notice, key: profileEditRecalcNotice, text: "Changing your birth date, time, gender, or birthplace recalculates your readings."}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmTitle, text: "Change your details?"}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmBody, text: "{before} → {after}\nToday, Calendar, and My Chart will be recalculated. Diary entries and tags you've already written stay as they are."}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmCancel, text: "Cancel"}
+- {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "Change"}
+- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "Readings follow one standard widely used in Korea."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBody, text: "We subtract 30 minutes from your birth time, based on 127.5° east longitude, and don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute."}
+- {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "Delete account"}
+- {slot: account-delete.data.body, key: accountDeleteDataBody, text: "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time."}
+- {slot: account-delete.cta.delete, key: accountDeleteCtaDelete, text: "Delete account"}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "Delete your account for good? This can't be undone."}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmDelete, text: "Delete"}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "Cancel"}
+- {slot: ad-free.offer.head, key: adFreeOfferHead, text: "One month with no ads, and the basis and interpretation fully unlocked."}
+- {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price} · 1 month · no auto-renewal"}
+- {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
+- {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "Restore purchase"}
+- {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
+- {slot: ui.depth.default_label, key: depthDefaultLabel, text: "Reading detail"}
+- {slot: ui.depth.surface, key: depthSurface, text: "Summary"}
+- {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
+- {slot: ui.depth.evidence, key: depthEvidence, text: "Basis"}

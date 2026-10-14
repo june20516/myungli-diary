@@ -1,0 +1,25 @@
+# 달력 절기 이름 원고(ja). 표준 절기 이름(3자 이하). 원어민 검수 전 초안입니다.
+- {slot: calendar.solar_term, key: sohan, text: "小寒"}
+- {slot: calendar.solar_term, key: daehan, text: "大寒"}
+- {slot: calendar.solar_term, key: ipchun, text: "立春"}
+- {slot: calendar.solar_term, key: usu, text: "雨水"}
+- {slot: calendar.solar_term, key: gyeongchip, text: "啓蟄"}
+- {slot: calendar.solar_term, key: chunbun, text: "春分"}
+- {slot: calendar.solar_term, key: cheongmyeong, text: "清明"}
+- {slot: calendar.solar_term, key: gogu, text: "穀雨"}
+- {slot: calendar.solar_term, key: ipha, text: "立夏"}
+- {slot: calendar.solar_term, key: soman, text: "小満"}
+- {slot: calendar.solar_term, key: mangjong, text: "芒種"}
+- {slot: calendar.solar_term, key: haji, text: "夏至"}
+- {slot: calendar.solar_term, key: soseo, text: "小暑"}
+- {slot: calendar.solar_term, key: daeseo, text: "大暑"}
+- {slot: calendar.solar_term, key: ipchu, text: "立秋"}
+- {slot: calendar.solar_term, key: cheoseo, text: "処暑"}
+- {slot: calendar.solar_term, key: baengno, text: "白露"}
+- {slot: calendar.solar_term, key: chubun, text: "秋分"}
+- {slot: calendar.solar_term, key: hallo, text: "寒露"}
+- {slot: calendar.solar_term, key: sanggang, text: "霜降"}
+- {slot: calendar.solar_term, key: ipdong, text: "立冬"}
+- {slot: calendar.solar_term, key: soseol, text: "小雪"}
+- {slot: calendar.solar_term, key: daeseol, text: "大雪"}
+- {slot: calendar.solar_term, key: dongji, text: "冬至"}
