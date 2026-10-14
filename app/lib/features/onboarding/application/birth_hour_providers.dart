@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
-import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour.dart';
+import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/storage/installation_id.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -31,11 +31,19 @@ final birthHourProvider = FutureProvider.autoDispose
       // 같은 생일·시각은 다시 묻지 않도록 붙들어 둡니다(분당 30회 한도). 실패는 다시 물을 수 있게
       // 놓습니다.
       final link = ref.keepAlive();
+      // 로그아웃하면 놓습니다(온보딩 입력과 같게 로그아웃에서 비움).
+      final signedOut = ref
+          .watch(tokenStoreProvider)
+          .events
+          .where((event) => event == AuthEvent.signedOut)
+          .listen((_) => link.close());
+      ref.onDispose(signedOut.cancel);
       try {
         return await ref
             .watch(birthHourRepositoryProvider)
             .fetch(date: query.date, time: query.time);
-      } on AppError {
+      } on Object {
+        // AppError뿐 아니라 예상 밖 예외도 줄을 그리지 않는 것으로 끝냅니다.
         link.close();
         return null;
       }

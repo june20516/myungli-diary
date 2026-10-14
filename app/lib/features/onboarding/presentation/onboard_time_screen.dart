@@ -149,8 +149,9 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
   /// 휠이 멈춘 것으로 본 시각. 열릴 때의 시각(기본 12:00 또는 저장된 값)도 바로 묻습니다.
   late TimeOfDay _settled = _value;
 
-  /// 마지막으로 보인 확인 줄. 휠이 움직이거나 새 값을 기다리는 동안 그대로 두어 흔들리지 않게 합니다.
-  String? _lastConfirm;
+  /// 휠을 움직이기 직전에 보이던 시진. 휠이 움직이거나 새 값을 기다리는 동안 그대로 보여
+  /// 줄이 흔들리지 않게 합니다.
+  BirthHour? _held;
   Timer? _debounce;
   bool _saving = false;
 
@@ -160,7 +161,18 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
     super.dispose();
   }
 
+  /// 지금 보이는(받아 둔) 시진을 [_held]에 담습니다. 아직 받는 중이면 앞서 담은 값을 둡니다.
+  void _holdShown() {
+    final date = widget.date;
+    if (_unknown || date == null || _settled != _value) return;
+    final result = ref.read(
+      birthHourProvider((date: date, time: _hhmm(_settled))),
+    );
+    if (!result.isLoading) _held = result.value;
+  }
+
   void _onTimeChanged(TimeOfDay value) {
+    _holdShown();
     setState(() => _value = value);
     _debounce?.cancel();
     _debounce = Timer(_confirmDebounce, () {
@@ -188,23 +200,18 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
   }
 
   /// 시진 확인 줄 글자. 모름이거나 생일을 모르거나 값을 못 받았으면 null입니다.
-  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안에는 이전 줄을 그대로 둡니다.
+  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안에는 [_held]의 이전 줄을 그대로 둡니다.
   String? _confirmText(AppLocalizations l10n) {
     final date = widget.date;
-    if (_unknown || date == null) {
-      return _lastConfirm = null;
+    if (_unknown || date == null) return null;
+    var hour = _held;
+    if (_settled == _value) {
+      final result = ref.watch(
+        birthHourProvider((date: date, time: _hhmm(_settled))),
+      );
+      if (!result.isLoading) hour = result.value;
     }
-    if (_settled != _value) {
-      return _lastConfirm;
-    }
-    final result = ref.watch(
-      birthHourProvider((date: date, time: _hhmm(_settled))),
-    );
-    if (result.isLoading) {
-      return _lastConfirm;
-    }
-    final hour = result.value;
-    return _lastConfirm = hour == null ? null : sijinConfirmText(l10n, hour);
+    return hour == null ? null : sijinConfirmText(l10n, hour);
   }
 
   @override
