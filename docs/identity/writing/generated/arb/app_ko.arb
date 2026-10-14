@@ -995,5 +995,69 @@
   "welcomeCtaStart": "시작하기",
   "@welcomeCtaStart": {
     "description": "welcome.cta.start: 시작하기 버튼"
+  },
+  "branchJa": "자",
+  "@branchJa": {
+    "description": "glossary.value_name: branch.ja"
+  },
+  "branchChuk": "축",
+  "@branchChuk": {
+    "description": "glossary.value_name: branch.chuk"
+  },
+  "branchIn": "인",
+  "@branchIn": {
+    "description": "glossary.value_name: branch.in"
+  },
+  "branchMyo": "묘",
+  "@branchMyo": {
+    "description": "glossary.value_name: branch.myo"
+  },
+  "branchJin": "진",
+  "@branchJin": {
+    "description": "glossary.value_name: branch.jin"
+  },
+  "branchSa": "사",
+  "@branchSa": {
+    "description": "glossary.value_name: branch.sa"
+  },
+  "branchO": "오",
+  "@branchO": {
+    "description": "glossary.value_name: branch.o"
+  },
+  "branchMi": "미",
+  "@branchMi": {
+    "description": "glossary.value_name: branch.mi"
+  },
+  "branchShin": "신",
+  "@branchShin": {
+    "description": "glossary.value_name: branch.shin"
+  },
+  "branchYu": "유",
+  "@branchYu": {
+    "description": "glossary.value_name: branch.yu"
+  },
+  "branchSul": "술",
+  "@branchSul": {
+    "description": "glossary.value_name: branch.sul"
+  },
+  "branchHae": "해",
+  "@branchHae": {
+    "description": "glossary.value_name: branch.hae"
+  },
+  "dayKindGwiinDay": "귀인의 날",
+  "@dayKindGwiinDay": {
+    "description": "glossary.value_name: day_kind.gwiin_day"
+  },
+  "dayKindYongsinDay": "용신의 날",
+  "@dayKindYongsinDay": {
+    "description": "glossary.value_name: day_kind.yongsin_day"
+  },
+  "dayKindGisinDay": "기신의 날",
+  "@dayKindGisinDay": {
+    "description": "glossary.value_name: day_kind.gisin_day"
+  },
+  "dayKindOrdinaryDay": "평범한 날",
+  "@dayKindOrdinaryDay": {
+    "description": "glossary.value_name: day_kind.ordinary_day"
   }
 }

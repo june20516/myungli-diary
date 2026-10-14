@@ -223,5 +223,21 @@
   "welcomeConceptBody": "One question based on that reading starts your diary for the day.",
   "welcomeConceptHead": "Today's day pillar, read for your own chart",
   "welcomeCtaSignin": "I already have an account",
-  "welcomeCtaStart": "Get started"
+  "welcomeCtaStart": "Get started",
+  "branchJa": "Rat",
+  "branchChuk": "Ox",
+  "branchIn": "Tiger",
+  "branchMyo": "Rabbit",
+  "branchJin": "Dragon",
+  "branchSa": "Snake",
+  "branchO": "Horse",
+  "branchMi": "Goat",
+  "branchShin": "Monkey",
+  "branchYu": "Rooster",
+  "branchSul": "Dog",
+  "branchHae": "Pig",
+  "dayKindGwiinDay": "Day of helpers",
+  "dayKindYongsinDay": "Day in your favor",
+  "dayKindGisinDay": "Day to go gently",
+  "dayKindOrdinaryDay": "Ordinary day"
 }

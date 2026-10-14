@@ -223,5 +223,21 @@
   "welcomeConceptBody": "読み解きに合わせた質問ひとつで、その日の日記を始めます。",
   "welcomeConceptHead": "今日の日辰を、自分の命式に合わせて読み解きます",
   "welcomeCtaSignin": "アカウントをお持ちの方",
-  "welcomeCtaStart": "はじめる"
+  "welcomeCtaStart": "はじめる",
+  "branchJa": "子",
+  "branchChuk": "丑",
+  "branchIn": "寅",
+  "branchMyo": "卯",
+  "branchJin": "辰",
+  "branchSa": "巳",
+  "branchO": "午",
+  "branchMi": "未",
+  "branchShin": "申",
+  "branchYu": "酉",
+  "branchSul": "戌",
+  "branchHae": "亥",
+  "dayKindGwiinDay": "貴人の日",
+  "dayKindYongsinDay": "用神の日",
+  "dayKindGisinDay": "忌神の日",
+  "dayKindOrdinaryDay": "普通の日"
 }
