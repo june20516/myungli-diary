@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart' show expect, find;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
-import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -48,7 +48,8 @@ void main() {
     await $(PrimaryButton).tap();
 
     await expectScreen($, ScreenIds.onboardGender);
-    await $(AppLocalizationsKo().genderFemale).tap();
+    // 기기 언어에 기대지 않게 Key로 찾습니다(0번 = 여성).
+    await $(find.byKey(Segmented.itemKey(0))).tap();
     await $(PrimaryButton).tap();
 
     await expectScreen($, ScreenIds.preview);
