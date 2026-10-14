@@ -149,3 +149,5 @@ flutter:
     - fixtures/profile-invalid/
     - fixtures/profile-save-unavailable/
     - fixtures/notify-register-unavailable/
+    - fixtures/consent-renewal/
+    - fixtures/notify-profile-save-unavailable/

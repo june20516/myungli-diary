@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T05:32:07.981143Z",
+  "generatedAt": "2026-10-14T05:40:14.490660Z",
   "exits": {
     "covered": 28,
     "total": 77,
@@ -69,7 +69,7 @@
         "test/flows/birthplace_flow_test.dart:223"
       ],
       "consent>legal": [
-        "test/flows/consent_flow_test.dart:199 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
+        "test/flows/consent_flow_test.dart:215 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
       ],
       "consent>notify-ask": [
         "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask"
@@ -208,7 +208,7 @@
         "test/flows/birthplace_flow_test.dart:83 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
       ],
       "consent:error": [
-        "test/flows/consent_flow_test.dart:254 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
+        "test/flows/consent_flow_test.dart:270 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
       ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:65 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
@@ -248,6 +248,7 @@
     "coveredBy": {
       "D50": [
         "test/flows/consent_flow_test.dart:116 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
+        "test/flows/consent_flow_test.dart:201 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
         "test/flows/launch_flow_test.dart:39 new-user 시나리오는 welcome 화면에 도착합니다",
         "test/flows/login_flow_test.dart:91 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
         "test/flows/onboarding_flow_test.dart:99 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",

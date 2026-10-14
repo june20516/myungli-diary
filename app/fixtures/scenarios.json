@@ -209,5 +209,23 @@
     "network": "online",
     "signedIn": true,
     "description": "로그인한 회원. 알림 허락 뒤 기기 등록(registerDevice)이 한 번 503 service.unavailable이고 두 번째에 등록됩니다."
+  },
+  {
+    "id": "consent-renewal",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "프로필이 있는 회원. 약관이 개정돼 동의가 필요하고(첫 getMe), 동의하면 내 정보가 동의 완료로 바뀝니다(두 번째 getMe)."
+  },
+  {
+    "id": "notify-profile-save-unavailable",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 알림 설정 저장(updateProfile)이 한 번 503 service.unavailable이고 다음에 저장됩니다(첫 응답은 앱 시작 때 시간대 동기화가 씁니다). 기기 등록은 성공합니다."
   }
 ]

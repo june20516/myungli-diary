@@ -233,12 +233,14 @@ void main() {
         'profile-invalid',
         'profile-save-unavailable',
         'notify-register-unavailable',
+        'consent-renewal',
+        'notify-profile-save-unavailable',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(8));
+      expect(scenarios.where((s) => s.signedIn), hasLength(10));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

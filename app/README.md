@@ -61,6 +61,8 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `profile-invalid` | 처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 422 birth.invalid라 입력을 다시 받아야 합니다 |
   | `profile-save-unavailable` | 처음 설치한 사용자. 미리보기 뒤 로그인·약관 동의까지 하지만 프로필 저장(createProfile)이 두 번 503 service.unavailable이고 세 번째에 저장됩니다 |
   | `notify-register-unavailable` | 로그인한 회원. 알림 허락 뒤 기기 등록(registerDevice)이 한 번 503 service.unavailable이고 두 번째에 등록됩니다. 알림 허락 대기(notify-ask)는 기기 플래그라 시나리오가 아니라 테스트가 켭니다 |
+  | `consent-renewal` | 프로필이 있는 회원. 약관이 개정돼 동의가 필요하고, 동의하면 내 정보가 동의 완료로 바뀝니다(getMe 두 번째 응답부터). 동의 뒤 today로 가는지 확인합니다 |
+  | `notify-profile-save-unavailable` | 로그인한 회원. 알림 허락 뒤 기기 등록은 성공하지만 알림 설정 저장(updateProfile)이 한 번 503 service.unavailable이고 두 번째에 저장됩니다 |
 
   `new-user`와 `profile-required`의 내 정보(getMe)는 호출 순서대로 바뀌며 **두 번째부터 "프로필 있음"**입니다(미리보기·동의 직후 프로필 저장을 흉내 냄). 그래서 fake 모드 수동 확인에서 `new-user`로 미리보기 없이 로그인·동의하거나 `profile-required`에서 저장 없이 진입을 다시 계산해도 프로필이 생긴 것처럼 진행됩니다. 미리보기 없이 로그인한 새 계정은 `new-user-signin`으로 확인합니다.
 

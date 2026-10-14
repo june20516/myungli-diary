@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_platform.dart';
 import 'package:myungli_diary/core/api/gen/model/notification_setting.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_patch.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/features/onboarding/data/device_repository.dart';
@@ -74,8 +75,10 @@ class NotifyAskController extends Notifier<void> {
       return null;
     } on AppError catch (error) {
       return error;
-    } on Object catch (error) {
-      // 플랫폼 SDK 오류 등. 원인은 돌려 주고 화면은 일반 안내를 보입니다.
+    } on Object catch (error, stack) {
+      // 플랫폼 SDK 오류 등. 진단을 위해 요약(오류 타입)만 보고하고(D64 ②) 화면은 일반 안내를
+      // 보입니다.
+      ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
       return UnexpectedError(error);
     }
   }

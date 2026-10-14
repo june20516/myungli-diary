@@ -28,6 +28,11 @@ const Set<String> _onboardingIds = {
   ScreenIds.legal,
 };
 
+/// 자기 갈래(consentRequired·notifyAskRequired)에서만 여는 관문 화면. 갈래가 끝나면
+/// (ready·adConsentRequired) 다시 열려는 경로(딥링크·알림·복원)도 home으로 보냅니다.
+/// `onboard-*`는 프로필 수정 모드(A19)로 ready에서도 열려야 해서 넣지 않습니다.
+const Set<String> _gateIds = {ScreenIds.consent, ScreenIds.notifyAsk};
+
 const Set<String> _consentIds = {ScreenIds.consent, ScreenIds.legal};
 
 /// 갈래마다 처음 보낼 화면. 광고 동의 전은 화면이 없어 ready와 같습니다.
@@ -73,10 +78,10 @@ String? entryRedirect({
     EntryState.consentRequired => _consentIds.contains(id) ? null : home,
     EntryState.profileRequired => _onboardingIds.contains(id) ? null : home,
     EntryState.notifyAskRequired => id == ScreenIds.notifyAsk ? null : home,
-    // notify-ask는 member 화면이지만 알림 허락 대기(A17)에만 열립니다. 끝나면 진입이 바뀌어
-    // 이 갈래로 오므로 today로 보내고, 알림으로 다시 열려는 경로도 막습니다.
+    // 관문 화면(consent·notify-ask)은 member 화면이지만 자기 갈래에서만 열립니다. 끝나면
+    // 진입이 바뀌어 이 갈래로 오므로 today로 보냅니다.
     EntryState.adConsentRequired || EntryState.ready =>
-      screen.auth == IaAuth.guest || id == ScreenIds.notifyAsk ? home : null,
+      screen.auth == IaAuth.guest || _gateIds.contains(id) ? home : null,
   };
 }
 

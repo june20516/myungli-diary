@@ -150,6 +150,17 @@ void main() {
       );
     });
 
+    test('ready·adConsentRequired에서 consent는 /today (관문 화면은 자기 갈래에서만)', () {
+      expect(
+        entryRedirect(entry: EntryState.ready, path: '/consent'),
+        '/today',
+      );
+      expect(
+        entryRedirect(entry: EntryState.adConsentRequired, path: '/consent'),
+        '/today',
+      );
+    });
+
     test('ready에서 any 화면(/legal)은 그대로', () {
       expect(entryRedirect(entry: EntryState.ready, path: '/legal'), isNull);
     });

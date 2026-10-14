@@ -231,6 +231,66 @@ void main() {
     expect(_notificationBodies(fake).length, 1);
   });
 
+  testWidgets('권한을 허락했지만 토큰이 없으면 기기 등록 없이 알림을 끈다', (tester) async {
+    final container = await openNotifyAsk(
+      tester,
+      overrides: [pushMessagingProvider.overrideWithValue(_NoTokenPush())],
+    );
+
+    await tester.tap(_allowButton);
+    await pumpUntilScreen(tester, ScreenIds.today);
+
+    final fake = _fake(container);
+    expect(fake.callCountOf('registerDevice'), 0);
+    expect(_notificationBody(fake), {
+      'notification': {'status': 'disabled'},
+    });
+  });
+
+  testWidgets('등록 뒤 프로필 저장이 실패하면 다시 눌러도 기기를 다시 등록하지 않는다', (tester) async {
+    final container = await openNotifyAsk(
+      tester,
+      scenario: 'notify-profile-save-unavailable',
+    );
+
+    await tester.tap(_allowButton);
+    await pumpUntil(
+      tester,
+      () => find.byKey(notifyAskErrorKey).evaluate().isNotEmpty,
+    );
+    final fake = _fake(container);
+    expect(fake.callCountOf('registerDevice'), 1);
+    expect(await _pending(tester, container), isTrue);
+
+    await tester.tap(_allowButton);
+    await pumpUntilScreen(tester, ScreenIds.today);
+
+    expect(fake.callCountOf('registerDevice'), 1);
+    expect(_notificationBodies(fake), hasLength(2));
+  });
+
+  testWidgets('플랫폼 오류는 안내하고 진단만 보고한다(값은 싣지 않음)', (tester) async {
+    final reporter = FakeCrashReporter();
+    final container = await openNotifyAsk(
+      tester,
+      overrides: [
+        pushMessagingProvider.overrideWithValue(_NoPermissionPush()),
+        crashReporterProvider.overrideWithValue(reporter),
+      ],
+    );
+
+    await tester.tap(_allowButton);
+    await pumpUntil(
+      tester,
+      () => find.byKey(notifyAskErrorKey).evaluate().isNotEmpty,
+    );
+
+    expect(_screen(ScreenIds.notifyAsk), findsOneWidget);
+    expect(reporter.errors, hasLength(1));
+    expect(_fake(container).callCountOf('registerDevice'), 0);
+    expect(await _pending(tester, container), isTrue);
+  });
+
   testWidgets('끝낸 뒤 진입을 다시 계산해도 notify-ask가 다시 나오지 않습니다', (tester) async {
     final container = await openNotifyAsk(tester);
     await tester.tap(_skipButton);
@@ -256,6 +316,15 @@ void main() {
     expect(tester.widget<PrimaryButton>(_skipButton).onPressed, isNull);
     await pumpUntilScreen(tester, ScreenIds.today);
   });
+}
+
+/// 토큰을 받지 못하는 대역(권한은 허락).
+class _NoTokenPush extends _NoPermissionPush {
+  @override
+  Future<bool> requestPermission() async => true;
+
+  @override
+  Future<String?> token() async => null;
 }
 
 /// 권한을 요청하면 실패하는 대역(건너뛰기가 권한을 묻지 않는지 확인).

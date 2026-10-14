@@ -195,6 +195,22 @@ void main() {
     },
   );
 
+  testWidgets('consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다', (
+    tester,
+  ) async {
+    covers(const Covers(decisions: ['D50']));
+    final container = await pumpApp(tester, scenario: 'consent-renewal');
+    expect(_screen(ScreenIds.consent), findsOneWidget);
+    await _checkAll(tester);
+
+    await _agreeUntil(tester, ScreenIds.today);
+
+    final fake = _fake(container);
+    expect(fake.callCountOf('agreeConsents'), 1);
+    expect(fake.callCountOf('createProfile'), 0);
+    expect(_screen(ScreenIds.consent), findsNothing);
+  });
+
   testWidgets("'보기'는 legal을 열고, 돌아오면 체크가 그대로입니다", (tester) async {
     covers(const Covers(exits: ['consent>legal']));
     final container = await pumpApp(tester, scenario: 'consent-required');
