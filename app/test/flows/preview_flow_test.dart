@@ -19,6 +19,8 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/onboarding_steps.dart';
 
+final _ko = AppLocalizationsKo();
+
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
 
@@ -49,7 +51,7 @@ void main() {
 
     await settlePreview(tester);
     expect(find.byKey(const ValueKey('screen-state.loading')), findsNothing);
-    expect(find.text('용신의 날'), findsOneWidget);
+    expect(find.text(_ko.dayKindYongsinDay), findsOneWidget);
     expect(
       tester.widget<DayCharacter>(find.byType(DayCharacter)).variant,
       DayCharacterVariant.good,
@@ -94,17 +96,17 @@ void main() {
     covers(const Covers(exits: ['preview>login']));
     await openPreviewStep(tester);
 
-    await tester.tap(find.text('공유'));
+    await tester.tap(find.text(_ko.shareLabel));
     await tester.pumpAndSettle();
     expect(_slot(SlotIds.previewShareLoginNotice), findsOneWidget);
-    await tester.tap(find.text('닫기'));
+    await tester.tap(find.text(_ko.previewShareLoginNoticeCancel));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.preview)), findsOneWidget);
     expect(_slot(SlotIds.previewShareLoginNotice), findsNothing);
 
-    await tester.tap(find.text('공유'));
+    await tester.tap(find.text(_ko.shareLabel));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('로그인'));
+    await tester.tap(find.text(_ko.previewShareLoginNoticeConfirm));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.login)), findsOneWidget);
   });
@@ -134,7 +136,7 @@ void main() {
     await tapNext(tester); // 시간 → 성별
     await tapNext(tester); // 성별 → preview
     await settlePreview(tester);
-    expect(find.text('용신의 날'), findsOneWidget);
+    expect(find.text(_ko.dayKindYongsinDay), findsOneWidget);
     expect(_fake(container).callCountOf('createPreview'), 1);
   });
 
@@ -146,7 +148,7 @@ void main() {
     );
     expect(banner.variant, NoticeBannerVariant.timeUnknown);
     expect(banner.message, '태어난 시간을 몰라 세 기둥으로 계산했어요.');
-    expect(find.text('용신의 날'), findsOneWidget);
+    expect(find.text(_ko.dayKindYongsinDay), findsOneWidget);
   });
 
   testWidgets('new-user는 time-unknown 배너가 없습니다', (tester) async {
@@ -174,13 +176,13 @@ void main() {
     addTearDown(() => dio.interceptors[index] = online);
 
     await tapNext(tester);
-    await tester.tap(find.text('여성'));
+    await tester.tap(find.text(_ko.genderFemale));
     await tester.pumpAndSettle();
     await tapNext(tester);
     await settlePreview(tester);
     final errorState = tester.widget<ErrorState>(find.byType(ErrorState));
     expect(errorState.variant, ErrorStateVariant.offline);
-    expect(find.text('다시 시도'), findsOneWidget);
+    expect(find.text(_ko.actionRetry), findsOneWidget);
     // 오프라인이어도 저장하고 계속하기는 막지 않습니다.
     expect(
       tester.widget<PrimaryButton>(_slot(SlotIds.previewCtaSave)).onPressed,
@@ -188,9 +190,9 @@ void main() {
     );
 
     dio.interceptors[index] = online;
-    await tester.tap(find.text('다시 시도'));
+    await tester.tap(find.text(_ko.actionRetry));
     await settlePreview(tester);
-    expect(find.text('용신의 날'), findsOneWidget);
+    expect(find.text(_ko.dayKindYongsinDay), findsOneWidget);
     expect(find.byType(ErrorState), findsNothing);
   });
 
@@ -206,7 +208,7 @@ void main() {
     expect(errorState.variant, ErrorStateVariant.generic);
     expect(find.text(AppLocalizationsKo().errorBirthInvalid), findsOneWidget);
     // 같은 입력으로는 같은 오류라 다시 시도는 없고 다시 입력만 있습니다.
-    expect(find.text('다시 시도'), findsNothing);
+    expect(find.text(_ko.actionRetry), findsNothing);
     expect(find.byType(DayCharacter), findsNothing);
 
     await tester.tap(_slot(SlotIds.previewCtaRestart));
@@ -229,8 +231,8 @@ void main() {
   ) async {
     final container = await openPreviewStep(tester, scenario: 'preview-used');
     expect(find.byType(ErrorState), findsOneWidget);
-    expect(find.textContaining('미리보기는 한 번만'), findsOneWidget);
-    expect(find.text('다시 시도'), findsNothing);
+    expect(find.text(_ko.errorPreviewUsed), findsOneWidget);
+    expect(find.text(_ko.actionRetry), findsNothing);
     expect(_fake(container).callCountOf('createPreview'), 1);
 
     await tester.tap(_slot(SlotIds.previewCtaSave));

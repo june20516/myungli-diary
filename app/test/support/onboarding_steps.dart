@@ -6,10 +6,13 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 
 import 'app_harness.dart';
+
+final _ko = AppLocalizationsKo();
 
 const Locale koreaLocale = Locale('ko', 'KR');
 
@@ -69,7 +72,7 @@ Future<ProviderContainer> openPreviewStep(
     overrides: overrides,
   );
   await tapNext(tester); // 시간 → 성별
-  await tester.tap(find.text('여성'));
+  await tester.tap(find.text(_ko.genderFemale));
   await tester.pumpAndSettle();
   await tapNext(tester); // 성별 → preview
   expect(find.byKey(const ValueKey(ScreenIds.preview)), findsOneWidget);

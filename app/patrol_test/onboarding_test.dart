@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart' show expect, find;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
@@ -47,7 +48,7 @@ void main() {
     await $(PrimaryButton).tap();
 
     await expectScreen($, ScreenIds.onboardGender);
-    await $('여성').tap();
+    await $(AppLocalizationsKo().genderFemale).tap();
     await $(PrimaryButton).tap();
 
     await expectScreen($, ScreenIds.preview);

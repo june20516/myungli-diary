@@ -466,88 +466,88 @@ abstract class AppLocalizations {
   /// **'문의 번호를 복사했어요.'**
   String get traceIdCopied;
 
-  /// 임시. 근거 시트 구역 제목: 판정 근거
+  /// evidence-sheet.section.basis: 구역 제목: 판정 근거. 잠겼을 때도 또렷하게 보임
   ///
   /// In ko, this message translates to:
   /// **'판정 근거'**
   String get evidenceSheetSectionBasis;
 
-  /// 임시. 근거 시트 구역 제목: 원전
+  /// evidence-sheet.section.source: 구역 제목: 원전. 잠겼을 때도 또렷하게 보임
   ///
   /// In ko, this message translates to:
   /// **'원전'**
   String get evidenceSheetSectionSource;
 
-  /// 임시. 근거 시트 구역 제목: 내 사주에서는
+  /// evidence-sheet.section.personal: 구역 제목: 내 사주에서는. 잠겼을 때도 또렷하게 보임
   ///
   /// In ko, this message translates to:
   /// **'내 사주에서는'**
   String get evidenceSheetSectionPersonal;
 
-  /// 임시. 근거와 해석이 잠겨 있다는 안내
+  /// evidence-sheet.lock.head: 근거와 해석이 잠겨 있다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'근거와 해석이 잠겨 있어요'**
+  /// **'근거와 해석은 잠겨 있어요'**
   String get evidenceSheetLockHead;
 
-  /// 임시. 보상 고지(광고 전 매번)
+  /// evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)
   ///
   /// In ko, this message translates to:
-  /// **'광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열려요.'**
+  /// **'광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.'**
   String get evidenceSheetLockReward;
 
-  /// 임시. 광고 보고 열기 버튼
+  /// evidence-sheet.lock.cta: 광고 보고 열기 버튼
   ///
   /// In ko, this message translates to:
   /// **'광고 보고 열기'**
   String get evidenceSheetLockCta;
 
-  /// 임시. 광고 제거권 안내와 링크
+  /// evidence-sheet.lock.pass: 광고 제거권으로도 열린다는 안내와 링크
   ///
   /// In ko, this message translates to:
-  /// **'광고 제거권이 있으면 바로 열려요 ›'**
+  /// **'광고 제거권이 있으면 기간 내내 열려 있어요.'**
   String get evidenceSheetLockPass;
 
-  /// 임시. 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)
+  /// evidence-sheet.lock.unavailable: 지금 볼 수 있는 광고가 없다는 안내(버튼 꺼짐)
   ///
   /// In ko, this message translates to:
-  /// **'지금 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 와 주세요.'**
+  /// **'지금은 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 해 주세요.'**
   String get evidenceSheetLockUnavailable;
 
-  /// 임시. 접근성: 잠긴 구역 뒤에 붙는 '잠김'
+  /// evidence-sheet.a11y.locked: 접근성 문구: 잠긴 구역을 읽을 때 "잠김"
   ///
   /// In ko, this message translates to:
   /// **'잠김'**
   String get evidenceSheetA11yLocked;
 
-  /// 임시. 접근성: 잠금 해제를 확인하는 동안 버튼 상태
+  /// evidence-sheet.a11y.checking: 접근성 문구: 잠금 해제를 확인하는 동안의 버튼 상태 "확인 중"
   ///
   /// In ko, this message translates to:
   /// **'확인 중'**
   String get evidenceSheetA11yChecking;
 
-  /// 임시. 접근성: 근거와 해석이 열렸을 때 한 번 알림
+  /// evidence-sheet.a11y.unlocked: 접근성 문구: 근거와 해석이 열렸을 때 한 번 알림
   ///
   /// In ko, this message translates to:
   /// **'근거와 해석이 열렸어요'**
   String get evidenceSheetA11yUnlocked;
 
-  /// 임시. 잠긴 용신 근거 줄의 '열기'
+  /// saju-chart.yongsin.open: 잠긴 용신 근거 줄의 "열기"
   ///
   /// In ko, this message translates to:
   /// **'열기'**
   String get sajuChartYongsinOpen;
 
-  /// 임시. 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분
+  /// saju-chart.yongsin.title: 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분
   ///
   /// In ko, this message translates to:
   /// **'용신 판정 근거'**
   String get sajuChartYongsinTitle;
 
-  /// 임시. 좋아요 반응 접근성 라벨
+  /// today.reaction.label: 좋아요 반응 접근성 라벨
   ///
   /// In ko, this message translates to:
-  /// **'이 문장 좋아요'**
+  /// **'좋아요'**
   String get todayReactionLabel;
 
   /// 임시. 용어 토큰의 스크린리더 라벨(IA 슬롯 없음)
@@ -664,88 +664,88 @@ abstract class AppLocalizations {
   /// **'결과 {count}개'**
   String citySearchResults(int count);
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// force-update.notice.head: 업데이트가 필요하다는 제목
   ///
   /// In ko, this message translates to:
-  /// **'새 버전이 필요해요'**
+  /// **'새 버전으로 업데이트해 주세요'**
   String get forceUpdateNoticeHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// force-update.notice.body: 업데이트해야 하는 이유
   ///
   /// In ko, this message translates to:
-  /// **'앱을 계속 쓰려면 최신 버전으로 업데이트해 주세요.'**
+  /// **'풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요.'**
   String get forceUpdateNoticeBody;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// force-update.cta.store: 스토어로 가는 버튼
   ///
   /// In ko, this message translates to:
-  /// **'스토어에서 업데이트'**
+  /// **'업데이트하기'**
   String get forceUpdateCtaStore;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// welcome.concept.head: 컨셉 한 문장
   ///
   /// In ko, this message translates to:
-  /// **'오늘의 나를 읽어요'**
+  /// **'오늘 일진을 내 사주에 맞춰 풀어 드려요'**
   String get welcomeConceptHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// welcome.concept.body: 앱이 해주는 일 설명
   ///
   /// In ko, this message translates to:
-  /// **'생년월일시로 풀이한 하루를 문장으로 만나고, 일기와 함께 기록해요.'**
+  /// **'풀이에 맞춘 질문 하나로 그날 일기를 시작해요.'**
   String get welcomeConceptBody;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// welcome.cta.start: 시작하기 버튼
   ///
   /// In ko, this message translates to:
   /// **'시작하기'**
   String get welcomeCtaStart;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// welcome.cta.signin: 이미 계정이 있어요 버튼
   ///
   /// In ko, this message translates to:
   /// **'이미 계정이 있어요'**
   String get welcomeCtaSignin;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-call.question.head: 호칭을 묻는 질문
   ///
   /// In ko, this message translates to:
-  /// **'뭐라고 불러 드릴까요?'**
+  /// **'어떻게 불러 드릴까요?'**
   String get onboardCallQuestionHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-call.input.hint: 입력칸 예시
   ///
   /// In ko, this message translates to:
-  /// **'예: 별님'**
+  /// **'예: 민지'**
   String get onboardCallInputHint;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-call.note.body: 실명이 아니어도 된다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'실명이 아니어도 괜찮아요.'**
+  /// **'실명이 아니어도 돼요. 나중에 바꿀 수 있어요.'**
   String get onboardCallNoteBody;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-birth.question.head: 생일을 묻는 질문
   ///
   /// In ko, this message translates to:
-  /// **'언제 태어나셨나요?'**
+  /// **'언제 태어났나요?'**
   String get onboardBirthQuestionHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-birth.calendar.hint: 음력·윤달 고르는 법
   ///
   /// In ko, this message translates to:
-  /// **'음력이면 음력을 고르고, 윤달이면 윤달에 체크해 주세요.'**
+  /// **'음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.'**
   String get onboardBirthCalendarHint;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-birth.basis.note: 한국 출생 기준으로 계산한다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'한국에서 태어난 것으로 보고 계산해요.'**
+  /// **'한국에서 태어난 것을 기준으로 계산해요.'**
   String get onboardBirthBasisNote;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-birth.error.range: 지원 범위 밖 안내
   ///
   /// In ko, this message translates to:
-  /// **'1900년 1월 31일부터 2099년 12월 31일까지 계산할 수 있어요.'**
+  /// **'1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.'**
   String get onboardBirthErrorRange;
 
   /// 임시. 온보딩 공용 문구(슬롯 아님)
@@ -784,16 +784,16 @@ abstract class AppLocalizations {
   /// **'호칭'**
   String get onboardCallInputLabel;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-time.question.head: 태어난 시간을 묻는 질문
   ///
   /// In ko, this message translates to:
-  /// **'몇 시에 태어나셨나요?'**
+  /// **'몇 시에 태어났나요?'**
   String get onboardTimeQuestionHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-time.unknown.note: 3주로 계산한다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'태어난 시간을 모르면 시간 기둥을 뺀 세 기둥으로 계산해요.'**
+  /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
   String get onboardTimeUnknownNote;
 
   /// 임시. 온보딩 공용 문구(슬롯 아님)
@@ -880,40 +880,40 @@ abstract class AppLocalizations {
   /// **'해시'**
   String get branchHae;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-gender.question.head: 성별을 묻는 질문
   ///
   /// In ko, this message translates to:
-  /// **'성별을 알려 주세요.'**
+  /// **'성별이 어떻게 되나요?'**
   String get onboardGenderQuestionHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// onboard-gender.why.body: 대운 방향 계산에 쓴다는 이유
   ///
   /// In ko, this message translates to:
-  /// **'대운의 방향을 계산할 때 쓰여요.'**
+  /// **'대운이 흐르는 방향을 정할 때만 써요.'**
   String get onboardGenderWhyBody;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// birthplace.question.head: 출생지를 묻는 질문
   ///
   /// In ko, this message translates to:
-  /// **'어디에서 태어나셨나요?'**
+  /// **'어디에서 태어났나요?'**
   String get birthplaceQuestionHead;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// birthplace.why.body: 출생지가 필요한 이유
   ///
   /// In ko, this message translates to:
-  /// **'태어난 도시의 시간대로 태어난 시각을 맞춰요.'**
+  /// **'태어난 곳의 시간대와 경도로 태어난 시를 정확히 맞춰요.'**
   String get birthplaceWhyBody;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// birthplace.search.hint: 검색칸 예시
   ///
   /// In ko, this message translates to:
-  /// **'예: 뉴욕'**
+  /// **'도시 이름'**
   String get birthplaceSearchHint;
 
-  /// 임시. 화면 문구 원고 전의 자리 문구
+  /// birthplace.empty.body: 결과가 없을 때 안내
   ///
   /// In ko, this message translates to:
-  /// **'찾는 도시가 없어요. 다른 이름으로 검색해 보세요.'**
+  /// **'찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.'**
   String get birthplaceEmptyBody;
 
   /// 임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)
@@ -934,22 +934,22 @@ abstract class AppLocalizations {
   /// **'여성'**
   String get genderFemale;
 
-  /// 임시. IA 슬롯 preview.cta.save: 미리보기 뒤 로그인으로 잇는 버튼
+  /// preview.cta.save: 저장하고 계속하기 버튼
   ///
   /// In ko, this message translates to:
   /// **'저장하고 계속하기'**
   String get previewCtaSave;
 
-  /// 임시. IA 슬롯 preview.cta.restart: 온보딩 입력으로 돌아가는 링크
+  /// preview.cta.restart: 다시 입력 링크
   ///
   /// In ko, this message translates to:
-  /// **'다시 입력'**
+  /// **'다시 입력하기'**
   String get previewCtaRestart;
 
-  /// 임시. IA 슬롯 preview.share.login-notice: 로그인 안내 창 문구
+  /// preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창
   ///
   /// In ko, this message translates to:
-  /// **'로그인하면 공유할 수 있어요.'**
+  /// **'로그인하면 오늘 풀이를 공유할 수 있어요.'**
   String get previewShareLoginNotice;
 
   /// 임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day
@@ -982,34 +982,28 @@ abstract class AppLocalizations {
   /// **'공유'**
   String get shareLabel;
 
-  /// 임시. 확인 창의 로그인 버튼(슬롯 아님)
-  ///
-  /// In ko, this message translates to:
-  /// **'로그인'**
-  String get actionLogin;
-
   /// 임시. 확인 창의 닫기 버튼(슬롯 아님)
   ///
   /// In ko, this message translates to:
   /// **'닫기'**
   String get actionClose;
 
-  /// 임시. IA 슬롯 login.title.head: 로그인 제목
+  /// login.title.head: 로그인 제목
   ///
   /// In ko, this message translates to:
-  /// **'로그인하고 이어 가요'**
+  /// **'로그인하고 풀이를 저장해요'**
   String get loginTitleHead;
 
-  /// 임시. IA 슬롯 login.title.body: 저장하려면 로그인한다는 설명
+  /// login.title.body: 저장하려면 로그인한다는 설명
   ///
   /// In ko, this message translates to:
-  /// **'로그인하면 사주를 저장하고 매일 오늘의 풀이를 받아 볼 수 있어요.'**
+  /// **'로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.'**
   String get loginTitleBody;
 
-  /// 임시. IA 슬롯 login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내
+  /// login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'이 계정에는 이미 저장된 사주가 있어요. 방금 입력한 정보는 쓰지 않고 저장된 사주로 이어 갈게요.'**
+  /// **'이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.'**
   String get loginDiscardNotice;
 
   /// 임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드 Label의 완성형(ko "카카오 로그인", en "Login with Kakao"). 출처: assets/brand/README.md
@@ -1054,41 +1048,17 @@ abstract class AppLocalizations {
   /// **'확인'**
   String get actionConfirm;
 
-  /// 임시. consent 화면 제목(슬롯 consent.title.head)
+  /// consent.title.head: 동의 화면 제목
   ///
   /// In ko, this message translates to:
-  /// **'서비스를 쓰려면 약관에 동의해 주세요'**
+  /// **'약관에 동의해 주세요'**
   String get consentTitleHead;
 
-  /// 임시. 필수 동의 항목 이름(슬롯 consent.required.label). document는 약관 문서 이름
-  ///
-  /// In ko, this message translates to:
-  /// **'(필수) {document}'**
-  String consentRequiredLabel(String document);
-
-  /// 임시. 선택 동의 항목 이름(슬롯 consent.optional.label). 계약에 선택 문서가 없어 아직 쓰지 않음
-  ///
-  /// In ko, this message translates to:
-  /// **'(선택) {document}'**
-  String consentOptionalLabel(String document);
-
-  /// 임시. 동의하고 계속 버튼(슬롯 consent.cta.agree)
+  /// consent.cta.agree: 동의하고 계속 버튼
   ///
   /// In ko, this message translates to:
   /// **'동의하고 계속하기'**
   String get consentCtaAgree;
-
-  /// 임시. 약관 문서 이름: 이용약관(terms, 슬롯 아님)
-  ///
-  /// In ko, this message translates to:
-  /// **'이용약관'**
-  String get consentDocumentTerms;
-
-  /// 임시. 약관 문서 이름: 개인정보 수집·이용(privacy, 슬롯 아님)
-  ///
-  /// In ko, this message translates to:
-  /// **'개인정보 수집·이용'**
-  String get consentDocumentPrivacy;
 
   /// 임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)
   ///
@@ -1096,22 +1066,22 @@ abstract class AppLocalizations {
   /// **'보기'**
   String get consentView;
 
-  /// 임시. notify-ask 질문(슬롯 notify-ask.question.head)
+  /// notify-ask.question.head: 알림을 받을지 묻는 질문
   ///
   /// In ko, this message translates to:
-  /// **'아침 운세를 알려드릴까요?'**
+  /// **'아침마다 오늘 풀이를 알려 드릴까요?'**
   String get notifyAskQuestionHead;
 
-  /// 임시. 알림이 주는 것(슬롯 notify-ask.why.body)
+  /// notify-ask.why.body: 아침 알림이 주는 것
   ///
   /// In ko, this message translates to:
-  /// **'정한 시각에 오늘의 운세를 알림으로 보내 드려요. 설정에서 언제든 바꿀 수 있어요.'**
+  /// **'알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요.'**
   String get notifyAskWhyBody;
 
-  /// 임시. 건너뛰기 버튼(슬롯 notify-ask.cta.skip)
+  /// notify-ask.cta.skip: 건너뛰기
   ///
   /// In ko, this message translates to:
-  /// **'나중에 할게요'**
+  /// **'나중에'**
   String get notifyAskCtaSkip;
 
   /// 임시. 알림 허락 버튼(슬롯이 아님)
@@ -1119,6 +1089,450 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'알림 받기'**
   String get notifyAskCtaAllow;
+
+  /// account-delete.cta.delete: 계정 삭제 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 지우기'**
+  String get accountDeleteCtaDelete;
+
+  /// account-delete.data.body: 지워지는 데이터 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.'**
+  String get accountDeleteDataBody;
+
+  /// account-delete.delete.confirm: 최종 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'정말 지울까요? 지운 계정은 되돌릴 수 없어요.'**
+  String get accountDeleteDeleteConfirm;
+
+  /// account-delete.delete.confirm: 최종 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get accountDeleteDeleteConfirmDelete;
+
+  /// account-delete.delete.confirm: 최종 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get accountDeleteDeleteConfirmCancel;
+
+  /// account-delete.title.head: 계정 삭제 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 삭제'**
+  String get accountDeleteTitleHead;
+
+  /// ad-free.legal.notice: 이용약관·개인정보처리방침 링크 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.'**
+  String get adFreeLegalNotice;
+
+  /// ad-free.offer.head: 광고 제거권이 주는 것 한 줄(배너 제거, 근거·해석 열림, D60)
+  ///
+  /// In ko, this message translates to:
+  /// **'한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요.'**
+  String get adFreeOfferHead;
+
+  /// ad-free.offer.price: 가격과 기간(1개월, 자동 갱신 아님) 고지
+  ///
+  /// In ko, this message translates to:
+  /// **'{price} · 1개월 · 자동 갱신 없음'**
+  String adFreeOfferPrice(String price);
+
+  /// ad-free.restore.cta: 구매 복원
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 복원'**
+  String get adFreeRestoreCta;
+
+  /// ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}까지 광고 없이 볼 수 있어요'**
+  String adFreeStatusRemaining(String date);
+
+  /// calc-basis.convention.body: 한국 기준 해석 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.'**
+  String get calcBasisConventionBody;
+
+  /// calc-basis.longitude.body: 동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String get calcBasisLongitudeBody;
+
+  /// calc-basis.lunar.body: KASI 기준 한국 음력 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'음력은 한국천문연구원 기준의 한국 음력을 따라요.'**
+  String get calcBasisLunarBody;
+
+  /// calendar.legend.body: 점 색의 뜻
+  ///
+  /// In ko, this message translates to:
+  /// **'잘 풀리는 날'**
+  String get calendarLegendBodyGood;
+
+  /// calendar.legend.body: 점 색의 뜻
+  ///
+  /// In ko, this message translates to:
+  /// **'조심할 날'**
+  String get calendarLegendBodyCaution;
+
+  /// consent.required.label: 필수 동의 항목 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'(필수) 이용약관'**
+  String get consentRequiredLabelTerms;
+
+  /// consent.required.label: 필수 동의 항목 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'(필수) 개인정보 수집·이용'**
+  String get consentRequiredLabelPrivacy;
+
+  /// day-sheet.diary.open: 그날 일기 보기 링크
+  ///
+  /// In ko, this message translates to:
+  /// **'이날 일기 보기'**
+  String get daySheetDiaryOpen;
+
+  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘이고 일기 없음)
+  ///
+  /// In ko, this message translates to:
+  /// **'이날 일기 쓰기'**
+  String get daySheetDiaryWriteCta;
+
+  /// day-sheet.event.add: 일정 추가 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 추가'**
+  String get daySheetEventAdd;
+
+  /// day-sheet.event.empty: 일정이 없을 때 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이날은 일정이 없어요.'**
+  String get daySheetEventEmpty;
+
+  /// diary-edit.body.placeholder: 본문 입력칸 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 있었던 일을 적어 보세요'**
+  String get diaryEditBodyPlaceholder;
+
+  /// diary-edit.draft.status: 초안 저장 상태
+  ///
+  /// In ko, this message translates to:
+  /// **'기기에 임시 저장됨'**
+  String get diaryEditDraftStatusLocal;
+
+  /// diary-edit.draft.status: 초안 저장 상태
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 중'**
+  String get diaryEditDraftStatusSaving;
+
+  /// diary-edit.draft.status: 초안 저장 상태
+  ///
+  /// In ko, this message translates to:
+  /// **'저장됨'**
+  String get diaryEditDraftStatusSaved;
+
+  /// diary-edit.offline.notice: 연결되면 저장한다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷에 연결되면 저장할게요. 쓴 내용은 기기에 남아 있어요.'**
+  String get diaryEditOfflineNotice;
+
+  /// diary-edit.saved.tags: 저장 뒤 붙은 태그 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'일기에 태그가 붙었어요'**
+  String get diaryEditSavedTags;
+
+  /// diary-list.empty.body: 쓴 일기가 없을 때 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?'**
+  String get diaryListEmptyBody;
+
+  /// diary-list.pick-date.cta: 날짜 골라 쓰기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜 골라 쓰기'**
+  String get diaryListPickDateCta;
+
+  /// diary-view.delete.confirm: 일기 삭제 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'이 일기를 지울까요? 지우면 되돌릴 수 없어요.'**
+  String get diaryViewDeleteConfirm;
+
+  /// diary-view.delete.confirm: 일기 삭제 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get diaryViewDeleteConfirmDelete;
+
+  /// diary-view.delete.confirm: 일기 삭제 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get diaryViewDeleteConfirmCancel;
+
+  /// event-edit.delete.confirm: 일정 삭제 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'이 일정을 지울까요?'**
+  String get eventEditDeleteConfirm;
+
+  /// event-edit.delete.confirm: 일정 삭제 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get eventEditDeleteConfirmDelete;
+
+  /// event-edit.delete.confirm: 일정 삭제 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get eventEditDeleteConfirmCancel;
+
+  /// event-edit.memo.hint: 메모 입력칸 예시
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get eventEditMemoHint;
+
+  /// event-edit.title.hint: 제목 입력칸 예시
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 제목'**
+  String get eventEditTitleHint;
+
+  /// evidence-sheet.lock.pass: 광고 제거권으로도 열린다는 안내와 링크
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 제거 보기'**
+  String get evidenceSheetLockPassLink;
+
+  /// evidence-sheet.unlock.failed: 광고를 끝까지 봤는데 server 확인(SSV)이 오지 않을 때의 toast
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 확인이 늦어지고 있어요. 잠시 뒤에 다시 열어 주세요.'**
+  String get evidenceSheetUnlockFailed;
+
+  /// preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하기'**
+  String get previewShareLoginNoticeConfirm;
+
+  /// preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get previewShareLoginNoticeCancel;
+
+  /// profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)
+  ///
+  /// In ko, this message translates to:
+  /// **'정보를 바꿀까요?'**
+  String get profileEditRecalcConfirmTitle;
+
+  /// profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)
+  ///
+  /// In ko, this message translates to:
+  /// **'{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.'**
+  String profileEditRecalcConfirmBody(String before, String after);
+
+  /// profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get profileEditRecalcConfirmCancel;
+
+  /// profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)
+  ///
+  /// In ko, this message translates to:
+  /// **'바꾸기'**
+  String get profileEditRecalcConfirmSave;
+
+  /// profile-edit.recalc.notice: 바꾸면 풀이를 다시 계산한다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.'**
+  String get profileEditRecalcNotice;
+
+  /// saju-chart.time-unknown.notice: 시간 모름으로 시주가 빠졌다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'태어난 시간을 몰라 시주는 빼고 보여 드려요.'**
+  String get sajuChartTimeUnknownNotice;
+
+  /// settings.ad-free.label: 광고 제거 메뉴와 남은 기간 표시
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 제거'**
+  String get settingsAdFreeLabel;
+
+  /// settings.ad-free.label: 광고 제거 메뉴와 남은 기간 표시
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}까지'**
+  String settingsAdFreeLabelActive(String date);
+
+  /// settings.depth.desc: 기본 깊이 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'풀이를 처음에 어디까지 펼쳐 볼지 골라요.'**
+  String get settingsDepthDesc;
+
+  /// settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.'**
+  String get settingsLanguageBirthplaceNotice;
+
+  /// settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'출생지 입력하기'**
+  String get settingsLanguageBirthplaceNoticeCta;
+
+  /// settings.logout.confirm: 로그아웃 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃할까요?'**
+  String get settingsLogoutConfirm;
+
+  /// settings.logout.confirm: 로그아웃 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃'**
+  String get settingsLogoutConfirmLogout;
+
+  /// settings.logout.confirm: 로그아웃 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get settingsLogoutConfirmCancel;
+
+  /// share-preview.cta.share: 공유 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'공유하기'**
+  String get sharePreviewCtaShare;
+
+  /// share-preview.image.footer: 이미지 아래 앱 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'명리일기'**
+  String get sharePreviewImageFooter;
+
+  /// share-preview.image.tagline: 공유 이미지 태그라인
+  ///
+  /// In ko, this message translates to:
+  /// **'내 사주로 푼 오늘, 명리일기'**
+  String get sharePreviewImageTagline;
+
+  /// share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)
+  ///
+  /// In ko, this message translates to:
+  /// **'스토리'**
+  String get sharePreviewRatioLabelStory;
+
+  /// share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)
+  ///
+  /// In ko, this message translates to:
+  /// **'피드'**
+  String get sharePreviewRatioLabelFeed;
+
+  /// share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)
+  ///
+  /// In ko, this message translates to:
+  /// **'정사각'**
+  String get sharePreviewRatioLabelSquare;
+
+  /// tag-diary.empty.body: 일기가 없을 때 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이 태그가 붙은 일기가 아직 없어요.'**
+  String get tagDiaryEmptyBody;
+
+  /// today.event.summary: 오늘 일정 개수와 첫 일정
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 일정 {count}개 · {title}'**
+  String todayEventSummary(int count, String title);
+
+  /// today.event.summary: 오늘 일정 개수와 첫 일정
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중'**
+  String get todayEventSummaryOngoing;
+
+  /// today.event.summary: 오늘 일정 개수와 첫 일정
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get todayEventSummaryNext;
+
+  /// today.event.summary: 오늘 일정 개수와 첫 일정
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 일정이 모두 끝났어요'**
+  String get todayEventSummaryDone;
+
+  /// today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 쓰기'**
+  String get todayGuideCta;
+
+  /// today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'쓴 일기 보기'**
+  String get todayGuideCtaWritten;
+
+  /// today.reaction.label: 좋아요 반응 접근성 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'좋아요 취소'**
+  String get todayReactionLabelSelected;
+
+  /// 깊이 단계 선택의 기본 단계 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'명리 풀이 보기'**
+  String get depthDefaultLabel;
+
+  /// 깊이 단계 근거 단계(셋째 단계)의 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'원리'**
+  String get depthEvidence;
+
+  /// 깊이 단계 풀이 단계(둘째 단계)의 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'풀이'**
+  String get depthExplain;
+
+  /// 깊이 단계 표면 단계(첫 단계)의 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'요약'**
+  String get depthSurface;
 }
 
 class _AppLocalizationsDelegate

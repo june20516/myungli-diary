@@ -22,6 +22,8 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
 
+final _en = AppLocalizationsEn();
+
 const Locale _usa = Locale('en', 'US');
 
 Future<void> _tapNext(WidgetTester tester) async {
@@ -62,7 +64,7 @@ Future<ProviderContainer> _openBirthplace(
   await _tapNext(tester); // 호칭
   await _tapNext(tester); // 생일
   await _tapNext(tester); // 시간
-  await tester.tap(find.text('Male'));
+  await tester.tap(find.text(_en.genderMale));
   await tester.pumpAndSettle();
   await _tapNext(tester); // 성별
   expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
@@ -149,7 +151,7 @@ void main() {
     await _settleIo(tester);
 
     expect(find.byKey(CitySearch.resultsKey), findsNothing);
-    expect(find.text('No matching city. Try another name.'), findsOneWidget);
+    expect(find.text(_en.birthplaceEmptyBody), findsOneWidget);
   });
 
   testWidgets('검색이 실패하면 오류 상태이고 다시 시도로 같은 질의를 다시 보냅니다', (tester) async {
@@ -187,7 +189,7 @@ void main() {
     // 둘째 응답(빈 목록)이 보입니다.
     await tester.pump(const Duration(seconds: 1));
     await _settleIo(tester);
-    expect(find.text('No matching city. Try another name.'), findsOneWidget);
+    expect(find.text(_en.birthplaceEmptyBody), findsOneWidget);
   });
 
   testWidgets('세션이 있으면 도시를 고른 뒤 마무리 동작을 한 번 부릅니다', (tester) async {

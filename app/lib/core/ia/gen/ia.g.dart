@@ -80,7 +80,6 @@ abstract final class SlotIds {
   static const String loginDiscardNotice = 'login.discard.notice';
   static const String consentTitleHead = 'consent.title.head';
   static const String consentRequiredLabel = 'consent.required.label';
-  static const String consentOptionalLabel = 'consent.optional.label';
   static const String consentCtaAgree = 'consent.cta.agree';
   static const String notifyAskQuestionHead = 'notify-ask.question.head';
   static const String notifyAskWhyBody = 'notify-ask.why.body';

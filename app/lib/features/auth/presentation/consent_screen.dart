@@ -46,8 +46,8 @@ String consentRowIdentifier(ConsentDocumentDocumentEnum document) =>
 
 /// 새 계정의 필수 약관 동의(D50).
 ///
-/// 내 정보의 `requiredConsents` 문서마다 `check-row` card를 그립니다. 계약에 선택 동의
-/// 문서가 없어 선택 항목(`consent.optional.label`)은 그리지 않습니다. 모두 체크해야 동의
+/// 내 정보의 `requiredConsents` 문서마다 `check-row` card를 그립니다. MVP 약관 동의는
+/// 필수만이라 선택 항목은 없습니다(D67, IA v2). 모두 체크해야 동의
 /// 버튼이 켜지고, 처리 중에는 다시 받지 않습니다. '보기'는 `legal`을 열며 체크는 그대로입니다.
 ///
 /// 슬롯이 모두 `ui`(ARB 문자열)라 제목은 같은 글자 역할의 [Text]로 그립니다.
@@ -141,9 +141,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                         key: consentDocumentKey(document.document),
                         child: CheckRow(
                           variant: CheckRowVariant.card,
-                          label: l10n.consentRequiredLabel(
-                            _documentName(l10n, document.document),
-                          ),
+                          label: _requiredLabel(l10n, document.document),
                           checked: _checked.contains(document.document),
                           onChanged: _busy
                               ? null
@@ -189,11 +187,11 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
   }
 }
 
-/// 약관 문서 이름.
-String _documentName(
+/// 필수 동의 항목 이름(슬롯 `consent.required.label`, 문서마다 원고가 따로 있음).
+String _requiredLabel(
   AppLocalizations l10n,
   ConsentDocumentDocumentEnum document,
 ) => switch (document) {
-  ConsentDocumentDocumentEnum.terms => l10n.consentDocumentTerms,
-  ConsentDocumentDocumentEnum.privacy => l10n.consentDocumentPrivacy,
+  ConsentDocumentDocumentEnum.terms => l10n.consentRequiredLabelTerms,
+  ConsentDocumentDocumentEnum.privacy => l10n.consentRequiredLabelPrivacy,
 };

@@ -62,19 +62,19 @@
   "skeletonLabel": "Loading",
   "traceIdCopied": "Reference copied.",
   "evidenceSheetSectionBasis": "Basis",
-  "evidenceSheetSectionSource": "Source text",
+  "evidenceSheetSectionSource": "Classical source",
   "evidenceSheetSectionPersonal": "In your chart",
-  "evidenceSheetLockHead": "The basis and reading are locked",
-  "evidenceSheetLockReward": "Watch one ad to unlock the basis and reading for today.",
+  "evidenceSheetLockHead": "The basis and interpretation are locked",
+  "evidenceSheetLockReward": "Watch one ad to see all the basis and interpretation for the rest of today.",
   "evidenceSheetLockCta": "Watch ad to unlock",
-  "evidenceSheetLockPass": "Ad-free pass unlocks it right away ›",
-  "evidenceSheetLockUnavailable": "No ad is available right now. Please check back soon.",
+  "evidenceSheetLockPass": "With an ad-free pass, they stay unlocked the whole time.",
+  "evidenceSheetLockUnavailable": "No ads are available right now. Please try again later.",
   "evidenceSheetA11yLocked": "Locked",
   "evidenceSheetA11yChecking": "Checking",
-  "evidenceSheetA11yUnlocked": "The basis and reading are now open",
-  "sajuChartYongsinOpen": "Open",
+  "evidenceSheetA11yUnlocked": "The basis and interpretation are unlocked",
+  "sajuChartYongsinOpen": "Unlock",
   "sajuChartYongsinTitle": "Yongsin basis",
-  "todayReactionLabel": "Like this sentence",
+  "todayReactionLabel": "Like",
   "termTokenSemantics": "View the meaning of {term}",
   "@termTokenSemantics": {
     "placeholders": {
@@ -102,62 +102,20 @@
   "timePickerMinuteItem": "{minute}",
   "datePickerLeapMonthValue": "Leap {month}",
   "citySearchResults": "Results: {count}",
-  "forceUpdateNoticeHead": "A new version is needed",
-  "@forceUpdateNoticeHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "forceUpdateNoticeBody": "Please update to the latest version to keep using the app.",
-  "@forceUpdateNoticeBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "forceUpdateCtaStore": "Update in the store",
-  "@forceUpdateCtaStore": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "welcomeConceptHead": "Read yourself today",
-  "@welcomeConceptHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "welcomeConceptBody": "Meet your day in words drawn from your birth chart, and keep it with a diary.",
-  "@welcomeConceptBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "forceUpdateNoticeHead": "Please update to the new version",
+  "forceUpdateNoticeBody": "The way readings are calculated has changed, so this version can't open them.",
+  "forceUpdateCtaStore": "Update",
+  "welcomeConceptHead": "Today's day pillar, read for your own chart",
+  "welcomeConceptBody": "One question based on that reading starts your diary for the day.",
   "welcomeCtaStart": "Get started",
-  "@welcomeCtaStart": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
   "welcomeCtaSignin": "I already have an account",
-  "@welcomeCtaSignin": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardCallQuestionHead": "What should I call you?",
-  "@onboardCallQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardCallInputHint": "e.g. Star",
-  "@onboardCallInputHint": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardCallNoteBody": "It doesn't have to be your real name.",
-  "@onboardCallNoteBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardCallQuestionHead": "What should we call you?",
+  "onboardCallInputHint": "e.g. Alex",
+  "onboardCallNoteBody": "It doesn't have to be your real name. You can change it later.",
   "onboardBirthQuestionHead": "When were you born?",
-  "@onboardBirthQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardBirthCalendarHint": "For the lunar calendar, pick Lunar and check Leap month if it applies.",
-  "@onboardBirthCalendarHint": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardBirthCalendarHint": "If your birthday is on the lunar calendar, choose Lunar, and mark Leap month if it applies.",
   "onboardBirthBasisNote": "We calculate as if you were born in Korea.",
-  "@onboardBirthBasisNote": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardBirthErrorRange": "We can calculate from January 31, 1900 to December 31, 2099.",
-  "@onboardBirthErrorRange": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardBirthErrorRange": "We can only calculate dates from January 31, 1900 to December 31, 2099.",
   "onboardingNext": "Next",
   "@onboardingNext": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
@@ -183,13 +141,7 @@
     "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
   },
   "onboardTimeQuestionHead": "What time were you born?",
-  "@onboardTimeQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardTimeUnknownNote": "If you don't know the time, we calculate with three pillars, leaving out the hour pillar.",
-  "@onboardTimeUnknownNote": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardTimeUnknownNote": "If you don't know the time, we read your chart from three pillars, leaving out the hour.",
   "timeUnknownLabel": "Don't know",
   "@timeUnknownLabel": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
@@ -261,29 +213,11 @@
     "description": "임시. 지지 이름(시진 확인 줄)"
   },
   "onboardGenderQuestionHead": "What is your gender?",
-  "@onboardGenderQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardGenderWhyBody": "Used to work out the direction of your major luck cycles.",
-  "@onboardGenderWhyBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardGenderWhyBody": "We only use it to set the direction of your 10-year luck cycles.",
   "birthplaceQuestionHead": "Where were you born?",
-  "@birthplaceQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceWhyBody": "The time zone of your birth city is used to set your birth time.",
-  "@birthplaceWhyBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceSearchHint": "e.g. New York",
-  "@birthplaceSearchHint": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceEmptyBody": "No matching city. Try another name.",
-  "@birthplaceEmptyBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "birthplaceWhyBody": "We use your birthplace's time zone and longitude to pin down your birth hour.",
+  "birthplaceSearchHint": "City name",
+  "birthplaceEmptyBody": "No matching city. Try a larger city nearby.",
   "birthplaceSearchLabel": "City name",
   "@birthplaceSearchLabel": {
     "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)"
@@ -297,17 +231,8 @@
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   },
   "previewCtaSave": "Save and continue",
-  "@previewCtaSave": {
-    "description": "임시. IA 슬롯 preview.cta.save: 미리보기 뒤 로그인으로 잇는 버튼"
-  },
-  "previewCtaRestart": "Enter again",
-  "@previewCtaRestart": {
-    "description": "임시. IA 슬롯 preview.cta.restart: 온보딩 입력으로 돌아가는 링크"
-  },
-  "previewShareLoginNotice": "You can share after signing in.",
-  "@previewShareLoginNotice": {
-    "description": "임시. IA 슬롯 preview.share.login-notice: 로그인 안내 창 문구"
-  },
+  "previewCtaRestart": "Start over",
+  "previewShareLoginNotice": "Sign in to share today's reading.",
   "dayKindYongsinDay": "Day of your Yongsin",
   "@dayKindYongsinDay": {
     "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
@@ -328,26 +253,13 @@
   "@shareLabel": {
     "description": "임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)"
   },
-  "actionLogin": "Sign in",
-  "@actionLogin": {
-    "description": "임시. 확인 창의 로그인 버튼(슬롯 아님)"
-  },
   "actionClose": "Close",
   "@actionClose": {
     "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
   },
-  "loginTitleHead": "Sign in to continue",
-  "@loginTitleHead": {
-    "description": "임시. IA 슬롯 login.title.head: 로그인 제목"
-  },
-  "loginTitleBody": "Sign in to save your saju and get your reading every day.",
-  "@loginTitleBody": {
-    "description": "임시. IA 슬롯 login.title.body: 저장하려면 로그인한다는 설명"
-  },
-  "loginDiscardNotice": "This account already has a saved saju. We'll continue with it instead of the details you just entered.",
-  "@loginDiscardNotice": {
-    "description": "임시. IA 슬롯 login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
-  },
+  "loginTitleHead": "Sign in to save your reading",
+  "loginTitleBody": "Once you sign in, your chart and diary are available on any device.",
+  "loginDiscardNotice": "If this account already has a saved chart, we'll use it instead of what you just entered.",
   "loginKakaoLabel": "Login with Kakao",
   "@loginKakaoLabel": {
     "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드 Label의 완성형(ko \"카카오 로그인\", en \"Login with Kakao\"). 출처: assets/brand/README.md"
@@ -376,60 +288,91 @@
   "@actionConfirm": {
     "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
   },
-  "consentTitleHead": "Please agree to the terms to continue",
-  "@consentTitleHead": {
-    "description": "임시. consent 화면 제목(슬롯 consent.title.head)"
-  },
-  "consentRequiredLabel": "(Required) {document}",
-  "@consentRequiredLabel": {
-    "description": "임시. 필수 동의 항목 이름(슬롯 consent.required.label). document는 약관 문서 이름",
-    "placeholders": {
-      "document": {
-        "type": "String",
-        "example": "Terms of Service"
-      }
-    }
-  },
-  "consentOptionalLabel": "(Optional) {document}",
-  "@consentOptionalLabel": {
-    "description": "임시. 선택 동의 항목 이름(슬롯 consent.optional.label). 계약에 선택 문서가 없어 아직 쓰지 않음",
-    "placeholders": {
-      "document": {
-        "type": "String",
-        "example": "Terms of Service"
-      }
-    }
-  },
+  "consentTitleHead": "Please review and agree",
   "consentCtaAgree": "Agree and continue",
-  "@consentCtaAgree": {
-    "description": "임시. 동의하고 계속 버튼(슬롯 consent.cta.agree)"
-  },
-  "consentDocumentTerms": "Terms of Service",
-  "@consentDocumentTerms": {
-    "description": "임시. 약관 문서 이름: 이용약관(terms, 슬롯 아님)"
-  },
-  "consentDocumentPrivacy": "Collection and use of personal information",
-  "@consentDocumentPrivacy": {
-    "description": "임시. 약관 문서 이름: 개인정보 수집·이용(privacy, 슬롯 아님)"
-  },
   "consentView": "View",
   "@consentView": {
     "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
   },
-  "notifyAskQuestionHead": "Want your fortune in the morning?",
-  "@notifyAskQuestionHead": {
-    "description": "임시. notify-ask 질문(슬롯 notify-ask.question.head)"
-  },
-  "notifyAskWhyBody": "We will send today's fortune at the time you choose. You can change it anytime in settings.",
-  "@notifyAskWhyBody": {
-    "description": "임시. 알림이 주는 것(슬롯 notify-ask.why.body)"
-  },
-  "notifyAskCtaSkip": "Maybe later",
-  "@notifyAskCtaSkip": {
-    "description": "임시. 건너뛰기 버튼(슬롯 notify-ask.cta.skip)"
-  },
+  "notifyAskQuestionHead": "Would you like today's reading every morning?",
+  "notifyAskWhyBody": "Each notification tells you what kind of day it is, with one line from your daily reading.",
+  "notifyAskCtaSkip": "Not now",
   "notifyAskCtaAllow": "Turn on alerts",
   "@notifyAskCtaAllow": {
     "description": "임시. 알림 허락 버튼(슬롯이 아님)"
-  }
+  },
+  "accountDeleteCtaDelete": "Delete account",
+  "accountDeleteDataBody": "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time.",
+  "accountDeleteDeleteConfirm": "Delete your account for good? This can't be undone.",
+  "accountDeleteDeleteConfirmDelete": "Delete",
+  "accountDeleteDeleteConfirmCancel": "Cancel",
+  "accountDeleteTitleHead": "Delete account",
+  "adFreeLegalNotice": "Please review the Terms of Service and Privacy Policy before purchasing.",
+  "adFreeOfferHead": "One month with no ads, and the basis and interpretation fully unlocked.",
+  "adFreeOfferPrice": "{price} · 1 month · no auto-renewal",
+  "adFreeRestoreCta": "Restore purchase",
+  "adFreeStatusRemaining": "Ad-free until {date}",
+  "calcBasisConventionBody": "Readings follow one standard widely used in Korea.",
+  "calcBasisLongitudeBody": "We subtract 30 minutes from your birth time, based on 127.5° east longitude, and don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.",
+  "calcBasisLunarBody": "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute.",
+  "calendarLegendBodyGood": "Smooth day",
+  "calendarLegendBodyCaution": "Careful day",
+  "consentRequiredLabelTerms": "(Required) Terms of Service",
+  "consentRequiredLabelPrivacy": "(Required) Collection and use of personal information",
+  "daySheetDiaryOpen": "View this day's diary",
+  "daySheetDiaryWriteCta": "Write about this day",
+  "daySheetEventAdd": "Add event",
+  "daySheetEventEmpty": "No events on this day.",
+  "diaryEditBodyPlaceholder": "Write about your day",
+  "diaryEditDraftStatusLocal": "Draft saved on this device",
+  "diaryEditDraftStatusSaving": "Saving",
+  "diaryEditDraftStatusSaved": "Saved",
+  "diaryEditOfflineNotice": "We'll save it when you're back online. What you've written stays on this device.",
+  "diaryEditSavedTags": "Tags were added to your entry",
+  "diaryListEmptyBody": "No diary entries yet. Why not start with today?",
+  "diaryListPickDateCta": "Pick a date to write",
+  "diaryViewDeleteConfirm": "Delete this entry? This can't be undone.",
+  "diaryViewDeleteConfirmDelete": "Delete",
+  "diaryViewDeleteConfirmCancel": "Cancel",
+  "eventEditDeleteConfirm": "Delete this event?",
+  "eventEditDeleteConfirmDelete": "Delete",
+  "eventEditDeleteConfirmCancel": "Cancel",
+  "eventEditMemoHint": "Notes",
+  "eventEditTitleHint": "Event title",
+  "evidenceSheetLockPassLink": "See ad-free pass",
+  "evidenceSheetUnlockFailed": "Confirming the ad is taking longer than usual. Please try again shortly.",
+  "previewShareLoginNoticeConfirm": "Sign in",
+  "previewShareLoginNoticeCancel": "Close",
+  "profileEditRecalcConfirmTitle": "Change your details?",
+  "profileEditRecalcConfirmBody": "{before} → {after}\nToday, Calendar, and My Chart will be recalculated. Diary entries and tags you've already written stay as they are.",
+  "profileEditRecalcConfirmCancel": "Cancel",
+  "profileEditRecalcConfirmSave": "Change",
+  "profileEditRecalcNotice": "Changing your birth date, time, gender, or birthplace recalculates your readings.",
+  "sajuChartTimeUnknownNotice": "Your birth time is unknown, so the hour pillar is left out.",
+  "settingsAdFreeLabel": "Remove ads",
+  "settingsAdFreeLabelActive": "Until {date}",
+  "settingsDepthDesc": "Choose how much of each reading to show at first.",
+  "settingsLanguageBirthplaceNotice": "If you were born outside Korea, please enter your birthplace. It helps us match your birth hour more precisely.",
+  "settingsLanguageBirthplaceNoticeCta": "Enter birthplace",
+  "settingsLogoutConfirm": "Sign out?",
+  "settingsLogoutConfirmLogout": "Sign out",
+  "settingsLogoutConfirmCancel": "Cancel",
+  "sharePreviewCtaShare": "Share",
+  "sharePreviewImageFooter": "Myungli Diary",
+  "sharePreviewImageTagline": "Today, read for your chart · Myungli Diary",
+  "sharePreviewRatioLabelStory": "Story",
+  "sharePreviewRatioLabelFeed": "Feed",
+  "sharePreviewRatioLabelSquare": "Square",
+  "tagDiaryEmptyBody": "No entries with this tag yet.",
+  "todayEventSummary": "Events today: {count} · {title}",
+  "todayEventSummaryOngoing": "Now",
+  "todayEventSummaryNext": "Next",
+  "todayEventSummaryDone": "All of today's events are done",
+  "todayGuideCta": "Write in diary",
+  "todayGuideCtaWritten": "View diary",
+  "todayReactionLabelSelected": "Unlike",
+  "depthDefaultLabel": "Reading detail",
+  "depthEvidence": "Basis",
+  "depthExplain": "Reading",
+  "depthSurface": "Summary"
 }

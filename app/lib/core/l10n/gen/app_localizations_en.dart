@@ -226,27 +226,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get evidenceSheetSectionBasis => 'Basis';
 
   @override
-  String get evidenceSheetSectionSource => 'Source text';
+  String get evidenceSheetSectionSource => 'Classical source';
 
   @override
   String get evidenceSheetSectionPersonal => 'In your chart';
 
   @override
-  String get evidenceSheetLockHead => 'The basis and reading are locked';
+  String get evidenceSheetLockHead => 'The basis and interpretation are locked';
 
   @override
   String get evidenceSheetLockReward =>
-      'Watch one ad to unlock the basis and reading for today.';
+      'Watch one ad to see all the basis and interpretation for the rest of today.';
 
   @override
   String get evidenceSheetLockCta => 'Watch ad to unlock';
 
   @override
-  String get evidenceSheetLockPass => 'Ad-free pass unlocks it right away ›';
+  String get evidenceSheetLockPass =>
+      'With an ad-free pass, they stay unlocked the whole time.';
 
   @override
   String get evidenceSheetLockUnavailable =>
-      'No ad is available right now. Please check back soon.';
+      'No ads are available right now. Please try again later.';
 
   @override
   String get evidenceSheetA11yLocked => 'Locked';
@@ -255,16 +256,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get evidenceSheetA11yChecking => 'Checking';
 
   @override
-  String get evidenceSheetA11yUnlocked => 'The basis and reading are now open';
+  String get evidenceSheetA11yUnlocked =>
+      'The basis and interpretation are unlocked';
 
   @override
-  String get sajuChartYongsinOpen => 'Open';
+  String get sajuChartYongsinOpen => 'Unlock';
 
   @override
   String get sajuChartYongsinTitle => 'Yongsin basis';
 
   @override
-  String get todayReactionLabel => 'Like this sentence';
+  String get todayReactionLabel => 'Like';
 
   @override
   String termTokenSemantics(String term) {
@@ -344,21 +346,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get forceUpdateNoticeHead => 'A new version is needed';
+  String get forceUpdateNoticeHead => 'Please update to the new version';
 
   @override
   String get forceUpdateNoticeBody =>
-      'Please update to the latest version to keep using the app.';
+      'The way readings are calculated has changed, so this version can\'t open them.';
 
   @override
-  String get forceUpdateCtaStore => 'Update in the store';
+  String get forceUpdateCtaStore => 'Update';
 
   @override
-  String get welcomeConceptHead => 'Read yourself today';
+  String get welcomeConceptHead =>
+      'Today\'s day pillar, read for your own chart';
 
   @override
   String get welcomeConceptBody =>
-      'Meet your day in words drawn from your birth chart, and keep it with a diary.';
+      'One question based on that reading starts your diary for the day.';
 
   @override
   String get welcomeCtaStart => 'Get started';
@@ -367,20 +370,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeCtaSignin => 'I already have an account';
 
   @override
-  String get onboardCallQuestionHead => 'What should I call you?';
+  String get onboardCallQuestionHead => 'What should we call you?';
 
   @override
-  String get onboardCallInputHint => 'e.g. Star';
+  String get onboardCallInputHint => 'e.g. Alex';
 
   @override
-  String get onboardCallNoteBody => 'It doesn\'t have to be your real name.';
+  String get onboardCallNoteBody =>
+      'It doesn\'t have to be your real name. You can change it later.';
 
   @override
   String get onboardBirthQuestionHead => 'When were you born?';
 
   @override
   String get onboardBirthCalendarHint =>
-      'For the lunar calendar, pick Lunar and check Leap month if it applies.';
+      'If your birthday is on the lunar calendar, choose Lunar, and mark Leap month if it applies.';
 
   @override
   String get onboardBirthBasisNote =>
@@ -388,7 +392,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardBirthErrorRange =>
-      'We can calculate from January 31, 1900 to December 31, 2099.';
+      'We can only calculate dates from January 31, 1900 to December 31, 2099.';
 
   @override
   String get onboardingNext => 'Next';
@@ -413,7 +417,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardTimeUnknownNote =>
-      'If you don\'t know the time, we calculate with three pillars, leaving out the hour pillar.';
+      'If you don\'t know the time, we read your chart from three pillars, leaving out the hour.';
 
   @override
   String get timeUnknownLabel => 'Don\'t know';
@@ -464,20 +468,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardGenderWhyBody =>
-      'Used to work out the direction of your major luck cycles.';
+      'We only use it to set the direction of your 10-year luck cycles.';
 
   @override
   String get birthplaceQuestionHead => 'Where were you born?';
 
   @override
   String get birthplaceWhyBody =>
-      'The time zone of your birth city is used to set your birth time.';
+      'We use your birthplace\'s time zone and longitude to pin down your birth hour.';
 
   @override
-  String get birthplaceSearchHint => 'e.g. New York';
+  String get birthplaceSearchHint => 'City name';
 
   @override
-  String get birthplaceEmptyBody => 'No matching city. Try another name.';
+  String get birthplaceEmptyBody =>
+      'No matching city. Try a larger city nearby.';
 
   @override
   String get birthplaceSearchLabel => 'City name';
@@ -492,10 +497,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previewCtaSave => 'Save and continue';
 
   @override
-  String get previewCtaRestart => 'Enter again';
+  String get previewCtaRestart => 'Start over';
 
   @override
-  String get previewShareLoginNotice => 'You can share after signing in.';
+  String get previewShareLoginNotice => 'Sign in to share today\'s reading.';
 
   @override
   String get dayKindYongsinDay => 'Day of your Yongsin';
@@ -513,21 +518,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareLabel => 'Share';
 
   @override
-  String get actionLogin => 'Sign in';
-
-  @override
   String get actionClose => 'Close';
 
   @override
-  String get loginTitleHead => 'Sign in to continue';
+  String get loginTitleHead => 'Sign in to save your reading';
 
   @override
   String get loginTitleBody =>
-      'Sign in to save your saju and get your reading every day.';
+      'Once you sign in, your chart and diary are available on any device.';
 
   @override
   String get loginDiscardNotice =>
-      'This account already has a saved saju. We\'ll continue with it instead of the details you just entered.';
+      'If this account already has a saved chart, we\'ll use it instead of what you just entered.';
 
   @override
   String get loginKakaoLabel => 'Login with Kakao';
@@ -553,41 +555,274 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionConfirm => 'OK';
 
   @override
-  String get consentTitleHead => 'Please agree to the terms to continue';
-
-  @override
-  String consentRequiredLabel(String document) {
-    return '(Required) $document';
-  }
-
-  @override
-  String consentOptionalLabel(String document) {
-    return '(Optional) $document';
-  }
+  String get consentTitleHead => 'Please review and agree';
 
   @override
   String get consentCtaAgree => 'Agree and continue';
 
   @override
-  String get consentDocumentTerms => 'Terms of Service';
-
-  @override
-  String get consentDocumentPrivacy =>
-      'Collection and use of personal information';
-
-  @override
   String get consentView => 'View';
 
   @override
-  String get notifyAskQuestionHead => 'Want your fortune in the morning?';
+  String get notifyAskQuestionHead =>
+      'Would you like today\'s reading every morning?';
 
   @override
   String get notifyAskWhyBody =>
-      'We will send today\'s fortune at the time you choose. You can change it anytime in settings.';
+      'Each notification tells you what kind of day it is, with one line from your daily reading.';
 
   @override
-  String get notifyAskCtaSkip => 'Maybe later';
+  String get notifyAskCtaSkip => 'Not now';
 
   @override
   String get notifyAskCtaAllow => 'Turn on alerts';
+
+  @override
+  String get accountDeleteCtaDelete => 'Delete account';
+
+  @override
+  String get accountDeleteDataBody =>
+      'Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time.';
+
+  @override
+  String get accountDeleteDeleteConfirm =>
+      'Delete your account for good? This can\'t be undone.';
+
+  @override
+  String get accountDeleteDeleteConfirmDelete => 'Delete';
+
+  @override
+  String get accountDeleteDeleteConfirmCancel => 'Cancel';
+
+  @override
+  String get accountDeleteTitleHead => 'Delete account';
+
+  @override
+  String get adFreeLegalNotice =>
+      'Please review the Terms of Service and Privacy Policy before purchasing.';
+
+  @override
+  String get adFreeOfferHead =>
+      'One month with no ads, and the basis and interpretation fully unlocked.';
+
+  @override
+  String adFreeOfferPrice(String price) {
+    return '$price · 1 month · no auto-renewal';
+  }
+
+  @override
+  String get adFreeRestoreCta => 'Restore purchase';
+
+  @override
+  String adFreeStatusRemaining(String date) {
+    return 'Ad-free until $date';
+  }
+
+  @override
+  String get calcBasisConventionBody =>
+      'Readings follow one standard widely used in Korea.';
+
+  @override
+  String get calcBasisLongitudeBody =>
+      'We subtract 30 minutes from your birth time, based on 127.5° east longitude, and don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+
+  @override
+  String get calcBasisLunarBody =>
+      'Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute.';
+
+  @override
+  String get calendarLegendBodyGood => 'Smooth day';
+
+  @override
+  String get calendarLegendBodyCaution => 'Careful day';
+
+  @override
+  String get consentRequiredLabelTerms => '(Required) Terms of Service';
+
+  @override
+  String get consentRequiredLabelPrivacy =>
+      '(Required) Collection and use of personal information';
+
+  @override
+  String get daySheetDiaryOpen => 'View this day\'s diary';
+
+  @override
+  String get daySheetDiaryWriteCta => 'Write about this day';
+
+  @override
+  String get daySheetEventAdd => 'Add event';
+
+  @override
+  String get daySheetEventEmpty => 'No events on this day.';
+
+  @override
+  String get diaryEditBodyPlaceholder => 'Write about your day';
+
+  @override
+  String get diaryEditDraftStatusLocal => 'Draft saved on this device';
+
+  @override
+  String get diaryEditDraftStatusSaving => 'Saving';
+
+  @override
+  String get diaryEditDraftStatusSaved => 'Saved';
+
+  @override
+  String get diaryEditOfflineNotice =>
+      'We\'ll save it when you\'re back online. What you\'ve written stays on this device.';
+
+  @override
+  String get diaryEditSavedTags => 'Tags were added to your entry';
+
+  @override
+  String get diaryListEmptyBody =>
+      'No diary entries yet. Why not start with today?';
+
+  @override
+  String get diaryListPickDateCta => 'Pick a date to write';
+
+  @override
+  String get diaryViewDeleteConfirm =>
+      'Delete this entry? This can\'t be undone.';
+
+  @override
+  String get diaryViewDeleteConfirmDelete => 'Delete';
+
+  @override
+  String get diaryViewDeleteConfirmCancel => 'Cancel';
+
+  @override
+  String get eventEditDeleteConfirm => 'Delete this event?';
+
+  @override
+  String get eventEditDeleteConfirmDelete => 'Delete';
+
+  @override
+  String get eventEditDeleteConfirmCancel => 'Cancel';
+
+  @override
+  String get eventEditMemoHint => 'Notes';
+
+  @override
+  String get eventEditTitleHint => 'Event title';
+
+  @override
+  String get evidenceSheetLockPassLink => 'See ad-free pass';
+
+  @override
+  String get evidenceSheetUnlockFailed =>
+      'Confirming the ad is taking longer than usual. Please try again shortly.';
+
+  @override
+  String get previewShareLoginNoticeConfirm => 'Sign in';
+
+  @override
+  String get previewShareLoginNoticeCancel => 'Close';
+
+  @override
+  String get profileEditRecalcConfirmTitle => 'Change your details?';
+
+  @override
+  String profileEditRecalcConfirmBody(String before, String after) {
+    return '$before → $after\nToday, Calendar, and My Chart will be recalculated. Diary entries and tags you\'ve already written stay as they are.';
+  }
+
+  @override
+  String get profileEditRecalcConfirmCancel => 'Cancel';
+
+  @override
+  String get profileEditRecalcConfirmSave => 'Change';
+
+  @override
+  String get profileEditRecalcNotice =>
+      'Changing your birth date, time, gender, or birthplace recalculates your readings.';
+
+  @override
+  String get sajuChartTimeUnknownNotice =>
+      'Your birth time is unknown, so the hour pillar is left out.';
+
+  @override
+  String get settingsAdFreeLabel => 'Remove ads';
+
+  @override
+  String settingsAdFreeLabelActive(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get settingsDepthDesc =>
+      'Choose how much of each reading to show at first.';
+
+  @override
+  String get settingsLanguageBirthplaceNotice =>
+      'If you were born outside Korea, please enter your birthplace. It helps us match your birth hour more precisely.';
+
+  @override
+  String get settingsLanguageBirthplaceNoticeCta => 'Enter birthplace';
+
+  @override
+  String get settingsLogoutConfirm => 'Sign out?';
+
+  @override
+  String get settingsLogoutConfirmLogout => 'Sign out';
+
+  @override
+  String get settingsLogoutConfirmCancel => 'Cancel';
+
+  @override
+  String get sharePreviewCtaShare => 'Share';
+
+  @override
+  String get sharePreviewImageFooter => 'Myungli Diary';
+
+  @override
+  String get sharePreviewImageTagline =>
+      'Today, read for your chart · Myungli Diary';
+
+  @override
+  String get sharePreviewRatioLabelStory => 'Story';
+
+  @override
+  String get sharePreviewRatioLabelFeed => 'Feed';
+
+  @override
+  String get sharePreviewRatioLabelSquare => 'Square';
+
+  @override
+  String get tagDiaryEmptyBody => 'No entries with this tag yet.';
+
+  @override
+  String todayEventSummary(int count, String title) {
+    return 'Events today: $count · $title';
+  }
+
+  @override
+  String get todayEventSummaryOngoing => 'Now';
+
+  @override
+  String get todayEventSummaryNext => 'Next';
+
+  @override
+  String get todayEventSummaryDone => 'All of today\'s events are done';
+
+  @override
+  String get todayGuideCta => 'Write in diary';
+
+  @override
+  String get todayGuideCtaWritten => 'View diary';
+
+  @override
+  String get todayReactionLabelSelected => 'Unlike';
+
+  @override
+  String get depthDefaultLabel => 'Reading detail';
+
+  @override
+  String get depthEvidence => 'Basis';
+
+  @override
+  String get depthExplain => 'Reading';
+
+  @override
+  String get depthSurface => 'Summary';
 }

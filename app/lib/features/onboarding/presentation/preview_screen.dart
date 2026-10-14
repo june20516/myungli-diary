@@ -150,8 +150,8 @@ class _PreviewBody extends StatelessWidget {
       variant: DialogVariant.confirm,
       title: l10n.previewShareLoginNotice,
       identifier: SlotIds.previewShareLoginNotice,
-      confirm: l10n.actionLogin,
-      cancel: l10n.actionClose,
+      confirm: l10n.previewShareLoginNoticeConfirm,
+      cancel: l10n.previewShareLoginNoticeCancel,
     );
     if (login && context.mounted) {
       await context.push<void>(pathOf(ScreenIds.login));

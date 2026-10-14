@@ -207,20 +207,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String get evidenceSheetSectionPersonal => '내 사주에서는';
 
   @override
-  String get evidenceSheetLockHead => '근거와 해석이 잠겨 있어요';
+  String get evidenceSheetLockHead => '근거와 해석은 잠겨 있어요';
 
   @override
-  String get evidenceSheetLockReward => '광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열려요.';
+  String get evidenceSheetLockReward => '광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.';
 
   @override
   String get evidenceSheetLockCta => '광고 보고 열기';
 
   @override
-  String get evidenceSheetLockPass => '광고 제거권이 있으면 바로 열려요 ›';
+  String get evidenceSheetLockPass => '광고 제거권이 있으면 기간 내내 열려 있어요.';
 
   @override
   String get evidenceSheetLockUnavailable =>
-      '지금 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 와 주세요.';
+      '지금은 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 해 주세요.';
 
   @override
   String get evidenceSheetA11yLocked => '잠김';
@@ -238,7 +238,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sajuChartYongsinTitle => '용신 판정 근거';
 
   @override
-  String get todayReactionLabel => '이 문장 좋아요';
+  String get todayReactionLabel => '좋아요';
 
   @override
   String termTokenSemantics(String term) {
@@ -318,19 +318,19 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get forceUpdateNoticeHead => '새 버전이 필요해요';
+  String get forceUpdateNoticeHead => '새 버전으로 업데이트해 주세요';
 
   @override
-  String get forceUpdateNoticeBody => '앱을 계속 쓰려면 최신 버전으로 업데이트해 주세요.';
+  String get forceUpdateNoticeBody => '풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요.';
 
   @override
-  String get forceUpdateCtaStore => '스토어에서 업데이트';
+  String get forceUpdateCtaStore => '업데이트하기';
 
   @override
-  String get welcomeConceptHead => '오늘의 나를 읽어요';
+  String get welcomeConceptHead => '오늘 일진을 내 사주에 맞춰 풀어 드려요';
 
   @override
-  String get welcomeConceptBody => '생년월일시로 풀이한 하루를 문장으로 만나고, 일기와 함께 기록해요.';
+  String get welcomeConceptBody => '풀이에 맞춘 질문 하나로 그날 일기를 시작해요.';
 
   @override
   String get welcomeCtaStart => '시작하기';
@@ -339,26 +339,26 @@ class AppLocalizationsKo extends AppLocalizations {
   String get welcomeCtaSignin => '이미 계정이 있어요';
 
   @override
-  String get onboardCallQuestionHead => '뭐라고 불러 드릴까요?';
+  String get onboardCallQuestionHead => '어떻게 불러 드릴까요?';
 
   @override
-  String get onboardCallInputHint => '예: 별님';
+  String get onboardCallInputHint => '예: 민지';
 
   @override
-  String get onboardCallNoteBody => '실명이 아니어도 괜찮아요.';
+  String get onboardCallNoteBody => '실명이 아니어도 돼요. 나중에 바꿀 수 있어요.';
 
   @override
-  String get onboardBirthQuestionHead => '언제 태어나셨나요?';
+  String get onboardBirthQuestionHead => '언제 태어났나요?';
 
   @override
-  String get onboardBirthCalendarHint => '음력이면 음력을 고르고, 윤달이면 윤달에 체크해 주세요.';
+  String get onboardBirthCalendarHint => '음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.';
 
   @override
-  String get onboardBirthBasisNote => '한국에서 태어난 것으로 보고 계산해요.';
+  String get onboardBirthBasisNote => '한국에서 태어난 것을 기준으로 계산해요.';
 
   @override
   String get onboardBirthErrorRange =>
-      '1900년 1월 31일부터 2099년 12월 31일까지 계산할 수 있어요.';
+      '1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.';
 
   @override
   String get onboardingNext => '다음';
@@ -379,10 +379,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardCallInputLabel => '호칭';
 
   @override
-  String get onboardTimeQuestionHead => '몇 시에 태어나셨나요?';
+  String get onboardTimeQuestionHead => '몇 시에 태어났나요?';
 
   @override
-  String get onboardTimeUnknownNote => '태어난 시간을 모르면 시간 기둥을 뺀 세 기둥으로 계산해요.';
+  String get onboardTimeUnknownNote => '시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.';
 
   @override
   String get timeUnknownLabel => '모름';
@@ -429,22 +429,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get branchHae => '해시';
 
   @override
-  String get onboardGenderQuestionHead => '성별을 알려 주세요.';
+  String get onboardGenderQuestionHead => '성별이 어떻게 되나요?';
 
   @override
-  String get onboardGenderWhyBody => '대운의 방향을 계산할 때 쓰여요.';
+  String get onboardGenderWhyBody => '대운이 흐르는 방향을 정할 때만 써요.';
 
   @override
-  String get birthplaceQuestionHead => '어디에서 태어나셨나요?';
+  String get birthplaceQuestionHead => '어디에서 태어났나요?';
 
   @override
-  String get birthplaceWhyBody => '태어난 도시의 시간대로 태어난 시각을 맞춰요.';
+  String get birthplaceWhyBody => '태어난 곳의 시간대와 경도로 태어난 시를 정확히 맞춰요.';
 
   @override
-  String get birthplaceSearchHint => '예: 뉴욕';
+  String get birthplaceSearchHint => '도시 이름';
 
   @override
-  String get birthplaceEmptyBody => '찾는 도시가 없어요. 다른 이름으로 검색해 보세요.';
+  String get birthplaceEmptyBody => '찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.';
 
   @override
   String get birthplaceSearchLabel => '도시 이름';
@@ -459,10 +459,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get previewCtaSave => '저장하고 계속하기';
 
   @override
-  String get previewCtaRestart => '다시 입력';
+  String get previewCtaRestart => '다시 입력하기';
 
   @override
-  String get previewShareLoginNotice => '로그인하면 공유할 수 있어요.';
+  String get previewShareLoginNotice => '로그인하면 오늘 풀이를 공유할 수 있어요.';
 
   @override
   String get dayKindYongsinDay => '용신의 날';
@@ -480,20 +480,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shareLabel => '공유';
 
   @override
-  String get actionLogin => '로그인';
-
-  @override
   String get actionClose => '닫기';
 
   @override
-  String get loginTitleHead => '로그인하고 이어 가요';
+  String get loginTitleHead => '로그인하고 풀이를 저장해요';
 
   @override
-  String get loginTitleBody => '로그인하면 사주를 저장하고 매일 오늘의 풀이를 받아 볼 수 있어요.';
+  String get loginTitleBody => '로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.';
 
   @override
-  String get loginDiscardNotice =>
-      '이 계정에는 이미 저장된 사주가 있어요. 방금 입력한 정보는 쓰지 않고 저장된 사주로 이어 갈게요.';
+  String get loginDiscardNotice => '이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.';
 
   @override
   String get loginKakaoLabel => '카카오 로그인';
@@ -517,40 +513,258 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionConfirm => '확인';
 
   @override
-  String get consentTitleHead => '서비스를 쓰려면 약관에 동의해 주세요';
-
-  @override
-  String consentRequiredLabel(String document) {
-    return '(필수) $document';
-  }
-
-  @override
-  String consentOptionalLabel(String document) {
-    return '(선택) $document';
-  }
+  String get consentTitleHead => '약관에 동의해 주세요';
 
   @override
   String get consentCtaAgree => '동의하고 계속하기';
 
   @override
-  String get consentDocumentTerms => '이용약관';
-
-  @override
-  String get consentDocumentPrivacy => '개인정보 수집·이용';
-
-  @override
   String get consentView => '보기';
 
   @override
-  String get notifyAskQuestionHead => '아침 운세를 알려드릴까요?';
+  String get notifyAskQuestionHead => '아침마다 오늘 풀이를 알려 드릴까요?';
 
   @override
-  String get notifyAskWhyBody =>
-      '정한 시각에 오늘의 운세를 알림으로 보내 드려요. 설정에서 언제든 바꿀 수 있어요.';
+  String get notifyAskWhyBody => '알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요.';
 
   @override
-  String get notifyAskCtaSkip => '나중에 할게요';
+  String get notifyAskCtaSkip => '나중에';
 
   @override
   String get notifyAskCtaAllow => '알림 받기';
+
+  @override
+  String get accountDeleteCtaDelete => '계정 지우기';
+
+  @override
+  String get accountDeleteDataBody =>
+      '계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.';
+
+  @override
+  String get accountDeleteDeleteConfirm => '정말 지울까요? 지운 계정은 되돌릴 수 없어요.';
+
+  @override
+  String get accountDeleteDeleteConfirmDelete => '지우기';
+
+  @override
+  String get accountDeleteDeleteConfirmCancel => '취소';
+
+  @override
+  String get accountDeleteTitleHead => '계정 삭제';
+
+  @override
+  String get adFreeLegalNotice => '구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.';
+
+  @override
+  String get adFreeOfferHead => '한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요.';
+
+  @override
+  String adFreeOfferPrice(String price) {
+    return '$price · 1개월 · 자동 갱신 없음';
+  }
+
+  @override
+  String get adFreeRestoreCta => '구매 복원';
+
+  @override
+  String adFreeStatusRemaining(String date) {
+    return '$date까지 광고 없이 볼 수 있어요';
+  }
+
+  @override
+  String get calcBasisConventionBody => '명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.';
+
+  @override
+  String get calcBasisLongitudeBody =>
+      '출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+
+  @override
+  String get calcBasisLunarBody => '음력은 한국천문연구원 기준의 한국 음력을 따라요.';
+
+  @override
+  String get calendarLegendBodyGood => '잘 풀리는 날';
+
+  @override
+  String get calendarLegendBodyCaution => '조심할 날';
+
+  @override
+  String get consentRequiredLabelTerms => '(필수) 이용약관';
+
+  @override
+  String get consentRequiredLabelPrivacy => '(필수) 개인정보 수집·이용';
+
+  @override
+  String get daySheetDiaryOpen => '이날 일기 보기';
+
+  @override
+  String get daySheetDiaryWriteCta => '이날 일기 쓰기';
+
+  @override
+  String get daySheetEventAdd => '일정 추가';
+
+  @override
+  String get daySheetEventEmpty => '이날은 일정이 없어요.';
+
+  @override
+  String get diaryEditBodyPlaceholder => '오늘 있었던 일을 적어 보세요';
+
+  @override
+  String get diaryEditDraftStatusLocal => '기기에 임시 저장됨';
+
+  @override
+  String get diaryEditDraftStatusSaving => '저장 중';
+
+  @override
+  String get diaryEditDraftStatusSaved => '저장됨';
+
+  @override
+  String get diaryEditOfflineNotice => '인터넷에 연결되면 저장할게요. 쓴 내용은 기기에 남아 있어요.';
+
+  @override
+  String get diaryEditSavedTags => '일기에 태그가 붙었어요';
+
+  @override
+  String get diaryListEmptyBody => '아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?';
+
+  @override
+  String get diaryListPickDateCta => '날짜 골라 쓰기';
+
+  @override
+  String get diaryViewDeleteConfirm => '이 일기를 지울까요? 지우면 되돌릴 수 없어요.';
+
+  @override
+  String get diaryViewDeleteConfirmDelete => '지우기';
+
+  @override
+  String get diaryViewDeleteConfirmCancel => '취소';
+
+  @override
+  String get eventEditDeleteConfirm => '이 일정을 지울까요?';
+
+  @override
+  String get eventEditDeleteConfirmDelete => '지우기';
+
+  @override
+  String get eventEditDeleteConfirmCancel => '취소';
+
+  @override
+  String get eventEditMemoHint => '메모';
+
+  @override
+  String get eventEditTitleHint => '일정 제목';
+
+  @override
+  String get evidenceSheetLockPassLink => '광고 제거 보기';
+
+  @override
+  String get evidenceSheetUnlockFailed => '광고 확인이 늦어지고 있어요. 잠시 뒤에 다시 열어 주세요.';
+
+  @override
+  String get previewShareLoginNoticeConfirm => '로그인하기';
+
+  @override
+  String get previewShareLoginNoticeCancel => '닫기';
+
+  @override
+  String get profileEditRecalcConfirmTitle => '정보를 바꿀까요?';
+
+  @override
+  String profileEditRecalcConfirmBody(String before, String after) {
+    return '$before → $after\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.';
+  }
+
+  @override
+  String get profileEditRecalcConfirmCancel => '취소';
+
+  @override
+  String get profileEditRecalcConfirmSave => '바꾸기';
+
+  @override
+  String get profileEditRecalcNotice => '생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.';
+
+  @override
+  String get sajuChartTimeUnknownNotice => '태어난 시간을 몰라 시주는 빼고 보여 드려요.';
+
+  @override
+  String get settingsAdFreeLabel => '광고 제거';
+
+  @override
+  String settingsAdFreeLabelActive(String date) {
+    return '$date까지';
+  }
+
+  @override
+  String get settingsDepthDesc => '풀이를 처음에 어디까지 펼쳐 볼지 골라요.';
+
+  @override
+  String get settingsLanguageBirthplaceNotice =>
+      '한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.';
+
+  @override
+  String get settingsLanguageBirthplaceNoticeCta => '출생지 입력하기';
+
+  @override
+  String get settingsLogoutConfirm => '로그아웃할까요?';
+
+  @override
+  String get settingsLogoutConfirmLogout => '로그아웃';
+
+  @override
+  String get settingsLogoutConfirmCancel => '취소';
+
+  @override
+  String get sharePreviewCtaShare => '공유하기';
+
+  @override
+  String get sharePreviewImageFooter => '명리일기';
+
+  @override
+  String get sharePreviewImageTagline => '내 사주로 푼 오늘, 명리일기';
+
+  @override
+  String get sharePreviewRatioLabelStory => '스토리';
+
+  @override
+  String get sharePreviewRatioLabelFeed => '피드';
+
+  @override
+  String get sharePreviewRatioLabelSquare => '정사각';
+
+  @override
+  String get tagDiaryEmptyBody => '이 태그가 붙은 일기가 아직 없어요.';
+
+  @override
+  String todayEventSummary(int count, String title) {
+    return '오늘 일정 $count개 · $title';
+  }
+
+  @override
+  String get todayEventSummaryOngoing => '진행 중';
+
+  @override
+  String get todayEventSummaryNext => '다음';
+
+  @override
+  String get todayEventSummaryDone => '오늘 일정이 모두 끝났어요';
+
+  @override
+  String get todayGuideCta => '일기 쓰기';
+
+  @override
+  String get todayGuideCtaWritten => '쓴 일기 보기';
+
+  @override
+  String get todayReactionLabelSelected => '좋아요 취소';
+
+  @override
+  String get depthDefaultLabel => '명리 풀이 보기';
+
+  @override
+  String get depthEvidence => '원리';
+
+  @override
+  String get depthExplain => '풀이';
+
+  @override
+  String get depthSurface => '요약';
 }

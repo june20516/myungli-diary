@@ -11,6 +11,7 @@ import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/consent_document.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -24,6 +25,8 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
+
+final _ko = AppLocalizationsKo();
 
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
@@ -60,8 +63,10 @@ Future<void> _check(
   await tester.tap(
     find.descendant(
       of: _row(document),
-      matching: find.textContaining(
-        document == ConsentDocumentDocumentEnum.terms ? '이용약관' : '개인정보',
+      matching: find.text(
+        document == ConsentDocumentDocumentEnum.terms
+            ? _ko.consentRequiredLabelTerms
+            : _ko.consentRequiredLabelPrivacy,
       ),
     ),
   );
@@ -123,8 +128,8 @@ void main() {
     // 갈래의 첫 화면이라 돌아갈 곳이 없어 뒤로 버튼을 두지 않습니다.
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
     expect(find.byType(CheckRow), findsNWidgets(2));
-    expect(find.text('(필수) 이용약관'), findsOneWidget);
-    expect(find.text('(필수) 개인정보 수집·이용'), findsOneWidget);
+    expect(find.text(_ko.consentRequiredLabelTerms), findsOneWidget);
+    expect(find.text(_ko.consentRequiredLabelPrivacy), findsOneWidget);
     // 선택 동의 문서는 계약에 없어 그리지 않습니다.
     expect(find.textContaining('(선택)'), findsNothing);
     expect(_agreeEnabled(tester), isFalse);
@@ -181,7 +186,7 @@ void main() {
       await tapNext(tester); // 호칭 → 생일
       await tapNext(tester); // 생일 → 시간
       await tapNext(tester); // 시간 → 성별
-      await tester.tap(find.text('여성'));
+      await tester.tap(find.text(_ko.genderFemale));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(PrimaryButton));
       await pumpUntilScreen(tester, ScreenIds.notifyAsk);
@@ -220,7 +225,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byKey(consentDocumentKey(ConsentDocumentDocumentEnum.privacy)),
-        matching: find.text('보기'),
+        matching: find.text(_ko.consentView),
       ),
     );
     await tester.pumpAndSettle();
@@ -281,7 +286,7 @@ void main() {
 
     expect(_screen(ScreenIds.consent), findsOneWidget);
     expect(fake.callCountOf('getMe'), 2);
-    expect(find.text('약관이 바뀌었어요. 다시 확인해 주세요.'), findsOneWidget);
+    expect(find.text(_ko.errorConsentVersionMismatch), findsOneWidget);
     expect(_checked(tester, ConsentDocumentDocumentEnum.terms), isFalse);
     expect(_checked(tester, ConsentDocumentDocumentEnum.privacy), isFalse);
     expect(_agreeEnabled(tester), isFalse);
@@ -314,7 +319,7 @@ void main() {
 
       await _agreeUntil(tester, ScreenIds.onboardCall);
 
-      expect(find.text('입력한 생년월일시를 다시 확인해 주세요.'), findsOneWidget);
+      expect(find.text(_ko.errorBirthInvalid), findsOneWidget);
       // 같은 입력으로 다시 저장하지 않고 고칠 수 있게 입력을 보여 줍니다.
       expect(_fake(container).callCountOf('createProfile'), 1);
       expect(
@@ -375,7 +380,7 @@ void main() {
       );
       final fake = _fake(container);
       expect(fake.callCountOf('createProfile'), 2);
-      expect(find.text('잠시 서비스를 이용할 수 없어요. 잠시 후 다시 시도해 주세요.'), findsOneWidget);
+      expect(find.text(_ko.errorServiceUnavailable), findsOneWidget);
       expect(
         await tester.runAsync(
           () => container

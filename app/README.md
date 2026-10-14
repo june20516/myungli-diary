@@ -87,6 +87,21 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 * Riverpod provider는 코드 생성 없이 직접 선언합니다(결정 A15).
 * CI의 `checks` job이 위 명령을 모두 다시 돌린 뒤 `git status`가 깨끗하지 않으면 실패합니다. 원본을 고치고 생성물을 commit하지 않으면 CI가 잡습니다.
 
+## ui 원고 가져오기
+화면 문구 원고는 writing이 만든 ARB(`../docs/identity/writing/generated/arb/app_{ko,en,ja}.arb`, #128)입니다. 원고가 바뀌면 `app/`에서 다시 가져옵니다. 같은 원고로 다시 돌려도 결과가 같습니다.
+
+```sh
+dart run tool/import_writing_arb.dart
+flutter gen-l10n
+# 저장소 루트에서
+uv run --project docs/identity/writing/tools mlw check-arb app/lib/core/l10n/arb/app_ko.arb app/lib/core/l10n/arb/app_en.arb app/lib/core/l10n/arb/app_ja.arb
+```
+
+* 원고에 있는 키는 값을 원고로 바꾸고, ko의 `@키` 설명·placeholder도 원고 것으로 바꿉니다(임시 표시가 사라짐). en·ja 번역이 없는 키는 ko 문구로 채웁니다.
+* app에만 있는 키(오류 `error*`, 슬롯 밖 문구, 원고가 없는 슬롯)는 그대로 두며 `임시` 표시가 남습니다. 이 키를 고칠 때는 ARB를 직접 고칩니다.
+* `@@locale`만 app 파일 것을 두고, 원고의 `@@x-generated`는 가져오지 않습니다(app ARB는 전체가 생성물이 아니므로).
+* 원고에서 키가 바뀌면(상태 이름 접미사 등) 화면 코드가 새 키를 쓰게 고치고, 쓰지 않게 된 키를 세 ARB에서 지웁니다. 도구는 키를 지우지 않습니다.
+
 ## fixture 추가와 검증
 fake 모드의 대역 응답은 `fixtures/<시나리오>/` 아래 JSON입니다.
 

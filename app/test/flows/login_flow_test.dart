@@ -5,6 +5,7 @@ import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -19,6 +20,8 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
+
+final _ko = AppLocalizationsKo();
 
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
@@ -170,14 +173,11 @@ void main() {
       // 안내가 열린 동안 버튼은 처리 중이라 점이 계속 움직입니다.
       settle: false,
     );
-    expect(
-      find.text('이 계정에는 이미 저장된 사주가 있어요. 방금 입력한 정보는 쓰지 않고 저장된 사주로 이어 갈게요.'),
-      findsOneWidget,
-    );
+    expect(find.text(_ko.loginDiscardNotice), findsOneWidget);
     // 안내를 닫기 전에는 이동하지 않습니다.
     expect(_screen(ScreenIds.login), findsOneWidget);
 
-    await tester.tap(find.text('확인'));
+    await tester.tap(find.text(_ko.actionConfirm));
     await _settleLogin(tester, container);
 
     expect(_screen(ScreenIds.today), findsOneWidget);
@@ -203,7 +203,7 @@ void main() {
 
     expect(_screen(ScreenIds.login), findsOneWidget);
     expect(find.byKey(loginErrorKey), findsOneWidget);
-    expect(find.text('지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요.'), findsOneWidget);
+    expect(find.text(_ko.errorAuthProviderUnavailable), findsOneWidget);
     expect(container.read(tokenStoreProvider).accessToken, isNull);
     expect(_fake(container).callCountOf('loginKakao'), 1);
 
@@ -231,7 +231,7 @@ void main() {
     await _settleLogin(tester, container);
 
     expect(find.byKey(loginErrorKey), findsOneWidget);
-    expect(find.text('로그인을 취소했어요.'), findsOneWidget);
+    expect(find.text(_ko.loginCancelled), findsOneWidget);
     expect(_fake(container).callCountOf('loginKakao'), 0);
   });
 
@@ -255,7 +255,7 @@ void main() {
       );
       await _settleLogin(tester, container);
 
-      expect(find.text('로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.'), findsOneWidget);
+      expect(find.text(_ko.errorAuthExchangeInvalid), findsOneWidget);
       expect(_fake(container).callCountOf('completeAppleWebLogin'), 1);
       expect(_fake(container).callCountOf('loginApple'), 0);
       expect(container.read(tokenStoreProvider).accessToken, isNull);
@@ -288,7 +288,7 @@ void main() {
     await _settleLogin(tester, container);
 
     expect(find.byKey(loginErrorKey), findsOneWidget);
-    expect(find.text('Apple 로그인을 취소했어요.'), findsOneWidget);
+    expect(find.text(_ko.appleWebErrorCancelled), findsOneWidget);
     expect(_fake(container).callCountOf('completeAppleWebLogin'), 0);
     expect(container.read(tokenStoreProvider).accessToken, isNull);
   });

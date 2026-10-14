@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -19,6 +20,8 @@ import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/onboarding_steps.dart';
+
+final _ko = AppLocalizationsKo();
 
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
@@ -93,7 +96,7 @@ void main() {
 
     // 갈래의 첫 화면이라 돌아갈 곳이 없어 뒤로 버튼을 두지 않습니다.
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
-    expect(find.textContaining('알림으로 보내 드려요'), findsOneWidget);
+    expect(find.text(_ko.notifyAskWhyBody), findsOneWidget);
     expect(_skipButton, findsOneWidget);
     final gathersBefore = adConsent.gathers;
 

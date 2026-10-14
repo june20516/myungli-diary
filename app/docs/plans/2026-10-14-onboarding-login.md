@@ -473,3 +473,26 @@
   * server(`kind:request`): 프로필 GET(또는 `Me`에 프로필 요약과 `currentTimezone`) 추가(A18, 계획 6 `profile-edit` 필요). `City`의 지역 표시값. 음력→양력 변환과 윤달 유무 조회(date-picker `solarConfirm`·`leapMonth`). `Preview`의 날의 성격 문장과 총운 이어지는 문장
   * design(`kind:notice`): date-picker `solarConfirm`·`leapMonth` 휠을 계약 공백으로 그리지 않은 것, 윤달을 inline 체크로 받은 것, city-search 지역 자리에 나라 코드를 쓴 것
   * #127에 병합 소식(PR 병합 뒤)
+
+### Task 20 (추가): writing IA v2 브랜치 병합과 ui 원고 반영 (#135·#128)
+
+계획 2를 진행하는 동안 main에 writing의 ui 원고(#132)가 병합됐고, IA v2(D67, 선택 동의 슬롯 제거)가 지휘 PR #133과 writing PR #138로 쌓여 있습니다. #135의 지시대로 이 app 브랜치가 그 둘을 품은 **최종 PR**이 됩니다.
+
+**바뀐 것**
+- writing 브랜치 `origin/writing/ia-v2-consent`(PR #138)는 main 최신(#132·#137 포함)과 지휘 `origin/root/ia-v2-consent`(PR #133)를 모두 포함합니다.
+- IA v2: `docs/ia/screens.json` `version` 2, 슬롯 `consent.optional.label` 삭제(D67, MVP 약관 동의는 필수만).
+- ui 원고(#128): `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb`(writing이 생성, 직접 고치지 않음). 키 = IA 슬롯 id lowerCamelCase(#90). 한 자리에 문구가 여럿이면 대문자로 시작하는 상태 이름 접미사(예 `diaryEditDraftStatusSaving`). `@키` 메타데이터는 ko에만. 파일 머리에 `@@x-generated`. placeholder `text`→String, `number`→int. ICU plural·select 없음. en에 아포스트로피(`can't`) 있음.
+
+**Steps**
+- [ ] **Step 1:** `git merge --no-ff origin/writing/ia-v2-consent`(충돌이 나면 app/ 쪽은 이 브랜치 기준으로 해결하고 report에). `dart run tool/gen_ia.dart`로 IA 생성 코드를 다시 만들고 컴파일 오류·실패 테스트를 report에 적습니다. `consent.optional.label`(ARB `consentOptionalLabel` 포함)을 쓰는 곳을 지웁니다.
+- [ ] **Step 2: ARB 가져오기 방식.** writing 생성 ARB를 app ARB(`app/lib/core/l10n/arb/app_{ko,en,ja}.arb`)에 합치는 도구를 둡니다: `tool/import_writing_arb.dart`(또는 같은 일을 하는 스크립트). 규칙:
+  * writing 파일에 있는 키 → 그 값으로 바꾸고, ko의 `@키` 메타데이터도 writing 것으로(“임시” 표시는 사라짐). en·ja에 없는 키는 app이 ko 문구로 채웁니다(gen-l10n 경고 없게).
+  * app에만 있는 키(오류 문구 `error*`, 슬롯 밖 문구 `dayKind*`·`branch*`·`consentDocument*` 등, 아직 원고가 없는 슬롯) → 그대로 두고 임시 표시 유지.
+  * `@@x-generated` 같은 전역 속성은 gen-l10n이 받는지 확인하고, 거부하면 가져올 때 빼고 report에(writing에 알릴 거리).
+  * 같은 입력으로 두 번 돌려도 결과가 같아야 합니다(멱등). 테스트: 도구 단위 테스트(작은 가짜 입력으로 위 규칙 각각).
+  * 그다음 실제로 가져오고 `flutter gen-l10n`, `mlw check-arb`(app/README.md 명령).
+- [ ] **Step 3: 키 이름 맞추기.** 이 계획에서 임시로 만든 슬롯 키가 writing 키와 다르면(상태 접미사 등) 코드가 writing 키를 쓰게 바꾸고, 쓰지 않게 된 임시 키는 지웁니다. 특히 `notifyAskCtaAllow`(IA 슬롯이 없던 허락 버튼), `onboardCallInputLabel`, 동의 줄 라벨, 저장 실패 안내 등 이 계획에서 만든 키를 writing 원고와 대조해 report에 표로 적습니다(유지·교체·삭제).
+- [ ] **Step 4: 문구가 바뀐 화면 확인.** 원고 문구가 길어져 레이아웃이 깨지지 않는지 기존 레이아웃 테스트(`test/features/onboarding/onboarding_layout_test.dart` 등)와 흐름 테스트를 돌립니다. 흐름 테스트가 임시 한국어 문구를 직접 찾고 있었다면 IA id(Key)나 l10n 값으로 찾게 바꿉니다(문구에 기대지 않게). `profileEditRecalcConfirmBody` 등 이 계획 밖 화면 문구는 키만 들어오고 쓰이지 않아도 됩니다.
+- [ ] **Step 5:** 전체 검사: `flutter analyze`(app·widgetbook) 0, `flutter test --exclude-tags golden` 전체, IA·컴포넌트 대조, fixture 검증, 커버리지 `--check`, `mlw check-arb`, 생성 코드 차이 0. golden은 macOS에서 돌리지 말고 생략(controller가 Linux로 확인).
+- [ ] **Step 6:** `app/README.md`에 ARB 가져오기 절차(원고가 바뀌면 도구를 다시 돌림)를 짧게, `app/CLAUDE.md` 계약 표의 IA를 v2로, "받은 요청"에 #128·#135 반영을 적습니다. plan(`app/docs/plans/2026-10-14-onboarding-login.md`) 끝에 이 Task 20 원문을 덧붙입니다.
+- [ ] **Step 7:** Commit — 병합 commit과 반영 commit을 나눕니다(`feat(app): ui 원고 가져오기와 IA v2 반영(#128·#135)`).

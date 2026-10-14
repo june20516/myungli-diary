@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/consent_document.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -16,6 +17,8 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
+
+final _ko = AppLocalizationsKo();
 
 Finder _screen(String id) => find.byKey(ValueKey(id));
 
@@ -83,7 +86,7 @@ void main() {
     expect(_screen(ScreenIds.onboardTime), findsOneWidget);
     await tapNext(tester);
     expect(_screen(ScreenIds.onboardGender), findsOneWidget);
-    await tester.tap(find.text('여성'));
+    await tester.tap(find.text(_ko.genderFemale));
     await tester.pumpAndSettle();
     await tapNext(tester);
     expect(_screen(ScreenIds.preview), findsOneWidget);

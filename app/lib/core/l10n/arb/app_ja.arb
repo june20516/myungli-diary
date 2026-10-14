@@ -63,18 +63,18 @@
   "traceIdCopied": "お問い合わせ番号をコピーしました。",
   "evidenceSheetSectionBasis": "判定の根拠",
   "evidenceSheetSectionSource": "原典",
-  "evidenceSheetSectionPersonal": "あなたの命式では",
+  "evidenceSheetSectionPersonal": "わたしの命式では",
   "evidenceSheetLockHead": "根拠と解釈はロックされています",
-  "evidenceSheetLockReward": "広告を1本見ると、今日一日、根拠と解釈がすべて開きます。",
+  "evidenceSheetLockReward": "広告を1本見ると、今日一日、根拠と解釈をすべて見られます。",
   "evidenceSheetLockCta": "広告を見て開く",
-  "evidenceSheetLockPass": "広告削除パスがあればすぐに開きます ›",
-  "evidenceSheetLockUnavailable": "今は表示できる広告がありません。しばらくしてからもう一度お試しください。",
+  "evidenceSheetLockPass": "広告除去パスがあれば、期間中ずっと開いています。",
+  "evidenceSheetLockUnavailable": "いま見られる広告がありません。しばらくしてからもう一度お試しください。",
   "evidenceSheetA11yLocked": "ロック中",
   "evidenceSheetA11yChecking": "確認中",
   "evidenceSheetA11yUnlocked": "根拠と解釈が開きました",
   "sajuChartYongsinOpen": "開く",
   "sajuChartYongsinTitle": "用神の判定根拠",
-  "todayReactionLabel": "この文に共感",
+  "todayReactionLabel": "いいね",
   "termTokenSemantics": "{term}の解説を見る",
   "@termTokenSemantics": {
     "placeholders": {
@@ -102,62 +102,20 @@
   "timePickerMinuteItem": "{minute}分",
   "datePickerLeapMonthValue": "閏{month}月",
   "citySearchResults": "結果{count}件",
-  "forceUpdateNoticeHead": "新しいバージョンが必要です",
-  "@forceUpdateNoticeHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "forceUpdateNoticeBody": "引き続きご利用いただくには、最新バージョンに更新してください。",
-  "@forceUpdateNoticeBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "forceUpdateCtaStore": "ストアで更新",
-  "@forceUpdateCtaStore": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "welcomeConceptHead": "今日の自分を読み解く",
-  "@welcomeConceptHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "welcomeConceptBody": "生年月日時から読み解いた一日を言葉で受け取り、日記と一緒に記録します。",
-  "@welcomeConceptBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "forceUpdateNoticeHead": "新しいバージョンにアップデートしてください",
+  "forceUpdateNoticeBody": "読み解きの計算方法が変わったため、このバージョンでは開けません。",
+  "forceUpdateCtaStore": "アップデートする",
+  "welcomeConceptHead": "今日の日辰を、自分の命式に合わせて読み解きます",
+  "welcomeConceptBody": "読み解きに合わせた質問ひとつで、その日の日記を始めます。",
   "welcomeCtaStart": "はじめる",
-  "@welcomeCtaStart": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "welcomeCtaSignin": "すでにアカウントをお持ちの方",
-  "@welcomeCtaSignin": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardCallQuestionHead": "何とお呼びしましょうか？",
-  "@onboardCallQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardCallInputHint": "例：ほし",
-  "@onboardCallInputHint": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardCallNoteBody": "本名でなくても大丈夫です。",
-  "@onboardCallNoteBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardBirthQuestionHead": "いつお生まれですか？",
-  "@onboardBirthQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardBirthCalendarHint": "旧暦の場合は旧暦を選び、閏月ならチェックしてください。",
-  "@onboardBirthCalendarHint": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardBirthBasisNote": "韓国生まれとして計算します。",
-  "@onboardBirthBasisNote": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardBirthErrorRange": "1900年1月31日から2099年12月31日まで計算できます。",
-  "@onboardBirthErrorRange": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "welcomeCtaSignin": "アカウントをお持ちの方",
+  "onboardCallQuestionHead": "何とお呼びしましょうか?",
+  "onboardCallInputHint": "例:ゆき",
+  "onboardCallNoteBody": "本名でなくてもかまいません。あとで変えられます。",
+  "onboardBirthQuestionHead": "いつ生まれましたか?",
+  "onboardBirthCalendarHint": "旧暦の誕生日なら旧暦を選び、閏月なら閏月にも印をつけてください。",
+  "onboardBirthBasisNote": "韓国で生まれたものとして計算します。",
+  "onboardBirthErrorRange": "1900年1月31日から2099年12月31日までの日付だけ計算できます。",
   "onboardingNext": "次へ",
   "@onboardingNext": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
@@ -182,14 +140,8 @@
   "@onboardCallInputLabel": {
     "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
   },
-  "onboardTimeQuestionHead": "何時に生まれましたか？",
-  "@onboardTimeQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardTimeUnknownNote": "生まれた時間がわからない場合は、時柱を除いた三柱で計算します。",
-  "@onboardTimeUnknownNote": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardTimeQuestionHead": "何時に生まれましたか?",
+  "onboardTimeUnknownNote": "時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。",
   "timeUnknownLabel": "わからない",
   "@timeUnknownLabel": {
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
@@ -261,29 +213,11 @@
     "description": "임시. 지지 이름(시진 확인 줄)"
   },
   "onboardGenderQuestionHead": "性別を教えてください。",
-  "@onboardGenderQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "onboardGenderWhyBody": "大運の向きを計算するのに使います。",
-  "@onboardGenderWhyBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceQuestionHead": "どこで生まれましたか？",
-  "@birthplaceQuestionHead": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceWhyBody": "生まれた都市のタイムゾーンで出生時刻を合わせます。",
-  "@birthplaceWhyBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceSearchHint": "例：ニューヨーク",
-  "@birthplaceSearchHint": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
-  "birthplaceEmptyBody": "該当する都市がありません。別の名前で検索してください。",
-  "@birthplaceEmptyBody": {
-    "description": "임시. 화면 문구 원고 전의 자리 문구"
-  },
+  "onboardGenderWhyBody": "大運の流れる向きを決めるときだけ使います。",
+  "birthplaceQuestionHead": "どこで生まれましたか?",
+  "birthplaceWhyBody": "生まれた場所のタイムゾーンと経度で、生まれた時刻を正確に合わせます。",
+  "birthplaceSearchHint": "都市名",
+  "birthplaceEmptyBody": "該当する都市がありません。近くの大きな都市で探してみてください。",
   "birthplaceSearchLabel": "都市名",
   "@birthplaceSearchLabel": {
     "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)"
@@ -297,17 +231,8 @@
     "description": "임시. 온보딩 공용 문구(슬롯 아님)"
   },
   "previewCtaSave": "保存して続ける",
-  "@previewCtaSave": {
-    "description": "임시. IA 슬롯 preview.cta.save: 미리보기 뒤 로그인으로 잇는 버튼"
-  },
   "previewCtaRestart": "入力し直す",
-  "@previewCtaRestart": {
-    "description": "임시. IA 슬롯 preview.cta.restart: 온보딩 입력으로 돌아가는 링크"
-  },
-  "previewShareLoginNotice": "ログインすると共有できます。",
-  "@previewShareLoginNotice": {
-    "description": "임시. IA 슬롯 preview.share.login-notice: 로그인 안내 창 문구"
-  },
+  "previewShareLoginNotice": "ログインすると今日の読み解きを共有できます。",
   "dayKindYongsinDay": "用神の日",
   "@dayKindYongsinDay": {
     "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
@@ -328,26 +253,13 @@
   "@shareLabel": {
     "description": "임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)"
   },
-  "actionLogin": "ログイン",
-  "@actionLogin": {
-    "description": "임시. 확인 창의 로그인 버튼(슬롯 아님)"
-  },
   "actionClose": "閉じる",
   "@actionClose": {
     "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
   },
-  "loginTitleHead": "ログインして続けましょう",
-  "@loginTitleHead": {
-    "description": "임시. IA 슬롯 login.title.head: 로그인 제목"
-  },
-  "loginTitleBody": "ログインすると四柱を保存して、毎日その日の解説を受け取れます。",
-  "@loginTitleBody": {
-    "description": "임시. IA 슬롯 login.title.body: 저장하려면 로그인한다는 설명"
-  },
-  "loginDiscardNotice": "このアカウントには保存された四柱があります。いま入力した情報は使わず、保存された四柱で続けます。",
-  "@loginDiscardNotice": {
-    "description": "임시. IA 슬롯 login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
-  },
+  "loginTitleHead": "ログインして読み解きを保存しましょう",
+  "loginTitleBody": "ログインすると、ほかの端末でも自分の命式と日記を見られます。",
+  "loginDiscardNotice": "すでに命式を保存したアカウントなら、いま入力した情報ではなく保存済みの情報を使います。",
   "loginKakaoLabel": "カカオログイン",
   "@loginKakaoLabel": {
     "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 출처 미확인: 카카오 디자인 가이드에 일본어 레이블이 없어 임의로 옮긴 문구입니다(assets/brand/README.md)."
@@ -376,60 +288,91 @@
   "@actionConfirm": {
     "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
   },
-  "consentTitleHead": "ご利用には規約への同意が必要です",
-  "@consentTitleHead": {
-    "description": "임시. consent 화면 제목(슬롯 consent.title.head)"
-  },
-  "consentRequiredLabel": "（必須）{document}",
-  "@consentRequiredLabel": {
-    "description": "임시. 필수 동의 항목 이름(슬롯 consent.required.label). document는 약관 문서 이름",
-    "placeholders": {
-      "document": {
-        "type": "String",
-        "example": "利用規約"
-      }
-    }
-  },
-  "consentOptionalLabel": "（任意）{document}",
-  "@consentOptionalLabel": {
-    "description": "임시. 선택 동의 항목 이름(슬롯 consent.optional.label). 계약에 선택 문서가 없어 아직 쓰지 않음",
-    "placeholders": {
-      "document": {
-        "type": "String",
-        "example": "利用規約"
-      }
-    }
-  },
+  "consentTitleHead": "規約に同意してください",
   "consentCtaAgree": "同意して続ける",
-  "@consentCtaAgree": {
-    "description": "임시. 동의하고 계속 버튼(슬롯 consent.cta.agree)"
-  },
-  "consentDocumentTerms": "利用規約",
-  "@consentDocumentTerms": {
-    "description": "임시. 약관 문서 이름: 이용약관(terms, 슬롯 아님)"
-  },
-  "consentDocumentPrivacy": "個人情報の収集・利用",
-  "@consentDocumentPrivacy": {
-    "description": "임시. 약관 문서 이름: 개인정보 수집·이용(privacy, 슬롯 아님)"
-  },
   "consentView": "見る",
   "@consentView": {
     "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
   },
-  "notifyAskQuestionHead": "朝の運勢をお知らせしますか？",
-  "@notifyAskQuestionHead": {
-    "description": "임시. notify-ask 질문(슬롯 notify-ask.question.head)"
-  },
-  "notifyAskWhyBody": "選んだ時刻に今日の運勢を通知でお届けします。設定でいつでも変えられます。",
-  "@notifyAskWhyBody": {
-    "description": "임시. 알림이 주는 것(슬롯 notify-ask.why.body)"
-  },
+  "notifyAskQuestionHead": "毎朝、今日の読み解きをお知らせしましょうか?",
+  "notifyAskWhyBody": "通知には、その日がどんな日かと総運の一文が入ります。",
   "notifyAskCtaSkip": "あとで",
-  "@notifyAskCtaSkip": {
-    "description": "임시. 건너뛰기 버튼(슬롯 notify-ask.cta.skip)"
-  },
   "notifyAskCtaAllow": "通知を受け取る",
   "@notifyAskCtaAllow": {
     "description": "임시. 알림 허락 버튼(슬롯이 아님)"
-  }
+  },
+  "accountDeleteCtaDelete": "アカウントを削除する",
+  "accountDeleteDataBody": "アカウントを削除すると、命式の情報・日記・タグ・予定・広告除去の残り期間がすべて消え、元に戻せません。",
+  "accountDeleteDeleteConfirm": "本当に削除しますか?削除したアカウントは元に戻せません。",
+  "accountDeleteDeleteConfirmDelete": "削除",
+  "accountDeleteDeleteConfirmCancel": "キャンセル",
+  "accountDeleteTitleHead": "アカウント削除",
+  "adFreeLegalNotice": "購入前に利用規約とプライバシーポリシーをご確認ください。",
+  "adFreeOfferHead": "1か月間、広告なしで、根拠と解釈まですべて開いて見られます。",
+  "adFreeOfferPrice": "{price}・1か月・自動更新なし",
+  "adFreeRestoreCta": "購入を復元",
+  "adFreeStatusRemaining": "{date}まで広告なしで使えます",
+  "calcBasisConventionBody": "読み解きは、韓国で広く使われている基準ひとつにそろえています。",
+  "calcBasisLongitudeBody": "出生時刻は東経127.5°を基準に30分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。",
+  "calcBasisLunarBody": "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。",
+  "calendarLegendBodyGood": "うまく運ぶ日",
+  "calendarLegendBodyCaution": "気をつける日",
+  "consentRequiredLabelTerms": "(必須)利用規約",
+  "consentRequiredLabelPrivacy": "(必須)個人情報の収集・利用",
+  "daySheetDiaryOpen": "この日の日記を見る",
+  "daySheetDiaryWriteCta": "この日の日記を書く",
+  "daySheetEventAdd": "予定を追加",
+  "daySheetEventEmpty": "この日の予定はありません。",
+  "diaryEditBodyPlaceholder": "今日あったことを書いてみましょう",
+  "diaryEditDraftStatusLocal": "端末に下書きを保存しました",
+  "diaryEditDraftStatusSaving": "保存中",
+  "diaryEditDraftStatusSaved": "保存済み",
+  "diaryEditOfflineNotice": "インターネットにつながったら保存します。書いた内容は端末に残っています。",
+  "diaryEditSavedTags": "日記にタグが付きました",
+  "diaryListEmptyBody": "まだ日記がありません。今日のことから書いてみませんか?",
+  "diaryListPickDateCta": "日付を選んで書く",
+  "diaryViewDeleteConfirm": "この日記を削除しますか?削除すると元に戻せません。",
+  "diaryViewDeleteConfirmDelete": "削除",
+  "diaryViewDeleteConfirmCancel": "キャンセル",
+  "eventEditDeleteConfirm": "この予定を削除しますか?",
+  "eventEditDeleteConfirmDelete": "削除",
+  "eventEditDeleteConfirmCancel": "キャンセル",
+  "eventEditMemoHint": "メモ",
+  "eventEditTitleHint": "予定のタイトル",
+  "evidenceSheetLockPassLink": "広告除去を見る",
+  "evidenceSheetUnlockFailed": "広告の確認に時間がかかっています。しばらくしてから開き直してください。",
+  "previewShareLoginNoticeConfirm": "ログインする",
+  "previewShareLoginNoticeCancel": "閉じる",
+  "profileEditRecalcConfirmTitle": "情報を変更しますか?",
+  "profileEditRecalcConfirmBody": "{before} → {after}\n今日・カレンダー・わたしの命式を計算し直します。すでに書いた日記とタグはそのまま残ります。",
+  "profileEditRecalcConfirmCancel": "キャンセル",
+  "profileEditRecalcConfirmSave": "変更する",
+  "profileEditRecalcNotice": "誕生日・時間・性別・出生地を変えると、読み解きを計算し直します。",
+  "sajuChartTimeUnknownNotice": "生まれた時刻がわからないため、時柱を除いて表示しています。",
+  "settingsAdFreeLabel": "広告を消す",
+  "settingsAdFreeLabelActive": "{date}まで",
+  "settingsDepthDesc": "読み解きを最初にどこまで広げて見るかを選びます。",
+  "settingsLanguageBirthplaceNotice": "韓国以外で生まれた場合は、出生地を入力してください。生まれた時刻をより正確に合わせられます。",
+  "settingsLanguageBirthplaceNoticeCta": "出生地を入力する",
+  "settingsLogoutConfirm": "ログアウトしますか?",
+  "settingsLogoutConfirmLogout": "ログアウト",
+  "settingsLogoutConfirmCancel": "キャンセル",
+  "sharePreviewCtaShare": "共有する",
+  "sharePreviewImageFooter": "命理日記",
+  "sharePreviewImageTagline": "自分の命式で読む今日、命理日記",
+  "sharePreviewRatioLabelStory": "ストーリー",
+  "sharePreviewRatioLabelFeed": "フィード",
+  "sharePreviewRatioLabelSquare": "正方形",
+  "tagDiaryEmptyBody": "このタグが付いた日記はまだありません。",
+  "todayEventSummary": "今日の予定 {count}件・{title}",
+  "todayEventSummaryOngoing": "進行中",
+  "todayEventSummaryNext": "次",
+  "todayEventSummaryDone": "今日の予定はすべて終わりました",
+  "todayGuideCta": "日記を書く",
+  "todayGuideCtaWritten": "書いた日記を見る",
+  "todayReactionLabelSelected": "いいねを取り消す",
+  "depthDefaultLabel": "命理の読み解き",
+  "depthEvidence": "原理",
+  "depthExplain": "読み解き",
+  "depthSurface": "要約"
 }

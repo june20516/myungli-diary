@@ -672,7 +672,12 @@ void main() {
       expect(find.bySemanticsLabel('판정 근거, 잠김'), findsOneWidget);
       expect(find.bySemanticsLabel('원전, 잠김'), findsOneWidget);
       expect(find.bySemanticsLabel('내 사주에서는, 잠김'), findsOneWidget);
-      expect(find.text('근거와 해석이 잠겨 있어요'), findsOneWidget);
+      expect(
+        find.text(
+          lookupAppLocalizations(const Locale('ko')).evidenceSheetLockHead,
+        ),
+        findsOneWidget,
+      );
       expect(find.textContaining('광고 한 편'), findsOneWidget);
       // 보상 고지는 광고 버튼보다 먼저(위에) 있습니다.
       expect(

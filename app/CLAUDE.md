@@ -41,7 +41,8 @@
 | `source_ref`·enum 값 (엔진 spec §9·§11, server가 그대로 전달) | **사용** (`evidence` 단계 표시) | core → server |
 | 디자인 토큰 1.1.0 (`docs/identity/design/tokens/`, Dart 코드 생성은 app) | **사용** | design |
 | 컴포넌트 명세 2.2.0 (`docs/identity/design/components/`) | **사용** | design |
-| MVP 화면 목록 (IA) `docs/ia/screens.json` v1 (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
+| MVP 화면 목록 (IA) `docs/ia/screens.json` v2 (화면·상태·경로·슬롯·컴포넌트. v2는 선택 동의 슬롯 제거, D67) | **사용** | 지휘 |
+| ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-10-14, app 세션 갱신)
 * **계획 2(온보딩·로그인) 완료**입니다. 브랜치 `app/onboarding`이고 PR 예정입니다(기반 PR이 먼저 병합되어야 합니다). 계획: [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md)
@@ -56,8 +57,8 @@
   * **글꼴 측정(Task 5):** debug apk 170,321,244 B(약 163 MiB, AOT·압축 전), `assets/fonts` 31M(Gowun Dodum 7.2M, Zen Maru Gothic 3.8M, Pretendard 4종 6.3M, Pretendard JP 4종 15M). subset 여부는 release 빌드 크기로 다시 판단합니다(I4).
   * **만들어 둔 것:** 앱 셸과 fake 모드(시나리오 6개, 개발 메뉴), 라우터·진입 갈래, drift, 토큰·테마·글꼴, 오류 문구 표, 플랫폼 인터페이스와 대역, 공통 컴포넌트(frame·feedback·sentence)와 Widgetbook, golden 기반, IA id 상수 생성, E2E 뼈대(Patrol, 커버리지 도구, 스크린샷 등록, `e2e-android` job)입니다.
   * **E2E 커버리지(도구로 확인, 2026-10-14):** 경로 3/77, 상태 1/54, 결정 1/6(`dart run tool/ia_coverage.dart --check` 출력). CI가 이 값보다 줄면 막습니다(`tool/coverage_baseline.json`). 화면을 구현하는 계획마다 올립니다.
-* 보낸 요청: #84(IA 사주 변경 확인 창, 닫힘·반영됨: 슬롯 119), #86(Crashlytics, 닫힘, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #88(오류 code 목록, 닫힘), #89(Apple App Link, 닫힘. 실제 adapter는 계획 7에서 server 결과를 따름). **열려 있음:** #85(ci-gate에 app CI 연결), #87(제품 지도의 E2E 결과 표시와 통합 E2E 재사용), #90(ARB 키를 IA 슬롯 id의 lowerCamelCase로, writing).
-* UI 문구 원고는 writing이 작업 중입니다(#15·#27·#42·#52). 그전까지는 IA 슬롯 id의 lowerCamelCase 키와 임시 문구를 씁니다(결정 A7).
+* 보낸 요청: #84(IA 사주 변경 확인 창, 닫힘·반영됨: 슬롯 119), #86(Crashlytics, 닫힘, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #88(오류 code 목록, 닫힘), #89(Apple App Link, 닫힘. 실제 adapter는 계획 7에서 server 결과를 따름). #90(ARB 키를 IA 슬롯 id의 lowerCamelCase로, writing, 닫힘·#128로 원고 도착). **열려 있음:** #85(ci-gate에 app CI 연결), #87(제품 지도의 E2E 결과 표시와 통합 E2E 재사용).
+* **UI 문구 원고(#128):** writing 생성 ARB를 `dart run tool/import_writing_arb.dart`로 app ARB에 합칩니다(절차는 [`README.md`](README.md)). 원고가 있는 키는 writing 문구·설명이고, app에만 있는 키(오류 `error*`, 슬롯 밖 문구 `dayKind*`·`branch*`·`gender*`·컴포넌트 접근성 라벨 등, 원고가 없는 슬롯 `notifyAskCtaAllow`)는 `@키.description`에 `임시`가 남아 있습니다(결정 A7). en·ja는 원어민 검수 전 초안입니다.
 * **아직 남은 외부 준비물(계획 7·출시 전):** 카카오·Apple·Firebase(FCM, Crashlytics)·AdMob·RevenueCat 계정과 키, Android App Link 도메인 검증. 사용자 몫입니다(`docs/roadmap.md` 외부 준비물). Android SDK 라이선스 동의는 로컬에서 Android 빌드가 막히면 확인합니다.
 * MVP 범위는 수익화 사이클 M0에서 다시 확정됐습니다(D53·D54).
 * **REST API 초안**: `server/api/openapi.yaml`(OpenAPI 3.1, 1.0.0-draft.2, operation 38개). freeze(S3) 전에는 하위 호환이 깨지는 변경이 있을 수 있고, 그때 server가 `kind:notice`로 알립니다. 규칙은 계약의 `info.description`에 모두 있습니다(Issue #63).
@@ -72,10 +73,10 @@
 * **컴포넌트 명세 2.2.0**: 2.0.0에 근거 깊이 잠금(잠김 4상태, `lock.veil`, `sentence-block` `locked`), 모양 규칙(동작은 둥근 사각, 표시·고르기는 알약), 화면 좌우 여백 `space.20`, 글자 수 상한이 들어갔습니다(PR #66, Issue #65).
   * 2.1.0(#82, 결정 V28): `term` 조각은 IA에 `term-token`이 있는 화면(today·day-sheet·tag-diary·my-saju·saju-chart)에서만 칩입니다. `SentenceBlock`이 slotId 첫 마디 화면으로 정하고(`termStyle`로 직접 정할 수도 있음), preview(`diary-row`)와 공유 이미지는 일반 글자입니다(`RenderedTextView.termStyle`, `lib/core/ia/ia_lookup.dart`).
   * 2.2.0(#81): 잠긴 문장 라벨은 "구역 이름(`saju-chart.yongsin.title`), 잠김"입니다(`SentenceBlock.lockedNameSlotId`).
-* **IA v1**: 화면 37·슬롯 124(그중 `system-apple-return.page.*` 4개는 server 안내 페이지 문구라 app이 그리지 않으므로 app이 쓰는 슬롯은 120). 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62)와 `system-apple-return`(Android Apple 로그인 복귀를 앱이 열지 못할 때의 server 안내 페이지, D66)이 있습니다.
+* **IA v2**(#135, D67): 화면 37·슬롯 123(v1에서 `consent.optional.label` 제거. 그중 `system-apple-return.page.*` 4개는 server 안내 페이지 문구라 app이 그리지 않으므로 app이 쓰는 슬롯은 119). 시스템 화면 `system-push`(아침 알림 문장, 호칭 없음, D62)와 `system-apple-return`(Android Apple 로그인 복귀를 앱이 열지 못할 때의 server 안내 페이지, D66)이 있습니다.
 * 광고 제거권을 만료 전에 다시 사면 남은 기간에 이어 붙습니다(D61). 계산은 server가 합니다.
 * 도시 목록은 GeoNames `cities15000`(CC BY 4.0)으로 server가 만듭니다. **앱 오픈소스 고지(`legal`)에 출처를 표기합니다**(Issue #48 항목 5).
-* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), #82(컴포넌트 2.1.0·2.2.0: `term` 표시는 `RenderedTextView`·`SentenceBlock`, 잠김 라벨 이름은 `SentenceBlock` locked에 반영), A1 착수 안내(#30). 받은 요청 #100(인증 규칙)·#114(Apple 웹 로그인 draft.2)는 기반 범위만 반영했고 남은 일은 아래 계획 7입니다. 앞으로 받은 요청은 `gh issue list --label to:app`.
+* 받은 notice: Issue #19(토큰 1.0.0), #44(컴포넌트 1.0.0·토큰 1.1.0), #65(컴포넌트 2.0.0), #82(컴포넌트 2.1.0·2.2.0: `term` 표시는 `RenderedTextView`·`SentenceBlock`, 잠김 라벨 이름은 `SentenceBlock` locked에 반영), A1 착수 안내(#30). 받은 요청 #128(ui 원고 첫 판)과 #135(IA v2)는 계획 2 Task 20에서 반영했습니다(`writing/ia-v2-consent` 병합, 생성 코드 갱신, 가져오기 도구. 이 app PR이 #133·#138을 함께 품는 최종 PR). 받은 요청 #100(인증 규칙)·#114(Apple 웹 로그인 draft.2)는 기반 범위만 반영했고 남은 일은 아래 계획 7입니다. 앞으로 받은 요청은 `gh issue list --label to:app`.
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일

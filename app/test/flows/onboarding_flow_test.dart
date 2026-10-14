@@ -14,6 +14,8 @@ import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -31,6 +33,9 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
+
+final _ko = AppLocalizationsKo();
+final _en = AppLocalizationsEn();
 
 PrimaryButton _next(WidgetTester tester) =>
     tester.widget<PrimaryButton>(find.byType(PrimaryButton));
@@ -190,8 +195,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.onboardCall)), findsOneWidget);
-    expect(find.text('저장'), findsOneWidget);
-    expect(find.text('다음'), findsNothing);
+    expect(find.text(_ko.onboardingSave), findsOneWidget);
+    expect(find.text(_ko.onboardingNext), findsNothing);
 
     await tester.enterText(find.byType(EditableText), '달님');
     await tester.pump();
@@ -206,7 +211,7 @@ void main() {
           .then((value) => birth = value),
     );
     await tester.pumpAndSettle();
-    expect(find.text('저장'), findsOneWidget);
+    expect(find.text(_ko.onboardingSave), findsOneWidget);
     await _dragWheel(tester, BirthDatePicker.dayWheelKey, 1);
     await tapNext(tester);
     expect(birth, isNotNull);
@@ -362,11 +367,14 @@ void main() {
   testWidgets('호칭 칸 이름이 질문과 겹쳐 두 번 읽히지 않습니다', (tester) async {
     final handle = tester.ensureSemantics();
     await _openCall(tester);
-    expect(find.bySemanticsLabel('뭐라고 불러 드릴까요?'), findsOneWidget);
+    expect(find.bySemanticsLabel(_ko.onboardCallQuestionHead), findsOneWidget);
     // 칸 이름은 목적만 말하고, 예시 문구와 같지 않습니다.
     final field = tester.getSemantics(find.byType(EditableText));
-    // 이름 '호칭' 뒤에 예시가 hint로 한 번만 이어집니다.
-    expect(field.label, '호칭\n예: 별님');
+    // 칸 이름 뒤에 예시가 hint로 한 번만 이어집니다.
+    expect(
+      field.label,
+      '${_ko.onboardCallInputLabel}\n${_ko.onboardCallInputHint}',
+    );
     handle.dispose();
   });
 
@@ -393,14 +401,19 @@ void main() {
       // 기본 12:00(오후)에서 오전 4시로: 오전·오후 한 칸, 시 4칸.
       await _pickTime(tester, hourSteps: 4, meridiemSteps: -1);
 
-      expect(find.textContaining('인시(03:30~05:30)'), findsOneWidget);
+      expect(
+        find.textContaining(
+          _ko.onboardTimeHourConfirm(_ko.branchIn, '03:30', '05:30'),
+        ),
+        findsOneWidget,
+      );
       expect(fake.callCountOf('getBirthHour'), 2);
       final body = _bodyOf(fake.requestBodiesOf('getBirthHour').last);
       expect(body['installationId'], isA<String>());
       expect((body['installationId']! as String).isNotEmpty, isTrue);
       expect(body['time'], '04:00');
 
-      await tester.tap(find.text('모름'));
+      await tester.tap(find.text(_ko.timeUnknownLabel));
       await tester.pumpAndSettle();
       expect(
         find.byKey(const ValueKey(SlotIds.onboardTimeUnknownNote)),
@@ -548,7 +561,7 @@ void main() {
       await openGender(tester);
       expect(_next(tester).onPressed, isNull);
 
-      await tester.tap(find.text('여성'));
+      await tester.tap(find.text(_ko.genderFemale));
       await tester.pumpAndSettle();
       expect(_next(tester).onPressed, isNotNull);
       await tapNext(tester);
@@ -566,7 +579,7 @@ void main() {
       );
       await openTimeStep(tester, scenario: 'overseas', locale: _usa);
       await openGender(tester);
-      await tester.tap(find.text('Male'));
+      await tester.tap(find.text(_en.genderMale));
       await tester.pumpAndSettle();
       await tapNext(tester);
       expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
@@ -582,7 +595,7 @@ void main() {
         ],
       );
       await openGender(tester);
-      await tester.tap(find.text('남성'));
+      await tester.tap(find.text(_ko.genderMale));
       await tester.pumpAndSettle();
       await tapNext(tester);
 
@@ -612,14 +625,14 @@ void main() {
         ],
       );
       await openGender(tester);
-      await tester.tap(find.text('남성'));
+      await tester.tap(find.text(_ko.genderMale));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(PrimaryButton));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(tester.takeException(), isNull);
-      expect(find.text('입력한 생년월일시를 다시 확인해 주세요.'), findsOneWidget);
+      expect(find.text(_ko.errorBirthInvalid), findsOneWidget);
       expect(
         find.byKey(const ValueKey(ScreenIds.onboardGender)),
         findsOneWidget,
@@ -641,7 +654,7 @@ void main() {
         ],
       );
       await openGender(tester);
-      await tester.tap(find.text('남성'));
+      await tester.tap(find.text(_ko.genderMale));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(PrimaryButton));
       await tester.pump();
@@ -674,7 +687,7 @@ void main() {
           .then((value) => time = value),
     );
     await tester.pumpAndSettle();
-    expect(find.text('저장'), findsOneWidget);
+    expect(find.text(_ko.onboardingSave), findsOneWidget);
     final picker = tester.widget<TimePicker>(find.byType(TimePicker));
     expect(picker.value, const TimeOfDay(hour: 9, minute: 30));
     await _dragWheel(tester, TimePicker.hourWheelKey, 1);
@@ -695,7 +708,7 @@ void main() {
       find.byType(Segmented<BirthGenderEnum?>),
     );
     expect(segmented.selected, BirthGenderEnum.male);
-    await tester.tap(find.text('여성'));
+    await tester.tap(find.text(_ko.genderFemale));
     await tester.pumpAndSettle();
     await tapNext(tester);
     expect(gender, BirthGenderEnum.female);
