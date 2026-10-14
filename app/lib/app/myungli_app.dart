@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 
@@ -28,12 +29,6 @@ class MyungliApp extends ConsumerWidget {
     ref
       ..watch(accountLinkerProvider)
       ..watch(signOutCleanerProvider);
-    // 진입이 ready가 될 때도 한 번 기기 시간대를 맞춰 봅니다.
-    ref.listen(entryProvider, (previous, next) {
-      if (next == EntryState.ready && previous != EntryState.ready) {
-        unawaited(ref.read(timezoneSyncProvider).syncIfChanged());
-      }
-    });
     final locale = ref.watch(localeProvider);
     final showDevMenu =
         kDebugMode && ref.watch(apiModeProvider) == ApiMode.fake;
@@ -75,6 +70,12 @@ class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // 진입이 ready가 될 때(이미 ready로 시작한 경우 포함) 기기 시간대를 한 번 맞춰 봅니다.
+    ref.listenManual(entryProvider, (previous, next) {
+      if (next == EntryState.ready && previous != EntryState.ready) {
+        unawaited(ref.read(timezoneSyncProvider).syncIfChanged());
+      }
+    }, fireImmediately: true);
   }
 
   @override
@@ -89,7 +90,10 @@ class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
       return;
     }
     // 백그라운드에서 자정이 지났을 수 있어 타이머를 기다리지 않고 바로 다시 확인합니다.
-    ref.invalidate(todayProvider);
+    // 사본이 없으면 "오늘"이 기기 시간대를 따르므로 기기 시간대도 다시 읽습니다.
+    ref
+      ..invalidate(deviceTimezoneNameProvider)
+      ..invalidate(todayProvider);
     // 구매·보고 계정 연결이 실패했으면 다시 시도합니다(이미 연결됐으면 거름).
     ref.read(accountLinkerProvider).linkFromEntry(ref.read(entryStateProvider));
     // 기기 시간대가 프로필 사본과 다르면 server에 알립니다.

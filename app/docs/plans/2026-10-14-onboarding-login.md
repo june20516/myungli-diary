@@ -109,7 +109,7 @@
   - `final class ProfileRepository { Future<ProfileResponse> create(ProfileInput input); Future<ProfileResponse> update(ProfilePatch patch); Future<Profile?> cached(); }`. create·update가 성공하면 응답 `profile`을 캐시 키 `profile`에 씁니다(A18)
   - `final profileRepositoryProvider`, `final cachedProfileProvider = FutureProvider<Profile?>`
   - `profileTimezoneProvider`: 캐시 사본의 `currentTimezone` → 없으면 기기 시간대 → 그것도 아직 없으면 `Asia/Seoul`
-  - `final class TimezoneSync { Future<void> syncIfChanged(); }`, `timezoneSyncProvider`. 진입이 `ready`이고 캐시 사본이 있을 때만 기기 IANA 이름과 사본을 비교해, 다르면 `update(ProfilePatch(currentTimezone: …))`. 오류는 삼키고 비정상 종료 보고에 `CrashSummary`만 남깁니다
+  - `final class TimezoneSync { Future<void> syncIfChanged(); }`, `timezoneSyncProvider`. 진입이 `ready`일 때만 기기 IANA 이름과 사본을 비교해, 사본이 없거나 다르면 `update(ProfilePatch(currentTimezone: …))`. 오류는 삼키고 비정상 종료 보고에 `CrashSummary`만 남깁니다
 
 - [ ] **Step 1:** 실패하는 테스트를 씁니다.
   * `profile_repository_test`: fake `member` 시나리오에서 `create` 뒤 `cached()`가 응답 profile과 같다. 로그아웃 정리 뒤 `cached()`는 null이다(계정 범위 캐시라 같이 지워짐).

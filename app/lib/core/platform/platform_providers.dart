@@ -54,6 +54,12 @@ final deviceTimezoneProvider = Provider<DeviceTimezone>(
   (ref) => const FakeDeviceTimezone('Asia/Seoul'),
 );
 
+/// 기기 시간대의 IANA 이름. 앱이 뜨기 전에 한 번 읽어 두고(bootstrap), 다시 앞으로 올 때
+/// invalidate해 다시 읽습니다. 다시 읽는 동안에도 이전 값이 남습니다.
+final deviceTimezoneNameProvider = FutureProvider<String>(
+  (ref) => ref.watch(deviceTimezoneProvider).current(),
+);
+
 /// 로그인 nonce·Apple 웹 `state` 생성기.
 final nonceGeneratorProvider = Provider<NonceGenerator>(
   (ref) => NonceGenerator(),

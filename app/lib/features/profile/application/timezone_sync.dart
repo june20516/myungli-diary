@@ -17,7 +17,7 @@ final class TimezoneSync {
   final Ref _ref;
   var _syncing = false;
 
-  /// 진입이 `ready`이고 사본이 있을 때만, 다르면 `PATCH`합니다.
+  /// 진입이 `ready`일 때만, 사본이 없거나 기기 시간대와 다르면 `PATCH`합니다.
   ///
   /// 실패는 삼키고 `CrashSummary`만 남깁니다. 사본이 그대로라 다음 호출에서 다시 보냅니다.
   Future<void> syncIfChanged() async {
@@ -28,11 +28,10 @@ final class TimezoneSync {
     try {
       final repository = _ref.read(profileRepositoryProvider);
       final profile = await repository.cached();
-      if (profile == null) {
-        return;
-      }
       final device = await _ref.read(deviceTimezoneProvider).current();
-      if (device == profile.currentTimezone) {
+      // 사본이 없으면(재설치·다른 기기 로그인) server의 시간대가 옛것일 수 있어
+      // 기기 시간대를 한 번 보내고 응답을 사본으로 삼습니다.
+      if (device == profile?.currentTimezone) {
         return;
       }
       await repository.update(ProfilePatch(currentTimezone: device));

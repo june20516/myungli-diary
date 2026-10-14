@@ -69,6 +69,14 @@ Future<void> settleEntry(
     await tester.pump(const Duration(milliseconds: 50));
     if (!container.read(entryStateProvider).isLoading) {
       await tester.pumpAndSettle();
+      // 진입이 ready가 되면 앱 셸이 기기 시간대를 맞추는 요청을 보냅니다. 끝나게 둡니다.
+      for (var j = 0; j < 5; j++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
       return;
     }
   }

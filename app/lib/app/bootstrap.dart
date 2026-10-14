@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
+import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
@@ -67,6 +68,7 @@ Future<ProviderContainer> bootstrap({
     overrides: [
       apiModeProvider.overrideWithValue(resolvedMode),
       ...entryOverrides,
+      ...profileTimezoneOverrides,
       ...realPlatformOverrides(resolvedMode),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),
@@ -84,6 +86,13 @@ Future<ProviderContainer> bootstrap({
       ...overrides,
     ],
   );
+  // 첫 프레임이 기본 시간대로 "오늘"을 계산하지 않게 기기 시간대를 먼저 읽어 둡니다.
+  // 읽지 못하면(플러그인 오류) 기본 시간대로 시작합니다.
+  try {
+    await container.read(deviceTimezoneNameProvider.future);
+  } on Object {
+    // 기본 시간대로 계산합니다.
+  }
   final reporter = container.read(crashReporterProvider);
   if (installErrorHandlers) {
     _installErrorHandlers(reporter);

@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
-import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/profile/data/profile_repository.dart';
 
@@ -22,8 +21,3 @@ final cachedProfileProvider = FutureProvider<Profile?>((ref) {
   }
   return readCachedProfile(ref.watch(cacheStoreProvider));
 });
-
-/// 기기 시간대의 IANA 이름. 아직 읽지 못했으면 값이 없습니다.
-final deviceTimezoneNameProvider = FutureProvider<String>(
-  (ref) => ref.watch(deviceTimezoneProvider).current(),
-);

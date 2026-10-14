@@ -82,6 +82,12 @@ void main() {
     expect(container.read(todayProvider), CalendarDate(2026, 10, 13));
   });
 
+  test('첫 프레임 전에 기기 시간대를 읽어 둡니다', () async {
+    final container = await bootstrapForTest('member');
+    addTearDown(container.dispose);
+    expect(container.read(deviceTimezoneNameProvider).value, 'Asia/Seoul');
+  });
+
   test('없는 시나리오면 bootstrap이 던집니다', () {
     expect(
       () => bootstrap(

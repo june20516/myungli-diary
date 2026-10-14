@@ -59,6 +59,8 @@ app/
 * **의존 방향은 presentation → application → data → core 한쪽입니다.**
   * feature끼리는 서로의 application provider로만 참조합니다.
   * `design/`은 feature를 모릅니다.
+  * `core/`는 feature를 알지 않습니다. core provider(예 `profileTimezoneProvider`)에 feature 값을 잇는 일은 `app/`이 override로 합니다.
+  * feature는 `app/entry`의 전역 provider(`meProvider`·`entryProvider`)를 읽을 수 있습니다(`features → app/entry`).
 * **도메인 계층을 따로 두지 않습니다.**
   * repository는 생성 모델을 그대로 돌려줍니다. 계약이 원본이므로 매핑 계층을 두면 스키마 99개를 한 번 더 옮겨 적게 되고, 그만큼 어긋날 자리가 생깁니다.
   * app이 의미를 더하는 곳에만 작은 값 객체를 둡니다. 예: `segments`를 표시 조각으로 바꾼 것, 근거 잠금 상태, 진입 갈래.

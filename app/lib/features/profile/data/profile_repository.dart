@@ -62,6 +62,7 @@ final class ProfileRepository {
       CacheKind.profile,
       profileCacheKey,
       jsonEncode(data.profile.toJson()),
+      // 근거 잠금과 무관한 값입니다. `CacheStore.write`의 필수 인자라 채웁니다.
       access: EvidenceAccess.unlocked,
     );
     onCacheChanged?.call();

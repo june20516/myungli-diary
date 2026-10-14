@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -263,9 +264,24 @@ void main() {
       expect(c.read(clockProvider), isA<SystemClock>());
     });
 
+    test('core의 프로필 시간대 기본값은 기기 시간대, 못 읽었으면 Asia/Seoul이다', () async {
+      final c = ProviderContainer(
+        overrides: [
+          deviceTimezoneProvider.overrideWithValue(
+            const FakeDeviceTimezone('Asia/Tokyo'),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      expect(c.read(profileTimezoneProvider), 'Asia/Seoul');
+      await c.read(deviceTimezoneNameProvider.future);
+      expect(c.read(profileTimezoneProvider), 'Asia/Tokyo');
+    });
+
     test('프로필 시간대는 사본이 없고 기기 시간대가 Asia/Tokyo면 Asia/Tokyo다', () async {
       final c = ProviderContainer(
         overrides: [
+          ...profileTimezoneOverrides,
           cachedProfileProvider.overrideWith((ref) async => null),
           deviceTimezoneProvider.overrideWithValue(
             const FakeDeviceTimezone('Asia/Tokyo'),
@@ -283,6 +299,7 @@ void main() {
     test('프로필 시간대는 사본이 Europe/Paris면 Europe/Paris다', () async {
       final c = ProviderContainer(
         overrides: [
+          ...profileTimezoneOverrides,
           cachedProfileProvider.overrideWith(
             (ref) async => Profile.fromJson({
               'honorific': '하늘',
@@ -343,6 +360,43 @@ void main() {
         }
         expect(seen, hasLength(2));
 
+        c.dispose();
+        expect(async.pendingTimers, isEmpty);
+      });
+    });
+
+    test('시간대 provider 연결 뒤에도 todayProvider는 자정에 한 번만 갱신된다', () {
+      fakeAsync((async) {
+        final clock = _MutableClock(DateTime.utc(2026, 10, 13, 14, 59));
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(clock),
+            ...profileTimezoneOverrides,
+            cachedProfileProvider.overrideWith((ref) async => null),
+            deviceTimezoneProvider.overrideWithValue(
+              const FakeDeviceTimezone('Asia/Seoul'),
+            ),
+          ],
+        );
+        final seen = <CalendarDate>[];
+        c.listen(
+          todayProvider,
+          (_, next) => seen.add(next),
+          fireImmediately: true,
+        );
+        async.flushMicrotasks();
+        // 비동기 값이 도착하고 다시 읽혀도 같은 시간대면 다시 만들지 않습니다.
+        c.invalidate(deviceTimezoneNameProvider);
+        async.flushMicrotasks();
+        for (var i = 0; i < 6; i++) {
+          clock.now = clock.now.add(const Duration(seconds: 30));
+          async.elapse(const Duration(seconds: 30));
+        }
+        for (var i = 0; i < 20; i++) {
+          clock.now = clock.now.add(const Duration(seconds: 30));
+          async.elapse(const Duration(seconds: 30));
+        }
+        expect(seen, [CalendarDate(2026, 10, 13), CalendarDate(2026, 10, 14)]);
         c.dispose();
         expect(async.pendingTimers, isEmpty);
       });
