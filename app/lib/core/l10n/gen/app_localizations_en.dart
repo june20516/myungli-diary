@@ -485,7 +485,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No matching city. Try a larger city nearby.';
 
   @override
-  String get birthplaceSearchLabel => 'City name';
+  String get birthplaceSearchLabel => 'Search birth city';
 
   @override
   String get genderMale => 'Male';

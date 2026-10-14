@@ -445,7 +445,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get birthplaceEmptyBody => '該当する都市がありません。近くの大きな都市で探してみてください。';
 
   @override
-  String get birthplaceSearchLabel => '都市名';
+  String get birthplaceSearchLabel => '出生都市の検索';
 
   @override
   String get genderMale => '男性';

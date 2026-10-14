@@ -72,6 +72,24 @@ void main() {
       expect(merged['@@locale'], 'ko');
       expect(merged.containsKey('@@x-generated'), isFalse);
     });
+
+    test('writing에 `@키` 메타데이터가 없으면 null을 쓰지 않고 app 메타데이터를 둡니다', () {
+      const writingNoMeta = <String, Object?>{
+        '@@locale': 'ko',
+        'welcomeCtaStart': '시작하기',
+        'newKey': '새 문구',
+      };
+      final merged = mergeWritingArb(
+        app: appKo,
+        writing: writingNoMeta,
+        writingTemplate: writingNoMeta,
+        isTemplate: true,
+      );
+
+      expect(merged['@welcomeCtaStart'], {'description': '임시. 시작 버튼'});
+      expect(merged.containsKey('@newKey'), isFalse);
+      expect(merged.values, isNot(contains(isNull)));
+    });
   });
 
   group('번역 언어(en·ja)', () {
@@ -106,6 +124,22 @@ void main() {
 
       expect(merged['adFreeOfferPrice'], '{price} · 1개월');
       expect(merged.containsKey('@adFreeOfferPrice'), isFalse);
+    });
+
+    test('app에만 있는 키의 `@키` 메타데이터도 지웁니다(메타데이터는 ko에만)', () {
+      final merged = mergeEn({
+        ...appEn,
+        '@errorOffline': {'description': '임시. 오프라인 오류'},
+      });
+
+      expect(merged['errorOffline'], 'You are not connected to the internet.');
+      expect(merged.containsKey('@errorOffline'), isFalse);
+    });
+
+    test('같은 입력으로 두 번 돌려도 결과가 같습니다(멱등)', () {
+      final once = mergeEn(appEn);
+
+      expect(encodeArb(mergeEn(once)), encodeArb(once));
     });
 
     test('app에만 있는 키와 전역 속성은 그대로 둡니다', () {

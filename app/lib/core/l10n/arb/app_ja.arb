@@ -76,14 +76,6 @@
   "sajuChartYongsinTitle": "用神の判定根拠",
   "todayReactionLabel": "いいね",
   "termTokenSemantics": "{term}の解説を見る",
-  "@termTokenSemantics": {
-    "placeholders": {
-      "term": {
-        "type": "String",
-        "example": "식신"
-      }
-    }
-  },
   "inputStepProgress": "{stepCount}ステップ中{step}ステップ目",
   "textFieldClear": "消去",
   "textFieldCounter": "文字数 {current}/{max}",
@@ -117,190 +109,62 @@
   "onboardBirthBasisNote": "韓国で生まれたものとして計算します。",
   "onboardBirthErrorRange": "1900年1月31日から2099年12月31日までの日付だけ計算できます。",
   "onboardingNext": "次へ",
-  "@onboardingNext": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "onboardingSave": "保存",
-  "@onboardingSave": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "calendarSolar": "新暦",
-  "@calendarSolar": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "calendarLunar": "旧暦",
-  "@calendarLunar": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "leapMonth": "閏月",
-  "@leapMonth": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "onboardCallInputLabel": "呼び名",
-  "@onboardCallInputLabel": {
-    "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
-  },
   "onboardTimeQuestionHead": "何時に生まれましたか?",
   "onboardTimeUnknownNote": "時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。",
   "timeUnknownLabel": "わからない",
-  "@timeUnknownLabel": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "onboardTimeHourConfirm": "{branch}（{start}〜{end}）",
-  "@onboardTimeHourConfirm": {
-    "description": "임시. content 슬롯이지만 server가 구조값(지지·시각)만 주므로 app이 틀로 씀(A20 ③)",
-    "placeholders": {
-      "branch": {
-        "type": "String",
-        "example": "인시"
-      },
-      "start": {
-        "type": "String",
-        "example": "03:30"
-      },
-      "end": {
-        "type": "String",
-        "example": "05:30"
-      }
-    }
-  },
   "branchJa": "子の刻",
-  "@branchJa": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchChuk": "丑の刻",
-  "@branchChuk": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchIn": "寅の刻",
-  "@branchIn": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchMyo": "卯の刻",
-  "@branchMyo": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchJin": "辰の刻",
-  "@branchJin": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchSa": "巳の刻",
-  "@branchSa": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchO": "午の刻",
-  "@branchO": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchMi": "未の刻",
-  "@branchMi": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchShin": "申の刻",
-  "@branchShin": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchYu": "酉の刻",
-  "@branchYu": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchSul": "戌の刻",
-  "@branchSul": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchHae": "亥の刻",
-  "@branchHae": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "onboardGenderQuestionHead": "性別を教えてください。",
   "onboardGenderWhyBody": "大運の流れる向きを決めるときだけ使います。",
   "birthplaceQuestionHead": "どこで生まれましたか?",
   "birthplaceWhyBody": "生まれた場所のタイムゾーンと経度で、生まれた時刻を正確に合わせます。",
   "birthplaceSearchHint": "都市名",
   "birthplaceEmptyBody": "該当する都市がありません。近くの大きな都市で探してみてください。",
-  "birthplaceSearchLabel": "都市名",
-  "@birthplaceSearchLabel": {
-    "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)"
-  },
+  "birthplaceSearchLabel": "出生都市の検索",
   "genderMale": "男性",
-  "@genderMale": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "genderFemale": "女性",
-  "@genderFemale": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "previewCtaSave": "保存して続ける",
   "previewCtaRestart": "入力し直す",
   "previewShareLoginNotice": "ログインすると今日の読み解きを共有できます。",
   "dayKindYongsinDay": "用神の日",
-  "@dayKindYongsinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
-  },
   "dayKindGwiinDay": "貴人の日",
-  "@dayKindGwiinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gwiin_day"
-  },
   "dayKindGisinDay": "忌神の日",
-  "@dayKindGisinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gisin_day"
-  },
   "dayKindOrdinaryDay": "普通の日",
-  "@dayKindOrdinaryDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ordinary_day"
-  },
   "shareLabel": "共有",
-  "@shareLabel": {
-    "description": "임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)"
-  },
   "actionClose": "閉じる",
-  "@actionClose": {
-    "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
-  },
   "loginTitleHead": "ログインして読み解きを保存しましょう",
   "loginTitleBody": "ログインすると、ほかの端末でも自分の命式と日記を見られます。",
   "loginDiscardNotice": "すでに命式を保存したアカウントなら、いま入力した情報ではなく保存済みの情報を使います。",
   "loginKakaoLabel": "カカオログイン",
-  "@loginKakaoLabel": {
-    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 출처 미확인: 카카오 디자인 가이드에 일본어 레이블이 없어 임의로 옮긴 문구입니다(assets/brand/README.md)."
-  },
   "loginAppleLabel": "Appleでサインイン",
-  "@loginAppleLabel": {
-    "description": "임시. Apple 로그인 버튼 글자(슬롯 아님). Sign in with Apple HIG의 언어별 공식 문구"
-  },
   "loginCancelled": "ログインをキャンセルしました。",
-  "@loginCancelled": {
-    "description": "임시. 로그인 오류 상태: 카카오·iOS Apple 로그인 창을 닫음(슬롯 아님)"
-  },
   "appleWebErrorStateMismatch": "ログインを確認できませんでした。最初からもう一度ログインしてください。",
-  "@appleWebErrorStateMismatch": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 state가 맞지 않음(슬롯 아님)"
-  },
   "appleWebErrorCancelled": "Appleでのサインインをキャンセルしました。",
-  "@appleWebErrorCancelled": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인을 사용자가 취소함(슬롯 아님)"
-  },
   "appleWebErrorOther": "Appleでサインインできませんでした。もう一度お試しください。",
-  "@appleWebErrorOther": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 그 밖 실패(슬롯 아님)"
-  },
   "actionConfirm": "OK",
-  "@actionConfirm": {
-    "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
-  },
   "consentTitleHead": "規約に同意してください",
   "consentCtaAgree": "同意して続ける",
   "consentView": "見る",
-  "@consentView": {
-    "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
-  },
   "notifyAskQuestionHead": "毎朝、今日の読み解きをお知らせしましょうか?",
   "notifyAskWhyBody": "通知には、その日がどんな日かと総運の一文が入ります。",
   "notifyAskCtaSkip": "あとで",
   "notifyAskCtaAllow": "通知を受け取る",
-  "@notifyAskCtaAllow": {
-    "description": "임시. 알림 허락 버튼(슬롯이 아님)"
-  },
   "accountDeleteCtaDelete": "アカウントを削除する",
   "accountDeleteDataBody": "アカウントを削除すると、命式の情報・日記・タグ・予定・広告除去の残り期間がすべて消え、元に戻せません。",
   "accountDeleteDeleteConfirm": "本当に削除しますか?削除したアカウントは元に戻せません。",

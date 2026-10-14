@@ -632,9 +632,9 @@
   "@birthplaceEmptyBody": {
     "description": "birthplace.empty.body: 결과가 없을 때 안내"
   },
-  "birthplaceSearchLabel": "도시 이름",
+  "birthplaceSearchLabel": "출생 도시 검색",
   "@birthplaceSearchLabel": {
-    "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)"
+    "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님). 예시(birthplace.search.hint)와 같은 말이 되지 않게 목적을 말함"
   },
   "genderMale": "남성",
   "@genderMale": {

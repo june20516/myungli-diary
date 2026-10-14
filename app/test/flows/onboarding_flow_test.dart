@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
@@ -376,6 +377,13 @@ void main() {
       '${_ko.onboardCallInputLabel}\n${_ko.onboardCallInputHint}',
     );
     handle.dispose();
+  });
+
+  test('호칭 칸 이름과 예시는 세 언어 모두 다른 문구입니다', () {
+    for (final locale in AppLocalizations.supportedLocales) {
+      final l10n = lookupAppLocalizations(locale);
+      expect(l10n.onboardCallInputLabel, isNot(l10n.onboardCallInputHint));
+    }
   });
 
   group('onboard-time', () {

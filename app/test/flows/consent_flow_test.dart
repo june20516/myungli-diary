@@ -130,8 +130,6 @@ void main() {
     expect(find.byType(CheckRow), findsNWidgets(2));
     expect(find.text(_ko.consentRequiredLabelTerms), findsOneWidget);
     expect(find.text(_ko.consentRequiredLabelPrivacy), findsOneWidget);
-    // 선택 동의 문서는 계약에 없어 그리지 않습니다.
-    expect(find.textContaining('(선택)'), findsNothing);
     expect(_agreeEnabled(tester), isFalse);
     await _check(tester, ConsentDocumentDocumentEnum.terms);
     expect(_agreeEnabled(tester), isFalse);

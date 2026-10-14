@@ -139,10 +139,9 @@ class EvidenceLockPanel extends StatelessWidget {
                                 Radius.circular(Radii.xs),
                               ),
                               inkColor: colors.actionPrimary,
-                              child: Text(
+                              child: _passLabel(
                                 l10n.evidenceSheetLockPass,
-                                textAlign: TextAlign.center,
-                                style: typography.labelMd.copyWith(
+                                typography.labelMd.copyWith(
                                   color: colors.actionPrimary,
                                 ),
                               ),
@@ -159,6 +158,25 @@ class EvidenceLockPanel extends StatelessWidget {
       },
     );
   }
+
+  /// 광고 제거권 링크 글자. 끝 화살표는 문구가 아니라 컴포넌트가 그리며(링크 색),
+  /// 스크린리더는 글자만 읽습니다.
+  static Widget _passLabel(String label, TextStyle style) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Flexible(
+        child: Text(label, textAlign: TextAlign.center, style: style),
+      ),
+      const SizedBox(width: Space.s2),
+      ExcludeSemantics(
+        child: Icon(
+          PhosphorIconsRegular.caretRight,
+          size: style.fontSize,
+          color: style.color,
+        ),
+      ),
+    ],
+  );
 
   /// 슬롯 id를 Key와 Semantics `identifier`로 붙입니다(글자는 그대로 읽힙니다).
   static Widget _slot(String id, Widget child) => KeyedSubtree(

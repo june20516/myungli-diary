@@ -76,14 +76,6 @@
   "sajuChartYongsinTitle": "Yongsin basis",
   "todayReactionLabel": "Like",
   "termTokenSemantics": "View the meaning of {term}",
-  "@termTokenSemantics": {
-    "placeholders": {
-      "term": {
-        "type": "String",
-        "example": "식신"
-      }
-    }
-  },
   "inputStepProgress": "Step {step} of {stepCount}",
   "textFieldClear": "Clear",
   "textFieldCounter": "{current} of {max} characters",
@@ -117,190 +109,62 @@
   "onboardBirthBasisNote": "We calculate as if you were born in Korea.",
   "onboardBirthErrorRange": "We can only calculate dates from January 31, 1900 to December 31, 2099.",
   "onboardingNext": "Next",
-  "@onboardingNext": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "onboardingSave": "Save",
-  "@onboardingSave": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "calendarSolar": "Solar",
-  "@calendarSolar": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "calendarLunar": "Lunar",
-  "@calendarLunar": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "leapMonth": "Leap month",
-  "@leapMonth": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "onboardCallInputLabel": "Name to call you",
-  "@onboardCallInputLabel": {
-    "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
-  },
   "onboardTimeQuestionHead": "What time were you born?",
   "onboardTimeUnknownNote": "If you don't know the time, we read your chart from three pillars, leaving out the hour.",
   "timeUnknownLabel": "Don't know",
-  "@timeUnknownLabel": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "onboardTimeHourConfirm": "{branch} ({start}–{end})",
-  "@onboardTimeHourConfirm": {
-    "description": "임시. content 슬롯이지만 server가 구조값(지지·시각)만 주므로 app이 틀로 씀(A20 ③)",
-    "placeholders": {
-      "branch": {
-        "type": "String",
-        "example": "인시"
-      },
-      "start": {
-        "type": "String",
-        "example": "03:30"
-      },
-      "end": {
-        "type": "String",
-        "example": "05:30"
-      }
-    }
-  },
   "branchJa": "Rat hour",
-  "@branchJa": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchChuk": "Ox hour",
-  "@branchChuk": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchIn": "Tiger hour",
-  "@branchIn": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchMyo": "Rabbit hour",
-  "@branchMyo": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchJin": "Dragon hour",
-  "@branchJin": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchSa": "Snake hour",
-  "@branchSa": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchO": "Horse hour",
-  "@branchO": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchMi": "Goat hour",
-  "@branchMi": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchShin": "Monkey hour",
-  "@branchShin": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchYu": "Rooster hour",
-  "@branchYu": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchSul": "Dog hour",
-  "@branchSul": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "branchHae": "Pig hour",
-  "@branchHae": {
-    "description": "임시. 지지 이름(시진 확인 줄)"
-  },
   "onboardGenderQuestionHead": "What is your gender?",
   "onboardGenderWhyBody": "We only use it to set the direction of your 10-year luck cycles.",
   "birthplaceQuestionHead": "Where were you born?",
   "birthplaceWhyBody": "We use your birthplace's time zone and longitude to pin down your birth hour.",
   "birthplaceSearchHint": "City name",
   "birthplaceEmptyBody": "No matching city. Try a larger city nearby.",
-  "birthplaceSearchLabel": "City name",
-  "@birthplaceSearchLabel": {
-    "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)"
-  },
+  "birthplaceSearchLabel": "Search birth city",
   "genderMale": "Male",
-  "@genderMale": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "genderFemale": "Female",
-  "@genderFemale": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
-  },
   "previewCtaSave": "Save and continue",
   "previewCtaRestart": "Start over",
   "previewShareLoginNotice": "Sign in to share today's reading.",
   "dayKindYongsinDay": "Day of your Yongsin",
-  "@dayKindYongsinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
-  },
   "dayKindGwiinDay": "Day of benefactors",
-  "@dayKindGwiinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gwiin_day"
-  },
   "dayKindGisinDay": "Day of caution",
-  "@dayKindGisinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gisin_day"
-  },
   "dayKindOrdinaryDay": "Ordinary day",
-  "@dayKindOrdinaryDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ordinary_day"
-  },
   "shareLabel": "Share",
-  "@shareLabel": {
-    "description": "임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)"
-  },
   "actionClose": "Close",
-  "@actionClose": {
-    "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
-  },
   "loginTitleHead": "Sign in to save your reading",
   "loginTitleBody": "Once you sign in, your chart and diary are available on any device.",
   "loginDiscardNotice": "If this account already has a saved chart, we'll use it instead of what you just entered.",
   "loginKakaoLabel": "Login with Kakao",
-  "@loginKakaoLabel": {
-    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드 Label의 완성형(ko \"카카오 로그인\", en \"Login with Kakao\"). 출처: assets/brand/README.md"
-  },
   "loginAppleLabel": "Sign in with Apple",
-  "@loginAppleLabel": {
-    "description": "임시. Apple 로그인 버튼 글자(슬롯 아님). Sign in with Apple HIG의 언어별 공식 문구"
-  },
   "loginCancelled": "Sign-in was cancelled.",
-  "@loginCancelled": {
-    "description": "임시. 로그인 오류 상태: 카카오·iOS Apple 로그인 창을 닫음(슬롯 아님)"
-  },
   "appleWebErrorStateMismatch": "We couldn't verify the sign-in. Please sign in again from the start.",
-  "@appleWebErrorStateMismatch": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 state가 맞지 않음(슬롯 아님)"
-  },
   "appleWebErrorCancelled": "Sign in with Apple was cancelled.",
-  "@appleWebErrorCancelled": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인을 사용자가 취소함(슬롯 아님)"
-  },
   "appleWebErrorOther": "We couldn't sign you in with Apple. Please try again.",
-  "@appleWebErrorOther": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 그 밖 실패(슬롯 아님)"
-  },
   "actionConfirm": "OK",
-  "@actionConfirm": {
-    "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
-  },
   "consentTitleHead": "Please review and agree",
   "consentCtaAgree": "Agree and continue",
   "consentView": "View",
-  "@consentView": {
-    "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
-  },
   "notifyAskQuestionHead": "Would you like today's reading every morning?",
   "notifyAskWhyBody": "Each notification tells you what kind of day it is, with one line from your daily reading.",
   "notifyAskCtaSkip": "Not now",
   "notifyAskCtaAllow": "Turn on alerts",
-  "@notifyAskCtaAllow": {
-    "description": "임시. 알림 허락 버튼(슬롯이 아님)"
-  },
   "accountDeleteCtaDelete": "Delete account",
   "accountDeleteDataBody": "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time.",
   "accountDeleteDeleteConfirm": "Delete your account for good? This can't be undone.",

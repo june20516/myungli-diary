@@ -916,10 +916,10 @@ abstract class AppLocalizations {
   /// **'찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.'**
   String get birthplaceEmptyBody;
 
-  /// 임시. 도시 검색칸 이름(스크린리더, 슬롯 아님)
+  /// 임시. 도시 검색칸 이름(스크린리더, 슬롯 아님). 예시(birthplace.search.hint)와 같은 말이 되지 않게 목적을 말함
   ///
   /// In ko, this message translates to:
-  /// **'도시 이름'**
+  /// **'출생 도시 검색'**
   String get birthplaceSearchLabel;
 
   /// 임시. 온보딩 공용 문구(슬롯 아님)

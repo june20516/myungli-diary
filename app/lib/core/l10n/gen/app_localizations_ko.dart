@@ -447,7 +447,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get birthplaceEmptyBody => '찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.';
 
   @override
-  String get birthplaceSearchLabel => '도시 이름';
+  String get birthplaceSearchLabel => '출생 도시 검색';
 
   @override
   String get genderMale => '남성';

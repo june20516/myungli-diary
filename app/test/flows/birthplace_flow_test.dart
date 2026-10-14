@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
@@ -254,6 +255,24 @@ void main() {
       expect(container.read(onboardingDraftProvider).value?.city, isNull);
     });
   }
+
+  testWidgets('검색칸 이름과 예시가 같은 말로 두 번 읽히지 않습니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _openBirthplace(tester);
+    final field = tester.getSemantics(find.byType(EditableText));
+    // 칸 이름과 예시가 한 줄씩, 같은 말 없이 이어집니다.
+    final lines = field.label.split('\n');
+    expect(lines, [_en.birthplaceSearchLabel, _en.birthplaceSearchHint]);
+    expect(lines.toSet(), hasLength(lines.length));
+    handle.dispose();
+  });
+
+  test('검색칸 이름과 예시는 세 언어 모두 다른 문구입니다', () {
+    for (final locale in AppLocalizations.supportedLocales) {
+      final l10n = lookupAppLocalizations(locale);
+      expect(l10n.birthplaceSearchLabel, isNot(l10n.birthplaceSearchHint));
+    }
+  });
 
   testWidgets('슬롯 identifier: 검색칸(search.hint)과 빈 결과 문장(empty.body)', (
     tester,

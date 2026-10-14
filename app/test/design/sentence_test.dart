@@ -1226,6 +1226,43 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('광고 제거권 링크 끝 화살표는 컴포넌트가 그리고 읽히지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            child: EvidenceLockPanel(
+              state: DepthLinkState.locked,
+              onPass: () {},
+              animated: false,
+            ),
+          ),
+        ),
+      );
+      final l10n = lookupAppLocalizations(const Locale('ko'));
+      final pass = find.byKey(const ValueKey(SlotIds.evidenceSheetLockPass));
+      final caret = find.descendant(
+        of: pass,
+        matching: find.byIcon(PhosphorIconsRegular.caretRight),
+      );
+      expect(caret, findsOneWidget);
+      expect(
+        tester.widget<Icon>(caret).color,
+        tester.element(pass).tokens.colors.actionPrimary,
+      );
+      // 글자는 원고 그대로이고, 링크 이름에 화살표가 섞이지 않습니다.
+      expect(
+        find.descendant(
+          of: pass,
+          matching: find.text(l10n.evidenceSheetLockPass),
+        ),
+        findsOneWidget,
+      );
+      expect(find.bySemanticsLabel(l10n.evidenceSheetLockPass), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('lockedNoAd: unavailable, unlocking: a11y.checking', (
       tester,
     ) async {
