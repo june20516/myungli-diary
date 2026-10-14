@@ -8,7 +8,7 @@ import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 /// 온보딩 입력을 로컬 DB 단일 행(`OnboardingInputs`, id=1)에 두는 저장소입니다.
 ///
 /// 로그인 전에 쓰므로 계정과 무관합니다. 로그아웃 정리가 지웁니다.
-final class OnboardingDraftStore {
+class OnboardingDraftStore {
   /// `database`에 저장합니다.
   new(this._database);
 
