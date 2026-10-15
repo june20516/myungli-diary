@@ -787,7 +787,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LunarDate'
+                $ref: '#/components/schemas/LunarConversion'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1613,6 +1613,7 @@ components:
         형식은 맞지만 스키마로 표현할 수 없는 의미 검사에 걸림. 형식·범위 위반은 422가 아니라 400 `request.invalid`입니다.
         * `date.out_of_range`·`birth.out_of_range`: 형식은 맞지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖
         * `date.invalid`: 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 400 `request.invalid`입니다.
+          `convertLunarDate`에서는 없는 음력 날짜(윤달이 없는 달의 윤달, 그 달에 없는 30일)도 `date.invalid`입니다.
         * `request.inconsistent`: 상태-값 짝 위반. `errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`
           (대상 `BirthTime`, `BirthPlace`, 양력의 `isLeapMonth`, `NotificationSetting`, `ScheduleInput`·`SchedulePatch`)
         * `consent.version_mismatch`: 동의한 문서 버전이 현재 버전과 다름. `errors[].field`는 `/documents/<i>/version`
@@ -2701,7 +2702,7 @@ components:
         pillar:
           $ref: '#/components/schemas/Pillar'
         lunar:
-          $ref: '#/components/schemas/CalendarLunarDate'
+          $ref: '#/components/schemas/LunarDate'
         solarTerm:
           $ref: '#/components/schemas/SolarTerm'
         dayKind:
@@ -2722,9 +2723,8 @@ components:
           $ref: '#/components/schemas/Tag'
         level:
           $ref: '#/components/schemas/SlotText'
-    CalendarLunarDate:
+    LunarDate:
       type: object
-      description: 달력 한 날의 음력 월·일입니다.
       required: [month, day, isLeapMonth]
       properties:
         month:
@@ -2859,7 +2859,7 @@ components:
         isLeapMonth:
           type: boolean
           description: 윤달이면 true입니다. 그해 그 달에 윤달이 없으면 422 `date.invalid`입니다.
-    LunarDate:
+    LunarConversion:
       type: object
       required: [solarDate, monthHasLeap]
       properties:

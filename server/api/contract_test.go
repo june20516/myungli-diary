@@ -714,12 +714,12 @@ func TestContract_ConvertLunarDateIsAppCheck(t *testing.T) {
 	if op.Security == nil || len(*op.Security) != 1 || !hasOnlyScheme((*op.Security)[0], "appCheck") {
 		t.Errorf("security = %v, want [{appCheck: []}]", op.Security)
 	}
-	if got := okSchemaRef(t, op); got != "#/components/schemas/LunarDate" {
-		t.Errorf("200 schema = %q, want LunarDate", got)
+	if got := okSchemaRef(t, op); got != "#/components/schemas/LunarConversion" {
+		t.Errorf("200 schema = %q, want LunarConversion", got)
 	}
-	result := doc.Components.Schemas["LunarDate"].Value
+	result := doc.Components.Schemas["LunarConversion"].Value
 	if !slices.Equal(slices.Sorted(slices.Values(result.Required)), []string{"monthHasLeap", "solarDate"}) {
-		t.Errorf("LunarDate.required = %v, want [monthHasLeap solarDate]", result.Required)
+		t.Errorf("LunarConversion.required = %v, want [monthHasLeap solarDate]", result.Required)
 	}
 	for _, status := range []string{"422", "429"} {
 		if op.Responses.Value(status) == nil {
