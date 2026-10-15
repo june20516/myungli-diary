@@ -46,4 +46,4 @@
 
 ## 용신 판정 근거 (saju-chart, D60)
 
-원국·오행 탭의 용신 판정 근거(`saju-chart.yongsin.basis`)는 `sentence-block` `body`입니다. 권한이 없으면 `sentence-block`의 `locked`(흐린 한 줄 + "열기 ›", 문구 슬롯 `saju-chart.yongsin.open`)이고, 누르면 근거 시트가 잠긴 상태로 열립니다. 원국표·오행 분포·만세력·대운 표 데이터는 무료입니다.
+원국·오행 탭의 용신 판정 근거(`saju-chart.yongsin.basis`)는 `sentence-block` `body`입니다. 권한이 없으면 `sentence-block`의 `locked`(흐린 한 줄 + "열기" 링크와 화살표, 문구 슬롯 `saju-chart.yongsin.open`)이고, 누르면 근거 시트가 잠긴 상태로 열립니다. 원국표·오행 분포·만세력·대운 표 데이터는 무료입니다.

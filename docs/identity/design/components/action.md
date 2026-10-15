@@ -1,6 +1,6 @@
 # action: 동작 (`action.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §2.2·§6.4, 결정 V13·V14·V18·V26
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §2.2·§6.4, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.6, 결정 V13·V14·V18·V26
 * 시안: `design-v2-kit`(둥근 사각 버튼), `design-v2-press-feedback`(먹 번짐)
 
 ## primary-button
@@ -27,6 +27,8 @@
 
 * 쓰는 화면: login
 * 반경 `radius.md`, 높이 52, 세로 간격 12만 정합니다. 색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 씁니다. 제공자는 **카카오와 Apple**(D55)이고 iOS·Android 모두 두 버튼을 같은 크기로 보입니다(카카오 위, Apple 아래). Apple 버튼은 라이트 모드 검정, 다크 모드 흰색 스타일입니다(Apple HIG).
+* Apple 버튼 글자는 HIG대로 플랫폼 시스템 글꼴이고, 크기와 굵기는 `type.label.lg`입니다(`apple` 변형 `parts.label`).
+* `disabled`: 다른 버튼이 처리 중일 때입니다. 제공자 색을 바꿀 수 없으므로 버튼 전체를 `opacity 0.4`로 흐립니다.
 
 ## share-button
 

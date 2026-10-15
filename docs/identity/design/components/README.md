@@ -1,9 +1,9 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 2.2.0 · 토큰 계약 1.1.0 이상을 기대합니다.
+컴포넌트 계약 2.3.0 · 토큰 계약 1.1.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), 결정 V13~V28([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v1([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), 결정 V13~V33([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v3([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
 * 명세는 특정 위젯 라이브러리에 묶이지 않습니다. Material 대응은 각 `.md`에 참고 힌트로만 적습니다.
 * 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
 
@@ -57,6 +57,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 * 문장·UI 문구는 모두 자리 채우기입니다. 문구는 writing(UI 슬롯)과 server(콘텐츠)가 정하고, 명세는 자리·글자 스타일·줄바꿈·자르기 규칙만 정합니다. `.md`에 나오는 문구는 예시입니다.
 * 생김새는 두 플랫폼에서 하나입니다. 뒤로 가기 제스처, 시스템 공유, 스크롤 튕김, 키보드는 플랫폼 방식을 따릅니다.
 * 기기의 글자 크기 설정을 따릅니다. 칸이 고정된 표(원국표·만세력·대운, 달력 칸)만 1.3배 상한을 둡니다(`a11y.textScaleMax`).
+* **고정 높이는 최소 높이(결정 V30):** 명세의 고정 높이(`height`)는 기본 글자 크기에서의 높이입니다. 기기 글자가 커지면 글자가 잘리지 않게 늘어나는 최소 높이로 구현합니다. 대상은 `primary-button`, `text-field`, `segmented`, `social-login-button`, `lucky-card` 칩, `day-character` 배지 등 글자를 담은 칸 전부입니다. 예외는 칸이 고정된 표와 달력이며, 이들은 글자 크기에 상한(`a11y.textScaleMax`)을 두고 칸은 고정입니다.
 * 길흉은 색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말을 넣습니다.
 * **모양 규칙(결정 V26):** 누르면 무언가를 실행하는 동작(버튼: 저장·로그인·공유·광고 보고 열기 등)은 둥근 사각(`radius.md`), 값·상태를 보여 주거나 고르는 것(배지·칩·꼬리표·segmented·toast)은 알약(`radius.full`)입니다. 가르는 기준은 "누른 결과가 무언가를 실행하는가, 그 값을 더 보여 주는가"입니다. 행운 칩·태그 칩은 눌러도 그 값의 설명이나 모음을 보여 줄 뿐이라 값 표시, 곧 알약입니다. 이 기준에 예외는 없습니다.
 * **화면 좌우 여백(결정 V26):** 페이지 화면의 좌우 여백은 `space.20`입니다(시트 안쪽 여백과 같음). app-bar만 아이콘 터치 영역 때문에 `space.16`입니다.
@@ -77,6 +78,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.0.0 | 2026-10-11 | 근거 깊이 잠금(D60): 풀이 시트의 '내 사주에서는' 상자와 `term-token` `locked` 빠짐, 근거 시트 구성 `depth-link.evidenceSheet`와 잠김 상태 4개, `sentence-block` `locked`, 요소 `lock.veil`. `share-button` `pill` → `soft`(둥근 사각). 모양 규칙·화면 여백 |
 | 2.1.0 | 2026-10-13 | 문장 조각(`segments`)의 용어 표시: 칩은 `term-token`이 있는 화면에서만(V28). 근거 잠금 ui 슬롯: `sentence-block` 열기, 근거 시트 구역 제목·해제 실패 toast·접근성 문구 |
 | 2.2.0 | 2026-10-13 | `sentence-block` 잠김 라벨의 구역 이름 슬롯 `a11y.lockedNameSlot`(`saju-chart.yongsin.title`, #81) |
+| 2.3.0 | 2026-10-15 | 구현 대응(#118·#142·#154)·IA v3(#159). 글자 링크 화살표는 아이콘 `caret-right`로 컴포넌트가 그림(V29), `depth-link` `navigate`(V32), `dialog` `notice`, `segmented` `none`, `date-picker` 윤달 대체(V31), `social-login-button` `disabled`·Apple 글자, `tab-bar` 아이콘, `app-bar` 뒤로 숨김, `input-step` 아래 버튼 생략, `lucky-card` 시간 형식, 근거 시트 빈 구역 생략, 고정 높이는 최소 높이(V30), 요소 값(`icon.set.flutter`, `mark.caution.size`, `lock.veil.lines`) |
 
 ## 검사 (design)
 
