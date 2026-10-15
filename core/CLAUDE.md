@@ -9,6 +9,10 @@
 `core/`, `proto/myungli/engine/`, `proto/buf.yaml`, `.github/workflows/core.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:core`).
 그 밖은 읽기만 합니다. 바꿔야 하면 `from:core` Issue로 요청합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
+## 공개 저장소와 맞물림 규칙
+* **공개 저장소(D74):** 이 저장소는 공개입니다. Issue·PR·커밋·문서에 가격·수익 수치 같은 내부 정보를 적지 않습니다. 제품 배경 원문·수익화 기록은 비공개 저장소에 있고 링크하지 않습니다. 근거가 필요하면 지휘에게 Issue로 묻습니다.
+* **맞물림(D73, `docs/workflow.md` §6.1):** core는 계약을 **주는 쪽**입니다(`ci-gate`의 core 검사는 받는 계약 없이 `own`만 돕니다). proto·`message_keys.json`·`message_params.json`만 바꾼 PR은 받는 쪽(server·writing) 검사가 실패해도 경고로 병합되고, `ci-gate`가 받는 쪽 앞으로 `drift` Issue를 엽니다. 하위 호환을 깨는 변경은 `kind:notice`로 따로 알립니다. 내 앞 drift는 `gh issue list --label drift --label to:core`로 확인하고 있으면 다음 PR에서 먼저 맞춥니다.
+
 ## 계약
 | 계약 | 역할 | 사용하는 쪽 |
 | --- | --- | --- |
@@ -43,7 +47,10 @@
 
 ## 다음 할 일
 1. 엔진 MVP는 main에 병합됐습니다(PR #1). 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
-2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-13 기준:
+2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-15 기준:
+   * **#164:** 음력 → 양력 변환과 윤달 유무 RPC(`ConvertLunarDate`). server REST `1.0.0-draft.3`의 `convertLunarDate`가 이 RPC를 기다리며 501입니다. 하위 호환 추가 RPC라 계약 먼저 병합(§6.1)이 가능합니다.
+   * **#130:** writing 근거 문장용 `rule_id` 목록과 `source_ref`별 원전 원문 내보내기.
+   * **#120:** `core.yml`의 GitHub Actions를 Node 24 최신 메이저로.
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
