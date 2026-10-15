@@ -3,7 +3,7 @@
 * 작성일: 2026-10-10
 * 상태: **승인됨** (2026-10-10, §16 R1~R10 포함)
 * 대상: 명리일기 서브 프로젝트 1 — Python 명리 엔진 (MVP 범위)
-* 상위 문서: `docs/background/` (특히 07 엔진 위키 v1.4), 결정 로그 `docs/decisions.md` (D1~D32)
+* 상위 문서: 제품 배경 원문(비공개 기록, D74)의 07 엔진 위키 v1.4(지금은 `core/docs/engine-logic-wiki.md`), 결정 로그 `docs/decisions.md` (D1~D32)
 * 근거 자료: `core/docs/references/`
 
 ---

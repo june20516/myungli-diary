@@ -14,11 +14,31 @@ snapshot() {
       --json number,state,title --jq '.[] | "PR #\(.number) \(.state) \(.title)"' &&
     gh issue list -R "$REPO" --state all --limit 40 \
       --json number,state,title --jq '.[] | "Issue #\(.number) \(.state) \(.title)"' &&
-    gh run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 5 \
-      --json headSha,status,conclusion \
-      --jq '.[] | select(.status == "completed") | "main-ci \(.headSha[0:7]) \(.conclusion)"'
+    main_ci
   } 2>/dev/null) || return 1
   printf '%s\n' "$out" | sort
+}
+
+main_ci() {
+  # 실행 전체 결론이 아니라 ci-gate job 판정을 씁니다. drift 단위의 실패는 실행을 failure로 만들지만 판정에서는 빠지기 때문입니다(docs/workflow.md §6.1).
+  # 끝난 실행의 판정은 바뀌지 않으므로 실행 번호·시도 횟수별로 STATE_DIR에 캐시해 매분 job을 다시 조회하지 않습니다.
+  local runs id attempt sha cache verdict
+  runs=$(gh run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 5 \
+    --json databaseId,attempt,headSha,status \
+    --jq '.[] | select(.status == "completed") | "\(.databaseId) \(.attempt) \(.headSha[0:7])"') || return 1
+  while read -r id attempt sha; do
+    [ -n "$id" ] || continue
+    cache="$STATE_DIR/gate-$id-$attempt"
+    if [ ! -s "$cache" ]; then
+      gh api "repos/$REPO/actions/runs/$id/attempts/$attempt/jobs" \
+        --jq '.jobs[] | select(.name == "ci-gate") | .conclusion' > "$cache.tmp" || return 1
+      # ci-gate job이 없으면(changes 단계에서 실행이 멈춤 등) 판정 없음으로 둡니다.
+      [ -s "$cache.tmp" ] || echo "no-verdict" > "$cache.tmp"
+      mv "$cache.tmp" "$cache"
+    fi
+    verdict=$(cat "$cache")
+    echo "main-ci $sha $verdict"
+  done <<< "$runs"
 }
 
 [ -f "$STATE_DIR/prev" ] || snapshot > "$STATE_DIR/prev"

@@ -34,8 +34,11 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-10-15 기준, #156 병합 뒤)
+## 현재 진행 순서 (2026-10-15 기준, #176 병합 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
+
+* **저장소가 공개로 바뀌었습니다**(D74, PR #176). 제품 배경·수익화·아이디어 기록은 비공개 기록으로 옮겼습니다. 각 세션은 main을 병합하고 시작합니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #172(REST draft.3)·#173(IA v3), writing #174(IA v3)입니다.
 
 * **동시에 도는 세션은 둘까지입니다.** 길게 가는 단위 하나(가장 긴 경로)와, 짧게 끝내고 닫는 단위 하나입니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
 * **가장 긴 경로:** A1(진행 중) → A2 → I2·I3. app은 쉬지 않고 돕니다. 콘텐츠 쪽은 W1 → I3입니다.
@@ -43,11 +46,11 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 1 (지금) | app | A1 계획 3(오늘·깊이 시트, 브랜치 `app/today`). 보낸 요청 #152(server)·#153(writing)·#154(design). 계획 3 뒤 IA v3 최종 PR #160(작은 PR, #157 위에 writing·design을 쌓은 뒤) | A2, I2 |
-| 1 (짧게) | writing | #158(IA v3 슬롯 원고·계산 기준 문구 D71, glossary ja를 근거 용어집 `docs/research/ja-terms/`로 D70, 부정 신호 문구 규칙 D72), #153(근거 링크·시트 제목·방향 8개). #143·#148은 PR #155로 끝남(#143은 app이 원고를 가져간 뒤 닫음) | IA v3 |
+| 1 (지금) | app | drift 먼저: #172(REST draft.3 생성 코드, #165 함께), #173(IA v3 → #160 birthplace 한국 표준 소개·calc-basis), #169(app.yml main push 트리거). 그다음 A1 계획 3(오늘·깊이 시트, 브랜치 `app/today`). 보낸 요청 #153(writing)·#154(design) | A2, I2 |
+| 1 (짧게) | writing | drift #174와 #158(IA v3 슬롯 원고·계산 기준 문구 D71, glossary ja를 근거 용어집 `docs/research/ja-terms/`로 D70, 부정 신호 문구 규칙 D72)을 한 PR로. 그다음 #153(근거 링크·시트 제목·방향 8개) | IA v3 |
 | 1 (짧게) | design | #159(`depth-link` 화면 이동 변형, IA v3), #131(글자 수 상한), #118·#142·#154(app 명세 차이) | IA v3 |
-| 1 (짧게) | core | #130(근거 문장용 `rule_id`·`source_ref` 목록 내보내기, writing W1 근거 슬롯을 막음), #120(core.yml actions) | W1 일부 |
-| 2 (A1 화면 골격 이후) | server | P2·P2a 완료(PR #99·#113). #121·#124는 PR #146으로 끝남. 다음 P3 프로필·엔진·캐시(S23 포함). #141의 프로필 읽기는 app 계획 6을 막으므로 P3에서 먼저, Preview 문장 필드(D68)도 함께. #152(Daily 문장 필드, 계약만 먼저: 1·2번 바로, 3·4번은 core #130 뒤). 그 밖에 #79(엔진 실행 조건, D65 배포 workflow), #55·#129 | S3 |
+| 1 (짧게) | core | PR #177(D73·D74 반영) 병합 뒤 #164(음력 → 양력 변환·윤달 RPC, server #170을 막음), #130(근거 문장용 `rule_id`·`source_ref` 목록 내보내기, server #167과 writing W1 근거 슬롯을 막음), #120(core.yml actions) | server #170·#167, W1 일부 |
+| 2 (core 뒤) | server | P3 완료(계약 PR #163, 구현 PR #171: 프로필·엔진·캐시, `getProfile`, Preview·Daily 문장 필드 1·2번). #152는 닫힘. 다음 #170(`convertLunarDate` 구현, core #164 뒤), #167(#152 나머지 `explain.today_reason`·근거 basis·source, core #130 뒤). 그 밖에 #79(엔진 실행 조건, D65 배포 workflow), #55·#129 | S3 |
 | 2 | writing | W1 콘텐츠 원고. 원어민 검수는 사용자 준비물 | I3 |
 | 3 | server | S3(REST v1 freeze), staging 테스트 로그인·App Check debug token 구현(S24, P6·P9) | A2, I2 |
 | 필요할 때 | core | #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때). 1번 buf breaking 실제 비교는 확인됨 | - |
