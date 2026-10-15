@@ -131,10 +131,14 @@
 | ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 6 | - | ko -, en -, ja - |
 | ui.depth.default_label | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 10, en 18, ja 10 |
 | ui.depth.evidence | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
+| ui.depth.evidence_link | 컴포넌트 depth-link | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ui.depth.explain | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko -, en -, ja - |
 | ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 39 | - | ko -, en -, ja - |
+| ui.evidence.title | 컴포넌트 sheet | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko -, en -, ja - |
 | ui.login.error | 컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko -, en -, ja - |
 | ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 2 | - | ko -, en -, ja - |
 | ui.nav.a11y | 컴포넌트 app-bar<br>컴포넌트 sheet | guide | - | 1 | 2 | - | ko -, en -, ja - |

@@ -224,3 +224,8 @@
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요."}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Apple 로그인을 취소했어요."}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "Apple로 로그인하지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "근거 보기"}
+- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "오늘 풀이의 근거"}
+- {slot: ui.guide.card, key: todayGuideEyebrow, text: "오늘의 질문"}
+- {slot: ui.guide.a11y, key: todayGuideLabel, text: "일기 질문"}
+- {slot: ui.guide.a11y, key: todayGuideWritten, text: "오늘 일기를 썼어요"}
