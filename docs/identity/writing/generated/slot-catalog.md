@@ -18,10 +18,13 @@
 | birthplace.empty.body | birthplace.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.question.head | birthplace.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.search.hint | birthplace.search.hint | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| birthplace.standard.link | birthplace.standard.link | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| birthplace.standard.note | birthplace.standard.note | info | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.why.body | birthplace.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | calc-basis.convention.body | calc-basis.convention.body | info | - | 1 | 1 | - | ko -, en -, ja - |
-| calc-basis.longitude.body | calc-basis.longitude.body | info | - | 1 | 1 | - | ko 120, en 216, ja 120 |
+| calc-basis.longitude.body | calc-basis.longitude.body | info | - | 1 | 6 | `longitude`: text<br>`minutes`: number<br>`degrees`: text | ko 120, en 216, ja 120 |
 | calc-basis.lunar.body | calc-basis.lunar.body | info | - | 1 | 1 | - | ko -, en -, ja - |
+| calc-basis.schools.body | calc-basis.schools.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | calendar.day_level | 컴포넌트 day-character<br>컴포넌트 day-cell | info | - | 1 | 3 | `score`: number | ko 10, en 18, ja 10 |
 | calendar.legend.body | calendar.legend.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | calendar.score_item | 컴포넌트 term-token | info | - | 1 | 7 | - | ko 10, en 18, ja 10 |

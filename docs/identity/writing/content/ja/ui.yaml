@@ -19,6 +19,8 @@
 - {slot: onboard-gender.why.body, key: onboardGenderWhyBody, text: "大運の流れる向きを決めるときだけ使います。"}
 - {slot: birthplace.question.head, key: birthplaceQuestionHead, text: "どこで生まれましたか?"}
 - {slot: birthplace.why.body, key: birthplaceWhyBody, text: "生まれた場所のタイムゾーンと経度で、生まれた時刻を正確に合わせます。"}
+- {slot: birthplace.standard.note, key: birthplaceStandardNote, text: "命理日記は、韓国で広く使われている基準で計算します。いくつかある流派のひとつとして、根拠のある方法です。"}
+- {slot: birthplace.standard.link, key: birthplaceStandardLink, text: "計算の基準を見る"}
 - {slot: birthplace.search.hint, key: birthplaceSearchHint, text: "都市名"}
 - {slot: birthplace.empty.body, key: birthplaceEmptyBody, text: "該当する都市がありません。近くの大きな都市で探してみてください。"}
 - {slot: preview.cta.save, key: previewCtaSave, text: "保存して続ける"}
@@ -102,8 +104,14 @@
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmBody, text: "{before} → {after}\n今日・カレンダー・わたしの命式を計算し直します。すでに書いた日記とタグはそのまま残ります。"}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmCancel, text: "キャンセル"}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "変更する"}
-- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "読み解きは、韓国で広く使われている基準ひとつにそろえています。"}
+- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。"}
+- {slot: calc-basis.schools.body, key: calcBasisSchoolsBody, text: "蔵干はひとつに絞らず、すべて表示します。子の刻に生まれた場合は、午前0時より前でも翌日として計算します。流派によって扱いが異なるため、ほかのアプリや本と結果が異なることがあります。"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBody, text: "出生時刻は東経127.5°を基準に30分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "出生時刻は{longitude}を基準に{minutes}分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "出生時刻は{longitude}を基準に{minutes}分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "出生時刻は{longitude}を基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "東経{degrees}°"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "西経{degrees}°"}
 - {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。"}
 - {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "アカウント削除"}
 - {slot: account-delete.data.body, key: accountDeleteDataBody, text: "アカウントを削除すると、命式の情報・日記・タグ・予定・広告除去の残り期間がすべて消え、元に戻せません。"}
