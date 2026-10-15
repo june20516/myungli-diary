@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart' show WidgetTester;
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
@@ -115,6 +116,22 @@ Widget _evidence(DepthLinkState state) {
   );
 }
 
+/// 풀이 시트 내용: 뜻·이유가 있을 때와 계약에 없어 자리가 없을 때.
+Widget _explain({required bool withText}) => SizedBox(
+  height: 420,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+    child: ExplainSheetBody(
+      title: '식신',
+      meaning: withText ? _text([Segment(text: '내가 낳은 것을 표현하는 기운이에요.')]) : null,
+      todayReason: withText
+          ? _text([Segment(text: '오늘은 월지와 닿아 말문이 트이기 쉬워요.')])
+          : null,
+      onEvidence: () {},
+    ),
+  ),
+);
+
 Widget _reactions() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
   children: [
@@ -147,6 +164,19 @@ void main() {
         tester,
         'sentence_evidence_${state.name}',
         () => _evidence(state),
+        settle: _settle,
+      );
+    });
+  }
+
+  for (final withText in [true, false]) {
+    goldenTest('explain-sheet 내용: ${withText ? '뜻·이유 있음' : '뜻·이유 없음'}', (
+      tester,
+    ) async {
+      await goldenMatrix(
+        tester,
+        'sentence_explain_${withText ? 'full' : 'title_only'}',
+        () => _explain(withText: withText),
         settle: _settle,
       );
     });

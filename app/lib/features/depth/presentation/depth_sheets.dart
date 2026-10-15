@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/router/sheet_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 
 /// 풀이 시트 본문. [termId]는 용어 id, [sourceSlotId]는 눌린 writing 슬롯 id입니다.
 typedef ExplainBodyBuilder = Widget Function(
@@ -71,10 +72,11 @@ final class DepthSheets {
   );
 }
 
-/// 깊이 시트 서비스. 본문은 시트 task가 채우기 전까지 빈 자리입니다.
+/// 깊이 시트 서비스. 풀이 시트 본문은 연결됐고, 나머지는 시트 task가 채우기 전까지 빈 자리입니다.
 final depthSheetsProvider = Provider<DepthSheets>(
   (ref) => DepthSheets(
-    explainBody: (_, _) => const SizedBox.shrink(),
+    explainBody: (termId, sourceSlotId) =>
+        ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
     evidenceBody: (_) => const SizedBox.shrink(),
     shareBody: SizedBox.shrink,
   ),

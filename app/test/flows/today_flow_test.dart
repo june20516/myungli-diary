@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -17,6 +18,10 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
+import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -143,6 +148,7 @@ void main() {
       const Covers(
         exits: [
           'today>explain-sheet',
+          'explain-sheet>evidence-sheet',
           'today>evidence-sheet',
           'today>share-preview',
         ],
@@ -152,6 +158,20 @@ void main() {
 
     await tester.tap(find.byType(TermToken).first);
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    // 풀이 시트의 근거 보기: 풀이 시트 위에 근거 시트가 겹쳐 열립니다.
+    final explainLink = find.descendant(
+      of: find.byKey(const Key(ScreenIds.explainSheet)),
+      matching: find.byType(DepthLink),
+    );
+    await tester.tapAt(tester.getTopLeft(explainLink) + const Offset(8, 12));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
+    // 근거 시트를 닫으면 풀이 시트로 돌아옵니다.
+    Navigator.of(tester.element(find.byKey(const Key(ScreenIds.evidenceSheet))))
+        .pop();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     await _closeSheet(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
@@ -165,6 +185,68 @@ void main() {
     await tester.tap(find.byType(ShareButton));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.sharePreview)), findsOneWidget);
+  });
+
+  testWidgets('풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름', (
+    tester,
+  ) async {
+    covers(
+      const Covers(states: ['explain-sheet:loading', 'explain-sheet:error']),
+    );
+    // 오늘 화면은 사전이 있어야 열리므로, 풀이 시트만 따로 느리고 실패하는 사전을 받게 합니다.
+    final firstAttempt = Completer<GlossaryNames>();
+    var attempts = 0;
+    final container = await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        depthSheetsProvider.overrideWithValue(
+          DepthSheets(
+            explainBody: (termId, sourceSlotId) => ProviderScope(
+              overrides: [
+                glossaryProvider.overrideWith((ref) {
+                  if (++attempts == 1) return firstAttempt.future;
+                  final dot = termId.indexOf('.');
+                  return GlossaryNames({
+                    termId.substring(0, dot): {
+                      termId.substring(dot + 1): '풀이 이름',
+                    },
+                  });
+                }),
+              ],
+              child: ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
+            ),
+            evidenceBody: (_) => const SizedBox.shrink(),
+            shareBody: SizedBox.shrink,
+          ),
+        ),
+      ],
+    );
+    await _settleToday(tester);
+    expect(container.read(glossaryProvider).hasValue, isTrue);
+
+    await tester.tap(find.byType(TermToken).first);
+    await tester.pump(const Duration(milliseconds: 400));
+    final sheet = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(
+      find.descendant(
+        of: sheet,
+        matching: find.byKey(const ValueKey('screen-state.loading')),
+      ),
+      findsOneWidget,
+    );
+
+    firstAttempt.completeError(const OfflineError());
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: sheet, matching: find.byType(ErrorState)),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text(_ko.actionRetry));
+    await tester.pumpAndSettle();
+    expect(find.text('풀이 이름'), findsOneWidget);
+    expect(find.byType(ErrorState), findsNothing);
   });
 
   testWidgets('member: 가이드 카드 → diary-edit, 돌아오면 일기 여부를 다시 확인합니다', (

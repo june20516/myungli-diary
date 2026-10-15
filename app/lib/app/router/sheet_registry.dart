@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 
 /// 시트 하나의 등록 정보. page 화면의 `ScreenSpec`에 해당합니다(결정 A23).
 ///
@@ -22,7 +23,13 @@ final class SheetSpec {
 ///
 /// 시트 본문을 만드는 task(explain·evidence·share-preview, 이어서 day-sheet)가
 /// 자기 시트를 여기에 더합니다.
-const Map<String, SheetSpec> sheetRegistry = {};
+const Map<String, SheetSpec> sheetRegistry = {
+  ScreenIds.explainSheet: SheetSpec(
+    ScreenIds.explainSheet,
+    handledStates: {'loading', 'error'},
+    exits: {ScreenIds.evidenceSheet},
+  ),
+};
 
 /// 시트 뿌리에 IA 화면 id를 Key와 Semantics `identifier`로 붙입니다(spec §6.6).
 ///

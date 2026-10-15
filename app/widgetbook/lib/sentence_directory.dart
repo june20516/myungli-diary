@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
@@ -98,6 +99,34 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
               ),
             ),
           ),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'explain-sheet 내용',
+      useCases: [
+        WidgetbookUseCase(
+          name: '뜻·이유 있음',
+          builder: (context) => Stage(
+            child: SizedBox(
+              height: 300,
+              child: ExplainSheetBody(
+                title: '식신',
+                meaning: _line('내가 낳은 것을 표현하는 기운이에요.'),
+                todayReason: _line('오늘은 월지와 닿아 말문이 트이기 쉬워요.'),
+                onEvidence: () {},
+              ),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: '제목만(뜻·이유는 계약에 없음)',
+          builder: (context) => Stage(
+            child: SizedBox(
+              height: 300,
+              child: ExplainSheetBody(title: '식신', onEvidence: () {}),
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(
