@@ -29,7 +29,8 @@
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
 | `docs/coordination/` | 지휘 | 이관 전 문서 보관소 |
-| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
+| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**(버전·상태)은 주는 쪽이 계약 PR에서 직접 고칩니다. 새 계약 행 추가와 표 밖 내용은 지휘가 합니다 |
+| 단위의 `CLAUDE.md` | 해당 단위 | 지휘는 착수 안내나 공통 규약 정리 때만 고치고 PR 본문에 적습니다 |
 
 ## 3. 서브 프로젝트의 작업 주기
 
@@ -37,17 +38,18 @@
    - 자기 `CLAUDE.md`(현재 상태와 다음 할 일)
    - `docs/roadmap.md`(자기 마일스톤)
    - `docs/contracts/README.md`(쓰고 제공하는 계약)
-   - 자기 앞으로 온 열린 Issue: `gh issue list --label to:<단위>`
    - `git fetch origin && git merge origin/main` (§6)
+   - 자기 앞으로 온 열린 Issue: `gh issue list --label to:<단위>`. `drift` 라벨이 있으면 다른 일보다 먼저 합니다(§6.1)
 2. **설계:** brainstorming → spec 작성 → 사용자 승인. spec은 `<서브 프로젝트>/docs/specs/YYYY-MM-DD-<주제>-design.md`에 둡니다.
 3. **계획:** writing-plans. 계획은 `<서브 프로젝트>/docs/plans/YYYY-MM-DD-<주제>.md`에 둡니다.
 4. **구현:** 계획을 실행합니다(subagent-driven 또는 executing-plans).
 5. **마무리 (세션이 끝날 때마다, 결론이 나지 않은 작업도):**
    1. `git merge origin/main`
-   2. 자기 `CLAUDE.md`의 "현재 상태" 갱신. 제공 계약이 바뀌었으면 버전을 올립니다.
+   2. 자기 `CLAUDE.md`의 "현재 상태"·"다음 할 일" 갱신. 제공 계약이 바뀌었으면 `docs/contracts/README.md`의 자기 행 버전·상태를 같은 PR에서 고칩니다(지휘에게 따로 요청하지 않습니다).
    3. 산출물을 `artifacts/index.json`에 등록(§7)
    4. 관련 Issue 닫기(닫는 조건은 §5.2). 마일스톤을 끝냈으면 `kind:report` Issue로 완료 보고
-   5. PR → `ci-gate` 통과 → 병합(§6)
+   5. 공개 저장소 확인(D74): 바뀐 파일·PR 본문·Issue에 가격·수익 수치나 비공개 저장소 경로 링크가 없는지
+   6. PR → `ci-gate` 통과 → 사용자가 병합(§6)
 
 suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberpowers/plans/` 경로는 쓰지 않습니다. 서브 프로젝트는 위 경로를, 지휘 세션은 `docs/specs/`, `docs/plans/`를 씁니다. 작업 단위는 이미 `docs/` 안에 있으므로 `docs/identity/<writing|design>/specs/`, `plans/`를 씁니다.
 
@@ -60,8 +62,8 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 ## 5. 계약과 요청함
 
 ### 5.1. 계약
-* 목록과 상태는 `docs/contracts/README.md`에 있습니다.
-* 계약은 **제공하는 쪽만** 바꿉니다. 사용하는 쪽은 요청합니다.
+* 목록과 상태는 `docs/contracts/README.md`에 있고, 버전의 기준은 이 표 하나입니다. 단위 `CLAUDE.md`의 계약 표는 역할(제공·사용)과 상대만 적습니다.
+* 계약은 **제공하는 쪽만** 바꿉니다. 사용하는 쪽은 요청합니다. 제공하는 쪽은 계약 PR에서 위 표의 자기 행도 함께 고칩니다(§2).
 * 하위 호환이 깨지는 변경은 다음 절차를 따릅니다: ① `kind:notice` Issue로 공지 ② 계약 버전 올림 ③ 사용하는 쪽이 대응을 마쳤다고 보고한 뒤 이전 버전 제거.
 
 ### 5.2. 요청함: GitHub Issues (D44)
@@ -89,7 +91,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **`main` 중심, 짧은 브랜치 (D44):** 브랜치는 마일스톤 하나나 task 몇 개 단위로 짧게 씁니다. 이름은 `<단위>/<주제>`(예: `core/engine-mvp`, `writing/rounds-2026-10-11`). 지휘 세션은 `root/<주제>`.
 * **세션 시작:** `git fetch origin && git merge origin/main`.
 * **계약 먼저 병합:** 다른 단위가 기대는 계약(proto, `message_keys.json`, 디자인 토큰, IA, 슬롯 명세, 호칭·조사 규칙, REST API 명세)이 확정되면, 구현 브랜치 전체를 기다리지 않고 **계약 파일만 담은 작은 PR**로 먼저 `main`에 넣습니다. 받는 쪽 검사는 이 PR에서 경고만 내고(§6.1), 받는 쪽이 다음 PR에서 따라잡습니다.
-* **병합:** 모든 변경은 PR → `ci-gate` 통과 → merge commit으로 합칩니다. 지휘 세션 문서도 같습니다. **`main`에 직접 push하지 않습니다**(D43: 무료 비공개 플랜이라 보호 규칙이 강제되지 않으므로 규약으로 지키고, `ci-gate`가 `main` push에서도 돌아 사후에 잡습니다).
+* **병합:** 모든 변경은 PR → `ci-gate` 통과 → merge commit으로 합칩니다. 단위 PR은 사용자가, 지휘의 `root/` PR은 지휘가 병합합니다. **`main`에 직접 push하지 않습니다**(D43). 보호 규칙은 아직 걸지 않아 규약으로 지키고, `ci-gate`가 `main` push에서도 돌아 사후에 잡습니다(공개 전환 뒤 보호 규칙은 §8).
 * 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git worktree add ../myungli-diary-core -b core/<주제> --no-track origin/main`. 만든 직후 `git status -sb`로 확인합니다.
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
 * commit 메시지의 범위 표기: `feat(core): …`, `fix(server): …`, `docs(root): …`.
@@ -119,7 +121,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **쌓아서 함께 병합하기**(예: IA v2 #133 → #138 → #149)는 더 이상 기본이 아닙니다. 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
 
 ## 7. 시각 산출물 (`artifacts/`)
-지휘 세션이 만드는 **제품 지도**(비공개 claude.ai 페이지)는 각 `artifacts/index.json`을 읽어 그립니다. 시안·컨셉·스크린샷 같은 시각 산출물은 다음 규칙으로 저장소에 쌓습니다. (2026-10-10 임시 확정. 지도 화면과 갱신 절차는 협업 워크플로 spec에서 정합니다.)
+지휘 세션이 만드는 **제품 지도**(비공개 claude.ai 페이지, 갱신 절차는 `tools/product-map/README.md`)는 각 `artifacts/index.json`을 읽어 그립니다. 시안·컨셉·스크린샷 같은 시각 산출물은 다음 규칙으로 저장소에 쌓습니다.
 
 * **위치:** 자기 소유 경로 안의 `artifacts/`
   | 소유 | 위치 |
@@ -145,6 +147,5 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 | iOS 빌드 | A1·I4. 로컬 Mac 또는 자체 러너. 호스티드 macOS는 분 단위 비용 10배 |
 | 의존성 자동 갱신(Dependabot) | MVP 안정화 뒤 |
 | slow 테스트 경로 조건 | core에 요청됨(Issue #5) |
-| 단위 workflow를 `ci-gate`에 연결 | 각 단위가 `workflow_call`을 지원할 때(core는 Issue #9) |
-| `main` 보호 규칙 강제 | Pro 전환 또는 공개 전환 시 `ci-gate`를 필수 검사로 지정 |
+| `main` 보호 규칙 강제 | 공개 전환(D74)으로 조건이 됐습니다. `ci-gate`를 필수 검사로 지정할지 사용자가 정합니다 |
 
