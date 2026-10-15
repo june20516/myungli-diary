@@ -19,8 +19,8 @@ var embeddedData []byte
 
 // City는 출생지로 고를 수 있는 도시입니다.
 //
-// 이름 맵은 비공개 필드이고 값 복사로 전달되므로, 호출자가 내장 자료를 바꿀 수 없다는 것이
-// 타입으로 보장됩니다(맵은 읽는 메서드로만 노출합니다).
+// 이름 맵은 비공개 필드이고 쓰기 메서드가 없어, 호출자가 내장 자료를 바꿀 수 없는 불변 값입니다
+// (맵은 읽는 메서드로만 노출합니다).
 type City struct {
 	ID        string  // GeoNames geonameid
 	Country   string  // ISO 3166-1 alpha-2

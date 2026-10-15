@@ -24,7 +24,7 @@ import (
 // languages는 자료에 담는 언어입니다. isolanguage가 정확히 같은 것만 씁니다(ja-Hira 등 제외).
 var languages = []string{"ko", "en", "ja"}
 
-// record는 출력 JSON의 한 도시이며 internal/city.City의 JSON 모양과 같아야 합니다.
+// record는 출력 JSON의 한 도시이며 city 패키지 비공개 record와 같은 JSON 모양이어야 합니다.
 // city 패키지는 출력 파일을 go:embed하므로 생성기가 그 패키지를 import하지 않습니다.
 type record struct {
 	ID          string            `json:"id"`

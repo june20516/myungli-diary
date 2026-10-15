@@ -217,3 +217,12 @@ func TestRealEngine_PartialRangeMonthIsOutOfRange(t *testing.T) {
 	})
 	require.ErrorIs(t, err, engine.ErrOutOfRange)
 }
+
+func TestRealEngine_LunarUpperBoundIsOutOfRange(t *testing.T) {
+	// 지원 범위는 양력 2099-12-31까지라, 음력 2099년 12월은 양력 2100년에 걸쳐 범위를 벗어납니다.
+	_, err := newRealClient(t).GetChart(t.Context(), &enginev1.ChartRequest{
+		Birth: seoulBirth(enginev1.CalendarType_CALENDAR_TYPE_LUNAR, false, &enginev1.LocalDate{Year: 2099, Month: 12, Day: 29}),
+		AsOf:  &enginev1.LocalDate{Year: 2026, Month: 10, Day: 15},
+	})
+	require.ErrorIs(t, err, engine.ErrOutOfRange)
+}

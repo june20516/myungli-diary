@@ -47,9 +47,9 @@ const forbiddenChars = "{}[]()"
 
 // 이모지를 만드는 보조 문자입니다.
 const (
-	zeroWidthJoiner     = '‍'
-	variationSelector16 = '️'
-	combiningKeycap     = '⃣'
+	zeroWidthJoiner     = '\u200d'
+	variationSelector16 = '\ufe0f'
+	combiningKeycap     = '\u20e3'
 )
 
 // Normalize는 호칭 입력을 저장값으로 정규화합니다. 거부하면 Value가 비고 Rejected에 사유가 담깁니다.

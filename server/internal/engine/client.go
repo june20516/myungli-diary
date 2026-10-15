@@ -90,7 +90,7 @@ func call[Req, Resp any](
 	req *Req,
 ) (*Resp, error) {
 	resp, err := attempt(ctx, rpc, req)
-	if status.Code(err) == codes.Unavailable && ctx.Err() == nil {
+	if status.Code(err) == codes.Unavailable && callerContextError(ctx) == nil {
 		resp, err = attempt(ctx, rpc, req)
 	}
 	if err != nil {

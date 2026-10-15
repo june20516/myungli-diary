@@ -281,6 +281,7 @@ func TestCreateProfile_UnknownWarningCodeIsDroppedWithErrorLog(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 	assert.Contains(t, rec.Body.String(), `"warnings":[]`)
 	assert.Contains(t, logs.String(), `"severity":"ERROR"`)
+	assert.Contains(t, logs.String(), "알 수 없는 호칭 경고 code")
 }
 
 func TestCreateProfile_UnknownViolationIs500WithErrorLog(t *testing.T) {
@@ -292,6 +293,7 @@ func TestCreateProfile_UnknownViolationIs500WithErrorLog(t *testing.T) {
 	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
 	assert.Equal(t, "internal", decodeProblem(t, rec).Code)
 	assert.Contains(t, logs.String(), `"severity":"ERROR"`)
+	assert.Contains(t, logs.String(), "핸들러 오류")
 	expectContractResponse(t, spec, req, rec)
 }
 

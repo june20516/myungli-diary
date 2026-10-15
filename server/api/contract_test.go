@@ -648,7 +648,11 @@ func TestContract_ProblemCodesAreWellFormed(t *testing.T) {
 // 검증용 3.0 사본은 같은 loader 결과를 변환하므로, 여기서 남으면 사본에도 남습니다.
 func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	doc := loadDoc(t)
-	code := doc.Components.Schemas["Problem"].Value.Properties["code"].Value
+	problem := doc.Components.Schemas["Problem"]
+	if problem == nil || problem.Value == nil || problem.Value.Properties["code"] == nil || problem.Value.Properties["code"].Value == nil {
+		t.Fatal("Problem.code 스키마를 읽지 못함")
+	}
+	code := problem.Value.Properties["code"].Value
 	if _, ok := code.Extensions["x-problem-codes"]; !ok {
 		t.Error("kin-openapi가 읽은 Problem.code에 x-problem-codes가 없음")
 	}
@@ -717,7 +721,11 @@ func TestContract_ConvertLunarDateIsAppCheck(t *testing.T) {
 	if got := okSchemaRef(t, op); got != "#/components/schemas/LunarConversion" {
 		t.Errorf("200 schema = %q, want LunarConversion", got)
 	}
-	result := doc.Components.Schemas["LunarConversion"].Value
+	resultRef := doc.Components.Schemas["LunarConversion"]
+	if resultRef == nil || resultRef.Value == nil {
+		t.Fatal("LunarConversion 스키마를 읽지 못함")
+	}
+	result := resultRef.Value
 	if !slices.Equal(slices.Sorted(slices.Values(result.Required)), []string{"monthHasLeap", "solarDate"}) {
 		t.Errorf("LunarConversion.required = %v, want [monthHasLeap solarDate]", result.Required)
 	}
@@ -739,7 +747,7 @@ func TestContract_DisplayFieldsRequired(t *testing.T) {
 	}
 	for schema, field := range want {
 		ref := doc.Components.Schemas[schema]
-		if ref == nil {
+		if ref == nil || ref.Value == nil {
 			t.Errorf("%s 스키마가 없음", schema)
 			continue
 		}
@@ -750,7 +758,11 @@ func TestContract_DisplayFieldsRequired(t *testing.T) {
 			t.Errorf("%s.properties에 %s가 없음", schema, field)
 		}
 	}
-	city := doc.Components.Schemas["City"].Value
+	cityRef := doc.Components.Schemas["City"]
+	if cityRef == nil || cityRef.Value == nil {
+		t.Fatal("City 스키마를 읽지 못함")
+	}
+	city := cityRef.Value
 	if city.Properties["regionName"] == nil {
 		t.Error("City.regionName이 없음")
 	}

@@ -42,6 +42,7 @@ func callerContextError(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
+	// 전송 계층(gRPC)의 deadline과 비교하는 실제 경과 시간이며 업무 시각이 아니므로 Clock 대상이 아닙니다.
 	if deadline, ok := ctx.Deadline(); ok && time.Until(deadline) <= 0 {
 		return context.DeadlineExceeded
 	}
