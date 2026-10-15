@@ -3,7 +3,7 @@ SELECT * FROM profiles
 WHERE account_id = @account_id;
 
 -- name: ProfileExists :one
-SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = @account_id);
+SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = @account_id AND anonymized_at IS NULL);
 
 -- UpsertProfile은 프로필을 만들거나 통째로 바꿉니다.
 -- 동시에 첫 등록이 두 번 들어와도 둘 다 성공하며, 나중에 실행된 값이 남습니다.

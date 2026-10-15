@@ -420,15 +420,43 @@ func TestPatch_LanguageChangeKeepsOrRewritesStoredHonorific(t *testing.T) {
 	assert.Equal(t, "ゆきさん", saved.Profile.Honorific)
 	assert.Nil(t, saved.Warnings)
 
-	// en은 "님"을 벗기지 않아 저장될 수 있고, ko로 재검사하면 값이 바뀝니다. 바뀐 값을 저장하는 것이 의도입니다.
+	// en은 "님"을 벗기지 않아 저장될 수 있고, ko로 재검사하면 값이 바뀝니다. 바뀐 값을 저장하는 것이 의도이고,
+	// 값이 실제로 바뀌었으므로 그 경고는 유지합니다.
 	in.Honorific = "민지님"
 	_, err = f.svc.Put(ctx, f.accountID, in)
 	require.NoError(t, err)
 	saved, err = f.svc.Patch(ctx, f.accountID, Patch{Language: ptr("ko")})
 	require.NoError(t, err)
 	assert.Equal(t, "민지", saved.Profile.Honorific)
-	assert.Nil(t, saved.Warnings)
+	assert.Equal(t, []honorific.Code{honorific.SuffixStripped}, saved.Warnings)
 	got, err := f.svc.Get(ctx, f.accountID)
 	require.NoError(t, err)
 	assert.Equal(t, "민지", got.Honorific)
+}
+
+func TestPatch_WithoutBirthDoesNotRevalidateStoredBirth(t *testing.T) {
+	f := newServiceFixture(t)
+	ctx := context.Background()
+	in := validProfile()
+	in.Birth.PlaceStatus = PlaceCity
+	in.Birth.CityID = seoulID
+	_, err := f.svc.Put(ctx, f.accountID, in)
+	require.NoError(t, err)
+	// 도시 자료가 나중에 바뀐 상황: 저장된 경도가 현재 자료와 다르고 도시 ID는 자료에 없습니다.
+	_, err = f.pool.Exec(ctx, `UPDATE profiles SET longitude = 100.5, birth_city_id = 'removed-city' WHERE account_id = $1`, f.accountID)
+	require.NoError(t, err)
+	var hashBefore []byte
+	require.NoError(t, f.pool.QueryRow(ctx, `SELECT birth_hash FROM profiles`).Scan(&hashBefore))
+
+	saved, err := f.svc.Patch(ctx, f.accountID, Patch{CurrentTimezone: ptr("America/New_York")})
+
+	require.NoError(t, err)
+	assert.Equal(t, 1, f.charts.callCount(), "출생 정보를 보내지 않은 Patch는 엔진을 부르지 않습니다")
+	assert.Equal(t, "America/New_York", saved.Profile.CurrentTimezone)
+	assert.Equal(t, "removed-city", saved.Profile.Birth.CityID)
+	require.NotNil(t, saved.Profile.Birth.Longitude)
+	assert.InDelta(t, 100.5, *saved.Profile.Birth.Longitude, 1e-9)
+	var hashAfter []byte
+	require.NoError(t, f.pool.QueryRow(ctx, `SELECT birth_hash FROM profiles`).Scan(&hashAfter))
+	assert.Equal(t, hashBefore, hashAfter)
 }

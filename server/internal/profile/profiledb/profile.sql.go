@@ -48,7 +48,7 @@ func (q *Queries) GetProfile(ctx context.Context, accountID uuid.UUID) (Profile,
 }
 
 const profileExists = `-- name: ProfileExists :one
-SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = $1)
+SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = $1 AND anonymized_at IS NULL)
 `
 
 func (q *Queries) ProfileExists(ctx context.Context, accountID uuid.UUID) (bool, error) {

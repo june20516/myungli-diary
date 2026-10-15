@@ -272,3 +272,13 @@ func TestProfiles_ProfileExistsFalseWithoutRow(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, exists)
 }
+
+func TestProfiles_ProfileExistsFalseForAnonymizedRow(t *testing.T) {
+	q, pool, accountID := newDB(t)
+	require.NoError(t, insertAnonymized(pool, accountID, "birth_time_status", "NULL"))
+
+	exists, err := q.ProfileExists(context.Background(), accountID)
+
+	require.NoError(t, err)
+	require.False(t, exists)
+}

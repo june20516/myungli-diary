@@ -63,11 +63,11 @@ func (s *Service) Get(ctx context.Context, accountID uuid.UUID) (Profile, error)
 
 // Exists는 익명화되지 않은 프로필이 있는지 알려 줍니다.
 func (s *Service) Exists(ctx context.Context, accountID uuid.UUID) (bool, error) {
-	_, _, err := s.load(ctx, accountID)
-	if errors.Is(err, ErrNotFound) {
-		return false, nil
+	exists, err := s.queries.ProfileExists(ctx, accountID)
+	if err != nil {
+		return false, fmt.Errorf("프로필 존재 조회: %w", err)
 	}
-	return err == nil, err
+	return exists, nil
 }
 
 // Put은 프로필을 만들거나 통째로 바꿉니다. 익명화된 계정은 되살리지 않고 ErrNotFound입니다.
@@ -83,7 +83,7 @@ func (s *Service) Put(ctx context.Context, accountID uuid.UUID, p Profile) (Save
 	default:
 		storedHash = row.BirthHash
 	}
-	return s.save(ctx, accountID, p, storedHash, true)
+	return s.save(ctx, accountID, p, saveOptions{storedHash: storedHash, normalizeHonorific: true, checkBirth: true})
 }
 
 // Patch는 저장된 프로필 위에 요청 값을 합쳐 저장합니다. 프로필이 없으면 ErrNotFound입니다.
@@ -111,12 +111,15 @@ func (s *Service) Patch(ctx context.Context, accountID uuid.UUID, patch Patch) (
 
 	// 호칭 규칙은 언어마다 다르므로, 언어만 바뀌어도 저장된 호칭을 새 언어로 다시 검사합니다.
 	// 재검사로 정규화 값이 바뀌면(예: en으로 저장된 "민지님"을 ko로) 바뀐 값을 저장하는 것이 의도입니다.
+	// 출생 정보를 보내지 않았으면 저장된 값(경도 포함)과 해시를 그대로 쓰고 재검증하지 않습니다.
+	// 도시 자료가 나중에 바뀌어도 timezone 같은 무관한 수정이 422나 경도 변경으로 번지지 않게 하기 위해서입니다.
 	recheck := patch.Honorific != nil || merged.Language != stored.Language
-	saved, err := s.save(ctx, accountID, merged, storedHash, recheck)
+	saved, err := s.save(ctx, accountID, merged, saveOptions{storedHash: storedHash, normalizeHonorific: recheck, checkBirth: patch.Birth != nil})
 	if err != nil {
 		return Saved{}, err
 	}
-	if patch.Honorific == nil {
+	// 호칭을 보내지 않은 Patch의 경고는 재정규화로 저장값이 실제로 바뀐 경우에만 남깁니다.
+	if patch.Honorific == nil && saved.Profile.Honorific == stored.Honorific {
 		saved.Warnings = nil
 	}
 	return saved, nil
@@ -146,14 +149,21 @@ func (s *Service) load(ctx context.Context, accountID uuid.UUID) (Profile, []byt
 	return profileFromRow(row), row.BirthHash, nil
 }
 
+// saveOptions는 save가 어디까지 검증할지 정합니다.
+type saveOptions struct {
+	storedHash         []byte // 저장된 출생 해시입니다. 새 등록이면 nil입니다.
+	normalizeHonorific bool   // 호칭을 (다시) 정규화합니다.
+	checkBirth         bool   // 출생 정보를 검증하고 해시가 달라지면 엔진을 부릅니다. false면 저장된 출생 정보와 해시를 그대로 씁니다.
+}
+
 // save는 검증하고, 출생 정보가 바뀐 경우에만 엔진을 부른 뒤 저장합니다.
 // 읽기·엔진 호출·upsert를 한 트랜잭션에 묶지 않습니다. 엔진 호출이 최대 수 초 걸리므로
 // 그 동안 DB 연결과 락을 쥐지 않기 위해서입니다. 동시 요청이 엔진을 두 번 불러도 정확성에는 문제가 없고,
 // upsert는 ON CONFLICT라 둘 다 성공합니다. 동시 Patch도 엔진을 두 번 부를 수 있고,
 // 행 전체를 쓰므로 마지막 쓰기가 이깁니다(허용). 익명화는 upsert의 WHERE가 막습니다.
-func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, storedHash []byte, normalizeHonorific bool) (Saved, error) {
+func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, opts saveOptions) (Saved, error) {
 	var warnings []honorific.Code
-	if normalizeHonorific {
+	if opts.normalizeHonorific {
 		result := honorific.Normalize(p.Language, p.Honorific)
 		if result.Rejected != honorific.None {
 			return Saved{}, &ValidationError{
@@ -168,20 +178,25 @@ func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, stor
 	if err := ValidateTimezone(p.CurrentTimezone, "/currentTimezone"); err != nil {
 		return Saved{}, err
 	}
-	birth, err := ValidateBirth(p.Birth, "/birth")
-	if err != nil {
-		return Saved{}, err
-	}
-	p.Birth = birth
 	if err := ValidateNotification(p.Notification, "/notification"); err != nil {
 		return Saved{}, err
 	}
 
-	hash := BirthHash(birth)
-	if !bytes.Equal(storedHash, hash[:]) {
-		if err := s.checkBirthWithEngine(ctx, birth, p.CurrentTimezone); err != nil {
+	var hash [32]byte
+	if opts.checkBirth {
+		birth, err := ValidateBirth(p.Birth, "/birth")
+		if err != nil {
 			return Saved{}, err
 		}
+		p.Birth = birth
+		hash = BirthHash(birth)
+		if !bytes.Equal(opts.storedHash, hash[:]) {
+			if err := s.checkBirthWithEngine(ctx, birth, p.CurrentTimezone); err != nil {
+				return Saved{}, err
+			}
+		}
+	} else {
+		copy(hash[:], opts.storedHash) // 저장된 해시는 DB CHECK로 32바이트입니다.
 	}
 
 	row, err := s.queries.UpsertProfile(ctx, upsertParams(accountID, p, hash))
@@ -199,7 +214,7 @@ func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, stor
 func (s *Service) checkBirthWithEngine(ctx context.Context, b Birth, timezone string) error {
 	loc, err := time.LoadLocation(timezone) // ValidateTimezone을 이미 통과한 이름입니다.
 	if err != nil {
-		return fmt.Errorf("시간대 로드: %w", err)
+		return errors.New("시간대 로드 실패") // 오류에 시간대 이름이 들어 있어 감싸지 않습니다.
 	}
 	now := s.clock.Now().In(loc)
 	asOf := LocalDate{Year: now.Year(), Month: int(now.Month()), Day: now.Day()}
