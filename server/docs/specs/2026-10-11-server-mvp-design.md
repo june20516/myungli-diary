@@ -66,7 +66,7 @@ server/
 
 ### 2.2 의존 규칙
 
-* `cmd`와 `httpapi`가 도메인 패키지를 조립합니다. 도메인 패키지끼리는 인터페이스로만 기댑니다.
+* `cmd`와 `httpapi`가 도메인 패키지를 조립합니다. 도메인 패키지끼리는 인터페이스로만 기댑니다. 단, 값 타입·sentinel 오류는 직접 import해도 됩니다(서비스는 인터페이스로). 예: fortune → profile 값 타입, profile → engine sentinel 오류.
 * `fortune`은 `engine`과 `content`에 기대고, `content`는 다른 도메인을 모릅니다.
 * 날짜·시간대 계산은 모두 주입한 `Clock`으로 합니다. 자정 경계와 시간대 테스트를 결정적으로 돌리기 위해서입니다.
 * 외부 의존(엔진, FCM, 카카오·Apple, RevenueCat, AdMob 검증 키, App Check)은 모두 인터페이스 뒤에 두고 테스트 대역을 둡니다.
@@ -143,6 +143,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | `month_cache` | birth_hash, ruleset_version, year, month, current_timezone | 위와 같음 |
 
 캐시에는 엔진 응답(메시지 키와 매개변수)만 둡니다. 문장은 사용자마다 언어·호칭·선택 기록이 달라 요청할 때 렌더합니다. 캐시 행은 계정과 연결되지 않습니다.
+
+세 캐시 표의 `birth_hash`는 `profiles`와 같이 32바이트 CHECK가 있습니다.
 
 **콘텐츠 (D57·D59)**
 
@@ -314,12 +316,12 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 3. 없으면 엔진을 부르고 결과를 저장합니다. 같은 키의 동시 요청은 프로세스 안에서 `singleflight`로 한 번만 부릅니다.
 
 * **현재 `ruleset_version` 알기:** 캐시에 결과가 있으면 엔진을 부르지 않으므로, 엔진 응답만 봐서는 버전이 바뀐 것을 알 수 없습니다. 그래서 server는 시작할 때와 10분마다 엔진 `GetInfo`(계산 없이 `engine_version`·`ruleset_version`만 돌려줌, Issue #49)로 버전을 갱신합니다. 엔진을 배포한 직후 최대 10분 동안은 이전 버전 캐시가 쓰일 수 있습니다. 이전 버전 캐시는 `job retention`이 지웁니다.
-* 연결: 엔진은 Cloud Run internal ingress로만 받고, server는 Direct VPC egress와 ID token으로 부릅니다(D56①). deadline은 호출마다 3초입니다. 설정은 `ENGINE_ADDR`(필수)와 `ENGINE_AUDIENCE`(https URL)이며, audience가 있으면 TLS + ID token, 없으면 h2c입니다. 시작 때 `GetInfo`가 실패해도 시작은 계속하고 버전을 알기 전 엔진 요청은 503입니다(S27).
+* 연결: 엔진은 Cloud Run internal ingress로만 받고, server는 Direct VPC egress와 ID token으로 부릅니다(D56①). deadline은 호출마다 3초입니다. 설정은 `ENGINE_ADDR`(필수)와 `ENGINE_AUDIENCE`(https URL)이며, audience가 있으면 TLS + ID token, 없으면 h2c입니다. 시작 때 `GetInfo`가 실패해도 시작은 계속하고 버전을 알기 전 엔진 요청은 503입니다(S27). 버전을 모르는 동안에는 2초부터 두 배씩(상한 10분) 늘려 다시 시도하고, 알게 되면 10분 주기로 돌아갑니다.
 * 캐시 흐름: 조회 키는 `Versions.Current()`, 저장 키는 응답 `meta.ruleset_version`입니다. singleflight를 기다린 호출자는 자기 ctx가 취소되면 바로 돌아오고, 공유 응답은 호출자마다 `proto.Clone`합니다. 캐시 읽기·쓰기 오류(쓰기 1초 timeout)는 Warn 로그 후 엔진 결과로 계속합니다(S30).
 
 ### 7.2 프로필 저장 때의 검증
 
-음력 → 양력 변환과 윤달이 실제로 있는지 판정하는 일은 엔진만 할 수 있습니다. 그래서 출생 정보를 저장할 때 `GetChart`를 한 번 부르고, 이 단계에서 엔진이 돌려준 `INVALID_ARGUMENT`·`OUT_OF_RANGE`를 422로 바꿉니다(§11). 양력 범위(D41)와 형식은 엔진을 부르기 전에 server가 먼저 검증합니다. 호출 결과는 캐시에 넣어 나의 사주 화면에서 다시 씁니다. 이 검증은 저장된 출생 해시와 달라질 때만 합니다. 시간대·호칭·알림만 바꾸는 수정은 엔진 장애 중에도 됩니다(S29).
+음력 → 양력 변환과 윤달이 실제로 있는지 판정하는 일은 엔진만 할 수 있습니다. 그래서 출생 정보를 저장할 때 `GetChart`를 한 번 부르고, 이 단계에서 엔진이 돌려준 `INVALID_ARGUMENT`·`OUT_OF_RANGE`를 422로 바꿉니다(§11). 양력 범위(D41)와 형식은 엔진을 부르기 전에 server가 먼저 검증합니다. 호출 결과는 캐시에 넣어 나의 사주 화면에서 다시 씁니다. 이 검증은 저장된 출생 해시와 달라질 때만 합니다. 시간대·호칭·알림만 바꾸는 수정은 엔진 장애 중에도 됩니다(S29). 출생 정보를 보내지 않은 Patch는 저장된 출생 정보와 해시를 그대로 쓰고 재검증하지 않습니다.
 
 ### 7.3 캐시 저장소 (S4)
 

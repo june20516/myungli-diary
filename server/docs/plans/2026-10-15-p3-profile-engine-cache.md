@@ -23,7 +23,7 @@
 
 1. 엔진이 내려간 동안 `PATCH /v1/me/profile`에 `currentTimezone`(또는 호칭·알림)만 보냄 → 엔진을 부르지 않으므로 200입니다. 엔진 검증은 `birth`가 실제로 바뀔 때만 합니다. (Task 12)
 2. 첫 등록 `PUT`이 두 번 동시에 옴(버튼 두 번) → 프로필 행은 하나이고 두 응답 모두 200입니다. (Task 12)
-3. 음력 1900년 1월생처럼 범위에 일부만 걸친 달 → 엔진 `OUT_OF_RANGE`가 500이 아니라 422 `birth.out_of_range`(`/birth/date`)입니다. (Task 6·12·13)
+3. 음력 1900년 1월생처럼 범위에 일부만 걸친 달(Ruling P로 정정: 범위에 일부만 걸친 달 `GetMonthCalendar(1900,1)`, 출생 정보는 상한 쪽 음력) → 엔진 `OUT_OF_RANGE`가 500이 아니라 422 `birth.out_of_range`(`/birth/date`)입니다. (Task 6·12·13)
 4. 엔진을 배포해 `ruleset_version`이 바뀜 → 다음 감시 주기 뒤 요청은 이전 버전 캐시를 쓰지 않고 엔진을 부릅니다. 감시 조회가 실패해도 마지막으로 안 버전을 버리지 않습니다. (Task 5·11)
 5. server가 엔진보다 먼저 떠서 시작 때 `GetInfo`가 실패함 → server는 뜨고, 버전을 알기 전의 엔진 요청은 503 `engine.unavailable`(`Retry-After`)이며, 감시가 성공하면 회복합니다. (Task 5·13)
 
@@ -228,7 +228,7 @@ testcontainers-go `FromDockerfile{Context: "../../../core"}`로 엔진 이미지
 func TestRealEngine_GetInfo(t *testing.T)            // engine_version·ruleset_version이 비어 있지 않음
 func TestRealEngine_GetChartSolar(t *testing.T)      // 양력 1990-05-15 10:30 남 Asia/Seoul, as_of 2026-10-15 → pillars.day 있음, meta.ruleset_version == GetInfo 값
 func TestRealEngine_LunarLeapMissingIsInvalid(t *testing.T) // 음력 2026-01-01 is_leap_month true(2026년 1월 윤달 없음) → ErrInvalidArgument
-func TestRealEngine_PartialRangeMonthIsOutOfRange(t *testing.T) // 음력 1900-01-01 → ErrOutOfRange (plans/README P3 메모)
+func TestRealEngine_PartialRangeMonthIsOutOfRange(t *testing.T) // 음력 1900-01-01 → ErrOutOfRange (Ruling P로 정정: 범위에 일부만 걸친 달 `GetMonthCalendar(1900,1)`, 출생 정보는 상한 쪽 음력) (plans/README P3 메모)
 ```
 
 - [ ] **Step 2: 실행** — Run: `cd server && go test -tags enginecontract ./internal/engine/...` Expected: PASS(엔진 판정이 다르면 core 동작을 확인하고 테스트 값이 아니라 server 가정을 고칩니다)
