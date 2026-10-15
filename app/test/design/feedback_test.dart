@@ -541,7 +541,7 @@ void main() {
       );
       final state = tester.widget<ErrorState>(find.byType(ErrorState));
       expect(state.variant, ErrorStateVariant.offline);
-      expect(find.text('인터넷에 연결되어 있지 않아요.'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.'), findsOneWidget);
       expect(
         tester.widget<Icon>(find.byType(Icon)).icon,
         ErrorStateVariant.offline.glyph.light,
@@ -624,7 +624,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('값:a'), findsOneWidget);
       expect(find.byType(NoticeBanner), findsOneWidget); // present=false: 빈 자리
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('값 없는 OfflineError는 error-state offline', (tester) async {
@@ -656,7 +656,7 @@ void main() {
         _view(AsyncError<String>(StateError('x'), StackTrace.empty)),
       );
       await tester.pumpAndSettle();
-      expect(find.text('예기치 못한 문제가 생겼어요.'), findsOneWidget);
+      expect(find.text('문제가 생겼어요. 다시 시도해 주세요.'), findsOneWidget);
     });
 
     testWidgets('isStale이 true인 값은 오류가 없어도 offline 배너를 보이고, 풀리면 사라집니다', (
@@ -667,14 +667,14 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('값:cache'), findsOneWidget);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsOneWidget);
 
       await tester.pumpWidget(
         _view(const AsyncData('server'), isStale: (v) => v == 'cache'),
       );
       await tester.pumpAndSettle();
       expect(find.text('값:server'), findsOneWidget);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('캐시가 있는 오프라인은 데이터와 offline 배너를 함께 보입니다', (tester) async {
@@ -683,7 +683,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('값:캐시'), findsOneWidget);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsOneWidget);
       expect(find.byType(ErrorState), findsNothing);
     });
 
@@ -698,7 +698,7 @@ void main() {
       await tester.pumpWidget(_view(const AsyncData('새값')));
       await tester.pumpAndSettle();
       expect(find.text('값:새값'), findsOneWidget);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('값이 있는 갱신 중에는 데이터를 그대로 보입니다', (tester) async {
@@ -857,7 +857,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('값:캐시'), findsOneWidget);
       expect(find.byType(ErrorState), findsNothing);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
       expect(errors, [_problem]);
       // 같은 값으로 다시 그려도 반복해 알리지 않습니다.
       await tester.pumpWidget(_view(stale, onStaleError: errors.add));

@@ -197,27 +197,27 @@ void main() {
     }
 
     group('접근성', () {
-      testWidgets('묶음 라벨은 "질문"입니다', (tester) async {
+      testWidgets('묶음 라벨은 "일기 질문"입니다', (tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(_app(GuideQuestionState.before));
-        expect(find.bySemanticsLabel('질문'), findsOneWidget);
+        expect(find.bySemanticsLabel('일기 질문'), findsOneWidget);
         handle.dispose();
       });
 
-      testWidgets('before에는 "오늘 일기 씀" 상태가 없습니다', (tester) async {
+      testWidgets('before에는 "오늘 일기를 썼어요" 상태가 없습니다', (tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(_app(GuideQuestionState.before));
-        expect(find.bySemanticsLabel('오늘 일기 씀'), findsNothing);
+        expect(find.bySemanticsLabel('오늘 일기를 썼어요'), findsNothing);
         handle.dispose();
       });
 
-      testWidgets('after면 "오늘 일기 씀"을 상태(status)로 읽고 도장 그림은 읽지 않습니다', (
+      testWidgets('after면 "오늘 일기를 썼어요"을 상태(status)로 읽고 도장 그림은 읽지 않습니다', (
         tester,
       ) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(_app(GuideQuestionState.after));
-        final node = tester.getSemantics(find.bySemanticsLabel('오늘 일기 씀'));
-        expect(node.label, '오늘 일기 씀');
+        final node = tester.getSemantics(find.bySemanticsLabel('오늘 일기를 썼어요'));
+        expect(node.label, '오늘 일기를 썼어요');
         handle.dispose();
       });
     });
@@ -253,7 +253,7 @@ void main() {
         final live = find.byType(LiveAnnouncement);
         expect(live, findsOneWidget);
         final data = tester.getSemantics(live).getSemanticsData();
-        expect(data.label, '오늘 일기 씀');
+        expect(data.label, '오늘 일기를 썼어요');
         expect(data.flagsCollection.isLiveRegion, isTrue);
 
         await tester.pumpAndSettle();

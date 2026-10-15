@@ -237,7 +237,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(inputApp(_picker(_value())));
       for (final (label, value) in [
-        ('년', '1990년'),
+        ('연도', '1990년'),
         ('월', '3월'),
         ('일', '15일'),
       ]) {
@@ -271,8 +271,8 @@ void main() {
       final data = tester
           .getSemantics(find.bySemanticsLabel('월'))
           .getSemanticsData();
-      expect(data.value, '윤 4월');
-      expect(data.increasedValue, '윤 5월');
+      expect(data.value, '윤4월');
+      expect(data.increasedValue, '윤5월');
       // 화면에 그려지는 칸 글자는 그대로입니다.
       expect(_selectedLabel(tester, BirthDatePicker.monthWheelKey), '4월');
       await tester.pumpWidget(

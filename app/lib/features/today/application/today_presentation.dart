@@ -52,14 +52,14 @@ DayCharacterContent dayCharacterOf(Daily daily, AppLocalizations l10n) =>
 /// 행운 방향 이름(임시 ARB `direction*`, 결정 A27).
 String directionName(AppLocalizations l10n, Direction direction) =>
     switch (direction) {
-      Direction.n => l10n.directionN,
-      Direction.ne => l10n.directionNe,
-      Direction.e => l10n.directionE,
-      Direction.se => l10n.directionSe,
-      Direction.s => l10n.directionS,
-      Direction.sw => l10n.directionSw,
-      Direction.w => l10n.directionW,
-      Direction.nw => l10n.directionNw,
+      Direction.n => l10n.direction8N,
+      Direction.ne => l10n.direction8Ne,
+      Direction.e => l10n.direction8E,
+      Direction.se => l10n.direction8Se,
+      Direction.s => l10n.direction8S,
+      Direction.sw => l10n.direction8Sw,
+      Direction.w => l10n.direction8W,
+      Direction.nw => l10n.direction8Nw,
     };
 
 String _twoDigits(int value) => value.toString().padLeft(2, '0');

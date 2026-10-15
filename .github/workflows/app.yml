@@ -3,16 +3,11 @@ name: app
 on:
   push:
     branches: [main]
-    # 경로 목록은 ci-gate.yml의 app 경로와 함께 고칩니다.
+    # main push는 app 소유 경로만 본다. 계약 경로(openapi·screens·tokens·components·slots·tools)는
+    # ci-gate의 drift 판정이 맡으므로 여기에 두지 않는다(D73, workflow §6.1).
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
-      - "server/api/openapi.yaml"
-      - "docs/ia/screens.json"
-      - "docs/identity/design/tokens/**"
-      - "docs/identity/design/components/**"
-      - "docs/identity/writing/slots/**"
-      - "docs/identity/writing/tools/**"
   # PR 검사는 ci-gate가 부른다(#85). push는 main 병합 뒤 기기 E2E를 돌리려고 남긴다.
   # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
   schedule:

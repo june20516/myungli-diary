@@ -209,7 +209,7 @@ void main() {
       expect(find.text('근거 보기 ›'), findsOneWidget);
     });
 
-    testWidgets('용어 라벨은 "용어 + 풀이 보기"로 읽고 term 값은 읽지 않습니다', (tester) async {
+    testWidgets('용어 라벨은 "용어 + 뜻 보기"로 읽고 term 값은 읽지 않습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
@@ -221,7 +221,7 @@ void main() {
           ),
         ),
       );
-      expect(find.bySemanticsLabel('식신의 풀이 보기'), findsOneWidget);
+      expect(find.bySemanticsLabel('식신의 뜻 보기'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('TenGod')), findsNothing);
       handle.dispose();
     });
@@ -296,7 +296,7 @@ void main() {
       expect(taps, 2, reason: '44px 밖은 눌리지 않음');
     });
 
-    testWidgets('버튼으로 읽고 라벨에 "풀이 보기"가 붙습니다', (tester) async {
+    testWidgets('버튼으로 읽고 라벨에 "뜻 보기"가 붙습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
@@ -307,7 +307,7 @@ void main() {
           ),
         ),
       );
-      final data = _semantics(tester, find.bySemanticsLabel('식신 풀이 보기'));
+      final data = _semantics(tester, find.bySemanticsLabel('식신 뜻 보기'));
       expect(data.flagsCollection.isButton, isTrue);
       handle.dispose();
     });
@@ -1119,7 +1119,7 @@ void main() {
       expect(found[1].after, ',');
       expect(outerText(tester), 'The  day,  calm.');
       expect(
-        find.bySemanticsLabel("View the meaning of (Siksin's)"),
+        find.bySemanticsLabel("See what (Siksin's) means"),
         findsOneWidget,
       );
       handle.dispose();
@@ -1744,7 +1744,7 @@ void main() {
       // 일반 글자는 조각나지 않고 앞·뒤 문장이 각각 한 노드입니다.
       expect(labels.where((l) => l.contains('오늘은 마음이 차분해서')), hasLength(1));
       expect(labels.where((l) => l.contains('기운으로 이야기를 풀어내요.')), hasLength(1));
-      expect(labels, contains('식신의 풀이 보기'));
+      expect(labels, contains('식신의 뜻 보기'));
       expect(labels.where((l) => l.contains('TenGod')), isEmpty);
       handle.dispose();
     });

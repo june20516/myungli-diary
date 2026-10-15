@@ -137,7 +137,7 @@ void main() {
       expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);
     }
     expect(find.text('초록'), findsOneWidget);
-    expect(find.text(_ko.directionE), findsOneWidget);
+    expect(find.text(_ko.direction8E), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
     expect(find.text('09:30–11:30'), findsOneWidget);
 

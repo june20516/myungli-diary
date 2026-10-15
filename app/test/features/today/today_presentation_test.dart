@@ -94,7 +94,7 @@ void main() {
       ]);
       expect(items.map((i) => i.value), [
         '초록',
-        l10n.directionE,
+        l10n.direction8E,
         '3',
         '09:30–11:30',
       ]);
