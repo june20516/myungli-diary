@@ -133,13 +133,13 @@
 - {slot: ui.error.code, key: errorRequestMalformed, text: "요청을 처리하지 못했어요. 다시 시도해 주세요."}
 - {slot: ui.error.code, key: errorRequestInvalid, text: "입력한 내용을 다시 확인해 주세요."}
 - {slot: ui.error.code, key: errorAuthTokenExpired, text: "로그인이 만료됐어요. 다시 로그인해 주세요."}
-- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "다시 로그인해 주세요."}
+- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "로그인 정보를 확인하지 못했어요. 다시 로그인해 주세요."}
 - {slot: ui.error.code, key: errorAuthRefreshReused, text: "계정을 지키려고 로그아웃했어요. 다시 로그인해 주세요."}
 - {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "로그인하지 못했어요. 다시 시도해 주세요."}
 - {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요."}
 - {slot: ui.error.code, key: errorAppCheckInvalid, text: "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorConsentRequired, text: "약관에 동의해야 계속할 수 있어요."}
-- {slot: ui.error.code, key: errorPreviewUsed, text: "미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요."}
+- {slot: ui.error.code, key: errorPreviewUsed, text: "미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요."}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "일기를 찾지 못했어요."}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
@@ -153,7 +153,7 @@
 - {slot: ui.error.code, key: errorDateInvalid, text: "달력에 없는 날짜예요."}
 - {slot: ui.error.code, key: errorRequestInconsistent, text: "입력한 내용을 다시 확인해 주세요."}
 - {slot: ui.error.code, key: errorBirthInvalid, text: "입력한 태어난 날과 시간을 다시 확인해 주세요."}
-- {slot: ui.error.code, key: errorDiaryFutureDate, text: "오늘 이후의 일기는 쓸 수 없어요."}
+- {slot: ui.error.code, key: errorDiaryFutureDate, text: "아직 오지 않은 날의 일기는 쓸 수 없어요."}
 - {slot: ui.error.code, key: errorNameEmpty, text: "불러 드릴 이름을 입력해 주세요."}
 - {slot: ui.error.code, key: errorNameTooLong, text: "이름이 너무 길어요. 조금 줄여 주세요."}
 - {slot: ui.error.code, key: errorNameEmoji, text: "이름에는 이모지를 쓸 수 없어요."}

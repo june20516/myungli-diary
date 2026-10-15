@@ -31,6 +31,8 @@ def test_parse_reads_variable_and_forms() -> None:
         "{count, plural, }",
         "{count, plural, other{a} other{b}}",
         "{a, plural, other{x}} {b, plural, other{y}}",
+        "결과 {count, plural, other{{count}개}}}",
+        "{결과 {count, plural, other{{count}개}}",
     ],
 )
 def test_bad_syntax_raises(text: str) -> None:
@@ -50,3 +52,8 @@ def test_forms_must_match_language() -> None:
 def test_problem_reports_bad_syntax_and_ignores_plain_text() -> None:
     assert plural_problem("{count, plural, other{a}", "ko") is not None
     assert plural_problem("결과", "ko") is None
+
+
+def test_problem_rejects_hash_and_nested_plural_in_form() -> None:
+    assert plural_problem("{count, plural, other{#개}}", "ko") is not None
+    assert plural_problem("{count, plural, other{{n, plural, other{x}}}}", "ko") is not None

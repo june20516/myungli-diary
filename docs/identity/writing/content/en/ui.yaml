@@ -133,7 +133,7 @@
 - {slot: ui.error.code, key: errorRequestMalformed, text: "We couldn't complete that. Please try again."}
 - {slot: ui.error.code, key: errorRequestInvalid, text: "Please check what you entered."}
 - {slot: ui.error.code, key: errorAuthTokenExpired, text: "You've been signed out. Please sign in again."}
-- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "Please sign in again."}
+- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "We couldn't verify your sign-in. Please sign in again."}
 - {slot: ui.error.code, key: errorAuthRefreshReused, text: "We signed you out to keep your account safe. Please sign in again."}
 - {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "Sign-in didn't work. Please try again."}
 - {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "Sign-in timed out. Please start again."}

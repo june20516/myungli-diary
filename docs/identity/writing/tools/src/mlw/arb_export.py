@@ -16,7 +16,7 @@ from mlw.ia import is_ui_slot
 from mlw.model import Entry, Finding, LoadError, ParamKind, Slot
 
 TEMPLATE_LANG = "ko"
-GENERATED_NOTE = "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml)"
+GENERATED_NOTE = "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml, glossary.yaml)"
 PLACEHOLDER_TYPES: dict[str, str] = {"number": "int", "text": "String"}
 GLOSSARY_SLOT = "glossary.value_name"
 ARB_TERM_CATEGORIES = ("branch", "day_kind")

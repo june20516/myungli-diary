@@ -133,13 +133,13 @@
 - {slot: ui.error.code, key: errorRequestMalformed, text: "処理できませんでした。もう一度お試しください。"}
 - {slot: ui.error.code, key: errorRequestInvalid, text: "入力内容をもう一度確認してください。"}
 - {slot: ui.error.code, key: errorAuthTokenExpired, text: "ログインの有効期限が切れました。もう一度ログインしてください。"}
-- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "もう一度ログインしてください。"}
+- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "ログイン情報を確認できませんでした。もう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAuthRefreshReused, text: "アカウントを守るためにログアウトしました。もう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "ログインできませんでした。もう一度お試しください。"}
 - {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "ログインの時間が過ぎました。最初からもう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAppCheckInvalid, text: "アプリを確認できませんでした。最新バージョンにアップデートしてください。"}
 - {slot: ui.error.code, key: errorConsentRequired, text: "続けるには利用規約への同意が必要です。"}
-- {slot: ui.error.code, key: errorPreviewUsed, text: "プレビューは一度だけ見られます。ログインすると続けて見られます。"}
+- {slot: ui.error.code, key: errorPreviewUsed, text: "プレビューは一度だけ見られます。ログインすると続きを読めます。"}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "日記が見つかりませんでした。"}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "処理できませんでした。アプリをアップデートしてください。"}

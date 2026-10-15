@@ -1,6 +1,6 @@
 {
   "@@locale": "ko",
-  "@@x-generated": "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml)",
+  "@@x-generated": "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml, glossary.yaml)",
   "accountDeleteCtaDelete": "계정 지우기",
   "@accountDeleteCtaDelete": {
     "description": "account-delete.cta.delete: 계정 삭제 버튼"
@@ -702,7 +702,7 @@
   "@errorAuthTokenExpired": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorAuthTokenInvalid": "다시 로그인해 주세요.",
+  "errorAuthTokenInvalid": "로그인 정보를 확인하지 못했어요. 다시 로그인해 주세요.",
   "@errorAuthTokenInvalid": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
@@ -726,7 +726,7 @@
   "@errorConsentRequired": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorPreviewUsed": "미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요.",
+  "errorPreviewUsed": "미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요.",
   "@errorPreviewUsed": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
@@ -782,7 +782,7 @@
   "@errorBirthInvalid": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorDiaryFutureDate": "오늘 이후의 일기는 쓸 수 없어요.",
+  "errorDiaryFutureDate": "아직 오지 않은 날의 일기는 쓸 수 없어요.",
   "@errorDiaryFutureDate": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },

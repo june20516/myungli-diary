@@ -1,7 +1,7 @@
 """ICU plural: ui 원고·ARB의 `{<변수>, plural, <형태>{<문장>} …}`을 읽고 형태별 문장으로 펼칩니다(#143).
 
 * 문장 안에서는 `#` 대신 `{<변수>}`를 씁니다. 그래서 펼친 문장은 지금 자리표시자 문법 그대로 검사할 수 있습니다.
-* 한 문장에 plural은 하나만 씁니다. plural 앞뒤 글자는 펼친 문장마다 붙습니다.
+* 한 문장에 plural은 하나만 씁니다(중첩도 안 됨). plural 앞뒤 글자는 펼친 문장마다 붙습니다.
 * 언어별 형태는 `PLURAL_FORMS`와 정확히 같아야 합니다.
 """
 
@@ -64,16 +64,33 @@ def _read_forms(text: str, position: int) -> tuple[dict[str, str], int]:
     return forms, position + rest.end()
 
 
+def _balanced(text: str) -> bool:
+    """중괄호가 빠짐없이 짝을 이루는지 봅니다."""
+    depth = 0
+    for char in text:
+        depth += {"{": 1, "}": -1}.get(char, 0)
+        if depth < 0:
+            return False
+    return depth == 0
+
+
 def parse_plural(text: str) -> Plural | None:
     """plural을 읽습니다. 없으면 None, 문법이 틀리면 ValueError입니다."""
     start = _START.search(text)
     if start is None:
         return None
     forms, end = _read_forms(text, start.end())
-    suffix = text[end:]
+    prefix, suffix = text[: start.start()], text[end:]
     if _START.search(suffix) is not None:
         raise ValueError(f"한 문장에 plural은 하나만 씁니다: {text!r}")
-    return Plural(start.group("variable"), forms, text[: start.start()], suffix)
+    if not (_balanced(prefix) and _balanced(suffix)):
+        raise ValueError(f"plural 앞뒤 중괄호 짝이 맞지 않습니다: {text!r}")
+    for sentence in forms.values():
+        if "#" in sentence:
+            raise ValueError(f"plural 형태 문장에는 # 대신 {{{start.group('variable')}}}를 씁니다: {text!r}")
+        if _START.search(sentence) is not None:
+            raise ValueError(f"plural 안에 plural을 넣을 수 없습니다: {text!r}")
+    return Plural(start.group("variable"), forms, prefix, suffix)
 
 
 def expand_plural(text: str) -> list[str]:

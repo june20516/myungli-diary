@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "@@x-generated": "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml)",
+  "@@x-generated": "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml, glossary.yaml)",
   "accountDeleteCtaDelete": "Delete account",
   "accountDeleteDataBody": "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time.",
   "accountDeleteDeleteConfirm": "Delete your account for good? This can't be undone.",
@@ -158,7 +158,7 @@
   "errorRequestMalformed": "We couldn't complete that. Please try again.",
   "errorRequestInvalid": "Please check what you entered.",
   "errorAuthTokenExpired": "You've been signed out. Please sign in again.",
-  "errorAuthTokenInvalid": "Please sign in again.",
+  "errorAuthTokenInvalid": "We couldn't verify your sign-in. Please sign in again.",
   "errorAuthRefreshReused": "We signed you out to keep your account safe. Please sign in again.",
   "errorAuthProviderTokenInvalid": "Sign-in didn't work. Please try again.",
   "errorAuthExchangeInvalid": "Sign-in timed out. Please start again.",
