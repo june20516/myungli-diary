@@ -2341,6 +2341,7 @@ components:
     # ---- 하루 운세 ----
     Daily:
       type: object
+      description: "`characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다."
       required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, characterReason, fortune, guide, cards, tags, relations, notices]
       properties:
         date:
@@ -2356,7 +2357,6 @@ components:
           $ref: '#/components/schemas/DayKind'
         characterReason:
           $ref: '#/components/schemas/SlotText'
-          # 슬롯 `character.reason`, 키 `character.reason.<dayKind>`
         fortune:
           $ref: '#/components/schemas/Fortune'
         guide:
@@ -2693,7 +2693,7 @@ components:
             $ref: '#/components/schemas/Notice'
     CalendarDay:
       type: object
-      description: '`solarTerm`은 입절일에만, `featuredTag`는 대표 태그가 있는 날에만 있습니다.'
+      description: '`solarTerm`은 입절일에만, `featuredTag`는 대표 태그가 있는 날에만 있습니다. `characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다.'
       required: [date, pillar, lunar, dayKind, characterReason, luckLevel, score, scoreItems, level]
       properties:
         date:
@@ -2709,7 +2709,6 @@ components:
           $ref: '#/components/schemas/DayKind'
         characterReason:
           $ref: '#/components/schemas/SlotText'
-          # 슬롯 `character.reason`, 키 `character.reason.<dayKind>`
         luckLevel:
           $ref: '#/components/schemas/LuckLevel'
         score:
@@ -2846,6 +2845,7 @@ components:
           description: HH:MM
     LunarDateRequest:
       type: object
+      description: 음력 날짜를 양력으로 바꿔 달라는 요청입니다. `date`는 음력 연·월·일입니다.
       required: [installationId, date, isLeapMonth]
       properties:
         installationId:
@@ -2855,7 +2855,6 @@ components:
           description: 앱 설치마다 만든 무작위 값
         date:
           $ref: '#/components/schemas/LunarOrSolarDate'
-          # 이 요청에서는 음력 연·월·일입니다.
         isLeapMonth:
           type: boolean
           description: 윤달이면 true입니다. 그해 그 달에 윤달이 없으면 422 `date.invalid`입니다.

@@ -750,8 +750,12 @@ func TestContract_DisplayFieldsRequired(t *testing.T) {
 			t.Errorf("%s.properties에 %s가 없음", schema, field)
 		}
 	}
-	if doc.Components.Schemas["City"].Value.Properties["regionName"] == nil {
+	city := doc.Components.Schemas["City"].Value
+	if city.Properties["regionName"] == nil {
 		t.Error("City.regionName이 없음")
+	}
+	if slices.Contains(city.Required, "regionName") {
+		t.Error("City.regionName은 선택 필드인데 required에 있음")
 	}
 }
 
