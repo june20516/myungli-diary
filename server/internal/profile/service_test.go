@@ -22,10 +22,11 @@ import (
 
 // fakeCharts는 ChartChecker 대역입니다. 호출 횟수와 마지막 asOf를 기록합니다.
 type fakeCharts struct {
-	mu    sync.Mutex
-	err   error
-	calls int
-	asOf  LocalDate
+	mu     sync.Mutex
+	err    error
+	onCall func() // Chart 호출 중에 실행할 훅(동시 변경 재현용)
+	calls  int
+	asOf   LocalDate
 }
 
 func (f *fakeCharts) Chart(_ context.Context, _ Birth, asOf LocalDate) (*enginev1.ChartResponse, error) {
@@ -33,6 +34,9 @@ func (f *fakeCharts) Chart(_ context.Context, _ Birth, asOf LocalDate) (*enginev
 	defer f.mu.Unlock()
 	f.calls++
 	f.asOf = asOf
+	if f.onCall != nil {
+		f.onCall()
+	}
 	if f.err != nil {
 		return nil, f.err
 	}
@@ -355,4 +359,76 @@ func TestAnonymizedProfileIsTreatedAsMissing(t *testing.T) {
 	var anonymized bool
 	require.NoError(t, f.pool.QueryRow(ctx, `SELECT anonymized_at IS NOT NULL FROM profiles`).Scan(&anonymized))
 	assert.True(t, anonymized)
+}
+
+func TestPut_AnonymizedDuringEngineCallStaysAnonymized(t *testing.T) {
+	f := newServiceFixture(t)
+	ctx := context.Background()
+	_, err := f.svc.Put(ctx, f.accountID, validProfile())
+	require.NoError(t, err)
+	// 출생 정보가 바뀌어 엔진을 부르는 동안 익명화가 커밋되는 경우입니다.
+	f.charts.onCall = func() {
+		_, execErr := f.pool.Exec(ctx, `
+			UPDATE profiles SET anonymized_at = $2, honorific = NULL, calendar = NULL, is_leap_month = NULL,
+				birth_year = NULL, birth_month = NULL, birth_day = NULL, birth_time_status = NULL,
+				gender = NULL, birth_timezone = NULL, birth_place_status = NULL, birth_hash = NULL
+			WHERE account_id = $1`, f.accountID, f.clock.Now())
+		require.NoError(t, execErr)
+	}
+	changed := validProfile()
+	changed.Birth.Gender = "male"
+
+	_, err = f.svc.Put(ctx, f.accountID, changed)
+
+	require.ErrorIs(t, err, ErrNotFound)
+	var piiColumns int
+	require.NoError(t, f.pool.QueryRow(ctx, `
+		SELECT count(*) FROM profiles
+		WHERE honorific IS NOT NULL OR birth_year IS NOT NULL OR gender IS NOT NULL OR birth_hash IS NOT NULL`).Scan(&piiColumns))
+	assert.Equal(t, 0, piiColumns, "익명화된 행에 PII가 다시 쓰이면 안 됩니다")
+}
+
+func TestPatch_SameCityBirthWithoutLongitudeSkipsEngine(t *testing.T) {
+	f := newServiceFixture(t)
+	ctx := context.Background()
+	in := validProfile()
+	in.Birth.PlaceStatus = PlaceCity
+	in.Birth.CityID = seoulID
+	_, err := f.svc.Put(ctx, f.accountID, in)
+	require.NoError(t, err)
+
+	same := in.Birth // Longitude는 입력에 없습니다.
+	same.Longitude = nil
+	_, err = f.svc.Patch(ctx, f.accountID, Patch{Birth: &same})
+	require.NoError(t, err)
+
+	assert.Equal(t, 1, f.charts.callCount())
+}
+
+func TestPatch_LanguageChangeKeepsOrRewritesStoredHonorific(t *testing.T) {
+	f := newServiceFixture(t)
+	ctx := context.Background()
+	in := validProfile()
+	in.Language = "en"
+	in.Honorific = "ゆきさん"
+	_, err := f.svc.Put(ctx, f.accountID, in)
+	require.NoError(t, err)
+
+	// ja에는 strip 규칙이 없고 경고만 있습니다. 값은 그대로이고 호칭을 보내지 않았으므로 경고도 없습니다.
+	saved, err := f.svc.Patch(ctx, f.accountID, Patch{Language: ptr("ja")})
+	require.NoError(t, err)
+	assert.Equal(t, "ゆきさん", saved.Profile.Honorific)
+	assert.Nil(t, saved.Warnings)
+
+	// en은 "님"을 벗기지 않아 저장될 수 있고, ko로 재검사하면 값이 바뀝니다. 바뀐 값을 저장하는 것이 의도입니다.
+	in.Honorific = "민지님"
+	_, err = f.svc.Put(ctx, f.accountID, in)
+	require.NoError(t, err)
+	saved, err = f.svc.Patch(ctx, f.accountID, Patch{Language: ptr("ko")})
+	require.NoError(t, err)
+	assert.Equal(t, "민지", saved.Profile.Honorific)
+	assert.Nil(t, saved.Warnings)
+	got, err := f.svc.Get(ctx, f.accountID)
+	require.NoError(t, err)
+	assert.Equal(t, "민지", got.Honorific)
 }

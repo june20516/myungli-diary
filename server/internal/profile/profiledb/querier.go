@@ -15,7 +15,8 @@ type Querier interface {
 	ProfileExists(ctx context.Context, accountID uuid.UUID) (bool, error)
 	// UpsertProfile은 프로필을 만들거나 통째로 바꿉니다.
 	// 동시에 첫 등록이 두 번 들어와도 둘 다 성공하며, 나중에 실행된 값이 남습니다.
-	// anonymized_at은 다루지 않으므로 일반 저장이 익명화를 되돌리거나 만들지 못합니다.
+	// anonymized_at은 다루지 않고, 이미 익명화된 행은 WHERE로 갱신하지 않습니다.
+	// 그때는 행이 반환되지 않아 pgx.ErrNoRows가 되므로 익명화된 행에 출생 정보가 다시 쓰이지 않습니다.
 	UpsertProfile(ctx context.Context, arg UpsertProfileParams) (Profile, error)
 }
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -216,16 +217,20 @@ func TestProfiles_RejectsUnknownTimeWithValue(t *testing.T) {
 	requireCheckViolation(t, err, "profiles_birth_time_status_value")
 }
 
-func TestProfiles_UpsertKeepsAnonymizedAt(t *testing.T) {
+func TestProfiles_UpsertDoesNotTouchAnonymizedRow(t *testing.T) {
 	ctx := context.Background()
 	q, pool, accountID := newDB(t)
 	require.NoError(t, insertAnonymized(pool, accountID, "birth_time_status", "NULL"))
 
-	returned, err := q.UpsertProfile(ctx, validParams(accountID))
+	_, err := q.UpsertProfile(ctx, validParams(accountID))
 
+	require.ErrorIs(t, err, pgx.ErrNoRows)
+	row, err := q.GetProfile(ctx, accountID)
 	require.NoError(t, err)
-	require.NotNil(t, returned.AnonymizedAt)
-	require.True(t, returned.AnonymizedAt.Equal(time.Date(2026, 10, 15, 1, 0, 0, 0, time.UTC)))
+	require.NotNil(t, row.AnonymizedAt)
+	require.True(t, row.AnonymizedAt.Equal(time.Date(2026, 10, 15, 1, 0, 0, 0, time.UTC)))
+	require.False(t, row.Honorific.Valid)
+	require.Nil(t, row.BirthHash)
 }
 
 func TestProfiles_RejectsBirthHashOfWrongLength(t *testing.T) {

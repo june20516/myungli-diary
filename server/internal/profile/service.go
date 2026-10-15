@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -109,6 +110,7 @@ func (s *Service) Patch(ctx context.Context, accountID uuid.UUID, patch Patch) (
 	}
 
 	// 호칭 규칙은 언어마다 다르므로, 언어만 바뀌어도 저장된 호칭을 새 언어로 다시 검사합니다.
+	// 재검사로 정규화 값이 바뀌면(예: en으로 저장된 "민지님"을 ko로) 바뀐 값을 저장하는 것이 의도입니다.
 	recheck := patch.Honorific != nil || merged.Language != stored.Language
 	saved, err := s.save(ctx, accountID, merged, storedHash, recheck)
 	if err != nil {
@@ -147,7 +149,8 @@ func (s *Service) load(ctx context.Context, accountID uuid.UUID) (Profile, []byt
 // save는 검증하고, 출생 정보가 바뀐 경우에만 엔진을 부른 뒤 저장합니다.
 // 읽기·엔진 호출·upsert를 한 트랜잭션에 묶지 않습니다. 엔진 호출이 최대 수 초 걸리므로
 // 그 동안 DB 연결과 락을 쥐지 않기 위해서입니다. 동시 요청이 엔진을 두 번 불러도 정확성에는 문제가 없고,
-// upsert는 ON CONFLICT라 둘 다 성공합니다.
+// upsert는 ON CONFLICT라 둘 다 성공합니다. 동시 Patch도 엔진을 두 번 부를 수 있고,
+// 행 전체를 쓰므로 마지막 쓰기가 이깁니다(허용). 익명화는 upsert의 WHERE가 막습니다.
 func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, storedHash []byte, normalizeHonorific bool) (Saved, error) {
 	var warnings []honorific.Code
 	if normalizeHonorific {
@@ -175,13 +178,17 @@ func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, stor
 	}
 
 	hash := BirthHash(birth)
-	if !bytesEqual(storedHash, hash[:]) {
+	if !bytes.Equal(storedHash, hash[:]) {
 		if err := s.checkBirthWithEngine(ctx, birth, p.CurrentTimezone); err != nil {
 			return Saved{}, err
 		}
 	}
 
 	row, err := s.queries.UpsertProfile(ctx, upsertParams(accountID, p, hash))
+	if errors.Is(err, pgx.ErrNoRows) {
+		// 읽은 뒤(엔진 호출 중에) 익명화가 커밋된 경우입니다. 익명화된 행은 갱신되지 않습니다.
+		return Saved{}, ErrNotFound
+	}
 	if err != nil {
 		return Saved{}, fmt.Errorf("프로필 저장: %w", err)
 	}
@@ -206,10 +213,6 @@ func (s *Service) checkBirthWithEngine(ctx context.Context, b Birth, timezone st
 	default:
 		return err
 	}
-}
-
-func bytesEqual(a, b []byte) bool {
-	return len(a) == len(b) && string(a) == string(b)
 }
 
 // timeOfDay는 시:분을 DB time 값으로 바꿉니다. nil이면 NULL입니다.
