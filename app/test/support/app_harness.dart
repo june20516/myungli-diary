@@ -76,14 +76,31 @@ Future<void> settleEntry(
     );
     await tester.pump(const Duration(milliseconds: 50));
     if (!container.read(entryStateProvider).isLoading) {
-      await tester.pumpAndSettle();
+      await settleWithIo(tester);
       // 진입이 ready가 되면 앱 셸이 기기 시간대를 맞추는 요청을 보냅니다. 끝나게 둡니다.
       await settleTimezoneSync(tester, container);
-      await tester.pumpAndSettle();
+      await settleWithIo(tester);
       return;
     }
   }
   fail('진입 계산이 끝나지 않음');
+}
+
+/// 실제 I/O와 프레임을 번갈아 돌며 예약된 프레임이 없어질 때까지 기다립니다.
+///
+/// 도착한 화면이 server 응답을 기다리는 동안 skeleton이 숨 쉬면 `pumpAndSettle`이 끝나지
+/// 않습니다(대역 서버는 asset을 실제 I/O로 읽음). 응답이 오면 움직임이 멎으므로 그때 끝냅니다.
+/// [maxRounds]가 지나도 움직이면(응답을 일부러 붙잡은 테스트) 실패하지 않고 그대로 돌아갑니다.
+Future<void> settleWithIo(WidgetTester tester, {int maxRounds = 100}) async {
+  for (var i = 0; i < maxRounds; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+    if (!tester.binding.hasScheduledFrame) {
+      return;
+    }
+  }
 }
 
 /// 진행 중인 기기 시간대 동기화([TimezoneSync.idle])가 끝날 때까지 기다립니다.

@@ -239,12 +239,13 @@ void main() {
         'login-entry-unavailable',
         'member-time-unknown',
         'daily-error',
+        'diary-written',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(12));
+      expect(scenarios.where((s) => s.signedIn), hasLength(13));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

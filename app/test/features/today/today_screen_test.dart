@@ -1,0 +1,388 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/presentation/day_reading_skeleton.dart';
+
+import '../../support/app_harness.dart';
+import '../../support/daily_fixture.dart';
+import '../../support/onboarding_steps.dart' show pumpUntil;
+
+final _ko = AppLocalizationsKo();
+final _today = CalendarDate(2026, 10, 13);
+
+Finder _id(String identifier) => find.bySemanticsIdentifier(identifier);
+
+FakeServerInterceptor _fake(ProviderContainer container) =>
+    container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
+
+final Finder _content = find.byType(DayCharacter);
+final Finder _loading = find.byKey(const ValueKey('screen-state.loading'));
+
+/// 오늘 내용이나 오류 화면이 보일 때까지 기다립니다.
+Future<void> _settleToday(WidgetTester tester) => pumpUntil(
+  tester,
+  () =>
+      _content.evaluate().isNotEmpty ||
+      find.byType(ErrorState).evaluate().isNotEmpty,
+);
+
+/// [build]로 값을 내는 오늘 응답 대역. 다시 시도 횟수를 셉니다.
+final class _StubDaily extends DailyController {
+  new(this._build);
+
+  final Future<DailyView> Function() _build;
+
+  @override
+  Future<DailyView> build() => _build();
+}
+
+/// 캐시 값을 먼저 내보내고 server 응답이 끝나면 그 값으로 바꾸는 대역(controller와 같은 순서).
+final class _CacheThenServer extends DailyController {
+  new(this._cached, this._server);
+
+  final DailyView _cached;
+  final Future<DailyView> _server;
+
+  @override
+  Future<DailyView> build() {
+    state = AsyncData(_cached);
+    return _server;
+  }
+}
+
+DailyView _view({bool stale = false}) => DailyView(
+  date: _today,
+  daily: Daily.fromJson(memberDailyJson()),
+  stale: stale,
+  cacheKey: null,
+);
+
+/// `/v1/daily/`만 [hold]가 끝날 때까지 붙잡습니다.
+final class _DailyHold extends Interceptor {
+  Completer<void>? hold;
+  final paths = <String>[];
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (options.path.startsWith('/v1/daily/')) {
+      paths.add(options.path);
+      await hold?.future;
+    }
+    handler.next(options);
+  }
+}
+
+/// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
+final class _TestToday extends Notifier<CalendarDate> {
+  @override
+  CalendarDate build() => _today;
+
+  CalendarDate get date => state;
+
+  set date(CalendarDate value) => state = value;
+}
+
+final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
+  _TestToday.new,
+);
+
+void main() {
+  setUpAll(ensureTimeZonesInitialized);
+
+  testWidgets('member: 용신의 날 배지(이유 줄 없음), 총운 두 문장, 행운 칩 4개, 가이드 before', (
+    tester,
+  ) async {
+    await pumpApp(tester, scenario: 'member');
+    await _settleToday(tester);
+
+    expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
+    expect(_id(ScreenIds.today), findsOneWidget);
+    final character = tester.widget<DayCharacter>(_content);
+    expect(character.variant, DayCharacterVariant.good);
+    expect(character.label, _ko.dayKindYongsinDay);
+    expect(character.reason, isNull);
+    expect(_id(SlotIds.todayCharacterLabel), findsOneWidget);
+    expect(_id(SlotIds.todayCharacterReason), findsNothing);
+
+    expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
+    expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
+    expect(
+      tester.widget<DepthLink>(find.byType(DepthLink)).label,
+      _ko.depthLinkEvidence,
+    );
+
+    for (final variant in LuckyCardVariant.values) {
+      expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);
+    }
+    expect(find.text('초록'), findsOneWidget);
+    expect(find.text(_ko.directionE), findsOneWidget);
+    expect(find.text('3'), findsOneWidget);
+    expect(find.text('09:30–11:30'), findsOneWidget);
+
+    final guide = tester.widget<GuideQuestionCard>(
+      find.byType(GuideQuestionCard),
+    );
+    expect(guide.state, GuideQuestionState.before);
+    expect(guide.actionLabel, _ko.todayGuideCta);
+    expect(_id(SlotIds.todayGuideQuestion), findsOneWidget);
+    expect(_id(SlotIds.todayGuideCta), findsOneWidget);
+
+    expect(find.byType(ShareButton), findsOneWidget);
+    expect(find.text(_ko.noticeOffline), findsNothing);
+    expect(find.byKey(const ValueKey('today.time-unknown')), findsNothing);
+  });
+
+  testWidgets('행운 칩을 누르면 설명에 슬롯 id가 붙습니다', (tester) async {
+    await pumpApp(tester, scenario: 'member');
+    await _settleToday(tester);
+
+    const slots = {
+      LuckyCardVariant.color: SlotIds.todayLuckyColorBody,
+      LuckyCardVariant.direction: SlotIds.todayLuckyDirectionBody,
+      LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
+      LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
+    };
+    for (final MapEntry(key: variant, value: slot) in slots.entries) {
+      await tester.ensureVisible(find.byKey(LuckyCardRow.chipKey(variant)));
+      await tester.tap(find.byKey(LuckyCardRow.chipKey(variant)));
+      await tester.pumpAndSettle();
+      expect(_id(slot), findsOneWidget, reason: slot);
+    }
+  });
+
+  testWidgets('diary-written: 가이드 카드 after와 쓴 일기 보기', (tester) async {
+    await pumpApp(tester, scenario: 'diary-written');
+    await _settleToday(tester);
+    final guide = tester.widget<GuideQuestionCard>(
+      find.byType(GuideQuestionCard),
+    );
+    expect(guide.state, GuideQuestionState.after);
+    expect(guide.actionLabel, _ko.todayGuideCtaWritten);
+  });
+
+  testWidgets('loading: 응답 전에는 카드 자리 skeleton입니다', (tester) async {
+    final never = Completer<DailyView>();
+    await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        dailyControllerProvider.overrideWith(
+          () => _StubDaily(() => never.future),
+        ),
+      ],
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(_loading, findsOneWidget);
+    expect(find.byType(DayReadingSkeleton), findsOneWidget);
+    expect(_content, findsNothing);
+    // 내용이 없을 때는 공유할 것이 없어 공유 버튼도 없습니다.
+    expect(find.byType(ShareButton), findsNothing);
+  });
+
+  testWidgets('daily-error: 오류 화면과 다시 시도 → 다시 받기', (tester) async {
+    final container = await pumpApp(tester, scenario: 'daily-error');
+    await _settleToday(tester);
+    final error = tester.widget<ErrorState>(find.byType(ErrorState));
+    expect(error.variant, ErrorStateVariant.generic);
+    expect(_content, findsNothing);
+    final before = _fake(container).callCountOf('getDaily');
+
+    await tester.tap(find.text(_ko.actionRetry));
+    await tester.pump();
+    await _settleToday(tester);
+    expect(_fake(container).callCountOf('getDaily'), before + 1);
+    expect(find.byType(ErrorState), findsOneWidget);
+  });
+
+  testWidgets('offline(캐시 없음): 오프라인 오류 화면입니다', (tester) async {
+    await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        dailyControllerProvider.overrideWith(
+          () => _StubDaily(() async => throw const OfflineError()),
+        ),
+      ],
+    );
+    await _settleToday(tester);
+    final error = tester.widget<ErrorState>(find.byType(ErrorState));
+    expect(error.variant, ErrorStateVariant.offline);
+    expect(_content, findsNothing);
+  });
+
+  testWidgets('offline(캐시 있음): 내용과 오프라인 배너입니다', (tester) async {
+    await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        dailyControllerProvider.overrideWith(
+          () => _StubDaily(() async => _view(stale: true)),
+        ),
+      ],
+    );
+    await _settleToday(tester);
+    expect(_content, findsOneWidget);
+    final banner = tester.widget<NoticeBanner>(
+      find.byWidgetPredicate(
+        (w) => w is NoticeBanner && w.variant == NoticeBannerVariant.offline,
+      ),
+    );
+    expect(banner.variant, NoticeBannerVariant.offline);
+    expect(banner.present, isTrue);
+    expect(find.text(_ko.noticeOffline), findsOneWidget);
+  });
+
+  testWidgets('member-time-unknown: 시간 모름 배너', (tester) async {
+    await pumpApp(tester, scenario: 'member-time-unknown');
+    await _settleToday(tester);
+    final banner = tester.widget<NoticeBanner>(
+      find.byWidgetPredicate(
+        (w) =>
+            w is NoticeBanner && w.variant == NoticeBannerVariant.timeUnknown,
+      ),
+    );
+    expect(banner.message, isNotEmpty);
+    expect(_content, findsOneWidget);
+  });
+
+  testWidgets('화면을 연 채 자정을 넘기면 어제 풀이를 감추고 새 날짜 응답을 보입니다', (tester) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
+      ],
+    );
+    await _settleToday(tester);
+    expect(container.read(dailyControllerProvider).value?.date, _today);
+
+    final hold = _DailyHold()..hold = Completer<void>();
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, hold);
+
+    final tomorrow = CalendarDate(2026, 10, 14);
+    container.read(_testTodayProvider.notifier).date = tomorrow;
+    await pumpUntil(tester, () => hold.paths.isNotEmpty);
+    await tester.pump(const Duration(milliseconds: 400));
+    // 다시 받는 동안 controller에는 어제 값이 남아 있지만 화면은 "오늘"로 보이지 않습니다.
+    expect(container.read(dailyControllerProvider).value?.date, _today);
+    expect(_loading, findsOneWidget);
+    expect(_content, findsNothing);
+
+    hold.hold!.complete();
+    await _settleToday(tester);
+    expect(hold.paths, ['/v1/daily/2026-10-14']);
+    expect(container.read(dailyControllerProvider).value?.date, tomorrow);
+    expect(_content, findsOneWidget);
+  });
+
+  for (final scale in [2.0, 3.0]) {
+    testWidgets('글자 $scale배·320폭에서도 넘치지 않습니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(320, 568)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final never = Completer<DailyView>();
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(() => never.future),
+          ),
+        ],
+      );
+      // 불러오는 중 skeleton도 넘치지 않습니다.
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(DayReadingSkeleton), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      never.complete(_view());
+      await _settleToday(tester);
+      expect(tester.takeException(), isNull);
+      expect(_content, findsOneWidget);
+      expect(container.read(dailyControllerProvider).hasValue, isTrue);
+    });
+  }
+
+  for (final changed in [false, true]) {
+    testWidgets(
+      changed
+          ? '캐시와 다른 server 응답으로 바뀌면 내용이 스밉니다'
+          : '캐시와 같은 server 응답이면 내용이 움직이지 않습니다',
+      (tester) async {
+        final server = Completer<DailyView>();
+        final container = await pumpApp(
+          tester,
+          scenario: 'member',
+          overrides: [
+            dailyControllerProvider.overrideWith(
+              () => _CacheThenServer(_view(), server.future),
+            ),
+          ],
+        );
+        await _settleToday(tester);
+        double opacity() => tester
+            .widget<Opacity>(
+              find
+                  .ancestor(
+                    of: find.byType(DayCharacter),
+                    matching: find.byType(Opacity),
+                  )
+                  .first,
+            )
+            .opacity;
+        expect(opacity(), 1);
+
+        final json = memberDailyJson();
+        if (changed) json['dayKind'] = 'ordinary_day';
+        server.complete(
+          DailyView(
+            date: _today,
+            daily: Daily.fromJson(json),
+            stale: false,
+            cacheKey: null,
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 40));
+        expect(
+          opacity(),
+          changed ? lessThan(1) : 1,
+          reason: changed ? '다른 내용은 스밉니다' : '같은 내용은 그대로입니다',
+        );
+        await tester.pumpAndSettle();
+        expect(opacity(), 1);
+        expect(
+          tester.widget<DayCharacter>(_content).variant,
+          changed ? DayCharacterVariant.ordinary : DayCharacterVariant.good,
+        );
+        expect(container.read(dailyControllerProvider).isLoading, isFalse);
+      },
+    );
+  }
+}

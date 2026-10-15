@@ -17,7 +17,16 @@ final glossaryRepositoryProvider = Provider<GlossaryRepository>(
 );
 
 /// 이름 사전. 언어는 프로필 사본의 `language`, 없으면 앱 언어입니다.
-final glossaryProvider = FutureProvider<GlossaryNames>((ref) async {
+///
+/// 자동 재시도는 끕니다. 실패는 오류 상태로 남기고 화면의 다시 시도로만 다시 받습니다
+/// (`dailyControllerProvider`와 같은 방식). 자동 재시도가 있으면 오늘 화면이 오류와
+/// 불러오는 중 사이를 오갑니다.
+final glossaryProvider = FutureProvider<GlossaryNames>(
+  _loadGlossary,
+  retry: (_, _) => null,
+);
+
+Future<GlossaryNames> _loadGlossary(Ref ref) async {
   // 프로필 사본을 읽지 못해도 사전이 막히지 않게 앱 언어로 대체합니다.
   Profile? profile;
   try {
@@ -30,4 +39,4 @@ final glossaryProvider = FutureProvider<GlossaryNames>((ref) async {
   final language = profile?.language ?? appLanguage;
   final repository = ref.watch(glossaryRepositoryProvider);
   return await repository.load(language);
-});
+}

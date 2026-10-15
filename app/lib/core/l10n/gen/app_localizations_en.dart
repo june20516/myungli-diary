@@ -837,4 +837,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depthSurface => 'Summary';
+
+  @override
+  String get directionN => 'North';
+
+  @override
+  String get directionNe => 'Northeast';
+
+  @override
+  String get directionE => 'East';
+
+  @override
+  String get directionSe => 'Southeast';
+
+  @override
+  String get directionS => 'South';
+
+  @override
+  String get directionSw => 'Southwest';
+
+  @override
+  String get directionW => 'West';
+
+  @override
+  String get directionNw => 'Northwest';
+
+  @override
+  String get depthLinkEvidence => 'See the basis';
+
+  @override
+  String get todayLuckyColorName => 'Lucky color';
+
+  @override
+  String get todayLuckyDirectionName => 'Lucky direction';
+
+  @override
+  String get todayLuckyNumberName => 'Lucky number';
+
+  @override
+  String get todayLuckyTimeName => 'Best time to focus';
 }

@@ -6,7 +6,6 @@
 /// 테스트가 즉시 실패합니다). 시트 화면은 registry에 없으므로 시트를 만드는 계획이
 /// registry에 등록하면서 지웁니다.
 const Set<String> pendingStateScreens = {
-  'today',
   'explain-sheet',
   'evidence-sheet',
   'calendar',

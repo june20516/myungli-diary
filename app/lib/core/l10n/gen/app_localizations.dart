@@ -1557,6 +1557,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'요약'**
   String get depthSurface;
+
+  /// 임시. 행운 방향 칩 값 n(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'북쪽'**
+  String get directionN;
+
+  /// 임시. 행운 방향 칩 값 ne(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'북동쪽'**
+  String get directionNe;
+
+  /// 임시. 행운 방향 칩 값 e(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'동쪽'**
+  String get directionE;
+
+  /// 임시. 행운 방향 칩 값 se(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'남동쪽'**
+  String get directionSe;
+
+  /// 임시. 행운 방향 칩 값 s(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'남쪽'**
+  String get directionS;
+
+  /// 임시. 행운 방향 칩 값 sw(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'남서쪽'**
+  String get directionSw;
+
+  /// 임시. 행운 방향 칩 값 w(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'서쪽'**
+  String get directionW;
+
+  /// 임시. 행운 방향 칩 값 nw(A27)
+  ///
+  /// In ko, this message translates to:
+  /// **'북서쪽'**
+  String get directionNw;
+
+  /// 임시. today.fortune.head 끝의 근거 시트 링크(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'근거 보기'**
+  String get depthLinkEvidence;
+
+  /// 임시. 행운 색 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  ///
+  /// In ko, this message translates to:
+  /// **'행운 색'**
+  String get todayLuckyColorName;
+
+  /// 임시. 행운 방향 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  ///
+  /// In ko, this message translates to:
+  /// **'행운 방향'**
+  String get todayLuckyDirectionName;
+
+  /// 임시. 행운 숫자 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  ///
+  /// In ko, this message translates to:
+  /// **'행운 숫자'**
+  String get todayLuckyNumberName;
+
+  /// 임시. 집중하기 좋은 시간 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  ///
+  /// In ko, this message translates to:
+  /// **'집중하기 좋은 시간'**
+  String get todayLuckyTimeName;
 }
 
 class _AppLocalizationsDelegate

@@ -779,4 +779,43 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get depthSurface => '要約';
+
+  @override
+  String get directionN => '北';
+
+  @override
+  String get directionNe => '北東';
+
+  @override
+  String get directionE => '東';
+
+  @override
+  String get directionSe => '南東';
+
+  @override
+  String get directionS => '南';
+
+  @override
+  String get directionSw => '南西';
+
+  @override
+  String get directionW => '西';
+
+  @override
+  String get directionNw => '北西';
+
+  @override
+  String get depthLinkEvidence => '根拠を見る';
+
+  @override
+  String get todayLuckyColorName => 'ラッキーカラー';
+
+  @override
+  String get todayLuckyDirectionName => 'ラッキー方位';
+
+  @override
+  String get todayLuckyNumberName => 'ラッキーナンバー';
+
+  @override
+  String get todayLuckyTimeName => '集中しやすい時間';
 }

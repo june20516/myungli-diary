@@ -1087,5 +1087,57 @@
   "depthSurface": "요약",
   "@depthSurface": {
     "description": "깊이 단계 표면 단계(첫 단계)의 안내"
+  },
+  "directionN": "북쪽",
+  "@directionN": {
+    "description": "임시. 행운 방향 칩 값 n(A27)"
+  },
+  "directionNe": "북동쪽",
+  "@directionNe": {
+    "description": "임시. 행운 방향 칩 값 ne(A27)"
+  },
+  "directionE": "동쪽",
+  "@directionE": {
+    "description": "임시. 행운 방향 칩 값 e(A27)"
+  },
+  "directionSe": "남동쪽",
+  "@directionSe": {
+    "description": "임시. 행운 방향 칩 값 se(A27)"
+  },
+  "directionS": "남쪽",
+  "@directionS": {
+    "description": "임시. 행운 방향 칩 값 s(A27)"
+  },
+  "directionSw": "남서쪽",
+  "@directionSw": {
+    "description": "임시. 행운 방향 칩 값 sw(A27)"
+  },
+  "directionW": "서쪽",
+  "@directionW": {
+    "description": "임시. 행운 방향 칩 값 w(A27)"
+  },
+  "directionNw": "북서쪽",
+  "@directionNw": {
+    "description": "임시. 행운 방향 칩 값 nw(A27)"
+  },
+  "depthLinkEvidence": "근거 보기",
+  "@depthLinkEvidence": {
+    "description": "임시. today.fortune.head 끝의 근거 시트 링크(슬롯 아님)"
+  },
+  "todayLuckyColorName": "행운 색",
+  "@todayLuckyColorName": {
+    "description": "임시. 행운 색 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "todayLuckyDirectionName": "행운 방향",
+  "@todayLuckyDirectionName": {
+    "description": "임시. 행운 방향 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "todayLuckyNumberName": "행운 숫자",
+  "@todayLuckyNumberName": {
+    "description": "임시. 행운 숫자 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "todayLuckyTimeName": "집중하기 좋은 시간",
+  "@todayLuckyTimeName": {
+    "description": "임시. 집중하기 좋은 시간 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
   }
 }

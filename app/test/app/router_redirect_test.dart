@@ -11,6 +11,7 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -37,7 +38,14 @@ class _FixedEntry extends EntryController {
 ProviderContainer _routerContainer(WidgetTester tester, Override entry) {
   final database = AppDatabase.forExecutor(NativeDatabase.memory());
   final container = ProviderContainer(
-    overrides: [entry, appDatabaseProvider.overrideWithValue(database)],
+    overrides: [
+      entry,
+      appDatabaseProvider.overrideWithValue(database),
+      // today 화면이 "오늘"을 읽습니다. 기기 시계면 자정 구독 timer가 테스트 뒤에 남습니다.
+      clockProvider.overrideWithValue(
+        FixedClock(DateTime.utc(2026, 10, 13, 3)),
+      ),
+    ],
   );
   addTearDown(() async {
     container.dispose();

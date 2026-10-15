@@ -63,6 +63,13 @@ tz.Location _locationOf(String ianaTimezone) {
   }
 }
 
+/// [instant]를 [ianaTimezone]의 현지 시각으로 바꿉니다. 오프셋이 붙은 값과 UTC 값이
+/// 같은 순간이면 같은 현지 시각입니다.
+///
+/// 모르는 IANA 이름이면 [ArgumentError]입니다(UTC로 대체하지 않습니다).
+tz.TZDateTime localTimeIn(DateTime instant, String ianaTimezone) =>
+    tz.TZDateTime.from(instant, _locationOf(ianaTimezone));
+
 /// [clock]의 지금이 [ianaTimezone]에서 속한 달력 날짜(자정 기준)입니다.
 ///
 /// 모르는 IANA 이름이면 [ArgumentError]입니다(UTC로 대체하지 않습니다).

@@ -156,3 +156,4 @@ flutter:
     - fixtures/login-entry-unavailable/
     - fixtures/member-time-unknown/
     - fixtures/daily-error/
+    - fixtures/diary-written/

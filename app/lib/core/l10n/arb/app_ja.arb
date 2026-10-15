@@ -242,5 +242,18 @@
   "depthDefaultLabel": "命理の読み解き",
   "depthEvidence": "原理",
   "depthExplain": "読み解き",
-  "depthSurface": "要約"
+  "depthSurface": "要約",
+  "directionN": "北",
+  "directionNe": "北東",
+  "directionE": "東",
+  "directionSe": "南東",
+  "directionS": "南",
+  "directionSw": "南西",
+  "directionW": "西",
+  "directionNw": "北西",
+  "depthLinkEvidence": "根拠を見る",
+  "todayLuckyColorName": "ラッキーカラー",
+  "todayLuckyDirectionName": "ラッキー方位",
+  "todayLuckyNumberName": "ラッキーナンバー",
+  "todayLuckyTimeName": "集中しやすい時間"
 }

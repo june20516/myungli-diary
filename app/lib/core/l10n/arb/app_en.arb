@@ -242,5 +242,18 @@
   "depthDefaultLabel": "Reading detail",
   "depthEvidence": "Basis",
   "depthExplain": "Reading",
-  "depthSurface": "Summary"
+  "depthSurface": "Summary",
+  "directionN": "North",
+  "directionNe": "Northeast",
+  "directionE": "East",
+  "directionSe": "Southeast",
+  "directionS": "South",
+  "directionSw": "Southwest",
+  "directionW": "West",
+  "directionNw": "Northwest",
+  "depthLinkEvidence": "See the basis",
+  "todayLuckyColorName": "Lucky color",
+  "todayLuckyDirectionName": "Lucky direction",
+  "todayLuckyNumberName": "Lucky number",
+  "todayLuckyTimeName": "Best time to focus"
 }

@@ -779,4 +779,43 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get depthSurface => '요약';
+
+  @override
+  String get directionN => '북쪽';
+
+  @override
+  String get directionNe => '북동쪽';
+
+  @override
+  String get directionE => '동쪽';
+
+  @override
+  String get directionSe => '남동쪽';
+
+  @override
+  String get directionS => '남쪽';
+
+  @override
+  String get directionSw => '남서쪽';
+
+  @override
+  String get directionW => '서쪽';
+
+  @override
+  String get directionNw => '북서쪽';
+
+  @override
+  String get depthLinkEvidence => '근거 보기';
+
+  @override
+  String get todayLuckyColorName => '행운 색';
+
+  @override
+  String get todayLuckyDirectionName => '행운 방향';
+
+  @override
+  String get todayLuckyNumberName => '행운 숫자';
+
+  @override
+  String get todayLuckyTimeName => '집중하기 좋은 시간';
 }
