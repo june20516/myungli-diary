@@ -81,21 +81,51 @@ class GuideQuestionCard extends StatefulWidget {
   /// 버튼이 채우는 IA 슬롯 id.
   final String? actionSlotId;
 
+  /// 버튼을 찾는 테스트용 키(상태가 바뀌어도 같은 버튼 State를 쓰는지 확인).
+  static const Key buttonKey = ValueKey('guide-question-card-button');
+
   @override
   State<GuideQuestionCard> createState() => _GuideQuestionCardState();
 }
 
 class _GuideQuestionCardState extends State<GuideQuestionCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   // 처음부터 after면 이미 찍힌 상태(1)로 시작해 움직이지 않습니다.
-  late final AnimationController _stamp = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.sealStamp.duration,
-    value: widget.state == GuideQuestionState.after ? 1 : 0,
-  );
+  late final AnimationController _stamp;
+  late final AnimationController _erase;
+
+  // 도장 층을 트리에 둘지. after이거나, before로 돌아오며 지워지는 동안 true입니다.
+  late bool _sealShown;
+
+  // 지우는 중인지(true면 erase, 아니면 stamp 값을 그립니다).
+  bool _erasing = false;
 
   // before에서 after로 바뀐 카드만 상태 알림을 보냅니다. 처음부터 after면 보내지 않습니다.
   bool _announce = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final after = widget.state == GuideQuestionState.after;
+    _sealShown = after;
+    _stamp = AnimationController(
+      vsync: this,
+      duration: InteractionPattern.sealStamp.duration,
+      value: after ? 1 : 0,
+    );
+    _erase = AnimationController(
+      vsync: this,
+      duration: InteractionPattern.sealErase.duration,
+    )..addStatusListener(_onEraseStatus);
+  }
+
+  void _onEraseStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed || !mounted) return;
+    setState(() {
+      _sealShown = false;
+      _erasing = false;
+    });
+  }
 
   @override
   void didUpdateWidget(GuideQuestionCard oldWidget) {
@@ -103,43 +133,60 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
     if (widget.state == oldWidget.state) return;
     if (widget.state == GuideQuestionState.after) {
       _announce = true;
+      _sealShown = true;
+      _erasing = false;
+      _erase.stop();
       _stamp.forward(from: 0);
     } else {
       _announce = false;
-      _stamp.value = 0;
+      _erasing = true;
+      _stamp.stop();
+      _erase.forward(from: 0);
     }
   }
 
   @override
   void dispose() {
     _stamp.dispose();
+    _erase.dispose();
     super.dispose();
   }
 
   Widget _sealLayer(BuildContext context, AppLocalizations l10n) {
     const seal = Seal(size: SealSize.card, variant: SealVariant.soft);
-    final stamped = animate(
-      InteractionPattern.sealStamp,
-      t: _stamp,
-      prefs: MotionPrefs.of(context),
-      child: seal,
-    );
+    final prefs = MotionPrefs.of(context);
+    final shown = _erasing
+        ? animate(
+            InteractionPattern.sealErase,
+            t: _erase,
+            prefs: prefs,
+            child: seal,
+          )
+        : animate(
+            InteractionPattern.sealStamp,
+            t: _stamp,
+            prefs: prefs,
+            child: seal,
+          );
     final written = l10n.todayGuideWritten;
     // 도장은 장식이라 눈에 보이게만 두고, "오늘 일기 씀"만 상태로 읽습니다.
-    final announced = _announce
+    // 지워지는 동안(before)에는 상태를 읽지 않습니다.
+    final announced = _erasing
+        ? ExcludeSemantics(child: shown)
+        : _announce
         ? Semantics(
             container: true,
             child: LiveAnnouncement(
               label: written,
               role: SemanticsRole.status,
-              child: stamped,
+              child: shown,
             ),
           )
         : Semantics(
             container: true,
             role: SemanticsRole.status,
             label: written,
-            child: ExcludeSemantics(child: stamped),
+            child: ExcludeSemantics(child: shown),
           );
     return KeyedSubtree(
       key: GuideQuestionCard.sealLayerKey,
@@ -160,18 +207,19 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
       color: after ? colors.textSecondary : null,
     );
     final button = PrimaryButton(
+      key: GuideQuestionCard.buttonKey,
       label: widget.actionLabel,
       onPressed: widget.onAction,
       variant: after ? PrimaryButtonVariant.quiet : PrimaryButtonVariant.filled,
       labelColor: after ? colors.sealOnSoft : null,
       identifier: widget.actionSlotId,
     );
-    final action = after
-        ? Stack(
-            alignment: Alignment.center,
-            children: [_sealLayer(context, l10n), button],
-          )
-        : button;
+    // 버튼은 상태와 관계없이 같은 자리(Stack의 키 붙은 자식)에 두어 눌림·포커스를 지키고,
+    // 도장 층만 넣고 뺍니다.
+    final action = Stack(
+      alignment: Alignment.center,
+      children: [if (_sealShown) _sealLayer(context, l10n), button],
+    );
     return Semantics(
       container: true,
       explicitChildNodes: true,

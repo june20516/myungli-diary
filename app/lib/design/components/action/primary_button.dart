@@ -88,7 +88,8 @@ class PrimaryButton extends StatelessWidget {
   /// 처리 중일 때 `identifier` 대신 붙일 슬롯 id.
   final String? busyIdentifier;
 
-  /// 글자색을 바꿉니다(예: 도장 위 `seal.on-soft`). 꺼짐일 때는 무시하고 `disabled.fg`입니다.
+  /// 글자색을 바꿉니다(예: 도장 위 `seal.on-soft`). 모든 변형에 적용됩니다(지금 쓰는 곳은
+  /// quiet뿐). 꺼짐일 때는 무시하고 `disabled.fg`입니다.
   /// 눌림 번짐 색도 이 색을 따릅니다.
   final Color? labelColor;
 

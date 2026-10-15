@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
@@ -90,6 +91,31 @@ Color _questionColor(WidgetTester tester) => tester
     )
     .style
     .color!;
+
+/// 도장 층 안의 Opacity 값.
+double _sealOpacity(WidgetTester tester) => tester
+    .widget<Opacity>(
+      find
+          .descendant(
+            of: find.byKey(GuideQuestionCard.sealLayerKey),
+            matching: find.byType(Opacity),
+          )
+          .first,
+    )
+    .opacity;
+
+/// 도장 층 안 Transform의 확대 배율(없으면 1).
+double _sealScale(WidgetTester tester) {
+  final transforms = find.descendant(
+    of: find.byKey(GuideQuestionCard.sealLayerKey),
+    matching: find.byType(Transform),
+  );
+  if (transforms.evaluate().isEmpty) return 1;
+  return tester
+      .widget<Transform>(transforms.first)
+      .transform
+      .getMaxScaleOnAxis();
+}
 
 void main() {
   group('guide-question-card', () {
@@ -218,6 +244,12 @@ void main() {
           findsWidgets,
           reason: 'seal.stamp는 크기가 줄며 찍힙니다',
         );
+        // seal.stamp keyframe: 시작 scale 1.2·opacity 0, 끝 scale 1·opacity 1.
+        expect(_sealScale(tester), closeTo(1.2, 0.001));
+        expect(_sealOpacity(tester), closeTo(0, 0.001));
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(_sealScale(tester), inExclusiveRange(1, 1.2));
+        expect(_sealOpacity(tester), inExclusiveRange(0, 0.55));
         final live = find.byType(LiveAnnouncement);
         expect(live, findsOneWidget);
         final data = tester.getSemantics(live).getSemanticsData();
@@ -226,6 +258,8 @@ void main() {
 
         await tester.pumpAndSettle();
         expect(tester.binding.transientCallbackCount, 0);
+        expect(_sealScale(tester), closeTo(1, 0.001));
+        expect(_sealOpacity(tester), closeTo(1, 0.001));
         handle.dispose();
       });
 
@@ -250,14 +284,50 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('after에서 before로 돌아오면 도장이 사라집니다', (tester) async {
-        await tester.pumpWidget(_app(GuideQuestionState.before));
+      testWidgets('after에서 before로 돌아오면 도장이 seal.erase로 옅어지다 사라집니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(_app(GuideQuestionState.after));
         await tester.tap(_toggle);
-        await tester.pumpAndSettle();
-        await tester.tap(_toggle);
+        await tester.pump();
+        // seal.erase: opacity 1에서 0으로. 지우는 동안 도장은 남습니다.
+        expect(find.byType(Seal), findsOneWidget);
+        expect(_sealOpacity(tester), closeTo(1, 0.001));
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.byType(Seal), findsOneWidget);
+        expect(_sealOpacity(tester), inExclusiveRange(0, 1));
         await tester.pumpAndSettle();
         expect(find.byType(Seal), findsNothing);
         expect(find.byType(LiveAnnouncement), findsNothing);
+        expect(tester.binding.transientCallbackCount, 0);
+      });
+
+      testWidgets('동작 줄이기여도 도장은 투명도로 지워집니다', (tester) async {
+        await tester.pumpWidget(
+          _app(GuideQuestionState.after, reduceMotion: true),
+        );
+        await tester.tap(_toggle);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.byType(Seal), findsOneWidget);
+        expect(_sealOpacity(tester), inExclusiveRange(0, 1));
+        await tester.pumpAndSettle();
+        expect(find.byType(Seal), findsNothing);
+      });
+
+      testWidgets('상태가 바뀌어도 버튼은 같은 State를 씁니다(눌림·포커스 유지)', (tester) async {
+        await tester.pumpWidget(_app(GuideQuestionState.before));
+        final press = find.descendant(
+          of: find.byKey(GuideQuestionCard.buttonKey),
+          matching: find.byType(PressInkTarget),
+        );
+        final before = tester.state(press);
+        await tester.tap(_toggle);
+        await tester.pumpAndSettle();
+        expect(tester.state(press), same(before));
+        await tester.tap(_toggle);
+        await tester.pumpAndSettle();
+        expect(tester.state(press), same(before));
       });
     });
 
