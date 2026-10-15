@@ -7,7 +7,6 @@ package profiledb
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -65,13 +64,13 @@ INSERT INTO profiles (
     calendar, is_leap_month, birth_year, birth_month, birth_day,
     birth_time_status, birth_time, gender, birth_timezone,
     birth_place_status, birth_city_id, longitude,
-    notify_status, notify_time, birth_hash, anonymized_at
+    notify_status, notify_time, birth_hash
 ) VALUES (
     $1, $2, $3, $4,
     $5, $6, $7, $8, $9,
     $10, $11, $12, $13,
     $14, $15, $16,
-    $17, $18, $19, $20
+    $17, $18, $19
 )
 ON CONFLICT (account_id) DO UPDATE SET
     honorific          = EXCLUDED.honorific,
@@ -91,8 +90,7 @@ ON CONFLICT (account_id) DO UPDATE SET
     longitude          = EXCLUDED.longitude,
     notify_status      = EXCLUDED.notify_status,
     notify_time        = EXCLUDED.notify_time,
-    birth_hash         = EXCLUDED.birth_hash,
-    anonymized_at      = EXCLUDED.anonymized_at
+    birth_hash         = EXCLUDED.birth_hash
 RETURNING account_id, honorific, language, current_timezone, calendar, is_leap_month, birth_year, birth_month, birth_day, birth_time_status, birth_time, gender, birth_timezone, birth_place_status, birth_city_id, longitude, notify_status, notify_time, birth_hash, anonymized_at, created_at, updated_at
 `
 
@@ -116,11 +114,11 @@ type UpsertProfileParams struct {
 	NotifyStatus     string
 	NotifyTime       pgtype.Time
 	BirthHash        []byte
-	AnonymizedAt     *time.Time
 }
 
 // UpsertProfile은 프로필을 만들거나 통째로 바꿉니다.
 // 동시에 첫 등록이 두 번 들어와도 둘 다 성공하며, 나중에 실행된 값이 남습니다.
+// anonymized_at은 다루지 않으므로 일반 저장이 익명화를 되돌리거나 만들지 못합니다.
 func (q *Queries) UpsertProfile(ctx context.Context, arg UpsertProfileParams) (Profile, error) {
 	row := q.db.QueryRow(ctx, upsertProfile,
 		arg.AccountID,
@@ -142,7 +140,6 @@ func (q *Queries) UpsertProfile(ctx context.Context, arg UpsertProfileParams) (P
 		arg.NotifyStatus,
 		arg.NotifyTime,
 		arg.BirthHash,
-		arg.AnonymizedAt,
 	)
 	var i Profile
 	err := row.Scan(

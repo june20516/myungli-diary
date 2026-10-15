@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 
@@ -60,4 +61,17 @@ func TestCache_ChartAndMonthRoundTrip(t *testing.T) {
 	month, err := q.GetMonth(ctx, cachedb.GetMonthParams{BirthHash: hash, RulesetVersion: "v1", Year: 2026, Month: 10, CurrentTimezone: "Asia/Seoul"})
 	require.NoError(t, err)
 	require.Equal(t, []byte("month"), month)
+}
+
+func TestCache_RejectsBirthHashOfWrongLength(t *testing.T) {
+	ctx := context.Background()
+	q := cachedb.New(dbtest.New(t))
+	shortHash := make([]byte, 31)
+
+	err := q.PutChart(ctx, cachedb.PutChartParams{BirthHash: shortHash, RulesetVersion: "v1", AsOfYear: 2026, Response: []byte("x")})
+
+	var pgErr *pgconn.PgError
+	require.ErrorAs(t, err, &pgErr)
+	require.Equal(t, "23514", pgErr.Code)
+	require.Equal(t, "chart_cache_birth_hash_length", pgErr.ConstraintName)
 }

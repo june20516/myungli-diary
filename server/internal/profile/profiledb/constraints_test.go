@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
@@ -46,6 +47,13 @@ func timeOfDay(hour, minute int) pgtype.Time {
 // newQueries는 계정 한 개가 있는 빈 DB의 쿼리 객체와 그 계정 id를 돌려줍니다.
 func newQueries(t *testing.T) (*profiledb.Queries, uuid.UUID) {
 	t.Helper()
+	q, _, accountID := newDB(t)
+	return q, accountID
+}
+
+// newDB는 newQueries에 더해 직접 SQL을 실행할 풀도 돌려줍니다.
+func newDB(t *testing.T) (*profiledb.Queries, *pgxpool.Pool, uuid.UUID) {
+	t.Helper()
 	pool := dbtest.New(t)
 	accountID := uuid.New()
 	err := authdb.New(pool).CreateAccount(context.Background(), authdb.CreateAccountParams{
@@ -53,14 +61,16 @@ func newQueries(t *testing.T) (*profiledb.Queries, uuid.UUID) {
 		LastActiveAt: time.Date(2026, 10, 15, 0, 0, 0, 0, time.UTC),
 	})
 	require.NoError(t, err)
-	return profiledb.New(pool), accountID
+	return profiledb.New(pool), pool, accountID
 }
 
-func requireCheckViolation(t *testing.T, err error) {
+// requireCheckViolation은 err가 wantConstraint라는 이름의 CHECK 위반인지 단언합니다.
+func requireCheckViolation(t *testing.T, err error, wantConstraint string) {
 	t.Helper()
 	var pgErr *pgconn.PgError
 	require.True(t, errors.As(err, &pgErr), "PgError여야 합니다: %v", err)
 	require.Equal(t, checkViolation, pgErr.Code)
+	require.Equal(t, wantConstraint, pgErr.ConstraintName)
 }
 
 func TestProfiles_RejectsTimeStatusMismatch(t *testing.T) {
@@ -70,7 +80,7 @@ func TestProfiles_RejectsTimeStatusMismatch(t *testing.T) {
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+	requireCheckViolation(t, err, "profiles_birth_time_status_value")
 }
 
 func TestProfiles_RejectsCityWithoutLongitude(t *testing.T) {
@@ -81,7 +91,7 @@ func TestProfiles_RejectsCityWithoutLongitude(t *testing.T) {
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+	requireCheckViolation(t, err, "profiles_birth_place_status_value")
 }
 
 func TestProfiles_RejectsCityIDWithoutCityStatus(t *testing.T) {
@@ -92,7 +102,7 @@ func TestProfiles_RejectsCityIDWithoutCityStatus(t *testing.T) {
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+	requireCheckViolation(t, err, "profiles_birth_place_status_value")
 }
 
 func TestProfiles_RejectsSolarLeap(t *testing.T) {
@@ -102,7 +112,7 @@ func TestProfiles_RejectsSolarLeap(t *testing.T) {
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+	requireCheckViolation(t, err, "profiles_solar_not_leap")
 }
 
 func TestProfiles_RejectsNotifyMinuteNotMultipleOf5(t *testing.T) {
@@ -113,7 +123,7 @@ func TestProfiles_RejectsNotifyMinuteNotMultipleOf5(t *testing.T) {
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+	requireCheckViolation(t, err, "profiles_notify_time_step")
 }
 
 func TestProfiles_AcceptsNotifyMinuteMultipleOf5(t *testing.T) {
@@ -129,29 +139,93 @@ func TestProfiles_AcceptsNotifyMinuteMultipleOf5(t *testing.T) {
 }
 
 func TestProfiles_RejectsIncompleteUntilAnonymized(t *testing.T) {
-	q, accountID := newQueries(t)
-	params := validParams(accountID)
-	params.Honorific = pgtype.Text{}
+	tests := []struct {
+		name   string
+		mutate func(*profiledb.UpsertProfileParams)
+	}{
+		{"honorific", func(p *profiledb.UpsertProfileParams) { p.Honorific = pgtype.Text{} }},
+		{"birth_hash", func(p *profiledb.UpsertProfileParams) { p.BirthHash = nil }},
+		{"gender", func(p *profiledb.UpsertProfileParams) { p.Gender = pgtype.Text{} }},
+		{"calendar", func(p *profiledb.UpsertProfileParams) { p.Calendar = pgtype.Text{} }},
+		{"birth_timezone", func(p *profiledb.UpsertProfileParams) { p.BirthTimezone = pgtype.Text{} }},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			q, accountID := newQueries(t)
+			params := validParams(accountID)
+			tt.mutate(&params)
 
-	_, err := q.UpsertProfile(context.Background(), params)
+			_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+			requireCheckViolation(t, err, "profiles_complete_until_anonymized")
+		})
+	}
+}
+
+// insertAnonymized는 익명화된 행(출생 열이 비어 있음)을 만들고, extraColumn = extraValue를 더해 넣습니다.
+// UpsertProfile은 anonymized_at을 다루지 않으므로 직접 INSERT합니다.
+func insertAnonymized(pool *pgxpool.Pool, accountID uuid.UUID, extraColumn, extraValue string) error {
+	_, err := pool.Exec(context.Background(), `
+		INSERT INTO profiles (account_id, language, current_timezone, notify_status, anonymized_at, `+extraColumn+`)
+		VALUES ($1, 'ko', 'Asia/Seoul', 'disabled', '2026-10-15T01:00:00Z', `+extraValue+`)`, accountID)
+	return err
 }
 
 func TestProfiles_AnonymizedMayDropBirthColumns(t *testing.T) {
+	_, pool, accountID := newDB(t)
+
+	err := insertAnonymized(pool, accountID, "birth_time_status", "NULL")
+
+	require.NoError(t, err)
+}
+
+func TestProfiles_AnonymizedRowStillRejectsTimeWithoutStatus(t *testing.T) {
+	_, pool, accountID := newDB(t)
+
+	err := insertAnonymized(pool, accountID, "birth_time", "'07:30'")
+
+	requireCheckViolation(t, err, "profiles_birth_time_status_value")
+}
+
+func TestProfiles_AnonymizedRowStillRejectsCityIDWithoutStatus(t *testing.T) {
+	_, pool, accountID := newDB(t)
+
+	err := insertAnonymized(pool, accountID, "birth_city_id", "'seoul'")
+
+	requireCheckViolation(t, err, "profiles_birth_place_status_value")
+}
+
+func TestProfiles_KnownTimeWithValueIsAccepted(t *testing.T) {
 	q, accountID := newQueries(t)
-	anonymizedAt := time.Date(2026, 10, 15, 1, 0, 0, 0, time.UTC)
-	params := profiledb.UpsertProfileParams{
-		AccountID:       accountID,
-		Language:        "ko",
-		CurrentTimezone: "Asia/Seoul",
-		NotifyStatus:    "disabled",
-		AnonymizedAt:    &anonymizedAt,
-	}
+	params := validParams(accountID)
+	params.BirthTimeStatus = pgtype.Text{String: "known", Valid: true}
+	params.BirthTime = timeOfDay(7, 30)
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
 	require.NoError(t, err)
+}
+
+func TestProfiles_RejectsUnknownTimeWithValue(t *testing.T) {
+	q, accountID := newQueries(t)
+	params := validParams(accountID)
+	params.BirthTime = timeOfDay(7, 30) // 상태는 unknown
+
+	_, err := q.UpsertProfile(context.Background(), params)
+
+	requireCheckViolation(t, err, "profiles_birth_time_status_value")
+}
+
+func TestProfiles_UpsertKeepsAnonymizedAt(t *testing.T) {
+	ctx := context.Background()
+	q, pool, accountID := newDB(t)
+	require.NoError(t, insertAnonymized(pool, accountID, "birth_time_status", "NULL"))
+
+	returned, err := q.UpsertProfile(ctx, validParams(accountID))
+
+	require.NoError(t, err)
+	require.NotNil(t, returned.AnonymizedAt)
+	require.True(t, returned.AnonymizedAt.Equal(time.Date(2026, 10, 15, 1, 0, 0, 0, time.UTC)))
 }
 
 func TestProfiles_RejectsBirthHashOfWrongLength(t *testing.T) {
@@ -161,7 +235,7 @@ func TestProfiles_RejectsBirthHashOfWrongLength(t *testing.T) {
 
 	_, err := q.UpsertProfile(context.Background(), params)
 
-	requireCheckViolation(t, err)
+	requireCheckViolation(t, err, "profiles_birth_hash_length")
 }
 
 func TestProfiles_UpsertKeepsOneRow(t *testing.T) {

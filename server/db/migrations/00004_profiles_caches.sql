@@ -65,7 +65,7 @@ CREATE TRIGGER profiles_set_updated_at BEFORE UPDATE ON profiles
 -- 엔진 응답 캐시입니다. 시스템 데이터라 created_at을 DB 기본값으로 둡니다.
 -- 계정과 이어지지 않고 출생 해시로만 찾으므로 계정 FK가 없습니다.
 CREATE TABLE chart_cache (
-    birth_hash      bytea       NOT NULL,
+    birth_hash      bytea       NOT NULL CONSTRAINT chart_cache_birth_hash_length CHECK (octet_length(birth_hash) = 32),
     ruleset_version text        NOT NULL,
     as_of_year      int         NOT NULL,
     response        bytea       NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE chart_cache (
 );
 
 CREATE TABLE daily_cache (
-    birth_hash       bytea       NOT NULL,
+    birth_hash       bytea       NOT NULL CONSTRAINT daily_cache_birth_hash_length CHECK (octet_length(birth_hash) = 32),
     ruleset_version  text        NOT NULL,
     date             date        NOT NULL,
     current_timezone text        NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE daily_cache (
 );
 
 CREATE TABLE month_cache (
-    birth_hash       bytea       NOT NULL,
+    birth_hash       bytea       NOT NULL CONSTRAINT month_cache_birth_hash_length CHECK (octet_length(birth_hash) = 32),
     ruleset_version  text        NOT NULL,
     year             int         NOT NULL,
     month            int         NOT NULL,
