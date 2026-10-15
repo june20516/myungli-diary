@@ -326,9 +326,8 @@ final class _FakeRewardedAd implements RewardedAdHandle {
 final class FakePurchases implements Purchases {
   /// 상품과 구매 결과를 정합니다.
   new({
-    this.catalog = const [
-      StoreProduct(id: 'ad_free_1month', priceLabel: '₩2,500'),
-    ],
+    // 가격은 비공개 결정이라 대역은 통화 기호 없는 자리표시 값을 씁니다(D74, #180).
+    this.catalog = const [StoreProduct(id: 'ad_free_1month', priceLabel: '—')],
     this.outcomes = const [PurchaseSucceeded()],
     this.restoreOutcome = const PurchaseSucceeded(),
     this.logInFailWith,
