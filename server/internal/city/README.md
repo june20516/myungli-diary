@@ -17,7 +17,7 @@
 
 ## 이름 선택 규칙
 
-`isolanguage`가 정확히 `ko`·`en`·`ja`인 이름 중 `isHistoric`·`isColloquial`이 아닌 것에서, `isPreferredName`인 첫 값을 먼저 쓰고 없으면 `isShortName`이 아닌 첫 값을 씁니다(파일 순서 기준). 그래도 없으면 en, en도 없으면 GeoNames 기본 이름입니다. 그래서 서울의 ko는 "서울특별시"(preferred), 도쿄의 ja는 "東京都"(preferred)입니다.
+`isolanguage`가 정확히 `ko`·`en`·`ja`인 이름 중 `isHistoric`·`isColloquial`이 아닌 것에서, `isPreferredName`인 값을 먼저 쓰고 없으면 `isShortName`이 아닌 값을 씁니다. 같은 우선순위에서는 `alternateNameId`가 더 작은 값이 이깁니다(파일 순서에 기대지 않음). 그래도 없으면 en, en도 없으면 GeoNames 기본 이름입니다. 그래서 서울의 ko는 "서울특별시"(preferred), 도쿄의 ja는 "東京都"(preferred)입니다.
 
 ## 자료 다시 만들기 (수동)
 
@@ -34,4 +34,4 @@ go run ./internal/city/cmd/build \
   -out internal/city/data/cities.json.gz
 ```
 
-같은 원본이면 결과가 바이트 단위로 같습니다(정렬된 키, gzip header의 mtime 0·이름 없음, 도시는 영어 이름 순). 다시 만들면 `DataVersion()`이 바뀌고, 이 날짜와 위 표를 함께 갱신합니다.
+같은 원본과 같은 Go 버전(`compress/gzip` 구현)이면 결과가 바이트 단위로 같습니다(정렬된 키, gzip header의 mtime 0·이름 없음, 도시는 영어 이름 순). 다시 만들면 `DataVersion()`이 바뀌고, 이 날짜와 위 표를 함께 갱신합니다.

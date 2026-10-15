@@ -15,6 +15,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,6 +34,8 @@ type record struct {
 	RegionName  map[string]string `json:"regionName,omitempty"`
 	Timezone    string            `json:"timezone"`
 	Longitude   float64           `json:"longitude"`
+
+	numericID int // 정렬용. geonameid가 숫자임은 읽는 단계에서 확인합니다.
 }
 
 // place는 이름이 필요한 GeoNames 개체(도시·나라·1차 행정구역)입니다.
@@ -41,29 +44,37 @@ type place struct {
 	fallback  string // GeoNames 기본 이름(en도 없을 때)
 }
 
-// picker는 한 개체의 한 언어에서 이름을 고릅니다.
-// isPreferredName인 첫 값이 우선이고, 없으면 isShortName이 아닌 첫 값입니다.
-// 파일 순서(alternateNameId 오름차순)로 처음 나온 값을 쓰므로 결과가 재현됩니다.
-type picker struct{ preferred, plain string }
+// candidate는 이름 후보와 그 alternateNameId입니다.
+type candidate struct {
+	id   int
+	name string
+}
 
-func (p *picker) offer(name string, isPreferred, isShort bool) {
+// picker는 한 개체의 한 언어에서 이름을 고릅니다.
+// isPreferredName인 값이 우선이고, 없으면 isShortName이 아닌 값입니다. 같은 우선순위에서는
+// alternateNameId가 더 작은 값이 이기므로 파일 순서에 기대지 않고 결과가 재현됩니다.
+type picker struct{ preferred, plain candidate }
+
+func (c *candidate) offer(id int, name string) {
+	if c.name == "" || id < c.id {
+		*c = candidate{id: id, name: name}
+	}
+}
+
+func (p *picker) offer(id int, name string, isPreferred, isShort bool) {
 	switch {
 	case isPreferred:
-		if p.preferred == "" {
-			p.preferred = name
-		}
+		p.preferred.offer(id, name)
 	case !isShort:
-		if p.plain == "" {
-			p.plain = name
-		}
+		p.plain.offer(id, name)
 	}
 }
 
 func (p *picker) value() string {
-	if p.preferred != "" {
-		return p.preferred
+	if p.preferred.name != "" {
+		return p.preferred.name
 	}
-	return p.plain
+	return p.plain.name
 }
 
 // names는 geonameid → 언어 → picker입니다.
@@ -89,6 +100,7 @@ func main() {
 
 type rawCity struct {
 	place
+	numericID                 int
 	country, admin1, timezone string
 	longitude                 float64
 }
@@ -96,15 +108,15 @@ type rawCity struct {
 func run(citiesZip, countriesPath, admin1Path, alternatesZip, out string) error {
 	cities, err := readCities(citiesZip)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", citiesZip, err)
 	}
 	countryByCode, err := readCountries(countriesPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", countriesPath, err)
 	}
 	admin1ByKey, err := readAdmin1(admin1Path)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", admin1Path, err)
 	}
 
 	// 이름이 필요한 geonameid만 모읍니다. 대안 이름 파일이 수백 MB라 거르면서 읽습니다.
@@ -124,7 +136,7 @@ func run(citiesZip, countriesPath, admin1Path, alternatesZip, out string) error 
 		want(admin1ByKey[c.country+"."+c.admin1].geonameID)
 	}
 	if err := readAlternates(alternatesZip, wanted); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", alternatesZip, err)
 	}
 
 	records := make([]record, 0, len(cities))
@@ -139,6 +151,7 @@ func run(citiesZip, countriesPath, admin1Path, alternatesZip, out string) error 
 			CountryName: resolve(wanted, countryByCode[c.country]),
 			Timezone:    c.timezone,
 			Longitude:   c.longitude,
+			numericID:   c.numericID,
 		}
 		if region, ok := admin1ByKey[c.country+"."+c.admin1]; ok {
 			r.RegionName = resolve(wanted, region)
@@ -146,7 +159,10 @@ func run(citiesZip, countriesPath, admin1Path, alternatesZip, out string) error 
 		records = append(records, r)
 	}
 	sortByEnglishName(records)
-	return write(out, records)
+	if err := write(out, records); err != nil {
+		return fmt.Errorf("%s: %w", out, err)
+	}
+	return nil
 }
 
 // resolve는 세 언어 이름을 채웁니다. 없는 언어는 en, en도 없으면 GeoNames 기본 이름입니다.
@@ -180,33 +196,43 @@ func sortByEnglishName(records []record) {
 		if a != b {
 			return a < b
 		}
-		ai, _ := strconv.Atoi(records[i].ID)
-		bi, _ := strconv.Atoi(records[j].ID)
-		return ai < bi
+		return records[i].numericID < records[j].numericID
 	})
 }
 
-func write(out string, records []record) error {
-	f, err := os.Create(out) //nolint:gosec // 생성기 인자로 받은 경로
+// write는 같은 디렉터리 임시 파일에 쓴 뒤 rename해서, 실패해도 기존 출력이 깨지지 않게 합니다.
+func write(out string, records []record) (err error) {
+	tmp, err := os.CreateTemp(filepath.Dir(out), filepath.Base(out)+".tmp-*")
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if err != nil {
+			_ = tmp.Close()
+			_ = os.Remove(tmp.Name())
+		}
+	}()
+
 	// Header를 비워 두면 mtime 0, 이름 없음으로 써서 바이트가 재현됩니다.
-	zw, err := gzip.NewWriterLevel(f, gzip.BestCompression)
+	zw, err := gzip.NewWriterLevel(tmp, gzip.BestCompression)
 	if err != nil {
-		_ = f.Close()
 		return err
 	}
-	enc := json.NewEncoder(zw) // 맵 키는 정렬되어 나옵니다.
-	if err := enc.Encode(records); err != nil {
-		_ = f.Close()
+	if err = json.NewEncoder(zw).Encode(records); err != nil { // 맵 키는 정렬되어 나옵니다.
+		_ = zw.Close()
 		return err
 	}
-	if err := zw.Close(); err != nil {
-		_ = f.Close()
+	if err = zw.Close(); err != nil {
 		return err
 	}
-	return f.Close()
+	if err = tmp.Close(); err != nil {
+		return err
+	}
+	// CreateTemp는 0600으로 만들므로 일반 파일 권한으로 맞춥니다.
+	if err = os.Chmod(tmp.Name(), 0o644); err != nil { //nolint:gosec // 공개 자료 파일이라 일반 권한
+		return err
+	}
+	return os.Rename(tmp.Name(), out)
 }
 
 // tsvLines는 탭 구분 텍스트를 한 줄씩 읽어 fields로 넘깁니다. '#' 줄과 빈 줄은 건너뜁니다.
@@ -265,12 +291,17 @@ func readCities(zipPath string) ([]rawCity, error) {
 		if err != nil {
 			return fmt.Errorf("경도: %w", err)
 		}
+		numericID, err := strconv.Atoi(f[0])
+		if err != nil {
+			return fmt.Errorf("geonameid가 숫자가 아님: %w", err)
+		}
 		if seen[f[0]] {
 			return errors.New("geonameid 중복")
 		}
 		seen[f[0]] = true
 		cities = append(cities, rawCity{
 			place:     place{geonameID: f[0], fallback: f[1]},
+			numericID: numericID,
 			country:   f[8],
 			admin1:    f[10],
 			timezone:  f[17],
@@ -333,7 +364,11 @@ func readAlternates(zipPath string, wanted names) error {
 		if f[6] == "1" || f[7] == "1" || f[3] == "" {
 			return nil
 		}
-		p.offer(f[3], f[4] == "1", f[5] == "1")
+		id, err := strconv.Atoi(f[0])
+		if err != nil {
+			return fmt.Errorf("alternateNameId가 숫자가 아님: %w", err)
+		}
+		p.offer(id, f[3], f[4] == "1", f[5] == "1")
 		return nil
 	})
 }
