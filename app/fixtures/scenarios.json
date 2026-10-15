@@ -245,5 +245,23 @@
     "network": "online",
     "signedIn": false,
     "description": "처음 설치한 사용자. 로그인은 성공하지만 직후 내 정보(getMe)가 한 번 503 service.unavailable이라 진입 계산이 실패합니다. 두 번째부터는 약관 동의가 필요한 새 계정입니다."
+  },
+  {
+    "id": "member-time-unknown",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 오늘(getDaily) 응답에 time_unknown notice가 있어 오늘 화면에 시간 모름 배너가 보입니다."
+  },
+  {
+    "id": "daily-error",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 오늘(getDaily)이 503 service.unavailable이라 오늘 화면의 오류 상태와 다시 시도를 확인합니다."
   }
 ]
