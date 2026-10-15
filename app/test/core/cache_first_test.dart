@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
 
 void main() {
@@ -7,6 +8,7 @@ void main() {
     final events = <String>[];
 
     final result = await loadCacheFirst<String>(
+      reporter: FakeCrashReporter(),
       readCache: () async => 'cached',
       onCached: (value) => events.add('shown $value'),
       fetch: () async {
@@ -25,6 +27,7 @@ void main() {
     final shown = <String>[];
 
     final result = await loadCacheFirst<String>(
+      reporter: FakeCrashReporter(),
       readCache: () async => null,
       onCached: shown.add,
       fetch: () async => 'fresh',
@@ -38,6 +41,7 @@ void main() {
     final shown = <String>[];
 
     final result = await loadCacheFirst<String>(
+      reporter: FakeCrashReporter(),
       onCached: shown.add,
       fetch: () async => 'fresh',
     );
@@ -51,6 +55,7 @@ void main() {
       final written = <String>[];
 
       final result = await loadCacheFirst<String>(
+        reporter: FakeCrashReporter(),
         readCache: () async => 'cached',
         fetch: () async => throw error,
         writeCache: (value) async => written.add(value),
@@ -64,6 +69,7 @@ void main() {
   test('연결 오류여도 캐시가 없으면 그 오류를 던진다', () async {
     await expectLater(
       loadCacheFirst<String>(
+        reporter: FakeCrashReporter(),
         readCache: () async => null,
         fetch: () async => throw const OfflineError(),
       ),
@@ -81,10 +87,33 @@ void main() {
 
     await expectLater(
       loadCacheFirst<String>(
+        reporter: FakeCrashReporter(),
         readCache: () async => 'cached',
         fetch: () async => throw problem,
       ),
       throwsA(same(problem)),
     );
+  });
+
+  test('캐시 쓰기가 실패해도 받은 값을 돌려주고 오류만 보고한다', () async {
+    final reporter = FakeCrashReporter();
+
+    final result = await loadCacheFirst<String>(
+      reporter: reporter,
+      fetch: () async => 'fresh',
+      writeCache: (_) async => throw StateError('disk full'),
+    );
+
+    expect(result, (value: 'fresh', stale: false));
+    expect(reporter.errors.single.errorType, 'StateError');
+  });
+
+  test('writeCacheOrReport는 실패를 삼키고 보고한다', () async {
+    final reporter = FakeCrashReporter();
+
+    await writeCacheOrReport(() async => throw StateError('x'), reporter);
+    await writeCacheOrReport(() async {}, reporter);
+
+    expect(reporter.errors, hasLength(1));
   });
 }

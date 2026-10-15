@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:drift/drift.dart'
-    show ApplyInterceptor, QueryExecutor, QueryInterceptor;
+import 'package:drift/drift.dart' show ApplyInterceptor;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
@@ -11,101 +9,54 @@ import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/today/data/daily_repository.dart';
 
-/// member 시나리오의 `getDaily` 응답 본문. fixture와 테스트가 같은 값을 보게 합니다.
-Map<String, dynamic> memberDailyJson() {
-  final fixture = jsonDecode(
-    File('fixtures/member/getDaily.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
-  return fixture['body'] as Map<String, dynamic>;
-}
-
-/// 실행한 쓰기 SQL을 순서대로 남깁니다.
-final class _StatementLog extends QueryInterceptor {
-  final statements = <String>[];
-
-  @override
-  Future<int> runInsert(
-    QueryExecutor executor,
-    String statement,
-    List<Object?> args,
-  ) {
-    statements.add(statement);
-    return super.runInsert(executor, statement, args);
-  }
-
-  @override
-  Future<int> runDelete(
-    QueryExecutor executor,
-    String statement,
-    List<Object?> args,
-  ) {
-    statements.add(statement);
-    return super.runDelete(executor, statement, args);
-  }
-}
-
-/// `/v1/daily/{date}` 요청 경로를 남기고, [offline]이면 연결 오류로, 아니면 [body]로 답합니다.
-final class _DailyServer extends Interceptor {
-  final paths = <String>[];
-  bool offline = false;
-  final Map<String, dynamic> body = memberDailyJson();
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    paths.add(options.path);
-    if (offline) {
-      handler.reject(
-        DioException.connectionError(
-          requestOptions: options,
-          reason: 'offline',
-        ),
-        true,
-      );
-      return;
-    }
-    handler.resolve(
-      Response<Object?>(
-        requestOptions: options,
-        statusCode: 200,
-        headers: Headers.fromMap({
-          Headers.contentTypeHeader: ['application/json'],
-        }),
-        data: body,
-      ),
-      true,
-    );
-  }
-}
+import '../../support/daily_fixture.dart';
+import '../../support/database_spies.dart';
 
 ({
   DailyRepository repository,
   CacheStore cache,
-  _DailyServer server,
-  _StatementLog log,
+  ScriptedDailyServer server,
+  StatementLog log,
+  FailingInserts flagFailure,
+  FakeCrashReporter reporter,
 })
 _setUp() {
-  final log = _StatementLog();
+  final log = StatementLog();
+  final flagFailure = FailingInserts('device_flags');
   final database = AppDatabase.forExecutor(
-    NativeDatabase.memory().interceptWith(log),
+    NativeDatabase.memory().interceptWith(log).interceptWith(flagFailure),
   );
   addTearDown(database.close);
   final cache = CacheStore(database, accountId: 'account-1');
-  final server = _DailyServer();
+  final server = ScriptedDailyServer();
+  final reporter = FakeCrashReporter();
   final dio = Dio(BaseOptions(baseUrl: 'https://example.test'))
     ..interceptors.add(server);
   return (
-    repository: DailyRepository(DefaultApi(dio), cache),
+    repository: DailyRepository(DefaultApi(dio), cache, reporter),
     cache: cache,
     server: server,
     log: log,
+    flagFailure: flagFailure,
+    reporter: reporter,
   );
 }
 
 const _key = 'fingerprint|ko|2026-10-13';
+const _calendarKey = 'fingerprint|ko|2026-10';
+
+Future<void> _seedCalendar(CacheStore cache) => cache.write(
+  CacheKind.calendar,
+  _calendarKey,
+  '{}',
+  access: EvidenceAccess.locked,
+  rulesetVersion: 'r0',
+);
 
 Map<String, dynamic> _storedJson(String? raw) =>
     jsonDecode(raw!) as Map<String, dynamic>;
@@ -173,29 +124,32 @@ void main() {
     });
   });
 
-  group('store', () {
-    test('store는 rulesetVersion 관찰 뒤에 쓴다', () async {
+  group('규칙 버전 관찰', () {
+    test('fetch는 키와 무관하게 응답의 rulesetVersion을 관찰한다', () async {
       final s = _setUp();
       // 이전 규칙(r0)으로 받은 달력 캐시가 있습니다.
       await s.cache.observeRulesetVersion('r0');
-      await s.cache.write(
-        CacheKind.calendar,
-        'fingerprint|ko|2026-10',
-        '{}',
-        access: EvidenceAccess.locked,
-        rulesetVersion: 'r0',
-      );
+      await _seedCalendar(s.cache);
+
+      await s.repository.fetch(CalendarDate(2026, 10, 13));
+
+      // 그날 캐시를 쓰지 않아도(사본이 없어 키가 없을 때) 사주 기반 캐시는 버려집니다.
+      expect(await s.cache.read(CacheKind.calendar, _calendarKey), isNull);
+      expect(await s.cache.observeRulesetVersion('r1'), isFalse);
+    });
+
+    test('fetch → store면 관찰이 그날 캐시 쓰기보다 먼저다', () async {
+      final s = _setUp();
+      await s.cache.observeRulesetVersion('r0');
+      await _seedCalendar(s.cache);
       s.log.statements.clear();
 
-      await s.repository.store(_key, Daily.fromJson(memberDailyJson()));
+      final daily = await s.repository.fetch(CalendarDate(2026, 10, 13));
+      await s.repository.store(_key, daily);
 
       // 규칙이 바뀐(r1) 응답을 저장해도 그날 캐시는 남고, 사주 기반 캐시는 지워집니다.
       expect(await s.cache.read(CacheKind.daily, _key), isNotNull);
-      expect(
-        await s.cache.read(CacheKind.calendar, 'fingerprint|ko|2026-10'),
-        isNull,
-      );
-      // 관찰(기준값 쓰기)이 그날 캐시 쓰기보다 먼저입니다.
+      expect(await s.cache.read(CacheKind.calendar, _calendarKey), isNull);
       final flagWrite = s.log.statements.indexWhere(
         (sql) => sql.contains('device_flags'),
       );
@@ -206,6 +160,18 @@ void main() {
       expect(dailyWrite, greaterThan(flagWrite));
     });
 
+    test('관찰이 실패해도 응답을 돌려주고 오류만 보고한다', () async {
+      final s = _setUp();
+      s.flagFailure.failing = true;
+
+      final daily = await s.repository.fetch(CalendarDate(2026, 10, 13));
+
+      expect(daily.rulesetVersion, 'r1');
+      expect(s.reporter.errors.single.errorType, 'StateError');
+    });
+  });
+
+  group('store', () {
     test('근거 잠금과 규칙 버전을 행에 남긴다', () async {
       final s = _setUp();
 

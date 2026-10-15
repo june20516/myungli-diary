@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
@@ -50,6 +51,7 @@ void main() {
     final repository = GlossaryRepository(
       DefaultApi(dio),
       CacheStore(database, accountId: 'account-1'),
+      FakeCrashReporter(),
     );
 
     final first = await repository.load(Language.ko);

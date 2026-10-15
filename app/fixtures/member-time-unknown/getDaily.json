@@ -4,10 +4,7 @@
     "date": "2026-10-13",
     "rulesetVersion": "r1",
     "evidenceAccess": "locked",
-    "dayPillar": {
-      "stem": "gap",
-      "branch": "in"
-    },
+    "dayPillar": { "stem": "gap", "branch": "in" },
     "dayKind": "yongsin_day",
     "fortune": {
       "head": {
@@ -17,16 +14,9 @@
         "reactable": true,
         "text": {
           "segments": [
-            {
-              "text": "하늘님, "
-            },
-            {
-              "text": "목",
-              "term": "element.wood"
-            },
-            {
-              "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."
-            }
+            { "text": "하늘님, " },
+            { "text": "목", "term": "element.wood" },
+            { "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요." }
           ]
         }
       },
@@ -37,13 +27,8 @@
         "reactable": false,
         "text": {
           "segments": [
-            {
-              "text": "천을귀인",
-              "term": "tag.cheoneul_gwiin"
-            },
-            {
-              "text": "이 들어 도움을 받기 쉬운 날이에요."
-            }
+            { "text": "천을귀인", "term": "tag.cheoneul_gwiin" },
+            { "text": "이 들어 도움을 받기 쉬운 날이에요." }
           ]
         }
       }
@@ -55,9 +40,7 @@
       "reactable": false,
       "text": {
         "segments": [
-          {
-            "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
-          }
+          { "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?" }
         ]
       }
     },
@@ -72,9 +55,7 @@
           "reactable": false,
           "text": {
             "segments": [
-              {
-                "text": "오늘은 초록이 잘 맞아요. 옷이나 소품으로 챙겨 보세요."
-              }
+              { "text": "오늘은 초록이 잘 맞아요. 옷이나 소품으로 챙겨 보세요." }
             ]
           }
         }
@@ -87,11 +68,7 @@
           "variant": "single",
           "reactable": false,
           "text": {
-            "segments": [
-              {
-                "text": "약속 장소를 고른다면 동쪽이 좋아요."
-              }
-            ]
+            "segments": [{ "text": "약속 장소를 고른다면 동쪽이 좋아요." }]
           }
         }
       },
@@ -103,11 +80,7 @@
           "variant": "single",
           "reactable": false,
           "text": {
-            "segments": [
-              {
-                "text": "오늘은 3이 잘 맞아요."
-              }
-            ]
+            "segments": [{ "text": "오늘은 3이 잘 맞아요." }]
           }
         }
       },
@@ -115,17 +88,12 @@
         "picks": [
           {
             "branch": "sa",
-            "pillar": {
-              "stem": "gi",
-              "branch": "sa"
-            },
+            "pillar": { "stem": "gi", "branch": "sa" },
             "start": "2026-10-13T09:30:00+09:00",
             "end": "2026-10-13T11:30:00+09:00",
             "huangdaoLucky": true,
             "score": 3,
-            "reasons": [
-              "yongsin"
-            ]
+            "reasons": ["yongsin"]
           }
         ],
         "fallback": false,
@@ -135,37 +103,21 @@
           "variant": "single",
           "reactable": false,
           "text": {
-            "segments": [
-              {
-                "text": "중요한 결정을 내리기 좋아요."
-              }
-            ]
+            "segments": [{ "text": "중요한 결정을 내리기 좋아요." }]
           }
         }
       }
     },
     "tags": {
-      "featured": [
-        {
-          "key": "cheoneul_gwiin",
-          "polarity": "good"
-        }
-      ],
-      "all": [
-        "cheoneul_gwiin",
-        "yongsin_day"
-      ]
+      "featured": [{ "key": "cheoneul_gwiin", "polarity": "good" }],
+      "all": ["cheoneul_gwiin", "yongsin_day"]
     },
     "relations": [],
     "notices": [
       {
         "code": "time_unknown",
         "text": {
-          "segments": [
-            {
-              "text": "태어난 시간을 몰라 세 기둥으로 계산했어요."
-            }
-          ]
+          "segments": [{ "text": "태어난 시간을 몰라 세 기둥으로 계산했어요." }]
         }
       }
     ]

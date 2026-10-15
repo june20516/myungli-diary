@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
@@ -16,13 +19,19 @@ final dailyRepositoryProvider = Provider<DailyRepository>(
   (ref) => DailyRepository(
     ref.watch(restClientProvider),
     ref.watch(cacheStoreProvider),
+    ref.watch(crashReporterProvider),
   ),
 );
 
 /// 오늘 화면이 그리는 값.
 final class DailyView {
   /// [date]의 [daily]입니다. [stale]이면 캐시를 보이는 중입니다.
-  const new({required this.date, required this.daily, required this.stale});
+  const new({
+    required this.date,
+    required this.daily,
+    required this.stale,
+    required this.cacheKey,
+  });
 
   /// 프로필 시간대 기준 날짜(`todayProvider`).
   final CalendarDate date;
@@ -35,64 +44,86 @@ final class DailyView {
   /// 화면은 이 값으로 오프라인 배너를 그립니다. server 응답을 기다리며 캐시를 먼저
   /// 보이는 동안은 false입니다(매번 배너가 깜빡이지 않게).
   final bool stale;
+
+  /// 이 값을 둔 그날 캐시 키. 프로필 사본이 없어 캐시를 쓰지 않았으면 null입니다.
+  final String? cacheKey;
 }
+
+/// 오래된 build가 남은 일을 멈출 때 돌려주는, 끝나지 않는 Future.
+///
+/// rebuild된 뒤 Riverpod은 이전 build의 결과를 쓰지 않으므로, 결과를 만들지 않고 멈춥니다.
+Future<T> _abandoned<T>() => Completer<T>().future;
 
 /// 오늘 응답과 그날 캐시(결정 A24, spec §4.4·§4.5).
 ///
-/// 1. 기기 시간대 동기화([TimezoneSync.idle])가 끝나길 기다립니다. 사본과 "오늘"이
-///    동기화 결과를 따르게 하기 위해서입니다.
+/// 1. 기기 시간대 동기화([TimezoneSync.syncIfChanged])를 기다립니다. 화면이 셸보다 먼저
+///    읽어도 동기화가 먼저입니다. 진행 중이면 그것을 기다리고, 바뀐 것이 없으면 요청하지
+///    않습니다. 사본과 "오늘"이 동기화 결과를 따르게 하기 위해서입니다.
 /// 2. 프로필 사본이 있으면 키 `dailyKey(지문, 사본 language, 날짜)`의 캐시를 먼저 내보내고
 ///    server 응답으로 바꿉니다. 연결이 안 되면 그 캐시를 `stale`로 남깁니다.
-/// 3. 사본이 없으면 캐시를 읽지도 쓰지도 않고 server 응답만 씁니다.
+/// 3. 사본이 없으면 캐시를 읽지도 쓰지도 않고 server 응답만 씁니다. 규칙 버전 관찰은
+///    키와 무관하게 응답마다 합니다(`DailyRepository.fetch`).
 /// 4. 오늘 날짜 키만 봅니다. 어제 캐시를 오늘로 보이지 않습니다.
 ///
 /// `todayProvider`(자정)와 사본(사주·시간대·언어 변경)을 구독하므로 둘이 바뀌면 다시 받습니다.
+/// rebuild되면 이전 build는 다음 단계(fetch·store·중간 상태)로 가지 않고 멈춥니다.
 class DailyController extends AsyncNotifier<DailyView> {
   var _skipCacheOnce = false;
-  String? _cacheKey;
 
-  /// 지금 보이는(또는 받는 중인) 날의 캐시 키. 사본이 없으면 null입니다.
+  /// 지금 보이는 값의 캐시 키. 값이 없거나 사본이 없으면 null입니다.
   ///
+  /// 다시 받는 중(자정 넘김 등)에는 아직 이전 날짜 값을 보이므로 그 날짜의 키입니다.
   /// 반응이 성공한 뒤 캐시를 고칠 때(`DailyRepository.patchCachedReaction`) 씁니다.
-  String? get cacheKey => _cacheKey;
+  String? get cacheKey => state.value?.cacheKey;
 
   @override
   Future<DailyView> build() async {
-    // rebuild(자정·사본 변경·reload) 뒤에는 이 ref가 unmounted가 되어 오래된 build의
-    // 중간 상태가 새 상태를 덮지 않습니다.
+    // rebuild(자정·사본 변경·reload) 뒤에는 이 ref가 unmounted가 됩니다.
     final buildRef = ref;
+    bool superseded() => !buildRef.mounted;
     final skipCache = _skipCacheOnce;
     _skipCacheOnce = false;
     final date = ref.watch(todayProvider);
     final repository = ref.watch(dailyRepositoryProvider);
+    final reporter = ref.watch(crashReporterProvider);
 
-    await ref.read(timezoneSyncProvider).idle;
-    if (!buildRef.mounted) {
-      // 기다리는 동안 다시 build되었습니다. 이 결과는 Riverpod이 버립니다.
-      throw StateError('오래된 build');
+    await ref.read(timezoneSyncProvider).syncIfChanged();
+    if (superseded()) {
+      return await _abandoned();
     }
     final key = await _cacheKeyFor(date);
-    if (buildRef.mounted) {
-      _cacheKey = key;
+    if (superseded()) {
+      return await _abandoned();
     }
 
+    DailyView viewOf(Daily daily, {required bool stale}) =>
+        DailyView(date: date, daily: daily, stale: stale, cacheKey: key);
     final result = await loadCacheFirst<Daily>(
-      fetch: () => repository.fetch(date),
+      reporter: reporter,
+      fetch: () => superseded() ? _abandoned() : repository.fetch(date),
       readCache: key == null || skipCache ? null : () => repository.cached(key),
-      writeCache: key == null ? null : (daily) => repository.store(key, daily),
+      writeCache: key == null
+          ? null
+          : (daily) async {
+              if (!superseded()) {
+                await repository.store(key, daily);
+              }
+            },
       onCached: (daily) {
-        if (buildRef.mounted) {
-          state = AsyncData(DailyView(date: date, daily: daily, stale: false));
+        if (!superseded()) {
+          state = AsyncData(viewOf(daily, stale: false));
         }
       },
     );
-    return DailyView(date: date, daily: result.value, stale: result.stale);
+    return viewOf(result.value, stale: result.stale);
   }
 
   /// 캐시를 건너뛰고 다시 받습니다. 잠금 해제 뒤나 오류 화면의 다시 시도에서 부릅니다.
   ///
   /// 받는 동안 이전 값이 남고, 끝나면 돌아옵니다. 실패는 던지지 않고 상태(`AsyncError`)로
-  /// 남깁니다. 연결이 안 되면 캐시로 대체하지 않고 오류입니다.
+  /// 남깁니다. 연결이 안 되면 캐시로 대체하지 않습니다. 이것은 의도한 동작입니다. 다시 받기를
+  /// 요청한 것이므로 이전 값을 가진 `AsyncError`로 실패를 알리고, 화면은 이전 값을 둔 채
+  /// 오류를 안내합니다.
   Future<void> reload() async {
     if (!ref.mounted) {
       return;

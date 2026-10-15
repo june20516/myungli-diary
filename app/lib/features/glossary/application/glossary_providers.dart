@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
@@ -11,6 +12,7 @@ final glossaryRepositoryProvider = Provider<GlossaryRepository>(
   (ref) => GlossaryRepository(
     ref.watch(restClientProvider),
     ref.watch(cacheStoreProvider),
+    ref.watch(crashReporterProvider),
   ),
 );
 

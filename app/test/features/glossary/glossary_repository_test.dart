@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show ApplyInterceptor, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -19,6 +20,7 @@ import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/database_spies.dart';
 import '../../support/profile_sync_harness.dart' show seoulProfile;
 
 const Map<String, Object> _body = {
@@ -77,18 +79,30 @@ Response<Object?> _ok(String etag) => Response<Object?>(
 Response<Object?> _notModified() =>
     Response<Object?>(requestOptions: RequestOptions(), statusCode: 304);
 
-({GlossaryRepository repository, CacheStore cache, _ScriptedServer server})
+({
+  GlossaryRepository repository,
+  CacheStore cache,
+  _ScriptedServer server,
+  FailingInserts cacheFailure,
+  FakeCrashReporter reporter,
+})
 _setUp(List<Object> responses) {
-  final database = AppDatabase.forExecutor(NativeDatabase.memory());
+  final cacheFailure = FailingInserts('cached_responses');
+  final database = AppDatabase.forExecutor(
+    NativeDatabase.memory().interceptWith(cacheFailure),
+  );
   addTearDown(database.close);
   final cache = CacheStore(database, accountId: 'account-1');
   final server = _ScriptedServer(responses);
   final dio = Dio(BaseOptions(baseUrl: 'https://example.test'))
     ..interceptors.add(server);
+  final reporter = FakeCrashReporter();
   return (
-    repository: GlossaryRepository(DefaultApi(dio), cache),
+    repository: GlossaryRepository(DefaultApi(dio), cache, reporter),
     cache: cache,
     server: server,
+    cacheFailure: cacheFailure,
+    reporter: reporter,
   );
 }
 
@@ -125,6 +139,17 @@ void main() {
 
     expect(s.server.requestHeaders.last['if-none-match'], '"g1"');
     expect(second.values, first.values);
+  });
+
+  test('캐시 쓰기가 실패해도 받은 사전을 돌려주고 오류만 보고한다', () async {
+    final s = _setUp([_ok('"g1"')]);
+    s.cacheFailure.failing = true;
+
+    final names = await s.repository.load(Language.ko);
+
+    expect(names.nameOf('ten_god.pyeongwan'), '편관');
+    expect(s.reporter.errors.single.errorType, 'StateError');
+    expect(await s.cache.read(CacheKind.glossary, 'ko'), isNull);
   });
 
   test('언어마다 캐시를 따로 둔다', () async {

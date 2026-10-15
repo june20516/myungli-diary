@@ -5,6 +5,8 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 
 /// 반응을 남긴 슬롯의 `reaction` 값(계약 enum).
@@ -15,13 +17,19 @@ const _likeReaction = 'like';
 /// 캐시 키는 `dailyKey(지문, 언어, 날짜)`이고 controller가 정합니다. 이 저장소는 키를
 /// 받아 읽고 쓰기만 합니다.
 final class DailyRepository {
-  /// `api`로 받고 `cache`에 둡니다.
-  const new(this._api, this._cache);
+  /// `api`로 받고 `cache`에 둡니다. 캐시 쓰기 실패는 `reporter`에 남깁니다.
+  const new(this._api, this._cache, this._reporter);
 
   final DefaultApi _api;
   final CacheStore _cache;
+  final CrashReporter _reporter;
 
   /// [date]의 응답을 server에서 받습니다. 실패는 [AppError]입니다.
+  ///
+  /// 받으면 캐시 키와 무관하게(사본이 없어도) 응답의 규칙 버전을 관찰합니다. 규칙이
+  /// 바뀌었으면 사주 기반 캐시가 지워집니다(spec §4.4 "버리는 때 2"). 이 관찰은 [store]보다
+  /// 먼저라 방금 받은 응답이 함께 지워지지 않습니다. 관찰 실패는 비치명입니다
+  /// ([writeCacheOrReport]).
   Future<Daily> fetch(CalendarDate date) async {
     final Daily? data;
     try {
@@ -32,6 +40,10 @@ final class DailyRepository {
     if (data == null) {
       throw UnexpectedError(StateError('빈 응답'));
     }
+    await writeCacheOrReport(
+      () => _cache.observeRulesetVersion(data!.rulesetVersion),
+      _reporter,
+    );
     return data;
   }
 
@@ -50,14 +62,10 @@ final class DailyRepository {
     }
   }
 
-  /// [daily]를 [key]에 둡니다.
+  /// [fetch]로 받은 [daily]를 [key]에 둡니다.
   ///
-  /// 규칙 버전을 **먼저** 관찰합니다. 규칙이 바뀌었으면 사주 기반 캐시가 지워지고,
-  /// 그 뒤에 쓰므로 방금 받은 응답은 남습니다(`CacheStore.observeRulesetVersion`).
-  Future<void> store(String key, Daily daily) async {
-    await _cache.observeRulesetVersion(daily.rulesetVersion);
-    await _write(key, daily);
-  }
+  /// 규칙 버전 관찰은 [fetch]가 이미 했습니다(관찰 → 쓰기 순서).
+  Future<void> store(String key, Daily daily) => _write(key, daily);
 
   /// [key] 캐시에서 `slot`이 [slot]인 모든 문장의 `reaction`을 [liked]면 `like`로 넣고,
   /// 아니면 지웁니다(결정 A25: 반응이 성공한 뒤 캐시도 맞춤).

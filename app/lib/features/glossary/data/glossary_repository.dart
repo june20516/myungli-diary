@@ -6,6 +6,8 @@ import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 
 const _notModified = 304;
@@ -38,11 +40,12 @@ final class GlossaryNames {
 ///
 /// 캐시 키는 언어 코드, 저장 값은 `{"etag": …, "body": …}` JSON입니다.
 final class GlossaryRepository {
-  /// `api`로 받고 `cache`에 둡니다.
-  const new(this._api, this._cache);
+  /// `api`로 받고 `cache`에 둡니다. 캐시 쓰기 실패는 `reporter`에 남깁니다.
+  const new(this._api, this._cache, this._reporter);
 
   final DefaultApi _api;
   final CacheStore _cache;
+  final CrashReporter _reporter;
 
   /// [language]의 사전을 돌려줍니다.
   ///
@@ -75,16 +78,20 @@ final class GlossaryRepository {
     if (data == null) {
       throw UnexpectedError(StateError('빈 응답'));
     }
-    await _cache.write(
-      CacheKind.glossary,
-      language.value,
-      jsonEncode({
-        'etag': response.headers.value('etag'),
-        'body': data.toJson(),
-      }),
-      // 용어집은 근거 잠금과 무관해, 잠금 무효화 대상(`lockedKeys`)에 걸리지 않도록
-      // `unlocked`로 둡니다. `CacheStore.write`의 필수 인자입니다.
-      access: EvidenceAccess.unlocked,
+    // 쓰기 실패는 비치명입니다. 받은 사전은 그대로 쓰고 다음 200 응답이 다시 씁니다.
+    await writeCacheOrReport(
+      () => _cache.write(
+        CacheKind.glossary,
+        language.value,
+        jsonEncode({
+          'etag': response.headers.value('etag'),
+          'body': data.toJson(),
+        }),
+        // 용어집은 근거 잠금과 무관해, 잠금 무효화 대상(`lockedKeys`)에 걸리지 않도록
+        // `unlocked`로 둡니다. `CacheStore.write`의 필수 인자입니다.
+        access: EvidenceAccess.unlocked,
+      ),
+      _reporter,
     );
     return GlossaryNames(data.values);
   }
