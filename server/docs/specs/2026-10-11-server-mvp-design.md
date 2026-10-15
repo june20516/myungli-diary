@@ -54,10 +54,10 @@ server/
     content/           템플릿 저장소, 렌더러(값 치환·조사·용어 토큰), 문장 선택·순환, 반응
     notify/            기기 토큰, FCM 발송
     billing/           entitlement(광고 제거·근거 열람), RevenueCat webhook·동기화, AdMob SSV 검증
-    city/              도시 목록 (정적 파일 내장)
+    city/              도시 목록 (GeoNames 자료를 변환해 내장, S28)
     ratelimit/         PostgreSQL 기반 요청 한도
     platform/          DB, 설정, Clock, 로깅·추적
-    gen/enginev1/      proto 생성 Go 코드 (buf, commit)
+    gen/enginev1/      proto 생성 Go 코드 (buf, server 루트 `buf.gen.yaml`, commit). 실제 경로는 `internal/gen/enginev1/`
   db/migrations/       goose
   db/queries/          sqlc 원본 SQL
   seed/                writing 원고 변환 도구와 변환 결과(data/, commit)
@@ -122,9 +122,9 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 **프로필 (`profiles`, 계정과 1:1)**
 
 * honorific, language(`ko`/`en`/`ja`), current_timezone
-* 출생 정보: 엔진 `BirthInfo`와 같은 모양. calendar, is_leap_month, birth_date, birth_time_status·birth_time, gender, birth_timezone, birth_place_status·birth_city_id·longitude
+* 출생 정보: 엔진 `BirthInfo`와 같은 모양. calendar, is_leap_month, 출생 날짜는 `birth_year`·`birth_month`·`birth_day`(smallint, 음력 30일 때문에 date 열을 쓰지 않음), birth_time_status·birth_time, gender, birth_timezone, birth_place_status·birth_city_id·longitude
 * notify_status, notify_time(5분 단위, §8.2)
-* birth_hash: 정규화한 출생 정보의 SHA-256. 캐시 키에 쓰고, 출생 정보가 바뀌면 다시 계산
+* birth_hash: 정규화한 출생 정보의 SHA-256(32바이트 CHECK, 정규형은 S26). 캐시 키에 쓰고, 출생 정보가 바뀌면 다시 계산
 * anonymized_at
 
 **일기·일정**
@@ -314,11 +314,12 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 3. 없으면 엔진을 부르고 결과를 저장합니다. 같은 키의 동시 요청은 프로세스 안에서 `singleflight`로 한 번만 부릅니다.
 
 * **현재 `ruleset_version` 알기:** 캐시에 결과가 있으면 엔진을 부르지 않으므로, 엔진 응답만 봐서는 버전이 바뀐 것을 알 수 없습니다. 그래서 server는 시작할 때와 10분마다 엔진 `GetInfo`(계산 없이 `engine_version`·`ruleset_version`만 돌려줌, Issue #49)로 버전을 갱신합니다. 엔진을 배포한 직후 최대 10분 동안은 이전 버전 캐시가 쓰일 수 있습니다. 이전 버전 캐시는 `job retention`이 지웁니다.
-* 연결: 엔진은 Cloud Run internal ingress로만 받고, server는 Direct VPC egress와 ID token으로 부릅니다(D56①). deadline은 3초입니다.
+* 연결: 엔진은 Cloud Run internal ingress로만 받고, server는 Direct VPC egress와 ID token으로 부릅니다(D56①). deadline은 호출마다 3초입니다. 설정은 `ENGINE_ADDR`(필수)와 `ENGINE_AUDIENCE`(https URL)이며, audience가 있으면 TLS + ID token, 없으면 h2c입니다. 시작 때 `GetInfo`가 실패해도 시작은 계속하고 버전을 알기 전 엔진 요청은 503입니다(S27).
+* 캐시 흐름: 조회 키는 `Versions.Current()`, 저장 키는 응답 `meta.ruleset_version`입니다. singleflight를 기다린 호출자는 자기 ctx가 취소되면 바로 돌아오고, 공유 응답은 호출자마다 `proto.Clone`합니다. 캐시 읽기·쓰기 오류(쓰기 1초 timeout)는 Warn 로그 후 엔진 결과로 계속합니다(S30).
 
 ### 7.2 프로필 저장 때의 검증
 
-음력 → 양력 변환과 윤달이 실제로 있는지 판정하는 일은 엔진만 할 수 있습니다. 그래서 출생 정보를 저장할 때 `GetChart`를 한 번 부르고, 이 단계에서 엔진이 돌려준 `INVALID_ARGUMENT`·`OUT_OF_RANGE`를 422로 바꿉니다(§11). 양력 범위(D41)와 형식은 엔진을 부르기 전에 server가 먼저 검증합니다. 호출 결과는 캐시에 넣어 나의 사주 화면에서 다시 씁니다.
+음력 → 양력 변환과 윤달이 실제로 있는지 판정하는 일은 엔진만 할 수 있습니다. 그래서 출생 정보를 저장할 때 `GetChart`를 한 번 부르고, 이 단계에서 엔진이 돌려준 `INVALID_ARGUMENT`·`OUT_OF_RANGE`를 422로 바꿉니다(§11). 양력 범위(D41)와 형식은 엔진을 부르기 전에 server가 먼저 검증합니다. 호출 결과는 캐시에 넣어 나의 사주 화면에서 다시 씁니다. 이 검증은 저장된 출생 해시와 달라질 때만 합니다. 시간대·호칭·알림만 바꾸는 수정은 엔진 장애 중에도 됩니다(S29).
 
 ### 7.3 캐시 저장소 (S4)
 
@@ -453,6 +454,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 요청 한도 초과 (`Retry-After`) | 429 | `rate_limited` |
 | 계약에는 있지만 아직 구현하지 않은 operation | 501 | `not_implemented` |
 
+예외: 언어만 바꾼 PATCH로 저장된 호칭이 새 언어 규칙에 걸리면, 요청 본문에 없는 `/honorific`을 `errors[].field`로 둡니다(원인 필드 안내).
+
 `name.suffix_stripped`, `name.suffix_warning`은 오류가 아닙니다. 저장한 값과 함께 200 응답의 `warnings`에 담습니다. 호칭 오류 코드는 계약 `josa.yaml`의 `name_rules`를 따릅니다.
 
 ### 11.3 외부 의존
@@ -461,6 +464,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | --- | --- | --- |
 | 엔진 | `UNAVAILABLE` | 한 번 재시도한 뒤 503 + `Retry-After`, `engine.unavailable` |
 | 엔진 | `DEADLINE_EXCEEDED` | 504, `engine.timeout` |
+| 엔진 | 호출자 취소(`context.Canceled`) | 엔진 오류가 아니라 ctx 오류로 돌려줍니다. 현재 500 로그로 남으며 P8에서 정리합니다 |
 | 엔진 | `INTERNAL` | 502, `engine.error`. 재시도해도 같을 가능성이 커서 503이 아님 |
 | 엔진 | 프로필 저장 중 `INVALID_ARGUMENT`·`OUT_OF_RANGE` | 422, `birth.invalid`·`birth.out_of_range` (§7.2) |
 | 엔진 | 그 밖의 요청에서 `INVALID_ARGUMENT`·`OUT_OF_RANGE` | 저장된 입력은 이미 검증했으므로 server 버그. 500 + 경보 |
