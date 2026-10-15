@@ -228,6 +228,7 @@
   "sharePreviewRatioLabelFeed": "フィード",
   "sharePreviewRatioLabelSquare": "正方形",
   "shareImageSemantics": "今日の一文の画像プレビュー",
+  "sharePreviewRatioGroup": "共有画像の比率",
   "tagDiaryEmptyBody": "このタグが付いた日記はまだありません。",
   "todayEventSummary": "今日の予定 {count}件・{title}",
   "todayEventSummaryOngoing": "進行中",

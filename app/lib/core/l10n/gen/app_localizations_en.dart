@@ -802,6 +802,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareImageSemantics => 'Preview of today\'s sentence image';
 
   @override
+  String get sharePreviewRatioGroup => 'Share image ratio';
+
+  @override
   String get tagDiaryEmptyBody => 'No entries with this tag yet.';
 
   @override

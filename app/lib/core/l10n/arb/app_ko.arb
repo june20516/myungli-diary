@@ -1007,6 +1007,10 @@
   "@shareImageSemantics": {
     "description": "임시. share-image 접근성 라벨(슬롯 아님)"
   },
+  "sharePreviewRatioGroup": "공유 이미지 비율",
+  "@sharePreviewRatioGroup": {
+    "description": "임시. share-preview 비율 선택의 스크린리더 그룹 라벨(슬롯 아님)"
+  },
   "tagDiaryEmptyBody": "이 태그가 붙은 일기가 아직 없어요.",
   "@tagDiaryEmptyBody": {
     "description": "tag-diary.empty.body: 일기가 없을 때 안내"

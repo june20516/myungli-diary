@@ -112,6 +112,7 @@ class ShareImage extends StatelessWidget {
   static const String logoAsset = 'assets/brand/myungli/lockup.svg';
 
   static const double _width = 360;
+  static const double _contentWidth = _width - Space.s24 * 2;
   static const double _logoHeight = 28;
   static const EdgeInsets _padding = EdgeInsets.fromLTRB(
     Space.s24,
@@ -119,6 +120,15 @@ class ShareImage extends StatelessWidget {
     Space.s24,
     Space.s24,
   );
+
+  /// 긴 내용을 줄여 담을 때의 배율 하한(가독성).
+  ///
+  /// 줄어든 문장 글자(`sentence.card`)가 같은 그림 안의 이유 글자(`caption.lg`)보다 작아지지
+  /// 않는 배율입니다. 이 아래로는 줄이지 않고, 문장을 자르고 마지막 줄을 말줄임표로 끝냅니다.
+  /// 명세에는 하한이 없어 토큰 두 값에서 구합니다(1080px 폭 기준 글자 약 39px 이상).
+  static double minContentScale(TypeTokens typography) =>
+      (typography.captionLg.fontSize! / typography.sentenceCard.fontSize!)
+          .clamp(0, 1);
 
   /// [variant]의 논리 크기. 폭 360 x pixelRatio 3 = 1080(명세 `canvas.width`).
   static Size logicalSize(ShareImageVariant variant) => switch (variant) {
@@ -224,54 +234,71 @@ class ShareImage extends StatelessWidget {
                   color: colors.textSecondary,
                 ),
               ),
-              // 내용이 남는 자리보다 길면 넘치지 않도록 줄여 담습니다.
+              // 내용이 남는 자리보다 길면 하한([minContentScale])까지 줄여 담고, 그래도
+              // 길면 문장을 말줄임표로 자릅니다.
               Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
+                child: LayoutBuilder(
+                  builder: (context, constraints) => Align(
                     alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      width: _width - _padding.horizontal,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DayCharacterBadge(
-                            variant: dayCharacterVariantOf(dayKind),
-                            label: dayKindLabel,
-                          ),
-                          const SizedBox(height: Space.s16),
-                          SentenceBlock(
-                            key: sentenceKey,
-                            variant: SentenceBlockVariant.card,
-                            text: _shownSentence,
-                            termStyle: TermStyle.plain,
-                            maxLines: variant == ShareImageVariant.feed
-                                ? 2
-                                : null,
-                          ),
-                          if (showReason)
-                            Padding(
-                              key: reasonKey,
-                              padding: const EdgeInsets.only(top: Space.s12),
-                              child: RenderedTextView(
-                                text: reasonText,
-                                style: typography.captionLg.copyWith(
-                                  color: colors.textSecondary,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: ConstrainedBox(
+                        // 하한 배율에서 자리에 딱 맞는 높이. 문장이 이 안에서 줄 수를 정합니다.
+                        constraints: BoxConstraints(
+                          maxHeight:
+                              constraints.maxHeight /
+                              minContentScale(typography),
+                        ),
+                        child: SizedBox(
+                          width: _contentWidth,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DayCharacterBadge(
+                                variant: dayCharacterVariantOf(dayKind),
+                                label: dayKindLabel,
+                              ),
+                              const SizedBox(height: Space.s16),
+                              Flexible(
+                                child: _FittedSentence(
+                                  key: sentenceKey,
+                                  text: _shownSentence,
+                                  maxLines: variant == ShareImageVariant.feed
+                                      ? 2
+                                      : null,
                                 ),
                               ),
-                            ),
-                          const SizedBox(height: Space.s20),
-                          Wrap(
-                            spacing: Space.s8,
-                            runSpacing: Space.s8,
-                            children: [
-                              for (final item in _chipsFor())
-                                LuckyChip(item: item, open: false, onTap: null),
+                              if (showReason)
+                                Padding(
+                                  key: reasonKey,
+                                  padding: const EdgeInsets.only(
+                                    top: Space.s12,
+                                  ),
+                                  child: RenderedTextView(
+                                    text: reasonText,
+                                    style: typography.captionLg.copyWith(
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(height: Space.s20),
+                              Wrap(
+                                spacing: Space.s8,
+                                runSpacing: Space.s8,
+                                children: [
+                                  for (final item in _chipsFor())
+                                    LuckyChip(
+                                      item: item,
+                                      open: false,
+                                      onTap: null,
+                                    ),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -300,6 +327,72 @@ class ShareImage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 남는 높이에 들어가는 줄 수까지만 보이는 큰 문장(`sentence-block` `card`).
+///
+/// 부모가 준 높이 제한 안에 전체 문장이 들어가면 그대로 그리고, 넘치면 들어가는 줄까지만
+/// 그려 마지막 줄을 말줄임표로 끝냅니다. [maxLines]는 변형이 정한 줄 수 상한입니다.
+class _FittedSentence extends StatelessWidget {
+  const new({required this.text, required this.maxLines, super.key});
+
+  final RenderedText text;
+  final int? maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = context.tokens.typography.sentenceCard;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final plain = ShareImage._plain(text);
+        final fitted = _linesThatFit(
+          plain,
+          style,
+          constraints.maxWidth,
+          constraints.maxHeight,
+        );
+        final limit = [maxLines, fitted].nonNulls.fold<int?>(
+          null,
+          (least, value) => least == null || value < least ? value : least,
+        );
+        return SentenceBlock(
+          variant: SentenceBlockVariant.card,
+          text: text,
+          termStyle: TermStyle.plain,
+          maxLines: limit,
+        );
+      },
+    );
+  }
+
+  /// [maxHeight] 안에 들어가는 줄 수. 전체가 들어가거나 높이 제한이 없으면 null입니다.
+  /// 줄이 하나도 안 들어가도 1줄은 남깁니다.
+  static int? _linesThatFit(
+    String plain,
+    TextStyle style,
+    double maxWidth,
+    double maxHeight,
+  ) {
+    if (!maxHeight.isFinite || plain.isEmpty) return null;
+    final painter = TextPainter(
+      text: TextSpan(text: plain, style: style),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: maxWidth);
+    final lines = painter.computeLineMetrics();
+    painter.dispose();
+    var used = 0.0;
+    var count = 0;
+    for (final line in lines) {
+      used += line.height;
+      if (used > maxHeight + _tolerance) break;
+      count++;
+    }
+    if (count >= lines.length) return null;
+    return count < 1 ? 1 : count;
+  }
+
+  /// 부동소수 오차로 마지막 줄이 잘못 잘리지 않게 두는 여유.
+  static const double _tolerance = 0.5;
 }
 
 /// 화면 미리보기(`share-image` `preview`). 논리 크기의 [ShareImage]를 주어진 폭에 맞춰

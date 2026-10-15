@@ -1,16 +1,20 @@
 import 'dart:convert';
+import 'dart:ui' show Locale;
 
+import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 
 // 그날 응답(`Daily`)을 화면에 보일 값으로 바꾸는 한 곳입니다(결정 A22·A27).
@@ -159,4 +163,42 @@ String dailySignature(Daily daily) {
     'guide': daily.guide.text.toJson(),
     'timeUnknown': timeUnknownNoticeOf(daily),
   });
+}
+
+/// 공유 텍스트(OS 공유 시트의 글)가 연결된 writing 슬롯 id. 이미지 안에는 그리지 않습니다
+/// (명세 `share-image` parts에 태그라인이 없음).
+const String shareTextSlotId = SlotIds.sharePreviewImageTagline;
+
+/// 공유할 때 이미지와 함께 보내는 글(`share-preview.image.tagline`).
+String shareTextOf(AppLocalizations l10n) => l10n.sharePreviewImageTagline;
+
+/// 공유 이미지에 쓰는 날짜 글자. 언어별 서식입니다(ko `10월 13일 화요일`).
+String shareDateText(CalendarDate date, Locale locale) =>
+    DateFormat.MMMMEEEEd(locale.toString())
+        .format(DateTime(date.year, date.month, date.day));
+
+/// [daily]를 [variant] 공유 이미지로 바꿉니다.
+///
+/// 문장은 총운 첫 문장(`fortune.head`, 호칭 포함)이고, 이유는 계약에 필드가 없어 비웁니다
+/// (결정 A22: 필드가 들어오면 여기서만 채웁니다).
+ShareImage shareImageOf({
+  required ShareImageVariant variant,
+  required CalendarDate date,
+  required Daily daily,
+  required GlossaryNames names,
+  required AppLocalizations l10n,
+  required Locale locale,
+  required String timezone,
+}) {
+  final character = dayCharacterOf(daily, l10n);
+  return ShareImage(
+    variant: variant,
+    date: shareDateText(date, locale),
+    dayKind: daily.dayKind,
+    dayKindLabel: character.label,
+    sentence: daily.fortune.head.text,
+    items: luckyItemsOf(daily, names, l10n, timezone),
+    footer: l10n.sharePreviewImageFooter,
+    reason: character.reason,
+  );
 }

@@ -178,6 +178,82 @@ void main() {
     });
   });
 
+  group('긴 문장 가독성 하한', () {
+    // 하한: 문장 글자가 같은 그림 안 이유 글자(captionLg)보다 작아지지 않는 배율.
+    final floor = koType.captionLg.fontSize! / koType.sentenceCard.fontSize!;
+
+    double scaleOf(WidgetTester tester, Finder finder) {
+      final box = tester.renderObject<RenderBox>(finder);
+      final width = box.size.width;
+      return (box.localToGlobal(Offset(width, 0)).dx -
+              box.localToGlobal(Offset.zero).dx) /
+          width;
+    }
+
+    RichText richOf(WidgetTester tester) => tester.widget<RichText>(
+      find
+          .descendant(
+            of: find.byKey(ShareImage.sentenceKey),
+            matching: find.byType(RichText),
+          )
+          .first,
+    );
+
+    test('하한은 토큰에서 나오며 1보다 작습니다', () {
+      expect(ShareImage.minContentScale(koType), closeTo(floor, 1e-9));
+      expect(floor, inInclusiveRange(0.5, 0.9));
+    });
+
+    testWidgets('짧은 문장은 줄이지도 자르지도 않습니다', (tester) async {
+      await _bigScreen(tester);
+      await tester.pumpWidget(_app(_image(ShareImageVariant.story)));
+      expect(scaleOf(tester, find.byKey(ShareImage.sentenceKey)), 1);
+      expect(richOf(tester).maxLines, isNull);
+    });
+
+    testWidgets('길어지면 먼저 하한까지 줄여 담고, 그동안은 자르지 않습니다', (tester) async {
+      await _bigScreen(tester);
+      var shrunkWithoutCut = 0;
+      for (var repeat = 4; repeat <= 40; repeat++) {
+        await tester.pumpWidget(
+          _app(
+            _image(ShareImageVariant.story, sentence: '오늘은 좋은 날이에요. ' * repeat),
+          ),
+        );
+        final scale = scaleOf(tester, find.byKey(ShareImage.sentenceKey));
+        expect(scale, greaterThanOrEqualTo(floor - 1e-6), reason: '$repeat번');
+        if (scale < 1 - 1e-6 && richOf(tester).maxLines == null) {
+          shrunkWithoutCut++;
+        }
+      }
+      // 줄이기만 하는 구간이 실제로 있습니다(하한 직전까지 자르지 않음).
+      expect(shrunkWithoutCut, greaterThan(0));
+    });
+
+    for (final variant in [ShareImageVariant.story, ShareImageVariant.square]) {
+      testWidgets('${variant.name}: 아주 길면 하한에서 멈추고 마지막 줄을 말줄임으로 자릅니다', (
+        tester,
+      ) async {
+        await _bigScreen(tester);
+        // 첫 문장이 길어야 square에서도 잘립니다(문장부호 없이 이어 씁니다).
+        await tester.pumpWidget(
+          _app(_image(variant, sentence: '오늘은 좋은 날이에요 ' * 60)),
+        );
+        expect(tester.takeException(), isNull);
+        final scale = scaleOf(tester, find.byKey(ShareImage.sentenceKey));
+        expect(scale, greaterThanOrEqualTo(floor - 1e-6));
+        final rich = richOf(tester);
+        expect(rich.maxLines, isNotNull);
+        expect(rich.maxLines, greaterThan(0));
+        expect(rich.overflow, TextOverflow.ellipsis);
+        expect(
+          tester.getSize(find.byKey(ShareImage.canvasKey)),
+          ShareImage.logicalSize(variant),
+        );
+      });
+    }
+  });
+
   group('라이트 고정(V5)', () {
     testWidgets('기기가 다크여도 라이트 그라데이션·글자색으로 그립니다', (tester) async {
       await _bigScreen(tester);

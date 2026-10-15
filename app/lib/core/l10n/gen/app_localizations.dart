@@ -1468,6 +1468,12 @@ abstract class AppLocalizations {
   /// **'오늘 문장 이미지 미리보기'**
   String get shareImageSemantics;
 
+  /// 임시. share-preview 비율 선택의 스크린리더 그룹 라벨(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 이미지 비율'**
+  String get sharePreviewRatioGroup;
+
   /// tag-diary.empty.body: 일기가 없을 때 안내
   ///
   /// In ko, this message translates to:

@@ -228,6 +228,7 @@
   "sharePreviewRatioLabelFeed": "Feed",
   "sharePreviewRatioLabelSquare": "Square",
   "shareImageSemantics": "Preview of today's sentence image",
+  "sharePreviewRatioGroup": "Share image ratio",
   "tagDiaryEmptyBody": "No entries with this tag yet.",
   "todayEventSummary": "Events today: {count} · {title}",
   "todayEventSummaryOngoing": "Now",

@@ -738,6 +738,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get shareImageSemantics => '今日の一文の画像プレビュー';
 
   @override
+  String get sharePreviewRatioGroup => '共有画像の比率';
+
+  @override
   String get tagDiaryEmptyBody => 'このタグが付いた日記はまだありません。';
 
   @override

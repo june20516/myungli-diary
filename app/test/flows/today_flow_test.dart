@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,9 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
@@ -28,6 +32,7 @@ import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/share_renderer.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -53,6 +58,17 @@ Future<ProviderContainer> _openToday(
   await _settleToday(tester);
   expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
   return container;
+}
+
+/// 항상 같은 바이트를 돌려주는 렌더러 대역(흐름 테스트는 실제 PNG 인코딩을 기다리지 않습니다).
+final class _FixedRenderer implements ShareRenderer {
+  int calls = 0;
+
+  @override
+  Future<Uint8List> render(Widget image, Size logicalSize) async {
+    calls++;
+    return Uint8List.fromList([1, 2, 3]);
+  }
 }
 
 /// `/v1/daily/`를 [offline]일 때 연결 오류로 끊습니다.
@@ -220,6 +236,49 @@ void main() {
     await tester.tap(find.byType(ShareButton));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.sharePreview)), findsOneWidget);
+  });
+
+  testWidgets('member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다', (tester) async {
+    covers(
+      const Covers(
+        exits: ['today>share-preview', 'share-preview>system-share'],
+        decisions: ['D47'],
+      ),
+    );
+    final renderer = _FixedRenderer();
+    final share = FakeShareSheet();
+    await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        shareRendererProvider.overrideWithValue(renderer),
+        shareSheetProvider.overrideWithValue(share),
+      ],
+    );
+    await _settleToday(tester);
+
+    await tester.tap(find.byType(ShareButton));
+    await tester.pumpAndSettle();
+    final sheet = find.byKey(const Key(ScreenIds.sharePreview));
+    expect(sheet, findsOneWidget);
+
+    await tester.tap(
+      find.descendant(
+        of: sheet,
+        matching: find.text(_ko.sharePreviewRatioLabelSquare),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(of: sheet, matching: find.byType(PrimaryButton)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(renderer.calls, 1);
+    expect(share.shared, hasLength(1));
+    expect(share.shared.single.text, _ko.sharePreviewImageTagline);
+    // 공유 뒤에도 시트는 그대로 열려 있습니다.
+    expect(sheet, findsOneWidget);
   });
 
   testWidgets('풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름', (
