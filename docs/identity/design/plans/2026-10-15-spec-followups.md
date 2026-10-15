@@ -303,7 +303,7 @@ def test_existing_rows_keep_their_values(capsys):
 - Modify: `docs/identity/design/decisions.md`, `docs/identity/design/CLAUDE.md`
 
 - [ ] **Step 1:** `decisions.md`에 V29~V33 다섯 줄(날짜 2026-10-15, 근거 열은 "사용자 결정 (#118·#142·#154·#159·#131 brainstorming), [spec](specs/2026-10-15-spec-followups-design.md) §n"): V29 화살표 §2.2, V30 최소 높이 §2.1, V31 윤달 §2.8, V32 navigate §4, V33 글자 수 확장 §5. 기존 표 형식(`| V29 | 2026-10-15 | 링크 | … | … |`)을 따릅니다.
-- [ ] **Step 2:** `CLAUDE.md`: 범위 표와 계약 표의 "계약 2.2.0" → 2.3.0. "현재 상태" 머리를 `(2026-10-15, design 세션 작성)`으로, 맨 위에 이 작업 항목(브랜치 `design/spec-followups`, 계약 2.3.0, Issue #118·#142·#154·#159·#131, 요점 4줄, 근거 spec·V29~V33). "다음 할 일"에 ① writing 확인 창 슬롯 답(Task 8 Issue 번호) ② server 윤달 조회(#141)가 계약에 들어오면 app에 목표 모양 전환 확인 ③ 기존 2·3 유지.
+- [ ] **Step 2:** `CLAUDE.md`: 범위 표와 계약 표의 "계약 2.2.0" → 2.3.0. "현재 상태" 머리를 `(2026-10-15, design 세션 작성)`으로, 맨 위에 이 작업 항목(브랜치 `design/spec-followups`, 계약 2.3.0, Issue #118·#142·#154·#159·#131, 요점 4줄, 근거 spec·V29~V33). "다음 할 일"에 ① writing 확인 창 슬롯 답(Task 8 Issue 번호) ② server 윤달 조회(#141)가 계약에 들어오면 app에 목표 모양 전환 확인 ③ 기존 2·3 유지. 15행 `docs/background/06-design-system.md` 언급은 공개 전환(D74)으로 이 저장소에 없으므로 "V0의 입력은 제품 배경 06(비공개 저장소)" 으로 고칩니다. Issue·PR·커밋에는 가격·수익 같은 내부 수치를 적지 않습니다(D74).
 - [ ] **Step 3: 전체 검사.** `python3 docs/identity/design/tools/components.py` → 문제 0. 전체 pytest → 전부 PASS, skip은 워드마크 글꼴 테스트 외 0.
 - [ ] **Step 4: Commit** `docs(design): 결정 V29~V33, CLAUDE.md 현재 상태`
 
