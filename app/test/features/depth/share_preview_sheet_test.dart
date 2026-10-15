@@ -27,6 +27,7 @@ import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/share_render_host.dart';
 import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -418,6 +419,20 @@ void main() {
         findsOneWidget,
       );
       expect(crash.errors.single.errorType, 'FormatException');
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+    });
+
+    testWidgets('렌더가 시간 초과로 끝나면 잠금이 풀리고 오류 toast를 보입니다', (tester) async {
+      final renderer = _RecordingRenderer()
+        ..failWith = const OffscreenRenderTimeout();
+      await _pump(tester, _app(renderer: renderer, share: FakeShareSheet()));
+      await tester.tap(find.byType(PrimaryButton));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ToastPill), findsOneWidget);
+      final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
+      expect(button.loading, isFalse);
+      expect(_segmented(tester).onChanged, isNotNull);
       await tester.pumpAndSettle(const Duration(seconds: 5));
     });
 

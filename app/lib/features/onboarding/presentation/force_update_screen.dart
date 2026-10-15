@@ -6,9 +6,9 @@ import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
+import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
-import 'package:myungli_diary/features/onboarding/presentation/onboarding_page_layout.dart';
 
 /// 스토어를 엽니다. 열지 못하면 빠져나갈 수 없는 화면이라 toast로 알려 다시 누르게 합니다.
 Future<void> _openStore(BuildContext context, WidgetRef ref) async {

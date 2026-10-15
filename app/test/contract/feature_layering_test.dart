@@ -30,22 +30,10 @@ List<String> _crossPresentationImports() {
   return violations..sort();
 }
 
-/// 이 규칙 이전부터 있던 위반(공용 레이아웃 위젯 `onboarding_page_layout`). 새로 늘리지 않고,
-/// 위젯이 `design/`이나 공용 자리로 옮겨 가면 이 목록에서 지웁니다.
-const Set<String> _knownViolations = {
-  'lib/features/auth/presentation/consent_screen.dart -> features/onboarding/presentation',
-  'lib/features/auth/presentation/login_screen.dart -> features/onboarding/presentation',
-};
-
 void main() {
   test('features/<a>/presentation은 다른 feature의 presentation을 import하지 않습니다(spec §2)', () {
     // feature끼리는 서로의 application provider로만 참조합니다.
-    expect(
-      _crossPresentationImports().where(
-        (line) => !_knownViolations.contains(line),
-      ),
-      isEmpty,
-    );
+    expect(_crossPresentationImports(), isEmpty);
   });
 
   test('검사기가 위반을 실제로 찾습니다', () {

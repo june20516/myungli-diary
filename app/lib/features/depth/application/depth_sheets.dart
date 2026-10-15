@@ -78,21 +78,27 @@ final class DepthSheets {
   );
 }
 
-/// 풀이 시트 본문 builder. 기본은 빈 본문이고 조합 계층(`lib/app/depth_sheet_bodies.dart`)이
+/// 본문 provider를 연결하지 않았을 때의 오류 설명.
+const String _unwired = 'depthSheetBodyOverrides를 연결하세요';
+
+/// 풀이 시트 본문 builder. 기본값은 실패이고(조용히 빈 시트가 되지 않게) 조합 계층(`lib/app/depth_sheet_bodies.dart`)이
 /// override로 실제 시트를 연결합니다(feature presentation끼리 import하지 않기 위해, spec §2).
 final explainBodyProvider = Provider<ExplainBodyBuilder>(
   (ref) =>
-      (_, _) => const SizedBox.shrink(),
+      (_, _) => throw UnimplementedError(_unwired),
 );
 
 /// 근거 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
 final evidenceBodyProvider = Provider<EvidenceBodyBuilder>(
   (ref) =>
-      (_) => const SizedBox.shrink(),
+      (_) => throw UnimplementedError(_unwired),
 );
 
 /// 공유 미리보기 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
-final shareBodyProvider = Provider<ShareBodyBuilder>((ref) => SizedBox.shrink);
+final shareBodyProvider = Provider<ShareBodyBuilder>(
+  (ref) =>
+      () => throw UnimplementedError(_unwired),
+);
 
 /// 깊이 시트 서비스. 본문은 위 세 provider에서 받습니다.
 final depthSheetsProvider = Provider<DepthSheets>(

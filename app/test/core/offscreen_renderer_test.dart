@@ -163,6 +163,29 @@ void main() {
       expect(outcomes.$2, isNotEmpty);
     });
 
+    testWidgets('렌더 전체에 상한이 있어 넘기면 실패로 끝나고 다음 렌더는 진행됩니다', (tester) async {
+      _recordErrors();
+      final outcomes = await tester.runAsync(() async {
+        // 상한(50ms)보다 오래 걸리는 내용 -> 시간 초과로 끝납니다.
+        final hung =
+            const PngOffscreenRenderer(
+                  renderTimeout: Duration(milliseconds: 50),
+                )
+                .render(
+                  _delayed(const Duration(seconds: 2), _red),
+                  const Size(10, 10),
+                )
+                .then<Object?>((_) => null, onError: (Object e) => e);
+        final next = _renderer.render(
+          const ColoredBox(color: _green),
+          const Size(10, 10),
+        );
+        return (await hung, await next);
+      });
+      expect(outcomes!.$1, isA<OffscreenRenderTimeout>());
+      expect(outcomes.$2, isNotEmpty);
+    });
+
     testWidgets('렌더하는 동안 화면 쪽에서 난 오류는 원래 handler로 갑니다', (tester) async {
       final recorded = _recordErrors();
       await tester.runAsync(() async {

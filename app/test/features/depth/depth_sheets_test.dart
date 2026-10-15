@@ -145,14 +145,16 @@ void main() {
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     });
 
-    test('기본 provider는 빈 본문이고, app의 override가 실제 시트를 잇습니다', () {
+    test('본문 override가 없으면 조용히 빈 시트가 되지 않고 실패합니다', () {
       final plain = ProviderContainer();
       addTearDown(plain.dispose);
-      expect(
-        plain.read(depthSheetsProvider).evidenceBody('s.t'),
-        isNot(isA<EvidenceSheet>()),
-      );
+      final sheets = plain.read(depthSheetsProvider);
+      expect(() => sheets.explainBody('a.b', 's.t'), throwsUnimplementedError);
+      expect(() => sheets.evidenceBody('s.t'), throwsUnimplementedError);
+      expect(sheets.shareBody, throwsUnimplementedError);
+    });
 
+    test('app의 override가 실제 시트를 잇습니다', () {
       final wired = ProviderContainer(overrides: depthSheetBodyOverrides);
       addTearDown(wired.dispose);
       final sheets = wired.read(depthSheetsProvider);
