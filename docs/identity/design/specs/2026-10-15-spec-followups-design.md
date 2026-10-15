@@ -112,9 +112,9 @@ IA v3(D71)에서 `birthplace`에 계산 기준 화면(`calc-basis`)으로 가는
 * `variants`에 `{ "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준)", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } }, "target": "page" }`를 더합니다. 배치는 `block`과 같습니다.
 * 누르면 플랫폼 기본 페이지 전환으로 이동합니다. `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`(링크 글자 둘레)입니다.
 * a11y: role `link`. 라벨은 링크 이름 그대로이고, 화살표는 읽지 않습니다.
-* 자리: `birthplace`에서 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위. 슬롯 `birthplace.standard.link`.
+* 자리: `birthplace`에서 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위. 슬롯 `birthplace.standard.link`. 배치와 슬롯 이름은 `sentence.md`에만 적고 JSON 변형에는 슬롯을 두지 않습니다(`inline-end`·`block`과 같음).
 * `depth-link.summary`를 "한 단계 깊이로 가는 링크 ('근거 보기 ›'), 또는 다른 페이지로 가는 같은 모양의 링크"로 넓힙니다. `sentence.md`의 쓰는 화면에 `birthplace`를 더합니다.
-* IA v3 PR #157은 단독 병합 금지이고, app 최종 PR과 함께 병합됩니다. 이 명세는 IA v3의 `birthplace.components`(`depth-link`)를 전제로 합니다. 검사기(`components.py`)는 IA id만 보고 화면 목록은 보지 않으므로 main IA로도 통과합니다.
+* IA v3 PR #157은 단독 병합 금지이고, app 최종 PR과 함께 병합됩니다. 테스트 `test_every_slot_exists_in_ia`는 JSON의 모든 슬롯을 main IA와 비교합니다. `birthplace.standard.link`는 IA v3 병합 전 main에 없으므로 JSON에 넣지 않습니다. 그래서 이 PR은 IA v3보다 먼저 병합되어도 검사를 통과합니다.
 
 ## 5. 글자 수 상한 (#131, 결정 V33)
 
