@@ -226,10 +226,10 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/apple/web`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기. Android Apple 웹 로그인은 콜백이 교환 코드를 App Link로 넘기고 `apple/web`이 토큰을 발급(S22) |
 | 정적(계약 밖) | `GET /auth/apple`, `GET /.well-known/assetlinks.json` | `/auth/apple`은 App Link가 앱을 열지 못했을 때의 "앱에서 계속하기" 안내 페이지, `assetlinks.json`은 Android App Link 검증용(S22). `/v1` 밖이라 REST 계약에 넣지 않음 |
 | 계정 | `GET /v1/me`, `DELETE /v1/me`, `POST /v1/me/consents` | `GET /v1/me`에 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태 포함 |
-| 프로필 | `PUT /v1/me/profile`(첫 등록), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
+| 프로필 | `GET /v1/me/profile`(읽기), `PUT /v1/me/profile`(첫 등록), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
 | 반응 | `PUT /v1/daily/{date}/slots/{slot}/reaction`, `DELETE` 같은 경로 | 그날 선택 기록에 붙음 |
-| 비로그인 | `POST /v1/preview`, `POST /v1/birth-hour` | App Check 필수. 입력 저장 안 함 (D50·D58) |
+| 비로그인 | `POST /v1/preview`, `POST /v1/birth-hour`, `POST /v1/lunar-date`(음력→양력, 윤달 유무) | App Check 필수. 입력 저장 안 함 (D50·D58) |
 | 일기 | `GET /v1/diaries?from&to&tag&cursor`, `GET`·`PUT`·`DELETE /v1/diaries/{date}`, `POST /v1/diaries/{date}/restore` | `PUT`은 멱등 upsert. 응답에 대표 태그 (Issue #31) |
 | 일정 | `GET /v1/schedules?from&to`, `POST /v1/schedules`, `PATCH`·`DELETE /v1/schedules/{id}`, `POST /v1/schedules/{id}/restore` | |
 | 알림 기기 | `POST /v1/devices`, `DELETE /v1/devices/{id}` | 같은 토큰이 다시 오면 소유 계정을 옮김 |
@@ -434,6 +434,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 정수 필드 객체 `LunarOrSolarDate`가 달력에 없는 날짜(예 양력 2월 31일). `format: date` 문자열의 없는 날짜는 위 400 행 | 422 | `date.invalid` |
 | 상태-값 짝 위반: `BirthTime`(`status`·`value`), `BirthPlace`(`status`·`cityId`), 양력인데 `isLeapMonth` true, `NotificationSetting`(`status`·`time`), `ScheduleInput`·`SchedulePatch`(`allDay`·`time`) | 422 | `request.inconsistent` (`errors[].field`는 JSON Pointer, `errors[].code`는 `required_by_status`·`forbidden_by_status`) |
 | 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid` |
+| 시간대 이름이 IANA가 아님 | 422 | `timezone.invalid` (`errors[].field`는 `/currentTimezone` 또는 `/birth/timezone`) |
+| `cityId`가 도시 목록에 없음 | 422 | `city.not_found` (`errors[].field`는 `/birth/place/cityId`) |
 | 호칭 거부. 기준은 josa.yaml `name_rules`의 기준 구현(`normalize_name`): 비어 있음, 언어별 길이 초과, 이모지, 제어 문자, 받지 않는 글자. 스키마 길이(1~20) 위반은 400 `request.invalid`가 먼저 | 422 | `name.empty`, `name.too_long`, `name.emoji`, `name.control`, `name.invalid_char` |
 | access token 없음·만료·위조 (`WWW-Authenticate: Bearer error="invalid_token"`, RFC 6750) | 401 | `auth.token_expired`, `auth.token_invalid` |
 | refresh token 재사용 감지 | 401 | `auth.refresh_reused` |
@@ -442,7 +444,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 약관 미동의, 문서 버전 변경 | 403 | `consent.required` |
 | 미리보기를 이미 씀 | 403 | `preview.used` |
 | 없는 리소스, 남의 리소스 | 404 | `diary.not_found` (남의 것도 404로 보내 존재 여부를 숨김) |
-| 프로필 없이 운세 요청 | 409 | `profile.required` |
+| 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
 | 되살리려는 날짜에 이미 일기가 있음 | 409 | `diary.date_taken` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
