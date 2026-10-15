@@ -577,7 +577,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get calcBasisConventionBody => '명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.';
+  String get calcBasisConventionBody =>
+      '명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.';
 
   @override
   String get calcBasisLongitudeBody =>
@@ -829,4 +830,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get direction8Nw => '북서';
+
+  @override
+  String get birthplaceStandardLink => '계산 기준 보기';
+
+  @override
+  String get birthplaceStandardNote =>
+      '명리일기는 한국에서 널리 쓰는 기준으로 계산해요. 여러 유파 가운데 하나로, 근거가 있는 방식이에요.';
+
+  @override
+  String calcBasisLongitudeBodySubtract(String longitude, int minutes) {
+    return '출생 시각은 $longitude 기준으로 $minutes분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyAdd(String longitude, int minutes) {
+    return '출생 시각은 $longitude 기준으로 $minutes분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyNone(String longitude) {
+    return '출생 시각은 $longitude 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyEast(String degrees) {
+    return '동경 $degrees°';
+  }
+
+  @override
+  String calcBasisLongitudeBodyWest(String degrees) {
+    return '서경 $degrees°';
+  }
+
+  @override
+  String get calcBasisSchoolsBody =>
+      '지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.';
 }

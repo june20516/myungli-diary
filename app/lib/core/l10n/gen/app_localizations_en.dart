@@ -630,7 +630,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calcBasisConventionBody =>
-      'Readings follow one standard widely used in Korea.';
+      'Readings follow the standard widely used in Korea. It\'s one well-grounded approach among several schools.';
 
   @override
   String get calcBasisLongitudeBody =>
@@ -892,4 +892,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get direction8Nw => 'Northwest';
+
+  @override
+  String get birthplaceStandardLink => 'See how we calculate';
+
+  @override
+  String get birthplaceStandardNote =>
+      'Myungli Diary calculates with the standard widely used in Korea. It\'s one well-grounded approach among several schools.';
+
+  @override
+  String calcBasisLongitudeBodySubtract(String longitude, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'We subtract $_temp0 from your birth time, based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyAdd(String longitude, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'We add $_temp0 to your birth time, based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyNone(String longitude) {
+    return 'We use your birth time as is, based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyEast(String degrees) {
+    return '$degrees°E';
+  }
+
+  @override
+  String calcBasisLongitudeBodyWest(String degrees) {
+    return '$degrees°W';
+  }
+
+  @override
+  String get calcBasisSchoolsBody =>
+      'We show every hidden stem instead of picking just one. If you were born in the Rat hour, we count it as the next day, even before midnight. Schools handle these differently, so your results may differ from other apps or books.';
 }

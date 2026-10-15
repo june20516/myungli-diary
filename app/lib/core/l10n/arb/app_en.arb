@@ -176,7 +176,7 @@
   "adFreeOfferPrice": "{price} · 1 month · no auto-renewal",
   "adFreeRestoreCta": "Restore purchase",
   "adFreeStatusRemaining": "Ad-free until {date}",
-  "calcBasisConventionBody": "Readings follow one standard widely used in Korea.",
+  "calcBasisConventionBody": "Readings follow the standard widely used in Korea. It's one well-grounded approach among several schools.",
   "calcBasisLongitudeBody": "We subtract 30 minutes from your birth time, based on 127.5° east longitude, and don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.",
   "calcBasisLunarBody": "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute.",
   "calendarLegendBodyGood": "Smooth day",
@@ -257,5 +257,13 @@
   "direction8S": "South",
   "direction8Sw": "Southwest",
   "direction8W": "West",
-  "direction8Nw": "Northwest"
+  "direction8Nw": "Northwest",
+  "birthplaceStandardLink": "See how we calculate",
+  "birthplaceStandardNote": "Myungli Diary calculates with the standard widely used in Korea. It's one well-grounded approach among several schools.",
+  "calcBasisLongitudeBodySubtract": "We subtract {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} from your birth time, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.",
+  "calcBasisLongitudeBodyAdd": "We add {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} to your birth time, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.",
+  "calcBasisLongitudeBodyNone": "We use your birth time as is, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.",
+  "calcBasisLongitudeBodyEast": "{degrees}°E",
+  "calcBasisLongitudeBodyWest": "{degrees}°W",
+  "calcBasisSchoolsBody": "We show every hidden stem instead of picking just one. If you were born in the Rat hour, we count it as the next day, even before midnight. Schools handle these differently, so your results may differ from other apps or books."
 }

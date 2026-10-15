@@ -576,7 +576,8 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get calcBasisConventionBody => '読み解きは、韓国で広く使われている基準ひとつにそろえています。';
+  String get calcBasisConventionBody =>
+      '読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。';
 
   @override
   String get calcBasisLongitudeBody =>
@@ -828,4 +829,40 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get direction8Nw => '北西';
+
+  @override
+  String get birthplaceStandardLink => '計算の基準を見る';
+
+  @override
+  String get birthplaceStandardNote =>
+      '命理日記は、韓国で広く使われている基準で計算します。いくつかある流派のひとつとして、根拠のある方法です。';
+
+  @override
+  String calcBasisLongitudeBodySubtract(String longitude, int minutes) {
+    return '出生時刻は$longitudeを基準に$minutes分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+  }
+
+  @override
+  String calcBasisLongitudeBodyAdd(String longitude, int minutes) {
+    return '出生時刻は$longitudeを基準に$minutes分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+  }
+
+  @override
+  String calcBasisLongitudeBodyNone(String longitude) {
+    return '出生時刻は$longitudeを基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+  }
+
+  @override
+  String calcBasisLongitudeBodyEast(String degrees) {
+    return '東経$degrees°';
+  }
+
+  @override
+  String calcBasisLongitudeBodyWest(String degrees) {
+    return '西経$degrees°';
+  }
+
+  @override
+  String get calcBasisSchoolsBody =>
+      '蔵干はひとつに絞らず、すべて表示します。子の刻に生まれた場合は、午前0時より前でも翌日として計算します。流派によって扱いが異なるため、ほかのアプリや本と結果が異なることがあります。';
 }

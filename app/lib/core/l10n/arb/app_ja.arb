@@ -176,7 +176,7 @@
   "adFreeOfferPrice": "{price}・1か月・自動更新なし",
   "adFreeRestoreCta": "購入を復元",
   "adFreeStatusRemaining": "{date}まで広告なしで使えます",
-  "calcBasisConventionBody": "読み解きは、韓国で広く使われている基準ひとつにそろえています。",
+  "calcBasisConventionBody": "読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。",
   "calcBasisLongitudeBody": "出生時刻は東経127.5°を基準に30分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。",
   "calcBasisLunarBody": "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。",
   "calendarLegendBodyGood": "うまく運ぶ日",
@@ -257,5 +257,13 @@
   "direction8S": "南",
   "direction8Sw": "南西",
   "direction8W": "西",
-  "direction8Nw": "北西"
+  "direction8Nw": "北西",
+  "birthplaceStandardLink": "計算の基準を見る",
+  "birthplaceStandardNote": "命理日記は、韓国で広く使われている基準で計算します。いくつかある流派のひとつとして、根拠のある方法です。",
+  "calcBasisLongitudeBodySubtract": "出生時刻は{longitude}を基準に{minutes}分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。",
+  "calcBasisLongitudeBodyAdd": "出生時刻は{longitude}を基準に{minutes}分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。",
+  "calcBasisLongitudeBodyNone": "出生時刻は{longitude}を基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。",
+  "calcBasisLongitudeBodyEast": "東経{degrees}°",
+  "calcBasisLongitudeBodyWest": "西経{degrees}°",
+  "calcBasisSchoolsBody": "蔵干はひとつに絞らず、すべて表示します。子の刻に生まれた場合は、午前0時より前でも翌日として計算します。流派によって扱いが異なるため、ほかのアプリや本と結果が異なることがあります。"
 }

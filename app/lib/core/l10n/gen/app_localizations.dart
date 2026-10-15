@@ -1156,13 +1156,13 @@ abstract class AppLocalizations {
   /// **'{date}까지 광고 없이 볼 수 있어요'**
   String adFreeStatusRemaining(String date);
 
-  /// calc-basis.convention.body: 한국 기준 해석 안내
+  /// calc-basis.convention.body: 한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)
   ///
   /// In ko, this message translates to:
-  /// **'명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.'**
+  /// **'명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.'**
   String get calcBasisConventionBody;
 
-  /// calc-basis.longitude.body: 동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
   ///
   /// In ko, this message translates to:
   /// **'출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
@@ -1647,6 +1647,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'북서'**
   String get direction8Nw;
+
+  /// birthplace.standard.link: 계산 기준 화면으로 가는 링크 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'계산 기준 보기'**
+  String get birthplaceStandardLink;
+
+  /// birthplace.standard.note: 명리일기가 한국에서 표준으로 쓰는 기준으로 계산한다는 소개. 한국에서 보편적으로 쓰는 해석이고 여러 유파 가운데 하나로서 근거가 있다고 설명합니다. 다른 유파와 우열을 말하지 않습니다(D71)
+  ///
+  /// In ko, this message translates to:
+  /// **'명리일기는 한국에서 널리 쓰는 기준으로 계산해요. 여러 유파 가운데 하나로, 근거가 있는 방식이에요.'**
+  String get birthplaceStandardNote;
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String calcBasisLongitudeBodySubtract(String longitude, int minutes);
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String calcBasisLongitudeBodyAdd(String longitude, int minutes);
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String calcBasisLongitudeBodyNone(String longitude);
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'동경 {degrees}°'**
+  String calcBasisLongitudeBodyEast(String degrees);
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'서경 {degrees}°'**
+  String calcBasisLongitudeBodyWest(String degrees);
+
+  /// calc-basis.schools.body: 다른 유파·나라 관례와 다른 점: 지장간을 모두 표시, 자시 통합(D6). 다르게 나올 수 있는 이유로 설명합니다(D71)
+  ///
+  /// In ko, this message translates to:
+  /// **'지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.'**
+  String get calcBasisSchoolsBody;
 }
 
 class _AppLocalizationsDelegate
