@@ -4,9 +4,23 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
+
+final RenderedText _guideQuestion = RenderedText(
+  segments: [Segment(text: '오늘 가장 오래 마음에 남은 장면은 무엇인가요?')],
+);
+
+Widget _guideCard(GuideQuestionState state, {VoidCallback? onAction}) =>
+    GuideQuestionCard(
+      state: state,
+      eyebrow: '오늘의 질문',
+      question: _guideQuestion,
+      actionLabel: state == GuideQuestionState.before ? '일기 쓰기' : '쓴 일기 보기',
+      onAction: onAction ?? () {},
+    );
 
 final RenderedText _reason = RenderedText(
   segments: [Segment(text: '오늘은 기운의 흐름이 나를 도와주는 날이에요.')],
@@ -117,5 +131,61 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
         ),
       ],
     ),
+    WidgetbookFolder(
+      name: 'guide-question-card',
+      children: [
+        WidgetbookComponent(
+          name: 'GuideQuestionCard',
+          useCases: [
+            WidgetbookUseCase(
+              name: 'before',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 360,
+                  child: _guideCard(GuideQuestionState.before),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: 'after',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 360,
+                  child: _guideCard(GuideQuestionState.after),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '누르면 상태가 바뀜(도장 찍힘)',
+              builder: (context) => const Stage(
+                child: SizedBox(width: 360, child: _GuideToggleDemo()),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
   ],
 );
+
+/// 버튼을 누를 때마다 before와 after를 오가며 도장이 찍히는 모습을 보여 줍니다.
+class _GuideToggleDemo extends StatefulWidget {
+  const new();
+
+  @override
+  State<_GuideToggleDemo> createState() => _GuideToggleDemoState();
+}
+
+class _GuideToggleDemoState extends State<_GuideToggleDemo> {
+  GuideQuestionState _state = GuideQuestionState.before;
+
+  @override
+  Widget build(BuildContext context) => _guideCard(
+    _state,
+    onAction: () => setState(
+      () => _state = _state == GuideQuestionState.before
+          ? GuideQuestionState.after
+          : GuideQuestionState.before,
+    ),
+  );
+}

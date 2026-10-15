@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -87,6 +88,29 @@ Widget _luckyCard() => Builder(
   },
 );
 
+/// guide-question-card: 상태별 카드. 질문은 server가 렌더한 문장이라 언어별로 줍니다.
+Widget _guideQuestionCard(GuideQuestionState state) => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    final written = state == GuideQuestionState.after;
+    return GuideQuestionCard(
+      state: state,
+      eyebrow: ja ? '今日の質問' : '오늘의 질문',
+      question: RenderedText(
+        segments: [
+          Segment(
+            text: ja ? '今日、いちばん心に残った場面は何でしたか?' : '오늘 가장 오래 마음에 남은 장면은 무엇인가요?',
+          ),
+        ],
+      ),
+      actionLabel: ja
+          ? (written ? '書いた日記を見る' : '日記を書く')
+          : (written ? '쓴 일기 보기' : '일기 쓰기'),
+      onAction: () {},
+    );
+  },
+);
+
 void main() {
   goldenTest('day-character: 네 변형 × 이유 있음·없음', (tester) async {
     await goldenMatrix(tester, 'today_day_character', _dayCharacters);
@@ -110,6 +134,22 @@ void main() {
         }
         await tester.pumpAndSettle();
       },
+    );
+  });
+
+  goldenTest('guide-question-card: before(일기 쓰기 전)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'today_guide_question_card_before',
+      () => _guideQuestionCard(GuideQuestionState.before),
+    );
+  });
+
+  goldenTest('guide-question-card: after(일기 쓴 뒤, 도장)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'today_guide_question_card_after',
+      () => _guideQuestionCard(GuideQuestionState.after),
     );
   });
 }

@@ -1052,6 +1052,18 @@
   "@todayGuideCtaWritten": {
     "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
   },
+  "todayGuideEyebrow": "오늘의 질문",
+  "@todayGuideEyebrow": {
+    "description": "임시. today.guide.question 카드 위 작은 머리글"
+  },
+  "todayGuideWritten": "오늘 일기 씀",
+  "@todayGuideWritten": {
+    "description": "임시. today.guide.cta 자리의 쓴 뒤 상태 알림"
+  },
+  "todayGuideLabel": "질문",
+  "@todayGuideLabel": {
+    "description": "임시. 오늘 가이드 질문 카드 묶음의 접근성 라벨"
+  },
   "todayReactionLabelSelected": "좋아요 취소",
   "@todayReactionLabelSelected": {
     "description": "today.reaction.label: 좋아요 반응 접근성 라벨"

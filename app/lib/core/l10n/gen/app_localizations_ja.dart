@@ -754,6 +754,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayGuideCtaWritten => '書いた日記を見る';
 
   @override
+  String get todayGuideEyebrow => '今日の質問';
+
+  @override
+  String get todayGuideWritten => '今日の日記を書きました';
+
+  @override
+  String get todayGuideLabel => '質問';
+
+  @override
   String get todayReactionLabelSelected => 'いいねを取り消す';
 
   @override

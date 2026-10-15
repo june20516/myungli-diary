@@ -43,6 +43,7 @@ class SentenceBlock extends StatelessWidget {
     this.onTerm,
     this.onOpenLocked,
     this.trailing,
+    this.color,
     super.key,
   }) : assert(
          variant != SentenceBlockVariant.preview ||
@@ -99,6 +100,9 @@ class SentenceBlock extends StatelessWidget {
   /// 문장 끝에 붙는 위젯(`depth-link` `inline-end`).
   final Widget? trailing;
 
+  /// 글자색. 없으면 `text.primary`입니다(질문 카드의 쓴 뒤 상태가 `text.secondary`로 바꿉니다).
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
     final content = locked ? _buildLocked(context) : _buildText(context);
@@ -128,7 +132,7 @@ class SentenceBlock extends StatelessWidget {
     return RenderedTextView(
       text: text,
       style: base.copyWith(
-        color: context.tokens.colors.textPrimary,
+        color: color ?? context.tokens.colors.textPrimary,
         fontSize: preview ? _previewFontSize : null,
       ),
       termStyle: onTerm == null ? TermStyle.plain : terms,

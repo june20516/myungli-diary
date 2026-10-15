@@ -1504,6 +1504,24 @@ abstract class AppLocalizations {
   /// **'쓴 일기 보기'**
   String get todayGuideCtaWritten;
 
+  /// 임시. today.guide.question 카드 위 작은 머리글
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 질문'**
+  String get todayGuideEyebrow;
+
+  /// 임시. today.guide.cta 자리의 쓴 뒤 상태 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 일기 씀'**
+  String get todayGuideWritten;
+
+  /// 임시. 오늘 가이드 질문 카드 묶음의 접근성 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'질문'**
+  String get todayGuideLabel;
+
   /// today.reaction.label: 좋아요 반응 접근성 라벨
   ///
   /// In ko, this message translates to:

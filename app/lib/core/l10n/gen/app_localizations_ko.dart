@@ -754,6 +754,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayGuideCtaWritten => '쓴 일기 보기';
 
   @override
+  String get todayGuideEyebrow => '오늘의 질문';
+
+  @override
+  String get todayGuideWritten => '오늘 일기 씀';
+
+  @override
+  String get todayGuideLabel => '질문';
+
+  @override
   String get todayReactionLabelSelected => '좋아요 취소';
 
   @override

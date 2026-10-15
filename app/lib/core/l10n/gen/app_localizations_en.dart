@@ -812,6 +812,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayGuideCtaWritten => 'View diary';
 
   @override
+  String get todayGuideEyebrow => 'Today\'s question';
+
+  @override
+  String get todayGuideWritten => 'Written today';
+
+  @override
+  String get todayGuideLabel => 'Question';
+
+  @override
   String get todayReactionLabelSelected => 'Unlike';
 
   @override

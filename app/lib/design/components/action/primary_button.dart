@@ -44,6 +44,7 @@ class PrimaryButton extends StatelessWidget {
     this.busyLabel,
     this.identifier,
     this.busyIdentifier,
+    this.labelColor,
     this.animated = true,
     super.key,
   });
@@ -87,6 +88,10 @@ class PrimaryButton extends StatelessWidget {
   /// 처리 중일 때 `identifier` 대신 붙일 슬롯 id.
   final String? busyIdentifier;
 
+  /// 글자색을 바꿉니다(예: 도장 위 `seal.on-soft`). 꺼짐일 때는 무시하고 `disabled.fg`입니다.
+  /// 눌림 번짐 색도 이 색을 따릅니다.
+  final Color? labelColor;
+
   /// false면 점이 숨 쉬지 않고 정지 상태로 그립니다.
   final bool animated;
 
@@ -100,9 +105,9 @@ class PrimaryButton extends StatelessWidget {
     final fg = _disabled
         ? colors.disabledFg
         : switch (variant) {
-            PrimaryButtonVariant.filled => colors.actionOnPrimary,
-            PrimaryButtonVariant.quiet => colors.actionPrimary,
-            PrimaryButtonVariant.destructive => colors.bgSheet,
+            PrimaryButtonVariant.filled => labelColor ?? colors.actionOnPrimary,
+            PrimaryButtonVariant.quiet => labelColor ?? colors.actionPrimary,
+            PrimaryButtonVariant.destructive => labelColor ?? colors.bgSheet,
           };
     final bg = _disabled
         ? (quiet ? null : colors.disabledBg)
