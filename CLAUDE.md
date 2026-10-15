@@ -24,6 +24,7 @@
      * 처리했다는 코멘트가 달렸는데 열려 있는 Issue를 닫거나, 받는 쪽에 닫아 달라고 남깁니다.
      * 일을 시키는 공지는 `kind:request`로 바꿉니다.
      * 닫힌 Issue의 `docs/coordination/` 원문을 `archive/`로 옮깁니다.
+     * 열린 `drift` Issue(`gh issue list --label drift`)를 확인하고, 받는 쪽 단위의 다음 할 일 맨 앞에 둡니다(`docs/workflow.md` §6.1).
   2. `docs/roadmap.md` "현재 진행 순서"를 갱신합니다.
   3. 제품 지도를 갱신합니다(`tools/product-map/README.md`).
 
