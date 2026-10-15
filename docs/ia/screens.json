@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "tabs": [
     {
       "id": "today",
@@ -568,6 +568,16 @@
           "role": "출생지가 필요한 이유"
         },
         {
+          "id": "birthplace.standard.note",
+          "source": "ui",
+          "role": "명리일기가 한국에서 표준으로 쓰는 기준으로 계산한다는 소개. 여러 유파 가운데 하나의 정통 기준으로 설명합니다(D71)"
+        },
+        {
+          "id": "birthplace.standard.link",
+          "source": "ui",
+          "role": "계산 기준 화면으로 가는 링크 이름"
+        },
+        {
           "id": "birthplace.search.hint",
           "source": "ui",
           "role": "검색칸 예시"
@@ -582,7 +592,8 @@
         "app-bar",
         "input-step",
         "city-search",
-        "empty-state"
+        "empty-state",
+        "depth-link"
       ],
       "exits": [
         {
@@ -600,13 +611,18 @@
         {
           "to": "notify-ask",
           "trigger": "로그인한 새 계정이 미리보기 없이 온보딩을 마침(프로필 저장)"
+        },
+        {
+          "to": "calc-basis",
+          "trigger": "계산 기준 보기"
         }
       ],
       "decisions": [
         "D29",
         "D47",
         "D39",
-        "D68"
+        "D68",
+        "D71"
       ]
     },
     {
@@ -2200,20 +2216,25 @@
       "title": "계산 기준",
       "tab": "me",
       "presentation": "page",
-      "auth": "member",
-      "purpose": "해석 기준, 시각 보정, 음력 기준을 안내합니다",
+      "auth": "any",
+      "purpose": "해석 기준(여러 유파 가운데 한국 표준), 출생 시각 보정, 음력 기준을 안내합니다. 출생지 화면에서 로그인 전에도 엽니다(D71)",
       "depths": [],
       "states": [],
       "slots": [
         {
           "id": "calc-basis.convention.body",
           "source": "ui",
-          "role": "한국 기준 해석 안내"
+          "role": "한국 표준을 여러 유파 가운데 하나의 정통 기준으로 쓴다는 안내(D28·D71)"
+        },
+        {
+          "id": "calc-basis.schools.body",
+          "source": "ui",
+          "role": "다른 유파·나라 관례와 다른 점: 지장간을 모두 표시, 자시 통합(D6). 다르게 나올 수 있는 이유로 설명합니다(D71)"
         },
         {
           "id": "calc-basis.longitude.body",
           "source": "ui",
-          "role": "동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내"
+          "role": "출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용"
         },
         {
           "id": "calc-basis.lunar.body",
@@ -2230,7 +2251,8 @@
         "D41",
         "D42",
         "D39",
-        "D68"
+        "D68",
+        "D71"
       ]
     },
     {
