@@ -1,0 +1,27 @@
+# 값 이름 원고(ja). 슬롯 명세는 slots/content/glossary.yaml입니다.
+# 지금은 앱 ARB로도 나가는 지지·날의 성격(#143)·방향(#153)만 있습니다. 나머지 범주는 W1에서 채웁니다. 원어민 검수(W1) 전 초안입니다.
+# 지지 이름에는 시·hour·刻을 붙이지 않습니다. 시진 확인 줄(onboardTimeHourConfirm) 틀이 붙입니다.
+- {slot: glossary.value_name, key: branch.ja, text: "子"}
+- {slot: glossary.value_name, key: branch.chuk, text: "丑"}
+- {slot: glossary.value_name, key: branch.in, text: "寅"}
+- {slot: glossary.value_name, key: branch.myo, text: "卯"}
+- {slot: glossary.value_name, key: branch.jin, text: "辰"}
+- {slot: glossary.value_name, key: branch.sa, text: "巳"}
+- {slot: glossary.value_name, key: branch.o, text: "午"}
+- {slot: glossary.value_name, key: branch.mi, text: "未"}
+- {slot: glossary.value_name, key: branch.shin, text: "申"}
+- {slot: glossary.value_name, key: branch.yu, text: "酉"}
+- {slot: glossary.value_name, key: branch.sul, text: "戌"}
+- {slot: glossary.value_name, key: branch.hae, text: "亥"}
+- {slot: glossary.value_name, key: day_kind.gwiin_day, text: "貴人の日"}
+- {slot: glossary.value_name, key: day_kind.yongsin_day, text: "用神の日"}
+- {slot: glossary.value_name, key: day_kind.gisin_day, text: "忌神の日"}
+- {slot: glossary.value_name, key: day_kind.ordinary_day, text: "普通の日"}
+- {slot: glossary.value_name, key: direction8.n, text: "北"}
+- {slot: glossary.value_name, key: direction8.ne, text: "北東"}
+- {slot: glossary.value_name, key: direction8.e, text: "東"}
+- {slot: glossary.value_name, key: direction8.se, text: "南東"}
+- {slot: glossary.value_name, key: direction8.s, text: "南"}
+- {slot: glossary.value_name, key: direction8.sw, text: "南西"}
+- {slot: glossary.value_name, key: direction8.w, text: "西"}
+- {slot: glossary.value_name, key: direction8.nw, text: "北西"}

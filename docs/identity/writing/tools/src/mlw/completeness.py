@@ -7,6 +7,7 @@ from collections import Counter
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
+from mlw.icu import expand_entry
 from mlw.model import Entry, Finding, ParamKind, Slot
 from mlw.placeholders import Placeholder, parse
 
@@ -46,7 +47,8 @@ def _category_problem(placeholder: Placeholder, kind: ParamKind | None) -> str |
 
 def _check_placeholders(entry: Entry, slot: Slot) -> list[Finding]:
     try:
-        placeholders = parse(entry.text)
+        # plural은 형태마다 펼친 문장의 자리표시자를 봅니다.
+        placeholders = [placeholder for form in expand_entry(entry) for placeholder in parse(form.text)]
     except ValueError:
         # 문법 오류는 문장 단위 검사가 보고합니다.
         return []

@@ -1,0 +1,1726 @@
+{
+  "sources": [
+    {
+      "id": "chart-kotobank-daijisen-shichusuimei",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「四柱推命」（コトバンク）",
+      "url": "https://kotobank.jp/word/四柱推命-73223",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-sekai-shichusuimei",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "改訂新版 世界大百科事典「四柱推命」（コトバンク）",
+      "url": "https://kotobank.jp/word/四柱推命-73223",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-uranai-shichusuimei",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「四柱推命」（コトバンク）",
+      "url": "https://kotobank.jp/word/四柱推命-73223",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-jitsu-tenkan",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "普及版 字通「天干」（コトバンク）",
+      "url": "https://kotobank.jp/word/天干-1492134",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-uranai-chishi",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「地支」（コトバンク）",
+      "url": "https://kotobank.jp/word/地支-1492109",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-nikkoku-kanshi",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "精選版 日本国語大辞典「干支」（コトバンク）",
+      "url": "https://kotobank.jp/word/干支-36886",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-sekai-kanshi",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "改訂新版 世界大百科事典「干支」（コトバンク）",
+      "url": "https://kotobank.jp/word/干支-36886",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-uranai-setsuiri",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「節入り」（コトバンク）",
+      "url": "https://kotobank.jp/word/節入り-1492063",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-daijisen-sekki",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「節気」（コトバンク）",
+      "url": "https://kotobank.jp/word/節気-547956",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-daijisen-nijushisekki",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「二十四節気」（コトバンク）",
+      "url": "https://kotobank.jp/word/二十四節気-109595",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-nipponica-nijushisekki",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "日本大百科全書(ニッポニカ)「二十四節気」（コトバンク）",
+      "url": "https://kotobank.jp/word/二十四節気-109595",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-sekai-nijushisekki",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "改訂新版 世界大百科事典「二十四節気」（コトバンク）",
+      "url": "https://kotobank.jp/word/二十四節気-109595",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-daijisen-risshun",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「立春」（コトバンク）",
+      "url": "https://kotobank.jp/word/立春-148966",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-sekai-risshun",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "改訂新版 世界大百科事典「立春」（コトバンク）",
+      "url": "https://kotobank.jp/word/立春-148966",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-daijisen-kyureki",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「旧暦」（コトバンク）",
+      "url": "https://kotobank.jp/word/旧暦-52240",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-sekai-kyureki",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "改訂新版 世界大百科事典「旧暦」（コトバンク）",
+      "url": "https://kotobank.jp/word/旧暦-52240",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-britannica-kyureki",
+      "kind": "dictionary",
+      "publisher": "ブリタニカ・ジャパン",
+      "title": "ブリタニカ国際大百科事典 小項目事典「旧暦」（コトバンク）",
+      "url": "https://kotobank.jp/word/旧暦-52240",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-daijisen-inreki",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「陰暦」（コトバンク）",
+      "url": "https://kotobank.jp/word/陰暦-33315",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-nikkoku-urudzuki",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "精選版 日本国語大辞典「閏月」（コトバンク）",
+      "url": "https://kotobank.jp/word/閏月-35458",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-sekai-urudzuki",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "改訂新版 世界大百科事典「閏月」（コトバンク）",
+      "url": "https://kotobank.jp/word/閏月-35458",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kotobank-britannica-urudzuki",
+      "kind": "dictionary",
+      "publisher": "ブリタニカ・ジャパン",
+      "title": "ブリタニカ国際大百科事典 小項目事典「閏月」（コトバンク）",
+      "url": "https://kotobank.jp/word/閏月-35458",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-ito-jitchi-jokan",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『実地研究四柱推命秘伝書 上巻』（神祥館, 1914, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/924662",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-ito-hidensho-1",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『四柱推命秘伝書 : 実地研究 巻1』（伊藤神祥館, 1916, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/909958",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-ito-hidensho-3",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『四柱推命秘伝書 : 実地研究 巻3』（伊藤神祥館, 1916, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/909960",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-takagi-jissen-1",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『実践命理学講座 第1講』（命理学会, 1936, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1091820",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-takagi-jissen-2",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『実践命理学講座 第2講』（命理学会, 1936, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1091819",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-takagi-kakushiki-2",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第2講』（命理学会, 1936, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1092157",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-takagi-kakushiki-6",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第6講』（命理学会, 1936, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1092493",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-takagi-hayawakari-ge",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理学早わかり 下』（高木綜合運命学会, 1936, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1035008",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-matsumoto-okugi-1",
+      "kind": "book",
+      "publisher": "天祥館",
+      "title": "松本義亮『四柱推命奥義秘伝録 1』（天祥館出版部, 1933, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1104848",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-matsumoto-okugi-5",
+      "kind": "book",
+      "publisher": "天祥館",
+      "title": "松本義亮『四柱推命奥義秘伝録 5』（天祥館出版部, 1933, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1104870",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-kumazaki-daiohi",
+      "kind": "book",
+      "publisher": "五聖閣",
+      "title": "熊崎健翁 口述・加藤大岳 編『熊崎式先天運推理学大奥秘 乾』（五聖閣, 昭和7, 国立国会図書館サーチ 目次）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000039-I1104935",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-jingukan-kyusei",
+      "kind": "book",
+      "publisher": "神宮館",
+      "title": "高島易断講究所本部 編『九星暦術一代運気活断口伝書』（神宮館, 1941, NDLデジタルコレクション）",
+      "url": "https://dl.ndl.go.jp/pid/1137386",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-nihonbungeisha-kanzen",
+      "kind": "book",
+      "publisher": "日本文芸社",
+      "title": "三木照山『四柱推命学の完全独習』（日本文芸社, 2020, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I030575435",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-ikeda-lesson",
+      "kind": "book",
+      "publisher": "池田書店",
+      "title": "『命式が読める四柱推命LESSON BOOK』（池田書店, 2024, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I033567546",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-kokusho-meishiki",
+      "kind": "book",
+      "publisher": "国書刊行会",
+      "title": "森千命『実用四柱推命学講座 2 命式の作成』（国書刊行会, 1995, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000039-I14555686",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-kosousha-setsutenki-4",
+      "kind": "book",
+      "publisher": "香草社",
+      "title": "『四柱推命・洩天機 巻4』（香草社, 2013, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I029477266",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-kosousha-nenun",
+      "kind": "book",
+      "publisher": "香草社",
+      "title": "『四柱年運鑑定秘法 : 変通星十二運』（香草社, 1993, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I029475147",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-setsuwasha-nichu-jichu",
+      "kind": "book",
+      "publisher": "説話社",
+      "title": "『「日柱」と「時柱」の二柱で読み解く四柱推命』（説話社, 2023, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I032917052",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-shinsei-gecchu",
+      "kind": "book",
+      "publisher": "新星出版社",
+      "title": "『月柱天干と元命の宿命星であなたの運勢と性格がわかる』（新星出版社, 2011, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000136-I1970867909806558352",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-shugakusha-mannenreki",
+      "kind": "book",
+      "publisher": "修学社",
+      "title": "『四柱推命万年暦』（修学社, 2020, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I030667041",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ndl-shirakawa-mannenreki",
+      "kind": "book",
+      "publisher": "白川書院",
+      "title": "板井祖山『四柱推命学 : 万年暦』（白川書院, 1966, 国立国会図書館サーチ）",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000001-I04111104006478",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-app-meishikihyo",
+      "kind": "app",
+      "publisher": "Naoya Sakata",
+      "title": "命式表（App Store）",
+      "url": "https://apps.apple.com/jp/app/%E5%91%BD%E5%BC%8F%E8%A1%A8/id1209753567",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-app-shichu-world",
+      "kind": "app",
+      "publisher": "Fortunetorch",
+      "title": "四柱ワールド – 四柱推命ガイド（App Store）",
+      "url": "https://apps.apple.com/jp/app/id1551797792",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-coconala-deguchi-tool",
+      "kind": "software",
+      "publisher": "占いプログラマDeguchi",
+      "title": "四柱推命の命式表＆鑑定書自動生成ツール（ココナラ）",
+      "url": "https://coconala.com/services/2005453",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-masterseanchan-bazi",
+      "kind": "software",
+      "publisher": "Master Sean Chan",
+      "title": "八字計算機 | 太陽時による四柱推命チャート",
+      "url": "https://www.masterseanchan.com/ja/%E5%85%AB%E5%AD%97%E8%A8%88%E7%AE%97%E6%A9%9F-%E5%A4%AA%E9%99%BD%E6%99%82%E3%81%AB%E3%82%88%E3%82%8B%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD%E3%83%81%E3%83%A3%E3%83%BC%E3%83%88/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-mikazuki-four-pillars",
+      "kind": "software",
+      "publisher": "Luxis Works",
+      "title": "四柱推命 無料｜生年月日で占う命式【Mikazuki】",
+      "url": "https://luxisworks.com/mikazuki/four-pillars/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-mikazuki-zokan",
+      "kind": "software",
+      "publisher": "Luxis Works",
+      "title": "蔵干とは？十二支の蔵干表と読み方・月支元命｜四柱推命【Mikazuki】",
+      "url": "https://luxisworks.com/mikazuki/four-pillars/zokan/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-hoshiyomi-meishiki",
+      "kind": "software",
+      "publisher": "ほしよみシステム",
+      "title": "命式の見方 - 紫微斗数・四柱推命・九星気学の総合鑑定サービス",
+      "url": "https://hoshiyomi.systems/description/suimei/meishiki",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-ksuimei-zokan",
+      "kind": "software",
+      "publisher": "Royal Fortune Co., Ltd.（きつねの四柱推命）",
+      "title": "蔵干について - きつねの四柱推命",
+      "url": "https://ksuimei.com/html/04_karte/03_zokan.html",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-eunsei-top",
+      "kind": "software",
+      "publisher": "いい運勢ねっと",
+      "title": "完全無料 四柱推命診断｜自分専用の命式表・大運・年運を自動作成【いい運勢ねっと】",
+      "url": "https://eunsei.net/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-starcrawler-gessigenmei",
+      "kind": "software",
+      "publisher": "四柱推命スタークローラー（starcrawler.net）",
+      "title": "月支元命（げっしげんめい）｜四柱推命の基礎知識｜四柱推命スタークローラー",
+      "url": "https://suimei.starcrawler.net/word/gessigenmei.php",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-tamako-shichusuimei",
+      "kind": "software",
+      "publisher": "テレシスネットワーク株式会社",
+      "title": "四柱推命｜命式自動計算◆水晶玉子があなたの運勢と性格を無料鑑定",
+      "url": "https://suishotamako.net/free_category_69.html",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-sajuworks-jichu",
+      "kind": "software",
+      "publisher": "四柱工房（Saju Works）",
+      "title": "生まれた時間が四柱を変える：時柱（じちゅう）の驚くべき秘密 | Saju Works Column",
+      "url": "https://www.sajuworks.com/ja/column/birth-hour-saju-secret",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-openfate-zi-hour",
+      "kind": "software",
+      "publisher": "OpenFate",
+      "title": "早子時・夜子時：23時改日と0時改日 | OpenFate Wiki",
+      "url": "https://wiki.openfate.ai/ja/bazi/glossary/early-and-late-zi-hour",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-fourpillar-saiun",
+      "kind": "school",
+      "publisher": "四柱推命旺",
+      "title": "歳運の影響力の見方～大運・年運・月運・日運の読み方の解説 | 四柱推命旺",
+      "url": "https://www.fourpillar.net/article/?id=2021073101",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-fourpillar-zokan-bunya",
+      "kind": "school",
+      "publisher": "四柱推命旺",
+      "title": "蔵干分野表 | 四柱推命旺",
+      "url": "https://www.fourpillar.net/article/?id=2019122401",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-shinagawa-nenokoku",
+      "kind": "school",
+      "publisher": "四柱推命教室 品川校",
+      "title": "同じ四柱推命なのに流派でこんなに鑑定結果が変わる！？生まれ時間と日付変更線の話",
+      "url": "https://shinagawa-uranai.com/blog/20220115090445-1348/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-uranaicloud-zokan",
+      "kind": "media",
+      "publisher": "Seeds Create, inc.",
+      "title": "蔵干（ぞうかん）完全ガイド｜十二支に隠された「魂の本音」と潜在能力",
+      "url": "https://contents.uranai.cloud/column/3143/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-kosazukari-jichu",
+      "kind": "media",
+      "publisher": "姓名判断大全（shindan.kosazukari.com）",
+      "title": "時柱とは？意味・由来・関連用語｜占術用語集",
+      "url": "https://shindan.kosazukari.com/uranai/glossary/jichuu",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-jawiki-shichusuimei",
+      "kind": "wiki",
+      "publisher": "ウィキメディア財団",
+      "title": "四柱推命 - Wikipedia",
+      "url": "https://ja.wikipedia.org/wiki/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-coconala-kuhana-nenokoku",
+      "kind": "blog",
+      "publisher": "KUHANA 韓国式四柱推命",
+      "title": "子の刻（23時ー1時）に生まれた方の命式｜KUHANA 韓国式四柱推命｜coconalaブログ",
+      "url": "https://coconala.com/blogs/4392294/559940",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "chart-koei-blog-yashiji",
+      "kind": "blog",
+      "publisher": "株式会社光栄建設",
+      "title": "夜子時問題（四柱推命🔮） | 株式会社光栄建設",
+      "url": "https://www.tnk-koei.co.jp/blog/%E5%A4%9C%E5%AD%90%E6%99%82%E5%95%8F%E9%A1%8C/",
+      "accessed": "2026-10-15"
+    }
+  ],
+  "terms": [
+    {
+      "id": "concept.saju",
+      "ko": "사주명리",
+      "hanja": "四柱命理",
+      "glossary_key": null,
+      "ja": "四柱推命",
+      "reading": "しちゅうすいめい",
+      "aliases": [
+        "八字"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-daijisen-shichusuimei",
+          "form": "四柱推命",
+          "quote": "しちゅう‐すいめい【四柱推命】"
+        },
+        {
+          "source": "chart-kotobank-sekai-shichusuimei",
+          "form": "四柱推命",
+          "quote": "四柱推命 (しちゅうすいめい)"
+        },
+        {
+          "source": "chart-kotobank-uranai-shichusuimei",
+          "form": "四柱推命",
+          "quote": "中国などで用いられている四柱推命と日本で普及しているものとでは、解釈方法に大きな違いがあるとされている。"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "四柱推命",
+          "quote": "四柱推命は、生まれた「年・月・日・時刻」をそれぞれ干支（十干十二支）に置き換えた四つの柱「命式」をもとに"
+        },
+        {
+          "source": "chart-kotobank-sekai-shichusuimei",
+          "form": "八字",
+          "quote": "もとは〈八字〉（年・月・日・時のそれぞれを2字の干支であらわすから）といい"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국의 사주명리(四柱命理)에 대응하는 일본어 술법명은 四柱推命으로 사전 3종(小学館·平凡社)과 업계 모두 같습니다. 世界大百科事典은 옛 이름으로 八字·三命을 들고, 일본 연구서로 阿部泰山을 꼽습니다. 占い用語集(アカデメイア・カレッジ)은 중국식과 일본에 보급된 四柱推命의 해석법이 크게 다르다고 적습니다(D71 기준 안내 재료)."
+    },
+    {
+      "id": "concept.wonguk",
+      "ko": "원국",
+      "hanja": "原局",
+      "glossary_key": null,
+      "ja": "命式",
+      "reading": "めいしき",
+      "aliases": [
+        "原局"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-uranai-shichusuimei",
+          "form": "命式",
+          "quote": "十干十二支の八字を四柱の柱に配して「命式」を作り"
+        },
+        {
+          "source": "chart-ndl-nihonbungeisha-kanzen",
+          "form": "命式",
+          "quote": "四柱推命学の完全独習 : 基礎からわかる : 命式の求め方から運命の占い方まで"
+        },
+        {
+          "source": "chart-ndl-ikeda-lesson",
+          "form": "命式",
+          "quote": "命式が読める四柱推命LESSON BOOK"
+        },
+        {
+          "source": "chart-ndl-kokusho-meishiki",
+          "form": "命式",
+          "quote": "実用四柱推命学講座 2 命式の作成"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "命式",
+          "quote": "四柱推命の命式表を作成します。"
+        },
+        {
+          "source": "chart-fourpillar-saiun",
+          "form": "原局",
+          "quote": "ですから、原局と大運の作用を詳しく読んで初めて喜忌が明らかになるというわけなのです。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 원국(原局)에 해당하는 일본 주류 표기는 命式이고, 표 자체는 命式表라고 부릅니다(命式表 앱, Deguchi 도구). 原局도 일부 감정사가 쓰지만 드뭅니다."
+    },
+    {
+      "id": "concept.manse",
+      "ko": "만세력",
+      "hanja": "萬歲曆",
+      "glossary_key": null,
+      "ja": "万年暦",
+      "reading": "まんねんれき",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-shugakusha-mannenreki",
+          "form": "万年暦",
+          "quote": "四柱推命万年暦"
+        },
+        {
+          "source": "chart-ndl-shirakawa-mannenreki",
+          "form": "万年暦",
+          "quote": "四柱推命学 : 万年暦"
+        },
+        {
+          "source": "chart-app-shichu-world",
+          "form": "万年暦",
+          "quote": "生年月日と出生時間を入力するだけで、年柱・月柱・日柱・時柱を正確に算出する本格的な「四柱推命 万年暦」です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命 책은 권말 干支표를 万年暦이라 부르고 단독 万年暦 책도 많습니다. デジタル大辞泉의 万年暦(まんねんごよみ)은 길흉·상성을 적은 옛 잡서(雑書)라는 다른 뜻이라 근거로 세지 않았습니다. 읽기 まんねんれき는 사주 업계 관용이며 사전 근거는 없습니다. 紀伊國屋 서지에는 「萬年暦」 표기도 보입니다."
+    },
+    {
+      "id": "concept.yeonju",
+      "ko": "연주",
+      "hanja": "年柱",
+      "glossary_key": null,
+      "ja": "年柱",
+      "reading": "ねんちゅう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-ito-jitchi-jokan",
+          "form": "年柱",
+          "quote": "此柱起空彷の作用は、年柱は親緣淺く、月柱は親兄弟緣淺く、時柱は子緣淺し。"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "年柱",
+          "quote": "・年柱/月柱/日柱/時柱の命式表"
+        },
+        {
+          "source": "chart-app-shichu-world",
+          "form": "年柱",
+          "quote": "年柱・月柱・日柱・時柱を正確に算出する本格的な「四柱推命 万年暦」です。"
+        },
+        {
+          "source": "chart-sajuworks-jichu",
+          "form": "年柱",
+          "quote": "年柱（ねんちゅう）生まれた年先天的な環境、祖先、社会的な基盤"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 年柱는 立春에서 바뀝니다(Mikazuki, 위키백과)."
+    },
+    {
+      "id": "concept.wolju",
+      "ko": "월주",
+      "hanja": "月柱",
+      "glossary_key": null,
+      "ja": "月柱",
+      "reading": "げっちゅう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-ito-jitchi-jokan",
+          "form": "月柱",
+          "quote": "此柱起空彷の作用は、年柱は親緣淺く、月柱は親兄弟緣淺く、時柱は子緣淺し。"
+        },
+        {
+          "source": "chart-ndl-shinsei-gecchu",
+          "form": "月柱",
+          "quote": "月柱天干と元命の宿命星であなたの運勢と性格がわかる"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "月柱",
+          "quote": "・年柱/月柱/日柱/時柱の命式表"
+        },
+        {
+          "source": "chart-sajuworks-jichu",
+          "form": "月柱",
+          "quote": "月柱（げっちゅう）生まれた月両親・兄弟の環境、青年期、職業"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 月柱는 각 달의 節入り에서 바뀝니다."
+    },
+    {
+      "id": "concept.ilju",
+      "ko": "일주",
+      "hanja": "日柱",
+      "glossary_key": null,
+      "ja": "日柱",
+      "reading": "にっちゅう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-setsuwasha-nichu-jichu",
+          "form": "日柱",
+          "quote": "「日柱」と「時柱」の二柱で読み解く四柱推命"
+        },
+        {
+          "source": "chart-ndl-takagi-jissen-2",
+          "form": "日柱",
+          "quote": "日柱中に○深水あるものは頑固強情である"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "日柱",
+          "quote": "・年柱/月柱/日柱/時柱の命式表"
+        },
+        {
+          "source": "chart-sajuworks-jichu",
+          "form": "日柱",
+          "quote": "日柱（にっちゅう）生まれた日自分自身（日干）、配偶者、中年期"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 일본에서도 23시 子の刻 생의 日柱를 다음 날로 볼지는 유파마다 다릅니다(concept.jasi 참고). 鳥海流처럼 年·月·日 三柱만 쓰는 유파도 있습니다(四柱推命教室 品川校)."
+    },
+    {
+      "id": "concept.siju",
+      "ko": "시주",
+      "hanja": "時柱",
+      "glossary_key": null,
+      "ja": "時柱",
+      "reading": "じちゅう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-setsuwasha-nichu-jichu",
+          "form": "時柱",
+          "quote": "「日柱」と「時柱」の二柱で読み解く四柱推命"
+        },
+        {
+          "source": "chart-ndl-ito-jitchi-jokan",
+          "form": "時柱",
+          "quote": "此柱起空彷の作用は、年柱は親緣淺く、月柱は親兄弟緣淺く、時柱は子緣淺し。"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "時柱",
+          "quote": "・年柱/月柱/日柱/時柱の命式表"
+        },
+        {
+          "source": "chart-sajuworks-jichu",
+          "form": "時柱",
+          "quote": "時柱（じちゅう）生まれた時間子ども・部下、老年期、内面的な欲求"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 출생 시각을 모르면 時柱를 빼고 三柱로 보는 것이 일본에서도 일반적입니다(Mikazuki, 水晶玉子 사이트)."
+    },
+    {
+      "id": "part.stem",
+      "ko": "천간",
+      "hanja": "天干",
+      "glossary_key": "part.stem",
+      "ja": "天干",
+      "reading": "てんかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-jitsu-tenkan",
+          "form": "天干",
+          "quote": "【天干】てんかん"
+        },
+        {
+          "source": "chart-ndl-ito-jitchi-jokan",
+          "form": "天干",
+          "quote": "四柱の名称天干地支の解 / 2p"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "天干",
+          "quote": "四柱推命の命式の見方——天干・地支・蔵干・通変星・十二運星・五行の意味を、ひとつずつ解説します。"
+        },
+        {
+          "source": "chart-tamako-shichusuimei",
+          "form": "天干",
+          "quote": "各柱に天干（10種類）と地支（12種類）を割り当てることで、その人固有の「命式」が導き出されます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "사전(字通)은 天干을 十干과 같은 말로 풀이합니다. 일반 일본어에서는 十干이 더 익숙하지만, 命式 표의 윗줄 이름은 天干입니다."
+    },
+    {
+      "id": "part.branch",
+      "ko": "지지",
+      "hanja": "地支",
+      "glossary_key": "part.branch",
+      "ja": "地支",
+      "reading": "ちし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-ito-jitchi-jokan",
+          "form": "地支",
+          "quote": "四柱の名称天干地支の解 / 2p"
+        },
+        {
+          "source": "chart-kotobank-uranai-chishi",
+          "form": "地支",
+          "quote": "地支には「子」「丑」「寅」「卯」「辰」「巳」「午」「未」「申」「酉」「戌」「亥」がある。"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "地支",
+          "quote": "四柱推命の命式の見方——天干・地支・蔵干・通変星・十二運星・五行の意味を、ひとつずつ解説します。"
+        },
+        {
+          "source": "chart-tamako-shichusuimei",
+          "form": "地支",
+          "quote": "各柱に天干（10種類）と地支（12種類）を割り当てることで、その人固有の「命式」が導き出されます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "地支는 十二支와 같은 뜻입니다(占い用語集). 일반 일본어에서는 十二支·えと가 익숙하고, 命式 표의 아랫줄 이름은 地支입니다."
+    },
+    {
+      "id": "concept.ganji",
+      "ko": "간지",
+      "hanja": "干支",
+      "glossary_key": null,
+      "ja": "干支",
+      "reading": "かんし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-nikkoku-kanshi",
+          "form": "干支",
+          "quote": "十干十二支。干支(かんし)。"
+        },
+        {
+          "source": "chart-kotobank-sekai-kanshi",
+          "form": "干支",
+          "quote": "干支 (かんし)"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "干支",
+          "quote": "・干支から生年月日を逆算することもできます"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 한국과 같습니다. 읽기는 かんし와 えと 두 가지이고, 일상어 えと는 흔히 十二支(띠)만 가리킵니다. 世界大百科事典은 えと를 十二支 뜻으로 쓰는 것이 본래 뜻으로는 오용이라고 적습니다. 사주 문맥에서는 かんし로 읽는 편이 오해가 적습니다."
+    },
+    {
+      "id": "concept.ilgan",
+      "ko": "일간",
+      "hanja": "日干",
+      "glossary_key": null,
+      "ja": "日干",
+      "reading": "にっかん",
+      "aliases": [
+        "日主"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-kosousha-setsutenki-4",
+          "form": "日干",
+          "quote": "日干と他一干の二干関係"
+        },
+        {
+          "source": "chart-ndl-matsumoto-okugi-1",
+          "form": "日干",
+          "quote": "反つて日干を尅する星あるを云ふ"
+        },
+        {
+          "source": "chart-ndl-takagi-kakushiki-6",
+          "form": "日干",
+          "quote": "日干尅生/9"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "日干",
+          "quote": "とくに日干は【自分の頭】とし、日支は【肉体】と【パートナー】を表します。"
+        },
+        {
+          "source": "chart-shinagawa-nenokoku",
+          "form": "日干",
+          "quote": "日干は自分を表しているので"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "日主",
+          "quote": "十干（日主）日柱の天干「日主」は、命式のなかであなた自身を表す一字とされます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 일본 주류는 日干이고, 중국식 용어 日主를 쓰는 사이트(Mikazuki)는 「日干」とも라고 함께 적습니다."
+    },
+    {
+      "id": "concept.iljin",
+      "ko": "일진",
+      "hanja": "日辰",
+      "glossary_key": null,
+      "ja": "日の干支",
+      "reading": "ひのかんし",
+      "aliases": [
+        "日干支"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "日の干支",
+          "quote": "日の干支/43"
+        },
+        {
+          "source": "chart-fourpillar-saiun",
+          "form": "日の干支",
+          "quote": "日運：日毎の運勢です。その日の運気を日の干支から占います。"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "日干支",
+          "quote": "・日干支の更新時間は23時/24時切替え可能"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 일진(日辰)은 그날의 干支입니다. 일본어 日辰은 이 뜻으로 쓰이지 않습니다(コトバンク의 日辰은 승려 이름과 字通의 「日月星辰」뿐). 그래서 일반 표현 日の干支를 고르고, 도구 표기 日干支를 별칭에 두었습니다. 그날의 운세라는 뜻이면 日運(concept.ilun)을 씁니다."
+    },
+    {
+      "id": "place.year_stem",
+      "ko": "연간",
+      "hanja": "年干",
+      "glossary_key": "place.year_stem",
+      "ja": "年干",
+      "reading": "ねんかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-takagi-hayawakari-ge",
+          "form": "年干",
+          "quote": "もし又年干に印屋が現ルて月日時に歸祿することなければ、生がいの收まりがない。"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "年干",
+          "quote": "特に年干は父を、年支は母を意味しています。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 고서에는 「生年干」처럼 앞에 生을 붙인 표기도 보입니다(伊藤耕月)."
+    },
+    {
+      "id": "place.year_branch",
+      "ko": "연지",
+      "hanja": "年支",
+      "glossary_key": "place.year_branch",
+      "ja": "年支",
+      "reading": "ねんし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "年支",
+          "quote": "年支の藏干/63"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "年支",
+          "quote": "特に年干は父を、年支は母を意味しています。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다."
+    },
+    {
+      "id": "place.month_stem",
+      "ko": "월간",
+      "hanja": "月干",
+      "glossary_key": "place.month_stem",
+      "ja": "月干",
+      "reading": "げっかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-takagi-hayawakari-ge",
+          "form": "月干",
+          "quote": "卽ち日千が月干と同じである上に日支が時支と同じものである。"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "月干",
+          "quote": "ただし月干を兄とか、月支を姉という見方をするとはずしてしまいます。"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "月干",
+          "quote": "月干の通変星を社会に表れやすい面"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다."
+    },
+    {
+      "id": "place.month_branch",
+      "ko": "월지",
+      "hanja": "月支",
+      "glossary_key": "place.month_branch",
+      "ja": "月支",
+      "reading": "げっし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-takagi-kakushiki-6",
+          "form": "月支",
+          "quote": "月支の財、官/3"
+        },
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "月支",
+          "quote": "月支の藏干/65"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "月支",
+          "quote": "ただし月干を兄とか、月支を姉という見方をするとはずしてしまいます。"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "月支",
+          "quote": "月支元命（地支の蔵干の通変星）を内面の傾向として読み合わせます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 일본에서는 月支 蔵干의 通変星을 「月支元命」(중심성)이라 부르며 특히 중시하는 유파가 널리 알려져 있습니다(Mikazuki, スタークローラー)."
+    },
+    {
+      "id": "place.day_stem",
+      "ko": "일간 자리",
+      "hanja": "日干",
+      "glossary_key": "place.day_stem",
+      "ja": "日干",
+      "reading": "にっかん",
+      "aliases": [
+        "日主"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-kosousha-setsutenki-4",
+          "form": "日干",
+          "quote": "日干と他一干の二干関係"
+        },
+        {
+          "source": "chart-ndl-matsumoto-okugi-1",
+          "form": "日干",
+          "quote": "反つて日干を尅する星あるを云ふ"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "日干",
+          "quote": "とくに日干は【自分の頭】とし、日支は【肉体】と【パートナー】を表します。"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "日主",
+          "quote": "十干（日主）日柱の天干「日主」は、命式のなかであなた自身を表す一字とされます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "자리 이름도 개념(concept.ilgan)과 같은 日干입니다."
+    },
+    {
+      "id": "place.day_branch",
+      "ko": "일지",
+      "hanja": "日支",
+      "glossary_key": "place.day_branch",
+      "ja": "日支",
+      "reading": "にっし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-takagi-hayawakari-ge",
+          "form": "日支",
+          "quote": "卽ち日千が月干と同じである上に日支が時支と同じものである。"
+        },
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "日支",
+          "quote": "日支、時支の藏干/66"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "日支",
+          "quote": "とくに日干は【自分の頭】とし、日支は【肉体】と【パートナー】を表します。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다."
+    },
+    {
+      "id": "place.hour_stem",
+      "ko": "시간",
+      "hanja": "時干",
+      "glossary_key": "place.hour_stem",
+      "ja": "時干",
+      "reading": "じかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-takagi-kakushiki-2",
+          "form": "時干",
+          "quote": "食神を制すること大ならず、時干は偏官の格をなして"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "時干",
+          "quote": "時干は息子、時支は娘を表し、五十歳以降の晩年運は時柱の影響が強いです。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 일반 일본어 「時間」과 읽기(じかん)가 같아, 화면에서는 한자 표기를 그대로 보여야 합니다."
+    },
+    {
+      "id": "place.hour_branch",
+      "ko": "시지",
+      "hanja": "時支",
+      "glossary_key": "place.hour_branch",
+      "ja": "時支",
+      "reading": "じし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-takagi-hayawakari-ge",
+          "form": "時支",
+          "quote": "卽ち日千が月干と同じである上に日支が時支と同じものである。"
+        },
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "時支",
+          "quote": "日支、時支の藏干/66"
+        },
+        {
+          "source": "chart-hoshiyomi-meishiki",
+          "form": "時支",
+          "quote": "時干は息子、時支は娘を表し、五十歳以降の晩年運は時柱の影響が強いです。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다."
+    },
+    {
+      "id": "place.year_branch_hidden",
+      "ko": "연지 지장간",
+      "hanja": "年支藏干",
+      "glossary_key": "place.year_branch_hidden",
+      "ja": "年支蔵干",
+      "reading": "ねんしぞうかん",
+      "aliases": [
+        "年支の藏干"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-fourpillar-zokan-bunya",
+          "form": "年支蔵干",
+          "quote": "年支蔵干分野表"
+        },
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "年支の藏干",
+          "quote": "年支の藏干/63"
+        }
+      ],
+      "confidence": "하",
+      "note": "일본 命式표는 각 柱 칸 아래에 「蔵干」 줄을 두는 방식이라, 자리 이름을 붙인 표기는 드뭅니다. 新字体로 붙여 쓴 年支蔵干은 四柱推命旺 한 곳뿐이고, 고서(熊崎健翁)는 旧字体 「年支の藏干」을 씁니다. 관례 차이: 일본에서는 지지마다 蔵干 하나만 고르는 방식이 널리 퍼져 있습니다. 節入り 뒤 지난 날수로 余気·中気·本気 가운데 하나를 고르고(命式表 앱은 阿部泰山式 蔵干表, Mikazuki는 節入り로부터의 날수), 年支·日支는 正気만 쓰는 유파도 있습니다(きつねの四柱推命). 한국처럼 지장간을 모두 늘어놓는 표시와 다릅니다."
+    },
+    {
+      "id": "place.month_branch_hidden",
+      "ko": "월지 지장간",
+      "hanja": "月支藏干",
+      "glossary_key": "place.month_branch_hidden",
+      "ja": "月支蔵干",
+      "reading": "げっしぞうかん",
+      "aliases": [
+        "月支の蔵干",
+        "月支の藏干"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-fourpillar-zokan-bunya",
+          "form": "月支蔵干",
+          "quote": "月支蔵干分野表"
+        },
+        {
+          "source": "chart-ksuimei-zokan",
+          "form": "月支蔵干",
+          "quote": "天地融和し母体より生まれた人間なれば、月支蔵干をもって人元と考えます。"
+        },
+        {
+          "source": "chart-eunsei-top",
+          "form": "月支蔵干",
+          "quote": "中心星（月支蔵干変通星）： あなたの核となる性格。社会的な成功の鍵がここにあります。"
+        },
+        {
+          "source": "chart-uranaicloud-zokan",
+          "form": "月支蔵干",
+          "quote": "まずは、自分の命式の中で最も重要な場所（月支蔵干など）をチェックしてみましょう。"
+        },
+        {
+          "source": "chart-mikazuki-zokan",
+          "form": "月支の蔵干",
+          "quote": "特に月支の蔵干から導かれる星は「月支元命」と呼ばれ"
+        },
+        {
+          "source": "chart-starcrawler-gessigenmei",
+          "form": "月支の蔵干",
+          "quote": "月支元命（げっしげんめい）とは、四柱推命の命式で月支の蔵干から算出される通変星のことです。"
+        },
+        {
+          "source": "chart-ndl-kumazaki-daiohi",
+          "form": "月支の藏干",
+          "quote": "月支の藏干/65"
+        }
+      ],
+      "confidence": "중",
+      "note": "네 자리 가운데 근거가 가장 많습니다. 月支蔵干과 「月支の蔵干」이 함께 쓰이고, 일본에서는 이 자리의 通変星을 月支元命이라 부르며 중시합니다. 新字体 표기를 쓴 책 근거를 찾지 못해 중입니다. 蔵干을 하나만 고르는 일본 관례는 place.year_branch_hidden note를 봅니다."
+    },
+    {
+      "id": "place.day_branch_hidden",
+      "ko": "일지 지장간",
+      "hanja": "日支藏干",
+      "glossary_key": "place.day_branch_hidden",
+      "ja": "日支蔵干",
+      "reading": "にっしぞうかん",
+      "aliases": [
+        "日支の蔵干",
+        "日柱蔵干"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-fourpillar-zokan-bunya",
+          "form": "日支蔵干",
+          "quote": "日支蔵干分野表"
+        },
+        {
+          "source": "chart-mikazuki-zokan",
+          "form": "日支の蔵干",
+          "quote": "当サイトでは日支の蔵干通変星"
+        },
+        {
+          "source": "chart-ksuimei-zokan",
+          "form": "日支の蔵干",
+          "quote": "日支の蔵干に関しては、十二支が司る「方位 季節 時刻」などが直接関係しないため正気(十二支の五行)を採用しています。"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "日柱蔵干",
+          "quote": "メール送信の文章で、日柱蔵干が出力されない不具合を修正しました。"
+        }
+      ],
+      "confidence": "하",
+      "note": "표기가 셋으로 갈립니다. 「日支の蔵干」(Mikazuki, きつねの四柱推命), 붙여 쓴 日支蔵干(四柱推命旺), 柱 기준 日柱蔵干(命式表 앱)입니다. 네 자리를 같은 꼴로 맞추려고 日支蔵干을 골랐고, 그래서 신뢰도가 하입니다. writing에서는 「日支の蔵干」으로 바꾸는 쪽도 검토할 만합니다. 日支를 正気 하나로 보는 유파가 있습니다."
+    },
+    {
+      "id": "place.hour_branch_hidden",
+      "ko": "시지 지장간",
+      "hanja": "時支藏干",
+      "glossary_key": "place.hour_branch_hidden",
+      "ja": "時支蔵干",
+      "reading": "じしぞうかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-fourpillar-zokan-bunya",
+          "form": "時支蔵干",
+          "quote": "時支蔵干分野表"
+        }
+      ],
+      "confidence": "하",
+      "note": "新字体로 이 자리를 가리킨 표기는 四柱推命旺 한 곳뿐입니다. 고서(熊崎健翁) 목차는 旧字体로 「日支、時支の藏干」이라 묶어 씁니다. きつねの四柱推命은 時支의 蔵干을 출생 시각으로 정한다고 적습니다."
+    },
+    {
+      "id": "luck.daeun",
+      "ko": "대운",
+      "hanja": "大運",
+      "glossary_key": "luck.daeun",
+      "ja": "大運",
+      "reading": "たいうん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-matsumoto-okugi-5",
+          "form": "大運",
+          "quote": "大運の繰り方/4"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "大運",
+          "quote": "・大運、歳運の表示"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "大運",
+          "quote": "・大運表、年運表、裏蔵干、裏十二運、位相法、特殊星(吉凶神殺)等の表示"
+        },
+        {
+          "source": "chart-masterseanchan-bazi",
+          "form": "大運",
+          "quote": "10年ごとの大運 大运"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다. 읽기는 たいうん과 だいうん이 함께 쓰이고, 근거를 모은 출처들에는 읽기 표시가 없습니다."
+    },
+    {
+      "id": "luck.seun",
+      "ko": "세운",
+      "hanja": "歲運",
+      "glossary_key": "luck.seun",
+      "ja": "年運",
+      "reading": "ねんうん",
+      "aliases": [
+        "歳運",
+        "流年"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-ito-hidensho-1",
+          "form": "年運",
+          "quote": "年運鑑定法 / 16"
+        },
+        {
+          "source": "chart-ndl-kosousha-nenun",
+          "form": "年運",
+          "quote": "四柱年運鑑定秘法 : 変通星十二運"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "年運",
+          "quote": "3. 年運表シート"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "年運",
+          "quote": "年運は、立春を境に現在の年運から10年分の干支・通変星・十二運と、その年に重なる大運を表示します。"
+        },
+        {
+          "source": "chart-fourpillar-saiun",
+          "form": "年運",
+          "quote": "年運：流年運とも言います。その1年の運勢をその年の干支から占います。"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "歳運",
+          "quote": "・大運、歳運の表示"
+        },
+        {
+          "source": "chart-fourpillar-saiun",
+          "form": "歳運",
+          "quote": "歳運とは、その者の運勢の流れをひっくるめて言う言葉で、大運・年運・月運・日運の四種類があります。"
+        },
+        {
+          "source": "chart-masterseanchan-bazi",
+          "form": "流年",
+          "quote": "+ 下で選択した大運と流年"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 세운(歲運)에 해당하는 일본 주류 표기는 年運입니다. 歳運은 뜻이 갈립니다. 命式表 앱은 1년 단위 운을 歳運이라 하고, 四柱推命旺은 大運·年運·月運·日運을 아우르는 총칭으로 씁니다. 그래서 歳運을 화면에 쓰면 뜻이 흔들립니다. 중국식 流年(流年運)도 쓰입니다. 年運은 1월 1일이 아니라 立春에서 바뀝니다(Mikazuki, 四柱推命旺)."
+    },
+    {
+      "id": "concept.wolun",
+      "ko": "월운",
+      "hanja": "月運",
+      "glossary_key": null,
+      "ja": "月運",
+      "reading": "げつうん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-ito-hidensho-1",
+          "form": "月運",
+          "quote": "月運の解 / 24"
+        },
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "月運",
+          "quote": "11. 月運表シート(※有料option：3,000円）"
+        },
+        {
+          "source": "chart-fourpillar-saiun",
+          "form": "月運",
+          "quote": "月運：月毎の運勢です。その月の運気を月の干支から占います。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 표기입니다."
+    },
+    {
+      "id": "concept.ilun",
+      "ko": "일운",
+      "hanja": "日運",
+      "glossary_key": null,
+      "ja": "日運",
+      "reading": "にちうん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-coconala-deguchi-tool",
+          "form": "日運",
+          "quote": "12. 日運表シート(※有料option：3,000円）"
+        },
+        {
+          "source": "chart-fourpillar-saiun",
+          "form": "日運",
+          "quote": "日運：日毎の運勢です。その日の運気を日の干支から占います。"
+        }
+      ],
+      "confidence": "중",
+      "note": "한국과 같은 표기입니다. 국립국회도서관 본문 검색과 서지에서 이 뜻의 日運을 쓴 사주 책을 찾지 못해 중입니다. 고서는 年運·月運까지만 장을 둡니다(伊藤耕月)."
+    },
+    {
+      "id": "concept.jeolgi",
+      "ko": "절기",
+      "hanja": "節氣",
+      "glossary_key": null,
+      "ja": "節気",
+      "reading": "せっき",
+      "aliases": [
+        "二十四節気"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-daijisen-sekki",
+          "form": "節気",
+          "quote": "せっ‐き【節気】"
+        },
+        {
+          "source": "chart-kotobank-sekai-nijushisekki",
+          "form": "節気",
+          "quote": "12個の中気と12個の節気の総称で，中国の戦国時代に成立した。節気ないし二十四気とも略称する。"
+        },
+        {
+          "source": "chart-kotobank-nipponica-nijushisekki",
+          "form": "節気",
+          "quote": "1か月に2分点ずつを割り当て、先のものを節気、後のものを中気と名づけ"
+        },
+        {
+          "source": "chart-masterseanchan-bazi",
+          "form": "節気",
+          "quote": "これらの大運は、あなたの生年月日、性別、そして前後の節気（節氣）から算出されています。"
+        },
+        {
+          "source": "chart-kotobank-daijisen-nijushisekki",
+          "form": "二十四節気",
+          "quote": "にじゅうし‐せっき〔ニジフシ‐〕【二十四節気】"
+        }
+      ],
+      "confidence": "상",
+      "note": "節気는 두 뜻으로 쓰입니다. 넓게는 二十四節気 전체(デジタル大辞泉: 「二十四節気」に同じ)이고, 좁게는 中気와 번갈아 오는 12개 절입니다(ニッポニカ, 世界大百科事典). 사주에서 달을 가르는 것은 좁은 뜻의 節気이고, 이것이 한국 사주의 절기와 같습니다. 일반 독자에게는 二十四節気가 더 익숙합니다."
+    },
+    {
+      "id": "concept.jeolip",
+      "ko": "절입",
+      "hanja": "節入",
+      "glossary_key": null,
+      "ja": "節入り",
+      "reading": "せついり",
+      "aliases": [
+        "節入",
+        "節入日"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-ito-hidensho-3",
+          "form": "節入り",
+          "quote": "當月の節入りまで何日あると逆に計そへ"
+        },
+        {
+          "source": "chart-kotobank-uranai-setsuiri",
+          "form": "節入り",
+          "quote": "暦上の各月の始まりのこと。例えば、２月は４日頃の立春が節入り日となる。"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "節入り",
+          "quote": "生年月日が節入り日で時刻不明の時に、命式を誤ることがあるバグを修正しました。"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "節入り",
+          "quote": "月は立春・啓蟄（けいちつ）など各月の「節」の節入り（せついり）で切り替えます。"
+        },
+        {
+          "source": "chart-ndl-takagi-jissen-1",
+          "form": "節入",
+          "quote": "順運の者は、其の生ルた日から次の月の節入までの間の日数が何日あるかと計算する"
+        },
+        {
+          "source": "chart-app-meishikihyo",
+          "form": "節入日",
+          "quote": "・節入日、時刻の表示"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 절입과 같은 개념입니다. 送り仮名 없는 節入(고서), 날을 가리키는 節入日·節入り日도 쓰입니다. 일본 도구도 節入り 당일 생에 시각을 모르면 두 命式을 다 보여 주거나 고르게 합니다(命式表 앱, Mikazuki)."
+    },
+    {
+      "id": "concept.ipchun",
+      "ko": "입춘",
+      "hanja": "立春",
+      "glossary_key": null,
+      "ja": "立春",
+      "reading": "りっしゅん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-daijisen-risshun",
+          "form": "立春",
+          "quote": "りっ‐しゅん【立春】"
+        },
+        {
+          "source": "chart-kotobank-sekai-risshun",
+          "form": "立春",
+          "quote": "立春 (りっしゅん)"
+        },
+        {
+          "source": "chart-mikazuki-four-pillars",
+          "form": "立春",
+          "quote": "四柱推命では、暦の1月1日ではなく「立春」を一年の境目とし"
+        },
+        {
+          "source": "chart-jawiki-shichusuimei",
+          "form": "立春",
+          "quote": "1年の始まりは立春、月の始まりは二十四節気の中の正節の節入り時刻。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 같은 관례입니다. 年柱는 1월 1일이나 음력 설이 아니라 立春의 節入り 시각에서 바뀝니다."
+    },
+    {
+      "id": "concept.jasi",
+      "ko": "자시",
+      "hanja": "子時",
+      "glossary_key": null,
+      "ja": "子の刻",
+      "reading": "ねのこく",
+      "aliases": [
+        "子刻"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-ndl-jingukan-kyusei",
+          "form": "子の刻",
+          "quote": "又子の刻とは現今の時間にして午き後十一時より午前一時迄の間を云ふのである"
+        },
+        {
+          "source": "chart-shinagawa-nenokoku",
+          "form": "子の刻",
+          "quote": "違う流派(泰山流)では、23時(子の刻)から"
+        },
+        {
+          "source": "chart-kosazukari-jichu",
+          "form": "子の刻",
+          "quote": "時刻は1日を12分割（子の刻=23〜1時、丑の刻=1〜3時など）し"
+        },
+        {
+          "source": "chart-coconala-kuhana-nenokoku",
+          "form": "子の刻",
+          "quote": "子の刻は（２３時から１時であります）"
+        },
+        {
+          "source": "chart-openfate-zi-hour",
+          "form": "子刻",
+          "quote": "子刻は民用日付の午前0時をまたぎます。23時台を夜子時、0時台を早子時として区別します。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 자시(子時, 23~01시)에 해당하는 일본 일반 표기는 子の刻입니다. 날이 바뀌는 시각은 유파마다 다릅니다. 泰山流는 23시(子の刻 시작)에 日柱를 바꾸고, 鳥海流는 0시를 경계로 23시대 생을 전날 日柱로 봅니다(四柱推命教室 品川校). Mikazuki는 23시 방식이고, Deguchi 도구는 日干支 갱신 시각을 23시/24시 중에서 고르게 합니다. 일본어 위키백과는 현재 23시 설이 우세하다고 적습니다. 明石 기준 표준시를 출생지 경도로 보정하자는 주장도 흔합니다(品川校, 위키백과)."
+    },
+    {
+      "id": "concept.yajasi",
+      "ko": "야자시",
+      "hanja": "夜子時",
+      "glossary_key": null,
+      "ja": "夜子時",
+      "reading": "やしじ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-openfate-zi-hour",
+          "form": "夜子時",
+          "quote": "子刻は民用日付の午前0時をまたぎます。23時台を夜子時、0時台を早子時として区別します。"
+        },
+        {
+          "source": "chart-coconala-kuhana-nenokoku",
+          "form": "夜子時",
+          "quote": "２３日 ２３時すぎ生まれ（夜子時）"
+        },
+        {
+          "source": "chart-koei-blog-yashiji",
+          "form": "夜子時",
+          "quote": "夜子時とは、夜の子の刻生まれという意味です。"
+        }
+      ],
+      "confidence": "중",
+      "note": "일본에서도 23시대를 夜子時라 부르며 「夜子時問題」라는 말이 쓰입니다. 다만 일반 해설은 대개 「子の刻を23時と0時のどちらで切るか」로 설명하고, 이 용어 자체를 쓴 사전이나 책 근거는 찾지 못했습니다. 「夜子時採用」이 0시 개일(23시대는 당일 日柱 유지)을 뜻하는 쓰임도 있어(光栄建設 블로그), 한국의 야자시 적용과 방향이 같습니다."
+    },
+    {
+      "id": "concept.jojasi",
+      "ko": "조자시",
+      "hanja": "朝子時",
+      "glossary_key": null,
+      "ja": "朝子時",
+      "reading": "ちょうしじ",
+      "aliases": [
+        "早子時"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-coconala-kuhana-nenokoku",
+          "form": "朝子時",
+          "quote": "２３日 ０時すぎ生まれ（朝子時）"
+        },
+        {
+          "source": "chart-openfate-zi-hour",
+          "form": "早子時",
+          "quote": "子刻は民用日付の午前0時をまたぎます。23時台を夜子時、0時台を早子時として区別します。"
+        }
+      ],
+      "confidence": "하",
+      "note": "0시대 子の刻를 가리키는 표기가 朝子時(KUHANA: 자신이 배운 일본식에도 朝子時·夜子時 구분이 있었다고 적음)와 중국식 早子時(OpenFate)로 갈리고, 각각 한 곳뿐입니다. 한국 한자(朝子時)와 같은 쪽을 ja로 두었습니다. 일본 주류 해설은 이 구분 대신 子の刻의 개일 시각 문제로 설명하므로, 화면에서는 「0時〜1時の子の刻」처럼 풀어 쓰는 방안도 검토할 만합니다."
+    },
+    {
+      "id": "concept.eumnyeok",
+      "ko": "음력",
+      "hanja": "陰曆",
+      "glossary_key": null,
+      "ja": "旧暦",
+      "reading": "きゅうれき",
+      "aliases": [
+        "陰暦"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-daijisen-kyureki",
+          "form": "旧暦",
+          "quote": "きゅう‐れき〔キウ‐〕【旧暦】"
+        },
+        {
+          "source": "chart-kotobank-sekai-kyureki",
+          "form": "旧暦",
+          "quote": "旧暦 (きゅうれき)"
+        },
+        {
+          "source": "chart-kotobank-britannica-kyureki",
+          "form": "旧暦",
+          "quote": "それ以前の太陰太陽暦を今日では旧暦という。"
+        },
+        {
+          "source": "chart-kotobank-daijisen-inreki",
+          "form": "陰暦",
+          "quote": "いん‐れき【陰暦】"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 음력에 해당하는 일본 일상 표기는 旧暦입니다(1872년 이전 太陰太陽暦, 天保暦 기준). 陰暦도 쓰이지만 사전상 太陰暦을 뜻하기도 합니다. 일본은 공식 달력에서 음력을 쓰지 않아 생일을 旧暦으로 아는 사람이 드뭅니다. 입력 화면에서 음력 생일은 부가 선택지 정도로 다루는 편이 맞습니다."
+    },
+    {
+      "id": "concept.yundal",
+      "ko": "윤달",
+      "hanja": "閏月",
+      "glossary_key": null,
+      "ja": "閏月",
+      "reading": "うるうづき",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "chart-kotobank-nikkoku-urudzuki",
+          "form": "閏月",
+          "quote": "うるう‐づきうるふ‥【閏月】"
+        },
+        {
+          "source": "chart-kotobank-sekai-urudzuki",
+          "form": "閏月",
+          "quote": "閏月 (うるうづき)"
+        },
+        {
+          "source": "chart-kotobank-britannica-urudzuki",
+          "form": "閏月",
+          "quote": "2年ないし3年に1度ずつ閏月をおいて 13ヵ月とする。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국어 윤달과 같은 표기입니다. 읽기는 うるうづき가 주이고 じゅんげつ도 있습니다(デジタル大辞泉). 사주의 月柱는 節入り로 정하므로 閏月은 旧暦 생일을 양력으로 바꿀 때만 쓰입니다."
+    }
+  ]
+}

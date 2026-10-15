@@ -11,6 +11,11 @@
 # * PR 본문 검사(pr-body): 처리한 Issue는 `Closes #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2).
 #   본문만 고쳐도 다시 판정하도록 `edited`에서도 돕니다.
 # * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
+# * 단위 간 맞물림(drift, docs/workflow.md §6.1): 단위 검사는 두 방식으로 돕니다.
+#   - own: PR이 그 단위의 코드(소유 경로)나 그 단위·이 workflow를 바꿨습니다. 실패하면 판정을 막습니다.
+#   - drift: 그 단위가 쓰는 계약 파일만 바뀌었습니다(예: server PR이 openapi.yaml만 바꿈). 받는 쪽이 아직
+#     따라오지 않아 실패할 수 있으므로 판정에서 빼고 경고로 남기며, PR이면 받는 쪽 앞으로 `drift` Issue를 엽니다.
+#     받는 쪽은 다음 PR(own)에서 맞춰야 병합할 수 있습니다. 통합 마일스톤(I1~I4)은 남은 drift 0이 조건입니다.
 
 name: ci-gate
 
@@ -40,6 +45,11 @@ jobs:
       server: ${{ steps.detect.outputs.server }}
       app: ${{ steps.detect.outputs.app }}
       writing: ${{ steps.detect.outputs.writing }}
+      core_mode: ${{ steps.detect.outputs.core_mode }}
+      server_mode: ${{ steps.detect.outputs.server_mode }}
+      app_mode: ${{ steps.detect.outputs.app_mode }}
+      writing_mode: ${{ steps.detect.outputs.writing_mode }}
+      contracts: ${{ steps.detect.outputs.contracts }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,38 +76,37 @@ jobs:
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
           echo "$changed"
-          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
+          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^docs/research/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
             echo "docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
           fi
-          # 단위 검사(core·server)는 문서(.md)를 읽지 않으므로, .md만 바뀐 경우에는 고르지 않습니다(docs 검사만 돕니다).
-          code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
-          # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있습니다.
-          if echo "$code_changed" | grep -qE '^core/|^proto/|^\.github/workflows/(core|ci-gate)\.yml$'; then
-            echo "core=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "core=false" >> "$GITHUB_OUTPUT"
-          fi
-          # server가 쓰는 계약(proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙)이 바뀌어도 server 검사를 돌립니다.
-          if echo "$code_changed" | grep -qE '^server/|^proto/|^core/message_(keys|params)\.json$|^docs/identity/writing/|^\.github/workflows/(server|ci-gate)\.yml$'; then
-            echo "server=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "server=false" >> "$GITHUB_OUTPUT"
-          fi
-          # app이 쓰는 계약(REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기)이 바뀌어도 app 검사를 돌립니다(#85).
-          if echo "$code_changed" | grep -qE '^app/|^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/|^\.github/workflows/(app|ci-gate)\.yml$'; then
-            echo "app=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "app=false" >> "$GITHUB_OUTPUT"
-          fi
+          # 단위 검사(core·server·app)는 문서(.md)를 읽지 않으므로, .md만 바뀐 경우에는 고르지 않습니다(docs 검사만 돕니다).
           # writing은 생성 문서(.md)도 원본과 대조하므로(gen-docs --check) .md를 빼지 않습니다.
-          # 검사기가 읽는 계약(IA, 메시지 키·매개변수, proto)이 바뀌어도 돌립니다(#144).
-          if echo "$changed" | grep -qE '^docs/identity/writing/|^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/|^\.github/workflows/(writing|ci-gate)\.yml$'; then
-            echo "writing=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "writing=false" >> "$GITHUB_OUTPUT"
-          fi
+          code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
+          # unit <이름> <바뀐 목록> <소유 경로> <쓰는 계약 경로>
+          # 소유 경로(또는 단위·이 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift, 둘 다 아니면 돌지 않습니다.
+          unit() {
+            name="$1"; list="$2"; own="$3"; contract="$4"
+            if echo "$list" | grep -qE "$own|^\.github/workflows/($name|ci-gate)\.yml$"; then
+              echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=own" >> "$GITHUB_OUTPUT"
+            elif [ -n "$contract" ] && echo "$list" | grep -qE "$contract"; then
+              echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=drift" >> "$GITHUB_OUTPUT"
+            else
+              echo "$name=false" >> "$GITHUB_OUTPUT"; echo "${name}_mode=none" >> "$GITHUB_OUTPUT"
+            fi
+          }
+          # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있어 core 소유입니다.
+          unit core "$code_changed" '^core/|^proto/' ''
+          # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙.
+          unit server "$code_changed" '^server/' '^proto/|^core/message_(keys|params)\.json$|^docs/identity/writing/'
+          # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
+          unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/'
+          # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144).
+          unit writing "$changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/'
+          # drift Issue 본문에 적을 계약 파일 목록입니다.
+          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/|^core/message_(keys|params)\.json$|^proto/' | head -20 | tr '\n' ' ')
+          echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
 
   docs:
     needs: changes
@@ -111,7 +120,7 @@ jobs:
       - name: docs 검사 테스트
         working-directory: tools/docs-check
         run: python3 -I -m unittest -q
-      - name: docs 검사 (링크·artifacts·결정 번호)
+      - name: docs 검사 (링크·artifacts·결정 번호·IA·아이디어·ja 근거 용어집)
         run: python3 -I tools/docs-check/docs_check.py .
 
   pr-body:
@@ -158,6 +167,53 @@ jobs:
     if: needs.changes.outputs.writing == 'true'
     uses: ./.github/workflows/writing.yml
 
+  # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 같은 PR·단위의 Issue가 열려 있으면 다시 열지 않습니다.
+  drift-report:
+    needs: [changes, core, server, app, writing]
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: drift Issue 열기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          CONTRACTS: ${{ needs.changes.outputs.contracts }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SERVER: ${{ needs.changes.outputs.server_mode }}:${{ needs.server.result }}
+          APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
+          WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
+        run: |
+          # 계약 파일의 소유 단위(from 라벨)입니다.
+          from_labels=""
+          echo "$CONTRACTS" | grep -q 'server/api/openapi' && from_labels="$from_labels,from:server"
+          echo "$CONTRACTS" | grep -q 'docs/ia/' && from_labels="$from_labels,from:root"
+          echo "$CONTRACTS" | grep -q 'docs/identity/design/' && from_labels="$from_labels,from:design"
+          echo "$CONTRACTS" | grep -q 'docs/identity/writing/' && from_labels="$from_labels,from:writing"
+          echo "$CONTRACTS" | grep -qE 'core/|proto/' && from_labels="$from_labels,from:core"
+          gh label create drift --color FBCA04 --description "계약 변경을 받는 쪽이 아직 따라오지 않음 (workflow §6.1)" 2>/dev/null || true
+          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+            unit="${pair%%=*}"; state="${pair#*=}"
+            [ "$state" = "drift:failure" ] || continue
+            title="[drift] $unit: PR #$PR 계약 변경 따라잡기"
+            if gh issue list --state open --label drift --limit 200 --json title --jq '.[].title' | grep -qxF "$title"; then
+              echo "이미 열려 있습니다: $title"; continue
+            fi
+            printf '%s\n' \
+              "## 무엇이 필요한가" \
+              "PR #$PR($PR_TITLE)이 바꾼 계약에 \`$unit\`이 아직 맞지 않습니다. 이 단위의 다음 PR에서 맞춰 주세요. 맞추기 전에는 이 단위의 PR이 ci-gate를 통과하지 못합니다(docs/workflow.md §6.1)." \
+              "" \
+              "* 바뀐 계약 파일: $CONTRACTS" \
+              "* 실패한 검사: $RUN_URL" \
+              "" \
+              "## 관련" \
+              "PR #$PR. 이 Issue는 ci-gate가 자동으로 열었습니다. 맞춘 PR 본문에 \`Closes #<이 Issue>\`를 적어 주세요." > body.md
+            gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
+          done
+
   ci-gate:
     needs: [changes, docs, pr-body, core, server, app, writing]
     if: always()
@@ -165,13 +221,33 @@ jobs:
     steps:
       - name: 판정
         env:
-          RESULTS: ${{ join(needs.*.result, ' ') }}
+          FIXED: ${{ needs.changes.result }} ${{ needs.docs.result }} ${{ needs.pr-body.result }}
+          CORE: ${{ needs.changes.outputs.core_mode }}:${{ needs.core.result }}
+          SERVER: ${{ needs.changes.outputs.server_mode }}:${{ needs.server.result }}
+          APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
+          WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
         run: |
-          echo "결과: $RESULTS"
-          for result in $RESULTS; do
+          echo "결과: $FIXED core=$CORE server=$SERVER app=$APP writing=$WRITING"
+          failed=""
+          for result in $FIXED; do
             case "$result" in
               success|skipped) ;;
-              *) echo "실패한 검사가 있습니다: $result"; exit 1 ;;
+              *) failed="$failed $result" ;;
             esac
           done
+          for pair in "core=$CORE" "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+            unit="${pair%%=*}"; mode="${pair#*=}"; mode_name="${mode%%:*}"; result="${mode#*:}"
+            case "$result" in
+              success|skipped) continue ;;
+            esac
+            if [ "$mode_name" = "drift" ]; then
+              echo "::warning title=drift ($unit)::계약 변경을 $unit이 아직 따라오지 않았습니다. 판정에서 빼고, 받는 쪽 다음 PR에서 맞춥니다(docs/workflow.md §6.1)."
+              echo "* drift: $unit ($result)" >> "$GITHUB_STEP_SUMMARY"
+            else
+              failed="$failed $unit:$result"
+            fi
+          done
+          if [ -n "$failed" ]; then
+            echo "실패한 검사가 있습니다:$failed"; exit 1
+          fi
           echo "ci-gate 통과"

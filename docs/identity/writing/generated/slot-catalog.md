@@ -122,10 +122,29 @@
 | today.event.summary | today.event.summary | info | - | 1 | 4 | `count`: number<br>`title`: text | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 2 | - | ko -, en -, ja - |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko -, en -, ja - |
+| ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko -, en -, ja - |
+| ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko -, en -, ja - |
+| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 6 | - | ko -, en -, ja - |
 | ui.depth.default_label | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 10, en 18, ja 10 |
 | ui.depth.evidence | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
+| ui.depth.evidence_link | 컴포넌트 depth-link | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ui.depth.explain | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
+| ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko -, en -, ja - |
+| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 39 | - | ko -, en -, ja - |
+| ui.evidence.title | 컴포넌트 sheet | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.login.error | 컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko -, en -, ja - |
+| ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.nav.a11y | 컴포넌트 app-bar<br>컴포넌트 sheet | guide | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko -, en -, ja - |
+| ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko -, en -, ja - |
+| ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko -, en -, ja - |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.cta.signin | welcome.cta.signin | guide | - | 1 | 1 | - | ko -, en -, ja - |

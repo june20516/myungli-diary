@@ -1,0 +1,1297 @@
+{
+  "sources": [
+    {
+      "id": "sb-kotobank-jikkan-nikkoku",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "十干 — 精選版 日本国語大辞典(コトバンク)",
+      "url": "https://kotobank.jp/word/%E5%8D%81%E5%B9%B2-74539",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-jikkan-uranai",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "十干 — 占い用語集(コトバンク)",
+      "url": "https://kotobank.jp/word/%E5%8D%81%E5%B9%B2-74539",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-junishi-daijisen",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "十二支 — デジタル大辞泉(コトバンク)",
+      "url": "https://kotobank.jp/word/%E5%8D%81%E4%BA%8C%E6%94%AF-77292",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-junishi-heibonsha",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "十二支 — 世界大百科事典(旧版)【十二支像】より(コトバンク)",
+      "url": "https://kotobank.jp/word/%E5%8D%81%E4%BA%8C%E6%94%AF-77292",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-gogyo-nikkoku",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "五行 — 精選版 日本国語大辞典・デジタル大辞泉(コトバンク)",
+      "url": "https://kotobank.jp/word/%E4%BA%94%E8%A1%8C-63672",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-gogyo-heibonsha",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "五行 — 改訂新版 世界大百科事典・百科事典マイペディア(コトバンク)",
+      "url": "https://kotobank.jp/word/%E4%BA%94%E8%A1%8C-63672",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-inyogogyo-nipponica",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "陰陽五行説 — 日本大百科全書(ニッポニカ)(コトバンク)",
+      "url": "https://kotobank.jp/word/%E9%99%B0%E9%99%BD%E4%BA%94%E8%A1%8C%E8%AA%AC-33303",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-inyogogyo-heibonsha",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "陰陽五行説 — 改訂新版 世界大百科事典(コトバンク)",
+      "url": "https://kotobank.jp/word/%E9%99%B0%E9%99%BD%E4%BA%94%E8%A1%8C%E8%AA%AC-33303",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-sokoku-daijisen",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "相克 — デジタル大辞泉(コトバンク)",
+      "url": "https://kotobank.jp/word/%E7%9B%B8%E5%85%8B",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-sosho-daijisen",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "相生 — デジタル大辞泉(コトバンク)",
+      "url": "https://kotobank.jp/word/%E7%9B%B8%E7%94%9F",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-sosho-jitsu",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "相生 — 普及版 字通(コトバンク)",
+      "url": "https://kotobank.jp/word/%E7%9B%B8%E7%94%9F",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-inyo-daijisen",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "陰陽 — デジタル大辞泉(コトバンク)",
+      "url": "https://kotobank.jp/word/%E9%99%B0%E9%99%BD",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-inyo-heibonsha",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "陰陽 — 改訂新版 世界大百科事典・百科事典マイペディア(コトバンク)",
+      "url": "https://kotobank.jp/word/%E9%99%B0%E9%99%BD",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-goshiki-nikkoku",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "五色 — 精選版 日本国語大辞典(コトバンク)",
+      "url": "https://kotobank.jp/word/%E4%BA%94%E8%89%B2",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-kotobank-goshiki-heibonsha",
+      "kind": "dictionary",
+      "publisher": "平凡社",
+      "title": "五色 — 世界大百科事典(旧版)「青」より(コトバンク)",
+      "url": "https://kotobank.jp/word/%E4%BA%94%E8%89%B2",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-longe-kanshi",
+      "kind": "school",
+      "publisher": "株式会社ロンジェ(琉球文化空間デザイン研究所)",
+      "title": "四柱推命基礎理論 01｜「命式」を読み解く原理：十干十二支の基礎知識",
+      "url": "https://longe.jp/four-pillars-sixty-stems-branches/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-andyou-soukoku",
+      "kind": "school",
+      "publisher": "優しい四柱推命",
+      "title": "四柱推命【五行相剋(相克)】とは？相剋の意味や恋愛・夫婦の相性を解説",
+      "url": "https://sup.andyou.jp/shicyusuimei/gogyou/soukoku/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-prestudy-shichusuimei",
+      "kind": "media",
+      "publisher": "株式会社デジタル・ナレッジ",
+      "title": "四柱推命の見方を徹底解説！初心者でもわかる命式の読み方と活用方法 - Pre.STUDY",
+      "url": "https://www.n-academy.jp/pre/2025/10/16/fourpillarsofdestiny_01/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-oggi-gogyo",
+      "kind": "media",
+      "publisher": "小学館",
+      "title": "【2025年版】「五行説」とは？ 起源や5つの元素から陰陽五行・四柱推命についても解説 — Oggi.jp",
+      "url": "https://oggi.jp/6752359",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-allabout-color",
+      "kind": "media",
+      "publisher": "オールアバウト",
+      "title": "“水の気”が広がる2026年の「NGカラー」とは？ 運気を上向きにする「ラッキーカラー」4色 — All About",
+      "url": "https://allabout.co.jp/gm/gc/516663/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "sb-forest-mokkado",
+      "kind": "media",
+      "publisher": "インプレス",
+      "title": "生年月日で占う「木火土金水占い」 — 窓の杜",
+      "url": "https://forest.watch.impress.co.jp/article/2004/11/30/okiniiri.html",
+      "accessed": "2026-10-15"
+    }
+  ],
+  "terms": [
+    {
+      "id": "concept.ohaeng",
+      "ko": "오행",
+      "hanja": "五行",
+      "glossary_key": null,
+      "ja": "五行",
+      "reading": "ごぎょう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-gogyo-nikkoku",
+          "form": "五行",
+          "quote": "木火土金水は、元来は日常生活に不可欠な五つの物質であるが、転じてこれらの物質によって象徴される気、あるいはそのはたらきの意となり、いわゆる五行説として展開する。"
+        },
+        {
+          "source": "sb-kotobank-gogyo-heibonsha",
+          "form": "五行",
+          "quote": "木・火・土・金・水のこと。この5種によって自然現象や人事現象のいっさいを解釈し説明しようとする思想は五行説と呼ばれる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "五行",
+          "quote": "五行の「木火土金水」を「陰」と「陽」にわけて10種類となる。"
+        },
+        {
+          "source": "sb-prestudy-shichusuimei",
+          "form": "五行",
+          "quote": "五行は自然界の循環を表し、人の性格や運勢にも影響を与えます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "コトバンク見出し「五行（読み）ゴギョウ」。思想全体は「五行説」「陰陽五行説」とも呼ぶ。"
+    },
+    {
+      "id": "concept.eumyang",
+      "ko": "음양",
+      "hanja": "陰陽",
+      "glossary_key": null,
+      "ja": "陰陽",
+      "reading": "いんよう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-inyo-daijisen",
+          "form": "陰陽",
+          "quote": "いん‐よう〔‐ヤウ〕【陰陽】"
+        },
+        {
+          "source": "sb-kotobank-inyo-heibonsha",
+          "form": "陰陽",
+          "quote": "陰陽 (いんよう)"
+        },
+        {
+          "source": "sb-kotobank-inyogogyo-nipponica",
+          "form": "陰陽",
+          "quote": "陰陽説とは、陰陽二気の消長により万物の生成変化を説く思想で、"
+        }
+      ],
+      "confidence": "상",
+      "note": "読みは「いんよう」が一般。辞書は「おんよう」「おんみょう」(陰陽道の文脈)も載せる。四柱推命の解説では十干・十二支の属性を「陽木」「陰土」のように陽・陰の一字で示すことが多い(longe.jp)。"
+    },
+    {
+      "id": "concept.sangsaeng",
+      "ko": "상생",
+      "hanja": "相生",
+      "glossary_key": null,
+      "ja": "相生",
+      "reading": "そうしょう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-sosho-daijisen",
+          "form": "相生",
+          "quote": "そう‐じょう〔サウジヤウ〕【相生】"
+        },
+        {
+          "source": "sb-kotobank-sosho-jitsu",
+          "form": "相生",
+          "quote": "【相生】そうせい"
+        },
+        {
+          "source": "sb-kotobank-inyogogyo-nipponica",
+          "form": "相生",
+          "quote": "前にあるものから後のものを生ずるとする五行相生（そうせい）の次序が記され、多くの配当がなされている。"
+        },
+        {
+          "source": "sb-andyou-soukoku",
+          "form": "相生",
+          "quote": "【相生】(そうしょう)　一方の五行がもう一方の五行と力を与えあう"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "相生",
+          "quote": "五行の相生相剋の関係が見出された。"
+        }
+      ],
+      "confidence": "상",
+      "note": "表記は「相生」で一致。読みは出典で割れる: デジタル大辞泉「そうじょう(そうしょうとも)」、日本大百科全書・字通「そうせい」、四柱推命解説(優しい四柱推命)「そうしょう」。四柱推命の文脈に合わせ「そうしょう」とした。「あいおい」は別語(地名・和語)。"
+    },
+    {
+      "id": "concept.sanggeuk",
+      "ko": "상극",
+      "hanja": "相剋",
+      "glossary_key": null,
+      "ja": "相剋",
+      "reading": "そうこく",
+      "aliases": [
+        "相克"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-inyogogyo-nipponica",
+          "form": "相剋",
+          "quote": "五行相勝（そうしょう）（相剋（そうこく））による五徳終始説である。"
+        },
+        {
+          "source": "sb-kotobank-sosho-jitsu",
+          "form": "相剋",
+          "quote": "木火土金水。木は火を生み、火は土を生む（相剋の対）。"
+        },
+        {
+          "source": "sb-andyou-soukoku",
+          "form": "相剋",
+          "quote": "【相剋(相克)】(そうこく)　　加工して活かす"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "相剋",
+          "quote": "五行の相生相剋の関係が見出された。"
+        },
+        {
+          "source": "sb-prestudy-shichusuimei",
+          "form": "相剋",
+          "quote": "五行の相生（プラスの関係）・相剋（マイナスの関係）を見ることで"
+        },
+        {
+          "source": "sb-kotobank-sokoku-daijisen",
+          "form": "相克",
+          "quote": "そう‐こく〔サウ‐〕【相克／相×剋】"
+        },
+        {
+          "source": "sb-kotobank-inyogogyo-heibonsha",
+          "form": "相克",
+          "quote": "これを五行相克（そうこく）という。"
+        }
+      ],
+      "confidence": "상",
+      "note": "一般の国語辞典(デジタル大辞泉・世界大百科事典)は常用漢字の「相克」を見出しにし「相剋」を別表記とする。四柱推命の解説(優しい四柱推命・longe.jp・Pre.STUDY)と日本大百科全書・字通は「相剋」を使うため、四柱推命の用語として「相剋」を採った。古くは「相勝(そうしょう)」とも。"
+    },
+    {
+      "id": "element.wood",
+      "ko": "목",
+      "hanja": "木",
+      "glossary_key": "element.wood",
+      "ja": "木",
+      "reading": "もく",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-gogyo-nikkoku",
+          "form": "木",
+          "quote": "天では木星・火星・土星・金星・水星として運行し、地では木・火・土・金・水として現れ、人も五行から構成されているという。"
+        },
+        {
+          "source": "sb-kotobank-gogyo-heibonsha",
+          "form": "木",
+          "quote": "木・火・土・金・水のこと。この5種によって自然現象や人事現象のいっさいを解釈し説明しようとする思想は五行説と呼ばれる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "木",
+          "quote": "五行の「木火土金水」を「陰」と「陽」にわけて10種類となる。"
+        },
+        {
+          "source": "sb-forest-mokkado",
+          "form": "木",
+          "quote": "“木火土金水”は“もくかどごんすい”と読む。"
+        }
+      ],
+      "confidence": "상",
+      "note": "五行名は漢字一字で韓国と同じ。読みは「もくかどごんすい」の音読み(窓の杜)。訓読み き。五行の色は青(五色)。"
+    },
+    {
+      "id": "element.fire",
+      "ko": "화",
+      "hanja": "火",
+      "glossary_key": "element.fire",
+      "ja": "火",
+      "reading": "か",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-gogyo-nikkoku",
+          "form": "火",
+          "quote": "天では木星・火星・土星・金星・水星として運行し、地では木・火・土・金・水として現れ、人も五行から構成されているという。"
+        },
+        {
+          "source": "sb-kotobank-gogyo-heibonsha",
+          "form": "火",
+          "quote": "木・火・土・金・水のこと。この5種によって自然現象や人事現象のいっさいを解釈し説明しようとする思想は五行説と呼ばれる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "火",
+          "quote": "五行の「木火土金水」を「陰」と「陽」にわけて10種類となる。"
+        },
+        {
+          "source": "sb-forest-mokkado",
+          "form": "火",
+          "quote": "“木火土金水”は“もくかどごんすい”と読む。"
+        }
+      ],
+      "confidence": "상",
+      "note": "五行名は漢字一字で韓国と同じ。読みは「もくかどごんすい」の音読み(窓の杜)。訓読み ひ。五行の色は赤(五色)。"
+    },
+    {
+      "id": "element.earth",
+      "ko": "토",
+      "hanja": "土",
+      "glossary_key": "element.earth",
+      "ja": "土",
+      "reading": "ど",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-gogyo-nikkoku",
+          "form": "土",
+          "quote": "天では木星・火星・土星・金星・水星として運行し、地では木・火・土・金・水として現れ、人も五行から構成されているという。"
+        },
+        {
+          "source": "sb-kotobank-gogyo-heibonsha",
+          "form": "土",
+          "quote": "木・火・土・金・水のこと。この5種によって自然現象や人事現象のいっさいを解釈し説明しようとする思想は五行説と呼ばれる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "土",
+          "quote": "五行の「木火土金水」を「陰」と「陽」にわけて10種類となる。"
+        },
+        {
+          "source": "sb-forest-mokkado",
+          "form": "土",
+          "quote": "“木火土金水”は“もくかどごんすい”と読む。"
+        }
+      ],
+      "confidence": "상",
+      "note": "五行名は漢字一字で韓国と同じ。読みは「もくかどごんすい」の音読み(窓の杜)。訓読み つち。五行の色は黄(五色)。"
+    },
+    {
+      "id": "element.metal",
+      "ko": "금",
+      "hanja": "金",
+      "glossary_key": "element.metal",
+      "ja": "金",
+      "reading": "ごん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-gogyo-nikkoku",
+          "form": "金",
+          "quote": "天では木星・火星・土星・金星・水星として運行し、地では木・火・土・金・水として現れ、人も五行から構成されているという。"
+        },
+        {
+          "source": "sb-kotobank-gogyo-heibonsha",
+          "form": "金",
+          "quote": "木・火・土・金・水のこと。この5種によって自然現象や人事現象のいっさいを解釈し説明しようとする思想は五行説と呼ばれる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "金",
+          "quote": "五行の「木火土金水」を「陰」と「陽」にわけて10種類となる。"
+        },
+        {
+          "source": "sb-forest-mokkado",
+          "form": "金",
+          "quote": "“木火土金水”は“もくかどごんすい”と読む。"
+        }
+      ],
+      "confidence": "상",
+      "note": "五行名は漢字一字で韓国と同じ。読みは「もくかどごんすい」の音読み(窓の杜)。音読み きん、訓読み かね。四柱推命の五行名としては「ごん」(木火土金水=もくかどごんすい)。五行の色は白(五色)。"
+    },
+    {
+      "id": "element.water",
+      "ko": "수",
+      "hanja": "水",
+      "glossary_key": "element.water",
+      "ja": "水",
+      "reading": "すい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-gogyo-nikkoku",
+          "form": "水",
+          "quote": "天では木星・火星・土星・金星・水星として運行し、地では木・火・土・金・水として現れ、人も五行から構成されているという。"
+        },
+        {
+          "source": "sb-kotobank-gogyo-heibonsha",
+          "form": "水",
+          "quote": "木・火・土・金・水のこと。この5種によって自然現象や人事現象のいっさいを解釈し説明しようとする思想は五行説と呼ばれる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "水",
+          "quote": "五行の「木火土金水」を「陰」と「陽」にわけて10種類となる。"
+        },
+        {
+          "source": "sb-forest-mokkado",
+          "form": "水",
+          "quote": "“木火土金水”は“もくかどごんすい”と読む。"
+        }
+      ],
+      "confidence": "상",
+      "note": "五行名は漢字一字で韓国と同じ。読みは「もくかどごんすい」の音読み(窓の杜)。訓読み みず。五行の色は黒(五色)。"
+    },
+    {
+      "id": "color.wood",
+      "ko": "목의 색",
+      "hanja": "",
+      "glossary_key": "color.wood",
+      "ja": "緑",
+      "reading": "みどり",
+      "aliases": [
+        "青"
+      ],
+      "coined": true,
+      "evidence": [
+        {
+          "source": "sb-oggi-gogyo",
+          "form": "緑",
+          "quote": "色は青・緑。季節は春、方角は東、樹木の成長を表す。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-nikkoku",
+          "form": "青",
+          "quote": "中国古代の五行説では青、黄、赤、白、黒の五種の色。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-heibonsha",
+          "form": "青",
+          "quote": "五行（ごぎよう）思想に基づいた五色(青，赤，黄，白，黒)を基本的な色とみる考え方が採用された"
+        }
+      ],
+      "confidence": "자체",
+      "note": "アプリの「行運の色」は五行の正色(五色: 青・赤・黄・白・黒)ではなく、韓国版と同じく日常の色名(glossary ko: 초록색・남색 など)で示すため、日本語でも日常の色名を選んだ自体用語。日本の五行説の色は辞書上 五色(青・赤・黄・白・黒)で、占いメディアは木=青・緑、水=黒・ネイビーのように五色と日常色を併記する(Oggi.jp、All About)。 木の五色は「青」だが、日本語の「青」は現代ではブルーを指すため、韓国版の초록색に合わせ「緑」とした。"
+    },
+    {
+      "id": "color.fire",
+      "ko": "화의 색",
+      "hanja": "",
+      "glossary_key": "color.fire",
+      "ja": "赤",
+      "reading": "あか",
+      "aliases": [],
+      "coined": true,
+      "evidence": [
+        {
+          "source": "sb-oggi-gogyo",
+          "form": "赤",
+          "quote": "色は赤（紅）。季節は夏、方角は南、炎のような情熱的な性質を表す。"
+        },
+        {
+          "source": "sb-allabout-color",
+          "form": "赤",
+          "quote": "火を象徴する赤・オレンジは避けた方がいいでしょう"
+        },
+        {
+          "source": "sb-kotobank-goshiki-nikkoku",
+          "form": "赤",
+          "quote": "中国古代の五行説では青、黄、赤、白、黒の五種の色。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-heibonsha",
+          "form": "赤",
+          "quote": "五行（ごぎよう）思想に基づいた五色(青，赤，黄，白，黒)を基本的な色とみる考え方が採用された"
+        }
+      ],
+      "confidence": "자체",
+      "note": "アプリの「行運の色」は五行の正色(五色: 青・赤・黄・白・黒)ではなく、韓国版と同じく日常の色名(glossary ko: 초록색・남색 など)で示すため、日本語でも日常の色名を選んだ自体用語。日本の五行説の色は辞書上 五色(青・赤・黄・白・黒)で、占いメディアは木=青・緑、水=黒・ネイビーのように五色と日常色を併記する(Oggi.jp、All About)。 火は五色・日常色とも「赤」で一致。"
+    },
+    {
+      "id": "color.earth",
+      "ko": "토의 색",
+      "hanja": "",
+      "glossary_key": "color.earth",
+      "ja": "黄色",
+      "reading": "きいろ",
+      "aliases": [
+        "黄"
+      ],
+      "coined": true,
+      "evidence": [
+        {
+          "source": "sb-oggi-gogyo",
+          "form": "黄",
+          "quote": "色は黄。季節は春夏秋冬の土用、方角は中央、万物を育み保護する性質を表す。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-nikkoku",
+          "form": "黄",
+          "quote": "中国古代の五行説では青、黄、赤、白、黒の五種の色。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-heibonsha",
+          "form": "黄",
+          "quote": "五行（ごぎよう）思想に基づいた五色(青，赤，黄，白，黒)を基本的な色とみる考え方が採用された"
+        }
+      ],
+      "confidence": "자체",
+      "note": "アプリの「行運の色」は五行の正色(五色: 青・赤・黄・白・黒)ではなく、韓国版と同じく日常の色名(glossary ko: 초록색・남색 など)で示すため、日本語でも日常の色名を選んだ自体用語。日本の五行説の色は辞書上 五色(青・赤・黄・白・黒)で、占いメディアは木=青・緑、水=黒・ネイビーのように五色と日常色を併記する(Oggi.jp、All About)。 五色は一字の「黄」だが、単独の色名としては日常語の「黄色」が自然なためそちらを採った。"
+    },
+    {
+      "id": "color.metal",
+      "ko": "금의 색",
+      "hanja": "",
+      "glossary_key": "color.metal",
+      "ja": "白",
+      "reading": "しろ",
+      "aliases": [],
+      "coined": true,
+      "evidence": [
+        {
+          "source": "sb-oggi-gogyo",
+          "form": "白",
+          "quote": "色は白。季節は秋、方角は西、金属のような冷徹で固い性質を表す。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-nikkoku",
+          "form": "白",
+          "quote": "中国古代の五行説では青、黄、赤、白、黒の五種の色。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-heibonsha",
+          "form": "白",
+          "quote": "五行（ごぎよう）思想に基づいた五色(青，赤，黄，白，黒)を基本的な色とみる考え方が採用された"
+        }
+      ],
+      "confidence": "자체",
+      "note": "アプリの「行運の色」は五行の正色(五色: 青・赤・黄・白・黒)ではなく、韓国版と同じく日常の色名(glossary ko: 초록색・남색 など)で示すため、日本語でも日常の色名を選んだ自体用語。日本の五行説の色は辞書上 五色(青・赤・黄・白・黒)で、占いメディアは木=青・緑、水=黒・ネイビーのように五色と日常色を併記する(Oggi.jp、All About)。 金は五色・日常色とも「白」で一致。占いメディアはゴールド・シルバー等の金属色も金に当てる(All About)。"
+    },
+    {
+      "id": "color.water",
+      "ko": "수의 색",
+      "hanja": "",
+      "glossary_key": "color.water",
+      "ja": "紺色",
+      "reading": "こんいろ",
+      "aliases": [
+        "黒",
+        "ネイビー"
+      ],
+      "coined": true,
+      "evidence": [
+        {
+          "source": "sb-allabout-color",
+          "form": "ネイビー",
+          "quote": "水を象徴する黒・ネイビーを多用するのはNG"
+        },
+        {
+          "source": "sb-oggi-gogyo",
+          "form": "黒",
+          "quote": "色は黒。季節は冬、方角は北、生命の源泉という意味を表す。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-nikkoku",
+          "form": "黒",
+          "quote": "中国古代の五行説では青、黄、赤、白、黒の五種の色。"
+        },
+        {
+          "source": "sb-kotobank-goshiki-heibonsha",
+          "form": "黒",
+          "quote": "五行（ごぎよう）思想に基づいた五色(青，赤，黄，白，黒)を基本的な色とみる考え方が採用された"
+        }
+      ],
+      "confidence": "자체",
+      "note": "アプリの「行運の色」は五行の正色(五色: 青・赤・黄・白・黒)ではなく、韓国版と同じく日常の色名(glossary ko: 초록색・남색 など)で示すため、日本語でも日常の色名を選んだ自体用語。日本の五行説の色は辞書上 五色(青・赤・黄・白・黒)で、占いメディアは木=青・緑、水=黒・ネイビーのように五色と日常色を併記する(Oggi.jp、All About)。 水の五色は「黒」だが、韓国版が남색(紺)を使うため日常語の「紺色」とした。占いメディアは同じ色を「ネイビー」とも書く。「紺色」そのものを水の色とした出典は未確認。"
+    },
+    {
+      "id": "stem.gap",
+      "ko": "갑",
+      "hanja": "甲",
+      "glossary_key": "stem.gap",
+      "ja": "甲",
+      "reading": "きのえ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "甲",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "甲",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "甲",
+          "quote": "甲（きのえ/こう）陽木"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「きのえ」(五行の兄(え)・弟(と)による読み)が標準。音読み「こう」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.eul",
+      "ko": "을",
+      "hanja": "乙",
+      "glossary_key": "stem.eul",
+      "ja": "乙",
+      "reading": "きのと",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "乙",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "乙",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "乙",
+          "quote": "乙（きのと/おつ）陰木"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「きのと」(五行の兄(え)・弟(と)による読み)が標準。音読み「おつ」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.byeong",
+      "ko": "병",
+      "hanja": "丙",
+      "glossary_key": "stem.byeong",
+      "ja": "丙",
+      "reading": "ひのえ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "丙",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "丙",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "丙",
+          "quote": "丙（ひのえ/へい）陽火"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「ひのえ」(五行の兄(え)・弟(と)による読み)が標準。音読み「へい」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.jeong",
+      "ko": "정",
+      "hanja": "丁",
+      "glossary_key": "stem.jeong",
+      "ja": "丁",
+      "reading": "ひのと",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "丁",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "丁",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "丁",
+          "quote": "丁（ひのと/てい）陰火"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「ひのと」(五行の兄(え)・弟(と)による読み)が標準。音読み「てい」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.mu",
+      "ko": "무",
+      "hanja": "戊",
+      "glossary_key": "stem.mu",
+      "ja": "戊",
+      "reading": "つちのえ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "戊",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "戊",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "戊",
+          "quote": "戊（つちのえ/ぼ）陽土"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「つちのえ」(五行の兄(え)・弟(と)による読み)が標準。音読み「ぼ」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.gi",
+      "ko": "기",
+      "hanja": "己",
+      "glossary_key": "stem.gi",
+      "ja": "己",
+      "reading": "つちのと",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "己",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "己",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "己",
+          "quote": "己（つちのと/き）陰土"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「つちのと」(五行の兄(え)・弟(と)による読み)が標準。音読み「き」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.gyeong",
+      "ko": "경",
+      "hanja": "庚",
+      "glossary_key": "stem.gyeong",
+      "ja": "庚",
+      "reading": "かのえ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "庚",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "庚",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "庚",
+          "quote": "庚（かのえ/こう）陽金"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「かのえ」(五行の兄(え)・弟(と)による読み)が標準。音読み「こう」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.sin",
+      "ko": "신",
+      "hanja": "辛",
+      "glossary_key": "stem.sin",
+      "ja": "辛",
+      "reading": "かのと",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "辛",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "辛",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "辛",
+          "quote": "辛（かのと/しん）陰金"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「かのと」(五行の兄(え)・弟(と)による読み)が標準。音読み「しん」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.im",
+      "ko": "임",
+      "hanja": "壬",
+      "glossary_key": "stem.im",
+      "ja": "壬",
+      "reading": "みずのえ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "壬",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "壬",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "壬",
+          "quote": "壬（みずのえ/じん）陽水"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「みずのえ」(五行の兄(え)・弟(と)による読み)が標準。音読み「じん」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "stem.gye",
+      "ko": "계",
+      "hanja": "癸",
+      "glossary_key": "stem.gye",
+      "ja": "癸",
+      "reading": "みずのと",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-jikkan-nikkoku",
+          "form": "癸",
+          "quote": "日本では、甲(きのえ)、乙(きのと)、丙(ひのえ)、丁(ひのと)、戊(つちのえ)、己(つちのと)、庚(かのえ)、辛(かのと)、壬(みずのえ)、癸(みずのと)ともよむ。"
+        },
+        {
+          "source": "sb-kotobank-jikkan-uranai",
+          "form": "癸",
+          "quote": "「甲」「乙」「丙」「丁」「戊」「己」「庚」「辛」「壬」「癸」の十個に分けられる。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "癸",
+          "quote": "癸（みずのと/き）陰水"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「みずのと」(五行の兄(え)・弟(と)による読み)が標準。音読み「き」も併記される(longe.jp)。表記は漢字一字で韓国と同じ。"
+    },
+    {
+      "id": "branch.ja",
+      "ko": "자",
+      "hanja": "子",
+      "glossary_key": "branch.ja",
+      "ja": "子",
+      "reading": "ね",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "子",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "子",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "子",
+          "quote": "子（ね）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「ね」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「子（ね）」陽水)。音読み「し」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.chuk",
+      "ko": "축",
+      "hanja": "丑",
+      "glossary_key": "branch.chuk",
+      "ja": "丑",
+      "reading": "うし",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "丑",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "丑",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "丑",
+          "quote": "丑（うし）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「うし」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「丑（うし）」陰土)。音読み「ちゅう」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.in",
+      "ko": "인",
+      "hanja": "寅",
+      "glossary_key": "branch.in",
+      "ja": "寅",
+      "reading": "とら",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "寅",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "寅",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "寅",
+          "quote": "寅（とら）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「とら」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「寅（とら）」陽木)。音読み「いん」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.myo",
+      "ko": "묘",
+      "hanja": "卯",
+      "glossary_key": "branch.myo",
+      "ja": "卯",
+      "reading": "う",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "卯",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "卯",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "卯",
+          "quote": "卯（う）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「う」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「卯（う）」陰木)。音読み「ぼう」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.jin",
+      "ko": "진",
+      "hanja": "辰",
+      "glossary_key": "branch.jin",
+      "ja": "辰",
+      "reading": "たつ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "辰",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "辰",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "辰",
+          "quote": "辰（たつ）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「たつ」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「辰（たつ）」陽土)。音読み「しん」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.sa",
+      "ko": "사",
+      "hanja": "巳",
+      "glossary_key": "branch.sa",
+      "ja": "巳",
+      "reading": "み",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "巳",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "巳",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "巳",
+          "quote": "巳（み）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「み」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「巳（み）」陰火)。音読み「し」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.o",
+      "ko": "오",
+      "hanja": "午",
+      "glossary_key": "branch.o",
+      "ja": "午",
+      "reading": "うま",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "午",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "午",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "午",
+          "quote": "午（うま）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「うま」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「午（うま）」陽火)。音読み「ご」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.mi",
+      "ko": "미",
+      "hanja": "未",
+      "glossary_key": "branch.mi",
+      "ja": "未",
+      "reading": "ひつじ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "未",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "未",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "未",
+          "quote": "未（ひつじ）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「ひつじ」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「未（ひつじ）」陰土)。音読み「び」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.shin",
+      "ko": "신",
+      "hanja": "申",
+      "glossary_key": "branch.shin",
+      "ja": "申",
+      "reading": "さる",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "申",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "申",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "申",
+          "quote": "申（さる）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「さる」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「申（さる）」陽金)。音読み「しん」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.yu",
+      "ko": "유",
+      "hanja": "酉",
+      "glossary_key": "branch.yu",
+      "ja": "酉",
+      "reading": "とり",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "酉",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "酉",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "酉",
+          "quote": "酉（とり）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「とり」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「酉（とり）」陰金)。音読み「ゆう」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.sul",
+      "ko": "술",
+      "hanja": "戌",
+      "glossary_key": "branch.sul",
+      "ja": "戌",
+      "reading": "いぬ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "戌",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "戌",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "戌",
+          "quote": "戌（いぬ）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「いぬ」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「戌（いぬ）」陽土)。音読み「じゅつ」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    },
+    {
+      "id": "branch.hae",
+      "ko": "해",
+      "hanja": "亥",
+      "glossary_key": "branch.hae",
+      "ja": "亥",
+      "reading": "い",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sb-kotobank-junishi-daijisen",
+          "form": "亥",
+          "quote": "子し・丑ちゅう・寅いん・卯ぼう・辰しん・巳し・午ご・未び・申しん・酉ゆう・戌じゅつ・亥がいの称。"
+        },
+        {
+          "source": "sb-kotobank-junishi-heibonsha",
+          "form": "亥",
+          "quote": "十二支(子丑寅卯辰巳午未申酉戌亥)に配当された動物。"
+        },
+        {
+          "source": "sb-longe-kanshi",
+          "form": "亥",
+          "quote": "亥（い）"
+        }
+      ],
+      "confidence": "상",
+      "note": "四柱推命では訓読み「い」が標準(デジタル大辞泉・精選版日本国語大辞典の訓読み、longe.jpは「亥（い）」陰水)。音読み「がい」は辞書の字音。日本では十二支獣(動物)のイメージが強いが、四柱推命では五行・陰陽として扱う。"
+    }
+  ]
+}

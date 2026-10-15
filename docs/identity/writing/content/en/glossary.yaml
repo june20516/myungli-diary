@@ -1,0 +1,27 @@
+# 값 이름 원고(en). 슬롯 명세는 slots/content/glossary.yaml입니다.
+# 지금은 앱 ARB로도 나가는 지지·날의 성격(#143)·방향(#153)만 있습니다. 나머지 범주는 W1에서 채웁니다. en 지지는 띠 동물, 날의 성격은 뜻이 보이는 이름입니다(W22). 원어민 검수(W1) 전 초안입니다.
+# 지지 이름에는 시·hour·刻을 붙이지 않습니다. 시진 확인 줄(onboardTimeHourConfirm) 틀이 붙입니다.
+- {slot: glossary.value_name, key: branch.ja, text: "Rat"}
+- {slot: glossary.value_name, key: branch.chuk, text: "Ox"}
+- {slot: glossary.value_name, key: branch.in, text: "Tiger"}
+- {slot: glossary.value_name, key: branch.myo, text: "Rabbit"}
+- {slot: glossary.value_name, key: branch.jin, text: "Dragon"}
+- {slot: glossary.value_name, key: branch.sa, text: "Snake"}
+- {slot: glossary.value_name, key: branch.o, text: "Horse"}
+- {slot: glossary.value_name, key: branch.mi, text: "Goat"}
+- {slot: glossary.value_name, key: branch.shin, text: "Monkey"}
+- {slot: glossary.value_name, key: branch.yu, text: "Rooster"}
+- {slot: glossary.value_name, key: branch.sul, text: "Dog"}
+- {slot: glossary.value_name, key: branch.hae, text: "Pig"}
+- {slot: glossary.value_name, key: day_kind.gwiin_day, text: "Day of helpers"}
+- {slot: glossary.value_name, key: day_kind.yongsin_day, text: "Day in your favor"}
+- {slot: glossary.value_name, key: day_kind.gisin_day, text: "Day to go gently"}
+- {slot: glossary.value_name, key: day_kind.ordinary_day, text: "Ordinary day"}
+- {slot: glossary.value_name, key: direction8.n, text: "North"}
+- {slot: glossary.value_name, key: direction8.ne, text: "Northeast"}
+- {slot: glossary.value_name, key: direction8.e, text: "East"}
+- {slot: glossary.value_name, key: direction8.se, text: "Southeast"}
+- {slot: glossary.value_name, key: direction8.s, text: "South"}
+- {slot: glossary.value_name, key: direction8.sw, text: "Southwest"}
+- {slot: glossary.value_name, key: direction8.w, text: "West"}
+- {slot: glossary.value_name, key: direction8.nw, text: "Northwest"}

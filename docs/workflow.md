@@ -29,7 +29,7 @@
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
 | `docs/coordination/` | 지휘 | 이관 전 문서 보관소 |
-| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/ideas.md`, `docs/business/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
+| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/ideas.md`, `docs/business/`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
 
 ## 3. 서브 프로젝트의 작업 주기
 
@@ -88,7 +88,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 저장소: `june20516/myungli-diary` (모노레포, D33).
 * **`main` 중심, 짧은 브랜치 (D44):** 브랜치는 마일스톤 하나나 task 몇 개 단위로 짧게 씁니다. 이름은 `<단위>/<주제>`(예: `core/engine-mvp`, `writing/rounds-2026-10-11`). 지휘 세션은 `root/<주제>`.
 * **세션 시작:** `git fetch origin && git merge origin/main`.
-* **계약 먼저 병합:** 다른 단위가 기대는 계약(proto, `message_keys.json`, 디자인 토큰, IA, 슬롯 명세, 호칭·조사 규칙, REST API 명세)이 확정되면, 구현 브랜치 전체를 기다리지 않고 **계약 파일만 담은 작은 PR**로 먼저 `main`에 넣습니다.
+* **계약 먼저 병합:** 다른 단위가 기대는 계약(proto, `message_keys.json`, 디자인 토큰, IA, 슬롯 명세, 호칭·조사 규칙, REST API 명세)이 확정되면, 구현 브랜치 전체를 기다리지 않고 **계약 파일만 담은 작은 PR**로 먼저 `main`에 넣습니다. 받는 쪽 검사는 이 PR에서 경고만 내고(§6.1), 받는 쪽이 다음 PR에서 따라잡습니다.
 * **병합:** 모든 변경은 PR → `ci-gate` 통과 → merge commit으로 합칩니다. 지휘 세션 문서도 같습니다. **`main`에 직접 push하지 않습니다**(D43: 무료 비공개 플랜이라 보호 규칙이 강제되지 않으므로 규약으로 지키고, `ci-gate`가 `main` push에서도 돌아 사후에 잡습니다).
 * 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git worktree add ../myungli-diary-core -b core/<주제> --no-track origin/main`. 만든 직후 `git status -sb`로 확인합니다.
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
@@ -101,6 +101,21 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **단위의 worktree는 한 번 만들고 재사용합니다.** 브랜치가 병합되면 디렉터리를 새로 만들지 않고 그 안에서 브랜치만 바꿉니다: `git fetch origin && git switch -c <단위>/<주제> --no-track origin/main && git push -u origin <단위>/<주제>`. 단위의 worktree가 아직 없을 때만 `git worktree add ../myungli-diary-<단위> -b <브랜치> --no-track origin/main`으로 만듭니다.
 * **착수 안내는 한 덩어리 명령으로 적습니다.** 그 디렉터리가 지금 어느 브랜치에 있든 따라 할 수 있게, `cd ../myungli-diary-<단위>` → 위의 브랜치 바꾸기(없으면 worktree 만들기) → `cd <시작 디렉터리> && claude` 순서로 씁니다. 다른 단위 브랜치 위에 쌓아야 하면 `origin/main`에서 딴 뒤 그 브랜치를 `git merge`합니다.
 * 릴리스 태그에는 접두어를 붙입니다: `core/v1.0.0`.
+
+### 6.1 단위 간 맞물림 (drift)
+계약을 주는 쪽과 받는 쪽이 맞물리는지는 **통합 수준의 검사**입니다. 주는 쪽 PR에서 받는 쪽이 이미 맞춰져 있기를 요구하면, 주는 쪽은 자기 소유가 아닌 코드 때문에 병합하지 못합니다. 그래서 `ci-gate`는 검사를 셋으로 나눠 언제 막을지 다르게 둡니다.
+
+| 검사 | 예 | 주는 쪽 PR | 받는 쪽 PR | `main` |
+| --- | --- | --- | --- | --- |
+| 자기 코드 | 각 단위의 테스트·린트 | 막음 | 막음 | 막음 |
+| 계약 자체의 유효성 | REST 생성·계약 테스트(server), `buf breaking`(core), docs 검사(IA·근거 용어집) | 막음 | - | 막음 |
+| 단위 간 맞물림 | app 생성 코드 차이·ARB, writing의 IA 대조, server의 슬롯 대조 | **경고** | 막음 | 경고 |
+
+* **판별:** PR이 그 단위의 소유 경로(또는 그 단위·`ci-gate` workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다.
+* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에 `Closes #<drift Issue>`를 적습니다.
+* **통합 시점:** 통합 마일스톤(I1~I4)은 열린 `drift` Issue가 0이어야 시작합니다. 지휘는 정기 일과에서 `drift` Issue를 확인합니다.
+* **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 지금처럼 `kind:notice`로 알립니다. REST는 S3 freeze 뒤에는 추가 변경만 합니다.
+* **쌓아서 함께 병합하기**(예: IA v2 #133 → #138 → #149)는 더 이상 기본이 아닙니다. 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
 
 ## 7. 시각 산출물 (`artifacts/`)
 지휘 세션이 만드는 **제품 지도**(비공개 claude.ai 페이지)는 각 `artifacts/index.json`을 읽어 그립니다. 시안·컨셉·스크린샷 같은 시각 산출물은 다음 규칙으로 저장소에 쌓습니다. (2026-10-10 임시 확정. 지도 화면과 갱신 절차는 협업 워크플로 spec에서 정합니다.)

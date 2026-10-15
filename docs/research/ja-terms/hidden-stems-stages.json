@@ -1,0 +1,1583 @@
+{
+  "sources": [
+    {
+      "id": "hs-kotobank-daijisen-juniun",
+      "kind": "dictionary",
+      "publisher": "小学館",
+      "title": "デジタル大辞泉「十二運」（コトバンク）",
+      "url": "https://kotobank.jp/word/%E5%8D%81%E4%BA%8C%E9%81%8B-527407",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-kotobank-academeia-juniun",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「十二運」（コトバンク）",
+      "url": "https://kotobank.jp/word/%E5%8D%81%E4%BA%8C%E9%81%8B-527407",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-kotobank-academeia-zoukan",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「蔵干」（コトバンク）",
+      "url": "https://kotobank.jp/word/%E8%94%B5%E5%B9%B2-1492075",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-kotobank-academeia-youjin",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「用神」（コトバンク）",
+      "url": "https://kotobank.jp/word/%E7%94%A8%E7%A5%9E-1492291",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-kotobank-academeia-choukou",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "占い用語集「調候」（コトバンク）",
+      "url": "https://kotobank.jp/word/%E8%AA%BF%E5%80%99-1492118",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-tominaga-2016",
+      "kind": "book",
+      "publisher": "説話社",
+      "title": "富永祥玲『はじめてでもよくわかる!四柱推命』(2016) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I027468135",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-sada-2023",
+      "kind": "book",
+      "publisher": "説話社",
+      "title": "佐田龍星『推命学大成』(2023) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I032655820",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-furuki-2019",
+      "kind": "book",
+      "publisher": "説話社",
+      "title": "古木千凡『五行推命』(2019) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I029656718",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-abe-zenshu-1955",
+      "kind": "book",
+      "publisher": "京都書院",
+      "title": "阿部泰山『阿部泰山全集』(1955) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000000878560",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-abe-zenshu-choukou",
+      "kind": "book",
+      "publisher": "京都書院",
+      "title": "阿部泰山『阿部泰山全集 第6 四柱推命学調候用神大法』(1955) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000000878558",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-abe-zenshu-1954",
+      "kind": "book",
+      "publisher": "京都書院",
+      "title": "阿部泰山『阿部泰山全集』(1954) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000000878554",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-abekisaku-daiou-1914a",
+      "kind": "book",
+      "publisher": "矢島誠進堂",
+      "title": "阿部熹作『四柱推命学大奥極秘伝』(大正3) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000039-I918923",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-abekisaku-daiou-1914b",
+      "kind": "book",
+      "publisher": "矢島誠進堂",
+      "title": "阿部熹作『四柱推命学大奥極秘伝』(大正3) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000039-I918919",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-abekisaku-gokui-1929",
+      "kind": "book",
+      "publisher": "山城屋文政堂",
+      "title": "阿部熹作『四柱推命学極意秘密皆伝』(昭和4) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000000639335",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-kato-1962",
+      "kind": "book",
+      "publisher": "紀元書房",
+      "title": "加藤大岳『四柱推命学 : 奥秘伝書』(1962) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000001028346",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-unmeihoukan-2023",
+      "kind": "book",
+      "publisher": "修学社",
+      "title": "日本運命学会・日本易経大学館『運命宝鑑 : 神明館蔵版』(c2023) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000001-I2711B14337731",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-aishinkakura-2026",
+      "kind": "book",
+      "publisher": "日本文芸社",
+      "title": "愛新覚羅ゆうはん『一番わかりやすい運勢を読み解くビジュアル四柱推命』(2026) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I034918787",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-miki-2020",
+      "kind": "book",
+      "publisher": "日本文芸社",
+      "title": "三木照山『四柱推命学の完全独習』(2020) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I030575435",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-matsubara-1936",
+      "kind": "book",
+      "publisher": "皇典社",
+      "title": "松原宏整『分り易い四柱推命』(昭11) 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000000721575",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-mori-2004",
+      "kind": "book",
+      "publisher": "日本文学館",
+      "title": "森千命『平成百年蔵干萬年暦』(2004) 書誌",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000007526399",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndl-umekawa-2007",
+      "kind": "book",
+      "publisher": "子平館",
+      "title": "梅川泰輝『十干推命調候用神法』(2007) 書誌",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000001-I27211000012728227",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndldl-takagi-kakushiki-1",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第1講』(1936) 本文（NDLデジタルコレクション全文検索）",
+      "url": "https://dl.ndl.go.jp/pid/1092155",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndldl-takagi-jissen-4",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『実践命理学講座 第4講』(1936) 本文（NDLデジタルコレクション全文検索）",
+      "url": "https://dl.ndl.go.jp/pid/1091821",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndldl-kumazaki-1931",
+      "kind": "book",
+      "publisher": "五聖閣",
+      "title": "熊崎健翁『熊崎式姓名学大奥義 人之巻』(1931) 本文（NDLデジタルコレクション全文検索）",
+      "url": "https://dl.ndl.go.jp/pid/1104872",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-ndldl-ito-1914",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『実地研究四柱推命秘伝書 上巻』(1914) 本文（NDLデジタルコレクション全文検索）",
+      "url": "https://dl.ndl.go.jp/pid/924662",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-senjutsu-meishiki",
+      "kind": "software",
+      "publisher": "大久保占い研究室",
+      "title": "四柱推命 自動計算（無料）｜命式・大運・空亡・特殊星を一括表示",
+      "url": "https://www.senjutsu.jp/labo/4pillar/koukihou-bannenreki",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-sumai-kigaku",
+      "kind": "software",
+      "publisher": "sumai-kigaku（四柱推命 自動計算ツール）",
+      "title": "四柱推命 自動計算ツール｜命式・大運・流年・相性を無料計算＋鑑定文",
+      "url": "https://sumai-kigaku.vercel.app/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-uracalc",
+      "kind": "software",
+      "publisher": "UraCalc",
+      "title": "四柱推命 無料 自動計算【2026年版】",
+      "url": "https://uracalc.com/shichusuimei/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-masanosuke-veil",
+      "kind": "software",
+      "publisher": "VEIL",
+      "title": "四柱推命 自動計算｜命式・通変星・十二運を生年月日で3秒診断",
+      "url": "https://masanosuke.net/shichusuimei/calculator/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-luxis-mikazuki",
+      "kind": "software",
+      "publisher": "Luxis Works",
+      "title": "四柱推命 無料｜生年月日で占う命式【Mikazuki】",
+      "url": "https://luxisworks.com/mikazuki/four-pillars/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-itaxes",
+      "kind": "software",
+      "publisher": "itaxes",
+      "title": "四柱推命 命式自動計算",
+      "url": "https://www.itaxes.co.jp/fortune/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-app-meishikihyo",
+      "kind": "app",
+      "publisher": "SkLab",
+      "title": "命式表（App Store）",
+      "url": "https://apps.apple.com/jp/app/id1209753567",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-unkoi-shichusuimei",
+      "kind": "media",
+      "publisher": "テレシスネットワーク株式会社",
+      "title": "四柱推命｜命式自動計算◆あなたの性格と運勢を無料で鑑定（運勢占い）",
+      "url": "https://unkoi.com/special/shichusuimei/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-tamako-shichusuimei",
+      "kind": "media",
+      "publisher": "水晶玉子 公式占いサイト（運営会社表記未確認）",
+      "title": "四柱推命｜命式自動計算◆水晶玉子があなたの運勢と性格を無料鑑定",
+      "url": "https://suishotamako.net/free_category_69.html",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-zired-unsei",
+      "kind": "media",
+      "publisher": "占いメディア zired",
+      "title": "【四柱推命】運の良し悪し！運勢・運気の流れを見る",
+      "url": "https://zired.net/shichusuimei-unsei-unki/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-jawiki-shichusuimei",
+      "kind": "wiki",
+      "publisher": "ウィキメディア財団",
+      "title": "四柱推命 - Wikipedia",
+      "url": "https://ja.wikipedia.org/wiki/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-jawiki-juniun",
+      "kind": "wiki",
+      "publisher": "ウィキメディア財団",
+      "title": "十二運 - Wikipedia",
+      "url": "https://ja.wikipedia.org/wiki/%E5%8D%81%E4%BA%8C%E9%81%8B",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-akiharu-tsukan",
+      "kind": "school",
+      "publisher": "昭晴占い鑑定所",
+      "title": "相剋関係を相生関係に変化させる通関用神",
+      "url": "https://www.akiharu27.com/2020/05/27/%E7%9B%B8%E5%89%8B%E9%96%A2%E4%BF%82%E3%82%92%E7%9B%B8%E7%94%9F%E9%96%A2%E4%BF%82%E3%81%AB%E5%A4%89%E3%81%88%E3%82%8B%E9%80%9A%E9%96%A2%E7%94%A8%E7%A5%9E-%E4%BA%94%E8%A1%8C-%E4%B8%96%E7%94%B0%E8%B0%B7%E5%8C%BA%E3%81%AE%E5%8D%A0%E3%81%84%E5%B8%AB-%E6%98%AD%E6%99%B4%E5%8D%A0%E3%81%84%E9%91%91%E5%AE%9A%E6%89%80/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-satsuki-youjin",
+      "kind": "school",
+      "publisher": "京都五行開運堂",
+      "title": "【四柱推命】用神とは？ー用神には、様々な種類があります。",
+      "url": "https://satsuki-uranai-kyoto.xyz/archives/3159",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-sityuu-youjin",
+      "kind": "blog",
+      "publisher": "リアル四柱推命",
+      "title": "用神 - リアル四柱推命",
+      "url": "https://sityuu.com/youjin/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-hiroto-nyumon4",
+      "kind": "blog",
+      "publisher": "hiroto（個人サイト）",
+      "title": "“hiroto的”四柱推命入門 第4回",
+      "url": "http://www.t3.rim.or.jp/~hiroto/schhirototeki4.html",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-shihei-column49",
+      "kind": "blog",
+      "publisher": "shihei.com（四柱推命コラム）",
+      "title": "四柱推命学のホントのところ 四柱推命コラム～近未来を予測",
+      "url": "http://www.shihei.com/column_sp/bk/column.sp049.html",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-sudechi-kishin",
+      "kind": "blog",
+      "publisher": "てくてくちとせ",
+      "title": "四柱推命‐用神、喜神、忌神…などあなたの吉凶の星について分かりやすく解説",
+      "url": "https://www.sudechi.com/entry/gizinkyuuzin",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "hs-fourpillar-youjin",
+      "kind": "blog",
+      "publisher": "四柱推命旺",
+      "title": "用神の見極め方～普通格局の身弱編",
+      "url": "https://www.fourpillar.net/article/?id=2020100901",
+      "accessed": "2026-10-15"
+    }
+  ],
+  "terms": [
+    {
+      "id": "concept.jijanggan",
+      "ko": "지장간",
+      "hanja": "支藏干",
+      "glossary_key": null,
+      "ja": "蔵干",
+      "reading": "ぞうかん",
+      "aliases": [
+        "藏干"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-tominaga-2016",
+          "form": "蔵干",
+          "quote": "３　蔵干"
+        },
+        {
+          "source": "hs-ndl-sada-2023",
+          "form": "蔵干",
+          "quote": "十二　蔵干"
+        },
+        {
+          "source": "hs-ndl-miki-2020",
+          "form": "蔵干",
+          "quote": "三/蔵干　他"
+        },
+        {
+          "source": "hs-ndl-mori-2004",
+          "form": "蔵干",
+          "quote": "平成百年蔵干萬年暦 : 大正元年～15年・昭和元年～63年・平成元年～100年"
+        },
+        {
+          "source": "hs-kotobank-academeia-zoukan",
+          "form": "蔵干",
+          "quote": "十二支中に含まれる十干のこと。十二支のそれぞれに、いくつかの十干が蔵される。ただし、日本では蔵干は各流派によって多少の違いがある。"
+        },
+        {
+          "source": "hs-senjutsu-meishiki",
+          "form": "蔵干",
+          "quote": "地支が内包する天干を「蔵干」と呼び、命式の深さを読み解く要素です。流派により考え方が異なるため、本ツールでは鮑黎明・梁湘潤・阿部泰山の系統に共通する古典方式を標準として、6方式を切り替えて比較できます。"
+        },
+        {
+          "source": "hs-app-meishikihyo",
+          "form": "蔵干",
+          "quote": "蔵干表には阿部泰山式を用いています。"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "蔵干",
+          "quote": "節入りから生日までの日数と時間により、四柱の地支に含まれる蔵干を1つ引き出す。"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914b",
+          "form": "藏干",
+          "quote": "月律分野藏干深淺之圖並ニ解/22"
+        },
+        {
+          "source": "hs-ndl-abe-zenshu-1954",
+          "form": "藏干",
+          "quote": "十五 月律分野藏干の理法"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 蔵干(ぞうかん)으로 일치합니다(옛 책은 藏干). 표시 관례가 한국과 다릅니다. 한국 만세력은 지지마다 지장간(여기·중기·정기)을 모두 보여 주지만, 일본에는 阿部泰山 계열의 月律分野(蔵干深浅) 전통이 있어 節入り부터 생일까지 지난 날수로 지지마다 蔵干 하나를 골라 씁니다(阿部熹作『四柱推命学大奥極秘伝』 목차 '月律分野藏干深淺之圖並ニ解', 『阿部泰山全集』 목차 '月律分野藏干の理法', 위키백과 '節入りから生日までの日数と時間により、四柱の地支に含まれる蔵干を1つ引き出す'). 命式 계산 사이트 大久保占い研究室은 기본값을 '本気・中気・余気を全て表示する標準方式'로 두고, '司令蔵干（日数分野）'을 '節入りからの経過日数で1つに絞る阿部泰山流'(月柱만 하나로, 나머지는 本気만)로 따로 제공하며, 通変星은 보통 本気로 낸다고 적습니다. 앱 命式表(SkLab)는 '蔵干表には阿部泰山式を用いています'라고 밝힙니다. コトバンク 占い用語集도 '日本では蔵干は各流派によって多少の違いがある'고 적고, 대표 蔵干 하나를 '月支元命'이라 부르는 사이트도 있습니다(Luxis Works). D71 안내 재료: 일본 사용자는 지지당 蔵干 하나(또는 月支元命 하나)에 익숙할 수 있으므로, 전부 보여 주는 한국식 표시는 그 차이를 안내해야 합니다."
+    },
+    {
+      "id": "concept.jeonggi",
+      "ko": "정기",
+      "hanja": "正氣",
+      "glossary_key": null,
+      "ja": "本気",
+      "reading": "ほんき",
+      "aliases": [
+        "正気",
+        "正氣"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-senjutsu-meishiki",
+          "form": "本気",
+          "quote": "：各地支に「本気・中気・余気」の3つの蔵干を割り当てる最も標準的な方式。通変星は通常「本気」を採用しますが、中気・余気も併記することで命式の奥行きが見えます。"
+        },
+        {
+          "source": "hs-sumai-kigaku",
+          "form": "本気",
+          "quote": "本気・中気・余気をすべて表示"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "本気",
+          "quote": "本気もしくは正気と呼ばれることまります。本気を取る期間は"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "本気",
+          "quote": "（せつりつ、月のリズム）という。地支となる十二支には、余気、中気、本気という2つないし3つの干が含まれている。これを"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "正気",
+          "quote": "本気もしくは正気と呼ばれることまります。本気を取る期間は"
+        },
+        {
+          "source": "hs-tamako-shichusuimei",
+          "form": "正気",
+          "quote": "正気（せいき）"
+        },
+        {
+          "source": "hs-ndldl-kumazaki-1931",
+          "form": "正氣",
+          "quote": "其藏干は餘氣、中氣、正氣と稱し、一ケ月の支を三つに區別しなければならぬ"
+        }
+      ],
+      "confidence": "중",
+      "note": "현대 命式 사이트와 위키백과는 本気(ほんき)를 씁니다. 正気(せいき)도 함께 쓰이고(テレシス: '本気もしくは正気'), 戦前 책(熊崎健翁, 1931)은 餘氣・中氣・正氣로 적어 한국의 정기(正氣)와 같은 글자입니다. 本気를 표제로 쓴 출판물(A 등급)은 찾지 못해 '중'입니다. 本気는 일상어 '진심'과 같은 글자이므로 화면에서는 蔵干 맥락과 함께 써야 합니다."
+    },
+    {
+      "id": "concept.junggi",
+      "ko": "중기",
+      "hanja": "中氣",
+      "glossary_key": null,
+      "ja": "中気",
+      "reading": "ちゅうき",
+      "aliases": [
+        "中氣"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-senjutsu-meishiki",
+          "form": "中気",
+          "quote": "：各地支に「本気・中気・余気」の3つの蔵干を割り当てる最も標準的な方式。通変星は通常「本気」を採用しますが、中気・余気も併記することで命式の奥行きが見えます。"
+        },
+        {
+          "source": "hs-sumai-kigaku",
+          "form": "中気",
+          "quote": "本気・中気・余気をすべて表示"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "中気",
+          "quote": "【本気・中気・余気】"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "中気",
+          "quote": "（せつりつ、月のリズム）という。地支となる十二支には、余気、中気、本気という2つないし3つの干が含まれている。これを"
+        },
+        {
+          "source": "hs-ndldl-kumazaki-1931",
+          "form": "中氣",
+          "quote": "其藏干は餘氣、中氣、正氣と稱し、一ケ月の支を三つに區別しなければならぬ"
+        }
+      ],
+      "confidence": "중",
+      "note": "현대 표기는 中気(ちゅうき)로 일치하고, 戦前 책은 中氣입니다. 二十四節気의 '中気'(절기 중 中)와 글자가 같아 혼동될 수 있습니다. 中気를 표제로 쓴 현대 출판물(A 등급)은 찾지 못해 '중'입니다."
+    },
+    {
+      "id": "concept.yeogi",
+      "ko": "여기",
+      "hanja": "餘氣",
+      "glossary_key": null,
+      "ja": "余気",
+      "reading": "よき",
+      "aliases": [
+        "餘氣"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-senjutsu-meishiki",
+          "form": "余気",
+          "quote": "：各地支に「本気・中気・余気」の3つの蔵干を割り当てる最も標準的な方式。通変星は通常「本気」を採用しますが、中気・余気も併記することで命式の奥行きが見えます。"
+        },
+        {
+          "source": "hs-sumai-kigaku",
+          "form": "余気",
+          "quote": "本気・中気・余気をすべて表示"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "余気",
+          "quote": "余気は前月の余波を引き継いだエネルギーで、"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "余気",
+          "quote": "（せつりつ、月のリズム）という。地支となる十二支には、余気、中気、本気という2つないし3つの干が含まれている。これを"
+        },
+        {
+          "source": "hs-ndldl-kumazaki-1931",
+          "form": "餘氣",
+          "quote": "其藏干は餘氣、中氣、正氣と稱し、一ケ月の支を三つに區別しなければならぬ"
+        }
+      ],
+      "confidence": "중",
+      "note": "현대 표기는 余気(よき)로 일치하고, 戦前 책은 餘氣입니다. 初気라는 표기는 일본 자료에서 찾지 못했습니다. 余気를 표제로 쓴 현대 출판물(A 등급)은 찾지 못해 '중'입니다."
+    },
+    {
+      "id": "concept.sibiunseong",
+      "ko": "십이운성",
+      "hanja": "十二運星",
+      "glossary_key": null,
+      "ja": "十二運",
+      "reading": "じゅうにうん",
+      "aliases": [
+        "十二運星",
+        "十二長生"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-kotobank-daijisen-juniun",
+          "form": "十二運",
+          "quote": "じゅうに‐うん〔ジフニ‐〕【十二運】 九星で、12年で一巡する吉凶の運勢。"
+        },
+        {
+          "source": "hs-ndl-abe-zenshu-1955",
+          "form": "十二運",
+          "quote": "三 十二運の活用法"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "十二運",
+          "quote": "十二運之解/3"
+        },
+        {
+          "source": "hs-ndl-furuki-2019",
+          "form": "十二運",
+          "quote": "人の一生になぞらえた十二運"
+        },
+        {
+          "source": "hs-ndl-matsubara-1936",
+          "form": "十二運",
+          "quote": "第六章　十二運/78"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "十二運",
+          "quote": "十二運 五行から見た十二支との関係性をあらわしたもの。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "十二運",
+          "quote": "十二運（じゅうにうん）とは"
+        },
+        {
+          "source": "hs-masanosuke-veil",
+          "form": "十二運",
+          "quote": "十二運12段階 早見表"
+        },
+        {
+          "source": "hs-ndl-kato-1962",
+          "form": "十二運星",
+          "quote": "誘導十二運星と其の表出法"
+        },
+        {
+          "source": "hs-ndl-unmeihoukan-2023",
+          "form": "十二運星",
+          "quote": "十二運星と有卦無卦の運命"
+        },
+        {
+          "source": "hs-ndl-aishinkakura-2026",
+          "form": "十二運星",
+          "quote": "PART８　通変星と十二運星の巡り"
+        },
+        {
+          "source": "hs-ndldl-takagi-jissen-4",
+          "form": "十二運星",
+          "quote": "十二運星の吉凶に依つて定まるものであるが"
+        },
+        {
+          "source": "hs-luxis-mikazuki",
+          "form": "十二運星",
+          "quote": "十二運星12種の一覧と強弱の目安"
+        },
+        {
+          "source": "hs-ndl-sada-2023",
+          "form": "十二長生",
+          "quote": "十三　十二長生"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運(じゅうにうん)과 十二運星(じゅうにうんせい) 둘 다 A 등급 근거가 충분합니다. 사전(デジタル大辞泉)의 표제어, 阿部泰山 계열 책, 위키백과는 十二運을, 加藤大岳·高木乗 등 戦前 책과 최근 대중서·일부 사이트는 十二運星을 씁니다. 사전 표제어와 발행처 수를 따라 十二運을 ja로 둡니다. 十二運勢라는 표기는 일본 자료에서 쓰이지 않았습니다. デジタル大辞泉의 '十二運' 풀이는 九星·有卦無卦 맥락이라 四柱推命 정의와는 결이 다릅니다."
+    },
+    {
+      "id": "stage.jangsaeng",
+      "ko": "장생",
+      "hanja": "長生",
+      "glossary_key": null,
+      "ja": "長生",
+      "reading": "ちょうせい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "長生",
+          "quote": "通變星對十二運、長生/32"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "長生",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "長生",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        },
+        {
+          "source": "hs-ndl-furuki-2019",
+          "form": "長生",
+          "quote": "生日に長生がある場合"
+        },
+        {
+          "source": "hs-ndl-kato-1962",
+          "form": "長生",
+          "quote": "長生の星情と其の宿命暗示"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.mogyok",
+      "ko": "목욕",
+      "hanja": "沐浴",
+      "glossary_key": null,
+      "ja": "沐浴",
+      "reading": "もくよく",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "沐浴",
+          "quote": "通變星對十二運、沐浴/36"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "沐浴",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "沐浴",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        },
+        {
+          "source": "hs-ndl-furuki-2019",
+          "form": "沐浴",
+          "quote": "生日に沐浴がある場合"
+        },
+        {
+          "source": "hs-ndl-kato-1962",
+          "form": "沐浴",
+          "quote": "沐浴の星情と其の宿命暗示"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.gwandae",
+      "ko": "관대",
+      "hanja": "冠帶",
+      "glossary_key": null,
+      "ja": "冠帯",
+      "reading": "かんたい",
+      "aliases": [
+        "冠帶"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-furuki-2019",
+          "form": "冠帯",
+          "quote": "生日に冠帯がある場合"
+        },
+        {
+          "source": "hs-ndl-kato-1962",
+          "form": "冠帯",
+          "quote": "冠帯の星情と其の宿命暗示"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "冠帯",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "冠帯",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "冠帶",
+          "quote": "通變星對十二運、冠帶/39"
+        }
+      ],
+      "confidence": "상",
+      "note": "현대 일본 표기는 신자체 冠帯(かんたい)입니다. 冠帶는 戦前 책의 구자체입니다."
+    },
+    {
+      "id": "stage.geonrok",
+      "ko": "건록",
+      "hanja": "建祿",
+      "glossary_key": null,
+      "ja": "建禄",
+      "reading": "けんろく",
+      "aliases": [
+        "建祿",
+        "臨官"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-furuki-2019",
+          "form": "建禄",
+          "quote": "生日に建禄がある場合"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "建禄",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "建禄",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        },
+        {
+          "source": "hs-masanosuke-veil",
+          "form": "建禄",
+          "quote": "建禄（けんろく）"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "建祿",
+          "quote": "通變星對十二運、建祿/43"
+        },
+        {
+          "source": "hs-ndl-kato-1962",
+          "form": "建祿",
+          "quote": "建祿の星情と其の宿命暗示"
+        },
+        {
+          "source": "hs-jawiki-juniun",
+          "form": "臨官",
+          "quote": "長生、沐浴、冠帯、臨官（建禄）、帝旺、衰、病、死、墓、絶、胎、養、の12から構成されている。つまり人の一生になぞらえて、五行や十干の強さの変化をしめしたものである。本家の"
+        }
+      ],
+      "confidence": "상",
+      "note": "현대 일본 표기는 建禄(けんろく)입니다. 建祿은 戦前 책의 구자체이고, 臨官은 같은 단계의 다른 이름(중국 원전 계열)입니다."
+    },
+    {
+      "id": "stage.jewang",
+      "ko": "제왕",
+      "hanja": "帝旺",
+      "glossary_key": null,
+      "ja": "帝旺",
+      "reading": "ていおう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "帝旺",
+          "quote": "通變星對十二運、帝旺/47"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "帝旺",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "帝旺",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        },
+        {
+          "source": "hs-ndl-furuki-2019",
+          "form": "帝旺",
+          "quote": "生日に帝旺がある場合"
+        },
+        {
+          "source": "hs-ndl-kato-1962",
+          "form": "帝旺",
+          "quote": "帝旺の星情と其の宿命暗示"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.soe",
+      "ko": "쇠",
+      "hanja": "衰",
+      "glossary_key": null,
+      "ja": "衰",
+      "reading": "すい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "衰",
+          "quote": "通變星對十二運、衰/50"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "衰",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "衰",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.byeong",
+      "ko": "병",
+      "hanja": "病",
+      "glossary_key": null,
+      "ja": "病",
+      "reading": "びょう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "病",
+          "quote": "通變星對十二運、病/54"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "病",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "病",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.sa",
+      "ko": "사",
+      "hanja": "死",
+      "glossary_key": null,
+      "ja": "死",
+      "reading": "し",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "死",
+          "quote": "通變星對十二運、死/57"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "死",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "死",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.myo",
+      "ko": "묘",
+      "hanja": "墓",
+      "glossary_key": null,
+      "ja": "墓",
+      "reading": "ぼ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "墓",
+          "quote": "通變星對十二運、墓/60"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "墓",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "墓",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。 庫로 쓰는 일본 자료는 찾지 못했습니다(읽기는 ぼ)."
+    },
+    {
+      "id": "stage.jeol",
+      "ko": "절",
+      "hanja": "絶",
+      "glossary_key": null,
+      "ja": "絶",
+      "reading": "ぜつ",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "絶",
+          "quote": "通變星對十二運、絶/63"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "絶",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "絶",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.tae",
+      "ko": "태",
+      "hanja": "胎",
+      "glossary_key": null,
+      "ja": "胎",
+      "reading": "たい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "胎",
+          "quote": "通變星對十二運、胎/66"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "胎",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "胎",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "stage.yang",
+      "ko": "양",
+      "hanja": "養",
+      "glossary_key": null,
+      "ja": "養",
+      "reading": "よう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "養",
+          "quote": "通變星對十二運、養/68"
+        },
+        {
+          "source": "hs-kotobank-academeia-juniun",
+          "form": "養",
+          "quote": "「長生（ちょうせい）」・「沐浴（もくよく）」・「冠帯（かんたい）」・「建禄（けんろく）」・「帝旺（ていおう）」・「衰（すい）」・「病（びょう）」・「死（し）」・「墓（ぼ）」・「絶（ぜつ）」・「胎（たい）」・「養（よう）」がある。"
+        },
+        {
+          "source": "hs-uracalc",
+          "form": "養",
+          "quote": "12段階は順に、長生（ちょうせい）・沐浴（もくよく）・冠帯（かんたい）・建禄（けんろく）・帝旺（ていおう）・衰（すい）・病（びょう）・死（し）・墓（ぼ）・絶（ぜつ）・胎（たい）・養（よう）です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "十二運の一段階。古い書物（阿部熹作『四柱推命学大奥極秘伝』目次）からコトバンク占い用語集、命式計算サイトまで同じ一字で表記が揃っています。"
+    },
+    {
+      "id": "strength.very_weak",
+      "ko": "극신약",
+      "hanja": "極身弱",
+      "glossary_key": "strength.very_weak",
+      "ja": "極身弱",
+      "reading": "ごくしんじゃく",
+      "aliases": [
+        "至極身弱"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "極身弱",
+          "quote": "「極身弱」"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "極身弱",
+          "quote": "極身弱または極身強の欄を確認。"
+        },
+        {
+          "source": "hs-ndldl-ito-1914",
+          "form": "至極身弱",
+          "quote": "至極身弱にして偏財强きは、時に吉き運勢の妾を持ち其妾の暗れたる援助によりて福祿發達することがある。"
+        }
+      ],
+      "confidence": "중",
+      "note": "占いサイト(テレシス, zired)가 極身弱을 身弱의 한 단계로 씁니다. 출판물에서는 정식 단계명이 아니라 '至極身弱'(지극히 身弱)라는 서술로만 나와 A 근거가 없어 '중'입니다. 일본 유파는 이 영역을 보통 格局으로 다룹니다: 너무 약하면 従格(従財格・従殺格 등, 富永祥玲 책 목차 '専旺格、従格'). 화면에서 極身弱만 단독으로 쓰기보다 従格 설명을 곁들이는 편이 일본 독자에게 자연스럽습니다."
+    },
+    {
+      "id": "strength.weak",
+      "ko": "신약",
+      "hanja": "身弱",
+      "glossary_key": "strength.weak",
+      "ja": "身弱",
+      "reading": "しんじゃく",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-tominaga-2016",
+          "form": "身弱",
+          "quote": "１　身強、身弱とは"
+        },
+        {
+          "source": "hs-ndl-abe-zenshu-1955",
+          "form": "身弱",
+          "quote": "ナ 身旺、身弱の喜、忌"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914b",
+          "form": "身弱",
+          "quote": "身弱之解/67"
+        },
+        {
+          "source": "hs-ndl-aishinkakura-2026",
+          "form": "身弱",
+          "quote": "PART３　生命エネルギーの強弱がわかる身旺・身弱を読み解く"
+        },
+        {
+          "source": "hs-itaxes",
+          "form": "身弱",
+          "quote": "命式表（五行・蔵干・通変星・十二運・特殊星・身旺・身弱・格局等を含む）に加えて大運（１０年ごとの運勢）、歳運（１年ごとの運勢）や各項目の五行、パワー、喜神・忌神（ある場合）も表示されます。"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "身弱",
+          "quote": "『身弱』"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 身弱(しんじゃく)으로 일치합니다. 짝이 되는 말은 유파에 따라 身旺 또는 身強입니다."
+    },
+    {
+      "id": "strength.neutral",
+      "ko": "중화",
+      "hanja": "中和",
+      "glossary_key": "strength.neutral",
+      "ja": "中和",
+      "reading": "ちゅうわ",
+      "aliases": [
+        "身中"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abekisaku-gokui-1929",
+          "form": "中和",
+          "quote": "生命の長短は四柱中和と偏枯による/164"
+        },
+        {
+          "source": "hs-ndldl-takagi-kakushiki-1",
+          "form": "中和",
+          "quote": "然して偏官は固より制伏するに宣し、亦責中和するのも貴い"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "中和",
+          "quote": "3つの項目それぞれの点数を合計した値の“＋－（プラスマイナス）”によって身旺か身弱、もしくは中和（身中）かを判断"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "中和",
+          "quote": "命式が身弱と身強の中間の場合は中和で吉凶があいまい"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "身中",
+          "quote": "身旺でも身弱でもない状態の場合を『身中（中和）』"
+        },
+        {
+          "source": "hs-satsuki-youjin",
+          "form": "身中",
+          "quote": "身旺・身弱・身中"
+        }
+      ],
+      "confidence": "상",
+      "note": "中和(ちゅうわ)는 戦前 책부터 '균형'의 뜻으로 쓰이고, 사이트는 身旺과 身弱의 중간 단계를 中和 또는 身中(しんちゅう)이라 부릅니다. 戦前 책의 中和는 단계명보다 '균형을 이룸'의 뜻에 가깝습니다."
+    },
+    {
+      "id": "strength.strong",
+      "ko": "신강",
+      "hanja": "身强",
+      "glossary_key": "strength.strong",
+      "ja": "身旺",
+      "reading": "しんおう",
+      "aliases": [
+        "身強"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abe-zenshu-1955",
+          "form": "身旺",
+          "quote": "ナ 身旺、身弱の喜、忌"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914b",
+          "form": "身旺",
+          "quote": "身旺之解/62"
+        },
+        {
+          "source": "hs-ndl-aishinkakura-2026",
+          "form": "身旺",
+          "quote": "PART３　生命エネルギーの強弱がわかる身旺・身弱を読み解く"
+        },
+        {
+          "source": "hs-ndl-matsubara-1936",
+          "form": "身旺",
+          "quote": "第十二章　身旺身弱に就いて/169"
+        },
+        {
+          "source": "hs-itaxes",
+          "form": "身旺",
+          "quote": "命式表（五行・蔵干・通変星・十二運・特殊星・身旺・身弱・格局等を含む）に加えて大運（１０年ごとの運勢）、歳運（１年ごとの運勢）や各項目の五行、パワー、喜神・忌神（ある場合）も表示されます。"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "身旺",
+          "quote": "『身旺（身強）』"
+        },
+        {
+          "source": "hs-satsuki-youjin",
+          "form": "身旺",
+          "quote": "身旺・身弱・身中"
+        },
+        {
+          "source": "hs-ndl-tominaga-2016",
+          "form": "身強",
+          "quote": "１　身強、身弱とは"
+        },
+        {
+          "source": "hs-ndl-sada-2023",
+          "form": "身強",
+          "quote": "二　身強・身弱"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "身強",
+          "quote": "日干が強い（身強）"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "身強",
+          "quote": "命式が身弱と身強の中間の場合は中和で吉凶があいまい"
+        },
+        {
+          "source": "hs-fourpillar-youjin",
+          "form": "身強",
+          "quote": "以下、普通格局の身強・身弱における喜神・忌神をまずはご確認ください。"
+        }
+      ],
+      "confidence": "상",
+      "note": "身旺(しんおう)과 身強(しんきょう) 둘 다 A 근거가 있습니다. 阿部泰山 계열과 戦前 책, 계산 사이트(itaxes), 최근 대중서(日本文芸社)는 身旺, 説話社 책 두 권과 위키백과는 身強을 씁니다. 발행처 수가 더 많은 身旺을 ja로 둡니다. 한국어 '신강'에 글자가 맞는 쪽은 身強입니다."
+    },
+    {
+      "id": "strength.very_strong",
+      "ko": "극신강",
+      "hanja": "極身强",
+      "glossary_key": "strength.very_strong",
+      "ja": "極身強",
+      "reading": "ごくしんきょう",
+      "aliases": [
+        "極身旺"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "極身強",
+          "quote": "「極身強」"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "極身強",
+          "quote": "極身弱または極身強の欄を確認。"
+        },
+        {
+          "source": "hs-unkoi-shichusuimei",
+          "form": "極身旺",
+          "quote": "（＋6以上で極身旺、ー6以下で極身弱に分類される）"
+        }
+      ],
+      "confidence": "중",
+      "note": "占いサイト(テレシス, zired)가 極身強을 쓰고, 같은 テレシス 글 안에서 極身旺도 섞어 씁니다. 출판물(A) 근거는 찾지 못해 '중'입니다. テレシス는 '極身強は、身強の極みにある命式の人を指し、大きくわけて「従旺格」と「従強格」という2種類のタイプ'라고 설명합니다. 일본 유파는 이 영역을 보통 格局(専旺格・従旺格・従強格)으로 다루므로 화면 설명에 그 이름을 곁들이는 편이 자연스럽습니다."
+    },
+    {
+      "id": "role.yongsin",
+      "ko": "용신",
+      "hanja": "用神",
+      "glossary_key": "role.yongsin",
+      "ja": "用神",
+      "reading": "ようじん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-tominaga-2016",
+          "form": "用神",
+          "quote": "１　用神とは"
+        },
+        {
+          "source": "hs-ndl-abe-zenshu-1955",
+          "form": "用神",
+          "quote": "イ 用神の定義"
+        },
+        {
+          "source": "hs-ndl-abekisaku-gokui-1929",
+          "form": "用神",
+          "quote": "用神を傷むべからず/158"
+        },
+        {
+          "source": "hs-ndl-aishinkakura-2026",
+          "form": "用神",
+          "quote": "PART４　五行バランスを整えてくれる用神を読み解く"
+        },
+        {
+          "source": "hs-kotobank-academeia-youjin",
+          "form": "用神",
+          "quote": "四柱推命・九星気学と断易では意味合いが多少異なる。四柱推命や九星気学においては、その人の命を最良にするもののことで、「扶抑用神」・「調候用神」・「通関用神」・「九星用神」などが挙げられる。"
+        },
+        {
+          "source": "hs-senjutsu-meishiki",
+          "form": "用神",
+          "quote": "鑑定プロンプト：適職（用神と喜忌で読む、力を出せる仕事の場）"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 用神(ようじん)으로 일치합니다. 일본은 扶抑用神・調候用神・通関用神・病薬用神처럼 종류를 붙여 부르는 일이 많습니다."
+    },
+    {
+      "id": "role.huisin",
+      "ko": "희신",
+      "hanja": "喜神",
+      "glossary_key": "role.huisin",
+      "ja": "喜神",
+      "reading": "きじん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-tominaga-2016",
+          "form": "喜神",
+          "quote": "２　喜神が巡る時"
+        },
+        {
+          "source": "hs-itaxes",
+          "form": "喜神",
+          "quote": "命式表（五行・蔵干・通変星・十二運・特殊星・身旺・身弱・格局等を含む）に加えて大運（１０年ごとの運勢）、歳運（１年ごとの運勢）や各項目の五行、パワー、喜神・忌神（ある場合）も表示されます。"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "喜神",
+          "quote": "用神・喜神・忌神・仇神・閑神の役割と関係性"
+        },
+        {
+          "source": "hs-shihei-column49",
+          "form": "喜神",
+          "quote": "喜神、忌神、閑神の看法は大成功の部類と言えるが"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 喜神(きじん)으로 일치합니다. 忌神과 읽기가 같은 きじん이 될 수 있어(忌神은 きじん/ぎじん), 음성·후리가나에서 구분이 필요합니다."
+    },
+    {
+      "id": "role.gisin",
+      "ko": "기신",
+      "hanja": "忌神",
+      "glossary_key": "role.gisin",
+      "ja": "忌神",
+      "reading": "きじん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-tominaga-2016",
+          "form": "忌神",
+          "quote": "３　忌神がめぐる時"
+        },
+        {
+          "source": "hs-itaxes",
+          "form": "忌神",
+          "quote": "命式表（五行・蔵干・通変星・十二運・特殊星・身旺・身弱・格局等を含む）に加えて大運（１０年ごとの運勢）、歳運（１年ごとの運勢）や各項目の五行、パワー、喜神・忌神（ある場合）も表示されます。"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "忌神",
+          "quote": "用神・喜神・忌神・仇神・閑神の役割と関係性"
+        },
+        {
+          "source": "hs-sudechi-kishin",
+          "form": "忌神",
+          "quote": "忌神＝あなたの命式において、悪く働く要素"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 忌神으로 일치합니다. 읽기는 きじん이 일반적이나 喜神과 겹쳐 ぎじん으로 읽는 해설도 있습니다(てくてくちとせ '忌神（ぎじん）'). 일본 해설은 忌神을 생하는 仇神(きゅうじん)을 따로 두어 用神・喜神・忌神・仇神・閑神 다섯으로 나누는 일이 많습니다(zired, てくてくちとせ)."
+    },
+    {
+      "id": "role.neutral",
+      "ko": "한신",
+      "hanja": "閑神",
+      "glossary_key": "role.neutral",
+      "ja": "閑神",
+      "reading": "かんじん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-shihei-column49",
+          "form": "閑神",
+          "quote": "閑神とは、喜とも忌とも定めがたい五行のことです。"
+        },
+        {
+          "source": "hs-sudechi-kishin",
+          "form": "閑神",
+          "quote": "閑神＝吉にも凶にも働く要素。"
+        },
+        {
+          "source": "hs-zired-unsei",
+          "form": "閑神",
+          "quote": "用神・喜神・忌神・仇神・閑神の役割と関係性"
+        }
+      ],
+      "confidence": "중",
+      "note": "표기는 閑神(かんじん)으로 일치합니다. 출판물(A) 근거는 찾지 못해 '중'입니다(NDL 전문 검색에서 四柱推命 책의 閑神 용례 없음). 일본 해설은 閑神과 별도로 仇神(忌神を生じる要素)을 둡니다. 仇神은 한신(閑神)과 다른 개념이라 aliases에 넣지 않았습니다."
+    },
+    {
+      "id": "concept.johu",
+      "ko": "조후",
+      "hanja": "調候",
+      "glossary_key": null,
+      "ja": "調候",
+      "reading": "ちょうこう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abe-zenshu-choukou",
+          "form": "調候",
+          "quote": "五 甲日生調候選用"
+        },
+        {
+          "source": "hs-ndl-umekawa-2007",
+          "form": "調候",
+          "quote": "十干推命調候用神法"
+        },
+        {
+          "source": "hs-kotobank-academeia-choukou",
+          "form": "調候",
+          "quote": "調候 命式の五行のバランスから、その人の寒・暖・燥・湿を判断する方法。"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "調候",
+          "quote": "四柱推命では四柱八字の構成から、扶抑、調候、清濁を論じて、扶抑用神、調候用神、病薬用神を見る。そしてこれらの用神から、いかなる状況でも自分にとって吉の作用を持つ用神を出し、用神を軸にして本来の特性や巡ってくる運勢の吉凶を判断する。この用神を特に真用神と呼ぶことがある。"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 調候(ちょうこう)로 일치합니다. 阿部泰山『四柱推命学調候用神大法』처럼 '調候用神'으로 묶어 쓰는 일이 많습니다."
+    },
+    {
+      "id": "concept.eokbu",
+      "ko": "억부",
+      "hanja": "抑扶",
+      "glossary_key": null,
+      "ja": "扶抑",
+      "reading": "ふよく",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abe-zenshu-1955",
+          "form": "扶抑",
+          "quote": "ヌ 用神の扶抑法"
+        },
+        {
+          "source": "hs-kotobank-academeia-youjin",
+          "form": "扶抑",
+          "quote": "四柱推命・九星気学と断易では意味合いが多少異なる。四柱推命や九星気学においては、その人の命を最良にするもののことで、「扶抑用神」・「調候用神」・「通関用神」・「九星用神」などが挙げられる。"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "扶抑",
+          "quote": "四柱推命では四柱八字の構成から、扶抑、調候、清濁を論じて、扶抑用神、調候用神、病薬用神を見る。そしてこれらの用神から、いかなる状況でも自分にとって吉の作用を持つ用神を出し、用神を軸にして本来の特性や巡ってくる運勢の吉凶を判断する。この用神を特に真用神と呼ぶことがある。"
+        },
+        {
+          "source": "hs-sumai-kigaku",
+          "form": "扶抑",
+          "quote": "扶抑法による簡易判定です。流派により見立てが分かれます。日干の強さは人柄や体力の優劣ではなく、喜用五行は数の少ない五行とは別の判断です。"
+        },
+        {
+          "source": "hs-satsuki-youjin",
+          "form": "扶抑",
+          "quote": "主だったもので、「扶抑（ふよく）用神」・「調候（ちょうこう）用神」・「通関（つうかん）用神」が言えます。他にも、「病薬（びょうやく）用神」や「専旺（せんおう）用神」と言うものもあります。"
+        }
+      ],
+      "confidence": "상",
+      "note": "일본은 글자 순서가 한국과 반대인 扶抑(ふよく)을 씁니다(扶抑法・扶抑用神). 한국식 抑扶는 일본 자료(NDL 전문 검색 포함)에서 찾지 못했습니다. 화면에서 한국어 '억부'를 일본어로 옮길 때 抑扶로 직역하지 않습니다."
+    },
+    {
+      "id": "concept.tonggwan",
+      "ko": "통관",
+      "hanja": "通關",
+      "glossary_key": null,
+      "ja": "通関",
+      "reading": "つうかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-kotobank-academeia-youjin",
+          "form": "通関",
+          "quote": "四柱推命・九星気学と断易では意味合いが多少異なる。四柱推命や九星気学においては、その人の命を最良にするもののことで、「扶抑用神」・「調候用神」・「通関用神」・「九星用神」などが挙げられる。"
+        },
+        {
+          "source": "hs-akiharu-tsukan",
+          "form": "通関",
+          "quote": "\"通関用神\"とは、四柱推命学で相剋関係の五行を相生関係に変化させる五行を意味する!"
+        },
+        {
+          "source": "hs-satsuki-youjin",
+          "form": "通関",
+          "quote": "主だったもので、「扶抑（ふよく）用神」・「調候（ちょうこう）用神」・「通関（つうかん）用神」が言えます。他にも、「病薬（びょうやく）用神」や「専旺（せんおう）用神」と言うものもあります。"
+        },
+        {
+          "source": "hs-sityuu-youjin",
+          "form": "通関",
+          "quote": "用神には、扶抑用神、調候用神、病薬用神、通関用神、専旺用神などいくつかの種類があり、格局によって用いるものが決まります。"
+        },
+        {
+          "source": "hs-hiroto-nyumon4",
+          "form": "通関",
+          "quote": " さて、四柱推命の中級者にはわかると思いますが、上の例え話は、いわゆる４つの用神法の説明です。その用神法とは、①扶抑用神法 ②専旺用神法 ③通関用神法 ④病薬用神法 の４つです。それに五行周流というものも含ませています。"
+        }
+      ],
+      "confidence": "중",
+      "note": "표기는 通関(つうかん)으로 일치하고, 거의 언제나 '通関用神'으로 묶어 씁니다. 출판물(A) 근거는 찾지 못해 '중'입니다(NDL 전문 검색의 '通關'은 세관·교통 뜻뿐). 일상어 通関(세관 통관)과 글자가 같아 단독으로 쓰면 오해될 수 있습니다."
+    },
+    {
+      "id": "concept.gyeokguk",
+      "ko": "격국",
+      "hanja": "格局",
+      "glossary_key": null,
+      "ja": "格局",
+      "reading": "かくきょく",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "hs-ndl-abe-zenshu-1955",
+          "form": "格局",
+          "quote": "ニ 格局の條項"
+        },
+        {
+          "source": "hs-ndl-abekisaku-daiou-1914a",
+          "form": "格局",
+          "quote": "格局之論/1"
+        },
+        {
+          "source": "hs-ndl-sada-2023",
+          "form": "格局",
+          "quote": "三　格局"
+        },
+        {
+          "source": "hs-ndl-matsubara-1936",
+          "form": "格局",
+          "quote": "第十七章　格局に就いて/201"
+        },
+        {
+          "source": "hs-jawiki-shichusuimei",
+          "form": "格局",
+          "quote": "格局は、普通格局（内格）特別格局（外格）に大きく分類される。日干が強い、弱いと言っても、日干がその存在を保つことができる程度であれば、それは普通格局に分類されるのであるが、中には日干が非常に弱い、逆に非常に強く、普通格局として扱えないような四柱八字もある。それを外格と総称される。"
+        },
+        {
+          "source": "hs-itaxes",
+          "form": "格局",
+          "quote": "命式表（五行・蔵干・通変星・十二運・特殊星・身旺・身弱・格局等を含む）に加えて大運（１０年ごとの運勢）、歳運（１年ごとの運勢）や各項目の五行、パワー、喜神・忌神（ある場合）も表示されます。"
+        }
+      ],
+      "confidence": "상",
+      "note": "표기는 格局(かくきょく)으로 일치합니다. 일본은 普通格局(内格)과 特別格局(外格, 従格・専旺格 등)으로 나눕니다."
+    }
+  ]
+}

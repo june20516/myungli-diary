@@ -1,0 +1,473 @@
+# 화면 문구 슬롯: 여러 화면이 함께 쓰는 공용 문구(#143, #153)
+#
+# app이 임시로 두었던 슬롯 밖 문구(오류, 탭, 버튼, 접근성 이름, 휠, 선택지, 로그인)를 writing 원고로 옮깁니다.
+# IA 밖 공용 문구라 자리는 components로 적고, 키 이름은 app ARB 이름을 그대로 씁니다(W22).
+# 자리표시자 값 종류는 app ARB 타입과 같습니다(int → number, String → text).
+# 원고는 content/<lang>/ui.yaml이고, mlw gen-docs가 generated/arb/app_<lang>.arb를 만듭니다.
+# 글자 수 상한은 design #131 답을 기다리며 null로 둡니다. en·ja는 원어민 검수(W1) 전 초안입니다.
+
+- id: ui.error.client
+  where: "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
+  purpose: info
+  user_state: "요청이 실패해 화면을 볼 수 없거나 동작이 끝나지 않았습니다."
+  structure: "한두 문장. 무엇이 안 됐는지, 그다음 할 수 있는 일(다시 시도, 연결 확인)을 씁니다. 할 일이 없으면 한 문장으로 끝냅니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [error-state, toast]
+  keys:
+    - errorOffline
+    - errorTimeout
+    - errorClient
+    - errorServer
+    - errorUnexpected
+    - errorNotImplemented
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: errorOffline, text: "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: errorTimeout, text: "응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.", why: "#143 공용 문구 원고", source: writing}
+    bad:
+      - {lang: ko, text: "오류가 발생했습니다.", why: "합니다체(style.S3)이고 무엇을 하면 되는지 말하지 않음", source: writing}
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.error.code
+  where: "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  purpose: info
+  user_state: "server가 오류 코드로 요청을 거절했습니다."
+  structure: "한두 문장. 무엇이 안 됐는지, 그다음 할 수 있는 일을 씁니다. 앱 버전 문제로만 나는 코드(경로 없음, 방식·형식 불일치)는 앱 업데이트를 권합니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [error-state, toast]
+  keys:
+    - errorRequestMalformed
+    - errorRequestInvalid
+    - errorAuthTokenExpired
+    - errorAuthTokenInvalid
+    - errorAuthRefreshReused
+    - errorAuthProviderTokenInvalid
+    - errorAuthExchangeInvalid
+    - errorAppCheckInvalid
+    - errorConsentRequired
+    - errorPreviewUsed
+    - errorRouteNotFound
+    - errorDiaryNotFound
+    - errorMethodNotAllowed
+    - errorProfileRequired
+    - errorDiaryDateTaken
+    - errorIdempotencyInProgress
+    - errorRequestTooLarge
+    - errorRequestUnsupportedMediaType
+    - errorDateOutOfRange
+    - errorBirthOutOfRange
+    - errorDateInvalid
+    - errorRequestInconsistent
+    - errorBirthInvalid
+    - errorDiaryFutureDate
+    - errorNameEmpty
+    - errorNameTooLong
+    - errorNameEmoji
+    - errorNameControl
+    - errorNameInvalidChar
+    - errorIdempotencyMismatch
+    - errorConsentVersionMismatch
+    - errorRateLimited
+    - errorInternal
+    - errorEngineError
+    - errorEngineUnavailable
+    - errorAuthProviderUnavailable
+    - errorBillingProviderUnavailable
+    - errorServiceUnavailable
+    - errorEngineTimeout
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: errorRequestMalformed, text: "요청을 처리하지 못했어요. 다시 시도해 주세요.", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: errorRequestInvalid, text: "입력한 내용을 다시 확인해 주세요.", why: "#143 공용 문구 원고", source: writing}
+    bad:
+      - {lang: ko, text: "요청 본문을 파싱할 수 없습니다(400).", why: "기술 용어와 상태 코드 노출, 합니다체", source: writing}
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.app.name
+  where: "앱 바·작업 전환기에 보이는 앱 이름"
+  purpose: info
+  user_state: "앱을 엽니다."
+  structure: "앱 이름 하나(W17)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [app-bar]
+  keys:
+    - appTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: appTitle, text: "명리일기", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "잘리지 않습니다."
+    screen_reader: "이름 그대로 읽습니다."
+
+- id: ui.app.bootstrap
+  where: "오류 상태: 앱 시작 준비가 실패했을 때의 안내"
+  purpose: info
+  user_state: "앱을 열었는데 시작하지 못했습니다."
+  structure: "두 문장. 열지 못했다는 사실과 다시 여는 방법."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [error-state]
+  keys:
+    - bootstrapFailed
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: bootstrapFailed, text: "앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요.", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "세 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.app.notice
+  where: "오프라인 안내 배너와 빈 상태 기본 문장"
+  purpose: info
+  user_state: "인터넷 없이 저장된 내용을 보거나, 보여 줄 내용이 아직 없습니다."
+  structure: "한 문장. 지금 무엇이 보이는지(또는 없는지)를 말합니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [notice-banner, empty-state]
+  keys:
+    - noticeOffline
+    - emptyStateDefault
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: noticeOffline, text: "인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: emptyStateDefault, text: "아직 보여 드릴 내용이 없어요.", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: ["~어요", "~드려요"]
+  a11y:
+    truncation: "배너 두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.app.trace
+  where: "오류 화면의 문의 번호 표시와 복사 뒤 토스트"
+  purpose: info
+  user_state: "문의할 때 쓸 번호를 보거나 복사했습니다."
+  structure: "이름과 번호, 또는 복사했다는 한 문장."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [error-state, toast]
+  keys:
+    - {params: {traceId: text}, keys: [traceIdLabel]}
+    - traceIdCopied
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: traceIdLabel, text: "문의 번호 {traceId}", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: traceIdCopied, text: "문의 번호를 복사했어요.", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: ["~어요"]
+  a11y:
+    truncation: "번호는 줄이지 않습니다."
+    screen_reader: "번호를 한 글자씩 읽어도 되게 그대로 둡니다."
+
+- id: ui.action.button
+  where: "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
+  purpose: guide
+  user_state: "다음 동작을 고릅니다."
+  structure: "동작 이름 하나."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  components: [primary-button, dialog, share-button, check-row, text-field, input-step]
+  keys:
+    - actionRetry
+    - actionClose
+    - actionConfirm
+    - onboardingNext
+    - onboardingSave
+    - shareLabel
+    - consentView
+    - textFieldClear
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: actionRetry, text: "다시 시도", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: actionClose, text: "닫기", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: ui.nav.tab
+  where: "탭 바의 탭 이름"
+  purpose: info
+  user_state: "화면을 옮겨 다닙니다."
+  structure: "탭 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [tab-bar]
+  keys:
+    - tabToday
+    - tabCalendar
+    - tabDiary
+    - tabMe
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: tabToday, text: "오늘", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: tabCalendar, text: "달력", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "탭 아래 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "탭 이름과 순서를 읽습니다."
+
+- id: ui.nav.a11y
+  where: "앱 바 뒤로 버튼과 시트 바깥 덮개의 스크린리더 이름"
+  purpose: guide
+  user_state: "스크린리더로 화면을 닫거나 돌아갑니다."
+  structure: "동작 이름 하나."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  components: [app-bar, sheet]
+  keys:
+    - appBarBack
+    - sheetDismiss
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: appBarBack, text: "뒤로", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: sheetDismiss, text: "닫기", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "이 이름을 읽습니다."
+
+- id: ui.a11y.label
+  where: "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  purpose: info
+  user_state: "스크린리더로 화면을 듣습니다."
+  structure: "이름이나 상태 하나. 입력칸 이름은 hint(예시)와 다른 말로 칸의 목적을 말합니다(#143)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [primary-button, ad-banner, skeleton, term-token, input-step, text-field, city-search]
+  keys:
+    - actionBusy
+    - adBannerLabel
+    - skeletonLabel
+    - {params: {term: text}, keys: [termTokenSemantics]}
+    - {params: {step: number, stepCount: number}, keys: [inputStepProgress]}
+    - {params: {current: number, max: number}, keys: [textFieldCounter]}
+    - {params: {count: number}, keys: [citySearchResults]}
+    - onboardCallInputLabel
+    - birthplaceSearchLabel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: actionBusy, text: "처리 중", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: adBannerLabel, text: "광고", why: "#143 공용 문구 원고", source: writing}
+    bad:
+      - {lang: ko, text: "예: 민지", why: "hint와 같은 말이라 칸의 목적을 알 수 없음(onboardCallInputLabel)", source: writing}
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않거나 짧은 표시입니다."
+    screen_reader: "이 이름을 읽습니다. 검색 결과 수는 ICU plural입니다."
+
+- id: ui.picker.label
+  where: "날짜·시간 휠의 스크린리더 이름"
+  purpose: info
+  user_state: "스크린리더로 휠을 고릅니다."
+  structure: "휠 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [date-picker, time-picker]
+  keys:
+    - datePickerYearLabel
+    - datePickerMonthLabel
+    - datePickerDayLabel
+    - timePickerMeridiemLabel
+    - timePickerHourLabel
+    - timePickerMinuteLabel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: datePickerYearLabel, text: "연도", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: datePickerMonthLabel, text: "월", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "휠 이름 뒤에 고른 값을 읽습니다."
+
+- id: ui.picker.item
+  where: "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)"
+  purpose: info
+  user_state: "태어난 날과 시간을 고릅니다."
+  structure: "값과 단위. en은 숫자만 씁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [date-picker, time-picker]
+  keys:
+    - {params: {year: number}, keys: [datePickerYearItem]}
+    - {params: {month: number}, keys: [datePickerMonthItem]}
+    - {params: {day: number}, keys: [datePickerDayItem]}
+    - {params: {hour: number}, keys: [timePickerHourItem]}
+    - {params: {minute: text}, keys: [timePickerMinuteItem]}
+    - timePickerAm
+    - timePickerPm
+    - {params: {month: number}, keys: [datePickerLeapMonthValue]}
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: datePickerYearItem, text: "{year}년", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: datePickerMonthItem, text: "{month}월", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "휠 칸 안에 들어갑니다."
+    screen_reader: "칸 글자 그대로 읽습니다."
+
+- id: ui.birth.option
+  where: "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  purpose: info
+  user_state: "태어난 날의 달력 종류, 시간을 아는지, 성별을 고릅니다."
+  structure: "선택지 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [segmented, check-row]
+  keys:
+    - calendarSolar
+    - calendarLunar
+    - leapMonth
+    - timeUnknownLabel
+    - genderMale
+    - genderFemale
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calendarSolar, text: "양력", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: calendarLunar, text: "음력", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "칩 한 칸 안에 들어가게 짧게 씁니다."
+    screen_reader: "이름과 선택 여부를 읽습니다."
+
+- id: ui.login.provider
+  where: "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
+  purpose: guide
+  user_state: "로그인 방법을 고릅니다."
+  structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143)."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  components: [social-login-button]
+  keys:
+    - loginKakaoLabel
+    - loginAppleLabel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: loginKakaoLabel, text: "카카오 로그인", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: loginAppleLabel, text: "Apple로 로그인", why: "#143 공용 문구 원고", source: writing}
+    bad:
+      - {lang: ko, text: "카카오로 시작하기", why: "제공자 가이드에 없는 문구", source: writing}
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어갑니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: ui.login.error
+  where: "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
+  purpose: info
+  user_state: "로그인을 끝내지 못했습니다."
+  structure: "한두 문장. 무엇이 안 됐는지와 다시 하는 방법."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [toast, error-state]
+  keys:
+    - loginCancelled
+    - appleWebErrorStateMismatch
+    - appleWebErrorCancelled
+    - appleWebErrorOther
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: loginCancelled, text: "로그인을 취소했어요.", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: appleWebErrorStateMismatch, text: "로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요.", why: "#143 공용 문구 원고", source: writing}
+    bad: []
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.evidence.title
+  where: "근거 시트(sheet) 제목(#153)"
+  purpose: info
+  user_state: "근거 시트를 열었습니다."
+  structure: "제목 하나. 무엇의 근거인지(오늘 풀이)를 말합니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [sheet]
+  keys:
+    - evidenceSheetTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: evidenceSheetTitle, text: "오늘 풀이의 근거", why: "#153 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "시트 제목 한 줄 안에 들어가게 씁니다."
+    screen_reader: "제목으로 읽습니다."
+
+- id: ui.guide.card
+  where: "가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)"
+  purpose: info
+  user_state: "오늘 화면에서 가이드 질문 카드를 봅니다."
+  structure: "머리글 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [guide-question-card]
+  keys:
+    - todayGuideEyebrow
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayGuideEyebrow, text: "오늘의 질문", why: "#153 공용 문구 원고", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "카드 너비 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "머리글 그대로 읽습니다."
+
+- id: ui.guide.a11y
+  where: "가이드 질문 카드(guide-question-card)의 스크린리더 문구: 카드 묶음 이름(a11y.label), 일기를 쓴 뒤 상태 알림(stateAnnounced)(#153)"
+  purpose: info
+  user_state: "스크린리더로 오늘 화면을 듣거나, 일기를 쓰고 돌아왔습니다."
+  structure: "이름 하나, 또는 해요체 한 문장으로 된 상태 알림. 묶음 이름은 무엇에 대한 질문인지(일기)를 넣습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [guide-question-card]
+  keys:
+    - todayGuideLabel
+    - todayGuideWritten
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayGuideLabel, text: "일기 질문", why: "#153 공용 문구 원고", source: writing}
+      - {lang: ko, key: todayGuideWritten, text: "오늘 일기를 썼어요", why: "#153 공용 문구 원고", source: writing}
+    bad:
+      - {lang: ko, text: "질문", why: "무엇에 대한 질문인지 알 수 없음", source: writing}
+      - {lang: ko, text: "오늘 일기 씀", why: "해요체가 아님(W6)", source: writing}
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "이 문구를 읽습니다."
