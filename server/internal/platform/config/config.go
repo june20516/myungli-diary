@@ -195,3 +195,30 @@ func requirePair(idName, id, valueName, value string) error {
 	}
 	return nil
 }
+
+// EngineConfig는 명리 엔진 연결 설정입니다.
+type EngineConfig struct {
+	// Addr는 엔진 gRPC 주소(host:port)입니다.
+	Addr string
+	// Audience는 엔진 Cloud Run 서비스의 https URL입니다. 비어 있으면 인증 없는 h2c(로컬)로 연결합니다.
+	Audience string
+}
+
+// LoadEngine은 getenv로 엔진 설정을 읽습니다. ENGINE_ADDR는 필수이고 ENGINE_AUDIENCE는 선택이며 있으면 https URL이어야 합니다.
+// 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadEngine(getenv func(string) string) (EngineConfig, error) {
+	getenv = trimmedEnv(getenv)
+	cfg := EngineConfig{Addr: getenv("ENGINE_ADDR"), Audience: getenv("ENGINE_AUDIENCE")}
+
+	var errs []error
+	if cfg.Addr == "" {
+		errs = append(errs, errors.New("ENGINE_ADDR가 필요합니다"))
+	}
+	if cfg.Audience != "" && !strings.HasPrefix(cfg.Audience, "https://") {
+		errs = append(errs, errors.New("ENGINE_AUDIENCE는 https URL이어야 합니다"))
+	}
+	if err := errors.Join(errs...); err != nil {
+		return EngineConfig{}, err
+	}
+	return cfg, nil
+}
