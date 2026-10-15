@@ -3,15 +3,16 @@
 * 작성: app 세션, 2026-10-13
 * 상태: 승인 (2026-10-13)
 * 마일스톤: A1 (app 설계, 대역 데이터로 화면 구현)
-* 관련 결정: app 결정 A1~A21([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
-* 쓰는 계약
-  * REST API `server/api/openapi.yaml` 1.0.0-draft.2
-  * IA `docs/ia/screens.json` v2 (v1에서 `consent.optional.label` 제거, D67)
-  * 디자인 토큰 1.1.0
-  * 컴포넌트 명세 2.2.0
-  * 슬롯 명세 v1
-  * 라이팅 검사기 `mlw` v0.1.0
+* 관련 결정: app 결정 A1~A27([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
+* 쓰는 계약(버전·상태는 [`docs/contracts/README.md`](../../../docs/contracts/README.md) 기준)
+  * REST API `server/api/openapi.yaml`
+  * IA `docs/ia/screens.json`
+  * 디자인 토큰
+  * 컴포넌트 명세
+  * 슬롯 명세
+  * 라이팅 검사기 `mlw`
 * 개정 기록
+  * 2026-10-15 계획 3: 시트 등록부(A23), 그날 캐시 순서(A24, §4.4), 반응(A25), 잠금 해제(A26), 행운 카드 값(A27), 계약 빈칸(A22). 쓰는 계약 목록에서 버전을 빼고 `docs/contracts/README.md`를 기준으로 함
   * 2026-10-14: 계획 2 최종 review 반영. 온보딩 입력으로 프로필을 만드는 일은 프로필이 없는 계정에서만 하고, 프로필 있는 갈래에서는 온보딩 단계를 수정 모드로만 열며 남은 입력을 지움(§3). 진입 계산 전 기억하는 목적지에 query를 포함(§3). 진입 갱신 실패를 화면이 안내(§3). 로그아웃 정리 대상(프로필 사본, 알림 허락 대기 플래그, 메모리 상태)을 코드와 맞춤(§4.4)
   * 2026-10-14: 계획 2(온보딩·로그인) 완료 반영. 진입 갈래 `notifyAskRequired`(A17), 프로필 사본과 시간대 동기화(A18), 수정 모드 `?mode=edit`(A19), 계약-IA 불일치 처리(A20), ui 슬롯의 일반 `Text`(A21)를 결정으로 더함
   * 2026-10-14: 기반 계획 최종 review 반영. 계약을 REST 1.0.0-draft.2(Apple 로그인 `clientType` 제거, iOS `loginApple`·Android `completeAppleWebLogin` 분리, nonce 원문·해시 규칙)와 컴포넌트 2.2.0(V28 용어 칩 화면 한정, 잠김 라벨 구역 이름)으로 맞춤. 수치를 IA v1 현재 값(화면 37, 슬롯 124, operation 38)으로 고침. App Check 대상은 계약 `security`에서 생성(§4.1). 로그아웃 정리 경로·백업 정책(Android·iOS, §4.4), 계정 연결(§7), `workflow_call`의 E2E 조건(§9)을 더함. 생성기는 결정 A16으로 확정
@@ -157,6 +158,7 @@ app/
 
 **그날 캐시: 오늘(`getDaily`)**
 * 날짜가 키라 날마다 새로 받습니다. 마지막으로 받은 응답은 오프라인 표시용으로 남깁니다(D59③, IA `offline`).
+* 순서(A24): 기기 시간대 동기화(`TimezoneSync.syncIfChanged`)를 기다린 뒤 요청합니다. 프로필 사본이 있으면 키 `dailyKey(사주 지문, 사본 language, 날짜)`의 캐시를 먼저 보이고, 사본이 없으면 캐시를 읽지도 쓰지도 않습니다. 오늘 날짜 키만 보이며 어제 캐시를 오늘로 보이지 않습니다.
 * 화면은 캐시를 먼저 그리고 서버 응답으로 바꿉니다.
 * 잠금이 풀리면 다시 받습니다.
 

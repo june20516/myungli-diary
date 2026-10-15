@@ -1,12 +1,13 @@
 {
-  "generatedAt": "2026-10-15T02:05:31.273674Z",
+  "generatedAt": "2026-10-15T06:24:45.369762Z",
   "exits": {
-    "covered": 33,
-    "total": 79,
+    "covered": 37,
+    "total": 80,
     "uncovered": [
       "account-delete>welcome",
       "ad-free>legal",
       "ad-free>system-purchase",
+      "birthplace>calc-basis",
       "birthplace>notify-ask",
       "calendar>day-sheet",
       "calendar>event-edit",
@@ -21,9 +22,6 @@
       "diary-view>diary-edit",
       "diary-view>explain-sheet",
       "diary-view>tag-diary",
-      "evidence-sheet>ad-free",
-      "evidence-sheet>system-rewarded-ad",
-      "explain-sheet>evidence-sheet",
       "launch>ad-consent",
       "my-saju>explain-sheet",
       "my-saju>saju-chart",
@@ -43,7 +41,6 @@
       "settings>legal",
       "settings>profile-edit",
       "settings>welcome",
-      "share-preview>system-share",
       "system-apple-return>welcome",
       "system-purchase>ad-free",
       "system-rewarded-ad>evidence-sheet",
@@ -78,6 +75,17 @@
       ],
       "consent>onboard-call": [
         "test/flows/consent_flow_test.dart:166 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
+      ],
+      "evidence-sheet>ad-free": [
+        "test/flows/today_flow_test.dart:482 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
+      ],
+      "evidence-sheet>system-rewarded-ad": [
+        "test/flows/today_flow_test.dart:482 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
+        "patrol_test/today_test.dart:44 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
+      ],
+      "explain-sheet>evidence-sheet": [
+        "test/flows/today_flow_test.dart:203 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
+        "patrol_test/today_test.dart:44 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "launch>force-update": [
         "test/flows/launch_flow_test.dart:52 force-update 시나리오는 force-update 화면에 도착합니다"
@@ -154,24 +162,30 @@
       "preview>onboard-call": [
         "test/flows/preview_flow_test.dart:117 다시 입력 → onboard-call, 호칭이 채워져 있고 같은 입력이면 미리보기를 다시 쓰지 않습니다"
       ],
+      "share-preview>system-share": [
+        "test/flows/today_flow_test.dart:253 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다"
+      ],
       "system-push>today": [
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
       ],
       "today>diary-edit": [
-        "test/flows/today_flow_test.dart:141 member: 가이드 카드 → diary-edit, 돌아오면 일기 여부를 다시 확인합니다"
+        "test/flows/today_flow_test.dart:360 member: 가이드 카드 → diary-edit, 돌아오면 일기 여부를 다시 확인합니다"
       ],
       "today>diary-view": [
-        "test/flows/today_flow_test.dart:159 diary-written: 가이드 카드 → diary-view"
+        "test/flows/today_flow_test.dart:391 diary-written: 가이드 카드 → diary-view"
       ],
       "today>evidence-sheet": [
-        "test/flows/today_flow_test.dart:110 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기"
+        "test/flows/today_flow_test.dart:203 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기"
       ],
       "today>explain-sheet": [
-        "test/flows/today_flow_test.dart:110 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기"
+        "test/flows/today_flow_test.dart:203 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
+        "patrol_test/today_test.dart:44 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "today>share-preview": [
-        "test/flows/today_flow_test.dart:110 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기"
+        "test/flows/today_flow_test.dart:203 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
+        "test/flows/today_flow_test.dart:253 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다",
+        "patrol_test/today_test.dart:44 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "welcome>login": [
         "test/flows/welcome_flow_test.dart:12 welcome 시작하기는 onboard-call로, 이미 계정이 있어요는 login으로 갑니다",
@@ -185,7 +199,7 @@
     }
   },
   "states": {
-    "covered": 15,
+    "covered": 19,
     "total": 54,
     "uncovered": [
       "account-delete:error",
@@ -211,10 +225,6 @@
       "event-edit:error",
       "event-edit:loading",
       "event-edit:offline",
-      "evidence-sheet:error",
-      "evidence-sheet:loading",
-      "explain-sheet:error",
-      "explain-sheet:loading",
       "launch:loading",
       "my-saju:error",
       "my-saju:loading",
@@ -240,6 +250,18 @@
       ],
       "consent:error": [
         "test/flows/consent_flow_test.dart:327 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
+      ],
+      "evidence-sheet:error": [
+        "test/flows/today_flow_test.dart:482 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
+      ],
+      "evidence-sheet:loading": [
+        "test/flows/today_flow_test.dart:482 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
+      ],
+      "explain-sheet:error": [
+        "test/flows/today_flow_test.dart:298 풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름"
+      ],
+      "explain-sheet:loading": [
+        "test/flows/today_flow_test.dart:298 풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름"
       ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:68 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
@@ -267,29 +289,30 @@
         "test/flows/preview_flow_test.dart:144 time-unknown: 시간 모름 배너"
       ],
       "today:error": [
-        "test/flows/today_flow_test.dart:200 daily-error: 오류 화면과 다시 시도"
+        "test/flows/today_flow_test.dart:432 daily-error: 오류 화면과 다시 시도"
       ],
       "today:loading": [
-        "test/flows/today_flow_test.dart:171 loading: 화면을 연 채 날짜가 바뀌면 새 응답을 받는 동안 skeleton입니다"
+        "test/flows/today_flow_test.dart:403 loading: 화면을 연 채 날짜가 바뀌면 새 응답을 받는 동안 skeleton입니다"
       ],
       "today:offline": [
-        "test/flows/today_flow_test.dart:210 offline: 받아 둔 오늘 풀이와 배너, 연결이 돌아와 다시 받으면 배너가 사라집니다"
+        "test/flows/today_flow_test.dart:442 offline: 받아 둔 오늘 풀이와 배너, 연결이 돌아와 다시 받으면 배너가 사라집니다"
       ],
       "today:time-unknown": [
-        "test/flows/today_flow_test.dart:236 member-time-unknown: 시간 모름 배너"
+        "test/flows/today_flow_test.dart:468 member-time-unknown: 시간 모름 배너"
       ]
     }
   },
   "decisions": {
-    "covered": 2,
+    "covered": 4,
     "total": 6,
     "uncovered": [
       "D30",
-      "D47",
-      "D49",
-      "D60"
+      "D49"
     ],
     "coveredBy": {
+      "D47": [
+        "test/flows/today_flow_test.dart:253 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다"
+      ],
       "D50": [
         "test/flows/consent_flow_test.dart:121 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
         "test/flows/consent_flow_test.dart:204 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
@@ -308,6 +331,10 @@
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:85 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "D60": [
+        "test/flows/today_flow_test.dart:482 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
+        "patrol_test/today_test.dart:44 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ]
     }
   },
@@ -385,7 +412,7 @@
     "birthplace": {
       "exits": {
         "covered": 3,
-        "total": 4
+        "total": 5
       },
       "states": {
         "covered": 3,
@@ -474,27 +501,27 @@
     },
     "explain-sheet": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       }
     },
     "evidence-sheet": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       }
     },
     "share-preview": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {
