@@ -16,8 +16,8 @@
 ## 계약
 | 계약 | 역할 | 사용하는 쪽 |
 | --- | --- | --- |
-| `proto/myungli/engine/v1/engine.proto` (gRPC, RPC 5개: GetChart, GetDaily, GetMonthCalendar, GetBirthHour, GetInfo) | **제공** | server |
-| `core/message_keys.json` (메시지 키 목록, 153개) | **제공** | server (콘텐츠 모듈), writing |
+| `proto/myungli/engine/v1/engine.proto` (gRPC) | **제공** | server |
+| `core/message_keys.json` (메시지 키 목록) | **제공** | server (콘텐츠 모듈), writing |
 | `core/message_params.json` (메시지 키별 매개변수 이름) | **제공** | server, writing |
 | `source_ref` 형식 (spec §11) | **제공** | server, app (`evidence` 깊이의 근거 표시) |
 
