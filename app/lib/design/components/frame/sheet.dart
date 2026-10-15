@@ -170,9 +170,7 @@ Future<T?> showMyungliSheet<T>(
 }) {
   // 시트 안에서 여는 시트는 아래 시트의 덮개를 그대로 쓰고 자기 덮개는 더하지 않습니다.
   final underSheet = ModalRoute.of(context) is _SheetRoute;
-  // 시트는 늘 root navigator에 쌓습니다. 화면 셸([SheetScreenBelow]) 안쪽 navigator(탭 화면)에
-  // 쌓으면 시트도 셸과 함께 0.92배로 줄어, 덮개가 화면 모서리를 놓쳐 바깥 누르기가 닫지 못합니다.
-  return Navigator.of(context, rootNavigator: true).push<T>(
+  return _sheetNavigator(context).push<T>(
     _SheetRoute<T>(
       size: size,
       builder: builder,
@@ -180,6 +178,32 @@ Future<T?> showMyungliSheet<T>(
       underSheet: underSheet,
     ),
   );
+}
+
+/// 시트를 쌓을 navigator. 화면 셸([SheetScreenBelow]) 범위 밖에서 가장 가까운 것입니다.
+///
+/// 셸 안쪽 navigator(탭 화면의 branch)에 쌓으면 시트도 셸과 함께 0.92배로 줄어, 덮개가
+/// 화면 모서리를 놓쳐 바깥 누르기가 닫지 못합니다. 그렇다고 root navigator를 고르면 앱 안의
+/// 앱(Widgetbook의 미리보기 MaterialApp)에서 바깥 navigator에 쌓여 테마를 잃습니다.
+/// 범위 안이 아니면 가장 가까운 navigator 그대로입니다.
+NavigatorState _sheetNavigator(BuildContext context) {
+  var navigator = Navigator.of(context);
+  while (navigator.context.getInheritedWidgetOfExactType<_ScreenShellScope>() !=
+      null) {
+    // Navigator.of(navigator.context)는 자기 자신을 돌려주므로 조상을 직접 찾습니다.
+    final outer = navigator.context.findAncestorStateOfType<NavigatorState>();
+    if (outer == null) break;
+    navigator = outer;
+  }
+  return navigator;
+}
+
+/// [SheetScreenBelow] 안쪽임을 알리는 표지.
+class _ScreenShellScope extends InheritedWidget {
+  const new({required super.child});
+
+  @override
+  bool updateShouldNotify(_ScreenShellScope oldWidget) => false;
 }
 
 /// 시트가 시트 위에 쌓이는 동안 아래 화면에 걸 `sheet.stack` 진행(`screenBelow`).
@@ -206,7 +230,7 @@ class SheetScreenBelow extends StatelessWidget {
         prefs: MotionPrefs.of(context),
         child: child!,
       ),
-      child: child,
+      child: _ScreenShellScope(child: child),
     );
   }
 }
