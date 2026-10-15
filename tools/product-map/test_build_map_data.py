@@ -179,6 +179,15 @@ class IdeaTests(unittest.TestCase):
     def test_collect_ideas_without_file(self) -> None:
         self.assertEqual(build_map_data.collect_ideas(self.root), ([], []))
 
+    def test_build_reads_ideas_from_internal_repo(self) -> None:
+        internal = self.root / "internal"
+        write(internal, "ideas.md", "# 아이디어 함\n\n" + IDEAS_HEADER + idea_row("I1", "대기"))
+        with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
+            with_internal = build_map_data.build(self.root, internal)
+            without = build_map_data.build(self.root)
+        self.assertEqual([i["id"] for i in with_internal["ideas"]], ["I1"])
+        self.assertEqual(without["ideas"], [])
+
     def test_collect_ideas_parses_rows_and_states(self) -> None:
         self.write_ideas(
             idea_row("I1", "대기"), idea_row("I2", f"검토 {CYCLE}"), idea_row("I3", "채택 D23"),

@@ -22,9 +22,10 @@ DECISION_LOGS = (
     "docs/identity/design/decisions.md",
 )
 IA_PATH = "docs/ia/screens.json"
-# 아이디어 함 (docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.7)
+# 아이디어 함은 비공개 내부 저장소(myungli-diary-internal)의 ideas.md에 있습니다(D74). 지휘가 로컬에서 세 번째 인자로 넘깁니다.
 # 표 파싱 규칙은 tools/docs-check/docs_check.py와 같습니다. 바꾸면 그쪽도 바꿉니다.
 IDEAS_PATH = "docs/ideas.md"
+INTERNAL_IDEAS_PATH = "ideas.md"
 IDEA_COLUMNS = ("id", "날짜", "아이디어", "출처", "범위", "수익", "상태", "메모")
 IDEA_KEYS = ("id", "date", "idea", "source", "scope", "revenue", "status", "memo")
 IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S+)")
@@ -247,9 +248,9 @@ def _review_doc(root: Path, relative: str) -> dict[str, str]:
     }
 
 
-def collect_ideas(root: Path) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
-    """아이디어 함의 행과, 검토 중인 문서(처음 나온 순서, 한 번씩)."""
-    path = root / IDEAS_PATH
+def collect_ideas(root: Path, ideas_path: str = IDEAS_PATH) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """아이디어 함의 행과, 검토 중인 문서(처음 나온 순서, 한 번씩). 경로는 root 기준입니다."""
+    path = root / ideas_path
     if not path.exists():
         return [], []
     try:
@@ -257,7 +258,7 @@ def collect_ideas(root: Path) -> tuple[list[dict[str, str]], list[dict[str, str]
     except UnicodeDecodeError:
         rows = None
     if rows is None:
-        print(f"건너뜀: {IDEAS_PATH} 아이디어 표를 찾지 못했습니다", file=sys.stderr)
+        print(f"건너뜀: {ideas_path} 아이디어 표를 찾지 못했습니다", file=sys.stderr)
         return [], []
     ideas = [_idea(cells) for cells in rows]
     review_paths = list(dict.fromkeys(idea["review"] for idea in ideas if idea["review"]))
@@ -269,10 +270,11 @@ def _read(root: Path, relative: str) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
 
 
-def build(root: Path) -> dict[str, object]:
+def build(root: Path, internal: Path | None = None) -> dict[str, object]:
     roadmap = _read(root, "docs/roadmap.md")
     issues = collect_issues(root)
-    ideas, idea_reviews = collect_ideas(root)
+    # 공개 저장소에는 아이디어 함이 없습니다. 내부 저장소를 받으면 거기서 읽습니다(D74).
+    ideas, idea_reviews = collect_ideas(internal, INTERNAL_IDEAS_PATH) if internal else collect_ideas(root)
     decisions = [
         decision
         for log in DECISION_LOGS
@@ -295,11 +297,11 @@ def build(root: Path) -> dict[str, object]:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 3:
-        print("사용법: build_map_data.py <저장소 루트> <출력 디렉터리>")
+    if len(argv) not in (3, 4):
+        print("사용법: build_map_data.py <저장소 루트> <출력 디렉터리> [내부 저장소 루트]")
         return 2
     root, out = Path(argv[1]), Path(argv[2])
-    data = build(root)
+    data = build(root, Path(argv[3]) if len(argv) == 4 else None)
     out.mkdir(parents=True, exist_ok=True)
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     for artifact in data["artifacts"]:
