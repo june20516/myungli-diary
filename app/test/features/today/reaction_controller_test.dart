@@ -10,7 +10,9 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/reaction_input.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -77,6 +79,36 @@ Future<(ProviderContainer, _ReactionTap)> _boot(
   );
   return (container, tap);
 }
+
+/// `putReaction`이 API 밖의 예외(`StateError`)로 끝나는 클라이언트. server에 닿지 않습니다.
+final class _ThrowingApi extends DefaultApi {
+  // 생성 클라이언트의 매개변수 이름(`_dio`)은 숨겨져 있어 이름을 맞출 수 없습니다.
+  // ignore: matching_super_parameters
+  const new(super.dio);
+
+  @override
+  Future<Response<void>> putReaction({
+    required String date,
+    required String slot,
+    required ReactionInput reactionInput,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) => throw StateError('server에 닿기 전 실패');
+}
+
+/// 캐시 키 조회가 던지는 provider 대체.
+final _throwingKeyLookup = <Override>[
+  reactionCacheKeyProvider.overrideWithValue(
+    (_) => throw StateError('캐시 키 실패'),
+  ),
+];
+
+FakeCrashReporter _reporter(ProviderContainer container) =>
+    container.read(crashReporterProvider) as FakeCrashReporter;
 
 /// getDaily만 대신 답하는 대역을 대역 서버 앞에 끼웁니다. 본문은 member와 같은 응답에서 시작합니다.
 ScriptedDailyServer _scriptDaily(ProviderContainer container) {
@@ -407,23 +439,106 @@ void main() {
     expect(_liked(container), isFalse);
   });
 
-  testWidgets('API 밖의 예외도 낙관 상태를 되돌리고 AppError로 알립니다', (tester) async {
+  testWidgets('server에 닿기 전 API 밖의 예외는 낙관 상태를 되돌리고 UnexpectedError로 알립니다', (
+    tester,
+  ) async {
     final (container, _) = await _boot(
       tester,
       overrides: [
-        reactionCacheKeyProvider.overrideWithValue(
-          (_) => throw StateError('캐시 키 실패'),
+        restClientProvider.overrideWith(
+          (ref) => _ThrowingApi(ref.watch(dioProvider)),
         ),
       ],
     );
     final press = _press(container);
+    expect(_liked(container), isTrue);
     await _until(tester, press.finished);
 
     expect(press.errors.single, isA<UnexpectedError>());
-    final reporter = container.read(crashReporterProvider) as FakeCrashReporter;
-    expect(reporter.errors, isNotEmpty);
-    // 요청은 server에 닿아 확인됐으므로 상태는 server 값(켜짐)입니다.
+    expect(_liked(container), isFalse);
+    expect(_reporter(container).errors, hasLength(1));
+  });
+
+  testWidgets('캐시 키 조회가 던져도 반응은 확인된 값을 유지하고 보고만 합니다', (tester) async {
+    final (container, _) = await _boot(tester, overrides: _throwingKeyLookup);
+    final press = _press(container);
+    await _until(tester, press.finished);
+
+    expect(press.errors, isEmpty);
     expect(_liked(container), isTrue);
+    expect(_reporter(container).errors, hasLength(1));
+  });
+
+  testWidgets('응답이 덮은 캐시를 다시 고칠 때 키 조회가 던져도 잡히지 않은 오류가 없습니다', (tester) async {
+    final (container, _) = await _boot(tester, overrides: _throwingKeyLookup);
+    final server = _scriptDaily(container)..hold = Completer<void>();
+    unawaited(container.read(dailyControllerProvider.notifier).reload());
+    await _until(tester, () => server.paths.isNotEmpty);
+    final press = _press(container);
+    await _until(tester, press.finished);
+    // 반응을 확인할 때 한 번 보고했습니다.
+    expect(_reporter(container).errors, hasLength(1));
+
+    server.hold!.complete();
+    await _until(
+      tester,
+      () => !container.read(dailyControllerProvider).isLoading,
+    );
+    for (var i = 0; i < 5; i++) {
+      await _spin(tester);
+    }
+
+    // 응답이 확인보다 앞서 시작해 캐시를 다시 고치려다 한 번 더 보고하고, 잡히지 않은 오류는 없습니다.
+    expect(_reporter(container).errors, hasLength(2));
+    expect(_liked(container), isTrue);
+  });
+
+  testWidgets('요청 중 캐시 값이 내보내져도 추가 요청이 없고 실패하면 캐시가 아닌 처음 값으로 돌아갑니다', (
+    tester,
+  ) async {
+    final (container, tap) = await _boot(tester, scenario: 'reaction-failed');
+    // 캐시에는 옛 반응(like)이 남아 있습니다.
+    final cacheKey = container.read(dailyControllerProvider.notifier).cacheKey!;
+    await tester.runAsync(
+      () => container
+          .read(dailyRepositoryProvider)
+          .patchCachedReaction(
+            cacheKey,
+            slot: _head(container).slot,
+            liked: true,
+          ),
+    );
+    final server = _scriptDaily(container)..hold = Completer<void>();
+    tap.hold = Completer<void>();
+    final press = _press(container);
+    await _until(tester, () => tap.requests.isNotEmpty);
+
+    // 다시 열어 캐시를 먼저 내보냅니다(server 응답은 붙잡혀 아직 옵니다).
+    container.invalidate(dailyControllerProvider);
+    await _until(
+      tester,
+      () => container.read(dailyControllerProvider).value?.fromCache ?? false,
+    );
+
+    tap.hold!.complete();
+    await _until(tester, press.finished);
+
+    expect(press.errors.single, isA<AppError>());
+    expect(tap.requests, hasLength(1));
+    // 캐시의 like가 아니라 server가 확인한 처음 값(없음)으로 돌아갑니다.
+    expect(
+      container.read(reactionControllerProvider)[ReactionController.keyOf(
+        _today,
+        _head(container).slot,
+      )],
+      isFalse,
+    );
+    // 붙잡았던 server 응답을 풀어 끝냅니다(캐시 값이 server 값으로 바뀝니다).
+    server.hold!.complete();
+    await _until(
+      tester,
+      () => !(container.read(dailyControllerProvider).value?.fromCache ?? true),
+    );
   });
 
   testWidgets('다른 날짜의 같은 슬롯을 눌러도 오늘 상태는 그대로입니다', (tester) async {

@@ -108,9 +108,12 @@ class ReactionController extends Notifier<Map<String, bool>> {
         continue;
       }
       if (entry.sending) {
-        // 요청 중에 온 응답이 가장 최근에 확인한 server 값입니다. 요청이 실패하면 여기로 돌아갑니다.
-        entry.confirmed =
-            likedReactionOf(view.daily, entry.slot) ?? entry.confirmed;
+        // 요청 중에 온 server 응답이 가장 최근에 확인한 값입니다. 요청이 실패하면 여기로 돌아갑니다.
+        // 캐시 값은 server가 확인한 것이 아니므로 쓰지 않습니다.
+        if (!view.fromCache) {
+          entry.confirmed =
+              likedReactionOf(view.daily, entry.slot) ?? entry.confirmed;
+        }
       } else {
         dropped.add(key);
       }
@@ -125,23 +128,22 @@ class ReactionController extends Notifier<Map<String, bool>> {
     };
   }
 
-  /// [date]의 그날 캐시에서 [slot]의 반응을 [liked]로 고칩니다. 실패는 보고만 합니다.
+  /// [date]의 그날 캐시에서 [slot]의 반응을 [liked]로 고칩니다.
+  ///
+  /// 캐시 키를 찾지 못하거나 쓰기에 실패해도 던지지 않고 보고만 합니다(캐시는 보조 저장소).
   Future<void> _patchCache(
     CalendarDate date,
     String slot, {
     required bool liked,
-  }) async {
+  }) => writeCacheOrReport(() async {
     final cacheKey = ref.read(reactionCacheKeyProvider)(date);
     if (cacheKey == null) {
       return;
     }
-    await writeCacheOrReport(
-      () => ref
-          .read(dailyRepositoryProvider)
-          .patchCachedReaction(cacheKey, slot: slot, liked: liked),
-      ref.read(crashReporterProvider),
-    );
-  }
+    await ref
+        .read(dailyRepositoryProvider)
+        .patchCachedReaction(cacheKey, slot: slot, liked: liked);
+  }, ref.read(crashReporterProvider));
 
   /// [date]의 [text] 반응을 뒤집습니다.
   ///

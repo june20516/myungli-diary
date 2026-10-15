@@ -33,6 +33,7 @@ final class DailyView {
     required this.stale,
     required this.cacheKey,
     this.reactionEpoch = 0,
+    this.fromCache = false,
   });
 
   /// 프로필 시간대 기준 날짜(`todayProvider`).
@@ -54,6 +55,10 @@ final class DailyView {
   ///
   /// 이 세대보다 뒤에 server에서 확인된 반응은 이 응답에 반영되지 않았을 수 있습니다.
   final int reactionEpoch;
+
+  /// 이 값이 server 응답이 아니라 캐시에서 온 것인지(캐시를 먼저 보이는 중이거나 연결이 안 되어
+  /// 캐시를 남긴 때). server가 확인한 값이 아니므로 반응의 "확인된 값"으로 쓰지 않습니다.
+  final bool fromCache;
 }
 
 /// 오래된 build가 남은 일을 멈출 때 돌려주는, 끝나지 않는 Future.
@@ -105,12 +110,17 @@ class DailyController extends AsyncNotifier<DailyView> {
 
     // 캐시를 읽고 받기 시작하기 전의 세대. 그 뒤에 확인된 반응은 이 응답이 모를 수 있습니다.
     final epoch = ref.read(reactionEpochProvider).value;
-    DailyView viewOf(Daily daily, {required bool stale}) => DailyView(
+    DailyView viewOf(
+      Daily daily, {
+      required bool stale,
+      bool fromCache = false,
+    }) => DailyView(
       date: date,
       daily: daily,
       stale: stale,
       cacheKey: key,
       reactionEpoch: epoch,
+      fromCache: fromCache,
     );
     final result = await loadCacheFirst<Daily>(
       reporter: reporter,
@@ -125,11 +135,11 @@ class DailyController extends AsyncNotifier<DailyView> {
             },
       onCached: (daily) {
         if (!superseded()) {
-          state = AsyncData(viewOf(daily, stale: false));
+          state = AsyncData(viewOf(daily, stale: false, fromCache: true));
         }
       },
     );
-    return viewOf(result.value, stale: result.stale);
+    return viewOf(result.value, stale: result.stale, fromCache: result.stale);
   }
 
   /// 캐시를 건너뛰고 다시 받습니다. 잠금 해제 뒤나 오류 화면의 다시 시도에서 부릅니다.
