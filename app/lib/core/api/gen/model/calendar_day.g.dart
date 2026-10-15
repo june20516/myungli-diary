@@ -17,6 +17,8 @@ abstract class _$CalendarDayCWProxy {
 
   CalendarDay dayKind(DayKind dayKind);
 
+  CalendarDay characterReason(SlotText characterReason);
+
   CalendarDay luckLevel(LuckLevel luckLevel);
 
   CalendarDay score(int score);
@@ -41,6 +43,7 @@ abstract class _$CalendarDayCWProxy {
     LunarDate lunar,
     SolarTerm? solarTerm,
     DayKind dayKind,
+    SlotText characterReason,
     LuckLevel luckLevel,
     int score,
     List<ScoreItem> scoreItems,
@@ -70,6 +73,10 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
 
   @override
   CalendarDay dayKind(DayKind dayKind) => call(dayKind: dayKind);
+
+  @override
+  CalendarDay characterReason(SlotText characterReason) =>
+      call(characterReason: characterReason);
 
   @override
   CalendarDay luckLevel(LuckLevel luckLevel) => call(luckLevel: luckLevel);
@@ -102,6 +109,7 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
     Object? lunar = const $CopyWithPlaceholder(),
     Object? solarTerm = const $CopyWithPlaceholder(),
     Object? dayKind = const $CopyWithPlaceholder(),
+    Object? characterReason = const $CopyWithPlaceholder(),
     Object? luckLevel = const $CopyWithPlaceholder(),
     Object? score = const $CopyWithPlaceholder(),
     Object? scoreItems = const $CopyWithPlaceholder(),
@@ -129,6 +137,12 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
           ? _value.dayKind
           // ignore: cast_nullable_to_non_nullable
           : dayKind as DayKind,
+      characterReason:
+          characterReason == const $CopyWithPlaceholder() ||
+              characterReason == null
+          ? _value.characterReason
+          // ignore: cast_nullable_to_non_nullable
+          : characterReason as SlotText,
       luckLevel: luckLevel == const $CopyWithPlaceholder() || luckLevel == null
           ? _value.luckLevel
           // ignore: cast_nullable_to_non_nullable
@@ -174,6 +188,7 @@ CalendarDay _$CalendarDayFromJson(Map<String, dynamic> json) =>
           'pillar',
           'lunar',
           'dayKind',
+          'characterReason',
           'luckLevel',
           'score',
           'scoreItems',
@@ -198,6 +213,10 @@ CalendarDay _$CalendarDayFromJson(Map<String, dynamic> json) =>
         dayKind: $checkedConvert(
           'dayKind',
           (v) => $enumDecode(_$DayKindEnumMap, v),
+        ),
+        characterReason: $checkedConvert(
+          'characterReason',
+          (v) => SlotText.fromJson(v as Map<String, dynamic>),
         ),
         luckLevel: $checkedConvert(
           'luckLevel',
@@ -229,6 +248,7 @@ Map<String, dynamic> _$CalendarDayToJson(CalendarDay instance) =>
       'lunar': instance.lunar.toJson(),
       'solarTerm': ?instance.solarTerm?.toJson(),
       'dayKind': _$DayKindEnumMap[instance.dayKind]!,
+      'characterReason': instance.characterReason.toJson(),
       'luckLevel': _$LuckLevelEnumMap[instance.luckLevel]!,
       'score': instance.score,
       'scoreItems': instance.scoreItems.map((e) => e.toJson()).toList(),

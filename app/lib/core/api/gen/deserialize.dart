@@ -43,7 +43,9 @@ import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_conversion.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_date_request.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
@@ -213,8 +215,14 @@ ReturnType deserialize<ReturnType, BaseType>(
       return LoginResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'LuckLevel':
+    case 'LunarConversion':
+      return LunarConversion.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'LunarDate':
       return LunarDate.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'LunarDateRequest':
+      return LunarDateRequest.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'LunarOrSolarDate':
       return LunarOrSolarDate.fromJson(value as Map<String, dynamic>)
           as ReturnType;

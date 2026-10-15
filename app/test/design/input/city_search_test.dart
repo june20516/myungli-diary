@@ -14,12 +14,14 @@ final _seoul = City(
   id: '1835848',
   name: 'Seoul',
   country: 'KR',
+  countryName: 'South Korea',
   timezone: 'Asia/Seoul',
 );
 final _busan = City(
   id: '1838524',
   name: 'Busan',
   country: 'KR',
+  countryName: 'South Korea',
   timezone: 'Asia/Seoul',
 );
 

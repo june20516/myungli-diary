@@ -30,6 +30,13 @@ const Map<String, Object> _body = {
     'ten_god': {'pyeongwan': '편관'},
     'tag': {'cheoneul_gwiin': '천을귀인'},
   },
+  'meanings': {
+    'ten_god.pyeongwan': {
+      'segments': [
+        {'text': '나를 다그치고 시험하는 기운이에요.'},
+      ],
+    },
+  },
 };
 
 /// 정해 둔 응답을 차례로 돌려주고 요청 헤더를 기록합니다. 목록을 넘으면 마지막을 되풀이합니다.

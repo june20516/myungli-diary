@@ -131,18 +131,32 @@ Widget _timePicker(
 /// 쳐서 바뀌는 도시 검색. 글자에 맞는 도시만 걸러 보이고 비면 빈 상태입니다.
 Widget _citySearch({bool loading = false}) {
   final cities = [
-    City(id: '1835848', name: 'Seoul', country: 'KR', timezone: 'Asia/Seoul'),
-    City(id: '1838524', name: 'Busan', country: 'KR', timezone: 'Asia/Seoul'),
+    City(
+      id: '1835848',
+      name: 'Seoul',
+      country: 'KR',
+      countryName: 'South Korea',
+      timezone: 'Asia/Seoul',
+    ),
+    City(
+      id: '1838524',
+      name: 'Busan',
+      country: 'KR',
+      countryName: 'South Korea',
+      timezone: 'Asia/Seoul',
+    ),
     City(
       id: '5391959',
       name: 'San Francisco',
       country: 'US',
+      countryName: 'United States',
       timezone: 'America/Los_Angeles',
     ),
     City(
       id: '2643743',
       name: 'London',
       country: 'GB',
+      countryName: 'United Kingdom',
       timezone: 'Europe/London',
     ),
   ];

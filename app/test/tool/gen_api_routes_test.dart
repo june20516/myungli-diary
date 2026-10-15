@@ -81,11 +81,11 @@ void main() {
   });
 
   group('실제 계약', () {
-    test('operation 38개가 route 표에 모두 있다', () {
-      expect(apiRoutes, hasLength(38));
+    test('operation 40개가 route 표에 모두 있다', () {
+      expect(apiRoutes, hasLength(40));
       expect(
         apiRoutes.map((route) => route.operationId).toSet(),
-        hasLength(38),
+        hasLength(40),
       );
     });
 
@@ -109,7 +109,7 @@ void main() {
           for (final route in apiRoutes)
             if (route.requiresAppCheck) route.operationId,
         },
-        {'createPreview', 'getBirthHour'},
+        {'createPreview', 'getBirthHour', 'convertLunarDate'},
       );
     });
 

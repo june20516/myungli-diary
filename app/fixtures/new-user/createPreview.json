@@ -4,6 +4,7 @@
     "date": "2026-10-13",
     "evidenceAccess": "locked",
     "dayKind": "yongsin_day",
+    "dayKindName": "용신의 날",
     "fortune": {
       "head": {
         "slot": "daily.fortune.head",
@@ -13,7 +14,7 @@
         "text": {
           "segments": [
             { "text": "별님, 오늘은 " },
-            { "text": "정관", "term": "jeonggwan" },
+            { "text": "정관", "term": "ten_god.jeonggwan" },
             { "text": "의 기운이 힘이 되는 날이에요." }
           ]
         }

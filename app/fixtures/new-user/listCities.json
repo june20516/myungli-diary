@@ -6,9 +6,9 @@
       "body": {
         "dataVersion": "2026.10",
         "items": [
-          { "id": "5128581", "name": "New York City", "country": "US", "timezone": "America/New_York" },
-          { "id": "2155415", "name": "New Plymouth", "country": "NZ", "timezone": "Pacific/Auckland" },
-          { "id": "1261481", "name": "New Delhi", "country": "IN", "timezone": "Asia/Kolkata" }
+          { "id": "5128581", "name": "New York City", "country": "US", "countryName": "United States", "regionName": "New York", "timezone": "America/New_York" },
+          { "id": "2155415", "name": "New Plymouth", "country": "NZ", "countryName": "New Zealand", "regionName": "Taranaki", "timezone": "Pacific/Auckland" },
+          { "id": "1261481", "name": "New Delhi", "country": "IN", "countryName": "India", "regionName": "Delhi", "timezone": "Asia/Kolkata" }
         ]
       }
     },

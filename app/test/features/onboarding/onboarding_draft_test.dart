@@ -11,6 +11,8 @@ final _newYork = City(
   id: '5128581',
   name: 'New York',
   country: 'US',
+  countryName: 'United States',
+  regionName: 'New York',
   timezone: 'America/New_York',
 );
 
@@ -40,6 +42,20 @@ void main() {
         city: _newYork,
       );
       expect(OnboardingDraft.fromJson(draft.toJson()), draft);
+    });
+
+    test('나라 이름이 없던 이전 형식의 도시는 나라 코드로 채워 복원한다', () {
+      final draft = OnboardingDraft.fromJson(const {
+        'v': 1,
+        'city': {
+          'id': '5128581',
+          'name': 'New York',
+          'country': 'US',
+          'timezone': 'America/New_York',
+        },
+      });
+      expect(draft.city?.countryName, 'US');
+      expect(draft.city?.regionName, isNull);
     });
 
     test('값 형식이 어긋나면 FormatException이다', () {

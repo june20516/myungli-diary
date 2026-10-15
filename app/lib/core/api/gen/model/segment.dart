@@ -22,7 +22,7 @@ class Segment {
   @JsonKey(name: r'text', required: true, includeIfNull: false)
   final String text;
 
-  /// 이 조각이 용어면 그 용어 값
+  /// 이 조각이 용어면 그 **용어 id**(`<범주>.<값>` 또는 `tag.<키>`, 호칭·조사 처리 규칙 v1.1). `Glossary.values`·`meanings`를 찾는 키입니다
   @JsonKey(name: r'term', required: false, includeIfNull: false)
   final String? term;
 

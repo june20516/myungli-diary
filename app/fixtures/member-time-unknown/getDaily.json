@@ -6,6 +6,17 @@
     "evidenceAccess": "locked",
     "dayPillar": { "stem": "gap", "branch": "in" },
     "dayKind": "yongsin_day",
+    "characterReason": {
+      "slot": "character.reason",
+      "messageKey": "character.reason.yongsin_day",
+      "variant": "1",
+      "reactable": false,
+      "text": {
+        "segments": [
+          { "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요." }
+        ]
+      }
+    },
     "fortune": {
       "head": {
         "slot": "daily.fortune.head",

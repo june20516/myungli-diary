@@ -37,6 +37,8 @@ class Daily {
 
     required this.dayKind,
 
+    required this.characterReason,
+
     required this.fortune,
 
     required this.guide,
@@ -64,6 +66,9 @@ class Daily {
 
   @JsonKey(name: r'dayKind', required: true, includeIfNull: false)
   final DayKind dayKind;
+
+  @JsonKey(name: r'characterReason', required: true, includeIfNull: false)
+  final SlotText characterReason;
 
   @JsonKey(name: r'fortune', required: true, includeIfNull: false)
   final Fortune fortune;
@@ -93,6 +98,7 @@ class Daily {
           other.evidenceAccess == evidenceAccess &&
           other.dayPillar == dayPillar &&
           other.dayKind == dayKind &&
+          other.characterReason == characterReason &&
           other.fortune == fortune &&
           other.guide == guide &&
           other.cards == cards &&
@@ -107,6 +113,7 @@ class Daily {
       evidenceAccess.hashCode +
       dayPillar.hashCode +
       dayKind.hashCode +
+      characterReason.hashCode +
       fortune.hashCode +
       guide.hashCode +
       cards.hashCode +

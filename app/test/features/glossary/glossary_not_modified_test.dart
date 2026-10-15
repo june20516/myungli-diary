@@ -37,6 +37,7 @@ void main() {
             'values': {
               'ten_god': {'pyeongwan': '편관'},
             },
+            'meanings': <String, Object>{},
           }),
         );
       }

@@ -314,12 +314,25 @@ Widget _citySearches() => Builder(
         search(null),
         search(
           AsyncData([
-            City(id: '1', name: 'Seoul', country: 'KR', timezone: 'Asia/Seoul'),
-            City(id: '2', name: 'Busan', country: 'KR', timezone: 'Asia/Seoul'),
+            City(
+              id: '1',
+              name: 'Seoul',
+              country: 'KR',
+              countryName: 'South Korea',
+              timezone: 'Asia/Seoul',
+            ),
+            City(
+              id: '2',
+              name: 'Busan',
+              country: 'KR',
+              countryName: 'South Korea',
+              timezone: 'Asia/Seoul',
+            ),
             City(
               id: '3',
               name: 'San Francisco',
               country: 'US',
+              countryName: 'United States',
               timezone: 'America/Los_Angeles',
             ),
           ]),
