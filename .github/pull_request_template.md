@@ -14,6 +14,8 @@ Closes #
 - [ ] 바꾼 계약 없음
 - [ ] 계약을 바꿈: <!-- 계약 이름과 버전 -->
 - [ ] 이 PR은 **계약만 먼저 병합하는 PR**입니다 (docs/workflow.md §6)
+- [ ] 제공 계약을 바꿨으면 `docs/contracts/README.md`의 자기 행 버전·상태도 고침
+- [ ] 내 앞 `drift` Issue를 맞췄으면 위 "관련"에 `Closes #<drift Issue>` (docs/workflow.md §6.1)
 
 ## 스크린샷·산출물
 <!-- artifacts/index.json에 등록한 id, 또는 이미지 -->
@@ -26,4 +28,5 @@ Closes #
 - [ ] 자기 `CLAUDE.md`의 "현재 상태" 갱신
 - [ ] 산출물을 `artifacts/index.json`에 등록
 - [ ] 관련 Issue 닫기 (닫는 조건: docs/workflow.md §5.2)
+- [ ] 공개 저장소 확인: 가격·수익 수치, 비공개 저장소 경로 링크 없음 (D74)
 - [ ] `ci-gate` 통과

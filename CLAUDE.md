@@ -12,6 +12,10 @@
 * 제품 결정의 기준은 [`docs/decisions.md`](docs/decisions.md)(D1~)입니다. 서브 프로젝트 결정이 이와 부딪히면 구현을 멈추고 요청함으로 올립니다.
 * spec과 계획은 서브 프로젝트의 `docs/specs/`, `docs/plans/`에 둡니다. 작업 단위는 `docs/identity/<writing|design>/specs/`, `plans/`에 둡니다. suberpowers 기본 경로(`docs/suberpowers/…`)는 쓰지 않습니다.
 * 같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다. 동시에 진행하려면 `git worktree`를 씁니다.
+* **공개 저장소(D74):** Issue·PR·커밋·문서·코드(fixture 포함)에 가격·수익 수치 같은 내부 정보를 적지 않습니다. 제품 배경 원문·수익화 기록·아이디어 함은 비공개 저장소에 있고, 링크하지 않고 "비공개 기록 `…`"으로 글로만 적습니다. 근거가 필요하면 지휘에게 Issue로 묻습니다.
+* **세션을 열면:** `git fetch origin && git merge origin/main` 뒤 `gh issue list --label to:<단위>`를 봅니다. 그중 `drift` Issue(계약 변경 따라잡기)가 있으면 다른 일보다 먼저, 다음 PR에서 맞춥니다(`docs/workflow.md` §6.1).
+* **계약 버전과 상태의 기준은 `docs/contracts/README.md` 하나입니다.** 단위 `CLAUDE.md`에는 버전을 적지 않습니다. 주는 쪽은 계약을 바꾸는 PR에서 그 표의 자기 행을 직접 고칩니다.
+* **병합:** 단위 PR은 사용자가 병합합니다. 지휘가 올린 `root/` PR은 `ci-gate` 통과 뒤 지휘가 병합합니다.
 
 ## 지휘 세션
 * 맡는 일: 통합 로드맵([`docs/roadmap.md`](docs/roadmap.md)), 계약 목록 관리, 요청함(Issues) 분류(`accepted`/`rejected` 라벨), 둘 이상에 걸친 결정 기록, 서브 프로젝트 착수 안내(각 `CLAUDE.md`의 "현재 상태"와 "다음 할 일" 초안), 통합 시점 판단.
