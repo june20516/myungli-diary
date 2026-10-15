@@ -456,6 +456,63 @@ void main() {
     );
   });
 
+  testWidgets('refreshQuietly: 진행 중 상태 없이 캐시를 건너뛰고 받아 값과 캐시를 바꾼다', (
+    tester,
+  ) async {
+    final (container, _) = await _boot(tester, scenario: 'reward-unlock');
+    final key = await _keyFor(tester, container, _today);
+    final states = _record(container);
+    await _until(tester, () => _settled(states));
+    expect(states.last.value!.daily.evidenceAccess, EvidenceAccess.locked);
+    await _seed(tester, container, key, _cachedDaily());
+
+    final countBefore = states.length;
+    var done = false;
+    unawaited(
+      container
+          .read(dailyControllerProvider.notifier)
+          .refreshQuietly()
+          .whenComplete(() => done = true),
+    );
+    await _until(tester, () => done);
+
+    final after = states.skip(countBefore).toList();
+    expect(after.any((s) => s.isLoading), isFalse, reason: '오늘 화면은 그대로');
+    expect(after.single.value!.daily.evidenceAccess, EvidenceAccess.unlocked);
+    expect(after.single.value!.cacheKey, key);
+    expect(_fake(container).callCountOf('getDaily'), 2);
+    final stored = await tester.runAsync(
+      () => container.read(cacheStoreProvider).read(CacheKind.daily, key),
+    );
+    expect(
+      (jsonDecode(stored!) as Map<String, dynamic>)['evidenceAccess'],
+      'unlocked',
+    );
+  });
+
+  testWidgets('refreshQuietly: 실패하면 상태는 이전 값 그대로 두고 오류를 던진다', (tester) async {
+    final (container, tap) = await _boot(tester);
+    final states = _record(container);
+    await _until(tester, () => _settled(states));
+    final countBefore = states.length;
+    tap.offline = true;
+
+    Object? thrown;
+    var done = false;
+    unawaited(
+      container
+          .read(dailyControllerProvider.notifier)
+          .refreshQuietly()
+          .then<void>((_) {}, onError: (Object error) => thrown = error)
+          .whenComplete(() => done = true),
+    );
+    await _until(tester, () => done);
+
+    expect(thrown, isA<OfflineError>());
+    expect(states.length, countBefore, reason: '상태가 바뀌지 않음');
+    expect(container.read(dailyControllerProvider).hasError, isFalse);
+  });
+
   testWidgets('cached profile이 바뀌면(사주 변경) 새 키로 다시 받는다', (tester) async {
     final (container, _) = await _boot(tester);
     final states = _record(container);

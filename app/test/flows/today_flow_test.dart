@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
@@ -468,6 +469,8 @@ void main() {
       tester,
       () => inSheet(find.byType(ErrorState)).evaluate().isNotEmpty,
     );
+    // 오늘 화면은 이전 값 그대로이고 오류 toast를 따로 띄우지 않습니다.
+    expect(find.byType(ToastPill), findsNothing);
     await tester.tap(inSheet(find.text(_ko.actionRetry)));
     await pumpUntil(
       tester,

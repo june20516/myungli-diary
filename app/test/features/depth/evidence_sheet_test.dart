@@ -32,10 +32,10 @@ Finder _inSheet(Finder matching) =>
 final NotifierProvider<EvidenceUnlockController, EvidenceUnlockState>
 _provider = evidenceUnlockControllerProvider(const DailyEvidenceSubject());
 
-/// 확인 간격·시간을 줄입니다. 가짜 시계에서 흐릅니다.
+/// 확인 간격·시간을 줄입니다. 가짜 시계에서 흐르고, 대역 서버 응답(실제 I/O)이 마감 전에 올 만큼은 둡니다.
 const ({Duration interval, Duration timeout}) _fastTiming = (
   interval: Duration(milliseconds: 100),
-  timeout: Duration(milliseconds: 500),
+  timeout: Duration(seconds: 2),
 );
 
 /// 시간 초과가 오지 않을 만큼 깁니다(확인 중 상태를 보는 테스트).
@@ -206,6 +206,27 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('흐름이 다시 build되어도(invalidate) 시간 초과 toast를 받습니다', (
+      tester,
+    ) async {
+      final (container, _) = await _openSheet(
+        tester,
+        scenario: 'reward-timeout',
+      );
+      container.invalidate(_provider);
+      await pumpUntil(tester, () => container.read(_provider).adReady);
+
+      await _tapCta(tester);
+      await pumpUntil(
+        tester,
+        () => find.byType(ToastPill).evaluate().isNotEmpty,
+        allowOngoing: true,
+      );
+      expect(find.text(_ko.evidenceSheetUnlockFailed), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('표시 실패면 오류 toast', (tester) async {
       final (container, _) = await _openSheet(
         tester,
@@ -301,6 +322,7 @@ void main() {
         () => _inSheet(find.byType(ErrorState)).evaluate().isNotEmpty,
       );
       expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
+      expect(find.byType(ToastPill), findsNothing, reason: '오류는 시트만 알림');
 
       await tester.tap(_inSheet(find.text(_ko.actionRetry)));
       await pumpUntil(

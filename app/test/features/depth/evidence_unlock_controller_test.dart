@@ -1,26 +1,37 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override, ProviderListenable;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
+import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
+import 'package:myungli_diary/features/monetization/data/entitlements_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
 
-/// 짧게 줄인 확인 간격·시간. 최대 5번 묻습니다.
+/// 짧게 줄인 확인 간격·시간. 마감은 가짜 시계로 흐르고 대역 서버 응답은 실제 I/O라,
+/// 응답이 마감 전에 올 만큼 마감을 넉넉히 둡니다.
 const ({Duration interval, Duration timeout}) _timing = (
-  interval: Duration(milliseconds: 20),
-  timeout: Duration(milliseconds: 100),
+  interval: Duration(milliseconds: 100),
+  timeout: Duration(seconds: 3),
 );
 
 const _subject = DailyEvidenceSubject();
@@ -58,11 +69,16 @@ Future<void> _until(WidgetTester tester, bool Function() done) async {
 Future<ProviderContainer> _boot(
   WidgetTester tester, {
   String scenario = 'member',
+  ({Duration interval, Duration timeout}) timing = _timing,
+  List<Override> overrides = const [],
 }) async {
   final container = (await tester.runAsync(
     () => bootstrapForTest(
       scenario,
-      overrides: [rewardPollTimingProvider.overrideWithValue(_timing)],
+      overrides: [
+        rewardPollTimingProvider.overrideWithValue(timing),
+        ...overrides,
+      ],
     ),
   ))!;
   addTearDown(container.dispose);
@@ -115,6 +131,142 @@ final class _FailDailyOnce extends Interceptor {
     );
   }
 }
+
+/// `/v1/me/entitlements`를 [armed] 뒤부터 [release]될 때까지 붙잡고 들어온 수를 셉니다.
+final class _HoldEntitlements extends Interceptor {
+  bool armed = false;
+  int calls = 0;
+  final _release = Completer<void>();
+
+  void release() => _release.complete();
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (armed && options.path == '/v1/me/entitlements') {
+      calls++;
+      await _release.future;
+    }
+    handler.next(options);
+  }
+}
+
+/// `/v1/me/entitlements`를 근거 열람 권한이 있는 응답으로 답하고 수를 셉니다.
+final class _InsightActive extends Interceptor {
+  int calls = 0;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.path != '/v1/me/entitlements') {
+      handler.next(options);
+      return;
+    }
+    calls++;
+    handler.resolve(
+      Response<Object?>(
+        requestOptions: options,
+        statusCode: 200,
+        headers: Headers.fromMap({
+          Headers.contentTypeHeader: ['application/json'],
+        }),
+        data: {
+          'adFree': {'active': false},
+          'insight': {
+            'active': true,
+            'expiresAt': '2026-10-13T15:00:00Z',
+            'source': 'rewarded_ad',
+          },
+        },
+      ),
+      true,
+    );
+  }
+}
+
+void _insertBeforeFake(ProviderContainer container, Interceptor interceptor) {
+  final interceptors = container.read(dioProvider).interceptors;
+  interceptors.insert(interceptors.length - 1, interceptor);
+}
+
+/// 이용권 응답을 손으로 정하는 API 대역. [answers]를 차례로 돌려주고, 함수가 던지면 그대로 던집니다.
+final class _ScriptedApi extends DefaultApi {
+  new(this.answers) : super(Dio());
+
+  final List<Entitlements Function()> answers;
+  int calls = 0;
+
+  @override
+  Future<Response<Entitlements>> getEntitlements({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final answer = answers[calls < answers.length ? calls : answers.length - 1];
+    calls++;
+    return Response(
+      requestOptions: RequestOptions(path: '/v1/me/entitlements'),
+      statusCode: 200,
+      data: answer(),
+    );
+  }
+}
+
+Entitlements _inactive() => Entitlements(
+  adFree: AdFree(active: false),
+  insight: Insight(active: false),
+);
+
+/// 보상형 광고 불러오기가 [error]를 던지는 대역. 불러온 횟수를 셉니다.
+final class _ThrowingAds implements Ads {
+  new(this.error);
+
+  final Object error;
+
+  @override
+  Future<BannerAdHandle?> loadBanner({required int width}) async => null;
+
+  @override
+  Future<RewardedAdHandle?> loadRewarded({required String userId}) =>
+      Future.error(error);
+}
+
+/// 손으로 바꾸는 근거 열람 상태(계획 6의 다른 응답을 흉내 냄).
+final class _Access extends Notifier<AsyncValue<EvidenceAccess>> {
+  @override
+  AsyncValue<EvidenceAccess> build() => const AsyncData(EvidenceAccess.locked);
+
+  void change(EvidenceAccess access) => state = AsyncData(access);
+}
+
+final _accessProvider = NotifierProvider<_Access, AsyncValue<EvidenceAccess>>(
+  _Access.new,
+);
+
+/// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
+@immutable
+final class _TestSubject implements EvidenceSubject {
+  const new();
+
+  @override
+  ProviderListenable<AsyncValue<EvidenceAccess>> get access => _accessProvider;
+
+  @override
+  Future<void> reload(Ref ref) async {}
+
+  @override
+  bool operator ==(Object other) => other is _TestSubject;
+
+  @override
+  int get hashCode => (_TestSubject).hashCode;
+}
+
+final NotifierProvider<EvidenceUnlockController, EvidenceUnlockState>
+_testProvider = evidenceUnlockControllerProvider(const _TestSubject());
 
 EvidenceUnlockState _state(ProviderContainer container) =>
     container.read(_provider);
@@ -356,6 +508,198 @@ void main() {
         () => _state(container).link == DepthLinkState.unlocked,
       );
       expect(_state(container).refreshError, isNull);
+    });
+  });
+
+  group('수정 라운드 1', () {
+    testWidgets('요청이 늦어도 마감 시각(30초)에 UnlockTimedOut이고 마감 뒤에는 더 묻지 않는다', (
+      tester,
+    ) async {
+      final container = await _boot(
+        tester,
+        scenario: 'reward-timeout',
+        timing: (interval: rewardPollInterval, timeout: rewardPollTimeout),
+      );
+      final opened = _open(container);
+      await _prepared(tester, container);
+      final hold = _HoldEntitlements();
+      _insertBeforeFake(container, hold);
+      hold.armed = true;
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      expect(hold.calls, 1, reason: '첫 확인 요청이 응답 없이 붙잡힘');
+      await tester.pump(const Duration(seconds: 27));
+      expect(opened.events, isEmpty);
+      expect(_state(container).link, DepthLinkState.unlocking);
+
+      await tester.pump(const Duration(seconds: 1));
+      expect(opened.events.single, isA<UnlockTimedOut>());
+      expect(_state(container).link, DepthLinkState.locked);
+
+      await tester.pump(const Duration(seconds: 10));
+      expect(hold.calls, 1, reason: '마감 뒤에는 묻지 않음');
+      hold.release();
+      await _spin(tester);
+    });
+
+    testWidgets('열 때 권한이 있는데 다시 받은 응답이 잠겨 있으면 조용히 locked(toast 없음, 반복 없음)', (
+      tester,
+    ) async {
+      final container = await _boot(tester);
+      final active = _InsightActive();
+      _insertBeforeFake(container, active);
+      final dailyBefore = _dailyCalls(container);
+
+      final opened = _open(container);
+      await _until(tester, () => _state(container).adReady);
+      for (var i = 0; i < 10; i++) {
+        await _spin(tester);
+      }
+
+      expect(opened.events, isEmpty, reason: '광고를 보지 않았으므로 확인 실패를 알리지 않음');
+      expect(_state(container).link, DepthLinkState.locked);
+      expect(_state(container).adReady, isTrue);
+      expect(active.calls, 1);
+      expect(_dailyCalls(container), dailyBefore + 1);
+    });
+
+    testWidgets('다시 받기에 실패해도 오늘 값은 이전 AsyncData 그대로입니다', (tester) async {
+      final container = await _boot(tester, scenario: 'reward-unlock');
+      _open(container);
+      await _prepared(tester, container);
+      final before = container.read(dailyControllerProvider).value;
+      _insertBeforeFake(container, _FailDailyOnce());
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await _until(tester, () => _state(container).refreshError != null);
+
+      final daily = container.read(dailyControllerProvider);
+      expect(daily.hasError, isFalse, reason: '오류는 시트만 보임');
+      expect(daily.isLoading, isFalse);
+      expect(identical(daily.value, before), isTrue);
+    });
+
+    testWidgets('광고 불러오기의 AppError는 보고 없이 lockedNoAd', (tester) async {
+      final reporter = FakeCrashReporter();
+      final container = await _boot(
+        tester,
+        overrides: [
+          adsProvider.overrideWithValue(_ThrowingAds(const OfflineError())),
+          crashReporterProvider.overrideWithValue(reporter),
+        ],
+      );
+      _open(container);
+      await _prepared(tester, container);
+
+      expect(_state(container).link, DepthLinkState.lockedNoAd);
+      expect(reporter.errors, isEmpty);
+    });
+
+    testWidgets('광고 불러오기의 예상 밖 예외는 보고하고 lockedNoAd', (tester) async {
+      final reporter = FakeCrashReporter();
+      final container = await _boot(
+        tester,
+        overrides: [
+          adsProvider.overrideWithValue(_ThrowingAds(StateError('sdk'))),
+          crashReporterProvider.overrideWithValue(reporter),
+        ],
+      );
+      _open(container);
+      await _prepared(tester, container);
+
+      expect(_state(container).link, DepthLinkState.lockedNoAd);
+      expect(reporter.errors, hasLength(1));
+    });
+
+    testWidgets('이용권 확인의 예상 밖 예외: 열 때는 조용히, 광고 뒤에는 보고·locked·UnlockFailed', (
+      tester,
+    ) async {
+      final reporter = FakeCrashReporter();
+      final api = _ScriptedApi([() => throw StateError('예상 밖')]);
+      final container = await _boot(
+        tester,
+        overrides: [
+          entitlementsRepositoryProvider.overrideWithValue(
+            EntitlementsRepository(api),
+          ),
+          crashReporterProvider.overrideWithValue(reporter),
+        ],
+      );
+      final opened = _open(container);
+      await _until(tester, () => _state(container).adReady && api.calls == 1);
+      await _spin(tester);
+      expect(opened.events, isEmpty);
+      expect(reporter.errors, hasLength(1));
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await _until(tester, () => opened.events.isNotEmpty);
+
+      expect(opened.events.single, isA<UnlockFailed>());
+      expect(
+        (opened.events.single as UnlockFailed).error,
+        isA<UnexpectedError>(),
+      );
+      expect(_state(container).link, DepthLinkState.locked);
+      expect(reporter.errors, hasLength(2));
+      expect(api.calls, 2, reason: '실패 뒤 더 묻지 않음');
+    });
+
+    testWidgets('이미 불러 둔 광고가 있으면 다시 준비할 때 또 부르지 않습니다', (tester) async {
+      final ads = FakeAds();
+      final container = await _boot(
+        tester,
+        overrides: [
+          adsProvider.overrideWithValue(ads),
+          entitlementsRepositoryProvider.overrideWithValue(
+            EntitlementsRepository(_ScriptedApi([_inactive])),
+          ),
+        ],
+      );
+      container.listen(_testProvider, (_, _) {});
+      await _until(tester, () => container.read(_testProvider).adReady);
+      expect(ads.rewardedUserIds, hasLength(1));
+
+      // 다른 길로 열렸다가(광고는 그대로 쥐고 있음) 새 날짜처럼 다시 잠깁니다.
+      container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
+      expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+      container.read(_accessProvider.notifier).change(EvidenceAccess.locked);
+      await _until(tester, () => container.read(_testProvider).adReady);
+      for (var i = 0; i < 3; i++) {
+        await _spin(tester);
+      }
+
+      expect(ads.rewardedUserIds, hasLength(1));
+    });
+
+    testWidgets('확인 중에 다른 길로 열리면 watchAd도 끝납니다', (tester) async {
+      final container = await _boot(
+        tester,
+        timing: (interval: rewardPollInterval, timeout: rewardPollTimeout),
+        overrides: [
+          entitlementsRepositoryProvider.overrideWithValue(
+            EntitlementsRepository(_ScriptedApi([_inactive])),
+          ),
+        ],
+      );
+      container.listen(_testProvider, (_, _) {});
+      await _until(tester, () => container.read(_testProvider).adReady);
+
+      var finished = false;
+      unawaited(
+        container
+            .read(_testProvider.notifier)
+            .watchAd()
+            .whenComplete(() => finished = true),
+      );
+      await tester.pump();
+      expect(container.read(_testProvider).link, DepthLinkState.unlocking);
+
+      container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
+      await tester.pump();
+      expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+      expect(finished, isTrue);
     });
   });
 }

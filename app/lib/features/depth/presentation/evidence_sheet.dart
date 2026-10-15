@@ -41,6 +41,20 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
   StreamSubscription<UnlockEvent>? _events;
 
   @override
+  void initState() {
+    super.initState();
+    // 흐름(notifier)이 바뀌면 새 흐름의 이벤트를 다시 구독합니다. 구독이 흐름을 붙잡아 두므로
+    // 시트가 열려 있는 동안 버려지지 않습니다.
+    ref.listenManual(evidenceUnlockControllerProvider(_subject).notifier, (
+      _,
+      controller,
+    ) {
+      unawaited(_events?.cancel());
+      _events = controller.events.listen(_onEvent);
+    }, fireImmediately: true);
+  }
+
+  @override
   void dispose() {
     unawaited(_events?.cancel());
     super.dispose();
@@ -69,7 +83,6 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     final access = ref.watch(_subject.access);
     final unlock = ref.watch(provider);
     final controller = ref.read(provider.notifier);
-    _events ??= controller.events.listen(_onEvent);
     final l10n = AppLocalizations.of(context);
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),

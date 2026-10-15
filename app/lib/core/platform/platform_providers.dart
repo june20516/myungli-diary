@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -40,8 +43,15 @@ final crashReporterProvider = Provider<CrashReporter>(
 /// 광고 동의.
 final adConsentProvider = Provider<AdConsent>((ref) => const FakeAdConsent());
 
-/// 광고.
-final adsProvider = Provider<Ads>((ref) => FakeAds());
+/// 광고. fake 모드에서는 시나리오의 보상형 광고 결과(`rewardedAd`)대로 동작하는 대역입니다.
+///
+/// 시작 코드가 아니라 여기서 시나리오를 읽으므로 테스트는 이 provider를 직접 override할 수 있습니다.
+final adsProvider = Provider<Ads>((ref) {
+  if (ref.watch(apiModeProvider) != ApiMode.fake) {
+    return FakeAds();
+  }
+  return fakeAdsFor(ref.watch(scenarioProvider).rewardedAd);
+});
 
 /// 인앱결제.
 final purchasesProvider = Provider<Purchases>((ref) => FakePurchases());

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_riverpod/misc.dart'
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -36,11 +36,13 @@ abstract interface class EvidenceSubject {
   /// 응답의 근거 열람 상태. 받는 중·실패도 그대로 전합니다.
   ProviderListenable<AsyncValue<EvidenceAccess>> get access;
 
-  /// 캐시를 건너뛰고 응답을 다시 받습니다. 실패는 던지지 않고 [access]의 오류로 남깁니다.
+  /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
+  /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
+  /// 던집니다. 오류는 근거 시트가 보입니다.
   Future<void> reload(Ref ref);
 }
 
-/// 오늘 응답(`getDaily`)의 근거. 잠금이 풀리면 [DailyController.reload]로 다시 받습니다.
+/// 오늘 응답(`getDaily`)의 근거. 잠금이 풀리면 [DailyController.refreshQuietly]로 다시 받습니다.
 @immutable
 final class DailyEvidenceSubject implements EvidenceSubject {
   /// 오늘 응답의 근거.
@@ -54,7 +56,7 @@ final class DailyEvidenceSubject implements EvidenceSubject {
 
   @override
   Future<void> reload(Ref ref) =>
-      ref.read(dailyControllerProvider.notifier).reload();
+      ref.read(dailyControllerProvider.notifier).refreshQuietly();
 
   @override
   bool operator ==(Object other) => other is DailyEvidenceSubject;
@@ -67,20 +69,21 @@ final class DailyEvidenceSubject implements EvidenceSubject {
 EvidenceSubject evidenceSubjectFor(String slotId) =>
     const DailyEvidenceSubject();
 
-/// 잠금 해제 흐름에서 화면이 알려야 하는 일(toast).
+/// 잠금 해제 흐름에서 화면이 알려야 하는 일(toast). 사용자가 광고 보기를 시작한 흐름에서만
+/// 생깁니다(시트를 열 때의 확인은 결과가 무엇이든 조용합니다).
 sealed class UnlockEvent {
   /// 하위 타입이 상속하는 기본 생성자입니다.
   const new();
 }
 
-/// 광고를 끝까지 봤지만 권한 확인이 오지 않았습니다(최대 시간이 지났거나, 권한이 생겼다는데
+/// 광고를 끝까지 봤지만 권한 확인이 오지 않았습니다(마감 시각이 지났거나, 권한이 생겼다는데
 /// 다시 받은 응답이 여전히 잠김). `evidence-sheet.unlock.failed` toast입니다.
 final class UnlockTimedOut extends UnlockEvent {
   /// 확인 시간 초과.
   const new();
 }
 
-/// 광고를 표시하지 못했습니다. 오류 toast입니다.
+/// 광고를 표시하지 못했거나, 광고를 본 뒤 권한 확인이 예상 밖 오류로 끝났습니다. 오류 toast입니다.
 final class UnlockFailed extends UnlockEvent {
   /// 실패 원인을 담습니다.
   const new(this.error);
@@ -112,18 +115,32 @@ final class EvidenceUnlockState {
   final AppError? refreshError;
 }
 
+/// 광고를 본 뒤 권한 확인이 멈춘 까닭.
+enum _GrantStop {
+  /// 마감 시각이 지났습니다.
+  expired,
+
+  /// 다른 길로 열렸거나 흐름이 버려졌습니다.
+  cancelled,
+}
+
+/// 이용권 한 번 묻기의 결과.
+typedef _InsightAnswer = ({bool active, UnexpectedError? failure});
+
 /// 근거 시트의 잠금 해제 흐름(A26, D60, spec §7).
 ///
 /// 상태 기계:
 /// * 처음: 응답이 `unlocked`면 [DepthLinkState.unlocked]이고 아무것도 하지 않습니다. 아니면
 ///   [DepthLinkState.locked]에서 광고를 미리 불러 두고(`adReady`, 없으면
 ///   [DepthLinkState.lockedNoAd]), 이용권을 한 번 물어 이미 권한이 있으면(확인 중에 시트를
-///   닫았던 경우, 광고 제거권을 산 경우) 바로 다시 받습니다.
+///   닫았던 경우, 광고 제거권을 산 경우) 바로 다시 받습니다. 이 열 때 확인은 조용합니다.
+///   다시 받은 응답이 아직 잠겨 있으면 toast 없이 `locked`입니다.
 /// * [watchAd]: 끝까지 보면 [DepthLinkState.unlocking]에서 이용권을
-///   [rewardPollTimingProvider] 간격으로 최대 시간까지 묻습니다. 권한이 생기면
-///   `refreshing`(skeleton)으로 응답을 다시 받아 [DepthLinkState.unlocked]이고,
-///   시간이 지나면 [UnlockTimedOut]과 `locked`입니다.
-///   닫으면 그대로 `locked`, 표시 실패는 [UnlockFailed]와 `locked`이며 광고를 다시 불러 둡니다.
+///   [rewardPollTimingProvider] 간격으로 마감 시각(시작 + timeout)까지 묻습니다. 마감은
+///   Timer로 재므로 요청이 늦어도 마감 시각에 끝나고, 마감에 걸린 요청의 결과는 버립니다.
+///   권한이 생기면 `refreshing`(skeleton)으로 응답을 다시 받아 [DepthLinkState.unlocked]이고,
+///   마감이 지나면 [UnlockTimedOut]과 `locked`입니다. 닫으면 그대로 `locked`, 표시 실패나
+///   이용권 확인의 예상 밖 오류는 [UnlockFailed]와 `locked`이며 광고를 다시 불러 둡니다.
 /// * 다시 받기가 실패하면 `refreshError`이고 [retry]로 다시 받습니다.
 ///
 /// 시트가 닫혀 버려지면(autoDispose) 묻기와 기다림을 멈추고 이벤트를 내지 않습니다.
@@ -135,24 +152,34 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   /// 근거를 담은 응답.
   final EvidenceSubject subject;
 
+  /// 이벤트 통로. notifier는 다시 build되어도 같은 인스턴스이므로 닫지 않고 이어 씁니다.
+  /// 버려진 뒤에는 [_emit]이 내보내지 않습니다.
   final _events = StreamController<UnlockEvent>.broadcast();
 
   /// 미리 불러 둔 광고. 한 번 보이면 버립니다.
   RewardedAdHandle? _ad;
 
-  /// 확인 간격 기다림. 버려지면 취소해 남은 묻기가 일어나지 않게 합니다.
+  /// 확인 간격 기다림.
   Timer? _wait;
 
-  /// 화면이 toast로 알릴 일. 시트가 닫히면 닫힙니다.
+  /// 광고를 본 뒤 확인의 마감.
+  Timer? _deadline;
+
+  /// 광고를 본 뒤 확인을 멈추는 신호. 확인 중일 때만 있습니다.
+  Completer<_GrantStop>? _grantStop;
+
+  /// 마지막 다시 받기가 광고를 본 흐름에서 시작했는지([retry]가 같은 방식으로 되풀이).
+  bool _refreshFromAd = false;
+
+  /// 화면이 toast로 알릴 일.
   Stream<UnlockEvent> get events => _events.stream;
 
   @override
   EvidenceUnlockState build() {
     ref
       ..onDispose(() {
-        _wait?.cancel();
+        _stopGrant(_GrantStop.cancelled);
         _ad = null;
-        unawaited(_events.close());
       })
       ..listen(subject.access, _onAccess);
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
@@ -164,11 +191,15 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   }
 
   /// 광고를 보입니다. 광고가 준비된 `locked`에서만 동작합니다.
+  ///
+  /// 끝까지 본 뒤의 확인이 끝나거나(열림·마감·실패), 다른 길로 열리거나, 흐름이 버려지면
+  /// 끝납니다.
   Future<void> watchAd() async {
     final ad = _ad;
     if (ad == null || state.link != DepthLinkState.locked) {
       return;
     }
+    final flow = ref;
     _ad = null;
     // 광고를 보는 동안 버튼을 꺼 두 번 누르지 않게 합니다.
     state = const EvidenceUnlockState(link: DepthLinkState.locked);
@@ -178,40 +209,51 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     } on AppError catch (error) {
       result = RewardFailed(error);
     }
-    if (!ref.mounted) {
+    if (!flow.mounted) {
       return;
     }
     switch (result) {
       case RewardEarned():
-        await _awaitGrant();
+        await _awaitGrant(flow);
       case RewardDismissed():
-        await _loadAd();
+        await _loadAd(flow);
       case RewardFailed(:final error):
-        _emit(UnlockFailed(error));
-        await _loadAd();
+        _emit(flow, UnlockFailed(error));
+        await _loadAd(flow);
     }
   }
 
-  /// 오류 화면의 다시 시도. 응답을 다시 받습니다.
+  /// 시트 오류 화면의 다시 시도. 오류가 둘 중 무엇이냐에 따라 하는 일이 다릅니다.
+  ///
+  /// * 권한이 생긴 뒤 다시 받기가 실패했으면(`refreshError`) 그 다시 받기를 되풀이합니다.
+  /// * 그렇지 않으면 근거를 담은 응답 자체를 아직 받지 못한 것이므로 응답을 다시 받습니다.
+  ///   그 실패는 응답의 상태([EvidenceSubject.access])로 보입니다.
   Future<void> retry() async {
+    final flow = ref;
     if (state.refreshError != null) {
-      await _refresh();
-    } else {
-      await subject.reload(ref);
-    }
-  }
-
-  /// 광고를 불러 두고, 이미 권한이 있는지 한 번 묻습니다.
-  Future<void> _prepare() async {
-    if (!ref.mounted) {
+      await _refresh(flow, fromAd: _refreshFromAd);
       return;
     }
-    await Future.wait([_loadAd(), _refreshIfGranted()]);
+    try {
+      await subject.reload(ref);
+    } on Object {
+      // 실패는 응답의 상태로 보입니다.
+    }
   }
 
-  Future<void> _refreshIfGranted() async {
-    if (await _insightActive() && ref.mounted && _canRefresh) {
-      await _refresh();
+  /// 광고를 불러 두고, 이미 권한이 있는지 한 번 묻습니다(조용한 확인).
+  Future<void> _prepare() async {
+    final flow = ref;
+    if (!flow.mounted) {
+      return;
+    }
+    await Future.wait([_loadAd(flow), _refreshIfGranted(flow)]);
+  }
+
+  Future<void> _refreshIfGranted(Ref flow) async {
+    final answer = await _askInsight();
+    if (flow.mounted && answer.active && _canRefresh) {
+      await _refresh(flow, fromAd: false);
     }
   }
 
@@ -219,79 +261,148 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   bool get _canRefresh =>
       state.link != DepthLinkState.unlocked && !state.refreshing;
 
-  /// 보상형 광고를 불러 둡니다. 없거나 실패하면 [DepthLinkState.lockedNoAd]입니다.
-  Future<void> _loadAd() async {
-    RewardedAdHandle? ad;
-    try {
-      ad = await ref
-          .read(adsProvider)
-          .loadRewarded(userId: ref.read(currentAccountIdProvider));
-    } on Object {
-      // 광고 SDK 오류와 계정 id 없음(로그아웃 직후)은 볼 수 있는 광고가 없는 것과 같습니다.
-      ad = null;
-    }
-    // 그사이 확인 중·다시 받는 중·열림으로 넘어갔으면 버튼을 다시 켜지 않습니다.
-    if (!ref.mounted || state.link != DepthLinkState.locked) {
+  /// 보상형 광고를 불러 둡니다. 이미 불러 둔 광고가 있으면 그것을 씁니다.
+  ///
+  /// 계정 id가 없거나(로그아웃 직후) 광고 SDK가 [AppError]를 주거나 광고가 없으면
+  /// [DepthLinkState.lockedNoAd]입니다. 그 밖의 예외는 비정상 종료 보고에 요약을 남기고
+  /// 마찬가지로 `lockedNoAd`입니다.
+  Future<void> _loadAd(Ref flow) async {
+    if (_ad != null) {
+      _showAdReady(flow);
       return;
     }
-    _ad = ad;
-    state = ad == null
+    final reporter = ref.read(crashReporterProvider);
+    RewardedAdHandle? ad;
+    String? accountId;
+    try {
+      accountId = ref.read(currentAccountIdProvider);
+    } on Object {
+      accountId = null;
+    }
+    if (accountId != null) {
+      try {
+        ad = await ref.read(adsProvider).loadRewarded(userId: accountId);
+      } on AppError {
+        ad = null;
+      } on Object catch (error, stack) {
+        reporter.record(CrashSummary.from(error), stack);
+        ad = null;
+      }
+    }
+    if (!flow.mounted) {
+      return;
+    }
+    // 동시에 불린 다른 준비가 먼저 불러 뒀으면 그것을 남깁니다.
+    _ad ??= ad;
+    _showAdReady(flow);
+  }
+
+  /// 잠긴 채라면 불러 둔 광고에 맞춰 버튼을 켜거나 `lockedNoAd`로 둡니다.
+  /// 그사이 확인 중·다시 받는 중·열림으로 넘어갔으면 바꾸지 않습니다.
+  void _showAdReady(Ref flow) {
+    if (!flow.mounted ||
+        (state.link != DepthLinkState.locked &&
+            state.link != DepthLinkState.lockedNoAd)) {
+      return;
+    }
+    state = _ad == null
         ? const EvidenceUnlockState(link: DepthLinkState.lockedNoAd)
         : const EvidenceUnlockState(link: DepthLinkState.locked, adReady: true);
   }
 
-  /// 끝까지 본 뒤 권한이 생길 때까지 묻습니다.
-  Future<void> _awaitGrant() async {
+  /// 끝까지 본 뒤 마감 시각까지 권한을 묻습니다.
+  Future<void> _awaitGrant(Ref flow) async {
     state = const EvidenceUnlockState(link: DepthLinkState.unlocking);
     final timing = ref.read(rewardPollTimingProvider);
-    final attempts = math.max(
-      1,
-      (timing.timeout.inMicroseconds / timing.interval.inMicroseconds).floor(),
-    );
-    for (var i = 0; i < attempts; i++) {
-      await _delay(timing.interval);
-      if (!ref.mounted || !_canRefresh) {
-        return;
+    final stop = Completer<_GrantStop>();
+    _grantStop = stop;
+    _deadline = Timer(timing.timeout, () => _stopGrant(_GrantStop.expired));
+    _GrantStop? stopped;
+    _InsightAnswer? answer;
+    while (true) {
+      final waited = await Future.any<Object?>([
+        _delay(timing.interval),
+        stop.future,
+      ]);
+      if (waited is _GrantStop) {
+        stopped = waited;
+        break;
       }
-      final granted = await _insightActive();
-      if (!ref.mounted || !_canRefresh) {
-        return;
+      final asked = await Future.any<Object?>([_askInsight(), stop.future]);
+      if (asked is _GrantStop) {
+        // 마감에 걸린 요청의 결과는 버립니다.
+        stopped = asked;
+        break;
       }
-      if (granted) {
-        await _refresh();
-        return;
+      answer = asked! as _InsightAnswer;
+      if (answer.active || answer.failure != null) {
+        break;
       }
     }
-    state = const EvidenceUnlockState(link: DepthLinkState.locked);
-    _emit(const UnlockTimedOut());
-    await _loadAd();
+    _stopGrant(_GrantStop.cancelled);
+    if (!flow.mounted || stopped == _GrantStop.cancelled) {
+      return;
+    }
+    final failure = answer?.failure;
+    if (stopped == _GrantStop.expired || failure != null) {
+      state = const EvidenceUnlockState(link: DepthLinkState.locked);
+      _emit(
+        flow,
+        failure == null ? const UnlockTimedOut() : UnlockFailed(failure),
+      );
+      await _loadAd(flow);
+      return;
+    }
+    await _refresh(flow, fromAd: true);
+  }
+
+  /// 광고를 본 뒤의 확인을 멈춥니다. 기다리는 [_awaitGrant]는 [reason]으로 끝납니다.
+  void _stopGrant(_GrantStop reason) {
+    _deadline?.cancel();
+    _deadline = null;
+    _wait?.cancel();
+    _wait = null;
+    final stop = _grantStop;
+    _grantStop = null;
+    if (stop != null && !stop.isCompleted) {
+      stop.complete(reason);
+    }
   }
 
   /// 권한이 생겼으니 응답을 다시 받습니다. 열림은 다시 받은 응답의 `evidenceAccess`로 정합니다.
-  Future<void> _refresh() async {
+  ///
+  /// 다시 받은 응답이 아직 잠겨 있으면 `locked`이고, 광고를 본 흐름([fromAd])일 때만
+  /// [UnlockTimedOut]을 알립니다.
+  Future<void> _refresh(Ref flow, {required bool fromAd}) async {
+    _refreshFromAd = fromAd;
     state = const EvidenceUnlockState(
       link: DepthLinkState.unlocking,
       refreshing: true,
     );
-    await subject.reload(ref);
-    if (!ref.mounted) {
+    try {
+      await subject.reload(ref);
+    } on Object catch (error) {
+      if (flow.mounted) {
+        state = EvidenceUnlockState(
+          link: DepthLinkState.unlocking,
+          refreshError: error is AppError ? error : UnexpectedError(error),
+        );
+      }
       return;
     }
-    final access = ref.read(subject.access);
-    final error = access.error;
-    if (error != null) {
-      state = EvidenceUnlockState(
-        link: DepthLinkState.unlocking,
-        refreshError: error is AppError ? error : UnexpectedError(error),
-      );
-    } else if (access.value == EvidenceAccess.unlocked) {
-      state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
-    } else {
-      // 권한이 생겼다는데 응답이 아직 잠김: server 반영을 기다리지 않고 실패로 알립니다.
-      state = const EvidenceUnlockState(link: DepthLinkState.locked);
-      _emit(const UnlockTimedOut());
-      await _loadAd();
+    if (!flow.mounted) {
+      return;
     }
+    if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
+      state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
+      return;
+    }
+    // 권한이 생겼다는데 응답이 아직 잠김: 열지 않습니다.
+    state = const EvidenceUnlockState(link: DepthLinkState.locked);
+    if (fromAd) {
+      _emit(flow, const UnlockTimedOut());
+    }
+    await _loadAd(flow);
   }
 
   /// 응답이 다른 길(오늘 화면의 다시 받기, 자정 넘김)로 바뀌면 따라갑니다.
@@ -306,7 +417,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     final access = next.value;
     if (access == EvidenceAccess.unlocked &&
         state.link != DepthLinkState.unlocked) {
-      _wait?.cancel();
+      // 확인 중이었으면 멈춰 [watchAd]도 끝나게 합니다.
+      _stopGrant(_GrantStop.cancelled);
       state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
     } else if (access == EvidenceAccess.locked &&
         state.link == DepthLinkState.unlocked) {
@@ -316,27 +428,33 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     }
   }
 
-  /// 근거 열람 권한이 있는지. 묻기 실패는 "아직 없음"으로 보고 다음 차례에 다시 묻습니다.
-  Future<bool> _insightActive() async {
+  /// 근거 열람 권한을 한 번 묻습니다.
+  ///
+  /// 통신 실패([AppError])는 "아직 없음"으로 보고 다음 차례에 다시 묻습니다. 그 밖의 예외는
+  /// 비정상 종료 보고에 요약을 남기고 `failure`로 돌려줍니다.
+  Future<_InsightAnswer> _askInsight() async {
+    final repository = ref.read(entitlementsRepositoryProvider);
+    final reporter = ref.read(crashReporterProvider);
     try {
-      final entitlements = await ref
-          .read(entitlementsRepositoryProvider)
-          .fetch();
-      return entitlements.insight.active;
+      final entitlements = await repository.fetch();
+      return (active: entitlements.insight.active, failure: null);
     } on AppError {
-      return false;
+      return (active: false, failure: null);
+    } on Object catch (error, stack) {
+      reporter.record(CrashSummary.from(error), stack);
+      return (active: false, failure: UnexpectedError(error));
     }
   }
 
-  /// [duration]만큼 기다립니다. 버려지면 끝나지 않습니다(남은 일이 이어지지 않음).
+  /// [duration]만큼 기다립니다. 확인이 멈추면 Timer를 취소합니다(끝나지 않음).
   Future<void> _delay(Duration duration) {
     final done = Completer<void>();
     _wait = Timer(duration, done.complete);
     return done.future;
   }
 
-  void _emit(UnlockEvent event) {
-    if (ref.mounted && !_events.isClosed) {
+  void _emit(Ref flow, UnlockEvent event) {
+    if (flow.mounted) {
       _events.add(event);
     }
   }

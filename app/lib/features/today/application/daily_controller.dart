@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -142,7 +143,8 @@ class DailyController extends AsyncNotifier<DailyView> {
     return viewOf(result.value, stale: result.stale, fromCache: result.stale);
   }
 
-  /// 캐시를 건너뛰고 다시 받습니다. 잠금 해제 뒤나 오류 화면의 다시 시도에서 부릅니다.
+  /// 캐시를 건너뛰고 다시 받습니다. 오류 화면의 다시 시도에서 부릅니다. 잠금 해제 뒤에는
+  /// 화면 상태를 건드리지 않는 [refreshQuietly]를 씁니다.
   ///
   /// 받는 동안 이전 값이 남고, 끝나면 돌아옵니다. 실패는 던지지 않고 상태(`AsyncError`)로
   /// 남깁니다. 연결이 안 되면 캐시로 대체하지 않습니다. 이것은 의도한 동작입니다. 다시 받기를
@@ -159,6 +161,50 @@ class DailyController extends AsyncNotifier<DailyView> {
     } on Object {
       // 오류는 상태로 화면에 보입니다.
     }
+  }
+
+  /// 화면 상태를 진행 중·오류로 바꾸지 않고 캐시를 건너뛰어 다시 받습니다(잠금 해제 뒤).
+  ///
+  /// 성공하면 값과 그날 캐시를 바꿉니다. 실패하면 상태는 이전 값 그대로 두고 오류([AppError])를
+  /// 호출자에게만 던집니다. 오류를 보일 곳은 호출자(근거 시트)이고, 오늘 화면이 같은 실패를
+  /// 다시 알리지 않게 하기 위해서입니다. 보이는 값이 없거나, 받는 중이거나, 날짜가 바뀌었으면
+  /// 지킬 이전 값이 없으므로 [reload]와 같고, 그 결과가 오류면 그 오류를 던집니다.
+  Future<void> refreshQuietly() async {
+    final callRef = ref;
+    final current = state.value;
+    final date = ref.read(todayProvider);
+    if (current == null || state.isLoading || current.date != date) {
+      await reload();
+      final error = callRef.mounted ? state.error : null;
+      if (error != null) {
+        throw error is AppError ? error : UnexpectedError(error);
+      }
+      return;
+    }
+    final repository = ref.read(dailyRepositoryProvider);
+    final reporter = ref.read(crashReporterProvider);
+    final epoch = ref.read(reactionEpochProvider).value;
+    final daily = await repository.fetch(date);
+    // 그사이 다시 build됐으면(자정·사본 변경) 그 build의 결과를 따릅니다.
+    if (!callRef.mounted) {
+      return;
+    }
+    final key = current.cacheKey;
+    if (key != null) {
+      await writeCacheOrReport(() => repository.store(key, daily), reporter);
+      if (!callRef.mounted) {
+        return;
+      }
+    }
+    state = AsyncData(
+      DailyView(
+        date: date,
+        daily: daily,
+        stale: false,
+        cacheKey: key,
+        reactionEpoch: epoch,
+      ),
+    );
   }
 
   /// 사본으로 만든 [date]의 캐시 키. 사본이 없거나 읽지 못하면 null입니다.

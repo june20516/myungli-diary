@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/ia/ia_ids.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
@@ -231,6 +232,20 @@ final class FakeAdConsent implements AdConsent {
   Future<AdConsentResult> gather() async =>
       simulateError ? AdConsentResult.nonPersonalized : result;
 }
+
+/// 시나리오의 보상형 광고 결과([ScenarioRewardedAd])대로 동작하는 광고 대역. 배너는 늘 준비됩니다.
+Ads fakeAdsFor(ScenarioRewardedAd rewardedAd) => switch (rewardedAd) {
+  ScenarioRewardedAd.earned => FakeAds(),
+  ScenarioRewardedAd.dismissed => FakeAds(
+    rewardedResult: const RewardDismissed(),
+  ),
+  ScenarioRewardedAd.unavailable => FakeAds(rewardedAvailable: false),
+  ScenarioRewardedAd.failed => FakeAds(
+    rewardedResult: RewardFailed(
+      UnexpectedError(StateError('대역: 보상형 광고를 표시하지 못했습니다.')),
+    ),
+  ),
+};
 
 /// 광고 대역.
 final class FakeAds implements Ads {
