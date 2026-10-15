@@ -1,0 +1,16 @@
+# 엔진 gRPC 계약(../proto)에서 Go 코드를 생성합니다. server/ 디렉터리에서 실행해야 합니다.
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package
+      value: github.com/june20516/myungli-diary/server/internal/gen/enginev1
+inputs:
+  - directory: ../proto
+plugins:
+  - local: [go, tool, protoc-gen-go]
+    out: .
+    opt: module=github.com/june20516/myungli-diary/server
+  - local: [go, tool, protoc-gen-go-grpc]
+    out: .
+    opt: module=github.com/june20516/myungli-diary/server
