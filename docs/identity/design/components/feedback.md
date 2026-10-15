@@ -1,6 +1,6 @@
 # feedback: 알림과 화면 상태 (`feedback.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.2, 결정 V14·V18
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.2, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.3·§3, 결정 V14·V18
 * 시안: `design-v2-appear`(스밈), `design-v2-skeleton`(먹 숨쉬기), `design-v2-kit`, `design-v2-caution-mark`
 
 ## 화면 상태 대응표 (`stateMap`)
@@ -22,6 +22,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 * 쓰는 화면: preview, login, event-edit, diary-view, settings, account-delete
 * `bg.sheet`, `radius.lg`, 좌우 28px. 제목 `type.subtitle`, 본문 `type.body.ui` `text.secondary`, 오른쪽 아래 글자 버튼. 나타남 `appear.seep`.
 * `destructive` 변형(일기 삭제, 계정 삭제): 제목 앞 `mark.caution`, 확정 버튼 글자는 `text.primary` 굵게, 취소는 `action.primary`. **빨간색을 쓰지 않습니다.** 첫 초점은 취소, 바깥 누르기로 닫히지 않음, 확정 시 햅틱 medium.
+* `notice` 변형: 확인 버튼 하나만 있는 안내입니다. `login.discard.notice`(미리보기 입력을 쓰지 않는다는 안내)처럼 고를 것이 없고 읽었다는 확인만 받는 곳에 씁니다. 확인 버튼은 `confirm`과 같은 모양으로 오른쪽 끝에 놓입니다. 바깥을 누르거나 뒤로 가면 확인과 같고, 첫 초점은 확인 버튼입니다. 두 버튼 형식에서 "닫기"가 취소처럼 읽히던 문제가 없어집니다.
 * Material 힌트: `AlertDialog`의 표면 색조·그림자를 끄고 `appear.seep` 전환을 씁니다.
 
 ## toast
@@ -48,3 +49,13 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 * sage 원(56px, `status.bg`) 안 Light 아이콘 28px(`action.primary`) + 문장(`type.sentence.body`, 가운데). 화면 세로 40% 자리.
 * 빈 상태는 있으면 주 버튼, 오류 상태는 `quiet` "다시 시도". 다시 시도하면 그 자리에 skeleton이 다시 나옵니다.
 * 문장은 자리 채우기입니다(문구는 writing).
+
+## 구현 힌트 (Flutter)
+
+명세의 접근성 역할을 Flutter 의미 표시에 대응한 결과입니다. 명세 값은 그대로입니다.
+
+| 구성 요소 | 명세 역할 | Flutter 대응 |
+| --- | --- | --- |
+| `skeleton` | `progressbar` | `loadingSpinner` 의미 표시 |
+| `empty-state` | `group` | `container` |
+| `toast`·`notice-banner`·`error-state` | role + liveRegion | role 노드와 liveRegion 노드를 둘로 나눔(한 노드에 두면 모바일 알림이 사라짐) |

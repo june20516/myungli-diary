@@ -597,3 +597,17 @@ def test_city_search_never_shows_country_code():
     city = component("input", "city-search")
     assert city["parts"]["region"]["whenMissing"] == "hidden"
     assert any("나라 코드" in rule for rule in city["rules"])
+
+
+def test_dialog_notice_has_one_button():
+    notice = next(v for v in component("feedback", "dialog")["variants"] if v["id"] == "notice")
+    assert notice["parts"]["cancel"] == {"visible": False}
+    assert notice["a11y"] == {"focusOnOpen": "confirm", "dismissOnScrim": True}
+    assert "login.discard.notice" in notice["when"]
+
+
+def test_social_login_disabled_and_apple_label():
+    button = component("action", "social-login-button")
+    assert button["states"]["disabled"]["parts"]["container"] == {"opacity": 0.4}
+    apple = next(v for v in button["variants"] if v["id"] == "apple")
+    assert apple["parts"]["label"] == {"fontFamily": "platform-system", "type": "{type.label.lg}"}

@@ -37,7 +37,7 @@
       "uses": ["press.ink"],
       "variants": [
         { "id": "kakao", "when": "카카오 로그인 (위)", "parts": { "container": { "style": "kakao-login-design-guide" } } },
-        { "id": "apple", "when": "Apple로 로그인 (아래). iOS·Android 모두 보임, Android는 웹 흐름", "parts": { "container": { "style": "sign-in-with-apple-hig", "lightMode": "black", "darkMode": "white" } } }
+        { "id": "apple", "when": "Apple로 로그인 (아래). iOS·Android 모두 보임, Android는 웹 흐름", "parts": { "container": { "style": "sign-in-with-apple-hig", "lightMode": "black", "darkMode": "white" }, "label": { "fontFamily": "platform-system", "type": "{type.label.lg}" } } }
       ],
       "parts": {
         "container": { "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "width": "fill" },
@@ -45,7 +45,7 @@
         "logo": { "source": "provider-official-asset", "size": { "value": 20, "unit": "px" } },
         "label": { "source": "provider-official-guide" }
       },
-      "states": { "pressed": { "pattern": "press.ink" }, "loading": { "pattern": "loading.breathe" } },
+      "states": { "pressed": { "pattern": "press.ink" }, "loading": { "pattern": "loading.breathe" }, "disabled": { "note": "다른 버튼이 처리 중일 때. 제공자 색을 바꿀 수 없어 버튼 전체를 흐림", "parts": { "container": { "opacity": 0.4 } } } },
       "haptic": [],
       "a11y": { "role": "button", "label": "제공자 공식 문구", "minTarget": 48 },
       "rules": [
