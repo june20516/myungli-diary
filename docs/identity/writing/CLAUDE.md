@@ -44,7 +44,7 @@
 
 ## 현재 상태 (2026-10-15, writing 세션 작성)
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145)가 main에 있습니다.
-* **공용 ui 문구·ICU plural**(브랜치 `writing/ui-leftovers`, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22)
+* **공용 ui 문구·ICU plural**(PR #155, 브랜치 `writing/ui-leftovers`, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22)
   * app 임시 문구 116개를 원고로 옮겼습니다. 공용 ui 슬롯 15개(`slots/ui/common.yaml`, 키 100개)와 glossary 지지·날의 성격 이름 16개(`content/<lang>/glossary.yaml`)이고, 지지·날의 성격은 ARB로도 나갑니다.
   * 검사기 v0.3.0: ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`).
   * `writing.yml`은 ci-gate만 부릅니다(#148).
@@ -73,7 +73,7 @@
    - core #130: `rule_id`·`source_ref` 목록 → `explain.today_reason`·`evidence.basis`·`evidence.source`의 키를 채웁니다.
    - design #131: ui 이름 자리와 새 content 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
-3. **공용 ui 문구 PR을 병합하고** app이 가져가면(`dart run tool/import_writing_arb.dart`) #143을 닫습니다. #148은 같은 PR로 처리합니다.
+3. **공용 ui 문구 PR #155를 병합하고** app이 가져가면(`dart run tool/import_writing_arb.dart`) #143을 닫습니다. #148은 같은 PR로 처리합니다.
    - 새 공용 슬롯의 글자 수 상한은 design #131에 함께 요청했습니다. 답이 오면 `max_length`를 채웁니다.
 4. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
 5. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
