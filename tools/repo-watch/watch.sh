@@ -16,7 +16,8 @@ snapshot() {
       --json number,state,title --jq '.[] | "Issue #\(.number) \(.state) \(.title)"' &&
     main_ci
   } 2>/dev/null) || return 1
-  printf '%s\n' "$out" | sort
+  # 같은 커밋의 main 실행이 둘이면 같은 줄이 두 번 나옵니다. 중복을 남기면 comm이 하나를 새 줄로 셉니다.
+  printf '%s\n' "$out" | sort -u
 }
 
 main_ci() {
