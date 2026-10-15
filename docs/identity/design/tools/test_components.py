@@ -339,7 +339,7 @@ def test_brand_spec_values():
     assert variant_ids(c["term-token"]) >= {"inline", "label"}
     assert variant_ids(c["event-row"]) == {"summary", "list"}
     assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}
-    assert variant_ids(c["depth-link"]) == {"inline-end", "block"}
+    assert variant_ids(c["depth-link"]) == {"inline-end", "block", "navigate"}
     assert set(c["guide-question-card"]["states"]) >= {"before", "after"}
     assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
     day = json.dumps(c["day-cell"])
@@ -427,8 +427,20 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_2():
-    assert VERSION == "2.2.0"
+def test_contract_version_is_2_3():
+    assert VERSION == "2.3.0"
+    contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
+    row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
+    assert f"| {VERSION} |" in row
+
+
+def test_icon_set_version_is_not_contract_version():
+    assert load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]["set"]["version"] == "2.1.2"
+
+
+def test_readme_states_minimum_height_rule():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme
 
 
 def ia_screens():
@@ -528,3 +540,104 @@ def test_terms_inside_pressable_containers_are_plain():
 def test_term_focus_rule_is_conditional():
     a11y = components_by_id(BRAND_GROUPS)["sentence-block"]["a11y"]
     assert a11y["terms"].startswith("term-token이 있는 화면에서는")
+
+
+# 구현 대응·IA v3 (spec-followups spec §2~§4, 계약 2.3.0)
+def component(group, component_id):
+    return next(c for c in load_documents(COMPONENTS_DIR)[group]["components"] if c["id"] == component_id)
+
+
+CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color",
+           "gap": {"value": 2, "unit": "px"}, "decorative": True}
+
+
+def test_text_link_chevrons_are_component_drawn_icons():
+    depth_link = component("sentence", "depth-link")
+    block = component("sentence", "sentence-block")
+    assert depth_link["parts"]["chevron"] == CHEVRON
+    assert block["states"]["locked"]["parts"]["open"]["chevron"] == CHEVRON
+    assert depth_link["states"]["locked"]["parts"]["evidenceSheet"]["lockPanel"]["pass"]["chevron"] == CHEVRON
+    assert any("원고에 넣지 않" in rule for rule in depth_link["rules"])
+
+
+def test_depth_link_navigate_goes_to_a_page():
+    depth_link = component("sentence", "depth-link")
+    navigate = next(v for v in depth_link["variants"] if v["id"] == "navigate")
+    assert navigate["parts"]["target"] == {"presentation": "page", "transition": "platform-default"}
+    assert navigate["parts"]["label"]["slot"] == "birthplace.standard.link"
+    assert any("navigate" in rule and "sheet.enter" in rule for rule in depth_link["rules"])
+    assert "birthplace" in (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
+
+
+def test_unlocked_evidence_sheet_omits_empty_sections():
+    rules = component("sentence", "depth-link")["rules"]
+    assert any("unlocked" in rule and "본문이 없는 구역" in rule for rule in rules)
+
+
+def test_segmented_has_unselected_state():
+    segmented = component("input", "segmented")
+    none = segmented["states"]["none"]
+    assert none["parts"]["indicator"] == {"visible": False}
+    assert none["parts"]["label"] == {"fg": "{color.text.secondary}"}
+    assert "pattern" not in none and "appear.seep" in segmented["uses"]
+    assert any("none" in rule and "appear.seep" in rule for rule in segmented["rules"])
+
+
+def test_input_step_omits_bottom_action_for_pick_and_go_steps():
+    step = component("input", "input-step")
+    assert "birthplace" in step["parts"]["bottomAction"]["omitWhen"]
+    assert any("아래 버튼을 두지 않는다" in rule for rule in step["rules"])
+
+
+def test_date_picker_leap_month_fallback():
+    birth = next(v for v in component("input", "date-picker")["variants"] if v["id"] == "birth")
+    fallback = birth["parts"]["leapMonthFallback"]
+    assert (fallback["component"], fallback["variant"]) == ("check-row", "inline")
+    assert fallback["replaces"] == ["leapMonth", "solarConfirm"]
+    assert "leapMonth" in birth["parts"] and "solarConfirm" in birth["parts"]
+
+
+def test_city_search_never_shows_country_code():
+    city = component("input", "city-search")
+    assert city["parts"]["region"]["whenMissing"] == "hidden"
+    assert any("나라 코드" in rule for rule in city["rules"])
+
+
+def test_dialog_notice_has_one_button():
+    notice = next(v for v in component("feedback", "dialog")["variants"] if v["id"] == "notice")
+    assert notice["parts"]["cancel"] == {"visible": False}
+    assert notice["a11y"] == {"focusOnOpen": "confirm", "dismissOnScrim": True}
+    assert "login.discard.notice" in notice["when"]
+
+
+def test_social_login_disabled_and_apple_label():
+    button = component("action", "social-login-button")
+    assert button["states"]["disabled"]["parts"]["container"] == {"opacity": 0.4}
+    apple = next(v for v in button["variants"] if v["id"] == "apple")
+    assert apple["parts"]["label"] == {"fontFamily": "platform-system", "type": "{type.label.lg}"}
+
+
+def test_tab_icons_cover_ia_tabs():
+    icons = component("frame", "tab-bar")["parts"]["icons"]
+    assert icons == {"today": "sun", "calendar": "calendar-blank", "diary": "notebook", "me": "user"}
+    assert set(icons) == {screen["tab"] for screen in ia_screens().values() if screen["tab"]}
+
+
+def test_app_bar_hides_back_on_flow_first_screens():
+    rules = component("frame", "app-bar")["rules"]
+    assert any("consent" in rule and "notify-ask" in rule and "뒤로" in rule for rule in rules)
+
+
+def test_lucky_time_value_format():
+    time = next(v for v in component("today", "lucky-card")["variants"] if v["id"] == "time")
+    assert time["parts"]["value"] == {"format": "HH:mm–HH:mm", "clock": "24h", "timeZone": "profile",
+                                      "join": " · ", "fontFeatures": ["tnum"]}
+
+
+def test_element_values_from_app_feedback():
+    elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
+    assert elements["icon"]["set"]["flutter"] == "phosphor_glyphs"
+    assert elements["icon"]["set"]["flutterVersion"] == "2.1.2+1"
+    assert elements["mark.caution"]["size"] == {"ratio": 0.707, "of": "font-size",
+                                                "basis": "Pretendard OS/2 sCapHeight 1448 / 2048"}
+    assert elements["lock.veil"]["lines"] == {"default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1}
