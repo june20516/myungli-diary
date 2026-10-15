@@ -31,6 +31,13 @@ type scriptedServer struct {
 	respond func(n int64) error
 }
 
+// receivedRemaining은 서버가 받은 deadline의 남은 시간 기록의 복사본을 돌려줍니다.
+func (s *scriptedServer) receivedRemaining() []time.Duration {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]time.Duration(nil), s.remaining...)
+}
+
 func (s *scriptedServer) GetChart(ctx context.Context, _ *enginev1.ChartRequest) (*enginev1.ChartResponse, error) {
 	n := s.calls.Add(1)
 	if deadline, ok := ctx.Deadline(); ok {
@@ -140,20 +147,6 @@ func TestClient_DoesNotRetryOtherCodes(t *testing.T) {
 	assert.EqualValues(t, 1, srv.calls.Load())
 }
 
-func TestClient_DoesNotRetryWhenCallerContextCanceled(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	srv := &scriptedServer{respond: func(int64) error {
-		cancel()
-		return status.Error(codes.Unavailable, "")
-	}}
-	client := newTestClient(t, srv)
-
-	_, err := client.GetChart(ctx, &enginev1.ChartRequest{})
-
-	require.Error(t, err)
-	assert.EqualValues(t, 1, srv.calls.Load())
-}
-
 func TestClient_AppliesDeadline(t *testing.T) {
 	srv := &scriptedServer{respond: func(int64) error { return nil }}
 	client := newTestClient(t, srv)
@@ -161,12 +154,13 @@ func TestClient_AppliesDeadline(t *testing.T) {
 	_, err := client.GetChart(context.Background(), &enginev1.ChartRequest{})
 
 	require.NoError(t, err)
-	require.Len(t, srv.remaining, 1)
-	assert.Positive(t, srv.remaining[0])
-	assert.LessOrEqual(t, srv.remaining[0], 3*time.Second)
+	remaining := srv.receivedRemaining()
+	require.Len(t, remaining, 1)
+	assert.Positive(t, remaining[0])
+	assert.LessOrEqual(t, remaining[0], 3*time.Second)
 }
 
-func TestClient_CallerShorterDeadlineWins(t *testing.T) {
+func TestClient_CallerShorterDeadlineIsPropagated(t *testing.T) {
 	srv := &scriptedServer{respond: func(int64) error { return nil }}
 	client := newTestClient(t, srv)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -175,8 +169,48 @@ func TestClient_CallerShorterDeadlineWins(t *testing.T) {
 	_, err := client.GetChart(ctx, &enginev1.ChartRequest{})
 
 	require.NoError(t, err)
-	require.Len(t, srv.remaining, 1)
-	assert.LessOrEqual(t, srv.remaining[0], time.Second)
+	remaining := srv.receivedRemaining()
+	require.Len(t, remaining, 1)
+	assert.LessOrEqual(t, remaining[0], time.Second)
+}
+
+func TestClient_CallerCancelReturnsContextError(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	srv := &scriptedServer{respond: func(int64) error {
+		cancel()
+		return status.Error(codes.Canceled, "")
+	}}
+	client := newTestClient(t, srv)
+
+	_, err := client.GetChart(ctx, &enginev1.ChartRequest{})
+
+	require.ErrorIs(t, err, context.Canceled)
+	assert.NotErrorIs(t, err, engine.ErrInternal)
+}
+
+func TestClient_CallerDeadlineReturnsContextError(t *testing.T) {
+	srv := &scriptedServer{respond: func(int64) error {
+		time.Sleep(300 * time.Millisecond)
+		return nil
+	}}
+	client := newTestClient(t, srv)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	_, err := client.GetChart(ctx, &enginev1.ChartRequest{})
+
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+	assert.NotErrorIs(t, err, engine.ErrTimeout)
+}
+
+func TestClient_EngineDeadlineIsErrTimeout(t *testing.T) {
+	srv := &scriptedServer{respond: func(int64) error { return status.Error(codes.DeadlineExceeded, "") }}
+	client := newTestClient(t, srv)
+
+	_, err := client.GetChart(context.Background(), &enginev1.ChartRequest{})
+
+	require.ErrorIs(t, err, engine.ErrTimeout)
+	assert.NotErrorIs(t, err, context.DeadlineExceeded)
 }
 
 func TestClient_ErrorTextHasNoStatusMessage(t *testing.T) {

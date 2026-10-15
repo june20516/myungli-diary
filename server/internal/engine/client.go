@@ -94,7 +94,7 @@ func call[Req, Resp any](
 		resp, err = attempt(ctx, rpc, req)
 	}
 	if err != nil {
-		return nil, classify(name, err)
+		return nil, classify(ctx, name, err)
 	}
 	return resp, nil
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -214,11 +215,17 @@ func LoadEngine(getenv func(string) string) (EngineConfig, error) {
 	if cfg.Addr == "" {
 		errs = append(errs, errors.New("ENGINE_ADDR가 필요합니다"))
 	}
-	if cfg.Audience != "" && !strings.HasPrefix(cfg.Audience, "https://") {
+	if cfg.Audience != "" && !isHTTPSURL(cfg.Audience) {
 		errs = append(errs, errors.New("ENGINE_AUDIENCE는 https URL이어야 합니다"))
 	}
 	if err := errors.Join(errs...); err != nil {
 		return EngineConfig{}, err
 	}
 	return cfg, nil
+}
+
+// isHTTPSURL은 raw가 scheme이 https이고 host가 있는 URL인지 검사합니다.
+func isHTTPSURL(raw string) bool {
+	parsed, err := url.Parse(raw)
+	return err == nil && parsed.Scheme == "https" && parsed.Host != ""
 }

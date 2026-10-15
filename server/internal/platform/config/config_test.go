@@ -280,6 +280,14 @@ func TestLoadEngine(t *testing.T) {
 			t.Errorf("오류 문구에 값이 들어 있습니다: %v", err)
 		}
 	})
+	t.Run("ENGINE_AUDIENCE에 host가 없으면 오류", func(t *testing.T) {
+		for _, audience := range []string{"https://", "https:///path", "engine.run.app"} {
+			_, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "h:443", "ENGINE_AUDIENCE": audience}))
+			if err == nil || !strings.Contains(err.Error(), "ENGINE_AUDIENCE") {
+				t.Errorf("LoadEngine(audience=%q) error = %v, want ENGINE_AUDIENCE 오류", audience, err)
+			}
+		}
+	})
 	t.Run("정상 값은 그대로", func(t *testing.T) {
 		cfg, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "engine.run.app:443", "ENGINE_AUDIENCE": "https://engine.run.app"}))
 		if err != nil {
