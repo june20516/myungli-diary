@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:ui' show Tristate;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
@@ -15,7 +17,9 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
@@ -444,4 +448,105 @@ void main() {
       },
     );
   }
+
+  group('총운 반응', () {
+    List<String> recordHaptics(WidgetTester tester) {
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'HapticFeedback.vibrate') {
+            calls.add(call.arguments as String);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      return calls;
+    }
+
+    ReactionButton button(WidgetTester tester) =>
+        tester.widget<ReactionButton>(find.byType(ReactionButton));
+
+    testWidgets('reactable인 총운 첫 문장에만 버튼이 있고 라벨은 좋아요입니다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+
+      expect(find.byType(ReactionButton), findsOneWidget);
+      expect(button(tester).on, isFalse);
+      expect(button(tester).semanticsLabel, _ko.todayReactionLabel);
+      final node = tester.getSemantics(_id(SlotIds.todayReactionLabel));
+      expect(node.label, _ko.todayReactionLabel);
+      expect(node.flagsCollection.isToggled, Tristate.isFalse);
+      expect(
+        find.byKey(const ValueKey(SlotIds.todayReactionLabel)),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('누르면 바로 켜지고 라벨이 바뀌며 PUT이 한 번 갑니다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final haptics = recordHaptics(tester);
+      final container = await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+
+      await tester.tap(find.byKey(ReactionButton.targetKey));
+      await tester.pump();
+      // 응답 전에 이미 켜져 있습니다.
+      expect(button(tester).on, isTrue);
+      expect(button(tester).semanticsLabel, _ko.todayReactionLabelSelected);
+      expect(haptics, ['HapticFeedbackType.lightImpact']);
+      await pumpUntil(
+        tester,
+        () => _fake(container).callCountOf('putReaction') == 1,
+      );
+
+      final node = tester.getSemantics(_id(SlotIds.todayReactionLabel));
+      expect(node.label, _ko.todayReactionLabelSelected);
+      expect(node.flagsCollection.isToggled, Tristate.isTrue);
+      expect(button(tester).on, isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('실패하면 되돌리고 toast를 보이며 햅틱을 다시 내지 않습니다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final haptics = recordHaptics(tester);
+      final container = await pumpApp(tester, scenario: 'reaction-failed');
+      await _settleToday(tester);
+
+      await tester.tap(find.byKey(ReactionButton.targetKey));
+      await tester.pump();
+      expect(button(tester).on, isTrue);
+      await pumpUntil(
+        tester,
+        () => find.byType(ToastPill).evaluate().isNotEmpty,
+      );
+
+      expect(find.byType(ToastPill), findsOneWidget);
+      expect(find.text(_ko.errorServiceUnavailable), findsOneWidget);
+      expect(_fake(container).callCountOf('putReaction'), 1);
+      expect(button(tester).on, isFalse);
+      expect(button(tester).semanticsLabel, _ko.todayReactionLabel);
+      expect(
+        tester
+            .getSemantics(_id(SlotIds.todayReactionLabel))
+            .flagsCollection
+            .isToggled,
+        Tristate.isFalse,
+      );
+      // 켤 때 낸 햅틱 하나뿐입니다. 되돌릴 때는 내지 않습니다.
+      expect(haptics, ['HapticFeedbackType.lightImpact']);
+      // toast가 사라지는 시간을 흘려 보냅니다.
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 1));
+      semantics.dispose();
+    });
+  });
 }

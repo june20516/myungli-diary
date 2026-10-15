@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/reaction_input.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
@@ -66,6 +67,33 @@ final class DailyRepository {
   ///
   /// 규칙 버전 관찰은 [fetch]가 이미 했습니다(관찰 → 쓰기 순서).
   Future<void> store(String key, Daily daily) => _write(key, daily);
+
+  /// [date]의 [slot]에 반응을 남기거나([liked]) 지웁니다.
+  /// (`putReaction`·`deleteReaction`, 204)
+  ///
+  /// [slot]은 writing 슬롯 id입니다. 실패는 [AppError]입니다. 캐시는 건드리지 않으므로
+  /// 성공한 뒤 [patchCachedReaction]으로 고칩니다.
+  Future<void> setReaction(
+    CalendarDate date, {
+    required String slot,
+    required bool liked,
+  }) async {
+    try {
+      if (liked) {
+        await _api.putReaction(
+          date: date.toIso(),
+          slot: slot,
+          reactionInput: ReactionInput(
+            reaction: ReactionInputReactionEnum.like,
+          ),
+        );
+      } else {
+        await _api.deleteReaction(date: date.toIso(), slot: slot);
+      }
+    } on DioException catch (e) {
+      throw appErrorFrom(e);
+    }
+  }
 
   /// [key] 캐시에서 `slot`이 [slot]인 모든 문장의 `reaction`을 [liked]면 `like`로 넣고,
   /// 아니면 지웁니다(결정 A25: 반응이 성공한 뒤 캐시도 맞춤).

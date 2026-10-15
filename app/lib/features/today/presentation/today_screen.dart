@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
@@ -16,6 +19,7 @@ import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
@@ -27,6 +31,7 @@ import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/reaction_controller.dart';
 import 'package:myungli_diary/features/today/application/today_content.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -51,7 +56,8 @@ const Set<String> todayExits = {
 ///
 /// 값은 [todayContentProvider] 한 곳에서 받고, 표시 값 변환은 `today_presentation.dart`가
 /// 합니다. 처음 불러올 때는 카드 자리 skeleton, 캐시 → server 응답이 다르면 내용이 스밉니다.
-/// 반응 버튼(Task 9)과 오늘 일정 줄·배너(계획 4·7)는 아직 없습니다.
+/// 총운 첫 문장의 반응 버튼은 낙관적으로 바뀌고 실패하면 되돌리며 오류 toast를 보입니다.
+/// 오늘 일정 줄·배너(계획 4·7)는 아직 없습니다.
 class TodayScreen extends ConsumerWidget {
   /// today 화면을 만듭니다.
   const new({super.key});
@@ -159,10 +165,31 @@ class _TodayBody extends ConsumerWidget {
     }
   }
 
+  /// [text]의 반응을 뒤집습니다. 실패하면 컨트롤러가 되돌리므로 오류만 알립니다.
+  Future<void> _toggleReaction(
+    BuildContext context,
+    WidgetRef ref,
+    SlotText text,
+    CalendarDate date,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref
+          .read(reactionControllerProvider.notifier)
+          .toggle(text, date: date);
+    } on AppError catch (error) {
+      if (context.mounted) {
+        showMyungliToast(context, errorMessage(l10n, error));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final daily = content.view.daily;
+    final date = content.view.date;
+    final reactions = ref.watch(reactionControllerProvider);
     final character = dayCharacterOf(daily, l10n);
     final timeUnknown = timeUnknownNoticeOf(daily);
     final head = daily.fortune.head;
@@ -222,6 +249,16 @@ class _TodayBody extends ConsumerWidget {
                 onTap: () => sheets.openEvidence(context, slotId: head.slot),
               ),
             ),
+            if (head.reactable)
+              ReactionButton(
+                on: ReactionController.isLiked(reactions, date, head),
+                semanticsLabel:
+                    ReactionController.isLiked(reactions, date, head)
+                    ? l10n.todayReactionLabelSelected
+                    : l10n.todayReactionLabel,
+                onChanged: (_) =>
+                    unawaited(_toggleReaction(context, ref, head, date)),
+              ),
             if (tag != null) ...[
               const SizedBox(height: Space.s12),
               SentenceBlock(

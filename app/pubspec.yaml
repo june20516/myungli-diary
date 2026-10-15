@@ -157,3 +157,4 @@ flutter:
     - fixtures/member-time-unknown/
     - fixtures/daily-error/
     - fixtures/diary-written/
+    - fixtures/reaction-failed/
