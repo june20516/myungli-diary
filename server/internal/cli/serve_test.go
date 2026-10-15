@@ -129,6 +129,56 @@ func TestRun_ServeStartsAndStopsOnCancel(t *testing.T) {
 	}
 }
 
+func TestServe_RequiresEngineAddr(t *testing.T) {
+	env := testAuthEnv(t)
+	delete(env, "ENGINE_ADDR")
+	env["PORT"] = freePort(t)
+	env["DATABASE_URL"] = "postgres://x@127.0.0.1:1/x"
+	var stdout, stderr bytes.Buffer
+
+	code := Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+	if code != 1 {
+		t.Errorf("종료 코드 = %d, want 1", code)
+	}
+	if !strings.Contains(stderr.String(), "ENGINE_ADDR") {
+		t.Errorf("stderr에 ENGINE_ADDR가 없습니다: %q", stderr.String())
+	}
+}
+
+// 엔진이 닫혀 있어 시작 때 GetInfo가 실패해도 serve는 시작하고, 로그에는 연결 방식만 남고 주소는 남지 않습니다.
+func TestServe_StartsWhenEngineInfoFails(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	env := testAuthEnv(t)
+	env["PORT"] = freePort(t)
+	env["DATABASE_URL"] = dbtest.NewURL(t)
+	var stdout, stderr bytes.Buffer
+
+	done := make(chan int, 1)
+	go func() {
+		done <- Run(ctx, []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+	}()
+
+	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
+	cancel()
+
+	select {
+	case code := <-done:
+		if code != 0 {
+			t.Errorf("종료 코드 = %d, stderr = %q", code, stderr.String())
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("ctx 취소 뒤 serve가 종료되지 않았습니다")
+	}
+	logs := stderr.String()
+	if !strings.Contains(logs, `"engine":"h2c"`) {
+		t.Errorf("시작 로그에 엔진 연결 방식이 없습니다: %q", logs)
+	}
+	if strings.Contains(logs, testClosedEngineAddr) {
+		t.Errorf("로그에 엔진 주소가 남았습니다: %q", logs)
+	}
+}
+
 func TestRun_ServeRequiresDatabaseURL(t *testing.T) {
 	env := testAuthEnv(t)
 	env["PORT"] = freePort(t)
@@ -294,7 +344,10 @@ const (
 // testStoreURL은 테스트의 Play 스토어 주소입니다.
 const testStoreURL = "https://play.google.com/store/apps/details?id=app.myungli.test"
 
-// testAuthEnv는 인증 설정 20개 중 필수 값 16개를 채운 환경을 만듭니다.
+// testClosedEngineAddr는 아무도 듣지 않는 엔진 주소입니다.
+const testClosedEngineAddr = "127.0.0.1:1"
+
+// testAuthEnv는 인증 설정 20개 중 필수 값 16개와 ENGINE_ADDR를 채운 환경을 만듭니다.
 // JWT 키는 실제로 파싱되는 P-256 PKCS8 PEM이고, 토큰 암호 키는 32바이트 난수의 base64(표준)입니다.
 func testAuthEnv(t *testing.T) map[string]string {
 	t.Helper()
@@ -328,6 +381,8 @@ func testAuthEnv(t *testing.T) map[string]string {
 		"ANDROID_APP_PACKAGE":     "app.myungli.test",
 		"ANDROID_CERT_SHA256":     testCertSHA256,
 		"ANDROID_STORE_URL":       testStoreURL,
+		// 닫힌 로컬 포트입니다. 엔진 연결은 lazy라 서버는 시작합니다.
+		"ENGINE_ADDR": testClosedEngineAddr,
 	}
 }
 
