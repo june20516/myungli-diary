@@ -16,7 +16,7 @@
 * 고칠 수 있는 곳은 `docs/identity/design/`과 GitHub Issues뿐입니다. `docs/ia/`, writing 파일은 읽기만 합니다.
 * 부 버전입니다. 기존 구성 요소·필드·변형·상태의 이름을 바꾸거나 빼지 않습니다. 값과 규칙 문장만 바꾸고, 새 것은 더합니다.
 * 새 토큰은 없습니다. 참조는 기존 토큰만 씁니다.
-* JSON에 넣는 `slot` 값은 모두 main의 `docs/ia/screens.json`에 있어야 합니다(`test_every_slot_exists_in_ia`). `birthplace.standard.link`(IA v3 전용)는 JSON에 넣지 않고 `sentence.md`에만 적습니다.
+* JSON에 넣는 `slot` 값은 모두 main의 `docs/ia/screens.json`에 있어야 합니다(`test_every_slot_exists_in_ia`). IA v3(PR #157)가 main에 병합되었으므로 `birthplace.standard.link`도 JSON(`navigate.parts.label.slot`)에 적습니다.
 * 문서는 한국어 경어체, 기술 용어는 원어를 씁니다. 로마자 표기는 `myungli`입니다.
 * 커밋 메시지 끝에 다음 두 줄을 붙입니다.
   ```
@@ -91,7 +91,7 @@ def test_depth_link_navigate_goes_to_a_page():
     depth_link = component("sentence", "depth-link")
     navigate = next(v for v in depth_link["variants"] if v["id"] == "navigate")
     assert navigate["parts"]["target"] == {"presentation": "page", "transition": "platform-default"}
-    assert "slot" not in json.dumps(navigate)
+    assert navigate["parts"]["label"]["slot"] == "birthplace.standard.link"
     assert any("navigate" in rule and "sheet.enter" in rule for rule in depth_link["rules"])
     assert "birthplace" in (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
 
@@ -107,7 +107,7 @@ def test_unlocked_evidence_sheet_omits_empty_sections():
 - [ ] **Step 3: 구현** (spec §2.2·§2.10·§4)
   * `depth-link.parts.chevron`, `sentence-block.states.locked.parts.open.chevron`을 `CHEVRON`으로 바꾸고, `lockPanel.pass`에 `"chevron": CHEVRON`을 더합니다.
   * `depth-link.summary`: "한 단계 깊이로 가는 링크 ('근거 보기 ›'), 또는 다른 페이지로 가는 같은 모양의 링크".
-  * `variants`에 `{"id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준). 시트를 열지 않음", "parts": {"label": {"align": "start"}, "container": {"marginTop": "{space.12}"}, "target": {"presentation": "page", "transition": "platform-default"}}}`.
+  * `variants`에 `{"id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준). 시트를 열지 않음", "parts": {"label": {"align": "start", "slot": "birthplace.standard.link"}, "container": {"marginTop": "{space.12}"}, "target": {"presentation": "page", "transition": "platform-default"}}}`.
   * `rules`: 기존 "누르면 evidence-sheet 등…" 문장 앞에 "inline-end·block은 "을 붙이고, 세 문장을 더합니다: "navigate는 시트를 열지 않고 페이지로 이동한다(플랫폼 기본 전환). sheet.enter·sheet.stack을 쓰지 않는다.", "화살표(chevron)는 원고에 넣지 않고 컴포넌트가 그린다. 아이콘 caret-right, 링크 글자 크기, 스크린리더는 읽지 않음, 링크가 감기면 마지막 줄 끝에 붙는다(결정 V29).", "unlocked에서 본문이 없는 구역은 제목까지 그리지 않고 자리도 남기지 않는다. locked의 lock.veil은 그대로 그린다."
   * `sentence.md`: depth-link 쓰는 화면에 `birthplace`, `navigate` 설명(자리 `birthplace.standard.note` 아래·검색칸 위, 슬롯 `birthplace.standard.link`, IA v3 D71), 화살표 설명(V29), 빈 구역, 구현 힌트(`inline-end` = 문장 끝 `WidgetSpan` 하나), sentence-block 배치에 "my-saju 일간 소개 첫 문장(`my-saju.ilgan.head`)은 `card`, 이어지는 문장은 `body`". 근거 줄에 이 spec과 V29·V32.
 - [ ] **Step 4: 통과 확인** → 테스트 전부 PASS, `components.py` 문제 0
@@ -313,7 +313,7 @@ def test_existing_rows_keep_their_values(capsys):
   * `[design→app] 컴포넌트 계약 2.3.0 대응: …` `--label from:design,to:app,kind:request`. app이 바꿀 것(region 줄 숨김, birthplace 아래 버튼 제거, `login.discard.notice` → dialog `notice`, segmented `none`, 링크 화살표는 `caret-right` 아이콘 표기 확인, 시간 형식 확인)과 그대로 둘 것(#118·#142 나머지)을 나눠 적음.
   * `[design→writing] 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기` `--label from:design,to:writing,kind:request`. spec §5.3·§5.4와 `lengths.md` 위치.
   * 마일스톤은 지금 열린 Issue(#142 등)의 마일스톤을 `gh issue view 142 --json milestone`으로 보고 같은 것을 붙입니다.
-- [ ] **Step 2: PR 열기.** `gh pr create --base main --head design/spec-followups`, 제목 `design: 컴포넌트 계약 2.3.0 — 구현 대응·depth-link navigate·글자 수 상한 (#118·#142·#154·#159·#131)`. 본문: 요약, 검사 결과, `Closes #118`·`Closes #142`·`Closes #154`·`Closes #159`·`Closes #131` 한 줄씩, "#159: IA v3(PR #157)보다 먼저 병합되어도 검사 통과. 병합 순서는 지휘 판단", 새 Issue 두 번호.
+- [ ] **Step 2: PR 열기.** `gh pr create --base main --head design/spec-followups`, 제목 `design: 컴포넌트 계약 2.3.0 — 구현 대응·depth-link navigate·글자 수 상한 (#118·#142·#154·#159·#131)`. 본문: 요약, 검사 결과, `Closes #118`·`Closes #142`·`Closes #154`·`Closes #159`·`Closes #131` 한 줄씩, 새 Issue 두 번호.
 - [ ] **Step 3: 답 코멘트.** #118·#142·#154·#131·#159에 항목별 판단 요약과 PR 번호, 명세 위치를 코멘트로 남깁니다(PR 병합 때 `Closes`로 닫힘).
 - [ ] **Step 4:** Task 7의 `CLAUDE.md` "다음 할 일"에 writing Issue 번호를 채워 commit·push(`docs(design): CLAUDE.md에 후속 Issue 번호`).
 - [ ] **Step 5:** PR의 CI(`ci-gate`)가 통과하는지 `gh pr checks <번호> --watch`로 확인합니다.

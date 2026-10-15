@@ -3,7 +3,7 @@
 * 작업 단위: design
 * 마일스톤: V2 후속 (선행 컴포넌트 2.2.0, 후행 app 계획 3 이후 UI 구현, writing 원고 길이 검사)
 * 입력: Issue #118(app 기반 구현의 명세 차이), #142(app 계획 2의 명세 차이), #154(근거 시트 빈 구역, 행운 시간 형식), #159(IA v3 `depth-link` 화면 이동), #131(ui 이름 자리와 새 content 슬롯의 글자 수 상한)
-* 기준 문서: [V2 spec](2026-10-11-components-design.md), [근거 잠금·글자 수 spec](2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](2026-10-13-term-segments-lock-slots-design.md), `docs/decisions.md` D58·D60·D71, IA v3(PR #157 `root/ia-v3`)
+* 기준 문서: [V2 spec](2026-10-11-components-design.md), [근거 잠금·글자 수 spec](2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](2026-10-13-term-segments-lock-slots-design.md), `docs/decisions.md` D58·D60·D71, IA v3(PR #157, main 병합됨)
 * 계약: 컴포넌트 명세 2.2.0 → **2.3.0**(추가와 값 변경만). 토큰 1.1.0은 그대로입니다.
 
 ## 1. 목적과 완료 기준
@@ -16,7 +16,7 @@ app은 2.2.0을 구현하면서, 명세와 다르게 만든 곳과 명세에 없
 2. `tools/lengths.py`의 칸 확장과 `lengths.md` 갱신 (§5)
 3. 검사기 `tools/components.py`와 pytest 통과
 4. 결정 V29~V33, `CLAUDE.md` 갱신
-5. Issue: #118·#142·#154·#131 답 코멘트(PR `Closes`), #159는 IA v3 병합과 순서를 맞춤, app 앞 2.3.0 대응 요청, writing 앞 확인 창 슬롯 요청 (§7)
+5. Issue: #118·#142·#154·#131 답 코멘트(PR `Closes`), #159 `Closes`, app 앞 2.3.0 대응 요청, writing 앞 확인 창 슬롯 요청 (§7)
 
 ## 2. 구현 대응: 명세를 바꾸는 것
 
@@ -109,12 +109,12 @@ README 공통 규칙에 한 줄을 더합니다. **"명세의 고정 높이(`hei
 
 IA v3(D71)에서 `birthplace`에 계산 기준 화면(`calc-basis`)으로 가는 링크가 생깁니다. 모양은 같은 "링크 이름 + 화살표"이지만, 시트를 열지 않고 페이지로 이동합니다.
 
-* `variants`에 `{ "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준)", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } }, "target": "page" }`를 더합니다. 배치는 `block`과 같습니다.
+* `variants`에 `{ "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준)", "parts": { "label": { "align": "start", "slot": "birthplace.standard.link" }, "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }`를 더합니다. 배치는 `block`과 같습니다.
 * 누르면 플랫폼 기본 페이지 전환으로 이동합니다. `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`(링크 글자 둘레)입니다.
 * a11y: role `link`. 라벨은 링크 이름 그대로이고, 화살표는 읽지 않습니다.
 * 자리: `birthplace`에서 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위. 슬롯 `birthplace.standard.link`. 배치와 슬롯 이름은 `sentence.md`에만 적고 JSON 변형에는 슬롯을 두지 않습니다(`inline-end`·`block`과 같음).
 * `depth-link.summary`를 "한 단계 깊이로 가는 링크 ('근거 보기 ›'), 또는 다른 페이지로 가는 같은 모양의 링크"로 넓힙니다. `sentence.md`의 쓰는 화면에 `birthplace`를 더합니다.
-* IA v3 PR #157은 단독 병합 금지이고, app 최종 PR과 함께 병합됩니다. 테스트 `test_every_slot_exists_in_ia`는 JSON의 모든 슬롯을 main IA와 비교합니다. `birthplace.standard.link`는 IA v3 병합 전 main에 없으므로 JSON에 넣지 않습니다. 그래서 이 PR은 IA v3보다 먼저 병합되어도 검사를 통과합니다.
+* IA v3(PR #157)는 main에 병합되어 `birthplace.standard.link`가 main `docs/ia/screens.json`에 있습니다. 그래서 다른 depth-link 쓰임과 같이 슬롯을 JSON(`navigate.parts.label.slot`)에 적고, `test_every_slot_exists_in_ia`가 이를 확인합니다.
 
 ## 5. 글자 수 상한 (#131, 결정 V33)
 
@@ -213,7 +213,7 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 
 * #118·#142·#154 답 코멘트: 항목별 판단(§2·§3)과 명세 위치. PR 본문 `Closes`로 닫습니다.
 * #131 답 코멘트: 슬롯별 상한 표(`lengths.md` 링크), 상한 없음 목록, 확인 창 역할별 값. PR 본문 `Closes`로 닫습니다.
-* #159: PR 본문 `Closes #159`. IA v3 PR #157과 app 최종 PR이 병합되기 전에 이 PR이 먼저 병합되어도 명세는 IA id만 쓰므로 깨지지 않습니다. 병합 순서는 지휘가 정하도록 PR 본문에 적습니다.
+* #159: PR 본문 `Closes #159`. IA v3(PR #157)는 이미 main에 병합되었습니다.
 * app 앞 request(`kind:request`): 컴포넌트 계약 2.3.0. 바뀐 값(화살표 아이콘, 시간 형식 등)과 새 변형·상태를 알립니다. app이 이미 그렇게 구현한 것과 바꿔야 할 것(region 줄, input-step 아래 버튼, dialog `notice`, segmented `none`)을 나눠 적습니다. 받는 쪽에 일을 시키는 공지이므로 notice가 아니라 request입니다(workflow §5.2).
 * writing 앞 request(`kind:request`): 확인 창 슬롯을 역할별로 나눌지(§5.4), 상한 없음 슬롯을 어떻게 표기할지(§5.3).
 * 계약 목록(`docs/contracts/README.md`) 버전 갱신은 지휘가 합니다.
