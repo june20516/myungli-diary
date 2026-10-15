@@ -49,6 +49,7 @@ func (v *Versions) Current() (string, error) {
 }
 
 // Run은 바로 한 번 Refresh한 뒤 interval마다 되풀이하고, ctx가 취소되면 반환합니다.
+// interval이 0 이하면 시작 시 Warn 로그와 함께 한 번만 갱신하고 ctx 취소까지 기다립니다.
 // 실패는 Warn 로그만 남기고 계속합니다(ctx 취소로 인한 오류는 종료 잡음이라 남기지 않습니다).
 func (v *Versions) Run(ctx context.Context, interval time.Duration) {
 	v.refreshAndLog(ctx)

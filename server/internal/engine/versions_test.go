@@ -87,6 +87,7 @@ func TestVersions_RunStopsOnCancel(t *testing.T) {
 	fake := &enginetest.Fake{}
 	v := newTestVersions(fake)
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	done := make(chan struct{})
 
 	go func() {
@@ -135,6 +136,7 @@ func TestVersions_RunRecoversAfterFirstFailureAndLogsWarn(t *testing.T) {
 	logs := &lockedBuffer{}
 	v := engine.NewVersions(fake, slog.New(slog.NewTextHandler(logs, nil)))
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	done := make(chan struct{})
 
 	go func() {
@@ -161,6 +163,7 @@ func TestVersions_RunDoesNotLogCancelOnShutdown(t *testing.T) {
 	logs := &lockedBuffer{}
 	v := engine.NewVersions(fake, slog.New(slog.NewTextHandler(logs, nil)))
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	done := make(chan struct{})
 
 	go func() {
@@ -179,6 +182,7 @@ func TestVersions_RunWithNonPositiveIntervalRefreshesOnceAndWaits(t *testing.T) 
 	logs := &lockedBuffer{}
 	v := engine.NewVersions(fake, slog.New(slog.NewTextHandler(logs, nil)))
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	done := make(chan struct{})
 
 	go func() {
