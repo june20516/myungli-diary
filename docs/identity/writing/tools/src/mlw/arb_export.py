@@ -3,7 +3,7 @@
 * 키 순서는 슬롯 id 순서, 그 안에서는 슬롯 명세의 키 순서입니다.
 * `@<키>` 메타데이터(설명, 자리표시자 타입)는 기준 언어(ko) 파일에만 둡니다.
 * 원고가 없는 키는 그 언어 파일에서 뺍니다. 앱은 기준 언어 문구로 대신합니다.
-* glossary 이름 중 `ARB_TERM_CATEGORIES` 범주(지지, 날의 성격)도 ui 키 뒤에 냅니다. content 문장과 앱 화면이
+* glossary 이름 중 `ARB_TERM_CATEGORIES` 범주(지지, 날의 성격, 방향)도 ui 키 뒤에 냅니다. content 문장과 앱 화면이
   같은 이름을 쓰게 하기 위해서입니다(#143). 키는 용어 id의 lowerCamelCase입니다(`branch.in` → `branchIn`).
 """
 
@@ -19,7 +19,7 @@ TEMPLATE_LANG = "ko"
 GENERATED_NOTE = "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml, glossary.yaml)"
 PLACEHOLDER_TYPES: dict[str, str] = {"number": "int", "text": "String"}
 GLOSSARY_SLOT = "glossary.value_name"
-ARB_TERM_CATEGORIES = ("branch", "day_kind")
+ARB_TERM_CATEGORIES = ("branch", "day_kind", "direction8")
 RULE_DUPLICATE_KEY = "arb.duplicate_key"
 TERM_WORD_BOUNDARY = regex.compile(r"[._]")
 

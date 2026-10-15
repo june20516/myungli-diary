@@ -224,3 +224,8 @@
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "ログインを確認できませんでした。最初からもう一度ログインしてください。"}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Appleでのサインインをキャンセルしました。"}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "Appleでサインインできませんでした。もう一度お試しください。"}
+- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "根拠を見る"}
+- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "今日の読み解きの根拠"}
+- {slot: ui.guide.card, key: todayGuideEyebrow, text: "今日の質問"}
+- {slot: ui.guide.a11y, key: todayGuideLabel, text: "日記の質問"}
+- {slot: ui.guide.a11y, key: todayGuideWritten, text: "今日の日記を書きました"}
