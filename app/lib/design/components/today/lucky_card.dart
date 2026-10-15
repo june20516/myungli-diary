@@ -1,6 +1,5 @@
-import 'dart:ui' show SemanticsRole;
-
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
@@ -51,7 +50,10 @@ final class LuckyItem {
     required this.value,
     required this.explain,
     this.swatch,
-  });
+  }) : assert(
+         (variant == LuckyCardVariant.color) == (swatch != null),
+         'color 변형은 swatch가 필수이고, 다른 변형은 swatch를 줄 수 없습니다.',
+       );
 
   /// 변형.
   final LuckyCardVariant variant;
@@ -65,7 +67,8 @@ final class LuckyItem {
   /// 누르면 열리는 설명 문장(server가 렌더한 조각).
   final RenderedText explain;
 
-  /// 색 변형의 견본 색(`ohaeng.swatch`).
+  /// 색 변형의 견본 색(`ohaeng.swatch`). [LuckyCardVariant.color]에서만 주고(필수),
+  /// 다른 변형에서는 줄 수 없습니다(assert).
   final Color? swatch;
 }
 
@@ -221,6 +224,12 @@ class LuckyCardRow extends StatefulWidget {
 
   static const double _rowGap = Space.s8;
 
+  /// 칩 줄 위아래에 두는 판정 여유. 칩 높이 34를 `a11y.minTarget` 44까지 넓히는 양
+  /// (위아래 5)이라, 첫 줄 위·마지막 줄 아래도 44로 눌립니다. 보이는 간격은 그대로 두도록
+  /// 설명 상자 위 간격은 [_rowGap]에서 이 값을 뺍니다. 줄 위쪽에는 이 값만큼 빈 자리가
+  /// 생기므로 쓰는 화면이 위 간격에서 그만큼 뺍니다.
+  static const double hitInset = (sentenceMinTarget - LuckyChip._height) / 2;
+
   /// 보여 줄 행운 항목. 같은 변형이 둘 이상이면 앞의 것만 설명을 엽니다.
   final List<LuckyItem> items;
 
@@ -239,6 +248,9 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
 
   // 닫히는 동안에도 설명 내용을 그리려고 마지막으로 열린 항목을 기억합니다.
   LuckyItem? _lastOpenItem;
+
+  // 열린 채로 다른 칩으로 바뀔 때마다 올려, 바뀐 설명이 appear.seep으로 다시 나타나게 합니다.
+  int _swap = 0;
 
   LuckyItem? _itemOf(LuckyCardVariant? variant) {
     if (variant == null) return null;
@@ -261,8 +273,10 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
 
   void _toggle(LuckyItem item) {
     setState(() {
-      _open = _open == item.variant ? null : item.variant;
-      if (_open != null) _lastOpenItem = item;
+      final next = _open == item.variant ? null : item.variant;
+      if (_open != null && next != null) _swap++;
+      _open = next;
+      if (next != null) _lastOpenItem = item;
     });
   }
 
@@ -273,20 +287,24 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Wrap(
-          spacing: LuckyCardRow._rowGap,
-          runSpacing: LuckyCardRow._rowGap,
-          children: [
-            for (final item in widget.items)
-              LuckyChip(
-                key: LuckyCardRow.chipKey(item.variant),
-                item: item,
-                open: _open == item.variant,
-                onTap: widget.interactive ? () => _toggle(item) : null,
-              ),
-          ],
+        _HitOutset(
+          outset: LuckyCardRow.hitInset,
+          child: Wrap(
+            spacing: LuckyCardRow._rowGap,
+            runSpacing: LuckyCardRow._rowGap,
+            children: [
+              for (final item in widget.items)
+                LuckyChip(
+                  key: LuckyCardRow.chipKey(item.variant),
+                  item: item,
+                  open: _open == item.variant,
+                  onTap: widget.interactive ? () => _toggle(item) : null,
+                ),
+            ],
+          ),
         ),
         SeepPresence(
+          key: ValueKey(_swap),
           present: _open != null,
           child: shown == null
               ? const SizedBox.shrink()
@@ -294,6 +312,65 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
         ),
       ],
     );
+  }
+}
+
+/// [child] 위아래에 [outset]만큼 판정 여유를 두는 상자.
+///
+/// 여유 자리에서 누르면 가장 가까운 child 가장자리로 옮겨 child에 넘기므로, 가장자리 칩의
+/// `VerticalHitSlop`이 부모 경계 밖까지 닿습니다. 여유는 레이아웃 높이에 포함됩니다.
+class _HitOutset extends SingleChildRenderObjectWidget {
+  const new({required this.outset, required super.child});
+
+  final double outset;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderHitOutset(outset);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) =>
+      (renderObject as _RenderHitOutset).outset = outset;
+}
+
+class _RenderHitOutset extends RenderShiftedBox {
+  new(this._outset) : super(null);
+
+  double _outset;
+
+  double get outset => _outset;
+
+  set outset(double value) {
+    if (_outset == value) return;
+    _outset = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.constrain(Size(0, _outset * 2));
+      return;
+    }
+    child.layout(constraints, parentUsesSize: true);
+    (child.parentData! as BoxParentData).offset = Offset(0, _outset);
+    size = constraints.constrain(
+      Size(child.size.width, child.size.height + _outset * 2),
+    );
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    final child = this.child;
+    if (child == null || !size.contains(position)) return false;
+    final y = position.dy.clamp(_outset, _outset + child.size.height - 0.01);
+    final hit = child.hitTest(
+      result,
+      position: Offset(position.dx, y - _outset),
+    );
+    if (hit) result.add(BoxHitTestEntry(this, position));
+    return hit;
   }
 }
 
@@ -310,7 +387,9 @@ class _Explain extends StatelessWidget {
     final colors = tokens.colors;
     final spoken = item.explain.segments.map((s) => s.text).join();
     final box = Padding(
-      padding: const EdgeInsets.only(top: LuckyCardRow._rowGap),
+      padding: const EdgeInsets.only(
+        top: LuckyCardRow._rowGap - LuckyCardRow.hitInset,
+      ),
       child: Container(
         key: LuckyCardRow.explainKey,
         padding: const EdgeInsets.all(Space.s12),
