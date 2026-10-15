@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"time"
 
 	"golang.org/x/sync/singleflight"
 	"google.golang.org/protobuf/proto"
@@ -16,6 +17,9 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
+
+// cacheWriteTimeout은 캐시 쓰기 한 번의 상한입니다. DB가 멈춰도 엔진이 성공한 요청이 거기 묶이지 않게 합니다.
+const cacheWriteTimeout = time.Second
 
 // VersionSource는 엔진의 현재 ruleset_version을 줍니다. *engine.Versions가 만족합니다.
 type VersionSource interface{ Current() (string, error) }
@@ -164,7 +168,9 @@ func fetch[T proto.Message](ctx context.Context, s *Service, spec fetchSpec[T]) 
 		if err != nil {
 			return nil, err
 		}
-		writeCache(engineCtx, s, spec, response)
+		writeCtx, cancel := context.WithTimeout(engineCtx, cacheWriteTimeout)
+		defer cancel()
+		writeCache(writeCtx, s, spec, response)
 		return response, nil
 	})
 
@@ -175,7 +181,12 @@ func fetch[T proto.Message](ctx context.Context, s *Service, spec fetchSpec[T]) 
 		if result.Err != nil {
 			return zero, result.Err
 		}
-		return result.Val.(T), nil
+		response := result.Val.(T)
+		if result.Shared {
+			// 같은 호출을 나눠 받은 호출자끼리 객체를 공유하지 않게 복제합니다.
+			return proto.Clone(response).(T), nil
+		}
+		return response, nil
 	}
 }
 
@@ -215,12 +226,13 @@ func writeCache[T proto.Message](ctx context.Context, s *Service, spec fetchSpec
 	}
 }
 
-// flightKey는 종류, 해시, 나머지 키 값을 구분자로 이어 충돌 없는 singleflight 키를 만듭니다.
+// flightKey는 종류, 해시, 나머지 키 값을 각각 strconv.Quote로 감싸 이어 붙입니다.
+// 값 안의 구분자는 따옴표 이스케이프되므로 서로 다른 키가 같은 문자열이 될 수 없습니다.
 // 해시는 키에만 쓰고 로그에 남기지 않습니다.
 func flightKey(kind string, birthHash [32]byte, parts ...string) string {
-	key := kind + "|" + hex.EncodeToString(birthHash[:])
+	key := strconv.Quote(kind) + "|" + hex.EncodeToString(birthHash[:])
 	for _, part := range parts {
-		key += "|" + part
+		key += "|" + strconv.Quote(part)
 	}
 	return key
 }

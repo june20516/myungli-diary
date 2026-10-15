@@ -270,3 +270,53 @@ func TestService_InvalidBirthIsProgramError(t *testing.T) {
 	assert.NotContains(t, err.Error(), "other")
 	assert.EqualValues(t, 0, fake.ChartCalls.Load())
 }
+
+// blockingPutCache는 Get은 없음, Put은 ctx가 끝날 때까지 막히는 ResultCache 대역입니다(멈춘 DB).
+type blockingPutCache struct{ failingCache }
+
+func (blockingPutCache) GetDaily(context.Context, fortune.DailyKey) ([]byte, bool, error) {
+	return nil, false, nil
+}
+func (blockingPutCache) PutDaily(ctx context.Context, _ fortune.DailyKey, _ []byte) error {
+	<-ctx.Done()
+	return ctx.Err()
+}
+
+func TestService_StalledCacheWriteDoesNotHoldCallers(t *testing.T) {
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		return &enginev1.DailyResponse{Meta: rulesetMeta("rs-1")}, nil
+	}}
+	service := fortune.NewService(fake, newVersions(t, fake), blockingPutCache{}, discardLogger())
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	started := time.Now()
+	response, err := service.Daily(ctx, testBirth(), profile.LocalDate{Year: 2026, Month: 10, Day: 15}, "Asia/Seoul")
+
+	require.NoError(t, err)
+	assert.Equal(t, "rs-1", response.GetMeta().GetRulesetVersion())
+	assert.Less(t, time.Since(started), 3*time.Second, "캐시 쓰기 timeout(1초) 근처에서 끝나야 합니다")
+}
+
+func TestService_SharedFlightResultsAreSeparateObjects(t *testing.T) {
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		time.Sleep(200 * time.Millisecond)
+		return &enginev1.DailyResponse{Meta: rulesetMeta("rs-1")}, nil
+	}}
+	service := fortune.NewService(fake, newVersions(t, fake), failingCache{}, discardLogger())
+	date := profile.LocalDate{Year: 2026, Month: 10, Day: 15}
+
+	responses := make(chan *enginev1.DailyResponse, 2)
+	for range 2 {
+		go func() {
+			response, err := service.Daily(context.Background(), testBirth(), date, "Asia/Seoul")
+			assert.NoError(t, err)
+			responses <- response
+		}()
+	}
+	first, second := <-responses, <-responses
+
+	require.EqualValues(t, 1, fake.DailyCalls.Load())
+	assert.NotSame(t, first, second)
+	assert.True(t, proto.Equal(first, second))
+}
