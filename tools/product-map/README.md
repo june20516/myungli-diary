@@ -19,7 +19,7 @@
 | 모든 `artifacts/index.json`과 이미지 | 산출물, 역·화면 상세 |
 | `docs/identity/README.md` | 정체성, 머리글 컨셉 문장 |
 | `docs/ia/screens.json` (IA, 없으면 MVP 임시 화면 목록) | 화면(탭별 묶음, 슬롯·컴포넌트·상태·경로 상세) |
-| `docs/ideas.md`, 그 `검토` 상태가 가리키는 문서의 첫 제목·`상태:` 줄 | 아이디어(흐름 보드: 대기 → 검토 중 → 채택 → 보류·기각) |
+| 비공개 내부 저장소의 `ideas.md`, 그 `검토` 상태가 가리키는 문서의 첫 제목·`상태:` 줄(세 번째 인자로 내부 저장소를 넘길 때만, D74) | 아이디어(흐름 보드: 대기 → 검토 중 → 채택 → 보류·기각) |
 | `gh issue list` (실패하면 빈 목록) | 열린 Issue, 역 상세 |
 
 ## 갱신 (지휘 세션 정기 일과)
@@ -27,7 +27,7 @@
 2. 데이터를 만들고 페이지를 함께 둡니다. 출력 디렉터리는 세션 scratchpad를 씁니다.
    ```
    OUT=<scratchpad>/product-map
-   rm -rf "$OUT" && python3 -I tools/product-map/build_map_data.py . "$OUT"
+   rm -rf "$OUT" && python3 -I tools/product-map/build_map_data.py . "$OUT" ../myungli-diary-internal
    cp tools/product-map/page/index.html "$OUT/"
    ```
 3. Artifact를 **같은 URL로** 다시 publish합니다: `url`에 위 주소, `file_path`에 `$OUT/index.html`, `root`에 `$OUT`, `files`에 `data.json`과 `images/` 아래 모든 파일. `icon`은 넘기지 않습니다.
