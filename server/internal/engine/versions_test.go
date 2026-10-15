@@ -201,3 +201,30 @@ func TestVersions_RunWithNonPositiveIntervalRefreshesOnceAndWaits(t *testing.T) 
 	require.Equal(t, int64(1), fake.InfoCalls.Load())
 	require.Contains(t, logs.String(), "level=WARN")
 }
+
+func TestVersions_RunRetriesWithBackoffWhileVersionUnknown(t *testing.T) {
+	var calls atomic.Int64
+	fake := &enginetest.Fake{Info: func() (*enginev1.InfoResponse, error) {
+		if calls.Add(1) <= 2 {
+			return nil, engine.ErrUnavailable
+		}
+		return &enginev1.InfoResponse{RulesetVersion: "rs-3"}, nil
+	}}
+	v := newTestVersions(fake)
+	v.SetInitialBackoffForTest(5 * time.Millisecond)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	done := make(chan struct{})
+
+	go func() {
+		v.Run(ctx, time.Hour) // 정상 주기가 1시간이어도 값을 모르는 동안은 짧은 backoff로 다시 시도합니다.
+		close(done)
+	}()
+
+	require.Eventually(t, func() bool {
+		got, err := v.Current()
+		return err == nil && got == "rs-3"
+	}, 2*time.Second, 5*time.Millisecond)
+	cancel()
+	<-done
+}
