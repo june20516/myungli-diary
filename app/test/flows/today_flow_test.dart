@@ -64,6 +64,38 @@ final class _DailyNetwork extends Interceptor {
   }
 }
 
+/// `/v1/diaries/`에 쓴 일기(200)로 답하고 호출 수를 셉니다.
+final class _DiaryWritten extends Interceptor {
+  int calls = 0;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (!options.path.startsWith('/v1/diaries/')) {
+      handler.next(options);
+      return;
+    }
+    calls++;
+    handler.resolve(
+      Response<Object?>(
+        requestOptions: options,
+        statusCode: 200,
+        headers: Headers.fromMap({
+          Headers.contentTypeHeader: ['application/json'],
+        }),
+        data: {
+          'date': '2026-10-13',
+          'body': '일기',
+          'tags': {'featured': <Object>[], 'all': <Object>[]},
+          'rulesetVersion': 'r1',
+          'createdAt': '2026-10-13T12:00:00Z',
+          'updatedAt': '2026-10-13T12:00:00Z',
+        },
+      ),
+      true,
+    );
+  }
+}
+
 /// `/v1/daily/`를 [hold]가 끝날 때까지 붙잡습니다.
 final class _DailyHold extends Interceptor {
   final hold = Completer<void>();
@@ -146,13 +178,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
 
+    // 일기 화면에 있는 동안 일기를 썼다고 봅니다: 이제 getDiary는 200입니다.
+    final written = _DiaryWritten();
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, written);
+
     container.read(routerProvider).pop();
-    await _settleToday(tester);
-    expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
-    expect(
-      tester.widget<GuideQuestionCard>(find.byType(GuideQuestionCard)).state,
-      GuideQuestionState.before,
+    await pumpUntil(
+      tester,
+      () =>
+          tester
+              .widget<GuideQuestionCard>(find.byType(GuideQuestionCard))
+              .state ==
+          GuideQuestionState.after,
     );
+    // 돌아온 뒤 한 번 다시 물었고, 쓴 뒤 상태(도장)와 쓴 일기 보기로 바뀝니다.
+    expect(written.calls, 1);
+    final card = tester.widget<GuideQuestionCard>(
+      find.byType(GuideQuestionCard),
+    );
+    expect(card.actionLabel, _ko.todayGuideCtaWritten);
   });
 
   testWidgets('diary-written: 가이드 카드 → diary-view', (tester) async {
@@ -186,7 +231,7 @@ void main() {
       10,
       14,
     );
-    await pumpUntil(tester, () => hold.requested);
+    await pumpUntil(tester, () => hold.requested, allowOngoing: true);
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);
     expect(_content, findsNothing);

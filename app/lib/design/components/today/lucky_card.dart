@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
@@ -9,6 +10,7 @@ import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -43,16 +45,16 @@ const AppGlyph _clock = AppGlyph(
 /// 행운 항목 하나. 표시 값 변환은 이 값을 만드는 한 곳에서 합니다.
 @immutable
 final class LuckyItem {
-  /// 행운 항목을 만듭니다. [swatch]는 [LuckyCardVariant.color]에서만 씁니다.
+  /// 행운 항목을 만듭니다. [element]는 [LuckyCardVariant.color]에서만 씁니다.
   const new({
     required this.variant,
     required this.name,
     required this.value,
     required this.explain,
-    this.swatch,
+    this.element,
   }) : assert(
-         (variant == LuckyCardVariant.color) == (swatch != null),
-         'color 변형은 swatch가 필수이고, 다른 변형은 swatch를 줄 수 없습니다.',
+         (variant == LuckyCardVariant.color) == (element != null),
+         'color 변형은 element가 필수이고, 다른 변형은 element를 줄 수 없습니다.',
        );
 
   /// 변형.
@@ -67,9 +69,9 @@ final class LuckyItem {
   /// 누르면 열리는 설명 문장(server가 렌더한 조각).
   final RenderedText explain;
 
-  /// 색 변형의 견본 색(`ohaeng.swatch`). [LuckyCardVariant.color]에서만 주고(필수),
-  /// 다른 변형에서는 줄 수 없습니다(assert).
-  final Color? swatch;
+  /// 색 변형의 오행. 칩이 지금 테마의 견본 색(`ohaeng.swatch`)으로 그립니다.
+  /// [LuckyCardVariant.color]에서만 주고(필수), 다른 변형에서는 줄 수 없습니다(assert).
+  final FiveElement? element;
 }
 
 /// 행운 칩 하나(`lucky-card` `chip`).
@@ -125,7 +127,7 @@ class LuckyChip extends StatelessWidget {
             height: _swatchSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: item.swatch,
+              color: ohaengSwatchOf(colors, item.element!),
               border: Border.all(color: colors.swatchBorder),
             ),
           )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
@@ -24,7 +25,7 @@ List<LuckyItem> _items() => [
     name: '행운 색',
     value: '파랑',
     explain: _text('물의 기운이 마음을 가라앉혀요.'),
-    swatch: const Color(0xFF3B6FB6),
+    element: FiveElement.water,
   ),
   LuckyItem(
     variant: LuckyCardVariant.direction,
@@ -211,6 +212,18 @@ void main() {
       expect(
         tester.element(find.byKey(ShareImage.sentenceKey)).tokens.colors.bgBase,
         lightColors.bgBase,
+      );
+      // 색 칩 견본도 라이트 테마 하위 트리에서 고릅니다(LuckyItem은 오행만 줌).
+      final swatch = tester.widget<Container>(
+        find.byKey(LuckyChip.swatchKey).first,
+      );
+      expect(
+        (swatch.decoration! as BoxDecoration).color,
+        lightColors.ohaengWaterSwatch,
+      );
+      expect(
+        tester.element(find.byKey(LuckyChip.swatchKey).first).tokens.colors,
+        lightColors,
       );
     });
 

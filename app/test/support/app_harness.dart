@@ -66,20 +66,23 @@ Future<ProviderContainer> bootstrapForTest(
 
 /// 진입 계산이 끝날 때까지 기다립니다. 대역 서버가 asset을 실제 I/O로 읽으므로
 /// `runAsync`로 시계를 풀어 줍니다. 끝나지 않으면 테스트를 실패시킵니다.
+///
+/// [allowOngoing]은 [settleWithIo]에 넘깁니다(응답을 붙잡은 테스트).
 Future<void> settleEntry(
   WidgetTester tester,
-  ProviderContainer container,
-) async {
+  ProviderContainer container, {
+  bool allowOngoing = false,
+}) async {
   for (var i = 0; i < 100; i++) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 10)),
     );
     await tester.pump(const Duration(milliseconds: 50));
     if (!container.read(entryStateProvider).isLoading) {
-      await settleWithIo(tester);
+      await settleWithIo(tester, allowOngoing: allowOngoing);
       // 진입이 ready가 되면 앱 셸이 기기 시간대를 맞추는 요청을 보냅니다. 끝나게 둡니다.
       await settleTimezoneSync(tester, container);
-      await settleWithIo(tester);
+      await settleWithIo(tester, allowOngoing: allowOngoing);
       return;
     }
   }
@@ -90,8 +93,13 @@ Future<void> settleEntry(
 ///
 /// 도착한 화면이 server 응답을 기다리는 동안 skeleton이 숨 쉬면 `pumpAndSettle`이 끝나지
 /// 않습니다(대역 서버는 asset을 실제 I/O로 읽음). 응답이 오면 움직임이 멎으므로 그때 끝냅니다.
-/// [maxRounds]가 지나도 움직이면(응답을 일부러 붙잡은 테스트) 실패하지 않고 그대로 돌아갑니다.
-Future<void> settleWithIo(WidgetTester tester, {int maxRounds = 100}) async {
+/// [maxRounds]가 지나도 움직이면 끝나지 않는 움직임으로 보고 실패합니다. 응답을 일부러
+/// 붙잡아 skeleton이 계속 숨 쉬는 테스트만 [allowOngoing]을 true로 줘 그대로 돌아갑니다.
+Future<void> settleWithIo(
+  WidgetTester tester, {
+  int maxRounds = 100,
+  bool allowOngoing = false,
+}) async {
   for (var i = 0; i < maxRounds; i++) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 10)),
@@ -100,6 +108,9 @@ Future<void> settleWithIo(WidgetTester tester, {int maxRounds = 100}) async {
     if (!tester.binding.hasScheduledFrame) {
       return;
     }
+  }
+  if (!allowOngoing) {
+    fail('움직임이 멈추지 않음(끝나지 않는 애니메이션이나 오지 않는 응답)');
   }
 }
 
@@ -133,11 +144,14 @@ Future<void> settleTimezoneSync(
 }
 
 /// 앱 전체를 fake 모드의 [scenario]로 띄우고 진입 계산이 끝날 때까지 기다립니다.
+///
+/// 도착 화면의 응답을 일부러 붙잡는 테스트는 [allowOngoing]을 true로 줍니다.
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   required String scenario,
   List<Override> overrides = const [],
   Locale? locale = const Locale('ko'),
+  bool allowOngoing = false,
 }) async {
   final container = (await tester.runAsync(
     () => bootstrapForTest(scenario, overrides: overrides, locale: locale),
@@ -146,6 +160,6 @@ Future<ProviderContainer> pumpApp(
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const MyungliApp()),
   );
-  await settleEntry(tester, container);
+  await settleEntry(tester, container, allowOngoing: allowOngoing);
   return container;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -64,7 +65,7 @@ Widget _luckyCard() => Builder(
           name: ja ? 'ラッキーカラー' : '행운 색',
           value: ja ? '青' : '파랑',
           explain: text('물의 기운이 마음을 가라앉혀 줘요.', '水の気が心を落ち着かせてくれます。'),
-          swatch: const Color(0xFF3B6FB6),
+          element: FiveElement.water,
         ),
         LuckyItem(
           variant: LuckyCardVariant.direction,
@@ -136,7 +137,7 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
             name: ja ? 'ラッキーカラー' : '행운 색',
             value: ja ? '青' : '파랑',
             explain: text('물의 기운이 마음을 가라앉혀 줘요.', '水の気が心を落ち着かせてくれます。'),
-            swatch: const Color(0xFF3B6FB6),
+            element: FiveElement.water,
           ),
           LuckyItem(
             variant: LuckyCardVariant.direction,

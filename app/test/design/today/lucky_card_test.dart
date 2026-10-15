@@ -3,6 +3,7 @@ import 'dart:ui' show Tristate;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -28,7 +29,7 @@ List<LuckyItem> _items() => [
     name: '행운 색',
     value: '파랑',
     explain: _text('물의 기운이 마음을 가라앉혀요.'),
-    swatch: const Color(0xFF3B6FB6),
+    element: FiveElement.water,
   ),
   LuckyItem(
     variant: LuckyCardVariant.direction,
@@ -308,7 +309,7 @@ void main() {
       expect(_explain(LuckyCardVariant.time), findsOneWidget);
     });
 
-    test('LuckyItem: color는 swatch가 필수이고 다른 변형은 줄 수 없습니다', () {
+    test('LuckyItem: color는 element가 필수이고 다른 변형은 줄 수 없습니다', () {
       expect(
         () => LuckyItem(
           variant: LuckyCardVariant.color,
@@ -324,7 +325,7 @@ void main() {
           name: '행운 숫자',
           value: '3',
           explain: _text('설명'),
-          swatch: const Color(0xFF3B6FB6),
+          element: FiveElement.water,
         ),
         throwsAssertionError,
       );
@@ -379,7 +380,8 @@ void main() {
       expect(tester.getSize(swatch), const Size.square(14));
       final decoration =
           tester.widget<Container>(swatch).decoration! as BoxDecoration;
-      expect(decoration.color, const Color(0xFF3B6FB6));
+      // 오행 견본 색은 칩이 테마 토큰에서 고릅니다.
+      expect(decoration.color, tokens.colors.ohaengWaterSwatch);
       expect(decoration.shape, BoxShape.circle);
       expect(
         (decoration.border! as Border).top.color,

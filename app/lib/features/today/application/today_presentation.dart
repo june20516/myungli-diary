@@ -11,8 +11,6 @@ import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
-import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
-import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 
 // 그날 응답(`Daily`)을 화면에 보일 값으로 바꾸는 한 곳입니다(결정 A22·A27).
@@ -82,14 +80,13 @@ String formatFocusRange(List<FocusSlot> picks, String timezone) => [
 /// [daily]의 행운 항목 4개(색·방향·숫자·시간, 결정 A27).
 ///
 /// 색 이름은 glossary `color.<오행>`(없으면 값 id 그대로), 방향은 임시 ARB, 숫자는 그대로,
-/// 시간은 [formatFocusRange]입니다. 견본 색은 [colors]의 `ohaeng.swatch`입니다.
+/// 시간은 [formatFocusRange]입니다. 색 칩의 견본 색은 칩이 테마에서 고릅니다.
 List<LuckyItem> luckyItemsOf(
   Daily daily,
   GlossaryNames names,
   AppLocalizations l10n,
-  String timezone, {
-  required ColorTokens colors,
-}) {
+  String timezone,
+) {
   final cards = daily.cards;
   final element = cards.color.element;
   return [
@@ -98,7 +95,7 @@ List<LuckyItem> luckyItemsOf(
       name: l10n.todayLuckyColorName,
       value: names.valueName('color', element.value) ?? element.value,
       explain: cards.color.text.text,
-      swatch: ohaengSwatchOf(colors, element),
+      element: element,
     ),
     LuckyItem(
       variant: LuckyCardVariant.direction,
@@ -133,7 +130,33 @@ String? timeUnknownNoticeOf(Daily daily) {
   return null;
 }
 
-/// 응답 내용의 서명. 캐시 → server 응답으로 바뀔 때 내용이 같은지 비교합니다.
+/// 화면에 보이는 내용의 서명. 캐시 → server 응답으로 바뀔 때 보이는 내용이 같은지 비교합니다.
 ///
-/// 생성 모델의 `==`는 목록을 참조로 비교하므로 JSON 글자로 비교합니다.
-String dailySignature(Daily daily) => jsonEncode(daily.toJson());
+/// 날의 성격, 총운 문장, 행운 값과 설명, 가이드 질문, 시간 모름 안내만 담습니다. 보이지 않는
+/// 필드(`evidenceAccess`, `evidence`, `reaction`, 규칙 버전 등)만 바뀌면 같은 서명이라 내용이
+/// 다시 스미지 않습니다. 화면에 새 필드를 그리면 여기에도 더합니다(A22). 생성 모델의 `==`는
+/// 목록을 참조로 비교하므로 JSON 글자로 비교합니다.
+String dailySignature(Daily daily) {
+  final cards = daily.cards;
+  return jsonEncode({
+    'dayKind': daily.dayKind.value,
+    'head': daily.fortune.head.text.toJson(),
+    'tag': daily.fortune.tag?.text.toJson(),
+    'color': [cards.color.element.value, cards.color.text.text.toJson()],
+    'direction': [
+      cards.direction.direction.value,
+      cards.direction.text.text.toJson(),
+    ],
+    'number': [cards.number.number, cards.number.text.text.toJson()],
+    'focusTime': [
+      for (final pick in cards.focusTime.picks)
+        [
+          pick.start.toUtc().toIso8601String(),
+          pick.end.toUtc().toIso8601String(),
+        ],
+      cards.focusTime.text.text.toJson(),
+    ],
+    'guide': daily.guide.text.toJson(),
+    'timeUnknown': timeUnknownNoticeOf(daily),
+  });
+}

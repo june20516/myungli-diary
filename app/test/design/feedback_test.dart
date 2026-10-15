@@ -162,6 +162,7 @@ Future<AsyncValue<String>> _afterFailedLoad(WidgetTester tester) async {
 Widget _view(
   AsyncValue<String> value, {
   bool Function(String)? isEmpty,
+  bool Function(String)? isStale,
   VoidCallback? onRetry,
   void Function(AppError)? onStaleError,
   FakeCrashReporter? crash,
@@ -171,6 +172,7 @@ Widget _view(
     value: value,
     onRetry: onRetry ?? () {},
     isEmpty: isEmpty,
+    isStale: isStale,
     onStaleError: onStaleError,
     data: (v) => Center(child: Text('값:$v')),
   ),
@@ -655,6 +657,24 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('예기치 못한 문제가 생겼어요.'), findsOneWidget);
+    });
+
+    testWidgets('isStale이 true인 값은 오류가 없어도 offline 배너를 보이고, 풀리면 사라집니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _view(const AsyncData('cache'), isStale: (v) => v == 'cache'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('값:cache'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsOneWidget);
+
+      await tester.pumpWidget(
+        _view(const AsyncData('server'), isStale: (v) => v == 'cache'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('값:server'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('캐시가 있는 오프라인은 데이터와 offline 배너를 함께 보입니다', (tester) async {

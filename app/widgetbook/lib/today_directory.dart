@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -33,7 +34,7 @@ final List<LuckyItem> _luckyItems = [
     name: '행운 색',
     value: '파랑',
     explain: RenderedText(segments: [Segment(text: '물의 기운이 마음을 가라앉혀 줘요.')]),
-    swatch: const Color(0xFF3B6FB6),
+    element: FiveElement.water,
   ),
   LuckyItem(
     variant: LuckyCardVariant.direction,

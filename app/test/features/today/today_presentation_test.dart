@@ -3,12 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
-import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -85,13 +85,7 @@ void main() {
     });
 
     test('색은 glossary, 방향은 ARB, 숫자는 그대로, 시간은 프로필 시간대 범위입니다', () {
-      final items = luckyItemsOf(
-        daily,
-        _names,
-        l10n,
-        'Asia/Seoul',
-        colors: lightColors,
-      );
+      final items = luckyItemsOf(daily, _names, l10n, 'Asia/Seoul');
       expect(items.map((i) => i.variant), [
         LuckyCardVariant.color,
         LuckyCardVariant.direction,
@@ -110,7 +104,7 @@ void main() {
         l10n.todayLuckyNumberName,
         l10n.todayLuckyTimeName,
       ]);
-      expect(items.first.swatch, lightColors.ohaengWoodSwatch);
+      expect(items.first.element, FiveElement.wood);
       expect(items.first.explain, daily.cards.color.text.text);
       expect(items.last.explain, daily.cards.focusTime.text.text);
     });
@@ -121,7 +115,6 @@ void main() {
         const GlossaryNames({}),
         l10n,
         'Asia/Seoul',
-        colors: lightColors,
       );
       expect(items.first.value, 'wood');
     });
@@ -174,6 +167,58 @@ void main() {
       final json = memberDailyJson();
       json['dayKind'] = 'ordinary_day';
       expect(dailySignature(Daily.fromJson(json)), isNot(dailySignature(a)));
+    });
+
+    test('보이지 않는 필드(근거 잠금·근거·반응·규칙 버전)만 바뀌면 같은 서명입니다', () {
+      final base = dailySignature(Daily.fromJson(memberDailyJson()));
+      final json = memberDailyJson();
+      json['evidenceAccess'] = 'unlocked';
+      json['rulesetVersion'] = 'r2';
+      final head =
+          (json['fortune'] as Map<String, dynamic>)['head']
+              as Map<String, dynamic>;
+      head['reaction'] = 'like';
+      head['evidence'] = <Object>[];
+      expect(dailySignature(Daily.fromJson(json)), base);
+    });
+
+    test('보이는 필드(행운 값·설명·가이드·시간 모름)가 바뀌면 다른 서명입니다', () {
+      final base = dailySignature(Daily.fromJson(memberDailyJson()));
+      void expectChanged(void Function(Map<String, dynamic> json) change) {
+        final json = memberDailyJson();
+        change(json);
+        expect(dailySignature(Daily.fromJson(json)), isNot(base));
+      }
+
+      Map<String, dynamic> cards(Map<String, dynamic> json) =>
+          json['cards'] as Map<String, dynamic>;
+      expectChanged(
+        (json) => (cards(json)['number'] as Map<String, dynamic>)['number'] = 8,
+      );
+      expectChanged(
+        (json) =>
+            (cards(json)['direction'] as Map<String, dynamic>)['direction'] =
+                'w',
+      );
+      expectChanged(
+        (json) =>
+            ((json['guide'] as Map<String, dynamic>)['text']
+                as Map<String, dynamic>)['segments'] = [
+              {'text': '다른 질문'},
+            ],
+      );
+      expectChanged(
+        (json) => json['notices'] = [
+          {
+            'code': 'time_unknown',
+            'text': {
+              'segments': [
+                {'text': '시간 모름'},
+              ],
+            },
+          },
+        ],
+      );
     });
   });
 }

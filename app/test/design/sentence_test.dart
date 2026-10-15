@@ -313,6 +313,48 @@ void main() {
     });
   });
 
+  group('TermToken 붙은 글자와 좁은 폭', () {
+    Widget token(double width) => SizedBox(
+      width: width,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: TermToken(
+          label: '천을귀인',
+          variant: TermTokenVariant.inline,
+          onTap: () {},
+          textStyle: _style,
+          after: '이',
+        ),
+      ),
+    );
+
+    for (final scale in [2.0, 3.0]) {
+      testWidgets('글자 $scale배에서 칩과 조사가 폭보다 넓어도 넘치지 않습니다', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await tester.pumpWidget(_app(token(120)));
+        expect(tester.takeException(), isNull);
+        // 칩 글자가 칩 안에서 줄을 바꿔 폭 안에 머뭅니다.
+        expect(
+          tester.getSize(find.byType(TermToken)).width,
+          lessThanOrEqualTo(120),
+        );
+        expect(find.text('이', findRichText: true), findsOneWidget);
+      });
+    }
+
+    testWidgets('폭이 넉넉하면 칩과 조사가 한 줄에 그대로 붙습니다', (tester) async {
+      await tester.pumpWidget(_app(token(400)));
+      final chip = tester.getRect(find.text('천을귀인'));
+      final after = tester.getRect(find.text('이', findRichText: true));
+      // 줄바꿈 없음: 칩 글자 한 줄 높이, 조사는 칩 바로 오른쪽에 같은 줄로 붙습니다.
+      expect(chip.height, lessThan(_style.fontSize! * _style.height! + 1));
+      expect(after.left, greaterThanOrEqualTo(chip.right));
+      expect(after.left - chip.right, lessThan(8));
+      expect((after.bottom - chip.bottom).abs(), lessThan(4));
+    });
+  });
+
   group('SentenceBlock', () {
     testWidgets('preview는 두 줄 말줄임, card·body는 제한이 없습니다', (tester) async {
       Future<RichText> pump(SentenceBlockVariant variant) async {

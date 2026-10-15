@@ -12,7 +12,12 @@ final class DiaryRepository {
 
   final DefaultApi _api;
 
-  /// [date]에 쓴 일기가 있으면 true, 404면 false입니다. 그 밖의 실패는 [AppError]입니다.
+  /// [date]에 쓴 일기가 있으면 true, 404면 false입니다.
+  ///
+  /// 그 밖의 통신 실패는 [appErrorFrom]이 분류한 [AppError]입니다: 연결 없음은
+  /// [OfflineError], 시간 초과는 [TimeoutError], server problem은 [ProblemError],
+  /// 응답 본문을 읽지 못한 경우(역직렬화 실패 등 생성 클라이언트가 감싼 오류)는
+  /// [UnexpectedError]입니다. Dio 밖에서 난 예외는 바꾸지 않고 그대로 던집니다.
   Future<bool> existsOn(CalendarDate date) async {
     try {
       await _api.getDiary(date: date.toIso());

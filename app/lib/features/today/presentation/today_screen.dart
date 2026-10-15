@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
-import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
@@ -13,11 +12,13 @@ import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
+import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -28,7 +29,6 @@ import 'package:myungli_diary/features/glossary/application/glossary_providers.d
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/today_content.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
-import 'package:myungli_diary/features/today/presentation/day_reading_skeleton.dart';
 
 /// IA `today`가 직접 처리하는 상태.
 const Set<String> todayHandledStates = {
@@ -87,13 +87,16 @@ class TodayScreen extends ConsumerWidget {
                 MyungliAppBar.tabRoot(
                   title: l10n.tabToday,
                   actions: [
-                    // 공유할 내용이 있을 때만 둡니다.
-                    if (content.hasValue)
-                      ShareButton(
+                    // 공유할 내용이 생기면 스며 나타납니다(동작 줄이기면 투명도만).
+                    SeepPresence(
+                      key: const ValueKey('today.share'),
+                      present: content.hasValue,
+                      child: ShareButton(
                         variant: ShareButtonVariant.icon,
                         label: l10n.shareLabel,
                         onPressed: () => sheets.openSharePreview(context),
                       ),
+                    ),
                   ],
                 ),
                 Expanded(
@@ -113,11 +116,11 @@ class TodayScreen extends ConsumerWidget {
                     ),
                     onStaleError: (error) =>
                         showMyungliToast(context, errorMessage(l10n, error)),
-                    // 오프라인 배너는 캐시를 보이는 중(stale)까지 함께 판단하므로 화면이 그립니다.
-                    dataWithNotice: (value, _) => _TodayBody(
+                    // 연결 실패로 그날 캐시를 보이는 중이면 오프라인 배너를 보입니다.
+                    isStale: (value) => value.view.stale,
+                    dataWithNotice: (value, notice) => _TodayBody(
                       content: value,
-                      offline:
-                          value.view.stale || content.error is OfflineError,
+                      offlineNotice: notice,
                       sheets: sheets,
                     ),
                   ),
@@ -135,12 +138,14 @@ class TodayScreen extends ConsumerWidget {
 class _TodayBody extends ConsumerWidget {
   const new({
     required this.content,
-    required this.offline,
+    required this.offlineNotice,
     required this.sheets,
   });
 
   final TodayContent content;
-  final bool offline;
+
+  /// `ScreenStateView`가 준 오프라인 배너(내용 첫 줄).
+  final Widget offlineNotice;
   final DepthSheets sheets;
 
   /// 일기 화면으로 갔다가 돌아오면 오늘 일기 여부를 다시 묻습니다(쓰고 왔으면 도장이 찍힘).
@@ -167,7 +172,6 @@ class _TodayBody extends ConsumerWidget {
       content.names,
       l10n,
       ref.watch(profileTimezoneProvider),
-      colors: context.tokens.colors,
     );
     void openExplain(String termId, String sourceSlotId) =>
         sheets.openExplain(context, termId: termId, sourceSlotId: sourceSlotId);
@@ -184,11 +188,7 @@ class _TodayBody extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            NoticeBanner(
-              variant: NoticeBannerVariant.offline,
-              message: l10n.noticeOffline,
-              present: offline,
-            ),
+            offlineNotice,
             if (timeUnknown != null)
               NoticeBanner(
                 key: const ValueKey('today.time-unknown'),

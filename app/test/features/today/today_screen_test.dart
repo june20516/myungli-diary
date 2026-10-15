@@ -17,10 +17,10 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
-import 'package:myungli_diary/features/today/presentation/day_reading_skeleton.dart';
 
 import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
@@ -187,6 +187,8 @@ void main() {
     await pumpApp(
       tester,
       scenario: 'member',
+      // 응답을 끝까지 붙잡아 skeleton이 계속 숨 쉽니다.
+      allowOngoing: true,
       overrides: [
         dailyControllerProvider.overrideWith(
           () => _StubDaily(() => never.future),
@@ -284,7 +286,7 @@ void main() {
 
     final tomorrow = CalendarDate(2026, 10, 14);
     container.read(_testTodayProvider.notifier).date = tomorrow;
-    await pumpUntil(tester, () => hold.paths.isNotEmpty);
+    await pumpUntil(tester, () => hold.paths.isNotEmpty, allowOngoing: true);
     await tester.pump(const Duration(milliseconds: 400));
     // 다시 받는 동안 controller에는 어제 값이 남아 있지만 화면은 "오늘"로 보이지 않습니다.
     expect(container.read(dailyControllerProvider).value?.date, _today);
@@ -310,6 +312,7 @@ void main() {
       final container = await pumpApp(
         tester,
         scenario: 'member',
+        allowOngoing: true,
         overrides: [
           dailyControllerProvider.overrideWith(
             () => _StubDaily(() => never.future),
@@ -333,7 +336,7 @@ void main() {
     testWidgets(
       changed
           ? '캐시와 다른 server 응답으로 바뀌면 내용이 스밉니다'
-          : '캐시와 같은 server 응답이면 내용이 움직이지 않습니다',
+          : '보이는 내용이 같은 server 응답이면 내용이 움직이지 않습니다',
       (tester) async {
         final server = Completer<DailyView>();
         final container = await pumpApp(
@@ -359,7 +362,12 @@ void main() {
         expect(opacity(), 1);
 
         final json = memberDailyJson();
-        if (changed) json['dayKind'] = 'ordinary_day';
+        if (changed) {
+          json['dayKind'] = 'ordinary_day';
+        } else {
+          // 보이지 않는 필드만 바뀐 응답(근거 잠금 해제)은 같은 내용으로 봅니다.
+          json['evidenceAccess'] = 'unlocked';
+        }
         server.complete(
           DailyView(
             date: _today,
@@ -382,6 +390,57 @@ void main() {
           changed ? DayCharacterVariant.ordinary : DayCharacterVariant.good,
         );
         expect(container.read(dailyControllerProvider).isLoading, isFalse);
+      },
+    );
+  }
+
+  for (final reduceMotion in [false, true]) {
+    testWidgets(
+      reduceMotion
+          ? '동작 줄이기면 공유 버튼이 흐림 없이 투명도로만 나타납니다'
+          : '내용이 도착하면 앱 바 공유 버튼이 appear.seep으로 나타납니다',
+      (tester) async {
+        if (reduceMotion) {
+          tester.platformDispatcher.accessibilityFeaturesTestValue =
+              const FakeAccessibilityFeatures(disableAnimations: true);
+          addTearDown(
+            tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+          );
+        }
+        final server = Completer<DailyView>();
+        await pumpApp(
+          tester,
+          scenario: 'member',
+          allowOngoing: true,
+          overrides: [
+            dailyControllerProvider.overrideWith(
+              () => _StubDaily(() => server.future),
+            ),
+          ],
+        );
+        expect(find.byType(ShareButton), findsNothing);
+
+        server.complete(_view());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 40));
+        final share = find.byType(ShareButton);
+        expect(share, findsOneWidget);
+        double opacity() => tester
+            .widget<Opacity>(
+              find.ancestor(of: share, matching: find.byType(Opacity)).first,
+            )
+            .opacity;
+        expect(opacity(), lessThan(1));
+        final blurred = find.ancestor(
+          of: share,
+          matching: find.byWidgetPredicate(
+            (w) => w is ImageFiltered && w.enabled,
+          ),
+        );
+        expect(blurred, reduceMotion ? findsNothing : findsOneWidget);
+
+        await tester.pumpAndSettle();
+        expect(opacity(), 1);
       },
     );
   }

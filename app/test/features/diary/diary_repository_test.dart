@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/diary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/data/diary_repository.dart';
 
@@ -15,12 +18,17 @@ final class _DiaryServer extends Interceptor {
   new(this.status);
 
   int status;
+
+  /// true면 200 본문을 Diary로 읽을 수 없는 모양으로 보냅니다(역직렬화 실패).
+  bool brokenBody = false;
   final paths = <String>[];
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     paths.add(options.path);
-    final body = status == 200
+    final body = status == 200 && brokenBody
+        ? <String, Object>{'date': 13}
+        : status == 200
         ? <String, Object>{
             'date': '2026-10-13',
             'body': '일기',
@@ -39,7 +47,9 @@ final class _DiaryServer extends Interceptor {
       requestOptions: options,
       statusCode: status,
       headers: Headers.fromMap({
-        Headers.contentTypeHeader: ['application/json'],
+        Headers.contentTypeHeader: [
+          if (status >= 400) 'application/problem+json' else 'application/json',
+        ],
       }),
       data: body,
     );
@@ -56,6 +66,22 @@ final class _DiaryServer extends Interceptor {
     }
     handler.resolve(response, true);
   }
+}
+
+/// 일기를 물으면 Dio 밖의 예외(프로그래밍 오류)를 던지는 클라이언트.
+final class _BrokenApi extends DefaultApi {
+  new() : super(Dio());
+
+  @override
+  Future<Response<Diary>> getDiary({
+    required String date,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async => throw StateError('버그');
 }
 
 DiaryRepository _repository(_DiaryServer server) => DiaryRepository(
@@ -76,20 +102,43 @@ void main() {
       expect(await _repository(_DiaryServer(404)).existsOn(_date), isFalse);
     });
 
-    test('그 밖의 실패는 AppError입니다', () async {
+    test('server problem은 ProblemError입니다', () async {
       await expectLater(
         _repository(_DiaryServer(503)).existsOn(_date),
-        throwsA(isA<AppError>()),
+        throwsA(isA<ProblemError>()),
+      );
+    });
+
+    test('Dio 밖의 예외는 바꾸지 않고 그대로 던집니다', () async {
+      await expectLater(
+        DiaryRepository(_BrokenApi()).existsOn(_date),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('본문을 읽지 못하면 UnexpectedError입니다', () async {
+      await expectLater(
+        _repository(_DiaryServer(200)..brokenBody = true).existsOn(_date),
+        throwsA(isA<UnexpectedError>()),
       );
     });
   });
 
   group('todayDiaryExistsProvider', () {
-    ProviderContainer containerFor(_DiaryServer server) {
+    late FakeCrashReporter reporter;
+
+    ProviderContainer containerFor(
+      _DiaryServer server, {
+      DiaryRepository? repository,
+    }) {
+      reporter = FakeCrashReporter();
       final container = ProviderContainer(
         overrides: [
           todayProvider.overrideWithValue(_date),
-          diaryRepositoryProvider.overrideWithValue(_repository(server)),
+          crashReporterProvider.overrideWithValue(reporter),
+          diaryRepositoryProvider.overrideWithValue(
+            repository ?? _repository(server),
+          ),
         ],
       );
       addTearDown(container.dispose);
@@ -101,9 +150,27 @@ void main() {
       expect(await container.read(todayDiaryExistsProvider.future), isTrue);
     });
 
-    test('실패하면 쓰기 전(false)으로 그립니다', () async {
+    test('server·연결 실패(AppError)는 보고 없이 false입니다', () async {
       final container = containerFor(_DiaryServer(503));
       expect(await container.read(todayDiaryExistsProvider.future), isFalse);
+      expect(reporter.errors, isEmpty);
+    });
+
+    test('본문을 읽지 못하면 한 번 보고하고 false입니다', () async {
+      final container = containerFor(_DiaryServer(200)..brokenBody = true);
+      expect(await container.read(todayDiaryExistsProvider.future), isFalse);
+      expect(reporter.errors, hasLength(1));
+      expect(reporter.errors.single.errorType, 'UnexpectedError');
+    });
+
+    test('AppError가 아닌 오류도 한 번 보고하고 false입니다', () async {
+      final container = containerFor(
+        _DiaryServer(200),
+        repository: DiaryRepository(_BrokenApi()),
+      );
+      expect(await container.read(todayDiaryExistsProvider.future), isFalse);
+      expect(reporter.errors, hasLength(1));
+      expect(reporter.errors.single.errorType, 'StateError');
     });
 
     test('invalidate하면 다시 묻습니다(일기를 쓰고 돌아온 화면)', () async {

@@ -104,7 +104,13 @@ Future<void> settlePreview(WidgetTester tester) async {
 ///
 /// 처리 중 점이 계속 숨 쉬어 `pumpAndSettle`이 끝나지 않으므로 고정 간격으로 프레임을 줍니다.
 /// 끝날 때도 [settleWithIo]로 정착합니다.
-Future<void> pumpUntil(WidgetTester tester, bool Function() done) async {
+///
+/// 조건이 찬 뒤에도 일부러 붙잡은 응답 때문에 움직임이 이어지면 [allowOngoing]을 true로 줍니다.
+Future<void> pumpUntil(
+  WidgetTester tester,
+  bool Function() done, {
+  bool allowOngoing = false,
+}) async {
   for (var i = 0; i < 100; i++) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 10)),
@@ -112,7 +118,7 @@ Future<void> pumpUntil(WidgetTester tester, bool Function() done) async {
     await tester.pump(const Duration(milliseconds: 50));
     if (done()) {
       // 도착한 화면이 응답을 기다리며 skeleton이 숨 쉬어도 멈추지 않게 I/O와 함께 정착합니다.
-      await settleWithIo(tester);
+      await settleWithIo(tester, allowOngoing: allowOngoing);
       return;
     }
   }
