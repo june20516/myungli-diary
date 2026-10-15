@@ -1,6 +1,29 @@
 # 값 이름 원고(ja). 슬롯 명세는 slots/content/glossary.yaml입니다.
-# 지금은 앱 ARB로도 나가는 지지·날의 성격(#143)·방향(#153)만 있습니다. 나머지 범주는 W1에서 채웁니다. 원어민 검수(W1) 전 초안입니다.
+# 표기는 근거 용어집 docs/research/ja-terms/의 신뢰도 상·자체를 따릅니다(D70, W24). 방향(direction8)은 용어집 밖의 일반어입니다.
+# 지장간 자리(place.*_hidden)는 용어집 표기의 신뢰도가 하·중이라 「年支の蔵干」처럼 풀어 씁니다.
+# role.neutral(閑神)·strength.very_weak(極身弱)·strength.very_strong(極身強)은 신뢰도 중이라 근거를 보강할 때까지 비워 둡니다.
+# 지지·날의 성격·방향은 앱 ARB로도 나갑니다(#143·#153). 원어민 검수(W1) 전 초안입니다.
 # 지지 이름에는 시·hour·刻을 붙이지 않습니다. 시진 확인 줄(onboardTimeHourConfirm) 틀이 붙입니다.
+- {slot: glossary.value_name, key: element.wood, text: "木"}
+- {slot: glossary.value_name, key: element.fire, text: "火"}
+- {slot: glossary.value_name, key: element.earth, text: "土"}
+- {slot: glossary.value_name, key: element.metal, text: "金"}
+- {slot: glossary.value_name, key: element.water, text: "水"}
+- {slot: glossary.value_name, key: color.wood, text: "緑"}
+- {slot: glossary.value_name, key: color.fire, text: "赤"}
+- {slot: glossary.value_name, key: color.earth, text: "黄色"}
+- {slot: glossary.value_name, key: color.metal, text: "白"}
+- {slot: glossary.value_name, key: color.water, text: "紺色"}
+- {slot: glossary.value_name, key: stem.gap, text: "甲"}
+- {slot: glossary.value_name, key: stem.eul, text: "乙"}
+- {slot: glossary.value_name, key: stem.byeong, text: "丙"}
+- {slot: glossary.value_name, key: stem.jeong, text: "丁"}
+- {slot: glossary.value_name, key: stem.mu, text: "戊"}
+- {slot: glossary.value_name, key: stem.gi, text: "己"}
+- {slot: glossary.value_name, key: stem.gyeong, text: "庚"}
+- {slot: glossary.value_name, key: stem.sin, text: "辛"}
+- {slot: glossary.value_name, key: stem.im, text: "壬"}
+- {slot: glossary.value_name, key: stem.gye, text: "癸"}
 - {slot: glossary.value_name, key: branch.ja, text: "子"}
 - {slot: glossary.value_name, key: branch.chuk, text: "丑"}
 - {slot: glossary.value_name, key: branch.in, text: "寅"}
@@ -13,10 +36,21 @@
 - {slot: glossary.value_name, key: branch.yu, text: "酉"}
 - {slot: glossary.value_name, key: branch.sul, text: "戌"}
 - {slot: glossary.value_name, key: branch.hae, text: "亥"}
-- {slot: glossary.value_name, key: day_kind.gwiin_day, text: "貴人の日"}
-- {slot: glossary.value_name, key: day_kind.yongsin_day, text: "用神の日"}
-- {slot: glossary.value_name, key: day_kind.gisin_day, text: "忌神の日"}
-- {slot: glossary.value_name, key: day_kind.ordinary_day, text: "普通の日"}
+- {slot: glossary.value_name, key: ten_god.bigyeon, text: "比肩"}
+- {slot: glossary.value_name, key: ten_god.geopjae, text: "劫財"}
+- {slot: glossary.value_name, key: ten_god.siksin, text: "食神"}
+- {slot: glossary.value_name, key: ten_god.sanggwan, text: "傷官"}
+- {slot: glossary.value_name, key: ten_god.pyeonjae, text: "偏財"}
+- {slot: glossary.value_name, key: ten_god.jeongjae, text: "正財"}
+- {slot: glossary.value_name, key: ten_god.pyeongwan, text: "偏官"}
+- {slot: glossary.value_name, key: ten_god.jeonggwan, text: "正官"}
+- {slot: glossary.value_name, key: ten_god.pyeonin, text: "偏印"}
+- {slot: glossary.value_name, key: ten_god.jeongin, text: "印綬"}
+- {slot: glossary.value_name, key: ten_god_group.bigyeop, text: "比劫"}
+- {slot: glossary.value_name, key: ten_god_group.siksang, text: "食傷"}
+- {slot: glossary.value_name, key: ten_god_group.jaeseong, text: "財星"}
+- {slot: glossary.value_name, key: ten_god_group.gwanseong, text: "官星"}
+- {slot: glossary.value_name, key: ten_god_group.inseong, text: "印星"}
 - {slot: glossary.value_name, key: direction8.n, text: "北"}
 - {slot: glossary.value_name, key: direction8.ne, text: "北東"}
 - {slot: glossary.value_name, key: direction8.e, text: "東"}
@@ -25,3 +59,39 @@
 - {slot: glossary.value_name, key: direction8.sw, text: "南西"}
 - {slot: glossary.value_name, key: direction8.w, text: "西"}
 - {slot: glossary.value_name, key: direction8.nw, text: "北西"}
+- {slot: glossary.value_name, key: shinsal.cheoneul_gwiin, text: "天乙貴人"}
+- {slot: glossary.value_name, key: shinsal.dohwa, text: "咸池"}
+- {slot: glossary.value_name, key: shinsal.yeokma, text: "駅馬"}
+- {slot: glossary.value_name, key: shinsal.hwagae, text: "華蓋"}
+- {slot: glossary.value_name, key: shinsal.yangin, text: "羊刃"}
+- {slot: glossary.value_name, key: shinsal.gongmang, text: "空亡"}
+- {slot: glossary.value_name, key: day_kind.gwiin_day, text: "貴人の日"}
+- {slot: glossary.value_name, key: day_kind.yongsin_day, text: "用神の日"}
+- {slot: glossary.value_name, key: day_kind.gisin_day, text: "忌神の日"}
+- {slot: glossary.value_name, key: day_kind.ordinary_day, text: "普通の日"}
+- {slot: glossary.value_name, key: relation.stem_hap, text: "干合"}
+- {slot: glossary.value_name, key: relation.branch_hap, text: "支合"}
+- {slot: glossary.value_name, key: relation.chung, text: "冲"}
+- {slot: glossary.value_name, key: relation.hyeong, text: "刑"}
+- {slot: glossary.value_name, key: place.year_stem, text: "年干"}
+- {slot: glossary.value_name, key: place.year_branch, text: "年支"}
+- {slot: glossary.value_name, key: place.month_stem, text: "月干"}
+- {slot: glossary.value_name, key: place.month_branch, text: "月支"}
+- {slot: glossary.value_name, key: place.day_stem, text: "日干"}
+- {slot: glossary.value_name, key: place.day_branch, text: "日支"}
+- {slot: glossary.value_name, key: place.hour_stem, text: "時干"}
+- {slot: glossary.value_name, key: place.hour_branch, text: "時支"}
+- {slot: glossary.value_name, key: place.year_branch_hidden, text: "年支の蔵干"}
+- {slot: glossary.value_name, key: place.month_branch_hidden, text: "月支の蔵干"}
+- {slot: glossary.value_name, key: place.day_branch_hidden, text: "日支の蔵干"}
+- {slot: glossary.value_name, key: place.hour_branch_hidden, text: "時支の蔵干"}
+- {slot: glossary.value_name, key: role.yongsin, text: "用神"}
+- {slot: glossary.value_name, key: role.huisin, text: "喜神"}
+- {slot: glossary.value_name, key: role.gisin, text: "忌神"}
+- {slot: glossary.value_name, key: strength.weak, text: "身弱"}
+- {slot: glossary.value_name, key: strength.neutral, text: "中和"}
+- {slot: glossary.value_name, key: strength.strong, text: "身旺"}
+- {slot: glossary.value_name, key: luck.daeun, text: "大運"}
+- {slot: glossary.value_name, key: luck.seun, text: "年運"}
+- {slot: glossary.value_name, key: part.stem, text: "天干"}
+- {slot: glossary.value_name, key: part.branch, text: "地支"}

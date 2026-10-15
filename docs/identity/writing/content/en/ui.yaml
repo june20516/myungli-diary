@@ -19,6 +19,8 @@
 - {slot: onboard-gender.why.body, key: onboardGenderWhyBody, text: "We only use it to set the direction of your 10-year luck cycles."}
 - {slot: birthplace.question.head, key: birthplaceQuestionHead, text: "Where were you born?"}
 - {slot: birthplace.why.body, key: birthplaceWhyBody, text: "We use your birthplace's time zone and longitude to pin down your birth hour."}
+- {slot: birthplace.standard.note, key: birthplaceStandardNote, text: "Myungli Diary calculates with the standard widely used in Korea. It's one well-grounded approach among several schools."}
+- {slot: birthplace.standard.link, key: birthplaceStandardLink, text: "See how we calculate"}
 - {slot: birthplace.search.hint, key: birthplaceSearchHint, text: "City name"}
 - {slot: birthplace.empty.body, key: birthplaceEmptyBody, text: "No matching city. Try a larger city nearby."}
 - {slot: preview.cta.save, key: previewCtaSave, text: "Save and continue"}
@@ -102,8 +104,14 @@
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmBody, text: "{before} → {after}\nToday, Calendar, and My Chart will be recalculated. Diary entries and tags you've already written stay as they are."}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmCancel, text: "Cancel"}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "Change"}
-- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "Readings follow one standard widely used in Korea."}
+- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "Readings follow the standard widely used in Korea. It's one well-grounded approach among several schools."}
+- {slot: calc-basis.schools.body, key: calcBasisSchoolsBody, text: "We show every hidden stem instead of picking just one. If you were born in the Rat hour, we count it as the next day, even before midnight. Schools handle these differently, so your results may differ from other apps or books."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBody, text: "We subtract 30 minutes from your birth time, based on 127.5° east longitude, and don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "We subtract {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} from your birth time, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "We add {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} to your birth time, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "We use your birth time as is, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "{degrees}°E"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "{degrees}°W"}
 - {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute."}
 - {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "Delete account"}
 - {slot: account-delete.data.body, key: accountDeleteDataBody, text: "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time."}

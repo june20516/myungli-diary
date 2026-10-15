@@ -220,6 +220,51 @@ jobs:
             gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
           done
 
+  # main에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다. 원인 PR이 그 커밋에 들어 있는 drift Issue를 닫습니다.
+  # 원인 PR이 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
+  # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
+  drift-close:
+    needs: [changes, server, app, writing]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: 따라잡은 단위의 drift Issue 닫기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SERVER: ${{ needs.server.result }}
+          APP: ${{ needs.app.result }}
+          WRITING: ${{ needs.writing.result }}
+        run: |
+          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+            unit="${pair%%=*}"; result="${pair#*=}"
+            [ "$result" = "success" ] || continue
+            gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number,title \
+              --jq '.[] | "\(.number) \(.title)"' | while read -r number title; do
+              # 제목의 원인 PR(`PR #N`)이 이 main 커밋에 들어 있을 때만 닫습니다.
+              # 원인 PR이 열린 채 다른 PR이 먼저 병합되면, 이 통과는 원인 계약 변경을 아직 검사하지 않은 것입니다.
+              source=$(echo "$title" | sed -nE 's/.*PR #([0-9]+).*/\1/p')
+              [ -n "$source" ] || continue
+              state=$(gh pr view "$source" --json state,mergeCommit --jq '"\(.state) \(.mergeCommit.oid // "")"')
+              case "$state" in
+                MERGED\ *)
+                  merge_sha="${state#MERGED }"
+                  compare=$(gh api "repos/$GH_REPO/compare/$merge_sha...$SHA" --jq .status)
+                  if [ "$compare" = "ahead" ] || [ "$compare" = "identical" ]; then
+                    gh issue close "$number" --comment "main \`${SHA:0:7}\`(원인 PR #$source 포함)에서 $unit 검사가 통과해 자동으로 닫습니다($RUN_URL, docs/workflow.md §6.1)."
+                  fi ;;
+                CLOSED\ *)
+                  gh issue close "$number" --reason "not planned" --comment "원인 PR #$source이 병합되지 않고 닫혀 따라잡을 계약 변경이 없습니다. 자동으로 닫습니다." ;;
+              esac
+            done
+          done
+
   ci-gate:
     needs: [changes, docs, pr-body, core, server, app, writing]
     if: always()
