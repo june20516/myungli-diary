@@ -118,8 +118,23 @@ func TestNormalize_NFCAndTrim(t *testing.T) {
 	assert.Equal(t, "Sam", Normalize("en", "　Sam ").Value)
 }
 
-func TestNormalize_WarningOrder(t *testing.T) {
-	// ko는 경고 접미사가 없고, ja는 떼지 않으므로 경고가 한 건씩만 나옵니다.
+func TestNormalize_WarningKinds(t *testing.T) {
+	assert.Equal(t, []Code{SuffixStripped}, Normalize("ko", "민지님").Warnings)
+	assert.Equal(t, []Code{SuffixWarning}, Normalize("ja", "ゆきさん").Warnings)
 	assert.Equal(t, []Code{SuffixWarning}, Normalize("ja", "ゆきちゃん").Warnings)
 	assert.Equal(t, []Code{SuffixWarning}, Normalize("ja", "山田様").Warnings)
+}
+
+func TestNormalize_StripsPythonWhitespace(t *testing.T) {
+	// Python str.strip()은 U+001C~U+001F도 떼므로 기준 구현에 맞춥니다.
+	assert.Equal(t, "민지", Normalize("ko", "\x1f민지").Value)
+	assert.Equal(t, "민지", Normalize("ko", "민지\x1c").Value)
+	assert.Equal(t, Control, Normalize("ko", "민\x1f지").Rejected)
+}
+
+func TestNormalize_EmojiBoundary(t *testing.T) {
+	assert.Equal(t, Emoji, Normalize("en", "\u00A9").Rejected)
+	assert.Equal(t, Emoji, Normalize("en", "🇰🇷").Rejected)
+	assert.Equal(t, "#", Normalize("en", "#").Value)
+	assert.Equal(t, "1", Normalize("en", "1").Value)
 }

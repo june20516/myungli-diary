@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := os.WriteFile(outputPath, source, 0o600); err != nil {
+	if err := os.WriteFile(outputPath, source, 0o644); err != nil { //nolint:gosec // 소스 파일이라 0644가 맞습니다.
 		log.Fatal(err)
 	}
 }

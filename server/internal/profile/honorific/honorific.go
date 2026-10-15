@@ -53,8 +53,9 @@ const (
 )
 
 // Normalize는 호칭 입력을 저장값으로 정규화합니다. 거부하면 Value가 비고 Rejected에 사유가 담깁니다.
+// 입력은 유효한 UTF-8이라고 가정합니다(JSON 디코딩이 보장합니다).
 func Normalize(lang string, raw string) Result {
-	name := strings.TrimSpace(norm.NFC.String(raw))
+	name := strings.TrimFunc(norm.NFC.String(raw), isStripSpace)
 
 	if strings.IndexFunc(name, unicode.IsControl) >= 0 {
 		return Result{Rejected: Control}
@@ -73,7 +74,7 @@ func Normalize(lang string, raw string) Result {
 		if !found {
 			break
 		}
-		name = strings.TrimRightFunc(strings.TrimSuffix(name, suffix), unicode.IsSpace)
+		name = strings.TrimRightFunc(strings.TrimSuffix(name, suffix), isStripSpace)
 		stripped = true
 	}
 	if stripped {
@@ -90,6 +91,12 @@ func Normalize(lang string, raw string) Result {
 		warnings = append(warnings, SuffixWarning)
 	}
 	return Result{Value: name, Warnings: warnings}
+}
+
+// isStripSpace는 Python str.strip()·isspace()와 같은 공백 판정입니다.
+// Python은 U+001C~U+001F(FS/GS/RS/US)도 공백으로 보지만 unicode.IsSpace는 보지 않아 맞춥니다.
+func isStripSpace(r rune) bool {
+	return unicode.IsSpace(r) || (r >= 0x1c && r <= 0x1f)
 }
 
 func matchSuffix(name string, suffixes []string) (string, bool) {
