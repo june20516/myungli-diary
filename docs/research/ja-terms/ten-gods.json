@@ -1,0 +1,892 @@
+{
+  "sources": [
+    {
+      "id": "tg-kotobank-uranai-tsuhensei",
+      "kind": "school",
+      "publisher": "占い学校 アカデメイア・カレッジ",
+      "title": "コトバンク『占い用語集』通変星",
+      "url": "https://kotobank.jp/word/%E9%80%9A%E5%A4%89%E6%98%9F-1492123",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-natsume-ichiban-yasashii",
+      "kind": "book",
+      "publisher": "ナツメ社",
+      "title": "いちばんやさしい四柱推命入門(神野さち 監修、2018) 国立国会図書館サーチ 書誌・内容紹介",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I029123612",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-nihonbungeisha-hajimete",
+      "kind": "book",
+      "publisher": "日本文芸社",
+      "title": "一番わかりやすいはじめての四柱推命(愛新覚羅ゆうはん、2024) 国立国会図書館サーチ 目次",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I033472401",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-kinokuniya-setsuwasha-hajimete",
+      "kind": "book",
+      "publisher": "説話社",
+      "title": "はじめてでもよくわかる!四柱推命(富永祥玲 著、大石眞行 監修、説話社占い選書、2016) 紀伊國屋書店 目次",
+      "url": "https://www.kinokuniya.co.jp/f/dsg-01-9784906828241",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-matsumoto-okugi-2-1933",
+      "kind": "book",
+      "publisher": "天祥館",
+      "title": "松本義亮『四柱推命奥義秘伝録 2』(天祥館出版部、1933) 国立国会図書館デジタルコレクション 目次",
+      "url": "https://dl.ndl.go.jp/pid/1104856",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-matsumoto-okugi-2-1912",
+      "kind": "book",
+      "publisher": "天祥館",
+      "title": "松本義亮『四柱推命奥義秘伝録 巻2』(天祥館、1912) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/922348",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-takagi-hayawakari-jo",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理学早わかり 上』(1936) 国立国会図書館デジタルコレクション 目次",
+      "url": "https://dl.ndl.go.jp/pid/1028945",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-takagi-hayawakari-ge",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理学早わかり 下』(1936) 国立国会図書館デジタルコレクション 目次",
+      "url": "https://dl.ndl.go.jp/pid/1035008",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-takagi-kakushiki-2",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第2講』(1936) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/1092157",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-takagi-kakushiki-3",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第3講』(1936) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/1092158",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-takagi-kakushiki-4",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第4講』(1936) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/1092156",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-takagi-kakushiki-7",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第7講』(1936) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/1092496",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-ito-hidensho-1-1916",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『四柱推命秘伝書 : 実地研究 巻1』(1916) 国立国会図書館デジタルコレクション 目次",
+      "url": "https://dl.ndl.go.jp/pid/909958",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-ito-hidensho-1-2-1912",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『四柱推命秘伝書 : 実地研究 巻1・2』(1912) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/909956",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-ito-hidensho-3-4-1912",
+      "kind": "book",
+      "publisher": "伊藤神祥館",
+      "title": "伊藤耕月『四柱推命秘伝書 : 実地研究 巻3・4』(1912) 国立国会図書館デジタルコレクション 本文",
+      "url": "https://dl.ndl.go.jp/pid/909957",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-suimei-houkan-chu",
+      "kind": "book",
+      "publisher": "矢島誠進堂",
+      "title": "山岸弥平『推命宝鑑 : 秘蘊 巻中』(1907) 国立国会図書館デジタルコレクション 目次",
+      "url": "https://dl.ndl.go.jp/pid/760485",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-fushodo-suimeisho-chu",
+      "kind": "book",
+      "publisher": "風祥堂",
+      "title": "『推命書 : 仮名附 巻之中』(1901) 国立国会図書館デジタルコレクション 目次",
+      "url": "https://dl.ndl.go.jp/pid/760482",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ndl-doyukan-shichisatsu",
+      "kind": "book",
+      "publisher": "同友館",
+      "title": "四柱推命殺神七殺入門(1992) 国立国会図書館サーチ 書誌",
+      "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000002199456",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-unkoi-telsys-shichusuimei",
+      "kind": "software",
+      "publisher": "テレシスネットワーク株式会社",
+      "title": "四柱推命｜命式自動計算(占い unkoi)",
+      "url": "https://unkoi.com/special/shichusuimei/",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-ekigaku-tenmei-no-tsue",
+      "kind": "software",
+      "publisher": "易学 ekigaku.jp 編集部",
+      "title": "天命の杖｜子平派 四柱推命 命式自動計算",
+      "url": "https://ekigaku.jp/tenmei-no-tsue",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-wikipedia-ja-shichusuimei",
+      "kind": "wiki",
+      "publisher": "ウィキメディア財団",
+      "title": "ウィキペディア日本語版「四柱推命」",
+      "url": "https://ja.wikipedia.org/wiki/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
+      "accessed": "2026-10-15"
+    },
+    {
+      "id": "tg-coconala-akiharu-higou",
+      "kind": "blog",
+      "publisher": "昭晴占い鑑定所",
+      "title": "比劫(比肩・劫財)- 自分と共に成功を成し遂げる原動力",
+      "url": "https://coconala.com/blogs/2152432/511494",
+      "accessed": "2026-10-15"
+    }
+  ],
+  "terms": [
+    {
+      "id": "concept.sipseong",
+      "ko": "십성",
+      "hanja": "十星",
+      "glossary_key": null,
+      "ja": "通変星",
+      "reading": "つうへんせい",
+      "aliases": [
+        "通変",
+        "変通星"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "通変星",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-ndl-natsume-ichiban-yasashii",
+          "form": "通変星",
+          "quote": "四柱推命の基本となる10の通変星には、それぞれ異なる特徴があります。"
+        },
+        {
+          "source": "tg-ndl-nihonbungeisha-hajimete",
+          "form": "通変星",
+          "quote": "PART４　　通変星から自分を深く知る"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "通変星",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-ekigaku-tenmei-no-tsue",
+          "form": "通変星",
+          "quote": "通変星 (つうへんせい) は、日干と他の七字 (天干と蔵干) の五行関係から導かれる象意"
+        },
+        {
+          "source": "tg-kinokuniya-setsuwasha-hajimete",
+          "form": "通変",
+          "quote": "第５章　通変の完全理解"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "通変",
+          "quote": "また、原典の解読の仕方によるのか、通変と語順がさかさまの変通星という呼称も見受けられる。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "変通星",
+          "quote": "また、原典の解読の仕方によるのか、通変と語順がさかさまの変通星という呼称も見受けられる。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국의 「십성(十星)/십신(十神)」에 해당하는 일본 주류 이름은 「通変星(つうへんせい)」입니다. 사전(コトバンク)·현대 입문서(ナツメ社, 日本文芸社)·계산 사이트 2곳이 通変星을 씁니다. 「通変」(星 없이)은 説話社 입문서와 위키백과가, 「変通星」은 위키백과와 쇼와 초기 책(高木乗 『命理学早わかり 上』 목차 「變通星」, 구자체)이 씁니다. 「十神」은 일본어 출처에서 확인하지 못했습니다. 위키백과는 일본에서 「天干星」이라고도 한다고 적습니다."
+    },
+    {
+      "id": "ten_god.bigyeon",
+      "ko": "비견",
+      "hanja": "比肩",
+      "glossary_key": "ten_god.bigyeon",
+      "ja": "比肩",
+      "reading": "ひけん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "比肩",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "比肩",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "比肩",
+          "quote": "比肩（ひけん）は、日干と同じ五行で、陰陽が同じもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "比肩",
+          "quote": "比肩の解（兄弟星）"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "比肩",
+          "quote": "比肩の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "比肩",
+          "quote": "比肩の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "比肩",
+          "quote": "比肩"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 표기·읽기 차이 없음. コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.geopjae",
+      "ko": "겁재",
+      "hanja": "劫財",
+      "glossary_key": "ten_god.geopjae",
+      "ja": "劫財",
+      "reading": "ごうざい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "劫財",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "劫財",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "劫財",
+          "quote": "劫財（ごうざい）は、日干と同じ五行で、陰陽が違うもの。"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "劫財",
+          "quote": "劫財の運"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-ge",
+          "form": "劫財",
+          "quote": "年上劫財"
+        }
+      ],
+      "confidence": "상",
+      "note": "옛 책은 「刧財」(이체자)로도 적습니다(『四柱推命奥義秘伝録』 「刧財、敗財の解」, 『四柱推命秘伝書』 「刧財敗財の質」). 이체자라 aliases에는 넣지 않았습니다. 옛 일본 책은 劫財와 별도로 「敗財」를 함께 다루기도 합니다. コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.siksin",
+      "ko": "식신",
+      "hanja": "食神",
+      "glossary_key": "ten_god.siksin",
+      "ja": "食神",
+      "reading": "しょくじん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "食神",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "食神",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "食神",
+          "quote": "食神（しょくじん）は、日干が生じる五行で、陰陽が同じもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "食神",
+          "quote": "食神の解"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "食神",
+          "quote": "食神の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "食神",
+          "quote": "食神の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "食神",
+          "quote": "食神"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국과 표기 차이 없음. 읽기는 しょくじん(しょくしん 아님). コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.sanggwan",
+      "ko": "상관",
+      "hanja": "傷官",
+      "glossary_key": "ten_god.sanggwan",
+      "ja": "傷官",
+      "reading": "しょうかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "傷官",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "傷官",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "傷官",
+          "quote": "傷官（しょうかん）は、日干が生じる五行で、陰陽が違うもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "傷官",
+          "quote": "傷官の解"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "傷官",
+          "quote": "傷官の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "傷官",
+          "quote": "傷官の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "傷官",
+          "quote": "傷官"
+        }
+      ],
+      "confidence": "상",
+      "note": "コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.pyeonjae",
+      "ko": "편재",
+      "hanja": "偏財",
+      "glossary_key": "ten_god.pyeonjae",
+      "ja": "偏財",
+      "reading": "へんざい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "偏財",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "偏財",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "偏財",
+          "quote": "偏財（へんざい）は、日干が剋す五行で、陰陽が同じもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "偏財",
+          "quote": "偏財の解（父星）"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "偏財",
+          "quote": "偏財の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "偏財",
+          "quote": "偏財の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "偏財",
+          "quote": "偏財"
+        }
+      ],
+      "confidence": "상",
+      "note": "コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.jeongjae",
+      "ko": "정재",
+      "hanja": "正財",
+      "glossary_key": "ten_god.jeongjae",
+      "ja": "正財",
+      "reading": "せいざい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "正財",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "正財",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "正財",
+          "quote": "正財（せいざい）は、日干が剋す五行で、陰陽が違うもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "正財",
+          "quote": "正財の解"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "正財",
+          "quote": "正財の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "正財",
+          "quote": "正財の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "正財",
+          "quote": "正財"
+        }
+      ],
+      "confidence": "상",
+      "note": "コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.pyeongwan",
+      "ko": "편관",
+      "hanja": "偏官",
+      "glossary_key": "ten_god.pyeongwan",
+      "ja": "偏官",
+      "reading": "へんかん",
+      "aliases": [
+        "七殺"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "偏官",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "偏官",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "偏官",
+          "quote": "偏官（へんかん）は、日干が剋される五行で、陰陽が同じもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "偏官",
+          "quote": "偏官の解"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "偏官",
+          "quote": "偏官の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "偏官",
+          "quote": "偏官の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "偏官",
+          "quote": "偏官"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "七殺",
+          "quote": "七殺の運"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-ge",
+          "form": "七殺",
+          "quote": "年上七殺"
+        },
+        {
+          "source": "tg-ndl-doyukan-shichisatsu",
+          "form": "七殺",
+          "quote": "四柱推命殺神七殺入門"
+        }
+      ],
+      "confidence": "상",
+      "note": "일본 주류 표기는 偏官. 七殺은 고전(高木乗 1936 「七殺の運」)과 책 제목(同友館 1992)에 쓰이지만 偏官과 따로 항목을 세우는 식으로 함께 나와, 화면 이름으로는 偏官을 씁니다. コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.jeonggwan",
+      "ko": "정관",
+      "hanja": "正官",
+      "glossary_key": "ten_god.jeonggwan",
+      "ja": "正官",
+      "reading": "せいかん",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "正官",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "正官",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "正官",
+          "quote": "正官（せいかん）は、日干が剋される五行で、陰陽が違うもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "正官",
+          "quote": "正官の解"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "正官",
+          "quote": "正官の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "正官",
+          "quote": "正官の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "正官",
+          "quote": "正官"
+        }
+      ],
+      "confidence": "상",
+      "note": "コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.pyeonin",
+      "ko": "편인",
+      "hanja": "偏印",
+      "glossary_key": "ten_god.pyeonin",
+      "ja": "偏印",
+      "reading": "へんいん",
+      "aliases": [
+        "倒食"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "偏印",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "偏印",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "偏印",
+          "quote": "偏印（へんいん）は、日干が生じられる五行で、陰陽が同じもの。"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "偏印",
+          "quote": "偏印の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "偏印",
+          "quote": "偏印の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "偏印",
+          "quote": "偏印"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "倒食",
+          "quote": "倒食偏印の解"
+        },
+        {
+          "source": "tg-ndl-fushodo-suimeisho-chu",
+          "form": "倒食",
+          "quote": "倒食ノ考"
+        }
+      ],
+      "confidence": "상",
+      "note": "倒食은 偏印의 별칭으로 옛 책에 「倒食偏印の解」처럼 붙어 나옵니다. 화면 이름은 偏印. コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god.jeongin",
+      "ko": "정인",
+      "hanja": "正印",
+      "glossary_key": "ten_god.jeongin",
+      "ja": "印綬",
+      "reading": "いんじゅ",
+      "aliases": [
+        "正印"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-kotobank-uranai-tsuhensei",
+          "form": "印綬",
+          "quote": "通変星には「比肩」・「劫財」・「食神」・「傷官」・「偏財」・「正財」・「偏官」・「正官」・「偏印」・「印綬」の十種類がある。"
+        },
+        {
+          "source": "tg-unkoi-telsys-shichusuimei",
+          "form": "印綬",
+          "quote": "通変星は、比肩（ひけん）、劫財（ごうざい）、食神（しょくじん）、傷官（しょうかん）、偏財（へんざい）、正財（せいざい）、偏官（へんかん）、正官（せいかん）、偏印（へんいん）、印綬（いんじゅ）の十種類からなる星です。"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "印綬",
+          "quote": "印綬（いんじゅ）は、日干が生じられる五行で、陰陽が違うもの。"
+        },
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1933",
+          "form": "印綬",
+          "quote": "印綬の解（母星）"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-1916",
+          "form": "印綬",
+          "quote": "印綬の質"
+        },
+        {
+          "source": "tg-ndl-takagi-hayawakari-jo",
+          "form": "印綬",
+          "quote": "印綬の運"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "印綬",
+          "quote": "印綬"
+        },
+        {
+          "source": "tg-kinokuniya-setsuwasha-hajimete",
+          "form": "正印",
+          "quote": "７　偏印、正印"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국의 「정인(正印)」에 해당하는 일본 주류 표기는 「印綬(いんじゅ)」입니다. 사전(コトバンク)·현대 계산 사이트(unkoi)·위키백과·메이지~쇼와 초기 책 4종이 모두 印綬를 쓰고, 「正印」은 중국식 子平 계열 책(説話社, 大石眞行 감수 『はじめてでもよくわかる!四柱推命』 「偏印、正印」)에서 보입니다. glossary ja는 印綬로 쓰고 正印을 쓰면 일본 사용자에게는 낯선 표기가 됩니다. 일반 국어사전(デジタル大辞泉 등)의 「印綬」는 고대 중국의 관인과 끈이라는 뜻만 싣습니다. コトバンク『占い用語集』의 通変星 항목 한 줄이 10개 이름을 모두 담고 있어 10개 공통 A 근거로 씁니다. 메이지~쇼와 초기 책 근거는 국립국회도서관 디지털 컬렉션의 목차(사람이 입력한 목차 데이터)에서 옮겼습니다. 읽기는 unkoi(テレシスネットワーク)와 위키백과의 후리가나입니다."
+    },
+    {
+      "id": "ten_god_group.bigyeop",
+      "ko": "비겁",
+      "hanja": "比劫",
+      "glossary_key": "ten_god_group.bigyeop",
+      "ja": "比劫",
+      "reading": "ひごう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-ndl-takagi-kakushiki-2",
+          "form": "比劫",
+          "quote": "故に官殺を喜び之を以てその比劫を去り其財星を存じ起すへきである。"
+        },
+        {
+          "source": "tg-ekigaku-tenmei-no-tsue",
+          "form": "比劫",
+          "quote": "身弱なら身を扶ける五行 (印・比劫) が用神候補となります。"
+        },
+        {
+          "source": "tg-coconala-akiharu-higou",
+          "form": "比劫",
+          "quote": "四柱推命学での人間関係は比劫（比肩・劫財）が担当する。"
+        }
+      ],
+      "confidence": "상",
+      "note": "比肩・劫財 묶음. 옛 책 근거는 국립국회도서관 디지털 컬렉션 본문 OCR 원문입니다. 일본 대중서는 묶음 이름보다 10개 通変星을 개별로 설명하는 경우가 많아, 묶음은 화면 상위 이름보다 해설용으로 쓰는 편이 자연스럽습니다. 읽기 ひごう는 근거 원문에 후리가나가 없어 관용 읽기로 적었습니다."
+    },
+    {
+      "id": "ten_god_group.siksang",
+      "ko": "식상",
+      "hanja": "食傷",
+      "glossary_key": "ten_god_group.siksang",
+      "ja": "食傷",
+      "reading": "しょくしょう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-ndl-takagi-kakushiki-7",
+          "form": "食傷",
+          "quote": "月上に食傷ありて日干を生れば父の力をうける"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-1-2-1912",
+          "form": "食傷",
+          "quote": "偏財と食傷あれば偏財の妾星盛んにして本妻の權勢を凌駕す"
+        },
+        {
+          "source": "tg-ekigaku-tenmei-no-tsue",
+          "form": "食傷",
+          "quote": "身旺なら身を漏らす五行 (食傷・財・官) が用神候補"
+        }
+      ],
+      "confidence": "상",
+      "note": "食神・傷官 묶음. 옛 책 근거는 국립국회도서관 디지털 컬렉션 본문 OCR 원문입니다. 읽기 しょくしょう는 근거 원문에 후리가나가 없어 관용 읽기로 적었습니다."
+    },
+    {
+      "id": "ten_god_group.jaeseong",
+      "ko": "재성",
+      "hanja": "財星",
+      "glossary_key": "ten_god_group.jaeseong",
+      "ja": "財星",
+      "reading": "ざいせい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-ndl-matsumoto-okugi-2-1912",
+          "form": "財星",
+          "quote": "財星ある者身旺を悅び、又た大運印綬の運を歡ぶ"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-3-4-1912",
+          "form": "財星",
+          "quote": "四柱中に財星ありて官星無き者は此格命に入て食神を得れば之又大吉なるが"
+        },
+        {
+          "source": "tg-ekigaku-tenmei-no-tsue",
+          "form": "財星",
+          "quote": "④金運・財の管理スタイル (財星 = 偏財・正財の現れ方)"
+        }
+      ],
+      "confidence": "상",
+      "note": "偏財・正財 묶음. 옛 책 근거는 국립국회도서관 디지털 컬렉션 본문 OCR 원문입니다. 읽기 ざいせい는 근거 원문에 후리가나가 없어 관용 읽기로 적었습니다."
+    },
+    {
+      "id": "ten_god_group.gwanseong",
+      "ko": "관성",
+      "hanja": "官星",
+      "glossary_key": "ten_god_group.gwanseong",
+      "ja": "官星",
+      "reading": "かんせい",
+      "aliases": [
+        "官殺"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-ndl-takagi-kakushiki-4",
+          "form": "官星",
+          "quote": "二十七、年時上官星格"
+        },
+        {
+          "source": "tg-ndl-ito-hidensho-3-4-1912",
+          "form": "官星",
+          "quote": "四柱中に財星ありて官星無き者は此格命に入て食神を得れば之又大吉なるが"
+        },
+        {
+          "source": "tg-wikipedia-ja-shichusuimei",
+          "form": "官殺",
+          "quote": "格局が日干を弱める（格局が食傷、財、官殺）→格局を扶抑用神とする。"
+        }
+      ],
+      "confidence": "상",
+      "note": "偏官・正官 묶음. 「官殺」(正官+七殺)이라는 묶음 이름도 쓰입니다(위키백과). 옛 책 근거는 국립국회도서관 디지털 컬렉션 본문 OCR 원문입니다. 읽기 かんせい는 근거 원문에 후리가나가 없어 관용 읽기로 적었습니다."
+    },
+    {
+      "id": "ten_god_group.inseong",
+      "ko": "인성",
+      "hanja": "印星",
+      "glossary_key": "ten_god_group.inseong",
+      "ja": "印星",
+      "reading": "いんせい",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "tg-ndl-takagi-kakushiki-3",
+          "form": "印星",
+          "quote": "印星の偏するものは是れ梟神である"
+        },
+        {
+          "source": "tg-ekigaku-tenmei-no-tsue",
+          "form": "印星",
+          "quote": "⑥親子関係 (年柱と印星)"
+        }
+      ],
+      "confidence": "상",
+      "note": "偏印・印綬 묶음. 일본에서는 正印 대신 印綬를 쓰지만 묶음 이름은 「印星」입니다. 옛 책 근거는 국립국회도서관 디지털 컬렉션 본문 OCR 원문입니다. 읽기 いんせい는 근거 원문에 후리가나가 없어 관용 읽기로 적었습니다."
+    }
+  ]
+}

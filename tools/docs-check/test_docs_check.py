@@ -446,6 +446,120 @@ class IdeaTests(RepoTestCase):
         self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
 
 
+def ja_source(**overrides: object) -> dict[str, object]:
+    source: dict[str, object] = {
+        "id": "kotobank-nipponica",
+        "kind": "dictionary",
+        "publisher": "小学館",
+        "title": "日本大百科全書 四柱推命",
+        "url": "https://kotobank.jp/word/四柱推命",
+        "accessed": "2026-10-15",
+    }
+    source.update(overrides)
+    return source
+
+
+def ja_term(**overrides: object) -> dict[str, object]:
+    term: dict[str, object] = {
+        "id": "ten_god.jeongin",
+        "ko": "정인",
+        "hanja": "正印",
+        "glossary_key": None,
+        "ja": "印綬",
+        "reading": "いんじゅ",
+        "aliases": ["正印"],
+        "coined": False,
+        "evidence": [],
+        "confidence": "하",
+        "note": "",
+    }
+    term.update(overrides)
+    return term
+
+
+def evidence(source: str, form: str = "印綬") -> dict[str, str]:
+    return {"source": source, "form": form, "quote": f"{form}（いんじゅ）"}
+
+
+class JaTermTests(RepoTestCase):
+    def write_terms(self, sources: list, terms: list, name: str = "ten_gods.json") -> None:
+        write(self.root, f"docs/research/ja-terms/{name}", json.dumps({"sources": sources, "terms": terms}))
+
+    def test_two_publishers_with_dictionary_is_high(self) -> None:
+        sources = [ja_source(), ja_source(id="app-meishiki", kind="app", publisher="命式表 개발자")]
+        term = ja_term(evidence=[evidence("kotobank-nipponica"), evidence("app-meishiki")], confidence="상")
+        self.write_terms(sources, [term])
+        self.assertEqual(docs_check.check_ja_terms(self.root), [])
+
+    def test_same_publisher_twice_counts_once(self) -> None:
+        sources = [ja_source(), ja_source(id="kotobank-daijirin", title="大辞林")]
+        term = ja_term(evidence=[evidence("kotobank-nipponica"), evidence("kotobank-daijirin")], confidence="상")
+        self.write_terms(sources, [term])
+        self.assertEqual(
+            docs_check.check_ja_terms(self.root),
+            ["docs/research/ja-terms/ten_gods.json: 용어 ten_god.jeongin: confidence는 근거로 계산하면 중입니다 (적힌 값: 상)"],
+        )
+
+    def test_two_media_sources_are_medium_and_one_is_low(self) -> None:
+        sources = [ja_source(id="m1", kind="media", publisher="A"), ja_source(id="m2", kind="wiki", publisher="B")]
+        two = ja_term(evidence=[evidence("m1"), evidence("m2")], confidence="중")
+        one = ja_term(id="ten_god.pyeonin", evidence=[evidence("m1")], confidence="하")
+        self.write_terms(sources, [two, one])
+        self.assertEqual(docs_check.check_ja_terms(self.root), [])
+
+    def test_alias_evidence_does_not_raise_confidence(self) -> None:
+        self.write_terms([ja_source()], [ja_term(evidence=[evidence("kotobank-nipponica", "正印")], confidence="하")])
+        self.assertEqual(docs_check.check_ja_terms(self.root), [])
+
+    def test_unlisted_form_and_unknown_source_are_reported(self) -> None:
+        term = ja_term(evidence=[evidence("kotobank-nipponica", "正官"), evidence("missing")], confidence="하")
+        self.write_terms([ja_source()], [term])
+        problems = docs_check.check_ja_terms(self.root)
+        self.assertIn("docs/research/ja-terms/ten_gods.json: 용어 ten_god.jeongin: 근거 표기 正官이(가) ja나 aliases에 없습니다", problems)
+        self.assertIn("docs/research/ja-terms/ten_gods.json: 용어 ten_god.jeongin: 근거 출처 missing가 출처 목록에 없습니다", problems)
+
+    def test_pending_and_coined_terms(self) -> None:
+        pending = ja_term(id="ten_god.pyeonin", ja=None, confidence="미정")
+        coined = ja_term(id="day_kind.gwiin_day", ja="貴人の日", coined=True, confidence="자체", note="제품 개념")
+        no_note = ja_term(id="day_kind.gisin_day", ja="忌神の日", coined=True, confidence="자체", note="")
+        self.write_terms([], [pending, coined, no_note])
+        self.assertEqual(
+            docs_check.check_ja_terms(self.root),
+            ["docs/research/ja-terms/ten_gods.json: 용어 day_kind.gisin_day: 자체 용어(coined)는 ja와 note(만든 이유)가 필요합니다"],
+        )
+
+    def test_sources_are_shared_across_files_and_ids_unique(self) -> None:
+        self.write_terms([ja_source()], [], name="a.json")
+        self.write_terms([ja_source()], [ja_term(evidence=[evidence("kotobank-nipponica")], confidence="중")], name="b.json")
+        self.assertEqual(
+            docs_check.check_ja_terms(self.root),
+            ["docs/research/ja-terms/b.json: 출처 kotobank-nipponica: id가 중복입니다"],
+        )
+
+    def test_source_fields_are_checked(self) -> None:
+        self.write_terms([ja_source(kind="rumor", url="kotobank.jp", accessed="10/15")], [])
+        self.assertEqual(
+            docs_check.check_ja_terms(self.root),
+            [
+                "docs/research/ja-terms/ten_gods.json: 출처 kotobank-nipponica: kind는 academic, app, blog, book, dictionary, media, school, software, wiki 중 하나여야 합니다",
+                "docs/research/ja-terms/ten_gods.json: 출처 kotobank-nipponica: url이 주소가 아닙니다",
+                "docs/research/ja-terms/ten_gods.json: 출처 kotobank-nipponica: accessed는 YYYY-MM-DD입니다",
+            ],
+        )
+
+    def test_glossary_key_must_exist(self) -> None:
+        write(self.root, "docs/identity/writing/slots/content/glossary.yaml", "  keys:\n    - ten_god.jeongin\n")
+        self.write_terms([], [ja_term(glossary_key="ten_god.jeongin"), ja_term(id="ten_god.x", glossary_key="ten_god.x")])
+        self.assertEqual(
+            docs_check.check_ja_terms(self.root),
+            ["docs/research/ja-terms/ten_gods.json: 용어 ten_god.x: glossary_key ten_god.x가 docs/identity/writing/slots/content/glossary.yaml에 없습니다"],
+        )
+
+    def test_broken_json_is_reported(self) -> None:
+        write(self.root, "docs/research/ja-terms/bad.json", "{")
+        self.assertEqual(len(docs_check.check_ja_terms(self.root)), 1)
+
+
 class MainTests(RepoTestCase):
     def test_main_returns_zero_on_clean_repo(self) -> None:
         write(self.root, "a.md", "# a")

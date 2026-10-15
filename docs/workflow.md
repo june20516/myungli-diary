@@ -29,7 +29,7 @@
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
 | `docs/coordination/` | 지휘 | 이관 전 문서 보관소 |
-| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/ideas.md`, `docs/business/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
+| `README.md`, `CLAUDE.md`(루트), `docs/background/`, `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/ideas.md`, `docs/business/`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로 |
 
 ## 3. 서브 프로젝트의 작업 주기
 
