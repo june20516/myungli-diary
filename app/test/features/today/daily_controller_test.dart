@@ -291,6 +291,42 @@ void main() {
     );
   });
 
+  testWidgets('이전 형식 캐시(characterReason 없음)는 건너뛰고 server 응답으로 회복한다', (
+    tester,
+  ) async {
+    final (container, _) = await _boot(tester);
+    final key = await _keyFor(tester, container, _today);
+    final legacy = {...memberDailyJson(), 'dayKind': 'ordinary_day'}
+      ..remove('characterReason');
+    await tester.runAsync(
+      () => container
+          .read(cacheStoreProvider)
+          .write(
+            CacheKind.daily,
+            key,
+            jsonEncode(legacy),
+            access: EvidenceAccess.locked,
+            rulesetVersion: 'r1',
+          ),
+    );
+
+    final states = _record(container);
+    await _until(tester, () => _settled(states));
+
+    // 이전 캐시(평범한 날)는 내보내지 않고 server 응답만 보입니다.
+    final values = _values(states);
+    expect(values.map((v) => v.daily.dayKind.value), ['yongsin_day']);
+    expect(values.single.stale, isFalse);
+    // 캐시는 characterReason이 있는 새 형식으로 덮였습니다.
+    final stored = await tester.runAsync(
+      () => container.read(cacheStoreProvider).read(CacheKind.daily, key),
+    );
+    expect(
+      (jsonDecode(stored!) as Map<String, dynamic>)['characterReason'],
+      isNotNull,
+    );
+  });
+
   testWidgets('셸이 동기화를 시작하지 않아도 동기화(PATCH) 뒤에 getDaily를 요청한다', (tester) async {
     final gate = _PatchGate();
     final log = _RequestLog();

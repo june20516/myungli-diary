@@ -128,7 +128,7 @@ class DayCharacter extends StatelessWidget {
       : Semantics(identifier: slotId, container: true, child: child);
 }
 
-///날의 성격 배지 하나(`day-character` `badge`).
+/// 날의 성격 배지 하나(`day-character` `badge`).
 ///
 /// [DayCharacter]가 쓰고, 공유 이미지(`share-image` `badge`)가 배지만 따로 씁니다.
 /// 높이 26은 최소값이라 기기 글자가 커지면 함께 커집니다.

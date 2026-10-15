@@ -215,6 +215,17 @@ void main() {
     await tester.tap(find.byType(TermToken).first);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    // 첫 칩은 총운의 `element.wood`이고, 뜻은 member `getGlossary.json`의 meanings입니다.
+    expect(
+      find.descendant(
+        of: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+        matching: find.text(
+          '자라고 뻗어 나가는 기운이에요. 새로 시작하고 키워 가는 일에서 드러나요.',
+          findRichText: true,
+        ),
+      ),
+      findsOneWidget,
+    );
     // 풀이 시트의 근거 보기: 풀이 시트 위에 근거 시트가 겹쳐 열립니다.
     await tester.tap(
       depthLinkTarget(of: find.byKey(const Key(ScreenIds.explainSheet))),
