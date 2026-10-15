@@ -224,3 +224,8 @@
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "We couldn't confirm your sign-in. Please start again."}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Sign in with Apple was cancelled."}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "We couldn't sign you in with Apple. Please try again."}
+- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "See the basis"}
+- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "The basis for today's reading"}
+- {slot: ui.guide.card, key: todayGuideEyebrow, text: "Today's question"}
+- {slot: ui.guide.a11y, key: todayGuideLabel, text: "Diary question"}
+- {slot: ui.guide.a11y, key: todayGuideWritten, text: "You wrote today's entry"}

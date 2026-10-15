@@ -1,5 +1,5 @@
 # 값 이름 원고(ko). 슬롯 명세는 slots/content/glossary.yaml입니다.
-# 지금은 앱 ARB로도 나가는 지지·날의 성격만 있습니다(#143). 나머지 범주는 W1에서 채웁니다.
+# 지금은 앱 ARB로도 나가는 지지·날의 성격(#143)·방향(#153)만 있습니다. 나머지 범주는 W1에서 채웁니다.
 # 지지 이름에는 시·hour·刻을 붙이지 않습니다. 시진 확인 줄(onboardTimeHourConfirm) 틀이 붙입니다.
 - {slot: glossary.value_name, key: branch.ja, text: "자"}
 - {slot: glossary.value_name, key: branch.chuk, text: "축"}
@@ -17,3 +17,11 @@
 - {slot: glossary.value_name, key: day_kind.yongsin_day, text: "용신의 날"}
 - {slot: glossary.value_name, key: day_kind.gisin_day, text: "기신의 날"}
 - {slot: glossary.value_name, key: day_kind.ordinary_day, text: "평범한 날"}
+- {slot: glossary.value_name, key: direction8.n, text: "북"}
+- {slot: glossary.value_name, key: direction8.ne, text: "북동"}
+- {slot: glossary.value_name, key: direction8.e, text: "동"}
+- {slot: glossary.value_name, key: direction8.se, text: "남동"}
+- {slot: glossary.value_name, key: direction8.s, text: "남"}
+- {slot: glossary.value_name, key: direction8.sw, text: "남서"}
+- {slot: glossary.value_name, key: direction8.w, text: "서"}
+- {slot: glossary.value_name, key: direction8.nw, text: "북서"}
