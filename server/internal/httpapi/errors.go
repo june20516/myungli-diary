@@ -68,11 +68,11 @@ var domainErrors = []domainError{
 	{target: auth.ErrRefreshInvalid, code: problem.AuthTokenInvalid, title: "Refresh token invalid"},
 	{target: auth.ErrRefreshReused, code: problem.AuthRefreshReused, title: "Refresh token reused"},
 	{target: auth.ErrExchangeInvalid, code: problem.AuthExchangeInvalid, title: "Exchange code invalid"},
-	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
+	{target: profile.ErrNotFound, code: problem.ProfileRequired, title: "Profile required"},
 	{target: engine.ErrUnavailable, code: problem.EngineUnavailable, title: "Engine unavailable", retryAfter: engineRetryAfter},
 	{target: engine.ErrTimeout, code: problem.EngineTimeout, title: "Engine timeout"},
 	{target: engine.ErrInternal, code: problem.EngineError, title: "Engine error"},
-	{target: profile.ErrNotFound, code: problem.ProfileRequired, title: "Profile required"},
+	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
 
@@ -85,8 +85,15 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 		return
 	}
 
+	// 호출자가 지정한 오류와 프로필 의미 검사 위반(422)은 같은 *Error 경로로 답합니다.
 	var explicit *Error
-	if errors.As(err, &explicit) && !validHTTPStatus(explicit.Status) {
+	if !errors.As(err, &explicit) {
+		var violation *profile.ValidationError
+		if errors.As(err, &violation) {
+			explicit = validationError(violation)
+		}
+	}
+	if explicit != nil && !validHTTPStatus(explicit.Status) {
 		logHandlerError(r.Context(), deps.Logger, err)
 		problem.Write(w, r, problem.Internal.Problem("Internal server error"))
 		return
@@ -95,20 +102,6 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
 		p.Errors = explicit.Errors
 		writeProblem(w, r, p, explicit.BearerChallenge, explicit.RetryAfter)
-		return
-	}
-
-	var violation *profile.ValidationError
-	if errors.As(err, &violation) {
-		explicit := validationError(violation)
-		if !validHTTPStatus(explicit.Status) {
-			logHandlerError(r.Context(), deps.Logger, err)
-			problem.Write(w, r, problem.Internal.Problem("Internal server error"))
-			return
-		}
-		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
-		p.Errors = explicit.Errors
-		problem.Write(w, r, p)
 		return
 	}
 

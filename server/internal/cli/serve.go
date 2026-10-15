@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -91,13 +92,18 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		logger.ErrorContext(ctx, "엔진 연결 생성 실패", "error", err)
 		return &loggedError{err: err}
 	}
+	// 버전 감시는 runCtx로 돌리고, 어떤 경로로 반환하든 연결을 닫기 전에 멈추고 끝나기를 기다립니다.
+	runCtx, cancelRun := context.WithCancel(ctx)
+	versions := engine.NewVersions(engineClient, logger)
+	var watchers sync.WaitGroup
+	watchers.Go(func() { versions.Run(runCtx, versionRefreshInterval) })
 	defer func() {
+		cancelRun()
+		watchers.Wait()
 		if err := engineClient.Close(); err != nil {
 			logger.WarnContext(context.WithoutCancel(ctx), "엔진 연결 닫기 실패", "error", err)
 		}
 	}()
-	versions := engine.NewVersions(engineClient, logger)
-	go versions.Run(ctx, versionRefreshInterval)
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
 
 	handler, err := newServer(settings, serverDeps{

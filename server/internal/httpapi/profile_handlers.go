@@ -2,9 +2,12 @@ package httpapi
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
@@ -40,11 +43,19 @@ func (a *API) CreateProfile(ctx context.Context, req gen.CreateProfileRequestObj
 	if !ok {
 		return nil, errNoAccount
 	}
-	saved, err := a.Profiles.Put(ctx, id, toProfile(*req.Body))
+	input, err := toProfile(*req.Body)
 	if err != nil {
 		return nil, err
 	}
-	return gen.CreateProfile200JSONResponse(fromSaved(saved)), nil
+	saved, err := a.Profiles.Put(ctx, id, input)
+	if err != nil {
+		// 계약 PUT에는 409가 없습니다. 인증 뒤 계정이 익명화된 경합은 계정 없음과 같은 401로 답합니다.
+		if errors.Is(err, profile.ErrNotFound) {
+			return nil, fmt.Errorf("프로필 저장 중 계정이 사라졌습니다: %w", account.ErrNotFound)
+		}
+		return nil, err
+	}
+	return gen.CreateProfile200JSONResponse(a.fromSaved(ctx, saved)), nil
 }
 
 // UpdateProfile은 본문에 있는 필드만 바꿉니다. 프로필이 없으면 409 profile.required입니다.
@@ -53,26 +64,38 @@ func (a *API) UpdateProfile(ctx context.Context, req gen.UpdateProfileRequestObj
 	if !ok {
 		return nil, errNoAccount
 	}
-	saved, err := a.Profiles.Patch(ctx, id, toPatch(*req.Body))
+	patch, err := toPatch(*req.Body)
 	if err != nil {
 		return nil, err
 	}
-	return gen.UpdateProfile200JSONResponse(fromSaved(saved)), nil
+	saved, err := a.Profiles.Patch(ctx, id, patch)
+	if err != nil {
+		return nil, err
+	}
+	return gen.UpdateProfile200JSONResponse(a.fromSaved(ctx, saved)), nil
 }
 
-// toProfile은 요청 본문을 도메인 프로필로 바꿉니다.
-func toProfile(in gen.ProfileInput) profile.Profile {
+// toProfile은 요청 본문을 도메인 프로필로 바꿉니다. 시각 형식이 틀리면 오류입니다.
+func toProfile(in gen.ProfileInput) (profile.Profile, error) {
+	birth, err := toBirth(in.Birth)
+	if err != nil {
+		return profile.Profile{}, err
+	}
+	notification, err := toNotification(in.Notification)
+	if err != nil {
+		return profile.Profile{}, err
+	}
 	return profile.Profile{
 		Honorific:       in.Honorific,
 		Language:        string(in.Language),
 		CurrentTimezone: in.CurrentTimezone,
-		Birth:           toBirth(in.Birth),
-		Notification:    toNotification(in.Notification),
-	}
+		Birth:           birth,
+		Notification:    notification,
+	}, nil
 }
 
 // toPatch는 PATCH 본문을 도메인 Patch로 바꿉니다. 본문에 없는 필드는 생성 타입의 nil 포인터로 남아 바꾸지 않음이 됩니다.
-func toPatch(in gen.ProfilePatch) profile.Patch {
+func toPatch(in gen.ProfilePatch) (profile.Patch, error) {
 	patch := profile.Patch{
 		Honorific:       in.Honorific,
 		CurrentTimezone: in.CurrentTimezone,
@@ -82,23 +105,33 @@ func toPatch(in gen.ProfilePatch) profile.Patch {
 		patch.Language = &language
 	}
 	if in.Birth != nil {
-		birth := toBirth(*in.Birth)
+		birth, err := toBirth(*in.Birth)
+		if err != nil {
+			return profile.Patch{}, err
+		}
 		patch.Birth = &birth
 	}
 	if in.Notification != nil {
-		notification := toNotification(*in.Notification)
+		notification, err := toNotification(*in.Notification)
+		if err != nil {
+			return profile.Patch{}, err
+		}
 		patch.Notification = &notification
 	}
-	return patch
+	return patch, nil
 }
 
-func toBirth(in gen.Birth) profile.Birth {
+func toBirth(in gen.Birth) (profile.Birth, error) {
+	birthTime, err := parseClock(in.Time.Value)
+	if err != nil {
+		return profile.Birth{}, err
+	}
 	birth := profile.Birth{
 		Calendar:    profile.Calendar(in.Calendar),
 		IsLeapMonth: in.IsLeapMonth,
 		Date:        profile.LocalDate{Year: in.Date.Year, Month: in.Date.Month, Day: in.Date.Day},
 		TimeStatus:  profile.TimeStatus(in.Time.Status),
-		Time:        parseClock(in.Time.Value),
+		Time:        birthTime,
 		Gender:      string(in.Gender),
 		Timezone:    in.Timezone,
 		PlaceStatus: profile.PlaceStatus(in.Place.Status),
@@ -106,24 +139,29 @@ func toBirth(in gen.Birth) profile.Birth {
 	if in.Place.CityId != nil {
 		birth.CityID = *in.Place.CityId
 	}
-	return birth
+	return birth, nil
 }
 
-func toNotification(in gen.NotificationSetting) profile.Notification {
-	return profile.Notification{Status: profile.NotifyStatus(in.Status), Time: parseClock(in.Time)}
+func toNotification(in gen.NotificationSetting) (profile.Notification, error) {
+	notifyTime, err := parseClock(in.Time)
+	if err != nil {
+		return profile.Notification{}, err
+	}
+	return profile.Notification{Status: profile.NotifyStatus(in.Status), Time: notifyTime}, nil
 }
 
-// parseClock은 HH:MM 문자열을 시각으로 바꿉니다. 없거나 형식이 틀리면 nil입니다.
-// 형식은 계약 검증(pattern)이 이미 보장하므로, 틀린 값은 "값 없음"으로 두어 상태-값 짝 검사가 422로 거릅니다.
-func parseClock(value *string) *profile.LocalTime {
+// parseClock은 HH:MM 문자열을 시각으로 바꿉니다. 없으면 nil입니다.
+// 형식은 계약 검증(pattern)이 이미 보장하므로 형식 오류는 프로그램 오류이고, 핸들러가 500으로 드러냅니다.
+// 오류 문구에는 입력 값을 넣지 않습니다.
+func parseClock(value *string) (*profile.LocalTime, error) {
 	if value == nil {
-		return nil
+		return nil, nil
 	}
 	parsed, err := time.Parse(clockLayout, *value)
 	if err != nil {
-		return nil
+		return nil, errors.New("계약 검증을 통과한 시각이 HH:MM 형식이 아닙니다")
 	}
-	return &profile.LocalTime{Hour: parsed.Hour(), Minute: parsed.Minute()}
+	return &profile.LocalTime{Hour: parsed.Hour(), Minute: parsed.Minute()}, nil
 }
 
 // fromProfile은 도메인 프로필을 응답 본문으로 바꿉니다. 경도는 계약에 없어 내보내지 않습니다.
@@ -162,12 +200,16 @@ func formatClock(t *profile.LocalTime) *string {
 }
 
 // fromSaved는 저장 결과를 응답 본문으로 바꿉니다. warnings는 비어 있어도 항상 배열입니다.
-func fromSaved(saved profile.Saved) gen.ProfileResponse {
+// 알 수 없는 경고 code는 응답에서 빼고 Error 로그를 남깁니다(호칭 값은 남기지 않습니다).
+func (a *API) fromSaved(ctx context.Context, saved profile.Saved) gen.ProfileResponse {
 	warnings := make([]gen.FieldError, 0, len(saved.Warnings))
 	for _, w := range saved.Warnings {
-		if code, ok := warningCode(w); ok {
-			warnings = append(warnings, gen.FieldError{Field: warningHonorificField, Code: code})
+		code, ok := warningCode(w)
+		if !ok {
+			a.Logger.ErrorContext(ctx, "알 수 없는 호칭 경고 code", slog.Int("warning", int(w)))
+			continue
 		}
+		warnings = append(warnings, gen.FieldError{Field: warningHonorificField, Code: code})
 	}
 	return gen.ProfileResponse{Profile: fromProfile(saved.Profile), Warnings: warnings}
 }

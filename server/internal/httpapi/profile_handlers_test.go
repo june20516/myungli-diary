@@ -242,3 +242,93 @@ func TestUpdateProfile_MissingIs409(t *testing.T) {
 	assert.Equal(t, "profile.required", decodeProblem(t, rec).Code)
 	expectContractResponse(t, spec, req, rec)
 }
+
+func TestCreateProfile_MissingProfileIs401LikeUnknownAccount(t *testing.T) {
+	// 계약 PUT에는 409가 없습니다. 익명화 경합으로 계정이 사라진 경우는 계정 없음과 같은 401입니다.
+	handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: &fakeProfiles{err: profile.ErrNotFound}})
+
+	req := newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:05"))
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusUnauthorized, rec.Code, rec.Body.String())
+	assert.Equal(t, "auth.token_invalid", decodeProblem(t, rec).Code)
+	assert.Equal(t, `Bearer error="invalid_token"`, rec.Header().Get("WWW-Authenticate"))
+	expectContractResponse(t, spec, req, rec)
+}
+
+func TestCreateProfile_SuffixWarningInBody(t *testing.T) {
+	saved := profile.Saved{Profile: storedProfile(), Warnings: []honorific.Code{honorific.SuffixWarning}}
+	handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: &fakeProfiles{saved: saved}})
+
+	req := newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:05"))
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
+	var got gen.ProfileResponse
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	assert.Equal(t, []gen.FieldError{{Field: "/honorific", Code: "name.suffix_warning"}}, got.Warnings)
+}
+
+func TestCreateProfile_UnknownWarningCodeIsDroppedWithErrorLog(t *testing.T) {
+	saved := profile.Saved{Profile: storedProfile(), Warnings: []honorific.Code{honorific.Empty}}
+	handler, spec, logs := newHandlerAPIWithLogs(t, &httpapi.API{Profiles: &fakeProfiles{saved: saved}})
+
+	req := newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:05"))
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
+	assert.Contains(t, rec.Body.String(), `"warnings":[]`)
+	assert.Contains(t, logs.String(), `"severity":"ERROR"`)
+}
+
+func TestCreateProfile_UnknownViolationIs500WithErrorLog(t *testing.T) {
+	handler, spec, logs := newHandlerAPIWithLogs(t, &httpapi.API{Profiles: &fakeProfiles{err: &profile.ValidationError{Violation: 99}}})
+
+	req := newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:05"))
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+	assert.Equal(t, "internal", decodeProblem(t, rec).Code)
+	assert.Contains(t, logs.String(), `"severity":"ERROR"`)
+	expectContractResponse(t, spec, req, rec)
+}
+
+func TestUpdateProfile_NullOrEmptyHonorificIs400(t *testing.T) {
+	for _, body := range []string{`{"honorific":null}`, `{"honorific":""}`} {
+		t.Run(body, func(t *testing.T) {
+			fp := &fakeProfiles{}
+			handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: fp})
+
+			req := newBodyRequest(t, http.MethodPatch, "/v1/me/profile", contentTypeMergePatch, body)
+			rec := serve(handler, req)
+
+			require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
+			assert.Equal(t, "request.invalid", decodeProblem(t, rec).Code)
+			expectContractResponse(t, spec, req, rec)
+		})
+	}
+}
+
+func TestUpdateProfile_MergePatchLanguageBirthNotification(t *testing.T) {
+	fp := &fakeProfiles{saved: profile.Saved{Profile: storedProfile()}}
+	handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: fp})
+	body := `{"language":"ja","birth":` + validBirth + `,"notification":{"status":"enabled","time":"21:10"}}`
+
+	req := newBodyRequest(t, http.MethodPatch, "/v1/me/profile", contentTypeMergePatch, body)
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
+	require.NotNil(t, fp.gotPatch.Language)
+	assert.Equal(t, "ja", *fp.gotPatch.Language)
+	require.NotNil(t, fp.gotPatch.Birth)
+	assert.Equal(t, profile.LocalDate{Year: 1990, Month: 5, Day: 17}, fp.gotPatch.Birth.Date)
+	assert.Equal(t, profile.CalendarSolar, fp.gotPatch.Birth.Calendar)
+	require.NotNil(t, fp.gotPatch.Notification)
+	assert.Equal(t, profile.NotifyEnabled, fp.gotPatch.Notification.Status)
+	assert.Equal(t, &profile.LocalTime{Hour: 21, Minute: 10}, fp.gotPatch.Notification.Time)
+	assert.Nil(t, fp.gotPatch.Honorific)
+	assert.Nil(t, fp.gotPatch.CurrentTimezone)
+}
