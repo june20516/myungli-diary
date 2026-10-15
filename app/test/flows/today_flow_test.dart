@@ -422,7 +422,8 @@ void main() {
       overrides: [
         rewardPollTimingProvider.overrideWithValue((
           interval: const Duration(milliseconds: 100),
-          timeout: const Duration(seconds: 3),
+          // 열림을 기대하므로 마감은 깁니다(마감이 응답보다 먼저 지나지 않게).
+          timeout: const Duration(minutes: 10),
         )),
       ],
     );

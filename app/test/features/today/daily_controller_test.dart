@@ -70,6 +70,40 @@ final class _DailyTap extends Interceptor {
   }
 }
 
+/// 처음 오는 `/v1/daily/` 요청 하나를 [release]까지 붙잡고, 그 뒤에 오는 요청은 503으로 끊습니다.
+final class _HoldThenFail extends Interceptor {
+  bool armed = false;
+  bool held = false;
+  final _release = Completer<void>();
+
+  void release() => _release.complete();
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (!armed || !options.path.startsWith('/v1/daily/')) {
+      handler.next(options);
+      return;
+    }
+    if (!held) {
+      held = true;
+      await _release.future;
+      handler.next(options);
+      return;
+    }
+    handler.reject(
+      DioException.badResponse(
+        statusCode: 503,
+        requestOptions: options,
+        response: Response<Object?>(requestOptions: options, statusCode: 503),
+      ),
+      true,
+    );
+  }
+}
+
 /// 프로필 수정(PATCH)을 [release]가 불릴 때까지 붙잡습니다.
 final class _PatchGate extends Interceptor {
   final _released = Completer<void>();
@@ -511,6 +545,66 @@ void main() {
     expect(thrown, isA<OfflineError>());
     expect(states.length, countBefore, reason: '상태가 바뀌지 않음');
     expect(container.read(dailyControllerProvider).hasError, isFalse);
+  });
+
+  testWidgets('refreshQuietly: 보일 값이 없어 reload로 받을 때 실패하면 그 오류를 던진다', (
+    tester,
+  ) async {
+    final (container, _) = await _boot(tester, scenario: 'daily-error');
+    final states = _record(container);
+    await _until(tester, () => _settled(states));
+    expect(states.last.hasValue, isFalse);
+
+    Object? thrown;
+    var done = false;
+    unawaited(
+      container
+          .read(dailyControllerProvider.notifier)
+          .refreshQuietly()
+          .then<void>((_) {}, onError: (Object error) => thrown = error)
+          .whenComplete(() => done = true),
+    );
+    await _until(tester, () => done);
+
+    expect(thrown, isA<ProblemError>());
+  });
+
+  testWidgets('refreshQuietly: 받는 중에 다시 build되면 새 build 결과를 따르고 실패면 던진다', (
+    tester,
+  ) async {
+    final (container, _) = await _boot(tester);
+    final states = _record(container);
+    await _until(tester, () => _settled(states));
+    final gate = _HoldThenFail();
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, gate);
+    gate.armed = true;
+
+    Object? thrown;
+    var done = false;
+    unawaited(
+      container
+          .read(dailyControllerProvider.notifier)
+          .refreshQuietly()
+          .then<void>((_) {}, onError: (Object error) => thrown = error)
+          .whenComplete(() => done = true),
+    );
+    await _until(tester, () => gate.held);
+    // 받는 중에 다시 build됩니다(자정·사본 변경 흉내). 새 build의 요청은 503입니다.
+    container.invalidate(dailyControllerProvider);
+    await _until(
+      tester,
+      () => container.read(dailyControllerProvider).hasError,
+    );
+    gate.release();
+    await _until(tester, () => done);
+
+    // 받아 둔 성공 응답은 버리고 새 build의 오류를 그대로 던집니다.
+    expect(thrown, isA<AppError>());
+    expect(
+      identical(thrown, container.read(dailyControllerProvider).error),
+      isTrue,
+    );
   });
 
   testWidgets('cached profile이 바뀌면(사주 변경) 새 키로 다시 받는다', (tester) async {

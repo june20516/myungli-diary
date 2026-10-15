@@ -27,11 +27,19 @@ import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
 
-/// 짧게 줄인 확인 간격·시간. 마감은 가짜 시계로 흐르고 대역 서버 응답은 실제 I/O라,
-/// 응답이 마감 전에 올 만큼 마감을 넉넉히 둡니다.
+/// 열림을 기대하는 테스트의 확인 간격·시간: 간격은 짧고 마감은 깁니다.
+///
+/// 마감은 가짜 시계로 흐르고 대역 서버 응답은 실제 I/O라, 마감이 짧으면 응답보다 먼저
+/// 지나 테스트가 흔들립니다.
 const ({Duration interval, Duration timeout}) _timing = (
   interval: Duration(milliseconds: 100),
-  timeout: Duration(seconds: 3),
+  timeout: Duration(minutes: 10),
+);
+
+/// 마감을 실제로 기다리는 테스트의 확인 간격·시간.
+const ({Duration interval, Duration timeout}) _expiringTiming = (
+  interval: Duration(milliseconds: 100),
+  timeout: Duration(seconds: 1),
 );
 
 const _subject = DailyEvidenceSubject();
@@ -235,6 +243,27 @@ final class _ThrowingAds implements Ads {
       Future.error(error);
 }
 
+/// 보상형 광고를 [result]가 끝날 때까지 보여 주는 대역.
+final class _GatedAds implements Ads {
+  final result = Completer<RewardedResult>();
+
+  @override
+  Future<BannerAdHandle?> loadBanner({required int width}) async => null;
+
+  @override
+  Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
+      _GatedAd(result.future);
+}
+
+final class _GatedAd implements RewardedAdHandle {
+  new(this._result);
+
+  final Future<RewardedResult> _result;
+
+  @override
+  Future<RewardedResult> show() => _result;
+}
+
 /// 손으로 바꾸는 근거 열람 상태(계획 6의 다른 응답을 흉내 냄).
 final class _Access extends Notifier<AsyncValue<EvidenceAccess>> {
   @override
@@ -377,7 +406,11 @@ void main() {
     });
 
     testWidgets('30초 안에 권한이 없으면 UnlockTimedOut과 locked', (tester) async {
-      final container = await _boot(tester, scenario: 'reward-timeout');
+      final container = await _boot(
+        tester,
+        scenario: 'reward-timeout',
+        timing: _expiringTiming,
+      );
       final opened = _open(container);
       await _prepared(tester, container);
       final before = _entitlementCalls(container);
@@ -392,7 +425,8 @@ void main() {
       expect(
         asked,
         lessThanOrEqualTo(
-          _timing.timeout.inMilliseconds ~/ _timing.interval.inMilliseconds,
+          _expiringTiming.timeout.inMilliseconds ~/
+              _expiringTiming.interval.inMilliseconds,
         ),
       );
       // 다음 시도를 위해 광고를 다시 불러 둡니다.
@@ -700,6 +734,47 @@ void main() {
       await tester.pump();
       expect(container.read(_testProvider).link, DepthLinkState.unlocked);
       expect(finished, isTrue);
+    });
+  });
+
+  group('수정 라운드 2', () {
+    testWidgets('광고를 보는 동안 다른 길로 열리면 끝까지 봐도 다시 확인하지 않고 열린 채입니다', (
+      tester,
+    ) async {
+      final ads = _GatedAds();
+      final api = _ScriptedApi([_inactive]);
+      final container = await _boot(
+        tester,
+        overrides: [
+          adsProvider.overrideWithValue(ads),
+          entitlementsRepositoryProvider.overrideWithValue(
+            EntitlementsRepository(api),
+          ),
+        ],
+      );
+      container.listen(_testProvider, (_, _) {});
+      final events = <UnlockEvent>[];
+      container.read(_testProvider.notifier).events.listen(events.add);
+      await _until(tester, () => container.read(_testProvider).adReady);
+      final asked = api.calls;
+
+      var finished = false;
+      unawaited(
+        container
+            .read(_testProvider.notifier)
+            .watchAd()
+            .whenComplete(() => finished = true),
+      );
+      await tester.pump();
+      container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
+      ads.result.complete(const RewardEarned());
+      await tester.pump();
+      await tester.pump(const Duration(minutes: 1));
+
+      expect(finished, isTrue);
+      expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+      expect(api.calls, asked, reason: '이미 열렸으므로 묻지 않음');
+      expect(events, isEmpty);
     });
   });
 }

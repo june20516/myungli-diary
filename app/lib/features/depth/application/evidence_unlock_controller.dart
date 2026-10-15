@@ -209,7 +209,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     } on AppError catch (error) {
       result = RewardFailed(error);
     }
-    if (!flow.mounted) {
+    // 광고를 보는 동안 다른 길로 이미 열렸으면 더 할 일이 없습니다(확인 중으로 덮어쓰지 않음).
+    if (!flow.mounted || state.link == DepthLinkState.unlocked) {
       return;
     }
     switch (result) {

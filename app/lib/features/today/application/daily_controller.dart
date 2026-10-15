@@ -175,24 +175,24 @@ class DailyController extends AsyncNotifier<DailyView> {
     final date = ref.read(todayProvider);
     if (current == null || state.isLoading || current.date != date) {
       await reload();
-      final error = callRef.mounted ? state.error : null;
-      if (error != null) {
-        throw error is AppError ? error : UnexpectedError(error);
-      }
+      // reload는 다시 build하므로 결과는 새 build의 상태(현재 ref·state)에서 읽습니다.
+      _throwIfFailed();
       return;
     }
     final repository = ref.read(dailyRepositoryProvider);
     final reporter = ref.read(crashReporterProvider);
     final epoch = ref.read(reactionEpochProvider).value;
     final daily = await repository.fetch(date);
-    // 그사이 다시 build됐으면(자정·사본 변경) 그 build의 결과를 따릅니다.
+    // 그사이 다시 build됐으면(자정·사본 변경) 받은 값을 버리고 그 build의 결과를 기다려 따릅니다.
     if (!callRef.mounted) {
+      await _settleCurrentBuild();
       return;
     }
     final key = current.cacheKey;
     if (key != null) {
       await writeCacheOrReport(() => repository.store(key, daily), reporter);
       if (!callRef.mounted) {
+        await _settleCurrentBuild();
         return;
       }
     }
@@ -205,6 +205,30 @@ class DailyController extends AsyncNotifier<DailyView> {
         reactionEpoch: epoch,
       ),
     );
+  }
+
+  /// 지금 build가 끝나길 기다리고, 실패했으면 그 오류를 던집니다([refreshQuietly]가 대체됐을 때).
+  Future<void> _settleCurrentBuild() async {
+    if (!ref.mounted) {
+      return;
+    }
+    try {
+      await future;
+    } on Object {
+      // 결과는 아래에서 상태로 읽습니다.
+    }
+    _throwIfFailed();
+  }
+
+  /// 지금 상태가 오류면 그 오류를 [AppError]로 던집니다. 이미 버려졌으면 아무것도 하지 않습니다.
+  void _throwIfFailed() {
+    if (!ref.mounted) {
+      return;
+    }
+    final error = state.error;
+    if (error != null) {
+      throw error is AppError ? error : UnexpectedError(error);
+    }
   }
 
   /// 사본으로 만든 [date]의 캐시 키. 사본이 없거나 읽지 못하면 null입니다.

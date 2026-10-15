@@ -32,10 +32,17 @@ Finder _inSheet(Finder matching) =>
 final NotifierProvider<EvidenceUnlockController, EvidenceUnlockState>
 _provider = evidenceUnlockControllerProvider(const DailyEvidenceSubject());
 
-/// 확인 간격·시간을 줄입니다. 가짜 시계에서 흐르고, 대역 서버 응답(실제 I/O)이 마감 전에 올 만큼은 둡니다.
+/// 열림을 기대하는 테스트의 확인 간격·시간: 간격은 짧고 마감은 깁니다(마감이 가짜 시계로
+/// 흐르는데 대역 서버 응답은 실제 I/O라, 마감이 짧으면 응답보다 먼저 지납니다).
 const ({Duration interval, Duration timeout}) _fastTiming = (
   interval: Duration(milliseconds: 100),
-  timeout: Duration(seconds: 2),
+  timeout: Duration(minutes: 10),
+);
+
+/// 마감을 실제로 기다리는 테스트(시간 초과 toast)의 확인 간격·시간.
+const ({Duration interval, Duration timeout}) _expiringTiming = (
+  interval: Duration(milliseconds: 100),
+  timeout: Duration(seconds: 1),
 );
 
 /// 시간 초과가 오지 않을 만큼 깁니다(확인 중 상태를 보는 테스트).
@@ -190,6 +197,7 @@ void main() {
       final (container, _) = await _openSheet(
         tester,
         scenario: 'reward-timeout',
+        timing: _expiringTiming,
       );
 
       await _tapCta(tester);
@@ -212,6 +220,7 @@ void main() {
       final (container, _) = await _openSheet(
         tester,
         scenario: 'reward-timeout',
+        timing: _expiringTiming,
       );
       container.invalidate(_provider);
       await pumpUntil(tester, () => container.read(_provider).adReady);
