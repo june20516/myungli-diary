@@ -9,10 +9,12 @@ import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -84,6 +86,7 @@ Future<ProviderContainer> bootstrap({
         deviceTimezoneProvider.overrideWithValue(
           FakeDeviceTimezone(scenario.timezone),
         ),
+        adsProvider.overrideWithValue(fakeAdsFor(scenario.rewardedAd)),
         fakeServerProvider.overrideWith(
           (ref) => ref.watch(fakeServerInterceptorProvider),
         ),
@@ -118,6 +121,21 @@ Future<ProviderContainer> bootstrap({
   }
   return container;
 }
+
+/// 시나리오의 보상형 광고 결과([ScenarioRewardedAd])대로 동작하는 광고 대역. 배너는 늘 준비됩니다.
+@visibleForTesting
+Ads fakeAdsFor(ScenarioRewardedAd rewardedAd) => switch (rewardedAd) {
+  ScenarioRewardedAd.earned => FakeAds(),
+  ScenarioRewardedAd.dismissed => FakeAds(
+    rewardedResult: const RewardDismissed(),
+  ),
+  ScenarioRewardedAd.unavailable => FakeAds(rewardedAvailable: false),
+  ScenarioRewardedAd.failed => FakeAds(
+    rewardedResult: RewardFailed(
+      UnexpectedError(StateError('대역: 보상형 광고를 표시하지 못했습니다.')),
+    ),
+  ),
+};
 
 /// 계정이 필요 없는 실제 platform adapter를 끼우는 override. fake 모드는 대역을 그대로 씁니다.
 ///

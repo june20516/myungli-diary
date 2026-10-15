@@ -159,3 +159,5 @@ flutter:
     - fixtures/diary-written/
     - fixtures/reaction-failed/
     - fixtures/reaction-delete-failed/
+    - fixtures/evidence-unlocked/
+    - fixtures/reward-unlock/

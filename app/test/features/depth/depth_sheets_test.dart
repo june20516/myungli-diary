@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -141,15 +142,27 @@ void main() {
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     });
 
-    testWidgets('depthSheetsProvider의 기본 본문은 빈 자리입니다', (tester) async {
+    testWidgets('depthSheetsProvider의 근거 본문은 그 슬롯의 EvidenceSheet입니다', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
+      final body = container.read(depthSheetsProvider).evidenceBody('s.t');
+      expect(body, isA<EvidenceSheet>());
+      expect((body as EvidenceSheet).slotId, 's.t');
+    });
+
+    testWidgets('openEvidence는 시트 이름(근거 시트 제목)을 스크린리더에 알립니다', (tester) async {
+      final handle = tester.ensureSemantics();
       await _pumpHost(tester);
-      unawaited(
-        container.read(depthSheetsProvider).openEvidence(_context, slotId: 's'),
-      );
+      unawaited(_sheets.openEvidence(_context, slotId: 's'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
+
+      expect(
+        find.bySemanticsLabel(AppLocalizationsKo().evidenceSheetTitle),
+        findsOneWidget,
+      );
+      handle.dispose();
     });
   });
 }

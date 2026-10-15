@@ -29,6 +29,11 @@ const Map<String, SheetSpec> sheetRegistry = {
     handledStates: {'loading', 'error'},
     exits: {ScreenIds.evidenceSheet},
   ),
+  ScreenIds.evidenceSheet: SheetSpec(
+    ScreenIds.evidenceSheet,
+    handledStates: {'loading', 'error'},
+    exits: {ScreenIds.systemRewardedAd, ScreenIds.adFree},
+  ),
 };
 
 /// 시트 뿌리에 IA 화면 id를 Key와 Semantics `identifier`로 붙입니다(spec §6.6).

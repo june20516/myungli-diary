@@ -7,17 +7,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
+import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -115,6 +119,40 @@ final class _DailyHold extends Interceptor {
     if (options.path.startsWith('/v1/daily/')) {
       requested = true;
       await hold.future;
+    }
+    handler.next(options);
+  }
+}
+
+/// 잠금 해제 뒤 다시 받는 `/v1/daily/`를 [armed] 뒤부터 붙잡고, 풀리면 한 번은 503으로 끊습니다.
+final class _UnlockRefetch extends Interceptor {
+  bool armed = false;
+  bool requested = false;
+  bool _failed = false;
+  final release = Completer<void>();
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (!armed || !options.path.startsWith('/v1/daily/')) {
+      handler.next(options);
+      return;
+    }
+    requested = true;
+    await release.future;
+    if (!_failed) {
+      _failed = true;
+      handler.reject(
+        DioException.badResponse(
+          statusCode: 503,
+          requestOptions: options,
+          response: Response<Object?>(requestOptions: options, statusCode: 503),
+        ),
+        true,
+      );
+      return;
     }
     handler.next(options);
   }
@@ -365,5 +403,80 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['evidence-sheet>system-rewarded-ad', 'evidence-sheet>ad-free'],
+        states: ['evidence-sheet:loading', 'evidence-sheet:error'],
+        decisions: ['D60'],
+      ),
+    );
+    final container = await pumpApp(
+      tester,
+      scenario: 'reward-unlock',
+      overrides: [
+        rewardPollTimingProvider.overrideWithValue((
+          interval: const Duration(milliseconds: 100),
+          timeout: const Duration(seconds: 3),
+        )),
+      ],
+    );
+    await _settleToday(tester);
+    final refetch = _UnlockRefetch();
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, refetch);
+    final sheet = find.byKey(const Key(ScreenIds.evidenceSheet));
+    Finder inSheet(Finder matching) =>
+        find.descendant(of: sheet, matching: matching);
+    final unlock = evidenceUnlockControllerProvider(
+      const DailyEvidenceSubject(),
+    );
+
+    await tester.tap(find.byType(DepthLink));
+    await pumpUntil(
+      tester,
+      () => container.exists(unlock) && container.read(unlock).adReady,
+    );
+    expect(inSheet(find.byType(EvidenceLockPanel)), findsOneWidget);
+
+    // 광고 제거권 안내: 시트 위에 ad-free가 열리고, 돌아오면 보던 근거 시트입니다.
+    await tester.tap(
+      inSheet(find.bySemanticsIdentifier(SlotIds.evidenceSheetLockPass)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey(ScreenIds.adFree)), findsOneWidget);
+    container.read(routerProvider).pop();
+    await tester.pumpAndSettle();
+    expect(sheet, findsOneWidget);
+
+    // 광고를 끝까지 보면 확인 중 → 권한이 생기면 다시 받는 동안 skeleton입니다.
+    refetch.armed = true;
+    await tester.tap(inSheet(find.byKey(EvidenceLockPanel.ctaKey)));
+    await pumpUntil(tester, () => refetch.requested, allowOngoing: true);
+    expect(
+      inSheet(find.byKey(EvidenceSheetBody.sectionSkeletonKey)),
+      findsNWidgets(2),
+    );
+
+    // 다시 받기가 실패하면 오류 화면, 다시 시도하면 열립니다.
+    refetch.release.complete();
+    await pumpUntil(
+      tester,
+      () => inSheet(find.byType(ErrorState)).evaluate().isNotEmpty,
+    );
+    await tester.tap(inSheet(find.text(_ko.actionRetry)));
+    await pumpUntil(
+      tester,
+      () =>
+          container.read(dailyControllerProvider).value?.daily.evidenceAccess ==
+              EvidenceAccess.unlocked &&
+          inSheet(find.byType(EvidenceLockPanel)).evaluate().isEmpty,
+    );
+    expect(inSheet(find.text(_ko.evidenceSheetTitle)), findsOneWidget);
+    expect(inSheet(find.byType(ErrorState)), findsNothing);
   });
 }

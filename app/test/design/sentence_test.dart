@@ -16,6 +16,7 @@ import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
@@ -811,6 +812,105 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('unlocked인데 본문이 없는 구역은 제목도 자리도 그리지 않습니다(A22)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '오늘 풀이의 근거',
+              source: _text([Segment(text: '원전 인용 본문')]),
+              showPersonal: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('판정 근거'), findsNothing);
+      expect(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+        findsNothing,
+      );
+      expect(find.text('내 사주에서는'), findsNothing);
+      expect(find.byType(LockVeil), findsNothing);
+      expect(find.text('원전'), findsOneWidget, reason: '본문이 있는 구역은 그대로');
+      expect(find.text('원전 인용 본문', findRichText: true), findsOneWidget);
+    });
+
+    testWidgets('loading: 구역 자리마다 skeleton이고 제목과 잠금 안내는 그대로입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 360,
+            height: 640,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: Space.s20),
+              child: EvidenceSheetBody(
+                state: DepthLinkState.unlocking,
+                title: '오늘 풀이의 근거',
+                loading: true,
+                showPersonal: true,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        find.byKey(EvidenceSheetBody.sectionSkeletonKey),
+        findsNWidgets(3),
+      );
+      expect(find.byType(LockVeil), findsNothing);
+      expect(find.text('판정 근거'), findsOneWidget, reason: '구역 제목은 또렷합니다');
+      expect(find.text('오늘 풀이의 근거'), findsOneWidget);
+      expect(find.byKey(PrimaryButton.dotsKey), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(
+          lookupAppLocalizations(const Locale('ko')).skeletonLabel,
+        ),
+        findsWidgets,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('loading이 끝나 unlocked가 되면 skeleton이 사라지고 열림 알림이 옵니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      Widget build({required bool loading, required DepthLinkState state}) =>
+          _app(
+            SizedBox(
+              width: 360,
+              height: 640,
+              child: EvidenceSheetBody(
+                state: state,
+                title: '오늘 풀이의 근거',
+                loading: loading,
+                basis: state == DepthLinkState.unlocked
+                    ? _text([Segment(text: '판정 근거 본문')])
+                    : null,
+              ),
+            ),
+          );
+      await tester.pumpWidget(
+        build(loading: true, state: DepthLinkState.unlocking),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpWidget(
+        build(loading: false, state: DepthLinkState.unlocked),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(EvidenceSheetBody.sectionSkeletonKey), findsNothing);
+      expect(find.text('판정 근거 본문', findRichText: true), findsOneWidget);
+      expect(find.bySemanticsLabel('근거와 해석이 열렸어요'), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('처음부터 unlocked면 햅틱도 알림도 없습니다', (tester) async {
       final handle = tester.ensureSemantics();
       final haptics = _recordHaptics(tester);
@@ -1522,22 +1622,6 @@ void main() {
         SlotIds.evidenceSheetA11yUnlocked,
       );
       handle.dispose();
-    });
-
-    testWidgets('권한이 있는데 본문이 없으면 debug assert로 드러납니다', (tester) async {
-      await tester.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 360,
-            height: 300,
-            child: EvidenceSheetBody(
-              state: DepthLinkState.unlocked,
-              title: '식신',
-            ),
-          ),
-        ),
-      );
-      expect(tester.takeException(), isA<AssertionError>());
     });
 
     test('preview에 onTerm을 주면 assert로 드러납니다', () {

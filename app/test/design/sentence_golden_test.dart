@@ -89,7 +89,7 @@ Widget _termsAndLinks() => Column(
 
 const double _bodyHeight = 700;
 
-Widget _evidence(DepthLinkState state) {
+Widget _evidence(DepthLinkState state, {bool loading = false}) {
   final unlocked = state == DepthLinkState.unlocked;
   return SizedBox(
     height: _bodyHeight,
@@ -108,6 +108,7 @@ Widget _evidence(DepthLinkState state) {
             ? _text([Segment(text: '내 사주에서는 월지에 있어 힘이 커요.')])
             : null,
         showPersonal: true,
+        loading: loading,
         onWatchAd: () {},
         onPass: () {},
         animated: false,
@@ -168,6 +169,15 @@ void main() {
       );
     });
   }
+
+  goldenTest('depth-link evidenceSheet: 다시 받는 중(loading)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'sentence_evidence_loading',
+      () => _evidence(DepthLinkState.unlocking, loading: true),
+      settle: _settle,
+    );
+  });
 
   for (final withText in [true, false]) {
     goldenTest('explain-sheet 내용: ${withText ? '뜻·이유 있음' : '뜻·이유 없음'}', (

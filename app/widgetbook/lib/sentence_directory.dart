@@ -99,6 +99,33 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
               ),
             ),
           ),
+        WidgetbookUseCase(
+          name: '근거 시트 다시 받는 중(loading)',
+          builder: (context) => Stage(
+            child: SizedBox(
+              height: 640,
+              child: EvidenceSheetBody(
+                state: DepthLinkState.unlocking,
+                title: '오늘 풀이의 근거',
+                loading: true,
+                onWatchAd: () {},
+                onPass: () {},
+              ),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: '근거 시트 unlocked, 본문 없음(A22)',
+          builder: (context) => const Stage(
+            child: SizedBox(
+              height: 640,
+              child: EvidenceSheetBody(
+                state: DepthLinkState.unlocked,
+                title: '오늘 풀이의 근거',
+              ),
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(
