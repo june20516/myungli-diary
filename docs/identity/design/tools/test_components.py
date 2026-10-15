@@ -429,6 +429,9 @@ def test_actions_are_rounded_rectangles():
 
 def test_contract_version_is_2_3():
     assert VERSION == "2.3.0"
+    contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
+    row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
+    assert f"| {VERSION} |" in row
 
 
 def test_icon_set_version_is_not_contract_version():

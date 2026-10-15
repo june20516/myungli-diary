@@ -28,23 +28,31 @@
 | 컴포넌트 명세 (`components/`) | **제공** | app |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
-## 현재 상태 (2026-10-13, design 세션 작성)
-* **용신 근거 줄 이름 슬롯** (브랜치 `design/yongsin-title`, **컴포넌트 계약 2.2.0**, Issue #81): `sentence-block` `a11y.lockedNameSlot` = `saju-chart.yongsin.title`(잠김 라벨의 구역 이름).
-* **문장 조각 용어 표시·근거 잠금 슬롯** (브랜치 `design/lock-slots`, 그때 컴포넌트 계약 2.1.0, Issue #68, PR #83).
+계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
+
+## 현재 상태 (2026-10-15, design 세션 작성)
+* **구현 대응·IA v3·글자 수 상한** (브랜치 `design/spec-followups`, Issue #118·#142·#154·#159·#131).
+  * app 구현 차이 판단을 명세에 확정: 링크 화살표는 아이콘 `caret-right`로 컴포넌트가 그림, 고정 높이는 최소 높이, `dialog` `notice`, `segmented` `none`, 윤달 대체 모양, 탭 아이콘, 시간 형식, 근거 시트 빈 구역 생략, 요소 값 3개.
+  * IA v3: 출생지 → 계산 기준 링크 `depth-link` `navigate`(슬롯 `birthplace.standard.link`).
+  * 글자 수 상한: ui 이름 자리와 새 content 슬롯 칸을 더함, 상한 없음 표, 확인 창 슬롯은 제목·버튼 키만. 기존 확정값 그대로.
+  * 명세를 바꾸지 않는 Flutter 대응(의미 표시 등)은 각 `.md`의 구현 힌트에 적음.
+  * 근거: [spec](specs/2026-10-15-spec-followups-design.md), 결정 V29~V33.
+* **용신 근거 줄 이름 슬롯** (브랜치 `design/yongsin-title`, Issue #81): `sentence-block` `a11y.lockedNameSlot` = `saju-chart.yongsin.title`(잠김 라벨의 구역 이름).
+* **문장 조각 용어 표시·근거 잠금 슬롯** (브랜치 `design/lock-slots`, Issue #68, PR #83).
   * `sentence-block.parts.segments`: `term` 조각은 `term-token`이 있는 화면에서만 칩(`term-token` `inline`), 그 밖은 일반 글자. 용어와 붙은 조사는 한 덩어리로 줄바꿈.
   * IA v1 추가분(#70) 슬롯: `sentence-block` 열기(`saju-chart.yongsin.open`), 근거 시트 구역 제목 3개·해제 실패 toast·접근성 문구 3개.
   * 슬롯 이름과 `term-token` 화면 목록은 테스트가 IA에서 읽어 비교합니다.
   * 근거: [spec](specs/2026-10-13-term-segments-lock-slots-design.md), 결정 V28.
-* **V2 후속: 근거 깊이 잠금·글자 수 상한** (브랜치 `design/v2-followups`, 그때 컴포넌트 계약 2.0.0. 지금은 위 2.2.0, Issue #53·#54).
+* **V2 후속: 근거 깊이 잠금·글자 수 상한** (브랜치 `design/v2-followups`, Issue #53·#54).
   * 근거 시트 구성과 잠김 상태 4개(`depth-link.evidenceSheet`), 요소 `lock.veil`, `sentence-block` `locked`. 풀이 시트의 개인 해석 상자와 `term-token` 잠김은 뺌(D60).
   * 공통 규칙: 동작 = 둥근 사각, 표시·고르기 = 알약(예외 없음), 화면 좌우 여백 `space.20`.
   * 글자 수 상한: [`lengths.md`](lengths.md), 도구 `tools/lengths.py`(측정 글꼴은 `.suberpowers/fonts`, 없으면 표 비교 테스트 skip).
   * 근거: [spec](specs/2026-10-11-depth-lock-lengths-design.md), 결정 V25~V27.
-* **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`, 그때 컴포넌트 계약 1.0.0, 토큰 1.1.0. 지금은 위 2.2.0).
-  * 명세: [`components/`](components/README.md) JSON(사실) + MD(설명) 11쌍. 공통 `interaction`(패턴 12개)·`elements`(요소 15개, 2.0.0에서 16개).
+* **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`).
+  * 명세: [`components/`](components/README.md) JSON(사실) + MD(설명) 11쌍. 공통 `interaction`(패턴 12개)·`elements`(요소 15개, 근거 잠금에서 16개).
   * 검사: 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA 41개·토큰 참조·요소·패턴·상태 대응표·짝 MD).
   * 근거: [V2 spec](specs/2026-10-11-components-design.md), 결정 V13~V24. 대비 검사 86/86(비활성 글자 3:1).
-* **마일스톤 V1 디자인 토큰 freeze** (브랜치 `design/tokens`, 계약 1.0.0).
+* **마일스톤 V1 디자인 토큰 freeze** (브랜치 `design/tokens`).
   * 토큰: [`tokens/`](tokens/README.md) 다섯 파일. 생성: 저장소 루트에서 `python3 docs/identity/design/tools/tokens.py`. 손으로 고치지 않습니다.
   * 근거: [V1 spec](specs/2026-10-11-design-tokens-design.md), 결정 V8~V12. 대비 검사 52/52.
   * 길흉 표시는 점이 아니라 칸 채우기입니다(결정 V10).
@@ -62,6 +70,8 @@
 
 ## 다음 할 일
 지금은 대기합니다. 아래 일이 생기면 엽니다.
-1. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. 2.1.0 notice는 #82(2.2.0 추가분은 코멘트)입니다.
-2. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-3. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+1. **writing 확인 창 슬롯 답:** 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기를 어떻게 할지 writing 답(Issue #WRITING_ISSUE)이 오면 `tools/lengths.py`의 `DIALOG_SLOTS`·`NO_LIMIT`과 `lengths.md`를 맞춥니다.
+2. **윤달 조회 계약:** server 음력→양력·윤달 조회(#141)가 REST 계약에 들어오면 app에 `date-picker` `birth` 목표 모양(V31)으로 바꾸도록 확인합니다.
+3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+5. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
