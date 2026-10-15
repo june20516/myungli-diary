@@ -16,6 +16,8 @@
 #   - drift: 그 단위가 쓰는 계약 파일만 바뀌었습니다(예: server PR이 openapi.yaml만 바꿈). 받는 쪽이 아직
 #     따라오지 않아 실패할 수 있으므로 판정에서 빼고 경고로 남기며, PR이면 받는 쪽 앞으로 `drift` Issue를 엽니다.
 #     받는 쪽은 다음 PR(own)에서 맞춰야 병합할 수 있습니다. 통합 마일스톤(I1~I4)은 남은 drift 0이 조건입니다.
+#   - gate: 이 workflow(ci-gate.yml)만 바뀌었습니다. 실패하면 막되, 그 단위 앞으로 열린 `drift` Issue가 있으면
+#     이미 알려진 실패로 보고 경고만 남깁니다. 병렬로 일하는 동안 drift가 0이 되기를 기다리지 않으려는 것입니다.
 
 name: ci-gate
 
@@ -85,13 +87,15 @@ jobs:
           # writing은 생성 문서(.md)도 원본과 대조하므로(gen-docs --check) .md를 빼지 않습니다.
           code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
           # unit <이름> <바뀐 목록> <소유 경로> <쓰는 계약 경로>
-          # 소유 경로(또는 단위·이 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift, 둘 다 아니면 돌지 않습니다.
+          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift, 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
           unit() {
             name="$1"; list="$2"; own="$3"; contract="$4"
-            if echo "$list" | grep -qE "$own|^\.github/workflows/($name|ci-gate)\.yml$"; then
+            if echo "$list" | grep -qE "$own|^\.github/workflows/$name\.yml$"; then
               echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=own" >> "$GITHUB_OUTPUT"
             elif [ -n "$contract" ] && echo "$list" | grep -qE "$contract"; then
               echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=drift" >> "$GITHUB_OUTPUT"
+            elif echo "$list" | grep -qE '^\.github/workflows/ci-gate\.yml$'; then
+              echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=gate" >> "$GITHUB_OUTPUT"
             else
               echo "$name=false" >> "$GITHUB_OUTPUT"; echo "${name}_mode=none" >> "$GITHUB_OUTPUT"
             fi
@@ -103,7 +107,9 @@ jobs:
           # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
           unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/'
           # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144).
-          unit writing "$changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/'
+          # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
+          writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
+          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
           contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/|^core/message_(keys|params)\.json$|^proto/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
@@ -214,13 +220,62 @@ jobs:
             gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
           done
 
+  # main에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다. 원인 PR이 그 커밋에 들어 있는 drift Issue를 닫습니다.
+  # 원인 PR이 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
+  # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
+  drift-close:
+    needs: [changes, server, app, writing]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: 따라잡은 단위의 drift Issue 닫기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SERVER: ${{ needs.server.result }}
+          APP: ${{ needs.app.result }}
+          WRITING: ${{ needs.writing.result }}
+        run: |
+          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+            unit="${pair%%=*}"; result="${pair#*=}"
+            [ "$result" = "success" ] || continue
+            gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number,title \
+              --jq '.[] | "\(.number) \(.title)"' | while read -r number title; do
+              # 제목의 원인 PR(`PR #N`)이 이 main 커밋에 들어 있을 때만 닫습니다.
+              # 원인 PR이 열린 채 다른 PR이 먼저 병합되면, 이 통과는 원인 계약 변경을 아직 검사하지 않은 것입니다.
+              source=$(echo "$title" | sed -nE 's/.*PR #([0-9]+).*/\1/p')
+              [ -n "$source" ] || continue
+              state=$(gh pr view "$source" --json state,mergeCommit --jq '"\(.state) \(.mergeCommit.oid // "")"')
+              case "$state" in
+                MERGED\ *)
+                  merge_sha="${state#MERGED }"
+                  compare=$(gh api "repos/$GH_REPO/compare/$merge_sha...$SHA" --jq .status)
+                  if [ "$compare" = "ahead" ] || [ "$compare" = "identical" ]; then
+                    gh issue close "$number" --comment "main \`${SHA:0:7}\`(원인 PR #$source 포함)에서 $unit 검사가 통과해 자동으로 닫습니다($RUN_URL, docs/workflow.md §6.1)."
+                  fi ;;
+                CLOSED\ *)
+                  gh issue close "$number" --reason "not planned" --comment "원인 PR #$source이 병합되지 않고 닫혀 따라잡을 계약 변경이 없습니다. 자동으로 닫습니다." ;;
+              esac
+            done
+          done
+
   ci-gate:
     needs: [changes, docs, pr-body, core, server, app, writing]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      issues: read
     steps:
       - name: 판정
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           FIXED: ${{ needs.changes.result }} ${{ needs.docs.result }} ${{ needs.pr-body.result }}
           CORE: ${{ needs.changes.outputs.core_mode }}:${{ needs.core.result }}
           SERVER: ${{ needs.changes.outputs.server_mode }}:${{ needs.server.result }}
@@ -243,6 +298,9 @@ jobs:
             if [ "$mode_name" = "drift" ]; then
               echo "::warning title=drift ($unit)::계약 변경을 $unit이 아직 따라오지 않았습니다. 판정에서 빼고, 받는 쪽 다음 PR에서 맞춥니다(docs/workflow.md §6.1)."
               echo "* drift: $unit ($result)" >> "$GITHUB_STEP_SUMMARY"
+            elif [ "$mode_name" = "gate" ] && open=$(gh issue list --state open --label drift --label "to:$unit" --json number --jq 'map("#\(.number)")|join(" ")') && [ -n "$open" ]; then
+              echo "::warning title=gate ($unit)::이 workflow만 바뀌었고 $unit 앞으로 열린 drift($open)가 있어 알려진 실패로 봅니다(docs/workflow.md §6.1)."
+              echo "* gate: $unit ($result, 열린 drift $open)" >> "$GITHUB_STEP_SUMMARY"
             else
               failed="$failed $unit:$result"
             fi
