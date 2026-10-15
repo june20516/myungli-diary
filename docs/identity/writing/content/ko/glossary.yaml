@@ -1,0 +1,19 @@
+# 값 이름 원고(ko). 슬롯 명세는 slots/content/glossary.yaml입니다.
+# 지금은 앱 ARB로도 나가는 지지·날의 성격만 있습니다(#143). 나머지 범주는 W1에서 채웁니다.
+# 지지 이름에는 시·hour·刻을 붙이지 않습니다. 시진 확인 줄(onboardTimeHourConfirm) 틀이 붙입니다.
+- {slot: glossary.value_name, key: branch.ja, text: "자"}
+- {slot: glossary.value_name, key: branch.chuk, text: "축"}
+- {slot: glossary.value_name, key: branch.in, text: "인"}
+- {slot: glossary.value_name, key: branch.myo, text: "묘"}
+- {slot: glossary.value_name, key: branch.jin, text: "진"}
+- {slot: glossary.value_name, key: branch.sa, text: "사"}
+- {slot: glossary.value_name, key: branch.o, text: "오"}
+- {slot: glossary.value_name, key: branch.mi, text: "미"}
+- {slot: glossary.value_name, key: branch.shin, text: "신"}
+- {slot: glossary.value_name, key: branch.yu, text: "유"}
+- {slot: glossary.value_name, key: branch.sul, text: "술"}
+- {slot: glossary.value_name, key: branch.hae, text: "해"}
+- {slot: glossary.value_name, key: day_kind.gwiin_day, text: "귀인의 날"}
+- {slot: glossary.value_name, key: day_kind.yongsin_day, text: "용신의 날"}
+- {slot: glossary.value_name, key: day_kind.gisin_day, text: "기신의 날"}
+- {slot: glossary.value_name, key: day_kind.ordinary_day, text: "평범한 날"}

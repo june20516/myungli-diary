@@ -3,8 +3,10 @@
 import json
 from pathlib import Path
 
-from mlw.arb_export import GENERATED_NOTE, render_arb
-from mlw.model import Entry, ParamKind, Slot
+import pytest
+
+from mlw.arb_export import GENERATED_NOTE, render_arb, term_arb_key
+from mlw.model import Entry, LoadError, ParamKind, Slot
 
 ROLES = {"today.event.summary": "오늘 일정 개수와 첫 일정"}
 
@@ -81,3 +83,45 @@ def test_render_arb_is_stable_text() -> None:
     assert "\\u" not in text
     keys = list(json.loads(text))
     assert keys.index("depthSurface") > keys.index("todayEventSummaryDone")
+
+
+GLOSSARY = make_slot("glossary.value_name", "content", {"element.wood": {}, "branch.in": {}, "day_kind.gwiin_day": {}})
+TERM_ENTRIES = [
+    entry("glossary.value_name", "element.wood", "ko", "목"),
+    entry("glossary.value_name", "branch.in", "ko", "인"),
+    entry("glossary.value_name", "day_kind.gwiin_day", "ko", "귀인의 날"),
+    entry("glossary.value_name", "day_kind.gwiin_day", "en", "Helper day"),
+]
+
+
+def test_term_arb_key_is_lower_camel_case() -> None:
+    assert term_arb_key("branch.in") == "branchIn"
+    assert term_arb_key("day_kind.yongsin_day") == "dayKindYongsinDay"
+
+
+def test_render_arb_exports_branch_and_day_kind_names() -> None:
+    arb = json.loads(render_arb({**SLOTS, GLOSSARY.id: GLOSSARY}, [*ENTRIES, *TERM_ENTRIES], "ko", ROLES))
+    assert arb["branchIn"] == "인"
+    assert arb["@branchIn"] == {"description": "glossary.value_name: branch.in"}
+    assert arb["dayKindGwiinDay"] == "귀인의 날"
+    assert "elementWood" not in arb
+    assert list(arb)[-4:] == ["branchIn", "@branchIn", "dayKindGwiinDay", "@dayKindGwiinDay"]
+
+
+def test_render_arb_skips_term_names_missing_in_language() -> None:
+    arb = json.loads(render_arb({**SLOTS, GLOSSARY.id: GLOSSARY}, [*ENTRIES, *TERM_ENTRIES], "en", ROLES))
+    assert "branchIn" not in arb
+    assert arb["dayKindGwiinDay"] == "Helper day"
+
+
+def test_render_arb_rejects_term_key_used_by_ui_slot() -> None:
+    clash = make_slot("ui.birth.option", "ui", {"branchIn": {}})
+    slots = {**SLOTS, GLOSSARY.id: GLOSSARY, clash.id: clash}
+    with pytest.raises(LoadError):
+        render_arb(slots, [*ENTRIES, *TERM_ENTRIES, entry("ui.birth.option", "branchIn", "ko", "인")], "ko", ROLES)
+
+
+def test_render_arb_rejects_term_key_even_without_ui_manuscript() -> None:
+    clash = make_slot("ui.birth.option", "ui", {"branchIn": {}})
+    with pytest.raises(LoadError):
+        render_arb({**SLOTS, GLOSSARY.id: GLOSSARY, clash.id: clash}, [*ENTRIES, *TERM_ENTRIES], "ko", ROLES)

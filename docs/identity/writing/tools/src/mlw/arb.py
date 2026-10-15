@@ -1,10 +1,11 @@
-"""ARB 검사: 앱 화면 문구(ARB 파일)에 문장 단위 규칙을 적용합니다."""
+"""ARB 검사: 앱 화면 문구(ARB 파일)에 문장 단위 규칙을 적용합니다. ICU plural은 형태마다 펼쳐 검사합니다."""
 
 import json
 import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
+from mlw.icu import RULE_PLURAL, expand_entry, plural_problem
 from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
 from mlw.sentence import check_sentence
 
@@ -61,11 +62,19 @@ def check_arb(arb_paths: Sequence[Path], slots: Mapping[str, Slot], rules: RuleS
                 continue
             slot = slot_of.get(key)
             entry = Entry(path, lines.get(key, 1), slot.id if slot else "", key, None, 1, lang, value)
+            problem = plural_problem(value, lang)
+            if problem is not None:
+                findings.append(Finding(path, entry.line, RULE_PLURAL, "error", problem))
+                continue
             purpose = slot.purpose if slot else DEFAULT_PURPOSE
             max_length = slot.max_length.get(lang) if slot else None
             allowed = slot.allowed if slot else frozenset()
             forbidden = slot.forbidden if slot else frozenset()
-            findings.extend(
-                check_sentence(entry, purpose, rules, max_length, {}, allowed=allowed, forbidden=forbidden)
-            )
+            # plural은 형태마다 펼친 문장을 검사하고, 같은 문제는 한 번만 냅니다.
+            seen: set[tuple[str, str]] = set()
+            for form in expand_entry(entry):
+                for finding in check_sentence(form, purpose, rules, max_length, {}, allowed=allowed, forbidden=forbidden):
+                    if (finding.rule_id, finding.message) not in seen:
+                        seen.add((finding.rule_id, finding.message))
+                        findings.append(finding)
     return findings

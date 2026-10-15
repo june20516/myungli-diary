@@ -61,3 +61,18 @@ def test_arb_slot_allowed_skips_rule(tmp_path: Path, rules: RuleSet, slots: dict
     allowing = {**slots, depth_slot.id: replace(depth_slot, allowed=frozenset({"slop.P8"}))}
     path = write_arb(tmp_path, {"@@locale": "ko", "depthSurface": "반가워요!"})
     assert check_arb([path], allowing, rules) == []
+
+
+def test_arb_plural_passes(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    path = write_arb(tmp_path, {"@@locale": "ko", "citySearchResults": "결과 {count, plural, other{{count}개}}"})
+    assert check_arb([path], slots, rules) == []
+
+
+def test_arb_plural_forms_must_match_language(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    path = write_arb(tmp_path, {"@@locale": "ko", "citySearchResults": "{count, plural, one{{count}개} other{{count}개}}"})
+    assert [f.rule_id for f in check_arb([path], slots, rules)] == ["icu.plural"]
+
+
+def test_arb_plural_syntax_error_is_finding(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    path = write_arb(tmp_path, {"@@locale": "ko", "citySearchResults": "{count, plural, other{{count}개}"})
+    assert [f.rule_id for f in check_arb([path], slots, rules)] == ["icu.plural"]
