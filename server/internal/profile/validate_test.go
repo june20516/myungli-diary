@@ -171,6 +171,43 @@ func TestValidateBirth_NonCityHasNoLongitude(t *testing.T) {
 	assert.Nil(t, got.Longitude)
 }
 
+func TestValidateBirth_DoesNotAliasInputTime(t *testing.T) {
+	b := validBirth()
+	b.TimeStatus = TimeKnown
+	b.Time = &LocalTime{Hour: 9, Minute: 30}
+
+	got, err := ValidateBirth(b, "/birth")
+	require.NoError(t, err)
+	require.NotNil(t, got.Time)
+	got.Time.Hour = 23
+	assert.Equal(t, 9, b.Time.Hour, "사본의 Time을 바꿔도 입력은 그대로여야 합니다")
+}
+
+func TestValidateBirth_CheckOrder(t *testing.T) {
+	t.Run("상태 짝이 날짜보다 먼저", func(t *testing.T) {
+		b := validBirth()
+		b.TimeStatus = TimeKnown // 시각 없음
+		b.Date = LocalDate{2023, 2, 29}
+		_, err := ValidateBirth(b, "/birth")
+		requireViolation(t, err, Inconsistent, "/birth/time/value", RequiredByStatus)
+	})
+	t.Run("날짜가 시간대보다 먼저", func(t *testing.T) {
+		b := validBirth()
+		b.Date = LocalDate{2023, 2, 29}
+		b.Timezone = "Mars/Base"
+		_, err := ValidateBirth(b, "/birth")
+		requireViolation(t, err, DateInvalid, "/birth/date", NoStatusRule)
+	})
+	t.Run("범위가 도시보다 먼저", func(t *testing.T) {
+		b := validBirth()
+		b.Date = LocalDate{1900, 1, 30}
+		b.PlaceStatus = PlaceCity
+		b.CityID = "0"
+		_, err := ValidateBirth(b, "/birth")
+		requireViolation(t, err, BirthOutOfRange, "/birth/date", NoStatusRule)
+	})
+}
+
 func TestValidateBirth_PointerPrefix(t *testing.T) {
 	b := validBirth()
 	b.Date = LocalDate{2023, 2, 29}

@@ -70,3 +70,13 @@ func TestBirthHash_StableAndSensitive(t *testing.T) {
 	sameLongitude.CityID = "9999999"
 	assert.Equal(t, base, hashHex(sameLongitude), "도시 id는 해시에 들어가지 않습니다")
 }
+
+func TestBirthHash_UnknownTimeIgnoresStaleTime(t *testing.T) {
+	stale := hashBirth()
+	stale.TimeStatus = TimeUnknown // Time이 남아 있어도 정규형은 "-"
+	clean := stale
+	clean.Time = nil
+
+	assert.Equal(t, "v1|solar|0|1990-05-07|-|female|Asia/Seoul|126.978", canonicalBirth(stale))
+	assert.Equal(t, hashHex(clean), hashHex(stale))
+}

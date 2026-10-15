@@ -33,6 +33,10 @@ func ValidateBirth(b Birth, pointer string) (Birth, error) {
 
 	out := b
 	out.Longitude = nil
+	if b.Time != nil {
+		clock := *b.Time // 입력과 포인터를 공유하지 않도록 값을 복사합니다.
+		out.Time = &clock
+	}
 	if b.PlaceStatus == PlaceCity {
 		c, ok := city.Lookup(b.CityID)
 		if !ok {
