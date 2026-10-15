@@ -169,7 +169,7 @@ jobs:
           script: mkdir -p build && patrol test -t patrol_test --dart-define=API_MODE=fake --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; exit 1; }
         env:
           PATROL_ANALYTICS_ENABLED: "false"
-      # Patrol 파일 이름(<타임스탬프>_<태그>.png)을 <화면>__<상태|default>.png로 모은다.
+      # Patrol 파일 이름(<타임스탬프>_<태그>.png)을 <화면>__<상태|default>-<흐름>.png로 모은다(흐름은 테스트마다 달라 이름이 겹치지 않는다).
       - name: 스크린샷 모으기
         if: always()
         continue-on-error: true
@@ -183,6 +183,16 @@ jobs:
             app/build/e2e-screenshots/**
             app/build/e2e-native-screenshots/**
             app/build/patrol.log
+          if-no-files-found: warn
+      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML.
+      - name: Gradle 보고서 올리기
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-gradle-reports
+          path: |
+            app/build/app/reports/androidTests/**
+            app/build/app/outputs/androidTest-results/**
           if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.

@@ -35,6 +35,7 @@ void main() {
     // 한국 기기 흐름(출생지 입력 없음, D29)을 기기 설정과 상관없이 확인합니다.
     final container = await launchApp(
       $,
+      flow: 'onboarding',
       scenario: 'new-user',
       deviceLocale: const Locale('ko', 'KR'),
     );

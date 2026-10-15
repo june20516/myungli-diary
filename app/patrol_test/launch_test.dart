@@ -7,7 +7,7 @@ import 'support/e2e_app.dart';
 void main() {
   patrolTest('new-user 시나리오는 welcome 화면에 도착합니다', ($) async {
     covers(const Covers(exits: ['launch>welcome'], decisions: ['D50']));
-    await launchApp($, scenario: 'new-user');
+    await launchApp($, flow: 'launch', scenario: 'new-user');
 
     await expectScreen($, ScreenIds.welcome);
   });

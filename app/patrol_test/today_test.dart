@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart' show expect, find, findsNothing;
+import 'package:flutter_test/flutter_test.dart'
+    show expect, find, findsNothing, findsOneWidget;
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
@@ -31,9 +32,15 @@ Future<void> _waitUntil(
   }
 }
 
-/// 시트 바깥(화면 왼쪽 위)을 눌러 열린 시트를 모두 닫습니다.
+/// 시트 덮개(`sheet.scrim`)의 왼쪽 위 모서리 안쪽을 눌러 열린 시트를 모두 닫습니다.
+///
+/// 덮개는 화면 전체이고 시트가 아래쪽을 가리므로, 시트에 가려지지 않는 모서리를
+/// 덮개 위치에서 구해 누릅니다(고정 좌표가 아님). 덮개에 의미 있는 탭 대상(`Semantics`)이
+/// 있지만 그 자식은 `ExcludeSemantics`라 finder로 직접 누르면 가운데(시트 위)를 눌러 버립니다.
 Future<void> _closeSheets(PatrolIntegrationTester $) async {
-  await $.tester.tapAt(const Offset(10, 10));
+  final scrim = find.byKey(const ValueKey('sheet.scrim'));
+  expect(scrim, findsOneWidget);
+  await $.tester.tapAt($.tester.getTopLeft(scrim) + const Offset(10, 10));
   await $.pumpAndTrySettle();
 }
 
@@ -55,6 +62,7 @@ void main() {
       // 문구가 아니라 IA id·Key·위젯 타입으로 찾으므로 기기 언어와 무관하지만, 표시 언어는 고정합니다.
       final container = await launchApp(
         $,
+        flow: 'today',
         scenario: 'reward-unlock',
         deviceLocale: const Locale('ko', 'KR'),
       );
@@ -136,6 +144,7 @@ void main() {
           Brightness.dark,
         );
         await _closeSheets($);
+        expect(find.byKey(const Key(ScreenIds.sharePreview)), findsNothing);
       } finally {
         $.tester.platformDispatcher.clearPlatformBrightnessTestValue();
       }
