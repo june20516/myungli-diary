@@ -75,7 +75,7 @@
    - design #131: ui 이름 자리와 새 content 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
 3. **#153 PR을 병합합니다.** app은 `direction*` 임시 키를 `direction8*`로 바꾸고 가져오기 도구를 다시 돌립니다. 새 슬롯의 글자 수 상한은 design #131에 함께 요청합니다.
-4. **drift #174와 #158(IA v3·D70~D72)을 한 PR로:** IA v3(PR #157)는 main에 있으니 `origin/main`에서 새 브랜치로 합니다. IA v3 ui 슬롯 3개, `calc-basis.longitude.body` 경도·보정 매개변수 틀, glossary ja 근거 용어집(`docs/research/ja-terms/`, 身旺/身強, 忌神 읽기, 紺色/ネイビー 결정), D72 부정 신호 규칙입니다. PR 본문에 `Closes #174`·`Closes #158`.
+4. **#158(IA v3·D70~D72):** `origin/root/ia-v3`(PR #157)를 merge한 새 브랜치에서 합니다. IA v3 ui 슬롯 3개, `calc-basis.longitude.body` 경도·보정 매개변수 틀, glossary ja 근거 용어집(身旺/身強, 忌神 읽기, 紺色/ネイビー 결정), D72 부정 신호 규칙입니다. 단독 병합 금지 묶음입니다.
 5. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
 6. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
 7. **W1:** 콘텐츠 3개 언어 원고(원국 개인 해석, 용어 뜻 77개, 일간 소개, 날의 성격 이유 포함)를 쓰고 원어민 검수를 받습니다. ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
