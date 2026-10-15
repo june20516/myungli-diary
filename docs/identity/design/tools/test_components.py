@@ -611,3 +611,29 @@ def test_social_login_disabled_and_apple_label():
     assert button["states"]["disabled"]["parts"]["container"] == {"opacity": 0.4}
     apple = next(v for v in button["variants"] if v["id"] == "apple")
     assert apple["parts"]["label"] == {"fontFamily": "platform-system", "type": "{type.label.lg}"}
+
+
+def test_tab_icons_cover_ia_tabs():
+    icons = component("frame", "tab-bar")["parts"]["icons"]
+    assert icons == {"today": "sun", "calendar": "calendar-blank", "diary": "notebook", "me": "user"}
+    assert set(icons) == {screen["tab"] for screen in ia_screens().values() if screen["tab"]}
+
+
+def test_app_bar_hides_back_on_flow_first_screens():
+    rules = component("frame", "app-bar")["rules"]
+    assert any("consent" in rule and "notify-ask" in rule and "뒤로" in rule for rule in rules)
+
+
+def test_lucky_time_value_format():
+    time = next(v for v in component("today", "lucky-card")["variants"] if v["id"] == "time")
+    assert time["parts"]["value"] == {"format": "HH:mm–HH:mm", "clock": "24h", "timeZone": "profile",
+                                      "join": " · ", "fontFeatures": ["tnum"]}
+
+
+def test_element_values_from_app_feedback():
+    elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
+    assert elements["icon"]["set"]["flutter"] == "phosphor_glyphs"
+    assert elements["icon"]["set"]["flutterVersion"] == "2.1.2+1"
+    assert elements["mark.caution"]["size"] == {"ratio": 0.707, "of": "font-size",
+                                                "basis": "Pretendard OS/2 sCapHeight 1448 / 2048"}
+    assert elements["lock.veil"]["lines"] == {"default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1}

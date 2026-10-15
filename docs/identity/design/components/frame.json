@@ -16,6 +16,7 @@
         },
         "tab": { "count": 4, "minTarget": 48 },
         "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "icons": { "today": "sun", "calendar": "calendar-blank", "diary": "notebook", "me": "user" },
         "label": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
         "seal": { "element": "seal", "variant": "fill", "size": { "value": 34, "unit": "px" } }
       },
@@ -58,7 +59,8 @@
       "a11y": { "role": "header", "label": "화면 제목", "backLabel": "뒤로", "minTarget": 44 },
       "rules": [
         "바탕을 칠하지 않는다. 내용이 스크롤되어 아래로 지나가도 그림자·선을 더하지 않는다.",
-        "오른쪽 동작은 두 개까지. 초안 상태(draft-indicator)는 동작 왼쪽에 둔다."
+        "오른쪽 동작은 두 개까지. 초안 상태(draft-indicator)는 동작 왼쪽에 둔다.",
+        "갈래의 첫 화면이라 돌아갈 곳이 없으면(consent, notify-ask) inner여도 뒤로 버튼을 숨긴다. 뒤로 자리를 비워 두지 않고 제목은 같은 자리에서 시작한다."
       ]
     },
     {

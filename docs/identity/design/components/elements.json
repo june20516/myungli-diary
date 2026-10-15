@@ -109,7 +109,7 @@
       "summary": "경고 표시: 되돌릴 수 없는 동작. 빨간색 없음 (결정 V18)",
       "icon": { "set": "phosphor", "name": "warning-circle", "weight": "fill" },
       "color": "inherit-text",
-      "size": "cap-height-of-text",
+      "size": { "ratio": 0.707, "of": "font-size", "basis": "Pretendard OS/2 sCapHeight 1448 / 2048" },
       "placement": "before-text-inline"
     },
     "link.inline-nowrap": {
@@ -148,7 +148,7 @@
     },
     "icon": {
       "summary": "아이콘: Phosphor (결정 V15)",
-      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_flutter" },
+      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_glyphs", "flutterVersion": "2.1.2+1" },
       "weights": { "default": "light", "selected": "regular", "caution": "fill" },
       "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)"],
       "sizes": { "tab": { "value": 24, "unit": "px" }, "bar": { "value": 24, "unit": "px" }, "inline": { "value": 16, "unit": "px" }, "state": { "value": 28, "unit": "px" } },
@@ -159,6 +159,7 @@
       "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": { "value": 14, "unit": "px" }, "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": { "value": 4, "unit": "px" } },
       "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": { "value": 6, "unit": "px" } },
       "placeholder": "실제 내용은 내려받지 않음. 자리 채우기 글을 server가 준 길이 힌트만큼, 없으면 두 줄",
+      "lines": { "default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1 },
       "a11y": { "label": "구역 제목 + '잠김'", "bodyExcluded": true },
       "reduceMotion": "흐림은 대상 자신의 효과라 그대로 둠(결정 V14)",
       "where": ["depth-link evidenceSheet basis·source·personal", "sentence-block locked"]

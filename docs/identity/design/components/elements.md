@@ -1,6 +1,6 @@
 # 요소 (`elements.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §4, 결정 V15·V16·V18, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §3(`lock.veil`, 결정 V25)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §4, 결정 V15·V16·V18, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §3(`lock.veil`, 결정 V25), [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.13
 * 여러 컴포넌트가 함께 쓰는 반복 패턴입니다. 컴포넌트는 `uses`로 가리킵니다. 요소를 고치면 그 요소를 쓰는 모든 컴포넌트가 함께 바뀝니다.
 
 | 요소 | 정의 | 쓰는 곳 |
@@ -60,6 +60,8 @@
 
 빨간색을 쓰는 대신, 글자 높이에 맞춘 Phosphor `warning-circle` Fill을 문장 앞에 둡니다. 색은 놓인 글자의 색을 따릅니다. 아이콘 세트에서 Fill을 쓰는 곳은 이것뿐입니다.
 
+크기는 **글자 크기 × 0.707**입니다(Pretendard OS/2 `sCapHeight` 1448 / 2048, Regular·SemiBold 같음). 0.7로 근사해도 같은 결과입니다.
+
 ## 끊기지 않는 링크 `link.inline-nowrap`
 
 이유 문장 끝에 붙는 "근거 보기 ›"가 줄 끝에서 둘로 갈라지지 않게 합니다. 링크 낱말 사이에 U+00A0(줄바꿈 없는 공백), 글자 사이에 U+2060(단어 결합자)을 넣어 한 덩어리로 만들고, 줄 끝에 안 들어가면 통째로 다음 줄로 넘깁니다. Flutter는 `TextSpan` + `TapGestureRecognizer`, 스크린리더 초점은 링크에 따로 줍니다.
@@ -71,12 +73,13 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 * 제목: 자물쇠 `lock-simple` Regular 14 + 구역 이름(`type.label.md`, `text.secondary`). 무엇이 잠겼는지 늘 읽힙니다.
 * 본문: `type.sentence.body`를 흐림 6px, 투명도 0.5로 그리고 선택·복사를 막습니다. V2 풀이 시트 잠김 변형의 값을 그대로 옮겼습니다.
 * **실제 내용은 내려받지 않습니다**(server가 빼서 보냄, D60 ④). 흐린 글은 자리 채우기입니다. server가 길이 힌트를 주면 그 길이, 없으면 두 줄입니다.
+* 줄 수는 매개변수 `lines`입니다. 기본은 위와 같고 `sentence-block` `locked`는 1줄입니다. app의 `LockVeil.line`은 새 변형이 아니라 `lines: 1`입니다.
 * 스크린리더는 "판정 근거, 잠김"처럼 제목 + "잠김"만 읽고 흐린 글은 건너뜁니다.
 * 동작 줄이기에서도 흐림은 그대로 둡니다(대상 자신의 효과, 결정 V14).
 
 ## 아이콘 `icon`
 
-* Phosphor 2.1.2(MIT), Flutter `phosphor_flutter`.
+* Phosphor 2.1.2(MIT), Flutter `phosphor_glyphs` 2.1.2+1. `phosphor_flutter` 2.1.0은 Flutter 3.47에서 컴파일되지 않아 같은 세트·버전을 담은 패키지로 바꿨습니다.
 * 평소·미선택 Light, 선택 Regular. Bold·Thin·Duotone은 쓰지 않고, Fill은 경고 표시만.
 * 세트에 없는 것(오행, 절기, 시간 모름 등)은 Phosphor 24 격자와 획 규칙으로 직접 그립니다.
 * 소셜 로그인 로고는 아이콘 세트에서 가져오지 않습니다(각 사 공식 자산).

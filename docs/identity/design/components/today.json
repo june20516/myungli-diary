@@ -29,7 +29,7 @@
         { "id": "color", "when": "행운 색", "uses": ["ohaeng.swatch"], "parts": { "lead": { "swatch": { "size": { "value": 14, "unit": "px" }, "radius": "{radius.full}" } } } },
         { "id": "direction", "when": "행운 방향", "parts": { "lead": { "icon": "compass" } } },
         { "id": "number", "when": "행운 숫자", "parts": { "lead": { "icon": "hash" } } },
-        { "id": "time", "when": "행운 시간", "parts": { "lead": { "icon": "clock" } } }
+        { "id": "time", "when": "행운 시간", "parts": { "lead": { "icon": "clock" }, "value": { "format": "HH:mm–HH:mm", "clock": "24h", "timeZone": "profile", "join": " · ", "fontFeatures": ["tnum"] } } }
       ],
       "parts": {
         "chip": { "bg": "{color.chip.bg}", "radius": "{radius.full}", "height": { "value": 34, "unit": "px" }, "paddingX": "{space.12}", "gap": { "value": 6, "unit": "px" } },
@@ -47,7 +47,8 @@
       "a11y": { "role": "button", "label": "항목 이름 + 값", "expandedAnnounced": true, "minTarget": 44 },
       "rules": [
         "한 번에 하나만 열린다. 다른 칩을 누르면 열린 설명이 바뀐다.",
-        "칩 줄은 화면 폭에 따라 두 줄로 넘어간다. 설명 상자는 칩 줄 아래 전체 폭으로 열린다."
+        "칩 줄은 화면 폭에 따라 두 줄로 넘어간다. 설명 상자는 칩 줄 아래 전체 폭으로 열린다.",
+        "time 값은 프로필 시간대 24시간 HH:mm–HH:mm(en dash), 구간이 여럿이면 ' · '로 잇는다. 세 언어 같은 형식."
       ]
     },
     {
