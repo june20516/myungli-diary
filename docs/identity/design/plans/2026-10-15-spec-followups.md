@@ -13,7 +13,9 @@
 ## Global Constraints
 
 * 명령은 저장소 루트(`/Users/bran/personal/myungli-diary-design`, 브랜치 `design/spec-followups`)에서 실행합니다. 테스트: `uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q`. 측정 글꼴은 `.suberpowers/fonts/`에 있으므로 `lengths.md` 표 비교가 실제로 돕니다(skip이면 실패로 봅니다).
-* 고칠 수 있는 곳은 `docs/identity/design/`과 GitHub Issues뿐입니다. `docs/ia/`, writing 파일은 읽기만 합니다.
+* 고칠 수 있는 곳은 `docs/identity/design/`, GitHub Issues, 그리고 계약 목록 `docs/contracts/README.md`의 컴포넌트 명세 행(design이 제공하는 계약)뿐입니다.
+* 계약 버전의 기준은 `docs/contracts/README.md` 하나입니다. design `CLAUDE.md`에는 버전을 적지 않습니다.
+* 공개 저장소(D74): Issue·PR·커밋·문서에 가격·수익 수치를 적지 않고, 비공개 경로는 링크하지 않습니다("비공개 기록 `…`"으로 글로만). `docs/ia/`, writing 파일은 읽기만 합니다.
 * 부 버전입니다. 기존 구성 요소·필드·변형·상태의 이름을 바꾸거나 빼지 않습니다. 값과 규칙 문장만 바꾸고, 새 것은 더합니다.
 * 새 토큰은 없습니다. 참조는 기존 토큰만 씁니다.
 * JSON에 넣는 `slot` 값은 모두 main의 `docs/ia/screens.json`에 있어야 합니다(`test_every_slot_exists_in_ia`). IA v3(PR #157)가 main에 병합되었으므로 `birthplace.standard.link`도 JSON(`navigate.parts.label.slot`)에 적습니다.
@@ -303,9 +305,10 @@ def test_existing_rows_keep_their_values(capsys):
 - Modify: `docs/identity/design/decisions.md`, `docs/identity/design/CLAUDE.md`
 
 - [ ] **Step 1:** `decisions.md`에 V29~V33 다섯 줄(날짜 2026-10-15, 근거 열은 "사용자 결정 (#118·#142·#154·#159·#131 brainstorming), [spec](specs/2026-10-15-spec-followups-design.md) §n"): V29 화살표 §2.2, V30 최소 높이 §2.1, V31 윤달 §2.8, V32 navigate §4, V33 글자 수 확장 §5. 기존 표 형식(`| V29 | 2026-10-15 | 링크 | … | … |`)을 따릅니다.
-- [ ] **Step 2:** `CLAUDE.md`: 범위 표와 계약 표의 "계약 2.2.0" → 2.3.0. "현재 상태" 머리를 `(2026-10-15, design 세션 작성)`으로, 맨 위에 이 작업 항목(브랜치 `design/spec-followups`, 계약 2.3.0, Issue #118·#142·#154·#159·#131, 요점 4줄, 근거 spec·V29~V33). "다음 할 일"에 ① writing 확인 창 슬롯 답(Task 8 Issue 번호) ② server 윤달 조회(#141)가 계약에 들어오면 app에 목표 모양 전환 확인 ③ 기존 2·3 유지. 15행 `docs/background/06-design-system.md` 언급은 공개 전환(D74)으로 이 저장소에 없으므로 "V0의 입력은 제품 배경 06(비공개 저장소)" 으로 고칩니다. Issue·PR·커밋에는 가격·수익 같은 내부 수치를 적지 않습니다(D74).
+- [ ] **Step 2:** `CLAUDE.md`: 계약 버전 표기를 모두 뺍니다("현재 상태" 항목의 `컴포넌트 계약 2.2.0`·`그때 컴포넌트 계약 x.y.z`·`지금은 위 2.2.0`·`계약 1.0.0`, "다음 할 일"의 `2.1.0 notice는 #82(2.2.0 추가분은 코멘트)` → `notice는 #82`). 버전은 `docs/contracts/README.md`를 보라는 한 줄을 계약 표 아래에 둡니다. "현재 상태" 머리를 `(2026-10-15, design 세션 작성)`으로, 맨 위에 이 작업 항목(브랜치 `design/spec-followups`, Issue #118·#142·#154·#159·#131, 요점 4줄, 근거 spec·V29~V33). "다음 할 일"에 ① writing 확인 창 슬롯 답(Task 8 Issue 번호) ② server 윤달 조회(#141)가 계약에 들어오면 app에 목표 모양 전환 확인 ③ 기존 2·3 유지.
 - [ ] **Step 3: 전체 검사.** `python3 docs/identity/design/tools/components.py` → 문제 0. 전체 pytest → 전부 PASS, skip은 워드마크 글꼴 테스트 외 0.
-- [ ] **Step 4: Commit** `docs(design): 결정 V29~V33, CLAUDE.md 현재 상태`
+- [ ] **Step 3b: 계약 목록 행.** `docs/contracts/README.md`의 "컴포넌트 명세" 행: 버전 칸 `2.2.0` → `2.3.0`, 상태 칸 끝에 ` 2.3.0 PR #<번호>: 링크 화살표 아이콘(V29), 최소 높이(V30), 윤달 대체(V31), depth-link navigate(V32, IA v3), 글자 수 확장(V33). 추가만.`을 더하고, 근거 칸에 `V28~V33`을 반영합니다. PR 번호는 Task 8 Step 2 뒤 채웁니다. `test_contract_version_is_2_3`에 계약 목록 행에 `| 2.3.0 |`이 있는지 보는 assert를 더합니다(파일은 저장소 루트 기준 경로).
+- [ ] **Step 4: Commit** `docs(design): 결정 V29~V33, CLAUDE.md 현재 상태, 계약 목록 2.3.0`
 
 ### Task 8: PR과 Issue
 
@@ -315,5 +318,6 @@ def test_existing_rows_keep_their_values(capsys):
   * 마일스톤은 지금 열린 Issue(#142 등)의 마일스톤을 `gh issue view 142 --json milestone`으로 보고 같은 것을 붙입니다.
 - [ ] **Step 2: PR 열기.** `gh pr create --base main --head design/spec-followups`, 제목 `design: 컴포넌트 계약 2.3.0 — 구현 대응·depth-link navigate·글자 수 상한 (#118·#142·#154·#159·#131)`. 본문: 요약, 검사 결과, `Closes #118`·`Closes #142`·`Closes #154`·`Closes #159`·`Closes #131` 한 줄씩, 새 Issue 두 번호.
 - [ ] **Step 3: 답 코멘트.** #118·#142·#154·#131·#159에 항목별 판단 요약과 PR 번호, 명세 위치를 코멘트로 남깁니다(PR 병합 때 `Closes`로 닫힘).
-- [ ] **Step 4:** Task 7의 `CLAUDE.md` "다음 할 일"에 writing Issue 번호를 채워 commit·push(`docs(design): CLAUDE.md에 후속 Issue 번호`).
-- [ ] **Step 5:** PR의 CI(`ci-gate`)가 통과하는지 `gh pr checks <번호> --watch`로 확인합니다.
+- [ ] **Step 4:** Task 7의 `CLAUDE.md` "다음 할 일"에 writing Issue 번호, 계약 목록 상태 칸에 PR 번호를 채워 commit·push(`docs(design): 후속 Issue·PR 번호`).
+- [ ] **Step 4b: 공개 확인(D74).** `git diff origin/main...HEAD`와 PR·Issue 본문에 가격·수익 수치, `docs/business`·`docs/ideas.md`·`docs/background` 링크가 없는지 `grep -nE "docs/(business|background)|ideas\.md|가격|수익|₩|원/월"`로 확인합니다(비공개 기록을 글로만 적은 줄은 허용).
+- [ ] **Step 5:** PR의 CI(`ci-gate`)가 통과하는지 `gh pr checks <번호> --watch`로 확인합니다. 병합은 사용자가 합니다(design 세션은 병합하지 않음).

@@ -205,7 +205,8 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 | `tools/components.py` | `CONTRACT_VERSION` 2.3.0 |
 | `tools/lengths.py`, `lengths.md` | §5 |
 | `decisions.md` | V29 화살표, V30 최소 높이, V31 윤달, V32 navigate, V33 글자 수 확장 |
-| `CLAUDE.md` | 현재 상태·다음 할 일 |
+| `CLAUDE.md` | 현재 상태·다음 할 일 (계약 버전 표기 없음) |
+| `docs/contracts/README.md` | 컴포넌트 명세 행: 버전 2.3.0, 상태 줄 |
 
 이름이 바뀌거나 빠지는 것이 없으므로 부 버전입니다. 새 필드 이름(`icons`, `omitWhen`, `leapMonthFallback`, `none`, `notice`, `navigate`, `label.apple`, `lines`)이 검사기의 허용 필드 밖이면 검사기 쪽 목록에도 더합니다.
 
@@ -216,7 +217,7 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 * #159: PR 본문 `Closes #159`. IA v3(PR #157)는 이미 main에 병합되었습니다.
 * app 앞 request(`kind:request`): 컴포넌트 계약 2.3.0. 바뀐 값(화살표 아이콘, 시간 형식 등)과 새 변형·상태를 알립니다. app이 이미 그렇게 구현한 것과 바꿔야 할 것(region 줄, input-step 아래 버튼, dialog `notice`, segmented `none`)을 나눠 적습니다. 받는 쪽에 일을 시키는 공지이므로 notice가 아니라 request입니다(workflow §5.2).
 * writing 앞 request(`kind:request`): 확인 창 슬롯을 역할별로 나눌지(§5.4), 상한 없음 슬롯을 어떻게 표기할지(§5.3).
-* 계약 목록(`docs/contracts/README.md`) 버전 갱신은 지휘가 합니다.
+* 계약 목록(`docs/contracts/README.md`)의 컴포넌트 명세 행(버전 2.3.0, 상태 줄에 이 PR 요약)은 주는 쪽인 design이 이 PR에서 직접 고칩니다. design `CLAUDE.md`에는 계약 버전을 적지 않습니다.
 
 ## 8. 검사
 
