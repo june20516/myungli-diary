@@ -34,7 +34,7 @@ List<LuckyItem> _items() => [
   LuckyItem(
     variant: LuckyCardVariant.direction,
     name: '행운 방향',
-    value: '동쪽',
+    value: '동',
     explain: _text('동쪽에서 좋은 기운이 들어와요.'),
   ),
   LuckyItem(
@@ -346,7 +346,7 @@ void main() {
         const BorderRadius.all(Radius.circular(9999)),
       );
       final value = tester.widget<Text>(
-        find.descendant(of: surface, matching: find.text('동쪽')),
+        find.descendant(of: surface, matching: find.text('동')),
       );
       expect(value.style?.fontSize, tokens.typography.labelMd.fontSize);
       expect(value.style?.color, tokens.colors.textPrimary);
@@ -407,7 +407,7 @@ void main() {
       final value = tester.getRect(
         find.descendant(
           of: _chip(LuckyCardVariant.direction),
-          matching: find.text('동쪽'),
+          matching: find.text('동'),
         ),
       );
       expect(icon.left - chip.left, 12);
@@ -533,7 +533,7 @@ void main() {
         expect(_explain(LuckyCardVariant.direction), findsNothing);
         expect(find.byKey(LuckyCardRow.explainKey), findsNothing);
         final data = _data(tester, _chipNode(LuckyCardVariant.direction));
-        expect(data.label, '행운 방향, 동쪽');
+        expect(data.label, '행운 방향, 동');
         expect(data.flagsCollection.isButton, isFalse);
         expect(data.hasAction(SemanticsAction.tap), isFalse);
         handle.dispose();
@@ -625,7 +625,7 @@ void main() {
           Center(child: LuckyChip(item: _items()[1], open: false, onTap: null)),
         ),
       );
-      expect(find.text('동쪽'), findsOneWidget);
+      expect(find.text('동'), findsOneWidget);
       expect(find.byType(Icon), findsOneWidget);
     });
 

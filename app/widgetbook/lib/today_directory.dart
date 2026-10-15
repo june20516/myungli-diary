@@ -39,7 +39,7 @@ final List<LuckyItem> _luckyItems = [
   LuckyItem(
     variant: LuckyCardVariant.direction,
     name: '행운 방향',
-    value: '동쪽',
+    value: '동',
     explain: RenderedText(segments: [Segment(text: '동쪽에서 좋은 기운이 들어와요.')]),
   ),
   LuckyItem(

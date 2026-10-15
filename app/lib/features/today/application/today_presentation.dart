@@ -49,7 +49,7 @@ DayCharacterContent dayCharacterOf(Daily daily, AppLocalizations l10n) =>
       label: dayKindName(l10n, daily.dayKind),
     );
 
-/// 행운 방향 이름(임시 ARB `direction*`, 결정 A27).
+/// 행운 방향 이름(writing 원고 키 `direction8*`, glossary 범주 `direction8`, 결정 W23).
 String directionName(AppLocalizations l10n, Direction direction) =>
     switch (direction) {
       Direction.n => l10n.direction8N,

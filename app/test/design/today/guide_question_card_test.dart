@@ -211,7 +211,7 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('after면 "오늘 일기를 썼어요"을 상태(status)로 읽고 도장 그림은 읽지 않습니다', (
+      testWidgets('after면 "오늘 일기를 썼어요"를 상태(status)로 읽고 도장 그림은 읽지 않습니다', (
         tester,
       ) async {
         final handle = tester.ensureSemantics();
