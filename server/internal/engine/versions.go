@@ -3,7 +3,6 @@ package engine
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"sync/atomic"
 	"time"
@@ -54,6 +53,12 @@ func (v *Versions) Current() (string, error) {
 func (v *Versions) Run(ctx context.Context, interval time.Duration) {
 	v.refreshAndLog(ctx)
 
+	if interval <= 0 {
+		v.logger.Warn("엔진 ruleset_version 갱신 주기가 0 이하라 시작 시 한 번만 갱신합니다")
+		<-ctx.Done()
+		return
+	}
+
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	for {
@@ -71,5 +76,5 @@ func (v *Versions) refreshAndLog(ctx context.Context) {
 	if err == nil || errors.Is(err, context.Canceled) {
 		return
 	}
-	v.logger.Warn("엔진 ruleset_version 갱신 실패", slog.String("error", fmt.Sprint(err)))
+	v.logger.Warn("엔진 ruleset_version 갱신 실패", slog.Any("error", err))
 }
