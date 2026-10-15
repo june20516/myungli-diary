@@ -66,7 +66,7 @@ jobs:
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
           echo "$changed"
-          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
+          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^docs/research/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
             echo "docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
@@ -111,7 +111,7 @@ jobs:
       - name: docs 검사 테스트
         working-directory: tools/docs-check
         run: python3 -I -m unittest -q
-      - name: docs 검사 (링크·artifacts·결정 번호)
+      - name: docs 검사 (링크·artifacts·결정 번호·IA·아이디어·ja 근거 용어집)
         run: python3 -I tools/docs-check/docs_check.py .
 
   pr-body:

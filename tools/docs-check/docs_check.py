@@ -1,9 +1,10 @@
-"""저장소 문서 검사: 상대 링크, artifacts/index.json 형식, 결정 번호 중복, IA 계약, 아이디어 함.
+"""저장소 문서 검사: 상대 링크, artifacts/index.json 형식, 결정 번호 중복, IA 계약, 아이디어 함, ja 근거 용어집.
 
 실행: python3 -I tools/docs-check/docs_check.py [저장소 루트]
 규칙 근거: docs/workflow.md §7, docs/specs/2026-10-10-collab-workflow-design.md §4.1,
           docs/specs/2026-10-11-ia-design.md §5·§9 (IA),
-          docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.6 (아이디어 함)
+          docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.6 (아이디어 함),
+          docs/research/ja-terms/README.md (ja 근거 용어집, D70)
 """
 
 import json
@@ -52,6 +53,18 @@ IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S
 UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 TABLE_SEPARATOR = re.compile(r"\|(\s*:?-+:?\s*\|)+")
 IDEA_DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+# ja 근거 용어집(D70). 출처 종류별 등급과 신뢰도 규칙은 docs/research/ja-terms/README.md와 같습니다.
+JA_TERMS_DIR = "docs/research/ja-terms"
+GLOSSARY_PATH = "docs/identity/writing/slots/content/glossary.yaml"
+GLOSSARY_KEY_PATTERN = re.compile(r"^\s+- ([a-z_]+\.[a-z_0-9]+)\s*$", re.MULTILINE)
+JA_TERM_ID_PATTERN = re.compile(r"[a-z_]+\.[a-z_0-9]+")
+JA_SOURCE_FIELDS = ("id", "kind", "publisher", "title", "url", "accessed")
+JA_SOURCE_TIERS = {
+    "dictionary": "A", "book": "A", "academic": "A",
+    "school": "B", "software": "B", "app": "B",
+    "media": "C", "wiki": "C", "blog": "C",
+}
 
 
 def _files(root: Path, pattern: str) -> list[Path]:
@@ -388,11 +401,134 @@ def check_ideas(root: Path) -> list[str]:
     ]
 
 
+def _glossary_keys(root: Path) -> set[str] | None:
+    path = root / GLOSSARY_PATH
+    if not path.exists():
+        return None
+    return set(GLOSSARY_KEY_PATTERN.findall(path.read_text(encoding="utf-8")))
+
+
+def _ja_source_problems(source: object, seen: dict[str, dict]) -> list[str]:
+    if not isinstance(source, dict):
+        return ["출처 항목이 객체가 아닙니다"]
+    source_id = source.get("id")
+    label = f"출처 {source_id}"
+    problems = [
+        f"{label}: {field} 필드가 비었습니다"
+        for field in JA_SOURCE_FIELDS
+        if not _ia_text(source.get(field))
+    ]
+    if not isinstance(source_id, str) or not source_id:
+        return problems
+    if source_id in seen:
+        problems.append(f"{label}: id가 중복입니다")
+    if source.get("kind") not in JA_SOURCE_TIERS:
+        problems.append(f"{label}: kind는 {', '.join(sorted(JA_SOURCE_TIERS))} 중 하나여야 합니다")
+    if _ia_text(source.get("url")) and not EXTERNAL_PATTERN.match(source["url"]):
+        problems.append(f"{label}: url이 주소가 아닙니다")
+    if _ia_text(source.get("accessed")) and not IDEA_DATE_PATTERN.fullmatch(source["accessed"]):
+        problems.append(f"{label}: accessed는 YYYY-MM-DD입니다")
+    seen[source_id] = source
+    return problems
+
+
+def ja_term_confidence(term: dict, sources: dict[str, dict]) -> str:
+    """ja 표기를 뒷받침하는 근거의 발행처 수와 등급으로 신뢰도를 계산합니다(README의 규칙)."""
+    if term.get("coined"):
+        return "자체"
+    ja = term.get("ja")
+    if not ja:
+        return "미정"
+    publishers: set[str] = set()
+    tiers: set[str] = set()
+    for evidence in term.get("evidence") or []:
+        source = sources.get(evidence.get("source")) if isinstance(evidence, dict) else None
+        tier = JA_SOURCE_TIERS.get(source.get("kind")) if source else None
+        if tier is None or evidence.get("form") != ja:
+            continue
+        publishers.add(source.get("publisher"))
+        tiers.add(tier)
+    if len(publishers) >= 2 and "A" in tiers:
+        return "상"
+    if len(publishers) >= 2 or "A" in tiers:
+        return "중"
+    return "하"
+
+
+def _ja_term_problems(
+    term: object, sources: dict[str, dict], glossary: set[str] | None, seen: set[str]
+) -> list[str]:
+    if not isinstance(term, dict):
+        return ["용어 항목이 객체가 아닙니다"]
+    term_id = term.get("id")
+    label = f"용어 {term_id}"
+    problems: list[str] = []
+    if not isinstance(term_id, str) or not JA_TERM_ID_PATTERN.fullmatch(term_id):
+        problems.append(f"{label}: id는 <범주>.<값> 소문자입니다")
+    elif term_id in seen:
+        problems.append(f"{label}: id가 중복입니다")
+    else:
+        seen.add(term_id)
+    if not _ia_text(term.get("ko")):
+        problems.append(f"{label}: ko가 비었습니다")
+    key = term.get("glossary_key")
+    if key is not None and glossary is not None and key not in glossary:
+        problems.append(f"{label}: glossary_key {key}가 {GLOSSARY_PATH}에 없습니다")
+    ja = term.get("ja")
+    aliases = term.get("aliases") or []
+    if not isinstance(aliases, list) or not all(_ia_text(a) for a in aliases):
+        problems.append(f"{label}: aliases는 문자열 목록입니다")
+        aliases = []
+    if term.get("coined") and not (_ia_text(ja) and _ia_text(term.get("note"))):
+        problems.append(f"{label}: 자체 용어(coined)는 ja와 note(만든 이유)가 필요합니다")
+    for evidence in term.get("evidence") or []:
+        if not isinstance(evidence, dict):
+            problems.append(f"{label}: 근거 항목이 객체가 아닙니다")
+            continue
+        if evidence.get("source") not in sources:
+            problems.append(f"{label}: 근거 출처 {evidence.get('source')}가 출처 목록에 없습니다")
+        if not _ia_text(evidence.get("quote")):
+            problems.append(f"{label}: 근거에 quote(출처 원문)가 없습니다")
+        form = evidence.get("form")
+        if form != ja and form not in aliases:
+            problems.append(f"{label}: 근거 표기 {form}이(가) ja나 aliases에 없습니다")
+    expected = ja_term_confidence(term, sources)
+    if term.get("confidence") != expected:
+        problems.append(f"{label}: confidence는 근거로 계산하면 {expected}입니다 (적힌 값: {term.get('confidence')})")
+    return problems
+
+
+def check_ja_terms(root: Path) -> list[str]:
+    files = sorted((root / JA_TERMS_DIR).glob("*.json"))
+    loaded: list[tuple[str, dict]] = []
+    problems: list[str] = []
+    for path in files:
+        rel = path.relative_to(root).as_posix()
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            problems.append(f"{rel}: JSON이 아닙니다 ({error})")
+            continue
+        if not isinstance(data, dict) or not isinstance(data.get("sources"), list) or not isinstance(data.get("terms"), list):
+            problems.append(f"{rel}: sources와 terms 목록이 필요합니다")
+            continue
+        loaded.append((rel, data))
+    # 출처는 파일을 가리지 않고 함께 씁니다. 다른 파일의 출처를 근거로 걸 수 있습니다.
+    sources: dict[str, dict] = {}
+    for rel, data in loaded:
+        problems += [f"{rel}: {p}" for s in data["sources"] for p in _ja_source_problems(s, sources)]
+    glossary = _glossary_keys(root)
+    seen_terms: set[str] = set()
+    for rel, data in loaded:
+        problems += [f"{rel}: {p}" for t in data["terms"] for p in _ja_term_problems(t, sources, glossary, seen_terms)]
+    return problems
+
+
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     problems = (
         check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_ia(root)
-        + check_ideas(root)
+        + check_ideas(root) + check_ja_terms(root)
     )
     if problems:
         print("\n".join(problems))
