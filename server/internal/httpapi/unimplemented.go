@@ -44,6 +44,14 @@ func (Unimplemented) LoginKakao(context.Context, gen.LoginKakaoRequestObject) (g
 	return nil, ErrNotImplemented
 }
 
+func (Unimplemented) GetProfile(context.Context, gen.GetProfileRequestObject) (gen.GetProfileResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) ConvertLunarDate(context.Context, gen.ConvertLunarDateRequestObject) (gen.ConvertLunarDateResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
 func (Unimplemented) Logout(context.Context, gen.LogoutRequestObject) (gen.LogoutResponseObject, error) {
 	return nil, ErrNotImplemented
 }

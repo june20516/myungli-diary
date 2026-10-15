@@ -20,9 +20,9 @@ const problemRef = "#/components/schemas/Problem"
 // expectedOperationIDs는 계약의 operation 표 전체입니다.
 var expectedOperationIDs = []string{
 	"loginKakao", "loginApple", "appleCallback", "completeAppleWebLogin", "refreshToken", "logout",
-	"getMe", "deleteMe", "agreeConsents", "createProfile", "updateProfile",
+	"getMe", "deleteMe", "agreeConsents", "createProfile", "updateProfile", "getProfile",
 	"getDaily", "getChart", "getCalendar", "putReaction", "deleteReaction",
-	"getGlossary", "createPreview", "getBirthHour",
+	"getGlossary", "createPreview", "getBirthHour", "convertLunarDate",
 	"listDiaries", "getDiary", "putDiary", "deleteDiary", "restoreDiary",
 	"listSchedules", "createSchedule", "updateSchedule", "deleteSchedule", "restoreSchedule",
 	"registerDevice", "deleteDevice",
@@ -45,6 +45,7 @@ var securityOverrides = map[string][]string{
 	"getHealth":             {},
 	"createPreview":         {"appCheck"},
 	"getBirthHour":          {"appCheck"},
+	"convertLunarDate":      {"appCheck"},
 }
 
 func loadDoc(t *testing.T) *openapi3.T {
@@ -653,10 +654,122 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft2(t *testing.T) {
+func TestContract_VersionIsDraft3(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.2" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.2", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.3" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.3", doc.Info.Version)
+	}
+}
+
+// operationByID는 operationId로 operation을 찾습니다. 없으면 테스트를 멈춥니다.
+func operationByID(t *testing.T, doc *openapi3.T, id string) *openapi3.Operation {
+	t.Helper()
+	var found *openapi3.Operation
+	forEachOperation(doc, func(operationID string, op *openapi3.Operation) {
+		if operationID == id {
+			found = op
+		}
+	})
+	if found == nil {
+		t.Fatalf("%s operation이 없음", id)
+	}
+	return found
+}
+
+// okSchemaRef는 200 JSON 응답 스키마의 $ref입니다.
+func okSchemaRef(t *testing.T, op *openapi3.Operation) string {
+	t.Helper()
+	ok := op.Responses.Value("200")
+	if ok == nil {
+		t.Fatal("200 응답이 없음")
+	}
+	return ok.Value.Content["application/json"].Schema.Ref
+}
+
+func TestContract_GetProfileExists(t *testing.T) {
+	doc := loadDoc(t)
+	op := operationByID(t, doc, "getProfile")
+
+	if got := doc.Paths.Find("/v1/me/profile").Get; got != op {
+		t.Error("getProfile이 GET /v1/me/profile이 아님")
+	}
+	if op.Security != nil {
+		t.Errorf("getProfile이 bearer 기본 security를 덮어씀: %v", *op.Security)
+	}
+	if got := okSchemaRef(t, op); got != "#/components/schemas/Profile" {
+		t.Errorf("200 schema = %q, want Profile", got)
+	}
+	if op.Responses.Value("409") == nil {
+		t.Error("409 응답이 없음")
+	}
+}
+
+func TestContract_ConvertLunarDateIsAppCheck(t *testing.T) {
+	doc := loadDoc(t)
+	op := operationByID(t, doc, "convertLunarDate")
+
+	if got := doc.Paths.Find("/v1/lunar-date").Post; got != op {
+		t.Error("convertLunarDate가 POST /v1/lunar-date가 아님")
+	}
+	if op.Security == nil || len(*op.Security) != 1 || !hasOnlyScheme((*op.Security)[0], "appCheck") {
+		t.Errorf("security = %v, want [{appCheck: []}]", op.Security)
+	}
+	if got := okSchemaRef(t, op); got != "#/components/schemas/LunarConversion" {
+		t.Errorf("200 schema = %q, want LunarConversion", got)
+	}
+	result := doc.Components.Schemas["LunarConversion"].Value
+	if !slices.Equal(slices.Sorted(slices.Values(result.Required)), []string{"monthHasLeap", "solarDate"}) {
+		t.Errorf("LunarConversion.required = %v, want [monthHasLeap solarDate]", result.Required)
+	}
+	for _, status := range []string{"422", "429"} {
+		if op.Responses.Value(status) == nil {
+			t.Errorf("%s 응답이 없음", status)
+		}
+	}
+}
+
+func TestContract_DisplayFieldsRequired(t *testing.T) {
+	doc := loadDoc(t)
+	want := map[string]string{
+		"City":        "countryName",
+		"Preview":     "dayKindName",
+		"Daily":       "characterReason",
+		"CalendarDay": "characterReason",
+		"Glossary":    "meanings",
+	}
+	for schema, field := range want {
+		ref := doc.Components.Schemas[schema]
+		if ref == nil {
+			t.Errorf("%s 스키마가 없음", schema)
+			continue
+		}
+		if !slices.Contains(ref.Value.Required, field) {
+			t.Errorf("%s.required에 %s가 없음: %v", schema, field, ref.Value.Required)
+		}
+		if ref.Value.Properties[field] == nil {
+			t.Errorf("%s.properties에 %s가 없음", schema, field)
+		}
+	}
+	city := doc.Components.Schemas["City"].Value
+	if city.Properties["regionName"] == nil {
+		t.Error("City.regionName이 없음")
+	}
+	if slices.Contains(city.Required, "regionName") {
+		t.Error("City.regionName은 선택 필드인데 required에 있음")
+	}
+}
+
+func TestContract_ProfileProblemCodes(t *testing.T) {
+	codes := loadProblemCodes(t)
+	for _, code := range []string{"timezone.invalid", "city.not_found"} {
+		entry, ok := codes[code]
+		if !ok {
+			t.Errorf("x-problem-codes에 %s가 없음", code)
+			continue
+		}
+		if entry.Status != 422 {
+			t.Errorf("%s status = %d, want 422", code, entry.Status)
+		}
 	}
 }
 
