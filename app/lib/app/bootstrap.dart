@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:myungli_diary/app/depth_sheet_bodies.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
@@ -74,6 +75,7 @@ Future<ProviderContainer> bootstrap({
       if (locale != null) localeProvider.overrideWithValue(locale),
       ...entryOverrides,
       ...profileTimezoneOverrides,
+      ...depthSheetBodyOverrides,
       ...realPlatformOverrides(resolvedMode),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),

@@ -4,9 +4,6 @@ import 'package:myungli_diary/app/router/sheet_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
-import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
-import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
-import 'package:myungli_diary/features/today/presentation/share_preview_sheet.dart';
 
 /// 풀이 시트 본문. [termId]는 용어 id, [sourceSlotId]는 눌린 writing 슬롯 id입니다.
 typedef ExplainBodyBuilder = Widget Function(
@@ -81,12 +78,27 @@ final class DepthSheets {
   );
 }
 
-/// 깊이 시트 서비스. 풀이·근거·공유 미리보기 시트 본문이 연결돼 있습니다.
+/// 풀이 시트 본문 builder. 기본은 빈 본문이고 조합 계층(`lib/app/depth_sheet_bodies.dart`)이
+/// override로 실제 시트를 연결합니다(feature presentation끼리 import하지 않기 위해, spec §2).
+final explainBodyProvider = Provider<ExplainBodyBuilder>(
+  (ref) =>
+      (_, _) => const SizedBox.shrink(),
+);
+
+/// 근거 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
+final evidenceBodyProvider = Provider<EvidenceBodyBuilder>(
+  (ref) =>
+      (_) => const SizedBox.shrink(),
+);
+
+/// 공유 미리보기 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
+final shareBodyProvider = Provider<ShareBodyBuilder>((ref) => SizedBox.shrink);
+
+/// 깊이 시트 서비스. 본문은 위 세 provider에서 받습니다.
 final depthSheetsProvider = Provider<DepthSheets>(
   (ref) => DepthSheets(
-    explainBody: (termId, sourceSlotId) =>
-        ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
-    evidenceBody: (slotId) => EvidenceSheet(slotId: slotId),
-    shareBody: SharePreviewSheet.new,
+    explainBody: ref.watch(explainBodyProvider),
+    evidenceBody: ref.watch(evidenceBodyProvider),
+    shareBody: ref.watch(shareBodyProvider),
   ),
 );

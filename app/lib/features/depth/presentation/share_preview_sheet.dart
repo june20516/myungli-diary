@@ -9,14 +9,15 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
+import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
-import 'package:myungli_diary/features/today/application/share_renderer.dart';
 import 'package:myungli_diary/features/today/application/today_content.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -26,7 +27,7 @@ import 'package:myungli_diary/features/today/application/today_presentation.dart
 /// 오늘 화면과 같은 값([todayContentProvider])을 `shareImageOf`가 바꿔 주고, 비율을 바꾸면
 /// 미리보기가 스며 나타납니다(컴포넌트의 `appear.seep`). 이미지는 기기가 다크여도 라이트입니다(V5).
 ///
-/// 공유 버튼은 같은 내용을 [shareRendererProvider]로 선택한 비율의 논리 크기에 그려 PNG로
+/// 공유 버튼은 같은 내용을 [offscreenRendererProvider]로 선택한 비율의 논리 크기에 그려 PNG로
 /// 만든 뒤 OS 공유 시트(`ShareSheet.sharePng`)로 넘깁니다(출구 `system-share`, 결정 D47).
 /// 글은 태그라인(`share-preview.image.tagline`)입니다. 처리 중에는 버튼 점이 숨 쉬고,
 /// 비율 선택과 버튼이 잠겨 연타해도 한 번만 공유합니다. 실패하면 오류 toast만 보이고
@@ -54,7 +55,7 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
         names: content.names,
         l10n: AppLocalizations.of(context),
         locale: Localizations.localeOf(context),
-        timezone: ref.read(profileTimezoneProvider),
+        timezone: ref.watch(profileTimezoneProvider),
       );
 
   /// 고른 비율로 그려 OS 공유 시트에 넘깁니다. 이미 하는 중이면 아무것도 하지 않습니다.
@@ -69,12 +70,14 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
     final locale = Localizations.localeOf(context);
     final variant = _variant;
     final image = _imageFor(variant, content);
-    final renderer = ref.read(shareRendererProvider);
+    final renderer = ref.read(offscreenRendererProvider);
     final shareSheet = ref.read(shareSheetProvider);
     final reporter = ref.read(crashReporterProvider);
     final text = shareTextOf(l10n);
     String? failure;
     try {
+      // 로고를 먼저 읽어 두어 캡처에 빠지지 않게 합니다.
+      await ShareImage.precache();
       final png = await renderer.render(
         ShareRenderHost(locale: locale, child: image),
         ShareImage.logicalSize(variant),
@@ -154,6 +157,37 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
       ),
     );
   }
+}
+
+/// 화면 밖 트리에 방향·기본 `MediaQuery`·라이트 테마·언어(글꼴 묶음·문구)를 줍니다.
+///
+/// 화면 트리의 값은 이어지지 않으므로 [locale]을 직접 넘깁니다. 기기 글자 배율과 다크 모드는
+/// 받지 않습니다(결정 V5). 공유 이미지를 그리는 곳이 [OffscreenRenderer]에 넘기기 전에 감쌉니다.
+class ShareRenderHost extends StatelessWidget {
+  /// [child]를 [locale]·라이트 테마로 감쌉니다.
+  const new({required this.locale, required this.child, super.key});
+
+  /// 화면과 같은 언어.
+  final Locale locale;
+
+  /// 그릴 위젯.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Directionality(
+    textDirection: TextDirection.ltr,
+    child: MediaQuery(
+      data: const MediaQueryData(),
+      child: Localizations(
+        locale: locale,
+        delegates: AppLocalizations.localizationsDelegates,
+        child: Theme(
+          data: buildTheme(brightness: Brightness.light, locale: locale),
+          child: child,
+        ),
+      ),
+    ),
+  );
 }
 
 /// 가운데 정렬한 미리보기. 높이는 [maxHeight]와 남는 높이 가운데 작은 쪽을 넘지 않도록

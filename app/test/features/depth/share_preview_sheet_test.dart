@@ -2,12 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -16,26 +20,38 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
-import 'package:myungli_diary/features/today/application/share_renderer.dart';
 import 'package:myungli_diary/features/today/application/today_content.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
-import 'package:myungli_diary/features/today/presentation/share_preview_sheet.dart';
 
 import '../../support/daily_fixture.dart';
 
 final _ko = AppLocalizationsKo();
 final Uint8List _png = Uint8List.fromList([137, 80, 78, 71]);
 
-/// 호출을 기록하고, [hold]가 있으면 끝날 때까지 붙잡는 렌더러 대역.
-final class _RecordingRenderer implements ShareRenderer {
+/// 테스트에서 프로필 시간대를 바꾸는 상태.
+final class _Timezone extends Notifier<String> {
+  @override
+  String build() => 'Asia/Seoul';
+
+  /// 시간대를 [value]로 바꿉니다.
+  // ignore: use_setters_to_change_properties, 테스트 전용 상태 변경 메서드
+  void change(String value) => state = value;
+}
+
+final _timezoneProvider = NotifierProvider<_Timezone, String>(_Timezone.new);
+
+/// 호출을 기록하고, `hold`가 있으면 끝날 때까지 붙잡는 렌더러 대역.
+final class _RecordingRenderer implements OffscreenRenderer {
   final calls = <({Widget image, Size size})>[];
   Completer<void>? hold;
   Exception? failWith;
@@ -76,7 +92,7 @@ Widget _app({
   overrides: [
     todayContentProvider.overrideWithValue(content ?? AsyncData(_content())),
     profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
-    shareRendererProvider.overrideWithValue(renderer),
+    offscreenRendererProvider.overrideWithValue(renderer),
     shareSheetProvider.overrideWithValue(share),
     crashReporterProvider.overrideWithValue(crash ?? FakeCrashReporter()),
   ],
@@ -120,6 +136,50 @@ ShareImage _renderedImage(({Widget image, Size size}) call) {
   final host = call.image as ShareRenderHost;
   return host.child as ShareImage;
 }
+
+/// 정사각 PNG 왼쪽 아래(로고 자리)에 어두운 픽셀이 있는지, 지정 위치 색과 크기와 함께 돌려줍니다.
+Future<({int width, int height, Color corner, bool logo})> _inspect(
+  Uint8List png,
+) async {
+  final codec = await ui.instantiateImageCodec(png);
+  final image = (await codec.getNextFrame()).image;
+  final data = (await image.toByteData())!;
+  Color at(int x, int y) {
+    final offset = (y * image.width + x) * 4;
+    return Color.fromARGB(
+      255,
+      data.getUint8(offset),
+      data.getUint8(offset + 1),
+      data.getUint8(offset + 2),
+    );
+  }
+
+  var logo = false;
+  for (var y = image.height - 120; y < image.height - 60 && !logo; y++) {
+    for (var x = 72; x < 400; x++) {
+      if (at(x, y).computeLuminance() < 0.4) {
+        logo = true;
+        break;
+      }
+    }
+  }
+  return (
+    width: image.width,
+    height: image.height,
+    corner: at(6, 6),
+    logo: logo,
+  );
+}
+
+ShareImage _plainImage(ShareImageVariant variant) => ShareImage(
+  variant: variant,
+  date: '10월 15일 목요일',
+  dayKind: DayKind.yongsinDay,
+  dayKindLabel: '좋은 날',
+  sentence: RenderedText(segments: [Segment(text: '오늘은 좋은 날이에요.')]),
+  items: const [],
+  footer: '명리일기',
+);
 
 void main() {
   group('SharePreviewSheet', () {
@@ -233,6 +293,41 @@ void main() {
       expect(preview.height, lessThan(360));
       expect(button.bottom, lessThanOrEqualTo(400));
       expect(preview.bottom, lessThanOrEqualTo(button.top));
+    });
+
+    testWidgets('프로필 시간대가 바뀌면 이미지의 집중 시간도 따라 바뀝니다(watch)', (tester) async {
+      final app = ProviderScope(
+        overrides: [
+          todayContentProvider.overrideWithValue(AsyncData(_content())),
+          profileTimezoneProvider.overrideWith(
+            (ref) => ref.watch(_timezoneProvider),
+          ),
+          offscreenRendererProvider.overrideWithValue(_RecordingRenderer()),
+        ],
+        child: MaterialApp(
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: buildTheme(
+            brightness: Brightness.light,
+            locale: const Locale('ko'),
+          ),
+          home: const Scaffold(
+            body: SingleChildScrollView(child: SharePreviewSheet()),
+          ),
+        ),
+      );
+      await _pump(tester, app);
+      String timeOf() =>
+          _previewImage(tester).items
+              .firstWhere((item) => item.variant == LuckyCardVariant.time)
+              .value;
+      final seoul = timeOf();
+      ProviderScope.containerOf(tester.element(find.byType(SharePreviewSheet)))
+          .read(_timezoneProvider.notifier)
+          .change('America/New_York');
+      await tester.pump();
+      expect(timeOf(), isNot(seoul));
     });
 
     testWidgets('공유 버튼 슬롯 id와 글자', (tester) async {
@@ -357,6 +452,33 @@ void main() {
       expect(find.byType(ShareImagePreview), findsNothing);
       expect(find.byType(PrimaryButton), findsNothing);
     });
+  });
+
+  group('실제 렌더(ShareRenderHost + PngOffscreenRenderer)', () {
+    for (final variant in ShareImageVariant.values) {
+      testWidgets('${variant.name}: 폭 1080 PNG이고 기기가 다크여도 라이트이며 로고가 있습니다', (
+        tester,
+      ) async {
+        tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+        addTearDown(tester.platformDispatcher.clearAllTestValues);
+        final size = ShareImage.logicalSize(variant);
+        final inspected = (await tester.runAsync(() async {
+          await ShareImage.precache();
+          final png = await const PngOffscreenRenderer().render(
+            ShareRenderHost(
+              locale: const Locale('ko'),
+              child: _plainImage(variant),
+            ),
+            size,
+          );
+          return await _inspect(png);
+        }))!;
+        expect(inspected.width, 1080);
+        expect(inspected.height, (size.height * 3).round());
+        expect(inspected.corner.computeLuminance(), greaterThan(0.8));
+        expect(inspected.logo, isTrue);
+      });
+    }
   });
 
   group('공유 텍스트(태그라인)', () {

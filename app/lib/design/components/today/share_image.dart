@@ -11,6 +11,7 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -110,6 +111,11 @@ class ShareImage extends StatelessWidget {
 
   /// 로고 자산(`parts.logo`).
   static const String logoAsset = 'assets/brand/myungli/lockup.svg';
+
+  /// 로고를 미리 읽어 둡니다. 화면 밖에서 그리기 전에 부르면 로고가 비지 않은 채 캡처됩니다.
+  static Future<void> precache() async {
+    await const SvgAssetLoader(logoAsset).loadBytes(null);
+  }
 
   static const double _width = 360;
   static const double _contentWidth = _width - Space.s24 * 2;
@@ -346,6 +352,7 @@ class _FittedSentence extends StatelessWidget {
       builder: (context, constraints) {
         final plain = ShareImage._plain(text);
         final fitted = _linesThatFit(
+          context,
           plain,
           style,
           constraints.maxWidth,
@@ -367,16 +374,31 @@ class _FittedSentence extends StatelessWidget {
 
   /// [maxHeight] 안에 들어가는 줄 수. 전체가 들어가거나 높이 제한이 없으면 null입니다.
   /// 줄이 하나도 안 들어가도 1줄은 남깁니다.
+  ///
+  /// 실제로 그리는 `Text.rich`(`RenderedTextView`)와 같은 조건으로 잽니다: keep-all 조각,
+  /// 기본 글자 스타일 병합, 방향, 글자 배율, 언어, 줄 높이 처리.
   static int? _linesThatFit(
+    BuildContext context,
     String plain,
     TextStyle style,
     double maxWidth,
     double maxHeight,
   ) {
     if (!maxHeight.isFinite || plain.isEmpty) return null;
+    final defaults = DefaultTextStyle.of(context);
+    final locale = Localizations.localeOf(context);
     final painter = TextPainter(
-      text: TextSpan(text: plain, style: style),
-      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        style: defaults.style.merge(style),
+        children: keepAllSpans(locale, plain),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      locale: locale,
+      textHeightBehavior:
+          defaults.textHeightBehavior ??
+          DefaultTextHeightBehavior.maybeOf(context),
+      textWidthBasis: defaults.textWidthBasis,
     )..layout(maxWidth: maxWidth);
     final lines = painter.computeLineMetrics();
     painter.dispose();

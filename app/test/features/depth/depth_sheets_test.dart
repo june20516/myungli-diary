@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/depth_sheet_bodies.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
-import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
+import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -142,14 +145,23 @@ void main() {
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     });
 
-    testWidgets('depthSheetsProvider의 근거 본문은 그 슬롯의 EvidenceSheet입니다', (
-      tester,
-    ) async {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      final body = container.read(depthSheetsProvider).evidenceBody('s.t');
-      expect(body, isA<EvidenceSheet>());
-      expect((body as EvidenceSheet).slotId, 's.t');
+    test('기본 provider는 빈 본문이고, app의 override가 실제 시트를 잇습니다', () {
+      final plain = ProviderContainer();
+      addTearDown(plain.dispose);
+      expect(
+        plain.read(depthSheetsProvider).evidenceBody('s.t'),
+        isNot(isA<EvidenceSheet>()),
+      );
+
+      final wired = ProviderContainer(overrides: depthSheetBodyOverrides);
+      addTearDown(wired.dispose);
+      final sheets = wired.read(depthSheetsProvider);
+      final evidence = sheets.evidenceBody('s.t');
+      expect(evidence, isA<EvidenceSheet>());
+      expect((evidence as EvidenceSheet).slotId, 's.t');
+      final explain = sheets.explainBody('ten_god.siksin', 's.t');
+      expect(explain, isA<ExplainSheet>());
+      expect(sheets.shareBody(), isA<SharePreviewSheet>());
     });
 
     testWidgets('openEvidence는 시트 이름(근거 시트 제목)을 스크린리더에 알립니다', (tester) async {

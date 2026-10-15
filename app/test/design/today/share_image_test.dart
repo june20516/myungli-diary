@@ -230,6 +230,33 @@ void main() {
       expect(shrunkWithoutCut, greaterThan(0));
     });
 
+    testWidgets('잘린 문장은 줄 수만큼의 높이를 실제로 차지합니다(실제 줄바꿈과 같은 조건으로 잼)', (
+      tester,
+    ) async {
+      await _bigScreen(tester);
+      final lineHeight =
+          koType.sentenceCard.fontSize! * koType.sentenceCard.height!;
+      var checked = 0;
+      for (var repeat = 20; repeat <= 90; repeat += 7) {
+        await tester.pumpWidget(
+          _app(
+            _image(
+              ShareImageVariant.story,
+              sentence: '오늘은 기운의 흐름이 좋은 날이에요 ' * repeat,
+            ),
+          ),
+        );
+        final maxLines = richOf(tester).maxLines;
+        if (maxLines == null) continue;
+        checked++;
+        final height = tester
+            .getSize(find.byKey(ShareImage.sentenceKey))
+            .height;
+        expect(height, closeTo(maxLines * lineHeight, 1), reason: '$repeat번');
+      }
+      expect(checked, greaterThan(0));
+    });
+
     for (final variant in [ShareImageVariant.story, ShareImageVariant.square]) {
       testWidgets('${variant.name}: 아주 길면 하한에서 멈추고 마지막 줄을 말줄임으로 자릅니다', (
         tester,

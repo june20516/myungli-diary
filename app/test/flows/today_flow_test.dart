@@ -15,6 +15,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
@@ -26,13 +27,12 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
-import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
-import 'package:myungli_diary/features/today/application/share_renderer.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -61,7 +61,7 @@ Future<ProviderContainer> _openToday(
 }
 
 /// 항상 같은 바이트를 돌려주는 렌더러 대역(흐름 테스트는 실제 PNG 인코딩을 기다리지 않습니다).
-final class _FixedRenderer implements ShareRenderer {
+final class _FixedRenderer implements OffscreenRenderer {
   int calls = 0;
 
   @override
@@ -251,7 +251,7 @@ void main() {
       tester,
       scenario: 'member',
       overrides: [
-        shareRendererProvider.overrideWithValue(renderer),
+        offscreenRendererProvider.overrideWithValue(renderer),
         shareSheetProvider.overrideWithValue(share),
       ],
     );

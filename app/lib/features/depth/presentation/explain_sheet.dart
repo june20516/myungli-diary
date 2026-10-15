@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
-import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 
