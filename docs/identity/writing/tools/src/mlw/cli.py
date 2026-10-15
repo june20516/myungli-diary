@@ -18,9 +18,10 @@ from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
 from mlw.ia import check_ia, is_ui_slot, load_ia
+from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.markup import check_name_position, check_ui_markup, strip_vocative
-from mlw.model import LANGS, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
+from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
 from mlw.terms import check_tokens
@@ -134,10 +135,47 @@ def _entry_sentence_findings(
     return findings
 
 
+def _plural_forms(entry: Entry) -> list[Entry]:
+    """문장 검사에 넘길 원고입니다. plural은 형태마다 펼치고, plural 문법이 틀리면 `icu.plural`만 내도록 빼냅니다."""
+    try:
+        parse_plural(entry.text)
+    except ValueError:
+        return []
+    return expand_entry(entry)
+
+
+def _unique(findings: Sequence[Finding]) -> list[Finding]:
+    """같은 원고에서 같은 규칙·같은 메시지는 한 번만 냅니다(plural 형태마다 같은 문제가 날 수 있음)."""
+    seen: set[tuple[str, str]] = set()
+    unique: list[Finding] = []
+    for finding in findings:
+        if (finding.rule_id, finding.message) not in seen:
+            seen.add((finding.rule_id, finding.message))
+            unique.append(finding)
+    return unique
+
+
+def _vocative_sentence_findings(
+    entry: Entry, slot: Slot, rules: RuleSet, by_lang: Mapping[str, Mapping[str, Sequence[str]]]
+) -> list[Finding]:
+    """원고 하나의 문장 검사입니다. 호칭 자리 슬롯은 호칭 덩어리를 지운 문장도 검사합니다."""
+    full = _entry_sentence_findings(entry, slot, rules, by_lang)
+    stripped = strip_vocative(entry.text, entry.lang) if slot.vocative else None
+    if stripped is None:
+        return full
+    findings = list(full)
+    seen = {(finding.rule_id, finding.message) for finding in full}
+    for finding in _entry_sentence_findings(dataclasses.replace(entry, text=stripped), slot, rules, by_lang):
+        if (finding.rule_id, finding.message) not in seen:
+            findings.append(dataclasses.replace(finding, message=f"{VOCATIVE_DROPPED}{finding.message}"))
+    return findings
+
+
 def sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules: RuleSet) -> list[Finding]:
     """원고마다 문장 단위 검사를 합니다. 호칭 자리 슬롯은 호칭 덩어리를 지운 문장도 검사합니다.
 
     지운 문장에서만 나온 문제는 메시지 앞에 `호칭 없이: `를 붙이고, 같은 규칙·같은 메시지는 한 번만 냅니다.
+    plural 원고는 형태마다 펼친 문장을 검사합니다.
     """
     by_lang = {lang: longest_by_category(entries, lang) for lang in LANGS}
     findings: list[Finding] = []
@@ -145,28 +183,50 @@ def sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules
         slot = slots.get(entry.slot)
         if slot is None:
             continue
-        full = _entry_sentence_findings(entry, slot, rules, by_lang)
-        findings.extend(full)
-        stripped = strip_vocative(entry.text, entry.lang) if slot.vocative else None
-        if stripped is None:
-            continue
-        seen = {(finding.rule_id, finding.message) for finding in full}
-        for finding in _entry_sentence_findings(dataclasses.replace(entry, text=stripped), slot, rules, by_lang):
-            if (finding.rule_id, finding.message) not in seen:
-                findings.append(dataclasses.replace(finding, message=f"{VOCATIVE_DROPPED}{finding.message}"))
+        per_form = [f for form in _plural_forms(entry) for f in _vocative_sentence_findings(form, slot, rules, by_lang)]
+        findings.extend(_unique(per_form))
     return findings
 
 
 def markup_findings(slots: Mapping[str, Slot], entries: Sequence[Entry]) -> list[Finding]:
-    """호칭 덩어리 위치와 ui 원고 표기를 봅니다."""
+    """호칭 덩어리 위치와 ui 원고 표기를 봅니다. plural 원고는 형태마다 펼친 문장을 봅니다."""
     findings: list[Finding] = []
     for entry in entries:
         slot = slots.get(entry.slot)
         if slot is None:
             continue
-        findings.extend(check_name_position(entry, slot))
-        if is_ui_slot(slot):
-            findings.extend(check_ui_markup(entry))
+        per_form: list[Finding] = []
+        for form in _plural_forms(entry):
+            per_form.extend(check_name_position(form, slot))
+            if is_ui_slot(slot):
+                per_form.extend(check_ui_markup(form))
+        findings.extend(_unique(per_form))
+    return findings
+
+
+def _plural_problem_for(entry: Entry, slot: Slot) -> str | None:
+    problem = plural_problem(entry.text, entry.lang)
+    plural = parse_plural(entry.text) if problem is None else None
+    if problem is not None or plural is None:
+        return problem
+    if not is_ui_slot(slot):
+        return "plural은 ui 원고에만 씁니다(content 원고는 server가 렌더하며 ICU를 읽지 않음)"
+    kind = slot.keys.get(entry.key, {}).get(plural.variable)
+    if kind is None or kind.kind != PARAM_KIND_NUMBER:
+        return f"plural 변수 '{plural.variable}'는 키 '{entry.key}'의 number 매개변수여야 합니다"
+    return None
+
+
+def plural_findings(slots: Mapping[str, Slot], entries: Sequence[Entry]) -> list[Finding]:
+    """plural 문법, 언어별 형태, 변수 값 종류, ui 원고 여부를 봅니다(`icu.plural`)."""
+    findings: list[Finding] = []
+    for entry in entries:
+        slot = slots.get(entry.slot)
+        if slot is None:
+            continue
+        problem = _plural_problem_for(entry, slot)
+        if problem is not None:
+            findings.append(Finding(entry.file, entry.line, RULE_PLURAL, "error", problem))
     return findings
 
 
@@ -279,6 +339,7 @@ def _check(args: argparse.Namespace) -> int:
         *completeness,
         *sentence_findings(all_slots, entries, rules),
         *markup_findings(all_slots, entries),
+        *plural_findings(all_slots, entries),
         *check_tokens(entries, all_slots, [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]),
         *check_days(content_slots, entries, rules.limits.values(), LANGS, rules),
         *check_weeks(

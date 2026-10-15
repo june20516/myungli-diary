@@ -122,3 +122,105 @@
 - {slot: ui.depth.evidence, key: depthEvidence, text: "원리"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "알림 받기"}
+
+# 공용 문구(slots/ui/common.yaml, #143)
+- {slot: ui.error.client, key: errorOffline, text: "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요."}
+- {slot: ui.error.client, key: errorTimeout, text: "응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.client, key: errorClient, text: "요청을 처리하지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.error.client, key: errorServer, text: "잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요."}
+- {slot: ui.error.client, key: errorUnexpected, text: "문제가 생겼어요. 다시 시도해 주세요."}
+- {slot: ui.error.client, key: errorNotImplemented, text: "아직 준비 중이에요."}
+- {slot: ui.error.code, key: errorRequestMalformed, text: "요청을 처리하지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorRequestInvalid, text: "입력한 내용을 다시 확인해 주세요."}
+- {slot: ui.error.code, key: errorAuthTokenExpired, text: "로그인이 만료됐어요. 다시 로그인해 주세요."}
+- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "로그인 정보를 확인하지 못했어요. 다시 로그인해 주세요."}
+- {slot: ui.error.code, key: errorAuthRefreshReused, text: "계정을 지키려고 로그아웃했어요. 다시 로그인해 주세요."}
+- {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "로그인하지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요."}
+- {slot: ui.error.code, key: errorAppCheckInvalid, text: "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요."}
+- {slot: ui.error.code, key: errorConsentRequired, text: "약관에 동의해야 계속할 수 있어요."}
+- {slot: ui.error.code, key: errorPreviewUsed, text: "미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요."}
+- {slot: ui.error.code, key: errorRouteNotFound, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
+- {slot: ui.error.code, key: errorDiaryNotFound, text: "일기를 찾지 못했어요."}
+- {slot: ui.error.code, key: errorMethodNotAllowed, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
+- {slot: ui.error.code, key: errorProfileRequired, text: "먼저 태어난 날과 시간을 입력해 주세요."}
+- {slot: ui.error.code, key: errorDiaryDateTaken, text: "그날에는 이미 일기가 있어요."}
+- {slot: ui.error.code, key: errorIdempotencyInProgress, text: "아직 처리하고 있어요. 잠시 후 다시 확인해 주세요."}
+- {slot: ui.error.code, key: errorRequestTooLarge, text: "내용이 너무 길어요. 조금 줄여 주세요."}
+- {slot: ui.error.code, key: errorRequestUnsupportedMediaType, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
+- {slot: ui.error.code, key: errorDateOutOfRange, text: "1900년 1월 31일부터 2099년 12월 31일까지의 날짜만 볼 수 있어요."}
+- {slot: ui.error.code, key: errorBirthOutOfRange, text: "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요."}
+- {slot: ui.error.code, key: errorDateInvalid, text: "달력에 없는 날짜예요."}
+- {slot: ui.error.code, key: errorRequestInconsistent, text: "입력한 내용을 다시 확인해 주세요."}
+- {slot: ui.error.code, key: errorBirthInvalid, text: "입력한 태어난 날과 시간을 다시 확인해 주세요."}
+- {slot: ui.error.code, key: errorDiaryFutureDate, text: "아직 오지 않은 날의 일기는 쓸 수 없어요."}
+- {slot: ui.error.code, key: errorNameEmpty, text: "불러 드릴 이름을 입력해 주세요."}
+- {slot: ui.error.code, key: errorNameTooLong, text: "이름이 너무 길어요. 조금 줄여 주세요."}
+- {slot: ui.error.code, key: errorNameEmoji, text: "이름에는 이모지를 쓸 수 없어요."}
+- {slot: ui.error.code, key: errorNameControl, text: "이름에 쓸 수 없는 글자가 있어요."}
+- {slot: ui.error.code, key: errorNameInvalidChar, text: "이름에는 괄호를 쓸 수 없어요."}
+- {slot: ui.error.code, key: errorIdempotencyMismatch, text: "요청을 처리하지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorConsentVersionMismatch, text: "약관이 바뀌었어요. 다시 확인해 주세요."}
+- {slot: ui.error.code, key: errorRateLimited, text: "요청이 너무 많아요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorInternal, text: "잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorEngineError, text: "풀이를 계산하지 못했어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorEngineUnavailable, text: "풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorAuthProviderUnavailable, text: "지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorBillingProviderUnavailable, text: "지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorServiceUnavailable, text: "지금은 앱을 쓸 수 없어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorEngineTimeout, text: "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.app.name, key: appTitle, text: "명리일기"}
+- {slot: ui.app.bootstrap, key: bootstrapFailed, text: "앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요."}
+- {slot: ui.app.notice, key: noticeOffline, text: "인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요."}
+- {slot: ui.app.notice, key: emptyStateDefault, text: "아직 보여 드릴 내용이 없어요."}
+- {slot: ui.app.trace, key: traceIdLabel, text: "문의 번호 {traceId}"}
+- {slot: ui.app.trace, key: traceIdCopied, text: "문의 번호를 복사했어요."}
+- {slot: ui.action.button, key: actionRetry, text: "다시 시도"}
+- {slot: ui.action.button, key: actionClose, text: "닫기"}
+- {slot: ui.action.button, key: actionConfirm, text: "확인"}
+- {slot: ui.action.button, key: onboardingNext, text: "다음"}
+- {slot: ui.action.button, key: onboardingSave, text: "저장"}
+- {slot: ui.action.button, key: shareLabel, text: "공유"}
+- {slot: ui.action.button, key: consentView, text: "보기"}
+- {slot: ui.action.button, key: textFieldClear, text: "지우기"}
+- {slot: ui.nav.tab, key: tabToday, text: "오늘"}
+- {slot: ui.nav.tab, key: tabCalendar, text: "달력"}
+- {slot: ui.nav.tab, key: tabDiary, text: "일기"}
+- {slot: ui.nav.tab, key: tabMe, text: "나"}
+- {slot: ui.nav.a11y, key: appBarBack, text: "뒤로"}
+- {slot: ui.nav.a11y, key: sheetDismiss, text: "닫기"}
+- {slot: ui.a11y.label, key: actionBusy, text: "처리 중"}
+- {slot: ui.a11y.label, key: adBannerLabel, text: "광고"}
+- {slot: ui.a11y.label, key: skeletonLabel, text: "불러오는 중"}
+- {slot: ui.a11y.label, key: termTokenSemantics, text: "{term} 뜻 보기"}
+- {slot: ui.a11y.label, key: inputStepProgress, text: "{stepCount}단계 중 {step}단계"}
+- {slot: ui.a11y.label, key: textFieldCounter, text: "{max}자 중 {current}자"}
+- {slot: ui.a11y.label, key: citySearchResults, text: "결과 {count, plural, other{{count}개}}"}
+- {slot: ui.a11y.label, key: onboardCallInputLabel, text: "불러 드릴 이름"}
+- {slot: ui.a11y.label, key: birthplaceSearchLabel, text: "태어난 도시 찾기"}
+- {slot: ui.picker.label, key: datePickerYearLabel, text: "연도"}
+- {slot: ui.picker.label, key: datePickerMonthLabel, text: "월"}
+- {slot: ui.picker.label, key: datePickerDayLabel, text: "일"}
+- {slot: ui.picker.label, key: timePickerMeridiemLabel, text: "오전·오후"}
+- {slot: ui.picker.label, key: timePickerHourLabel, text: "시"}
+- {slot: ui.picker.label, key: timePickerMinuteLabel, text: "분"}
+- {slot: ui.picker.item, key: datePickerYearItem, text: "{year}년"}
+- {slot: ui.picker.item, key: datePickerMonthItem, text: "{month}월"}
+- {slot: ui.picker.item, key: datePickerDayItem, text: "{day}일"}
+- {slot: ui.picker.item, key: timePickerHourItem, text: "{hour}시"}
+- {slot: ui.picker.item, key: timePickerMinuteItem, text: "{minute}분"}
+- {slot: ui.picker.item, key: timePickerAm, text: "오전"}
+- {slot: ui.picker.item, key: timePickerPm, text: "오후"}
+- {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "윤{month}월"}
+- {slot: ui.birth.option, key: calendarSolar, text: "양력"}
+- {slot: ui.birth.option, key: calendarLunar, text: "음력"}
+- {slot: ui.birth.option, key: leapMonth, text: "윤달"}
+- {slot: ui.birth.option, key: timeUnknownLabel, text: "모름"}
+- {slot: ui.birth.option, key: genderMale, text: "남성"}
+- {slot: ui.birth.option, key: genderFemale, text: "여성"}
+- {slot: ui.login.provider, key: loginKakaoLabel, text: "카카오 로그인"}
+- {slot: ui.login.provider, key: loginAppleLabel, text: "Apple로 로그인"}
+- {slot: ui.login.error, key: loginCancelled, text: "로그인을 취소했어요."}
+- {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요."}
+- {slot: ui.login.error, key: appleWebErrorCancelled, text: "Apple 로그인을 취소했어요."}
+- {slot: ui.login.error, key: appleWebErrorOther, text: "Apple로 로그인하지 못했어요. 다시 시도해 주세요."}

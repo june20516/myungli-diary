@@ -122,3 +122,105 @@
 - {slot: ui.depth.evidence, key: depthEvidence, text: "Basis"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
+
+# 공용 문구(slots/ui/common.yaml, #143)
+- {slot: ui.error.client, key: errorOffline, text: "You're offline. Please check your connection."}
+- {slot: ui.error.client, key: errorTimeout, text: "This is taking too long. Please try again in a moment."}
+- {slot: ui.error.client, key: errorClient, text: "We couldn't complete that. Please try again."}
+- {slot: ui.error.client, key: errorServer, text: "Something went wrong on our side. Please try again in a moment."}
+- {slot: ui.error.client, key: errorUnexpected, text: "Something went wrong. Please try again."}
+- {slot: ui.error.client, key: errorNotImplemented, text: "This isn't ready yet."}
+- {slot: ui.error.code, key: errorRequestMalformed, text: "We couldn't complete that. Please try again."}
+- {slot: ui.error.code, key: errorRequestInvalid, text: "Please check what you entered."}
+- {slot: ui.error.code, key: errorAuthTokenExpired, text: "You've been signed out. Please sign in again."}
+- {slot: ui.error.code, key: errorAuthTokenInvalid, text: "We couldn't verify your sign-in. Please sign in again."}
+- {slot: ui.error.code, key: errorAuthRefreshReused, text: "We signed you out to keep your account safe. Please sign in again."}
+- {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "Sign-in didn't work. Please try again."}
+- {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "Sign-in timed out. Please start again."}
+- {slot: ui.error.code, key: errorAppCheckInvalid, text: "We couldn't verify the app. Please update to the latest version."}
+- {slot: ui.error.code, key: errorConsentRequired, text: "Please agree to the terms to continue."}
+- {slot: ui.error.code, key: errorPreviewUsed, text: "The preview is available once. Sign in to keep going."}
+- {slot: ui.error.code, key: errorRouteNotFound, text: "We couldn't complete that. Please update the app."}
+- {slot: ui.error.code, key: errorDiaryNotFound, text: "We couldn't find that diary entry."}
+- {slot: ui.error.code, key: errorMethodNotAllowed, text: "We couldn't complete that. Please update the app."}
+- {slot: ui.error.code, key: errorProfileRequired, text: "Please enter your birth date and time first."}
+- {slot: ui.error.code, key: errorDiaryDateTaken, text: "There's already a diary entry for that day."}
+- {slot: ui.error.code, key: errorIdempotencyInProgress, text: "Still working on it. Please check again in a moment."}
+- {slot: ui.error.code, key: errorRequestTooLarge, text: "That's too long. Please shorten it."}
+- {slot: ui.error.code, key: errorRequestUnsupportedMediaType, text: "We couldn't complete that. Please update the app."}
+- {slot: ui.error.code, key: errorDateOutOfRange, text: "You can only view dates from January 31, 1900 to December 31, 2099."}
+- {slot: ui.error.code, key: errorBirthOutOfRange, text: "We can only calculate dates from January 31, 1900 to December 31, 2099."}
+- {slot: ui.error.code, key: errorDateInvalid, text: "That date isn't on the calendar."}
+- {slot: ui.error.code, key: errorRequestInconsistent, text: "Please check what you entered."}
+- {slot: ui.error.code, key: errorBirthInvalid, text: "Please check the birth date and time you entered."}
+- {slot: ui.error.code, key: errorDiaryFutureDate, text: "You can't write a diary entry for a future date."}
+- {slot: ui.error.code, key: errorNameEmpty, text: "Please enter a name for us to call you."}
+- {slot: ui.error.code, key: errorNameTooLong, text: "That name is too long. Please shorten it."}
+- {slot: ui.error.code, key: errorNameEmoji, text: "Names can't include emoji."}
+- {slot: ui.error.code, key: errorNameControl, text: "The name has characters that can't be used."}
+- {slot: ui.error.code, key: errorNameInvalidChar, text: "Names can't include brackets."}
+- {slot: ui.error.code, key: errorIdempotencyMismatch, text: "We couldn't complete that. Please try again."}
+- {slot: ui.error.code, key: errorConsentVersionMismatch, text: "The terms have changed. Please review them again."}
+- {slot: ui.error.code, key: errorRateLimited, text: "Too many tries. Please wait a moment and try again."}
+- {slot: ui.error.code, key: errorInternal, text: "Something went wrong on our side. Please try again in a moment."}
+- {slot: ui.error.code, key: errorEngineError, text: "We couldn't calculate your reading. Please try again in a moment."}
+- {slot: ui.error.code, key: errorEngineUnavailable, text: "We couldn't load your reading. Please try again in a moment."}
+- {slot: ui.error.code, key: errorAuthProviderUnavailable, text: "Sign-in isn't available right now. Please try again in a moment."}
+- {slot: ui.error.code, key: errorBillingProviderUnavailable, text: "We can't check purchases right now. Please try again in a moment."}
+- {slot: ui.error.code, key: errorServiceUnavailable, text: "The app isn't available right now. Please try again in a moment."}
+- {slot: ui.error.code, key: errorEngineTimeout, text: "Calculating your reading is taking too long. Please try again in a moment."}
+- {slot: ui.app.name, key: appTitle, text: "Myungli Diary"}
+- {slot: ui.app.bootstrap, key: bootstrapFailed, text: "The app couldn't start. Please close it completely and open it again."}
+- {slot: ui.app.notice, key: noticeOffline, text: "You're offline, so this is what was saved earlier."}
+- {slot: ui.app.notice, key: emptyStateDefault, text: "Nothing here yet."}
+- {slot: ui.app.trace, key: traceIdLabel, text: "Reference {traceId}"}
+- {slot: ui.app.trace, key: traceIdCopied, text: "Reference copied."}
+- {slot: ui.action.button, key: actionRetry, text: "Try again"}
+- {slot: ui.action.button, key: actionClose, text: "Close"}
+- {slot: ui.action.button, key: actionConfirm, text: "OK"}
+- {slot: ui.action.button, key: onboardingNext, text: "Next"}
+- {slot: ui.action.button, key: onboardingSave, text: "Save"}
+- {slot: ui.action.button, key: shareLabel, text: "Share"}
+- {slot: ui.action.button, key: consentView, text: "View"}
+- {slot: ui.action.button, key: textFieldClear, text: "Clear"}
+- {slot: ui.nav.tab, key: tabToday, text: "Today"}
+- {slot: ui.nav.tab, key: tabCalendar, text: "Calendar"}
+- {slot: ui.nav.tab, key: tabDiary, text: "Diary"}
+- {slot: ui.nav.tab, key: tabMe, text: "Me"}
+- {slot: ui.nav.a11y, key: appBarBack, text: "Back"}
+- {slot: ui.nav.a11y, key: sheetDismiss, text: "Close"}
+- {slot: ui.a11y.label, key: actionBusy, text: "In progress"}
+- {slot: ui.a11y.label, key: adBannerLabel, text: "Ad"}
+- {slot: ui.a11y.label, key: skeletonLabel, text: "Loading"}
+- {slot: ui.a11y.label, key: termTokenSemantics, text: "See what {term} means"}
+- {slot: ui.a11y.label, key: inputStepProgress, text: "Step {step} of {stepCount}"}
+- {slot: ui.a11y.label, key: textFieldCounter, text: "{current} of {max} characters"}
+- {slot: ui.a11y.label, key: citySearchResults, text: "{count, plural, one{{count} result} other{{count} results}}"}
+- {slot: ui.a11y.label, key: onboardCallInputLabel, text: "Name to call you"}
+- {slot: ui.a11y.label, key: birthplaceSearchLabel, text: "Find your birth city"}
+- {slot: ui.picker.label, key: datePickerYearLabel, text: "Year"}
+- {slot: ui.picker.label, key: datePickerMonthLabel, text: "Month"}
+- {slot: ui.picker.label, key: datePickerDayLabel, text: "Day"}
+- {slot: ui.picker.label, key: timePickerMeridiemLabel, text: "AM or PM"}
+- {slot: ui.picker.label, key: timePickerHourLabel, text: "Hour"}
+- {slot: ui.picker.label, key: timePickerMinuteLabel, text: "Minute"}
+- {slot: ui.picker.item, key: datePickerYearItem, text: "{year}"}
+- {slot: ui.picker.item, key: datePickerMonthItem, text: "{month}"}
+- {slot: ui.picker.item, key: datePickerDayItem, text: "{day}"}
+- {slot: ui.picker.item, key: timePickerHourItem, text: "{hour}"}
+- {slot: ui.picker.item, key: timePickerMinuteItem, text: "{minute}"}
+- {slot: ui.picker.item, key: timePickerAm, text: "AM"}
+- {slot: ui.picker.item, key: timePickerPm, text: "PM"}
+- {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "Leap month {month}"}
+- {slot: ui.birth.option, key: calendarSolar, text: "Solar"}
+- {slot: ui.birth.option, key: calendarLunar, text: "Lunar"}
+- {slot: ui.birth.option, key: leapMonth, text: "Leap month"}
+- {slot: ui.birth.option, key: timeUnknownLabel, text: "Don't know"}
+- {slot: ui.birth.option, key: genderMale, text: "Male"}
+- {slot: ui.birth.option, key: genderFemale, text: "Female"}
+- {slot: ui.login.provider, key: loginKakaoLabel, text: "Login with Kakao"}
+- {slot: ui.login.provider, key: loginAppleLabel, text: "Sign in with Apple"}
+- {slot: ui.login.error, key: loginCancelled, text: "Sign-in was cancelled."}
+- {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "We couldn't confirm your sign-in. Please start again."}
+- {slot: ui.login.error, key: appleWebErrorCancelled, text: "Sign in with Apple was cancelled."}
+- {slot: ui.login.error, key: appleWebErrorOther, text: "We couldn't sign you in with Apple. Please try again."}
