@@ -70,7 +70,7 @@
 
 ## 다음 할 일
 지금은 대기합니다. 아래 일이 생기면 엽니다.
-1. **writing 확인 창 슬롯 답:** 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기를 어떻게 할지 writing 답(Issue #WRITING_ISSUE)이 오면 `tools/lengths.py`의 `DIALOG_SLOTS`·`NO_LIMIT`과 `lengths.md`를 맞춥니다.
+1. **writing 확인 창 슬롯 답:** 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기를 어떻게 할지 writing 답(Issue #191)이 오면 `tools/lengths.py`의 `DIALOG_SLOTS`·`NO_LIMIT`과 `lengths.md`를 맞춥니다.
 2. **윤달 조회 계약:** server 음력→양력·윤달 조회(#141)가 REST 계약에 들어오면 app에 `date-picker` `birth` 목표 모양(V31)으로 바꾸도록 확인합니다.
 3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
 4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
