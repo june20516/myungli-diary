@@ -26,6 +26,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
 // testAppLinkBase는 테스트의 App Link 주소입니다.
@@ -117,6 +118,33 @@ func (f *fakeAccounts) AgreeConsents(_ context.Context, _ uuid.UUID, docs []acco
 
 func (f *fakeAccounts) RequestDeletion(context.Context, uuid.UUID) (time.Time, error) {
 	return f.scheduledAt, f.err
+}
+
+// fakeProfiles는 ProfileService 대역입니다. 받은 인자를 기록하고 정해 둔 결과를 돌려줍니다.
+type fakeProfiles struct {
+	profile profile.Profile
+	saved   profile.Saved
+	exists  bool
+	err     error
+
+	gotPut   profile.Profile
+	gotPatch profile.Patch
+}
+
+func (f *fakeProfiles) Get(context.Context, uuid.UUID) (profile.Profile, error) {
+	return f.profile, f.err
+}
+
+func (f *fakeProfiles) Exists(context.Context, uuid.UUID) (bool, error) { return f.exists, f.err }
+
+func (f *fakeProfiles) Put(_ context.Context, _ uuid.UUID, p profile.Profile) (profile.Saved, error) {
+	f.gotPut = p
+	return f.saved, f.err
+}
+
+func (f *fakeProfiles) Patch(_ context.Context, _ uuid.UUID, p profile.Patch) (profile.Saved, error) {
+	f.gotPatch = p
+	return f.saved, f.err
 }
 
 func testTokenPair() auth.TokenPair {

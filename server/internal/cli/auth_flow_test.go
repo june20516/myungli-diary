@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -9,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -25,13 +27,22 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
+	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
 // flowNonce는 흐름 테스트가 쓰는 nonce 원문입니다(계약상 16자 이상).
 const flowNonce = "flow-test-nonce-0123456789"
+
+// unusedCharts는 프로필 저장을 쓰지 않는 흐름 테스트용 ChartChecker입니다. 부르면 실패합니다.
+type unusedCharts struct{}
+
+func (unusedCharts) Chart(context.Context, profile.Birth, profile.LocalDate) (*enginev1.ChartResponse, error) {
+	return nil, errors.New("흐름 테스트는 엔진을 쓰지 않습니다")
+}
 
 // flowEnv는 실제 DB와 제공자 대역에 붙은 server 하나입니다.
 type flowEnv struct {
@@ -54,6 +65,7 @@ func newFlowEnv(t *testing.T) *flowEnv {
 	require.NoError(t, err, "인증 설정 파싱")
 	handler, err := newServer(settings, serverDeps{
 		Pool:   dbtest.New(t),
+		Charts: unusedCharts{},
 		Logger: slog.New(slog.DiscardHandler),
 		Clock:  clk,
 		HTTP:   fake.Client(),

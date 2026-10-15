@@ -120,8 +120,14 @@ func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Status: %v", err)
 	}
-	if len(statuses) != 3 || !statuses[0].Applied || !statuses[1].Applied || !statuses[2].Applied {
-		t.Errorf("migrate up 뒤 status = %+v, want 00001, 00002, 00003 applied", statuses)
+	if len(statuses) != 4 {
+		t.Fatalf("migrate up 뒤 status = %+v, want migration 네 개", statuses)
+	}
+	for _, status := range statuses {
+		if !status.Applied {
+			t.Errorf("migrate up 뒤 status = %+v, want 모두 applied", statuses)
+			break
+		}
 	}
 }
 
@@ -145,8 +151,8 @@ func TestRun_MigrateDownWithNothingApplied_Exits1WithClearLog(t *testing.T) {
 	pool := dbtest.New(t)
 	env := map[string]string{"DATABASE_URL": pool.Config().ConnString()}
 
-	// migration 파일이 셋이므로 셋 다 되돌려야 적용된 것이 없어집니다.
-	for i := 1; i <= 3; i++ {
+	// migration 파일이 넷이므로 넷 다 되돌려야 적용된 것이 없어집니다.
+	for i := 1; i <= 4; i++ {
 		if code, _, stderr := runCLIWithEnv(t, env, "migrate", "down"); code != 0 {
 			t.Fatalf("%d번째 down 종료 코드 = %d, stderr = %q", i, code, stderr)
 		}

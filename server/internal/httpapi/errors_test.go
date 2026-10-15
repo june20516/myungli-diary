@@ -18,6 +18,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
 
@@ -138,4 +139,23 @@ func TestWriteHandlerError_PgErrorLogOmitsDetail(t *testing.T) {
 	for _, secret := range []string{"12345", "msg-secret", "where-secret"} {
 		assert.False(t, strings.Contains(logs, secret), "로그에 %q 가 있으면 안 됩니다", secret)
 	}
+}
+
+func TestWriteHandlerError_EngineInvalidOutsideProfileIs500(t *testing.T) {
+	for _, target := range []error{engine.ErrInvalidArgument, engine.ErrOutOfRange} {
+		t.Run(target.Error(), func(t *testing.T) {
+			rec, p, logs := serveHandlerError(t, fmt.Errorf("fortune: %w", target))
+
+			assert.Equal(t, http.StatusInternalServerError, rec.Code)
+			assert.Equal(t, "internal", p.Code)
+			assert.Contains(t, logs, "level=ERROR")
+		})
+	}
+}
+
+func TestWriteHandlerError_EngineInternalIs502(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, fmt.Errorf("fortune: %w", engine.ErrInternal))
+
+	assert.Equal(t, http.StatusBadGateway, rec.Code)
+	assert.Equal(t, "engine.error", p.Code)
 }
