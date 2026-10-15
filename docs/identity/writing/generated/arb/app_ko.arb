@@ -658,6 +658,10 @@
   "@depthEvidence": {
     "description": "깊이 단계 근거 단계(셋째 단계)의 안내"
   },
+  "depthLinkEvidence": "근거 보기",
+  "@depthLinkEvidence": {
+    "description": "깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)"
+  },
   "depthExplain": "풀이",
   "@depthExplain": {
     "description": "깊이 단계 풀이 단계(둘째 단계)의 안내"
@@ -845,6 +849,22 @@
   "errorEngineTimeout": "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
   "@errorEngineTimeout": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "evidenceSheetTitle": "오늘 풀이의 근거",
+  "@evidenceSheetTitle": {
+    "description": "근거 시트(sheet) 제목(#153)"
+  },
+  "todayGuideLabel": "일기 질문",
+  "@todayGuideLabel": {
+    "description": "가이드 질문 카드(guide-question-card)의 스크린리더 문구: 카드 묶음 이름(a11y.label), 일기를 쓴 뒤 상태 알림(stateAnnounced)(#153)"
+  },
+  "todayGuideWritten": "오늘 일기를 썼어요",
+  "@todayGuideWritten": {
+    "description": "가이드 질문 카드(guide-question-card)의 스크린리더 문구: 카드 묶음 이름(a11y.label), 일기를 쓴 뒤 상태 알림(stateAnnounced)(#153)"
+  },
+  "todayGuideEyebrow": "오늘의 질문",
+  "@todayGuideEyebrow": {
+    "description": "가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)"
   },
   "loginCancelled": "로그인을 취소했어요.",
   "@loginCancelled": {
@@ -1043,6 +1063,38 @@
   "branchHae": "해",
   "@branchHae": {
     "description": "glossary.value_name: branch.hae"
+  },
+  "direction8N": "북",
+  "@direction8N": {
+    "description": "glossary.value_name: direction8.n"
+  },
+  "direction8Ne": "북동",
+  "@direction8Ne": {
+    "description": "glossary.value_name: direction8.ne"
+  },
+  "direction8E": "동",
+  "@direction8E": {
+    "description": "glossary.value_name: direction8.e"
+  },
+  "direction8Se": "남동",
+  "@direction8Se": {
+    "description": "glossary.value_name: direction8.se"
+  },
+  "direction8S": "남",
+  "@direction8S": {
+    "description": "glossary.value_name: direction8.s"
+  },
+  "direction8Sw": "남서",
+  "@direction8Sw": {
+    "description": "glossary.value_name: direction8.sw"
+  },
+  "direction8W": "서",
+  "@direction8W": {
+    "description": "glossary.value_name: direction8.w"
+  },
+  "direction8Nw": "북서",
+  "@direction8Nw": {
+    "description": "glossary.value_name: direction8.nw"
   },
   "dayKindGwiinDay": "귀인의 날",
   "@dayKindGwiinDay": {

@@ -125,3 +125,10 @@ def test_render_arb_rejects_term_key_even_without_ui_manuscript() -> None:
     clash = make_slot("ui.birth.option", "ui", {"branchIn": {}})
     with pytest.raises(LoadError):
         render_arb({**SLOTS, GLOSSARY.id: GLOSSARY, clash.id: clash}, [*ENTRIES, *TERM_ENTRIES], "ko", ROLES)
+
+
+def test_render_arb_exports_direction_names() -> None:
+    glossary = make_slot("glossary.value_name", "content", {"direction8.n": {}, "direction8.nw": {}})
+    entries = [*ENTRIES, entry("glossary.value_name", "direction8.n", "ko", "북"), entry("glossary.value_name", "direction8.nw", "ko", "북서")]
+    arb = json.loads(render_arb({**SLOTS, glossary.id: glossary}, entries, "ko", ROLES))
+    assert (arb["direction8N"], arb["direction8Nw"]) == ("북", "북서")

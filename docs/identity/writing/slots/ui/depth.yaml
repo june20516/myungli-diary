@@ -89,3 +89,24 @@
   a11y:
     truncation: 칩이나 표 칸 안에서 잘리지 않게 짧게 씁니다.
     screen_reader: 이름 그대로 읽습니다.
+
+- id: ui.depth.evidence_link
+  where: "깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)"
+  purpose: guide
+  user_state: "오늘 풀이가 왜 그런지 더 보고 싶습니다."
+  structure: "동작 이름 하나. 무엇을 보는지(근거)를 넣습니다."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  components: [depth-link]
+  keys:
+    - depthLinkEvidence
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: depthLinkEvidence, text: "근거 보기", why: "#153 공용 문구 원고", source: writing}
+    bad:
+      - {lang: ko, text: "더 알아보기", why: "무엇을 보는지 말하지 않음(W17)", source: writing}
+  endings: []
+  a11y:
+    truncation: "링크 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "링크 이름 그대로 읽습니다."
