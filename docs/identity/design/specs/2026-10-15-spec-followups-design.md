@@ -35,7 +35,7 @@ README 공통 규칙에 한 줄을 더합니다. **"명세의 고정 높이(`hei
 * 모양은 글리프 `›`에서 **아이콘 `caret-right`**로 바꿉니다(`weight: regular`, 크기는 링크 글자 크기, 색은 링크 색, 간격 2px). `›` 글리프는 ko 글꼴(Pretendard)과 ja 글꼴에서 모양과 굵기가 달라 두 언어가 다르게 보입니다. `settings-row`의 화살표도 이미 `caret-right`입니다.
 * 화살표는 스크린리더가 읽지 않습니다(장식).
 * 링크가 여러 줄로 감기면 화살표는 마지막 줄 끝에 붙고, 마지막 낱말과 떨어지지 않습니다(`link.inline-nowrap`과 같은 원리).
-* 명세 표기: `chevron: { "icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color", "gap": 2px, "a11y": "decorative" }`. 값이 바뀌는 것이라 수 버전 변경이지만, 이번 2.3.0에 함께 묶습니다.
+* 명세 표기: `chevron: { "icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color", "gap": { "value": 2, "unit": "px" }, "decorative": true }`. 값이 바뀌는 것이라 수 버전 변경이지만, 이번 2.3.0에 함께 묶습니다.
 
 ### 2.3. `dialog` 변형 `notice` (#142-5)
 
@@ -113,7 +113,7 @@ IA v3(D71)에서 `birthplace`에 계산 기준 화면(`calc-basis`)으로 가는
 * 누르면 플랫폼 기본 페이지 전환으로 이동합니다. `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`(링크 글자 둘레)입니다.
 * a11y: role `link`. 라벨은 링크 이름 그대로이고, 화살표는 읽지 않습니다.
 * 자리: `birthplace`에서 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위. 슬롯 `birthplace.standard.link`. 배치는 `sentence.md`에 적고, 슬롯은 JSON `navigate.parts.label.slot`에도 둡니다.
-* `depth-link.summary`를 "한 단계 깊이로 가는 링크 ('근거 보기 ›'), 또는 다른 페이지로 가는 같은 모양의 링크"로 넓힙니다. `sentence.md`의 쓰는 화면에 `birthplace`를 더합니다.
+* `depth-link.summary`를 "한 단계 깊이로 가는 링크('근거 보기' + 화살표), 또는 다른 페이지로 가는 같은 모양의 링크"로 넓힙니다. `sentence.md`의 쓰는 화면에 `birthplace`를 더합니다.
 * IA v3(PR #157)는 main에 병합되어 `birthplace.standard.link`가 main `docs/ia/screens.json`에 있습니다. 그래서 다른 depth-link 쓰임과 같이 슬롯을 JSON(`navigate.parts.label.slot`)에 적고, `test_every_slot_exists_in_ia`가 이를 확인합니다.
 
 ## 5. 글자 수 상한 (#131, 결정 V33)
@@ -133,7 +133,7 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 | 주 버튼 `primary-button` | 320 − 20×2 = 280 | label.lg | 1 | 이름 | welcome.cta.start·signin, preview.cta.save·restart, consent.cta.agree, notify-ask.cta.allow·skip, force-update.cta.store, account-delete.cta.delete, today.guide.cta, evidence-sheet.lock.cta, ad-free.restore.cta, diary-list.pick-date.cta, day-sheet.event.add, day-sheet.diary.write-cta, share-preview.cta.share |
 | 확인 창 버튼 `dialog` | (360 − 28×2 − 24×2 − 8) / 2 = 124 | label.lg | 1 | 이름 | ui.action.button, 확인 창 슬롯의 버튼 키(§5.4) |
 | 소셜 로그인 글자 | 320 − 16×2 − 로고 20 − 간격 8 = 260 | label.lg | 1 | 이름 | ui.login.provider |
-| toast | 320 − 16×2 = 288 | body.ui | 2 | 문장 | ui.error.client, ui.error.code, ui.login.error, ui.app.trace, evidence-sheet.unlock.failed, diary-edit.saved.tags |
+| toast | 320 − 16×2 − 아이콘 16 − 간격 16 = 256 | body.ui | 2 | 문장 | ui.error.client, ui.error.code, ui.login.error, ui.app.trace, evidence-sheet.unlock.failed, diary-edit.saved.tags |
 | 탭 라벨 | 360 / 4 = 90 | caption.sm | 1 | 이름 | ui.nav.tab |
 | segmented 두 칸 | (320 − 2 − 3×2) / 2 = 156 | label.lg | 1 | 이름 | ui.birth.option(양력·음력, 남성·여성, 그리고 check-row inline의 모름·윤달) |
 | segmented 세 칸 | 104 (기존) | label.lg | 1 | 이름 | share-preview.ratio.label |
@@ -143,13 +143,16 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 | 일기 입력칸 안내 `diary-editor` | 320 − 16×2 = 288 | sentence.body | 2 | 문장 | diary-edit.body.placeholder |
 | 안내 띠 `notice-banner` | 320 − 12×2 − 아이콘 16 − 간격 8 = 272 | caption.lg | 2 | 문장 | ui.app.notice, saju-chart.time-unknown.notice, diary-edit.offline.notice |
 | 휠 칸 | 320 / 3 ≈ 106 | subtitle | 1 | 이름 | ui.picker.item |
-| 구역 제목 | 320 | label.md | 1 | 이름 | evidence-sheet.section.basis·source·personal |
-| 링크 이름 | 320 − 화살표 14 − 간격 2 = 304 | label.lg | 1 | 이름 | birthplace.standard.link, day-sheet.diary.open |
+| 잠긴 구역 제목 `lock.veil` | 320 − 자물쇠 14 − 간격 4 = 302 | label.md | 1 | 이름 | evidence-sheet.section.basis·source·personal, saju-chart.yongsin.title |
+| 링크 이름 | 320 − 화살표 14 − 간격 2 = 304 | label.lg | 1 | 이름 | ui.depth.evidence_link, birthplace.standard.link, day-sheet.diary.open |
 | 잠긴 줄 열기 | 320 / 2 − 화살표 14 − 간격 2 = 144 | label.lg | 1 | 이름 | saju-chart.yongsin.open (흐린 줄과 같은 줄 오른쪽 끝) |
 | 앱 이름 `app-bar` | 360 − 16×2 − 뒤로 44 − 동작 44×2 = 196 | subtitle | 1 | 이름 | ui.app.name |
 | 시진 확인 줄 | 320 | caption.lg | 1 | 이름 | onboard-time.hour.confirm |
-| 날의 성격 이유 | 320, 끝 링크 자리("근거 보기" 5자 + 화살표) 뺌 | caption.lg | 2 | 문장 | character.reason |
+| 날의 성격 이유 | 320, 마지막 줄에서 끝 링크(`ui.depth.evidence_link` 언어별 원고 + 앞 공백 + 화살표 16) 폭만큼 뺌 | caption.lg | 2 | 문장 | character.reason |
 | 큰 문장 첫 줄 | 320 (today 총운과 같은 칸) | sentence.card | 2 | 문장 | chart.ilgan_head |
+| 카드 머리글 `guide-question-card` | 320 − 20×2 = 280 | caption.md | 1 | 이름 | ui.guide.card |
+| 설정 줄 이름 `settings-row` | 320 − 16×2 − 화살표 16 = 272 | body.ui | 1 | 이름 | settings.ad-free.label(남은 기간을 담은 키 포함) |
+| 시트 제목 | 320 | title | 1 | 이름 | ui.evidence.title |
 
 * ja는 기존 규칙(글자 단위 + 금칙 여유 한 글자, UI 글꼴은 전각 1em)을, en은 기존 추정식을 씁니다.
 * 문장 자리(toast·안내 띠·일기 안내·이유 줄)의 ko는 V27과 같이 원고 문장을 그 칸의 글꼴로 채워 잽니다(UI 글꼴 칸은 Pretendard 폭).
@@ -162,7 +165,8 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 
 | 종류 | 슬롯 |
 | --- | --- |
-| 스크린리더 전용(화면에 보이지 않음) | ui.nav.a11y, ui.a11y.label, ui.picker.label, evidence-sheet.a11y.locked·checking·unlocked, today.reaction.label |
+| 스크린리더 전용(화면에 보이지 않음) | ui.nav.a11y, ui.a11y.label, ui.picker.label, evidence-sheet.a11y.locked·checking·unlocked, today.reaction.label, ui.guide.a11y |
+| 확인 창 본문(창이 늘어남) | login.discard.notice(`dialog` `notice` 본문) |
 | 스크롤 본문 | chart.ilgan_body, chart.yongsin_summary, term.meaning(풀이 시트·태그 모아보기 본문), ui.app.bootstrap(error-state 문장) |
 | app 밖 화면 | system.apple_return(server 웹 페이지) |
 
@@ -172,7 +176,7 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 
 | 역할 | 칸 | 상한 |
 | --- | --- | --- |
-| 제목 | 360 − 28×2 − 24×2 = 256, subtitle, 2줄, 이름 | 도구 출력 |
+| 제목 | 360 − 28×2 − 24×2 − `mark.caution` 15(destructive, 16×0.707 + 띄어쓰기) = 241, subtitle, 2줄, 이름 | 도구 출력 |
 | 본문 | body.ui, 창이 늘어남 | 없음 |
 | 버튼 | 확인 창 버튼 124 | 도구 출력 |
 
@@ -182,9 +186,14 @@ V27의 계산 방식을 그대로 넓힙니다. 기준 폭 360px, 본문 폭 320
 
 #131이 묻지 않은 문장형 ui 슬롯(질문 제목 `*.question.head`, 설명 `*.why.body`, 잠금 안내 `evidence-sheet.lock.*` 등)은 이번에 계산하지 않습니다. 필요하면 writing이 다시 요청합니다. `calendar.solar_term`의 en 줄임 표기(`S.Cold`, `Sp.Eq`)는 계산값 6자 안이라 날짜 칸에 들어갑니다. 글리프 폭이 가장 넓은 표기를 도구로 재서 답에 함께 적습니다.
 
+다음 이름형 ui 슬롯도 이번에 계산하지 않습니다(최종 리뷰에서 확인).
+
+* `diary-edit.draft.status`: app-bar 제목과 나눠 쓰는 폭을 명세가 정하지 않았습니다.
+* `ad-free.offer.price`, `ad-free.status.remaining`: 가격·날짜 매개변수의 길이가 통화·로캘마다 달라 이름 자리 계산이 맞지 않습니다.
+
 ### 5.6. 도구 변경
 
-* `Target`에 `reserve_px`(같은 줄에 붙는 고정 폭, 예: 이유 줄 끝 링크)를 더합니다. 이유 줄의 링크 폭은 label.lg "근거 보기" 폭 + 화살표 14 + 간격 2 + 앞 공백입니다.
+* `Target`에 `trailing_link`(문장 끝에 붙는 링크 슬롯)를 더합니다. 링크 폭은 writing 원고(`content/<lang>/ui.yaml`)의 그 슬롯 문구를 label.lg로 잰 폭 + 앞 U+00A0 + 화살표 14 + 간격 2이고(ja는 전각 1em), **마지막 줄에서 한 번만** 그 폭에 해당하는 글자 수를 뺍니다. 링크 원고가 바뀌면 표도 바뀝니다.
 * 글자 크기만 있고 자간이 없는 자리(`text-field` 17px)는 `tracking 0`입니다.
 * `TARGETS`에 §5.2의 칸을 더하고, `NO_LIMIT`(§5.3)와 확인 창 역할(§5.4)을 표로 출력합니다. `lengths.md`의 표는 도구 출력 그대로이고, 테스트(`test_lengths.py`)가 둘이 같은지 봅니다.
 * 기존 칸의 값은 바뀌지 않아야 합니다(테스트가 기존 표 행을 그대로 비교).

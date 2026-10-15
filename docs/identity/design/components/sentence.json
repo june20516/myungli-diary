@@ -44,7 +44,7 @@
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
         "문장 끝에 depth-link가 붙을 수 있다(inline-end).",
-        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기 ›'. 누르면 근거 시트가 locked로 열린다.",
+        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기' 링크(화살표는 컴포넌트가 그림). 누르면 근거 시트가 locked로 열린다.",
         "term 조각은 term-token이 있는 화면(segments.term.screens)에서만 term-token inline으로 그린다. 그 밖의 화면, 공유 이미지, 카드 전체가 버튼인 곳(diary-row) 안에서는 일반 글자다(결정 V28).",
         "콘텐츠 문장을 그리는 다른 구성 요소(day-character reason, lucky-card explain)도 segments 규칙을 따른다.",
         "term-token 라벨은 화면에 보이는 text를 쓴다. term 값은 풀이를 찾는 키라 읽지 않는다.",
@@ -83,7 +83,7 @@
     },
     {
       "id": "depth-link",
-      "summary": "한 단계 깊이로 가는 링크 ('근거 보기 ›'), 또는 다른 페이지로 가는 같은 모양의 링크",
+      "summary": "한 단계 깊이로 가는 링크('근거 보기' + 화살표), 또는 다른 페이지로 가는 같은 모양의 링크",
       "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe"],
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "uses": ["link.inline-nowrap"], "parts": { "label": { "joiners": "link.inline-nowrap", "gapBefore": "U+00A0" } } },

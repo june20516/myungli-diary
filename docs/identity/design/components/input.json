@@ -145,11 +145,11 @@
         "selected": { "pattern": "select.seep-slide", "parts": { "label": { "fg": "{color.action.on-primary}" } } },
         "pressed": { "pattern": "press.ink" },
         "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } },
-        "none": { "note": "아직 고르지 않음(성별 고르기 전). 처음 고르면 표시 막대가 미끄러지지 않고 그 자리에 스밈", "pattern": "appear.seep", "parts": { "indicator": { "visible": false }, "label": { "fg": "{color.text.secondary}" } } }
+        "none": { "note": "아직 고르지 않음(성별 고르기 전)", "parts": { "indicator": { "visible": false }, "label": { "fg": "{color.text.secondary}" } } }
       },
       "haptic": [{ "when": "선택이 바뀜", "strength": "selection" }],
       "a11y": { "role": "radio-group", "itemRole": "radio", "label": "무엇을 고르는지", "minTarget": 44 },
-      "rules": ["항목은 2~4개. 항목 너비는 같다.", "항목 글자는 한 줄이다. 넘치면 글자를 줄이거나 자르지 않고, 화면 설계에서 항목 수나 문구를 줄인다.", "none에서는 input-step 아래 버튼이 disabled다."]
+      "rules": ["항목은 2~4개. 항목 너비는 같다.", "항목 글자는 한 줄이다. 넘치면 글자를 줄이거나 자르지 않고, 화면 설계에서 항목 수나 문구를 줄인다.", "none에서는 input-step 아래 버튼이 disabled다.", "none에서 처음 고르면 표시 막대는 미끄러지지 않고 그 자리에 appear.seep으로 나타난다(select.seep-slide는 그다음 선택부터)."]
     },
     {
       "id": "city-search",

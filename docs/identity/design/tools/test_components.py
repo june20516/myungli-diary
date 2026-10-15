@@ -579,7 +579,8 @@ def test_segmented_has_unselected_state():
     none = segmented["states"]["none"]
     assert none["parts"]["indicator"] == {"visible": False}
     assert none["parts"]["label"] == {"fg": "{color.text.secondary}"}
-    assert none["pattern"] == "appear.seep" and "appear.seep" in segmented["uses"]
+    assert "pattern" not in none and "appear.seep" in segmented["uses"]
+    assert any("none" in rule and "appear.seep" in rule for rule in segmented["rules"])
 
 
 def test_input_step_omits_bottom_action_for_pick_and_go_steps():

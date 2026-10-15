@@ -142,24 +142,33 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "evidence-sheet.section.basis", "evidence-sheet.section.source", "evidence-sheet.section.personal",
         "birthplace.standard.link", "day-sheet.diary.open", "saju-chart.yongsin.open", "ui.app.name",
         "onboard-time.hour.confirm", "character.reason", "chart.ilgan_head",
+        # 최종 리뷰에서 더한 이름 자리
+        "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
+        "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
     assert slots == issue_54 | issue_131
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
-        "term.meaning", "ui.app.bootstrap", "system.apple_return",
+        "term.meaning", "ui.app.bootstrap", "system.apple_return", "ui.guide.a11y", "login.discard.notice",
     }
     assert not set(lengths.NO_LIMIT) & slots
 
 
-def test_reserve_px_is_subtracted():
-    target = Target(("n",), "칸", "ui", 10, 0, 100, 1, False, None, reserve_px=30)
-    assert free_width(target, FAKE, {}) == 70
+def test_trailing_link_is_taken_from_last_line_only():
+    # 한 줄 ko 7자·ja 6자·en 11자(폭 70). 링크는 label.lg 14px −0.28, 앞 U+00A0(가짜 글꼴에 없어 1em) + 화살표 16.
+    # ko "가가" 57.16px → ceil(57.16 × 7 / 70) = 6자, ja 전각 28 + 13.72 + 16 → 5자, en "ab" 43.16px → 7자를 한 번만 뺌
+    target = Target(("r",), "칸", "ui", 10, 0, 70, 2, True, None, trailing_link="link")
+    links = {"link": {"ko": "가가", "ja": "가가", "en": "ab"}}
+    (result,) = measure(FakeFonts(), ["가가가"] * 30, (target,), links)
+    assert (result.ko, result.ja, result.en) == (8, 7, 15)
+    assert result.target.width == 70
 
 
 def test_no_limit_rows_are_rendered():
     table = render_table([])
     assert "| `ui.a11y.label` |" in table and "| `system.apple_return` |" in table and "상한 없음" in table
+    assert "상한을 두지 않는 슬롯" in table
 
 
 def test_only_dialog_slots_sit_in_two_targets():
