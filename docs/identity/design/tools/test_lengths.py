@@ -1,4 +1,4 @@
-"""글자 수 상한 계산 테스트 (depth-lock spec §5)."""
+"""글자 수 상한 계산 테스트 (depth-lock spec §5, spec-followups spec §5)."""
 import pathlib
 import sys
 
@@ -15,6 +15,25 @@ REPO_ROOT = TOOLS_DIR.parents[3]
 FONT_DIR = REPO_ROOT / ".suberpowers" / "fonts"
 FONT_FILES = [name for pair in lengths.FONT_FILES.values() for name in pair if name]
 FONTS_PRESENT = all((FONT_DIR / name).exists() for name in FONT_FILES)
+
+EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행. 값이 바뀌면 안 됨 (spec-followups spec §5.6)
+    '| `daily.fortune.head`<br>`daily.fortune.tag` | today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today) | 320px | 2 | 32 | 42 | **32** | **32** | **57** |',
+    '| `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |',
+    '| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card explain (안쪽 space.12) | 296px | 2 | 36 | 58 | **36** | **36** | **64** |',
+    '| `daily.focus_reason` | lucky-card explain 안 한 줄 | 296px | 1 | 10 | 26 | **10** | **10** | **18** |',
+    "| `daily.tag_label` | tag-chip ('#' 뒤, 좌우 10px) | 293px | 1 | 10 | 28 | **10** | **10** | **18** |",
+    '| `calendar.day_level` | day-character badge (좌우 10px) | 300px | 1 | 10 | 27 | **10** | **10** | **18** |',
+    '| `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |',
+    '| `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |',
+    '| `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |',
+    '| `ui.depth.surface`<br>`ui.depth.explain`<br>`ui.depth.evidence` | segmented 세 칸 중 한 칸 | 104px | 1 | 10 | 8 | **8** | **6** | **13** |',
+    '| `ui.depth.default_label` | settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름) | 177.4px | 1 | 10 | 15 | **10** | **10** | **18** |',
+    '| `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |',
+    '| `settings.calculation_basis` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |',
+]
+
+DIALOG_SLOTS_EXPECTED = {"diary-view.delete.confirm", "event-edit.delete.confirm", "account-delete.delete.confirm",
+                         "settings.logout.confirm", "preview.share.login-notice", "profile-edit.recalc.confirm"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -97,19 +116,65 @@ def test_render_table_lists_targets_and_unbounded_slots():
 
 def test_corpus_reads_round_choices():
     sentences = corpus_sentences()
-    assert len(sentences) == 46 and len(set(sentences)) == len(sentences)
+    assert len(sentences) == 49 and len(set(sentences)) == len(sentences)
     assert "오늘은 남색이 잘 맞아요." in sentences
     assert all("다 별로" not in sentence and "**" not in sentence for sentence in sentences)
 
 
-def test_every_writing_slot_from_issue_54_has_a_value():
+def test_every_requested_slot_has_a_value_or_no_limit():
     slots = {slot for target in lengths.TARGETS for slot in target.slots} | set(lengths.UNBOUNDED)
-    assert slots == {
+    issue_54 = {
         "daily.fortune.head", "daily.fortune.tag", "daily.guide", "daily.color", "daily.direction", "daily.number",
         "daily.focus_time", "daily.tag_label", "daily.focus_reason", "calendar.day_level", "calendar.score_item",
         "calendar.solar_term", "glossary.value_name", "ui.depth.default_label", "ui.depth.surface",
         "ui.depth.explain", "ui.depth.evidence", "chart.yongsin_method", "settings.calculation_basis",
     }
+    issue_131 = {  # spec-followups spec §5.2 표
+        "welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
+        "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
+        "today.guide.cta", "evidence-sheet.lock.cta", "ad-free.restore.cta", "diary-list.pick-date.cta",
+        "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share", "ui.action.button",
+        "ui.login.provider", "ui.error.client", "ui.error.code", "ui.login.error", "ui.app.trace",
+        "evidence-sheet.unlock.failed", "diary-edit.saved.tags", "ui.nav.tab", "ui.birth.option",
+        "share-preview.ratio.label", "consent.required.label", "onboard-call.input.hint", "event-edit.title.hint",
+        "event-edit.memo.hint", "birthplace.search.hint", "diary-edit.body.placeholder", "ui.app.notice",
+        "saju-chart.time-unknown.notice", "diary-edit.offline.notice", "ui.picker.item",
+        "evidence-sheet.section.basis", "evidence-sheet.section.source", "evidence-sheet.section.personal",
+        "birthplace.standard.link", "day-sheet.diary.open", "saju-chart.yongsin.open", "ui.app.name",
+        "onboard-time.hour.confirm", "character.reason", "chart.ilgan_head",
+    } | DIALOG_SLOTS_EXPECTED
+    assert slots == issue_54 | issue_131
+    assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
+        "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
+        "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
+        "term.meaning", "ui.app.bootstrap", "system.apple_return",
+    }
+    assert not set(lengths.NO_LIMIT) & slots
+
+
+def test_reserve_px_is_subtracted():
+    target = Target(("n",), "칸", "ui", 10, 0, 100, 1, False, None, reserve_px=30)
+    assert free_width(target, FAKE, {}) == 70
+
+
+def test_no_limit_rows_are_rendered():
+    table = render_table([])
+    assert "| `ui.a11y.label` |" in table and "| `system.apple_return` |" in table and "상한 없음" in table
+
+
+def test_only_dialog_slots_sit_in_two_targets():
+    seen = {}
+    for target in lengths.TARGETS:
+        for slot in target.slots:
+            seen[slot] = seen.get(slot, 0) + 1
+    assert {slot for slot, count in seen.items() if count > 1} == DIALOG_SLOTS_EXPECTED == set(lengths.DIALOG_SLOTS)
+
+
+@pytest.mark.skipif(not FONTS_PRESENT, reason="측정 글꼴이 .suberpowers/fonts에 없음 (lengths.md 참고)")
+def test_existing_rows_keep_their_values(capsys):
+    lengths.main(["--font-dir", str(FONT_DIR)])
+    table = capsys.readouterr().out
+    assert all(row in table for row in EXISTING_ROWS)
 
 
 @pytest.mark.skipif(not FONTS_PRESENT, reason="측정 글꼴이 .suberpowers/fonts에 없음 (lengths.md 참고)")
