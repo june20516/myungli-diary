@@ -29,6 +29,9 @@ jobs:
           working-directory: server
       # testcontainers가 ubuntu runner의 Docker로 PostgreSQL을 띄운다.
       - run: go test -race ./...
+      - name: 실제 엔진과 계약 테스트
+        # core/Dockerfile로 엔진 이미지를 빌드해 띄우고 server 클라이언트로 실제 RPC를 부른다(#79).
+        run: go test -tags enginecontract ./internal/engine/...
       - name: 생성 코드가 계약과 일치하는지 확인
         run: |
           go generate ./...

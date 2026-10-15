@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	_ "time/tzdata" // distroless 이미지에는 시스템 tzdata가 없어 time.LoadLocation이 실패하므로 내장합니다.
 
 	"github.com/june20516/myungli-diary/server/internal/cli"
 )

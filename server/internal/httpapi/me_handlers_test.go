@@ -22,7 +22,7 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 			{Document: account.Privacy, Version: "1"}, {Document: account.Terms, Version: "1"},
 		},
 	}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -39,9 +39,23 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 	assert.Nil(t, got.DeletionScheduledAt)
 }
 
+func TestGetMe_HasProfileTrue(t *testing.T) {
+	accts := &fakeAccounts{me: account.Me{AccountID: fixedAccountID, Access: account.Access{Status: account.StatusActive}}}
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{exists: true}})
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
+	var got gen.Me
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	assert.True(t, got.HasProfile)
+}
+
 func TestGetMe_NoRequiredConsentsIsEmptyArray(t *testing.T) {
 	accts := &fakeAccounts{me: account.Me{AccountID: fixedAccountID, Access: account.Access{Status: account.StatusActive}}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -57,7 +71,7 @@ func TestGetMe_PendingDeletionShowsSchedule(t *testing.T) {
 		AccountID: fixedAccountID,
 		Access:    account.Access{Status: account.StatusPendingDeletion, DeletionScheduledAt: &at},
 	}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -72,7 +86,7 @@ func TestGetMe_PendingDeletionShowsSchedule(t *testing.T) {
 }
 
 func TestGetMe_UnknownAccountIs401(t *testing.T) {
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: &fakeAccounts{err: account.ErrNotFound}})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: &fakeAccounts{err: account.ErrNotFound}, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -83,7 +97,7 @@ func TestGetMe_UnknownAccountIs401(t *testing.T) {
 
 func TestAgreeConsents_Returns204(t *testing.T) {
 	accts := &fakeAccounts{}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
 
 	req := newBodyRequest(t, http.MethodPost, "/v1/me/consents", contentTypeJSON,
 		`{"documents":[{"document":"terms","version":"1"},{"document":"privacy","version":"1"}]}`)
@@ -96,7 +110,7 @@ func TestAgreeConsents_Returns204(t *testing.T) {
 
 func TestAgreeConsents_StaleVersionIs422WithPointer(t *testing.T) {
 	accts := &fakeAccounts{agreeErr: &account.ConsentVersionMismatchError{Index: 1}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
 
 	req := newBodyRequest(t, http.MethodPost, "/v1/me/consents", contentTypeJSON,
 		`{"documents":[{"document":"terms","version":"1"},{"document":"privacy","version":"0"}]}`)

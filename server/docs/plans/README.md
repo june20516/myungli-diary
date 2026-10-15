@@ -9,7 +9,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P1 | [기반과 REST 계약 초안](2026-10-11-p1-foundation.md): 모듈, 하위 명령, 설정, Clock, 로깅, DB·migration, HTTP 뼈대, 오류 형식, `openapi.yaml` 초안, 생성 코드, CI, 이미지 | §2, §5, §11.1, §12, §13.1 일부 | **완료** |
 | P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구 | §3.3 계정, §4 | **완료** |
 | P2a | [Apple 웹 로그인 복귀](2026-10-13-apple-web-login.md): 일회용 교환 코드, `completeAppleWebLogin`, App Link 안내 페이지·assetlinks (Issue #89, S22) | §4 | **완료** |
-| P3 | 프로필·엔진·캐시: 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 | §3.2, §3.3 프로필·캐시, §7 | 대기 |
+| P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 대기로 501 유지 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
 | P4 | 콘텐츠: 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응 | §6 | 대기 |
 | P5 | 일기·일정: soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록 | §5.3, §3.3 일기 | 대기 |
 | P6 | 비로그인·참조: 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config | §5.3, §3.3 기타 | 대기 |
@@ -23,13 +23,17 @@ P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 
 
 P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 근거는 commit 메시지와 코드 주석에 있습니다.
 
-**P3 (프로필·엔진·캐시)**
-* `getMe.hasProfile`을 채웁니다.
-* 상태-값 짝 위반(422 `request.inconsistent`)과 422 `date.invalid`(`LunarOrSolarDate`만)는 계약에만 있고 구현이 없습니다. 프로필에서 처음 쓰입니다.
-* 범위에 일부만 걸친 달(1900년 1월)은 엔진이 `OUT_OF_RANGE`를 내므로 422 `date.out_of_range`로 매핑합니다.
+**P4 (콘텐츠)**
+* `characterReason`(Daily·CalendarDay), `Glossary.meanings`, Preview `dayKindName`을 렌더합니다. `fortune.Service.Daily/Month`를 씁니다. 출생 해시 = 사주 지문(S26)입니다.
+* `convertLunarDate`는 core #164 병합 뒤에 합니다(엔진 클라이언트·대역·계약 테스트에 RPC 추가, 422 `date.invalid`/`date.out_of_range`).
+* 참고(엔진 판정): 엔진 `OUT_OF_RANGE`는 범위에 일부만 걸친 달(`GetMonthCalendar(1900,1)`)과, 출생 정보에서는 상한 쪽 음력(음력 2099년 12월이 양력 2099-12-31을 넘는 날)에서 납니다. 음력 1900-01-01은 범위 안입니다.
 
 **P5 (일기·일정)**
-* 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 이어받아 일정에도 씁니다.
+* 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 끝났습니다(프로필). 일정에도 같은 코드를 씁니다.
+
+**P6 (비로그인·참조)**
+* `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다.
+* `convertLunarDate`에도 App Check·요청 한도를 겁니다.
 
 **P7 (결제와 권한)**
 * `getMe.adFree`·`insight`를 채웁니다.
@@ -40,10 +44,14 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * `apple_web_logins` 만료·소진 행을 정리합니다. 만료됐는데 소진되지 않은 행은 그 subject의 연결 행이 없을 때만 Apple refresh token을 revoke합니다(S19와 같은 규칙). 소진된 행도 암호화한 Apple refresh token과 subject를 담으므로, 계정 익명화보다 먼저(또는 같은 작업에서) 지웁니다.
 * `job retention`이 `DisconnectProviders`를 재시도하고 만료된 refresh token을 지웁니다. `DisconnectProviders`는 계정이 `pending_deletion`일 때만 외부 호출과 기록을 하고, 그 밖의 상태(active·deleted)에서는 아무것도 하지 않습니다. 그래서 retention은 **연결 해제 재시도를 익명화(`deleted` 전환)보다 먼저** 해야 합니다. 익명화한 뒤에는 남은 연결을 더 이상 끊을 수 없습니다.
 * 만료된 refresh token 정리는 "행을 물리적으로 지우지 않는다"(S6·S7, spec §2)의 예외입니다(시스템 데이터). 다만 `refresh_tokens.replaced_by_id`가 같은 테이블을 `ON DELETE RESTRICT`로 참조하므로(S20), 앞 토큰이 남아 있는 동안 그 다음 토큰은 지울 수 없습니다. family의 모든 토큰이 만료됐을 때 family 단위로 지우되 참조하는 행(앞 토큰)부터 지워야 합니다. RESTRICT는 한 DELETE 문 안에서도 행마다 즉시 검사하므로 한 문장에 몰아 지울 때의 순서에 기대지 않습니다(필요하면 FK를 `NO ACTION`으로 바꾸는 것을 검토).
-* 클라이언트가 연결을 끊은 요청(`context.Canceled`)이 500과 오류 로그로 남는 잡음을 정리합니다.
+* 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
+* 이전 `ruleset_version` 캐시 행을 정리합니다.
+* 프로필 익명화 전용 쿼리를 둡니다. 출생 열·호칭·해시를 비우고 `anonymized_at`을 기록하며, CHECK `profiles_complete_until_anonymized`에 맞춥니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다.
 
 **P9 (배포)**
+* Cloud Run 엔진 서비스를 h2c end-to-end로 확인하고, gRPC startup probe(`myungli.engine.v1.MyungliEngine`), internal ingress, 8초 grace를 설정합니다(#79).
+* server의 `ENGINE_ADDR`·`ENGINE_AUDIENCE`를 배포 설정에 넣고, `APP_ENV`가 local이 아니면 `ENGINE_AUDIENCE` 필수 검사를 추가합니다. CI 엔진 이미지 빌드 캐시도 검토합니다.
 * 인증 설정 20개를 Secret Manager에 둡니다(`config.LoadAuth`의 이름 그대로). 필수 16개: `JWT_SIGNING_KEY_ID`, `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY_ID`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_APP_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `APPLE_BUNDLE_ID`, `APPLE_SERVICES_ID`, `APPLE_WEB_REDIRECT_URI`, `APP_LINK_BASE`, `ANDROID_APP_PACKAGE`, `ANDROID_CERT_SHA256`, `ANDROID_STORE_URL`. 선택 4개(키 교체 때만, ID와 값이 짝): `JWT_PREVIOUS_KEY_ID`, `JWT_PREVIOUS_KEY`, `TOKEN_PREVIOUS_KEY_ID`, `TOKEN_PREVIOUS_KEY`.
 * 시작 때 키·설정을 파싱하고 실패하면 종료 코드 1입니다. 키 ID가 중복되거나 비어 있어도 시작에 실패합니다.
 * Apple refresh token은 AES-GCM(secretbox)으로 암호화하고 associated data로 `auth_identities` 행 id를 묶습니다.

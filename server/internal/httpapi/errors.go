@@ -6,12 +6,17 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
+	"github.com/june20516/myungli-diary/server/internal/profile"
+	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
 )
 
 // 이 파일은 핸들러가 돌려준 오류를 problem 응답으로 바꾸는 단일 경로를 둡니다.
@@ -29,6 +34,8 @@ type Error struct {
 	Errors []problem.FieldError
 	// BearerChallenge가 true이면 bearer 인증 실패 401로서 WWW-Authenticate 헤더를 붙입니다.
 	BearerChallenge bool
+	// RetryAfter가 0보다 크면 Retry-After 헤더(초)를 붙입니다.
+	RetryAfter time.Duration
 }
 
 // newError는 registry의 code로 *Error를 만듭니다. 상태는 code가 정하므로 호출자가 따로 적지 않습니다.
@@ -47,7 +54,11 @@ type domainError struct {
 	code            problem.Code
 	title           string
 	bearerChallenge bool
+	retryAfter      time.Duration
 }
+
+// engineRetryAfter는 엔진에 닿지 못했을 때 클라이언트에 권하는 재시도 간격입니다.
+const engineRetryAfter = 5 * time.Second
 
 // domainErrors는 도메인 sentinel을 응답으로 바꾸는 표입니다. errors.Is로 위에서부터 찾습니다.
 // refresh token·교환 코드 오류는 bearer 인증(access token) 실패가 아니므로 WWW-Authenticate를 붙이지 않습니다.
@@ -57,20 +68,32 @@ var domainErrors = []domainError{
 	{target: auth.ErrRefreshInvalid, code: problem.AuthTokenInvalid, title: "Refresh token invalid"},
 	{target: auth.ErrRefreshReused, code: problem.AuthRefreshReused, title: "Refresh token reused"},
 	{target: auth.ErrExchangeInvalid, code: problem.AuthExchangeInvalid, title: "Exchange code invalid"},
+	{target: profile.ErrNotFound, code: problem.ProfileRequired, title: "Profile required"},
+	{target: engine.ErrUnavailable, code: problem.EngineUnavailable, title: "Engine unavailable", retryAfter: engineRetryAfter},
+	{target: engine.ErrTimeout, code: problem.EngineTimeout, title: "Engine timeout"},
+	{target: engine.ErrInternal, code: problem.EngineError, title: "Engine error"},
 	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
-// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), domainErrors 표, DB 연결 실패(503), 그 밖(500).
+// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422), domainErrors 표, DB 연결 실패(503), 그 밖(500).
+// 프로필 저장 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
 func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
 	if errors.Is(err, ErrNotImplemented) {
 		problem.Write(w, r, problem.NotImplemented.Problem("Not implemented"))
 		return
 	}
 
+	// 호출자가 지정한 오류와 프로필 의미 검사 위반(422)은 같은 *Error 경로로 답합니다.
 	var explicit *Error
-	if errors.As(err, &explicit) && !validHTTPStatus(explicit.Status) {
+	if !errors.As(err, &explicit) {
+		var violation *profile.ValidationError
+		if errors.As(err, &violation) {
+			explicit = validationError(violation)
+		}
+	}
+	if explicit != nil && !validHTTPStatus(explicit.Status) {
 		logHandlerError(r.Context(), deps.Logger, err)
 		problem.Write(w, r, problem.Internal.Problem("Internal server error"))
 		return
@@ -78,13 +101,13 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 	if explicit != nil {
 		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
 		p.Errors = explicit.Errors
-		writeProblem(w, r, p, explicit.BearerChallenge)
+		writeProblem(w, r, p, explicit.BearerChallenge, explicit.RetryAfter)
 		return
 	}
 
 	for _, d := range domainErrors {
 		if errors.Is(err, d.target) {
-			writeProblem(w, r, d.code.Problem(d.title), d.bearerChallenge)
+			writeProblem(w, r, d.code.Problem(d.title), d.bearerChallenge, d.retryAfter)
 			return
 		}
 	}
@@ -107,8 +130,11 @@ func validHTTPStatus(status int) bool {
 	return status >= 100 && status <= 599
 }
 
-// writeProblem은 bearer 인증 실패 여부에 따라 헤더를 달리해 problem을 씁니다.
-func writeProblem(w http.ResponseWriter, r *http.Request, p problem.Problem, bearerChallenge bool) {
+// writeProblem은 bearer 인증 실패 여부와 재시도 간격에 따라 헤더를 달리해 problem을 씁니다.
+func writeProblem(w http.ResponseWriter, r *http.Request, p problem.Problem, bearerChallenge bool, retryAfter time.Duration) {
+	if retryAfter > 0 {
+		w.Header().Set("Retry-After", strconv.Itoa(int(retryAfter.Seconds())))
+	}
 	if bearerChallenge {
 		problem.WriteBearerChallenge(w, r, p)
 		return
@@ -130,4 +156,60 @@ func logHandlerError(ctx context.Context, logger *slog.Logger, err error) {
 		return
 	}
 	logger.ErrorContext(ctx, "핸들러 오류", "errorType", fmt.Sprintf("%T", err), "error", err.Error())
+}
+
+// 422 errors[].code에 쓰는 상태 규칙 이름입니다. 계약 FieldError.code가 request.inconsistent에서 이 둘을 정합니다.
+const (
+	ruleRequiredByStatus  = "required_by_status"
+	ruleForbiddenByStatus = "forbidden_by_status"
+)
+
+// violationCodes는 프로필 의미 검사 위반을 problem code로 바꾸는 표입니다. 호칭 거부는 honorificCodes로 갈립니다.
+var violationCodes = map[profile.Violation]problem.Code{
+	profile.DateInvalid:     problem.DateInvalid,
+	profile.BirthOutOfRange: problem.BirthOutOfRange,
+	profile.Inconsistent:    problem.RequestInconsistent,
+	profile.TimezoneInvalid: problem.TimezoneInvalid,
+	profile.CityNotFound:    problem.CityNotFound,
+	profile.BirthInvalid:    problem.BirthInvalid,
+}
+
+// honorificCodes는 호칭 거부 사유를 problem code로 바꾸는 표입니다.
+var honorificCodes = map[honorific.Code]problem.Code{
+	honorific.Empty:       problem.NameEmpty,
+	honorific.TooLong:     problem.NameTooLong,
+	honorific.Emoji:       problem.NameEmoji,
+	honorific.Control:     problem.NameControl,
+	honorific.InvalidChar: problem.NameInvalidChar,
+}
+
+// validationError는 프로필 의미 검사 위반을 422 *Error로 바꿉니다.
+// errors[]는 위반한 필드마다 하나이고, code는 상태 규칙이 있으면 그 이름, 없으면 problem code입니다.
+// 표에 없는 위반은 프로그램 오류이므로 상태 0의 *Error가 되어 500으로 답합니다.
+func validationError(v *profile.ValidationError) *Error {
+	var code problem.Code
+	var ok bool
+	if v.Violation == profile.HonorificRejected {
+		code, ok = honorificCodes[v.Honorific]
+	} else {
+		code, ok = violationCodes[v.Violation]
+	}
+	if !ok {
+		return &Error{}
+	}
+
+	e := newError(code, "Validation failed")
+	e.Errors = make([]problem.FieldError, 0, len(v.Fields))
+	for _, f := range v.Fields {
+		fieldCode := code.Value
+		switch f.Rule {
+		case profile.RequiredByStatus:
+			fieldCode = ruleRequiredByStatus
+		case profile.ForbiddenByStatus:
+			fieldCode = ruleForbiddenByStatus
+		case profile.NoStatusRule:
+		}
+		e.Errors = append(e.Errors, problem.FieldError{Field: f.Field, Code: fieldCode})
+	}
+	return e
 }

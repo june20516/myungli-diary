@@ -32,3 +32,23 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/profile.sql
+    gen:
+      go:
+        package: profiledb
+        out: ../internal/profile/profiledb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/cache.sql
+    gen:
+      go:
+        package: cachedb
+        out: ../internal/fortune/cachedb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
