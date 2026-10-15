@@ -569,3 +569,31 @@ def test_depth_link_navigate_goes_to_a_page():
 def test_unlocked_evidence_sheet_omits_empty_sections():
     rules = component("sentence", "depth-link")["rules"]
     assert any("unlocked" in rule and "본문이 없는 구역" in rule for rule in rules)
+
+
+def test_segmented_has_unselected_state():
+    segmented = component("input", "segmented")
+    none = segmented["states"]["none"]
+    assert none["parts"]["indicator"] == {"visible": False}
+    assert none["parts"]["label"] == {"fg": "{color.text.secondary}"}
+    assert none["pattern"] == "appear.seep" and "appear.seep" in segmented["uses"]
+
+
+def test_input_step_omits_bottom_action_for_pick_and_go_steps():
+    step = component("input", "input-step")
+    assert "birthplace" in step["parts"]["bottomAction"]["omitWhen"]
+    assert any("아래 버튼을 두지 않는다" in rule for rule in step["rules"])
+
+
+def test_date_picker_leap_month_fallback():
+    birth = next(v for v in component("input", "date-picker")["variants"] if v["id"] == "birth")
+    fallback = birth["parts"]["leapMonthFallback"]
+    assert (fallback["component"], fallback["variant"]) == ("check-row", "inline")
+    assert fallback["replaces"] == ["leapMonth", "solarConfirm"]
+    assert "leapMonth" in birth["parts"] and "solarConfirm" in birth["parts"]
+
+
+def test_city_search_never_shows_country_code():
+    city = component("input", "city-search")
+    assert city["parts"]["region"]["whenMissing"] == "hidden"
+    assert any("나라 코드" in rule for rule in city["rules"])
