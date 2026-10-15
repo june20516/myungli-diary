@@ -280,6 +280,8 @@ def test_existing_rows_keep_their_values(capsys):
     assert all(row in table for row in EXISTING_ROWS)
 ```
 
+`test_corpus_reads_round_choices`는 main에서 이미 실패합니다(R8 `8ac564c`가 glob에 들어와 46 → 49). R8도 원고 라운드이므로 기대값을 `49`로 바꾸고, `lengths.md`·`lengths.py` docstring의 "R1~R7, 46개"를 "R1~R8, 49개"로 고칩니다(기존 확정값은 바뀌지 않음, `test_committed_table_matches_measurement`가 확인).
+
 `test_every_writing_slot_from_issue_54_has_a_value`는 이름을 `test_every_requested_slot_has_a_value_or_no_limit`로 바꾸고, 기대 집합에 spec §5.2 표의 슬롯 전부(+ `DIALOG_SLOTS_EXPECTED`, `chart.ilgan_head`, `character.reason`)를 더하며, `set(lengths.NO_LIMIT)`도 합쳐 spec §5.3 표의 슬롯 전부와 같은지 봅니다. `test_render_table_lists_targets_and_unbounded_slots`는 그대로 통과해야 합니다.
 
 - [ ] **Step 2: 실패 확인** (`EXISTING_ROWS`는 지금 `lengths.md`에서 복사하므로 `test_existing_rows_keep_their_values`만 PASS, 나머지 FAIL)
