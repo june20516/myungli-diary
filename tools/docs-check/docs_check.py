@@ -3,7 +3,7 @@
 실행: python3 -I tools/docs-check/docs_check.py [저장소 루트]
 규칙 근거: docs/workflow.md §7, docs/specs/2026-10-10-collab-workflow-design.md §4.1,
           docs/specs/2026-10-11-ia-design.md §5·§9 (IA),
-          docs/specs/2026-10-11-m0-monetization-design.md §3.3·§3.6 (아이디어 함),
+          아이디어 함 규칙은 비공개 내부 저장소의 ideas.md(D74). 공개 저장소에 docs/ideas.md가 없으면 건너뜁니다,
           docs/research/ja-terms/README.md (ja 근거 용어집, D70)
 """
 

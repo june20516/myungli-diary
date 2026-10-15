@@ -2,7 +2,7 @@
 
 명리 용어의 일본어 표기를 **출처로 정하는** 자료입니다. 일본어 감수자 없이도 표기를 믿을 수 있게, 용어마다 공신력 있는 출처의 원문을 모으고 신뢰도는 규칙으로 계산합니다. 고치는 쪽은 지휘 세션이고, writing은 이 자료를 근거로 glossary ja(`docs/identity/writing/slots/content/glossary.yaml`)를 씁니다.
 
-* 배경: [일본 사주추명 시장 유효성 검토](../../business/reports/일본%20사주추명%20시장%20유효성%20검토.md), 결정 D70·D71
+* 배경: 일본 시장 조사(비공개 기록 `business/reports/일본 사주추명 시장 유효성 검토.md`), 결정 D70·D71
 * 검사: `python3 -I tools/docs-check/docs_check.py .` (ci-gate `docs` job). 형식과 신뢰도 계산을 확인합니다.
 
 ## 파일

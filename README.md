@@ -21,7 +21,7 @@
 * 규약: [`docs/workflow.md`](docs/workflow.md), 세션 지시: 각 디렉터리의 `CLAUDE.md`
 
 ## 문서
-* 제품 배경: [`docs/background/`](docs/background/README.md)
+* 제품 배경 원문(00~06), 수익화 기록, 아이디어 함: 비공개 내부 저장소 `myungli-diary-internal`(지휘 전용, D74). 공개 저장소는 이 저장소를 링크하지 않습니다
 * 제품·아키텍처 결정: [`docs/decisions.md`](docs/decisions.md)
 * 통합 로드맵: [`docs/roadmap.md`](docs/roadmap.md)
 * 계약 목록: [`docs/contracts/README.md`](docs/contracts/README.md)
