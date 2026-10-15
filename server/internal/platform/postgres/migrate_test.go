@@ -24,9 +24,15 @@ func TestMigrate_UpDownUp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Status: %v", err)
 	}
-	if len(statuses) != 3 || statuses[0].Source != "00001_init.sql" || statuses[1].Source != "00002_accounts_auth.sql" ||
-		statuses[2].Source != "00003_apple_web_logins.sql" || !statuses[0].Applied || !statuses[1].Applied || !statuses[2].Applied {
-		t.Errorf("status = %+v, want 00001_init.sql, 00002_accounts_auth.sql, 00003_apple_web_logins.sql applied", statuses)
+	wantSources := []string{"00001_init.sql", "00002_accounts_auth.sql", "00003_apple_web_logins.sql", "00004_profiles_caches.sql"}
+	if len(statuses) != len(wantSources) {
+		t.Fatalf("status = %+v, want %v applied", statuses, wantSources)
+	}
+	for i, want := range wantSources {
+		if statuses[i].Source != want || !statuses[i].Applied {
+			t.Errorf("status = %+v, want %v applied", statuses, wantSources)
+			break
+		}
 	}
 }
 
@@ -43,14 +49,14 @@ func TestMigrate_DownWithNothingApplied_ReturnsErrNothingToRollBack(t *testing.T
 	ctx := context.Background()
 	pool := dbtest.New(t)
 
-	// migration 파일이 셋이므로 셋 다 되돌려야 적용된 것이 없어집니다.
-	for i := 1; i <= 3; i++ {
+	// migration 파일이 넷이므로 넷 다 되돌려야 적용된 것이 없어집니다.
+	for i := 1; i <= 4; i++ {
 		if err := postgres.Migrate(ctx, pool, "down"); err != nil {
 			t.Fatalf("%d번째 down: %v", i, err)
 		}
 	}
 	if err := postgres.Migrate(ctx, pool, "down"); !errors.Is(err, postgres.ErrNothingToRollBack) {
-		t.Errorf("네 번째 down 오류 = %v, want ErrNothingToRollBack", err)
+		t.Errorf("다섯 번째 down 오류 = %v, want ErrNothingToRollBack", err)
 	}
 }
 

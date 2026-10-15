@@ -47,6 +47,14 @@ type AuthIdentity struct {
 	UpdatedAt              time.Time
 }
 
+type ChartCache struct {
+	BirthHash      []byte
+	RulesetVersion string
+	AsOfYear       int32
+	Response       []byte
+	CreatedAt      time.Time
+}
+
 type Consent struct {
 	ID        uuid.UUID
 	AccountID uuid.UUID
@@ -54,6 +62,50 @@ type Consent struct {
 	Version   string
 	AgreedAt  time.Time
 	CreatedAt time.Time
+}
+
+type DailyCache struct {
+	BirthHash       []byte
+	RulesetVersion  string
+	Date            pgtype.Date
+	CurrentTimezone string
+	Response        []byte
+	CreatedAt       time.Time
+}
+
+type MonthCache struct {
+	BirthHash       []byte
+	RulesetVersion  string
+	Year            int32
+	Month           int32
+	CurrentTimezone string
+	Response        []byte
+	CreatedAt       time.Time
+}
+
+type Profile struct {
+	AccountID        uuid.UUID
+	Honorific        pgtype.Text
+	Language         string
+	CurrentTimezone  string
+	Calendar         pgtype.Text
+	IsLeapMonth      pgtype.Bool
+	BirthYear        pgtype.Int2
+	BirthMonth       pgtype.Int2
+	BirthDay         pgtype.Int2
+	BirthTimeStatus  pgtype.Text
+	BirthTime        pgtype.Time
+	Gender           pgtype.Text
+	BirthTimezone    pgtype.Text
+	BirthPlaceStatus pgtype.Text
+	BirthCityID      pgtype.Text
+	Longitude        pgtype.Float8
+	NotifyStatus     string
+	NotifyTime       pgtype.Time
+	BirthHash        []byte
+	AnonymizedAt     *time.Time
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type RefreshToken struct {
