@@ -54,13 +54,10 @@ class DayCharacter extends StatelessWidget {
   }, {});
 
   /// 배지 면을 찾는 테스트용 키.
-  static const Key badgeKey = ValueKey('day-character-badge');
+  static const Key badgeKey = DayCharacterBadge.surfaceKey;
 
   /// 이유 줄을 찾는 테스트용 키.
   static const Key reasonKey = ValueKey('day-character-reason');
-
-  static const double _badgeMinHeight = 26;
-  static const double _badgePaddingX = 10;
 
   /// 변형.
   final DayCharacterVariant variant;
@@ -78,36 +75,7 @@ class DayCharacter extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final (bg, fg) = switch (variant) {
-      DayCharacterVariant.good => (colors.badgeGoodBg, colors.badgeGoodFg),
-      DayCharacterVariant.gwiin => (colors.badgeGwiinBg, colors.badgeGwiinFg),
-      DayCharacterVariant.gisin => (colors.badgeGisinBg, colors.badgeGisinFg),
-      DayCharacterVariant.ordinary => (null, colors.badgeOrdinaryFg),
-    };
-    final badge = DecoratedBox(
-      key: badgeKey,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
-        border: variant == DayCharacterVariant.ordinary
-            ? Border.all(color: colors.badgeOrdinaryBorder)
-            : null,
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: _badgeMinHeight),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: _badgePaddingX),
-          child: Center(
-            widthFactor: 1,
-            heightFactor: 1,
-            child: Text(
-              label,
-              style: tokens.typography.labelMd.copyWith(color: fg),
-            ),
-          ),
-        ),
-      ),
-    );
+    final badge = DayCharacterBadge(variant: variant, label: label);
     final reasonText = reason;
     final hasReason = reasonText != null && reasonText.segments.isNotEmpty;
     final spoken = hasReason
@@ -141,6 +109,63 @@ class DayCharacter extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// 날의 성격 배지 하나(`day-character` `badge`).
+///
+/// [DayCharacter]가 쓰고, 공유 이미지(`share-image` `badge`)가 배지만 따로 씁니다.
+/// 높이 26은 최소값이라 기기 글자가 커지면 함께 커집니다.
+class DayCharacterBadge extends StatelessWidget {
+  /// 배지를 만듭니다.
+  const new({required this.variant, required this.label, super.key});
+
+  /// 배지 면을 찾는 테스트용 키.
+  static const Key surfaceKey = ValueKey('day-character-badge');
+
+  static const double _minHeight = 26;
+  static const double _paddingX = 10;
+
+  /// 변형.
+  final DayCharacterVariant variant;
+
+  /// 배지 글자(날의 성격 이름, ARB 문구).
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final (bg, fg) = switch (variant) {
+      DayCharacterVariant.good => (colors.badgeGoodBg, colors.badgeGoodFg),
+      DayCharacterVariant.gwiin => (colors.badgeGwiinBg, colors.badgeGwiinFg),
+      DayCharacterVariant.gisin => (colors.badgeGisinBg, colors.badgeGisinFg),
+      DayCharacterVariant.ordinary => (null, colors.badgeOrdinaryFg),
+    };
+    return DecoratedBox(
+      key: surfaceKey,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
+        border: variant == DayCharacterVariant.ordinary
+            ? Border.all(color: colors.badgeOrdinaryBorder)
+            : null,
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: _minHeight),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: _paddingX),
+          child: Center(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Text(
+              label,
+              style: tokens.typography.labelMd.copyWith(color: fg),
+            ),
+          ),
+        ),
       ),
     );
   }

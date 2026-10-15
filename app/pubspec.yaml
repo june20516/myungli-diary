@@ -122,6 +122,7 @@ flutter:
   assets:
     - assets/brand/kakao/
     - assets/brand/apple/
+    - assets/brand/myungli/
     - assets/fonts/gowun_dodum/OFL.txt
     - assets/fonts/zen_maru_gothic/OFL.txt
     - assets/fonts/pretendard/OFL.txt

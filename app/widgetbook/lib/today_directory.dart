@@ -6,6 +6,7 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -61,7 +62,23 @@ String _name(DayKind kind) => switch (kind) {
   DayKind.ordinaryDay => '평범한 날',
 };
 
-/// 오늘 카탈로그: day-character(good·gwiin·gisin·ordinary), lucky-card(네 변형 칩 줄).
+ShareImage _shareImage(ShareImageVariant variant) => ShareImage(
+  variant: variant,
+  date: '10월 15일 목요일',
+  dayKind: DayKind.yongsinDay,
+  dayKindLabel: '좋은 날',
+  sentence: RenderedText(
+    segments: [
+      Segment(text: '오늘은 기운의 흐름이 나를 도와주는 날이에요. 먼저 연락해 보세요. 좋은 소식이 올 거예요.'),
+    ],
+  ),
+  reason: _reason,
+  items: _luckyItems,
+  footer: '명리일기',
+);
+
+/// 오늘 카탈로그: day-character(good·gwiin·gisin·ordinary), lucky-card(네 변형 칩 줄),
+/// guide-question-card, share-image(story·feed·square와 비율 전환 미리보기).
 final WidgetbookFolder todayDirectory = WidgetbookFolder(
   name: '오늘',
   children: [
@@ -132,6 +149,31 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
       ],
     ),
     WidgetbookFolder(
+      name: 'share-image',
+      children: [
+        for (final variant in ShareImageVariant.values)
+          WidgetbookComponent(
+            name: variant.name,
+            useCases: [
+              WidgetbookUseCase(
+                name: '논리 크기 그대로(라이트 고정)',
+                builder: (context) => Stage(child: _shareImage(variant)),
+              ),
+            ],
+          ),
+        WidgetbookComponent(
+          name: 'ShareImagePreview',
+          useCases: [
+            WidgetbookUseCase(
+              name: '비율을 바꾸면 appear.seep',
+              builder: (context) =>
+                  const Stage(child: SizedBox(width: 240, child: _RatioDemo())),
+            ),
+          ],
+        ),
+      ],
+    ),
+    WidgetbookFolder(
       name: 'guide-question-card',
       children: [
         WidgetbookComponent(
@@ -187,5 +229,32 @@ class _GuideToggleDemoState extends State<_GuideToggleDemo> {
           ? GuideQuestionState.after
           : GuideQuestionState.before,
     ),
+  );
+}
+
+/// 누를 때마다 story, feed, square를 돌며 비율 전환(`ratioChanged`)을 보여 줍니다.
+class _RatioDemo extends StatefulWidget {
+  const new();
+
+  @override
+  State<_RatioDemo> createState() => _RatioDemoState();
+}
+
+class _RatioDemoState extends State<_RatioDemo> {
+  ShareImageVariant _variant = ShareImageVariant.story;
+
+  void _next() => setState(() {
+    const all = ShareImageVariant.values;
+    _variant = all[(_variant.index + 1) % all.length];
+  });
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    spacing: 16,
+    children: [
+      ShareImagePreview(image: _shareImage(_variant)),
+      TextButton(onPressed: _next, child: Text('비율 바꾸기 (${_variant.name})')),
+    ],
   );
 }

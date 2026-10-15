@@ -44,6 +44,7 @@ class SentenceBlock extends StatelessWidget {
     this.onOpenLocked,
     this.trailing,
     this.color,
+    this.maxLines,
     super.key,
   }) : assert(
          variant != SentenceBlockVariant.preview ||
@@ -103,6 +104,10 @@ class SentenceBlock extends StatelessWidget {
   /// 글자색. 없으면 `text.primary`입니다(질문 카드의 쓴 뒤 상태가 `text.secondary`로 바꿉니다).
   final Color? color;
 
+  /// 최대 줄 수. 넘치면 말줄임합니다(공유 이미지 feed의 두 줄). null이면 제한이 없고,
+  /// [SentenceBlockVariant.preview]는 항상 두 줄입니다.
+  final int? maxLines;
+
   @override
   Widget build(BuildContext context) {
     final content = locked ? _buildLocked(context) : _buildText(context);
@@ -138,8 +143,10 @@ class SentenceBlock extends StatelessWidget {
       termStyle: onTerm == null ? TermStyle.plain : terms,
       onTerm: onTerm,
       trailing: trailing,
-      maxLines: preview ? _previewMaxLines : null,
-      overflow: preview ? TextOverflow.ellipsis : TextOverflow.clip,
+      maxLines: preview ? _previewMaxLines : maxLines,
+      overflow: preview || maxLines != null
+          ? TextOverflow.ellipsis
+          : TextOverflow.clip,
     );
   }
 

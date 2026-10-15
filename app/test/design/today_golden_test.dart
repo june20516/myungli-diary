@@ -7,6 +7,7 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
@@ -111,6 +112,65 @@ Widget _guideQuestionCard(GuideQuestionState state) => Builder(
   },
 );
 
+/// share-image: 한 변형. 격자 칸 폭(336)에 맞춰 줄여 담고, 다크·글자 배율 칸도 같은 그림입니다.
+Widget _shareImage(ShareImageVariant variant) => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    RenderedText text(String ko, String jp) =>
+        RenderedText(segments: [Segment(text: ja ? jp : ko)]);
+    return FittedBox(
+      alignment: Alignment.topLeft,
+      child: ShareImage(
+        variant: variant,
+        date: ja ? '10月15日 木曜日' : '10월 15일 목요일',
+        dayKind: DayKind.yongsinDay,
+        dayKindLabel: ja ? '良い日' : '좋은 날',
+        sentence: text(
+          '오늘은 기운의 흐름이 나를 도와주는 날이에요. 먼저 연락해 보세요. 좋은 소식이 올 거예요.',
+          '今日は気の流れがあなたを助けてくれる日です。まずは連絡してみましょう。良い知らせが届きます。',
+        ),
+        reason: text('기운의 흐름이 나를 도와주는 날이라서요.', '気の流れがあなたを助けてくれる日だからです。'),
+        items: [
+          LuckyItem(
+            variant: LuckyCardVariant.color,
+            name: ja ? 'ラッキーカラー' : '행운 색',
+            value: ja ? '青' : '파랑',
+            explain: text('물의 기운이 마음을 가라앉혀 줘요.', '水の気が心を落ち着かせてくれます。'),
+            swatch: const Color(0xFF3B6FB6),
+          ),
+          LuckyItem(
+            variant: LuckyCardVariant.direction,
+            name: ja ? 'ラッキー方位' : '행운 방향',
+            value: ja ? '東' : '동쪽',
+            explain: text('동쪽에서 좋은 기운이 들어와요.', '東から良い気が入ってきます。'),
+          ),
+          LuckyItem(
+            variant: LuckyCardVariant.number,
+            name: ja ? 'ラッキーナンバー' : '행운 숫자',
+            value: '3',
+            explain: text('3이 흐름을 열어 줘요.', '3が流れを開いてくれます。'),
+          ),
+          LuckyItem(
+            variant: LuckyCardVariant.time,
+            name: ja ? '集中できる時間' : '집중하기 좋은 시간',
+            value: ja ? '午後3時' : '오후 3시',
+            explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+          ),
+        ],
+        footer: ja ? '命理日記' : '명리일기',
+        semanticLabel: ja ? '今日の一文の画像プレビュー' : ShareImage.defaultSemanticLabel,
+      ),
+    );
+  },
+);
+
+/// 로고(SVG)가 비동기로 올라오는 것을 기다립니다.
+Future<void> _settleLogo(WidgetTester tester) async {
+  await tester.pump();
+  await tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 1)));
+  await tester.pump();
+}
+
 void main() {
   goldenTest('day-character: 네 변형 × 이유 있음·없음', (tester) async {
     await goldenMatrix(tester, 'today_day_character', _dayCharacters);
@@ -152,4 +212,15 @@ void main() {
       () => _guideQuestionCard(GuideQuestionState.after),
     );
   });
+
+  for (final variant in ShareImageVariant.values) {
+    goldenTest('share-image: ${variant.name}(라이트 고정)', (tester) async {
+      await goldenMatrix(
+        tester,
+        'today_share_image_${variant.name}',
+        () => _shareImage(variant),
+        settle: _settleLogo,
+      );
+    });
+  }
 }
