@@ -13,3 +13,26 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+
+  # 명리 엔진(core, gRPC)입니다. 로컬에서는 ENGINE_ADDR=localhost:50051 로 연결합니다(TLS 없는 h2c).
+  # 근거 데이터 검증·캐시 예열이 끝나야 health가 SERVING이 되므로 start_period를 둡니다.
+  engine:
+    build: ../core
+    ports:
+      - "50051:50051"
+    healthcheck:
+      # 이미지에 grpc_health_probe가 없어, 들어 있는 grpcio-health-checking으로 검사합니다.
+      test:
+        - "CMD"
+        - "python"
+        - "-c"
+        - >-
+          import grpc, sys;
+          from grpc_health.v1 import health_pb2, health_pb2_grpc;
+          ch = grpc.insecure_channel('localhost:50051');
+          r = health_pb2_grpc.HealthStub(ch).Check(health_pb2.HealthCheckRequest(service='myungli.engine.v1.MyungliEngine'), timeout=2);
+          sys.exit(0 if r.status == health_pb2.HealthCheckResponse.SERVING else 1)
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 20s

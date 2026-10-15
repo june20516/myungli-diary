@@ -263,3 +263,44 @@ func TestLoadAuth_ErrorDoesNotContainValues(t *testing.T) {
 		t.Errorf("오류에 환경 변수 값이 들어 있습니다: %v", err)
 	}
 }
+
+func TestLoadEngine(t *testing.T) {
+	t.Run("ENGINE_ADDR가 없으면 오류", func(t *testing.T) {
+		_, err := LoadEngine(fakeEnv(nil))
+		if err == nil || !strings.Contains(err.Error(), "ENGINE_ADDR가 필요합니다") {
+			t.Fatalf("LoadEngine() error = %v, want ENGINE_ADDR 오류", err)
+		}
+	})
+	t.Run("ENGINE_AUDIENCE가 https가 아니면 오류이고 값은 담지 않음", func(t *testing.T) {
+		_, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "h:443", "ENGINE_AUDIENCE": "http://x"}))
+		if err == nil || !strings.Contains(err.Error(), "ENGINE_AUDIENCE") {
+			t.Fatalf("LoadEngine() error = %v, want ENGINE_AUDIENCE 오류", err)
+		}
+		if strings.Contains(err.Error(), "http://x") {
+			t.Errorf("오류 문구에 값이 들어 있습니다: %v", err)
+		}
+	})
+	t.Run("ENGINE_AUDIENCE에 host가 없으면 오류", func(t *testing.T) {
+		for _, audience := range []string{"https://", "https:///path", "engine.run.app"} {
+			_, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "h:443", "ENGINE_AUDIENCE": audience}))
+			if err == nil || !strings.Contains(err.Error(), "ENGINE_AUDIENCE") {
+				t.Errorf("LoadEngine(audience=%q) error = %v, want ENGINE_AUDIENCE 오류", audience, err)
+			}
+		}
+	})
+	t.Run("정상 값은 그대로", func(t *testing.T) {
+		cfg, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "engine.run.app:443", "ENGINE_AUDIENCE": "https://engine.run.app"}))
+		if err != nil {
+			t.Fatalf("LoadEngine() error = %v, want nil", err)
+		}
+		if cfg != (EngineConfig{Addr: "engine.run.app:443", Audience: "https://engine.run.app"}) {
+			t.Errorf("LoadEngine() = %+v", cfg)
+		}
+	})
+	t.Run("audience 없이도 정상", func(t *testing.T) {
+		cfg, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "localhost:50051"}))
+		if err != nil || cfg.Audience != "" || cfg.Addr != "localhost:50051" {
+			t.Errorf("LoadEngine() = %+v, %v", cfg, err)
+		}
+	})
+}

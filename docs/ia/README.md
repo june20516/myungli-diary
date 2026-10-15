@@ -15,7 +15,7 @@ MVP 화면, 목적, 경로, 상태, 문장 슬롯, 컴포넌트를 정한 계약
 
 ## 시작과 로그인 (D50)
 
-로그인 전에는 `welcome`, 온보딩 입력, `birthplace`, `preview`, `login`, `consent`, `legal`, `force-update`만 볼 수 있습니다. 첫 풀이를 먼저 보여주고 저장할 때 로그인을 받습니다.
+로그인 전에는 `welcome`, 온보딩 입력, `birthplace`, `calc-basis`(출생지 화면에서, D71), `preview`, `login`, `consent`, `legal`, `force-update`만 볼 수 있습니다. 첫 풀이를 먼저 보여주고 저장할 때 로그인을 받습니다.
 
 ```mermaid
 flowchart LR

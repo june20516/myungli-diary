@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,15 +23,21 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
+	"github.com/june20516/myungli-diary/server/internal/engine"
+	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
+	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
 const (
+	// versionRefreshInterval은 엔진 ruleset_version을 다시 읽는 주기입니다.
+	versionRefreshInterval = 10 * time.Minute
+
 	readHeaderTimeout = 10 * time.Second
 	// readTimeout은 본문까지 읽는 상한입니다. 본문 상한(1 MiB)을 느리게 보내는 연결이 오래 붙어 있지 않게 합니다.
 	readTimeout = 30 * time.Second
@@ -44,7 +51,8 @@ const (
 )
 
 // runServe는 HTTP 서버를 시작하고 ctx가 취소되면 처리 중인 요청을 마친 뒤 종료합니다.
-// 시작할 때 DB 설정과 인증 설정을 검사하고 DB에 연결하며, 하나라도 실패하면 서버를 열지 않고 끝납니다.
+// 시작할 때 DB·인증·엔진 설정을 검사하고 DB에 연결하며, 하나라도 실패하면 서버를 열지 않고 끝납니다.
+// 엔진 연결은 lazy이고 시작 때 GetInfo가 실패해도 시작은 계속합니다(ruleset_version은 감시 goroutine이 채웁니다).
 func runServe(ctx context.Context, args []string, getenv func(string) string, _, stderr io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server serve")
@@ -65,6 +73,10 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	engineCfg, err := config.LoadEngine(getenv)
+	if err != nil {
+		return err
+	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
@@ -75,8 +87,28 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}
 	defer pool.Close()
 
+	engineClient, err := engine.NewClient(engine.ClientConfig{Addr: engineCfg.Addr, Audience: engineCfg.Audience})
+	if err != nil {
+		logger.ErrorContext(ctx, "엔진 연결 생성 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	// 버전 감시는 runCtx로 돌리고, 어떤 경로로 반환하든 연결을 닫기 전에 멈추고 끝나기를 기다립니다.
+	runCtx, cancelRun := context.WithCancel(ctx)
+	versions := engine.NewVersions(engineClient, logger)
+	var watchers sync.WaitGroup
+	watchers.Go(func() { versions.Run(runCtx, versionRefreshInterval) })
+	defer func() {
+		cancelRun()
+		watchers.Wait()
+		if err := engineClient.Close(); err != nil {
+			logger.WarnContext(context.WithoutCancel(ctx), "엔진 연결 닫기 실패", "error", err)
+		}
+	}()
+	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
+
 	handler, err := newServer(settings, serverDeps{
 		Pool:   pool,
+		Charts: fortuneService,
 		Logger: logger,
 		Clock:  clock.System{},
 		HTTP:   newProviderHTTPClient(),
@@ -95,7 +127,12 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		return &loggedError{err: err}
 	}
 
-	logger.InfoContext(ctx, "서버 시작", "port", cfg.Port, "env", cfg.Env)
+	// 엔진 주소는 남기지 않고 연결 방식만 남깁니다.
+	engineMode := "h2c"
+	if engineCfg.Audience != "" {
+		engineMode = "TLS"
+	}
+	logger.InfoContext(ctx, "서버 시작", "port", cfg.Port, "env", cfg.Env, "engine", engineMode)
 	if err := serveHTTP(ctx, listener, handler, logger); err != nil {
 		logger.ErrorContext(ctx, "서버 종료 오류", "error", err)
 		return &loggedError{err: err}
@@ -236,7 +273,9 @@ type providerURLs struct {
 // serverDeps는 newServer가 바깥에서 받는 의존성입니다.
 type serverDeps struct {
 	// Pool은 서비스와 헬스 체크가 쓰는 DB 연결입니다.
-	Pool   *pgxpool.Pool
+	Pool *pgxpool.Pool
+	// Charts는 프로필 저장 때 출생 정보를 엔진으로 검증하는 의존성입니다(fortune.Service).
+	Charts profile.ChartChecker
 	Logger *slog.Logger
 	Clock  clock.Clock
 	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
@@ -244,7 +283,7 @@ type serverDeps struct {
 	Providers providerURLs
 }
 
-// newServer는 인증·계정 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
+// newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
 //
 // 의존 방향은 핸들러(httpapi.API) → 서비스(auth·account) → provider·DB입니다.
 // bearer 라우트는 BearerAuth가 access token을 검증하고 계정 접근 상태(동의, 삭제 대기)를 확인한 뒤 핸들러로 넘깁니다.
@@ -295,6 +334,8 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	// 계정 삭제 예약 뒤 세션 폐기와 제공자 연결 해제는 auth 서비스가 맡습니다.
 	accountService := account.NewService(deps.Pool, authService, deps.Clock, deps.Logger)
 
+	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
+
 	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
 	spec, err := gen.GetSpec()
 	if err != nil {
@@ -309,6 +350,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	api := &httpapi.API{
 		Auth:     authService,
 		Accounts: accountService,
+		Profiles: profileService,
 		DB:       deps.Pool,
 		Logger:   deps.Logger,
 		AppLink:  settings.appLink,

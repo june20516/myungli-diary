@@ -11,13 +11,18 @@ import (
 )
 
 // GetMe는 계정 상태와 동의 필요 여부를 돌려줍니다.
-// hasProfile, adFree, insight는 프로필(P3)과 수익(P7)이 생길 때까지 고정값입니다.
+// adFree, insight는 수익(P7)이 생길 때까지 고정값입니다.
 func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
 	id, _, ok := AccountFrom(ctx)
 	if !ok {
 		return nil, errNoAccount
 	}
 	me, err := a.Accounts.Me(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	hasProfile, err := a.Profiles.Exists(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +36,7 @@ func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeRes
 		AccountId:        id,
 		AdFree:           gen.AdFree{Active: false},
 		ConsentRequired:  me.ConsentRequired,
-		HasProfile:       false,
+		HasProfile:       hasProfile,
 		Insight:          gen.Insight{Active: false},
 		RequiredConsents: required,
 		Status:           gen.MeStatus(me.Status),

@@ -12,6 +12,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
+	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
 // healthPingTimeout은 헬스 체크가 DB 응답을 기다리는 최대 시간입니다.
@@ -36,12 +37,21 @@ type AccountService interface {
 	RequestDeletion(ctx context.Context, id uuid.UUID) (time.Time, error)
 }
 
+// ProfileService는 핸들러가 쓰는 프로필 서비스입니다. *profile.Service가 만족합니다.
+type ProfileService interface {
+	Get(ctx context.Context, accountID uuid.UUID) (profile.Profile, error)
+	Exists(ctx context.Context, accountID uuid.UUID) (bool, error)
+	Put(ctx context.Context, accountID uuid.UUID, p profile.Profile) (profile.Saved, error)
+	Patch(ctx context.Context, accountID uuid.UUID, p profile.Patch) (profile.Saved, error)
+}
+
 // API는 gen.StrictServerInterface 구현입니다. 아직 구현하지 않은 operation은 Unimplemented가 501로 답합니다.
 type API struct {
 	Unimplemented
 
 	Auth     AuthService
 	Accounts AccountService
+	Profiles ProfileService
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
 	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)가 원인을 남길 때 씁니다.
