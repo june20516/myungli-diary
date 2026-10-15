@@ -220,6 +220,33 @@ jobs:
             gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
           done
 
+  # main에서 단위 검사가 통과하면 그 단위는 main의 모든 계약에 맞습니다. 그 단위 앞 열린 drift Issue를 모두 닫습니다.
+  # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
+  drift-close:
+    needs: [changes, server, app, writing]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: 따라잡은 단위의 drift Issue 닫기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SERVER: ${{ needs.server.result }}
+          APP: ${{ needs.app.result }}
+          WRITING: ${{ needs.writing.result }}
+        run: |
+          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+            unit="${pair%%=*}"; result="${pair#*=}"
+            [ "$result" = "success" ] || continue
+            for number in $(gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number --jq '.[].number'); do
+              gh issue close "$number" --comment "main \`${SHA:0:7}\`에서 $unit 검사가 통과해 자동으로 닫습니다. main의 계약을 모두 따라잡았습니다($RUN_URL, docs/workflow.md §6.1)."
+            done
+          done
+
   ci-gate:
     needs: [changes, docs, pr-body, core, server, app, writing]
     if: always()
