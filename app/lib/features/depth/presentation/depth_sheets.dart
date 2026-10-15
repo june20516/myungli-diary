@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/router/sheet_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 
@@ -46,6 +47,8 @@ final class DepthSheets {
   }) => showMyungliSheet<void>(
     context,
     size: SheetSize.half,
+    // 제목이 아직 없는 loading·error에도 시트 이름이 알려지게 합니다.
+    semanticLabel: AppLocalizations.of(context).depthExplain,
     builder: (_) => SheetScreenId(
       screenId: ScreenIds.explainSheet,
       child: explainBody(termId, sourceSlotId),

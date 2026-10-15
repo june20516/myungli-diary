@@ -26,6 +26,7 @@ import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
+import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart' show pumpUntil;
 
 final _ko = AppLocalizationsKo();
@@ -160,20 +161,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     // 풀이 시트의 근거 보기: 풀이 시트 위에 근거 시트가 겹쳐 열립니다.
-    final explainLink = find.descendant(
-      of: find.byKey(const Key(ScreenIds.explainSheet)),
-      matching: find.byType(DepthLink),
+    await tester.tap(
+      depthLinkTarget(of: find.byKey(const Key(ScreenIds.explainSheet))),
     );
-    await tester.tapAt(tester.getTopLeft(explainLink) + const Offset(8, 12));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
-    // 근거 시트를 닫으면 풀이 시트로 돌아옵니다.
-    Navigator.of(tester.element(find.byKey(const Key(ScreenIds.evidenceSheet))))
-        .pop();
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    // 바깥을 누르면 쌓인 시트가 모두 닫힙니다.
     await _closeSheet(tester);
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
 
     await tester.tap(find.byType(DepthLink));

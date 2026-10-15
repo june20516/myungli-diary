@@ -170,7 +170,9 @@ Future<T?> showMyungliSheet<T>(
 }) {
   // 시트 안에서 여는 시트는 아래 시트의 덮개를 그대로 쓰고 자기 덮개는 더하지 않습니다.
   final underSheet = ModalRoute.of(context) is _SheetRoute;
-  return Navigator.of(context).push<T>(
+  // 시트는 늘 root navigator에 쌓습니다. 화면 셸([SheetScreenBelow]) 안쪽 navigator(탭 화면)에
+  // 쌓으면 시트도 셸과 함께 0.92배로 줄어, 덮개가 화면 모서리를 놓쳐 바깥 누르기가 닫지 못합니다.
+  return Navigator.of(context, rootNavigator: true).push<T>(
     _SheetRoute<T>(
       size: size,
       builder: builder,

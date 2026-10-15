@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/depth/presentation/depth_sheets.dart';
@@ -67,6 +68,23 @@ void main() {
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
       expect(
         find.bySemanticsIdentifier(ScreenIds.explainSheet),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('openExplain은 시트 이름을 스크린리더에 알립니다(제목이 없는 loading·error에도)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pumpHost(tester);
+      unawaited(
+        _sheets.openExplain(_context, termId: 'term.x', sourceSlotId: 'a.b'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.bySemanticsLabel(AppLocalizationsKo().depthExplain),
         findsOneWidget,
       );
       handle.dispose();

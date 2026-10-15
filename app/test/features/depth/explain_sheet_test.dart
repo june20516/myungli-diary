@@ -20,6 +20,8 @@ import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 
+import '../../support/depth_link_finders.dart';
+
 final _ko = AppLocalizationsKo();
 
 const _names = GlossaryNames({
@@ -78,10 +80,7 @@ void main() {
       await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
       await tester.pumpAndSettle();
 
-      // block 링크는 줄 전체 폭이라 글자가 있는 왼쪽 위를 누릅니다.
-      await tester.tapAt(
-        tester.getTopLeft(find.byType(DepthLink)) + const Offset(8, 12),
-      );
+      await tester.tap(depthLinkTarget());
       await tester.pumpAndSettle();
 
       expect(find.text('근거 a.b'), findsOneWidget);
@@ -101,6 +100,37 @@ void main() {
       completer.complete(_names);
       await tester.pumpAndSettle();
       expect(find.text('식신'), findsOneWidget);
+    });
+
+    testWidgets('사전을 다시 받는 동안에는 이전 이름을 그대로 보입니다(stale-while-revalidate)', (
+      tester,
+    ) async {
+      var attempts = 0;
+      final refetch = Completer<GlossaryNames>();
+      await tester.pumpWidget(
+        _app(
+          _sheet,
+          glossary: () =>
+              ++attempts == 1 ? Future.value(_names) : refetch.future,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('식신'), findsOneWidget);
+
+      ProviderScope.containerOf(tester.element(find.byType(ExplainSheet)))
+          .invalidate(glossaryProvider);
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('식신'), findsOneWidget);
+      expect(find.byKey(const ValueKey('screen-state.loading')), findsNothing);
+
+      refetch.complete(
+        const GlossaryNames({
+          'ten_god': {'siksin': '식신(새 이름)'},
+        }),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('식신(새 이름)'), findsOneWidget);
     });
 
     testWidgets('error: 실패하면 오류 화면, 다시 시도하면 내용입니다', (tester) async {

@@ -1308,5 +1308,54 @@ void main() {
       await tester.pumpAndSettle();
       expect(width(), closeTo(400, 0.5));
     });
+
+    testWidgets('화면 셸 안쪽 navigator에서 열어도 쌓인 시트의 바깥을 누르면 모두 닫힙니다', (
+      tester,
+    ) async {
+      // 탭 화면처럼 SheetScreenBelow 안쪽에 navigator가 있어도, 시트가 그 안에 갇혀
+      // 0.92배로 줄어든 덮개가 화면 모서리를 놓치지 않아야 합니다.
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      late BuildContext inner;
+      await tester.pumpWidget(
+        _app(
+          SheetScreenBelow(
+            child: Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute<void>(
+                builder: (context) {
+                  inner = context;
+                  return const SizedBox.expand();
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      unawaited(
+        showMyungliSheet<void>(
+          inner,
+          size: SheetSize.half,
+          builder: (context) => TextButton(
+            onPressed: () => showMyungliSheet<void>(
+              context,
+              size: SheetSize.full,
+              builder: (_) => const SizedBox(height: 100),
+            ),
+            child: const Text('깊이'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('깊이'));
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsNWidgets(2));
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MyungliSheetFrame), findsNothing);
+    });
   });
 }
