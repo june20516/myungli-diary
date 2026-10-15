@@ -243,8 +243,8 @@ void main() {
       expect(image.dayKind, daily.dayKind);
       expect(image.dayKindLabel, _ko.dayKindYongsinDay);
       expect(image.footer, _ko.sharePreviewImageFooter);
-      // 이유는 계약에 필드가 없어 비어 있습니다(A22).
-      expect(image.reason, isNull);
+      // 이유는 오늘 화면과 같은 날의 성격 이유입니다(draft.3).
+      expect(image.reason?.toJson(), daily.characterReason.text.toJson());
       expect(image.items, hasLength(4));
       expect(image.items.first.variant, LuckyCardVariant.color);
       expect(image.items.first.value, '초록');

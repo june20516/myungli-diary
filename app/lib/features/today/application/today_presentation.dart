@@ -40,17 +40,19 @@ final class DayCharacterContent {
   /// 배지 글자(날의 성격 이름).
   final String label;
 
-  /// 이유 한 줄. 계약에 `character.reason` 필드가 아직 없어 늘 null입니다(결정 A22).
+  /// 이유 한 줄(`character.reason`). 계약 draft.3부터 응답에 늘 있습니다.
+  /// 비어 있으면 [DayCharacter]가 이유 줄을 그리지 않습니다(결정 A22).
   final RenderedText? reason;
 }
 
 /// [daily]의 날의 성격 줄. 이름은 ARB(`dayKind*`)에서 고릅니다(A20 ①).
 ///
-/// 이유 줄은 계약에 필드가 생기면 여기서 채웁니다(A22: 그 전에는 자리도 남기지 않음).
+/// 이유 줄은 응답의 `characterReason`(슬롯 `character.reason`, 계약 draft.3)입니다.
 DayCharacterContent dayCharacterOf(Daily daily, AppLocalizations l10n) =>
     DayCharacterContent(
       variant: dayCharacterVariantOf(daily.dayKind),
       label: dayKindName(l10n, daily.dayKind),
+      reason: daily.characterReason.text,
     );
 
 /// 행운 방향 이름(writing 원고 키 `direction8*`, glossary 범주 `direction8`, 결정 W23).
@@ -136,7 +138,7 @@ String? timeUnknownNoticeOf(Daily daily) {
 
 /// 화면에 보이는 내용의 서명. 캐시 → server 응답으로 바뀔 때 보이는 내용이 같은지 비교합니다.
 ///
-/// 날의 성격, 총운 문장, 행운 값과 설명, 가이드 질문, 시간 모름 안내만 담습니다. 보이지 않는
+/// 날의 성격과 그 이유, 총운 문장, 행운 값과 설명, 가이드 질문, 시간 모름 안내만 담습니다. 보이지 않는
 /// 필드(`evidenceAccess`, `evidence`, `reaction`, 규칙 버전 등)만 바뀌면 같은 서명이라 내용이
 /// 다시 스미지 않습니다. 화면에 새 필드를 그리면 여기에도 더합니다(A22). 생성 모델의 `==`는
 /// 목록을 참조로 비교하므로 JSON 글자로 비교합니다.
@@ -144,6 +146,7 @@ String dailySignature(Daily daily) {
   final cards = daily.cards;
   return jsonEncode({
     'dayKind': daily.dayKind.value,
+    'characterReason': daily.characterReason.text.toJson(),
     'head': daily.fortune.head.text.toJson(),
     'tag': daily.fortune.tag?.text.toJson(),
     'color': [cards.color.element.value, cards.color.text.text.toJson()],
@@ -179,8 +182,8 @@ String shareDateText(CalendarDate date, Locale locale) =>
 
 /// [daily]를 [variant] 공유 이미지로 바꿉니다.
 ///
-/// 문장은 총운 첫 문장(`fortune.head`, 호칭 포함)이고, 이유는 계약에 필드가 없어 비웁니다
-/// (결정 A22: 필드가 들어오면 여기서만 채웁니다).
+/// 문장은 총운 첫 문장(`fortune.head`, 호칭 포함)이고, 이유는 오늘 화면과 같은 날의 성격
+/// 이유(`characterReason`)입니다. 이유는 story 변형에서만 보입니다.
 ShareImage shareImageOf({
   required ShareImageVariant variant,
   required CalendarDate date,

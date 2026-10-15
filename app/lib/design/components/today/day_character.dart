@@ -41,6 +41,7 @@ class DayCharacter extends StatelessWidget {
     required this.variant,
     required this.label,
     this.reason,
+    this.reasonSlotId,
     this.reasonTrailing,
     super.key,
   });
@@ -67,6 +68,11 @@ class DayCharacter extends StatelessWidget {
 
   /// 이유 문장. 없으면 이유 줄을 그리지 않습니다.
   final RenderedText? reason;
+
+  /// 이유 줄이 채우는 IA 슬롯 id(`SlotIds`). 있으면 이유 줄에 Semantics
+  /// `identifier`로 붙습니다(`SentenceBlock`의 `slotId`와 같은 방식). 읽기는
+  /// 배지와 합친 라벨 하나 그대로입니다.
+  final String? reasonSlotId;
 
   /// 이유 줄 끝에 붙는 위젯(`depth-link` `inline-end`).
   final Widget? reasonTrailing;
@@ -96,25 +102,33 @@ class DayCharacter extends StatelessWidget {
             child: ExcludeSemantics(child: badge),
           ),
           if (hasReason)
-            Padding(
-              key: reasonKey,
-              padding: const EdgeInsets.only(top: Space.s8),
-              child: RenderedTextView(
-                text: reasonText,
-                style: tokens.typography.captionLg.copyWith(
-                  color: colors.textSecondary,
+            _withSlotId(
+              reasonSlotId,
+              Padding(
+                key: reasonKey,
+                padding: const EdgeInsets.only(top: Space.s8),
+                child: RenderedTextView(
+                  text: reasonText,
+                  style: tokens.typography.captionLg.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                  trailing: reasonTrailing,
+                  hideTextSemantics: true,
                 ),
-                trailing: reasonTrailing,
-                hideTextSemantics: true,
               ),
             ),
         ],
       ),
     );
   }
+
+  /// [slotId]가 있으면 [child]를 그 identifier의 Semantics 노드로 감쌉니다.
+  static Widget _withSlotId(String? slotId, Widget child) => slotId == null
+      ? child
+      : Semantics(identifier: slotId, container: true, child: child);
 }
 
-/// 날의 성격 배지 하나(`day-character` `badge`).
+///날의 성격 배지 하나(`day-character` `badge`).
 ///
 /// [DayCharacter]가 쓰고, 공유 이미지(`share-image` `badge`)가 배지만 따로 씁니다.
 /// 높이 26은 최소값이라 기기 글자가 커지면 함께 커집니다.

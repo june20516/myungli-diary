@@ -58,7 +58,35 @@ const _sheet = ExplainSheet(termId: 'ten_god.siksin', sourceSlotId: 'a.b');
 
 void main() {
   group('ExplainSheet', () {
-    testWidgets('제목은 사전의 용어 이름이고 뜻·이유 자리는 없습니다(A22)', (tester) async {
+    testWidgets('사전에 뜻이 있으면 제목 아래 뜻을 그리고, 오늘 그런 이유 자리는 없습니다(A22)', (
+      tester,
+    ) async {
+      final names = GlossaryNames(
+        _names.values,
+        meanings: {
+          'ten_god.siksin': RenderedText(
+            segments: [Segment(text: '내 안의 것을 밖으로 내는 기운이에요.')],
+          ),
+        },
+      );
+      await tester.pumpWidget(_app(_sheet, glossary: () async => names));
+      await tester.pumpAndSettle();
+
+      expect(find.text('식신'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          matching: find.text('내 안의 것을 밖으로 내는 기운이에요.', findRichText: true),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+        findsNothing,
+      );
+    });
+
+    testWidgets('사전에 뜻이 없는 용어는 제목만이고 뜻·이유 자리는 없습니다(A22)', (tester) async {
       await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
       await tester.pumpAndSettle();
 

@@ -237,6 +237,7 @@ class _TodayBody extends ConsumerWidget {
                     variant: character.variant,
                     label: character.label,
                     reason: character.reason,
+                    reasonSlotId: SlotIds.todayCharacterReason,
                   ),
                 ),
               ),

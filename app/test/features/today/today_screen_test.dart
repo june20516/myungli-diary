@@ -115,7 +115,7 @@ final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
 void main() {
   setUpAll(ensureTimeZonesInitialized);
 
-  testWidgets('member: 용신의 날 배지(이유 줄 없음), 총운 두 문장, 행운 칩 4개, 가이드 before', (
+  testWidgets('member: 용신의 날 배지와 이유 줄, 총운 두 문장, 행운 칩 4개, 가이드 before', (
     tester,
   ) async {
     await pumpApp(tester, scenario: 'member');
@@ -126,9 +126,12 @@ void main() {
     final character = tester.widget<DayCharacter>(_content);
     expect(character.variant, DayCharacterVariant.good);
     expect(character.label, _ko.dayKindYongsinDay);
-    expect(character.reason, isNull);
+    expect(
+      character.reason?.segments.single.text,
+      '내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
+    );
     expect(_id(SlotIds.todayCharacterLabel), findsOneWidget);
-    expect(_id(SlotIds.todayCharacterReason), findsNothing);
+    expect(_id(SlotIds.todayCharacterReason), findsOneWidget);
 
     expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
     expect(_id(SlotIds.todayFortuneBody), findsOneWidget);

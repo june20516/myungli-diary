@@ -11,6 +11,8 @@ import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
@@ -131,6 +133,10 @@ void main() {
 
     expect(s.server.requestHeaders.single, isNot(contains('if-none-match')));
     expect(names.nameOf('ten_god.pyeongwan'), '편관');
+    expect(
+      names.meaningOf('ten_god.pyeongwan')?.segments.single.text,
+      '나를 다그치고 시험하는 기운이에요.',
+    );
     final stored = jsonDecode(
       (await s.cache.read(CacheKind.glossary, 'ko'))!,
     ) as Map<String, dynamic>;
@@ -146,6 +152,10 @@ void main() {
 
     expect(s.server.requestHeaders.last['if-none-match'], '"g1"');
     expect(second.values, first.values);
+    expect(
+      second.meaningOf('ten_god.pyeongwan')?.toJson(),
+      first.meaningOf('ten_god.pyeongwan')?.toJson(),
+    );
   });
 
   test('캐시 쓰기가 실패해도 받은 사전을 돌려주고 오류만 보고한다', () async {
@@ -255,6 +265,26 @@ void main() {
     expect(names.nameOf('cheoneul_gwiin'), isNull);
     expect(names.nameOf(''), isNull);
     expect(names.valueName('ten_god', 'pyeongwan'), '편관');
+  });
+
+  test('meaningOf는 용어 id로 뜻 문장을 찾고, 없으면 null이다(draft.3, A22)', () {
+    final names = GlossaryNames(
+      const {
+        'ten_god': {'pyeongwan': '편관'},
+      },
+      meanings: {
+        'ten_god.pyeongwan': RenderedText(
+          segments: [Segment(text: '나를 다그치는 기운이에요.')],
+        ),
+      },
+    );
+
+    expect(
+      names.meaningOf('ten_god.pyeongwan')?.segments.single.text,
+      '나를 다그치는 기운이에요.',
+    );
+    expect(names.meaningOf('tag.cheoneul_gwiin'), isNull);
+    expect(const GlossaryNames({}).meaningOf('ten_god.pyeongwan'), isNull);
   });
 
   testWidgets('glossaryProvider는 fake 서버 fixture의 이름을 돌려준다', (tester) async {

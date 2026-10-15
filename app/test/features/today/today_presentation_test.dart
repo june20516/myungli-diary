@@ -1,14 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -129,14 +132,37 @@ void main() {
   });
 
   group('날의 성격과 notice', () {
-    test('날의 성격 줄은 배지 변형과 ARB 이름이고 이유는 없습니다(A22)', () async {
+    test(
+      '날의 성격 줄은 배지 변형과 ARB 이름, 이유는 응답의 characterReason입니다(draft.3)',
+      () async {
+        final l10n = await AppLocalizations.delegate.load(const Locale('ko'));
+        final daily = Daily.fromJson(memberDailyJson());
+        final line = dayCharacterOf(daily, l10n);
+        expect(line.variant, DayCharacterVariant.good);
+        expect(line.label, l10n.dayKindYongsinDay);
+        expect(line.reason?.toJson(), daily.characterReason.text.toJson());
+        expect(
+          line.reason?.segments.single.text,
+          '내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
+        );
+        expect(daily.dayKind, DayKind.yongsinDay);
+      },
+    );
+
+    test('공유 이미지 이유도 같은 characterReason입니다', () async {
+      await initializeDateFormatting('ko');
       final l10n = await AppLocalizations.delegate.load(const Locale('ko'));
       final daily = Daily.fromJson(memberDailyJson());
-      final line = dayCharacterOf(daily, l10n);
-      expect(line.variant, DayCharacterVariant.good);
-      expect(line.label, l10n.dayKindYongsinDay);
-      expect(line.reason, isNull);
-      expect(daily.dayKind, DayKind.yongsinDay);
+      final image = shareImageOf(
+        variant: ShareImageVariant.story,
+        date: CalendarDate(2026, 10, 13),
+        daily: daily,
+        names: _names,
+        l10n: l10n,
+        locale: const Locale('ko'),
+        timezone: 'Asia/Seoul',
+      );
+      expect(image.reason?.toJson(), daily.characterReason.text.toJson());
     });
 
     test('time_unknown notice의 조각 글자를 잇고, 없으면 null입니다', () {
@@ -182,7 +208,7 @@ void main() {
       expect(dailySignature(Daily.fromJson(json)), base);
     });
 
-    test('보이는 필드(행운 값·설명·가이드·시간 모름)가 바뀌면 다른 서명입니다', () {
+    test('보이는 필드(행운 값·설명·가이드·성격 이유·시간 모름)가 바뀌면 다른 서명입니다', () {
       final base = dailySignature(Daily.fromJson(memberDailyJson()));
       void expectChanged(void Function(Map<String, dynamic> json) change) {
         final json = memberDailyJson();
@@ -205,6 +231,13 @@ void main() {
             ((json['guide'] as Map<String, dynamic>)['text']
                 as Map<String, dynamic>)['segments'] = [
               {'text': '다른 질문'},
+            ],
+      );
+      expectChanged(
+        (json) =>
+            ((json['characterReason'] as Map<String, dynamic>)['text']
+                as Map<String, dynamic>)['segments'] = [
+              {'text': '다른 이유'},
             ],
       );
       expectChanged(
