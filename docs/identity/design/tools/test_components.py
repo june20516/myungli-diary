@@ -427,8 +427,17 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_2():
-    assert VERSION == "2.2.0"
+def test_contract_version_is_2_3():
+    assert VERSION == "2.3.0"
+
+
+def test_icon_set_version_is_not_contract_version():
+    assert load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]["set"]["version"] == "2.1.2"
+
+
+def test_readme_states_minimum_height_rule():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme
 
 
 def ia_screens():

@@ -112,7 +112,7 @@ IA v3(D71)에서 `birthplace`에 계산 기준 화면(`calc-basis`)으로 가는
 * `variants`에 `{ "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준)", "parts": { "label": { "align": "start", "slot": "birthplace.standard.link" }, "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }`를 더합니다. 배치는 `block`과 같습니다.
 * 누르면 플랫폼 기본 페이지 전환으로 이동합니다. `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`(링크 글자 둘레)입니다.
 * a11y: role `link`. 라벨은 링크 이름 그대로이고, 화살표는 읽지 않습니다.
-* 자리: `birthplace`에서 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위. 슬롯 `birthplace.standard.link`. 배치와 슬롯 이름은 `sentence.md`에만 적고 JSON 변형에는 슬롯을 두지 않습니다(`inline-end`·`block`과 같음).
+* 자리: `birthplace`에서 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위. 슬롯 `birthplace.standard.link`. 배치는 `sentence.md`에 적고, 슬롯은 JSON `navigate.parts.label.slot`에도 둡니다.
 * `depth-link.summary`를 "한 단계 깊이로 가는 링크 ('근거 보기 ›'), 또는 다른 페이지로 가는 같은 모양의 링크"로 넓힙니다. `sentence.md`의 쓰는 화면에 `birthplace`를 더합니다.
 * IA v3(PR #157)는 main에 병합되어 `birthplace.standard.link`가 main `docs/ia/screens.json`에 있습니다. 그래서 다른 depth-link 쓰임과 같이 슬롯을 JSON(`navigate.parts.label.slot`)에 적고, `test_every_slot_exists_in_ia`가 이를 확인합니다.
 
