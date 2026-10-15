@@ -339,7 +339,7 @@ def test_brand_spec_values():
     assert variant_ids(c["term-token"]) >= {"inline", "label"}
     assert variant_ids(c["event-row"]) == {"summary", "list"}
     assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}
-    assert variant_ids(c["depth-link"]) == {"inline-end", "block"}
+    assert variant_ids(c["depth-link"]) == {"inline-end", "block", "navigate"}
     assert set(c["guide-question-card"]["states"]) >= {"before", "after"}
     assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
     day = json.dumps(c["day-cell"])
@@ -537,3 +537,35 @@ def test_terms_inside_pressable_containers_are_plain():
 def test_term_focus_rule_is_conditional():
     a11y = components_by_id(BRAND_GROUPS)["sentence-block"]["a11y"]
     assert a11y["terms"].startswith("term-token이 있는 화면에서는")
+
+
+# 구현 대응·IA v3 (spec-followups spec §2~§4, 계약 2.3.0)
+def component(group, component_id):
+    return next(c for c in load_documents(COMPONENTS_DIR)[group]["components"] if c["id"] == component_id)
+
+
+CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color",
+           "gap": {"value": 2, "unit": "px"}, "decorative": True}
+
+
+def test_text_link_chevrons_are_component_drawn_icons():
+    depth_link = component("sentence", "depth-link")
+    block = component("sentence", "sentence-block")
+    assert depth_link["parts"]["chevron"] == CHEVRON
+    assert block["states"]["locked"]["parts"]["open"]["chevron"] == CHEVRON
+    assert depth_link["states"]["locked"]["parts"]["evidenceSheet"]["lockPanel"]["pass"]["chevron"] == CHEVRON
+    assert any("원고에 넣지 않" in rule for rule in depth_link["rules"])
+
+
+def test_depth_link_navigate_goes_to_a_page():
+    depth_link = component("sentence", "depth-link")
+    navigate = next(v for v in depth_link["variants"] if v["id"] == "navigate")
+    assert navigate["parts"]["target"] == {"presentation": "page", "transition": "platform-default"}
+    assert navigate["parts"]["label"]["slot"] == "birthplace.standard.link"
+    assert any("navigate" in rule and "sheet.enter" in rule for rule in depth_link["rules"])
+    assert "birthplace" in (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
+
+
+def test_unlocked_evidence_sheet_omits_empty_sections():
+    rules = component("sentence", "depth-link")["rules"]
+    assert any("unlocked" in rule and "본문이 없는 구역" in rule for rule in rules)
