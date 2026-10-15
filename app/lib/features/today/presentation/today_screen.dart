@@ -189,7 +189,11 @@ class _TodayBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final daily = content.view.daily;
     final date = content.view.date;
-    final reactions = ref.watch(reactionControllerProvider);
+    final headLiked = ReactionController.isLiked(
+      ref.watch(reactionControllerProvider),
+      date,
+      daily.fortune.head,
+    );
     final character = dayCharacterOf(daily, l10n);
     final timeUnknown = timeUnknownNoticeOf(daily);
     final head = daily.fortune.head;
@@ -251,9 +255,8 @@ class _TodayBody extends ConsumerWidget {
             ),
             if (head.reactable)
               ReactionButton(
-                on: ReactionController.isLiked(reactions, date, head),
-                semanticsLabel:
-                    ReactionController.isLiked(reactions, date, head)
+                on: headLiked,
+                semanticsLabel: headLiked
                     ? l10n.todayReactionLabelSelected
                     : l10n.todayReactionLabel,
                 onChanged: (_) =>

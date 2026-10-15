@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/reaction_epoch.dart';
+import 'package:myungli_diary/features/today/data/daily_repository.dart';
 
 /// 그날 응답 캐시 키를 찾는 함수. 그 날짜 응답을 캐시에 둔 키가 없으면 null을 돌려줍니다.
 ///
@@ -20,13 +25,20 @@ final reactionCacheKeyProvider = Provider<String? Function(CalendarDate date)>(
 
 /// 슬롯 하나의 반응 진행 상태.
 final class _Entry {
-  new({required this.confirmed}) : wanted = confirmed;
+  new({required this.date, required this.slot, required this.confirmed})
+    : wanted = confirmed;
 
-  /// server가 알고 있다고 확인된 마지막 값(처음에는 응답이 준 값).
+  final CalendarDate date;
+  final String slot;
+
+  /// 가장 최근에 확인한 server 값(처음에는 응답이 준 값, 요청이 확인되거나 새 응답이 오면 갱신).
   bool confirmed;
 
   /// 사용자가 마지막으로 바란 값.
   bool wanted;
+
+  /// [confirmed]를 이 슬롯의 요청으로 확인한 때의 확인 세대. 요청으로 확인한 적이 없으면 0입니다.
+  int confirmedEpoch = 0;
 
   /// 요청 반복이 돌고 있는지.
   bool sending = false;
@@ -42,11 +54,14 @@ final class _Entry {
 /// * **마지막 의도만 보냅니다.** 슬롯마다 요청은 한 번에 하나이고, 요청 중에 다시 누르면 의도만
 ///   기억합니다. 요청이 끝났을 때 의도가 server 상태와 다르면 한 번 더 보내고, 같으면(켬→끔→켬)
 ///   더 보내지 않습니다.
-/// * **실패하면 누르기 전 상태로 돌아갑니다.** 확인된 마지막 값으로 되돌리고 `toggle`이 `AppError`를
-///   던집니다. 요청 중에 더 누른 것도 함께 되돌립니다.
+/// * **실패하면 누르기 전 상태로 돌아갑니다.** 가장 최근에 확인한 값(요청 중에 새 응답이 왔으면 그
+///   응답 값)으로 되돌리고 `toggle`이 `AppError`를 던집니다. 요청 중에 더 누른 것도 함께 되돌립니다.
 /// * **성공하면 캐시도 고칩니다.** 주입된 `DailyRepository`를 통해 그 슬롯의 `reaction`만
 ///   바꿉니다.
-/// * **새 응답이 오면** 요청 중이 아닌 슬롯의 값은 응답을 따르도록 비웁니다.
+/// * **새 응답은 확인 세대로 가립니다.** 반응이 확인될 때마다 세대([ReactionEpoch])가 오르고 응답은
+///   받기 시작한 세대를 들고 옵니다. 응답이 시작한 뒤에 확인된 슬롯은 응답이 그 확인을 모를 수
+///   있으므로 값을 유지하고 캐시를 다시 고칩니다. 그 앞에 확인했거나 확인한 적 없는 슬롯은 응답
+///   값을 따릅니다(다른 기기의 변경 반영).
 class ReactionController extends Notifier<Map<String, bool>> {
   final _entries = <String, _Entry>{};
 
@@ -65,42 +80,83 @@ class ReactionController extends Notifier<Map<String, bool>> {
 
   @override
   Map<String, bool> build() {
-    // 새 응답은 server의 값이므로, 요청 중이 아닌 슬롯은 그 값을 따릅니다.
     ref.listen(dailyControllerProvider, (previous, next) {
       final view = next.value;
       if (view == null || identical(view, previous?.value)) {
         return;
       }
-      _forgetIdle(view.date);
+      _applyResponse(view);
     });
     return const {};
   }
 
-  void _forgetIdle(CalendarDate date) {
-    final prefix = '${date.toIso()}/';
-    final idle = [
-      for (final entry in _entries.entries)
-        if (entry.key.startsWith(prefix) && !entry.value.sending) entry.key,
-    ];
-    if (idle.isEmpty) {
+  /// 새 응답 [view]를 슬롯별로 반영합니다.
+  void _applyResponse(DailyView view) {
+    final dropped = <String>[];
+    for (final MapEntry(:key, value: entry) in _entries.entries) {
+      if (entry.date != view.date) {
+        continue;
+      }
+      final afterFetchStart = entry.confirmedEpoch > view.reactionEpoch;
+      if (afterFetchStart) {
+        // 응답이 이 확인을 모를 수 있습니다. 값을 유지하고, 응답이 덮었을 캐시를 다시 고칩니다.
+        if (!entry.sending) {
+          unawaited(
+            _patchCache(entry.date, entry.slot, liked: entry.confirmed),
+          );
+        }
+        continue;
+      }
+      if (entry.sending) {
+        // 요청 중에 온 응답이 가장 최근에 확인한 server 값입니다. 요청이 실패하면 여기로 돌아갑니다.
+        entry.confirmed =
+            likedReactionOf(view.daily, entry.slot) ?? entry.confirmed;
+      } else {
+        dropped.add(key);
+      }
+    }
+    if (dropped.isEmpty) {
       return;
     }
-    _entries.removeWhere((key, _) => idle.contains(key));
+    _entries.removeWhere((key, _) => dropped.contains(key));
     state = {
       for (final entry in state.entries)
-        if (!idle.contains(entry.key)) entry.key: entry.value,
+        if (!dropped.contains(entry.key)) entry.key: entry.value,
     };
+  }
+
+  /// [date]의 그날 캐시에서 [slot]의 반응을 [liked]로 고칩니다. 실패는 보고만 합니다.
+  Future<void> _patchCache(
+    CalendarDate date,
+    String slot, {
+    required bool liked,
+  }) async {
+    final cacheKey = ref.read(reactionCacheKeyProvider)(date);
+    if (cacheKey == null) {
+      return;
+    }
+    await writeCacheOrReport(
+      () => ref
+          .read(dailyRepositoryProvider)
+          .patchCachedReaction(cacheKey, slot: slot, liked: liked),
+      ref.read(crashReporterProvider),
+    );
   }
 
   /// [date]의 [text] 반응을 뒤집습니다.
   ///
   /// 이미 같은 슬롯의 요청이 돌고 있으면 의도만 기록하고 바로 끝납니다(그 요청을 부른 쪽이
-  /// 끝까지 맞춥니다). 요청을 돌린 쪽에서만 실패가 [AppError]로 올라옵니다.
+  /// 끝까지 맞춥니다). 요청을 돌린 쪽에서만 실패가 [AppError]로 올라옵니다. API 밖의 예외도
+  /// 진단만 보고하고 `UnexpectedError`로 바꿔 올립니다.
   Future<void> toggle(SlotText text, {required CalendarDate date}) async {
     final key = keyOf(date, text.slot);
     final entry = _entries.putIfAbsent(
       key,
-      () => _Entry(confirmed: text.reaction == SlotTextReactionEnum.like),
+      () => _Entry(
+        date: date,
+        slot: text.slot,
+        confirmed: text.reaction == SlotTextReactionEnum.like,
+      ),
     );
     final next = !(state[key] ?? entry.confirmed);
     entry.wanted = next;
@@ -108,47 +164,43 @@ class ReactionController extends Notifier<Map<String, bool>> {
     if (entry.sending) {
       return;
     }
-    await _sync(key, entry, date: date, slot: text.slot);
+    await _sync(key, entry);
   }
 
   /// 의도와 server 상태가 같아질 때까지 보냅니다.
-  Future<void> _sync(
-    String key,
-    _Entry entry, {
-    required CalendarDate date,
-    required String slot,
-  }) async {
+  Future<void> _sync(String key, _Entry entry) async {
     final repository = ref.read(dailyRepositoryProvider);
     entry.sending = true;
     try {
       while (entry.wanted != entry.confirmed) {
         final target = entry.wanted;
-        await repository.setReaction(date, slot: slot, liked: target);
+        await repository.setReaction(
+          entry.date,
+          slot: entry.slot,
+          liked: target,
+        );
         entry.confirmed = target;
         if (!ref.mounted) {
           return;
         }
-        final cacheKey = ref.read(reactionCacheKeyProvider)(date);
-        if (cacheKey != null) {
-          await writeCacheOrReport(
-            () => repository.patchCachedReaction(
-              cacheKey,
-              slot: slot,
-              liked: target,
-            ),
-            ref.read(crashReporterProvider),
-          );
-          if (!ref.mounted) {
-            return;
-          }
+        entry.confirmedEpoch = ref.read(reactionEpochProvider).advance();
+        await _patchCache(entry.date, entry.slot, liked: target);
+        if (!ref.mounted) {
+          return;
         }
       }
-    } on AppError {
+    } on Object catch (error, stack) {
       entry.wanted = entry.confirmed;
       if (ref.mounted) {
         state = {...state, key: entry.confirmed};
       }
-      rethrow;
+      if (error is AppError) {
+        rethrow;
+      }
+      if (ref.mounted) {
+        ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
+      }
+      Error.throwWithStackTrace(UnexpectedError(error), stack);
     } finally {
       entry.sending = false;
     }

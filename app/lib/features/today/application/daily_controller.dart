@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
+import 'package:myungli_diary/features/today/application/reaction_epoch.dart';
 import 'package:myungli_diary/features/today/data/daily_repository.dart';
 
 /// 그날 응답 저장소. 로그인한 계정에서만 읽을 수 있습니다.
@@ -31,6 +32,7 @@ final class DailyView {
     required this.daily,
     required this.stale,
     required this.cacheKey,
+    this.reactionEpoch = 0,
   });
 
   /// 프로필 시간대 기준 날짜(`todayProvider`).
@@ -47,6 +49,11 @@ final class DailyView {
 
   /// 이 값을 둔 그날 캐시 키. 프로필 사본이 없어 캐시를 쓰지 않았으면 null입니다.
   final String? cacheKey;
+
+  /// 이 값을 받기 시작한 때의 반응 확인 세대(`ReactionEpoch`).
+  ///
+  /// 이 세대보다 뒤에 server에서 확인된 반응은 이 응답에 반영되지 않았을 수 있습니다.
+  final int reactionEpoch;
 }
 
 /// 오래된 build가 남은 일을 멈출 때 돌려주는, 끝나지 않는 Future.
@@ -96,8 +103,15 @@ class DailyController extends AsyncNotifier<DailyView> {
       return await _abandoned();
     }
 
-    DailyView viewOf(Daily daily, {required bool stale}) =>
-        DailyView(date: date, daily: daily, stale: stale, cacheKey: key);
+    // 캐시를 읽고 받기 시작하기 전의 세대. 그 뒤에 확인된 반응은 이 응답이 모를 수 있습니다.
+    final epoch = ref.read(reactionEpochProvider).value;
+    DailyView viewOf(Daily daily, {required bool stale}) => DailyView(
+      date: date,
+      daily: daily,
+      stale: stale,
+      cacheKey: key,
+      reactionEpoch: epoch,
+    );
     final result = await loadCacheFirst<Daily>(
       reporter: reporter,
       fetch: () => superseded() ? _abandoned() : repository.fetch(date),

@@ -241,12 +241,13 @@ void main() {
         'daily-error',
         'diary-written',
         'reaction-failed',
+        'reaction-delete-failed',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(14));
+      expect(scenarios.where((s) => s.signedIn), hasLength(15));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

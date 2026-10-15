@@ -129,6 +129,24 @@ final class DailyRepository {
   );
 }
 
+/// [daily]에서 `slot`이 [slot]인 문장의 반응이 `like`인지. 그 슬롯이 없으면 null입니다.
+bool? likedReactionOf(Daily daily, String slot) {
+  bool? result;
+  void visit(Object? node) {
+    if (node is Map<String, dynamic>) {
+      if (node['slot'] == slot) {
+        result = node['reaction'] == _likeReaction;
+      }
+      node.values.forEach(visit);
+    } else if (node is List<dynamic>) {
+      node.forEach(visit);
+    }
+  }
+
+  visit(daily.toJson());
+  return result;
+}
+
 /// JSON 트리를 돌며 `slot`이 [slot]인 객체의 `reaction`을 바꿉니다.
 ///
 /// 슬롯 문장(`SlotText`)이 총운·가이드·카드 어디에 있든 위치를 몰라도 되게 트리 전체를 봅니다.

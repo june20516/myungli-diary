@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
@@ -13,11 +14,14 @@ import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/reaction_controller.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/daily_fixture.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
@@ -51,8 +55,11 @@ FakeServerInterceptor _fake(ProviderContainer container) =>
 Future<(ProviderContainer, _ReactionTap)> _boot(
   WidgetTester tester, {
   String scenario = 'member',
+  List<Override> overrides = const [],
 }) async {
-  final container = (await tester.runAsync(() => bootstrapForTest(scenario)))!;
+  final container = (await tester.runAsync(
+    () => bootstrapForTest(scenario, overrides: overrides),
+  ))!;
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(entryStateProvider.future));
   expect(container.read(entryProvider), EntryState.ready);
@@ -69,6 +76,35 @@ Future<(ProviderContainer, _ReactionTap)> _boot(
     () => container.read(dailyControllerProvider).value != null,
   );
   return (container, tap);
+}
+
+/// getDaily만 대신 답하는 대역을 대역 서버 앞에 끼웁니다. 본문은 member와 같은 응답에서 시작합니다.
+ScriptedDailyServer _scriptDaily(ProviderContainer container) {
+  final server = ScriptedDailyServer();
+  final interceptors = container.read(dioProvider).interceptors;
+  interceptors.insert(interceptors.length - 1, server);
+  return server;
+}
+
+/// [server]의 총운 첫 문장 반응을 [liked]에 맞춥니다.
+void _setScriptedReaction(ScriptedDailyServer server, {required bool liked}) {
+  final fortune = server.body['fortune']! as Map<String, dynamic>;
+  final head = fortune['head']! as Map<String, dynamic>;
+  if (liked) {
+    head['reaction'] = 'like';
+  } else {
+    head.remove('reaction');
+  }
+}
+
+/// 오늘 응답을 다시 받고 값이 돌아올 때까지 기다립니다.
+Future<void> _reload(WidgetTester tester, ProviderContainer container) async {
+  unawaited(container.read(dailyControllerProvider.notifier).reload());
+  await _spin(tester);
+  await _until(
+    tester,
+    () => !container.read(dailyControllerProvider).isLoading,
+  );
 }
 
 /// 실제 I/O와 가짜 시계의 microtask를 한 번씩 풀어 줍니다.
@@ -125,6 +161,21 @@ Future<SlotTextReactionEnum?> _cachedReaction(
     () => container.read(dailyRepositoryProvider).cached(key),
   );
   return cached!.fortune.head.reaction;
+}
+
+/// 그날 캐시의 총운 첫 문장 반응이 [expected]가 될 때까지 기다립니다.
+Future<void> _untilCachedReaction(
+  WidgetTester tester,
+  ProviderContainer container,
+  SlotTextReactionEnum? expected,
+) async {
+  for (var i = 0; i < 100; i++) {
+    if (await _cachedReaction(tester, container) == expected) {
+      return;
+    }
+    await _spin(tester);
+  }
+  fail('캐시의 반응이 $expected가 되지 않음');
 }
 
 void main() {
@@ -251,20 +302,47 @@ void main() {
     expect(await _cachedReaction(tester, container), isNull);
   });
 
-  testWidgets('새 응답이 오면 요청 중이 아닌 슬롯은 응답 값을 따릅니다', (tester) async {
+  testWidgets('반응 확인 뒤 시작한 응답이 reaction 없이 오면 응답을 따릅니다', (tester) async {
     final (container, tap) = await _boot(tester);
     final press = _press(container);
     await _until(tester, () => tap.requests.isNotEmpty);
     await _until(tester, press.finished);
     expect(container.read(reactionControllerProvider), isNotEmpty);
 
-    // 다시 받은 응답(대역 서버는 반응 없는 같은 응답)이 오면 비웁니다.
+    // 확인 뒤에 시작한 fetch가 reaction 없이 오면 다른 기기에서 지운 것이므로 응답을 따릅니다.
     unawaited(container.read(dailyControllerProvider.notifier).reload());
     await _until(
       tester,
       () => container.read(reactionControllerProvider).isEmpty,
     );
     expect(_liked(container), isFalse);
+  });
+
+  testWidgets('반응 확인 전에 시작한 응답이 확인 뒤 도착해도 켜진 채로 두고 캐시를 다시 고칩니다', (
+    tester,
+  ) async {
+    final (container, tap) = await _boot(tester);
+    final server = _scriptDaily(container)..hold = Completer<void>();
+    unawaited(container.read(dailyControllerProvider.notifier).reload());
+    await _until(tester, () => server.paths.isNotEmpty);
+
+    final press = _press(container);
+    await _until(tester, press.finished);
+    expect(tap.requests, hasLength(1));
+    expect(_liked(container), isTrue);
+
+    // 반응 확인 전에 시작한 fetch가 reaction 없이 이제 도착합니다.
+    server.hold!.complete();
+    await _until(
+      tester,
+      () => !container.read(dailyControllerProvider).isLoading,
+    );
+    for (var i = 0; i < 5; i++) {
+      await _spin(tester);
+    }
+
+    expect(_liked(container), isTrue);
+    await _untilCachedReaction(tester, container, SlotTextReactionEnum.like);
   });
 
   testWidgets('요청 중에 새 응답이 와도 그 슬롯의 값은 유지됩니다', (tester) async {
@@ -284,13 +362,87 @@ void main() {
     expect(_liked(container), isTrue);
   });
 
-  testWidgets('날짜가 다른 같은 슬롯은 따로 셉니다', (tester) async {
-    final (container, _) = await _boot(tester);
+  testWidgets('끄기(DELETE)가 실패하면 다시 켜지고 오류를 알립니다', (tester) async {
+    final (container, tap) = await _boot(
+      tester,
+      scenario: 'reaction-delete-failed',
+    );
+    final server = _scriptDaily(container);
+    _setScriptedReaction(server, liked: true);
+    await _reload(tester, container);
+    expect(_liked(container), isTrue);
+
+    final press = _press(container);
+    expect(_liked(container), isFalse);
+    await _until(tester, press.finished);
+
+    expect(press.errors.single, isA<AppError>());
+    expect(tap.requests.single, startsWith('DELETE '));
+    expect(_liked(container), isTrue);
+  });
+
+  testWidgets('요청 중 새 응답이 온 뒤 실패하면 처음 값이 아니라 새 응답 값으로 돌아갑니다', (tester) async {
+    final (container, tap) = await _boot(
+      tester,
+      scenario: 'reaction-delete-failed',
+    );
+    final server = _scriptDaily(container);
+    _setScriptedReaction(server, liked: true);
+    await _reload(tester, container);
+    expect(_liked(container), isTrue);
+
+    tap.hold = Completer<void>();
+    final press = _press(container);
+    await _until(tester, () => tap.requests.isNotEmpty);
+
+    // 다른 기기에서 이미 지워서, 요청 중에 온 응답에는 reaction이 없습니다.
+    _setScriptedReaction(server, liked: false);
+    await _reload(tester, container);
+    expect(_liked(container), isFalse);
+
+    tap.hold!.complete();
+    await _until(tester, press.finished);
+
+    expect(press.errors.single, isA<AppError>());
+    expect(_liked(container), isFalse);
+  });
+
+  testWidgets('API 밖의 예외도 낙관 상태를 되돌리고 AppError로 알립니다', (tester) async {
+    final (container, _) = await _boot(
+      tester,
+      overrides: [
+        reactionCacheKeyProvider.overrideWithValue(
+          (_) => throw StateError('캐시 키 실패'),
+        ),
+      ],
+    );
+    final press = _press(container);
+    await _until(tester, press.finished);
+
+    expect(press.errors.single, isA<UnexpectedError>());
+    final reporter = container.read(crashReporterProvider) as FakeCrashReporter;
+    expect(reporter.errors, isNotEmpty);
+    // 요청은 server에 닿아 확인됐으므로 상태는 server 값(켜짐)입니다.
+    expect(_liked(container), isTrue);
+  });
+
+  testWidgets('다른 날짜의 같은 슬롯을 눌러도 오늘 상태는 그대로입니다', (tester) async {
+    final (container, tap) = await _boot(tester);
     final head = _head(container);
     final yesterday = CalendarDate(2026, 10, 12);
-    expect(
-      ReactionController.keyOf(_today, head.slot),
-      isNot(ReactionController.keyOf(yesterday, head.slot)),
-    );
+
+    final done = container
+        .read(reactionControllerProvider.notifier)
+        .toggle(head, date: yesterday);
+    var finished = false;
+    unawaited(done.whenComplete(() => finished = true));
+    await _until(tester, () => finished);
+
+    final state = container.read(reactionControllerProvider);
+    expect(ReactionController.isLiked(state, yesterday, head), isTrue);
+    expect(_liked(container), isFalse);
+    expect(tap.requests, [
+      'PUT /v1/daily/2026-10-12/slots/daily.fortune.head/reaction',
+    ]);
   });
 }

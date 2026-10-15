@@ -34,6 +34,13 @@ final class ScriptedDailyServer extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // 반응(`/slots/…/reaction`) 같은 다른 요청은 대역 서버로 보냅니다.
+    final isDaily =
+        options.method == 'GET' && options.path.startsWith('/v1/daily/');
+    if (!isDaily) {
+      handler.next(options);
+      return;
+    }
     paths.add(options.path);
     final pending = hold;
     if (pending != null) {
