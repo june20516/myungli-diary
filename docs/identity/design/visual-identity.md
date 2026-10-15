@@ -1,7 +1,7 @@
 # 명리일기 시각 정체성 기준 (V0·V1·V2)
 
 ## 이 문서의 위상
-* 명리일기의 색, 그라데이션, 타이포, 간격, 로고 가운데 **지금 유효한 기준**입니다. 시각에 관해서는 이 문서가 `docs/background/06-design-system.md`를 대체합니다.
+* 명리일기의 색, 그라데이션, 타이포, 간격, 로고 가운데 **지금 유효한 기준**입니다. 시각에 관해서는 이 문서가 제품 배경 원문 06(비공개 기록 `background/06-design-system.md`, D74)을 대체합니다.
 * 고치는 쪽은 design입니다. 바꿀 일이 있으면 GitHub Issue(`to:design`)로 보냅니다.
 * 왜 이렇게 정했는지는 [V0 spec](specs/2026-10-10-visual-identity-design.md), [V1 spec](specs/2026-10-11-design-tokens-design.md), [V2 spec](specs/2026-10-11-components-design.md)에 있습니다. 결정은 [`decisions.md`](decisions.md)의 결정 V1~V24입니다.
 * 눈으로 보려면 [견본 페이지](specimen/index.html)를 엽니다(라이트·다크).
