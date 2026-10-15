@@ -114,7 +114,8 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 | 계약 자체의 유효성 | REST 생성·계약 테스트(server), `buf breaking`(core), docs 검사(IA·근거 용어집) | 막음 | - | 막음 |
 | 단위 간 맞물림 | app 생성 코드 차이·ARB, writing의 IA 대조, server의 슬롯 대조 | **경고** | 막음 | 경고 |
 
-* **판별:** PR이 그 단위의 소유 경로(또는 그 단위·`ci-gate` workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다.
+* **판별:** PR이 그 단위의 소유 경로(또는 그 단위 workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다. `ci-gate.yml`만 바뀌었으면 `gate`입니다. 실패하면 막지만, 그 단위 앞으로 열린 `drift` Issue가 있으면 알려진 실패로 보고 경고만 남깁니다. 단위들이 병렬로 일하는 동안 drift가 0이 되는 때는 드물어, workflow 수정이 그때를 기다리지 않게 하려는 것입니다.
+* **과정 문서:** writing의 `CLAUDE.md`·`decisions.md`·`specs/`·`plans/`·`artifacts/`는 검사기가 읽지 않아 writing 검사를 고르지 않습니다(core·server·app은 `.md`만 바뀌면 고르지 않습니다). 그래서 지휘가 단위 `CLAUDE.md`를 고쳐도 그 단위의 열린 drift에 막히지 않습니다.
 * **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에 `Closes #<drift Issue>`를 적습니다.
 * **통합 시점:** 통합 마일스톤(I1~I4)은 열린 `drift` Issue가 0이어야 시작합니다. 지휘는 정기 일과에서 `drift` Issue를 확인합니다.
 * **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 지금처럼 `kind:notice`로 알립니다. REST는 S3 freeze 뒤에는 추가 변경만 합니다.
