@@ -30,18 +30,17 @@
 | 슬롯 명세, 호칭·조사 처리 규칙, 라이팅 검사기 | **사용** (W0 이후) | writing |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` v1 | **참고** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
-## 현재 상태 (2026-10-13, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S24)에 모읍니다. 작업 브랜치는 `server/apple-web-login`입니다.
-* P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 일회용 교환 코드·`POST /v1/auth/apple/web`·App Link 안내 페이지·assetlinks로 조립됐습니다(S22, 계약 `1.0.0-draft.2`). 새 결정은 S15(nonce)·S16(삭제 대기 계정)·S17(도메인별 sqlc)·S18(동의 문서 버전)·S19(Apple 로그인 실패 시 토큰 처리, 교환 sub 대조)·S20(refresh 재사용 30초 유예)·S22(Apple 웹 교환 코드)·S23(문장 선택 기록 지문)·S24(staging 테스트 로그인 설계)입니다.
+## 현재 상태 (2026-10-15, server 세션 갱신)
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S31)에 모읍니다. 작업 브랜치는 `server/p3-impl`입니다.
+* P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 조립됐습니다(S22, 계약 `1.0.0-draft.2`). 새 결정은 S15~S24(nonce, 삭제 대기 계정, 도메인별 sqlc, 동의 문서 버전, Apple 토큰 처리, refresh 유예, Apple 웹 교환 코드, 문장 선택 지문, staging 테스트 로그인)입니다.
+* P3로 프로필 저장·조회·수정(`PUT/GET/PATCH /v1/me/profile`), 엔진 gRPC 클라이언트·대역, 결과 캐시(`ResultCache`)와 `ruleset_version` 확인, 도시 자료 내장이 조립됐습니다. 계약은 `1.0.0-draft.3`(PR #163)입니다. 새 결정은 S25(프로필 Put 멱등)·S26(출생 해시 = 사주 지문)·S27(엔진 연결)·S28(도시 자료)·S29(엔진 검증 시점)·S30(캐시 흐름)·S31(tzdata 내장)입니다. `convertLunarDate`는 core RPC(#164) 대기로 501입니다(계획 Task 14 건너뜀).
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약 상태: **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
-* 받은 notice: Issue #3(엔진 계약), #7(D36·D37·D40), #29(S1 착수, D55~D60), #55(호칭·조사 규칙 사용법). 모두 spec에 반영했습니다. 앞으로 받은 요청은 `gh issue list --label to:server`.
+* 받은 요청: #141(①②④ 처리, ③ `convertLunarDate`는 core #164 대기 → #170), #152(①② 계약 반영, ③④는 #167), #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **P3(프로필·엔진·캐시) 계획**을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다. P3에 함께 넣을 요청:
-   * #92 사주 정보를 바꾼 날의 문장 선택 기록 처리(D59②, app의 확인 창 #84)
-   * #79 엔진 실행 조건(포트·h2c·health). 배포 workflow `deploy-server.yml`·`deploy-engine.yml`은 server 소유입니다(D65)
-2. **#89 Apple 웹 로그인 복귀**: 완료(P2a). PR을 올린 뒤 app에 계약 변경 요청(`1.0.0-draft.2`: `completeAppleWebLogin`, Location 형식과 `error` 값, `loginApple`의 `clientType` 제거, App Link `/auth/apple`, assetlinks 지문)을 보냅니다. root에 계약 목록 버전 갱신, writing에 안내 페이지 문구 슬롯도 요청합니다.
-3. P2 반영 요청은 app에 보냈습니다(#100). app 질문이 오면 답합니다.
-4. 남은 요청: #55(호칭·조사 규칙 사용법과 원고 → 시드 변환, 콘텐츠 모듈 계획 때), #93(staging 테스트 로그인·App Check debug token)은 설계(S24)가 끝났고 구현은 P6/P9에서 합니다.
+1. **P4(콘텐츠) 계획**을 씁니다(#55 호칭·조사 규칙 사용법과 원고 → 시드 변환, #129, #152 나머지). #167은 core #130 뒤입니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"의 P4에 있습니다.
+2. core #164가 병합되면 `convertLunarDate`를 구현합니다(엔진 클라이언트·대역·계약 테스트에 RPC 추가).
+3. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)은 P9에서 합니다. #93(staging 테스트 로그인)도 설계(S24)가 끝났고 구현은 P6/P9입니다.
+4. app 질문(#100·#114·#165)이 오면 답합니다.

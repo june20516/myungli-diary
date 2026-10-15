@@ -40,6 +40,8 @@ var (
 	NameInvalidChar          = Code{"name.invalid_char", http.StatusUnprocessableEntity}
 	IdempotencyMismatch      = Code{"idempotency.mismatch", http.StatusUnprocessableEntity}
 	ConsentVersionMismatch   = Code{"consent.version_mismatch", http.StatusUnprocessableEntity}
+	TimezoneInvalid          = Code{"timezone.invalid", http.StatusUnprocessableEntity}
+	CityNotFound             = Code{"city.not_found", http.StatusUnprocessableEntity}
 	AuthTokenExpired         = Code{"auth.token_expired", http.StatusUnauthorized}
 	AuthTokenInvalid         = Code{"auth.token_invalid", http.StatusUnauthorized} //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
 	AuthRefreshReused        = Code{"auth.refresh_reused", http.StatusUnauthorized}
@@ -75,6 +77,7 @@ func AllCodes() []Code {
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
 		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate,
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
+		TimezoneInvalid, CityNotFound,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,
 		ConsentRequired, PreviewUsed, DiaryNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
 		RateLimited, NotImplemented,
