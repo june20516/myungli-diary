@@ -1462,6 +1462,12 @@ abstract class AppLocalizations {
   /// **'정사각'**
   String get sharePreviewRatioLabelSquare;
 
+  /// 임시. share-image 접근성 라벨(슬롯 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 문장 이미지 미리보기'**
+  String get shareImageSemantics;
+
   /// tag-diary.empty.body: 일기가 없을 때 안내
   ///
   /// In ko, this message translates to:

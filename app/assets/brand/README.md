@@ -17,4 +17,8 @@
 
 ## 명리일기 로고 — `myungli/lockup.svg`
 
-* 출처: `docs/identity/design/logo/lockup.svg`를 복사했습니다(`share-image` `logo`). flutter_svg가 중첩 `<svg>`를 그리지 않아, 중첩 `<svg>` 두 개만 같은 좌표 변환의 `<g transform>`으로 바꿨습니다(path·색·크기는 원본 그대로). 원본이 바뀌면 같은 방식으로 다시 만듭니다. 공유 이미지는 라이트 고정이라 `lockup-dark.svg`는 싣지 않습니다.
+* 출처: `docs/identity/design/logo/lockup.svg`(`share-image` `logo`). 라이트 고정이라 `lockup-dark.svg`는 싣지 않습니다.
+* 변환: flutter_svg가 중첩 `<svg>`를 그리지 않아, 원본의 중첩 `<svg>` 두 개를 같은 좌표 변환의 `<g transform>`으로 바꿨습니다. path·색·크기는 원본 그대로입니다. 원본이 바뀌면 같은 규칙으로 다시 만듭니다.
+  * 아이콘: `<svg x=0 y=0 width=150 height=150 viewBox="0 0 100 100">` -> `<g transform="scale(1.5)">`(150/100).
+  * 글자: `<svg x=187.5 y=25 width=357.4 height=100 viewBox="84.5 -840 3305.5 925">` -> `<g transform="translate(187.5 25) scale(S) translate(-84.5 840)">`. `S = min(357.4/3305.5, 100/925) = 0.108108108`(preserveAspectRatio meet 배율), 마지막 translate는 `-(viewBox x, y)`입니다.
+  * 닫는 `</svg>`는 `</g>`로 바꿉니다. 원본의 `<defs>`·`<title>`은 그대로 둡니다.

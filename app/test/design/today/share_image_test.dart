@@ -99,6 +99,18 @@ void main() {
       expect(firstSentence('오늘은 좋아요'), '오늘은 좋아요');
     });
 
+    test('숫자 사이의 마침표는 소수점이라 자르지 않습니다', () {
+      expect(firstSentence('집중이 2.5배 잘 돼요. 그리고'), '집중이 2.5배 잘 돼요.');
+      expect(firstSentence('3. 좋아요'), '3.');
+    });
+
+    test('문장부호 바로 뒤의 닫는 따옴표·괄호는 문장에 포함합니다', () {
+      expect(firstSentence('“좋아요.” 그리고'), '“좋아요.”');
+      expect(firstSentence('좋아요.) 그리고'), '좋아요.)');
+      expect(firstSentence('「今日は良い日です。」さあ'), '「今日は良い日です。」');
+      expect(firstSentence("'괜찮아요?' 네"), "'괜찮아요?'");
+    });
+
     test('앞뒤 공백은 다듬습니다', () {
       expect(firstSentence('  좋아요.  '), '좋아요.');
     });
@@ -328,11 +340,33 @@ void main() {
       await tester.pumpWidget(_app(_image(ShareImageVariant.square)));
       final node = tester.getSemantics(find.byKey(ShareImage.semanticsKey));
       final data = node.getSemanticsData();
-      expect(data.label, '오늘 문장 이미지 미리보기');
+      expect(data.label, '오늘 문장 이미지 미리보기'); // ARB shareImageSemantics(ko)
       expect(data.value, _sentenceText);
       expect(data.flagsCollection.isImage, isTrue);
       // 화면 글자·칩은 같은 말을 다시 읽지 않습니다.
       expect(find.bySemanticsLabel('행운 색, 파랑'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('라벨을 주지 않으면 언어에 맞는 ARB 문구를 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _bigScreen(tester);
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: OverflowBox(
+              maxWidth: double.infinity,
+              maxHeight: double.infinity,
+              child: _image(ShareImageVariant.feed),
+            ),
+          ),
+          locale: const Locale('ja'),
+        ),
+      );
+      final data = tester
+          .getSemantics(find.byKey(ShareImage.semanticsKey))
+          .getSemanticsData();
+      expect(data.label, '今日の一文の画像プレビュー');
       handle.dispose();
     });
 

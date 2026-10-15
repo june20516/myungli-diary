@@ -789,6 +789,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharePreviewRatioLabelSquare => 'Square';
 
   @override
+  String get shareImageSemantics => 'Preview of today\'s sentence image';
+
+  @override
   String get tagDiaryEmptyBody => 'No entries with this tag yet.';
 
   @override

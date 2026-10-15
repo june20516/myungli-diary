@@ -158,7 +158,6 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
           ),
         ],
         footer: ja ? '命理日記' : '명리일기',
-        semanticLabel: ja ? '今日の一文の画像プレビュー' : ShareImage.defaultSemanticLabel,
       ),
     );
   },

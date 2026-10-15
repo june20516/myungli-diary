@@ -731,6 +731,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharePreviewRatioLabelSquare => '정사각';
 
   @override
+  String get shareImageSemantics => '오늘 문장 이미지 미리보기';
+
+  @override
   String get tagDiaryEmptyBody => '이 태그가 붙은 일기가 아직 없어요.';
 
   @override

@@ -1016,6 +1016,10 @@
   "@sharePreviewRatioLabelSquare": {
     "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
   },
+  "shareImageSemantics": "오늘 문장 이미지 미리보기",
+  "@shareImageSemantics": {
+    "description": "임시. share-image 접근성 라벨(슬롯 아님)"
+  },
   "tagDiaryEmptyBody": "이 태그가 붙은 일기가 아직 없어요.",
   "@tagDiaryEmptyBody": {
     "description": "tag-diary.empty.body: 일기가 없을 때 안내"

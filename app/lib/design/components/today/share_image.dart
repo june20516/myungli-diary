@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -30,9 +31,31 @@ enum ShareImageVariant {
 /// 돌려주고, 끝 문장부호가 없으면 전체를 돌려줍니다. 앞뒤 공백은 다듬습니다.
 String firstSentence(String text) {
   final trimmed = text.trim();
-  final end = trimmed.indexOf(RegExp('[.!?。！？]'));
-  return end < 0 ? trimmed : trimmed.substring(0, end + 1);
+  for (var i = 0; i < trimmed.length; i++) {
+    if (!_sentenceEnds.contains(trimmed[i])) continue;
+    // 숫자 사이의 `.`은 소수점이라 문장 끝이 아닙니다.
+    if (trimmed[i] == '.' &&
+        i > 0 &&
+        i + 1 < trimmed.length &&
+        _isDigit(trimmed[i - 1]) &&
+        _isDigit(trimmed[i + 1])) {
+      continue;
+    }
+    var end = i + 1;
+    // 문장부호 바로 뒤에 붙은 닫는 따옴표·괄호는 문장에 포함합니다.
+    while (end < trimmed.length && _closers.contains(trimmed[end])) {
+      end++;
+    }
+    return trimmed.substring(0, end);
+  }
+  return trimmed;
 }
+
+const String _sentenceEnds = '.!?。！？';
+const String _closers = '”’"\'」』）)]〕】》〉';
+
+bool _isDigit(String char) =>
+    char.compareTo('0') >= 0 && char.compareTo('9') <= 0;
 
 /// 공유 이미지(`share-image`). 오늘 문장·행운 칩·로고를 라이트 고정으로 한 장에 담습니다.
 ///
@@ -59,7 +82,7 @@ class ShareImage extends StatelessWidget {
     required this.items,
     required this.footer,
     this.reason,
-    this.semanticLabel = defaultSemanticLabel,
+    this.semanticLabel,
     super.key,
   });
 
@@ -69,9 +92,6 @@ class ShareImage extends StatelessWidget {
     {'story', 'feed', 'square'},
     {'ratioChanged'},
   );
-
-  /// 명세 `a11y.label`. 다른 언어는 [semanticLabel]로 줍니다.
-  static const String defaultSemanticLabel = '오늘 문장 이미지 미리보기';
 
   /// 그림 판(캔버스)을 찾는 테스트용 키.
   static const Key canvasKey = ValueKey('share-image-canvas');
@@ -131,8 +151,8 @@ class ShareImage extends StatelessWidget {
   /// 이유 문장. story에서만 보입니다.
   final RenderedText? reason;
 
-  /// 스크린리더 라벨. 기본은 명세의 한국어 문구입니다.
-  final String semanticLabel;
+  /// 스크린리더 라벨. null이면 ARB `shareImageSemantics`(명세 `a11y.label`)를 읽습니다.
+  final String? semanticLabel;
 
   /// 변형이 보여 줄 칩. story는 앞에서 4개, feed·square는 시간을 뺀 색·방향·숫자 3개입니다.
   List<LuckyItem> _chipsFor() => switch (variant) {
@@ -165,7 +185,8 @@ class ShareImage extends StatelessWidget {
           key: semanticsKey,
           container: true,
           image: true,
-          label: semanticLabel,
+          label:
+              semanticLabel ?? AppLocalizations.of(context).shareImageSemantics,
           value: _plain(sentence),
           child: ExcludeSemantics(
             child: Material(
