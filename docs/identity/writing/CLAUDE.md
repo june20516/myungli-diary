@@ -43,17 +43,19 @@
 | `core/message_keys.json` | **사용** (W1) | core — C2 완료로 사용 가능 |
 
 ## 현재 상태 (2026-10-15, writing 세션 작성)
-* **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145)가 main에 있습니다.
-* **오늘·근거 시트 문구와 방향 이름**(브랜치 `writing/today-leftovers`, W23, #153): ui 슬롯 4개(`ui.depth.evidence_link`, `ui.evidence.title`, `ui.guide.card`, `ui.guide.a11y`)와 glossary `direction8` 이름 3개 언어, ARB 키 `direction8*`.
-* **공용 ui 문구·ICU plural**(PR #155 병합, 브랜치 `writing/ui-leftovers`, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22)
-  * app 임시 문구 116개를 원고로 옮겼습니다. 공용 ui 슬롯 15개(`slots/ui/common.yaml`, 키 100개)와 glossary 지지·날의 성격 이름 16개(`content/<lang>/glossary.yaml`)이고, 지지·날의 성격은 ARB로도 나갑니다.
-  * 검사기 v0.3.0: ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`).
-  * `writing.yml`은 ci-gate만 부릅니다(#148).
-* **IA 슬롯 정렬**(브랜치 `writing/ia-slots`, spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA 124자리(ui 91, content 33)를 모두 슬롯 명세에 담았습니다(PR #132 병합). IA v2(D67·D68, PR #138)로 선택 동의 슬롯이 빠지고 시진 확인 줄·알림 허락 버튼이 들어와 ui는 92자리입니다. 검사기 v0.2.0이 `docs/ia/screens.json`과 대조합니다(`ia.*`).
-  * 슬롯 명세 v1.1: `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90).
+* 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
+* **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162)가 main에 있습니다.
+* **IA v3·D70~D72**(브랜치 `writing/ia-v3-drift`, W24, #158·drift #174)
+  * IA v3 ui 슬롯 3개(`birthplace.standard.note`·`.link`, `calc-basis.schools.body`)와 3개 언어 원고. 계산 기준 문구는 D71 표현 기준만 씁니다.
+  * `calc-basis.longitude.body`를 출생 시간대별 키로 나눴습니다(`calcBasisLongitudeBody{Subtract,Add,None,East,West}`). 옛 키 `calcBasisLongitudeBody`는 app이 옮겼다고 보고하면 지웁니다(app 공지 Issue).
+  * glossary ja를 근거 용어집(`docs/research/ja-terms/`)의 신뢰도 `상`·`자체` 표기로 채웠습니다(91개). 閑神·極身弱·極身強은 비워 두었습니다.
+  * D72 규칙 `style.S7`(부정 신호와 잠금·구매 안내를 한 원고에 두지 않음)과 voice-tone 가이드 절.
+* **공용 ui 문구·ICU plural**(PR #155, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22): 공용 ui 슬롯(`slots/ui/common.yaml`), glossary 지지·날의 성격·방향 이름(`content/<lang>/glossary.yaml`, ARB로도 나감), ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`). `writing.yml`은 ci-gate만 부릅니다(#148).
+* **IA 슬롯 정렬**(spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
+  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA v3 기준 ui 95자리입니다.
+  * 슬롯 명세 필드 `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90).
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`).
-  * 호칭·조사 규칙 v1.1: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
+  * 호칭·조사 규칙: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
   * 라운드 R8로 브랜드·정책 ui 문구와 앱 이름(ko 명리일기, en Myungli Diary, ja 命理日記)을 정했습니다(W17).
   * #54 글자 수 상한을 반영했습니다. 근거 슬롯 셋은 core 목록을 기다리는 키 없는 틀입니다(W21).
 * 산출물 위치
@@ -65,17 +67,18 @@
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | check-arb>`.
   * 원고 검사: `mlw check docs/identity/writing/content --partial`. 슬롯 `params`를 `core/message_params.json`과, 슬롯 자리를 IA와 대조합니다.
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
-* 결정은 W1~W23입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯).
+* 결정은 W1~W24입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
-1. **IA 슬롯 정렬은 병합됐습니다**(PR #132). #52는 원국 개인 해석 원고(W1)가 남아 열려 있습니다.
-2. **보낸 요청의 응답을 기다립니다.**
+1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
+2. **#158·#174 PR을 병합합니다**(사용자). 그 뒤 app이 새 경도 키로 옮겼다고 보고하면 `calcBasisLongitudeBody`를 지웁니다.
+3. **보낸 요청의 응답을 기다립니다.**
    - core #130: `rule_id`·`source_ref` 목록 → `explain.today_reason`·`evidence.basis`·`evidence.source`의 키를 채웁니다.
-   - design #131: ui 이름 자리와 새 content 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
+   - design #131: ui 이름 자리와 새 슬롯의 글자 수 상한 → `max_length`에 넣고 넘치는 원고를 고칩니다.
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
-3. **#153 PR을 병합합니다.** app은 `direction*` 임시 키를 `direction8*`로 바꾸고 가져오기 도구를 다시 돌립니다. 새 슬롯의 글자 수 상한은 design #131에 함께 요청합니다.
-4. **#158(IA v3·D70~D72):** `origin/root/ia-v3`(PR #157)를 merge한 새 브랜치에서 합니다. IA v3 ui 슬롯 3개, `calc-basis.longitude.body` 경도·보정 매개변수 틀, glossary ja 근거 용어집(身旺/身強, 忌神 읽기, 紺色/ネイビー 결정), D72 부정 신호 규칙입니다. 단독 병합 금지 묶음입니다.
+   - 지휘 #158 코멘트: 閑神·極身弱·極身強 근거 보강, 용어집의 忌神 읽기 통일(きじん)
+4. **#52:** 원국 개인 해석 원고(W1)가 남아 열려 있습니다.
 5. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
 6. **W1 직전에** LLM 판정 명령(slop 1차 거르기, W1 결정)을 만듭니다.
 7. **W1:** 콘텐츠 3개 언어 원고(원국 개인 해석, 용어 뜻 77개, 일간 소개, 날의 성격 이유 포함)를 쓰고 원어민 검수를 받습니다. ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.

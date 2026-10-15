@@ -27,6 +27,8 @@
 | onboard-gender.why.body | ui | onboard-gender.why.body |
 | birthplace.question.head | ui | birthplace.question.head |
 | birthplace.why.body | ui | birthplace.why.body |
+| birthplace.standard.note | ui | birthplace.standard.note |
+| birthplace.standard.link | ui | birthplace.standard.link |
 | birthplace.search.hint | ui | birthplace.search.hint |
 | birthplace.empty.body | ui | birthplace.empty.body |
 | preview.character.label | content | glossary.value_name |
@@ -124,6 +126,7 @@
 | profile-edit.recalc.notice | ui | profile-edit.recalc.notice |
 | profile-edit.recalc.confirm | ui | profile-edit.recalc.confirm |
 | calc-basis.convention.body | ui | calc-basis.convention.body |
+| calc-basis.schools.body | ui | calc-basis.schools.body |
 | calc-basis.longitude.body | ui | calc-basis.longitude.body |
 | calc-basis.lunar.body | ui | calc-basis.lunar.body |
 | account-delete.title.head | ui | account-delete.title.head |

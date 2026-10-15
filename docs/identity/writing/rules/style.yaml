@@ -93,3 +93,26 @@
       - {lang: ko, slot_purpose: care, text: "재물의 흐름이 당신에게 어떤 의미로 다가왔나요?"}
     pass:
       - {lang: ko, slot_purpose: guide, text: "민지님의 오늘 하루는 어땠나요?"}
+
+# D72: 부정 신호(기신·공망·충)와 잠금 해제·구매 안내를 한 원고(같은 문장·같은 자리)에 함께 두지 않습니다. 모든 언어에 적용합니다.
+# 원고 한 건 전체에서 두 lookahead가 모두 맞으면 걸립니다. 충은 앞뒤에 다른 한글이 붙은 낱말(충분·보충)을 빼려고 조사·끝만 허용합니다.
+- id: style.S7
+  name: 부정 신호를 잠금 해제·구매 안내와 잇지 않기
+  severity: error
+  detect:
+    kind: regex
+    pattern: '(?is)^(?=.*(?:기신|공망|(?<![가-힣])충(?=[이을은과의]|\s|$)|gisin|gongmang|\bvoid\b|\bclash|unfavou?rable|day to go gently|忌神|空亡|天中殺|大殺界|冲|沖))(?=.*(?:잠금|해제|열어\s?보|광고|구매|결제|이용권|unlock|\bads?\b|ad-free|purchase|\bbuy\b|subscri|ロック|解除|広告|購入|課金))'
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: guide, text: "오늘은 기신의 날이에요. 잠금을 풀면 피할 방법을 볼 수 있어요."}
+      - {lang: ko, slot_purpose: guide, text: "공망이 든 날이라면 광고 제거권으로 더 자세히 보세요."}
+      - {lang: ko, slot_purpose: info, text: "일지와 충이 있어요. 구매하면 풀이를 더 볼 수 있어요."}
+      - {lang: en, slot_purpose: guide, text: "A clash is coming. Unlock the full reading to stay safe."}
+      - {lang: ja, slot_purpose: guide, text: "今日は空亡です。ロックを解除して詳しく見てください。"}
+    pass:
+      - {lang: ko, slot_purpose: guide, text: "광고를 보고 근거를 열어 보세요."}
+      - {lang: ko, slot_purpose: info, text: "오늘은 기신의 날이에요. 큰 결정은 하루 미뤄도 괜찮아요."}
+      - {lang: ko, slot_purpose: guide, text: "시간이 충분해요. 잠금을 풀고 근거를 보세요."}
+      - {lang: en, slot_purpose: guide, text: "Watch a short ad to unlock the evidence."}
+      - {lang: ja, slot_purpose: info, text: "今日は空亡の日です。予定を詰め込みすぎないでください。"}
