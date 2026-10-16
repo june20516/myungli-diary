@@ -119,7 +119,11 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
           child: Column(
             children: [
               // 진입 갈래(consentRequired)의 첫 화면이라 돌아갈 곳이 없어 뒤로 버튼을 두지 않습니다.
-              const MyungliAppBar.inner(title: '', showBack: false),
+              MyungliAppBar.inner(
+                title: l10n.consentBarTitle,
+                titleIdentifier: SlotIds.consentBarTitle,
+                showBack: false,
+              ),
               Expanded(
                 child: OnboardingPageLayout(
                   body: [

@@ -21,6 +21,7 @@ import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.da
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
+import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
 
@@ -116,6 +117,7 @@ void main() {
     await tester.tap(_screen(SlotIds.previewCtaSave));
     await tester.pumpAndSettle();
     expect(_screen(ScreenIds.login), findsOneWidget);
+    expectAppBarTitle(SlotIds.loginBarTitle, _ko.loginBarTitle);
     expect(_screen(SlotIds.loginTitleHead), findsOneWidget);
     expect(_screen(SlotIds.loginTitleBody), findsOneWidget);
 

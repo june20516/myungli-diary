@@ -109,7 +109,8 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
           child: Column(
             children: [
               MyungliAppBar.inner(
-                title: l10n.calcBasisTitle,
+                title: l10n.calcBasisBarTitle,
+                titleIdentifier: SlotIds.calcBasisBarTitle,
                 // 스택 바닥(딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
                 showBack: MyungliAppBar.canGoBack(context),
               ),

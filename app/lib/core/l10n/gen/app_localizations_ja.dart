@@ -805,9 +805,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get evidenceSheetTitle => '今日の読み解きの根拠';
 
   @override
-  String get calcBasisTitle => '計算基準';
-
-  @override
   String get a11yListSeparator => '、';
 
   @override

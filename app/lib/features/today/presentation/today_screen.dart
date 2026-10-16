@@ -97,7 +97,8 @@ class TodayScreen extends ConsumerWidget {
             child: Column(
               children: [
                 MyungliAppBar.tabRoot(
-                  title: l10n.tabToday,
+                  title: l10n.todayBarTitle,
+                  titleIdentifier: SlotIds.todayBarTitle,
                   actions: [
                     // 공유할 내용이 생기면 스며 나타납니다(동작 줄이기면 투명도만).
                     SeepPresence(

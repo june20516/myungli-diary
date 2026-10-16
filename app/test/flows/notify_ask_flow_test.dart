@@ -19,6 +19,7 @@ import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
+import '../support/app_bar_title.dart';
 import '../support/onboarding_steps.dart';
 
 final _ko = AppLocalizationsKo();
@@ -229,6 +230,7 @@ void main() {
     );
     final fake = _fake(container);
     expect(_screen(ScreenIds.notifyAsk), findsOneWidget);
+    expectAppBarTitle(SlotIds.notifyAskBarTitle, _ko.notifyAskBarTitle);
     expect(fake.callCountOf('registerDevice'), 1);
     // 등록이 안 됐으니 프로필은 건드리지 않습니다.
     expect(_notificationBodies(fake).length, 0);

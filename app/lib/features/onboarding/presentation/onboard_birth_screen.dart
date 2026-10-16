@@ -115,7 +115,8 @@ class OnboardBirthScreen extends ConsumerWidget {
             children: [
               MyungliAppBar.inner(
                 // 스택 바닥(갈래의 첫 화면, 딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
-                title: '',
+                title: AppLocalizations.of(context).onboardBirthBarTitle,
+                titleIdentifier: SlotIds.onboardBirthBarTitle,
                 showBack: MyungliAppBar.canGoBack(context),
               ),
               Expanded(

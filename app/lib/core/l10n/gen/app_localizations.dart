@@ -1600,12 +1600,6 @@ abstract class AppLocalizations {
   /// **'오늘 풀이의 근거'**
   String get evidenceSheetTitle;
 
-  /// 임시. 계산 기준(calc-basis) 화면 제목. IA 제목 슬롯이 생기면 writing 키로 바꿈(A30)
-  ///
-  /// In ko, this message translates to:
-  /// **'계산 기준'**
-  String get calcBasisTitle;
-
   /// 달력 날짜 칸(day-cell): 스크린리더 조각
   ///
   /// In ko, this message translates to:

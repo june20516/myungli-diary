@@ -26,6 +26,7 @@ import 'package:myungli_diary/features/schedule/data/schedule_repository.dart';
 import 'package:myungli_diary/features/schedule/presentation/event_edit_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
+import '../../../support/app_bar_title.dart';
 import '../../../support/app_harness.dart';
 import '../../../support/onboarding_steps.dart' show pumpUntil;
 import '../../../support/schedule_test_server.dart';
@@ -127,6 +128,7 @@ void main() {
     expect(_screen, findsOneWidget);
     expect(_id(ScreenIds.eventEdit), findsOneWidget);
     expect(find.text(_ko.eventEditBarTitle), findsOneWidget);
+    expectAppBarTitle(SlotIds.eventEditBarTitle, _ko.eventEditBarTitle);
     expect(_id(SlotIds.eventEditCharacterHint), findsOneWidget);
     expect(_richText('큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요.'), findsOneWidget);
     expect(_id(SlotIds.eventEditTitleHint), findsOneWidget);

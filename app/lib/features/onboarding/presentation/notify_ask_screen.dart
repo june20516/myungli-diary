@@ -83,7 +83,11 @@ class _NotifyAskScreenState extends ConsumerState<NotifyAskScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              const MyungliAppBar.inner(title: '', showBack: false),
+              MyungliAppBar.inner(
+                title: l10n.notifyAskBarTitle,
+                titleIdentifier: SlotIds.notifyAskBarTitle,
+                showBack: false,
+              ),
               Expanded(
                 child: InputStep(
                   screenId: ScreenIds.notifyAsk,

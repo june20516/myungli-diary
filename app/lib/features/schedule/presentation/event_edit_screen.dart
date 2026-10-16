@@ -96,6 +96,7 @@ class EventEditScreen extends ConsumerWidget {
               children: [
                 MyungliAppBar.inner(
                   title: AppLocalizations.of(context).eventEditBarTitle,
+                  titleIdentifier: SlotIds.eventEditBarTitle,
                   // 스택 바닥(딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
                   showBack: MyungliAppBar.canGoBack(context),
                 ),

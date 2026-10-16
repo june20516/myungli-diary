@@ -807,9 +807,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get evidenceSheetTitle => '오늘 풀이의 근거';
 
   @override
-  String get calcBasisTitle => '계산 기준';
-
-  @override
   String get a11yListSeparator => ', ';
 
   @override

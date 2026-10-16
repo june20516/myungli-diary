@@ -20,6 +20,8 @@ import 'package:myungli_diary/features/calc_basis/application/calc_basis_provide
 import 'package:myungli_diary/features/calc_basis/model/time_basis.dart';
 import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
 
+import '../../../support/app_bar_title.dart';
+
 final _ko = AppLocalizationsKo();
 
 Finder _id(String identifier) => find.bySemanticsIdentifier(identifier);
@@ -93,7 +95,7 @@ void main() {
 
       expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsOneWidget);
       expect(_id(ScreenIds.calcBasis), findsOneWidget);
-      expect(find.text(_ko.calcBasisTitle), findsOneWidget);
+      expect(find.text(_ko.calcBasisBarTitle), findsOneWidget);
       final tops = [
         for (final slot in _bodySlots) tester.getTopLeft(_id(slot)).dy,
       ];
@@ -385,7 +387,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
-    expect(find.text(_ko.calcBasisTitle), findsOneWidget);
+    expect(find.text(_ko.calcBasisBarTitle), findsOneWidget);
+    expectAppBarTitle(SlotIds.calcBasisBarTitle, _ko.calcBasisBarTitle);
   });
 
   testWidgets('큰 글자(2.0)·작은 화면에서도 넘치지 않고 본문이 스크롤됩니다', (tester) async {
