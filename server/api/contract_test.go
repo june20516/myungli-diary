@@ -948,9 +948,15 @@ func TestContract_Draft5Additions(t *testing.T) {
 	}{
 		{"SlotText 빈 문장 규칙", "빈 `segments`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
 		{"SlotText reactable", "daily.fortune.head", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText 선택 문장 생략", "선택 문장 필드(`todayReason`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText variant 유형", "`advice`·`state`·`care`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText variant 가이드", "`1`·`2`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText variant single", "`single`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
 		{"Notice 빈 segments", "빈 `segments`", func() string { return doc.Components.Schemas["Notice"].Value.Description }},
 		{"Schedule.time 시간대", "currentTimezone", func() string { return doc.Components.Schemas["Schedule"].Value.Properties["time"].Value.Description }},
+		{"Schedule.time 끝 시각 없음", "끝 시각(길이) 필드는 없습니다", func() string { return doc.Components.Schemas["Schedule"].Value.Properties["time"].Value.Description }},
 		{"getCalendar 캐시", "rulesetVersion", func() string { return operationByID(t, doc, "getCalendar").Description }},
+		{"getCalendar ETag 없음", "`ETag`는 없습니다", func() string { return operationByID(t, doc, "getCalendar").Description }},
 	}
 	for _, tt := range descriptions {
 		t.Run(tt.name, func(t *testing.T) {
