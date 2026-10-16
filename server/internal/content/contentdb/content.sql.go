@@ -54,33 +54,6 @@ func (q *Queries) InsertSeed(ctx context.Context, version string) (int64, error)
 	return result.RowsAffected(), nil
 }
 
-const insertTemplate = `-- name: InsertTemplate :exec
-INSERT INTO content_templates (seed_version, slot, key, variant, lang, body)
-VALUES ($1, $2, $3, $4, $5, $6)
-ON CONFLICT DO NOTHING
-`
-
-type InsertTemplateParams struct {
-	SeedVersion string
-	Slot        string
-	Key         string
-	Variant     string
-	Lang        string
-	Body        string
-}
-
-func (q *Queries) InsertTemplate(ctx context.Context, arg InsertTemplateParams) error {
-	_, err := q.db.Exec(ctx, insertTemplate,
-		arg.SeedVersion,
-		arg.Slot,
-		arg.Key,
-		arg.Variant,
-		arg.Lang,
-		arg.Body,
-	)
-	return err
-}
-
 const listTemplates = `-- name: ListTemplates :many
 SELECT slot, key, variant, body FROM content_templates
 WHERE seed_version = $1 AND lang = $2

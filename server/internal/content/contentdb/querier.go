@@ -15,7 +15,6 @@ type Querier interface {
 	// 콘텐츠 시드 적재와 읽기 쿼리입니다.
 	// 선택 기록·순환 상태 쿼리는 선택기를 구현할 때 더합니다.
 	InsertSeed(ctx context.Context, version string) (int64, error)
-	InsertTemplate(ctx context.Context, arg InsertTemplateParams) error
 	ListTemplates(ctx context.Context, arg ListTemplatesParams) ([]ListTemplatesRow, error)
 }
 

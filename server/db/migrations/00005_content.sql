@@ -1,8 +1,8 @@
 -- +goose Up
 -- 콘텐츠(문장 틀) 시드와, 사용자에게 보여 준 문장의 선택 기록 테이블입니다.
 -- 시드 버전은 내용 지문이라 새 버전이 들어와도 옛 버전 행을 지우지 않습니다(옛 선택 기록이 옛 버전을 가리키기 때문입니다).
--- 계정 행은 물리적으로 지우지 않으므로 계정을 가리키는 FK는 기존 테이블처럼 ON DELETE RESTRICT입니다.
--- 선택 기록 -> 반응 FK만 CASCADE라서, 계정 정리 때 선택 기록을 지우면 반응도 함께 지워집니다.
+-- 행을 물리적으로 지우지 않으므로 FK는 모두 ON DELETE RESTRICT입니다.
+-- 계정 삭제는 익명화이고, 익명화 때에도 선택 기록·순환 상태·반응은 남깁니다.
 
 CREATE TABLE content_seeds (
     version    text PRIMARY KEY,
@@ -47,7 +47,7 @@ CREATE TABLE rotation_state (
 
 -- 선택 기록 하나에 반응은 하나입니다. 반응을 취소하면 deleted_at을 채웁니다.
 CREATE TABLE reactions (
-    selection_id bigint      NOT NULL UNIQUE REFERENCES daily_selections (id) ON DELETE CASCADE,
+    selection_id bigint      NOT NULL UNIQUE REFERENCES daily_selections (id) ON DELETE RESTRICT,
     reaction     text        NOT NULL,
     created_at   timestamptz NOT NULL DEFAULT now(),
     deleted_at   timestamptz

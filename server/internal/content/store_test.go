@@ -3,6 +3,7 @@ package content_test
 import (
 	"context"
 	"sync"
+	"time"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -183,4 +184,63 @@ func mustTemplates(t *testing.T, store *content.Store, version string) content.T
 func TestStore_ActiveMissingIsErrNoActiveSeed(t *testing.T) {
 	_, err := content.NewStore(dbtest.New(t)).Active(context.Background())
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed)
+}
+
+func TestApply_DuplicateTemplateInSeedFails(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	s.Templates = append(s.Templates, s.Templates[0])
+
+	applied, err := content.Apply(ctx, pool, s)
+	require.Error(t, err, "시드 안 중복은 삼키지 않고 오류")
+	assert.False(t, applied)
+
+	_, err = content.NewStore(pool).Active(ctx)
+	assert.ErrorIs(t, err, content.ErrNoActiveSeed, "실패한 적재는 롤백")
+}
+
+func TestStore_TemplatesCanceledWhileLoadingIsNotCached(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	_, err := content.Apply(ctx, pool, s)
+	require.NoError(t, err)
+	store := content.NewStore(pool)
+
+	// 다른 트랜잭션이 테이블을 잠가 조회가 끝나지 못하게 합니다.
+	tx, err := pool.Begin(ctx)
+	require.NoError(t, err)
+	_, err = tx.Exec(ctx, "LOCK TABLE content_templates IN ACCESS EXCLUSIVE MODE")
+	require.NoError(t, err)
+
+	short, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	defer cancel()
+	_, err = store.Templates(short, s.Version, "ko")
+	require.ErrorIs(t, err, context.DeadlineExceeded, "ctx가 끝나면 로드를 기다리지 않고 돌아옴")
+	require.NoError(t, tx.Rollback(ctx))
+
+	got, err := store.Templates(ctx, s.Version, "ko")
+	require.NoError(t, err, "오류는 캐시하지 않아 다음 호출이 다시 시도")
+	_, ok := got.Body("daily.guide", "k", "1")
+	assert.True(t, ok)
+}
+
+func TestReactions_SelectionDeleteIsRestricted(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	_, err := content.Apply(ctx, pool, s)
+	require.NoError(t, err)
+
+	var accountID string
+	require.NoError(t, pool.QueryRow(ctx, "INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&accountID))
+	var selectionID int64
+	require.NoError(t, pool.QueryRow(ctx, `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+		VALUES ($1, '2026-10-16', 'daily.guide', decode(repeat('ab', 32), 'hex'), 'k', '1', $2) RETURNING id`, accountID, s.Version).Scan(&selectionID))
+	_, err = pool.Exec(ctx, "INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'like')", selectionID)
+	require.NoError(t, err)
+
+	_, err = pool.Exec(ctx, "DELETE FROM daily_selections WHERE id = $1", selectionID)
+	assert.Error(t, err, "반응이 있는 선택 기록은 지울 수 없음")
 }

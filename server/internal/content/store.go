@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/singleflight"
 
 	"github.com/june20516/myungli-diary/server/internal/content/contentdb"
 	"github.com/june20516/myungli-diary/server/internal/content/render"
@@ -41,12 +42,14 @@ func Apply(ctx context.Context, pool *pgxpool.Pool, s seed.Seed) (applied bool, 
 			return fmt.Errorf("시드 버전 기록: %w", err)
 		}
 		if inserted > 0 {
-			for _, t := range s.Templates {
-				if err := q.InsertTemplate(ctx, contentdb.InsertTemplateParams{
-					SeedVersion: s.Version, Slot: t.Slot, Key: t.Key, Variant: t.Variant, Lang: t.Lang, Body: t.Body,
-				}); err != nil {
-					return fmt.Errorf("문장 틀 기록: %w", err)
-				}
+			// 한 번에 넣습니다. 시드 안에 (slot, key, variant, lang)이 겹치는 행이 있으면 PK 위반으로 오류가 됩니다.
+			rows := make([][]any, len(s.Templates))
+			for i, t := range s.Templates {
+				rows[i] = []any{s.Version, t.Slot, t.Key, t.Variant, t.Lang, t.Body}
+			}
+			if _, err := tx.CopyFrom(ctx, pgx.Identifier{"content_templates"},
+				[]string{"seed_version", "slot", "key", "variant", "lang", "body"}, pgx.CopyFromRows(rows)); err != nil {
+				return fmt.Errorf("문장 틀 기록: %w", err)
 			}
 			applied = true
 		}
@@ -97,8 +100,11 @@ type cacheKey struct{ version, lang string }
 type Store struct {
 	queries *contentdb.Queries
 
+	// mu는 cache 맵만 지킵니다. DB 조회 동안에는 잡지 않아서, 한 키의 느린 로드가 다른 키를 막지 않습니다.
 	mu    sync.Mutex
 	cache map[cacheKey]*templates
+	// loads는 같은 키를 동시에 요청한 호출을 DB 조회 한 번으로 합칩니다.
+	loads singleflight.Group
 }
 
 // NewStore는 pool을 쓰는 Store를 만듭니다.
@@ -120,14 +126,44 @@ func (s *Store) Active(ctx context.Context) (string, error) {
 
 // Templates는 version·lang의 문장 틀을 돌려줍니다. 한 번 읽은 것은 메모리에 두고 다시 DB를 읽지 않습니다.
 // 시드 버전은 내용 지문이라 같은 (version, lang)의 내용은 바뀌지 않으므로 캐시를 무효화할 일이 없습니다.
+// 조회 오류는 캐시하지 않아 다음 호출이 다시 시도합니다. 기다리는 중에 ctx가 끝나면 바로 돌아옵니다.
 func (s *Store) Templates(ctx context.Context, version, lang string) (Templates, error) {
 	key := cacheKey{version, lang}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if t, ok := s.cache[key]; ok {
+	if t, ok := s.cached(key); ok {
 		return t, nil
 	}
-	rows, err := s.queries.ListTemplates(ctx, contentdb.ListTemplatesParams{SeedVersion: version, Lang: lang})
+	ch := s.loads.DoChan(version+"\x00"+lang, func() (any, error) {
+		t, err := s.load(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		return t, nil
+	})
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case res := <-ch:
+		if res.Err != nil {
+			return nil, res.Err
+		}
+		t, ok := res.Val.(*templates)
+		if !ok {
+			return nil, fmt.Errorf("문장 틀 로드 결과 형식이 잘못됐습니다: %T", res.Val)
+		}
+		return t, nil
+	}
+}
+
+func (s *Store) cached(key cacheKey) (*templates, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	t, ok := s.cache[key]
+	return t, ok
+}
+
+// load는 DB에서 문장 틀을 읽어 캐시에 넣습니다. 성공했을 때만 캐시합니다.
+func (s *Store) load(ctx context.Context, key cacheKey) (*templates, error) {
+	rows, err := s.queries.ListTemplates(ctx, contentdb.ListTemplatesParams{SeedVersion: key.version, Lang: key.lang})
 	if err != nil {
 		return nil, fmt.Errorf("문장 틀 조회: %w", err)
 	}
@@ -135,6 +171,8 @@ func (s *Store) Templates(ctx context.Context, version, lang string) (Templates,
 	for _, r := range rows {
 		t.bodies[templateID{r.Slot, r.Key, r.Variant}] = r.Body
 	}
+	s.mu.Lock()
 	s.cache[key] = t
+	s.mu.Unlock()
 	return t, nil
 }

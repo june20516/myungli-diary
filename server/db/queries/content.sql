@@ -5,11 +5,6 @@
 INSERT INTO content_seeds (version) VALUES (@version)
 ON CONFLICT (version) DO NOTHING;
 
--- name: InsertTemplate :exec
-INSERT INTO content_templates (seed_version, slot, key, variant, lang, body)
-VALUES (@seed_version, @slot, @key, @variant, @lang, @body)
-ON CONFLICT DO NOTHING;
-
 -- name: DeactivateSeeds :exec
 UPDATE content_seeds SET active = false WHERE active AND version <> @version;
 
