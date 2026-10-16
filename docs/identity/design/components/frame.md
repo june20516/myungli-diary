@@ -1,6 +1,6 @@
 # frame: 화면 틀 (`frame.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.1, 결정 V17
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.1, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.7·§2.12·§3, 결정 V15·V17
 * 시안: `design-v2-frame`(틀 C), `design-v2-tab-seal`(낙관 도장 탭), `design-v2-sheet`(겹쳐 쌓기·닫기 규칙)
 
 화면 틀은 "스며든 틀"입니다. 위 막대는 바탕을 칠하지 않고, 아래 탭 바는 반투명이라 내용이 비쳐 지나갑니다. 틀이 내용을 가두지 않게 하려는 것입니다.
@@ -10,6 +10,7 @@
 * 쓰는 화면: today, calendar, diary-list, my-saju
 * 반투명 `bar.bg` + 탭 바 뒤 흐림 20px. 높이 72px(아래 안전 영역은 따로 더함), 위 0.5px `line`.
 * 탭 4개, 아이콘 24px + 글자 11px(`type.caption.sm`).
+* 탭 아이콘(`parts.icons`): 오늘 `sun`, 달력 `calendar-blank`, 일기 `notebook`, 나 `user`. app이 고른 값이 결정 V15(Phosphor, 평소 Light·선택 Regular)와 맞고 탭의 뜻과도 맞아 그대로 받았습니다.
 
 | 상태 | 아이콘 | 글자 | 도장 |
 | --- | --- | --- | --- |
@@ -31,6 +32,7 @@
 | `tab-root` | 작은 제목(`type.subtitle`) | 동작 아이콘 최대 2개 |
 | `inner` | 뒤로(caret-left) + 제목 왼쪽 정렬 | 동작 아이콘, 초안 상태 |
 
+* 갈래의 첫 화면이라 돌아갈 곳이 없는 화면(consent, notify-ask)은 `inner`여도 뒤로 버튼을 숨깁니다. 뒤로 자리를 비워 두지 않으므로 제목의 시작 위치는 바뀌지 않습니다.
 * Material 힌트: `AppBar`의 `scrolledUnderElevation: 0`, `surfaceTintColor: transparent`, `centerTitle: false`.
 
 ## sheet
@@ -63,6 +65,8 @@
 | `adFree` | 광고 제거 기간에는 숨김 |
 | `noConsent` | 광고 동의(ATT·UMP)를 받기 전에는 숨김 |
 | `reduceTransparency` | 바탕 `bg.sheet` 불투명 |
+
+* 구현 힌트(Flutter): `loading`·`noFill`의 "자리를 잡지 않음"은 높이 0으로 구현합니다. 명세와 같습니다.
 
 * 배너 높이가 생기거나 사라지면 아래 내용 여백도 함께 바뀌고, 스크롤 위치는 지킵니다. 토스트는 배너 위 16px에 뜹니다.
 

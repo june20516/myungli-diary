@@ -47,10 +47,12 @@ jobs:
       server: ${{ steps.detect.outputs.server }}
       app: ${{ steps.detect.outputs.app }}
       writing: ${{ steps.detect.outputs.writing }}
+      design: ${{ steps.detect.outputs.design }}
       core_mode: ${{ steps.detect.outputs.core_mode }}
       server_mode: ${{ steps.detect.outputs.server_mode }}
       app_mode: ${{ steps.detect.outputs.app_mode }}
       writing_mode: ${{ steps.detect.outputs.writing_mode }}
+      design_mode: ${{ steps.detect.outputs.design_mode }}
       contracts: ${{ steps.detect.outputs.contracts }}
     steps:
       - uses: actions/checkout@v7
@@ -74,6 +76,7 @@ jobs:
             echo "server=false" >> "$GITHUB_OUTPUT"
             echo "app=false" >> "$GITHUB_OUTPUT"
             echo "writing=false" >> "$GITHUB_OUTPUT"
+            echo "design=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -110,8 +113,11 @@ jobs:
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/'
+          # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고(lengths.py). 과정 문서는 writing과 같이 뺍니다.
+          design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
+          unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
-          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/|^core/message_(keys|params)\.json$|^proto/' | head -20 | tr '\n' ' ')
+          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools|artifacts)/|^core/message_(keys|params)\.json$|^proto/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
 
   docs:
@@ -173,9 +179,14 @@ jobs:
     if: needs.changes.outputs.writing == 'true'
     uses: ./.github/workflows/writing.yml
 
+  design:
+    needs: changes
+    if: needs.changes.outputs.design == 'true'
+    uses: ./.github/workflows/design.yml
+
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 같은 PR·단위의 Issue가 열려 있으면 다시 열지 않습니다.
   drift-report:
-    needs: [changes, core, server, app, writing]
+    needs: [changes, core, server, app, writing, design]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -192,6 +203,7 @@ jobs:
           SERVER: ${{ needs.changes.outputs.server_mode }}:${{ needs.server.result }}
           APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
           WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
+          DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
         run: |
           # 계약 파일의 소유 단위(from 라벨)입니다.
           from_labels=""
@@ -201,7 +213,7 @@ jobs:
           echo "$CONTRACTS" | grep -q 'docs/identity/writing/' && from_labels="$from_labels,from:writing"
           echo "$CONTRACTS" | grep -qE 'core/|proto/' && from_labels="$from_labels,from:core"
           gh label create drift --color FBCA04 --description "계약 변경을 받는 쪽이 아직 따라오지 않음 (workflow §6.1)" 2>/dev/null || true
-          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
             unit="${pair%%=*}"; state="${pair#*=}"
             [ "$state" = "drift:failure" ] || continue
             title="[drift] $unit: PR #$PR 계약 변경 따라잡기"
@@ -224,7 +236,7 @@ jobs:
   # 원인 PR이 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
   # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
   drift-close:
-    needs: [changes, server, app, writing]
+    needs: [changes, server, app, writing, design]
     if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -241,8 +253,9 @@ jobs:
           SERVER: ${{ needs.server.result }}
           APP: ${{ needs.app.result }}
           WRITING: ${{ needs.writing.result }}
+          DESIGN: ${{ needs.design.result }}
         run: |
-          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
             unit="${pair%%=*}"; result="${pair#*=}"
             [ "$result" = "success" ] || continue
             gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number,title \
@@ -266,7 +279,7 @@ jobs:
           done
 
   ci-gate:
-    needs: [changes, docs, pr-body, core, server, app, writing]
+    needs: [changes, docs, pr-body, core, server, app, writing, design]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -281,8 +294,9 @@ jobs:
           SERVER: ${{ needs.changes.outputs.server_mode }}:${{ needs.server.result }}
           APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
           WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
+          DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
         run: |
-          echo "결과: $FIXED core=$CORE server=$SERVER app=$APP writing=$WRITING"
+          echo "결과: $FIXED core=$CORE server=$SERVER app=$APP writing=$WRITING design=$DESIGN"
           failed=""
           for result in $FIXED; do
             case "$result" in
@@ -290,7 +304,7 @@ jobs:
               *) failed="$failed $result" ;;
             esac
           done
-          for pair in "core=$CORE" "server=$SERVER" "app=$APP" "writing=$WRITING"; do
+          for pair in "core=$CORE" "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
             unit="${pair%%=*}"; mode="${pair#*=}"; mode_name="${mode%%:*}"; result="${mode#*:}"
             case "$result" in
               success|skipped) continue ;;

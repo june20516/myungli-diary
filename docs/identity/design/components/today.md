@@ -1,6 +1,6 @@
 # today: 오늘 화면 (`today.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.6, 결정 V20·V22, V1 결정 V8(배지)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.6, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.11, 결정 V20·V22, V1 결정 V8(배지)
 * 시안: `design-v2-today`, `design-v2-share-image`, `design-v2-rest`(질문 카드 전·후)
 
 ## day-character
@@ -23,6 +23,7 @@
 * 칩(`chip.bg` 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`.
 * 누르면 칩 안쪽에 1.5px `action.primary` 테두리가 생기고, 칩 줄 아래에 설명 한 줄이 `appear.seep`(칩 바탕 `radius.md` 상자). 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 다시 누르면 닫힘. 한 번에 하나만 열립니다.
 * 칩 줄은 화면 폭에 따라 두 줄로 넘어갑니다.
+* `time` 값은 프로필 시간대의 24시간 `HH:mm–HH:mm`이고, 시작과 끝은 en dash(U+2013)로 잇습니다. 구간이 둘 이상이면 ` · `(가운뎃점, 앞뒤 공백)로 잇습니다. 예: `09:30–11:30 · 13:30–15:30`. 숫자는 `tnum`이고 세 언어 모두 같은 형식입니다.
 
 ## guide-question-card
 

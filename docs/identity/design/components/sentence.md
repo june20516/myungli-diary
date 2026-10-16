@@ -1,6 +1,6 @@
 # sentence: 문장 (`sentence.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.5, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §2, [문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), 결정 V16·V20·V21·V25·V28
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.5, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §2, [문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.2·§2.10·§4, 결정 V16·V20·V21·V25·V28·V29·V32
 * 시안: `design-v2-today`(근거 보기 0-나, 하트 아래), `design-v2-tab-seal`(도장 반응), `design-v2-evidence-lock`(근거 시트 잠김 B)
 
 문장은 이 앱의 본체입니다. 문장 컴포넌트는 글꼴·줄바꿈·덧붙는 링크와 반응만 정하고, 문구는 writing(UI 슬롯)과 server(콘텐츠)가 정합니다.
@@ -9,9 +9,10 @@
 
 * 쓰는 화면: welcome, preview, login, today, explain-sheet, evidence-sheet, diary-edit, diary-view, tag-diary, my-saju, calc-basis, account-delete, force-update
 * 변형 `card`(`type.sentence.card` 17px) / `body`(`type.sentence.body` 15px) / `preview`(일기 목록, 14.5px 두 줄 말줄임).
+* my-saju 일간 소개의 첫 문장(`my-saju.ilgan.head`, 호칭 자리)은 today 총운 첫 문장과 같은 `card`이고, 이어지는 문장은 `body`입니다.
 * 한국어는 어절 단위 줄바꿈(keep-all), 일본어는 글자 단위 + 금칙 처리.
 * 호칭은 문장 안의 자리로만 들어갑니다. 굵게 하거나 색을 바꾸지 않습니다.
-* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 흐린 한 줄(`lock.veil`) + 오른쪽 끝 "열기 ›". 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + "잠김"(`evidence-sheet.a11y.locked`)입니다.
+* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 흐린 한 줄(`lock.veil`) + 오른쪽 끝 "열기" 링크와 화살표. 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + "잠김"(`evidence-sheet.a11y.locked`)입니다.
 
 ### 문장 조각 (`parts.segments`, 결정 V28)
 
@@ -38,17 +39,20 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 * 쓰는 화면: today, day-sheet, tag-diary, my-saju, saju-chart
 * `term` 요소: `term.bg`/`term.fg`, `radius.xs`, 굵게 하지 않음(결정 V0).
 * 변형 `inline`(문장 안, 글자 스타일 그대로) / `label`(표 행 머리·십성 줄, `type.caption.md`).
-* 누르면 풀이 시트(explain-sheet, half)가 열립니다: 제목 + 한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때만) → "근거 보기 ›"(`depth-link` `block`). **모두 무료이고 잠기지 않습니다**(D60).
+* 누르면 풀이 시트(explain-sheet, half)가 열립니다: 제목 + 한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때만) → "근거 보기" 링크(`depth-link` `block`). **모두 무료이고 잠기지 않습니다**(D60).
 * 2.0.0에서 "내 사주에서는" 상자와 잠김 변형을 뺐습니다. 원국 개인 해석은 근거 시트로 옮겨 처음부터 잠긴 기능으로 둡니다(D60 ②, depth-link 참고).
 * 터치 영역: 글자 높이가 작아도 줄 높이까지 위아래로 넓혀 44px를 맞춥니다.
 
 ## depth-link
 
-* 쓰는 화면: today, explain-sheet, my-saju, evidence-sheet(구성)
-* "근거 보기 ›", `action.primary` `type.label.lg`.
+* 쓰는 화면: today, explain-sheet, my-saju, evidence-sheet(구성), birthplace(`navigate`)
+* "근거 보기" + 화살표, `action.primary` `type.label.lg`.
 * `inline-end`: 이유 문장 끝에 붙습니다. `link.inline-nowrap`으로 링크 전체가 한 덩어리라, 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 갑니다. "근거 / 보기"처럼 갈라지지 않습니다(시안 비교에서 고른 0-나).
 * `block`: 문단 아래 따로 놓입니다(나 탭).
-* 누르면 한 단계 깊은 시트가 열립니다. 이미 시트 안이면 `sheet.stack`으로 쌓입니다.
+* `navigate`: 모양은 `block`과 같지만 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). 지금은 `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크 하나입니다. 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
+* `inline-end`·`block`은 누르면 한 단계 깊은 시트가 열립니다. 이미 시트 안이면 `sheet.stack`으로 쌓입니다.
+* **화살표(결정 V29):** 화살표는 원고에 넣지 않습니다. 슬롯 문구는 링크 이름만이고, 컴포넌트가 그 뒤에 아이콘 `caret-right`(regular, 링크 글자 크기, 링크 색, 간격 2px)를 붙입니다. `›` 글리프는 ko·ja 글꼴에서 모양과 굵기가 달라 아이콘으로 바꿨습니다. 스크린리더는 읽지 않고(장식), 링크가 감기면 마지막 줄 끝에 붙어 마지막 낱말과 떨어지지 않습니다. `sentence-block` 잠김의 "열기"와 잠금 안내의 `pass` 링크도 같습니다.
+* 구현 힌트(Flutter): `inline-end`는 문장 끝 `WidgetSpan` 하나로 링크 이름과 화살표를 함께 담습니다.
 
 ### 근거 시트 (`parts.evidenceSheet`)
 
@@ -63,6 +67,8 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 | 5 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
 
 구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다(`sectionTitle` 스타일, 구역마다 `basisTitle`·`sourceTitle`·`personalTitle`). **구역 제목은 잠겨도 또렷하게 보입니다.** `lock.veil`은 본문에만 씌웁니다.
+
+**빈 구역:** `unlocked`에서 본문이 없는 구역(판정 근거·원전·내 사주에서는)은 제목까지 그리지 않고 자리도 남기지 않습니다. `locked`의 `lock.veil`은 본문을 내려받기 전이라 지금처럼 그립니다.
 
 ### 잠김과 해제 (시안 B, 결정 V25)
 

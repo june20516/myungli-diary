@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "group": "input",
   "components": [
     {
@@ -16,7 +16,7 @@
         "input": { "marginTop": "{space.24}" },
         "help": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" },
         "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}" },
-        "bottomAction": { "component": "primary-button", "variant": "filled", "position": "bottom-fixed", "keyboard": "rides-above", "paddingX": "{space.20}", "paddingBottom": "{space.16}" }
+        "bottomAction": { "component": "primary-button", "variant": "filled", "position": "bottom-fixed", "keyboard": "rides-above", "paddingX": "{space.20}", "paddingBottom": "{space.16}", "omitWhen": "고르면 바로 넘어가는 단계(birthplace 도시 결과 줄)" }
       },
       "states": {
         "out-of-range": { "parts": { "errorLine": { "visible": true }, "bottomAction": { "state": "disabled" } }, "pattern": "appear.seep" },
@@ -27,7 +27,8 @@
       "rules": [
         "진행 막대는 단계가 넘어갈 때 채움 너비만 standard 곡선 320ms로 늘어난다.",
         "오류 줄은 빨간색 없이 mark.caution + 본문색으로 쓴다.",
-        "아래 버튼은 키보드가 열리면 키보드 위에 붙는다."
+        "아래 버튼은 키보드가 열리면 키보드 위에 붙는다.",
+        "고르면 바로 넘어가는 단계에는 아래 버튼을 두지 않는다. 비활성 버튼이 늘 떠 있지 않게 한다."
       ]
     },
     {
@@ -67,6 +68,7 @@
             "selectionBand": { "bg": "{color.status.bg}", "radius": "{radius.md}" },
             "leapMonth": { "rule": "음력이고 그해에 윤달이 있을 때만 월 휠의 해당 달 다음에 '윤N월'을 끼운다" },
             "solarConfirm": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "when": "음력 선택 시", "pattern": "appear.seep" },
+            "leapMonthFallback": { "component": "check-row", "variant": "inline", "when": "음력이고 음력→양력·윤달 조회가 계약에 없을 때", "position": "below-wheels", "replaces": ["leapMonth", "solarConfirm"] },
             "range": { "min": "1900-01-31", "max": "2099-12-31", "outside": "input-step out-of-range" }
           }
         },
@@ -92,7 +94,9 @@
       "rules": [
         "calendar 변형은 calendar-month와 같은 표시(일기 쓴 날 옅은 도장, 오늘 윤곽, 선택 굵은 숫자 + 밑줄)를 쓰고 길흉 칸 채우기만 뺀다.",
         "미래 날짜는 흐리게 막는다(누를 수 없음).",
-        "birth 변형의 음력 날짜는 양력으로 바꾼 날짜를 확인 줄에 보인다."
+        "birth 변형의 음력 날짜는 양력으로 바꾼 날짜를 확인 줄에 보인다.",
+        "birth의 목표 모양은 음력이고 그해에 윤달이 있을 때만 월 휠에 윤N월을 끼우고 확인 줄(solarConfirm)을 보이는 것이다(결정 V31).",
+        "음력→양력·윤달 조회가 계약에 없으면 leapMonthFallback(check-row inline '윤달')을 휠 아래에 두고, 확인 줄은 그리지 않으며 그 자리도 비우지 않는다. 없는 윤달은 저장할 때 server 오류로 input-step 오류 줄에 보인다."
       ]
     },
     {
@@ -131,7 +135,7 @@
     {
       "id": "segmented",
       "summary": "몇 개 중 하나 고르기",
-      "uses": ["select.seep-slide", "press.ink"],
+      "uses": ["select.seep-slide", "press.ink", "appear.seep"],
       "parts": {
         "track": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "height": { "value": 40, "unit": "px" }, "padding": { "value": 3, "unit": "px" } },
         "indicator": { "bg": "{color.action.primary}", "radius": "{radius.full}" },
@@ -140,11 +144,12 @@
       "states": {
         "selected": { "pattern": "select.seep-slide", "parts": { "label": { "fg": "{color.action.on-primary}" } } },
         "pressed": { "pattern": "press.ink" },
-        "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } }
+        "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } },
+        "none": { "note": "아직 고르지 않음(성별 고르기 전)", "parts": { "indicator": { "visible": false }, "label": { "fg": "{color.text.secondary}" } } }
       },
       "haptic": [{ "when": "선택이 바뀜", "strength": "selection" }],
       "a11y": { "role": "radio-group", "itemRole": "radio", "label": "무엇을 고르는지", "minTarget": 44 },
-      "rules": ["항목은 2~4개. 항목 너비는 같다.", "항목 글자는 한 줄이다. 넘치면 글자를 줄이거나 자르지 않고, 화면 설계에서 항목 수나 문구를 줄인다."]
+      "rules": ["항목은 2~4개. 항목 너비는 같다.", "항목 글자는 한 줄이다. 넘치면 글자를 줄이거나 자르지 않고, 화면 설계에서 항목 수나 문구를 줄인다.", "none에서는 input-step 아래 버튼이 disabled다.", "none에서 처음 고르면 표시 막대는 미끄러지지 않고 그 자리에 appear.seep으로 나타난다(select.seep-slide는 그다음 선택부터)."]
     },
     {
       "id": "city-search",
@@ -155,7 +160,7 @@
         "results": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "marginTop": "{space.12}" },
         "row": { "minHeight": { "value": 56, "unit": "px" }, "paddingX": "{space.16}" },
         "city": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
-        "region": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+        "region": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "content": "행정 구역, 나라 이름", "whenMissing": "hidden" },
         "match": { "fontWeight": 600 }
       },
       "states": {
@@ -165,7 +170,7 @@
       },
       "haptic": [],
       "a11y": { "role": "combobox", "label": "도시 이름", "resultsAnnounced": "결과 N개", "minTarget": 48 },
-      "rules": ["결과 줄은 settings-row와 같은 묶음 카드 모양이다.", "글자를 칠 때마다 결과가 바뀌어도 목록을 움직이지 않고 바꿔 그린다."]
+      "rules": ["결과 줄은 settings-row와 같은 묶음 카드 모양이다.", "글자를 칠 때마다 결과가 바뀌어도 목록을 움직이지 않고 바꿔 그린다.", "나라 코드를 그대로 보이지 않는다. 지역 이름이 없으면 region 줄을 그리지 않고 줄 최소 높이 56px는 그대로다."]
     },
     {
       "id": "check-row",
