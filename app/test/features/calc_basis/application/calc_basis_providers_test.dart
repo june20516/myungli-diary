@@ -67,6 +67,8 @@ class _FixedDraft extends OnboardingDraftController {
 Profile _profile({
   String calendar = 'solar',
   Map<String, Object?> place = const {'status': 'not_asked'},
+  Map<String, Object?>? birthCity,
+  String timezone = 'Asia/Seoul',
 }) => Profile.fromJson({
   'honorific': '하늘',
   'language': 'ko',
@@ -77,10 +79,11 @@ Profile _profile({
     'isLeapMonth': false,
     'time': {'status': 'known', 'value': '08:00'},
     'gender': 'female',
-    'timezone': 'Asia/Seoul',
+    'timezone': timezone,
     'place': place,
   },
   'notification': {'status': 'not_asked'},
+  'birthCity': ?birthCity,
 });
 
 final City _newYork = City(
@@ -138,7 +141,30 @@ void main() {
     expect(await container.read(calcBasisTimeBasisProvider.future), _seoul0800);
   });
 
-  test('프로필에서 도시를 골랐으면 온보딩 입력으로 넘어가지 않고 null입니다(A29)', () async {
+  test('프로필에서 도시를 골랐고 birthCity가 있으면 그 경도로 계산합니다', () async {
+    final container = _container(
+      api: _FakeApi(),
+      profile: _profile(
+        place: {'status': 'city', 'cityId': '5128581'},
+        birthCity: {
+          'id': '5128581',
+          'name': 'New York City',
+          'country': 'US',
+          'countryName': 'United States',
+          'timezone': 'America/New_York',
+          'longitude': -74.0060,
+        },
+        timezone: 'America/New_York',
+      ),
+      draft: _solarDraft,
+    );
+
+    final basis = await container.read(calcBasisTimeBasisProvider.future);
+    expect(basis?.longitude, -74.006);
+    expect(basis?.correctionMinutes, 4);
+  });
+
+  test('프로필에서 도시를 골랐어도 birthCity가 없는 옛 사본이면 null입니다', () async {
     final container = _container(
       api: _FakeApi(),
       profile: _profile(place: {'status': 'city', 'cityId': '5128581'}),
@@ -154,14 +180,16 @@ void main() {
     expect(await container.read(calcBasisTimeBasisProvider.future), _seoul0800);
   });
 
-  test('온보딩 입력에서 도시를 골랐으면 null입니다(A29)', () async {
+  test('온보딩에서 도시를 골랐으면 그 도시 경도·시간대로 계산합니다', () async {
     final container = _container(
       api: _FakeApi(),
       draft: _solarDraft.copyWith(city: _newYork),
       region: 'US',
     );
 
-    expect(await container.read(calcBasisTimeBasisProvider.future), isNull);
+    final basis = await container.read(calcBasisTimeBasisProvider.future);
+    expect(basis?.longitude, -74.006);
+    expect(basis?.correctionMinutes, 4);
   });
 
   test('한국 기기에 남은 도시는 프로필처럼 버리고 서울 기준입니다(D29)', () async {

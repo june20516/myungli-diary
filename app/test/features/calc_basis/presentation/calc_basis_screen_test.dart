@@ -168,9 +168,7 @@ void main() {
       expect(lunar.top - schools.bottom, schools.top - convention.bottom);
     });
 
-    testWidgets('서머타임 기간 출생이면 경도 문단을 그리지 않고 자리도 남기지 않습니다 (A31)', (
-      tester,
-    ) async {
+    testWidgets('서머타임 기간 출생이면 Dst 문구로 경도 문단을 그립니다 (#214)', (tester) async {
       await tester.pumpWidget(
         _app(
           () async => const TimeBasis(
@@ -182,12 +180,62 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_id(SlotIds.calcBasisLongitudeBody), findsNothing);
-      expect(find.byType(SkeletonBlock), findsNothing);
-      final schools = tester.getRect(_id(SlotIds.calcBasisSchoolsBody));
-      final lunar = tester.getRect(_id(SlotIds.calcBasisLunarBody));
-      final convention = tester.getRect(_id(SlotIds.calcBasisConventionBody));
-      expect(lunar.top - schools.bottom, schools.top - convention.bottom);
+      final text = _longitudeText(tester)!;
+      // 원고(#214 표)와 계산이 함께 맞음을 문장 그대로 고정합니다.
+      expect(text, contains('서머타임 60분을 먼저 빼고, 동경 127.5° 기준으로 30분을 더 빼서'));
+      expect(
+        text,
+        _ko.calcBasisLongitudeBodyDstSubtract(
+          _ko.calcBasisLongitudeBodyEast('127.5'),
+          30,
+          60,
+        ),
+      );
+      expect(_id(SlotIds.calcBasisLongitudeBody), findsOneWidget);
+    });
+
+    testWidgets('1955년 서머타임 출생은 DstNone 문구입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          () async => const TimeBasis(
+            longitude: 127.5,
+            correctionMinutes: 0,
+            daylightSavingMinutes: 60,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        _longitudeText(tester),
+        _ko.calcBasisLongitudeBodyDstNone(
+          _ko.calcBasisLongitudeBodyEast('127.5'),
+          60,
+        ),
+      );
+      expect(_longitudeText(tester), contains('서머타임 60분만 빼고'));
+    });
+
+    testWidgets('서머타임과 양수 보정은 DstAdd 문구입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          () async => const TimeBasis(
+            longitude: -74.01,
+            correctionMinutes: 4,
+            daylightSavingMinutes: 60,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        _longitudeText(tester),
+        _ko.calcBasisLongitudeBodyDstAdd(
+          _ko.calcBasisLongitudeBodyWest('74.01'),
+          4,
+          60,
+        ),
+      );
     });
 
     testWidgets('불러오는 중에는 그 자리에 skeleton 한 문단, 다른 문단은 바로 보입니다', (tester) async {

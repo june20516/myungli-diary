@@ -16,14 +16,29 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/calc_basis/application/calc_basis_providers.dart';
 import 'package:myungli_diary/features/calc_basis/model/time_basis.dart';
 
-/// 경도 문단 글자(A28). 보정 분의 부호로 빼기·더하기·보정 없음을 고르고, 경도는 0 이상이면
-/// 동경, 음수면 서경(절댓값)입니다.
+/// 경도 문단 글자(A28, A31 해제). 보정 분의 부호로 빼기·더하기·보정 없음을 고르고, 경도는
+/// 0 이상이면 동경, 음수면 서경(절댓값)입니다. 서머타임 기간 출생이면 서머타임 분을 먼저 뺀다는
+/// Dst 문구를 씁니다(#214).
 String calcBasisLongitudeText(AppLocalizations l10n, TimeBasis basis) {
   final degrees = longitudeDegreesText(basis.longitude);
   final longitude = basis.longitude >= 0
       ? l10n.calcBasisLongitudeBodyEast(degrees)
       : l10n.calcBasisLongitudeBodyWest(degrees);
   final minutes = basis.correctionMinutes;
+  final dstMinutes = basis.daylightSavingMinutes;
+  if (dstMinutes != 0) {
+    if (minutes > 0) {
+      return l10n.calcBasisLongitudeBodyDstAdd(longitude, minutes, dstMinutes);
+    }
+    if (minutes < 0) {
+      return l10n.calcBasisLongitudeBodyDstSubtract(
+        longitude,
+        -minutes,
+        dstMinutes,
+      );
+    }
+    return l10n.calcBasisLongitudeBodyDstNone(longitude, dstMinutes);
+  }
   if (minutes > 0) {
     return l10n.calcBasisLongitudeBodyAdd(longitude, minutes);
   }
@@ -36,8 +51,8 @@ String calcBasisLongitudeText(AppLocalizations l10n, TimeBasis basis) {
 /// 계산 기준(D71): 해석 기준, 다른 유파와 다른 점, 출생 시각 경도 보정, 음력 기준을 안내합니다.
 ///
 /// 로그인 전(출생지 화면)에도 엽니다. 경도 문단은 출생 입력으로 구한 기준([calcBasisTimeBasisProvider])을
-/// 쓰고, 기준을 모르거나(null, A29) 구하지 못하거나(오류) 서머타임 기간 출생이면(A31) 그리지
-/// 않고 자리도 남기지 않습니다.
+/// 쓰고, 기준을 모르거나(null, A29) 구하지 못하면(오류) 그리지 않고 자리도 남기지 않습니다.
+/// 서머타임 기간 출생은 Dst 문구로 그립니다.
 /// 불러오는 동안에는 그 자리에 skeleton 한 문단을 두고, 다른 문단은 바로 보입니다. 값이 오면
 /// 그때만 `appear.seep`으로 나타나고, 이미 받아 둔 값으로 다시 열면 바로 보입니다.
 ///
@@ -124,8 +139,7 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
     );
   }
 
-  /// 경도 문단. 값이 있으면 문단, 불러오는 중이면 skeleton, 모르거나 오류거나 서머타임 기간
-  /// 출생이면 null입니다.
+  /// 경도 문단. 값이 있으면 문단, 불러오는 중이면 skeleton, 모르거나 오류면 null입니다.
   Widget? _longitudeParagraph(
     BuildContext context,
     AsyncValue<TimeBasis?> basis,
@@ -133,8 +147,6 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
     if (basis.hasValue) {
       final value = basis.value;
       if (value == null) return null;
-      // 지금 문구는 표준 자오선 기준 보정만 말해 서머타임 출생의 실제 차이와 어긋납니다(A31).
-      if (value.daylightSavingMinutes != 0) return null;
       final paragraph = _paragraph(
         SlotIds.calcBasisLongitudeBody,
         calcBasisLongitudeText(AppLocalizations.of(context), value),
