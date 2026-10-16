@@ -56,6 +56,21 @@ void main() {
     expect(reporter.errors, hasLength(1));
   });
 
+  testWidgets('연결이 안 되면 보고하지 않고 다음에 다시 보낸다', (tester) async {
+    final (container, server, reporter) = await setUpSync(
+      tester,
+      device: 'Asia/Tokyo',
+      offlineFailures: 1,
+    );
+    final sync = container.read(timezoneSyncProvider);
+    await tester.runAsync(sync.syncIfChanged);
+    expect(server.bodies, hasLength(1));
+    expect(reporter.errors, isEmpty, reason: '연결 오류는 고칠 일이 아니라 보고하지 않습니다');
+    await tester.runAsync(sync.syncIfChanged);
+    expect(server.bodies, hasLength(2));
+    expect(reporter.errors, isEmpty);
+  });
+
   testWidgets('ready인데 사본이 없으면 기기 시간대를 한 번 보내고 응답을 사본으로 삼는다', (tester) async {
     final (container, server, _) = await setUpSync(
       tester,

@@ -4,6 +4,7 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_patch.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// 기기 시간대가 프로필 사본과 다르면 server에 알립니다.
@@ -28,7 +29,8 @@ final class TimezoneSync {
   /// 이미 진행 중이거나 진입이 `ready`가 아니면 새로 시작하지 않고, 진행 중이던(없으면
   /// 이미 끝난) Future를 그대로 돌려줍니다.
   ///
-  /// 실패는 삼키고 `CrashSummary`만 남깁니다. 사본이 그대로라 다음 호출에서 다시 보냅니다.
+  /// 실패는 삼킵니다. 사본이 그대로라 다음 호출에서 다시 보냅니다. 연결 오류(오프라인·
+  /// 시간 초과)는 고칠 일이 아니므로 보고하지 않고, 그 밖의 실패만 `CrashSummary`로 남깁니다.
   Future<void> syncIfChanged() {
     if (_syncing || _ref.read(entryProvider) != EntryState.ready) {
       return _inFlight;
@@ -49,7 +51,11 @@ final class TimezoneSync {
       }
       await repository.update(ProfilePatch(currentTimezone: device));
     } on Object catch (error, stack) {
-      _ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
+      if (!isConnectivityError(error)) {
+        _ref
+            .read(crashReporterProvider)
+            .record(CrashSummary.from(error), stack);
+      }
     } finally {
       _syncing = false;
     }

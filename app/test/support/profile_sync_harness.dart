@@ -28,11 +28,13 @@ final class MutableDeviceTimezone implements DeviceTimezone {
   Future<String> current() async => value;
 }
 
-/// 프로필 수정 요청을 기록하고, 정한 횟수만큼 503으로 답한 뒤 본문의 시간대를 되돌려 줍니다.
+/// 프로필 수정 요청을 기록하고, 정한 횟수만큼 연결 오류([offlineFailures])·503([failures])으로
+/// 답한 뒤 본문의 시간대를 되돌려 줍니다.
 final class ProfileServer extends Interceptor {
-  new({this.failures = 0});
+  new({this.failures = 0, this.offlineFailures = 0});
 
   int failures;
+  int offlineFailures;
   final bodies = <Map<String, Object?>>[];
 
   @override
@@ -45,6 +47,17 @@ final class ProfileServer extends Interceptor {
     final body =
         (raw is String ? jsonDecode(raw) : raw)! as Map<String, Object?>;
     bodies.add(body);
+    if (offlineFailures > 0) {
+      offlineFailures--;
+      handler.reject(
+        DioException.connectionError(
+          requestOptions: options,
+          reason: 'offline',
+        ),
+        true,
+      );
+      return;
+    }
     if (failures > 0) {
       failures--;
       handler.reject(
@@ -114,6 +127,7 @@ Future<(ProviderContainer, ProfileServer, FakeCrashReporter)> setUpSync(
   required String device,
   MutableDeviceTimezone? deviceSource,
   int failures = 0,
+  int offlineFailures = 0,
   bool seed = true,
   List<Override> overrides = const [],
 }) async {
@@ -121,7 +135,10 @@ Future<(ProviderContainer, ProfileServer, FakeCrashReporter)> setUpSync(
   final root = (await tester.runAsync(() => bootstrapForTest('member')))!;
   addTearDown(root.dispose);
   await tester.runAsync(() => root.read(entryStateProvider.future));
-  final server = ProfileServer(failures: failures);
+  final server = ProfileServer(
+    failures: failures,
+    offlineFailures: offlineFailures,
+  );
   final interceptors = root.read(dioProvider).interceptors;
   interceptors.insert(interceptors.length - 1, server);
   if (seed) {
