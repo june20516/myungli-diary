@@ -479,3 +479,62 @@ def test_cli_check_reads_hanja_beside_language_dirs(tmp_path: Path, capsys: pyte
     (content / "hanja.yaml").write_text('- {term: stem.nope, hanja: "甲"}\n', encoding="utf-8")
     assert main(["check", str(content), "--partial"]) == 1
     assert "hanja.unknown_term" in capsys.readouterr().out
+
+
+def _judge_content(tmp_path: Path) -> Path:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "ui.yaml").write_text(
+        '- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "흐름이 보여요."}\n', encoding="utf-8"
+    )
+    return tmp_path / "content"
+
+
+def test_cli_judge_shadow_requires_api_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    called: list[str] = []
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: called.append("claude"))
+    monkeypatch.setattr("mlw.cli.http_poster", lambda key: called.append("jev"))
+    out_path = tmp_path / "shadow.jsonl"
+    args = ["judge", str(_judge_content(tmp_path)), "--shadow", "jev", "--shadow-out", str(out_path)]
+    assert main(args) == 2
+    assert called == []
+    assert "TYPESAFE_API_KEY" in capsys.readouterr().err
+    assert not out_path.exists()
+
+
+def test_cli_judge_shadow_writes_pairs_and_keeps_exit_code(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    flag = {"flags": [{"index": 1, "rule": "slop.P1", "reason": "무엇을 말하는지 없음"}]}
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: lambda prompt, schema: flag)
+
+    def fake_poster(key: str) -> Callable[[dict[str, object]], dict[str, object]]:
+        assert key == "test-key"
+
+        def post(body: dict[str, object]) -> dict[str, object]:
+            questions = body["questions"]
+            assert isinstance(questions, dict)
+            return {"model": "jev-1.13.0", "answers": {q: {"type": "noul", "noul": 0.9} for q in questions}}
+
+        return post
+
+    monkeypatch.setattr("mlw.cli.http_poster", fake_poster)
+    out_path = tmp_path / "shadow" / "ko.jsonl"
+    args = ["judge", str(_judge_content(tmp_path)), "--lang", "ko", "--shadow", "jev", "--shadow-out", str(out_path)]
+    assert main(args) == 0
+    out = capsys.readouterr().out
+    assert "slop.P1 warn LLM 의심(calcBasisLunarBody): 무엇을 말하는지 없음" in out
+    assert out.strip().splitlines()[-1].startswith("jev shadow:")
+    records = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines()]
+    p1 = next(record for record in records if record["rule_id"] == "slop.P1")
+    assert (p1["claude_flag"], p1["jev_noul"], p1["jev_flag"]) == (True, 0.9, True)
+    assert "test-key" not in out_path.read_text(encoding="utf-8")
+
+
+def test_cli_judge_shadow_out_is_required_with_shadow() -> None:
+    with pytest.raises(SystemExit):
+        main(["judge", "--shadow", "jev"])
