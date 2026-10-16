@@ -23,9 +23,13 @@ enum InputStepVariant {
 
 /// 질문 하나짜리 입력 화면 틀(`input-step`).
 ///
-/// 위에서부터 진행 막대(온보딩만, 3px) → 질문 → 입력 → 도움말 → 오류 줄이고, 아래에
-/// 주 버튼(`primary-button` filled)이 붙습니다. 키보드가 열리면 버튼이 키보드 위
-/// `space.16`에 붙고 위쪽 내용은 스크롤됩니다.
+/// 위에서부터 진행 막대(온보딩만, 3px) → 질문 → (머리말) → 입력 → 도움말 → 오류 줄이고,
+/// 아래에 주 버튼(`primary-button` filled)이 붙습니다. 머리말([preface])은 입력 전에
+/// 읽어야 할 소개 자리입니다(예: `birthplace`의 한국 표준 소개와 계산 기준 링크). 질문 아래
+/// `space.24`에 놓이고, 입력은 그 아래 `space.24`(`input.marginTop`)입니다. 없으면 기존
+/// 배치 그대로입니다. 머리말 위·아래 간격은 명세에 없어 design에 묻는 중입니다(#211).
+///
+/// 키보드가 열리면 버튼이 키보드 위 `space.16`에 붙고 위쪽 내용은 스크롤됩니다.
 ///
 /// [error]가 있으면 `out-of-range` 상태입니다. 오류 줄이 `appear.seep`으로 나타나고(빨간색
 /// 없이 `mark.caution` + 본문색), 스크린리더가 바로 읽으며(assertive 알림), 버튼은
@@ -50,6 +54,7 @@ class InputStep extends StatefulWidget {
     required Widget input,
     required String actionLabel,
     required VoidCallback? onAction,
+    Widget? preface,
     String? help,
     String? error,
     bool actionLoading = false,
@@ -64,6 +69,7 @@ class InputStep extends StatefulWidget {
          variant: variant,
          question: question,
          input: input,
+         preface: preface,
          actionLabel: actionLabel,
          onAction: onAction,
          help: help,
@@ -84,6 +90,7 @@ class InputStep extends StatefulWidget {
     required InputStepVariant variant,
     required String question,
     required Widget input,
+    Widget? preface,
     String? help,
     String? error,
     int? step,
@@ -96,6 +103,7 @@ class InputStep extends StatefulWidget {
          variant: variant,
          question: question,
          input: input,
+         preface: preface,
          actionLabel: null,
          onAction: null,
          help: help,
@@ -115,6 +123,7 @@ class InputStep extends StatefulWidget {
     required this.variant,
     required this.question,
     required this.input,
+    required this.preface,
     required this.actionLabel,
     required this.onAction,
     required this.help,
@@ -161,6 +170,21 @@ class InputStep extends StatefulWidget {
 
   /// 입력 위젯(text-field, segmented, 휠 등).
   final Widget input;
+
+  /// 질문과 입력 사이에 놓는 머리말. 없으면 그리지 않고 자리도 남기지 않습니다.
+  /// 위·아래 간격(지금 둘 다 `space.24`)은 design에 묻는 중입니다(#211).
+  ///
+  /// 글을 넣을 때는 도움말과 같은 [helpStyleOf] 스타일을 씁니다.
+  final Widget? preface;
+
+  /// 도움말 글자 스타일(`type.caption.lg` `text.secondary`). 머리말 글처럼 도움말과 같은
+  /// 스타일로 그려야 하는 글이 함께 씁니다.
+  static TextStyle helpStyleOf(BuildContext context) {
+    final tokens = context.tokens;
+    return tokens.typography.captionLg.copyWith(
+      color: tokens.colors.textSecondary,
+    );
+  }
 
   /// 도움말. 없으면 그리지 않습니다.
   final String? help;
@@ -213,6 +237,7 @@ class _InputStepState extends State<InputStep> {
     final actionLabel = widget.actionLabel;
     if (error != null) _shownError = error;
     final help = widget.help;
+    final preface = widget.preface;
 
     final content = <Widget>[
       const SizedBox(height: Space.s24),
@@ -224,17 +249,13 @@ class _InputStepState extends State<InputStep> {
         ),
       ),
       const SizedBox(height: Space.s24),
+      if (preface != null) ...[preface, const SizedBox(height: Space.s24)],
       widget.input,
       if (help != null) ...[
         const SizedBox(height: Space.s8),
         Semantics(
           identifier: widget.helpIdentifier,
-          child: Text(
-            help,
-            style: tokens.typography.captionLg.copyWith(
-              color: colors.textSecondary,
-            ),
-          ),
+          child: Text(help, style: InputStep.helpStyleOf(context)),
         ),
       ],
       SeepPresence(

@@ -15,7 +15,9 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -81,7 +83,151 @@ Future<void> _search(WidgetTester tester, String text) async {
 /// 결과 줄(첫 도시)을 누르는 대상.
 final Finder _newYork = find.text('New York City');
 
+final Finder _note = find.byKey(const ValueKey(SlotIds.birthplaceStandardNote));
+final Finder _link = find.byKey(const ValueKey(SlotIds.birthplaceStandardLink));
+
+/// 표준 소개 → 링크 → 검색칸 배치와 스타일·a11y를 확인합니다.
+void _expectStandardIntro(WidgetTester tester) {
+  // 소개는 도움말(input-step help)과 같은 글자 스타일입니다.
+  final noteText = tester.widget<Text>(_note);
+  final helpText = tester.widget<Text>(find.text(_en.birthplaceWhyBody));
+  expect(noteText.data, _en.birthplaceStandardNote);
+  expect(noteText.style, helpText.style);
+  expect(
+    find.bySemanticsIdentifier(SlotIds.birthplaceStandardNote),
+    findsOneWidget,
+  );
+
+  // 링크는 depth-link navigate이고 소개 바로 아래 space.12, 그 아래 검색칸입니다.
+  final link = tester.widget<DepthLink>(
+    find.ancestor(of: _link, matching: find.byType(DepthLink)),
+  );
+  expect(link.variant, DepthLinkVariant.navigate);
+  expect(link.label, _en.birthplaceStandardLink);
+  expect(
+    tester.getTopLeft(_link).dy,
+    tester.getBottomLeft(_note).dy + Space.s12,
+  );
+  expect(
+    tester.getTopLeft(find.byType(CitySearch)).dy,
+    greaterThan(tester.getBottomLeft(_link).dy),
+  );
+  final semantics = tester
+      .getSemantics(find.bySemanticsIdentifier(SlotIds.birthplaceStandardLink))
+      .getSemanticsData();
+  expect(semantics.flagsCollection.isLink, isTrue);
+  expect(semantics.label, _en.birthplaceStandardLink);
+}
+
+String _queryText(WidgetTester tester) =>
+    tester.widget<EditableText>(find.byType(EditableText)).controller.text;
+
 void main() {
+  testWidgets('온보딩: 한국 표준 소개, 바로 아래 계산 기준 링크, 그 아래 검색칸입니다', (tester) async {
+    covers(const Covers(decisions: ['D71']));
+    final handle = tester.ensureSemantics();
+    await _openBirthplace(tester);
+    _expectStandardIntro(tester);
+    handle.dispose();
+  });
+
+  testWidgets('수정 모드에도 한국 표준 소개와 계산 기준 링크가 있습니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    final container = await pumpApp(
+      tester,
+      scenario: 'member-overseas',
+      locale: _usa,
+    );
+    final router = container.read(routerProvider);
+    unawaited(router.push<void>(pathOf(ScreenIds.settings)));
+    await tester.pumpAndSettle();
+    unawaited(router.push<City>('${pathOf(ScreenIds.birthplace)}?mode=edit'));
+    await tester.pumpAndSettle();
+    _expectStandardIntro(tester);
+    handle.dispose();
+  });
+
+  testWidgets('링크를 누르면 calc-basis로 쌓이고, 돌아오면 검색어와 결과가 그대로입니다', (tester) async {
+    covers(const Covers(exits: ['birthplace>calc-basis'], decisions: ['D71']));
+    final container = await _openBirthplace(tester);
+    final fake = _fake(container);
+    await _search(tester, 'new');
+    await _settleIo(tester);
+    expect(_newYork, findsOneWidget);
+
+    await tester.tap(_link);
+    await _settleIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsOneWidget);
+
+    container.read(routerProvider).pop();
+    await _settleIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
+    expect(_queryText(tester), 'new');
+    expect(_newYork, findsOneWidget);
+    // 돌아와도 다시 검색하지 않습니다.
+    expect(fake.callCountOf('listCities'), 1);
+  });
+
+  testWidgets('수정 모드: 링크로 calc-basis에 갔다 돌아오면 검색어와 결과가 그대로입니다', (tester) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'member-overseas',
+      locale: _usa,
+    );
+    final fake = _fake(container);
+    final router = container.read(routerProvider);
+    unawaited(router.push<void>(pathOf(ScreenIds.settings)));
+    await tester.pumpAndSettle();
+    City? result;
+    unawaited(
+      router
+          .push<City>('${pathOf(ScreenIds.birthplace)}?mode=edit')
+          .then((value) => result = value),
+    );
+    await tester.pumpAndSettle();
+    await _search(tester, 'new');
+    await _settleIo(tester);
+    expect(_newYork, findsOneWidget);
+
+    await tester.tap(_link);
+    await _settleIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsOneWidget);
+
+    router.pop();
+    await _settleIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
+    expect(_queryText(tester), 'new');
+    expect(_newYork, findsOneWidget);
+    expect(fake.callCountOf('listCities'), 1);
+
+    // calc-basis를 닫아도 수정 모드의 값 돌려주기는 그대로입니다.
+    await tester.tap(_newYork);
+    await tester.pumpAndSettle();
+    expect(result?.id, '5128581');
+    expect(find.byKey(const ValueKey(ScreenIds.settings)), findsOneWidget);
+  });
+
+  testWidgets('도시를 고른 뒤 처리 중에는 링크를 눌러도 이동하지 않습니다', (tester) async {
+    final gate = Completer<void>();
+    await _openBirthplace(
+      tester,
+      scenario: 'profile-required',
+      overrides: [
+        onboardingFinishProvider.overrideWithValue(() => gate.future),
+      ],
+    );
+    await _search(tester, 'new');
+    await _settleIo(tester);
+
+    await tester.tap(_newYork);
+    await tester.pump();
+    await tester.tap(_link);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsNothing);
+    gate.complete();
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다', (tester) async {
     covers(const Covers(states: ['birthplace:loading'], decisions: ['D29']));
     // 응답이 1초 걸리는 시나리오라 받는 동안의 화면을 볼 수 있습니다.

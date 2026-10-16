@@ -165,8 +165,9 @@ jobs:
           profile: pixel_6
           disable-animations: true
           working-directory: app
-          # sh 한 줄이라 pipefail 없이 로그를 파일로 받고, 실패하면 로그를 보여 준다.
-          script: mkdir -p build && patrol test -t patrol_test --dart-define=API_MODE=fake --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; exit 1; }
+          # sh 한 줄이라 pipefail 없이 로그를 파일로 받고, 실패하면 로그를 보여 주고 기기 전체 logcat을 남긴다.
+          # Patrol 포트는 기본값(8081·8082) 대신 덜 쓰이는 47281·47282로 고정한다(로컬 Metro 등과 충돌 방지, app/CLAUDE.md와 같은 값).
+          script: mkdir -p build && patrol test -t patrol_test --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; adb logcat -d > build/logcat-full.txt; exit 1; }
         env:
           PATROL_ANALYTICS_ENABLED: "false"
       # Patrol 파일 이름(<타임스탬프>_<태그>.png)을 <화면>__<상태|default>-<흐름>.png로 모은다(흐름은 테스트마다 달라 이름이 겹치지 않는다).
@@ -184,7 +185,7 @@ jobs:
             app/build/e2e-native-screenshots/**
             app/build/patrol.log
           if-no-files-found: warn
-      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML.
+      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML, 기기 전체 logcat.
       - name: Gradle 보고서 올리기
         if: failure()
         uses: actions/upload-artifact@v7
@@ -193,6 +194,7 @@ jobs:
           path: |
             app/build/app/reports/androidTests/**
             app/build/app/outputs/androidTest-results/**
+            app/build/logcat-full.txt
           if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.

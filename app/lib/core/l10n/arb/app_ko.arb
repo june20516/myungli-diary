@@ -1103,6 +1103,10 @@
   "@evidenceSheetTitle": {
     "description": "근거 시트(sheet) 제목(#153)"
   },
+  "calcBasisTitle": "계산 기준",
+  "@calcBasisTitle": {
+    "description": "임시. 계산 기준(calc-basis) 화면 제목. IA 제목 슬롯이 생기면 writing 키로 바꿈(A30)"
+  },
   "direction8N": "북",
   "@direction8N": {
     "description": "glossary.value_name: direction8.n"

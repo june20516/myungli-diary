@@ -227,6 +227,76 @@ void main() {
       expect((scroll.padding! as EdgeInsets).bottom, 300 + Space.s16);
     });
 
+    testWidgets('preface는 질문 아래 space.24, 입력 위 space.24에 놓입니다', (tester) async {
+      const prefaceKey = ValueKey('preface');
+      const inputKey = ValueKey('input');
+      for (final step in [
+        const InputStep(
+          screenId: 'onboard-call',
+          variant: InputStepVariant.standalone,
+          question: '질문',
+          preface: SizedBox(key: prefaceKey, height: 40),
+          input: SizedBox(key: inputKey, height: 52),
+          actionLabel: '다음',
+          onAction: null,
+        ),
+        const InputStep.selectToAdvance(
+          screenId: 'birthplace',
+          variant: InputStepVariant.standalone,
+          question: '질문',
+          preface: SizedBox(key: prefaceKey, height: 40),
+          input: SizedBox(key: inputKey, height: 52),
+        ),
+      ]) {
+        await tester.pumpWidget(inputApp(step));
+        await tester.pumpAndSettle();
+        final questionBottom = tester.getBottomLeft(find.text('질문')).dy;
+        final prefaceRect = tester.getRect(find.byKey(prefaceKey));
+        expect(prefaceRect.top, questionBottom + Space.s24);
+        expect(
+          tester.getTopLeft(find.byKey(inputKey)).dy,
+          prefaceRect.bottom + Space.s24,
+        );
+      }
+    });
+
+    testWidgets('preface가 없으면 입력이 질문 아래 space.24 그대로입니다', (tester) async {
+      const inputKey = ValueKey('input');
+      await tester.pumpWidget(
+        inputApp(
+          const InputStep(
+            screenId: 'onboard-call',
+            variant: InputStepVariant.standalone,
+            question: '질문',
+            input: SizedBox(key: inputKey, height: 52),
+            actionLabel: '다음',
+            onAction: null,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(find.byKey(inputKey)).dy,
+        tester.getBottomLeft(find.text('질문')).dy + Space.s24,
+      );
+    });
+
+    testWidgets('helpStyleOf는 도움말과 같은 글자 스타일입니다', (tester) async {
+      late TextStyle shared;
+      await tester.pumpWidget(
+        inputApp(
+          Builder(
+            builder: (context) {
+              shared = InputStep.helpStyleOf(context);
+              return _step(help: '도움말');
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<Text>(find.text('도움말')).style, shared);
+    });
+
     testWidgets('글자 3.0배에서도 overflow 없이 스크롤됩니다', (tester) async {
       tester.view
         ..physicalSize = const Size(360, 640)
