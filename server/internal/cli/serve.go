@@ -23,6 +23,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
+	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
@@ -105,14 +106,18 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		}
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
+	contents := content.NewStore(pool, clock.System{}, logger)
+	readings := newReadings(contents, fortuneService, logger, clock.System{})
 
 	handler, err := newServer(settings, serverDeps{
-		Pool:   pool,
-		Charts: fortuneService,
-		Lunar:  engineClient,
-		Logger: logger,
-		Clock:  clock.System{},
-		HTTP:   newProviderHTTPClient(),
+		Pool:     pool,
+		Charts:   fortuneService,
+		Lunar:    engineClient,
+		Readings: readings,
+		Contents: contents,
+		Logger:   logger,
+		Clock:    clock.System{},
+		HTTP:     newProviderHTTPClient(),
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
 	})
@@ -278,12 +283,22 @@ type serverDeps struct {
 	// Charts는 프로필 저장 때 출생 정보를 엔진으로 검증하는 의존성입니다(fortune.Service).
 	Charts profile.ChartChecker
 	// Lunar는 음력 변환 operation이 부르는 엔진입니다(engine.Client).
-	Lunar  httpapi.LunarConverter
-	Logger *slog.Logger
-	Clock  clock.Clock
+	Lunar httpapi.LunarConverter
+	// Readings는 운세 operation의 화면 묶음입니다(fortune.Views). 비어 있으면 운세 operation은 503입니다.
+	Readings httpapi.Readings
+	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
+	Contents httpapi.Contents
+	Logger   *slog.Logger
+	Clock    clock.Clock
 	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
 	HTTP      *http.Client
 	Providers providerURLs
+}
+
+// newReadings는 운세 화면 묶음을 조립합니다. 문장 틀과 슬롯 명세는 시드 버전마다 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
+// 근거 열람 권한 판정은 P7 전까지 늘 잠김입니다(D60).
+func newReadings(store *content.Store, service *fortune.Service, logger *slog.Logger, clk clock.Clock) *fortune.Views {
+	return fortune.NewViews(service, store, content.NewRenderer(logger), fortune.AlwaysLocked{}, clk, logger)
 }
 
 // newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
@@ -355,6 +370,8 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Accounts: accountService,
 		Profiles: profileService,
 		Lunar:    deps.Lunar,
+		Readings: deps.Readings,
+		Contents: deps.Contents,
 		DB:       deps.Pool,
 		Logger:   deps.Logger,
 		AppLink:  settings.appLink,

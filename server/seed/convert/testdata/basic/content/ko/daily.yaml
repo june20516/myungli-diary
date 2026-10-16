@@ -1,0 +1,5 @@
+- {slot: daily.fortune.head, key: fortune.a, type: advice, text: "{name}님, [[식상]]을 살려 보세요."}
+- {slot: daily.fortune.head, key: fortune.a, type: state, text: "[[편관|ten_god.pyeongwan]]과 [[{ten_god}]]의 날이에요."}
+- {slot: daily.fortune.head, key: fortune.a, type: care, text: "쉬어도 괜찮아요."}
+- {slot: daily.guide, key: guide.a, variant: 1, text: "하나"}
+- {slot: daily.guide, key: guide.a, variant: 2, text: "둘"}

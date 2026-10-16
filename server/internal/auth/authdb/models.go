@@ -64,6 +64,28 @@ type Consent struct {
 	CreatedAt time.Time
 }
 
+type ContentHanja struct {
+	SeedVersion string
+	Term        string
+	Hanja       string
+}
+
+type ContentSeed struct {
+	Version   string
+	Slots     []byte
+	AppliedAt time.Time
+	Active    bool
+}
+
+type ContentTemplate struct {
+	SeedVersion string
+	Slot        string
+	Key         string
+	Variant     string
+	Lang        string
+	Body        string
+}
+
 type DailyCache struct {
 	BirthHash       []byte
 	RulesetVersion  string
@@ -71,6 +93,18 @@ type DailyCache struct {
 	CurrentTimezone string
 	Response        []byte
 	CreatedAt       time.Time
+}
+
+type DailySelection struct {
+	ID          int64
+	AccountID   uuid.UUID
+	Date        pgtype.Date
+	Slot        string
+	BirthHash   []byte
+	MessageKey  string
+	Variant     string
+	SeedVersion string
+	CreatedAt   time.Time
 }
 
 type MonthCache struct {
@@ -108,6 +142,13 @@ type Profile struct {
 	UpdatedAt        time.Time
 }
 
+type Reaction struct {
+	SelectionID int64
+	Reaction    string
+	CreatedAt   time.Time
+	DeletedAt   *time.Time
+}
+
 type RefreshToken struct {
 	ID           uuid.UUID
 	AccountID    uuid.UUID
@@ -118,4 +159,10 @@ type RefreshToken struct {
 	ReplacedByID uuid.NullUUID
 	RevokedAt    *time.Time
 	CreatedAt    time.Time
+}
+
+type RotationState struct {
+	AccountID   uuid.UUID
+	MessageKey  string
+	NextVariant string
 }

@@ -1,0 +1,3 @@
+- id: a.line
+  keys: [a.one]
+  variants: {count: 1}

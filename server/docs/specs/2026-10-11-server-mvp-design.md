@@ -150,11 +150,14 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 테이블 | 주요 열 | 비고 |
 | --- | --- | --- |
-| `content_seeds` | version, source_commit, applied_at, active | 시드 버전. active는 하나 |
-| `content_templates` | seed_version, message_key, variant, lang, body | 문장 틀 id = (message_key, variant). 언어와 무관 |
-| `daily_selections` | account_id, date, slot, message_key, variant, seed_version, created_at | unique(account_id, date, slot). D59②의 선택 기록 |
+| `content_seeds` | version, slots, applied_at, active | 시드 버전. slots는 그 버전의 슬롯 명세(jsonb, 호칭 사용·매개변수 값 종류·순환 방식)로, 옛 버전으로 고른 문장을 그 버전의 명세로 렌더하려고 버전마다 저장합니다(S45). active는 partial unique로 하나. 출처 commit 열은 두지 않습니다. 시드 파일에 commit을 적으면 commit마다 파일이 바뀌어 생성 차이 검사(§6.1)가 깨지고, 버전(내용 해시)이 출처를 대신합니다(S44) |
+| `content_templates` | seed_version, slot, key, variant, lang, body | 기본 키 (seed_version, slot, key, variant, lang)(S33). 문장 틀 id = (slot, key, variant). 같은 식별자 키가 여러 슬롯에 있어 slot을 키에 넣습니다 |
+| `content_hanja` | seed_version, term, hanja | 용어 id → 한자 표기. 언어와 무관한 한 벌(writing `content/hanja.yaml`, S43) |
+| `daily_selections` | id, account_id, date, slot, birth_hash, message_key, variant, seed_version, created_at | unique(account_id, date, slot, birth_hash)(S34). D59②의 선택 기록. birth_hash는 값이 있으면 32바이트 CHECK이고, 익명화 때 비우므로 NULL을 허용합니다(§9) |
 | `rotation_state` | account_id, message_key, next_variant | 키별 다음 차례 |
-| `reactions` | selection_id(FK `daily_selections`), reaction, created_at, deleted_at | 반응 취소는 soft delete |
+| `reactions` | selection_id(FK `daily_selections`), reaction, created_at, deleted_at | 반응 취소는 soft delete. partial unique(selection_id) WHERE deleted_at IS NULL(`reactions_one_active`)이라 취소한 이력은 남고 새 반응은 새 행입니다(S39) |
+
+콘텐츠 표의 FK는 모두 `ON DELETE RESTRICT`입니다. 계정은 물리 삭제하지 않고 익명화하기 때문입니다(§9).
 
 **알림·결제·기타**
 
@@ -255,29 +258,36 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 * 원본은 `docs/identity/writing/content/<lang>/*.yaml`입니다(D59①).
 * 이미지는 `server/`만으로 빌드하므로(D56④) 원고를 바로 읽지 않습니다. 변환 도구(`go run ./seed/cmd/convert`)가 원고를 시드 파일 `server/seed/data/content.json`으로 바꾸고, 이 파일을 commit합니다. proto 생성 코드(D33)와 같은 방식입니다. 시드 버전은 파일 내용의 해시입니다.
-* `seed` Job은 이미지에 포함된 시드 파일을 `content_templates`의 새 `seed_version`으로 넣고 active로 바꿉니다. 같은 버전이 이미 있으면 아무것도 하지 않습니다. 이전 버전 행은 남깁니다. 선택 기록이 그 버전을 가리키기 때문입니다.
-* 시드 CI는 다음을 확인합니다. 하나라도 실패하면 병합을 막습니다.
-  1. `uv run --project docs/identity/writing/tools mlw check <원고 경로>`가 0으로 끝나는지
+* 변환 도구는 `[[글자]]` 용어 토큰을 glossary로 역조회해 `[[글자|용어 id]]`로 바꿔 저장합니다. 실행 중에는 역조회하지 않습니다(S35). 시드 파일은 `go generate ./seed/`로 다시 만듭니다.
+* `seed` Job은 이미지에 포함된 시드 파일을 `content_templates`의 새 `seed_version`으로 넣고 active로 바꿉니다. 그 버전의 슬롯 명세도 `content_seeds.slots`에 함께 저장합니다. 서버는 문장을 렌더하거나 고를 때 그 문장의 시드 버전 명세를 읽으므로(데일리는 선택 기록의 버전, 캘린더·사주 표·용어 사전은 active), 바이너리에 내장된 명세에 기대지 않습니다(S45). 같은 버전이 이미 있으면 아무것도 하지 않습니다. 이전 버전 행은 남깁니다. 선택 기록이 그 버전을 가리키기 때문입니다.
+* `serve`는 시드를 넣지 않습니다. active 시드가 없으면 콘텐츠 operation은 503 `service.unavailable`과 Error 로그입니다(S37).
+* 시드 CI(`server.yml`)는 다음을 확인합니다. 하나라도 실패하면 병합을 막습니다.
+  1. `uv sync --frozen` 뒤 `uv run mlw check ../content --partial`(작업 디렉터리 `docs/identity/writing/tools`)이 0으로 끝나는지
   2. `core/message_keys.json`의 모든 키 × 3개 언어 × 필요한 변주가 있는지
-  3. 매개변수 이름이 core가 제공할 매개변수 목록(`core/message_params.json`, Issue #38)과 맞는지
-  4. 원고를 다시 변환한 결과가 commit된 시드 파일과 같은지
+  3. 매개변수 이름이 core가 제공할 매개변수 목록(`core/message_params.json`, Issue #38)과 맞는지. 1번의 `mlw check`가 함께 봅니다(슬롯 명세 `params` 대조). `--partial`은 빠진 원고 보고만 끄므로 이 검사는 늘 켜져 있습니다
+  4. 원고를 다시 변환한 결과가 commit된 시드 파일과 같은지(`go generate ./...` 뒤 `git status --porcelain`이 비었는지)
+* 원고가 W1로 다 오기 전까지는 1번을 `--partial`로 돌리고, 2번은 변환 도구가 빠진 (slot, key, variant, lang)을 `missing:` 줄로 출력만 합니다(S38). W1이 끝나면 `--partial`을 빼고 변환 도구에 `-strict`(빠진 원고가 있으면 실패)를 켭니다.
 
 ### 6.2 문장 선택 (D59②)
 
 `GET /v1/daily/{date}`를 예로 듭니다. 알림 Job도 같은 함수를 씁니다(§8.2).
 
+선택 기록은 `getDaily`의 문장 슬롯 전부(`daily.fortune.head`·`tag`, `daily.guide`, `daily.color`, `daily.direction`, `daily.number`, `daily.focus_time`, `character.reason`)에 남깁니다. 캘린더·사주 표는 기록하지 않고 active 시드로 렌더합니다. 순환이 없고, 기록하면 한 달에 60줄이 쌓이기 때문입니다.
+
 1. 엔진 결과(§7)에서 슬롯마다 메시지 키를 얻습니다.
 2. 슬롯마다 `daily_selections`를 (계정, 날짜, 슬롯, **사주 지문**)으로 봅니다(S23, Issue #92). 사주 지문은 엔진 입력이 되는 출생 정보(생년월일시, 달력·윤달, 시간 모름, 성별, 출생 시간대·경도)를 정규화한 SHA-256입니다. 호칭·현재 시간대처럼 엔진 결과를 바꾸지 않는 값은 넣지 않습니다.
    * 기록이 있고 메시지 키가 지금 결과와 같으면 그 (키, 변주, 시드 버전)을 씁니다. 두 기기와 다시 열기가 같은 문장을 봅니다.
-   * 기록이 없거나 메시지 키가 달라졌으면 새로 고릅니다. 사주 정보를 바꾸면 지문이 달라지므로 같은 날이라도 새로 고릅니다. app은 사주를 바꿀 때 "오늘·달력·나의 사주가 다시 계산된다"고 알립니다(#84).
+   * 기록이 없거나 메시지 키가 달라졌으면 새로 고릅니다. 같은 지문에서 키만 달라졌으면(하루 중 ruleset 변경 등) 그 행을 고쳐 쓰고, 그 행의 반응은 soft delete합니다. 새 문장에 옛 반응이 붙지 않게 하려는 것입니다(S34). 사주 정보를 바꾸면 지문이 달라지므로 같은 날이라도 새로 고릅니다. app은 사주를 바꿀 때 "오늘·달력·나의 사주가 다시 계산된다"고 알립니다(#84).
    * 옛 지문의 기록은 지우지 않습니다. 그 기록에 붙은 문장 반응(D57)은 그대로 성향 자료로 씁니다. 일기는 그때 보인 질문의 원문을 따로 남기므로(D59④) 영향이 없습니다.
 3. 새로 고르는 규칙
    * 총운 슬롯(D57①): `rotation_state`의 `advice → state → care` 차례. 새 사용자는 `advice`부터입니다.
    * 차례가 `care`인데 돌봄 상한(하루 2개, 최근 7일 7개, W14)에 걸리면 `care`를 건너뛰고 다음 차례를 씁니다. 상한은 `daily_selections`로 세되 (날짜, 슬롯)마다 한 번만 셉니다. 하루 안에 사주를 바꿔 같은 슬롯에 `care` 기록이 둘 생겨도 하나로 봅니다.
    * `rotation_state`는 사주를 바꿔 다시 고를 때도 한 칸 넘깁니다. 같은 날 다시 고른 문장이 앞 문장과 같은 유형이 되지 않게 하려는 것입니다.
+   * 같은 (계정, 날짜, 슬롯)에 다른 지문의 기록이 있으면 그 유형과 같은 차례는 건너뜁니다.
+   * 두 규칙이 부딪히면 돌봄 상한이 먼저입니다(S41). 차례부터 보아 상한에도 걸리지 않고 같은 날 유형과도 겹치지 않는 첫 후보를 씁니다. 그런 후보가 없으면 유형 회피만 풀고, 차례부터 상한에 걸리지 않는 첫 후보를 씁니다(`advice`·`state`는 상한이 없어 늘 있습니다).
    * 가이드 질문: 변주 1 → 2.
    * 정보 슬롯과 식별자 문구: 변주 하나, 순환 없음.
-4. 새로 고른 결과를 기록하고 `rotation_state`를 한 칸 넘깁니다. 같은 트랜잭션에서 하고, 동시 요청은 unique 제약으로 하나만 남깁니다(진 쪽은 다시 읽음).
+4. 새로 고른 결과를 기록하고 `rotation_state`를 실제로 고른 것의 다음 차례로 넘깁니다. 같은 트랜잭션에서 하고, 트랜잭션 처음에 계정 단위 advisory lock(`pg_advisory_xact_lock`, int4 키 둘)을 겁니다(S40). 날짜·지문이 다른 동시 요청도 같은 계정이면 차례로 처리해, 순환을 잃거나 돌봄 상한을 넘지 않습니다. unique 제약은 그 위의 마지막 방어입니다.
 5. 언어를 바꿔도 선택은 그대로 두고, 같은 (키, 변주, 시드 버전)을 새 언어로 렌더합니다.
 
 ### 6.3 렌더 (계약 "호칭·조사 처리 규칙" v1)
@@ -298,14 +308,16 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 용어 토큰은 위치 숫자 대신 조각 배열로 보냅니다.
 
 ```json
-{"segments": [{"text": "오늘은 "}, {"text": "편관", "term": "편관"}, {"text": "의 기운이…"}]}
+{"segments": [{"text": "오늘은 "}, {"text": "편관", "term": "ten_god.pyeongwan"}, {"text": "의 기운이…"}]}
 ```
 
-위치 숫자는 Dart(UTF-16)와 Go(UTF-8)가 글자를 세는 방식이 달라 어긋나기 쉽습니다. `term` 값과 표시 방식은 app·design과 정합니다(§13).
+위치 숫자는 Dart(UTF-16)와 Go(UTF-8)가 글자를 세는 방식이 달라 어긋나기 쉽습니다. `term`은 용어 id(`<범주>.<값>` 또는 `tag.<키>`, #129)이고, app은 이것으로 `Glossary`의 뜻·한자를 찾습니다. 응답에 `[[`·`]]`·`|용어 id`는 남지 않습니다.
 
 * 데일리 응답에는 세 깊이(surface / explain / evidence)를 한 번에 담습니다. 크기가 작고, 펼칠 때마다 다시 부르지 않게 하려는 것입니다.
 * **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①). 그래서 판정 근거·원전 문장(`Evidence.basis`·`source`)은 `evidence[]`와 함께 빠지고, 오늘 그런 이유(`SlotText.todayReason`, writing `explain.today_reason`)와 용어 뜻·한자(`Glossary.meanings`·`hanja`)는 남습니다.
-* 실행 중에 템플릿이 없으면(CI가 막으므로 원래 일어나지 않음) 그 슬롯만 빼고 오류 로그를 남깁니다.
+* 잠긴 응답은 근거 문장을 아예 렌더하지 않습니다(S42). 버릴 문장을 만들지 않고, 원고가 없을 때의 오류 로그도 줄입니다.
+* 실행 중에 템플릿이 없으면(CI가 막으므로 원래 일어나지 않음) 그 슬롯(선택 필드)만 빼고 Error 로그를 남깁니다. 필수 문장 필드는 빈 `segments`로 채우고 같은 로그를 남깁니다. 빠진 언어를 다른 언어로 대신하지 않습니다.
+* `Notice.text`는 writing 문구 슬롯이 오기 전까지(#232) 빈 `segments`입니다. app은 `code`로 자기 문구를 씁니다.
 
 ## 7. 엔진 연동과 캐시 (D26·D31)
 
@@ -370,10 +382,11 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 | `profiles` | 호칭을 `deleted user`로 바꿈. 출생 정보와 `birth_hash`는 비움(anonymized_at 기록) |
 | `diaries`, `schedules` | 본문·가이드 질문·제목·메모를 비움. 날짜와 태그는 남김 |
 | `devices` | 토큰을 지우고 비활성 |
-| 남기는 것 | `consents`, `daily_selections`, `rotation_state`, `reactions`, `entitlement_grants`, `billing_events`, `reward_events`, `notification_log` |
+| `daily_selections` | 행은 남기고 `birth_hash`만 비움(NULL) |
+| 남기는 것 | `consents`, `daily_selections`(birth_hash 제외), `rotation_state`, `reactions`, `entitlement_grants`, `billing_events`, `reward_events`, `notification_log` |
 
 * **출생 정보는 가짜 값으로 채우지 않고 비웁니다.** 더미 생일은 통계에서 진짜 값과 섞입니다. 왜 비었는지는 `anonymized_at`이 설명합니다.
-* **`birth_hash`도 비웁니다.** 생년월일시는 경우의 수가 작아서 해시만 남아도 원래 값을 되찾을 수 있습니다. 캐시 행은 계정과 연결되지 않으므로 그대로 두었다가 보존 기간이 지나면 지웁니다.
+* **`birth_hash`도 비웁니다.** 생년월일시는 경우의 수가 작아서 해시만 남아도 원래 값을 되찾을 수 있습니다. `daily_selections.birth_hash`도 같은 이유로 비웁니다. 그 열은 계정과 연결돼 있어 남기면 익명화한 계정의 생년월일시를 되찾을 수 있기 때문입니다. 선택 기록의 나머지(날짜·슬롯·메시지 키·변주)와 반응은 성향 자료라 남깁니다. 캐시 행은 계정과 연결되지 않으므로 그대로 두었다가 보존 기간이 지나면 지웁니다.
 * **일기 본문을 남기지 않습니다.** 개인정보보호법은 다른 정보와 합쳐도 개인을 알아볼 수 없을 때만 익명 정보로 봅니다. 자유 서술인 본문과 호칭이 들어간 가이드 질문은 그 기준을 넘기 어렵습니다.
 * **남기는 태그·메시지 키에 대한 판단:** 이 값들은 원국에서 나오므로, 날짜별로 쌓이면 원국을 어느 정도 거꾸로 짐작할 수 있습니다. 하지만 원국이 같은 사람은 많아서, 이것만으로는 생년월일시도 개인도 특정하지 못합니다. 그래서 남깁니다.
 * RevenueCat의 고객 기록은 지우지 않습니다. app_user_id가 계정 UUID라 개인을 가리키지 않고, 결제 기록 보관 의무가 있기 때문입니다.

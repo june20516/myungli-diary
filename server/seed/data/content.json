@@ -1,0 +1,2126 @@
+{
+  "version": "e643e4edd2609e44",
+  "slots": {
+    "calendar.day_level": {
+      "id": "calendar.day_level",
+      "rotation": "none",
+      "params": {
+        "score": {
+          "kind": "number"
+        }
+      }
+    },
+    "calendar.score_item": {
+      "id": "calendar.score_item",
+      "rotation": "none"
+    },
+    "calendar.solar_term": {
+      "id": "calendar.solar_term",
+      "rotation": "none"
+    },
+    "character.reason": {
+      "id": "character.reason",
+      "rotation": "none"
+    },
+    "chart.ilgan_body": {
+      "id": "chart.ilgan_body",
+      "rotation": "none"
+    },
+    "chart.ilgan_head": {
+      "id": "chart.ilgan_head",
+      "vocative": true,
+      "rotation": "none"
+    },
+    "chart.yongsin_method": {
+      "id": "chart.yongsin_method",
+      "rotation": "none",
+      "params": {
+        "gisin": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "huisin": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "tonggwan": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "yongsin": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        }
+      }
+    },
+    "chart.yongsin_summary": {
+      "id": "chart.yongsin_summary",
+      "rotation": "none",
+      "params": {
+        "yongsin": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        }
+      }
+    },
+    "daily.color": {
+      "id": "daily.color",
+      "rotation": "none",
+      "params": {
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "role": {
+          "kind": "none"
+        }
+      }
+    },
+    "daily.direction": {
+      "id": "daily.direction",
+      "rotation": "none",
+      "params": {
+        "direction": {
+          "kind": "category",
+          "categories": [
+            "direction8"
+          ]
+        },
+        "rule_id": {
+          "kind": "none"
+        }
+      }
+    },
+    "daily.focus_reason": {
+      "id": "daily.focus_reason",
+      "rotation": "none"
+    },
+    "daily.focus_time": {
+      "id": "daily.focus_time",
+      "rotation": "none",
+      "params": {
+        "branches": {
+          "kind": "list",
+          "list_category": "branch"
+        },
+        "score": {
+          "kind": "number"
+        }
+      }
+    },
+    "daily.fortune.head": {
+      "id": "daily.fortune.head",
+      "vocative": true,
+      "rotation": "type",
+      "params": {
+        "day_kind": {
+          "kind": "category",
+          "categories": [
+            "day_kind"
+          ]
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "emphasis": {
+          "kind": "none"
+        },
+        "ten_god": {
+          "kind": "category",
+          "categories": [
+            "ten_god",
+            "ten_god_group"
+          ]
+        }
+      }
+    },
+    "daily.fortune.tag": {
+      "id": "daily.fortune.tag",
+      "rotation": "type",
+      "params": {
+        "day_kind": {
+          "kind": "category",
+          "categories": [
+            "day_kind"
+          ]
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "emphasis": {
+          "kind": "none"
+        },
+        "ten_god": {
+          "kind": "category",
+          "categories": [
+            "ten_god",
+            "ten_god_group"
+          ]
+        }
+      }
+    },
+    "daily.guide": {
+      "id": "daily.guide",
+      "rotation": "variant",
+      "params": {
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "ten_god": {
+          "kind": "category",
+          "categories": [
+            "ten_god",
+            "ten_god_group"
+          ]
+        }
+      }
+    },
+    "daily.number": {
+      "id": "daily.number",
+      "rotation": "none",
+      "params": {
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "number": {
+          "kind": "number"
+        }
+      }
+    },
+    "daily.tag_label": {
+      "id": "daily.tag_label",
+      "rotation": "none"
+    },
+    "evidence.basis": {
+      "id": "evidence.basis",
+      "rotation": "none",
+      "params": {
+        "all": {
+          "kind": "none"
+        },
+        "basis": {
+          "kind": "none"
+        },
+        "breakdown": {
+          "kind": "none"
+        },
+        "current": {
+          "kind": "none"
+        },
+        "day_branch": {
+          "kind": "none"
+        },
+        "day_kind": {
+          "kind": "none"
+        },
+        "day_stem": {
+          "kind": "none"
+        },
+        "deity": {
+          "kind": "none"
+        },
+        "direction": {
+          "kind": "none"
+        },
+        "element": {
+          "kind": "none"
+        },
+        "featured": {
+          "kind": "none"
+        },
+        "gisin": {
+          "kind": "none"
+        },
+        "group": {
+          "kind": "none"
+        },
+        "group_count": {
+          "kind": "none"
+        },
+        "luck": {
+          "kind": "none"
+        },
+        "month_branch": {
+          "kind": "none"
+        },
+        "note": {
+          "kind": "none"
+        },
+        "number": {
+          "kind": "none"
+        },
+        "parity": {
+          "kind": "none"
+        },
+        "part": {
+          "kind": "none"
+        },
+        "picks": {
+          "kind": "none"
+        },
+        "place": {
+          "kind": "none"
+        },
+        "role": {
+          "kind": "none"
+        },
+        "score": {
+          "kind": "none"
+        },
+        "share": {
+          "kind": "none"
+        },
+        "strength": {
+          "kind": "none"
+        },
+        "strength_level": {
+          "kind": "none"
+        },
+        "strength_score": {
+          "kind": "none"
+        },
+        "ten_god": {
+          "kind": "none"
+        },
+        "threshold": {
+          "kind": "none"
+        },
+        "yongsin": {
+          "kind": "none"
+        }
+      }
+    },
+    "evidence.source": {
+      "id": "evidence.source",
+      "rotation": "none"
+    },
+    "explain.today_reason": {
+      "id": "explain.today_reason",
+      "rotation": "none"
+    },
+    "glossary.value_name": {
+      "id": "glossary.value_name",
+      "rotation": "none"
+    },
+    "personal.day_master": {
+      "id": "personal.day_master",
+      "rotation": "none",
+      "params": {
+        "gisin": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "strength": {
+          "kind": "category",
+          "categories": [
+            "strength"
+          ]
+        },
+        "yongsin": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        }
+      }
+    },
+    "personal.luck": {
+      "id": "personal.luck",
+      "rotation": "none",
+      "params": {
+        "current": {
+          "kind": "none"
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "luck": {
+          "kind": "category",
+          "categories": [
+            "luck"
+          ]
+        },
+        "part": {
+          "kind": "category",
+          "categories": [
+            "part"
+          ]
+        },
+        "role": {
+          "kind": "category",
+          "categories": [
+            "role"
+          ]
+        }
+      }
+    },
+    "personal.shinsal": {
+      "id": "personal.shinsal",
+      "rotation": "none",
+      "params": {
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "place": {
+          "kind": "category",
+          "categories": [
+            "place"
+          ]
+        },
+        "role": {
+          "kind": "category",
+          "categories": [
+            "role"
+          ]
+        }
+      }
+    },
+    "personal.ten_god": {
+      "id": "personal.ten_god",
+      "rotation": "none",
+      "params": {
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "group_count": {
+          "kind": "number"
+        },
+        "place": {
+          "kind": "category",
+          "categories": [
+            "place"
+          ]
+        },
+        "role": {
+          "kind": "category",
+          "categories": [
+            "role"
+          ]
+        },
+        "strength": {
+          "kind": "category",
+          "categories": [
+            "strength"
+          ]
+        }
+      }
+    },
+    "personal.twelve_stage": {
+      "id": "personal.twelve_stage",
+      "rotation": "none",
+      "params": {
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "place": {
+          "kind": "category",
+          "categories": [
+            "place"
+          ]
+        },
+        "role": {
+          "kind": "category",
+          "categories": [
+            "role"
+          ]
+        },
+        "strength": {
+          "kind": "category",
+          "categories": [
+            "strength"
+          ]
+        }
+      }
+    },
+    "system.apple_return": {
+      "id": "system.apple_return",
+      "rotation": "none"
+    },
+    "term.meaning": {
+      "id": "term.meaning",
+      "rotation": "none"
+    }
+  },
+  "templates": [
+    {
+      "slot": "calendar.solar_term",
+      "key": "baengno",
+      "variant": "single",
+      "lang": "en",
+      "body": "Dew"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "baengno",
+      "variant": "single",
+      "lang": "ja",
+      "body": "白露"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "baengno",
+      "variant": "single",
+      "lang": "ko",
+      "body": "백로"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "cheongmyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Clear"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "cheongmyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "清明"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "cheongmyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "청명"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "cheoseo",
+      "variant": "single",
+      "lang": "en",
+      "body": "E.Heat"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "cheoseo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "処暑"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "cheoseo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "처서"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "chubun",
+      "variant": "single",
+      "lang": "en",
+      "body": "Au.Eq"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "chubun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "秋分"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "chubun",
+      "variant": "single",
+      "lang": "ko",
+      "body": "추분"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "chunbun",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sp.Eq"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "chunbun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "春分"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "chunbun",
+      "variant": "single",
+      "lang": "ko",
+      "body": "춘분"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daehan",
+      "variant": "single",
+      "lang": "en",
+      "body": "G.Cold"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daehan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大寒"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daehan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "대한"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daeseo",
+      "variant": "single",
+      "lang": "en",
+      "body": "G.Heat"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daeseo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大暑"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daeseo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "대서"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daeseol",
+      "variant": "single",
+      "lang": "en",
+      "body": "G.Snow"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daeseol",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大雪"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "daeseol",
+      "variant": "single",
+      "lang": "ko",
+      "body": "대설"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "dongji",
+      "variant": "single",
+      "lang": "en",
+      "body": "Wi.Sol"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "dongji",
+      "variant": "single",
+      "lang": "ja",
+      "body": "冬至"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "dongji",
+      "variant": "single",
+      "lang": "ko",
+      "body": "동지"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "gogu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Grain"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "gogu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "穀雨"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "gogu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "곡우"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "gyeongchip",
+      "variant": "single",
+      "lang": "en",
+      "body": "Insect"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "gyeongchip",
+      "variant": "single",
+      "lang": "ja",
+      "body": "啓蟄"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "gyeongchip",
+      "variant": "single",
+      "lang": "ko",
+      "body": "경칩"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "haji",
+      "variant": "single",
+      "lang": "en",
+      "body": "Su.Sol"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "haji",
+      "variant": "single",
+      "lang": "ja",
+      "body": "夏至"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "haji",
+      "variant": "single",
+      "lang": "ko",
+      "body": "하지"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "hallo",
+      "variant": "single",
+      "lang": "en",
+      "body": "C.Dew"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "hallo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "寒露"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "hallo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "한로"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipchu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Autumn"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipchu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "立秋"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipchu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "입추"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipchun",
+      "variant": "single",
+      "lang": "en",
+      "body": "Spring"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipchun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "立春"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipchun",
+      "variant": "single",
+      "lang": "ko",
+      "body": "입춘"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipdong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Winter"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipdong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "立冬"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipdong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "입동"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipha",
+      "variant": "single",
+      "lang": "en",
+      "body": "Summer"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipha",
+      "variant": "single",
+      "lang": "ja",
+      "body": "立夏"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "ipha",
+      "variant": "single",
+      "lang": "ko",
+      "body": "입하"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "mangjong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Ear"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "mangjong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "芒種"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "mangjong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "망종"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "sanggang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Frost"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "sanggang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "霜降"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "sanggang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "상강"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "sohan",
+      "variant": "single",
+      "lang": "en",
+      "body": "S.Cold"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "sohan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "小寒"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "sohan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "소한"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soman",
+      "variant": "single",
+      "lang": "en",
+      "body": "Buds"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soman",
+      "variant": "single",
+      "lang": "ja",
+      "body": "小満"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soman",
+      "variant": "single",
+      "lang": "ko",
+      "body": "소만"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soseo",
+      "variant": "single",
+      "lang": "en",
+      "body": "S.Heat"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soseo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "小暑"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soseo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "소서"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soseol",
+      "variant": "single",
+      "lang": "en",
+      "body": "S.Snow"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soseol",
+      "variant": "single",
+      "lang": "ja",
+      "body": "小雪"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "soseol",
+      "variant": "single",
+      "lang": "ko",
+      "body": "소설"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "usu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Rain"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "usu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "雨水"
+    },
+    {
+      "slot": "calendar.solar_term",
+      "key": "usu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "우수"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.chuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "Ox"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.chuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "丑"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.chuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "축"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.hae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Pig"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.hae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "亥"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.hae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "해"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.in",
+      "variant": "single",
+      "lang": "en",
+      "body": "Tiger"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.in",
+      "variant": "single",
+      "lang": "ja",
+      "body": "寅"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.in",
+      "variant": "single",
+      "lang": "ko",
+      "body": "인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "Rat"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "子"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "자"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.jin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Dragon"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.jin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "辰"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.jin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "진"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.mi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Goat"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.mi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "未"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.mi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "미"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.myo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Rabbit"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.myo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "卯"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.myo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "묘"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.o",
+      "variant": "single",
+      "lang": "en",
+      "body": "Horse"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.o",
+      "variant": "single",
+      "lang": "ja",
+      "body": "午"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.o",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.sa",
+      "variant": "single",
+      "lang": "en",
+      "body": "Snake"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.sa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "巳"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.sa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "사"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.shin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Monkey"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.shin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "申"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.shin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.sul",
+      "variant": "single",
+      "lang": "en",
+      "body": "Dog"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.sul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "戌"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.sul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "술"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.yu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Rooster"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.yu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "酉"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch.yu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "유"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "color.earth",
+      "variant": "single",
+      "lang": "ja",
+      "body": "黄色"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "color.fire",
+      "variant": "single",
+      "lang": "ja",
+      "body": "赤"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "color.metal",
+      "variant": "single",
+      "lang": "ja",
+      "body": "白"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "color.water",
+      "variant": "single",
+      "lang": "ja",
+      "body": "紺色"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "color.wood",
+      "variant": "single",
+      "lang": "ja",
+      "body": "緑"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.gisin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "Day to go gently"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.gisin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "忌神の日"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.gisin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기신의 날"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.gwiin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "Day of helpers"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.gwiin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "貴人の日"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.gwiin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "귀인의 날"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.ordinary_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "Ordinary day"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.ordinary_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "普通の日"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.ordinary_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "평범한 날"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.yongsin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "Day in your favor"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.yongsin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "用神の日"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "day_kind.yongsin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "용신의 날"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.e",
+      "variant": "single",
+      "lang": "en",
+      "body": "East"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.e",
+      "variant": "single",
+      "lang": "ja",
+      "body": "東"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.e",
+      "variant": "single",
+      "lang": "ko",
+      "body": "동"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.n",
+      "variant": "single",
+      "lang": "en",
+      "body": "North"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.n",
+      "variant": "single",
+      "lang": "ja",
+      "body": "北"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.n",
+      "variant": "single",
+      "lang": "ko",
+      "body": "북"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.ne",
+      "variant": "single",
+      "lang": "en",
+      "body": "Northeast"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.ne",
+      "variant": "single",
+      "lang": "ja",
+      "body": "北東"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.ne",
+      "variant": "single",
+      "lang": "ko",
+      "body": "북동"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.nw",
+      "variant": "single",
+      "lang": "en",
+      "body": "Northwest"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.nw",
+      "variant": "single",
+      "lang": "ja",
+      "body": "北西"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.nw",
+      "variant": "single",
+      "lang": "ko",
+      "body": "북서"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.s",
+      "variant": "single",
+      "lang": "en",
+      "body": "South"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.s",
+      "variant": "single",
+      "lang": "ja",
+      "body": "南"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.s",
+      "variant": "single",
+      "lang": "ko",
+      "body": "남"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.se",
+      "variant": "single",
+      "lang": "en",
+      "body": "Southeast"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.se",
+      "variant": "single",
+      "lang": "ja",
+      "body": "南東"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.se",
+      "variant": "single",
+      "lang": "ko",
+      "body": "남동"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.sw",
+      "variant": "single",
+      "lang": "en",
+      "body": "Southwest"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.sw",
+      "variant": "single",
+      "lang": "ja",
+      "body": "南西"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.sw",
+      "variant": "single",
+      "lang": "ko",
+      "body": "남서"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.w",
+      "variant": "single",
+      "lang": "en",
+      "body": "West"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.w",
+      "variant": "single",
+      "lang": "ja",
+      "body": "西"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "direction8.w",
+      "variant": "single",
+      "lang": "ko",
+      "body": "서"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "element.earth",
+      "variant": "single",
+      "lang": "ja",
+      "body": "土"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "element.fire",
+      "variant": "single",
+      "lang": "ja",
+      "body": "火"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "element.metal",
+      "variant": "single",
+      "lang": "ja",
+      "body": "金"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "element.water",
+      "variant": "single",
+      "lang": "ja",
+      "body": "水"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "element.wood",
+      "variant": "single",
+      "lang": "ja",
+      "body": "木"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "luck.daeun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大運"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "luck.seun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "年運"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.branch",
+      "variant": "single",
+      "lang": "ja",
+      "body": "地支"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.stem",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.day_branch",
+      "variant": "single",
+      "lang": "ja",
+      "body": "日支"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.day_branch_hidden",
+      "variant": "single",
+      "lang": "ja",
+      "body": "日支の蔵干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.day_stem",
+      "variant": "single",
+      "lang": "ja",
+      "body": "日干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.hour_branch",
+      "variant": "single",
+      "lang": "ja",
+      "body": "時支"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.hour_branch_hidden",
+      "variant": "single",
+      "lang": "ja",
+      "body": "時支の蔵干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.hour_stem",
+      "variant": "single",
+      "lang": "ja",
+      "body": "時干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.month_branch",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月支"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.month_branch_hidden",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月支の蔵干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.month_stem",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.year_branch",
+      "variant": "single",
+      "lang": "ja",
+      "body": "年支"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.year_branch_hidden",
+      "variant": "single",
+      "lang": "ja",
+      "body": "年支の蔵干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "place.year_stem",
+      "variant": "single",
+      "lang": "ja",
+      "body": "年干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.branch_hap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "支合"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.chung",
+      "variant": "single",
+      "lang": "ja",
+      "body": "冲"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.hyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "刑"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.stem_hap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "干合"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "role.gisin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "忌神"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "role.huisin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "喜神"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "role.yongsin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "用神"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheoneul_gwiin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天乙貴人"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.dohwa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "咸池"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gongmang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "空亡"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.hwagae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "華蓋"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.yangin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "羊刃"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.yeokma",
+      "variant": "single",
+      "lang": "ja",
+      "body": "駅馬"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.byeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "丙"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.eul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "乙"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "甲"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "己"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gye",
+      "variant": "single",
+      "lang": "ja",
+      "body": "癸"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "庚"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.im",
+      "variant": "single",
+      "lang": "ja",
+      "body": "壬"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.jeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "丁"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.mu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "戊"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.sin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "辛"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "strength.neutral",
+      "variant": "single",
+      "lang": "ja",
+      "body": "中和"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "strength.strong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "身旺"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "strength.weak",
+      "variant": "single",
+      "lang": "ja",
+      "body": "身弱"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.bigyeon",
+      "variant": "single",
+      "lang": "ja",
+      "body": "比肩"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.geopjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "劫財"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "正官"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeongin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "印綬"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeongjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "正財"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏官"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeonin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏印"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏財"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.sanggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "傷官"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.siksin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "食神"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.bigyeop",
+      "variant": "single",
+      "lang": "ja",
+      "body": "比劫"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "官星"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.inseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "印星"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "財星"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.siksang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "食傷"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.body",
+      "variant": "single",
+      "lang": "en",
+      "body": "Please continue signing in from the Myungli Diary app."
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.body",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命理日記アプリでログインを続けてください。"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.body",
+      "variant": "single",
+      "lang": "ko",
+      "body": "명리일기 앱에서 이어서 로그인해 주세요."
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.install",
+      "variant": "single",
+      "lang": "en",
+      "body": "Install the app"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.install",
+      "variant": "single",
+      "lang": "ja",
+      "body": "アプリをインストール"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.install",
+      "variant": "single",
+      "lang": "ko",
+      "body": "앱 설치하기"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.open",
+      "variant": "single",
+      "lang": "en",
+      "body": "Open in app"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.open",
+      "variant": "single",
+      "lang": "ja",
+      "body": "アプリで開く"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.open",
+      "variant": "single",
+      "lang": "ko",
+      "body": "앱에서 열기"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.title",
+      "variant": "single",
+      "lang": "en",
+      "body": "Myungli Diary"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.title",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命理日記"
+    },
+    {
+      "slot": "system.apple_return",
+      "key": "apple_return.title",
+      "variant": "single",
+      "lang": "ko",
+      "body": "명리일기"
+    }
+  ],
+  "hanja": {
+    "branch.chuk": "丑",
+    "branch.hae": "亥",
+    "branch.in": "寅",
+    "branch.ja": "子",
+    "branch.jin": "辰",
+    "branch.mi": "未",
+    "branch.myo": "卯",
+    "branch.o": "午",
+    "branch.sa": "巳",
+    "branch.shin": "申",
+    "branch.sul": "戌",
+    "branch.yu": "酉",
+    "element.earth": "土",
+    "element.fire": "火",
+    "element.metal": "金",
+    "element.water": "水",
+    "element.wood": "木",
+    "luck.daeun": "大運",
+    "luck.seun": "歲運",
+    "relation.branch_hap": "地支合",
+    "relation.chung": "沖",
+    "relation.hyeong": "刑",
+    "relation.stem_hap": "天干合",
+    "role.gisin": "忌神",
+    "role.huisin": "喜神",
+    "role.neutral": "閑神",
+    "role.yongsin": "用神",
+    "shinsal.cheoneul_gwiin": "天乙貴人",
+    "shinsal.dohwa": "桃花",
+    "shinsal.gongmang": "空亡",
+    "shinsal.hwagae": "華蓋",
+    "shinsal.yangin": "羊刃",
+    "shinsal.yeokma": "驛馬",
+    "stem.byeong": "丙",
+    "stem.eul": "乙",
+    "stem.gap": "甲",
+    "stem.gi": "己",
+    "stem.gye": "癸",
+    "stem.gyeong": "庚",
+    "stem.im": "壬",
+    "stem.jeong": "丁",
+    "stem.mu": "戊",
+    "stem.sin": "辛",
+    "tag.cheoneul_gwiin": "天乙貴人",
+    "tag.dohwa": "桃花",
+    "tag.gongmang": "空亡",
+    "tag.hwagae": "華蓋",
+    "tag.yeokma": "驛馬",
+    "ten_god.bigyeon": "比肩",
+    "ten_god.geopjae": "劫財",
+    "ten_god.jeonggwan": "正官",
+    "ten_god.jeongin": "正印",
+    "ten_god.jeongjae": "正財",
+    "ten_god.pyeongwan": "偏官",
+    "ten_god.pyeonin": "偏印",
+    "ten_god.pyeonjae": "偏財",
+    "ten_god.sanggwan": "傷官",
+    "ten_god.siksin": "食神",
+    "ten_god_group.bigyeop": "比劫",
+    "ten_god_group.gwanseong": "官星",
+    "ten_god_group.inseong": "印星",
+    "ten_god_group.jaeseong": "財星",
+    "ten_god_group.siksang": "食傷"
+  }
+}

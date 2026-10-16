@@ -56,6 +56,12 @@ type flowEnv struct {
 // newFlowEnv는 serve와 같은 조립(newServer)으로 server를 띄웁니다. 제공자 주소만 providertest 대역으로 바꿉니다.
 func newFlowEnv(t *testing.T) *flowEnv {
 	t.Helper()
+	return newFlowEnvWith(t, nil)
+}
+
+// newFlowEnvWith는 newFlowEnv와 같되, 조립 직전에 customize가 의존성을 고칠 수 있습니다(nil이면 그대로).
+func newFlowEnvWith(t *testing.T, customize func(*serverDeps)) *flowEnv {
+	t.Helper()
 	fake := providertest.New(t)
 	clk := clocktest.New(time.Date(2026, 10, 13, 9, 0, 0, 0, time.UTC))
 	// Apple token 대역이 돌려주는 id_token의 exp를 server와 같은 시계로 정합니다.
@@ -63,7 +69,7 @@ func newFlowEnv(t *testing.T) *flowEnv {
 
 	settings, err := parseAuthSettings(flowAuthConfig(t))
 	require.NoError(t, err, "인증 설정 파싱")
-	handler, err := newServer(settings, serverDeps{
+	deps := serverDeps{
 		Pool:   dbtest.New(t),
 		Charts: unusedCharts{},
 		Logger: slog.New(slog.DiscardHandler),
@@ -76,7 +82,11 @@ func newFlowEnv(t *testing.T) *flowEnv {
 			AppleToken:  fake.AppleTokenURL(),
 			AppleRevoke: fake.AppleRevokeURL(),
 		},
-	})
+	}
+	if customize != nil {
+		customize(&deps)
+	}
+	handler, err := newServer(settings, deps)
 	require.NoError(t, err, "server 조립")
 
 	srv := httptest.NewServer(handler)
