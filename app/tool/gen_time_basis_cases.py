@@ -85,7 +85,10 @@ CASES: list[tuple[str, str, str | None, str]] = [
 def build_case(timezone: str, date: str, time: str | None, note: str) -> dict[str, object]:
     zone = load_zone(timezone)
     year, month, day = (int(part) for part in date.split("-"))
-    hour, minute = UNKNOWN_TIME_FALLBACK if time is None else (int(part) for part in time.split(":"))
+    if time is None:
+        hour, minute = UNKNOWN_TIME_FALLBACK
+    else:
+        hour, minute = (int(part) for part in time.split(":"))
     utc, _notices = _local_to_utc(datetime(year, month, day, hour, minute), zone)
     standard_offset = standard_offset_hours(utc, zone)
     longitude = representative_longitude(timezone, standard_offset)

@@ -1,9 +1,10 @@
 // 엔진 대조 회귀 테스트: `timeBasisOf`가 core 엔진과 같은 기준 경도·보정 분·서머타임 분을
 // 내는지 대표 사례로 확인합니다.
 //
-// 기준값 `engine_time_basis_cases.json`은 core 엔진(Python zoneinfo tzdata)으로 만듭니다.
-// 엔진 함수: `_local_to_utc` → `standard_offset_hours` → `representative_longitude`,
-// 서머타임 분은 zoneinfo `dst()`(`app/tool/gen_time_basis_cases.py` 머리 주석 참고).
+// 기준값 `engine_time_basis_cases.json`은 core 엔진(Python zoneinfo tzdata)으로
+// 만듭니다. 엔진 함수: `_local_to_utc` → `standard_offset_hours` →
+// `representative_longitude`, 서머타임 분은 zoneinfo `dst()`입니다
+// (`app/tool/gen_time_basis_cases.py` 머리 주석 참고).
 // 다시 만들기(core/에서):
 //   uv run python ../app/tool/gen_time_basis_cases.py \
 //     ../app/test/features/calc_basis/model/engine_time_basis_cases.json
