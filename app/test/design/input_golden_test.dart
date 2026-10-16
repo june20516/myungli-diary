@@ -61,8 +61,9 @@ Widget _inputSteps() => Builder(
 Widget _inputStepPreface() => Builder(
   builder: (context) {
     final ja = _ja(context);
+    // 2.0배에서도 맨 아래 도움말 줄까지 보이는 높이입니다.
     return SizedBox(
-      height: 460,
+      height: 560,
       child: InputStep.selectToAdvance(
         screenId: 'birthplace',
         variant: InputStepVariant.onboarding,

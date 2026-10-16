@@ -27,7 +27,7 @@ enum InputStepVariant {
 /// 아래에 주 버튼(`primary-button` filled)이 붙습니다. 머리말([preface])은 입력 전에
 /// 읽어야 할 소개 자리입니다(예: `birthplace`의 한국 표준 소개와 계산 기준 링크). 질문 아래
 /// `space.24`에 놓이고, 입력은 그 아래 `space.24`(`input.marginTop`)입니다. 없으면 기존
-/// 배치 그대로입니다.
+/// 배치 그대로입니다. 머리말 위·아래 간격은 명세에 없어 design에 묻는 중입니다(#211).
 ///
 /// 키보드가 열리면 버튼이 키보드 위 `space.16`에 붙고 위쪽 내용은 스크롤됩니다.
 ///
@@ -172,6 +172,7 @@ class InputStep extends StatefulWidget {
   final Widget input;
 
   /// 질문과 입력 사이에 놓는 머리말. 없으면 그리지 않고 자리도 남기지 않습니다.
+  /// 위·아래 간격(지금 둘 다 `space.24`)은 design에 묻는 중입니다(#211).
   ///
   /// 글을 넣을 때는 도움말과 같은 [helpStyleOf] 스타일을 씁니다.
   final Widget? preface;

@@ -168,6 +168,45 @@ void main() {
     expect(fake.callCountOf('listCities'), 1);
   });
 
+  testWidgets('수정 모드: 링크로 calc-basis에 갔다 돌아오면 검색어와 결과가 그대로입니다', (tester) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'member-overseas',
+      locale: _usa,
+    );
+    final fake = _fake(container);
+    final router = container.read(routerProvider);
+    unawaited(router.push<void>(pathOf(ScreenIds.settings)));
+    await tester.pumpAndSettle();
+    City? result;
+    unawaited(
+      router
+          .push<City>('${pathOf(ScreenIds.birthplace)}?mode=edit')
+          .then((value) => result = value),
+    );
+    await tester.pumpAndSettle();
+    await _search(tester, 'new');
+    await _settleIo(tester);
+    expect(_newYork, findsOneWidget);
+
+    await tester.tap(_link);
+    await _settleIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsOneWidget);
+
+    router.pop();
+    await _settleIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
+    expect(_queryText(tester), 'new');
+    expect(_newYork, findsOneWidget);
+    expect(fake.callCountOf('listCities'), 1);
+
+    // calc-basis를 닫아도 수정 모드의 값 돌려주기는 그대로입니다.
+    await tester.tap(_newYork);
+    await tester.pumpAndSettle();
+    expect(result?.id, '5128581');
+    expect(find.byKey(const ValueKey(ScreenIds.settings)), findsOneWidget);
+  });
+
   testWidgets('도시를 고른 뒤 처리 중에는 링크를 눌러도 이동하지 않습니다', (tester) async {
     final gate = Completer<void>();
     await _openBirthplace(

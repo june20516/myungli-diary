@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T04:09:38.469203Z",
+  "generatedAt": "2026-10-16T04:18:16.223468Z",
   "exits": {
     "covered": 38,
     "total": 80,
@@ -59,13 +59,13 @@
         "test/flows/birthplace_flow_test.dart:151 링크를 누르면 calc-basis로 쌓이고, 돌아오면 검색어와 결과가 그대로입니다"
       ],
       "birthplace>preview": [
-        "test/flows/birthplace_flow_test.dart:238 도시를 누르면 초안에 담고 preview로 갑니다"
+        "test/flows/birthplace_flow_test.dart:277 도시를 누르면 초안에 담고 preview로 갑니다"
       ],
       "birthplace>profile-edit": [
-        "test/flows/birthplace_flow_test.dart:338"
+        "test/flows/birthplace_flow_test.dart:377"
       ],
       "birthplace>settings": [
-        "test/flows/birthplace_flow_test.dart:338"
+        "test/flows/birthplace_flow_test.dart:377"
       ],
       "consent>legal": [
         "test/flows/consent_flow_test.dart:272 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
@@ -242,13 +242,13 @@
     ],
     "coveredBy": {
       "birthplace:empty": [
-        "test/flows/birthplace_flow_test.dart:258 결과가 없으면 안내 문장이 나옵니다"
+        "test/flows/birthplace_flow_test.dart:297 결과가 없으면 안내 문장이 나옵니다"
       ],
       "birthplace:error": [
-        "test/flows/birthplace_flow_test.dart:271 검색이 실패하면 오류 상태이고 다시 시도로 같은 질의를 다시 보냅니다"
+        "test/flows/birthplace_flow_test.dart:310 검색이 실패하면 오류 상태이고 다시 시도로 같은 질의를 다시 보냅니다"
       ],
       "birthplace:loading": [
-        "test/flows/birthplace_flow_test.dart:193 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
+        "test/flows/birthplace_flow_test.dart:232 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
       ],
       "consent:error": [
         "test/flows/consent_flow_test.dart:327 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
