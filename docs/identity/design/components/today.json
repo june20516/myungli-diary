@@ -1,5 +1,5 @@
 {
-  "version": "2.4.0",
+  "version": "2.5.0",
   "group": "today",
   "components": [
     {
@@ -29,7 +29,8 @@
         { "id": "color", "when": "행운 색", "uses": ["ohaeng.swatch"], "parts": { "lead": { "swatch": { "size": { "value": 14, "unit": "px" }, "radius": "{radius.full}" } } } },
         { "id": "direction", "when": "행운 방향", "parts": { "lead": { "icon": "compass" } } },
         { "id": "number", "when": "행운 숫자", "parts": { "lead": { "icon": "hash" } } },
-        { "id": "time", "when": "행운 시간", "parts": { "lead": { "icon": "clock" }, "value": { "format": "HH:mm–HH:mm", "clock": "24h", "timeZone": "profile", "join": " · ", "fontFeatures": ["tnum"] } } }
+        { "id": "time", "when": "행운 시간", "parts": { "lead": { "icon": "clock" }, "value": { "format": "HH:mm–HH:mm", "clock": "24h", "timeZone": "profile", "join": " · ", "fontFeatures": ["tnum"] } } },
+        { "id": "tag", "when": "그날의 대표 태그 (today만, Daily.tags.featured 0~2개, D76)", "parts": { "lead": { "icon": "tag", "iconColor": "{color.text.primary}" }, "value": { "fontWeight": 600 } } }
       ],
       "parts": {
         "chip": { "bg": "{color.chip.bg}", "radius": "{radius.full}", "height": { "value": 34, "unit": "px" }, "paddingX": "{space.12}", "gap": { "value": 6, "unit": "px" } },
@@ -44,10 +45,14 @@
         "closed": { "pattern": "disappear.seep", "parts": { "explain": { "visible": false } } }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "항목 이름 + 값", "expandedAnnounced": true, "minTarget": 44 },
+      "a11y": { "role": "button", "label": "항목 이름 + 값 (tag는 태그 이름만)", "expandedAnnounced": true, "minTarget": 44 },
       "rules": [
         "한 번에 하나만 열린다. 다른 칩을 누르면 열린 설명이 바뀐다.",
-        "칩 줄은 화면 폭에 따라 두 줄로 넘어간다. 설명 상자는 칩 줄 아래 전체 폭으로 열린다.",
+        "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음). 설명 상자는 칩 줄 아래 전체 폭으로 열린다.",
+        "tag 칩은 행운 4종(color·direction·number·time) 뒤에 Daily.tags.featured 순서로 놓는다. 0개면 그리지 않는다. 한 줄에 최대 6개.",
+        "tag 칩은 길흉(Tag.polarity)과 상관없이 같은 모양이다. 바탕·테두리·글자색은 행운 칩 그대로이고 글자 굵기 600과 앞 아이콘 색(text.primary)으로만 구분한다. 부정 신호 태그(충·공망)도 같고 잠금·구매 안내와 잇지 않는다(D72, 결정 V35).",
+        "tag 칩을 누르면 다른 칩처럼 설명 상자에 today.lucky-tag.body가 스민다. 칩 이름은 glossary tag 범주(슬롯 daily.tag_label).",
+        "share-image의 칩 줄에는 tag 칩을 넣지 않는다(행운 4종만).",
         "time 값은 프로필 시간대 24시간 HH:mm–HH:mm(en dash), 구간이 여럿이면 ' · '로 잇는다. 세 언어 같은 형식."
       ]
     },

@@ -21,7 +21,8 @@ EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행. 값이 바뀌면 �
     '| `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |',
     '| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card explain (안쪽 space.12) | 296px | 2 | 36 | 58 | **36** | **36** | **64** |',
     '| `daily.focus_reason` | lucky-card explain 안 한 줄 | 296px | 1 | 10 | 26 | **10** | **10** | **18** |',
-    "| `daily.tag_label` | tag-chip ('#' 뒤, 좌우 10px) | 293px | 1 | 10 | 28 | **10** | **10** | **18** |",
+    # daily.tag_label은 2.5.0(#239)에서 더 좁은 오늘 화면 lucky-card tag 칩으로 다시 잼. 확정값(굵은 칸)은 그대로
+    "| `daily.tag_label` | lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 6. diary tag-chip보다 좁음) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |",
     '| `calendar.day_level` | day-character badge (좌우 10px) | 300px | 1 | 10 | 27 | **10** | **10** | **18** |',
     '| `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |',
     '| `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |',
