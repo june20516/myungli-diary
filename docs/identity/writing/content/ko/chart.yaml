@@ -1,0 +1,25 @@
+# 명식(chart) 원고(ko). W1-2.
+- {slot: chart.yongsin_method, key: yongsin.method.eokbu, text: "넘치는 기운은 덜고 모자란 기운은 채우는 쪽으로 [[용신|role.yongsin]]을 골랐어요."}
+- {slot: chart.yongsin_method, key: yongsin.method.johu, text: "태어난 계절의 더위나 추위가 두드러져, 온도를 맞추는 오행으로 [[용신|role.yongsin]]을 정했어요."}
+- {slot: chart.yongsin_method, key: yongsin.method.johu_neutral, text: "기운이 한쪽으로 치우치지 않아, 태어난 계절의 온도를 맞추는 오행으로 [[용신|role.yongsin]]을 정했어요."}
+- {slot: chart.ilgan_head, key: ilgan.head.gap, text: "{name}님, 곧게 자라는 큰 나무를 닮았어요."}
+- {slot: chart.ilgan_head, key: ilgan.head.eul, text: "{name}님, 어디서든 뿌리내리는 풀꽃 같아요."}
+- {slot: chart.ilgan_head, key: ilgan.head.byeong, text: "{name}님, 환하게 비추는 한낮의 해를 닮았어요."}
+- {slot: chart.ilgan_head, key: ilgan.head.jeong, text: "{name}님, 어둠을 밝히는 등불 같아요."}
+- {slot: chart.ilgan_head, key: ilgan.head.mu, text: "{name}님, 묵직하게 자리를 지키는 큰 산을 닮았어요."}
+- {slot: chart.ilgan_head, key: ilgan.head.gi, text: "{name}님, 씨앗을 길러 내는 너른 밭 같아요."}
+- {slot: chart.ilgan_head, key: ilgan.head.gyeong, text: "{name}님, 다듬기 전의 단단한 쇠를 닮았어요."}
+- {slot: chart.ilgan_head, key: ilgan.head.sin, text: "{name}님, 곱게 다듬은 보석 같아요."}
+- {slot: chart.ilgan_head, key: ilgan.head.im, text: "{name}님, 멀리 흘러가는 큰 강을 닮았어요."}
+- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}님, 조용히 스며드는 빗물 같아요."}
+- {slot: chart.ilgan_body, key: ilgan.body.gap, text: "한번 정한 방향은 쉽게 바꾸지 않는 편이에요. 오래 걸리는 일을 끝까지 해낼 때 그 힘이 잘 보여요."}
+- {slot: chart.ilgan_body, key: ilgan.body.eul, text: "상황에 맞춰 몸을 낮추고 길을 찾는 편이에요. 낯선 곳에서도 금세 자리를 잡는 데서 그 힘이 보여요."}
+- {slot: chart.ilgan_body, key: ilgan.body.byeong, text: "생각과 마음을 숨기지 않고 드러내는 편이에요. 분위기를 띄우거나 앞에 나서야 할 때 사람들이 먼저 알아봐요."}
+- {slot: chart.ilgan_body, key: ilgan.body.jeong, text: "가까운 사람의 마음을 세심하게 살피는 편이에요. 한 사람을 오래 곁에서 챙길 때 그 따뜻함이 잘 드러나요."}
+- {slot: chart.ilgan_body, key: ilgan.body.mu, text: "쉽게 흔들리지 않고 주변을 품는 편이에요. 여러 사람 사이에서 중심을 잡아야 할 때 든든한 기둥이 돼요."}
+- {slot: chart.ilgan_body, key: ilgan.body.gi, text: "사람과 일을 차근차근 키워 내는 편이에요. 무언가를 가르치거나 꾸준히 가꾸는 일에서 힘을 내요."}
+- {slot: chart.ilgan_body, key: ilgan.body.gyeong, text: "옳다고 여긴 일은 바로 행동으로 옮기는 편이에요. 결단이 필요한 순간에 망설이지 않는 모습이 돋보여요."}
+- {slot: chart.ilgan_body, key: ilgan.body.sin, text: "작은 차이도 알아보고 완성도를 챙기는 편이에요. 마무리가 중요한 일에서 그 꼼꼼함이 잘 보여요."}
+- {slot: chart.ilgan_body, key: ilgan.body.im, text: "생각의 폭이 넓고 새 흐름을 빨리 읽는 편이에요. 여러 일을 한꺼번에 아울러야 할 때 그 넓이가 힘이 돼요."}
+- {slot: chart.ilgan_body, key: ilgan.body.gye, text: "겉으로 드러내기보다 안에서 깊이 생각하는 편이에요. 남들이 놓친 것을 먼저 알아챌 때 그 깊이가 보여요."}
+- {slot: chart.yongsin_summary, key: yongsin.summary, text: "나를 돕는 기운은 [[{yongsin}]](이)에요. 그래서 {yongsin:color}(이)가 잘 맞으니, 옷이나 소품으로 곁에 두어 보세요."}
