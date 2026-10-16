@@ -470,6 +470,62 @@ void main() {
       });
     });
 
+    test('nowMinuteProvider는 분이 바뀔 때 프로필 시간대 벽시계를 내보낸다', () {
+      fakeAsync((async) {
+        // 서울 10-13 23:59:30 = UTC 14:59:30
+        final clock = _MutableClock(DateTime.utc(2026, 10, 13, 14, 59, 30));
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(clock),
+            profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
+          ],
+        );
+        final seen = <DateTime>[];
+        c.listen(
+          nowMinuteProvider,
+          (_, next) => next.whenData(seen.add),
+          fireImmediately: true,
+        );
+        async.flushMicrotasks();
+        expect(seen, [DateTime(2026, 10, 13, 23, 59)]);
+
+        clock.now = clock.now.add(const Duration(seconds: 30));
+        async.elapse(const Duration(seconds: 30));
+        expect(seen.last, DateTime(2026, 10, 14, 0, 0));
+
+        clock.now = clock.now.add(const Duration(minutes: 1));
+        async.elapse(const Duration(minutes: 1));
+        expect(seen.last, DateTime(2026, 10, 14, 0, 1));
+        expect(seen, hasLength(3));
+
+        c.dispose();
+        expect(async.pendingTimers, isEmpty);
+      });
+    });
+
+    test('고정 시계면 nowMinuteProvider는 한 번만 내보내고 타이머가 없다', () {
+      fakeAsync((async) {
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(
+              FixedClock(DateTime.utc(2026, 10, 13, 3, 7, 40)),
+            ),
+            profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
+          ],
+        );
+        final seen = <DateTime>[];
+        c.listen(
+          nowMinuteProvider,
+          (_, next) => next.whenData(seen.add),
+          fireImmediately: true,
+        );
+        async.elapse(const Duration(minutes: 5));
+        expect(seen, [DateTime(2026, 10, 13, 12, 7)]);
+        expect(async.pendingTimers, isEmpty);
+        c.dispose();
+      });
+    });
+
     test('dayChanges는 날짜 계산 실패를 스트림 오류로 전달한다', () {
       fakeAsync((async) {
         final clock = _ThrowingClock();

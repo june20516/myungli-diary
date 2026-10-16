@@ -42,6 +42,22 @@ final class CalendarDate implements Comparable<CalendarDate> {
   /// 일(1~31).
   final int day;
 
+  /// 이 날짜에서 [days]일 뒤(음수면 앞) 날짜. 날짜 계산은 UTC로만 하므로 시간대와
+  /// 섞이지 않습니다.
+  CalendarDate addDays(int days) {
+    final moved = DateTime.utc(year, month, day + days);
+    return CalendarDate(moved.year, moved.month, moved.day);
+  }
+
+  /// 요일(1=월 … 7=일, [DateTime.weekday]와 같음).
+  int get weekday => DateTime.utc(year, month, day).weekday;
+
+  /// 이 날짜가 속한 달의 1일.
+  CalendarDate get firstOfMonth => CalendarDate(year, month, 1);
+
+  /// 이 날짜가 속한 달의 일수.
+  int get daysInMonth => DateTime.utc(year, month + 1, 0).day;
+
   /// `YYYY-MM-DD`.
   String toIso() =>
       '${year.toString().padLeft(4, '0')}-'
@@ -71,4 +87,68 @@ final class CalendarDate implements Comparable<CalendarDate> {
 
   @override
   String toString() => toIso();
+}
+
+/// 달력의 한 달(연·월). 일요일 시작 6주 42칸 격자를 계산합니다.
+@immutable
+final class CalendarMonth {
+  /// [year]년 [month]월. [month]가 1~12를 벗어나면 [ArgumentError]입니다.
+  new(this.year, this.month) {
+    if (month < 1 || month > 12) {
+      throw ArgumentError.value(month, 'month', '1~12여야 합니다.');
+    }
+  }
+
+  /// [date]가 속한 달.
+  factory CalendarMonth.of(CalendarDate date) =>
+      CalendarMonth(date.year, date.month);
+
+  /// 지원하는 첫 달(1900-01)과 마지막 달(2099-12).
+  static const _firstYear = 1900;
+  static const _lastYear = 2099;
+
+  /// 연.
+  final int year;
+
+  /// 월(1~12).
+  final int month;
+
+  /// 다음 달.
+  CalendarMonth next() =>
+      month == 12 ? CalendarMonth(year + 1, 1) : CalendarMonth(year, month + 1);
+
+  /// 이전 달.
+  CalendarMonth previous() =>
+      month == 1 ? CalendarMonth(year - 1, 12) : CalendarMonth(year, month - 1);
+
+  /// 지원 범위(1900-01 ~ 2099-12) 안인지.
+  bool get isSupported => year >= _firstYear && year <= _lastYear;
+
+  /// 격자 첫 칸. 이 달 1일이 속한 주의 일요일입니다.
+  CalendarDate get gridStart {
+    final first = CalendarDate(year, month, 1);
+    return first.addDays(-(first.weekday % 7));
+  }
+
+  /// 격자 마지막 칸(42번째 칸).
+  CalendarDate get gridEnd => gridStart.addDays(_gridCellCount - 1);
+
+  /// 일요일 시작 6주 42칸.
+  List<CalendarDate> get gridDays {
+    final start = gridStart;
+    return List<CalendarDate>.generate(_gridCellCount, start.addDays);
+  }
+
+  static const _gridCellCount = 42;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CalendarMonth && other.year == year && other.month == month;
+
+  @override
+  int get hashCode => Object.hash(year, month);
+
+  @override
+  String toString() =>
+      '${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}';
 }

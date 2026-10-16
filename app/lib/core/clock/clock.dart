@@ -198,3 +198,74 @@ final todayProvider = Provider<CalendarDate>((ref) {
   }
   return todayIn(clock, timezone);
 });
+
+/// 프로필 시간대의 벽시계 시각(분 단위, 초 이하는 0)을 매 분 0초에 내보냅니다.
+///
+/// 구독하면 현재 분을 바로 내보내고, 시간이 흐르는 시계([Clock.advances])면 다음 분
+/// 경계마다 새 값을 내보냅니다. 값은 시간대가 붙지 않은 [DateTime]입니다.
+final nowMinuteProvider = StreamProvider<DateTime>((ref) {
+  final clock = ref.watch(clockProvider);
+  final timezone = ref.watch(profileTimezoneProvider);
+  return minuteTicks(clock, timezone);
+});
+
+/// [ianaTimezone] 벽시계의 현재 분을 내보내고, 이후 분이 바뀔 때마다 내보냅니다.
+///
+/// [Clock.advances]가 false면 현재 분 하나만 내보냅니다. 구독을 취소하면 타이머도
+/// 멈춥니다. 계산이 실패하면 스트림 오류로 전달합니다.
+Stream<DateTime> minuteTicks(Clock clock, String ianaTimezone) {
+  Timer? timer;
+  late final StreamController<DateTime> controller;
+
+  DateTime currentMinute() {
+    final local = localTimeIn(clock.nowUtc(), ianaTimezone);
+    return DateTime(
+      local.year,
+      local.month,
+      local.day,
+      local.hour,
+      local.minute,
+    );
+  }
+
+  void schedule(DateTime emitted) {
+    final local = localTimeIn(clock.nowUtc(), ianaTimezone);
+    final untilNextMinute = Duration(
+      seconds: 60 - local.second,
+      milliseconds: -local.millisecond,
+      microseconds: -local.microsecond,
+    );
+    timer = Timer(untilNextMinute, () {
+      var last = emitted;
+      try {
+        final now = currentMinute();
+        if (now != last) {
+          last = now;
+          controller.add(now);
+        }
+        schedule(last);
+      } on Object catch (error, stackTrace) {
+        controller.addError(error, stackTrace);
+      }
+    });
+  }
+
+  controller = StreamController<DateTime>(
+    onListen: () {
+      try {
+        final first = currentMinute();
+        controller.add(first);
+        if (clock.advances) {
+          schedule(first);
+        }
+      } on Object catch (error, stackTrace) {
+        controller.addError(error, stackTrace);
+      }
+    },
+    onCancel: () {
+      timer?.cancel();
+      timer = null;
+    },
+  );
+  return controller.stream;
+}
