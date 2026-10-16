@@ -348,21 +348,42 @@ void main() {
     expect(await _cachedReaction(tester, container), isNull);
   });
 
-  testWidgets('자정을 넘겨 새 날짜 응답이 오면 요청 중이 아닌 어제 항목을 지웁니다', (tester) async {
+  /// [date]의 총운 첫 문장 반응을 눌러 끝까지 기다립니다(달력 등 다른 날짜 화면 흉내).
+  Future<void> pressOn(
+    WidgetTester tester,
+    ProviderContainer container,
+    CalendarDate date,
+  ) async {
+    var finished = false;
+    unawaited(
+      container
+          .read(reactionControllerProvider.notifier)
+          .toggle(_head(container), date: date)
+          .whenComplete(() => finished = true),
+    );
+    await _until(tester, () => finished);
+  }
+
+  String headKey(CalendarDate date) =>
+      ReactionController.keyOf(date, 'daily.fortune.head');
+
+  testWidgets('자정에 오늘 화면이 막 떠난 날짜의 항목만 지우고 다른 날짜 항목은 남깁니다', (tester) async {
     final (container, tap) = await _boot(
       tester,
       overrides: [
         todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
       ],
     );
+    final today = CalendarDate(2026, 10, 13);
+    final dayBefore = CalendarDate(2026, 10, 11);
     final press = _press(container);
     await _until(tester, () => tap.requests.isNotEmpty);
     await _until(tester, press.finished);
-    final yesterdayKey = ReactionController.keyOf(
-      CalendarDate(2026, 10, 13),
-      'daily.fortune.head',
-    );
-    expect(container.read(reactionControllerProvider).keys, [yesterdayKey]);
+    await pressOn(tester, container, dayBefore);
+    expect(container.read(reactionControllerProvider).keys.toSet(), {
+      headKey(today),
+      headKey(dayBefore),
+    });
 
     container.read(_testTodayProvider.notifier).date = CalendarDate(
       2026,
@@ -376,7 +397,44 @@ void main() {
           CalendarDate(2026, 10, 14),
     );
 
-    expect(container.read(reactionControllerProvider), isEmpty);
+    // 막 떠난 날짜(10-13)만 지워지고, 그제(10-11) 항목은 그 화면의 몫이라 남습니다.
+    expect(container.read(reactionControllerProvider).keys, [
+      headKey(dayBefore),
+    ]);
+  });
+
+  testWidgets('같은 날 오늘 응답을 다시 받아도(reload·refreshQuietly) 다른 날짜 항목은 남습니다', (
+    tester,
+  ) async {
+    final (container, _) = await _boot(tester);
+    final dayBefore = CalendarDate(2026, 10, 11);
+    final calendarDay = CalendarDate(2026, 9, 30);
+    await pressOn(tester, container, dayBefore);
+    await pressOn(tester, container, calendarDay);
+    final expected = {headKey(dayBefore): true, headKey(calendarDay): true};
+    expect(container.read(reactionControllerProvider), expected);
+
+    final notifier = container.read(dailyControllerProvider.notifier);
+    final before = container.read(dailyControllerProvider).value;
+    var reloaded = false;
+    unawaited(notifier.reload().whenComplete(() => reloaded = true));
+    await _until(tester, () => reloaded);
+    expect(
+      identical(container.read(dailyControllerProvider).value, before),
+      isFalse,
+      reason: '오늘 응답이 새로 왔습니다',
+    );
+    expect(container.read(reactionControllerProvider), expected);
+
+    final afterReload = container.read(dailyControllerProvider).value;
+    var refreshed = false;
+    unawaited(notifier.refreshQuietly().whenComplete(() => refreshed = true));
+    await _until(tester, () => refreshed);
+    expect(
+      identical(container.read(dailyControllerProvider).value, afterReload),
+      isFalse,
+    );
+    expect(container.read(reactionControllerProvider), expected);
   });
 
   testWidgets('반응 확인 뒤 시작한 응답이 reaction 없이 오면 응답을 따릅니다', (tester) async {

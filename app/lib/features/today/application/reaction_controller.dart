@@ -62,8 +62,14 @@ final class _Entry {
 ///   받기 시작한 세대를 들고 옵니다. 응답이 시작한 뒤에 확인된 슬롯은 응답이 그 확인을 모를 수
 ///   있으므로 값을 유지하고 캐시를 다시 고칩니다. 그 앞에 확인했거나 확인한 적 없는 슬롯은 응답
 ///   값을 따릅니다(다른 기기의 변경 반영).
+/// * **항목의 수명은 그 날짜를 보이는 화면의 응답이 정합니다.** 오늘 응답은 오늘 날짜 항목만
+///   맞추고, 오늘 화면의 날짜가 바뀌면(자정) 막 떠난 날짜의 요청 중이 아닌 항목만 지웁니다.
+///   달력·일기 등 다른 날짜의 항목은 오늘 응답이 다시 와도 건드리지 않습니다.
 class ReactionController extends Notifier<Map<String, bool>> {
   final _entries = <String, _Entry>{};
+
+  /// 오늘 화면이 마지막으로 반영한 응답의 날짜. 날짜가 바뀌면 이 날짜가 "막 떠난 날짜"입니다.
+  CalendarDate? _shownDate;
 
   /// [date]의 [slot]을 가리키는 상태 키.
   static String keyOf(CalendarDate date, String slot) =>
@@ -80,6 +86,8 @@ class ReactionController extends Notifier<Map<String, bool>> {
 
   @override
   Map<String, bool> build() {
+    // 오늘 응답이 먼저 와 있었으면 그 날짜부터 봅니다(자정에 떠난 날짜를 알기 위해).
+    _shownDate = ref.read(dailyControllerProvider).value?.date;
     ref.listen(dailyControllerProvider, (previous, next) {
       final view = next.value;
       if (view == null || identical(view, previous?.value)) {
@@ -90,15 +98,19 @@ class ReactionController extends Notifier<Map<String, bool>> {
     return const {};
   }
 
-  /// 새 응답 [view]를 슬롯별로 반영합니다.
+  /// 오늘 응답 [view]를 슬롯별로 반영합니다.
   ///
-  /// 응답 날짜보다 앞선 날짜(자정을 넘긴 뒤의 어제)의 항목은 요청 중이 아니면 지웁니다. 다시
-  /// 그 날짜를 보일 때는 그 응답의 값을 따르면 되므로 남겨 둘 이유가 없습니다.
+  /// [view] 날짜의 항목만 맞춥니다. 오늘 화면의 날짜가 바뀌었으면(자정) 막 떠난 날짜
+  /// ([_shownDate])의 요청 중이 아닌 항목을 지웁니다. 그 밖의 날짜(달력·일기가 다루는 날)의
+  /// 항목은 그 화면의 응답이 맞추므로 여기서는 건드리지 않습니다. 같은 날의 다시 받기·조용히
+  /// 다시 받기·캐시 → server 교체에서는 날짜가 그대로라 다른 날짜 항목이 남습니다.
   void _applyResponse(DailyView view) {
+    final left = _shownDate != view.date ? _shownDate : null;
+    _shownDate = view.date;
     final dropped = <String>[];
     for (final MapEntry(:key, value: entry) in _entries.entries) {
       if (entry.date != view.date) {
-        if (entry.date.compareTo(view.date) < 0 && !entry.sending) {
+        if (entry.date == left && !entry.sending) {
           dropped.add(key);
         }
         continue;
