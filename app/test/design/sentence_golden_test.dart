@@ -105,10 +105,19 @@ Widget _evidence(DepthLinkState state, {bool loading = false}) {
         state: state,
         title: '식신',
         pillars: const SizedBox(height: 40),
-        basis: unlocked
-            ? _text([Segment(text: '일간을 돕는 기운이라 용신으로 판정했어요.')])
-            : null,
-        source: unlocked ? _text([Segment(text: '食神制殺, 福壽綿長.')]) : null,
+        // 근거가 둘이면 구역마다 문단 둘을 space.12 간격으로 쌓습니다(A42).
+        basis: [
+          if (unlocked) ...[
+            _text([Segment(text: '일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요.')]),
+            _text([Segment(text: '일간을 돕는 기운이라 용신으로 판정했어요.')]),
+          ],
+        ],
+        source: [
+          if (unlocked) ...[
+            _text([Segment(text: '食神制殺, 福壽綿長.')]),
+            _text([Segment(text: '推其形色，则水黑、火赤、木青、土黄，此正色也。')]),
+          ],
+        ],
         personal: unlocked
             ? _text([Segment(text: '내 사주에서는 월지에 있어 힘이 커요.')])
             : null,
@@ -122,14 +131,19 @@ Widget _evidence(DepthLinkState state, {bool loading = false}) {
   );
 }
 
-/// 풀이 시트 내용: 뜻·이유가 있을 때와 계약에 없어 자리가 없을 때. [evidence]가 false면
-/// 근거 보기 링크가 없습니다(그날 시트에서 열었을 때).
-Widget _explain({required bool withText, bool evidence = true}) => SizedBox(
+/// 풀이 시트 내용: 뜻·이유가 있을 때와 없어서 자리가 없을 때. [evidence]가 false면
+/// 근거 보기 링크가 없습니다(그날 시트에서 열었을 때). [hanja]는 제목 줄 끝의 용어 한자입니다.
+Widget _explain({
+  required bool withText,
+  bool evidence = true,
+  String? hanja,
+}) => SizedBox(
   height: 420,
   child: Padding(
     padding: const EdgeInsets.symmetric(horizontal: Space.s20),
     child: ExplainSheetBody(
       title: '식신',
+      hanja: hanja,
       meaning: withText ? _text([Segment(text: '내가 낳은 것을 표현하는 기운이에요.')]) : null,
       todayReason: withText
           ? _text([Segment(text: '오늘은 월지와 닿아 말문이 트이기 쉬워요.')])
@@ -192,7 +206,7 @@ void main() {
       await goldenMatrix(
         tester,
         'sentence_explain_${withText ? 'full' : 'title_only'}',
-        () => _explain(withText: withText),
+        () => _explain(withText: withText, hanja: withText ? '食神' : null),
         settle: _settle,
       );
     });

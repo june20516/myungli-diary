@@ -75,7 +75,8 @@ final class GlossaryRepository {
 
   /// 캐시를 읽습니다. 없거나 깨졌으면(문법 오류·모양 불일치) null입니다.
   ///
-  /// 깨진 항목은 "캐시 없음"으로 보고 다음 200 응답이 덮어써 회복합니다.
+  /// 깨진 항목은 "캐시 없음"으로 보고 다음 200 응답이 덮어써 회복합니다. 계약 draft.4 전의
+  /// 옛 캐시(`hanja` 없음)도 모양이 달라 여기에 들어, If-None-Match 없이 새로 받습니다.
   Future<_CachedGlossary?> _readCache(Language language) async {
     final json = await _cache.read(CacheKind.glossary, language.value);
     if (json == null) {
@@ -91,8 +92,11 @@ final class GlossaryRepository {
   }
 }
 
-GlossaryNames _namesOf(Glossary glossary) =>
-    GlossaryNames(glossary.values, meanings: glossary.meanings);
+GlossaryNames _namesOf(Glossary glossary) => GlossaryNames(
+  glossary.values,
+  meanings: glossary.meanings,
+  hanja: glossary.hanja,
+);
 
 final class _CachedGlossary {
   const new(this.etag, this.names);

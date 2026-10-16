@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -307,6 +308,11 @@ final _accessProvider = NotifierProvider<_Access, AsyncValue<EvidenceAccess>>(
   _Access.new,
 );
 
+/// 근거가 없는 응답의 근거 목록.
+final _noEvidenceProvider = Provider<AsyncValue<List<Evidence>>>(
+  (ref) => const AsyncData([]),
+);
+
 /// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
 @immutable
 final class _TestSubject implements EvidenceSubject {
@@ -314,6 +320,10 @@ final class _TestSubject implements EvidenceSubject {
 
   @override
   ProviderListenable<AsyncValue<EvidenceAccess>> get access => _accessProvider;
+
+  @override
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
+      _noEvidenceProvider;
 
   @override
   Future<void> reload(Ref ref) async {}

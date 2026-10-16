@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -21,7 +22,9 @@ import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 
 // 그날 응답(`Daily`)을 화면에 보일 값으로 바꾸는 한 곳입니다(결정 A22·A27).
 // 계약 필드가 늘면 화면이 아니라 이 파일만 고칩니다. 오늘 화면과 계획 4 `day-sheet`,
-// 공유 미리보기가 함께 씁니다.
+// 공유 미리보기, 풀이·근거 시트(슬롯별 오늘 그런 이유·근거, [dailySlotText])가 함께 씁니다.
+// A22는 draft.4로 해제되어 계약의 문장 필드를 모두 그리고, 원고가 없어 server가 생략한
+// 선택 문장만 자리 없이 건너뜁니다.
 
 /// 오늘 화면 행운 설명 상자의 슬롯 id.
 const Map<LuckyCardVariant, String> todayLuckySlotIds = {
@@ -43,7 +46,7 @@ final class DayCharacterContent {
   final String label;
 
   /// 이유 한 줄(`character.reason`). 계약 draft.3부터 응답에 늘 있습니다.
-  /// 비어 있으면 [DayCharacter]가 이유 줄을 그리지 않습니다(결정 A22).
+  /// 원고가 없어 비어 있으면 [DayCharacter]가 이유 줄을 그리지 않습니다(A22 남은 규칙).
   final RenderedText? reason;
 }
 
@@ -126,6 +129,30 @@ List<LuckyItem> luckyItemsOf(
   ];
 }
 
+/// [daily]에서 writing 슬롯 id가 [slotId]인 문장. 응답에 없는 슬롯이면 null입니다.
+///
+/// 날의 성격 이유·총운(첫 문장·태그 문장)·가이드 질문·행운 카드 문장을 찾습니다. 풀이 시트는
+/// 이 문장의 `todayReason`(오늘 그런 이유)을, 근거 시트는 `evidence`를 씁니다.
+SlotText? dailySlotText(Daily daily, String slotId) {
+  final cards = daily.cards;
+  final slots = [
+    daily.characterReason,
+    daily.fortune.head,
+    ?daily.fortune.tag,
+    daily.guide,
+    cards.color.text,
+    cards.direction.text,
+    cards.number.text,
+    cards.focusTime.text,
+  ];
+  for (final slot in slots) {
+    if (slot.slot == slotId) {
+      return slot;
+    }
+  }
+  return null;
+}
+
 /// `time_unknown` notice의 배너 문장([noticeTextOf]). 없으면 null입니다.
 ///
 /// 화면 상태가 있는 notice는 이것뿐이고, 나머지는 계획 6에서 다룹니다.
@@ -151,11 +178,14 @@ final class SentenceLine {
   final String slot;
 
   /// 원고가 없어 글자가 없거나 공백뿐인 문장이면 true. 그리면 빈 카드가 되므로 화면이 건너뜁니다.
-  bool get isBlank =>
-      text.segments.map((segment) => segment.text).join().trim().isEmpty;
+  bool get isBlank => isBlankText(text);
 }
 
-/// 오늘 화면이 그리는 값 묶음(결정 A22). 화면은 이 값으로만 내용을 그립니다.
+/// [text]의 조각 글자를 이어 보면 비었거나 공백뿐인지. 빈 문장은 자리 없이 건너뜁니다(A22 남은 규칙).
+bool isBlankText(RenderedText text) =>
+    text.segments.map((segment) => segment.text).join().trim().isEmpty;
+
+/// 오늘 화면이 그리는 값 묶음. 화면은 이 값으로만 내용을 그립니다.
 ///
 /// 값 동등성(`==`)이 있어 캐시 → server 응답으로 바뀔 때 보이는 내용이 같은지 이 값으로
 /// 비교합니다(`SeepOnChange.changeKey`). 보이지 않는 필드(`evidenceAccess`, `evidence`,

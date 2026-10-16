@@ -39,7 +39,31 @@
               "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."
             }
           ]
-        }
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "오늘 들어오는 기운이 내 사주를 돕는 쪽이라 그래요."
+            }
+          ]
+        },
+        "evidence": [
+          {
+            "ruleId": "yongsin/eokbu",
+            "sourceRef": "gungtong-bogam/five_elements#balance_principle",
+            "basis": {
+              "segments": [
+                {
+                  "text": "일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요."
+                }
+              ]
+            }
+          },
+          {
+            "ruleId": "fortune/day_kind",
+            "sourceRef": "gungtong-bogam/five_elements#balance_principle"
+          }
+        ]
       },
       "tag": {
         "slot": "daily.fortune.tag",

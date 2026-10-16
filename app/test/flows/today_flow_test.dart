@@ -259,6 +259,56 @@ void main() {
     expect(find.byKey(const Key(ScreenIds.sharePreview)), findsOneWidget);
   });
 
+  testWidgets('evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+      ),
+    );
+    await _openToday(tester, scenario: 'evidence-unlocked');
+
+    // 첫 칩은 총운의 `element.wood`입니다. 한자는 `getGlossary.json`의 hanja,
+    // 오늘 그런 이유는 `getDaily.json` 총운 첫 문장의 todayReason입니다.
+    await tester.tap(find.byType(TermToken).first);
+    await tester.pumpAndSettle();
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(
+      find.descendant(of: explain, matching: find.text('木')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+        matching: find.text(
+          '오늘 들어오는 기운이 내 사주를 돕는 쪽이라 그래요.',
+          findRichText: true,
+        ),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(depthLinkTarget(of: explain));
+    await tester.pumpAndSettle();
+    final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+    expect(evidence, findsOneWidget);
+    expect(
+      find.descendant(of: evidence, matching: find.byType(EvidenceLockPanel)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+        matching: find.text(
+          '일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요.',
+          findRichText: true,
+        ),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다', (tester) async {
     covers(
       const Covers(

@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
@@ -19,7 +21,9 @@ import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
+import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
+import '../../support/daily_fixture.dart';
 import '../../support/depth_link_finders.dart';
 
 final _ko = AppLocalizationsKo();
@@ -35,6 +39,37 @@ final _depthSheets = DepthSheets(
   shareBody: SizedBox.shrink,
 );
 
+/// 총운 첫 문장(`daily.fortune.head`)의 오늘 그런 이유.
+const _headReason = '오늘 들어오는 기운이 내 사주를 돕는 쪽이라 그래요.';
+
+/// member 오늘 응답에서 총운 첫 문장에만 [_headReason]을 둔 그날 응답.
+Daily _daily() {
+  final json = memberDailyJson();
+  final fortune = Map<String, dynamic>.of(
+    json['fortune'] as Map<String, dynamic>,
+  );
+  fortune['head'] = {
+    ...fortune['head'] as Map<String, dynamic>,
+    'todayReason': {
+      'segments': [
+        {'text': _headReason},
+      ],
+    },
+  };
+  return Daily.fromJson({...json, 'fortune': fortune});
+}
+
+/// 정해 둔 오늘 응답을 돌려주는 대역.
+final class _StubDaily extends DailyController {
+  @override
+  Future<DailyView> build() async => DailyView(
+    date: CalendarDate(2026, 10, 13),
+    daily: _daily(),
+    stale: false,
+    cacheKey: null,
+  );
+}
+
 Widget _app(
   Widget home, {
   required Future<GlossaryNames> Function() glossary,
@@ -42,6 +77,7 @@ Widget _app(
 }) => ProviderScope(
   overrides: [
     glossaryProvider.overrideWith((ref) => glossary()),
+    dailyControllerProvider.overrideWith(_StubDaily.new),
     depthSheetsProvider.overrideWithValue(_depthSheets),
     crashReporterProvider.overrideWithValue(crash ?? FakeCrashReporter()),
   ],
@@ -58,35 +94,36 @@ const _sheet = ExplainSheet(termId: 'ten_god.siksin', sourceSlotId: 'a.b');
 
 void main() {
   group('ExplainSheet', () {
-    testWidgets('사전에 뜻이 있으면 제목 아래 뜻을 그리고, 오늘 그런 이유 자리는 없습니다(A22)', (
-      tester,
-    ) async {
-      final names = GlossaryNames(
-        _names.values,
-        meanings: {
-          'ten_god.siksin': RenderedText(
-            segments: [Segment(text: '내 안의 것을 밖으로 내는 기운이에요.')],
+    testWidgets(
+      '사전에 뜻이 있으면 제목 아래 뜻을 그리고, 눌린 슬롯이 오늘 응답에 없으면 오늘 그런 이유 자리는 없습니다',
+      (tester) async {
+        final names = GlossaryNames(
+          _names.values,
+          meanings: {
+            'ten_god.siksin': RenderedText(
+              segments: [Segment(text: '내 안의 것을 밖으로 내는 기운이에요.')],
+            ),
+          },
+        );
+        await tester.pumpWidget(_app(_sheet, glossary: () async => names));
+        await tester.pumpAndSettle();
+
+        expect(find.text('식신'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+            matching: find.text('내 안의 것을 밖으로 내는 기운이에요.', findRichText: true),
           ),
-        },
-      );
-      await tester.pumpWidget(_app(_sheet, glossary: () async => names));
-      await tester.pumpAndSettle();
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+          findsNothing,
+        );
+      },
+    );
 
-      expect(find.text('식신'), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
-          matching: find.text('내 안의 것을 밖으로 내는 기운이에요.', findRichText: true),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(const Key(SlotIds.explainSheetTodayReason)),
-        findsNothing,
-      );
-    });
-
-    testWidgets('사전에 뜻이 없는 용어는 제목만이고 뜻·이유 자리는 없습니다(A22)', (tester) async {
+    testWidgets('사전에 뜻이 없는 용어는 뜻 자리가 없습니다', (tester) async {
       await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
       await tester.pumpAndSettle();
 
@@ -102,6 +139,92 @@ void main() {
       final link = tester.widget<DepthLink>(find.byType(DepthLink));
       expect(link.variant, DepthLinkVariant.block);
       expect(link.label, _ko.depthLinkEvidence);
+    });
+
+    testWidgets('사전에 한자가 있으면 제목 옆에 한자를 그립니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final names = GlossaryNames(
+        _names.values,
+        hanja: const {'ten_god.siksin': '食神'},
+      );
+      await tester.pumpWidget(_app(_sheet, glossary: () async => names));
+      await tester.pumpAndSettle();
+
+      final title = tester.getRect(find.text('식신'));
+      final hanja = tester.getRect(find.text('食神'));
+      expect(hanja.left, greaterThan(title.right), reason: '제목과 같은 줄 끝');
+      expect(hanja.bottom, closeTo(title.bottom, 8));
+      // 스크린리더는 제목과 한자를 한 덩어리로 읽습니다.
+      expect(find.bySemanticsLabel('식신 食神'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('한자가 없는 용어는 제목만입니다', (tester) async {
+      final names = GlossaryNames(
+        _names.values,
+        hanja: const {'ten_god.jeongjae': '正財', 'ten_god.siksin': ''},
+      );
+      await tester.pumpWidget(_app(_sheet, glossary: () async => names));
+      await tester.pumpAndSettle();
+
+      expect(find.text('식신'), findsOneWidget);
+      expect(find.byKey(ExplainSheetBody.hanjaKey), findsNothing);
+    });
+
+    testWidgets('오늘 화면에서 연 용어는 그 슬롯의 todayReason을 오늘 그런 이유로 그립니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(
+            termId: 'ten_god.siksin',
+            sourceSlotId: 'daily.fortune.head',
+          ),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+          matching: find.text(_headReason, findRichText: true),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('todayReason이 없거나 day-sheet에서 열면 그 자리가 없습니다', (tester) async {
+      // 가이드 질문 슬롯에는 todayReason이 없습니다.
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(
+            termId: 'ten_god.siksin',
+            sourceSlotId: 'daily.guide',
+          ),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('식신'), findsOneWidget);
+      expect(
+        find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+        findsNothing,
+      );
+
+      // 그날 시트(day-sheet)는 근거 슬롯 없이 엽니다.
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(termId: 'ten_god.siksin'),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('식신'), findsOneWidget);
+      expect(
+        find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+        findsNothing,
+      );
     });
 
     testWidgets('근거 보기를 누르면 눌린 슬롯의 근거 시트가 열립니다', (tester) async {
@@ -245,6 +368,26 @@ void main() {
       final reason = tester.getTopLeft(find.textContaining('월지')).dy;
       final link = tester.getTopLeft(find.byType(DepthLink)).dy;
       expect(title < meaning && meaning < reason && reason < link, isTrue);
+    });
+
+    testWidgets('제목 줄에 한자가 들어가지 않으면 한자는 제목 아래 줄로 갑니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 120,
+              child: ExplainSheetBody(title: '천을귀인 천을귀인', hanja: '天乙貴人'),
+            ),
+          ),
+          glossary: () async => _names,
+        ),
+      );
+
+      final title = tester.getRect(find.text('천을귀인 천을귀인'));
+      final hanja = tester.getRect(find.text('天乙貴人'));
+      expect(hanja.top, greaterThanOrEqualTo(title.bottom));
+      expect(hanja.left, title.left);
     });
 
     testWidgets('onEvidence가 null이면 근거 링크를 그리지 않습니다', (tester) async {

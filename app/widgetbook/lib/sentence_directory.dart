@@ -93,12 +93,19 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
                 child: EvidenceSheetBody(
                   state: state,
                   title: '식신',
-                  basis: state == DepthLinkState.unlocked
-                      ? _line('일간을 돕는 기운이라 용신으로 판정했어요.')
-                      : null,
-                  source: state == DepthLinkState.unlocked
-                      ? _line('食神制殺, 福壽綿長.')
-                      : null,
+                  // 근거가 둘이면 구역마다 문단 둘을 space.12 간격으로 쌓습니다(A42).
+                  basis: [
+                    if (state == DepthLinkState.unlocked) ...[
+                      _line('일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요.'),
+                      _line('일간을 돕는 기운이라 용신으로 판정했어요.'),
+                    ],
+                  ],
+                  source: [
+                    if (state == DepthLinkState.unlocked) ...[
+                      _line('食神制殺, 福壽綿長.'),
+                      _line('推其形色，则水黑、火赤、木青、土黄，此正色也。'),
+                    ],
+                  ],
                   onWatchAd: () {},
                   onPass: () {},
                 ),
@@ -138,12 +145,13 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
       name: 'explain-sheet 내용',
       useCases: [
         WidgetbookUseCase(
-          name: '뜻·이유 있음',
+          name: '한자·뜻·이유 있음',
           builder: (context) => Stage(
             child: SizedBox(
               height: 300,
               child: ExplainSheetBody(
                 title: '식신',
+                hanja: '食神',
                 meaning: _line('내가 낳은 것을 표현하는 기운이에요.'),
                 todayReason: _line('오늘은 월지와 닿아 말문이 트이기 쉬워요.'),
                 onEvidence: () {},
@@ -152,7 +160,7 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
           ),
         ),
         WidgetbookUseCase(
-          name: '제목만(뜻·이유는 계약에 없음)',
+          name: '제목만(사전에 한자·뜻이 없고 오늘 화면 밖에서 열었을 때)',
           builder: (context) => Stage(
             child: SizedBox(
               height: 300,

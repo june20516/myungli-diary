@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
     show NotifierProviderFamily, ProviderListenable;
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -14,6 +15,7 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
 /// 보상형 광고를 끝까지 본 뒤 근거 열람 권한을 다시 묻는 간격(A26, spec §7).
 const rewardPollInterval = Duration(seconds: 2);
@@ -37,6 +39,12 @@ abstract interface class EvidenceSubject {
   /// 응답의 근거 열람 상태. 받는 중·실패도 그대로 전합니다.
   ProviderListenable<AsyncValue<EvidenceAccess>> get access;
 
+  /// 응답 안 [slotId] 슬롯의 근거 목록. 슬롯이 없거나 근거가 없으면 빈 목록입니다.
+  ///
+  /// server는 [access]가 `unlocked`일 때만 근거를 담습니다(D60). 근거 시트도 열렸을 때만 이 값을
+  /// 읽습니다.
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId);
+
   /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
   /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
   /// 던집니다. 오류는 근거 시트가 보입니다.
@@ -53,6 +61,14 @@ final class DailyEvidenceSubject implements EvidenceSubject {
   ProviderListenable<AsyncValue<EvidenceAccess>> get access =>
       dailyControllerProvider.select(
         (value) => value.whenData((view) => view.daily.evidenceAccess),
+      );
+
+  @override
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
+      dailyControllerProvider.select(
+        (value) => value.whenData(
+          (view) => dailySlotText(view.daily, slotId)?.evidence ?? const [],
+        ),
       );
 
   @override

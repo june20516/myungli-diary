@@ -6,6 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
@@ -18,8 +22,10 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/daily_fixture.dart';
 import '../../support/depth_link_finders.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
 
@@ -86,16 +92,85 @@ final class _DailyGate extends Interceptor {
   }
 }
 
+/// 오늘 응답을 [daily]로 고정하는 대역.
+final class _StubDaily extends DailyController {
+  new(this.daily);
+
+  final Daily daily;
+
+  @override
+  Future<DailyView> build() async => DailyView(
+    date: CalendarDate(2026, 10, 13),
+    daily: daily,
+    stale: false,
+    cacheKey: null,
+  );
+}
+
+/// member 오늘 응답의 열람 상태를 [access]로 두고 총운 첫 문장에 [evidence]를 담습니다.
+Daily _dailyWithEvidence(
+  EvidenceAccess access,
+  List<Map<String, Object>> evidence,
+) {
+  final json = memberDailyJson();
+  final fortune = Map<String, dynamic>.of(
+    json['fortune'] as Map<String, dynamic>,
+  );
+  fortune['head'] = {
+    ...fortune['head'] as Map<String, dynamic>,
+    'evidence': evidence,
+  };
+  return Daily.fromJson({
+    ...json,
+    'evidenceAccess': access.value,
+    'fortune': fortune,
+  });
+}
+
+Map<String, Object> _sentence(String text) => {
+  'segments': [
+    {'text': text},
+  ],
+};
+
+/// 근거 셋: 첫째는 판정 근거와 원전, 둘째는 문장 없음(원고가 없어 server가 생략), 셋째는 판정 근거만.
+final List<Map<String, Object>> _threeEvidence = [
+  {
+    'ruleId': 'fortune/day_kind',
+    'sourceRef': 'gungtong-bogam/five_elements#balance_principle',
+    'basis': _sentence('첫째 근거'),
+    'source': _sentence('첫째 원전'),
+  },
+  {'ruleId': 'tags/select', 'sourceRef': 'gungtong-bogam/five_elements#color'},
+  {
+    'ruleId': 'yongsin/eokbu',
+    'sourceRef': 'gungtong-bogam/five_elements#balance_principle',
+    'basis': _sentence('셋째 근거'),
+  },
+];
+
+List<String> _plain(List<RenderedText> texts) => [
+  for (final text in texts) text.segments.map((s) => s.text).join(),
+];
+
 /// [scenario]로 오늘 화면을 띄우고 근거 보기로 근거 시트를 엽니다. 광고를 미리 불러 둘 때까지 기다립니다.
+///
+/// [link]는 누를 근거 보기가 든 위젯(기본은 총운 첫 문장)이고, [daily]를 주면 오늘 응답을 그 값으로 고정합니다.
 Future<(ProviderContainer, _DailyGate)> _openSheet(
   WidgetTester tester, {
   String scenario = 'member',
   ({Duration interval, Duration timeout}) timing = _fastTiming,
+  Finder? link,
+  Daily? daily,
 }) async {
   final container = await pumpApp(
     tester,
     scenario: scenario,
-    overrides: [rewardPollTimingProvider.overrideWithValue(timing)],
+    overrides: [
+      rewardPollTimingProvider.overrideWithValue(timing),
+      if (daily != null)
+        dailyControllerProvider.overrideWith(() => _StubDaily(daily)),
+    ],
   );
   await pumpUntil(
     tester,
@@ -105,9 +180,11 @@ Future<(ProviderContainer, _DailyGate)> _openSheet(
   final interceptors = container.read(dioProvider).interceptors;
   interceptors.insert(interceptors.length - 1, gate);
 
-  // 총운 끝의 근거 보기(날의 성격 이유 줄에도 같은 링크가 있습니다).
+  // 기본은 총운 끝의 근거 보기(날의 성격 이유 줄에도 같은 링크가 있습니다).
   await tester.tap(
-    depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+    depthLinkTarget(
+      of: link ?? find.byKey(const Key(SlotIds.todayFortuneHead)),
+    ),
   );
   await pumpUntil(tester, () {
     if (_sheet.evaluate().isEmpty || !container.exists(_provider)) {
@@ -276,13 +353,78 @@ void main() {
     testWidgets('권한이 있으면(unlocked) 본문 없는 구역은 제목도 그리지 않습니다(A22)', (
       tester,
     ) async {
-      await _openSheet(tester, scenario: 'evidence-unlocked');
+      // 날의 성격 이유 슬롯에는 근거 문장이 없습니다.
+      await _openSheet(
+        tester,
+        scenario: 'evidence-unlocked',
+        link: find.byKey(DayCharacter.reasonKey),
+      );
 
       expect(_inSheet(find.text(_ko.evidenceSheetTitle)), findsOneWidget);
       expect(_inSheet(find.byType(LockVeil)), findsNothing);
       expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
       expect(_inSheet(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
       expect(_inSheet(find.text(_ko.evidenceSheetSectionSource)), findsNothing);
+    });
+
+    testWidgets('unlocked면 evidence의 basis·source를 순서대로 문단으로 그립니다', (
+      tester,
+    ) async {
+      await _openSheet(
+        tester,
+        daily: _dailyWithEvidence(EvidenceAccess.unlocked, _threeEvidence),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(body.state, DepthLinkState.unlocked);
+      expect(_plain(body.basis), ['첫째 근거', '셋째 근거']);
+      expect(_plain(body.source), ['첫째 원전']);
+      expect(
+        _inSheet(find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody))),
+        findsNWidgets(2),
+      );
+      expect(_inSheet(find.text('셋째 근거', findRichText: true)), findsOneWidget);
+      expect(_inSheet(find.text('첫째 원전', findRichText: true)), findsOneWidget);
+    });
+
+    testWidgets('문장이 없는 항목은 건너뛰고 모두 없으면 구역이 없습니다', (tester) async {
+      await _openSheet(
+        tester,
+        daily: _dailyWithEvidence(EvidenceAccess.unlocked, [
+          {
+            'ruleId': 'tags/select',
+            'sourceRef': 'gungtong-bogam/five_elements#color',
+          },
+        ]),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(body.basis, isEmpty);
+      expect(body.source, isEmpty);
+      expect(_inSheet(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
+      expect(_inSheet(find.text(_ko.evidenceSheetSectionSource)), findsNothing);
+    });
+
+    testWidgets('locked면 본문을 받지 않습니다(D60)', (tester) async {
+      // 잠긴 응답에 문장이 잘못 실려 와도 시트는 받지도 그리지도 않습니다.
+      await _openSheet(
+        tester,
+        daily: _dailyWithEvidence(EvidenceAccess.locked, _threeEvidence),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(body.state, DepthLinkState.locked);
+      expect(body.basis, isEmpty);
+      expect(body.source, isEmpty);
+      expect(_inSheet(find.byType(LockVeil)), findsNWidgets(2));
+      expect(find.text('첫째 근거', findRichText: true), findsNothing);
+      expect(find.text('첫째 원전', findRichText: true), findsNothing);
     });
 
     testWidgets('loading: 권한이 생겨 다시 받는 동안 구역 skeleton, 받으면 열림', (tester) async {

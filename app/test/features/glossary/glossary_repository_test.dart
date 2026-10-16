@@ -289,6 +289,38 @@ void main() {
     expect(const GlossaryNames({}).meaningOf('ten_god.pyeongwan'), isNull);
   });
 
+  test('hanjaOf는 용어 id로 한자를 찾고, 없으면 null입니다', () {
+    const names = GlossaryNames(
+      {
+        'ten_god': {'pyeongwan': '편관'},
+      },
+      hanja: {'ten_god.pyeongwan': '偏官'},
+    );
+
+    expect(names.hanjaOf('ten_god.pyeongwan'), '偏官');
+    expect(names.hanjaOf('tag.cheoneul_gwiin'), isNull);
+    expect(const GlossaryNames({}).hanjaOf('ten_god.pyeongwan'), isNull);
+  });
+
+  test('받은 사전의 hanja를 hanjaOf로 돌려줍니다(draft.4)', () async {
+    final s = _setUp([_ok('"g1"')]);
+
+    final names = await s.repository.load(Language.ko);
+
+    expect(names.hanjaOf('ten_god.pyeongwan'), '偏官');
+  });
+
+  test('hanja가 없는 옛 캐시는 캐시 없음으로 보고 If-None-Match 없이 새로 받습니다', () async {
+    final s = _setUp([_ok('"g2"')]);
+    final oldBody = Map<String, Object>.of(_body)..remove('hanja');
+    await _seedBroken(s.cache, jsonEncode({'etag': '"g1"', 'body': oldBody}));
+
+    final names = await s.repository.load(Language.ko);
+
+    expect(s.server.requestHeaders.single, isNot(contains('if-none-match')));
+    expect(names.hanjaOf('ten_god.pyeongwan'), '偏官');
+  });
+
   testWidgets('glossaryProvider는 fake 서버 fixture의 이름을 돌려준다', (tester) async {
     final container = (await tester.runAsync(
       () => bootstrapForTest('member'),
@@ -304,6 +336,7 @@ void main() {
     expect(names.nameOf('color.wood'), '초록');
     expect(names.nameOf('tag.cheoneul_gwiin'), '천을귀인');
     expect(names.nameOf('ten_god.pyeongwan'), '편관');
+    expect(names.hanjaOf('element.wood'), '木');
   });
 
   group('glossaryProvider 언어', () {
