@@ -3,6 +3,7 @@
 import json
 import re
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -418,3 +419,29 @@ def test_plural_is_ui_only() -> None:
 def test_plural_forms_are_checked_as_sentences() -> None:
     entry = plural_entry("{count, plural, other{{count}개 찾았어요!}}")
     assert "slop.P8" in check_plural(plural_slot(), entry)
+
+
+def test_cli_judge_prints_llm_flags_and_never_blocks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "ui.yaml").write_text(
+        '- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "흐름이 보여요."}\n', encoding="utf-8"
+    )
+    models: list[str] = []
+
+    def fake_caller(model: str) -> Callable[[str, dict[str, object]], object]:
+        models.append(model)
+        return lambda prompt, schema: {"flags": [{"index": 1, "rule": "slop.P1", "reason": "무엇을 말하는지 없음"}]}
+
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", fake_caller)
+    assert main(["judge", str(tmp_path / "content"), "--lang", "ko", "--model", "haiku"]) == 0
+    out = capsys.readouterr().out
+    assert models == ["haiku"]
+    assert f"{content / 'ui.yaml'}:1 slop.P1 warn LLM 의심(calcBasisLunarBody): 무엇을 말하는지 없음" in out
+
+
+def test_cli_judge_rejects_non_positive_batch_size() -> None:
+    with pytest.raises(SystemExit):
+        main(["judge", "--batch-size", "0"])

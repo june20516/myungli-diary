@@ -20,6 +20,7 @@ from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
 from mlw.evidence import check_evidence
 from mlw.ia import check_ia, is_ui_slot, load_ia
 from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
+from mlw.judge import DEFAULT_BATCH_SIZE, DEFAULT_MODEL, claude_cli_caller, judge_entries
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.markup import check_name_position, check_ui_markup, strip_vocative
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
@@ -381,6 +382,29 @@ def _gen_docs(args: argparse.Namespace) -> int:
     return _print_findings(findings)
 
 
+def _positive_int(text: str) -> int:
+    value = int(text)
+    if value < 1:
+        raise argparse.ArgumentTypeError("1 이상의 정수여야 합니다")
+    return value
+
+
+def _judge(args: argparse.Namespace) -> int:
+    """LLM 판정(결정 W1). 의심은 모두 warn이라 늘 0으로 끝납니다(막지 않음)."""
+    rules = load_rules(args.rules_dir)
+    slots = load_slots(args.slots_dir, rules)
+    findings = judge_entries(
+        slots,
+        load_content(args.content),
+        rules,
+        claude_cli_caller(args.model),
+        lang=args.lang,
+        slot_id=args.slot,
+        batch_size=args.batch_size,
+    )
+    return _print_findings(findings)
+
+
 def _gen_week_fixture(args: argparse.Namespace) -> int:
     # grpc 의존 모듈은 이 하위 명령에서만 불러옵니다.
     from mlw import week_fixture
@@ -429,6 +453,17 @@ def _build_parser() -> argparse.ArgumentParser:
     add_dirs(gen_docs)
     add_ia(gen_docs)
     gen_docs.set_defaults(handler=_gen_docs)
+
+    judge = commands.add_parser("judge", help="judge: llm slop 규칙으로 원고를 모델에 물어 의심 문장을 표시합니다(로컬, 막지 않음)")
+    judge.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
+    judge.add_argument("--lang", choices=LANGS, help="이 언어 원고만 봅니다")
+    judge.add_argument("--slot", help="이 슬롯 원고만 봅니다")
+    judge.add_argument("--model", default=DEFAULT_MODEL, help=f"claude -p 모델(기본 {DEFAULT_MODEL})")
+    judge.add_argument(
+        "--batch-size", type=_positive_int, default=DEFAULT_BATCH_SIZE, help=f"한 번에 묻는 문장 수(기본 {DEFAULT_BATCH_SIZE})"
+    )
+    add_dirs(judge)
+    judge.set_defaults(handler=_judge)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")
     fixture.add_argument("--engine", required=True, help="엔진 주소, 예: localhost:50051")
