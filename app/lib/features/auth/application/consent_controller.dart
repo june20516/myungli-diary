@@ -80,7 +80,7 @@ class ConsentController extends AsyncNotifier<void> {
         await completer.complete();
         return null;
       } on OnboardingInputRejected catch (rejected) {
-        notice.pending = rejected.error;
+        notice.leave(rejected.error);
       } on AppError {
         // 입력 오류(422)가 아닌 server·통신 실패와 저장 뒤 진입 계산 실패가 여기로 옵니다.
         // 동의는 끝났으므로 진입을 다시 계산하고, onboard-call이 진입할 때 한 번 다시 저장합니다.

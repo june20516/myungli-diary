@@ -205,7 +205,7 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   bool _refreshFromAd = false;
 
   /// 화면이 toast로 알릴 일.
-  Stream<UnlockEvent> get events => _events.stream;
+  Stream<UnlockEvent> watchEvents() => _events.stream;
 
   @override
   EvidenceUnlockState build() {

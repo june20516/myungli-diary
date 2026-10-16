@@ -37,5 +37,5 @@ void returnToOnboardCallWith(
   // 이동하면 이 화면이 닫혀 ref를 쓸 수 없으므로 먼저 잡아 둡니다.
   final notice = ref.read(onboardingRejectionNoticeProvider.notifier);
   goBackToOnboardCall(context);
-  notice.pending = error;
+  notice.leave(error);
 }

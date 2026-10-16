@@ -83,12 +83,6 @@ Future<T> _abandoned<T>() => Completer<T>().future;
 class DailyController extends AsyncNotifier<DailyView> {
   var _skipCacheOnce = false;
 
-  /// 지금 보이는 값의 캐시 키. 값이 없거나 사본이 없으면 null입니다.
-  ///
-  /// 다시 받는 중(자정 넘김 등)에는 아직 이전 날짜 값을 보이므로 그 날짜의 키입니다.
-  /// 반응이 성공한 뒤 캐시를 고칠 때(`DailyRepository.patchCachedReaction`) 씁니다.
-  String? get cacheKey => state.value?.cacheKey;
-
   /// 지금 build의 결과 Future. 캐시를 먼저 내보내면 [future]는 그 캐시 값으로 끝나므로,
   /// server 응답까지 기다릴 때([_settleCurrentBuild])는 이것을 기다립니다.
   Future<DailyView>? _currentBuild;

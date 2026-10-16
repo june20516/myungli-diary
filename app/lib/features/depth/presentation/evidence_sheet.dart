@@ -56,7 +56,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       controller,
     ) {
       unawaited(_events?.cancel());
-      _events = controller.events.listen(_onEvent);
+      _events = controller.watchEvents().listen(_onEvent);
     }, fireImmediately: true);
   }
 
