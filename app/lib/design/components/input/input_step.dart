@@ -31,6 +31,10 @@ enum InputStepVariant {
 /// 없이 `mark.caution` + 본문색), 스크린리더가 바로 읽으며(assertive 알림), 버튼은
 /// disabled입니다. 오류가 풀리면 줄이 사라집니다.
 ///
+/// 고르면 바로 다음으로 넘어가는 단계(지금은 `birthplace`의 도시 결과 줄)는
+/// [InputStep.selectToAdvance]로 만들고 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`).
+/// 비활성 버튼이 늘 떠 있으면 "무언가 더 해야 한다"로 읽히기 때문입니다.
+///
 /// 화면 틀이라 [Scaffold]·앱 바는 쓰는 화면이 따로 둡니다.
 class InputStep extends StatefulWidget {
   /// 입력 화면 틀을 만듭니다.
@@ -40,20 +44,87 @@ class InputStep extends StatefulWidget {
   /// (1부터)과 [stepCount]가 있어야 합니다. 도움말·오류·버튼의 슬롯 id는
   /// [helpIdentifier]·[errorIdentifier]·[actionIdentifier]로 넘깁니다.
   const new({
+    required String screenId,
+    required InputStepVariant variant,
+    required String question,
+    required Widget input,
+    required String actionLabel,
+    required VoidCallback? onAction,
+    String? help,
+    String? error,
+    bool actionLoading = false,
+    int? step,
+    int? stepCount,
+    String? helpIdentifier,
+    String? errorIdentifier,
+    String? actionIdentifier,
+    Key? key,
+  }) : this._(
+         screenId: screenId,
+         variant: variant,
+         question: question,
+         input: input,
+         actionLabel: actionLabel,
+         onAction: onAction,
+         help: help,
+         error: error,
+         actionLoading: actionLoading,
+         step: step,
+         stepCount: stepCount,
+         helpIdentifier: helpIdentifier,
+         errorIdentifier: errorIdentifier,
+         actionIdentifier: actionIdentifier,
+         key: key,
+       );
+
+  /// 고르면 바로 넘어가는 단계의 틀을 만듭니다. 아래 버튼이 없고, 다음으로 넘어가는 일은
+  /// [input]의 선택이 합니다. 아래 버튼을 빼는 길은 이 생성자 하나입니다.
+  const new selectToAdvance({
+    required String screenId,
+    required InputStepVariant variant,
+    required String question,
+    required Widget input,
+    String? help,
+    String? error,
+    int? step,
+    int? stepCount,
+    String? helpIdentifier,
+    String? errorIdentifier,
+    Key? key,
+  }) : this._(
+         screenId: screenId,
+         variant: variant,
+         question: question,
+         input: input,
+         actionLabel: null,
+         onAction: null,
+         help: help,
+         error: error,
+         actionLoading: false,
+         step: step,
+         stepCount: stepCount,
+         helpIdentifier: helpIdentifier,
+         errorIdentifier: errorIdentifier,
+         actionIdentifier: null,
+         key: key,
+       );
+
+  // 두 공개 생성자가 모이는 곳. 단계 검사 assert를 한 번만 둡니다.
+  const new _({
     required this.screenId,
     required this.variant,
     required this.question,
     required this.input,
     required this.actionLabel,
     required this.onAction,
-    this.help,
-    this.error,
-    this.actionLoading = false,
-    this.step,
-    this.stepCount,
-    this.helpIdentifier,
-    this.errorIdentifier,
-    this.actionIdentifier,
+    required this.help,
+    required this.error,
+    required this.actionLoading,
+    required this.step,
+    required this.stepCount,
+    required this.helpIdentifier,
+    required this.errorIdentifier,
+    required this.actionIdentifier,
     super.key,
   }) : assert(
          variant != InputStepVariant.onboarding ||
@@ -97,8 +168,9 @@ class InputStep extends StatefulWidget {
   /// 오류 문구. 있으면 `out-of-range`입니다.
   final String? error;
 
-  /// 아래 버튼 글자.
-  final String actionLabel;
+  /// 아래 버튼 글자. 기본 생성자에서는 필수이고, [InputStep.selectToAdvance]만 null
+  /// (아래 버튼 없음)입니다.
+  final String? actionLabel;
 
   /// 아래 버튼을 눌렀을 때. null이면 disabled.
   final VoidCallback? onAction;
@@ -138,6 +210,7 @@ class _InputStepState extends State<InputStep> {
     // Scaffold가 키보드만큼 이미 줄였다면 viewInsets가 0이라 이중으로 띄우지 않습니다.
     final bottomInset = math.max(media.viewInsets.bottom, media.padding.bottom);
     final error = widget.error;
+    final actionLabel = widget.actionLabel;
     if (error != null) _shownError = error;
     final help = widget.help;
 
@@ -201,7 +274,13 @@ class _InputStepState extends State<InputStep> {
             ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+              // 아래 버튼이 없으면 버튼이 맡던 아래 여백(키보드 포함)을 내용이 가집니다.
+              padding: EdgeInsets.fromLTRB(
+                Space.s20,
+                0,
+                Space.s20,
+                actionLabel == null ? Space.s16 + bottomInset : 0,
+              ),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -209,20 +288,21 @@ class _InputStepState extends State<InputStep> {
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              Space.s20,
-              Space.s8,
-              Space.s20,
-              Space.s16 + bottomInset,
+          if (actionLabel != null)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                Space.s20,
+                Space.s8,
+                Space.s20,
+                Space.s16 + bottomInset,
+              ),
+              child: PrimaryButton(
+                label: actionLabel,
+                loading: widget.actionLoading,
+                identifier: widget.actionIdentifier,
+                onPressed: error == null ? widget.onAction : null,
+              ),
             ),
-            child: PrimaryButton(
-              label: widget.actionLabel,
-              loading: widget.actionLoading,
-              identifier: widget.actionIdentifier,
-              onPressed: error == null ? widget.onAction : null,
-            ),
-          ),
         ],
       ),
     );

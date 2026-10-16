@@ -3,22 +3,23 @@
 * 작성: app 세션, 2026-10-13
 * 상태: 승인 (2026-10-13)
 * 마일스톤: A1 (app 설계, 대역 데이터로 화면 구현)
-* 관련 결정: app 결정 A1~A21([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
-* 쓰는 계약
-  * REST API `server/api/openapi.yaml` 1.0.0-draft.2
-  * IA `docs/ia/screens.json` v2 (v1에서 `consent.optional.label` 제거, D67)
-  * 디자인 토큰 1.1.0
-  * 컴포넌트 명세 2.2.0
-  * 슬롯 명세 v1
-  * 라이팅 검사기 `mlw` v0.1.0
+* 관련 결정: app 결정 A1~A27([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
+* 쓰는 계약(버전·상태는 [`docs/contracts/README.md`](../../../docs/contracts/README.md) 기준)
+  * REST API `server/api/openapi.yaml`
+  * IA `docs/ia/screens.json`
+  * 디자인 토큰
+  * 컴포넌트 명세
+  * 슬롯 명세
+  * 라이팅 검사기 `mlw`
 * 개정 기록
+  * 2026-10-15 계획 3: 시트 등록부(A23), 그날 캐시 순서(A24, §4.4), 반응(A25), 잠금 해제(A26), 행운 카드 값(A27), 계약 빈칸(A22). 쓰는 계약 목록에서 버전을 빼고 `docs/contracts/README.md`를 기준으로 함
   * 2026-10-14: 계획 2 최종 review 반영. 온보딩 입력으로 프로필을 만드는 일은 프로필이 없는 계정에서만 하고, 프로필 있는 갈래에서는 온보딩 단계를 수정 모드로만 열며 남은 입력을 지움(§3). 진입 계산 전 기억하는 목적지에 query를 포함(§3). 진입 갱신 실패를 화면이 안내(§3). 로그아웃 정리 대상(프로필 사본, 알림 허락 대기 플래그, 메모리 상태)을 코드와 맞춤(§4.4)
   * 2026-10-14: 계획 2(온보딩·로그인) 완료 반영. 진입 갈래 `notifyAskRequired`(A17), 프로필 사본과 시간대 동기화(A18), 수정 모드 `?mode=edit`(A19), 계약-IA 불일치 처리(A20), ui 슬롯의 일반 `Text`(A21)를 결정으로 더함
   * 2026-10-14: 기반 계획 최종 review 반영. 계약을 REST 1.0.0-draft.2(Apple 로그인 `clientType` 제거, iOS `loginApple`·Android `completeAppleWebLogin` 분리, nonce 원문·해시 규칙)와 컴포넌트 2.2.0(V28 용어 칩 화면 한정, 잠김 라벨 구역 이름)으로 맞춤. 수치를 IA v1 현재 값(화면 37, 슬롯 124, operation 38)으로 고침. App Check 대상은 계약 `security`에서 생성(§4.1). 로그아웃 정리 경로·백업 정책(Android·iOS, §4.4), 계정 연결(§7), `workflow_call`의 E2E 조건(§9)을 더함. 생성기는 결정 A16으로 확정
 
 ## 1. 목적과 범위
 
-app이 화면 37개, 컴포넌트 41개, 슬롯 123개(IA v2, 그중 app이 그리는 것 119개), REST operation 38개를 **계약을 기준으로 어긋남 없이 오래 유지할 수 있는 구조**를 정합니다. 기준은 "안정적으로 지속 가능한 개발"입니다. 구체적으로는 다음과 같습니다.
+app이 화면·컴포넌트·슬롯·REST operation(개수와 버전은 `docs/contracts/README.md` 기준)을 **계약을 기준으로 어긋남 없이 오래 유지할 수 있는 구조**로 만들도록 정합니다. 기준은 "안정적으로 지속 가능한 개발"입니다. 구체적으로는 다음과 같습니다.
 
 * 계약 파일이 원본이고 app 코드는 그것을 생성하거나 대조합니다. 계약이 바뀌면 컴파일 오류나 CI 실패로 먼저 드러납니다.
 * 외부 SDK와 server는 모두 인터페이스 뒤에 두고 대역을 함께 둡니다. 계정 준비나 server 진행을 기다리지 않고 전 흐름을 개발하고 테스트합니다.
@@ -47,6 +48,7 @@ app/
       theme/               # ThemeExtension 조립
       components/          # 컴포넌트 41개, 명세 파일 묶음대로
     features/<영역>/        # onboarding, auth, today, depth, calendar, diary, me, monetization
+      model/               # 작은 값 객체(층이 아님, 다른 feature도 import 가능)
       data/                # repository
       application/         # Riverpod provider·notifier
       presentation/        # 화면 (IA 화면 id 하나당 하나)
@@ -59,7 +61,7 @@ app/
 ```
 
 * **의존 방향은 presentation → application → data → core 한쪽입니다.**
-  * feature끼리는 서로의 application provider로만 참조합니다.
+  * feature끼리는 서로의 application provider로만 참조합니다. 다른 feature의 `data/`는 import하지 않고, 함께 쓰는 값 타입은 `model/`에 둡니다(`test/contract/feature_layering_test.dart`).
   * `design/`은 feature를 모릅니다.
   * `core/`는 feature를 알지 않습니다. core provider(예 `profileTimezoneProvider`)에 feature 값을 잇는 일은 `app/`이 override로 합니다.
   * feature는 `app/entry`의 전역 provider(`meProvider`·`entryProvider`)를 읽을 수 있습니다(`features → app/entry`).
@@ -157,6 +159,7 @@ app/
 
 **그날 캐시: 오늘(`getDaily`)**
 * 날짜가 키라 날마다 새로 받습니다. 마지막으로 받은 응답은 오프라인 표시용으로 남깁니다(D59③, IA `offline`).
+* 순서(A24): 기기 시간대 동기화(`TimezoneSync.syncIfChanged`)를 기다린 뒤 요청합니다. 프로필 사본이 있으면 키 `dailyKey(사주 지문, 사본 language, 날짜)`의 캐시를 먼저 보이고, 사본이 없으면 캐시를 읽지도 쓰지도 않습니다. 오늘 날짜 키만 보이며 어제 캐시를 오늘로 보이지 않습니다.
 * 화면은 캐시를 먼저 그리고 서버 응답으로 바꿉니다.
 * 잠금이 풀리면 다시 받습니다.
 

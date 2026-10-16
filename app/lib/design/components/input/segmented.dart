@@ -31,8 +31,10 @@ final class SegmentedItem<T> {
 /// 누르면 [onChanged]와 selection 햅틱이 한 번 나가고, 이미 고른 항목을 다시 누르면
 /// 아무 일도 없습니다. [onChanged]가 null이면 모두 disabled입니다.
 ///
-/// [selected]가 null이면(`T`가 null을 허용할 때) 아직 고르지 않은 상태라 선택 표시가
-/// 없습니다.
+/// [selected]가 null이면(`T`가 null을 허용할 때) 아직 고르지 않은 상태(`none`)라 선택
+/// 표시가 없고 모든 글자가 `text.secondary`입니다. 이때 `input-step` 아래 버튼을 꺼 두는
+/// 것은 화면의 몫입니다(`onAction: null`). `none`에서 처음 고르면 표시는 미끄러지지 않고
+/// 그 자리에 `appear.seep`으로 나타나고, 그다음 선택부터 `select.seep-slide`입니다.
 ///
 /// 트랙 높이 40은 최소 높이라 기기 글자 크기가 크면 함께 커집니다. 항목 글자는 줄을
 /// 바꾸지 않고 자르지도 않습니다. 넘치지 않게 문구와 항목 수를 정하는 것은 화면
@@ -58,6 +60,7 @@ class Segmented<T> extends StatefulWidget {
     'selected',
     'pressed',
     'disabled',
+    'none',
   });
 
   /// 트랙을 찾는 테스트용 키.
@@ -93,7 +96,11 @@ class Segmented<T> extends StatefulWidget {
 
 class _SegmentedState<T> extends State<Segmented<T>> {
   /// 직전에 선택돼 있던 항목의 자리. 새 표시가 어느 쪽에서 미끄러져 올지 정합니다.
+  /// 처음 그린 뒤 바뀐 적이 없으면 null, 직전이 `none`(고르지 않음)이었으면 -1입니다.
   int? _previousIndex;
+
+  /// 직전이 `none`이었으면 새 표시는 미끄러지지 않고 스며 나타납니다.
+  bool get _fromNone => _previousIndex == -1;
 
   int _indexOf(T value) =>
       widget.items.indexWhere((item) => item.value == value);
@@ -149,8 +156,9 @@ class _SegmentedState<T> extends State<Segmented<T>> {
                         label: widget.items[i].label,
                         selected: i == selectedIndex,
                         enabled: enabled,
+                        fromNone: _fromNone,
                         // 이전 표시가 이 항목의 왼쪽(-1)에 있었는지 오른쪽(1)에 있었는지.
-                        previousSide: _previousIndex == null
+                        previousSide: _previousIndex == null || _fromNone
                             ? 0
                             : (_previousIndex! - i).sign.toDouble(),
                         onTap: () => _choose(widget.items[i].value),
@@ -172,6 +180,7 @@ class _SegmentCell extends StatefulWidget {
     required this.label,
     required this.selected,
     required this.enabled,
+    required this.fromNone,
     required this.previousSide,
     required this.onTap,
     super.key,
@@ -180,6 +189,9 @@ class _SegmentCell extends StatefulWidget {
   final String label;
   final bool selected;
   final bool enabled;
+
+  /// 직전이 `none`이라 새 표시가 `appear.seep`으로 나타나는지.
+  final bool fromNone;
   final double previousSide;
   final VoidCallback onTap;
 
@@ -204,13 +216,15 @@ class _SegmentCellState extends State<_SegmentCell>
     if (widget.selected) _slide.value = 1;
   }
 
+  /// 지금 표시가 따르는 패턴. `none`에서 처음 고른 표시만 `appear.seep`입니다.
+  InteractionPattern get _pattern => widget.fromNone && widget.selected
+      ? InteractionPattern.appearSeep
+      : InteractionPattern.selectSeepSlide;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _slide.duration = patternDuration(
-      InteractionPattern.selectSeepSlide,
-      MotionPrefs.of(context),
-    );
+    _slide.duration = patternDuration(_pattern, MotionPrefs.of(context));
   }
 
   @override
@@ -218,7 +232,9 @@ class _SegmentCellState extends State<_SegmentCell>
     super.didUpdateWidget(oldWidget);
     if (widget.selected == oldWidget.selected) return;
     _outgoing = !widget.selected;
-    _slide.forward(from: 0);
+    _slide
+      ..duration = patternDuration(_pattern, MotionPrefs.of(context))
+      ..forward(from: 0);
   }
 
   void _onStatus(AnimationStatus status) {
@@ -260,7 +276,7 @@ class _SegmentCellState extends State<_SegmentCell>
     final indicator = selected || _outgoing
         ? Positioned.fill(
             child: animate(
-              InteractionPattern.selectSeepSlide,
+              _pattern,
               t: _slide,
               prefs: prefs,
               options: PatternOptions(

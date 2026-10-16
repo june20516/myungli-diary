@@ -14,3 +14,11 @@
 * 출처: Apple Design Resources의 Sign in with Apple 로고 `https://devimages-cdn.apple.com/design/resources/download/Logo-Sign-in-with-Apple.dmg`(`https://developer.apple.com/design/resources/`), 가이드: Human Interface Guidelines "Sign in with Apple"
 * 내용: dmg의 `Sign in with Apple - Logo Only/SVG/Logo - SIWA - Logo-only - {Black,White}.svg`에서 **로고 path를 그대로** 옮기고 정사각 바탕 사각형만 뺐습니다(`viewBox`는 로고 범위). 라이트 모드는 검정 바탕에 흰 로고, 다크 모드는 흰 바탕에 검정 로고를 씁니다(명세 `lightMode: black`, `darkMode: white`).
 * **이용 조건 주의:** dmg에 든 "Apple Design Resources License"는 자산을 macOS·iOS 등 UI의 목업(mock-up) 제작에만 쓰도록 허용하고 "소프트웨어 프로그램에 내장하지 않는다"고 적습니다(§2). 반면 HIG는 Sign in with Apple 버튼에 공식 로고 자산을 쓰도록 안내합니다. 출시 전에 이 해석(앱 안 사용 허용 여부, Android 웹 흐름의 로고 사용)을 사용자가 확인해야 합니다.
+
+## 명리일기 로고 — `myungli/lockup.svg`
+
+* 출처: `docs/identity/design/logo/lockup.svg`(`share-image` `logo`). 라이트 고정이라 `lockup-dark.svg`는 싣지 않습니다.
+* 변환: flutter_svg가 중첩 `<svg>`를 그리지 않아, 원본의 중첩 `<svg>` 두 개를 같은 좌표 변환의 `<g transform>`으로 바꿨습니다. path·색·크기는 원본 그대로입니다. 원본이 바뀌면 같은 규칙으로 다시 만듭니다.
+  * 아이콘: `<svg x=0 y=0 width=150 height=150 viewBox="0 0 100 100">` -> `<g transform="scale(1.5)">`(150/100).
+  * 글자: `<svg x=187.5 y=25 width=357.4 height=100 viewBox="84.5 -840 3305.5 925">` -> `<g transform="translate(187.5 25) scale(S) translate(-84.5 840)">`. `S = min(357.4/3305.5, 100/925) = 0.108108108`(preserveAspectRatio meet 배율), 마지막 translate는 `-(viewBox x, y)`입니다.
+  * 닫는 `</svg>`는 `</g>`로 바꿉니다. 원본의 `<defs>`·`<title>`은 그대로 둡니다.

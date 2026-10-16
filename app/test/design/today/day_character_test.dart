@@ -67,6 +67,36 @@ void main() {
       );
     });
 
+    testWidgets('reasonSlotId를 주면 이유 줄에 슬롯 identifier가 붙고 읽기는 그대로입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      Widget build({RenderedText? reason}) => inputApp(
+        Center(
+          child: DayCharacter(
+            variant: DayCharacterVariant.good,
+            label: '좋은 날',
+            reason: reason,
+            reasonSlotId: 'today.character.reason',
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(build(reason: _text('오늘은 기운이 나를 돕는 날이에요.')));
+      expect(
+        find.bySemanticsIdentifier('today.character.reason'),
+        findsOneWidget,
+      );
+      expect(_labels(tester), ['좋은 날, 오늘은 기운이 나를 돕는 날이에요.']);
+
+      await tester.pumpWidget(build());
+      expect(
+        find.bySemanticsIdentifier('today.character.reason'),
+        findsNothing,
+      );
+      handle.dispose();
+    });
+
     testWidgets('링크가 있어도 배지+이유는 한 번만 읽히고 링크는 따로 초점을 받습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
@@ -139,13 +169,13 @@ void main() {
               reason: _text('도움을 주는 사람을 만나기 쉬워요.'),
               reasonTrailing: GestureDetector(
                 onTap: () => tapped++,
-                child: const Text('근거 보기 ›'),
+                child: const Text('근거 보기'),
               ),
             ),
           ),
         ),
       );
-      await tester.tap(find.text('근거 보기 ›'));
+      await tester.tap(find.text('근거 보기'));
       expect(tapped, 1);
     });
 

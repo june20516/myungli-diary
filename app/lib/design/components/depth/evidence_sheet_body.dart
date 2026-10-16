@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
@@ -23,12 +24,17 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 잠겼을 때는 시트 아래에 [EvidenceLockPanel]이 고정됩니다.
 ///
 /// 잠긴 구역의 본문은 server가 보내지 않으므로 [basis]·[source]·[personal]은 `null`이어도
-/// 됩니다. 이 내용 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
+/// 됩니다. 열렸는데 본문이 없는 구역(계약에 아직 필드가 없음)은 제목도 자리도 그리지
+/// 않습니다(결정 A22, `depth-link` 규칙 2.3.0). 잠겼을 때의 `lock.veil`은 본문을 내려받지
+/// 않은 상태라 그대로 그립니다. 이 내용 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
+///
+/// [loading]이면 구역 제목 아래 본문 자리가 skeleton입니다(권한이 생겨 응답을 다시 받는 중,
+/// IA `loading`). 안내 영역은 [state]대로 남습니다.
 ///
 /// 잠김이 풀리는 순간(`locked`·`lockedNoAd`·`unlocking` → `unlocked`)에는 안내 영역이
 /// `disappear.seep`으로 사라지고 본문이 `appear.seep`으로 나타나며 light 햅틱과 "열렸다"는
-/// 알림이 한 번 옵니다. 그 사이의 skeleton 단계와 확인 시간 초과 toast는 화면 쪽 흐름의
-/// 몫입니다. 처음부터 권한이 있으면 움직임도 햅틱도 알림도 없습니다.
+/// 알림이 한 번 옵니다. 그 사이 skeleton 단계([loading])를 언제 켤지와 확인 시간 초과 toast는
+/// 화면 쪽 흐름의 몫입니다. 처음부터 권한이 있으면 움직임도 햅틱도 알림도 없습니다.
 class EvidenceSheetBody extends StatefulWidget {
   /// 근거 시트 내용을 만듭니다.
   const new({
@@ -41,9 +47,15 @@ class EvidenceSheetBody extends StatefulWidget {
     this.showPersonal = false,
     this.onWatchAd,
     this.onPass,
+    this.loading = false,
     this.animated = true,
     super.key,
   });
+
+  /// 구역 본문 자리 skeleton을 찾는 테스트용 키. 구역마다 하나씩 있습니다.
+  static const Key sectionSkeletonKey = ValueKey(
+    'evidence-sheet.section.skeleton',
+  );
 
   /// 열람 상태.
   final DepthLinkState state;
@@ -71,6 +83,9 @@ class EvidenceSheetBody extends StatefulWidget {
 
   /// 광고 제거권 링크.
   final VoidCallback? onPass;
+
+  /// true면 구역 본문 자리가 skeleton입니다(응답을 다시 받는 중).
+  final bool loading;
 
   /// false면 처리 중 점이 숨 쉬지 않습니다(golden).
   final bool animated;
@@ -115,24 +130,10 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       children: [
         // 열림 알림은 스크롤해도 뷰포트 밖으로 밀려나지 않게 스크롤 영역 밖 위쪽에 둡니다.
         if (_justUnlocked)
-          // 레이아웃 높이는 0이지만 알림 노드는 1x1 영역을 가져 TalkBack이 놓치지 않습니다.
-          SizedBox(
-            height: 0,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned(
-                  width: 1,
-                  height: 1,
-                  child: LiveAnnouncement(
-                    identifier: SlotIds.evidenceSheetA11yUnlocked,
-                    label: l10n.evidenceSheetA11yUnlocked,
-                    role: SemanticsRole.status,
-                    child: const SizedBox.shrink(),
-                  ),
-                ),
-              ],
-            ),
+          SilentAnnouncement(
+            identifier: SlotIds.evidenceSheetA11yUnlocked,
+            label: l10n.evidenceSheetA11yUnlocked,
+            role: SemanticsRole.status,
           ),
         Flexible(
           child: SingleChildScrollView(
@@ -191,7 +192,8 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     );
   }
 
-  /// 구역 하나: 제목(늘 또렷함) + 본문. 잠기면 같은 자리에 `lock.veil`.
+  /// 구역 하나: 제목(늘 또렷함) + 본문. 잠기면 같은 자리에 `lock.veil`, 받는 중이면 skeleton.
+  /// 열렸는데 본문이 없으면 그리지 않습니다(A22).
   Widget _section(
     BuildContext context, {
     required String title,
@@ -203,11 +205,23 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
     final Widget content;
-    assert(
-      !_unlocked || text != null,
-      '권한이 있는데($slotId) 본문이 없습니다. server가 잠기지 않은 구역 본문을 보내야 합니다.',
-    );
-    if (!_unlocked || text == null) {
+    if (widget.loading) {
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _sectionTitle(context, title: title, titleSlotId: titleSlotId),
+          const SizedBox(height: Space.s8),
+          SkeletonBlock(
+            key: EvidenceSheetBody.sectionSkeletonKey,
+            lines: 2,
+            delay: Duration.zero,
+            animated: widget.animated,
+          ),
+        ],
+      );
+    } else if (_unlocked && text == null) {
+      return const SizedBox.shrink();
+    } else if (!_unlocked || text == null) {
       content = LockVeil(
         title: title,
         semanticLabel: '$title, ${l10n.evidenceSheetA11yLocked}',
@@ -224,18 +238,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          KeyedSubtree(
-            key: ValueKey(titleSlotId),
-            child: Semantics(
-              identifier: titleSlotId,
-              child: Text(
-                title,
-                style: tokens.typography.labelMd.copyWith(
-                  color: tokens.colors.textSecondary,
-                ),
-              ),
-            ),
-          ),
+          _sectionTitle(context, title: title, titleSlotId: titleSlotId),
           const SizedBox(height: Space.s8),
           if (quote)
             DecoratedBox(
@@ -258,6 +261,27 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       child: _justUnlocked
           ? SeepPresence(present: true, child: content)
           : content,
+    );
+  }
+
+  /// 구역 제목(`sectionTitle`). 열렸을 때와 받는 중에 씁니다(잠기면 `lock.veil`이 그립니다).
+  Widget _sectionTitle(
+    BuildContext context, {
+    required String title,
+    required String titleSlotId,
+  }) {
+    final tokens = context.tokens;
+    return KeyedSubtree(
+      key: ValueKey(titleSlotId),
+      child: Semantics(
+        identifier: titleSlotId,
+        child: Text(
+          title,
+          style: tokens.typography.labelMd.copyWith(
+            color: tokens.colors.textSecondary,
+          ),
+        ),
+      ),
     );
   }
 }

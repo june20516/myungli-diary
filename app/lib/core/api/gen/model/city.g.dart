@@ -13,6 +13,10 @@ abstract class _$CityCWProxy {
 
   City country(String country);
 
+  City countryName(String countryName);
+
+  City regionName(String? regionName);
+
   City timezone(String timezone);
 
   /// Creates a new instance with the provided field values.
@@ -23,7 +27,14 @@ abstract class _$CityCWProxy {
   /// ```dart
   /// City(...).copyWith(id: 12, name: "My name")
   /// ```
-  City call({String id, String name, String country, String timezone});
+  City call({
+    String id,
+    String name,
+    String country,
+    String countryName,
+    String? regionName,
+    String timezone,
+  });
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -43,6 +54,12 @@ class _$CityCWProxyImpl implements _$CityCWProxy {
   City country(String country) => call(country: country);
 
   @override
+  City countryName(String countryName) => call(countryName: countryName);
+
+  @override
+  City regionName(String? regionName) => call(regionName: regionName);
+
+  @override
   City timezone(String timezone) => call(timezone: timezone);
 
   /// Creates a new instance with the provided field values.
@@ -58,6 +75,8 @@ class _$CityCWProxyImpl implements _$CityCWProxy {
     Object? id = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? country = const $CopyWithPlaceholder(),
+    Object? countryName = const $CopyWithPlaceholder(),
+    Object? regionName = const $CopyWithPlaceholder(),
     Object? timezone = const $CopyWithPlaceholder(),
   }) {
     return City(
@@ -73,6 +92,15 @@ class _$CityCWProxyImpl implements _$CityCWProxy {
           ? _value.country
           // ignore: cast_nullable_to_non_nullable
           : country as String,
+      countryName:
+          countryName == const $CopyWithPlaceholder() || countryName == null
+          ? _value.countryName
+          // ignore: cast_nullable_to_non_nullable
+          : countryName as String,
+      regionName: regionName == const $CopyWithPlaceholder()
+          ? _value.regionName
+          // ignore: cast_nullable_to_non_nullable
+          : regionName as String?,
       timezone: timezone == const $CopyWithPlaceholder() || timezone == null
           ? _value.timezone
           // ignore: cast_nullable_to_non_nullable
@@ -95,11 +123,16 @@ extension $CityCopyWith on City {
 City _$CityFromJson(Map<String, dynamic> json) => $checkedCreate('City', json, (
   $checkedConvert,
 ) {
-  $checkKeys(json, requiredKeys: const ['id', 'name', 'country', 'timezone']);
+  $checkKeys(
+    json,
+    requiredKeys: const ['id', 'name', 'country', 'countryName', 'timezone'],
+  );
   final val = City(
     id: $checkedConvert('id', (v) => v as String),
     name: $checkedConvert('name', (v) => v as String),
     country: $checkedConvert('country', (v) => v as String),
+    countryName: $checkedConvert('countryName', (v) => v as String),
+    regionName: $checkedConvert('regionName', (v) => v as String?),
     timezone: $checkedConvert('timezone', (v) => v as String),
   );
   return val;
@@ -109,5 +142,7 @@ Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
   'country': instance.country,
+  'countryName': instance.countryName,
+  'regionName': ?instance.regionName,
   'timezone': instance.timezone,
 };

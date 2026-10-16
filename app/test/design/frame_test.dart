@@ -323,6 +323,19 @@ void main() {
       expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
     });
 
+    testWidgets('inner: 뒤로를 숨기면 자리를 비워 두지 않고 제목은 tabRoot와 같은 곳에서 시작합니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const MyungliAppBar.tabRoot(title: '오늘')));
+      final rootStart = tester.getTopLeft(find.text('오늘')).dx;
+      await tester.pumpWidget(
+        _app(const MyungliAppBar.inner(title: '오늘', showBack: false)),
+      );
+      final hiddenStart = tester.getTopLeft(find.text('오늘')).dx;
+      expect(hiddenStart, rootStart);
+      expect(hiddenStart, Space.s16);
+    });
+
     testWidgets('동작은 두 개까지이고 각각 44 터치 영역', (tester) async {
       var taps = 0;
       AppBarAction action(String label) => AppBarAction(
@@ -1307,6 +1320,104 @@ void main() {
       _navigatorKey.currentState!.pop();
       await tester.pumpAndSettle();
       expect(width(), closeTo(400, 0.5));
+    });
+
+    testWidgets('화면 셸 안쪽 navigator에서 열어도 쌓인 시트의 바깥을 누르면 모두 닫힙니다', (
+      tester,
+    ) async {
+      // 탭 화면처럼 SheetScreenBelow 안쪽에 navigator가 있어도, 시트가 그 안에 갇혀
+      // 0.92배로 줄어든 덮개가 화면 모서리를 놓치지 않아야 합니다.
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      late BuildContext inner;
+      await tester.pumpWidget(
+        _app(
+          SheetScreenBelow(
+            child: Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute<void>(
+                builder: (context) {
+                  inner = context;
+                  return const SizedBox.expand();
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      unawaited(
+        showMyungliSheet<void>(
+          inner,
+          size: SheetSize.half,
+          builder: (context) => TextButton(
+            onPressed: () => showMyungliSheet<void>(
+              context,
+              size: SheetSize.full,
+              builder: (_) => const SizedBox(height: 100),
+            ),
+            child: const Text('깊이'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('깊이'));
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsNWidgets(2));
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MyungliSheetFrame), findsNothing);
+    });
+
+    testWidgets('앱 안의 앱(바깥 작업대 MaterialApp)에서는 안쪽 navigator에 안쪽 테마로 쌓입니다', (
+      tester,
+    ) async {
+      // Widgetbook처럼 바깥 MaterialApp 안에 미리보기용
+      // MyungliTokens 테마 MaterialApp이 있는 경우.
+      late BuildContext outer;
+      late BuildContext inner;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              outer = context;
+              return MaterialApp(
+                locale: const Locale('ko'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                theme: buildTheme(
+                  brightness: Brightness.light,
+                  locale: const Locale('ko'),
+                ),
+                home: Builder(
+                  builder: (context) {
+                    inner = context;
+                    return const SizedBox.expand();
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      unawaited(
+        showMyungliSheet<void>(
+          inner,
+          size: SheetSize.half,
+          builder: (context) => Text(
+            '시트',
+            style: TextStyle(color: context.tokens.colors.textPrimary),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      expect(Navigator.of(inner).canPop(), isTrue);
+      expect(Navigator.of(outer).canPop(), isFalse);
     });
   });
 }

@@ -1,0 +1,85 @@
+{
+  "status": 200,
+  "headers": { "ETag": "\"glossary-ko-1\"" },
+  "body": {
+    "seedVersion": "2026-10-15",
+    "lang": "ko",
+    "values": {
+      "color": {
+        "wood": "초록",
+        "fire": "빨강",
+        "earth": "노랑",
+        "metal": "하양",
+        "water": "남색"
+      },
+      "element": {
+        "wood": "목",
+        "fire": "화",
+        "earth": "토",
+        "metal": "금",
+        "water": "수"
+      },
+      "ten_god": {
+        "bigyeon": "비견",
+        "geopjae": "겁재",
+        "siksin": "식신",
+        "sanggwan": "상관",
+        "pyeonjae": "편재",
+        "jeongjae": "정재",
+        "pyeongwan": "편관",
+        "jeonggwan": "정관",
+        "pyeonin": "편인",
+        "jeongin": "정인"
+      },
+      "tag": {
+        "big_change": "큰 변화",
+        "cheoneul_gwiin": "천을귀인",
+        "clash": "충",
+        "dohwa": "도화",
+        "gongmang": "공망",
+        "gwiin_day": "귀인의 날",
+        "harmony": "합",
+        "hwagae": "화개",
+        "yeokma": "역마",
+        "yongsin_day": "용신의 날"
+      },
+      "stem": {
+        "gap": "갑",
+        "eul": "을",
+        "byeong": "병",
+        "jeong": "정",
+        "mu": "무",
+        "gi": "기",
+        "gyeong": "경",
+        "sin": "신",
+        "im": "임",
+        "gye": "계"
+      },
+      "branch": {
+        "ja": "자",
+        "chuk": "축",
+        "in": "인",
+        "myo": "묘",
+        "jin": "진",
+        "sa": "사",
+        "o": "오",
+        "mi": "미",
+        "shin": "신",
+        "yu": "유",
+        "sul": "술",
+        "hae": "해"
+      }
+    },
+    "meanings": {
+      "element.wood": {
+        "segments": [{ "text": "자라고 뻗어 나가는 기운이에요. 새로 시작하고 키워 가는 일에서 드러나요." }]
+      },
+      "tag.cheoneul_gwiin": {
+        "segments": [{ "text": "어려울 때 도와주는 사람이 곁에 오는 기운이에요." }]
+      },
+      "ten_god.jeonggwan": {
+        "segments": [{ "text": "나를 바르게 다잡아 주는 기운이에요. 맡은 일을 차분히 해내는 힘이 돼요." }]
+      }
+    }
+  }
+}

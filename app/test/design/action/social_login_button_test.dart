@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import '../input/input_harness.dart';
 
@@ -78,7 +79,11 @@ void main() {
           .getSemanticsData();
       expect(data.flagsCollection.isEnabled, Tristate.isFalse);
       expect(data.hasAction(SemanticsAction.tap), isFalse);
-      expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.4);
+      expect(
+        tester.widget<Opacity>(find.byType(Opacity)).opacity,
+        SocialLoginButton.disabledOpacity,
+      );
+      expect(SocialLoginButton.disabledOpacity, 0.4);
       handle.dispose();
     });
 
@@ -139,6 +144,14 @@ void main() {
       final apple = tester.widget<Text>(find.text('Apple로 로그인')).style!;
       expect(apple.inherit, isFalse);
       expect(apple.fontFamily, isNull);
+      // 크기·굵기는 type.label.lg입니다(`label.apple`).
+      final labelLg = tester
+          .element(find.text('Apple로 로그인'))
+          .tokens
+          .typography
+          .labelLg;
+      expect(apple.fontSize, labelLg.fontSize);
+      expect(apple.fontWeight, labelLg.fontWeight);
       final kakao = tester.widget<Text>(find.text('카카오 로그인')).style!;
       expect(kakao.fontFamily, isNotNull);
     });

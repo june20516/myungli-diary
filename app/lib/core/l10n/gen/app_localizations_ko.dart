@@ -10,37 +10,37 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
-  String get errorOffline => '인터넷에 연결되어 있지 않아요.';
+  String get errorOffline => '인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.';
 
   @override
   String get errorTimeout => '응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.';
 
   @override
-  String get errorClient => '요청을 처리하지 못했어요.';
+  String get errorClient => '요청을 처리하지 못했어요. 다시 시도해 주세요.';
 
   @override
-  String get errorServer => '서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
+  String get errorServer => '잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.';
 
   @override
-  String get errorUnexpected => '예기치 못한 문제가 생겼어요.';
+  String get errorUnexpected => '문제가 생겼어요. 다시 시도해 주세요.';
 
   @override
   String get errorNotImplemented => '아직 준비 중이에요.';
 
   @override
-  String get errorRequestMalformed => '요청을 처리하지 못했어요.';
+  String get errorRequestMalformed => '요청을 처리하지 못했어요. 다시 시도해 주세요.';
 
   @override
-  String get errorRequestInvalid => '입력한 값을 다시 확인해 주세요.';
+  String get errorRequestInvalid => '입력한 내용을 다시 확인해 주세요.';
 
   @override
   String get errorAuthTokenExpired => '로그인이 만료됐어요. 다시 로그인해 주세요.';
 
   @override
-  String get errorAuthTokenInvalid => '다시 로그인해 주세요.';
+  String get errorAuthTokenInvalid => '로그인 정보를 확인하지 못했어요. 다시 로그인해 주세요.';
 
   @override
-  String get errorAuthRefreshReused => '보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.';
+  String get errorAuthRefreshReused => '계정을 지키려고 로그아웃했어요. 다시 로그인해 주세요.';
 
   @override
   String get errorAuthProviderTokenInvalid => '로그인하지 못했어요. 다시 시도해 주세요.';
@@ -49,13 +49,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorAuthExchangeInvalid => '로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.';
 
   @override
-  String get errorAppCheckInvalid => '앱을 확인하지 못했어요. 앱을 최신 버전으로 업데이트해 주세요.';
+  String get errorAppCheckInvalid => '앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요.';
 
   @override
-  String get errorConsentRequired => '약관 동의가 필요해요.';
+  String get errorConsentRequired => '약관에 동의해야 계속할 수 있어요.';
 
   @override
-  String get errorPreviewUsed => '미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요.';
+  String get errorPreviewUsed => '미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요.';
 
   @override
   String get errorRouteNotFound => '요청을 처리하지 못했어요. 앱을 업데이트해 주세요.';
@@ -67,16 +67,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorMethodNotAllowed => '요청을 처리하지 못했어요. 앱을 업데이트해 주세요.';
 
   @override
-  String get errorProfileRequired => '먼저 생년월일시를 입력해 주세요.';
+  String get errorProfileRequired => '먼저 태어난 날과 시간을 입력해 주세요.';
 
   @override
   String get errorDiaryDateTaken => '그날에는 이미 일기가 있어요.';
 
   @override
-  String get errorIdempotencyInProgress => '처리 중이에요. 잠시 후 다시 확인해 주세요.';
+  String get errorIdempotencyInProgress => '아직 처리하고 있어요. 잠시 후 다시 확인해 주세요.';
 
   @override
-  String get errorRequestTooLarge => '내용이 너무 길어요.';
+  String get errorRequestTooLarge => '내용이 너무 길어요. 조금 줄여 주세요.';
 
   @override
   String get errorRequestUnsupportedMediaType => '요청을 처리하지 못했어요. 앱을 업데이트해 주세요.';
@@ -87,34 +87,34 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get errorBirthOutOfRange =>
-      '1900년 1월 31일부터 2099년 12월 31일 사이의 생년월일을 입력해 주세요.';
+      '1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.';
 
   @override
   String get errorDateInvalid => '달력에 없는 날짜예요.';
 
   @override
-  String get errorRequestInconsistent => '입력한 값을 다시 확인해 주세요.';
+  String get errorRequestInconsistent => '입력한 내용을 다시 확인해 주세요.';
 
   @override
-  String get errorBirthInvalid => '입력한 생년월일시를 다시 확인해 주세요.';
+  String get errorBirthInvalid => '입력한 태어난 날과 시간을 다시 확인해 주세요.';
 
   @override
-  String get errorDiaryFutureDate => '오늘 이후의 일기는 쓸 수 없어요.';
+  String get errorDiaryFutureDate => '아직 오지 않은 날의 일기는 쓸 수 없어요.';
 
   @override
-  String get errorNameEmpty => '부를 이름을 입력해 주세요.';
+  String get errorNameEmpty => '불러 드릴 이름을 입력해 주세요.';
 
   @override
-  String get errorNameTooLong => '부를 이름이 너무 길어요.';
+  String get errorNameTooLong => '이름이 너무 길어요. 조금 줄여 주세요.';
 
   @override
-  String get errorNameEmoji => '부를 이름에는 이모지를 쓸 수 없어요.';
+  String get errorNameEmoji => '이름에는 이모지를 쓸 수 없어요.';
 
   @override
-  String get errorNameControl => '부를 이름에 쓸 수 없는 글자가 있어요.';
+  String get errorNameControl => '이름에 쓸 수 없는 글자가 있어요.';
 
   @override
-  String get errorNameInvalidChar => '부를 이름에는 괄호를 쓸 수 없어요.';
+  String get errorNameInvalidChar => '이름에는 괄호를 쓸 수 없어요.';
 
   @override
   String get errorIdempotencyMismatch => '요청을 처리하지 못했어요. 다시 시도해 주세요.';
@@ -123,13 +123,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorConsentVersionMismatch => '약관이 바뀌었어요. 다시 확인해 주세요.';
 
   @override
-  String get errorRateLimited => '요청이 많아요. 잠시 후 다시 시도해 주세요.';
+  String get errorRateLimited => '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.';
 
   @override
-  String get errorInternal => '서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
+  String get errorInternal => '잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.';
 
   @override
-  String get errorEngineError => '풀이를 계산하지 못했어요.';
+  String get errorEngineError => '풀이를 계산하지 못했어요. 잠시 후 다시 시도해 주세요.';
 
   @override
   String get errorEngineUnavailable => '풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
@@ -142,7 +142,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.';
 
   @override
-  String get errorServiceUnavailable => '잠시 서비스를 이용할 수 없어요. 잠시 후 다시 시도해 주세요.';
+  String get errorServiceUnavailable => '지금은 앱을 쓸 수 없어요. 잠시 후 다시 시도해 주세요.';
 
   @override
   String get errorEngineTimeout => '풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.';
@@ -151,7 +151,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => '명리일기';
 
   @override
-  String get bootstrapFailed => '앱을 시작하지 못했어요. 앱을 완전히 종료한 뒤 다시 열어 주세요.';
+  String get bootstrapFailed => '앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요.';
 
   @override
   String get actionRetry => '다시 시도';
@@ -186,7 +186,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get adBannerLabel => '광고';
 
   @override
-  String get noticeOffline => '인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.';
+  String get noticeOffline => '인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.';
 
   @override
   String get emptyStateDefault => '아직 보여 드릴 내용이 없어요.';
@@ -242,7 +242,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String termTokenSemantics(String term) {
-    return '$term 풀이 보기';
+    return '$term 뜻 보기';
   }
 
   @override
@@ -255,11 +255,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String textFieldCounter(int current, int max) {
-    return '글자 수 $current/$max';
+    return '$max자 중 $current자';
   }
 
   @override
-  String get datePickerYearLabel => '년';
+  String get datePickerYearLabel => '연도';
 
   @override
   String get datePickerMonthLabel => '월';
@@ -309,12 +309,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String datePickerLeapMonthValue(int month) {
-    return '윤 $month월';
+    return '윤$month월';
   }
 
   @override
   String citySearchResults(int count) {
-    return '결과 $count개';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '결과 $_temp0';
   }
 
   @override
@@ -376,7 +381,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get leapMonth => '윤달';
 
   @override
-  String get onboardCallInputLabel => '호칭';
+  String get onboardCallInputLabel => '불러 드릴 이름';
 
   @override
   String get onboardTimeQuestionHead => '몇 시에 태어났나요?';
@@ -447,7 +452,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get birthplaceEmptyBody => '찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.';
 
   @override
-  String get birthplaceSearchLabel => '출생 도시 검색';
+  String get birthplaceSearchLabel => '태어난 도시 찾기';
 
   @override
   String get genderMale => '남성';
@@ -572,7 +577,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get calcBasisConventionBody => '명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.';
+  String get calcBasisConventionBody =>
+      '명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.';
 
   @override
   String get calcBasisLongitudeBody =>
@@ -731,6 +737,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharePreviewRatioLabelSquare => '정사각';
 
   @override
+  String get shareImageSemantics => '오늘 문장 이미지 미리보기';
+
+  @override
+  String get sharePreviewRatioGroup => '공유 이미지 비율';
+
+  @override
   String get tagDiaryEmptyBody => '이 태그가 붙은 일기가 아직 없어요.';
 
   @override
@@ -754,6 +766,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayGuideCtaWritten => '쓴 일기 보기';
 
   @override
+  String get todayGuideEyebrow => '오늘의 질문';
+
+  @override
+  String get todayGuideWritten => '오늘 일기를 썼어요';
+
+  @override
+  String get todayGuideLabel => '일기 질문';
+
+  @override
   String get todayReactionLabelSelected => '좋아요 취소';
 
   @override
@@ -767,4 +788,82 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get depthSurface => '요약';
+
+  @override
+  String get depthLinkEvidence => '근거 보기';
+
+  @override
+  String get todayLuckyColorName => '행운 색';
+
+  @override
+  String get todayLuckyDirectionName => '행운 방향';
+
+  @override
+  String get todayLuckyNumberName => '행운 숫자';
+
+  @override
+  String get todayLuckyTimeName => '집중하기 좋은 시간';
+
+  @override
+  String get evidenceSheetTitle => '오늘 풀이의 근거';
+
+  @override
+  String get direction8N => '북';
+
+  @override
+  String get direction8Ne => '북동';
+
+  @override
+  String get direction8E => '동';
+
+  @override
+  String get direction8Se => '남동';
+
+  @override
+  String get direction8S => '남';
+
+  @override
+  String get direction8Sw => '남서';
+
+  @override
+  String get direction8W => '서';
+
+  @override
+  String get direction8Nw => '북서';
+
+  @override
+  String get birthplaceStandardLink => '계산 기준 보기';
+
+  @override
+  String get birthplaceStandardNote =>
+      '명리일기는 한국에서 널리 쓰는 기준으로 계산해요. 여러 유파 가운데 하나로, 근거가 있는 방식이에요.';
+
+  @override
+  String calcBasisLongitudeBodySubtract(String longitude, int minutes) {
+    return '출생 시각은 $longitude 기준으로 $minutes분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyAdd(String longitude, int minutes) {
+    return '출생 시각은 $longitude 기준으로 $minutes분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyNone(String longitude) {
+    return '출생 시각은 $longitude 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyEast(String degrees) {
+    return '동경 $degrees°';
+  }
+
+  @override
+  String calcBasisLongitudeBodyWest(String degrees) {
+    return '서경 $degrees°';
+  }
+
+  @override
+  String get calcBasisSchoolsBody =>
+      '지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.';
 }

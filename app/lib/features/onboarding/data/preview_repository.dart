@@ -3,7 +3,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/api/gen/model/preview_request.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 /// 비로그인 첫 풀이 미리보기(`createPreview`, D50). 설치당 한 번만 받을 수 있습니다.
 final class PreviewRepository {

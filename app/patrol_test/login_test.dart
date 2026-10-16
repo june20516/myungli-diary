@@ -15,7 +15,7 @@ void main() {
         decisions: ['D50'],
       ),
     );
-    await launchApp($, scenario: 'returning-user');
+    await launchApp($, flow: 'login', scenario: 'returning-user');
 
     await expectScreen($, ScreenIds.welcome);
     await $(find.byKey(const ValueKey(SlotIds.welcomeCtaSignin))).tap();

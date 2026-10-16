@@ -13,6 +13,8 @@ abstract class _$GlossaryCWProxy {
 
   Glossary values(Map<String, Map<String, String>> values);
 
+  Glossary meanings(Map<String, RenderedText> meanings);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Glossary(...).copyWith.fieldName(value)`.
@@ -25,6 +27,7 @@ abstract class _$GlossaryCWProxy {
     String seedVersion,
     Language lang,
     Map<String, Map<String, String>> values,
+    Map<String, RenderedText> meanings,
   });
 }
 
@@ -45,6 +48,10 @@ class _$GlossaryCWProxyImpl implements _$GlossaryCWProxy {
   Glossary values(Map<String, Map<String, String>> values) =>
       call(values: values);
 
+  @override
+  Glossary meanings(Map<String, RenderedText> meanings) =>
+      call(meanings: meanings);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Glossary(...).copyWith.fieldName(value)`.
@@ -58,6 +65,7 @@ class _$GlossaryCWProxyImpl implements _$GlossaryCWProxy {
     Object? seedVersion = const $CopyWithPlaceholder(),
     Object? lang = const $CopyWithPlaceholder(),
     Object? values = const $CopyWithPlaceholder(),
+    Object? meanings = const $CopyWithPlaceholder(),
   }) {
     return Glossary(
       seedVersion:
@@ -73,6 +81,10 @@ class _$GlossaryCWProxyImpl implements _$GlossaryCWProxy {
           ? _value.values
           // ignore: cast_nullable_to_non_nullable
           : values as Map<String, Map<String, String>>,
+      meanings: meanings == const $CopyWithPlaceholder() || meanings == null
+          ? _value.meanings
+          // ignore: cast_nullable_to_non_nullable
+          : meanings as Map<String, RenderedText>,
     );
   }
 }
@@ -90,7 +102,10 @@ extension $GlossaryCopyWith on Glossary {
 
 Glossary _$GlossaryFromJson(Map<String, dynamic> json) =>
     $checkedCreate('Glossary', json, ($checkedConvert) {
-      $checkKeys(json, requiredKeys: const ['seedVersion', 'lang', 'values']);
+      $checkKeys(
+        json,
+        requiredKeys: const ['seedVersion', 'lang', 'values', 'meanings'],
+      );
       final val = Glossary(
         seedVersion: $checkedConvert('seedVersion', (v) => v as String),
         lang: $checkedConvert('lang', (v) => $enumDecode(_$LanguageEnumMap, v)),
@@ -98,6 +113,13 @@ Glossary _$GlossaryFromJson(Map<String, dynamic> json) =>
           'values',
           (v) => (v as Map<String, dynamic>).map(
             (k, e) => MapEntry(k, Map<String, String>.from(e as Map)),
+          ),
+        ),
+        meanings: $checkedConvert(
+          'meanings',
+          (v) => (v as Map<String, dynamic>).map(
+            (k, e) =>
+                MapEntry(k, RenderedText.fromJson(e as Map<String, dynamic>)),
           ),
         ),
       );
@@ -108,6 +130,7 @@ Map<String, dynamic> _$GlossaryToJson(Glossary instance) => <String, dynamic>{
   'seedVersion': instance.seedVersion,
   'lang': _$LanguageEnumMap[instance.lang]!,
   'values': instance.values,
+  'meanings': instance.meanings.map((k, e) => MapEntry(k, e.toJson())),
 };
 
 const _$LanguageEnumMap = {

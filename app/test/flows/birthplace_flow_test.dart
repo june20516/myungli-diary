@@ -130,8 +130,13 @@ void main() {
   testWidgets('도시를 누르면 초안에 담고 preview로 갑니다', (tester) async {
     covers(const Covers(exits: ['birthplace>preview'], decisions: ['D29']));
     final container = await _openBirthplace(tester);
+    // 고르면 바로 넘어가는 단계라 아래 버튼이 없습니다(`bottomAction.omitWhen`).
+    expect(find.byType(PrimaryButton), findsNothing);
     await _search(tester, 'new');
     await _settleIo(tester);
+    // 지역 줄은 "행정 구역, 나라 이름"이고 나라 코드는 보이지 않습니다.
+    expect(find.text('New York, United States'), findsOneWidget);
+    expect(find.text('US'), findsNothing);
 
     await tester.tap(_newYork);
     await _settleIo(tester);

@@ -16,6 +16,7 @@ class PressInkTarget extends StatefulWidget {
     required this.borderRadius,
     required this.child,
     this.link = false,
+    this.expanded,
     this.identifier,
     this.inkColor,
     super.key,
@@ -35,6 +36,9 @@ class PressInkTarget extends StatefulWidget {
 
   /// true면 링크, false면 버튼으로 읽습니다.
   final bool link;
+
+  /// 펼침 상태를 읽어 줍니다. 펼쳐지는 대상이 아니면 null(상태 없음)입니다.
+  final bool? expanded;
 
   /// 얼룩 색(그 컴포넌트의 글자색). 없으면 `text.primary`.
   final Color? inkColor;
@@ -88,6 +92,7 @@ class _PressInkTargetState extends State<PressInkTarget>
       container: true,
       button: !widget.link,
       link: widget.link,
+      expanded: widget.expanded,
       identifier: widget.identifier,
       label: widget.semanticLabel,
       onTap: widget.onTap,

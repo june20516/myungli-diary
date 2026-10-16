@@ -4,9 +4,9 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
-import 'package:myungli_diary/features/onboarding/presentation/onboarding_page_layout.dart';
 
 /// IA `welcome`의 출구 대상. 둘 다 진입 상태가 바뀌지 않는 이동이라 화면이 직접 이동합니다.
 const Set<String> welcomeExits = {ScreenIds.onboardCall, ScreenIds.login};

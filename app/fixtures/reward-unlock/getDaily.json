@@ -1,0 +1,350 @@
+{
+  "sequence": [
+    {
+      "status": 200,
+      "body": {
+        "date": "2026-10-13",
+        "rulesetVersion": "r1",
+        "evidenceAccess": "locked",
+        "dayPillar": {
+          "stem": "gap",
+          "branch": "in"
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              { "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요." }
+            ]
+          }
+        },
+        "fortune": {
+          "head": {
+            "slot": "daily.fortune.head",
+            "messageKey": "fortune.yongsin_day.siksang",
+            "variant": "advice",
+            "reactable": true,
+            "text": {
+              "segments": [
+                {
+                  "text": "하늘님, "
+                },
+                {
+                  "text": "목",
+                  "term": "element.wood"
+                },
+                {
+                  "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."
+                }
+              ]
+            }
+          },
+          "tag": {
+            "slot": "daily.fortune.tag",
+            "messageKey": "fortune.tag.cheoneul_gwiin",
+            "variant": "state",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "천을귀인",
+                  "term": "tag.cheoneul_gwiin"
+                },
+                {
+                  "text": "이 들어 도움을 받기 쉬운 날이에요."
+                }
+              ]
+            }
+          }
+        },
+        "guide": {
+          "slot": "daily.guide",
+          "messageKey": "guide.dohwa",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
+              }
+            ]
+          }
+        },
+        "cards": {
+          "color": {
+            "element": "wood",
+            "role": "yongsin",
+            "text": {
+              "slot": "daily.color",
+              "messageKey": "color.yongsin_day",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "오늘은 초록이 잘 맞아요. 옷이나 소품으로 챙겨 보세요."
+                  }
+                ]
+              }
+            }
+          },
+          "direction": {
+            "direction": "e",
+            "text": {
+              "slot": "daily.direction",
+              "messageKey": "direction.day_kind.yongsin",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "약속 장소를 고른다면 동쪽이 좋아요."
+                  }
+                ]
+              }
+            }
+          },
+          "number": {
+            "number": 3,
+            "text": {
+              "slot": "daily.number",
+              "messageKey": "number.yongsin_day",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "오늘은 3이 잘 맞아요."
+                  }
+                ]
+              }
+            }
+          },
+          "focusTime": {
+            "picks": [
+              {
+                "branch": "sa",
+                "pillar": {
+                  "stem": "gi",
+                  "branch": "sa"
+                },
+                "start": "2026-10-13T09:30:00+09:00",
+                "end": "2026-10-13T11:30:00+09:00",
+                "huangdaoLucky": true,
+                "score": 3,
+                "reasons": [
+                  "yongsin"
+                ]
+              }
+            ],
+            "fallback": false,
+            "text": {
+              "slot": "daily.focus_time",
+              "messageKey": "focus_time.yongsin",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "중요한 결정을 내리기 좋아요."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "tags": {
+          "featured": [
+            {
+              "key": "cheoneul_gwiin",
+              "polarity": "good"
+            }
+          ],
+          "all": [
+            "cheoneul_gwiin",
+            "yongsin_day"
+          ]
+        },
+        "relations": [],
+        "notices": []
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "date": "2026-10-13",
+        "rulesetVersion": "r1",
+        "evidenceAccess": "unlocked",
+        "dayPillar": {
+          "stem": "gap",
+          "branch": "in"
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              { "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요." }
+            ]
+          }
+        },
+        "fortune": {
+          "head": {
+            "slot": "daily.fortune.head",
+            "messageKey": "fortune.yongsin_day.siksang",
+            "variant": "advice",
+            "reactable": true,
+            "text": {
+              "segments": [
+                {
+                  "text": "하늘님, "
+                },
+                {
+                  "text": "목",
+                  "term": "element.wood"
+                },
+                {
+                  "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."
+                }
+              ]
+            }
+          },
+          "tag": {
+            "slot": "daily.fortune.tag",
+            "messageKey": "fortune.tag.cheoneul_gwiin",
+            "variant": "state",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "천을귀인",
+                  "term": "tag.cheoneul_gwiin"
+                },
+                {
+                  "text": "이 들어 도움을 받기 쉬운 날이에요."
+                }
+              ]
+            }
+          }
+        },
+        "guide": {
+          "slot": "daily.guide",
+          "messageKey": "guide.dohwa",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
+              }
+            ]
+          }
+        },
+        "cards": {
+          "color": {
+            "element": "wood",
+            "role": "yongsin",
+            "text": {
+              "slot": "daily.color",
+              "messageKey": "color.yongsin_day",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "오늘은 초록이 잘 맞아요. 옷이나 소품으로 챙겨 보세요."
+                  }
+                ]
+              }
+            }
+          },
+          "direction": {
+            "direction": "e",
+            "text": {
+              "slot": "daily.direction",
+              "messageKey": "direction.day_kind.yongsin",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "약속 장소를 고른다면 동쪽이 좋아요."
+                  }
+                ]
+              }
+            }
+          },
+          "number": {
+            "number": 3,
+            "text": {
+              "slot": "daily.number",
+              "messageKey": "number.yongsin_day",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "오늘은 3이 잘 맞아요."
+                  }
+                ]
+              }
+            }
+          },
+          "focusTime": {
+            "picks": [
+              {
+                "branch": "sa",
+                "pillar": {
+                  "stem": "gi",
+                  "branch": "sa"
+                },
+                "start": "2026-10-13T09:30:00+09:00",
+                "end": "2026-10-13T11:30:00+09:00",
+                "huangdaoLucky": true,
+                "score": 3,
+                "reasons": [
+                  "yongsin"
+                ]
+              }
+            ],
+            "fallback": false,
+            "text": {
+              "slot": "daily.focus_time",
+              "messageKey": "focus_time.yongsin",
+              "variant": "single",
+              "reactable": false,
+              "text": {
+                "segments": [
+                  {
+                    "text": "중요한 결정을 내리기 좋아요."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "tags": {
+          "featured": [
+            {
+              "key": "cheoneul_gwiin",
+              "polarity": "good"
+            }
+          ],
+          "all": [
+            "cheoneul_gwiin",
+            "yongsin_day"
+          ]
+        },
+        "relations": [],
+        "notices": []
+      }
+    }
+  ]
+}

@@ -43,3 +43,49 @@ class LiveAnnouncement extends StatelessWidget {
     );
   }
 }
+
+/// 보이는 내용 없이 상태 알림만 하는 [LiveAnnouncement].
+///
+/// 레이아웃 높이는 0이지만 알림 노드는 1x1 영역을 가져 TalkBack이 놓치지 않습니다.
+/// 알림이 감싸는 내용을 의미에서 숨기면 안 되는 곳(결과 목록 위, 스크롤 영역 밖)에
+/// 내용과 나란히 둡니다.
+class SilentAnnouncement extends StatelessWidget {
+  /// 알림 노드를 만듭니다. 인자는 [LiveAnnouncement]와 같습니다.
+  const new({
+    required this.label,
+    required this.role,
+    this.identifier,
+    super.key,
+  });
+
+  /// 읽을 문장(글자 그대로).
+  final String label;
+
+  /// 명세가 정한 역할(`status` 또는 `alert`).
+  final SemanticsRole role;
+
+  /// IA 슬롯 id.
+  final String? identifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 0,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            width: 1,
+            height: 1,
+            child: LiveAnnouncement(
+              identifier: identifier,
+              label: label,
+              role: role,
+              child: const SizedBox.shrink(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

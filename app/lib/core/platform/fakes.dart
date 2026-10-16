@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/ia/ia_ids.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
@@ -232,6 +233,20 @@ final class FakeAdConsent implements AdConsent {
       simulateError ? AdConsentResult.nonPersonalized : result;
 }
 
+/// 시나리오의 보상형 광고 결과([ScenarioRewardedAd])대로 동작하는 광고 대역. 배너는 늘 준비됩니다.
+Ads fakeAdsFor(ScenarioRewardedAd rewardedAd) => switch (rewardedAd) {
+  ScenarioRewardedAd.earned => FakeAds(),
+  ScenarioRewardedAd.dismissed => FakeAds(
+    rewardedResult: const RewardDismissed(),
+  ),
+  ScenarioRewardedAd.unavailable => FakeAds(rewardedAvailable: false),
+  ScenarioRewardedAd.failed => FakeAds(
+    rewardedResult: RewardFailed(
+      UnexpectedError(StateError('대역: 보상형 광고를 표시하지 못했습니다.')),
+    ),
+  ),
+};
+
 /// 광고 대역.
 final class FakeAds implements Ads {
   /// 광고별 준비 여부와 보상 여부를 정합니다.
@@ -311,9 +326,8 @@ final class _FakeRewardedAd implements RewardedAdHandle {
 final class FakePurchases implements Purchases {
   /// 상품과 구매 결과를 정합니다.
   new({
-    this.catalog = const [
-      StoreProduct(id: 'ad_free_1month', priceLabel: '₩2,500'),
-    ],
+    // 가격은 비공개 결정이라 대역은 통화 기호 없는 자리표시 값을 씁니다(D74, #180).
+    this.catalog = const [StoreProduct(id: 'ad_free_1month', priceLabel: '—')],
     this.outcomes = const [PurchaseSucceeded()],
     this.restoreOutcome = const PurchaseSucceeded(),
     this.logInFailWith,

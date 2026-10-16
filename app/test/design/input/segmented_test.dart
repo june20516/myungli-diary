@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import 'input_harness.dart';
@@ -79,6 +80,54 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(Segmented.indicatorKey), findsNothing);
+    });
+
+    testWidgets('none: 글자는 모두 text.secondary이고, 처음 고르면 표시가 미끄러지지 않고 '
+        'appear.seep으로 나타나며 그다음부터 select.seep-slide입니다', (tester) async {
+      String? selected;
+      Widget build() => inputApp(
+        StatefulBuilder(
+          builder: (context, setState) => Padding(
+            padding: const EdgeInsets.all(20),
+            child: Segmented<String?>(
+              items: const [SegmentedItem('f', '여성'), SegmentedItem('m', '남성')],
+              selected: selected,
+              onChanged: (value) => setState(() => selected = value),
+              label: '성별',
+            ),
+          ),
+        ),
+      );
+      Finder slideOf(int index) => find.descendant(
+        of: find.byKey(Segmented.itemKey(index)),
+        matching: find.byType(FractionalTranslation),
+      );
+
+      await tester.pumpWidget(build());
+      await tester.pumpAndSettle();
+      final secondary = tester
+          .element(find.byType(Segmented<String?>))
+          .tokens
+          .colors
+          .textSecondary;
+      for (final label in ['여성', '남성']) {
+        expect(tester.widget<Text>(find.text(label)).style!.color, secondary);
+      }
+
+      await tester.tap(find.text('남성'));
+      await tester.pump(const Duration(milliseconds: 50));
+      // 처음 선택: 표시가 생기지만 옆에서 미끄러져 오지 않습니다(appear.seep).
+      expect(find.byKey(Segmented.indicatorKey), findsOneWidget);
+      expect(slideOf(1), findsNothing);
+      // appear.seep 시간(select.seep-slide와 다름)이 지나야 끝납니다.
+      await tester.pump(InteractionPattern.appearSeep.duration);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('여성'));
+      await tester.pump(const Duration(milliseconds: 50));
+      // 두 번째 선택부터는 이전 자리에서 미끄러져 옵니다.
+      expect(slideOf(0), findsOneWidget);
+      await tester.pumpAndSettle();
     });
 
     testWidgets('pressed: 누르는 동안 press.ink 얼룩이 번지고 뗀 뒤 사라집니다', (tester) async {

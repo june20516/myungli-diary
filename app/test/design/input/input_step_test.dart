@@ -193,6 +193,40 @@ void main() {
       );
     });
 
+    testWidgets('selectToAdvance: 고르면 바로 넘어가는 단계에는 아래 버튼이 없고, '
+        '내용이 키보드 위 space.16까지 스크롤됩니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(400, 800),
+            viewInsets: EdgeInsets.only(bottom: 300),
+          ),
+          child: inputApp(
+            const InputStep.selectToAdvance(
+              screenId: 'birthplace',
+              variant: InputStepVariant.onboarding,
+              step: 5,
+              stepCount: 5,
+              question: '어디서 태어났나요?',
+              input: SizedBox(height: 2000, child: Placeholder()),
+              help: '출생 시간대를 정해요.',
+            ),
+            scaffold: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PrimaryButton), findsNothing);
+      final scroll = tester.widget<SingleChildScrollView>(
+        find.byType(SingleChildScrollView),
+      );
+      expect((scroll.padding! as EdgeInsets).bottom, 300 + Space.s16);
+    });
+
     testWidgets('글자 3.0배에서도 overflow 없이 스크롤됩니다', (tester) async {
       tester.view
         ..physicalSize = const Size(360, 640)

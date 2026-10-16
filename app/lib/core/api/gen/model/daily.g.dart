@@ -17,6 +17,8 @@ abstract class _$DailyCWProxy {
 
   Daily dayKind(DayKind dayKind);
 
+  Daily characterReason(SlotText characterReason);
+
   Daily fortune(Fortune fortune);
 
   Daily guide(SlotText guide);
@@ -43,6 +45,7 @@ abstract class _$DailyCWProxy {
     EvidenceAccess evidenceAccess,
     Pillar dayPillar,
     DayKind dayKind,
+    SlotText characterReason,
     Fortune fortune,
     SlotText guide,
     DailyCards cards,
@@ -77,6 +80,10 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
   Daily dayKind(DayKind dayKind) => call(dayKind: dayKind);
 
   @override
+  Daily characterReason(SlotText characterReason) =>
+      call(characterReason: characterReason);
+
+  @override
   Daily fortune(Fortune fortune) => call(fortune: fortune);
 
   @override
@@ -109,6 +116,7 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
     Object? evidenceAccess = const $CopyWithPlaceholder(),
     Object? dayPillar = const $CopyWithPlaceholder(),
     Object? dayKind = const $CopyWithPlaceholder(),
+    Object? characterReason = const $CopyWithPlaceholder(),
     Object? fortune = const $CopyWithPlaceholder(),
     Object? guide = const $CopyWithPlaceholder(),
     Object? cards = const $CopyWithPlaceholder(),
@@ -141,6 +149,12 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
           ? _value.dayKind
           // ignore: cast_nullable_to_non_nullable
           : dayKind as DayKind,
+      characterReason:
+          characterReason == const $CopyWithPlaceholder() ||
+              characterReason == null
+          ? _value.characterReason
+          // ignore: cast_nullable_to_non_nullable
+          : characterReason as SlotText,
       fortune: fortune == const $CopyWithPlaceholder() || fortune == null
           ? _value.fortune
           // ignore: cast_nullable_to_non_nullable
@@ -190,6 +204,7 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
           'evidenceAccess',
           'dayPillar',
           'dayKind',
+          'characterReason',
           'fortune',
           'guide',
           'cards',
@@ -212,6 +227,10 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
         dayKind: $checkedConvert(
           'dayKind',
           (v) => $enumDecode(_$DayKindEnumMap, v),
+        ),
+        characterReason: $checkedConvert(
+          'characterReason',
+          (v) => SlotText.fromJson(v as Map<String, dynamic>),
         ),
         fortune: $checkedConvert(
           'fortune',
@@ -251,6 +270,7 @@ Map<String, dynamic> _$DailyToJson(Daily instance) => <String, dynamic>{
   'evidenceAccess': _$EvidenceAccessEnumMap[instance.evidenceAccess]!,
   'dayPillar': instance.dayPillar.toJson(),
   'dayKind': _$DayKindEnumMap[instance.dayKind]!,
+  'characterReason': instance.characterReason.toJson(),
   'fortune': instance.fortune.toJson(),
   'guide': instance.guide.toJson(),
   'cards': instance.cards.toJson(),

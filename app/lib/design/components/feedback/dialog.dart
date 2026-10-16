@@ -5,6 +5,7 @@ import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/text_action.dart';
+import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
@@ -19,6 +20,10 @@ enum DialogVariant {
 
   /// 되돌릴 수 없는 동작(일기 삭제, 계정 삭제). 빨간색 없이 경고 표시와 굵은 확정 글자로 구분합니다.
   destructive,
+
+  /// 고를 것 없이 읽었다는 확인만 받는 안내(`login.discard.notice`). 확인 버튼 하나이고,
+  /// 바깥 누르기·뒤로 가기도 확인과 같습니다. [showMyungliNotice]로 엽니다.
+  notice,
 }
 
 /// 확인 창(`dialog`)의 명세 요약.
@@ -26,7 +31,7 @@ abstract final class MyungliDialog {
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'dialog',
-    {'confirm', 'destructive'},
+    {'confirm', 'destructive', 'notice'},
     {'opening', 'closing', 'pressed'},
   );
 
@@ -38,6 +43,7 @@ abstract final class MyungliDialog {
 ///
 /// destructive는 처음 초점이 취소에 있고 바깥을 눌러도 닫히지 않으며, 확정 버튼을 누르면
 /// 햅틱 medium이 울립니다. [identifier]는 창이 채우는 IA 슬롯 id입니다.
+/// 확인 버튼 하나짜리 안내는 [showMyungliNotice]를 씁니다.
 Future<bool> showMyungliDialog(
   BuildContext context, {
   required DialogVariant variant,
@@ -47,7 +53,53 @@ Future<bool> showMyungliDialog(
   String? body,
   String? identifier,
 }) async {
-  final result = await Navigator.of(context, rootNavigator: true).push<bool>(
+  assert(variant != DialogVariant.notice, '안내는 showMyungliNotice로 엽니다.');
+  final result = await _pushDialog(
+    context,
+    variant: variant,
+    title: title,
+    body: body,
+    identifier: identifier,
+    confirm: confirm,
+    cancel: cancel,
+  );
+  return result ?? false;
+}
+
+/// 확인 버튼 하나짜리 안내(`dialog` `notice`)를 열고, 닫히면 끝납니다.
+///
+/// 고를 것이 없으므로 확인·바깥 누르기·뒤로 가기가 모두 같은 "읽었음"입니다. 첫 초점은
+/// 확인 버튼입니다. [body]는 안내 문장(창이 늘어나는 본문)이고, [title]은 있을 때만
+/// 그립니다. 제목이 없으면 창의 스크린리더 이름은 본문입니다.
+Future<void> showMyungliNotice(
+  BuildContext context, {
+  required String body,
+  required String confirm,
+  String? title,
+  String? identifier,
+}) async {
+  await _pushDialog(
+    context,
+    variant: DialogVariant.notice,
+    title: title,
+    body: body,
+    identifier: identifier,
+    confirm: confirm,
+    cancel: null,
+  );
+}
+
+Future<bool?> _pushDialog(
+  BuildContext context, {
+  required DialogVariant variant,
+  required String? title,
+  required String? body,
+  required String? identifier,
+  required String confirm,
+  required String? cancel,
+}) {
+  // 시트와 같은 navigator에 쌓습니다(셸 밖, 앱 안의 앱에서는 그 앱 안).
+  return overlayNavigatorOf(context).push<bool>(
     _DialogRoute(
       variant: variant,
       title: title,
@@ -60,7 +112,6 @@ Future<bool> showMyungliDialog(
       barrierLabel: AppLocalizations.of(context).sheetDismiss,
     ),
   );
-  return result ?? false;
 }
 
 class _DialogRoute extends PopupRoute<bool> {
@@ -77,11 +128,11 @@ class _DialogRoute extends PopupRoute<bool> {
   });
 
   final DialogVariant variant;
-  final String title;
+  final String? title;
   final String? body;
   final String? identifier;
   final String confirm;
-  final String cancel;
+  final String? cancel;
   final MotionPrefs prefs;
   final Color scrim;
 
@@ -94,7 +145,7 @@ class _DialogRoute extends PopupRoute<bool> {
   Color get barrierColor => scrim;
 
   @override
-  bool get barrierDismissible => variant == DialogVariant.confirm;
+  bool get barrierDismissible => variant != DialogVariant.destructive;
 
   @override
   Duration get transitionDuration => InteractionPattern.appearSeep.duration;
@@ -167,23 +218,35 @@ class _DialogRoute extends PopupRoute<bool> {
   }
 }
 
-/// 확인 창 카드 하나(제목·본문·버튼). 열고 닫는 움직임은 [showMyungliDialog]가 입힙니다.
+/// 확인 창 카드 하나(제목·본문·버튼). 열고 닫는 움직임은 [showMyungliDialog]·
+/// [showMyungliNotice]가 입힙니다.
+///
+/// [DialogVariant.notice]는 취소 버튼이 없고(`parts.cancel.visible: false`) 확인 버튼이
+/// 오른쪽 끝에 놓이며 처음 초점을 받습니다. 제목은 없어도 되고, 그때 창 이름은 본문입니다.
 class DialogCard extends StatelessWidget {
-  /// 카드를 만듭니다.
+  /// 카드를 만듭니다. [cancel]은 [DialogVariant.notice]에서만 없고 다른 변형에서는 필수,
+  /// [title]은 [DialogVariant.notice]에서만 생략할 수 있습니다.
   const new({
     required this.variant,
-    required this.title,
     required this.confirm,
-    required this.cancel,
+    this.title,
+    this.cancel,
     this.body,
     super.key,
-  });
+  }) : assert(
+         (variant == DialogVariant.notice) == (cancel == null),
+         'notice만 취소 버튼이 없습니다.',
+       ),
+       assert(
+         title != null || (variant == DialogVariant.notice && body != null),
+         '제목은 notice에서만 생략하고, 그때 본문이 창 이름이 됩니다.',
+       );
 
   /// 변형.
   final DialogVariant variant;
 
-  /// 제목.
-  final String title;
+  /// 제목(notice는 없어도 됨).
+  final String? title;
 
   /// 본문(없으면 생략).
   final String? body;
@@ -191,14 +254,16 @@ class DialogCard extends StatelessWidget {
   /// 확정 버튼 글자.
   final String confirm;
 
-  /// 취소 버튼 글자.
-  final String cancel;
+  /// 취소 버튼 글자(notice는 없음).
+  final String? cancel;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final destructive = variant == DialogVariant.destructive;
+    final title = this.title;
+    final cancel = this.cancel;
     final titleStyle = tokens.typography.subtitle.copyWith(
       color: colors.textPrimary,
     );
@@ -215,7 +280,7 @@ class DialogCard extends StatelessWidget {
       namesRoute: true,
       explicitChildNodes: true,
       role: SemanticsRole.alertDialog,
-      label: title,
+      label: title ?? body,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.bgSheet,
@@ -227,31 +292,37 @@ class DialogCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Semantics(
-                header: true,
-                child: DefaultTextStyle(
-                  style: titleStyle,
-                  child: Row(
-                    children: [
-                      if (destructive) ...[
-                        const AppIcon.caution(),
-                        const SizedBox(width: Space.s8),
+              if (title != null)
+                Semantics(
+                  header: true,
+                  child: DefaultTextStyle(
+                    style: titleStyle,
+                    child: Row(
+                      children: [
+                        if (destructive) ...[
+                          const AppIcon.caution(),
+                          const SizedBox(width: Space.s8),
+                        ],
+                        Expanded(child: Text(title)),
                       ],
-                      Expanded(child: Text(title)),
-                    ],
+                    ),
                   ),
                 ),
-              ),
               if (body != null) ...[
-                const SizedBox(height: Space.s8),
+                if (title != null) const SizedBox(height: Space.s8),
                 // 큰 글자·긴 본문에서는 본문만 스크롤하고 제목·버튼은 늘 보입니다.
                 Flexible(
                   child: SingleChildScrollView(
                     primary: false,
-                    child: Text(
-                      body!,
-                      style: tokens.typography.bodyUi.copyWith(
-                        color: colors.textSecondary,
+                    // 제목이 없으면 본문이 창 이름(라벨)이라 글자 노드는 읽지 않습니다.
+                    // 같은 문장을 두 번 읽지 않게 합니다(명세 a11y: label 제목, description 본문).
+                    child: ExcludeSemantics(
+                      excluding: title == null,
+                      child: Text(
+                        body!,
+                        style: tokens.typography.bodyUi.copyWith(
+                          color: colors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
@@ -263,12 +334,13 @@ class DialogCard extends StatelessWidget {
                 spacing: Space.s8,
                 runSpacing: Space.s8,
                 children: [
-                  FeedbackTextAction(
-                    label: cancel,
-                    style: cancelStyle,
-                    autofocus: destructive,
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
+                  if (cancel != null)
+                    FeedbackTextAction(
+                      label: cancel,
+                      style: cancelStyle,
+                      autofocus: destructive,
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
                   FeedbackTextAction(
                     label: confirm,
                     style: confirmStyle,

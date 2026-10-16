@@ -6,7 +6,7 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 /// 프로필이 있는 계정의 진입 갈래. 이 갈래에서는 온보딩 입력을 읽는 경로가 없습니다.
 const Set<EntryState> profiledEntries = {

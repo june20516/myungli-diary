@@ -237,12 +237,23 @@ void main() {
         'notify-profile-save-unavailable',
         'profile-name-invalid',
         'login-entry-unavailable',
+        'member-time-unknown',
+        'daily-error',
+        'diary-written',
+        'reaction-failed',
+        'reaction-delete-failed',
+        'evidence-unlocked',
+        'reward-unlock',
+        'reward-timeout',
+        'reward-unavailable',
+        'reward-dismissed',
+        'reward-failed',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(10));
+      expect(scenarios.where((s) => s.signedIn), hasLength(21));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

@@ -4,6 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:myungli_diary/core/api/gen/model/language.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -24,6 +25,8 @@ class Glossary {
     required this.lang,
 
     required this.values,
+
+    required this.meanings,
   });
 
   @JsonKey(name: r'seedVersion', required: true, includeIfNull: false)
@@ -36,16 +39,25 @@ class Glossary {
   @JsonKey(name: r'values', required: true, includeIfNull: false)
   final Map<String, Map<String, String>> values;
 
+  /// 용어 id → 뜻 문장(writing 슬롯 `term.meaning`, 키 `term.<용어 id>`)
+  @JsonKey(name: r'meanings', required: true, includeIfNull: false)
+  final Map<String, RenderedText> meanings;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Glossary &&
           other.seedVersion == seedVersion &&
           other.lang == lang &&
-          other.values == values;
+          other.values == values &&
+          other.meanings == meanings;
 
   @override
-  int get hashCode => seedVersion.hashCode + lang.hashCode + values.hashCode;
+  int get hashCode =>
+      seedVersion.hashCode +
+      lang.hashCode +
+      values.hashCode +
+      meanings.hashCode;
 
   factory Glossary.fromJson(Map<String, dynamic> json) =>
       _$GlossaryFromJson(json);

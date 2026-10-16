@@ -36,6 +36,8 @@ class CalendarDay {
 
     required this.dayKind,
 
+    required this.characterReason,
+
     required this.luckLevel,
 
     required this.score,
@@ -62,6 +64,9 @@ class CalendarDay {
   @JsonKey(name: r'dayKind', required: true, includeIfNull: false)
   final DayKind dayKind;
 
+  @JsonKey(name: r'characterReason', required: true, includeIfNull: false)
+  final SlotText characterReason;
+
   @JsonKey(name: r'luckLevel', required: true, includeIfNull: false)
   final LuckLevel luckLevel;
 
@@ -87,6 +92,7 @@ class CalendarDay {
           other.lunar == lunar &&
           other.solarTerm == solarTerm &&
           other.dayKind == dayKind &&
+          other.characterReason == characterReason &&
           other.luckLevel == luckLevel &&
           other.score == score &&
           other.scoreItems == scoreItems &&
@@ -100,6 +106,7 @@ class CalendarDay {
       lunar.hashCode +
       solarTerm.hashCode +
       dayKind.hashCode +
+      characterReason.hashCode +
       luckLevel.hashCode +
       score.hashCode +
       scoreItems.hashCode +

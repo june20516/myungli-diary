@@ -329,6 +329,58 @@ void main() {
       expect(c.read(profileTimezoneProvider), 'Europe/Paris');
     });
 
+    test('사본 시간대가 모르는 이름이면 기기 시간대로 물러나고 crash 요약만 남긴다', () async {
+      final crash = FakeCrashReporter();
+      final c = ProviderContainer(
+        overrides: [
+          ...profileTimezoneOverrides,
+          crashReporterProvider.overrideWithValue(crash),
+          clockProvider.overrideWithValue(
+            FixedClock(DateTime.utc(2026, 10, 13, 3)),
+          ),
+          cachedProfileProvider.overrideWith(
+            (ref) async => Profile.fromJson({
+              'honorific': '하늘',
+              'language': 'ko',
+              'currentTimezone': 'Mars/Olympus_Mons',
+              'birth': {
+                'calendar': 'solar',
+                'date': {'year': 1990, 'month': 5, 'day': 15},
+                'isLeapMonth': false,
+                'time': {'status': 'unknown'},
+                'gender': 'female',
+                'timezone': 'Asia/Seoul',
+                'place': {'status': 'not_asked'},
+              },
+              'notification': {'status': 'not_asked'},
+            }),
+          ),
+          deviceTimezoneProvider.overrideWithValue(
+            const FakeDeviceTimezone('Asia/Tokyo'),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      c.read(profileTimezoneProvider);
+      await c.read(cachedProfileProvider.future);
+      await c.read(deviceTimezoneNameProvider.future);
+
+      expect(c.read(profileTimezoneProvider), 'Asia/Tokyo');
+      // "오늘"과 시각 표시가 예외 없이 계산됩니다.
+      expect(c.read(todayProvider), CalendarDate(2026, 10, 13));
+      expect(crash.errors, isNotEmpty);
+      expect(crash.errors.map((e) => e.errorType).toSet(), {'UnknownTimezone'});
+    });
+
+    test('pickKnownTimezone은 null을 조용히 건너뛰고 모두 모르면 기본 시간대다', () {
+      var unknown = 0;
+      expect(
+        pickKnownTimezone([null, 'Nowhere/City'], onUnknown: () => unknown++),
+        fallbackTimezone,
+      );
+      expect(unknown, 1);
+    });
+
     test('todayProvider는 자정을 넘기면 한 번 새 날짜로 갱신된다', () {
       fakeAsync((async) {
         // 서울 10-13 23:59 = UTC 14:59

@@ -40,13 +40,17 @@ Widget _inputStep({
   ),
 );
 
-/// 눌러서 바뀌는 segmented.
-Widget _segmented(List<String> labels, {bool disabled = false}) {
-  var selected = 0;
+/// 눌러서 바뀌는 segmented. [none]이면 아직 고르지 않은 상태에서 시작합니다.
+Widget _segmented(
+  List<String> labels, {
+  bool disabled = false,
+  bool none = false,
+}) {
+  var selected = none ? null : 0;
   return SizedBox(
     width: 360,
     child: StatefulBuilder(
-      builder: (context, setState) => Segmented<int>(
+      builder: (context, setState) => Segmented<int?>(
         label: '고르기',
         items: [
           for (var i = 0; i < labels.length; i++) SegmentedItem(i, labels[i]),
@@ -131,18 +135,35 @@ Widget _timePicker(
 /// 쳐서 바뀌는 도시 검색. 글자에 맞는 도시만 걸러 보이고 비면 빈 상태입니다.
 Widget _citySearch({bool loading = false}) {
   final cities = [
-    City(id: '1835848', name: 'Seoul', country: 'KR', timezone: 'Asia/Seoul'),
-    City(id: '1838524', name: 'Busan', country: 'KR', timezone: 'Asia/Seoul'),
+    City(
+      id: '1835848',
+      name: 'Seoul',
+      country: 'KR',
+      countryName: 'South Korea',
+      timezone: 'Asia/Seoul',
+    ),
+    City(
+      id: '1838524',
+      name: 'Busan',
+      country: 'KR',
+      countryName: 'South Korea',
+      regionName: 'Busan',
+      timezone: 'Asia/Seoul',
+    ),
     City(
       id: '5391959',
       name: 'San Francisco',
       country: 'US',
+      countryName: 'United States',
+      regionName: 'California',
       timezone: 'America/Los_Angeles',
     ),
     City(
       id: '2643743',
       name: 'London',
       country: 'GB',
+      countryName: 'United Kingdom',
+      regionName: 'England',
       timezone: 'Europe/London',
     ),
   ];
@@ -197,6 +218,22 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
           'onboarding(버튼 loading)',
           () => _inputStep(variant: InputStepVariant.onboarding, loading: true),
         ),
+        _stage(
+          '고르면 바로 넘어감(아래 버튼 없음)',
+          () => SizedBox(
+            width: 360,
+            height: 560,
+            child: InputStep.selectToAdvance(
+              screenId: 'birthplace',
+              variant: InputStepVariant.onboarding,
+              step: 5,
+              stepCount: 5,
+              question: '어디서 태어났나요?',
+              input: _citySearch(),
+              help: '태어난 곳의 시간대로 계산해요.',
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(
@@ -232,6 +269,10 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
         _stage('3개', () => _segmented(['여성', '남성', '선택 안 함'])),
         _stage('4개', () => _segmented(['1:1', '4:5', '9:16', '16:9'])),
         _stage('disabled', () => _segmented(['여성', '남성'], disabled: true)),
+        _stage(
+          'none · 처음 고르면 스며 나타남',
+          () => _segmented(['여성', '남성'], none: true),
+        ),
       ],
     ),
     WidgetbookComponent(

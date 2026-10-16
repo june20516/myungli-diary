@@ -19,7 +19,7 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 /// | 값이 있고 갱신 중 | 데이터 그대로 (skeleton으로 바꾸지 않음) |
 /// | 값 없음 + [OfflineError] | error-state `offline` |
 /// | 값 없음 + 그 밖의 오류 | error-state `generic` |
-/// | 값이 있고 오류가 [OfflineError] | 데이터 + notice-banner `offline` |
+/// | 값이 있고 오류가 [OfflineError] 또는 `isStale` | 데이터 + notice-banner `offline` |
 /// | 값이 있고 오프라인이 아닌 오류(예 500) | 데이터 그대로, 화면 안 표시 없음. `onStaleError`로 알림 |
 /// | 값이 있고 `isEmpty` | empty-state |
 ///
@@ -43,6 +43,7 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
     this.dataWithNotice,
     this.skeleton,
     this.isEmpty,
+    this.isStale,
     this.empty,
     this.onStaleError,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
@@ -70,6 +71,12 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
 
   /// 값이 비었는지.
   final bool Function(T value)? isEmpty;
+
+  /// 값이 연결 실패로 받아 둔 캐시인지. true면 오류 상태가 아니어도 오프라인 배너를 보입니다.
+  ///
+  /// 캐시를 먼저 보이고 server 응답이 오지 않으면 그 캐시를 값으로 남기는 화면(그날 캐시 등)이
+  /// 줍니다. 없으면 값의 오류가 [OfflineError]일 때만 배너를 보입니다.
+  final bool Function(T value)? isStale;
 
   /// 빈 상태 화면. 없으면 기본 문구의 [EmptyState].
   final Widget? empty;
@@ -159,7 +166,8 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
     final notice = NoticeBanner(
       variant: NoticeBannerVariant.offline,
       message: l10n.noticeOffline,
-      present: error is OfflineError,
+      present:
+          error is OfflineError || (widget.isStale?.call(current) ?? false),
     );
     if (widget.isEmpty?.call(current) ?? false) {
       return SeepPresence(

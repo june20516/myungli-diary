@@ -5,15 +5,15 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/notification_setting.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_input.dart';
+import 'package:myungli_diary/core/api/gen/model/profile_response.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
-import 'package:myungli_diary/features/profile/data/profile_repository.dart';
 
 /// server가 온보딩 입력을 받아들이지 않았습니다(422 `birth.*`·`date.*`·`name.*`·
 /// `request.inconsistent`). 입력은 남아 있어 `onboard-call`부터 고칠 수 있습니다.
@@ -58,7 +58,7 @@ AppError onboardingErrorOf(Object error) => switch (error) {
 final class OnboardingCompleter {
   /// 의존성을 받습니다. 함수 인자는 부를 때마다 현재 값을 읽습니다.
   const new({
-    required this._profiles,
+    required this._createProfile,
     required this._readDraft,
     required this._clearDraft,
     required this._language,
@@ -70,7 +70,7 @@ final class OnboardingCompleter {
     required this._crashReporter,
   });
 
-  final ProfileRepository _profiles;
+  final Future<ProfileResponse> Function(ProfileInput input) _createProfile;
   final Future<OnboardingDraft> Function() _readDraft;
   final Future<void> Function() _clearDraft;
   final Language _language;
@@ -121,7 +121,7 @@ final class OnboardingCompleter {
       ),
     );
     try {
-      await _profiles.create(input);
+      await _createProfile(input);
     } on AppError catch (error) {
       if (isOnboardingInputProblem(error)) {
         throw OnboardingInputRejected(error);
@@ -151,7 +151,7 @@ final class OnboardingCompleter {
 /// 온보딩 마무리 동작.
 final onboardingCompleterProvider = Provider<OnboardingCompleter>(
   (ref) => OnboardingCompleter(
-    profiles: ref.watch(profileRepositoryProvider),
+    createProfile: ref.watch(profileRepositoryProvider).create,
     readDraft: () => ref.read(onboardingDraftProvider.future),
     clearDraft: () => ref.read(onboardingDraftProvider.notifier).clear(),
     language: ref.watch(appLanguageProvider),

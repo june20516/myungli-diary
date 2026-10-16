@@ -4,6 +4,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
+/// 시나리오의 보상형 광고 대역 결과(`rewardedAd`).
+enum ScenarioRewardedAd {
+  /// 끝까지 봐서 보상을 받습니다.
+  earned,
+
+  /// 보상 전에 닫습니다.
+  dismissed,
+
+  /// 볼 수 있는 광고가 없습니다(불러오기가 null).
+  unavailable,
+
+  /// 광고를 표시하지 못합니다.
+  failed,
+}
+
 /// 대역 서버 시나리오 하나: 앱이 보게 될 "오늘"과 네트워크 상태입니다.
 ///
 /// 응답 fixture는 `fixtures/<id>/`에 있고, [lineage] 순서로 찾습니다.
@@ -17,6 +32,7 @@ final class Scenario {
     this.delay = Duration.zero,
     this.signedIn = false,
     this.locale,
+    this.rewardedAd = ScenarioRewardedAd.earned,
     List<String>? lineage,
   }) : lineage = List.unmodifiable(lineage ?? [id]);
 
@@ -41,6 +57,10 @@ final class Scenario {
   /// 기기 로케일. null이면 기기(또는 테스트)가 정한 값을 그대로 씁니다.
   /// 한국 밖 기기(`en-US` 등)를 흉내 낼 때 씁니다.
   final Locale? locale;
+
+  /// 보상형 광고 대역의 결과. 이어받지 않고 시나리오마다 정하며,
+  /// 생략하면 [ScenarioRewardedAd.earned]입니다.
+  final ScenarioRewardedAd rewardedAd;
 
   /// fixture를 찾는 시나리오 id 순서: 자기 자신 → `extends` 부모 → 조상.
   final List<String> lineage;
@@ -138,8 +158,23 @@ Scenario _build(String id, Map<String, Object?> json, List<String> lineage) {
     offline: network == 'offline',
     delay: Duration(milliseconds: (delayMs as int?) ?? 0),
     signedIn: json['signedIn'] == true,
+    rewardedAd: _parseRewardedAd(id, json['rewardedAd']),
     lineage: lineage,
   );
+}
+
+/// `rewardedAd` 값을 읽습니다. 없으면 [ScenarioRewardedAd.earned]입니다.
+ScenarioRewardedAd _parseRewardedAd(String id, Object? raw) {
+  if (raw == null) {
+    return ScenarioRewardedAd.earned;
+  }
+  for (final value in ScenarioRewardedAd.values) {
+    if (value.name == raw) {
+      return value;
+    }
+  }
+  final names = ScenarioRewardedAd.values.map((v) => v.name).join(', ');
+  throw ScenarioFormatException('$id: rewardedAd는 $names 중 하나여야 합니다: $raw');
 }
 
 /// `<언어>` 또는 `<언어>-<국가>`(예 `ko`, `en-US`) 형식의 로케일을 읽습니다. 없으면 null입니다.

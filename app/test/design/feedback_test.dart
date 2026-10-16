@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -162,6 +163,7 @@ Future<AsyncValue<String>> _afterFailedLoad(WidgetTester tester) async {
 Widget _view(
   AsyncValue<String> value, {
   bool Function(String)? isEmpty,
+  bool Function(String)? isStale,
   VoidCallback? onRetry,
   void Function(AppError)? onStaleError,
   FakeCrashReporter? crash,
@@ -171,6 +173,7 @@ Widget _view(
     value: value,
     onRetry: onRetry ?? () {},
     isEmpty: isEmpty,
+    isStale: isStale,
     onStaleError: onStaleError,
     data: (v) => Center(child: Text('값:$v')),
   ),
@@ -305,6 +308,8 @@ void main() {
     testWidgets('alertdialog 의미와 제목 라벨', (tester) async {
       final handle = tester.ensureSemantics();
       await open(tester, DialogVariant.destructive);
+      // 제목이 있으면 본문은 따로 읽힙니다.
+      expect(find.bySemanticsLabel('지우면 되돌릴 수 없어요.'), findsOneWidget);
       expect(
         tester.getSemantics(find.byType(DialogCard)),
         matchesSemantics(
@@ -314,6 +319,168 @@ void main() {
         ),
       );
       handle.dispose();
+    });
+
+    group('notice', () {
+      Future<List<String>> openNotice(WidgetTester tester) async {
+        final closed = <String>[];
+        await tester.pumpWidget(_app(const SizedBox.expand()));
+        unawaited(
+          showMyungliNotice(
+            _navigatorKey.currentContext!,
+            body: '이미 사주를 저장한 계정이면 저장된 정보를 써요.',
+            confirm: '확인',
+          ).then((_) => closed.add('closed')),
+        );
+        await tester.pumpAndSettle();
+        return closed;
+      }
+
+      testWidgets('확인 버튼 하나뿐이고 오른쪽 끝에 놓이며 처음 초점을 받습니다', (tester) async {
+        await openNotice(tester);
+        final card = find.byType(DialogCard);
+        expect(
+          find.descendant(of: card, matching: find.byType(FeedbackTextAction)),
+          findsOneWidget,
+        );
+        expect(
+          Focus.of(tester.element(find.text('확인'))).hasPrimaryFocus,
+          isTrue,
+        );
+        // 확인 버튼은 카드 안쪽 여백(space.24)만큼 떨어진 오른쪽 끝입니다.
+        final confirmRight = tester
+            .getTopRight(
+              find
+                  .ancestor(
+                    of: find.text('확인'),
+                    matching: find.byType(FeedbackTextAction),
+                  )
+                  .first,
+            )
+            .dx;
+        expect(confirmRight, tester.getTopRight(card).dx - Space.s24);
+        // confirm과 같은 모양(action.primary, 굵게 하지 않음), 경고 표시 없음.
+        final tokens = tester.element(card).tokens;
+        final confirm = tester.widget<Text>(find.text('확인'));
+        expect(confirm.style!.color, tokens.colors.actionPrimary);
+        expect(confirm.style!.fontWeight, isNot(FontWeight.w700));
+        expect(
+          find.descendant(of: card, matching: find.byType(Icon)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('확인을 누르면 닫히고 햅틱은 없습니다', (tester) async {
+        final haptics = _recordHaptics(tester);
+        final closed = await openNotice(tester);
+        await tester.tap(find.text('확인'));
+        await tester.pumpAndSettle();
+        expect(find.byType(DialogCard), findsNothing);
+        expect(closed, ['closed']);
+        expect(haptics, isEmpty);
+      });
+
+      testWidgets('바깥을 누르면 확인과 같이 닫힙니다', (tester) async {
+        final closed = await openNotice(tester);
+        await tester.tapAt(const Offset(4, 4));
+        await tester.pumpAndSettle();
+        expect(find.byType(DialogCard), findsNothing);
+        expect(closed, ['closed']);
+      });
+
+      testWidgets('뒤로 가기도 확인과 같이 닫힙니다', (tester) async {
+        final closed = await openNotice(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byType(DialogCard), findsNothing);
+        expect(closed, ['closed']);
+      });
+
+      testWidgets('제목이 없으면 본문이 창 이름(alertdialog 라벨)입니다', (tester) async {
+        final handle = tester.ensureSemantics();
+        await openNotice(tester);
+        // 같은 문장은 창 이름으로 한 번만 읽힙니다(본문 글자 노드는 따로 없음).
+        expect(
+          find.bySemanticsLabel('이미 사주를 저장한 계정이면 저장된 정보를 써요.'),
+          findsOneWidget,
+        );
+        expect(
+          tester.getSemantics(find.byType(DialogCard)),
+          matchesSemantics(
+            label: '이미 사주를 저장한 계정이면 저장된 정보를 써요.',
+            scopesRoute: true,
+            namesRoute: true,
+          ),
+        );
+        handle.dispose();
+      });
+
+      test('notice는 showMyungliDialog로 열 수 없고, 카드는 notice만 취소가 없습니다', () {
+        expect(
+          () => DialogCard(
+            variant: DialogVariant.confirm,
+            title: 't',
+            confirm: 'c',
+          ),
+          throwsAssertionError,
+        );
+        expect(
+          () => DialogCard(
+            variant: DialogVariant.notice,
+            body: 'b',
+            confirm: 'c',
+            cancel: 'x',
+          ),
+          throwsAssertionError,
+        );
+      });
+    });
+
+    testWidgets('앱 안의 앱(바깥 작업대 MaterialApp)에서는 안쪽 navigator에 안쪽 테마로 쌓입니다', (
+      tester,
+    ) async {
+      // Widgetbook처럼 바깥 MaterialApp 안에 MyungliTokens 테마 MaterialApp이 있는 경우.
+      late BuildContext outer;
+      late BuildContext inner;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              outer = context;
+              return MaterialApp(
+                locale: const Locale('ko'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                theme: buildTheme(
+                  brightness: Brightness.light,
+                  locale: const Locale('ko'),
+                ),
+                home: Builder(
+                  builder: (context) {
+                    inner = context;
+                    return const SizedBox.expand();
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      unawaited(
+        showMyungliDialog(
+          inner,
+          variant: DialogVariant.confirm,
+          title: '알림을 켤까요?',
+          confirm: '켜기',
+          cancel: '나중에',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(DialogCard), findsOneWidget);
+      expect(Navigator.of(inner).canPop(), isTrue);
+      expect(Navigator.of(outer).canPop(), isFalse);
     });
   });
 
@@ -539,7 +706,7 @@ void main() {
       );
       final state = tester.widget<ErrorState>(find.byType(ErrorState));
       expect(state.variant, ErrorStateVariant.offline);
-      expect(find.text('인터넷에 연결되어 있지 않아요.'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.'), findsOneWidget);
       expect(
         tester.widget<Icon>(find.byType(Icon)).icon,
         ErrorStateVariant.offline.glyph.light,
@@ -622,7 +789,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('값:a'), findsOneWidget);
       expect(find.byType(NoticeBanner), findsOneWidget); // present=false: 빈 자리
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('값 없는 OfflineError는 error-state offline', (tester) async {
@@ -654,7 +821,25 @@ void main() {
         _view(AsyncError<String>(StateError('x'), StackTrace.empty)),
       );
       await tester.pumpAndSettle();
-      expect(find.text('예기치 못한 문제가 생겼어요.'), findsOneWidget);
+      expect(find.text('문제가 생겼어요. 다시 시도해 주세요.'), findsOneWidget);
+    });
+
+    testWidgets('isStale이 true인 값은 오류가 없어도 offline 배너를 보이고, 풀리면 사라집니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _view(const AsyncData('cache'), isStale: (v) => v == 'cache'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('값:cache'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsOneWidget);
+
+      await tester.pumpWidget(
+        _view(const AsyncData('server'), isStale: (v) => v == 'cache'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('값:server'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('캐시가 있는 오프라인은 데이터와 offline 배너를 함께 보입니다', (tester) async {
@@ -663,7 +848,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('값:캐시'), findsOneWidget);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsOneWidget);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsOneWidget);
       expect(find.byType(ErrorState), findsNothing);
     });
 
@@ -678,7 +863,7 @@ void main() {
       await tester.pumpWidget(_view(const AsyncData('새값')));
       await tester.pumpAndSettle();
       expect(find.text('값:새값'), findsOneWidget);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
     });
 
     testWidgets('값이 있는 갱신 중에는 데이터를 그대로 보입니다', (tester) async {
@@ -837,7 +1022,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('값:캐시'), findsOneWidget);
       expect(find.byType(ErrorState), findsNothing);
-      expect(find.text('인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.'), findsNothing);
+      expect(find.text('인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'), findsNothing);
       expect(errors, [_problem]);
       // 같은 값으로 다시 그려도 반복해 알리지 않습니다.
       await tester.pumpWidget(_view(stale, onStaleError: errors.add));

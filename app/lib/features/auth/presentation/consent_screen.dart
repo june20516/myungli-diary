@@ -12,11 +12,11 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/auth/application/consent_controller.dart';
-import 'package:myungli_diary/features/onboarding/presentation/onboarding_page_layout.dart';
 
 /// IA `consent`의 출구 대상. `notify-ask`(미리보기를 거친 새 계정)·`onboard-call`(그 외)은
 /// 진입 상태가 바뀌는 이동이라 동의 뒤 진입 갱신으로 라우터 redirect가 보냅니다. `legal`만

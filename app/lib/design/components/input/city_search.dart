@@ -27,7 +27,9 @@ const AppGlyph _magnifyingGlass = AppGlyph(
 /// 위에 `text-field`(앞 아이콘 `magnifying-glass`), 아래에 결과 카드가 놓입니다.
 /// [results]가 null이면 결과 자리가 없고, 불러오는 중이면 skeleton 줄 3개, 빈 목록이면
 /// [EmptyState], 오류면 [ErrorState]입니다. 줄은 도시 이름(검색어와 맞는 부분은 굵게 600)과
-/// 지역 자리([City.country] 코드, 결정 A20 ⑤)이고 눌림은 `press.ink`입니다.
+/// 지역 줄("행정 구역, 나라 이름", [cityRegionLine])이고 눌림은 `press.ink`입니다. 나라
+/// 코드(`KR`)는 보이지 않고, 지역 이름이 없으면 지역 줄을 그리지 않습니다(줄 최소 높이 56은
+/// 그대로).
 ///
 /// 글자를 칠 때마다 결과가 바뀌어도 목록을 움직이지 않습니다. 이 위젯은 스크롤을 갖지
 /// 않고 화면의 스크롤 안에 놓이며, 다시 불러오는 동안(이전 값이 남은 loading)에는 이전 줄을
@@ -179,17 +181,37 @@ class _CitySearchState extends State<CitySearch> {
         identifier: widget.emptyIdentifier,
       );
     }
-    return LiveAnnouncement(
-      label: AppLocalizations.of(context).citySearchResults(cities.length),
-      role: SemanticsRole.status,
-      child: _ResultsCard(
-        key: CitySearch.resultsKey,
-        cities: cities,
-        query: _query.trim(),
-        onSelected: widget.onSelected,
-      ),
+    // 결과 수 알림은 카드와 나란한 노드에 둡니다. `LiveAnnouncement`는 자식을 의미에서
+    // 숨기므로 카드를 감싸면 결과 줄을 스크린리더가 읽지도 누르지도 못합니다.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SilentAnnouncement(
+          label: AppLocalizations.of(context).citySearchResults(cities.length),
+          role: SemanticsRole.status,
+        ),
+        _ResultsCard(
+          key: CitySearch.resultsKey,
+          cities: cities,
+          query: _query.trim(),
+          onSelected: widget.onSelected,
+        ),
+      ],
     );
   }
+}
+
+/// 결과 줄의 지역 줄 글자("행정 구역, 나라 이름", `city-search.parts.region`).
+///
+/// 이름이 있는 것만 ", "로 잇고 나라 코드([City.country])는 쓰지 않습니다.
+/// 둘 다 없으면 null이라 줄을 그리지 않습니다. 계약에 지역 필드가 늘면 이 한 곳만
+/// 고칩니다. ja 구분자(", " / "、")는 design 확인 중입니다(#195).
+String? cityRegionLine(City city) {
+  final names = [
+    city.regionName,
+    city.countryName,
+  ].whereType<String>().map((name) => name.trim()).where((n) => n.isNotEmpty);
+  return names.isEmpty ? null : names.join(', ');
 }
 
 /// 묶음 카드 모양의 결과 목록(`settings-row`와 같은 모양).
@@ -257,8 +279,9 @@ class _CityRow extends StatelessWidget {
     final nameStyle = tokens.typography.bodyUi.copyWith(
       color: tokens.colors.textPrimary,
     );
+    final region = cityRegionLine(city);
     return PressInkTarget(
-      semanticLabel: '${city.name}, ${city.country}',
+      semanticLabel: region == null ? city.name : '${city.name}, $region',
       onTap: () => onSelected(city),
       borderRadius: BorderRadius.zero,
       child: ConstrainedBox(
@@ -276,12 +299,13 @@ class _CityRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text.rich(_nameSpan(city.name, query, nameStyle)),
-                Text(
-                  city.country,
-                  style: tokens.typography.captionMd.copyWith(
-                    color: tokens.colors.textSecondary,
+                if (region != null)
+                  Text(
+                    region,
+                    style: tokens.typography.captionMd.copyWith(
+                      color: tokens.colors.textSecondary,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

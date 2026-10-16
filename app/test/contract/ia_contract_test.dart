@@ -9,6 +9,7 @@ import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
+import 'package:myungli_diary/app/router/sheet_registry.dart';
 
 import 'ia_pending.dart';
 
@@ -72,6 +73,14 @@ String _nameOf(GoRoute root) {
   return name!;
 }
 
+/// 화면의 처리 상태. 시트는 `sheetRegistry`, 그 밖은 `screenRegistry`에서 찾습니다.
+Set<String> _handledStates(_IaEntry screen) => _isSheet(screen)
+    ? sheetRegistry[screen.id]?.handledStates ?? <String>{}
+    : screenRegistry[screen.id]?.handledStates ?? <String>{};
+
+bool _isSheet(_IaEntry screen) =>
+    screen.presentation == 'half-sheet' || screen.presentation == 'full-sheet';
+
 void main() {
   final json =
       jsonDecode(File('../docs/ia/screens.json').readAsStringSync())!
@@ -120,7 +129,7 @@ void main() {
       if (pendingStateScreens.contains(screen.id)) {
         continue;
       }
-      final handled = screenRegistry[screen.id]?.handledStates ?? <String>{};
+      final handled = _handledStates(screen);
       expect(handled, screen.states, reason: '${screen.id} 상태 처리 불일치');
     }
   });
@@ -133,10 +142,7 @@ void main() {
     final finished = {
       for (final screen in screens)
         if (pendingStateScreens.contains(screen.id) &&
-            setEquals(
-              screenRegistry[screen.id]?.handledStates ?? <String>{},
-              screen.states,
-            ))
+            setEquals(_handledStates(screen), screen.states))
           screen.id,
     };
     expect(finished, isEmpty, reason: 'pendingStateScreens에서 지우세요');
@@ -172,6 +178,24 @@ void main() {
           screen.id,
     };
     expect(finished, isEmpty, reason: 'pendingExitScreens에서 지우세요');
+  });
+
+  test('sheetRegistry의 id는 모두 IA 시트 화면이다', () {
+    final sheetIds = {
+      for (final screen in screens)
+        if (_isSheet(screen)) screen.id,
+    };
+    expect(sheetRegistry.keys.toSet().difference(sheetIds), isEmpty);
+  });
+
+  test('pending이 아닌 시트는 exits가 IA exits의 대상 집합과 같다', () {
+    for (final screen in screens.where(_isSheet)) {
+      final spec = sheetRegistry[screen.id];
+      if (spec == null) {
+        continue;
+      }
+      expect(spec.exits, screen.exits, reason: '${screen.id} 출구 불일치');
+    }
   });
 
   test('ad-banner는 탭 루트 4곳에만 있다 (D53)', () {

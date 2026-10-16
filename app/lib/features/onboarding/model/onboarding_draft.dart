@@ -126,6 +126,8 @@ final class OnboardingDraft {
             'id': city!.id,
             'name': city!.name,
             'country': city!.country,
+            'countryName': city!.countryName,
+            'regionName': city!.regionName,
             'timezone': city!.timezone,
           },
   };
@@ -207,9 +209,16 @@ BirthTime _timeFromJson(Map<String, Object?> json) {
   );
 }
 
-City _cityFromJson(Map<String, Object?> json) => City(
-  id: json['id']! as String,
-  name: json['name']! as String,
-  country: json['country']! as String,
-  timezone: json['timezone']! as String,
-);
+City _cityFromJson(Map<String, Object?> json) {
+  final country = json['country']! as String;
+  return City(
+    id: json['id']! as String,
+    name: json['name']! as String,
+    country: country,
+    // 계약 draft.3 전에 저장한 입력에는 나라 이름이 없습니다. 다시 고르게 하지 않고
+    // 나라 코드로 채웁니다(프로필 저장에는 도시 id와 시간대만 쓰입니다).
+    countryName: json['countryName'] as String? ?? country,
+    regionName: json['regionName'] as String?,
+    timezone: json['timezone']! as String,
+  );
+}

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 /// 온보딩 입력을 로컬 DB 단일 행(`OnboardingInputs`, id=1)에 두는 저장소입니다.
 ///

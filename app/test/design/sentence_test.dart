@@ -12,10 +12,12 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
@@ -202,14 +204,14 @@ void main() {
           RenderedTextView(
             text: _siksin,
             style: _style,
-            trailing: const Text('근거 보기 ›'),
+            trailing: const Text('근거 보기'),
           ),
         ),
       );
-      expect(find.text('근거 보기 ›'), findsOneWidget);
+      expect(find.text('근거 보기'), findsOneWidget);
     });
 
-    testWidgets('용어 라벨은 "용어 + 풀이 보기"로 읽고 term 값은 읽지 않습니다', (tester) async {
+    testWidgets('용어 라벨은 "용어 + 뜻 보기"로 읽고 term 값은 읽지 않습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
@@ -221,7 +223,7 @@ void main() {
           ),
         ),
       );
-      expect(find.bySemanticsLabel('식신의 풀이 보기'), findsOneWidget);
+      expect(find.bySemanticsLabel('식신의 뜻 보기'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('TenGod')), findsNothing);
       handle.dispose();
     });
@@ -296,7 +298,7 @@ void main() {
       expect(taps, 2, reason: '44px 밖은 눌리지 않음');
     });
 
-    testWidgets('버튼으로 읽고 라벨에 "풀이 보기"가 붙습니다', (tester) async {
+    testWidgets('버튼으로 읽고 라벨에 "뜻 보기"가 붙습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
@@ -307,9 +309,51 @@ void main() {
           ),
         ),
       );
-      final data = _semantics(tester, find.bySemanticsLabel('식신 풀이 보기'));
+      final data = _semantics(tester, find.bySemanticsLabel('식신 뜻 보기'));
       expect(data.flagsCollection.isButton, isTrue);
       handle.dispose();
+    });
+  });
+
+  group('TermToken 붙은 글자와 좁은 폭', () {
+    Widget token(double width) => SizedBox(
+      width: width,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: TermToken(
+          label: '천을귀인',
+          variant: TermTokenVariant.inline,
+          onTap: () {},
+          textStyle: _style,
+          after: '이',
+        ),
+      ),
+    );
+
+    for (final scale in [2.0, 3.0]) {
+      testWidgets('글자 $scale배에서 칩과 조사가 폭보다 넓어도 넘치지 않습니다', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await tester.pumpWidget(_app(token(120)));
+        expect(tester.takeException(), isNull);
+        // 칩 글자가 칩 안에서 줄을 바꿔 폭 안에 머뭅니다.
+        expect(
+          tester.getSize(find.byType(TermToken)).width,
+          lessThanOrEqualTo(120),
+        );
+        expect(find.text('이', findRichText: true), findsOneWidget);
+      });
+    }
+
+    testWidgets('폭이 넉넉하면 칩과 조사가 한 줄에 그대로 붙습니다', (tester) async {
+      await tester.pumpWidget(_app(token(400)));
+      final chip = tester.getRect(find.text('천을귀인'));
+      final after = tester.getRect(find.text('이', findRichText: true));
+      // 줄바꿈 없음: 칩 글자 한 줄 높이, 조사는 칩 바로 오른쪽에 같은 줄로 붙습니다.
+      expect(chip.height, lessThan(_style.fontSize! * _style.height! + 1));
+      expect(after.left, greaterThanOrEqualTo(chip.right));
+      expect(after.left - chip.right, lessThan(8));
+      expect((after.bottom - chip.bottom).abs(), lessThan(4));
     });
   });
 
@@ -620,6 +664,211 @@ void main() {
       final inlineTop = tester.getTopLeft(find.textContaining('근거 보기')).dy;
       expect(blockTop - inlineTop, Space.s12);
     });
+
+    testWidgets('navigate는 block과 같은 자리(위 space.12)이고 링크로 읽고 누르면 onTap입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      Future<double> topOf(DepthLinkVariant variant) async {
+        await tester.pumpWidget(
+          _app(
+            DepthLink(variant: variant, label: '계산 기준 보기', onTap: () => taps++),
+          ),
+        );
+        return tester.getTopLeft(find.textContaining('계산 기준 보기')).dy;
+      }
+
+      final blockTop = await topOf(DepthLinkVariant.block);
+      final navigateTop = await topOf(DepthLinkVariant.navigate);
+      expect(navigateTop, blockTop);
+      final data = _semantics(tester, find.bySemanticsLabel('계산 기준 보기'));
+      expect(data.flagsCollection.isLink, isTrue);
+      await tester.tap(find.textContaining('계산 기준 보기'));
+      expect(taps, 1);
+      handle.dispose();
+    });
+
+    for (final variant in DepthLinkVariant.values) {
+      testWidgets(
+        '${variant.id}: 화살표는 caret-right Regular, 링크 글자 크기·색, 간격 2px, '
+        '스크린리더는 이름만 읽습니다(V29)',
+        (tester) async {
+          await tester.runAsync(ensureGoldenFonts);
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            _app(DepthLink(variant: variant, label: '근거 보기', onTap: () {})),
+          );
+          final paragraph = tester.renderObject<RenderParagraph>(
+            find.descendant(
+              of: find.byType(LinkLabel),
+              matching: find.byType(RichText),
+            ),
+          );
+          final plain = paragraph.text.toPlainText();
+          expect(
+            plain,
+            '근거 보기\u2060${String.fromCharCode(LinkLabel.caret.codePoint)}',
+          );
+          final root = paragraph.text as TextSpan;
+          final tokens = tester.element(find.byType(LinkLabel)).tokens;
+          expect(root.style!.color, tokens.colors.actionPrimary);
+          expect(root.style!.fontSize, tokens.typography.labelLg.fontSize);
+          final caret =
+              (root.children!.single as TextSpan).children!.last as TextSpan;
+          // 크기·색은 링크 글자에서 이어받고 글꼴만 Phosphor Regular입니다.
+          expect(caret.style!.fontSize, isNull);
+          expect(caret.style!.color, isNull);
+          expect(caret.style!.fontFamily, contains('Phosphor-Regular'));
+          // 간격 2px: 연결 문자(폭 0)의 자간만큼 화살표가 띕니다.
+          final labelEnd = paragraph
+              .getBoxesForSelection(
+                const TextSelection(baseOffset: 0, extentOffset: 5),
+              )
+              .last
+              .right;
+          final caretBox = paragraph
+              .getBoxesForSelection(
+                TextSelection(
+                  baseOffset: plain.length - 1,
+                  extentOffset: plain.length,
+                ),
+              )
+              .single;
+          expect(caretBox.left - labelEnd, closeTo(LinkLabel.gap, 0.01));
+          expect(
+            _semantics(tester, find.bySemanticsLabel('근거 보기')).label,
+            '근거 보기',
+          );
+          handle.dispose();
+        },
+      );
+    }
+
+    testWidgets('inline-end는 링크 이름과 화살표를 문장 끝 WidgetSpan 하나에 담습니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 320,
+            child: SentenceBlock(
+              variant: SentenceBlockVariant.body,
+              text: _text([Segment(text: '오늘은 쉬어 가는 날이에요.')]),
+              trailing: DepthLink(
+                variant: DepthLinkVariant.inlineEnd,
+                label: '근거 보기',
+                onTap: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      final sentence = tester.widget<RichText>(
+        find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget is RichText &&
+                  widget.text.toPlainText().contains('쉬어 가는'),
+            )
+            .first,
+      );
+      final widgetSpans = <WidgetSpan>[];
+      sentence.text.visitChildren((span) {
+        if (span is WidgetSpan) widgetSpans.add(span);
+        return true;
+      });
+      expect(widgetSpans, hasLength(1));
+      expect(
+        find.descendant(
+          of: find.byType(DepthLink),
+          matching: find.byType(LinkLabel),
+        ),
+        findsOneWidget,
+      );
+      // 한 덩어리라 링크 글자 안에서 줄이 바뀌지 않습니다.
+      expect(
+        tester.widget<LinkLabel>(find.byType(LinkLabel)).softWrap,
+        isFalse,
+      );
+    });
+
+    testWidgets('block·navigate가 감기면 화살표가 마지막 줄 끝에 붙습니다', (tester) async {
+      await tester.runAsync(ensureGoldenFonts);
+      for (final variant in [
+        DepthLinkVariant.block,
+        DepthLinkVariant.navigate,
+      ]) {
+        await tester.pumpWidget(
+          _app(
+            SizedBox(
+              width: 120,
+              child: DepthLink(
+                variant: variant,
+                label: '출생지 계산 기준 자세히 보기',
+                onTap: () {},
+              ),
+            ),
+          ),
+        );
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.descendant(
+            of: find.byType(LinkLabel),
+            matching: find.byType(RichText),
+          ),
+        );
+        final plain = paragraph.text.toPlainText();
+        final boxes = paragraph.getBoxesForSelection(
+          TextSelection(baseOffset: 0, extentOffset: plain.length - 2),
+        );
+        expect(boxes.map((box) => box.top).toSet().length, greaterThan(1));
+        // 라벨 마지막 글자 바로 뒤(간격 2px)에, 같은 줄 높이로 붙습니다.
+        final lastChar = paragraph
+            .getBoxesForSelection(
+              TextSelection(
+                baseOffset: plain.length - 3,
+                extentOffset: plain.length - 2,
+              ),
+            )
+            .single
+            .toRect();
+        final caret = paragraph
+            .getBoxesForSelection(
+              TextSelection(
+                baseOffset: plain.length - 1,
+                extentOffset: plain.length,
+              ),
+            )
+            .single
+            .toRect();
+        expect(
+          caret.left - lastChar.right,
+          closeTo(LinkLabel.gap, 0.01),
+          reason: variant.id,
+        );
+        expect(
+          caret.center.dy,
+          inInclusiveRange(lastChar.top, lastChar.bottom),
+          reason: variant.id,
+        );
+        // 화살표의 줄 top은 라벨 마지막 글자 줄(마지막 줄)의 top과 같고 첫 줄이 아닙니다.
+        double lineTop(int offset) => paragraph
+            .getOffsetForCaret(TextPosition(offset: offset), Rect.zero)
+            .dy;
+        // 아이콘 글꼴은 줄 안 글리프 top이 1px 남짓 달라 반 줄 이내로 봅니다.
+        final halfLine = lastChar.height / 2;
+        expect(
+          lineTop(plain.length - 1),
+          closeTo(lineTop(plain.length - 3), halfLine),
+          reason: variant.id,
+        );
+        expect(
+          lineTop(plain.length - 1),
+          greaterThan(lineTop(0) + halfLine),
+          reason: variant.id,
+        );
+      }
+    });
   });
 
   group('EvidenceSheetBody', () {
@@ -766,6 +1015,105 @@ void main() {
         _semantics(tester, announcement).flagsCollection.isLiveRegion,
         isTrue,
       );
+      handle.dispose();
+    });
+
+    testWidgets('unlocked인데 본문이 없는 구역은 제목도 자리도 그리지 않습니다(A22)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '오늘 풀이의 근거',
+              source: _text([Segment(text: '원전 인용 본문')]),
+              showPersonal: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('판정 근거'), findsNothing);
+      expect(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+        findsNothing,
+      );
+      expect(find.text('내 사주에서는'), findsNothing);
+      expect(find.byType(LockVeil), findsNothing);
+      expect(find.text('원전'), findsOneWidget, reason: '본문이 있는 구역은 그대로');
+      expect(find.text('원전 인용 본문', findRichText: true), findsOneWidget);
+    });
+
+    testWidgets('loading: 구역 자리마다 skeleton이고 제목과 잠금 안내는 그대로입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 360,
+            height: 640,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: Space.s20),
+              child: EvidenceSheetBody(
+                state: DepthLinkState.unlocking,
+                title: '오늘 풀이의 근거',
+                loading: true,
+                showPersonal: true,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        find.byKey(EvidenceSheetBody.sectionSkeletonKey),
+        findsNWidgets(3),
+      );
+      expect(find.byType(LockVeil), findsNothing);
+      expect(find.text('판정 근거'), findsOneWidget, reason: '구역 제목은 또렷합니다');
+      expect(find.text('오늘 풀이의 근거'), findsOneWidget);
+      expect(find.byKey(PrimaryButton.dotsKey), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(
+          lookupAppLocalizations(const Locale('ko')).skeletonLabel,
+        ),
+        findsWidgets,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('loading이 끝나 unlocked가 되면 skeleton이 사라지고 열림 알림이 옵니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      Widget build({required bool loading, required DepthLinkState state}) =>
+          _app(
+            SizedBox(
+              width: 360,
+              height: 640,
+              child: EvidenceSheetBody(
+                state: state,
+                title: '오늘 풀이의 근거',
+                loading: loading,
+                basis: state == DepthLinkState.unlocked
+                    ? _text([Segment(text: '판정 근거 본문')])
+                    : null,
+              ),
+            ),
+          );
+      await tester.pumpWidget(
+        build(loading: true, state: DepthLinkState.unlocking),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpWidget(
+        build(loading: false, state: DepthLinkState.unlocked),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(EvidenceSheetBody.sectionSkeletonKey), findsNothing);
+      expect(find.text('판정 근거 본문', findRichText: true), findsOneWidget);
+      expect(find.bySemanticsLabel('근거와 해석이 열렸어요'), findsOneWidget);
       handle.dispose();
     });
 
@@ -1077,7 +1425,7 @@ void main() {
       expect(found[1].after, ',');
       expect(outerText(tester), 'The  day,  calm.');
       expect(
-        find.bySemanticsLabel("View the meaning of (Siksin's)"),
+        find.bySemanticsLabel("See what (Siksin's) means"),
         findsOneWidget,
       );
       handle.dispose();
@@ -1135,7 +1483,7 @@ void main() {
             child: RenderedTextView(
               text: _text([Segment(text: '이유를 한 줄로 적은 문장 마지막낱말')]),
               style: _style,
-              trailing: const Text('근거 보기 ›', softWrap: false),
+              trailing: const Text('근거 보기', softWrap: false),
             ),
           ),
         ),
@@ -1153,7 +1501,7 @@ void main() {
             ),
           )
           .dy;
-      final linkTop = tester.getTopLeft(find.text('근거 보기 ›')).dy;
+      final linkTop = tester.getTopLeft(find.text('근거 보기')).dy;
       // 한 줄 높이(24)보다 가깝다 = 같은 줄.
       expect((linkTop - wordTop).abs(), lessThan(12));
     });
@@ -1269,11 +1617,17 @@ void main() {
             );
             final lineTops = boxes.map((box) => box.top).toSet();
             if (lineTops.length > 1) wrapped++;
-            final lastTop = lineTops.reduce((a, b) => a > b ? a : b);
-            final lastLine = boxes
-                .where((box) => box.top == lastTop)
-                .map((box) => box.toRect())
-                .reduce((a, b) => a.expandToInclude(b))
+            // 마지막 줄은 라벨 마지막 글자의 상자로 잽니다. ja는 글꼴이 섞여 같은 줄의
+            // 상자 top이 달라 top 최댓값으로는 줄을 가를 수 없습니다.
+            final lastLine = paragraph
+                .getBoxesForSelection(
+                  TextSelection(
+                    baseOffset: label.length - 1,
+                    extentOffset: label.length,
+                  ),
+                )
+                .single
+                .toRect()
                 .shift(paragraph.localToGlobal(Offset.zero));
             final plain = paragraph.text.toPlainText();
             final caret = paragraph
@@ -1333,14 +1687,8 @@ void main() {
       // 끝 조각이 화살표 아이콘 글리프이고 링크 색을 이어받습니다.
       final label = (text.text as TextSpan).children!.single as TextSpan;
       final caret = label.children!.last as TextSpan;
-      expect(
-        caret.text,
-        String.fromCharCode(EvidenceLockPanel.passCaret.codePoint),
-      );
-      expect(
-        caret.style!.fontFamily,
-        contains(EvidenceLockPanel.passCaret.fontFamily),
-      );
+      expect(caret.text, String.fromCharCode(LinkLabel.caret.codePoint));
+      expect(caret.style!.fontFamily, contains(LinkLabel.caret.fontFamily));
       expect(
         text.text.style!.color,
         tester.element(pass).tokens.colors.actionPrimary,
@@ -1480,22 +1828,6 @@ void main() {
         SlotIds.evidenceSheetA11yUnlocked,
       );
       handle.dispose();
-    });
-
-    testWidgets('권한이 있는데 본문이 없으면 debug assert로 드러납니다', (tester) async {
-      await tester.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 360,
-            height: 300,
-            child: EvidenceSheetBody(
-              state: DepthLinkState.unlocked,
-              title: '식신',
-            ),
-          ),
-        ),
-      );
-      expect(tester.takeException(), isA<AssertionError>());
     });
 
     test('preview에 onTerm을 주면 assert로 드러납니다', () {
@@ -1702,7 +2034,7 @@ void main() {
       // 일반 글자는 조각나지 않고 앞·뒤 문장이 각각 한 노드입니다.
       expect(labels.where((l) => l.contains('오늘은 마음이 차분해서')), hasLength(1));
       expect(labels.where((l) => l.contains('기운으로 이야기를 풀어내요.')), hasLength(1));
-      expect(labels, contains('식신의 풀이 보기'));
+      expect(labels, contains('식신의 뜻 보기'));
       expect(labels.where((l) => l.contains('TenGod')), isEmpty);
       handle.dispose();
     });

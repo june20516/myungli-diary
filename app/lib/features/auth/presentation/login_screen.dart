@@ -9,10 +9,10 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/auth/application/login_controller.dart';
-import 'package:myungli_diary/features/onboarding/presentation/onboarding_page_layout.dart';
 
 /// IA `login`의 출구 대상. 모두 진입 상태가 바뀌는 이동이라 화면은 직접 이동하지 않고
 /// 로그인 뒤 진입 갱신으로 라우터 redirect가 보냅니다.
@@ -71,17 +71,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  /// 사주가 저장된 계정이라 방금 입력을 쓰지 않는다는 안내. 어느 버튼으로 닫아도 로그인은 이어집니다.
+  /// 사주가 저장된 계정이라 방금 입력을 쓰지 않는다는 안내(`dialog` `notice`).
+  /// 확인·바깥 누르기·뒤로 가기 모두 읽었다는 뜻이고, 닫히면 로그인이 이어집니다.
   Future<void> _showDiscardNotice() async {
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);
-    await showMyungliDialog(
+    await showMyungliNotice(
       context,
-      variant: DialogVariant.confirm,
-      title: l10n.loginDiscardNotice,
+      body: l10n.loginDiscardNotice,
       identifier: SlotIds.loginDiscardNotice,
       confirm: l10n.actionConfirm,
-      cancel: l10n.actionClose,
     );
   }
 

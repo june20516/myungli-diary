@@ -146,6 +146,9 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       context.pop(city);
       return;
     }
+    // 아래 버튼이 없어(`bottomAction.omitWhen`) 처리 중 점이 보일 자리가 없습니다. 지금은
+    // 눌림(press.ink)과 중복 누름 막기뿐이고, 고른 뒤 처리 중 모양은 design에 묻는 중입니다
+    // (#195). 명세에 없는 모양은 만들지 않습니다.
     setState(() => _saving = true);
     try {
       await ref
@@ -177,7 +180,8 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final edit = widget.mode == OnboardingStepMode.edit;
-    return InputStep(
+    // 도시를 누르면 곧바로 다음으로 가므로 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`).
+    return InputStep.selectToAdvance(
       screenId: ScreenIds.birthplace,
       variant: edit ? InputStepVariant.standalone : InputStepVariant.onboarding,
       step: edit ? null : 5,
@@ -196,10 +200,6 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       ),
       help: l10n.birthplaceWhyBody,
       helpIdentifier: SlotIds.birthplaceWhyBody,
-      actionLabel: edit ? l10n.onboardingSave : l10n.onboardingNext,
-      actionLoading: _saving,
-      // 도시를 누르면 곧바로 다음으로 가므로 눌러서 쓰는 버튼은 아닙니다(건너뛰기 출구 없음).
-      onAction: null,
     );
   }
 }

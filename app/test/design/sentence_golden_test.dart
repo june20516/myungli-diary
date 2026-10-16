@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart' show WidgetTester;
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
@@ -83,12 +84,17 @@ Widget _termsAndLinks() => Column(
     ),
     TermToken(label: '정관', variant: TermTokenVariant.label, onTap: () {}),
     DepthLink(variant: DepthLinkVariant.block, label: '근거 보기', onTap: () {}),
+    DepthLink(
+      variant: DepthLinkVariant.navigate,
+      label: '계산 기준 보기',
+      onTap: () {},
+    ),
   ],
 );
 
 const double _bodyHeight = 700;
 
-Widget _evidence(DepthLinkState state) {
+Widget _evidence(DepthLinkState state, {bool loading = false}) {
   final unlocked = state == DepthLinkState.unlocked;
   return SizedBox(
     height: _bodyHeight,
@@ -107,6 +113,7 @@ Widget _evidence(DepthLinkState state) {
             ? _text([Segment(text: '내 사주에서는 월지에 있어 힘이 커요.')])
             : null,
         showPersonal: true,
+        loading: loading,
         onWatchAd: () {},
         onPass: () {},
         animated: false,
@@ -114,6 +121,22 @@ Widget _evidence(DepthLinkState state) {
     ),
   );
 }
+
+/// 풀이 시트 내용: 뜻·이유가 있을 때와 계약에 없어 자리가 없을 때.
+Widget _explain({required bool withText}) => SizedBox(
+  height: 420,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+    child: ExplainSheetBody(
+      title: '식신',
+      meaning: withText ? _text([Segment(text: '내가 낳은 것을 표현하는 기운이에요.')]) : null,
+      todayReason: withText
+          ? _text([Segment(text: '오늘은 월지와 닿아 말문이 트이기 쉬워요.')])
+          : null,
+      onEvidence: () {},
+    ),
+  ),
+);
 
 Widget _reactions() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -147,6 +170,28 @@ void main() {
         tester,
         'sentence_evidence_${state.name}',
         () => _evidence(state),
+        settle: _settle,
+      );
+    });
+  }
+
+  goldenTest('depth-link evidenceSheet: 다시 받는 중(loading)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'sentence_evidence_loading',
+      () => _evidence(DepthLinkState.unlocking, loading: true),
+      settle: _settle,
+    );
+  });
+
+  for (final withText in [true, false]) {
+    goldenTest('explain-sheet 내용: ${withText ? '뜻·이유 있음' : '뜻·이유 없음'}', (
+      tester,
+    ) async {
+      await goldenMatrix(
+        tester,
+        'sentence_explain_${withText ? 'full' : 'title_only'}',
+        () => _explain(withText: withText),
         settle: _settle,
       );
     });

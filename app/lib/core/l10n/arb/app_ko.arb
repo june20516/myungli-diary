@@ -1,254 +1,253 @@
 {
   "@@locale": "ko",
-  "errorOffline": "인터넷에 연결되어 있지 않아요.",
+  "errorOffline": "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.",
   "@errorOffline": {
-    "description": "임시. 네트워크 연결이 없을 때의 오류 문구"
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
   },
   "errorTimeout": "응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
   "@errorTimeout": {
-    "description": "임시. 요청 시간이 초과됐을 때의 오류 문구"
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
   },
-  "errorClient": "요청을 처리하지 못했어요.",
+  "errorClient": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
   "@errorClient": {
-    "description": "임시. 요청이 거절됐을 때(4xx)의 오류 문구"
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
   },
-  "errorServer": "서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+  "errorServer": "잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.",
   "@errorServer": {
-    "description": "임시. 서버 오류(5xx)의 오류 문구"
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
   },
-  "errorUnexpected": "예기치 못한 문제가 생겼어요.",
+  "errorUnexpected": "문제가 생겼어요. 다시 시도해 주세요.",
   "@errorUnexpected": {
-    "description": "임시. 분류되지 않은 오류 문구"
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
   },
   "errorNotImplemented": "아직 준비 중이에요.",
   "@errorNotImplemented": {
-    "description": "임시. 아직 구현되지 않은 기능의 안내 문구"
+    "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
   },
-  "errorRequestMalformed": "요청을 처리하지 못했어요.",
+  "errorRequestMalformed": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
   "@errorRequestMalformed": {
-    "description": "임시. 요청 본문을 읽지 못했을 때(400 request.malformed)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorRequestInvalid": "입력한 값을 다시 확인해 주세요.",
+  "errorRequestInvalid": "입력한 내용을 다시 확인해 주세요.",
   "@errorRequestInvalid": {
-    "description": "임시. 입력 형식·범위가 맞지 않을 때(400 request.invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorAuthTokenExpired": "로그인이 만료됐어요. 다시 로그인해 주세요.",
   "@errorAuthTokenExpired": {
-    "description": "임시. 로그인 유지 시간이 지났을 때(401 auth.token_expired)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorAuthTokenInvalid": "다시 로그인해 주세요.",
+  "errorAuthTokenInvalid": "로그인 정보를 확인하지 못했어요. 다시 로그인해 주세요.",
   "@errorAuthTokenInvalid": {
-    "description": "임시. 로그인 정보가 유효하지 않을 때(401 auth.token_invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorAuthRefreshReused": "보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.",
+  "errorAuthRefreshReused": "계정을 지키려고 로그아웃했어요. 다시 로그인해 주세요.",
   "@errorAuthRefreshReused": {
-    "description": "임시. 로그인 갱신이 재사용으로 거절됐을 때(401 auth.refresh_reused)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorAuthProviderTokenInvalid": "로그인하지 못했어요. 다시 시도해 주세요.",
   "@errorAuthProviderTokenInvalid": {
-    "description": "임시. 카카오·Apple 로그인 확인에 실패했을 때(401 auth.provider_token_invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorAuthExchangeInvalid": "로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.",
   "@errorAuthExchangeInvalid": {
-    "description": "임시. Apple 웹 로그인 복귀 코드가 만료·사용됨일 때(401 auth.exchange_invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorAppCheckInvalid": "앱을 확인하지 못했어요. 앱을 최신 버전으로 업데이트해 주세요.",
+  "errorAppCheckInvalid": "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요.",
   "@errorAppCheckInvalid": {
-    "description": "임시. 앱 무결성 확인에 실패했을 때(401 app_check.invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorConsentRequired": "약관 동의가 필요해요.",
+  "errorConsentRequired": "약관에 동의해야 계속할 수 있어요.",
   "@errorConsentRequired": {
-    "description": "임시. 약관 동의가 필요할 때(403 consent.required)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorPreviewUsed": "미리보기는 한 번만 볼 수 있어요. 로그인하면 계속 볼 수 있어요.",
+  "errorPreviewUsed": "미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요.",
   "@errorPreviewUsed": {
-    "description": "임시. 미리보기를 이미 썼을 때(403 preview.used)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorRouteNotFound": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
   "@errorRouteNotFound": {
-    "description": "임시. 요청 경로가 없을 때(404 route.not_found)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorDiaryNotFound": "일기를 찾지 못했어요.",
   "@errorDiaryNotFound": {
-    "description": "임시. 일기를 찾지 못했을 때(404 diary.not_found)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorMethodNotAllowed": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
   "@errorMethodNotAllowed": {
-    "description": "임시. 요청 방식이 맞지 않을 때(405 method.not_allowed)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorProfileRequired": "먼저 생년월일시를 입력해 주세요.",
+  "errorProfileRequired": "먼저 태어난 날과 시간을 입력해 주세요.",
   "@errorProfileRequired": {
-    "description": "임시. 프로필 없이 운세·일기를 요청했을 때(409 profile.required)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorDiaryDateTaken": "그날에는 이미 일기가 있어요.",
   "@errorDiaryDateTaken": {
-    "description": "임시. 되살리려는 날짜에 일기가 이미 있을 때(409 diary.date_taken)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorIdempotencyInProgress": "처리 중이에요. 잠시 후 다시 확인해 주세요.",
+  "errorIdempotencyInProgress": "아직 처리하고 있어요. 잠시 후 다시 확인해 주세요.",
   "@errorIdempotencyInProgress": {
-    "description": "임시. 같은 요청이 처리 중일 때(409 idempotency.in_progress)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorRequestTooLarge": "내용이 너무 길어요.",
+  "errorRequestTooLarge": "내용이 너무 길어요. 조금 줄여 주세요.",
   "@errorRequestTooLarge": {
-    "description": "임시. 요청이 너무 클 때(413 request.too_large)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorRequestUnsupportedMediaType": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
   "@errorRequestUnsupportedMediaType": {
-    "description": "임시. 요청 형식을 지원하지 않을 때(415 request.unsupported_media_type)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorDateOutOfRange": "1900년 1월 31일부터 2099년 12월 31일까지의 날짜만 볼 수 있어요.",
   "@errorDateOutOfRange": {
-    "description": "임시. 지원 범위 밖 날짜일 때(422 date.out_of_range)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorBirthOutOfRange": "1900년 1월 31일부터 2099년 12월 31일 사이의 생년월일을 입력해 주세요.",
+  "errorBirthOutOfRange": "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.",
   "@errorBirthOutOfRange": {
-    "description": "임시. 지원 범위 밖 출생 정보일 때(422 birth.out_of_range)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorDateInvalid": "달력에 없는 날짜예요.",
   "@errorDateInvalid": {
-    "description": "임시. 달력에 없는 날짜일 때(422 date.invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorRequestInconsistent": "입력한 값을 다시 확인해 주세요.",
+  "errorRequestInconsistent": "입력한 내용을 다시 확인해 주세요.",
   "@errorRequestInconsistent": {
-    "description": "임시. 입력 값끼리 맞지 않을 때(422 request.inconsistent)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorBirthInvalid": "입력한 생년월일시를 다시 확인해 주세요.",
+  "errorBirthInvalid": "입력한 태어난 날과 시간을 다시 확인해 주세요.",
   "@errorBirthInvalid": {
-    "description": "임시. 계산할 수 없는 출생 정보일 때(422 birth.invalid)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorDiaryFutureDate": "오늘 이후의 일기는 쓸 수 없어요.",
+  "errorDiaryFutureDate": "아직 오지 않은 날의 일기는 쓸 수 없어요.",
   "@errorDiaryFutureDate": {
-    "description": "임시. 앞으로의 날짜에 일기를 쓰려 할 때(422 diary.future_date)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorNameEmpty": "부를 이름을 입력해 주세요.",
+  "errorNameEmpty": "불러 드릴 이름을 입력해 주세요.",
   "@errorNameEmpty": {
-    "description": "임시. 호칭이 비어 있을 때(422 name.empty)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorNameTooLong": "부를 이름이 너무 길어요.",
+  "errorNameTooLong": "이름이 너무 길어요. 조금 줄여 주세요.",
   "@errorNameTooLong": {
-    "description": "임시. 호칭이 너무 길 때(422 name.too_long)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorNameEmoji": "부를 이름에는 이모지를 쓸 수 없어요.",
+  "errorNameEmoji": "이름에는 이모지를 쓸 수 없어요.",
   "@errorNameEmoji": {
-    "description": "임시. 호칭에 이모지가 있을 때(422 name.emoji)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorNameControl": "부를 이름에 쓸 수 없는 글자가 있어요.",
+  "errorNameControl": "이름에 쓸 수 없는 글자가 있어요.",
   "@errorNameControl": {
-    "description": "임시. 호칭에 제어 문자가 있을 때(422 name.control)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorNameInvalidChar": "부를 이름에는 괄호를 쓸 수 없어요.",
+  "errorNameInvalidChar": "이름에는 괄호를 쓸 수 없어요.",
   "@errorNameInvalidChar": {
-    "description": "임시. 호칭에 괄호 등 받지 않는 글자가 있을 때(422 name.invalid_char)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorIdempotencyMismatch": "요청을 처리하지 못했어요. 다시 시도해 주세요.",
   "@errorIdempotencyMismatch": {
-    "description": "임시. 같은 요청 키에 다른 내용일 때(422 idempotency.mismatch)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorConsentVersionMismatch": "약관이 바뀌었어요. 다시 확인해 주세요.",
   "@errorConsentVersionMismatch": {
-    "description": "임시. 동의한 약관 버전이 바뀌었을 때(422 consent.version_mismatch)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorRateLimited": "요청이 많아요. 잠시 후 다시 시도해 주세요.",
+  "errorRateLimited": "요청이 너무 많아요. 잠시 후 다시 시도해 주세요.",
   "@errorRateLimited": {
-    "description": "임시. 요청이 너무 잦을 때(429 rate_limited)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorInternal": "서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+  "errorInternal": "잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.",
   "@errorInternal": {
-    "description": "임시. 예상하지 못한 서버 오류(500 internal)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorEngineError": "풀이를 계산하지 못했어요.",
+  "errorEngineError": "풀이를 계산하지 못했어요. 잠시 후 다시 시도해 주세요.",
   "@errorEngineError": {
-    "description": "임시. 풀이 계산 오류(502 engine.error)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorEngineUnavailable": "풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
   "@errorEngineUnavailable": {
-    "description": "임시. 풀이 계산 서버에 연결하지 못할 때(503 engine.unavailable)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorAuthProviderUnavailable": "지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요.",
   "@errorAuthProviderUnavailable": {
-    "description": "임시. 카카오·Apple 장애로 로그인하지 못할 때(503 auth.provider_unavailable)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorBillingProviderUnavailable": "지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.",
   "@errorBillingProviderUnavailable": {
-    "description": "임시. 결제 서비스 장애일 때(503 billing.provider_unavailable)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorServiceUnavailable": "잠시 서비스를 이용할 수 없어요. 잠시 후 다시 시도해 주세요.",
+  "errorServiceUnavailable": "지금은 앱을 쓸 수 없어요. 잠시 후 다시 시도해 주세요.",
   "@errorServiceUnavailable": {
-    "description": "임시. 서버가 일시적으로 처리하지 못할 때(503 service.unavailable)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorEngineTimeout": "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
   "@errorEngineTimeout": {
-    "description": "임시. 풀이 계산 시간이 초과됐을 때(504 engine.timeout)의 오류 문구"
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "appTitle": "명리일기",
   "@appTitle": {
-    "description": "임시. 앱 이름(작업 전환기 등에 보임)"
+    "description": "앱 바·작업 전환기에 보이는 앱 이름"
   },
-  "bootstrapFailed": "앱을 시작하지 못했어요. 앱을 완전히 종료한 뒤 다시 열어 주세요.",
+  "bootstrapFailed": "앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요.",
   "@bootstrapFailed": {
-    "description": "임시. 앱 시작 준비가 실패했을 때의 안내 문구"
+    "description": "오류 상태: 앱 시작 준비가 실패했을 때의 안내"
   },
   "actionRetry": "다시 시도",
   "@actionRetry": {
-    "description": "임시. 오류 뒤 다시 시도 버튼 문구"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "actionBusy": "처리 중",
   "@actionBusy": {
-    "description": "임시. 주 버튼이 처리 중일 때 스크린리더가 읽는 문구(primary-button busyAnnounced)"
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
   },
   "traceIdLabel": "문의 번호 {traceId}",
   "@traceIdLabel": {
-    "description": "임시. 오류 화면에 보이는 추적 번호 표시",
+    "description": "오류 화면의 문의 번호 표시와 복사 뒤 토스트",
     "placeholders": {
       "traceId": {
-        "type": "String",
-        "example": "abc123"
+        "type": "String"
       }
     }
   },
   "tabToday": "오늘",
   "@tabToday": {
-    "description": "임시. 탭 바 '오늘' 탭 이름"
+    "description": "탭 바의 탭 이름"
   },
   "tabCalendar": "달력",
   "@tabCalendar": {
-    "description": "임시. 탭 바 '달력' 탭 이름"
+    "description": "탭 바의 탭 이름"
   },
   "tabDiary": "일기",
   "@tabDiary": {
-    "description": "임시. 탭 바 '일기' 탭 이름"
+    "description": "탭 바의 탭 이름"
   },
   "tabMe": "나",
   "@tabMe": {
-    "description": "임시. 탭 바 '나' 탭 이름"
+    "description": "탭 바의 탭 이름"
   },
   "appBarBack": "뒤로",
   "@appBarBack": {
-    "description": "임시. 앱 바 뒤로 버튼의 스크린리더 라벨"
+    "description": "앱 바 뒤로 버튼과 시트 바깥 덮개의 스크린리더 이름"
   },
   "sheetDismiss": "닫기",
   "@sheetDismiss": {
-    "description": "임시. 시트 바깥 덮개·닫기의 스크린리더 라벨"
+    "description": "앱 바 뒤로 버튼과 시트 바깥 덮개의 스크린리더 이름"
   },
   "adBannerLabel": "광고",
   "@adBannerLabel": {
-    "description": "임시. 광고 배너 영역의 스크린리더 라벨"
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
   },
-  "noticeOffline": "인터넷에 연결되어 있지 않아 받아둔 내용을 보여 드려요.",
+  "noticeOffline": "인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.",
   "@noticeOffline": {
-    "description": "임시. 오프라인 안내 배너 문구"
+    "description": "오프라인 안내 배너와 빈 상태 기본 문장"
   },
   "emptyStateDefault": "아직 보여 드릴 내용이 없어요.",
   "@emptyStateDefault": {
-    "description": "임시. 빈 상태 기본 문장"
+    "description": "오프라인 안내 배너와 빈 상태 기본 문장"
   },
   "skeletonLabel": "불러오는 중",
   "@skeletonLabel": {
-    "description": "임시. 불러오는 중 자리의 스크린리더 라벨"
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
   },
   "traceIdCopied": "문의 번호를 복사했어요.",
   "@traceIdCopied": {
-    "description": "임시. 문의 번호를 길게 눌러 복사한 뒤의 토스트 문구"
+    "description": "오류 화면의 문의 번호 표시와 복사 뒤 토스트"
   },
   "evidenceSheetSectionBasis": "판정 근거",
   "@evidenceSheetSectionBasis": {
@@ -306,147 +305,135 @@
   "@todayReactionLabel": {
     "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
   },
-  "termTokenSemantics": "{term} 풀이 보기",
+  "termTokenSemantics": "{term} 뜻 보기",
   "@termTokenSemantics": {
-    "description": "임시. 용어 토큰의 스크린리더 라벨(IA 슬롯 없음)",
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
     "placeholders": {
       "term": {
-        "type": "String",
-        "example": "식신"
+        "type": "String"
       }
     }
   },
   "inputStepProgress": "{stepCount}단계 중 {step}단계",
   "@inputStepProgress": {
-    "description": "임시. 온보딩 진행 막대의 스크린리더 라벨(input-step progressLabel)",
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
     "placeholders": {
       "step": {
-        "type": "int",
-        "example": "2"
+        "type": "int"
       },
       "stepCount": {
-        "type": "int",
-        "example": "4"
+        "type": "int"
       }
     }
   },
   "textFieldClear": "지우기",
   "@textFieldClear": {
-    "description": "임시. 글자 입력칸의 지우기 버튼 이름(text-field clear)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
-  "textFieldCounter": "글자 수 {current}/{max}",
+  "textFieldCounter": "{max}자 중 {current}자",
   "@textFieldCounter": {
-    "description": "임시. 글자 입력칸의 글자 수 표시를 스크린리더가 읽는 문구(text-field counter)",
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
     "placeholders": {
       "current": {
-        "type": "int",
-        "example": "2"
+        "type": "int"
       },
       "max": {
-        "type": "int",
-        "example": "10"
+        "type": "int"
       }
     }
   },
-  "datePickerYearLabel": "년",
+  "datePickerYearLabel": "연도",
   "@datePickerYearLabel": {
-    "description": "임시. 날짜 휠 중 년 휠의 스크린리더 라벨(date-picker)"
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "datePickerMonthLabel": "월",
   "@datePickerMonthLabel": {
-    "description": "임시. 날짜 휠 중 월 휠의 스크린리더 라벨(date-picker)"
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "datePickerDayLabel": "일",
   "@datePickerDayLabel": {
-    "description": "임시. 날짜 휠 중 일 휠의 스크린리더 라벨(date-picker)"
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "datePickerYearItem": "{year}년",
   "@datePickerYearItem": {
-    "description": "임시. 년 휠의 칸 글자(date-picker)",
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
     "placeholders": {
       "year": {
-        "type": "int",
-        "example": "1990"
+        "type": "int"
       }
     }
   },
   "datePickerMonthItem": "{month}월",
   "@datePickerMonthItem": {
-    "description": "임시. 월 휠의 칸 글자(date-picker)",
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
     "placeholders": {
       "month": {
-        "type": "int",
-        "example": "3"
+        "type": "int"
       }
     }
   },
   "datePickerDayItem": "{day}일",
   "@datePickerDayItem": {
-    "description": "임시. 일 휠의 칸 글자(date-picker)",
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
     "placeholders": {
       "day": {
-        "type": "int",
-        "example": "15"
+        "type": "int"
       }
     }
   },
   "timePickerMeridiemLabel": "오전·오후",
   "@timePickerMeridiemLabel": {
-    "description": "임시. 시간 휠 중 오전·오후 휠의 스크린리더 라벨(time-picker)"
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "timePickerHourLabel": "시",
   "@timePickerHourLabel": {
-    "description": "임시. 시간 휠 중 시 휠의 스크린리더 라벨(time-picker)"
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "timePickerMinuteLabel": "분",
   "@timePickerMinuteLabel": {
-    "description": "임시. 시간 휠 중 분 휠의 스크린리더 라벨(time-picker)"
+    "description": "날짜·시간 휠의 스크린리더 이름"
   },
   "timePickerAm": "오전",
   "@timePickerAm": {
-    "description": "임시. 오전(time-picker)"
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)"
   },
   "timePickerPm": "오후",
   "@timePickerPm": {
-    "description": "임시. 오후(time-picker)"
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)"
   },
   "timePickerHourItem": "{hour}시",
   "@timePickerHourItem": {
-    "description": "임시. 시 휠의 칸 글자(time-picker)",
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
     "placeholders": {
       "hour": {
-        "type": "int",
-        "example": "7"
+        "type": "int"
       }
     }
   },
   "timePickerMinuteItem": "{minute}분",
   "@timePickerMinuteItem": {
-    "description": "임시. 분 휠의 칸 글자. 두 자리로 맞춘 글자(time-picker)",
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
     "placeholders": {
       "minute": {
-        "type": "String",
-        "example": "05"
+        "type": "String"
       }
     }
   },
-  "datePickerLeapMonthValue": "윤 {month}월",
+  "datePickerLeapMonthValue": "윤{month}월",
   "@datePickerLeapMonthValue": {
-    "description": "임시. 윤달이 켜졌을 때 월 휠을 스크린리더가 읽는 값(date-picker, '윤'을 붙임)",
+    "description": "날짜·시간 휠 칸의 글자(연·월·일·시·분, 오전·오후, 윤달 월)",
     "placeholders": {
       "month": {
-        "type": "int",
-        "example": "4"
+        "type": "int"
       }
     }
   },
-  "citySearchResults": "결과 {count}개",
+  "citySearchResults": "결과 {count, plural, other{{count}개}}",
   "@citySearchResults": {
-    "description": "임시. 도시 검색 결과 수를 스크린리더가 알리는 문구(city-search resultsAnnounced \"결과 N개\")",
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)",
     "placeholders": {
       "count": {
-        "type": "int",
-        "example": "3"
+        "type": "int"
       }
     }
   },
@@ -508,27 +495,27 @@
   },
   "onboardingNext": "다음",
   "@onboardingNext": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "onboardingSave": "저장",
   "@onboardingSave": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "calendarSolar": "양력",
   "@calendarSolar": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
   },
   "calendarLunar": "음력",
   "@calendarLunar": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
   },
   "leapMonth": "윤달",
   "@leapMonth": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
   },
-  "onboardCallInputLabel": "호칭",
+  "onboardCallInputLabel": "불러 드릴 이름",
   "@onboardCallInputLabel": {
-    "description": "임시. 호칭 입력칸의 접근성 이름(슬롯 아님)"
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
   },
   "onboardTimeQuestionHead": "몇 시에 태어났나요?",
   "@onboardTimeQuestionHead": {
@@ -540,7 +527,7 @@
   },
   "timeUnknownLabel": "모름",
   "@timeUnknownLabel": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
   },
   "onboardTimeHourConfirm": "{branch}시, {start}~{end}에 태어났어요.",
   "@onboardTimeHourConfirm": {
@@ -559,51 +546,51 @@
   },
   "branchJa": "자",
   "@branchJa": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.ja"
   },
   "branchChuk": "축",
   "@branchChuk": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.chuk"
   },
   "branchIn": "인",
   "@branchIn": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.in"
   },
   "branchMyo": "묘",
   "@branchMyo": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.myo"
   },
   "branchJin": "진",
   "@branchJin": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.jin"
   },
   "branchSa": "사",
   "@branchSa": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.sa"
   },
   "branchO": "오",
   "@branchO": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.o"
   },
   "branchMi": "미",
   "@branchMi": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.mi"
   },
   "branchShin": "신",
   "@branchShin": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.shin"
   },
   "branchYu": "유",
   "@branchYu": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.yu"
   },
   "branchSul": "술",
   "@branchSul": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.sul"
   },
   "branchHae": "해",
   "@branchHae": {
-    "description": "임시. 지지 이름(시진 확인 줄 틀의 {branch}, 시·hour·刻 없이)"
+    "description": "glossary.value_name: branch.hae"
   },
   "onboardGenderQuestionHead": "성별이 어떻게 되나요?",
   "@onboardGenderQuestionHead": {
@@ -629,17 +616,17 @@
   "@birthplaceEmptyBody": {
     "description": "birthplace.empty.body: 결과가 없을 때 안내"
   },
-  "birthplaceSearchLabel": "출생 도시 검색",
+  "birthplaceSearchLabel": "태어난 도시 찾기",
   "@birthplaceSearchLabel": {
-    "description": "임시. 도시 검색칸 이름(스크린리더, 슬롯 아님). 예시(birthplace.search.hint)와 같은 말이 되지 않게 목적을 말함"
+    "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
   },
   "genderMale": "남성",
   "@genderMale": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
   },
   "genderFemale": "여성",
   "@genderFemale": {
-    "description": "임시. 온보딩 공용 문구(슬롯 아님)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
   },
   "previewCtaSave": "저장하고 계속하기",
   "@previewCtaSave": {
@@ -655,27 +642,27 @@
   },
   "dayKindYongsinDay": "용신의 날",
   "@dayKindYongsinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind yongsin_day"
+    "description": "glossary.value_name: day_kind.yongsin_day"
   },
   "dayKindGwiinDay": "귀인의 날",
   "@dayKindGwiinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gwiin_day"
+    "description": "glossary.value_name: day_kind.gwiin_day"
   },
   "dayKindGisinDay": "기신의 날",
   "@dayKindGisinDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind gisin_day"
+    "description": "glossary.value_name: day_kind.gisin_day"
   },
   "dayKindOrdinaryDay": "평범한 날",
   "@dayKindOrdinaryDay": {
-    "description": "임시. 날의 성격 이름(슬롯 아님, A20 ①). dayKind ordinary_day"
+    "description": "glossary.value_name: day_kind.ordinary_day"
   },
   "shareLabel": "공유",
   "@shareLabel": {
-    "description": "임시. 공유 버튼 글자·스크린리더 라벨(슬롯 아님)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "actionClose": "닫기",
   "@actionClose": {
-    "description": "임시. 확인 창의 닫기 버튼(슬롯 아님)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "loginTitleHead": "로그인하고 풀이를 저장해요",
   "@loginTitleHead": {
@@ -691,31 +678,31 @@
   },
   "loginKakaoLabel": "카카오 로그인",
   "@loginKakaoLabel": {
-    "description": "임시. 카카오 로그인 버튼 글자(슬롯 아님). 카카오 로그인 디자인 가이드 Label의 완성형(ko \"카카오 로그인\", en \"Login with Kakao\"). 출처: assets/brand/README.md"
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
   },
   "loginAppleLabel": "Apple로 로그인",
   "@loginAppleLabel": {
-    "description": "임시. Apple 로그인 버튼 글자(슬롯 아님). Sign in with Apple HIG의 언어별 공식 문구"
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
   },
   "loginCancelled": "로그인을 취소했어요.",
   "@loginCancelled": {
-    "description": "임시. 로그인 오류 상태: 카카오·iOS Apple 로그인 창을 닫음(슬롯 아님)"
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
   },
   "appleWebErrorStateMismatch": "로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요.",
   "@appleWebErrorStateMismatch": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 state가 맞지 않음(슬롯 아님)"
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
   },
   "appleWebErrorCancelled": "Apple 로그인을 취소했어요.",
   "@appleWebErrorCancelled": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인을 사용자가 취소함(슬롯 아님)"
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
   },
   "appleWebErrorOther": "Apple로 로그인하지 못했어요. 다시 시도해 주세요.",
   "@appleWebErrorOther": {
-    "description": "임시. 로그인 오류 상태: Android Apple 웹 로그인 복귀의 그 밖 실패(슬롯 아님)"
+    "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
   },
   "actionConfirm": "확인",
   "@actionConfirm": {
-    "description": "임시. 확인 창의 확인 버튼(슬롯 아님)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "consentTitleHead": "약관에 동의해 주세요",
   "@consentTitleHead": {
@@ -727,7 +714,7 @@
   },
   "consentView": "보기",
   "@consentView": {
-    "description": "임시. 동의 항목의 약관 전문 보기 링크(슬롯 아님)"
+    "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
   "notifyAskQuestionHead": "아침마다 오늘 풀이를 알려 드릴까요?",
   "@notifyAskQuestionHead": {
@@ -799,13 +786,13 @@
       }
     }
   },
-  "calcBasisConventionBody": "명리 해석은 한국에서 널리 쓰는 기준 하나로 맞췄어요.",
+  "calcBasisConventionBody": "명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.",
   "@calcBasisConventionBody": {
-    "description": "calc-basis.convention.body: 한국 기준 해석 안내"
+    "description": "calc-basis.convention.body: 한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)"
   },
   "calcBasisLongitudeBody": "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
   "@calcBasisLongitudeBody": {
-    "description": "calc-basis.longitude.body: 동경 127.5° 기준 -30분 보정, 진태양시 미적용 안내"
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용"
   },
   "calcBasisLunarBody": "음력은 한국천문연구원 기준의 한국 음력을 따라요.",
   "@calcBasisLunarBody": {
@@ -1016,6 +1003,14 @@
   "@sharePreviewRatioLabelSquare": {
     "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
   },
+  "shareImageSemantics": "오늘 문장 이미지 미리보기",
+  "@shareImageSemantics": {
+    "description": "임시. share-image 접근성 라벨(슬롯 아님)"
+  },
+  "sharePreviewRatioGroup": "공유 이미지 비율",
+  "@sharePreviewRatioGroup": {
+    "description": "임시. share-preview 비율 선택의 스크린리더 그룹 라벨(슬롯 아님)"
+  },
   "tagDiaryEmptyBody": "이 태그가 붙은 일기가 아직 없어요.",
   "@tagDiaryEmptyBody": {
     "description": "tag-diary.empty.body: 일기가 없을 때 안내"
@@ -1052,6 +1047,18 @@
   "@todayGuideCtaWritten": {
     "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
   },
+  "todayGuideEyebrow": "오늘의 질문",
+  "@todayGuideEyebrow": {
+    "description": "가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)"
+  },
+  "todayGuideWritten": "오늘 일기를 썼어요",
+  "@todayGuideWritten": {
+    "description": "가이드 질문 카드(guide-question-card)의 스크린리더 문구: 카드 묶음 이름(a11y.label), 일기를 쓴 뒤 상태 알림(stateAnnounced)(#153)"
+  },
+  "todayGuideLabel": "일기 질문",
+  "@todayGuideLabel": {
+    "description": "가이드 질문 카드(guide-question-card)의 스크린리더 문구: 카드 묶음 이름(a11y.label), 일기를 쓴 뒤 상태 알림(stateAnnounced)(#153)"
+  },
   "todayReactionLabelSelected": "좋아요 취소",
   "@todayReactionLabelSelected": {
     "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
@@ -1071,5 +1078,124 @@
   "depthSurface": "요약",
   "@depthSurface": {
     "description": "깊이 단계 표면 단계(첫 단계)의 안내"
+  },
+  "depthLinkEvidence": "근거 보기",
+  "@depthLinkEvidence": {
+    "description": "깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)"
+  },
+  "todayLuckyColorName": "행운 색",
+  "@todayLuckyColorName": {
+    "description": "임시. 행운 색 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "todayLuckyDirectionName": "행운 방향",
+  "@todayLuckyDirectionName": {
+    "description": "임시. 행운 방향 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "todayLuckyNumberName": "행운 숫자",
+  "@todayLuckyNumberName": {
+    "description": "임시. 행운 숫자 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "todayLuckyTimeName": "집중하기 좋은 시간",
+  "@todayLuckyTimeName": {
+    "description": "임시. 집중하기 좋은 시간 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)"
+  },
+  "evidenceSheetTitle": "오늘 풀이의 근거",
+  "@evidenceSheetTitle": {
+    "description": "근거 시트(sheet) 제목(#153)"
+  },
+  "direction8N": "북",
+  "@direction8N": {
+    "description": "glossary.value_name: direction8.n"
+  },
+  "direction8Ne": "북동",
+  "@direction8Ne": {
+    "description": "glossary.value_name: direction8.ne"
+  },
+  "direction8E": "동",
+  "@direction8E": {
+    "description": "glossary.value_name: direction8.e"
+  },
+  "direction8Se": "남동",
+  "@direction8Se": {
+    "description": "glossary.value_name: direction8.se"
+  },
+  "direction8S": "남",
+  "@direction8S": {
+    "description": "glossary.value_name: direction8.s"
+  },
+  "direction8Sw": "남서",
+  "@direction8Sw": {
+    "description": "glossary.value_name: direction8.sw"
+  },
+  "direction8W": "서",
+  "@direction8W": {
+    "description": "glossary.value_name: direction8.w"
+  },
+  "direction8Nw": "북서",
+  "@direction8Nw": {
+    "description": "glossary.value_name: direction8.nw"
+  },
+  "birthplaceStandardLink": "계산 기준 보기",
+  "@birthplaceStandardLink": {
+    "description": "birthplace.standard.link: 계산 기준 화면으로 가는 링크 이름"
+  },
+  "birthplaceStandardNote": "명리일기는 한국에서 널리 쓰는 기준으로 계산해요. 여러 유파 가운데 하나로, 근거가 있는 방식이에요.",
+  "@birthplaceStandardNote": {
+    "description": "birthplace.standard.note: 명리일기가 한국에서 표준으로 쓰는 기준으로 계산한다는 소개. 한국에서 보편적으로 쓰는 해석이고 여러 유파 가운데 하나로서 근거가 있다고 설명합니다. 다른 유파와 우열을 말하지 않습니다(D71)"
+  },
+  "calcBasisLongitudeBodySubtract": "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodySubtract": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyAdd": "출생 시각은 {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyAdd": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyNone": "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyNone": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyEast": "동경 {degrees}°",
+  "@calcBasisLongitudeBodyEast": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyWest": "서경 {degrees}°",
+  "@calcBasisLongitudeBodyWest": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "calcBasisSchoolsBody": "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.",
+  "@calcBasisSchoolsBody": {
+    "description": "calc-basis.schools.body: 다른 유파·나라 관례와 다른 점: 지장간을 모두 표시, 자시 통합(D6). 다르게 나올 수 있는 이유로 설명합니다(D71)"
   }
 }

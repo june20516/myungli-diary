@@ -67,6 +67,8 @@ abstract final class SlotIds {
   static const String onboardGenderWhyBody = 'onboard-gender.why.body';
   static const String birthplaceQuestionHead = 'birthplace.question.head';
   static const String birthplaceWhyBody = 'birthplace.why.body';
+  static const String birthplaceStandardNote = 'birthplace.standard.note';
+  static const String birthplaceStandardLink = 'birthplace.standard.link';
   static const String birthplaceSearchHint = 'birthplace.search.hint';
   static const String birthplaceEmptyBody = 'birthplace.empty.body';
   static const String previewCharacterLabel = 'preview.character.label';
@@ -178,6 +180,7 @@ abstract final class SlotIds {
   static const String profileEditRecalcNotice = 'profile-edit.recalc.notice';
   static const String profileEditRecalcConfirm = 'profile-edit.recalc.confirm';
   static const String calcBasisConventionBody = 'calc-basis.convention.body';
+  static const String calcBasisSchoolsBody = 'calc-basis.schools.body';
   static const String calcBasisLongitudeBody = 'calc-basis.longitude.body';
   static const String calcBasisLunarBody = 'calc-basis.lunar.body';
   static const String accountDeleteTitleHead = 'account-delete.title.head';
@@ -285,8 +288,15 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'profile-edit', trigger: '정보 수정에서 도시 선택'),
       IaExit(to: 'settings', trigger: '언어 변경 안내에서 도시 선택'),
       IaExit(to: 'notify-ask', trigger: '로그인한 새 계정이 미리보기 없이 온보딩을 마침(프로필 저장)'),
+      IaExit(to: 'calc-basis', trigger: '계산 기준 보기'),
     ],
-    components: ['app-bar', 'input-step', 'city-search', 'empty-state'],
+    components: [
+      'app-bar',
+      'input-step',
+      'city-search',
+      'empty-state',
+      'depth-link',
+    ],
   ),
   IaScreen(
     id: 'preview',
@@ -685,7 +695,7 @@ const List<IaScreen> iaScreens = [
     id: 'calc-basis',
     tab: 'me',
     presentation: IaPresentation.page,
-    auth: IaAuth.member,
+    auth: IaAuth.any,
     states: [],
     exits: [],
     components: ['app-bar'],

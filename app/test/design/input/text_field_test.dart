@@ -101,7 +101,7 @@ void main() {
       );
     });
 
-    testWidgets('글자 수 표시는 "글자 수 n/max"로 읽힙니다', (tester) async {
+    testWidgets('글자 수 표시는 "max자 중 n자"로 읽힙니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         inputApp(
@@ -110,7 +110,7 @@ void main() {
       );
       await tester.enterText(find.byType(TextField), '달이');
       await tester.pump();
-      expect(find.bySemanticsLabel('글자 수 2/10'), findsOneWidget);
+      expect(find.bySemanticsLabel('10자 중 2자'), findsOneWidget);
       expect(find.bySemanticsLabel('2/10'), findsNothing);
       handle.dispose();
     });

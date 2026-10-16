@@ -32,10 +32,13 @@ import 'package:myungli_diary/core/api/gen/model/health.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_conversion.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_date_request.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/api/gen/model/preview_request.dart';
 import 'package:myungli_diary/core/api/gen/model/problem.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_input.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_patch.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_response.dart';
@@ -372,6 +375,103 @@ class DefaultApi {
     );
   }
 
+  /// 음력 날짜를 양력으로 변환
+  /// 음력 연·월·일을 양력 날짜로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려줍니다. 입력은 저장하지 않습니다. app은 윤달 선택을 보일지 정하려고 &#x60;day: 1&#x60;, &#x60;isLeapMonth: false&#x60;로 먼저 물을 수 있습니다. App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 없는 음력 날짜(윤달이 없는 달의 윤달, 그 달에 없는 30일)는 422 &#x60;date.invalid&#x60;(&#x60;errors[].field&#x60;는 &#x60;/date&#x60; 또는 &#x60;/isLeapMonth&#x60;), D41 지원 범위 밖이면 422 &#x60;date.out_of_range&#x60;입니다.
+  ///
+  /// Parameters:
+  /// * [lunarDateRequest]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [LunarConversion] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<LunarConversion>> convertLunarDate({
+    required LunarDateRequest lunarDateRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/lunar-date';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'apiKey',
+            'name': 'appCheck',
+            'keyName': 'X-Firebase-AppCheck',
+            'where': 'header',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(lunarDateRequest);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    LunarConversion? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<LunarConversion, LunarConversion>(
+              rawData,
+              'LunarConversion',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<LunarConversion>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 비로그인 미리보기
   /// 출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요합니다. 설치(&#x60;installationId&#x60;)마다 1번이며, 두 번째는 403 &#x60;preview.used&#x60;입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다. 언어는 &#x60;Accept-Language&#x60;를 씁니다.
   ///
@@ -466,7 +566,7 @@ class DefaultApi {
   }
 
   /// 프로필 첫 등록
-  /// 프로필을 처음 등록합니다. 출생 정보는 저장 전에 엔진으로 검증합니다(422 &#x60;birth.invalid&#x60;·&#x60;birth.out_of_range&#x60;). 호칭 경고(&#x60;name.suffix_stripped&#x60;·&#x60;name.suffix_warning&#x60;)는 오류가 아니며 200 응답의 &#x60;warnings&#x60;에 담깁니다.
+  /// 프로필을 처음 등록합니다. 출생 정보는 저장 전에 엔진으로 검증합니다(422 &#x60;birth.invalid&#x60;·&#x60;birth.out_of_range&#x60;). 호칭 경고(&#x60;name.suffix_stripped&#x60;·&#x60;name.suffix_warning&#x60;)는 오류가 아니며 200 응답의 &#x60;warnings&#x60;에 담깁니다. &#x60;currentTimezone&#x60;이나 &#x60;birth.timezone&#x60;이 IANA 이름이 아니면 422 &#x60;timezone.invalid&#x60;, &#x60;birth.place.cityId&#x60;가 도시 목록에 없으면 422 &#x60;city.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [profileInput]
@@ -1728,6 +1828,77 @@ class DefaultApi {
     );
   }
 
+  /// 프로필 읽기
+  /// 저장된 프로필을 돌려줍니다. 새 기기·재설치에서 현재 값을 받는 데 씁니다(#141). 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Profile] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Profile>> getProfile({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/me/profile';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Profile? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Profile, Profile>(rawData, 'Profile', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Profile>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 도시 검색
   /// 출생지 도시를 이름으로 찾습니다(&#x60;ETag&#x60;). 언어는 &#x60;lang&#x60;, 생략하면 &#x60;Accept-Language&#x60;입니다.
   ///
@@ -2874,7 +3045,7 @@ class DefaultApi {
   }
 
   /// 프로필 수정
-  /// 보낸 필드만 바꿉니다(JSON Merge Patch). &#x60;birth&#x60;와 &#x60;notification&#x60;은 통째로 바꿉니다. 기기 시간대가 바뀌면 app이 &#x60;currentTimezone&#x60;을 보내 알립니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  /// 보낸 필드만 바꿉니다(JSON Merge Patch). &#x60;birth&#x60;와 &#x60;notification&#x60;은 통째로 바꿉니다. 기기 시간대가 바뀌면 app이 &#x60;currentTimezone&#x60;을 보내 알립니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다. &#x60;currentTimezone&#x60;이나 &#x60;birth.timezone&#x60;이 IANA 이름이 아니면 422 &#x60;timezone.invalid&#x60;, &#x60;birth.place.cityId&#x60;가 도시 목록에 없으면 422 &#x60;city.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [profilePatch]

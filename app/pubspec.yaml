@@ -122,6 +122,7 @@ flutter:
   assets:
     - assets/brand/kakao/
     - assets/brand/apple/
+    - assets/brand/myungli/
     - assets/fonts/gowun_dodum/OFL.txt
     - assets/fonts/zen_maru_gothic/OFL.txt
     - assets/fonts/pretendard/OFL.txt
@@ -153,3 +154,10 @@ flutter:
     - fixtures/notify-profile-save-unavailable/
     - fixtures/profile-name-invalid/
     - fixtures/login-entry-unavailable/
+    - fixtures/member-time-unknown/
+    - fixtures/daily-error/
+    - fixtures/diary-written/
+    - fixtures/reaction-failed/
+    - fixtures/reaction-delete-failed/
+    - fixtures/evidence-unlocked/
+    - fixtures/reward-unlock/

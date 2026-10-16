@@ -22,9 +22,9 @@ const double tabMinTarget = 48;
 /// 선택 표시 도장 크기(`SealSize.row`, 34px).
 const SealSize tabSealSize = SealSize.row;
 
-// 탭 아이콘은 명세(frame.md·elements.md)가 글리프를 지정하지 않습니다.
-// 오늘=sun, 달력=calendar-blank, 일기=notebook, 나=user (design 확인 대상).
-const List<AppGlyph> _tabGlyphs = [
+/// 탭 아이콘(`tab-bar.parts.icons`): 오늘 `sun`, 달력 `calendar-blank`, 일기 `notebook`,
+/// 나 `user`. 순서는 탭 순서이고, 계약 테스트가 명세와 대조합니다.
+const List<AppGlyph> tabGlyphs = [
   AppGlyph(light: PhosphorIconsLight.sun, regular: PhosphorIconsRegular.sun),
   AppGlyph(
     light: PhosphorIconsLight.calendarBlank,
@@ -133,7 +133,7 @@ class TabBarRow extends StatelessWidget {
                 Expanded(
                   child: _TabItem(
                     key: ValueKey('tab-bar.tab.$i'),
-                    glyph: _tabGlyphs[i],
+                    glyph: tabGlyphs[i],
                     label: labels[i],
                     selected: i == index,
                     onTap: () {

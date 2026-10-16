@@ -1,0 +1,10 @@
+{
+  "status": 404,
+  "body": {
+    "type": "https://api.myungli.app/problems/diary.not_found",
+    "title": "Diary not found",
+    "status": 404,
+    "code": "diary.not_found",
+    "traceId": "fake-server"
+  }
+}

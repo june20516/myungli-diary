@@ -29,6 +29,8 @@ class Preview {
 
     required this.dayKind,
 
+    required this.dayKindName,
+
     required this.fortune,
 
     required this.featuredTags,
@@ -44,6 +46,10 @@ class Preview {
 
   @JsonKey(name: r'dayKind', required: true, includeIfNull: false)
   final DayKind dayKind;
+
+  /// 날의 성격 이름(writing `glossary.value_name`의 `day_kind`). 미리보기는 로그인 전이라 `getGlossary`를 쓸 수 없어 이름을 함께 싣습니다(D68②).
+  @JsonKey(name: r'dayKindName', required: true, includeIfNull: false)
+  final String dayKindName;
 
   @JsonKey(name: r'fortune', required: true, includeIfNull: false)
   final Fortune fortune;
@@ -61,6 +67,7 @@ class Preview {
           other.date == date &&
           other.evidenceAccess == evidenceAccess &&
           other.dayKind == dayKind &&
+          other.dayKindName == dayKindName &&
           other.fortune == fortune &&
           other.featuredTags == featuredTags &&
           other.notices == notices;
@@ -70,6 +77,7 @@ class Preview {
       date.hashCode +
       evidenceAccess.hashCode +
       dayKind.hashCode +
+      dayKindName.hashCode +
       fortune.hashCode +
       featuredTags.hashCode +
       notices.hashCode;

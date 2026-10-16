@@ -24,6 +24,10 @@ class City {
 
     required this.country,
 
+    required this.countryName,
+
+    this.regionName,
+
     required this.timezone,
   });
 
@@ -31,12 +35,21 @@ class City {
   @JsonKey(name: r'id', required: true, includeIfNull: false)
   final String id;
 
+  /// 요청 언어의 이름
   @JsonKey(name: r'name', required: true, includeIfNull: false)
   final String name;
 
   /// ISO 3166-1 alpha-2
   @JsonKey(name: r'country', required: true, includeIfNull: false)
   final String country;
+
+  /// 요청 언어의 나라 이름
+  @JsonKey(name: r'countryName', required: true, includeIfNull: false)
+  final String countryName;
+
+  /// 1차 행정구역 이름. GeoNames에 없으면 생략합니다.
+  @JsonKey(name: r'regionName', required: false, includeIfNull: false)
+  final String? regionName;
 
   /// IANA 이름
   @JsonKey(name: r'timezone', required: true, includeIfNull: false)
@@ -49,11 +62,18 @@ class City {
           other.id == id &&
           other.name == name &&
           other.country == country &&
+          other.countryName == countryName &&
+          other.regionName == regionName &&
           other.timezone == timezone;
 
   @override
   int get hashCode =>
-      id.hashCode + name.hashCode + country.hashCode + timezone.hashCode;
+      id.hashCode +
+      name.hashCode +
+      country.hashCode +
+      countryName.hashCode +
+      regionName.hashCode +
+      timezone.hashCode;
 
   factory City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
 

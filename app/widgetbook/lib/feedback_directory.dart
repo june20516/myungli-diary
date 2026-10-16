@@ -47,6 +47,21 @@ final WidgetbookFolder feedbackDirectory = WidgetbookFolder(
           builder: (context) =>
               Stage(child: _dialogOpener(DialogVariant.destructive)),
         ),
+        WidgetbookUseCase(
+          name: 'notice · 확인 하나, 바깥·뒤로도 확인',
+          builder: (context) => Stage(
+            child: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () => showMyungliNotice(
+                  context,
+                  body: '이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.',
+                  confirm: '확인',
+                ),
+                child: const Text('notice 열기'),
+              ),
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(

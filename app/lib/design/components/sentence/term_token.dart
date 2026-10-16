@@ -107,7 +107,9 @@ class TermToken extends StatelessWidget {
                 style: base,
               ),
             ),
-          chip,
+          // 글자가 아주 커서 칩과 붙은 글자가 한 줄 폭보다 넓으면 칩 글자가 칩 안에서 줄을
+          // 바꿉니다(넘치지 않게). 폭이 충분하면 배치는 그대로입니다.
+          Flexible(child: chip),
           if (after != null)
             ExcludeSemantics(
               child: Text.rich(

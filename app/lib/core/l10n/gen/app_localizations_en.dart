@@ -10,130 +10,133 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get errorOffline => 'You are not connected to the internet.';
+  String get errorOffline => 'You\'re offline. Please check your connection.';
 
   @override
   String get errorTimeout =>
-      'The response is taking too long. Please try again in a moment.';
+      'This is taking too long. Please try again in a moment.';
 
   @override
-  String get errorClient => 'The request could not be processed.';
+  String get errorClient => 'We couldn\'t complete that. Please try again.';
 
   @override
   String get errorServer =>
-      'Something went wrong on the server. Please try again in a moment.';
+      'Something went wrong on our side. Please try again in a moment.';
 
   @override
-  String get errorUnexpected => 'Something unexpected happened.';
+  String get errorUnexpected => 'Something went wrong. Please try again.';
 
   @override
-  String get errorNotImplemented => 'This is not available yet.';
+  String get errorNotImplemented => 'This isn\'t ready yet.';
 
   @override
-  String get errorRequestMalformed => 'The request could not be processed.';
+  String get errorRequestMalformed =>
+      'We couldn\'t complete that. Please try again.';
 
   @override
   String get errorRequestInvalid => 'Please check what you entered.';
 
   @override
   String get errorAuthTokenExpired =>
-      'Your session has expired. Please sign in again.';
+      'You\'ve been signed out. Please sign in again.';
 
   @override
-  String get errorAuthTokenInvalid => 'Please sign in again.';
+  String get errorAuthTokenInvalid =>
+      'We couldn\'t verify your sign-in. Please sign in again.';
 
   @override
   String get errorAuthRefreshReused =>
-      'You were signed out for your security. Please sign in again.';
+      'We signed you out to keep your account safe. Please sign in again.';
 
   @override
   String get errorAuthProviderTokenInvalid =>
-      'Sign-in failed. Please try again.';
+      'Sign-in didn\'t work. Please try again.';
 
   @override
   String get errorAuthExchangeInvalid =>
-      'Sign-in timed out. Please sign in again from the start.';
+      'Sign-in timed out. Please start again.';
 
   @override
   String get errorAppCheckInvalid =>
-      'We could not verify the app. Please update to the latest version.';
+      'We couldn\'t verify the app. Please update to the latest version.';
 
   @override
-  String get errorConsentRequired => 'You need to agree to the terms.';
+  String get errorConsentRequired => 'Please agree to the terms to continue.';
 
   @override
   String get errorPreviewUsed =>
-      'The preview can be viewed only once. Sign in to keep going.';
+      'The preview is available once. Sign in to keep going.';
 
   @override
   String get errorRouteNotFound =>
-      'The request could not be processed. Please update the app.';
+      'We couldn\'t complete that. Please update the app.';
 
   @override
-  String get errorDiaryNotFound => 'We could not find that diary entry.';
+  String get errorDiaryNotFound => 'We couldn\'t find that diary entry.';
 
   @override
   String get errorMethodNotAllowed =>
-      'The request could not be processed. Please update the app.';
+      'We couldn\'t complete that. Please update the app.';
 
   @override
-  String get errorProfileRequired => 'Please enter your birth details first.';
+  String get errorProfileRequired =>
+      'Please enter your birth date and time first.';
 
   @override
   String get errorDiaryDateTaken =>
-      'There is already a diary entry for that day.';
+      'There\'s already a diary entry for that day.';
 
   @override
   String get errorIdempotencyInProgress =>
-      'Still processing. Please check again in a moment.';
+      'Still working on it. Please check again in a moment.';
 
   @override
-  String get errorRequestTooLarge => 'The content is too long.';
+  String get errorRequestTooLarge => 'That\'s too long. Please shorten it.';
 
   @override
   String get errorRequestUnsupportedMediaType =>
-      'The request could not be processed. Please update the app.';
+      'We couldn\'t complete that. Please update the app.';
 
   @override
   String get errorDateOutOfRange =>
-      'Only dates from January 31, 1900 to December 31, 2099 are supported.';
+      'You can only view dates from January 31, 1900 to December 31, 2099.';
 
   @override
   String get errorBirthOutOfRange =>
-      'Please enter a birth date between January 31, 1900 and December 31, 2099.';
+      'We can only calculate dates from January 31, 1900 to December 31, 2099.';
 
   @override
-  String get errorDateInvalid => 'That date does not exist on the calendar.';
+  String get errorDateInvalid => 'That date isn\'t on the calendar.';
 
   @override
   String get errorRequestInconsistent => 'Please check what you entered.';
 
   @override
-  String get errorBirthInvalid => 'Please check the birth details you entered.';
+  String get errorBirthInvalid =>
+      'Please check the birth date and time you entered.';
 
   @override
   String get errorDiaryFutureDate =>
-      'You cannot write a diary entry for a future date.';
+      'You can\'t write a diary entry for a future date.';
 
   @override
-  String get errorNameEmpty => 'Please enter a name to be called.';
+  String get errorNameEmpty => 'Please enter a name for us to call you.';
 
   @override
-  String get errorNameTooLong => 'That name is too long.';
+  String get errorNameTooLong => 'That name is too long. Please shorten it.';
 
   @override
-  String get errorNameEmoji => 'Names cannot include emoji.';
+  String get errorNameEmoji => 'Names can\'t include emoji.';
 
   @override
-  String get errorNameControl =>
-      'The name contains characters that cannot be used.';
+  String get errorNameControl => 'The name has characters that can\'t be used.';
 
   @override
-  String get errorNameInvalidChar => 'Names cannot include brackets.';
+  String get errorNameInvalidChar => 'Names can\'t include brackets.';
 
   @override
   String get errorIdempotencyMismatch =>
-      'The request could not be processed. Please try again.';
+      'We couldn\'t complete that. Please try again.';
 
   @override
   String get errorConsentVersionMismatch =>
@@ -141,30 +144,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorRateLimited =>
-      'Too many requests. Please try again in a moment.';
+      'Too many tries. Please wait a moment and try again.';
 
   @override
   String get errorInternal =>
-      'Something went wrong on the server. Please try again in a moment.';
+      'Something went wrong on our side. Please try again in a moment.';
 
   @override
-  String get errorEngineError => 'We could not calculate your reading.';
+  String get errorEngineError =>
+      'We couldn\'t calculate your reading. Please try again in a moment.';
 
   @override
   String get errorEngineUnavailable =>
-      'We could not load your reading. Please try again in a moment.';
+      'We couldn\'t load your reading. Please try again in a moment.';
 
   @override
   String get errorAuthProviderUnavailable =>
-      'Sign-in is unavailable right now. Please try again in a moment.';
+      'Sign-in isn\'t available right now. Please try again in a moment.';
 
   @override
   String get errorBillingProviderUnavailable =>
-      'We cannot check purchases right now. Please try again in a moment.';
+      'We can\'t check purchases right now. Please try again in a moment.';
 
   @override
   String get errorServiceUnavailable =>
-      'The service is temporarily unavailable. Please try again in a moment.';
+      'The app isn\'t available right now. Please try again in a moment.';
 
   @override
   String get errorEngineTimeout =>
@@ -175,13 +179,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bootstrapFailed =>
-      'The app could not start. Please close it completely and open it again.';
+      'The app couldn\'t start. Please close it completely and open it again.';
 
   @override
   String get actionRetry => 'Try again';
 
   @override
-  String get actionBusy => 'Processing';
+  String get actionBusy => 'In progress';
 
   @override
   String traceIdLabel(String traceId) {
@@ -211,10 +215,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noticeOffline =>
-      'You are offline, so this shows what was saved earlier.';
+      'You\'re offline, so this is what was saved earlier.';
 
   @override
-  String get emptyStateDefault => 'There is nothing to show yet.';
+  String get emptyStateDefault => 'Nothing here yet.';
 
   @override
   String get skeletonLabel => 'Loading';
@@ -270,7 +274,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String termTokenSemantics(String term) {
-    return 'View the meaning of $term';
+    return 'See what $term means';
   }
 
   @override
@@ -337,12 +341,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String datePickerLeapMonthValue(int month) {
-    return 'Leap $month';
+    return 'Leap month $month';
   }
 
   @override
   String citySearchResults(int count) {
-    return 'Results: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '$count result',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -485,7 +495,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No matching city. Try a larger city nearby.';
 
   @override
-  String get birthplaceSearchLabel => 'Search birth city';
+  String get birthplaceSearchLabel => 'Find your birth city';
 
   @override
   String get genderMale => 'Male';
@@ -503,13 +513,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previewShareLoginNotice => 'Sign in to share today\'s reading.';
 
   @override
-  String get dayKindYongsinDay => 'Day of your Yongsin';
+  String get dayKindYongsinDay => 'Day in your favor';
 
   @override
-  String get dayKindGwiinDay => 'Day of benefactors';
+  String get dayKindGwiinDay => 'Day of helpers';
 
   @override
-  String get dayKindGisinDay => 'Day of caution';
+  String get dayKindGisinDay => 'Day to go gently';
 
   @override
   String get dayKindOrdinaryDay => 'Ordinary day';
@@ -542,7 +552,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appleWebErrorStateMismatch =>
-      'We couldn\'t verify the sign-in. Please sign in again from the start.';
+      'We couldn\'t confirm your sign-in. Please start again.';
 
   @override
   String get appleWebErrorCancelled => 'Sign in with Apple was cancelled.';
@@ -620,7 +630,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calcBasisConventionBody =>
-      'Readings follow one standard widely used in Korea.';
+      'Readings follow the standard widely used in Korea. It\'s one well-grounded approach among several schools.';
 
   @override
   String get calcBasisLongitudeBody =>
@@ -789,6 +799,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharePreviewRatioLabelSquare => 'Square';
 
   @override
+  String get shareImageSemantics => 'Preview of today\'s sentence image';
+
+  @override
+  String get sharePreviewRatioGroup => 'Share image ratio';
+
+  @override
   String get tagDiaryEmptyBody => 'No entries with this tag yet.';
 
   @override
@@ -812,6 +828,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayGuideCtaWritten => 'View diary';
 
   @override
+  String get todayGuideEyebrow => 'Today\'s question';
+
+  @override
+  String get todayGuideWritten => 'You wrote today\'s entry';
+
+  @override
+  String get todayGuideLabel => 'Diary question';
+
+  @override
   String get todayReactionLabelSelected => 'Unlike';
 
   @override
@@ -825,4 +850,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depthSurface => 'Summary';
+
+  @override
+  String get depthLinkEvidence => 'See the basis';
+
+  @override
+  String get todayLuckyColorName => 'Lucky color';
+
+  @override
+  String get todayLuckyDirectionName => 'Lucky direction';
+
+  @override
+  String get todayLuckyNumberName => 'Lucky number';
+
+  @override
+  String get todayLuckyTimeName => 'Best time to focus';
+
+  @override
+  String get evidenceSheetTitle => 'The basis for today\'s reading';
+
+  @override
+  String get direction8N => 'North';
+
+  @override
+  String get direction8Ne => 'Northeast';
+
+  @override
+  String get direction8E => 'East';
+
+  @override
+  String get direction8Se => 'Southeast';
+
+  @override
+  String get direction8S => 'South';
+
+  @override
+  String get direction8Sw => 'Southwest';
+
+  @override
+  String get direction8W => 'West';
+
+  @override
+  String get direction8Nw => 'Northwest';
+
+  @override
+  String get birthplaceStandardLink => 'See how we calculate';
+
+  @override
+  String get birthplaceStandardNote =>
+      'Myungli Diary calculates with the standard widely used in Korea. It\'s one well-grounded approach among several schools.';
+
+  @override
+  String calcBasisLongitudeBodySubtract(String longitude, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'We subtract $_temp0 from your birth time, based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyAdd(String longitude, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'We add $_temp0 to your birth time, based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyNone(String longitude) {
+    return 'We use your birth time as is, based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyEast(String degrees) {
+    return '$degrees°E';
+  }
+
+  @override
+  String calcBasisLongitudeBodyWest(String degrees) {
+    return '$degrees°W';
+  }
+
+  @override
+  String get calcBasisSchoolsBody =>
+      'We show every hidden stem instead of picking just one. If you were born in the Rat hour, we count it as the next day, even before midnight. Schools handle these differently, so your results may differ from other apps or books.';
 }

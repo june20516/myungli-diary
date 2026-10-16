@@ -13,6 +13,8 @@ abstract class _$PreviewCWProxy {
 
   Preview dayKind(DayKind dayKind);
 
+  Preview dayKindName(String dayKindName);
+
   Preview fortune(Fortune fortune);
 
   Preview featuredTags(List<Tag> featuredTags);
@@ -31,6 +33,7 @@ abstract class _$PreviewCWProxy {
     String date,
     EvidenceAccess evidenceAccess,
     DayKind dayKind,
+    String dayKindName,
     Fortune fortune,
     List<Tag> featuredTags,
     List<Notice> notices,
@@ -55,6 +58,9 @@ class _$PreviewCWProxyImpl implements _$PreviewCWProxy {
   Preview dayKind(DayKind dayKind) => call(dayKind: dayKind);
 
   @override
+  Preview dayKindName(String dayKindName) => call(dayKindName: dayKindName);
+
+  @override
   Preview fortune(Fortune fortune) => call(fortune: fortune);
 
   @override
@@ -77,6 +83,7 @@ class _$PreviewCWProxyImpl implements _$PreviewCWProxy {
     Object? date = const $CopyWithPlaceholder(),
     Object? evidenceAccess = const $CopyWithPlaceholder(),
     Object? dayKind = const $CopyWithPlaceholder(),
+    Object? dayKindName = const $CopyWithPlaceholder(),
     Object? fortune = const $CopyWithPlaceholder(),
     Object? featuredTags = const $CopyWithPlaceholder(),
     Object? notices = const $CopyWithPlaceholder(),
@@ -96,6 +103,11 @@ class _$PreviewCWProxyImpl implements _$PreviewCWProxy {
           ? _value.dayKind
           // ignore: cast_nullable_to_non_nullable
           : dayKind as DayKind,
+      dayKindName:
+          dayKindName == const $CopyWithPlaceholder() || dayKindName == null
+          ? _value.dayKindName
+          // ignore: cast_nullable_to_non_nullable
+          : dayKindName as String,
       fortune: fortune == const $CopyWithPlaceholder() || fortune == null
           ? _value.fortune
           // ignore: cast_nullable_to_non_nullable
@@ -132,6 +144,7 @@ Preview _$PreviewFromJson(Map<String, dynamic> json) =>
           'date',
           'evidenceAccess',
           'dayKind',
+          'dayKindName',
           'fortune',
           'featuredTags',
           'notices',
@@ -147,6 +160,7 @@ Preview _$PreviewFromJson(Map<String, dynamic> json) =>
           'dayKind',
           (v) => $enumDecode(_$DayKindEnumMap, v),
         ),
+        dayKindName: $checkedConvert('dayKindName', (v) => v as String),
         fortune: $checkedConvert(
           'fortune',
           (v) => Fortune.fromJson(v as Map<String, dynamic>),
@@ -171,6 +185,7 @@ Map<String, dynamic> _$PreviewToJson(Preview instance) => <String, dynamic>{
   'date': instance.date,
   'evidenceAccess': _$EvidenceAccessEnumMap[instance.evidenceAccess]!,
   'dayKind': _$DayKindEnumMap[instance.dayKind]!,
+  'dayKindName': instance.dayKindName,
   'fortune': instance.fortune.toJson(),
   'featuredTags': instance.featuredTags.map((e) => e.toJson()).toList(),
   'notices': instance.notices.map((e) => e.toJson()).toList(),

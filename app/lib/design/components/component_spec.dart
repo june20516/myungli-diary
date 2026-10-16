@@ -24,6 +24,9 @@ import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 
 /// 컴포넌트 하나가 따르는 명세 요약. 대조 테스트가 명세 JSON과 비교합니다.
 ///
@@ -68,6 +71,9 @@ const List<ComponentSpec> implementedComponents = [
   TimePicker.spec,
   CitySearch.spec,
   DayCharacter.spec,
+  LuckyCardRow.spec,
+  GuideQuestionCard.spec,
+  ShareImage.spec,
   ShareButton.spec,
   SocialLoginButton.spec,
 ];

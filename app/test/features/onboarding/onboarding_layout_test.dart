@@ -53,7 +53,6 @@ void main() {
     ScreenIds.onboardBirth,
     ScreenIds.onboardTime,
     ScreenIds.onboardGender,
-    ScreenIds.birthplace,
   ]) {
     for (final scale in [1.0, 2.0, 3.0]) {
       for (final keyboard in [0.0, 280.0]) {
@@ -132,10 +131,12 @@ void main() {
     }
   }
 
-  // 도시 검색 결과가 보이는 상태에서도 넘치지 않고 버튼에 닿습니다.
-  for (final scale in [1.0, 3.0]) {
+  // birthplace는 고르면 바로 넘어가는 단계라 아래 버튼이 없습니다(`bottomAction.omitWhen`).
+  // 결과가 보여도 넘치지 않고, 마지막 결과 줄까지 스크롤해 키보드 위에서 닿습니다.
+  for (final scale in [1.0, 2.0, 3.0]) {
     for (final keyboard in [0.0, 280.0]) {
-      testWidgets('birthplace 결과 표시: 글자 $scale배·키보드 $keyboard', (tester) async {
+      testWidgets('birthplace: 글자 $scale배·키보드 $keyboard에서 아래 버튼 없이 넘치지 않고 '
+          '마지막 결과 줄을 누를 수 있습니다', (tester) async {
         tester.view
           ..physicalSize = const Size(320, 568)
           ..devicePixelRatio = 1
@@ -145,6 +146,9 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         final container = await pumpApp(tester, scenario: 'overseas');
         await _open(tester, container, ScreenIds.birthplace);
+        expect(tester.takeException(), isNull);
+        expect(find.byType(PrimaryButton), findsNothing);
+
         await tester.enterText(find.byType(EditableText), 'new');
         await tester.pump(const Duration(seconds: 1));
         await tester.runAsync(
@@ -154,12 +158,15 @@ void main() {
 
         expect(find.byKey(CitySearch.resultsKey), findsOneWidget);
         expect(tester.takeException(), isNull);
-        final button = find.byType(PrimaryButton);
-        expect(
-          tester.getBottomLeft(button).dy,
-          lessThanOrEqualTo(568 - keyboard),
-        );
-        expect(tester.getTopLeft(button).dy, greaterThanOrEqualTo(0));
+        expect(find.byType(PrimaryButton), findsNothing);
+        final lastRow = find.byKey(CitySearch.rowKey('1261481'));
+        await tester.ensureVisible(lastRow);
+        await tester.pumpAndSettle();
+        // 3배 글자·키보드에서는 줄 하나가 남은 높이보다 클 수 있어, 누를 수 있는 높이(48)가
+        // 키보드 위에 보이는지 봅니다.
+        final top = tester.getTopLeft(lastRow).dy;
+        expect(top, greaterThanOrEqualTo(0));
+        expect(top + 48, lessThanOrEqualTo(568 - keyboard));
       });
     }
   }
