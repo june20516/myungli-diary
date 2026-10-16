@@ -19,9 +19,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/seed"
 )
 
 func TestServe_GracefulShutdown(t *testing.T) {
@@ -434,4 +439,32 @@ func TestNewReadings_LoadsEmbeddedSeed(t *testing.T) {
 	if readings == nil {
 		t.Fatal("readings가 nil입니다")
 	}
+}
+
+func TestServe_AssemblesContentRoutes(t *testing.T) {
+	// serve와 같은 조립으로 콘텐츠 저장소와 운세 화면 묶음을 붙이고, seed 명령으로 시드를 넣은 DB에서 용어 사전을 받습니다.
+	env := newFlowEnvWith(t, func(deps *serverDeps) {
+		code, _, stderr := runCLIWithEnv(t, map[string]string{"DATABASE_URL": deps.Pool.Config().ConnString()}, "seed")
+		require.Equal(t, 0, code, "seed stderr: %s", stderr)
+
+		contents := content.NewStore(deps.Pool, deps.Clock)
+		readings, err := newReadings(contents, nil, deps.Logger, deps.Clock)
+		require.NoError(t, err, "newReadings")
+		deps.Contents = contents
+		deps.Readings = readings
+	})
+
+	login := env.loginKakao("kakao-content-subject")
+	require.Equal(t, http.StatusOK, login.status, "로그인 본문: %v", login.body)
+	access, _ := login.tokens(t)
+	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
+	require.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
+
+	// lang을 주면 프로필 없이 받습니다.
+	glossary := env.do(http.MethodGet, "/v1/glossary?lang=ko", access, nil)
+	require.Equal(t, http.StatusOK, glossary.status, "용어 사전 본문: %v", glossary.body)
+	embedded, err := seed.Load()
+	require.NoError(t, err, "seed.Load")
+	assert.Equal(t, embedded.Version, glossary.body["seedVersion"], "seed 명령이 넣은 내장 시드가 활성입니다")
+	assert.NotEmpty(t, glossary.body["values"], "내장 시드의 값 이름이 있습니다")
 }

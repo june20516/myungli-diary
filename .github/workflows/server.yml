@@ -32,6 +32,17 @@ jobs:
       - name: 실제 엔진과 계약 테스트
         # core/Dockerfile로 엔진 이미지를 빌드해 띄우고 server 클라이언트로 실제 RPC를 부른다(#79).
         run: go test -tags enginecontract ./internal/engine/...
+      # 시드의 원본인 writing 원고를 검사합니다(spec §6.1). 원고가 W1로 다 오기 전까지 --partial입니다(P4-8).
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          version: "0.11.3"
+          python-version: "3.13"
+      - name: writing 원고 검사
+        working-directory: docs/identity/writing/tools
+        run: |
+          uv sync --frozen
+          uv run mlw check ../content --partial
+      # go generate는 시드(seed/data/content.json)도 원고에서 다시 만듭니다. 원고와 시드가 어긋나면 아래 차이 검사가 잡습니다.
       - name: 생성 코드가 계약과 일치하는지 확인
         run: |
           go generate ./...
