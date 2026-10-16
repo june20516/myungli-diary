@@ -100,8 +100,7 @@ final class CalendarMonth {
   }
 
   /// [date]가 속한 달.
-  factory of(CalendarDate date) =>
-      CalendarMonth(date.year, date.month);
+  factory of(CalendarDate date) => CalendarMonth(date.year, date.month);
 
   /// 지원하는 첫 달(1900-01)과 마지막 달(2099-12).
   static const _firstYear = 1900;
