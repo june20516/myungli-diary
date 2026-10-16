@@ -294,6 +294,18 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
             child: MyungliTextField(label: '호칭', enabled: false),
           ),
         ),
+        _stage(
+          '여러 줄(메모, 6줄까지 늘어남)',
+          () => const SizedBox(
+            width: 360,
+            child: MyungliTextField(
+              label: '메모',
+              hint: '메모',
+              maxLength: 2000,
+              maxLines: MyungliTextField.maxLinesLimit,
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(

@@ -16,6 +16,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -95,6 +96,18 @@ bool _bannerShown(WidgetTester tester) =>
 
 bool _saveEnabled(WidgetTester tester) =>
     tester.widget<PrimaryButton>(_save).onPressed != null;
+
+String _path(ProviderContainer container) =>
+    container.read(routerProvider).routerDelegate.currentConfiguration.uri.path;
+
+/// 수정 모드에서 일정 지우기 → 확인 창의 지우기를 누릅니다.
+Future<void> _confirmDelete(WidgetTester tester) async {
+  await tester.ensureVisible(_delete);
+  await tester.tap(_delete);
+  await settleWithIo(tester);
+  await tester.tap(find.text(_ko.eventEditDeleteConfirmDelete));
+  await settleWithIo(tester);
+}
 
 Future<void> _tapSave(WidgetTester tester) async {
   await tester.ensureVisible(_save);
@@ -338,5 +351,186 @@ void main() {
     expect(_screen, findsNothing);
     expect(find.text(_ko.errorUnexpected), findsOneWidget);
     await _dismissToast(tester);
+  });
+
+  testWidgets('삭제가 이미 없는 일정(404)이면 닫고 일반 오류 toast를 띄웁니다 (A41)', (tester) async {
+    final server = ScheduleTestServer();
+    await _open(
+      tester,
+      location: '/event-edit',
+      extra: _morning(),
+      overrides: [_repositoryOf(server)],
+    );
+    server.store.delete('morning');
+    await tester.ensureVisible(_delete);
+    await tester.tap(_delete);
+    await settleWithIo(tester);
+    await tester.tap(find.text(_ko.eventEditDeleteConfirmDelete));
+    // 확인 창이 닫히고 화면이 닫히는 움직임까지 기다리면 toast가 사라지므로, 응답이 와서
+    // toast가 뜨는 때를 바로 봅니다.
+    for (
+      var i = 0;
+      i < 100 && find.text(_ko.errorUnexpected).evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(find.text(_ko.errorUnexpected), findsOneWidget);
+    await settleWithIo(tester);
+    expect(server.requestsOf('DELETE', '/v1/schedules/morning'), hasLength(1));
+    expect(_screen, findsNothing);
+    await _dismissToast(tester);
+  });
+
+  testWidgets('삭제가 연결 오류면 오프라인 배너를 보이고 화면에 남습니다', (tester) async {
+    final server = ScheduleTestServer();
+    await _open(
+      tester,
+      location: '/event-edit',
+      extra: _morning(),
+      overrides: [_repositoryOf(server)],
+    );
+    server.offline = true;
+
+    await _confirmDelete(tester);
+
+    expect(_screen, findsOneWidget);
+    expect(_bannerShown(tester), isTrue);
+    expect(find.text('팀 주간 회의'), findsOneWidget);
+  });
+
+  testWidgets('스택 바닥에서 열었으면 저장한 뒤 달력 탭으로 갑니다', (tester) async {
+    final server = ScheduleTestServer();
+    final container = await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [_repositoryOf(server)],
+    );
+    container.read(routerProvider).go('/event-edit?date=2026-10-20');
+    await settleWithIo(tester);
+    await _waitCharacterLine(tester);
+    expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
+    await tester.enterText(_editableIn(SlotIds.eventEditTitleHint), '산책');
+    await tester.pump();
+
+    await _tapSave(tester);
+
+    expect(server.requestsOf('POST', '/v1/schedules'), hasLength(1));
+    expect(_screen, findsNothing);
+    expect(_path(container), '/calendar');
+  });
+
+  testWidgets('시각 → 하루 종일 → 시각으로 되돌리면 PATCH에 time이 없습니다 (A36)', (tester) async {
+    final server = ScheduleTestServer();
+    await _open(
+      tester,
+      location: '/event-edit',
+      extra: _morning(),
+      overrides: [_repositoryOf(server)],
+    );
+    final segmented = find.byType(Segmented<bool>);
+    tester.widget<Segmented<bool>>(segmented).onChanged!(true);
+    await tester.pump();
+    expect(find.byType(TimePicker), findsNothing);
+    tester.widget<Segmented<bool>>(segmented).onChanged!(false);
+    await tester.pump();
+    expect(
+      tester.widget<TimePicker>(find.byType(TimePicker)).value,
+      const TimeOfDay(hour: 9, minute: 5),
+    );
+    await tester.enterText(_editableIn(SlotIds.eventEditTitleHint), '팀 회의');
+    await tester.pump();
+
+    await _tapSave(tester);
+
+    final patches = server.requestsOf('PATCH', '/v1/schedules/morning');
+    expect(jsonDecode(patches.single.data as String), {'title': '팀 회의'});
+  });
+
+  testWidgets('아무것도 바꾸지 않고 저장하면 요청 없이 닫힙니다', (tester) async {
+    final server = ScheduleTestServer();
+    await _open(
+      tester,
+      location: '/event-edit',
+      extra: _morning(),
+      overrides: [_repositoryOf(server)],
+    );
+
+    await _tapSave(tester);
+
+    expect(server.requestsOf('PATCH', '/v1/schedules'), isEmpty);
+    expect(_screen, findsNothing);
+  });
+
+  testWidgets('저장 중에는 두 번 눌러도 POST 1건이고 휠·뒤로 가기가 막힙니다', (tester) async {
+    final server = ScheduleTestServer()..hold = Completer<void>();
+    await _open(tester, overrides: [_repositoryOf(server)]);
+    await tester.enterText(_editableIn(SlotIds.eventEditTitleHint), '산책');
+    tester.widget<Segmented<bool>>(find.byType(Segmented<bool>)).onChanged!(
+      false,
+    );
+    await tester.pump();
+    await tester.ensureVisible(_save);
+    await tester.tap(_save);
+    await tester.pump();
+    // 처리 중 버튼은 눌림을 받지 않으므로 콜백을 직접 다시 부릅니다(두 번 누름 흉내).
+    await tester.tap(_save, warnIfMissed: false);
+    tester.widget<PrimaryButton>(_save).onPressed?.call();
+    await tester.pump();
+
+    bool ignoring(Key key) =>
+        tester.widget<IgnorePointer>(find.byKey(key)).ignoring;
+    expect(ignoring(EventEditScreen.dateWheelsKey), isTrue);
+    expect(ignoring(EventEditScreen.timeWheelsKey), isTrue);
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(_screen, findsOneWidget, reason: '저장 중 뒤로 가기는 막힘');
+
+    server.hold!.complete();
+    await settleWithIo(tester);
+    expect(server.requestsOf('POST', '/v1/schedules'), hasLength(1));
+    expect(_screen, findsNothing);
+  });
+
+  testWidgets('제목 칸에서 완료를 누르면 키보드만 내리고 저장하지 않습니다', (tester) async {
+    final server = ScheduleTestServer();
+    await _open(tester, overrides: [_repositoryOf(server)]);
+    await tester.enterText(_editableIn(SlotIds.eventEditTitleHint), '산책');
+    await tester.pump();
+    final editable = tester.state<EditableTextState>(
+      _editableIn(SlotIds.eventEditTitleHint),
+    );
+    expect(editable.widget.focusNode.hasFocus, isTrue);
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+
+    expect(editable.widget.focusNode.hasFocus, isFalse);
+    expect(server.requests, isEmpty);
+    expect(_screen, findsOneWidget);
+  });
+
+  testWidgets('메모는 여러 줄이고 공백뿐이면 메모 없이 만듭니다', (tester) async {
+    final server = ScheduleTestServer();
+    await _open(tester, overrides: [_repositoryOf(server)]);
+    final memo = tester.widget<MyungliTextField>(
+      find.byKey(const ValueKey(SlotIds.eventEditMemoHint)),
+    );
+    expect(memo.maxLines, MyungliTextField.maxLinesLimit);
+    await tester.enterText(_editableIn(SlotIds.eventEditTitleHint), '산책');
+    await tester.enterText(_editableIn(SlotIds.eventEditMemoHint), '  \n ');
+    await tester.pump();
+
+    await _tapSave(tester);
+
+    final posts = server.requestsOf('POST', '/v1/schedules');
+    expect(jsonDecode(posts.single.data as String), {
+      'date': '2026-10-20',
+      'allDay': true,
+      'title': '산책',
+    });
   });
 }

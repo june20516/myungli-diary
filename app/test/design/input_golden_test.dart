@@ -133,6 +133,42 @@ Widget _textFields() => Builder(
   },
 );
 
+/// text-field 여러 줄(#218 ⑤, event-edit 메모): 비었음(최소 높이 52)·세 줄·상한 6줄을 넘음.
+Widget _multilineFields() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    final line = ja ? '持ち物' : '챙길 것';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s12,
+      children: [
+        MyungliTextField(
+          label: '메모',
+          hint: ja ? 'メモ' : '메모',
+          maxLength: 2000,
+          maxLines: MyungliTextField.maxLinesLimit,
+        ),
+        MyungliTextField(
+          label: '메모',
+          maxLength: 2000,
+          maxLines: MyungliTextField.maxLinesLimit,
+          controller: TextEditingController(
+            text: [for (var i = 1; i <= 3; i++) '$line $i'].join('\n'),
+          ),
+        ),
+        MyungliTextField(
+          label: '메모',
+          maxLength: 2000,
+          maxLines: MyungliTextField.maxLinesLimit,
+          controller: TextEditingController(
+            text: [for (var i = 1; i <= 8; i++) '$line $i'].join('\n'),
+          ),
+        ),
+      ],
+    );
+  },
+);
+
 /// text-field focused: 글자가 있고 포커스가 있어 지우기 아이콘이 보입니다.
 ///
 /// 포커스를 받은 입력칸은 Overlay(선택 손잡이용)가 필요해 직접 둡니다.
@@ -440,6 +476,10 @@ void main() {
 
   goldenTest('text-field: 비었음·글자 있음·error·disabled', (tester) async {
     await goldenMatrix(tester, 'input_text_field', _textFields);
+  });
+
+  goldenTest('text-field: 여러 줄(비었음·세 줄·6줄 상한)', (tester) async {
+    await goldenMatrix(tester, 'input_text_field_multiline', _multilineFields);
   });
 
   goldenTest('text-field: focused(dark ko 1.0 칸 하나만 포커스)', (tester) async {

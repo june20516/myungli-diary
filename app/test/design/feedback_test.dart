@@ -504,6 +504,40 @@ void main() {
       expect(find.text('저장했어요'), findsNothing);
     });
 
+    testWidgets('부른 화면이 바로 닫혀도 토스트가 끝까지 보입니다', (tester) async {
+      await pumpHost(tester);
+      const pageKey = ValueKey('toast-page');
+      Navigator.of(hostContext(tester)).push(
+        // 전환 없이 바로 빠지는 route라야 토스트가 그려질 때 부른 화면이 이미 없습니다.
+        PageRouteBuilder<void>(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, _, _) => const SizedBox.expand(key: pageKey),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final page = tester.element(find.byKey(pageKey));
+      showMyungliToast(page, '이미 없는 일정이에요');
+      final navigator = Navigator.of(page)..pop();
+      await tester.pump();
+      // 다른 route가 오가며 root Overlay가 다시 그려져도(확인 창이 닫힐 때처럼) 토스트가
+      // 닫힌 화면의 context를 찾지 않습니다.
+      navigator.push(
+        PageRouteBuilder<void>(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, _, _) => const SizedBox.expand(),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(pageKey), findsNothing);
+      expect(find.text('이미 없는 일정이에요'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      expect(find.text('이미 없는 일정이에요'), findsNothing);
+    });
+
     testWidgets('새 토스트가 오면 하나만 남습니다', (tester) async {
       await pumpHost(tester);
       showMyungliToast(hostContext(tester), '하나');

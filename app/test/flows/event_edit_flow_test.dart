@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -98,5 +99,29 @@ void main() {
     // toast가 저절로 사라지게 시간을 보냅니다(테스트 끝에 timer가 남지 않게).
     await tester.pump(const Duration(seconds: 3));
     await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('일정 편집을 연 채 로그아웃하면 member 가드로 welcome에 갑니다', (tester) async {
+    final container = await pumpApp(tester, scenario: 'member');
+    unawaited(
+      container.read(routerProvider).push<void>('/event-edit?date=2026-10-25'),
+    );
+    await settleWithIo(tester);
+    expect(_screen, findsOneWidget);
+
+    await tester.runAsync(container.read(tokenStoreProvider).signOut);
+    await settleWithIo(tester);
+
+    expect(_screen, findsNothing);
+    expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
+    expect(
+      container
+          .read(routerProvider)
+          .routerDelegate
+          .currentConfiguration
+          .uri
+          .path,
+      '/welcome',
+    );
   });
 }

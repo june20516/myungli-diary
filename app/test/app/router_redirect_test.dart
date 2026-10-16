@@ -140,6 +140,23 @@ void main() {
       );
     });
 
+    test('signedOut에서 일정 편집(/event-edit, date query 포함)은 /welcome', () {
+      for (final location in ['/event-edit', '/event-edit?date=2026-10-20']) {
+        expect(
+          entryRedirect(entry: EntryState.signedOut, location: location),
+          '/welcome',
+          reason: location,
+        );
+      }
+      expect(
+        entryRedirect(
+          entry: EntryState.ready,
+          location: '/event-edit?date=2026-10-20',
+        ),
+        isNull,
+      );
+    });
+
     test('ready에서 guest 화면은 /today', () {
       expect(
         entryRedirect(entry: EntryState.ready, location: '/welcome'),

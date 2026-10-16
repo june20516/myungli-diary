@@ -28,6 +28,7 @@ class MyungliTextField extends StatefulWidget {
   /// [label]은 스크린리더가 읽는 칸 이름, [hint]는 비었을 때 보이는 예시입니다.
   /// [controller]가 없으면 칸이 직접 만들고 지웁니다. [maxLength]를 넘는 입력은 막고
   /// 오른쪽 아래에 글자 수를 보입니다. [identifier]는 IA 슬롯 id입니다.
+  /// [maxLines]가 1보다 크면 여러 줄 칸입니다(최소 높이 52를 지키며 그 줄 수까지 늘어남).
   const new({
     required this.label,
     this.controller,
@@ -39,8 +40,12 @@ class MyungliTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.identifier,
+    this.maxLines = 1,
     super.key,
-  });
+  }) : assert(
+         maxLines >= 1 && maxLines <= maxLinesLimit,
+         'maxLines는 1~$maxLinesLimit이어야 합니다.',
+       );
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('text-field', {}, {
@@ -54,6 +59,9 @@ class MyungliTextField extends StatefulWidget {
 
   /// 지우기 버튼을 찾는 테스트용 키.
   static const Key clearKey = ValueKey('text-field-clear');
+
+  /// 여러 줄 칸이 늘어나는 줄 수 상한.
+  static const int maxLinesLimit = 6;
 
   static const double _minHeight = 52;
   static const double _fontSize = 17;
@@ -89,6 +97,15 @@ class MyungliTextField extends StatefulWidget {
 
   /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
   final String? identifier;
+
+  /// 늘어날 수 있는 줄 수(1~[maxLinesLimit]). 1이면 한 줄 칸이고 키보드 동작은 완료입니다.
+  ///
+  /// 1보다 크면 한 줄 높이에서 시작해 글이 길어지면 이 줄 수까지 늘어나고, 그 뒤는 칸 안에서
+  /// 스크롤합니다. 키보드는 여러 줄 입력이고 키보드 동작은 줄바꿈이라 [onSubmitted]는 불리지
+  /// 않습니다(event-edit 메모 2000자). 명세 반영은 design에 요청했습니다(#218 ⑤).
+  final int maxLines;
+
+  bool get _multiline => maxLines > 1;
 
   @override
   State<MyungliTextField> createState() => _MyungliTextFieldState();
@@ -204,7 +221,14 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                     }) => null,
                     style: textStyle,
                     cursorColor: colors.actionPrimary,
-                    textInputAction: TextInputAction.done,
+                    minLines: 1,
+                    maxLines: widget.maxLines,
+                    keyboardType: widget._multiline
+                        ? TextInputType.multiline
+                        : null,
+                    textInputAction: widget._multiline
+                        ? TextInputAction.newline
+                        : TextInputAction.done,
                     onChanged: widget.onChanged,
                     onSubmitted: widget.onSubmitted,
                     decoration: InputDecoration.collapsed(

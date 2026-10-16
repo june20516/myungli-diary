@@ -71,6 +71,12 @@ class EventEditScreen extends ConsumerWidget {
   /// 일정 지우기 버튼을 찾는 테스트용 키.
   static const Key deleteKey = ValueKey('event-edit.delete');
 
+  /// 저장 중 날짜 휠을 막는 층을 찾는 테스트용 키.
+  static const Key dateWheelsKey = ValueKey('event-edit.date-wheels');
+
+  /// 저장 중 시각 휠을 막는 층을 찾는 테스트용 키.
+  static const Key timeWheelsKey = ValueKey('event-edit.time-wheels');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final routeState = GoRouterState.of(context);
@@ -79,25 +85,31 @@ class EventEditScreen extends ConsumerWidget {
     final today = ref.read(todayProvider);
     final initialDate =
         _dateOf(routeState.uri.queryParameters[eventEditDateQuery]) ?? today;
-    return Semantics(
-      identifier: ScreenIds.eventEdit,
-      child: Scaffold(
-        key: const ValueKey(ScreenIds.eventEdit),
-        body: SafeArea(
-          child: Column(
-            children: [
-              MyungliAppBar.inner(
-                title: AppLocalizations.of(context).eventEditBarTitle,
-                // 스택 바닥(딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
-                showBack: MyungliAppBar.canGoBack(context),
-              ),
-              Expanded(
-                child: _EventEditForm(
-                  original: original,
-                  initialDate: initialDate,
+    final saving = ref.watch(scheduleEditorProvider);
+    // 저장·삭제 중에는 뒤로 가기(기기·app-bar 모두 이 route의 pop을 거침)를 막습니다.
+    // 결과를 기다리는 동안 화면이 사라지면 실패를 알릴 곳이 없습니다.
+    return PopScope(
+      canPop: !saving,
+      child: Semantics(
+        identifier: ScreenIds.eventEdit,
+        child: Scaffold(
+          key: const ValueKey(ScreenIds.eventEdit),
+          body: SafeArea(
+            child: Column(
+              children: [
+                MyungliAppBar.inner(
+                  title: AppLocalizations.of(context).eventEditBarTitle,
+                  // 스택 바닥(딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
+                  showBack: MyungliAppBar.canGoBack(context),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: _EventEditForm(
+                    original: original,
+                    initialDate: initialDate,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -311,17 +323,23 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
                   onChanged: (value) => setState(
                     () => _draft = _draft.copyWith(title: value.trim()),
                   ),
+                  // 완료는 키보드만 내립니다. 저장은 버튼으로만 합니다.
+                  onSubmitted: (_) => FocusScope.of(context).unfocus(),
                 ),
                 const SizedBox(height: Space.s24),
                 Text(l10n.eventEditDateLabel, style: labelStyle),
                 const SizedBox(height: Space.s8),
-                BirthDatePicker(
-                  value: _dateValue,
-                  onChanged: _setDate,
-                  lunarAllowed: false,
-                  calendarLabelSolar: l10n.calendarSolar,
-                  calendarLabelLunar: l10n.calendarLunar,
-                  leapMonthLabel: l10n.leapMonth,
+                IgnorePointer(
+                  key: EventEditScreen.dateWheelsKey,
+                  ignoring: saving,
+                  child: BirthDatePicker(
+                    value: _dateValue,
+                    onChanged: _setDate,
+                    lunarAllowed: false,
+                    calendarLabelSolar: l10n.calendarSolar,
+                    calendarLabelLunar: l10n.calendarLunar,
+                    leapMonthLabel: l10n.leapMonth,
+                  ),
                 ),
                 const SizedBox(height: Space.s24),
                 Text(l10n.eventEditTimeLabel, style: labelStyle),
@@ -337,11 +355,15 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
                 ),
                 if (!_draft.allDay && time != null) ...[
                   const SizedBox(height: Space.s12),
-                  TimePicker(
-                    variant: TimePickerVariant.notify,
-                    value: _wheelTimeOf(time),
-                    onChanged: (value) => setState(
-                      () => _draft = _draft.withTime(_hhmmOf(value)),
+                  IgnorePointer(
+                    key: EventEditScreen.timeWheelsKey,
+                    ignoring: saving,
+                    child: TimePicker(
+                      variant: TimePickerVariant.notify,
+                      value: _wheelTimeOf(time),
+                      onChanged: (value) => setState(
+                        () => _draft = _draft.withTime(_hhmmOf(value)),
+                      ),
                     ),
                   ),
                 ],
@@ -353,9 +375,14 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
                   hint: l10n.eventEditMemoHint,
                   controller: _memo,
                   maxLength: _memoMaxLength,
+                  maxLines: MyungliTextField.maxLinesLimit,
                   enabled: !saving,
-                  onChanged: (value) =>
-                      setState(() => _draft = _draft.copyWith(memo: value)),
+                  // 공백뿐인 메모는 메모 없음입니다(빈 문자열은 만들기에서 빠지고 고치기에서 지움).
+                  onChanged: (value) => setState(
+                    () => _draft = _draft.copyWith(
+                      memo: value.trim().isEmpty ? '' : value,
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -31,18 +31,22 @@ _ToastSession? _activeToast;
 /// 토스트를 보입니다. 한 번에 하나만 보이며, 새 토스트가 오면 이전 것은 바로 사라집니다.
 ///
 /// 위치는 [BottomBarInsetScope]의 하단 틀 높이 위 16px이고, 범위가 없으면 아래 안전 영역
-/// 위 16px입니다. [icon]은 선택이며 누르는 동작은 담지 않습니다.
+/// 위 16px입니다. [icon]은 선택이며 누르는 동작은 담지 않습니다. 부른 화면([context])이
+/// 바로 닫혀도 토스트는 끝까지 보입니다.
 void showMyungliToast(BuildContext context, String message, {AppGlyph? icon}) {
   final overlay = Overlay.of(context, rootOverlay: true);
   final barHeight = BottomBarInsetScope.of(context);
   final bottom =
       (barHeight > 0 ? barHeight : MediaQuery.viewPaddingOf(context).bottom) +
       MyungliToast.gapAbove;
+  // 부른 화면이 곧 닫혀도(저장 실패 뒤 닫기 등) 토스트가 남도록, [context]는 여기서만 읽고
+  // overlay builder에서는 쓰지 않습니다.
+  final prefs = MotionPrefs.of(context);
   _activeToast?.dismiss();
   final session = _ToastSession();
   session.entry = OverlayEntry(
     builder: (_) => MotionPrefsScope(
-      prefs: MotionPrefs.of(context),
+      prefs: prefs,
       child: Positioned(
         left: MyungliToast.sideGutter / 2,
         right: MyungliToast.sideGutter / 2,
