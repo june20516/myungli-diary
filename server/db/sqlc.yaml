@@ -52,3 +52,13 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/content.sql
+    gen:
+      go:
+        package: contentdb
+        out: ../internal/content/contentdb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
