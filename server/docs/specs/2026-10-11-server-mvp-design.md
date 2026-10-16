@@ -304,7 +304,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 위치 숫자는 Dart(UTF-16)와 Go(UTF-8)가 글자를 세는 방식이 달라 어긋나기 쉽습니다. `term` 값과 표시 방식은 app·design과 정합니다(§13).
 
 * 데일리 응답에는 세 깊이(surface / explain / evidence)를 한 번에 담습니다. 크기가 작고, 펼칠 때마다 다시 부르지 않게 하려는 것입니다.
-* **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①).
+* **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①). 그래서 판정 근거·원전 문장(`Evidence.basis`·`source`)은 `evidence[]`와 함께 빠지고, 오늘 그런 이유(`SlotText.todayReason`, writing `explain.today_reason`)와 용어 뜻·한자(`Glossary.meanings`·`hanja`)는 남습니다.
 * 실행 중에 템플릿이 없으면(CI가 막으므로 원래 일어나지 않음) 그 슬롯만 빼고 오류 로그를 남깁니다.
 
 ## 7. 엔진 연동과 캐시 (D26·D31)

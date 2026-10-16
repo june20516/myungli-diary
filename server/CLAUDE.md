@@ -40,8 +40,8 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. #167 근거 계약: `explain.today_reason`, 근거 `basis`·`source`, 용어 `hanja`를 계약만 먼저 병합하는 PR로 넣습니다. core 근거 목록(#130)은 PR #208로 병합됐습니다.
-2. #199 도시 경도.
+1. 계약 draft.4(#167·#199)가 병합되면 `Profile.birthCity`를 채웁니다(`city.Lookup`, 프로필 언어 이름). `City.longitude`는 `listCities`(P6)에서 채웁니다.
+2. #167의 문장 필드(`todayReason`, `Evidence.basis`·`source`, `Glossary.hanja`)는 P4 콘텐츠 모듈이 렌더합니다. 한자 원고는 writing에 요청했습니다.
 3. **P4(콘텐츠) 계획**을 씁니다(#55 호칭·조사 규칙 사용법과 원고 → 시드 변환, #129). 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"의 P4에 있습니다.
 4. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)은 P9에서 합니다. #93(staging 테스트 로그인)도 설계(S24)가 끝났고 구현은 P6/P9입니다.
 5. app 질문(#100·#114·#165)이 오면 답합니다.
