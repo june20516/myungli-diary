@@ -50,7 +50,7 @@
   user_state: "광고를 보고 열려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - evidenceSheetLockCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -109,7 +109,7 @@
   user_state: "근거 시트의 구역 제목을 봅니다. 잠겨도 보입니다."
   structure: "구역 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 27, en: 50, ja: 22}
   keys:
     - evidenceSheetSectionBasis
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -128,7 +128,7 @@
   user_state: "원전 구역 제목을 봅니다."
   structure: "구역 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 27, en: 50, ja: 22}
   keys:
     - evidenceSheetSectionSource
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -147,7 +147,7 @@
   user_state: "원국 개인 해석 구역 제목을 봅니다."
   structure: "구역 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 27, en: 50, ja: 22}
   keys:
     - evidenceSheetSectionPersonal
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -166,7 +166,7 @@
   user_state: "광고를 끝까지 봤는데 열리지 않았습니다."
   structure: "두 문장 toast. 확인이 늦어진다는 것과 할 일."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   keys:
     - evidenceSheetUnlockFailed
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -185,7 +185,7 @@
   user_state: "스크린리더로 잠긴 구역을 읽습니다."
   structure: "구역 이름 뒤에 붙는 말 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - evidenceSheetA11yLocked
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -204,7 +204,7 @@
   user_state: "잠금 해제를 확인하는 동안 버튼을 읽습니다."
   structure: "상태 말 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - evidenceSheetA11yChecking
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -223,7 +223,7 @@
   user_state: "근거와 해석이 열린 순간 한 번 듣습니다."
   structure: "한 문장."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - evidenceSheetA11yUnlocked
   variants: {count: 1, rotation: "변주가 하나입니다"}

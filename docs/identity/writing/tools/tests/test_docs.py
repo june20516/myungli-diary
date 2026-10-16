@@ -9,7 +9,7 @@ from mlw.cli import main
 from mlw.docs import render_docs, stale_docs, write_docs
 from mlw.ia import Ia, load_ia
 from mlw.loader import load_content, load_rules, load_slots
-from mlw.model import RuleSet, Slot
+from mlw.model import UNBOUNDED, RuleSet, Slot
 from mlw.paths import CONTENT_DIR, IA_FILE, RULES_DIR, SLOTS_DIR, WRITING_DIR
 
 HEADER = "<!-- mlw gen-docs로 생성. 직접 고치지 않습니다 -->"
@@ -111,3 +111,15 @@ def test_ia_coverage_doc(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot])
     [catalog_row] = [line for line in docs["slot-catalog.md"].splitlines() if line.startswith("| x.slot |")]
     assert "a.b.c" in catalog_row
 
+
+
+def test_slot_doc_shows_unbounded_and_key_limits(rules: RuleSet, slots: dict[str, Slot]) -> None:
+    slot = dataclass_replace(
+        slots["ui.action.button"],
+        max_length={"ko": 10, "en": UNBOUNDED, "ja": None},
+        key_max_length={"actionClose": {"ko": 4}},
+    )
+    docs = render_docs(rules, {**slots, slot.id: slot}, load_ia(IA_FILE), load_content(CONTENT_DIR))
+    [row] = [line for line in docs["slot-catalog.md"].splitlines() if line.startswith("| ui.action.button |")]
+    assert "ko 10, en 상한 없음, ja -" in row
+    assert "`actionClose` ko 4" in row

@@ -694,6 +694,27 @@
   "@todayEventSummaryDone": {
     "description": "today.event.summary: 오늘 일정 개수와 첫 일정"
   },
+  "todayEventSummaryNextAt": "다음 {time} {title}",
+  "@todayEventSummaryNextAt": {
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "todayEventSummaryAllPast": "오늘 일정 {count, plural, other{{count}개}}가 모두 지났어요",
+  "@todayEventSummaryAllPast": {
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "todayGuideCta": "일기 쓰기",
   "@todayGuideCta": {
     "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
@@ -856,6 +877,51 @@
   "genderFemale": "여성",
   "@genderFemale": {
     "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  },
+  "calendarPrevMonth": "이전 달",
+  "@calendarPrevMonth": {
+    "description": "달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름"
+  },
+  "calendarNextMonth": "다음 달",
+  "@calendarNextMonth": {
+    "description": "달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름"
+  },
+  "dayCellLunar": "음력 {month}월 {day}일",
+  "@dayCellLunar": {
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각",
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCellLeapMonth": "윤달",
+  "@dayCellLeapMonth": {
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
+  },
+  "dayCellEventCount": "일정 {count, plural, other{{count}개}}",
+  "@dayCellEventCount": {
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCellDiaryWritten": "일기 있음",
+  "@dayCellDiaryWritten": {
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
+  },
+  "dayCellToday": "오늘",
+  "@dayCellToday": {
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
+  },
+  "a11yListSeparator": ", ",
+  "@a11yListSeparator": {
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
   },
   "depthDefaultLabel": "명리 풀이 보기",
   "@depthDefaultLabel": {
@@ -1056,6 +1122,66 @@
   "errorEngineTimeout": "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.",
   "@errorEngineTimeout": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "eventEditAllDay": "하루 종일",
+  "@eventEditAllDay": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditTimed": "시간 지정",
+  "@eventEditTimed": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditDateLabel": "날짜",
+  "@eventEditDateLabel": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditTimeLabel": "시간",
+  "@eventEditTimeLabel": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditSave": "저장",
+  "@eventEditSave": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditDelete": "일정 지우기",
+  "@eventEditDelete": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditOfflineNotice": "인터넷에 연결되어 있지 않아 저장할 수 없어요.",
+  "@eventEditOfflineNotice": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventEditSaveFailed": "일정을 저장하지 못했어요. 다시 시도해 주세요.",
+  "@eventEditSaveFailed": {
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  },
+  "eventRowMore": "외 {count, plural, other{{count}개}}",
+  "@eventRowMore": {
+    "description": "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventRowAllDay": "하루 종일",
+  "@eventRowAllDay": {
+    "description": "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름"
+  },
+  "eventRowLabel": "{status} {time} {title}",
+  "@eventRowLabel": {
+    "description": "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "evidenceSheetTitle": "오늘 풀이의 근거",
   "@evidenceSheetTitle": {

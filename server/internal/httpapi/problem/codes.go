@@ -42,6 +42,7 @@ var (
 	ConsentVersionMismatch   = Code{"consent.version_mismatch", http.StatusUnprocessableEntity}
 	TimezoneInvalid          = Code{"timezone.invalid", http.StatusUnprocessableEntity}
 	CityNotFound             = Code{"city.not_found", http.StatusUnprocessableEntity}
+	RangeTooLong             = Code{"range.too_long", http.StatusUnprocessableEntity}
 	AuthTokenExpired         = Code{"auth.token_expired", http.StatusUnauthorized}
 	AuthTokenInvalid         = Code{"auth.token_invalid", http.StatusUnauthorized} //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
 	AuthRefreshReused        = Code{"auth.refresh_reused", http.StatusUnauthorized}
@@ -51,6 +52,8 @@ var (
 	ConsentRequired          = Code{"consent.required", http.StatusForbidden}
 	PreviewUsed              = Code{"preview.used", http.StatusForbidden}
 	DiaryNotFound            = Code{"diary.not_found", http.StatusNotFound}
+	ReactionNotFound         = Code{"reaction.not_found", http.StatusNotFound}
+	ScheduleNotFound         = Code{"schedule.not_found", http.StatusNotFound}
 	ProfileRequired          = Code{"profile.required", http.StatusConflict}
 	DiaryDateTaken           = Code{"diary.date_taken", http.StatusConflict}
 	IdempotencyInProgress    = Code{"idempotency.in_progress", http.StatusConflict}
@@ -77,9 +80,9 @@ func AllCodes() []Code {
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
 		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate,
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
-		TimezoneInvalid, CityNotFound,
+		TimezoneInvalid, CityNotFound, RangeTooLong,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,
-		ConsentRequired, PreviewUsed, DiaryNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
+		ConsentRequired, PreviewUsed, DiaryNotFound, ReactionNotFound, ScheduleNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
 		RateLimited, NotImplemented,
 		EngineUnavailable, EngineTimeout, EngineError, AuthProviderUnavailable, BillingUnavailable,
 		RewardInvalidSignature, RewardExpired, ServiceUnavailable, Internal,

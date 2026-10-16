@@ -96,7 +96,7 @@
   user_state: "오늘 풀이가 왜 그런지 더 보고 싶습니다."
   structure: "동작 이름 하나. 무엇을 보는지(근거)를 넣습니다."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 25, en: 45, ja: 20}
   components: [depth-link]
   keys:
     - depthLinkEvidence

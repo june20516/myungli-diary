@@ -11,7 +11,7 @@
   user_state: "가이드 질문을 보고 일기를 쓰거나, 쓴 일기를 보려 합니다."
   structure: "동작 이름 하나. 기본은 쓰기, `Written`은 이미 쓴 날."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - todayGuideCta
     - todayGuideCtaWritten
@@ -30,7 +30,7 @@
   where: "오늘 화면(today): 오늘 일정 개수와 첫 일정"
   purpose: info
   user_state: "오늘 일정을 한 줄로 봅니다."
-  structure: "기본은 개수와 첫 일정 제목. `Ongoing`·`Next`는 일정 앞 상태 꼬리표, `Done`은 모두 지났을 때 문장(#42)."
+  structure: "`NextAt`은 다음 일정의 시각과 제목, `AllPast`는 모두 지났을 때 개수 문장입니다(design event-row summary, #217). `Ongoing`·`Next`는 일정 앞 상태 꼬리표입니다. 기본 키와 `Done`은 NextAt·AllPast로 바뀌어, app이 쓰지 않는다고 확인하면 지웁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -39,6 +39,10 @@
     - todayEventSummaryOngoing
     - todayEventSummaryNext
     - todayEventSummaryDone
+    - params: {time: text, title: text}
+      keys: [todayEventSummaryNextAt]
+    - params: {count: number}
+      keys: [todayEventSummaryAllPast]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -58,7 +62,7 @@
   user_state: "스크린리더로 총운 문장의 좋아요 버튼을 만납니다(D40)."
   structure: "버튼 이름. `Selected`는 이미 누른 상태에서 읽는 이름."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - todayReactionLabel
     - todayReactionLabelSelected
@@ -117,7 +121,7 @@
   user_state: "공유 이미지 비율을 고릅니다(#42)."
   structure: "비율 이름 셋: `Story` 9:16, `Feed` 4:5, `Square` 1:1."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 8, en: 13, ja: 6}
   keys:
     - sharePreviewRatioLabelStory
     - sharePreviewRatioLabelFeed
@@ -140,7 +144,7 @@
   user_state: "미리보기를 보고 공유하려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - sharePreviewCtaShare
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -199,7 +203,7 @@
   user_state: "그날에 일정을 더하려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - daySheetEventAdd
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -218,7 +222,7 @@
   user_state: "그날 쓴 일기를 보려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 25, en: 45, ja: 20}
   keys:
     - daySheetDiaryOpen
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -237,7 +241,7 @@
   user_state: "지난 날이나 오늘인데 일기가 없습니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - daySheetDiaryWriteCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -256,7 +260,7 @@
   user_state: "일정 제목을 적습니다."
   structure: "명사구 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 17, en: 31, ja: 14}
   keys:
     - eventEditTitleHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -275,7 +279,7 @@
   user_state: "메모를 적습니다."
   structure: "명사 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 17, en: 31, ja: 14}
   keys:
     - eventEditMemoHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -294,7 +298,9 @@
   user_state: "일정을 지우려 합니다."
   structure: "확인 창: 질문 한 문장과 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    eventEditDeleteConfirm: {ko: 34, en: 60, ja: 28}
   keys:
     - eventEditDeleteConfirm
     - eventEditDeleteConfirmDelete
