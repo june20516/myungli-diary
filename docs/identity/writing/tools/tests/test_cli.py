@@ -16,7 +16,7 @@ from mlw.cli import (
     sentence_findings,
 )
 from mlw.loader import load_rules
-from mlw.model import Entry, ParamKind, ParamKindName, Slot
+from mlw.model import UNBOUNDED, Entry, ParamKind, ParamKindName, Slot
 from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
 
 FINDING_LINE = re.compile(r"^\S+:\d+ \S+ (error|warn) .+$")
@@ -418,3 +418,37 @@ def test_plural_is_ui_only() -> None:
 def test_plural_forms_are_checked_as_sentences() -> None:
     entry = plural_entry("{count, plural, other{{count}개 찾았어요!}}")
     assert "slop.P8" in check_plural(plural_slot(), entry)
+
+
+def test_key_max_length_applies_to_that_key_only() -> None:
+    slot = Slot(
+        id="s.slot",
+        where="시험",
+        purpose="info",
+        types=(),
+        variants=1,
+        keys={"title": {}, "body": {}},
+        co_display=(),
+        max_length={"ko": 5, "en": None, "ja": None},
+        allowed=frozenset(),
+        forbidden=frozenset(),
+        examples={},
+        line=1,
+        file=Path("slots/ui/test.yaml"),
+        key_max_length={"body": {"ko": UNBOUNDED}},
+    )
+    long_text = "가나다라마바사아자차."
+    entries = [
+        Entry(Path("content/ko/ui.yaml"), 1, "s.slot", "title", None, 1, "ko", long_text),
+        Entry(Path("content/ko/ui.yaml"), 2, "s.slot", "body", None, 1, "ko", long_text),
+    ]
+    findings = sentence_findings({"s.slot": slot}, entries, load_rules(RULES_DIR))
+    assert [finding.line for finding in findings if finding.rule_id == "style.length"] == [1]
+
+
+def test_cli_check_reads_hanja_beside_language_dirs(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content"
+    (content / "ko").mkdir(parents=True)
+    (content / "hanja.yaml").write_text('- {term: stem.nope, hanja: "甲"}\n', encoding="utf-8")
+    assert main(["check", str(content), "--partial"]) == 1
+    assert "hanja.unknown_term" in capsys.readouterr().out

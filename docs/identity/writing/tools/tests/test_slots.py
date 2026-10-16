@@ -1,6 +1,7 @@
 """슬롯 명세·원고 로더 테스트."""
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,7 @@ import pytest
 from mlw.completeness import check_params
 from mlw.glossary import glossary_values
 from mlw.loader import load_content, load_rules, load_slots
-from mlw.model import LoadError, ParamKind, RuleSet
+from mlw.model import UNBOUNDED, LoadError, ParamKind, RuleSet
 from mlw.paths import MESSAGE_PARAMS_FILE, RULES_DIR, SLOTS_DIR
 
 MESSAGE_KEYS_PATH = Path(__file__).resolve().parents[5] / "core" / "message_keys.json"
@@ -209,27 +210,62 @@ def test_daily_slots_co_display_each_other(rules: RuleSet) -> None:
         assert set(slots[slot_id].co_display) == daily - {slot_id}
 
 
-def test_lengths_from_design(rules: RuleSet) -> None:
-    """design `lengths.md` 확정값(#54)입니다."""
+LENGTHS_FILE = SLOTS_DIR.parents[1] / "design" / "lengths.md"
+# design 표의 옛 슬롯 이름 → writing 슬롯 id입니다(content 슬롯 settings.calculation_basis는 ui 슬롯으로 옮겼습니다).
+LENGTH_SLOT_ALIASES = {"settings.calculation_basis": "calc-basis.longitude.body"}
+# 확인 창 슬롯의 제목 자리 키입니다(#191). 나머지 키는 버튼이고, profileEditRecalcConfirmBody는 본문입니다.
+DIALOG_TITLE_KEYS = {
+    "diary-view.delete.confirm": "diaryViewDeleteConfirm",
+    "event-edit.delete.confirm": "eventEditDeleteConfirm",
+    "account-delete.delete.confirm": "accountDeleteDeleteConfirm",
+    "settings.logout.confirm": "settingsLogoutConfirm",
+    "preview.share.login-notice": "previewShareLoginNotice",
+    "profile-edit.recalc.confirm": "profileEditRecalcConfirmTitle",
+}
+DIALOG_BODY_KEYS = {"profile-edit.recalc.confirm": "profileEditRecalcConfirmBody"}
+
+
+def design_lengths() -> tuple[list[tuple[list[str], str, dict[str, int]]], list[str]]:
+    """design `lengths.md`의 상한 행(슬롯 목록, 칸, 언어별 값)과 상한 없음 슬롯 목록을 읽습니다."""
+    rows: list[tuple[list[str], str, dict[str, int]]] = []
+    unbounded: list[str] = []
+    section = ""
+    for line in LENGTHS_FILE.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            section = line
+        if line.startswith("상한을 두지 않는 슬롯"):
+            section = "unbounded"
+        if not line.startswith("| `"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        slot_ids = [LENGTH_SLOT_ALIASES.get(name, name) for name in re.findall(r"`([^`]+)`", cells[0])]
+        if section == "unbounded":
+            unbounded.extend(slot_ids)
+        elif section == "## 상한":
+            ko, ja, en = (int(cell.strip("*")) for cell in cells[-3:])
+            rows.append((slot_ids, cells[1], {"ko": ko, "en": en, "ja": ja}))
+    return rows, unbounded
+
+
+def test_lengths_match_design(rules: RuleSet) -> None:
+    """슬롯 상한이 design `lengths.md` 확정값과 같은지 봅니다(#54, #131, #191)."""
     slots = load_slots(SLOTS_DIR, rules)
-    expected = {
-        "daily.fortune.head": (32, 57, 32),
-        "daily.fortune.tag": (32, 57, 32),
-        "daily.guide": (36, 70, 30),
-        "daily.color": (36, 64, 36),
-        "daily.direction": (36, 64, 36),
-        "daily.number": (36, 64, 36),
-        "daily.focus_time": (36, 64, 36),
-        "daily.focus_reason": (10, 18, 10),
-        "daily.tag_label": (10, 18, 10),
-        "calendar.day_level": (10, 18, 10),
-        "calendar.score_item": (10, 18, 10),
-        "calendar.solar_term": (4, 6, 3),
-        "glossary.value_name": (10, 18, 10),
-        "chart.yongsin_method": (60, 108, 60),
-    }
-    for slot_id, (ko, en, ja) in expected.items():
-        assert slots[slot_id].max_length == {"ko": ko, "en": en, "ja": ja}, slot_id
+    rows, unbounded = design_lengths()
+    assert rows and unbounded
+    for slot_ids, place, limits in rows:
+        for slot_id in slot_ids:
+            slot = slots[slot_id]
+            if slot_id not in DIALOG_TITLE_KEYS:
+                assert slot.max_length == limits, slot_id
+            elif place.startswith("dialog title"):
+                assert slot.key_max_length[DIALOG_TITLE_KEYS[slot_id]] == limits, slot_id
+            else:
+                assert slot.max_length == limits, slot_id
+    all_unbounded = {lang: UNBOUNDED for lang in ("ko", "en", "ja")}
+    for slot_id in unbounded:
+        assert slots[slot_id].max_length == all_unbounded, slot_id
+    for slot_id, key in DIALOG_BODY_KEYS.items():
+        assert slots[slot_id].key_max_length[key] == all_unbounded, slot_id
 
 
 def test_valid_slot_is_loaded(tmp_path: Path, rules: RuleSet) -> None:
@@ -383,3 +419,49 @@ def test_vocative_must_be_bool(tmp_path: Path, rules: RuleSet) -> None:
 def test_empty_keys_slot_loads(tmp_path: Path, rules: RuleSet) -> None:
     yaml_text = VALID_SLOT.split("  keys:")[0] + "  keys: []\n  examples: {good: [], bad: []}\n"
     assert load_slots(make_slots_dir(tmp_path, yaml_text), rules)["test.slot"].keys == {}
+
+
+def test_unbounded_and_key_max_length_are_loaded(tmp_path: Path, rules: RuleSet) -> None:
+    slot_yaml = VALID_SLOT.replace(
+        "max_length: {ko: null, en: null, ja: null}", "max_length: {ko: 10, en: 18, ja: unbounded}"
+    ) + "  key_max_length:\n    b.plain: {ko: unbounded, en: 5}\n"
+    slot = load_slots(make_slots_dir(tmp_path, slot_yaml), rules)["test.slot"]
+    assert slot.max_length == {"ko": 10, "en": 18, "ja": UNBOUNDED}
+    assert slot.key_max_length == {"b.plain": {"ko": UNBOUNDED, "en": 5}}
+
+
+def test_length_limit_prefers_key_limit(tmp_path: Path, rules: RuleSet) -> None:
+    slot_yaml = VALID_SLOT.replace(
+        "max_length: {ko: null, en: null, ja: null}", "max_length: {ko: 10, en: null, ja: unbounded}"
+    ) + "  key_max_length:\n    b.plain: {ko: unbounded, en: 5}\n"
+    slot = load_slots(make_slots_dir(tmp_path, slot_yaml), rules)["test.slot"]
+    assert slot.length_limit("ko", "a.one") == 10
+    assert slot.length_limit("ja", "a.one") is None
+    assert slot.length_limit("en", "a.one") is None
+    assert slot.length_limit("ko", "b.plain") is None
+    assert slot.length_limit("en", "b.plain") == 5
+    # 키 상한에 없는 언어는 슬롯 상한을 씁니다.
+    assert slot.length_limit("ja", "b.plain") is None
+    assert slot.length_limit("ko") == 10
+
+
+@pytest.mark.parametrize(
+    ("extra", "needle"),
+    [
+        ("  key_max_length:\n    nope.key: {ko: 3}\n", "nope.key"),
+        ("  key_max_length:\n    b.plain: {fr: 3}\n", "fr"),
+        ("  key_max_length:\n    b.plain: {ko: many}\n", "b.plain"),
+        ("  key_max_length:\n    b.plain: 3\n", "b.plain"),
+    ],
+)
+def test_bad_key_max_length_is_schema_error(tmp_path: Path, rules: RuleSet, extra: str, needle: str) -> None:
+    with pytest.raises(LoadError) as raised:
+        load_slots(make_slots_dir(tmp_path, VALID_SLOT + extra), rules)
+    assert any(needle in finding.message for finding in raised.value.findings)
+
+
+def test_bad_max_length_word_is_schema_error(tmp_path: Path, rules: RuleSet) -> None:
+    broken = VALID_SLOT.replace("max_length: {ko: null, en: null, ja: null}", "max_length: {ko: endless}")
+    with pytest.raises(LoadError) as raised:
+        load_slots(make_slots_dir(tmp_path, broken), rules)
+    assert any("unbounded" in finding.message for finding in raised.value.findings)

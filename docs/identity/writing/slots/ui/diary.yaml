@@ -30,7 +30,7 @@
   user_state: "지난 날짜를 골라 일기를 쓰려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - diaryListPickDateCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -49,7 +49,7 @@
   user_state: "빈 본문 칸을 봅니다."
   structure: "권유 한 문장."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 42, en: 82, ja: 36}
   keys:
     - diaryEditBodyPlaceholder
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -91,7 +91,7 @@
   user_state: "연결이 끊긴 채 일기를 씁니다."
   structure: "두 문장. 연결되면 저장한다는 것과 쓴 내용이 남아 있다는 것."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 52, en: 90, ja: 38}
   keys:
     - diaryEditOfflineNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -110,7 +110,7 @@
   user_state: "저장한 뒤 태그 칩과 함께 알림을 봅니다(#42)."
   structure: "한 문장."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   keys:
     - diaryEditSavedTags
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -129,7 +129,9 @@
   user_state: "일기를 지우려 합니다."
   structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    diaryViewDeleteConfirm: {ko: 34, en: 60, ja: 28}
   keys:
     - diaryViewDeleteConfirm
     - diaryViewDeleteConfirmDelete
