@@ -685,6 +685,6 @@ def test_lucky_tag_chip_emphasises_weight_and_icon_only():
 
 def test_lucky_tag_chip_order_and_polarity_rules():
     rules = component("today", "lucky-card")["rules"]
-    assert any("tag" in rule and "행운 4종(color·direction·number·time) 뒤" in rule and "Daily.tags.featured" in rule for rule in rules)
+    assert any("tag" in rule and "맨 앞" in rule and "행운 4종(color·direction·number·time) 앞" in rule and "Daily.tags.featured" in rule for rule in rules)
     assert any("polarity" in rule and "D72" in rule for rule in rules)
     assert any("today.lucky-tag.body" in rule for rule in rules)

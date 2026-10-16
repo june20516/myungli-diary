@@ -80,7 +80,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.2.0 | 2026-10-13 | `sentence-block` 잠김 라벨의 구역 이름 슬롯 `a11y.lockedNameSlot`(`saju-chart.yongsin.title`, #81) |
 | 2.3.0 | 2026-10-15 | 구현 대응(#118·#142·#154)·IA v3(#159). 글자 링크 화살표는 아이콘 `caret-right`로 컴포넌트가 그림(V29), `depth-link` `navigate`(V32), `dialog` `notice`, `segmented` `none`, `date-picker` 윤달 대체(V31), `social-login-button` `disabled`·Apple 글자, `tab-bar` 아이콘, `app-bar` 뒤로 숨김, `input-step` 아래 버튼 생략, `lucky-card` 시간 형식, 근거 시트 빈 구역 생략, 고정 높이는 최소 높이(V30), 요소 값(`icon.set.flutter`, `mark.caution.size`, `lock.veil.lines`) |
 | 2.4.0 | 2026-10-16 | app 질문(#195·#211): `city-search` `saving`(고른 줄 끝 점 숨쉬기, V34)·지역 구분자 `region.join`, `input-step` `preface` 간격, `skeleton` 글줄 `type`, 안내 글 본문 레이아웃(`frame.md`) |
-| 2.5.0 | 2026-10-16 | 오늘 화면 대표 태그(#239, D76): `lucky-card` 변형 `tag`(글자 굵기 600 + 앞 아이콘 `tag` 본문색, 길흉 색 없음, V35), 행운 4종 뒤 순서, 칩 줄 줄 수 제한 없음 |
+| 2.5.0 | 2026-10-16 | 오늘 화면 대표 태그(#239, D76): `lucky-card` 변형 `tag`(글자 굵기 600 + 앞 아이콘 `tag` 본문색, 길흉 색 없음, V35), 칩 줄 맨 앞 순서, 칩 줄 줄 수 제한 없음 |
 
 ## 검사 (design)
 
