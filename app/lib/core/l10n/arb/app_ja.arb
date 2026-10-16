@@ -116,6 +116,7 @@
   "onboardCallInputLabel": "呼び名",
   "onboardTimeQuestionHead": "何時に生まれましたか?",
   "onboardTimeUnknownNote": "時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。",
+  "noticeTimeUnknown": "時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。",
   "timeUnknownLabel": "わからない",
   "onboardTimeHourConfirm": "{branch}の刻、{start}〜{end}に生まれました。",
   "branchJa": "子",

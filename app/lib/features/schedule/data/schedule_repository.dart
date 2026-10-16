@@ -8,19 +8,22 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_gone.dart';
 
 const _notFound = 404;
+const _scheduleNotFoundCode = 'schedule.not_found';
 
 /// 일정 server 요청(`listSchedules`·`createSchedule`·`updateSchedule`·
 /// `deleteSchedule`).
 ///
 /// 일정은 캐시하지 않습니다(A5, A34). 실패는 [appErrorFrom]이 분류한 [AppError]이고,
-/// 고치기·지우기의 404만 [ScheduleGone]입니다(A41).
+/// 고치기·지우기의 404 중 `schedule.not_found`만 [ScheduleGone]입니다(A41). code가 다른 404는
+/// 일정이 없어진 것이 아니므로 [appErrorFrom]을 따릅니다.
 final class ScheduleRepository {
   /// [_api]로 요청합니다.
   const new(this._api);
 
   final DefaultApi _api;
 
-  /// [from]~[to](둘 다 포함) 일정. 범위는 62일 이내여야 합니다(넘으면 400 [ProblemError]).
+  /// [from]~[to](둘 다 포함) 일정. 범위는 62일 이내여야 합니다
+  /// (넘으면 422 `range.too_long` [ProblemError]).
   Future<List<Schedule>> list(CalendarDate from, CalendarDate to) async {
     final response = await _call(
       () => _api.listSchedules(from: from.toIso(), to: to.toIso()),
@@ -64,10 +67,14 @@ final class ScheduleRepository {
     try {
       return await request();
     } on DioException catch (e) {
-      if (notFoundIsGone && e.response?.statusCode == _notFound) {
+      final error = appErrorFrom(e);
+      if (notFoundIsGone &&
+          error is ProblemError &&
+          error.status == _notFound &&
+          error.code == _scheduleNotFoundCode) {
         throw const ScheduleGone();
       }
-      throw appErrorFrom(e);
+      throw error;
     }
   }
 

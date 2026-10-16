@@ -257,18 +257,19 @@ class _TodayBody extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: Space.s16),
-            SentenceBlock(
-              variant: SentenceBlockVariant.card,
-              text: head.text,
-              slotId: SlotIds.todayFortuneHead,
-              onTerm: (termId) => openExplain(termId, head.slot),
-              trailing: DepthLink(
-                variant: DepthLinkVariant.inlineEnd,
-                label: l10n.depthLinkEvidence,
-                onTap: () => sheets.openEvidence(context, slotId: head.slot),
+            if (!head.isBlank)
+              SentenceBlock(
+                variant: SentenceBlockVariant.card,
+                text: head.text,
+                slotId: SlotIds.todayFortuneHead,
+                onTerm: (termId) => openExplain(termId, head.slot),
+                trailing: DepthLink(
+                  variant: DepthLinkVariant.inlineEnd,
+                  label: l10n.depthLinkEvidence,
+                  onTap: () => sheets.openEvidence(context, slotId: head.slot),
+                ),
               ),
-            ),
-            if (display.headReactable)
+            if (!head.isBlank && display.headReactable)
               ReactionButton(
                 on: headLiked,
                 semanticsLabel: headLiked
@@ -278,7 +279,7 @@ class _TodayBody extends ConsumerWidget {
                   _toggleReaction(context, ref, daily.fortune.head, date),
                 ),
               ),
-            if (tag != null) ...[
+            if (tag != null && !tag.isBlank) ...[
               const SizedBox(height: Space.s12),
               SentenceBlock(
                 variant: SentenceBlockVariant.card,

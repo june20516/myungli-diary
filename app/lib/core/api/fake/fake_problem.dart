@@ -85,7 +85,7 @@ CalendarDate? parseDateParameter(
 
 /// [from]~[to](둘 다 포함) 범위 검사: [to]가 [from]보다 앞서면 400입니다.
 ///
-/// 계약에 범위 위반 keyword가 없어 `minimum`으로 둡니다(#219로 정식 code 요청 중).
+/// 역순 범위는 계약에 전용 code가 없어 `request.invalid`의 `minimum`으로 둡니다.
 void checkDateOrder(CalendarDate? from, CalendarDate? to) {
   if (from != null && to != null && to.compareTo(from) < 0) {
     throw FakeProblem.invalid('to', 'minimum', 'to가 from보다 앞섭니다.');

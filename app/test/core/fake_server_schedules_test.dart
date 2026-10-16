@@ -313,14 +313,14 @@ void main() {
       expect(_fieldsOf(emptyTitle), [('/title', 'minLength')]);
     });
 
-    test('목록 범위가 62일(포함)을 넘으면 400 request.invalid', () async {
+    test('listSchedules 범위가 62일을 넘으면 422 range.too_long입니다', () async {
       expect(await _list(api, '2026-10-01', '2026-12-01'), hasLength(4));
       final tooLong = await _problemOf(
         () => api.listSchedules(from: '2026-10-01', to: '2026-12-02'),
       );
-      expect(tooLong.status, 400);
-      expect(tooLong.code, 'request.invalid');
-      expect(_fieldsOf(tooLong), [('to', 'maximum')]);
+      expect(tooLong.status, 422);
+      expect(tooLong.code, 'range.too_long');
+      expect(_fieldsOf(tooLong), isEmpty);
       final reversed = await _problemOf(
         () => api.listSchedules(from: '2026-10-02', to: '2026-10-01'),
       );

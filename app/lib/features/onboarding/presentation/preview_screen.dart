@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/notice_text.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
@@ -132,11 +133,11 @@ class _PreviewBody extends StatelessWidget {
   final Preview preview;
   final Widget offlineNotice;
 
-  /// 시간 모름 notice의 서버 문장. 없으면 null입니다.
-  String? get _timeUnknownMessage {
+  /// 시간 모름 notice의 배너 문장([noticeTextOf]). 없으면 null입니다.
+  String? _timeUnknownMessage(AppLocalizations l10n) {
     for (final notice in preview.notices) {
       if (notice.code == NoticeCode.timeUnknown) {
-        return notice.text.segments.map((s) => s.text).join();
+        return noticeTextOf(notice, l10n);
       }
     }
     return null;
@@ -160,7 +161,7 @@ class _PreviewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final timeUnknown = _timeUnknownMessage;
+    final timeUnknown = _timeUnknownMessage(l10n);
     final tag = preview.fortune.tag;
     return SingleChildScrollView(
       child: Column(

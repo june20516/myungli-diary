@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/notice_text.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
@@ -125,13 +126,13 @@ List<LuckyItem> luckyItemsOf(
   ];
 }
 
-/// `time_unknown` notice의 문장 조각 글자를 이은 것. 없으면 null입니다.
+/// `time_unknown` notice의 배너 문장([noticeTextOf]). 없으면 null입니다.
 ///
 /// 화면 상태가 있는 notice는 이것뿐이고, 나머지는 계획 6에서 다룹니다.
-String? timeUnknownNoticeOf(Daily daily) {
+String? timeUnknownNoticeOf(Daily daily, AppLocalizations l10n) {
   for (final notice in daily.notices) {
     if (notice.code == NoticeCode.timeUnknown) {
-      return notice.text.segments.map((s) => s.text).join();
+      return noticeTextOf(notice, l10n);
     }
   }
   return null;
@@ -148,6 +149,9 @@ final class SentenceLine {
 
   /// writing 슬롯 id(용어·근거 시트가 받음).
   final String slot;
+
+  /// 원고가 없어 글자가 하나도 없는 문장이면 true. 그리면 빈 카드가 되므로 화면이 건너뜁니다.
+  bool get isBlank => text.segments.every((segment) => segment.text.isEmpty);
 }
 
 /// 오늘 화면이 그리는 값 묶음(결정 A22). 화면은 이 값으로만 내용을 그립니다.
@@ -251,7 +255,7 @@ TodayDisplay todayDisplayOf(
   return TodayDisplay(
     character: dayCharacterOf(daily, l10n),
     characterReasonSlot: daily.characterReason.slot,
-    timeUnknown: timeUnknownNoticeOf(daily),
+    timeUnknown: timeUnknownNoticeOf(daily, l10n),
     head: SentenceLine(
       text: daily.fortune.head.text,
       slot: daily.fortune.head.slot,

@@ -29,6 +29,10 @@ final calendarRepositoryProvider = Provider<CalendarRepository>(
 /// 2. 프로필 사본이 있으면 키 `calendarKey(지문, 사본 language, 연, 월)`로 캐시를 쓰고,
 ///    없으면 키 없이(캐시 없이) 받습니다([CalendarRepository.month]).
 ///
+/// 캐시 근거(#219 ④): server 응답에 ETag가 없으므로 조건부 요청 없이, 출생 정보·언어·ruleset
+/// 변경이 곧 무효화입니다. 출생 정보·시간대는 지문, 언어는 키의 language, ruleset은
+/// `observeRulesetVersion`이 맡습니다.
+///
 /// 같은 달을 동시에 읽으면 요청은 하나입니다(family 하나를 함께 기다림). 사본(사주·시간대·언어)이
 /// 바뀌면 다시 계산합니다. 구독이 모두 끝나면 버려지므로(autoDispose) 메모리에는 보이는 달과
 /// 그 앞뒤 달만 남고, 다음 진입은 영구 캐시에서 다시 읽습니다. 그래서 그사이 규칙 변경·잠금

@@ -218,6 +218,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'re offline, so this is what was saved earlier.';
 
   @override
+  String get noticeTimeUnknown =>
+      'If you don\'t know the time, we read your chart from three pillars, leaving out the hour.';
+
+  @override
   String get emptyStateDefault => 'Nothing here yet.';
 
   @override

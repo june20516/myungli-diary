@@ -187,6 +187,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noticeOffline => 'オフラインのため、保存してある内容を表示しています。';
 
   @override
+  String get noticeTimeUnknown => '時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。';
+
+  @override
   String get emptyStateDefault => 'まだ表示する内容がありません。';
 
   @override

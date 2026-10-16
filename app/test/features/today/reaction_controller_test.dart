@@ -24,6 +24,7 @@ import 'package:myungli_diary/features/today/application/reaction_controller.dar
 
 import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
+import '../../support/reaction_not_found.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
@@ -284,6 +285,27 @@ void main() {
     expect(_liked(container), isFalse);
     expect(tap.requests, hasLength(1));
     // 캐시는 그대로입니다.
+    expect(await _cachedReaction(tester, container), isNull);
+  });
+
+  testWidgets('putReaction 404 reaction.not_found면 켠 반응이 되돌아가고 오류가 알려집니다', (
+    tester,
+  ) async {
+    final (container, tap) = await _boot(tester);
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, ReactionNotFoundInterceptor());
+    final press = _press(container);
+    expect(_liked(container), isTrue);
+    await _until(tester, press.finished);
+
+    expect(
+      press.errors.single,
+      isA<ProblemError>()
+          .having((e) => e.status, 'status', 404)
+          .having((e) => e.code, 'code', 'reaction.not_found'),
+    );
+    expect(_liked(container), isFalse);
+    expect(tap.requests, hasLength(1));
     expect(await _cachedReaction(tester, container), isNull);
   });
 

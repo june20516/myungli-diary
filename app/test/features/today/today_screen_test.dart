@@ -34,6 +34,7 @@ import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
+import '../../support/reaction_not_found.dart';
 
 final _ko = AppLocalizationsKo();
 final _today = CalendarDate(2026, 10, 13);
@@ -576,6 +577,100 @@ void main() {
       await tester.pump(const Duration(seconds: 3));
       await tester.pump(const Duration(seconds: 1));
       semantics.dispose();
+    });
+  });
+
+  group('#234 draft.5', () {
+    testWidgets(
+      'putReaction 404 reaction.not_found면 켠 반응이 되돌아가고 오류 toast가 뜹니다',
+      (tester) async {
+        final container = await pumpApp(tester, scenario: 'member');
+        await _settleToday(tester);
+        final interceptors = container.read(dioProvider).interceptors;
+        interceptors.insert(
+          interceptors.length - 1,
+          ReactionNotFoundInterceptor(),
+        );
+
+        await tester.tap(find.byKey(ReactionButton.targetKey));
+        await tester.pump();
+        await pumpUntil(
+          tester,
+          () => find.byType(ToastPill).evaluate().isNotEmpty,
+        );
+
+        expect(find.text(_ko.errorClient), findsOneWidget);
+        expect(
+          tester.widget<ReactionButton>(find.byType(ReactionButton)).on,
+          isFalse,
+        );
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
+
+    testWidgets('time_unknown notice의 문장이 비어 있으면 app 문구로 배너를 그립니다', (
+      tester,
+    ) async {
+      final json = memberDailyJson();
+      json['notices'] = [
+        {
+          'code': 'time_unknown',
+          'text': {'segments': <Object>[]},
+        },
+      ];
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(
+              () async => DailyView(
+                date: _today,
+                daily: Daily.fromJson(json),
+                stale: false,
+                cacheKey: null,
+              ),
+            ),
+          ),
+        ],
+      );
+      await _settleToday(tester);
+      final banner = tester.widget<NoticeBanner>(
+        find.byWidgetPredicate(
+          (w) =>
+              w is NoticeBanner && w.variant == NoticeBannerVariant.timeUnknown,
+        ),
+      );
+      expect(banner.message, _ko.noticeTimeUnknown);
+    });
+
+    testWidgets('총운 문장이 빈 segments면 문장 자리를 그리지 않습니다', (tester) async {
+      final json = memberDailyJson();
+      final fortune = json['fortune']! as Map<String, dynamic>;
+      final head = fortune['head']! as Map<String, dynamic>;
+      head['text'] = {'segments': <Object>[]};
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(
+              () async => DailyView(
+                date: _today,
+                daily: Daily.fromJson(json),
+                stale: false,
+                cacheKey: null,
+              ),
+            ),
+          ),
+        ],
+      );
+      await _settleToday(tester);
+
+      expect(_id(SlotIds.todayFortuneHead), findsNothing);
+      expect(find.byType(ReactionButton), findsNothing);
+      expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
     });
   });
 

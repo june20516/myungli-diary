@@ -448,6 +448,12 @@ abstract class AppLocalizations {
   /// **'인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'**
   String get noticeOffline;
 
+  /// 임시. writing #232 원고 전 time_unknown notice 대체(A43). 새 문구 요청 #237
+  ///
+  /// In ko, this message translates to:
+  /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
+  String get noticeTimeUnknown;
+
   /// 오프라인 안내 배너와 빈 상태 기본 문장
   ///
   /// In ko, this message translates to:

@@ -237,6 +237,10 @@
   "@noticeOffline": {
     "description": "오프라인 안내 배너와 빈 상태 기본 문장"
   },
+  "noticeTimeUnknown": "시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.",
+  "@noticeTimeUnknown": {
+    "description": "임시. writing #232 원고 전 time_unknown notice 대체(A43). 새 문구 요청 #237"
+  },
   "emptyStateDefault": "아직 보여 드릴 내용이 없어요.",
   "@emptyStateDefault": {
     "description": "오프라인 안내 배너와 빈 상태 기본 문장"

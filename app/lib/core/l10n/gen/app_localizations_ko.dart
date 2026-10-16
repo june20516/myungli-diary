@@ -189,6 +189,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noticeOffline => '인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.';
 
   @override
+  String get noticeTimeUnknown => '시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.';
+
+  @override
   String get emptyStateDefault => '아직 보여 드릴 내용이 없어요.';
 
   @override

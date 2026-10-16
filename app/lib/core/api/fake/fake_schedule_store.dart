@@ -36,14 +36,18 @@ final class FakeScheduleStore {
 
   /// `listSchedules`: [from]~[to](포함) 일정 목록(`ScheduleList` JSON).
   ///
-  /// 범위는 62일(포함 일수) 이내입니다. 넘으면 400 `request.invalid`이고, 계약에
-  /// 범위 위반 keyword가 없어 `maximum`으로 둡니다(#219로 정식 code 요청 중).
+  /// 범위는 62일(포함 일수) 이내입니다. 넘으면 422 `range.too_long`입니다(REST draft.5).
   Map<String, Object?> list({required Object? from, required Object? to}) {
     final start = parseDateParameter('from', from, required: true)!;
     final end = parseDateParameter('to', to, required: true)!;
     checkDateOrder(start, end);
     if (_inclusiveDays(start, end) > maxListDays) {
-      throw FakeProblem.invalid('to', 'maximum', '범위는 $maxListDays일 이내여야 합니다.');
+      throw const FakeProblem(
+        422,
+        'range.too_long',
+        'Range too long',
+        '범위는 $maxListDays일 이내여야 합니다.',
+      );
     }
     final items = _schedules.values.where((schedule) {
       final date = CalendarDate.parse(schedule['date']! as String);
@@ -115,7 +119,7 @@ final class FakeScheduleStore {
   Map<String, Object?> _find(String id) {
     final schedule = _schedules[id];
     if (schedule == null) {
-      // 계약에 일정 404 code가 없습니다(#219 요청). 앱은 404 status로만 판단합니다.
+      // 앱은 404 status와 이 code가 함께 올 때만 일정이 없어진 것으로 봅니다(A41).
       throw FakeProblem(
         404,
         'schedule.not_found',

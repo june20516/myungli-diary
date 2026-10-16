@@ -116,6 +116,7 @@
   "onboardCallInputLabel": "Name to call you",
   "onboardTimeQuestionHead": "What time were you born?",
   "onboardTimeUnknownNote": "If you don't know the time, we read your chart from three pillars, leaving out the hour.",
+  "noticeTimeUnknown": "If you don't know the time, we read your chart from three pillars, leaving out the hour.",
   "timeUnknownLabel": "Don't know",
   "onboardTimeHourConfirm": "You were born in the {branch} hour, {start}–{end}.",
   "branchJa": "Rat",

@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_input.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_patch.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -59,7 +61,7 @@ void main() {
     expect(left.map((s) => s.id), isNot(contains('morning')));
   });
 
-  test('update·delete 404는 ScheduleGone이다(A41)', () async {
+  test('updateSchedule 404 schedule.not_found는 ScheduleGone입니다(A41)', () async {
     await expectLater(
       repository.update('missing', SchedulePatch(title: '없음')),
       throwsA(isA<ScheduleGone>()),
@@ -68,6 +70,49 @@ void main() {
       repository.delete('missing'),
       throwsA(isA<ScheduleGone>()),
     );
+  });
+
+  test('code가 다른 404는 ScheduleGone이 아닙니다', () async {
+    final dio = Dio(BaseOptions(baseUrl: 'http://schedule.test'))
+      ..interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) => handler.reject(
+            DioException.badResponse(
+              statusCode: 404,
+              requestOptions: options,
+              response: Response<Object?>(
+                requestOptions: options,
+                statusCode: 404,
+                data: {
+                  'type': 'about:blank',
+                  'title': 'Not found',
+                  'status': 404,
+                  'code': 'route.not_found',
+                  'traceId': 'test',
+                },
+                headers: Headers.fromMap({
+                  Headers.contentTypeHeader: ['application/problem+json'],
+                }),
+              ),
+            ),
+          ),
+        ),
+      );
+    final other = ScheduleRepository(DefaultApi(dio));
+
+    for (final call in [
+      () => other.update('x', SchedulePatch(title: '없음')),
+      () => other.delete('x'),
+    ]) {
+      await expectLater(
+        call(),
+        throwsA(
+          isA<ProblemError>()
+              .having((e) => e.status, 'status', 404)
+              .having((e) => e.code, 'code', 'route.not_found'),
+        ),
+      );
+    }
   });
 
   test('그 밖의 실패는 appErrorFrom이 분류한 AppError다', () async {
@@ -81,7 +126,11 @@ void main() {
     server.offline = false;
     await expectLater(
       repository.list(CalendarDate(2026, 10, 1), CalendarDate(2026, 12, 31)),
-      throwsA(isA<ProblemError>().having((e) => e.status, 'status', 400)),
+      throwsA(
+        isA<ProblemError>()
+            .having((e) => e.status, 'status', 422)
+            .having((e) => e.code, 'code', 'range.too_long'),
+      ),
     );
   });
 }
