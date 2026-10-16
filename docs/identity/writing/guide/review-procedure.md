@@ -6,6 +6,19 @@
 * **W0:** 보이스 규칙과 슬롯 예시를 세울 때. 라운드 R1~R7(spec §8.3).
 * **W1:** 슬롯별 표본, 그리고 LLM 판정이 의심 표시한 문장을 볼 때.
 
+## LLM 판정 (1차 거르기)
+사람이 보기 전에 `mlw judge`로 의심 문장을 추립니다(결정 W1·W27). 막지 않는 로컬 명령이고 CI에서는 돌리지 않습니다.
+
+```
+uv run --project docs/identity/writing/tools mlw judge docs/identity/writing/content --lang ko
+uv run --project docs/identity/writing/tools mlw judge docs/identity/writing/content --lang ko --slot daily.color
+```
+
+* `rules/slop.yaml`에서 `judge: llm`인 패턴의 `rubric`과 예를 루브릭으로 넘깁니다. 슬롯 목적 예외·`allowed`는 빼고 `forbidden`은 넣습니다(`check`와 같음).
+* 모델은 로컬 `claude` CLI(`claude -p`)로 부릅니다. 기본 `sonnet`이고 `--model`로 바꿉니다. 한 번에 묻는 문장 수는 `--batch-size`(기본 40)입니다.
+* 출력은 `check`와 같은 `파일:줄 규칙 warn 메시지` 형식이고, 종료 코드는 늘 0입니다. 호출이 실패하거나 응답이 잘못되면 `judge.call_failed`·`judge.bad_response` 경고를 남기고 다음 묶음을 계속합니다.
+* 의심 표시는 판정이 아닙니다. 표시된 문장은 아래 라운드에서 고쳐 쓴 선택지와 함께 내고, 같은 성격이 반복되면 규칙이나 `rubric`을 고칩니다.
+
 ## 라운드 진행
 1. writing 세션이 터미널에 문항을 냅니다. 문항 하나에 선택지는 4~5개입니다.
 2. 선택지에는 항상 **"다 별로"**를 둡니다.
