@@ -34,6 +34,12 @@
 ## 고칠 수 있는 곳
 `app/`, `.github/workflows/app.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:app`). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
+## 검사
+작업 단계와 속도에 맞춰 자원을 고릅니다. 반복 중에는 로컬에서, PR 직전 확인이나 CI 환경에서만 나는 문제는 GitHub Actions에서 돌립니다.
+* **로컬(반복 중):** `flutter analyze`(app·widgetbook), `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed .`, `dart run tool/ia_coverage.dart --check`, golden은 Docker `tool/goldens_linux.sh`(CI와 같은 Linux 렌더링).
+* **로컬 E2E(Patrol):** 에뮬레이터(`~/Library/Android/sdk/emulator/emulator -list-avds`)를 띄우고 `patrol test -t patrol_test --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`. 포트는 기본값(8081·8082) 대신 이 값을 씁니다. 개발 기기에서 다른 도구(예 React Native Metro의 `adb reverse tcp:8081`)가 8081을 잡고 있으면 계측이 `BindException`으로 죽습니다. CI(`app.yml`)도 같은 값입니다.
+* **GitHub(필요할 때):** 브랜치를 push하고 `gh workflow run app.yml --ref <브랜치>`. `e2e-android`(x86_64·API 34)는 PR 검사(`ci-gate`)에서 건너뛰므로 PR 직전 한 번 확인합니다. 실패하면 artifact `e2e-gradle-reports`에 Gradle 보고서와 기기 전체 logcat이 남습니다.
+
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
@@ -49,21 +55,9 @@
   * **E2E 커버리지(도구로 확인, 2026-10-16):** 경로 38/80, 상태 19/54, 결정 4/6(`dart run tool/ia_coverage.dart --check`).
   * **남은 Issue:** #199(server, 도시 경도), #200(root, 제목 슬롯), #201(writing, 임시 키), #211(design, `ProsePageBody`·skeleton·preface 간격), #214(writing, 서머타임 출생 경도 문구). 답이 오면 아래 "다음 할 일" 2를 합니다.
 * **계획 3(오늘·깊이 시트) 완료**이고 PR #196으로 main에 병합됐습니다. 계획: [`docs/plans/2026-10-15-today-depth.md`](docs/plans/2026-10-15-today-depth.md)
-* **계획 2(온보딩·로그인) 완료**이고 PR #149로 main에 병합됐습니다. 계획: [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md)
-  * **화면 13개:** `launch`·`force-update`·`welcome`·`onboard-call`·`onboard-birth`·`onboard-time`·`onboard-gender`·`birthplace`·`preview`·`login`·`consent`·`notify-ask`·`ad-consent`(광고 동의 SDK는 대역)를 만들었습니다. 새 계정 흐름은 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`입니다. 로그인한 새 계정은 미리보기를 건너뛰고 저장한 뒤 `notify-ask`로 갑니다.
-  * **결정 A17~A21** (`docs/decisions.md`): A17 `notifyAskRequired` 진입 갈래, A18 프로필 사본(`cachedProfileProvider`)과 기기 시간대 동기화, A19 수정 모드(`?mode=edit`, `pop(값)`), A20 계약과 IA가 안 맞는 곳은 받을 수 있는 값으로 그림, A21 ui(ARB) 슬롯은 일반 `Text`로 그림.
-  * **새 fake 시나리오(27개 중 계획 2에서 더한 것):** 로그인·동의(`returning-user`, `new-user-signin`, `login-provider-down`, `login-exchange-invalid`, `login-entry-unavailable`, `consent-mismatch`, `consent-renewal`), 온보딩 입력(`time-unknown`, `overseas`, `member-overseas`, `birth-hour-unavailable`, `birth-hour-rate-limited`, `cities-error`, `cities-slow`), 미리보기·저장(`preview-used`, `preview-invalid`, `profile-invalid`, `profile-name-invalid`, `profile-save-unavailable`), 알림(`notify-register-unavailable`, `notify-profile-save-unavailable`)입니다. 표는 [`README.md`](README.md)에 있습니다.
-  * **프로필 덮어쓰기 방지(최종 review I1):** 온보딩 입력으로 프로필을 만드는 일(`createProfile`, PUT)은 프로필이 없는 계정(진입 `profileRequired`, 약관 동의 직후는 동의 전 `hasProfile == false`)에서만 합니다. 화면은 `finishesWithoutPreviewProvider`로, `OnboardingCompleter`는 한 번 더 막습니다(`notifyAskPending`이 켜져 있으면 이미 저장한 것이라 갱신만). 프로필 있는 갈래(ready·adConsentRequired)에서 `onboard-*`·`birthplace`는 `?mode=edit`로만 열리고, 진입이 프로필 있는 갈래가 되면 남은 온보딩 입력을 지웁니다(`leftoverDraftCleanerProvider`).
-  * **진입 갱신 실패(I2):** `EntryController.refresh()`는 실패 오류(`AppError?`)를 돌려줍니다. login·consent·notify-ask·온보딩 마무리는 그 오류를 화면의 기존 안내 자리에 보이고 다시 시도를 받습니다.
-  * **저장 입력 오류(I4):** 프로필 저장이 422면 두 갈래(약관 동의 직후, 로그인한 채 마친 온보딩) 모두 `onboard-call`로 돌아가고, 호칭 오류(`name.*`, 필드 `/honorific`)는 칸 아래 오류 줄, 그 밖은 toast입니다.
-  * **E2E 커버리지(도구로 확인, 2026-10-14):** 경로 28/79, 상태 11/54, 결정 2/6(D50·D53, D68로 출구 2개가 늘어 분모 79). 전체 흐름은 위젯 테스트 `test/flows/new_user_flow_test.dart`와 Patrol `patrol_test/onboarding_test.dart`·`login_test.dart`입니다. Patrol은 iOS 시뮬레이터(iPhone 16)에서 통과했습니다. Android는 로컬 에뮬레이터가 adb `unauthorized`로 막혀 CI `e2e-android`(브랜치 수동 실행 run 38569941201)에서 통과했습니다. 온보딩 E2E는 기기 로케일을 `ko-KR`로 고정합니다(`launchApp(deviceLocale:)`, 에뮬레이터 지역이면 출생지 갈래로 감), 스크린샷은 iOS에서 캡처되지 않아 `docs/artifacts/index.json`에는 올리지 못했습니다.
-* **기반 계획(task 1~23) 완료**이고 PR #117로 main에 병합됐습니다(2026-10-13). task 23에서 main을 병합하고 그때의 REST 계약·인증 규칙·컴포넌트 명세를 기반 코드가 닿는 범위만 반영했습니다. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
-  * spec: [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md) (승인), 계획: [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md)
-  * 결정: [`docs/decisions.md`](docs/decisions.md) A1~A16. Riverpod(코드 생성 없음), 생성 클라이언트와 fixture 대역, go_router, drift 영구 캐시, 사주 변경 확인 창, golden(Linux)과 Widgetbook, SDK 대역 adapter, 문서 기반 E2E(Patrol), 앱 식별자 `app.myungli.diary`입니다.
-  * **REST 생성기(A16):** openapi-generator 7.26.0 `dart-dio`(Docker 이미지 고정)입니다. `swagger_parser`는 path 수준 `parameters` 생성 실패와 merge-patch Content-Type 누락으로 탈락했습니다.
-  * **글꼴 측정(Task 5):** debug apk 170,321,244 B(약 163 MiB, AOT·압축 전), `assets/fonts` 31M(Gowun Dodum 7.2M, Zen Maru Gothic 3.8M, Pretendard 4종 6.3M, Pretendard JP 4종 15M). subset 여부는 release 빌드 크기로 다시 판단합니다(I4).
-  * **만들어 둔 것:** 앱 셸과 fake 모드(시나리오 6개, 개발 메뉴), 라우터·진입 갈래, drift, 토큰·테마·글꼴, 오류 문구 표, 플랫폼 인터페이스와 대역, 공통 컴포넌트(frame·feedback·sentence)와 Widgetbook, golden 기반, IA id 상수 생성, E2E 뼈대(Patrol, 커버리지 도구, 스크린샷 등록, `e2e-android` job)입니다.
-  * **E2E 커버리지(도구로 확인, 2026-10-14):** 경로 3/77, 상태 1/54, 결정 1/6(`dart run tool/ia_coverage.dart --check` 출력). CI가 이 값보다 줄면 막습니다(`tool/coverage_baseline.json`). 화면을 구현하는 계획마다 올립니다.
+* **계획 2(온보딩·로그인) 완료**이고 PR #149로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md), 결정 A17~A21. 화면 13개(launch~ad-consent)와 새 계정 흐름 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`, fake 시나리오 표는 [`README.md`](README.md)에 있습니다.
+* **기반 계획(task 1~23) 완료**이고 PR #117로 main에 병합됐습니다(2026-10-13). spec [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md), 계획 [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md), 결정 A1~A16. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
+  * **남은 판단:** 글꼴 subset 여부는 release 빌드 크기로 다시 판단합니다(기반 Task 5 측정, `assets/fonts` 31M).
 * 보낸 요청: #84(IA 사주 변경 확인 창, 닫힘·반영됨: 슬롯 119), #86(Crashlytics, 닫힘, **D64**: 크래시 기록에 일기 본문·출생 정보·호칭 금지), #88(오류 code 목록, 닫힘), #89(Apple App Link, 닫힘. 실제 adapter는 계획 7에서 server 결과를 따름). #90(ARB 키를 IA 슬롯 id의 lowerCamelCase로, writing, 닫힘·#128로 원고 도착). #85(ci-gate에 app CI 연결, 닫힘: ci-gate 연결 PR #125 병합, app PR 검사는 ci-gate가 부름). **열려 있음:** #87(제품 지도의 E2E 결과 표시와 통합 E2E 재사용). 계획 2에서 보낸 요청: #140(root, IA 출구·`notify-ask` 허락 슬롯·content 슬롯과 응답 차이), #141(server, 프로필 읽기·City 지역 이름·음력 변환·Preview 문장), #142(design, 명세 차이 9가지), #143(writing, 남은 임시 문구·입력칸 이름≠hint·카카오 ja·ICU plural).
 * **UI 문구 원고(#128):** writing 생성 ARB를 `dart run tool/import_writing_arb.dart`로 app ARB에 합칩니다(절차는 [`README.md`](README.md)). 원고가 있는 키는 writing 문구·설명이고, app에만 있는 키(오류 `error*`, 슬롯 밖 문구 `dayKind*`·`branch*`·`gender*`·컴포넌트 접근성 라벨 등)는 `@키.description`에 `임시`가 남아 있습니다(결정 A7). en·ja는 원어민 검수 전 초안입니다.
 * **아직 남은 외부 준비물(계획 7·출시 전):** 카카오·Apple·Firebase(FCM, Crashlytics)·AdMob·RevenueCat 계정과 키, Android App Link 도메인 검증. 사용자 몫입니다(`docs/roadmap.md` 외부 준비물). Android SDK 라이선스 동의는 로컬에서 Android 빌드가 막히면 확인합니다.
@@ -87,7 +81,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **IA v3 PR.** `app/ia-v3` → `main`입니다. 올리기 전에 `git merge origin/main`, 브랜치를 push하고 `gh workflow run app --ref app/ia-v3`로 `e2e-android`(새 Patrol 흐름 `overseas` 포함)를 확인합니다. PR 본문은 `Closes #160`·`Closes #173`·`Closes #184`이고 마무리에 공개 확인(가격·수익 수치, 비공개 저장소 경로 링크)을 합니다(`docs/workflow.md` §3).
+1. **IA v3 PR.** `app/ia-v3` → `main`입니다. 올리기 전에 `git merge origin/main` 뒤 로컬 검사와 로컬 Patrol(아래 "검사")을 돌리고, 브랜치를 push해 `gh workflow run app.yml --ref app/ia-v3`로 `e2e-android`를 한 번 확인합니다. PR 본문은 `Closes #160`·`Closes #173`·`Closes #184`이고 마무리에 공개 확인(가격·수익 수치, 비공개 저장소 경로 링크)을 합니다(`docs/workflow.md` §3).
 2. **IA v3 응답이 오면 할 일.** #199(server) 응답 시 도시 경도를 `calc-basis` 경도 계산에 연결합니다(A29, 지금은 도시 경도를 모르면 문단을 그리지 않음). #200(root 제목 슬롯)·#201(writing 임시 키) 응답 시 임시 `calcBasisTitle`을 정식 제목 키로 바꿉니다(A30). #214(writing) 응답 시 서머타임 출생 경도 문단을 새 키로 그리고 A31을 거둡니다. #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 4(달력·일정)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. `calendar`·`day-sheet`·`event-edit`에 더해 오늘 화면의 일정 줄과 `today` → `day-sheet` 출구를 마무리하고 `pendingExitScreens`에서 `today`를 뺍니다. `day-sheet`는 계획 3의 시트 등록부(`sheetRegistry`, A23)와 `DepthSheets`, 문장·카드 부품을 그대로 씁니다.
 4. **계약 필드가 오면 할 일(A22).** server #167(core #130 대기)로 `explain.today_reason`, 근거 `basis`·`source`, 용어 한자가 계약에 들어오면 fixture와 표시 값 변환(`today_presentation.dart`, 풀이·근거 시트 본문)만 더합니다. 그때 근거 시트가 제목만 보이는 한계가 풀립니다.
