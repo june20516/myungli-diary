@@ -22,7 +22,7 @@ import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/auth/application/login_controller.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 final _tokens = TokenPair(
   accessToken: 'login-access-token',

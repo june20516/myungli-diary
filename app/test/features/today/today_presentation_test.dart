@@ -12,7 +12,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
-import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
 import '../../support/daily_fixture.dart';

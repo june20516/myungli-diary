@@ -16,8 +16,8 @@ import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';

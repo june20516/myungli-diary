@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// 이름 사전 저장소. 로그인한 계정에서만 읽을 수 있습니다.

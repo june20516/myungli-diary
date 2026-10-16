@@ -14,8 +14,8 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 final _draft = OnboardingDraft(
   honorific: '하늘',

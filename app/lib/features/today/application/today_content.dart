@@ -3,7 +3,7 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
-import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 /// 오늘 화면이 그리는 데 필요한 값 묶음.

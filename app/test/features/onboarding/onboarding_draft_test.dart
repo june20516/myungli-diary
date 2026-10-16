@@ -5,7 +5,7 @@ import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 final _newYork = City(
   id: '5128581',

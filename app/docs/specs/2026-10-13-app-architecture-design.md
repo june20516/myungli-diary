@@ -48,6 +48,7 @@ app/
       theme/               # ThemeExtension 조립
       components/          # 컴포넌트 41개, 명세 파일 묶음대로
     features/<영역>/        # onboarding, auth, today, depth, calendar, diary, me, monetization
+      model/               # 작은 값 객체(층이 아님, 다른 feature도 import 가능)
       data/                # repository
       application/         # Riverpod provider·notifier
       presentation/        # 화면 (IA 화면 id 하나당 하나)
@@ -60,7 +61,7 @@ app/
 ```
 
 * **의존 방향은 presentation → application → data → core 한쪽입니다.**
-  * feature끼리는 서로의 application provider로만 참조합니다.
+  * feature끼리는 서로의 application provider로만 참조합니다. 다른 feature의 `data/`는 import하지 않고, 함께 쓰는 값 타입은 `model/`에 둡니다(`test/contract/feature_layering_test.dart`).
   * `design/`은 feature를 모릅니다.
   * `core/`는 feature를 알지 않습니다. core provider(예 `profileTimezoneProvider`)에 feature 값을 잇는 일은 `app/`이 override로 합니다.
   * feature는 `app/entry`의 전역 provider(`meProvider`·`entryProvider`)를 읽을 수 있습니다(`features → app/entry`).

@@ -13,8 +13,8 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';

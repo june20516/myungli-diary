@@ -29,7 +29,7 @@ import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/share_render_host.dart';
 import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.dart';
-import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/today_content.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';

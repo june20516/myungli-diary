@@ -7,7 +7,7 @@ import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/testing/covers.dart';
 import 'package:patrol/patrol.dart';
 

@@ -11,7 +11,7 @@ import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/testing/covers.dart';
 

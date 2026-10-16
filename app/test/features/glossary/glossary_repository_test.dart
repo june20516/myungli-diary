@@ -19,6 +19,7 @@ import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/data/glossary_repository.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 import '../../support/app_harness.dart';

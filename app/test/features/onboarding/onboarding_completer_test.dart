@@ -20,8 +20,8 @@ import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
-import 'package:myungli_diary/features/onboarding/data/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 import '../../support/app_harness.dart';
@@ -209,7 +209,7 @@ void main() {
     final container = await _signedInWithDraft(tester, 'profile-required');
     // 입력 삭제가 끝나지 않는(앱이 그 사이 꺼진) completer.
     final completer = OnboardingCompleter(
-      profiles: container.read(profileRepositoryProvider),
+      createProfile: container.read(profileRepositoryProvider).create,
       readDraft: () => container.read(onboardingDraftProvider.future),
       clearDraft: () => Completer<void>().future,
       language: Language.ko,
