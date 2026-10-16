@@ -21,8 +21,24 @@ final diaryRepositoryProvider = Provider<DiaryRepository>(
 /// 프로그래밍 오류)는 비정상 종료 보고에 [CrashSummary]로 남깁니다(D64: 값은 싣지 않음).
 /// 일기를 쓰고 돌아온 화면은 이 provider를 invalidate해 다시 묻고, 자정이 지나면 새
 /// 날짜로 다시 묻습니다.
-final todayDiaryExistsProvider = FutureProvider<bool>((ref) async {
-  final date = ref.watch(todayProvider);
+final todayDiaryExistsProvider = FutureProvider<bool>(
+  (ref) => _existsOrFalse(ref, ref.watch(todayProvider)),
+);
+
+/// [CalendarDate] 날에 일기를 썼는지. `day-sheet`의 일기 입구(보기/쓰기)를 정합니다.
+///
+/// [todayDiaryExistsProvider]와 같은 규칙입니다: 404면 false, 실패해도 false(쓰기 입구)로 그려
+/// 시트를 막지 않고, 예상하지 못한 오류만 crash 요약으로 남깁니다. 구독이 끝나면 버리고
+/// (autoDispose), 일기를 쓰고 돌아온 시트는 이 날을 invalidate해 다시 묻습니다. 미래 날은
+/// 일기 입구가 없으므로(D49) 쓰는 쪽이 묻지 않습니다. 자동 재시도는 끕니다.
+final FutureProviderFamily<bool, CalendarDate> diaryExistsOnProvider =
+    FutureProvider.autoDispose.family<bool, CalendarDate>(
+      _existsOrFalse,
+      retry: (_, _) => null,
+    );
+
+/// [date] 일기가 있는지. 실패는 false이고 예상하지 못한 오류만 보고합니다.
+Future<bool> _existsOrFalse(Ref ref, CalendarDate date) async {
   final repository = ref.watch(diaryRepositoryProvider);
   try {
     return await repository.existsOn(date);
@@ -34,7 +50,7 @@ final todayDiaryExistsProvider = FutureProvider<bool>((ref) async {
     }
     return false;
   }
-});
+}
 
 /// 보이는 달 [CalendarMonth] 격자(gridStart~gridEnd)에서 일기를 쓴 날짜. 달력 도장(V19)을
 /// 찍습니다(A33).

@@ -7,7 +7,6 @@
 /// registry에 등록하면서 지웁니다.
 const Set<String> pendingStateScreens = {
   'calendar',
-  'day-sheet',
   'diary-list',
   'diary-edit',
   'diary-view',

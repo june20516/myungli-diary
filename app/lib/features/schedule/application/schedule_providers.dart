@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
-    show AsyncNotifierProviderFamily, KeepAliveLink;
+    show AsyncNotifierProviderFamily, KeepAliveLink, ProviderFamily;
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
@@ -13,6 +13,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/features/schedule/data/schedule_repository.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_draft.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_gone.dart';
+import 'package:myungli_diary/features/schedule/model/schedule_order.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_range.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:uuid/uuid.dart';
@@ -164,6 +165,37 @@ final class SchedulesInRange extends AsyncNotifier<List<Schedule>> {
     keepAlive?.close();
     ref.invalidateSelf();
   }
+}
+
+/// 하루(`date`)의 일정, [inDayOrder] 순서(`day-sheet` 목록).
+///
+/// 같은 날을 두 번 받지 않습니다. 메모리에 들고 있는 여러 날 범위(달력 격자) 중 그 날을 품고
+/// 값이 있는 범위가 있으면 그 범위를 구독해 그 날만 거르고, 없으면 그 날 하루 범위
+/// (`from == to`)를 받습니다(A34). 고른 범위의 상태(loading·error·값)를 그대로 옮기므로,
+/// 로그아웃 뒤의 loading과 빈 목록도 그대로 보입니다. 쓰는 쪽은 `isLoading`을 값보다 먼저
+/// 봅니다. 저장이 성공하면 [ScheduleEditor]가 그 날을 품은 범위를 다시 받으므로 여기도 따라 바뀝니다.
+final ProviderFamily<AsyncValue<List<Schedule>>, CalendarDate>
+schedulesOnDateProvider = Provider.autoDispose
+    .family<AsyncValue<List<Schedule>>, CalendarDate>((ref, date) {
+      final range = _heldRangeWithValue(ref, date) ?? (from: date, to: date);
+      final iso = date.toIso();
+      return ref
+          .watch(schedulesInRangeProvider(range))
+          .whenData(
+            (schedules) =>
+                inDayOrder(schedules.where((schedule) => schedule.date == iso)),
+          );
+    });
+
+/// [date]를 품고 값을 가진, 들고 있는 여러 날 범위. 없으면 null입니다.
+ScheduleRange? _heldRangeWithValue(Ref ref, CalendarDate date) {
+  for (final range in ref.read(_heldRangesProvider).containingAny([date])) {
+    if (range.from != range.to &&
+        ref.read(schedulesInRangeProvider(range)).hasValue) {
+      return range;
+    }
+  }
+  return null;
 }
 
 /// 일정 만들기·고치기·지우기. 상태는 처리 중인지입니다(화면이 저장 단추를 막는 데 씀).

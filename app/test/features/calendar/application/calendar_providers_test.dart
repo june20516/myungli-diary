@@ -8,6 +8,8 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -216,6 +218,64 @@ void main() {
     expect(result.error, isA<ProblemError>());
     await _spin(tester);
     expect(tap.paths, hasLength(1));
+  });
+
+  group('calendarDayProvider', () {
+    /// [date]를 구독하고 값(또는 오류)이 나올 때까지 기다립니다.
+    Future<AsyncValue<CalendarDay>> settleDay(
+      WidgetTester tester,
+      ProviderContainer container,
+      CalendarDate date,
+    ) {
+      final provider = calendarDayProvider(date);
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      return _until(
+        tester,
+        () => !container.read(provider).isLoading,
+      ).then((_) => container.read(provider));
+    }
+
+    testWidgets('그 날이 든 달을 받아 그 날을 고릅니다', (tester) async {
+      final (container, tap) = await _boot(tester);
+
+      final day = await settleDay(
+        tester,
+        container,
+        CalendarDate(2026, 10, 12),
+      );
+
+      expect(day.value!.date, '2026-10-12');
+      expect(day.value!.dayKind, DayKind.gwiinDay);
+      expect(tap.paths, ['/v1/calendar/2026/10']);
+    });
+
+    testWidgets('달을 이미 들고 있으면 다시 요청하지 않습니다', (tester) async {
+      final (container, tap) = await _boot(tester);
+      await _settle(tester, container, _october);
+
+      final day = await settleDay(
+        tester,
+        container,
+        CalendarDate(2026, 10, 20),
+      );
+
+      expect(day.value!.date, '2026-10-20');
+      expect(tap.paths, ['/v1/calendar/2026/10']);
+    });
+
+    testWidgets('달을 받지 못하면 같은 오류입니다', (tester) async {
+      final (container, _) = await _boot(tester, scenario: 'calendar-error');
+
+      final day = await settleDay(
+        tester,
+        container,
+        CalendarDate(2026, 10, 12),
+      );
+
+      expect(day.hasValue, isFalse);
+      expect(day.error, isA<AppError>());
+    });
   });
 
   group('미리 받기', () {

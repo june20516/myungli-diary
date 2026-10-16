@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show FutureProviderFamily;
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -51,6 +52,28 @@ final FutureProviderFamily<Calendar, CalendarMonth> calendarMonthProvider =
         cacheKey: key,
         mayStoreLocked: () => unlockSync.generation == generation,
       );
+    }, retry: (_, _) => null);
+
+/// 하루의 길흉(`day-sheet` 날의 성격). 그 날이 든 달의 [calendarMonthProvider]에서 고릅니다.
+///
+/// 달을 따로 받지 않으므로 달력이 이미 그 달을 들고 있으면 요청이 없고, 없으면 그 달 하나를
+/// 받아(영구 캐시 포함) 함께 씁니다. 달이 실패하면 같은 오류이고, 다시 시도는 그 달을
+/// invalidate합니다. 응답에 그 날이 없으면 [StateError]입니다.
+final FutureProviderFamily<CalendarDay, CalendarDate> calendarDayProvider =
+    FutureProvider.autoDispose.family<CalendarDay, CalendarDate>((
+      ref,
+      date,
+    ) async {
+      final calendar = await ref.watch(
+        calendarMonthProvider(CalendarMonth.of(date)).future,
+      );
+      final iso = date.toIso();
+      for (final day in calendar.days) {
+        if (day.date == iso) {
+          return day;
+        }
+      }
+      throw StateError('달 길흉 응답에 그 날이 없습니다.');
     }, retry: (_, _) => null);
 
 /// 보이는 달 `visible`의 앞뒤 한 달을 조용히 받아 둡니다(A32). 화면이 보이는 달마다 구독합니다.

@@ -1,0 +1,194 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
+import 'package:myungli_diary/testing/covers.dart';
+
+import '../support/app_harness.dart';
+import '../support/onboarding_steps.dart' show pumpUntil;
+
+final _ko = AppLocalizationsKo();
+
+/// 그날 시트 안에서만 찾습니다(아래 오늘 화면에도 같은 컴포넌트가 있음).
+Finder _inSheet(Finder finder) => find.descendant(
+  of: find.byKey(const Key(ScreenIds.daySheet)),
+  matching: finder,
+);
+
+/// [scenario]로 앱을 띄우고 오늘 화면에서 [date]의 그날 시트를 엽니다.
+Future<ProviderContainer> _openDaySheet(
+  WidgetTester tester,
+  CalendarDate date, {
+  String scenario = 'member',
+}) async {
+  final container = await pumpApp(tester, scenario: scenario);
+  await settleWithIo(tester);
+  final context = tester.element(find.byKey(const ValueKey(ScreenIds.today)));
+  unawaited(container.read(daySheetsProvider).open(context, date));
+  await settleWithIo(tester);
+  expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
+  return container;
+}
+
+/// `/v1/diaries/`에 쓴 일기(200)로 답합니다.
+final class _DiaryWritten extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (!options.path.startsWith('/v1/diaries/')) {
+      handler.next(options);
+      return;
+    }
+    handler.resolve(
+      Response<Object?>(
+        requestOptions: options,
+        statusCode: 200,
+        headers: Headers.fromMap({
+          Headers.contentTypeHeader: ['application/json'],
+        }),
+        data: {
+          'date': '2026-10-13',
+          'body': '일기',
+          'tags': {'featured': <Object>[], 'all': <Object>[]},
+          'rulesetVersion': 'r1',
+          'createdAt': '2026-10-13T12:00:00Z',
+          'updatedAt': '2026-10-13T12:00:00Z',
+        },
+      ),
+      true,
+    );
+  }
+}
+
+void main() {
+  testWidgets('member: 오늘 시트의 성격·일정, 일정 누름 → event-edit', (tester) async {
+    covers(const Covers(exits: ['day-sheet>event-edit']));
+    final container = await _openDaySheet(tester, CalendarDate(2026, 10, 13));
+
+    expect(_inSheet(find.byType(DayCharacter)), findsOneWidget);
+    final titles = [
+      for (final row in tester.widgetList<EventRow>(find.byType(EventRow)))
+        row.title,
+    ];
+    expect(titles, ['엄마 생신', '팀 주간 회의', '요가 수업']);
+
+    await tester.tap(find.widgetWithText(EventRow, '팀 주간 회의'));
+    await settleWithIo(tester);
+    expect(
+      container.read(routerProvider).state.uri.path,
+      pathOf(ScreenIds.eventEdit),
+    );
+  });
+
+  testWidgets('member: 일정 없는 날은 빈 문장, 일정 추가 → 그날 event-edit', (tester) async {
+    covers(
+      const Covers(
+        states: ['day-sheet:empty'],
+        exits: ['day-sheet>event-edit'],
+      ),
+    );
+    final container = await _openDaySheet(tester, CalendarDate(2026, 10, 14));
+
+    expect(find.text(_ko.daySheetEventEmpty), findsOneWidget);
+    await tester.tap(find.text(_ko.daySheetEventAdd));
+    await settleWithIo(tester);
+    expect(
+      container.read(routerProvider).state.uri.toString(),
+      '/event-edit?date=2026-10-14',
+    );
+  });
+
+  testWidgets('member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다', (
+    tester,
+  ) async {
+    covers(const Covers(exits: ['day-sheet>diary-edit'], decisions: ['D49']));
+    final container = await _openDaySheet(tester, CalendarDate(2026, 10, 13));
+
+    final entry = find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta);
+    await tester.ensureVisible(entry);
+    await tester.pumpAndSettle();
+    await tester.tap(entry);
+    await settleWithIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
+
+    // 일기 화면에 있는 동안 일기를 썼다고 봅니다: 이제 getDiary는 200입니다.
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, _DiaryWritten());
+    container.read(routerProvider).pop();
+    await pumpUntil(
+      tester,
+      () => find
+          .bySemanticsIdentifier(SlotIds.daySheetDiaryOpen)
+          .evaluate()
+          .isNotEmpty,
+    );
+    expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
+    expect(
+      find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
+      findsNothing,
+    );
+  });
+
+  testWidgets('diary-written: 지난 날 일기 보기 → diary-view', (tester) async {
+    covers(const Covers(exits: ['day-sheet>diary-view']));
+    await _openDaySheet(
+      tester,
+      CalendarDate(2026, 10, 12),
+      scenario: 'diary-written',
+    );
+
+    final entry = find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen);
+    await tester.ensureVisible(entry);
+    await tester.pumpAndSettle();
+    await tester.tap(entry);
+    await settleWithIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsOneWidget);
+  });
+
+  testWidgets('member: 미래 날은 일기 입구가 없습니다(D49)', (tester) async {
+    covers(const Covers(decisions: ['D49']));
+    await _openDaySheet(tester, CalendarDate(2026, 10, 20));
+
+    expect(find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen), findsNothing);
+    expect(
+      find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
+      findsNothing,
+    );
+  });
+
+  testWidgets('member: 이유 문장의 용어 칩 → 풀이 시트가 위로 쌓입니다', (tester) async {
+    covers(const Covers(exits: ['day-sheet>explain-sheet']));
+    await _openDaySheet(tester, CalendarDate(2026, 10, 12));
+
+    await tester.tap(_inSheet(find.byType(TermToken)));
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
+  });
+
+  testWidgets('calendar-error: 오류 화면과 다시 시도', (tester) async {
+    covers(const Covers(states: ['day-sheet:error']));
+    await _openDaySheet(
+      tester,
+      CalendarDate(2026, 10, 13),
+      scenario: 'calendar-error',
+    );
+
+    expect(_inSheet(find.byType(ErrorState)), findsOneWidget);
+    expect(_inSheet(find.byType(DayCharacter)), findsNothing);
+    await tester.tap(_inSheet(find.text(_ko.actionRetry)));
+    await settleWithIo(tester);
+    expect(_inSheet(find.byType(ErrorState)), findsOneWidget);
+  });
+}

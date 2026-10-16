@@ -20,8 +20,7 @@ final class SheetSpec {
 
 /// 시트 spec 등록부. 키는 IA 화면 id입니다.
 ///
-/// 시트 본문을 만드는 task(explain·evidence·share-preview, 이어서 day-sheet)가
-/// 자기 시트를 여기에 더합니다.
+/// 시트 본문을 만드는 task(explain·evidence·share-preview·day-sheet)가 자기 시트를 여기에 더합니다.
 const Map<String, SheetSpec> sheetRegistry = {
   ScreenIds.explainSheet: SheetSpec(
     ScreenIds.explainSheet,
@@ -36,5 +35,15 @@ const Map<String, SheetSpec> sheetRegistry = {
   ScreenIds.sharePreview: SheetSpec(
     ScreenIds.sharePreview,
     exits: {ScreenIds.systemShare},
+  ),
+  ScreenIds.daySheet: SheetSpec(
+    ScreenIds.daySheet,
+    handledStates: {'loading', 'empty', 'error'},
+    exits: {
+      ScreenIds.eventEdit,
+      ScreenIds.diaryView,
+      ScreenIds.diaryEdit,
+      ScreenIds.explainSheet,
+    },
   ),
 };

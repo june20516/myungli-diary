@@ -523,4 +523,73 @@ void main() {
       );
     });
   });
+
+  group('schedulesOnDateProvider', () {
+    /// [date]를 구독하고 loading이 끝날 때까지 기다립니다.
+    Future<AsyncValue<List<Schedule>>> onDate(
+      ProviderContainer container,
+      CalendarDate date,
+    ) async {
+      final provider = schedulesOnDateProvider(date);
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      var state = container.read(provider);
+      for (var i = 0; i < 50 && state.isLoading; i++) {
+        await Future<void>.delayed(Duration.zero);
+        state = container.read(provider);
+      }
+      return state;
+    }
+
+    test('들고 있는 격자가 없으면 그 날 하루만 받고, 하루 종일 먼저 시각순입니다', () async {
+      final server = ScheduleTestServer(seed: [...memberSchedules().reversed]);
+      final container = _container(server);
+
+      final day = await onDate(container, _today);
+
+      expect(day.value!.map((s) => s.id), ['all-day', 'morning', 'evening']);
+      expect(server.requestsOf('GET', '/v1/schedules').single.queryParameters, {
+        'from': '2026-10-13',
+        'to': '2026-10-13',
+      });
+    });
+
+    test('그 날을 품은 격자를 들고 있으면 다시 받지 않고 그 날만 거릅니다(A34)', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      await _hold(container, _octoberGrid);
+
+      final day = await onDate(container, CalendarDate(2026, 10, 20));
+
+      expect(day.value!.map((s) => s.id), ['dentist']);
+      expect(_listCount(server), 1);
+    });
+
+    test('격자 범위에서 고른 날도 저장 뒤 다시 받은 목록을 따릅니다', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      await _hold(container, _octoberGrid);
+      await onDate(container, CalendarDate(2026, 10, 14));
+
+      await container.read(scheduleEditorProvider.notifier).save(_walk());
+
+      expect(
+        container
+            .read(schedulesOnDateProvider(CalendarDate(2026, 10, 14)))
+            .value!
+            .map((s) => s.title),
+        ['산책'],
+      );
+    });
+
+    test('받지 못하면 오류 상태를 그대로 옮깁니다', () async {
+      final server = ScheduleTestServer()..offline = true;
+      final container = _container(server);
+
+      final day = await onDate(container, _today);
+
+      expect(day.hasValue, isFalse);
+      expect(day.error, isA<AppError>());
+    });
+  });
 }
