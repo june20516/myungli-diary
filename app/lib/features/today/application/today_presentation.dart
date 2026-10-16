@@ -150,8 +150,9 @@ final class SentenceLine {
   /// writing 슬롯 id(용어·근거 시트가 받음).
   final String slot;
 
-  /// 원고가 없어 글자가 하나도 없는 문장이면 true. 그리면 빈 카드가 되므로 화면이 건너뜁니다.
-  bool get isBlank => text.segments.every((segment) => segment.text.isEmpty);
+  /// 원고가 없어 글자가 없거나 공백뿐인 문장이면 true. 그리면 빈 카드가 되므로 화면이 건너뜁니다.
+  bool get isBlank =>
+      text.segments.map((segment) => segment.text).join().trim().isEmpty;
 }
 
 /// 오늘 화면이 그리는 값 묶음(결정 A22). 화면은 이 값으로만 내용을 그립니다.

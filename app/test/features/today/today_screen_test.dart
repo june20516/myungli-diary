@@ -645,6 +645,37 @@ void main() {
       expect(banner.message, _ko.noticeTimeUnknown);
     });
 
+    testWidgets('태그 문장이 빈 segments면 태그 카드를 그리지 않습니다', (tester) async {
+      final json = memberDailyJson();
+      final fortune = json['fortune']! as Map<String, dynamic>;
+      final tag = fortune['tag']! as Map<String, dynamic>;
+      tag['text'] = {
+        'segments': [
+          {'text': ' '},
+        ],
+      };
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(
+              () async => DailyView(
+                date: _today,
+                daily: Daily.fromJson(json),
+                stale: false,
+                cacheKey: null,
+              ),
+            ),
+          ),
+        ],
+      );
+      await _settleToday(tester);
+
+      expect(_id(SlotIds.todayFortuneBody), findsNothing);
+      expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
+    });
+
     testWidgets('총운 문장이 빈 segments면 문장 자리를 그리지 않습니다', (tester) async {
       final json = memberDailyJson();
       final fortune = json['fortune']! as Map<String, dynamic>;

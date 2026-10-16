@@ -28,9 +28,17 @@ void main() {
       l10n.noticeTimeUnknown,
     );
     expect(
-      noticeTextOf(_notice('time_unknown', ['', '']), l10n),
+      noticeTextOf(_notice('time_unknown', [' ', '\n']), l10n),
       l10n.noticeTimeUnknown,
     );
+  });
+
+  test('공백뿐인 문장도 비어 있는 것으로 봅니다', () {
+    expect(
+      noticeTextOf(_notice('time_unknown', [' ', '\n']), l10n),
+      l10n.noticeTimeUnknown,
+    );
+    expect(noticeTextOf(_notice('near_solar_term', [' ']), l10n), isNull);
   });
 
   test('app 문구가 없는 code의 문장이 비어 있으면 null이라 배너를 그리지 않습니다', () {

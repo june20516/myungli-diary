@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
@@ -219,6 +220,20 @@ void main() {
         timeUnknownNoticeOf(Daily.fromJson(json), _l10n),
         '태어난 시간을 몰라 세 기둥으로 계산했어요.',
       );
+    });
+
+    test('SentenceLine.isBlank는 빈 조각과 공백뿐인 조각을 빈 문장으로 봅니다', () {
+      SentenceLine line(List<String> pieces) => SentenceLine(
+        text: RenderedText.fromJson({
+          'segments': [
+            for (final piece in pieces) {'text': piece},
+          ],
+        }),
+        slot: 'daily.fortune.head',
+      );
+      expect(line([]).isBlank, isTrue);
+      expect(line(['', ' ', '\n']).isBlank, isTrue);
+      expect(line(['오늘은']).isBlank, isFalse);
     });
 
     test('같은 응답은 같은 화면 값, 날의 성격이 다르면 다른 값입니다', () {

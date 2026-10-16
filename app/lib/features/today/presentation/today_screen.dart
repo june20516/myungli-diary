@@ -256,7 +256,7 @@ class _TodayBody extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: Space.s16),
+            if (!head.isBlank) const SizedBox(height: Space.s16),
             if (!head.isBlank)
               SentenceBlock(
                 variant: SentenceBlockVariant.card,
