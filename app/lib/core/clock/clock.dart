@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -62,6 +63,48 @@ tz.Location _locationOf(String ianaTimezone) {
     throw ArgumentError.value(ianaTimezone, 'ianaTimezone', '모르는 시간대입니다.');
   }
 }
+
+/// 시간대 데이터에 없는 이름을 만나 다른 시간대로 물러났음을 알리는 보고용 오류.
+///
+/// 이름 자체는 싣지 않습니다(보고에는 타입 이름만 남습니다, D64 ②).
+final class UnknownTimezone implements Exception {
+  /// 보고용 오류를 만듭니다.
+  const new();
+
+  @override
+  String toString() => 'UnknownTimezone';
+}
+
+/// [ianaTimezone]이 시간대 데이터에 있는 이름인지.
+bool isKnownTimezone(String ianaTimezone) {
+  ensureTimeZonesInitialized();
+  return tz.timeZoneDatabase.locations.containsKey(ianaTimezone);
+}
+
+/// [candidates]를 앞에서부터 보고 처음 아는 시간대 이름을 고릅니다. 없으면 [fallbackTimezone]입니다.
+///
+/// null은 "값 없음"이라 조용히 건너뛰고, 모르는 이름을 건너뛸 때는 [onUnknown]을 부릅니다.
+/// 프로필 시간대가 모르는 이름이어도 "오늘"과 시각 표시가 예외로 멈추지 않게 합니다.
+String pickKnownTimezone(
+  Iterable<String?> candidates, {
+  required void Function() onUnknown,
+}) {
+  for (final candidate in candidates) {
+    if (candidate == null) {
+      continue;
+    }
+    if (isKnownTimezone(candidate)) {
+      return candidate;
+    }
+    onUnknown();
+  }
+  return fallbackTimezone;
+}
+
+/// 모르는 시간대를 건너뛴 일을 crash 요약으로만 남깁니다.
+void reportUnknownTimezone(Ref ref) => ref
+    .read(crashReporterProvider)
+    .record(CrashSummary.from(const UnknownTimezone()), StackTrace.current);
 
 /// [instant]를 [ianaTimezone]의 현지 시각으로 바꿉니다. 오프셋이 붙은 값과 UTC 값이
 /// 같은 순간이면 같은 현지 시각입니다.
@@ -133,8 +176,11 @@ const fallbackTimezone = 'Asia/Seoul';
 ///
 /// core의 기본값은 기기 시간대 → [fallbackTimezone]입니다. 프로필 사본을 가장 먼저
 /// 보는 연결은 app 계층(`profileTimezoneOverrides`)이 override로 더합니다(결정 A18).
+/// 모르는 이름은 건너뛰고([pickKnownTimezone]) crash 요약만 남깁니다.
 final profileTimezoneProvider = Provider<String>(
-  (ref) => ref.watch(deviceTimezoneNameProvider).value ?? fallbackTimezone,
+  (ref) => pickKnownTimezone([
+    ref.watch(deviceTimezoneNameProvider).value,
+  ], onUnknown: () => reportUnknownTimezone(ref)),
 );
 
 /// 프로필 시간대 기준 오늘 날짜.
