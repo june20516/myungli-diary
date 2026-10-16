@@ -142,6 +142,7 @@
 | share-preview.image.tagline | share-preview.image.tagline | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.ratio.label | share-preview.ratio.label | info | - | 1 | 3 | - | ko 8, en 13, ja 6 |
 | system.apple_return | system-apple-return.page.title<br>system-apple-return.page.body<br>system-apple-return.page.open<br>system-apple-return.page.install | guide | - | 1 | 4 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| system.notice | 컴포넌트 notice-banner | info | - | 1 | 7 | - | ko 52, en 90, ja 38 |
 | tag-diary.bar.title | tag-diary.bar.title | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
 | tag-diary.empty.body | tag-diary.empty.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
