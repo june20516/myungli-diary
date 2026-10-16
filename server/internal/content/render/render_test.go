@@ -125,7 +125,7 @@ func TestRender_VocativeDroppedWithoutName(t *testing.T) {
 			Body:   "{name}, [[{day_kind}]] brings luck.",
 			Params: map[string]Value{"day_kind": {Kind: ValueEnum, Enum: "growth"}},
 			Kinds:  testKinds,
-		}, "growth day brings luck."},
+		}, "Growth day brings luck."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
