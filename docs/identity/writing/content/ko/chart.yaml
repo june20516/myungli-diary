@@ -11,7 +11,7 @@
 - {slot: chart.ilgan_head, key: ilgan.head.gyeong, text: "{name}님, 다듬기 전의 단단한 쇠를 닮았어요."}
 - {slot: chart.ilgan_head, key: ilgan.head.sin, text: "{name}님, 곱게 다듬은 보석 같아요."}
 - {slot: chart.ilgan_head, key: ilgan.head.im, text: "{name}님, 멀리 흘러가는 큰 강을 닮았어요."}
-- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}님, 조용히 스며드는 빗물 같아요."}
+- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}님, 조용히 내리는 빗물 같아요."}
 - {slot: chart.ilgan_body, key: ilgan.body.gap, text: "한번 정한 방향은 쉽게 바꾸지 않는 편이에요. 오래 걸리는 일을 끝까지 해낼 때 그 힘이 잘 보여요."}
 - {slot: chart.ilgan_body, key: ilgan.body.eul, text: "상황에 맞춰 몸을 낮추고 길을 찾는 편이에요. 낯선 곳에서도 금세 자리를 잡는 데서 그 힘이 보여요."}
 - {slot: chart.ilgan_body, key: ilgan.body.byeong, text: "생각과 마음을 숨기지 않고 드러내는 편이에요. 분위기를 띄우거나 앞에 나서야 할 때 사람들이 먼저 알아봐요."}
