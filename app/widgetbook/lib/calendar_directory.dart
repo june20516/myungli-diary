@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary_widgetbook/calendar_month_use_cases.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -85,7 +86,7 @@ class _EmptyDemo extends StatelessWidget {
   }
 }
 
-/// 달력 컴포넌트 카탈로그: event-row.
+/// 달력 컴포넌트 카탈로그: event-row, calendar-month, day-cell.
 final WidgetbookFolder calendarDirectory = WidgetbookFolder(
   name: '달력',
   children: [
@@ -109,5 +110,6 @@ final WidgetbookFolder calendarDirectory = WidgetbookFolder(
         ),
       ],
     ),
+    ...calendarMonthComponents,
   ],
 );

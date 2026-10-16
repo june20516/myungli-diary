@@ -7,12 +7,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
+import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -247,6 +250,75 @@ void main() {
       expect(
         _num(_map(specs['event-row']!['a11y'])['minTarget']),
         EventRow.minHeight,
+      );
+    });
+
+    test('day-cell 크기·위치·투명도·글자 상한이 명세와 같습니다', () {
+      final dayCell = specs['day-cell']!;
+      final parts = _map(dayCell['parts']);
+      expect(_px(_map(parts['container'])['height']), DayCell.height);
+      expect(_map(parts['container'])['radius'], '{radius.sm}');
+      final numberBox = _map(parts['numberBox']);
+      expect(_px(numberBox['size']), DayCell.numberBoxSize);
+      expect(_px(numberBox['marginTop']), DayCell.numberBoxTop);
+      expect(_px(_map(parts['lunar'])['fontSize']), DayCell.lunarFontSize);
+      for (final seal in ['diarySeal', 'todayOutline']) {
+        expect(_px(_map(parts[seal])['size']), SealSize.cell.logical);
+        expect(_map(parts[seal])['position'], 'number-box-center');
+      }
+      expect(_map(parts['diarySeal'])['variant'], 'soft');
+      expect(_map(parts['todayOutline'])['variant'], 'outline');
+      expect(_px(_map(parts['eventDot'])['size']), DayCell.eventDotSize);
+      expect(_map(parts['layers'])['order'], [
+        'luck-fill',
+        'diary-seal',
+        'today-outline',
+        'number',
+        'selected-underline',
+        'event-dot',
+      ], reason: 'DayCell.layerOrder와 같은 순서');
+      expect(DayCell.layerOrder, hasLength(6));
+      final outside = _map(
+        _map(_map(_map(dayCell['states'])['outsideMonth'])['parts'])['number'],
+      );
+      expect(_num(outside['opacity']), DayCell.outsideMonthOpacity);
+      final a11y = _map(dayCell['a11y']);
+      expect(_num(a11y['textScaleMax']), DayCell.textScaleMax);
+      expect(_num(a11y['minTarget']), lessThanOrEqualTo(DayCell.height));
+      final underline = _map(_elements()['mark.underline-grow']);
+      expect(_px(underline['width']), DayCell.underlineWidth);
+      expect(_px(underline['height']), DayCell.underlineHeight);
+      expect(_px(underline['gap']), DayCell.underlineGap);
+    });
+
+    test('calendar-month 머리·요일·격자·범례 값이 명세와 같습니다', () {
+      final month = specs['calendar-month']!;
+      final parts = _map(month['parts']);
+      final header = _map(parts['header']);
+      for (final (side, icon) in [
+        ('prev', 'caret-left'),
+        ('next', 'caret-right'),
+      ]) {
+        final button = _map(header[side]);
+        expect(button['icon'], icon);
+        expect(button['weight'], 'light');
+        expect(_px(button['target']), CalendarMonthView.headerTarget);
+      }
+      expect(
+        _px(_map(parts['weekdays'])['height']),
+        CalendarMonthView.weekdaysHeight,
+      );
+      final grid = _map(parts['grid']);
+      expect(_num(grid['columns']), CalendarMonthView.columns);
+      expect(_px(grid['rowGap']), CalendarMonthView.gridGap);
+      expect(_px(grid['columnGap']), CalendarMonthView.gridGap);
+      expect(grid['cell'], 'day-cell');
+      final swatch = _map(_map(parts['legend'])['swatch']);
+      expect(_px(swatch['size']), CalendarMonthView.legendSwatchSize);
+      expect(swatch['radius'], '{radius.xs}');
+      expect(
+        _num(_map(month['a11y'])['minTarget']),
+        CalendarMonthView.headerTarget,
       );
     });
 
