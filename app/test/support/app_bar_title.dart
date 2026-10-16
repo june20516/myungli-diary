@@ -18,9 +18,13 @@ Future<void> expectAppBarTitle(
   expect(widget.title, title);
 
   final handle = tester.ensureSemantics();
-  await tester.pump();
-  final node = find.bySemanticsIdentifier(slotId);
-  expect(node, findsOneWidget);
-  expect(tester.getSemantics(node).label, title);
-  handle.dispose();
+  // 단언이 실패해도 semantics를 닫아, 다음 실패가 semantics 누수로 가려지지 않게 합니다.
+  try {
+    await tester.pump();
+    final node = find.bySemanticsIdentifier(slotId);
+    expect(node, findsOneWidget);
+    expect(tester.getSemantics(node).label, title);
+  } finally {
+    handle.dispose();
+  }
 }

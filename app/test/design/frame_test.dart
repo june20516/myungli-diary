@@ -25,6 +25,8 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
+import '../support/error_text_style.dart';
+
 const MotionPrefs _normal = MotionPrefs(
   reduceMotion: false,
   reduceTransparency: false,
@@ -426,7 +428,7 @@ void main() {
       await open(tester, SheetSize.half, content: const Text('글'));
       await tester.pumpAndSettle();
       final style = DefaultTextStyle.of(tester.element(find.text('글'))).style;
-      expect(style.decoration, isNot(TextDecoration.underline));
+      expectNoErrorTextStyle(style);
     });
 
     testWidgets('half는 화면의 60%까지', (tester) async {

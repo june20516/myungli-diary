@@ -26,6 +26,8 @@ import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
+import '../support/error_text_style.dart';
+
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 Widget _app(
@@ -208,11 +210,7 @@ void main() {
         final rich = tester.widget<RichText>(
           find.descendant(of: find.text(text), matching: find.byType(RichText)),
         );
-        expect(
-          rich.text.style?.decoration,
-          isNot(TextDecoration.underline),
-          reason: text,
-        );
+        expectNoErrorTextStyle(rich.text.style, reason: text);
       }
     });
 
@@ -517,7 +515,7 @@ void main() {
           matching: find.byType(RichText),
         ),
       );
-      expect(rich.text.style?.decoration, isNot(TextDecoration.underline));
+      expectNoErrorTextStyle(rich.text.style);
       await tester.pump(const Duration(seconds: 3));
       await tester.pumpAndSettle();
     });
