@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"log/slog"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -43,7 +44,9 @@ var textSlots = map[string]seed.Slot{
 	"daily.fortune.head":   {ID: "daily.fortune.head", Vocative: true, Rotation: seed.RotationType},
 	"explain.today_reason": {ID: "explain.today_reason"},
 	"evidence.basis": {ID: "evidence.basis", Params: map[string]seed.ParamKind{
-		"element": {Kind: seed.KindNone},
+		"element":        {Kind: seed.KindCategory, Categories: []string{"element"}},
+		"strength_score": {Kind: seed.KindNumber},
+		"unused":         {Kind: seed.KindNone},
 	}},
 	"evidence.source": {ID: "evidence.source"},
 }
@@ -55,7 +58,7 @@ func newTestTemplates() fakeTemplates {
 			{"daily.color", "color.yongsin_day", "single"}:                             "{element}색이 좋아요. 점수는 {score}점이에요.",
 			{"daily.fortune.head", "fortune.x", "advice"}:                              "{name}님, 오늘은 쉬어 가요.",
 			{"explain.today_reason", "reason.color/lucky_element", "single"}:           "[[용신|tag.yongsin]]이 들어와서 그래요.",
-			{"evidence.basis", "basis.color/lucky_element", "single"}:                  "행운 오행으로 봤어요.",
+			{"evidence.basis", "basis.color/lucky_element", "single"}:                  "{element} 오행이 {strength_score}점이라 행운 오행으로 봤어요.",
 			{"evidence.source", "source.gungtong-bogam/five_elements#color", "single"}: "궁통보감 오행 편",
 		},
 		names: map[string]string{"element.wood": "초록"},
@@ -142,15 +145,15 @@ func TestSlot_EvidenceBasisUsesDetailAsParams(t *testing.T) {
 	j := newTestJudgment()
 	j.Evidence = []*enginev1.Evidence{{
 		RuleId: "color/lucky_element",
-		Detail: map[string]string{"element": "WOOD"},
+		Detail: map[string]string{"element": "WOOD", "strength_score": "42.5", "unused": "무시"},
 	}}
 
 	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
 	require.True(t, ok)
 	require.Len(t, got.Evidence, 1)
 	assert.Equal(t, "color/lucky_element", got.Evidence[0].RuleID)
-	assert.Equal(t, map[string]string{"element": "WOOD"}, got.Evidence[0].Detail)
-	assert.Equal(t, "행운 오행으로 봤어요.", joinSegments(got.Evidence[0].Basis))
+	assert.Equal(t, map[string]string{"element": "WOOD", "strength_score": "42.5", "unused": "무시"}, got.Evidence[0].Detail)
+	assert.Equal(t, "초록 오행이 42.5점이라 행운 오행으로 봤어요.", joinSegments(got.Evidence[0].Basis))
 	assert.Empty(t, logs.String())
 }
 
@@ -310,4 +313,68 @@ func TestParamValues_Errors(t *testing.T) {
 			assert.Error(t, err)
 		})
 	}
+}
+
+func TestSlot_EvidenceDetailMismatchOmitsBasisAndLogs(t *testing.T) {
+	r, logs := newTestRenderer()
+	j := newTestJudgment()
+	j.Evidence = []*enginev1.Evidence{{
+		RuleId: "color/lucky_element",
+		Detail: map[string]string{"strength_score": "비밀값"},
+	}}
+
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "")
+	require.True(t, ok)
+	require.Len(t, got.Evidence, 1)
+	assert.Nil(t, got.Evidence[0].Basis)
+	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("level=ERROR")))
+	assert.Contains(t, logs.String(), "strength_score")
+	assert.NotContains(t, logs.String(), "비밀값")
+}
+
+func TestSlot_ParamValuesFailureLogsNameWithoutValue(t *testing.T) {
+	r, logs := newTestRenderer()
+	j := newTestJudgment()
+	j.Params["score"] = &enginev1.Param{Value: &enginev1.Param_Text{Text: "비밀값"}}
+
+	_, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "")
+	assert.False(t, ok)
+	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("level=ERROR")))
+	assert.Contains(t, logs.String(), "score")
+	assert.NotContains(t, logs.String(), "비밀값")
+}
+
+func TestNewRenderer_LogsMissingEvidenceSlots(t *testing.T) {
+	var logs bytes.Buffer
+	content.NewRenderer(slog.New(slog.NewTextHandler(&logs, nil)), map[string]seed.Slot{
+		"evidence.basis": {ID: "evidence.basis"},
+	})
+	out := logs.String()
+	assert.Contains(t, out, "explain.today_reason")
+	assert.Contains(t, out, "evidence.source")
+	assert.NotContains(t, out, "slot=evidence.basis")
+
+	logs.Reset()
+	newTestRenderer()
+	content.NewRenderer(slog.New(slog.NewTextHandler(&logs, nil)), textSlots)
+	assert.Empty(t, logs.String())
+}
+
+func TestParamValues_RejectsNonFiniteNumbers(t *testing.T) {
+	kinds := map[string]seed.ParamKind{"score": {Kind: seed.KindNumber}}
+	for _, p := range []*enginev1.Param{
+		{Value: &enginev1.Param_Number{Number: math.NaN()}},
+		{Value: &enginev1.Param_Number{Number: math.Inf(1)}},
+	} {
+		_, err := content.ParamValues(&enginev1.Judgment{Params: map[string]*enginev1.Param{"score": p}}, kinds)
+		assert.Error(t, err)
+	}
+	// 근거 detail 문자열 숫자도 같습니다.
+	r, logs := newTestRenderer()
+	j := newTestJudgment()
+	j.Evidence = []*enginev1.Evidence{{RuleId: "color/lucky_element", Detail: map[string]string{"strength_score": "NaN"}}}
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "")
+	require.True(t, ok)
+	assert.Nil(t, got.Evidence[0].Basis)
+	assert.Contains(t, logs.String(), "level=ERROR")
 }

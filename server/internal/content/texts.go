@@ -60,6 +60,13 @@ type Renderer struct {
 // NewRenderer는 Renderer를 만듭니다. slots는 시드의 슬롯 명세(seed.Seed.Slots)로,
 // 슬롯별 호칭 사용 여부와 매개변수 값 종류를 알려줍니다.
 func NewRenderer(log *slog.Logger, slots map[string]seed.Slot) *Renderer {
+	// 근거 문장 슬롯이 명세에 없으면 근거 문장이 조용히 빠지므로, 시작할 때 한 번 알립니다.
+	// 생성자가 오류를 돌려주면 근거 문장 같은 선택 기능 때문에 서버가 못 뜨게 되어, Error 로그로 드러내고 계속합니다.
+	for _, id := range []string{todayReasonSlot, basisSlot, sourceSlot} {
+		if _, ok := slots[id]; !ok {
+			log.Error("근거 문장 슬롯 명세가 없습니다", slog.String("slot", id))
+		}
+	}
 	return &Renderer{log: log, slots: slots}
 }
 
@@ -79,7 +86,7 @@ func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string
 	}
 	params, err := ParamValues(j, def.Params)
 	if err != nil {
-		r.logFailure(ctx, tpl, slot, j.GetMessageKey(), variant)
+		r.logFailure(ctx, tpl, slot, j.GetMessageKey(), variant, err)
 		return SlotText{}, false
 	}
 	text, ok := r.render(ctx, tpl, def, j.GetMessageKey(), variant, params, name)
@@ -167,7 +174,7 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 		if def, ok := r.slots[basisSlot]; ok {
 			// detail은 명세의 값 종류가 none이 아닌 키만 매개변수가 됩니다.
 			if params, err := detailValues(e.GetDetail(), def.Params); err != nil {
-				r.logFailure(ctx, tpl, basisSlot, "basis."+e.GetRuleId(), seed.VariantSingle)
+				r.logFailure(ctx, tpl, basisSlot, "basis."+e.GetRuleId(), seed.VariantSingle, err)
 			} else {
 				item.Basis, _ = r.render(ctx, tpl, def, "basis."+e.GetRuleId(), seed.VariantSingle, params, "")
 			}
@@ -181,12 +188,18 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 }
 
 // logFailure는 문장을 만들지 못한 이유를 Error 로그 하나로 남깁니다.
-// 호칭, 매개변수 값, 문장 본문은 개인정보가 섞일 수 있어 싣지 않고 문장 틀 id와 언어만 싣습니다.
-func (r *Renderer) logFailure(ctx context.Context, tpl Templates, slot, key, variant string) {
-	r.log.ErrorContext(ctx, "슬롯 문장을 만들지 못했습니다",
+// 호칭, 매개변수 값, 문장 본문은 개인정보가 섞일 수 있어 싣지 않고 문장 틀 id와 언어를 싣습니다.
+//
+// cause가 있으면 error 필드로 싣습니다. 매개변수 변환 오류만 넘기며, 그 메시지는 매개변수 이름과 원인 종류뿐이고 값은 없습니다.
+func (r *Renderer) logFailure(ctx context.Context, tpl Templates, slot, key, variant string, cause ...error) {
+	attrs := []any{
 		slog.String("slot", slot),
 		slog.String("key", key),
 		slog.String("variant", variant),
 		slog.String("lang", tpl.Lang()),
-	)
+	}
+	for _, err := range cause {
+		attrs = append(attrs, slog.String("error", err.Error()))
+	}
+	r.log.ErrorContext(ctx, "슬롯 문장을 만들지 못했습니다", attrs...)
 }

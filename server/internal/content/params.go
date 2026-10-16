@@ -2,6 +2,7 @@ package content
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -53,6 +54,9 @@ func paramValue(kind seed.ParamKind, p *enginev1.Param) (render.Value, error) {
 		case *enginev1.Param_Integer:
 			return render.Value{Kind: render.ValueNumber, Text: strconv.FormatInt(v.Integer, 10)}, nil
 		case *enginev1.Param_Number:
+			if math.IsNaN(v.Number) || math.IsInf(v.Number, 0) {
+				return render.Value{}, errKindMismatch
+			}
 			return render.Value{Kind: render.ValueNumber, Text: strconv.FormatFloat(v.Number, 'f', -1, 64)}, nil
 		}
 		return render.Value{}, errKindMismatch
@@ -83,7 +87,8 @@ func textValue(kind seed.ParamKind, s string) (render.Value, error) {
 	case seed.KindText:
 		return render.Value{Kind: render.ValueText, Text: s}, nil
 	case seed.KindNumber:
-		if _, err := strconv.ParseFloat(s, 64); err != nil {
+		// ParseFloat는 "NaN"·"Inf"도 받아 주지만 문장에 쓸 수 있는 숫자가 아니므로 거부합니다.
+		if f, err := strconv.ParseFloat(s, 64); err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
 			return render.Value{}, errKindMismatch
 		}
 		return render.Value{Kind: render.ValueNumber, Text: s}, nil
