@@ -107,6 +107,20 @@ final _throwingKeyLookup = <Override>[
   ),
 ];
 
+/// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
+final class _TestToday extends Notifier<CalendarDate> {
+  @override
+  CalendarDate build() => CalendarDate(2026, 10, 13);
+
+  CalendarDate get date => state;
+
+  set date(CalendarDate value) => state = value;
+}
+
+final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
+  _TestToday.new,
+);
+
 FakeCrashReporter _reporter(ProviderContainer container) =>
     container.read(crashReporterProvider) as FakeCrashReporter;
 
@@ -332,6 +346,37 @@ void main() {
     expect(_liked(container), isFalse);
     expect(tap.requests, hasLength(1));
     expect(await _cachedReaction(tester, container), isNull);
+  });
+
+  testWidgets('자정을 넘겨 새 날짜 응답이 오면 요청 중이 아닌 어제 항목을 지웁니다', (tester) async {
+    final (container, tap) = await _boot(
+      tester,
+      overrides: [
+        todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
+      ],
+    );
+    final press = _press(container);
+    await _until(tester, () => tap.requests.isNotEmpty);
+    await _until(tester, press.finished);
+    final yesterdayKey = ReactionController.keyOf(
+      CalendarDate(2026, 10, 13),
+      'daily.fortune.head',
+    );
+    expect(container.read(reactionControllerProvider).keys, [yesterdayKey]);
+
+    container.read(_testTodayProvider.notifier).date = CalendarDate(
+      2026,
+      10,
+      14,
+    );
+    await _until(
+      tester,
+      () =>
+          container.read(dailyControllerProvider).value?.date ==
+          CalendarDate(2026, 10, 14),
+    );
+
+    expect(container.read(reactionControllerProvider), isEmpty);
   });
 
   testWidgets('반응 확인 뒤 시작한 응답이 reaction 없이 오면 응답을 따릅니다', (tester) async {

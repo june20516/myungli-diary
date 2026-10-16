@@ -91,10 +91,16 @@ class ReactionController extends Notifier<Map<String, bool>> {
   }
 
   /// 새 응답 [view]를 슬롯별로 반영합니다.
+  ///
+  /// 응답 날짜보다 앞선 날짜(자정을 넘긴 뒤의 어제)의 항목은 요청 중이 아니면 지웁니다. 다시
+  /// 그 날짜를 보일 때는 그 응답의 값을 따르면 되므로 남겨 둘 이유가 없습니다.
   void _applyResponse(DailyView view) {
     final dropped = <String>[];
     for (final MapEntry(:key, value: entry) in _entries.entries) {
       if (entry.date != view.date) {
+        if (entry.date.compareTo(view.date) < 0 && !entry.sending) {
+          dropped.add(key);
+        }
         continue;
       }
       final afterFetchStart = entry.confirmedEpoch > view.reactionEpoch;
