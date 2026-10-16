@@ -47,8 +47,9 @@ app/
       tokens/gen/          # DTCG → Dart 생성 코드 (commit)
       theme/               # ThemeExtension 조립
       components/          # 컴포넌트 41개, 명세 파일 묶음대로
-    features/<영역>/        # onboarding, auth, today, depth, calc_basis, calendar, diary, me, monetization
+    features/<영역>/        # onboarding, auth, profile, today, depth, glossary, calc_basis, calendar, schedule, diary, me, monetization
                            # calc_basis는 계산 기준 화면(D71)과 경도 보정 계산(A28)으로, 순수 함수는 다른 화면도 씀
+                           # calendar는 달 길흉 캐시(A32)·달력 화면·그날 시트, schedule은 일정 범위(A34)·event-edit·오늘 일정 요약
       model/               # 작은 값 객체(층이 아님, 다른 feature도 import 가능)
       data/                # repository
       application/         # Riverpod provider·notifier
