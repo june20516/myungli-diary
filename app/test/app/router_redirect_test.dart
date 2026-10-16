@@ -300,6 +300,20 @@ void main() {
       }
     });
 
+    test('동의·알림 묻기·강제 업데이트 중에는 /calc-basis도 각 갈래 home으로', () {
+      for (final (entry, home) in [
+        (EntryState.consentRequired, '/consent'),
+        (EntryState.notifyAskRequired, '/notify-ask'),
+        (EntryState.forceUpdate, '/force-update'),
+      ]) {
+        expect(
+          entryRedirect(entry: entry, location: '/calc-basis'),
+          home,
+          reason: '$entry',
+        );
+      }
+    });
+
     test('notifyAskRequired는 /notify-ask만 허용 (A17)', () {
       expect(
         entryRedirect(entry: EntryState.notifyAskRequired, location: '/today'),
