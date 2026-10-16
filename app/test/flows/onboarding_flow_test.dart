@@ -108,7 +108,11 @@ void main() {
     );
     final container = await _openCall(tester);
     expect(find.byKey(const ValueKey(ScreenIds.onboardCall)), findsOneWidget);
-    expectAppBarTitle(SlotIds.onboardCallBarTitle, _ko.onboardCallBarTitle);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.onboardCallBarTitle,
+      _ko.onboardCallBarTitle,
+    );
     expect(_next(tester).onPressed, isNull);
 
     await tester.enterText(find.byType(EditableText), '가나다라마바사아자차카');
@@ -124,7 +128,11 @@ void main() {
     await tapNext(tester);
 
     expect(find.byKey(const ValueKey(ScreenIds.onboardBirth)), findsOneWidget);
-    expectAppBarTitle(SlotIds.onboardBirthBarTitle, _ko.onboardBirthBarTitle);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.onboardBirthBarTitle,
+      _ko.onboardBirthBarTitle,
+    );
     expect(await _savedHonorific(tester, container), '별님');
   });
 
@@ -142,7 +150,11 @@ void main() {
     await _dragWheel(tester, BirthDatePicker.dayWheelKey, 2);
     await tapNext(tester);
     expect(find.byKey(const ValueKey(ScreenIds.onboardTime)), findsOneWidget);
-    expectAppBarTitle(SlotIds.onboardTimeBarTitle, _ko.onboardTimeBarTitle);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.onboardTimeBarTitle,
+      _ko.onboardTimeBarTitle,
+    );
 
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
@@ -441,7 +453,8 @@ void main() {
         find.byKey(const ValueKey(ScreenIds.onboardGender)),
         findsOneWidget,
       );
-      expectAppBarTitle(
+      await expectAppBarTitle(
+        tester,
         SlotIds.onboardGenderBarTitle,
         _ko.onboardGenderBarTitle,
       );
@@ -582,7 +595,11 @@ void main() {
       await tapNext(tester);
 
       expect(find.byKey(const ValueKey(ScreenIds.preview)), findsOneWidget);
-      expectAppBarTitle(SlotIds.previewBarTitle, _ko.previewBarTitle);
+      await expectAppBarTitle(
+        tester,
+        SlotIds.previewBarTitle,
+        _ko.previewBarTitle,
+      );
       expect(
         container.read(onboardingDraftProvider).value!.gender,
         BirthGenderEnum.female,
@@ -599,7 +616,11 @@ void main() {
       await tester.pumpAndSettle();
       await tapNext(tester);
       expect(find.byKey(const ValueKey(ScreenIds.birthplace)), findsOneWidget);
-      expectAppBarTitle(SlotIds.birthplaceBarTitle, _en.birthplaceBarTitle);
+      await expectAppBarTitle(
+        tester,
+        SlotIds.birthplaceBarTitle,
+        _en.birthplaceBarTitle,
+      );
     });
 
     testWidgets('세션이 있으면 미리보기를 건너뛰고 마무리 동작을 부릅니다', (tester) async {

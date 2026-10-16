@@ -16,7 +16,7 @@ void main() {
     await pumpApp(tester, scenario: 'member');
     await pumpUntilScreen(tester, ScreenIds.today);
 
-    expectAppBarTitle(SlotIds.todayBarTitle, _ko.todayBarTitle);
+    await expectAppBarTitle(tester, SlotIds.todayBarTitle, _ko.todayBarTitle);
     // 탭 라벨(tabToday)은 tab-bar에 그대로 둡니다.
     expect(
       find.descendant(

@@ -128,7 +128,11 @@ void main() {
     expect(_screen, findsOneWidget);
     expect(_id(ScreenIds.eventEdit), findsOneWidget);
     expect(find.text(_ko.eventEditBarTitle), findsOneWidget);
-    expectAppBarTitle(SlotIds.eventEditBarTitle, _ko.eventEditBarTitle);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.eventEditBarTitle,
+      _ko.eventEditBarTitle,
+    );
     expect(_id(SlotIds.eventEditCharacterHint), findsOneWidget);
     expect(_richText('큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요.'), findsOneWidget);
     expect(_id(SlotIds.eventEditTitleHint), findsOneWidget);

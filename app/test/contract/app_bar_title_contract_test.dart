@@ -10,7 +10,7 @@ import 'package:myungli_diary/app/router/screen_registry.dart';
 ///
 /// 새 화면이 구현되면(registry가 [PlaceholderScreen]을 벗어나면) 여기에 더해야 하고,
 /// 그렇지 않으면 아래 목록 대조 테스트가 실패합니다. 화면이 그 슬롯 id로 제목을 그리는지는
-/// 각 화면·흐름 테스트가 `find.bySemanticsIdentifier`로 확인합니다.
+/// 각 화면·흐름 테스트가 `expectAppBarTitle`로 확인하며, 아래 대조 테스트가 그 호출이 빠진 화면을 잡습니다.
 const Map<String, String> _barTitleKeys = {
   'onboard-call': 'onboardCallBarTitle',
   'onboard-birth': 'onboardBirthBarTitle',
@@ -89,6 +89,28 @@ void main() {
           reason: '$locale ${entry.value}',
         );
       }
+    }
+  });
+
+  test('목록의 화면마다 그 슬롯으로 expectAppBarTitle을 부르는 테스트가 있습니다', () {
+    final testSources = [
+      for (final entity in Directory('test').listSync(recursive: true))
+        if (entity is File &&
+            entity.path.endsWith('_test.dart') &&
+            !entity.path.endsWith('app_bar_title_contract_test.dart'))
+          entity.readAsStringSync(),
+    ];
+
+    for (final key in _barTitleKeys.values) {
+      final call = RegExp(
+        'expectAppBarTitle\\(\\s*tester,\\s*SlotIds\\.$key\\b',
+      );
+      expect(
+        testSources.any(call.hasMatch),
+        isTrue,
+        reason:
+            '$key: expectAppBarTitle(tester, SlotIds.$key, ...)를 부르는 테스트가 없습니다',
+      );
     }
   });
 

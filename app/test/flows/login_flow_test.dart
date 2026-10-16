@@ -117,7 +117,7 @@ void main() {
     await tester.tap(_screen(SlotIds.previewCtaSave));
     await tester.pumpAndSettle();
     expect(_screen(ScreenIds.login), findsOneWidget);
-    expectAppBarTitle(SlotIds.loginBarTitle, _ko.loginBarTitle);
+    await expectAppBarTitle(tester, SlotIds.loginBarTitle, _ko.loginBarTitle);
     expect(_screen(SlotIds.loginTitleHead), findsOneWidget);
     expect(_screen(SlotIds.loginTitleBody), findsOneWidget);
 

@@ -230,7 +230,11 @@ void main() {
     );
     final fake = _fake(container);
     expect(_screen(ScreenIds.notifyAsk), findsOneWidget);
-    expectAppBarTitle(SlotIds.notifyAskBarTitle, _ko.notifyAskBarTitle);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.notifyAskBarTitle,
+      _ko.notifyAskBarTitle,
+    );
     expect(fake.callCountOf('registerDevice'), 1);
     // 등록이 안 됐으니 프로필은 건드리지 않습니다.
     expect(_notificationBodies(fake).length, 0);

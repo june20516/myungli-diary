@@ -388,7 +388,11 @@ void main() {
 
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
     expect(find.text(_ko.calcBasisBarTitle), findsOneWidget);
-    expectAppBarTitle(SlotIds.calcBasisBarTitle, _ko.calcBasisBarTitle);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.calcBasisBarTitle,
+      _ko.calcBasisBarTitle,
+    );
   });
 
   testWidgets('큰 글자(2.0)·작은 화면에서도 넘치지 않고 본문이 스크롤됩니다', (tester) async {

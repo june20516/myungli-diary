@@ -21,6 +21,7 @@ import 'package:myungli_diary/features/calendar/application/calendar_providers.d
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
+import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
 
 final _ko = AppLocalizationsKo();
@@ -140,14 +141,10 @@ void main() {
     await _openCalendar(tester);
 
     expect(find.bySemanticsIdentifier(ScreenIds.calendar), findsOneWidget);
-    final title = find.bySemanticsIdentifier(SlotIds.calendarBarTitle);
-    expect(title, findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byType(MyungliAppBar),
-        matching: find.text(_ko.calendarBarTitle),
-      ),
-      findsOneWidget,
+    await expectAppBarTitle(
+      tester,
+      SlotIds.calendarBarTitle,
+      _ko.calendarBarTitle,
     );
 
     final view = _monthView(tester);
