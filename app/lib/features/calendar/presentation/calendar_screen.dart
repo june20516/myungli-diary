@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/screen_breadcrumbs.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
@@ -61,8 +62,8 @@ const AppGlyph _plus = AppGlyph(
 ///   보입니다(`offline`). 받은 적 없는 달은 오프라인 오류입니다.
 /// * 일정·일기는 지원 날짜로 자른 격자 범위로 묻습니다(1900-02·2099-12 격자의 범위 밖
 ///   날짜를 보내지 않음, D41). 달력은 1900-02부터 넘깁니다(A44). 일정 범위는 오류여도
-///   붙들려 남으므로, 화면에 들어올 때·달을 넘길 때·다시 시도할 때 오류로 남은 범위를 다시
-///   받습니다(연결이 돌아오면 배너가 걷힘).
+///   붙들려 남으므로, 화면에 들어올 때(다른 탭에서 돌아올 때 포함)·달을 넘길 때·다시 시도할
+///   때 오류로 남은 범위를 다시 받습니다(연결이 돌아오면 배너가 걷힘).
 class CalendarScreen extends ConsumerStatefulWidget {
   /// calendar 화면을 만듭니다.
   const new({super.key});
@@ -85,6 +86,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   static ScheduleRange _rangeOf(CalendarMonth month) =>
       (from: month.supportedGridStart, to: month.supportedGridEnd);
 
+  /// 탭 복귀 듣기를 끝냅니다.
+  late final void Function() _stopEntries;
+
   @override
   void initState() {
     super.initState();
@@ -93,6 +97,20 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _refetchFailedSchedules(_visibleMonth);
     });
+    // 탭 셸은 화면 상태를 들고 있으므로, 다른 탭·화면에서 돌아오는 것도 진입으로 봅니다.
+    _stopEntries = listenScreenEntered(
+      ref.read(routerProvider),
+      ScreenIds.calendar,
+      () {
+        if (mounted) _refetchFailedSchedules(_visibleMonth);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _stopEntries();
+    super.dispose();
   }
 
   CalendarMonth get _visibleMonth =>

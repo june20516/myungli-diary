@@ -365,6 +365,28 @@ void main() {
     expect(_offlineBanner, findsNothing);
   });
 
+  testWidgets('다른 탭에 다녀오면 오류로 남은 일정 범위를 다시 받아 배너가 걷힙니다', (tester) async {
+    final network = _Network();
+    await _openCalendar(tester, network: network);
+
+    // 연결이 끊긴 채 미리 받아 둔 다음 달로 넘기면 그 달 일정 범위가 오류로 남습니다.
+    network.offline = true;
+    await tester.tap(find.byKey(CalendarMonthView.nextKey));
+    await settleWithIo(tester);
+    expect(_offlineBanner, findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.0')));
+    await settleWithIo(tester);
+    network.offline = false;
+    final before = network.listQueries['/v1/schedules']!.length;
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.1')));
+    await settleWithIo(tester);
+
+    expect(network.listQueries['/v1/schedules'], hasLength(before + 1));
+    expect(network.listQueries['/v1/schedules']!.last['from'], '2026-11-01');
+    expect(_offlineBanner, findsNothing);
+  });
+
   testWidgets('offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다', (
     tester,
   ) async {
