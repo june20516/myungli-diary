@@ -439,6 +439,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 의미상 불가: 미래 날짜, 엔진 판정, 호칭 규칙 위반 | 422 | `diary.future_date`, `birth.invalid` |
 | 시간대 이름이 IANA가 아님 | 422 | `timezone.invalid` (`errors[].field`는 `/currentTimezone` 또는 `/birth/timezone`) |
 | `cityId`가 도시 목록에 없음 | 422 | `city.not_found` (`errors[].field`는 `/birth/place/cityId`) |
+| 일정 조회 범위(`from`~`to`)가 62일 초과 | 422 | `range.too_long` |
 | 호칭 거부. 기준은 josa.yaml `name_rules`의 기준 구현(`normalize_name`): 비어 있음, 언어별 길이 초과, 이모지, 제어 문자, 받지 않는 글자. 스키마 길이(1~20) 위반은 400 `request.invalid`가 먼저 | 422 | `name.empty`, `name.too_long`, `name.emoji`, `name.control`, `name.invalid_char` |
 | access token 없음·만료·위조 (`WWW-Authenticate: Bearer error="invalid_token"`, RFC 6750) | 401 | `auth.token_expired`, `auth.token_invalid` |
 | refresh token 재사용 감지 | 401 | `auth.refresh_reused` |
@@ -446,7 +447,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | App Check 실패 | 401 | `app_check.invalid` |
 | 약관 미동의, 문서 버전 변경 | 403 | `consent.required` |
 | 미리보기를 이미 씀 | 403 | `preview.used` |
-| 없는 리소스, 남의 리소스 | 404 | `diary.not_found` (남의 것도 404로 보내 존재 여부를 숨김) |
+| 없는 리소스, 남의 리소스 | 404 | `diary.not_found`, `schedule.not_found` (남의 것도 404로 보내 존재 여부를 숨김). 반응할 선택 기록이 없거나 반응할 수 없는 슬롯은 `reaction.not_found` |
 | 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
 | 되살리려는 날짜에 이미 일기가 있음 | 409 | `diary.date_taken` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
