@@ -286,6 +286,20 @@ void main() {
       }
     });
 
+    test('계산 기준(/calc-basis)은 로그인 전·온보딩 중·로그인 뒤 모두 그대로 (D71)', () {
+      for (final entry in [
+        EntryState.signedOut,
+        EntryState.profileRequired,
+        EntryState.ready,
+      ]) {
+        expect(
+          entryRedirect(entry: entry, location: '/calc-basis'),
+          isNull,
+          reason: '$entry',
+        );
+      }
+    });
+
     test('notifyAskRequired는 /notify-ask만 허용 (A17)', () {
       expect(
         entryRedirect(entry: EntryState.notifyAskRequired, location: '/today'),
@@ -524,6 +538,18 @@ void main() {
       );
       expect(currentPath(router), '/legal');
       expect(find.byKey(const Key('legal')), findsOneWidget);
+    });
+
+    testWidgets('profileRequired에서 /calc-basis는 계산 기준 화면을 엽니다 (D71)', (
+      tester,
+    ) async {
+      final router = await pumpRouter(
+        tester,
+        EntryState.profileRequired,
+        initial: '/calc-basis',
+      );
+      expect(currentPath(router), '/calc-basis');
+      expect(find.byKey(const Key('calc-basis')), findsOneWidget);
     });
 
     testWidgets('IA에 없는 경로는 갈래의 첫 화면으로 보냅니다', (tester) async {

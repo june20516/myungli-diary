@@ -12,12 +12,15 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 ///
 /// 300ms 안에 끝나는 불러오기에는 보이지 않도록 [delay] 뒤에야 그립니다.
 /// [child]를 주면 실제 올 요소와 같은 자리·크기·반경으로 짠 [SkeletonBone] 배치를 쓰고,
-/// 없으면 글줄 [lines]개를 그립니다(글자 줄 높이의 60%, 마지막 줄은 너비 60%).
+/// 없으면 글줄 [lines]개를 그립니다(글자 줄 높이의 60%, 마지막 줄은 너비 60%). 글줄의 줄
+/// 높이는 [lineStyle]에서 구하고, 없으면 `type.body.ui`입니다. 문장 본문(`type.sentence.body`)
+/// 자리처럼 실제 올 글자와 줄 높이를 맞출 때 줍니다.
 class SkeletonBlock extends StatefulWidget {
   /// 자리를 만듭니다.
   const new({
     this.child,
     this.lines = 3,
+    this.lineStyle,
     this.delay = defaultDelay,
     this.animated = true,
     super.key,
@@ -34,6 +37,9 @@ class SkeletonBlock extends StatefulWidget {
 
   /// [child]가 없을 때 그릴 글줄 수.
   final int lines;
+
+  /// [child]가 없을 때 글줄 높이를 정할 글자 스타일. 없으면 `type.body.ui`입니다.
+  final TextStyle? lineStyle;
 
   /// 보이기 전 대기. golden·테스트에서는 [Duration.zero]를 줍니다.
   final Duration delay;
@@ -76,21 +82,26 @@ class _SkeletonBlockState extends State<SkeletonBlock> {
       child: ExcludeSemantics(
         child:
             widget.child ??
-            _Lines(lines: widget.lines, animated: widget.animated),
+            _Lines(
+              lines: widget.lines,
+              style: widget.lineStyle,
+              animated: widget.animated,
+            ),
       ),
     );
   }
 }
 
 class _Lines extends StatelessWidget {
-  const new({required this.lines, required this.animated});
+  const new({required this.lines, required this.style, required this.animated});
 
   final int lines;
+  final TextStyle? style;
   final bool animated;
 
   @override
   Widget build(BuildContext context) {
-    final style = context.tokens.typography.bodyUi;
+    final style = this.style ?? context.tokens.typography.bodyUi;
     final fontSize = MediaQuery.textScalerOf(context)
         .scale(style.fontSize ?? 14);
     final lineHeight = fontSize * (style.height ?? 1.5);

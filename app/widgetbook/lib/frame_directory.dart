@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
+import 'package:myungli_diary/design/components/frame/prose_page_body.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 import 'package:widgetbook/widgetbook.dart';
@@ -21,6 +27,47 @@ const MotionPrefs _transparent = MotionPrefs(
   reduceMotion: false,
   reduceTransparency: true,
   lowEnd: false,
+);
+
+/// 안내 글 문단 하나(`sentence-block` `body`).
+Widget _proseParagraph(String text) => SentenceBlock(
+  variant: SentenceBlockVariant.body,
+  text: RenderedText(segments: [Segment(text: text)]),
+);
+
+/// 안내 글 화면 한 장. [loading]이면 셋째 문단 자리에 skeleton을 둡니다.
+Widget _prosePage({required bool loading}) => Stage(
+  child: SizedBox(
+    height: 520,
+    child: Builder(
+      builder: (context) => Column(
+        children: [
+          MyungliAppBar.inner(title: '계산 기준', onBack: () {}),
+          Expanded(
+            child: ProsePageBody(
+              paragraphs: [
+                _proseParagraph(
+                  '명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.',
+                ),
+                _proseParagraph(
+                  '지장간은 하나만 고르지 않고 모두 보여 드려요. 유파마다 처리가 달라서 다른 앱과 결과가 다를 수 있어요.',
+                ),
+                if (loading)
+                  SkeletonBlock(
+                    lineStyle: context.tokens.typography.sentenceBody,
+                  )
+                else
+                  _proseParagraph(
+                    '출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요.',
+                  ),
+                _proseParagraph('음력은 한국천문연구원 기준의 한국 음력을 따라요.'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
 );
 
 /// 줄무늬 위에 틀을 올려 반투명·흐림이 보이게 합니다.
@@ -203,6 +250,19 @@ final WidgetbookFolder frameDirectory = WidgetbookFolder(
               ],
             ),
           ),
+        ),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'prose-page-body (안내 글 본문)',
+      useCases: [
+        WidgetbookUseCase(
+          name: '문단',
+          builder: (context) => _prosePage(loading: false),
+        ),
+        WidgetbookUseCase(
+          name: '문단 자리 불러오는 중',
+          builder: (context) => _prosePage(loading: true),
         ),
       ],
     ),

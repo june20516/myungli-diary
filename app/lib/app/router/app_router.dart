@@ -29,7 +29,13 @@ const Set<String> _inputStepIds = {
   ScreenIds.birthplace,
 };
 
-const Set<String> _onboardingIds = {..._inputStepIds, ScreenIds.legal};
+/// 온보딩 갈래(profileRequired)에서 여는 화면. 입력 단계와 약관, 출생지 화면에서 여는
+/// 계산 기준(D71)입니다.
+const Set<String> _onboardingIds = {
+  ..._inputStepIds,
+  ScreenIds.legal,
+  ScreenIds.calcBasis,
+};
 
 /// 자기 갈래(consentRequired·notifyAskRequired)에서만 여는 관문 화면. 갈래가 끝나면
 /// (ready·adConsentRequired) 다시 열려는 경로(딥링크·알림·복원)도 home으로 보냅니다.

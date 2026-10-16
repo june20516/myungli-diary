@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
+import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -113,6 +114,13 @@ final Map<String, ScreenSpec> _implementedScreens = {
     _buildNotifyAsk,
     exits: notifyAskExits,
   ),
+  ScreenIds.calcBasis: const ScreenSpec(
+    ScreenIds.calcBasis,
+    _buildCalcBasis,
+    // IA에 출구가 없다는 것을 화면 상수로 드러냅니다(출구가 생기면 화면 쪽만 고칩니다).
+    // ignore: avoid_redundant_argument_values
+    exits: calcBasisExits,
+  ),
   ScreenIds.today: const ScreenSpec(
     ScreenIds.today,
     _buildToday,
@@ -159,3 +167,5 @@ Widget _buildConsent(BuildContext context) => const ConsentScreen();
 Widget _buildNotifyAsk(BuildContext context) => const NotifyAskScreen();
 
 Widget _buildToday(BuildContext context) => const TodayScreen();
+
+Widget _buildCalcBasis(BuildContext context) => const CalcBasisScreen();

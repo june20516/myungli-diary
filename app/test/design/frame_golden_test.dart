@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
+import 'package:myungli_diary/design/components/frame/prose_page_body.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
@@ -199,6 +204,51 @@ Widget _bottomBars() {
   );
 }
 
+/// 안내 글 화면 한 장: inner 앱 바 아래 문단 셋과 불러오는 중인 문단 자리(skeleton) 하나.
+Widget _prosePage() => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    Widget paragraph(String text) => SentenceBlock(
+      variant: SentenceBlockVariant.body,
+      text: RenderedText(segments: [Segment(text: text)]),
+    );
+    return SizedBox(
+      height: 480,
+      child: Column(
+        children: [
+          MyungliAppBar.inner(title: ja ? '計算基準' : '계산 기준', onBack: () {}),
+          Expanded(
+            child: ProsePageBody(
+              paragraphs: [
+                paragraph(
+                  ja
+                      ? '命理の解釈は韓国で広く使われている基準に従います。'
+                      : '명리 해석은 한국에서 널리 쓰는 기준을 따라요. '
+                            '여러 유파 가운데 하나로, 근거가 있는 기준이에요.',
+                ),
+                paragraph(
+                  ja
+                      ? '蔵干はひとつに絞らず、すべてお見せします。'
+                      : '지장간은 하나만 고르지 않고 모두 보여 드려요. '
+                            '유파마다 처리가 달라서 다른 앱과 결과가 다를 수 있어요.',
+                ),
+                SkeletonBlock(
+                  delay: Duration.zero,
+                  animated: false,
+                  lineStyle: context.tokens.typography.sentenceBody,
+                ),
+                paragraph(
+                  ja ? '旧暦は韓国天文研究院の基準に従います。' : '음력은 한국천문연구원 기준의 한국 음력을 따라요.',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+);
+
 void main() {
   goldenTest('tab-bar: 선택·투명도 줄이기', (tester) async {
     await goldenMatrix(tester, 'frame_tab_bar', _tabBars);
@@ -206,6 +256,10 @@ void main() {
 
   goldenTest('app-bar: tab-root·inner·긴 제목', (tester) async {
     await goldenMatrix(tester, 'frame_app_bar', _appBars);
+  });
+
+  goldenTest('안내 글 본문: 문단 간격·여백, 문단 자리 skeleton', (tester) async {
+    await goldenMatrix(tester, 'frame_prose_page_body', _prosePage);
   });
 
   goldenTest('sheet: 덮개 위 시트, 아래 층이 물러난 모습', (tester) async {
