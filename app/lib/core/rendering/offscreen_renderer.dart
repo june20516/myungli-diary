@@ -70,16 +70,24 @@ final class PngOffscreenRenderer implements OffscreenRenderer {
   static const int _quietTicks = 6;
   static const Duration _timeout = Duration(seconds: 3);
 
-  /// 직전에 시작한 렌더의 끝(성공이든 실패든). 다음 렌더가 이어서 시작합니다.
+  /// 직전 렌더가 트리까지 걷어 낸 때(성공이든 실패든 포기든). 다음 렌더가 이어서 시작합니다.
   static Future<void> _inFlight = Future<void>.value();
 
   @override
   Future<Uint8List> render(Widget widget, Size logicalSize) {
+    final cleaned = Completer<void>();
     final result = _inFlight.then((_) {
       var abandoned = false;
       final run = _renderOnce(widget, logicalSize, abandoned: () => abandoned);
-      // 시간 초과면 포기를 알려 렌더가 다음 차례에 멈추고 트리를 걷어 내게 하고, 그 뒤에
-      // 끝나는 렌더의 결과·오류는 버립니다.
+      // 다음 렌더는 이 렌더의 정리가 끝난 뒤 시작합니다(포기한 렌더와 겹치지 않게). 정리마저
+      // 끝나지 않는 경우(캡처가 멈춤)에도 뒤 렌더를 영원히 막지 않도록 상한의 두 배까지만 기다립니다.
+      cleaned.complete(
+        run
+            .then<void>((_) {}, onError: (Object _) {})
+            .timeout(renderTimeout * 2, onTimeout: () {}),
+      );
+      // 시간 초과면 호출자에게는 바로 알리고, 렌더에는 포기를 알려 다음 차례에 멈추고 트리를
+      // 걷어 내게 합니다. 그 뒤에 끝나는 렌더의 결과·오류는 버립니다.
       return run.timeout(
         renderTimeout,
         onTimeout: () {
@@ -89,7 +97,7 @@ final class PngOffscreenRenderer implements OffscreenRenderer {
         },
       );
     });
-    _inFlight = result.then<void>((_) {}, onError: (Object _) {});
+    _inFlight = cleaned.future;
     return result;
   }
 

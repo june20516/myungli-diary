@@ -187,38 +187,38 @@ void main() {
       expect(outcomes.$2, isNotEmpty);
     });
 
-    testWidgets('시간 초과로 포기한 렌더는 곧 트리를 걷어 내고 다음 렌더는 정상이며 handler는 그대로입니다', (
+    testWidgets('시간 초과로 포기한 렌더는 트리를 걷어 낸 뒤에야 다음 렌더가 시작하고 handler는 그대로입니다', (
       tester,
     ) async {
       _recordErrors();
       final before = FlutterError.onError;
-      var disposed = false;
-      final timedOut = await tester.runAsync(() async {
+      final events = <String>[];
+      final outcome = await tester.runAsync(() async {
         // 잠잠해지지 않는 내용이라 포기하지 않으면 내부 대기 상한(3초)까지 돕니다.
-        final error =
+        final timedOut =
             await const PngOffscreenRenderer(
                   renderTimeout: Duration(milliseconds: 50),
                 )
                 .render(
-                  _Restless(onDispose: () => disposed = true),
+                  _Restless(onDispose: () => events.add('이전 정리')),
                   const Size(10, 10),
                 )
                 .then<Object?>((_) => null, onError: (Object e) => e);
-        // 포기 신호를 받은 렌더는 다음 차례(25ms)에 멈추고 트리를 걷어 냅니다(owner dispose).
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-        return error;
-      });
-      expect(timedOut, isA<OffscreenRenderTimeout>());
-      expect(disposed, isTrue, reason: '포기한 렌더의 트리가 걷혔습니다');
-
-      // 진행 중 렌더 자리가 풀려 다음 렌더가 바로 정상으로 그립니다.
-      final png = (await tester.runAsync(
-        () => _renderer.render(
-          const ColoredBox(color: _green),
+        // 호출자는 시간 초과를 바로 받고, 다음 렌더를 곧바로 부릅니다.
+        events.add('시간 초과 반환');
+        final png = await _renderer.render(
+          _OnStart(
+            onStart: () => events.add('다음 시작'),
+            child: const ColoredBox(color: _green),
+          ),
           const Size(10, 10),
-        ),
-      ))!;
-      final decoded = (await tester.runAsync(() => _decode(png)))!;
+        );
+        return (timedOut, png);
+      });
+      expect(outcome!.$1, isA<OffscreenRenderTimeout>());
+      // 포기한 렌더의 트리(owner)가 먼저 걷히고 나서 다음 렌더가 시작합니다.
+      expect(events, ['시간 초과 반환', '이전 정리', '다음 시작']);
+      final decoded = (await tester.runAsync(() => _decode(outcome.$2)))!;
       expect(decoded.pixel, _green);
       expect(identical(FlutterError.onError, before), isTrue);
     });
@@ -274,6 +274,28 @@ class _RestlessState extends State<_Restless> {
   @override
   Widget build(BuildContext context) =>
       ColoredBox(color: Color(0xFF000000 | _ticks));
+}
+
+/// 처음 그려질 때 [onStart]를 부르는 위젯(렌더 시작 시점 기록).
+class _OnStart extends StatefulWidget {
+  const new({required this.onStart, required this.child});
+
+  final VoidCallback onStart;
+  final Widget child;
+
+  @override
+  State<_OnStart> createState() => _OnStartState();
+}
+
+class _OnStartState extends State<_OnStart> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onStart();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class _Boom extends StatelessWidget {
