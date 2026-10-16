@@ -71,7 +71,7 @@ Widget _luckyCard() => Builder(
           variant: LuckyCardVariant.direction,
           name: ja ? 'ラッキー方位' : '행운 방향',
           value: ja ? '東' : '동',
-          explain: text('동쪽에서 좋은 기운이 들어와요.', '東から良い気が入ってきます。'),
+          explain: text('약속 장소를 고른다면 동쪽이 좋아요.', '方位の説明文です。'),
         ),
         LuckyItem(
           variant: LuckyCardVariant.number,
@@ -143,7 +143,7 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
             variant: LuckyCardVariant.direction,
             name: ja ? 'ラッキー方位' : '행운 방향',
             value: ja ? '東' : '동',
-            explain: text('동쪽에서 좋은 기운이 들어와요.', '東から良い気が入ってきます。'),
+            explain: text('약속 장소를 고른다면 동쪽이 좋아요.', '方位の説明文です。'),
           ),
           LuckyItem(
             variant: LuckyCardVariant.number,

@@ -35,7 +35,7 @@ List<LuckyItem> _items() => [
     variant: LuckyCardVariant.direction,
     name: '행운 방향',
     value: '동',
-    explain: _text('동쪽에서 좋은 기운이 들어와요.'),
+    explain: _text('약속 장소를 고른다면 동쪽이 좋아요.'),
   ),
   LuckyItem(
     variant: LuckyCardVariant.number,
@@ -99,13 +99,16 @@ void main() {
       await tester.pumpWidget(_app());
       await _tap(tester, LuckyCardVariant.direction);
       expect(
-        find.text('동쪽에서 좋은 기운이 들어와요.', findRichText: true),
+        find.text('약속 장소를 고른다면 동쪽이 좋아요.', findRichText: true),
         findsOneWidget,
       );
       expect(_explain(LuckyCardVariant.direction), findsOneWidget);
 
       await _tap(tester, LuckyCardVariant.direction);
-      expect(find.text('동쪽에서 좋은 기운이 들어와요.', findRichText: true), findsNothing);
+      expect(
+        find.text('약속 장소를 고른다면 동쪽이 좋아요.', findRichText: true),
+        findsNothing,
+      );
       expect(_explain(LuckyCardVariant.direction), findsNothing);
     });
 
@@ -518,7 +521,7 @@ void main() {
         await tester.pumpWidget(_app());
         await _tap(tester, LuckyCardVariant.direction);
         final data = _data(tester, _explain(LuckyCardVariant.direction));
-        expect(data.label, '동쪽에서 좋은 기운이 들어와요.');
+        expect(data.label, '약속 장소를 고른다면 동쪽이 좋아요.');
         expect(data.flagsCollection.isLiveRegion, isTrue);
         handle.dispose();
       });
