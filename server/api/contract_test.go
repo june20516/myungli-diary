@@ -948,7 +948,7 @@ func TestContract_Draft5Additions(t *testing.T) {
 	}{
 		{"SlotText 빈 문장 규칙", "빈 `segments`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
 		{"SlotText reactable", "daily.fortune.head", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
-		{"SlotText 선택 문장 생략", "선택 문장 필드(`todayReason`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText 선택 문장 생략", "선택 문장 필드(`todayReason`·`Evidence.basis`·`Evidence.source`)는 생략합니다", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
 		{"SlotText variant 유형", "`advice`·`state`·`care`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
 		{"SlotText variant 가이드", "`1`·`2`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
 		{"SlotText variant single", "`single`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
