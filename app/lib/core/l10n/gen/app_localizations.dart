@@ -1606,6 +1606,150 @@ abstract class AppLocalizations {
   /// **'계산 기준'**
   String get calcBasisTitle;
 
+  /// 임시. calendar 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'달력'**
+  String get calendarBarTitle;
+
+  /// 임시. event-edit 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'일정'**
+  String get eventEditBarTitle;
+
+  /// 임시. 달력 이전 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 달'**
+  String get calendarPrevMonth;
+
+  /// 임시. 달력 다음 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 달'**
+  String get calendarNextMonth;
+
+  /// 임시. 달력 달 제목의 스크린리더 라벨. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년 {month}월'**
+  String calendarMonthLabel(int year, int month);
+
+  /// 임시. 달력 칸 접근성 라벨 조각: 날짜와 요일(칸 라벨은 조각을 쉼표로 이음). writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 {day}일 {weekday}'**
+  String dayCellDate(int month, int day, String weekday);
+
+  /// 임시. 달력 칸 접근성 라벨 조각: 음력 날짜. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'음력 {month}월 {day}일'**
+  String dayCellLunar(int month, int day);
+
+  /// 임시. 달력 칸 접근성 라벨 조각: 윤달 표시. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'윤달'**
+  String get dayCellLeapMonth;
+
+  /// 임시. 달력 칸 접근성 라벨 조각: 일정 개수. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 {count, plural, other{{count}개}}'**
+  String dayCellEventCount(int count);
+
+  /// 임시. 달력 칸 접근성 라벨 조각: 일기 쓴 날. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 씀'**
+  String get dayCellDiaryWritten;
+
+  /// 임시. 달력 칸 접근성 라벨 조각: 오늘. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get dayCellToday;
+
+  /// 임시. event-row 첫 일정 뒤 나머지 개수. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'외 {count, plural, other{{count}개}}'**
+  String eventRowMore(int count);
+
+  /// 임시. event-row 하루 종일 일정 시각 자리. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 종일'**
+  String get eventRowAllDay;
+
+  /// 임시. event-row 스크린리더 라벨 틀. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'{status} {time} {title}'**
+  String eventRowLabel(String status, String time, String title);
+
+  /// 임시. today.event.summary: 다음 시각 일정. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 {time} {title}'**
+  String todayEventSummaryNextAt(String time, String title);
+
+  /// 임시. today.event.summary: 모두 지난 오늘 일정 개수 문장. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 일정 {count, plural, other{{count}개}} 모두 지났어요'**
+  String todayEventSummaryAllPast(int count);
+
+  /// 임시. event-edit 종일 전환 이름. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 종일'**
+  String get eventEditAllDay;
+
+  /// 임시. event-edit 시간 지정 전환 이름. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'시간 지정'**
+  String get eventEditTimed;
+
+  /// 임시. event-edit 날짜 칸 이름. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜'**
+  String get eventEditDateLabel;
+
+  /// 임시. event-edit 시간 칸 이름. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'시간'**
+  String get eventEditTimeLabel;
+
+  /// 임시. event-edit 저장 버튼. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get eventEditSave;
+
+  /// 임시. event-edit 삭제 버튼. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 지우기'**
+  String get eventEditDelete;
+
+  /// 임시. event-edit 오프라인 배너. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷에 연결되어 있지 않아 저장할 수 없어요.'**
+  String get eventEditOfflineNotice;
+
+  /// 임시. event-edit 저장 실패 안내. writing 원고가 오면 writing 키로 바꿈(A38)
+  ///
+  /// In ko, this message translates to:
+  /// **'일정을 저장하지 못했어요. 다시 시도해 주세요.'**
+  String get eventEditSaveFailed;
+
   /// glossary.value_name: direction8.n
   ///
   /// In ko, this message translates to:

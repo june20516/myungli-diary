@@ -873,6 +873,114 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calcBasisTitle => 'Calculation basis';
 
   @override
+  String get calendarBarTitle => 'Calendar';
+
+  @override
+  String get eventEditBarTitle => 'Event';
+
+  @override
+  String get calendarPrevMonth => 'Previous month';
+
+  @override
+  String get calendarNextMonth => 'Next month';
+
+  @override
+  String calendarMonthLabel(int year, int month) {
+    return '$month/$year';
+  }
+
+  @override
+  String dayCellDate(int month, int day, String weekday) {
+    return '$weekday, $month/$day';
+  }
+
+  @override
+  String dayCellLunar(int month, int day) {
+    return 'Lunar $month/$day';
+  }
+
+  @override
+  String get dayCellLeapMonth => 'Leap month';
+
+  @override
+  String dayCellEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events',
+      one: '1 event',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dayCellDiaryWritten => 'Diary written';
+
+  @override
+  String get dayCellToday => 'Today';
+
+  @override
+  String eventRowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count more',
+      one: '+1 more',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventRowAllDay => 'All day';
+
+  @override
+  String eventRowLabel(String status, String time, String title) {
+    return '$status $time $title';
+  }
+
+  @override
+  String todayEventSummaryNextAt(String time, String title) {
+    return 'Next $time $title';
+  }
+
+  @override
+  String todayEventSummaryAllPast(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $count events today have passed',
+      one: 'Today\'s event has passed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventEditAllDay => 'All day';
+
+  @override
+  String get eventEditTimed => 'Set time';
+
+  @override
+  String get eventEditDateLabel => 'Date';
+
+  @override
+  String get eventEditTimeLabel => 'Time';
+
+  @override
+  String get eventEditSave => 'Save';
+
+  @override
+  String get eventEditDelete => 'Delete event';
+
+  @override
+  String get eventEditOfflineNotice =>
+      'You\'re offline, so this can\'t be saved.';
+
+  @override
+  String get eventEditSaveFailed =>
+      'Couldn\'t save the event. Please try again.';
+
+  @override
   String get direction8N => 'North';
 
   @override

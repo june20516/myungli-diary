@@ -811,6 +811,109 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calcBasisTitle => '계산 기준';
 
   @override
+  String get calendarBarTitle => '달력';
+
+  @override
+  String get eventEditBarTitle => '일정';
+
+  @override
+  String get calendarPrevMonth => '이전 달';
+
+  @override
+  String get calendarNextMonth => '다음 달';
+
+  @override
+  String calendarMonthLabel(int year, int month) {
+    return '$year년 $month월';
+  }
+
+  @override
+  String dayCellDate(int month, int day, String weekday) {
+    return '$month월 $day일 $weekday';
+  }
+
+  @override
+  String dayCellLunar(int month, int day) {
+    return '음력 $month월 $day일';
+  }
+
+  @override
+  String get dayCellLeapMonth => '윤달';
+
+  @override
+  String dayCellEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '일정 $_temp0';
+  }
+
+  @override
+  String get dayCellDiaryWritten => '일기 씀';
+
+  @override
+  String get dayCellToday => '오늘';
+
+  @override
+  String eventRowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '외 $_temp0';
+  }
+
+  @override
+  String get eventRowAllDay => '하루 종일';
+
+  @override
+  String eventRowLabel(String status, String time, String title) {
+    return '$status $time $title';
+  }
+
+  @override
+  String todayEventSummaryNextAt(String time, String title) {
+    return '다음 $time $title';
+  }
+
+  @override
+  String todayEventSummaryAllPast(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '오늘 일정 $_temp0 모두 지났어요';
+  }
+
+  @override
+  String get eventEditAllDay => '하루 종일';
+
+  @override
+  String get eventEditTimed => '시간 지정';
+
+  @override
+  String get eventEditDateLabel => '날짜';
+
+  @override
+  String get eventEditTimeLabel => '시간';
+
+  @override
+  String get eventEditSave => '저장';
+
+  @override
+  String get eventEditDelete => '일정 지우기';
+
+  @override
+  String get eventEditOfflineNotice => '인터넷에 연결되어 있지 않아 저장할 수 없어요.';
+
+  @override
+  String get eventEditSaveFailed => '일정을 저장하지 못했어요. 다시 시도해 주세요.';
+
+  @override
   String get direction8N => '북';
 
   @override

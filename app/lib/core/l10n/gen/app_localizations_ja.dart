@@ -810,6 +810,109 @@ class AppLocalizationsJa extends AppLocalizations {
   String get calcBasisTitle => '計算基準';
 
   @override
+  String get calendarBarTitle => 'カレンダー';
+
+  @override
+  String get eventEditBarTitle => '予定';
+
+  @override
+  String get calendarPrevMonth => '前の月';
+
+  @override
+  String get calendarNextMonth => '次の月';
+
+  @override
+  String calendarMonthLabel(int year, int month) {
+    return '$year年$month月';
+  }
+
+  @override
+  String dayCellDate(int month, int day, String weekday) {
+    return '$month月$day日 $weekday';
+  }
+
+  @override
+  String dayCellLunar(int month, int day) {
+    return '旧暦$month月$day日';
+  }
+
+  @override
+  String get dayCellLeapMonth => '閏月';
+
+  @override
+  String dayCellEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return '予定$_temp0';
+  }
+
+  @override
+  String get dayCellDiaryWritten => '日記あり';
+
+  @override
+  String get dayCellToday => '今日';
+
+  @override
+  String eventRowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return '他$_temp0';
+  }
+
+  @override
+  String get eventRowAllDay => '終日';
+
+  @override
+  String eventRowLabel(String status, String time, String title) {
+    return '$status $time $title';
+  }
+
+  @override
+  String todayEventSummaryNextAt(String time, String title) {
+    return '次は $time $title';
+  }
+
+  @override
+  String todayEventSummaryAllPast(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return '今日の予定$_temp0はすべて終わりました';
+  }
+
+  @override
+  String get eventEditAllDay => '終日';
+
+  @override
+  String get eventEditTimed => '時間を指定';
+
+  @override
+  String get eventEditDateLabel => '日付';
+
+  @override
+  String get eventEditTimeLabel => '時間';
+
+  @override
+  String get eventEditSave => '保存';
+
+  @override
+  String get eventEditDelete => '予定を削除';
+
+  @override
+  String get eventEditOfflineNotice => 'インターネットに接続されていないため保存できません。';
+
+  @override
+  String get eventEditSaveFailed => '予定を保存できませんでした。もう一度お試しください。';
+
+  @override
   String get direction8N => '北';
 
   @override

@@ -1107,6 +1107,163 @@
   "@calcBasisTitle": {
     "description": "임시. 계산 기준(calc-basis) 화면 제목. IA 제목 슬롯이 생기면 writing 키로 바꿈(A30)"
   },
+  "calendarBarTitle": "달력",
+  "@calendarBarTitle": {
+    "description": "임시. calendar 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditBarTitle": "일정",
+  "@eventEditBarTitle": {
+    "description": "임시. event-edit 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "calendarPrevMonth": "이전 달",
+  "@calendarPrevMonth": {
+    "description": "임시. 달력 이전 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "calendarNextMonth": "다음 달",
+  "@calendarNextMonth": {
+    "description": "임시. 달력 다음 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "calendarMonthLabel": "{year}년 {month}월",
+  "@calendarMonthLabel": {
+    "description": "임시. 달력 달 제목의 스크린리더 라벨. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCellDate": "{month}월 {day}일 {weekday}",
+  "@dayCellDate": {
+    "description": "임시. 달력 칸 접근성 라벨 조각: 날짜와 요일(칸 라벨은 조각을 쉼표로 이음). writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "dayCellLunar": "음력 {month}월 {day}일",
+  "@dayCellLunar": {
+    "description": "임시. 달력 칸 접근성 라벨 조각: 음력 날짜. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCellLeapMonth": "윤달",
+  "@dayCellLeapMonth": {
+    "description": "임시. 달력 칸 접근성 라벨 조각: 윤달 표시. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "dayCellEventCount": "일정 {count, plural, other{{count}개}}",
+  "@dayCellEventCount": {
+    "description": "임시. 달력 칸 접근성 라벨 조각: 일정 개수. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCellDiaryWritten": "일기 씀",
+  "@dayCellDiaryWritten": {
+    "description": "임시. 달력 칸 접근성 라벨 조각: 일기 쓴 날. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "dayCellToday": "오늘",
+  "@dayCellToday": {
+    "description": "임시. 달력 칸 접근성 라벨 조각: 오늘. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventRowMore": "외 {count, plural, other{{count}개}}",
+  "@eventRowMore": {
+    "description": "임시. event-row 첫 일정 뒤 나머지 개수. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventRowAllDay": "하루 종일",
+  "@eventRowAllDay": {
+    "description": "임시. event-row 하루 종일 일정 시각 자리. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventRowLabel": "{status} {time} {title}",
+  "@eventRowLabel": {
+    "description": "임시. event-row 스크린리더 라벨 틀. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "todayEventSummaryNextAt": "다음 {time} {title}",
+  "@todayEventSummaryNextAt": {
+    "description": "임시. today.event.summary: 다음 시각 일정. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "todayEventSummaryAllPast": "오늘 일정 {count, plural, other{{count}개}} 모두 지났어요",
+  "@todayEventSummaryAllPast": {
+    "description": "임시. today.event.summary: 모두 지난 오늘 일정 개수 문장. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventEditAllDay": "하루 종일",
+  "@eventEditAllDay": {
+    "description": "임시. event-edit 종일 전환 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditTimed": "시간 지정",
+  "@eventEditTimed": {
+    "description": "임시. event-edit 시간 지정 전환 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditDateLabel": "날짜",
+  "@eventEditDateLabel": {
+    "description": "임시. event-edit 날짜 칸 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditTimeLabel": "시간",
+  "@eventEditTimeLabel": {
+    "description": "임시. event-edit 시간 칸 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditSave": "저장",
+  "@eventEditSave": {
+    "description": "임시. event-edit 저장 버튼. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditDelete": "일정 지우기",
+  "@eventEditDelete": {
+    "description": "임시. event-edit 삭제 버튼. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditOfflineNotice": "인터넷에 연결되어 있지 않아 저장할 수 없어요.",
+  "@eventEditOfflineNotice": {
+    "description": "임시. event-edit 오프라인 배너. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
+  "eventEditSaveFailed": "일정을 저장하지 못했어요. 다시 시도해 주세요.",
+  "@eventEditSaveFailed": {
+    "description": "임시. event-edit 저장 실패 안내. writing 원고가 오면 writing 키로 바꿈(A38)"
+  },
   "direction8N": "북",
   "@direction8N": {
     "description": "glossary.value_name: direction8.n"
