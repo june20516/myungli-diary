@@ -52,7 +52,8 @@ Future<bool> _existsOrFalse(Ref ref, CalendarDate date) async {
   }
 }
 
-/// 보이는 달 [CalendarMonth] 격자(gridStart~gridEnd)에서 일기를 쓴 날짜. 달력 도장(V19)을
+/// 보이는 달 [CalendarMonth] 격자에서 일기를 쓴 날짜. 범위는 지원 날짜로 자른 격자
+/// (`supportedGridStart`~`supportedGridEnd`, D41)입니다. 달력 도장(V19)을
 /// 찍습니다(A33).
 ///
 /// 저장하지 않습니다(구독이 끝나면 버림, 다음 진입에서 다시 물음). 실패하면 빈 집합이라
@@ -64,7 +65,10 @@ diaryDatesProvider = FutureProvider.autoDispose
     .family<Set<CalendarDate>, CalendarMonth>((ref, month) async {
       final repository = ref.watch(diaryRepositoryProvider);
       try {
-        return await repository.datesIn(month.gridStart, month.gridEnd);
+        return await repository.datesIn(
+          month.supportedGridStart,
+          month.supportedGridEnd,
+        );
       } on Object catch (error, stackTrace) {
         if (!isConnectivityError(error)) {
           ref

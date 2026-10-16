@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
@@ -50,7 +51,7 @@ Schedule _morning() => Schedule.fromJson(memberSchedules()[1]);
 /// member 시나리오로 앱을 띄우고 event-edit을 엽니다. [extra]가 있으면 수정 모드입니다.
 Future<ProviderContainer> _open(
   WidgetTester tester, {
-  String location = '/event-edit?date=2026-10-20',
+  String? location,
   Schedule? extra,
   List<Override> overrides = const [],
   bool allowOngoing = false,
@@ -60,7 +61,9 @@ Future<ProviderContainer> _open(
     scenario: 'member',
     overrides: overrides,
   );
-  unawaited(container.read(routerProvider).push<void>(location, extra: extra));
+  final target =
+      location ?? datedPathOf(ScreenIds.eventEdit, CalendarDate(2026, 10, 20));
+  unawaited(container.read(routerProvider).push<void>(target, extra: extra));
   await settleWithIo(tester, allowOngoing: allowOngoing);
   if (!allowOngoing) {
     await _waitCharacterLine(tester);
@@ -409,7 +412,9 @@ void main() {
       scenario: 'member',
       overrides: [_repositoryOf(server)],
     );
-    container.read(routerProvider).go('/event-edit?date=2026-10-20');
+    container
+        .read(routerProvider)
+        .go(datedPathOf(ScreenIds.eventEdit, CalendarDate(2026, 10, 20)));
     await settleWithIo(tester);
     await _waitCharacterLine(tester);
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);

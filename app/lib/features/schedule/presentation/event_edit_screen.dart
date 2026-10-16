@@ -38,9 +38,6 @@ import 'package:myungli_diary/features/schedule/model/schedule_gone.dart';
 ///   provider가 없어 실패로 알고, 입력은 지키며 저장은 다시 누를 수 있습니다(D47②).
 const Set<String> eventEditHandledStates = {'loading', 'error', 'offline'};
 
-/// 날짜를 담는 query 이름(`/event-edit?date=YYYY-MM-DD`).
-const String eventEditDateQuery = 'date';
-
 /// 제목 글자 수 상한(계약 `ScheduleInput.title`).
 const int _titleMaxLength = 100;
 
@@ -84,7 +81,7 @@ class EventEditScreen extends ConsumerWidget {
     final original = extra is Schedule ? extra : null;
     final today = ref.read(todayProvider);
     final initialDate =
-        _dateOf(routeState.uri.queryParameters[eventEditDateQuery]) ?? today;
+        _dateOf(routeState.uri.queryParameters[dateQuery]) ?? today;
     final saving = ref.watch(scheduleEditorProvider);
     // 저장·삭제 중에는 뒤로 가기(기기·app-bar 모두 이 route의 pop을 거침)를 막습니다.
     // 결과를 기다리는 동안 화면이 사라지면 실패를 알릴 곳이 없습니다.

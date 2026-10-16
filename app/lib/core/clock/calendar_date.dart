@@ -141,6 +141,23 @@ final class CalendarMonth {
   /// 격자 마지막 칸(42번째 칸).
   CalendarDate get gridEnd => gridStart.addDays(_gridCellCount - 1);
 
+  /// 격자 첫 칸을 지원 범위([CalendarDate.supportedFirst]) 안으로 자른 날짜.
+  ///
+  /// 격자 범위로 server에 묻는 요청(일정·일기)이 범위 밖 날짜(1900-01 격자의 1899-12-31,
+  /// 1900-01-01~30 등)를 보내지 않게 씁니다.
+  CalendarDate get supportedGridStart {
+    final start = gridStart;
+    final first = CalendarDate.supportedFirst;
+    return start.compareTo(first) < 0 ? first : start;
+  }
+
+  /// 격자 마지막 칸을 지원 범위([CalendarDate.supportedLast]) 안으로 자른 날짜.
+  CalendarDate get supportedGridEnd {
+    final end = gridEnd;
+    final last = CalendarDate.supportedLast;
+    return end.compareTo(last) > 0 ? last : end;
+  }
+
   /// 일요일 시작 6주 42칸.
   List<CalendarDate> get gridDays {
     final start = gridStart;

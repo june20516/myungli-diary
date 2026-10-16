@@ -52,6 +52,20 @@ void main() {
       expect(const CalendarMonth(2099, 12).next().isSupported, isFalse);
     });
 
+    test('supportedGridStart·End는 격자를 지원 날짜 범위로 자릅니다', () {
+      const first = CalendarMonth(1900, 1);
+      expect(first.gridStart.isSupported, isFalse);
+      expect(first.supportedGridStart, CalendarDate.supportedFirst);
+      expect(first.supportedGridEnd, first.gridEnd);
+      const last = CalendarMonth(2099, 12);
+      expect(last.gridEnd.isSupported, isFalse);
+      expect(last.supportedGridStart, last.gridStart);
+      expect(last.supportedGridEnd, CalendarDate.supportedLast);
+      const october = CalendarMonth(2026, 10);
+      expect(october.supportedGridStart, october.gridStart);
+      expect(october.supportedGridEnd, october.gridEnd);
+    });
+
     test('next·previous는 해를 넘긴다', () {
       expect(
         const CalendarMonth(2026, 12).next(),

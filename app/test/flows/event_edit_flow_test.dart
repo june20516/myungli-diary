@@ -44,7 +44,11 @@ Future<ProviderContainer> _createHike(
   );
   addTearDown(grid.close);
   unawaited(
-    container.read(routerProvider).push<void>('/event-edit?date=2026-10-25'),
+    container
+        .read(routerProvider)
+        .push<void>(
+          datedPathOf(ScreenIds.eventEdit, CalendarDate(2026, 10, 25)),
+        ),
   );
   await settleWithIo(tester);
   await tester.enterText(
@@ -104,7 +108,11 @@ void main() {
   testWidgets('일정 편집을 연 채 로그아웃하면 member 가드로 welcome에 갑니다', (tester) async {
     final container = await pumpApp(tester, scenario: 'member');
     unawaited(
-      container.read(routerProvider).push<void>('/event-edit?date=2026-10-25'),
+      container
+          .read(routerProvider)
+          .push<void>(
+            datedPathOf(ScreenIds.eventEdit, CalendarDate(2026, 10, 25)),
+          ),
     );
     await settleWithIo(tester);
     expect(_screen, findsOneWidget);

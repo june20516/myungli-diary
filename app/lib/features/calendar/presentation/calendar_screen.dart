@@ -31,6 +31,7 @@ import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
+import 'package:myungli_diary/features/schedule/model/schedule_range.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// IA `calendar`가 직접 처리하는 상태.
@@ -38,9 +39,6 @@ const Set<String> calendarHandledStates = {'loading', 'error', 'offline'};
 
 /// IA `calendar`의 출구 대상: 날짜 누름 → `day-sheet`, 일정 추가 → `event-edit`.
 const Set<String> calendarExits = {ScreenIds.daySheet, ScreenIds.eventEdit};
-
-/// event-edit의 날짜 query 이름(`/event-edit?date=YYYY-MM-DD`).
-const String _eventEditDateQuery = 'date';
 
 const AppGlyph _plus = AppGlyph(
   light: PhosphorIconsLight.plus,
@@ -54,11 +52,15 @@ const AppGlyph _plus = AppGlyph(
 ///   전까지는 "오늘"을 따라가므로, 화면을 연 채 자정을 넘기면 선택과 달도 함께 옮겨 갑니다.
 /// * 달 길흉은 달마다 따로 받고([calendarMonthProvider]), 보이는 달의 앞뒤 달을 미리
 ///   받습니다([calendarPrefetchProvider]). 늦게 온 다른 달 응답은 보이는 달을 바꾸지 않습니다.
-/// * 받는 중에는 격자의 길흉·도장 자리만 skeleton이고(`loading`), 받지 못하면 격자 아래에
-///   오류와 다시 시도를 보입니다(`error`). 달 넘김은 그대로 쓸 수 있습니다.
+/// * 받는 중에는 격자의 길흉·도장 자리만 skeleton이고(`loading`), 받지 못하면 격자 위에
+///   오류와 다시 시도를 보입니다(`error`). 작은 화면에서도 먼저 보이고, 아래 격자의 달
+///   넘김은 그대로 쓸 수 있습니다.
 /// * 값을 들고 다시 받는 중(잠금 해제 뒤 등)에는 값을 그대로 보여 skeleton이 깜빡이지
 ///   않습니다. 보이는 달의 요청이 연결 오류로 실패하면 받아 둔 달 위에 오프라인 배너를
 ///   보입니다(`offline`). 받은 적 없는 달은 오프라인 오류입니다.
+/// * 일정·일기는 지원 날짜로 자른 격자 범위로 묻습니다(1900-01·2099-12 격자의 범위 밖
+///   날짜를 보내지 않음, D41). 일정 범위는 오류여도 붙들려 남으므로, 화면에 들어올 때·달을
+///   넘길 때·다시 시도할 때 오류로 남은 범위를 다시 받습니다(연결이 돌아오면 배너가 걷힘).
 class CalendarScreen extends ConsumerStatefulWidget {
   /// calendar 화면을 만듭니다.
   const new({super.key});
@@ -77,20 +79,64 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// 사용자가 고른 날. null이면 오늘입니다.
   CalendarDate? _picked;
 
+  /// [month] 격자의 일정 범위. 지원 날짜 밖은 자릅니다(D41).
+  static ScheduleRange _rangeOf(CalendarMonth month) =>
+      (from: month.supportedGridStart, to: month.supportedGridEnd);
+
+  @override
+  void initState() {
+    super.initState();
+    // 이전에 연결 오류로 남은 범위가 있으면 화면에 들어올 때 다시 받습니다. 첫 build 전에
+    // provider를 바꾸지 않도록 프레임 뒤에 합니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _refetchFailedSchedules(_visibleMonth);
+    });
+  }
+
+  CalendarMonth get _visibleMonth =>
+      _month ?? CalendarMonth.of(ref.read(todayProvider));
+
+  /// [month] 격자의 일정 범위가 오류로 남아 있으면 다시 받게 합니다.
+  ///
+  /// 여러 날 범위는 오류여도 붙들려(keepAlive) 있어서, 그대로 두면 연결이 돌아와도 오류와
+  /// 오프라인 배너가 남고 점이 없습니다.
+  void _refetchFailedSchedules(CalendarMonth month) {
+    final provider = schedulesInRangeProvider(_rangeOf(month));
+    if (!ref.exists(provider)) {
+      return;
+    }
+    final schedules = ref.read(provider);
+    if (schedules.hasError && !schedules.isLoading) {
+      ref.invalidate(provider);
+    }
+  }
+
+  /// 날을 고르면 그 날이 든 달도 고정합니다. 오늘을 따라가는 달에 남겨 두면 달 경계 자정에
+  /// 고른 날이 보이지 않는 달로 넘어갑니다.
   void _select(CalendarDate date) {
-    setState(() => _picked = date);
+    setState(() {
+      _picked = date;
+      _month ??= CalendarMonth.of(ref.read(todayProvider));
+    });
     unawaited(ref.read(daySheetsProvider).open(context, date));
   }
 
-  void _changeMonth(CalendarMonth month) => setState(() => _month = month);
+  void _changeMonth(CalendarMonth month) {
+    _refetchFailedSchedules(month);
+    setState(() => _month = month);
+  }
+
+  /// 달 오류의 다시 시도: 달과 함께, 같은 연결 오류로 비었을 일정·일기도 다시 받습니다.
+  void _retry(CalendarMonth month) {
+    ref
+      ..invalidate(calendarMonthProvider(month))
+      ..invalidate(diaryDatesProvider(month));
+    _refetchFailedSchedules(month);
+  }
 
   /// 고른 날(없으면 오늘)의 새 일정 화면으로 갑니다.
   void _addEvent(CalendarDate selected) {
-    final location = Uri(
-      path: pathOf(ScreenIds.eventEdit),
-      queryParameters: {_eventEditDateQuery: selected.toIso()},
-    ).toString();
-    unawaited(context.push<void>(location));
+    unawaited(context.push<void>(datedPathOf(ScreenIds.eventEdit, selected)));
   }
 
   /// 예상하지 못한 달 오류(분류되지 않은 오류)는 사용자 눈에 일반 오류뿐이라 요약을 남깁니다.
@@ -125,9 +171,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ..listen(monthProvider, _reportUnexpected)
       // 구독하는 동안 앞뒤 달을 받아 둡니다.
       ..watch(calendarPrefetchProvider(month));
-    final schedules = ref.watch(
-      schedulesInRangeProvider((from: month.gridStart, to: month.gridEnd)),
-    );
+    final schedules = ref.watch(schedulesInRangeProvider(_rangeOf(month)));
     final diaryDates =
         ref.watch(diaryDatesProvider(month)).value ?? const <CalendarDate>{};
     final names = ref.watch(glossaryProvider).value;
@@ -135,6 +179,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     // 값이 있으면 다시 받는 중이어도 값을 그대로 보입니다(skeleton 깜빡임 없음).
     final loading = !calendar.hasValue && calendar.isLoading;
     final failure = calendar.hasValue || loading ? null : calendar.error;
+    // 값이 있는 달의 다시 받기가 연결 오류가 아닌 오류(5xx 등)로 실패하면 옛 값을 그대로
+    // 보이고 따로 알리지 않습니다. 값은 여전히 그 달의 길흉이고, 고칠 수 있는 동작이 없기
+    // 때문입니다(ScreenStateView의 기본 동작과 같음).
     final offline =
         calendar.hasValue &&
         (calendar.error is OfflineError || schedules.error is OfflineError);
@@ -182,7 +229,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   cellOf: cells.cellOf,
                   onSelect: _select,
                   onMonthChange: _changeMonth,
-                  onRetry: () => ref.invalidate(monthProvider),
+                  onRetry: () => _retry(month),
                 ),
               ),
             ],
@@ -243,6 +290,14 @@ class _CalendarBody extends StatelessWidget {
             message: l10n.noticeOffline,
             present: offline,
           ),
+          // 오류는 격자 위에 둬 작은 화면에서도 스크롤 없이 보이게 합니다.
+          if (failure != null) ...[
+            ErrorState(
+              error: failure is AppError ? failure : UnexpectedError(failure),
+              onRetry: onRetry,
+            ),
+            const SizedBox(height: Space.s24),
+          ],
           CalendarMonthView(
             month: month,
             title: DateFormat.yMMMM(locale)
@@ -254,7 +309,7 @@ class _CalendarBody extends StatelessWidget {
             selected: selected,
             onSelect: onSelect,
             onMonthChange: onMonthChange,
-            // 오류일 때는 칠한 칸이 없으므로 범례 대신 오류를 둡니다.
+            // 오류일 때는 칠한 칸이 없으므로 범례를 두지 않습니다.
             legend: failure == null
                 ? [
                     (
@@ -269,13 +324,6 @@ class _CalendarBody extends StatelessWidget {
                 : null,
             legendIdentifier: SlotIds.calendarLegendBody,
           ),
-          if (failure != null) ...[
-            const SizedBox(height: Space.s24),
-            ErrorState(
-              error: failure is AppError ? failure : UnexpectedError(failure),
-              onRetry: onRetry,
-            ),
-          ],
         ],
       ),
     );

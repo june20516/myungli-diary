@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -29,6 +30,9 @@ final _today = CalendarDate(2026, 10, 13);
 /// 끝날 때까지 붙잡습니다. [offline]이 켜지면 모든 요청을 연결 오류로 끊습니다.
 final class _Network extends Interceptor {
   final calendarPaths = <String>[];
+
+  /// 일정·일기 목록 요청의 query(`from`·`to`).
+  final listQueries = <String, List<Map<String, dynamic>>>{};
   final hold = <String, Completer<void>>{};
   bool offline = false;
 
@@ -47,6 +51,11 @@ final class _Network extends Interceptor {
       );
       return;
     }
+    if (options.path == '/v1/schedules' || options.path == '/v1/diaries') {
+      listQueries
+          .putIfAbsent(options.path, () => [])
+          .add(Map.of(options.queryParameters));
+    }
     if (options.path.startsWith('/v1/calendar/')) {
       calendarPaths.add(options.path);
       final gate = hold[options.path];
@@ -60,17 +69,29 @@ final class _Network extends Interceptor {
 
 /// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
 final class _TestToday extends Notifier<CalendarDate> {
+  new(this._start);
+
+  final CalendarDate _start;
+
   @override
-  CalendarDate build() => _today;
+  CalendarDate build() => _start;
 
   CalendarDate get date => state;
 
   set date(CalendarDate value) => state = value;
 }
 
-final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
-  _TestToday.new,
-);
+/// [start]에서 시작하는 손 "오늘"과 그것을 [todayProvider]에 잇는 override.
+({NotifierProvider<_TestToday, CalendarDate> provider, Override override})
+_todayFrom(CalendarDate start) {
+  final provider = NotifierProvider<_TestToday, CalendarDate>(
+    () => _TestToday(start),
+  );
+  return (
+    provider: provider,
+    override: todayProvider.overrideWith((ref) => ref.watch(provider)),
+  );
+}
 
 /// [scenario]로 앱을 띄우고 달력 탭으로 갑니다. [network]는 대역 서버 바로 앞에 끼웁니다.
 Future<ProviderContainer> _openCalendar(
@@ -309,19 +330,162 @@ void main() {
     final error = tester.widget<ErrorState>(find.byType(ErrorState));
     expect(error.variant, ErrorStateVariant.offline);
     expect(error.onRetry, isNotNull);
+
+    // 연결이 돌아온 뒤 배너만 떴던 달로 돌아가면 오류로 남은 일정 범위를 다시 받습니다.
+    network.offline = false;
+    await tester.tap(find.byKey(CalendarMonthView.prevKey));
+    await settleWithIo(tester);
+    expect(_monthView(tester).month, const CalendarMonth(2026, 11));
+    expect(_offlineBanner, findsNothing);
+  });
+
+  testWidgets('offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다', (
+    tester,
+  ) async {
+    covers(const Covers(states: ['calendar:offline', 'calendar:error']));
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    network.offline = true;
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.1')));
+    await settleWithIo(tester);
+    final error = find.byType(ErrorState);
+    expect(tester.widget<ErrorState>(error).variant, ErrorStateVariant.offline);
+
+    network.offline = false;
+    await tester.tap(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+    );
+    await settleWithIo(tester);
+    expect(find.byType(ErrorState), findsNothing);
+    expect(_offlineBanner, findsNothing);
+    final today = _cell(tester, _today).data;
+    expect(today.luck, DayLuck.good);
+    expect(today.eventCount, 3);
+    expect(_cell(tester, CalendarDate(2026, 10, 12)).data.diaryWritten, isTrue);
+  });
+
+  testWidgets('작은 화면에서도 오류와 다시 시도가 스크롤 없이 보입니다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(320, 568)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _openCalendar(tester, scenario: 'calendar-error');
+
+    final retry = tester.getRect(find.text(_ko.actionRetry));
+    final barTop = tester
+        .getRect(find.byKey(const ValueKey('bottom-bar.surface')))
+        .top;
+    expect(retry.top, greaterThanOrEqualTo(0));
+    expect(retry.bottom, lessThanOrEqualTo(barTop));
+  });
+
+  testWidgets('잠금 해제 정리로 다시 받는 동안 skeleton으로 깜빡이지 않습니다', (tester) async {
+    final network = _Network();
+    final container = await _openCalendar(tester, network: network);
+    network.hold['/v1/calendar/2026/10'] = Completer<void>();
+
+    await tester.runAsync(
+      () => container.read(calendarUnlockSyncProvider).forgetLocked(),
+    );
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(_monthView(tester).loading, isFalse);
+      expect(_cell(tester, _today).data.luck, DayLuck.good);
+    }
+    expect(find.byKey(CalendarMonthView.fillBoneKey), findsNothing);
+    network.hold.remove('/v1/calendar/2026/10')!.complete();
+    await settleWithIo(tester);
+    expect(_cell(tester, _today).data.luck, DayLuck.good);
+  });
+
+  testWidgets('빠르게 넘겼다 돌아오면 늦게 온 다른 달 응답이 보이는 달을 덮지 않습니다', (tester) async {
+    final network = _Network();
+    final gate = Completer<void>();
+    network.hold['/v1/calendar/2026/11'] = gate;
+    await _openCalendar(tester, network: network);
+
+    await tester.tap(find.byKey(CalendarMonthView.nextKey));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(_monthView(tester).month, const CalendarMonth(2026, 11));
+    await tester.tap(find.byKey(CalendarMonthView.prevKey));
+    await tester.pump(const Duration(milliseconds: 50));
+
+    gate.complete();
+    await settleWithIo(tester);
+    final view = _monthView(tester);
+    expect(view.month, const CalendarMonth(2026, 10));
+    expect(view.title, '2026년 10월');
+    expect(_cell(tester, _today).data.luck, DayLuck.good);
+  });
+
+  testWidgets('2099-12에서는 다음 달로 가지 않고 일정·일기는 2099-12-31까지만 묻습니다(D41)', (
+    tester,
+  ) async {
+    final network = _Network();
+    await _openCalendar(
+      tester,
+      network: network,
+      overrides: [_todayFrom(CalendarDate(2099, 12, 15)).override],
+    );
+    expect(_monthView(tester).month, const CalendarMonth(2099, 12));
+    await tester.tap(find.byKey(CalendarMonthView.nextKey));
+    await settleWithIo(tester);
+    expect(_monthView(tester).month, const CalendarMonth(2099, 12));
+
+    for (final path in ['/v1/schedules', '/v1/diaries']) {
+      final query = network.listQueries[path]!.last;
+      expect(query['from'], '2099-11-29', reason: path);
+      expect(query['to'], '2099-12-31', reason: path);
+    }
+  });
+
+  testWidgets('1900-01에서는 이전 달로 가지 않고 일정·일기는 1900-01-31부터 묻습니다(D41)', (
+    tester,
+  ) async {
+    final network = _Network();
+    await _openCalendar(
+      tester,
+      network: network,
+      overrides: [_todayFrom(CalendarDate(1900, 1, 31)).override],
+    );
+    expect(_monthView(tester).month, const CalendarMonth(1900, 1));
+    await tester.tap(find.byKey(CalendarMonthView.prevKey));
+    await settleWithIo(tester);
+    expect(_monthView(tester).month, const CalendarMonth(1900, 1));
+
+    for (final path in ['/v1/schedules', '/v1/diaries']) {
+      final query = network.listQueries[path]!.last;
+      expect(query['from'], '1900-01-31', reason: path);
+      expect(query['to'], '1900-02-10', reason: path);
+    }
+  });
+
+  testWidgets('날을 고른 뒤 달 경계 자정을 넘겨도 고른 날의 달에 머뭅니다', (tester) async {
+    final today = _todayFrom(CalendarDate(2026, 10, 31));
+    final container = await _openCalendar(tester, overrides: [today.override]);
+    final picked = CalendarDate(2026, 10, 20);
+    await tester.tap(find.byKey(CalendarMonthView.cellKey(picked)));
+    await settleWithIo(tester);
+    await tester.tapAt(const Offset(10, 10));
+    await settleWithIo(tester);
+
+    container.read(today.provider.notifier).date = CalendarDate(2026, 11, 1);
+    await settleWithIo(tester);
+    final view = _monthView(tester);
+    expect(view.month, const CalendarMonth(2026, 10));
+    expect(view.selected, picked);
+    expect(_cell(tester, picked).isSelected, isTrue);
   });
 
   testWidgets('화면을 연 채 자정을 넘기면 오늘 윤곽이 옮겨 갑니다', (tester) async {
-    final container = await _openCalendar(
-      tester,
-      overrides: [
-        todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
-      ],
-    );
+    final today = _todayFrom(_today);
+    final container = await _openCalendar(tester, overrides: [today.override]);
     expect(_cell(tester, _today).isToday, isTrue);
 
     final tomorrow = CalendarDate(2026, 10, 14);
-    container.read(_testTodayProvider.notifier).date = tomorrow;
+    container.read(today.provider.notifier).date = tomorrow;
     await settleWithIo(tester);
     expect(_cell(tester, _today).isToday, isFalse);
     expect(_cell(tester, tomorrow).isToday, isTrue);
