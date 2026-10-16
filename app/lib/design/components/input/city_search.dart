@@ -204,8 +204,8 @@ class _CitySearchState extends State<CitySearch> {
 /// 결과 줄의 지역 줄 글자("행정 구역, 나라 이름", `city-search.parts.region`).
 ///
 /// 이름이 있는 것만 ", "로 잇고 나라 코드([City.country])는 쓰지 않습니다.
-/// ja 구분자(", " / "、")는 design 확인 중입니다(#195). 둘 다 없으면
-/// null이라 줄을 그리지 않습니다. 계약에 지역 필드가 늘면 이 한 곳만 고칩니다.
+/// 둘 다 없으면 null이라 줄을 그리지 않습니다. 계약에 지역 필드가 늘면 이 한 곳만
+/// 고칩니다. ja 구분자(", " / "、")는 design 확인 중입니다(#195).
 String? cityRegionLine(City city) {
   final names = [
     city.regionName,
