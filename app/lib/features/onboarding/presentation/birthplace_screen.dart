@@ -177,7 +177,8 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final edit = widget.mode == OnboardingStepMode.edit;
-    return InputStep(
+    // 도시를 누르면 곧바로 다음으로 가므로 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`).
+    return InputStep.selectToAdvance(
       screenId: ScreenIds.birthplace,
       variant: edit ? InputStepVariant.standalone : InputStepVariant.onboarding,
       step: edit ? null : 5,
@@ -196,10 +197,6 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       ),
       help: l10n.birthplaceWhyBody,
       helpIdentifier: SlotIds.birthplaceWhyBody,
-      actionLabel: edit ? l10n.onboardingSave : l10n.onboardingNext,
-      actionLoading: _saving,
-      // 도시를 누르면 곧바로 다음으로 가므로 눌러서 쓰는 버튼은 아닙니다(건너뛰기 출구 없음).
-      onAction: null,
     );
   }
 }

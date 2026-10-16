@@ -75,7 +75,13 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
           WidgetbookUseCase(
             name: variant.id,
             builder: (context) => Stage(
-              child: DepthLink(variant: variant, label: '근거 보기', onTap: () {}),
+              child: DepthLink(
+                variant: variant,
+                label: variant == DepthLinkVariant.navigate
+                    ? '계산 기준 보기'
+                    : '근거 보기',
+                onTap: () {},
+              ),
             ),
           ),
         for (final state in DepthLinkState.values)

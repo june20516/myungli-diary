@@ -88,6 +88,35 @@ Future<void> _tap(WidgetTester tester, LuckyCardVariant variant) async {
 
 void main() {
   group('lucky-card', () {
+    testWidgets('time 값만 숫자 폭이 고른 tnum이고 다른 값은 그대로입니다', (tester) async {
+      // 칩 줄 배치 테스트들이 한 줄을 전제하므로 시간 칩은 따로 그립니다.
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: LuckyChip(
+              item: LuckyItem(
+                variant: LuckyCardVariant.time,
+                name: '집중 시간',
+                value: '09:30–11:30 · 13:30–15:30',
+                explain: _text('오전에 집중이 잘 돼요.'),
+              ),
+              open: false,
+              onTap: null,
+            ),
+          ),
+        ),
+      );
+      final time = tester.widget<Text>(find.text('09:30–11:30 · 13:30–15:30'));
+      expect(time.style!.fontFeatures, LuckyChip.timeValueFeatures);
+      expect(
+        LuckyChip.timeValueFeatures,
+        contains(const FontFeature.tabularFigures()),
+      );
+      await tester.pumpWidget(_app());
+      final number = tester.widget<Text>(find.text('3'));
+      expect(number.style!.fontFeatures, isNot(LuckyChip.timeValueFeatures));
+    });
+
     testWidgets('처음에는 설명이 모두 닫혀 있습니다', (tester) async {
       await tester.pumpWidget(_app());
       for (final variant in LuckyCardVariant.values) {

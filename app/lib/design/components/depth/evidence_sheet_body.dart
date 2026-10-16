@@ -25,7 +25,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 ///
 /// 잠긴 구역의 본문은 server가 보내지 않으므로 [basis]·[source]·[personal]은 `null`이어도
 /// 됩니다. 열렸는데 본문이 없는 구역(계약에 아직 필드가 없음)은 제목도 자리도 그리지
-/// 않습니다(결정 A22). 이 내용 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
+/// 않습니다(결정 A22, `depth-link` 규칙 2.3.0). 잠겼을 때의 `lock.veil`은 본문을 내려받지
+/// 않은 상태라 그대로 그립니다. 이 내용 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
 ///
 /// [loading]이면 구역 제목 아래 본문 자리가 skeleton입니다(권한이 생겨 응답을 다시 받는 중,
 /// IA `loading`). 안내 영역은 [state]대로 남습니다.

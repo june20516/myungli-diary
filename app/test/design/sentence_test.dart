@@ -12,6 +12,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -203,11 +204,11 @@ void main() {
           RenderedTextView(
             text: _siksin,
             style: _style,
-            trailing: const Text('근거 보기 ›'),
+            trailing: const Text('근거 보기'),
           ),
         ),
       );
-      expect(find.text('근거 보기 ›'), findsOneWidget);
+      expect(find.text('근거 보기'), findsOneWidget);
     });
 
     testWidgets('용어 라벨은 "용어 + 뜻 보기"로 읽고 term 값은 읽지 않습니다', (tester) async {
@@ -662,6 +663,195 @@ void main() {
       );
       final inlineTop = tester.getTopLeft(find.textContaining('근거 보기')).dy;
       expect(blockTop - inlineTop, Space.s12);
+    });
+
+    testWidgets('navigate는 block과 같은 자리(위 space.12)이고 링크로 읽고 누르면 onTap입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      Future<double> topOf(DepthLinkVariant variant) async {
+        await tester.pumpWidget(
+          _app(
+            DepthLink(variant: variant, label: '계산 기준 보기', onTap: () => taps++),
+          ),
+        );
+        return tester.getTopLeft(find.textContaining('계산 기준 보기')).dy;
+      }
+
+      final blockTop = await topOf(DepthLinkVariant.block);
+      final navigateTop = await topOf(DepthLinkVariant.navigate);
+      expect(navigateTop, blockTop);
+      final data = _semantics(tester, find.bySemanticsLabel('계산 기준 보기'));
+      expect(data.flagsCollection.isLink, isTrue);
+      await tester.tap(find.textContaining('계산 기준 보기'));
+      expect(taps, 1);
+      handle.dispose();
+    });
+
+    for (final variant in DepthLinkVariant.values) {
+      testWidgets(
+        '${variant.id}: 화살표는 caret-right Regular, 링크 글자 크기·색, 간격 2px, '
+        '스크린리더는 이름만 읽습니다(V29)',
+        (tester) async {
+          await tester.runAsync(ensureGoldenFonts);
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            _app(DepthLink(variant: variant, label: '근거 보기', onTap: () {})),
+          );
+          final paragraph = tester.renderObject<RenderParagraph>(
+            find.descendant(
+              of: find.byType(LinkLabel),
+              matching: find.byType(RichText),
+            ),
+          );
+          final plain = paragraph.text.toPlainText();
+          expect(
+            plain,
+            '근거 보기\u2060${String.fromCharCode(LinkLabel.caret.codePoint)}',
+          );
+          final root = paragraph.text as TextSpan;
+          final tokens = tester.element(find.byType(LinkLabel)).tokens;
+          expect(root.style!.color, tokens.colors.actionPrimary);
+          expect(root.style!.fontSize, tokens.typography.labelLg.fontSize);
+          final caret =
+              (root.children!.single as TextSpan).children!.last as TextSpan;
+          // 크기·색은 링크 글자에서 이어받고 글꼴만 Phosphor Regular입니다.
+          expect(caret.style!.fontSize, isNull);
+          expect(caret.style!.color, isNull);
+          expect(caret.style!.fontFamily, contains('Phosphor-Regular'));
+          // 간격 2px: 연결 문자(폭 0)의 자간만큼 화살표가 띕니다.
+          final labelEnd = paragraph
+              .getBoxesForSelection(
+                const TextSelection(baseOffset: 0, extentOffset: 5),
+              )
+              .last
+              .right;
+          final caretBox = paragraph
+              .getBoxesForSelection(
+                TextSelection(
+                  baseOffset: plain.length - 1,
+                  extentOffset: plain.length,
+                ),
+              )
+              .single;
+          expect(caretBox.left - labelEnd, closeTo(LinkLabel.gap, 0.01));
+          expect(
+            _semantics(tester, find.bySemanticsLabel('근거 보기')).label,
+            '근거 보기',
+          );
+          handle.dispose();
+        },
+      );
+    }
+
+    testWidgets('inline-end는 링크 이름과 화살표를 문장 끝 WidgetSpan 하나에 담습니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 320,
+            child: SentenceBlock(
+              variant: SentenceBlockVariant.body,
+              text: _text([Segment(text: '오늘은 쉬어 가는 날이에요.')]),
+              trailing: DepthLink(
+                variant: DepthLinkVariant.inlineEnd,
+                label: '근거 보기',
+                onTap: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      final sentence = tester.widget<RichText>(
+        find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget is RichText &&
+                  widget.text.toPlainText().contains('쉬어 가는'),
+            )
+            .first,
+      );
+      final widgetSpans = <WidgetSpan>[];
+      sentence.text.visitChildren((span) {
+        if (span is WidgetSpan) widgetSpans.add(span);
+        return true;
+      });
+      expect(widgetSpans, hasLength(1));
+      expect(
+        find.descendant(
+          of: find.byType(DepthLink),
+          matching: find.byType(LinkLabel),
+        ),
+        findsOneWidget,
+      );
+      // 한 덩어리라 링크 글자 안에서 줄이 바뀌지 않습니다.
+      expect(
+        tester.widget<LinkLabel>(find.byType(LinkLabel)).softWrap,
+        isFalse,
+      );
+    });
+
+    testWidgets('block·navigate가 감기면 화살표가 마지막 줄 끝에 붙습니다', (tester) async {
+      await tester.runAsync(ensureGoldenFonts);
+      for (final variant in [
+        DepthLinkVariant.block,
+        DepthLinkVariant.navigate,
+      ]) {
+        await tester.pumpWidget(
+          _app(
+            SizedBox(
+              width: 120,
+              child: DepthLink(
+                variant: variant,
+                label: '출생지 계산 기준 자세히 보기',
+                onTap: () {},
+              ),
+            ),
+          ),
+        );
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.descendant(
+            of: find.byType(LinkLabel),
+            matching: find.byType(RichText),
+          ),
+        );
+        final plain = paragraph.text.toPlainText();
+        final boxes = paragraph.getBoxesForSelection(
+          TextSelection(baseOffset: 0, extentOffset: plain.length - 2),
+        );
+        expect(boxes.map((box) => box.top).toSet().length, greaterThan(1));
+        // 라벨 마지막 글자 바로 뒤(간격 2px)에, 같은 줄 높이로 붙습니다.
+        final lastChar = paragraph
+            .getBoxesForSelection(
+              TextSelection(
+                baseOffset: plain.length - 3,
+                extentOffset: plain.length - 2,
+              ),
+            )
+            .single
+            .toRect();
+        final caret = paragraph
+            .getBoxesForSelection(
+              TextSelection(
+                baseOffset: plain.length - 1,
+                extentOffset: plain.length,
+              ),
+            )
+            .single
+            .toRect();
+        expect(
+          caret.left - lastChar.right,
+          closeTo(LinkLabel.gap, 0.01),
+          reason: variant.id,
+        );
+        expect(
+          caret.center.dy,
+          inInclusiveRange(lastChar.top, lastChar.bottom),
+          reason: variant.id,
+        );
+      }
     });
   });
 
@@ -1277,7 +1467,7 @@ void main() {
             child: RenderedTextView(
               text: _text([Segment(text: '이유를 한 줄로 적은 문장 마지막낱말')]),
               style: _style,
-              trailing: const Text('근거 보기 ›', softWrap: false),
+              trailing: const Text('근거 보기', softWrap: false),
             ),
           ),
         ),
@@ -1295,7 +1485,7 @@ void main() {
             ),
           )
           .dy;
-      final linkTop = tester.getTopLeft(find.text('근거 보기 ›')).dy;
+      final linkTop = tester.getTopLeft(find.text('근거 보기')).dy;
       // 한 줄 높이(24)보다 가깝다 = 같은 줄.
       expect((linkTop - wordTop).abs(), lessThan(12));
     });
@@ -1411,11 +1601,17 @@ void main() {
             );
             final lineTops = boxes.map((box) => box.top).toSet();
             if (lineTops.length > 1) wrapped++;
-            final lastTop = lineTops.reduce((a, b) => a > b ? a : b);
-            final lastLine = boxes
-                .where((box) => box.top == lastTop)
-                .map((box) => box.toRect())
-                .reduce((a, b) => a.expandToInclude(b))
+            // 마지막 줄은 라벨 마지막 글자의 상자로 잽니다. ja는 글꼴이 섞여 같은 줄의
+            // 상자 top이 달라 top 최댓값으로는 줄을 가를 수 없습니다.
+            final lastLine = paragraph
+                .getBoxesForSelection(
+                  TextSelection(
+                    baseOffset: label.length - 1,
+                    extentOffset: label.length,
+                  ),
+                )
+                .single
+                .toRect()
                 .shift(paragraph.localToGlobal(Offset.zero));
             final plain = paragraph.text.toPlainText();
             final caret = paragraph
@@ -1475,14 +1671,8 @@ void main() {
       // 끝 조각이 화살표 아이콘 글리프이고 링크 색을 이어받습니다.
       final label = (text.text as TextSpan).children!.single as TextSpan;
       final caret = label.children!.last as TextSpan;
-      expect(
-        caret.text,
-        String.fromCharCode(EvidenceLockPanel.passCaret.codePoint),
-      );
-      expect(
-        caret.style!.fontFamily,
-        contains(EvidenceLockPanel.passCaret.fontFamily),
-      );
+      expect(caret.text, String.fromCharCode(LinkLabel.caret.codePoint));
+      expect(caret.style!.fontFamily, contains(LinkLabel.caret.fontFamily));
       expect(
         text.text.style!.color,
         tester.element(pass).tokens.colors.actionPrimary,

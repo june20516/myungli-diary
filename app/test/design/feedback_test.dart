@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -316,6 +317,116 @@ void main() {
         ),
       );
       handle.dispose();
+    });
+
+    group('notice', () {
+      Future<List<String>> openNotice(WidgetTester tester) async {
+        final closed = <String>[];
+        await tester.pumpWidget(_app(const SizedBox.expand()));
+        unawaited(
+          showMyungliNotice(
+            _navigatorKey.currentContext!,
+            body: '이미 사주를 저장한 계정이면 저장된 정보를 써요.',
+            confirm: '확인',
+          ).then((_) => closed.add('closed')),
+        );
+        await tester.pumpAndSettle();
+        return closed;
+      }
+
+      testWidgets('확인 버튼 하나뿐이고 오른쪽 끝에 놓이며 처음 초점을 받습니다', (tester) async {
+        await openNotice(tester);
+        final card = find.byType(DialogCard);
+        expect(
+          find.descendant(of: card, matching: find.byType(FeedbackTextAction)),
+          findsOneWidget,
+        );
+        expect(
+          Focus.of(tester.element(find.text('확인'))).hasPrimaryFocus,
+          isTrue,
+        );
+        // 확인 버튼은 카드 안쪽 여백(space.24)만큼 떨어진 오른쪽 끝입니다.
+        final confirmRight = tester
+            .getTopRight(
+              find
+                  .ancestor(
+                    of: find.text('확인'),
+                    matching: find.byType(FeedbackTextAction),
+                  )
+                  .first,
+            )
+            .dx;
+        expect(confirmRight, tester.getTopRight(card).dx - Space.s24);
+        // confirm과 같은 모양(action.primary, 굵게 하지 않음), 경고 표시 없음.
+        final tokens = tester.element(card).tokens;
+        final confirm = tester.widget<Text>(find.text('확인'));
+        expect(confirm.style!.color, tokens.colors.actionPrimary);
+        expect(confirm.style!.fontWeight, isNot(FontWeight.w700));
+        expect(
+          find.descendant(of: card, matching: find.byType(Icon)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('확인을 누르면 닫히고 햅틱은 없습니다', (tester) async {
+        final haptics = _recordHaptics(tester);
+        final closed = await openNotice(tester);
+        await tester.tap(find.text('확인'));
+        await tester.pumpAndSettle();
+        expect(find.byType(DialogCard), findsNothing);
+        expect(closed, ['closed']);
+        expect(haptics, isEmpty);
+      });
+
+      testWidgets('바깥을 누르면 확인과 같이 닫힙니다', (tester) async {
+        final closed = await openNotice(tester);
+        await tester.tapAt(const Offset(4, 4));
+        await tester.pumpAndSettle();
+        expect(find.byType(DialogCard), findsNothing);
+        expect(closed, ['closed']);
+      });
+
+      testWidgets('뒤로 가기도 확인과 같이 닫힙니다', (tester) async {
+        final closed = await openNotice(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byType(DialogCard), findsNothing);
+        expect(closed, ['closed']);
+      });
+
+      testWidgets('제목이 없으면 본문이 창 이름(alertdialog 라벨)입니다', (tester) async {
+        final handle = tester.ensureSemantics();
+        await openNotice(tester);
+        expect(
+          tester.getSemantics(find.byType(DialogCard)),
+          matchesSemantics(
+            label: '이미 사주를 저장한 계정이면 저장된 정보를 써요.',
+            scopesRoute: true,
+            namesRoute: true,
+          ),
+        );
+        handle.dispose();
+      });
+
+      test('notice는 showMyungliDialog로 열 수 없고, 카드는 notice만 취소가 없습니다', () {
+        expect(
+          () => DialogCard(
+            variant: DialogVariant.confirm,
+            title: 't',
+            confirm: 'c',
+          ),
+          throwsAssertionError,
+        );
+        expect(
+          () => DialogCard(
+            variant: DialogVariant.notice,
+            body: 'b',
+            confirm: 'c',
+            cancel: 'x',
+          ),
+          throwsAssertionError,
+        );
+      });
     });
 
     testWidgets('앱 안의 앱(바깥 작업대 MaterialApp)에서는 안쪽 navigator에 안쪽 테마로 쌓입니다', (

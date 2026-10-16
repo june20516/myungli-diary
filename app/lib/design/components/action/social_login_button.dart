@@ -24,8 +24,10 @@ enum SocialProvider {
 /// 큰 글자에서 면이 커짐)·너비(채움)뿐입니다. 순서(카카오 위, Apple 아래)와 두 버튼의 같은
 /// 크기는 화면이 정합니다. Apple은 라이트에서 검정, 다크에서 흰색입니다.
 ///
-/// [onPressed]가 null이면 눌리지 않고 흐리게 보이며, [loading]이면 글자 자리에 점 세 개가
+/// [onPressed]가 null이면 `disabled`(다른 버튼이 처리 중)라 눌리지 않고, 제공자 색을 바꿀 수
+/// 없으므로 버튼 전체를 `opacity 0.4`로 흐립니다. [loading]이면 글자 자리에 점 세 개가
 /// 숨 쉬고(`loading.breathe`) 다시 눌리지 않습니다. 눌림은 `press.ink`입니다.
+/// Apple 버튼 글자는 HIG대로 시스템 글꼴 + `type.label.lg`입니다(`label.apple`).
 class SocialLoginButton extends StatelessWidget {
   /// 버튼을 만듭니다. [label]은 제공자 공식 문구("카카오 로그인", "Apple로 로그인")입니다.
   /// [animated]가 false면 점이 정지 상태로 그려집니다(golden).
@@ -44,7 +46,7 @@ class SocialLoginButton extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'social-login-button',
     {'kakao', 'apple'},
-    {'pressed', 'loading'},
+    {'pressed', 'loading', 'disabled'},
   );
 
   /// 버튼 면을 찾는 테스트용 키.
@@ -71,8 +73,9 @@ class SocialLoginButton extends StatelessWidget {
   static const double _logoSize = 20;
   static const double _dotSize = 6;
   static const double _dotGap = 6;
-  // 제공자 가이드와 명세에 꺼짐 정의가 없어, 브랜드 색을 바꾸지 않고 흐리게만 보입니다.
-  static const double _disabledOpacity = 0.4;
+
+  /// `disabled` 버튼 전체 투명도(명세 `states.disabled.parts.container.opacity`).
+  static const double disabledOpacity = 0.4;
 
   /// 제공자.
   final SocialProvider provider;
@@ -182,7 +185,7 @@ class SocialLoginButton extends StatelessWidget {
         child: ExcludeSemantics(
           child: loading
               ? wide
-              : Opacity(opacity: _disabledOpacity, child: wide),
+              : Opacity(opacity: disabledOpacity, child: wide),
         ),
       );
     }

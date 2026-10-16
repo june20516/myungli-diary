@@ -94,6 +94,11 @@ class LuckyChip extends StatelessWidget {
   /// 색 변형 견본 원을 찾는 테스트용 키.
   static const Key swatchKey = ValueKey('lucky-card-swatch');
 
+  /// `time` 값의 글꼴 기능(`time.parts.value.fontFeatures`: tnum).
+  static const List<FontFeature> timeValueFeatures = [
+    FontFeature.tabularFigures(),
+  ];
+
   static const double _height = 34;
   static const double _gap = 6;
   static const double _swatchSize = 14;
@@ -165,6 +170,10 @@ class LuckyChip extends StatelessWidget {
               item.value,
               style: tokens.typography.labelMd.copyWith(
                 color: colors.textPrimary,
+                // 시간 값(`09:30–11:30`)은 숫자 폭을 고르게 둡니다(`time.parts.value` tnum).
+                fontFeatures: item.variant == LuckyCardVariant.time
+                    ? timeValueFeatures
+                    : null,
               ),
             ),
           ),

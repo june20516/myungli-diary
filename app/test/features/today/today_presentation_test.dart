@@ -14,6 +14,7 @@ import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
+import '../../support/component_spec_json.dart';
 import '../../support/daily_fixture.dart';
 
 FocusSlot _slot(String start, String end) => FocusSlot.fromJson({
@@ -84,6 +85,32 @@ void main() {
 
     test('칸이 없으면 빈 글자입니다', () {
       expect(formatFocusRange(const [], 'Asia/Seoul'), '');
+    });
+
+    test('명세 lucky-card time 값 형식(HH:mm–HH:mm, 이음 " · ")과 같습니다', () {
+      final variants =
+          loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
+      final time = variants.cast<Map<String, Object?>>().singleWhere(
+        (variant) => variant['id'] == 'time',
+      );
+      final value =
+          (time['parts']! as Map<String, Object?>)['value']!
+              as Map<String, Object?>;
+      expect(value['clock'], '24h');
+      expect(value['timeZone'], 'profile');
+      String range(String start, String end) => (value['format']! as String)
+          .replaceFirst('HH:mm', start)
+          .replaceFirst('HH:mm', end);
+      expect(
+        formatFocusRange([
+          _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
+          _slot('2026-10-13T13:30:00+09:00', '2026-10-13T15:30:00+09:00'),
+        ], 'Asia/Seoul'),
+        [
+          range('09:30', '11:30'),
+          range('13:30', '15:30'),
+        ].join(value['join']! as String),
+      );
     });
   });
 

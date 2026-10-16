@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -32,12 +33,6 @@ class EvidenceLockPanel extends StatelessWidget {
 
   static const double _iconSize = 16;
   static const double _gap = 6;
-
-  /// 광고 제거권 링크 끝 화살표 아이콘.
-  static const IconData passCaret = PhosphorIconsRegular.caretRight;
-
-  /// 줄바꿈을 막는 단어 연결 문자(WORD JOINER). 화살표를 글자 끝에 붙여 둡니다.
-  static const String _wordJoiner = '\u2060';
 
   /// 열람 상태.
   final DepthLinkState state;
@@ -145,9 +140,12 @@ class EvidenceLockPanel extends StatelessWidget {
                                 Radius.circular(Radii.xs),
                               ),
                               inkColor: colors.actionPrimary,
-                              child: _passLabel(
-                                l10n.evidenceSheetLockPass,
-                                typography.labelMd.copyWith(
+                              // 끝 화살표는 문구가 아니라 컴포넌트가 그립니다
+                              // (`lockPanel.pass.chevron`, 결정 V29).
+                              child: LinkLabel(
+                                label: l10n.evidenceSheetLockPass,
+                                textAlign: TextAlign.center,
+                                style: typography.labelMd.copyWith(
                                   color: colors.actionPrimary,
                                 ),
                               ),
@@ -164,30 +162,6 @@ class EvidenceLockPanel extends StatelessWidget {
       },
     );
   }
-
-  /// 광고 제거권 링크 글자. 끝 화살표는 문구가 아니라 컴포넌트가 그립니다(링크 색).
-  ///
-  /// 화살표는 아이콘 글꼴의 글리프를 글자 조각(`TextSpan`)으로 이어 붙입니다. 줄이 감겨도
-  /// 마지막 줄 끝을 따라가고, 앞의 단어 연결 문자(U+2060)로 화살표만 다음 줄로 넘어가지
-  /// 않습니다. `WidgetSpan`은 자리표시자 앞에서 줄이 끊겨 화살표가 홀로 남았습니다.
-  /// 링크 전체가 [PressInkTarget]의 이름 하나로 읽히므로 화살표는 읽히지 않습니다.
-  static Widget _passLabel(String label, TextStyle style) => Text.rich(
-    TextSpan(
-      text: '$label$_wordJoiner',
-      children: [
-        TextSpan(
-          text: String.fromCharCode(passCaret.codePoint),
-          style: TextStyle(
-            fontFamily: passCaret.fontFamily,
-            package: passCaret.fontPackage,
-            fontFamilyFallback: passCaret.fontFamilyFallback,
-          ),
-        ),
-      ],
-    ),
-    textAlign: TextAlign.center,
-    style: style,
-  );
 
   /// 슬롯 id를 Key와 Semantics `identifier`로 붙입니다(글자는 그대로 읽힙니다).
   static Widget _slot(String id, Widget child) => KeyedSubtree(

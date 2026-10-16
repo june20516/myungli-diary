@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
@@ -193,6 +194,9 @@ void main() {
       settle: false,
     );
     expect(find.text(_ko.loginDiscardNotice), findsOneWidget);
+    // 고를 것이 없는 안내라 확인 버튼 하나뿐입니다(`dialog` `notice`).
+    expect(find.byType(FeedbackTextAction), findsOneWidget);
+    expect(find.text(_ko.actionClose), findsNothing);
     // 안내를 닫기 전에는 이동하지 않습니다.
     expect(_screen(ScreenIds.login), findsOneWidget);
 

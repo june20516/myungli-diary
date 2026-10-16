@@ -74,8 +74,9 @@ class AppIcon extends StatelessWidget {
       color = null,
       _caution = true;
 
-  /// 영문 대문자 높이 ÷ 글자 크기. Pretendard 기준 근사값입니다.
-  static const double capHeightRatio = 0.7;
+  /// 영문 대문자 높이 ÷ 글자 크기(`mark.caution.size.ratio`). Pretendard OS/2
+  /// `sCapHeight` 1448 / 2048 = 0.707입니다.
+  static const double capHeightRatio = 0.707;
 
   /// 그릴 글리프.
   final AppGlyph icon;

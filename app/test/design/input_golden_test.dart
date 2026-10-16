@@ -112,7 +112,7 @@ Widget _focusedField() => Builder(
   ),
 );
 
-/// segmented: 2개·3개·4개, 처음·끝 선택, disabled.
+/// segmented: 2개·3개·4개, 처음·끝 선택, disabled, none.
 Widget _segmenteds() => Builder(
   builder: (context) {
     final ja = _ja(context);
@@ -158,6 +158,16 @@ Widget _segmenteds() => Builder(
           ],
           selected: 1,
           onChanged: null,
+        ),
+        // none: 아직 고르지 않음(표시 막대 없음, 글자 모두 text.secondary).
+        Segmented<int?>(
+          label: '성별',
+          items: [
+            SegmentedItem(0, ja ? '女性' : '여성'),
+            SegmentedItem(1, ja ? '男性' : '남성'),
+          ],
+          selected: null,
+          onChanged: (_) {},
         ),
       ],
     );
@@ -326,6 +336,7 @@ Widget _citySearches() => Builder(
               name: 'Busan',
               country: 'KR',
               countryName: 'South Korea',
+              regionName: 'Busan',
               timezone: 'Asia/Seoul',
             ),
             City(
@@ -333,6 +344,7 @@ Widget _citySearches() => Builder(
               name: 'San Francisco',
               country: 'US',
               countryName: 'United States',
+              regionName: 'California',
               timezone: 'America/Los_Angeles',
             ),
           ]),

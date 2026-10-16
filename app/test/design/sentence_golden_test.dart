@@ -84,6 +84,11 @@ Widget _termsAndLinks() => Column(
     ),
     TermToken(label: '정관', variant: TermTokenVariant.label, onTap: () {}),
     DepthLink(variant: DepthLinkVariant.block, label: '근거 보기', onTap: () {}),
+    DepthLink(
+      variant: DepthLinkVariant.navigate,
+      label: '계산 기준 보기',
+      onTap: () {},
+    ),
   ],
 );
 

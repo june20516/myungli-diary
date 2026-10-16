@@ -2,14 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/animation.dart';
-import 'package:flutter/widgets.dart' show Locale;
+import 'package:flutter/widgets.dart' show IconData, Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../support/component_spec_json.dart';
 
@@ -50,6 +55,32 @@ double _px(Object? json) =>
 double _num(Object? json) => (json! as num).toDouble();
 
 Map<String, Object?> _map(Object? json) => json! as Map<String, Object?>;
+
+Map<String, Object?> _elements() => _map(
+  _map(
+    jsonDecode(File('$componentsDir/elements.json').readAsStringSync()),
+  )['elements'],
+);
+
+/// [json] 아래 모든 `chevron` 값을 경로와 함께 모읍니다.
+Map<String, Object?> _chevrons(Object? json, [String path = '']) => {
+  if (json is Map<String, Object?>)
+    for (final MapEntry(:key, :value) in json.entries) ...{
+      if (key == 'chevron') '$path.$key': value,
+      ..._chevrons(value, '$path.$key'),
+    }
+  else if (json is List<Object?>)
+    for (final (i, item) in json.indexed) ..._chevrons(item, '$path[$i]'),
+};
+
+/// 명세 아이콘 이름(kebab-case) → Phosphor Regular 글리프. 대조에 쓰는 것만 둡니다.
+const Map<String, IconData> _regularIcons = {
+  'caret-right': PhosphorIconsRegular.caretRight,
+  'sun': PhosphorIconsRegular.sun,
+  'calendar-blank': PhosphorIconsRegular.calendarBlank,
+  'notebook': PhosphorIconsRegular.notebook,
+  'user': PhosphorIconsRegular.user,
+};
 
 void main() {
   group('ComponentSpec 대조', () {
@@ -142,6 +173,61 @@ void main() {
           );
         }
       }
+    });
+  });
+
+  group('컴포넌트 2.3.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    test('링크 화살표 세 곳은 caret-right 아이콘이고 LinkLabel 값과 같습니다(V29)', () {
+      final chevrons = _chevrons(specs['depth-link'])
+        ..addAll(_chevrons(specs['sentence-block']));
+      // depth-link parts.chevron, lockPanel.pass.chevron,
+      // sentence-block open.chevron.
+      expect(chevrons, hasLength(3), reason: '${chevrons.keys}');
+      for (final MapEntry(key: path, value: chevron) in chevrons.entries) {
+        final map = _map(chevron);
+        expect(map['weight'], 'regular', reason: path);
+        expect(_regularIcons[map['icon']], LinkLabel.caret, reason: path);
+        // 크기·색은 링크 글자에서 이어받습니다(LinkLabel이 글리프 조각에 크기·색을 두지 않음).
+        expect(map['size'], 'link-text-size', reason: path);
+        expect(map['color'], 'link-color', reason: path);
+        expect(_px(map['gap']), LinkLabel.gap, reason: path);
+        expect(map['decorative'], isTrue, reason: path);
+      }
+    });
+
+    test('mark.caution 크기는 글자 크기 × ratio입니다', () {
+      final size = _map(_map(_elements()['mark.caution'])['size']);
+      expect(size['of'], 'font-size');
+      expect(_num(size['ratio']), AppIcon.capHeightRatio);
+    });
+
+    test('아이콘 패키지와 버전이 명세와 같습니다', () {
+      final set = _map(_map(_elements()['icon'])['set']);
+      expect(set['flutter'], 'phosphor_glyphs');
+      final lock = File('pubspec.lock').readAsStringSync();
+      final entry = RegExp(
+        r'  phosphor_glyphs:\n(?:    .*\n)*?    version: "([^"]+)"',
+      ).firstMatch(lock);
+      expect(entry?.group(1), set['flutterVersion']);
+    });
+
+    test('tab-bar 아이콘이 명세 parts.icons와 같습니다', () {
+      final icons = _map(_map(specs['tab-bar']!['parts'])['icons']);
+      expect(icons.keys, ['today', 'calendar', 'diary', 'me']);
+      expect(
+        [for (final name in icons.values) _regularIcons[name]],
+        [for (final glyph in tabGlyphs) glyph.regular],
+      );
+    });
+
+    test('social-login-button disabled는 버튼 전체 opacity입니다', () {
+      final disabled = _map(
+        _map(specs['social-login-button']!['states'])['disabled'],
+      );
+      final container = _map(_map(disabled['parts'])['container']);
+      expect(_num(container['opacity']), SocialLoginButton.disabledOpacity);
     });
   });
 

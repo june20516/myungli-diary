@@ -323,6 +323,19 @@ void main() {
       expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
     });
 
+    testWidgets('inner: 뒤로를 숨기면 자리를 비워 두지 않고 제목은 tabRoot와 같은 곳에서 시작합니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const MyungliAppBar.tabRoot(title: '오늘')));
+      final rootStart = tester.getTopLeft(find.text('오늘')).dx;
+      await tester.pumpWidget(
+        _app(const MyungliAppBar.inner(title: '오늘', showBack: false)),
+      );
+      final hiddenStart = tester.getTopLeft(find.text('오늘')).dx;
+      expect(hiddenStart, rootStart);
+      expect(hiddenStart, Space.s16);
+    });
+
     testWidgets('동작은 두 개까지이고 각각 44 터치 영역', (tester) async {
       var taps = 0;
       AppBarAction action(String label) => AppBarAction(

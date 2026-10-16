@@ -30,8 +30,8 @@ enum SentenceBlockVariant {
 ///
 /// 호칭은 server가 문장 안에 넣어 보내므로 굵게 하거나 색을 바꾸지 않고 그대로 그립니다.
 /// [locked]면 근거·해석 열람 권한이 없는 문장(D60)이라 본문을 그리지 않고, 흐린 한 줄
-/// (`lock.veil`)과 오른쪽 끝 "열기 ›"만 둡니다. 잠긴 내용은 server가 보내지 않으므로
-/// [text]는 트리에도 스크린리더에도 들어가지 않습니다.
+/// (`lock.veil`)과 오른쪽 끝 "열기" 링크(화살표는 [DepthLink]가 그림)만 둡니다.
+/// 잠긴 내용은 server가 보내지 않으므로 [text]는 트리에도 스크린리더에도 들어가지 않습니다.
 class SentenceBlock extends StatelessWidget {
   /// 문장 덩어리를 만듭니다.
   const new({
@@ -95,7 +95,7 @@ class SentenceBlock extends StatelessWidget {
   /// 있을 때) 필요합니다. 용어가 없는 문장에는 주지 않아도 됩니다.
   final ValueChanged<String>? onTerm;
 
-  /// 잠긴 문장의 "열기 ›"를 눌렀을 때(근거 시트를 잠김 상태로 엽니다).
+  /// 잠긴 문장의 "열기" 링크를 눌렀을 때(근거 시트를 잠김 상태로 엽니다).
   final VoidCallback? onOpenLocked;
 
   /// 문장 끝에 붙는 위젯(`depth-link` `inline-end`).

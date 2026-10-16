@@ -169,13 +169,13 @@ void main() {
               reason: _text('도움을 주는 사람을 만나기 쉬워요.'),
               reasonTrailing: GestureDetector(
                 onTap: () => tapped++,
-                child: const Text('근거 보기 ›'),
+                child: const Text('근거 보기'),
               ),
             ),
           ),
         ),
       );
-      await tester.tap(find.text('근거 보기 ›'));
+      await tester.tap(find.text('근거 보기'));
       expect(tapped, 1);
     });
 

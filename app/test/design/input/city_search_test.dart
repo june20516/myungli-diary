@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
@@ -16,6 +17,14 @@ final _seoul = City(
   country: 'KR',
   countryName: 'South Korea',
   timezone: 'Asia/Seoul',
+);
+final _newYork = City(
+  id: '5128581',
+  name: 'New York City',
+  country: 'US',
+  countryName: 'United States',
+  regionName: 'New York',
+  timezone: 'America/New_York',
 );
 final _busan = City(
   id: '1838524',
@@ -136,12 +145,62 @@ void main() {
       expect(retried, 1);
     });
 
-    testWidgets('줄에 도시 이름과 지역 자리(country)가 보입니다', (tester) async {
+    testWidgets('지역 줄은 "행정 구역, 나라 이름"이고 나라 코드는 보이지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(Center(child: _search(results: AsyncData([_newYork])))),
+      );
+      expect(find.text('New York City'), findsOneWidget);
+      expect(find.text('New York, United States'), findsOneWidget);
+      expect(find.textContaining('US'), findsNothing);
+      // 결과 줄은 결과 수 알림과 따로 읽히고 누를 수 있습니다.
+      final row = find.bySemanticsLabel(
+        'New York City, New York, United States',
+      );
+      expect(row, findsOneWidget);
+      expect(
+        tester
+            .getSemantics(row)
+            .getSemanticsData()
+            .hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+      expect(find.bySemanticsLabel('결과 1개'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('행정 구역이 없으면 나라 이름만 보입니다', (tester) async {
       await tester.pumpWidget(
         inputApp(Center(child: _search(results: AsyncData([_seoul])))),
       );
       expect(find.text('Seoul'), findsOneWidget);
-      expect(find.text('KR'), findsOneWidget);
+      expect(find.text('South Korea'), findsOneWidget);
+      expect(find.text('KR'), findsNothing);
+    });
+
+    testWidgets('지역 이름이 하나도 없으면 지역 줄을 그리지 않고 줄 높이는 56입니다', (tester) async {
+      final nameless = City(
+        id: '1',
+        name: 'Somewhere',
+        country: 'KR',
+        countryName: ' ',
+        timezone: 'Asia/Seoul',
+      );
+      await tester.pumpWidget(
+        inputApp(Center(child: _search(results: AsyncData([nameless])))),
+      );
+      final row = find.byKey(CitySearch.rowKey(nameless.id));
+      expect(
+        find.descendant(of: row, matching: find.byType(Text)),
+        findsOneWidget,
+      );
+      expect(find.text('KR'), findsNothing);
+      expect(tester.getSize(row).height, greaterThanOrEqualTo(56));
+    });
+
+    test('cityRegionLine은 이름이 있는 것만 잇습니다', () {
+      expect(cityRegionLine(_newYork), 'New York, United States');
+      expect(cityRegionLine(_seoul), 'South Korea');
     });
 
     testWidgets('줄을 누르면 onSelected가 그 도시로 한 번 불립니다', (tester) async {

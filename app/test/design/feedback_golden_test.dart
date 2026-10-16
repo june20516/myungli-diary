@@ -32,6 +32,11 @@ Widget _dialogs() => const Column(
       confirm: '지우기',
       cancel: '취소',
     ),
+    DialogCard(
+      variant: DialogVariant.notice,
+      body: '이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.',
+      confirm: '확인',
+    ),
   ],
 );
 
