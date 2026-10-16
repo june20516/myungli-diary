@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -11,34 +12,27 @@ const _longTitleJa = '四半期の振り返りと次の四半期の計画をま�
 Widget _summary() => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
-    final inProgress = ja ? '進行中' : '진행 중';
-    final next = ja ? '次' : '다음';
-    final more = ja ? '他2件' : '외 2개';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: Space.s8,
       children: [
         EventRow.summary(
           status: EventRowStatus.inProgress,
-          statusLabel: inProgress,
-          time: ja ? '終日' : '하루 종일',
           title: ja ? '家族旅行' : '가족 여행',
           onTap: () {},
         ),
         EventRow.summary(
           status: EventRowStatus.next,
-          statusLabel: next,
           time: '14:00',
           title: ja ? '歯医者' : '치과 예약',
-          moreText: more,
+          moreCount: 2,
           onTap: () {},
         ),
         EventRow.summary(
           status: EventRowStatus.next,
-          statusLabel: next,
           time: '09:30',
           title: ja ? _longTitleJa : _longTitleKo,
-          moreText: more,
+          moreCount: 2,
           onTap: () {},
         ),
         EventRow.summary(
@@ -52,33 +46,30 @@ Widget _summary() => Builder(
   },
 );
 
-/// event-row list: 시각·하루 종일·긴 제목(두 줄) 줄 + 빈 목록.
+/// event-row list: 하루 종일·긴 제목(두 줄)·시각 줄 + 빈 목록(ARB 문구).
 Widget _list() => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        EventRow.list(time: null, title: ja ? '家族旅行' : '가족 여행', onTap: () {}),
         EventRow.list(
-          timeText: ja ? '終日' : '하루 종일',
-          title: ja ? '家族旅行' : '가족 여행',
-          onTap: () {},
-        ),
-        EventRow.list(
-          timeText: '09:30',
+          time: '09:30',
           title: ja ? _longTitleJa : _longTitleKo,
           onTap: () {},
         ),
         EventRow.list(
-          timeText: '14:00',
+          time: '14:00',
           title: ja ? '歯医者' : '치과 예약',
           showDivider: false,
           onTap: () {},
         ),
         const SizedBox(height: Space.s24),
         EventRowListEmpty(
-          message: ja ? 'この日の予定はありません' : '이날 일정이 없어요',
-          addLabel: ja ? '予定を追加' : '일정 추가',
+          message: l10n.daySheetEventEmpty,
+          addLabel: l10n.daySheetEventAdd,
           onAdd: () {},
         ),
       ],

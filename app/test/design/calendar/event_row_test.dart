@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -9,6 +11,7 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
+import '../../support/fonts.dart';
 import '../input/input_harness.dart';
 
 /// 너비 360 칸에 [child]를 놓은 앱. [textScale]로 시스템 글자 크기를 바꿉니다.
@@ -31,16 +34,31 @@ BuildContext _context(WidgetTester tester) =>
 Text _text(WidgetTester tester, String data) =>
     tester.widget<Text>(find.text(data));
 
-/// [EventRow]가 버튼 하나로 [label]을 읽는지.
-void _expectButton(WidgetTester tester, String label) {
+/// [EventRow]가 [label] 한 덩어리로 읽히고 [button] 여부가 맞는지.
+void _expectNode(WidgetTester tester, String label, {bool button = true}) {
   final data = tester.getSemantics(find.byType(EventRow)).getSemanticsData();
   expect(data.label, label);
-  expect(data.flagsCollection.isButton, isTrue);
+  expect(data.flagsCollection.isButton, button);
 }
+
+AppLocalizations _l10n(WidgetTester tester) =>
+    AppLocalizations.of(_context(tester));
+
+/// [data] 글자가 실제로 받는 배율로 그린 [fontSize] 글자의 크기.
+double _renderedFontSize(WidgetTester tester, String data, double fontSize) =>
+    tester
+        .renderObject<RenderParagraph>(
+          find.descendant(of: find.text(data), matching: find.byType(RichText)),
+        )
+        .textScaler
+        .scale(fontSize);
 
 const _longTitle = '아주 긴 일정 제목이 한 줄을 넘어가면 끝을 말줄임으로 자르고 두 줄 목록에서는 두 줄까지 보여 줍니다';
 
 void main() {
+  // 시각 칸·제목 자리 판단이 글자 폭을 재므로 실제 글꼴(Pretendard)로 그립니다.
+  setUpAll(loadBundledFonts);
+
   group('StatusTag(tag.status)', () {
     testWidgets('옅은 sage 알약: status.bg·status.fg·label.md·radius.full·8×2', (
       tester,
@@ -80,18 +98,16 @@ void main() {
   group('EventRow.summary', () {
     Widget summary({
       EventRowStatus? status = EventRowStatus.inProgress,
-      String? statusLabel = '진행 중',
       String? time = '14:00',
       String title = '회의',
-      String? moreText,
+      int moreCount = 0,
       String? allPastSentence,
       VoidCallback? onTap,
     }) => EventRow.summary(
       status: status,
-      statusLabel: statusLabel,
       time: time,
       title: title,
-      moreText: moreText,
+      moreCount: moreCount,
       allPastSentence: allPastSentence,
       onTap: onTap,
     );
@@ -104,10 +120,14 @@ void main() {
       expect(EventRowStatus.values.map((v) => v.name), ['inProgress', 'next']);
     });
 
-    testWidgets('상태 태그·시각(tnum)·제목·외 N개를 한 줄에 그립니다', (tester) async {
-      await tester.pumpWidget(_app(summary(moreText: '외 2개')));
+    testWidgets('상태 태그·시각(tnum)·제목·외 N개를 한 줄에 그립니다(문구는 ARB)', (tester) async {
+      await tester.pumpWidget(_app(summary(moreCount: 2)));
       final tokens = _context(tester).tokens;
-      expect(find.widgetWithText(StatusTag, '진행 중'), findsOneWidget);
+      final l10n = _l10n(tester);
+      expect(
+        find.widgetWithText(StatusTag, l10n.todayEventSummaryOngoing),
+        findsOneWidget,
+      );
 
       final time = _text(tester, '14:00').style!;
       expect(time.fontSize, tokens.typography.bodyUi.fontSize);
@@ -120,21 +140,38 @@ void main() {
       expect(title.maxLines, 1);
       expect(title.overflow, TextOverflow.ellipsis);
 
-      final more = _text(tester, '외 2개').style!;
+      final moreText = l10n.eventRowMore(2);
+      expect(moreText, '외 2개');
+      final more = _text(tester, moreText).style!;
       expect(more.fontSize, tokens.typography.captionLg.fontSize);
       expect(more.color, tokens.colors.textSecondary);
 
       // 한 줄: 태그·시각·제목·외 N개의 세로 가운데가 같습니다.
       final y = tester.getCenter(find.text('회의')).dy;
       expect(tester.getCenter(find.text('14:00')).dy, closeTo(y, 1));
-      expect(tester.getCenter(find.text('외 2개')).dy, closeTo(y, 1));
+      expect(tester.getCenter(find.text(moreText)).dy, closeTo(y, 1));
       expect(tester.getCenter(find.byType(StatusTag)).dy, closeTo(y, 1));
     });
 
-    testWidgets('긴 제목은 한 줄 말줄임이고 외 N개는 잘리지 않습니다', (tester) async {
+    testWidgets('다음 상태는 todayEventSummaryNext, 시각이 없으면 하루 종일', (tester) async {
       await tester.pumpWidget(
-        _app(summary(title: _longTitle, moreText: '외 3개')),
+        _app(summary(status: EventRowStatus.next, time: null)),
       );
+      final l10n = _l10n(tester);
+      expect(
+        find.widgetWithText(StatusTag, l10n.todayEventSummaryNext),
+        findsOneWidget,
+      );
+      expect(find.text(l10n.eventRowAllDay), findsOneWidget);
+    });
+
+    testWidgets('moreCount 0이면 외 N개를 붙이지 않습니다', (tester) async {
+      await tester.pumpWidget(_app(summary()));
+      expect(find.textContaining('외'), findsNothing);
+    });
+
+    testWidgets('긴 제목은 한 줄 말줄임이고 외 N개는 잘리지 않습니다', (tester) async {
+      await tester.pumpWidget(_app(summary(title: _longTitle, moreCount: 3)));
       expect(tester.takeException(), isNull);
       final title = tester.renderObject<RenderParagraph>(
         find.descendant(
@@ -147,14 +184,14 @@ void main() {
     });
 
     testWidgets('상태가 없으면 태그 없이 시각·제목만 그립니다', (tester) async {
-      await tester.pumpWidget(_app(summary(status: null, statusLabel: null)));
+      await tester.pumpWidget(_app(summary(status: null)));
       expect(find.byType(StatusTag), findsNothing);
       expect(find.text('14:00'), findsOneWidget);
     });
 
     testWidgets('모두 지났으면 개수 문장 한 줄만 보입니다', (tester) async {
       await tester.pumpWidget(
-        _app(summary(allPastSentence: '오늘 일정 3개 모두 지났어요', moreText: '외 2개')),
+        _app(summary(allPastSentence: '오늘 일정 3개 모두 지났어요', moreCount: 2)),
       );
       final tokens = _context(tester).tokens;
       expect(find.byType(StatusTag), findsNothing);
@@ -164,23 +201,27 @@ void main() {
       final style = _text(tester, '오늘 일정 3개 모두 지났어요').style!;
       expect(style.fontSize, tokens.typography.captionLg.fontSize);
       expect(style.color, tokens.colors.textSecondary);
+      _expectNode(tester, '오늘 일정 3개 모두 지났어요', button: false);
     });
 
-    testWidgets('스크린리더: 버튼, 라벨 "상태 시각 제목"(외 N개를 뒤에 붙임)', (tester) async {
+    testWidgets('스크린리더: 버튼, 라벨 틀 "상태 시각 제목" + 구분자 + 외 N개', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(summary(onTap: () {})));
-      _expectButton(tester, '진행 중 14:00 회의');
+      _expectNode(tester, '진행 중 14:00 회의');
       await tester.pumpWidget(
-        _app(
-          summary(
-            status: EventRowStatus.next,
-            statusLabel: '다음',
-            moreText: '외 2개',
-            onTap: () {},
-          ),
-        ),
+        _app(summary(status: EventRowStatus.next, moreCount: 2, onTap: () {})),
       );
-      _expectButton(tester, '다음 14:00 회의 외 2개');
+      final l10n = _l10n(tester);
+      expect(l10n.eventRowLabel('다음', '14:00', '회의'), '다음 14:00 회의');
+      _expectNode(tester, '다음 14:00 회의${l10n.a11yListSeparator}외 2개');
+      handle.dispose();
+    });
+
+    testWidgets('onTap이 없으면 라벨은 있고 버튼이 아닙니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(summary()));
+      _expectNode(tester, '진행 중 14:00 회의', button: false);
+      expect(inkLayer(find.byType(EventRow)), findsNothing);
       handle.dispose();
     });
 
@@ -216,7 +257,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _app(summary(title: _longTitle, moreText: '외 12개'), textScale: 2),
+        _app(summary(title: _longTitle, moreCount: 12), textScale: 2),
       );
       expect(tester.takeException(), isNull);
       final timeRect = tester.getRect(find.text('14:00'));
@@ -231,21 +272,22 @@ void main() {
 
   group('EventRow.list', () {
     Widget list({
-      String timeText = '14:00',
+      String? time = '14:00',
       String title = '회의',
       bool showDivider = true,
       VoidCallback? onTap,
     }) => EventRow.list(
-      timeText: timeText,
+      time: time,
       title: title,
       showDivider: showDivider,
       onTap: onTap,
     );
 
-    testWidgets('시각 칸은 58 고정이고 하루 종일도 같은 폭입니다', (tester) async {
+    testWidgets('1.0: 시각 칸은 58 고정이고 하루 종일도 같은 폭입니다', (tester) async {
       expect(EventRow.timeColumnWidth, 58);
-      for (final timeText in ['14:00', '하루 종일']) {
-        await tester.pumpWidget(_app(list(timeText: timeText)));
+      for (final time in ['14:00', null]) {
+        await tester.pumpWidget(_app(list(time: time)));
+        final timeText = time ?? _l10n(tester).eventRowAllDay;
         expect(
           tester.getSize(find.byKey(EventRow.timeColumnKey)).width,
           58,
@@ -258,6 +300,12 @@ void main() {
         expect(
           style.fontFeatures,
           contains(const FontFeature.tabularFigures()),
+        );
+        // 한 줄: 시각과 제목의 세로 가운데가 같습니다.
+        expect(
+          tester.getCenter(find.text(timeText)).dy,
+          closeTo(tester.getCenter(find.text('회의')).dy, 1),
+          reason: timeText,
         );
       }
     });
@@ -298,10 +346,12 @@ void main() {
       expect(find.byKey(EventRow.dividerKey), findsNothing);
     });
 
-    testWidgets('스크린리더: 버튼, 라벨 "시각 제목"', (tester) async {
+    testWidgets('스크린리더: 버튼, 라벨 "시각 제목"(상태 자리 공백 없음)', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(list(onTap: () {})));
-      _expectButton(tester, '14:00 회의');
+      _expectNode(tester, '14:00 회의');
+      await tester.pumpWidget(_app(list(time: null, onTap: () {})));
+      _expectNode(tester, '하루 종일 회의');
       handle.dispose();
     });
 
@@ -321,38 +371,35 @@ void main() {
       expect(taps, 1);
     });
 
-    testWidgets('글자 크기 1.3·2.0에서도 시각은 58 칸 안에 한 줄로 줄여 들어가고 제목과 떨어집니다', (
+    testWidgets('2.0: 시각 글자는 numericTable × 2.0 그대로, 시각 / 제목·화살표 두 줄', (
       tester,
     ) async {
-      for (final scale in [1.3, 2.0]) {
-        for (final timeText in ['14:00', '하루 종일']) {
-          final reason = '$scale $timeText';
-          await tester.pumpWidget(
-            _app(
-              list(timeText: timeText, title: _longTitle),
-              textScale: scale,
-            ),
-          );
-          expect(tester.takeException(), isNull, reason: reason);
-          final column = tester.getRect(find.byKey(EventRow.timeColumnKey));
-          expect(column.width, 58, reason: reason);
-          final text = tester.getRect(find.text(timeText));
-          expect(text.left, greaterThanOrEqualTo(column.left), reason: reason);
-          // 칸 끝 8px 여백을 남겨 제목에 붙지 않습니다.
-          expect(
-            text.right,
-            lessThanOrEqualTo(column.right - Space.s8),
-            reason: reason,
-          );
-          final paragraph = tester.renderObject<RenderParagraph>(
-            find.descendant(
-              of: find.text(timeText),
-              matching: find.byType(RichText),
-            ),
-          );
-          expect(paragraph.didExceedMaxLines, isFalse, reason: reason);
-          expect(_text(tester, timeText).maxLines, 1, reason: reason);
-        }
+      for (final time in ['14:00', null]) {
+        await tester.pumpWidget(
+          _app(list(time: time, title: _longTitle), textScale: 2),
+        );
+        final timeText = time ?? _l10n(tester).eventRowAllDay;
+        expect(tester.takeException(), isNull, reason: timeText);
+        final tokens = _context(tester).tokens;
+        final fontSize = tokens.typography.numericTable.fontSize!;
+        expect(
+          _renderedFontSize(tester, timeText, fontSize),
+          fontSize * 2,
+          reason: timeText,
+        );
+        expect(
+          find.ancestor(
+            of: find.text(timeText),
+            matching: find.byType(FittedBox),
+          ),
+          findsNothing,
+        );
+        expect(
+          tester.getRect(find.text(_longTitle)).top,
+          greaterThanOrEqualTo(tester.getRect(find.text(timeText)).bottom),
+          reason: timeText,
+        );
+        expect(tester.getRect(find.byType(Icon)).right, lessThanOrEqualTo(360));
       }
     });
   });
@@ -364,23 +411,53 @@ void main() {
       var adds = 0;
       await tester.pumpWidget(
         _app(
-          EventRowListEmpty(
-            message: '이날 일정이 없어요',
-            addLabel: '일정 추가',
-            onAdd: () => adds++,
+          Builder(
+            builder: (context) {
+              final l10n = AppLocalizations.of(context);
+              return EventRowListEmpty(
+                message: l10n.daySheetEventEmpty,
+                addLabel: l10n.daySheetEventAdd,
+                onAdd: () => adds++,
+              );
+            },
           ),
         ),
       );
       final tokens = _context(tester).tokens;
-      final style = _text(tester, '이날 일정이 없어요').style!;
+      final l10n = _l10n(tester);
+      final style = _text(tester, l10n.daySheetEventEmpty).style!;
       expect(style.fontSize, tokens.typography.captionLg.fontSize);
       expect(style.color, tokens.colors.textSecondary);
       final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
       expect(button.variant, PrimaryButtonVariant.quiet);
-      expect(button.label, '일정 추가');
-      await tester.tap(find.text('일정 추가'));
+      expect(button.label, l10n.daySheetEventAdd);
+      await tester.tap(find.text(l10n.daySheetEventAdd));
       await tester.pumpAndSettle();
       expect(adds, 1);
+    });
+
+    testWidgets('IA 슬롯 id가 Semantics identifier로 붙습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          EventRowListEmpty(
+            message: '이날은 일정이 없어요.',
+            addLabel: '일정 추가',
+            onAdd: () {},
+            messageIdentifier: SlotIds.daySheetEventEmpty,
+            addIdentifier: SlotIds.daySheetEventAdd,
+          ),
+        ),
+      );
+      final message = tester
+          .getSemantics(find.text('이날은 일정이 없어요.'))
+          .getSemanticsData();
+      expect(message.identifier, SlotIds.daySheetEventEmpty);
+      expect(message.label, '이날은 일정이 없어요.');
+      final add = tester.getSemantics(find.text('일정 추가')).getSemanticsData();
+      expect(add.identifier, SlotIds.daySheetEventAdd);
+      expect(add.label, '일정 추가');
+      handle.dispose();
     });
   });
 }

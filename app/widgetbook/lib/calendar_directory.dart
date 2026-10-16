@@ -20,25 +20,21 @@ class _SummaryDemo extends StatelessWidget {
       children: [
         EventRow.summary(
           status: EventRowStatus.inProgress,
-          statusLabel: l10n.todayEventSummaryOngoing,
-          time: l10n.eventRowAllDay,
           title: '가족 여행',
           onTap: () {},
         ),
         EventRow.summary(
           status: EventRowStatus.next,
-          statusLabel: l10n.todayEventSummaryNext,
           time: '14:00',
           title: '치과 예약',
-          moreText: l10n.eventRowMore(2),
+          moreCount: 2,
           onTap: () {},
         ),
         EventRow.summary(
           status: EventRowStatus.next,
-          statusLabel: l10n.todayEventSummaryNext,
           time: '09:30',
           title: _longTitle,
-          moreText: l10n.eventRowMore(1),
+          moreCount: 1,
           onTap: () {},
         ),
         EventRow.summary(
@@ -58,18 +54,13 @@ class _ListDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        EventRow.list(time: null, title: '가족 여행', onTap: () {}),
+        EventRow.list(time: '09:30', title: _longTitle, onTap: () {}),
         EventRow.list(
-          timeText: l10n.eventRowAllDay,
-          title: '가족 여행',
-          onTap: () {},
-        ),
-        EventRow.list(timeText: '09:30', title: _longTitle, onTap: () {}),
-        EventRow.list(
-          timeText: '14:00',
+          time: '14:00',
           title: '치과 예약',
           showDivider: false,
           onTap: () {},
