@@ -89,4 +89,53 @@ void main() {
       const OnboardingDraft(),
     );
   });
+
+  patrolTest('해외 기기: 출생지에서 계산 기준을 읽고 돌아와 도시를 고릅니다', ($) async {
+    covers(
+      const Covers(
+        exits: [
+          'onboard-gender>birthplace',
+          'birthplace>calc-basis',
+          'birthplace>preview',
+        ],
+        decisions: ['D29', 'D71'],
+      ),
+    );
+    // 해외 기기 흐름(출생지 입력 갈래, D29)을 기기 설정과 상관없이 확인합니다.
+    await launchApp(
+      $,
+      flow: 'overseas',
+      scenario: 'overseas',
+      deviceLocale: const Locale('en', 'US'),
+    );
+
+    await $(find.byKey(const ValueKey(SlotIds.welcomeCtaStart))).tap();
+    await expectScreen($, ScreenIds.onboardCall);
+    await $(EditableText).enterText('Luna');
+    await $(PrimaryButton).tap();
+
+    await expectScreen($, ScreenIds.onboardBirth);
+    await $(PrimaryButton).tap();
+
+    await expectScreen($, ScreenIds.onboardTime);
+    await $(PrimaryButton).tap();
+
+    await expectScreen($, ScreenIds.onboardGender);
+    await $(find.byKey(Segmented.itemKey(0))).tap();
+    await $(PrimaryButton).tap();
+
+    await expectScreen($, ScreenIds.birthplace);
+    // 한국 표준 소개 아래 링크로 계산 기준을 읽고, 뒤로 돌아옵니다(D71).
+    await $(find.byKey(const ValueKey(SlotIds.birthplaceStandardLink))).tap();
+    await expectScreen($, ScreenIds.calcBasis);
+    await $(find.byKey(const ValueKey('app-bar.back'))).tap();
+
+    // 돌아온 출생지에서 도시를 찾아 고르면 미리보기로 갑니다.
+    await $(find.byKey(const ValueKey(ScreenIds.birthplace)))
+        .waitUntilVisible();
+    await $(EditableText).enterText('new');
+    await $('New York City').waitUntilVisible();
+    await $('New York City').tap();
+    await expectScreen($, ScreenIds.preview);
+  });
 }

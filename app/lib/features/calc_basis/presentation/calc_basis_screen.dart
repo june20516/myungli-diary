@@ -140,6 +140,9 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
           : paragraph;
     }
     if (basis.hasError) return null;
+    // build 중 필드를 바꾸지만 setState는 부르지 않습니다. 한 번 true가 되면 되돌아가지 않는
+    // 멱등 단방향 플래그이고, 같은 build가 곧바로 읽는 값이 아니라 "다음에 값이 오면
+    // seep으로 나타낼지"만 정해서 이 변경으로 다시 그릴 필요가 없습니다.
     _shownLoading = true;
     // 기본 글줄 셋이 문단 한 개 자리입니다.
     return SkeletonBlock(lineStyle: context.tokens.typography.sentenceBody);
