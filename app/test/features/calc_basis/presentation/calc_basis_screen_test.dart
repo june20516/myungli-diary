@@ -220,7 +220,7 @@ void main() {
       expect(_longitudeText(tester), contains('서머타임 60분만 빼고'));
     });
 
-    test('en·ja도 서머타임 분기마다 ARB 값에 인자를 채운 문장입니다', () {
+    test('en·ja도 서머타임 세 분기(Subtract·Add·None)마다 ARB 값에 인자를 채운 문장입니다', () {
       const basis = TimeBasis(
         longitude: 127.5,
         correctionMinutes: -30,
@@ -246,6 +246,53 @@ void main() {
         ),
       );
       expect(calcBasisLongitudeText(en, basis), contains('60-minute'));
+
+      // DstAdd: 보정 분(4)과 서머타임 분(60)이 서로 다른 자리에 들어갑니다.
+      const add = TimeBasis(
+        longitude: -74.01,
+        correctionMinutes: 4,
+        daylightSavingMinutes: 60,
+      );
+      expect(
+        calcBasisLongitudeText(en, add),
+        en.calcBasisLongitudeBodyDstAdd(
+          en.calcBasisLongitudeBodyWest('74.01'),
+          4,
+          60,
+        ),
+      );
+      expect(
+        calcBasisLongitudeText(ja, add),
+        ja.calcBasisLongitudeBodyDstAdd(
+          ja.calcBasisLongitudeBodyWest('74.01'),
+          4,
+          60,
+        ),
+      );
+      expect(calcBasisLongitudeText(en, add), contains('add 4 minutes'));
+      expect(calcBasisLongitudeText(ja, add), contains('4分を足して'));
+
+      // DstNone: 보정 분 인자가 없고 서머타임 분만 들어갑니다.
+      const none = TimeBasis(
+        longitude: 127.5,
+        correctionMinutes: 0,
+        daylightSavingMinutes: 60,
+      );
+      expect(
+        calcBasisLongitudeText(en, none),
+        en.calcBasisLongitudeBodyDstNone(
+          en.calcBasisLongitudeBodyEast('127.5'),
+          60,
+        ),
+      );
+      expect(
+        calcBasisLongitudeText(ja, none),
+        ja.calcBasisLongitudeBodyDstNone(
+          ja.calcBasisLongitudeBodyEast('127.5'),
+          60,
+        ),
+      );
+      expect(calcBasisLongitudeText(ja, none), contains('60分だけ'));
     });
 
     testWidgets('서머타임과 양수 보정은 DstAdd 문구입니다', (tester) async {
