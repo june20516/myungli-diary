@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -42,6 +43,9 @@ var termCategories = map[string]bool{
 	"shinsal": true, "day_kind": true, "relation": true, "role": true, "luck": true,
 }
 
+// supportedLangs는 원고 디렉터리로 받는 언어입니다. 그 밖 디렉터리는 오타일 가능성이 커서 오류로 봅니다.
+var supportedLangs = []string{"ko", "en", "ja"}
+
 // Report는 변환 중 발견했지만 실패는 아닌 사항입니다.
 type Report struct {
 	// Missing은 슬롯 명세가 요구하지만 원고가 없는 항목입니다. 형식은 "슬롯/키/variant/언어"이고 정렬되어 있습니다.
@@ -50,9 +54,9 @@ type Report struct {
 
 // slotSpec은 슬롯 명세 YAML 중 변환에 필요한 필드입니다.
 type slotSpec struct {
-	ID       string    `yaml:"id"`
-	Vocative bool      `yaml:"vocative"`
-	Types    []string  `yaml:"types"`
+	ID       string   `yaml:"id"`
+	Vocative bool     `yaml:"vocative"`
+	Types    []string `yaml:"types"`
 	Variants struct {
 		Count int `yaml:"count"`
 	} `yaml:"variants"`
@@ -124,7 +128,7 @@ func (s slotInfo) labels() []string {
 // variantOf는 원고 줄의 variant 이름을 정합니다. 슬롯 명세와 맞지 않으면 오류입니다.
 func (s slotInfo) variantOf(e entry) (string, error) {
 	if len(s.spec.Types) > 0 {
-		if !contains(s.spec.Types, e.Type) {
+		if !slices.Contains(s.spec.Types, e.Type) {
 			return "", fmt.Errorf("%s: 슬롯 %s의 type은 %s 중 하나여야 합니다 (현재 %q)",
 				e.where(), e.Slot, strings.Join(s.spec.Types, ", "), e.Type)
 		}
@@ -140,15 +144,6 @@ func (s slotInfo) variantOf(e entry) (string, error) {
 		return strconv.Itoa(e.Variant), nil
 	}
 	return seed.VariantSingle, nil
-}
-
-func contains(list []string, v string) bool {
-	for _, s := range list {
-		if s == v {
-			return true
-		}
-	}
-	return false
 }
 
 // Run은 writingDir 아래 슬롯 명세와 원고를 읽어 시드를 만듭니다.
@@ -280,6 +275,10 @@ func loadEntries(dir string, slots map[string]slotInfo) ([]entry, []string, erro
 			continue
 		}
 		lang := d.Name()
+		if !slices.Contains(supportedLangs, lang) {
+			return nil, nil, fmt.Errorf("%s: 지원하지 않는 언어 디렉터리 %q입니다 (허용: %s)",
+				dir, lang, strings.Join(supportedLangs, ", "))
+		}
 		langs = append(langs, lang)
 		files, err := yamlFiles(filepath.Join(dir, lang))
 		if err != nil {
@@ -388,6 +387,8 @@ func parseParamKind(node yaml.Node) (seed.ParamKind, error) {
 // termNames는 한 언어의 이름 글자 -> 용어 id 집합입니다.
 type termNames struct {
 	byText map[string]map[string]bool
+	// ids는 그 언어 사전에 이름이 있는 용어 id 전체입니다.
+	ids map[string]bool
 	// complete는 glossary와 태그 이름 원고가 둘 다 있어 '이름 없음'을 오류로 볼 수 있다는 뜻입니다.
 	complete bool
 }
@@ -416,7 +417,7 @@ func nameIndex(entries []entry) map[string]*termNames {
 		}
 		names := index[e.lang]
 		if names == nil {
-			names = &termNames{byText: map[string]map[string]bool{}}
+			names = &termNames{byText: map[string]map[string]bool{}, ids: map[string]bool{}}
 			index[e.lang] = names
 			sources[e.lang] = map[string]bool{}
 		}
@@ -424,6 +425,7 @@ func nameIndex(entries []entry) map[string]*termNames {
 			names.byText[e.Text] = map[string]bool{}
 		}
 		names.byText[e.Text][id] = true
+		names.ids[id] = true
 		sources[e.lang][e.Slot] = true
 	}
 	for lang, names := range index {
@@ -433,37 +435,61 @@ func nameIndex(entries []entry) map[string]*termNames {
 }
 
 // resolveTokens는 본문의 [[글자]]를 [[글자|용어 id]]로 바꿉니다.
-// [[글자|id]]와 [[{param}]] 꼴은 그대로 둡니다.
+// 토큰 문법은 writing의 parse_tokens와 같습니다. 짝 없는 ]], 닫히지 않거나 중첩된 [[, 빈 글자, 빈 id,
+// id 안의 |는 오류입니다. [[{param}]] 꼴은 그대로 둡니다.
 func resolveTokens(e entry, index map[string]*termNames) (string, error) {
 	var b strings.Builder
 	rest := e.Text
 	for {
 		start := strings.Index(rest, tokenOpen)
+		limit := start
+		if start < 0 {
+			limit = len(rest)
+		}
+		if strings.Contains(rest[:limit], tokenClose) {
+			return "", fmt.Errorf("%s: 짝이 없는 ]]가 있습니다", e.where())
+		}
 		if start < 0 {
 			b.WriteString(rest)
 			return b.String(), nil
 		}
-		end := strings.Index(rest[start+len(tokenOpen):], tokenClose)
+		afterOpen := rest[start+len(tokenOpen):]
+		end := strings.Index(afterOpen, tokenClose)
 		if end < 0 {
 			return "", fmt.Errorf("%s: 용어 토큰의 닫는 ]]가 없습니다", e.where())
 		}
-		inner := rest[start+len(tokenOpen) : start+len(tokenOpen)+end]
-		b.WriteString(rest[:start])
-		replaced, err := resolveToken(e, inner, index[e.lang])
+		replaced, err := resolveToken(e, afterOpen[:end], index[e.lang])
 		if err != nil {
 			return "", err
 		}
-		b.WriteString(tokenOpen + replaced + tokenClose)
-		rest = rest[start+len(tokenOpen)+end+len(tokenClose):]
+		b.WriteString(rest[:start] + tokenOpen + replaced + tokenClose)
+		rest = afterOpen[end+len(tokenClose):]
 	}
+}
+
+// isTermID는 id가 용어 id 형식(<범주>.<값> 또는 tag.<키>)인지 봅니다.
+func isTermID(id string) bool {
+	category, value, ok := strings.Cut(id, ".")
+	return ok && value != "" && (termCategories[category] || category+"." == tagKeyPrefix)
 }
 
 // resolveToken은 대괄호 안쪽 하나를 풀어 돌려줍니다.
 func resolveToken(e entry, inner string, names *termNames) (string, error) {
-	if strings.TrimSpace(inner) == "" {
-		return "", fmt.Errorf("%s: 비어 있는 용어 토큰입니다", e.where())
+	shown, id, hasID := strings.Cut(inner, termSeparator)
+	if strings.Contains(inner, tokenOpen) || strings.TrimSpace(shown) == "" ||
+		(hasID && (strings.TrimSpace(id) == "" || strings.Contains(id, termSeparator))) {
+		return "", fmt.Errorf("%s: 용어 토큰 문법이 올바르지 않습니다", e.where())
 	}
-	if strings.Contains(inner, termSeparator) || strings.HasPrefix(inner, "{") {
+	if hasID {
+		if !isTermID(id) {
+			return "", fmt.Errorf("%s: 용어 id %q의 형식이 <범주>.<값> 또는 tag.<키>가 아닙니다", e.where(), id)
+		}
+		if names != nil && names.complete && !names.ids[id] {
+			return "", fmt.Errorf("%s: 용어 id %q가 이 언어 사전에 없습니다", e.where(), id)
+		}
+		return inner, nil
+	}
+	if strings.HasPrefix(shown, "{") {
 		return inner, nil
 	}
 	var ids map[string]bool

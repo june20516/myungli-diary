@@ -1,6 +1,0 @@
-- {slot: glossary.value_name, key: ten_god_group.siksang, text: "식상"}
-- {slot: glossary.value_name, key: ten_god.pyeongwan, text: "편관"}
-- {slot: glossary.value_name, key: ten_god.siksin, text: "식신"}
-- {slot: glossary.value_name, key: direction8.n, text: "북"}
-- {slot: daily.tag_label, key: tag.dohwa, text: "도화"}
-- {slot: daily.tag_label, key: tag.siksang_tag, text: "식신"}

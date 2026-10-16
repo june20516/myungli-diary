@@ -7,23 +7,35 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"os"
 
 	"github.com/june20516/myungli-diary/server/seed/convert"
 )
 
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintln(os.Stderr, "convert:", err)
-		os.Exit(1)
-	}
+	os.Exit(run(os.Args[1:], os.Stderr))
 }
 
-func run() error {
-	writing := flag.String("writing", "", "writing 트리 경로 (slots/content, content/<lang>이 있는 곳)")
-	out := flag.String("out", "", "시드 JSON 출력 파일")
-	strict := flag.Bool("strict", false, "빠진 원고가 있으면 실패")
-	flag.Parse()
+// run은 명령 본체입니다. 종료 코드를 돌려주고 모든 메시지를 stderr에 씁니다.
+func run(args []string, stderr io.Writer) int {
+	if err := execute(args, stderr); err != nil {
+		log.New(stderr, "", 0).Println("convert:", err)
+		return 1
+	}
+	return 0
+}
+
+func execute(args []string, stderr io.Writer) error {
+	fs := flag.NewFlagSet("convert", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	writing := fs.String("writing", "", "writing 트리 경로 (slots/content, content/<lang>이 있는 곳)")
+	out := fs.String("out", "", "시드 JSON 출력 파일")
+	strict := fs.Bool("strict", false, "빠진 원고가 있으면 실패")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
 	if *writing == "" || *out == "" {
 		return fmt.Errorf("-writing과 -out이 필요합니다")
 	}
@@ -40,10 +52,11 @@ func run() error {
 		return fmt.Errorf("시드 쓰기: %w", err)
 	}
 
+	logger := log.New(stderr, "", 0)
 	for _, m := range report.Missing {
-		fmt.Fprintln(os.Stderr, "missing:", m)
+		logger.Println("missing:", m)
 	}
-	fmt.Fprintf(os.Stderr, "version %s: 템플릿 %d개, 빠진 원고 %d개\n", s.Version, len(s.Templates), len(report.Missing))
+	logger.Printf("version %s: 템플릿 %d개, 빠진 원고 %d개\n", s.Version, len(s.Templates), len(report.Missing))
 	if *strict && len(report.Missing) > 0 {
 		return fmt.Errorf("-strict: 빠진 원고 %d개", len(report.Missing))
 	}

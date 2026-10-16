@@ -14,4 +14,9 @@ func TestLoad_EmbeddedSeedParses(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEmpty(t, s.Version)
 	assert.NotEmpty(t, s.Templates)
+
+	// 내장 파일의 Version은 내용에서 다시 계산한 값과 같아야 합니다(손으로 고친 시드를 잡습니다).
+	want := s
+	require.NoError(t, want.Normalize())
+	assert.Equal(t, want.Version, s.Version)
 }

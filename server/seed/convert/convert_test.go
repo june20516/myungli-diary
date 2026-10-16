@@ -1,6 +1,9 @@
 package convert_test
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -75,13 +78,74 @@ func TestRun_KeepsExplicitAndParamTokens(t *testing.T) {
 		bodyOf(t, s, "daily.fortune.head", "fortune.a", "state", "ko"))
 }
 
+// withLine은 basic 트리를 임시 디렉터리에 복사하고, 슬롯 extra.line의 원고 한 줄(lang)을 더한 경로를 돌려줍니다.
+func withLine(t *testing.T, lang, text string) string {
+	t.Helper()
+	dir := t.TempDir()
+	require.NoError(t, os.CopyFS(dir, os.DirFS(basicDir)))
+	slot := "- id: extra.line\n  keys: [extra.k]\n  variants: {count: 1}\n"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "slots/content/extra.yaml"), []byte(slot), 0o600))
+	line := fmt.Sprintf("# 첫 줄\n- {slot: extra.line, key: extra.k, text: %q}\n", text)
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "content", lang, "extra.yaml"), []byte(line), 0o600))
+	return dir
+}
+
 func TestRun_AmbiguousBareTermIsError(t *testing.T) {
 	// "식신"은 ten_god.siksin(glossary)과 tag.siksang_tag(태그) 두 용어의 이름입니다.
-	_, _, err := convert.Run("testdata/ambiguous")
+	_, _, err := convert.Run(withLine(t, "ko", "[[식신]]을 봅니다."))
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "daily.yaml:2")
+	assert.ErrorContains(t, err, "extra.yaml:2")
 	assert.ErrorContains(t, err, "ten_god.siksin")
 	assert.ErrorContains(t, err, "tag.siksang_tag")
+}
+
+func TestRun_TokenSyntaxAndExplicitIDErrors(t *testing.T) {
+	tests := []struct {
+		name, text, wantErr string
+	}{
+		{"짝 없는 닫기", "식상]]을", "짝이 없는 ]]"},
+		{"닫히지 않음", "[[식상을", "닫는 ]]"},
+		{"중첩", "[[식[[상]]]]", "문법"},
+		{"id가 둘", "[[식상|ten_god.a|b]]", "문법"},
+		{"빈 글자", "[[ |ten_god.pyeongwan]]", "문법"},
+		{"빈 id", "[[식상|]]", "문법"},
+		{"id 형식 아님", "[[식상|아무거나]]", "형식"},
+		{"모르는 범주", "[[식상|foo.bar]]", "형식"},
+		{"complete 언어 사전에 없는 id", "[[식상|ten_god.nope]]", "사전에 없습니다"},
+		{"complete 언어에서 이름 없음", "[[없는말]]", "가진 용어가 없습니다"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, err := convert.Run(withLine(t, "ko", tt.text))
+			require.Error(t, err)
+			assert.ErrorContains(t, err, "extra.yaml:2")
+			assert.ErrorContains(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestRun_KnownExplicitIDPasses(t *testing.T) {
+	s, _, err := convert.Run(withLine(t, "ko", "[[식상|ten_god_group.siksang]]과 [[도화|tag.dohwa]]"))
+	require.NoError(t, err)
+	assert.Equal(t, "[[식상|ten_god_group.siksang]]과 [[도화|tag.dohwa]]", bodyOf(t, s, "extra.line", "extra.k", "single", "ko"))
+}
+
+func TestRun_KeepsTokenWhenLanguageNamesIncomplete(t *testing.T) {
+	// en에는 glossary·태그 이름 원고가 없어 글자를 풀지 못해도 오류가 아닙니다.
+	s, _, err := convert.Run(withLine(t, "en", "[[dohwa]] and [[x|ten_god.anything]]"))
+	require.NoError(t, err)
+	assert.Equal(t, "[[dohwa]] and [[x|ten_god.anything]]", bodyOf(t, s, "extra.line", "extra.k", "single", "en"))
+}
+
+func TestRun_UnsupportedLanguageDirIsError(t *testing.T) {
+	_, _, err := convert.Run(withLine(t, "ko", "x")) // 기준선: 정상
+	require.NoError(t, err)
+
+	dir := withLine(t, "ko", "x")
+	require.NoError(t, os.Mkdir(filepath.Join(dir, "content", "fr"), 0o750))
+	_, _, err = convert.Run(dir)
+	require.Error(t, err)
+	assert.ErrorContains(t, err, `"fr"`)
 }
 
 func TestRun_SkipsUISlotsAndUnknownFiles(t *testing.T) {
