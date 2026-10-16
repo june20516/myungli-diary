@@ -161,11 +161,14 @@ func Run(writingDir string) (seed.Seed, Report, error) {
 	if err != nil {
 		return seed.Seed{}, Report{}, err
 	}
-	hanja, err := loadHanja(filepath.Join(writingDir, "content", hanjaFile))
+	hanja, hanjaLines, err := loadHanja(filepath.Join(writingDir, "content", hanjaFile))
 	if err != nil {
 		return seed.Seed{}, Report{}, err
 	}
 	names := nameIndex(entries)
+	if err := checkHanjaTerms(hanjaLines, names); err != nil {
+		return seed.Seed{}, Report{}, err
+	}
 
 	out := seed.Seed{Slots: make(map[string]seed.Slot, len(slots)), Hanja: hanja}
 	for id, info := range slots {
@@ -341,47 +344,72 @@ type hanjaEntry struct {
 	Hanja string `yaml:"hanja"`
 }
 
-// loadHanja는 용어 한자 표기 파일을 용어 id -> 한자로 읽습니다. 파일이 없으면 빈 사전입니다.
-// 목록이 아니거나, 항목 형식이 틀리거나(모르는 필드 포함), 용어 id 형식이 아니거나, 한자가 비었거나, 용어가 중복되면
-// 파일:줄 위치를 담은 오류입니다.
-func loadHanja(file string) (map[string]string, error) {
-	hanja := map[string]string{}
+// hanjaLine은 한자 표기 항목 하나의 용어 id와 파일:줄 위치입니다.
+type hanjaLine struct{ term, where string }
+
+// loadHanja는 용어 한자 표기 파일을 용어 id -> 한자로 읽습니다. 둘째 값은 파일 순서의 항목 위치입니다.
+// 파일이 없으면 빈 사전입니다. 목록이 아니거나, 항목 형식이 틀리거나(모르는 필드 포함), 용어 id 형식이 아니거나,
+// 한자가 비었거나, 용어가 중복되면 파일:줄 위치를 담은 오류입니다.
+func loadHanja(file string) (hanja map[string]string, lines []hanjaLine, err error) {
+	hanja = map[string]string{}
 	data, err := os.ReadFile(file) //nolint:gosec // 호출자가 정한 writing 트리 경로입니다.
 	if errors.Is(err, os.ErrNotExist) {
-		return hanja, nil
+		return hanja, nil, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("한자 표기 읽기: %w", err)
+		return nil, nil, fmt.Errorf("한자 표기 읽기: %w", err)
 	}
 	var doc yaml.Node
 	if err := yaml.Unmarshal(data, &doc); err != nil {
-		return nil, fmt.Errorf("%s: %w", file, err)
+		return nil, nil, fmt.Errorf("%s: %w", file, err)
 	}
 	if len(doc.Content) == 0 {
-		return hanja, nil
+		return hanja, nil, nil
 	}
 	list := doc.Content[0]
 	if list.Kind != yaml.SequenceNode {
-		return nil, fmt.Errorf("%s:%d: 한자 표기는 {term, hanja} 목록이어야 합니다", file, list.Line)
+		return nil, nil, fmt.Errorf("%s:%d: 한자 표기는 {term, hanja} 목록이어야 합니다", file, list.Line)
 	}
 	for _, node := range list.Content {
-		where := fmt.Sprintf("%s:%d", file, node.Line)
+		at := fmt.Sprintf("%s:%d", file, node.Line)
 		var e hanjaEntry
 		if err := decodeStrict(node, &e); err != nil {
-			return nil, fmt.Errorf("%s: 한자 표기 항목 형식 오류: %w", where, err)
+			return nil, nil, fmt.Errorf("%s: 한자 표기 항목 형식 오류: %w", at, err)
 		}
 		if !isTermID(e.Term) {
-			return nil, fmt.Errorf("%s: 용어 id %q의 형식이 <범주>.<값> 또는 tag.<키>가 아닙니다", where, e.Term)
+			return nil, nil, fmt.Errorf("%s: 용어 id %q의 형식이 <범주>.<값> 또는 tag.<키>가 아닙니다", at, e.Term)
 		}
 		if strings.TrimSpace(e.Hanja) == "" {
-			return nil, fmt.Errorf("%s: 용어 %s의 한자가 비어 있습니다", where, e.Term)
+			return nil, nil, fmt.Errorf("%s: 용어 %s의 한자가 비어 있습니다", at, e.Term)
 		}
 		if _, dup := hanja[e.Term]; dup {
-			return nil, fmt.Errorf("%s: 용어 %s의 한자 표기가 중복됩니다", where, e.Term)
+			return nil, nil, fmt.Errorf("%s: 용어 %s의 한자 표기가 중복됩니다", at, e.Term)
 		}
 		hanja[e.Term] = e.Hanja
+		lines = append(lines, hanjaLine{term: e.Term, where: at})
 	}
-	return hanja, nil
+	return hanja, lines, nil
+}
+
+// checkHanjaTerms는 한자 표기의 용어 id가 이름 원고에 있는지 봅니다. 이름 원고가 갖춰진(complete) 언어 하나라도
+// 그 용어의 이름이 없으면 오타나 사라진 용어로 보고 파일:줄 위치를 담은 오류입니다. 갖춰진 언어가 없으면 보지 않습니다
+// (토큰 검사와 같은 기준). 오류는 파일 순서로 첫 항목입니다.
+func checkHanjaTerms(lines []hanjaLine, index map[string]*termNames) error {
+	langs := make([]string, 0, len(index))
+	for lang, names := range index {
+		if names.complete {
+			langs = append(langs, lang)
+		}
+	}
+	sort.Strings(langs)
+	for _, line := range lines {
+		for _, lang := range langs {
+			if !index[lang].ids[line.term] {
+				return fmt.Errorf("%s: 한자 표기의 용어 id %q가 %s 이름 원고에 없습니다", line.where, line.term, lang)
+			}
+		}
+	}
+	return nil
 }
 
 // decodeStrict는 맵 노드를 out으로 읽되, out에 없는 필드가 있으면 오류입니다.
@@ -426,15 +454,7 @@ func toSeedSlot(info slotInfo) (seed.Slot, error) {
 }
 
 func sameKind(a, b seed.ParamKind) bool {
-	if a.Kind != b.Kind || a.ListCategory != b.ListCategory || len(a.Categories) != len(b.Categories) {
-		return false
-	}
-	for i := range a.Categories {
-		if a.Categories[i] != b.Categories[i] {
-			return false
-		}
-	}
-	return true
+	return a.Kind == b.Kind && a.ListCategory == b.ListCategory && slices.Equal(a.Categories, b.Categories)
 }
 
 // parseParamKind는 params 맵의 값(범주 목록, list:<범주>, number, text, none)을 읽습니다.

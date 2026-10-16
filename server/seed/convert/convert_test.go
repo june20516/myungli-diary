@@ -138,10 +138,10 @@ func TestRun_KeepsTokenWhenLanguageNamesIncomplete(t *testing.T) {
 }
 
 func TestRun_UnsupportedLanguageDirIsError(t *testing.T) {
-	_, _, err := convert.Run(withLine(t, "ko", "x")) // 기준선: 정상
+	dir := withLine(t, "ko", "x")
+	_, _, err := convert.Run(dir) // 기준선: 같은 트리는 정상
 	require.NoError(t, err)
 
-	dir := withLine(t, "ko", "x")
 	require.NoError(t, os.Mkdir(filepath.Join(dir, "content", "fr"), 0o750))
 	_, _, err = convert.Run(dir)
 	require.Error(t, err)
@@ -211,6 +211,14 @@ func TestRun_HanjaChangesVersion(t *testing.T) {
 	changed, _, err := convert.Run(withHanja(t, "- {term: ten_god.pyeongwan, hanja: \"七殺\"}\n"))
 	require.NoError(t, err)
 	assert.NotEqual(t, base.Version, changed.Version)
+}
+
+// 이름 원고가 갖춰진 언어(basic 트리의 ko)에 이름이 없는 용어 id는 오타로 보고 파일:줄 위치와 함께 오류입니다.
+func TestRun_HanjaTermMustHaveName(t *testing.T) {
+	_, _, err := convert.Run(withHanja(t, "- {term: tag.dohwa, hanja: \"桃花\"}\n- {term: ten_god.pyeongwna, hanja: \"偏官\"}\n"))
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "hanja.yaml:2")
+	assert.ErrorContains(t, err, "ten_god.pyeongwna")
 }
 
 func TestRun_HanjaFormatErrors(t *testing.T) {
