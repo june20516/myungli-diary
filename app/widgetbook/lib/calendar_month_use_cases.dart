@@ -89,7 +89,7 @@ class _CellStates extends StatelessWidget {
       lunarText: '1',
       diaryWritten: true,
       eventCount: 1,
-      semanticLabel: '10월 11일, 일기 씀, 일정 1개',
+      semanticLabel: '10월 11일, 일기 있음, 일정 1개',
     );
     final cells = <(String, DayCell)>[
       (

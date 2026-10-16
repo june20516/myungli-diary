@@ -58,7 +58,7 @@ final class DayCellData {
   /// 그날 일정 수. 1 이상이면 점을 찍습니다.
   final int eventCount;
 
-  /// 스크린리더 라벨("M월 D일 요일, 음력 M.D 또는 절기, 길흉 낱말, 일기 씀, 일정 N개, 오늘").
+  /// 스크린리더 라벨("M월 D일 요일, 음력 M.D 또는 절기, 길흉 낱말, 일기 있음, 일정 N개, 오늘").
   final String semanticLabel;
 }
 

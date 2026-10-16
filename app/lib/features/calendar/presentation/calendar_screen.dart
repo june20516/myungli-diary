@@ -434,7 +434,7 @@ final class _CellBuilder {
     );
   }
 
-  /// 길흉 응답이 없는 날의 라벨: 날짜 요일, 일기 씀, 일정 N개, 오늘(있는 것만).
+  /// 길흉 응답이 없는 날의 라벨: 날짜 요일, 일기 있음, 일정 N개, 오늘(있는 것만).
   String _plainLabel(
     CalendarDate date, {
     required bool diaryWritten,

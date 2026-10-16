@@ -37,7 +37,7 @@ final class CalendarDayView {
   /// [lunarText]를 굵게 그리는지(절기 날).
   final bool lunarBold;
 
-  /// 스크린리더 라벨. "날짜 요일, 음력 또는 절기, 길흉 낱말, 일기 씀, 일정 N개, 오늘" 순서입니다
+  /// 스크린리더 라벨. "날짜 요일, 음력 또는 절기, 길흉 낱말, 일기 있음, 일정 N개, 오늘" 순서입니다
   /// (명세 `day-cell.a11y.label`).
   final String semanticLabel;
 

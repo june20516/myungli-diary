@@ -28,7 +28,7 @@ enum GuideQuestionState {
 /// 상태에 맞춰 호출하는 쪽이 [actionLabel]로 줍니다.
 ///
 /// [state]가 `before`에서 `after`로 바뀌는 순간(일기를 쓰고 돌아왔을 때)에만 도장이
-/// `seal.stamp`로 찍히고, 상태 알림("오늘 일기 씀")을 스크린리더에 한 번 보냅니다.
+/// `seal.stamp`로 찍히고, 상태 알림("오늘 일기를 썼어요", `todayGuideWritten`)을 스크린리더에 한 번 보냅니다.
 /// 처음부터 `after`로 그릴 때는 움직임도 알림도 없이 도장이 이미 찍혀 있습니다. 동작 줄이기는
 /// 패턴의 대체 규칙(투명도만)을 따릅니다. 눌림(`press.ink`)은 [PrimaryButton]이 입힙니다.
 ///
@@ -169,7 +169,7 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
             child: seal,
           );
     final written = l10n.todayGuideWritten;
-    // 도장은 장식이라 눈에 보이게만 두고, "오늘 일기 씀"만 상태로 읽습니다.
+    // 도장은 장식이라 눈에 보이게만 두고, `todayGuideWritten`만 상태로 읽습니다.
     // 지워지는 동안(before)에는 상태를 읽지 않습니다.
     final announced = _erasing
         ? ExcludeSemantics(child: shown)
