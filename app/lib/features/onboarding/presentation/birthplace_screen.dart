@@ -13,6 +13,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/onboarding/application/city_providers.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
@@ -22,8 +23,10 @@ import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_m
 
 /// IA `birthplace`의 출구 대상. 온보딩은 `preview`, 로그인한 새 계정은 프로필을 저장하고
 /// `notify-ask`(D68), 수정 모드는 `profile-edit`·`settings`
-/// (값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다).
+/// (값을 `pop`으로 돌려주므로 화면이 직접 이동하지 않습니다). 두 모드 모두 계산 기준 링크로
+/// `calc-basis`를 쌓습니다(D71).
 const Set<String> birthplaceExits = {
+  ScreenIds.calcBasis,
   ScreenIds.preview,
   ScreenIds.notifyAsk,
   ScreenIds.profileEdit,
@@ -39,7 +42,10 @@ const Duration _searchDebounce = Duration(milliseconds: 300);
 /// 온보딩 다섯째 단계: 한국 밖 기기에서 출생 도시를 골라 출생 시간대를 정합니다(D29).
 ///
 /// 글자 입력이 300ms 멈추면 검색하고, 도시를 누르면 곧바로 다음으로 갑니다(건너뛰기 출구는
-/// 없습니다). 온보딩에서는 초안에 담은 뒤, 로그인했고 프로필이 없는 계정
+/// 없습니다). 검색칸 위에는 한국 표준 소개와 계산 기준 링크가 있습니다(D71). 링크는
+/// `calc-basis`를 쌓으므로 돌아오면 검색어와 결과가 그대로입니다.
+///
+/// 온보딩에서는 초안에 담은 뒤, 로그인했고 프로필이 없는 계정
 /// ([finishesWithoutPreviewProvider])이면 미리보기를 건너뛰고 마무리 동작
 /// ([onboardingFinishProvider])을 부르고, 아니면 `preview`로 갑니다. 저장이 입력 오류(422)면
 /// `onboard-call`로 돌아가 고치게 합니다. 수정 모드(`?mode=edit`)에서는 고른
@@ -140,6 +146,12 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
     setState(() => _results = result);
   }
 
+  /// 계산 기준 화면을 쌓습니다. 도시를 고른 뒤 처리 중이면 이동하지 않습니다.
+  void _openCalcBasis() {
+    if (_saving) return;
+    unawaited(context.push<void>(pathOf(ScreenIds.calcBasis)));
+  }
+
   Future<void> _onSelected(City city) async {
     if (_saving) return;
     if (widget.mode == OnboardingStepMode.edit) {
@@ -187,6 +199,26 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       step: edit ? null : 5,
       stepCount: edit ? null : ref.watch(onboardingStepCountProvider),
       question: l10n.birthplaceQuestionHead,
+      preface: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            identifier: SlotIds.birthplaceStandardNote,
+            child: Text(
+              l10n.birthplaceStandardNote,
+              key: const ValueKey(SlotIds.birthplaceStandardNote),
+              style: InputStep.helpStyleOf(context),
+            ),
+          ),
+          // 소개 바로 아래 space.12(depth-link navigate가 위 여백을 가짐, 결정 V32).
+          DepthLink(
+            variant: DepthLinkVariant.navigate,
+            label: l10n.birthplaceStandardLink,
+            slotId: SlotIds.birthplaceStandardLink,
+            onTap: _openCalcBasis,
+          ),
+        ],
+      ),
       input: CitySearch(
         label: l10n.birthplaceSearchLabel,
         hint: l10n.birthplaceSearchHint,

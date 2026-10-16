@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -231,6 +232,38 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
               question: '어디서 태어났나요?',
               input: _citySearch(),
               help: '태어난 곳의 시간대로 계산해요.',
+            ),
+          ),
+        ),
+        _stage(
+          '머리말(preface) + 계산 기준 링크',
+          () => SizedBox(
+            width: 360,
+            height: 560,
+            child: Builder(
+              builder: (context) => InputStep.selectToAdvance(
+                screenId: 'birthplace',
+                variant: InputStepVariant.onboarding,
+                step: 5,
+                stepCount: 5,
+                question: '어디서 태어났나요?',
+                preface: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      '명리일기는 한국에서 널리 쓰는 기준으로 계산해요.',
+                      style: InputStep.helpStyleOf(context),
+                    ),
+                    DepthLink(
+                      variant: DepthLinkVariant.navigate,
+                      label: '계산 기준 보기',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+                input: _citySearch(),
+                help: '태어난 곳의 시간대로 계산해요.',
+              ),
             ),
           ),
         ),

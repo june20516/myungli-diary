@@ -10,6 +10,7 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
@@ -51,6 +52,49 @@ Widget _inputSteps() => Builder(
           ),
         ),
       ],
+    );
+  },
+);
+
+/// input-step 머리말(preface): birthplace처럼 질문과 입력 사이에 소개 글과
+/// 계산 기준 링크(`depth-link` `navigate`)를 둔 고르면 바로 넘어가는 단계.
+Widget _inputStepPreface() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    return SizedBox(
+      height: 460,
+      child: InputStep.selectToAdvance(
+        screenId: 'birthplace',
+        variant: InputStepVariant.onboarding,
+        step: 5,
+        stepCount: 5,
+        question: ja ? 'どこで生まれましたか?' : '어디서 태어났나요?',
+        preface: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              ja ? '命理日記は、韓国で広く使われている基準で計算します。' : '명리일기는 한국에서 널리 쓰는 기준으로 계산해요.',
+              style: InputStep.helpStyleOf(context),
+            ),
+            DepthLink(
+              variant: DepthLinkVariant.navigate,
+              label: ja ? '計算の基準を見る' : '계산 기준 보기',
+              onTap: () {},
+            ),
+          ],
+        ),
+        input: CitySearch(
+          label: ja ? '都市名' : '도시 이름',
+          hint: ja ? '例: ソウル' : '예: Seoul',
+          onQueryChanged: (_) {},
+          results: null,
+          onSelected: (_) {},
+          emptyBody: ja ? '見つかる都市がありません。' : '찾는 도시가 없어요.',
+          onRetry: () {},
+          animated: false,
+        ),
+        help: ja ? '生まれた場所のタイムゾーンで計算します。' : '태어난 곳의 시간대로 계산해요.',
+      ),
     );
   },
 );
@@ -365,6 +409,15 @@ void main() {
       tester,
       'input_input_step',
       _inputSteps,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('input-step: 머리말(preface) + depth-link navigate', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_input_step_preface',
+      _inputStepPreface,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

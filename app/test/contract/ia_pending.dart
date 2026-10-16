@@ -27,9 +27,6 @@ const Set<String> pendingStateScreens = {
 /// 빈 집합이 목표입니다. IA `exits`가 빈 화면은 넣지 않습니다(넣으면 ratchet
 /// 테스트가 즉시 실패합니다).
 const Set<String> pendingExitScreens = {
-  // IA v3(D71)가 `calc-basis`로 가는 출구를 더했습니다. 계산 기준 링크와
-  // `calc-basis` 로그인 전 열람은 #160의 별도 PR에서 구현하고 그때 지웁니다.
-  'birthplace',
   'today',
   'calendar',
   'diary-list',
