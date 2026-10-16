@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -368,6 +369,30 @@ void main() {
       final reason = tester.getTopLeft(find.textContaining('월지')).dy;
       final link = tester.getTopLeft(find.byType(DepthLink)).dy;
       expect(title < meaning && meaning < reason && reason < link, isTrue);
+    });
+
+    testWidgets('한자는 caption.md 크기·색에 한자 글꼴(font.family.hanja)입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheetBody(title: '식신', hanja: '食神'),
+          glossary: () async => _names,
+        ),
+      );
+
+      final tokens = tester.element(find.byType(ExplainSheetBody)).tokens;
+      final style = tester
+          .widget<Text>(find.byKey(ExplainSheetBody.hanjaKey))
+          .style!;
+      final caption = tokens.typography.captionMd;
+      final hanjaFont = tokens.typography.hanjaPillar;
+      expect(style.fontFamily, hanjaFont.fontFamily);
+      expect(style.fontFamilyFallback, hanjaFont.fontFamilyFallback);
+      expect(style.fontSize, caption.fontSize);
+      expect(style.fontWeight, caption.fontWeight);
+      expect(style.height, caption.height);
+      expect(style.color, tokens.colors.textSecondary);
     });
 
     testWidgets('제목 줄에 한자가 들어가지 않으면 한자는 제목 아래 줄로 갑니다', (tester) async {

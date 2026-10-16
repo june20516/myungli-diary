@@ -35,7 +35,8 @@ class ExplainSheetBody extends StatelessWidget {
   /// 시트 제목(용어 이름, `type.title`).
   final String title;
 
-  /// 용어 한자(`type.caption.md`, `text.secondary`). 사전에 없으면 `null`입니다.
+  /// 용어 한자(`type.caption.md`, `text.secondary`, 글꼴 `font.family.hanja`).
+  /// 사전에 없으면 `null`입니다.
   final String? hanja;
 
   /// 용어 뜻(`explain-sheet.term.meaning`). 계약에 없으면 `null`입니다.
@@ -110,8 +111,14 @@ class ExplainSheetBody extends StatelessWidget {
           Text(
             hanja,
             key: hanjaKey,
+            // 크기·굵기·행간은 caption.md 그대로 두고 글꼴만 한자 family(`font.family.hanja`,
+            // 원국표 한자 `type.hanja.pillar`와 같은 family)로 바꿉니다. 문장 글꼴에는 한자
+            // 글리프가 없습니다.
             style: tokens.typography.captionMd.copyWith(
               color: tokens.colors.textSecondary,
+              fontFamily: tokens.typography.hanjaPillar.fontFamily,
+              fontFamilyFallback:
+                  tokens.typography.hanjaPillar.fontFamilyFallback,
             ),
           ),
         ],
