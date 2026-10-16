@@ -870,6 +870,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get evidenceSheetTitle => 'The basis for today\'s reading';
 
   @override
+  String get calcBasisTitle => 'Calculation basis';
+
+  @override
   String get direction8N => 'North';
 
   @override
