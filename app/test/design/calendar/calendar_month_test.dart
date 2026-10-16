@@ -536,12 +536,61 @@ void main() {
     final handle = tester.ensureSemantics();
     await _pump(tester);
     expect(find.bySemanticsLabel('2026년 10월'), findsOneWidget);
-    // 달을 넘기면 바뀐 이름을 알립니다.
+    handle.dispose();
+  });
+
+  testWidgets('달을 바꿀 때만 새 제목을 한 번 알립니다(처음 열 때·로딩 끝날 때는 없음)', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _pump(tester, loading: true);
+    expect(tester.takeAnnouncements(), isEmpty, reason: '처음 열 때');
+    // 로딩이 끝나도 알리지 않습니다(같은 harness에서 loading만 바꿈).
+    await _pump(tester);
+    expect(tester.takeAnnouncements(), isEmpty, reason: '로딩이 끝날 때');
+    await tester.tap(find.byKey(CalendarMonthView.nextKey));
+    await tester.pump();
+    final announcements = tester.takeAnnouncements();
+    expect(announcements, hasLength(1));
+    expect(announcements.single.message, '2026년 11월');
+    await tester.pumpAndSettle();
+    expect(tester.takeAnnouncements(), isEmpty);
+    // 격자는 live region이 아닙니다(처음 열 때 초점을 끌지 않음).
     final grid = tester
         .getSemantics(find.byKey(CalendarMonthView.tableKey))
         .getSemanticsData();
-    expect(grid.flagsCollection.isLiveRegion, isTrue);
+    expect(grid.flagsCollection.isLiveRegion, isFalse);
     handle.dispose();
+  });
+
+  testWidgets('로딩 알림 노드는 자리를 차지하지 않습니다(로딩 전후 범례 위치 같음)', (tester) async {
+    Future<void> pumpWithLegend({required bool loading}) => tester.pumpWidget(
+      inputApp(
+        Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 336,
+            child: CalendarMonthView(
+              month: const CalendarMonth(2026, 10),
+              title: '2026년 10월',
+              weekdayLabels: _weekdays,
+              cellOf: _cellOf,
+              loading: loading,
+              today: CalendarDate(2026, 10, 16),
+              skeletonDelay: Duration.zero,
+              skeletonAnimated: false,
+              onSelect: (_) {},
+              onMonthChange: (_) {},
+              legend: const [(swatch: Color(0xFFFFE9E5), label: '잘 풀리는 날')],
+            ),
+          ),
+        ),
+      ),
+    );
+    await pumpWithLegend(loading: true);
+    expect(find.byKey(CalendarMonthView.loadingKey), findsOneWidget);
+    final whileLoading = tester.getRect(find.text('잘 풀리는 날'));
+    await pumpWithLegend(loading: false);
+    expect(find.byKey(CalendarMonthView.loadingKey), findsNothing);
+    expect(tester.getRect(find.text('잘 풀리는 날')), whileLoading);
   });
 
   test('명세 상태 id', () {

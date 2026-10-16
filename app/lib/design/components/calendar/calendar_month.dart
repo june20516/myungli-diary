@@ -188,12 +188,25 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   @override
   void didUpdateWidget(CalendarMonthView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.month != widget.month) _announceMonth();
     if (widget.loading && !oldWidget.loading) {
       _startSkeleton();
     } else if (!widget.loading) {
       _skeletonTimer?.cancel();
       _skeletonVisible = false;
     }
+  }
+
+  /// 달이 바뀌면 새 제목을 한 번 알립니다. 격자를 live region으로 두면 처음 열 때도 알리고
+  /// iOS 초점이 격자로 옮겨 갈 수 있어, 바뀐 때만 직접 알립니다.
+  void _announceMonth() {
+    unawaited(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        widget.title,
+        Directionality.of(context),
+      ),
+    );
   }
 
   @override
@@ -258,39 +271,45 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(context, l10n, previous, next),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onHorizontalDragStart: (_) => _dragDx = 0,
-          onHorizontalDragUpdate: (details) => _dragDx += details.delta.dx,
-          onHorizontalDragEnd: _onDragEnd,
-          child: Semantics(
-            key: CalendarMonthView.tableKey,
-            container: true,
-            role: SemanticsRole.table,
-            liveRegion: true,
-            label: widget.title,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MediaQuery.withClampedTextScaling(
-                  maxScaleFactor: DayCell.textScaleMax,
-                  child: _weekdays(context),
+        Stack(
+          children: [
+            // 불러오는 중 알림은 격자(table) 밖 노드 하나입니다(table 자식은 row만). 격자 뒤
+            // 층에 겹쳐 두어 자리를 차지하지 않고, 위에 있는 격자 칸의 터치 탐색을 막지 않습니다.
+            if (widget.loading && _skeletonVisible)
+              Positioned.fill(
+                child: Semantics(
+                  key: CalendarMonthView.loadingKey,
+                  container: true,
+                  role: SemanticsRole.loadingSpinner,
+                  label: l10n.skeletonLabel,
+                  child: const SizedBox.expand(),
                 ),
-                SeepOnChange(changeKey: widget.month, child: _grid()),
-              ],
+              ),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragStart: (_) => _dragDx = 0,
+              onHorizontalDragUpdate: (details) => _dragDx += details.delta.dx,
+              onHorizontalDragEnd: _onDragEnd,
+              child: Semantics(
+                key: CalendarMonthView.tableKey,
+                container: true,
+                role: SemanticsRole.table,
+                label: widget.title,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MediaQuery.withClampedTextScaling(
+                      maxScaleFactor: DayCell.textScaleMax,
+                      child: _weekdays(context),
+                    ),
+                    SeepOnChange(changeKey: widget.month, child: _grid()),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-        // 불러오는 중 알림은 격자(table) 밖 노드 하나로 둡니다(table 자식은 row만).
-        if (widget.loading && _skeletonVisible)
-          Semantics(
-            key: CalendarMonthView.loadingKey,
-            container: true,
-            role: SemanticsRole.loadingSpinner,
-            label: l10n.skeletonLabel,
-            child: const SizedBox(height: Space.s4),
-          ),
         if (legend != null) _legend(context, legend),
       ],
     );
