@@ -7,7 +7,10 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W6", "W10"],
+    "decisions": [
+      "W6",
+      "W10"
+    ],
     "status": "chosen",
     "note": "모든 목적 해요체, 안내는 호칭 + 질문형, 돌봄은 지시하지 않음(후보)"
   },
@@ -19,7 +22,10 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W7", "W8"],
+    "decisions": [
+      "W7",
+      "W8"
+    ],
     "status": "chosen",
     "note": "헤드라인은 짧은 한 문장, 정보 카드는 형태를 섞고 같은 화면에서 같은 틀 반복 금지"
   },
@@ -31,7 +37,9 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W9"],
+    "decisions": [
+      "W9"
+    ],
     "status": "chosen",
     "note": "쉬운 일상어, 토큰 6범주, 화면 최대 2개를 한 문장에"
   },
@@ -43,7 +51,10 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W11", "W12"],
+    "decisions": [
+      "W11",
+      "W12"
+    ],
     "status": "chosen",
     "note": "조언은 행동 하나 + ~해 보세요, 돌봄은 행동을 시키지 않고 형태를 넓힘"
   },
@@ -55,7 +66,10 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W12", "W14"],
+    "decisions": [
+      "W12",
+      "W14"
+    ],
     "status": "chosen",
     "note": "돌봄 하루 2·한 주 7, 괜찮아요 이틀 연속 금지, 영어 호칭 한 주 2"
   },
@@ -67,7 +81,9 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W13"],
+    "decisions": [
+      "W13"
+    ],
     "status": "chosen",
     "note": "구체적인 것 하나, 변주 1 권유형 · 변주 2 질문형"
   },
@@ -79,7 +95,9 @@
     "date": "2026-10-11",
     "milestone": "W0",
     "screens": [],
-    "decisions": ["W15"],
+    "decisions": [
+      "W15"
+    ],
     "status": "chosen",
     "note": "요약 / 풀이 / 원리, 설정 이름 '얼마나 자세히 볼까요'"
   },
@@ -90,9 +108,37 @@
     "file": "2026-10-13-round-R8.md",
     "date": "2026-10-14",
     "milestone": "W0",
-    "screens": ["welcome", "notify-ask", "evidence-sheet", "ad-free", "share-preview", "settings"],
-    "decisions": ["W15", "W17"],
+    "screens": [
+      "welcome",
+      "notify-ask",
+      "evidence-sheet",
+      "ad-free",
+      "share-preview",
+      "settings"
+    ],
+    "decisions": [
+      "W15",
+      "W17"
+    ],
     "status": "chosen",
     "note": "컨셉·알림·보상 고지·광고 제거권·태그라인·앱 이름, 기본 깊이 이름 '명리 풀이 보기'"
+  },
+  {
+    "id": "round-R9",
+    "title": "라운드 R9 — W1-1 오늘 화면 표본",
+    "kind": "copy-sample",
+    "file": "2026-10-16-round-R9.md",
+    "date": "2026-10-16",
+    "milestone": "W1",
+    "screens": [
+      "today",
+      "diary-edit",
+      "calendar"
+    ],
+    "decisions": [
+      "W28"
+    ],
+    "status": "chosen",
+    "note": "총운 state만 호칭, 보조 문장 토큰 없음, 쏠림 태그 '<묶음>이 많은 날'. 가이드 질문 기준·태그라인은 보류"
   }
 ]
