@@ -181,27 +181,20 @@ class _CitySearchState extends State<CitySearch> {
         identifier: widget.emptyIdentifier,
       );
     }
-    // 결과 수 알림은 카드와 나란한 1x1 노드에 둡니다. `LiveAnnouncement`는 자식을 의미에서
+    // 결과 수 알림은 카드와 나란한 노드에 둡니다. `LiveAnnouncement`는 자식을 의미에서
     // 숨기므로 카드를 감싸면 결과 줄을 스크린리더가 읽지도 누르지도 못합니다.
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        SilentAnnouncement(
+          label: AppLocalizations.of(context).citySearchResults(cities.length),
+          role: SemanticsRole.status,
+        ),
         _ResultsCard(
           key: CitySearch.resultsKey,
           cities: cities,
           query: _query.trim(),
           onSelected: widget.onSelected,
-        ),
-        Positioned(
-          left: 0,
-          top: 0,
-          width: 1,
-          height: 1,
-          child: LiveAnnouncement(
-            label: AppLocalizations.of(context)
-                .citySearchResults(cities.length),
-            role: SemanticsRole.status,
-            child: const SizedBox.shrink(),
-          ),
         ),
       ],
     );
@@ -210,7 +203,8 @@ class _CitySearchState extends State<CitySearch> {
 
 /// 결과 줄의 지역 줄 글자("행정 구역, 나라 이름", `city-search.parts.region`).
 ///
-/// 이름이 있는 것만 ", "로 잇고 나라 코드([City.country])는 쓰지 않습니다. 둘 다 없으면
+/// 이름이 있는 것만 ", "로 잇고 나라 코드([City.country])는 쓰지 않습니다.
+/// ja 구분자(", " / "、")는 design 확인 중입니다(#195). 둘 다 없으면
 /// null이라 줄을 그리지 않습니다. 계약에 지역 필드가 늘면 이 한 곳만 고칩니다.
 String? cityRegionLine(City city) {
   final names = [

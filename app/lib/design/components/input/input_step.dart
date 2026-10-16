@@ -44,49 +44,89 @@ class InputStep extends StatefulWidget {
   /// (1부터)과 [stepCount]가 있어야 합니다. 도움말·오류·버튼의 슬롯 id는
   /// [helpIdentifier]·[errorIdentifier]·[actionIdentifier]로 넘깁니다.
   const new({
+    required String screenId,
+    required InputStepVariant variant,
+    required String question,
+    required Widget input,
+    required String actionLabel,
+    required VoidCallback? onAction,
+    String? help,
+    String? error,
+    bool actionLoading = false,
+    int? step,
+    int? stepCount,
+    String? helpIdentifier,
+    String? errorIdentifier,
+    String? actionIdentifier,
+    Key? key,
+  }) : this._(
+         screenId: screenId,
+         variant: variant,
+         question: question,
+         input: input,
+         actionLabel: actionLabel,
+         onAction: onAction,
+         help: help,
+         error: error,
+         actionLoading: actionLoading,
+         step: step,
+         stepCount: stepCount,
+         helpIdentifier: helpIdentifier,
+         errorIdentifier: errorIdentifier,
+         actionIdentifier: actionIdentifier,
+         key: key,
+       );
+
+  /// 고르면 바로 넘어가는 단계의 틀을 만듭니다. 아래 버튼이 없고, 다음으로 넘어가는 일은
+  /// [input]의 선택이 합니다. 아래 버튼을 빼는 길은 이 생성자 하나입니다.
+  const new selectToAdvance({
+    required String screenId,
+    required InputStepVariant variant,
+    required String question,
+    required Widget input,
+    String? help,
+    String? error,
+    int? step,
+    int? stepCount,
+    String? helpIdentifier,
+    String? errorIdentifier,
+    Key? key,
+  }) : this._(
+         screenId: screenId,
+         variant: variant,
+         question: question,
+         input: input,
+         actionLabel: null,
+         onAction: null,
+         help: help,
+         error: error,
+         actionLoading: false,
+         step: step,
+         stepCount: stepCount,
+         helpIdentifier: helpIdentifier,
+         errorIdentifier: errorIdentifier,
+         actionIdentifier: null,
+         key: key,
+       );
+
+  // 두 공개 생성자가 모이는 곳. 단계 검사 assert를 한 번만 둡니다.
+  const new _({
     required this.screenId,
     required this.variant,
     required this.question,
     required this.input,
     required this.actionLabel,
     required this.onAction,
-    this.help,
-    this.error,
-    this.actionLoading = false,
-    this.step,
-    this.stepCount,
-    this.helpIdentifier,
-    this.errorIdentifier,
-    this.actionIdentifier,
+    required this.help,
+    required this.error,
+    required this.actionLoading,
+    required this.step,
+    required this.stepCount,
+    required this.helpIdentifier,
+    required this.errorIdentifier,
+    required this.actionIdentifier,
     super.key,
   }) : assert(
-         variant != InputStepVariant.onboarding ||
-             (step != null &&
-                 stepCount != null &&
-                 step >= 1 &&
-                 step <= stepCount),
-         'onboarding 변형은 1 <= step <= stepCount가 필요합니다.',
-       );
-
-  /// 고르면 바로 넘어가는 단계의 틀을 만듭니다. 아래 버튼이 없고, 다음으로 넘어가는 일은
-  /// [input]의 선택이 합니다. 나머지 인자는 기본 생성자와 같습니다.
-  const new selectToAdvance({
-    required this.screenId,
-    required this.variant,
-    required this.question,
-    required this.input,
-    this.help,
-    this.error,
-    this.step,
-    this.stepCount,
-    this.helpIdentifier,
-    this.errorIdentifier,
-    super.key,
-  }) : actionLabel = null,
-       onAction = null,
-       actionLoading = false,
-       actionIdentifier = null,
-       assert(
          variant != InputStepVariant.onboarding ||
              (step != null &&
                  stepCount != null &&
@@ -128,7 +168,8 @@ class InputStep extends StatefulWidget {
   /// 오류 문구. 있으면 `out-of-range`입니다.
   final String? error;
 
-  /// 아래 버튼 글자. null이면 아래 버튼이 없습니다([InputStep.selectToAdvance]).
+  /// 아래 버튼 글자. 기본 생성자에서는 필수이고, [InputStep.selectToAdvance]만 null
+  /// (아래 버튼 없음)입니다.
   final String? actionLabel;
 
   /// 아래 버튼을 눌렀을 때. null이면 disabled.

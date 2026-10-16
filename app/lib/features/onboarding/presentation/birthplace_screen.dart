@@ -146,6 +146,9 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       context.pop(city);
       return;
     }
+    // 아래 버튼이 없어(`bottomAction.omitWhen`) 처리 중 점이 보일 자리가 없습니다. 지금은
+    // 눌림(press.ink)과 중복 누름 막기뿐이고, 고른 뒤 처리 중 모양은 design에 묻는 중입니다
+    // (#195). 명세에 없는 모양은 만들지 않습니다.
     setState(() => _saving = true);
     try {
       await ref

@@ -33,7 +33,7 @@ class LinkLabel extends StatelessWidget {
   static const double gap = 2;
 
   /// 줄바꿈을 막는 단어 연결 문자(WORD JOINER).
-  static const String wordJoiner = '⁠';
+  static const String wordJoiner = '\u2060';
 
   /// 링크 이름(원고 그대로, 화살표 없음).
   final String label;

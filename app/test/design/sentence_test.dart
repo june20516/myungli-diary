@@ -851,6 +851,22 @@ void main() {
           inInclusiveRange(lastChar.top, lastChar.bottom),
           reason: variant.id,
         );
+        // 화살표의 줄 top은 라벨 마지막 글자 줄(마지막 줄)의 top과 같고 첫 줄이 아닙니다.
+        double lineTop(int offset) => paragraph
+            .getOffsetForCaret(TextPosition(offset: offset), Rect.zero)
+            .dy;
+        // 아이콘 글꼴은 줄 안 글리프 top이 1px 남짓 달라 반 줄 이내로 봅니다.
+        final halfLine = lastChar.height / 2;
+        expect(
+          lineTop(plain.length - 1),
+          closeTo(lineTop(plain.length - 3), halfLine),
+          reason: variant.id,
+        );
+        expect(
+          lineTop(plain.length - 1),
+          greaterThan(lineTop(0) + halfLine),
+          reason: variant.id,
+        );
       }
     });
   });

@@ -308,6 +308,8 @@ void main() {
     testWidgets('alertdialog 의미와 제목 라벨', (tester) async {
       final handle = tester.ensureSemantics();
       await open(tester, DialogVariant.destructive);
+      // 제목이 있으면 본문은 따로 읽힙니다.
+      expect(find.bySemanticsLabel('지우면 되돌릴 수 없어요.'), findsOneWidget);
       expect(
         tester.getSemantics(find.byType(DialogCard)),
         matchesSemantics(
@@ -397,6 +399,11 @@ void main() {
       testWidgets('제목이 없으면 본문이 창 이름(alertdialog 라벨)입니다', (tester) async {
         final handle = tester.ensureSemantics();
         await openNotice(tester);
+        // 같은 문장은 창 이름으로 한 번만 읽힙니다(본문 글자 노드는 따로 없음).
+        expect(
+          find.bySemanticsLabel('이미 사주를 저장한 계정이면 저장된 정보를 써요.'),
+          findsOneWidget,
+        );
         expect(
           tester.getSemantics(find.byType(DialogCard)),
           matchesSemantics(

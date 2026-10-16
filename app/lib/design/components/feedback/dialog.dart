@@ -314,10 +314,15 @@ class DialogCard extends StatelessWidget {
                 Flexible(
                   child: SingleChildScrollView(
                     primary: false,
-                    child: Text(
-                      body!,
-                      style: tokens.typography.bodyUi.copyWith(
-                        color: colors.textSecondary,
+                    // 제목이 없으면 본문이 창 이름(라벨)이라 글자 노드는 읽지 않습니다.
+                    // 같은 문장을 두 번 읽지 않게 합니다(명세 a11y: label 제목, description 본문).
+                    child: ExcludeSemantics(
+                      excluding: title == null,
+                      child: Text(
+                        body!,
+                        style: tokens.typography.bodyUi.copyWith(
+                          color: colors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
