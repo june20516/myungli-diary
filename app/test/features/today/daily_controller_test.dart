@@ -104,6 +104,33 @@ final class _HoldThenFail extends Interceptor {
   }
 }
 
+/// `/v1/daily/` 요청을 오는 순서대로 하나씩 붙잡고, [release]로 그 차례의 요청만 보냅니다.
+final class _HoldEach extends Interceptor {
+  bool armed = false;
+  final _gates = <Completer<void>>[];
+
+  /// 지금까지 붙잡은 요청 수.
+  int get held => _gates.length;
+
+  /// [index]번째로 붙잡은 요청을 보냅니다.
+  void release(int index) => _gates[index].complete();
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (!armed || !options.path.startsWith('/v1/daily/')) {
+      handler.next(options);
+      return;
+    }
+    final gate = Completer<void>();
+    _gates.add(gate);
+    await gate.future;
+    handler.next(options);
+  }
+}
+
 /// 프로필 수정(PATCH)을 [release]가 불릴 때까지 붙잡습니다.
 final class _PatchGate extends Interceptor {
   final _released = Completer<void>();
@@ -641,6 +668,50 @@ void main() {
       identical(thrown, container.read(dailyControllerProvider).error),
       isTrue,
     );
+  });
+
+  testWidgets('refreshQuietly: 받은 뒤 새 build가 아직 받는 중이면 끝날 때까지 기다려 그 결과를 따른다', (
+    tester,
+  ) async {
+    final (container, _) = await _boot(tester);
+    final states = _record(container);
+    await _until(tester, () => _settled(states));
+    final before = container.read(dailyControllerProvider).value;
+    final gate = _HoldEach();
+    _insertBeforeFake(container, gate);
+    gate.armed = true;
+
+    Object? thrown;
+    var done = false;
+    unawaited(
+      container
+          .read(dailyControllerProvider.notifier)
+          .refreshQuietly()
+          .then<void>((_) {}, onError: (Object error) => thrown = error)
+          .whenComplete(() => done = true),
+    );
+    await _until(tester, () => gate.held == 1);
+    // 받는 중에 다시 build됩니다(자정·사본 변경 흉내). 새 build의 요청도 붙잡아 둡니다.
+    container.invalidate(dailyControllerProvider);
+    await _until(tester, () => gate.held == 2);
+
+    // 첫 요청을 풀어도 새 build가 아직 받는 중이므로 끝나지 않습니다.
+    gate.release(0);
+    for (var i = 0; i < 5; i++) {
+      await _spin(tester);
+    }
+    // 새 build는 캐시를 먼저 보이지만 server 응답 전이므로 아직 끝나지 않습니다.
+    expect(done, isFalse);
+
+    // 새 build를 풀면 그 결과(server 응답)를 따르고 던지지 않습니다.
+    gate.release(1);
+    await _until(tester, () => done);
+    expect(thrown, isNull);
+    final after = container.read(dailyControllerProvider);
+    expect(after.isLoading, isFalse);
+    expect(after.value?.fromCache, isFalse);
+    expect(after.value?.stale, isFalse);
+    expect(identical(after.value, before), isFalse);
   });
 
   testWidgets('cached profile이 바뀌면(사주 변경) 새 키로 다시 받는다', (tester) async {

@@ -89,8 +89,22 @@ class DailyController extends AsyncNotifier<DailyView> {
   /// 반응이 성공한 뒤 캐시를 고칠 때(`DailyRepository.patchCachedReaction`) 씁니다.
   String? get cacheKey => state.value?.cacheKey;
 
+  /// 지금 build의 결과 Future. 캐시를 먼저 내보내면 [future]는 그 캐시 값으로 끝나므로,
+  /// server 응답까지 기다릴 때([_settleCurrentBuild])는 이것을 기다립니다.
+  Future<DailyView>? _currentBuild;
+
+  /// 지금 build가 다음 build로 대체되면 끝나는 신호. 대체된 build는 끝나지 않으므로
+  /// 기다리던 쪽이 새 build로 넘어가게 합니다.
+  Completer<void>? _superseded;
+
   @override
-  Future<DailyView> build() async {
+  Future<DailyView> build() {
+    _superseded?.complete();
+    _superseded = Completer<void>();
+    return _currentBuild = _load();
+  }
+
+  Future<DailyView> _load() async {
     // rebuild(자정·사본 변경·reload) 뒤에는 이 ref가 unmounted가 됩니다.
     final buildRef = ref;
     bool superseded() => !buildRef.mounted;
@@ -207,15 +221,34 @@ class DailyController extends AsyncNotifier<DailyView> {
     );
   }
 
-  /// 지금 build가 끝나길 기다리고, 실패했으면 그 오류를 던집니다([refreshQuietly]가 대체됐을 때).
+  /// 지금 build가 server 응답(또는 오류)까지 끝나길 기다리고, 실패했으면 그 오류를 던집니다
+  /// ([refreshQuietly]가 대체됐을 때).
+  ///
+  /// [future]는 build가 캐시를 먼저 내보내면 그 값으로 끝나므로 build의 결과 Future를 기다립니다.
+  /// 기다리는 사이 build가 다시 대체되면 새 build를 이어서 기다립니다.
   Future<void> _settleCurrentBuild() async {
     if (!ref.mounted) {
       return;
     }
     try {
+      // 다시 build가 아직 시작되지 않았으면(invalidate 뒤 아무도 읽지 않음) 여기서 시작합니다.
       await future;
     } on Object {
       // 결과는 아래에서 상태로 읽습니다.
+    }
+    while (ref.mounted) {
+      final build = _currentBuild;
+      final superseded = _superseded;
+      if (build == null || superseded == null) {
+        break;
+      }
+      final finished = await Future.any<bool>([
+        build.then((_) => true, onError: (Object _) => true),
+        superseded.future.then((_) => false),
+      ]);
+      if (finished) {
+        break;
+      }
     }
     _throwIfFailed();
   }
