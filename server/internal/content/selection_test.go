@@ -318,24 +318,45 @@ func TestSelect_NewBirthHashSelectsAgainAndAdvances(t *testing.T) {
 }
 
 func TestSelect_ConcurrentFirstOpenAgrees(t *testing.T) {
+	ctx := context.Background()
 	f := newSelectFixture(t)
 	reqs := []content.SlotRequest{{Slot: headSlot, MessageKey: "k.head"}, {Slot: guideSlot, MessageKey: "k.guide"}}
+
+	// 별도 연결로 같은 계정 lock을 먼저 쥡니다. 두 Select가 모두 이 lock을 기다리는 것을 확인한 뒤 풀어,
+	// 두 요청이 실제로 경합하게 합니다. Select가 lock을 걸지 않으면 기다리는 lock이 생기지 않아 이 테스트가 실패합니다.
+	holder, err := f.pool.Begin(ctx)
+	require.NoError(t, err)
+	lockSQL, lockArgs := content.SelectionLockForTest(f.account)
+	_, err = holder.Exec(ctx, lockSQL, lockArgs...)
+	require.NoError(t, err)
 
 	const callers = 2
 	results := make([][]content.Selection, callers)
 	errs := make([]error, callers)
-	start := make(chan struct{})
 	var wg sync.WaitGroup
 	for i := range callers {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			<-start
-			results[i], errs[i] = f.store.Select(context.Background(), f.account, day0, f.hash, reqs, testSlots)
+			results[i], errs[i] = f.store.Select(ctx, f.account, day0, f.hash, reqs, testSlots)
 		}()
 	}
-	close(start)
+
+	waiting := func() int {
+		var n int
+		err := f.pool.QueryRow(ctx, `SELECT count(*) FROM pg_locks
+			WHERE locktype = 'advisory' AND NOT granted AND objsubid = 2 AND classid::bigint = $1`,
+			content.SelectionLockClassForTest).Scan(&n)
+		if err != nil {
+			return -1
+		}
+		return n
+	}
+	lockedOut := assert.Eventually(t, func() bool { return waiting() == callers }, 10*time.Second, 10*time.Millisecond,
+		"두 Select가 모두 계정 lock을 기다려야 함")
+	require.NoError(t, holder.Rollback(ctx))
 	wg.Wait()
+	require.True(t, lockedOut)
 
 	for i := range callers {
 		require.NoError(t, errs[i])
@@ -447,7 +468,22 @@ func TestSelect_SameDayOtherHashTypeIsSkipped(t *testing.T) {
 			want: "state", next: "care",
 		},
 		{
-			name: "후보가 모두 막히면 순환 차례 그대로",
+			// 같은 날 앞 지문이 advice·state를 썼고 care는 상한입니다. 상한이 우선이라 회피만 풀고,
+			// 차례(care) 다음부터 보아 상한에 걸리지 않는 첫 후보 advice를 고릅니다.
+			name: "회피 후보가 모두 막히면 상한만 지킴",
+			run: func(t *testing.T, f *selectFixture) ([]content.Selection, content.Selection) {
+				a := f.pick(t, day0, birthHash("h1"), headSlot, "k") // advice
+				b := f.pick(t, day0, birthHash("h2"), headSlot, "k") // state
+				require.Equal(t, "state", b.Variant)
+				require.Equal(t, "care", f.rotation(t, "k"))
+				f.insertCare(t, day0, tagSlot, birthHash("h1"))
+				f.insertCare(t, day0, extraTypeSlot, birthHash("h1"))
+				return []content.Selection{a, b}, f.pick(t, day0, birthHash("h3"), headSlot, "k")
+			},
+			want: "advice", next: "state",
+		},
+		{
+			name: "회피 후보가 모두 막히면 차례부터 첫 후보",
 			run: func(t *testing.T, f *selectFixture) ([]content.Selection, content.Selection) {
 				a := f.pick(t, day0, birthHash("h1"), guideSlot, "g") // 1
 				b := f.pick(t, day0, birthHash("h2"), guideSlot, "g") // 1이 막혀 2

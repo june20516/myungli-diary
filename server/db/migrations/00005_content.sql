@@ -45,13 +45,17 @@ CREATE TABLE rotation_state (
     PRIMARY KEY (account_id, message_key)
 );
 
--- 선택 기록 하나에 반응은 하나입니다. 반응을 취소하면 deleted_at을 채웁니다.
+-- 문장 반응입니다. 반응을 취소하거나, 선택 기록의 문장이 바뀌면(같은 지문에서 메시지 키가 바뀜) deleted_at을 채웁니다.
+-- soft delete된 행은 이력으로 남기고, 새 반응은 새 행으로 넣습니다.
 CREATE TABLE reactions (
-    selection_id bigint      NOT NULL UNIQUE REFERENCES daily_selections (id) ON DELETE RESTRICT,
+    selection_id bigint      NOT NULL REFERENCES daily_selections (id) ON DELETE RESTRICT,
     reaction     text        NOT NULL,
     created_at   timestamptz NOT NULL DEFAULT now(),
     deleted_at   timestamptz
 );
+
+-- 선택 기록 하나에 활성 반응(deleted_at이 비어 있음)은 하나입니다.
+CREATE UNIQUE INDEX reactions_one_active ON reactions (selection_id) WHERE deleted_at IS NULL;
 
 -- +goose Down
 DROP TABLE reactions;

@@ -19,6 +19,10 @@ import (
 // ErrSelectionNotFound는 (계정, 날짜, 슬롯, 사주 지문)의 선택 기록이 없을 때 돌려줍니다.
 var ErrSelectionNotFound = errors.New("문장 선택 기록이 없습니다")
 
+// ErrSelectionConflict는 같은 선택 기록을 다른 요청이 다른 메시지 키로 먼저 기록했을 때 돌려줍니다.
+// 계정 lock이 있으면 생기지 않는 방어용 오류입니다.
+var ErrSelectionConflict = errors.New("다른 요청이 같은 선택 기록을 다른 메시지 키로 먼저 기록했습니다")
+
 // 문장 유형 슬롯(seed.RotationType)의 variant 값입니다.
 const (
 	VariantAdvice = "advice"
@@ -80,11 +84,14 @@ type Selection struct {
 //     새로 고를 때만 rotation_state를 한 칸 넘깁니다. 지문이 다른 옛 기록은 건드리지 않습니다.
 //   - 순환: seed.RotationType은 advice → state → care, seed.RotationVariant는 1 → 2,
 //     seed.RotationNone은 seed.VariantSingle이고 rotation_state를 쓰지 않습니다.
-//   - 순환 차례부터 순서대로 후보를 보며 다음 후보는 건너뜁니다.
-//     ① 같은 (계정, 날짜, 슬롯)에 지문이 다른 기록이 쓴 variant: 같은 날 다시 고른 문장이 앞 문장과 같은 유형이 되지 않게 합니다.
-//     ② care인데 돌봄 상한: 지금 고르는 (오늘, 슬롯)을 뺀 care 기록이 오늘 2개 이상이거나 최근 7일(오늘 포함) 7개 이상.
-//     같은 호출에서 앞 슬롯이 고른 care도 셉니다. 후보가 모두 막히면 순환 차례를 그대로 씁니다.
-//     rotation_state는 실제로 고른 것의 다음으로 넘깁니다.
+//   - 순환 차례부터 순서대로 후보를 보며 막히지 않은 첫 후보를 고릅니다. 막는 규칙은 두 가지이고 상한이 우선입니다.
+//     ① 돌봄 상한(W14): care인데, 지금 고르는 (date, 슬롯)을 뺀 care 기록이 date 하루 2개 이상이거나
+//     date까지 최근 7일 7개 이상. 같은 호출에서 앞 슬롯이 고른 care도 셉니다.
+//     ② 같은 날 다른 지문 회피: 같은 (계정, date, 슬롯)에 지문이 다른 기록이 쓴 variant.
+//     같은 날 다시 고른 문장이 앞 문장과 같은 유형이 되지 않게 합니다.
+//     ①·② 모두로 막히지 않은 후보가 없으면 ②만 풀고 다시 차례부터 보아 ①에 걸리지 않은 첫 후보를 고릅니다
+//     (advice·state·변주에는 상한이 없으므로 늘 있습니다). rotation_state는 실제로 고른 것의 다음으로 넘깁니다.
+//   - 상한의 기준일은 date 인자입니다. 지난 날짜를 다시 고르면 그 날까지의 7일과 그 날 하루로 셉니다.
 //   - 메시지 키가 바뀌어 기록을 바꾸면 그 기록의 활성 반응을 soft delete합니다. 반응은 옛 문장에 남긴 것이기 때문입니다.
 //
 // date는 날짜 부분(date 자신의 시간대 기준 연·월·일)만 씁니다. 모든 슬롯을 한 트랜잭션에서 처리하므로
@@ -203,6 +210,9 @@ func (sel selector) selectSlot(ctx context.Context, q *contentdb.Queries, versio
 		if err != nil {
 			return Selection{}, fmt.Errorf("먼저 기록된 선택 다시 읽기: %w", err)
 		}
+		if winner.MessageKey != r.MessageKey {
+			return Selection{}, ErrSelectionConflict
+		}
 		return selectionFromRow(r.Slot, winner), nil
 	}
 	if err != nil {
@@ -251,33 +261,40 @@ func (sel selector) choose(ctx context.Context, q *contentdb.Queries, r SlotRequ
 		return "", "", fmt.Errorf("같은 날 다른 지문 기록 조회: %w", err)
 	}
 
-	// 순환 차례부터 한 바퀴 돌며 막히지 않은 첫 후보를 고릅니다. 모두 막히면 차례 그대로입니다.
-	chosen := turn
-	start := slices.Index(cycle, turn)
-	for i := range cycle {
-		candidate := cycle[(start+i)%len(cycle)]
-		blocked, err := sel.blocked(ctx, q, r.Slot, candidate, sameDay)
+	// 먼저 상한과 같은 날 회피를 모두 지키는 후보를 찾고, 없으면 회피만 풀어 상한만 지킵니다(상한이 우선).
+	for _, avoid := range [][]string{sameDay, nil} {
+		chosen, ok, err := sel.firstAllowed(ctx, q, r.Slot, cycle, turn, avoid)
 		if err != nil {
 			return "", "", err
 		}
-		if !blocked {
-			chosen = candidate
-			break
+		if ok {
+			return chosen, after(cycle, chosen), nil
 		}
 	}
-	return chosen, after(cycle, chosen), nil
+	// 상한이 있는 것은 care 하나뿐이라, 순환에 두 개 이상 후보가 있으면 여기에 오지 않습니다.
+	return "", "", fmt.Errorf("고를 수 있는 variant가 없습니다: %s", r.Slot)
 }
 
-// blocked는 candidate를 이번에 고를 수 없는지 알려 줍니다.
-// 같은 날 같은 슬롯의 다른 지문 기록이 쓴 variant이거나, care인데 돌봄 상한이면 막힙니다.
-func (sel selector) blocked(ctx context.Context, q *contentdb.Queries, slot, candidate string, sameDay []string) (bool, error) {
-	if slices.Contains(sameDay, candidate) {
-		return true, nil
+// firstAllowed는 turn부터 cycle을 한 바퀴 돌며, avoid에 없고 돌봄 상한에 걸리지 않는 첫 후보를 돌려줍니다.
+func (sel selector) firstAllowed(ctx context.Context, q *contentdb.Queries, slot string, cycle []string, turn string, avoid []string) (string, bool, error) {
+	start := slices.Index(cycle, turn)
+	for i := range cycle {
+		candidate := cycle[(start+i)%len(cycle)]
+		if slices.Contains(avoid, candidate) {
+			continue
+		}
+		if candidate == VariantCare {
+			capped, err := sel.careCapped(ctx, q, slot)
+			if err != nil {
+				return "", false, err
+			}
+			if capped {
+				continue
+			}
+		}
+		return candidate, true, nil
 	}
-	if candidate == VariantCare {
-		return sel.careCapped(ctx, q, slot)
-	}
-	return false, nil
+	return "", false, nil
 }
 
 // turn은 메시지 키의 지금 차례를 돌려줍니다. 기록이 없거나 이 순환에 없는 값이면 처음 차례입니다.

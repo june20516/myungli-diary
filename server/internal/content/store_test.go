@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -330,4 +331,28 @@ func TestReactions_SelectionDeleteIsRestricted(t *testing.T) {
 
 	_, err = pool.Exec(ctx, "DELETE FROM daily_selections WHERE id = $1", selectionID)
 	assert.Error(t, err, "반응이 있는 선택 기록은 지울 수 없음")
+}
+
+func TestReactions_OneActivePerSelection(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	_, err := content.Apply(ctx, pool, s)
+	require.NoError(t, err)
+
+	var accountID string
+	require.NoError(t, pool.QueryRow(ctx, "INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&accountID))
+	var selectionID int64
+	require.NoError(t, pool.QueryRow(ctx, `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+		VALUES ($1, '2026-10-16', 'daily.guide', decode(repeat('ab', 32), 'hex'), 'k', '1', $2) RETURNING id`, accountID, s.Version).Scan(&selectionID))
+
+	_, err = pool.Exec(ctx, "INSERT INTO reactions (selection_id, reaction, deleted_at) VALUES ($1, 'like', now())", selectionID)
+	require.NoError(t, err)
+	_, err = pool.Exec(ctx, "INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'dislike')", selectionID)
+	require.NoError(t, err, "soft delete된 행과 활성 행 하나는 함께 있을 수 있음")
+
+	_, err = pool.Exec(ctx, "INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'like')", selectionID)
+	var pgErr *pgconn.PgError
+	require.ErrorAs(t, err, &pgErr, "활성 행 두 개는 unique 위반")
+	assert.Equal(t, "23505", pgErr.Code)
 }
