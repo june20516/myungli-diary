@@ -1,0 +1,416 @@
+[
+  {
+    "note": "1908~1911 +8:30",
+    "timezone": "Asia/Seoul",
+    "date": "1910-06-01",
+    "time": "12:00",
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "1912~1954 +9",
+    "timezone": "Asia/Seoul",
+    "date": "1930-01-01",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "1948 서머타임(+9 표준)",
+    "timezone": "Asia/Seoul",
+    "date": "1948-07-01",
+    "time": "08:00",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1950 서머타임",
+    "timezone": "Asia/Seoul",
+    "date": "1950-07-01",
+    "time": "08:00",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1951 서머타임, 시각 모름",
+    "timezone": "Asia/Seoul",
+    "date": "1951-07-01",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "+9 → +8:30 겹친 시각(앞)",
+    "timezone": "Asia/Seoul",
+    "date": "1954-03-20",
+    "time": "23:45",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "전환 전날 시각 모름",
+    "timezone": "Asia/Seoul",
+    "date": "1954-03-20",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "전환 당일 시각 모름",
+    "timezone": "Asia/Seoul",
+    "date": "1954-03-21",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "1955 서머타임(+8:30 표준)",
+    "timezone": "Asia/Seoul",
+    "date": "1955-06-15",
+    "time": "08:00",
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1956 서머타임",
+    "timezone": "Asia/Seoul",
+    "date": "1956-07-01",
+    "time": "12:00",
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1957 서머타임",
+    "timezone": "Asia/Seoul",
+    "date": "1957-08-01",
+    "time": "06:30",
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "+8:30 겨울",
+    "timezone": "Asia/Seoul",
+    "date": "1959-12-01",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "1960 서머타임",
+    "timezone": "Asia/Seoul",
+    "date": "1960-07-01",
+    "time": "08:00",
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "+8:30 마지막 시각",
+    "timezone": "Asia/Seoul",
+    "date": "1961-08-09",
+    "time": "23:45",
+    "longitude": 127.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "+8:30 → +9 없는 시각(뒤로)",
+    "timezone": "Asia/Seoul",
+    "date": "1961-08-10",
+    "time": "00:15",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "+9 복귀 당일 시각 모름",
+    "timezone": "Asia/Seoul",
+    "date": "1961-08-10",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "1987 서머타임 시작 없는 시각",
+    "timezone": "Asia/Seoul",
+    "date": "1987-05-10",
+    "time": "02:30",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1987 서머타임",
+    "timezone": "Asia/Seoul",
+    "date": "1987-07-15",
+    "time": "08:00",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1987 서머타임 끝 겹친 시각(앞)",
+    "timezone": "Asia/Seoul",
+    "date": "1987-10-11",
+    "time": "02:30",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "1988 서머타임, 시각 모름",
+    "timezone": "Asia/Seoul",
+    "date": "1988-07-01",
+    "time": null,
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "서머타임 없는 현재 규칙",
+    "timezone": "Asia/Seoul",
+    "date": "1990-05-05",
+    "time": "08:00",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "최근",
+    "timezone": "Asia/Seoul",
+    "date": "2024-12-31",
+    "time": "23:59",
+    "longitude": 127.5,
+    "correctionMinutes": -30,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "도쿄 1949 서머타임",
+    "timezone": "Asia/Tokyo",
+    "date": "1949-07-01",
+    "time": "08:00",
+    "longitude": 135.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "도쿄 표준",
+    "timezone": "Asia/Tokyo",
+    "date": "1990-05-05",
+    "time": "08:00",
+    "longitude": 135.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "도쿄 시각 모름",
+    "timezone": "Asia/Tokyo",
+    "date": "2020-02-29",
+    "time": null,
+    "longitude": 135.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "뉴욕 전시 시간(War Time)",
+    "timezone": "America/New_York",
+    "date": "1943-06-01",
+    "time": "12:00",
+    "longitude": -75.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "뉴욕 겨울",
+    "timezone": "America/New_York",
+    "date": "1990-01-01",
+    "time": "08:00",
+    "longitude": -75.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "뉴욕 서머타임",
+    "timezone": "America/New_York",
+    "date": "1990-07-01",
+    "time": "08:00",
+    "longitude": -75.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "뉴욕 없는 시각",
+    "timezone": "America/New_York",
+    "date": "2007-03-11",
+    "time": "02:30",
+    "longitude": -75.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "뉴욕 겹친 시각(앞)",
+    "timezone": "America/New_York",
+    "date": "2007-11-04",
+    "time": "01:30",
+    "longitude": -75.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "LA 서머타임, 시각 모름",
+    "timezone": "America/Los_Angeles",
+    "date": "1990-07-01",
+    "time": null,
+    "longitude": -120.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "런던 전시 연중 BST",
+    "timezone": "Europe/London",
+    "date": "1941-01-15",
+    "time": "12:00",
+    "longitude": 0.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "런던 이중 서머타임(BDST)",
+    "timezone": "Europe/London",
+    "date": "1941-07-01",
+    "time": "12:00",
+    "longitude": 15.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "런던 1947 BDST",
+    "timezone": "Europe/London",
+    "date": "1947-06-01",
+    "time": "12:00",
+    "longitude": 15.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "런던 British Standard Time",
+    "timezone": "Europe/London",
+    "date": "1969-01-15",
+    "time": "12:00",
+    "longitude": 15.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "런던 서머타임",
+    "timezone": "Europe/London",
+    "date": "1990-07-01",
+    "time": "08:00",
+    "longitude": 0.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "런던 없는 시각",
+    "timezone": "Europe/London",
+    "date": "2020-03-29",
+    "time": "01:30",
+    "longitude": 0.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "베를린 이중 서머타임",
+    "timezone": "Europe/Berlin",
+    "date": "1945-06-01",
+    "time": "12:00",
+    "longitude": 30.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "베를린 겨울",
+    "timezone": "Europe/Berlin",
+    "date": "1990-01-01",
+    "time": "08:00",
+    "longitude": 15.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "시드니 서머타임",
+    "timezone": "Australia/Sydney",
+    "date": "1990-01-01",
+    "time": "12:00",
+    "longitude": 150.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "로드하우 30분 서머타임",
+    "timezone": "Australia/Lord_Howe",
+    "date": "1990-01-01",
+    "time": "12:00",
+    "longitude": 157.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 30
+  },
+  {
+    "note": "오클랜드 서머타임, 시각 모름",
+    "timezone": "Pacific/Auckland",
+    "date": "1990-01-01",
+    "time": null,
+    "longitude": 180.0,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "세인트존스 −3:30 서머타임",
+    "timezone": "America/St_Johns",
+    "date": "1990-07-01",
+    "time": "08:00",
+    "longitude": -52.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 60
+  },
+  {
+    "note": "인도 +5:30",
+    "timezone": "Asia/Kolkata",
+    "date": "1990-05-05",
+    "time": "08:00",
+    "longitude": 82.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "카트만두 +5:30(1986 전)",
+    "timezone": "Asia/Kathmandu",
+    "date": "1985-05-05",
+    "time": "08:00",
+    "longitude": 82.5,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  },
+  {
+    "note": "카트만두 +5:45",
+    "timezone": "Asia/Kathmandu",
+    "date": "2000-05-05",
+    "time": "08:00",
+    "longitude": 86.25,
+    "correctionMinutes": 0,
+    "daylightSavingMinutes": 0
+  }
+]
