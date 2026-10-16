@@ -338,7 +338,7 @@ def test_brand_spec_values():
     assert variant_ids(c["share-image"]) == {"story", "feed", "square"}
     assert variant_ids(c["term-token"]) >= {"inline", "label"}
     assert variant_ids(c["event-row"]) == {"summary", "list"}
-    assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}
+    assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time", "tag"}
     assert variant_ids(c["depth-link"]) == {"inline-end", "block", "navigate"}
     assert set(c["guide-question-card"]["states"]) >= {"before", "after"}
     assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
@@ -427,8 +427,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_4():
-    assert VERSION == "2.4.0"
+def test_contract_version_is_2_5():
+    assert VERSION == "2.5.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -441,6 +441,7 @@ def test_icon_set_version_is_not_contract_version():
 def test_readme_states_minimum_height_rule():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme and "| 2.4.0 | 2026-10-16 |" in readme
+    assert "| 2.5.0 | 2026-10-16 |" in readme
 
 
 def ia_screens():
@@ -671,3 +672,19 @@ def test_skeleton_text_line_follows_coming_type():
 def test_frame_md_states_prose_page_body():
     frame = (COMPONENTS_DIR / "frame.md").read_text(encoding="utf-8")
     assert "안내 글 본문" in frame and "`space.32`" in frame
+
+
+# 오늘 화면 대표 태그 칩 #239 (D76, 계약 2.5.0)
+def test_lucky_tag_chip_emphasises_weight_and_icon_only():
+    card = component("today", "lucky-card")
+    tag = next(v for v in card["variants"] if v["id"] == "tag")
+    assert tag["parts"] == {"lead": {"icon": "tag", "iconColor": "{color.text.primary}"},
+                            "value": {"fontWeight": 600}}
+    assert "color.tag" not in json.dumps(card)
+
+
+def test_lucky_tag_chip_order_and_polarity_rules():
+    rules = component("today", "lucky-card")["rules"]
+    assert any("tag" in rule and "맨 앞" in rule and "행운 4종(color·direction·number·time) 앞" in rule and "Daily.tags.featured" in rule for rule in rules)
+    assert any("polarity" in rule and "D72" in rule for rule in rules)
+    assert any("today.lucky-tag.body" in rule for rule in rules)

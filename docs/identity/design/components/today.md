@@ -20,9 +20,14 @@
 ## lucky-card
 
 * 쓰는 화면: today, my-saju
-* 칩(`chip.bg` 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`.
+* 칩(`chip.bg` 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`·`tag`.
 * 누르면 칩 안쪽에 1.5px `action.primary` 테두리가 생기고, 칩 줄 아래에 설명 한 줄이 `appear.seep`(칩 바탕 `radius.md` 상자). 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 다시 누르면 닫힘. 한 번에 하나만 열립니다.
-* 칩 줄은 화면 폭에 따라 두 줄로 넘어갑니다.
+* 칩 줄은 화면 폭에 따라 다음 줄로 넘어갑니다. 줄 수는 제한하지 않고, 칩 하나는 줄 사이에서 끊지 않습니다.
+* **`tag`(대표 태그, D76, 결정 V35):** today에만 있습니다. 그날의 대표 태그(`Daily.tags.featured`, 0~2개)를 칩 줄 맨 앞, 행운 4종(`color`·`direction`·`number`·`time`) 앞에 계약 순서대로 놓고, 0개면 그리지 않습니다. 줄의 칩은 최대 6개입니다.
+  * 칩 바탕·높이·알약 모양·글자색은 행운 칩과 같습니다. 글자 굵기 600(`type.label.md`의 500 대신)과 앞 아이콘 `tag`의 색 `text.primary`(행운 칩은 `text.secondary`)로만 구분합니다. 아이콘 굵기는 `regular` 그대로입니다(`bold` 금지, elements `icon`).
+  * 길흉(`Tag.polarity`)은 색으로 나누지 않습니다. 부정 신호 태그(충·공망)도 같은 모양이고 잠금·구매 안내와 잇지 않습니다(D72). `#`·`hash`는 `number` 칩 아이콘과 겹쳐 쓰지 않습니다.
+  * 누르면 다른 칩처럼 설명 상자에 `today.lucky-tag.body`가 스밉니다. 열림 테두리도 같습니다. 칩 이름 슬롯은 `daily.tag_label`, 스크린리더 라벨은 태그 이름만입니다.
+  * `share-image`의 칩 줄에는 넣지 않습니다(행운 4종만).
 * `time` 값은 프로필 시간대의 24시간 `HH:mm–HH:mm`이고, 시작과 끝은 en dash(U+2013)로 잇습니다. 구간이 둘 이상이면 ` · `(가운뎃점, 앞뒤 공백)로 잇습니다. 예: `09:30–11:30 · 13:30–15:30`. 숫자는 `tnum`이고 세 언어 모두 같은 형식입니다.
 
 ## guide-question-card
