@@ -131,8 +131,7 @@ void main() {
     await $(find.byKey(const ValueKey('app-bar.back'))).tap();
 
     // 돌아온 출생지에서 도시를 찾아 고르면 미리보기로 갑니다.
-    await $(find.byKey(const ValueKey(ScreenIds.birthplace)))
-        .waitUntilVisible();
+    await expectScreen($, ScreenIds.birthplace, state: 'returned');
     await $(EditableText).enterText('new');
     await $('New York City').waitUntilVisible();
     await $('New York City').tap();
