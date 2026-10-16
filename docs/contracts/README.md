@@ -4,7 +4,7 @@
 
 | 계약 | 원본 위치 | 제공 | 사용 | 버전 | 상태 | 설계 근거 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 엔진 gRPC API | `proto/myungli/engine/v1/engine.proto` | core | server | v1 | **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). RPC 5개: `GetChart`·`GetDaily`·`GetMonthCalendar`·`GetBirthHour`(D58)·`GetInfo`(PR #67). 패키지 `myungli.engine.v1`, 서비스 `MyungliEngine`(이름 변경 PR #77, D63). 지원 범위 양력 1900-01-31 ~ 2099-12-31, 밖이면 `OUT_OF_RANGE` | 엔진 spec §9, D41 |
+| 엔진 gRPC API | `proto/myungli/engine/v1/engine.proto` | core | server | v1 | **구현 완료** (main 병합 완료, PR #1 `ec4fc90`). RPC 6개: `GetChart`·`GetDaily`·`GetMonthCalendar`·`GetBirthHour`(D58)·`GetInfo`(PR #67)·`ConvertLunarDate`(음력 → 양력과 윤달 유무, #164, 추가만). 패키지 `myungli.engine.v1`, 서비스 `MyungliEngine`(이름 변경 PR #77, D63). 지원 범위 양력 1900-01-31 ~ 2099-12-31, 밖이면 `OUT_OF_RANGE` | 엔진 spec §9, D41 |
 | 메시지 키 목록 | `core/message_keys.json` | core | server (콘텐츠 시드 검사), writing (W1 콘텐츠 작성) | - | **구현 완료**, 153개 (PR #1 `ec4fc90`, 원국 개인 해석 `personal.*` 60개 PR #67) | 엔진 spec §10 |
 | 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | **구현 완료** (PR #1) | 엔진 spec §11 |
 | 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | ruleset `2026.10.2`, engine `0.1.0` | **구현 완료** (PR #1, `GetInfo`로 조회 PR #67) | 엔진 spec §12, D31 |

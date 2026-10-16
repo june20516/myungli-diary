@@ -100,17 +100,33 @@ def solar_to_lunar(solar_date: date) -> KoreanLunarDate:
 
 
 def lunar_to_solar(year: int, month: int, day: int, is_leap_month: bool) -> date:
-    """음력 날짜를 양력으로 바꾼다. 그해에 없는 윤달이나 없는 날짜면 InvalidInputError."""
-    if not MIN_LUNAR_YEAR <= year <= MAX_LUNAR_YEAR:
-        raise OutOfRangeError(f"지원 범위 밖의 음력 연도입니다: {year}")
-    if not 1 <= month <= MONTHS_PER_YEAR:
-        raise InvalidInputError(f"음력 월이 잘못되었습니다: {month}")
+    """음력 날짜를 양력으로 바꾼다.
+
+    그해에 없는 윤달이나 없는 날짜면 InvalidInputError, 양력이 지원 범위(D41) 밖이면 OutOfRangeError.
+    """
+    _validate_lunar_month(year, month)
     lunar_month = _calendar().by_key.get((year, month, is_leap_month))
     if lunar_month is None:
         raise InvalidInputError(f"음력 {year}년에는 윤{month}월이 없습니다.")
     if not 1 <= day <= lunar_month.day_count:
         raise InvalidInputError(f"음력 {year}년 {month}월은 {lunar_month.day_count}일까지입니다: {day}")
-    return lunar_month.start + timedelta(days=day - 1)
+    solar_date = lunar_month.start + timedelta(days=day - 1)
+    if not MIN_SOLAR_DATE <= solar_date <= MAX_SOLAR_DATE:
+        raise OutOfRangeError(f"지원 범위 밖의 양력 날짜가 됩니다: 음력 {year}-{month}-{day} → {solar_date}")
+    return solar_date
+
+
+def month_has_leap(year: int, month: int) -> bool:
+    """음력 year년 month월 뒤에 같은 이름의 윤달이 있는지."""
+    _validate_lunar_month(year, month)
+    return (year, month, True) in _calendar().by_key
+
+
+def _validate_lunar_month(year: int, month: int) -> None:
+    if not MIN_LUNAR_YEAR <= year <= MAX_LUNAR_YEAR:
+        raise OutOfRangeError(f"지원 범위 밖의 음력 연도입니다: {year}")
+    if not 1 <= month <= MONTHS_PER_YEAR:
+        raise InvalidInputError(f"음력 월이 잘못되었습니다: {month}")
 
 
 def warm_up() -> None:
