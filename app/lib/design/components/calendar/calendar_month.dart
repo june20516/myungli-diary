@@ -8,11 +8,10 @@ import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
-import 'package:myungli_diary/design/interaction/motion_prefs.dart';
-import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -530,10 +529,10 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   }
 }
 
-/// 이전·다음 달 버튼: 44px 터치 영역, Light 아이콘, 눌림은 `press.ink`.
+/// 이전·다음 달 버튼: 44px 원형 터치 영역, Light 아이콘, 눌림은 `press.ink`([PressInkTarget]).
 ///
 /// [onPressed]가 null이면 아이콘을 `disabled.fg`로 흐리게 하고 누를 수 없습니다.
-class _MonthStepButton extends StatefulWidget {
+class _MonthStepButton extends StatelessWidget {
   const new({
     required this.icon,
     required this.semanticLabel,
@@ -546,87 +545,18 @@ class _MonthStepButton extends StatefulWidget {
   final VoidCallback? onPressed;
 
   @override
-  State<_MonthStepButton> createState() => _MonthStepButtonState();
-}
-
-class _MonthStepButtonState extends State<_MonthStepButton>
-    with TickerProviderStateMixin {
-  late final AnimationController _press = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.pressInk.duration,
-  );
-  late final AnimationController _release = AnimationController(
-    vsync: this,
-    duration: pressInkReleaseDuration,
-  )..addStatusListener(_onReleased);
-
-  Alignment _origin = Alignment.center;
-
-  void _onReleased(AnimationStatus status) {
-    if (status == AnimationStatus.completed) _press.value = 0;
-  }
-
-  @override
-  void dispose() {
-    _press.dispose();
-    _release.dispose();
-    super.dispose();
-  }
-
-  void _down(TapDownDetails details) {
-    const target = CalendarMonthView.headerTarget;
-    _origin = Alignment(
-      details.localPosition.dx / target * 2 - 1,
-      details.localPosition.dy / target * 2 - 1,
-    );
-    _release.value = 0;
-    _press.forward(from: 0);
-  }
-
-  void _up() => _release.forward(from: 0);
-
-  @override
   Widget build(BuildContext context) {
     final colors = context.tokens.colors;
-    final onPressed = widget.onPressed;
-    final enabled = onPressed != null;
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      label: widget.semanticLabel,
+    return PressInkTarget(
+      semanticLabel: semanticLabel,
       onTap: onPressed,
-      child: ExcludeSemantics(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: enabled ? _down : null,
-          onTapUp: enabled
-              ? (_) {
-                  _up();
-                  onPressed();
-                }
-              : null,
-          onTapCancel: enabled ? _up : null,
-          child: SizedBox.square(
-            dimension: CalendarMonthView.headerTarget,
-            child: animate(
-              InteractionPattern.pressInk,
-              t: _press,
-              prefs: MotionPrefs.of(context),
-              options: PatternOptions(
-                origin: _origin,
-                release: _release,
-                inkColor: colors.textPrimary,
-                borderRadius: BorderRadius.circular(
-                  CalendarMonthView.headerTarget / 2,
-                ),
-              ),
-              child: Center(
-                child: AppIcon(
-                  widget.icon,
-                  color: enabled ? colors.textPrimary : colors.disabledFg,
-                ),
-              ),
-            ),
+      borderRadius: BorderRadius.circular(CalendarMonthView.headerTarget / 2),
+      child: SizedBox.square(
+        dimension: CalendarMonthView.headerTarget,
+        child: Center(
+          child: AppIcon(
+            icon,
+            color: onPressed != null ? colors.textPrimary : colors.disabledFg,
           ),
         ),
       ),

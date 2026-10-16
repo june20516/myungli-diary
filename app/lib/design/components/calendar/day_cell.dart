@@ -7,6 +7,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/interaction/press_ink_state.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -206,24 +207,14 @@ class DayCell extends StatefulWidget {
   State<DayCell> createState() => _DayCellState();
 }
 
-class _DayCellState extends State<DayCell> with TickerProviderStateMixin {
+class _DayCellState extends State<DayCell>
+    with TickerProviderStateMixin, PressInkState<DayCell> {
   // 처음부터 선택된 칸은 다 자란 밑줄로 시작합니다.
   late final AnimationController _underline = AnimationController(
     vsync: this,
     duration: InteractionPattern.markUnderlineGrow.duration,
     value: widget.isSelected ? 1 : 0,
   );
-  late final AnimationController _press = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.pressInk.duration,
-  );
-  late final AnimationController _release = AnimationController(
-    vsync: this,
-    duration: pressInkReleaseDuration,
-  )..addStatusListener(_onReleased);
-
-  Alignment _origin = Alignment.center;
-
   bool get _enabled => !widget.disabled && widget.onTap != null;
 
   @override
@@ -239,30 +230,11 @@ class _DayCellState extends State<DayCell> with TickerProviderStateMixin {
   @override
   void dispose() {
     _underline.dispose();
-    _press.dispose();
-    _release.dispose();
     super.dispose();
   }
 
-  void _onReleased(AnimationStatus status) {
-    if (status == AnimationStatus.completed) _press.value = 0;
-  }
-
-  void _down(TapDownDetails details) {
-    final size = context.size;
-    if (size == null || size.isEmpty) return;
-    _origin = Alignment(
-      details.localPosition.dx / size.width * 2 - 1,
-      details.localPosition.dy / size.height * 2 - 1,
-    );
-    _release.value = 0;
-    _press.forward(from: 0);
-  }
-
-  void _up() => _release.forward(from: 0);
-
   void _tap() {
-    _up();
+    pressInkUp();
     widget.onTap?.call();
   }
 
@@ -283,16 +255,16 @@ class _DayCellState extends State<DayCell> with TickerProviderStateMixin {
       child: ExcludeSemantics(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTapDown: enabled ? _down : null,
+          onTapDown: enabled ? pressInkDown : null,
           onTapUp: enabled ? (_) => _tap() : null,
-          onTapCancel: enabled ? _up : null,
+          onTapCancel: enabled ? pressInkUp : null,
           child: animate(
             InteractionPattern.pressInk,
-            t: _press,
+            t: pressInk,
             prefs: MotionPrefs.of(context),
             options: PatternOptions(
-              origin: _origin,
-              release: _release,
+              origin: pressInkOrigin,
+              release: pressInkRelease,
               inkColor: context.tokens.colors.textPrimary,
               borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
             ),

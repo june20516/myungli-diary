@@ -224,6 +224,20 @@ void main() {
     expect(InteractionPattern.appearSeep.id, 'appear.seep');
   });
 
+  testWidgets('이전·다음 버튼은 누르는 동안 press.ink 얼룩, 떼면 넘어갑니다', (tester) async {
+    final log = <Object>[];
+    await _pump(tester, log: log);
+    final next = find.byKey(CalendarMonthView.nextKey);
+    final gesture = await tester.startGesture(tester.getCenter(next));
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(paintsInk(tester, inkLayer(next)), isTrue);
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(log, [const CalendarMonth(2026, 11)]);
+    expect(paintsInk(tester, inkLayer(next)), isFalse);
+  });
+
   testWidgets('밀기: 왼쪽 → 다음 달, 오른쪽 → 이전 달', (tester) async {
     final log = <Object>[];
     await _pump(tester, log: log);
