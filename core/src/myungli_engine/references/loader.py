@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from functools import cache
 from importlib import resources
 from typing import Final
@@ -22,6 +22,12 @@ FIVE_ELEMENTS_REF: Final[Mapping[str, str]] = {
 
 def johu_ref(stem: Stem, branch: Branch) -> str:
     return f"gungtong-bogam/johu_evidence#{stem.hanja}.{branch.hanja}"
+
+
+def all_refs() -> Iterator[str]:
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸과 오행 근거 전부."""
+    yield from (johu_ref(stem, branch) for stem in Stem for branch in Branch)
+    yield from FIVE_ELEMENTS_REF.values()
 
 
 @cache

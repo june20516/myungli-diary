@@ -1,0 +1,128 @@
+{
+  "calendar/score": [
+    "breakdown",
+    "score"
+  ],
+  "color/lucky_element": [
+    "day_kind",
+    "element",
+    "note",
+    "role"
+  ],
+  "direction/gwiin_branch": [
+    "day_branch",
+    "day_kind",
+    "direction"
+  ],
+  "direction/ordinary_deity_huisin": [
+    "day_branch",
+    "day_kind",
+    "deity",
+    "direction",
+    "element"
+  ],
+  "direction/ordinary_deity_yongsin": [
+    "day_branch",
+    "day_kind",
+    "deity",
+    "direction",
+    "element"
+  ],
+  "direction/ordinary_fallback": [
+    "day_branch",
+    "day_kind",
+    "direction",
+    "element"
+  ],
+  "direction/tonggwan": [
+    "day_branch",
+    "day_kind",
+    "direction",
+    "element"
+  ],
+  "direction/yongsin": [
+    "day_branch",
+    "day_kind",
+    "direction",
+    "element"
+  ],
+  "focus_time/fallback": [
+    "picks"
+  ],
+  "focus_time/score": [
+    "picks"
+  ],
+  "fortune/day_kind": [
+    "day_kind",
+    "group",
+    "ten_god"
+  ],
+  "fortune/tag": [
+    "day_kind",
+    "featured",
+    "group",
+    "ten_god"
+  ],
+  "guide/question": [
+    "basis",
+    "ten_god"
+  ],
+  "number/hado": [
+    "day_stem",
+    "element",
+    "number",
+    "parity"
+  ],
+  "personal/day_master": [
+    "gisin",
+    "strength",
+    "yongsin"
+  ],
+  "personal/luck_ten_god": [
+    "current",
+    "element",
+    "luck",
+    "part",
+    "role"
+  ],
+  "personal/luck_twelve_stage": [
+    "current",
+    "element",
+    "role"
+  ],
+  "personal/shinsal": [
+    "element",
+    "place",
+    "role"
+  ],
+  "personal/ten_god": [
+    "element",
+    "group_count",
+    "place",
+    "role",
+    "strength"
+  ],
+  "personal/twelve_stage": [
+    "element",
+    "place",
+    "role",
+    "strength"
+  ],
+  "tags/select": [
+    "all",
+    "day_kind",
+    "featured"
+  ],
+  "yongsin/eokbu": [
+    "strength_level",
+    "strength_score"
+  ],
+  "yongsin/johu": [
+    "month_branch",
+    "share",
+    "threshold"
+  ],
+  "yongsin/johu_neutral": [
+    "strength_level"
+  ]
+}

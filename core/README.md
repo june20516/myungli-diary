@@ -65,6 +65,18 @@ uv run python -m myungli_engine.constants.message_keys > message_keys.json
 uv run python -m myungli_engine.constants.message_keys params > message_params.json
 ```
 
+## 근거 규칙과 원전 목록
+
+`Evidence.rule_id`와 규칙별 `detail` 키는 `src/myungli_engine/constants/evidence_rules.py`의 `RULE_DETAIL_KEYS` 한 곳에서 선언합니다.
+gRPC 응답으로 내보낼 때 `require_rule`이 등록된 `rule_id`인지, `detail`에 선언되지 않은 키가 없는지 확인합니다(근거 하나에는 선언한 키 가운데 일부만 들어갈 수 있음).
+`source_ref`별 원전 이름(`work`)·대목(`section`)·대표 문장(`quote`)·대목 원문(`passage`)·근거 수준(`evidence_level`, 조후만)·주의(`note`)는 `src/myungli_engine/references/sources.py`가 근거 데이터에서 만듭니다.
+선언이나 근거 데이터가 바뀌면 계약 파일 두 개를 다시 만들어 commit합니다. 테스트가 코드와 파일의 일치, 샘플 원국 출력과 선언의 일치를 검사합니다.
+
+```bash
+uv run python -m myungli_engine.constants.evidence_rules > evidence_rules.json
+uv run python -m myungli_engine.references.sources > evidence_sources.json
+```
+
 ## 강약 보정 상수
 
 `constants/calibration.py`의 신강·신약 경계값과 조후 기준값은 무작위 출생 분포(난수 시드 고정)에서 산출합니다.
