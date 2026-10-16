@@ -1,0 +1,79 @@
+# 오늘 화면 가이드 질문·행운 카드·태그 이름 원고(ja). ko 원고(content/ko/daily.yaml, example.yaml)와 같은 정보를 ja 화면에 맞게 옮긴 W1-1 초안이며, 원어민 검수 전입니다.
+# 행운 카드는 W7대로 색은 단순형, 방향은 쓰임새형, 숫자는 두 문장형입니다. 가이드 질문 변주 1은 권유형, 변주 2는 질문형입니다(W13).
+# 태그 이름의 용어 표기는 glossary ja·근거 용어집(D70, W24)을 따릅니다. 도화는 용어집 ja 표기 「咸池」입니다.
+- {slot: daily.guide, key: guide.big_change, variant: 1, text: "今日変わったことを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.big_change, variant: 2, text: "今日いつもと違うと感じたのはいつでしたか？"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "今日感謝した人とその理由を書いてみませんか？"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "今日受けた助けで、一番ありがたかったのは何でしたか？"}
+- {slot: daily.guide, key: guide.clash, variant: 1, text: "今日の予想外だった場面を一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.clash, variant: 2, text: "今日意見が分かれたとき、何と言いましたか？"}
+- {slot: daily.guide, key: guide.dohwa, variant: 1, text: "今日目を引かれた人や場面を一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.dohwa, variant: 2, text: "今日聞いた言葉で、心に残ったのは何でしたか？"}
+- {slot: daily.guide, key: guide.gongmang, variant: 1, text: "今日期待と違った出来事を一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.gongmang, variant: 2, text: "進みが遅かった一日、手放せたことは何でしたか？"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "今日会った人を一人思い浮かべて書いてみませんか？"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "今日一番気楽にさせてくれた人は誰でしたか？"}
+- {slot: daily.guide, key: guide.harmony, variant: 1, text: "今日気持ちが通じ合った会話を一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.harmony, variant: 2, text: "今日一緒にいてよかった人は誰でしたか？"}
+- {slot: daily.guide, key: guide.hwagae, variant: 1, text: "今日一人の時間に浮かんだ考えを書いてみませんか？"}
+- {slot: daily.guide, key: guide.hwagae, variant: 2, text: "今日一番心が落ち着いていたのはいつでしたか？"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 1, text: "今日一緒に過ごした友人や同僚のことを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 2, text: "今日味方になってくれた人は誰でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.siksang, variant: 1, text: "今日の自分の言葉で、残したい一言を書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god.siksang, variant: 2, text: "今日自分の手で作ったもの、やり遂げたことは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 1, text: "今日お金を使った場面とその時の気持ちを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 2, text: "今日使ったお金で、一番満足したのは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 1, text: "今日終えたことを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 2, text: "やることが目につく一日、最初に片づけたのは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.inseong, variant: 1, text: "今日新しく知ったことを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "今日誰かから学んだことは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 1, text: "今日最後まで守りたかった自分の考えを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "今日譲らなかったことは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "言いたかったのにまだ言えていないことを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 2, text: "今日一番話したかったことは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "今日欲しかったものを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "今日お金のことを一番考えたのはいつでしたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 1, text: "今日の仕事で一番重かったものを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 2, text: "今日一番手を取られたことは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 1, text: "今日ずっと頭にあった考えを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 2, text: "考えごとの多い一日、思い浮かんだ人はいましたか？"}
+- {slot: daily.guide, key: guide.yeokma, variant: 1, text: "今日行き来した道で見たものを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.yeokma, variant: 2, text: "今日一番遠くまで行ったのはどこでしたか？"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "今日うまくいったことを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "今日一番誇らしく思えたのはいつでしたか？"}
+- {slot: daily.color, key: color.gisin_day, text: "今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.gwiin_day, text: "今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.ordinary_day, text: "今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.yongsin_day, text: "今日は{element:color}がよく合います。"}
+- {slot: daily.direction, key: direction.day_kind.gisin, text: "今日出かけるなら、{direction}の方角がおすすめです。"}
+- {slot: daily.direction, key: direction.day_kind.gwiin, text: "人と会う場所を選ぶなら、{direction}の方角がよいです。"}
+- {slot: daily.direction, key: direction.day_kind.ordinary, text: "待ち合わせ場所を選ぶなら、{direction}の方角がよいです。"}
+- {slot: daily.direction, key: direction.day_kind.yongsin, text: "新しく行く場所を選ぶなら、{direction}の方角が合います。"}
+- {slot: daily.number, key: number.gisin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
+- {slot: daily.number, key: number.gwiin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
+- {slot: daily.number, key: number.ordinary_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
+- {slot: daily.number, key: number.yongsin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
+- {slot: daily.focus_time, key: focus_time.fallback, text: "今日はこの時間に集中しやすいです。"}
+- {slot: daily.focus_time, key: focus_time.gwiin, text: "この時間は、助けを頼むと通じやすいです。"}
+- {slot: daily.focus_time, key: focus_time.hap, text: "この時間は、人と会って話すのに向いています。"}
+- {slot: daily.focus_time, key: focus_time.huisin, text: "この時間は、後回しにしたことを進めるのに向いています。"}
+- {slot: daily.focus_time, key: focus_time.yongsin, text: "この時間は、大事なことに取り組むとうまくいきます。"}
+- {slot: daily.tag_label, key: tag.big_change, text: "大きな変化"}
+- {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "天乙貴人"}
+- {slot: daily.tag_label, key: tag.clash, text: "冲"}
+- {slot: daily.tag_label, key: tag.dohwa, text: "咸池"}
+- {slot: daily.tag_label, key: tag.gongmang, text: "空亡"}
+- {slot: daily.tag_label, key: tag.gwiin_day, text: "貴人の日"}
+- {slot: daily.tag_label, key: tag.harmony, text: "合"}
+- {slot: daily.tag_label, key: tag.hwagae, text: "華蓋"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.bigyeop, text: "比劫が多い日"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.gwanseong, text: "官星が多い日"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.inseong, text: "印星が多い日"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.jaeseong, text: "財星が多い日"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.siksang, text: "食傷が多い日"}
+- {slot: daily.tag_label, key: tag.yeokma, text: "駅馬"}
+- {slot: daily.tag_label, key: tag.yongsin_day, text: "用神の日"}
+- {slot: daily.focus_reason, key: gwiin, text: "貴人の時間"}
+- {slot: daily.focus_reason, key: yongsin, text: "用神の時間"}
+- {slot: daily.focus_reason, key: huisin, text: "喜神の時間"}
+- {slot: daily.focus_reason, key: hap, text: "合のある時間"}

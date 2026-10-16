@@ -3,3 +3,10 @@
 - {slot: system.apple_return, key: apple_return.body, text: "Please continue signing in from the Myungli Diary app."}
 - {slot: system.apple_return, key: apple_return.open, text: "Open in app"}
 - {slot: system.apple_return, key: apple_return.install, text: "Install the app"}
+- {slot: system.notice, key: notice.ambiguous_local_time, text: "Your birth time occurred twice when daylight saving ended, so we used the earlier one."}
+- {slot: system.notice, key: notice.nonexistent_local_time, text: "Your birth time was skipped when daylight saving began, so we used the later time."}
+- {slot: system.notice, key: notice.zi_hour_next_day, text: "We count the Rat hour, 11 p.m. to 1 a.m., as the start of the next day."}
+- {slot: system.notice, key: notice.time_unknown, text: "Your birth time is unknown, so we used 12 noon. Adding it makes results more accurate."}
+- {slot: system.notice, key: notice.near_solar_term, text: "You were born near a solar term change, so your month pillar may vary with the exact time."}
+- {slot: system.notice, key: notice.dayun_start_approximate, text: "Your birth time is unknown, so the age your 10-year luck cycles start is an estimate."}
+- {slot: system.notice, key: notice.focus_time_fallback, text: "Today's candidate hours all clash with your chart, so we used the calendar's lucky hours."}

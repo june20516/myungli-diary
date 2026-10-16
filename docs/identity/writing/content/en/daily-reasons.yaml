@@ -1,0 +1,29 @@
+# 날의 성격 이유·오늘 그런 이유·달력 등급과 점수 구성 원고(en). ko 원고(content/ko/daily.yaml)와 같은 정보를 옮긴 원어민 검수(W1) 전 초안입니다.
+# 날의 성격·점수 구성 이름은 glossary(en)와 같은 이름을 씁니다(W22). 합·충·형은 로마자 표기입니다.
+- {slot: character.reason, key: character.reason.gwiin_day, text: "A day when help from others comes more easily."}
+- {slot: character.reason, key: character.reason.yongsin_day, text: "The energy your chart needs comes in today, so things tend to go smoothly."}
+- {slot: character.reason, key: character.reason.gisin_day, text: "Energies tend to cross today, so it's a good day to slow down a beat."}
+- {slot: character.reason, key: character.reason.ordinary_day, text: "An ordinary day, with no particular energy helping or holding you back."}
+- {slot: explain.today_reason, key: "reason.color/lucky_element", text: "We chose the color of the energy that supports your chart."}
+- {slot: explain.today_reason, key: "reason.direction/gwiin_branch", text: "We chose the direction of the branch that brings you helpers today."}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_deity_huisin", text: "Of the calendar's lucky directions, we chose the one of the energy that backs up your chart."}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_deity_yongsin", text: "Of the calendar's lucky directions, we chose the one of the energy that supports your chart."}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_fallback", text: "None of the calendar's lucky directions fit, so we chose the direction of the energy that supports your chart."}
+- {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "We chose the direction of the energy that links two clashing energies."}
+- {slot: explain.today_reason, key: "reason.direction/yongsin", text: "We chose the direction of the energy that supports your chart, which gains strength today."}
+- {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "Every candidate hour clashed with your chart, so we chose a lucky hour from that day's calendar."}
+- {slot: explain.today_reason, key: "reason.focus_time/score", text: "Of the hours that don't clash with your chart, we chose the one where helpers, Yongsin, and Hap overlap the most."}
+- {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "This energy comes from how today's heavenly stem relates to your Day Master."}
+- {slot: explain.today_reason, key: "reason.fortune/tag", text: "Today's day pillar meets your chart, and this tag comes in with it."}
+- {slot: explain.today_reason, key: "reason.number/hado", text: "Of the numbers that share today's color energy, we chose the one that matches the yin or yang of today's heavenly stem."}
+- {slot: explain.today_reason, key: "reason.tags/select", text: "We gathered the Hap, Chung, and Shinsal that form when today's day pillar meets your chart."}
+- {slot: calendar.day_level, key: calendar.caution, text: "Day to take care"}
+- {slot: calendar.day_level, key: calendar.good, text: "Day that goes well"}
+- {slot: calendar.day_level, key: calendar.neutral, text: "Steady day"}
+- {slot: calendar.score_item, key: gwiin_day, text: "Day of helpers"}
+- {slot: calendar.score_item, key: yongsin_day, text: "Day in your favor"}
+- {slot: calendar.score_item, key: gisin_day, text: "Day to go gently"}
+- {slot: calendar.score_item, key: hap, text: "Hap"}
+- {slot: calendar.score_item, key: chung_day_or_month, text: "Day/month Chung"}
+- {slot: calendar.score_item, key: chung_other, text: "Other Chung"}
+- {slot: calendar.score_item, key: hyeong, text: "Hyeong"}

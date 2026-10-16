@@ -3,3 +3,10 @@
 - {slot: system.apple_return, key: apple_return.body, text: "命理日記アプリでログインを続けてください。"}
 - {slot: system.apple_return, key: apple_return.open, text: "アプリで開く"}
 - {slot: system.apple_return, key: apple_return.install, text: "アプリをインストール"}
+- {slot: system.notice, key: notice.ambiguous_local_time, text: "生まれた時刻がサマータイム終了で二度あったため、早いほうで計算しました。"}
+- {slot: system.notice, key: notice.nonexistent_local_time, text: "生まれた時刻がサマータイム開始で飛ばされたため、切り替え後で計算しました。"}
+- {slot: system.notice, key: notice.zi_hour_next_day, text: "午後11時から午前1時の子の刻は、翌日の始まりとして計算しました。"}
+- {slot: system.notice, key: notice.time_unknown, text: "生まれた時刻がわからないため、正午で計算しました。入力するとより正確です。"}
+- {slot: system.notice, key: notice.near_solar_term, text: "節入りの近くに生まれたため、時刻によって月柱が変わることがあります。"}
+- {slot: system.notice, key: notice.dayun_start_approximate, text: "生まれた時刻がわからないため、大運が始まる年齢は概算で計算しました。"}
+- {slot: system.notice, key: notice.focus_time_fallback, text: "今日は候補の時間がすべて命式とぶつかるため、暦の吉時から選びました。"}

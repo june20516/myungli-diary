@@ -1,0 +1,29 @@
+# 날의 성격 이유·오늘 그런 이유·달력 등급과 점수 구성 원고(ja).ko 원고(content/ko/daily.yaml)와 같은 정보를 옮긴 원어민 검수(W1) 전 초안입니다.
+# 날의 성격·점수 구성 이름은 glossary(ja)와 같은 이름을 씁니다(W24). 일진은 근거 용어집대로 「干支」로 씁니다(日辰은 일본어에서 이 뜻이 아님).
+- {slot: character.reason, key: character.reason.gwiin_day, text: "誰かの助けを得やすい日です。"}
+- {slot: character.reason, key: character.reason.yongsin_day, text: "あなたの命式に必要な気が入り、物事がうまく運びやすい日です。"}
+- {slot: character.reason, key: character.reason.gisin_day, text: "気がすれ違いやすく、ひと息ついて進むとよい日です。"}
+- {slot: character.reason, key: character.reason.ordinary_day, text: "特に助ける気も妨げる気もない、普通の日です。"}
+- {slot: explain.today_reason, key: "reason.color/lucky_element", text: "あなたの命式を助ける気の色を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.direction/gwiin_branch", text: "今日、貴人が巡る地支の方位を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_deity_huisin", text: "暦の吉方位のうち、あなたの命式を後押しする気の方位を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_deity_yongsin", text: "暦の吉方位のうち、あなたの命式を助ける気の方位を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_fallback", text: "暦の吉方位が合わないので、あなたの命式を助ける気の方位を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "ぶつかり合う二つの気をつなぐ気の方位を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.direction/yongsin", text: "今日力を得た、あなたの命式を助ける気の方位を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "候補の時間がすべて命式とぶつかるので、その日の暦で吉とされる時間を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.focus_time/score", text: "命式とぶつからない時間のうち、貴人・用神・合が多く重なる時を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "今日の天干があなたの日干と出会う関係が、この気にあたるからです。"}
+- {slot: explain.today_reason, key: "reason.fortune/tag", text: "今日の干支があなたの命式と出会い、このタグが一緒に入ったからです。"}
+- {slot: explain.today_reason, key: "reason.number/hado", text: "今日の色と同じ気の数のうち、今日の天干の陰陽に合う数を選んだからです。"}
+- {slot: explain.today_reason, key: "reason.tags/select", text: "今日の干支があなたの命式と出会って生まれた合・冲・神殺を集めたからです。"}
+- {slot: calendar.day_level, key: calendar.caution, text: "気をつける日"}
+- {slot: calendar.day_level, key: calendar.good, text: "うまく運ぶ日"}
+- {slot: calendar.day_level, key: calendar.neutral, text: "無難な日"}
+- {slot: calendar.score_item, key: gwiin_day, text: "貴人の日"}
+- {slot: calendar.score_item, key: yongsin_day, text: "用神の日"}
+- {slot: calendar.score_item, key: gisin_day, text: "忌神の日"}
+- {slot: calendar.score_item, key: hap, text: "合"}
+- {slot: calendar.score_item, key: chung_day_or_month, text: "日支・月支との冲"}
+- {slot: calendar.score_item, key: chung_other, text: "ほかの支との冲"}
+- {slot: calendar.score_item, key: hyeong, text: "刑"}
