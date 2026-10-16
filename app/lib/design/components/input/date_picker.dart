@@ -175,10 +175,15 @@ class BirthDatePicker extends StatelessWidget {
   /// 양력·음력 선택의 IA 슬롯 id.
   final String? identifier;
 
-  /// [lunarAllowed]가 false면 양력·윤달 아님으로 고정한 값입니다.
-  BirthDateValue get _effectiveValue => lunarAllowed
-      ? value
-      : value.copyWith(calendar: BirthCalendar.solar, isLeapMonth: false);
+  /// [lunarAllowed]가 false면 양력·윤달 아님으로 고정하고, 일을 그달 양력 날수에 맞춘 값입니다.
+  BirthDateValue get _effectiveValue {
+    if (lunarAllowed) return value;
+    final solar = value.copyWith(
+      calendar: BirthCalendar.solar,
+      isLeapMonth: false,
+    );
+    return solar.copyWith(day: math.min(solar.day, solar.maxDay));
+  }
 
   void _setDate({int? year, int? month, int? day}) {
     final next = _effectiveValue.copyWith(year: year, month: month, day: day);

@@ -411,6 +411,41 @@ void main() {
         expect(changes.single.calendar, _solar);
         expect(changes.single.isLeapMonth, isFalse);
       });
+
+      testWidgets('2024-02-29에서 연도를 2025로 바꾸면 2월 28일로 맞춰집니다', (tester) async {
+        final changes = <BirthDateValue>[];
+        await tester.pumpWidget(
+          inputApp(
+            _solarOnlyPicker(_value(year: 2024, month: 2, day: 29), changes),
+          ),
+        );
+        tester
+            .widget<Wheel>(find.byKey(BirthDatePicker.yearWheelKey))
+            .onSelectedIndexChanged(2025 - BirthDateValue.minYear);
+        await tester.pump();
+        expect(changes.single.year, 2025);
+        expect(changes.single.month, 2);
+        expect(changes.single.day, 28);
+      });
+
+      testWidgets('음력 2월 30일이 들어오면 표시도 값도 양력 그달 끝으로 맞춥니다', (tester) async {
+        final changes = <BirthDateValue>[];
+        await tester.pumpWidget(
+          inputApp(
+            _solarOnlyPicker(
+              _value(calendar: _lunar, year: 2025, month: 2, day: 30),
+              changes,
+            ),
+          ),
+        );
+        expect(_selectedLabel(tester, BirthDatePicker.dayWheelKey), '28일');
+        tester
+            .widget<Wheel>(find.byKey(BirthDatePicker.monthWheelKey))
+            .onSelectedIndexChanged(2);
+        await tester.pump();
+        expect(changes.single.month, 3);
+        expect(changes.single.day, 28);
+      });
     });
 
     testWidgets('calendar 변형은 아직 구현되지 않았습니다', (tester) async {
