@@ -126,12 +126,7 @@ void main() {
 
     test('색은 glossary, 방향은 ARB, 숫자는 그대로, 시간은 프로필 시간대 범위입니다', () {
       final items = luckyItemsOf(daily, _names, l10n, 'Asia/Seoul');
-      expect(items.map((i) => i.variant), [
-        LuckyCardVariant.color,
-        LuckyCardVariant.direction,
-        LuckyCardVariant.number,
-        LuckyCardVariant.time,
-      ]);
+      expect(items.map((i) => i.variant), LuckyCardVariant.luckyValues);
       expect(items.map((i) => i.value), [
         '초록',
         l10n.direction8E,

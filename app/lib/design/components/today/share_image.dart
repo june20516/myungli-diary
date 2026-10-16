@@ -182,7 +182,9 @@ class ShareImage extends StatelessWidget {
   /// 변형이 보여 줄 칩. story는 앞에서 4개, feed·square는 시간을 뺀 색·방향·숫자 3개입니다.
   List<LuckyItem> _chipsFor() {
     // 칩 줄에 tag 칩을 넣지 않습니다(`lucky-card` rules, 행운 4종만).
-    final lucky = items.where((item) => item.variant != LuckyCardVariant.tag);
+    final lucky = items.where(
+      (item) => LuckyCardVariant.luckyValues.contains(item.variant),
+    );
     return switch (variant) {
       ShareImageVariant.story => lucky.take(4).toList(),
       ShareImageVariant.feed || ShareImageVariant.square =>

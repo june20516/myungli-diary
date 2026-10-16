@@ -156,12 +156,7 @@ void main() {
       expect(tester.widget<DepthLink>(link).label, _ko.depthLinkEvidence);
     }
 
-    for (final variant in [
-      LuckyCardVariant.color,
-      LuckyCardVariant.direction,
-      LuckyCardVariant.number,
-      LuckyCardVariant.time,
-    ]) {
+    for (final variant in LuckyCardVariant.luckyValues) {
       expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);
     }
     expect(find.text('초록'), findsOneWidget);
@@ -219,13 +214,7 @@ void main() {
       );
       expect(
         [for (final chip in chips) chip.item.variant],
-        [
-          LuckyCardVariant.tag,
-          LuckyCardVariant.color,
-          LuckyCardVariant.direction,
-          LuckyCardVariant.number,
-          LuckyCardVariant.time,
-        ],
+        [LuckyCardVariant.tag, ...LuckyCardVariant.luckyValues],
       );
     });
 

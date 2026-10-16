@@ -616,12 +616,7 @@ void main() {
     final variants = tester
         .widgetList<LuckyChip>(find.byType(LuckyChip))
         .map((chip) => chip.item.variant);
-    expect(variants, [
-      LuckyCardVariant.color,
-      LuckyCardVariant.direction,
-      LuckyCardVariant.number,
-      LuckyCardVariant.time,
-    ]);
+    expect(variants, LuckyCardVariant.luckyValues);
   });
 }
 

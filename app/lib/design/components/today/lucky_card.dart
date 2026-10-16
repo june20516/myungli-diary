@@ -31,7 +31,15 @@ enum LuckyCardVariant {
 
   /// 그날의 대표 태그(`Daily.tags.featured`, today만). 앞 아이콘 `tag`(text.primary)와
   /// 굵기 600으로만 행운 칩과 구분하고, 길흉(`polarity`)으로 모양을 나누지 않습니다.
-  tag,
+  tag;
+
+  /// 행운 4종(칩 줄 순서). [tag]는 칩이 여럿일 수 있어 빠집니다.
+  static const List<LuckyCardVariant> luckyValues = [
+    color,
+    direction,
+    number,
+    time,
+  ];
 }
 
 const AppGlyph _compass = AppGlyph(
@@ -126,12 +134,12 @@ class LuckyChip extends StatelessWidget {
     FontFeature.tabularFigures(),
   ];
 
+  /// `tag` 변형 값의 글자 굵기(`tag.parts.value.fontWeight`).
+  static const FontWeight tagValueWeight = FontWeight.w600;
+
   static const double _height = 34;
   static const double _gap = 6;
   static const double _swatchSize = 14;
-
-  /// `tag` 변형 값의 글자 굵기(`tag.parts.value.fontWeight`).
-  static const FontWeight tagValueWeight = FontWeight.w600;
   static const double _openBorder = 1.5;
 
   /// 보여 줄 항목.
@@ -307,9 +315,12 @@ class LuckyCardRow extends StatefulWidget {
   /// 설명 상자를 찾는 테스트용 키.
   static const Key explainKey = ValueKey('lucky-card-explain');
 
-  /// [variant]의 칩을 찾는 테스트용 키. 태그는 여럿일 수 있어 [tagChipKey]를 씁니다.
-  static Key chipKey(LuckyCardVariant variant) =>
-      ValueKey('lucky-card-chip-${variant.name}');
+  /// 행운 4종 [variant]의 칩을 찾는 테스트용 키. 태그 칩은 여럿일 수 있어 키가 칩마다
+  /// 다르므로 [tagChipKey]를 씁니다([LuckyCardVariant.tag]를 주면 assert로 막습니다).
+  static Key chipKey(LuckyCardVariant variant) {
+    assert(variant != LuckyCardVariant.tag, '태그 칩 키는 tagChipKey(태그 키)입니다.');
+    return ValueKey('lucky-card-chip-${variant.name}');
+  }
 
   /// 태그 키가 [tagKey]인 대표 태그 칩을 찾는 테스트용 키.
   static Key tagChipKey(String tagKey) =>
