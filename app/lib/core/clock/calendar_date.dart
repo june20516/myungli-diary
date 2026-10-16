@@ -33,6 +33,16 @@ final class CalendarDate implements Comparable<CalendarDate> {
 
   static final _pattern = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
 
+  /// 지원하는 첫 날짜(D41: 양력 1900-01-31). 지원 범위 경계는 이 두 값 한 곳에만 둡니다.
+  static final CalendarDate supportedFirst = CalendarDate(1900, 1, 31);
+
+  /// 지원하는 마지막 날짜(D41: 양력 2099-12-31).
+  static final CalendarDate supportedLast = CalendarDate(2099, 12, 31);
+
+  /// 지원 범위([supportedFirst] ~ [supportedLast]) 안인지.
+  bool get isSupported =>
+      compareTo(supportedFirst) >= 0 && compareTo(supportedLast) <= 0;
+
   /// 연.
   final int year;
 
@@ -99,10 +109,6 @@ final class CalendarMonth {
   /// [date]가 속한 달.
   factory of(CalendarDate date) => CalendarMonth(date.year, date.month);
 
-  /// 지원하는 첫 달(1900-01)과 마지막 달(2099-12).
-  static const _firstYear = 1900;
-  static const _lastYear = 2099;
-
   /// 연.
   final int year;
 
@@ -117,8 +123,14 @@ final class CalendarMonth {
   CalendarMonth previous() =>
       month == 1 ? CalendarMonth(year - 1, 12) : CalendarMonth(year, month - 1);
 
-  /// 지원 범위(1900-01 ~ 2099-12) 안인지.
-  bool get isSupported => year >= _firstYear && year <= _lastYear;
+  /// 지원 날짜([CalendarDate.supportedFirst] ~ [CalendarDate.supportedLast])를 하나라도
+  /// 담은 달(1900-01 ~ 2099-12)인지. 이 달 격자에도 범위 밖 날짜가 있을 수 있습니다.
+  bool get isSupported =>
+      _index >= CalendarMonth.of(CalendarDate.supportedFirst)._index &&
+      _index <= CalendarMonth.of(CalendarDate.supportedLast)._index;
+
+  /// 달 순서 비교용 번호.
+  int get _index => year * 12 + month - 1;
 
   /// 격자 첫 칸. 이 달 1일이 속한 주의 일요일입니다.
   CalendarDate get gridStart {

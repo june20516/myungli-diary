@@ -33,18 +33,25 @@ typedef CalendarLegendEntry = ({Color swatch, String label});
 /// 한 달 격자(`calendar-month`): 달 제목·이전·다음, 요일 머리, 일요일 시작 6주 42칸, 범례.
 ///
 /// 달 넘김은 이전·다음 버튼과 격자 좌우 밀기 모두로 [onMonthChange]를 부릅니다. 지원 범위
-/// ([CalendarMonth.isSupported]) 밖으로는 넘어가지 않고 그쪽 버튼은 흐리게 막힙니다. 넘김
+/// ([CalendarMonth.isSupported]) 밖으로는 넘어가지 않고 그쪽 버튼은 흐리게 막힙니다. 지원 날짜
+/// ([CalendarDate.isSupported]) 밖이거나 [isDateEnabled]가 false인 칸은 누를 수 없습니다. 넘김
 /// 움직임은 격자만 `appear.seep`이고(가로 이동 없음) 머리는 그대로입니다. [loading]이면 이 달
 /// 칸의 길흉 채우기·도장 자리만 skeleton이고 숫자는 바로 보입니다.
 ///
 /// 달 제목·요일 머리 글자는 로케일 형식이라 쓰는 쪽이 만들어 넘기고, 이전·다음 버튼의
-/// 접근성 이름은 컴포넌트가 ARB에서 고릅니다.
+/// 접근성 이름과 불러오는 중 알림은 컴포넌트가 ARB에서 고릅니다.
+///
+/// 스크린리더에서 달 제목은 격자(`grid`) 이름으로 한 번만 읽고, 달을 넘기면 바뀐 이름을
+/// 알립니다(live region). 머리의 제목 글자는 같은 말을 두 번 읽지 않도록 빼 둡니다.
 class CalendarMonthView extends StatefulWidget {
   /// 달 격자를 만듭니다.
   ///
   /// [weekdayLabels]는 일요일부터 토요일까지 7개입니다. [cellOf]는 격자 42칸의 날짜마다
-  /// 칸 값을 돌려줍니다. [legend]가 있으면 격자 아래에 범례를 두고, [legendIdentifier]는
-  /// 그 IA 슬롯 id(`calendar.legend.body`)입니다.
+  /// 칸 값을 돌려줍니다. 1900-01·2099-12 격자처럼 지원 범위 밖 날짜(1899-12-31,
+  /// 2100-01-01 등)에도 불리므로 그 날짜에도 값을 돌려줘야 합니다(그 칸은 누를 수 없음).
+  /// [isDateEnabled]가 false를 돌려주는 날짜도 누를 수 없습니다(date-picker의 미래 날짜 등).
+  /// [legend]가 있으면 격자 아래에 범례를 두고, [legendIdentifier]는 그 IA 슬롯
+  /// id(`calendar.legend.body`)입니다.
   const new({
     required this.month,
     required this.title,
@@ -57,6 +64,7 @@ class CalendarMonthView extends StatefulWidget {
     this.selected,
     this.legend,
     this.legendIdentifier,
+    this.isDateEnabled,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
     this.skeletonAnimated = true,
     super.key,
@@ -110,6 +118,9 @@ class CalendarMonthView extends StatefulWidget {
   /// loading 도장 자리.
   static const Key sealBoneKey = ValueKey('calendar-month-seal-bone');
 
+  /// loading 스크린리더 알림 노드.
+  static const Key loadingKey = ValueKey('calendar-month-loading');
+
   /// 범례 견본.
   static const Key legendSwatchKey = ValueKey('calendar-month-legend-swatch');
 
@@ -149,6 +160,9 @@ class CalendarMonthView extends StatefulWidget {
 
   /// 범례의 IA 슬롯 id.
   final String? legendIdentifier;
+
+  /// 날짜를 누를 수 있는지. null이면 지원 범위 안의 모든 날짜를 누를 수 있습니다.
+  final bool Function(CalendarDate date)? isDateEnabled;
 
   /// skeleton이 보이기 전 대기. 이보다 빨리 끝나면 skeleton은 나오지 않습니다.
   final Duration skeletonDelay;
@@ -214,16 +228,23 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
     if (target != null) widget.onMonthChange(target);
   }
 
+  /// 빠르게 던졌으면 그 방향을, 아니면 끈 거리의 방향을 따릅니다(왼쪽 → 다음 달).
   void _onDragEnd(DragEndDetails details) {
     final velocity = details.primaryVelocity ?? 0;
-    if (velocity < -CalendarMonthView.swipeVelocity ||
-        _dragDx < -CalendarMonthView.swipeDistance) {
-      _go(_next);
-    } else if (velocity > CalendarMonthView.swipeVelocity ||
-        _dragDx > CalendarMonthView.swipeDistance) {
-      _go(_previous);
+    final double direction;
+    if (velocity.abs() > CalendarMonthView.swipeVelocity) {
+      direction = velocity;
+    } else if (_dragDx.abs() > CalendarMonthView.swipeDistance) {
+      direction = _dragDx;
+    } else {
+      direction = 0;
     }
     _dragDx = 0;
+    if (direction < 0) {
+      _go(_next);
+    } else if (direction > 0) {
+      _go(_previous);
+    }
   }
 
   @override
@@ -246,6 +267,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
             key: CalendarMonthView.tableKey,
             container: true,
             role: SemanticsRole.table,
+            liveRegion: true,
             label: widget.title,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -260,6 +282,15 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
             ),
           ),
         ),
+        // 불러오는 중 알림은 격자(table) 밖 노드 하나로 둡니다(table 자식은 row만).
+        if (widget.loading && _skeletonVisible)
+          Semantics(
+            key: CalendarMonthView.loadingKey,
+            container: true,
+            role: SemanticsRole.loadingSpinner,
+            label: l10n.skeletonLabel,
+            child: const SizedBox(height: Space.s4),
+          ),
         if (legend != null) _legend(context, legend),
       ],
     );
@@ -274,9 +305,9 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
     final tokens = context.tokens;
     return Row(
       children: [
+        // 제목은 격자 이름(live region)으로 읽으므로 여기서는 빼 둡니다.
         Expanded(
-          child: Semantics(
-            header: true,
+          child: ExcludeSemantics(
             child: Text(
               widget.title,
               style: tokens.typography.subtitle.copyWith(
@@ -379,12 +410,15 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   Widget _cell(CalendarDate date) {
     final month = widget.month;
     final outside = date.year != month.year || date.month != month.month;
+    final enabled =
+        date.isSupported && (widget.isDateEnabled?.call(date) ?? true);
     final dayCell = DayCell(
       data: widget.cellOf(date),
       isToday: date == widget.today,
       isSelected: date == widget.selected,
       outsideMonth: outside,
-      onTap: () => widget.onSelect(date),
+      disabled: !enabled,
+      onTap: enabled ? () => widget.onSelect(date) : null,
     );
     final skeleton = widget.loading && _skeletonVisible && !outside;
     return KeyedSubtree(
@@ -394,6 +428,9 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   }
 
   /// 칸 아래에 길흉 채우기 자리(칸 전체)와 도장 자리(숫자 상자 가운데 26px)를 깝니다.
+  ///
+  /// 도장 자리는 실제 도장과 같은 모양(skeleton `shape: same-as-content`)으로 잘라, 채우기
+  /// 자리 위에 겹친 bone이 정지 상태에서도 도장 윤곽으로 구분됩니다.
   Widget _withSkeleton(Widget dayCell) {
     const sealSize = SealSize.cell;
     final sealTop =
@@ -416,11 +453,13 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
             child: SizedBox.square(
               key: CalendarMonthView.sealBoneKey,
               dimension: sealSize.logical,
-              child: SkeletonBone(
-                height: sealSize.logical,
-                borderRadius: Radii.xs,
-                index: 1,
-                animated: widget.skeletonAnimated,
+              child: ClipPath(
+                clipper: const SealShapeClipper(),
+                child: SkeletonBone(
+                  height: sealSize.logical,
+                  index: 1,
+                  animated: widget.skeletonAnimated,
+                ),
               ),
             ),
           ),

@@ -33,7 +33,8 @@ DayCellData _cellOf(CalendarDate date, {required bool loaded}) {
         : DayLuck.neutral,
     lunarText: lunarText,
     lunarBold: lunarText == '한로' || lunarText == '상강',
-    diaryWritten: inMonth && const {2, 6, 11, 14, 21}.contains(day),
+    // 일기 도장은 칸 값과 함께 오므로 로딩 중에는 없습니다(도장 자리 skeleton만).
+    diaryWritten: loaded && inMonth && const {2, 6, 11, 14, 21}.contains(day),
     eventCount: inMonth && const {6, 11, 16, 21, 29}.contains(day) ? 2 : 0,
     semanticLabel: '${date.month}월 ${date.day}일',
   );

@@ -108,6 +108,10 @@ class DayCell extends StatefulWidget {
   });
 
   /// 기본 글자 크기에서의 칸 높이(`parts.container.height`).
+  ///
+  /// 글자는 [textScaleMax]배에서 멈추고 칸은 이 높이를 최소로 내용만큼 늘어납니다(1.3배에서
+  /// 약 64.7). 명세 rule '1.3배 위에서는 칸 높이를 늘림'과 V30 '칸 고정'이 엇갈려 design
+  /// Issue #218에 확인을 물었습니다.
   static const double height = 62;
 
   /// 숫자 상자 한 변(`parts.numberBox.size`).

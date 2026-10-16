@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
+import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -23,11 +24,17 @@ DayCellData _cellOf(CalendarDate date) => DayCellData(
 
 /// 달 격자를 너비 336에 놓고, 받은 달 넘김·선택을 [log]에 모읍니다.
 class _Harness extends StatefulWidget {
-  const new({required this.initial, required this.log, this.loading = false});
+  const new({
+    required this.initial,
+    required this.log,
+    this.loading = false,
+    this.isDateEnabled,
+  });
 
   final CalendarMonth initial;
   final List<Object> log;
   final bool loading;
+  final bool Function(CalendarDate date)? isDateEnabled;
 
   @override
   State<_Harness> createState() => _HarnessState();
@@ -52,6 +59,7 @@ class _HarnessState extends State<_Harness> {
         selected: _selected,
         skeletonDelay: Duration.zero,
         skeletonAnimated: false,
+        isDateEnabled: widget.isDateEnabled,
         onSelect: (date) {
           widget.log.add(date);
           setState(() => _selected = date);
@@ -71,6 +79,7 @@ Future<void> _pump(
   List<Object>? log,
   bool loading = false,
   double textScale = 1,
+  bool Function(CalendarDate date)? isDateEnabled,
 }) => tester.pumpWidget(
   inputApp(
     Builder(
@@ -81,6 +90,7 @@ Future<void> _pump(
           initial: month ?? const CalendarMonth(2026, 10),
           log: log ?? [],
           loading: loading,
+          isDateEnabled: isDateEnabled,
         ),
       ),
     ),
@@ -277,6 +287,8 @@ void main() {
 
   testWidgets('2099-12에서 다음 비활성', (tester) async {
     final log = <Object>[];
+    // harness 상태를 버리고 새 달로 엽니다.
+    await tester.pumpWidget(const SizedBox());
     await _pump(tester, month: const CalendarMonth(2099, 12), log: log);
     await tester.tap(find.byKey(CalendarMonthView.nextKey));
     await tester.fling(
@@ -347,6 +359,11 @@ void main() {
       find.descendant(of: sealBone, matching: find.byType(SkeletonBone)),
       findsOneWidget,
     );
+    // 도장 자리는 도장 모양으로 잘립니다.
+    final clip = tester.widget<ClipPath>(
+      find.descendant(of: sealBone, matching: find.byType(ClipPath)),
+    );
+    expect(clip.clipper, isA<SealShapeClipper>());
     // 숫자는 바로 보입니다.
     expect(
       find.descendant(
@@ -412,6 +429,119 @@ void main() {
     final label = tester.widget<Text>(find.text('조심할 날'));
     expect(label.style!.fontSize, tokens.typography.captionMd.fontSize);
     expect(label.style!.color, tokens.colors.textSecondary);
+  });
+
+  /// [date] 칸을 눌러도 onSelect가 없고 Semantics가 비활성인지 확인합니다.
+  Future<void> expectDisabledCell(
+    WidgetTester tester,
+    CalendarDate date,
+    List<Object> log,
+  ) async {
+    final cell = find.descendant(
+      of: find.byKey(CalendarMonthView.cellKey(date)),
+      matching: find.byType(DayCell),
+    );
+    final widget = tester.widget<DayCell>(cell);
+    expect(widget.disabled, isTrue, reason: '$date');
+    expect(widget.onTap, isNull, reason: '$date');
+    await tester.tap(cell);
+    await tester.pumpAndSettle();
+    expect(log, isEmpty, reason: '$date');
+    expect(
+      tester.getSemantics(cell).getSemanticsData().flagsCollection.isEnabled,
+      Tristate.isFalse,
+      reason: '$date',
+    );
+  }
+
+  testWidgets('지원 범위(1900-01-31 ~ 2099-12-31) 밖 날짜 칸은 누를 수 없습니다', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final log = <Object>[];
+    await _pump(tester, month: const CalendarMonth(1900, 1), log: log);
+    await expectDisabledCell(tester, CalendarDate(1899, 12, 31), log);
+    await expectDisabledCell(tester, CalendarDate(1900, 1, 15), log);
+    expect(
+      tester.widget<DayCell>(_cellFor(1, 31)).disabled,
+      isFalse,
+      reason: '1900-01-31은 범위 안',
+    );
+
+    // harness 상태를 버리고 새 달로 엽니다.
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester, month: const CalendarMonth(2099, 12), log: log);
+    await expectDisabledCell(tester, CalendarDate(2100, 1, 1), log);
+    handle.dispose();
+  });
+
+  testWidgets('isDateEnabled가 false인 날짜 칸은 누를 수 없습니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    final log = <Object>[];
+    final limit = CalendarDate(2026, 10, 16);
+    await _pump(
+      tester,
+      log: log,
+      isDateEnabled: (date) => date.compareTo(limit) <= 0,
+    );
+    await expectDisabledCell(tester, CalendarDate(2026, 10, 17), log);
+    await tester.tap(_cellFor(10, 16));
+    await tester.pumpAndSettle();
+    expect(log, [limit]);
+    handle.dispose();
+  });
+
+  testWidgets('밀기: 속도가 임계를 넘으면 끈 거리보다 속도 방향이 먼저입니다', (tester) async {
+    final log = <Object>[];
+    await _pump(tester, log: log);
+    // 이벤트 시각을 직접 매겨야 속도가 계산됩니다(기본값은 모두 0).
+    var at = Duration.zero;
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byKey(CalendarMonthView.gridKey)),
+    );
+    // 왼쪽으로 천천히 120px 끈 뒤 오른쪽으로 빠르게 60px 던집니다(누적 -60px).
+    for (var i = 0; i < 10; i++) {
+      at += const Duration(milliseconds: 50);
+      await gesture.moveBy(const Offset(-12, 0), timeStamp: at);
+    }
+    for (var i = 0; i < 6; i++) {
+      at += const Duration(milliseconds: 16);
+      await gesture.moveBy(const Offset(10, 0), timeStamp: at);
+    }
+    await gesture.up(timeStamp: at);
+    await tester.pumpAndSettle();
+    expect(log, [const CalendarMonth(2026, 9)]);
+  });
+
+  testWidgets('loading: 격자 밖에 불러오는 중 노드 하나를 둡니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _pump(tester, loading: true);
+    expect(find.bySemanticsLabel('불러오는 중'), findsOneWidget);
+    final node = tester.getSemantics(find.byKey(CalendarMonthView.loadingKey));
+    expect(node.getSemanticsData().role, SemanticsRole.loadingSpinner);
+    // table의 자식이 아닙니다(table 자식은 row만).
+    expect(
+      find.ancestor(
+        of: find.byKey(CalendarMonthView.loadingKey),
+        matching: find.byKey(CalendarMonthView.tableKey),
+      ),
+      findsNothing,
+    );
+    await _pump(tester);
+    expect(find.byKey(CalendarMonthView.loadingKey), findsNothing);
+    handle.dispose();
+  });
+
+  testWidgets('달 제목은 격자 이름으로 한 번만 읽습니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _pump(tester);
+    expect(find.bySemanticsLabel('2026년 10월'), findsOneWidget);
+    // 달을 넘기면 바뀐 이름을 알립니다.
+    final grid = tester
+        .getSemantics(find.byKey(CalendarMonthView.tableKey))
+        .getSemanticsData();
+    expect(grid.flagsCollection.isLiveRegion, isTrue);
+    handle.dispose();
   });
 
   test('명세 상태 id', () {

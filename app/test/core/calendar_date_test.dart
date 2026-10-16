@@ -76,4 +76,22 @@ void main() {
       expect(() => CalendarMonth(2026, 13), throwsA(isA<AssertionError>()));
     });
   });
+
+  group('CalendarDate 지원 범위(D41)', () {
+    test('양력 1900-01-31 ~ 2099-12-31만 지원합니다', () {
+      expect(CalendarDate.supportedFirst, CalendarDate(1900, 1, 31));
+      expect(CalendarDate.supportedLast, CalendarDate(2099, 12, 31));
+      expect(CalendarDate(1900, 1, 30).isSupported, isFalse);
+      expect(CalendarDate(1899, 12, 31).isSupported, isFalse);
+      expect(CalendarDate(1900, 1, 31).isSupported, isTrue);
+      expect(CalendarDate(2099, 12, 31).isSupported, isTrue);
+      expect(CalendarDate(2100, 1, 1).isSupported, isFalse);
+    });
+
+    test('달 지원 범위는 날짜 경계를 담은 달까지입니다', () {
+      expect(const CalendarMonth(1899, 12).isSupported, isFalse);
+      expect(const CalendarMonth(1900, 1).isSupported, isTrue);
+      expect(const CalendarMonth(2100, 1).isSupported, isFalse);
+    });
+  });
 }
