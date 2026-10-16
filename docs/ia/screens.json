@@ -332,6 +332,11 @@
       "states": [],
       "slots": [
         {
+          "id": "onboard-call.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"호칭\")"
+        },
+        {
           "id": "onboard-call.question.head",
           "source": "ui",
           "role": "호칭을 묻는 질문"
@@ -383,6 +388,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "onboard-birth.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"생일\")"
+        },
         {
           "id": "onboard-birth.question.head",
           "source": "ui",
@@ -443,6 +453,11 @@
       ],
       "slots": [
         {
+          "id": "onboard-time.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"태어난 시간\")"
+        },
+        {
           "id": "onboard-time.question.head",
           "source": "ui",
           "role": "태어난 시간을 묻는 질문"
@@ -492,6 +507,11 @@
       "depths": [],
       "states": [],
       "slots": [
+        {
+          "id": "onboard-gender.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"성별\")"
+        },
         {
           "id": "onboard-gender.question.head",
           "source": "ui",
@@ -557,6 +577,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "birthplace.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"출생지\")"
+        },
         {
           "id": "birthplace.question.head",
           "source": "ui",
@@ -655,6 +680,11 @@
       ],
       "slots": [
         {
+          "id": "preview.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"첫 풀이\")"
+        },
+        {
           "id": "preview.character.label",
           "source": "content",
           "role": "날의 성격 이름"
@@ -731,6 +761,11 @@
       ],
       "slots": [
         {
+          "id": "login.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"로그인\")"
+        },
+        {
           "id": "login.title.head",
           "source": "ui",
           "role": "로그인 제목"
@@ -788,6 +823,11 @@
       ],
       "slots": [
         {
+          "id": "consent.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"약관 동의\")"
+        },
+        {
           "id": "consent.title.head",
           "source": "ui",
           "role": "동의 화면 제목"
@@ -838,6 +878,11 @@
       "depths": [],
       "states": [],
       "slots": [
+        {
+          "id": "notify-ask.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"알림 허락\")"
+        },
         {
           "id": "notify-ask.question.head",
           "source": "ui",
@@ -1001,6 +1046,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "today.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"오늘\")"
+        },
         {
           "id": "today.character.label",
           "source": "content",
@@ -1374,6 +1424,11 @@
       ],
       "slots": [
         {
+          "id": "calendar.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"달력\")"
+        },
+        {
           "id": "calendar.legend.body",
           "source": "ui",
           "role": "점 색의 뜻"
@@ -1516,6 +1571,11 @@
       ],
       "slots": [
         {
+          "id": "event-edit.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"일정 편집\")"
+        },
+        {
           "id": "event-edit.character.hint",
           "source": "content",
           "role": "그날 성격 한 줄"
@@ -1578,6 +1638,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "diary-list.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"일기 목록\")"
+        },
         {
           "id": "diary-list.empty.body",
           "source": "ui",
@@ -1647,6 +1712,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "diary-edit.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"일기 쓰기\")"
+        },
         {
           "id": "diary-edit.guide.question",
           "source": "content",
@@ -1719,6 +1789,11 @@
       ],
       "slots": [
         {
+          "id": "diary-view.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목. 일기 날짜를 넣는 틀입니다(매개변수 date)"
+        },
+        {
           "id": "diary-view.character.label",
           "source": "content",
           "role": "그날 성격 이름"
@@ -1782,6 +1857,11 @@
       ],
       "slots": [
         {
+          "id": "tag-diary.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목. 고른 태그 이름을 넣는 틀입니다(매개변수 tag)"
+        },
+        {
           "id": "tag-diary.tag.meaning",
           "source": "content",
           "role": "태그 뜻 한 줄"
@@ -1841,6 +1921,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "my-saju.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"나의 사주\")"
+        },
         {
           "id": "my-saju.ilgan.head",
           "source": "content",
@@ -1914,6 +1999,11 @@
       ],
       "slots": [
         {
+          "id": "saju-chart.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"사주 표\")"
+        },
+        {
           "id": "saju-chart.yongsin.basis",
           "source": "content",
           "role": "용신 판정 근거. 근거·해석 열람 권한이 없으면 잠김 표시(D60)"
@@ -1972,6 +2062,11 @@
       "depths": [],
       "states": [],
       "slots": [
+        {
+          "id": "settings.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"설정\")"
+        },
         {
           "id": "settings.depth.desc",
           "source": "ui",
@@ -2063,6 +2158,11 @@
         }
       ],
       "slots": [
+        {
+          "id": "ad-free.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"광고 제거\")"
+        },
         {
           "id": "ad-free.offer.head",
           "source": "ui",
@@ -2167,6 +2267,11 @@
       ],
       "slots": [
         {
+          "id": "profile-edit.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"정보 수정\")"
+        },
+        {
           "id": "profile-edit.recalc.notice",
           "source": "ui",
           "role": "바꾸면 풀이를 다시 계산한다는 안내"
@@ -2222,6 +2327,11 @@
       "states": [],
       "slots": [
         {
+          "id": "calc-basis.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"계산 기준\")"
+        },
+        {
           "id": "calc-basis.convention.body",
           "source": "ui",
           "role": "한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)"
@@ -2271,6 +2381,11 @@
       ],
       "slots": [
         {
+          "id": "account-delete.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"계정 삭제\")"
+        },
+        {
           "id": "account-delete.title.head",
           "source": "ui",
           "role": "계정 삭제 제목"
@@ -2316,7 +2431,13 @@
       "purpose": "이용약관, 개인정보 처리방침, 오픈소스 라이선스를 보여줍니다",
       "depths": [],
       "states": [],
-      "slots": [],
+      "slots": [
+        {
+          "id": "legal.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"약관·정책\")"
+        }
+      ],
       "components": [
         "app-bar",
         "settings-row"
