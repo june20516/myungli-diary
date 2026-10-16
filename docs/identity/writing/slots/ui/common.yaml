@@ -471,3 +471,113 @@
   a11y:
     truncation: "화면에 보이지 않습니다."
     screen_reader: "이 문구를 읽습니다."
+
+# 달력·일정 공용 문구(#217). IA 밖 컴포넌트 문구라 W22처럼 ui.* 슬롯에 app 키 이름 그대로 둡니다.
+- id: ui.calendar.nav
+  where: "달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름"
+  purpose: guide
+  user_state: "다른 달로 넘깁니다."
+  structure: "동작 이름 하나. 화살표 버튼의 스크린리더 이름으로도 읽습니다."
+  tone: {진지: 2, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [calendar-month]
+  keys:
+    - calendarPrevMonth
+    - calendarNextMonth
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calendarPrevMonth, text: "이전 달", why: "#217 app 초안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다(화살표 아이콘)."
+    screen_reader: "버튼 이름으로 읽습니다."
+
+- id: ui.day-cell.a11y
+  where: "달력 날짜 칸(day-cell): 스크린리더 조각"
+  purpose: info
+  user_state: "스크린리더로 날짜 칸을 하나씩 듣습니다."
+  structure: "명사 조각 하나. app이 날짜·요일(DateFormat) 뒤에 a11yListSeparator로 이어 읽습니다. 길흉 낱말은 server CalendarDay.level.text를 씁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [day-cell]
+  keys:
+    - params: {month: number, day: number}
+      keys: [dayCellLunar]
+    - dayCellLeapMonth
+    - params: {count: number}
+      keys: [dayCellEventCount]
+    - dayCellDiaryWritten
+    - dayCellToday
+    - a11yListSeparator
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: dayCellLunar, text: "음력 {month}월 {day}일", why: "#217 app 초안 그대로", source: writing}
+      - {lang: ko, key: dayCellDiaryWritten, text: "일기 있음", why: "칸의 상태를 이름으로(일기를 쓴 날)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "날짜, 요일, 음력, 윤달, 길흉, 일정 수, 일기, 오늘 순서로 이어 읽습니다."
+
+- id: ui.event-row.label
+  where: "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름"
+  purpose: info
+  user_state: "그날 일정을 줄로 봅니다."
+  structure: "이름 하나. eventRowLabel은 상태 꼬리표(todayEventSummaryOngoing·Next)·시각·제목을 잇는 스크린리더 이름입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  key_max_length:
+    eventRowLabel: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [event-row]
+  keys:
+    - params: {count: number}
+      keys: [eventRowMore]
+    - eventRowAllDay
+    - params: {status: text, time: text, title: text}
+      keys: [eventRowLabel]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventRowAllDay, text: "하루 종일", why: "#217 app 초안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "eventRowLabel을 읽습니다."
+
+- id: ui.event-edit.form
+  where: "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  purpose: guide
+  user_state: "일정을 만들거나 고칩니다."
+  structure: "이름·버튼은 한 낱말, 안내는 한두 문장(무엇이 안 됐는지와 다음 할 일)."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  key_max_length:
+    eventEditAllDay: {ko: 13, en: 22, ja: 10}
+    eventEditTimed: {ko: 13, en: 22, ja: 10}
+    eventEditSave: {ko: 23, en: 42, ja: 19}
+    eventEditDelete: {ko: 23, en: 42, ja: 19}
+    eventEditOfflineNotice: {ko: 52, en: 90, ja: 38}
+    eventEditSaveFailed: {ko: 48, en: 78, ja: 34}
+  components: [segmented, text-field, primary-button, notice-banner, toast]
+  keys:
+    - eventEditAllDay
+    - eventEditTimed
+    - eventEditDateLabel
+    - eventEditTimeLabel
+    - eventEditSave
+    - eventEditDelete
+    - eventEditOfflineNotice
+    - eventEditSaveFailed
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventEditSaveFailed, text: "일정을 저장하지 못했어요. 다시 시도해 주세요.", why: "무엇이 안 됐는지와 다음 할 일", source: writing}
+    bad: []
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다. 상한은 design lengths.md의 같은 칸(segmented 두 칸, primary-button, notice-banner, toast) 값입니다."
+    screen_reader: "이름 그대로 읽습니다."

@@ -44,6 +44,8 @@
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "進行中"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "次"}
 - {slot: today.event.summary, key: todayEventSummaryDone, text: "今日の予定はすべて終わりました"}
+- {slot: today.event.summary, key: todayEventSummaryNextAt, text: "次は{time} {title}"}
+- {slot: today.event.summary, key: todayEventSummaryAllPast, text: "今日の予定{count, plural, other{{count}件}}はすべて終わりました"}
 - {slot: today.reaction.label, key: todayReactionLabel, text: "いいね"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "いいねを取り消す"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "命理日記"}
@@ -264,3 +266,23 @@
 - {slot: calc-basis.bar.title, key: calcBasisBarTitle, text: "計算の基準"}
 - {slot: account-delete.bar.title, key: accountDeleteBarTitle, text: "アカウント削除"}
 - {slot: legal.bar.title, key: legalBarTitle, text: "規約とポリシー"}
+# 달력·일정 공용 문구(#217)
+- {slot: ui.calendar.nav, key: calendarPrevMonth, text: "前の月"}
+- {slot: ui.calendar.nav, key: calendarNextMonth, text: "次の月"}
+- {slot: ui.day-cell.a11y, key: dayCellLunar, text: "旧暦{month}月{day}日"}
+- {slot: ui.day-cell.a11y, key: dayCellLeapMonth, text: "閏月"}
+- {slot: ui.day-cell.a11y, key: dayCellEventCount, text: "予定{count, plural, other{{count}件}}"}
+- {slot: ui.day-cell.a11y, key: dayCellDiaryWritten, text: "日記あり"}
+- {slot: ui.day-cell.a11y, key: dayCellToday, text: "今日"}
+- {slot: ui.day-cell.a11y, key: a11yListSeparator, text: "、"}
+- {slot: ui.event-row.label, key: eventRowMore, text: "ほか{count, plural, other{{count}件}}"}
+- {slot: ui.event-row.label, key: eventRowAllDay, text: "終日"}
+- {slot: ui.event-row.label, key: eventRowLabel, text: "{status} {time} {title}"}
+- {slot: ui.event-edit.form, key: eventEditAllDay, text: "終日"}
+- {slot: ui.event-edit.form, key: eventEditTimed, text: "時間指定"}
+- {slot: ui.event-edit.form, key: eventEditDateLabel, text: "日付"}
+- {slot: ui.event-edit.form, key: eventEditTimeLabel, text: "時間"}
+- {slot: ui.event-edit.form, key: eventEditSave, text: "保存"}
+- {slot: ui.event-edit.form, key: eventEditDelete, text: "予定を削除"}
+- {slot: ui.event-edit.form, key: eventEditOfflineNotice, text: "インターネットに接続されていないため、保存できません。"}
+- {slot: ui.event-edit.form, key: eventEditSaveFailed, text: "予定を保存できませんでした。もう一度お試しください。"}

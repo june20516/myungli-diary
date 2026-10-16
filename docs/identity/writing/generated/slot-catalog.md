@@ -146,7 +146,7 @@
 | tag-diary.empty.body | tag-diary.empty.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| today.event.summary | today.event.summary | info | - | 1 | 4 | `count`: number<br>`title`: text | ko -, en -, ja - |
+| today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 2 | - | ko 23, en 42, ja 19 |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -156,6 +156,8 @@
 | ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko 52, en 90, ja 38 |
 | ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
 | ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 6 | - | ko 13, en 22, ja 10 |
+| ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.depth.default_label | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 10, en 18, ja 10 |
 | ui.depth.evidence | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.evidence_link | 컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
@@ -163,6 +165,8 @@
 | ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
 | ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 39 | - | ko 48, en 78, ja 34 |
+| ui.event-edit.form | 컴포넌트 segmented<br>컴포넌트 text-field<br>컴포넌트 primary-button<br>컴포넌트 notice-banner<br>컴포넌트 toast | guide | - | 1 | 8 | - | ko -, en -, ja -<br>`eventEditAllDay` ko 13, en 22, ja 10<br>`eventEditTimed` ko 13, en 22, ja 10<br>`eventEditSave` ko 23, en 42, ja 19<br>`eventEditDelete` ko 23, en 42, ja 19<br>`eventEditOfflineNotice` ko 52, en 90, ja 38<br>`eventEditSaveFailed` ko 48, en 78, ja 34 |
+| ui.event-row.label | 컴포넌트 event-row | info | - | 1 | 3 | `count`: number<br>`status`: text<br>`time`: text<br>`title`: text | ko -, en -, ja -<br>`eventRowLabel` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.evidence.title | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 33, ja 15 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |

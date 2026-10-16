@@ -30,7 +30,7 @@
   where: "오늘 화면(today): 오늘 일정 개수와 첫 일정"
   purpose: info
   user_state: "오늘 일정을 한 줄로 봅니다."
-  structure: "기본은 개수와 첫 일정 제목. `Ongoing`·`Next`는 일정 앞 상태 꼬리표, `Done`은 모두 지났을 때 문장(#42)."
+  structure: "`NextAt`은 다음 일정의 시각과 제목, `AllPast`는 모두 지났을 때 개수 문장입니다(design event-row summary, #217). `Ongoing`·`Next`는 일정 앞 상태 꼬리표입니다. 기본 키와 `Done`은 NextAt·AllPast로 바뀌어, app이 쓰지 않는다고 확인하면 지웁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -39,6 +39,10 @@
     - todayEventSummaryOngoing
     - todayEventSummaryNext
     - todayEventSummaryDone
+    - params: {time: text, title: text}
+      keys: [todayEventSummaryNextAt]
+    - params: {count: number}
+      keys: [todayEventSummaryAllPast]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
