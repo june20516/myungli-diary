@@ -316,6 +316,21 @@ Widget _datePickers() => Builder(
   },
 );
 
+/// date-picker: 양력 전용(`lunarAllowed: false`, A37) — 양력·음력 선택과 윤달 줄이 없습니다.
+Widget _solarOnlyDatePicker() => BirthDatePicker(
+  value: const BirthDateValue(
+    calendar: BirthCalendar.solar,
+    year: 2026,
+    month: 10,
+    day: 16,
+  ),
+  onChanged: (_) {},
+  calendarLabelSolar: '양력',
+  calendarLabelLunar: '음력',
+  leapMonthLabel: '윤달',
+  lunarAllowed: false,
+);
+
 /// time-picker: birth(시진 확인 줄)·birth(확인 줄 없음)·birth(모름)·notify.
 Widget _timePickers() => Builder(
   builder: (context) {
@@ -459,6 +474,15 @@ void main() {
       tester,
       'input_date_picker',
       _datePickers,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('date-picker(birth): 양력 전용', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_date_picker_solar_only',
+      _solarOnlyDatePicker,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

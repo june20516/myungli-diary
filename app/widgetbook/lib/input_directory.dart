@@ -90,7 +90,7 @@ Widget _checkRow(
 }
 
 /// 돌려서 바뀌는 생일 휠.
-Widget _datePicker(BirthDateValue initial) {
+Widget _datePicker(BirthDateValue initial, {bool lunarAllowed = true}) {
   var value = initial;
   return SizedBox(
     width: 360,
@@ -101,6 +101,7 @@ Widget _datePicker(BirthDateValue initial) {
         calendarLabelSolar: '양력',
         calendarLabelLunar: '음력',
         leapMonthLabel: '윤달',
+        lunarAllowed: lunarAllowed,
       ),
     ),
   );
@@ -347,6 +348,18 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
               day: 30,
               isLeapMonth: true,
             ),
+          ),
+        ),
+        _stage(
+          'birth(양력 전용)',
+          () => _datePicker(
+            const BirthDateValue(
+              calendar: BirthCalendar.solar,
+              year: 2026,
+              month: 10,
+              day: 16,
+            ),
+            lunarAllowed: false,
           ),
         ),
       ],

@@ -129,6 +129,7 @@ class BirthDatePicker extends StatelessWidget {
     required this.calendarLabelLunar,
     required this.leapMonthLabel,
     this.variant = DatePickerVariant.birth,
+    this.lunarAllowed = true,
     this.identifier,
     super.key,
   });
@@ -167,11 +168,20 @@ class BirthDatePicker extends StatelessWidget {
   /// 윤달 체크 글자.
   final String leapMonthLabel;
 
+  /// 음력 선택을 허용하는지. false면 양력·음력 선택과 윤달 줄을 그리지 않고, 받은 값이 음력이어도
+  /// 양력으로 보고 늘 양력 값만 돌려줍니다(결정 A37: 일정 날짜는 양력 전용).
+  final bool lunarAllowed;
+
   /// 양력·음력 선택의 IA 슬롯 id.
   final String? identifier;
 
+  /// [lunarAllowed]가 false면 양력·윤달 아님으로 고정한 값입니다.
+  BirthDateValue get _effectiveValue => lunarAllowed
+      ? value
+      : value.copyWith(calendar: BirthCalendar.solar, isLeapMonth: false);
+
   void _setDate({int? year, int? month, int? day}) {
-    final next = value.copyWith(year: year, month: month, day: day);
+    final next = _effectiveValue.copyWith(year: year, month: month, day: day);
     onChanged(next.copyWith(day: math.min(next.day, next.maxDay)));
   }
 
@@ -190,6 +200,7 @@ class BirthDatePicker extends StatelessWidget {
       throw UnimplementedError('date-picker calendar 변형은 계획 5에서 구현합니다.');
     }
     final l10n = AppLocalizations.of(context);
+    final value = _effectiveValue;
     final lunar = value.calendar == BirthCalendar.lunar;
     const years = BirthDateValue.maxYear - BirthDateValue.minYear + 1;
 
@@ -197,17 +208,19 @@ class BirthDatePicker extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Segmented<BirthCalendar>(
-          label: '$calendarLabelSolar $calendarLabelLunar',
-          identifier: identifier,
-          items: [
-            SegmentedItem(BirthCalendar.solar, calendarLabelSolar),
-            SegmentedItem(BirthCalendar.lunar, calendarLabelLunar),
-          ],
-          selected: value.calendar,
-          onChanged: _setCalendar,
-        ),
-        const SizedBox(height: Space.s12),
+        if (lunarAllowed) ...[
+          Segmented<BirthCalendar>(
+            label: '$calendarLabelSolar $calendarLabelLunar',
+            identifier: identifier,
+            items: [
+              SegmentedItem(BirthCalendar.solar, calendarLabelSolar),
+              SegmentedItem(BirthCalendar.lunar, calendarLabelLunar),
+            ],
+            selected: value.calendar,
+            onChanged: _setCalendar,
+          ),
+          const SizedBox(height: Space.s12),
+        ],
         WheelGroup(
           wheels: [
             Wheel(

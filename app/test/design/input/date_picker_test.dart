@@ -3,6 +3,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
+import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/wheel.dart';
 
 import 'input_harness.dart';
@@ -26,10 +27,16 @@ BirthDateValue _value({
 
 /// 값을 스스로 들고 바꿔 주는 시험용 부모. 바뀐 값은 [changes]에 쌓입니다.
 class _Host extends StatefulWidget {
-  const new({required this.initial, required this.changes, super.key});
+  const new({
+    required this.initial,
+    required this.changes,
+    this.lunarAllowed = true,
+    super.key,
+  });
 
   final BirthDateValue initial;
   final List<BirthDateValue> changes;
+  final bool lunarAllowed;
 
   @override
   State<_Host> createState() => _HostState();
@@ -50,12 +57,21 @@ class _HostState extends State<_Host> {
       calendarLabelSolar: '양력',
       calendarLabelLunar: '음력',
       leapMonthLabel: '윤달',
+      lunarAllowed: widget.lunarAllowed,
     ),
   );
 }
 
 Widget _picker(BirthDateValue value, [List<BirthDateValue>? changes]) =>
     _Host(key: ValueKey(value), initial: value, changes: changes ?? []);
+
+Widget _solarOnlyPicker(BirthDateValue value, List<BirthDateValue> changes) =>
+    _Host(
+      key: ValueKey(value),
+      initial: value,
+      changes: changes,
+      lunarAllowed: false,
+    );
 
 int _itemCount(WidgetTester tester, Key key) =>
     tester.widget<Wheel>(find.byKey(key)).itemCount;
@@ -350,6 +366,51 @@ void main() {
       final followed = await flingTo(controlled: true);
       expect(free, greaterThan(105));
       expect(followed, free);
+    });
+
+    group('lunarAllowed: false (양력 전용, A37)', () {
+      testWidgets('양력·음력 선택과 윤달 줄을 그리지 않고 휠은 그대로입니다', (tester) async {
+        await tester.pumpWidget(inputApp(_solarOnlyPicker(_value(), [])));
+        expect(find.byType(Segmented<BirthCalendar>), findsNothing);
+        expect(find.text('양력'), findsNothing);
+        expect(find.text('음력'), findsNothing);
+        expect(find.byType(CheckRow), findsNothing);
+        expect(_itemCount(tester, BirthDatePicker.yearWheelKey), 200);
+        expect(_itemCount(tester, BirthDatePicker.monthWheelKey), 12);
+      });
+
+      testWidgets('휠을 돌려 바뀐 값은 늘 양력이고 윤달이 아닙니다', (tester) async {
+        final changes = <BirthDateValue>[];
+        await tester.pumpWidget(inputApp(_solarOnlyPicker(_value(), changes)));
+        final wheel = tester.widget<Wheel>(
+          find.byKey(BirthDatePicker.dayWheelKey),
+        );
+        wheel.onSelectedIndexChanged(19);
+        await tester.pump();
+        expect(changes.single.calendar, _solar);
+        expect(changes.single.isLeapMonth, isFalse);
+        expect(changes.single.day, 20);
+      });
+
+      testWidgets('음력 값이 들어와도 양력 날수로 그리고 양력으로 돌려줍니다', (tester) async {
+        final changes = <BirthDateValue>[];
+        await tester.pumpWidget(
+          inputApp(
+            _solarOnlyPicker(
+              _value(calendar: _lunar, month: 2, day: 10, isLeapMonth: true),
+              changes,
+            ),
+          ),
+        );
+        expect(find.byType(CheckRow), findsNothing);
+        expect(_itemCount(tester, BirthDatePicker.dayWheelKey), 28);
+        tester
+            .widget<Wheel>(find.byKey(BirthDatePicker.dayWheelKey))
+            .onSelectedIndexChanged(4);
+        await tester.pump();
+        expect(changes.single.calendar, _solar);
+        expect(changes.single.isLeapMonth, isFalse);
+      });
     });
 
     testWidgets('calendar 변형은 아직 구현되지 않았습니다', (tester) async {
