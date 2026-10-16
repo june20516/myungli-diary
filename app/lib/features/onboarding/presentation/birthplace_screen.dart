@@ -100,6 +100,9 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   int _generation = 0;
   bool _saving = false;
 
+  /// 저장을 기다리는 동안 고른 도시 id. 그 줄 끝에 점 숨쉬기가 나옵니다(`city-search` saving).
+  String? _savingCityId;
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -158,10 +161,12 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       context.pop(city);
       return;
     }
-    // 아래 버튼이 없어(`bottomAction.omitWhen`) 처리 중 점이 보일 자리가 없습니다. 지금은
-    // 눌림(press.ink)과 중복 누름 막기뿐이고, 고른 뒤 처리 중 모양은 design에 묻는 중입니다
-    // (#195). 명세에 없는 모양은 만들지 않습니다.
-    setState(() => _saving = true);
+    // 아래 버튼이 없어(`bottomAction.omitWhen`) 고른 줄 끝의 점이 처리 중을 보입니다
+    // (`city-search` saving). 실패하면 아래 finally에서 점이 사라집니다.
+    setState(() {
+      _saving = true;
+      _savingCityId = city.id;
+    });
     try {
       await ref
           .read(onboardingDraftProvider.notifier)
@@ -184,7 +189,12 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
         errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
       );
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _savingCityId = null;
+        });
+      }
     }
   }
 
@@ -229,6 +239,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
         onSelected: _onSelected,
         emptyBody: l10n.birthplaceEmptyBody,
         onRetry: _search,
+        savingCityId: _savingCityId,
       ),
       help: l10n.birthplaceWhyBody,
       helpIdentifier: SlotIds.birthplaceWhyBody,

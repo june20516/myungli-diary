@@ -456,6 +456,42 @@ Widget _citySearches() => Builder(
   },
 );
 
+/// city-search saving: 고른 줄 끝에 점(정지), 다른 줄은 눌림 없이 그대로.
+Widget _citySearchSaving() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    final seoul = City(
+      id: '1',
+      name: 'Seoul',
+      country: 'KR',
+      countryName: 'South Korea',
+      timezone: 'Asia/Seoul',
+      longitude: 126.9780,
+    );
+    final busan = City(
+      id: '2',
+      name: 'Busan',
+      country: 'KR',
+      countryName: 'South Korea',
+      regionName: 'Busan',
+      timezone: 'Asia/Seoul',
+      longitude: 129.0756,
+    );
+    return CitySearch(
+      label: ja ? '都市名' : '도시 이름',
+      hint: ja ? '例: ソウル' : '예: Seoul',
+      onQueryChanged: (_) {},
+      results: AsyncData([seoul, busan]),
+      onSelected: (_) {},
+      emptyBody: ja ? '見つかる都市がありません。' : '찾는 도시가 없어요.',
+      onRetry: () {},
+      savingCityId: seoul.id,
+      skeletonDelay: Duration.zero,
+      animated: false,
+    );
+  },
+);
+
 void main() {
   goldenTest('input-step: onboarding(valid)·standalone(out-of-range)', (
     tester,
@@ -544,6 +580,15 @@ void main() {
       tester,
       'input_city_search',
       _citySearches,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('city-search: saving(고른 줄 점·다른 줄 눌림 없음)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_city_search_saving',
+      _citySearchSaving,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

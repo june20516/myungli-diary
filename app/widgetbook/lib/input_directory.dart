@@ -135,7 +135,8 @@ Widget _timePicker(
 }
 
 /// 쳐서 바뀌는 도시 검색. 글자에 맞는 도시만 걸러 보이고 비면 빈 상태입니다.
-Widget _citySearch({bool loading = false}) {
+/// [saving]이면 줄을 누르는 순간 그 줄이 저장 중(끝에 점)이 되고 다른 줄은 눌리지 않습니다.
+Widget _citySearch({bool loading = false, bool saving = false}) {
   final cities = [
     City(
       id: '1835848',
@@ -174,6 +175,7 @@ Widget _citySearch({bool loading = false}) {
     ),
   ];
   AsyncValue<List<City>>? results;
+  String? savingId;
   return SizedBox(
     width: 360,
     child: StatefulBuilder(
@@ -192,7 +194,8 @@ Widget _citySearch({bool loading = false}) {
                 ]);
         }),
         results: results,
-        onSelected: (_) {},
+        savingCityId: saving ? savingId : null,
+        onSelected: (city) => setState(() => savingId = city.id),
         emptyBody: '찾는 도시가 없어요.',
         onRetry: () {},
       ),
@@ -403,6 +406,7 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
       useCases: [
         _stage('쳐서 걸러짐(예: s, lon, zzz)', _citySearch),
         _stage('loading(아무 글자)', () => _citySearch(loading: true)),
+        _stage('saving(글자를 치고 줄을 누름)', () => _citySearch(saving: true)),
       ],
     ),
   ],

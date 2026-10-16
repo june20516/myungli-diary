@@ -14,7 +14,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// [child]를 주면 실제 올 요소와 같은 자리·크기·반경으로 짠 [SkeletonBone] 배치를 쓰고,
 /// 없으면 글줄 [lines]개를 그립니다(글자 줄 높이의 60%, 마지막 줄은 너비 60%). 글줄의 줄
 /// 높이는 [lineStyle]에서 구하고, 없으면 `type.body.ui`입니다. 문장 본문(`type.sentence.body`)
-/// 자리처럼 실제 올 글자와 줄 높이를 맞출 때 줍니다(명세에 올릴지는 #211에서 판단).
+/// 자리처럼 실제 올 글자와 줄 높이를 맞출 때 줍니다(명세 2.4.0 `parts.textLine.type`의
+/// 기본은 `type.body.ui`, 규칙은 "실제 올 글자 스타일").
 class SkeletonBlock extends StatefulWidget {
   /// 자리를 만듭니다.
   const new({
@@ -46,6 +47,10 @@ class SkeletonBlock extends StatefulWidget {
 
   /// false면 숨쉬지 않고 정지 상태로 그립니다(golden).
   final bool animated;
+
+  /// [lineStyle]을 주지 않았을 때 글줄 높이의 기준(`type.body.ui`).
+  static TextStyle defaultLineStyleOf(BuildContext context) =>
+      context.tokens.typography.bodyUi;
 
   @override
   State<SkeletonBlock> createState() => _SkeletonBlockState();
@@ -101,7 +106,7 @@ class _Lines extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = this.style ?? context.tokens.typography.bodyUi;
+    final style = this.style ?? SkeletonBlock.defaultLineStyleOf(context);
     final fontSize = MediaQuery.textScalerOf(context)
         .scale(style.fontSize ?? 14);
     final lineHeight = fontSize * (style.height ?? 1.5);

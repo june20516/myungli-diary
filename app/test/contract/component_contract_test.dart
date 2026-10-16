@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/animation.dart';
-import 'package:flutter/widgets.dart' show IconData, Locale;
+import 'package:flutter/widgets.dart'
+    show BuildContext, Builder, IconData, Locale, SizedBox;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -11,16 +12,21 @@ import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/input/city_search.dart';
+import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
+import '../design/input/input_harness.dart';
 import '../support/component_spec_json.dart';
 
 Map<String, Object?> _interaction() =>
@@ -328,6 +334,54 @@ void main() {
       expect(_px(padding['x']), StatusTag.padding.right);
       expect(_px(padding['y']), StatusTag.padding.top);
       expect(_px(padding['y']), StatusTag.padding.bottom);
+    });
+  });
+
+  group('컴포넌트 2.4.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    test('city-search region.join이 명세 언어별 구분자와 같습니다', () {
+      final region = _map(_map(specs['city-search']!['parts'])['region']);
+      expect(CitySearch.regionJoin, _map(region['join']));
+    });
+
+    test('city-search saving은 loading.breathe이고 점은 text.secondary입니다', () {
+      final search = specs['city-search']!;
+      final saving = _map(_map(search['states'])['saving']);
+      expect(saving['pattern'], 'loading.breathe');
+      final dots = _map(_map(saving['parts'])['dots']);
+      expect(dots['fg'], '{color.text.secondary}');
+      expect(
+        _map(search['a11y'])['busyAnnounced'],
+        lookupAppLocalizations(const Locale('ko')).actionBusy,
+      );
+    });
+
+    test('input-step preface 위·아래는 space.24입니다', () {
+      final preface = _map(_map(specs['input-step']!['parts'])['preface']);
+      expect(preface['marginTop'], '{space.24}');
+      expect(preface['marginBottom'], '{space.24}');
+      expect(InputStep.prefaceGap, Space.s24);
+    });
+
+    testWidgets('skeleton textLine.type 기본은 type.body.ui입니다', (tester) async {
+      final textLine = _map(_map(specs['skeleton']!['parts'])['textLine']);
+      expect(_map(textLine['type'])['default'], '{type.body.ui}');
+      late BuildContext inner;
+      await tester.pumpWidget(
+        inputApp(
+          Builder(
+            builder: (context) {
+              inner = context;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      expect(
+        SkeletonBlock.defaultLineStyleOf(inner),
+        inner.tokens.typography.bodyUi,
+      );
     });
   });
 

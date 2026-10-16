@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
@@ -222,7 +223,8 @@ void main() {
     await tester.tap(_newYork);
     await tester.pump();
     await tester.tap(_link);
-    await tester.pumpAndSettle();
+    // 점이 숨 쉬는 동안은 settle되지 않으므로 고정 시간만 돌립니다.
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsNothing);
     gate.complete();
     await tester.pumpAndSettle();
@@ -521,6 +523,53 @@ void main() {
     await tester.tap(_newYork);
     await tester.pump();
     expect(calls, 2);
+    await tester.pump(const Duration(seconds: 10));
+  });
+
+  testWidgets('저장을 기다리는 동안 고른 줄에 점이 있고 다른 줄은 눌리지 않으며, 실패하면 점이 사라집니다', (
+    tester,
+  ) async {
+    final gate = Completer<void>();
+    var calls = 0;
+    await _openBirthplace(
+      tester,
+      scenario: 'profile-required',
+      overrides: [
+        onboardingFinishProvider.overrideWithValue(() async {
+          calls++;
+          await gate.future;
+          throw StateError('저장 실패');
+        }),
+      ],
+    );
+    await _search(tester, 'new');
+    await _settleIo(tester);
+    final dots = find.descendant(
+      of: find.byKey(CitySearch.rowKey('5128581')),
+      matching: find.byType(BreathingDots),
+    );
+    expect(dots, findsNothing);
+
+    await tester.tap(_newYork);
+    await tester.pump();
+    expect(dots, findsOneWidget);
+    expect(find.byType(BreathingDots), findsOneWidget);
+
+    // 저장을 기다리는 동안 다시 눌러도 저장을 다시 시작하지 않습니다.
+    await tester.tap(_newYork);
+    await tester.pump();
+    expect(calls, 1);
+
+    gate.complete();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(BreathingDots), findsNothing);
+    expect(
+      find.text(
+        errorMessage(AppLocalizationsEn(), UnexpectedError(StateError('x'))),
+      ),
+      findsOneWidget,
+    );
     await tester.pump(const Duration(seconds: 10));
   });
 }
