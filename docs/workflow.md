@@ -78,7 +78,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   | `kind:task` | 작업이 끝났을 때 | 받는 쪽 |
 * **받는 쪽에 일을 시키는 공지는 `kind:request`로 엽니다.** 공지(`kind:notice`)는 알리기만 합니다. 수령으로 닫혀도 남은 일이 목록에서 사라지지 않게 하려는 것입니다.
 * **일부만 처리했으면** 처리한 부분으로 닫고, 남은 부분은 새 Issue로 엽니다. 새 Issue 번호를 닫는 코멘트에 남깁니다.
-* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다. 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `ci-gate`의 `pr-body` 검사가 둘 중 하나가 있는지 확인합니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다.
+* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `ci-gate`의 `pr-body` 검사가 둘 중 하나가 있는지 확인합니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다.
 * **라벨:** `from:<단위>`, `to:<단위>`(단위: `root`, `core`, `server`, `app`, `writing`, `design`), `kind:request`·`kind:report`·`kind:notice`·`kind:task`, `blocking`(다른 작업을 막음)
 * **상태:** 열림 → 지휘 세션이 `accepted` 또는 `rejected` 라벨(거절은 닫음) → 받는 쪽이 처리하고 닫음. 완료 보고(`kind:report`)는 지휘 세션이 확인하고 닫습니다.
 * **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다.
