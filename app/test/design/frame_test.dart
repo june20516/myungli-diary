@@ -288,6 +288,22 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('titleIdentifier는 제목 노드의 identifier입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const MyungliAppBar.tabRoot(
+            title: '달력',
+            titleIdentifier: 'calendar.bar.title',
+          ),
+        ),
+      );
+      final title = find.bySemanticsIdentifier('calendar.bar.title');
+      expect(title, findsOneWidget);
+      expect(tester.getSemantics(title).label, '달력');
+      handle.dispose();
+    });
+
     testWidgets('inner: 제목이 비면 빈 header 노드를 만들지 않습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(const MyungliAppBar.inner(title: '')));

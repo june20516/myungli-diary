@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
+import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -122,6 +123,12 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: todayHandledStates,
     exits: todayExits,
   ),
+  ScreenIds.calendar: const ScreenSpec(
+    ScreenIds.calendar,
+    _buildCalendar,
+    handledStates: calendarHandledStates,
+    exits: calendarExits,
+  ),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -165,6 +172,8 @@ Widget _buildLogin(BuildContext context) => const LoginScreen();
 Widget _buildConsent(BuildContext context) => const ConsentScreen();
 
 Widget _buildNotifyAsk(BuildContext context) => const NotifyAskScreen();
+
+Widget _buildCalendar(BuildContext context) => const CalendarScreen();
 
 Widget _buildToday(BuildContext context) => const TodayScreen();
 
