@@ -871,3 +871,21 @@ class InfoResponse(_message.Message):
     engine_version: str
     ruleset_version: str
     def __init__(self, engine_version: _Optional[str] = ..., ruleset_version: _Optional[str] = ...) -> None: ...
+
+class LunarDateRequest(_message.Message):
+    __slots__ = ("date", "is_leap_month")
+    DATE_FIELD_NUMBER: _ClassVar[int]
+    IS_LEAP_MONTH_FIELD_NUMBER: _ClassVar[int]
+    date: LocalDate
+    is_leap_month: bool
+    def __init__(self, date: _Optional[_Union[LocalDate, _Mapping]] = ..., is_leap_month: _Optional[bool] = ...) -> None: ...
+
+class LunarDateResponse(_message.Message):
+    __slots__ = ("solar", "month_has_leap", "meta")
+    SOLAR_FIELD_NUMBER: _ClassVar[int]
+    MONTH_HAS_LEAP_FIELD_NUMBER: _ClassVar[int]
+    META_FIELD_NUMBER: _ClassVar[int]
+    solar: LocalDate
+    month_has_leap: bool
+    meta: ResponseMeta
+    def __init__(self, solar: _Optional[_Union[LocalDate, _Mapping]] = ..., month_has_leap: _Optional[bool] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...

@@ -226,3 +226,43 @@ func TestRealEngine_LunarUpperBoundIsOutOfRange(t *testing.T) {
 	})
 	require.ErrorIs(t, err, engine.ErrOutOfRange)
 }
+
+func TestRealEngine_ConvertLunarDate(t *testing.T) {
+	tests := []struct {
+		name         string
+		lunar        *enginev1.LocalDate
+		isLeap       bool
+		wantSolar    *enginev1.LocalDate
+		wantMonthHas bool
+	}{
+		// 2026년 설날입니다. 2026년 음력 1월에는 윤달이 없습니다.
+		{"평달", &enginev1.LocalDate{Year: 2026, Month: 1, Day: 1}, false, &enginev1.LocalDate{Year: 2026, Month: 2, Day: 17}, false},
+		// 2025년에는 음력 6월 뒤에 윤6월이 있습니다.
+		{"윤달", &enginev1.LocalDate{Year: 2025, Month: 6, Day: 1}, true, &enginev1.LocalDate{Year: 2025, Month: 7, Day: 25}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, err := newRealClient(t).ConvertLunarDate(t.Context(), &enginev1.LunarDateRequest{Date: tt.lunar, IsLeapMonth: tt.isLeap})
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantSolar.GetYear(), resp.GetSolar().GetYear())
+			assert.Equal(t, tt.wantSolar.GetMonth(), resp.GetSolar().GetMonth())
+			assert.Equal(t, tt.wantSolar.GetDay(), resp.GetSolar().GetDay())
+			assert.Equal(t, tt.wantMonthHas, resp.GetMonthHasLeap())
+		})
+	}
+}
+
+func TestRealEngine_ConvertLunarDateMissingLeapIsInvalid(t *testing.T) {
+	_, err := newRealClient(t).ConvertLunarDate(t.Context(), &enginev1.LunarDateRequest{
+		Date:        &enginev1.LocalDate{Year: 2026, Month: 1, Day: 1},
+		IsLeapMonth: true,
+	})
+	require.ErrorIs(t, err, engine.ErrInvalidArgument)
+}
+
+func TestRealEngine_ConvertLunarDateUpperBoundIsOutOfRange(t *testing.T) {
+	_, err := newRealClient(t).ConvertLunarDate(t.Context(), &enginev1.LunarDateRequest{
+		Date: &enginev1.LocalDate{Year: 2099, Month: 12, Day: 29},
+	})
+	require.ErrorIs(t, err, engine.ErrOutOfRange)
+}

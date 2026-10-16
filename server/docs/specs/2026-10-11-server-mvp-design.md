@@ -2,7 +2,7 @@
 
 * 상태: 초안 (사용자 검토 대기)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
-* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
+* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클(비공개 기록 `business/cycles/2026-10-11-launch-payment.md`, D74)
 * server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다. 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
@@ -304,7 +304,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 위치 숫자는 Dart(UTF-16)와 Go(UTF-8)가 글자를 세는 방식이 달라 어긋나기 쉽습니다. `term` 값과 표시 방식은 app·design과 정합니다(§13).
 
 * 데일리 응답에는 세 깊이(surface / explain / evidence)를 한 번에 담습니다. 크기가 작고, 펼칠 때마다 다시 부르지 않게 하려는 것입니다.
-* **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①).
+* **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①). 그래서 판정 근거·원전 문장(`Evidence.basis`·`source`)은 `evidence[]`와 함께 빠지고, 오늘 그런 이유(`SlotText.todayReason`, writing `explain.today_reason`)와 용어 뜻·한자(`Glossary.meanings`·`hanja`)는 남습니다.
 * 실행 중에 템플릿이 없으면(CI가 막으므로 원래 일어나지 않음) 그 슬롯만 빼고 오류 로그를 남깁니다.
 
 ## 7. 엔진 연동과 캐시 (D26·D31)

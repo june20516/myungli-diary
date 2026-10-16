@@ -35,6 +35,13 @@
 * 갈래의 첫 화면이라 돌아갈 곳이 없는 화면(consent, notify-ask)은 `inner`여도 뒤로 버튼을 숨깁니다. 뒤로 자리를 비워 두지 않으므로 제목의 시작 위치는 바뀌지 않습니다.
 * Material 힌트: `AppBar`의 `scrolledUnderElevation: 0`, `surfaceTintColor: transparent`, `centerTitle: false`.
 
+## 안내 글 본문 (레이아웃, 명세 컴포넌트 아님)
+
+* 쓰는 화면: calc-basis(앞으로 비슷한 안내 글 화면도 같은 값). app 이름 `ProsePageBody`.
+* `inner` 앱 바 아래에서 문단을 위에서부터 쌓고 전체가 스크롤됩니다.
+* 여백: 좌우 `space.20`, 위 `space.24`, 아래 `space.32`. 문단 사이 `space.20`. 그리지 않는 문단에는 간격도 두지 않습니다.
+* IA 컴포넌트가 아니라 JSON에는 없습니다(검사기는 IA 컴포넌트만 받음).
+
 ## sheet
 
 * 쓰는 화면: explain-sheet, evidence-sheet, share-preview, day-sheet, settings 안의 값 고르기

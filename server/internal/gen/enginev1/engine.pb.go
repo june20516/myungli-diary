@@ -6,7 +6,8 @@
 // 식별자뿐입니다.
 //
 // 메시지 개요
-// * 서비스 MyungliEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전).
+// * 서비스 MyungliEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전),
+//   ConvertLunarDate(음력 → 양력, 윤달 유무).
 // * 입력: BirthInfo(출생 정보), ChartRequest / DailyRequest / MonthRequest. spec §3·§9 원문 그대로입니다.
 // * 공통 값: LocalDate·LocalTime(현지 달력 날짜·시각), Pillar(간지 한 기둥), FourPillars(네 기둥).
 // * 판정: Judgment(메시지 키 + 매개변수 + 근거 목록), Evidence(규칙 id + source_ref + 세부), Param(매개변수 값).
@@ -4080,6 +4081,121 @@ func (x *InfoResponse) GetRulesetVersion() string {
 	return ""
 }
 
+// 한국 음력(KASI 기준, D41) 날짜. date가 없으면 INVALID_ARGUMENT.
+type LunarDateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Date          *LocalDate             `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"` // 음력 연·월·일
+	IsLeapMonth   bool                   `protobuf:"varint,2,opt,name=is_leap_month,json=isLeapMonth,proto3" json:"is_leap_month,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LunarDateRequest) Reset() {
+	*x = LunarDateRequest{}
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LunarDateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LunarDateRequest) ProtoMessage() {}
+
+func (x *LunarDateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LunarDateRequest.ProtoReflect.Descriptor instead.
+func (*LunarDateRequest) Descriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *LunarDateRequest) GetDate() *LocalDate {
+	if x != nil {
+		return x.Date
+	}
+	return nil
+}
+
+func (x *LunarDateRequest) GetIsLeapMonth() bool {
+	if x != nil {
+		return x.IsLeapMonth
+	}
+	return false
+}
+
+// 없는 음력 날짜(그해에 없는 윤달, 그 달에 없는 날)는 INVALID_ARGUMENT,
+// 음력 연도나 변환한 양력이 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖이면 OUT_OF_RANGE.
+type LunarDateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Solar         *LocalDate             `protobuf:"bytes,1,opt,name=solar,proto3" json:"solar,omitempty"`                                      // 양력 날짜
+	MonthHasLeap  bool                   `protobuf:"varint,2,opt,name=month_has_leap,json=monthHasLeap,proto3" json:"month_has_leap,omitempty"` // 그해 그 음력 달 뒤에 같은 이름의 윤달이 있는지
+	Meta          *ResponseMeta          `protobuf:"bytes,3,opt,name=meta,proto3" json:"meta,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LunarDateResponse) Reset() {
+	*x = LunarDateResponse{}
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LunarDateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LunarDateResponse) ProtoMessage() {}
+
+func (x *LunarDateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LunarDateResponse.ProtoReflect.Descriptor instead.
+func (*LunarDateResponse) Descriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *LunarDateResponse) GetSolar() *LocalDate {
+	if x != nil {
+		return x.Solar
+	}
+	return nil
+}
+
+func (x *LunarDateResponse) GetMonthHasLeap() bool {
+	if x != nil {
+		return x.MonthHasLeap
+	}
+	return false
+}
+
+func (x *LunarDateResponse) GetMeta() *ResponseMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
 var File_myungli_engine_v1_engine_proto protoreflect.FileDescriptor
 
 const file_myungli_engine_v1_engine_proto_rawDesc = "" +
@@ -4311,7 +4427,14 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\vInfoRequest\"^\n" +
 	"\fInfoResponse\x12%\n" +
 	"\x0eengine_version\x18\x01 \x01(\tR\rengineVersion\x12'\n" +
-	"\x0fruleset_version\x18\x02 \x01(\tR\x0erulesetVersion*_\n" +
+	"\x0fruleset_version\x18\x02 \x01(\tR\x0erulesetVersion\"h\n" +
+	"\x10LunarDateRequest\x120\n" +
+	"\x04date\x18\x01 \x01(\v2\x1c.myungli.engine.v1.LocalDateR\x04date\x12\"\n" +
+	"\ris_leap_month\x18\x02 \x01(\bR\visLeapMonth\"\xa2\x01\n" +
+	"\x11LunarDateResponse\x122\n" +
+	"\x05solar\x18\x01 \x01(\v2\x1c.myungli.engine.v1.LocalDateR\x05solar\x12$\n" +
+	"\x0emonth_has_leap\x18\x02 \x01(\bR\fmonthHasLeap\x123\n" +
+	"\x04meta\x18\x03 \x01(\v2\x1f.myungli.engine.v1.ResponseMetaR\x04meta*_\n" +
 	"\fCalendarType\x12\x1d\n" +
 	"\x19CALENDAR_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13CALENDAR_TYPE_SOLAR\x10\x01\x12\x17\n" +
@@ -4497,13 +4620,14 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"%PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD\x10\x06\x12+\n" +
 	"'PERSONAL_TERM_KIND_DAEUN_BRANCH_TEN_GOD\x10\a\x12)\n" +
 	"%PERSONAL_TERM_KIND_DAEUN_TWELVE_STAGE\x10\b\x12#\n" +
-	"\x1fPERSONAL_TERM_KIND_SEUN_TEN_GOD\x10\t2\xab\x03\n" +
+	"\x1fPERSONAL_TERM_KIND_SEUN_TEN_GOD\x10\t2\x8a\x04\n" +
 	"\rMyungliEngine\x12M\n" +
 	"\bGetChart\x12\x1f.myungli.engine.v1.ChartRequest\x1a .myungli.engine.v1.ChartResponse\x12M\n" +
 	"\bGetDaily\x12\x1f.myungli.engine.v1.DailyRequest\x1a .myungli.engine.v1.DailyResponse\x12U\n" +
 	"\x10GetMonthCalendar\x12\x1f.myungli.engine.v1.MonthRequest\x1a .myungli.engine.v1.MonthResponse\x12Y\n" +
 	"\fGetBirthHour\x12#.myungli.engine.v1.BirthHourRequest\x1a$.myungli.engine.v1.BirthHourResponse\x12J\n" +
-	"\aGetInfo\x12\x1e.myungli.engine.v1.InfoRequest\x1a\x1f.myungli.engine.v1.InfoResponseB\xcb\x01\n" +
+	"\aGetInfo\x12\x1e.myungli.engine.v1.InfoRequest\x1a\x1f.myungli.engine.v1.InfoResponse\x12]\n" +
+	"\x10ConvertLunarDate\x12#.myungli.engine.v1.LunarDateRequest\x1a$.myungli.engine.v1.LunarDateResponseB\xcb\x01\n" +
 	"\x15com.myungli.engine.v1B\vEngineProtoP\x01Z?github.com/june20516/myungli-diary/server/internal/gen/enginev1\xa2\x02\x03MEX\xaa\x02\x11Myungli.Engine.V1\xca\x02\x11Myungli\\Engine\\V1\xe2\x02\x1dMyungli\\Engine\\V1\\GPBMetadata\xea\x02\x13Myungli::Engine::V1b\x06proto3"
 
 var (
@@ -4519,7 +4643,7 @@ func file_myungli_engine_v1_engine_proto_rawDescGZIP() []byte {
 }
 
 var file_myungli_engine_v1_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 19)
-var file_myungli_engine_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
+var file_myungli_engine_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
 var file_myungli_engine_v1_engine_proto_goTypes = []any{
 	(CalendarType)(0),             // 0: myungli.engine.v1.CalendarType
 	(Gender)(0),                   // 1: myungli.engine.v1.Gender
@@ -4581,10 +4705,12 @@ var file_myungli_engine_v1_engine_proto_goTypes = []any{
 	(*BirthHourResponse)(nil),     // 57: myungli.engine.v1.BirthHourResponse
 	(*InfoRequest)(nil),           // 58: myungli.engine.v1.InfoRequest
 	(*InfoResponse)(nil),          // 59: myungli.engine.v1.InfoResponse
-	nil,                           // 60: myungli.engine.v1.Judgment.ParamsEntry
-	nil,                           // 61: myungli.engine.v1.Evidence.DetailEntry
-	nil,                           // 62: myungli.engine.v1.Notice.DetailEntry
-	(*timestamppb.Timestamp)(nil), // 63: google.protobuf.Timestamp
+	(*LunarDateRequest)(nil),      // 60: myungli.engine.v1.LunarDateRequest
+	(*LunarDateResponse)(nil),     // 61: myungli.engine.v1.LunarDateResponse
+	nil,                           // 62: myungli.engine.v1.Judgment.ParamsEntry
+	nil,                           // 63: myungli.engine.v1.Evidence.DetailEntry
+	nil,                           // 64: myungli.engine.v1.Notice.DetailEntry
+	(*timestamppb.Timestamp)(nil), // 65: google.protobuf.Timestamp
 }
 var file_myungli_engine_v1_engine_proto_depIdxs = []int32{
 	3,   // 0: myungli.engine.v1.Pillar.stem:type_name -> myungli.engine.v1.Stem
@@ -4602,11 +4728,11 @@ var file_myungli_engine_v1_engine_proto_depIdxs = []int32{
 	23,  // 12: myungli.engine.v1.DailyRequest.birth:type_name -> myungli.engine.v1.BirthInfo
 	19,  // 13: myungli.engine.v1.DailyRequest.date:type_name -> myungli.engine.v1.LocalDate
 	23,  // 14: myungli.engine.v1.MonthRequest.birth:type_name -> myungli.engine.v1.BirthInfo
-	60,  // 15: myungli.engine.v1.Judgment.params:type_name -> myungli.engine.v1.Judgment.ParamsEntry
+	62,  // 15: myungli.engine.v1.Judgment.params:type_name -> myungli.engine.v1.Judgment.ParamsEntry
 	29,  // 16: myungli.engine.v1.Judgment.evidence:type_name -> myungli.engine.v1.Evidence
-	61,  // 17: myungli.engine.v1.Evidence.detail:type_name -> myungli.engine.v1.Evidence.DetailEntry
+	63,  // 17: myungli.engine.v1.Evidence.detail:type_name -> myungli.engine.v1.Evidence.DetailEntry
 	14,  // 18: myungli.engine.v1.Notice.code:type_name -> myungli.engine.v1.NoticeCode
-	62,  // 19: myungli.engine.v1.Notice.detail:type_name -> myungli.engine.v1.Notice.DetailEntry
+	64,  // 19: myungli.engine.v1.Notice.detail:type_name -> myungli.engine.v1.Notice.DetailEntry
 	30,  // 20: myungli.engine.v1.ResponseMeta.notices:type_name -> myungli.engine.v1.Notice
 	22,  // 21: myungli.engine.v1.ChartResponse.pillars:type_name -> myungli.engine.v1.FourPillars
 	34,  // 22: myungli.engine.v1.ChartResponse.ten_gods:type_name -> myungli.engine.v1.PositionTenGod
@@ -4673,8 +4799,8 @@ var file_myungli_engine_v1_engine_proto_depIdxs = []int32{
 	50,  // 83: myungli.engine.v1.FocusTimeCard.picks:type_name -> myungli.engine.v1.FocusSlot
 	4,   // 84: myungli.engine.v1.FocusSlot.branch:type_name -> myungli.engine.v1.Branch
 	21,  // 85: myungli.engine.v1.FocusSlot.pillar:type_name -> myungli.engine.v1.Pillar
-	63,  // 86: myungli.engine.v1.FocusSlot.start:type_name -> google.protobuf.Timestamp
-	63,  // 87: myungli.engine.v1.FocusSlot.end:type_name -> google.protobuf.Timestamp
+	65,  // 86: myungli.engine.v1.FocusSlot.start:type_name -> google.protobuf.Timestamp
+	65,  // 87: myungli.engine.v1.FocusSlot.end:type_name -> google.protobuf.Timestamp
 	15,  // 88: myungli.engine.v1.Relation.kind:type_name -> myungli.engine.v1.RelationKind
 	8,   // 89: myungli.engine.v1.Relation.natal_position:type_name -> myungli.engine.v1.Position
 	15,  // 90: myungli.engine.v1.Relation.suppressed_by:type_name -> myungli.engine.v1.RelationKind
@@ -4687,29 +4813,34 @@ var file_myungli_engine_v1_engine_proto_depIdxs = []int32{
 	13,  // 97: myungli.engine.v1.MonthDay.luck_level:type_name -> myungli.engine.v1.LuckLevel
 	55,  // 98: myungli.engine.v1.MonthDay.score_items:type_name -> myungli.engine.v1.ScoreItem
 	27,  // 99: myungli.engine.v1.MonthDay.judgment:type_name -> myungli.engine.v1.Judgment
-	63,  // 100: myungli.engine.v1.SolarTerm.at:type_name -> google.protobuf.Timestamp
+	65,  // 100: myungli.engine.v1.SolarTerm.at:type_name -> google.protobuf.Timestamp
 	17,  // 101: myungli.engine.v1.SolarTerm.kind:type_name -> myungli.engine.v1.SolarTermKind
 	23,  // 102: myungli.engine.v1.BirthHourRequest.birth:type_name -> myungli.engine.v1.BirthInfo
 	4,   // 103: myungli.engine.v1.BirthHourResponse.branch:type_name -> myungli.engine.v1.Branch
-	63,  // 104: myungli.engine.v1.BirthHourResponse.start:type_name -> google.protobuf.Timestamp
-	63,  // 105: myungli.engine.v1.BirthHourResponse.end:type_name -> google.protobuf.Timestamp
+	65,  // 104: myungli.engine.v1.BirthHourResponse.start:type_name -> google.protobuf.Timestamp
+	65,  // 105: myungli.engine.v1.BirthHourResponse.end:type_name -> google.protobuf.Timestamp
 	31,  // 106: myungli.engine.v1.BirthHourResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	28,  // 107: myungli.engine.v1.Judgment.ParamsEntry.value:type_name -> myungli.engine.v1.Param
-	24,  // 108: myungli.engine.v1.MyungliEngine.GetChart:input_type -> myungli.engine.v1.ChartRequest
-	25,  // 109: myungli.engine.v1.MyungliEngine.GetDaily:input_type -> myungli.engine.v1.DailyRequest
-	26,  // 110: myungli.engine.v1.MyungliEngine.GetMonthCalendar:input_type -> myungli.engine.v1.MonthRequest
-	56,  // 111: myungli.engine.v1.MyungliEngine.GetBirthHour:input_type -> myungli.engine.v1.BirthHourRequest
-	58,  // 112: myungli.engine.v1.MyungliEngine.GetInfo:input_type -> myungli.engine.v1.InfoRequest
-	32,  // 113: myungli.engine.v1.MyungliEngine.GetChart:output_type -> myungli.engine.v1.ChartResponse
-	45,  // 114: myungli.engine.v1.MyungliEngine.GetDaily:output_type -> myungli.engine.v1.DailyResponse
-	52,  // 115: myungli.engine.v1.MyungliEngine.GetMonthCalendar:output_type -> myungli.engine.v1.MonthResponse
-	57,  // 116: myungli.engine.v1.MyungliEngine.GetBirthHour:output_type -> myungli.engine.v1.BirthHourResponse
-	59,  // 117: myungli.engine.v1.MyungliEngine.GetInfo:output_type -> myungli.engine.v1.InfoResponse
-	113, // [113:118] is the sub-list for method output_type
-	108, // [108:113] is the sub-list for method input_type
-	108, // [108:108] is the sub-list for extension type_name
-	108, // [108:108] is the sub-list for extension extendee
-	0,   // [0:108] is the sub-list for field type_name
+	19,  // 107: myungli.engine.v1.LunarDateRequest.date:type_name -> myungli.engine.v1.LocalDate
+	19,  // 108: myungli.engine.v1.LunarDateResponse.solar:type_name -> myungli.engine.v1.LocalDate
+	31,  // 109: myungli.engine.v1.LunarDateResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	28,  // 110: myungli.engine.v1.Judgment.ParamsEntry.value:type_name -> myungli.engine.v1.Param
+	24,  // 111: myungli.engine.v1.MyungliEngine.GetChart:input_type -> myungli.engine.v1.ChartRequest
+	25,  // 112: myungli.engine.v1.MyungliEngine.GetDaily:input_type -> myungli.engine.v1.DailyRequest
+	26,  // 113: myungli.engine.v1.MyungliEngine.GetMonthCalendar:input_type -> myungli.engine.v1.MonthRequest
+	56,  // 114: myungli.engine.v1.MyungliEngine.GetBirthHour:input_type -> myungli.engine.v1.BirthHourRequest
+	58,  // 115: myungli.engine.v1.MyungliEngine.GetInfo:input_type -> myungli.engine.v1.InfoRequest
+	60,  // 116: myungli.engine.v1.MyungliEngine.ConvertLunarDate:input_type -> myungli.engine.v1.LunarDateRequest
+	32,  // 117: myungli.engine.v1.MyungliEngine.GetChart:output_type -> myungli.engine.v1.ChartResponse
+	45,  // 118: myungli.engine.v1.MyungliEngine.GetDaily:output_type -> myungli.engine.v1.DailyResponse
+	52,  // 119: myungli.engine.v1.MyungliEngine.GetMonthCalendar:output_type -> myungli.engine.v1.MonthResponse
+	57,  // 120: myungli.engine.v1.MyungliEngine.GetBirthHour:output_type -> myungli.engine.v1.BirthHourResponse
+	59,  // 121: myungli.engine.v1.MyungliEngine.GetInfo:output_type -> myungli.engine.v1.InfoResponse
+	61,  // 122: myungli.engine.v1.MyungliEngine.ConvertLunarDate:output_type -> myungli.engine.v1.LunarDateResponse
+	117, // [117:123] is the sub-list for method output_type
+	111, // [111:117] is the sub-list for method input_type
+	111, // [111:111] is the sub-list for extension type_name
+	111, // [111:111] is the sub-list for extension extendee
+	0,   // [0:111] is the sub-list for field type_name
 }
 
 func init() { file_myungli_engine_v1_engine_proto_init() }
@@ -4731,7 +4862,7 @@ func file_myungli_engine_v1_engine_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_myungli_engine_v1_engine_proto_rawDesc), len(file_myungli_engine_v1_engine_proto_rawDesc)),
 			NumEnums:      19,
-			NumMessages:   44,
+			NumMessages:   46,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

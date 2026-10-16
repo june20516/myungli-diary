@@ -5,11 +5,20 @@ import json
 import pytest
 
 from mlw.completeness import RULE_MISSING, check_completeness
+from mlw.evidence import check_evidence
 from mlw.glossary import term_ids
 from mlw.ia import RULE_UNCOVERED, Ia, check_ia, load_ia
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.model import LANGS, ParamKind, RuleSet, Slot
-from mlw.paths import CONTENT_DIR, IA_FILE, MESSAGE_KEYS_FILE, RULES_DIR, SLOTS_DIR
+from mlw.paths import (
+    CONTENT_DIR,
+    EVIDENCE_RULES_FILE,
+    EVIDENCE_SOURCES_FILE,
+    IA_FILE,
+    MESSAGE_KEYS_FILE,
+    RULES_DIR,
+    SLOTS_DIR,
+)
 
 
 @pytest.fixture(scope="module")
@@ -73,9 +82,18 @@ def test_new_content_slot_keys(slots: dict[str, Slot]) -> None:
     assert set(slots["system.apple_return"].keys) == {
         f"apple_return.{part}" for part in ("title", "body", "open", "install")
     }
+    # 근거 슬롯 키는 core 근거 목록에서 옵니다(#130). 목록과의 대조는 test_evidence_slots_match_core가 봅니다.
     for slot_id in ("explain.today_reason", "evidence.basis", "evidence.source"):
-        assert slots[slot_id].keys == {}
+        assert slots[slot_id].keys
         assert slots[slot_id].select
+
+
+def test_evidence_slots_match_core(slots: dict[str, Slot]) -> None:
+    rules = json.loads(EVIDENCE_RULES_FILE.read_text(encoding="utf-8"))
+    sources = list(json.loads(EVIDENCE_SOURCES_FILE.read_text(encoding="utf-8")))
+    assert check_evidence(slots, rules, sources) == []
+    assert len(slots["evidence.basis"].keys) == len(rules)
+    assert len(slots["evidence.source"].keys) == len(sources)
 
 
 def test_all_ia_covered(slots: dict[str, Slot], ia: Ia) -> None:
@@ -85,7 +103,7 @@ def test_all_ia_covered(slots: dict[str, Slot], ia: Ia) -> None:
 def test_ui_keys_named(slots: dict[str, Slot], ia: Ia) -> None:
     errors = [finding.format() for finding in check_ia(slots, ia) if finding.severity == "error"]
     assert errors == []
-    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 95
+    assert sum(1 for slot in slots.values() if slot.file.parent.name == "ui" and slot.id in ia.slots) == 119
 
 
 def test_ui_manuscripts_complete(slots: dict[str, Slot]) -> None:

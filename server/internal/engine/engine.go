@@ -15,6 +15,7 @@ type Engine interface {
 	GetMonthCalendar(ctx context.Context, req *enginev1.MonthRequest) (*enginev1.MonthResponse, error)
 	GetBirthHour(ctx context.Context, req *enginev1.BirthHourRequest) (*enginev1.BirthHourResponse, error)
 	GetInfo(ctx context.Context) (*enginev1.InfoResponse, error)
+	ConvertLunarDate(ctx context.Context, req *enginev1.LunarDateRequest) (*enginev1.LunarDateResponse, error)
 }
 
 // 엔진 호출 오류의 분류입니다. 호출자는 errors.Is로 구분합니다.

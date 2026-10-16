@@ -9,7 +9,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P1 | [기반과 REST 계약 초안](2026-10-11-p1-foundation.md): 모듈, 하위 명령, 설정, Clock, 로깅, DB·migration, HTTP 뼈대, 오류 형식, `openapi.yaml` 초안, 생성 코드, CI, 이미지 | §2, §5, §11.1, §12, §13.1 일부 | **완료** |
 | P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구 | §3.3 계정, §4 | **완료** |
 | P2a | [Apple 웹 로그인 복귀](2026-10-13-apple-web-login.md): 일회용 교환 코드, `completeAppleWebLogin`, App Link 안내 페이지·assetlinks (Issue #89, S22) | §4 | **완료** |
-| P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 대기로 501 유지 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
+| P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 병합 뒤 #170으로 구현 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
 | P4 | 콘텐츠: 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응 | §6 | 대기 |
 | P5 | 일기·일정: soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록 | §5.3, §3.3 일기 | 대기 |
 | P6 | 비로그인·참조: 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config | §5.3, §3.3 기타 | 대기 |
@@ -24,8 +24,7 @@ P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 
 P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 근거는 commit 메시지와 코드 주석에 있습니다.
 
 **P4 (콘텐츠)**
-* `characterReason`(Daily·CalendarDay), `Glossary.meanings`, Preview `dayKindName`을 렌더합니다. `fortune.Service.Daily/Month`를 씁니다. 출생 해시 = 사주 지문(S26)입니다.
-* `convertLunarDate`는 core #164 병합 뒤에 합니다(엔진 클라이언트·대역·계약 테스트에 RPC 추가, 422 `date.invalid`/`date.out_of_range`).
+* `characterReason`(Daily·CalendarDay), `Glossary.meanings`·`hanja`, Preview `dayKindName`, `SlotText.todayReason`(writing `explain.today_reason`, 키 `reason.<ruleId>`), `Evidence.basis`(`basis.<ruleId>`, `detail`을 매개변수로)·`source`(`source.<sourceRef>`)를 렌더합니다(계약 draft.4, #167). `todayReason`은 잠그지 않고, `basis`·`source`는 `evidence[]`째 잠깁니다. `fortune.Service.Daily/Month`를 씁니다. 출생 해시 = 사주 지문(S26)입니다.
 * 참고(엔진 판정): 엔진 `OUT_OF_RANGE`는 범위에 일부만 걸친 달(`GetMonthCalendar(1900,1)`)과, 출생 정보에서는 상한 쪽 음력(음력 2099년 12월이 양력 2099-12-31을 넘는 날)에서 납니다. 음력 1900-01-01은 범위 안입니다.
 
 **P5 (일기·일정)**

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.3
+  version: 1.0.0-draft.4
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -37,9 +37,10 @@ info:
     근거 열람 권한 (D60)
     * 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거, 원전, 원국 개인 해석, 용신 근거)을 응답에 담지 않고 `evidenceAccess: locked`로 표시합니다.
       근거가 원래 없는 것과 잠겨서 빠진 것을 `evidenceAccess`로 구분합니다. surface·explain과 사주 표·만세력·대운 표의 데이터는 잠그지 않습니다.
+    * evidence 깊이의 문장(`Evidence.basis`·`Evidence.source`)은 `evidence[]`에 들어 있어 함께 빠집니다.
+      explain 깊이의 문장(`SlotText.todayReason`, `Glossary.meanings`)과 용어 한자(`Glossary.hanja`)는 잠그지 않습니다.
 
     설계 메모 (하위 호환 추가 예정)
-    * 깊이 `explain`의 풀이 문장은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `SlotText`에 필드를 더합니다.
     * 원국 개인 해석은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `Chart`에 선택 필드로 더하고 근거 열람 권한으로 잠급니다.
 servers:
   - url: /
@@ -1877,8 +1878,9 @@ components:
       type: object
       description: |
         writing 슬롯 하나의 문장입니다.
-        깊이 explain의 오늘 풀이(`explain.today_reason`)와 근거 문장(`evidence.basis`·`evidence.source`)은 core 근거 목록(#130)이 정해지면 필드로 더합니다.
-        `evidence` 깊이는 `evidence` 필드의 원본 값입니다.
+        `todayReason`은 풀이 시트의 "오늘 그런 이유"(writing 슬롯 `explain.today_reason`)입니다. 이 문장의 판정 근거 규칙(`Evidence.ruleId`)으로 고르고,
+        깊이 explain이라 잠그지 않습니다. 그 규칙의 문장이 없으면 생략합니다.
+        깊이 evidence의 판정 근거·원전 문장은 `evidence[]`의 `basis`·`source`입니다.
       required: [slot, messageKey, variant, text, reactable]
       properties:
         slot:
@@ -1897,6 +1899,8 @@ components:
           type: string
           enum: [like]
           description: 이 사용자가 남긴 반응. 반응이 없으면 생략합니다.
+        todayReason:
+          $ref: '#/components/schemas/RenderedText'
         evidence:
           type: array
           description: 판정 근거. 응답의 `evidenceAccess`가 `unlocked`일 때만 담깁니다.
@@ -1904,6 +1908,10 @@ components:
             $ref: '#/components/schemas/Evidence'
     Evidence:
       type: object
+      description: |
+        판정 근거 하나입니다. `ruleId`는 core 근거 규칙 목록(`core/evidence_rules.json`), `sourceRef`는 원전 목록(`core/evidence_sources.json`)의 키입니다.
+        `basis`는 근거 시트의 판정 근거 문장(writing 슬롯 `evidence.basis`, 키 `basis.<ruleId>`, `detail` 값을 매개변수로 렌더)이고,
+        `source`는 원전 인용 문장(writing 슬롯 `evidence.source`, 키 `source.<sourceRef>`, 원전 이름·대목·뜻)입니다. 문장이 없으면 각각 생략합니다.
       required: [ruleId, sourceRef]
       properties:
         ruleId:
@@ -1914,6 +1922,10 @@ components:
           type: object
           additionalProperties:
             type: string
+        basis:
+          $ref: '#/components/schemas/RenderedText'
+        source:
+          $ref: '#/components/schemas/RenderedText'
     EvidenceAccess:
       type: string
       enum: [unlocked, locked]
@@ -2265,6 +2277,9 @@ components:
           $ref: '#/components/schemas/NotificationSetting'
     Profile:
       type: object
+      description: |
+        저장된 프로필입니다. `birthCity`는 출생 도시(`birth.place.status`가 `city`일 때만)이고 이름은 프로필 언어입니다.
+        계산 기준 화면의 경도 안내에 씁니다. 응답에만 있는 필드이며, 요청(`ProfileInput`·`ProfilePatch`)은 `birth.place.cityId`로만 보냅니다.
       required: [honorific, language, currentTimezone, birth, notification]
       properties:
         honorific:
@@ -2281,6 +2296,8 @@ components:
           $ref: '#/components/schemas/Birth'
         notification:
           $ref: '#/components/schemas/NotificationSetting'
+        birthCity:
+          $ref: '#/components/schemas/City'
     ProfileResponse:
       type: object
       required: [profile, warnings]
@@ -2760,7 +2777,7 @@ components:
           enum: [like]
     Glossary:
       type: object
-      required: [seedVersion, lang, values, meanings]
+      required: [seedVersion, lang, values, meanings, hanja]
       properties:
         seedVersion:
           type: string
@@ -2779,6 +2796,11 @@ components:
           description: 용어 id → 뜻 문장(writing 슬롯 `term.meaning`, 키 `term.<용어 id>`)
           additionalProperties:
             $ref: '#/components/schemas/RenderedText'
+        hanja:
+          type: object
+          description: 용어 id → 한자 표기(예 `ten_god.siksin` → `食神`). 풀이 시트 제목 옆에 씁니다. 한자 표기가 없는 용어는 키가 없습니다.
+          additionalProperties:
+            type: string
 
     # ---- 비로그인 ----
     PreviewRequest:
@@ -3091,7 +3113,7 @@ components:
     # ---- 참조 ----
     City:
       type: object
-      required: [id, name, country, countryName, timezone]
+      required: [id, name, country, countryName, timezone, longitude]
       properties:
         id:
           type: string
@@ -3112,6 +3134,11 @@ components:
         timezone:
           type: string
           description: IANA 이름
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: 경도(도 단위 소수, 동경 양수·서경 음수). 출생 시각의 경도 보정에 쓰는 값입니다.
     CityList:
       type: object
       required: [dataVersion, items]

@@ -6,7 +6,8 @@
 // 식별자뿐입니다.
 //
 // 메시지 개요
-// * 서비스 MyungliEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전).
+// * 서비스 MyungliEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전),
+//   ConvertLunarDate(음력 → 양력, 윤달 유무).
 // * 입력: BirthInfo(출생 정보), ChartRequest / DailyRequest / MonthRequest. spec §3·§9 원문 그대로입니다.
 // * 공통 값: LocalDate·LocalTime(현지 달력 날짜·시각), Pillar(간지 한 기둥), FourPillars(네 기둥).
 // * 판정: Judgment(메시지 키 + 매개변수 + 근거 목록), Evidence(규칙 id + source_ref + 세부), Param(매개변수 값).
@@ -52,6 +53,7 @@ const (
 	MyungliEngine_GetMonthCalendar_FullMethodName = "/myungli.engine.v1.MyungliEngine/GetMonthCalendar"
 	MyungliEngine_GetBirthHour_FullMethodName     = "/myungli.engine.v1.MyungliEngine/GetBirthHour"
 	MyungliEngine_GetInfo_FullMethodName          = "/myungli.engine.v1.MyungliEngine/GetInfo"
+	MyungliEngine_ConvertLunarDate_FullMethodName = "/myungli.engine.v1.MyungliEngine/ConvertLunarDate"
 )
 
 // MyungliEngineClient is the client API for MyungliEngine service.
@@ -63,6 +65,7 @@ type MyungliEngineClient interface {
 	GetMonthCalendar(ctx context.Context, in *MonthRequest, opts ...grpc.CallOption) (*MonthResponse, error)
 	GetBirthHour(ctx context.Context, in *BirthHourRequest, opts ...grpc.CallOption) (*BirthHourResponse, error)
 	GetInfo(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	ConvertLunarDate(ctx context.Context, in *LunarDateRequest, opts ...grpc.CallOption) (*LunarDateResponse, error)
 }
 
 type myungliEngineClient struct {
@@ -123,6 +126,16 @@ func (c *myungliEngineClient) GetInfo(ctx context.Context, in *InfoRequest, opts
 	return out, nil
 }
 
+func (c *myungliEngineClient) ConvertLunarDate(ctx context.Context, in *LunarDateRequest, opts ...grpc.CallOption) (*LunarDateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LunarDateResponse)
+	err := c.cc.Invoke(ctx, MyungliEngine_ConvertLunarDate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyungliEngineServer is the server API for MyungliEngine service.
 // All implementations must embed UnimplementedMyungliEngineServer
 // for forward compatibility.
@@ -132,6 +145,7 @@ type MyungliEngineServer interface {
 	GetMonthCalendar(context.Context, *MonthRequest) (*MonthResponse, error)
 	GetBirthHour(context.Context, *BirthHourRequest) (*BirthHourResponse, error)
 	GetInfo(context.Context, *InfoRequest) (*InfoResponse, error)
+	ConvertLunarDate(context.Context, *LunarDateRequest) (*LunarDateResponse, error)
 	mustEmbedUnimplementedMyungliEngineServer()
 }
 
@@ -156,6 +170,9 @@ func (UnimplementedMyungliEngineServer) GetBirthHour(context.Context, *BirthHour
 }
 func (UnimplementedMyungliEngineServer) GetInfo(context.Context, *InfoRequest) (*InfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInfo not implemented")
+}
+func (UnimplementedMyungliEngineServer) ConvertLunarDate(context.Context, *LunarDateRequest) (*LunarDateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConvertLunarDate not implemented")
 }
 func (UnimplementedMyungliEngineServer) mustEmbedUnimplementedMyungliEngineServer() {}
 func (UnimplementedMyungliEngineServer) testEmbeddedByValue()                       {}
@@ -268,6 +285,24 @@ func _MyungliEngine_GetInfo_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyungliEngine_ConvertLunarDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LunarDateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyungliEngineServer).ConvertLunarDate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyungliEngine_ConvertLunarDate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyungliEngineServer).ConvertLunarDate(ctx, req.(*LunarDateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyungliEngine_ServiceDesc is the grpc.ServiceDesc for MyungliEngine service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -294,6 +329,10 @@ var MyungliEngine_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetInfo",
 			Handler:    _MyungliEngine_GetInfo_Handler,
+		},
+		{
+			MethodName: "ConvertLunarDate",
+			Handler:    _MyungliEngine_ConvertLunarDate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

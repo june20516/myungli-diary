@@ -427,8 +427,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_3():
-    assert VERSION == "2.3.0"
+def test_contract_version_is_2_4():
+    assert VERSION == "2.4.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -440,7 +440,7 @@ def test_icon_set_version_is_not_contract_version():
 
 def test_readme_states_minimum_height_rule():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme
+    assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme and "| 2.4.0 | 2026-10-16 |" in readme
 
 
 def ia_screens():
@@ -641,3 +641,33 @@ def test_element_values_from_app_feedback():
     assert elements["mark.caution"]["size"] == {"ratio": 0.707, "of": "font-size",
                                                 "basis": "Pretendard OS/2 sCapHeight 1448 / 2048"}
     assert elements["lock.veil"]["lines"] == {"default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1}
+
+
+# app 질문 #195·#211 (계약 2.4.0)
+def test_city_search_row_shows_saving_after_pick():
+    city = component("input", "city-search")
+    saving = city["states"]["saving"]
+    assert saving["pattern"] == "loading.breathe" and "loading.breathe" in city["uses"]
+    assert saving["parts"]["dots"] == {"visible": True, "position": "row-end", "fg": "{color.text.secondary}"}
+    assert saving["parts"]["otherRows"] == {"pressable": False}
+    assert city["a11y"]["busyAnnounced"] == "처리 중"
+
+
+def test_city_search_region_joiner_per_language():
+    region = component("input", "city-search")["parts"]["region"]
+    assert region["join"] == {"ko": ", ", "en": ", ", "ja": "、"}
+
+
+def test_input_step_preface_spacing():
+    preface = component("input", "input-step")["parts"]["preface"]
+    assert preface["marginTop"] == "{space.24}" and preface["marginBottom"] == "{space.24}"
+
+
+def test_skeleton_text_line_follows_coming_type():
+    line = component("feedback", "skeleton")["parts"]["textLine"]
+    assert line["type"] == {"default": "{type.body.ui}", "rule": "실제 올 글자 스타일"}
+
+
+def test_frame_md_states_prose_page_body():
+    frame = (COMPONENTS_DIR / "frame.md").read_text(encoding="utf-8")
+    assert "안내 글 본문" in frame and "`space.32`" in frame

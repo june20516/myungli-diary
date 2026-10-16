@@ -1,7 +1,11 @@
 # 콘텐츠 슬롯: 판정 근거와 원전(evidence)
 #
-# 엔진 Evidence(rule_id, source_ref, detail)로 문장을 고르는 슬롯입니다. 쓸 수 있는 rule_id·source_ref 목록과
-# 원전 원문을 core에서 받기 전이라 키가 없습니다(검사기 slot.empty_keys warn). 목록이 오면 키를 채웁니다.
+# 엔진 Evidence(rule_id, source_ref, detail)로 문장을 고르는 슬롯입니다. 키는 core 목록에서 옵니다(#130):
+# 규칙은 core/evidence_rules.json(rule_id → detail 키), 원전은 core/evidence_sources.json(source_ref → 원전 이름·대목·원문).
+# 검사기가 키와 매개변수를 이 두 파일과 대조합니다(evidence.*). basis는 규칙마다, source는 원전마다 키가 있어야 합니다.
+# basis의 detail 값은 아직 형식(값 이름 범주)이 정해지지 않아 종류를 none(문장에 쓰지 않음)으로 둡니다. W1 원고를 쓸 때 범주로 바꿉니다.
+# explain.today_reason은 오늘 화면에서 누를 수 있는 용어(색·방향·숫자·집중 시간·태그·총운)를 내는 규칙만 담습니다.
+# 원국 개인 해석(personal/*)은 personal.* 슬롯이, 용신 판정(yongsin/*)·달력 점수·가이드 질문은 근거 시트(basis)만 맡습니다.
 # 이 슬롯들의 문장은 근거·해석 열람 권한이 없으면 server가 응답에서 뺍니다(D60).
 
 - id: explain.today_reason
@@ -13,7 +17,20 @@
   structure: 한 문장. 오늘의 일진과 내 사주가 어떻게 만나서 그 판정이 나왔는지 일상어로 말합니다. 원전과 점수는 근거 단계에서 씁니다.
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - "reason.color/lucky_element"
+    - "reason.direction/gwiin_branch"
+    - "reason.direction/ordinary_deity_huisin"
+    - "reason.direction/ordinary_deity_yongsin"
+    - "reason.direction/ordinary_fallback"
+    - "reason.direction/tonggwan"
+    - "reason.direction/yongsin"
+    - "reason.focus_time/fallback"
+    - "reason.focus_time/score"
+    - "reason.fortune/day_kind"
+    - "reason.fortune/tag"
+    - "reason.number/hado"
+    - "reason.tags/select"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -33,7 +50,55 @@
   structure: 한두 문장. 적용한 규칙을 명리 용어로 말하고, 내 사주의 어느 값이 그 규칙에 걸렸는지 붙입니다.
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - params: {breakdown: none, score: none}
+      keys: ["basis.calendar/score"]
+    - params: {day_kind: none, element: none, note: none, role: none}
+      keys: ["basis.color/lucky_element"]
+    - params: {day_branch: none, day_kind: none, direction: none}
+      keys: ["basis.direction/gwiin_branch"]
+    - params: {day_branch: none, day_kind: none, deity: none, direction: none, element: none}
+      keys: ["basis.direction/ordinary_deity_huisin"]
+    - params: {day_branch: none, day_kind: none, deity: none, direction: none, element: none}
+      keys: ["basis.direction/ordinary_deity_yongsin"]
+    - params: {day_branch: none, day_kind: none, direction: none, element: none}
+      keys: ["basis.direction/ordinary_fallback"]
+    - params: {day_branch: none, day_kind: none, direction: none, element: none}
+      keys: ["basis.direction/tonggwan"]
+    - params: {day_branch: none, day_kind: none, direction: none, element: none}
+      keys: ["basis.direction/yongsin"]
+    - params: {picks: none}
+      keys: ["basis.focus_time/fallback"]
+    - params: {picks: none}
+      keys: ["basis.focus_time/score"]
+    - params: {day_kind: none, group: none, ten_god: none}
+      keys: ["basis.fortune/day_kind"]
+    - params: {day_kind: none, featured: none, group: none, ten_god: none}
+      keys: ["basis.fortune/tag"]
+    - params: {basis: none, ten_god: none}
+      keys: ["basis.guide/question"]
+    - params: {day_stem: none, element: none, number: none, parity: none}
+      keys: ["basis.number/hado"]
+    - params: {gisin: none, strength: none, yongsin: none}
+      keys: ["basis.personal/day_master"]
+    - params: {current: none, element: none, luck: none, part: none, role: none}
+      keys: ["basis.personal/luck_ten_god"]
+    - params: {current: none, element: none, role: none}
+      keys: ["basis.personal/luck_twelve_stage"]
+    - params: {element: none, place: none, role: none}
+      keys: ["basis.personal/shinsal"]
+    - params: {element: none, group_count: none, place: none, role: none, strength: none}
+      keys: ["basis.personal/ten_god"]
+    - params: {element: none, place: none, role: none, strength: none}
+      keys: ["basis.personal/twelve_stage"]
+    - params: {all: none, day_kind: none, featured: none}
+      keys: ["basis.tags/select"]
+    - params: {strength_level: none, strength_score: none}
+      keys: ["basis.yongsin/eokbu"]
+    - params: {month_branch: none, share: none, threshold: none}
+      keys: ["basis.yongsin/johu"]
+    - params: {strength_level: none}
+      keys: ["basis.yongsin/johu_neutral"]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -53,7 +118,131 @@
   structure: 원전 이름과 대목을 옮기고, 그 뜻을 한 문장으로 덧붙입니다. 원문 표기 방식은 core 목록이 온 뒤 정합니다.
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - "source.gungtong-bogam/five_elements#balance_principle"
+    - "source.gungtong-bogam/five_elements#color"
+    - "source.gungtong-bogam/five_elements#direction"
+    - "source.gungtong-bogam/five_elements#number"
+    - "source.gungtong-bogam/johu_evidence#丁.丑"
+    - "source.gungtong-bogam/johu_evidence#丁.亥"
+    - "source.gungtong-bogam/johu_evidence#丁.午"
+    - "source.gungtong-bogam/johu_evidence#丁.卯"
+    - "source.gungtong-bogam/johu_evidence#丁.子"
+    - "source.gungtong-bogam/johu_evidence#丁.寅"
+    - "source.gungtong-bogam/johu_evidence#丁.巳"
+    - "source.gungtong-bogam/johu_evidence#丁.戌"
+    - "source.gungtong-bogam/johu_evidence#丁.未"
+    - "source.gungtong-bogam/johu_evidence#丁.申"
+    - "source.gungtong-bogam/johu_evidence#丁.辰"
+    - "source.gungtong-bogam/johu_evidence#丁.酉"
+    - "source.gungtong-bogam/johu_evidence#丙.丑"
+    - "source.gungtong-bogam/johu_evidence#丙.亥"
+    - "source.gungtong-bogam/johu_evidence#丙.午"
+    - "source.gungtong-bogam/johu_evidence#丙.卯"
+    - "source.gungtong-bogam/johu_evidence#丙.子"
+    - "source.gungtong-bogam/johu_evidence#丙.寅"
+    - "source.gungtong-bogam/johu_evidence#丙.巳"
+    - "source.gungtong-bogam/johu_evidence#丙.戌"
+    - "source.gungtong-bogam/johu_evidence#丙.未"
+    - "source.gungtong-bogam/johu_evidence#丙.申"
+    - "source.gungtong-bogam/johu_evidence#丙.辰"
+    - "source.gungtong-bogam/johu_evidence#丙.酉"
+    - "source.gungtong-bogam/johu_evidence#乙.丑"
+    - "source.gungtong-bogam/johu_evidence#乙.亥"
+    - "source.gungtong-bogam/johu_evidence#乙.午"
+    - "source.gungtong-bogam/johu_evidence#乙.卯"
+    - "source.gungtong-bogam/johu_evidence#乙.子"
+    - "source.gungtong-bogam/johu_evidence#乙.寅"
+    - "source.gungtong-bogam/johu_evidence#乙.巳"
+    - "source.gungtong-bogam/johu_evidence#乙.戌"
+    - "source.gungtong-bogam/johu_evidence#乙.未"
+    - "source.gungtong-bogam/johu_evidence#乙.申"
+    - "source.gungtong-bogam/johu_evidence#乙.辰"
+    - "source.gungtong-bogam/johu_evidence#乙.酉"
+    - "source.gungtong-bogam/johu_evidence#壬.丑"
+    - "source.gungtong-bogam/johu_evidence#壬.亥"
+    - "source.gungtong-bogam/johu_evidence#壬.午"
+    - "source.gungtong-bogam/johu_evidence#壬.卯"
+    - "source.gungtong-bogam/johu_evidence#壬.子"
+    - "source.gungtong-bogam/johu_evidence#壬.寅"
+    - "source.gungtong-bogam/johu_evidence#壬.巳"
+    - "source.gungtong-bogam/johu_evidence#壬.戌"
+    - "source.gungtong-bogam/johu_evidence#壬.未"
+    - "source.gungtong-bogam/johu_evidence#壬.申"
+    - "source.gungtong-bogam/johu_evidence#壬.辰"
+    - "source.gungtong-bogam/johu_evidence#壬.酉"
+    - "source.gungtong-bogam/johu_evidence#己.丑"
+    - "source.gungtong-bogam/johu_evidence#己.亥"
+    - "source.gungtong-bogam/johu_evidence#己.午"
+    - "source.gungtong-bogam/johu_evidence#己.卯"
+    - "source.gungtong-bogam/johu_evidence#己.子"
+    - "source.gungtong-bogam/johu_evidence#己.寅"
+    - "source.gungtong-bogam/johu_evidence#己.巳"
+    - "source.gungtong-bogam/johu_evidence#己.戌"
+    - "source.gungtong-bogam/johu_evidence#己.未"
+    - "source.gungtong-bogam/johu_evidence#己.申"
+    - "source.gungtong-bogam/johu_evidence#己.辰"
+    - "source.gungtong-bogam/johu_evidence#己.酉"
+    - "source.gungtong-bogam/johu_evidence#庚.丑"
+    - "source.gungtong-bogam/johu_evidence#庚.亥"
+    - "source.gungtong-bogam/johu_evidence#庚.午"
+    - "source.gungtong-bogam/johu_evidence#庚.卯"
+    - "source.gungtong-bogam/johu_evidence#庚.子"
+    - "source.gungtong-bogam/johu_evidence#庚.寅"
+    - "source.gungtong-bogam/johu_evidence#庚.巳"
+    - "source.gungtong-bogam/johu_evidence#庚.戌"
+    - "source.gungtong-bogam/johu_evidence#庚.未"
+    - "source.gungtong-bogam/johu_evidence#庚.申"
+    - "source.gungtong-bogam/johu_evidence#庚.辰"
+    - "source.gungtong-bogam/johu_evidence#庚.酉"
+    - "source.gungtong-bogam/johu_evidence#戊.丑"
+    - "source.gungtong-bogam/johu_evidence#戊.亥"
+    - "source.gungtong-bogam/johu_evidence#戊.午"
+    - "source.gungtong-bogam/johu_evidence#戊.卯"
+    - "source.gungtong-bogam/johu_evidence#戊.子"
+    - "source.gungtong-bogam/johu_evidence#戊.寅"
+    - "source.gungtong-bogam/johu_evidence#戊.巳"
+    - "source.gungtong-bogam/johu_evidence#戊.戌"
+    - "source.gungtong-bogam/johu_evidence#戊.未"
+    - "source.gungtong-bogam/johu_evidence#戊.申"
+    - "source.gungtong-bogam/johu_evidence#戊.辰"
+    - "source.gungtong-bogam/johu_evidence#戊.酉"
+    - "source.gungtong-bogam/johu_evidence#甲.丑"
+    - "source.gungtong-bogam/johu_evidence#甲.亥"
+    - "source.gungtong-bogam/johu_evidence#甲.午"
+    - "source.gungtong-bogam/johu_evidence#甲.卯"
+    - "source.gungtong-bogam/johu_evidence#甲.子"
+    - "source.gungtong-bogam/johu_evidence#甲.寅"
+    - "source.gungtong-bogam/johu_evidence#甲.巳"
+    - "source.gungtong-bogam/johu_evidence#甲.戌"
+    - "source.gungtong-bogam/johu_evidence#甲.未"
+    - "source.gungtong-bogam/johu_evidence#甲.申"
+    - "source.gungtong-bogam/johu_evidence#甲.辰"
+    - "source.gungtong-bogam/johu_evidence#甲.酉"
+    - "source.gungtong-bogam/johu_evidence#癸.丑"
+    - "source.gungtong-bogam/johu_evidence#癸.亥"
+    - "source.gungtong-bogam/johu_evidence#癸.午"
+    - "source.gungtong-bogam/johu_evidence#癸.卯"
+    - "source.gungtong-bogam/johu_evidence#癸.子"
+    - "source.gungtong-bogam/johu_evidence#癸.寅"
+    - "source.gungtong-bogam/johu_evidence#癸.巳"
+    - "source.gungtong-bogam/johu_evidence#癸.戌"
+    - "source.gungtong-bogam/johu_evidence#癸.未"
+    - "source.gungtong-bogam/johu_evidence#癸.申"
+    - "source.gungtong-bogam/johu_evidence#癸.辰"
+    - "source.gungtong-bogam/johu_evidence#癸.酉"
+    - "source.gungtong-bogam/johu_evidence#辛.丑"
+    - "source.gungtong-bogam/johu_evidence#辛.亥"
+    - "source.gungtong-bogam/johu_evidence#辛.午"
+    - "source.gungtong-bogam/johu_evidence#辛.卯"
+    - "source.gungtong-bogam/johu_evidence#辛.子"
+    - "source.gungtong-bogam/johu_evidence#辛.寅"
+    - "source.gungtong-bogam/johu_evidence#辛.巳"
+    - "source.gungtong-bogam/johu_evidence#辛.戌"
+    - "source.gungtong-bogam/johu_evidence#辛.未"
+    - "source.gungtong-bogam/johu_evidence#辛.申"
+    - "source.gungtong-bogam/johu_evidence#辛.辰"
+    - "source.gungtong-bogam/johu_evidence#辛.酉"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
   a11y:
