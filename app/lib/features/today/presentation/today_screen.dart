@@ -238,6 +238,14 @@ class _TodayBody extends ConsumerWidget {
                     label: character.label,
                     reason: character.reason,
                     reasonSlotId: SlotIds.todayCharacterReason,
+                    reasonTrailing: DepthLink(
+                      variant: DepthLinkVariant.inlineEnd,
+                      label: l10n.depthLinkEvidence,
+                      onTap: () => sheets.openEvidence(
+                        context,
+                        slotId: daily.characterReason.slot,
+                      ),
+                    ),
                   ),
                 ),
               ),

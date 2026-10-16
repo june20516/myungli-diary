@@ -238,7 +238,17 @@ void main() {
     expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
 
-    await tester.tap(find.byType(DepthLink));
+    // 총운 끝의 근거 보기.
+    await tester.tap(
+      depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
+    await _closeSheet(tester);
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
+
+    // 날의 성격 이유 줄 끝의 근거 보기(`day-character` rules).
+    await tester.tap(depthLinkTarget(of: find.byKey(DayCharacter.reasonKey)));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
     await _closeSheet(tester);
@@ -508,7 +518,9 @@ void main() {
       const DailyEvidenceSubject(),
     );
 
-    await tester.tap(find.byType(DepthLink));
+    await tester.tap(
+      depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+    );
     await pumpUntil(
       tester,
       () => container.exists(unlock) && container.read(unlock).adReady,

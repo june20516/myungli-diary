@@ -135,10 +135,18 @@ void main() {
 
     expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
     expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
-    expect(
-      tester.widget<DepthLink>(find.byType(DepthLink)).label,
-      _ko.depthLinkEvidence,
-    );
+    // 근거 보기 링크는 총운 끝과 날의 성격 이유 줄 끝(`day-character` rules)에 있습니다.
+    for (final scope in [
+      find.byKey(const Key(SlotIds.todayFortuneHead)),
+      find.byKey(DayCharacter.reasonKey),
+    ]) {
+      final link = find.descendant(of: scope, matching: find.byType(DepthLink));
+      expect(
+        tester.widget<DepthLink>(link).variant,
+        DepthLinkVariant.inlineEnd,
+      );
+      expect(tester.widget<DepthLink>(link).label, _ko.depthLinkEvidence);
+    }
 
     for (final variant in LuckyCardVariant.values) {
       expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);
