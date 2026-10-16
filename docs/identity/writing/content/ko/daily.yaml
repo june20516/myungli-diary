@@ -1,11 +1,11 @@
 # 오늘 화면(daily) 원고(ko). W1-1 초안, 라운드 R9 전.
-- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "[[비겁]]이 힘을 보태니, 미뤄 둔 일을 친구와 해 보세요."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "[[비겁|ten_god_group.bigyeop]]이 힘을 보태니, 미뤄 둔 일을 친구와 해 보세요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: state, text: "곁에 있는 사람들과 손발이 잘 맞는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: care, text: "혼자가 아니라는 든든함이 큰 날이에요."}
-- {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: advice, text: "[[식상]]이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: advice, text: "[[식상|ten_god_group.siksang]]이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: state, text: "말과 글에 힘이 실리는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: care, text: "하고 싶던 말을 꺼내도 괜찮은 날이에요."}
-- {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: advice, text: "[[재성]]이 살아나니, 미뤄 둔 정산이나 견적을 챙겨 보세요."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: advice, text: "[[재성|ten_god_group.jaeseong]]이 살아나니, 미뤄 둔 정산이나 견적을 챙겨 보세요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: state, text: "들인 노력이 돈이나 결과로 손에 잡히는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: care, text: "애쓴 만큼 돌아온다는 뿌듯함이 큰 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.gwanseong, type: advice, text: "맡고 싶던 일이 있다면 오늘 먼저 손을 들어 보세요."}
@@ -56,8 +56,8 @@
 - {slot: daily.fortune.head, key: fortune.ordinary_day.gwanseong, type: advice, text: "미뤄 둔 약속이나 마감 하나를 오늘 지켜 보세요."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.gwanseong, type: state, text: "정해 둔 일과를 그대로 지키기 쉬운 날이에요."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.gwanseong, type: care, text: "하던 대로 해도 충분히 잘하고 있는 날이에요."}
-- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: advice, text: "[[인성]]이 들어오니, 미뤄 둔 책이나 강의를 열어 보세요."}
-- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: state, text: "[[인성]]이 들어와 무언가를 배우기 좋은 날이에요."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: advice, text: "[[인성|ten_god_group.inseong]]이 들어오니, 미뤄 둔 책이나 강의를 열어 보세요."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: state, text: "[[인성|ten_god_group.inseong]]이 들어와 무언가를 배우기 좋은 날이에요."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: care, text: "몰랐던 걸 알게 되는 기쁨이 큰 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.big_change, type: advice, text: "바꾸고 싶던 생활 습관이 있다면 하나 바꿔 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.big_change, type: state, text: "익숙하던 일상에 변화가 생기기 쉬운 날이에요."}
@@ -144,3 +144,62 @@
 - {slot: daily.guide, key: guide.yeokma, variant: 2, text: "오늘 가장 멀리 간 곳은 어디였나요?"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "오늘 잘 풀린 일 하나를 적어 볼까요?"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "오늘 가장 뿌듯했던 순간은 언제였나요?"}
+- {slot: daily.direction, key: direction.day_kind.gisin, text: "오늘 움직일 일이 있다면 {direction}쪽이 좋아요."}
+- {slot: daily.direction, key: direction.day_kind.gwiin, text: "사람을 만날 곳을 고른다면 {direction}쪽이 좋아요."}
+- {slot: daily.direction, key: direction.day_kind.ordinary, text: "약속 장소를 고른다면 {direction}쪽이 좋아요."}
+- {slot: daily.direction, key: direction.day_kind.yongsin, text: "새로 가 볼 곳을 고른다면 {direction}쪽이 잘 맞아요."}
+- {slot: daily.number, key: number.gisin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
+- {slot: daily.number, key: number.gwiin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
+- {slot: daily.number, key: number.ordinary_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
+- {slot: daily.number, key: number.yongsin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
+- {slot: daily.focus_time, key: focus_time.fallback, text: "오늘은 이 시간에 집중이 잘 돼요."}
+- {slot: daily.focus_time, key: focus_time.gwiin, text: "이 시간에는 도움을 청하면 잘 통해요."}
+- {slot: daily.focus_time, key: focus_time.hap, text: "이 시간에는 사람을 만나 이야기하기 좋아요."}
+- {slot: daily.focus_time, key: focus_time.huisin, text: "이 시간에는 미뤄 둔 일을 이어 가기 좋아요."}
+- {slot: daily.focus_time, key: focus_time.yongsin, text: "이 시간에는 중요한 일을 하면 잘 돼요."}
+- {slot: daily.tag_label, key: tag.big_change, text: "큰 변화"}
+- {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "천을귀인"}
+- {slot: daily.tag_label, key: tag.clash, text: "충"}
+- {slot: daily.tag_label, key: tag.dohwa, text: "도화"}
+- {slot: daily.tag_label, key: tag.gongmang, text: "공망"}
+- {slot: daily.tag_label, key: tag.gwiin_day, text: "귀인의 날"}
+- {slot: daily.tag_label, key: tag.harmony, text: "합"}
+- {slot: daily.tag_label, key: tag.hwagae, text: "화개"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.bigyeop, text: "비겁이 몰린 날"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.gwanseong, text: "관성이 몰린 날"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.inseong, text: "인성이 몰린 날"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.jaeseong, text: "재성이 몰린 날"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.siksang, text: "식상이 몰린 날"}
+- {slot: daily.tag_label, key: tag.yeokma, text: "역마"}
+- {slot: daily.tag_label, key: tag.yongsin_day, text: "용신의 날"}
+- {slot: daily.focus_reason, key: gwiin, text: "귀인 시간"}
+- {slot: daily.focus_reason, key: yongsin, text: "용신 시간"}
+- {slot: daily.focus_reason, key: huisin, text: "희신 시간"}
+- {slot: daily.focus_reason, key: hap, text: "합이 드는 시간"}
+- {slot: character.reason, key: character.reason.gwiin_day, text: "도와주는 사람이 곁에 오는 날이에요."}
+- {slot: character.reason, key: character.reason.yongsin_day, text: "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."}
+- {slot: character.reason, key: character.reason.gisin_day, text: "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."}
+- {slot: character.reason, key: character.reason.ordinary_day, text: "크게 돕거나 막는 기운 없이 하던 대로 지내기 좋은 날이에요."}
+- {slot: explain.today_reason, key: "reason.color/lucky_element", text: "내 사주를 돕는 기운의 색을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.direction/gwiin_branch", text: "오늘 귀인이 드는 지지의 방향을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_deity_huisin", text: "달력의 길한 방위 가운데 내 사주를 거드는 기운의 방향을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_deity_yongsin", text: "달력의 길한 방위 가운데 내 사주를 돕는 기운의 방향을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.direction/ordinary_fallback", text: "달력의 길한 방위가 맞지 않아, 내 사주를 돕는 기운의 방향을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "부딪히는 두 기운 사이를 이어 주는 기운의 방향을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.direction/yongsin", text: "오늘 힘을 얻은, 내 사주를 돕는 기운의 방향을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "후보 시간이 모두 내 사주와 부딪혀, 그날 달력의 길한 시간을 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.focus_time/score", text: "내 사주와 부딪히지 않는 시간 가운데 귀인·용신·합이 많이 겹치는 때를 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "오늘의 천간이 내 일간과 만나는 관계가 이 기운이라 그래요."}
+- {slot: explain.today_reason, key: "reason.fortune/tag", text: "오늘 일진과 내 사주가 만나 이 태그가 함께 들어서 그래요."}
+- {slot: explain.today_reason, key: "reason.number/hado", text: "오늘의 색과 같은 기운의 수 가운데, 오늘 천간의 음양에 맞는 수를 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.tags/select", text: "오늘 일진이 내 사주와 만나 생긴 합·충·신살을 모아서 그래요."}
+- {slot: calendar.day_level, key: calendar.caution, text: "조심할 날"}
+- {slot: calendar.day_level, key: calendar.good, text: "잘 풀리는 날"}
+- {slot: calendar.day_level, key: calendar.neutral, text: "무난한 날"}
+- {slot: calendar.score_item, key: gwiin_day, text: "귀인의 날"}
+- {slot: calendar.score_item, key: yongsin_day, text: "용신의 날"}
+- {slot: calendar.score_item, key: gisin_day, text: "기신의 날"}
+- {slot: calendar.score_item, key: hap, text: "합"}
+- {slot: calendar.score_item, key: chung_day_or_month, text: "일지나 월지와의 충"}
+- {slot: calendar.score_item, key: chung_other, text: "다른 자리와의 충"}
+- {slot: calendar.score_item, key: hyeong, text: "형"}
