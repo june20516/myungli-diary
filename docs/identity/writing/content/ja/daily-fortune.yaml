@@ -1,6 +1,6 @@
 # 오늘 화면 총운(daily.fortune.head·tag) 원고(ja). ko 원고(content/ko/daily.yaml)와 같은 정보를 옮긴 원어민 검수 전 초안입니다.
 # head state만 호칭 덩어리 `{name}さん、`으로 시작하고, 이름 10자를 넣어도 32자 안에 들게 본문을 19자 이내로 씁니다(W28). tag는 용어 토큰을 쓰지 않습니다(W28).
-- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "[[比劫|ten_god_group.bigyeop]]が力を貸すので、残った用事を友人と進めてみてください。"}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "[[比劫|ten_god_group.bigyeop]]が巡るので、残った用事を友人と進めてみてください。"}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: state, text: "{name}さん、周りと息が合いやすい日です。"}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: care, text: "ひとりではないと心強く思える日です。"}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: advice, text: "[[食傷|ten_god_group.siksang]]が生きるので、会議で先に意見を出してみてください。"}
@@ -79,7 +79,7 @@
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "困ったときに助けてくれる人が近くにいる日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "ひとりで頑張らなくていいと思える日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.harmony, type: advice, text: "先延ばしにした契約や約束を、今日決めてみてください。"}
-- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "人と物事がうまくかみ合う日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "話し合いや約束がまとまりやすい日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.harmony, type: care, text: "気の合う人がいて、うれしい日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: advice, text: "ひとりの時間をつくって、好きなことに使ってみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: state, text: "大勢よりひとりで過ごすほうが楽な日です。"}

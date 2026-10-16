@@ -9,4 +9,4 @@
 - {slot: system.notice, key: notice.time_unknown, text: "Your birth time is unknown, so we used 12 noon. Adding it makes results more accurate."}
 - {slot: system.notice, key: notice.near_solar_term, text: "You were born near a solar term change, so your month pillar may vary with the exact time."}
 - {slot: system.notice, key: notice.dayun_start_approximate, text: "Your birth time is unknown, so the age your 10-year luck cycles start is an estimate."}
-- {slot: system.notice, key: notice.focus_time_fallback, text: "Today's candidate hours all clash with your chart, so we used the calendar's lucky hours."}
+- {slot: system.notice, key: notice.focus_time_fallback, text: "No usual focus hour suits your chart today, so we picked a lucky hour from the calendar."}

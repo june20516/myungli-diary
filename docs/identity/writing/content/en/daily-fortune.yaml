@@ -1,6 +1,6 @@
 # 오늘 화면 총운(daily.fortune.head·tag) 원고(en). ko 원고(content/ko/daily.yaml)와 같은 정보를 옮긴 원어민 검수 전 초안입니다.
 # en은 호칭을 쓰지 않습니다(한 주 2번 상한). 용어 토큰은 로마자 표기이고, tag는 토큰을 쓰지 않습니다(W28).
-- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "With [[Bigyeop|ten_god_group.bigyeop]] behind you, do a stalled task with a friend."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "With [[Bigyeop|ten_god_group.bigyeop]] coming in, do a stalled task with a friend."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: state, text: "You and the people around you work well together today."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: care, text: "Knowing you're not alone feels reassuring today."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: advice, text: "With [[Siksang|ten_god_group.siksang]] active, share your view first in a meeting."}
@@ -79,7 +79,7 @@
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "Someone who can help is close by when you need it."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "It's a relief to know you don't have to do it alone."}
 - {slot: daily.fortune.tag, key: fortune.tag.harmony, type: advice, text: "Set a date for the contract or plan you've put off."}
-- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "People and plans fit together well today."}
+- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "Talks and plans tend to come together today."}
 - {slot: daily.fortune.tag, key: fortune.tag.harmony, type: care, text: "It's good to have someone who gets you today."}
 - {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: advice, text: "Set aside some time alone for something you enjoy."}
 - {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: state, text: "Time alone feels easier than being in a crowd today."}

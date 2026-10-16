@@ -1,5 +1,5 @@
 # 오늘 화면(daily) 원고(ko). W1-1 초안, 라운드 R9 전.
-- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "[[비겁|ten_god_group.bigyeop]]이 힘을 보태니, 미뤄 둔 일을 친구와 해 보세요."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "[[비겁|ten_god_group.bigyeop]]이 들어오니, 미뤄 둔 일을 친구와 해 보세요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: state, text: "{name}님, 주변과 손발이 잘 맞는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: care, text: "혼자가 아니라는 든든함이 큰 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: advice, text: "[[식상|ten_god_group.siksang]]이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."}
@@ -12,7 +12,7 @@
 - {slot: daily.fortune.head, key: fortune.yongsin_day.gwanseong, type: state, text: "{name}님, 맡은 일로 인정받기 쉬운 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.gwanseong, type: care, text: "내 몫을 잘 해내고 있다는 안심이 드는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: advice, text: "막힌 일은 잘 아는 사람에게 조언을 구해 보세요."}
-- {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: state, text: "{name}님, 청한 도움이 쉽게 오는 날이에요."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: state, text: "{name}님, 부탁한 도움이 쉽게 오는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: care, text: "기댈 곳이 있다는 안심이 드는 날이에요."}
 - {slot: daily.fortune.head, key: fortune.gwiin_day.bigyeop, type: advice, text: "오래 연락 못 한 친구에게 먼저 안부를 건네 보세요."}
 - {slot: daily.fortune.head, key: fortune.gwiin_day.bigyeop, type: state, text: "{name}님, 옛 친구가 힘이 되는 날이에요."}
@@ -78,7 +78,7 @@
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "필요할 때 도와줄 사람이 가까이 있는 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "혼자 애쓰지 않아도 된다는 안심이 드는 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.harmony, type: advice, text: "미뤄 둔 계약이나 약속을 오늘 잡아 보세요."}
-- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "사람과 일이 서로 잘 맞물리는 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "이야기나 약속이 잘 맞아떨어지는 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.harmony, type: care, text: "마음이 통하는 사람이 있어 반가운 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: advice, text: "혼자 있는 시간을 떼어 좋아하는 일에 써 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: state, text: "여럿보다 혼자 있는 시간이 편한 날이에요."}
