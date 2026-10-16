@@ -18,7 +18,7 @@
 | PR | 묶음 | 슬롯 | ko 건수 | 함께 처리 |
 | --- | --- | --- | --- | --- |
 | W1-1 | 엔진 안내 + 오늘 화면 | `system.notice`(새 슬롯), `daily.*` 10개, `character.reason`, `explain.today_reason`, `calendar.day_level`·`calendar.score_item` | 약 220 | #232, jev shadow 판정 경로(§6.2) |
-| W1-2 | 사주·개인 해석 | `chart.*` 4개, `personal.*` 5개 | 약 85 | #52 |
+| W1-2 | 사주·개인 해석 | `chart.*` 4개, `personal.*` 5개, 그 문장에 끼우는 `glossary.value_name` 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김) | 약 120 | #52, #237(오류 문구 3건), 가이드 질문 기준 확정(W31) |
 | W1-3 | 용어·근거 | `term.meaning`, `glossary.value_name`, `evidence.basis`, `evidence.source` | 약 295 | `--partial` 제거, 스토어 태그라인 |
 
 * W1-1이 먼저입니다. 오늘 화면은 사용자가 매일 보는 곳이고, 첫 라운드에서 굳힌 목소리 규칙이 이후 묶음에 그대로 적용됩니다. #232는 server가 기다리는 요청입니다.
