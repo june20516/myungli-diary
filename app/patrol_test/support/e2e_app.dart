@@ -10,6 +10,9 @@ import 'package:patrol/patrol.dart';
 /// 찍어도 이름이 겹치지 않게 합니다(`launchApp`이 정합니다).
 String _flow = '';
 
+/// 흐름 이름 형식(소문자·숫자·-, 비어 있지 않음).
+final _flowPattern = RegExp(r'^[a-z0-9-]+$');
+
 /// fake 모드의 [scenario]로 앱을 띄웁니다. 모드 전환(http)은 후속 계획(A2)에서 더합니다.
 ///
 /// [flow]는 스크린샷 이름 충돌을 막는 테스트 흐름 이름(소문자·숫자·-)입니다.
@@ -21,6 +24,7 @@ Future<ProviderContainer> launchApp(
   required String scenario,
   Locale? deviceLocale,
 }) async {
+  assert(_flowPattern.hasMatch(flow), '흐름 이름은 소문자·숫자·-입니다: "$flow"');
   _flow = flow;
   final container = await bootstrap(
     mode: ApiMode.fake,
@@ -37,9 +41,10 @@ Future<ProviderContainer> launchApp(
 
 /// IA 화면 [screenId](선택: [state])에 도착했는지 보고 스크린샷을 남깁니다.
 ///
-/// 태그는 `<화면>__<상태|default>-<흐름>`이고(흐름은 `launchApp`의 `flow`), `tool/collect_e2e_screenshots.sh`가
-/// 이 이름으로 `build/e2e-screenshots/`에 모읍니다. 네이티브 캡처는 Android만
-/// 동작하고 iOS에서는 아무것도 하지 않습니다(Patrol 4.10).
+/// 태그는 `<화면>__<상태|default>-<흐름>`이고(흐름은 `launchApp`의 `flow`),
+/// `tool/collect_e2e_screenshots.sh`가 이 이름으로 `build/e2e-screenshots/`에
+/// 모읍니다. 네이티브 캡처는 Android만 동작하고 iOS에서는 아무것도 하지 않습니다
+/// (Patrol 4.10).
 Future<void> expectScreen(
   PatrolIntegrationTester $,
   String screenId, {
