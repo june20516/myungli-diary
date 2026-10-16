@@ -103,7 +103,7 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
                   source: [
                     if (state == DepthLinkState.unlocked) ...[
                       _line('食神制殺, 福壽綿長.'),
-                      _line('推其形色，则水黑、火赤、木青、土黄，此正色也。'),
+                      _line('推其形色，則水黑、火赤、木青、土黄，此正色也。'),
                     ],
                   ],
                   onWatchAd: () {},

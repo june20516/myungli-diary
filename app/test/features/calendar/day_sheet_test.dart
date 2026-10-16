@@ -113,7 +113,7 @@ final class _Harness {
         (date) => DaySheetBody(date: date),
       ),
       explainBodyProvider.overrideWithValue(
-        (termId, sourceSlotId) => Text('풀이 $termId $sourceSlotId'),
+        (termId, origin) => Text('풀이 $termId ${origin?.slotId}'),
       ),
     ],
     child: MaterialApp.router(

@@ -29,8 +29,9 @@ class ExplainSheetBody extends StatelessWidget {
     super.key,
   });
 
-  /// 제목 줄의 한자를 찾는 테스트용 키.
-  static const Key hanjaKey = ValueKey('explain-sheet.title.hanja');
+  /// 제목 줄의 한자를 찾는 테스트용 키. IA 슬롯이 아닌 컴포넌트 안쪽 키입니다
+  /// (IA에 한자 자리 id가 없음).
+  static const Key hanjaKey = ValueKey('explain-sheet-hanja');
 
   /// 시트 제목(용어 이름, `type.title`).
   final String title;

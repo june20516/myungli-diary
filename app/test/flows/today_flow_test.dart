@@ -367,7 +367,7 @@ void main() {
       overrides: [
         depthSheetsProvider.overrideWithValue(
           DepthSheets(
-            explainBody: (termId, sourceSlotId) => ProviderScope(
+            explainBody: (termId, origin) => ProviderScope(
               overrides: [
                 glossaryProvider.overrideWith((ref) {
                   if (++attempts == 1) return firstAttempt.future;
@@ -379,7 +379,7 @@ void main() {
                   });
                 }),
               ],
-              child: ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
+              child: ExplainSheet(termId: termId, origin: origin),
             ),
             evidenceBody: (_) => const SizedBox.shrink(),
             shareBody: SizedBox.shrink,

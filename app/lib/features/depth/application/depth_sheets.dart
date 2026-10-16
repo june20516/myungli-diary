@@ -4,13 +4,11 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
+import 'package:myungli_diary/features/depth/application/term_origin.dart';
 
-/// 풀이 시트 본문. [termId]는 용어 id, [sourceSlotId]는 눌린 writing 슬롯 id입니다.
-/// [sourceSlotId]가 null이면 근거로 이어지지 않는 곳에서 연 것이라 근거 보기가 없습니다.
-typedef ExplainBodyBuilder = Widget Function(
-  String termId,
-  String? sourceSlotId,
-);
+/// 풀이 시트 본문. [termId]는 용어 id, [origin]은 용어가 눌린 슬롯과 그 응답입니다.
+/// [origin]이 null이면 근거로 이어지지 않는 곳에서 연 것이라 근거 보기도 오늘 그런 이유도 없습니다.
+typedef ExplainBodyBuilder = Widget Function(String termId, TermOrigin? origin);
 
 /// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id입니다.
 typedef EvidenceBodyBuilder = Widget Function(String slotId);
@@ -39,14 +37,15 @@ final class DepthSheets {
   /// 공유 미리보기 시트 본문.
   final ShareBodyBuilder shareBody;
 
-  /// 풀이 시트(half)를 엽니다. [sourceSlotId]는 용어가 들어 있던 슬롯 id입니다.
+  /// 풀이 시트(half)를 엽니다. [origin]은 용어가 들어 있던 슬롯과 그 슬롯을 담은 응답입니다.
   ///
-  /// [sourceSlotId]를 주지 않으면 풀이 시트에 근거 보기가 없습니다. 그날 시트(`day-sheet`)는
-  /// IA 깊이가 `surface`·`explain`까지라 근거 시트로 이어지지 않으므로 주지 않습니다.
+  /// [origin]을 주지 않으면 풀이 시트에 근거 보기도 오늘 그런 이유도 없고 응답을 받지 않습니다.
+  /// 그날 시트(`day-sheet`)는 IA 깊이가 `surface`·`explain`까지라 근거 시트로 이어지지 않으므로
+  /// 주지 않습니다.
   Future<void> openExplain(
     BuildContext context, {
     required String termId,
-    String? sourceSlotId,
+    TermOrigin? origin,
   }) => showMyungliSheet<void>(
     context,
     size: SheetSize.half,
@@ -54,7 +53,7 @@ final class DepthSheets {
     semanticLabel: AppLocalizations.of(context).depthExplain,
     builder: (_) => SheetScreenId(
       screenId: ScreenIds.explainSheet,
-      child: explainBody(termId, sourceSlotId),
+      child: explainBody(termId, origin),
     ),
   );
 

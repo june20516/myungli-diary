@@ -19,6 +19,8 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
@@ -34,8 +36,7 @@ const _names = GlossaryNames({
 });
 
 final _depthSheets = DepthSheets(
-  explainBody: (termId, sourceSlotId) =>
-      ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
+  explainBody: (termId, origin) => ExplainSheet(termId: termId, origin: origin),
   evidenceBody: (slotId) => Text('근거 $slotId'),
   shareBody: SizedBox.shrink,
 );
@@ -60,15 +61,21 @@ Daily _daily() {
   return Daily.fromJson({...json, 'fortune': fortune});
 }
 
+/// 오늘 응답을 받은 횟수(대역 build 횟수 = getDaily 요청).
+var _dailyBuilds = 0;
+
 /// 정해 둔 오늘 응답을 돌려주는 대역.
 final class _StubDaily extends DailyController {
   @override
-  Future<DailyView> build() async => DailyView(
-    date: CalendarDate(2026, 10, 13),
-    daily: _daily(),
-    stale: false,
-    cacheKey: null,
-  );
+  Future<DailyView> build() async {
+    _dailyBuilds++;
+    return DailyView(
+      date: CalendarDate(2026, 10, 13),
+      daily: _daily(),
+      stale: false,
+      cacheKey: null,
+    );
+  }
 }
 
 Widget _app(
@@ -91,7 +98,11 @@ Widget _app(
   ),
 );
 
-const _sheet = ExplainSheet(termId: 'ten_god.siksin', sourceSlotId: 'a.b');
+/// 오늘 화면 [slotId] 슬롯에서 연 출처.
+TermOrigin _today(String slotId) =>
+    TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
+
+final _sheet = ExplainSheet(termId: 'ten_god.siksin', origin: _today('a.b'));
 
 void main() {
   group('ExplainSheet', () {
@@ -177,9 +188,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         _app(
-          const ExplainSheet(
+          ExplainSheet(
             termId: 'ten_god.siksin',
-            sourceSlotId: 'daily.fortune.head',
+            origin: _today('daily.fortune.head'),
           ),
           glossary: () async => _names,
         ),
@@ -195,14 +206,11 @@ void main() {
       );
     });
 
-    testWidgets('todayReason이 없거나 day-sheet에서 열면 그 자리가 없습니다', (tester) async {
+    testWidgets('출처 슬롯에 todayReason이 없으면 그 자리가 없습니다', (tester) async {
       // 가이드 질문 슬롯에는 todayReason이 없습니다.
       await tester.pumpWidget(
         _app(
-          const ExplainSheet(
-            termId: 'ten_god.siksin',
-            sourceSlotId: 'daily.guide',
-          ),
+          ExplainSheet(termId: 'ten_god.siksin', origin: _today('daily.guide')),
           glossary: () async => _names,
         ),
       );
@@ -212,8 +220,32 @@ void main() {
         find.byKey(const Key(SlotIds.explainSheetTodayReason)),
         findsNothing,
       );
+    });
 
-      // 그날 시트(day-sheet)는 근거 슬롯 없이 엽니다.
+    testWidgets('오늘 화면에서 연 시트는 오늘 응답을 받아 오늘 그런 이유가 있습니다', (tester) async {
+      _dailyBuilds = 0;
+      await tester.pumpWidget(
+        _app(
+          ExplainSheet(
+            termId: 'ten_god.siksin',
+            origin: _today('daily.fortune.head'),
+          ),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_dailyBuilds, 1);
+      expect(
+        find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('day-sheet에서 연 시트(출처 없음)는 오늘 응답을 받지 않고 오늘 그런 이유가 없습니다', (
+      tester,
+    ) async {
+      _dailyBuilds = 0;
       await tester.pumpWidget(
         _app(
           const ExplainSheet(termId: 'ten_god.siksin'),
@@ -221,11 +253,14 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+
       expect(find.text('식신'), findsOneWidget);
+      expect(_dailyBuilds, 0, reason: 'getDaily를 받지 않습니다');
       expect(
         find.byKey(const Key(SlotIds.explainSheetTodayReason)),
         findsNothing,
       );
+      expect(find.byType(DepthLink), findsNothing);
     });
 
     testWidgets('근거 보기를 누르면 눌린 슬롯의 근거 시트가 열립니다', (tester) async {
@@ -323,7 +358,7 @@ void main() {
       final crash = FakeCrashReporter();
       await tester.pumpWidget(
         _app(
-          const ExplainSheet(termId: 'ten_god.nope', sourceSlotId: 'a.b'),
+          ExplainSheet(termId: 'ten_god.nope', origin: _today('a.b')),
           glossary: () async => _names,
           crash: crash,
         ),

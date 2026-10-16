@@ -12,8 +12,7 @@ import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.da
 /// `profileTimezoneOverrides`와 같은 방식).
 final List<Override> depthSheetBodyOverrides = [
   explainBodyProvider.overrideWithValue(
-    (termId, sourceSlotId) =>
-        ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
+    (termId, origin) => ExplainSheet(termId: termId, origin: origin),
   ),
   evidenceBodyProvider.overrideWithValue(
     (slotId) => EvidenceSheet(slotId: slotId),

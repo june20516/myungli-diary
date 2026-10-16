@@ -30,6 +30,8 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
@@ -211,8 +213,12 @@ class _TodayBody extends ConsumerWidget {
     final timeUnknown = display.timeUnknown;
     final head = display.head;
     final tag = display.tag;
-    void openExplain(String termId, String sourceSlotId) =>
-        sheets.openExplain(context, termId: termId, sourceSlotId: sourceSlotId);
+    // 오늘 화면의 용어는 오늘 응답의 슬롯에서 왔으므로 오늘 응답을 출처로 넘깁니다.
+    void openExplain(String termId, String slotId) => sheets.openExplain(
+      context,
+      termId: termId,
+      origin: TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject()),
+    );
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     return SeepOnChange(
       changeKey: display,

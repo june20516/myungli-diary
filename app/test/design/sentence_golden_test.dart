@@ -115,7 +115,7 @@ Widget _evidence(DepthLinkState state, {bool loading = false}) {
         source: [
           if (unlocked) ...[
             _text([Segment(text: '食神制殺, 福壽綿長.')]),
-            _text([Segment(text: '推其形色，则水黑、火赤、木青、土黄，此正色也。')]),
+            _text([Segment(text: '推其形色，則水黑、火赤、木青、土黄，此正色也。')]),
           ],
         ],
         personal: unlocked

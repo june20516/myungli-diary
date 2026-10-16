@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/misc.dart'
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -29,7 +30,7 @@ final rewardPollTimingProvider =
       (ref) => (interval: rewardPollInterval, timeout: rewardPollTimeout),
     );
 
-/// 근거를 담은 응답 하나(오늘의 `Daily`, 계획 6의 `Chart`).
+/// 근거와 슬롯 문장을 담은 응답 하나(오늘의 `Daily`, 계획 6의 `Chart`).
 ///
 /// 근거 시트와 잠금 해제 흐름은 화면에 묶이지 않고 이 인터페이스만 봅니다. 잠금이 풀린 뒤
 /// 무엇을 다시 받을지는 응답마다 [reload]가 정합니다. 잠금 해제 흐름의 family 키이므로 값으로
@@ -44,6 +45,10 @@ abstract interface class EvidenceSubject {
   /// server는 [access]가 `unlocked`일 때만 근거를 담습니다(D60). 근거 시트도 열렸을 때만 이 값을
   /// 읽습니다.
   ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId);
+
+  /// 응답 안 [slotId] 슬롯의 오늘 그런 이유(`SlotText.todayReason`). 응답을 받는 중이거나 슬롯·
+  /// 문장이 없거나 빈 문장이면 null입니다. 오늘 그런 이유가 없는 응답은 늘 null입니다.
+  ProviderListenable<RenderedText?> todayReasonOf(String slotId);
 
   /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
   /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
@@ -70,6 +75,16 @@ final class DailyEvidenceSubject implements EvidenceSubject {
           (view) => dailySlotText(view.daily, slotId)?.evidence ?? const [],
         ),
       );
+
+  @override
+  ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
+      dailyControllerProvider.select((value) {
+        final view = value.value;
+        final reason = view == null
+            ? null
+            : dailySlotText(view.daily, slotId)?.todayReason;
+        return reason == null || isBlankText(reason) ? null : reason;
+      });
 
   @override
   Future<void> reload(Ref ref) =>
