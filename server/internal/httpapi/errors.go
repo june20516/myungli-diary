@@ -78,7 +78,7 @@ var domainErrors = []domainError{
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
 // 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422), domainErrors 표, DB 연결 실패(503), 그 밖(500).
-// 프로필 저장 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
+// 프로필 저장과 음력 변환(핸들러가 직접 422로 바꿈) 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
 func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
 	if errors.Is(err, ErrNotImplemented) {
 		problem.Write(w, r, problem.NotImplemented.Problem("Not implemented"))

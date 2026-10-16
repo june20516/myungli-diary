@@ -2,7 +2,7 @@
 
 * 상태: 초안 (사용자 검토 대기)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
-* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클 `docs/business/cycles/2026-10-11-launch-payment.md`
+* 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클(비공개 기록 `business/cycles/2026-10-11-launch-payment.md`, D74)
 * server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다. 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위

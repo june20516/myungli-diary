@@ -109,6 +109,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	handler, err := newServer(settings, serverDeps{
 		Pool:   pool,
 		Charts: fortuneService,
+		Lunar:  engineClient,
 		Logger: logger,
 		Clock:  clock.System{},
 		HTTP:   newProviderHTTPClient(),
@@ -276,6 +277,8 @@ type serverDeps struct {
 	Pool *pgxpool.Pool
 	// Charts는 프로필 저장 때 출생 정보를 엔진으로 검증하는 의존성입니다(fortune.Service).
 	Charts profile.ChartChecker
+	// Lunar는 음력 변환 operation이 부르는 엔진입니다(engine.Client).
+	Lunar  httpapi.LunarConverter
 	Logger *slog.Logger
 	Clock  clock.Clock
 	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
@@ -351,6 +354,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Auth:     authService,
 		Accounts: accountService,
 		Profiles: profileService,
+		Lunar:    deps.Lunar,
 		DB:       deps.Pool,
 		Logger:   deps.Logger,
 		AppLink:  settings.appLink,
