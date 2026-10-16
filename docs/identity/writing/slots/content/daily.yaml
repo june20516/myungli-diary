@@ -16,7 +16,7 @@
   user_state: 앱을 연 직후 가장 먼저 읽습니다. 훑어보는 상태라 한 문장으로 그날을 알아야 합니다.
   structure: >-
     짧은 한 문장(W8). advice는 이유(선택, 토큰 가능)와 구체적인 행동 하나를 쓰고 "~해 보세요"로 맺습니다(W11).
-    state는 그날 일어나기 쉬운 일을 담백하게 말합니다. care는 그날의 마음을 짚고 특정 행동을 시키지 않습니다(W12).
+    state는 그날 일어나기 쉬운 일을 담백하게 말하고 호칭 덩어리(ko `{name}님, `, ja `{name}さん、`)로 시작합니다. en은 한 주 호칭 상한 때문에 호칭을 쓰지 않습니다(W28). care는 그날의 마음을 짚고 특정 행동을 시키지 않습니다(W12).
   types: [advice, state, care]
   depth:
     surface: 용어 토큰(W9 범주)을 이유 자리에 둘 수 있습니다. 화면 전체 최대 2개, 2개면 한 문장에 모읍니다.
@@ -83,7 +83,7 @@
   structure: 짧은 한 문장. 유형별 구조는 daily.fortune.head와 같습니다. 태그 이름을 토큰으로 쓸 수 있습니다.
   types: [advice, state, care]
   depth:
-    surface: 태그 이름을 토큰으로 둘 수 있습니다. 헤드라인과 합쳐 화면 최대 2개이고, 2개면 한 문장에 모읍니다.
+    surface: 용어 토큰을 쓰지 않습니다. 태그 이름은 태그 칩이 보여 줍니다(W28).
     explain: 태그의 뜻과 오늘 그런 이유는 풀이에서 씁니다.
   endings: ["advice: ~해 보세요", "state: ~날이에요", "care: 마음을 짚는 해요체"]
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
@@ -111,8 +111,8 @@
   co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, key: fortune.tag.dohwa, type: state, text: "[[도화]]가 들어 사람들의 눈길이 모이는 날이에요.", why: "토큰이 이유, 일어나는 일이 구체적", source: writing}
-      - {lang: ko, key: fortune.tag.yeokma, type: advice, text: "[[역마]]가 드니, 미뤄 둔 외출이나 이동을 오늘 해 보세요.", why: "토큰이 이유, 행동 하나", source: writing}
+      - {lang: ko, key: fortune.tag.dohwa, type: advice, text: "발표나 모임처럼 사람들 앞에 서는 일을 해 보세요.", why: "태그가 뜻하는 일을 행동 하나로, 토큰 없음(W28)", source: round-R9-4}
+      - {lang: ko, key: fortune.tag.gongmang, type: state, text: "벌인 일이 생각보다 더디게 풀리는 날이에요.", why: "부정 신호를 겁주지 않고 담백하게", source: round-R9-5}
     bad:
       - {lang: ko, key: fortune.tag.dohwa, type: state, text: "도화살 발동! 오늘은 인기 폭발이에요.", why: "들뜬 강조 slop.P8, 과장", source: writing}
   a11y:
@@ -296,7 +296,7 @@
     screen_reader: 시간 칩을 먼저, 문장을 다음에 읽습니다(app).
 
 - id: daily.tag_label
-  where: 오늘 화면 태그 이름 (해시태그 칩)
+  where: 태그 이름 칩(오늘 화면 행운 칩 줄의 대표 태그 D76, 일기 태그 칩)
   purpose: info
   user_state: 칩을 훑어보고 탭해서 풀이를 엽니다.
   structure: 명사구 하나. 태그 이름 그대로 쓰고 꾸밈말을 붙이지 않습니다.
@@ -306,7 +306,7 @@
   endings: []
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 10, en: 18, ja: 10}
-  components: [tag-chip]
+  components: [tag-chip, lucky-card]
   keys:
     - tag.big_change
     - tag.cheoneul_gwiin

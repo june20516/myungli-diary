@@ -51,7 +51,7 @@
 | daily.fortune.tag | today.fortune.body<br>preview.fortune.body | info | advice, state, care | 1 | 15 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 20 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
 | daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko 36, en 64, ja 36 |
-| daily.tag_label | 컴포넌트 tag-chip | info | - | 1 | 15 | - | ko 10, en 18, ja 10 |
+| daily.tag_label | 컴포넌트 tag-chip<br>컴포넌트 lucky-card | info | - | 1 | 15 | - | ko 10, en 18, ja 10 |
 | day-sheet.diary.open | day-sheet.diary.open | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
 | day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
@@ -142,9 +142,10 @@
 | share-preview.image.tagline | share-preview.image.tagline | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.ratio.label | share-preview.ratio.label | info | - | 1 | 3 | - | ko 8, en 13, ja 6 |
 | system.apple_return | system-apple-return.page.title<br>system-apple-return.page.body<br>system-apple-return.page.open<br>system-apple-return.page.install | guide | - | 1 | 4 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| system.notice | 컴포넌트 notice-banner | info | - | 1 | 7 | - | ko 52, en 90, ja 38 |
 | tag-diary.bar.title | tag-diary.bar.title | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
 | tag-diary.empty.body | tag-diary.empty.body | info | - | 1 | 1 | - | ko -, en -, ja - |
-| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>today.lucky-tag.body | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 2 | - | ko 23, en 42, ja 19 |

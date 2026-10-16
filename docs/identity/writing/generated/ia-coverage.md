@@ -70,6 +70,7 @@
 | today.lucky-direction.body | content | daily.direction |
 | today.lucky-number.body | content | daily.number |
 | today.lucky-time.body | content | daily.focus_time |
+| today.lucky-tag.body | content | term.meaning |
 | today.guide.question | content | daily.guide |
 | today.guide.cta | ui | today.guide.cta |
 | today.event.summary | ui | today.event.summary |

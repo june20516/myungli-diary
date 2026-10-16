@@ -28,6 +28,7 @@ IDENTIFIER_SLOTS = {
     "evidence.basis",
     "evidence.source",
     "system.apple_return",
+    "system.notice",
 }
 VALID_SLOT = """\
 - id: test.slot

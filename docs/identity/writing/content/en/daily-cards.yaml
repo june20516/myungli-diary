@@ -1,0 +1,78 @@
+# 오늘 화면 가이드 질문·행운 카드·태그 이름 원고(en). ko 원고(content/ko/daily.yaml, example.yaml)와 같은 정보를 en 화면에 맞게 옮긴 W1-1 초안이며, 원어민 검수 전입니다.
+# 행운 카드는 W7대로 색은 단순형, 방향은 쓰임새형, 숫자는 두 문장형입니다. 가이드 질문 변주 1은 권유형, 변주 2는 질문형입니다(W13).
+- {slot: daily.guide, key: guide.big_change, variant: 1, text: "How about writing down one thing that changed today?"}
+- {slot: daily.guide, key: guide.big_change, variant: 2, text: "When did today feel the most unfamiliar?"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "How about writing down who you felt grateful to today, and why?"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "Of the help you got today, what were you most grateful for?"}
+- {slot: daily.guide, key: guide.clash, variant: 1, text: "How about writing down one moment today that went unexpectedly?"}
+- {slot: daily.guide, key: guide.clash, variant: 2, text: "When opinions differed today, what did you say?"}
+- {slot: daily.guide, key: guide.dohwa, variant: 1, text: "How about writing down one person or scene that caught your eye?"}
+- {slot: daily.guide, key: guide.dohwa, variant: 2, text: "What did you hear today that stayed with you?"}
+- {slot: daily.guide, key: guide.gongmang, variant: 1, text: "How about writing down one thing that went differently than hoped?"}
+- {slot: daily.guide, key: guide.gongmang, variant: 2, text: "On a day things moved slowly, what was fine to let go of?"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "How about writing about one person you met today?"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "Who made you feel most at ease today?"}
+- {slot: daily.guide, key: guide.harmony, variant: 1, text: "How about writing down a conversation today where you clicked?"}
+- {slot: daily.guide, key: guide.harmony, variant: 2, text: "Who was good company for you today?"}
+- {slot: daily.guide, key: guide.hwagae, variant: 1, text: "How about writing down a thought you had while alone today?"}
+- {slot: daily.guide, key: guide.hwagae, variant: 2, text: "When did you feel calmest today?"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 1, text: "How about writing about a friend or coworker you spent time with?"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 2, text: "Who was on your side today?"}
+- {slot: daily.guide, key: guide.ten_god.siksang, variant: 1, text: "How about writing down one thing you said today that's worth keeping?"}
+- {slot: daily.guide, key: guide.ten_god.siksang, variant: 2, text: "What did you make or get done with your own hands today?"}
+- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 1, text: "How about noting one thing you spent money on and how it felt?"}
+- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 2, text: "What was the most satisfying thing you spent money on today?"}
+- {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 1, text: "How about writing down one task you finished today?"}
+- {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 2, text: "On a day full of to-dos, what did you finish first?"}
+- {slot: daily.guide, key: guide.ten_god.inseong, variant: 1, text: "How about writing down one new thing you learned today?"}
+- {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "What did you learn from someone today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 1, text: "How about writing down a view you wanted to hold on to today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "What did you stand firm on today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "How about writing down something you wanted to say but haven't yet?"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 2, text: "What did you most want to talk about today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "How about writing down one thing you wanted to have today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "When was money most on your mind today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 1, text: "How about writing down the heaviest task on your plate today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 2, text: "What kept you busiest today?"}
+- {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 1, text: "How about writing down a thought that stayed with you all day?"}
+- {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 2, text: "On a day full of thoughts, was there someone who came to mind?"}
+- {slot: daily.guide, key: guide.yeokma, variant: 1, text: "How about writing down one thing you saw on the go today?"}
+- {slot: daily.guide, key: guide.yeokma, variant: 2, text: "What was the farthest place you went today?"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "How about writing down one thing that went well today?"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "When did you feel proudest today?"}
+- {slot: daily.color, key: color.gisin_day, text: "Today, {element:color} suits you well."}
+- {slot: daily.color, key: color.gwiin_day, text: "Today, {element:color} suits you well."}
+- {slot: daily.color, key: color.ordinary_day, text: "Today, {element:color} suits you well."}
+- {slot: daily.color, key: color.yongsin_day, text: "Today, {element:color} suits you well."}
+- {slot: daily.direction, key: direction.day_kind.gisin, text: "If you need to head out today, {direction} is a good way to go."}
+- {slot: daily.direction, key: direction.day_kind.gwiin, text: "If you're choosing where to meet someone, {direction} is good."}
+- {slot: daily.direction, key: direction.day_kind.ordinary, text: "If you're picking a place to meet up, {direction} is good."}
+- {slot: daily.direction, key: direction.day_kind.yongsin, text: "If you're choosing somewhere new to go, {direction} suits you."}
+- {slot: daily.number, key: number.gisin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
+- {slot: daily.number, key: number.gwiin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
+- {slot: daily.number, key: number.ordinary_day, text: "{number} is a good fit today. Try it when picking a number or order."}
+- {slot: daily.number, key: number.yongsin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
+- {slot: daily.focus_time, key: focus_time.fallback, text: "This is a good time to focus today."}
+- {slot: daily.focus_time, key: focus_time.gwiin, text: "Asking for help tends to go well at this time."}
+- {slot: daily.focus_time, key: focus_time.hap, text: "This is a good time to meet people and talk."}
+- {slot: daily.focus_time, key: focus_time.huisin, text: "This is a good time to pick up tasks you've put off."}
+- {slot: daily.focus_time, key: focus_time.yongsin, text: "Important work tends to go well at this time."}
+- {slot: daily.tag_label, key: tag.big_change, text: "Big change"}
+- {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "Noble helper"}
+- {slot: daily.tag_label, key: tag.clash, text: "Clash"}
+- {slot: daily.tag_label, key: tag.dohwa, text: "Peach blossom"}
+- {slot: daily.tag_label, key: tag.gongmang, text: "Void"}
+- {slot: daily.tag_label, key: tag.gwiin_day, text: "Day of helpers"}
+- {slot: daily.tag_label, key: tag.harmony, text: "Harmony"}
+- {slot: daily.tag_label, key: tag.hwagae, text: "Canopy star"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.bigyeop, text: "Peer-heavy day"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.gwanseong, text: "Duty-heavy day"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.inseong, text: "Learning-heavy day"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.jaeseong, text: "Wealth-heavy day"}
+- {slot: daily.tag_label, key: tag.ten_god_rush.siksang, text: "Output-heavy day"}
+- {slot: daily.tag_label, key: tag.yeokma, text: "Traveling horse"}
+- {slot: daily.tag_label, key: tag.yongsin_day, text: "Day in your favor"}
+- {slot: daily.focus_reason, key: gwiin, text: "Helper time"}
+- {slot: daily.focus_reason, key: yongsin, text: "Favorable time"}
+- {slot: daily.focus_reason, key: huisin, text: "Supportive time"}
+- {slot: daily.focus_reason, key: hap, text: "Harmony time"}

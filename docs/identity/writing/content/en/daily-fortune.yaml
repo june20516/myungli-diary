@@ -1,0 +1,107 @@
+# 오늘 화면 총운(daily.fortune.head·tag) 원고(en). ko 원고(content/ko/daily.yaml)와 같은 정보를 옮긴 원어민 검수 전 초안입니다.
+# en은 호칭을 쓰지 않습니다(한 주 2번 상한). 용어 토큰은 로마자 표기이고, tag는 토큰을 쓰지 않습니다(W28).
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: advice, text: "With [[Bigyeop|ten_god_group.bigyeop]] coming in, do a stalled task with a friend."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: state, text: "You and the people around you work well together today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.bigyeop, type: care, text: "Knowing you're not alone feels reassuring today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: advice, text: "With [[Siksang|ten_god_group.siksang]] active, share your view first in a meeting."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: state, text: "What you say and write carries weight today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.siksang, type: care, text: "It's okay to say what you've wanted to say today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: advice, text: "With [[Jaeseong|ten_god_group.jaeseong]] active, sort out pending bills or quotes."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: state, text: "Your efforts are likely to bear fruit today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.jaeseong, type: care, text: "Seeing your effort pay off feels satisfying today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.gwanseong, type: advice, text: "If there's a task you want, raise your hand for it first."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.gwanseong, type: state, text: "Your work is likely to get recognized today."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.gwanseong, type: care, text: "You can feel sure you're doing your part well."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: advice, text: "If something is stuck, ask someone who knows it well."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: state, text: "When you ask for help today, it tends to come easily."}
+- {slot: daily.fortune.head, key: fortune.yongsin_day.inseong, type: care, text: "Having someone to lean on is a comfort today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.bigyeop, type: advice, text: "Reach out first to a friend you haven't seen in a while."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.bigyeop, type: state, text: "An old friend may be a real help today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.bigyeop, type: care, text: "You may be glad to see a familiar face today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.siksang, type: advice, text: "Share a new idea with someone who will listen."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.siksang, type: state, text: "Your ideas come across clearly today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.siksang, type: care, text: "It feels good to be understood today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.jaeseong, type: advice, text: "If you're buying something, ask someone who has used it."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.jaeseong, type: state, text: "Useful information tends to come your way today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.jaeseong, type: care, text: "You may feel thankful for the people looking out for you."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.gwanseong, type: advice, text: "Take a request you've held back to your manager today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.gwanseong, type: state, text: "Things with your seniors go smoothly today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.gwanseong, type: care, text: "It's reassuring that someone sees your hard work."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.inseong, type: advice, text: "Ask a mentor or teacher about something you've wondered."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.inseong, type: state, text: "Good advice is easy to come by today."}
+- {slot: daily.fortune.head, key: fortune.gwiin_day.inseong, type: care, text: "Having someone to learn from nearby feels steadying."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.bigyeop, type: advice, text: "If opinions clash, let the other person have this one."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.bigyeop, type: state, text: "You may clash with others over your share today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.bigyeop, type: care, text: "Feeling let down when plans don't go your way is natural."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: advice, text: "Reread important messages once more before sending them."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: state, text: "Words may come out faster than you mean today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: care, text: "Saying a little less may feel easier today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: advice, text: "If a big purchase is coming, wait a day and rethink it."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: state, text: "Spending tends to rise today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: care, text: "Money matters may weigh on your mind today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: advice, text: "If you can, move one thing on your schedule to tomorrow."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: state, text: "Tasks tend to pile up all at once today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: care, text: "It's a heavy day. It's okay not to get it all done."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: advice, text: "If you're overthinking, start with the smallest task."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: state, text: "With a lot on your mind, decisions may come slowly."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: care, text: "You can go easy on yourself for thinking so much."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.bigyeop, type: advice, text: "Work at your own pace instead of matching others."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.bigyeop, type: state, text: "Work you do on your own goes well today."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.bigyeop, type: care, text: "Going at your own pace is enough today."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.siksang, type: advice, text: "Do one hands-on thing, like cooking or tidying up."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.siksang, type: state, text: "It's a good day to put your thoughts into writing."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.siksang, type: care, text: "There's real joy in making something today."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.jaeseong, type: advice, text: "Take a moment to go over what you spent this month."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.jaeseong, type: state, text: "Household numbers tend to add up today."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.jaeseong, type: care, text: "Watching a small plan run smoothly feels satisfying."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.gwanseong, type: advice, text: "Keep one promise or deadline you've been putting off."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.gwanseong, type: state, text: "Sticking to your routine comes easily today."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.gwanseong, type: care, text: "Doing things as usual is already doing well."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: advice, text: "With [[Inseong|ten_god_group.inseong]] coming in, start that book or course."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: state, text: "With [[Inseong|ten_god_group.inseong]] coming in, it's a good day to learn."}
+- {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: care, text: "Finding out something new feels rewarding today."}
+- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: advice, text: "If there's a habit you've wanted to change, change one."}
+- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: state, text: "Your usual routine is likely to shift today."}
+- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: care, text: "Feeling a little unsettled today is understandable."}
+- {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: advice, text: "If you have a hard favor to ask, ask someone you trust."}
+- {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: state, text: "Help may come from somewhere unexpected today."}
+- {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: care, text: "You may feel relieved by an unexpected kindness today."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash, type: advice, text: "If you have plans, double-check the time and place."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash, type: state, text: "Plans may change or opinions may clash today."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash, type: care, text: "If things fall out of step, it isn't all on you."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "Take a turn in front of others, at a talk or a gathering."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "People's attention tends to turn toward you today."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "It's a nice flutter to feel someone sees you kindly."}
+- {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "Instead of starting something new, finish what you began."}
+- {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "Things you've started may move slower than expected."}
+- {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "If results take time, there's no need to hurry today."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: advice, text: "If you need help with something, ask for it first today."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "Someone who can help is close by when you need it."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "It's a relief to know you don't have to do it alone."}
+- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: advice, text: "Set a date for the contract or plan you've put off."}
+- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: state, text: "Talks and plans tend to come together today."}
+- {slot: daily.fortune.tag, key: fortune.tag.harmony, type: care, text: "It's good to have someone who gets you today."}
+- {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: advice, text: "Set aside some time alone for something you enjoy."}
+- {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: state, text: "Time alone feels easier than being in a crowd today."}
+- {slot: daily.fortune.tag, key: fortune.tag.hwagae, type: care, text: "Wanting some time to yourself is natural today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.bigyeop, type: advice, text: "Before you decide, hear out one other opinion."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.bigyeop, type: state, text: "You may want to push your own ideas through today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.bigyeop, type: care, text: "The urge to stand your ground runs strong today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.siksang, type: advice, text: "Words come easily today, so pick one point and make it."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.siksang, type: state, text: "Things to say and do tend to pour out all at once."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.siksang, type: care, text: "Your wish to express yourself runs high today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.jaeseong, type: advice, text: "If you want lots of things, leave them in the cart a day."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.jaeseong, type: state, text: "Your mind tends to drift toward money and results."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.jaeseong, type: care, text: "It's only human to want more than usual today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.gwanseong, type: advice, text: "If tasks pile up, pick just three that must get done."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.gwanseong, type: state, text: "Responsibilities and rules to follow tend to grow today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.gwanseong, type: care, text: "Your shoulders may feel heavier than usual today."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.inseong, type: advice, text: "If you're stuck in thought, start with a one-line note."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.inseong, type: state, text: "You may want to lean on others and think things over."}
+- {slot: daily.fortune.tag, key: fortune.tag.ten_god_rush.inseong, type: care, text: "You may want to rest and sort through your thoughts."}
+- {slot: daily.fortune.tag, key: fortune.tag.yeokma, type: advice, text: "Take the outing or trip you've been putting off today."}
+- {slot: daily.fortune.tag, key: fortune.tag.yeokma, type: state, text: "Errands and trips out tend to increase today."}
+- {slot: daily.fortune.tag, key: fortune.tag.yeokma, type: care, text: "You may feel like getting away somewhere today."}
+- {slot: daily.fortune.tag, key: fortune.tag.yongsin_day, type: advice, text: "If something important is waiting, start it first today."}
+- {slot: daily.fortune.tag, key: fortune.tag.yongsin_day, type: state, text: "What you take on tends to move along smoothly today."}
+- {slot: daily.fortune.tag, key: fortune.tag.yongsin_day, type: care, text: "You can trust yourself today."}
