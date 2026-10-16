@@ -4,9 +4,9 @@
 # 검사기의 `term_ids`와 같습니다(77개). server는 문장 조각의 `term`에 용어 id를 넣고, 풀이 시트는 이 문장을 엽니다.
 
 - id: term.meaning
-  where: 풀이 시트의 용어 뜻, 태그 모아보기의 태그 뜻
-  ia: [explain-sheet.term.meaning, tag-diary.tag.meaning]
-  select: "누른 토큰의 용어 id t → 키 term.<t>"
+  where: 풀이 시트의 용어 뜻, 태그 모아보기의 태그 뜻, 오늘 화면 대표 태그 칩을 눌렀을 때 스미는 뜻 한 줄(D76)
+  ia: [explain-sheet.term.meaning, tag-diary.tag.meaning, today.lucky-tag.body]
+  select: "누른 토큰의 용어 id t → 키 term.<t>. 오늘 화면 대표 태그 칩(D76)은 태그 키 f → term.<f>(태그 모아보기와 같은 원고, W29)"
   purpose: info
   user_state: 문장 속 용어나 태그를 눌러 무슨 뜻인지 봅니다.
   structure: 한두 문장. 용어를 일상어로 풀고, 사람이나 하루에서 어떻게 드러나는지 하나를 덧붙입니다. 괄호 풀이와 원리 설명은 쓰지 않습니다.
