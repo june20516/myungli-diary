@@ -72,6 +72,8 @@ func Apply(ctx context.Context, pool *pgxpool.Pool, s seed.Seed) (applied bool, 
 
 // Templates는 한 시드 버전·한 언어의 문장 틀 모음입니다. 만들어진 뒤 바뀌지 않아 동시에 읽어도 안전합니다.
 type Templates interface {
+	// Lang은 이 문장 틀 모음의 언어(ko, en, ja)입니다. 렌더 규칙(호칭 덩어리, 조사)이 언어마다 달라 렌더에 필요합니다.
+	Lang() string
 	// Body는 (slot, key, variant)의 원문을 돌려줍니다. 없으면 false입니다.
 	Body(slot, key, variant string) (string, bool)
 	// ValueName은 render.Names를 만족합니다.
@@ -84,8 +86,11 @@ type templateID struct{ slot, key, variant string }
 
 // templates는 Templates의 메모리 구현입니다.
 type templates struct {
+	lang   string
 	bodies map[templateID]string
 }
+
+func (t *templates) Lang() string { return t.lang }
 
 func (t *templates) Body(slot, key, variant string) (string, bool) {
 	body, ok := t.bodies[templateID{slot, key, variant}]
@@ -182,7 +187,7 @@ func (s *Store) load(ctx context.Context, key cacheKey) (*templates, error) {
 	if err != nil {
 		return nil, fmt.Errorf("문장 틀 조회: %w", err)
 	}
-	t := &templates{bodies: make(map[templateID]string, len(rows))}
+	t := &templates{lang: key.lang, bodies: make(map[templateID]string, len(rows))}
 	for _, r := range rows {
 		t.bodies[templateID{r.Slot, r.Key, r.Variant}] = r.Body
 	}
