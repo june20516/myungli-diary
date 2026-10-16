@@ -316,8 +316,8 @@ class _TodayBody extends ConsumerWidget {
 ///
 /// 요약은 `todayScheduleSummaryProvider`에서 받고, 분이 바뀌면 "다음"이 다시 골라집니다.
 /// 일정이 없거나 불러오지 못하면(요약 null) 줄도 간격도 그리지 않아 오늘의 다른 상태에
-/// 영향이 없습니다. 늦게 도착한 줄은 스며 나타나고, 사라질 때는 마지막 요약을 보이며
-/// 스며 사라집니다. 누르면 오늘 `day-sheet`를 엽니다.
+/// 영향이 없습니다. 화면을 연 뒤 도착한 줄은 스며 나타나고(열 때 이미 있으면 바로),
+/// 사라질 때는 마지막 요약을 보이며 스며 사라집니다. 누르면 오늘 `day-sheet`를 엽니다.
 class _TodayEventSummary extends ConsumerStatefulWidget {
   const new();
 
@@ -372,6 +372,8 @@ class _TodayEventSummaryState extends ConsumerState<_TodayEventSummary> {
     return SeepPresence(
       key: const ValueKey(SlotIds.todayEventSummary),
       present: summary != null,
+      // 화면을 열 때 이미 받아 둔 요약은 그대로 보이고, 연 뒤에 도착한 줄만 스밉니다.
+      animateInitial: false,
       onGone: () {
         if (mounted) setState(() => _shown = null);
       },

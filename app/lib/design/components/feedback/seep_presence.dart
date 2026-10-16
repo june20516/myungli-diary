@@ -6,12 +6,15 @@ import 'package:myungli_diary/design/interaction/patterns.dart';
 /// 사라진 뒤 자리를 비웁니다. 처음부터 false면 아무것도 그리지 않습니다.
 ///
 /// toast·notice-banner처럼 상태가 풀리면 저절로 사라지는 표시가 함께 씁니다.
+/// [animateInitial]이 false면 처음부터 [present]일 때 움직임 없이 다 나타난 상태로
+/// 시작합니다(화면을 열 때 이미 있던 값은 스미지 않고, 연 뒤에 생긴 값만 스밉니다).
 class SeepPresence extends StatefulWidget {
   /// 나타남·사라짐을 입힙니다. 사라짐이 끝나면 [onGone]이 불립니다.
   const new({
     required this.present,
     required this.child,
     this.onGone,
+    this.animateInitial = true,
     super.key,
   });
 
@@ -23,6 +26,9 @@ class SeepPresence extends StatefulWidget {
 
   /// 사라짐이 끝났을 때.
   final VoidCallback? onGone;
+
+  /// 처음부터 [present]일 때도 `appear.seep`으로 나타날지. false면 끝난 상태로 시작합니다.
+  final bool animateInitial;
 
   @override
   State<SeepPresence> createState() => _SeepPresenceState();
@@ -46,7 +52,13 @@ class _SeepPresenceState extends State<SeepPresence>
   @override
   void initState() {
     super.initState();
-    if (widget.present) _show();
+    if (!widget.present) return;
+    if (widget.animateInitial) {
+      _show();
+    } else {
+      _phase = _Phase.showing;
+      _in.value = 1;
+    }
   }
 
   @override

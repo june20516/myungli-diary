@@ -26,6 +26,7 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -609,10 +610,77 @@ void main() {
         tester.getBottomLeft(find.byType(LuckyCardRow)).dy,
         lessThanOrEqualTo(rowTop),
       );
+      // 줄과 가이드 카드 사이는 시안의 10에 맞춘 12입니다.
       expect(
-        tester.getBottomLeft(find.byType(EventRow)).dy,
-        lessThanOrEqualTo(tester.getTopLeft(find.byType(GuideQuestionCard)).dy),
+        tester.getTopLeft(find.byType(GuideQuestionCard)).dy -
+            tester.getBottomLeft(find.byType(EventRow)).dy,
+        closeTo(Space.s12, 0.5),
       );
+    });
+
+    testWidgets('화면을 열 때 이미 받아 둔 요약은 첫 프레임부터 스미지 않고 다 보입니다', (tester) async {
+      final daily = Completer<DailyView>();
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        allowOngoing: true,
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(() => daily.future),
+          ),
+        ],
+      );
+      // 오늘 내용을 붙잡아 둔 사이에 일정 요약을 먼저 받아 둡니다.
+      final held = container.listen(todayScheduleSummaryProvider, (_, _) {});
+      addTearDown(held.close);
+      await pumpUntil(
+        tester,
+        () => container.read(todayScheduleSummaryProvider) != null,
+        allowOngoing: true,
+      );
+
+      daily.complete(_view());
+      final presence = find.byKey(const ValueKey(SlotIds.todayEventSummary));
+      for (var i = 0; i < 20 && presence.evaluate().isEmpty; i++) {
+        await tester.pump();
+      }
+      expect(presence, findsOneWidget);
+      // 줄이 처음 그려진 프레임에 seep 투명도가 이미 끝(1)입니다.
+      final opacity = tester.widget<Opacity>(
+        find.descendant(of: presence, matching: find.byType(Opacity)).first,
+      );
+      expect(opacity.opacity, 1);
+    });
+
+    testWidgets('일정을 불러오지 못하면(503) 줄이 없고 today와 toast는 그대로입니다', (tester) async {
+      final daily = Completer<DailyView>();
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        allowOngoing: true,
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(() => daily.future),
+          ),
+        ],
+      );
+      // 줄은 오늘 내용 안에 있으므로 내용이 오기 전에 끼우면 첫 일정 요청부터 실패합니다.
+      final unavailable = _SchedulesUnavailable();
+      final interceptors = container.read(dioProvider).interceptors;
+      interceptors.insert(interceptors.length - 1, unavailable);
+
+      daily.complete(_view());
+      await _settleToday(tester);
+      await pumpUntil(tester, () => unavailable.calls > 0);
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(summaryRow(), findsNothing);
+      expect(find.byType(EventRow), findsNothing);
+      expect(find.byType(ErrorState), findsNothing);
+      expect(find.byType(ToastPill), findsNothing);
+      expect(_content, findsOneWidget);
+      expect(find.byType(LuckyCardRow), findsOneWidget);
+      expect(find.byType(GuideQuestionCard), findsOneWidget);
     });
 
     testWidgets('분이 지나면 "다음"이 바뀝니다', (tester) async {
@@ -674,4 +742,26 @@ void main() {
       expect(find.byType(GuideQuestionCard), findsOneWidget);
     });
   });
+}
+
+/// `/v1/schedules`에 503으로 답합니다.
+final class _SchedulesUnavailable extends Interceptor {
+  int calls = 0;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (!options.path.startsWith('/v1/schedules')) {
+      handler.next(options);
+      return;
+    }
+    calls++;
+    handler.reject(
+      DioException.badResponse(
+        statusCode: 503,
+        requestOptions: options,
+        response: Response<Object?>(requestOptions: options, statusCode: 503),
+      ),
+      true,
+    );
+  }
 }
