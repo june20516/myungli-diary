@@ -30,10 +30,8 @@ BAD_CONTENT = """\
 
 def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["check", str(CONTENT_DIR), "--partial"]) == 0
-    # 근거 슬롯 셋은 core 자료를 기다리는 키 없는 틀이라 경고만 남습니다.
-    lines = capsys.readouterr().out.splitlines()
-    assert len(lines) == 3
-    assert all(" slot.empty_keys warn " in line for line in lines)
+    # 근거 슬롯 키를 core 목록으로 채워 경고도 남지 않습니다(#130).
+    assert capsys.readouterr().out == ""
 
 
 def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -84,7 +82,7 @@ def test_cli_check_arb_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[
 
 def test_cli_missing_json_file_is_load_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     missing = tmp_path / "nothing.json"
-    for option in ("--message-keys", "--message-params", "--fixture"):
+    for option in ("--message-keys", "--message-params", "--evidence-rules", "--evidence-sources", "--fixture"):
         assert main(["check", str(CONTENT_DIR), "--partial", option, str(missing)]) == 2
         captured = capsys.readouterr()
         assert "Traceback" not in captured.out + captured.err
@@ -108,6 +106,9 @@ def test_cli_broken_json_file_is_load_error(tmp_path: Path, capsys: pytest.Captu
         ("--message-keys", wrong_shape),
         ("--message-params", params_list),
         ("--message-params", params_values),
+        ("--evidence-rules", params_list),
+        ("--evidence-rules", params_values),
+        ("--evidence-sources", params_list),
     )
     for option, path in cases:
         assert main(["check", str(CONTENT_DIR), "--partial", option, str(path)]) == 2
@@ -115,6 +116,15 @@ def test_cli_broken_json_file_is_load_error(tmp_path: Path, capsys: pytest.Captu
         assert "Traceback" not in captured.out + captured.err
         assert FINDING_LINE.match(captured.out.splitlines()[0])
         assert "load.json" in captured.out
+
+
+def test_cli_check_compares_evidence_slots_with_core(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    rules = tmp_path / "rules.json"
+    rules.write_text('{"only/rule": ["value"]}', encoding="utf-8")
+    assert main(["check", str(CONTENT_DIR), "--partial", "--evidence-rules", str(rules)]) == 1
+    out = capsys.readouterr().out
+    assert "evidence.missing_ref" in out
+    assert "evidence.unknown_ref" in out
 
 
 DAY = {

@@ -177,20 +177,24 @@
 
 # 기준 경도와 보정 분은 app이 프로필의 출생 시간대·도시에서 넣습니다(D42·D71): 한국 127.5° −30분, 일본 135° 보정 없음, 도시를 고르면 그 도시 경도.
 # 본문 키는 보정 방향(Subtract·Add·None)으로 고르고, {longitude}에는 East·West 키로 만든 경도 표기를 넣습니다.
-# calcBasisLongitudeBody(127.5° 고정)는 app이 새 키로 옮겼다고 보고할 때까지 남깁니다(docs/workflow.md §5.1).
+# 서머타임 기간 출생은 Dst 키를 씁니다(#214). 엔진이 서머타임 분({dstMinutes}, 대개 60)을 먼저 빼고 경도 보정을 합니다.
+# 옛 키 calcBasisLongitudeBody(127.5° 고정)는 app이 옮긴 뒤 지웠습니다(#184).
 - id: calc-basis.longitude.body
   where: "계산 기준 화면(calc-basis): 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내, 진태양시 미적용"
   purpose: info
   user_state: "다른 만세력 앱과 시주가 달라 이유를 찾습니다(D42·D71)."
-  structure: "세 문장. 기준 경도와 보정, 진태양시를 쓰지 않는다는 것, 결과(경계 몇 분 안에서 달라질 수 있음)를 말합니다. 경도 표기 키는 경도 하나입니다. 지운 content 슬롯 settings.calculation_basis를 옮겼습니다."
+  structure: "세 문장. 기준 경도와 보정(서머타임 기간 출생은 서머타임 분을 먼저 뺀다는 것도), 진태양시를 쓰지 않는다는 것, 결과(경계 몇 분 안에서 달라질 수 있음)를 말합니다. 경도 표기 키는 경도 하나입니다. 지운 content 슬롯 settings.calculation_basis를 옮겼습니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 120, en: 216, ja: 120}
   keys:
-    - calcBasisLongitudeBody
     - params: {longitude: text, minutes: number}
       keys: [calcBasisLongitudeBodySubtract, calcBasisLongitudeBodyAdd]
     - params: {longitude: text}
       keys: [calcBasisLongitudeBodyNone]
+    - params: {longitude: text, minutes: number, dstMinutes: number}
+      keys: [calcBasisLongitudeBodyDstSubtract, calcBasisLongitudeBodyDstAdd]
+    - params: {longitude: text, dstMinutes: number}
+      keys: [calcBasisLongitudeBodyDstNone]
     - params: {degrees: text}
       keys: [calcBasisLongitudeBodyEast, calcBasisLongitudeBodyWest]
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -198,6 +202,7 @@
     good:
       - {lang: ko, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "엔진 계산 순서(서머타임 → 경도 보정)를 그대로 말함(#214)", source: writing}
       - {lang: ko, key: calcBasisLongitudeBodyEast, text: "동경 {degrees}°", why: "경도 표기", source: writing}
     bad:
       - {lang: ko, text: "정확한 계산을 위해 최선을 다하고 있어요.", why: "무엇을 했는지 말하지 않음 slop.P1, 자기 성격 형용 slop.P6", source: writing}

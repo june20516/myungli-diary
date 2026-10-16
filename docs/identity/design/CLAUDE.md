@@ -30,7 +30,8 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-15, design 세션 작성)
+## 현재 상태 (2026-10-16, design 세션 작성)
+* **app 질문 #195·#211** (브랜치 `design/app-questions`): `city-search` 고른 뒤 저장 중 `saving`(고른 줄 끝 점 숨쉬기, 결정 V34), 지역 구분자 `region.join`(ja `、`), `input-step` `preface` 간격 `space.24`, `skeleton` 글줄 `type`, 안내 글 본문 레이아웃(`frame.md`, IA 컴포넌트 아님).
 * **구현 대응·IA v3·글자 수 상한** (브랜치 `design/spec-followups`, Issue #118·#142·#154·#159·#131).
   * app 구현 차이 판단을 명세에 확정: 링크 화살표는 아이콘 `caret-right`로 컴포넌트가 그림, 고정 높이는 최소 높이, `dialog` `notice`, `segmented` `none`, 윤달 대체 모양, 탭 아이콘, 시간 형식, 근거 시트 빈 구역 생략, 요소 값 3개.
   * IA v3: 출생지 → 계산 기준 링크 `depth-link` `navigate`(슬롯 `birthplace.standard.link`).

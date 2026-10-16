@@ -41,6 +41,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 * 쓰는 화면: launch, 그리고 IA `loading` 상태가 있는 모든 화면
 * 실제 올 요소와 같은 자리·크기·반경의 `skeleton.bone`이 `loading.breathe`로 숨쉽니다(줄마다 150ms 어긋남).
+* 글줄 skeleton의 줄 높이는 실제 올 글자 스타일을 따릅니다(`textLine.type`, 기본 `type.body.ui`). 예: 문장 본문 자리는 `type.sentence.body`.
 * 300ms 안에 끝나는 불러오기에는 보이지 않습니다. 내용이 오면 내용이 `appear.seep`으로 나타납니다.
 
 ## empty-state · error-state

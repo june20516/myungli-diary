@@ -1,6 +1,10 @@
 {
   "@@locale": "ko",
   "@@x-generated": "mlw gen-docs로 생성. 직접 고치지 않습니다 (원본 docs/identity/writing/content/<lang>/ui.yaml, glossary.yaml)",
+  "accountDeleteBarTitle": "계정 삭제",
+  "@accountDeleteBarTitle": {
+    "description": "account-delete.bar.title: app-bar 제목(화면 이름 \"계정 삭제\")"
+  },
   "accountDeleteCtaDelete": "계정 지우기",
   "@accountDeleteCtaDelete": {
     "description": "account-delete.cta.delete: 계정 삭제 버튼"
@@ -24,6 +28,10 @@
   "accountDeleteTitleHead": "계정 삭제",
   "@accountDeleteTitleHead": {
     "description": "account-delete.title.head: 계정 삭제 제목"
+  },
+  "adFreeBarTitle": "광고 제거",
+  "@adFreeBarTitle": {
+    "description": "ad-free.bar.title: app-bar 제목(화면 이름 \"광고 제거\")"
   },
   "adFreeLegalNotice": "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.",
   "@adFreeLegalNotice": {
@@ -55,6 +63,10 @@
       }
     }
   },
+  "birthplaceBarTitle": "출생지",
+  "@birthplaceBarTitle": {
+    "description": "birthplace.bar.title: app-bar 제목(화면 이름 \"출생지\")"
+  },
   "birthplaceEmptyBody": "찾는 도시가 없어요. 가까운 큰 도시로 찾아보세요.",
   "@birthplaceEmptyBody": {
     "description": "birthplace.empty.body: 결과가 없을 때 안내"
@@ -79,13 +91,13 @@
   "@birthplaceWhyBody": {
     "description": "birthplace.why.body: 출생지가 필요한 이유"
   },
+  "calcBasisBarTitle": "계산 기준",
+  "@calcBasisBarTitle": {
+    "description": "calc-basis.bar.title: app-bar 제목(화면 이름 \"계산 기준\")"
+  },
   "calcBasisConventionBody": "명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.",
   "@calcBasisConventionBody": {
     "description": "calc-basis.convention.body: 한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)"
-  },
-  "calcBasisLongitudeBody": "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
-  "@calcBasisLongitudeBody": {
-    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용"
   },
   "calcBasisLongitudeBodySubtract": "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
   "@calcBasisLongitudeBodySubtract": {
@@ -120,6 +132,48 @@
       }
     }
   },
+  "calcBasisLongitudeBodyDstSubtract": "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyDstSubtract": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "dstMinutes": {
+        "type": "int"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyDstAdd": "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyDstAdd": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "dstMinutes": {
+        "type": "int"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyDstNone": "출생 시각은 서머타임 {dstMinutes}분만 빼고 계산해요. {longitude} 기준이라 경도 보정은 따로 하지 않아요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyDstNone": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "dstMinutes": {
+        "type": "int"
+      }
+    }
+  },
   "calcBasisLongitudeBodyEast": "동경 {degrees}°",
   "@calcBasisLongitudeBodyEast": {
     "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
@@ -146,6 +200,10 @@
   "@calcBasisSchoolsBody": {
     "description": "calc-basis.schools.body: 다른 유파·나라 관례와 다른 점: 지장간을 모두 표시, 자시 통합(D6). 다르게 나올 수 있는 이유로 설명합니다(D71)"
   },
+  "calendarBarTitle": "달력",
+  "@calendarBarTitle": {
+    "description": "calendar.bar.title: app-bar 제목(화면 이름 \"달력\")"
+  },
   "calendarLegendBodyGood": "잘 풀리는 날",
   "@calendarLegendBodyGood": {
     "description": "calendar.legend.body: 점 색의 뜻"
@@ -153,6 +211,10 @@
   "calendarLegendBodyCaution": "조심할 날",
   "@calendarLegendBodyCaution": {
     "description": "calendar.legend.body: 점 색의 뜻"
+  },
+  "consentBarTitle": "약관 동의",
+  "@consentBarTitle": {
+    "description": "consent.bar.title: app-bar 제목(화면 이름 \"약관 동의\")"
   },
   "consentCtaAgree": "동의하고 계속하기",
   "@consentCtaAgree": {
@@ -186,6 +248,10 @@
   "@daySheetEventEmpty": {
     "description": "day-sheet.event.empty: 일정이 없을 때 안내"
   },
+  "diaryEditBarTitle": "일기 쓰기",
+  "@diaryEditBarTitle": {
+    "description": "diary-edit.bar.title: app-bar 제목(화면 이름 \"일기 쓰기\")"
+  },
   "diaryEditBodyPlaceholder": "오늘 있었던 일을 적어 보세요",
   "@diaryEditBodyPlaceholder": {
     "description": "diary-edit.body.placeholder: 본문 입력칸 안내"
@@ -210,6 +276,10 @@
   "@diaryEditSavedTags": {
     "description": "diary-edit.saved.tags: 저장 뒤 붙은 태그 알림"
   },
+  "diaryListBarTitle": "일기",
+  "@diaryListBarTitle": {
+    "description": "diary-list.bar.title: app-bar 제목(화면 이름 \"일기 목록\")"
+  },
   "diaryListEmptyBody": "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?",
   "@diaryListEmptyBody": {
     "description": "diary-list.empty.body: 쓴 일기가 없을 때 안내"
@@ -217,6 +287,15 @@
   "diaryListPickDateCta": "날짜 골라 쓰기",
   "@diaryListPickDateCta": {
     "description": "diary-list.pick-date.cta: 날짜 골라 쓰기 버튼"
+  },
+  "diaryViewBarTitle": "{date}의 일기",
+  "@diaryViewBarTitle": {
+    "description": "diary-view.bar.title: app-bar 제목. 일기 날짜를 넣는 틀입니다(매개변수 date)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "diaryViewDeleteConfirm": "이 일기를 지울까요? 지우면 되돌릴 수 없어요.",
   "@diaryViewDeleteConfirm": {
@@ -229,6 +308,10 @@
   "diaryViewDeleteConfirmCancel": "취소",
   "@diaryViewDeleteConfirmCancel": {
     "description": "diary-view.delete.confirm: 일기 삭제 확인"
+  },
+  "eventEditBarTitle": "일정",
+  "@eventEditBarTitle": {
+    "description": "event-edit.bar.title: app-bar 제목(화면 이름 \"일정 편집\")"
   },
   "eventEditDeleteConfirm": "이 일정을 지울까요?",
   "@eventEditDeleteConfirm": {
@@ -314,6 +397,14 @@
   "@forceUpdateNoticeHead": {
     "description": "force-update.notice.head: 업데이트가 필요하다는 제목"
   },
+  "legalBarTitle": "약관·정책",
+  "@legalBarTitle": {
+    "description": "legal.bar.title: app-bar 제목(화면 이름 \"약관·정책\")"
+  },
+  "loginBarTitle": "로그인",
+  "@loginBarTitle": {
+    "description": "login.bar.title: app-bar 제목(화면 이름 \"로그인\")"
+  },
   "loginDiscardNotice": "이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.",
   "@loginDiscardNotice": {
     "description": "login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
@@ -325,6 +416,14 @@
   "loginTitleHead": "로그인하고 풀이를 저장해요",
   "@loginTitleHead": {
     "description": "login.title.head: 로그인 제목"
+  },
+  "mySajuBarTitle": "나의 사주",
+  "@mySajuBarTitle": {
+    "description": "my-saju.bar.title: app-bar 제목(화면 이름 \"나의 사주\")"
+  },
+  "notifyAskBarTitle": "알림",
+  "@notifyAskBarTitle": {
+    "description": "notify-ask.bar.title: app-bar 제목(화면 이름 \"알림 허락\")"
   },
   "notifyAskCtaAllow": "알림 받기",
   "@notifyAskCtaAllow": {
@@ -342,6 +441,10 @@
   "@notifyAskWhyBody": {
     "description": "notify-ask.why.body: 아침 알림이 주는 것"
   },
+  "onboardBirthBarTitle": "생일",
+  "@onboardBirthBarTitle": {
+    "description": "onboard-birth.bar.title: app-bar 제목(화면 이름 \"생일\")"
+  },
   "onboardBirthBasisNote": "한국에서 태어난 것을 기준으로 계산해요.",
   "@onboardBirthBasisNote": {
     "description": "onboard-birth.basis.note: 한국 출생 기준으로 계산한다는 안내"
@@ -358,6 +461,10 @@
   "@onboardBirthQuestionHead": {
     "description": "onboard-birth.question.head: 생일을 묻는 질문"
   },
+  "onboardCallBarTitle": "호칭",
+  "@onboardCallBarTitle": {
+    "description": "onboard-call.bar.title: app-bar 제목(화면 이름 \"호칭\")"
+  },
   "onboardCallInputHint": "예: 민지",
   "@onboardCallInputHint": {
     "description": "onboard-call.input.hint: 입력칸 예시"
@@ -370,6 +477,10 @@
   "@onboardCallQuestionHead": {
     "description": "onboard-call.question.head: 호칭을 묻는 질문"
   },
+  "onboardGenderBarTitle": "성별",
+  "@onboardGenderBarTitle": {
+    "description": "onboard-gender.bar.title: app-bar 제목(화면 이름 \"성별\")"
+  },
   "onboardGenderQuestionHead": "성별이 어떻게 되나요?",
   "@onboardGenderQuestionHead": {
     "description": "onboard-gender.question.head: 성별을 묻는 질문"
@@ -377,6 +488,10 @@
   "onboardGenderWhyBody": "대운이 흐르는 방향을 정할 때만 써요.",
   "@onboardGenderWhyBody": {
     "description": "onboard-gender.why.body: 대운 방향 계산에 쓴다는 이유"
+  },
+  "onboardTimeBarTitle": "태어난 시간",
+  "@onboardTimeBarTitle": {
+    "description": "onboard-time.bar.title: app-bar 제목(화면 이름 \"태어난 시간\")"
   },
   "onboardTimeHourConfirm": "{branch}시, {start}~{end}에 태어났어요.",
   "@onboardTimeHourConfirm": {
@@ -401,6 +516,10 @@
   "@onboardTimeUnknownNote": {
     "description": "onboard-time.unknown.note: 3주로 계산한다는 안내"
   },
+  "previewBarTitle": "첫 풀이",
+  "@previewBarTitle": {
+    "description": "preview.bar.title: app-bar 제목(화면 이름 \"첫 풀이\")"
+  },
   "previewCtaRestart": "다시 입력하기",
   "@previewCtaRestart": {
     "description": "preview.cta.restart: 다시 입력 링크"
@@ -420,6 +539,10 @@
   "previewShareLoginNoticeCancel": "닫기",
   "@previewShareLoginNoticeCancel": {
     "description": "preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창"
+  },
+  "profileEditBarTitle": "정보 수정",
+  "@profileEditBarTitle": {
+    "description": "profile-edit.bar.title: app-bar 제목(화면 이름 \"정보 수정\")"
   },
   "profileEditRecalcConfirmTitle": "정보를 바꿀까요?",
   "@profileEditRecalcConfirmTitle": {
@@ -449,6 +572,10 @@
   "@profileEditRecalcNotice": {
     "description": "profile-edit.recalc.notice: 바꾸면 풀이를 다시 계산한다는 안내"
   },
+  "sajuChartBarTitle": "사주 표",
+  "@sajuChartBarTitle": {
+    "description": "saju-chart.bar.title: app-bar 제목(화면 이름 \"사주 표\")"
+  },
   "sajuChartTimeUnknownNotice": "태어난 시간을 몰라 시주는 빼고 보여 드려요.",
   "@sajuChartTimeUnknownNotice": {
     "description": "saju-chart.time-unknown.notice: 시간 모름으로 시주가 빠졌다는 안내"
@@ -473,6 +600,10 @@
         "type": "String"
       }
     }
+  },
+  "settingsBarTitle": "설정",
+  "@settingsBarTitle": {
+    "description": "settings.bar.title: app-bar 제목(화면 이름 \"설정\")"
   },
   "settingsDepthDesc": "풀이를 처음에 어디까지 펼쳐 볼지 골라요.",
   "@settingsDepthDesc": {
@@ -522,9 +653,22 @@
   "@sharePreviewRatioLabelSquare": {
     "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
   },
+  "tagDiaryBarTitle": "{tag} 태그",
+  "@tagDiaryBarTitle": {
+    "description": "tag-diary.bar.title: app-bar 제목. 고른 태그 이름을 넣는 틀입니다(매개변수 tag)",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
   "tagDiaryEmptyBody": "이 태그가 붙은 일기가 아직 없어요.",
   "@tagDiaryEmptyBody": {
     "description": "tag-diary.empty.body: 일기가 없을 때 안내"
+  },
+  "todayBarTitle": "오늘",
+  "@todayBarTitle": {
+    "description": "today.bar.title: app-bar 제목(화면 이름 \"오늘\")"
   },
   "todayEventSummary": "오늘 일정 {count}개 · {title}",
   "@todayEventSummary": {

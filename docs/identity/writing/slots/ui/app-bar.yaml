@@ -1,0 +1,463 @@
+# 화면 문구 슬롯: app-bar 제목(IA v3 PR #205, drift #207)
+#
+# id는 IA 슬롯 id 그대로입니다(슬롯 명세 v1.1). keys는 ARB 메시지 이름입니다(#90, 검사기 ia.key_name).
+# 제목은 그 화면으로 들어가는 탭·설정 항목·링크 이름과 같은 말을 씁니다(예: 탭 "오늘" → 제목 "오늘").
+# 원고는 content/<lang>/ui.yaml이고, mlw gen-docs가 generated/arb/app_<lang>.arb를 만듭니다.
+
+- id: onboard-call.bar.title
+  where: "호칭 입력 화면(onboard-call): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - onboardCallBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: onboardCallBarTitle, text: "호칭", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: onboard-birth.bar.title
+  where: "생일 입력 화면(onboard-birth): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - onboardBirthBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: onboardBirthBarTitle, text: "생일", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: onboard-time.bar.title
+  where: "태어난 시간 입력 화면(onboard-time): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - onboardTimeBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: onboardTimeBarTitle, text: "태어난 시간", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: onboard-gender.bar.title
+  where: "성별 입력 화면(onboard-gender): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - onboardGenderBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: onboardGenderBarTitle, text: "성별", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: birthplace.bar.title
+  where: "출생지 화면(birthplace): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - birthplaceBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: birthplaceBarTitle, text: "출생지", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: preview.bar.title
+  where: "첫 풀이 화면(preview): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - previewBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: previewBarTitle, text: "첫 풀이", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: login.bar.title
+  where: "로그인 화면(login): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - loginBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: loginBarTitle, text: "로그인", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: consent.bar.title
+  where: "약관 동의 화면(consent): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - consentBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: consentBarTitle, text: "약관 동의", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: notify-ask.bar.title
+  where: "알림 허락 화면(notify-ask): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - notifyAskBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: notifyAskBarTitle, text: "알림", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: today.bar.title
+  where: "오늘 화면(today): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayBarTitle, text: "오늘", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: calendar.bar.title
+  where: "달력 화면(calendar): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - calendarBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calendarBarTitle, text: "달력", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: event-edit.bar.title
+  where: "일정 편집 화면(event-edit): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - eventEditBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventEditBarTitle, text: "일정", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: diary-list.bar.title
+  where: "일기 목록 화면(diary-list): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - diaryListBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryListBarTitle, text: "일기", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: diary-edit.bar.title
+  where: "일기 쓰기 화면(diary-edit): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - diaryEditBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryEditBarTitle, text: "일기 쓰기", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: diary-view.bar.title
+  where: "일기 보기 화면(diary-view): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 틀. {date}에 app이 만든 날짜 문자열을 넣습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {date: text}
+      keys: [diaryViewBarTitle]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryViewBarTitle, text: "{date}의 일기", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: tag-diary.bar.title
+  where: "태그별 일기 화면(tag-diary): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 틀. {tag}에 app이 만든 태그 이름 문자열을 넣습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {tag: text}
+      keys: [tagDiaryBarTitle]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: tagDiaryBarTitle, text: "{tag} 태그", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: my-saju.bar.title
+  where: "나의 사주 화면(my-saju): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuBarTitle, text: "나의 사주", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: saju-chart.bar.title
+  where: "사주 표 화면(saju-chart): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuChartBarTitle, text: "사주 표", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: settings.bar.title
+  where: "설정 화면(settings): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - settingsBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: settingsBarTitle, text: "설정", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: ad-free.bar.title
+  where: "광고 제거 화면(ad-free): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - adFreeBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: adFreeBarTitle, text: "광고 제거", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: profile-edit.bar.title
+  where: "정보 수정 화면(profile-edit): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - profileEditBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: profileEditBarTitle, text: "정보 수정", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: calc-basis.bar.title
+  where: "계산 기준 화면(calc-basis): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - calcBasisBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calcBasisBarTitle, text: "계산 기준", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: account-delete.bar.title
+  where: "계정 삭제 화면(account-delete): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - accountDeleteBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountDeleteBarTitle, text: "계정 삭제", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: legal.bar.title
+  where: "약관·정책 화면(legal): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - legalBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: legalBarTitle, text: "약관·정책", why: "들어오는 곳의 이름과 같은 말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."

@@ -1,5 +1,5 @@
 {
-  "version": "2.3.0",
+  "version": "2.4.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -100,7 +100,7 @@
       "uses": ["skeleton.bone", "loading.breathe"],
       "parts": {
         "bone": { "color": "{color.skeleton.bone}", "shape": "same-as-content" },
-        "textLine": { "height": "글자 줄 높이의 60%", "radius": "{radius.xs}", "lastLineWidth": "60%" }
+        "textLine": { "type": { "default": "{type.body.ui}", "rule": "실제 올 글자 스타일" }, "height": "글자 줄 높이의 60%", "radius": "{radius.xs}", "lastLineWidth": "60%" }
       },
       "states": { "loading": { "pattern": "loading.breathe", "note": "줄마다 150ms 어긋남" } },
       "haptic": [],
