@@ -3,6 +3,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/elements/term_mark.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -13,7 +14,7 @@ const AppGlyph _heart = AppGlyph(
   regular: PhosphorIconsRegular.heart,
 );
 
-/// 요소 카탈로그: seal, icon, skeleton.bone, term, lock.veil.
+/// 요소 카탈로그: seal, icon, skeleton.bone, term, lock.veil, tag.status.
 final WidgetbookFolder elementsDirectory = WidgetbookFolder(
   name: '요소',
   children: [
@@ -128,6 +129,26 @@ final WidgetbookFolder elementsDirectory = WidgetbookFolder(
                 semanticLabel: '판정 근거, 잠김',
                 lengthHint: 60,
               ),
+            ),
+          ),
+        ),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'tag.status',
+      useCases: [
+        WidgetbookUseCase(
+          name: '진행 중·다음·지금·올해',
+          builder: (context) => const Stage(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                StatusTag('진행 중'),
+                StatusTag('다음'),
+                StatusTag('지금'),
+                StatusTag('올해'),
+              ],
             ),
           ),
         ),

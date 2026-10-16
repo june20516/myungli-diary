@@ -7,11 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -228,6 +230,32 @@ void main() {
       );
       final container = _map(_map(disabled['parts'])['container']);
       expect(_num(container['opacity']), SocialLoginButton.disabledOpacity);
+    });
+    test('event-row list 시각 칸·최소 높이·구분선·화살표가 명세와 같습니다', () {
+      final variants = (specs['event-row']!['variants']! as List<Object?>).map(
+        _map,
+      );
+      final list = _map(variants.firstWhere((v) => v['id'] == 'list')['parts']);
+      expect(_px(_map(list['timeColumn'])['width']), EventRow.timeColumnWidth);
+      final row = _map(list['row']);
+      expect(_px(row['minHeight']), EventRow.minHeight);
+      expect(_px(_map(row['divider'])['width']), EventRow.dividerWidth);
+      final chevron = _map(list['chevron']);
+      expect(chevron['icon'], 'caret-right');
+      expect(chevron['weight'], 'light');
+      expect(_px(chevron['size']), AppIconSize.inline.logical);
+      expect(
+        _num(_map(specs['event-row']!['a11y'])['minTarget']),
+        EventRow.minHeight,
+      );
+    });
+
+    test('tag.status 여백이 명세와 같습니다', () {
+      final padding = _map(_map(_elements()['tag.status'])['padding']);
+      expect(_px(padding['x']), StatusTag.padding.left);
+      expect(_px(padding['x']), StatusTag.padding.right);
+      expect(_px(padding['y']), StatusTag.padding.top);
+      expect(_px(padding['y']), StatusTag.padding.bottom);
     });
   });
 
