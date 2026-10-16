@@ -152,8 +152,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   /// 근거를 담은 응답.
   final EvidenceSubject subject;
 
-  /// 이벤트 통로. notifier는 다시 build되어도 같은 인스턴스이므로 닫지 않고 이어 씁니다.
-  /// 버려진 뒤에는 [_emit]이 내보내지 않습니다.
+  /// 이벤트 통로. 다시 build(invalidate)되어도 notifier는 같은 인스턴스라 이어 쓰고, 시트가
+  /// 닫혀 정말 버려졌을 때만 닫습니다([build]의 onDispose). 닫힌 뒤에는 [_emit]이 내보내지 않습니다.
   final _events = StreamController<UnlockEvent>.broadcast();
 
   /// 미리 불러 둔 광고. 한 번 보이면 버립니다.
@@ -176,10 +176,19 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
 
   @override
   EvidenceUnlockState build() {
+    final container = ref.container;
+    final self = evidenceUnlockControllerProvider(subject);
     ref
       ..onDispose(() {
         _stopGrant(_GrantStop.cancelled);
         _ad = null;
+        // onDispose는 다시 build될 때도 불립니다. 정리가 끝난 뒤에도 container에 남아 있으면
+        // 다시 build된 것이므로 통로를 이어 쓰고, 사라졌으면 버려진 것이므로 닫습니다.
+        scheduleMicrotask(() {
+          if (!container.exists(self)) {
+            unawaited(_events.close());
+          }
+        });
       })
       ..listen(subject.access, _onAccess);
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
@@ -455,7 +464,7 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   }
 
   void _emit(Ref flow, UnlockEvent event) {
-    if (flow.mounted) {
+    if (flow.mounted && !_events.isClosed) {
       _events.add(event);
     }
   }

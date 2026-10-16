@@ -336,6 +336,25 @@ void main() {
       expect(ads.rewardedUserIds, isEmpty, reason: '열려 있으면 광고를 불러 두지 않습니다');
     });
 
+    testWidgets('시트가 닫혀 버려지면 이벤트 통로를 닫습니다', (tester) async {
+      final container = await _boot(tester);
+      final opened = _open(container);
+      var closed = false;
+      final done = container
+          .read(_provider.notifier)
+          .events
+          .listen(null, onDone: () => closed = true);
+      addTearDown(done.cancel);
+      await _prepared(tester, container);
+      expect(closed, isFalse);
+
+      opened.subscription.close();
+      await _spin(tester);
+
+      expect(container.exists(_provider), isFalse);
+      expect(closed, isTrue);
+    });
+
     testWidgets('locked이고 광고가 없으면 lockedNoAd', (tester) async {
       final container = await _boot(tester, scenario: 'reward-unavailable');
       _open(container);
