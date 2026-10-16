@@ -20,7 +20,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: character.reason.gwiin_day, text: "도와주는 사람이 곁에 오는 날이에요.", why: "귀인을 일상어로", source: writing}
+      - {lang: ko, key: character.reason.gwiin_day, text: "누군가의 도움을 받기 쉬운 날이에요.", why: "귀인을 일상어로, 무엇이 달라지는지 구체적", source: writing}
       - {lang: ko, key: character.reason.gisin_day, text: "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.", why: "겁주지 않는 조심", source: writing}
     bad:
       - {lang: ko, key: character.reason.gisin_day, text: "불운이 따르는 흉한 날이에요.", why: "겁주기", source: writing}
