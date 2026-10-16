@@ -1,0 +1,25 @@
+# 명식(chart) 원고(en). ko 원고(content/ko/chart.yaml)와 같은 정보를 en 화면에 맞게 쓴 W1-2 초안이며, 원어민 검수 전입니다.
+- {slot: chart.yongsin_method, key: yongsin.method.eokbu, text: "We chose your [[Yongsin|role.yongsin]] by easing the energy that runs over and filling in what's lacking."}
+- {slot: chart.yongsin_method, key: yongsin.method.johu, text: "Your birth season runs notably hot or cold, so your [[Yongsin|role.yongsin]] is the element that evens it out."}
+- {slot: chart.yongsin_method, key: yongsin.method.johu_neutral, text: "Your energies don't lean one way, so your [[Yongsin|role.yongsin]] is the element that evens out your birth season's climate."}
+- {slot: chart.ilgan_head, key: ilgan.head.gap, text: "{name}, you're like a tall tree growing straight up."}
+- {slot: chart.ilgan_head, key: ilgan.head.eul, text: "{name}, you're like a wildflower that takes root anywhere."}
+- {slot: chart.ilgan_head, key: ilgan.head.byeong, text: "{name}, you're like the midday sun shining bright."}
+- {slot: chart.ilgan_head, key: ilgan.head.jeong, text: "{name}, you're like a lamp that lights up the dark."}
+- {slot: chart.ilgan_head, key: ilgan.head.mu, text: "{name}, you're like a great mountain that holds its ground."}
+- {slot: chart.ilgan_head, key: ilgan.head.gi, text: "{name}, you're like a wide field where seeds grow."}
+- {slot: chart.ilgan_head, key: ilgan.head.gyeong, text: "{name}, you're like solid metal that's yet to be shaped."}
+- {slot: chart.ilgan_head, key: ilgan.head.sin, text: "{name}, you're like a finely cut gem."}
+- {slot: chart.ilgan_head, key: ilgan.head.im, text: "{name}, you're like a great river flowing far."}
+- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}, you're like a spring of clear, still water."}
+- {slot: chart.ilgan_body, key: ilgan.body.gap, text: "Once you set a direction, you rarely change it. That strength shows when you see a long task through to the end."}
+- {slot: chart.ilgan_body, key: ilgan.body.eul, text: "You tend to bend with the situation and find a way through. That strength shows in how quickly you settle into new places."}
+- {slot: chart.ilgan_body, key: ilgan.body.byeong, text: "You tend to be open and honest. When it's time to step forward, you don't hesitate."}
+- {slot: chart.ilgan_body, key: ilgan.body.jeong, text: "You tend to pay close attention to how the people near you feel. That warmth shows most when you look after someone over a long time."}
+- {slot: chart.ilgan_body, key: ilgan.body.mu, text: "You tend to stay steady and make room for the people around you. When a group needs someone to hold the center, you're the one they lean on."}
+- {slot: chart.ilgan_body, key: ilgan.body.gi, text: "You tend to grow people and projects step by step. You find your strength in teaching or in tending something over time."}
+- {slot: chart.ilgan_body, key: ilgan.body.gyeong, text: "When you believe something is right, you tend to act on it right away. In moments that call for a decision, your readiness stands out."}
+- {slot: chart.ilgan_body, key: ilgan.body.sin, text: "You tend to notice small differences and care about getting things just right. That care shows in work where the finish matters."}
+- {slot: chart.ilgan_body, key: ilgan.body.im, text: "Your thinking runs wide, and you tend to read new currents quickly. That breadth helps when you have to bring many things together at once."}
+- {slot: chart.ilgan_body, key: ilgan.body.gye, text: "You tend to think things through deeply rather than show them. That depth shows when you notice what others have missed."}
+- {slot: chart.yongsin_summary, key: yongsin.summary, text: "The energy that supports you is [[{yongsin}]], so {yongsin:color} suits you well. Try keeping it close through clothes or small items."}

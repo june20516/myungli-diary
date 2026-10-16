@@ -38,7 +38,7 @@
 - {slot: personal.shinsal, key: personal.shinsal.yeokma, text: "{place}에 [[역마|shinsal.yeokma]]가 있어, 옮기고 넓히는 일에서 살리면 좋은 움직임의 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.shinsal, key: personal.shinsal.hwagae, text: "{place}에 [[화개|shinsal.hwagae]]가 있어, 혼자 깊이 파고드는 공부나 예술에 마음이 가는 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.shinsal, key: personal.shinsal.yangin, text: "{place}에 [[양인|shinsal.yangin]]이 있어, 밀어붙이는 힘과 결단이 세게 드러나요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.shinsal, key: personal.shinsal.gongmang, text: "{place}에 [[공망|shinsal.gongmang]]이 있어, 이 자리가 뜻하는 일은 꽉 붙잡기보다 여유를 둘 때 편해요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.shinsal, key: personal.shinsal.gongmang, text: "{place}에 [[공망|shinsal.gongmang]]이 있어, 이 자리가 뜻하는 일은 기대만큼 채워지지 않을 때가 있어, 꽉 붙잡기보다 여유를 둘 때 편해요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.bigyeon, text: "이 {luck}의 {part}에 [[비견|ten_god.bigyeon]]이 들어, 함께하는 사람이 늘고 내 몫을 스스로 챙기게 되는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.geopjae, text: "이 {luck}의 {part}에 [[겁재|ten_god.geopjae]]가 들어, 겨룰 일과 나눌 일이 함께 많아지는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.siksin, text: "이 {luck}의 {part}에 [[식신|ten_god.siksin]]이 들어, 하고 싶은 일을 즐기며 펼치기 좋은 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}

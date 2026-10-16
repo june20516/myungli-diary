@@ -1,0 +1,26 @@
+# 명식(chart) 원고(ja). ko 원고(content/ko/chart.yaml)와 같은 정보를 ja 화면에 맞게 쓴 W1-2 초안이며, 원어민 검수 전입니다.
+# 일간 소개 첫 문장은 호칭 덩어리 {name}さん、으로 시작하고, 호칭 최대 10자를 넣어도 상한 34자 안에 들게 씁니다(W18).
+- {slot: chart.yongsin_method, key: yongsin.method.eokbu, text: "多すぎる気は減らし、足りない気は補う考え方で[[用神|role.yongsin]]を選びました。"}
+- {slot: chart.yongsin_method, key: yongsin.method.johu, text: "生まれた季節の暑さや寒さが目立つため、温度を整える五行を[[用神|role.yongsin]]にしました。"}
+- {slot: chart.yongsin_method, key: yongsin.method.johu_neutral, text: "気が一方に偏っていないため、生まれた季節の温度を整える五行を[[用神|role.yongsin]]にしました。"}
+- {slot: chart.ilgan_head, key: ilgan.head.gap, text: "{name}さん、まっすぐ伸びる大きな木に似ています。"}
+- {slot: chart.ilgan_head, key: ilgan.head.eul, text: "{name}さん、どこにでも根を張る草花のようです。"}
+- {slot: chart.ilgan_head, key: ilgan.head.byeong, text: "{name}さん、明るく照らす真昼の太陽に似ています。"}
+- {slot: chart.ilgan_head, key: ilgan.head.jeong, text: "{name}さん、暗がりを照らす灯火のようです。"}
+- {slot: chart.ilgan_head, key: ilgan.head.mu, text: "{name}さん、どっしりと構える大きな山に似ています。"}
+- {slot: chart.ilgan_head, key: ilgan.head.gi, text: "{name}さん、種を育てる広い畑のようです。"}
+- {slot: chart.ilgan_head, key: ilgan.head.gyeong, text: "{name}さん、磨く前のかたい鉄に似ています。"}
+- {slot: chart.ilgan_head, key: ilgan.head.sin, text: "{name}さん、美しく磨いた宝石のようです。"}
+- {slot: chart.ilgan_head, key: ilgan.head.im, text: "{name}さん、遠くへ流れていく大河に似ています。"}
+- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}さん、澄んだ湧き水に似ています。"}
+- {slot: chart.ilgan_body, key: ilgan.body.gap, text: "一度決めた方向は、簡単には変えないほうです。時間のかかることを最後までやり遂げるとき、その力がよく表れます。"}
+- {slot: chart.ilgan_body, key: ilgan.body.eul, text: "状況に合わせて身を低くし、道を探すほうです。慣れない場所でもすぐになじむところに、その力が表れます。"}
+- {slot: chart.ilgan_body, key: ilgan.body.byeong, text: "隠しごとをせず、率直なほうです。前に出るべきときに迷いません。"}
+- {slot: chart.ilgan_body, key: ilgan.body.jeong, text: "身近な人の気持ちを細やかに気づかうほうです。一人の人を長くそばで支えるとき、その温かさがよく表れます。"}
+- {slot: chart.ilgan_body, key: ilgan.body.mu, text: "簡単には揺らがず、周りを受け止めるほうです。大勢の中で軸にならなければならないとき、頼れる柱になります。"}
+- {slot: chart.ilgan_body, key: ilgan.body.gi, text: "人や物事を少しずつ育てていくほうです。何かを教えたり、こつこつ手入れを続けたりするときに力が出ます。"}
+- {slot: chart.ilgan_body, key: ilgan.body.gyeong, text: "正しいと思ったことは、すぐ行動に移すほうです。決断が必要な場面で迷わない姿が目立ちます。"}
+- {slot: chart.ilgan_body, key: ilgan.body.sin, text: "小さな違いにも気づき、仕上がりにこだわるほうです。締めくくりが大事なことで、その丁寧さがよく表れます。"}
+- {slot: chart.ilgan_body, key: ilgan.body.im, text: "考えの幅が広く、新しい流れを早く読むほうです。いくつものことをまとめて進めるとき、その広さが力になります。"}
+- {slot: chart.ilgan_body, key: ilgan.body.gye, text: "表に出すより、内側で深く考えるほうです。ほかの人が見落としたことに先に気づくとき、その深さが表れます。"}
+- {slot: chart.yongsin_summary, key: yongsin.summary, text: "自分を助ける気は[[{yongsin}]]なので、{yongsin:color}がよく合います。服や小物で身近に取り入れてみてください。"}

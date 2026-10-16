@@ -1,46 +1,46 @@
 # 오늘 화면 가이드 질문·행운 카드·태그 이름 원고(ja). ko 원고(content/ko/daily.yaml, example.yaml)와 같은 정보를 ja 화면에 맞게 옮긴 W1-1 초안이며, 원어민 검수 전입니다.
 # 행운 카드는 W7대로 색은 단순형, 방향은 쓰임새형, 숫자는 두 문장형입니다. 가이드 질문 변주 1은 권유형, 변주 2는 질문형입니다(W13).
 # 태그 이름의 용어 표기는 glossary ja·근거 용어집(D70, W24)을 따릅니다. 도화는 용어집 ja 표기 「咸池」입니다.
-- {slot: daily.guide, key: guide.big_change, variant: 1, text: "今日変わったことを一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.big_change, variant: 2, text: "今日いつもと違うと感じたのはいつでしたか？"}
-- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "今日感謝した人とその理由を書いてみませんか？"}
-- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "今日受けた助けで、一番ありがたかったのは何でしたか？"}
+- {slot: daily.guide, key: guide.big_change, variant: 1, text: "今日いつもと違ったことがあれば、一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.big_change, variant: 2, text: "今日、不慣れだと感じた瞬間はありましたか？"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "今日ありがたい人がいたら、その理由を書いてみませんか？"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "今日ありがたいと感じた瞬間はありましたか？"}
 - {slot: daily.guide, key: guide.clash, variant: 1, text: "今日の予想外だった場面を一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.clash, variant: 2, text: "今日意見が分かれたとき、何と言いましたか？"}
+- {slot: daily.guide, key: guide.clash, variant: 2, text: "今日意見が食い違った場面があったら、自分は何と言いましたか？"}
 - {slot: daily.guide, key: guide.dohwa, variant: 1, text: "今日目を引かれた人や場面を一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.dohwa, variant: 2, text: "今日聞いた言葉で、心に残ったのは何でしたか？"}
-- {slot: daily.guide, key: guide.gongmang, variant: 1, text: "今日期待と違った出来事を一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.dohwa, variant: 2, text: "今日聞いた言葉で、心に残っているものはありますか？"}
+- {slot: daily.guide, key: guide.gongmang, variant: 1, text: "今日期待と違ったことがあれば、一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.gongmang, variant: 2, text: "進みが遅かった一日、手放せたことは何でしたか？"}
-- {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "今日会った人を一人思い浮かべて書いてみませんか？"}
-- {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "今日一番気楽にさせてくれた人は誰でしたか？"}
-- {slot: daily.guide, key: guide.harmony, variant: 1, text: "今日気持ちが通じ合った会話を一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.harmony, variant: 2, text: "今日一緒にいてよかった人は誰でしたか？"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "今日思い浮かんだ人がいたら、一人書いてみませんか？"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "今日気楽にさせてくれた人はいましたか？"}
+- {slot: daily.guide, key: guide.harmony, variant: 1, text: "今日気持ちが通じ合った会話があれば、書いてみませんか？"}
+- {slot: daily.guide, key: guide.harmony, variant: 2, text: "今日一緒にいてよかった人はいましたか？"}
 - {slot: daily.guide, key: guide.hwagae, variant: 1, text: "今日一人の時間に浮かんだ考えを書いてみませんか？"}
 - {slot: daily.guide, key: guide.hwagae, variant: 2, text: "今日一番心が落ち着いていたのはいつでしたか？"}
-- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 1, text: "今日一緒に過ごした友人や同僚のことを書いてみませんか？"}
-- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 2, text: "今日味方になってくれた人は誰でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 1, text: "今日一緒に過ごした人がいたら、その話を書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 2, text: "今日味方になってくれた人はいましたか？"}
 - {slot: daily.guide, key: guide.ten_god.siksang, variant: 1, text: "今日の自分の言葉で、残したい一言を書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god.siksang, variant: 2, text: "今日自分の手で作ったもの、やり遂げたことは何でしたか？"}
 - {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 1, text: "今日お金を使った場面とその時の気持ちを書いてみませんか？"}
-- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 2, text: "今日使ったお金で、一番満足したのは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 2, text: "今日お金を使ったなら、一番満足したのは何でしたか？"}
 - {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 1, text: "今日終えたことを一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 2, text: "やることが目につく一日、最初に片づけたのは何でしたか？"}
 - {slot: daily.guide, key: guide.ten_god.inseong, variant: 1, text: "今日新しく知ったことを一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "今日誰かから学んだことは何でしたか？"}
+- {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "今日誰かから学んだことはありましたか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 1, text: "今日最後まで守りたかった自分の考えを書いてみませんか？"}
-- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "今日譲らなかったことは何でしたか？"}
-- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "言いたかったのにまだ言えていないことを書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "今日譲らずに守ったことはありましたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "言いたかったのに言えなかったことがあれば、書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 2, text: "今日一番話したかったことは何でしたか？"}
-- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "今日欲しかったものを一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "今日お金のことを一番考えたのはいつでしたか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "今日欲しかったものがあれば、一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "今日お金のことを考えた場面はありましたか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 1, text: "今日の仕事で一番重かったものを書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 2, text: "今日一番手を取られたことは何でしたか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 1, text: "今日ずっと頭にあった考えを書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 2, text: "考えごとの多い一日、思い浮かんだ人はいましたか？"}
-- {slot: daily.guide, key: guide.yeokma, variant: 1, text: "今日行き来した道で見たものを一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.yeokma, variant: 2, text: "今日一番遠くまで行ったのはどこでしたか？"}
-- {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "今日うまくいったことを一つ書いてみませんか？"}
-- {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "今日一番誇らしく思えたのはいつでしたか？"}
+- {slot: daily.guide, key: guide.yeokma, variant: 1, text: "今日通った道があれば、そこで見たものを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.yeokma, variant: 2, text: "出歩きがちだった一日、心に残っている場所はありますか？"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "今日うまくいったことがあれば、一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "今日誇らしく思えた瞬間はありましたか？"}
 - {slot: daily.color, key: color.gisin_day, text: "今日は{element:color}がよく合います。"}
 - {slot: daily.color, key: color.gwiin_day, text: "今日は{element:color}がよく合います。"}
 - {slot: daily.color, key: color.ordinary_day, text: "今日は{element:color}がよく合います。"}
