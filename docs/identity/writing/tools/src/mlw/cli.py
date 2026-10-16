@@ -18,6 +18,8 @@ from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
 from mlw.evidence import check_evidence
+from mlw.glossary import term_ids
+from mlw.hanja import HANJA_FILE_NAME, check_hanja, load_hanja
 from mlw.ia import check_ia, is_ui_slot, load_ia
 from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
 from mlw.loader import load_content, load_rules, load_slots
@@ -341,6 +343,8 @@ def _check(args: argparse.Namespace) -> int:
     evidence_sources = _read_evidence_sources(args.evidence_sources)
     fixture = _read_fixture(args.fixture)
     ia = load_ia(args.ia)
+    tag_keys = [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]
+    hanja = load_hanja(args.content / HANJA_FILE_NAME)
 
     completeness = check_completeness(all_slots, entries, message_keys, LANGS, message_params)
     if args.partial:
@@ -352,7 +356,8 @@ def _check(args: argparse.Namespace) -> int:
         *sentence_findings(all_slots, entries, rules),
         *markup_findings(all_slots, entries),
         *plural_findings(all_slots, entries),
-        *check_tokens(entries, all_slots, [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]),
+        *check_tokens(entries, all_slots, tag_keys),
+        *check_hanja(hanja, term_ids(tag_keys)),
         *check_days(content_slots, entries, rules.limits.values(), LANGS, rules),
         *check_weeks(
             content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture

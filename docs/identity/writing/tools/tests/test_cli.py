@@ -444,3 +444,11 @@ def test_key_max_length_applies_to_that_key_only() -> None:
     ]
     findings = sentence_findings({"s.slot": slot}, entries, load_rules(RULES_DIR))
     assert [finding.line for finding in findings if finding.rule_id == "style.length"] == [1]
+
+
+def test_cli_check_reads_hanja_beside_language_dirs(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content"
+    (content / "ko").mkdir(parents=True)
+    (content / "hanja.yaml").write_text('- {term: stem.nope, hanja: "甲"}\n', encoding="utf-8")
+    assert main(["check", str(content), "--partial"]) == 1
+    assert "hanja.unknown_term" in capsys.readouterr().out
