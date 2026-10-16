@@ -80,9 +80,10 @@ double representativeLongitude(String timezone, double standardOffsetHours) {
 /// 여부만 있고 양이 없으므로, zoneinfo처럼 앞뒤 전환의 비서머타임 오프셋에서 양을 추정합니다
 /// ([_dstSecondsOf]). 그래서 이중 서머타임(London 1941, Berlin 1945)도 엔진과 같습니다.
 ///
-/// 한계: `timezone` 패키지 데이터에는 일부 LMT 구간이 없습니다. 서울은 LMT → KST 전환
-/// (1908-04-01)이 없어 1908-03-31 이전이 엔진(LMT +8:27:52)과 달리 +8:30이고, 상파울루도
-/// 1914년 이전 LMT가 없습니다.
+/// 한계: `timezone` 패키지 데이터에는 1920년 이전 일부 시간대(서울 1908, 상파울루 1914,
+/// 카트만두 ~1920, 카사블랑카 ~1913 등)의 LMT 구간이 없어 그 전 시각은 엔진과 다를 수
+/// 있습니다. 예: 서울은 LMT → KST 전환(1908-04-01)이 없어 1908-03-31 이전이 엔진
+/// (LMT +8:27:52)과 달리 +8:30입니다.
 double standardOffsetHoursAt(tz.Location location, DateTime utc) {
   final zone = location.lookupTimeZone(utc.millisecondsSinceEpoch).timeZone;
   return (zone.offset.inSeconds - _dstSecondsAt(location, utc)) /
@@ -157,8 +158,9 @@ List<int> _inferDstSeconds(List<int> transitionZone, List<tz.TimeZone> zones) {
 /// [solarDate]는 연·월·일만 씁니다. [time]이 모름이면 12:00으로 봅니다. [cityLongitude]가
 /// 없으면 대표 경도를 씁니다. 모르는 [timezone]이거나 시각 형식이 틀리면 [ArgumentError]입니다.
 ///
-/// 한계: `timezone` 패키지 데이터에 서울 LMT 구간(1908-03-31 이전)이 없어, 그때 서울 입력은
-/// 엔진(+2분)과 달리 보정 0분입니다([standardOffsetHoursAt]).
+/// 한계: `timezone` 패키지 데이터에 1920년 이전 일부 시간대(서울 1908, 상파울루 1914,
+/// 카트만두 ~1920, 카사블랑카 ~1913 등)의 LMT 구간이 없어, 그 구간 입력은 엔진과 다를 수
+/// 있습니다(예: 1908-03-31 이전 서울은 엔진 +2분, 여기서는 0분. [standardOffsetHoursAt]).
 TimeBasis timeBasisOf({
   required String timezone,
   required DateTime solarDate,
