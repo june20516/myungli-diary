@@ -355,3 +355,54 @@ def test_get_info(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetInfo(pb.InfoRequest())
     assert response.engine_version == ENGINE_VERSION
     assert response.ruleset_version == RULESET_VERSION
+
+
+def lunar_request(year: int, month: int, day: int, is_leap_month: bool = False) -> pb.LunarDateRequest:
+    return pb.LunarDateRequest(
+        date=pb.LocalDate(year=year, month=month, day=day), is_leap_month=is_leap_month
+    )
+
+
+def test_convert_lunar_date(stub: pb_grpc.MyungliEngineStub) -> None:
+    response = stub.ConvertLunarDate(lunar_request(2012, 3, 11, is_leap_month=True))
+    assert response.solar == pb.LocalDate(year=2012, month=5, day=1)
+    assert response.month_has_leap is True
+    assert response.meta.ruleset_version == RULESET_VERSION
+
+
+def test_convert_lunar_date_month_without_leap(stub: pb_grpc.MyungliEngineStub) -> None:
+    response = stub.ConvertLunarDate(lunar_request(2024, 1, 1))
+    assert response.solar == pb.LocalDate(year=2024, month=2, day=10)
+    assert response.month_has_leap is False
+
+
+@pytest.mark.parametrize(
+    "request_message",
+    [
+        lunar_request(2024, 2, 1, is_leap_month=True),  # 2024년에는 윤2월이 없음
+        lunar_request(2024, 1, 30),  # 2024년 음력 1월은 29일까지
+        lunar_request(2024, 13, 1),
+    ],
+)
+def test_convert_lunar_date_nonexistent_is_invalid_argument(
+    stub: pb_grpc.MyungliEngineStub, request_message: pb.LunarDateRequest
+) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.ConvertLunarDate(request_message)
+    assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_convert_lunar_date_without_date_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.ConvertLunarDate(pb.LunarDateRequest())
+    assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+    assert "date" in details_of(caught.value)
+
+
+@pytest.mark.parametrize("request_message", [lunar_request(1899, 12, 1), lunar_request(2099, 12, 1)])
+def test_convert_lunar_date_out_of_range(
+    stub: pb_grpc.MyungliEngineStub, request_message: pb.LunarDateRequest
+) -> None:
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.ConvertLunarDate(request_message)
+    assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE

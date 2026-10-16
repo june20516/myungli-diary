@@ -59,6 +59,11 @@ class MyungliEngineStub:
                 request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
                 response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
                 _registered_method=True)
+        self.ConvertLunarDate = channel.unary_unary(
+                '/myungli.engine.v1.MyungliEngine/ConvertLunarDate',
+                request_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.LunarDateRequest.SerializeToString,
+                response_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.LunarDateResponse.FromString,
+                _registered_method=True)
 
 
 class MyungliEngineServicer:
@@ -94,6 +99,12 @@ class MyungliEngineServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ConvertLunarDate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MyungliEngineServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -121,6 +132,11 @@ def add_MyungliEngineServicer_to_server(servicer, server):
                     servicer.GetInfo,
                     request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.FromString,
                     response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.SerializeToString,
+            ),
+            'ConvertLunarDate': grpc.unary_unary_rpc_method_handler(
+                    servicer.ConvertLunarDate,
+                    request_deserializer=myungli_dot_engine_dot_v1_dot_engine__pb2.LunarDateRequest.FromString,
+                    response_serializer=myungli_dot_engine_dot_v1_dot_engine__pb2.LunarDateResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -258,6 +274,33 @@ class MyungliEngine:
             '/myungli.engine.v1.MyungliEngine/GetInfo',
             myungli_dot_engine_dot_v1_dot_engine__pb2.InfoRequest.SerializeToString,
             myungli_dot_engine_dot_v1_dot_engine__pb2.InfoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ConvertLunarDate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myungli.engine.v1.MyungliEngine/ConvertLunarDate',
+            myungli_dot_engine_dot_v1_dot_engine__pb2.LunarDateRequest.SerializeToString,
+            myungli_dot_engine_dot_v1_dot_engine__pb2.LunarDateResponse.FromString,
             options,
             channel_credentials,
             insecure,
