@@ -38,8 +38,16 @@
   description: 톤 좌표인 진지·격식·존중·담백 각 1~5
 - name: max_length
   required: true
-  type: "map[lang, int | null]"
-  description: 언어별 글자 수 상한. design과 조정하며 null이면 아직 정하지 않았습니다.
+  type: "map[lang, int | unbounded | null]"
+  description: >-
+    언어별 글자 수 상한. design과 조정하며(docs/identity/design/lengths.md) null이면 아직 정하지 않았습니다.
+    unbounded는 레이아웃이 길이를 막지 않아(스크린리더 전용, 스크롤 본문, 확인 창 본문, app 밖 화면) 상한을 두지 않는다는 뜻입니다(#191).
+- name: key_max_length
+  required: false
+  type: "map[string, map[lang, int | unbounded | null]]"
+  description: >-
+    키별 언어별 상한. 적힌 언어는 그 키에 슬롯 max_length 대신 씁니다. 한 슬롯의 키가 다른 칸에 놓일 때 씁니다
+    (예 확인 창 슬롯의 제목·본문·버튼 키, #191). 키는 이 슬롯의 keys에 있어야 합니다.
 - name: keys
   required: true
   type: "list[string | map]"

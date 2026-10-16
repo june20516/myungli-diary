@@ -51,7 +51,9 @@
   user_state: "로그아웃하려 합니다."
   structure: "확인 창: 질문과 버튼 둘(`Logout`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    settingsLogoutConfirm: {ko: 34, en: 60, ja: 28}
   keys:
     - settingsLogoutConfirm
     - settingsLogoutConfirmLogout
@@ -74,7 +76,7 @@
   user_state: "설정에서 광고 제거 메뉴를 봅니다."
   structure: "메뉴 이름과, 기간이 남았을 때 오른쪽 값(`Active`)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 18}
   keys:
     - settingsAdFreeLabel
     - params: {date: text}
@@ -115,7 +117,10 @@
   user_state: "생일·시간·성별·출생지를 바꿔 저장하려 합니다(app A6)."
   structure: "확인 창: 제목(`Title`), 본문(`Body`), 버튼 둘(`Cancel` 기본, `Save`). 본문은 두 줄이고 줄바꿈(\\n)을 그대로 보입니다. 첫 줄은 `{before} → {after}`로, 값은 app이 정보 수정 화면과 같은 표기로 만들고 바뀐 항목이 여럿이면 쉼표로 잇습니다. 둘째 줄은 영향이며 이미 쓴 일기와 태그는 그대로 남는다는 것을 꼭 말합니다(#94)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    profileEditRecalcConfirmTitle: {ko: 34, en: 60, ja: 28}
+    profileEditRecalcConfirmBody: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - profileEditRecalcConfirmTitle
     - params: {before: text, after: text}
@@ -274,7 +279,7 @@
   user_state: "계정을 지우려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - accountDeleteCtaDelete
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -293,7 +298,9 @@
   user_state: "마지막으로 확인합니다."
   structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    accountDeleteDeleteConfirm: {ko: 34, en: 60, ja: 28}
   keys:
     - accountDeleteDeleteConfirm
     - accountDeleteDeleteConfirmDelete

@@ -114,7 +114,7 @@ def longest_values_for(
 def _entry_sentence_findings(
     entry: Entry, slot: Slot, rules: RuleSet, by_lang: Mapping[str, Mapping[str, Sequence[str]]]
 ) -> list[Finding]:
-    max_length = slot.max_length.get(entry.lang)
+    max_length = slot.length_limit(entry.lang, entry.key)
     name_max = rules.josa.name_rules.max_length.get(entry.lang)
     params = slot.keys.get(entry.key, {})
     values, unresolved = longest_values_for(entry, params, by_lang.get(entry.lang, {}), name_max)

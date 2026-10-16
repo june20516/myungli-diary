@@ -12,7 +12,7 @@
   user_state: "요청이 실패해 화면을 볼 수 없거나 동작이 끝나지 않았습니다."
   structure: "한두 문장. 무엇이 안 됐는지, 그다음 할 수 있는 일(다시 시도, 연결 확인)을 씁니다. 할 일이 없으면 한 문장으로 끝냅니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   components: [error-state, toast]
   keys:
     - errorOffline
@@ -39,7 +39,7 @@
   user_state: "server가 오류 코드로 요청을 거절했습니다."
   structure: "한두 문장. 무엇이 안 됐는지, 그다음 할 수 있는 일을 씁니다. 앱 버전 문제로만 나는 코드(경로 없음, 방식·형식 불일치)는 앱 업데이트를 권합니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   components: [error-state, toast]
   keys:
     - errorRequestMalformed
@@ -99,7 +99,7 @@
   user_state: "앱을 엽니다."
   structure: "앱 이름 하나(W17)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 14, en: 24, ja: 11}
   components: [app-bar]
   keys:
     - appTitle
@@ -119,7 +119,7 @@
   user_state: "앱을 열었는데 시작하지 못했습니다."
   structure: "두 문장. 열지 못했다는 사실과 다시 여는 방법."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [error-state]
   keys:
     - bootstrapFailed
@@ -139,7 +139,7 @@
   user_state: "인터넷 없이 저장된 내용을 보거나, 보여 줄 내용이 아직 없습니다."
   structure: "한 문장. 지금 무엇이 보이는지(또는 없는지)를 말합니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 52, en: 90, ja: 38}
   components: [notice-banner, empty-state]
   keys:
     - noticeOffline
@@ -161,7 +161,7 @@
   user_state: "문의할 때 쓸 번호를 보거나 복사했습니다."
   structure: "이름과 번호, 또는 복사했다는 한 문장."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   components: [error-state, toast]
   keys:
     - {params: {traceId: text}, keys: [traceIdLabel]}
@@ -183,7 +183,7 @@
   user_state: "다음 동작을 고릅니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
   components: [primary-button, dialog, share-button, check-row, text-field, input-step]
   keys:
     - actionRetry
@@ -211,7 +211,7 @@
   user_state: "화면을 옮겨 다닙니다."
   structure: "탭 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 9, en: 15, ja: 7}
   components: [tab-bar]
   keys:
     - tabToday
@@ -235,7 +235,7 @@
   user_state: "스크린리더로 화면을 닫거나 돌아갑니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [app-bar, sheet]
   keys:
     - appBarBack
@@ -257,7 +257,7 @@
   user_state: "스크린리더로 화면을 듣습니다."
   structure: "이름이나 상태 하나. 입력칸 이름은 hint(예시)와 다른 말로 칸의 목적을 말합니다(#143)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [primary-button, ad-banner, skeleton, term-token, input-step, text-field, city-search]
   keys:
     - actionBusy
@@ -287,7 +287,7 @@
   user_state: "스크린리더로 휠을 고릅니다."
   structure: "휠 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [date-picker, time-picker]
   keys:
     - datePickerYearLabel
@@ -313,7 +313,7 @@
   user_state: "태어난 날과 시간을 고릅니다."
   structure: "값과 단위. en은 숫자만 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 7, en: 12, ja: 5}
   components: [date-picker, time-picker]
   keys:
     - {params: {year: number}, keys: [datePickerYearItem]}
@@ -341,7 +341,7 @@
   user_state: "태어난 날의 달력 종류, 시간을 아는지, 성별을 고릅니다."
   structure: "선택지 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 13, en: 22, ja: 10}
   components: [segmented, check-row]
   keys:
     - calendarSolar
@@ -367,7 +367,7 @@
   user_state: "로그인 방법을 고릅니다."
   structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 21, en: 38, ja: 17}
   components: [social-login-button]
   keys:
     - loginKakaoLabel
@@ -390,7 +390,7 @@
   user_state: "로그인을 끝내지 못했습니다."
   structure: "한두 문장. 무엇이 안 됐는지와 다시 하는 방법."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   components: [toast, error-state]
   keys:
     - loginCancelled
@@ -414,7 +414,7 @@
   user_state: "근거 시트를 열었습니다."
   structure: "제목 하나. 무엇의 근거인지(오늘 풀이)를 말합니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 18, en: 33, ja: 15}
   components: [sheet]
   keys:
     - evidenceSheetTitle
@@ -434,7 +434,7 @@
   user_state: "오늘 화면에서 가이드 질문 카드를 봅니다."
   structure: "머리글 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 27, en: 50, ja: 22}
   components: [guide-question-card]
   keys:
     - todayGuideEyebrow
@@ -454,7 +454,7 @@
   user_state: "스크린리더로 오늘 화면을 듣거나, 일기를 쓰고 돌아왔습니다."
   structure: "이름 하나, 또는 해요체 한 문장으로 된 상태 알림. 묶음 이름은 무엇에 대한 질문인지(일기)를 넣습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [guide-question-card]
   keys:
     - todayGuideLabel

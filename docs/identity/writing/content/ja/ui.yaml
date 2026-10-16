@@ -72,7 +72,7 @@
 - {slot: evidence-sheet.section.basis, key: evidenceSheetSectionBasis, text: "判定の根拠"}
 - {slot: evidence-sheet.section.source, key: evidenceSheetSectionSource, text: "原典"}
 - {slot: evidence-sheet.section.personal, key: evidenceSheetSectionPersonal, text: "わたしの命式では"}
-- {slot: evidence-sheet.unlock.failed, key: evidenceSheetUnlockFailed, text: "広告の確認に時間がかかっています。しばらくしてから開き直してください。"}
+- {slot: evidence-sheet.unlock.failed, key: evidenceSheetUnlockFailed, text: "広告の確認に時間がかかっています。少し待って開き直してください。"}
 - {slot: evidence-sheet.a11y.locked, key: evidenceSheetA11yLocked, text: "ロック中"}
 - {slot: evidence-sheet.a11y.checking, key: evidenceSheetA11yChecking, text: "確認中"}
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "根拠と解釈が開きました"}
@@ -144,10 +144,10 @@
 - {slot: ui.error.code, key: errorRequestInvalid, text: "入力内容をもう一度確認してください。"}
 - {slot: ui.error.code, key: errorAuthTokenExpired, text: "ログインの有効期限が切れました。もう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAuthTokenInvalid, text: "ログイン情報を確認できませんでした。もう一度ログインしてください。"}
-- {slot: ui.error.code, key: errorAuthRefreshReused, text: "アカウントを守るためにログアウトしました。もう一度ログインしてください。"}
+- {slot: ui.error.code, key: errorAuthRefreshReused, text: "安全のためログアウトしました。もう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "ログインできませんでした。もう一度お試しください。"}
 - {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "ログインの時間が過ぎました。最初からもう一度ログインしてください。"}
-- {slot: ui.error.code, key: errorAppCheckInvalid, text: "アプリを確認できませんでした。最新バージョンにアップデートしてください。"}
+- {slot: ui.error.code, key: errorAppCheckInvalid, text: "アプリを確認できませんでした。最新版にアップデートしてください。"}
 - {slot: ui.error.code, key: errorConsentRequired, text: "続けるには利用規約への同意が必要です。"}
 - {slot: ui.error.code, key: errorPreviewUsed, text: "プレビューは一度だけ見られます。ログインすると続きを読めます。"}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "処理できませんでした。アプリをアップデートしてください。"}
@@ -158,8 +158,8 @@
 - {slot: ui.error.code, key: errorIdempotencyInProgress, text: "まだ処理しています。しばらくしてからもう一度確認してください。"}
 - {slot: ui.error.code, key: errorRequestTooLarge, text: "内容が長すぎます。少し短くしてください。"}
 - {slot: ui.error.code, key: errorRequestUnsupportedMediaType, text: "処理できませんでした。アプリをアップデートしてください。"}
-- {slot: ui.error.code, key: errorDateOutOfRange, text: "1900年1月31日から2099年12月31日までの日付だけ見られます。"}
-- {slot: ui.error.code, key: errorBirthOutOfRange, text: "1900年1月31日から2099年12月31日までの日付だけ計算できます。"}
+- {slot: ui.error.code, key: errorDateOutOfRange, text: "1900年1月31日〜2099年12月31日の日付だけ見られます。"}
+- {slot: ui.error.code, key: errorBirthOutOfRange, text: "1900年1月31日〜2099年12月31日の日付だけ計算できます。"}
 - {slot: ui.error.code, key: errorDateInvalid, text: "カレンダーにない日付です。"}
 - {slot: ui.error.code, key: errorRequestInconsistent, text: "入力内容をもう一度確認してください。"}
 - {slot: ui.error.code, key: errorBirthInvalid, text: "入力した生まれた日と時間をもう一度確認してください。"}
@@ -173,12 +173,12 @@
 - {slot: ui.error.code, key: errorConsentVersionMismatch, text: "利用規約が変わりました。もう一度確認してください。"}
 - {slot: ui.error.code, key: errorRateLimited, text: "リクエストが多すぎます。しばらくしてからもう一度お試しください。"}
 - {slot: ui.error.code, key: errorInternal, text: "こちらで問題が起きました。しばらくしてからもう一度お試しください。"}
-- {slot: ui.error.code, key: errorEngineError, text: "読み解きを計算できませんでした。しばらくしてからもう一度お試しください。"}
-- {slot: ui.error.code, key: errorEngineUnavailable, text: "読み解きを読み込めませんでした。しばらくしてからもう一度お試しください。"}
+- {slot: ui.error.code, key: errorEngineError, text: "読み解きを計算できませんでした。時間をおいてお試しください。"}
+- {slot: ui.error.code, key: errorEngineUnavailable, text: "読み解きを読み込めませんでした。時間をおいてお試しください。"}
 - {slot: ui.error.code, key: errorAuthProviderUnavailable, text: "今はログインできません。しばらくしてからもう一度お試しください。"}
 - {slot: ui.error.code, key: errorBillingProviderUnavailable, text: "今は購入を確認できません。しばらくしてからもう一度お試しください。"}
 - {slot: ui.error.code, key: errorServiceUnavailable, text: "今はアプリを使えません。しばらくしてからもう一度お試しください。"}
-- {slot: ui.error.code, key: errorEngineTimeout, text: "読み解きの計算に時間がかかっています。しばらくしてからもう一度お試しください。"}
+- {slot: ui.error.code, key: errorEngineTimeout, text: "読み解きの計算に時間がかかっています。後でお試しください。"}
 - {slot: ui.app.name, key: appTitle, text: "命理日記"}
 - {slot: ui.app.bootstrap, key: bootstrapFailed, text: "アプリを開けませんでした。アプリを完全に閉じてから、もう一度開いてください。"}
 - {slot: ui.app.notice, key: noticeOffline, text: "オフラインのため、保存してある内容を表示しています。"}
@@ -231,7 +231,7 @@
 - {slot: ui.login.provider, key: loginKakaoLabel, text: "Login with Kakao"}
 - {slot: ui.login.provider, key: loginAppleLabel, text: "Appleでサインイン"}
 - {slot: ui.login.error, key: loginCancelled, text: "ログインをキャンセルしました。"}
-- {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "ログインを確認できませんでした。最初からもう一度ログインしてください。"}
+- {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "ログインを確認できませんでした。最初からやり直してください。"}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Appleでのサインインをキャンセルしました。"}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "Appleでサインインできませんでした。もう一度お試しください。"}
 - {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "根拠を見る"}
