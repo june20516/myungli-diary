@@ -63,13 +63,17 @@ final class _Entry {
 ///   있으므로 값을 유지하고 캐시를 다시 고칩니다. 그 앞에 확인했거나 확인한 적 없는 슬롯은 응답
 ///   값을 따릅니다(다른 기기의 변경 반영).
 /// * **항목의 수명은 그 날짜를 보이는 화면의 응답이 정합니다.** 오늘 응답은 오늘 날짜 항목만
-///   맞추고, 오늘 화면의 날짜가 바뀌면(자정) 막 떠난 날짜의 요청 중이 아닌 항목만 지웁니다.
-///   달력·일기 등 다른 날짜의 항목은 오늘 응답이 다시 와도 건드리지 않습니다.
+///   맞추고, 오늘 화면의 날짜가 바뀌면(자정) 막 떠난 날짜의 항목을 지웁니다. 그 순간 요청
+///   중인 항목은 요청이 끝날 때(성공·실패 모두) 지웁니다. 달력·일기 등 다른 날짜의 항목은
+///   오늘 응답이 다시 와도 건드리지 않습니다.
 class ReactionController extends Notifier<Map<String, bool>> {
   final _entries = <String, _Entry>{};
 
   /// 오늘 화면이 마지막으로 반영한 응답의 날짜. 날짜가 바뀌면 이 날짜가 "막 떠난 날짜"입니다.
   CalendarDate? _shownDate;
+
+  /// 오늘 화면이 떠난 날짜의 항목 가운데, 그때 요청 중이라 지우지 못한 키. 요청이 끝나면 지웁니다.
+  final _pendingDrop = <String>{};
 
   /// [date]의 [slot]을 가리키는 상태 키.
   static String keyOf(CalendarDate date, String slot) =>
@@ -101,7 +105,8 @@ class ReactionController extends Notifier<Map<String, bool>> {
   /// 오늘 응답 [view]를 슬롯별로 반영합니다.
   ///
   /// [view] 날짜의 항목만 맞춥니다. 오늘 화면의 날짜가 바뀌었으면(자정) 막 떠난 날짜
-  /// ([_shownDate])의 요청 중이 아닌 항목을 지웁니다. 그 밖의 날짜(달력·일기가 다루는 날)의
+  /// ([_shownDate])의 항목을 지우고, 요청 중인 항목은 [_pendingDrop]에 두어 요청이 끝날 때
+  /// 지웁니다. 그 밖의 날짜(달력·일기가 다루는 날)의
   /// 항목은 그 화면의 응답이 맞추므로 여기서는 건드리지 않습니다. 같은 날의 다시 받기·조용히
   /// 다시 받기·캐시 → server 교체에서는 날짜가 그대로라 다른 날짜 항목이 남습니다.
   void _applyResponse(DailyView view) {
@@ -110,8 +115,12 @@ class ReactionController extends Notifier<Map<String, bool>> {
     final dropped = <String>[];
     for (final MapEntry(:key, value: entry) in _entries.entries) {
       if (entry.date != view.date) {
-        if (entry.date == left && !entry.sending) {
-          dropped.add(key);
+        if (entry.date == left) {
+          if (entry.sending) {
+            _pendingDrop.add(key);
+          } else {
+            dropped.add(key);
+          }
         }
         continue;
       }
@@ -136,13 +145,19 @@ class ReactionController extends Notifier<Map<String, bool>> {
         dropped.add(key);
       }
     }
-    if (dropped.isEmpty) {
+    _drop(dropped);
+  }
+
+  /// [keys] 항목과 상태 키를 지웁니다.
+  void _drop(Iterable<String> keys) {
+    final gone = keys.toSet();
+    if (gone.isEmpty) {
       return;
     }
-    _entries.removeWhere((key, _) => dropped.contains(key));
+    _entries.removeWhere((key, _) => gone.contains(key));
     state = {
       for (final entry in state.entries)
-        if (!dropped.contains(entry.key)) entry.key: entry.value,
+        if (!gone.contains(entry.key)) entry.key: entry.value,
     };
   }
 
@@ -223,6 +238,10 @@ class ReactionController extends Notifier<Map<String, bool>> {
       Error.throwWithStackTrace(UnexpectedError(error), stack);
     } finally {
       entry.sending = false;
+      // 요청 중에 오늘 화면이 이 날짜를 떠났으면 이제 지웁니다(성공·실패 모두).
+      if (_pendingDrop.remove(key) && ref.mounted) {
+        _drop([key]);
+      }
     }
   }
 }

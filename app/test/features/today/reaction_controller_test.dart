@@ -403,6 +403,49 @@ void main() {
     ]);
   });
 
+  testWidgets('자정 순간 요청 중이던 떠난 날짜 항목은 요청이 끝난 뒤 지우고 다른 날짜 항목은 남깁니다', (
+    tester,
+  ) async {
+    final (container, tap) = await _boot(
+      tester,
+      overrides: [
+        todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
+      ],
+    );
+    final today = CalendarDate(2026, 10, 13);
+    final dayBefore = CalendarDate(2026, 10, 11);
+    await pressOn(tester, container, dayBefore);
+    tap.hold = Completer<void>();
+    final press = _press(container);
+    await _until(tester, () => tap.requests.length == 2);
+
+    // 오늘(10-13) 요청이 붙잡힌 채 자정을 넘깁니다.
+    container.read(_testTodayProvider.notifier).date = CalendarDate(
+      2026,
+      10,
+      14,
+    );
+    await _until(
+      tester,
+      () =>
+          container.read(dailyControllerProvider).value?.date ==
+          CalendarDate(2026, 10, 14),
+    );
+    // 요청 중이라 아직 남아 있습니다.
+    expect(container.read(reactionControllerProvider).keys.toSet(), {
+      headKey(today),
+      headKey(dayBefore),
+    });
+
+    tap.hold!.complete();
+    await _until(tester, press.finished);
+
+    // 요청이 끝나면 떠난 날짜 항목을 지우고, 그제(10-11) 항목은 남깁니다.
+    expect(container.read(reactionControllerProvider).keys, [
+      headKey(dayBefore),
+    ]);
+  });
+
   testWidgets('같은 날 오늘 응답을 다시 받아도(reload·refreshQuietly) 다른 날짜 항목은 남습니다', (
     tester,
   ) async {
