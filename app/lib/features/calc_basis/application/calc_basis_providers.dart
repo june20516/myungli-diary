@@ -106,16 +106,27 @@ _BirthInput? _birthOfDraft(
   final date = draft.date;
   final time = draft.time;
   if (calendar == null || date == null || time == null) return null;
-  final city = draft.city;
+  final isLeapMonth = calendar == CalendarType.lunar && draft.isLeapMonth;
+  if (deviceRegionIsKorea) {
+    return (
+      calendar: calendar,
+      date: date,
+      isLeapMonth: isLeapMonth,
+      time: time,
+      timezone: _koreaTimezone,
+      cityLongitude: null,
+    );
+  }
   // 해외 기기에서 도시를 안 골랐으면 출생지를 몰라서 null입니다.
-  if (!deviceRegionIsKorea && city == null) return null;
+  final city = draft.city;
+  if (city == null) return null;
   return (
     calendar: calendar,
     date: date,
-    isLeapMonth: calendar == CalendarType.lunar && draft.isLeapMonth,
+    isLeapMonth: isLeapMonth,
     time: time,
-    timezone: deviceRegionIsKorea ? _koreaTimezone : city!.timezone,
-    cityLongitude: deviceRegionIsKorea ? null : city!.longitude.toDouble(),
+    timezone: city.timezone,
+    cityLongitude: city.longitude.toDouble(),
   );
 }
 

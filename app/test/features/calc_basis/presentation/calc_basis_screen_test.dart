@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ja.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -214,6 +216,34 @@ void main() {
         ),
       );
       expect(_longitudeText(tester), contains('서머타임 60분만 빼고'));
+    });
+
+    test('en·ja도 서머타임 분기마다 ARB 값에 인자를 채운 문장입니다', () {
+      const basis = TimeBasis(
+        longitude: 127.5,
+        correctionMinutes: -30,
+        daylightSavingMinutes: 60,
+      );
+      final en = AppLocalizationsEn();
+      final ja = AppLocalizationsJa();
+
+      expect(
+        calcBasisLongitudeText(en, basis),
+        en.calcBasisLongitudeBodyDstSubtract(
+          en.calcBasisLongitudeBodyEast('127.5'),
+          30,
+          60,
+        ),
+      );
+      expect(
+        calcBasisLongitudeText(ja, basis),
+        ja.calcBasisLongitudeBodyDstSubtract(
+          ja.calcBasisLongitudeBodyEast('127.5'),
+          30,
+          60,
+        ),
+      );
+      expect(calcBasisLongitudeText(en, basis), contains('60-minute'));
     });
 
     testWidgets('서머타임과 양수 보정은 DstAdd 문구입니다', (tester) async {
