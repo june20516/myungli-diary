@@ -17,6 +17,7 @@ from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
+from mlw.evidence import check_evidence
 from mlw.ia import check_ia, is_ui_slot, load_ia
 from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
 from mlw.loader import load_content, load_rules, load_slots
@@ -272,6 +273,14 @@ def _read_message_params(path: Path) -> dict[str, list[str]]:
     return {str(key): [str(param) for param in params] for key, params in data.items()}
 
 
+def _read_evidence_sources(path: Path) -> list[str]:
+    """원전 목록(source_ref → 원전 정보 객체)에서 source_ref만 돌려줍니다."""
+    data = _read_json(path)
+    if not isinstance(data, dict) or not all(isinstance(source, dict) for source in data.values()):
+        raise _json_error(path, 1, "원전 목록 파일은 source_ref → 객체인 객체여야 합니다")
+    return [str(ref) for ref in data]
+
+
 def _fixture_problem(data: object) -> str | None:
     """고정 자료 구조가 `check_weeks`의 기대와 어긋나면 이유를, 맞으면 None을 돌려줍니다."""
     if not isinstance(data, dict):
@@ -328,6 +337,8 @@ def _check(args: argparse.Namespace) -> int:
     entries = load_content(args.content)
     message_keys = _read_message_keys(args.message_keys)
     message_params = _read_message_params(args.message_params)
+    evidence_rules = _read_message_params(args.evidence_rules)
+    evidence_sources = _read_evidence_sources(args.evidence_sources)
     fixture = _read_fixture(args.fixture)
     ia = load_ia(args.ia)
 
@@ -337,6 +348,7 @@ def _check(args: argparse.Namespace) -> int:
     findings = [
         *check_ia(all_slots, ia),
         *completeness,
+        *check_evidence(all_slots, evidence_rules, evidence_sources),
         *sentence_findings(all_slots, entries, rules),
         *markup_findings(all_slots, entries),
         *plural_findings(all_slots, entries),
@@ -393,6 +405,12 @@ def _build_parser() -> argparse.ArgumentParser:
     check.add_argument("--message-keys", type=Path, default=paths.MESSAGE_KEYS_FILE, help="메시지 키 파일")
     check.add_argument(
         "--message-params", type=Path, default=paths.MESSAGE_PARAMS_FILE, help="메시지 키별 매개변수 파일"
+    )
+    check.add_argument(
+        "--evidence-rules", type=Path, default=paths.EVIDENCE_RULES_FILE, help="근거 규칙 목록(rule_id → detail 키)"
+    )
+    check.add_argument(
+        "--evidence-sources", type=Path, default=paths.EVIDENCE_SOURCES_FILE, help="근거 원전 목록(source_ref → 원전)"
     )
     check.add_argument("--fixture", type=Path, default=paths.FIXTURE_FILE, help="한 주 검사 고정 자료")
     add_dirs(check)

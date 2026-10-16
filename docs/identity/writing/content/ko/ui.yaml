@@ -106,10 +106,12 @@
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "바꾸기"}
 - {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요."}
 - {slot: calc-basis.schools.body, key: calcBasisSchoolsBody, text: "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBody, text: "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "출생 시각은 서머타임 {dstMinutes}분만 빼고 계산해요. {longitude} 기준이라 경도 보정은 따로 하지 않아요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "동경 {degrees}°"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "서경 {degrees}°"}
 - {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따라요."}
@@ -237,3 +239,28 @@
 - {slot: ui.guide.card, key: todayGuideEyebrow, text: "오늘의 질문"}
 - {slot: ui.guide.a11y, key: todayGuideLabel, text: "일기 질문"}
 - {slot: ui.guide.a11y, key: todayGuideWritten, text: "오늘 일기를 썼어요"}
+# app-bar 제목(#207)
+- {slot: onboard-call.bar.title, key: onboardCallBarTitle, text: "호칭"}
+- {slot: onboard-birth.bar.title, key: onboardBirthBarTitle, text: "생일"}
+- {slot: onboard-time.bar.title, key: onboardTimeBarTitle, text: "태어난 시간"}
+- {slot: onboard-gender.bar.title, key: onboardGenderBarTitle, text: "성별"}
+- {slot: birthplace.bar.title, key: birthplaceBarTitle, text: "출생지"}
+- {slot: preview.bar.title, key: previewBarTitle, text: "첫 풀이"}
+- {slot: login.bar.title, key: loginBarTitle, text: "로그인"}
+- {slot: consent.bar.title, key: consentBarTitle, text: "약관 동의"}
+- {slot: notify-ask.bar.title, key: notifyAskBarTitle, text: "알림"}
+- {slot: today.bar.title, key: todayBarTitle, text: "오늘"}
+- {slot: calendar.bar.title, key: calendarBarTitle, text: "달력"}
+- {slot: event-edit.bar.title, key: eventEditBarTitle, text: "일정"}
+- {slot: diary-list.bar.title, key: diaryListBarTitle, text: "일기"}
+- {slot: diary-edit.bar.title, key: diaryEditBarTitle, text: "일기 쓰기"}
+- {slot: diary-view.bar.title, key: diaryViewBarTitle, text: "{date}의 일기"}
+- {slot: tag-diary.bar.title, key: tagDiaryBarTitle, text: "{tag} 태그"}
+- {slot: my-saju.bar.title, key: mySajuBarTitle, text: "나의 사주"}
+- {slot: saju-chart.bar.title, key: sajuChartBarTitle, text: "사주 표"}
+- {slot: settings.bar.title, key: settingsBarTitle, text: "설정"}
+- {slot: ad-free.bar.title, key: adFreeBarTitle, text: "광고 제거"}
+- {slot: profile-edit.bar.title, key: profileEditBarTitle, text: "정보 수정"}
+- {slot: calc-basis.bar.title, key: calcBasisBarTitle, text: "계산 기준"}
+- {slot: account-delete.bar.title, key: accountDeleteBarTitle, text: "계정 삭제"}
+- {slot: legal.bar.title, key: legalBarTitle, text: "약관·정책"}
