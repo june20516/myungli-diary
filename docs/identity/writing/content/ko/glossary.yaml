@@ -25,3 +25,39 @@
 - {slot: glossary.value_name, key: direction8.sw, text: "남서"}
 - {slot: glossary.value_name, key: direction8.w, text: "서"}
 - {slot: glossary.value_name, key: direction8.nw, text: "북서"}
+# 오행·색·개인 해석 조각(W1-2). 조각은 문장 안에 끼워 읽히는 명사구입니다(W16).
+- {slot: glossary.value_name, key: element.wood, text: "나무"}
+- {slot: glossary.value_name, key: element.fire, text: "불"}
+- {slot: glossary.value_name, key: element.earth, text: "흙"}
+- {slot: glossary.value_name, key: element.metal, text: "쇠"}
+- {slot: glossary.value_name, key: element.water, text: "물"}
+- {slot: glossary.value_name, key: color.wood, text: "초록"}
+- {slot: glossary.value_name, key: color.fire, text: "빨강"}
+- {slot: glossary.value_name, key: color.earth, text: "노랑"}
+- {slot: glossary.value_name, key: color.metal, text: "흰색"}
+- {slot: glossary.value_name, key: color.water, text: "남색"}
+- {slot: glossary.value_name, key: place.year_stem, text: "태어난 해의 천간"}
+- {slot: glossary.value_name, key: place.year_branch, text: "태어난 해의 지지"}
+- {slot: glossary.value_name, key: place.month_stem, text: "태어난 달의 천간"}
+- {slot: glossary.value_name, key: place.month_branch, text: "태어난 달의 지지"}
+- {slot: glossary.value_name, key: place.day_stem, text: "태어난 날의 천간"}
+- {slot: glossary.value_name, key: place.day_branch, text: "태어난 날의 지지"}
+- {slot: glossary.value_name, key: place.hour_stem, text: "태어난 시의 천간"}
+- {slot: glossary.value_name, key: place.hour_branch, text: "태어난 시의 지지"}
+- {slot: glossary.value_name, key: place.year_branch_hidden, text: "태어난 해 지지 속"}
+- {slot: glossary.value_name, key: place.month_branch_hidden, text: "태어난 달 지지 속"}
+- {slot: glossary.value_name, key: place.day_branch_hidden, text: "태어난 날 지지 속"}
+- {slot: glossary.value_name, key: place.hour_branch_hidden, text: "태어난 시 지지 속"}
+- {slot: glossary.value_name, key: role.yongsin, text: "내 사주를 돕는 쪽"}
+- {slot: glossary.value_name, key: role.huisin, text: "도움을 보태는 쪽"}
+- {slot: glossary.value_name, key: role.gisin, text: "조심하면 좋은 쪽"}
+- {slot: glossary.value_name, key: role.neutral, text: "치우치지 않은 쪽"}
+- {slot: glossary.value_name, key: strength.very_weak, text: "힘이 아주 약한 편"}
+- {slot: glossary.value_name, key: strength.weak, text: "힘이 약한 편"}
+- {slot: glossary.value_name, key: strength.neutral, text: "힘이 고른 편"}
+- {slot: glossary.value_name, key: strength.strong, text: "힘이 센 편"}
+- {slot: glossary.value_name, key: strength.very_strong, text: "힘이 아주 센 편"}
+- {slot: glossary.value_name, key: luck.daeun, text: "대운"}
+- {slot: glossary.value_name, key: luck.seun, text: "세운"}
+- {slot: glossary.value_name, key: part.stem, text: "천간"}
+- {slot: glossary.value_name, key: part.branch, text: "지지"}
