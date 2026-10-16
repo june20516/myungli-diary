@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show immutable;
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/luck_level.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
@@ -99,7 +100,7 @@ CalendarDayView dayCellDataOf(
       l10n.dayCellLunar(lunar.month, lunar.day),
       if (lunar.isLeapMonth) l10n.dayCellLeapMonth,
     ],
-    day.level.text.segments.map((segment) => segment.text).join(),
+    plainTextOf(day.level.text),
     if (diaryWritten) l10n.dayCellDiaryWritten,
     if (eventCount > 0) l10n.dayCellEventCount(eventCount),
     if (isToday) l10n.dayCellToday,

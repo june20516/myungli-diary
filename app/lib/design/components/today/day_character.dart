@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -84,9 +85,7 @@ class DayCharacter extends StatelessWidget {
     final badge = DayCharacterBadge(variant: variant, label: label);
     final reasonText = reason;
     final hasReason = reasonText != null && reasonText.segments.isNotEmpty;
-    final spoken = hasReason
-        ? '$label, ${reasonText.segments.map((s) => s.text).join()}'
-        : label;
+    final spoken = hasReason ? '$label, ${plainTextOf(reasonText)}' : label;
     // 배지와 이유는 합친 라벨 하나로 읽고, 화면 글자(배지·이유)는 같은 말을 다시 읽지 않게
     // 숨깁니다. 이유 글자는 읽히지 않게 숨기고, 줄 끝에 끼운 링크(reasonTrailing)만
     // 자기 노드로 따로 초점을 받습니다.

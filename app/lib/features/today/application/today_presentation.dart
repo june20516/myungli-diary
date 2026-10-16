@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -205,10 +206,6 @@ final class SentenceLine {
   /// 원고가 없어 글자가 없거나 공백뿐인 문장이면 true. 그리면 빈 카드가 되므로 화면이 건너뜁니다.
   bool get isBlank => isBlankText(text);
 }
-
-/// [text]의 조각 글자를 이어 보면 비었거나 공백뿐인지. 빈 문장은 자리 없이 건너뜁니다(A22 남은 규칙).
-bool isBlankText(RenderedText text) =>
-    text.segments.map((segment) => segment.text).join().trim().isEmpty;
 
 /// 오늘 화면이 그리는 값 묶음. 화면은 이 값으로만 내용을 그립니다.
 ///

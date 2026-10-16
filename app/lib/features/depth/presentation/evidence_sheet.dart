@@ -7,6 +7,7 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -15,7 +16,6 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
-import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
 /// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
 ///

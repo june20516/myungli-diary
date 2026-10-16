@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
@@ -194,13 +195,10 @@ class ShareImage extends StatelessWidget {
 
   RenderedText get _shownSentence => switch (variant) {
     ShareImageVariant.square => RenderedText(
-      segments: [Segment(text: firstSentence(_plain(sentence)))],
+      segments: [Segment(text: firstSentence(plainTextOf(sentence)))],
     ),
     ShareImageVariant.story || ShareImageVariant.feed => sentence,
   };
-
-  static String _plain(RenderedText text) =>
-      text.segments.map((segment) => segment.text).join();
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +213,7 @@ class ShareImage extends StatelessWidget {
           image: true,
           label:
               semanticLabel ?? AppLocalizations.of(context).shareImageSemantics,
-          value: _plain(sentence),
+          value: plainTextOf(sentence),
           child: ExcludeSemantics(
             child: Material(
               type: MaterialType.transparency,
@@ -362,7 +360,7 @@ class _FittedSentence extends StatelessWidget {
     final style = context.tokens.typography.sentenceCard;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final plain = ShareImage._plain(text);
+        final plain = plainTextOf(text);
         final fitted = _linesThatFit(
           context,
           plain,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
@@ -515,7 +516,7 @@ class _Explain extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final spoken = text.segments.map((s) => s.text).join();
+    final spoken = plainTextOf(text);
     final box = Padding(
       padding: const EdgeInsets.only(
         top: LuckyCardRow._rowGap - LuckyCardRow.hitInset,
