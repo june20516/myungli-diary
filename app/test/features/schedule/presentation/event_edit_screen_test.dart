@@ -514,7 +514,11 @@ void main() {
     await tester.pump();
 
     expect(editable.widget.focusNode.hasFocus, isFalse);
-    expect(server.requests, isEmpty);
+    // 아래 깔린 today가 오늘 일정 줄로 받는 GET은 정상입니다. 쓰기 요청만 없어야 합니다.
+    expect(
+      server.requests.where((request) => request.method != 'GET'),
+      isEmpty,
+    );
     expect(_screen, findsOneWidget);
   });
 
