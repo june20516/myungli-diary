@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -113,9 +114,16 @@ class ShareImage extends StatelessWidget {
   static const String logoAsset = 'assets/brand/myungli/lockup.svg';
 
   /// 로고를 미리 읽어 둡니다. 화면 밖에서 그리기 전에 부르면 로고가 비지 않은 채 캡처됩니다.
-  static Future<void> precache() async {
-    await const SvgAssetLoader(logoAsset).loadBytes(null);
-  }
+  ///
+  /// [context]가 있으면 그 자산 묶음(`DefaultAssetBundle`), 없으면 앱 묶음에서 읽습니다. 렌더와 같은 상한
+  /// ([offscreenRenderTimeout])을 넘으면 [OffscreenRenderTimeout]을 던집니다.
+  static Future<void> precache([BuildContext? context]) =>
+      const SvgAssetLoader(logoAsset)
+          .loadBytes(context)
+          .timeout(
+            offscreenRenderTimeout,
+            onTimeout: () => throw const OffscreenRenderTimeout(),
+          );
 
   static const double _width = 360;
   static const double _contentWidth = _width - Space.s24 * 2;

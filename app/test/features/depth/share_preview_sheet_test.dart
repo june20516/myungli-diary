@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
@@ -81,6 +82,14 @@ TodayContent _content() => TodayContent(
   }),
   diaryWritten: false,
 );
+
+/// 로고 자산 읽기만 끝나지 않게 붙잡는 자산 묶음. 다른 자산은 앱 묶음에서 읽습니다.
+final class _HangingLogoBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) => key == ShareImage.logoAsset
+      ? Completer<ByteData>().future
+      : rootBundle.load(key);
+}
 
 Widget _app({
   required _RecordingRenderer renderer,
@@ -433,6 +442,35 @@ void main() {
       final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
       expect(button.loading, isFalse);
       expect(_segmented(tester).onChanged, isNotNull);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+    });
+
+    testWidgets('로고를 미리 읽는 일이 상한을 넘으면 그리지 않고 오류 toast를 보입니다', (tester) async {
+      final renderer = _RecordingRenderer();
+      final share = FakeShareSheet();
+      final crash = FakeCrashReporter();
+      // 앞선 테스트가 읽어 둔 로고가 남지 않게 SVG 캐시를 비우고, 로고 읽기만 붙잡습니다.
+      svg.cache.clear();
+      await _pump(
+        tester,
+        DefaultAssetBundle(
+          bundle: _HangingLogoBundle(),
+          child: _app(renderer: renderer, share: share, crash: crash),
+        ),
+      );
+      await tester.tap(find.byType(PrimaryButton));
+      await tester.pump();
+      await tester.pump(offscreenRenderTimeout);
+      await tester.pump();
+
+      expect(renderer.calls, isEmpty);
+      expect(share.shared, isEmpty);
+      expect(find.byType(ToastPill), findsOneWidget);
+      expect(crash.errors.single.errorType, 'OffscreenRenderTimeout');
+      expect(
+        tester.widget<PrimaryButton>(find.byType(PrimaryButton)).loading,
+        isFalse,
+      );
       await tester.pumpAndSettle(const Duration(seconds: 5));
     });
 

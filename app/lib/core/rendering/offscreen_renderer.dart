@@ -40,6 +40,10 @@ final class OffscreenRenderTimeout implements Exception {
   String toString() => 'OffscreenRenderTimeout';
 }
 
+/// 화면 밖 렌더 한 번의 상한. 렌더에 앞서 자산을 미리 읽는 일(공유 이미지 로고 등)도 같은
+/// 상한을 써서, 어느 단계도 공유를 끝없이 붙잡지 않게 합니다.
+const Duration offscreenRenderTimeout = Duration(seconds: 10);
+
 /// 화면 밖 `RepaintBoundary`에 그려 PNG로 만드는 [OffscreenRenderer]입니다.
 ///
 /// 화면 트리와 따로 렌더 트리를 잠깐 만들어 `logicalSize`로 배치하고, 자산·글꼴 같은 비동기
@@ -54,10 +58,7 @@ final class OffscreenRenderTimeout implements Exception {
 /// [renderTimeout] 상한이 있어, 끝나지 않는 렌더가 뒤 렌더를 영원히 막지 않습니다.
 final class PngOffscreenRenderer implements OffscreenRenderer {
   /// 렌더러를 만듭니다. [pixelRatio]는 논리 픽셀당 실제 픽셀 수입니다.
-  const new({
-    this.pixelRatio = 3,
-    this.renderTimeout = const Duration(seconds: 10),
-  });
+  const new({this.pixelRatio = 3, this.renderTimeout = offscreenRenderTimeout});
 
   /// 논리 픽셀당 실제 픽셀 수.
   final double pixelRatio;
@@ -75,18 +76,29 @@ final class PngOffscreenRenderer implements OffscreenRenderer {
   @override
   Future<Uint8List> render(Widget widget, Size logicalSize) {
     final result = _inFlight.then((_) {
-      final run = _renderOnce(widget, logicalSize);
-      // 시간 초과 뒤에 이어서 끝나는 렌더의 결과·오류는 버립니다.
+      var abandoned = false;
+      final run = _renderOnce(widget, logicalSize, abandoned: () => abandoned);
+      // 시간 초과면 포기를 알려 렌더가 다음 차례에 멈추고 트리를 걷어 내게 하고, 그 뒤에
+      // 끝나는 렌더의 결과·오류는 버립니다.
       return run.timeout(
         renderTimeout,
-        onTimeout: () => throw const OffscreenRenderTimeout(),
+        onTimeout: () {
+          abandoned = true;
+          run.ignore();
+          throw const OffscreenRenderTimeout();
+        },
       );
     });
     _inFlight = result.then<void>((_) {}, onError: (Object _) {});
     return result;
   }
 
-  Future<Uint8List> _renderOnce(Widget widget, Size logicalSize) async {
+  /// [abandoned]가 참이 되면(시간 초과로 포기) 기다리기를 멈추고 캡처하지 않은 채 정리합니다.
+  Future<Uint8List> _renderOnce(
+    Widget widget,
+    Size logicalSize, {
+    required bool Function() abandoned,
+  }) async {
     final boundary = RenderRepaintBoundary();
     final view = WidgetsBinding.instance.platformDispatcher.views.first;
     final positioned = RenderPositionedBox(child: boundary);
@@ -142,6 +154,9 @@ final class PngOffscreenRenderer implements OffscreenRenderer {
           break;
         }
         await Future<void>.delayed(_tick);
+        if (abandoned()) {
+          throw const OffscreenRenderTimeout();
+        }
         if (rebuildRequested || visualUpdateRequested) {
           rebuildRequested = false;
           visualUpdateRequested = false;

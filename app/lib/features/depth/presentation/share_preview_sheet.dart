@@ -80,14 +80,16 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
     final shareSheet = ref.read(shareSheetProvider);
     final reporter = ref.read(crashReporterProvider);
     final text = shareTextOf(l10n);
+    // 로고를 먼저 읽어 두어 캡처에 빠지지 않게 합니다(첫 await 전에 context로 시작).
+    final logo = ShareImage.precache(context);
     String? failure;
     try {
-      // 로고를 먼저 읽어 두어 캡처에 빠지지 않게 합니다.
-      await ShareImage.precache();
+      await logo;
       final png = await renderer.render(
         ShareRenderHost(locale: locale, child: image),
         ShareImage.logicalSize(variant),
       );
+      // OS 공유 시트는 사용자가 고르고 닫을 때까지 기다리므로 상한을 두지 않습니다.
       await shareSheet.sharePng(png, text: text);
     } on AppError catch (error) {
       failure = errorMessage(l10n, error);
