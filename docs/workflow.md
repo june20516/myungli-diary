@@ -29,7 +29,7 @@
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
 | `docs/coordination/` | 지휘 | 이관 전 문서 보관소 |
-| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**(버전·상태)은 주는 쪽이 계약 PR에서 직접 고칩니다. 새 계약 행 추가와 표 밖 내용은 지휘가 합니다 |
+| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**은 주는 쪽이 계약 PR에서 직접 고치거나 새로 넣습니다. 새 계약 파일이 받는 쪽 검사와 맞물리면 `ci-gate`의 drift 경로에 넣어 달라고 지휘에게 요청합니다. 표의 열 구성과 표 밖 내용은 지휘가 합니다 |
 | 단위의 `CLAUDE.md` | 해당 단위 | 지휘는 착수 안내나 공통 규약 정리 때만 고치고 PR 본문에 적습니다 |
 
 ## 3. 서브 프로젝트의 작업 주기
