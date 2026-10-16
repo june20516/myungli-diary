@@ -391,6 +391,63 @@ void main() {
     expect(tap.paths, hasLength(1));
   });
 
+  testWidgets(
+    'invalidate된 이전 요청이 늦게 끝나도 새 요청의 hold를 지우지 않아, 새 요청이 locked면 정리 때 다시 계산한다',
+    (tester) async {
+      final (container, tap) = await _boot(tester);
+      final release = Completer<void>();
+      tap
+        ..hold['/v1/calendar/2026/10'] = release
+        // 이전 요청(A)은 unlocked로 끝납니다.
+        ..unlockFromNow = true;
+      final states = <AsyncValue<Calendar>>[];
+      final subscription = container.listen(
+        calendarMonthProvider(_october),
+        (_, next) => states.add(next),
+      );
+      addTearDown(subscription.close);
+      await _until(tester, () => tap.paths.length == 1);
+
+      // A를 붙잡은 채 다시 계산합니다. 새 요청(B)은 locked로 먼저 끝납니다.
+      tap.unlockFromNow = false;
+      container.invalidate(calendarMonthProvider(_october));
+      await _until(tester, () => tap.responses == 1);
+      await _until(
+        tester,
+        () =>
+            container
+                .read(calendarMonthProvider(_october))
+                .value
+                ?.evidenceAccess ==
+            EvidenceAccess.locked,
+      );
+
+      // 이제 A가 뒤늦게 unlocked로 끝납니다. B의 hold는 남아야 합니다.
+      release.complete();
+      await _until(tester, () => tap.responses == 2);
+      for (var i = 0; i < 3; i++) {
+        await _spin(tester);
+      }
+      expect(
+        container.read(calendarMonthProvider(_october)).value?.evidenceAccess,
+        EvidenceAccess.locked,
+      );
+
+      await tester.runAsync(
+        () => container.read(calendarUnlockSyncProvider).forgetLocked(),
+      );
+      await _until(
+        tester,
+        () =>
+            container
+                .read(calendarMonthProvider(_october))
+                .value
+                ?.evidenceAccess ==
+            EvidenceAccess.unlocked,
+      );
+    },
+  );
+
   testWidgets('잠금 정리 전에 출발한 locked 응답은 정리 뒤에 도착해도 저장하지 않는다', (tester) async {
     final (container, tap) = await _boot(tester);
     final cache = container.read(cacheStoreProvider);

@@ -62,12 +62,16 @@ final FutureProviderFamily<Calendar, CalendarMonth> calendarMonthProvider =
           cacheKey: key,
           mayStoreLocked: () => unlockSync.generation == generation,
         );
-        if (calendar.evidenceAccess != EvidenceAccess.locked) {
+        // invalidate로 버려진 요청이 늦게 끝나면 이미 onDispose가 풀었고, 지금 hold는 새
+        // 요청의 것입니다. 그래서 살아 있는 요청만 자기 hold를 풉니다.
+        if (ref.mounted && calendar.evidenceAccess != EvidenceAccess.locked) {
           unlockSync._release(month);
         }
         return calendar;
       } on Object {
-        unlockSync._release(month);
+        if (ref.mounted) {
+          unlockSync._release(month);
+        }
         rethrow;
       }
     }, retry: (_, _) => null);
