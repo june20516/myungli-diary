@@ -66,6 +66,8 @@ type converter struct {
 	loc *time.Location
 	// unlocked는 근거 열람 권한입니다. false면 View에 근거가 남아 있어도 옮기지 않습니다.
 	unlocked bool
+	// reactions는 슬롯 id -> 이 사용자가 남긴 반응입니다(오늘 화면만). 반응할 수 있는 슬롯에만 옮깁니다.
+	reactions map[string]string
 }
 
 // fail은 첫 오류만 남깁니다.
@@ -211,6 +213,10 @@ func (c *converter) slotText(t content.SlotText) gen.SlotText {
 		evidence := convertAll(t.Evidence, evidenceOf)
 		out.Evidence = &evidence
 	}
+	if reaction, ok := c.reactions[t.Slot]; ok && t.Reactable {
+		value := contractValue[gen.SlotTextReaction](c, "SlotText.reaction", reaction)
+		out.Reaction = &value
+	}
 	return out
 }
 
@@ -246,9 +252,9 @@ func (c *converter) notices(notices []content.Notice) []gen.Notice {
 	})
 }
 
-// toDaily는 오늘 화면 묶음을 계약 Daily로 바꿉니다.
-func toDaily(view fortune.DailyView, date openapi_types.Date, loc *time.Location) (gen.Daily, error) {
-	c := &converter{loc: loc, unlocked: view.Unlocked}
+// toDaily는 오늘 화면 묶음을 계약 Daily로 바꿉니다. reactions는 슬롯 id -> 이 사용자가 남긴 반응입니다.
+func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_types.Date, loc *time.Location) (gen.Daily, error) {
+	c := &converter{loc: loc, unlocked: view.Unlocked, reactions: reactions}
 	r := view.Response
 	out := gen.Daily{
 		Date:            date,

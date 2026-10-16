@@ -68,6 +68,17 @@ func (q *Queries) DeactivateSeeds(ctx context.Context, version string) error {
 	return err
 }
 
+const getActiveReaction = `-- name: GetActiveReaction :one
+SELECT reaction FROM reactions WHERE selection_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetActiveReaction(ctx context.Context, selectionID int64) (string, error) {
+	row := q.db.QueryRow(ctx, getActiveReaction, selectionID)
+	var reaction string
+	err := row.Scan(&reaction)
+	return reaction, err
+}
+
 const getActiveSeed = `-- name: GetActiveSeed :one
 SELECT version FROM content_seeds WHERE active
 `
@@ -131,6 +142,24 @@ func (q *Queries) GetSelection(ctx context.Context, arg GetSelectionParams) (Get
 	return i, err
 }
 
+const insertReaction = `-- name: InsertReaction :exec
+INSERT INTO reactions (selection_id, reaction, created_at)
+VALUES ($1, $2, $3)
+ON CONFLICT (selection_id) WHERE deleted_at IS NULL DO NOTHING
+`
+
+type InsertReactionParams struct {
+	SelectionID int64
+	Reaction    string
+	CreatedAt   time.Time
+}
+
+// 동시 요청이 함께 넣으면 부분 unique 인덱스(활성은 하나) 덕분에 하나만 남습니다.
+func (q *Queries) InsertReaction(ctx context.Context, arg InsertReactionParams) error {
+	_, err := q.db.Exec(ctx, insertReaction, arg.SelectionID, arg.Reaction, arg.CreatedAt)
+	return err
+}
+
 const insertSeed = `-- name: InsertSeed :execrows
 
 INSERT INTO content_seeds (version) VALUES ($1)
@@ -177,6 +206,65 @@ func (q *Queries) InsertSelection(ctx context.Context, arg InsertSelectionParams
 	var id int64
 	err := row.Scan(&id)
 	return id, err
+}
+
+const listActiveReactions = `-- name: ListActiveReactions :many
+SELECT selection_id, reaction FROM reactions
+WHERE selection_id = ANY($1::bigint[]) AND deleted_at IS NULL
+`
+
+type ListActiveReactionsRow struct {
+	SelectionID int64
+	Reaction    string
+}
+
+func (q *Queries) ListActiveReactions(ctx context.Context, selectionIds []int64) ([]ListActiveReactionsRow, error) {
+	rows, err := q.db.Query(ctx, listActiveReactions, selectionIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListActiveReactionsRow
+	for rows.Next() {
+		var i ListActiveReactionsRow
+		if err := rows.Scan(&i.SelectionID, &i.Reaction); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listHanja = `-- name: ListHanja :many
+SELECT term, hanja FROM content_hanja WHERE seed_version = $1
+`
+
+type ListHanjaRow struct {
+	Term  string
+	Hanja string
+}
+
+func (q *Queries) ListHanja(ctx context.Context, seedVersion string) ([]ListHanjaRow, error) {
+	rows, err := q.db.Query(ctx, listHanja, seedVersion)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListHanjaRow
+	for rows.Next() {
+		var i ListHanjaRow
+		if err := rows.Scan(&i.Term, &i.Hanja); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listOtherHashVariants = `-- name: ListOtherHashVariants :many

@@ -53,6 +53,14 @@ func Apply(ctx context.Context, pool *pgxpool.Pool, s seed.Seed) (applied bool, 
 				[]string{"seed_version", "slot", "key", "variant", "lang", "body"}, pgx.CopyFromRows(rows)); err != nil {
 				return fmt.Errorf("문장 틀 기록: %w", err)
 			}
+			hanja := make([][]any, 0, len(s.Hanja))
+			for term, h := range s.Hanja {
+				hanja = append(hanja, []any{s.Version, term, h})
+			}
+			if _, err := tx.CopyFrom(ctx, pgx.Identifier{"content_hanja"},
+				[]string{"seed_version", "term", "hanja"}, pgx.CopyFromRows(hanja)); err != nil {
+				return fmt.Errorf("한자 표기 기록: %w", err)
+			}
 			applied = true
 		}
 		// 부분 unique 인덱스(활성은 하나)를 지키려고 옛 활성을 먼저 끕니다.
@@ -120,11 +128,16 @@ type Store struct {
 	cache map[cacheKey]*templates
 	// loads는 같은 키를 동시에 요청한 호출을 DB 조회 한 번으로 합칩니다.
 	loads singleflight.Group
+
+	// glossaryMu는 glossaries 맵만 지킵니다.
+	glossaryMu sync.Mutex
+	// glossaries는 (버전, 언어)별로 만든 용어 사전입니다. 문장 틀과 같은 이유로 무효화할 일이 없습니다.
+	glossaries map[cacheKey]Glossary
 }
 
 // NewStore는 pool과 clk를 쓰는 Store를 만듭니다.
 func NewStore(pool *pgxpool.Pool, clk clock.Clock) *Store {
-	return &Store{pool: pool, queries: contentdb.New(pool), clock: clk, cache: map[cacheKey]*templates{}}
+	return &Store{pool: pool, queries: contentdb.New(pool), clock: clk, cache: map[cacheKey]*templates{}, glossaries: map[cacheKey]Glossary{}}
 }
 
 // Active는 활성 시드 버전을 돌려줍니다. 없으면 ErrNoActiveSeed입니다.

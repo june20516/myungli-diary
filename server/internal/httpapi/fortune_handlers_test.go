@@ -192,7 +192,7 @@ func TestGetDaily_Returns200(t *testing.T) {
 	leaked.Evidence = []content.Evidence{{RuleID: rawEvidenceRule, SourceRef: "s", Basis: []render.Segment{{Text: "근거"}}}}
 	view.Texts[fortune.SlotFortuneHead] = leaked
 	readings := &fakeReadings{daily: view}
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings, Contents: &fakeContents{}}
 
 	req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
 
@@ -274,7 +274,7 @@ func TestGetDaily_UnlockedIncludesEvidence(t *testing.T) {
 		Basis: []render.Segment{{Text: "용신이 목이라"}},
 	}}
 	view.Texts[fortune.SlotFortuneHead] = head
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
 
 	req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
 
@@ -311,7 +311,7 @@ func TestGetDaily_ProfileMissingIs409(t *testing.T) {
 
 func TestGetDaily_OutOfRangeIs422(t *testing.T) {
 	readings := &fakeReadings{err: fmt.Errorf("엔진 데일리: %w", engine.ErrOutOfRange)}
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings, Contents: &fakeContents{}}
 
 	req, rec, _ := getFortune(t, api, "/v1/daily/2100-01-01")
 
@@ -325,7 +325,7 @@ func TestGetDaily_OutOfRangeIs422(t *testing.T) {
 
 func TestGetDaily_NoActiveSeedIs503(t *testing.T) {
 	readings := &fakeReadings{err: content.ErrNoActiveSeed}
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings, Contents: &fakeContents{}}
 
 	req, rec, logs := getFortune(t, api, "/v1/daily/2026-10-13")
 
@@ -338,7 +338,7 @@ func TestGetDaily_NoActiveSeedIs503(t *testing.T) {
 func TestGetDaily_UnknownEngineEnumIs500(t *testing.T) {
 	view := dailyView()
 	view.Response.Day.Stem = enginev1.Stem_STEM_UNSPECIFIED
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
 
 	req, rec, logs := getFortune(t, api, "/v1/daily/2026-10-13")
 

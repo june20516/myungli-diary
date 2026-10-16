@@ -69,10 +69,12 @@ type Template struct {
 
 // Seed는 콘텐츠 시드 전체입니다.
 type Seed struct {
-	// Version은 Slots와 Templates 내용에서 계산한 지문입니다. 같은 내용이면 같습니다.
+	// Version은 Slots, Templates, Hanja 내용에서 계산한 지문입니다. 같은 내용이면 같습니다.
 	Version   string          `json:"version"`
 	Slots     map[string]Slot `json:"slots"`
 	Templates []Template      `json:"templates"`
+	// Hanja는 용어 id -> 한자 표기입니다. 언어와 상관없이 한 벌입니다(#226).
+	Hanja map[string]string `json:"hanja"`
 }
 
 // Normalize는 Templates를 (Slot, Key, Variant, Lang) 순으로 정렬하고 Version을 다시 계산합니다.
@@ -83,6 +85,9 @@ func (s *Seed) Normalize() error {
 	}
 	if s.Templates == nil {
 		s.Templates = []Template{}
+	}
+	if s.Hanja == nil {
+		s.Hanja = map[string]string{}
 	}
 	sort.Slice(s.Templates, func(i, j int) bool {
 		a, b := s.Templates[i], s.Templates[j]
@@ -97,7 +102,7 @@ func (s *Seed) Normalize() error {
 		}
 		return a.Lang < b.Lang
 	})
-	// encoding/json은 map 키를 정렬해 쓰므로 Slots JSON도 결정적입니다.
+	// encoding/json은 map 키를 정렬해 쓰므로 Slots·Hanja JSON도 결정적입니다.
 	templates, err := json.Marshal(s.Templates)
 	if err != nil {
 		return fmt.Errorf("templates 직렬화: %w", err)
@@ -106,9 +111,14 @@ func (s *Seed) Normalize() error {
 	if err != nil {
 		return fmt.Errorf("slots 직렬화: %w", err)
 	}
+	hanja, err := json.Marshal(s.Hanja)
+	if err != nil {
+		return fmt.Errorf("hanja 직렬화: %w", err)
+	}
 	sum := sha256.New()
 	sum.Write(templates)
 	sum.Write(slots)
+	sum.Write(hanja)
 	s.Version = hex.EncodeToString(sum.Sum(nil))[:16]
 	return nil
 }

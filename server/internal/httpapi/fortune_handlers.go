@@ -19,23 +19,31 @@ const (
 	fieldCalendarYear = "year"
 )
 
-// GetDaily는 그날의 데일리를 돌려줍니다. 프로필이 없으면 409 profile.required, D41 지원 범위 밖이면 422 date.out_of_range,
-// 활성 콘텐츠 시드가 없으면 503 service.unavailable입니다.
+// GetDaily는 그날의 데일리를 돌려줍니다. 반응할 수 있는 슬롯에는 이 사용자가 남긴 반응을 싣습니다.
+// 프로필이 없으면 409 profile.required, D41 지원 범위 밖이면 422 date.out_of_range,
+// 활성 콘텐츠 시드가 없거나 Contents가 조립되지 않았으면 503 service.unavailable입니다.
 func (a *API) GetDaily(ctx context.Context, req gen.GetDailyRequestObject) (gen.GetDailyResponseObject, error) {
 	id, p, err := a.fortuneProfile(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if a.Contents == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	}
 	date := profile.LocalDate{Year: req.Date.Year(), Month: int(req.Date.Month()), Day: req.Date.Day()}
 	view, err := a.Readings.Daily(ctx, id, p, date)
 	if err != nil {
 		return nil, outOfRangeError(err, fieldDailyDate)
 	}
+	reactions, err := a.dailyReactions(ctx, view)
+	if err != nil {
+		return nil, err
+	}
 	loc, err := currentLocation(p)
 	if err != nil {
 		return nil, err
 	}
-	body, err := toDaily(view, req.Date, loc)
+	body, err := toDaily(view, reactions, req.Date, loc)
 	if err != nil {
 		return nil, err
 	}

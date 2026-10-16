@@ -23,6 +23,15 @@ CREATE TABLE content_templates (
     PRIMARY KEY (seed_version, slot, key, variant, lang)
 );
 
+-- 용어 한자 표기입니다(#226). 언어와 상관없이 시드 버전마다 한 벌입니다.
+-- content_templates의 lang CHECK(ko·en·ja)에 맞지 않고 (slot, key, variant)도 쓰지 않아 따로 둡니다.
+CREATE TABLE content_hanja (
+    seed_version text NOT NULL REFERENCES content_seeds (version) ON DELETE RESTRICT,
+    term         text NOT NULL,
+    hanja        text NOT NULL,
+    PRIMARY KEY (seed_version, term)
+);
+
 -- 하루·슬롯마다 어떤 문장을 골랐는지의 기록입니다. 사주 지문(birth_hash)이 달라지면 새로 고르므로 키에 들어갑니다.
 CREATE TABLE daily_selections (
     id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -61,5 +70,6 @@ CREATE UNIQUE INDEX reactions_one_active ON reactions (selection_id) WHERE delet
 DROP TABLE reactions;
 DROP TABLE rotation_state;
 DROP TABLE daily_selections;
+DROP TABLE content_hanja;
 DROP TABLE content_templates;
 DROP TABLE content_seeds;

@@ -4,11 +4,13 @@
 //
 //	slots/content/*.yaml     콘텐츠 슬롯 명세
 //	content/<lang>/*.yaml    원고 줄 {slot, key, type, variant, text}
+//	content/hanja.yaml       용어 한자 표기 {term, hanja}(언어 무관 한 벌, 없으면 빈 사전)
 //
 // 슬롯 명세에 없는 슬롯(ui 슬롯 등)의 줄과 예시 파일(example.yaml)은 시드에 넣지 않습니다.
 package convert
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -26,6 +28,8 @@ import (
 const (
 	// exampleFile은 라운드 전 임시 원고라 시드에 넣지 않는 파일 이름입니다.
 	exampleFile = "example.yaml"
+	// hanjaFile은 content/ 바로 아래의 용어 한자 표기 파일입니다.
+	hanjaFile = "hanja.yaml"
 
 	glossarySlot  = "glossary.value_name"
 	tagLabelSlot  = "daily.tag_label"
@@ -157,9 +161,13 @@ func Run(writingDir string) (seed.Seed, Report, error) {
 	if err != nil {
 		return seed.Seed{}, Report{}, err
 	}
+	hanja, err := loadHanja(filepath.Join(writingDir, "content", hanjaFile))
+	if err != nil {
+		return seed.Seed{}, Report{}, err
+	}
 	names := nameIndex(entries)
 
-	out := seed.Seed{Slots: make(map[string]seed.Slot, len(slots))}
+	out := seed.Seed{Slots: make(map[string]seed.Slot, len(slots)), Hanja: hanja}
 	for id, info := range slots {
 		slot, err := toSeedSlot(info)
 		if err != nil {
@@ -325,6 +333,69 @@ func readEntries(file, lang string, slots map[string]slotInfo) ([]entry, error) 
 		entries = append(entries, e)
 	}
 	return entries, nil
+}
+
+// hanjaEntry는 hanja.yaml의 항목 하나입니다.
+type hanjaEntry struct {
+	Term  string `yaml:"term"`
+	Hanja string `yaml:"hanja"`
+}
+
+// loadHanja는 용어 한자 표기 파일을 용어 id -> 한자로 읽습니다. 파일이 없으면 빈 사전입니다.
+// 목록이 아니거나, 항목 형식이 틀리거나(모르는 필드 포함), 용어 id 형식이 아니거나, 한자가 비었거나, 용어가 중복되면
+// 파일:줄 위치를 담은 오류입니다.
+func loadHanja(file string) (map[string]string, error) {
+	hanja := map[string]string{}
+	data, err := os.ReadFile(file) //nolint:gosec // 호출자가 정한 writing 트리 경로입니다.
+	if errors.Is(err, os.ErrNotExist) {
+		return hanja, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("한자 표기 읽기: %w", err)
+	}
+	var doc yaml.Node
+	if err := yaml.Unmarshal(data, &doc); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	if len(doc.Content) == 0 {
+		return hanja, nil
+	}
+	list := doc.Content[0]
+	if list.Kind != yaml.SequenceNode {
+		return nil, fmt.Errorf("%s:%d: 한자 표기는 {term, hanja} 목록이어야 합니다", file, list.Line)
+	}
+	for _, node := range list.Content {
+		where := fmt.Sprintf("%s:%d", file, node.Line)
+		var e hanjaEntry
+		if err := decodeStrict(node, &e); err != nil {
+			return nil, fmt.Errorf("%s: 한자 표기 항목 형식 오류: %w", where, err)
+		}
+		if !isTermID(e.Term) {
+			return nil, fmt.Errorf("%s: 용어 id %q의 형식이 <범주>.<값> 또는 tag.<키>가 아닙니다", where, e.Term)
+		}
+		if strings.TrimSpace(e.Hanja) == "" {
+			return nil, fmt.Errorf("%s: 용어 %s의 한자가 비어 있습니다", where, e.Term)
+		}
+		if _, dup := hanja[e.Term]; dup {
+			return nil, fmt.Errorf("%s: 용어 %s의 한자 표기가 중복됩니다", where, e.Term)
+		}
+		hanja[e.Term] = e.Hanja
+	}
+	return hanja, nil
+}
+
+// decodeStrict는 맵 노드를 out으로 읽되, out에 없는 필드가 있으면 오류입니다.
+func decodeStrict(node *yaml.Node, out any) error {
+	if node.Kind != yaml.MappingNode {
+		return errors.New("맵이 아닙니다")
+	}
+	encoded, err := yaml.Marshal(node)
+	if err != nil {
+		return err
+	}
+	dec := yaml.NewDecoder(bytes.NewReader(encoded))
+	dec.KnownFields(true)
+	return dec.Decode(out)
 }
 
 // toSeedSlot은 슬롯 명세를 시드 슬롯으로 옮깁니다. 같은 매개변수 이름의 값 종류가 키마다 다르면 오류입니다.

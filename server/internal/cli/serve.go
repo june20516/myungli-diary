@@ -107,7 +107,8 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		}
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
-	readings, err := newReadings(pool, fortuneService, logger, clock.System{})
+	contents := content.NewStore(pool, clock.System{})
+	readings, err := newReadings(contents, fortuneService, logger, clock.System{})
 	if err != nil {
 		logger.ErrorContext(ctx, "운세 화면 조립 실패", "error", err)
 		return &loggedError{err: err}
@@ -118,6 +119,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Charts:   fortuneService,
 		Lunar:    engineClient,
 		Readings: readings,
+		Contents: contents,
 		Logger:   logger,
 		Clock:    clock.System{},
 		HTTP:     newProviderHTTPClient(),
@@ -289,6 +291,8 @@ type serverDeps struct {
 	Lunar httpapi.LunarConverter
 	// Readings는 운세 operation의 화면 묶음입니다(fortune.Views). 비어 있으면 운세 operation은 503입니다.
 	Readings httpapi.Readings
+	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
+	Contents httpapi.Contents
 	Logger   *slog.Logger
 	Clock    clock.Clock
 	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
@@ -298,12 +302,11 @@ type serverDeps struct {
 
 // newReadings는 운세 화면 묶음을 조립합니다. 슬롯 명세는 내장 시드에서, 문장 틀은 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
 // 근거 열람 권한 판정은 P7 전까지 늘 잠김입니다(D60).
-func newReadings(pool *pgxpool.Pool, service *fortune.Service, logger *slog.Logger, clk clock.Clock) (*fortune.Views, error) {
+func newReadings(store *content.Store, service *fortune.Service, logger *slog.Logger, clk clock.Clock) (*fortune.Views, error) {
 	s, err := seed.Load()
 	if err != nil {
 		return nil, err
 	}
-	store := content.NewStore(pool, clk)
 	renderer := content.NewRenderer(logger, s.Slots)
 	return fortune.NewViews(service, store, renderer, s.Slots, fortune.AlwaysLocked{}, clk, logger), nil
 }
@@ -378,6 +381,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Profiles: profileService,
 		Lunar:    deps.Lunar,
 		Readings: deps.Readings,
+		Contents: deps.Contents,
 		DB:       deps.Pool,
 		Logger:   deps.Logger,
 		AppLink:  settings.appLink,

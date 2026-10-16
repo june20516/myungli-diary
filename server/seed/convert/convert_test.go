@@ -182,3 +182,54 @@ func TestRun_IsDeterministic(t *testing.T) {
 	assert.Equal(t, first.Version, second.Version)
 	assert.Len(t, first.Version, 16)
 }
+
+func TestRun_ReadsHanja(t *testing.T) {
+	s, _, err := convert.Run(basicDir)
+	require.NoError(t, err)
+	assert.Equal(t, map[string]string{"ten_god.pyeongwan": "偏官", "tag.dohwa": "桃花"}, s.Hanja)
+}
+
+func TestRun_MissingHanjaFileIsEmpty(t *testing.T) {
+	s, _, err := convert.Run("testdata/complete")
+	require.NoError(t, err)
+	assert.NotNil(t, s.Hanja)
+	assert.Empty(t, s.Hanja)
+}
+
+// withHanja는 basic 트리를 임시 디렉터리에 복사하고 content/hanja.yaml을 data로 바꾼 경로를 돌려줍니다.
+func withHanja(t *testing.T, data string) string {
+	t.Helper()
+	dir := t.TempDir()
+	require.NoError(t, os.CopyFS(dir, os.DirFS(basicDir)))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "content", "hanja.yaml"), []byte(data), 0o600))
+	return dir
+}
+
+func TestRun_HanjaChangesVersion(t *testing.T) {
+	base, _, err := convert.Run(basicDir)
+	require.NoError(t, err)
+	changed, _, err := convert.Run(withHanja(t, "- {term: ten_god.pyeongwan, hanja: \"七殺\"}\n"))
+	require.NoError(t, err)
+	assert.NotEqual(t, base.Version, changed.Version)
+}
+
+func TestRun_HanjaFormatErrors(t *testing.T) {
+	tests := []struct {
+		name, data, wantWhere, wantErr string
+	}{
+		{"목록이 아님", "term: x\n", "hanja.yaml", "목록"},
+		{"항목 형식", "- {term: ten_god.a, hanja: [x]}\n", "hanja.yaml:1", "형식"},
+		{"모르는 필드", "- {term: ten_god.a, hanja: \"甲\", lang: ko}\n", "hanja.yaml:1", "형식"},
+		{"용어 id 형식", "- {term: 아무거나, hanja: \"甲\"}\n", "hanja.yaml:1", "용어 id"},
+		{"빈 한자", "- {term: stem.gap, hanja: \" \"}\n", "hanja.yaml:1", "비어"},
+		{"중복", "- {term: stem.gap, hanja: \"甲\"}\n- {term: stem.gap, hanja: \"甲\"}\n", "hanja.yaml:2", "중복"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, err := convert.Run(withHanja(t, tt.data))
+			require.Error(t, err)
+			assert.ErrorContains(t, err, tt.wantWhere)
+			assert.ErrorContains(t, err, tt.wantErr)
+		})
+	}
+}

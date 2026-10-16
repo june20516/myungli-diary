@@ -64,6 +64,12 @@ type Consent struct {
 	CreatedAt time.Time
 }
 
+type ContentHanja struct {
+	SeedVersion string
+	Term        string
+	Hanja       string
+}
+
 type ContentSeed struct {
 	Version   string
 	AppliedAt time.Time

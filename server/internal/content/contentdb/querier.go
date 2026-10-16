@@ -14,13 +14,18 @@ type Querier interface {
 	// today_count는 오늘, week_count는 오늘을 포함한 최근 7일(week_start ~ today)입니다.
 	CountCare(ctx context.Context, arg CountCareParams) (CountCareRow, error)
 	DeactivateSeeds(ctx context.Context, version string) error
+	GetActiveReaction(ctx context.Context, selectionID int64) (string, error)
 	GetActiveSeed(ctx context.Context) (string, error)
 	GetRotation(ctx context.Context, arg GetRotationParams) (string, error)
 	GetSelection(ctx context.Context, arg GetSelectionParams) (GetSelectionRow, error)
+	// 동시 요청이 함께 넣으면 부분 unique 인덱스(활성은 하나) 덕분에 하나만 남습니다.
+	InsertReaction(ctx context.Context, arg InsertReactionParams) error
 	// 콘텐츠 시드 적재와 읽기, 문장 선택 기록·순환 상태 쿼리입니다.
 	InsertSeed(ctx context.Context, version string) (int64, error)
 	// 동시 요청이 같은 행을 넣으면 하나만 남고, 진 쪽은 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	InsertSelection(ctx context.Context, arg InsertSelectionParams) (int64, error)
+	ListActiveReactions(ctx context.Context, selectionIds []int64) ([]ListActiveReactionsRow, error)
+	ListHanja(ctx context.Context, seedVersion string) ([]ListHanjaRow, error)
 	// 같은 (계정, 날짜, 슬롯)에서 지문이 다른 기록들이 쓴 variant입니다. 같은 날 다시 고를 때 이 유형을 피합니다.
 	ListOtherHashVariants(ctx context.Context, arg ListOtherHashVariantsParams) ([]string, error)
 	ListTemplates(ctx context.Context, arg ListTemplatesParams) ([]ListTemplatesRow, error)

@@ -64,3 +64,19 @@ WHERE account_id = @account_id AND date = @date AND slot = @slot AND birth_hash 
 -- 선택 기록의 문장이 바뀌면 옛 문장에 남긴 활성 반응을 soft delete합니다.
 UPDATE reactions SET deleted_at = @deleted_at
 WHERE selection_id = @selection_id AND deleted_at IS NULL;
+
+-- name: ListHanja :many
+SELECT term, hanja FROM content_hanja WHERE seed_version = @seed_version;
+
+-- name: GetActiveReaction :one
+SELECT reaction FROM reactions WHERE selection_id = @selection_id AND deleted_at IS NULL;
+
+-- name: InsertReaction :exec
+-- 동시 요청이 함께 넣으면 부분 unique 인덱스(활성은 하나) 덕분에 하나만 남습니다.
+INSERT INTO reactions (selection_id, reaction, created_at)
+VALUES (@selection_id, @reaction, @created_at)
+ON CONFLICT (selection_id) WHERE deleted_at IS NULL DO NOTHING;
+
+-- name: ListActiveReactions :many
+SELECT selection_id, reaction FROM reactions
+WHERE selection_id = ANY(@selection_ids::bigint[]) AND deleted_at IS NULL;
