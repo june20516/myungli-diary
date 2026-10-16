@@ -7,8 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
+	"github.com/june20516/myungli-diary/server/seed"
 )
 
 func runCLI(t *testing.T, args ...string) (int, string) {
@@ -120,8 +122,8 @@ func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Status: %v", err)
 	}
-	if len(statuses) != 4 {
-		t.Fatalf("migrate up 뒤 status = %+v, want migration 네 개", statuses)
+	if len(statuses) != 5 {
+		t.Fatalf("migrate up 뒤 status = %+v, want migration 다섯 개", statuses)
 	}
 	for _, status := range statuses {
 		if !status.Applied {
@@ -151,8 +153,8 @@ func TestRun_MigrateDownWithNothingApplied_Exits1WithClearLog(t *testing.T) {
 	pool := dbtest.New(t)
 	env := map[string]string{"DATABASE_URL": pool.Config().ConnString()}
 
-	// migration 파일이 넷이므로 넷 다 되돌려야 적용된 것이 없어집니다.
-	for i := 1; i <= 4; i++ {
+	// migration 파일이 다섯이므로 다섯 다 되돌려야 적용된 것이 없어집니다.
+	for i := 1; i <= 5; i++ {
 		if code, _, stderr := runCLIWithEnv(t, env, "migrate", "down"); code != 0 {
 			t.Fatalf("%d번째 down 종료 코드 = %d, stderr = %q", i, code, stderr)
 		}
@@ -175,5 +177,44 @@ func TestRun_ExtraArgs_Exits2(t *testing.T) {
 		if want := "usage: server " + args[0]; strings.TrimSpace(stderr) != want {
 			t.Errorf("%v: stderr = %q, want %q", args, stderr, want)
 		}
+	}
+}
+
+func TestRunSeed_AppliesEmbeddedSeed(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	env := map[string]string{"DATABASE_URL": pool.Config().ConnString()}
+
+	embedded, err := seed.Load()
+	if err != nil {
+		t.Fatalf("seed.Load: %v", err)
+	}
+	// 두 번 돌려도 성공해야 합니다(배포마다 돕니다).
+	for i := 0; i < 2; i++ {
+		if code, _, stderr := runCLIWithEnv(t, env, "seed"); code != 0 {
+			t.Fatalf("%d번째 seed 종료 코드 = %d, stderr = %q", i+1, code, stderr)
+		}
+	}
+
+	version, err := content.NewStore(pool).Active(ctx)
+	if err != nil {
+		t.Fatalf("Active: %v", err)
+	}
+	if version != embedded.Version {
+		t.Errorf("활성 버전 = %q, want %q", version, embedded.Version)
+	}
+	var count int
+	if err := pool.QueryRow(ctx, "SELECT count(*) FROM content_templates WHERE seed_version = $1", version).Scan(&count); err != nil {
+		t.Fatalf("count: %v", err)
+	}
+	if count != len(embedded.Templates) {
+		t.Errorf("문장 틀 수 = %d, want %d", count, len(embedded.Templates))
+	}
+}
+
+func TestRunSeed_WithoutDatabaseURL_Exits1(t *testing.T) {
+	code, stderr := runCLI(t, "seed")
+	if code != 1 || !strings.Contains(stderr, "DATABASE_URL") {
+		t.Errorf("종료 코드 = %d, stderr = %q, want 1과 DATABASE_URL 안내", code, stderr)
 	}
 }

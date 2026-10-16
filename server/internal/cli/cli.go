@@ -12,12 +12,14 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
+	"github.com/june20516/myungli-diary/server/seed"
 )
 
-// ErrNotImplemented는 아직 채워지지 않은 하위 명령이 반환합니다(seed, job *은 P4·P8에서 채웁니다).
+// ErrNotImplemented는 아직 채워지지 않은 하위 명령이 반환합니다(job *은 P8에서 채웁니다).
 var ErrNotImplemented = errors.New("not implemented")
 
 // 종료 코드입니다.
@@ -151,17 +153,45 @@ func printStatus(ctx context.Context, pool *pgxpool.Pool, stdout io.Writer, logg
 	return nil
 }
 
-// runSeed는 P4에서 채웁니다.
-func runSeed(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
+// runSeed는 내장 콘텐츠 시드를 DB에 적재하고 활성 시드로 바꿉니다. 같은 시드를 다시 돌려도 안전합니다.
+func runSeed(ctx context.Context, args []string, getenv func(string) string, _, stderr io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server seed")
 	}
-	return ErrNotImplemented
+
+	cfg, err := config.Load(getenv)
+	if err != nil {
+		return err
+	}
+	if err := cfg.RequireDatabase(); err != nil {
+		return err
+	}
+	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
+
+	s, err := seed.Load()
+	if err != nil {
+		logger.ErrorContext(ctx, "내장 시드 읽기 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	defer pool.Close()
+
+	applied, err := content.Apply(ctx, pool, s)
+	if err != nil {
+		logger.ErrorContext(ctx, "시드 적재 실패", "version", s.Version, "error", err)
+		return &loggedError{err: err}
+	}
+	logger.InfoContext(ctx, "시드 적용 완료", "version", s.Version, "newly_applied", applied, "templates", len(s.Templates))
+	return nil
 }
 
 var jobNames = []string{"precompute", "notify", "retention"}
 
-// runJob은 작업 이름을 검증합니다. 각 작업은 P4·P8에서 채웁니다.
+// runJob은 작업 이름을 검증합니다. 각 작업은 P8에서 채웁니다.
 func runJob(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
 	if len(args) != 1 || !slices.Contains(jobNames, args[0]) {
 		return usageErrorf("usage: server job %s", strings.Join(jobNames, "|"))
