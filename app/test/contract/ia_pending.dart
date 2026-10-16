@@ -8,7 +8,6 @@
 const Set<String> pendingStateScreens = {
   'calendar',
   'day-sheet',
-  'event-edit',
   'diary-list',
   'diary-edit',
   'diary-view',

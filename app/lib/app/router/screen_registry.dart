@@ -15,6 +15,7 @@ import 'package:myungli_diary/features/onboarding/presentation/onboard_gender_sc
 import 'package:myungli_diary/features/onboarding/presentation/onboard_time_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
+import 'package:myungli_diary/features/schedule/presentation/event_edit_screen.dart';
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
 /// 화면 하나의 등록 정보.
@@ -121,6 +122,11 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: todayHandledStates,
     exits: todayExits,
   ),
+  ScreenIds.eventEdit: const ScreenSpec(
+    ScreenIds.eventEdit,
+    _buildEventEdit,
+    handledStates: eventEditHandledStates,
+  ),
 };
 
 /// page 화면 registry. 시트·system 화면은 route가 없어 넣지 않습니다.
@@ -163,3 +169,5 @@ Widget _buildNotifyAsk(BuildContext context) => const NotifyAskScreen();
 Widget _buildToday(BuildContext context) => const TodayScreen();
 
 Widget _buildCalcBasis(BuildContext context) => const CalcBasisScreen();
+
+Widget _buildEventEdit(BuildContext context) => const EventEditScreen();
