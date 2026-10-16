@@ -69,6 +69,11 @@ final _uuidV4 = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
 );
 
+/// problem의 `errors[]`를 (위치, code) 목록으로.
+List<(String, String)> _fieldsOf(ProblemError problem) => [
+  for (final field in problem.fieldErrors) (field.pointer, field.code),
+];
+
 /// member 시나리오 시계(2026-10-13 서울 정오)의 UTC 시각.
 final _scenarioNow = DateTime.utc(2026, 10, 13, 3);
 
@@ -268,6 +273,7 @@ void main() {
       );
       expect(timeOnAllDay.status, 422);
       expect(timeOnAllDay.code, 'request.inconsistent');
+      expect(_fieldsOf(timeOnAllDay), [('/time', 'forbidden_by_status')]);
       final missingTime = await _problemOf(
         () => api.createSchedule(
           scheduleInput: ScheduleInput(
@@ -278,6 +284,7 @@ void main() {
         ),
       );
       expect(missingTime.code, 'request.inconsistent');
+      expect(_fieldsOf(missingTime), [('/time', 'required_by_status')]);
     });
 
     test('없는 날짜나 빈 제목은 400 request.invalid', () async {
@@ -292,6 +299,7 @@ void main() {
       );
       expect(badDate.status, 400);
       expect(badDate.code, 'request.invalid');
+      expect(_fieldsOf(badDate), [('/date', 'format')]);
       final emptyTitle = await _problemOf(
         () => api.createSchedule(
           scheduleInput: ScheduleInput(
@@ -302,6 +310,21 @@ void main() {
         ),
       );
       expect(emptyTitle.code, 'request.invalid');
+      expect(_fieldsOf(emptyTitle), [('/title', 'minLength')]);
+    });
+
+    test('목록 범위가 62일(포함)을 넘으면 400 request.invalid', () async {
+      expect(await _list(api, '2026-10-01', '2026-12-01'), hasLength(4));
+      final tooLong = await _problemOf(
+        () => api.listSchedules(from: '2026-10-01', to: '2026-12-02'),
+      );
+      expect(tooLong.status, 400);
+      expect(tooLong.code, 'request.invalid');
+      expect(_fieldsOf(tooLong), [('to', 'maximum')]);
+      final reversed = await _problemOf(
+        () => api.listSchedules(from: '2026-10-02', to: '2026-10-01'),
+      );
+      expect(_fieldsOf(reversed), [('to', 'minimum')]);
     });
 
     test('저장소는 대역 인스턴스마다 새로 시작한다', () async {
@@ -384,6 +407,46 @@ void main() {
     });
   });
 
+  group('fake 일기 목록', () {
+    Future<List<String>> datesOf(
+      String scenarioId, {
+      String? from,
+      String? to,
+    }) async {
+      final api = _apiOf(await _scenarioOf(scenarioId));
+      final list = (await api.listDiaries(from: from, to: to)).data!;
+      return [for (final item in list.items) item.date];
+    }
+
+    test('fixture items를 from~to(포함)로 거르고 날짜 내림차순으로 준다', () async {
+      expect(await datesOf('member'), [
+        '2026-10-12',
+        '2026-10-08',
+        '2026-10-05',
+        '2026-10-02',
+      ]);
+      expect(await datesOf('member', from: '2026-10-05', to: '2026-10-08'), [
+        '2026-10-08',
+        '2026-10-05',
+      ]);
+      expect(
+        await datesOf('member', from: '2026-10-09', to: '2026-10-11'),
+        isEmpty,
+      );
+      expect(
+        await datesOf('member', from: '2026-09-01', to: '2026-09-30'),
+        isEmpty,
+      );
+    });
+
+    test('diary-written은 오늘(10-13) 일기가 목록에 있다', () async {
+      expect(
+        await datesOf('diary-written', from: '2026-10-13', to: '2026-10-13'),
+        ['2026-10-13'],
+      );
+    });
+  });
+
   group('달력 fixture', () {
     test('member는 2026-09~11 달력을 생성 클라이언트로 읽는다', () async {
       final api = _apiOf(await _scenarioOf('member'));
@@ -414,6 +477,26 @@ void main() {
           (d) => d.characterReason.text.segments.any((s) => s.term != null),
         ),
         isTrue,
+      );
+    });
+
+    test('member 10-13은 오늘 화면(getDaily)과 일진·날의 성격이 같다', () async {
+      final api = _apiOf(await _scenarioOf('member'));
+      final daily = (await api.getDaily(date: '2026-10-13')).data!;
+      final october = (await api.getCalendar(year: 2026, month: 10)).data!;
+      final today = october.days.singleWhere((d) => d.date == '2026-10-13');
+      expect(today.pillar, daily.dayPillar);
+      expect(today.dayKind, daily.dayKind);
+      // 생성 모델의 ==는 목록을 얕게 비교하므로 JSON으로 비교합니다.
+      expect(
+        jsonEncode(today.characterReason.toJson()),
+        jsonEncode(daily.characterReason.toJson()),
+      );
+      expect(today.luckLevel, LuckLevel.good);
+      expect(today.level.messageKey, 'calendar.good');
+      expect(
+        today.score,
+        today.scoreItems.fold<int>(0, (sum, item) => sum + item.score),
       );
     });
 

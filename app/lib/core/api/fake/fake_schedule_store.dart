@@ -1,29 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:uuid/uuid.dart';
-
-/// 대역 저장소가 계약의 오류 응답(problem)으로 답할 때 던집니다.
-final class FakeProblem implements Exception {
-  /// [status]와 [code]의 problem 응답을 만듭니다.
-  const new(this.status, this.code, this.title, this.detail);
-
-  /// HTTP status.
-  final int status;
-
-  /// `Problem.code`.
-  final String code;
-
-  /// 개발자용 영어 제목.
-  final String title;
-
-  /// 설명.
-  final String detail;
-
-  @override
-  String toString() => 'FakeProblem($status $code: $detail)';
-}
 
 /// 대역 서버의 일정 저장소. 대역 인스턴스 안에만 있어 앱을 다시 켜면
 /// 처음 목록으로 돌아갑니다.
@@ -55,16 +35,15 @@ final class FakeScheduleStore {
       <String, ({Map<String, Object?> input, Map<String, Object?> response})>{};
 
   /// `listSchedules`: [from]~[to](포함) 일정 목록(`ScheduleList` JSON).
-  Map<String, Object?> list({required String? from, required String? to}) {
-    final start = _parseDate(from, 'from');
-    final end = _parseDate(to, 'to');
-    if (end.compareTo(start) < 0) {
-      throw const FakeProblem(
-        400,
-        'request.invalid',
-        'Invalid request',
-        'to가 from보다 앞섭니다.',
-      );
+  ///
+  /// 범위는 62일(포함 일수) 이내입니다. 넘으면 400 `request.invalid`이고, 계약에
+  /// 범위 위반 keyword가 없어 `maximum`으로 둡니다(#219로 정식 code 요청 중).
+  Map<String, Object?> list({required Object? from, required Object? to}) {
+    final start = parseDateParameter('from', from, required: true)!;
+    final end = parseDateParameter('to', to, required: true)!;
+    checkDateOrder(start, end);
+    if (_inclusiveDays(start, end) > maxListDays) {
+      throw FakeProblem.invalid('to', 'maximum', '범위는 $maxListDays일 이내여야 합니다.');
     }
     final items = _schedules.values.where((schedule) {
       final date = CalendarDate.parse(schedule['date']! as String);
@@ -74,6 +53,9 @@ final class FakeScheduleStore {
       'items': [for (final schedule in items) Map.of(schedule)],
     };
   }
+
+  /// `listSchedules` 범위의 최대 일수(둘 다 포함).
+  static const maxListDays = 62;
 
   /// `createSchedule`: 새 일정(`Schedule` JSON).
   Map<String, Object?> create(Object? body, {String? idempotencyKey}) {
@@ -94,12 +76,7 @@ final class FakeScheduleStore {
     }
     for (final field in ['date', 'allDay', 'title']) {
       if (!input.containsKey(field)) {
-        throw FakeProblem(
-          400,
-          'request.invalid',
-          'Invalid request',
-          '$field가 없습니다.',
-        );
+        throw FakeProblem.invalid('/$field', 'required', '$field가 없습니다.');
       }
     }
     final now = _timestamp();
@@ -138,6 +115,7 @@ final class FakeScheduleStore {
   Map<String, Object?> _find(String id) {
     final schedule = _schedules[id];
     if (schedule == null) {
+      // 계약에 일정 404 code가 없습니다(#219 요청). 앱은 404 status로만 판단합니다.
       throw FakeProblem(
         404,
         'schedule.not_found',
@@ -156,27 +134,40 @@ final class FakeScheduleStore {
     final time = schedule['time'];
     final memo = schedule['memo'];
     if (date is! String) {
-      throw _invalid('date는 문자열이어야 합니다.');
+      throw FakeProblem.invalid('/date', 'type', 'date는 문자열이어야 합니다.');
     }
-    _parseDate(date, 'date');
+    try {
+      CalendarDate.parse(date);
+    } on FormatException {
+      throw FakeProblem.invalid('/date', 'format', '없는 날짜입니다: $date');
+    }
     if (allDay is! bool) {
-      throw _invalid('allDay는 bool이어야 합니다.');
+      throw FakeProblem.invalid('/allDay', 'type', 'allDay는 bool이어야 합니다.');
     }
-    if (title is! String || title.isEmpty || title.length > _maxTitleLength) {
-      throw _invalid('title은 1~$_maxTitleLength자여야 합니다.');
+    _checkText('/title', title, min: 1, max: _maxTitleLength);
+    if (time != null) {
+      if (time is! String) {
+        throw FakeProblem.invalid('/time', 'type', 'time은 문자열이어야 합니다.');
+      }
+      if (!_timePattern.hasMatch(time)) {
+        throw FakeProblem.invalid('/time', 'pattern', 'time은 HH:MM이어야 합니다.');
+      }
     }
-    if (time != null && (time is! String || !_timePattern.hasMatch(time))) {
-      throw _invalid('time은 HH:MM이어야 합니다.');
+    if (memo != null) {
+      _checkText('/memo', memo, min: 0, max: _maxMemoLength);
     }
-    if (memo != null && (memo is! String || memo.length > _maxMemoLength)) {
-      throw _invalid('memo는 0~$_maxMemoLength자여야 합니다.');
+    if (allDay && time != null) {
+      throw FakeProblem.inconsistent(
+        '/time',
+        'forbidden_by_status',
+        '하루 종일 일정에는 time이 없어야 합니다.',
+      );
     }
-    if (allDay == (time != null)) {
-      throw FakeProblem(
-        422,
-        'request.inconsistent',
-        'Inconsistent request',
-        allDay ? '하루 종일 일정에는 time이 없어야 합니다.' : '시각 일정에는 time이 있어야 합니다.',
+    if (!allDay && time == null) {
+      throw FakeProblem.inconsistent(
+        '/time',
+        'required_by_status',
+        '시각 일정에는 time이 있어야 합니다.',
       );
     }
     return {...schedule}
@@ -194,6 +185,24 @@ final class FakeScheduleStore {
       now.minute,
       now.second,
     ).toIso8601String().replaceFirst('.000Z', 'Z');
+  }
+
+  /// 문자열 필드 [pointer]의 길이가 [min]~[max]인지 검사합니다.
+  void _checkText(
+    String pointer,
+    Object? value, {
+    required int min,
+    required int max,
+  }) {
+    if (value is! String) {
+      throw FakeProblem.invalid(pointer, 'type', '$pointer는 문자열이어야 합니다.');
+    }
+    if (value.length < min) {
+      throw FakeProblem.invalid(pointer, 'minLength', '$pointer는 $min자 이상입니다.');
+    }
+    if (value.length > max) {
+      throw FakeProblem.invalid(pointer, 'maxLength', '$pointer는 $max자 이하입니다.');
+    }
   }
 
   static const _maxTitleLength = 100;
@@ -216,19 +225,14 @@ int _compareSchedules(Map<String, Object?> a, Map<String, Object?> b) {
   return (a['createdAt']! as String).compareTo(b['createdAt']! as String);
 }
 
-FakeProblem _invalid(String detail) =>
-    FakeProblem(400, 'request.invalid', 'Invalid request', detail);
-
-CalendarDate _parseDate(String? value, String name) {
-  if (value == null) {
-    throw _invalid('$name가 없습니다.');
-  }
-  try {
-    return CalendarDate.parse(value);
-  } on FormatException {
-    throw _invalid('$name는 있는 YYYY-MM-DD 날짜여야 합니다: $value');
-  }
-}
+/// [start]~[end](둘 다 포함)의 일수.
+int _inclusiveDays(CalendarDate start, CalendarDate end) =>
+    DateTime.utc(
+      end.year,
+      end.month,
+      end.day,
+    ).difference(DateTime.utc(start.year, start.month, start.day)).inDays +
+    1;
 
 /// 요청 본문에서 계약의 입력 필드(`ScheduleInput`·`SchedulePatch`)만 남깁니다.
 /// `id`·`createdAt` 같은 서버 필드는 요청으로 바꿀 수 없습니다.

@@ -4,7 +4,7 @@
     "date": "2026-10-13",
     "rulesetVersion": "r1",
     "evidenceAccess": "locked",
-    "dayPillar": { "stem": "gap", "branch": "in" },
+    "dayPillar": { "stem": "gyeong", "branch": "shin" },
     "dayKind": "yongsin_day",
     "characterReason": {
       "slot": "character.reason",

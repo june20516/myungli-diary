@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/api_route.dart';
+import 'package:myungli_diary/core/api/fake/fake_diary_list.dart';
+import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/api/fake/fake_schedule_store.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
@@ -99,6 +101,7 @@ final class FakeServerInterceptor extends Interceptor {
       options,
       handler,
       stored ??
+          _filteredDiaryList(route, options, fixture) ??
           fixture ??
           _problem(
             501,
@@ -158,13 +161,7 @@ final class FakeServerInterceptor extends Interceptor {
       switch (operationId) {
         case 'listSchedules':
           final query = options.queryParameters;
-          return _ok(
-            200,
-            store.list(
-              from: query['from'] as String?,
-              to: query['to'] as String?,
-            ),
-          );
+          return _ok(200, store.list(from: query['from'], to: query['to']));
         case 'createSchedule':
           final schedule = store.create(
             options.data,
@@ -182,14 +179,45 @@ final class FakeServerInterceptor extends Interceptor {
           return const _Fixture(status: 204, headers: {}, body: null);
       }
     } on FakeProblem catch (problem) {
-      return _problem(
-        problem.status,
-        problem.code,
-        problem.title,
-        problem.detail,
-      );
+      return _problemOf(problem);
     }
   }
+
+  /// `listDiaries`의 200 fixture를 요청의 `from`·`to`로 걸러 답합니다. 그 밖이면 null입니다.
+  _Fixture? _filteredDiaryList(
+    ApiRoute route,
+    RequestOptions options,
+    _Fixture? fixture,
+  ) {
+    final body = fixture?.body;
+    if (route.operationId != 'listDiaries' ||
+        fixture == null ||
+        fixture.status != 200 ||
+        body is! Map<String, Object?>) {
+      return null;
+    }
+    try {
+      return _Fixture(
+        status: 200,
+        headers: fixture.headers,
+        body: filterDiaryList(
+          body,
+          from: options.queryParameters['from'],
+          to: options.queryParameters['to'],
+        ),
+      );
+    } on FakeProblem catch (problem) {
+      return _problemOf(problem);
+    }
+  }
+
+  _Fixture _problemOf(FakeProblem problem) => _problem(
+    problem.status,
+    problem.code,
+    problem.title,
+    problem.detail,
+    errors: problem.errors,
+  );
 
   /// 시나리오의 `listSchedules` 파일(첫 응답이 200일 때 그 `items`)로 저장소를 시작합니다.
   /// 파일이 없으면 빈 저장소입니다. 시각은 시나리오 시계(오늘 현지 정오)입니다.
@@ -299,7 +327,13 @@ final class FakeServerInterceptor extends Interceptor {
     }
   }
 
-  _Fixture _problem(int status, String code, String title, String detail) {
+  _Fixture _problem(
+    int status,
+    String code,
+    String title,
+    String detail, {
+    List<FakeFieldError> errors = const [],
+  }) {
     return _Fixture(
       status: status,
       headers: const {Headers.contentTypeHeader: _problemMediaType},
@@ -310,6 +344,11 @@ final class FakeServerInterceptor extends Interceptor {
         'code': code,
         'traceId': _fakeTraceId,
         'detail': detail,
+        if (errors.isNotEmpty)
+          'errors': [
+            for (final error in errors)
+              {'field': error.field, 'code': error.code},
+          ],
       },
     );
   }
