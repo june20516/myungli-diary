@@ -94,6 +94,10 @@ jobs:
             python -I tool/validate_fixtures.py'
       - name: 정적 분석
         run: flutter analyze
+      # flutter analyze는 analyzer plugin(riverpod_lint)을 싣는 일이 실행마다 달라 지적이 빠질 수 있다.
+      # dart analyze는 plugin을 늘 실으므로 함께 돌려 로컬과 같은 결과를 보장한다.
+      - name: 정적 분석 (analyzer plugin 포함)
+        run: dart analyze
       # 흐름 테스트·E2E의 Covers 선언을 IA와 대조하고, 커버리지가 baseline보다 줄면 실패한다.
       - name: E2E 커버리지 ratchet
         run: dart run tool/ia_coverage.dart --check

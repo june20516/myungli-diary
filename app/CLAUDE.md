@@ -36,7 +36,7 @@
 
 ## 검사
 작업 단계와 속도에 맞춰 자원을 고릅니다. 반복 중에는 로컬에서, PR 직전 확인이나 CI 환경에서만 나는 문제는 GitHub Actions에서 돌립니다.
-* **로컬(반복 중):** `flutter analyze`(app·widgetbook), `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed .`, `dart run tool/ia_coverage.dart --check`, golden은 Docker `tool/goldens_linux.sh`(CI와 같은 Linux 렌더링).
+* **로컬(반복 중):** `flutter analyze`(app·widgetbook)와 `dart analyze`(app, riverpod_lint plugin 지적까지 나옴 — `flutter analyze`는 plugin을 싣지 않는 때가 있어 함께 돌립니다), `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed .`, `dart run tool/ia_coverage.dart --check`, golden은 Docker `tool/goldens_linux.sh`(CI와 같은 Linux 렌더링).
 * **로컬 E2E(Patrol):** 에뮬레이터(`~/Library/Android/sdk/emulator/emulator -list-avds`)를 띄우고 `patrol test -t patrol_test --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`. 포트는 기본값(8081·8082) 대신 이 값을 씁니다. 개발 기기에서 다른 도구(예 React Native Metro의 `adb reverse tcp:8081`)가 8081을 잡고 있으면 계측이 `BindException`으로 죽습니다. CI(`app.yml`)도 같은 값입니다.
 * **GitHub(필요할 때):** 브랜치를 push하고 `gh workflow run app.yml --ref <브랜치>`. `e2e-android`(x86_64·API 34)는 PR 검사(`ci-gate`)에서 건너뛰므로 PR 직전 한 번 확인합니다. 실패하면 artifact `e2e-gradle-reports`에 Gradle 보고서와 기기 전체 logcat이 남습니다.
 
