@@ -166,7 +166,7 @@ class ShareImage extends StatelessWidget {
   /// 오늘 문장(server가 렌더한 조각).
   final RenderedText sentence;
 
-  /// 행운 항목 전부. 변형이 보여 줄 만큼만 고릅니다.
+  /// 행운 항목 전부. 변형이 보여 줄 만큼만 고릅니다. 대표 태그 칩은 그리지 않습니다.
   final List<LuckyItem> items;
 
   /// 아래 앱 이름 글자.
@@ -179,14 +179,18 @@ class ShareImage extends StatelessWidget {
   final String? semanticLabel;
 
   /// 변형이 보여 줄 칩. story는 앞에서 4개, feed·square는 시간을 뺀 색·방향·숫자 3개입니다.
-  List<LuckyItem> _chipsFor() => switch (variant) {
-    ShareImageVariant.story => items.take(4).toList(),
-    ShareImageVariant.feed || ShareImageVariant.square =>
-      items
-          .where((item) => item.variant != LuckyCardVariant.time)
-          .take(3)
-          .toList(),
-  };
+  List<LuckyItem> _chipsFor() {
+    // 칩 줄에 tag 칩을 넣지 않습니다(`lucky-card` rules, 행운 4종만).
+    final lucky = items.where((item) => item.variant != LuckyCardVariant.tag);
+    return switch (variant) {
+      ShareImageVariant.story => lucky.take(4).toList(),
+      ShareImageVariant.feed || ShareImageVariant.square =>
+        lucky
+            .where((item) => item.variant != LuckyCardVariant.time)
+            .take(3)
+            .toList(),
+    };
+  }
 
   RenderedText get _shownSentence => switch (variant) {
     ShareImageVariant.square => RenderedText(

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart'
-    show BuildContext, Builder, IconData, Locale, SizedBox;
+    show BuildContext, Builder, Icon, IconData, Locale, SizedBox, Text;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -18,6 +18,7 @@ import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
@@ -382,6 +383,58 @@ void main() {
         SkeletonBlock.defaultLineStyleOf(inner),
         inner.tokens.typography.bodyUi,
       );
+    });
+  });
+
+  group('컴포넌트 2.5.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    Map<String, Object?> tagVariant() => _map(
+      (specs['lucky-card']!['variants']! as List<Object?>)
+          .map(_map)
+          .firstWhere((v) => v['id'] == 'tag'),
+    );
+
+    testWidgets('lucky-card tag는 tag 아이콘(text.primary)과 굵기 600입니다(V35)', (
+      tester,
+    ) async {
+      final parts = _map(tagVariant()['parts']);
+      final lead = _map(parts['lead']);
+      expect(lead['icon'], 'tag');
+      expect(lead['iconColor'], '{color.text.primary}');
+      final weight = _num(_map(parts['value'])['fontWeight']);
+      expect(weight, 600);
+      expect(LuckyChip.tagValueWeight.value, weight.toInt());
+
+      await tester.pumpWidget(
+        inputApp(
+          const LuckyChip(
+            item: LuckyItem.tag(tagKey: 'clash', name: '충'),
+            open: false,
+            onTap: null,
+          ),
+        ),
+      );
+      final icon = tester.widget<Icon>(find.byType(Icon));
+      expect(icon.icon, PhosphorIconsRegular.tag);
+      expect(
+        icon.color,
+        tester.element(find.byType(Icon)).tokens.colors.textPrimary,
+      );
+      expect(
+        tester.widget<Text>(find.byType(Text)).style!.fontWeight,
+        LuckyChip.tagValueWeight,
+      );
+    });
+
+    test('lucky-card tag 라벨은 태그 이름만이고 변형 id가 명세와 같습니다', () {
+      expect(
+        _map(specs['lucky-card']!['a11y'])['label'],
+        contains('tag는 태그 이름만'),
+      );
+      expect({
+        for (final v in LuckyCardVariant.values) v.name,
+      }, variantIds(specs['lucky-card']!));
     });
   });
 

@@ -56,16 +56,16 @@ final List<LuckyItem> _luckyItems = [
   ),
 ];
 
-/// 대표 태그(D76). 두 번째는 뜻이 없어 누를 수 없는 이름 칩입니다.
-final List<LuckyTag> _luckyTags = [
-  LuckyTag(
+/// 대표 태그(`tag` 변형, D76). 두 번째는 뜻이 없어 누를 수 없는 이름 칩입니다.
+final List<LuckyItem> _luckyTags = [
+  LuckyItem.tag(
     tagKey: 'cheoneul_gwiin',
     name: '천을귀인',
     meaning: RenderedText(
       segments: [Segment(text: '어려울 때 도와주는 사람이 곁에 오는 기운이에요.')],
     ),
   ),
-  const LuckyTag(tagKey: 'clash', name: '충'),
+  const LuckyItem.tag(tagKey: 'clash', name: '충'),
 ];
 
 String _name(DayKind kind) => switch (kind) {
@@ -150,11 +150,11 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
               ),
             ),
             WidgetbookUseCase(
-              name: '대표 태그 칩 포함(D76)',
+              name: 'tag 변형: 칩 줄 맨 앞(D76)',
               builder: (context) => Stage(
                 child: SizedBox(
                   width: 360,
-                  child: LuckyCardRow(items: _luckyItems, tags: _luckyTags),
+                  child: LuckyCardRow(items: [..._luckyTags, ..._luckyItems]),
                 ),
               ),
             ),

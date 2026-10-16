@@ -326,7 +326,7 @@ void main() {
 
     final names = GlossaryNames(
       const {
-        'tag': {'cheoneul_gwiin': '천을귀인', 'clash': '충'},
+        'tag': {'cheoneul_gwiin': '천을귀인', 'clash': '충', 'gongmang': '공망'},
       },
       meanings: {
         'tag.cheoneul_gwiin': text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.'),
@@ -346,7 +346,7 @@ void main() {
       expect(tags.single.tagKey, 'cheoneul_gwiin');
       expect(tags.single.name, '천을귀인');
       expect(
-        tags.single.meaning?.segments.single.text,
+        tags.single.explain?.segments.single.text,
         '어려울 때 도와주는 사람이 곁에 오는 기운이에요.',
       );
     });
@@ -362,6 +362,19 @@ void main() {
       expect([for (final tag in tags) tag.name], ['충', '천을귀인']);
     });
 
+    test('응답이 둘을 넘어도 앞 둘만 칩이 되고 모두 tag 변형입니다', () {
+      final tags = featuredTagsOf(
+        dailyWith([
+          {'key': 'clash', 'polarity': 'bad'},
+          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+          {'key': 'gongmang', 'polarity': 'bad'},
+        ]),
+        names,
+      );
+      expect([for (final tag in tags) tag.tagKey], ['clash', 'cheoneul_gwiin']);
+      expect(tags.every((tag) => tag.variant == LuckyCardVariant.tag), isTrue);
+    });
+
     test('대표 태그가 없으면 빈 목록입니다', () {
       expect(featuredTagsOf(dailyWith([]), names), isEmpty);
     });
@@ -373,7 +386,7 @@ void main() {
         ]),
         names,
       );
-      expect(tags.single.meaning, isNull);
+      expect(tags.single.explain, isNull);
     });
 
     test('사전에 이름이 없는 태그는 칩을 만들지 않습니다(키를 그대로 보이지 않음)', () {

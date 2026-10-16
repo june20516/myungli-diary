@@ -32,6 +32,7 @@ const Map<LuckyCardVariant, String> todayLuckySlotIds = {
   LuckyCardVariant.direction: SlotIds.todayLuckyDirectionBody,
   LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
   LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
+  LuckyCardVariant.tag: SlotIds.todayLuckyTagBody,
 };
 
 /// 날의 성격 줄(`day-character`)에 보일 값.
@@ -129,21 +130,26 @@ List<LuckyItem> luckyItemsOf(
   ];
 }
 
-/// [daily]의 대표 태그 칩 값(D76, 계약 `Daily.tags.featured`, 0~2개, 응답 순서).
+/// 대표 태그 칩 상한(`lucky-card` `tag`: 계약 `Daily.tags.featured` 0~2개).
+const int maxFeaturedTags = 2;
+
+/// [daily]의 대표 태그 칩 값(D76, 계약 `Daily.tags.featured`, 응답 순서,
+/// 앞 [maxFeaturedTags]개).
 ///
 /// 이름은 사전 `tag` 범주, 뜻은 `term.meaning`(용어 id `tag.<키>`,
 /// IA `today.lucky-tag.body`)입니다. 사전에 이름이 없는 태그는 키를 그대로 보이지 않도록
 /// 칩을 만들지 않고, 뜻이 없거나 공백뿐이면 누를 수 없는 이름 칩입니다.
-/// 길흉(`polarity`)은 design `tag` 변형이 오기 전까지 쓰지 않습니다.
-List<LuckyTag> featuredTagsOf(Daily daily, GlossaryNames names) => [
+/// 길흉(`polarity`)은 모양에 쓰지 않습니다(design `tag` 변형).
+/// 응답이 상한을 넘겨도 칩 줄이 깨지지 않도록 칩이 되는 태그 중 앞에서 상한만큼만 씁니다.
+List<LuckyItem> featuredTagsOf(Daily daily, GlossaryNames names) => [
   for (final tag in daily.tags.featured)
     if (names.valueName('tag', tag.key) case final name?)
-      LuckyTag(
+      LuckyItem.tag(
         tagKey: tag.key,
         name: name,
         meaning: _nonBlank(names.meaningOf('tag.${tag.key}')),
       ),
-];
+].take(maxFeaturedTags).toList();
 
 RenderedText? _nonBlank(RenderedText? text) =>
     text == null || isBlankText(text) ? null : text;
@@ -247,8 +253,8 @@ final class TodayDisplay {
   /// 행운 항목 4개.
   final List<LuckyItem> lucky;
 
-  /// 행운 칩 줄 끝에 이어 그릴 대표 태그(D76). 없으면 빈 목록입니다.
-  final List<LuckyTag> tags;
+  /// 행운 칩 줄 맨 앞에 그릴 대표 태그 칩(`tag` 변형, D76). 없으면 빈 목록입니다.
+  final List<LuckyItem> tags;
 
   /// 가이드 질문.
   final RenderedText guide;
@@ -292,10 +298,10 @@ Object? _canonical(Object? value) => switch (value) {
     value.variant.name,
     value.name,
     value.value,
-    value.explain.toJson(),
+    value.explain?.toJson(),
     value.element?.name,
+    value.tagKey,
   ],
-  LuckyTag() => [value.tagKey, value.name, value.meaning?.toJson()],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
   _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),
 };

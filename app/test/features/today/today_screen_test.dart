@@ -154,7 +154,12 @@ void main() {
       expect(tester.widget<DepthLink>(link).label, _ko.depthLinkEvidence);
     }
 
-    for (final variant in LuckyCardVariant.values) {
+    for (final variant in [
+      LuckyCardVariant.color,
+      LuckyCardVariant.direction,
+      LuckyCardVariant.number,
+      LuckyCardVariant.time,
+    ]) {
       expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);
     }
     expect(find.text('초록'), findsOneWidget);
@@ -196,7 +201,7 @@ void main() {
   group('대표 태그 칩(D76)', () {
     final tagChip = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
 
-    testWidgets('대표 태그가 있으면 행운 칩 줄 끝에 이름 칩으로 그립니다', (tester) async {
+    testWidgets('tag 칩은 칩 줄 맨 앞, 행운 4종 앞에 그립니다', (tester) async {
       await pumpApp(tester, scenario: 'member');
       await _settleToday(tester);
 
@@ -207,15 +212,19 @@ void main() {
         find.descendant(of: tagChip, matching: find.text('천을귀인')),
         findsOneWidget,
       );
-      final chips = tester.widgetList<Widget>(
-        find.descendant(
-          of: row,
-          matching: find.byWidgetPredicate(
-            (w) => w is LuckyChip || w is LuckyTagChip,
-          ),
-        ),
+      final chips = tester.widgetList<LuckyChip>(
+        find.descendant(of: row, matching: find.byType(LuckyChip)),
       );
-      expect(chips.last, isA<LuckyTagChip>());
+      expect(
+        [for (final chip in chips) chip.item.variant],
+        [
+          LuckyCardVariant.tag,
+          LuckyCardVariant.color,
+          LuckyCardVariant.direction,
+          LuckyCardVariant.number,
+          LuckyCardVariant.time,
+        ],
+      );
     });
 
     testWidgets('태그 칩을 누르면 뜻 한 줄이 스밉니다', (tester) async {
@@ -253,7 +262,7 @@ void main() {
       );
       await _settleToday(tester);
 
-      expect(find.byType(LuckyTagChip), findsNothing);
+      expect(tagChip, findsNothing);
       expect(find.byType(LuckyChip), findsNWidgets(4));
     });
   });

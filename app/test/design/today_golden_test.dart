@@ -94,15 +94,14 @@ Widget _luckyCard() => Builder(
       LuckyCardRow(items: _goldenLuckyItems(ja: _isJa(context))),
 );
 
-/// lucky-card: 네 변형 칩 뒤에 대표 태그 칩 두 개(D76). design `tag` 변형 대기 중이라
-/// 기존 칩 모양이고, 두 번째 태그는 뜻이 없어 누를 수 없는 이름 칩입니다.
+/// lucky-card: 맨 앞에 `tag` 변형 칩 두 개(D76) 뒤에 네 변형 칩. 두 번째 태그는 뜻이 없어
+/// 누를 수 없는 이름 칩입니다.
 Widget _luckyCardWithTags() => Builder(
   builder: (context) {
     final ja = _isJa(context);
     return LuckyCardRow(
-      items: _goldenLuckyItems(ja: ja),
-      tags: [
-        LuckyTag(
+      items: [
+        LuckyItem.tag(
           tagKey: 'cheoneul_gwiin',
           name: ja ? '天乙貴人' : '천을귀인',
           meaning: RenderedText(
@@ -115,7 +114,8 @@ Widget _luckyCardWithTags() => Builder(
             ],
           ),
         ),
-        LuckyTag(tagKey: 'clash', name: ja ? '冲' : '충'),
+        LuckyItem.tag(tagKey: 'clash', name: ja ? '冲' : '충'),
+        ..._goldenLuckyItems(ja: ja),
       ],
     );
   },
