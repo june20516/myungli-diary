@@ -491,7 +491,7 @@ void main() {
 
         clock.now = clock.now.add(const Duration(seconds: 30));
         async.elapse(const Duration(seconds: 30));
-        expect(seen.last, DateTime(2026, 10, 14, 0, 0));
+        expect(seen.last, DateTime(2026, 10, 14));
 
         clock.now = clock.now.add(const Duration(minutes: 1));
         async.elapse(const Duration(minutes: 1));
