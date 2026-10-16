@@ -243,6 +243,14 @@ def birth_hour_to_proto(hour: BirthHour) -> pb.BirthHourResponse:
     )
 
 
+def lunar_conversion_to_proto(solar: date, month_has_leap: bool) -> pb.LunarDateResponse:
+    return pb.LunarDateResponse(
+        solar=pb.LocalDate(year=solar.year, month=solar.month, day=solar.day),
+        month_has_leap=month_has_leap,
+        meta=_meta(()),
+    )
+
+
 def month_to_proto(view: MonthView) -> pb.MonthResponse:
     return pb.MonthResponse(days=[_month_day(day) for day in view.days], meta=_meta(view.notices))
 

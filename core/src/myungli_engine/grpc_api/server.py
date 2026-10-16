@@ -70,6 +70,18 @@ class MyungliEngineServicer(pb_grpc.MyungliEngineServicer):
 
         return run_or_abort(context, compute)
 
+    def ConvertLunarDate(
+        self, request: pb.LunarDateRequest, context: grpc.ServicerContext
+    ) -> pb.LunarDateResponse:
+        def compute() -> pb.LunarDateResponse:
+            lunar = _required_date(request, "date")
+            solar = lunar_adapter.lunar_to_solar(lunar.year, lunar.month, lunar.day, request.is_leap_month)
+            return mapping.lunar_conversion_to_proto(
+                solar, lunar_adapter.month_has_leap(lunar.year, lunar.month)
+            )
+
+        return run_or_abort(context, compute)
+
 
 def _required_birth(
     request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest | pb.BirthHourRequest,
@@ -79,7 +91,9 @@ def _required_birth(
     return request.birth
 
 
-def _required_date(request: pb.ChartRequest | pb.DailyRequest, field_name: str) -> pb.LocalDate:
+def _required_date(
+    request: pb.ChartRequest | pb.DailyRequest | pb.LunarDateRequest, field_name: str
+) -> pb.LocalDate:
     """필수 날짜 필드. 없으면 필드 이름을 담은 InvalidInputError."""
     if not request.HasField(field_name):
         raise InvalidInputError(f"{field_name}가 없습니다.")

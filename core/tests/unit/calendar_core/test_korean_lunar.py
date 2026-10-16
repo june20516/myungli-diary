@@ -65,3 +65,23 @@ def test_supported_range_edges() -> None:
     assert kl.solar_to_lunar(date(1900, 1, 31)) == kl.KoreanLunarDate(1900, 1, 1, False)
     last = kl.solar_to_lunar(date(2099, 12, 31))
     assert kl.lunar_to_solar(last.year, last.month, last.day, last.is_leap_month) == date(2099, 12, 31)
+
+
+def test_lunar_date_past_supported_solar_range_is_out_of_range() -> None:
+    # 음력 2099년 12월 초하루는 양력 2100-01-10으로 지원 범위(D41) 밖
+    with pytest.raises(OutOfRangeError):
+        kl.lunar_to_solar(2099, 12, 1, False)
+
+
+def test_month_has_leap_follows_korean_calendar() -> None:
+    assert kl.month_has_leap(2012, 3) is True  # 한국 윤3월 (중국은 윤4월)
+    assert kl.month_has_leap(2012, 4) is False
+    assert kl.month_has_leap(2023, 2) is True
+    assert kl.month_has_leap(2024, 2) is False
+
+
+def test_month_has_leap_rejects_invalid_month_and_year() -> None:
+    with pytest.raises(InvalidInputError):
+        kl.month_has_leap(2024, 13)
+    with pytest.raises(OutOfRangeError):
+        kl.month_has_leap(1899, 1)
