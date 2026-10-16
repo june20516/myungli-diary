@@ -37,13 +37,13 @@
 - {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: state, text: "{name}さん、言葉が先走りやすい日です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: care, text: "口数を控えるほうが気楽でいられる日です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: advice, text: "大きな出費があれば、一日置いて考え直してみてください。"}
-- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: state, text: "{name}さん、お金が出ていきやすい日です。"}
+- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: state, text: "{name}さん、出費が増えやすい日です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: care, text: "お金のことで気が重くなりやすい日です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: advice, text: "予定を減らせるなら、ひとつ明日に回してみてください。"}
-- {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: state, text: "{name}さん、やることが一度に重なる日です。"}
+- {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: state, text: "{name}さん、やることが重なりやすい日です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: care, text: "負担の大きい日です。全部できなくても大丈夫です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: advice, text: "考えが長引いたら、いちばん小さな用事から始めてみてください。"}
-- {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: state, text: "{name}さん、考えすぎて決めるのが遅れる日です。"}
+- {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: state, text: "{name}さん、決めるのが遅れがちな日です。"}
 - {slot: daily.fortune.head, key: fortune.gisin_day.inseong, type: care, text: "考えが多い自分を、大目に見てもいい日です。"}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.bigyeop, type: advice, text: "人に合わせるより、自分のペースで進めてみてください。"}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.bigyeop, type: state, text: "{name}さん、ひとりでする仕事がはかどる日です。"}

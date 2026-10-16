@@ -37,7 +37,7 @@
 - {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: state, text: "Words may come out faster than you mean today."}
 - {slot: daily.fortune.head, key: fortune.gisin_day.siksang, type: care, text: "Saying a little less may feel easier today."}
 - {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: advice, text: "If a big purchase is coming, wait a day and rethink it."}
-- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: state, text: "Money tends to slip away more easily today."}
+- {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: state, text: "Spending tends to rise today."}
 - {slot: daily.fortune.head, key: fortune.gisin_day.jaeseong, type: care, text: "Money matters may weigh on your mind today."}
 - {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: advice, text: "If you can, move one thing on your schedule to tomorrow."}
 - {slot: daily.fortune.head, key: fortune.gisin_day.gwanseong, type: state, text: "Tasks tend to pile up all at once today."}

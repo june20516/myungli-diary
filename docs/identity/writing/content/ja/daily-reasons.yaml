@@ -16,7 +16,7 @@
 - {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "今日の天干があなたの日干と出会う関係が、この気にあたるからです。"}
 - {slot: explain.today_reason, key: "reason.fortune/tag", text: "今日の干支があなたの命式と出会い、このタグが一緒に入ったからです。"}
 - {slot: explain.today_reason, key: "reason.number/hado", text: "今日の色と同じ気の数のうち、今日の天干の陰陽に合う数を選んだからです。"}
-- {slot: explain.today_reason, key: "reason.tags/select", text: "今日の干支があなたの命式と出会って生まれた合・冲・神殺を集めたからです。"}
+- {slot: explain.today_reason, key: "reason.tags/select", text: "今日の干支があなたの命式と出会って生まれた合・冲・神殺と、多くなった通変星を集めたからです。"}
 - {slot: calendar.day_level, key: calendar.caution, text: "気をつける日"}
 - {slot: calendar.day_level, key: calendar.good, text: "うまく運ぶ日"}
 - {slot: calendar.day_level, key: calendar.neutral, text: "無難な日"}

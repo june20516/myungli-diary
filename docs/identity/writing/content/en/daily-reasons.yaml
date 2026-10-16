@@ -16,7 +16,7 @@
 - {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "This energy comes from how today's heavenly stem relates to your Day Master."}
 - {slot: explain.today_reason, key: "reason.fortune/tag", text: "Today's day pillar meets your chart, and this tag comes in with it."}
 - {slot: explain.today_reason, key: "reason.number/hado", text: "Of the numbers that share today's color energy, we chose the one that matches the yin or yang of today's heavenly stem."}
-- {slot: explain.today_reason, key: "reason.tags/select", text: "We gathered the Hap, Chung, and Shinsal that form when today's day pillar meets your chart."}
+- {slot: explain.today_reason, key: "reason.tags/select", text: "We gathered the Hap, Chung, Shinsal, and crowded ten gods that form when today's day pillar meets your chart."}
 - {slot: calendar.day_level, key: calendar.caution, text: "Day to take care"}
 - {slot: calendar.day_level, key: calendar.good, text: "Day that goes well"}
 - {slot: calendar.day_level, key: calendar.neutral, text: "Steady day"}

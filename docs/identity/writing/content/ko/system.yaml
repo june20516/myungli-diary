@@ -3,10 +3,10 @@
 - {slot: system.apple_return, key: apple_return.body, text: "명리일기 앱에서 이어서 로그인해 주세요."}
 - {slot: system.apple_return, key: apple_return.open, text: "앱에서 열기"}
 - {slot: system.apple_return, key: apple_return.install, text: "앱 설치하기"}
-- {slot: system.notice, key: notice.ambiguous_local_time, text: "태어난 시각이 서머타임이 끝나며 두 번 있었던 시간이라, 앞의 시각으로 계산했어요."}
-- {slot: system.notice, key: notice.nonexistent_local_time, text: "태어난 시각이 서머타임이 시작되며 건너뛴 시간이라, 바뀐 뒤의 시각으로 계산했어요."}
-- {slot: system.notice, key: notice.zi_hour_next_day, text: "밤 11시부터 새벽 1시까지인 자시는 다음 날이 시작되는 때로 보고 계산했어요."}
+- {slot: system.notice, key: notice.ambiguous_local_time, text: "시간 기준이 바뀌며 같은 시각이 두 번 있었던 때라, 앞의 시각으로 계산했어요."}
+- {slot: system.notice, key: notice.nonexistent_local_time, text: "시간 기준이 바뀌며 건너뛴 시각에 태어나, 바뀐 뒤의 시각으로 계산했어요."}
+- {slot: system.notice, key: notice.zi_hour_next_day, text: "경도를 보정한 출생 시각이 자시라, 다음 날이 시작되는 때로 보고 계산했어요."}
 - {slot: system.notice, key: notice.time_unknown, text: "태어난 시간을 몰라 낮 12시로 계산했어요. 시간을 넣으면 더 정확해져요."}
-- {slot: system.notice, key: notice.near_solar_term, text: "절기가 바뀌는 때와 가까이 태어나, 시각에 따라 월주가 달라질 수 있어요."}
-- {slot: system.notice, key: notice.dayun_start_approximate, text: "태어난 시간을 몰라 대운이 시작되는 나이는 어림으로 계산했어요."}
+- {slot: system.notice, key: notice.near_solar_term, text: "절기가 바뀌는 때와 가까이 태어나, 시각에 따라 월주나 연주가 달라질 수 있어요."}
+- {slot: system.notice, key: notice.dayun_start_approximate, text: "대운이 시작되는 나이는 태어난 시간을 몰라 어림으로 계산했어요."}
 - {slot: system.notice, key: notice.focus_time_fallback, text: "오늘은 후보 시간이 모두 내 사주와 부딪혀, 그날 달력의 길한 시간으로 골랐어요."}
