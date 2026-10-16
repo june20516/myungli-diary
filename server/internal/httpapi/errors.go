@@ -13,6 +13,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/profile"
@@ -55,6 +56,8 @@ type domainError struct {
 	title           string
 	bearerChallenge bool
 	retryAfter      time.Duration
+	// logged가 true이면 운영자가 알아야 하는 상태라 Error 로그를 남깁니다.
+	logged bool
 }
 
 // engineRetryAfter는 엔진에 닿지 못했을 때 클라이언트에 권하는 재시도 간격입니다.
@@ -72,13 +75,15 @@ var domainErrors = []domainError{
 	{target: engine.ErrUnavailable, code: problem.EngineUnavailable, title: "Engine unavailable", retryAfter: engineRetryAfter},
 	{target: engine.ErrTimeout, code: problem.EngineTimeout, title: "Engine timeout"},
 	{target: engine.ErrInternal, code: problem.EngineError, title: "Engine error"},
+	// 활성 콘텐츠 시드가 없으면 seed 명령을 돌리지 않은 배포입니다(P4-7). 사용자 탓이 아니라 503이고 로그를 남깁니다.
+	{target: content.ErrNoActiveSeed, code: problem.ServiceUnavailable, title: "Service unavailable", logged: true},
 	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
 // 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422), domainErrors 표, DB 연결 실패(503), 그 밖(500).
-// 프로필 저장과 음력 변환(핸들러가 직접 422로 바꿈) 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
+// 프로필 저장, 음력 변환, 데일리·달력(핸들러가 직접 422로 바꿈) 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
 func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
 	if errors.Is(err, ErrNotImplemented) {
 		problem.Write(w, r, problem.NotImplemented.Problem("Not implemented"))
@@ -107,6 +112,9 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 
 	for _, d := range domainErrors {
 		if errors.Is(err, d.target) {
+			if d.logged {
+				logHandlerError(r.Context(), deps.Logger, err)
+			}
 			writeProblem(w, r, d.code.Problem(d.title), d.bearerChallenge, d.retryAfter)
 			return
 		}

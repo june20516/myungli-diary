@@ -19,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
@@ -422,4 +423,15 @@ func getWithContext(ctx context.Context, client *http.Client, url string) (*http
 		return nil, err
 	}
 	return client.Do(req)
+}
+
+func TestNewReadings_LoadsEmbeddedSeed(t *testing.T) {
+	// 슬롯 명세는 내장 시드에서 읽습니다. DB와 엔진은 화면을 만들 때만 쓰므로 조립에는 필요 없습니다.
+	readings, err := newReadings(nil, nil, slog.New(slog.DiscardHandler), clock.System{})
+	if err != nil {
+		t.Fatalf("newReadings: %v", err)
+	}
+	if readings == nil {
+		t.Fatal("readings가 nil입니다")
+	}
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
@@ -51,6 +52,15 @@ type LunarConverter interface {
 	ConvertLunarDate(ctx context.Context, req *enginev1.LunarDateRequest) (*enginev1.LunarDateResponse, error)
 }
 
+// Readings는 운세 operation(getDaily·getCalendar·getChart)이 쓰는 화면 묶음입니다. *fortune.Views가 만족합니다.
+type Readings interface {
+	Daily(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate) (fortune.DailyView, error)
+	Calendar(ctx context.Context, accountID uuid.UUID, p profile.Profile, year, month int) (fortune.CalendarView, error)
+	Chart(ctx context.Context, accountID uuid.UUID, p profile.Profile) (fortune.ChartView, error)
+}
+
+var _ Readings = (*fortune.Views)(nil)
+
 // API는 gen.StrictServerInterface 구현입니다. 아직 구현하지 않은 operation은 Unimplemented가 501로 답합니다.
 type API struct {
 	Unimplemented
@@ -59,6 +69,8 @@ type API struct {
 	Accounts AccountService
 	Profiles ProfileService
 	Lunar    LunarConverter
+	// Readings는 운세 화면 묶음입니다. 비어 있으면 운세 operation은 503 service.unavailable입니다.
+	Readings Readings
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
 	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)가 원인을 남길 때 씁니다.
