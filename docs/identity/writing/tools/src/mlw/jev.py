@@ -5,7 +5,9 @@
 API 키는 환경 변수 `TYPESAFE_API_KEY`로만 받고 기록에 남기지 않습니다.
 """
 
+import http.client
 import json
+import math
 import time
 import urllib.error
 import urllib.request
@@ -15,7 +17,7 @@ from pathlib import Path
 from typing import Any, Final, Literal
 
 from mlw.icu import expand_entry
-from mlw.judge import judge_rules_for
+from mlw.judge import RULE_BAD_RESPONSE, RULE_CALL_FAILED, judge_rules_for
 from mlw.model import Entry, Finding, RuleSet, SlopRule, Slot
 
 API_KEY_ENV: Final = "TYPESAFE_API_KEY"
@@ -23,12 +25,14 @@ JEV_URL: Final = "https://api.typesafe.ai/v1/systemone"
 JEV_MODEL: Final = "jev-latest"
 FLAG_THRESHOLD: Final = 0.5
 MAX_RETRIES: Final = 5
+MAX_RETRY_DELAY: Final = 60.0
 REQUEST_TIMEOUT_SECONDS: Final = 60
 RETRY_STATUSES: Final = frozenset({429, 529})
 LIMIT_STATUSES: Final = frozenset({401, 402, 403})
 
 Poster = Callable[[dict[str, Any]], dict[str, Any]]
 Status = Literal["ok", "limit", "error"]
+ClaudeStatus = Literal["ok", "failed"]
 
 
 class JevLimitReached(Exception):
@@ -64,7 +68,7 @@ def http_poster(
                 if error.code in RETRY_STATUSES:
                     raise JevLimitReached(f"HTTP {error.code}, 재시도 {MAX_RETRIES}회") from error
                 raise JevError(f"HTTP {error.code}") from error
-            except (OSError, ValueError) as error:
+            except (OSError, ValueError, http.client.HTTPException) as error:
                 raise JevError(f"요청 실패: {type(error).__name__}") from error
             if not isinstance(payload, dict):
                 raise JevError("응답이 객체가 아닙니다")
@@ -75,12 +79,16 @@ def http_poster(
 
 
 def _retry_delay(retry_after: str | None, attempt: int) -> float:
+    """`retry-after` 초를 0~MAX_RETRY_DELAY로 자릅니다. 읽을 수 없으면 2·4·8·16·32초입니다."""
+    delay = float(2 ** (attempt + 1))
     if retry_after is not None:
         try:
-            return float(retry_after)
+            parsed = float(retry_after)
         except ValueError:
-            pass
-    return float(2 ** (attempt + 1))
+            parsed = math.nan
+        if math.isfinite(parsed):
+            delay = parsed
+    return max(0.0, min(delay, MAX_RETRY_DELAY))
 
 
 def build_request(slot: Slot, lang: str, judge_rules: Sequence[SlopRule], sentence: str) -> dict[str, Any]:
@@ -110,6 +118,7 @@ class JevAnswer:
     noul: float | None
     model: str | None
     status: Status
+    reason: str | None = None
 
 
 def _answers_for(entry: Entry, rule_ids: Sequence[str], response: dict[str, Any]) -> list[JevAnswer]:
@@ -123,7 +132,7 @@ def _answers_for(entry: Entry, rule_ids: Sequence[str], response: dict[str, Any]
         if isinstance(noul, int | float) and not isinstance(noul, bool):
             answers.append(JevAnswer(entry, rule_id, float(noul), model, "ok"))
         else:
-            answers.append(JevAnswer(entry, rule_id, None, model, "error"))
+            answers.append(JevAnswer(entry, rule_id, None, model, "error", "답이 없거나 숫자가 아님"))
     return answers
 
 
@@ -146,26 +155,31 @@ def jev_answers(
         for form in expand_entry(entry)
     ]
     answers: list[JevAnswer] = []
-    limit_reached = False
+    limit: str | None = None
     for entry in selected:
         slot = slots[entry.slot]
         judge_rules = judge_rules_for(slot, rules)
         if not judge_rules:
             continue
         rule_ids = [rule.id for rule in judge_rules]
-        if not limit_reached:
+        if limit is None:
             try:
                 response = post(build_request(slot, entry.lang, judge_rules, entry.text))
-            except JevLimitReached:
-                limit_reached = True
-            except JevError:
-                answers.extend(JevAnswer(entry, rule_id, None, None, "error") for rule_id in rule_ids)
+            except JevLimitReached as error:
+                limit = str(error)
+            except JevError as error:
+                answers.extend(JevAnswer(entry, rule_id, None, None, "error", str(error)) for rule_id in rule_ids)
                 continue
             else:
                 answers.extend(_answers_for(entry, rule_ids, response))
                 continue
-        answers.extend(JevAnswer(entry, rule_id, None, None, "limit") for rule_id in rule_ids)
+        answers.extend(JevAnswer(entry, rule_id, None, None, "limit", limit) for rule_id in rule_ids)
     return answers
+
+
+def limit_reason(answers: Sequence[JevAnswer]) -> str | None:
+    """한도에 걸린 첫 사유입니다(예: HTTP 429 재시도 5회, HTTP 401). 키 오류와 한도 소진을 가려 보게 합니다."""
+    return next((answer.reason for answer in answers if answer.status == "limit"), None)
 
 
 @dataclass(frozen=True)
@@ -177,7 +191,8 @@ class ShadowRecord:
     lang: str
     text: str
     rule_id: str
-    claude_flag: bool
+    claude_status: ClaudeStatus
+    claude_flag: bool | None
     claude_reason: str | None
     jev_noul: float | None
     jev_flag: bool | None
@@ -189,7 +204,13 @@ def pair_records(answers: Sequence[JevAnswer], claude: Sequence[Finding]) -> lis
     """jev 답과 `claude -p` 표시를 `(file, line, rule_id)`로 짝짓습니다.
 
     `claude -p` 표시에는 plural 형태 구분이 없어, 한 줄의 plural 형태가 여럿이면 표시가 모든 형태에 붙습니다.
+    `claude -p`가 판정하지 못한 문장(호출 실패·응답 오류)은 `claude_status: failed`, `claude_flag: None`입니다.
     """
+    failed = {
+        (str(finding.file), finding.line)
+        for finding in claude
+        if finding.rule_id in (RULE_CALL_FAILED, RULE_BAD_RESPONSE)
+    }
     reasons = {
         (str(finding.file), finding.line, finding.rule_id): finding.message
         for finding in claude
@@ -199,6 +220,7 @@ def pair_records(answers: Sequence[JevAnswer], claude: Sequence[Finding]) -> lis
     for answer in answers:
         entry = answer.entry
         reason = reasons.get((str(entry.file), entry.line, answer.rule_id))
+        claude_failed = (str(entry.file), entry.line) in failed
         jev_flag = None if answer.noul is None else answer.noul >= FLAG_THRESHOLD
         records.append(
             ShadowRecord(
@@ -209,7 +231,8 @@ def pair_records(answers: Sequence[JevAnswer], claude: Sequence[Finding]) -> lis
                 entry.lang,
                 entry.text,
                 answer.rule_id,
-                reason is not None,
+                "failed" if claude_failed else "ok",
+                None if claude_failed else reason is not None,
                 reason,
                 answer.noul,
                 jev_flag,

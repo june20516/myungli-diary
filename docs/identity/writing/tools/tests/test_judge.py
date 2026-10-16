@@ -133,8 +133,10 @@ def test_call_failure_is_reported_and_other_batches_continue(rules: RuleSet) -> 
     entries = [entry(3, "가"), entry(4, "나", key="k2"), entry(5, "다", key="k3")]
     findings = judge_entries({"s.info": make_slot()}, entries, rules, caller, batch_size=2)
     assert len(caller.calls) == 2
+    # 판정하지 못한 묶음은 문장마다 남깁니다(shadow 비교가 실패 문장을 가려낼 수 있게).
     assert [(finding.rule_id, finding.line) for finding in findings] == [
         (RULE_CALL_FAILED, 3),
+        (RULE_CALL_FAILED, 4),
         ("slop.P1", 5),
     ]
     assert "시간 초과" in findings[0].message

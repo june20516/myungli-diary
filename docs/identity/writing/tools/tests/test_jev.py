@@ -1,5 +1,6 @@
 """jev shadow 판정(`mlw judge --shadow jev`) 테스트. 네트워크는 가짜 Poster·opener로 바꿉니다."""
 
+import http.client
 import io
 import json
 import urllib.error
@@ -11,15 +12,17 @@ import pytest
 from mlw.jev import (
     FLAG_THRESHOLD,
     JEV_MODEL,
+    MAX_RETRY_DELAY,
     JevError,
     JevLimitReached,
     build_request,
     http_poster,
     jev_answers,
+    limit_reason,
     pair_records,
     write_shadow,
 )
-from mlw.judge import judge_rules_for
+from mlw.judge import RULE_CALL_FAILED, judge_rules_for
 from mlw.loader import load_rules
 from mlw.model import Entry, Finding, RuleSet, Slot
 from mlw.paths import RULES_DIR
@@ -202,3 +205,33 @@ def test_write_shadow_creates_dirs_and_refuses_overwrite(rules: RuleSet, tmp_pat
     assert json.loads(lines[0])["text"] == "가"
     with pytest.raises(FileExistsError):
         write_shadow(records, path)
+
+
+def test_http_poster_wraps_http_client_errors() -> None:
+    post = http_poster("k", sleep=lambda _: None, opener=FakeOpener(http.client.IncompleteRead(b"")))
+    with pytest.raises(JevError):
+        post({})
+
+
+@pytest.mark.parametrize(("retry_after", "expected"), [("-1", 0.0), ("nan", 2.0), ("3600", MAX_RETRY_DELAY)])
+def test_retry_delay_is_clamped(retry_after: str, expected: float) -> None:
+    sleeps: list[float] = []
+    opener = FakeOpener(http_error(429, {"retry-after": retry_after}), {"answers": {}})
+    http_poster("k", sleep=sleeps.append, opener=opener)({})
+    assert sleeps == [expected]
+
+
+def test_limit_reason_is_kept(rules: RuleSet) -> None:
+    answers = jev_answers({"s.info": make_slot()}, [entry(1, "가")], rules, FakePoster(JevLimitReached("HTTP 401")))
+    assert {answer.reason for answer in answers} == {"HTTP 401"}
+    assert limit_reason(answers) == "HTTP 401"
+
+
+def test_pair_records_marks_failed_claude_batches(rules: RuleSet) -> None:
+    ids = rule_ids(rules)
+    answers = jev_answers({"s.info": make_slot()}, [entry(4, "가")], rules, FakePoster(answer_all(ids, 0.9)))
+    failed = [Finding(CONTENT, 4, RULE_CALL_FAILED, "warn", "판정하지 못했습니다")]
+    records = pair_records(answers, failed)
+    assert {record.claude_status for record in records} == {"failed"}
+    assert {record.claude_flag for record in records} == {None}
+    assert {record.claude_status for record in pair_records(answers, [])} == {"ok"}

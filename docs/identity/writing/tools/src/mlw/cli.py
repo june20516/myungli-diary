@@ -25,7 +25,7 @@ from mlw.glossary import term_ids
 from mlw.hanja import HANJA_FILE_NAME, check_hanja, load_hanja
 from mlw.ia import check_ia, is_ui_slot, load_ia
 from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
-from mlw.jev import API_KEY_ENV, http_poster, jev_answers, pair_records, write_shadow
+from mlw.jev import API_KEY_ENV, http_poster, jev_answers, limit_reason, pair_records, write_shadow
 from mlw.judge import DEFAULT_BATCH_SIZE, DEFAULT_MODEL, claude_cli_caller, judge_entries
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.markup import check_name_position, check_ui_markup, strip_vocative
@@ -404,6 +404,9 @@ def _judge(args: argparse.Namespace) -> int:
     if args.shadow == "jev" and not api_key:
         print(f"--shadow jev에는 환경 변수 {API_KEY_ENV}가 필요합니다. 모델을 부르지 않고 멈춥니다.", file=sys.stderr)
         return EXIT_LOAD_ERROR
+    if api_key is not None and args.shadow_out.exists():
+        print(f"shadow 기록 {args.shadow_out}이(가) 이미 있습니다. 모델을 부르지 않고 멈춥니다.", file=sys.stderr)
+        return EXIT_LOAD_ERROR
     rules = load_rules(args.rules_dir)
     slots = load_slots(args.slots_dir, rules)
     entries = load_content(args.content)
@@ -415,16 +418,22 @@ def _judge(args: argparse.Namespace) -> int:
     with ThreadPoolExecutor(max_workers=2) as pool:
         main_run = pool.submit(judge_entries, slots, entries, rules, caller, batch_size=args.batch_size, **selection)
         shadow_run = pool.submit(jev_answers, slots, entries, rules, http_poster(api_key), **selection)
-        findings = main_run.result()
-        answers = shadow_run.result()
-    code = _print_findings(findings)
+        code = _print_findings(main_run.result())
+        try:
+            answers = shadow_run.result()
+        except Exception as error:  # noqa: BLE001 — shadow는 어떤 실패로도 본 판정을 막지 않습니다(W30).
+            print(f"jev shadow: 실패해 기록하지 않았습니다({type(error).__name__}: {error})", file=sys.stderr)
+            return code
+    findings = main_run.result()
     records = pair_records(answers, findings)
     write_shadow(records, args.shadow_out)
     counts = Counter(record.status for record in records)
     sentences = len({(record.file, record.line, record.text) for record in records})
     print(
         f"jev shadow: 문장 {sentences}개, 규칙 판정 {len(records)}개"
-        f"(ok {counts['ok']}, limit {counts['limit']}, error {counts['error']}) → {args.shadow_out}"
+        f"(ok {counts['ok']}, limit {counts['limit']}, error {counts['error']}"
+        + (f", 한도 사유 {reason}" if (reason := limit_reason(answers)) else "")
+        + f") → {args.shadow_out}"
     )
     return code
 
@@ -502,6 +511,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if getattr(args, "shadow", None) and args.shadow_out is None:
         parser.error("--shadow에는 --shadow-out이 필요합니다")
+    if getattr(args, "shadow_out", None) is not None and not args.shadow:
+        parser.error("--shadow-out은 --shadow와 함께 씁니다")
     try:
         return int(args.handler(args))
     except LoadError as error:
