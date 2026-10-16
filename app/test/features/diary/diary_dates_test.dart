@@ -51,8 +51,8 @@ void main() {
   });
 
   test('범위 끝 달은 지원 날짜 범위 안만 묻는다(D41)', () async {
-    await datesOf(const CalendarMonth(1900, 2));
-    await datesOf(const CalendarMonth(2099, 12));
+    await datesOf(CalendarMonth.supportedFirst);
+    await datesOf(CalendarMonth.supportedLast);
 
     expect(server.requests.first.queryParameters['from'], '1900-01-31');
     expect(server.requests.first.queryParameters['to'], '1900-03-10');

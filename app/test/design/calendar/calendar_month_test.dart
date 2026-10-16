@@ -255,7 +255,7 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     final log = <Object>[];
-    await _pump(tester, month: const CalendarMonth(1900, 2), log: log);
+    await _pump(tester, month: CalendarMonth.supportedFirst, log: log);
     final tokens = tester.element(find.byType(CalendarMonthView)).tokens;
     final prev = tester
         .getSemantics(find.byKey(CalendarMonthView.prevKey))
@@ -289,7 +289,7 @@ void main() {
     final log = <Object>[];
     // harness 상태를 버리고 새 달로 엽니다.
     await tester.pumpWidget(const SizedBox());
-    await _pump(tester, month: const CalendarMonth(2099, 12), log: log);
+    await _pump(tester, month: CalendarMonth.supportedLast, log: log);
     await tester.tap(find.byKey(CalendarMonthView.nextKey));
     await tester.fling(
       find.byKey(CalendarMonthView.gridKey),
@@ -459,7 +459,7 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     final log = <Object>[];
-    await _pump(tester, month: const CalendarMonth(1900, 2), log: log);
+    await _pump(tester, month: CalendarMonth.supportedFirst, log: log);
     await expectDisabledCell(tester, CalendarDate(1900, 1, 28), log);
     await expectDisabledCell(tester, CalendarDate(1900, 1, 30), log);
     expect(
@@ -470,7 +470,7 @@ void main() {
 
     // harness 상태를 버리고 새 달로 엽니다.
     await tester.pumpWidget(const SizedBox());
-    await _pump(tester, month: const CalendarMonth(2099, 12), log: log);
+    await _pump(tester, month: CalendarMonth.supportedLast, log: log);
     await expectDisabledCell(tester, CalendarDate(2100, 1, 1), log);
     handle.dispose();
   });

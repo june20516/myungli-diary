@@ -46,19 +46,21 @@ void main() {
     });
 
     test('지원 범위는 1900-02 ~ 2099-12다(A44, #248)', () {
-      expect(const CalendarMonth(1900, 2).isSupported, isTrue);
-      expect(const CalendarMonth(1900, 2).previous().isSupported, isFalse);
-      expect(const CalendarMonth(2099, 12).isSupported, isTrue);
-      expect(const CalendarMonth(2099, 12).next().isSupported, isFalse);
+      expect(CalendarMonth.supportedFirst.toString(), '1900-02');
+      expect(CalendarMonth.supportedLast.toString(), '2099-12');
+      expect(CalendarMonth.supportedFirst.isSupported, isTrue);
+      expect(CalendarMonth.supportedFirst.previous().isSupported, isFalse);
+      expect(CalendarMonth.supportedLast.isSupported, isTrue);
+      expect(CalendarMonth.supportedLast.next().isSupported, isFalse);
     });
 
     test('supportedGridStart·End는 격자를 지원 날짜 범위로 자릅니다', () {
-      const first = CalendarMonth(1900, 2);
+      const first = CalendarMonth.supportedFirst;
       expect(first.gridStart, CalendarDate(1900, 1, 28));
       expect(first.gridStart.isSupported, isFalse);
       expect(first.supportedGridStart, CalendarDate.supportedFirst);
       expect(first.supportedGridEnd, first.gridEnd);
-      const last = CalendarMonth(2099, 12);
+      const last = CalendarMonth.supportedLast;
       expect(last.gridEnd.isSupported, isFalse);
       expect(last.supportedGridStart, last.gridStart);
       expect(last.supportedGridEnd, CalendarDate.supportedLast);
@@ -106,7 +108,7 @@ void main() {
     test('달 지원 범위는 1일·말일이 모두 날짜 범위 안인 달입니다(1900-01 제외, A44)', () {
       expect(const CalendarMonth(1899, 12).isSupported, isFalse);
       expect(const CalendarMonth(1900, 1).isSupported, isFalse);
-      expect(const CalendarMonth(1900, 2).isSupported, isTrue);
+      expect(CalendarMonth.supportedFirst.isSupported, isTrue);
       expect(const CalendarMonth(2100, 1).isSupported, isFalse);
     });
   });

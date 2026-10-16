@@ -196,7 +196,7 @@ final List<WidgetbookComponent> calendarMonthComponents = [
         builder: (context) => const Stage(
           child: SizedBox(
             width: 340,
-            child: _MonthDemo(initial: CalendarMonth(1900, 2)),
+            child: _MonthDemo(initial: CalendarMonth.supportedFirst),
           ),
         ),
       ),

@@ -314,7 +314,7 @@ void main() {
     testWidgets('1900-02이면 이전 달(1900-01, 달력 밖)은 받지 않는다(A44)', (tester) async {
       final (container, tap) = await _boot(tester);
 
-      await prefetch(tester, container, const CalendarMonth(1900, 2));
+      await prefetch(tester, container, CalendarMonth.supportedFirst);
 
       expect(tap.paths, ['/v1/calendar/1900/3']);
     });
@@ -322,7 +322,7 @@ void main() {
     testWidgets('2099-12이면 다음 달(범위 밖)은 받지 않는다', (tester) async {
       final (container, tap) = await _boot(tester);
 
-      await prefetch(tester, container, const CalendarMonth(2099, 12));
+      await prefetch(tester, container, CalendarMonth.supportedLast);
 
       expect(tap.paths, ['/v1/calendar/2099/11']);
     });

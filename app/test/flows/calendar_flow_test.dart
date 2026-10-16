@@ -455,10 +455,10 @@ void main() {
       network: network,
       overrides: [_todayFrom(CalendarDate(2099, 12, 15)).override],
     );
-    expect(_monthView(tester).month, const CalendarMonth(2099, 12));
+    expect(_monthView(tester).month, CalendarMonth.supportedLast);
     await tester.tap(find.byKey(CalendarMonthView.nextKey));
     await settleWithIo(tester);
-    expect(_monthView(tester).month, const CalendarMonth(2099, 12));
+    expect(_monthView(tester).month, CalendarMonth.supportedLast);
 
     for (final path in ['/v1/schedules', '/v1/diaries']) {
       final query = network.listQueries[path]!.last;
@@ -476,7 +476,7 @@ void main() {
       network: network,
       overrides: [_todayFrom(CalendarDate(1900, 2, 15)).override],
     );
-    expect(_monthView(tester).month, const CalendarMonth(1900, 2));
+    expect(_monthView(tester).month, CalendarMonth.supportedFirst);
     await tester.tap(find.byKey(CalendarMonthView.prevKey));
     await settleWithIo(tester);
     await tester.fling(
@@ -485,7 +485,7 @@ void main() {
       800,
     );
     await settleWithIo(tester);
-    expect(_monthView(tester).month, const CalendarMonth(1900, 2));
+    expect(_monthView(tester).month, CalendarMonth.supportedFirst);
 
     // 미리 받기는 다음 달만이고, 1900-01은 한 번도 묻지 않습니다.
     expect(network.calendarPaths, contains('/v1/calendar/1900/3'));

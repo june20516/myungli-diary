@@ -102,8 +102,8 @@ final FutureProviderFamily<CalendarDay, CalendarDate> calendarDayProvider =
 
 /// 보이는 달 `visible`의 앞뒤 한 달을 조용히 받아 둡니다(A32). 화면이 보이는 달마다 구독합니다.
 ///
-/// 달력 밖 달([CalendarMonth.isSupported], 1900-02~2099-12 밖)은 받지 않습니다. 받은 달은 이 provider가 구독하는 동안
-/// 메모리에 남습니다. 실패는 무시합니다. 실패한 달은 구독을 닫아 오류 상태가 버려지게 하므로,
+/// 달력 밖 달([CalendarMonth.isSupported], 1900-02~2099-12 밖)은 받지 않습니다. 받은 달은
+/// 이 provider가 구독하는 동안 메모리에 남습니다. 실패는 무시합니다. 실패한 달은 구독을 닫아 오류 상태가 버려지게 하므로,
 /// 화면이 그 달을 열 때 다시 받습니다(이미 화면이 그 달을 구독 중이면 그 오류는 화면 몫입니다).
 /// 오류는 [calendarMonthProvider]의 오류이므로 따로 보고하지 않습니다.
 final FutureProviderFamily<void, CalendarMonth> calendarPrefetchProvider =
