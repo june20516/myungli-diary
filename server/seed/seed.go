@@ -1,7 +1,8 @@
 // Package seed는 writing 원고를 서버가 읽는 콘텐츠 시드로 옮긴 형식과 읽기 함수를 둡니다.
 //
 // 시드는 writing 트리(docs/identity/writing)를 seed/convert가 변환해 만든
-// data/content.json 하나이며, 바이너리에 내장됩니다. 서버는 부팅할 때 이 시드를 DB에 적재합니다.
+// data/content.json 하나이며, 바이너리에 내장됩니다. 이 시드를 DB에 적재하는 것은 `seed` 명령이고,
+// serve는 시드를 넣지 않습니다(S37). 슬롯 명세도 시드 버전마다 DB에 함께 들어가 실행 중에는 DB의 것을 씁니다(S45).
 package seed
 
 import (

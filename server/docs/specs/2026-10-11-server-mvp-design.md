@@ -150,10 +150,10 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 테이블 | 주요 열 | 비고 |
 | --- | --- | --- |
-| `content_seeds` | version, applied_at, active | 시드 버전. active는 partial unique로 하나. 출처 commit 열은 두지 않습니다. 시드 파일에 commit을 적으면 commit마다 파일이 바뀌어 생성 차이 검사(§6.1)가 깨지고, 버전(내용 해시)이 출처를 대신합니다(S44) |
+| `content_seeds` | version, slots, applied_at, active | 시드 버전. slots는 그 버전의 슬롯 명세(jsonb, 호칭 사용·매개변수 값 종류·순환 방식)로, 옛 버전으로 고른 문장을 그 버전의 명세로 렌더하려고 버전마다 저장합니다(S45). active는 partial unique로 하나. 출처 commit 열은 두지 않습니다. 시드 파일에 commit을 적으면 commit마다 파일이 바뀌어 생성 차이 검사(§6.1)가 깨지고, 버전(내용 해시)이 출처를 대신합니다(S44) |
 | `content_templates` | seed_version, slot, key, variant, lang, body | 기본 키 (seed_version, slot, key, variant, lang)(S33). 문장 틀 id = (slot, key, variant). 같은 식별자 키가 여러 슬롯에 있어 slot을 키에 넣습니다 |
 | `content_hanja` | seed_version, term, hanja | 용어 id → 한자 표기. 언어와 무관한 한 벌(writing `content/hanja.yaml`, S43) |
-| `daily_selections` | id, account_id, date, slot, birth_hash, message_key, variant, seed_version, created_at | unique(account_id, date, slot, birth_hash)(S34). D59②의 선택 기록. birth_hash는 32바이트 CHECK |
+| `daily_selections` | id, account_id, date, slot, birth_hash, message_key, variant, seed_version, created_at | unique(account_id, date, slot, birth_hash)(S34). D59②의 선택 기록. birth_hash는 값이 있으면 32바이트 CHECK이고, 익명화 때 비우므로 NULL을 허용합니다(§9) |
 | `rotation_state` | account_id, message_key, next_variant | 키별 다음 차례 |
 | `reactions` | selection_id(FK `daily_selections`), reaction, created_at, deleted_at | 반응 취소는 soft delete. partial unique(selection_id) WHERE deleted_at IS NULL(`reactions_one_active`)이라 취소한 이력은 남고 새 반응은 새 행입니다(S39) |
 
@@ -259,12 +259,12 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * 원본은 `docs/identity/writing/content/<lang>/*.yaml`입니다(D59①).
 * 이미지는 `server/`만으로 빌드하므로(D56④) 원고를 바로 읽지 않습니다. 변환 도구(`go run ./seed/cmd/convert`)가 원고를 시드 파일 `server/seed/data/content.json`으로 바꾸고, 이 파일을 commit합니다. proto 생성 코드(D33)와 같은 방식입니다. 시드 버전은 파일 내용의 해시입니다.
 * 변환 도구는 `[[글자]]` 용어 토큰을 glossary로 역조회해 `[[글자|용어 id]]`로 바꿔 저장합니다. 실행 중에는 역조회하지 않습니다(S35). 시드 파일은 `go generate ./seed/`로 다시 만듭니다.
-* `seed` Job은 이미지에 포함된 시드 파일을 `content_templates`의 새 `seed_version`으로 넣고 active로 바꿉니다. 같은 버전이 이미 있으면 아무것도 하지 않습니다. 이전 버전 행은 남깁니다. 선택 기록이 그 버전을 가리키기 때문입니다.
+* `seed` Job은 이미지에 포함된 시드 파일을 `content_templates`의 새 `seed_version`으로 넣고 active로 바꿉니다. 그 버전의 슬롯 명세도 `content_seeds.slots`에 함께 저장합니다. 서버는 문장을 렌더하거나 고를 때 그 문장의 시드 버전 명세를 읽으므로(데일리는 선택 기록의 버전, 캘린더·사주 표·용어 사전은 active), 바이너리에 내장된 명세에 기대지 않습니다(S45). 같은 버전이 이미 있으면 아무것도 하지 않습니다. 이전 버전 행은 남깁니다. 선택 기록이 그 버전을 가리키기 때문입니다.
 * `serve`는 시드를 넣지 않습니다. active 시드가 없으면 콘텐츠 operation은 503 `service.unavailable`과 Error 로그입니다(S37).
 * 시드 CI(`server.yml`)는 다음을 확인합니다. 하나라도 실패하면 병합을 막습니다.
   1. `uv sync --frozen` 뒤 `uv run mlw check ../content --partial`(작업 디렉터리 `docs/identity/writing/tools`)이 0으로 끝나는지
   2. `core/message_keys.json`의 모든 키 × 3개 언어 × 필요한 변주가 있는지
-  3. 매개변수 이름이 core가 제공할 매개변수 목록(`core/message_params.json`, Issue #38)과 맞는지
+  3. 매개변수 이름이 core가 제공할 매개변수 목록(`core/message_params.json`, Issue #38)과 맞는지. 1번의 `mlw check`가 함께 봅니다(슬롯 명세 `params` 대조). `--partial`은 빠진 원고 보고만 끄므로 이 검사는 늘 켜져 있습니다
   4. 원고를 다시 변환한 결과가 commit된 시드 파일과 같은지(`go generate ./...` 뒤 `git status --porcelain`이 비었는지)
 * 원고가 W1로 다 오기 전까지는 1번을 `--partial`로 돌리고, 2번은 변환 도구가 빠진 (slot, key, variant, lang)을 `missing:` 줄로 출력만 합니다(S38). W1이 끝나면 `--partial`을 빼고 변환 도구에 `-strict`(빠진 원고가 있으면 실패)를 켭니다.
 
@@ -382,10 +382,11 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 | `profiles` | 호칭을 `deleted user`로 바꿈. 출생 정보와 `birth_hash`는 비움(anonymized_at 기록) |
 | `diaries`, `schedules` | 본문·가이드 질문·제목·메모를 비움. 날짜와 태그는 남김 |
 | `devices` | 토큰을 지우고 비활성 |
-| 남기는 것 | `consents`, `daily_selections`, `rotation_state`, `reactions`, `entitlement_grants`, `billing_events`, `reward_events`, `notification_log` |
+| `daily_selections` | 행은 남기고 `birth_hash`만 비움(NULL) |
+| 남기는 것 | `consents`, `daily_selections`(birth_hash 제외), `rotation_state`, `reactions`, `entitlement_grants`, `billing_events`, `reward_events`, `notification_log` |
 
 * **출생 정보는 가짜 값으로 채우지 않고 비웁니다.** 더미 생일은 통계에서 진짜 값과 섞입니다. 왜 비었는지는 `anonymized_at`이 설명합니다.
-* **`birth_hash`도 비웁니다.** 생년월일시는 경우의 수가 작아서 해시만 남아도 원래 값을 되찾을 수 있습니다. 캐시 행은 계정과 연결되지 않으므로 그대로 두었다가 보존 기간이 지나면 지웁니다.
+* **`birth_hash`도 비웁니다.** 생년월일시는 경우의 수가 작아서 해시만 남아도 원래 값을 되찾을 수 있습니다. `daily_selections.birth_hash`도 같은 이유로 비웁니다. 그 열은 계정과 연결돼 있어 남기면 익명화한 계정의 생년월일시를 되찾을 수 있기 때문입니다. 선택 기록의 나머지(날짜·슬롯·메시지 키·변주)와 반응은 성향 자료라 남깁니다. 캐시 행은 계정과 연결되지 않으므로 그대로 두었다가 보존 기간이 지나면 지웁니다.
 * **일기 본문을 남기지 않습니다.** 개인정보보호법은 다른 정보와 합쳐도 개인을 알아볼 수 없을 때만 익명 정보로 봅니다. 자유 서술인 본문과 호칭이 들어간 가이드 질문은 그 기준을 넘기 어렵습니다.
 * **남기는 태그·메시지 키에 대한 판단:** 이 값들은 원국에서 나오므로, 날짜별로 쌓이면 원국을 어느 정도 거꾸로 짐작할 수 있습니다. 하지만 원국이 같은 사람은 많아서, 이것만으로는 생년월일시도 개인도 특정하지 못합니다. 그래서 남깁니다.
 * RevenueCat의 고객 기록은 지우지 않습니다. app_user_id가 계정 UUID라 개인을 가리키지 않고, 결제 기록 보관 의무가 있기 때문입니다.

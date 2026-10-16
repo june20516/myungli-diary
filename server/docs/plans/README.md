@@ -50,7 +50,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 만료된 refresh token 정리는 "행을 물리적으로 지우지 않는다"(S6·S7, spec §2)의 예외입니다(시스템 데이터). 다만 `refresh_tokens.replaced_by_id`가 같은 테이블을 `ON DELETE RESTRICT`로 참조하므로(S20), 앞 토큰이 남아 있는 동안 그 다음 토큰은 지울 수 없습니다. family의 모든 토큰이 만료됐을 때 family 단위로 지우되 참조하는 행(앞 토큰)부터 지워야 합니다. RESTRICT는 한 DELETE 문 안에서도 행마다 즉시 검사하므로 한 문장에 몰아 지울 때의 순서에 기대지 않습니다(필요하면 FK를 `NO ACTION`으로 바꾸는 것을 검토).
 * 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
-* 익명화 때 `daily_selections`·`rotation_state`·`reactions`는 남깁니다(spec §9 "남기는 것"). 콘텐츠 표의 FK가 `ON DELETE RESTRICT`인 것도 이 때문입니다. 다만 `daily_selections.birth_hash`는 `profiles.birth_hash`를 비우는 이유(생년월일시를 되찾을 수 있음)가 같이 해당하므로, 비울지(열이 NOT NULL·32바이트 CHECK라 migration 필요)를 P8 계획에서 정합니다.
+* 익명화 때 `daily_selections`·`rotation_state`·`reactions`는 남깁니다(spec §9 "남기는 것"). 콘텐츠 표의 FK가 `ON DELETE RESTRICT`인 것도 이 때문입니다. 다만 `daily_selections.birth_hash`는 `profiles.birth_hash`를 비우는 이유(생년월일시를 되찾을 수 있음)가 같이 해당하므로 P8 retention이 익명화 때 비웁니다(spec §9, S34). 열은 P4에서 이미 NULL을 허용합니다(값이 있으면 32바이트 CHECK).
 * 프로필 익명화 전용 쿼리를 둡니다. 출생 열·호칭·해시를 비우고 `anonymized_at`을 기록하며, CHECK `profiles_complete_until_anonymized`에 맞춥니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다.
 

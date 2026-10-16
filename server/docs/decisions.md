@@ -37,7 +37,7 @@ server 안에서 정한 사항을 모읍니다. 제품 결정(D#)과 부딪히�
 | S31 | 2026-10-15 | 배포 | 시간대 자료는 배포 이미지와 무관하게 `time/tzdata`를 바이너리에 내장합니다 | P3 계획 |
 | S32 | 2026-10-16 | 엔진 | 음력 변환(`convertLunarDate`)에서 엔진이 `INVALID_ARGUMENT`를 내면, 윤달을 물은 요청만 평달로 한 번 더 물어 422의 `errors[].field`를 가립니다. 평달은 있는데 그해 그 달에 윤달이 없으면 `/isLeapMonth`, 그 밖은 `/date`입니다. 엔진은 두 경우를 구분하지 않고, app은 이 필드로 윤달 선택과 날짜 입력 중 어디를 고칠지 보입니다 | 계약 `convertLunarDate` 설명, #170 |
 | S33 | 2026-10-16 | 콘텐츠 | `content_templates`의 기본 키는 `(seed_version, slot, key, variant, lang)`이고, 문장 틀 id는 (slot, key, variant)입니다. writing 식별자 키가 슬롯마다 겹치기 때문입니다(`hap`은 `calendar.score_item`과 `daily.focus_reason`에 모두 있음) | P4 계획 P4-1, 슬롯 명세 |
-| S34 | 2026-10-16 | 콘텐츠 | `daily_selections`는 사주 지문(`birth_hash`, 32바이트 CHECK)을 키에 넣어 unique(account_id, date, slot, birth_hash)입니다. 옛 지문의 기록은 지우지 않습니다. 같은 지문에서 메시지 키만 바뀌면 그 행을 고쳐 쓰고 그 행의 반응은 soft delete합니다. 선택 기록이 하나로 정해져야 반응 API가 단순합니다 | P4 계획 P4-2, spec §6.2 |
+| S34 | 2026-10-16 | 콘텐츠 | `daily_selections`는 사주 지문(`birth_hash`, 값이 있으면 32바이트 CHECK)을 키에 넣어 unique(account_id, date, slot, birth_hash)입니다. 익명화 때 `profiles.birth_hash`와 같은 이유로 이 열을 비우므로(spec §9) NULL을 허용합니다. 옛 지문의 기록은 지우지 않습니다. 같은 지문에서 메시지 키만 바뀌면 그 행을 고쳐 쓰고 그 행의 반응은 soft delete합니다. 선택 기록이 하나로 정해져야 반응 API가 단순합니다 | P4 계획 P4-2, spec §6.2 |
 | S35 | 2026-10-16 | 콘텐츠 | `[[글자]]` 용어 토큰의 역조회는 변환 때 끝내고 시드에는 `[[글자\|용어 id]]`로 저장합니다. 실행 중에는 역조회하지 않습니다. 이름 원고가 덜 찬 언어에 남은 bare 토큰은 평문 조각으로 나갑니다 | P4 계획 P4-5, #129 |
 | S36 | 2026-10-16 | 콘텐츠 | 태그 `polarity`는 엔진 spec §7.7 표(15키)를 server 고정 표로 둡니다. proto에 그 값이 없기 때문입니다 | P4 계획 P4-6 |
 | S37 | 2026-10-16 | 배포 | `serve`는 시드를 넣지 않고, 넣는 것은 `seed` 명령(compose·CI·배포가 부름)입니다. active 시드가 없으면 콘텐츠 operation은 503 `service.unavailable`과 Error 로그입니다 | P4 계획 P4-7, spec §6.1 |
@@ -48,3 +48,4 @@ server 안에서 정한 사항을 모읍니다. 제품 결정(D#)과 부딪히�
 | S42 | 2026-10-16 | 콘텐츠 | 근거 열람 권한이 없으면 근거 문장을 렌더하지 않고 건너뜁니다(빼기 전에 만들지 않음). 원고 없음 Error 로그는 spec §6.4대로 두고, 볼륨만 이것으로 줄입니다 | P4 Task 7, D60 |
 | S43 | 2026-10-16 | 콘텐츠 | 한자 표기는 언어와 무관한 한 벌(writing `content/hanja.yaml`)이며, 시드의 `Hanja`로 변환해 `content_hanja`에 시드 버전별로 넣고 `Glossary.hanja`를 채웁니다 | P4 Task 9 |
 | S44 | 2026-10-16 | 콘텐츠 | `content_seeds`에 출처 commit 열을 두지 않습니다. 시드 파일에 commit을 적으면 commit마다 파일이 바뀌어 생성 차이 검사가 깨지고, 시드 버전(정렬한 내용의 SHA-256 앞 16자)이 출처를 대신합니다 | P4 Task 4, spec §3.3 |
+| S45 | 2026-10-16 | 콘텐츠 | 시드 버전마다 슬롯 명세(`seed.Seed.Slots`)를 `content_seeds.slots`(jsonb)에 문장 틀과 함께 저장하고, 서버는 렌더·선택하는 문장의 시드 버전 명세를 씁니다(데일리는 선택 기록의 `seed_version`, 캘린더·사주 표·용어 사전은 active, 순환 판단은 선택 트랜잭션의 active). 바이너리 내장 명세를 쓰면 옛 버전으로 고른 문장을 새 명세(호칭·매개변수 값 종류)로 렌더해 깨질 수 있습니다. 명세는 버전별로 메모리에 캐시합니다 | P4 최종 review, spec §3.3·§6.1 |
