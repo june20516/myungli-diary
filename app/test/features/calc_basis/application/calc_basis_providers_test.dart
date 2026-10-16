@@ -171,6 +171,22 @@ void main() {
     expect(await container.read(calcBasisTimeBasisProvider.future), _seoul0800);
   });
 
+  test('해외 기기에서 도시를 아직 고르지 않았으면 출생지를 몰라 null입니다', () async {
+    final container = _container(
+      api: _FakeApi(),
+      draft: _solarDraft,
+      region: 'US',
+    );
+
+    expect(await container.read(calcBasisTimeBasisProvider.future), isNull);
+  });
+
+  test('한국 기기는 도시가 없어도 서울 기준입니다(D29)', () async {
+    final container = _container(api: _FakeApi(), draft: _solarDraft);
+
+    expect(await container.read(calcBasisTimeBasisProvider.future), _seoul0800);
+  });
+
   test('날짜가 없으면 null입니다', () async {
     final container = _container(api: _FakeApi());
 

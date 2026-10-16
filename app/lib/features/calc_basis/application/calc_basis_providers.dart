@@ -27,8 +27,8 @@ final lunarDateRepositoryProvider = Provider<LunarDateRepository>(
 /// 계산 기준 화면의 경도 보정 기준(A28).
 ///
 /// 입력은 프로필 사본(로그인 뒤), 없으면 온보딩 입력입니다. 도시를 골랐거나(도시 경도를 모름),
-/// 생년월일·시간을 아직 받지 않았거나, 음력 변환이 실패하면 null이라 경도 문단을 그리지
-/// 않습니다(A29).
+/// 해외 기기에서 도시를 아직 고르지 않았거나(출생지를 모름), 생년월일·시간을 아직 받지
+/// 않았거나, 음력 변환이 실패하면 null이라 경도 문단을 그리지 않습니다(A29).
 final calcBasisTimeBasisProvider = FutureProvider<TimeBasis?>((ref) async {
   final repository = ref.watch(lunarDateRepositoryProvider);
   final profile = await ref.watch(cachedProfileProvider.future);
@@ -82,7 +82,9 @@ _BirthInput? _birthOfProfile(Profile profile) {
 
 /// 온보딩 입력의 출생 입력. 도시를 골랐거나 값이 비었으면 null입니다.
 ///
-/// 한국 기기는 남은 도시를 쓰지 않고 서울 기준입니다(`OnboardingDraft.toBirth`와 같음).
+/// 한국 기기는 출생지를 묻지 않으므로 남은 도시를 쓰지 않고 서울 기준입니다
+/// (`OnboardingDraft.toBirth`와 같음). 해외 기기는 도시를 고르기 전이면 출생지를 아직
+/// 모르므로 null입니다.
 _BirthInput? _birthOfDraft(
   OnboardingDraft draft, {
   required bool deviceRegionIsKorea,
@@ -90,8 +92,11 @@ _BirthInput? _birthOfDraft(
   final calendar = draft.calendar;
   final date = draft.date;
   final time = draft.time;
-  final city = deviceRegionIsKorea ? null : draft.city;
-  if (city != null || calendar == null || date == null || time == null) {
+  // 해외 기기는 도시를 골랐으면 도시 경도를 몰라서, 안 골랐으면 출생지를 몰라서 null입니다.
+  if (!deviceRegionIsKorea ||
+      calendar == null ||
+      date == null ||
+      time == null) {
     return null;
   }
   return (
