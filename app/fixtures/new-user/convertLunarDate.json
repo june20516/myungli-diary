@@ -1,0 +1,4 @@
+{
+  "status": 200,
+  "body": { "solarDate": "1990-05-15", "monthHasLeap": false }
+}
