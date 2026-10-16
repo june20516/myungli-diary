@@ -139,8 +139,8 @@ class _ScheduleSection extends ConsumerWidget {
       variant: PrimaryButtonVariant.quiet,
       identifier: SlotIds.daySheetEventAdd,
     );
-    // 다시 받는 중에는 들고 있던 목록을 그대로 보입니다(깜빡이지 않게). 로그아웃은 범위를 빈
-    // 목록으로 덮은 뒤 다시 받으므로 이전 계정 일정이 남지 않습니다.
+    // 다시 받는 중에는 들고 있던 목록을 그대로 보입니다(깜빡이지 않게). 로그아웃 뒤 다시 받는
+    // 동안은 하루 목록이 값 없는 loading이라 이전 계정 일정도, 잠깐의 "일정 없음"도 없습니다.
     if (schedules.isLoading && !schedules.hasValue) {
       return const _ScheduleSkeleton();
     }

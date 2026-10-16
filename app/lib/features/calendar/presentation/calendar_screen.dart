@@ -195,8 +195,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       today: today,
       days: calendar.value?.days ?? const [],
       diaryDates: diaryDates,
-      // 로그아웃 뒤에는 loading이면서 빈 목록을 들고 있으므로 isLoading을 값보다 먼저 봅니다.
-      schedules: schedules.isLoading ? const [] : schedules.value ?? const [],
+      // 다시 받는 동안에는 들고 있던 값을 그대로 씁니다(로그아웃 뒤는 버린 빈 목록이라 점 없음).
+      schedules: schedules.value ?? const [],
     );
 
     return Semantics(

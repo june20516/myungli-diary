@@ -465,29 +465,38 @@ void main() {
       });
     });
 
-    test('요약을 구독한 채 로그아웃하면 오늘 범위가 이전 값을 들고 있지 않다', () async {
-      final server = ScheduleTestServer();
-      final container = _container(server);
-      final subscription = container.listen(
-        todayScheduleSummaryProvider,
-        (_, _) {},
-      );
-      addTearDown(subscription.close);
-      await container.read(nowMinuteProvider.future);
-      await container.read(schedulesInRangeProvider(_todayRange).future);
-      expect(container.read(todayScheduleSummaryProvider), isNotNull);
+    test(
+      '요약을 구독한 채 로그아웃하면 오늘 범위가 이전 값을 들고 있지 않고, 하루 목록은 값 없는 loading이다',
+      () async {
+        final server = ScheduleTestServer();
+        final container = _container(server);
+        final subscription = container.listen(
+          todayScheduleSummaryProvider,
+          (_, _) {},
+        );
+        addTearDown(subscription.close);
+        await container.read(nowMinuteProvider.future);
+        await container.read(schedulesInRangeProvider(_todayRange).future);
+        expect(container.read(todayScheduleSummaryProvider), isNotNull);
 
-      // 로그아웃 뒤 다시 받기는 붙잡아, 버린 뒤의 상태를 봅니다.
-      final refetch = server.holdNextGet();
-      addTearDown(refetch.complete);
-      await container.read(tokenStoreProvider).signOut();
-      await pumpEventQueue();
+        // 로그아웃 뒤 다시 받기는 붙잡아, 버린 뒤의 상태를 봅니다.
+        final refetch = server.holdNextGet();
+        addTearDown(refetch.complete);
+        await container.read(tokenStoreProvider).signOut();
+        await pumpEventQueue();
 
-      final today = container.read(schedulesInRangeProvider(_todayRange));
-      expect(today.isLoading, isTrue);
-      expect(today.value, isEmpty);
-      expect(container.read(todayScheduleSummaryProvider), isNull);
-    });
+        final today = container.read(schedulesInRangeProvider(_todayRange));
+        expect(today.isLoading, isTrue);
+        expect(today.value, isEmpty);
+        // 그날 시트 목록은 값 없는 loading이라, 다시 받는 동안 "일정 없음"으로 읽히지 않습니다.
+        final onDate = container.read(
+          schedulesOnDateProvider(_todayRange.from),
+        );
+        expect(onDate.isLoading, isTrue);
+        expect(onDate.hasValue, isFalse);
+        expect(container.read(todayScheduleSummaryProvider), isNull);
+      },
+    );
 
     test('일정이 없으면 null', () async {
       final server = ScheduleTestServer(seed: const []);

@@ -156,15 +156,38 @@ final class SchedulesInRange extends AsyncNotifier<List<Schedule>> {
 
   /// 로그아웃: 받아 둔 값을 버리고 붙들기를 놓습니다. 진행 중인 요청의 응답은 반영하지 않습니다.
   ///
-  /// Riverpod은 새 상태(loading 포함)에 이전 값을 옮겨 담으므로, 먼저 빈 목록으로 덮어
-  /// 이전 계정 일정이 다시 받는 동안에도 남지 않게 합니다.
+  /// Riverpod은 새 상태(loading 포함)에 이전 값을 늘 옮겨 담으므로, 먼저 [_forgottenSchedules]로
+  /// 덮어 이전 계정 일정이 다시 받는 동안에도 남지 않게 합니다. 이 값은 "받은 빈 목록"이
+  /// 아니므로 [schedulesOnDateProvider]는 값 없는 상태로 바꿔 내보냅니다.
   void _forget(KeepAliveLink? keepAlive) {
     _applied = ++_started;
     _appliedValue = null;
-    state = const AsyncData(<Schedule>[]);
+    state = AsyncData(_forgottenSchedules);
     keepAlive?.close();
     ref.invalidateSelf();
   }
+}
+
+/// 로그아웃으로 버린 범위가 다음 응답 전까지 들고 있는 빈 목록. 받은 빈 목록(일정 없음)과
+/// 구별하려고 따로 만든 인스턴스이고 `identical`로만 비교합니다.
+final List<Schedule> _forgottenSchedules = List.unmodifiable(<Schedule>[]);
+
+/// [state]가 로그아웃으로 버린 값([_forgottenSchedules])을 들고 있으면 그 값을 뺀 상태.
+///
+/// 다시 받는 중이면 값 없는 loading, 다시 받기가 실패했으면 값 없는 오류입니다. 그래서 그날
+/// 시트가 잠깐 "일정 없음"을 보이지 않습니다.
+AsyncValue<List<Schedule>> _withoutForgotten(AsyncValue<List<Schedule>> state) {
+  if (!identical(state.value, _forgottenSchedules)) {
+    return state;
+  }
+  final error = state.error;
+  if (state.isLoading || error == null) {
+    return const AsyncLoading<List<Schedule>>();
+  }
+  return AsyncError<List<Schedule>>(
+    error,
+    state.stackTrace ?? StackTrace.empty,
+  );
 }
 
 /// 하루(`date`)의 일정, [inDayOrder] 순서(`day-sheet` 목록).
@@ -175,13 +198,13 @@ final class SchedulesInRange extends AsyncNotifier<List<Schedule>> {
 /// 범위(`from == to`)를 받습니다(A34). 고른 범위의 상태(loading·error·값)를 그대로 옮깁니다.
 /// 고른 범위의 상태가 바뀌면 다시 고르므로, 기다리던 격자가 실패하면 하루 범위로 넘어갑니다.
 /// 저장이 성공하면 [ScheduleEditor]가 그 날을 품은 범위를 다시 받으므로 여기도 따라 바뀝니다.
+/// 로그아웃 뒤 다시 받는 동안은 값 없는 loading입니다(빈 목록으로 보이지 않음).
 final ProviderFamily<AsyncValue<List<Schedule>>, CalendarDate>
 schedulesOnDateProvider = Provider.autoDispose
     .family<AsyncValue<List<Schedule>>, CalendarDate>((ref, date) {
       final range = _heldGridFor(ref, date) ?? (from: date, to: date);
       final iso = date.toIso();
-      return ref
-          .watch(schedulesInRangeProvider(range))
+      return _withoutForgotten(ref.watch(schedulesInRangeProvider(range)))
           .whenData(
             (schedules) =>
                 inDayOrder(schedules.where((schedule) => schedule.date == iso)),
