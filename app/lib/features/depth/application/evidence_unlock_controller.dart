@@ -11,6 +11,7 @@ import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
@@ -405,6 +406,9 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     }
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
       state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
+      // 근거 권한이 생겼으므로 잠긴 채 받아 둔 달 길흉도 다시 받게 합니다(A32). 시트가 먼저
+      // 열리도록 상태를 바꾼 뒤에 합니다. 실패는 그 안에서 보고하고 삼킵니다.
+      await ref.read(calendarUnlockSyncProvider).forgetLocked();
       return;
     }
     // 권한이 생겼다는데 응답이 아직 잠김: 열지 않습니다.

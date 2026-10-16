@@ -178,6 +178,37 @@ void main() {
     expect(await store.lockedKeys(CacheKind.calendar), isEmpty);
   });
 
+  test('remove는 이 계정의 그 종류에서 고른 키만 지운다', () async {
+    final other = CacheStore(database, accountId: 'b');
+    await writeCalendar(store, 'A', access: EvidenceAccess.locked);
+    await writeCalendar(store, 'A', month: 11, access: EvidenceAccess.locked);
+    await writeCalendar(other, 'A', access: EvidenceAccess.locked);
+    await store.write(
+      CacheKind.chart,
+      calendar('A'),
+      '{}',
+      access: EvidenceAccess.locked,
+    );
+
+    await store.remove(CacheKind.calendar, [calendar('A')]);
+
+    expect(await store.read(CacheKind.calendar, calendar('A')), isNull);
+    expect(
+      await store.read(CacheKind.calendar, calendar('A', month: 11)),
+      isNotNull,
+    );
+    expect(await store.read(CacheKind.chart, calendar('A')), isNotNull);
+    expect(await other.read(CacheKind.calendar, calendar('A')), isNotNull);
+  });
+
+  test('remove에 빈 목록을 주면 아무것도 지우지 않는다', () async {
+    await writeCalendar(store, 'A');
+
+    await store.remove(CacheKind.calendar, const []);
+
+    expect(await store.read(CacheKind.calendar, calendar('A')), isNotNull);
+  });
+
   group('계정 범위', () {
     test('계정 a가 쓴 캐시는 계정 b에서 읽히지 않고 lockedKeys에도 없다', () async {
       final other = CacheStore(database, accountId: 'b');

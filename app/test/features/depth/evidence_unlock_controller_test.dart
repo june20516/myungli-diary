@@ -424,6 +424,45 @@ void main() {
       expect(opened.events, isEmpty);
     });
 
+    testWidgets('잠금 해제에 성공하면 locked로 받은 달력 캐시를 버린다(A32)', (tester) async {
+      final container = await _boot(tester, scenario: 'reward-unlock');
+      final cache = container.read(cacheStoreProvider);
+      await tester.runAsync(() async {
+        await cache.write(
+          CacheKind.calendar,
+          'fp|ko|2026-10',
+          '{}',
+          access: EvidenceAccess.locked,
+        );
+        await cache.write(
+          CacheKind.calendar,
+          'fp|ko|2026-11',
+          '{}',
+          access: EvidenceAccess.unlocked,
+        );
+      });
+      _open(container);
+      await _prepared(tester, container);
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await _until(
+        tester,
+        () => _state(container).link == DepthLinkState.unlocked,
+      );
+      List<String>? locked;
+      await _until(tester, () {
+        unawaited(
+          cache.lockedKeys(CacheKind.calendar).then((keys) => locked = keys),
+        );
+        return locked != null && locked!.isEmpty;
+      });
+
+      final kept = await tester.runAsync(
+        () => cache.read(CacheKind.calendar, 'fp|ko|2026-11'),
+      );
+      expect(kept, isNotNull);
+    });
+
     testWidgets('30초 안에 권한이 없으면 UnlockTimedOut과 locked', (tester) async {
       final container = await _boot(
         tester,
