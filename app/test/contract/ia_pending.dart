@@ -24,7 +24,6 @@ const Set<String> pendingStateScreens = {
 /// 빈 집합이 목표입니다. IA `exits`가 빈 화면은 넣지 않습니다(넣으면 ratchet
 /// 테스트가 즉시 실패합니다).
 const Set<String> pendingExitScreens = {
-  'today',
   'diary-list',
   'diary-edit',
   'diary-view',

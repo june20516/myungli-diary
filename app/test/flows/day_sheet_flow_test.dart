@@ -78,12 +78,14 @@ void main() {
 
     expect(_inSheet(find.byType(DayCharacter)), findsOneWidget);
     final titles = [
-      for (final row in tester.widgetList<EventRow>(find.byType(EventRow)))
+      for (final row in tester.widgetList<EventRow>(
+        _inSheet(find.byType(EventRow)),
+      ))
         row.title,
     ];
     expect(titles, ['엄마 생신', '팀 주간 회의', '요가 수업']);
 
-    await tester.tap(find.widgetWithText(EventRow, '팀 주간 회의'));
+    await tester.tap(_inSheet(find.widgetWithText(EventRow, '팀 주간 회의')));
     await settleWithIo(tester);
     expect(
       container.read(routerProvider).state.uri.path,

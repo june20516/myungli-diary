@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
@@ -27,9 +28,12 @@ import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
+import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/reaction_controller.dart';
 import 'package:myungli_diary/features/today/application/today_content.dart';
@@ -43,8 +47,9 @@ const Set<String> todayHandledStates = {
   'time-unknown',
 };
 
-/// IA `today`의 출구 대상. `day-sheet`(오늘 일정 한 줄)는 계획 4가 더합니다.
+/// IA `today`의 출구 대상.
 const Set<String> todayExits = {
+  ScreenIds.daySheet,
   ScreenIds.diaryEdit,
   ScreenIds.diaryView,
   ScreenIds.explainSheet,
@@ -57,7 +62,8 @@ const Set<String> todayExits = {
 /// 값은 [todayContentProvider] 한 곳에서 받고, 표시 값 변환은 `today_presentation.dart`가
 /// 합니다. 처음 불러올 때는 카드 자리 skeleton, 캐시 → server 응답이 다르면 내용이 스밉니다.
 /// 총운 첫 문장의 반응 버튼은 낙관적으로 바뀌고 실패하면 되돌리며 오류 toast를 보입니다.
-/// 오늘 일정 줄·배너(계획 4·7)는 아직 없습니다.
+/// 행운 칩 줄 아래에 오늘 일정 한 줄이 있고 누르면 오늘 `day-sheet`가 열립니다(A35).
+/// 배너(계획 7)는 아직 없습니다.
 class TodayScreen extends ConsumerWidget {
   /// today 화면을 만듭니다.
   const new({super.key});
@@ -285,6 +291,7 @@ class _TodayBody extends ConsumerWidget {
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             LuckyCardRow(items: display.lucky, slotIds: todayLuckySlotIds),
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
+            const _TodayEventSummary(),
             GuideQuestionCard(
               state: content.diaryWritten
                   ? GuideQuestionState.after
@@ -301,6 +308,79 @@ class _TodayBody extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 오늘 일정 한 줄(`today.event.summary`, A35)과 그 아래 간격.
+///
+/// 요약은 `todayScheduleSummaryProvider`에서 받고, 분이 바뀌면 "다음"이 다시 골라집니다.
+/// 일정이 없거나 불러오지 못하면(요약 null) 줄도 간격도 그리지 않아 오늘의 다른 상태에
+/// 영향이 없습니다. 늦게 도착한 줄은 스며 나타나고, 사라질 때는 마지막 요약을 보이며
+/// 스며 사라집니다. 누르면 오늘 `day-sheet`를 엽니다.
+class _TodayEventSummary extends ConsumerStatefulWidget {
+  const new();
+
+  @override
+  ConsumerState<_TodayEventSummary> createState() => _TodayEventSummaryState();
+}
+
+class _TodayEventSummaryState extends ConsumerState<_TodayEventSummary> {
+  /// 사라지는 동안 보일 마지막 요약.
+  TodayScheduleSummary? _shown;
+
+  static EventRowStatus _statusOf(TodayScheduleStatus status) =>
+      switch (status) {
+        TodayScheduleStatus.next => EventRowStatus.next,
+        TodayScheduleStatus.inProgress => EventRowStatus.inProgress,
+      };
+
+  void _openDaySheet() => unawaited(
+    ref.read(daySheetsProvider).open(context, ref.read(todayProvider)),
+  );
+
+  Widget _row(AppLocalizations l10n, TodayScheduleSummary summary) =>
+      switch (summary) {
+        TodayScheduleHighlight(
+          :final status,
+          :final time,
+          :final title,
+          :final moreCount,
+        ) =>
+          EventRow.summary(
+            status: _statusOf(status),
+            time: time,
+            title: title,
+            moreCount: moreCount,
+            onTap: _openDaySheet,
+            identifier: SlotIds.todayEventSummary,
+          ),
+        TodayScheduleAllPast(:final count) => EventRow.summary(
+          status: null,
+          title: '',
+          allPastSentence: l10n.todayEventSummaryAllPast(count),
+          onTap: _openDaySheet,
+          identifier: SlotIds.todayEventSummary,
+        ),
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = ref.watch(todayScheduleSummaryProvider);
+    if (summary != null) _shown = summary;
+    final shown = _shown;
+    return SeepPresence(
+      key: const ValueKey(SlotIds.todayEventSummary),
+      present: summary != null,
+      onGone: () {
+        if (mounted) setState(() => _shown = null);
+      },
+      child: shown == null
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.only(bottom: Space.s12),
+              child: _row(AppLocalizations.of(context), shown),
+            ),
     );
   }
 }

@@ -18,6 +18,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -394,6 +395,28 @@ void main() {
       find.byType(GuideQuestionCard),
     );
     expect(card.actionLabel, _ko.todayGuideCtaWritten);
+  });
+
+  testWidgets('member: 오늘 일정 한 줄 → 오늘 day-sheet', (tester) async {
+    covers(const Covers(exits: ['today>day-sheet']));
+    await _openToday(tester);
+    final summary = find.bySemanticsIdentifier(SlotIds.todayEventSummary);
+    await pumpUntil(tester, () => summary.evaluate().isNotEmpty);
+    await tester.ensureVisible(summary);
+    await tester.pumpAndSettle();
+    await tester.tap(summary);
+    await settleWithIo(tester);
+
+    final sheet = find.byKey(const Key(ScreenIds.daySheet));
+    expect(sheet, findsOneWidget);
+    // 오늘(2026-10-13) 시트입니다: 오늘 일정 세 개가 목록에 있습니다.
+    final titles = [
+      for (final row in tester.widgetList<EventRow>(
+        find.descendant(of: sheet, matching: find.byType(EventRow)),
+      ))
+        row.title,
+    ];
+    expect(titles, ['엄마 생신', '팀 주간 회의', '요가 수업']);
   });
 
   testWidgets('diary-written: 가이드 카드 → diary-view', (tester) async {

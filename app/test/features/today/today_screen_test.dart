@@ -16,6 +16,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
@@ -25,6 +26,8 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
+import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
@@ -572,6 +575,103 @@ void main() {
       await tester.pump(const Duration(seconds: 3));
       await tester.pump(const Duration(seconds: 1));
       semantics.dispose();
+    });
+  });
+
+  group('오늘 일정 한 줄(A35)', () {
+    Finder summaryRow() => _id(SlotIds.todayEventSummary);
+
+    EventRow row(WidgetTester tester) =>
+        tester.widget<EventRow>(find.byType(EventRow));
+
+    /// 오늘 내용과 일정 줄이 보일 때까지 기다립니다.
+    Future<void> settleSummary(WidgetTester tester) async {
+      await _settleToday(tester);
+      await pumpUntil(tester, () => summaryRow().evaluate().isNotEmpty);
+    }
+
+    testWidgets('member: "다음" 일정 한 줄이 행운 칩 줄과 가이드 카드 사이에 있습니다', (tester) async {
+      await pumpApp(tester, scenario: 'member');
+      await settleSummary(tester);
+
+      // fake 시계는 정오입니다: 09:07은 지났고 19:00 요가 수업이 다음, 나머지 2개.
+      expect(summaryRow(), findsOneWidget);
+      expect(row(tester).variant, EventRowVariant.summary);
+      expect(row(tester).status, EventRowStatus.next);
+      expect(row(tester).time, '19:00');
+      expect(row(tester).title, '요가 수업');
+      expect(row(tester).moreCount, 2);
+      expect(row(tester).identifier, SlotIds.todayEventSummary);
+      expect(row(tester).onTap, isNotNull);
+
+      final rowTop = tester.getTopLeft(find.byType(EventRow)).dy;
+      expect(
+        tester.getBottomLeft(find.byType(LuckyCardRow)).dy,
+        lessThanOrEqualTo(rowTop),
+      );
+      expect(
+        tester.getBottomLeft(find.byType(EventRow)).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.byType(GuideQuestionCard)).dy),
+      );
+    });
+
+    testWidgets('분이 지나면 "다음"이 바뀝니다', (tester) async {
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [nowMinuteProvider.overrideWith((ref) => minutes.stream)],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 9, 7));
+      await settleSummary(tester);
+      // 같은 분의 일정은 아직 "다음"입니다.
+      expect(row(tester).status, EventRowStatus.next);
+      expect(row(tester).title, '팀 주간 회의');
+      expect(row(tester).time, '09:07');
+
+      minutes.add(DateTime.utc(2026, 10, 13, 9, 8));
+      await pumpUntil(tester, () => row(tester).title != '팀 주간 회의');
+      expect(row(tester).status, EventRowStatus.next);
+      expect(row(tester).title, '요가 수업');
+      expect(row(tester).time, '19:00');
+
+      // 시각 일정이 모두 지나면 하루 종일 일정이 "진행 중"입니다.
+      minutes.add(DateTime.utc(2026, 10, 13, 19, 1));
+      await pumpUntil(tester, () => row(tester).title != '요가 수업');
+      expect(row(tester).status, EventRowStatus.inProgress);
+      expect(row(tester).time, isNull);
+      expect(row(tester).title, '엄마 생신');
+    });
+
+    testWidgets('모두 지난 요약은 개수 문장 한 줄입니다', (tester) async {
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          todayScheduleSummaryProvider.overrideWith(
+            (ref) => const TodayScheduleAllPast(count: 3),
+          ),
+        ],
+      );
+      await settleSummary(tester);
+      expect(row(tester).allPastSentence, _ko.todayEventSummaryAllPast(3));
+      expect(row(tester).status, isNull);
+      expect(row(tester).identifier, SlotIds.todayEventSummary);
+    });
+
+    testWidgets('요약이 null이면 줄이 없고 나머지 today는 그대로입니다', (tester) async {
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [todayScheduleSummaryProvider.overrideWith((ref) => null)],
+      );
+      await _settleToday(tester);
+      expect(summaryRow(), findsNothing);
+      expect(find.byType(EventRow), findsNothing);
+      expect(_content, findsOneWidget);
+      expect(find.byType(LuckyCardRow), findsOneWidget);
+      expect(find.byType(GuideQuestionCard), findsOneWidget);
     });
   });
 }

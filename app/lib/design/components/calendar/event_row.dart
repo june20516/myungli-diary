@@ -264,14 +264,16 @@ class EventRow extends StatelessWidget {
           return Row(spacing: Space.s8, children: [...lead, ...tail]);
         }
         // 큰 글자에서 제목 자리가 모자라면 상태·시각 / 제목·외 N개 두 줄로 내립니다.
+        // 좁은 폭에서 상태·시각도 한 줄에 못 들어가면 시각이 다음 줄로 넘어갑니다.
         // 임시, design 확인 대기 #218.
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: Space.s4,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
+            Wrap(
               spacing: Space.s8,
+              runSpacing: Space.s4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: lead,
             ),
             Row(spacing: Space.s8, children: tail),

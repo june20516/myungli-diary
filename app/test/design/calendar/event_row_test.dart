@@ -14,19 +14,20 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 import '../../support/fonts.dart';
 import '../input/input_harness.dart';
 
-/// 너비 360 칸에 [child]를 놓은 앱. [textScale]로 시스템 글자 크기를 바꿉니다.
-Widget _app(Widget child, {double textScale = 1}) => inputApp(
-  Builder(
-    builder: (context) => MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaler: TextScaler.linear(textScale)),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: SizedBox(width: 360, child: child),
+/// 너비 [width](기본 360) 칸에 [child]를 놓은 앱. [textScale]로 시스템 글자 크기를 바꿉니다.
+Widget _app(Widget child, {double textScale = 1, double width = 360}) =>
+    inputApp(
+      Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(width: width, child: child),
+          ),
+        ),
       ),
-    ),
-  ),
-);
+    );
 
 BuildContext _context(WidgetTester tester) =>
     tester.element(find.byType(SizedBox).first);
@@ -267,6 +268,19 @@ void main() {
         tester.getCenter(find.text('외 12개')).dy,
         closeTo(titleRect.center.dy, 1),
       );
+    });
+
+    testWidgets('좁은 폭·글자 크기 3.0에서 상태·시각도 자리가 모자라면 줄을 넘겨 넘치지 않습니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(summary(moreCount: 2), textScale: 3, width: 200),
+      );
+      expect(tester.takeException(), isNull);
+      final tagRect = tester.getRect(find.byType(StatusTag));
+      final timeRect = tester.getRect(find.text('14:00'));
+      expect(timeRect.top, greaterThanOrEqualTo(tagRect.bottom));
+      expect(timeRect.right, lessThanOrEqualTo(200));
     });
   });
 
