@@ -237,10 +237,21 @@ func TestViews_DailyFillsAllSlots(t *testing.T) {
 			assert.Equal(t, "character.reason.gwiin_day", reason.MessageKey)
 			assert.Equal(t, "도움이 드는 날이에요.", plain(reason.Text))
 
-			var rows int
-			require.NoError(t, f.pool.QueryRow(context.Background(),
-				"SELECT count(*) FROM daily_selections WHERE account_id = $1", f.account).Scan(&rows))
-			assert.Equal(t, len(tc.slots), rows, "문장 슬롯마다 선택 기록이 하나씩")
+			// 선택 기록은 문장 슬롯마다 하나씩이고, SelectionIDs는 그 기록의 ID와 같습니다.
+			recorded := map[string]int64{}
+			rows, err := f.pool.Query(context.Background(),
+				"SELECT slot, id FROM daily_selections WHERE account_id = $1", f.account)
+			require.NoError(t, err)
+			for rows.Next() {
+				var slot string
+				var id int64
+				require.NoError(t, rows.Scan(&slot, &id))
+				recorded[slot] = id
+			}
+			require.NoError(t, rows.Err())
+			assert.Len(t, recorded, len(tc.slots))
+			assert.Equal(t, recorded, view.SelectionIDs)
+			assert.NotZero(t, view.SelectionIDs[fortune.SlotFortuneHead], "반응 대상 슬롯의 기록 ID")
 		})
 	}
 }
@@ -313,9 +324,11 @@ func TestViews_DailyMissingTemplate(t *testing.T) {
 		name    string
 		slot    string
 		present bool
+		variant string // present일 때 기대하는 variant(선택 기록의 variant)
 	}{
-		{name: "필수 필드(숫자 카드)", slot: fortune.SlotNumber, present: true},
-		{name: "필수 필드(날의 성격 이유)", slot: fortune.SlotCharacterReason, present: true},
+		{name: "필수 필드(숫자 카드)", slot: fortune.SlotNumber, present: true, variant: seed.VariantSingle},
+		{name: "필수 필드(날의 성격 이유)", slot: fortune.SlotCharacterReason, present: true, variant: seed.VariantSingle},
+		{name: "필수 필드(호칭·순환 슬롯 총운)", slot: fortune.SlotFortuneHead, present: true, variant: content.VariantAdvice},
 		{name: "선택 필드(총운 보조 문장)", slot: fortune.SlotFortuneTag, present: false},
 	}
 	for _, tc := range cases {
@@ -332,7 +345,8 @@ func TestViews_DailyMissingTemplate(t *testing.T) {
 				assert.Empty(t, text.Text)
 				assert.Equal(t, tc.slot, text.Slot)
 				assert.NotEmpty(t, text.MessageKey)
-				assert.Equal(t, seed.VariantSingle, text.Variant)
+				assert.Equal(t, tc.variant, text.Variant)
+				assert.Equal(t, content.Reactable(tc.slot), text.Reactable)
 			}
 			assert.Equal(t, 1, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
 		})
@@ -370,6 +384,8 @@ func TestViews_CalendarDaysRenderLevelAndReason(t *testing.T) {
 			assert.Equal(t, "평범한 날이에요.", plain(view.Days[1].CharacterReason.Text))
 			assert.Equal(t, "보통인 날 50", plain(view.Days[1].Level.Text))
 			assert.Equal(t, seed.VariantSingle, view.Days[0].Level.Variant)
+			// 오늘 그런 이유는 데일리처럼 잠금과 상관없이 남습니다.
+			assert.Equal(t, "오늘 그런 이유예요.", plain(view.Days[0].Level.TodayReason))
 			if tc.unlocked {
 				assert.Len(t, view.Days[0].Level.Evidence, 1)
 			} else {
@@ -432,6 +448,62 @@ func TestViews_ChartAsOfIsTodayInCurrentTimezone(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, got)
 	assert.EqualValues(t, 15, got.GetDay())
+}
+
+// 잠긴 요청은 근거를 렌더하지 않으므로, 근거 원고가 없어도 Error 로그가 남지 않습니다.
+// 열린 요청은 같은 조건에서 로그가 남습니다(대조군).
+func TestViews_LockedSkipsEvidenceRendering(t *testing.T) {
+	fake := dailyFake(true)
+	fake.MonthCalendar = func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error) {
+		return &enginev1.MonthResponse{
+			Meta: &enginev1.ResponseMeta{RulesetVersion: "rs-1"},
+			Days: []*enginev1.MonthDay{{Kind: enginev1.DayKind_DAY_KIND_GWIIN_DAY,
+				Judgment: judgment("calendar.good", map[string]*enginev1.Param{"score": intParam(80)})}},
+		}, nil
+	}
+	cases := []struct {
+		name     string
+		unlocked bool
+		call     func(f *viewsFixture) error
+	}{
+		{name: "daily 잠김", call: func(f *viewsFixture) error {
+			_, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+			return err
+		}},
+		{name: "calendar 잠김", call: func(f *viewsFixture) error {
+			_, err := f.views.Calendar(context.Background(), f.account, viewProfile("ko"), 2026, 10)
+			return err
+		}},
+		{name: "daily 열림", unlocked: true, call: func(f *viewsFixture) error {
+			_, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+			return err
+		}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newViewsFixture(t, fake, viewSeed(t, "", "evidence.basis"), fakeInsight{unlocked: tc.unlocked})
+
+			require.NoError(t, tc.call(f))
+			if tc.unlocked {
+				assert.Contains(t, f.logs.String(), "evidence.basis")
+			} else {
+				assert.Empty(t, f.logs.String())
+			}
+		})
+	}
+}
+
+func TestViews_CalendarMissingJudgmentIsError(t *testing.T) {
+	fake := &enginetest.Fake{MonthCalendar: func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error) {
+		return &enginev1.MonthResponse{
+			Meta: &enginev1.ResponseMeta{RulesetVersion: "rs-1"},
+			Days: []*enginev1.MonthDay{{Kind: enginev1.DayKind_DAY_KIND_GWIIN_DAY}},
+		}, nil
+	}}
+	f := newViewsFixture(t, fake, viewSeed(t, ""), fortune.AlwaysLocked{})
+
+	_, err := f.views.Calendar(context.Background(), f.account, viewProfile("ko"), 2026, 10)
+	assert.ErrorContains(t, err, "길흉 판정이 없습니다")
 }
 
 // 엔진 안내 문구 슬롯이 아직 없어 notice는 code와 빈(nil 아닌) segments로 나갑니다(P4-9).

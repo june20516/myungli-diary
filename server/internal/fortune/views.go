@@ -52,11 +52,16 @@ type DailyView struct {
 	// 나머지 슬롯은 늘 있고, 원고가 없으면 Text가 빈 조각 배열입니다.
 	Texts   map[string]content.SlotText
 	Notices []content.Notice
-	// Unlocked는 근거 열람 권한입니다. false면 모든 Texts의 Evidence가 비어 있습니다.
+	// Unlocked는 근거 열람 권한입니다. false면 모든 Texts의 Evidence가 nil입니다(근거를 렌더하지 않음).
 	Unlocked bool
-	// SeedVersion은 이 응답을 만들 때의 활성 시드 버전입니다. 이미 고른 문장은 고른 때의 시드 버전으로 렌더하므로
-	// 문장마다의 시드 버전과 다를 수 있습니다.
+	// SeedVersion은 이 응답을 만들기 시작할 때 읽은 활성 시드 버전입니다. 문장마다의 시드 버전과 다를 수 있습니다.
+	//   - 이미 고른 문장은 고른 때의 시드 버전으로 렌더합니다.
+	//   - 이 값은 선택 트랜잭션(content.Store.Select) 밖에서 읽으므로, 그 사이 시드가 바뀌면
+	//     이번에 새로 고른 기록의 시드 버전과도 다를 수 있습니다.
 	SeedVersion string
+	// SelectionIDs는 슬롯 id → 그 슬롯 선택 기록(daily_selections)의 ID입니다. 문장 반응을 표시·저장할 때 씁니다.
+	// 선택 기록은 문장 슬롯마다 남으므로, 원고가 없어 Texts에서 빠진 선택 슬롯도 여기에는 있습니다.
+	SelectionIDs map[string]int64
 }
 
 // DayTexts는 달력 하루의 문장입니다. 계약에서 둘 다 필수라 원고가 없으면 Text가 빈 조각 배열입니다.
@@ -148,7 +153,9 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	// 선택 기록마다 시드 버전이 다를 수 있어(그 사이 새 시드가 활성이 됨) 버전별 문장 틀을 한 번씩만 읽습니다.
 	byVersion := map[string]content.Templates{}
 	texts := make(map[string]content.SlotText, len(slots))
+	ids := make(map[string]int64, len(selections))
 	for i, sel := range selections {
+		ids[sel.Slot] = sel.ID
 		tpl, ok := byVersion[sel.SeedVersion]
 		if !ok {
 			tpl, err = v.store.Templates(ctx, sel.SeedVersion, p.Language)
@@ -157,7 +164,7 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 			}
 			byVersion[sel.SeedVersion] = tpl
 		}
-		text, ok := v.renderDaily(ctx, tpl, slots[i], sel.Variant, p.Honorific)
+		text, ok := v.renderDaily(ctx, tpl, slots[i], sel.Variant, p.Honorific, unlocked)
 		if !ok {
 			// 실패 로그는 Renderer가 이미 남겼습니다.
 			if !slots[i].required {
@@ -165,23 +172,25 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 			}
 			text = emptyText(sel.Slot, sel.MessageKey, sel.Variant)
 		}
-		texts[sel.Slot] = lockEvidence(text, unlocked)
+		texts[sel.Slot] = text
 	}
 	return DailyView{
-		Response:    response,
-		Texts:       texts,
-		Notices:     v.notices(ctx, response.GetMeta()),
-		Unlocked:    unlocked,
-		SeedVersion: seedVersion,
+		Response:     response,
+		Texts:        texts,
+		Notices:      v.notices(ctx, response.GetMeta()),
+		Unlocked:     unlocked,
+		SeedVersion:  seedVersion,
+		SelectionIDs: ids,
 	}, nil
 }
 
 // renderDaily는 슬롯 하나를 렌더합니다. 호칭은 Renderer가 호칭 슬롯에만 씁니다.
-func (v *Views) renderDaily(ctx context.Context, tpl content.Templates, s dailySlot, variant, name string) (content.SlotText, bool) {
+// 근거는 권한이 있을 때(unlocked)만 렌더합니다. 식별자 키 슬롯에는 근거가 없습니다.
+func (v *Views) renderDaily(ctx context.Context, tpl content.Templates, s dailySlot, variant, name string, unlocked bool) (content.SlotText, bool) {
 	if s.judgment == nil {
 		return v.renderer.Identifier(ctx, tpl, s.id, s.key, nil)
 	}
-	return v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name)
+	return v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name, unlocked)
 }
 
 // dailySlots는 데일리 응답에서 문장 슬롯 목록을 만듭니다(P4-3의 8개 슬롯).
@@ -237,16 +246,20 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 
 	days := make([]DayTexts, len(response.GetDays()))
 	for i, d := range response.GetDays() {
+		if d.GetJudgment() == nil {
+			// 길흉 수준 문장은 계약 필수이고 키가 판정에 있어, 판정이 없는 응답은 엔진 계약 위반입니다.
+			return CalendarView{}, fmt.Errorf("엔진 달력 응답 %d번째 날에 길흉 판정이 없습니다", i)
+		}
 		reasonKey := characterReasonKey(d.GetKind())
 		reason, ok := v.renderer.Identifier(ctx, tpl, SlotCharacterReason, reasonKey, nil)
 		if !ok {
 			reason = emptyText(SlotCharacterReason, reasonKey, seed.VariantSingle)
 		}
-		level, ok := v.renderer.Slot(ctx, tpl, SlotDayLevel, seed.VariantSingle, d.GetJudgment(), "")
+		level, ok := v.renderer.Slot(ctx, tpl, SlotDayLevel, seed.VariantSingle, d.GetJudgment(), "", unlocked)
 		if !ok {
 			level = emptyText(SlotDayLevel, d.GetJudgment().GetMessageKey(), seed.VariantSingle)
 		}
-		days[i] = DayTexts{CharacterReason: lockEvidence(reason, unlocked), Level: lockEvidence(level, unlocked)}
+		days[i] = DayTexts{CharacterReason: reason, Level: level}
 	}
 	return CalendarView{Response: response, Days: days, Notices: v.notices(ctx, response.GetMeta()), Unlocked: unlocked}, nil
 }
@@ -279,7 +292,7 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 		return ChartView{}, err
 	}
 	// 계약에서 선택 필드라 원고가 없으면 nil로 둡니다(로그는 Renderer가 남김).
-	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), ""); ok {
+	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", true); ok {
 		view.YongsinBasis = &basis
 	}
 	return view, nil
@@ -336,12 +349,4 @@ func characterReasonKey(k enginev1.DayKind) string {
 // emptyText는 원고가 없는 필수 문장 필드의 자리입니다. Text는 nil이 아닌 빈 조각 배열이라 응답에 빈 segments로 나갑니다.
 func emptyText(slot, key, variant string) content.SlotText {
 	return content.SlotText{Slot: slot, MessageKey: key, Variant: variant, Text: []render.Segment{}, Reactable: content.Reactable(slot)}
-}
-
-// lockEvidence는 권한이 없으면 근거(판정 근거·원전 문장 포함)를 뺍니다(D60). 오늘 그런 이유는 explain 깊이라 남깁니다.
-func lockEvidence(t content.SlotText, unlocked bool) content.SlotText {
-	if !unlocked {
-		t.Evidence = nil
-	}
-	return t
 }

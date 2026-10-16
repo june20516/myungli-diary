@@ -28,7 +28,7 @@ type SlotText struct {
 	Text    []render.Segment
 	// TodayReason은 "오늘 그런 이유" 문장입니다. nil이면 응답에서 필드를 뺍니다.
 	TodayReason []render.Segment
-	// Evidence는 판정 근거입니다. 근거 열람 권한 판정은 호출자가 합니다(D60).
+	// Evidence는 판정 근거입니다. 근거 열람 권한이 없으면 호출자가 Renderer.Slot에 withEvidence false를 넘겨 nil입니다(D60).
 	Evidence []Evidence
 	// Reactable은 이 슬롯 문장에 반응(좋아요)을 남길 수 있는지입니다.
 	Reactable bool
@@ -73,9 +73,13 @@ func NewRenderer(log *slog.Logger, slots map[string]seed.Slot) *Renderer {
 // Slot은 판정 j를 (slot, variant) 문장 틀로 렌더하고, 판정의 근거 문장을 덧붙여 돌려줍니다.
 // 문장 키는 j.MessageKey입니다. 호칭 name은 호칭 슬롯(seed.Slot.Vocative)에만 넘기고, 나머지 슬롯은 빈 호칭으로 렌더합니다.
 //
+// withEvidence가 false면 근거(Evidence와 그 판정 근거·원전 문장)를 렌더하지 않고 Evidence를 nil로 둡니다.
+// 근거 열람 권한이 없는 요청(D60)에서 쓰지 않을 문장을 렌더하거나 그 원고 누락 로그를 남기지 않으려는 것입니다.
+// TodayReason은 explain 깊이라 잠그지 않으므로 withEvidence와 상관없이 렌더합니다.
+//
 // 본문 틀이 없거나 렌더에 실패하면 false를 돌려주고 Error 로그를 하나 남깁니다. 호출자가 그 슬롯을 빼거나 빈 문장으로 채웁니다.
 // 근거 문장(TodayReason, Evidence.Basis, Evidence.Source)은 선택 필드라 실패해도 본문은 살립니다.
-func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string, j *enginev1.Judgment, name string) (SlotText, bool) {
+func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string, j *enginev1.Judgment, name string, withEvidence bool) (SlotText, bool) {
 	def, ok := r.slots[slot]
 	if !ok {
 		r.logFailure(ctx, tpl, slot, j.GetMessageKey(), variant)
@@ -93,15 +97,18 @@ func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string
 	if !ok {
 		return SlotText{}, false
 	}
-	return SlotText{
+	out := SlotText{
 		Slot:        slot,
 		MessageKey:  j.GetMessageKey(),
 		Variant:     variant,
 		Text:        text,
 		TodayReason: r.todayReason(ctx, tpl, j),
-		Evidence:    r.evidence(ctx, tpl, j),
 		Reactable:   Reactable(slot),
-	}, true
+	}
+	if withEvidence {
+		out.Evidence = r.evidence(ctx, tpl, j)
+	}
+	return out, true
 }
 
 // Identifier는 판정이 아니라 식별자 키(예: 캐릭터 이유, 달력 일 수준)로 슬롯 문장을 만듭니다.

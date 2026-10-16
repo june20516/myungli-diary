@@ -93,7 +93,7 @@ func TestSlot_RendersJudgmentWithParams(t *testing.T) {
 	r, logs := newTestRenderer()
 	tpl := newTestTemplates()
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, newTestJudgment(), "")
+	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, newTestJudgment(), "", true)
 	require.True(t, ok)
 	assert.Equal(t, "daily.color", got.Slot)
 	assert.Equal(t, "color.yongsin_day", got.MessageKey)
@@ -109,12 +109,12 @@ func TestSlot_VocativeOnlyForVocativeSlots(t *testing.T) {
 	tpl := newTestTemplates()
 	j := &enginev1.Judgment{MessageKey: "fortune.x"}
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.fortune.head", "advice", j, "민지")
+	got, ok := r.Slot(context.Background(), tpl, "daily.fortune.head", "advice", j, "민지", true)
 	require.True(t, ok)
 	assert.Equal(t, "민지님, 오늘은 쉬어 가요.", joinSegments(got.Text))
 
 	// 호칭이 없으면 맨 앞 호칭 덩어리가 지워집니다.
-	got, ok = r.Slot(context.Background(), tpl, "daily.fortune.head", "advice", j, "")
+	got, ok = r.Slot(context.Background(), tpl, "daily.fortune.head", "advice", j, "", true)
 	require.True(t, ok)
 	assert.Equal(t, "오늘은 쉬어 가요.", joinSegments(got.Text))
 }
@@ -129,12 +129,12 @@ func TestSlot_TodayReasonFromFirstEvidenceRuleWithTemplate(t *testing.T) {
 		{RuleId: "color/lucky_element_other"}, // 뒤에 있어도 쓰지 않음
 	}
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
+	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	assert.Equal(t, []render.Segment{{Text: "용신", Term: "tag.yongsin"}, {Text: "이 들어와서 그래요."}}, got.TodayReason)
 
 	j.Evidence = []*enginev1.Evidence{{RuleId: "calendar/score"}}
-	got, ok = r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
+	got, ok = r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	assert.Nil(t, got.TodayReason)
 }
@@ -148,7 +148,7 @@ func TestSlot_EvidenceBasisUsesDetailAsParams(t *testing.T) {
 		Detail: map[string]string{"element": "WOOD", "strength_score": "42.5", "unused": "무시"},
 	}}
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
+	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	require.Len(t, got.Evidence, 1)
 	assert.Equal(t, "color/lucky_element", got.Evidence[0].RuleID)
@@ -164,7 +164,7 @@ func TestSlot_EvidenceSource(t *testing.T) {
 	ref := "gungtong-bogam/five_elements#color"
 	j.Evidence = []*enginev1.Evidence{{RuleId: "color/lucky_element", SourceRef: ref}}
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
+	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	require.Len(t, got.Evidence, 1)
 	assert.Equal(t, ref, got.Evidence[0].SourceRef)
@@ -177,7 +177,7 @@ func TestSlot_MissingEvidenceTextIsOmittedAndLogs(t *testing.T) {
 	j := newTestJudgment()
 	j.Evidence = []*enginev1.Evidence{{RuleId: "none/rule", SourceRef: "none/ref#x"}}
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
+	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	require.Len(t, got.Evidence, 1)
 	assert.Nil(t, got.Evidence[0].Basis)
@@ -192,7 +192,7 @@ func TestSlot_MissingTemplateIsFalseAndLogs(t *testing.T) {
 	j := newTestJudgment()
 	j.MessageKey = "color.missing_key"
 
-	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "민지")
+	got, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "민지", true)
 	assert.False(t, ok)
 	assert.Equal(t, content.SlotText{}, got)
 
@@ -211,7 +211,7 @@ func TestSlot_RenderErrorIsFalseAndLogsWithoutParamValues(t *testing.T) {
 	j := newTestJudgment()
 	j.Params["element"] = &enginev1.Param{Value: &enginev1.Param_Text{Text: "no_such_value"}}
 
-	_, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "")
+	_, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
 	assert.False(t, ok)
 	assert.Contains(t, logs.String(), "level=ERROR")
 	assert.NotContains(t, logs.String(), "no_such_value")
@@ -255,7 +255,7 @@ func TestSlot_ReactableOnlyFortuneSlots(t *testing.T) {
 
 	r, _ := newTestRenderer()
 	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.fortune.head", "advice",
-		&enginev1.Judgment{MessageKey: "fortune.x"}, "민지")
+		&enginev1.Judgment{MessageKey: "fortune.x"}, "민지", true)
 	require.True(t, ok)
 	assert.True(t, got.Reactable)
 }
@@ -323,7 +323,7 @@ func TestSlot_EvidenceDetailMismatchOmitsBasisAndLogs(t *testing.T) {
 		Detail: map[string]string{"strength_score": "비밀값"},
 	}}
 
-	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "")
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	require.Len(t, got.Evidence, 1)
 	assert.Nil(t, got.Evidence[0].Basis)
@@ -337,7 +337,7 @@ func TestSlot_ParamValuesFailureLogsNameWithoutValue(t *testing.T) {
 	j := newTestJudgment()
 	j.Params["score"] = &enginev1.Param{Value: &enginev1.Param_Text{Text: "비밀값"}}
 
-	_, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "")
+	_, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
 	assert.False(t, ok)
 	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("level=ERROR")))
 	assert.Contains(t, logs.String(), "score")
@@ -373,8 +373,27 @@ func TestParamValues_RejectsNonFiniteNumbers(t *testing.T) {
 	r, logs := newTestRenderer()
 	j := newTestJudgment()
 	j.Evidence = []*enginev1.Evidence{{RuleId: "color/lucky_element", Detail: map[string]string{"strength_score": "NaN"}}}
-	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "")
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	assert.Nil(t, got.Evidence[0].Basis)
 	assert.Contains(t, logs.String(), "level=ERROR")
+}
+
+// 근거를 빼고 렌더하면 근거 원고가 없어도 로그가 없고, 오늘 그런 이유는 그대로 렌더합니다.
+func TestSlot_WithoutEvidenceSkipsEvidenceRendering(t *testing.T) {
+	r, logs := newTestRenderer()
+	j := newTestJudgment()
+	j.Evidence = []*enginev1.Evidence{{RuleId: "color/lucky_element"}, {RuleId: "no/basis_template", SourceRef: "no/source#x"}}
+
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", false)
+	require.True(t, ok)
+	assert.Nil(t, got.Evidence)
+	assert.Equal(t, "용신이 들어와서 그래요.", joinSegments(got.TodayReason))
+	assert.Empty(t, logs.String())
+
+	// 같은 판정을 근거와 함께 렌더하면 원고가 없는 근거 문장마다 로그가 남습니다(대조군).
+	got, ok = r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
+	require.True(t, ok)
+	assert.Len(t, got.Evidence, 2)
+	assert.NotEmpty(t, logs.String())
 }
