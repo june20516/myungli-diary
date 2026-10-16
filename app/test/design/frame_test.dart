@@ -420,6 +420,15 @@ void main() {
       );
     }
 
+    testWidgets('Material 조상이 없는 navigator에 쌓여도 글자가 오류 스타일(노란 밑줄)을 받지 않습니다', (
+      tester,
+    ) async {
+      await open(tester, SheetSize.half, content: const Text('글'));
+      await tester.pumpAndSettle();
+      final style = DefaultTextStyle.of(tester.element(find.text('글'))).style;
+      expect(style.decoration, isNot(TextDecoration.underline));
+    });
+
     testWidgets('half는 화면의 60%까지', (tester) async {
       tester.view
         ..physicalSize = const Size(400, 900)

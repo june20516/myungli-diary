@@ -56,8 +56,13 @@ void showMyungliToast(BuildContext context, String message, {AppGlyph? icon}) {
           builder: (context, present, _) => SeepPresence(
             present: present,
             onGone: session.remove,
+            // root overlay는 화면의 Material 밖이므로, 글자가 MaterialApp의 오류
+            // 스타일(노란 이중 밑줄)을 받지 않게 그리지 않는 Material 조상을 둡니다.
             child: Align(
-              child: ToastPill(message: message, icon: icon),
+              child: Material(
+                type: MaterialType.transparency,
+                child: ToastPill(message: message, icon: icon),
+              ),
             ),
           ),
         ),

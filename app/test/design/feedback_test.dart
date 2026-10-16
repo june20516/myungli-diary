@@ -200,6 +200,22 @@ void main() {
       return true;
     }
 
+    testWidgets('Material 조상 밖 route여도 제목·본문·버튼 글자에 오류 스타일(노란 밑줄)이 없습니다', (
+      tester,
+    ) async {
+      await open(tester, DialogVariant.destructive);
+      for (final text in ['일기를 지울까요?', '지우면 되돌릴 수 없어요.', '지우기', '취소']) {
+        final rich = tester.widget<RichText>(
+          find.descendant(of: find.text(text), matching: find.byType(RichText)),
+        );
+        expect(
+          rich.text.style?.decoration,
+          isNot(TextDecoration.underline),
+          reason: text,
+        );
+      }
+    });
+
     testWidgets('destructive: 처음 초점은 취소입니다', (tester) async {
       await open(tester, DialogVariant.destructive);
       expect(Focus.of(tester.element(find.text('취소'))).hasPrimaryFocus, isTrue);
@@ -490,6 +506,21 @@ void main() {
         tester.pumpWidget(_app(const SizedBox.expand(key: hostKey)));
     BuildContext hostContext(WidgetTester tester) =>
         tester.element(find.byKey(hostKey));
+
+    testWidgets('root overlay에 그려도 글자에 오류 스타일(노란 밑줄)이 없습니다', (tester) async {
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '저장했어요');
+      await tester.pump(const Duration(milliseconds: 600));
+      final rich = tester.widget<RichText>(
+        find.descendant(
+          of: find.text('저장했어요'),
+          matching: find.byType(RichText),
+        ),
+      );
+      expect(rich.text.style?.decoration, isNot(TextDecoration.underline));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    });
 
     testWidgets('2.5초 뒤 사라집니다', (tester) async {
       await pumpHost(tester);
