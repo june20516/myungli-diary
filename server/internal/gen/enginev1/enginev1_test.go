@@ -17,6 +17,6 @@ func TestEngineServiceDescriptor(t *testing.T) {
 		methods = append(methods, method.MethodName)
 	}
 	assert.ElementsMatch(t,
-		[]string{"GetChart", "GetDaily", "GetMonthCalendar", "GetBirthHour", "GetInfo"},
+		[]string{"GetChart", "GetDaily", "GetMonthCalendar", "GetBirthHour", "GetInfo", "ConvertLunarDate"},
 		methods)
 }

@@ -17,8 +17,9 @@ type Fake struct {
 	MonthCalendar func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error)
 	BirthHour     func(*enginev1.BirthHourRequest) (*enginev1.BirthHourResponse, error)
 	Info          func() (*enginev1.InfoResponse, error)
+	LunarDate     func(*enginev1.LunarDateRequest) (*enginev1.LunarDateResponse, error)
 
-	ChartCalls, DailyCalls, MonthCalendarCalls, BirthHourCalls, InfoCalls atomic.Int64
+	ChartCalls, DailyCalls, MonthCalendarCalls, BirthHourCalls, InfoCalls, LunarDateCalls atomic.Int64
 }
 
 var _ engine.Engine = (*Fake)(nil)
@@ -61,4 +62,12 @@ func (f *Fake) GetInfo(context.Context) (*enginev1.InfoResponse, error) {
 		return &enginev1.InfoResponse{EngineVersion: "test", RulesetVersion: "rs-1"}, nil
 	}
 	return f.Info()
+}
+
+func (f *Fake) ConvertLunarDate(_ context.Context, req *enginev1.LunarDateRequest) (*enginev1.LunarDateResponse, error) {
+	f.LunarDateCalls.Add(1)
+	if f.LunarDate == nil {
+		return &enginev1.LunarDateResponse{}, nil
+	}
+	return f.LunarDate(req)
 }

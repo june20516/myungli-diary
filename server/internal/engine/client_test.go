@@ -59,6 +59,15 @@ func (s *scriptedServer) GetInfo(context.Context, *enginev1.InfoRequest) (*engin
 	return &enginev1.InfoResponse{EngineVersion: "e", RulesetVersion: "r"}, nil
 }
 
+// ConvertLunarDate는 받은 음력 날짜를 그대로 양력 자리에 담아, 요청이 그대로 전달됐는지 보이게 합니다.
+func (s *scriptedServer) ConvertLunarDate(_ context.Context, req *enginev1.LunarDateRequest) (*enginev1.LunarDateResponse, error) {
+	n := s.calls.Add(1)
+	if err := s.respond(n); err != nil {
+		return nil, err
+	}
+	return &enginev1.LunarDateResponse{Solar: req.GetDate(), MonthHasLeap: req.GetIsLeapMonth()}, nil
+}
+
 // newTestClient는 bufconn 위에 서버를 띄우고 거기에 연결한 Client를 돌려줍니다.
 func newTestClient(t *testing.T, srv enginev1.MyungliEngineServer) *engine.Client {
 	t.Helper()
@@ -134,6 +143,28 @@ func TestClient_RetriesGetInfoToo(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, "r", info.GetRulesetVersion())
+	assert.EqualValues(t, 2, srv.calls.Load())
+}
+
+func TestClient_ConvertLunarDatePassesRequestAndRetries(t *testing.T) {
+	srv := &scriptedServer{respond: func(n int64) error {
+		if n == 1 {
+			return status.Error(codes.Unavailable, "")
+		}
+		return nil
+	}}
+	client := newTestClient(t, srv)
+
+	resp, err := client.ConvertLunarDate(context.Background(), &enginev1.LunarDateRequest{
+		Date:        &enginev1.LocalDate{Year: 2025, Month: 6, Day: 1},
+		IsLeapMonth: true,
+	})
+
+	require.NoError(t, err)
+	assert.EqualValues(t, 2025, resp.GetSolar().GetYear())
+	assert.EqualValues(t, 6, resp.GetSolar().GetMonth())
+	assert.EqualValues(t, 1, resp.GetSolar().GetDay())
+	assert.True(t, resp.GetMonthHasLeap())
 	assert.EqualValues(t, 2, srv.calls.Load())
 }
 

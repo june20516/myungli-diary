@@ -81,6 +81,10 @@ func (c *Client) GetInfo(ctx context.Context) (*enginev1.InfoResponse, error) {
 	return call(ctx, "GetInfo", c.engine.GetInfo, &enginev1.InfoRequest{})
 }
 
+func (c *Client) ConvertLunarDate(ctx context.Context, req *enginev1.LunarDateRequest) (*enginev1.LunarDateResponse, error) {
+	return call(ctx, "ConvertLunarDate", c.engine.ConvertLunarDate, req)
+}
+
 // call은 RPC 한 번에 3초 deadline을 걸고, UNAVAILABLE이면 한 번 더(새 3초) 부릅니다.
 // 호출자 ctx가 이미 끝났으면 다시 부르지 않습니다. 실패는 sentinel로 분류해 돌려줍니다.
 func call[Req, Resp any](
