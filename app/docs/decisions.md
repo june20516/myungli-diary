@@ -41,7 +41,7 @@ app 안의 결정입니다(번호 `A<n>`, `docs/workflow.md` §4). 마일스톤 
 | A35 | 2026-10-16 | 데이터 | `time`은 프로필 현재 시간대의 벽시계로 읽습니다(D30과 같은 기준). 시각 있는 일정은 길이가 없으므로 "진행 중"이 되지 않습니다. 오늘 요약은 ① 지금 이후 첫 시각 일정 = "다음", ② 없고 하루 종일 일정이 있으면 "진행 중", ③ 모두 지났으면 개수 문장입니다. "지금"은 분마다 바뀌는 `nowMinuteProvider`입니다. server에 시간대 명시를, design에 길이 없는 "진행 중" 규칙 확인을 요청합니다 | 계획 4, #218, #219 |
 | A36 | 2026-10-16 | 화면 | 편집 화면은 5분 휠을 쓰고, 불러온 값이 5분 배수가 아니면 아래로 맞춰 보입니다. 사용자가 시각을 건드리지 않으면 PATCH에 `time`을 넣지 않아 원래 값이 남습니다 | 계획 4 |
 | A37 | 2026-10-16 | 화면 | `BirthDatePicker`에 양력만 받는 선택(`lunarAllowed: false`, 양력·음력 segmented를 그리지 않음)을 더해 씁니다. design에 명세 반영을 요청합니다 | 계획 4, #218 |
-| A38 | 2026-10-16 | 화면 | app 임시 ARB(A7·A27과 같은 방식, `@키.description`에 `임시`)를 둡니다. 달 제목과 요일 머리는 `intl` `DateFormat`(로케일)으로 만듭니다. writing에 목록을 알립니다 | 계획 4, #217 |
+| A38 | 2026-10-16 | 화면 | app 임시 ARB(A7·A27과 같은 방식, `@키.description`에 `임시`)를 둡니다. 달 제목·칸 날짜·요일 머리는 `intl` `DateFormat`(로케일, 예 `yMMMM`, `MMMMEEEEd`)으로 코드에서 만들어 키를 두지 않습니다. 칸 라벨 조각은 임시 키 `a11yListSeparator`로 잇습니다. writing에 목록을 알립니다 | 계획 4, #217 |
 | A39 | 2026-10-16 | 화면 | 칸의 스크린리더 라벨은 server가 렌더한 `CalendarDay.level.text`(content)를, 달력 아래 범례는 ARB `calendarLegendBodyGood`·`Caution`(IA `calendar.legend.body`, 보통은 채움이 없어 범례에 없음)을 씁니다. 범례는 그립니다 | 계획 4 |
 | A40 | 2026-10-16 | 화면 | 초하루는 `M.1`, 절기 날은 `Glossary.values.solar_term.<kind>` 이름 굵게, 그 밖은 일(日)만입니다. 윤달 초하루도 지금은 `M.1`로 보이고 칸 라벨에만 "윤달"을 넣습니다(임시 ARB). 절기 시각(`SolarTerm.at`)은 그리지 않습니다. design에 윤달 표기를 묻습니다 | 계획 4, #218 |
 | A41 | 2026-10-16 | 화면·데이터 | 자리가 없는 계약 필드는 그리지 않습니다(A22와 같음). 일정 삭제는 확인 창(`dialog` `destructive`) 뒤 바로 지우고 되살리기는 두지 않습니다(root에 IA 자리 여부를 묻습니다). `updateSchedule`·`deleteSchedule` 404는 "이미 없음"으로 보고 목록을 다시 받은 뒤 화면을 닫고 일반 오류 toast를 띄웁니다. server에 code 명시를 요청합니다 | 계획 4, #219, #220 |

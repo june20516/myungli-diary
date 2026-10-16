@@ -1107,6 +1107,10 @@
   "@calcBasisTitle": {
     "description": "임시. 계산 기준(calc-basis) 화면 제목. IA 제목 슬롯이 생기면 writing 키로 바꿈(A30)"
   },
+  "a11yListSeparator": ", ",
+  "@a11yListSeparator": {
+    "description": "임시. 스크린리더 라벨 조각을 잇는 구분자"
+  },
   "calendarBarTitle": "달력",
   "@calendarBarTitle": {
     "description": "임시. calendar 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)"
@@ -1122,33 +1126,6 @@
   "calendarNextMonth": "다음 달",
   "@calendarNextMonth": {
     "description": "임시. 달력 다음 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
-  },
-  "calendarMonthLabel": "{year}년 {month}월",
-  "@calendarMonthLabel": {
-    "description": "임시. 달력 달 제목의 스크린리더 라벨. writing 원고가 오면 writing 키로 바꿈(A38)",
-    "placeholders": {
-      "year": {
-        "type": "int"
-      },
-      "month": {
-        "type": "int"
-      }
-    }
-  },
-  "dayCellDate": "{month}월 {day}일 {weekday}",
-  "@dayCellDate": {
-    "description": "임시. 달력 칸 접근성 라벨 조각: 날짜와 요일(칸 라벨은 조각을 쉼표로 이음). writing 원고가 오면 writing 키로 바꿈(A38)",
-    "placeholders": {
-      "month": {
-        "type": "int"
-      },
-      "day": {
-        "type": "int"
-      },
-      "weekday": {
-        "type": "String"
-      }
-    }
   },
   "dayCellLunar": "음력 {month}월 {day}일",
   "@dayCellLunar": {

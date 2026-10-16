@@ -810,6 +810,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get calcBasisTitle => '計算基準';
 
   @override
+  String get a11yListSeparator => '、';
+
+  @override
   String get calendarBarTitle => 'カレンダー';
 
   @override
@@ -820,16 +823,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarNextMonth => '次の月';
-
-  @override
-  String calendarMonthLabel(int year, int month) {
-    return '$year年$month月';
-  }
-
-  @override
-  String dayCellDate(int month, int day, String weekday) {
-    return '$month月$day日 $weekday';
-  }
 
   @override
   String dayCellLunar(int month, int day) {

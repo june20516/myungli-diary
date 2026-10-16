@@ -873,6 +873,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calcBasisTitle => 'Calculation basis';
 
   @override
+  String get a11yListSeparator => ', ';
+
+  @override
   String get calendarBarTitle => 'Calendar';
 
   @override
@@ -885,18 +888,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarNextMonth => 'Next month';
 
   @override
-  String calendarMonthLabel(int year, int month) {
-    return '$month/$year';
-  }
-
-  @override
-  String dayCellDate(int month, int day, String weekday) {
-    return '$weekday, $month/$day';
-  }
-
-  @override
   String dayCellLunar(int month, int day) {
-    return 'Lunar $month/$day';
+    return 'Lunar month $month, day $day';
   }
 
   @override
@@ -948,8 +941,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'All $count events today have passed',
-      one: 'Today\'s event has passed',
+      other: '$count events today, all done',
+      one: '1 event today, all done',
     );
     return '$_temp0';
   }

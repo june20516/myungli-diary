@@ -1606,6 +1606,12 @@ abstract class AppLocalizations {
   /// **'계산 기준'**
   String get calcBasisTitle;
 
+  /// 임시. 스크린리더 라벨 조각을 잇는 구분자
+  ///
+  /// In ko, this message translates to:
+  /// **', '**
+  String get a11yListSeparator;
+
   /// 임시. calendar 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)
   ///
   /// In ko, this message translates to:
@@ -1629,18 +1635,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다음 달'**
   String get calendarNextMonth;
-
-  /// 임시. 달력 달 제목의 스크린리더 라벨. writing 원고가 오면 writing 키로 바꿈(A38)
-  ///
-  /// In ko, this message translates to:
-  /// **'{year}년 {month}월'**
-  String calendarMonthLabel(int year, int month);
-
-  /// 임시. 달력 칸 접근성 라벨 조각: 날짜와 요일(칸 라벨은 조각을 쉼표로 이음). writing 원고가 오면 writing 키로 바꿈(A38)
-  ///
-  /// In ko, this message translates to:
-  /// **'{month}월 {day}일 {weekday}'**
-  String dayCellDate(int month, int day, String weekday);
 
   /// 임시. 달력 칸 접근성 라벨 조각: 음력 날짜. writing 원고가 오면 writing 키로 바꿈(A38)
   ///

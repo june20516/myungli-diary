@@ -811,6 +811,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calcBasisTitle => '계산 기준';
 
   @override
+  String get a11yListSeparator => ', ';
+
+  @override
   String get calendarBarTitle => '달력';
 
   @override
@@ -821,16 +824,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calendarNextMonth => '다음 달';
-
-  @override
-  String calendarMonthLabel(int year, int month) {
-    return '$year년 $month월';
-  }
-
-  @override
-  String dayCellDate(int month, int day, String weekday) {
-    return '$month월 $day일 $weekday';
-  }
 
   @override
   String dayCellLunar(int month, int day) {
