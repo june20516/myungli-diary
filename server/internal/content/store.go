@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -94,6 +95,10 @@ func (t *templates) ValueName(category, value string) (string, bool) {
 	return t.Body(valueNameSlot, category+"."+value, seed.VariantSingle)
 }
 
+// loadTimeout은 문장 틀 한 묶음을 DB에서 읽는 데 주는 최대 시간입니다.
+// 로드는 호출자 ctx와 분리돼 있어 호출자가 취소해도 이어지므로, DB가 멈춰도 고루틴이 영원히 남지 않게 상한을 둡니다.
+const loadTimeout = 30 * time.Second
+
 type cacheKey struct{ version, lang string }
 
 // Store는 DB의 콘텐츠 시드를 읽습니다. 문장 틀은 (버전, 언어)별로 메모리에 한 번만 불러 둡니다.
@@ -132,8 +137,13 @@ func (s *Store) Templates(ctx context.Context, version, lang string) (Templates,
 	if t, ok := s.cached(key); ok {
 		return t, nil
 	}
+	// 로드는 이 호출자의 ctx와 분리합니다. 같은 flight에 합류한 다른 호출자가 있어서,
+	// 첫 호출자가 취소해도 로드가 끝까지 가서 캐시를 채워야 하기 때문입니다.
+	loadCtx := context.WithoutCancel(ctx)
 	ch := s.loads.DoChan(version+"\x00"+lang, func() (any, error) {
-		t, err := s.load(ctx, key)
+		loadCtx, cancel := context.WithTimeout(loadCtx, loadTimeout)
+		defer cancel()
+		t, err := s.load(loadCtx, key)
 		if err != nil {
 			return nil, err
 		}

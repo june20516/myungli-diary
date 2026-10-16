@@ -3,9 +3,10 @@ package content_test
 import (
 	"context"
 	"sync"
-	"time"
 	"testing"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -200,7 +201,96 @@ func TestApply_DuplicateTemplateInSeedFails(t *testing.T) {
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed, "실패한 적재는 롤백")
 }
 
-func TestStore_TemplatesCanceledWhileLoadingIsNotCached(t *testing.T) {
+// lockTemplates는 다른 트랜잭션으로 content_templates를 잠가 조회가 끝나지 못하게 하고, 잠금을 푸는 함수를 돌려줍니다.
+func lockTemplates(t *testing.T, pool *pgxpool.Pool) (release func()) {
+	t.Helper()
+	ctx := context.Background()
+	tx, err := pool.Begin(ctx)
+	require.NoError(t, err)
+	_, err = tx.Exec(ctx, "LOCK TABLE content_templates IN ACCESS EXCLUSIVE MODE")
+	require.NoError(t, err)
+	return func() { require.NoError(t, tx.Rollback(ctx)) }
+}
+
+// waitForBlockedQuery는 잠금을 기다리는 쿼리가 생길 때까지 기다립니다(고정 sleep 대신 DB 상태를 봅니다).
+func waitForBlockedQuery(t *testing.T, pool *pgxpool.Pool) {
+	t.Helper()
+	require.Eventually(t, func() bool {
+		var n int
+		err := pool.QueryRow(context.Background(),
+			"SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND query LIKE '%content_templates%'").Scan(&n)
+		return err == nil && n > 0
+	}, 10*time.Second, 10*time.Millisecond)
+}
+
+func TestStore_TemplatesCallerCancelDoesNotFailOtherWaiters(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	_, err := content.Apply(ctx, pool, s)
+	require.NoError(t, err)
+	store := content.NewStore(pool)
+	release := lockTemplates(t, pool)
+
+	firstCtx, cancelFirst := context.WithCancel(ctx)
+	defer cancelFirst()
+	firstErr := make(chan error, 1)
+	go func() {
+		_, err := store.Templates(firstCtx, s.Version, "ko")
+		firstErr <- err
+	}()
+	waitForBlockedQuery(t, pool)
+
+	type result struct {
+		tpl content.Templates
+		err error
+	}
+	second := make(chan result, 1)
+	go func() {
+		tpl, err := store.Templates(ctx, s.Version, "ko")
+		second <- result{tpl, err}
+	}()
+
+	cancelFirst()
+	require.ErrorIs(t, <-firstErr, context.Canceled, "취소한 호출자는 ctx 오류")
+	release()
+
+	res := <-second
+	require.NoError(t, res.err, "다른 호출자는 첫 호출자의 취소에 영향받지 않음")
+	_, ok := res.tpl.Body("daily.guide", "k", "1")
+	assert.True(t, ok)
+
+	// 로드가 캐시를 채웠으므로 DB 없이도 같은 사본이 나옵니다.
+	_, err = pool.Exec(ctx, "DELETE FROM content_templates")
+	require.NoError(t, err)
+	again, err := store.Templates(ctx, s.Version, "ko")
+	require.NoError(t, err)
+	assert.Same(t, res.tpl, again)
+}
+
+func TestStore_TemplatesCanceledCallerReturnsWithoutWaitingForLoad(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	_, err := content.Apply(ctx, pool, s)
+	require.NoError(t, err)
+	store := content.NewStore(pool)
+	release := lockTemplates(t, pool)
+	defer release()
+
+	callCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		_, err := store.Templates(callCtx, s.Version, "ko")
+		done <- err
+	}()
+	waitForBlockedQuery(t, pool)
+	cancel()
+	require.ErrorIs(t, <-done, context.Canceled, "로드가 끝나지 않아도 취소하면 바로 돌아옴")
+}
+
+func TestStore_TemplatesLoadErrorIsNotCached(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 	s := testSeed(t, "")
@@ -208,17 +298,13 @@ func TestStore_TemplatesCanceledWhileLoadingIsNotCached(t *testing.T) {
 	require.NoError(t, err)
 	store := content.NewStore(pool)
 
-	// 다른 트랜잭션이 테이블을 잠가 조회가 끝나지 못하게 합니다.
-	tx, err := pool.Begin(ctx)
+	// 테이블 이름을 잠시 바꿔 조회가 실패하게 합니다.
+	_, err = pool.Exec(ctx, "ALTER TABLE content_templates RENAME TO content_templates_moved")
 	require.NoError(t, err)
-	_, err = tx.Exec(ctx, "LOCK TABLE content_templates IN ACCESS EXCLUSIVE MODE")
+	_, err = store.Templates(ctx, s.Version, "ko")
+	require.Error(t, err)
+	_, err = pool.Exec(ctx, "ALTER TABLE content_templates_moved RENAME TO content_templates")
 	require.NoError(t, err)
-
-	short, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
-	defer cancel()
-	_, err = store.Templates(short, s.Version, "ko")
-	require.ErrorIs(t, err, context.DeadlineExceeded, "ctx가 끝나면 로드를 기다리지 않고 돌아옴")
-	require.NoError(t, tx.Rollback(ctx))
 
 	got, err := store.Templates(ctx, s.Version, "ko")
 	require.NoError(t, err, "오류는 캐시하지 않아 다음 호출이 다시 시도")
