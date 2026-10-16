@@ -6,9 +6,10 @@
 ## input-step
 
 * 쓰는 화면: onboard-call, onboard-birth, onboard-time, onboard-gender, birthplace, notify-ask
-* 위에서부터: 진행 막대(온보딩만, 3px) → 질문(`type.title`) → 입력 → 도움말(`type.caption.lg`) → 오류 줄 → 아래 고정 주 버튼(키보드 위에 붙음).
+* 위에서부터: 진행 막대(온보딩만, 3px) → 질문(`type.title`) → 머리말(`preface`, 있을 때만) → 입력 → 도움말(`type.caption.lg`) → 오류 줄 → 아래 고정 주 버튼(키보드 위에 붙음).
 * 오류 줄(`out-of-range` 등)은 빨간색 없이 `mark.caution` + 본문색입니다. 오류가 있으면 아래 버튼은 disabled.
 * 고르면 바로 다음으로 넘어가는 단계(지금은 `birthplace`의 도시 결과 줄)에는 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`). 비활성 버튼이 늘 떠 있으면 "무언가 더 해야 한다"로 읽히기 때문입니다.
+* 머리말(`preface`): 질문과 입력 사이 안내입니다(지금은 `birthplace`의 한국 표준 소개 `birthplace.standard.note` + `depth-link` `navigate`). 글자는 도움말과 같은 스타일이고, 위(질문 아래)·아래(입력 위) 모두 `space.24`입니다.
 
 ## text-field
 
@@ -51,7 +52,8 @@
 * 쓰는 화면: birthplace
 * 검색칸(text-field + 돋보기) + 결과 묶음 카드(settings-row와 같은 모양: 도시 `type.body.ui` + 나라·지역 `type.caption.md`). 입력과 일치하는 부분은 600.
 * 불러오는 중 skeleton 줄 3개, 결과 없음 empty-state.
-* `region`은 "행정 구역, 나라" 이름입니다. 나라 코드(`KR`)를 그대로 보이지 않습니다. 지역 이름이 없으면 `region` 줄을 그리지 않고, 결과 줄 최소 높이 56px는 그대로입니다.
+* **고른 뒤 저장 중(`saving`, 결정 V34):** 아래 버튼이 없는 단계라 처리 중 표시를 고른 줄이 맡습니다. 고른 줄 오른쪽 끝에 점 숨쉬기(`loading.breathe`, `text.secondary`)가 나타나고, 다른 줄은 누를 수 없습니다. 스크린리더는 "처리 중"을 알립니다(`primary-button` `loading`과 같은 문구). 저장이 실패하면 input-step 오류 줄로 돌아갑니다.
+* `region`은 "행정 구역, 나라" 이름입니다. 둘은 언어별 구분자로 잇습니다(`region.join`: ko·en `, `, ja `、`). 나라 코드(`KR`)를 그대로 보이지 않습니다. 지역 이름이 없으면 `region` 줄을 그리지 않고, 결과 줄 최소 높이 56px는 그대로입니다.
 * 구현 힌트(Flutter): `combobox` 역할은 적용하지 않습니다(flutter#159741). 결과 수 알림은 그대로 둡니다.
 
 ## check-row
