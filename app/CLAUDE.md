@@ -53,7 +53,7 @@
 ## 현재 상태 (2026-10-16, app 세션 갱신)
 * **IA v3(#160·#173·#184) 구현 완료, PR 전**입니다. 브랜치 `app/ia-v3`, 계획 [`docs/plans/2026-10-16-ia-v3.md`](docs/plans/2026-10-16-ia-v3.md). `birthplace`의 한국 표준 소개·계산 기준 링크와 새 화면 `calc-basis`(로그인 전 열람)를 만들었고, 경도 보정은 화면과 떨어진 순수 함수(`features/calc_basis/model/time_basis.dart`, 엔진 대조 fixture `test/features/calc_basis/model/engine_time_basis_cases.json`)입니다. 결정 A28~A31(`docs/decisions.md`).
   * **E2E 커버리지(도구로 확인, 2026-10-16):** 경로 38/80, 상태 19/54, 결정 4/6(`dart run tool/ia_coverage.dart --check`).
-  * **남은 Issue:** #199(server, 도시 경도), #200(root, 제목 슬롯), #201(writing, 임시 키), #211(design, `ProsePageBody`·skeleton·preface 간격), #214(writing, 서머타임 출생 경도 문구). 답이 오면 아래 "다음 할 일" 2를 합니다.
+  * **남은 Issue:** #199(server, 도시 경도), #201(writing, 임시 키와 PR #205의 `*.bar.title` 원고 24개), #211(design, `ProsePageBody`·skeleton·preface 간격), #214(writing, 서머타임 출생 경도 문구). 답이 오면 아래 "다음 할 일" 2를 합니다.
 * **계획 3(오늘·깊이 시트) 완료**이고 PR #196으로 main에 병합됐습니다. 계획: [`docs/plans/2026-10-15-today-depth.md`](docs/plans/2026-10-15-today-depth.md)
 * **계획 2(온보딩·로그인) 완료**이고 PR #149로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md), 결정 A17~A21. 화면 13개(launch~ad-consent)와 새 계정 흐름 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`, fake 시나리오 표는 [`README.md`](README.md)에 있습니다.
 * **기반 계획(task 1~23) 완료**이고 PR #117로 main에 병합됐습니다(2026-10-13). spec [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md), 계획 [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md), 결정 A1~A16. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
@@ -82,7 +82,7 @@
 
 ## 다음 할 일
 1. **IA v3 PR.** `app/ia-v3` → `main`입니다. 올리기 전에 `git merge origin/main` 뒤 로컬 검사와 로컬 Patrol(아래 "검사")을 돌리고, 브랜치를 push해 `gh workflow run app.yml --ref app/ia-v3`로 `e2e-android`를 한 번 확인합니다. PR 본문은 `Closes #160`·`Closes #173`·`Closes #184`이고 마무리에 공개 확인(가격·수익 수치, 비공개 저장소 경로 링크)을 합니다(`docs/workflow.md` §3).
-2. **IA v3 응답이 오면 할 일.** #199(server) 응답 시 도시 경도를 `calc-basis` 경도 계산에 연결합니다(A29, 지금은 도시 경도를 모르면 문단을 그리지 않음). #200(root 제목 슬롯)·#201(writing 임시 키) 응답 시 임시 `calcBasisTitle`을 정식 제목 키로 바꿉니다(A30). #214(writing) 응답 시 서머타임 출생 경도 문단을 새 키로 그리고 A31을 거둡니다. #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
+2. **IA v3 응답이 오면 할 일.** #199(server) 응답 시 도시 경도를 `calc-basis` 경도 계산에 연결합니다(A29, 지금은 도시 경도를 모르면 문단을 그리지 않음). IA가 app-bar 화면 24곳에 제목 슬롯 `<화면>.bar.title`을 더했습니다(PR #205, #200 닫힘). writing 원고(#201)가 오면 가져와서 임시 `calcBasisTitle`을 `calc-basis.bar.title` 키로 바꾸고(A30), 다른 화면의 app-bar 제목도 그 키로 그립니다. #214(writing) 응답 시 서머타임 출생 경도 문단을 새 키로 그리고 A31을 거둡니다. #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 4(달력·일정)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. `calendar`·`day-sheet`·`event-edit`에 더해 오늘 화면의 일정 줄과 `today` → `day-sheet` 출구를 마무리하고 `pendingExitScreens`에서 `today`를 뺍니다. `day-sheet`는 계획 3의 시트 등록부(`sheetRegistry`, A23)와 `DepthSheets`, 문장·카드 부품을 그대로 씁니다.
 4. **계약 필드가 오면 할 일(A22).** server #167(core #130 대기)로 `explain.today_reason`, 근거 `basis`·`source`, 용어 한자가 계약에 들어오면 fixture와 표시 값 변환(`today_presentation.dart`, 풀이·근거 시트 본문)만 더합니다. 그때 근거 시트가 제목만 보이는 한계가 풀립니다.
 5. **writing 대기 문구.** 새 problem code `timezone.invalid`·`city.not_found`의 문구(`errorTimezoneInvalid`·`errorCityNotFound`)가 writing ARB에 오면 가져오고 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지웁니다. 그때까지 4xx 일반 문구입니다.

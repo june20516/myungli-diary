@@ -52,37 +52,46 @@ abstract final class SlotIds {
   static const String welcomeConceptBody = 'welcome.concept.body';
   static const String welcomeCtaStart = 'welcome.cta.start';
   static const String welcomeCtaSignin = 'welcome.cta.signin';
+  static const String onboardCallBarTitle = 'onboard-call.bar.title';
   static const String onboardCallQuestionHead = 'onboard-call.question.head';
   static const String onboardCallInputHint = 'onboard-call.input.hint';
   static const String onboardCallNoteBody = 'onboard-call.note.body';
+  static const String onboardBirthBarTitle = 'onboard-birth.bar.title';
   static const String onboardBirthQuestionHead = 'onboard-birth.question.head';
   static const String onboardBirthCalendarHint = 'onboard-birth.calendar.hint';
   static const String onboardBirthBasisNote = 'onboard-birth.basis.note';
   static const String onboardBirthErrorRange = 'onboard-birth.error.range';
+  static const String onboardTimeBarTitle = 'onboard-time.bar.title';
   static const String onboardTimeQuestionHead = 'onboard-time.question.head';
   static const String onboardTimeUnknownNote = 'onboard-time.unknown.note';
   static const String onboardTimeHourConfirm = 'onboard-time.hour.confirm';
+  static const String onboardGenderBarTitle = 'onboard-gender.bar.title';
   static const String onboardGenderQuestionHead =
       'onboard-gender.question.head';
   static const String onboardGenderWhyBody = 'onboard-gender.why.body';
+  static const String birthplaceBarTitle = 'birthplace.bar.title';
   static const String birthplaceQuestionHead = 'birthplace.question.head';
   static const String birthplaceWhyBody = 'birthplace.why.body';
   static const String birthplaceStandardNote = 'birthplace.standard.note';
   static const String birthplaceStandardLink = 'birthplace.standard.link';
   static const String birthplaceSearchHint = 'birthplace.search.hint';
   static const String birthplaceEmptyBody = 'birthplace.empty.body';
+  static const String previewBarTitle = 'preview.bar.title';
   static const String previewCharacterLabel = 'preview.character.label';
   static const String previewFortuneHead = 'preview.fortune.head';
   static const String previewFortuneBody = 'preview.fortune.body';
   static const String previewCtaSave = 'preview.cta.save';
   static const String previewCtaRestart = 'preview.cta.restart';
   static const String previewShareLoginNotice = 'preview.share.login-notice';
+  static const String loginBarTitle = 'login.bar.title';
   static const String loginTitleHead = 'login.title.head';
   static const String loginTitleBody = 'login.title.body';
   static const String loginDiscardNotice = 'login.discard.notice';
+  static const String consentBarTitle = 'consent.bar.title';
   static const String consentTitleHead = 'consent.title.head';
   static const String consentRequiredLabel = 'consent.required.label';
   static const String consentCtaAgree = 'consent.cta.agree';
+  static const String notifyAskBarTitle = 'notify-ask.bar.title';
   static const String notifyAskQuestionHead = 'notify-ask.question.head';
   static const String notifyAskWhyBody = 'notify-ask.why.body';
   static const String notifyAskCtaAllow = 'notify-ask.cta.allow';
@@ -96,6 +105,7 @@ abstract final class SlotIds {
       'system-apple-return.page.open';
   static const String systemAppleReturnPageInstall =
       'system-apple-return.page.install';
+  static const String todayBarTitle = 'today.bar.title';
   static const String todayCharacterLabel = 'today.character.label';
   static const String todayCharacterReason = 'today.character.reason';
   static const String todayFortuneHead = 'today.fortune.head';
@@ -137,6 +147,7 @@ abstract final class SlotIds {
   static const String sharePreviewImageTagline = 'share-preview.image.tagline';
   static const String sharePreviewRatioLabel = 'share-preview.ratio.label';
   static const String sharePreviewCtaShare = 'share-preview.cta.share';
+  static const String calendarBarTitle = 'calendar.bar.title';
   static const String calendarLegendBody = 'calendar.legend.body';
   static const String daySheetCharacterLabel = 'day-sheet.character.label';
   static const String daySheetCharacterReason = 'day-sheet.character.reason';
@@ -144,50 +155,63 @@ abstract final class SlotIds {
   static const String daySheetEventAdd = 'day-sheet.event.add';
   static const String daySheetDiaryOpen = 'day-sheet.diary.open';
   static const String daySheetDiaryWriteCta = 'day-sheet.diary.write-cta';
+  static const String eventEditBarTitle = 'event-edit.bar.title';
   static const String eventEditCharacterHint = 'event-edit.character.hint';
   static const String eventEditTitleHint = 'event-edit.title.hint';
   static const String eventEditMemoHint = 'event-edit.memo.hint';
   static const String eventEditDeleteConfirm = 'event-edit.delete.confirm';
+  static const String diaryListBarTitle = 'diary-list.bar.title';
   static const String diaryListEmptyBody = 'diary-list.empty.body';
   static const String diaryListPickDateCta = 'diary-list.pick-date.cta';
+  static const String diaryEditBarTitle = 'diary-edit.bar.title';
   static const String diaryEditGuideQuestion = 'diary-edit.guide.question';
   static const String diaryEditBodyPlaceholder = 'diary-edit.body.placeholder';
   static const String diaryEditDraftStatus = 'diary-edit.draft.status';
   static const String diaryEditOfflineNotice = 'diary-edit.offline.notice';
   static const String diaryEditSavedTags = 'diary-edit.saved.tags';
+  static const String diaryViewBarTitle = 'diary-view.bar.title';
   static const String diaryViewCharacterLabel = 'diary-view.character.label';
   static const String diaryViewDeleteConfirm = 'diary-view.delete.confirm';
+  static const String tagDiaryBarTitle = 'tag-diary.bar.title';
   static const String tagDiaryTagMeaning = 'tag-diary.tag.meaning';
   static const String tagDiaryEmptyBody = 'tag-diary.empty.body';
+  static const String mySajuBarTitle = 'my-saju.bar.title';
   static const String mySajuIlganHead = 'my-saju.ilgan.head';
   static const String mySajuIlganBody = 'my-saju.ilgan.body';
   static const String mySajuYongsinBody = 'my-saju.yongsin.body';
+  static const String sajuChartBarTitle = 'saju-chart.bar.title';
   static const String sajuChartYongsinBasis = 'saju-chart.yongsin.basis';
   static const String sajuChartTimeUnknownNotice =
       'saju-chart.time-unknown.notice';
   static const String sajuChartYongsinOpen = 'saju-chart.yongsin.open';
   static const String sajuChartYongsinTitle = 'saju-chart.yongsin.title';
+  static const String settingsBarTitle = 'settings.bar.title';
   static const String settingsDepthDesc = 'settings.depth.desc';
   static const String settingsLanguageBirthplaceNotice =
       'settings.language.birthplace-notice';
   static const String settingsLogoutConfirm = 'settings.logout.confirm';
   static const String settingsAdFreeLabel = 'settings.ad-free.label';
+  static const String adFreeBarTitle = 'ad-free.bar.title';
   static const String adFreeOfferHead = 'ad-free.offer.head';
   static const String adFreeOfferPrice = 'ad-free.offer.price';
   static const String adFreeStatusRemaining = 'ad-free.status.remaining';
   static const String adFreeRestoreCta = 'ad-free.restore.cta';
   static const String adFreeLegalNotice = 'ad-free.legal.notice';
+  static const String profileEditBarTitle = 'profile-edit.bar.title';
   static const String profileEditRecalcNotice = 'profile-edit.recalc.notice';
   static const String profileEditRecalcConfirm = 'profile-edit.recalc.confirm';
+  static const String calcBasisBarTitle = 'calc-basis.bar.title';
   static const String calcBasisConventionBody = 'calc-basis.convention.body';
   static const String calcBasisSchoolsBody = 'calc-basis.schools.body';
   static const String calcBasisLongitudeBody = 'calc-basis.longitude.body';
   static const String calcBasisLunarBody = 'calc-basis.lunar.body';
+  static const String accountDeleteBarTitle = 'account-delete.bar.title';
   static const String accountDeleteTitleHead = 'account-delete.title.head';
   static const String accountDeleteDataBody = 'account-delete.data.body';
   static const String accountDeleteCtaDelete = 'account-delete.cta.delete';
   static const String accountDeleteDeleteConfirm =
       'account-delete.delete.confirm';
+  static const String legalBarTitle = 'legal.bar.title';
 }
 
 /// IA 화면 목록.
