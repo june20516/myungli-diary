@@ -24,7 +24,7 @@ P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 
 P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 근거는 commit 메시지와 코드 주석에 있습니다.
 
 **P4 (콘텐츠)**
-* `characterReason`(Daily·CalendarDay), `Glossary.meanings`, Preview `dayKindName`을 렌더합니다. `fortune.Service.Daily/Month`를 씁니다. 출생 해시 = 사주 지문(S26)입니다.
+* `characterReason`(Daily·CalendarDay), `Glossary.meanings`·`hanja`, Preview `dayKindName`, `SlotText.todayReason`(writing `explain.today_reason`, 키 `reason.<ruleId>`), `Evidence.basis`(`basis.<ruleId>`, `detail`을 매개변수로)·`source`(`source.<sourceRef>`)를 렌더합니다(계약 draft.4, #167). `todayReason`은 잠그지 않고, `basis`·`source`는 `evidence[]`째 잠깁니다. `fortune.Service.Daily/Month`를 씁니다. 출생 해시 = 사주 지문(S26)입니다.
 * 참고(엔진 판정): 엔진 `OUT_OF_RANGE`는 범위에 일부만 걸친 달(`GetMonthCalendar(1900,1)`)과, 출생 정보에서는 상한 쪽 음력(음력 2099년 12월이 양력 2099-12-31을 넘는 날)에서 납니다. 음력 1900-01-01은 범위 안입니다.
 
 **P5 (일기·일정)**

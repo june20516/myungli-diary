@@ -658,10 +658,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft3(t *testing.T) {
+func TestContract_VersionIsDraft4(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.3" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.3", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.4" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.4", doc.Info.Version)
 	}
 }
 
@@ -854,5 +854,44 @@ func TestContract_AppleCallbackLocationDescribesExchange(t *testing.T) {
 	})
 	if !found {
 		t.Fatal("appleCallback operation이 없음")
+	}
+}
+
+// TestContract_Draft4Fields는 draft.4에서 더한 필드를 고정합니다. 근거 문장(#167)과 출생 도시 경도(#199)입니다.
+func TestContract_Draft4Fields(t *testing.T) {
+	doc := loadDoc(t)
+	tests := []struct {
+		schema, field, ref string
+		required           bool
+	}{
+		{"SlotText", "todayReason", "#/components/schemas/RenderedText", false},
+		{"Evidence", "basis", "#/components/schemas/RenderedText", false},
+		{"Evidence", "source", "#/components/schemas/RenderedText", false},
+		{"Glossary", "hanja", "", true},
+		{"City", "longitude", "", true},
+		{"Profile", "birthCity", "#/components/schemas/City", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.schema+"."+tt.field, func(t *testing.T) {
+			ref := doc.Components.Schemas[tt.schema]
+			if ref == nil || ref.Value == nil {
+				t.Fatalf("%s 스키마가 없음", tt.schema)
+			}
+			prop := ref.Value.Properties[tt.field]
+			if prop == nil {
+				t.Fatalf("%s.properties에 %s가 없음", tt.schema, tt.field)
+			}
+			if tt.ref != "" && prop.Ref != tt.ref {
+				t.Errorf("%s.%s $ref = %q, want %q", tt.schema, tt.field, prop.Ref, tt.ref)
+			}
+			if got := slices.Contains(ref.Value.Required, tt.field); got != tt.required {
+				t.Errorf("%s.%s required = %v, want %v", tt.schema, tt.field, got, tt.required)
+			}
+		})
+	}
+
+	longitude := doc.Components.Schemas["City"].Value.Properties["longitude"].Value
+	if longitude.Min == nil || *longitude.Min != -180 || longitude.Max == nil || *longitude.Max != 180 {
+		t.Errorf("City.longitude 범위 = [%v, %v], want [-180, 180]", longitude.Min, longitude.Max)
 	}
 }
