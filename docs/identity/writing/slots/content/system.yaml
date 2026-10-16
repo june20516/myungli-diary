@@ -10,7 +10,7 @@
   user_state: 로그인하다가 브라우저 페이지에 멈췄습니다. 앱으로 돌아가야 한다는 것만 알면 됩니다. 오류로 왔어도 같은 문구입니다(오류 처리는 앱).
   structure: 제목은 앱 이름, 본문은 앱에서 이어 가라는 한 문장, 두 링크는 동작 이름입니다.
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - apple_return.title
     - apple_return.body

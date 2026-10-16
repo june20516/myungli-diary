@@ -5,11 +5,23 @@ from pathlib import Path
 
 from mlw.arb_export import render_arb
 from mlw.ia import Ia, placements
-from mlw.model import LANGS, PARAM_KIND_LIST_PREFIX, Detect, Entry, JosaPair, ParamKind, RuleSet, Slot
+from mlw.model import (
+    LANGS,
+    PARAM_KIND_LIST_PREFIX,
+    UNBOUNDED,
+    Detect,
+    Entry,
+    JosaPair,
+    LengthLimit,
+    ParamKind,
+    RuleSet,
+    Slot,
+)
 
 HEADER = "<!-- mlw gen-docs로 생성. 직접 고치지 않습니다 -->"
 RULE_STALE = "docs.stale"
 NONE_TEXT = "-"
+UNBOUNDED_TEXT = "상한 없음"
 # 앱 ARB를 두는 생성 디렉터리 안 하위 디렉터리입니다.
 ARB_DIR = "arb"
 
@@ -53,7 +65,9 @@ def _render_slop(rules: RuleSet) -> str:
         exempt = ", ".join(sorted(rule.exempt_purposes)) or NONE_TEXT
         rows.append((rule.id, _cell(rule.name), rule.judge, rule.severity, exempt, detection))
     table = _table(("ID", "이름", "판정", "심각도", "예외 목적", "탐지식 또는 루브릭"), rows)
-    return _document("slop 패턴", "원본은 `rules/slop.yaml`입니다. 판정이 `llm`인 규칙은 루브릭으로 사람이 봅니다.", table)
+    return _document(
+        "slop 패턴", "원본은 `rules/slop.yaml`입니다. 판정이 `llm`인 규칙은 루브릭으로 사람이 봅니다.", table
+    )
 
 
 def _param_kind_text(kind: ParamKind) -> str:
@@ -73,6 +87,15 @@ def _params_text(slot: Slot) -> str:
     return "<br>".join(f"`{name}`: {_param_kind_text(kind)}" for name, kind in params.items()) or NONE_TEXT
 
 
+def _limit_text(value: LengthLimit) -> str:
+    return UNBOUNDED_TEXT if value == UNBOUNDED else NONE_TEXT if value is None else str(value)
+
+
+def _limits_text(limits: Mapping[str, LengthLimit], langs: Sequence[str] = LANGS) -> str:
+    """언어별 상한 표기입니다. 키별 상한은 적힌 언어만 보입니다."""
+    return ", ".join(f"{lang} {_limit_text(limits.get(lang))}" for lang in langs)
+
+
 def _placement_text(slot: Slot, ia: Ia) -> str:
     """슬롯이 놓이는 IA 슬롯과 컴포넌트입니다."""
     places = [*placements(slot, ia), *(f"컴포넌트 {component}" for component in slot.components)]
@@ -83,10 +106,12 @@ def _render_slots(slots: Mapping[str, Slot], ia: Ia) -> str:
     rows: list[tuple[str, ...]] = []
     for slot_id in sorted(slots):
         slot = slots[slot_id]
-        limits = ", ".join(
-            f"{lang} {slot.max_length[lang] if slot.max_length.get(lang) is not None else NONE_TEXT}"
-            for lang in LANGS
-        )
+        limits = _limits_text(slot.max_length)
+        key_limits = [
+            f"`{key}` {_limits_text(by_lang, [lang for lang in LANGS if lang in by_lang])}"
+            for key, by_lang in slot.key_max_length.items()
+        ]
+        limits = "<br>".join([limits, *key_limits])
         rows.append(
             (
                 slot.id,
@@ -109,7 +134,9 @@ def _render_slots(slots: Mapping[str, Slot], ia: Ia) -> str:
 
 def _pair_examples(pair: JosaPair, rules: RuleSet) -> str:
     shown = [f"{_cell(example.text)} → {_cell(example.expected)}" for example in rules.josa.examples]
-    matching = [text for text, example in zip(shown, rules.josa.examples, strict=True) if pair.marker in example.text]
+    matching = [
+        text for text, example in zip(shown, rules.josa.examples, strict=True) if pair.marker in example.text
+    ]
     return "<br>".join(matching) or NONE_TEXT
 
 
@@ -125,7 +152,9 @@ def _render_josa(rules: RuleSet) -> str:
         for pair in rules.josa.pairs
     ]
     table = _table(("표기", "받침 있음", "받침 없음", "ㄹ 받침", "예시"), rows)
-    return _document("조사 표", "원본은 `rules/josa.yaml`입니다. 예시는 `표기된 원고 → 렌더 결과`입니다.", table)
+    return _document(
+        "조사 표", "원본은 `rules/josa.yaml`입니다. 예시는 `표기된 원고 → 렌더 결과`입니다.", table
+    )
 
 
 def _render_ia_coverage(slots: Mapping[str, Slot], ia: Ia) -> str:
@@ -141,7 +170,9 @@ def _render_ia_coverage(slots: Mapping[str, Slot], ia: Ia) -> str:
     return _document("IA 슬롯 대응", description, table)
 
 
-def render_docs(rules: RuleSet, slots: Mapping[str, Slot], ia: Ia, entries: Sequence[Entry]) -> dict[str, str]:
+def render_docs(
+    rules: RuleSet, slots: Mapping[str, Slot], ia: Ia, entries: Sequence[Entry]
+) -> dict[str, str]:
     """파일 이름(생성 디렉터리 기준 상대 경로) -> 내용. 같은 입력이면 항상 같은 결과입니다."""
     renderers: dict[str, Callable[[], str]] = {
         "slop-patterns.md": lambda: _render_slop(rules),

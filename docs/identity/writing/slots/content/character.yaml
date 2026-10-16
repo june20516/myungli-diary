@@ -11,7 +11,7 @@
   user_state: 배지(귀인·용신·기신·평범)를 보고 왜 그런 날인지 한 줄로 알고 싶습니다.
   structure: 짧은 한 문장. 그 날이 어떤 기운이 드는 날인지 일상어로 말합니다. 기신일도 겁주지 않고 조심할 점을 담백하게 씁니다.
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 57, en: 90, ja: 39}
   keys:
     - character.reason.gwiin_day
     - character.reason.yongsin_day

@@ -8,7 +8,7 @@ import pytest
 
 from mlw.arb import check_arb
 from mlw.loader import load_rules, load_slots
-from mlw.model import LoadError, RuleSet, Slot
+from mlw.model import UNBOUNDED, LoadError, RuleSet, Slot
 from mlw.paths import RULES_DIR, SLOTS_DIR
 
 
@@ -76,3 +76,16 @@ def test_arb_plural_forms_must_match_language(tmp_path: Path, rules: RuleSet, sl
 def test_arb_plural_syntax_error_is_finding(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
     path = write_arb(tmp_path, {"@@locale": "ko", "citySearchResults": "{count, plural, other{{count}개}"})
     assert [f.rule_id for f in check_arb([path], slots, rules)] == ["icu.plural"]
+
+
+def test_arb_uses_key_max_length(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    slot = replace(
+        slots["ui.action.button"],
+        max_length={"ko": 3, "en": None, "ja": None},
+        key_max_length={"actionClose": {"ko": UNBOUNDED}},
+    )
+    custom = {**slots, slot.id: slot}
+    arb = write_arb(tmp_path, {"@@locale": "ko", "actionClose": "가나다라마바", "actionConfirm": "가나다라마바"})
+    findings = [finding for finding in check_arb([arb], custom, rules) if finding.rule_id == "style.length"]
+    assert len(findings) == 1
+    assert findings[0].line == 4

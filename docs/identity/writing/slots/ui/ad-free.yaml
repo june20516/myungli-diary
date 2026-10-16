@@ -70,7 +70,7 @@
   user_state: "다른 기기에서 산 것을 되살리려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - adFreeRestoreCta
   variants: {count: 1, rotation: "변주가 하나입니다"}

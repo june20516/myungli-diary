@@ -67,7 +67,7 @@ def check_arb(arb_paths: Sequence[Path], slots: Mapping[str, Slot], rules: RuleS
                 findings.append(Finding(path, entry.line, RULE_PLURAL, "error", problem))
                 continue
             purpose = slot.purpose if slot else DEFAULT_PURPOSE
-            max_length = slot.max_length.get(lang) if slot else None
+            max_length = slot.length_limit(lang, key) if slot else None
             allowed = slot.allowed if slot else frozenset()
             forbidden = slot.forbidden if slot else frozenset()
             # plural은 형태마다 펼친 문장을 검사하고, 같은 문제는 한 번만 냅니다.

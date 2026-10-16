@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.4
+  version: 1.0.0-draft.5
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -541,7 +541,11 @@ paths:
     get:
       operationId: getCalendar
       summary: 달력
-      description: 한 달의 날짜별 일진, 음력, 절기, 길흉 수준을 돌려줍니다. `year`·`month`가 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 스키마 범위 안이지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31)를 벗어나면 422 `date.out_of_range`입니다. 프로필이 없으면 409 `profile.required`입니다.
+      description: |
+        한 달의 날짜별 일진, 음력, 절기, 길흉 수준을 돌려줍니다. `year`·`month`가 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 스키마 범위 안이지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31)를 벗어나면 422 `date.out_of_range`입니다. 프로필이 없으면 409 `profile.required`입니다.
+
+        캐시: `ETag`는 없습니다. 응답은 출생 정보·언어·`rulesetVersion`·문장 시드로 정해지므로 app은 달마다 캐시해도 됩니다.
+        프로필(출생 정보·언어)이나 `rulesetVersion`이 바뀌면 캐시를 버립니다. 문장 개선(시드 갱신)은 다음 무효화 때 반영됩니다.
       responses:
         '200':
           description: 한 달 달력
@@ -583,7 +587,7 @@ paths:
     put:
       operationId: putReaction
       summary: 문장 반응 남기기
-      description: 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 선택 기록이 없거나 반응할 수 없는 슬롯이면 404입니다.
+      description: 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 `reaction.not_found`입니다.
       requestBody:
         required: true
         content:
@@ -614,6 +618,7 @@ paths:
     delete:
       operationId: deleteReaction
       summary: 문장 반응 지우기
+      description: 남긴 반응을 지웁니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 `reaction.not_found`입니다.
       responses:
         '204':
           description: 반응 지워짐
@@ -1006,7 +1011,7 @@ paths:
     get:
       operationId: listSchedules
       summary: 일정 목록
-      description: '`from`부터 `to`까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내입니다.'
+      description: '`from`부터 `to`까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 `range.too_long`입니다.'
       parameters:
         - name: from
           in: query
@@ -1098,6 +1103,7 @@ paths:
         보낸 필드만 바꿉니다(JSON Merge Patch).
         `allDay`를 true로 바꾸면 `time`이 지워집니다. 짝 위반(`allDay`·`time`)은 422 `request.inconsistent`입니다(`SchedulePatch` 참고).
         `memo`는 빈 문자열을 보내 지웁니다.
+        없는 일정(남의 일정 포함)은 404 `schedule.not_found`입니다.
       requestBody:
         required: true
         content:
@@ -1134,7 +1140,7 @@ paths:
     delete:
       operationId: deleteSchedule
       summary: 일정 지우기
-      description: 일정을 지웁니다. 지운 일정은 `restoreSchedule`로 되살릴 수 있습니다.
+      description: 일정을 지웁니다. 지운 일정은 `restoreSchedule`로 되살릴 수 있습니다. 없는 일정(남의 일정 포함)은 404 `schedule.not_found`입니다.
       responses:
         '204':
           description: 지워짐
@@ -1586,7 +1592,7 @@ components:
           schema:
             $ref: '#/components/schemas/Problem'
     NotFound:
-      description: 리소스가 없음. 남의 리소스도 404로 보내 존재 여부를 숨깁니다(예 `diary.not_found`).
+      description: 리소스가 없음. 남의 리소스도 404로 보내 존재 여부를 숨깁니다(예 `diary.not_found`, `reaction.not_found`, `schedule.not_found`).
       content:
         application/problem+json:
           schema:
@@ -1620,6 +1626,7 @@ components:
         * `consent.version_mismatch`: 동의한 문서 버전이 현재 버전과 다름. `errors[].field`는 `/documents/<i>/version`
         * `timezone.invalid`: IANA 시간대 이름이 아님. `errors[].field`는 `/currentTimezone` 또는 `/birth/timezone`
         * `city.not_found`: `cityId`가 도시 목록에 없음. `errors[].field`는 `/birth/place/cityId`
+        * `range.too_long`: `listSchedules`의 조회 범위(`from`~`to`)가 62일을 넘음
         * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, 호칭 거부(`name.empty`·`name.too_long`·`name.emoji`·`name.control`·`name.invalid_char`, josa.yaml name_rules의 기준 구현 normalize_name), `idempotency.mismatch`
       content:
         application/problem+json:
@@ -1739,6 +1746,12 @@ components:
             diary.not_found:
               status: 404
               description: '없는 일기. 남의 일기도 같은 응답'
+            reaction.not_found:
+              status: 404
+              description: '그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯'
+            schedule.not_found:
+              status: 404
+              description: '없는 일정. 남의 일정도 같은 응답'
             method.not_allowed:
               status: 405
               description: '라우트는 있으나 메서드가 다름(Allow 헤더)'
@@ -1802,6 +1815,9 @@ components:
             city.not_found:
               status: 422
               description: 'cityId가 도시 목록에 없음. errors[].field는 /birth/place/cityId'
+            range.too_long:
+              status: 422
+              description: '일정 조회 범위(from~to)가 62일을 넘음'
             rate_limited:
               status: 429
               description: '요청 한도 초과(Retry-After)'
@@ -1881,6 +1897,12 @@ components:
         `todayReason`은 풀이 시트의 "오늘 그런 이유"(writing 슬롯 `explain.today_reason`)입니다. 이 문장의 판정 근거 규칙(`Evidence.ruleId`)으로 고르고,
         깊이 explain이라 잠그지 않습니다. 그 규칙의 문장이 없으면 생략합니다.
         깊이 evidence의 판정 근거·원전 문장은 `evidence[]`의 `basis`·`source`입니다.
+
+        `reactable`은 총운 슬롯(`daily.fortune.head`·`daily.fortune.tag`)만 true입니다.
+        `variant`는 유형 슬롯이면 `advice`·`state`·`care`, 가이드 슬롯이면 `1`·`2`, 그 밖은 `single`입니다.
+
+        문장이 없을 때: 필수 문장 필드(`text`)는 템플릿(writing 원고)이 없으면 빈 `segments`로 오고,
+        선택 문장 필드(`todayReason`·`Evidence.basis`·`Evidence.source`)는 생략합니다.
       required: [slot, messageKey, variant, text, reactable]
       properties:
         slot:
@@ -1934,6 +1956,8 @@ components:
         surface·explain과 표 데이터는 잠그지 않습니다. 근거가 원래 없는 것과 잠겨서 빠진 것을 이 값으로 구분합니다.
     Notice:
       type: object
+      description: |
+        엔진 안내입니다. `text`는 writing 문구가 없으면 빈 `segments`이고, app은 `code`로 자기 문구를 씁니다.
       required: [code, text]
       properties:
         code:
@@ -3028,7 +3052,9 @@ components:
         time:
           type: string
           pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
-          description: HH:MM
+          description: |
+            HH:MM. 프로필의 현재 시간대(`currentTimezone`) 벽시계 시각입니다(D30과 같은 기준).
+            끝 시각(길이) 필드는 없습니다.
         title:
           type: string
           minLength: 1
