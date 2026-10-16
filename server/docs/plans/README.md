@@ -10,7 +10,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구 | §3.3 계정, §4 | **완료** |
 | P2a | [Apple 웹 로그인 복귀](2026-10-13-apple-web-login.md): 일회용 교환 코드, `completeAppleWebLogin`, App Link 안내 페이지·assetlinks (Issue #89, S22) | §4 | **완료** |
 | P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 병합 뒤 #170으로 구현 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
-| P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응 (#55·#129, 계약 draft.4) | §6 | 계획 |
+| P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응, 시드 CI (#55·#129, 계약 draft.5, S33~S44) | §6 | **완료** |
 | P5 | 일기·일정: soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록 | §5.3, §3.3 일기 | 대기 |
 | P6 | 비로그인·참조: 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config | §5.3, §3.3 기타 | 대기 |
 | P7 | 결제와 권한: RevenueCat webhook·동기화, entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60) | §10 | 대기 |
@@ -23,11 +23,16 @@ P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 
 
 P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 근거는 commit 메시지와 코드 주석에 있습니다.
 
-**P4 (콘텐츠)**
-* `characterReason`(Daily·CalendarDay), `Glossary.meanings`·`hanja`, Preview `dayKindName`, `SlotText.todayReason`(writing `explain.today_reason`, 키 `reason.<ruleId>`), `Evidence.basis`(`basis.<ruleId>`, `detail`을 매개변수로)·`source`(`source.<sourceRef>`)를 렌더합니다(계약 draft.4, #167). `todayReason`은 잠그지 않고, `basis`·`source`는 `evidence[]`째 잠깁니다. `fortune.Service.Daily/Month`를 씁니다. 출생 해시 = 사주 지문(S26)입니다.
+**P4 (콘텐츠)** — 완료. 실행 중 정한 것은 S33~S44와 spec §3.3·§6에 옮겼습니다.
 * 참고(엔진 판정): 엔진 `OUT_OF_RANGE`는 범위에 일부만 걸친 달(`GetMonthCalendar(1900,1)`)과, 출생 정보에서는 상한 쪽 음력(음력 2099년 12월이 양력 2099-12-31을 넘는 날)에서 납니다. 음력 1900-01-01은 범위 안입니다.
 
+**콘텐츠 후속 (조건이 오면)**
+* writing W1 원고가 다 오면 `server.yml`의 `mlw check ... --partial`에서 `--partial`을 빼고, 변환 도구(`seed/generate.go`의 `go:generate`)에 `-strict`를 켭니다(S38).
+* writing의 notice 문구 슬롯(#232)이 오면 변환 도구가 `notice.<code>` 원고를 시드에 넣고, `content.Notice`가 그 문구를 렌더하게 잇습니다. 그 전까지 `Notice.text`는 빈 `segments`입니다(P4-9).
+
 **P5 (일기·일정)**
+* `Profile.birthCity`(#199)를 채웁니다(`city.Lookup`, 프로필 언어 이름). `City.longitude`는 `listCities`(P6)에서 채웁니다.
+* 다음 계약 개정에서 `getGlossary`·`putReaction`·`deleteReaction`에 409 `profile.required`를 명시합니다. 지금은 계약 `default` 응답으로 덮여 있어 app client가 409를 default로 받습니다.
 * 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 끝났습니다(프로필). 일정에도 같은 코드를 씁니다.
 
 **P6 (비로그인·참조)**
@@ -45,6 +50,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 만료된 refresh token 정리는 "행을 물리적으로 지우지 않는다"(S6·S7, spec §2)의 예외입니다(시스템 데이터). 다만 `refresh_tokens.replaced_by_id`가 같은 테이블을 `ON DELETE RESTRICT`로 참조하므로(S20), 앞 토큰이 남아 있는 동안 그 다음 토큰은 지울 수 없습니다. family의 모든 토큰이 만료됐을 때 family 단위로 지우되 참조하는 행(앞 토큰)부터 지워야 합니다. RESTRICT는 한 DELETE 문 안에서도 행마다 즉시 검사하므로 한 문장에 몰아 지울 때의 순서에 기대지 않습니다(필요하면 FK를 `NO ACTION`으로 바꾸는 것을 검토).
 * 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
+* 익명화 때 `daily_selections`·`rotation_state`·`reactions`는 남깁니다(spec §9 "남기는 것"). 콘텐츠 표의 FK가 `ON DELETE RESTRICT`인 것도 이 때문입니다. 다만 `daily_selections.birth_hash`는 `profiles.birth_hash`를 비우는 이유(생년월일시를 되찾을 수 있음)가 같이 해당하므로, 비울지(열이 NOT NULL·32바이트 CHECK라 migration 필요)를 P8 계획에서 정합니다.
 * 프로필 익명화 전용 쿼리를 둡니다. 출생 열·호칭·해시를 비우고 `anonymized_at`을 기록하며, CHECK `profiles_complete_until_anonymized`에 맞춥니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다.
 
