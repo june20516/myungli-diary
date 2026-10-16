@@ -40,7 +40,7 @@ final class GlossaryRepository {
       );
     } on DioException catch (e) {
       final error = appErrorFrom(e);
-      if (cached != null && (error is OfflineError || error is TimeoutError)) {
+      if (cached != null && isConnectivityError(error)) {
         return cached.names;
       }
       throw error;

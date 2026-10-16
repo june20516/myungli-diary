@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myungli_diary/app/router/sheet_registry.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
 
 /// 풀이 시트 본문. [termId]는 용어 id, [sourceSlotId]는 눌린 writing 슬롯 id입니다.
 typedef ExplainBodyBuilder = Widget Function(
