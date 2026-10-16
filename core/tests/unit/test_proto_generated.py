@@ -78,6 +78,7 @@ def test_generated_modules_import_by_package_path() -> None:
         "GetMonthCalendar",
         "GetBirthHour",
         "GetInfo",
+        "ConvertLunarDate",
     ]
     assert hasattr(pb2_grpc, "MyungliEngineServicer")
     assert hasattr(pb2_grpc, "add_MyungliEngineServicer_to_server")

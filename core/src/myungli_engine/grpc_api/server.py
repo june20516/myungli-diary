@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 from concurrent import futures
 from dataclasses import dataclass
 from typing import Final
@@ -17,7 +16,6 @@ from myungli_engine.calendar_core.birth import birth_hour
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.composers.daily import compose_daily
 from myungli_engine.composers.month import compose_month
-from myungli_engine.domain.enums import Branch, Stem
 from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.grpc_api import mapping
 from myungli_engine.grpc_api.errors import run_or_abort
@@ -72,6 +70,18 @@ class MyungliEngineServicer(pb_grpc.MyungliEngineServicer):
 
         return run_or_abort(context, compute)
 
+    def ConvertLunarDate(
+        self, request: pb.LunarDateRequest, context: grpc.ServicerContext
+    ) -> pb.LunarDateResponse:
+        def compute() -> pb.LunarDateResponse:
+            lunar = _required_date(request, "date")
+            solar = lunar_adapter.lunar_to_solar(lunar.year, lunar.month, lunar.day, request.is_leap_month)
+            return mapping.lunar_conversion_to_proto(
+                solar, lunar_adapter.month_has_leap(lunar.year, lunar.month)
+            )
+
+        return run_or_abort(context, compute)
+
 
 def _required_birth(
     request: pb.ChartRequest | pb.DailyRequest | pb.MonthRequest | pb.BirthHourRequest,
@@ -81,7 +91,9 @@ def _required_birth(
     return request.birth
 
 
-def _required_date(request: pb.ChartRequest | pb.DailyRequest, field_name: str) -> pb.LocalDate:
+def _required_date(
+    request: pb.ChartRequest | pb.DailyRequest | pb.LunarDateRequest, field_name: str
+) -> pb.LocalDate:
     """필수 날짜 필드. 없으면 필드 이름을 담은 InvalidInputError."""
     if not request.HasField(field_name):
         raise InvalidInputError(f"{field_name}가 없습니다.")
@@ -94,12 +106,6 @@ def _required_scalar(value: int, field_name: str) -> int:
     if value == 0:
         raise InvalidInputError(f"{field_name}가 없습니다.")
     return value
-
-
-def all_reference_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸과 오행 근거 전부."""
-    yield from (loader.johu_ref(stem, branch) for stem in Stem for branch in Branch)
-    yield from loader.FIVE_ELEMENTS_REF.values()
 
 
 @dataclass(frozen=True)
@@ -125,7 +131,7 @@ def start(port: int = DEFAULT_PORT) -> RunningEngine:
     근거 데이터에 없는 키가 있으면 KeyError로 시작하지 않는다(spec 11).
     준비가 끝난 뒤에만 health(전체 "", 엔진 서비스)를 SERVING으로 둔다.
     """
-    loader.validate_refs(all_reference_refs())
+    loader.validate_refs(loader.all_refs())
     lunar_adapter.warm_up()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     pb_grpc.add_MyungliEngineServicer_to_server(MyungliEngineServicer(), server)

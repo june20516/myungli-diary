@@ -106,18 +106,18 @@ jobs:
           # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있어 core 소유입니다.
           unit core "$code_changed" '^core/|^proto/' ''
           # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙.
-          unit server "$code_changed" '^server/' '^proto/|^core/message_(keys|params)\.json$|^docs/identity/writing/'
+          unit server "$code_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/'
           # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
           unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/'
           # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144).
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
-          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/message_(keys|params)\.json$|^proto/'
+          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/'
           # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고(lengths.py). 과정 문서는 writing과 같이 뺍니다.
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
-          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools|artifacts)/|^core/message_(keys|params)\.json$|^proto/' | head -20 | tr '\n' ' ')
+          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools|artifacts)/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
 
   docs:
@@ -147,7 +147,8 @@ jobs:
           import os, re, sys
           # 템플릿 안내 주석은 빼고 봅니다. 주석에도 예시 문구가 들어 있기 때문입니다.
           body = re.sub(r"<!--.*?-->", "", os.environ.get("BODY") or "", flags=re.S)
-          closes = re.findall(r"(?im)^[\s*-]*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)", body)
+          # GitHub처럼 문장 안의 키워드도 인정합니다(줄 맨 앞만 보면 GitHub은 닫는데 검사만 실패합니다).
+          closes = re.findall(r"(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)", body)
           none = re.search(r"(?m)^[\s*-]*처리한 Issue:\s*없음", body)
           if closes:
               print("처리한 Issue: " + ", ".join("#" + n for n in closes))

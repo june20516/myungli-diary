@@ -173,6 +173,11 @@ def lunar_to_solar(year: int, month: int, day: int, is_leap_month: bool) -> date
     return korean_lunar.lunar_to_solar(year, month, day, is_leap_month)
 
 
+def month_has_leap(year: int, month: int) -> bool:
+    """한국 음력 year년 month월 뒤에 같은 이름의 윤달이 있는지."""
+    return korean_lunar.month_has_leap(year, month)
+
+
 # --- 사주팔자 ---
 
 

@@ -6,7 +6,8 @@
 // 식별자뿐입니다.
 //
 // 메시지 개요
-// * 서비스 MyungliEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전).
+// * 서비스 MyungliEngine: GetChart(나의 사주), GetDaily(데일리), GetMonthCalendar(월간 캘린더), GetBirthHour(출생 시진), GetInfo(엔진·규칙 버전),
+//   ConvertLunarDate(음력 → 양력, 윤달 유무).
 // * 입력: BirthInfo(출생 정보), ChartRequest / DailyRequest / MonthRequest. spec §3·§9 원문 그대로입니다.
 // * 공통 값: LocalDate·LocalTime(현지 달력 날짜·시각), Pillar(간지 한 기둥), FourPillars(네 기둥).
 // * 판정: Judgment(메시지 키 + 매개변수 + 근거 목록), Evidence(규칙 id + source_ref + 세부), Param(매개변수 값).
@@ -37,6 +38,7 @@ service MyungliEngine {
   rpc GetMonthCalendar(MonthRequest) returns (MonthResponse);
   rpc GetBirthHour(BirthHourRequest) returns (BirthHourResponse);
   rpc GetInfo(InfoRequest) returns (InfoResponse);
+  rpc ConvertLunarDate(LunarDateRequest) returns (LunarDateResponse);
 }
 
 // ---------------------------------------------------------------------------
@@ -607,4 +609,22 @@ message InfoRequest {}
 message InfoResponse {
   string engine_version = 1;
   string ruleset_version = 2;
+}
+
+// ---------------------------------------------------------------------------
+// ConvertLunarDate: 음력 → 양력, 윤달 유무
+// ---------------------------------------------------------------------------
+
+// 한국 음력(KASI 기준, D41) 날짜. date가 없으면 INVALID_ARGUMENT.
+message LunarDateRequest {
+  LocalDate date = 1; // 음력 연·월·일
+  bool is_leap_month = 2;
+}
+
+// 없는 음력 날짜(그해에 없는 윤달, 그 달에 없는 날)는 INVALID_ARGUMENT,
+// 음력 연도나 변환한 양력이 지원 범위(양력 1900-01-31 ~ 2099-12-31) 밖이면 OUT_OF_RANGE.
+message LunarDateResponse {
+  LocalDate solar = 1; // 양력 날짜
+  bool month_has_leap = 2; // 그해 그 음력 달 뒤에 같은 이름의 윤달이 있는지
+  ResponseMeta meta = 3;
 }
