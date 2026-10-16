@@ -11,6 +11,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
@@ -28,18 +29,46 @@ Finder _inSheet(Finder finder) => find.descendant(
 );
 
 /// [scenario]로 앱을 띄우고 오늘 화면에서 [date]의 그날 시트를 엽니다.
+///
+/// [beforeOpen]은 시트를 열기 직전에 불립니다(요청을 붙잡는 interceptor를 끼울 때). 응답을
+/// 붙잡았으면 [allowOngoing]을 true로 줍니다(skeleton이 계속 숨 쉼).
 Future<ProviderContainer> _openDaySheet(
   WidgetTester tester,
   CalendarDate date, {
   String scenario = 'member',
+  void Function(ProviderContainer container)? beforeOpen,
+  bool allowOngoing = false,
 }) async {
   final container = await pumpApp(tester, scenario: scenario);
   await settleWithIo(tester);
+  beforeOpen?.call(container);
   final context = tester.element(find.byKey(const ValueKey(ScreenIds.today)));
   unawaited(container.read(daySheetsProvider).open(context, date));
-  await settleWithIo(tester);
+  await settleWithIo(tester, allowOngoing: allowOngoing);
   expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
   return container;
+}
+
+/// 대역 서버 앞에 [interceptor]를 끼웁니다(대역 서버는 항상 마지막).
+void _insertBeforeFake(ProviderContainer container, Interceptor interceptor) {
+  final interceptors = container.read(dioProvider).interceptors;
+  interceptors.insert(interceptors.length - 1, interceptor);
+}
+
+/// `/v1/calendar/` 요청을 [gate]가 끝날 때까지 붙잡습니다.
+final class _CalendarHold extends Interceptor {
+  final gate = Completer<void>();
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (options.path.startsWith('/v1/calendar/')) {
+      await gate.future;
+    }
+    handler.next(options);
+  }
 }
 
 /// `/v1/diaries/`에 쓴 일기(200)로 답합니다.
@@ -175,8 +204,50 @@ void main() {
 
     await tester.tap(_inSheet(find.byType(TermToken)));
     await settleWithIo(tester);
-    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
     expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
+    // day-sheet의 깊이는 explain까지라 근거 보기가 없고 근거 시트로 가지 않습니다.
+    expect(
+      find.descendant(of: explain, matching: find.byType(DepthLink)),
+      findsNothing,
+    );
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
+  });
+
+  testWidgets('today: 용어 칩 → 풀이 시트에는 근거 보기가 그대로 있습니다', (tester) async {
+    await pumpApp(tester, scenario: 'member');
+    await settleWithIo(tester);
+
+    await tester.tap(find.byType(TermToken).first);
+    await settleWithIo(tester);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
+    expect(
+      find.descendant(of: explain, matching: find.byType(DepthLink)),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('loading: 달 길흉을 기다리는 동안 skeleton, 오면 내용', (tester) async {
+    covers(const Covers(states: ['day-sheet:loading']));
+    final hold = _CalendarHold();
+    await _openDaySheet(
+      tester,
+      CalendarDate(2026, 10, 13),
+      beforeOpen: (container) => _insertBeforeFake(container, hold),
+      allowOngoing: true,
+    );
+
+    expect(
+      _inSheet(find.byKey(const ValueKey('screen-state.loading'))),
+      findsOneWidget,
+    );
+    expect(_inSheet(find.byType(DayCharacter)), findsNothing);
+
+    hold.gate.complete();
+    await settleWithIo(tester);
+    expect(_inSheet(find.byType(DayCharacter)), findsOneWidget);
   });
 
   testWidgets('calendar-error: 오류 화면과 다시 시도', (tester) async {

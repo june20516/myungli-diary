@@ -565,6 +565,58 @@ void main() {
       expect(_listCount(server), 1);
     });
 
+    test('그 날을 품은 격자를 아직 받는 중이면 하루 범위를 따로 받지 않고 기다립니다', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      final gate = server.holdNextGet();
+      final grid = container.listen(
+        schedulesInRangeProvider(_octoberGrid),
+        (_, _) {},
+      );
+      addTearDown(grid.close);
+      for (var i = 0; i < 50 && _listCount(server) == 0; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(_listCount(server), 1);
+
+      final provider = schedulesOnDateProvider(CalendarDate(2026, 10, 20));
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      for (var i = 0; i < 20; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(container.read(provider).isLoading, isTrue);
+      expect(_listCount(server), 1);
+
+      gate.complete();
+      final day = await onDate(container, CalendarDate(2026, 10, 20));
+      expect(day.value!.map((s) => s.id), ['dentist']);
+      expect(_listCount(server), 1);
+    });
+
+    test('격자를 받지 못했으면 그 날 하루 범위를 받습니다', () async {
+      final server = ScheduleTestServer()..offline = true;
+      final container = _container(server);
+      final grid = container.listen(
+        schedulesInRangeProvider(_octoberGrid),
+        (_, _) {},
+      );
+      addTearDown(grid.close);
+      await expectLater(
+        container.read(schedulesInRangeProvider(_octoberGrid).future),
+        throwsA(isA<AppError>()),
+      );
+      server.offline = false;
+
+      final day = await onDate(container, CalendarDate(2026, 10, 20));
+
+      expect(day.value!.map((s) => s.id), ['dentist']);
+      expect(server.requestsOf('GET', '/v1/schedules').single.queryParameters, {
+        'from': '2026-10-20',
+        'to': '2026-10-20',
+      });
+    });
+
     test('격자 범위에서 고른 날도 저장 뒤 다시 받은 목록을 따릅니다', () async {
       final server = ScheduleTestServer();
       final container = _container(server);

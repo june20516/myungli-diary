@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
+import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
-import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
@@ -29,11 +32,12 @@ import 'package:myungli_diary/features/schedule/application/schedule_providers.d
 /// * 날의 성격은 달 길흉의 그 날([calendarDayProvider])입니다(getDaily를 부르지 않음).
 ///   기다리는 동안 skeleton(`loading`), 받지 못하면 오류 화면과 다시 시도(`error`)입니다.
 /// * 일정은 [schedulesOnDateProvider]의 하루 일정(하루 종일 먼저, 시각순)입니다. 없으면
-///   빈 문장과 일정 추가(`empty`), 받지 못하면 빈 문장 없이 일정 추가만 둡니다(없다고 말하지
-///   않게).
+///   빈 문장과 일정 추가(`empty`), 받지 못하면 빈 문장 대신 조용한 오류 한 줄과 다시 시도,
+///   일정 추가를 둡니다(없다고 말하지 않게).
 /// * 일기 입구는 오늘·지난 날만이고(D49) 일기가 있으면 보기, 없으면 쓰기입니다. 미래 날은
 ///   묻지도 그리지도 않습니다.
-/// * 이유 문장의 용어는 칩이고(V28) 풀이 시트를 위로 쌓습니다. 시트에는 광고 배너가
+/// * 이유 문장의 용어는 칩이고(V28) 풀이 시트를 위로 쌓습니다. day-sheet의 깊이는
+///   `surface`·`explain`까지라 그 풀이 시트에는 근거 보기가 없습니다. 시트에는 광고 배너가
 ///   없습니다(D53).
 class DaySheetBody extends ConsumerWidget {
   /// [date]의 그날 시트 본문을 만듭니다.
@@ -102,11 +106,7 @@ class _DaySheetContent extends ConsumerWidget {
             slotId: SlotIds.daySheetCharacterReason,
             onTerm: (termId) => ref
                 .read(depthSheetsProvider)
-                .openExplain(
-                  context,
-                  termId: termId,
-                  sourceSlotId: reason.slot,
-                ),
+                .openExplain(context, termId: termId),
           ),
           const SizedBox(height: Space.s24),
           _ScheduleSection(date: date),
@@ -127,27 +127,27 @@ class _ScheduleSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final schedules = ref.watch(schedulesOnDateProvider(date));
-    void add() => _push(
-      context,
-      Uri(
-        path: pathOf(ScreenIds.eventEdit),
-        queryParameters: {'date': date.toIso()},
-      ).toString(),
-    );
+    void add() => _push(context, datedPathOf(ScreenIds.eventEdit, date));
     final addButton = PrimaryButton(
       label: l10n.daySheetEventAdd,
       onPressed: add,
       variant: PrimaryButtonVariant.quiet,
       identifier: SlotIds.daySheetEventAdd,
     );
-    // 로그아웃 뒤에는 loading이면서 빈 목록을 들고 있으므로 isLoading을 값보다 먼저 봅니다.
-    if (schedules.isLoading) {
-      return const SkeletonBlock(lines: 2);
+    // 다시 받는 중에는 들고 있던 목록을 그대로 보입니다(깜빡이지 않게). 로그아웃은 범위를 빈
+    // 목록으로 덮은 뒤 다시 받으므로 이전 계정 일정이 남지 않습니다.
+    if (schedules.isLoading && !schedules.hasValue) {
+      return const _ScheduleSkeleton();
     }
     final list = schedules.value;
     if (list == null) {
-      // 받지 못함: 일정이 없다고 말하지 않고 추가만 둡니다.
-      return addButton;
+      return _ScheduleError(
+        error: schedules.error,
+        // 값 없이 실패한 격자는 고르지 않으므로, 실패는 그 날 하루 범위입니다.
+        onRetry: () =>
+            ref.invalidate(schedulesInRangeProvider((from: date, to: date))),
+        addButton: addButton,
+      );
     }
     if (list.isEmpty) {
       return EventRowListEmpty(
@@ -179,7 +179,56 @@ class _ScheduleSection extends ConsumerWidget {
       _push(context, pathOf(ScreenIds.eventEdit), extra: schedule);
 }
 
-/// 일기 입구(오늘·지난 날). 일기 여부를 아는 동안에는 자리를 비웁니다.
+/// 일정을 받지 못했을 때: 오류 종류에 맞는 조용한 한 줄, 다시 시도, 일정 추가.
+///
+/// 시트 전체의 `error`(날의 성격을 못 받음)와 달리 목록 자리만의 표시입니다. 모양은 임시이고
+/// design 확인 대기입니다(#218).
+class _ScheduleError extends StatelessWidget {
+  const new({
+    required this.error,
+    required this.onRetry,
+    required this.addButton,
+  });
+
+  static const Key messageKey = ValueKey('day-sheet.event.error');
+
+  final Object? error;
+  final VoidCallback onRetry;
+  final Widget addButton;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final tokens = context.tokens;
+    final cause = error;
+    final appError = cause is AppError
+        ? cause
+        : UnexpectedError(cause ?? 'unknown');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: Space.s4,
+      children: [
+        Text(
+          errorMessage(l10n, appError),
+          key: messageKey,
+          textAlign: TextAlign.center,
+          style: tokens.typography.captionLg.copyWith(
+            color: tokens.colors.textSecondary,
+          ),
+        ),
+        PrimaryButton(
+          label: l10n.actionRetry,
+          onPressed: onRetry,
+          variant: PrimaryButtonVariant.quiet,
+        ),
+        addButton,
+      ],
+    );
+  }
+}
+
+/// 일기 입구(오늘·지난 날). 일기 여부를 묻는 동안은 링크 한 줄 자리를 skeleton으로 잡아 두어,
+/// 답이 와도 시트 높이가 바뀌지 않게 합니다.
 class _DiaryEntry extends ConsumerWidget {
   const new({required this.date});
 
@@ -190,7 +239,7 @@ class _DiaryEntry extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final written = ref.watch(diaryExistsOnProvider(date)).value;
     if (written == null) {
-      return const SizedBox.shrink();
+      return const _LinkSkeleton();
     }
     return DepthLink(
       variant: DepthLinkVariant.navigate,
@@ -209,13 +258,7 @@ class _DiaryEntry extends ConsumerWidget {
     required bool written,
   }) async {
     final target = written ? ScreenIds.diaryView : ScreenIds.diaryEdit;
-    await _push(
-      context,
-      Uri(
-        path: pathOf(target),
-        queryParameters: {'date': date.toIso()},
-      ).toString(),
-    );
+    await _push(context, datedPathOf(target, date));
     if (!context.mounted) {
       return;
     }
@@ -232,41 +275,106 @@ class _DiaryEntry extends ConsumerWidget {
 Future<void> _push(BuildContext context, String location, {Object? extra}) =>
     context.push<void>(location, extra: extra);
 
-/// 날의 성격 배지·이유 두 줄·일정 두 줄 자리의 skeleton.
-class _DaySheetSkeleton extends StatelessWidget {
+/// [style] 글줄 하나의 높이(기기 글자 크기 반영)와 그 안의 뼈 높이(글자 몸통, 0.6).
+({double line, double bone}) _lineMetrics(
+  BuildContext context,
+  TextStyle style,
+) {
+  final fontSize = MediaQuery.textScalerOf(context).scale(style.fontSize ?? 16);
+  final line = fontSize * (style.height ?? 1.5);
+  return (line: line, bone: line * 0.6);
+}
+
+/// 일기 링크(`depth-link` `navigate`) 한 줄 자리. 위 여백과 글줄 높이가 링크와 같습니다.
+class _LinkSkeleton extends StatelessWidget {
   const new();
 
-  static const double _badgeWidth = 64;
-  static const double _badgeHeight = 26;
-  static const double _lineHeight = 14;
-  static const double _rowHeight = 48;
+  static const Key skeletonKey = ValueKey('day-sheet.diary.skeleton');
+
+  /// 링크 글자 폭의 어림(줄 너비 대비).
+  static const double _widthFactor = 0.3;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final metrics = _lineMetrics(context, context.tokens.typography.labelLg);
+    return Padding(
+      key: skeletonKey,
+      padding: const EdgeInsets.only(top: Space.s12),
+      child: SizedBox(
+        height: metrics.line,
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: FractionallySizedBox(
+            widthFactor: _widthFactor,
+            child: SkeletonBone(height: metrics.bone, borderRadius: Radii.xs),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 일정 두 줄(`event-row` `list` 최소 높이) 자리.
+class _ScheduleSkeleton extends StatelessWidget {
+  const new({this.firstIndex = 0});
+
+  /// 첫 뼈의 숨쉬기 순서. 시트 skeleton 안에서는 앞 뼈들 다음 순서입니다.
+  final int firstIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: Space.s8,
+      children: [
+        for (var i = 0; i < 2; i++)
+          SkeletonBone(
+            height: EventRow.minHeight,
+            borderRadius: Radii.xs,
+            index: firstIndex + i,
+          ),
+      ],
+    );
+  }
+}
+
+/// 날의 성격 배지·이유 두 줄·일정 두 줄 자리의 skeleton. 크기는 실제 요소(배지·문장 글줄·
+/// 일정 줄)에서 가져옵니다.
+class _DaySheetSkeleton extends StatelessWidget {
+  const new();
+
+  /// 이유 문장 마지막 줄의 너비 비율.
+  static const double _lastLineFactor = 0.6;
+
+  @override
+  Widget build(BuildContext context) {
+    final metrics = _lineMetrics(
+      context,
+      context.tokens.typography.sentenceBody,
+    );
+    final gap = metrics.line - metrics.bone;
+    return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SkeletonBone(
-          width: _badgeWidth,
-          height: _badgeHeight,
+        const SkeletonBone(
+          width: DayReadingSkeleton.badgeWidth,
+          height: DayCharacterBadge.minHeight,
           borderRadius: Radii.full,
         ),
-        SizedBox(height: Space.s16),
-        SkeletonBone(height: _lineHeight, borderRadius: Radii.xs, index: 1),
-        SizedBox(height: Space.s8),
+        const SizedBox(height: Space.s12),
+        SkeletonBone(height: metrics.bone, borderRadius: Radii.xs, index: 1),
+        SizedBox(height: gap),
         FractionallySizedBox(
-          widthFactor: 0.6,
+          widthFactor: _lastLineFactor,
           child: SkeletonBone(
-            height: _lineHeight,
+            height: metrics.bone,
             borderRadius: Radii.xs,
             index: 2,
           ),
         ),
-        SizedBox(height: Space.s24),
-        SkeletonBone(height: _rowHeight, borderRadius: Radii.xs, index: 3),
-        SizedBox(height: Space.s8),
-        SkeletonBone(height: _rowHeight, borderRadius: Radii.xs, index: 4),
+        SizedBox(height: Space.s24 - gap),
+        const _ScheduleSkeleton(firstIndex: 3),
       ],
     );
   }

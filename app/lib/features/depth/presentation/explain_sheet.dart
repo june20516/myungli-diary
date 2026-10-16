@@ -18,27 +18,31 @@ typedef _ExplainContent = ({String title, RenderedText? meaning});
 /// 값만 넘깁니다.
 /// 사전을 받는 동안은 skeleton, 실패하거나 사전에 없는 용어면 오류 화면과 다시 시도입니다.
 class ExplainSheet extends ConsumerWidget {
-  /// [termId] 용어의 풀이를 보입니다. [sourceSlotId]는 그 용어가 들어 있던 writing 슬롯 id입니다.
-  const new({required this.termId, required this.sourceSlotId, super.key});
+  /// [termId] 용어의 풀이를 보입니다. [sourceSlotId]는 그 용어가 들어 있던 writing 슬롯 id이고,
+  /// null이면 근거로 이어지지 않는 곳(그날 시트)에서 연 것이라 근거 보기를 두지 않습니다.
+  const new({required this.termId, this.sourceSlotId, super.key});
 
   /// 용어 id(`<범주>.<값>`).
   final String termId;
 
-  /// 용어가 눌린 슬롯 id. "근거 보기"가 이 슬롯의 근거를 엽니다.
-  final String sourceSlotId;
+  /// 용어가 눌린 슬롯 id. "근거 보기"가 이 슬롯의 근거를 엽니다. null이면 근거 보기가 없습니다.
+  final String? sourceSlotId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final glossary = ref.watch(glossaryProvider);
+    final slotId = sourceSlotId;
     return ScreenStateView<_ExplainContent>(
       value: _contentOf(glossary),
       onRetry: () => ref.invalidate(glossaryProvider),
       dataWithNotice: (content, _) => ExplainSheetBody(
         title: content.title,
         meaning: content.meaning,
-        onEvidence: () => ref
-            .read(depthSheetsProvider)
-            .openEvidence(context, slotId: sourceSlotId),
+        onEvidence: slotId == null
+            ? null
+            : () => ref
+                  .read(depthSheetsProvider)
+                  .openEvidence(context, slotId: slotId),
       ),
     );
   }

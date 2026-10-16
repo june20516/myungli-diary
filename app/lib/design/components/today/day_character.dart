@@ -139,7 +139,8 @@ class DayCharacterBadge extends StatelessWidget {
   /// 배지 면을 찾는 테스트용 키.
   static const Key surfaceKey = ValueKey('day-character-badge');
 
-  static const double _minHeight = 26;
+  /// 배지 최소 높이(기본 글자 크기에서의 높이, V30). skeleton도 이 높이로 자리를 잡습니다.
+  static const double minHeight = 26;
   static const double _paddingX = 10;
 
   /// 변형.
@@ -168,7 +169,7 @@ class DayCharacterBadge extends StatelessWidget {
             : null,
       ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: _minHeight),
+        constraints: const BoxConstraints(minHeight: minHeight),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: _paddingX),
           child: Center(

@@ -6,9 +6,10 @@ import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
 
 /// 풀이 시트 본문. [termId]는 용어 id, [sourceSlotId]는 눌린 writing 슬롯 id입니다.
+/// [sourceSlotId]가 null이면 근거로 이어지지 않는 곳에서 연 것이라 근거 보기가 없습니다.
 typedef ExplainBodyBuilder = Widget Function(
   String termId,
-  String sourceSlotId,
+  String? sourceSlotId,
 );
 
 /// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id입니다.
@@ -39,10 +40,13 @@ final class DepthSheets {
   final ShareBodyBuilder shareBody;
 
   /// 풀이 시트(half)를 엽니다. [sourceSlotId]는 용어가 들어 있던 슬롯 id입니다.
+  ///
+  /// [sourceSlotId]를 주지 않으면 풀이 시트에 근거 보기가 없습니다. 그날 시트(`day-sheet`)는
+  /// IA 깊이가 `surface`·`explain`까지라 근거 시트로 이어지지 않으므로 주지 않습니다.
   Future<void> openExplain(
     BuildContext context, {
     required String termId,
-    required String sourceSlotId,
+    String? sourceSlotId,
   }) => showMyungliSheet<void>(
     context,
     size: SheetSize.half,

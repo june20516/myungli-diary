@@ -114,6 +114,19 @@ void main() {
       expect(find.text('근거 a.b'), findsOneWidget);
     });
 
+    testWidgets('근거 슬롯 없이 열면(그날 시트) 근거 보기가 없습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(termId: 'ten_god.siksin'),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('식신'), findsOneWidget);
+      expect(find.byType(DepthLink), findsNothing);
+    });
+
     testWidgets('loading: 사전을 받는 동안 skeleton이고 끝나면 내용입니다', (tester) async {
       final completer = Completer<GlossaryNames>();
       await tester.pumpWidget(_app(_sheet, glossary: () => completer.future));
@@ -232,6 +245,15 @@ void main() {
       final reason = tester.getTopLeft(find.textContaining('월지')).dy;
       final link = tester.getTopLeft(find.byType(DepthLink)).dy;
       expect(title < meaning && meaning < reason && reason < link, isTrue);
+    });
+
+    testWidgets('onEvidence가 null이면 근거 링크를 그리지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(const ExplainSheetBody(title: '식신'), glossary: () async => _names),
+      );
+
+      expect(find.text('식신'), findsOneWidget);
+      expect(find.byType(DepthLink), findsNothing);
     });
 
     testWidgets('null인 자리는 그리지 않습니다', (tester) async {

@@ -170,14 +170,15 @@ final class SchedulesInRange extends AsyncNotifier<List<Schedule>> {
 /// 하루(`date`)의 일정, [inDayOrder] 순서(`day-sheet` 목록).
 ///
 /// 같은 날을 두 번 받지 않습니다. 메모리에 들고 있는 여러 날 범위(달력 격자) 중 그 날을 품고
-/// 값이 있는 범위가 있으면 그 범위를 구독해 그 날만 거르고, 없으면 그 날 하루 범위
-/// (`from == to`)를 받습니다(A34). 고른 범위의 상태(loading·error·값)를 그대로 옮기므로,
-/// 로그아웃 뒤의 loading과 빈 목록도 그대로 보입니다. 쓰는 쪽은 `isLoading`을 값보다 먼저
-/// 봅니다. 저장이 성공하면 [ScheduleEditor]가 그 날을 품은 범위를 다시 받으므로 여기도 따라 바뀝니다.
+/// 값이 있거나 아직 받는 중인 범위가 있으면 그 범위를 구독해 그 날만 거릅니다. 받는 중이면
+/// 따로 받지 않고 그 응답을 기다립니다. 그런 범위가 없거나 격자를 받지 못했으면 그 날 하루
+/// 범위(`from == to`)를 받습니다(A34). 고른 범위의 상태(loading·error·값)를 그대로 옮깁니다.
+/// 고른 범위의 상태가 바뀌면 다시 고르므로, 기다리던 격자가 실패하면 하루 범위로 넘어갑니다.
+/// 저장이 성공하면 [ScheduleEditor]가 그 날을 품은 범위를 다시 받으므로 여기도 따라 바뀝니다.
 final ProviderFamily<AsyncValue<List<Schedule>>, CalendarDate>
 schedulesOnDateProvider = Provider.autoDispose
     .family<AsyncValue<List<Schedule>>, CalendarDate>((ref, date) {
-      final range = _heldRangeWithValue(ref, date) ?? (from: date, to: date);
+      final range = _heldGridFor(ref, date) ?? (from: date, to: date);
       final iso = date.toIso();
       return ref
           .watch(schedulesInRangeProvider(range))
@@ -187,11 +188,16 @@ schedulesOnDateProvider = Provider.autoDispose
           );
     });
 
-/// [date]를 품고 값을 가진, 들고 있는 여러 날 범위. 없으면 null입니다.
-ScheduleRange? _heldRangeWithValue(Ref ref, CalendarDate date) {
+/// [date]를 품고 값이 있거나 받는 중인, 들고 있는 여러 날 범위. 없으면 null입니다.
+///
+/// 값 없이 실패한 범위는 고르지 않습니다(그 날은 하루 범위로 따로 받음).
+ScheduleRange? _heldGridFor(Ref ref, CalendarDate date) {
   for (final range in ref.read(_heldRangesProvider).containingAny([date])) {
-    if (range.from != range.to &&
-        ref.read(schedulesInRangeProvider(range)).hasValue) {
+    if (range.from == range.to) {
+      continue;
+    }
+    final state = ref.read(schedulesInRangeProvider(range));
+    if (state.hasValue || !state.hasError) {
       return range;
     }
   }

@@ -122,8 +122,9 @@ Widget _evidence(DepthLinkState state, {bool loading = false}) {
   );
 }
 
-/// 풀이 시트 내용: 뜻·이유가 있을 때와 계약에 없어 자리가 없을 때.
-Widget _explain({required bool withText}) => SizedBox(
+/// 풀이 시트 내용: 뜻·이유가 있을 때와 계약에 없어 자리가 없을 때. [evidence]가 false면
+/// 근거 보기 링크가 없습니다(그날 시트에서 열었을 때).
+Widget _explain({required bool withText, bool evidence = true}) => SizedBox(
   height: 420,
   child: Padding(
     padding: const EdgeInsets.symmetric(horizontal: Space.s20),
@@ -133,7 +134,7 @@ Widget _explain({required bool withText}) => SizedBox(
       todayReason: withText
           ? _text([Segment(text: '오늘은 월지와 닿아 말문이 트이기 쉬워요.')])
           : null,
-      onEvidence: () {},
+      onEvidence: evidence ? () {} : null,
     ),
   ),
 );
@@ -196,6 +197,15 @@ void main() {
       );
     });
   }
+
+  goldenTest('explain-sheet 내용: 근거 보기 없음(그날 시트)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'sentence_explain_no_evidence',
+      () => _explain(withText: true, evidence: false),
+      settle: _settle,
+    );
+  });
 
   goldenTest('reaction-button: off·on', (tester) async {
     await goldenMatrix(

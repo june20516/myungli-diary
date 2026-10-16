@@ -35,6 +35,7 @@ import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/calendar/presentation/day_sheet_body.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 
 import '../../support/schedule_test_server.dart';
 
@@ -225,16 +226,13 @@ void main() {
       expect(find.byType(AdBannerFrame), findsNothing);
     });
 
-    testWidgets('용어 칩을 누르면 풀이 시트가 위로 쌓입니다', (tester) async {
+    testWidgets('용어 칩을 누르면 근거 슬롯 없이(근거 보기 없음) 풀이 시트가 위로 쌓입니다', (tester) async {
       await _open(tester, CalendarDate(2026, 10, 12));
 
       await tester.tap(find.byType(TermToken));
       await tester.pumpAndSettle();
 
-      expect(
-        find.text('풀이 tag.cheoneul_gwiin character.reason'),
-        findsOneWidget,
-      );
+      expect(find.text('풀이 tag.cheoneul_gwiin null'), findsOneWidget);
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
       expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
     });
@@ -291,17 +289,75 @@ void main() {
       expect(find.text('uri /event-edit?date=2026-10-14'), findsOneWidget);
     });
 
-    testWidgets('일정을 받지 못하면 빈 문장 없이 일정 추가만 둡니다', (tester) async {
+    testWidgets('일정을 받지 못하면 빈 문장 대신 오류 한 줄·다시 시도·일정 추가', (tester) async {
       final server = ScheduleTestServer()..offline = true;
       await _open(tester, _today, server: server);
 
       expect(find.byType(EventRow), findsNothing);
       expect(find.text(_ko.daySheetEventEmpty), findsNothing);
+      expect(find.text(_ko.errorOffline), findsOneWidget);
       expect(
         find.bySemanticsIdentifier(SlotIds.daySheetEventAdd),
         findsOneWidget,
       );
       expect(find.byType(ErrorState), findsNothing);
+
+      server.offline = false;
+      await tester.tap(find.text(_ko.actionRetry));
+      await tester.pumpAndSettle();
+      expect(_rowTitles(tester), ['엄마 생신', '팀 주간 회의', '요가 수업']);
+      expect(find.text(_ko.errorOffline), findsNothing);
+    });
+
+    testWidgets('일정 범위를 다시 받는 동안에도 들고 있던 목록을 그대로 보입니다', (tester) async {
+      final server = ScheduleTestServer(seed: _shuffledSchedules());
+      final harness = await _open(tester, _today, server: server);
+      final gate = server.holdNextGet();
+
+      ProviderScope.containerOf(harness.context)
+          .invalidate(schedulesInRangeProvider((from: _today, to: _today)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(_rowTitles(tester), ['엄마 생신', '팀 주간 회의', '요가 수업']);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(_rowTitles(tester), ['엄마 생신', '팀 주간 회의', '요가 수업']);
+    });
+
+    testWidgets('일기 여부를 묻는 동안 링크 자리를 잡아 두어 높이가 바뀌지 않습니다', (tester) async {
+      final answer = Completer<bool>();
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final harness = _Harness(
+        server: ScheduleTestServer(),
+        calendar: () async => _october(),
+        diaryExists: (_) => answer.future,
+      );
+      addTearDown(harness.router.dispose);
+      await tester.pumpWidget(harness.app());
+      final container = ProviderScope.containerOf(harness.context);
+      unawaited(
+        container.read(daySheetsProvider).open(harness.context, _today),
+      );
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      const skeleton = ValueKey('day-sheet.diary.skeleton');
+      expect(find.byKey(skeleton), findsOneWidget);
+      final reserved = tester.getSize(find.byKey(skeleton)).height;
+
+      answer.complete(false);
+      await tester.pumpAndSettle();
+      expect(find.byKey(skeleton), findsNothing);
+      // 글줄 높이는 글꼴의 반올림만큼(1px 미만) 다를 수 있습니다.
+      expect(
+        tester.getSize(find.byType(DepthLink)).height,
+        closeTo(reserved, 1),
+      );
     });
 
     testWidgets('지난 날에 일기가 있으면 일기 보기 → 그날 diary-view', (tester) async {

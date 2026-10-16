@@ -25,7 +25,7 @@ const _sheets = DepthSheets(
 /// 시트 높이가 최대치까지 차도록 긴 본문을 만듭니다.
 Widget _tall(String label) => SizedBox(height: 4000, child: Text(label));
 
-Widget _explain(String termId, String sourceSlotId) =>
+Widget _explain(String termId, String? sourceSlotId) =>
     _tall('풀이 $termId $sourceSlotId');
 Widget _evidence(String slotId) => _tall('근거 $slotId');
 Widget _share() => _tall('공유');

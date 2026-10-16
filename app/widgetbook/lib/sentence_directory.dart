@@ -160,6 +160,18 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
             ),
           ),
         ),
+        WidgetbookUseCase(
+          name: '근거 보기 없음(그날 시트에서 열었을 때)',
+          builder: (context) => Stage(
+            child: SizedBox(
+              height: 300,
+              child: ExplainSheetBody(
+                title: '식신',
+                meaning: _line('내가 낳은 것을 표현하는 기운이에요.'),
+              ),
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(

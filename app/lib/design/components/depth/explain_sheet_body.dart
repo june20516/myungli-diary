@@ -10,7 +10,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 풀이 시트의 내용(`explain-sheet`). 시트 틀(`sheet` `half`) 안에 놓습니다.
 ///
-/// 제목 → 용어 뜻 → 오늘 그런 이유 → 근거 보기 링크 순서입니다. 오늘 그런 이유는 오늘 화면에서
+/// 제목 → 용어 뜻 → 오늘 그런 이유 → 근거 보기 링크 순서입니다. [onEvidence]가 null이면 근거 링크를
+/// 그리지 않습니다(그날 시트처럼 근거 시트로 이어지지 않는 곳에서 열었을 때). 오늘 그런 이유는 오늘 화면에서
 /// 열었을 때만 있으므로 [meaning]·[todayReason]은 각각 `null`이어도 됩니다. `null`이면 그
 /// 자리를 그리지 않습니다(결정 A22). 계약에 뜻·이유 필드가 들어오면 호출하는 쪽이 값만
 /// 넘기며, 나의 사주·일기 태그 화면도 같은 시트 본문을 씁니다.
@@ -18,7 +19,7 @@ class ExplainSheetBody extends StatelessWidget {
   /// 풀이 시트 내용을 만듭니다.
   const new({
     required this.title,
-    required this.onEvidence,
+    this.onEvidence,
     this.meaning,
     this.todayReason,
     super.key,
@@ -33,14 +34,15 @@ class ExplainSheetBody extends StatelessWidget {
   /// 오늘 그런 이유(`explain-sheet.today.reason`). 오늘 화면에서 열지 않았거나 계약에 없으면 `null`입니다.
   final RenderedText? todayReason;
 
-  /// "근거 보기"를 눌렀을 때(근거 시트 열기).
-  final VoidCallback onEvidence;
+  /// "근거 보기"를 눌렀을 때(근거 시트 열기). null이면 근거 링크가 없습니다.
+  final VoidCallback? onEvidence;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final meaning = this.meaning;
     final todayReason = this.todayReason;
+    final onEvidence = this.onEvidence;
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -72,11 +74,12 @@ class ExplainSheetBody extends StatelessWidget {
                 slotId: SlotIds.explainSheetTodayReason,
               ),
             ),
-          DepthLink(
-            variant: DepthLinkVariant.block,
-            label: AppLocalizations.of(context).depthLinkEvidence,
-            onTap: onEvidence,
-          ),
+          if (onEvidence != null)
+            DepthLink(
+              variant: DepthLinkVariant.block,
+              label: AppLocalizations.of(context).depthLinkEvidence,
+              onTap: onEvidence,
+            ),
         ],
       ),
     );
