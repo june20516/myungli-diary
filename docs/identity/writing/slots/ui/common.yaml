@@ -54,6 +54,8 @@
     - errorPreviewUsed
     - errorRouteNotFound
     - errorDiaryNotFound
+    - errorReactionNotFound
+    - errorScheduleNotFound
     - errorMethodNotAllowed
     - errorProfileRequired
     - errorDiaryDateTaken
@@ -63,6 +65,7 @@
     - errorDateOutOfRange
     - errorBirthOutOfRange
     - errorDateInvalid
+    - errorRangeTooLong
     - errorRequestInconsistent
     - errorBirthInvalid
     - errorDiaryFutureDate
