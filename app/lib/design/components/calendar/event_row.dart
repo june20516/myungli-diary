@@ -320,38 +320,34 @@ class EventRow extends StatelessWidget {
         ),
       ],
     );
+    // 시각 글자는 줄이지 않습니다. 배율 그대로 칸에 들어가면 58 고정 칸(하루 종일도
+    // 같은 폭), 들어가지 않으면 시각 / 제목·화살표 두 줄로 내립니다. 판정은 칸 폭(고정값)과
+    // 글자 폭만 보므로 부모 제약이 필요 없습니다.
+    // 큰 글자 처리는 임시, design 확인 대기 #218.
+    final timeFits =
+        _textWidth(context, timeText, timeStyle) <=
+        timeColumnWidth - timeColumnGap;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Space.s8),
-      child: LayoutBuilder(
-        builder: (context, _) {
-          final timeFits =
-              _textWidth(context, timeText, timeStyle) <=
-              timeColumnWidth - timeColumnGap;
-          // 시각 글자는 줄이지 않습니다. 배율 그대로 칸에 들어가면 58 고정 칸(하루 종일도
-          // 같은 폭), 들어가지 않으면 시각 / 제목·화살표 두 줄로 내립니다.
-          // 큰 글자 처리는 임시, design 확인 대기 #218.
-          if (!timeFits) {
-            return Column(
+      child: timeFits
+          ? Row(
+              children: [
+                SizedBox(
+                  key: timeColumnKey,
+                  width: timeColumnWidth,
+                  child: Text(timeText, maxLines: 1, style: timeStyle),
+                ),
+                Expanded(child: titleAndChevron),
+              ],
+            )
+          : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: Space.s4,
               children: [
                 Text(timeText, key: timeColumnKey, style: timeStyle),
                 titleAndChevron,
               ],
-            );
-          }
-          return Row(
-            children: [
-              SizedBox(
-                key: timeColumnKey,
-                width: timeColumnWidth,
-                child: Text(timeText, maxLines: 1, style: timeStyle),
-              ),
-              Expanded(child: titleAndChevron),
-            ],
-          );
-        },
-      ),
+            ),
     );
   }
 }
