@@ -41,8 +41,8 @@ type Value struct {
 }
 
 // Names는 범주 이름 사전(glossary.value_name)입니다.
-// 범주를 바꿔 읽는 값(예 color는 element와 같은 값 집합, ten_god_group은 십성이 속한 그룹)의
-// 대응은 구현체가 맡습니다. 렌더러는 받은 Enum 값을 그대로 넘깁니다.
+// 기본이 아닌 범주로 읽는 값의 대응(color, ten_god_group)은 렌더러가 먼저 끝내므로,
+// 구현체는 대응된 "<범주>.<값>"의 이름만 찾으면 됩니다.
 type Names interface {
 	// ValueName은 "<범주>.<값>"의 이름을 돌려줍니다. 사전에 없으면 false입니다.
 	ValueName(category, value string) (string, bool)
@@ -154,6 +154,10 @@ func (r *renderer) substitute(body string) error {
 
 // writeToken은 토큰의 보이는 글자를 쓰고 그 구간과 용어 id를 기억합니다.
 // 용어 id는 직접 적은 것이 우선이고, 없으면 [[{param}]]의 값에서 구하며, 둘 다 없으면 빈 문자열입니다.
+//
+// bare [[글자]]는 실행 중에 이름 사전을 역조회하지 않으므로 용어 id가 없고 평문으로 나갑니다
+// (plan P4-5: 역조회는 시드 변환 때 끝냅니다). 변환은 이름 원고가 갖춰진 언어의 토큰을 모두
+// [[글자|용어 id]]로 바꾸므로, bare 토큰은 이름 원고가 덜 찬 언어에서만 남습니다.
 func (r *renderer) writeToken(tok token) error {
 	start := r.out.Len()
 	term := strings.TrimSpace(tok.term)
@@ -238,11 +242,46 @@ func (r *renderer) categoryValue(ph placeholder, kind seed.ParamKind, val Value)
 	if !contains(kind.Categories, category) {
 		return "", "", fmt.Errorf("매개변수 %q에 쓸 수 없는 범주 %q입니다", ph.name, category)
 	}
-	name, err := r.valueName(category, val.Enum)
+	mapped, err := mapCategoryValue(category, val.Enum)
 	if err != nil {
 		return "", "", err
 	}
-	return name, category + "." + val.Enum, nil
+	name, err := r.valueName(category, mapped)
+	if err != nil {
+		return "", "", err
+	}
+	return name, category + "." + mapped, nil
+}
+
+// tenGodGroups는 십성 값 -> 그룹 값입니다(엔진 TenGod.group, 가이드 honorific-josa.md의 값 종류별 렌더).
+// 그룹 id는 slots/content/glossary.yaml의 ten_god_group.* 목록입니다.
+var tenGodGroups = map[string]string{
+	"bigyeon":   "bigyeop",
+	"geopjae":   "bigyeop",
+	"siksin":    "siksang",
+	"sanggwan":  "siksang",
+	"pyeonjae":  "jaeseong",
+	"jeongjae":  "jaeseong",
+	"pyeongwan": "gwanseong",
+	"jeonggwan": "gwanseong",
+	"pyeonin":   "inseong",
+	"jeongin":   "inseong",
+}
+
+// mapCategoryValue는 매개변수의 enum 값을 고른 범주의 값으로 옮깁니다.
+// 이름 조회와 용어 id가 같은 값을 쓰도록 한 곳에서만 계산합니다.
+//   - color: element와 같은 값 집합이라 그대로입니다.
+//   - ten_god_group: 십성이 속한 그룹입니다. 십성이 아니면 오류입니다.
+//   - 그 밖의 범주: 값이 그대로입니다.
+func mapCategoryValue(category, value string) (string, error) {
+	if category != "ten_god_group" {
+		return value, nil
+	}
+	group, ok := tenGodGroups[value]
+	if !ok {
+		return "", fmt.Errorf("범주 %s로 옮길 수 없는 값 %q입니다", category, value)
+	}
+	return group, nil
 }
 
 // listValue는 목록의 원소마다 이름으로 바꿔 ", "로 잇습니다. 목록에는 범주를 붙일 수 없습니다.

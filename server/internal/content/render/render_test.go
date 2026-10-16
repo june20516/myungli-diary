@@ -19,17 +19,18 @@ func (f fakeNames) ValueName(category, value string) (string, bool) {
 }
 
 var testNames = fakeNames{
-	"ten_god.siksin":   "식신",
-	"element.wood":     "목",
-	"color.wood":       "초록",
-	"branch.ja":        "자",
-	"branch.o":         "오",
-	"day_kind.growth":  "성장하는 날",
-	"day_kind.restful": "쉬어 가는 날",
+	"ten_god.siksin":        "식신",
+	"element.wood":          "목",
+	"color.wood":            "초록",
+	"branch.ja":             "자",
+	"branch.o":              "오",
+	"day_kind.growth":       "growth day",
+	"day_kind.restful":      "restful day",
+	"ten_god_group.siksang": "식상",
 }
 
 var testKinds = map[string]seed.ParamKind{
-	"ten_god":  {Kind: seed.KindCategory, Categories: []string{"ten_god"}},
+	"ten_god":  {Kind: seed.KindCategory, Categories: []string{"ten_god", "ten_god_group"}},
 	"element":  {Kind: seed.KindCategory, Categories: []string{"element", "color"}},
 	"branches": {Kind: seed.KindList, ListCategory: "branch"},
 	"score":    {Kind: seed.KindNumber},
@@ -64,6 +65,8 @@ func TestRender_TermSegmentsAfterJosaLengthChange(t *testing.T) {
 	}, segs)
 }
 
+// bare [[글자]]는 실행 중에 역조회하지 않으므로(plan P4-5, 변환 때 끝냄) 용어 id가 없고 평문입니다.
+// 이름 원고가 덜 찬 언어에서만 남는 형태입니다.
 func TestRender_BareTokenHasNoTerm(t *testing.T) {
 	segs := mustRender(t, Input{Lang: "ko", Body: "[[편관]]이 와요."})
 	// 용어 id가 없으면 조각을 나눌 이유가 없어 한 조각입니다.
@@ -122,7 +125,7 @@ func TestRender_VocativeDroppedWithoutName(t *testing.T) {
 			Body:   "{name}, [[{day_kind}]] brings luck.",
 			Params: map[string]Value{"day_kind": {Kind: ValueEnum, Enum: "growth"}},
 			Kinds:  testKinds,
-		}, "성장하는 날 brings luck."},
+		}, "growth day brings luck."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -171,7 +174,11 @@ func TestRender_NoMarkupLeft(t *testing.T) {
 		Params: map[string]Value{"element": {Kind: ValueEnum, Enum: "wood"}},
 		Kinds:  testKinds,
 	})
+	// bare [[편관]]은 plan P4-5에 따라 용어 id 없는 평문 조각입니다.
 	for _, seg := range segs {
+		if strings.Contains(seg.Text, "편관") {
+			assert.Empty(t, seg.Term)
+		}
 		for _, bad := range []string{"[[", "]]", "|"} {
 			assert.NotContains(t, seg.Text, bad)
 		}
@@ -181,47 +188,82 @@ func TestRender_NoMarkupLeft(t *testing.T) {
 func TestRender_Errors(t *testing.T) {
 	enum := func(v string) Value { return Value{Kind: ValueEnum, Enum: v} }
 	tests := []struct {
-		name string
-		in   Input
+		name    string
+		in      Input
+		wantErr error  // 있으면 ErrorIs로 확인
+		wantMsg string // 있으면 메시지 일부로 확인
 	}{
-		{"이름 사전에 없는 enum 값", Input{Lang: "ko", Body: "{ten_god}", Kinds: testKinds,
-			Params: map[string]Value{"ten_god": enum("unknown")}}},
-		{"매개변수 값 없음", Input{Lang: "ko", Body: "{ten_god}", Kinds: testKinds}},
-		{"값 종류 모름", Input{Lang: "ko", Body: "{mystery}",
-			Params: map[string]Value{"mystery": enum("x")}}},
-		{"목록에 없는 범주", Input{Lang: "ko", Body: "{ten_god:color}", Kinds: testKinds,
-			Params: map[string]Value{"ten_god": enum("siksin")}}},
-		{"none 종류는 쓸 수 없음", Input{Lang: "ko", Body: "{role}", Kinds: testKinds,
-			Params: map[string]Value{"role": enum("x")}}},
-		{"값 종류 불일치", Input{Lang: "ko", Body: "{score}", Kinds: testKinds,
-			Params: map[string]Value{"score": enum("x")}}},
-		{"숫자에 범주", Input{Lang: "ko", Body: "{score:color}", Kinds: testKinds,
-			Params: map[string]Value{"score": {Kind: ValueNumber, Text: "1"}}}},
-		{"호칭이 없는데 앞 덩어리 밖에서 {name}", Input{Lang: "ko", Body: "오늘 {name}님"}},
-		{"호칭에 범주", Input{Lang: "ko", Name: "민지", Body: "{name:color}"}},
-		{"자리표시자 문법", Input{Lang: "ko", Body: "{score"}},
-		{"토큰 닫힘 없음", Input{Lang: "ko", Body: "[[편관 와요"}},
-		{"짝 없는 ]]", Input{Lang: "ko", Body: "편관]] 와요"}},
-		{"빈 토큰", Input{Lang: "ko", Body: "[[]]"}},
-		{"중첩 토큰", Input{Lang: "ko", Body: "[[a[[b]]]]"}},
-		{"빈 용어 id", Input{Lang: "ko", Body: "[[편관|]]"}},
+		{name: "이름 사전에 없는 enum 값", in: Input{Lang: "ko", Body: "{ten_god}", Kinds: testKinds,
+			Params: map[string]Value{"ten_god": enum("unknown")}}, wantMsg: "ten_god.unknown"},
+		{name: "매개변수 값 없음", in: Input{Lang: "ko", Body: "{ten_god}", Kinds: testKinds},
+			wantMsg: "값이 없습니다"},
+		{name: "값 종류 모름", in: Input{Lang: "ko", Body: "{mystery}",
+			Params: map[string]Value{"mystery": enum("x")}}, wantMsg: "값 종류를 알 수 없습니다"},
+		{name: "목록에 없는 범주", in: Input{Lang: "ko", Body: "{ten_god:color}", Kinds: testKinds,
+			Params: map[string]Value{"ten_god": enum("siksin")}}, wantMsg: "쓸 수 없는 범주"},
+		{name: "그룹으로 옮길 수 없는 값", in: Input{Lang: "ko", Body: "{ten_god:ten_god_group}", Kinds: testKinds,
+			Params: map[string]Value{"ten_god": enum("wood")}}, wantMsg: "옮길 수 없는 값"},
+		{name: "none 종류는 쓸 수 없음", in: Input{Lang: "ko", Body: "{role}", Kinds: testKinds,
+			Params: map[string]Value{"role": enum("x")}}, wantMsg: "문장에 쓸 수 없습니다"},
+		{name: "값 종류 불일치", in: Input{Lang: "ko", Body: "{score}", Kinds: testKinds,
+			Params: map[string]Value{"score": enum("x")}}, wantMsg: "값 종류가 맞지 않습니다"},
+		{name: "숫자에 범주", in: Input{Lang: "ko", Body: "{score:color}", Kinds: testKinds,
+			Params: map[string]Value{"score": {Kind: ValueNumber, Text: "1"}}}, wantMsg: "범주를 붙일 수 없습니다"},
+		{name: "호칭이 없는데 앞 덩어리 밖에서 {name}", in: Input{Lang: "ko", Body: "오늘 {name}님"},
+			wantMsg: "호칭이 없는데"},
+		{name: "호칭에 범주", in: Input{Lang: "ko", Name: "민지", Body: "{name:color}"},
+			wantMsg: "범주를 붙일 수 없습니다"},
+		{name: "자리표시자 문법", in: Input{Lang: "ko", Body: "{score"}, wantErr: errPlaceholderSyntax},
+		{name: "토큰 닫힘 없음", in: Input{Lang: "ko", Body: "[[편관 와요"}, wantErr: errTokenSyntax},
+		{name: "짝 없는 ]]", in: Input{Lang: "ko", Body: "편관]] 와요"}, wantErr: errTokenSyntax},
+		{name: "빈 토큰", in: Input{Lang: "ko", Body: "[[]]"}, wantErr: errTokenSyntax},
+		{name: "중첩 토큰", in: Input{Lang: "ko", Body: "[[a[[b]]]]"}, wantErr: errTokenSyntax},
+		{name: "빈 용어 id", in: Input{Lang: "ko", Body: "[[편관|]]"}, wantErr: errTokenSyntax},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := Render(tt.in, testNames)
-			assert.Error(t, err)
+			require.Error(t, err)
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+			}
+			if tt.wantMsg != "" {
+				assert.ErrorContains(t, err, tt.wantMsg)
+			}
 		})
 	}
 }
 
-func TestRender_MissingNameIsError(t *testing.T) {
-	_, err := Render(Input{
+func TestRender_TenGodGroupMapping(t *testing.T) {
+	groups := map[string]string{
+		"bigyeon": "bigyeop", "geopjae": "bigyeop",
+		"siksin": "siksang", "sanggwan": "siksang",
+		"pyeonjae": "jaeseong", "jeongjae": "jaeseong",
+		"pyeongwan": "gwanseong", "jeonggwan": "gwanseong",
+		"pyeonin": "inseong", "jeongin": "inseong",
+	}
+	require.Len(t, tenGodGroups, len(groups))
+	for god, want := range groups {
+		got, err := mapCategoryValue("ten_god_group", god)
+		require.NoError(t, err, god)
+		assert.Equal(t, want, got, god)
+	}
+	got, err := mapCategoryValue("color", "wood")
+	require.NoError(t, err)
+	assert.Equal(t, "wood", got)
+}
+
+func TestRender_GroupCategoryUsesMappedNameAndTerm(t *testing.T) {
+	segs := mustRender(t, Input{
 		Lang:   "ko",
-		Body:   "{ten_god}",
+		Body:   "[[{ten_god:ten_god_group}]](을)를 살려 보세요.",
+		Params: map[string]Value{"ten_god": {Kind: ValueEnum, Enum: "siksin"}},
 		Kinds:  testKinds,
-		Params: map[string]Value{"ten_god": {Kind: ValueEnum, Enum: "unknown"}},
-	}, testNames)
-	require.Error(t, err)
+	})
+	assert.Equal(t, []Segment{
+		{Text: "식상", Term: "ten_god_group.siksang"},
+		{Text: "을 살려 보세요."},
+	}, segs)
 }
 
 func TestRender_ErrorDoesNotLeakBodyOrName(t *testing.T) {
