@@ -183,7 +183,8 @@ final class FakeServerInterceptor extends Interceptor {
     }
   }
 
-  /// `listDiaries`의 200 fixture를 요청의 `from`·`to`로 걸러 답합니다. 그 밖이면 null입니다.
+  /// `listDiaries`의 200 fixture를 요청의 `from`·`to`·`tag`·`cursor`·`limit`으로 걸러
+  /// 답합니다([filterDiaryList]). 그 밖이면 null입니다.
   _Fixture? _filteredDiaryList(
     ApiRoute route,
     RequestOptions options,
@@ -204,6 +205,9 @@ final class FakeServerInterceptor extends Interceptor {
           body,
           from: options.queryParameters['from'],
           to: options.queryParameters['to'],
+          tag: options.queryParameters['tag'],
+          cursor: options.queryParameters['cursor'],
+          limit: options.queryParameters['limit'],
         ),
       );
     } on FakeProblem catch (problem) {

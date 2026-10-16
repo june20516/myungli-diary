@@ -439,6 +439,75 @@ void main() {
       );
     });
 
+    test('tag면 그 태그가 붙은 일기만 준다(대역은 featuredTags로 거름)', () async {
+      final api = _apiOf(await _scenarioOf('member'));
+      final list = (await api.listDiaries(tag: 'clash')).data!;
+      expect([for (final item in list.items) item.date], ['2026-10-02']);
+      final none = (await api.listDiaries(tag: 'gongmang')).data!;
+      expect(none.items, isEmpty);
+    });
+
+    test(
+      'limit만큼 주고 nextCursor로 다음 쪽을 이어 받으며, 마지막 쪽에는 nextCursor가 없다',
+      () async {
+        final api = _apiOf(await _scenarioOf('member'));
+        final first = (await api.listDiaries(limit: 3)).data!;
+        expect(
+          [for (final item in first.items) item.date],
+          ['2026-10-12', '2026-10-08', '2026-10-05'],
+        );
+        expect(first.nextCursor, isNotNull);
+
+        final second = (await api.listDiaries(
+          limit: 3,
+          cursor: first.nextCursor,
+        )).data!;
+        expect([for (final item in second.items) item.date], ['2026-10-02']);
+        expect(second.nextCursor, isNull);
+
+        // limit이 없으면 기본 30이라 한 쪽으로 끝납니다.
+        final all = (await api.listDiaries()).data!;
+        expect(all.items, hasLength(4));
+        expect(all.nextCursor, isNull);
+      },
+    );
+
+    test('범위·태그로 거른 뒤 쪽을 나눈다', () async {
+      final api = _apiOf(await _scenarioOf('member'));
+      final page = (await api.listDiaries(
+        from: '2026-10-05',
+        to: '2026-10-12',
+        limit: 2,
+      )).data!;
+      expect(
+        [for (final item in page.items) item.date],
+        ['2026-10-12', '2026-10-08'],
+      );
+      final rest = (await api.listDiaries(
+        from: '2026-10-05',
+        to: '2026-10-12',
+        limit: 2,
+        cursor: page.nextCursor,
+      )).data!;
+      expect([for (final item in rest.items) item.date], ['2026-10-05']);
+      expect(rest.nextCursor, isNull);
+    });
+
+    test(
+      'limit이 1~100 밖이거나 cursor가 대역이 준 값이 아니면 400 request.invalid',
+      () async {
+        final api = _apiOf(await _scenarioOf('member'));
+        final low = await _problemOf(() => api.listDiaries(limit: 0));
+        expect((low.status, low.code), (400, 'request.invalid'));
+        expect(_fieldsOf(low), [('limit', 'minimum')]);
+        final high = await _problemOf(() => api.listDiaries(limit: 101));
+        expect(_fieldsOf(high), [('limit', 'maximum')]);
+        final cursor = await _problemOf(() => api.listDiaries(cursor: 'bogus'));
+        expect((cursor.status, cursor.code), (400, 'request.invalid'));
+        expect(_fieldsOf(cursor), [('cursor', 'format')]);
+      },
+    );
+
     test('diary-written은 오늘(10-13) 일기가 목록에 있다', () async {
       expect(
         await datesOf('diary-written', from: '2026-10-13', to: '2026-10-13'),
