@@ -51,7 +51,7 @@
 - {slot: glossary.value_name, key: role.yongsin, text: "내 사주를 돕는 쪽"}
 - {slot: glossary.value_name, key: role.huisin, text: "도움을 보태는 쪽"}
 - {slot: glossary.value_name, key: role.gisin, text: "조심하면 좋은 쪽"}
-- {slot: glossary.value_name, key: role.neutral, text: "치우치지 않은 쪽"}
+- {slot: glossary.value_name, key: role.neutral, text: "어느 편도 아닌 쪽"}
 - {slot: glossary.value_name, key: strength.very_weak, text: "힘이 아주 약한 편"}
 - {slot: glossary.value_name, key: strength.weak, text: "힘이 약한 편"}
 - {slot: glossary.value_name, key: strength.neutral, text: "힘이 고른 편"}
