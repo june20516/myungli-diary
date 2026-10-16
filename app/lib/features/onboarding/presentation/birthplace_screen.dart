@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
-import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
@@ -103,6 +103,10 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   /// 저장을 기다리는 동안 고른 도시 id. 그 줄 끝에 점 숨쉬기가 나옵니다(`city-search` saving).
   String? _savingCityId;
 
+  /// 저장이 실패했을 때 입력칸 아래 오류 줄(`input-step` error)로 보일 오류. 다른 도시를
+  /// 고르거나 검색어를 바꾸면 사라집니다.
+  AppError? _saveError;
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -111,6 +115,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
 
   void _onQueryChanged(String value) {
     _debounce?.cancel();
+    if (_saveError != null) setState(() => _saveError = null);
     _query = value.trim();
     if (_query.isEmpty) {
       _generation++;
@@ -166,6 +171,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
     setState(() {
       _saving = true;
       _savingCityId = city.id;
+      _saveError = null;
     });
     try {
       await ref
@@ -182,12 +188,10 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       if (!mounted) return;
       returnToOnboardCallWith(context, ref, rejected.error);
     } on Object catch (error) {
-      // 마무리 동작이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다.
+      // 마무리 동작이 실패해도 미처리 비동기 오류로 남기지 않고 오류 줄로 안내합니다
+      // (`city-search` 규칙: 저장이 실패하면 input-step 오류 줄로 돌아간다).
       if (!mounted) return;
-      showMyungliToast(
-        context,
-        errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
-      );
+      setState(() => _saveError = onboardingErrorOf(error));
     } finally {
       if (mounted) {
         setState(() {
@@ -202,6 +206,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final edit = widget.mode == OnboardingStepMode.edit;
+    final saveError = _saveError;
     // 도시를 누르면 곧바로 다음으로 가므로 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`).
     return InputStep.selectToAdvance(
       screenId: ScreenIds.birthplace,
@@ -241,6 +246,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
         onRetry: _search,
         savingCityId: _savingCityId,
       ),
+      error: saveError == null ? null : errorMessage(l10n, saveError),
       help: l10n.birthplaceWhyBody,
       helpIdentifier: SlotIds.birthplaceWhyBody,
     );

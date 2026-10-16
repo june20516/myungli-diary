@@ -16,6 +16,15 @@ class BreathingDots extends StatefulWidget {
     super.key,
   });
 
+  /// 버튼·줄이 함께 쓰는 점 개수(`action.json` `loading.dots.count`).
+  static const int standardCount = 3;
+
+  /// 버튼·줄이 함께 쓰는 점 지름.
+  static const double standardSize = 6;
+
+  /// 버튼·줄이 함께 쓰는 점 사이 간격.
+  static const double standardGap = 6;
+
   /// 점 색.
   final Color color;
 

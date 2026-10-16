@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 
 import 'input_harness.dart';
@@ -337,6 +338,35 @@ void main() {
       await tester.tap(find.text('Seoul'));
       await tester.pump();
       expect(selected, isEmpty);
+    });
+
+    testWidgets('saving으로 바뀌어도 줄 위젯이 갈아 끼워지지 않습니다', (tester) async {
+      final saving = ValueNotifier<String?>(null);
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: ValueListenableBuilder(
+              valueListenable: saving,
+              builder: (context, id, _) => _search(
+                results: AsyncData([_seoul, _busan]),
+                savingCityId: id,
+              ),
+            ),
+          ),
+        ),
+      );
+      State<PressInkTarget> inkOf(City city) => tester.state(
+        find.descendant(
+          of: find.byKey(ValueKey(city.id)),
+          matching: find.byType(PressInkTarget),
+        ),
+      );
+      final before = [inkOf(_seoul), inkOf(_busan)];
+
+      saving.value = _seoul.id;
+      await tester.pump();
+      expect(inkOf(_seoul), same(before[0]));
+      expect(inkOf(_busan), same(before[1]));
     });
 
     testWidgets('saving이 아니면 점이 없고 줄을 누르면 onSelected입니다', (tester) async {

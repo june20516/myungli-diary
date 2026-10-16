@@ -85,11 +85,6 @@ class CitySearch extends StatefulWidget {
   /// 명세에 없는 언어의 지역 구분자.
   static const String defaultRegionJoin = ', ';
 
-  /// 점 숨쉬기 모양(`primary-button`의 점과 같은 개수·크기·간격).
-  static const int _dotCount = 3;
-  static const double _dotSize = 6;
-  static const double _dotsGap = 6;
-
   /// 결과 카드를 찾는 테스트용 키.
   static const Key resultsKey = ValueKey('city-search-results');
 
@@ -377,9 +372,9 @@ class _CityRow extends StatelessWidget {
               BreathingDots(
                 color: tokens.colors.textSecondary,
                 animated: animated,
-                count: CitySearch._dotCount,
-                size: CitySearch._dotSize,
-                gap: CitySearch._dotsGap,
+                count: BreathingDots.standardCount,
+                size: BreathingDots.standardSize,
+                gap: BreathingDots.standardGap,
               ),
             ],
           ],
@@ -395,14 +390,14 @@ class _CityRow extends StatelessWidget {
       );
     }
     // 저장을 기다리는 동안은 누를 수 없고(눌림 없음) 고른 줄은 "처리 중"으로 읽습니다
-    // (`primary-button` loading과 같은 방식).
+    // (`primary-button` loading과 같은 방식). 줄 위젯은 갈아 끼우지 않고 PressInkTarget을
+    // 유지해 눌림 잉크가 끊기지 않게 합니다.
     final busy = AppLocalizations.of(context).actionBusy;
-    return Semantics(
-      container: true,
-      button: true,
-      enabled: false,
-      label: saving == _RowSaving.selected ? '$label, $busy' : label,
-      child: ExcludeSemantics(child: body),
+    return PressInkTarget(
+      semanticLabel: saving == _RowSaving.selected ? '$label, $busy' : label,
+      onTap: null,
+      borderRadius: BorderRadius.zero,
+      child: body,
     );
   }
 

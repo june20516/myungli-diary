@@ -25,8 +25,9 @@ class PressInkTarget extends StatefulWidget {
   /// 스크린리더 라벨.
   final String semanticLabel;
 
-  /// 눌렀을 때.
-  final VoidCallback onTap;
+  /// 눌렀을 때. null이면 누를 수 없는 꺼진 자리입니다(눌림 없이 그대로 보이고, 위젯 트리는
+  /// 켜졌을 때와 같아 전환에서 눌림 잉크가 끊기지 않습니다).
+  final VoidCallback? onTap;
 
   /// 얼룩을 자를 모서리.
   final BorderRadius borderRadius;
@@ -88,33 +89,38 @@ class _PressInkTargetState extends State<PressInkTarget>
 
   @override
   Widget build(BuildContext context) {
+    final onTap = widget.onTap;
     return Semantics(
       container: true,
+      enabled: onTap == null ? false : null,
       button: !widget.link,
       link: widget.link,
       expanded: widget.expanded,
       identifier: widget.identifier,
       label: widget.semanticLabel,
-      onTap: widget.onTap,
+      onTap: onTap,
       child: ExcludeSemantics(
         child: FocusableActionDetector(
+          enabled: onTap != null,
           mouseCursor: SystemMouseCursors.click,
           actions: {
             ActivateIntent: CallbackAction<ActivateIntent>(
               onInvoke: (_) {
-                widget.onTap();
+                onTap?.call();
                 return null;
               },
             ),
           },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTapDown: _down,
-            onTapUp: (_) {
-              _up();
-              widget.onTap();
-            },
-            onTapCancel: _up,
+            onTapDown: onTap == null ? null : _down,
+            onTapUp: onTap == null
+                ? null
+                : (_) {
+                    _up();
+                    onTap();
+                  },
+            onTapCancel: onTap == null ? null : _up,
             child: animate(
               InteractionPattern.pressInk,
               t: _press,
