@@ -5,6 +5,7 @@ import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/text_action.dart';
+import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
@@ -47,7 +48,8 @@ Future<bool> showMyungliDialog(
   String? body,
   String? identifier,
 }) async {
-  final result = await Navigator.of(context, rootNavigator: true).push<bool>(
+  // 시트와 같은 navigator에 쌓습니다(셸 밖, 앱 안의 앱에서는 그 앱 안).
+  final result = await overlayNavigatorOf(context).push<bool>(
     _DialogRoute(
       variant: variant,
       title: title,

@@ -317,6 +317,53 @@ void main() {
       );
       handle.dispose();
     });
+
+    testWidgets('앱 안의 앱(바깥 작업대 MaterialApp)에서는 안쪽 navigator에 안쪽 테마로 쌓입니다', (
+      tester,
+    ) async {
+      // Widgetbook처럼 바깥 MaterialApp 안에 MyungliTokens 테마 MaterialApp이 있는 경우.
+      late BuildContext outer;
+      late BuildContext inner;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              outer = context;
+              return MaterialApp(
+                locale: const Locale('ko'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                theme: buildTheme(
+                  brightness: Brightness.light,
+                  locale: const Locale('ko'),
+                ),
+                home: Builder(
+                  builder: (context) {
+                    inner = context;
+                    return const SizedBox.expand();
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      unawaited(
+        showMyungliDialog(
+          inner,
+          variant: DialogVariant.confirm,
+          title: '알림을 켤까요?',
+          confirm: '켜기',
+          cancel: '나중에',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(DialogCard), findsOneWidget);
+      expect(Navigator.of(inner).canPop(), isTrue);
+      expect(Navigator.of(outer).canPop(), isFalse);
+    });
   });
 
   group('toast', () {
