@@ -44,8 +44,7 @@ VALUES (@account_id, @message_key, @next_variant)
 ON CONFLICT (account_id, message_key) DO UPDATE SET next_variant = EXCLUDED.next_variant;
 
 -- name: CountCare :one
--- 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다.
--- 그 자리에 이미 care가 있어도 다시 care를 고르면 개수가 늘지 않기 때문입니다.
+-- 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다(이유는 selector.careCapped 주석).
 -- today_count는 오늘, week_count는 오늘을 포함한 최근 7일(week_start ~ today)입니다.
 SELECT
     count(DISTINCT slot) FILTER (WHERE date = @today::date) AS today_count,
@@ -55,3 +54,13 @@ WHERE account_id = @account_id
   AND variant = 'care'
   AND date BETWEEN @week_start::date AND @today::date
   AND NOT (date = @today::date AND slot = @slot);
+
+-- name: ListOtherHashVariants :many
+-- 같은 (계정, 날짜, 슬롯)에서 지문이 다른 기록들이 쓴 variant입니다. 같은 날 다시 고를 때 이 유형을 피합니다.
+SELECT DISTINCT variant FROM daily_selections
+WHERE account_id = @account_id AND date = @date AND slot = @slot AND birth_hash <> @birth_hash;
+
+-- name: SoftDeleteReactions :exec
+-- 선택 기록의 문장이 바뀌면 옛 문장에 남긴 활성 반응을 soft delete합니다.
+UPDATE reactions SET deleted_at = @deleted_at
+WHERE selection_id = @selection_id AND deleted_at IS NULL;

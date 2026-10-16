@@ -14,6 +14,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/content/contentdb"
 	"github.com/june20516/myungli-diary/server/internal/content/render"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/seed"
 )
@@ -106,6 +107,8 @@ type Store struct {
 	// pool은 선택 기록처럼 트랜잭션이 필요한 작업에 씁니다.
 	pool    *pgxpool.Pool
 	queries *contentdb.Queries
+	// clock은 반응 soft delete 시각처럼 DB에 남기는 시각을 정합니다.
+	clock clock.Clock
 
 	// mu는 cache 맵만 지킵니다. DB 조회 동안에는 잡지 않아서, 한 키의 느린 로드가 다른 키를 막지 않습니다.
 	mu    sync.Mutex
@@ -114,9 +117,9 @@ type Store struct {
 	loads singleflight.Group
 }
 
-// NewStore는 pool을 쓰는 Store를 만듭니다.
-func NewStore(pool *pgxpool.Pool) *Store {
-	return &Store{pool: pool, queries: contentdb.New(pool), cache: map[cacheKey]*templates{}}
+// NewStore는 pool과 clk를 쓰는 Store를 만듭니다.
+func NewStore(pool *pgxpool.Pool, clk clock.Clock) *Store {
+	return &Store{pool: pool, queries: contentdb.New(pool), clock: clk, cache: map[cacheKey]*templates{}}
 }
 
 // Active는 활성 시드 버전을 돌려줍니다. 없으면 ErrNoActiveSeed입니다.

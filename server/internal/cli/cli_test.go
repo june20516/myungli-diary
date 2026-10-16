@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/seed"
@@ -196,7 +197,7 @@ func TestRunSeed_AppliesEmbeddedSeed(t *testing.T) {
 		}
 	}
 
-	version, err := content.NewStore(pool).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
 	if err != nil {
 		t.Fatalf("Active: %v", err)
 	}

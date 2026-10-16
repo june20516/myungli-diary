@@ -10,8 +10,7 @@ import (
 
 type Querier interface {
 	ActivateSeed(ctx context.Context, version string) error
-	// 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다.
-	// 그 자리에 이미 care가 있어도 다시 care를 고르면 개수가 늘지 않기 때문입니다.
+	// 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다(이유는 selector.careCapped 주석).
 	// today_count는 오늘, week_count는 오늘을 포함한 최근 7일(week_start ~ today)입니다.
 	CountCare(ctx context.Context, arg CountCareParams) (CountCareRow, error)
 	DeactivateSeeds(ctx context.Context, version string) error
@@ -22,8 +21,12 @@ type Querier interface {
 	InsertSeed(ctx context.Context, version string) (int64, error)
 	// 동시 요청이 같은 행을 넣으면 하나만 남고, 진 쪽은 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	InsertSelection(ctx context.Context, arg InsertSelectionParams) (int64, error)
+	// 같은 (계정, 날짜, 슬롯)에서 지문이 다른 기록들이 쓴 variant입니다. 같은 날 다시 고를 때 이 유형을 피합니다.
+	ListOtherHashVariants(ctx context.Context, arg ListOtherHashVariantsParams) ([]string, error)
 	ListTemplates(ctx context.Context, arg ListTemplatesParams) ([]ListTemplatesRow, error)
 	SetRotation(ctx context.Context, arg SetRotationParams) error
+	// 선택 기록의 문장이 바뀌면 옛 문장에 남긴 활성 반응을 soft delete합니다.
+	SoftDeleteReactions(ctx context.Context, arg SoftDeleteReactionsParams) error
 	// 메시지 키가 바뀐 기록을 새로 고른 값으로 바꿉니다. 그 사이 다른 요청이 먼저 바꿨으면 행을 돌려받지 못합니다.
 	UpdateSelection(ctx context.Context, arg UpdateSelectionParams) (int64, error)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/seed"
 )
@@ -43,6 +44,7 @@ func dayOffset(n int) time.Time { return day0.AddDate(0, 0, n) }
 // selectFixture는 활성 시드, 계정 하나, 사주 지문 하나를 갖춘 테스트 환경입니다.
 type selectFixture struct {
 	pool    *pgxpool.Pool
+	clock   *clocktest.Fake
 	store   *content.Store
 	version string
 	account uuid.UUID
@@ -60,7 +62,8 @@ func newSelectFixture(t *testing.T) *selectFixture {
 	var account uuid.UUID
 	require.NoError(t, pool.QueryRow(ctx,
 		"INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&account))
-	return &selectFixture{pool: pool, store: content.NewStore(pool), version: s.Version, account: account, hash: birthHash("h1")}
+	clk := clocktest.New(time.Date(2026, 10, 16, 9, 0, 0, 0, time.UTC))
+	return &selectFixture{pool: pool, clock: clk, store: content.NewStore(pool, clk), version: s.Version, account: account, hash: birthHash("h1")}
 }
 
 func birthHash(s string) [32]byte { return sha256.Sum256([]byte(s)) }
@@ -262,28 +265,25 @@ func TestSelect_CareSkippedAtWeeklyCap(t *testing.T) {
 }
 
 func TestSelect_CareCountsOncePerDateSlot(t *testing.T) {
-	tests := []struct {
-		name string
-		slot string
-	}{
-		// 오늘 head에 지문만 다른 care 두 줄 → 하나로 세어 1개라 extra는 care를 고를 수 있습니다.
-		{name: "같은 (날짜, 슬롯) 두 줄은 하나", slot: extraTypeSlot},
-		// 오늘 head·tag에 care가 있어도, head 자신을 다시 고를 때 head는 이미 센 자리라 개수가 늘지 않습니다.
-		{name: "고르는 자리 자신은 세지 않음", slot: headSlot},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			f := newSelectFixture(t)
-			f.insertCare(t, day0, headSlot, birthHash("old1"))
-			f.insertCare(t, day0, headSlot, birthHash("old2"))
-			if tt.slot == headSlot {
-				f.insertCare(t, day0, tagSlot, birthHash("old1"))
-			}
-			f.setRotation(t, "k", "care")
-			got := f.pick(t, day0, f.hash, tt.slot, "k")
-			assert.Equal(t, "care", got.Variant)
-		})
-	}
+	f := newSelectFixture(t)
+	// 오늘 head에 지문만 다른 care 두 줄 → 하나로 세어 1개라 extra는 care를 고를 수 있습니다.
+	f.insertCare(t, day0, headSlot, birthHash("old1"))
+	f.insertCare(t, day0, headSlot, birthHash("old2"))
+	f.setRotation(t, "k", "care")
+	got := f.pick(t, day0, f.hash, extraTypeSlot, "k")
+	assert.Equal(t, "care", got.Variant)
+}
+
+func TestSelect_CareCapExcludesSlotBeingSelected(t *testing.T) {
+	f := newSelectFixture(t)
+	// 오늘 head(같은 지문, 옛 키)와 tag에 care가 있습니다. head의 키가 바뀌어 그 기록을 새로 고르면
+	// 바뀔 기록 자신은 세지 않으므로 오늘 care는 tag 하나이고, care를 고를 수 있습니다.
+	f.insertCare(t, day0, headSlot, f.hash)
+	f.insertCare(t, day0, tagSlot, f.hash)
+	f.setRotation(t, "k", "care")
+	got := f.pick(t, day0, f.hash, headSlot, "k")
+	assert.Equal(t, "care", got.Variant)
+	assert.Equal(t, 2, f.countRows(t, "SELECT count(*) FROM daily_selections"), "같은 행을 바꿈")
 }
 
 func TestSelect_NewBirthHashSelectsAgainAndAdvances(t *testing.T) {
@@ -373,7 +373,7 @@ func TestSelect_NoActiveSeed(t *testing.T) {
 	require.NoError(t, pool.QueryRow(ctx,
 		"INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&account))
 
-	_, err := content.NewStore(pool).Select(ctx, account, day0, birthHash("h"),
+	_, err := content.NewStore(pool, clocktest.New(day0)).Select(ctx, account, day0, birthHash("h"),
 		[]content.SlotRequest{{Slot: headSlot, MessageKey: "k"}}, testSlots)
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed)
 }
@@ -388,4 +388,84 @@ func TestSelectionFor_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, content.ErrSelectionNotFound, "다른 날")
 	_, err = f.store.SelectionFor(context.Background(), f.account, day0, headSlot, birthHash("other"))
 	assert.ErrorIs(t, err, content.ErrSelectionNotFound, "다른 지문")
+}
+
+func TestSelect_ChangedKeySoftDeletesReaction(t *testing.T) {
+	ctx := context.Background()
+	f := newSelectFixture(t)
+	first := f.pick(t, day0, f.hash, headSlot, "k1")
+	_, err := f.pool.Exec(ctx, "INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'like')", first.ID)
+	require.NoError(t, err)
+
+	same := f.pick(t, day0, f.hash, headSlot, "k1")
+	require.Equal(t, first, same)
+	assert.Equal(t, 1, f.countRows(t, "SELECT count(*) FROM reactions WHERE deleted_at IS NULL"), "키가 같으면 반응을 건드리지 않음")
+
+	second := f.pick(t, day0, f.hash, headSlot, "k2")
+	assert.Equal(t, first.ID, second.ID, "행 id는 그대로")
+	var deletedAt *time.Time
+	require.NoError(t, f.pool.QueryRow(ctx, "SELECT deleted_at FROM reactions WHERE selection_id = $1", first.ID).Scan(&deletedAt))
+	require.NotNil(t, deletedAt, "새 문장에 옛 반응이 붙지 않게 soft delete")
+	assert.True(t, f.clock.Now().Equal(*deletedAt), "clock 기준 시각")
+}
+
+func TestSelect_SameDayOtherHashTypeIsSkipped(t *testing.T) {
+	tests := []struct {
+		name string
+		run  func(t *testing.T, f *selectFixture) (old []content.Selection, got content.Selection)
+		want string
+		next string
+	}{
+		{
+			name: "키와 지문이 함께 바뀜",
+			run: func(t *testing.T, f *selectFixture) ([]content.Selection, content.Selection) {
+				old := f.pick(t, day0, birthHash("h1"), headSlot, "k1")
+				return []content.Selection{old}, f.pick(t, day0, birthHash("h2"), headSlot, "k2")
+			},
+			want: "state", next: "care",
+		},
+		{
+			name: "지난 날짜를 나중에 다시 고름",
+			run: func(t *testing.T, f *selectFixture) ([]content.Selection, content.Selection) {
+				old := f.pick(t, day0, birthHash("h1"), headSlot, "k")  // advice
+				f.pick(t, dayOffset(1), birthHash("h1"), headSlot, "k") // state
+				f.pick(t, dayOffset(2), birthHash("h1"), headSlot, "k") // care → 다음 차례 advice
+				return []content.Selection{old}, f.pick(t, day0, birthHash("h2"), headSlot, "k")
+			},
+			want: "state", next: "care",
+		},
+		{
+			name: "돌봄 상한과 함께 건너뜀",
+			run: func(t *testing.T, f *selectFixture) ([]content.Selection, content.Selection) {
+				old := f.pick(t, day0, birthHash("h1"), headSlot, "k") // advice
+				f.insertCare(t, day0, tagSlot, birthHash("h1"))
+				f.insertCare(t, day0, extraTypeSlot, birthHash("h1"))
+				f.setRotation(t, "k", "care")
+				// care는 상한, advice는 같은 날 앞 지문의 유형이라 둘 다 건너뜁니다.
+				return []content.Selection{old}, f.pick(t, day0, birthHash("h2"), headSlot, "k")
+			},
+			want: "state", next: "care",
+		},
+		{
+			name: "후보가 모두 막히면 순환 차례 그대로",
+			run: func(t *testing.T, f *selectFixture) ([]content.Selection, content.Selection) {
+				a := f.pick(t, day0, birthHash("h1"), guideSlot, "g") // 1
+				b := f.pick(t, day0, birthHash("h2"), guideSlot, "g") // 1이 막혀 2
+				require.Equal(t, "2", b.Variant)
+				return []content.Selection{a, b}, f.pick(t, day0, birthHash("h3"), guideSlot, "g")
+			},
+			want: "1", next: "2",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newSelectFixture(t)
+			old, got := tt.run(t, f)
+			assert.Equal(t, tt.want, got.Variant)
+			if len(old) == 1 {
+				assert.NotEqual(t, old[0].Variant, got.Variant, "같은 날 같은 슬롯의 앞 유형과 다름")
+			}
+			assert.Equal(t, tt.next, f.rotation(t, got.MessageKey), "실제로 고른 것의 다음")
+		})
+	}
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/seed"
 )
@@ -40,7 +41,7 @@ func TestApply_InsertsAndActivates(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, applied)
 
-	version, err := content.NewStore(pool).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, s.Version, version)
 
@@ -74,7 +75,7 @@ func TestApply_SameVersionReactivatesOldSeed(t *testing.T) {
 		_, err := content.Apply(ctx, pool, s)
 		require.NoError(t, err)
 	}
-	version, err := content.NewStore(pool).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, old.Version, version, "옛 버전으로 되돌리면 그 버전이 활성")
 }
@@ -98,7 +99,7 @@ func TestApply_NewVersionKeepsOldRows(t *testing.T) {
 	assert.Equal(t, 2, seeds)
 	assert.Equal(t, 1, active, "활성은 하나")
 
-	version, err := content.NewStore(pool).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, next.Version, version)
 }
@@ -111,7 +112,7 @@ func TestStore_TemplatesByVersionAndLang(t *testing.T) {
 		_, err := content.Apply(ctx, pool, s)
 		require.NoError(t, err)
 	}
-	store := content.NewStore(pool)
+	store := content.NewStore(pool, clock.System{})
 
 	ko, err := store.Templates(ctx, old.Version, "ko")
 	require.NoError(t, err)
@@ -151,7 +152,7 @@ func TestStore_TemplatesAreCachedAndConcurrentSafe(t *testing.T) {
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool)
+	store := content.NewStore(pool, clock.System{})
 
 	first, err := store.Templates(ctx, s.Version, "ko")
 	require.NoError(t, err)
@@ -183,7 +184,7 @@ func mustTemplates(t *testing.T, store *content.Store, version string) content.T
 }
 
 func TestStore_ActiveMissingIsErrNoActiveSeed(t *testing.T) {
-	_, err := content.NewStore(dbtest.New(t)).Active(context.Background())
+	_, err := content.NewStore(dbtest.New(t), clock.System{}).Active(context.Background())
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed)
 }
 
@@ -197,7 +198,7 @@ func TestApply_DuplicateTemplateInSeedFails(t *testing.T) {
 	require.Error(t, err, "시드 안 중복은 삼키지 않고 오류")
 	assert.False(t, applied)
 
-	_, err = content.NewStore(pool).Active(ctx)
+	_, err = content.NewStore(pool, clock.System{}).Active(ctx)
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed, "실패한 적재는 롤백")
 }
 
@@ -229,7 +230,7 @@ func TestStore_TemplatesCallerCancelDoesNotFailOtherWaiters(t *testing.T) {
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool)
+	store := content.NewStore(pool, clock.System{})
 	release := lockTemplates(t, pool)
 
 	firstCtx, cancelFirst := context.WithCancel(ctx)
@@ -274,7 +275,7 @@ func TestStore_TemplatesCanceledCallerReturnsWithoutWaitingForLoad(t *testing.T)
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool)
+	store := content.NewStore(pool, clock.System{})
 	release := lockTemplates(t, pool)
 	defer release()
 
@@ -296,7 +297,7 @@ func TestStore_TemplatesLoadErrorIsNotCached(t *testing.T) {
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool)
+	store := content.NewStore(pool, clock.System{})
 
 	// 테이블 이름을 잠시 바꿔 조회가 실패하게 합니다.
 	_, err = pool.Exec(ctx, "ALTER TABLE content_templates RENAME TO content_templates_moved")

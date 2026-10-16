@@ -7,6 +7,7 @@ package contentdb
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -44,8 +45,7 @@ type CountCareRow struct {
 	WeekCount  int64
 }
 
-// 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다.
-// 그 자리에 이미 care가 있어도 다시 care를 고르면 개수가 늘지 않기 때문입니다.
+// 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다(이유는 selector.careCapped 주석).
 // today_count는 오늘, week_count는 오늘을 포함한 최근 7일(week_start ~ today)입니다.
 func (q *Queries) CountCare(ctx context.Context, arg CountCareParams) (CountCareRow, error) {
 	row := q.db.QueryRow(ctx, countCare,
@@ -179,6 +179,44 @@ func (q *Queries) InsertSelection(ctx context.Context, arg InsertSelectionParams
 	return id, err
 }
 
+const listOtherHashVariants = `-- name: ListOtherHashVariants :many
+SELECT DISTINCT variant FROM daily_selections
+WHERE account_id = $1 AND date = $2 AND slot = $3 AND birth_hash <> $4
+`
+
+type ListOtherHashVariantsParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+	Slot      string
+	BirthHash []byte
+}
+
+// 같은 (계정, 날짜, 슬롯)에서 지문이 다른 기록들이 쓴 variant입니다. 같은 날 다시 고를 때 이 유형을 피합니다.
+func (q *Queries) ListOtherHashVariants(ctx context.Context, arg ListOtherHashVariantsParams) ([]string, error) {
+	rows, err := q.db.Query(ctx, listOtherHashVariants,
+		arg.AccountID,
+		arg.Date,
+		arg.Slot,
+		arg.BirthHash,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var variant string
+		if err := rows.Scan(&variant); err != nil {
+			return nil, err
+		}
+		items = append(items, variant)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTemplates = `-- name: ListTemplates :many
 SELECT slot, key, variant, body FROM content_templates
 WHERE seed_version = $1 AND lang = $2
@@ -235,6 +273,22 @@ type SetRotationParams struct {
 
 func (q *Queries) SetRotation(ctx context.Context, arg SetRotationParams) error {
 	_, err := q.db.Exec(ctx, setRotation, arg.AccountID, arg.MessageKey, arg.NextVariant)
+	return err
+}
+
+const softDeleteReactions = `-- name: SoftDeleteReactions :exec
+UPDATE reactions SET deleted_at = $1
+WHERE selection_id = $2 AND deleted_at IS NULL
+`
+
+type SoftDeleteReactionsParams struct {
+	DeletedAt   *time.Time
+	SelectionID int64
+}
+
+// 선택 기록의 문장이 바뀌면 옛 문장에 남긴 활성 반응을 soft delete합니다.
+func (q *Queries) SoftDeleteReactions(ctx context.Context, arg SoftDeleteReactionsParams) error {
+	_, err := q.db.Exec(ctx, softDeleteReactions, arg.DeletedAt, arg.SelectionID)
 	return err
 }
 
