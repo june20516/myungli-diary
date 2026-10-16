@@ -133,6 +133,42 @@ Widget _textFields() => Builder(
   },
 );
 
+/// text-field 여러 줄(#218 ⑤, event-edit 메모): 비었음(최소 높이 52)·세 줄·상한 6줄을 넘음.
+Widget _multilineFields() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    final line = ja ? '持ち物' : '챙길 것';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s12,
+      children: [
+        MyungliTextField(
+          label: '메모',
+          hint: ja ? 'メモ' : '메모',
+          maxLength: 2000,
+          maxLines: MyungliTextField.maxLinesLimit,
+        ),
+        MyungliTextField(
+          label: '메모',
+          maxLength: 2000,
+          maxLines: MyungliTextField.maxLinesLimit,
+          controller: TextEditingController(
+            text: [for (var i = 1; i <= 3; i++) '$line $i'].join('\n'),
+          ),
+        ),
+        MyungliTextField(
+          label: '메모',
+          maxLength: 2000,
+          maxLines: MyungliTextField.maxLinesLimit,
+          controller: TextEditingController(
+            text: [for (var i = 1; i <= 8; i++) '$line $i'].join('\n'),
+          ),
+        ),
+      ],
+    );
+  },
+);
+
 /// text-field focused: 글자가 있고 포커스가 있어 지우기 아이콘이 보입니다.
 ///
 /// 포커스를 받은 입력칸은 Overlay(선택 손잡이용)가 필요해 직접 둡니다.
@@ -316,6 +352,21 @@ Widget _datePickers() => Builder(
   },
 );
 
+/// date-picker: 양력 전용(`lunarAllowed: false`, A37) — 양력·음력 선택과 윤달 줄이 없습니다.
+Widget _solarOnlyDatePicker() => BirthDatePicker(
+  value: const BirthDateValue(
+    calendar: BirthCalendar.solar,
+    year: 2026,
+    month: 10,
+    day: 16,
+  ),
+  onChanged: (_) {},
+  calendarLabelSolar: '양력',
+  calendarLabelLunar: '음력',
+  leapMonthLabel: '윤달',
+  lunarAllowed: false,
+);
+
 /// time-picker: birth(시진 확인 줄)·birth(확인 줄 없음)·birth(모름)·notify.
 Widget _timePickers() => Builder(
   builder: (context) {
@@ -375,6 +426,7 @@ Widget _citySearches() => Builder(
               country: 'KR',
               countryName: 'South Korea',
               timezone: 'Asia/Seoul',
+              longitude: 126.9780,
             ),
             City(
               id: '2',
@@ -383,6 +435,7 @@ Widget _citySearches() => Builder(
               countryName: 'South Korea',
               regionName: 'Busan',
               timezone: 'Asia/Seoul',
+              longitude: 129.0756,
             ),
             City(
               id: '3',
@@ -391,6 +444,7 @@ Widget _citySearches() => Builder(
               countryName: 'United States',
               regionName: 'California',
               timezone: 'America/Los_Angeles',
+              longitude: -122.4194,
             ),
           ]),
         ),
@@ -398,6 +452,42 @@ Widget _citySearches() => Builder(
         search(const AsyncData([])),
         search(const AsyncError<List<City>>(OfflineError(), StackTrace.empty)),
       ],
+    );
+  },
+);
+
+/// city-search saving: 고른 줄 끝에 점(정지), 다른 줄은 눌림 없이 그대로.
+Widget _citySearchSaving() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    final seoul = City(
+      id: '1',
+      name: 'Seoul',
+      country: 'KR',
+      countryName: 'South Korea',
+      timezone: 'Asia/Seoul',
+      longitude: 126.9780,
+    );
+    final busan = City(
+      id: '2',
+      name: 'Busan',
+      country: 'KR',
+      countryName: 'South Korea',
+      regionName: 'Busan',
+      timezone: 'Asia/Seoul',
+      longitude: 129.0756,
+    );
+    return CitySearch(
+      label: ja ? '都市名' : '도시 이름',
+      hint: ja ? '例: ソウル' : '예: Seoul',
+      onQueryChanged: (_) {},
+      results: AsyncData([seoul, busan]),
+      onSelected: (_) {},
+      emptyBody: ja ? '見つかる都市がありません。' : '찾는 도시가 없어요.',
+      onRetry: () {},
+      savingCityId: seoul.id,
+      skeletonDelay: Duration.zero,
+      animated: false,
     );
   },
 );
@@ -425,6 +515,10 @@ void main() {
 
   goldenTest('text-field: 비었음·글자 있음·error·disabled', (tester) async {
     await goldenMatrix(tester, 'input_text_field', _textFields);
+  });
+
+  goldenTest('text-field: 여러 줄(비었음·세 줄·6줄 상한)', (tester) async {
+    await goldenMatrix(tester, 'input_text_field_multiline', _multilineFields);
   });
 
   goldenTest('text-field: focused(dark ko 1.0 칸 하나만 포커스)', (tester) async {
@@ -463,6 +557,15 @@ void main() {
     );
   });
 
+  goldenTest('date-picker(birth): 양력 전용', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_date_picker_solar_only',
+      _solarOnlyDatePicker,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
   goldenTest('time-picker: birth(확인 줄·없음·모름)·notify', (tester) async {
     await goldenMatrix(
       tester,
@@ -477,6 +580,15 @@ void main() {
       tester,
       'input_city_search',
       _citySearches,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('city-search: saving(고른 줄 점·다른 줄 눌림 없음)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_city_search_saving',
+      _citySearchSaving,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

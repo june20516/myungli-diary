@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/interaction/press_ink_state.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 /// 눌림이 글자 둘레에서만 번지는 `press.ink`를 입힌 누르는 자리.
@@ -25,8 +26,9 @@ class PressInkTarget extends StatefulWidget {
   /// 스크린리더 라벨.
   final String semanticLabel;
 
-  /// 눌렀을 때.
-  final VoidCallback onTap;
+  /// 눌렀을 때. null이면 누를 수 없는 꺼진 자리입니다(눌림 없이 그대로 보이고, 위젯 트리는
+  /// 켜졌을 때와 같아 전환에서 눌림 잉크가 끊기지 않습니다).
+  final VoidCallback? onTap;
 
   /// 얼룩을 자를 모서리.
   final BorderRadius borderRadius;
@@ -51,77 +53,48 @@ class PressInkTarget extends StatefulWidget {
 }
 
 class _PressInkTargetState extends State<PressInkTarget>
-    with TickerProviderStateMixin {
-  late final AnimationController _press = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.pressInk.duration,
-  );
-  late final AnimationController _release = AnimationController(
-    vsync: this,
-    duration: pressInkReleaseDuration,
-  )..addStatusListener(_onReleased);
-
-  Alignment _origin = Alignment.center;
-
-  void _onReleased(AnimationStatus status) {
-    if (status == AnimationStatus.completed) _press.value = 0;
-  }
-
-  @override
-  void dispose() {
-    _press.dispose();
-    _release.dispose();
-    super.dispose();
-  }
-
-  void _down(TapDownDetails details) {
-    final size = context.size ?? const Size.square(44);
-    _origin = Alignment(
-      size.width == 0 ? 0 : details.localPosition.dx / size.width * 2 - 1,
-      size.height == 0 ? 0 : details.localPosition.dy / size.height * 2 - 1,
-    );
-    _release.value = 0;
-    _press.forward(from: 0);
-  }
-
-  void _up() => _release.forward(from: 0);
-
+    with TickerProviderStateMixin, PressInkState<PressInkTarget> {
   @override
   Widget build(BuildContext context) {
+    final onTap = widget.onTap;
     return Semantics(
       container: true,
+      enabled: onTap != null,
       button: !widget.link,
       link: widget.link,
       expanded: widget.expanded,
       identifier: widget.identifier,
       label: widget.semanticLabel,
-      onTap: widget.onTap,
+      onTap: onTap,
       child: ExcludeSemantics(
         child: FocusableActionDetector(
+          enabled: onTap != null,
           mouseCursor: SystemMouseCursors.click,
           actions: {
             ActivateIntent: CallbackAction<ActivateIntent>(
               onInvoke: (_) {
-                widget.onTap();
+                onTap?.call();
                 return null;
               },
             ),
           },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTapDown: _down,
-            onTapUp: (_) {
-              _up();
-              widget.onTap();
-            },
-            onTapCancel: _up,
+            onTapDown: onTap == null ? null : pressInkDown,
+            onTapUp: onTap == null
+                ? null
+                : (_) {
+                    pressInkUp();
+                    onTap();
+                  },
+            onTapCancel: onTap == null ? null : pressInkUp,
             child: animate(
               InteractionPattern.pressInk,
-              t: _press,
+              t: pressInk,
               prefs: MotionPrefs.of(context),
               options: PatternOptions(
-                origin: _origin,
-                release: _release,
+                origin: pressInkOrigin,
+                release: pressInkRelease,
                 inkColor: widget.inkColor ?? context.tokens.colors.textPrimary,
                 borderRadius: widget.borderRadius,
               ),

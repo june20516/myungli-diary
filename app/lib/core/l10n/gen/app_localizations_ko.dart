@@ -189,6 +189,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noticeOffline => '인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.';
 
   @override
+  String get noticeTimeUnknown => '시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.';
+
+  @override
   String get emptyStateDefault => '아직 보여 드릴 내용이 없어요.';
 
   @override
@@ -581,10 +584,6 @@ class AppLocalizationsKo extends AppLocalizations {
       '명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.';
 
   @override
-  String get calcBasisLongitudeBody =>
-      '출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
-
-  @override
   String get calcBasisLunarBody => '음력은 한국천문연구원 기준의 한국 음력을 따라요.';
 
   @override
@@ -808,7 +807,100 @@ class AppLocalizationsKo extends AppLocalizations {
   String get evidenceSheetTitle => '오늘 풀이의 근거';
 
   @override
-  String get calcBasisTitle => '계산 기준';
+  String get a11yListSeparator => ', ';
+
+  @override
+  String get calendarBarTitle => '달력';
+
+  @override
+  String get eventEditBarTitle => '일정';
+
+  @override
+  String get calendarPrevMonth => '이전 달';
+
+  @override
+  String get calendarNextMonth => '다음 달';
+
+  @override
+  String dayCellLunar(int month, int day) {
+    return '음력 $month월 $day일';
+  }
+
+  @override
+  String get dayCellLeapMonth => '윤달';
+
+  @override
+  String dayCellEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '일정 $_temp0';
+  }
+
+  @override
+  String get dayCellDiaryWritten => '일기 있음';
+
+  @override
+  String get dayCellToday => '오늘';
+
+  @override
+  String eventRowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '외 $_temp0';
+  }
+
+  @override
+  String get eventRowAllDay => '하루 종일';
+
+  @override
+  String eventRowLabel(String status, String time, String title) {
+    return '$status $time $title';
+  }
+
+  @override
+  String todayEventSummaryNextAt(String time, String title) {
+    return '다음 $time $title';
+  }
+
+  @override
+  String todayEventSummaryAllPast(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '오늘 일정 $_temp0가 모두 지났어요';
+  }
+
+  @override
+  String get eventEditAllDay => '하루 종일';
+
+  @override
+  String get eventEditTimed => '시간 지정';
+
+  @override
+  String get eventEditDateLabel => '날짜';
+
+  @override
+  String get eventEditTimeLabel => '시간';
+
+  @override
+  String get eventEditSave => '저장';
+
+  @override
+  String get eventEditDelete => '일정 지우기';
+
+  @override
+  String get eventEditOfflineNotice => '인터넷에 연결되어 있지 않아 저장할 수 없어요.';
+
+  @override
+  String get eventEditSaveFailed => '일정을 저장하지 못했어요. 다시 시도해 주세요.';
 
   @override
   String get direction8N => '북';
@@ -869,4 +961,97 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get calcBasisSchoolsBody =>
       '지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.';
+
+  @override
+  String get accountDeleteBarTitle => '계정 삭제';
+
+  @override
+  String get adFreeBarTitle => '광고 제거';
+
+  @override
+  String get birthplaceBarTitle => '출생지';
+
+  @override
+  String get calcBasisBarTitle => '계산 기준';
+
+  @override
+  String calcBasisLongitudeBodyDstSubtract(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  ) {
+    return '출생 시각은 서머타임 $dstMinutes분을 먼저 빼고, $longitude 기준으로 $minutes분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyDstAdd(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  ) {
+    return '출생 시각은 서머타임 $dstMinutes분을 먼저 빼고, $longitude 기준으로 $minutes분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes) {
+    return '출생 시각은 서머타임 $dstMinutes분만 빼고 계산해요. $longitude 기준이라 경도 보정은 따로 하지 않아요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+  }
+
+  @override
+  String get consentBarTitle => '약관 동의';
+
+  @override
+  String get diaryEditBarTitle => '일기 쓰기';
+
+  @override
+  String get diaryListBarTitle => '일기';
+
+  @override
+  String diaryViewBarTitle(String date) {
+    return '$date의 일기';
+  }
+
+  @override
+  String get legalBarTitle => '약관·정책';
+
+  @override
+  String get loginBarTitle => '로그인';
+
+  @override
+  String get mySajuBarTitle => '나의 사주';
+
+  @override
+  String get notifyAskBarTitle => '알림';
+
+  @override
+  String get onboardBirthBarTitle => '생일';
+
+  @override
+  String get onboardCallBarTitle => '호칭';
+
+  @override
+  String get onboardGenderBarTitle => '성별';
+
+  @override
+  String get onboardTimeBarTitle => '태어난 시간';
+
+  @override
+  String get previewBarTitle => '첫 풀이';
+
+  @override
+  String get profileEditBarTitle => '정보 수정';
+
+  @override
+  String get sajuChartBarTitle => '사주 표';
+
+  @override
+  String get settingsBarTitle => '설정';
+
+  @override
+  String tagDiaryBarTitle(String tag) {
+    return '$tag 태그';
+  }
+
+  @override
+  String get todayBarTitle => '오늘';
 }

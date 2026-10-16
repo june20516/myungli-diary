@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
 /// 오늘 화면이 그리는 데 필요한 값 묶음.
 final class TodayContent {
@@ -66,11 +69,41 @@ AsyncValue<TodayContent> todayContentOf({
 }
 
 /// 오늘 화면 값. 오늘 응답·이름 사전·오늘 일기 여부·"오늘"을 한 곳에서 묶습니다.
-final todayContentProvider = Provider<AsyncValue<TodayContent>>(
-  (ref) => todayContentOf(
+///
+/// 값이 생기면 사전에 이름이 없어 칩이 되지 않은 대표 태그를 보고합니다
+/// ([unnamedFeaturedTagKeysOf], 같은 빈칸은 앱 실행 동안 한 번).
+final todayContentProvider = Provider<AsyncValue<TodayContent>>((ref) {
+  final content = todayContentOf(
     today: ref.watch(todayProvider),
     daily: ref.watch(dailyControllerProvider),
     glossary: ref.watch(glossaryProvider),
     diaryWritten: ref.watch(todayDiaryExistsProvider),
-  ),
+  );
+  final value = content.value;
+  if (value != null) {
+    _reportUnnamedTags(ref, value);
+  }
+  return content;
+});
+
+/// 이미 보고한 사전 빈칸(용어 id). 다시 계산할 때마다 같은 빈칸을 거듭 보고하지 않게 합니다.
+final _reportedDictionaryGapsProvider = Provider<Set<String>>(
+  (ref) => <String>{},
 );
+
+/// [content]의 대표 태그 중 사전에 이름이 없는 것을 용어 id만 담아 보고합니다(D64).
+void _reportUnnamedTags(Ref ref, TodayContent content) {
+  final reported = ref.read(_reportedDictionaryGapsProvider);
+  final keys = unnamedFeaturedTagKeysOf(content.view.daily, content.names);
+  for (final key in keys) {
+    final termId = 'tag.$key';
+    if (reported.add(termId)) {
+      ref
+          .read(crashReporterProvider)
+          .record(
+            CrashSummary.from(MissingDictionaryEntry(termId)),
+            StackTrace.current,
+          );
+    }
+  }
+}

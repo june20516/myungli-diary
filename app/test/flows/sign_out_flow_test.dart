@@ -262,7 +262,8 @@ void main() {
     final entries = <EntryState?>[];
     container.listen(entryProvider, (_, next) => entries.add(next));
     final router = container.read(routerProvider)..go('/calendar');
-    await tester.pumpAndSettle();
+    // 달력은 대역 서버(실제 I/O)에서 달을 받으므로 I/O와 함께 정착합니다.
+    await settleWithIo(tester);
 
     await tester.runAsync(container.read(entryStateProvider.notifier).refresh);
     await _settle(tester);

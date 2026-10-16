@@ -289,6 +289,20 @@ void main() {
       }
     });
 
+    test('MissingDictionaryEntry는 형식 검사를 거친 용어 id만 code로 담는다', () {
+      final summary = CrashSummary.from(
+        const MissingDictionaryEntry('tag.hwagae'),
+      );
+      expect(summary.errorType, 'MissingDictionaryEntry');
+      expect(summary.code, 'tag.hwagae');
+      expect(summary.status, isNull);
+      final odd = CrashSummary.from(
+        const MissingDictionaryEntry('tag.홍길동 1990'),
+      );
+      expect(odd.errorType, 'MissingDictionaryEntry');
+      expect(odd.code, isNull);
+    });
+
     test('형식이 이상한 problem code는 버린다', () {
       for (final code in ['홍길동 1990-05-05', 'A.B', '', 'a' * 65]) {
         final summary = CrashSummary.from(

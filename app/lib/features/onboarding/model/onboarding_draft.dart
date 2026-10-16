@@ -129,6 +129,7 @@ final class OnboardingDraft {
             'countryName': city!.countryName,
             'regionName': city!.regionName,
             'timezone': city!.timezone,
+            'longitude': city!.longitude,
           },
   };
 
@@ -209,7 +210,13 @@ BirthTime _timeFromJson(Map<String, Object?> json) {
   );
 }
 
-City _cityFromJson(Map<String, Object?> json) {
+/// 경도가 없는 옛 입력(계약에 `City.longitude`가 생기기 전 저장분)은 도시를 고르지 않은
+/// 것으로 봅니다. 해외 기기는 진입 계산이 `birthplace`로 도시를 다시 받습니다.
+City? _cityFromJson(Map<String, Object?> json) {
+  final longitude = json['longitude'] as num?;
+  if (longitude == null) {
+    return null;
+  }
   final country = json['country']! as String;
   return City(
     id: json['id']! as String,
@@ -220,5 +227,6 @@ City _cityFromJson(Map<String, Object?> json) {
     countryName: json['countryName'] as String? ?? country,
     regionName: json['regionName'] as String?,
     timezone: json['timezone']! as String,
+    longitude: longitude,
   );
 }

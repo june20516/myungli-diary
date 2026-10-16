@@ -19,6 +19,8 @@ abstract class _$CityCWProxy {
 
   City timezone(String timezone);
 
+  City longitude(num longitude);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `City(...).copyWith.fieldName(value)`.
@@ -34,6 +36,7 @@ abstract class _$CityCWProxy {
     String countryName,
     String? regionName,
     String timezone,
+    num longitude,
   });
 }
 
@@ -62,6 +65,9 @@ class _$CityCWProxyImpl implements _$CityCWProxy {
   @override
   City timezone(String timezone) => call(timezone: timezone);
 
+  @override
+  City longitude(num longitude) => call(longitude: longitude);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `City(...).copyWith.fieldName(value)`.
@@ -78,6 +84,7 @@ class _$CityCWProxyImpl implements _$CityCWProxy {
     Object? countryName = const $CopyWithPlaceholder(),
     Object? regionName = const $CopyWithPlaceholder(),
     Object? timezone = const $CopyWithPlaceholder(),
+    Object? longitude = const $CopyWithPlaceholder(),
   }) {
     return City(
       id: id == const $CopyWithPlaceholder() || id == null
@@ -105,6 +112,10 @@ class _$CityCWProxyImpl implements _$CityCWProxy {
           ? _value.timezone
           // ignore: cast_nullable_to_non_nullable
           : timezone as String,
+      longitude: longitude == const $CopyWithPlaceholder() || longitude == null
+          ? _value.longitude
+          // ignore: cast_nullable_to_non_nullable
+          : longitude as num,
     );
   }
 }
@@ -120,23 +131,30 @@ extension $CityCopyWith on City {
 // JsonSerializableGenerator
 // **************************************************************************
 
-City _$CityFromJson(Map<String, dynamic> json) => $checkedCreate('City', json, (
-  $checkedConvert,
-) {
-  $checkKeys(
-    json,
-    requiredKeys: const ['id', 'name', 'country', 'countryName', 'timezone'],
-  );
-  final val = City(
-    id: $checkedConvert('id', (v) => v as String),
-    name: $checkedConvert('name', (v) => v as String),
-    country: $checkedConvert('country', (v) => v as String),
-    countryName: $checkedConvert('countryName', (v) => v as String),
-    regionName: $checkedConvert('regionName', (v) => v as String?),
-    timezone: $checkedConvert('timezone', (v) => v as String),
-  );
-  return val;
-});
+City _$CityFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('City', json, ($checkedConvert) {
+      $checkKeys(
+        json,
+        requiredKeys: const [
+          'id',
+          'name',
+          'country',
+          'countryName',
+          'timezone',
+          'longitude',
+        ],
+      );
+      final val = City(
+        id: $checkedConvert('id', (v) => v as String),
+        name: $checkedConvert('name', (v) => v as String),
+        country: $checkedConvert('country', (v) => v as String),
+        countryName: $checkedConvert('countryName', (v) => v as String),
+        regionName: $checkedConvert('regionName', (v) => v as String?),
+        timezone: $checkedConvert('timezone', (v) => v as String),
+        longitude: $checkedConvert('longitude', (v) => v as num),
+      );
+      return val;
+    });
 
 Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
   'id': instance.id,
@@ -145,4 +163,5 @@ Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
   'countryName': instance.countryName,
   'regionName': ?instance.regionName,
   'timezone': instance.timezone,
+  'longitude': instance.longitude,
 };

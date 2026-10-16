@@ -71,8 +71,6 @@ class SocialLoginButton extends StatelessWidget {
   static const double _minHeight = 52;
   static const double _minTarget = 48;
   static const double _logoSize = 20;
-  static const double _dotSize = 6;
-  static const double _dotGap = 6;
 
   /// `disabled` 버튼 전체 투명도(명세 `states.disabled.parts.container.opacity`).
   static const double disabledOpacity = 0.4;
@@ -146,9 +144,9 @@ class SocialLoginButton extends StatelessWidget {
                     key: dotsKey,
                     color: fg,
                     animated: animated,
-                    count: 3,
-                    size: _dotSize,
-                    gap: _dotGap,
+                    count: BreathingDots.standardCount,
+                    size: BreathingDots.standardSize,
+                    gap: BreathingDots.standardGap,
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
@@ -194,7 +192,7 @@ class SocialLoginButton extends StatelessWidget {
       child: PressInkTarget(
         semanticLabel: label,
         identifier: identifier,
-        onTap: onPressed!,
+        onTap: onPressed,
         borderRadius: radius,
         inkColor: fg,
         child: wide,

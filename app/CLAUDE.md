@@ -36,7 +36,7 @@
 
 ## 검사
 작업 단계와 속도에 맞춰 자원을 고릅니다. 반복 중에는 로컬에서, PR 직전 확인이나 CI 환경에서만 나는 문제는 GitHub Actions에서 돌립니다.
-* **로컬(반복 중):** `flutter analyze`(app·widgetbook), `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed .`, `dart run tool/ia_coverage.dart --check`, golden은 Docker `tool/goldens_linux.sh`(CI와 같은 Linux 렌더링).
+* **로컬(반복 중):** `flutter analyze`(app·widgetbook)와 `dart analyze`(app, riverpod_lint plugin 지적까지 나옴 — `flutter analyze`는 같은 코드에서 plugin 지적이 나왔다 안 나왔다 한 적이 있어(원인 미확인) 함께 돌립니다), `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed .`, `dart run tool/ia_coverage.dart --check`, golden은 Docker `tool/goldens_linux.sh`(CI와 같은 Linux 렌더링).
 * **로컬 E2E(Patrol):** 에뮬레이터(`~/Library/Android/sdk/emulator/emulator -list-avds`)를 띄우고 `patrol test -t patrol_test --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`. 포트는 기본값(8081·8082) 대신 이 값을 씁니다. 개발 기기에서 다른 도구(예 React Native Metro의 `adb reverse tcp:8081`)가 8081을 잡고 있으면 계측이 `BindException`으로 죽습니다. CI(`app.yml`)도 같은 값입니다.
 * **GitHub(필요할 때):** 브랜치를 push하고 `gh workflow run app.yml --ref <브랜치>`. `e2e-android`(x86_64·API 34)는 PR 검사(`ci-gate`)에서 건너뛰므로 PR 직전 한 번 확인합니다. 실패하면 artifact `e2e-gradle-reports`에 Gradle 보고서와 기기 전체 logcat이 남습니다.
 
@@ -51,9 +51,11 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-10-16, app 세션 갱신)
-* **IA v3(#160·#173·#184) 구현 완료, PR 전**입니다. 브랜치 `app/ia-v3`, 계획 [`docs/plans/2026-10-16-ia-v3.md`](docs/plans/2026-10-16-ia-v3.md). `birthplace`의 한국 표준 소개·계산 기준 링크와 새 화면 `calc-basis`(로그인 전 열람)를 만들었고, 경도 보정은 화면과 떨어진 순수 함수(`features/calc_basis/model/time_basis.dart`, 엔진 대조 fixture `test/features/calc_basis/model/engine_time_basis_cases.json`)입니다. 결정 A28~A31(`docs/decisions.md`).
-  * **E2E 커버리지(도구로 확인, 2026-10-16):** 경로 38/80, 상태 19/54, 결정 4/6(`dart run tool/ia_coverage.dart --check`).
-  * **남은 Issue:** #199(server, 도시 경도), #201(writing, 임시 키와 PR #205의 `*.bar.title` 원고 24개), #211(design, `ProsePageBody`·skeleton·preface 간격), #214(writing, 서머타임 출생 경도 문구). 답이 오면 아래 "다음 할 일" 2를 합니다.
+* **계획 4(달력·일정) 구현 완료, PR 전**입니다. 브랜치 `app/calendar`, 계획 [`docs/plans/2026-10-16-calendar.md`](docs/plans/2026-10-16-calendar.md), 결정 A32~A41(`docs/decisions.md`). `features/calendar`(달 길흉 영구 캐시와 앞뒤 달 미리 받기, `calendar` 탭, `day-sheet`)와 `features/schedule`(보이는 6주 격자 범위만 메모리에 드는 일정, `event-edit` 만들기·고치기·지우기)를 만들었고, `today`에 오늘 일정 한 줄과 `today` → `day-sheet` 출구를 붙였습니다. 시트·확인 창·toast는 셸 바깥에 그려도 글자가 Material 오류 스타일을 받지 않습니다.
+  * **E2E 커버리지(도구로 확인, 2026-10-16):** 경로 45/80, 상태 26/54, 결정 5/6(`dart run tool/ia_coverage.dart --check`). Patrol 흐름 `patrol_test/calendar_test.dart`.
+  * **drift 따라잡기(#224·#227·#229·#231·#234) 반영 완료**, 결정 A22·A29·A30·A31·A38 해제, A42(근거 여러 문단)·A43(빈 notice 문장 임시 키) 추가. city-search saving·지역 구분자, 생성물·fixture, 일정·반응 404 code·범위 422, calc-basis 도시 경도·서머타임 문구, app-bar 제목 13곳, 용어 한자·오늘 그런 이유·근거 basis·source 문장을 이었습니다.
+  * **남은 Issue:** design #218(진행 중 규칙·양력 date-picker·윤달·삭제 확인·A42·한자 글꼴·원전 상자), writing #237·#232·#236. #217·#219는 닫혔고 #220은 D75로 닫혔습니다.
+* **IA v3(#160·#173·#184) 완료**이고 PR #215로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-16-ia-v3.md`](docs/plans/2026-10-16-ia-v3.md), 결정 A28~A31. 새 화면 `calc-basis`와 경도 보정 순수 함수(`features/calc_basis/model/time_basis.dart`)가 있습니다. #199·#201·#214의 반영은 위 drift 따라잡기로 끝났고, 남은 것은 아래 "다음 할 일" 2입니다.
 * **계획 3(오늘·깊이 시트) 완료**이고 PR #196으로 main에 병합됐습니다. 계획: [`docs/plans/2026-10-15-today-depth.md`](docs/plans/2026-10-15-today-depth.md)
 * **계획 2(온보딩·로그인) 완료**이고 PR #149로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md), 결정 A17~A21. 화면 13개(launch~ad-consent)와 새 계정 흐름 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`, fake 시나리오 표는 [`README.md`](README.md)에 있습니다.
 * **기반 계획(task 1~23) 완료**이고 PR #117로 main에 병합됐습니다(2026-10-13). spec [`docs/specs/2026-10-13-app-architecture-design.md`](docs/specs/2026-10-13-app-architecture-design.md), 계획 [`docs/plans/2026-10-13-foundation.md`](docs/plans/2026-10-13-foundation.md), 결정 A1~A16. 실행·생성 코드·테스트·CI는 [`README.md`](README.md)에 있습니다.
@@ -81,16 +83,19 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **IA v3 PR.** `app/ia-v3` → `main`입니다. 올리기 전에 `git merge origin/main` 뒤 로컬 검사와 로컬 Patrol(아래 "검사")을 돌리고, 브랜치를 push해 `gh workflow run app.yml --ref app/ia-v3`로 `e2e-android`를 한 번 확인합니다. PR 본문은 `Closes #160`·`Closes #173`·`Closes #184`이고 마무리에 공개 확인(가격·수익 수치, 비공개 저장소 경로 링크)을 합니다(`docs/workflow.md` §3).
-2. **IA v3 응답이 오면 할 일.** #199(server) 응답 시 도시 경도를 `calc-basis` 경도 계산에 연결합니다(A29, 지금은 도시 경도를 모르면 문단을 그리지 않음). IA가 app-bar 화면 24곳에 제목 슬롯 `<화면>.bar.title`을 더했습니다(PR #205, #200 닫힘). writing 원고(#201)가 오면 가져와서 임시 `calcBasisTitle`을 `calc-basis.bar.title` 키로 바꾸고(A30), 다른 화면의 app-bar 제목도 그 키로 그립니다. #214(writing) 응답 시 서머타임 출생 경도 문단을 새 키로 그리고 A31을 거둡니다. #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
-3. **계획 4(달력·일정)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. `calendar`·`day-sheet`·`event-edit`에 더해 오늘 화면의 일정 줄과 `today` → `day-sheet` 출구를 마무리하고 `pendingExitScreens`에서 `today`를 뺍니다. `day-sheet`는 계획 3의 시트 등록부(`sheetRegistry`, A23)와 `DepthSheets`, 문장·카드 부품을 그대로 씁니다.
-4. **계약 필드가 오면 할 일(A22).** server #167(core #130 대기)로 `explain.today_reason`, 근거 `basis`·`source`, 용어 한자가 계약에 들어오면 fixture와 표시 값 변환(`today_presentation.dart`, 풀이·근거 시트 본문)만 더합니다. 그때 근거 시트가 제목만 보이는 한계가 풀립니다.
-5. **writing 대기 문구.** 새 problem code `timezone.invalid`·`city.not_found`의 문구(`errorTimezoneInvalid`·`errorCityNotFound`)가 writing ARB에 오면 가져오고 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지웁니다. 그때까지 4xx 일반 문구입니다.
+1. **계획 4 PR.** `app/calendar` → `main`입니다. 올리기 전에 `git merge origin/main` 뒤 로컬 검사와 로컬 Patrol(아래 "검사")을 돌리고, 브랜치를 push해 `gh workflow run app.yml --ref app/calendar`로 `e2e-android`를 한 번 확인합니다. PR 마무리에 공개 확인(가격·수익 수치, 비공개 저장소 경로 링크)을 합니다(`docs/workflow.md` §3).
+2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 화면 9곳의 `<화면>.bar.title` 제목은 해당 화면을 만드는 계획 5·6에서 붙입니다(임시 키 허용 목록 `test/` 대조가 알려 줍니다, A43). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
+3. **계획 5(일기)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. 계획 4가 넘기는 것:
+   * `diary-view`·`diary-edit`은 날짜를 `?date=YYYY-MM-DD` 계약으로 받습니다(`lib/app/router/app_router.dart`의 `dateQuery`·`datedPathOf`). `day-sheet`의 일기 입구가 이미 이 경로로 엽니다(`today` 가이드 카드는 날짜 없이 오늘로 엽니다).
+   * `date-picker`의 `calendar` 변형(일기 날짜 고르기)은 `CalendarMonthView.isDateEnabled`로 미래 날짜를 막습니다.
+   * 연결 상태 provider가 생기면 달력 오프라인 배너를 그것으로 바꿉니다. 지금은 달·일정 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`).
+   * 계획 4의 남은 Issue(#218 design) 답이 오면 임시 문구·명세·계약 빈칸(A32~A41)을 맞춥니다.
+4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제), 원전 인용 fixture는 writing 원고가 오면 채웁니다. design #218의 ⑤A42(근거 여러 문단)·⑥한자 글꼴·⑦원전 인용 상자 확인이 오면 `EvidenceSubject` 출처 표시에 맞춥니다.
+5. **writing 대기 문구.** #237(새 error 문구 3개, `noticeTimeUnknown` 알림)·#232(notice)가 오면 가져오고 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지웁니다(문구가 오면 대기 테스트가 실패해 알려 줍니다). 그때까지 4xx 일반 문구입니다. 빈 `segments` notice 문장은 임시 키(A43)로 그립니다.
 6. **이후 계획으로 넘긴 사항**
    * 계획 6(나·설정): 근거 시트의 원국표와 "내 사주에서는" 개인 해석(`EvidenceSubject`에 차트 주제를 더해 잠금 해제 흐름을 그대로 씀), `legal`에 GeoNames 출처 고지(#165).
    * 계획 6(설정·계정): 자발적 로그아웃과 계정 삭제(`deleteMe` 202 뒤, 계정이 삭제 대기가 되어도 토큰은 `logout`에 쓸 수 있음)는 `revokeAndSignOut`(`lib/app/entry/sign_out.dart`)을 부릅니다. 둘 다 `signedOut` 이벤트로 정리·SDK 해제·진입 재계산이 돕니다. `discardWithoutEvent`를 쓰면 정리가 돌지 않습니다.
    * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. RevenueCat·Crashlytics adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 IA 화면이 아니라 라우터 `onException`이 첫 화면으로 보내므로, 그보다 먼저 가로채는 전용 처리를 둡니다. 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
-   * 계획 4(달력): 일정 시각을 server에서 받으면 1분 단위일 수 있으나 `TimePicker` notify 변형의 분은 5의 배수 assert라(계약 `NotificationSetting.time`은 5분 단위, 일정은 app이 5분 휠로만 만듦) **event-edit이 5분으로 맞춰 넘깁니다.** 안 맞추면 debug assert입니다.
    * 계획 6(설정·프로필 수정):
      * `profile-edit`은 `onboard-*`·`birthplace`를 수정 모드로 열 때 현재 값을 `push` extra로 넘깁니다(호칭 `String`, 생일 `BirthDateValue`). extra가 없으면 프로필 사본(`cachedProfileProvider`)에서 시작합니다.
      * 사본의 알림 값을 읽을 때 `updateProfile` fixture가 요청과 무관한 고정 응답인 점을 다시 확인합니다.

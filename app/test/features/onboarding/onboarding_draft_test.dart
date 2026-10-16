@@ -14,6 +14,7 @@ final _newYork = City(
   countryName: 'United States',
   regionName: 'New York',
   timezone: 'America/New_York',
+  longitude: -74.0060,
 );
 
 OnboardingDraft _solar() => OnboardingDraft(
@@ -44,6 +45,22 @@ void main() {
       expect(OnboardingDraft.fromJson(draft.toJson()), draft);
     });
 
+    test('도시를 고른 입력은 경도까지 저장하고 되살립니다', () {
+      final draft = _solar().copyWith(city: _newYork);
+      final restored = OnboardingDraft.fromJson(draft.toJson());
+      expect(restored.city!.longitude, -74.006);
+    });
+
+    test('경도가 없는 옛 입력은 도시를 고르지 않은 것으로 되살립니다', () {
+      final json = _solar().copyWith(city: _newYork).toJson();
+      (json['city']! as Map<String, Object?>).remove('longitude');
+      final restored = OnboardingDraft.fromJson(json);
+      expect(restored.city, isNull);
+      expect(restored.honorific, '하늘');
+      expect(restored.date, LunarOrSolarDate(year: 1990, month: 5, day: 17));
+      expect(restored.gender, BirthGenderEnum.female);
+    });
+
     test('나라 이름이 없던 이전 형식의 도시는 나라 코드로 채워 복원한다', () {
       final draft = OnboardingDraft.fromJson(const {
         'v': 1,
@@ -52,6 +69,7 @@ void main() {
           'name': 'New York',
           'country': 'US',
           'timezone': 'America/New_York',
+          'longitude': -74.006,
         },
       });
       expect(draft.city?.countryName, 'US');

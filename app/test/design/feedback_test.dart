@@ -26,6 +26,8 @@ import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
+import '../support/error_text_style.dart';
+
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 Widget _app(
@@ -199,6 +201,18 @@ void main() {
       await tester.pumpAndSettle();
       return true;
     }
+
+    testWidgets('Material 조상 밖 route여도 제목·본문·버튼 글자에 오류 스타일(노란 밑줄)이 없습니다', (
+      tester,
+    ) async {
+      await open(tester, DialogVariant.destructive);
+      for (final text in ['일기를 지울까요?', '지우면 되돌릴 수 없어요.', '지우기', '취소']) {
+        final rich = tester.widget<RichText>(
+          find.descendant(of: find.text(text), matching: find.byType(RichText)),
+        );
+        expectNoErrorTextStyle(rich.text.style, reason: text);
+      }
+    });
 
     testWidgets('destructive: 처음 초점은 취소입니다', (tester) async {
       await open(tester, DialogVariant.destructive);
@@ -491,6 +505,21 @@ void main() {
     BuildContext hostContext(WidgetTester tester) =>
         tester.element(find.byKey(hostKey));
 
+    testWidgets('root overlay에 그려도 글자에 오류 스타일(노란 밑줄)이 없습니다', (tester) async {
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '저장했어요');
+      await tester.pump(const Duration(milliseconds: 600));
+      final rich = tester.widget<RichText>(
+        find.descendant(
+          of: find.text('저장했어요'),
+          matching: find.byType(RichText),
+        ),
+      );
+      expectNoErrorTextStyle(rich.text.style);
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('2.5초 뒤 사라집니다', (tester) async {
       await pumpHost(tester);
       showMyungliToast(hostContext(tester), '저장했어요');
@@ -502,6 +531,40 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pumpAndSettle();
       expect(find.text('저장했어요'), findsNothing);
+    });
+
+    testWidgets('부른 화면이 바로 닫혀도 토스트가 끝까지 보입니다', (tester) async {
+      await pumpHost(tester);
+      const pageKey = ValueKey('toast-page');
+      Navigator.of(hostContext(tester)).push(
+        // 전환 없이 바로 빠지는 route라야 토스트가 그려질 때 부른 화면이 이미 없습니다.
+        PageRouteBuilder<void>(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, _, _) => const SizedBox.expand(key: pageKey),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final page = tester.element(find.byKey(pageKey));
+      showMyungliToast(page, '이미 없는 일정이에요');
+      final navigator = Navigator.of(page)..pop();
+      await tester.pump();
+      // 다른 route가 오가며 root Overlay가 다시 그려져도(확인 창이 닫힐 때처럼) 토스트가
+      // 닫힌 화면의 context를 찾지 않습니다.
+      navigator.push(
+        PageRouteBuilder<void>(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, _, _) => const SizedBox.expand(),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(pageKey), findsNothing);
+      expect(find.text('이미 없는 일정이에요'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      expect(find.text('이미 없는 일정이에요'), findsNothing);
     });
 
     testWidgets('새 토스트가 오면 하나만 남습니다', (tester) async {

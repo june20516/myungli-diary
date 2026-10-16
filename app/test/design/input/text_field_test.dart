@@ -311,5 +311,74 @@ void main() {
         colors.disabledBg,
       );
     });
+
+    testWidgets('기본은 한 줄 칸이고 키보드 동작은 완료입니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(const Center(child: MyungliTextField(label: '호칭'))),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.maxLines, 1);
+      expect(field.textInputAction, TextInputAction.done);
+      expect(
+        tester.getSize(find.byKey(MyungliTextField.containerKey)).height,
+        52,
+      );
+    });
+
+    testWidgets('maxLines가 1보다 크면 줄바꿈을 받고 그 줄 수까지만 늘어납니다 (#218 ⑤)', (
+      tester,
+    ) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: SizedBox(
+              width: 360,
+              child: MyungliTextField(
+                label: '메모',
+                controller: controller,
+                maxLines: 6,
+              ),
+            ),
+          ),
+        ),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.minLines, 1);
+      expect(field.maxLines, 6);
+      expect(field.keyboardType, TextInputType.multiline);
+      expect(field.textInputAction, TextInputAction.newline);
+
+      double height() =>
+          tester.getSize(find.byKey(MyungliTextField.containerKey)).height;
+      // 빈 칸은 한 줄 칸과 같은 최소 높이입니다.
+      expect(height(), 52);
+
+      controller.text = '하나\n둘\n셋';
+      await tester.pump();
+      final threeLines = height();
+      expect(threeLines, greaterThan(52));
+
+      controller.text = List.generate(6, (i) => '줄 $i').join('\n');
+      await tester.pump();
+      final sixLines = height();
+      expect(sixLines, greaterThan(threeLines));
+
+      controller.text = List.generate(12, (i) => '줄 $i').join('\n');
+      await tester.pump();
+      expect(height(), sixLines, reason: '6줄 뒤로는 칸 안에서 스크롤');
+    });
+
+    test('maxLines는 1~6만 받습니다', () {
+      expect(
+        () => MyungliTextField(label: '메모', maxLines: 7),
+        throwsAssertionError,
+      );
+      expect(
+        () => MyungliTextField(label: '메모', maxLines: 0),
+        throwsAssertionError,
+      );
+    });
   });
 }

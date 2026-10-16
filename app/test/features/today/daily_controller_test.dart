@@ -307,7 +307,7 @@ void main() {
     expect(values.map((v) => v.cacheKey), [key, key]);
     expect(values.last.stale, isFalse);
     expect(values.last.date, _today);
-    expect(container.read(dailyControllerProvider.notifier).cacheKey, key);
+    expect(container.read(dailyControllerProvider).value?.cacheKey, key);
     // 캐시가 새 응답으로 바뀌었습니다.
     final stored = await tester.runAsync(
       () => container.read(cacheStoreProvider).read(CacheKind.daily, key),
@@ -379,7 +379,7 @@ void main() {
     expect(states.last.value?.stale, isFalse);
     // 동기화가 만든 사본으로 키를 만들어 캐시에 남깁니다.
     final key = await _keyFor(tester, container, _today);
-    expect(container.read(dailyControllerProvider.notifier).cacheKey, key);
+    expect(container.read(dailyControllerProvider).value?.cacheKey, key);
   });
 
   testWidgets('사본이 없으면 캐시를 읽지도 쓰지도 않는다', (tester) async {
@@ -401,7 +401,7 @@ void main() {
     expect(values, hasLength(1));
     expect(values.single.stale, isFalse);
     expect(values.single.cacheKey, isNull);
-    expect(container.read(dailyControllerProvider.notifier).cacheKey, isNull);
+    expect(container.read(dailyControllerProvider).value?.cacheKey, isNull);
     expect(
       await tester.runAsync(
         () => container.read(cacheStoreProvider).lockedKeys(CacheKind.daily),
@@ -718,7 +718,7 @@ void main() {
     final (container, _) = await _boot(tester);
     final states = _record(container);
     await _until(tester, () => _settled(states));
-    final before = container.read(dailyControllerProvider.notifier).cacheKey;
+    final before = container.read(dailyControllerProvider).value?.cacheKey;
 
     // 사주를 바꾼 저장 응답이 사본을 바꿉니다.
     final profile = (await tester.runAsync(
@@ -742,12 +742,12 @@ void main() {
       tester,
       () =>
           _settled(states) &&
-          container.read(dailyControllerProvider.notifier).cacheKey != before,
+          container.read(dailyControllerProvider).value?.cacheKey != before,
     );
 
     expect(_fake(container).callCountOf('getDaily'), 2);
     expect(
-      container.read(dailyControllerProvider.notifier).cacheKey,
+      container.read(dailyControllerProvider).value?.cacheKey,
       await _keyFor(tester, container, _today),
     );
   });
@@ -793,7 +793,7 @@ void main() {
     await pumpUntil(() => _settled(states));
     final todayKey = _keyOf(profile, _today);
     expect(states.last.value?.date, _today);
-    expect(container.read(dailyControllerProvider.notifier).cacheKey, todayKey);
+    expect(container.read(dailyControllerProvider).value?.cacheKey, todayKey);
 
     // 자정을 넘깁니다. 새 날짜 응답은 잠시 붙잡아 다시 받는 중을 관찰합니다.
     final hold = server.hold = Completer<void>();
@@ -804,7 +804,7 @@ void main() {
     // 다시 받는 동안 이전 날짜 값을 보이고, 키도 보이는 값(이전 날짜)의 키입니다.
     expect(states.last.isLoading, isTrue);
     expect(states.last.value?.date, _today);
-    expect(container.read(dailyControllerProvider.notifier).cacheKey, todayKey);
+    expect(container.read(dailyControllerProvider).value?.cacheKey, todayKey);
 
     hold.complete();
     await pumpUntil(() => _settled(states));
@@ -814,7 +814,7 @@ void main() {
     expect(states.last.value?.date, tomorrow);
     expect(states.last.value?.stale, isFalse);
     expect(
-      container.read(dailyControllerProvider.notifier).cacheKey,
+      container.read(dailyControllerProvider).value?.cacheKey,
       _keyOf(profile, tomorrow),
     );
 

@@ -1,11 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
 const _notFound = 404;
 
-/// 일기 저장소. 계획 3에서는 그날 일기가 있는지만 묻습니다(일기 화면은 계획 5).
+/// 한 번에 받는 일기 목록 수. 달력 격자(42일)를 한 번에 덮습니다(A33).
+const _datesPageLimit = 100;
+
+/// 일기 저장소. 그날 일기가 있는지와 달력 도장용 일기 날짜만 묻습니다(일기 화면은 계획 5).
 final class DiaryRepository {
   /// `api`로 묻습니다.
   const new(this._api);
@@ -28,5 +32,26 @@ final class DiaryRepository {
       }
       throw appErrorFrom(e);
     }
+  }
+
+  /// [from]~[to](둘 다 포함)에 쓴 일기의 날짜(A33, `listDiaries` limit 100).
+  ///
+  /// 범위는 달력 격자(42일)라 한 쪽으로 끝나므로 다음 쪽(`nextCursor`)은 받지 않습니다.
+  /// 실패는 [existsOn]과 같은 [AppError]입니다.
+  Future<Set<CalendarDate>> datesIn(CalendarDate from, CalendarDate to) async {
+    final DiaryList? list;
+    try {
+      list = (await _api.listDiaries(
+        from: from.toIso(),
+        to: to.toIso(),
+        limit: _datesPageLimit,
+      )).data;
+    } on DioException catch (e) {
+      throw appErrorFrom(e);
+    }
+    if (list == null) {
+      throw UnexpectedError(StateError('빈 응답'));
+    }
+    return {for (final item in list.items) CalendarDate.parse(item.date)};
   }
 }

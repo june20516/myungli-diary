@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
-import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
@@ -67,7 +67,8 @@ class BirthplaceScreen extends ConsumerWidget {
             children: [
               MyungliAppBar.inner(
                 // 스택 바닥(갈래의 첫 화면, 딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
-                title: '',
+                title: AppLocalizations.of(context).birthplaceBarTitle,
+                titleIdentifier: SlotIds.birthplaceBarTitle,
                 showBack: MyungliAppBar.canGoBack(context),
               ),
               Expanded(child: _BirthplaceForm(mode: mode)),
@@ -100,6 +101,13 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   int _generation = 0;
   bool _saving = false;
 
+  /// 저장을 기다리는 동안 고른 도시 id. 그 줄 끝에 점 숨쉬기가 나옵니다(`city-search` saving).
+  String? _savingCityId;
+
+  /// 저장이 실패했을 때 입력칸 아래 오류 줄(`input-step` error)로 보일 오류. 다른 도시를
+  /// 고르거나 검색어를 바꾸면 사라집니다.
+  AppError? _saveError;
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -108,6 +116,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
 
   void _onQueryChanged(String value) {
     _debounce?.cancel();
+    if (_saveError != null) setState(() => _saveError = null);
     _query = value.trim();
     if (_query.isEmpty) {
       _generation++;
@@ -158,10 +167,13 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       context.pop(city);
       return;
     }
-    // 아래 버튼이 없어(`bottomAction.omitWhen`) 처리 중 점이 보일 자리가 없습니다. 지금은
-    // 눌림(press.ink)과 중복 누름 막기뿐이고, 고른 뒤 처리 중 모양은 design에 묻는 중입니다
-    // (#195). 명세에 없는 모양은 만들지 않습니다.
-    setState(() => _saving = true);
+    // 아래 버튼이 없어(`bottomAction.omitWhen`) 고른 줄 끝의 점이 처리 중을 보입니다
+    // (`city-search` saving). 실패하면 아래 finally에서 점이 사라집니다.
+    setState(() {
+      _saving = true;
+      _savingCityId = city.id;
+      _saveError = null;
+    });
     try {
       await ref
           .read(onboardingDraftProvider.notifier)
@@ -177,14 +189,17 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
       if (!mounted) return;
       returnToOnboardCallWith(context, ref, rejected.error);
     } on Object catch (error) {
-      // 마무리 동작이 실패해도 미처리 비동기 오류로 남기지 않고 안내합니다.
+      // 마무리 동작이 실패해도 미처리 비동기 오류로 남기지 않고 오류 줄로 안내합니다
+      // (`city-search` 규칙: 저장이 실패하면 input-step 오류 줄로 돌아간다).
       if (!mounted) return;
-      showMyungliToast(
-        context,
-        errorMessage(AppLocalizations.of(context), onboardingErrorOf(error)),
-      );
+      setState(() => _saveError = onboardingErrorOf(error));
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _savingCityId = null;
+        });
+      }
     }
   }
 
@@ -192,6 +207,7 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final edit = widget.mode == OnboardingStepMode.edit;
+    final saveError = _saveError;
     // 도시를 누르면 곧바로 다음으로 가므로 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`).
     return InputStep.selectToAdvance(
       screenId: ScreenIds.birthplace,
@@ -229,7 +245,9 @@ class _BirthplaceFormState extends ConsumerState<_BirthplaceForm> {
         onSelected: _onSelected,
         emptyBody: l10n.birthplaceEmptyBody,
         onRetry: _search,
+        savingCityId: _savingCityId,
       ),
+      error: saveError == null ? null : errorMessage(l10n, saveError),
       help: l10n.birthplaceWhyBody,
       helpIdentifier: SlotIds.birthplaceWhyBody,
     );

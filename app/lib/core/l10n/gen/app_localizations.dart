@@ -448,6 +448,12 @@ abstract class AppLocalizations {
   /// **'인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'**
   String get noticeOffline;
 
+  /// 임시. writing #232 원고 전 time_unknown notice 대체(A43). 새 문구 요청 #237
+  ///
+  /// In ko, this message translates to:
+  /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
+  String get noticeTimeUnknown;
+
   /// 오프라인 안내 배너와 빈 상태 기본 문장
   ///
   /// In ko, this message translates to:
@@ -1162,12 +1168,6 @@ abstract class AppLocalizations {
   /// **'명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.'**
   String get calcBasisConventionBody;
 
-  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
-  ///
-  /// In ko, this message translates to:
-  /// **'출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
-  String get calcBasisLongitudeBody;
-
   /// calc-basis.lunar.body: KASI 기준 한국 음력 안내
   ///
   /// In ko, this message translates to:
@@ -1600,11 +1600,143 @@ abstract class AppLocalizations {
   /// **'오늘 풀이의 근거'**
   String get evidenceSheetTitle;
 
-  /// 임시. 계산 기준(calc-basis) 화면 제목. IA 제목 슬롯이 생기면 writing 키로 바꿈(A30)
+  /// 달력 날짜 칸(day-cell): 스크린리더 조각
   ///
   /// In ko, this message translates to:
-  /// **'계산 기준'**
-  String get calcBasisTitle;
+  /// **', '**
+  String get a11yListSeparator;
+
+  /// calendar.bar.title: app-bar 제목(화면 이름 "달력")
+  ///
+  /// In ko, this message translates to:
+  /// **'달력'**
+  String get calendarBarTitle;
+
+  /// event-edit.bar.title: app-bar 제목(화면 이름 "일정 편집")
+  ///
+  /// In ko, this message translates to:
+  /// **'일정'**
+  String get eventEditBarTitle;
+
+  /// 달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 달'**
+  String get calendarPrevMonth;
+
+  /// 달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 달'**
+  String get calendarNextMonth;
+
+  /// 달력 날짜 칸(day-cell): 스크린리더 조각
+  ///
+  /// In ko, this message translates to:
+  /// **'음력 {month}월 {day}일'**
+  String dayCellLunar(int month, int day);
+
+  /// 달력 날짜 칸(day-cell): 스크린리더 조각
+  ///
+  /// In ko, this message translates to:
+  /// **'윤달'**
+  String get dayCellLeapMonth;
+
+  /// 달력 날짜 칸(day-cell): 스크린리더 조각
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 {count, plural, other{{count}개}}'**
+  String dayCellEventCount(int count);
+
+  /// 달력 날짜 칸(day-cell): 스크린리더 조각
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 있음'**
+  String get dayCellDiaryWritten;
+
+  /// 달력 날짜 칸(day-cell): 스크린리더 조각
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get dayCellToday;
+
+  /// 일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'외 {count, plural, other{{count}개}}'**
+  String eventRowMore(int count);
+
+  /// 일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 종일'**
+  String get eventRowAllDay;
+
+  /// 일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'{status} {time} {title}'**
+  String eventRowLabel(String status, String time, String title);
+
+  /// today.event.summary: 오늘 일정 개수와 첫 일정
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 {time} {title}'**
+  String todayEventSummaryNextAt(String time, String title);
+
+  /// today.event.summary: 오늘 일정 개수와 첫 일정
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 일정 {count, plural, other{{count}개}}가 모두 지났어요'**
+  String todayEventSummaryAllPast(int count);
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 종일'**
+  String get eventEditAllDay;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'시간 지정'**
+  String get eventEditTimed;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜'**
+  String get eventEditDateLabel;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'시간'**
+  String get eventEditTimeLabel;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get eventEditSave;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 지우기'**
+  String get eventEditDelete;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷에 연결되어 있지 않아 저장할 수 없어요.'**
+  String get eventEditOfflineNotice;
+
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'일정을 저장하지 못했어요. 다시 시도해 주세요.'**
+  String get eventEditSaveFailed;
 
   /// glossary.value_name: direction8.n
   ///
@@ -1701,6 +1833,164 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.'**
   String get calcBasisSchoolsBody;
+
+  /// account-delete.bar.title: app-bar 제목(화면 이름 "계정 삭제")
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 삭제'**
+  String get accountDeleteBarTitle;
+
+  /// ad-free.bar.title: app-bar 제목(화면 이름 "광고 제거")
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 제거'**
+  String get adFreeBarTitle;
+
+  /// birthplace.bar.title: app-bar 제목(화면 이름 "출생지")
+  ///
+  /// In ko, this message translates to:
+  /// **'출생지'**
+  String get birthplaceBarTitle;
+
+  /// calc-basis.bar.title: app-bar 제목(화면 이름 "계산 기준")
+  ///
+  /// In ko, this message translates to:
+  /// **'계산 기준'**
+  String get calcBasisBarTitle;
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String calcBasisLongitudeBodyDstSubtract(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  );
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String calcBasisLongitudeBodyDstAdd(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  );
+
+  /// calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용
+  ///
+  /// In ko, this message translates to:
+  /// **'출생 시각은 서머타임 {dstMinutes}분만 빼고 계산해요. {longitude} 기준이라 경도 보정은 따로 하지 않아요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.'**
+  String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes);
+
+  /// consent.bar.title: app-bar 제목(화면 이름 "약관 동의")
+  ///
+  /// In ko, this message translates to:
+  /// **'약관 동의'**
+  String get consentBarTitle;
+
+  /// diary-edit.bar.title: app-bar 제목(화면 이름 "일기 쓰기")
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 쓰기'**
+  String get diaryEditBarTitle;
+
+  /// diary-list.bar.title: app-bar 제목(화면 이름 "일기 목록")
+  ///
+  /// In ko, this message translates to:
+  /// **'일기'**
+  String get diaryListBarTitle;
+
+  /// diary-view.bar.title: app-bar 제목. 일기 날짜를 넣는 틀입니다(매개변수 date)
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}의 일기'**
+  String diaryViewBarTitle(String date);
+
+  /// legal.bar.title: app-bar 제목(화면 이름 "약관·정책")
+  ///
+  /// In ko, this message translates to:
+  /// **'약관·정책'**
+  String get legalBarTitle;
+
+  /// login.bar.title: app-bar 제목(화면 이름 "로그인")
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인'**
+  String get loginBarTitle;
+
+  /// my-saju.bar.title: app-bar 제목(화면 이름 "나의 사주")
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 사주'**
+  String get mySajuBarTitle;
+
+  /// notify-ask.bar.title: app-bar 제목(화면 이름 "알림 허락")
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notifyAskBarTitle;
+
+  /// onboard-birth.bar.title: app-bar 제목(화면 이름 "생일")
+  ///
+  /// In ko, this message translates to:
+  /// **'생일'**
+  String get onboardBirthBarTitle;
+
+  /// onboard-call.bar.title: app-bar 제목(화면 이름 "호칭")
+  ///
+  /// In ko, this message translates to:
+  /// **'호칭'**
+  String get onboardCallBarTitle;
+
+  /// onboard-gender.bar.title: app-bar 제목(화면 이름 "성별")
+  ///
+  /// In ko, this message translates to:
+  /// **'성별'**
+  String get onboardGenderBarTitle;
+
+  /// onboard-time.bar.title: app-bar 제목(화면 이름 "태어난 시간")
+  ///
+  /// In ko, this message translates to:
+  /// **'태어난 시간'**
+  String get onboardTimeBarTitle;
+
+  /// preview.bar.title: app-bar 제목(화면 이름 "첫 풀이")
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 풀이'**
+  String get previewBarTitle;
+
+  /// profile-edit.bar.title: app-bar 제목(화면 이름 "정보 수정")
+  ///
+  /// In ko, this message translates to:
+  /// **'정보 수정'**
+  String get profileEditBarTitle;
+
+  /// saju-chart.bar.title: app-bar 제목(화면 이름 "사주 표")
+  ///
+  /// In ko, this message translates to:
+  /// **'사주 표'**
+  String get sajuChartBarTitle;
+
+  /// settings.bar.title: app-bar 제목(화면 이름 "설정")
+  ///
+  /// In ko, this message translates to:
+  /// **'설정'**
+  String get settingsBarTitle;
+
+  /// tag-diary.bar.title: app-bar 제목. 고른 태그 이름을 넣는 틀입니다(매개변수 tag)
+  ///
+  /// In ko, this message translates to:
+  /// **'{tag} 태그'**
+  String tagDiaryBarTitle(String tag);
+
+  /// today.bar.title: app-bar 제목(화면 이름 "오늘")
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get todayBarTitle;
 }
 
 class _AppLocalizationsDelegate

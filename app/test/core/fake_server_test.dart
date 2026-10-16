@@ -248,12 +248,14 @@ void main() {
         'reward-unavailable',
         'reward-dismissed',
         'reward-failed',
+        'calendar-error',
+        'schedule-save-error',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(21));
+      expect(scenarios.where((s) => s.signedIn), hasLength(23));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

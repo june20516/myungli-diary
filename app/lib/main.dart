@@ -17,21 +17,25 @@ Future<void> main() async {
     if (kDebugMode) {
       debugPrint('bootstrap 실패: $error\n$stack');
     }
-    runApp(const BootstrapFailureApp());
+    runApp(const ProviderScope(child: BootstrapFailureApp()));
     return;
   }
   // debug의 fake 모드는 시나리오를 바꿔 다시 시작할 수 있는 개발용 최상위를 씁니다.
   final devMode = kDebugMode && container.read(apiModeProvider) == ApiMode.fake;
+  if (devMode) {
+    // DevHost가 State.build 안에서 UncontrolledProviderScope를 둡니다(시나리오를 바꾸면 컨테이너를
+    // 바꿔 끼우기 위해서). riverpod_lint는 runApp 인자의 타입만 보므로 거짓 양성입니다.
+    // ignore: riverpod_lint/missing_provider_scope
+    runApp(
+      DevHost(
+        initial: container,
+        createContainer: (scenarioId) =>
+            bootstrap(mode: ApiMode.fake, scenarioId: scenarioId),
+      ),
+    );
+    return;
+  }
   runApp(
-    devMode
-        ? DevHost(
-            initial: container,
-            createContainer: (scenarioId) =>
-                bootstrap(mode: ApiMode.fake, scenarioId: scenarioId),
-          )
-        : UncontrolledProviderScope(
-            container: container,
-            child: const MyungliApp(),
-          ),
+    UncontrolledProviderScope(container: container, child: const MyungliApp()),
   );
 }

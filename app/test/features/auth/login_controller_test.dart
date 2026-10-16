@@ -185,39 +185,51 @@ class _FailingSecureStore implements SecureStore {
 
 /// 진입 갱신 횟수를 세는 대역.
 class _FakeEntry extends EntryController {
-  int refreshes = 0;
+  new(this.log);
 
-  /// 갱신 직전에 부르는 기록(순서 확인용).
-  void Function()? onRefresh;
+  final _EntryLog log;
 
   @override
   Future<EntrySnapshot> build() async =>
       const EntrySnapshot(EntryState.signedOut, null);
 
-  /// 갱신 결과. null이면 성공입니다.
-  AppError? refreshError;
-
   @override
   Future<AppError?> refresh() async {
-    refreshes++;
-    onRefresh?.call();
-    return refreshError;
+    log.refreshes++;
+    log.onRefresh?.call();
+    return log.refreshError;
   }
+}
+
+/// [_FakeEntry]의 호출 기록과 응답 설정. Notifier에 공개 필드를 두지 않으려고 따로 둡니다.
+class _EntryLog {
+  int refreshes = 0;
+
+  /// 갱신 직전에 부르는 기록(순서 확인용).
+  void Function()? onRefresh;
+
+  /// 갱신 결과. null이면 성공입니다.
+  AppError? refreshError;
+}
+
+/// [_FakeDraft]의 호출 기록.
+class _DraftLog {
+  int clears = 0;
 }
 
 /// 온보딩 입력 대역. [clear] 횟수를 셉니다.
 class _FakeDraft extends OnboardingDraftController {
-  new(this._initial);
+  new(this._initial, this.log);
 
   final OnboardingDraft _initial;
-  int clears = 0;
+  final _DraftLog log;
 
   @override
   Future<OnboardingDraft> build() async => _initial;
 
   @override
   Future<void> clear() async {
-    clears++;
+    log.clears++;
     state = const AsyncData(OnboardingDraft());
   }
 }
@@ -230,6 +242,8 @@ final class _Harness {
     required this.appleNative,
     required this.appleWeb,
     required this.crashReporter,
+    required this.entry,
+    required this.draft,
   });
 
   final ProviderContainer container;
@@ -242,11 +256,8 @@ final class _Harness {
   LoginController get controller =>
       container.read(loginControllerProvider.notifier);
 
-  _FakeEntry get entry =>
-      container.read(entryStateProvider.notifier) as _FakeEntry;
-
-  _FakeDraft get draft =>
-      container.read(onboardingDraftProvider.notifier) as _FakeDraft;
+  final _EntryLog entry;
+  final _DraftLog draft;
 
   String? get accessToken => container.read(tokenStoreProvider).accessToken;
 }
@@ -265,6 +276,8 @@ Future<_Harness> _harness({
   final native = appleNative ?? FakeAppleNativeAuth();
   final crashReporter = FakeCrashReporter();
   final web = appleWeb ?? FakeAppleWebAuth();
+  final entryLog = _EntryLog();
+  final draftLog = _DraftLog();
   final container = ProviderContainer(
     overrides: [
       restClientProvider.overrideWithValue(server),
@@ -274,8 +287,8 @@ Future<_Harness> _harness({
       appleNativeAuthProvider.overrideWithValue(native),
       appleWebAuthProvider.overrideWithValue(web),
       targetPlatformProvider.overrideWithValue(platform),
-      entryStateProvider.overrideWith(_FakeEntry.new),
-      onboardingDraftProvider.overrideWith(() => _FakeDraft(draft)),
+      entryStateProvider.overrideWith(() => _FakeEntry(entryLog)),
+      onboardingDraftProvider.overrideWith(() => _FakeDraft(draft, draftLog)),
     ],
   );
   addTearDown(container.dispose);
@@ -289,6 +302,8 @@ Future<_Harness> _harness({
     appleNative: native,
     appleWeb: web,
     crashReporter: crashReporter,
+    entry: entryLog,
+    draft: draftLog,
   );
 }
 

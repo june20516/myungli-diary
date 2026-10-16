@@ -25,11 +25,15 @@ const AppGlyph _caretLeft = AppGlyph(
 /// 화면 위 제목·뒤로·동작 아이콘. 바탕을 칠하지 않고, 스크롤해도 선·그림자를 더하지 않습니다.
 class MyungliAppBar extends StatelessWidget {
   /// 탭 첫 화면용: 왼쪽 작은 제목, 오른쪽 동작 최대 2개.
-  const new tabRoot({required this.title, this.actions = const [], super.key})
-    : onBack = null,
-      status = null,
-      showBack = false,
-      _inner = false;
+  const new tabRoot({
+    required this.title,
+    this.actions = const [],
+    this.titleIdentifier,
+    super.key,
+  }) : onBack = null,
+       status = null,
+       showBack = false,
+       _inner = false;
 
   /// 안쪽 화면용: 뒤로(caret-left) + 제목 왼쪽 정렬, 동작과 초안 상태.
   ///
@@ -41,6 +45,7 @@ class MyungliAppBar extends StatelessWidget {
     this.actions = const [],
     this.status,
     this.showBack = true,
+    this.titleIdentifier,
     super.key,
   }) : _inner = true;
 
@@ -60,6 +65,9 @@ class MyungliAppBar extends StatelessWidget {
 
   /// 화면 제목(한 줄, 넘치면 …).
   final String title;
+
+  /// 제목의 IA 슬롯 id(`<화면>.bar.title`). 있으면 제목 노드의 Semantics identifier입니다.
+  final String? titleIdentifier;
 
   /// 안쪽 화면 뒤로 동작.
   final VoidCallback? onBack;
@@ -95,6 +103,7 @@ class MyungliAppBar extends StatelessWidget {
             Expanded(
               // 제목이 비면(IA에 제목 슬롯이 없는 입력 화면) 빈 header를 만들지 않습니다.
               child: Semantics(
+                identifier: titleIdentifier,
                 header: title.isNotEmpty,
                 excludeSemantics: title.isEmpty,
                 child: Text(

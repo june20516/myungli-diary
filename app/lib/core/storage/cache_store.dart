@@ -152,6 +152,21 @@ final class CacheStore {
     return [for (final row in rows) row.cacheKey];
   }
 
+  /// 이 계정의 [kind] 캐시에서 [keys]를 지웁니다. 없는 키는 건너뜁니다.
+  Future<void> remove(CacheKind kind, Iterable<String> keys) async {
+    final targets = keys.toList();
+    if (targets.isEmpty) {
+      return;
+    }
+    await (_database.delete(_database.cachedResponses)..where(
+          (t) =>
+              t.accountId.equals(accountId) &
+              t.kind.equals(kind.name) &
+              t.cacheKey.isIn(targets),
+        ))
+        .go();
+  }
+
   /// 이 계정의 캐시와 일기 초안을 지웁니다. 온보딩 입력과 기기 플래그는 남깁니다.
   ///
   /// 로그아웃 정리는 계정 id를 모를 때도 돌아야 하므로 이 메서드가 아니라

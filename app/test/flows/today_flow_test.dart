@@ -18,6 +18,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/rendering/offscreen_renderer.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -26,6 +27,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
@@ -37,6 +39,7 @@ import 'package:myungli_diary/testing/covers.dart';
 import '../support/app_harness.dart';
 import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart' show pumpUntil;
+import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
 
@@ -174,19 +177,8 @@ final class _UnlockRefetch extends Interceptor {
   }
 }
 
-/// 손으로 바꾸는 "오늘"(자정 넘김 흉내).
-final class _TestToday extends Notifier<CalendarDate> {
-  @override
-  CalendarDate build() => CalendarDate(2026, 10, 13);
-
-  CalendarDate get date => state;
-
-  set date(CalendarDate value) => state = value;
-}
-
-final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
-  _TestToday.new,
-);
+final NotifierProvider<TestToday, CalendarDate> _testTodayProvider =
+    testTodayProvider(CalendarDate(2026, 10, 13));
 
 Future<void> _closeSheet(WidgetTester tester) async {
   await tester.tapAt(const Offset(10, 10));
@@ -258,6 +250,81 @@ void main() {
     expect(find.byKey(const Key(ScreenIds.sharePreview)), findsOneWidget);
   });
 
+  testWidgets('member: 대표 태그 칩을 누르면 뜻 한 줄이 스미고 시트는 열리지 않습니다(D76)', (
+    tester,
+  ) async {
+    await _openToday(tester);
+
+    final tagChip = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
+    await tester.ensureVisible(tagChip);
+    await tester.tap(tagChip);
+    await tester.pumpAndSettle();
+    expect(
+      find.bySemanticsIdentifier(SlotIds.todayLuckyTagBody),
+      findsOneWidget,
+    );
+    expect(
+      find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
+
+    // 다시 누르면 닫힙니다(행운 칩과 같은 동작).
+    await tester.tap(tagChip);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsIdentifier(SlotIds.todayLuckyTagBody), findsNothing);
+  });
+
+  testWidgets('evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+      ),
+    );
+    await _openToday(tester, scenario: 'evidence-unlocked');
+
+    // 첫 칩은 총운의 `element.wood`입니다. 한자는 `getGlossary.json`의 hanja,
+    // 오늘 그런 이유는 `getDaily.json` 총운 첫 문장의 todayReason입니다.
+    await tester.tap(find.byType(TermToken).first);
+    await tester.pumpAndSettle();
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(
+      find.descendant(of: explain, matching: find.text('木')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key(SlotIds.explainSheetTodayReason)),
+        matching: find.text(
+          '오늘 들어오는 기운이 내 사주를 돕는 쪽이라 그래요.',
+          findRichText: true,
+        ),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(depthLinkTarget(of: explain));
+    await tester.pumpAndSettle();
+    final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+    expect(evidence, findsOneWidget);
+    expect(
+      find.descendant(of: evidence, matching: find.byType(EvidenceLockPanel)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+        matching: find.text(
+          '일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요.',
+          findRichText: true,
+        ),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다', (tester) async {
     covers(
       const Covers(
@@ -316,7 +383,7 @@ void main() {
       overrides: [
         depthSheetsProvider.overrideWithValue(
           DepthSheets(
-            explainBody: (termId, sourceSlotId) => ProviderScope(
+            explainBody: (termId, origin) => ProviderScope(
               overrides: [
                 glossaryProvider.overrideWith((ref) {
                   if (++attempts == 1) return firstAttempt.future;
@@ -328,7 +395,7 @@ void main() {
                   });
                 }),
               ],
-              child: ExplainSheet(termId: termId, sourceSlotId: sourceSlotId),
+              child: ExplainSheet(termId: termId, origin: origin),
             ),
             evidenceBody: (_) => const SizedBox.shrink(),
             shareBody: SizedBox.shrink,
@@ -396,6 +463,28 @@ void main() {
     expect(card.actionLabel, _ko.todayGuideCtaWritten);
   });
 
+  testWidgets('member: 오늘 일정 한 줄 → 오늘 day-sheet', (tester) async {
+    covers(const Covers(exits: ['today>day-sheet']));
+    await _openToday(tester);
+    final summary = find.bySemanticsIdentifier(SlotIds.todayEventSummary);
+    await pumpUntil(tester, () => summary.evaluate().isNotEmpty);
+    await tester.ensureVisible(summary);
+    await tester.pumpAndSettle();
+    await tester.tap(summary);
+    await settleWithIo(tester);
+
+    final sheet = find.byKey(const Key(ScreenIds.daySheet));
+    expect(sheet, findsOneWidget);
+    // 오늘(2026-10-13) 시트입니다: 오늘 일정 세 개가 목록에 있습니다.
+    final titles = [
+      for (final row in tester.widgetList<EventRow>(
+        find.descendant(of: sheet, matching: find.byType(EventRow)),
+      ))
+        row.title,
+    ];
+    expect(titles, ['엄마 생신', '팀 주간 회의', '요가 수업']);
+  });
+
   testWidgets('diary-written: 가이드 카드 → diary-view', (tester) async {
     covers(const Covers(exits: ['today>diary-view']));
     await _openToday(tester, scenario: 'diary-written');
@@ -422,11 +511,9 @@ void main() {
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, hold);
 
-    container.read(_testTodayProvider.notifier).date = CalendarDate(
-      2026,
-      10,
-      14,
-    );
+    container
+        .read(_testTodayProvider.notifier)
+        .moveTo(CalendarDate(2026, 10, 14));
     await pumpUntil(tester, () => hold.requested, allowOngoing: true);
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);

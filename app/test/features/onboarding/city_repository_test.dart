@@ -47,6 +47,7 @@ const Map<String, Object> _body = {
       'country': 'US',
       'countryName': 'United States',
       'timezone': 'America/New_York',
+      'longitude': -74.006,
     },
   ],
 };

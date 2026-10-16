@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
+import 'package:myungli_diary/design/components/calendar/day_cell.dart';
+import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -76,4 +79,7 @@ const List<ComponentSpec> implementedComponents = [
   ShareImage.spec,
   ShareButton.spec,
   SocialLoginButton.spec,
+  EventRow.spec,
+  CalendarMonthView.spec,
+  DayCell.spec,
 ];

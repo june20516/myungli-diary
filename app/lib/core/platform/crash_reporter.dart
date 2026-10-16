@@ -11,6 +11,16 @@ final RegExp _problemCodePattern = RegExp(r'^[a-z0-9_.]{1,64}$');
 String? sanitizeAccountId(String? accountId) =>
     accountId != null && _uuidPattern.hasMatch(accountId) ? accountId : null;
 
+/// server가 보낸 계약 값이 app 사전(glossary)에 없습니다. 화면은 그 값을 건너뛰고, 사전과
+/// 계약이 어긋났음을 알도록 이 오류를 요약해 보고합니다.
+final class MissingDictionaryEntry implements Exception {
+  /// 사전에 없는 용어 id(`<범주>.<값>`, 예 `tag.hwagae`).
+  const new(this.termId);
+
+  /// 사전에 없는 용어 id. 계약 enum 값이라 개인 정보가 아닙니다.
+  final String termId;
+}
+
 /// 보고해도 되는 오류 요약. 원본 오류는 넘기지 않습니다(D64 ②).
 ///
 /// `toString()`·`UnexpectedError.cause`·`DioException`의 요청·응답 본문은
@@ -26,13 +36,18 @@ final class CrashSummary {
       code: _problemCodePattern.hasMatch(code) ? code : null,
       status: status,
     ),
+    MissingDictionaryEntry(:final termId) => CrashSummary._(
+      errorType: 'MissingDictionaryEntry',
+      // 계약 값 형식(소문자·숫자·`_`·`.`)이 아니면 사용자 데이터일 수 있어 버립니다.
+      code: _problemCodePattern.hasMatch(termId) ? termId : null,
+    ),
     _ => CrashSummary._(errorType: error.runtimeType.toString()),
   };
 
   /// 오류 타입 이름.
   final String errorType;
 
-  /// `ProblemError.code`. 없으면 null.
+  /// `ProblemError.code` 또는 [MissingDictionaryEntry]의 용어 id. 없으면 null.
   final String? code;
 
   /// `ProblemError.status`. 없으면 null.

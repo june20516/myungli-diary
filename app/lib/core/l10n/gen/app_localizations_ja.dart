@@ -40,7 +40,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorAuthTokenInvalid => 'ログイン情報を確認できませんでした。もう一度ログインしてください。';
 
   @override
-  String get errorAuthRefreshReused => 'アカウントを守るためにログアウトしました。もう一度ログインしてください。';
+  String get errorAuthRefreshReused => '安全のためログアウトしました。もう一度ログインしてください。';
 
   @override
   String get errorAuthProviderTokenInvalid => 'ログインできませんでした。もう一度お試しください。';
@@ -49,7 +49,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorAuthExchangeInvalid => 'ログインの時間が過ぎました。最初からもう一度ログインしてください。';
 
   @override
-  String get errorAppCheckInvalid => 'アプリを確認できませんでした。最新バージョンにアップデートしてください。';
+  String get errorAppCheckInvalid => 'アプリを確認できませんでした。最新版にアップデートしてください。';
 
   @override
   String get errorConsentRequired => '続けるには利用規約への同意が必要です。';
@@ -82,10 +82,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorRequestUnsupportedMediaType => '処理できませんでした。アプリをアップデートしてください。';
 
   @override
-  String get errorDateOutOfRange => '1900年1月31日から2099年12月31日までの日付だけ見られます。';
+  String get errorDateOutOfRange => '1900年1月31日〜2099年12月31日の日付だけ見られます。';
 
   @override
-  String get errorBirthOutOfRange => '1900年1月31日から2099年12月31日までの日付だけ計算できます。';
+  String get errorBirthOutOfRange => '1900年1月31日〜2099年12月31日の日付だけ計算できます。';
 
   @override
   String get errorDateInvalid => 'カレンダーにない日付です。';
@@ -127,10 +127,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorInternal => 'こちらで問題が起きました。しばらくしてからもう一度お試しください。';
 
   @override
-  String get errorEngineError => '読み解きを計算できませんでした。しばらくしてからもう一度お試しください。';
+  String get errorEngineError => '読み解きを計算できませんでした。時間をおいてお試しください。';
 
   @override
-  String get errorEngineUnavailable => '読み解きを読み込めませんでした。しばらくしてからもう一度お試しください。';
+  String get errorEngineUnavailable => '読み解きを読み込めませんでした。時間をおいてお試しください。';
 
   @override
   String get errorAuthProviderUnavailable => '今はログインできません。しばらくしてからもう一度お試しください。';
@@ -143,7 +143,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorServiceUnavailable => '今はアプリを使えません。しばらくしてからもう一度お試しください。';
 
   @override
-  String get errorEngineTimeout => '読み解きの計算に時間がかかっています。しばらくしてからもう一度お試しください。';
+  String get errorEngineTimeout => '読み解きの計算に時間がかかっています。後でお試しください。';
 
   @override
   String get appTitle => '命理日記';
@@ -185,6 +185,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noticeOffline => 'オフラインのため、保存してある内容を表示しています。';
+
+  @override
+  String get noticeTimeUnknown => '時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。';
 
   @override
   String get emptyStateDefault => 'まだ表示する内容がありません。';
@@ -330,7 +333,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get forceUpdateCtaStore => 'アップデートする';
 
   @override
-  String get welcomeConceptHead => '今日の日辰を、自分の命式に合わせて読み解きます';
+  String get welcomeConceptHead => '今日の干支を、自分の命式に合わせて読み解きます';
 
   @override
   String get welcomeConceptBody => '読み解きに合わせた質問ひとつで、その日の日記を始めます。';
@@ -504,8 +507,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginCancelled => 'ログインをキャンセルしました。';
 
   @override
-  String get appleWebErrorStateMismatch =>
-      'ログインを確認できませんでした。最初からもう一度ログインしてください。';
+  String get appleWebErrorStateMismatch => 'ログインを確認できませんでした。最初からやり直してください。';
 
   @override
   String get appleWebErrorCancelled => 'Appleでのサインインをキャンセルしました。';
@@ -578,10 +580,6 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get calcBasisConventionBody =>
       '読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。';
-
-  @override
-  String get calcBasisLongitudeBody =>
-      '出生時刻は東経127.5°を基準に30分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
 
   @override
   String get calcBasisLunarBody => '旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。';
@@ -662,7 +660,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get evidenceSheetLockPassLink => '広告除去を見る';
 
   @override
-  String get evidenceSheetUnlockFailed => '広告の確認に時間がかかっています。しばらくしてから開き直してください。';
+  String get evidenceSheetUnlockFailed => '広告の確認に時間がかかっています。少し待って開き直してください。';
 
   @override
   String get previewShareLoginNoticeConfirm => 'ログインする';
@@ -807,7 +805,100 @@ class AppLocalizationsJa extends AppLocalizations {
   String get evidenceSheetTitle => '今日の読み解きの根拠';
 
   @override
-  String get calcBasisTitle => '計算基準';
+  String get a11yListSeparator => '、';
+
+  @override
+  String get calendarBarTitle => 'カレンダー';
+
+  @override
+  String get eventEditBarTitle => '予定';
+
+  @override
+  String get calendarPrevMonth => '前の月';
+
+  @override
+  String get calendarNextMonth => '次の月';
+
+  @override
+  String dayCellLunar(int month, int day) {
+    return '旧暦$month月$day日';
+  }
+
+  @override
+  String get dayCellLeapMonth => '閏月';
+
+  @override
+  String dayCellEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return '予定$_temp0';
+  }
+
+  @override
+  String get dayCellDiaryWritten => '日記あり';
+
+  @override
+  String get dayCellToday => '今日';
+
+  @override
+  String eventRowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return 'ほか$_temp0';
+  }
+
+  @override
+  String get eventRowAllDay => '終日';
+
+  @override
+  String eventRowLabel(String status, String time, String title) {
+    return '$status $time $title';
+  }
+
+  @override
+  String todayEventSummaryNextAt(String time, String title) {
+    return '次は$time $title';
+  }
+
+  @override
+  String todayEventSummaryAllPast(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return '今日の予定$_temp0はすべて終わりました';
+  }
+
+  @override
+  String get eventEditAllDay => '終日';
+
+  @override
+  String get eventEditTimed => '時間指定';
+
+  @override
+  String get eventEditDateLabel => '日付';
+
+  @override
+  String get eventEditTimeLabel => '時間';
+
+  @override
+  String get eventEditSave => '保存';
+
+  @override
+  String get eventEditDelete => '予定を削除';
+
+  @override
+  String get eventEditOfflineNotice => 'インターネットに接続されていないため、保存できません。';
+
+  @override
+  String get eventEditSaveFailed => '予定を保存できませんでした。もう一度お試しください。';
 
   @override
   String get direction8N => '北';
@@ -868,4 +959,97 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get calcBasisSchoolsBody =>
       '蔵干はひとつに絞らず、すべて表示します。子の刻に生まれた場合は、午前0時より前でも翌日として計算します。流派によって扱いが異なるため、ほかのアプリや本と結果が異なることがあります。';
+
+  @override
+  String get accountDeleteBarTitle => 'アカウント削除';
+
+  @override
+  String get adFreeBarTitle => '広告を消す';
+
+  @override
+  String get birthplaceBarTitle => '出生地';
+
+  @override
+  String get calcBasisBarTitle => '計算の基準';
+
+  @override
+  String calcBasisLongitudeBodyDstSubtract(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  ) {
+    return '出生時刻は、サマータイムの$dstMinutes分を先に引き、$longitudeを基準にさらに$minutes分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+  }
+
+  @override
+  String calcBasisLongitudeBodyDstAdd(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  ) {
+    return '出生時刻は、サマータイムの$dstMinutes分を先に引き、$longitudeを基準に$minutes分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+  }
+
+  @override
+  String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes) {
+    return '出生時刻は、サマータイムの$dstMinutes分だけを引いて計算します。$longitudeが基準のため、経度の補正はしません。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+  }
+
+  @override
+  String get consentBarTitle => '規約への同意';
+
+  @override
+  String get diaryEditBarTitle => '日記を書く';
+
+  @override
+  String get diaryListBarTitle => '日記';
+
+  @override
+  String diaryViewBarTitle(String date) {
+    return '$dateの日記';
+  }
+
+  @override
+  String get legalBarTitle => '規約とポリシー';
+
+  @override
+  String get loginBarTitle => 'ログイン';
+
+  @override
+  String get mySajuBarTitle => '私の命式';
+
+  @override
+  String get notifyAskBarTitle => '通知';
+
+  @override
+  String get onboardBirthBarTitle => '誕生日';
+
+  @override
+  String get onboardCallBarTitle => '呼び名';
+
+  @override
+  String get onboardGenderBarTitle => '性別';
+
+  @override
+  String get onboardTimeBarTitle => '生まれた時刻';
+
+  @override
+  String get previewBarTitle => '最初の読み解き';
+
+  @override
+  String get profileEditBarTitle => '情報の変更';
+
+  @override
+  String get sajuChartBarTitle => '命式表';
+
+  @override
+  String get settingsBarTitle => '設定';
+
+  @override
+  String tagDiaryBarTitle(String tag) {
+    return 'タグ:$tag';
+  }
+
+  @override
+  String get todayBarTitle => '今日';
 }

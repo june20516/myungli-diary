@@ -19,6 +19,8 @@ abstract class _$SlotTextCWProxy {
 
   SlotText reaction(SlotTextReactionEnum? reaction);
 
+  SlotText todayReason(RenderedText? todayReason);
+
   SlotText evidence(List<Evidence>? evidence);
 
   /// Creates a new instance with the provided field values.
@@ -36,6 +38,7 @@ abstract class _$SlotTextCWProxy {
     RenderedText text,
     bool reactable,
     SlotTextReactionEnum? reaction,
+    RenderedText? todayReason,
     List<Evidence>? evidence,
   });
 }
@@ -66,6 +69,10 @@ class _$SlotTextCWProxyImpl implements _$SlotTextCWProxy {
   SlotText reaction(SlotTextReactionEnum? reaction) => call(reaction: reaction);
 
   @override
+  SlotText todayReason(RenderedText? todayReason) =>
+      call(todayReason: todayReason);
+
+  @override
   SlotText evidence(List<Evidence>? evidence) => call(evidence: evidence);
 
   /// Creates a new instance with the provided field values.
@@ -84,6 +91,7 @@ class _$SlotTextCWProxyImpl implements _$SlotTextCWProxy {
     Object? text = const $CopyWithPlaceholder(),
     Object? reactable = const $CopyWithPlaceholder(),
     Object? reaction = const $CopyWithPlaceholder(),
+    Object? todayReason = const $CopyWithPlaceholder(),
     Object? evidence = const $CopyWithPlaceholder(),
   }) {
     return SlotText(
@@ -112,6 +120,10 @@ class _$SlotTextCWProxyImpl implements _$SlotTextCWProxy {
           ? _value.reaction
           // ignore: cast_nullable_to_non_nullable
           : reaction as SlotTextReactionEnum?,
+      todayReason: todayReason == const $CopyWithPlaceholder()
+          ? _value.todayReason
+          // ignore: cast_nullable_to_non_nullable
+          : todayReason as RenderedText?,
       evidence: evidence == const $CopyWithPlaceholder()
           ? _value.evidence
           // ignore: cast_nullable_to_non_nullable
@@ -131,43 +143,43 @@ extension $SlotTextCopyWith on SlotText {
 // JsonSerializableGenerator
 // **************************************************************************
 
-SlotText _$SlotTextFromJson(Map<String, dynamic> json) =>
-    $checkedCreate('SlotText', json, ($checkedConvert) {
-      $checkKeys(
-        json,
-        requiredKeys: const [
-          'slot',
-          'messageKey',
-          'variant',
-          'text',
-          'reactable',
-        ],
-      );
-      final val = SlotText(
-        slot: $checkedConvert('slot', (v) => v as String),
-        messageKey: $checkedConvert('messageKey', (v) => v as String),
-        variant: $checkedConvert(
-          'variant',
-          (v) => $enumDecode(_$SlotTextVariantEnumEnumMap, v),
-        ),
-        text: $checkedConvert(
-          'text',
-          (v) => RenderedText.fromJson(v as Map<String, dynamic>),
-        ),
-        reactable: $checkedConvert('reactable', (v) => v as bool),
-        reaction: $checkedConvert(
-          'reaction',
-          (v) => $enumDecodeNullable(_$SlotTextReactionEnumEnumMap, v),
-        ),
-        evidence: $checkedConvert(
-          'evidence',
-          (v) => (v as List<dynamic>?)
-              ?.map((e) => Evidence.fromJson(e as Map<String, dynamic>))
-              .toList(),
-        ),
-      );
-      return val;
-    });
+SlotText _$SlotTextFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('SlotText', json, ($checkedConvert) {
+  $checkKeys(
+    json,
+    requiredKeys: const ['slot', 'messageKey', 'variant', 'text', 'reactable'],
+  );
+  final val = SlotText(
+    slot: $checkedConvert('slot', (v) => v as String),
+    messageKey: $checkedConvert('messageKey', (v) => v as String),
+    variant: $checkedConvert(
+      'variant',
+      (v) => $enumDecode(_$SlotTextVariantEnumEnumMap, v),
+    ),
+    text: $checkedConvert(
+      'text',
+      (v) => RenderedText.fromJson(v as Map<String, dynamic>),
+    ),
+    reactable: $checkedConvert('reactable', (v) => v as bool),
+    reaction: $checkedConvert(
+      'reaction',
+      (v) => $enumDecodeNullable(_$SlotTextReactionEnumEnumMap, v),
+    ),
+    todayReason: $checkedConvert(
+      'todayReason',
+      (v) =>
+          v == null ? null : RenderedText.fromJson(v as Map<String, dynamic>),
+    ),
+    evidence: $checkedConvert(
+      'evidence',
+      (v) => (v as List<dynamic>?)
+          ?.map((e) => Evidence.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    ),
+  );
+  return val;
+});
 
 Map<String, dynamic> _$SlotTextToJson(SlotText instance) => <String, dynamic>{
   'slot': instance.slot,
@@ -176,6 +188,7 @@ Map<String, dynamic> _$SlotTextToJson(SlotText instance) => <String, dynamic>{
   'text': instance.text.toJson(),
   'reactable': instance.reactable,
   'reaction': ?_$SlotTextReactionEnumEnumMap[instance.reaction],
+  'todayReason': ?instance.todayReason?.toJson(),
   'evidence': ?instance.evidence?.map((e) => e.toJson()).toList(),
 };
 

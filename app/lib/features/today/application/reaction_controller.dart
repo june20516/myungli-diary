@@ -19,7 +19,7 @@ import 'package:myungli_diary/features/today/data/daily_repository.dart';
 final reactionCacheKeyProvider = Provider<String? Function(CalendarDate date)>(
   (ref) =>
       (date) => ref.read(dailyControllerProvider).value?.date == date
-      ? ref.read(dailyControllerProvider.notifier).cacheKey
+      ? ref.read(dailyControllerProvider).value?.cacheKey
       : null,
 );
 
