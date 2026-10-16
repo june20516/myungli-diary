@@ -44,6 +44,8 @@
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "Now"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "Next"}
 - {slot: today.event.summary, key: todayEventSummaryDone, text: "All of today's events are done"}
+- {slot: today.event.summary, key: todayEventSummaryNextAt, text: "Next: {time} {title}"}
+- {slot: today.event.summary, key: todayEventSummaryAllPast, text: "{count, plural, one{Today's event is done} other{All {count} of today's events are done}}"}
 - {slot: today.reaction.label, key: todayReactionLabel, text: "Like"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "Unlike"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "Myungli Diary"}
@@ -264,3 +266,23 @@
 - {slot: calc-basis.bar.title, key: calcBasisBarTitle, text: "How we calculate"}
 - {slot: account-delete.bar.title, key: accountDeleteBarTitle, text: "Delete account"}
 - {slot: legal.bar.title, key: legalBarTitle, text: "Terms & policies"}
+# 달력·일정 공용 문구(#217)
+- {slot: ui.calendar.nav, key: calendarPrevMonth, text: "Previous month"}
+- {slot: ui.calendar.nav, key: calendarNextMonth, text: "Next month"}
+- {slot: ui.day-cell.a11y, key: dayCellLunar, text: "Lunar month {month}, day {day}"}
+- {slot: ui.day-cell.a11y, key: dayCellLeapMonth, text: "Leap month"}
+- {slot: ui.day-cell.a11y, key: dayCellEventCount, text: "{count, plural, one{{count} event} other{{count} events}}"}
+- {slot: ui.day-cell.a11y, key: dayCellDiaryWritten, text: "Diary written"}
+- {slot: ui.day-cell.a11y, key: dayCellToday, text: "Today"}
+- {slot: ui.day-cell.a11y, key: a11yListSeparator, text: ", "}
+- {slot: ui.event-row.label, key: eventRowMore, text: "{count, plural, one{+{count} more} other{+{count} more}}"}
+- {slot: ui.event-row.label, key: eventRowAllDay, text: "All day"}
+- {slot: ui.event-row.label, key: eventRowLabel, text: "{status} {time} {title}"}
+- {slot: ui.event-edit.form, key: eventEditAllDay, text: "All day"}
+- {slot: ui.event-edit.form, key: eventEditTimed, text: "Set time"}
+- {slot: ui.event-edit.form, key: eventEditDateLabel, text: "Date"}
+- {slot: ui.event-edit.form, key: eventEditTimeLabel, text: "Time"}
+- {slot: ui.event-edit.form, key: eventEditSave, text: "Save"}
+- {slot: ui.event-edit.form, key: eventEditDelete, text: "Delete event"}
+- {slot: ui.event-edit.form, key: eventEditOfflineNotice, text: "You're offline, so this can't be saved."}
+- {slot: ui.event-edit.form, key: eventEditSaveFailed, text: "We couldn't save the event. Please try again."}

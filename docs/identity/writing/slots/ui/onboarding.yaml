@@ -50,7 +50,7 @@
   user_state: "스토어로 가려고 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - forceUpdateCtaStore
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -107,7 +107,7 @@
   user_state: "처음 시작합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - welcomeCtaStart
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -126,7 +126,7 @@
   user_state: "이미 계정이 있습니다."
   structure: "사용자 입장의 말 한 마디."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - welcomeCtaSignin
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -165,7 +165,7 @@
   user_state: "무엇을 적을지 예시를 봅니다."
   structure: "\"예:\" 뒤에 짧은 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 17, en: 31, ja: 14}
   keys:
     - onboardCallInputHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -318,7 +318,7 @@
   user_state: "태어난 시간을 막 골랐고, 그 시간이 어느 시진으로 계산되는지 확인합니다."
   structure: "한 문장. 시진 이름과 벽시계 범위. 값은 app이 넣는 문자열입니다: branch는 지지 이름, start·end는 HH:MM. ARB라 조사 표기를 쓰지 않습니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 29, en: 54, ja: 23}
   keys:
     - params: {branch: text, start: text, end: text}
       keys: [onboardTimeHourConfirm]
@@ -435,7 +435,7 @@
   user_state: "계산 기준을 더 알고 싶습니다(D71)."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 25, en: 45, ja: 20}
   keys:
     - birthplaceStandardLink
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -454,7 +454,7 @@
   user_state: "검색칸에 무엇을 적을지 봅니다."
   structure: "명사 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 15, en: 27, ja: 12}
   keys:
     - birthplaceSearchHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -492,7 +492,7 @@
   user_state: "첫 풀이를 보고 저장하고 싶습니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - previewCtaSave
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -511,7 +511,7 @@
   user_state: "입력을 고치고 싶습니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - previewCtaRestart
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -530,7 +530,9 @@
   user_state: "로그인 전에 공유를 눌렀습니다."
   structure: "안내 창: 본문 한 문장과 버튼 둘(로그인, 닫기)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    previewShareLoginNotice: {ko: 34, en: 60, ja: 28}
   keys:
     - previewShareLoginNotice
     - previewShareLoginNoticeConfirm
@@ -591,7 +593,7 @@
   user_state: "이미 계정이 있는데 미리보기에서 정보를 또 입력했습니다."
   structure: "한 문장. 저장된 정보를 쓴다는 것."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - loginDiscardNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -629,7 +631,7 @@
   user_state: "필수 동의 항목을 봅니다."
   structure: "항목마다 \"(필수)\" 뒤에 문서 이름."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 34, en: 64, ja: 28}
   keys:
     - consentRequiredLabelTerms
     - consentRequiredLabelPrivacy
@@ -650,7 +652,7 @@
   user_state: "동의 항목을 골랐습니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - consentCtaAgree
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -707,7 +709,7 @@
   user_state: "아침 알림을 받기로 했습니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - notifyAskCtaAllow
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -726,7 +728,7 @@
   user_state: "지금은 알림을 받지 않으려 합니다."
   structure: "짧은 말 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - notifyAskCtaSkip
   variants: {count: 1, rotation: "변주가 하나입니다"}

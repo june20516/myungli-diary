@@ -13,7 +13,7 @@
   depth:
     explain: 이 슬롯이 풀이 단계입니다. 원리와 근거는 근거 단계에서 씁니다.
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - term.element.wood
     - term.element.fire

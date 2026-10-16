@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal
+from typing import Final, Literal
 
 Severity = Literal["error", "warn"]
 Judge = Literal["rule", "llm"]
@@ -205,6 +205,12 @@ class ParamKind:
         return self.categories[0] if self.categories else None
 
 
+# 레이아웃이 길이를 막지 않아 상한을 두지 않는 슬롯·키입니다(#191). None(아직 정하지 않음)과 구별합니다.
+UNBOUNDED: Final = "unbounded"
+# 언어별 글자 수 상한 값: 양의 정수, UNBOUNDED, None(미정)입니다.
+LengthLimit = int | Literal["unbounded"] | None
+
+
 @dataclass(frozen=True)
 class Slot:
     """콘텐츠 슬롯 명세 하나(spec §4.1)입니다. 미정 필드는 빈 값으로 읽습니다."""
@@ -219,8 +225,8 @@ class Slot:
     # 메시지 키 또는 식별자 -> 매개변수 이름 -> 값 종류. `name`은 따로 적지 않아도 어느 슬롯에서나 씁니다.
     keys: dict[str, dict[str, ParamKind]]
     co_display: tuple[str, ...]
-    # 언어별 글자 수 상한. None은 아직 정하지 않음입니다.
-    max_length: dict[str, int | None]
+    # 언어별 글자 수 상한. None은 아직 정하지 않음, UNBOUNDED는 상한을 두지 않음입니다.
+    max_length: dict[str, LengthLimit]
     allowed: frozenset[str]
     forbidden: frozenset[str]
     examples: dict[str, list[dict[str, object]]]
@@ -238,6 +244,14 @@ class Slot:
     select: str = ""
     # 호칭 자리(D36)입니다. True인 슬롯만 `{name}`을 씁니다.
     vocative: bool = False
+    # 키별 언어별 상한입니다. 적힌 언어는 슬롯 상한 대신 씁니다(확인 창의 제목·본문·버튼처럼 칸이 다른 키, #191).
+    key_max_length: dict[str, dict[str, LengthLimit]] = field(default_factory=dict)
+
+    def length_limit(self, lang: str, key: str | None = None) -> int | None:
+        """검사에 쓸 글자 수 상한입니다. 미정(None)과 상한 없음(UNBOUNDED)은 둘 다 재지 않으므로 None입니다."""
+        limits = self.key_max_length.get(key, {}) if key is not None else {}
+        value = limits[lang] if lang in limits else self.max_length.get(lang)
+        return value if isinstance(value, int) else None
 
 
 @dataclass(frozen=True)

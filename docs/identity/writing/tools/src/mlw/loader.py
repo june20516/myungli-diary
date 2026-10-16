@@ -3,7 +3,7 @@
 필수 필드와 허용 값을 검사하고, 문제를 모두 모은 뒤 `LoadError`로 한 번에 던집니다.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
@@ -24,6 +24,7 @@ from mlw.model import (
     SCOPES,
     SENTENCE_TYPES,
     SEVERITIES,
+    UNBOUNDED,
     CountSelector,
     Detect,
     DetectKind,
@@ -36,6 +37,7 @@ from mlw.model import (
     JosaPair,
     JosaReadings,
     Judge,
+    LengthLimit,
     Limit,
     LoadError,
     NameExample,
@@ -780,17 +782,46 @@ def _parse_key_groups(item: _Item) -> dict[str, dict[str, ParamKind]]:
     return keys
 
 
-def _parse_slot_max_length(item: _Item) -> dict[str, int | None]:
-    result: dict[str, int | None] = dict.fromkeys(LANGS)
-    for lang, value in cast(dict[str, object], item.data["max_length"]).items():
+def _length_limit(item: _Item, field_name: str, value: object) -> LengthLimit:
+    """상한 값 하나를 읽습니다. 양의 정수, `unbounded`(상한 없음), null(미정) 가운데 하나입니다."""
+    if value is None or value == UNBOUNDED:
+        return cast(LengthLimit, value)
+    if _is_int(value) and cast(int, value) > 0:
+        return cast(int, value)
+    item.fail(f"{field_name}은(는) 양의 정수, {UNBOUNDED}, null 가운데 하나여야 합니다")
+    return None
+
+
+def _length_limits(item: _Item, field_name: str, raw: object) -> dict[str, LengthLimit]:
+    limits: dict[str, LengthLimit] = {}
+    for lang, value in cast(dict[str, object], raw).items():
         if lang not in LANGS:
-            item.fail(f"max_length의 언어 '{lang}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}")
-        elif value is None:
-            result[lang] = None
-        elif _is_int(value) and cast(int, value) > 0:
-            result[lang] = cast(int, value)
+            item.fail(f"{field_name}의 언어 '{lang}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}")
+            continue
+        limits[lang] = _length_limit(item, f"{field_name}.{lang}", value)
+    return limits
+
+
+def _parse_slot_max_length(item: _Item) -> dict[str, LengthLimit]:
+    result: dict[str, LengthLimit] = dict.fromkeys(LANGS)
+    result.update(_length_limits(item, "max_length", item.data["max_length"]))
+    return result
+
+
+def _parse_key_max_length(item: _Item, keys: Mapping[str, object]) -> dict[str, dict[str, LengthLimit]]:
+    """키별 상한(`key_max_length`)을 읽습니다. 키는 이 슬롯의 `keys`에 있어야 합니다."""
+    raw = item.data.get("key_max_length")
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[str, dict[str, LengthLimit]] = {}
+    for key, limits in raw.items():
+        field_name = f"key_max_length.{key}"
+        if key not in keys:
+            item.fail(f"{field_name}: 이 슬롯의 keys에 없는 키입니다")
+        elif not isinstance(limits, dict):
+            item.fail(f"{field_name}은(는) 언어 → 상한인 매핑이어야 합니다")
         else:
-            item.fail(f"max_length.{lang}은(는) 양의 정수 또는 null이어야 합니다")
+            result[str(key)] = _length_limits(item, field_name, limits)
     return result
 
 
@@ -852,15 +883,17 @@ def _parse_slot(
         return None
     if not all(_field_is_valid(item, schema, name) for name in structured):
         return None
+    keys = _parse_key_groups(item)
     return Slot(
         id=slot_id,
         where=where,
         purpose=purpose,
         types=item.string_list("types"),
         variants=_parse_variant_count(item),
-        keys=_parse_key_groups(item),
+        keys=keys,
         co_display=item.string_list("co_display"),
         max_length=_parse_slot_max_length(item),
+        key_max_length=_parse_key_max_length(item, keys),
         allowed=frozenset(item.string_list("allowed")),
         forbidden=frozenset(item.string_list("forbidden")),
         examples=_parse_slot_examples(item),

@@ -11,7 +11,7 @@
   user_state: "시간 모름으로 입력해 사주 표에 시주가 없습니다."
   structure: "한 문장."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 52, en: 90, ja: 38}
   keys:
     - sajuChartTimeUnknownNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -30,7 +30,7 @@
   user_state: "잠긴 용신 근거 줄을 열려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 12, en: 20, ja: 9}
   keys:
     - sajuChartYongsinOpen
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -49,7 +49,7 @@
   user_state: "용신 판정 근거 줄의 이름을 봅니다. 잠겼을 때 스크린리더는 이 이름 뒤에 \"잠김\"을 읽습니다(#94)."
   structure: "구역 이름 하나(evidence-sheet.section.basis와 같은 성격)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 27, en: 50, ja: 22}
   keys:
     - sajuChartYongsinTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
