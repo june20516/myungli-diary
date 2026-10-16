@@ -139,7 +139,7 @@ const int maxFeaturedTags = 2;
 ///
 /// 이름은 사전 `tag` 범주, 뜻은 `term.meaning`(용어 id `tag.<키>`,
 /// IA `today.lucky-tag.body`)입니다. 사전에 이름이 없는 태그는 키를 그대로 보이지 않도록
-/// 칩을 만들지 않고, 뜻이 없거나 공백뿐이면 누를 수 없는 이름 칩입니다.
+/// 칩을 만들지 않고([unnamedFeaturedTagKeysOf]로 보고), 뜻이 없거나 공백뿐이면 누를 수 없는 이름 칩입니다.
 /// 길흉(`polarity`)은 모양에 쓰지 않습니다(design `tag` 변형).
 /// 응답이 상한을 넘겨도 칩 줄이 깨지지 않도록 칩이 되는 태그 중 앞에서 상한만큼만 씁니다.
 List<LuckyItem> featuredTagsOf(Daily daily, GlossaryNames names) => [
@@ -151,6 +151,15 @@ List<LuckyItem> featuredTagsOf(Daily daily, GlossaryNames names) => [
         meaning: _nonBlank(names.meaningOf('tag.${tag.key}')),
       ),
 ].take(maxFeaturedTags).toList();
+
+/// [daily]의 대표 태그 중 사전에 이름이 없어 칩이 되지 않는 키(응답 순서).
+///
+/// [featuredTagsOf]가 조용히 건너뛰는 태그입니다. 사전과 계약이 어긋난 것을 알 수 있게
+/// 오늘 화면 값이 이 키를 보고합니다(`todayContentProvider`).
+List<String> unnamedFeaturedTagKeysOf(Daily daily, GlossaryNames names) => [
+  for (final tag in daily.tags.featured)
+    if (names.valueName('tag', tag.key) == null) tag.key,
+];
 
 RenderedText? _nonBlank(RenderedText? text) =>
     text == null || isBlankText(text) ? null : text;

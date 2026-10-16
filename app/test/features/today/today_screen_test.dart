@@ -15,6 +15,8 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -239,6 +241,49 @@ void main() {
         find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
         findsOneWidget,
       );
+    });
+
+    testWidgets('사전에 이름이 없는 태그는 칩 없이 사전 빈칸으로 한 번만 보고합니다', (tester) async {
+      final json = memberDailyJson();
+      (json['tags'] as Map<String, dynamic>)['featured'] = [
+        {'key': 'not_in_glossary', 'polarity': 'neutral'},
+        {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+      ];
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(
+              () async => DailyView(
+                date: _today,
+                daily: Daily.fromJson(json),
+                stale: false,
+                cacheKey: null,
+              ),
+            ),
+          ),
+        ],
+      );
+      await _settleToday(tester);
+      expect(tagChip, findsOneWidget);
+      expect(
+        find.byKey(LuckyCardRow.tagChipKey('not_in_glossary')),
+        findsNothing,
+      );
+
+      // 다시 그려도(다른 탭에 다녀옴) 같은 빈칸은 한 번만 남습니다.
+      await tester.tap(find.byKey(const ValueKey('tab-bar.tab.1')));
+      await settleWithIo(tester);
+      await tester.tap(find.byKey(const ValueKey('tab-bar.tab.0')));
+      await _settleToday(tester);
+
+      final reporter =
+          container.read(crashReporterProvider) as FakeCrashReporter;
+      final gaps = reporter.errors.where(
+        (summary) => summary.errorType == 'MissingDictionaryEntry',
+      );
+      expect([for (final gap in gaps) gap.code], ['tag.not_in_glossary']);
     });
 
     testWidgets('대표 태그가 없으면 태그 칩이 없고 줄은 행운 칩 4개입니다', (tester) async {

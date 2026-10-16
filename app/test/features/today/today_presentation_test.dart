@@ -400,6 +400,24 @@ void main() {
       expect([for (final tag in tags) tag.tagKey], ['cheoneul_gwiin']);
     });
 
+    test('unnamedFeaturedTagKeysOf는 사전에 이름이 없는 대표 태그 키를 응답 순서로 줍니다', () {
+      expect(
+        unnamedFeaturedTagKeysOf(
+          dailyWith([
+            {'key': 'hwagae', 'polarity': 'neutral'},
+            {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+            {'key': 'unknown_key', 'polarity': 'bad'},
+          ]),
+          names,
+        ),
+        ['hwagae', 'unknown_key'],
+      );
+      expect(
+        unnamedFeaturedTagKeysOf(Daily.fromJson(memberDailyJson()), names),
+        isEmpty,
+      );
+    });
+
     test('오늘 화면 값에 대표 태그가 담기고, 바뀌면 다른 화면 값입니다', () {
       TodayDisplay display(Daily daily) =>
           todayDisplayOf(daily, names, _l10n, 'Asia/Seoul');
