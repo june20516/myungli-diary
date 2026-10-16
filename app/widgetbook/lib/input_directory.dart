@@ -143,6 +143,7 @@ Widget _citySearch({bool loading = false}) {
       country: 'KR',
       countryName: 'South Korea',
       timezone: 'Asia/Seoul',
+      longitude: 126.9780,
     ),
     City(
       id: '1838524',
@@ -151,6 +152,7 @@ Widget _citySearch({bool loading = false}) {
       countryName: 'South Korea',
       regionName: 'Busan',
       timezone: 'Asia/Seoul',
+      longitude: 129.0756,
     ),
     City(
       id: '5391959',
@@ -159,6 +161,7 @@ Widget _citySearch({bool loading = false}) {
       countryName: 'United States',
       regionName: 'California',
       timezone: 'America/Los_Angeles',
+      longitude: -122.4194,
     ),
     City(
       id: '2643743',
@@ -167,6 +170,7 @@ Widget _citySearch({bool loading = false}) {
       countryName: 'United Kingdom',
       regionName: 'England',
       timezone: 'Europe/London',
+      longitude: -0.1276,
     ),
   ];
   AsyncValue<List<City>>? results;

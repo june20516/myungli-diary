@@ -17,6 +17,7 @@ final _seoul = City(
   country: 'KR',
   countryName: 'South Korea',
   timezone: 'Asia/Seoul',
+  longitude: 126.9780,
 );
 final _newYork = City(
   id: '5128581',
@@ -25,6 +26,7 @@ final _newYork = City(
   countryName: 'United States',
   regionName: 'New York',
   timezone: 'America/New_York',
+  longitude: -74.0060,
 );
 final _busan = City(
   id: '1838524',
@@ -32,6 +34,7 @@ final _busan = City(
   country: 'KR',
   countryName: 'South Korea',
   timezone: 'Asia/Seoul',
+  longitude: 129.0756,
 );
 
 Widget _search({
@@ -185,6 +188,7 @@ void main() {
         country: 'KR',
         countryName: ' ',
         timezone: 'Asia/Seoul',
+        longitude: 126.9780,
       );
       await tester.pumpWidget(
         inputApp(Center(child: _search(results: AsyncData([nameless])))),

@@ -426,6 +426,7 @@ Widget _citySearches() => Builder(
               country: 'KR',
               countryName: 'South Korea',
               timezone: 'Asia/Seoul',
+              longitude: 126.9780,
             ),
             City(
               id: '2',
@@ -434,6 +435,7 @@ Widget _citySearches() => Builder(
               countryName: 'South Korea',
               regionName: 'Busan',
               timezone: 'Asia/Seoul',
+              longitude: 129.0756,
             ),
             City(
               id: '3',
@@ -442,6 +444,7 @@ Widget _citySearches() => Builder(
               countryName: 'United States',
               regionName: 'California',
               timezone: 'America/Los_Angeles',
+              longitude: -122.4194,
             ),
           ]),
         ),

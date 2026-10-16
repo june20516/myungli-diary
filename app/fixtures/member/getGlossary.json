@@ -106,6 +106,25 @@
       "ten_god.jeonggwan": {
         "segments": [{ "text": "나를 바르게 다잡아 주는 기운이에요. 맡은 일을 차분히 해내는 힘이 돼요." }]
       }
+    },
+    "hanja": {
+      "element.wood": "木",
+      "element.fire": "火",
+      "element.earth": "土",
+      "element.metal": "金",
+      "element.water": "水",
+      "ten_god.bigyeon": "比肩",
+      "ten_god.geopjae": "劫財",
+      "ten_god.siksin": "食神",
+      "ten_god.sanggwan": "傷官",
+      "ten_god.pyeonjae": "偏財",
+      "ten_god.jeongjae": "正財",
+      "ten_god.pyeongwan": "偏官",
+      "ten_god.jeonggwan": "正官",
+      "ten_god.pyeonin": "偏印",
+      "ten_god.jeongin": "正印",
+      "tag.dohwa": "桃花",
+      "tag.yeokma": "驛馬"
     }
   }
 }

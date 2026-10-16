@@ -790,10 +790,6 @@
   "@calcBasisConventionBody": {
     "description": "calc-basis.convention.body: 한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)"
   },
-  "calcBasisLongitudeBody": "출생 시각은 동경 127.5° 기준으로 30분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
-  "@calcBasisLongitudeBody": {
-    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용"
-  },
   "calcBasisLunarBody": "음력은 한국천문연구원 기준의 한국 음력을 따라요.",
   "@calcBasisLunarBody": {
     "description": "calc-basis.lunar.body: KASI 기준 한국 음력 안내"
@@ -1109,27 +1105,27 @@
   },
   "a11yListSeparator": ", ",
   "@a11yListSeparator": {
-    "description": "임시. 스크린리더 라벨 조각을 잇는 구분자"
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
   },
   "calendarBarTitle": "달력",
   "@calendarBarTitle": {
-    "description": "임시. calendar 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "calendar.bar.title: app-bar 제목(화면 이름 \"달력\")"
   },
   "eventEditBarTitle": "일정",
   "@eventEditBarTitle": {
-    "description": "임시. event-edit 화면 제목(app-bar). writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "event-edit.bar.title: app-bar 제목(화면 이름 \"일정 편집\")"
   },
   "calendarPrevMonth": "이전 달",
   "@calendarPrevMonth": {
-    "description": "임시. 달력 이전 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름"
   },
   "calendarNextMonth": "다음 달",
   "@calendarNextMonth": {
-    "description": "임시. 달력 다음 달 버튼 접근성 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름"
   },
   "dayCellLunar": "음력 {month}월 {day}일",
   "@dayCellLunar": {
-    "description": "임시. 달력 칸 접근성 라벨 조각: 음력 날짜. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각",
     "placeholders": {
       "month": {
         "type": "int"
@@ -1141,28 +1137,28 @@
   },
   "dayCellLeapMonth": "윤달",
   "@dayCellLeapMonth": {
-    "description": "임시. 달력 칸 접근성 라벨 조각: 윤달 표시. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
   },
   "dayCellEventCount": "일정 {count, plural, other{{count}개}}",
   "@dayCellEventCount": {
-    "description": "임시. 달력 칸 접근성 라벨 조각: 일정 개수. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "dayCellDiaryWritten": "일기 씀",
+  "dayCellDiaryWritten": "일기 있음",
   "@dayCellDiaryWritten": {
-    "description": "임시. 달력 칸 접근성 라벨 조각: 일기 쓴 날. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
   },
   "dayCellToday": "오늘",
   "@dayCellToday": {
-    "description": "임시. 달력 칸 접근성 라벨 조각: 오늘. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "달력 날짜 칸(day-cell): 스크린리더 조각"
   },
   "eventRowMore": "외 {count, plural, other{{count}개}}",
   "@eventRowMore": {
-    "description": "임시. event-row 첫 일정 뒤 나머지 개수. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "description": "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름",
     "placeholders": {
       "count": {
         "type": "int"
@@ -1171,11 +1167,11 @@
   },
   "eventRowAllDay": "하루 종일",
   "@eventRowAllDay": {
-    "description": "임시. event-row 하루 종일 일정 시각 자리. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름"
   },
   "eventRowLabel": "{status} {time} {title}",
   "@eventRowLabel": {
-    "description": "임시. event-row 스크린리더 라벨 틀. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "description": "일정 줄(event-row): 더 있음·하루 종일 표시와 스크린리더 이름",
     "placeholders": {
       "status": {
         "type": "String"
@@ -1190,7 +1186,7 @@
   },
   "todayEventSummaryNextAt": "다음 {time} {title}",
   "@todayEventSummaryNextAt": {
-    "description": "임시. today.event.summary: 다음 시각 일정. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정",
     "placeholders": {
       "time": {
         "type": "String"
@@ -1200,9 +1196,9 @@
       }
     }
   },
-  "todayEventSummaryAllPast": "오늘 일정 {count, plural, other{{count}개}} 모두 지났어요",
+  "todayEventSummaryAllPast": "오늘 일정 {count, plural, other{{count}개}}가 모두 지났어요",
   "@todayEventSummaryAllPast": {
-    "description": "임시. today.event.summary: 모두 지난 오늘 일정 개수 문장. writing 원고가 오면 writing 키로 바꿈(A38)",
+    "description": "today.event.summary: 오늘 일정 개수와 첫 일정",
     "placeholders": {
       "count": {
         "type": "int"
@@ -1211,35 +1207,35 @@
   },
   "eventEditAllDay": "하루 종일",
   "@eventEditAllDay": {
-    "description": "임시. event-edit 종일 전환 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditTimed": "시간 지정",
   "@eventEditTimed": {
-    "description": "임시. event-edit 시간 지정 전환 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditDateLabel": "날짜",
   "@eventEditDateLabel": {
-    "description": "임시. event-edit 날짜 칸 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditTimeLabel": "시간",
   "@eventEditTimeLabel": {
-    "description": "임시. event-edit 시간 칸 이름. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditSave": "저장",
   "@eventEditSave": {
-    "description": "임시. event-edit 저장 버튼. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditDelete": "일정 지우기",
   "@eventEditDelete": {
-    "description": "임시. event-edit 삭제 버튼. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditOfflineNotice": "인터넷에 연결되어 있지 않아 저장할 수 없어요.",
   "@eventEditOfflineNotice": {
-    "description": "임시. event-edit 오프라인 배너. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "eventEditSaveFailed": "일정을 저장하지 못했어요. 다시 시도해 주세요.",
   "@eventEditSaveFailed": {
-    "description": "임시. event-edit 저장 실패 안내. writing 원고가 오면 writing 키로 바꿈(A38)"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
   },
   "direction8N": "북",
   "@direction8N": {
@@ -1335,5 +1331,145 @@
   "calcBasisSchoolsBody": "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.",
   "@calcBasisSchoolsBody": {
     "description": "calc-basis.schools.body: 다른 유파·나라 관례와 다른 점: 지장간을 모두 표시, 자시 통합(D6). 다르게 나올 수 있는 이유로 설명합니다(D71)"
+  },
+  "accountDeleteBarTitle": "계정 삭제",
+  "@accountDeleteBarTitle": {
+    "description": "account-delete.bar.title: app-bar 제목(화면 이름 \"계정 삭제\")"
+  },
+  "adFreeBarTitle": "광고 제거",
+  "@adFreeBarTitle": {
+    "description": "ad-free.bar.title: app-bar 제목(화면 이름 \"광고 제거\")"
+  },
+  "birthplaceBarTitle": "출생지",
+  "@birthplaceBarTitle": {
+    "description": "birthplace.bar.title: app-bar 제목(화면 이름 \"출생지\")"
+  },
+  "calcBasisBarTitle": "계산 기준",
+  "@calcBasisBarTitle": {
+    "description": "calc-basis.bar.title: app-bar 제목(화면 이름 \"계산 기준\")"
+  },
+  "calcBasisLongitudeBodyDstSubtract": "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyDstSubtract": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "dstMinutes": {
+        "type": "int"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyDstAdd": "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyDstAdd": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "dstMinutes": {
+        "type": "int"
+      }
+    }
+  },
+  "calcBasisLongitudeBodyDstNone": "출생 시각은 서머타임 {dstMinutes}분만 빼고 계산해요. {longitude} 기준이라 경도 보정은 따로 하지 않아요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "@calcBasisLongitudeBodyDstNone": {
+    "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
+    "placeholders": {
+      "longitude": {
+        "type": "String"
+      },
+      "dstMinutes": {
+        "type": "int"
+      }
+    }
+  },
+  "consentBarTitle": "약관 동의",
+  "@consentBarTitle": {
+    "description": "consent.bar.title: app-bar 제목(화면 이름 \"약관 동의\")"
+  },
+  "diaryEditBarTitle": "일기 쓰기",
+  "@diaryEditBarTitle": {
+    "description": "diary-edit.bar.title: app-bar 제목(화면 이름 \"일기 쓰기\")"
+  },
+  "diaryListBarTitle": "일기",
+  "@diaryListBarTitle": {
+    "description": "diary-list.bar.title: app-bar 제목(화면 이름 \"일기 목록\")"
+  },
+  "diaryViewBarTitle": "{date}의 일기",
+  "@diaryViewBarTitle": {
+    "description": "diary-view.bar.title: app-bar 제목. 일기 날짜를 넣는 틀입니다(매개변수 date)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "legalBarTitle": "약관·정책",
+  "@legalBarTitle": {
+    "description": "legal.bar.title: app-bar 제목(화면 이름 \"약관·정책\")"
+  },
+  "loginBarTitle": "로그인",
+  "@loginBarTitle": {
+    "description": "login.bar.title: app-bar 제목(화면 이름 \"로그인\")"
+  },
+  "mySajuBarTitle": "나의 사주",
+  "@mySajuBarTitle": {
+    "description": "my-saju.bar.title: app-bar 제목(화면 이름 \"나의 사주\")"
+  },
+  "notifyAskBarTitle": "알림",
+  "@notifyAskBarTitle": {
+    "description": "notify-ask.bar.title: app-bar 제목(화면 이름 \"알림 허락\")"
+  },
+  "onboardBirthBarTitle": "생일",
+  "@onboardBirthBarTitle": {
+    "description": "onboard-birth.bar.title: app-bar 제목(화면 이름 \"생일\")"
+  },
+  "onboardCallBarTitle": "호칭",
+  "@onboardCallBarTitle": {
+    "description": "onboard-call.bar.title: app-bar 제목(화면 이름 \"호칭\")"
+  },
+  "onboardGenderBarTitle": "성별",
+  "@onboardGenderBarTitle": {
+    "description": "onboard-gender.bar.title: app-bar 제목(화면 이름 \"성별\")"
+  },
+  "onboardTimeBarTitle": "태어난 시간",
+  "@onboardTimeBarTitle": {
+    "description": "onboard-time.bar.title: app-bar 제목(화면 이름 \"태어난 시간\")"
+  },
+  "previewBarTitle": "첫 풀이",
+  "@previewBarTitle": {
+    "description": "preview.bar.title: app-bar 제목(화면 이름 \"첫 풀이\")"
+  },
+  "profileEditBarTitle": "정보 수정",
+  "@profileEditBarTitle": {
+    "description": "profile-edit.bar.title: app-bar 제목(화면 이름 \"정보 수정\")"
+  },
+  "sajuChartBarTitle": "사주 표",
+  "@sajuChartBarTitle": {
+    "description": "saju-chart.bar.title: app-bar 제목(화면 이름 \"사주 표\")"
+  },
+  "settingsBarTitle": "설정",
+  "@settingsBarTitle": {
+    "description": "settings.bar.title: app-bar 제목(화면 이름 \"설정\")"
+  },
+  "tagDiaryBarTitle": "{tag} 태그",
+  "@tagDiaryBarTitle": {
+    "description": "tag-diary.bar.title: app-bar 제목. 고른 태그 이름을 넣는 틀입니다(매개변수 tag)",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBarTitle": "오늘",
+  "@todayBarTitle": {
+    "description": "today.bar.title: app-bar 제목(화면 이름 \"오늘\")"
   }
 }

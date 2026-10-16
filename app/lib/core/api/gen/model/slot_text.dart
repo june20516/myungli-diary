@@ -32,6 +32,8 @@ class SlotText {
 
     this.reaction,
 
+    this.todayReason,
+
     this.evidence,
   });
 
@@ -55,6 +57,9 @@ class SlotText {
   @JsonKey(name: r'reaction', required: false, includeIfNull: false)
   final SlotTextReactionEnum? reaction;
 
+  @JsonKey(name: r'todayReason', required: false, includeIfNull: false)
+  final RenderedText? todayReason;
+
   /// 판정 근거. 응답의 `evidenceAccess`가 `unlocked`일 때만 담깁니다.
   @JsonKey(name: r'evidence', required: false, includeIfNull: false)
   final List<Evidence>? evidence;
@@ -69,6 +74,7 @@ class SlotText {
           other.text == text &&
           other.reactable == reactable &&
           other.reaction == reaction &&
+          other.todayReason == todayReason &&
           other.evidence == evidence;
 
   @override
@@ -79,6 +85,7 @@ class SlotText {
       text.hashCode +
       reactable.hashCode +
       reaction.hashCode +
+      todayReason.hashCode +
       evidence.hashCode;
 
   factory SlotText.fromJson(Map<String, dynamic> json) =>

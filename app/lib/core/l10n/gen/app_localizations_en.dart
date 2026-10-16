@@ -633,10 +633,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Readings follow the standard widely used in Korea. It\'s one well-grounded approach among several schools.';
 
   @override
-  String get calcBasisLongitudeBody =>
-      'We subtract 30 minutes from your birth time, based on 127.5° east longitude, and don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
-
-  @override
   String get calcBasisLunarBody =>
       'Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute.';
 
@@ -901,7 +897,7 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count events',
-      one: '1 event',
+      one: '$count event',
     );
     return '$_temp0';
   }
@@ -918,7 +914,7 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other: '+$count more',
-      one: '+1 more',
+      one: '+$count more',
     );
     return '$_temp0';
   }
@@ -933,7 +929,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String todayEventSummaryNextAt(String time, String title) {
-    return 'Next $time $title';
+    return 'Next: $time $title';
   }
 
   @override
@@ -941,8 +937,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count events today, all done',
-      one: '1 event today, all done',
+      other: 'All $count of today\'s events are done',
+      one: 'Today\'s event is done',
     );
     return '$_temp0';
   }
@@ -971,7 +967,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventEditSaveFailed =>
-      'Couldn\'t save the event. Please try again.';
+      'We couldn\'t save the event. Please try again.';
 
   @override
   String get direction8N => 'North';
@@ -1044,4 +1040,109 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get calcBasisSchoolsBody =>
       'We show every hidden stem instead of picking just one. If you were born in the Rat hour, we count it as the next day, even before midnight. Schools handle these differently, so your results may differ from other apps or books.';
+
+  @override
+  String get accountDeleteBarTitle => 'Delete account';
+
+  @override
+  String get adFreeBarTitle => 'Remove ads';
+
+  @override
+  String get birthplaceBarTitle => 'Birthplace';
+
+  @override
+  String get calcBasisBarTitle => 'How we calculate';
+
+  @override
+  String calcBasisLongitudeBodyDstSubtract(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'We remove the $dstMinutes-minute daylight saving offset from your birth time, then subtract $_temp0 based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyDstAdd(
+    String longitude,
+    int minutes,
+    int dstMinutes,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'We remove the $dstMinutes-minute daylight saving offset from your birth time, then add $_temp0 based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes) {
+    return 'We remove the $dstMinutes-minute daylight saving offset from your birth time. Based on $longitude, there\'s no further adjustment. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+  }
+
+  @override
+  String get consentBarTitle => 'Agree to terms';
+
+  @override
+  String get diaryEditBarTitle => 'Write';
+
+  @override
+  String get diaryListBarTitle => 'Diary';
+
+  @override
+  String diaryViewBarTitle(String date) {
+    return '$date';
+  }
+
+  @override
+  String get legalBarTitle => 'Terms & policies';
+
+  @override
+  String get loginBarTitle => 'Sign in';
+
+  @override
+  String get mySajuBarTitle => 'My chart';
+
+  @override
+  String get notifyAskBarTitle => 'Notifications';
+
+  @override
+  String get onboardBirthBarTitle => 'Birthday';
+
+  @override
+  String get onboardCallBarTitle => 'Your name';
+
+  @override
+  String get onboardGenderBarTitle => 'Gender';
+
+  @override
+  String get onboardTimeBarTitle => 'Birth time';
+
+  @override
+  String get previewBarTitle => 'Your first reading';
+
+  @override
+  String get profileEditBarTitle => 'Edit details';
+
+  @override
+  String get sajuChartBarTitle => 'Saju chart';
+
+  @override
+  String get settingsBarTitle => 'Settings';
+
+  @override
+  String tagDiaryBarTitle(String tag) {
+    return 'Tag: $tag';
+  }
+
+  @override
+  String get todayBarTitle => 'Today';
 }

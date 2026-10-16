@@ -130,7 +130,8 @@ void main() {
     expect(view.luck, LuckLevel.good);
     expect(
       view.semanticLabel,
-      '10월 13일 화요일, 음력 9월 3일, 잘 풀리는 날, 일기 씀, 일정 3개, 오늘',
+      '10월 13일 화요일, 음력 9월 3일, 잘 풀리는 날, '
+      '${l10n.dayCellDiaryWritten}, 일정 3개, 오늘',
     );
   });
 

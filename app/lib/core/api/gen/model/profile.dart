@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/notification_setting.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
@@ -30,6 +31,8 @@ class Profile {
     required this.birth,
 
     required this.notification,
+
+    this.birthCity,
   });
 
   /// 호칭
@@ -49,6 +52,9 @@ class Profile {
   @JsonKey(name: r'notification', required: true, includeIfNull: false)
   final NotificationSetting notification;
 
+  @JsonKey(name: r'birthCity', required: false, includeIfNull: false)
+  final City? birthCity;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -57,7 +63,8 @@ class Profile {
           other.language == language &&
           other.currentTimezone == currentTimezone &&
           other.birth == birth &&
-          other.notification == notification;
+          other.notification == notification &&
+          other.birthCity == birthCity;
 
   @override
   int get hashCode =>
@@ -65,7 +72,8 @@ class Profile {
       language.hashCode +
       currentTimezone.hashCode +
       birth.hashCode +
-      notification.hashCode;
+      notification.hashCode +
+      birthCity.hashCode;
 
   factory Profile.fromJson(Map<String, dynamic> json) =>
       _$ProfileFromJson(json);

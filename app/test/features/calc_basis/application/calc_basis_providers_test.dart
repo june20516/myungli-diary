@@ -89,6 +89,7 @@ final City _newYork = City(
   country: 'US',
   countryName: 'United States',
   timezone: 'America/New_York',
+  longitude: -74.0060,
 );
 
 /// 서울 1990-05-05 08:00과 같은 입력입니다(뉴욕 08:00과 결과가 다르도록 서울 기준).

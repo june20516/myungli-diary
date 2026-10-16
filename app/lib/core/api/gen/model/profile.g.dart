@@ -17,6 +17,8 @@ abstract class _$ProfileCWProxy {
 
   Profile notification(NotificationSetting notification);
 
+  Profile birthCity(City? birthCity);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Profile(...).copyWith.fieldName(value)`.
@@ -31,6 +33,7 @@ abstract class _$ProfileCWProxy {
     String currentTimezone,
     Birth birth,
     NotificationSetting notification,
+    City? birthCity,
   });
 }
 
@@ -58,6 +61,9 @@ class _$ProfileCWProxyImpl implements _$ProfileCWProxy {
   Profile notification(NotificationSetting notification) =>
       call(notification: notification);
 
+  @override
+  Profile birthCity(City? birthCity) => call(birthCity: birthCity);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Profile(...).copyWith.fieldName(value)`.
@@ -73,6 +79,7 @@ class _$ProfileCWProxyImpl implements _$ProfileCWProxy {
     Object? currentTimezone = const $CopyWithPlaceholder(),
     Object? birth = const $CopyWithPlaceholder(),
     Object? notification = const $CopyWithPlaceholder(),
+    Object? birthCity = const $CopyWithPlaceholder(),
   }) {
     return Profile(
       honorific: honorific == const $CopyWithPlaceholder() || honorific == null
@@ -98,6 +105,10 @@ class _$ProfileCWProxyImpl implements _$ProfileCWProxy {
           ? _value.notification
           // ignore: cast_nullable_to_non_nullable
           : notification as NotificationSetting,
+      birthCity: birthCity == const $CopyWithPlaceholder()
+          ? _value.birthCity
+          // ignore: cast_nullable_to_non_nullable
+          : birthCity as City?,
     );
   }
 }
@@ -140,6 +151,10 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) =>
           'notification',
           (v) => NotificationSetting.fromJson(v as Map<String, dynamic>),
         ),
+        birthCity: $checkedConvert(
+          'birthCity',
+          (v) => v == null ? null : City.fromJson(v as Map<String, dynamic>),
+        ),
       );
       return val;
     });
@@ -150,6 +165,7 @@ Map<String, dynamic> _$ProfileToJson(Profile instance) => <String, dynamic>{
   'currentTimezone': instance.currentTimezone,
   'birth': instance.birth.toJson(),
   'notification': instance.notification.toJson(),
+  'birthCity': ?instance.birthCity?.toJson(),
 };
 
 const _$LanguageEnumMap = {

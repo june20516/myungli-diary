@@ -934,7 +934,7 @@ class DefaultApi {
   }
 
   /// 문장 반응 지우기
-  ///
+  /// 남긴 반응을 지웁니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 &#x60;reaction.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [date]
@@ -995,7 +995,7 @@ class DefaultApi {
   }
 
   /// 일정 지우기
-  /// 일정을 지웁니다. 지운 일정은 &#x60;restoreSchedule&#x60;로 되살릴 수 있습니다.
+  /// 일정을 지웁니다. 지운 일정은 &#x60;restoreSchedule&#x60;로 되살릴 수 있습니다. 없는 일정(남의 일정 포함)은 404 &#x60;schedule.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [id]
@@ -1214,7 +1214,7 @@ class DefaultApi {
   }
 
   /// 달력
-  /// 한 달의 날짜별 일진, 음력, 절기, 길흉 수준을 돌려줍니다. &#x60;year&#x60;·&#x60;month&#x60;가 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 &#x60;request.invalid&#x60;, 스키마 범위 안이지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31)를 벗어나면 422 &#x60;date.out_of_range&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  /// 한 달의 날짜별 일진, 음력, 절기, 길흉 수준을 돌려줍니다. &#x60;year&#x60;·&#x60;month&#x60;가 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 &#x60;request.invalid&#x60;, 스키마 범위 안이지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31)를 벗어나면 422 &#x60;date.out_of_range&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.  캐시: &#x60;ETag&#x60;는 없습니다. 응답은 출생 정보·언어·&#x60;rulesetVersion&#x60;·문장 시드로 정해지므로 app은 달마다 캐시해도 됩니다. 프로필(출생 정보·언어)이나 &#x60;rulesetVersion&#x60;이 바뀌면 캐시를 버립니다. 문장 개선(시드 갱신)은 다음 무효화 때 반영됩니다.
   ///
   /// Parameters:
   /// * [year]
@@ -2082,7 +2082,7 @@ class DefaultApi {
   }
 
   /// 일정 목록
-  /// &#x60;from&#x60;부터 &#x60;to&#x60;까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내입니다.
+  /// &#x60;from&#x60;부터 &#x60;to&#x60;까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 &#x60;range.too_long&#x60;입니다.
   ///
   /// Parameters:
   /// * [from]
@@ -2495,7 +2495,7 @@ class DefaultApi {
   }
 
   /// 문장 반응 남기기
-  /// 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 선택 기록이 없거나 반응할 수 없는 슬롯이면 404입니다.
+  /// 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 &#x60;reaction.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [date]
@@ -3137,7 +3137,7 @@ class DefaultApi {
   }
 
   /// 일정 수정
-  /// 보낸 필드만 바꿉니다(JSON Merge Patch). &#x60;allDay&#x60;를 true로 바꾸면 &#x60;time&#x60;이 지워집니다. 짝 위반(&#x60;allDay&#x60;·&#x60;time&#x60;)은 422 &#x60;request.inconsistent&#x60;입니다(&#x60;SchedulePatch&#x60; 참고). &#x60;memo&#x60;는 빈 문자열을 보내 지웁니다.
+  /// 보낸 필드만 바꿉니다(JSON Merge Patch). &#x60;allDay&#x60;를 true로 바꾸면 &#x60;time&#x60;이 지워집니다. 짝 위반(&#x60;allDay&#x60;·&#x60;time&#x60;)은 422 &#x60;request.inconsistent&#x60;입니다(&#x60;SchedulePatch&#x60; 참고). &#x60;memo&#x60;는 빈 문자열을 보내 지웁니다. 없는 일정(남의 일정 포함)은 404 &#x60;schedule.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [id]

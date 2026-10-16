@@ -40,6 +40,7 @@ const Map<String, Object> _body = {
       ],
     },
   },
+  'hanja': {'ten_god.pyeongwan': '偏官'},
 };
 
 /// 정해 둔 응답을 차례로 돌려주고 요청 헤더를 기록합니다. 목록을 넘으면 마지막을 되풀이합니다.
