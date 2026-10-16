@@ -333,7 +333,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get forceUpdateCtaStore => 'アップデートする';
 
   @override
-  String get welcomeConceptHead => '今日の日辰を、自分の命式に合わせて読み解きます';
+  String get welcomeConceptHead => '今日の干支を、自分の命式に合わせて読み解きます';
 
   @override
   String get welcomeConceptBody => '読み解きに合わせた質問ひとつで、その日の日記を始めます。';
