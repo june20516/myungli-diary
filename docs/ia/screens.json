@@ -1092,6 +1092,11 @@
           "role": "집중하기 좋은 시간 설명 한 줄"
         },
         {
+          "id": "today.lucky-tag.body",
+          "source": "content",
+          "role": "대표 태그 뜻 한 줄. 대표 태그(0~2개, 계약 Daily.tags.featured)는 행운 칩 줄에 lucky-card 칩으로 함께 놓이고, 누르면 이 한 줄이 스밉니다. 칩 이름은 glossary tag 범주, 뜻은 tag-diary.tag.meaning과 같은 원고입니다(D76)"
+        },
+        {
           "id": "today.guide.question",
           "source": "content",
           "role": "그날 일진에 맞춘 가이드 질문"
