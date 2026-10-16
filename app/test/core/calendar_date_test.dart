@@ -28,40 +28,52 @@ void main() {
 
   group('CalendarMonth', () {
     test('2026-10 격자는 9/27 일요일부터 11/7까지 42칸이다', () {
-      final month = CalendarMonth(2026, 10);
+      const month = CalendarMonth(2026, 10);
       expect(month.gridStart, CalendarDate(2026, 9, 27));
       expect(month.gridEnd, CalendarDate(2026, 11, 7));
       expect(month.gridDays, hasLength(42));
     });
 
     test('격자 첫 칸은 항상 일요일이다', () {
-      expect(CalendarMonth(2026, 2).gridDays.first.weekday, DateTime.sunday);
-      expect(CalendarMonth(2026, 11).gridDays.first.weekday, DateTime.sunday);
+      expect(
+        const CalendarMonth(2026, 2).gridDays.first.weekday,
+        DateTime.sunday,
+      );
+      expect(
+        const CalendarMonth(2026, 11).gridDays.first.weekday,
+        DateTime.sunday,
+      );
     });
 
     test('지원 범위는 1900-01 ~ 2099-12다', () {
-      expect(CalendarMonth(1900, 1).isSupported, isTrue);
-      expect(CalendarMonth(1900, 1).previous().isSupported, isFalse);
-      expect(CalendarMonth(2099, 12).isSupported, isTrue);
-      expect(CalendarMonth(2099, 12).next().isSupported, isFalse);
+      expect(const CalendarMonth(1900, 1).isSupported, isTrue);
+      expect(const CalendarMonth(1900, 1).previous().isSupported, isFalse);
+      expect(const CalendarMonth(2099, 12).isSupported, isTrue);
+      expect(const CalendarMonth(2099, 12).next().isSupported, isFalse);
     });
 
     test('next·previous는 해를 넘긴다', () {
-      expect(CalendarMonth(2026, 12).next(), CalendarMonth(2027, 1));
-      expect(CalendarMonth(2026, 1).previous(), CalendarMonth(2025, 12));
+      expect(
+        const CalendarMonth(2026, 12).next(),
+        const CalendarMonth(2027, 1),
+      );
+      expect(
+        const CalendarMonth(2026, 1).previous(),
+        const CalendarMonth(2025, 12),
+      );
     });
 
     test('of, 동등성, toString', () {
       expect(
         CalendarMonth.of(CalendarDate(2026, 10, 16)),
-        CalendarMonth(2026, 10),
+        const CalendarMonth(2026, 10),
       );
       expect(
-        CalendarMonth(2026, 10).hashCode,
-        CalendarMonth(2026, 10).hashCode,
+        const CalendarMonth(2026, 10).hashCode,
+        const CalendarMonth(2026, 10).hashCode,
       );
-      expect(CalendarMonth(2026, 3).toString(), '2026-03');
-      expect(() => CalendarMonth(2026, 13), throwsArgumentError);
+      expect(const CalendarMonth(2026, 3).toString(), '2026-03');
+      expect(() => CalendarMonth(2026, 13), throwsA(isA<AssertionError>()));
     });
   });
 }

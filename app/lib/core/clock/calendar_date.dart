@@ -92,12 +92,9 @@ final class CalendarDate implements Comparable<CalendarDate> {
 /// 달력의 한 달(연·월). 일요일 시작 6주 42칸 격자를 계산합니다.
 @immutable
 final class CalendarMonth {
-  /// [year]년 [month]월. [month]가 1~12를 벗어나면 [ArgumentError]입니다.
-  new(this.year, this.month) {
-    if (month < 1 || month > 12) {
-      throw ArgumentError.value(month, 'month', '1~12여야 합니다.');
-    }
-  }
+  /// [year]년 [month]월. [month]는 1~12여야 합니다(개발 중 `assert`로 검사합니다).
+  const new(this.year, this.month)
+    : assert(month >= 1 && month <= 12, 'month는 1~12여야 합니다.');
 
   /// [date]가 속한 달.
   factory of(CalendarDate date) => CalendarMonth(date.year, date.month);

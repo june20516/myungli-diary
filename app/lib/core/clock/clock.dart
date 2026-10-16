@@ -202,7 +202,8 @@ final todayProvider = Provider<CalendarDate>((ref) {
 /// 프로필 시간대의 벽시계 시각(분 단위, 초 이하는 0)을 매 분 0초에 내보냅니다.
 ///
 /// 구독하면 현재 분을 바로 내보내고, 시간이 흐르는 시계([Clock.advances])면 다음 분
-/// 경계마다 새 값을 내보냅니다. 값은 시간대가 붙지 않은 [DateTime]입니다.
+/// 경계마다 새 값을 내보냅니다. 값은 UTC 표기이지만 실제 순간이 아니라 프로필
+/// 시간대의 벽시계 숫자입니다(기기 시간대와 섞여 정규화되지 않게 UTC 그릇에 담습니다).
 final nowMinuteProvider = StreamProvider<DateTime>((ref) {
   final clock = ref.watch(clockProvider);
   final timezone = ref.watch(profileTimezoneProvider);
@@ -211,15 +212,16 @@ final nowMinuteProvider = StreamProvider<DateTime>((ref) {
 
 /// [ianaTimezone] 벽시계의 현재 분을 내보내고, 이후 분이 바뀔 때마다 내보냅니다.
 ///
+/// 값은 `DateTime.utc(연, 월, 일, 시, 분)` 모양의 벽시계입니다([nowMinuteProvider] 참고).
 /// [Clock.advances]가 false면 현재 분 하나만 내보냅니다. 구독을 취소하면 타이머도
-/// 멈춥니다. 계산이 실패하면 스트림 오류로 전달합니다.
+/// 멈춥니다. 계산이 실패하면 스트림 오류로 전달하고, 다음 분에 다시 시도합니다.
 Stream<DateTime> minuteTicks(Clock clock, String ianaTimezone) {
   Timer? timer;
   late final StreamController<DateTime> controller;
 
   DateTime currentMinute() {
     final local = localTimeIn(clock.nowUtc(), ianaTimezone);
-    return DateTime(
+    return DateTime.utc(
       local.year,
       local.month,
       local.day,
@@ -228,14 +230,24 @@ Stream<DateTime> minuteTicks(Clock clock, String ianaTimezone) {
     );
   }
 
-  void schedule(DateTime emitted) {
-    final local = localTimeIn(clock.nowUtc(), ianaTimezone);
-    final untilNextMinute = Duration(
-      seconds: 60 - local.second,
-      milliseconds: -local.millisecond,
-      microseconds: -local.microsecond,
+  // 다음 분 경계까지의 대기. UTC 기준 초·밀리초로 셉니다(시간대 오프셋은 분 단위).
+  Duration untilNextMinute() {
+    final now = clock.nowUtc();
+    return Duration(
+      seconds: 60 - now.second,
+      milliseconds: -now.millisecond,
+      microseconds: -now.microsecond,
     );
-    timer = Timer(untilNextMinute, () {
+  }
+
+  void schedule(DateTime? emitted) {
+    var delay = const Duration(minutes: 1);
+    try {
+      delay = untilNextMinute();
+    } on Object catch (error, stackTrace) {
+      controller.addError(error, stackTrace);
+    }
+    timer = Timer(delay, () {
       var last = emitted;
       try {
         final now = currentMinute();
@@ -243,23 +255,24 @@ Stream<DateTime> minuteTicks(Clock clock, String ianaTimezone) {
           last = now;
           controller.add(now);
         }
-        schedule(last);
       } on Object catch (error, stackTrace) {
         controller.addError(error, stackTrace);
       }
+      schedule(last);
     });
   }
 
   controller = StreamController<DateTime>(
     onListen: () {
+      DateTime? first;
       try {
-        final first = currentMinute();
+        first = currentMinute();
         controller.add(first);
-        if (clock.advances) {
-          schedule(first);
-        }
       } on Object catch (error, stackTrace) {
         controller.addError(error, stackTrace);
+      }
+      if (clock.advances) {
+        schedule(first);
       }
     },
     onCancel: () {
