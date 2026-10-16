@@ -1,0 +1,2 @@
+- {slot: daily.guide, key: guide.a, variant: 1, text: "안녕"}
+- {slot: daily.guide, key: guide.a, variant: 2, text: "[[식신]]을 봅니다."}
