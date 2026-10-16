@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:ui' show Locale;
 
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
@@ -14,7 +16,6 @@ import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
-import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 
 // 그날 응답(`Daily`)을 화면에 보일 값으로 바꾸는 한 곳입니다(결정 A22·A27).
@@ -136,36 +137,130 @@ String? timeUnknownNoticeOf(Daily daily) {
   return null;
 }
 
-/// 화면에 보이는 내용의 서명. 캐시 → server 응답으로 바뀔 때 보이는 내용이 같은지 비교합니다.
+/// 오늘 화면 한 줄 문장(총운 첫 문장·태그 문장)과 그 문장이 채우는 writing 슬롯.
+@immutable
+final class SentenceLine {
+  /// [text]와 그 슬롯 [slot]입니다.
+  const new({required this.text, required this.slot});
+
+  /// server가 렌더한 문장.
+  final RenderedText text;
+
+  /// writing 슬롯 id(용어·근거 시트가 받음).
+  final String slot;
+}
+
+/// 오늘 화면이 그리는 값 묶음(결정 A22). 화면은 이 값으로만 내용을 그립니다.
 ///
-/// 날의 성격과 그 이유, 총운 문장, 행운 값과 설명, 가이드 질문, 시간 모름 안내만 담습니다. 보이지 않는
-/// 필드(`evidenceAccess`, `evidence`, `reaction`, 규칙 버전 등)만 바뀌면 같은 서명이라 내용이
-/// 다시 스미지 않습니다. 화면에 새 필드를 그리면 여기에도 더합니다(A22). 생성 모델의 `==`는
-/// 목록을 참조로 비교하므로 JSON 글자로 비교합니다.
-String dailySignature(Daily daily) {
-  final cards = daily.cards;
-  return jsonEncode({
-    'dayKind': daily.dayKind.value,
-    'characterReason': daily.characterReason.text.toJson(),
-    'head': daily.fortune.head.text.toJson(),
-    'tag': daily.fortune.tag?.text.toJson(),
-    'color': [cards.color.element.value, cards.color.text.text.toJson()],
-    'direction': [
-      cards.direction.direction.value,
-      cards.direction.text.text.toJson(),
-    ],
-    'number': [cards.number.number, cards.number.text.text.toJson()],
-    'focusTime': [
-      for (final pick in cards.focusTime.picks)
-        [
-          pick.start.toUtc().toIso8601String(),
-          pick.end.toUtc().toIso8601String(),
-        ],
-      cards.focusTime.text.text.toJson(),
-    ],
-    'guide': daily.guide.text.toJson(),
-    'timeUnknown': timeUnknownNoticeOf(daily),
+/// 값 동등성(`==`)이 있어 캐시 → server 응답으로 바뀔 때 보이는 내용이 같은지 이 값으로
+/// 비교합니다(`SeepOnChange.changeKey`). 보이지 않는 필드(`evidenceAccess`, `evidence`,
+/// `reaction`, 규칙 버전 등)는 담지 않으므로 그것만 바뀌면 같은 값입니다. 계약 필드가 늘어
+/// 화면에 그리면 이 클래스에 필드를 더하고 [_props]에 넣습니다. 비교 방식은 [_canonical]
+/// 한 곳이 정하고, 모르는 타입이 들어오면 던지므로 빠뜨린 정규화는 테스트에서 드러납니다.
+@immutable
+final class TodayDisplay {
+  /// 오늘 화면 값을 만듭니다.
+  const new({
+    required this.character,
+    required this.characterReasonSlot,
+    required this.timeUnknown,
+    required this.head,
+    required this.headReactable,
+    required this.tag,
+    required this.lucky,
+    required this.guide,
   });
+
+  /// 날의 성격 줄.
+  final DayCharacterContent character;
+
+  /// 날의 성격 이유가 채우는 writing 슬롯 id(이유 줄 끝 근거 보기가 근거 시트에 넘김).
+  final String characterReasonSlot;
+
+  /// 시간 모름 안내 글. 없으면 null입니다.
+  final String? timeUnknown;
+
+  /// 총운 첫 문장.
+  final SentenceLine head;
+
+  /// 총운 첫 문장에 반응 버튼을 두는지(`reactable`).
+  final bool headReactable;
+
+  /// 대표 태그 문장. 없으면 null입니다.
+  final SentenceLine? tag;
+
+  /// 행운 항목 4개.
+  final List<LuckyItem> lucky;
+
+  /// 가이드 질문.
+  final RenderedText guide;
+
+  /// 동등성에 쓰는 필드 목록. 화면에 그리는 필드는 모두 여기에 있습니다.
+  List<Object?> get _props => [
+    character,
+    characterReasonSlot,
+    timeUnknown,
+    head,
+    headReactable,
+    tag,
+    lucky,
+    guide,
+  ];
+
+  /// 정규화한 [_props]의 JSON 글자. 생성 모델의 `==`는 목록을 참조로 비교하므로 글자로 비교합니다.
+  String get _signature => jsonEncode(_canonical(_props));
+
+  @override
+  bool operator ==(Object other) =>
+      other is TodayDisplay && other._signature == _signature;
+
+  @override
+  int get hashCode => _signature.hashCode;
+}
+
+/// [value]를 JSON으로 쓸 수 있는 비교용 값으로 바꿉니다. 모르는 타입이면 [ArgumentError]입니다.
+Object? _canonical(Object? value) => switch (value) {
+  null || String() || num() || bool() => value,
+  Enum() => value.name,
+  RenderedText() => value.toJson(),
+  SentenceLine() => [value.slot, value.text.toJson()],
+  DayCharacterContent() => [
+    value.variant.name,
+    value.label,
+    value.reason?.toJson(),
+  ],
+  LuckyItem() => [
+    value.variant.name,
+    value.name,
+    value.value,
+    value.explain.toJson(),
+    value.element?.name,
+  ],
+  Iterable<Object?>() => [for (final item in value) _canonical(item)],
+  _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),
+};
+
+/// [daily]를 오늘 화면 값으로 바꿉니다. 이름은 [names]·[l10n], 시각은 [timezone](프로필 시간대)입니다.
+TodayDisplay todayDisplayOf(
+  Daily daily,
+  GlossaryNames names,
+  AppLocalizations l10n,
+  String timezone,
+) {
+  final tag = daily.fortune.tag;
+  return TodayDisplay(
+    character: dayCharacterOf(daily, l10n),
+    characterReasonSlot: daily.characterReason.slot,
+    timeUnknown: timeUnknownNoticeOf(daily),
+    head: SentenceLine(
+      text: daily.fortune.head.text,
+      slot: daily.fortune.head.slot,
+    ),
+    headReactable: daily.fortune.head.reactable,
+    tag: tag == null ? null : SentenceLine(text: tag.text, slot: tag.slot),
+    lucky: luckyItemsOf(daily, names, l10n, timezone),
+    guide: daily.guide.text,
+  );
 }
 
 /// 공유 텍스트(OS 공유 시트의 글)가 연결된 writing 슬롯 id. 이미지 안에는 그리지 않습니다
@@ -180,12 +275,47 @@ String shareDateText(CalendarDate date, Locale locale) =>
     DateFormat.MMMMEEEEd(locale.toString())
         .format(DateTime(date.year, date.month, date.day));
 
-/// [daily]를 [variant] 공유 이미지로 바꿉니다.
+/// 공유 이미지(`share-image`)에 들어갈 값. 비율과 무관하고, 위젯은 화면 쪽이 만듭니다.
+@immutable
+final class ShareImageContent {
+  /// 공유 이미지 값을 만듭니다.
+  const new({
+    required this.date,
+    required this.dayKind,
+    required this.dayKindLabel,
+    required this.sentence,
+    required this.items,
+    required this.footer,
+    required this.reason,
+  });
+
+  /// 날짜 글자([shareDateText]).
+  final String date;
+
+  /// 날의 성격.
+  final DayKind dayKind;
+
+  /// 날의 성격 이름.
+  final String dayKindLabel;
+
+  /// 총운 첫 문장(호칭 포함).
+  final RenderedText sentence;
+
+  /// 행운 항목.
+  final List<LuckyItem> items;
+
+  /// 아래 글(`share-preview.image.footer`).
+  final String footer;
+
+  /// 날의 성격 이유. story 변형에서만 보입니다.
+  final RenderedText? reason;
+}
+
+/// [daily]를 공유 이미지 값으로 바꿉니다.
 ///
 /// 문장은 총운 첫 문장(`fortune.head`, 호칭 포함)이고, 이유는 오늘 화면과 같은 날의 성격
-/// 이유(`characterReason`)입니다. 이유는 story 변형에서만 보입니다.
-ShareImage shareImageOf({
-  required ShareImageVariant variant,
+/// 이유(`characterReason`)입니다.
+ShareImageContent shareImageContentOf({
   required CalendarDate date,
   required Daily daily,
   required GlossaryNames names,
@@ -194,8 +324,7 @@ ShareImage shareImageOf({
   required String timezone,
 }) {
   final character = dayCharacterOf(daily, l10n);
-  return ShareImage(
-    variant: variant,
+  return ShareImageContent(
     date: shareDateText(date, locale),
     dayKind: daily.dayKind,
     dayKindLabel: character.label,

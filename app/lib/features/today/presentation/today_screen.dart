@@ -194,21 +194,21 @@ class _TodayBody extends ConsumerWidget {
       date,
       daily.fortune.head,
     );
-    final character = dayCharacterOf(daily, l10n);
-    final timeUnknown = timeUnknownNoticeOf(daily);
-    final head = daily.fortune.head;
-    final tag = daily.fortune.tag;
-    final items = luckyItemsOf(
+    final display = todayDisplayOf(
       daily,
       content.names,
       l10n,
       ref.watch(profileTimezoneProvider),
     );
+    final character = display.character;
+    final timeUnknown = display.timeUnknown;
+    final head = display.head;
+    final tag = display.tag;
     void openExplain(String termId, String sourceSlotId) =>
         sheets.openExplain(context, termId: termId, sourceSlotId: sourceSlotId);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     return SeepOnChange(
-      changeKey: dailySignature(daily),
+      changeKey: display,
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           Space.s20,
@@ -243,7 +243,7 @@ class _TodayBody extends ConsumerWidget {
                       label: l10n.depthLinkEvidence,
                       onTap: () => sheets.openEvidence(
                         context,
-                        slotId: daily.characterReason.slot,
+                        slotId: display.characterReasonSlot,
                       ),
                     ),
                   ),
@@ -262,14 +262,15 @@ class _TodayBody extends ConsumerWidget {
                 onTap: () => sheets.openEvidence(context, slotId: head.slot),
               ),
             ),
-            if (head.reactable)
+            if (display.headReactable)
               ReactionButton(
                 on: headLiked,
                 semanticsLabel: headLiked
                     ? l10n.todayReactionLabelSelected
                     : l10n.todayReactionLabel,
-                onChanged: (_) =>
-                    unawaited(_toggleReaction(context, ref, head, date)),
+                onChanged: (_) => unawaited(
+                  _toggleReaction(context, ref, daily.fortune.head, date),
+                ),
               ),
             if (tag != null) ...[
               const SizedBox(height: Space.s12),
@@ -282,14 +283,14 @@ class _TodayBody extends ConsumerWidget {
             ],
             // 칩 줄은 위아래에 판정 여유(hitInset)를 품으므로 보이는 간격이 24가 되게 뺍니다.
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
-            LuckyCardRow(items: items, slotIds: todayLuckySlotIds),
+            LuckyCardRow(items: display.lucky, slotIds: todayLuckySlotIds),
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             GuideQuestionCard(
               state: content.diaryWritten
                   ? GuideQuestionState.after
                   : GuideQuestionState.before,
               eyebrow: l10n.todayGuideEyebrow,
-              question: daily.guide.text,
+              question: display.guide,
               actionLabel: content.diaryWritten
                   ? l10n.todayGuideCtaWritten
                   : l10n.todayGuideCta,

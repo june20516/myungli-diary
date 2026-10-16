@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -347,66 +348,79 @@ void main() {
     });
   }
 
-  for (final changed in [false, true]) {
-    testWidgets(
-      changed
-          ? '캐시와 다른 server 응답으로 바뀌면 내용이 스밉니다'
-          : '보이는 내용이 같은 server 응답이면 내용이 움직이지 않습니다',
-      (tester) async {
-        final server = Completer<DailyView>();
-        final container = await pumpApp(
-          tester,
-          scenario: 'member',
-          overrides: [
-            dailyControllerProvider.overrideWith(
-              () => _CacheThenServer(_view(), server.future),
-            ),
-          ],
-        );
-        await _settleToday(tester);
-        double opacity() => tester
-            .widget<Opacity>(
-              find
-                  .ancestor(
-                    of: find.byType(DayCharacter),
-                    matching: find.byType(Opacity),
-                  )
-                  .first,
-            )
-            .opacity;
-        expect(opacity(), 1);
-
-        final json = memberDailyJson();
-        if (changed) {
-          json['dayKind'] = 'ordinary_day';
-        } else {
+  // 화면 값(TodayDisplay)의 동등성이 다시 스밀지 정합니다. 반응 가능 여부처럼 화면 값에 새로
+  // 담긴 필드도 따로 고치지 않고 따라옵니다.
+  for (final (name, change, changed)
+      in <(String, void Function(Map<String, dynamic> json), bool)>[
+        (
+          '보이는 내용이 같은 server 응답이면 내용이 움직이지 않습니다',
           // 보이지 않는 필드만 바뀐 응답(근거 잠금 해제)은 같은 내용으로 봅니다.
-          json['evidenceAccess'] = 'unlocked';
-        }
-        server.complete(
-          DailyView(
-            date: _today,
-            daily: Daily.fromJson(json),
-            stale: false,
-            cacheKey: null,
+          (json) => json['evidenceAccess'] = 'unlocked',
+          false,
+        ),
+        (
+          '캐시와 다른 server 응답(날의 성격)으로 바뀌면 내용이 스밉니다',
+          (json) => json['dayKind'] = 'ordinary_day',
+          true,
+        ),
+        (
+          '총운 첫 문장의 반응 가능 여부가 바뀌어도 내용이 스밉니다',
+          (json) =>
+              ((json['fortune'] as Map<String, dynamic>)['head']
+                      as Map<String, dynamic>)['reactable'] =
+                  false,
+          true,
+        ),
+      ]) {
+    testWidgets(name, (tester) async {
+      final server = Completer<DailyView>();
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _CacheThenServer(_view(), server.future),
           ),
-        );
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 40));
-        expect(
-          opacity(),
-          changed ? lessThan(1) : 1,
-          reason: changed ? '다른 내용은 스밉니다' : '같은 내용은 그대로입니다',
-        );
-        await tester.pumpAndSettle();
-        expect(opacity(), 1);
-        expect(
-          tester.widget<DayCharacter>(_content).variant,
-          changed ? DayCharacterVariant.ordinary : DayCharacterVariant.good,
-        );
-        expect(container.read(dailyControllerProvider).isLoading, isFalse);
-      },
-    );
+        ],
+      );
+      await _settleToday(tester);
+      double opacity() => tester
+          .widget<Opacity>(
+            find
+                .ancestor(
+                  of: find.byType(DayCharacter),
+                  matching: find.byType(Opacity),
+                )
+                .first,
+          )
+          .opacity;
+      expect(opacity(), 1);
+
+      final json = memberDailyJson();
+      change(json);
+      final expectedVariant = Daily.fromJson(json).dayKind == DayKind.yongsinDay
+          ? DayCharacterVariant.good
+          : DayCharacterVariant.ordinary;
+      server.complete(
+        DailyView(
+          date: _today,
+          daily: Daily.fromJson(json),
+          stale: false,
+          cacheKey: null,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 40));
+      expect(
+        opacity(),
+        changed ? lessThan(1) : 1,
+        reason: changed ? '다른 내용은 스밉니다' : '같은 내용은 그대로입니다',
+      );
+      await tester.pumpAndSettle();
+      expect(opacity(), 1);
+      expect(tester.widget<DayCharacter>(_content).variant, expectedVariant);
+      expect(container.read(dailyControllerProvider).isLoading, isFalse);
+    });
   }
 
   for (final reduceMotion in [false, true]) {

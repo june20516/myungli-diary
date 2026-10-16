@@ -24,7 +24,7 @@ import 'package:myungli_diary/features/today/application/today_presentation.dart
 /// 공유 미리보기 시트(`share-preview`) 본문. 시트 틀(`sheet` `half`) 안에 놓습니다.
 ///
 /// 위에서부터 비율 선택(`segmented`), 공유 이미지 미리보기, 공유 버튼입니다. 이미지 내용은
-/// 오늘 화면과 같은 값([todayContentProvider])을 `shareImageOf`가 바꿔 주고, 비율을 바꾸면
+/// 오늘 화면과 같은 값([todayContentProvider])을 `shareImageContentOf`가 바꿔 주고, 비율을 바꾸면
 /// 미리보기가 스며 나타납니다(컴포넌트의 `appear.seep`). 이미지는 기기가 다크여도 라이트입니다(V5).
 ///
 /// 공유 버튼은 같은 내용을 [offscreenRendererProvider]로 선택한 비율의 논리 크기에 그려 PNG로
@@ -47,19 +47,25 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
   ShareImageVariant _variant = ShareImageVariant.story;
   bool _sharing = false;
 
-  ShareImage _imageFor(ShareImageVariant variant, TodayContent content) =>
-      shareImageOf(
-        variant: variant,
-        date: content.view.date,
-        daily: content.view.daily,
-        names: content.names,
-        l10n: AppLocalizations.of(context),
-        locale: Localizations.localeOf(context),
-        timezone: ref.watch(profileTimezoneProvider),
-      );
+  /// [content]를 [variant] 공유 이미지 위젯으로 만듭니다.
+  static ShareImage _imageFor(
+    ShareImageVariant variant,
+    ShareImageContent content,
+  ) => ShareImage(
+    variant: variant,
+    date: content.date,
+    dayKind: content.dayKind,
+    dayKindLabel: content.dayKindLabel,
+    sentence: content.sentence,
+    items: content.items,
+    footer: content.footer,
+    reason: content.reason,
+  );
 
   /// 고른 비율로 그려 OS 공유 시트에 넘깁니다. 이미 하는 중이면 아무것도 하지 않습니다.
-  Future<void> _share(TodayContent content) async {
+  ///
+  /// [content]는 build가 만든 값입니다(시간대 등 구독은 build에서만 합니다).
+  Future<void> _share(ShareImageContent content) async {
     // 같은 프레임의 연타도 막도록 setState 전에 먼저 잠급니다.
     if (_sharing) {
       return;
@@ -107,54 +113,64 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
       value: content,
       onRetry: () =>
           unawaited(ref.read(dailyControllerProvider.notifier).reload()),
-      dataWithNotice: (value, notice) => Padding(
-        padding: const EdgeInsets.only(bottom: Space.s24),
-        // 스크롤하지 않습니다. 남는 높이에 맞춰 미리보기만 줄어들어 공유 버튼이 늘 보입니다.
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            notice,
-            Segmented<ShareImageVariant>(
-              items: [
-                SegmentedItem(
-                  ShareImageVariant.story,
-                  l10n.sharePreviewRatioLabelStory,
-                ),
-                SegmentedItem(
-                  ShareImageVariant.feed,
-                  l10n.sharePreviewRatioLabelFeed,
-                ),
-                SegmentedItem(
-                  ShareImageVariant.square,
-                  l10n.sharePreviewRatioLabelSquare,
-                ),
-              ],
-              selected: _variant,
-              // 그리는 도중 비율이 바뀌어 다른 그림이 나가지 않게 처리 중에는 잠급니다.
-              onChanged: _sharing
-                  ? null
-                  : (variant) => setState(() => _variant = variant),
-              label: l10n.sharePreviewRatioGroup,
-              identifier: SlotIds.sharePreviewRatioLabel,
-            ),
-            const SizedBox(height: Space.s16),
-            Flexible(
-              child: _Preview(
-                image: _imageFor(_variant, value),
-                maxHeight: _previewMaxHeight,
+      dataWithNotice: (value, notice) {
+        final share = shareImageContentOf(
+          date: value.view.date,
+          daily: value.view.daily,
+          names: value.names,
+          l10n: l10n,
+          locale: Localizations.localeOf(context),
+          timezone: ref.watch(profileTimezoneProvider),
+        );
+        return Padding(
+          padding: const EdgeInsets.only(bottom: Space.s24),
+          // 스크롤하지 않습니다. 남는 높이에 맞춰 미리보기만 줄어들어 공유 버튼이 늘 보입니다.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              notice,
+              Segmented<ShareImageVariant>(
+                items: [
+                  SegmentedItem(
+                    ShareImageVariant.story,
+                    l10n.sharePreviewRatioLabelStory,
+                  ),
+                  SegmentedItem(
+                    ShareImageVariant.feed,
+                    l10n.sharePreviewRatioLabelFeed,
+                  ),
+                  SegmentedItem(
+                    ShareImageVariant.square,
+                    l10n.sharePreviewRatioLabelSquare,
+                  ),
+                ],
+                selected: _variant,
+                // 그리는 도중 비율이 바뀌어 다른 그림이 나가지 않게 처리 중에는 잠급니다.
+                onChanged: _sharing
+                    ? null
+                    : (variant) => setState(() => _variant = variant),
+                label: l10n.sharePreviewRatioGroup,
+                identifier: SlotIds.sharePreviewRatioLabel,
               ),
-            ),
-            const SizedBox(height: Space.s24),
-            PrimaryButton(
-              label: l10n.sharePreviewCtaShare,
-              identifier: SlotIds.sharePreviewCtaShare,
-              loading: _sharing,
-              onPressed: () => unawaited(_share(value)),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: Space.s16),
+              Flexible(
+                child: _Preview(
+                  image: _imageFor(_variant, share),
+                  maxHeight: _previewMaxHeight,
+                ),
+              ),
+              const SizedBox(height: Space.s24),
+              PrimaryButton(
+                label: l10n.sharePreviewCtaShare,
+                identifier: SlotIds.sharePreviewCtaShare,
+                loading: _sharing,
+                onPressed: () => unawaited(_share(share)),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

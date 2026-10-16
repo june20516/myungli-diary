@@ -11,7 +11,6 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
-import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -31,8 +30,18 @@ const _names = GlossaryNames({
   'color': {'wood': '초록'},
 });
 
+/// 비교 테스트가 쓰는 한국어 문구.
+late AppLocalizations _l10n;
+
+/// [daily]의 오늘 화면 값(서울 시간대).
+TodayDisplay _display(Daily daily) =>
+    todayDisplayOf(daily, _names, _l10n, 'Asia/Seoul');
+
 void main() {
   setUpAll(ensureTimeZonesInitialized);
+  setUpAll(() async {
+    _l10n = await AppLocalizations.delegate.load(const Locale('ko'));
+  });
 
   group('formatFocusRange', () {
     test('+09:00 응답을 Asia/Seoul 기준 HH:mm–HH:mm으로 씁니다', () {
@@ -153,8 +162,7 @@ void main() {
       await initializeDateFormatting('ko');
       final l10n = await AppLocalizations.delegate.load(const Locale('ko'));
       final daily = Daily.fromJson(memberDailyJson());
-      final image = shareImageOf(
-        variant: ShareImageVariant.story,
+      final image = shareImageContentOf(
         date: CalendarDate(2026, 10, 13),
         daily: daily,
         names: _names,
@@ -186,17 +194,17 @@ void main() {
       );
     });
 
-    test('같은 응답은 같은 서명, 문장이 다르면 다른 서명입니다', () {
+    test('같은 응답은 같은 화면 값, 날의 성격이 다르면 다른 값입니다', () {
       final a = Daily.fromJson(memberDailyJson());
       final b = Daily.fromJson(memberDailyJson());
-      expect(dailySignature(a), dailySignature(b));
+      expect(_display(a), _display(b));
       final json = memberDailyJson();
       json['dayKind'] = 'ordinary_day';
-      expect(dailySignature(Daily.fromJson(json)), isNot(dailySignature(a)));
+      expect(_display(Daily.fromJson(json)), isNot(_display(a)));
     });
 
-    test('보이지 않는 필드(근거 잠금·근거·반응·규칙 버전)만 바뀌면 같은 서명입니다', () {
-      final base = dailySignature(Daily.fromJson(memberDailyJson()));
+    test('보이지 않는 필드(근거 잠금·근거·반응·규칙 버전)만 바뀌면 같은 화면 값입니다', () {
+      final base = _display(Daily.fromJson(memberDailyJson()));
       final json = memberDailyJson();
       json['evidenceAccess'] = 'unlocked';
       json['rulesetVersion'] = 'r2';
@@ -205,15 +213,15 @@ void main() {
               as Map<String, dynamic>;
       head['reaction'] = 'like';
       head['evidence'] = <Object>[];
-      expect(dailySignature(Daily.fromJson(json)), base);
+      expect(_display(Daily.fromJson(json)), base);
     });
 
-    test('보이는 필드(행운 값·설명·가이드·성격 이유·시간 모름)가 바뀌면 다른 서명입니다', () {
-      final base = dailySignature(Daily.fromJson(memberDailyJson()));
+    test('보이는 필드(행운 값·설명·가이드·성격 이유·시간 모름·반응 가능)가 바뀌면 다른 화면 값입니다', () {
+      final base = _display(Daily.fromJson(memberDailyJson()));
       void expectChanged(void Function(Map<String, dynamic> json) change) {
         final json = memberDailyJson();
         change(json);
-        expect(dailySignature(Daily.fromJson(json)), isNot(base));
+        expect(_display(Daily.fromJson(json)), isNot(base));
       }
 
       Map<String, dynamic> cards(Map<String, dynamic> json) =>
@@ -252,6 +260,18 @@ void main() {
           },
         ],
       );
+      expectChanged(
+        (json) =>
+            ((json['fortune'] as Map<String, dynamic>)['head']
+                    as Map<String, dynamic>)['reactable'] =
+                false,
+      );
+    });
+
+    test('같은 값이면 hashCode도 같습니다', () {
+      final a = _display(Daily.fromJson(memberDailyJson()));
+      final b = _display(Daily.fromJson(memberDailyJson()));
+      expect(a.hashCode, b.hashCode);
     });
   });
 }
