@@ -92,7 +92,6 @@ func TestEnumValue_AllProtoValuesMapToContract(t *testing.T) {
 		convertCase[enginev1.LuckLevel, gen.LuckLevel]("LuckLevel"),
 		convertCase[enginev1.RelationKind, gen.RelationKind]("RelationKind"),
 		convertCase[enginev1.SolarTermKind, gen.SolarTermKind]("SolarTermKind"),
-		convertCase[enginev1.NoticeCode, gen.NoticeCode]("NoticeCode"),
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

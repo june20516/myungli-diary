@@ -17,11 +17,12 @@ type Querier interface {
 	GetActiveReaction(ctx context.Context, selectionID int64) (string, error)
 	GetActiveSeed(ctx context.Context) (string, error)
 	GetRotation(ctx context.Context, arg GetRotationParams) (string, error)
+	GetSeedSlots(ctx context.Context, version string) ([]byte, error)
 	GetSelection(ctx context.Context, arg GetSelectionParams) (GetSelectionRow, error)
 	// 동시 요청이 함께 넣으면 부분 unique 인덱스(활성은 하나) 덕분에 하나만 남습니다.
 	InsertReaction(ctx context.Context, arg InsertReactionParams) error
 	// 콘텐츠 시드 적재와 읽기, 문장 선택 기록·순환 상태 쿼리입니다.
-	InsertSeed(ctx context.Context, version string) (int64, error)
+	InsertSeed(ctx context.Context, arg InsertSeedParams) (int64, error)
 	// 동시 요청이 같은 행을 넣으면 하나만 남고, 진 쪽은 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	InsertSelection(ctx context.Context, arg InsertSelectionParams) (int64, error)
 	ListActiveReactions(ctx context.Context, selectionIds []int64) ([]ListActiveReactionsRow, error)
@@ -29,6 +30,8 @@ type Querier interface {
 	// 같은 (계정, 날짜, 슬롯)에서 지문이 다른 기록들이 쓴 variant입니다. 같은 날 다시 고를 때 이 유형을 피합니다.
 	ListOtherHashVariants(ctx context.Context, arg ListOtherHashVariantsParams) ([]string, error)
 	ListTemplates(ctx context.Context, arg ListTemplatesParams) ([]ListTemplatesRow, error)
+	// 한 선택 기록의 반응 변경을 차례로 하게 하는 행 lock입니다. 트랜잭션이 끝나면 풀립니다.
+	LockSelection(ctx context.Context, id int64) (int64, error)
 	SetRotation(ctx context.Context, arg SetRotationParams) error
 	// 선택 기록의 문장이 바뀌면 옛 문장에 남긴 활성 반응을 soft delete합니다.
 	SoftDeleteReactions(ctx context.Context, arg SoftDeleteReactionsParams) error

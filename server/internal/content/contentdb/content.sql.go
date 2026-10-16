@@ -106,6 +106,17 @@ func (q *Queries) GetRotation(ctx context.Context, arg GetRotationParams) (strin
 	return next_variant, err
 }
 
+const getSeedSlots = `-- name: GetSeedSlots :one
+SELECT slots FROM content_seeds WHERE version = $1
+`
+
+func (q *Queries) GetSeedSlots(ctx context.Context, version string) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getSeedSlots, version)
+	var slots []byte
+	err := row.Scan(&slots)
+	return slots, err
+}
+
 const getSelection = `-- name: GetSelection :one
 SELECT id, message_key, variant, seed_version FROM daily_selections
 WHERE account_id = $1 AND date = $2 AND slot = $3 AND birth_hash = $4
@@ -162,13 +173,18 @@ func (q *Queries) InsertReaction(ctx context.Context, arg InsertReactionParams) 
 
 const insertSeed = `-- name: InsertSeed :execrows
 
-INSERT INTO content_seeds (version) VALUES ($1)
+INSERT INTO content_seeds (version, slots) VALUES ($1, $2)
 ON CONFLICT (version) DO NOTHING
 `
 
+type InsertSeedParams struct {
+	Version string
+	Slots   []byte
+}
+
 // 콘텐츠 시드 적재와 읽기, 문장 선택 기록·순환 상태 쿼리입니다.
-func (q *Queries) InsertSeed(ctx context.Context, version string) (int64, error) {
-	result, err := q.db.Exec(ctx, insertSeed, version)
+func (q *Queries) InsertSeed(ctx context.Context, arg InsertSeedParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertSeed, arg.Version, arg.Slots)
 	if err != nil {
 		return 0, err
 	}
@@ -345,6 +361,19 @@ func (q *Queries) ListTemplates(ctx context.Context, arg ListTemplatesParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockSelection = `-- name: LockSelection :execrows
+SELECT 1 FROM daily_selections WHERE id = $1 FOR UPDATE
+`
+
+// 한 선택 기록의 반응 변경을 차례로 하게 하는 행 lock입니다. 트랜잭션이 끝나면 풀립니다.
+func (q *Queries) LockSelection(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.Exec(ctx, lockSelection, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const setRotation = `-- name: SetRotation :exec

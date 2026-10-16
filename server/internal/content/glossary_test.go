@@ -1,7 +1,10 @@
 package content_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,10 +45,15 @@ func glossarySeed(t *testing.T) seed.Seed {
 
 func newGlossaryStore(t *testing.T, s seed.Seed) *content.Store {
 	t.Helper()
+	return newGlossaryStoreWithLog(t, s, discardLog())
+}
+
+func newGlossaryStoreWithLog(t *testing.T, s seed.Seed, log *slog.Logger) *content.Store {
+	t.Helper()
 	pool := dbtest.New(t)
 	_, err := content.Apply(context.Background(), pool, s)
 	require.NoError(t, err)
-	return content.NewStore(pool, clock.System{})
+	return content.NewStore(pool, clock.System{}, log)
 }
 
 func TestStore_Glossary(t *testing.T) {
@@ -101,4 +109,30 @@ func TestStore_GlossaryEmbeddedSeedRenders(t *testing.T) {
 		require.NoError(t, err, lang)
 		assert.Equal(t, s.Hanja, got.Hanja, lang)
 	}
+}
+
+// 렌더되지 않는 항목 하나는 그 항목만 빼고 Error 로그를 남깁니다. 로그에는 원고 본문이 없습니다.
+func TestStore_GlossarySkipsUnrenderableEntry(t *testing.T) {
+	s := glossarySeed(t)
+	s.Templates = append(s.Templates,
+		seed.Template{Slot: "term.meaning", Key: "term.stem.gap", Variant: seed.VariantSingle, Lang: "ko", Body: "비밀 {param} 본문"},
+		seed.Template{Slot: "daily.tag_label", Key: "tag.gongmang", Variant: seed.VariantSingle, Lang: "ko", Body: "[[깨진 토큰"},
+	)
+	require.NoError(t, s.Normalize())
+	var logs bytes.Buffer
+	store := newGlossaryStoreWithLog(t, s, slog.New(slog.NewTextHandler(&logs, nil)))
+
+	got, err := store.Glossary(context.Background(), s.Version, "ko")
+	require.NoError(t, err, "항목 하나 때문에 사전 전체가 실패하지 않음")
+	assert.NotContains(t, got.Meanings, "stem.gap")
+	assert.NotContains(t, got.Values["tag"], "gongmang")
+	assert.Equal(t, "도화", got.Values["tag"]["dohwa"], "다른 항목은 그대로")
+	assert.Contains(t, got.Meanings, "element.wood")
+
+	out := logs.String()
+	assert.Equal(t, 2, strings.Count(out, "용어 사전 항목을 만들지 못해"), out)
+	assert.Contains(t, out, "slot=term.meaning key=term.stem.gap lang=ko")
+	assert.Contains(t, out, "slot=daily.tag_label key=tag.gongmang lang=ko")
+	assert.NotContains(t, out, "비밀")
+	assert.NotContains(t, out, "깨진")
 }

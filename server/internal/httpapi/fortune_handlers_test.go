@@ -299,14 +299,73 @@ func TestGetDaily_UnlockedIncludesEvidence(t *testing.T) {
 	assert.Nil(t, got.Guide.Evidence)
 }
 
-func TestGetDaily_ProfileMissingIs409(t *testing.T) {
-	api := &httpapi.API{Profiles: &fakeProfiles{err: profile.ErrNotFound}, Readings: &fakeReadings{}}
+// 운세 세 operation은 앞부분(프로필, 조립, 활성 시드) 오류를 같은 문제 코드로 돌려줍니다.
+func TestFortuneOperations_CommonErrors(t *testing.T) {
+	targets := []struct{ name, target string }{
+		{"getDaily", "/v1/daily/2026-10-13"},
+		{"getCalendar", "/v1/calendar/2026/10"},
+		{"getChart", "/v1/chart"},
+	}
+	cases := []struct {
+		name     string
+		api      func() *httpapi.API
+		status   int
+		code     string
+		errorLog bool
+	}{
+		{
+			name: "프로필 없음",
+			api: func() *httpapi.API {
+				return &httpapi.API{Profiles: &fakeProfiles{err: profile.ErrNotFound}, Readings: &fakeReadings{}, Contents: &fakeContents{}}
+			},
+			status: http.StatusConflict, code: "profile.required",
+		},
+		{
+			name: "활성 시드 없음",
+			api: func() *httpapi.API {
+				return &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{err: content.ErrNoActiveSeed}, Contents: &fakeContents{}}
+			},
+			status: http.StatusServiceUnavailable, code: "service.unavailable", errorLog: true,
+		},
+		{
+			name: "Readings 미조립",
+			api: func() *httpapi.API {
+				return &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Contents: &fakeContents{}}
+			},
+			status: http.StatusServiceUnavailable, code: "service.unavailable",
+		},
+	}
+	for _, target := range targets {
+		for _, tc := range cases {
+			t.Run(target.name+"/"+tc.name, func(t *testing.T) {
+				req, rec, logs := getFortune(t, tc.api(), target.target)
 
-	req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+				require.Equal(t, tc.status, rec.Code, rec.Body.String())
+				assert.Equal(t, tc.code, decodeProblem(t, rec).Code)
+				expectFortuneContract(t, req, rec)
+				if tc.errorLog {
+					assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
+				}
+			})
+		}
+	}
+}
 
-	require.Equal(t, http.StatusConflict, rec.Code, rec.Body.String())
-	assert.Equal(t, "profile.required", decodeProblem(t, rec).Code)
-	expectFortuneContract(t, req, rec)
+// 프로필 현재 시간대를 읽지 못하면 화면 묶음(엔진·선택 기록)을 부르기 전에 500으로 끝냅니다.
+func TestFortuneOperations_BadTimezoneStopsBeforeReadings(t *testing.T) {
+	for _, target := range []string{"/v1/daily/2026-10-13", "/v1/calendar/2026/10"} {
+		t.Run(target, func(t *testing.T) {
+			p := storedProfile()
+			p.CurrentTimezone = "Not/AZone"
+			readings := &fakeReadings{daily: dailyView(), calendar: calendarView()}
+			api := &httpapi.API{Profiles: &fakeProfiles{profile: p}, Readings: readings, Contents: &fakeContents{}}
+
+			_, rec, _ := getFortune(t, api, target)
+
+			require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+			assert.Equal(t, uuid.Nil, readings.gotAccountID, "Readings를 부르지 않음")
+		})
+	}
 }
 
 func TestGetDaily_OutOfRangeIs422(t *testing.T) {
@@ -323,18 +382,6 @@ func TestGetDaily_OutOfRangeIs422(t *testing.T) {
 	expectFortuneContract(t, req, rec)
 }
 
-func TestGetDaily_NoActiveSeedIs503(t *testing.T) {
-	readings := &fakeReadings{err: content.ErrNoActiveSeed}
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: readings, Contents: &fakeContents{}}
-
-	req, rec, logs := getFortune(t, api, "/v1/daily/2026-10-13")
-
-	require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
-	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
-	expectFortuneContract(t, req, rec)
-	assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
-}
-
 func TestGetDaily_UnknownEngineEnumIs500(t *testing.T) {
 	view := dailyView()
 	view.Response.Day.Stem = enginev1.Stem_STEM_UNSPECIFIED
@@ -346,16 +393,6 @@ func TestGetDaily_UnknownEngineEnumIs500(t *testing.T) {
 	assert.Equal(t, "internal", decodeProblem(t, rec).Code)
 	expectFortuneContract(t, req, rec)
 	assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
-}
-
-func TestGetDaily_ReadingsMissingIs503(t *testing.T) {
-	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}}
-
-	req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
-
-	require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
-	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
-	expectFortuneContract(t, req, rec)
 }
 
 // calendarView는 이틀짜리 달력 묶음입니다. 첫날만 입절일이고 대표 태그가 있습니다.

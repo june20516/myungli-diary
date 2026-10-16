@@ -23,7 +23,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
-	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/seed"
@@ -430,28 +429,15 @@ func getWithContext(ctx context.Context, client *http.Client, url string) (*http
 	return client.Do(req)
 }
 
-func TestNewReadings_LoadsEmbeddedSeed(t *testing.T) {
-	// 슬롯 명세는 내장 시드에서 읽습니다. DB와 엔진은 화면을 만들 때만 쓰므로 조립에는 필요 없습니다.
-	readings, err := newReadings(nil, nil, slog.New(slog.DiscardHandler), clock.System{})
-	if err != nil {
-		t.Fatalf("newReadings: %v", err)
-	}
-	if readings == nil {
-		t.Fatal("readings가 nil입니다")
-	}
-}
-
 func TestServe_AssemblesContentRoutes(t *testing.T) {
 	// serve와 같은 조립으로 콘텐츠 저장소와 운세 화면 묶음을 붙이고, seed 명령으로 시드를 넣은 DB에서 용어 사전을 받습니다.
 	env := newFlowEnvWith(t, func(deps *serverDeps) {
 		code, _, stderr := runCLIWithEnv(t, map[string]string{"DATABASE_URL": deps.Pool.Config().ConnString()}, "seed")
 		require.Equal(t, 0, code, "seed stderr: %s", stderr)
 
-		contents := content.NewStore(deps.Pool, deps.Clock)
-		readings, err := newReadings(contents, nil, deps.Logger, deps.Clock)
-		require.NoError(t, err, "newReadings")
+		contents := content.NewStore(deps.Pool, deps.Clock, deps.Logger)
 		deps.Contents = contents
-		deps.Readings = readings
+		deps.Readings = newReadings(contents, nil, deps.Logger, deps.Clock)
 	})
 
 	login := env.loginKakao("kakao-content-subject")

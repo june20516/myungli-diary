@@ -53,6 +53,7 @@ func TestJosa_Table(t *testing.T) {
 		{"소문자 영문", "b(이)가", "b가"},
 		{"전각 숫자는 판정 불가", "１(이)가", "１이(가)"},
 		{"빈 앞부분은 판정 불가", "(이)가", "이(가)"},
+		{"판정표 밖 한자", "木(이)가", "木이(가)"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -20,8 +20,8 @@ import (
 
 // 화면 묶음이 쓰는 writing 슬롯 id입니다. 원본은 writing 슬롯 명세(docs/identity/writing/slots/content/)입니다.
 const (
-	SlotFortuneHead     = "daily.fortune.head"
-	SlotFortuneTag      = "daily.fortune.tag"
+	SlotFortuneHead     = content.SlotFortuneHead
+	SlotFortuneTag      = content.SlotFortuneTag
 	SlotGuide           = "daily.guide"
 	SlotColor           = "daily.color"
 	SlotDirection       = "daily.direction"
@@ -40,7 +40,7 @@ type ContentStore interface {
 	Active(ctx context.Context) (string, error)
 	Templates(ctx context.Context, version, lang string) (content.Templates, error)
 	Select(ctx context.Context, accountID uuid.UUID, date time.Time, birthHash [32]byte,
-		reqs []content.SlotRequest, slots map[string]seed.Slot) ([]content.Selection, error)
+		reqs []content.SlotRequest) ([]content.Selection, error)
 }
 
 var _ ContentStore = (*content.Store)(nil)
@@ -54,11 +54,6 @@ type DailyView struct {
 	Notices []content.Notice
 	// Unlocked는 근거 열람 권한입니다. false면 모든 Texts의 Evidence가 nil입니다(근거를 렌더하지 않음).
 	Unlocked bool
-	// SeedVersion은 이 응답을 만들기 시작할 때 읽은 활성 시드 버전입니다. 문장마다의 시드 버전과 다를 수 있습니다.
-	//   - 이미 고른 문장은 고른 때의 시드 버전으로 렌더합니다.
-	//   - 이 값은 선택 트랜잭션(content.Store.Select) 밖에서 읽으므로, 그 사이 시드가 바뀌면
-	//     이번에 새로 고른 기록의 시드 버전과도 다를 수 있습니다.
-	SeedVersion string
 	// SelectionIDs는 슬롯 id → 그 슬롯 선택 기록(daily_selections)의 ID입니다. 문장 반응을 표시·저장할 때 씁니다.
 	// 선택 기록은 문장 슬롯마다 남으므로, 원고가 없어 Texts에서 빠진 선택 슬롯도 여기에는 있습니다.
 	SelectionIDs map[string]int64
@@ -84,6 +79,7 @@ type CalendarView struct {
 type ChartView struct {
 	Response *enginev1.ChartResponse
 	// YongsinBasis는 용신 근거 문장(chart.yongsin_method)입니다. evidence 깊이라 잠겨 있거나 원고가 없으면 nil입니다.
+	// 이 문장이 곧 근거라 그 안의 Evidence(판정 근거·원전 문장)는 렌더하지 않아 늘 nil입니다(계약 Yongsin.basis는 문장 하나).
 	YongsinBasis *content.SlotText
 	Notices      []content.Notice
 	Unlocked     bool
@@ -94,17 +90,15 @@ type Views struct {
 	service  *Service
 	store    ContentStore
 	renderer *content.Renderer
-	slots    map[string]seed.Slot
 	insight  Insight
 	clock    clock.Clock
 	log      *slog.Logger
 }
 
-// NewViews는 Views를 만듭니다. slots는 시드의 슬롯 명세(seed.Seed.Slots)로 문장 선택의 순환 방식을 알려줍니다.
-func NewViews(service *Service, store ContentStore, renderer *content.Renderer, slots map[string]seed.Slot,
-	insight Insight, clk clock.Clock, log *slog.Logger,
-) *Views {
-	return &Views{service: service, store: store, renderer: renderer, slots: slots, insight: insight, clock: clk, log: log}
+// NewViews는 Views를 만듭니다. 슬롯 명세는 렌더하는 시드 버전의 것을 store에서 읽습니다
+// (문장 틀의 Templates.Slot, 문장 선택의 순환 방식은 Select 안에서).
+func NewViews(service *Service, store ContentStore, renderer *content.Renderer, insight Insight, clk clock.Clock, log *slog.Logger) *Views {
+	return &Views{service: service, store: store, renderer: renderer, insight: insight, clock: clk, log: log}
 }
 
 // dailySlot은 오늘 화면 슬롯 하나의 렌더 입력입니다.
@@ -119,12 +113,12 @@ type dailySlot struct {
 
 // Daily는 date의 오늘 화면 묶음을 만듭니다.
 //
-// 슬롯마다 선택 기록(content.Store.Select)이 정한 variant와 그 기록의 시드 버전으로 p.Language 문장을 렌더합니다.
+// 슬롯마다 선택 기록(content.Store.Select)이 정한 variant와 그 기록의 시드 버전(문장 틀과 슬롯 명세)으로 p.Language 문장을 렌더합니다.
 // 그래서 언어를 바꿔 다시 열면 같은 (키, 변주, 시드 버전)이 새 언어로 나옵니다.
 // 활성 시드가 없으면 content.ErrNoActiveSeed, 엔진 오류는 그대로 돌려줍니다.
 func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate) (DailyView, error) {
-	seedVersion, err := v.store.Active(ctx)
-	if err != nil {
+	// 활성 시드가 없으면 엔진을 부르기 전에 빨리 503으로 끝내려고 먼저 봅니다. 렌더할 버전은 선택 기록이 정합니다.
+	if _, err := v.store.Active(ctx); err != nil {
 		return DailyView{}, err
 	}
 	response, err := v.service.Daily(ctx, p.Birth, date, p.CurrentTimezone)
@@ -145,12 +139,12 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 		reqs[i] = content.SlotRequest{Slot: s.id, MessageKey: s.key}
 	}
 	dateTime := time.Date(date.Year, time.Month(date.Month), date.Day, 0, 0, 0, 0, time.UTC)
-	selections, err := v.store.Select(ctx, accountID, dateTime, profile.BirthHash(p.Birth), reqs, v.slots)
+	selections, err := v.store.Select(ctx, accountID, dateTime, profile.BirthHash(p.Birth), reqs)
 	if err != nil {
 		return DailyView{}, err
 	}
 
-	// 선택 기록마다 시드 버전이 다를 수 있어(그 사이 새 시드가 활성이 됨) 버전별 문장 틀을 한 번씩만 읽습니다.
+	// 선택 기록마다 시드 버전이 다를 수 있어(그 사이 새 시드가 활성이 됨) 버전별 문장 틀·슬롯 명세를 한 번씩만 읽습니다.
 	byVersion := map[string]content.Templates{}
 	texts := make(map[string]content.SlotText, len(slots))
 	ids := make(map[string]int64, len(selections))
@@ -179,7 +173,6 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 		Texts:        texts,
 		Notices:      v.notices(ctx, response.GetMeta()),
 		Unlocked:     unlocked,
-		SeedVersion:  seedVersion,
 		SelectionIDs: ids,
 	}, nil
 }
@@ -265,7 +258,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 }
 
 // Chart는 나의 사주 묶음을 만듭니다. 기준일은 p.CurrentTimezone의 오늘입니다.
-// 용신 근거 문장은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더합니다.
+// 용신 근거 문장은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
 func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profile) (ChartView, error) {
 	version, err := v.store.Active(ctx)
 	if err != nil {
@@ -292,7 +285,7 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 		return ChartView{}, err
 	}
 	// 계약에서 선택 필드라 원고가 없으면 nil로 둡니다(로그는 Renderer가 남김).
-	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", true); ok {
+	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", false); ok {
 		view.YongsinBasis = &basis
 	}
 	return view, nil

@@ -55,12 +55,12 @@ func TestRender_TermSegments(t *testing.T) {
 }
 
 func TestRender_TermSegmentsAfterJosaLengthChange(t *testing.T) {
-	// 조사가 "가"로 짧아져도 뒤 조각이 어긋나지 않습니다. 앞 토큰은 받침 없는 "식"이 아니라 "비"로 끝납니다.
-	segs := mustRender(t, Input{Lang: "ko", Body: "[[비|x.b]](이)가 [[겁재|ten_god.geobjae]](을)를 봐요."})
+	// 받침 없는 "비" 뒤 (이)가는 "가"로 짧아집니다. 그래도 뒤 토큰 "겁재"의 조각 위치가 어긋나지 않습니다.
+	segs := mustRender(t, Input{Lang: "ko", Body: "[[비|x.b]](이)가 [[겁재|ten_god.geopjae]](을)를 봐요."})
 	assert.Equal(t, []Segment{
 		{Text: "비", Term: "x.b"},
 		{Text: "가 "},
-		{Text: "겁재", Term: "ten_god.geobjae"},
+		{Text: "겁재", Term: "ten_god.geopjae"},
 		{Text: "를 봐요."},
 	}, segs)
 }

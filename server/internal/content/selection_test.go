@@ -3,6 +3,7 @@ package content_test
 import (
 	"context"
 	"crypto/sha256"
+	"maps"
 	"sync"
 	"testing"
 	"time"
@@ -27,7 +28,7 @@ const (
 	colorSlot     = "daily.color"
 )
 
-// testSlots는 Select에 넘기는 슬롯 정의입니다.
+// testSlots는 테스트 시드(testSeed)의 슬롯 명세입니다. Select는 활성 시드의 이 명세로 순환 방식을 정합니다.
 var testSlots = map[string]seed.Slot{
 	headSlot:      {ID: headSlot, Rotation: seed.RotationType},
 	tagSlot:       {ID: tagSlot, Rotation: seed.RotationType},
@@ -53,8 +54,13 @@ type selectFixture struct {
 
 func newSelectFixture(t *testing.T) *selectFixture {
 	t.Helper()
+	return newSelectFixtureOn(t, dbtest.New(t))
+}
+
+// newSelectFixtureOn은 pool 위에 selectFixture를 만듭니다.
+func newSelectFixtureOn(t *testing.T, pool *pgxpool.Pool) *selectFixture {
+	t.Helper()
 	ctx := context.Background()
-	pool := dbtest.New(t)
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
@@ -63,7 +69,7 @@ func newSelectFixture(t *testing.T) *selectFixture {
 	require.NoError(t, pool.QueryRow(ctx,
 		"INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&account))
 	clk := clocktest.New(time.Date(2026, 10, 16, 9, 0, 0, 0, time.UTC))
-	return &selectFixture{pool: pool, clock: clk, store: content.NewStore(pool, clk), version: s.Version, account: account, hash: birthHash("h1")}
+	return &selectFixture{pool: pool, clock: clk, store: content.NewStore(pool, clk, discardLog()), version: s.Version, account: account, hash: birthHash("h1")}
 }
 
 func birthHash(s string) [32]byte { return sha256.Sum256([]byte(s)) }
@@ -71,7 +77,7 @@ func birthHash(s string) [32]byte { return sha256.Sum256([]byte(s)) }
 // pick은 슬롯 하나를 고르고 결과 하나를 돌려줍니다.
 func (f *selectFixture) pick(t *testing.T, date time.Time, hash [32]byte, slot, key string) content.Selection {
 	t.Helper()
-	got, err := f.store.Select(context.Background(), f.account, date, hash, []content.SlotRequest{{Slot: slot, MessageKey: key}}, testSlots)
+	got, err := f.store.Select(context.Background(), f.account, date, hash, []content.SlotRequest{{Slot: slot, MessageKey: key}})
 	require.NoError(t, err)
 	require.Len(t, got, 1)
 	return got[0]
@@ -117,7 +123,7 @@ func TestSelect_NewUserStartsWithAdvice(t *testing.T) {
 	date := time.Date(2026, 10, 16, 23, 30, 0, 0, seoul)
 
 	got, err := f.store.Select(context.Background(), f.account, date, f.hash,
-		[]content.SlotRequest{{Slot: headSlot, MessageKey: "k.head"}, {Slot: tagSlot, MessageKey: "k.tag"}}, testSlots)
+		[]content.SlotRequest{{Slot: headSlot, MessageKey: "k.head"}, {Slot: tagSlot, MessageKey: "k.tag"}})
 	require.NoError(t, err)
 	require.Len(t, got, 2)
 
@@ -214,7 +220,7 @@ func TestSelect_CareSkippedAtDailyCap(t *testing.T) {
 		{Slot: headSlot, MessageKey: "k.head"},
 		{Slot: tagSlot, MessageKey: "k.tag"},
 		{Slot: extraTypeSlot, MessageKey: "k.extra"},
-	}, testSlots)
+	})
 	require.NoError(t, err)
 	require.Len(t, got, 3)
 	assert.Equal(t, "care", got[0].Variant)
@@ -317,9 +323,22 @@ func TestSelect_NewBirthHashSelectsAgainAndAdvances(t *testing.T) {
 	}
 }
 
+// poolWithMaxConns는 연결 수 상한을 정한 테스트 DB pool입니다. 동시성 테스트가 기본 상한(CPU 수에 따라 다름)에 막히지 않게 합니다.
+func poolWithMaxConns(t *testing.T, maxConns int32) *pgxpool.Pool {
+	t.Helper()
+	cfg, err := pgxpool.ParseConfig(dbtest.NewURL(t))
+	require.NoError(t, err)
+	cfg.MaxConns = maxConns
+	pool, err := pgxpool.NewWithConfig(context.Background(), cfg)
+	require.NoError(t, err)
+	t.Cleanup(pool.Close)
+	return pool
+}
+
 func TestSelect_ConcurrentFirstOpenAgrees(t *testing.T) {
 	ctx := context.Background()
-	f := newSelectFixture(t)
+	// lock을 쥔 연결 1 + Select 트랜잭션 2 + lock 대기 조회 1보다 여유 있게 둡니다.
+	f := newSelectFixtureOn(t, poolWithMaxConns(t, 8))
 	reqs := []content.SlotRequest{{Slot: headSlot, MessageKey: "k.head"}, {Slot: guideSlot, MessageKey: "k.guide"}}
 
 	// 별도 연결로 같은 계정 lock을 먼저 쥡니다. 두 Select가 모두 이 lock을 기다리는 것을 확인한 뒤 풀어,
@@ -338,7 +357,7 @@ func TestSelect_ConcurrentFirstOpenAgrees(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			results[i], errs[i] = f.store.Select(ctx, f.account, day0, f.hash, reqs, testSlots)
+			results[i], errs[i] = f.store.Select(ctx, f.account, day0, f.hash, reqs)
 		}()
 	}
 
@@ -380,7 +399,7 @@ func TestSelect_Errors(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newSelectFixture(t)
-			_, err := f.store.Select(context.Background(), f.account, day0, f.hash, tt.reqs, testSlots)
+			_, err := f.store.Select(context.Background(), f.account, day0, f.hash, tt.reqs)
 			require.Error(t, err)
 			assert.Equal(t, 0, f.countRows(t, "SELECT count(*) FROM daily_selections"), "아무것도 기록하지 않음")
 		})
@@ -394,8 +413,8 @@ func TestSelect_NoActiveSeed(t *testing.T) {
 	require.NoError(t, pool.QueryRow(ctx,
 		"INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&account))
 
-	_, err := content.NewStore(pool, clocktest.New(day0)).Select(ctx, account, day0, birthHash("h"),
-		[]content.SlotRequest{{Slot: headSlot, MessageKey: "k"}}, testSlots)
+	_, err := content.NewStore(pool, clocktest.New(day0), discardLog()).Select(ctx, account, day0, birthHash("h"),
+		[]content.SlotRequest{{Slot: headSlot, MessageKey: "k"}})
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed)
 }
 
@@ -504,4 +523,34 @@ func TestSelect_SameDayOtherHashTypeIsSkipped(t *testing.T) {
 			assert.Equal(t, tt.next, f.rotation(t, got.MessageKey), "실제로 고른 것의 다음")
 		})
 	}
+}
+
+// 순환 방식은 Select 트랜잭션이 읽은 활성 시드 버전의 슬롯 명세를 따릅니다.
+func TestSelect_UsesActiveSeedSlotSpec(t *testing.T) {
+	ctx := context.Background()
+	f := newSelectFixture(t)
+	assert.Equal(t, "1", f.pick(t, day0, f.hash, guideSlot, "k.a").Variant, "변주 슬롯")
+
+	// 새 시드에서 가이드 슬롯이 순환하지 않게 바뀌면, 새로 고르는 기록은 single입니다.
+	changed := maps.Clone(testSlots)
+	changed[guideSlot] = seed.Slot{ID: guideSlot, Rotation: seed.RotationNone}
+	next := testSeedWithSlots(t, changed, "")
+	_, err := content.Apply(ctx, f.pool, next)
+	require.NoError(t, err)
+
+	got := f.pick(t, dayOffset(1), f.hash, guideSlot, "k.b")
+	assert.Equal(t, seed.VariantSingle, got.Variant)
+	assert.Equal(t, next.Version, got.SeedVersion)
+	// 옛 기록은 옛 버전 그대로입니다.
+	old := f.pick(t, day0, f.hash, guideSlot, "k.a")
+	assert.Equal(t, "1", old.Variant)
+	assert.Equal(t, f.version, old.SeedVersion)
+
+	// 활성 명세에서 빠진 슬롯은 오류이고 아무것도 기록하지 않습니다.
+	delete(changed, colorSlot)
+	_, err = content.Apply(ctx, f.pool, testSeedWithSlots(t, changed, ""))
+	require.NoError(t, err)
+	_, err = f.store.Select(ctx, f.account, dayOffset(2), f.hash, []content.SlotRequest{{Slot: colorSlot, MessageKey: "k"}})
+	assert.ErrorContains(t, err, colorSlot)
+	assert.Zero(t, f.countRows(t, "SELECT count(*) FROM daily_selections WHERE date = $1", dayOffset(2)))
 }

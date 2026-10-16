@@ -30,16 +30,17 @@ func (a *API) GetDaily(ctx context.Context, req gen.GetDailyRequestObject) (gen.
 	if a.Contents == nil {
 		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	}
+	// 시간대는 엔진과 선택 기록보다 먼저 읽어, 읽지 못하면 선택 기록을 남기기 전에 끝냅니다.
+	loc, err := currentLocation(p)
+	if err != nil {
+		return nil, err
+	}
 	date := profile.LocalDate{Year: req.Date.Year(), Month: int(req.Date.Month()), Day: req.Date.Day()}
 	view, err := a.Readings.Daily(ctx, id, p, date)
 	if err != nil {
 		return nil, outOfRangeError(err, fieldDailyDate)
 	}
 	reactions, err := a.dailyReactions(ctx, view)
-	if err != nil {
-		return nil, err
-	}
-	loc, err := currentLocation(p)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +57,13 @@ func (a *API) GetCalendar(ctx context.Context, req gen.GetCalendarRequestObject)
 	if err != nil {
 		return nil, err
 	}
-	view, err := a.Readings.Calendar(ctx, id, p, req.Year, req.Month)
-	if err != nil {
-		return nil, outOfRangeError(err, fieldCalendarYear)
-	}
 	loc, err := currentLocation(p)
 	if err != nil {
 		return nil, err
+	}
+	view, err := a.Readings.Calendar(ctx, id, p, req.Year, req.Month)
+	if err != nil {
+		return nil, outOfRangeError(err, fieldCalendarYear)
 	}
 	body, err := toCalendar(view, req.Year, req.Month, loc)
 	if err != nil {

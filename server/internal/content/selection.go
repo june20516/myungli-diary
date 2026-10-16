@@ -82,7 +82,8 @@ type Selection struct {
 //   - 같은 (계정, 날짜, 슬롯, 지문)의 기록이 있고 메시지 키가 같으면 그 기록을 그대로 돌려줍니다(시드 버전도 그대로).
 //   - 기록이 없으면 새로 골라 넣고, 메시지 키가 달라졌으면 새로 골라 그 기록을 바꿉니다.
 //     새로 고를 때만 rotation_state를 한 칸 넘깁니다. 지문이 다른 옛 기록은 건드리지 않습니다.
-//   - 순환: seed.RotationType은 advice → state → care, seed.RotationVariant는 1 → 2,
+//   - 순환 방식은 이 트랜잭션에서 읽은 활성 시드 버전의 슬롯 명세(Store.Slots)를 따릅니다.
+//     seed.RotationType은 advice → state → care, seed.RotationVariant는 1 → 2,
 //     seed.RotationNone은 seed.VariantSingle이고 rotation_state를 쓰지 않습니다.
 //   - 순환 차례부터 순서대로 후보를 보며 막히지 않은 첫 후보를 고릅니다. 막는 규칙은 두 가지이고 상한이 우선입니다.
 //     ① 돌봄 상한(W14): care인데, 지금 고르는 (date, 슬롯)을 뺀 care 기록이 date 하루 2개 이상이거나
@@ -95,14 +96,12 @@ type Selection struct {
 //   - 메시지 키가 바뀌어 기록을 바꾸면 그 기록의 활성 반응을 soft delete합니다. 반응은 옛 문장에 남긴 것이기 때문입니다.
 //
 // date는 날짜 부분(date 자신의 시간대 기준 연·월·일)만 씁니다. 모든 슬롯을 한 트랜잭션에서 처리하므로
-// 하나라도 실패하면 아무것도 기록하지 않습니다. 활성 시드가 없으면 ErrNoActiveSeed입니다.
-func (s *Store) Select(ctx context.Context, accountID uuid.UUID, date time.Time, birthHash [32]byte,
-	reqs []SlotRequest, slots map[string]seed.Slot,
-) ([]Selection, error) {
-	if err := validateRequests(reqs, slots); err != nil {
+// 하나라도 실패하면 아무것도 기록하지 않습니다. 활성 시드가 없으면 ErrNoActiveSeed,
+// 요청 슬롯이 활성 시드의 명세에 없거나 같은 슬롯이 두 번 나오면 오류입니다.
+func (s *Store) Select(ctx context.Context, accountID uuid.UUID, date time.Time, birthHash [32]byte, reqs []SlotRequest) ([]Selection, error) {
+	if err := uniqueRequests(reqs); err != nil {
 		return nil, err
 	}
-	sel := selector{accountID: accountID, today: toDate(date), birthHash: birthHash[:], slots: slots, now: s.clock.Now()}
 
 	var out []Selection
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
@@ -119,6 +118,19 @@ func (s *Store) Select(ctx context.Context, accountID uuid.UUID, date time.Time,
 		if err != nil {
 			return fmt.Errorf("활성 시드 조회: %w", err)
 		}
+		// 명세는 이 트랜잭션의 연결로 읽습니다. pool에서 연결을 더 기다리면 동시 요청이 많을 때 연결이 모자랄 수 있습니다.
+		slots, ok := s.cachedSlots(version)
+		if !ok {
+			if slots, err = s.loadSlots(ctx, q, version); err != nil {
+				return err
+			}
+		}
+		for _, r := range reqs {
+			if _, ok := slots[r.Slot]; !ok {
+				return fmt.Errorf("시드 %s의 슬롯 명세에 없는 슬롯입니다: %s", version, r.Slot)
+			}
+		}
+		sel := selector{accountID: accountID, today: toDate(date), birthHash: birthHash[:], slots: slots, now: s.clock.Now()}
 		for _, r := range reqs {
 			got, err := sel.selectSlot(ctx, q, version, r)
 			if err != nil {
@@ -148,13 +160,10 @@ func (s *Store) SelectionFor(ctx context.Context, accountID uuid.UUID, date time
 	return selectionFromRow(slot, row), nil
 }
 
-// validateRequests는 트랜잭션을 열기 전에 요청을 검사합니다. 슬롯은 정의에 있어야 하고 한 번씩만 나와야 합니다.
-func validateRequests(reqs []SlotRequest, slots map[string]seed.Slot) error {
+// uniqueRequests는 트랜잭션을 열기 전에 요청을 검사합니다. 슬롯은 한 번씩만 나와야 합니다.
+func uniqueRequests(reqs []SlotRequest) error {
 	seen := make(map[string]bool, len(reqs))
 	for _, r := range reqs {
-		if _, ok := slots[r.Slot]; !ok {
-			return fmt.Errorf("정의에 없는 슬롯입니다: %s", r.Slot)
-		}
 		if seen[r.Slot] {
 			return fmt.Errorf("같은 슬롯을 두 번 요청했습니다: %s", r.Slot)
 		}

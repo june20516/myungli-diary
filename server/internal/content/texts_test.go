@@ -21,9 +21,15 @@ type fakeTemplates struct {
 	lang   string
 	bodies map[[3]string]string
 	names  map[string]string
+	slots  map[string]seed.Slot
 }
 
 func (f fakeTemplates) Lang() string { return f.lang }
+
+func (f fakeTemplates) Slot(id string) (seed.Slot, bool) {
+	slot, ok := f.slots[id]
+	return slot, ok
+}
 
 func (f fakeTemplates) Body(slot, key, variant string) (string, bool) {
 	b, ok := f.bodies[[3]string{slot, key, variant}]
@@ -35,7 +41,7 @@ func (f fakeTemplates) ValueName(category, value string) (string, bool) {
 	return n, ok
 }
 
-// textSlots는 Renderer에 넘기는 슬롯 정의입니다.
+// textSlots는 테스트 문장 틀(newTestTemplates)의 슬롯 명세입니다.
 var textSlots = map[string]seed.Slot{
 	"daily.color": {ID: "daily.color", Params: map[string]seed.ParamKind{
 		"element": {Kind: seed.KindCategory, Categories: []string{"element"}},
@@ -62,6 +68,7 @@ func newTestTemplates() fakeTemplates {
 			{"evidence.source", "source.gungtong-bogam/five_elements#color", "single"}: "궁통보감 오행 편",
 		},
 		names: map[string]string{"element.wood": "초록"},
+		slots: textSlots,
 	}
 }
 
@@ -86,7 +93,7 @@ func joinSegments(segs []render.Segment) string {
 func newTestRenderer() (*content.Renderer, *bytes.Buffer) {
 	var logs bytes.Buffer
 	log := slog.New(slog.NewTextHandler(&logs, nil))
-	return content.NewRenderer(log, textSlots), &logs
+	return content.NewRenderer(log), &logs
 }
 
 func TestSlot_RendersJudgmentWithParams(t *testing.T) {
@@ -205,16 +212,22 @@ func TestSlot_MissingTemplateIsFalseAndLogs(t *testing.T) {
 	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("\n")), "로그는 한 줄만 남습니다")
 }
 
-func TestSlot_RenderErrorIsFalseAndLogsWithoutParamValues(t *testing.T) {
+// 렌더 실패 로그에는 원인 오류를 싣습니다. 이름 사전 누락의 "범주.값"은 enum 값이라 싣고,
+// 호칭·문장 본문·숫자 매개변수 값은 싣지 않습니다.
+func TestSlot_RenderErrorIsFalseAndLogsCauseWithoutBodyOrValues(t *testing.T) {
 	r, logs := newTestRenderer()
 	tpl := newTestTemplates()
 	j := newTestJudgment()
 	j.Params["element"] = &enginev1.Param{Value: &enginev1.Param_Text{Text: "no_such_value"}}
 
-	_, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "", true)
+	_, ok := r.Slot(context.Background(), tpl, "daily.color", seed.VariantSingle, j, "민지", true)
 	assert.False(t, ok)
-	assert.Contains(t, logs.String(), "level=ERROR")
-	assert.NotContains(t, logs.String(), "no_such_value")
+	out := logs.String()
+	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("level=ERROR")), out)
+	assert.Contains(t, out, `error="이름 사전에 element.no_such_value가 없습니다"`)
+	for _, secret := range []string{"민지", "좋아요", "80"} {
+		assert.NotContains(t, out, secret)
+	}
 }
 
 func TestIdentifier_RendersKeyWithGivenParams(t *testing.T) {
@@ -344,20 +357,20 @@ func TestSlot_ParamValuesFailureLogsNameWithoutValue(t *testing.T) {
 	assert.NotContains(t, logs.String(), "비밀값")
 }
 
-func TestNewRenderer_LogsMissingEvidenceSlots(t *testing.T) {
-	var logs bytes.Buffer
-	content.NewRenderer(slog.New(slog.NewTextHandler(&logs, nil)), map[string]seed.Slot{
-		"evidence.basis": {ID: "evidence.basis"},
-	})
-	out := logs.String()
-	assert.Contains(t, out, "explain.today_reason")
-	assert.Contains(t, out, "evidence.source")
-	assert.NotContains(t, out, "slot=evidence.basis")
+// 렌더하는 문장 틀의 시드 버전 명세를 씁니다. 같은 Renderer라도 명세가 다른 문장 틀이면 결과가 다릅니다.
+func TestSlot_UsesTemplatesSlotSpec(t *testing.T) {
+	r, _ := newTestRenderer()
+	j := &enginev1.Judgment{MessageKey: "fortune.x"}
 
-	logs.Reset()
-	newTestRenderer()
-	content.NewRenderer(slog.New(slog.NewTextHandler(&logs, nil)), textSlots)
-	assert.Empty(t, logs.String())
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.fortune.head", "advice", j, "민지", false)
+	require.True(t, ok)
+	assert.Equal(t, "민지님, 오늘은 쉬어 가요.", joinSegments(got.Text))
+
+	tpl := newTestTemplates()
+	tpl.slots = map[string]seed.Slot{"daily.fortune.head": {ID: "daily.fortune.head", Rotation: seed.RotationType}}
+	got, ok = r.Slot(context.Background(), tpl, "daily.fortune.head", "advice", j, "민지", false)
+	require.True(t, ok)
+	assert.Equal(t, "오늘은 쉬어 가요.", joinSegments(got.Text), "호칭 슬롯이 아닌 명세면 호칭을 쓰지 않음")
 }
 
 func TestParamValues_RejectsNonFiniteNumbers(t *testing.T) {
@@ -372,7 +385,8 @@ func TestParamValues_RejectsNonFiniteNumbers(t *testing.T) {
 	// 근거 detail 문자열 숫자도 같습니다.
 	r, logs := newTestRenderer()
 	j := newTestJudgment()
-	j.Evidence = []*enginev1.Evidence{{RuleId: "color/lucky_element", Detail: map[string]string{"strength_score": "NaN"}}}
+	// element는 올바른 값이라, 근거 문장이 빠지는 이유는 NaN 하나뿐입니다.
+	j.Evidence = []*enginev1.Evidence{{RuleId: "color/lucky_element", Detail: map[string]string{"element": "wood", "strength_score": "NaN"}}}
 	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
 	require.True(t, ok)
 	assert.Nil(t, got.Evidence[0].Basis)

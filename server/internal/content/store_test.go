@@ -1,7 +1,11 @@
 package content_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
+	"maps"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -17,11 +21,20 @@ import (
 	"github.com/june20516/myungli-diary/server/seed"
 )
 
-// testSeed는 템플릿 body를 바꿔 서로 다른 Version을 얻는 작은 시드입니다.
+// discardLog는 로그를 보지 않는 테스트의 logger입니다.
+func discardLog() *slog.Logger { return slog.New(slog.DiscardHandler) }
+
+// testSeed는 템플릿 body를 바꿔 서로 다른 Version을 얻는 작은 시드입니다. 슬롯 명세는 선택 테스트의 testSlots입니다.
 func testSeed(t *testing.T, suffix string) seed.Seed {
 	t.Helper()
+	return testSeedWithSlots(t, testSlots, suffix)
+}
+
+// testSeedWithSlots는 슬롯 명세를 바꾼 testSeed입니다.
+func testSeedWithSlots(t *testing.T, slots map[string]seed.Slot, suffix string) seed.Seed {
+	t.Helper()
 	s := seed.Seed{
-		Slots: map[string]seed.Slot{"daily.guide": {ID: "daily.guide", Rotation: seed.RotationVariant}},
+		Slots: slots,
 		Templates: []seed.Template{
 			{Slot: "daily.guide", Key: "k", Variant: "1", Lang: "ko", Body: "한국어 1" + suffix},
 			{Slot: "daily.guide", Key: "k", Variant: "1", Lang: "en", Body: "english 1" + suffix},
@@ -42,7 +55,7 @@ func TestApply_InsertsAndActivates(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, applied)
 
-	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}, discardLog()).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, s.Version, version)
 
@@ -76,7 +89,7 @@ func TestApply_SameVersionReactivatesOldSeed(t *testing.T) {
 		_, err := content.Apply(ctx, pool, s)
 		require.NoError(t, err)
 	}
-	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}, discardLog()).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, old.Version, version, "옛 버전으로 되돌리면 그 버전이 활성")
 }
@@ -100,7 +113,7 @@ func TestApply_NewVersionKeepsOldRows(t *testing.T) {
 	assert.Equal(t, 2, seeds)
 	assert.Equal(t, 1, active, "활성은 하나")
 
-	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}, discardLog()).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, next.Version, version)
 }
@@ -113,7 +126,7 @@ func TestStore_TemplatesByVersionAndLang(t *testing.T) {
 		_, err := content.Apply(ctx, pool, s)
 		require.NoError(t, err)
 	}
-	store := content.NewStore(pool, clock.System{})
+	store := content.NewStore(pool, clock.System{}, discardLog())
 
 	ko, err := store.Templates(ctx, old.Version, "ko")
 	require.NoError(t, err)
@@ -153,7 +166,7 @@ func TestStore_TemplatesAreCachedAndConcurrentSafe(t *testing.T) {
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool, clock.System{})
+	store := content.NewStore(pool, clock.System{}, discardLog())
 
 	first, err := store.Templates(ctx, s.Version, "ko")
 	require.NoError(t, err)
@@ -185,7 +198,7 @@ func mustTemplates(t *testing.T, store *content.Store, version string) content.T
 }
 
 func TestStore_ActiveMissingIsErrNoActiveSeed(t *testing.T) {
-	_, err := content.NewStore(dbtest.New(t), clock.System{}).Active(context.Background())
+	_, err := content.NewStore(dbtest.New(t), clock.System{}, discardLog()).Active(context.Background())
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed)
 }
 
@@ -199,7 +212,7 @@ func TestApply_DuplicateTemplateInSeedFails(t *testing.T) {
 	require.Error(t, err, "시드 안 중복은 삼키지 않고 오류")
 	assert.False(t, applied)
 
-	_, err = content.NewStore(pool, clock.System{}).Active(ctx)
+	_, err = content.NewStore(pool, clock.System{}, discardLog()).Active(ctx)
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed, "실패한 적재는 롤백")
 }
 
@@ -231,7 +244,17 @@ func TestStore_TemplatesCallerCancelDoesNotFailOtherWaiters(t *testing.T) {
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool, clock.System{})
+	store := content.NewStore(pool, clock.System{}, discardLog())
+	// 슬롯 명세를 먼저 캐시해 두어, 아래 두 호출의 flight는 문장 틀 로드 하나뿐입니다.
+	_, err = store.Slots(ctx, s.Version)
+	require.NoError(t, err)
+	// 호출이 문장 틀 flight에 들어갈 때마다 알립니다. 두 번째 호출이 합류한 것을 본 뒤에 첫 호출자를 취소합니다.
+	joined := make(chan string, 2)
+	content.SetFlightHookForTest(store, func(key string) {
+		if strings.HasPrefix(key, "templates") {
+			joined <- key
+		}
+	})
 	release := lockTemplates(t, pool)
 
 	firstCtx, cancelFirst := context.WithCancel(ctx)
@@ -242,6 +265,7 @@ func TestStore_TemplatesCallerCancelDoesNotFailOtherWaiters(t *testing.T) {
 		firstErr <- err
 	}()
 	waitForBlockedQuery(t, pool)
+	first := <-joined
 
 	type result struct {
 		tpl content.Templates
@@ -252,6 +276,8 @@ func TestStore_TemplatesCallerCancelDoesNotFailOtherWaiters(t *testing.T) {
 		tpl, err := store.Templates(ctx, s.Version, "ko")
 		second <- result{tpl, err}
 	}()
+	// 로드는 잠금에 막혀 끝나지 않았으므로, 같은 키로 들어온 두 번째 호출은 첫 호출의 flight에 합류한 것입니다.
+	require.Equal(t, first, <-joined, "두 번째 호출이 같은 flight에 합류")
 
 	cancelFirst()
 	require.ErrorIs(t, <-firstErr, context.Canceled, "취소한 호출자는 ctx 오류")
@@ -276,7 +302,7 @@ func TestStore_TemplatesCanceledCallerReturnsWithoutWaitingForLoad(t *testing.T)
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool, clock.System{})
+	store := content.NewStore(pool, clock.System{}, discardLog())
 	release := lockTemplates(t, pool)
 	defer release()
 
@@ -298,7 +324,7 @@ func TestStore_TemplatesLoadErrorIsNotCached(t *testing.T) {
 	s := testSeed(t, "")
 	_, err := content.Apply(ctx, pool, s)
 	require.NoError(t, err)
-	store := content.NewStore(pool, clock.System{})
+	store := content.NewStore(pool, clock.System{}, discardLog())
 
 	// 테이블 이름을 잠시 바꿔 조회가 실패하게 합니다.
 	_, err = pool.Exec(ctx, "ALTER TABLE content_templates RENAME TO content_templates_moved")
@@ -354,5 +380,107 @@ func TestReactions_OneActivePerSelection(t *testing.T) {
 	_, err = pool.Exec(ctx, "INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'like')", selectionID)
 	var pgErr *pgconn.PgError
 	require.ErrorAs(t, err, &pgErr, "활성 행 두 개는 unique 위반")
+	assert.Equal(t, "23505", pgErr.Code)
+}
+
+func TestStore_SlotsByVersion(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	changed := maps.Clone(testSlots)
+	changed[guideSlot] = seed.Slot{ID: guideSlot, Rotation: seed.RotationNone, Vocative: true}
+	old, next := testSeed(t, ""), testSeedWithSlots(t, changed, "")
+	require.NotEqual(t, old.Version, next.Version, "슬롯 명세가 다르면 버전이 다름")
+	for _, s := range []seed.Seed{old, next} {
+		_, err := content.Apply(ctx, pool, s)
+		require.NoError(t, err)
+	}
+	store := content.NewStore(pool, clock.System{}, discardLog())
+
+	got, err := store.Slots(ctx, old.Version)
+	require.NoError(t, err)
+	assert.Equal(t, old.Slots, got, "Apply가 넣은 옛 버전 명세")
+	got, err = store.Slots(ctx, next.Version)
+	require.NoError(t, err)
+	assert.Equal(t, next.Slots, got)
+
+	// 문장 틀은 같은 버전의 명세를 함께 돌려줍니다.
+	tpl, err := store.Templates(ctx, old.Version, "ko")
+	require.NoError(t, err)
+	guide, ok := tpl.Slot(guideSlot)
+	require.True(t, ok)
+	assert.Equal(t, seed.RotationVariant, guide.Rotation)
+	tpl, err = store.Templates(ctx, next.Version, "ko")
+	require.NoError(t, err)
+	guide, ok = tpl.Slot(guideSlot)
+	require.True(t, ok)
+	assert.True(t, guide.Vocative)
+	_, ok = tpl.Slot("nope")
+	assert.False(t, ok)
+
+	_, err = store.Slots(ctx, "missing")
+	assert.ErrorContains(t, err, "missing", "없는 버전은 오류")
+}
+
+// 근거 문장 슬롯이 명세에 없으면 그 버전 명세를 처음 읽을 때 한 번만 Error 로그를 남깁니다.
+func TestStore_SlotsLogsMissingEvidenceSlotsOncePerVersion(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	withBasis := maps.Clone(testSlots)
+	withBasis["evidence.basis"] = seed.Slot{ID: "evidence.basis"}
+	complete := maps.Clone(withBasis)
+	complete["explain.today_reason"] = seed.Slot{ID: "explain.today_reason"}
+	complete["evidence.source"] = seed.Slot{ID: "evidence.source"}
+	partial, full := testSeedWithSlots(t, withBasis, ""), testSeedWithSlots(t, complete, "")
+	for _, s := range []seed.Seed{partial, full} {
+		_, err := content.Apply(ctx, pool, s)
+		require.NoError(t, err)
+	}
+	var logs bytes.Buffer
+	store := content.NewStore(pool, clock.System{}, slog.New(slog.NewTextHandler(&logs, nil)))
+
+	for range 2 {
+		_, err := store.Templates(ctx, partial.Version, "ko")
+		require.NoError(t, err)
+		_, err = store.Templates(ctx, partial.Version, "en")
+		require.NoError(t, err)
+	}
+	out := logs.String()
+	assert.Equal(t, 2, strings.Count(out, "level=ERROR"), out)
+	assert.Contains(t, out, "slot=explain.today_reason")
+	assert.Contains(t, out, "slot=evidence.source")
+	assert.NotContains(t, out, "slot=evidence.basis")
+
+	logs.Reset()
+	_, err := store.Slots(ctx, full.Version)
+	require.NoError(t, err)
+	assert.Empty(t, logs.String(), "근거 슬롯이 모두 있으면 로그 없음")
+}
+
+// daily_selections.birth_hash는 익명화 때 비우므로 NULL을 받고, 값이 있으면 32바이트여야 합니다.
+func TestSelections_BirthHashNullableButSized(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	s := testSeed(t, "")
+	_, err := content.Apply(ctx, pool, s)
+	require.NoError(t, err)
+	var accountID string
+	require.NoError(t, pool.QueryRow(ctx, "INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id").Scan(&accountID))
+	insert := `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+		VALUES ($1, '2026-10-16', 'daily.guide', $2, 'k', '1', $3)`
+
+	_, err = pool.Exec(ctx, insert, accountID, nil, s.Version)
+	require.NoError(t, err, "NULL은 허용")
+	_, err = pool.Exec(ctx, insert, accountID, nil, s.Version)
+	require.NoError(t, err, "NULL끼리는 unique에 걸리지 않음(익명화한 행)")
+
+	_, err = pool.Exec(ctx, insert, accountID, make([]byte, 31), s.Version)
+	var pgErr *pgconn.PgError
+	require.ErrorAs(t, err, &pgErr, "31바이트는 거부")
+	assert.Equal(t, "daily_selections_birth_hash_len", pgErr.ConstraintName)
+
+	_, err = pool.Exec(ctx, insert, accountID, make([]byte, 32), s.Version)
+	require.NoError(t, err)
+	_, err = pool.Exec(ctx, insert, accountID, make([]byte, 32), s.Version)
+	require.ErrorAs(t, err, &pgErr, "값이 있으면 unique 유지")
 	assert.Equal(t, "23505", pgErr.Code)
 }

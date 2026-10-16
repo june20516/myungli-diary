@@ -4,8 +4,11 @@
 -- 행을 물리적으로 지우지 않으므로 FK는 모두 ON DELETE RESTRICT입니다.
 -- 계정 삭제는 익명화이고, 익명화 때에도 선택 기록·순환 상태·반응은 남깁니다.
 
+-- slots는 그 시드 버전의 슬롯 명세(seed.Seed.Slots의 JSON)입니다. 옛 버전으로 고른 문장을 그 버전의 명세
+-- (호칭 사용, 매개변수 값 종류, 순환 방식)로 렌더하려고 문장 틀과 함께 버전마다 저장합니다.
 CREATE TABLE content_seeds (
     version    text PRIMARY KEY,
+    slots      jsonb       NOT NULL,
     applied_at timestamptz NOT NULL DEFAULT now(),
     active     boolean     NOT NULL DEFAULT false
 );
@@ -33,12 +36,14 @@ CREATE TABLE content_hanja (
 );
 
 -- 하루·슬롯마다 어떤 문장을 골랐는지의 기록입니다. 사주 지문(birth_hash)이 달라지면 새로 고르므로 키에 들어갑니다.
+-- birth_hash는 계정을 익명화할 때 profiles.birth_hash와 같은 이유(생년월일시를 되찾을 수 있음)로 비우므로 NULL을 허용합니다.
+-- NULL끼리는 unique에서 서로 다른 값이라, 익명화한 행이 겹쳐도 제약에 걸리지 않습니다.
 CREATE TABLE daily_selections (
     id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     account_id   uuid        NOT NULL REFERENCES accounts (id) ON DELETE RESTRICT,
     date         date        NOT NULL,
     slot         text        NOT NULL,
-    birth_hash   bytea       NOT NULL CONSTRAINT daily_selections_birth_hash_len CHECK (octet_length(birth_hash) = 32),
+    birth_hash   bytea       CONSTRAINT daily_selections_birth_hash_len CHECK (birth_hash IS NULL OR octet_length(birth_hash) = 32),
     message_key  text        NOT NULL,
     variant      text        NOT NULL,
     seed_version text        NOT NULL REFERENCES content_seeds (version) ON DELETE RESTRICT,

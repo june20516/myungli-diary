@@ -72,6 +72,7 @@ type ContentHanja struct {
 
 type ContentSeed struct {
 	Version   string
+	Slots     []byte
 	AppliedAt time.Time
 	Active    bool
 }

@@ -13,21 +13,25 @@ import (
 )
 
 // PutReaction은 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다.
-// 오류는 todaySelection을 따릅니다.
+// 오류는 daySelection을 따릅니다.
 func (a *API) PutReaction(ctx context.Context, req gen.PutReactionRequestObject) (gen.PutReactionResponseObject, error) {
-	sel, err := a.todaySelection(ctx, req.Date, req.Slot)
+	sel, err := a.daySelection(ctx, req.Date, req.Slot)
 	if err != nil {
 		return nil, err
 	}
-	if err := a.Contents.PutReaction(ctx, sel.ID, string(req.Body.Reaction)); err != nil {
+	err = a.Contents.PutReaction(ctx, sel.ID, string(req.Body.Reaction))
+	if errors.Is(err, content.ErrSelectionNotFound) {
+		return nil, newError(problem.ReactionNotFound, "Reaction not found")
+	}
+	if err != nil {
 		return nil, err
 	}
 	return gen.PutReaction204Response{}, nil
 }
 
-// DeleteReaction은 남긴 반응을 지웁니다(soft delete). 반응이 없어도 204입니다. 오류는 todaySelection을 따릅니다.
+// DeleteReaction은 남긴 반응을 지웁니다(soft delete). 반응이 없어도 204입니다. 오류는 daySelection을 따릅니다.
 func (a *API) DeleteReaction(ctx context.Context, req gen.DeleteReactionRequestObject) (gen.DeleteReactionResponseObject, error) {
-	sel, err := a.todaySelection(ctx, req.Date, req.Slot)
+	sel, err := a.daySelection(ctx, req.Date, req.Slot)
 	if err != nil {
 		return nil, err
 	}
@@ -37,10 +41,10 @@ func (a *API) DeleteReaction(ctx context.Context, req gen.DeleteReactionRequestO
 	return gen.DeleteReaction204Response{}, nil
 }
 
-// todaySelection은 반응을 남길 선택 기록을 찾습니다. (계정, 날짜, 슬롯, 현재 프로필의 사주 지문)의 기록입니다.
+// daySelection은 반응을 남길 선택 기록을 찾습니다. (계정, 날짜, 슬롯, 현재 프로필의 사주 지문)의 기록입니다.
 // 프로필이 없으면 409 profile.required, 반응할 수 없는 슬롯이거나 기록이 없으면 404 reaction.not_found입니다.
 // 지문이 바뀌기 전의 옛 기록은 지금 화면에 보이지 않으므로 찾지 않습니다.
-func (a *API) todaySelection(ctx context.Context, date gen.Date, slot string) (content.Selection, error) {
+func (a *API) daySelection(ctx context.Context, date gen.Date, slot string) (content.Selection, error) {
 	id, _, ok := AccountFrom(ctx)
 	if !ok {
 		return content.Selection{}, errNoAccount

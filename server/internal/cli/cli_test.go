@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"log/slog"
 	"strings"
 	"testing"
 	"time"
@@ -197,7 +198,7 @@ func TestRunSeed_AppliesEmbeddedSeed(t *testing.T) {
 		}
 	}
 
-	version, err := content.NewStore(pool, clock.System{}).Active(ctx)
+	version, err := content.NewStore(pool, clock.System{}, slog.New(slog.DiscardHandler)).Active(ctx)
 	if err != nil {
 		t.Fatalf("Active: %v", err)
 	}

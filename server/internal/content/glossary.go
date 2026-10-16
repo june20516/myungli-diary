@@ -3,6 +3,7 @@ package content
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/june20516/myungli-diary/server/internal/content/render"
@@ -43,7 +44,7 @@ type Glossary struct {
 }
 
 // Glossary는 version·lang의 용어 사전을 돌려줍니다. 한 번 만든 것은 메모리에 두고 다시 만들지 않습니다.
-// 원고가 렌더되지 않으면(자리표시자 등) 오류이며, 오류 메시지에는 원고 본문을 싣지 않습니다.
+// 렌더되지 않는 원고(자리표시자 등)는 그 항목만 빼고 Error 로그를 남깁니다. 항목 하나 때문에 사전 전체를 잃지 않으려는 것입니다.
 func (s *Store) Glossary(ctx context.Context, version, lang string) (Glossary, error) {
 	key := cacheKey{version, lang}
 	if g, ok := s.cachedGlossary(key); ok {
@@ -57,10 +58,7 @@ func (s *Store) Glossary(ctx context.Context, version, lang string) (Glossary, e
 	if !ok {
 		return Glossary{}, fmt.Errorf("문장 틀 형식이 잘못됐습니다: %T", tpl)
 	}
-	g, err := buildGlossary(t, version)
-	if err != nil {
-		return Glossary{}, err
-	}
+	g := s.buildGlossary(ctx, t, version)
 	rows, err := s.queries.ListHanja(ctx, version)
 	if err != nil {
 		return Glossary{}, fmt.Errorf("한자 표기 조회: %w", err)
@@ -83,7 +81,8 @@ func (s *Store) cachedGlossary(key cacheKey) (Glossary, bool) {
 }
 
 // buildGlossary는 문장 틀에서 이름과 뜻을 모읍니다. Hanja는 빈 맵으로 둡니다.
-func buildGlossary(t *templates, version string) (Glossary, error) {
+// 렌더되지 않는 항목은 빼고 Error 로그를 남깁니다. 로그에는 문장 틀 id와 언어만 싣고 원고 본문은 싣지 않습니다.
+func (s *Store) buildGlossary(ctx context.Context, t *templates, version string) Glossary {
 	g := Glossary{
 		SeedVersion: version,
 		Lang:        t.lang,
@@ -101,7 +100,9 @@ func buildGlossary(t *templates, version string) (Glossary, error) {
 		}
 		segments, err := render.Render(render.Input{Lang: t.lang, Body: body}, t)
 		if err != nil {
-			return Glossary{}, fmt.Errorf("용어 사전 %s/%s 렌더: %w", id.slot, id.key, err)
+			s.log.ErrorContext(ctx, "용어 사전 항목을 만들지 못해 뺍니다",
+				slog.String("slot", id.slot), slog.String("key", id.key), slog.String("lang", t.lang))
+			continue
 		}
 		if term != "" {
 			g.Meanings[term] = segments
@@ -112,7 +113,7 @@ func buildGlossary(t *templates, version string) (Glossary, error) {
 		}
 		g.Values[category][value] = joinSegments(segments)
 	}
-	return g, nil
+	return g
 }
 
 // glossaryEntry는 문장 틀이 사전의 어디에 들어가는지 정합니다.

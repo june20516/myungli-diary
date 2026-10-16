@@ -33,7 +33,6 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/internal/profile"
-	"github.com/june20516/myungli-diary/server/seed"
 )
 
 const (
@@ -107,12 +106,8 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		}
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
-	contents := content.NewStore(pool, clock.System{})
-	readings, err := newReadings(contents, fortuneService, logger, clock.System{})
-	if err != nil {
-		logger.ErrorContext(ctx, "운세 화면 조립 실패", "error", err)
-		return &loggedError{err: err}
-	}
+	contents := content.NewStore(pool, clock.System{}, logger)
+	readings := newReadings(contents, fortuneService, logger, clock.System{})
 
 	handler, err := newServer(settings, serverDeps{
 		Pool:     pool,
@@ -300,15 +295,10 @@ type serverDeps struct {
 	Providers providerURLs
 }
 
-// newReadings는 운세 화면 묶음을 조립합니다. 슬롯 명세는 내장 시드에서, 문장 틀은 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
+// newReadings는 운세 화면 묶음을 조립합니다. 문장 틀과 슬롯 명세는 시드 버전마다 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
 // 근거 열람 권한 판정은 P7 전까지 늘 잠김입니다(D60).
-func newReadings(store *content.Store, service *fortune.Service, logger *slog.Logger, clk clock.Clock) (*fortune.Views, error) {
-	s, err := seed.Load()
-	if err != nil {
-		return nil, err
-	}
-	renderer := content.NewRenderer(logger, s.Slots)
-	return fortune.NewViews(service, store, renderer, s.Slots, fortune.AlwaysLocked{}, clk, logger), nil
+func newReadings(store *content.Store, service *fortune.Service, logger *slog.Logger, clk clock.Clock) *fortune.Views {
+	return fortune.NewViews(service, store, content.NewRenderer(logger), fortune.AlwaysLocked{}, clk, logger)
 }
 
 // newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.

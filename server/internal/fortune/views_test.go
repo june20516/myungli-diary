@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"log/slog"
+	"maps"
 	"slices"
 	"strings"
 	"testing"
@@ -96,7 +97,13 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 // viewSeed는 테스트 시드를 만듭니다.
 func viewSeed(t *testing.T, suffix string, skip ...string) seed.Seed {
 	t.Helper()
-	s := seed.Seed{Slots: viewSlots, Templates: viewTemplates(suffix, skip...)}
+	return viewSeedWithSlots(t, viewSlots, suffix, skip...)
+}
+
+// viewSeedWithSlots는 슬롯 명세를 바꾼 테스트 시드를 만듭니다.
+func viewSeedWithSlots(t *testing.T, slots map[string]seed.Slot, suffix string, skip ...string) seed.Seed {
+	t.Helper()
+	s := seed.Seed{Slots: slots, Templates: viewTemplates(suffix, skip...)}
 	require.NoError(t, s.Normalize())
 	return s
 }
@@ -155,6 +162,8 @@ type viewsFixture struct {
 	views   *fortune.Views
 	account uuid.UUID
 	logs    *bytes.Buffer
+	// restart는 빈 캐시의 콘텐츠 저장소로 Views를 새로 만듭니다(새 시드를 배포한 뒤 뜬 새 인스턴스).
+	restart func() *fortune.Views
 }
 
 // newViewsFixture는 s를 적용한 DB(s.Version이 비면 적용하지 않음)와 fake 엔진으로 Views를 만듭니다.
@@ -174,8 +183,10 @@ func newViewsFixture(t *testing.T, fake *enginetest.Fake, s seed.Seed, insight f
 	log := slog.New(slog.NewTextHandler(&logs, nil))
 	clk := clocktest.New(time.Date(2026, 10, 16, 0, 30, 0, 0, time.UTC))
 	service := fortune.NewService(fake, newVersions(t, fake), fortune.NewPostgresCache(pool), discardLogger())
-	views := fortune.NewViews(service, content.NewStore(pool, clk), content.NewRenderer(log, viewSlots), viewSlots, insight, clk, log)
-	return &viewsFixture{pool: pool, views: views, account: account, logs: &logs}
+	build := func() *fortune.Views {
+		return fortune.NewViews(service, content.NewStore(pool, clk, log), content.NewRenderer(log), insight, clk, log)
+	}
+	return &viewsFixture{pool: pool, views: build(), account: account, logs: &logs, restart: build}
 }
 
 func viewProfile(lang string) profile.Profile {
@@ -222,7 +233,6 @@ func TestViews_DailyFillsAllSlots(t *testing.T) {
 				got = append(got, slot)
 			}
 			assert.ElementsMatch(t, tc.slots, got)
-			assert.Equal(t, s.Version, view.SeedVersion)
 			assert.Equal(t, "rs-1", view.Response.GetMeta().GetRulesetVersion())
 			assert.Empty(t, f.logs.String())
 
@@ -307,7 +317,6 @@ func TestViews_LanguageChangeKeepsSelection(t *testing.T) {
 	assert.Equal(t, "fortune.gwiin_day.inseong", head.MessageKey)
 	assert.Equal(t, "민지, take it slow.", plain(head.Text), "옛 시드 버전의 en 문장")
 	assert.Equal(t, "Who caught your eye?", plain(second.Texts[fortune.SlotGuide].Text))
-	assert.Equal(t, newSeed.Version, second.SeedVersion, "SeedVersion은 지금 활성 시드")
 	assert.Empty(t, f.logs.String())
 
 	var next string
@@ -315,6 +324,69 @@ func TestViews_LanguageChangeKeepsSelection(t *testing.T) {
 		"SELECT next_variant FROM rotation_state WHERE account_id = $1 AND message_key = $2",
 		f.account, "fortune.gwiin_day.inseong").Scan(&next))
 	assert.Equal(t, content.VariantState, next, "다시 열어도 순환은 한 번만 넘어감")
+
+	// 원고가 없는 언어(ja)로 바꿔도 오류가 아닙니다. 필수 슬롯은 빈 segments, 선택 슬롯(보조 문장)은 빠지고,
+	// 고른 variant는 그대로이며, 원고가 없는 슬롯마다 Error 로그가 하나씩 남습니다(다른 언어로 폴백하지 않음).
+	t.Run("원고 없는 언어", func(t *testing.T) {
+		f.logs.Reset()
+		third, err := f.views.Daily(ctx, f.account, viewProfile("ja"), viewDate)
+		require.NoError(t, err)
+
+		required := []string{
+			fortune.SlotFortuneHead, fortune.SlotGuide, fortune.SlotColor, fortune.SlotDirection,
+			fortune.SlotNumber, fortune.SlotFocusTime, fortune.SlotCharacterReason,
+		}
+		got := make([]string, 0, len(third.Texts))
+		for slot := range third.Texts {
+			got = append(got, slot)
+		}
+		assert.ElementsMatch(t, required, got, "선택 슬롯(보조 문장)은 생략")
+		for _, slot := range required {
+			text := third.Texts[slot]
+			assert.NotNil(t, text.Text, slot)
+			assert.Empty(t, text.Text, slot)
+			assert.Equal(t, second.Texts[slot].Variant, text.Variant, slot)
+		}
+		assert.Contains(t, third.SelectionIDs, fortune.SlotFortuneTag, "선택 기록은 그대로 있음")
+
+		logs := f.logs.String()
+		assert.Equal(t, len(required)+1, strings.Count(logs, "level=ERROR"), logs)
+		for _, slot := range append(required, fortune.SlotFortuneTag) {
+			assert.Equal(t, 1, strings.Count(logs, "slot="+slot+" "), slot)
+		}
+	})
+}
+
+// 옛 시드 버전으로 고른 문장은 그 버전의 슬롯 명세로 렌더합니다.
+// 새 시드에서 숫자 카드의 매개변수 값 종류를 none으로 바꾸면 새 명세로는 {number}를 렌더할 수 없습니다.
+func TestViews_OldSelectionUsesOldSlotSpec(t *testing.T) {
+	oldSeed := viewSeed(t, "")
+	f := newViewsFixture(t, dailyFake(true), oldSeed, fortune.AlwaysLocked{})
+	ctx := context.Background()
+
+	_, err := f.views.Daily(ctx, f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	changed := maps.Clone(viewSlots)
+	number := changed[fortune.SlotNumber]
+	number.Params = map[string]seed.ParamKind{"number": {Kind: seed.KindNone}}
+	changed[fortune.SlotNumber] = number
+	newSeed := viewSeedWithSlots(t, changed, " (new)")
+	_, err = content.Apply(ctx, f.pool, newSeed)
+	require.NoError(t, err)
+
+	// 새 인스턴스는 옛 버전의 문장 틀·명세를 아직 캐시하지 않았으므로, 옛 기록을 렌더할 때 DB에서 그 버전의 명세를 읽습니다.
+	views := f.restart()
+	again, err := views.Daily(ctx, f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+	assert.Equal(t, "행운의 숫자는 3예요.", plain(again.Texts[fortune.SlotNumber].Text), "옛 버전의 문장 틀과 명세")
+	assert.Empty(t, f.logs.String())
+
+	// 다른 날은 새로 고르므로 새 시드의 명세로 렌더하고, {number}를 쓸 수 없어 빈 문장과 Error 로그가 됩니다(대조군).
+	next, err := views.Daily(ctx, f.account, viewProfile("ko"), profile.LocalDate{Year: 2026, Month: 10, Day: 17})
+	require.NoError(t, err)
+	assert.Empty(t, next.Texts[fortune.SlotNumber].Text)
+	assert.Contains(t, f.logs.String(), "slot="+fortune.SlotNumber)
 }
 
 // 원고가 없는 슬롯은 응답 전체를 실패시키지 않습니다(Review Focus 4).
@@ -429,7 +501,7 @@ func TestViews_ChartYongsinBasisLocked(t *testing.T) {
 			}
 			require.NotNil(t, view.YongsinBasis)
 			assert.Equal(t, "힘의 균형으로 정했어요.", plain(view.YongsinBasis.Text))
-			assert.Len(t, view.YongsinBasis.Evidence, 1)
+			assert.Nil(t, view.YongsinBasis.Evidence, "용신 근거 문장 자체가 근거라 그 안의 근거는 렌더하지 않음")
 		})
 	}
 }

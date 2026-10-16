@@ -1,8 +1,11 @@
 -- 콘텐츠 시드 적재와 읽기, 문장 선택 기록·순환 상태 쿼리입니다.
 
 -- name: InsertSeed :execrows
-INSERT INTO content_seeds (version) VALUES (@version)
+INSERT INTO content_seeds (version, slots) VALUES (@version, @slots)
 ON CONFLICT (version) DO NOTHING;
+
+-- name: GetSeedSlots :one
+SELECT slots FROM content_seeds WHERE version = @version;
 
 -- name: DeactivateSeeds :exec
 UPDATE content_seeds SET active = false WHERE active AND version <> @version;
@@ -67,6 +70,10 @@ WHERE selection_id = @selection_id AND deleted_at IS NULL;
 
 -- name: ListHanja :many
 SELECT term, hanja FROM content_hanja WHERE seed_version = @seed_version;
+
+-- name: LockSelection :execrows
+-- 한 선택 기록의 반응 변경을 차례로 하게 하는 행 lock입니다. 트랜잭션이 끝나면 풀립니다.
+SELECT 1 FROM daily_selections WHERE id = @id FOR UPDATE;
 
 -- name: GetActiveReaction :one
 SELECT reaction FROM reactions WHERE selection_id = @selection_id AND deleted_at IS NULL;

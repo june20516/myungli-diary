@@ -19,6 +19,17 @@ const (
 	sourceSlot = "evidence.source"
 )
 
+// evidenceSlots는 판정에 덧붙이는 근거 문장 슬롯입니다. 슬롯 명세에 없으면 Store가 Error 로그로 알립니다.
+var evidenceSlots = []string{todayReasonSlot, basisSlot, sourceSlot}
+
+// 반응(좋아요)을 남길 수 있는 총운 슬롯입니다(P4-4, D57). 슬롯 id는 writing 슬롯 명세가 원본입니다.
+const (
+	// SlotFortuneHead는 총운 대표 문장 슬롯입니다.
+	SlotFortuneHead = "daily.fortune.head"
+	// SlotFortuneTag는 총운 보조 문장 슬롯입니다.
+	SlotFortuneTag = "daily.fortune.tag"
+)
+
 // SlotText는 슬롯 하나의 응답 문장입니다.
 type SlotText struct {
 	Slot       string
@@ -46,28 +57,20 @@ type Evidence struct {
 }
 
 // Reactable은 슬롯 문장에 반응을 남길 수 있는지 돌려줍니다(P4-4).
-// 총운 슬롯(daily.fortune.head, daily.fortune.tag)만 true입니다.
+// 총운 슬롯(SlotFortuneHead, SlotFortuneTag)만 true입니다.
 func Reactable(slot string) bool {
-	return slot == "daily.fortune.head" || slot == "daily.fortune.tag"
+	return slot == SlotFortuneHead || slot == SlotFortuneTag
 }
 
 // Renderer는 판정과 문장 틀로 슬롯 문장을 만듭니다. 상태가 없어 동시에 써도 안전합니다.
+// 슬롯 명세(호칭 사용, 매개변수 값 종류)는 렌더하는 문장 틀과 같은 시드 버전의 것(Templates.Slot)을 씁니다.
 type Renderer struct {
-	log   *slog.Logger
-	slots map[string]seed.Slot
+	log *slog.Logger
 }
 
-// NewRenderer는 Renderer를 만듭니다. slots는 시드의 슬롯 명세(seed.Seed.Slots)로,
-// 슬롯별 호칭 사용 여부와 매개변수 값 종류를 알려줍니다.
-func NewRenderer(log *slog.Logger, slots map[string]seed.Slot) *Renderer {
-	// 근거 문장 슬롯이 명세에 없으면 근거 문장이 조용히 빠지므로, 시작할 때 한 번 알립니다.
-	// 생성자가 오류를 돌려주면 근거 문장 같은 선택 기능 때문에 서버가 못 뜨게 되어, Error 로그로 드러내고 계속합니다.
-	for _, id := range []string{todayReasonSlot, basisSlot, sourceSlot} {
-		if _, ok := slots[id]; !ok {
-			log.Error("근거 문장 슬롯 명세가 없습니다", slog.String("slot", id))
-		}
-	}
-	return &Renderer{log: log, slots: slots}
+// NewRenderer는 Renderer를 만듭니다.
+func NewRenderer(log *slog.Logger) *Renderer {
+	return &Renderer{log: log}
 }
 
 // Slot은 판정 j를 (slot, variant) 문장 틀로 렌더하고, 판정의 근거 문장을 덧붙여 돌려줍니다.
@@ -80,7 +83,7 @@ func NewRenderer(log *slog.Logger, slots map[string]seed.Slot) *Renderer {
 // 본문 틀이 없거나 렌더에 실패하면 false를 돌려주고 Error 로그를 하나 남깁니다. 호출자가 그 슬롯을 빼거나 빈 문장으로 채웁니다.
 // 근거 문장(TodayReason, Evidence.Basis, Evidence.Source)은 선택 필드라 실패해도 본문은 살립니다.
 func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string, j *enginev1.Judgment, name string, withEvidence bool) (SlotText, bool) {
-	def, ok := r.slots[slot]
+	def, ok := tpl.Slot(slot)
 	if !ok {
 		r.logFailure(ctx, tpl, slot, j.GetMessageKey(), variant)
 		return SlotText{}, false
@@ -114,7 +117,7 @@ func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string
 // Identifier는 판정이 아니라 식별자 키(예: 캐릭터 이유, 달력 일 수준)로 슬롯 문장을 만듭니다.
 // 변주는 single이고 호칭과 근거는 없습니다. 실패 처리는 Slot과 같습니다.
 func (r *Renderer) Identifier(ctx context.Context, tpl Templates, slot, key string, params map[string]render.Value) (SlotText, bool) {
-	def, ok := r.slots[slot]
+	def, ok := tpl.Slot(slot)
 	if !ok {
 		r.logFailure(ctx, tpl, slot, key, seed.VariantSingle)
 		return SlotText{}, false
@@ -147,7 +150,7 @@ func (r *Renderer) render(ctx context.Context, tpl Templates, def seed.Slot, key
 		Name:   name,
 	}, tpl)
 	if err != nil {
-		r.logFailure(ctx, tpl, def.ID, key, variant)
+		r.logFailure(ctx, tpl, def.ID, key, variant, err)
 		return nil, false
 	}
 	return segments, true
@@ -157,7 +160,7 @@ func (r *Renderer) render(ctx context.Context, tpl Templates, def seed.Slot, key
 // 이 문장은 오늘 화면의 용어를 낸 규칙에만 있는 선택 문장이라, 규칙 대부분에는 원고가 없는 것이 정상입니다.
 // 그래서 원고가 없을 때는 로그를 남기지 않고 nil(필드 생략)을 돌려줍니다. 렌더가 실패하면 Slot처럼 로그를 남깁니다.
 func (r *Renderer) todayReason(ctx context.Context, tpl Templates, j *enginev1.Judgment) []render.Segment {
-	def, ok := r.slots[todayReasonSlot]
+	def, ok := tpl.Slot(todayReasonSlot)
 	if !ok {
 		return nil
 	}
@@ -178,7 +181,7 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 	var out []Evidence
 	for _, e := range j.GetEvidence() {
 		item := Evidence{RuleID: e.GetRuleId(), SourceRef: e.GetSourceRef(), Detail: e.GetDetail()}
-		if def, ok := r.slots[basisSlot]; ok {
+		if def, ok := tpl.Slot(basisSlot); ok {
 			// detail은 명세의 값 종류가 none이 아닌 키만 매개변수가 됩니다.
 			if params, err := detailValues(e.GetDetail(), def.Params); err != nil {
 				r.logFailure(ctx, tpl, basisSlot, "basis."+e.GetRuleId(), seed.VariantSingle, err)
@@ -186,7 +189,7 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 				item.Basis, _ = r.render(ctx, tpl, def, "basis."+e.GetRuleId(), seed.VariantSingle, params, "")
 			}
 		}
-		if def, ok := r.slots[sourceSlot]; ok && e.GetSourceRef() != "" {
+		if def, ok := tpl.Slot(sourceSlot); ok && e.GetSourceRef() != "" {
 			item.Source, _ = r.render(ctx, tpl, def, "source."+e.GetSourceRef(), seed.VariantSingle, nil, "")
 		}
 		out = append(out, item)
@@ -197,7 +200,8 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 // logFailure는 문장을 만들지 못한 이유를 Error 로그 하나로 남깁니다.
 // 호칭, 매개변수 값, 문장 본문은 개인정보가 섞일 수 있어 싣지 않고 문장 틀 id와 언어를 싣습니다.
 //
-// cause가 있으면 error 필드로 싣습니다. 매개변수 변환 오류만 넘기며, 그 메시지는 매개변수 이름과 원인 종류뿐이고 값은 없습니다.
+// cause가 있으면 error 필드로 싣습니다. 넘기는 오류는 매개변수 변환 오류와 render.Render 오류이고,
+// 그 메시지는 매개변수 이름, 범주, 원인 종류와 enum 값(이름 사전 누락의 "범주.값")뿐이라 호칭·문장 본문·숫자 값이 없습니다.
 func (r *Renderer) logFailure(ctx context.Context, tpl Templates, slot, key, variant string, cause ...error) {
 	attrs := []any{
 		slog.String("slot", slot),

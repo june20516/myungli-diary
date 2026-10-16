@@ -6,6 +6,7 @@ package render
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -239,7 +240,7 @@ func (r *renderer) categoryValue(ph placeholder, kind seed.ParamKind, val Value)
 		}
 		category = kind.Categories[0]
 	}
-	if !contains(kind.Categories, category) {
+	if !slices.Contains(kind.Categories, category) {
 		return "", "", fmt.Errorf("매개변수 %q에 쓸 수 없는 범주 %q입니다", ph.name, category)
 	}
 	mapped, err := mapCategoryValue(category, val.Enum)
@@ -326,15 +327,6 @@ func (r *renderer) valueName(category, value string) (string, error) {
 
 func kindMismatch(ph placeholder) error {
 	return fmt.Errorf("매개변수 %q의 값 종류가 맞지 않습니다", ph.key())
-}
-
-func contains(list []string, s string) bool {
-	for _, v := range list {
-		if v == s {
-			return true
-		}
-	}
-	return false
 }
 
 // remapSpans는 조사 치환으로 달라진 글자 위치에 맞춰 토큰 구간을 다시 계산합니다.

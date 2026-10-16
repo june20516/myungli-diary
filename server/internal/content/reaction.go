@@ -16,11 +16,22 @@ import (
 //   - 다른 값의 활성 반응이 있으면 그 행을 soft delete하고 새 행을 넣습니다(바뀐 이력을 행으로 남깁니다).
 //   - 활성 반응이 없으면 새 행을 넣습니다. soft delete된 행은 되살리지 않습니다.
 //
+// 같은 선택 기록의 동시 요청은 선택 기록 행 lock으로 차례로 처리합니다. 그래서 둘 다 성공하고, 나중에 처리한 값 하나만
+// 활성으로 남으며 앞 값은 soft delete 이력이 됩니다(lock이 없으면 둘 다 "활성 없음"을 보고 넣어 한쪽 값이 조용히 빠집니다).
+// 선택 기록이 없으면 ErrSelectionNotFound입니다.
+//
 // 선택 기록이 호출자 계정의 것인지는 호출자가 SelectionFor로 확인합니다. 트랜잭션이 다시 실행될 수 있어 fn은 멱등입니다.
 func (s *Store) PutReaction(ctx context.Context, selectionID int64, reaction string) error {
 	now := s.clock.Now()
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		q := contentdb.New(tx)
+		locked, err := q.LockSelection(ctx, selectionID)
+		if err != nil {
+			return fmt.Errorf("선택 기록 잠금: %w", err)
+		}
+		if locked == 0 {
+			return ErrSelectionNotFound
+		}
 		current, err := q.GetActiveReaction(ctx, selectionID)
 		switch {
 		case err == nil && current == reaction:
