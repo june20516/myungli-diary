@@ -6,6 +6,7 @@ import (
 	"iter"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -658,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft4(t *testing.T) {
+func TestContract_VersionIsDraft5(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.4" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.4", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.5" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.5", doc.Info.Version)
 	}
 }
 
@@ -893,5 +894,75 @@ func TestContract_Draft4Fields(t *testing.T) {
 	longitude := doc.Components.Schemas["City"].Value.Properties["longitude"].Value
 	if longitude.Min == nil || *longitude.Min != -180 || longitude.Max == nil || *longitude.Max != 180 {
 		t.Errorf("City.longitude 범위 = [%v, %v], want [-180, 180]", longitude.Min, longitude.Max)
+	}
+}
+
+// problemCodeStatus는 Problem.code의 x-problem-codes에서 code의 status를 읽습니다. 없으면 0입니다.
+func problemCodeStatus(t *testing.T, doc *openapi3.T, code string) int {
+	t.Helper()
+	raw, ok := doc.Components.Schemas["Problem"].Value.Properties["code"].Value.Extensions["x-problem-codes"].(map[string]any)
+	if !ok {
+		t.Fatal("x-problem-codes를 읽지 못함")
+	}
+	entry, ok := raw[code].(map[string]any)
+	if !ok {
+		return 0
+	}
+	status, _ := entry["status"].(float64)
+	return int(status)
+}
+
+// TestContract_Draft5Additions는 draft.5에서 더한 problem code와 설명을 고정합니다. (P4, #219)
+func TestContract_Draft5Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	codes := []struct {
+		code      string
+		status    int
+		operation []string // 설명에 이 code가 있어야 하는 operation
+	}{
+		{"reaction.not_found", 404, []string{"putReaction", "deleteReaction"}},
+		{"schedule.not_found", 404, []string{"updateSchedule", "deleteSchedule"}},
+		{"range.too_long", 422, []string{"listSchedules"}},
+	}
+	for _, tt := range codes {
+		t.Run(tt.code, func(t *testing.T) {
+			if got := problemCodeStatus(t, doc, tt.code); got != tt.status {
+				t.Errorf("x-problem-codes[%s].status = %d, want %d", tt.code, got, tt.status)
+			}
+			for _, id := range tt.operation {
+				op := operationByID(t, doc, id)
+				if !strings.Contains(op.Description, tt.code) {
+					t.Errorf("%s 설명에 %s가 없음", id, tt.code)
+				}
+				if op.Responses.Value(strconv.Itoa(tt.status)) == nil {
+					t.Errorf("%s에 %d 응답이 없음", id, tt.status)
+				}
+			}
+		})
+	}
+
+	descriptions := []struct {
+		name, text string
+		got        func() string
+	}{
+		{"SlotText 빈 문장 규칙", "빈 `segments`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText reactable", "daily.fortune.head", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText 선택 문장 생략", "선택 문장 필드(`todayReason`·`Evidence.basis`·`Evidence.source`)는 생략합니다", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText variant 유형", "`advice`·`state`·`care`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText variant 가이드", "`1`·`2`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"SlotText variant single", "`single`", func() string { return doc.Components.Schemas["SlotText"].Value.Description }},
+		{"Notice 빈 segments", "빈 `segments`", func() string { return doc.Components.Schemas["Notice"].Value.Description }},
+		{"Schedule.time 시간대", "currentTimezone", func() string { return doc.Components.Schemas["Schedule"].Value.Properties["time"].Value.Description }},
+		{"Schedule.time 끝 시각 없음", "끝 시각(길이) 필드는 없습니다", func() string { return doc.Components.Schemas["Schedule"].Value.Properties["time"].Value.Description }},
+		{"getCalendar 캐시", "rulesetVersion", func() string { return operationByID(t, doc, "getCalendar").Description }},
+		{"getCalendar ETag 없음", "`ETag`는 없습니다", func() string { return operationByID(t, doc, "getCalendar").Description }},
+	}
+	for _, tt := range descriptions {
+		t.Run(tt.name, func(t *testing.T) {
+			if !strings.Contains(tt.got(), tt.text) {
+				t.Errorf("설명에 %q가 없음: %q", tt.text, tt.got())
+			}
+		})
 	}
 }
