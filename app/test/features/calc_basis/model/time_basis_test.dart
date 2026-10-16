@@ -128,6 +128,20 @@ void main() {
     });
   });
 
+  test('1908-03-31 이전 서울은 데이터 한계로 엔진과 달리 0분입니다', () {
+    // 엔진(tzdata)은 1908-04-01 전 서울을 LMT(+8:27:52, 표준 오프셋 8.4644)로 보아 +2분입니다.
+    // `timezone` 패키지 데이터에는 이 LMT → KST 전환이 없어 +8:30이므로 0분입니다.
+    // 데이터가 바뀌어 이 값이 달라지면 엔진 값(+2분)으로 고칩니다.
+    expect(
+      timeBasisOf(
+        timezone: 'Asia/Seoul',
+        solarDate: DateTime(1907, 6),
+        time: _unknown,
+      ),
+      const TimeBasis(longitude: 127.5, correctionMinutes: 0),
+    );
+  });
+
   group('standardOffsetHoursAt', () {
     test('서머타임 중이면 직전 표준 오프셋입니다', () {
       final seoul = tz.getLocation('Asia/Seoul');
@@ -135,6 +149,15 @@ void main() {
       final newYork = tz.getLocation('America/New_York');
       expect(standardOffsetHoursAt(newYork, DateTime.utc(1990, 7, 1, 12)), -5);
       expect(standardOffsetHoursAt(newYork, DateTime.utc(1990, 1, 1, 12)), -5);
+    });
+
+    test('이중 서머타임도 엔진(zoneinfo dst 추정)과 같습니다', () {
+      // 엔진 standard_offset_hours: London 1941-07-01 12:00(BDST +2) → 1.0,
+      // Berlin 1945-06-01 12:00(CEMT +3) → 2.0.
+      final london = tz.getLocation('Europe/London');
+      expect(standardOffsetHoursAt(london, DateTime.utc(1941, 7, 1, 10)), 1);
+      final berlin = tz.getLocation('Europe/Berlin');
+      expect(standardOffsetHoursAt(berlin, DateTime.utc(1945, 6, 1, 9)), 2);
     });
   });
 

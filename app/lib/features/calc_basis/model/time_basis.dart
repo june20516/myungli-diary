@@ -60,27 +60,88 @@ double representativeLongitude(String timezone, double standardOffsetHours) {
 
 /// [utc] 시점의 [location] 오프셋에서 서머타임을 뺀 표준 오프셋(시간)입니다.
 ///
-/// 시간대 데이터에는 서머타임 여부만 있고 양이 없으므로, 서머타임 구간이면 전환을 거슬러
-/// 서머타임이 아닌 구간의 오프셋을 씁니다. 앞에 없으면 뒤에서 찾습니다.
+/// 엔진(Python zoneinfo `utcoffset() - dst()`)과 같은 값입니다. 시간대 데이터에는 서머타임
+/// 여부만 있고 양이 없으므로, zoneinfo처럼 앞뒤 전환의 비서머타임 오프셋에서 양을 추정합니다
+/// ([_dstSecondsOf]). 그래서 이중 서머타임(London 1941, Berlin 1945)도 엔진과 같습니다.
+///
+/// 한계: `timezone` 패키지 데이터에는 일부 LMT 구간이 없습니다. 서울은 LMT → KST 전환
+/// (1908-04-01)이 없어 1908-03-31 이전이 엔진(LMT +8:27:52)과 달리 +8:30이고, 상파울루도
+/// 1914년 이전 LMT가 없습니다.
 double standardOffsetHoursAt(tz.Location location, DateTime utc) {
-  final at = location.lookupTimeZone(utc.millisecondsSinceEpoch);
-  var standard = at;
-  while (standard.timeZone.isDst && standard.start > tz.minTime) {
-    standard = location.lookupTimeZone(standard.start - 1);
+  final instant = location.lookupTimeZone(utc.millisecondsSinceEpoch);
+  final zone = instant.timeZone;
+  final transitionIndex = location.transitionAt.indexOf(instant.start);
+  final int dstSeconds;
+  if (transitionIndex < 0) {
+    // 첫 전환 전입니다. zoneinfo는 첫 비서머타임 유형을 쓰므로 대개 서머타임이 없습니다.
+    dstSeconds = zone.isDst ? _fallbackDstSeconds : 0;
+  } else {
+    dstSeconds = _dstSecondsOf(
+      location,
+    )[location.transitionZone[transitionIndex]];
   }
-  if (standard.timeZone.isDst) {
-    standard = at;
-    while (standard.timeZone.isDst && standard.end < tz.maxTime) {
-      standard = location.lookupTimeZone(standard.end);
+  return (zone.offset.inSeconds - dstSeconds) / Duration.secondsPerHour;
+}
+
+/// 서머타임 양을 추정하지 못했을 때 쓰는 값(초, zoneinfo와 같음).
+const int _fallbackDstSeconds = Duration.secondsPerHour;
+
+/// 시간대마다 한 번만 추정한 zone별 서머타임 양.
+final Expando<List<int>> _dstSecondsCache = Expando('dstSeconds');
+
+/// [location]의 zone(전환 유형)별 서머타임 양(초)입니다. 서머타임이 아닌 zone은 0입니다.
+///
+/// CPython `zoneinfo._zoneinfo.ZoneInfo._utcoff_to_dstoff`를 그대로 옮겼습니다. 서머타임
+/// zone마다 처음 나오는 전환에서, 직전 zone이 비서머타임이면 그 오프셋과의 차, 아니면 직후
+/// zone이 비서머타임일 때 그 차를 씁니다. 끝내 못 정하면 한 시간입니다.
+List<int> _dstSecondsOf(tz.Location location) => _dstSecondsCache[location] ??=
+    _inferDstSeconds(location.transitionZone, location.zones);
+
+List<int> _inferDstSeconds(List<int> transitionZone, List<tz.TimeZone> zones) {
+  final dstSeconds = List<int>.filled(zones.length, 0);
+  final dstZoneCount = zones.where((zone) => zone.isDst).length;
+  var assigned = 0;
+  for (var i = 1; i < transitionZone.length && assigned < dstZoneCount; i++) {
+    final index = transitionZone[i];
+    final zone = zones[index];
+    if (!zone.isDst || dstSeconds[index] != 0) {
+      continue;
+    }
+    var dst = 0;
+    final previous = zones[transitionZone[i - 1]];
+    if (!previous.isDst) {
+      dst = zone.offset.inSeconds - previous.offset.inSeconds;
+    }
+    // zoneinfo는 전환 순번이 아니라 zone 번호로 "마지막이 아닌지"를 봅니다. 그대로 따르되,
+    // zoneinfo라면 색인 오류가 날 마지막 전환에는 범위 검사를 더했습니다.
+    if (dst == 0 && index < zones.length - 1 && i + 1 < transitionZone.length) {
+      final next = zones[transitionZone[i + 1]];
+      if (next.isDst) {
+        // 앞뒤 모두 서머타임이면 이 zone이 뒤에 다시 나올 때 정합니다.
+        continue;
+      }
+      dst = zone.offset.inSeconds - next.offset.inSeconds;
+    }
+    if (dst != 0) {
+      assigned++;
+      dstSeconds[index] = dst;
     }
   }
-  return standard.timeZone.offset.inSeconds / Duration.secondsPerHour;
+  for (var index = 0; index < zones.length; index++) {
+    if (zones[index].isDst && dstSeconds[index] == 0) {
+      dstSeconds[index] = _fallbackDstSeconds;
+    }
+  }
+  return dstSeconds;
 }
 
 /// 출생 입력의 경도 보정 기준을 구합니다(A28, 엔진 `resolve_birth_moment`와 같은 규칙).
 ///
 /// [solarDate]는 연·월·일만 씁니다. [time]이 모름이면 12:00으로 봅니다. [cityLongitude]가
 /// 없으면 대표 경도를 씁니다. 모르는 [timezone]이거나 시각 형식이 틀리면 [ArgumentError]입니다.
+///
+/// 한계: `timezone` 패키지 데이터에 서울 LMT 구간(1908-03-31 이전)이 없어, 그때 서울 입력은
+/// 엔진(+2분)과 달리 보정 0분입니다([standardOffsetHoursAt]).
 TimeBasis timeBasisOf({
   required String timezone,
   required DateTime solarDate,
