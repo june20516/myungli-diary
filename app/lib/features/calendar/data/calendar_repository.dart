@@ -36,12 +36,19 @@ final class CalendarRepository {
   ///   돌려줍니다. 잠금 해제 전에 출발한 요청이 [dropLocked] 뒤에 도착해 잠긴 달을 다시 쓰지
   ///   않게 하기 위해서입니다. `unlocked` 응답은 늘 저장합니다.
   ///
+  /// * 달력 밖 달([CalendarMonth.isSupported]가 false, 1900-01 등)은 묻지 않고 server가
+  ///   줄 응답과 같은 422 `date.out_of_range` [ProblemError]로 끝냅니다(A44). 그날 시트·
+  ///   일정 편집이 1900-01-31을 열어도 늘 거절될 요청을 보내지 않습니다.
+  ///
   /// 관찰·쓰기 실패는 비치명입니다([writeCacheOrReport]).
   Future<Calendar> month(
     CalendarMonth month, {
     required String? cacheKey,
     bool Function()? mayStoreLocked,
   }) async {
+    if (!month.isSupported) {
+      throw outOfRangeProblem;
+    }
     if (cacheKey != null) {
       final cached = await _cached(cacheKey);
       if (cached != null) {
@@ -77,6 +84,17 @@ final class CalendarRepository {
     final keys = await _cache.lockedKeys(CacheKind.calendar);
     await _cache.remove(CacheKind.calendar, keys);
   }
+
+  /// 달력 밖 달을 물었을 때의 오류. server `getCalendar`의 범위 밖 응답과 같은 모양입니다.
+  static const ProblemError outOfRangeProblem = ProblemError(
+    code: outOfRangeCode,
+    status: 422,
+    fieldErrors: [],
+    traceId: '',
+  );
+
+  /// 지원 범위 밖 날짜의 problem code(D41).
+  static const String outOfRangeCode = 'date.out_of_range';
 
   Future<Calendar> _fetch(CalendarMonth month) async {
     final Calendar? data;

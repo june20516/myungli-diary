@@ -35,6 +35,9 @@ final class _Network extends Interceptor {
   /// 일정·일기 목록 요청의 query(`from`·`to`).
   final listQueries = <String, List<Map<String, dynamic>>>{};
   final hold = <String, Completer<void>>{};
+
+  /// 경로 → 422 problem code. 그 경로는 problem 응답으로 거절합니다.
+  final problems = <String, String>{};
   bool offline = false;
 
   @override
@@ -63,10 +66,36 @@ final class _Network extends Interceptor {
       if (gate != null) {
         await gate.future;
       }
+      final code = problems[options.path];
+      if (code != null) {
+        handler.reject(_problem(options, 422, code), true);
+        return;
+      }
     }
     handler.next(options);
   }
 }
+
+/// [options] 요청을 [status] [code] problem 응답으로 거절하는 오류.
+DioException _problem(RequestOptions options, int status, String code) =>
+    DioException.badResponse(
+      statusCode: status,
+      requestOptions: options,
+      response: Response<Object?>(
+        requestOptions: options,
+        statusCode: status,
+        data: {
+          'type': 'about:blank',
+          'title': 'Out of range',
+          'status': status,
+          'code': code,
+          'traceId': 'test',
+        },
+        headers: Headers.fromMap({
+          Headers.contentTypeHeader: ['application/problem+json'],
+        }),
+      ),
+    );
 
 /// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
 final class _TestToday extends Notifier<CalendarDate> {
@@ -438,25 +467,87 @@ void main() {
     }
   });
 
-  testWidgets('1900-01에서는 이전 달로 가지 않고 일정·일기는 1900-01-31부터 묻습니다(D41)', (
+  testWidgets('1900-02(첫 달)에서는 이전 달로 가지 않고 1900-01은 묻지 않습니다(A44, #248)', (
     tester,
   ) async {
     final network = _Network();
     await _openCalendar(
       tester,
       network: network,
-      overrides: [_todayFrom(CalendarDate(1900, 1, 31)).override],
+      overrides: [_todayFrom(CalendarDate(1900, 2, 15)).override],
     );
-    expect(_monthView(tester).month, const CalendarMonth(1900, 1));
+    expect(_monthView(tester).month, const CalendarMonth(1900, 2));
     await tester.tap(find.byKey(CalendarMonthView.prevKey));
     await settleWithIo(tester);
-    expect(_monthView(tester).month, const CalendarMonth(1900, 1));
+    await tester.fling(
+      find.byKey(CalendarMonthView.gridKey),
+      const Offset(200, 0),
+      800,
+    );
+    await settleWithIo(tester);
+    expect(_monthView(tester).month, const CalendarMonth(1900, 2));
 
+    // 미리 받기는 다음 달만이고, 1900-01은 한 번도 묻지 않습니다.
+    expect(network.calendarPaths, contains('/v1/calendar/1900/3'));
+    expect(network.calendarPaths, isNot(contains('/v1/calendar/1900/1')));
     for (final path in ['/v1/schedules', '/v1/diaries']) {
       final query = network.listQueries[path]!.last;
       expect(query['from'], '1900-01-31', reason: path);
-      expect(query['to'], '1900-02-10', reason: path);
+      expect(query['to'], '1900-03-10', reason: path);
     }
+  });
+
+  testWidgets('1900-01-31 그날 시트는 1900-01을 묻지 않고 다시 시도 없는 범위 안내입니다(A44)', (
+    tester,
+  ) async {
+    final network = _Network();
+    await _openCalendar(
+      tester,
+      network: network,
+      overrides: [_todayFrom(CalendarDate(1900, 2, 15)).override],
+    );
+    await tester.tap(
+      find.byKey(CalendarMonthView.cellKey(CalendarDate(1900, 1, 31))),
+    );
+    await settleWithIo(tester);
+
+    final sheet = find.byKey(const ValueKey(ScreenIds.daySheet));
+    expect(sheet, findsOneWidget);
+    final error = find.descendant(of: sheet, matching: find.byType(ErrorState));
+    expect(error, findsOneWidget);
+    expect(
+      find.descendant(of: error, matching: find.text(_ko.errorDateOutOfRange)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+      findsNothing,
+    );
+    expect(network.calendarPaths, isNot(contains('/v1/calendar/1900/1')));
+  });
+
+  testWidgets('달 응답이 422 date.out_of_range면 다시 시도 없이 범위 안내이고 격자는 남습니다', (
+    tester,
+  ) async {
+    final network = _Network()
+      ..problems['/v1/calendar/2026/10'] = 'date.out_of_range';
+    await _openCalendar(tester, network: network);
+
+    final error = find.descendant(
+      of: find.byKey(const ValueKey(ScreenIds.calendar)),
+      matching: find.byType(ErrorState),
+    );
+    expect(error, findsOneWidget);
+    expect(
+      find.descendant(of: error, matching: find.text(_ko.errorDateOutOfRange)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+      findsNothing,
+    );
+    expect(find.byType(CalendarMonthView), findsOneWidget);
+    expect(_cell(tester, _today).data.date, _today);
   });
 
   testWidgets('날을 고른 뒤 달 경계 자정을 넘겨도 고른 날의 달에 머뭅니다', (tester) async {

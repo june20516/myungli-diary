@@ -31,6 +31,7 @@ import 'package:myungli_diary/features/schedule/application/schedule_providers.d
 ///
 /// * 날의 성격은 달 길흉의 그 날([calendarDayProvider])입니다(getDaily를 부르지 않음).
 ///   기다리는 동안 skeleton(`loading`), 받지 못하면 오류 화면과 다시 시도(`error`)입니다.
+///   지원 범위 밖 달이면 다시 시도 없는 범위 안내입니다(A44).
 /// * 일정은 [schedulesOnDateProvider]의 하루 일정(하루 종일 먼저, 시각순)입니다. 없으면
 ///   빈 문장과 일정 추가(`empty`), 받지 못하면 빈 문장 대신 조용한 오류 한 줄과 다시 시도,
 ///   일정 추가를 둡니다(없다고 말하지 않게).
@@ -48,13 +49,17 @@ class DaySheetBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final day = ref.watch(calendarDayProvider(date));
     return ScreenStateView<CalendarDay>(
-      value: ref.watch(calendarDayProvider(date)),
-      onRetry: () {
-        ref
-          ..invalidate(calendarMonthProvider(CalendarMonth.of(date)))
-          ..invalidate(calendarDayProvider(date));
-      },
+      value: day,
+      // 범위 밖 달(1900-01-31이 든 1900-01 등)은 다시 받아도 같은 답이라 범위 안내만 둡니다(A44).
+      onRetry: isCalendarOutOfRange(day.error)
+          ? null
+          : () {
+              ref
+                ..invalidate(calendarMonthProvider(CalendarMonth.of(date)))
+                ..invalidate(calendarDayProvider(date));
+            },
       skeleton: const _DaySheetSkeleton(),
       dataWithNotice: (day, notice) =>
           _DaySheetContent(date: date, day: day, notice: notice),

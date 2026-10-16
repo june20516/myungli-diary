@@ -250,12 +250,12 @@ void main() {
     expect(log.last, const CalendarMonth(2026, 11));
   });
 
-  testWidgets('1900-01에서 이전 비활성: 흐린 아이콘, enabled false, 밀어도 안 넘어감', (
+  testWidgets('1900-02(첫 달, A44)에서 이전 비활성: 흐린 아이콘, enabled false, 밀어도 안 넘어감', (
     tester,
   ) async {
     final handle = tester.ensureSemantics();
     final log = <Object>[];
-    await _pump(tester, month: const CalendarMonth(1900, 1), log: log);
+    await _pump(tester, month: const CalendarMonth(1900, 2), log: log);
     final tokens = tester.element(find.byType(CalendarMonthView)).tokens;
     final prev = tester
         .getSemantics(find.byKey(CalendarMonthView.prevKey))
@@ -459,9 +459,9 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     final log = <Object>[];
-    await _pump(tester, month: const CalendarMonth(1900, 1), log: log);
-    await expectDisabledCell(tester, CalendarDate(1899, 12, 31), log);
-    await expectDisabledCell(tester, CalendarDate(1900, 1, 15), log);
+    await _pump(tester, month: const CalendarMonth(1900, 2), log: log);
+    await expectDisabledCell(tester, CalendarDate(1900, 1, 28), log);
+    await expectDisabledCell(tester, CalendarDate(1900, 1, 30), log);
     expect(
       tester.widget<DayCell>(_cellFor(1, 31)).disabled,
       isFalse,

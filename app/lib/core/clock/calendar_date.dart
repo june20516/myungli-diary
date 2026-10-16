@@ -123,11 +123,21 @@ final class CalendarMonth {
   CalendarMonth previous() =>
       month == 1 ? CalendarMonth(year - 1, 12) : CalendarMonth(year, month - 1);
 
-  /// 지원 날짜([CalendarDate.supportedFirst] ~ [CalendarDate.supportedLast])를 하나라도
-  /// 담은 달(1900-01 ~ 2099-12)인지. 이 달 격자에도 범위 밖 날짜가 있을 수 있습니다.
+  /// 달력으로 넘길 수 있는 첫 달(1900-02).
+  ///
+  /// D41의 첫 지원 날짜(1900-01-31)가 든 1900-01은 1일이 범위 밖이라, engine
+  /// `compose_month`가 그 달을 통째로 거절하고 server `getCalendar`는 422
+  /// `date.out_of_range`를 돌려줍니다. 부분 달을 200으로 줄지 묻는 server Issue #248의
+  /// 답이 오기 전까지 1900-01을 달력 밖으로 둡니다(A44). 답에 따라 이 값을 되돌립니다.
+  static const CalendarMonth supportedFirst = CalendarMonth(1900, 2);
+
+  /// 달력으로 넘길 수 있는 마지막 달(2099-12, 1일·말일 모두 D41 범위 안).
+  static const CalendarMonth supportedLast = CalendarMonth(2099, 12);
+
+  /// 달력으로 넘기고 달 길흉을 물을 수 있는 달([supportedFirst] ~ [supportedLast])인지.
+  /// 이 달 격자에도 범위 밖 날짜가 있을 수 있습니다. 달 지원 경계는 이 판정 한 곳에만 둡니다.
   bool get isSupported =>
-      _index >= CalendarMonth.of(CalendarDate.supportedFirst)._index &&
-      _index <= CalendarMonth.of(CalendarDate.supportedLast)._index;
+      _index >= supportedFirst._index && _index <= supportedLast._index;
 
   /// 달 순서 비교용 번호.
   int get _index => year * 12 + month - 1;
@@ -143,8 +153,8 @@ final class CalendarMonth {
 
   /// 격자 첫 칸을 지원 범위([CalendarDate.supportedFirst]) 안으로 자른 날짜.
   ///
-  /// 격자 범위로 server에 묻는 요청(일정·일기)이 범위 밖 날짜(1900-01 격자의 1899-12-31,
-  /// 1900-01-01~30 등)를 보내지 않게 씁니다.
+  /// 격자 범위로 server에 묻는 요청(일정·일기)이 범위 밖 날짜(1900-02 격자의
+  /// 1900-01-28~30 등)를 보내지 않게 씁니다.
   CalendarDate get supportedGridStart {
     final start = gridStart;
     final first = CalendarDate.supportedFirst;

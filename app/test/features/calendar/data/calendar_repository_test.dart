@@ -282,6 +282,23 @@ void main() {
       );
       expect(await _rowCount(s.database), 0);
     });
+
+    test(
+      '달력 밖 달(1900-01)은 묻지 않고 422 date.out_of_range입니다(A44, #248)',
+      () async {
+        final s = _setUp();
+
+        await expectLater(
+          s.repository.month(const CalendarMonth(1900, 1), cacheKey: null),
+          throwsA(
+            isA<ProblemError>()
+                .having((e) => e.code, 'code', 'date.out_of_range')
+                .having((e) => e.status, 'status', 422),
+          ),
+        );
+        expect(s.server.paths, isEmpty);
+      },
+    );
   });
 
   test('dropLocked는 locked로 받은 달 캐시만 지운다', () async {

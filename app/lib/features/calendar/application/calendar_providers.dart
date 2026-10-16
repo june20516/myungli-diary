@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show FutureProviderFamily;
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -49,14 +51,32 @@ final FutureProviderFamily<Calendar, CalendarMonth> calendarMonthProvider =
       // 요청을 시작할 때의 잠금 정리 세대. 그사이 정리됐으면 잠긴 응답은 저장하지 않습니다.
       final unlockSync = ref.read(calendarUnlockSyncProvider);
       final generation = unlockSync.generation;
-      await ref.read(timezoneSyncProvider).syncIfChanged();
-      final key = await _cacheKeyFor(ref, month);
-      return await repository.month(
-        month,
-        cacheKey: key,
-        mayStoreLocked: () => unlockSync.generation == generation,
-      );
+      // 받는 동안과 locked로 끝난 동안은 잠금 정리가 이 달을 다시 계산해야 합니다.
+      unlockSync._hold(month);
+      ref.onDispose(() => unlockSync._release(month));
+      try {
+        await ref.read(timezoneSyncProvider).syncIfChanged();
+        final key = await _cacheKeyFor(ref, month);
+        final calendar = await repository.month(
+          month,
+          cacheKey: key,
+          mayStoreLocked: () => unlockSync.generation == generation,
+        );
+        if (calendar.evidenceAccess != EvidenceAccess.locked) {
+          unlockSync._release(month);
+        }
+        return calendar;
+      } on Object {
+        unlockSync._release(month);
+        rethrow;
+      }
     }, retry: (_, _) => null);
+
+/// 달 길흉 오류가 지원 범위 밖(422 `date.out_of_range`)인지.
+///
+/// 같은 요청을 되풀이해도 늘 같은 답이라, 화면은 다시 시도 없이 범위 안내만 그립니다(A44).
+bool isCalendarOutOfRange(Object? error) =>
+    error is ProblemError && error.code == CalendarRepository.outOfRangeCode;
 
 /// 하루의 길흉(`day-sheet` 날의 성격). 그 날이 든 달의 [calendarMonthProvider]에서 고릅니다.
 ///
@@ -82,7 +102,7 @@ final FutureProviderFamily<CalendarDay, CalendarDate> calendarDayProvider =
 
 /// 보이는 달 `visible`의 앞뒤 한 달을 조용히 받아 둡니다(A32). 화면이 보이는 달마다 구독합니다.
 ///
-/// 지원 범위(1900-01~2099-12) 밖의 달은 받지 않습니다. 받은 달은 이 provider가 구독하는 동안
+/// 달력 밖 달([CalendarMonth.isSupported], 1900-02~2099-12 밖)은 받지 않습니다. 받은 달은 이 provider가 구독하는 동안
 /// 메모리에 남습니다. 실패는 무시합니다. 실패한 달은 구독을 닫아 오류 상태가 버려지게 하므로,
 /// 화면이 그 달을 열 때 다시 받습니다(이미 화면이 그 달을 구독 중이면 그 오류는 화면 몫입니다).
 /// 오류는 [calendarMonthProvider]의 오류이므로 따로 보고하지 않습니다.
@@ -128,11 +148,21 @@ final class CalendarUnlockSync {
   int get generation => _generation;
   var _generation = 0;
 
+  /// 받는 중이거나 `locked`로 받은 채 들고 있는 달. 잠금 정리는 이 달들만 다시 계산합니다.
+  final _lockedOrPending = <CalendarMonth>{};
+
+  void _hold(CalendarMonth month) => _lockedOrPending.add(month);
+
+  void _release(CalendarMonth month) => _lockedOrPending.remove(month);
+
   /// `locked`로 받아 둔 달 캐시를 지우고, 들고 있는 달을 모두 다시 계산하게 합니다.
   ///
   /// 잠금이 풀린 달은 캐시 그대로 읽으므로 다시 요청하지 않고, 지운 달만 다시 받습니다.
-  /// 여러 번 불려도 됩니다(지울 것이 없으면 캐시를 다시 읽을 뿐입니다). 실패는 비치명입니다.
-  /// 잠금 해제 흐름을 막지 않도록 요약만 보고하고 삼킵니다.
+  /// 여러 번 불려도 됩니다. 다시 계산하는 달은 받는 중이거나 `locked`로 들고 있는 달뿐이라,
+  /// 이미 풀린 달만 들고 있으면(근거 시트를 열 때마다 불려도) 아무 달도 다시 계산하지
+  /// 않습니다. 캐시 키 없이(사본 없음) 메모리에만 든 locked 달과 정리 전에 출발한 요청도 이
+  /// 기준으로 다시 받습니다. 실패는 비치명입니다. 잠금 해제 흐름을 막지 않도록 요약만 보고하고
+  /// 삼킵니다.
   Future<void> forgetLocked() async {
     // 지우기 전에 세대를 올려, 지우는 사이에 도착한 잠긴 응답도 쓰지 않게 합니다.
     _generation++;
@@ -143,7 +173,9 @@ final class CalendarUnlockSync {
       reporter.record(CrashSummary.from(error), stack);
       return;
     }
-    _ref.invalidate(calendarMonthProvider);
+    for (final month in _lockedOrPending.toList()) {
+      _ref.invalidate(calendarMonthProvider(month));
+    }
   }
 }
 

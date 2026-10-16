@@ -192,11 +192,11 @@ final List<WidgetbookComponent> calendarMonthComponents = [
         ),
       ),
       WidgetbookUseCase(
-        name: '범위 끝(1900-01)',
+        name: '범위 끝(1900-02)',
         builder: (context) => const Stage(
           child: SizedBox(
             width: 340,
-            child: _MonthDemo(initial: CalendarMonth(1900, 1)),
+            child: _MonthDemo(initial: CalendarMonth(1900, 2)),
           ),
         ),
       ),

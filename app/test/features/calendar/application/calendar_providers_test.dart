@@ -311,12 +311,12 @@ void main() {
       expect(tap.paths, hasLength(2));
     });
 
-    testWidgets('1900-01이면 이전 달(범위 밖)은 받지 않는다', (tester) async {
+    testWidgets('1900-02이면 이전 달(1900-01, 달력 밖)은 받지 않는다(A44)', (tester) async {
       final (container, tap) = await _boot(tester);
 
-      await prefetch(tester, container, const CalendarMonth(1900, 1));
+      await prefetch(tester, container, const CalendarMonth(1900, 2));
 
-      expect(tap.paths, ['/v1/calendar/1900/2']);
+      expect(tap.paths, ['/v1/calendar/1900/3']);
     });
 
     testWidgets('2099-12이면 다음 달(범위 밖)은 받지 않는다', (tester) async {
@@ -364,6 +364,32 @@ void main() {
       expect(tap.paths, ['/v1/calendar/2026/10', '/v1/calendar/2026/10']);
     },
   );
+
+  testWidgets('forgetLocked는 지울 locked 달이 없으면 달을 다시 계산하지 않는다', (tester) async {
+    final (container, tap) = await _boot(tester);
+    tap.unlockFromNow = true;
+    await _settle(tester, container, _october);
+    expect(
+      container.read(calendarMonthProvider(_october)).value?.evidenceAccess,
+      EvidenceAccess.unlocked,
+    );
+    final states = <AsyncValue<Calendar>>[];
+    final subscription = container.listen(
+      calendarMonthProvider(_october),
+      (_, next) => states.add(next),
+    );
+    addTearDown(subscription.close);
+
+    await tester.runAsync(
+      () => container.read(calendarUnlockSyncProvider).forgetLocked(),
+    );
+    for (var i = 0; i < 3; i++) {
+      await _spin(tester);
+    }
+
+    expect(states, isEmpty);
+    expect(tap.paths, hasLength(1));
+  });
 
   testWidgets('잠금 정리 전에 출발한 locked 응답은 정리 뒤에 도착해도 저장하지 않는다', (tester) async {
     final (container, tap) = await _boot(tester);

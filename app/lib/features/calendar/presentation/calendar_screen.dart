@@ -54,12 +54,13 @@ const AppGlyph _plus = AppGlyph(
 ///   받습니다([calendarPrefetchProvider]). 늦게 온 다른 달 응답은 보이는 달을 바꾸지 않습니다.
 /// * 받는 중에는 격자의 길흉·도장 자리만 skeleton이고(`loading`), 받지 못하면 격자 위에
 ///   오류와 다시 시도를 보입니다(`error`). 작은 화면에서도 먼저 보이고, 아래 격자의 달
-///   넘김은 그대로 쓸 수 있습니다.
+///   넘김은 그대로 쓸 수 있습니다. 지원 범위 밖(422 `date.out_of_range`)이면 다시 시도
+///   없이 범위 안내입니다(A44).
 /// * 값을 들고 다시 받는 중(잠금 해제 뒤 등)에는 값을 그대로 보여 skeleton이 깜빡이지
 ///   않습니다. 보이는 달의 요청이 연결 오류로 실패하면 받아 둔 달 위에 오프라인 배너를
 ///   보입니다(`offline`). 받은 적 없는 달은 오프라인 오류입니다.
-/// * 일정·일기는 지원 날짜로 자른 격자 범위로 묻습니다(1900-01·2099-12 격자의 범위 밖
-///   날짜를 보내지 않음, D41). 일정 범위는 오류여도 붙들려 남으므로, 화면에 들어올 때·달을
+/// * 일정·일기는 지원 날짜로 자른 격자 범위로 묻습니다(1900-02·2099-12 격자의 범위 밖
+///   날짜를 보내지 않음, D41). 달력은 1900-02부터 넘깁니다(A44). 일정 범위는 오류여도 붙들려 남으므로, 화면에 들어올 때·달을
 ///   넘길 때·다시 시도할 때 오류로 남은 범위를 다시 받습니다(연결이 돌아오면 배너가 걷힘).
 class CalendarScreen extends ConsumerStatefulWidget {
   /// calendar 화면을 만듭니다.
@@ -294,7 +295,8 @@ class _CalendarBody extends StatelessWidget {
           if (failure != null) ...[
             ErrorState(
               error: failure is AppError ? failure : UnexpectedError(failure),
-              onRetry: onRetry,
+              // 범위 밖 달은 다시 받아도 같은 답이라 다시 시도를 두지 않습니다(A44).
+              onRetry: isCalendarOutOfRange(failure) ? null : onRetry,
             ),
             const SizedBox(height: Space.s24),
           ],
