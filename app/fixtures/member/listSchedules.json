@@ -1,0 +1,44 @@
+{
+  "status": 200,
+  "body": {
+    "items": [
+      {
+        "id": "5b0d7c2e-1f3a-4c8e-9a61-2d4f6b8e0a11",
+        "date": "2026-10-13",
+        "allDay": true,
+        "title": "엄마 생신",
+        "memo": "케이크는 저녁에 찾아오기",
+        "createdAt": "2026-10-01T03:00:00Z",
+        "updatedAt": "2026-10-01T03:00:00Z"
+      },
+      {
+        "id": "8c3e1a4b-7d2f-4e6a-b5c9-0f1e2d3c4b22",
+        "date": "2026-10-13",
+        "allDay": false,
+        "time": "09:07",
+        "title": "팀 주간 회의",
+        "createdAt": "2026-10-10T08:30:00Z",
+        "updatedAt": "2026-10-11T01:15:00Z"
+      },
+      {
+        "id": "2f6a9d1c-4b8e-4a3f-8c7d-6e5b4a3c2d33",
+        "date": "2026-10-13",
+        "allDay": false,
+        "time": "19:00",
+        "title": "요가 수업",
+        "createdAt": "2026-10-05T12:00:00Z",
+        "updatedAt": "2026-10-05T12:00:00Z"
+      },
+      {
+        "id": "9e4b2c7a-3d1f-4f5e-a8b6-1c0d9e8f7a44",
+        "date": "2026-10-20",
+        "allDay": false,
+        "time": "14:00",
+        "title": "치과 정기 검진",
+        "memo": "보험증 챙기기",
+        "createdAt": "2026-10-12T06:20:00Z",
+        "updatedAt": "2026-10-12T06:20:00Z"
+      }
+    ]
+  }
+}

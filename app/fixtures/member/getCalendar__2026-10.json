@@ -1,0 +1,1647 @@
+{
+  "status": 200,
+  "body": {
+    "year": 2026,
+    "month": 10,
+    "rulesetVersion": "r1",
+    "evidenceAccess": "locked",
+    "days": [
+      {
+        "date": "2026-10-01",
+        "pillar": {
+          "stem": "mu",
+          "branch": "shin"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 21,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-02",
+        "pillar": {
+          "stem": "gi",
+          "branch": "yu"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 22,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-03",
+        "pillar": {
+          "stem": "gyeong",
+          "branch": "sul"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 23,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "caution",
+        "score": -4,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.caution",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "조심할 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-04",
+        "pillar": {
+          "stem": "sin",
+          "branch": "hae"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 24,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-05",
+        "pillar": {
+          "stem": "im",
+          "branch": "ja"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 25,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-06",
+        "pillar": {
+          "stem": "gye",
+          "branch": "chuk"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 26,
+          "isLeapMonth": false
+        },
+        "dayKind": "gwiin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gwiin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "천을귀인",
+                "term": "tag.cheoneul_gwiin"
+              },
+              {
+                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-07",
+        "pillar": {
+          "stem": "gap",
+          "branch": "in"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 27,
+          "isLeapMonth": false
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-08",
+        "pillar": {
+          "stem": "eul",
+          "branch": "myo"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 28,
+          "isLeapMonth": false
+        },
+        "solarTerm": {
+          "kind": "hallo",
+          "at": "2026-10-08T15:29:17+09:00"
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-09",
+        "pillar": {
+          "stem": "byeong",
+          "branch": "jin"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 29,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-10",
+        "pillar": {
+          "stem": "jeong",
+          "branch": "sa"
+        },
+        "lunar": {
+          "month": 8,
+          "day": 30,
+          "isLeapMonth": false
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-11",
+        "pillar": {
+          "stem": "mu",
+          "branch": "o"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 1,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-12",
+        "pillar": {
+          "stem": "gi",
+          "branch": "mi"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 2,
+          "isLeapMonth": false
+        },
+        "dayKind": "gwiin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gwiin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "천을귀인",
+                "term": "tag.cheoneul_gwiin"
+              },
+              {
+                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "good",
+        "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.good",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "잘 풀리는 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-13",
+        "pillar": {
+          "stem": "gyeong",
+          "branch": "shin"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 3,
+          "isLeapMonth": false
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-14",
+        "pillar": {
+          "stem": "sin",
+          "branch": "yu"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 4,
+          "isLeapMonth": false
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-15",
+        "pillar": {
+          "stem": "im",
+          "branch": "sul"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 5,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "caution",
+        "score": -4,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.caution",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "조심할 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-16",
+        "pillar": {
+          "stem": "gye",
+          "branch": "hae"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 6,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-17",
+        "pillar": {
+          "stem": "gap",
+          "branch": "ja"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 7,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-18",
+        "pillar": {
+          "stem": "eul",
+          "branch": "chuk"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 8,
+          "isLeapMonth": false
+        },
+        "dayKind": "gwiin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gwiin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "천을귀인",
+                "term": "tag.cheoneul_gwiin"
+              },
+              {
+                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-19",
+        "pillar": {
+          "stem": "byeong",
+          "branch": "in"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 9,
+          "isLeapMonth": false
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-20",
+        "pillar": {
+          "stem": "jeong",
+          "branch": "myo"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 10,
+          "isLeapMonth": false
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-21",
+        "pillar": {
+          "stem": "mu",
+          "branch": "jin"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 11,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-22",
+        "pillar": {
+          "stem": "gi",
+          "branch": "sa"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 12,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-23",
+        "pillar": {
+          "stem": "gyeong",
+          "branch": "o"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 13,
+          "isLeapMonth": false
+        },
+        "solarTerm": {
+          "kind": "sanggang",
+          "at": "2026-10-23T18:37:57+09:00"
+        },
+        "dayKind": "ordinary_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.ordinary_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-24",
+        "pillar": {
+          "stem": "sin",
+          "branch": "mi"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 14,
+          "isLeapMonth": false
+        },
+        "dayKind": "gwiin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gwiin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "천을귀인",
+                "term": "tag.cheoneul_gwiin"
+              },
+              {
+                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "good",
+        "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.good",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "잘 풀리는 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-25",
+        "pillar": {
+          "stem": "im",
+          "branch": "shin"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 15,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "good",
+        "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.good",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "잘 풀리는 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-26",
+        "pillar": {
+          "stem": "gye",
+          "branch": "yu"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 16,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "good",
+        "score": 3,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.good",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "잘 풀리는 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-27",
+        "pillar": {
+          "stem": "gap",
+          "branch": "sul"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 17,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "caution",
+        "score": -4,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.caution",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "조심할 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-28",
+        "pillar": {
+          "stem": "eul",
+          "branch": "hae"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 18,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-29",
+        "pillar": {
+          "stem": "byeong",
+          "branch": "ja"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 19,
+          "isLeapMonth": false
+        },
+        "dayKind": "yongsin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.yongsin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "good",
+        "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.good",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "잘 풀리는 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-30",
+        "pillar": {
+          "stem": "jeong",
+          "branch": "chuk"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 20,
+          "isLeapMonth": false
+        },
+        "dayKind": "gwiin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gwiin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "천을귀인",
+                "term": "tag.cheoneul_gwiin"
+              },
+              {
+                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "date": "2026-10-31",
+        "pillar": {
+          "stem": "mu",
+          "branch": "in"
+        },
+        "lunar": {
+          "month": 9,
+          "day": 21,
+          "isLeapMonth": false
+        },
+        "dayKind": "gisin_day",
+        "characterReason": {
+          "slot": "character.reason",
+          "messageKey": "character.reason.gisin_day",
+          "variant": "1",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."
+              }
+            ]
+          }
+        },
+        "luckLevel": "neutral",
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "level": {
+          "slot": "calendar.day_level",
+          "messageKey": "calendar.neutral",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "무난한 날"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "notices": []
+  }
+}

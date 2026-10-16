@@ -7,8 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/api_route.dart';
+import 'package:myungli_diary/core/api/fake/fake_schedule_store.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 
 /// 현재 시나리오. 앱 시작 코드가 `loadScenarios`로 고른 값을 override합니다.
 final scenarioProvider = Provider<Scenario>(
@@ -85,11 +87,19 @@ final class FakeServerInterceptor extends Interceptor {
       for (final entry in options.headers.entries)
         entry.key.toLowerCase(): '${entry.value}',
     });
-    final fixture = await _findFixture(route, routePathOf(options));
+    final path = routePathOf(options);
+    final fixture = await _findFixture(route, path);
+    final stored = await _answerFromScheduleStore(
+      route,
+      path,
+      options,
+      fixture,
+    );
     _respond(
       options,
       handler,
-      fixture ??
+      stored ??
+          fixture ??
           _problem(
             501,
             'not_implemented',
@@ -118,6 +128,87 @@ final class FakeServerInterceptor extends Interceptor {
   @visibleForTesting
   List<Map<String, String>> requestHeadersOf(String operationId) =>
       List.unmodifiable(_requestHeaders[operationId] ?? const []);
+
+  Future<FakeScheduleStore>? _scheduleStore;
+
+  /// 일정 operation이면 대역 일정 저장소로 답합니다. 그 밖의 operation이면 null입니다.
+  ///
+  /// 시나리오가 그 operation의 파일을 따로 두면(오류 시나리오) 파일이 우선이라 null을
+  /// 돌려줍니다. `listSchedules` 파일은 200이면 저장소의 처음 목록이고, 그 밖의 status면
+  /// 파일이 답합니다.
+  Future<_Fixture?> _answerFromScheduleStore(
+    ApiRoute route,
+    String path,
+    RequestOptions options,
+    _Fixture? fixture,
+  ) async {
+    final operationId = route.operationId;
+    if (!_scheduleOperations.contains(operationId)) {
+      return null;
+    }
+    final fileWins = operationId == 'listSchedules'
+        ? fixture != null && fixture.status != 200
+        : fixture != null;
+    if (fileWins) {
+      return null;
+    }
+    final store = await (_scheduleStore ??= _loadScheduleStore());
+    final id = route.pathParametersOf(path)?['id'];
+    try {
+      switch (operationId) {
+        case 'listSchedules':
+          final query = options.queryParameters;
+          return _ok(
+            200,
+            store.list(
+              from: query['from'] as String?,
+              to: query['to'] as String?,
+            ),
+          );
+        case 'createSchedule':
+          final schedule = store.create(
+            options.data,
+            idempotencyKey: _headerOf(options, 'idempotency-key'),
+          );
+          return _ok(
+            201,
+            schedule,
+            headers: {'location': '/v1/schedules/${schedule['id']}'},
+          );
+        case 'updateSchedule':
+          return _ok(200, store.update(id!, options.data));
+        default:
+          store.delete(id!);
+          return const _Fixture(status: 204, headers: {}, body: null);
+      }
+    } on FakeProblem catch (problem) {
+      return _problem(
+        problem.status,
+        problem.code,
+        problem.title,
+        problem.detail,
+      );
+    }
+  }
+
+  /// 시나리오의 `listSchedules` 파일(첫 응답이 200일 때 그 `items`)로 저장소를 시작합니다.
+  /// 파일이 없으면 빈 저장소입니다. 시각은 시나리오 시계(오늘 현지 정오)입니다.
+  Future<FakeScheduleStore> _loadScheduleStore() async {
+    final found = await findFixtureSource(const ['listSchedules.json']);
+    final first = found == null
+        ? null
+        : _parseFixture(found.source, found.key).first;
+    final body = first?.status == 200 ? first!.body : null;
+    final items = body is Map<String, Object?> ? body['items'] : null;
+    final clock = noonClockOn(scenario.today, scenario.timezone);
+    return FakeScheduleStore(
+      seed: [
+        if (items is List<Object?>)
+          for (final item in items) Map<String, Object?>.from(item! as Map),
+      ],
+      nowUtc: clock.nowUtc,
+    );
+  }
 
   /// fixture 파일 경로별 지금까지의 호출 수(`sequence` 순서용).
   final _callCounts = <String, int>{};
@@ -222,6 +313,34 @@ final class FakeServerInterceptor extends Interceptor {
       },
     );
   }
+}
+
+/// 대역 일정 저장소가 답하는 operation.
+const _scheduleOperations = {
+  'listSchedules',
+  'createSchedule',
+  'updateSchedule',
+  'deleteSchedule',
+};
+
+_Fixture _ok(
+  int status,
+  Map<String, Object?> body, {
+  Map<String, String> headers = const {},
+}) => _Fixture(
+  status: status,
+  headers: {Headers.contentTypeHeader: _jsonMediaType, ...headers},
+  body: body,
+);
+
+/// 요청 헤더 [name](소문자)의 값. 없으면 null입니다.
+String? _headerOf(RequestOptions options, String name) {
+  for (final entry in options.headers.entries) {
+    if (entry.key.toLowerCase() == name && entry.value != null) {
+      return '${entry.value}';
+    }
+  }
+  return null;
 }
 
 const _jsonMediaType = 'application/json';

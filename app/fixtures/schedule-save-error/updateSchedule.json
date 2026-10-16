@@ -1,0 +1,10 @@
+{
+  "status": 503,
+  "body": {
+    "type": "https://api.myungli.app/problems/service.unavailable",
+    "title": "Service unavailable",
+    "status": 503,
+    "code": "service.unavailable",
+    "traceId": "fake-server"
+  }
+}

@@ -68,6 +68,32 @@
         "yu": "유",
         "sul": "술",
         "hae": "해"
+      },
+      "solar_term": {
+        "sohan": "소한",
+        "daehan": "대한",
+        "ipchun": "입춘",
+        "usu": "우수",
+        "gyeongchip": "경칩",
+        "chunbun": "춘분",
+        "cheongmyeong": "청명",
+        "gogu": "곡우",
+        "ipha": "입하",
+        "soman": "소만",
+        "mangjong": "망종",
+        "haji": "하지",
+        "soseo": "소서",
+        "daeseo": "대서",
+        "ipchu": "입추",
+        "cheoseo": "처서",
+        "baengno": "백로",
+        "chubun": "추분",
+        "hallo": "한로",
+        "sanggang": "상강",
+        "ipdong": "입동",
+        "soseol": "소설",
+        "daeseol": "대설",
+        "dongji": "동지"
       }
     },
     "meanings": {

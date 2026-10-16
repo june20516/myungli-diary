@@ -161,3 +161,5 @@ flutter:
     - fixtures/reaction-delete-failed/
     - fixtures/evidence-unlocked/
     - fixtures/reward-unlock/
+    - fixtures/calendar-error/
+    - fixtures/schedule-save-error/
