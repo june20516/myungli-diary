@@ -11,10 +11,10 @@
 - {slot: chart.ilgan_head, key: ilgan.head.gyeong, text: "{name}님, 다듬기 전의 단단한 쇠를 닮았어요."}
 - {slot: chart.ilgan_head, key: ilgan.head.sin, text: "{name}님, 곱게 다듬은 보석 같아요."}
 - {slot: chart.ilgan_head, key: ilgan.head.im, text: "{name}님, 멀리 흘러가는 큰 강을 닮았어요."}
-- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}님, 조용히 내리는 빗물 같아요."}
+- {slot: chart.ilgan_head, key: ilgan.head.gye, text: "{name}님, 맑게 고인 샘물을 닮았어요."}
 - {slot: chart.ilgan_body, key: ilgan.body.gap, text: "한번 정한 방향은 쉽게 바꾸지 않는 편이에요. 오래 걸리는 일을 끝까지 해낼 때 그 힘이 잘 보여요."}
 - {slot: chart.ilgan_body, key: ilgan.body.eul, text: "상황에 맞춰 몸을 낮추고 길을 찾는 편이에요. 낯선 곳에서도 금세 자리를 잡는 데서 그 힘이 보여요."}
-- {slot: chart.ilgan_body, key: ilgan.body.byeong, text: "생각과 마음을 숨기지 않고 드러내는 편이에요. 분위기를 띄우거나 앞에 나서야 할 때 사람들이 먼저 알아봐요."}
+- {slot: chart.ilgan_body, key: ilgan.body.byeong, text: "숨김없이 솔직한 편이에요. 앞에 나서야 할 때 망설이지 않아요."}
 - {slot: chart.ilgan_body, key: ilgan.body.jeong, text: "가까운 사람의 마음을 세심하게 살피는 편이에요. 한 사람을 오래 곁에서 챙길 때 그 따뜻함이 잘 드러나요."}
 - {slot: chart.ilgan_body, key: ilgan.body.mu, text: "쉽게 흔들리지 않고 주변을 품는 편이에요. 여러 사람 사이에서 중심을 잡아야 할 때 든든한 기둥이 돼요."}
 - {slot: chart.ilgan_body, key: ilgan.body.gi, text: "사람과 일을 차근차근 키워 내는 편이에요. 무언가를 가르치거나 꾸준히 가꾸는 일에서 힘을 내요."}

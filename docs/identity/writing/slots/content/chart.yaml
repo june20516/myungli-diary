@@ -24,8 +24,8 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: yongsin.method.johu, text: "태어난 계절의 온도를 맞추는 오행으로 [[용신]]을 정했어요.", why: "판정 방식을 일상어로", source: writing}
-      - {lang: ko, key: yongsin.method.eokbu, text: "넘치는 기운은 덜고 모자란 기운을 채우는 쪽으로 [[용신]]을 골랐어요.", why: "억부를 쉬운 말로", source: writing}
+      - {lang: ko, key: yongsin.method.johu, text: "태어난 계절의 온도를 맞추는 오행으로 [[용신|role.yongsin]]을 정했어요.", why: "판정 방식을 일상어로", source: writing}
+      - {lang: ko, key: yongsin.method.eokbu, text: "넘치는 기운은 덜고 모자란 기운을 채우는 쪽으로 [[용신|role.yongsin]]을 골랐어요.", why: "억부를 쉬운 말로", source: writing}
     bad:
       - {lang: ko, text: "조후(계절의 온도 조절)를 기준으로 용신을 산출합니다.", why: "괄호 풀이 style.S1, 합니다체 style.S3, 기술 어휘 slop.P9", source: writing}
   depth:

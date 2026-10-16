@@ -18,8 +18,8 @@
   purpose: info
   user_state: 나의 사주 화면에서 일간을 눌러 근거까지 펼쳤습니다. 이 글자가 내 사주에서 어떤 바탕인지 알고 싶습니다.
   structure: >-
-    두 문장. ① 이 일간이 어떤 기운인지 한 조각과 강약({strength}). ② 그래서 어떤 오행({yongsin})이 힘이 되고
-    어떤 오행({gisin})은 덜어 내는 편이 좋은지. 일간 이름은 키에 들어 있으니 토큰([[갑목]])으로 씁니다.
+    두 문장. ① 내 사주의 일간과 강약({strength}). ② 어떤 오행({yongsin})이 균형을 잡아 주어 가까이하고
+    어떤 오행({gisin})은 덜어 내면 좋은지(R10-4). 일간 이름은 키에 들어 있으니 토큰([[갑목|stem.gap]])으로 씁니다.
     판정 과정(점수, 조후표)은 같은 시트의 판정 근거 구역이 맡으므로 반복하지 않습니다.
   depth:
     evidence: 일간의 성질 × 내 강약 × 용신·기신. 일반 뜻은 explain 깊이에 있으므로 내 사주에만 해당하는 말을 씁니다.
@@ -43,7 +43,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: personal.day_master.gap, text: "곧게 자라는 나무 같은 [[갑목]]인데, 내 사주에서는 힘이 조금 약한 편이에요. 물 기운이 곁에 있을 때 힘이 나고, 쇠 기운은 덜어 내는 편이 좋아요.", why: "일간 성질 한 조각 + 강약 + 용신·기신을 일상어로", source: writing}
+      - {lang: ko, key: personal.day_master.byeong, text: "내 사주의 [[병화|stem.byeong]]는 힘이 아주 약한 편이에요. 목 기운이 균형을 잡아 주니 가까이하고, 수 기운은 덜어 내면 좋아요.", why: "내 일간의 강약 + 용신·기신을 이유와 함께(R10-4)", source: round-R10-4}
     bad:
       - {lang: ko, key: personal.day_master.gap, text: "갑목(甲木) 일간은 신약하므로 수(水)를 용신으로 합니다.", why: "괄호 풀이 style.S1, 합니다체 style.S3, 판정 근거 구역과 중복", source: writing}
       - {lang: ko, key: personal.day_master.gap, text: "갑목은 리더의 기운이에요. 당신은 타고난 리더예요.", why: "누구에게나 같은 일반 뜻(explain 몫), 당신 style.S6, 성격 단정", source: writing}
@@ -56,9 +56,8 @@
   purpose: info
   user_state: 원국 표의 한 칸에 적힌 십성을 눌렀습니다. 그 자리에 그 십성이 있다는 게 나에게 무슨 뜻인지 알고 싶습니다.
   structure: >-
-    두 문장. ① 자리({place})에 있는 이 십성이 그 자리에서 무엇을 나타내는지. ② 그 오행({element})이
-    내 사주에서 맡는 역할({role})과, 같은 묶음이 많을 때({group_count}) 그 기운이 짙다는 것.
-    강약({strength})은 이 십성이 힘이 되는지 짐이 되는지를 가를 때만 씁니다. 십성 이름은 키에 들어 있으니 토큰으로 씁니다.
+    두 문장. ① 자리({place})에 있는 이 십성이 그 자리에서 무엇을 나타내는지. ② "이 자리의 오행 {element}(은)는 {role}(이)에요"로 역할을 사실로 말합니다(W31).
+    같은 묶음 수({group_count})와 강약({strength})은 쓰지 않습니다(R10-5). 십성 이름은 키에 들어 있으니 토큰으로 씁니다.
   depth:
     evidence: 십성 × 자리 × 역할. 십성의 일반 뜻은 explain 깊이에 있습니다.
   endings: ["~이에요", "~있어요", "~짙은 편이에요"]
@@ -81,7 +80,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: personal.ten_god.siksin, text: "태어난 달의 천간에 [[식신]]이 있어, 일하고 표현하는 힘이 바탕에 깔려 있어요. 이 자리의 불 기운은 내 사주를 돕는 쪽이고, 식상이 3개라 그 기운이 짙은 편이에요.", why: "자리 의미 + 역할 + 쏠림을 사실로", source: writing}
+      - {lang: ko, key: personal.ten_god.pyeongwan, text: "태어난 날의 지지에 [[편관|ten_god.pyeongwan]]이 있어, 부담이 와도 버티며 밀고 나가는 힘이 있어요. 이 자리의 오행 금은 나와 안 맞는 기운이에요.", why: "자리 의미 + 역할을 사실로(R10-5)", source: round-R10-5}
     bad:
       - {lang: ko, key: personal.ten_god.siksin, text: "식신은 먹을 복을 뜻해요.", why: "자리·역할이 없는 일반 뜻(explain 몫)", source: writing}
       - {lang: ko, key: personal.ten_god.pyeongwan, text: "기신 자리의 편관이라 평생 시달릴 수 있어요.", why: "겁주는 단정. 기신은 조심할 쪽을 알려 주는 말로 씁니다", source: writing}
@@ -94,8 +93,8 @@
   purpose: info
   user_state: 만세력의 12운성 칸을 눌렀습니다. 그 지지 자리의 기운이 어떤 상태인지 알고 싶습니다.
   structure: >-
-    두 문장. ① 자리({place})에서 일간의 기운이 이 단계라는 것이 무엇을 나타내는지. ② 그 지지 오행({element})의
-    역할({role})과 강약({strength})에 비추어 그 기운을 어떻게 쓰면 좋은지. 12운성 이름은 토큰으로 씁니다.
+    두 문장. ① 자리({place})에서 일간의 기운이 이 단계라는 것이 무엇을 나타내는지를 "~자리예요"로 맺습니다(R10-7). ② 그 지지 오행({element})의
+    역할({role})을 사실로 말합니다(W31). 강약({strength})은 쓰지 않습니다. 12운성은 용어 id가 없어 토큰 없이 씁니다.
   depth:
     evidence: 12운성 × 자리 × 역할·강약. 단계의 일반 뜻은 explain 깊이에 있습니다.
   endings: ["~이에요", "~있어요"]
@@ -120,7 +119,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: personal.twelve_stage.jewang, text: "태어난 날의 지지에서 내 기운이 [[제왕]]에 있어, 가까운 관계에서 힘이 가장 세게 드러나요. 다만 내 사주는 이미 힘이 센 편이라, 이 자리에서는 한발 물러서는 쪽이 균형이 맞아요.", why: "자리 의미 + 강약에 비춘 쓰임", source: writing}
+      - {lang: ko, key: personal.twelve_stage.sa, text: "태어난 날의 지지에서 내 기운은 사 단계라, 움직임은 잦아들고 생각이 깊어지는 자리예요. 이 자리의 오행 수는 나와 잘 맞는 기운이에요.", why: "불길한 이름도 쓰임으로, 자리로 맺음(R10-7)", source: round-R10-7}
     bad:
       - {lang: ko, key: personal.twelve_stage.sa, text: "[[사]]는 죽음을 뜻해요. 조심하세요.", why: "글자 뜻을 그대로 겁주기, 자리·역할 없음", source: writing}
   a11y:
@@ -132,8 +131,8 @@
   purpose: info
   user_state: 만세력에 표시된 신살을 눌렀습니다. 이름이 낯설거나 걱정스러워 내 경우에 무슨 뜻인지 확인하려 합니다.
   structure: >-
-    한두 문장. ① 자리({place})에 있는 이 신살이 그 자리에서 어떤 쪽으로 드러나는지. ② 그 자리 오행({element})의
-    역할({role})에 따라 살리면 좋은 쪽을 말합니다. 흉살로 불리는 신살(양인·공망 등)도 겁주지 않고 쓰임으로 씁니다.
+    한두 문장. ① 자리({place})에 있는 이 신살이 그 자리에서 어떤 쪽으로 드러나는지와 쓰임. ② 그 자리 오행({element})의
+    역할({role})을 사실로 말합니다(W31, R10-6). 흉살로 불리는 신살(양인·공망 등)도 겁주지 않고 쓰임으로 씁니다.
   depth:
     evidence: 신살 × 자리 × 역할. 신살의 일반 뜻은 explain 깊이에 있습니다.
   endings: ["~이에요", "~드러나요", "~살리면 좋아요"]
@@ -152,7 +151,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: personal.shinsal.yeokma, text: "태어난 해의 지지에 [[역마]]가 있어, 집안이나 어린 시절부터 움직임이 많은 바탕이에요. 이 자리의 나무 기운은 내 사주를 돕는 쪽이라, 옮기고 넓히는 일에서 살리면 좋아요.", why: "자리 의미 + 역할에 따른 쓰임", source: writing}
+      - {lang: ko, key: personal.shinsal.yangin, text: "태어난 달의 지지에 [[양인|shinsal.yangin]]이 있어, 밀어붙이는 힘과 결단이 세게 드러나요. 이 자리의 오행 화는 나와 잘 맞는 기운이에요.", why: "흉살도 겁주지 않고, 둘째 문장은 역할 사실(R10-6)", source: round-R10-6}
     bad:
       - {lang: ko, key: personal.shinsal.yangin, text: "양인살이 있으면 사고를 조심해야 해요.", why: "겁주는 단정, 자리·역할 없음", source: writing}
   a11y:
@@ -167,7 +166,7 @@
     두 문장. 원국 해석과 달리 "타고난 바탕"이 아니라 "그 시기"의 틀로 씁니다.
     ① 십성 키: 운의 종류({luck})와 기둥의 천간·지지({part})에 든 이 십성이 그 시기에 무엇을 가져오는지.
     12운성 키: 그 대운에서 내 기운이 이 단계라는 것이 무엇을 나타내는지.
-    ② 그 오행({element})이 내 사주에서 맡는 역할({role})에 비추어 그 시기를 어떻게 보내면 좋은지.
+    ② "들어온 오행 {element}(은)는 {role}(이)에요"처럼 그 오행의 역할을 사실로 말합니다(W31).
     지금 지나는 운인지(current)는 문장에 쓰지 않으므로 "지금"·"올해" 같은 시점 말을 넣지 않습니다.
   depth:
     evidence: 운의 십성·12운성 × 역할. 일반 뜻은 explain 깊이에 있습니다.
@@ -205,7 +204,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: personal.luck.ten_god.jeongin, text: "이 대운의 천간에 [[정인]]이 들어, 배우고 기대는 일이 늘어나는 시기예요. 그 물 기운이 내 사주를 돕는 쪽이라, 공부나 자격처럼 오래 쌓는 일을 시작하기 좋아요.", why: "그 시기의 틀 + 역할에 비춘 쓰임, 시점 말 없음", source: writing}
+      - {lang: ko, key: personal.luck.ten_god.jeongin, text: "이 대운의 천간에 [[정인|ten_god.jeongin]]이 들어, 배우고 기대는 일이 늘어나는 시기예요. 들어온 오행 수는 나와 잘 맞는 기운이에요.", why: "그 시기의 틀 + 역할, 시점 말 없음", source: writing}
     bad:
       - {lang: ko, key: personal.luck.ten_god.jeongin, text: "지금 대운에 정인이 들어와 있어요.", why: "current를 문장에 쓰지 않으므로 지난 운·다음 운에서 틀린 말이 됨", source: writing}
   a11y:

@@ -140,5 +140,25 @@
     ],
     "status": "chosen",
     "note": "총운 state만 호칭, 보조 문장 토큰 없음, 쏠림 태그 '<묶음>이 많은 날'. 가이드 질문 기준·태그라인은 보류"
+  },
+  {
+    "id": "round-R10",
+    "title": "라운드 R10 — W1-2 사주·개인 해석 표본",
+    "kind": "copy-sample",
+    "file": "2026-10-17-round-R10.md",
+    "date": "2026-10-17",
+    "milestone": "W1",
+    "screens": [
+      "my-saju",
+      "saju-chart",
+      "evidence-sheet",
+      "today",
+      "diary-edit"
+    ],
+    "decisions": [
+      "W31"
+    ],
+    "status": "chosen",
+    "note": "개인 해석 둘째 문장은 역할 사실, 오행 목·화·토·금·수, 역할 '나와 잘 맞는 기운'류, 가이드 질문 과거형·전제 없음(①②)"
   }
 ]

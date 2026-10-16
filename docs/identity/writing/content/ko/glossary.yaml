@@ -26,11 +26,11 @@
 - {slot: glossary.value_name, key: direction8.w, text: "서"}
 - {slot: glossary.value_name, key: direction8.nw, text: "북서"}
 # 오행·색·개인 해석 조각(W1-2). 조각은 문장 안에 끼워 읽히는 명사구입니다(W16).
-- {slot: glossary.value_name, key: element.wood, text: "나무"}
-- {slot: glossary.value_name, key: element.fire, text: "불"}
-- {slot: glossary.value_name, key: element.earth, text: "흙"}
-- {slot: glossary.value_name, key: element.metal, text: "쇠"}
-- {slot: glossary.value_name, key: element.water, text: "물"}
+- {slot: glossary.value_name, key: element.wood, text: "목"}
+- {slot: glossary.value_name, key: element.fire, text: "화"}
+- {slot: glossary.value_name, key: element.earth, text: "토"}
+- {slot: glossary.value_name, key: element.metal, text: "금"}
+- {slot: glossary.value_name, key: element.water, text: "수"}
 - {slot: glossary.value_name, key: color.wood, text: "초록"}
 - {slot: glossary.value_name, key: color.fire, text: "빨강"}
 - {slot: glossary.value_name, key: color.earth, text: "노랑"}
@@ -48,10 +48,10 @@
 - {slot: glossary.value_name, key: place.month_branch_hidden, text: "태어난 달 지지 속"}
 - {slot: glossary.value_name, key: place.day_branch_hidden, text: "태어난 날 지지 속"}
 - {slot: glossary.value_name, key: place.hour_branch_hidden, text: "태어난 시 지지 속"}
-- {slot: glossary.value_name, key: role.yongsin, text: "내 사주를 돕는 쪽"}
-- {slot: glossary.value_name, key: role.huisin, text: "도움을 보태는 쪽"}
-- {slot: glossary.value_name, key: role.gisin, text: "조심하면 좋은 쪽"}
-- {slot: glossary.value_name, key: role.neutral, text: "어느 편도 아닌 쪽"}
+- {slot: glossary.value_name, key: role.yongsin, text: "나와 잘 맞는 기운"}
+- {slot: glossary.value_name, key: role.huisin, text: "곁에서 돕는 기운"}
+- {slot: glossary.value_name, key: role.gisin, text: "나와 안 맞는 기운"}
+- {slot: glossary.value_name, key: role.neutral, text: "무난한 기운"}
 - {slot: glossary.value_name, key: strength.very_weak, text: "힘이 아주 약한 편"}
 - {slot: glossary.value_name, key: strength.weak, text: "힘이 약한 편"}
 - {slot: glossary.value_name, key: strength.neutral, text: "힘이 고른 편"}
