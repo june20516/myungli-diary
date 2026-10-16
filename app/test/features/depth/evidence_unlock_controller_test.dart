@@ -145,7 +145,7 @@ _open(ProviderContainer container) {
   final events = <UnlockEvent>[];
   final eventSubscription = container
       .read(_provider.notifier)
-      .events
+      .watchEvents()
       .listen(events.add);
   addTearDown(eventSubscription.cancel);
   return (subscription: subscription, events: events);
@@ -391,7 +391,7 @@ void main() {
       var closed = false;
       final done = container
           .read(_provider.notifier)
-          .events
+          .watchEvents()
           .listen(null, onDone: () => closed = true);
       addTearDown(done.cancel);
       await _prepared(tester, container);
@@ -902,7 +902,7 @@ void main() {
       );
       container.listen(_testProvider, (_, _) {});
       final events = <UnlockEvent>[];
-      container.read(_testProvider.notifier).events.listen(events.add);
+      container.read(_testProvider.notifier).watchEvents().listen(events.add);
       await _until(tester, () => container.read(_testProvider).adReady);
       final asked = api.calls;
 

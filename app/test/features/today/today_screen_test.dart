@@ -37,6 +37,7 @@ import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
 import '../../support/reaction_not_found.dart';
+import '../../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
 final _today = CalendarDate(2026, 10, 13);
@@ -106,19 +107,8 @@ final class _DailyHold extends Interceptor {
   }
 }
 
-/// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
-final class _TestToday extends Notifier<CalendarDate> {
-  @override
-  CalendarDate build() => _today;
-
-  CalendarDate get date => state;
-
-  set date(CalendarDate value) => state = value;
-}
-
-final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
-  _TestToday.new,
-);
+final NotifierProvider<TestToday, CalendarDate> _testTodayProvider =
+    testTodayProvider(_today);
 
 void main() {
   setUpAll(ensureTimeZonesInitialized);
@@ -414,7 +404,7 @@ void main() {
     interceptors.insert(interceptors.length - 1, hold);
 
     final tomorrow = CalendarDate(2026, 10, 14);
-    container.read(_testTodayProvider.notifier).date = tomorrow;
+    container.read(_testTodayProvider.notifier).moveTo(tomorrow);
     await pumpUntil(tester, () => hold.paths.isNotEmpty, allowOngoing: true);
     await tester.pump(const Duration(milliseconds: 400));
     // 다시 받는 동안 controller에는 어제 값이 남아 있지만 화면은 "오늘"로 보이지 않습니다.

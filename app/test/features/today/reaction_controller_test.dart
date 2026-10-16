@@ -25,6 +25,7 @@ import 'package:myungli_diary/features/today/application/reaction_controller.dar
 import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
 import '../../support/reaction_not_found.dart';
+import '../../support/test_today.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
@@ -108,19 +109,8 @@ final _throwingKeyLookup = <Override>[
   ),
 ];
 
-/// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
-final class _TestToday extends Notifier<CalendarDate> {
-  @override
-  CalendarDate build() => CalendarDate(2026, 10, 13);
-
-  CalendarDate get date => state;
-
-  set date(CalendarDate value) => state = value;
-}
-
-final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
-  _TestToday.new,
-);
+final NotifierProvider<TestToday, CalendarDate> _testTodayProvider =
+    testTodayProvider(CalendarDate(2026, 10, 13));
 
 FakeCrashReporter _reporter(ProviderContainer container) =>
     container.read(crashReporterProvider) as FakeCrashReporter;
@@ -203,7 +193,7 @@ Future<SlotTextReactionEnum?> _cachedReaction(
   WidgetTester tester,
   ProviderContainer container,
 ) async {
-  final key = container.read(dailyControllerProvider.notifier).cacheKey!;
+  final key = container.read(dailyControllerProvider).value!.cacheKey!;
   final cached = await tester.runAsync<Daily?>(
     () => container.read(dailyRepositoryProvider).cached(key),
   );
@@ -407,11 +397,9 @@ void main() {
       headKey(dayBefore),
     });
 
-    container.read(_testTodayProvider.notifier).date = CalendarDate(
-      2026,
-      10,
-      14,
-    );
+    container
+        .read(_testTodayProvider.notifier)
+        .moveTo(CalendarDate(2026, 10, 14));
     await _until(
       tester,
       () =>
@@ -442,11 +430,9 @@ void main() {
     await _until(tester, () => tap.requests.length == 2);
 
     // 오늘(10-13) 요청이 붙잡힌 채 자정을 넘깁니다.
-    container.read(_testTodayProvider.notifier).date = CalendarDate(
-      2026,
-      10,
-      14,
-    );
+    container
+        .read(_testTodayProvider.notifier)
+        .moveTo(CalendarDate(2026, 10, 14));
     await _until(
       tester,
       () =>
@@ -666,7 +652,7 @@ void main() {
   ) async {
     final (container, tap) = await _boot(tester, scenario: 'reaction-failed');
     // 캐시에는 옛 반응(like)이 남아 있습니다.
-    final cacheKey = container.read(dailyControllerProvider.notifier).cacheKey!;
+    final cacheKey = container.read(dailyControllerProvider).value!.cacheKey!;
     await tester.runAsync(
       () => container
           .read(dailyRepositoryProvider)

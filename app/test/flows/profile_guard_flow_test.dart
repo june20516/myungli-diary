@@ -198,8 +198,9 @@ void main() {
 
   testWidgets('저장 거절 안내는 로그아웃하면 비웁니다', (tester) async {
     final container = await pumpApp(tester, scenario: 'member');
-    container.read(onboardingRejectionNoticeProvider.notifier).pending =
-        const OfflineError();
+    container
+        .read(onboardingRejectionNoticeProvider.notifier)
+        .leave(const OfflineError());
 
     await tester.runAsync(() => container.read(tokenStoreProvider).signOut());
     await tester.pumpAndSettle();

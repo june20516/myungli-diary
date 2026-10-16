@@ -39,6 +39,7 @@ import 'package:myungli_diary/testing/covers.dart';
 import '../support/app_harness.dart';
 import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart' show pumpUntil;
+import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
 
@@ -176,19 +177,8 @@ final class _UnlockRefetch extends Interceptor {
   }
 }
 
-/// 손으로 바꾸는 "오늘"(자정 넘김 흉내).
-final class _TestToday extends Notifier<CalendarDate> {
-  @override
-  CalendarDate build() => CalendarDate(2026, 10, 13);
-
-  CalendarDate get date => state;
-
-  set date(CalendarDate value) => state = value;
-}
-
-final _testTodayProvider = NotifierProvider<_TestToday, CalendarDate>(
-  _TestToday.new,
-);
+final NotifierProvider<TestToday, CalendarDate> _testTodayProvider =
+    testTodayProvider(CalendarDate(2026, 10, 13));
 
 Future<void> _closeSheet(WidgetTester tester) async {
   await tester.tapAt(const Offset(10, 10));
@@ -521,11 +511,9 @@ void main() {
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, hold);
 
-    container.read(_testTodayProvider.notifier).date = CalendarDate(
-      2026,
-      10,
-      14,
-    );
+    container
+        .read(_testTodayProvider.notifier)
+        .moveTo(CalendarDate(2026, 10, 14));
     await pumpUntil(tester, () => hold.requested, allowOngoing: true);
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);

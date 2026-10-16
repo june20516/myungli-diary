@@ -23,6 +23,7 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
+import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
 final _today = CalendarDate(2026, 10, 13);
@@ -97,26 +98,10 @@ DioException _problem(RequestOptions options, int status, String code) =>
       ),
     );
 
-/// 손으로 바꾸는 "오늘". 화면이 열린 채 자정을 넘기는 것을 흉내 냅니다.
-final class _TestToday extends Notifier<CalendarDate> {
-  new(this._start);
-
-  final CalendarDate _start;
-
-  @override
-  CalendarDate build() => _start;
-
-  CalendarDate get date => state;
-
-  set date(CalendarDate value) => state = value;
-}
-
 /// [start]에서 시작하는 손 "오늘"과 그것을 [todayProvider]에 잇는 override.
-({NotifierProvider<_TestToday, CalendarDate> provider, Override override})
+({NotifierProvider<TestToday, CalendarDate> provider, Override override})
 _todayFrom(CalendarDate start) {
-  final provider = NotifierProvider<_TestToday, CalendarDate>(
-    () => _TestToday(start),
-  );
+  final provider = testTodayProvider(start);
   return (
     provider: provider,
     override: todayProvider.overrideWith((ref) => ref.watch(provider)),
@@ -581,7 +566,7 @@ void main() {
     await tester.tapAt(const Offset(10, 10));
     await settleWithIo(tester);
 
-    container.read(today.provider.notifier).date = CalendarDate(2026, 11, 1);
+    container.read(today.provider.notifier).moveTo(CalendarDate(2026, 11, 1));
     await settleWithIo(tester);
     final view = _monthView(tester);
     expect(view.month, const CalendarMonth(2026, 10));
@@ -595,7 +580,7 @@ void main() {
     expect(_cell(tester, _today).isToday, isTrue);
 
     final tomorrow = CalendarDate(2026, 10, 14);
-    container.read(today.provider.notifier).date = tomorrow;
+    container.read(today.provider.notifier).moveTo(tomorrow);
     await settleWithIo(tester);
     expect(_cell(tester, _today).isToday, isFalse);
     expect(_cell(tester, tomorrow).isToday, isTrue);
