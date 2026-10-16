@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show FutureProviderFamily;
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -32,6 +34,26 @@ final todayDiaryExistsProvider = FutureProvider<bool>((ref) async {
     return false;
   }
 });
+
+/// 보이는 달 [CalendarMonth] 격자(gridStart~gridEnd)에서 일기를 쓴 날짜. 달력 도장(V19)을
+/// 찍습니다(A33).
+///
+/// 저장하지 않습니다(구독이 끝나면 버림, 다음 진입에서 다시 물음). 실패하면 빈 집합이라
+/// 도장 없이 그리고, 오류는 연결 없음까지 모두 crash 요약으로만 남깁니다(A33). 자동 재시도는
+/// 끕니다. 일기를 쓰고 돌아온 화면은 그 달을 invalidate해 다시 묻습니다.
+final FutureProviderFamily<Set<CalendarDate>, CalendarMonth>
+diaryDatesProvider = FutureProvider.autoDispose
+    .family<Set<CalendarDate>, CalendarMonth>((ref, month) async {
+      final repository = ref.watch(diaryRepositoryProvider);
+      try {
+        return await repository.datesIn(month.gridStart, month.gridEnd);
+      } on Object catch (error, stackTrace) {
+        ref
+            .read(crashReporterProvider)
+            .record(CrashSummary.from(error), stackTrace);
+        return const <CalendarDate>{};
+      }
+    }, retry: (_, _) => null);
 
 /// 통신 환경이나 server가 알린 실패인지(보고하지 않음).
 bool _expectedFailure(Object error) =>
