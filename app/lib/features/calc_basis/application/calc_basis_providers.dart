@@ -29,32 +29,39 @@ final lunarDateRepositoryProvider = Provider<LunarDateRepository>(
 /// 입력은 프로필 사본(로그인 뒤), 없으면 온보딩 입력입니다. 도시를 골랐거나(도시 경도를 모름),
 /// 해외 기기에서 도시를 아직 고르지 않았거나(출생지를 모름), 생년월일·시간을 아직 받지
 /// 않았거나, 음력 변환이 실패하면 null이라 경도 문단을 그리지 않습니다(A29).
-final calcBasisTimeBasisProvider = FutureProvider<TimeBasis?>((ref) async {
-  final repository = ref.watch(lunarDateRepositoryProvider);
-  final profile = await ref.watch(cachedProfileProvider.future);
-  // 프로필이 있으면 온보딩 입력은 보지 않습니다(바뀌어도 다시 계산하지 않음).
-  final birth = profile != null
-      ? _birthOfProfile(profile)
-      : _birthOfDraft(
-          await ref.watch(onboardingDraftProvider.future),
-          deviceRegionIsKorea: ref.watch(deviceRegionIsKoreaProvider),
-        );
-  if (birth == null) {
-    return null;
-  }
-  final DateTime solarDate;
-  try {
-    solarDate = await _solarDateOf(birth, repository);
-  } on Object {
-    // AppError뿐 아니라 예상 밖 예외도 문단을 그리지 않는 것으로 끝냅니다.
-    return null;
-  }
-  return timeBasisOf(
-    timezone: birth.timezone,
-    solarDate: solarDate,
-    time: birth.time,
-  );
-});
+///
+/// 구한 값은 세션 동안 두어 다시 열면 바로 보입니다. 음력 변환 실패는 두지 않으므로, 화면을
+/// 떠나면 버려지고 다시 열 때 다시 시도합니다.
+final FutureProvider<TimeBasis?> calcBasisTimeBasisProvider =
+    FutureProvider.autoDispose<TimeBasis?>((ref) async {
+      final repository = ref.watch(lunarDateRepositoryProvider);
+      final profile = await ref.watch(cachedProfileProvider.future);
+      // 프로필이 있으면 온보딩 입력은 보지 않습니다(바뀌어도 다시 계산하지 않음).
+      final birth = profile != null
+          ? _birthOfProfile(profile)
+          : _birthOfDraft(
+              await ref.watch(onboardingDraftProvider.future),
+              deviceRegionIsKorea: ref.watch(deviceRegionIsKoreaProvider),
+            );
+      if (birth == null) {
+        // 입력이 바뀌면 watch로 다시 계산하므로 두어도 됩니다.
+        ref.keepAlive();
+        return null;
+      }
+      final DateTime solarDate;
+      try {
+        solarDate = await _solarDateOf(birth, repository);
+      } on Object {
+        // AppError뿐 아니라 예상 밖 예외도 문단을 그리지 않는 것으로 끝냅니다.
+        return null;
+      }
+      ref.keepAlive();
+      return timeBasisOf(
+        timezone: birth.timezone,
+        solarDate: solarDate,
+        time: birth.time,
+      );
+    });
 
 /// 경도 보정에 필요한 출생 입력. 도시를 고른 입력은 담지 않습니다.
 typedef _BirthInput = ({

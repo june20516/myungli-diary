@@ -35,7 +35,11 @@ List<Override> _overrides(
   Future<TimeBasis?> Function() timeBasis,
   FakeCrashReporter crash,
 ) => [
-  calcBasisTimeBasisProvider.overrideWith((ref) => timeBasis()),
+  calcBasisTimeBasisProvider.overrideWith((ref) {
+    // 실제 provider처럼 받은 값은 화면을 떠나도 둡니다.
+    ref.keepAlive();
+    return timeBasis();
+  }),
   crashReporterProvider.overrideWithValue(crash),
 ];
 

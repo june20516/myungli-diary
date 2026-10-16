@@ -22,7 +22,8 @@ import 'package:myungli_diary/features/profile/application/profile_providers.dar
 class _FakeApi implements DefaultApi {
   new({this.solarDate});
 
-  final String? solarDate;
+  /// 돌려줄 양력 날짜. 테스트 중에 바꿔 실패 뒤 성공을 흉내 냅니다.
+  String? solarDate;
   final requests = <LunarDateRequest>[];
 
   @override
@@ -225,5 +226,45 @@ void main() {
     );
 
     expect(await container.read(calcBasisTimeBasisProvider.future), isNull);
+  });
+
+  group('다시 열 때', () {
+    /// 화면처럼 구독했다가 닫고, 구독이 없어 버려질 기회를 줍니다.
+    Future<TimeBasis?> openAndClose(ProviderContainer container) async {
+      final subscription = container.listen(
+        calcBasisTimeBasisProvider,
+        (_, _) {},
+      );
+      final basis = await container.read(calcBasisTimeBasisProvider.future);
+      subscription.close();
+      await container.pump();
+      return basis;
+    }
+
+    test('음력 변환이 실패했으면 버리고 다시 시도합니다', () async {
+      final api = _FakeApi();
+      final container = _container(
+        api: api,
+        profile: _profile(calendar: 'lunar'),
+      );
+
+      expect(await openAndClose(container), isNull);
+      api.solarDate = '1990-05-05';
+
+      expect(await openAndClose(container), _seoul0800);
+      expect(api.requests, hasLength(2));
+    });
+
+    test('받아 둔 값은 다시 계산하지 않습니다', () async {
+      final api = _FakeApi(solarDate: '1990-05-05');
+      final container = _container(
+        api: api,
+        profile: _profile(calendar: 'lunar'),
+      );
+
+      expect(await openAndClose(container), _seoul0800);
+      expect(await openAndClose(container), _seoul0800);
+      expect(api.requests, hasLength(1));
+    });
   });
 }
