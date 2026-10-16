@@ -16,12 +16,19 @@ core/에서 실행합니다(엔진 가상환경을 씁니다).
 from __future__ import annotations
 
 import json
+import math
 import sys
 from datetime import datetime
 
 from myungli_engine.calendar_core.birth import _local_to_utc
 from myungli_engine.calendar_core.time_basis import load_zone, standard_offset_hours
 from myungli_engine.constants.longitudes import representative_longitude
+
+
+def _round_half_away(value: float) -> int:
+    """Dart `num.round()`과 같은 반올림(.5는 0에서 먼 쪽). Python `round()`는 짝수 쪽이라 쓰지 않는다."""
+    return int(math.copysign(math.floor(abs(value) + 0.5), value))
+
 
 # 시각 모름은 엔진 `UNKNOWN_TIME_FALLBACK`과 같이 12:00으로 봅니다.
 UNKNOWN_TIME_FALLBACK = (12, 0)
@@ -100,7 +107,7 @@ def build_case(timezone: str, date: str, time: str | None, note: str) -> dict[st
         "date": date,
         "time": time,
         "longitude": longitude,
-        "correctionMinutes": round((longitude - standard_offset * 15) * 4),
+        "correctionMinutes": _round_half_away((longitude - standard_offset * 15) * 4),
         "daylightSavingMinutes": dst_minutes,
     }
 
