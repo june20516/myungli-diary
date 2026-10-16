@@ -2,7 +2,7 @@
 - {slot: force-update.notice.head, key: forceUpdateNoticeHead, text: "新しいバージョンにアップデートしてください"}
 - {slot: force-update.notice.body, key: forceUpdateNoticeBody, text: "読み解きの計算方法が変わったため、このバージョンでは開けません。"}
 - {slot: force-update.cta.store, key: forceUpdateCtaStore, text: "アップデートする"}
-- {slot: welcome.concept.head, key: welcomeConceptHead, text: "今日の日辰を、自分の命式に合わせて読み解きます"}
+- {slot: welcome.concept.head, key: welcomeConceptHead, text: "今日の干支を、自分の命式に合わせて読み解きます"}
 - {slot: welcome.concept.body, key: welcomeConceptBody, text: "読み解きに合わせた質問ひとつで、その日の日記を始めます。"}
 - {slot: welcome.cta.start, key: welcomeCtaStart, text: "はじめる"}
 - {slot: welcome.cta.signin, key: welcomeCtaSignin, text: "アカウントをお持ちの方"}

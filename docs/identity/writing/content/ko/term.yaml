@@ -1,0 +1,16 @@
+# 용어 뜻(term) 원고(ko). 태그 15개는 W1-1(#240, 오늘 화면 대표 태그 칩), 나머지는 W1-3.
+- {slot: term.meaning, key: term.tag.big_change, text: "내 사주의 날이나 달 자리와 크게 부딪히는 것으로, 익숙한 생활에 변화가 생기기 쉬워요."}
+- {slot: term.meaning, key: term.tag.cheoneul_gwiin, text: "가장 귀한 도움을 뜻하는 신살로, 뜻밖의 사람이 손을 내밀어 주기 쉬워요."}
+- {slot: term.meaning, key: term.tag.clash, text: "서로 반대되는 기운이 맞부딪히는 것으로, 계획이 바뀌거나 의견이 갈리기 쉬워요."}
+- {slot: term.meaning, key: term.tag.dohwa, text: "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."}
+- {slot: term.meaning, key: term.tag.gongmang, text: "비어 있는 자리를 뜻하는 신살로, 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어요."}
+- {slot: term.meaning, key: term.tag.gwiin_day, text: "나를 돕는 사람이 가까이 오는 날이라, 도움을 청하기 좋아요."}
+- {slot: term.meaning, key: term.tag.harmony, text: "서로 다른 기운이 맞물려 하나가 되는 것으로, 사람과 일이 잘 어울려요."}
+- {slot: term.meaning, key: term.tag.hwagae, text: "혼자 깊이 들여다보는 기운을 뜻하는 신살로, 생각이나 취미에 마음이 가기 쉬워요."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.bigyeop, text: "내 사주에 이미 많은 비겁이 그날 또 들어온 것으로, 나와 내 몫을 앞세우게 돼요."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.siksang, text: "내 사주에 이미 많은 식상이 그날 또 들어온 것으로, 말과 표현이 넘치기 쉬워요."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.jaeseong, text: "내 사주에 이미 많은 재성이 그날 또 들어온 것으로, 돈과 결과에 마음이 쏠려요."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.gwanseong, text: "내 사주에 이미 많은 관성이 그날 또 들어온 것으로, 책임과 규칙이 무겁게 느껴져요."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.inseong, text: "내 사주에 이미 많은 인성이 그날 또 들어온 것으로, 생각이 많아지고 기대고 싶어져요."}
+- {slot: term.meaning, key: term.tag.yeokma, text: "움직임을 뜻하는 신살로, 이동하거나 바깥에 나갈 일이 늘어요."}
+- {slot: term.meaning, key: term.tag.yongsin_day, text: "내 사주에 필요한 기운이 들어오는 날이라, 하던 일이 순하게 풀리기 쉬워요."}

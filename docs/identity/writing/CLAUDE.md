@@ -45,7 +45,11 @@
 ## 현재 상태 (2026-10-16, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230)가 main에 있습니다.
-* **LLM 판정 명령**(브랜치 `writing/llm-judge`, W27): `mlw judge`가 `judge: llm` slop 규칙을 루브릭으로 `claude -p`에 물어 의심 문장을 `warn`으로 표시합니다(로컬 1차 거르기, 막지 않음, CI 밖). 사용법은 `guide/review-procedure.md`.
+* **W1-1 오늘 화면·엔진 안내**(브랜치 `writing/w1-content`, spec `specs/2026-10-16-w1-content-design.md`, 계획 `plans/2026-10-16-w1-1-today.md`, W28~W30, #232·#240)
+  * 오늘 화면 content 슬롯(총운·가이드·카드·태그·이유·달력)과 새 엔진 안내 슬롯 `system.notice`의 3개 언어 원고(en·ja는 원어민 검수 전 초안). 오늘 화면 대표 태그 뜻은 `term.tag.*`(D76).
+  * 라운드 R9(`artifacts/2026-10-16-round-R9.md`): 총운 state만 호칭, 보조 문장 토큰 없음. 가이드 질문 기준·태그라인은 보류.
+  * `mlw judge --shadow jev`(W30)와 첫 라운드 판정 쌍 `artifacts/judge-shadow/`. jev 대체 가능성 과제는 `plans/2026-10-16-jev-judge-evaluation.md`(나중에 실행). jev 키는 저장소 밖 `~/.config/myungli/typesafe.key`.
+* **LLM 판정 명령**(PR #235, W27): `mlw judge`가 `judge: llm` slop 규칙을 루브릭으로 `claude -p`에 물어 의심 문장을 `warn`으로 표시합니다(로컬 1차 거르기, 막지 않음, CI 밖). 사용법은 `guide/review-procedure.md`.
 * **W1 전 정리**(PR #230, W26, #191·#217·#226)
   * design 글자 수 상한(`docs/identity/design/lengths.md`)을 슬롯 91개에 넣었습니다. 상한 없음은 `unbounded`, 확인 창은 키별 상한 `key_max_length`입니다. 테스트가 lengths.md와 대조합니다.
   * 달력·일정 공용 문구(`ui.calendar.nav`·`ui.day-cell.a11y`·`ui.event-row.label`·`ui.event-edit.form`)와 일정 요약 키 `todayEventSummaryNextAt`·`AllPast`.
@@ -71,14 +75,14 @@
   * `engine.proto`가 바뀌면 `tools/gen_proto.sh`로 생성 코드를 다시 만듭니다(CI가 차이를 막습니다).
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
   * LLM 1차 거르기: `mlw judge docs/identity/writing/content --lang ko [--slot <id>]`(로컬 `claude` CLI 필요)
-* 결정은 W1~W27입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소).
+* 결정은 W1~W30입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **LLM 판정 명령 PR을 병합합니다**(사용자).
+2. **W1-1 PR을 병합합니다**(사용자). server는 `system.notice`·오늘 화면 원고를 시드에 넣습니다(#232).
 3. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-4. **W1:** 콘텐츠 3개 언어 원고(원국 개인 해석 #52, 용어 뜻 77개, 일간 소개, 날의 성격 이유, 근거 문장 basis·source·today_reason)를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 보고, 원어민 검수를 받습니다. 근거 basis의 매개변수 종류(`none`)는 core에 `detail` 값 형식을 물어 범주로 바꿉니다. ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
+4. **W1-2·W1-3**(spec `specs/2026-10-16-w1-content-design.md` §2): W1-2 사주·개인 해석(`chart.*`·`personal.*`, #52), W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 가이드 질문 기준(R9 보류)과 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 보고, 원어민 검수를 받습니다. 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
 5. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)

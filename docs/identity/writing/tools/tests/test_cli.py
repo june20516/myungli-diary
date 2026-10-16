@@ -16,6 +16,7 @@ from mlw.cli import (
     plural_findings,
     sentence_findings,
 )
+from mlw.jev import JevLimitReached
 from mlw.loader import load_rules
 from mlw.model import UNBOUNDED, Entry, ParamKind, ParamKindName, Slot
 from mlw.paths import CONTENT_DIR, RULES_DIR, SLOTS_DIR
@@ -479,3 +480,129 @@ def test_cli_check_reads_hanja_beside_language_dirs(tmp_path: Path, capsys: pyte
     (content / "hanja.yaml").write_text('- {term: stem.nope, hanja: "甲"}\n', encoding="utf-8")
     assert main(["check", str(content), "--partial"]) == 1
     assert "hanja.unknown_term" in capsys.readouterr().out
+
+
+def _judge_content(tmp_path: Path) -> Path:
+    content = tmp_path / "content" / "ko"
+    content.mkdir(parents=True)
+    (content / "ui.yaml").write_text(
+        '- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "흐름이 보여요."}\n', encoding="utf-8"
+    )
+    return tmp_path / "content"
+
+
+def test_cli_judge_shadow_requires_api_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    called: list[str] = []
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: called.append("claude"))
+    monkeypatch.setattr("mlw.cli.http_poster", lambda key: called.append("jev"))
+    out_path = tmp_path / "shadow.jsonl"
+    args = ["judge", str(_judge_content(tmp_path)), "--shadow", "jev", "--shadow-out", str(out_path)]
+    assert main(args) == 2
+    assert called == []
+    assert "TYPESAFE_API_KEY" in capsys.readouterr().err
+    assert not out_path.exists()
+
+
+def test_cli_judge_shadow_writes_pairs_and_keeps_exit_code(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    flag = {"flags": [{"index": 1, "rule": "slop.P1", "reason": "무엇을 말하는지 없음"}]}
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: lambda prompt, schema: flag)
+
+    def fake_poster(key: str) -> Callable[[dict[str, object]], dict[str, object]]:
+        assert key == "test-key"
+
+        def post(body: dict[str, object]) -> dict[str, object]:
+            questions = body["questions"]
+            assert isinstance(questions, dict)
+            return {"model": "jev-1.13.0", "answers": {q: {"type": "noul", "noul": 0.9} for q in questions}}
+
+        return post
+
+    monkeypatch.setattr("mlw.cli.http_poster", fake_poster)
+    out_path = tmp_path / "shadow" / "ko.jsonl"
+    args = ["judge", str(_judge_content(tmp_path)), "--lang", "ko", "--shadow", "jev", "--shadow-out", str(out_path)]
+    assert main(args) == 0
+    out = capsys.readouterr().out
+    assert "slop.P1 warn LLM 의심(calcBasisLunarBody): 무엇을 말하는지 없음" in out
+    assert out.strip().splitlines()[-1].startswith("jev shadow:")
+    records = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines()]
+    p1 = next(record for record in records if record["rule_id"] == "slop.P1")
+    assert (p1["claude_flag"], p1["jev_noul"], p1["jev_flag"]) == (True, 0.9, True)
+    assert "test-key" not in out_path.read_text(encoding="utf-8")
+
+
+def test_cli_judge_shadow_out_is_required_with_shadow() -> None:
+    with pytest.raises(SystemExit):
+        main(["judge", "--shadow", "jev"])
+
+
+def test_cli_judge_shadow_out_existing_stops_before_calls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    called: list[str] = []
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: called.append("claude"))
+    monkeypatch.setattr("mlw.cli.http_poster", lambda key: called.append("jev"))
+    out_path = tmp_path / "shadow.jsonl"
+    out_path.write_text("old\n", encoding="utf-8")
+    args = ["judge", str(_judge_content(tmp_path)), "--shadow", "jev", "--shadow-out", str(out_path)]
+    assert main(args) == 2
+    assert called == []
+    assert "이미 있습니다" in capsys.readouterr().err
+    assert out_path.read_text(encoding="utf-8") == "old\n"
+
+
+def test_cli_judge_shadow_failure_keeps_main_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    flag = {"flags": [{"index": 1, "rule": "slop.P1", "reason": "무엇을 말하는지 없음"}]}
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: lambda prompt, schema: flag)
+
+    def broken_poster(key: str) -> Callable[[dict[str, object]], dict[str, object]]:
+        def post(body: dict[str, object]) -> dict[str, object]:
+            raise RuntimeError("뜻밖의 오류")
+
+        return post
+
+    monkeypatch.setattr("mlw.cli.http_poster", broken_poster)
+    out_path = tmp_path / "shadow.jsonl"
+    args = ["judge", str(_judge_content(tmp_path)), "--shadow", "jev", "--shadow-out", str(out_path)]
+    assert main(args) == 0
+    captured = capsys.readouterr()
+    assert "slop.P1 warn LLM 의심" in captured.out
+    assert "jev shadow" in captured.err
+    assert not out_path.exists()
+
+
+def test_cli_judge_summary_shows_limit_reason(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", lambda model: lambda prompt, schema: {"flags": []})
+
+    def limited_poster(key: str) -> Callable[[dict[str, object]], dict[str, object]]:
+        def post(body: dict[str, object]) -> dict[str, object]:
+            raise JevLimitReached("HTTP 401")
+
+        return post
+
+    monkeypatch.setattr("mlw.cli.http_poster", limited_poster)
+    args = ["judge", str(_judge_content(tmp_path)), "--shadow", "jev", "--shadow-out", str(tmp_path / "s.jsonl")]
+    assert main(args) == 0
+    assert "한도 사유 HTTP 401" in capsys.readouterr().out.strip().splitlines()[-1]
+
+
+def test_cli_judge_shadow_out_without_shadow_is_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    # 구현이 빠져도 실제 모델을 부르지 않게 막습니다.
+    def no_call(model: str) -> Callable[[str, dict[str, object]], object]:
+        raise AssertionError("모델을 부르면 안 됩니다")
+
+    monkeypatch.setattr("mlw.cli.claude_cli_caller", no_call)
+    with pytest.raises(SystemExit):
+        main(["judge", "--shadow-out", "x.jsonl"])

@@ -1,0 +1,16 @@
+# 용어 뜻(term) 원고(ja). 원어민 검수 전 초안. 태그 15개는 W1-1(#240), 나머지는 W1-3.
+- {slot: term.meaning, key: term.tag.big_change, text: "命式の日支や月支と大きくぶつかることで、慣れた暮らしに変化が起きやすくなります。"}
+- {slot: term.meaning, key: term.tag.cheoneul_gwiin, text: "最も尊い助けを表す神殺で、思いがけない人が手を差し伸べてくれやすくなります。"}
+- {slot: term.meaning, key: term.tag.clash, text: "反対の気がぶつかり合うことで、予定が変わったり意見が分かれたりしやすくなります。"}
+- {slot: term.meaning, key: term.tag.dohwa, text: "人の目を引く気を表す神殺で、魅力が表に出て注目を集めやすくなります。"}
+- {slot: term.meaning, key: term.tag.gongmang, text: "空いた席を表す神殺で、努力した分の結果がすぐには手に入らないことがあります。"}
+- {slot: term.meaning, key: term.tag.gwiin_day, text: "自分を助けてくれる人が近づく日で、助けを頼むのに向いています。"}
+- {slot: term.meaning, key: term.tag.harmony, text: "異なる気がかみ合って一つになることで、人や物事がよくなじみます。"}
+- {slot: term.meaning, key: term.tag.hwagae, text: "内側を深く見つめる気を表す神殺で、考えごとや趣味に心が向きやすくなります。"}
+- {slot: term.meaning, key: term.tag.ten_god_rush.bigyeop, text: "命式にすでに多い比劫がその日さらに入ることで、自分や自分の取り分を前に出しがちです。"}
+- {slot: term.meaning, key: term.tag.ten_god_rush.siksang, text: "命式にすでに多い食傷がその日さらに入ることで、言葉や表現があふれやすくなります。"}
+- {slot: term.meaning, key: term.tag.ten_god_rush.jaeseong, text: "命式にすでに多い財星がその日さらに入ることで、お金や結果に心が向きやすくなります。"}
+- {slot: term.meaning, key: term.tag.ten_god_rush.gwanseong, text: "命式にすでに多い官星がその日さらに入ることで、責任や決まりが重く感じられます。"}
+- {slot: term.meaning, key: term.tag.ten_god_rush.inseong, text: "命式にすでに多い印星がその日さらに入ることで、考えが増え、誰かに頼りたくなります。"}
+- {slot: term.meaning, key: term.tag.yeokma, text: "動きを表す神殺で、移動や外出が増えます。"}
+- {slot: term.meaning, key: term.tag.yongsin_day, text: "命式に必要な気が入る日で、進めていることが順調に運びやすくなります。"}

@@ -1,0 +1,16 @@
+# 용어 뜻(term) 원고(en). 원어민 검수 전 초안. 태그 15개는 W1-1(#240), 나머지는 W1-3.
+- {slot: term.meaning, key: term.tag.big_change, text: "A clash with the day or month seat of your chart, so familiar routines are likely to shift."}
+- {slot: term.meaning, key: term.tag.cheoneul_gwiin, text: "A shinsal for the most valued kind of help, so someone may lend you a hand when you least expect it."}
+- {slot: term.meaning, key: term.tag.clash, text: "Opposing energies colliding, so plans may change or opinions may split."}
+- {slot: term.meaning, key: term.tag.dohwa, text: "A shinsal for the pull that draws people's eyes, so your charm shows and attention comes easily."}
+- {slot: term.meaning, key: term.tag.gongmang, text: "A shinsal for an empty seat, so results may not show right away for the effort you put in."}
+- {slot: term.meaning, key: term.tag.gwiin_day, text: "A day when people who help you come close, so it's a good time to ask for help."}
+- {slot: term.meaning, key: term.tag.harmony, text: "Different energies locking together as one, so people and work fit well."}
+- {slot: term.meaning, key: term.tag.hwagae, text: "A shinsal for looking deep within, so your mind turns easily to thoughts and hobbies."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.bigyeop, text: "Bigyeop, already strong in your chart, comes in again that day, so you tend to put yourself and your share first."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.siksang, text: "Siksang, already strong in your chart, comes in again that day, so words and expression tend to overflow."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.jaeseong, text: "Jaeseong, already strong in your chart, comes in again that day, so your mind leans toward money and results."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.gwanseong, text: "Gwanseong, already strong in your chart, comes in again that day, so duties and rules feel heavier."}
+- {slot: term.meaning, key: term.tag.ten_god_rush.inseong, text: "Inseong, already strong in your chart, comes in again that day, so thoughts multiply and you want someone to lean on."}
+- {slot: term.meaning, key: term.tag.yeokma, text: "A shinsal for movement, so trips and time outside tend to increase."}
+- {slot: term.meaning, key: term.tag.yongsin_day, text: "A day when the energy your chart needs comes in, so what you're doing tends to go smoothly."}

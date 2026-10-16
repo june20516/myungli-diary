@@ -97,10 +97,14 @@ def _flags(response: object, count: int, rule_ids: set[str]) -> list[tuple[int, 
     return flags
 
 
+def _batch_failed(batch: Sequence[Entry], rule_id: str, message: str) -> list[Finding]:
+    """판정하지 못한 묶음은 문장마다 남깁니다. shadow 비교가 판정 못 한 문장을 '표시 안 함'과 가려냅니다."""
+    return [Finding(entry.file, entry.line, rule_id, "warn", message) for entry in batch]
+
+
 def _judge_batch(
     slot: Slot, lang: str, judge_rules: Sequence[SlopRule], batch: Sequence[Entry], call: Caller
 ) -> list[Finding]:
-    first = batch[0]
     rule_ids = [rule.id for rule in judge_rules]
     try:
         response = call(
@@ -108,11 +112,11 @@ def _judge_batch(
         )
     except JudgeError as error:
         message = f"슬롯 {slot.id}({lang}) 문장 {len(batch)}개를 판정하지 못했습니다: {error}"
-        return [Finding(first.file, first.line, RULE_CALL_FAILED, "warn", message)]
+        return _batch_failed(batch, RULE_CALL_FAILED, message)
     flags = _flags(response, len(batch), set(rule_ids))
     if isinstance(flags, str):
         message = f"슬롯 {slot.id}({lang})의 모델 응답을 읽지 못했습니다: {flags}"
-        return [Finding(first.file, first.line, RULE_BAD_RESPONSE, "warn", message)]
+        return _batch_failed(batch, RULE_BAD_RESPONSE, message)
     findings: list[Finding] = []
     for index, rule_id, reason in flags:
         entry = batch[index - 1]

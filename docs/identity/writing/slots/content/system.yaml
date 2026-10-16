@@ -1,6 +1,7 @@
 # 콘텐츠 슬롯: 시스템 화면(system)
 #
 # 앱 밖에서 server가 렌더하는 문구입니다(D66). 언어는 server가 Accept-Language로 고릅니다. 호칭은 넣지 않습니다.
+# 엔진 안내(system.notice)는 server가 렌더해 앱 안 배너로 보이는 문구입니다(#232). 언어는 같은 방식으로 고릅니다.
 
 - id: system.apple_return
   where: Android Apple 웹 로그인 뒤 앱이 열리지 않을 때의 안내 페이지(GET /auth/apple, server S22)
@@ -26,3 +27,31 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 제목, 본문, 링크 순서로 읽습니다.
+
+- id: system.notice
+  where: 계산 안내 배너(오늘·명식·월간 응답의 notices). 엔진이 출생 시각이나 절입 때문에 계산을 어떻게 처리했는지 알립니다
+  components: [notice-banner]
+  select: "Notice.code c → 키 notice.<c 소문자>"
+  purpose: info
+  user_state: 화면을 보다가 계산에 단서가 붙었다는 배너를 봅니다. 무엇이 어떻게 처리됐는지, 내가 할 일이 있는지만 알면 됩니다.
+  structure: 처리한 방식을 한 문장으로 말합니다. 사용자가 바꿀 수 있는 것이 있을 때만 뒤에 한 문장을 덧붙입니다. 걱정을 키우거나 결과를 깎아내리는 말은 쓰지 않습니다.
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 52, en: 90, ja: 38}
+  keys:
+    - notice.ambiguous_local_time
+    - notice.nonexistent_local_time
+    - notice.zi_hour_next_day
+    - notice.time_unknown
+    - notice.near_solar_term
+    - notice.dayun_start_approximate
+    - notice.focus_time_fallback
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: notice.time_unknown, text: "태어난 시간을 몰라 낮 12시로 계산했어요. 시간을 넣으면 더 정확해져요.", why: "처리한 방식과 할 수 있는 일을 한 문장씩", source: writing}
+    bad:
+      - {lang: ko, key: notice.time_unknown, text: "출생 시각 미상으로 인해 결과의 신뢰도가 크게 떨어질 수 있습니다.", why: "걱정을 키움, 한자어 덩어리, 합니다체 style.S3", source: writing}
+  endings: ["~했어요", "~해요"]
+  a11y:
+    truncation: 두 줄 안에서 잘리지 않게 씁니다.
+    screen_reader: 배너 아이콘 다음에 문장을 그대로 읽습니다.
