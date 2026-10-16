@@ -20,6 +20,7 @@ from myungli_engine.chart.positions import Position
 from myungli_engine.composers.chart import ChartView
 from myungli_engine.composers.daily import DailyView
 from myungli_engine.composers.month import MonthDay, MonthView
+from myungli_engine.constants.evidence_rules import require_rule
 from myungli_engine.domain.enums import CalendarType, Gender
 from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.domain.models import Evidence, FourPillars, Judgment, Notice, Pillar
@@ -226,7 +227,7 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
         relations=[_relation(relation) for relation in view.relations],
         featured_tags=view.tags.featured,
         all_tags=view.tags.all_keys,
-        tag_evidence=[_evidence(evidence) for evidence in view.tags.evidence],
+        tag_evidence=[evidence_to_proto(evidence) for evidence in view.tags.evidence],
         fortune=[_judgment(judgment) for judgment in view.fortune],
         guide=_judgment(view.guide),
         meta=_meta(view.notices),
@@ -330,7 +331,7 @@ def _judgment(judgment: Judgment) -> pb.Judgment:
     return pb.Judgment(
         message_key=judgment.message_key,
         params={key: _param(value) for key, value in judgment.params.items()},
-        evidence=[_evidence(evidence) for evidence in judgment.evidence],
+        evidence=[evidence_to_proto(evidence) for evidence in judgment.evidence],
     )
 
 
@@ -346,8 +347,13 @@ def _param(value: str | float | bool) -> pb.Param:
     return pb.Param(text=value)
 
 
-def _evidence(evidence: Evidence) -> pb.Evidence:
-    return pb.Evidence(rule_id=evidence.rule_id, source_ref=evidence.source_ref, detail=dict(evidence.detail))
+def evidence_to_proto(evidence: Evidence) -> pb.Evidence:
+    """등록된 rule_id와 detail 키만 계약으로 내보낸다(evidence_rules). 어긋나면 KeyError."""
+    return pb.Evidence(
+        rule_id=require_rule(evidence.rule_id, evidence.detail),
+        source_ref=evidence.source_ref,
+        detail=dict(evidence.detail),
+    )
 
 
 def _meta(notices: Iterable[Notice]) -> pb.ResponseMeta:

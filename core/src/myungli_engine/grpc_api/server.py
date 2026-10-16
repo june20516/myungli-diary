@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 from concurrent import futures
 from dataclasses import dataclass
 from typing import Final
@@ -17,7 +16,6 @@ from myungli_engine.calendar_core.birth import birth_hour
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.composers.daily import compose_daily
 from myungli_engine.composers.month import compose_month
-from myungli_engine.domain.enums import Branch, Stem
 from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.grpc_api import mapping
 from myungli_engine.grpc_api.errors import run_or_abort
@@ -110,12 +108,6 @@ def _required_scalar(value: int, field_name: str) -> int:
     return value
 
 
-def all_reference_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸과 오행 근거 전부."""
-    yield from (loader.johu_ref(stem, branch) for stem in Stem for branch in Branch)
-    yield from loader.FIVE_ELEMENTS_REF.values()
-
-
 @dataclass(frozen=True)
 class RunningEngine:
     """시작된 엔진 서버와 그 health 상태."""
@@ -139,7 +131,7 @@ def start(port: int = DEFAULT_PORT) -> RunningEngine:
     근거 데이터에 없는 키가 있으면 KeyError로 시작하지 않는다(spec 11).
     준비가 끝난 뒤에만 health(전체 "", 엔진 서비스)를 SERVING으로 둔다.
     """
-    loader.validate_refs(all_reference_refs())
+    loader.validate_refs(loader.all_refs())
     lunar_adapter.warm_up()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     pb_grpc.add_MyungliEngineServicer_to_server(MyungliEngineServicer(), server)

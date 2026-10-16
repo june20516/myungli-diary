@@ -12,7 +12,7 @@
 ## 계약을 바꿀 때
 공개 저장소(D74)·세션 시작 시 drift 우선·병합 주체는 루트 `CLAUDE.md` 공통 규칙을 따릅니다. core에 해당하는 것만 적습니다.
 * core는 계약을 **주는 쪽**입니다(`ci-gate`의 core 검사는 받는 계약 없이 `own`만 돕니다). 계약만 바꾼 PR은 받는 쪽(server·writing) 검사가 실패해도 경고로 병합되고, `ci-gate`가 받는 쪽 앞으로 `drift` Issue를 엽니다(D73, `docs/workflow.md` §6.1). 하위 호환을 깨는 변경은 `kind:notice`로 따로 알립니다.
-* 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수)을 직접 고칩니다.
+* 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수, 근거 규칙 목록, 근거 원전 목록)을 직접 고칩니다.
 
 ## 계약
 | 계약 | 역할 | 사용하는 쪽 |
@@ -21,6 +21,8 @@
 | `core/message_keys.json` (메시지 키 목록) | **제공** | server (콘텐츠 모듈), writing |
 | `core/message_params.json` (메시지 키별 매개변수 이름) | **제공** | server, writing |
 | `source_ref` 형식 (spec §11) | **제공** | server, app (`evidence` 깊이의 근거 표시) |
+| `core/evidence_rules.json` (`rule_id`별 `detail` 키) | **제공** | writing (`basis.<rule_id>`·`reason.<rule_id>` 키), server |
+| `core/evidence_sources.json` (`source_ref`별 원전 이름·원문) | **제공** | writing (`source.<source_ref>` 키), server |
 
 ## 문서
 | 문서 | 위치 |
@@ -49,7 +51,6 @@
 ## 다음 할 일
 1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
 2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-15 기준:
-   * **#130:** writing 근거 문장용 `rule_id` 목록과 `source_ref`별 원전 원문 내보내기.
    * **#120:** `core.yml`의 GitHub Actions를 Node 24 최신 메이저로.
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
