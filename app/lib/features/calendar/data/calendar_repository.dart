@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
@@ -31,10 +32,15 @@ final class CalendarRepository {
   /// * [cacheKey]가 null(프로필 사본 없음)이면 캐시를 읽지도 쓰지도 않고 매번 받습니다
   ///   (A24와 같음). 규칙 버전 관찰은 키와 무관하게 합니다.
   ///
+  /// * [mayStoreLocked]가 있고 쓰기 직전에 false면 `locked` 응답은 저장하지 않고 값만
+  ///   돌려줍니다. 잠금 해제 전에 출발한 요청이 [dropLocked] 뒤에 도착해 잠긴 달을 다시 쓰지
+  ///   않게 하기 위해서입니다. `unlocked` 응답은 늘 저장합니다.
+  ///
   /// 관찰·쓰기 실패는 비치명입니다([writeCacheOrReport]).
   Future<Calendar> month(
     CalendarMonth month, {
     required String? cacheKey,
+    bool Function()? mayStoreLocked,
   }) async {
     if (cacheKey != null) {
       final cached = await _cached(cacheKey);
@@ -47,7 +53,11 @@ final class CalendarRepository {
       () => _cache.observeRulesetVersion(fresh.rulesetVersion),
       _reporter,
     );
-    if (cacheKey != null) {
+    final staleLock =
+        fresh.evidenceAccess == EvidenceAccess.locked &&
+        mayStoreLocked != null &&
+        !mayStoreLocked();
+    if (cacheKey != null && !staleLock) {
       await writeCacheOrReport(
         () => _cache.write(
           CacheKind.calendar,

@@ -20,6 +20,7 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/monetization/data/entitlements_repository.dart';
@@ -72,6 +73,36 @@ Future<void> _until(WidgetTester tester, bool Function() done) async {
   }
   fail('조건이 채워지지 않음');
 }
+
+/// 이 계정의 `locked` 달력 캐시가 모두 지워질 때까지 기다립니다. 끝나지 않으면 실패합니다.
+Future<void> _untilCalendarUnlocked(
+  WidgetTester tester,
+  CacheStore cache,
+) async {
+  for (var i = 0; i < 300; i++) {
+    final locked = await tester.runAsync(
+      () => cache.lockedKeys(CacheKind.calendar),
+    );
+    if (locked!.isEmpty) {
+      return;
+    }
+    await _spin(tester);
+  }
+  fail('locked 달력 캐시가 남아 있음');
+}
+
+/// 달력 캐시에 `locked` 달 하나를 심습니다.
+Future<void> _seedLockedCalendar(WidgetTester tester, CacheStore cache) =>
+    tester
+        .runAsync(
+          () => cache.write(
+            CacheKind.calendar,
+            'fp|ko|2026-10',
+            '{}',
+            access: EvidenceAccess.locked,
+          ),
+        )
+        .then((_) {});
 
 /// [scenario]로 부팅해 오늘 응답을 받아 둡니다(근거 시트는 오늘 화면에서 열리므로).
 Future<ProviderContainer> _boot(
@@ -449,18 +480,23 @@ void main() {
         tester,
         () => _state(container).link == DepthLinkState.unlocked,
       );
-      List<String>? locked;
-      await _until(tester, () {
-        unawaited(
-          cache.lockedKeys(CacheKind.calendar).then((keys) => locked = keys),
-        );
-        return locked != null && locked!.isEmpty;
-      });
+      await _untilCalendarUnlocked(tester, cache);
 
       final kept = await tester.runAsync(
         () => cache.read(CacheKind.calendar, 'fp|ko|2026-11'),
       );
       expect(kept, isNotNull);
+    });
+
+    testWidgets('시트를 열 때 이미 unlocked여도 locked 달력 캐시를 버린다(A32)', (tester) async {
+      final container = await _boot(tester, scenario: 'evidence-unlocked');
+      final cache = container.read(cacheStoreProvider);
+      await _seedLockedCalendar(tester, cache);
+
+      _open(container);
+
+      expect(_state(container).link, DepthLinkState.unlocked);
+      await _untilCalendarUnlocked(tester, cache);
     });
 
     testWidgets('30초 안에 권한이 없으면 UnlockTimedOut과 locked', (tester) async {
@@ -792,6 +828,42 @@ void main() {
       await tester.pump();
       expect(container.read(_testProvider).link, DepthLinkState.unlocked);
       expect(finished, isTrue);
+    });
+
+    testWidgets('다른 길로 열리면 locked 달력 캐시를 버리고, 정리를 거듭 불러도 오류가 없다(A32)', (
+      tester,
+    ) async {
+      final container = await _boot(
+        tester,
+        overrides: [
+          entitlementsRepositoryProvider.overrideWithValue(
+            EntitlementsRepository(_ScriptedApi([_inactive])),
+          ),
+        ],
+      );
+      final cache = container.read(cacheStoreProvider);
+      final reporter =
+          container.read(crashReporterProvider) as FakeCrashReporter;
+      container.listen(_testProvider, (_, _) {});
+      await _until(tester, () => container.read(_testProvider).adReady);
+      await _seedLockedCalendar(tester, cache);
+
+      container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
+      await tester.pump();
+      expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+      await _untilCalendarUnlocked(tester, cache);
+
+      // 거듭 불려도(잠금 해제 성공 뒤 다른 길로도 열림) 지울 것이 없을 뿐 오류가 없습니다.
+      await tester.runAsync(() async {
+        final sync = container.read(calendarUnlockSyncProvider);
+        await sync.forgetLocked();
+        await sync.forgetLocked();
+      });
+      expect(
+        await tester.runAsync(() => cache.lockedKeys(CacheKind.calendar)),
+        isEmpty,
+      );
+      expect(reporter.errors, isEmpty);
     });
   });
 

@@ -41,9 +41,16 @@ final FutureProviderFamily<Calendar, CalendarMonth> calendarMonthProvider =
       month,
     ) async {
       final repository = ref.watch(calendarRepositoryProvider);
+      // 요청을 시작할 때의 잠금 정리 세대. 그사이 정리됐으면 잠긴 응답은 저장하지 않습니다.
+      final unlockSync = ref.read(calendarUnlockSyncProvider);
+      final generation = unlockSync.generation;
       await ref.read(timezoneSyncProvider).syncIfChanged();
       final key = await _cacheKeyFor(ref, month);
-      return await repository.month(month, cacheKey: key);
+      return await repository.month(
+        month,
+        cacheKey: key,
+        mayStoreLocked: () => unlockSync.generation == generation,
+      );
     }, retry: (_, _) => null);
 
 /// 보이는 달 `visible`의 앞뒤 한 달을 조용히 받아 둡니다(A32). 화면이 보이는 달마다 구독합니다.
@@ -83,15 +90,25 @@ final calendarUnlockSyncProvider = Provider<CalendarUnlockSync>(
 /// 잠금 해제에 성공한 뒤 `locked`로 받아 둔 달을 버리는 일.
 final class CalendarUnlockSync {
   /// [_ref]로 저장소와 달 상태에 닿습니다.
-  const new(this._ref);
+  new(this._ref);
 
   final Ref _ref;
+
+  /// [forgetLocked]가 불린 횟수(잠금 정리 세대).
+  ///
+  /// 달 요청은 시작할 때 이 값을 기억하고, 응답을 쓰기 직전에 값이 바뀌었으면 `locked`
+  /// 응답을 저장하지 않습니다(정리 전에 출발한 요청이 지운 달을 다시 쓰지 않게).
+  int get generation => _generation;
+  var _generation = 0;
 
   /// `locked`로 받아 둔 달 캐시를 지우고, 들고 있는 달을 모두 다시 계산하게 합니다.
   ///
   /// 잠금이 풀린 달은 캐시 그대로 읽으므로 다시 요청하지 않고, 지운 달만 다시 받습니다.
-  /// 실패는 비치명입니다. 잠금 해제 흐름을 막지 않도록 요약만 보고하고 삼킵니다.
+  /// 여러 번 불려도 됩니다(지울 것이 없으면 캐시를 다시 읽을 뿐입니다). 실패는 비치명입니다.
+  /// 잠금 해제 흐름을 막지 않도록 요약만 보고하고 삼킵니다.
   Future<void> forgetLocked() async {
+    // 지우기 전에 세대를 올려, 지우는 사이에 도착한 잠긴 응답도 쓰지 않게 합니다.
+    _generation++;
     final reporter = _ref.read(crashReporterProvider);
     try {
       await _ref.read(calendarRepositoryProvider).dropLocked();

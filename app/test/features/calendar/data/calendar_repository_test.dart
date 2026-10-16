@@ -34,6 +34,9 @@ final class _CalendarServer extends Interceptor {
   /// 응답의 규칙 버전을 바꿉니다. null이면 fixture 값 그대로입니다.
   String? rulesetVersion;
 
+  /// 응답의 근거 열람 상태를 바꿉니다. null이면 fixture 값(locked) 그대로입니다.
+  EvidenceAccess? evidenceAccess;
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     paths.add(options.path);
@@ -56,6 +59,10 @@ final class _CalendarServer extends Interceptor {
     final version = rulesetVersion;
     if (version != null) {
       body['rulesetVersion'] = version;
+    }
+    final access = evidenceAccess;
+    if (access != null) {
+      body['evidenceAccess'] = access.value;
     }
     handler.resolve(
       Response<Object?>(
@@ -223,6 +230,32 @@ void main() {
       expect(s.server.paths, hasLength(2));
       await s.repository.month(_october, cacheKey: _key(_october));
       expect(s.server.paths, hasLength(2));
+    });
+
+    test('mayStoreLocked가 false면 locked 응답은 저장하지 않고 값만 돌려준다', () async {
+      final s = _setUp();
+
+      final calendar = await s.repository.month(
+        _october,
+        cacheKey: _key(_october),
+        mayStoreLocked: () => false,
+      );
+
+      expect(calendar.evidenceAccess, EvidenceAccess.locked);
+      expect(await _rowCount(s.database), 0);
+    });
+
+    test('mayStoreLocked가 false여도 unlocked 응답은 저장한다', () async {
+      final s = _setUp();
+      s.server.evidenceAccess = EvidenceAccess.unlocked;
+
+      await s.repository.month(
+        _october,
+        cacheKey: _key(_october),
+        mayStoreLocked: () => false,
+      );
+
+      expect(await s.cache.read(CacheKind.calendar, _key(_october)), isNotNull);
     });
 
     test('오프라인이고 캐시가 있으면 요청 없이 캐시', () async {

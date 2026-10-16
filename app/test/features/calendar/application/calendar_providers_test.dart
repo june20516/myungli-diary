@@ -8,6 +8,7 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
@@ -20,11 +21,18 @@ import '../../../support/app_harness.dart';
 const _october = CalendarMonth(2026, 10);
 const _september = CalendarMonth(2026, 9);
 
-/// `/v1/calendar/` 요청 경로를 남기고, [hold]에 있는 경로는 그 Completer가 끝날 때까지
-/// 붙잡습니다.
+/// `/v1/calendar/` 요청 경로를 남깁니다. [hold]에 있는 경로는 처음 한 번만 그 Completer가
+/// 끝날 때까지 붙잡습니다. [unlockFromNow]가 켜진 뒤 출발한 요청의 응답은 `unlocked`로
+/// 바꿉니다(잠금 해제 뒤의 server).
 final class _CalendarTap extends Interceptor {
   final paths = <String>[];
   final hold = <String, Completer<void>>{};
+  bool unlockFromNow = false;
+
+  /// 돌아온 `/v1/calendar/` 응답 수.
+  int responses = 0;
+
+  static const _unlockedKey = 'calendarTap.unlocked';
 
   @override
   Future<void> onRequest(
@@ -36,11 +44,28 @@ final class _CalendarTap extends Interceptor {
       return;
     }
     paths.add(options.path);
-    final gate = hold[options.path];
+    options.extra[_unlockedKey] = unlockFromNow;
+    final gate = hold.remove(options.path);
     if (gate != null) {
       await gate.future;
     }
     handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    if (response.requestOptions.path.startsWith('/v1/calendar/')) {
+      responses++;
+    }
+    final body = response.data;
+    if (response.requestOptions.extra[_unlockedKey] == true &&
+        body is Map<String, dynamic>) {
+      body['evidenceAccess'] = EvidenceAccess.unlocked.value;
+    }
+    handler.next(response);
   }
 }
 
@@ -164,10 +189,11 @@ void main() {
 
     final october = await _settle(tester, container, _october);
     final octoberStates = <AsyncValue<Calendar>>[];
-    container.listen(
+    final octoberSubscription = container.listen(
       calendarMonthProvider(_october),
       (_, next) => octoberStates.add(next),
     );
+    addTearDown(octoberSubscription.close);
     release.complete();
     await _until(tester, () => septemberStates.any((s) => s.hasValue));
 
@@ -278,4 +304,52 @@ void main() {
       expect(tap.paths, ['/v1/calendar/2026/10', '/v1/calendar/2026/10']);
     },
   );
+
+  testWidgets('잠금 정리 전에 출발한 locked 응답은 정리 뒤에 도착해도 저장하지 않는다', (tester) async {
+    final (container, tap) = await _boot(tester);
+    final cache = container.read(cacheStoreProvider);
+    final release = Completer<void>();
+    tap.hold['/v1/calendar/2026/10'] = release;
+    final states = <AsyncValue<Calendar>>[];
+    final subscription = container.listen(
+      calendarMonthProvider(_october),
+      (_, next) => states.add(next),
+    );
+    addTearDown(subscription.close);
+    await _until(tester, () => tap.paths.length == 1);
+
+    // 잠금이 풀린 뒤의 server: 다시 받은 달은 unlocked로 저장됩니다.
+    tap.unlockFromNow = true;
+    await tester.runAsync(
+      () => container.read(calendarUnlockSyncProvider).forgetLocked(),
+    );
+    await _until(
+      tester,
+      () =>
+          container
+              .read(calendarMonthProvider(_october))
+              .value
+              ?.evidenceAccess ==
+          EvidenceAccess.unlocked,
+    );
+    expect(tap.paths, hasLength(2));
+
+    // 붙잡아 둔 첫 요청(locked)이 이제 도착합니다.
+    release.complete();
+    await _until(tester, () => tap.responses == 2);
+    // 응답 뒤의 캐시 쓰기(또는 건너뛰기)까지 돌립니다.
+    for (var i = 0; i < 3; i++) {
+      await _spin(tester);
+    }
+
+    final key = await _keyFor(tester, container, _october);
+    expect(
+      await tester.runAsync(() => cache.lockedKeys(CacheKind.calendar)),
+      isEmpty,
+    );
+    expect(
+      await tester.runAsync(() => cache.read(CacheKind.calendar, key)),
+      isNotNull,
+    );
+  });
 }

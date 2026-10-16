@@ -193,6 +193,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       })
       ..listen(subject.access, _onAccess);
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
+      // 다른 길(오늘 화면의 다시 받기 등)로 이미 열려 있어도 잠긴 달 길흉을 버립니다(A32).
+      _forgetLockedCalendars();
       return const EvidenceUnlockState(link: DepthLinkState.unlocked);
     }
     // build 안에서는 상태를 바꿀 수 없으므로 준비는 다음 차례에 합니다.
@@ -434,6 +436,7 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       // 확인 중이었으면 멈춰 [watchAd]도 끝나게 합니다.
       _stopGrant(_GrantStop.cancelled);
       state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
+      _forgetLockedCalendars();
     } else if (access == EvidenceAccess.locked &&
         state.link == DepthLinkState.unlocked) {
       // 새 날짜의 응답처럼 다시 잠기면 처음처럼 준비합니다.
@@ -441,6 +444,11 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       unawaited(_prepare());
     }
   }
+
+  /// 잠긴 채 받아 둔 달 길흉을 버립니다(A32). 기다리지 않습니다. 여러 번 불려도 지울 것이
+  /// 없으면 아무 일도 없고, 실패는 [CalendarUnlockSync.forgetLocked] 안에서 보고하고 삼킵니다.
+  void _forgetLockedCalendars() =>
+      unawaited(ref.read(calendarUnlockSyncProvider).forgetLocked());
 
   /// 근거 열람 권한을 한 번 묻습니다.
   ///
