@@ -164,6 +164,28 @@ void main() {
       expect(lunar.top - schools.bottom, schools.top - convention.bottom);
     });
 
+    testWidgets('서머타임 기간 출생이면 경도 문단을 그리지 않고 자리도 남기지 않습니다 (A31)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          () async => const TimeBasis(
+            longitude: 127.5,
+            correctionMinutes: -30,
+            daylightSavingMinutes: 60,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_id(SlotIds.calcBasisLongitudeBody), findsNothing);
+      expect(find.byType(SkeletonBlock), findsNothing);
+      final schools = tester.getRect(_id(SlotIds.calcBasisSchoolsBody));
+      final lunar = tester.getRect(_id(SlotIds.calcBasisLunarBody));
+      final convention = tester.getRect(_id(SlotIds.calcBasisConventionBody));
+      expect(lunar.top - schools.bottom, schools.top - convention.bottom);
+    });
+
     testWidgets('불러오는 중에는 그 자리에 skeleton 한 문단, 다른 문단은 바로 보입니다', (tester) async {
       final pending = Completer<TimeBasis?>();
       await tester.pumpWidget(_app(() => pending.future));

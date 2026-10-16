@@ -36,7 +36,8 @@ String calcBasisLongitudeText(AppLocalizations l10n, TimeBasis basis) {
 /// 계산 기준(D71): 해석 기준, 다른 유파와 다른 점, 출생 시각 경도 보정, 음력 기준을 안내합니다.
 ///
 /// 로그인 전(출생지 화면)에도 엽니다. 경도 문단은 출생 입력으로 구한 기준([calcBasisTimeBasisProvider])을
-/// 쓰고, 기준을 모르거나(null, A29) 구하지 못하면(오류) 그리지 않고 자리도 남기지 않습니다.
+/// 쓰고, 기준을 모르거나(null, A29) 구하지 못하거나(오류) 서머타임 기간 출생이면(A31) 그리지
+/// 않고 자리도 남기지 않습니다.
 /// 불러오는 동안에는 그 자리에 skeleton 한 문단을 두고, 다른 문단은 바로 보입니다. 값이 오면
 /// 그때만 `appear.seep`으로 나타나고, 이미 받아 둔 값으로 다시 열면 바로 보입니다.
 ///
@@ -123,7 +124,8 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
     );
   }
 
-  /// 경도 문단. 값이 있으면 문단, 불러오는 중이면 skeleton, 모르거나 오류면 null입니다.
+  /// 경도 문단. 값이 있으면 문단, 불러오는 중이면 skeleton, 모르거나 오류거나 서머타임 기간
+  /// 출생이면 null입니다.
   Widget? _longitudeParagraph(
     BuildContext context,
     AsyncValue<TimeBasis?> basis,
@@ -131,6 +133,8 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
     if (basis.hasValue) {
       final value = basis.value;
       if (value == null) return null;
+      // 지금 문구는 표준 자오선 기준 보정만 말해 서머타임 출생의 실제 차이와 어긋납니다(A31).
+      if (value.daylightSavingMinutes != 0) return null;
       final paragraph = _paragraph(
         SlotIds.calcBasisLongitudeBody,
         calcBasisLongitudeText(AppLocalizations.of(context), value),

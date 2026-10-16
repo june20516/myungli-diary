@@ -26,28 +26,44 @@ final RegExp _timePattern = RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$');
 /// 출생 시각 경도 보정의 기준(A28).
 @immutable
 final class TimeBasis {
-  /// [longitude]는 기준 경도(동경 양수, 서경 음수), [correctionMinutes]는 부호 있는 보정 분입니다.
-  const new({required this.longitude, required this.correctionMinutes});
+  /// [longitude]는 기준 경도(동경 양수, 서경 음수), [correctionMinutes]는 부호 있는 보정 분,
+  /// [daylightSavingMinutes]는 그 시점의 서머타임 양(분)입니다.
+  const new({
+    required this.longitude,
+    required this.correctionMinutes,
+    this.daylightSavingMinutes = 0,
+  });
 
   /// 기준 경도(도). 도시 경도, 없으면 대표 경도입니다.
   final double longitude;
 
   /// 보정 분. 양수면 더하고 음수면 빼며 0이면 보정이 없습니다.
+  ///
+  /// 표준 자오선 기준입니다. 서머타임 중이면 실제 벽시계와의 차이는 여기에
+  /// [daylightSavingMinutes]를 더 뺀 값입니다(A31).
   final int correctionMinutes;
+
+  /// 출생 시점의 서머타임 양(분, 0 이상). 서머타임이 아니면 0입니다.
+  ///
+  /// [standardOffsetHoursAt]이 빼는 서머타임과 같은 값(엔진 zoneinfo `dst()`)입니다.
+  final int daylightSavingMinutes;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is TimeBasis &&
           other.longitude == longitude &&
-          other.correctionMinutes == correctionMinutes;
+          other.correctionMinutes == correctionMinutes &&
+          other.daylightSavingMinutes == daylightSavingMinutes;
 
   @override
-  int get hashCode => Object.hash(longitude, correctionMinutes);
+  int get hashCode =>
+      Object.hash(longitude, correctionMinutes, daylightSavingMinutes);
 
   @override
   String toString() =>
-      'TimeBasis(longitude: $longitude, correctionMinutes: $correctionMinutes)';
+      'TimeBasis(longitude: $longitude, correctionMinutes: $correctionMinutes, '
+      'daylightSavingMinutes: $daylightSavingMinutes)';
 }
 
 /// [timezone]의 대표 경도입니다. Asia/Seoul은 127.5도, 그 밖은 표준 오프셋×15도입니다.
@@ -68,19 +84,20 @@ double representativeLongitude(String timezone, double standardOffsetHours) {
 /// (1908-04-01)이 없어 1908-03-31 이전이 엔진(LMT +8:27:52)과 달리 +8:30이고, 상파울루도
 /// 1914년 이전 LMT가 없습니다.
 double standardOffsetHoursAt(tz.Location location, DateTime utc) {
+  final zone = location.lookupTimeZone(utc.millisecondsSinceEpoch).timeZone;
+  return (zone.offset.inSeconds - _dstSecondsAt(location, utc)) /
+      Duration.secondsPerHour;
+}
+
+/// [utc] 시점의 [location] 서머타임 양(초)입니다. 엔진 zoneinfo `dst()`와 같은 추정입니다.
+int _dstSecondsAt(tz.Location location, DateTime utc) {
   final instant = location.lookupTimeZone(utc.millisecondsSinceEpoch);
-  final zone = instant.timeZone;
   final transitionIndex = location.transitionAt.indexOf(instant.start);
-  final int dstSeconds;
   if (transitionIndex < 0) {
     // 첫 전환 전입니다. zoneinfo는 첫 비서머타임 유형을 쓰므로 대개 서머타임이 없습니다.
-    dstSeconds = zone.isDst ? _fallbackDstSeconds : 0;
-  } else {
-    dstSeconds = _dstSecondsOf(
-      location,
-    )[location.transitionZone[transitionIndex]];
+    return instant.timeZone.isDst ? _fallbackDstSeconds : 0;
   }
-  return (zone.offset.inSeconds - dstSeconds) / Duration.secondsPerHour;
+  return _dstSecondsOf(location)[location.transitionZone[transitionIndex]];
 }
 
 /// 서머타임 양을 추정하지 못했을 때 쓰는 값(초, zoneinfo와 같음).
@@ -157,15 +174,18 @@ TimeBasis timeBasisOf({
     hour,
     minute,
   );
-  final standardOffset = standardOffsetHoursAt(
-    location,
-    _wallClockToUtc(location, wallClock),
-  );
+  final utc = _wallClockToUtc(location, wallClock);
+  final standardOffset = standardOffsetHoursAt(location, utc);
   final longitude =
       cityLongitude ?? representativeLongitude(timezone, standardOffset);
   final correction =
       (longitude - standardOffset * _degreesPerHour) * _minutesPerDegree;
-  return TimeBasis(longitude: longitude, correctionMinutes: correction.round());
+  return TimeBasis(
+    longitude: longitude,
+    correctionMinutes: correction.round(),
+    daylightSavingMinutes:
+        _dstSecondsAt(location, utc) ~/ Duration.secondsPerMinute,
+  );
 }
 
 /// 경도 표기용 숫자입니다. 절댓값을 소수 둘째 자리까지 쓰고 뒤 0을 지웁니다(`127.5`, `135`).

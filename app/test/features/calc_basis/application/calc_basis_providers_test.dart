@@ -191,7 +191,11 @@ void main() {
 
     expect(
       await container.read(calcBasisTimeBasisProvider.future),
-      const TimeBasis(longitude: 127.5, correctionMinutes: 0),
+      const TimeBasis(
+        longitude: 127.5,
+        correctionMinutes: 0,
+        daylightSavingMinutes: 60,
+      ),
     );
     final request = api.requests.single;
     expect(request.date, LunarOrSolarDate(year: 1955, month: 4, day: 25));

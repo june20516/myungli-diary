@@ -26,14 +26,20 @@ void main() {
       );
     });
 
-    test('서머타임은 빼고 표준 오프셋으로 봅니다(1955년 +8:30, 1987년 +9)', () {
+    test('서머타임은 빼고 표준 오프셋으로 보고, 서머타임 양은 따로 둡니다(1955년 +8:30, 1987년 +9)', () {
+      // 엔진 corrected_local: 1955-06-15 08:00 → 07:00(−60분), 1987-07-15 08:00 → 06:30(−90분).
+      // 보정 분은 표준 자오선 기준이고, 벽시계와의 차이는 서머타임 60분이 더해진 값입니다(A31).
       expect(
         timeBasisOf(
           timezone: 'Asia/Seoul',
           solarDate: DateTime(1955, 6, 15),
           time: _at('08:00'),
         ),
-        const TimeBasis(longitude: 127.5, correctionMinutes: 0),
+        const TimeBasis(
+          longitude: 127.5,
+          correctionMinutes: 0,
+          daylightSavingMinutes: 60,
+        ),
       );
       expect(
         timeBasisOf(
@@ -41,7 +47,39 @@ void main() {
           solarDate: DateTime(1987, 7, 15),
           time: _at('08:00'),
         ),
-        const TimeBasis(longitude: 127.5, correctionMinutes: -30),
+        const TimeBasis(
+          longitude: 127.5,
+          correctionMinutes: -30,
+          daylightSavingMinutes: 60,
+        ),
+      );
+    });
+
+    test('서머타임이 아니면 서머타임 분은 0입니다', () {
+      expect(
+        timeBasisOf(
+          timezone: 'Asia/Seoul',
+          solarDate: DateTime(1990, 5, 5),
+          time: _at('08:00'),
+        ).daylightSavingMinutes,
+        0,
+      );
+    });
+
+    test('이중 서머타임은 엔진 dst 추정값과 같습니다(London 1941-07-01)', () {
+      // 엔진: London 1941-07-01 12:00(BDST +2)의 dst()는 직전 BST(+1)와의 차인 1시간이라
+      // 표준 오프셋도 +1입니다(zoneinfo `_utcoff_to_dstoff`).
+      expect(
+        timeBasisOf(
+          timezone: 'Europe/London',
+          solarDate: DateTime(1941, 7),
+          time: _at('12:00'),
+        ),
+        const TimeBasis(
+          longitude: 15,
+          correctionMinutes: 0,
+          daylightSavingMinutes: 60,
+        ),
       );
     });
 
@@ -72,7 +110,11 @@ void main() {
           solarDate: DateTime(1990, 7), // 1990-07-01
           time: _at('08:00'),
         ),
-        const TimeBasis(longitude: -75, correctionMinutes: 0),
+        const TimeBasis(
+          longitude: -75,
+          correctionMinutes: 0,
+          daylightSavingMinutes: 60,
+        ),
       );
     });
 
@@ -184,5 +226,19 @@ void main() {
     expect(a, b);
     expect(a.hashCode, b.hashCode);
     expect(a == const TimeBasis(longitude: 127.5, correctionMinutes: 0), false);
+    const summer = TimeBasis(
+      longitude: 127.5,
+      correctionMinutes: -30,
+      daylightSavingMinutes: 60,
+    );
+    expect(a == summer, false);
+    expect(
+      summer.hashCode,
+      const TimeBasis(
+        longitude: 127.5,
+        correctionMinutes: -30,
+        daylightSavingMinutes: 60,
+      ).hashCode,
+    );
   });
 }
