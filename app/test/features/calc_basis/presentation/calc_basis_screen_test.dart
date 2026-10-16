@@ -2,13 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/frame/prose_page_body.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/calc_basis/application/calc_basis_providers.dart';
 import 'package:myungli_diary/features/calc_basis/model/time_basis.dart';
@@ -26,23 +30,38 @@ const List<String> _bodySlots = [
   SlotIds.calcBasisLunarBody,
 ];
 
+/// [timeBasis]로 경도 기준을, [crash]로 crash 보고를 덮는 override.
+List<Override> _overrides(
+  Future<TimeBasis?> Function() timeBasis,
+  FakeCrashReporter crash,
+) => [
+  calcBasisTimeBasisProvider.overrideWith((ref) => timeBasis()),
+  crashReporterProvider.overrideWithValue(crash),
+];
+
+/// ko 테마·로케일의 앱 껍데기.
+Widget _material(Widget home) => MaterialApp(
+  locale: const Locale('ko'),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  theme: buildTheme(brightness: Brightness.light, locale: const Locale('ko')),
+  home: home,
+);
+
 /// [timeBasis]로 경도 기준을 덮은 앱. [home]이 없으면 계산 기준 화면 하나만 띄웁니다.
 Widget _app(
   Future<TimeBasis?> Function() timeBasis, {
   FakeCrashReporter? crash,
   Widget home = const CalcBasisScreen(),
 }) => ProviderScope(
-  overrides: [
-    calcBasisTimeBasisProvider.overrideWith((ref) => timeBasis()),
-    crashReporterProvider.overrideWithValue(crash ?? FakeCrashReporter()),
-  ],
-  child: MaterialApp(
-    locale: const Locale('ko'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    theme: buildTheme(brightness: Brightness.light, locale: const Locale('ko')),
-    home: home,
-  ),
+  overrides: _overrides(timeBasis, crash ?? FakeCrashReporter()),
+  child: _material(home),
+);
+
+/// seep으로 나타나는 중인 경도 문단.
+final Finder _seepingLongitude = find.ancestor(
+  of: find.byKey(const ValueKey(SlotIds.calcBasisLongitudeBody)),
+  matching: find.byType(SeepPresence),
 );
 
 /// 경도 문단의 글자. 없으면 null입니다.
@@ -155,6 +174,12 @@ void main() {
         expect(_id(slot), findsOneWidget, reason: slot);
       }
       expect(_id(SlotIds.calcBasisLongitudeBody), findsNothing);
+      // skeleton이 나타나기 전(높이 0)에는 간격도 없어 문단 간격은 한 번입니다.
+      expect(
+        tester.getRect(_id(SlotIds.calcBasisLunarBody)).top -
+            tester.getRect(_id(SlotIds.calcBasisSchoolsBody)).bottom,
+        ProsePageBody.paragraphGap,
+      );
 
       // skeleton은 300ms 뒤에야 보입니다.
       await tester.pump(SkeletonBlock.defaultDelay);
@@ -169,9 +194,34 @@ void main() {
       pending.complete(
         const TimeBasis(longitude: 127.5, correctionMinutes: -30),
       );
+      await tester.pump();
+      // 불러오는 중을 보인 뒤라 값은 appear.seep으로 나타납니다.
+      expect(_seepingLongitude, findsOneWidget);
       await tester.pumpAndSettle();
       expect(find.byType(SkeletonBlock), findsNothing);
       expect(_id(SlotIds.calcBasisLongitudeBody), findsOneWidget);
+    });
+
+    testWidgets('이미 받아 둔 값으로 다시 열면 seep 없이 바로 보입니다', (tester) async {
+      final container = ProviderContainer(
+        overrides: _overrides(
+          () async => const TimeBasis(longitude: 127.5, correctionMinutes: -30),
+          FakeCrashReporter(),
+        ),
+      );
+      addTearDown(container.dispose);
+      await container.read(calcBasisTimeBasisProvider.future);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: _material(const CalcBasisScreen()),
+        ),
+      );
+
+      expect(_id(SlotIds.calcBasisLongitudeBody), findsOneWidget);
+      expect(_seepingLongitude, findsNothing);
+      expect(find.byType(SkeletonBlock), findsNothing);
     });
 
     testWidgets('기준 계산이 실패하면 경도 문단을 그리지 않고 crash 요약을 남깁니다', (tester) async {
@@ -188,6 +238,18 @@ void main() {
       expect(find.byType(SkeletonBlock), findsNothing);
       expect(_id(SlotIds.calcBasisLunarBody), findsOneWidget);
       expect(crash.errors.map((e) => e.errorType), ['ArgumentError']);
+    });
+
+    testWidgets('이미 분류된 AppError면 문단만 빼고 crash 요약은 남기지 않습니다', (tester) async {
+      final crash = FakeCrashReporter();
+      await tester.pumpWidget(
+        _app(() async => throw const OfflineError(), crash: crash),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_id(SlotIds.calcBasisLongitudeBody), findsNothing);
+      expect(find.byType(SkeletonBlock), findsNothing);
+      expect(crash.errors, isEmpty);
     });
   });
 

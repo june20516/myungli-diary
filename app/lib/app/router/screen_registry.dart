@@ -114,13 +114,7 @@ final Map<String, ScreenSpec> _implementedScreens = {
     _buildNotifyAsk,
     exits: notifyAskExits,
   ),
-  ScreenIds.calcBasis: const ScreenSpec(
-    ScreenIds.calcBasis,
-    _buildCalcBasis,
-    // IA에 출구가 없다는 것을 화면 상수로 드러냅니다(출구가 생기면 화면 쪽만 고칩니다).
-    // ignore: avoid_redundant_argument_values
-    exits: calcBasisExits,
-  ),
+  ScreenIds.calcBasis: const ScreenSpec(ScreenIds.calcBasis, _buildCalcBasis),
   ScreenIds.today: const ScreenSpec(
     ScreenIds.today,
     _buildToday,

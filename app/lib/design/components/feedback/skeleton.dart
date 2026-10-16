@@ -14,7 +14,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// [child]를 주면 실제 올 요소와 같은 자리·크기·반경으로 짠 [SkeletonBone] 배치를 쓰고,
 /// 없으면 글줄 [lines]개를 그립니다(글자 줄 높이의 60%, 마지막 줄은 너비 60%). 글줄의 줄
 /// 높이는 [lineStyle]에서 구하고, 없으면 `type.body.ui`입니다. 문장 본문(`type.sentence.body`)
-/// 자리처럼 실제 올 글자와 줄 높이를 맞출 때 줍니다.
+/// 자리처럼 실제 올 글자와 줄 높이를 맞출 때 줍니다(명세에 올릴지는 #211에서 판단).
 class SkeletonBlock extends StatefulWidget {
   /// 자리를 만듭니다.
   const new({

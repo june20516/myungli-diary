@@ -16,9 +16,6 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/calc_basis/application/calc_basis_providers.dart';
 import 'package:myungli_diary/features/calc_basis/model/time_basis.dart';
 
-/// IA `calc-basis`의 출구 대상. IA에 출구가 없습니다.
-const Set<String> calcBasisExits = <String>{};
-
 /// 경도 문단 글자(A28). 보정 분의 부호로 빼기·더하기·보정 없음을 고르고, 경도는 0 이상이면
 /// 동경, 음수면 서경(절댓값)입니다.
 String calcBasisLongitudeText(AppLocalizations l10n, TimeBasis basis) {
@@ -40,7 +37,10 @@ String calcBasisLongitudeText(AppLocalizations l10n, TimeBasis basis) {
 ///
 /// 로그인 전(출생지 화면)에도 엽니다. 경도 문단은 출생 입력으로 구한 기준([calcBasisTimeBasisProvider])을
 /// 쓰고, 기준을 모르거나(null, A29) 구하지 못하면(오류) 그리지 않고 자리도 남기지 않습니다.
-/// 불러오는 동안에는 그 자리에 skeleton 한 문단을 두고, 다른 문단은 바로 보입니다.
+/// 불러오는 동안에는 그 자리에 skeleton 한 문단을 두고, 다른 문단은 바로 보입니다. 값이 오면
+/// 그때만 `appear.seep`으로 나타나고, 이미 받아 둔 값으로 다시 열면 바로 보입니다.
+///
+/// IA에 출구가 없어 registry의 `exits`는 기본값(빈 집합)입니다.
 ///
 /// 슬롯이 모두 `ui`(ARB 문자열)지만 글자는 설명 본문이라 `sentence-block` `body`로 그립니다.
 class CalcBasisScreen extends ConsumerStatefulWidget {
@@ -52,6 +52,9 @@ class CalcBasisScreen extends ConsumerStatefulWidget {
 }
 
 class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
+  /// 경도 문단 자리에 불러오는 중(skeleton)을 보였는지. 보였을 때만 값이 seep으로 나타납니다.
+  bool _shownLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -128,15 +131,16 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
     if (basis.hasValue) {
       final value = basis.value;
       if (value == null) return null;
-      return SeepPresence(
-        present: true,
-        child: _paragraph(
-          SlotIds.calcBasisLongitudeBody,
-          calcBasisLongitudeText(AppLocalizations.of(context), value),
-        ),
+      final paragraph = _paragraph(
+        SlotIds.calcBasisLongitudeBody,
+        calcBasisLongitudeText(AppLocalizations.of(context), value),
       );
+      return _shownLoading
+          ? SeepPresence(present: true, child: paragraph)
+          : paragraph;
     }
     if (basis.hasError) return null;
+    _shownLoading = true;
     // 기본 글줄 셋이 문단 한 개 자리입니다.
     return SkeletonBlock(lineStyle: context.tokens.typography.sentenceBody);
   }
