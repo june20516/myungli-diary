@@ -7,6 +7,9 @@ package contentdb
 
 import (
 	"context"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const activateSeed = `-- name: ActivateSeed :exec
@@ -16,6 +19,44 @@ UPDATE content_seeds SET active = true WHERE version = $1
 func (q *Queries) ActivateSeed(ctx context.Context, version string) error {
 	_, err := q.db.Exec(ctx, activateSeed, version)
 	return err
+}
+
+const countCare = `-- name: CountCare :one
+SELECT
+    count(DISTINCT slot) FILTER (WHERE date = $1::date) AS today_count,
+    count(DISTINCT ROW(date, slot)) AS week_count
+FROM daily_selections
+WHERE account_id = $2
+  AND variant = 'care'
+  AND date BETWEEN $3::date AND $1::date
+  AND NOT (date = $1::date AND slot = $4)
+`
+
+type CountCareParams struct {
+	Today     pgtype.Date
+	AccountID uuid.UUID
+	WeekStart pgtype.Date
+	Slot      string
+}
+
+type CountCareRow struct {
+	TodayCount int64
+	WeekCount  int64
+}
+
+// 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다.
+// 그 자리에 이미 care가 있어도 다시 care를 고르면 개수가 늘지 않기 때문입니다.
+// today_count는 오늘, week_count는 오늘을 포함한 최근 7일(week_start ~ today)입니다.
+func (q *Queries) CountCare(ctx context.Context, arg CountCareParams) (CountCareRow, error) {
+	row := q.db.QueryRow(ctx, countCare,
+		arg.Today,
+		arg.AccountID,
+		arg.WeekStart,
+		arg.Slot,
+	)
+	var i CountCareRow
+	err := row.Scan(&i.TodayCount, &i.WeekCount)
+	return i, err
 }
 
 const deactivateSeeds = `-- name: DeactivateSeeds :exec
@@ -38,20 +79,104 @@ func (q *Queries) GetActiveSeed(ctx context.Context) (string, error) {
 	return version, err
 }
 
+const getRotation = `-- name: GetRotation :one
+SELECT next_variant FROM rotation_state WHERE account_id = $1 AND message_key = $2
+`
+
+type GetRotationParams struct {
+	AccountID  uuid.UUID
+	MessageKey string
+}
+
+func (q *Queries) GetRotation(ctx context.Context, arg GetRotationParams) (string, error) {
+	row := q.db.QueryRow(ctx, getRotation, arg.AccountID, arg.MessageKey)
+	var next_variant string
+	err := row.Scan(&next_variant)
+	return next_variant, err
+}
+
+const getSelection = `-- name: GetSelection :one
+SELECT id, message_key, variant, seed_version FROM daily_selections
+WHERE account_id = $1 AND date = $2 AND slot = $3 AND birth_hash = $4
+`
+
+type GetSelectionParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+	Slot      string
+	BirthHash []byte
+}
+
+type GetSelectionRow struct {
+	ID          int64
+	MessageKey  string
+	Variant     string
+	SeedVersion string
+}
+
+func (q *Queries) GetSelection(ctx context.Context, arg GetSelectionParams) (GetSelectionRow, error) {
+	row := q.db.QueryRow(ctx, getSelection,
+		arg.AccountID,
+		arg.Date,
+		arg.Slot,
+		arg.BirthHash,
+	)
+	var i GetSelectionRow
+	err := row.Scan(
+		&i.ID,
+		&i.MessageKey,
+		&i.Variant,
+		&i.SeedVersion,
+	)
+	return i, err
+}
+
 const insertSeed = `-- name: InsertSeed :execrows
 
 INSERT INTO content_seeds (version) VALUES ($1)
 ON CONFLICT (version) DO NOTHING
 `
 
-// 콘텐츠 시드 적재와 읽기 쿼리입니다.
-// 선택 기록·순환 상태 쿼리는 선택기를 구현할 때 더합니다.
+// 콘텐츠 시드 적재와 읽기, 문장 선택 기록·순환 상태 쿼리입니다.
 func (q *Queries) InsertSeed(ctx context.Context, version string) (int64, error) {
 	result, err := q.db.Exec(ctx, insertSeed, version)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const insertSelection = `-- name: InsertSelection :one
+INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT ON CONSTRAINT daily_selections_unique DO NOTHING
+RETURNING id
+`
+
+type InsertSelectionParams struct {
+	AccountID   uuid.UUID
+	Date        pgtype.Date
+	Slot        string
+	BirthHash   []byte
+	MessageKey  string
+	Variant     string
+	SeedVersion string
+}
+
+// 동시 요청이 같은 행을 넣으면 하나만 남고, 진 쪽은 행을 돌려받지 못합니다(pgx.ErrNoRows).
+func (q *Queries) InsertSelection(ctx context.Context, arg InsertSelectionParams) (int64, error) {
+	row := q.db.QueryRow(ctx, insertSelection,
+		arg.AccountID,
+		arg.Date,
+		arg.Slot,
+		arg.BirthHash,
+		arg.MessageKey,
+		arg.Variant,
+		arg.SeedVersion,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const listTemplates = `-- name: ListTemplates :many
@@ -94,4 +219,50 @@ func (q *Queries) ListTemplates(ctx context.Context, arg ListTemplatesParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const setRotation = `-- name: SetRotation :exec
+INSERT INTO rotation_state (account_id, message_key, next_variant)
+VALUES ($1, $2, $3)
+ON CONFLICT (account_id, message_key) DO UPDATE SET next_variant = EXCLUDED.next_variant
+`
+
+type SetRotationParams struct {
+	AccountID   uuid.UUID
+	MessageKey  string
+	NextVariant string
+}
+
+func (q *Queries) SetRotation(ctx context.Context, arg SetRotationParams) error {
+	_, err := q.db.Exec(ctx, setRotation, arg.AccountID, arg.MessageKey, arg.NextVariant)
+	return err
+}
+
+const updateSelection = `-- name: UpdateSelection :one
+UPDATE daily_selections
+SET message_key = $1, variant = $2, seed_version = $3
+WHERE id = $4 AND message_key = $5
+RETURNING id
+`
+
+type UpdateSelectionParams struct {
+	MessageKey    string
+	Variant       string
+	SeedVersion   string
+	ID            int64
+	OldMessageKey string
+}
+
+// 메시지 키가 바뀐 기록을 새로 고른 값으로 바꿉니다. 그 사이 다른 요청이 먼저 바꿨으면 행을 돌려받지 못합니다.
+func (q *Queries) UpdateSelection(ctx context.Context, arg UpdateSelectionParams) (int64, error) {
+	row := q.db.QueryRow(ctx, updateSelection,
+		arg.MessageKey,
+		arg.Variant,
+		arg.SeedVersion,
+		arg.ID,
+		arg.OldMessageKey,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }

@@ -101,8 +101,10 @@ const loadTimeout = 30 * time.Second
 
 type cacheKey struct{ version, lang string }
 
-// Store는 DB의 콘텐츠 시드를 읽습니다. 문장 틀은 (버전, 언어)별로 메모리에 한 번만 불러 둡니다.
+// Store는 DB의 콘텐츠 시드를 읽고 문장 선택을 기록합니다. 문장 틀은 (버전, 언어)별로 메모리에 한 번만 불러 둡니다.
 type Store struct {
+	// pool은 선택 기록처럼 트랜잭션이 필요한 작업에 씁니다.
+	pool    *pgxpool.Pool
 	queries *contentdb.Queries
 
 	// mu는 cache 맵만 지킵니다. DB 조회 동안에는 잡지 않아서, 한 키의 느린 로드가 다른 키를 막지 않습니다.
@@ -114,7 +116,7 @@ type Store struct {
 
 // NewStore는 pool을 쓰는 Store를 만듭니다.
 func NewStore(pool *pgxpool.Pool) *Store {
-	return &Store{queries: contentdb.New(pool), cache: map[cacheKey]*templates{}}
+	return &Store{pool: pool, queries: contentdb.New(pool), cache: map[cacheKey]*templates{}}
 }
 
 // Active는 활성 시드 버전을 돌려줍니다. 없으면 ErrNoActiveSeed입니다.

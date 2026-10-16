@@ -10,12 +10,22 @@ import (
 
 type Querier interface {
 	ActivateSeed(ctx context.Context, version string) error
+	// 돌봄(care) 기록을 (날짜, 슬롯)마다 하나로 셉니다. 지금 고르는 (오늘, 슬롯)은 빼고 셉니다.
+	// 그 자리에 이미 care가 있어도 다시 care를 고르면 개수가 늘지 않기 때문입니다.
+	// today_count는 오늘, week_count는 오늘을 포함한 최근 7일(week_start ~ today)입니다.
+	CountCare(ctx context.Context, arg CountCareParams) (CountCareRow, error)
 	DeactivateSeeds(ctx context.Context, version string) error
 	GetActiveSeed(ctx context.Context) (string, error)
-	// 콘텐츠 시드 적재와 읽기 쿼리입니다.
-	// 선택 기록·순환 상태 쿼리는 선택기를 구현할 때 더합니다.
+	GetRotation(ctx context.Context, arg GetRotationParams) (string, error)
+	GetSelection(ctx context.Context, arg GetSelectionParams) (GetSelectionRow, error)
+	// 콘텐츠 시드 적재와 읽기, 문장 선택 기록·순환 상태 쿼리입니다.
 	InsertSeed(ctx context.Context, version string) (int64, error)
+	// 동시 요청이 같은 행을 넣으면 하나만 남고, 진 쪽은 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	InsertSelection(ctx context.Context, arg InsertSelectionParams) (int64, error)
 	ListTemplates(ctx context.Context, arg ListTemplatesParams) ([]ListTemplatesRow, error)
+	SetRotation(ctx context.Context, arg SetRotationParams) error
+	// 메시지 키가 바뀐 기록을 새로 고른 값으로 바꿉니다. 그 사이 다른 요청이 먼저 바꿨으면 행을 돌려받지 못합니다.
+	UpdateSelection(ctx context.Context, arg UpdateSelectionParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)
