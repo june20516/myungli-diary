@@ -52,39 +52,70 @@ Widget _dayCharacters() => Builder(
   },
 );
 
+/// lucky-card golden의 네 변형 항목. 언어별로 값을 줍니다.
+List<LuckyItem> _goldenLuckyItems({required bool ja}) {
+  RenderedText text(String ko, String jp) =>
+      RenderedText(segments: [Segment(text: ja ? jp : ko)]);
+  return [
+    LuckyItem(
+      variant: LuckyCardVariant.color,
+      name: ja ? 'ラッキーカラー' : '행운 색',
+      value: ja ? '青' : '파랑',
+      explain: text('물의 기운이 마음을 가라앉혀 줘요.', '水の気が心を落ち着かせてくれます。'),
+      element: FiveElement.water,
+    ),
+    LuckyItem(
+      variant: LuckyCardVariant.direction,
+      name: ja ? 'ラッキー方位' : '행운 방향',
+      value: ja ? '東' : '동',
+      explain: text('약속 장소를 고른다면 동쪽이 좋아요.', '方位の説明文です。'),
+    ),
+    LuckyItem(
+      variant: LuckyCardVariant.number,
+      name: ja ? 'ラッキーナンバー' : '행운 숫자',
+      value: '3',
+      explain: text('3이 흐름을 열어 줘요.', '3が流れを開いてくれます。'),
+    ),
+    LuckyItem(
+      variant: LuckyCardVariant.time,
+      name: ja ? '集中できる時間' : '집중하기 좋은 시간',
+      value: '09:30–11:30 · 13:30–15:30',
+      explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+    ),
+  ];
+}
+
+bool _isJa(BuildContext context) =>
+    Localizations.localeOf(context).languageCode == 'ja';
+
 /// lucky-card: 네 변형 칩 줄. 칸 폭 360에서 글자가 커지면 두 줄로 넘어갑니다.
 Widget _luckyCard() => Builder(
+  builder: (context) =>
+      LuckyCardRow(items: _goldenLuckyItems(ja: _isJa(context))),
+);
+
+/// lucky-card: 네 변형 칩 뒤에 대표 태그 칩 두 개(D76). design `tag` 변형 대기 중이라
+/// 기존 칩 모양이고, 두 번째 태그는 뜻이 없어 누를 수 없는 이름 칩입니다.
+Widget _luckyCardWithTags() => Builder(
   builder: (context) {
-    final ja = Localizations.localeOf(context).languageCode == 'ja';
-    RenderedText text(String ko, String jp) =>
-        RenderedText(segments: [Segment(text: ja ? jp : ko)]);
+    final ja = _isJa(context);
     return LuckyCardRow(
-      items: [
-        LuckyItem(
-          variant: LuckyCardVariant.color,
-          name: ja ? 'ラッキーカラー' : '행운 색',
-          value: ja ? '青' : '파랑',
-          explain: text('물의 기운이 마음을 가라앉혀 줘요.', '水の気が心を落ち着かせてくれます。'),
-          element: FiveElement.water,
+      items: _goldenLuckyItems(ja: ja),
+      tags: [
+        LuckyTag(
+          tagKey: 'cheoneul_gwiin',
+          name: ja ? '天乙貴人' : '천을귀인',
+          meaning: RenderedText(
+            segments: [
+              Segment(
+                text: ja
+                    ? '困ったときに助けてくれる人がそばに来る気です。'
+                    : '어려울 때 도와주는 사람이 곁에 오는 기운이에요.',
+              ),
+            ],
+          ),
         ),
-        LuckyItem(
-          variant: LuckyCardVariant.direction,
-          name: ja ? 'ラッキー方位' : '행운 방향',
-          value: ja ? '東' : '동',
-          explain: text('약속 장소를 고른다면 동쪽이 좋아요.', '方位の説明文です。'),
-        ),
-        LuckyItem(
-          variant: LuckyCardVariant.number,
-          name: ja ? 'ラッキーナンバー' : '행운 숫자',
-          value: '3',
-          explain: text('3이 흐름을 열어 줘요.', '3が流れを開いてくれます。'),
-        ),
-        LuckyItem(
-          variant: LuckyCardVariant.time,
-          name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-          value: '09:30–11:30 · 13:30–15:30',
-          explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
-        ),
+        LuckyTag(tagKey: 'clash', name: ja ? '冲' : '충'),
       ],
     );
   },
@@ -189,6 +220,23 @@ void main() {
         await tester.pump();
         // 칸마다 행운 색 칩을 눌러 설명을 엽니다.
         final chips = find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color));
+        for (var i = 0; i < chips.evaluate().length; i++) {
+          await tester.tapAt(tester.getCenter(chips.at(i)));
+        }
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
+  goldenTest('lucky-card: 대표 태그 칩 두 개, 태그 뜻 열림(D76)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'today_lucky_card_tags',
+      _luckyCardWithTags,
+      settle: (tester) async {
+        await tester.pump();
+        // 칸마다 첫 태그 칩을 눌러 뜻을 엽니다.
+        final chips = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
         for (var i = 0; i < chips.evaluate().length; i++) {
           await tester.tapAt(tester.getCenter(chips.at(i)));
         }

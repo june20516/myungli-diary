@@ -129,6 +129,25 @@ List<LuckyItem> luckyItemsOf(
   ];
 }
 
+/// [daily]의 대표 태그 칩 값(D76, 계약 `Daily.tags.featured`, 0~2개, 응답 순서).
+///
+/// 이름은 사전 `tag` 범주, 뜻은 `term.meaning`(용어 id `tag.<키>`,
+/// IA `today.lucky-tag.body`)입니다. 사전에 이름이 없는 태그는 키를 그대로 보이지 않도록
+/// 칩을 만들지 않고, 뜻이 없거나 공백뿐이면 누를 수 없는 이름 칩입니다.
+/// 길흉(`polarity`)은 design `tag` 변형이 오기 전까지 쓰지 않습니다.
+List<LuckyTag> featuredTagsOf(Daily daily, GlossaryNames names) => [
+  for (final tag in daily.tags.featured)
+    if (names.valueName('tag', tag.key) case final name?)
+      LuckyTag(
+        tagKey: tag.key,
+        name: name,
+        meaning: _nonBlank(names.meaningOf('tag.${tag.key}')),
+      ),
+];
+
+RenderedText? _nonBlank(RenderedText? text) =>
+    text == null || isBlankText(text) ? null : text;
+
 /// [daily]에서 writing 슬롯 id가 [slotId]인 문장. 응답에 없는 슬롯이면 null입니다.
 ///
 /// 날의 성격 이유·총운(첫 문장·태그 문장)·가이드 질문·행운 카드 문장을 찾습니다. 풀이 시트는
@@ -203,6 +222,7 @@ final class TodayDisplay {
     required this.headReactable,
     required this.tag,
     required this.lucky,
+    required this.tags,
     required this.guide,
   });
 
@@ -227,6 +247,9 @@ final class TodayDisplay {
   /// 행운 항목 4개.
   final List<LuckyItem> lucky;
 
+  /// 행운 칩 줄 끝에 이어 그릴 대표 태그(D76). 없으면 빈 목록입니다.
+  final List<LuckyTag> tags;
+
   /// 가이드 질문.
   final RenderedText guide;
 
@@ -239,6 +262,7 @@ final class TodayDisplay {
     headReactable,
     tag,
     lucky,
+    tags,
     guide,
   ];
 
@@ -271,6 +295,7 @@ Object? _canonical(Object? value) => switch (value) {
     value.explain.toJson(),
     value.element?.name,
   ],
+  LuckyTag() => [value.tagKey, value.name, value.meaning?.toJson()],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
   _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),
 };
@@ -294,6 +319,7 @@ TodayDisplay todayDisplayOf(
     headReactable: daily.fortune.head.reactable,
     tag: tag == null ? null : SentenceLine(text: tag.text, slot: tag.slot),
     lucky: luckyItemsOf(daily, names, l10n, timezone),
+    tags: featuredTagsOf(daily, names),
     guide: daily.guide.text,
   );
 }

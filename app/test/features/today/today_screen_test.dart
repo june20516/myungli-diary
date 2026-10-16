@@ -193,6 +193,71 @@ void main() {
     }
   });
 
+  group('대표 태그 칩(D76)', () {
+    final tagChip = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
+
+    testWidgets('대표 태그가 있으면 행운 칩 줄 끝에 이름 칩으로 그립니다', (tester) async {
+      await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+
+      final row = find.byType(LuckyCardRow);
+      expect(find.descendant(of: row, matching: tagChip), findsOneWidget);
+      // 칩 이름은 사전 tag 이름입니다(member glossary `tag.cheoneul_gwiin`).
+      expect(
+        find.descendant(of: tagChip, matching: find.text('천을귀인')),
+        findsOneWidget,
+      );
+      final chips = tester.widgetList<Widget>(
+        find.descendant(
+          of: row,
+          matching: find.byWidgetPredicate(
+            (w) => w is LuckyChip || w is LuckyTagChip,
+          ),
+        ),
+      );
+      expect(chips.last, isA<LuckyTagChip>());
+    });
+
+    testWidgets('태그 칩을 누르면 뜻 한 줄이 스밉니다', (tester) async {
+      await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+
+      await tester.ensureVisible(tagChip);
+      await tester.tap(tagChip);
+      await tester.pumpAndSettle();
+      expect(_id(SlotIds.todayLuckyTagBody), findsOneWidget);
+      expect(
+        find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('대표 태그가 없으면 태그 칩이 없고 줄은 행운 칩 4개입니다', (tester) async {
+      final json = memberDailyJson();
+      (json['tags'] as Map<String, dynamic>)['featured'] = <Object>[];
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(
+              () async => DailyView(
+                date: _today,
+                daily: Daily.fromJson(json),
+                stale: false,
+                cacheKey: null,
+              ),
+            ),
+          ),
+        ],
+      );
+      await _settleToday(tester);
+
+      expect(find.byType(LuckyTagChip), findsNothing);
+      expect(find.byType(LuckyChip), findsNWidgets(4));
+    });
+  });
+
   testWidgets('diary-written: 가이드 카드 after와 쓴 일기 보기', (tester) async {
     await pumpApp(tester, scenario: 'diary-written');
     await _settleToday(tester);

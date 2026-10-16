@@ -114,6 +114,7 @@ abstract final class SlotIds {
   static const String todayLuckyDirectionBody = 'today.lucky-direction.body';
   static const String todayLuckyNumberBody = 'today.lucky-number.body';
   static const String todayLuckyTimeBody = 'today.lucky-time.body';
+  static const String todayLuckyTagBody = 'today.lucky-tag.body';
   static const String todayGuideQuestion = 'today.guide.question';
   static const String todayGuideCta = 'today.guide.cta';
   static const String todayEventSummary = 'today.event.summary';

@@ -74,6 +74,26 @@ final class LuckyItem {
   final FiveElement? element;
 }
 
+/// 대표 태그 칩 하나(D76, 계약 `Daily.tags.featured`).
+///
+/// design `lucky-card` `tag` 변형이 오기 전이라 변형 없이 기존 칩 바탕에 이름만 그립니다.
+/// 길흉(`polarity`)은 모양에 쓰지 않습니다(변형 대기).
+@immutable
+final class LuckyTag {
+  /// 대표 태그 칩 값을 만듭니다. [meaning]이 없으면 누를 수 없는 이름 칩입니다.
+  const new({required this.tagKey, required this.name, this.meaning});
+
+  /// 태그 키(glossary `tag` 범주의 키, 예 `cheoneul_gwiin`).
+  final String tagKey;
+
+  /// 칩에 보이는 태그 이름(glossary `tag` 이름). 스크린리더도 이 이름을 읽습니다.
+  final String name;
+
+  /// 누르면 스미는 뜻 한 줄(IA `today.lucky-tag.body`, writing `term.meaning`).
+  /// 없으면 null입니다.
+  final RenderedText? meaning;
+}
+
 /// 행운 칩 하나(`lucky-card` `chip`).
 ///
 /// [onTap]이 null이면 누를 수 없는 표시 전용 칩입니다(공유 이미지). 줄([LuckyCardRow])이
@@ -122,8 +142,7 @@ class LuckyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
+    final colors = context.tokens.colors;
     final glyph = _glyph;
     final lead = glyph == null
         ? Container(
@@ -142,9 +161,79 @@ class LuckyChip extends StatelessWidget {
             weight: AppIconWeight.regular,
             color: colors.textSecondary,
           );
+    return _ChipFrame(
+      lead: lead,
+      value: item.value,
+      // 시간 값(`09:30–11:30`)은 숫자 폭을 고르게 둡니다(`time.parts.value` tnum).
+      valueFeatures: item.variant == LuckyCardVariant.time
+          ? timeValueFeatures
+          : null,
+      label: '${item.name}, ${item.value}',
+      open: open,
+      onTap: onTap,
+    );
+  }
+}
+
+/// 대표 태그 칩 하나(D76). 행운 칩과 같은 바탕·눌림·열림 테두리이고 앞 아이콘이 없습니다.
+///
+/// design `lucky-card` `tag` 변형이 오면 그 모양으로 바꿉니다. [onTap]이 null이면
+/// 표시 전용입니다(뜻 문장이 없을 때, 공유 이미지).
+class LuckyTagChip extends StatelessWidget {
+  /// 태그 칩을 만듭니다. [open]이면 안쪽 테두리를 그립니다.
+  const new({
+    required this.tag,
+    required this.open,
+    required this.onTap,
+    super.key,
+  });
+
+  /// 보여 줄 대표 태그.
+  final LuckyTag tag;
+
+  /// 뜻이 열려 있는지.
+  final bool open;
+
+  /// 눌렀을 때. null이면 표시 전용입니다.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => _ChipFrame(
+    lead: null,
+    value: tag.name,
+    valueFeatures: null,
+    label: tag.name,
+    open: open,
+    onTap: onTap,
+  );
+}
+
+/// 칩 바탕과 눌림(`lucky-card` `chip`). [LuckyChip]과 [LuckyTagChip]이 함께 씁니다.
+class _ChipFrame extends StatelessWidget {
+  const new({
+    required this.lead,
+    required this.value,
+    required this.valueFeatures,
+    required this.label,
+    required this.open,
+    required this.onTap,
+  });
+
+  final Widget? lead;
+  final String value;
+  final List<FontFeature>? valueFeatures;
+  final String label;
+  final bool open;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final lead = this.lead;
     final surface = Container(
-      key: surfaceKey,
-      constraints: const BoxConstraints(minHeight: _height),
+      key: LuckyChip.surfaceKey,
+      constraints: const BoxConstraints(minHeight: LuckyChip._height),
       padding: const EdgeInsets.symmetric(horizontal: Space.s12),
       decoration: BoxDecoration(
         color: colors.chipBg,
@@ -156,31 +245,27 @@ class LuckyChip extends StatelessWidget {
               borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
               border: Border.all(
                 color: colors.actionPrimary,
-                width: _openBorder,
+                width: LuckyChip._openBorder,
               ),
             )
           : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        spacing: _gap,
+        spacing: LuckyChip._gap,
         children: [
-          lead,
+          ?lead,
           Flexible(
             child: Text(
-              item.value,
+              value,
               style: tokens.typography.labelMd.copyWith(
                 color: colors.textPrimary,
-                // 시간 값(`09:30–11:30`)은 숫자 폭을 고르게 둡니다(`time.parts.value` tnum).
-                fontFeatures: item.variant == LuckyCardVariant.time
-                    ? timeValueFeatures
-                    : null,
+                fontFeatures: valueFeatures,
               ),
             ),
           ),
         ],
       ),
     );
-    final label = '${item.name}, ${item.value}';
     final tap = onTap;
     if (tap == null) {
       return Semantics(
@@ -207,15 +292,21 @@ class LuckyChip extends StatelessWidget {
 /// 닫힙니다. 한 번에 하나만 열려 다른 칩을 누르면 설명이 바뀝니다. 햅틱은 없습니다(명세
 /// `haptic` 비어 있음). 열린 설명은 스크린리더에 상태 알림으로 읽힙니다.
 ///
+/// 대표 태그([tags], D76)는 행운 칩 뒤에 같은 줄로 이어지고, 같은 눌림·열림 규칙을 따릅니다
+/// (행운 칩과 태그 칩을 통틀어 하나만 열림).
+///
 /// [interactive]가 false면(공유 이미지) 눌러도 열리지 않고 칩이 버튼으로 읽히지 않습니다.
-/// [slotIds]는 변형 → 설명 슬롯 id(`today.lucky-color.body` 등)이며 있으면 설명 상자에
-/// Key와 Semantics `identifier`로 붙습니다.
+/// [slotIds]는 변형 → 설명 슬롯 id(`today.lucky-color.body` 등), [tagSlotId]는 태그 뜻
+/// 슬롯 id(`today.lucky-tag.body`)이며 있으면 설명 상자에 Key와 Semantics `identifier`로
+/// 붙습니다.
 class LuckyCardRow extends StatefulWidget {
   /// 칩 줄을 만듭니다.
   const new({
     required this.items,
+    this.tags = const [],
     this.interactive = true,
     this.slotIds = const {},
+    this.tagSlotId,
     super.key,
   });
 
@@ -233,6 +324,10 @@ class LuckyCardRow extends StatefulWidget {
   static Key chipKey(LuckyCardVariant variant) =>
       ValueKey('lucky-card-chip-${variant.name}');
 
+  /// 태그 키가 [tagKey]인 대표 태그 칩을 찾는 테스트용 키.
+  static Key tagChipKey(String tagKey) =>
+      ValueKey('lucky-card-chip-tag-$tagKey');
+
   static const double _rowGap = Space.s8;
 
   /// 칩 줄 위아래에 두는 판정 여유. 칩 높이 34를 `a11y.minTarget` 44까지 넓히는 양
@@ -244,29 +339,71 @@ class LuckyCardRow extends StatefulWidget {
   /// 보여 줄 행운 항목. 같은 변형이 둘 이상이면 앞의 것만 설명을 엽니다.
   final List<LuckyItem> items;
 
+  /// 행운 칩 뒤에 이어 그릴 대표 태그(0~2개). 비면 줄은 행운 칩만입니다.
+  final List<LuckyTag> tags;
+
   /// false면 표시 전용입니다.
   final bool interactive;
 
   /// 변형 → 설명 슬롯 id.
   final Map<LuckyCardVariant, String> slotIds;
 
+  /// 대표 태그 뜻 상자의 슬롯 id. 태그가 여럿이어도 한 번에 하나만 열리므로 하나입니다.
+  final String? tagSlotId;
+
   @override
   State<LuckyCardRow> createState() => _LuckyCardRowState();
 }
 
-class _LuckyCardRowState extends State<LuckyCardRow> {
-  LuckyCardVariant? _open;
+/// 열 수 있는 칩 하나의 설명(행운 항목이든 대표 태그든 같은 모양).
+@immutable
+final class _Openable {
+  const new({required this.id, required this.text, required this.slotId});
 
-  // 닫히는 동안에도 설명 내용을 그리려고 마지막으로 열린 항목을 기억합니다.
-  LuckyItem? _lastOpenItem;
+  /// 칩 줄 안에서 이 칩을 가리키는 id(`variant:<변형>`, `tag:<키>`).
+  final String id;
+
+  /// 열리는 설명 문장.
+  final RenderedText text;
+
+  /// 설명 상자의 슬롯 id.
+  final String? slotId;
+}
+
+class _LuckyCardRowState extends State<LuckyCardRow> {
+  String? _open;
+
+  // 닫히는 동안에도 설명 내용을 그리려고 마지막으로 열린 설명을 기억합니다.
+  _Openable? _lastOpen;
 
   // 열린 채로 다른 칩으로 바뀔 때마다 올려, 바뀐 설명이 appear.seep으로 다시 나타나게 합니다.
   int _swap = 0;
 
-  LuckyItem? _itemOf(LuckyCardVariant? variant) {
-    if (variant == null) return null;
+  static String _itemId(LuckyItem item) => 'variant:${item.variant.name}';
+
+  static String _tagId(LuckyTag tag) => 'tag:${tag.tagKey}';
+
+  _Openable _itemOpenable(LuckyItem item) => _Openable(
+    id: _itemId(item),
+    text: item.explain,
+    slotId: widget.slotIds[item.variant],
+  );
+
+  /// 뜻 문장이 없는 태그는 열 것이 없어 null입니다.
+  _Openable? _tagOpenable(LuckyTag tag) {
+    final meaning = tag.meaning;
+    if (meaning == null) return null;
+    return _Openable(id: _tagId(tag), text: meaning, slotId: widget.tagSlotId);
+  }
+
+  /// 지금 줄에서 [id]인 칩의 설명. 같은 id가 둘 이상이면 앞의 것입니다.
+  _Openable? _openableOf(String? id) {
+    if (id == null) return null;
     for (final item in widget.items) {
-      if (item.variant == variant) return item;
+      if (_itemId(item) == id) return _itemOpenable(item);
+    }
+    for (final tag in widget.tags) {
+      if (_tagId(tag) == id) return _tagOpenable(tag);
     }
     return null;
   }
@@ -274,26 +411,29 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
   @override
   void didUpdateWidget(LuckyCardRow oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final current = _itemOf(_open);
+    final current = _openableOf(_open);
     if (_open != null && current == null) {
       _open = null;
     } else if (current != null) {
-      _lastOpenItem = current;
+      _lastOpen = current;
     }
   }
 
-  void _toggle(LuckyItem item) {
+  void _toggle(_Openable openable) {
     setState(() {
-      final next = _open == item.variant ? null : item.variant;
+      final next = _open == openable.id ? null : openable.id;
       if (_open != null && next != null) _swap++;
       _open = next;
-      if (next != null) _lastOpenItem = item;
+      if (next != null) _lastOpen = openable;
     });
   }
 
+  VoidCallback? _onTapOf(_Openable? openable) =>
+      widget.interactive && openable != null ? () => _toggle(openable) : null;
+
   @override
   Widget build(BuildContext context) {
-    final shown = _lastOpenItem;
+    final shown = _lastOpen;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -308,8 +448,15 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
                 LuckyChip(
                   key: LuckyCardRow.chipKey(item.variant),
                   item: item,
-                  open: _open == item.variant,
-                  onTap: widget.interactive ? () => _toggle(item) : null,
+                  open: _open == _itemId(item),
+                  onTap: _onTapOf(_itemOpenable(item)),
+                ),
+              for (final tag in widget.tags)
+                LuckyTagChip(
+                  key: LuckyCardRow.tagChipKey(tag.tagKey),
+                  tag: tag,
+                  open: _open == _tagId(tag),
+                  onTap: _onTapOf(_tagOpenable(tag)),
                 ),
             ],
           ),
@@ -319,7 +466,7 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
           present: _open != null,
           child: shown == null
               ? const SizedBox.shrink()
-              : _Explain(item: shown, slotId: widget.slotIds[shown.variant]),
+              : _Explain(text: shown.text, slotId: shown.slotId),
         ),
       ],
     );
@@ -387,16 +534,16 @@ class _RenderHitOutset extends RenderShiftedBox {
 
 /// 칩 줄 아래 설명 상자(`lucky-card` `explain`).
 class _Explain extends StatelessWidget {
-  const new({required this.item, required this.slotId});
+  const new({required this.text, required this.slotId});
 
-  final LuckyItem item;
+  final RenderedText text;
   final String? slotId;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final spoken = item.explain.segments.map((s) => s.text).join();
+    final spoken = text.segments.map((s) => s.text).join();
     final box = Padding(
       padding: const EdgeInsets.only(
         top: LuckyCardRow._rowGap - LuckyCardRow.hitInset,
@@ -409,7 +556,7 @@ class _Explain extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(Radii.md)),
         ),
         child: RenderedTextView(
-          text: item.explain,
+          text: text,
           style: tokens.typography.captionLg.copyWith(
             color: colors.textSecondary,
           ),

@@ -297,7 +297,12 @@ class _TodayBody extends ConsumerWidget {
             ],
             // 칩 줄은 위아래에 판정 여유(hitInset)를 품으므로 보이는 간격이 24가 되게 뺍니다.
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
-            LuckyCardRow(items: display.lucky, slotIds: todayLuckySlotIds),
+            LuckyCardRow(
+              items: display.lucky,
+              tags: display.tags,
+              slotIds: todayLuckySlotIds,
+              tagSlotId: SlotIds.todayLuckyTagBody,
+            ),
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             const _TodayEventSummary(),
             GuideQuestionCard(
