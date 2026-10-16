@@ -20,6 +20,7 @@ import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/depth_link_finders.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
 
 final _ko = AppLocalizationsKo();
@@ -104,7 +105,10 @@ Future<(ProviderContainer, _DailyGate)> _openSheet(
   final interceptors = container.read(dioProvider).interceptors;
   interceptors.insert(interceptors.length - 1, gate);
 
-  await tester.tap(find.byType(DepthLink));
+  // 총운 끝의 근거 보기(날의 성격 이유 줄에도 같은 링크가 있습니다).
+  await tester.tap(
+    depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+  );
   await pumpUntil(tester, () {
     if (_sheet.evaluate().isEmpty || !container.exists(_provider)) {
       return false;
