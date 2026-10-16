@@ -6,7 +6,7 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/features/schedule/data/schedule_repository.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_gone.dart';
 
-import '../schedule_test_server.dart';
+import '../../../support/schedule_test_server.dart';
 
 void main() {
   late ScheduleTestServer server;

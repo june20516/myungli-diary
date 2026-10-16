@@ -47,8 +47,10 @@ List<Map<String, Object?>> memberSchedules() => [
 
 /// 일정·일기 목록 operation을 [FakeScheduleStore]로 답하는 테스트 서버.
 ///
-/// [offline]이면 서버에 닿기 전에 연결 오류로 끝나 요청 기록이 남지 않습니다.
-/// [hold]가 있으면 일정 쓰기(POST·PATCH·DELETE) 응답을 그 Completer가 끝날 때까지 붙잡습니다.
+/// [offline]·[timeout]이면 서버에 닿기 전에 연결 오류·시간 초과로 끝나 요청 기록이 남지
+/// 않습니다. [hold]가 있으면 일정 쓰기(POST·PATCH·DELETE) 응답을 그 Completer가 끝날 때까지
+/// 붙잡습니다. [holdNextGet]은 다음 GET 하나를 붙잡습니다. GET은 받은 시점의 목록으로
+/// 답하므로, 붙잡힌 GET은 그 뒤의 변경을 모르는 늦은 응답이 됩니다.
 final class ScheduleTestServer extends Interceptor {
   /// [seed] 일정으로 시작합니다.
   new({List<Map<String, Object?>>? seed})
@@ -62,6 +64,18 @@ final class ScheduleTestServer extends Interceptor {
 
   /// 연결 없음 흉내.
   bool offline = false;
+
+  /// 시간 초과 흉내.
+  bool timeout = false;
+
+  final _getHolds = <Completer<void>>[];
+
+  /// 다음 GET 하나의 응답을 돌려준 Completer가 끝날 때까지 붙잡습니다.
+  Completer<void> holdNextGet() {
+    final gate = Completer<void>();
+    _getHolds.add(gate);
+    return gate;
+  }
 
   /// 일정 쓰기 응답을 붙잡는 문.
   Completer<void>? hold;
@@ -97,23 +111,52 @@ final class ScheduleTestServer extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    if (offline) {
+    if (offline || timeout) {
       handler.reject(
-        DioException.connectionError(
-          requestOptions: options,
-          reason: '테스트 서버: 오프라인',
-        ),
+        offline
+            ? DioException.connectionError(
+                requestOptions: options,
+                reason: '테스트 서버: 오프라인',
+              )
+            : DioException.receiveTimeout(
+                timeout: const Duration(seconds: 20),
+                requestOptions: options,
+              ),
         true,
       );
       return;
     }
     requests.add(options);
+    if (options.method == 'GET') {
+      // 받은 시점의 목록으로 답을 정해 두고, 붙잡혔으면 풀릴 때 보냅니다.
+      final answer = _tryAnswer(options);
+      if (_getHolds.isNotEmpty) {
+        await _getHolds.removeAt(0).future;
+      }
+      _send(options, handler, answer);
+      return;
+    }
     final gate = hold;
-    if (gate != null && options.method != 'GET') {
+    if (gate != null) {
       await gate.future;
     }
+    _send(options, handler, _tryAnswer(options));
+  }
+
+  Object _tryAnswer(RequestOptions options) {
     try {
-      final (status, body) = _answer(options);
+      return _answer(options);
+    } on FakeProblem catch (problem) {
+      return problem;
+    }
+  }
+
+  void _send(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+    Object answer,
+  ) {
+    if (answer case (final int status, final Object? body)) {
       handler.resolve(
         Response<Object?>(
           requestOptions: options,
@@ -125,29 +168,30 @@ final class ScheduleTestServer extends Interceptor {
         ),
         true,
       );
-    } on FakeProblem catch (problem) {
-      handler.reject(
-        DioException.badResponse(
-          statusCode: problem.status,
-          requestOptions: options,
-          response: Response<Object?>(
-            requestOptions: options,
-            statusCode: problem.status,
-            data: {
-              'type': 'about:blank',
-              'title': problem.title,
-              'status': problem.status,
-              'code': problem.code,
-              'traceId': 'test',
-            },
-            headers: Headers.fromMap({
-              Headers.contentTypeHeader: ['application/problem+json'],
-            }),
-          ),
-        ),
-        true,
-      );
+      return;
     }
+    final problem = answer as FakeProblem;
+    handler.reject(
+      DioException.badResponse(
+        statusCode: problem.status,
+        requestOptions: options,
+        response: Response<Object?>(
+          requestOptions: options,
+          statusCode: problem.status,
+          data: {
+            'type': 'about:blank',
+            'title': problem.title,
+            'status': problem.status,
+            'code': problem.code,
+            'traceId': 'test',
+          },
+          headers: Headers.fromMap({
+            Headers.contentTypeHeader: ['application/problem+json'],
+          }),
+        ),
+      ),
+      true,
+    );
   }
 
   (int, Object?) _answer(RequestOptions options) {

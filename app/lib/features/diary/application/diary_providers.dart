@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/features/diary/data/diary_repository.dart';
 
 /// 일기 저장소. 로그인한 계정에서만 읽을 수 있습니다.
@@ -39,8 +40,9 @@ final todayDiaryExistsProvider = FutureProvider<bool>((ref) async {
 /// 찍습니다(A33).
 ///
 /// 저장하지 않습니다(구독이 끝나면 버림, 다음 진입에서 다시 물음). 실패하면 빈 집합이라
-/// 도장 없이 그리고, 오류는 연결 없음까지 모두 crash 요약으로만 남깁니다(A33). 자동 재시도는
-/// 끕니다. 일기를 쓰고 돌아온 화면은 그 달을 invalidate해 다시 묻습니다.
+/// 도장 없이 그리고, 오류는 crash 요약으로만 남깁니다(A33). 연결 없음·시간 초과는 통신
+/// 환경 탓이라 남기지 않고([isConnectivityError]), server problem은 남깁니다. 자동 재시도는 끕니다.
+/// 일기를 쓰고 돌아온 화면은 그 달을 invalidate해 다시 묻습니다.
 final FutureProviderFamily<Set<CalendarDate>, CalendarMonth>
 diaryDatesProvider = FutureProvider.autoDispose
     .family<Set<CalendarDate>, CalendarMonth>((ref, month) async {
@@ -48,9 +50,11 @@ diaryDatesProvider = FutureProvider.autoDispose
       try {
         return await repository.datesIn(month.gridStart, month.gridEnd);
       } on Object catch (error, stackTrace) {
-        ref
-            .read(crashReporterProvider)
-            .record(CrashSummary.from(error), stackTrace);
+        if (!isConnectivityError(error)) {
+          ref
+              .read(crashReporterProvider)
+              .record(CrashSummary.from(error), stackTrace);
+        }
         return const <CalendarDate>{};
       }
     }, retry: (_, _) => null);

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show AsyncNotifierProviderFamily;
+import 'package:flutter_riverpod/misc.dart'
+    show AsyncNotifierProviderFamily, KeepAliveLink;
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
@@ -22,15 +23,42 @@ final scheduleRepositoryProvider = Provider<ScheduleRepository>(
 );
 
 /// 지금 메모리에 들고 있는 일정 범위들. 저장 뒤 어느 범위를 다시 받을지 고를 때 씁니다.
-final _heldRangesProvider = Provider<Set<ScheduleRange>>(
-  (ref) => <ScheduleRange>{},
-);
+final class _HeldRanges {
+  final _ranges = <ScheduleRange>{};
+
+  /// [range]를 들고 있다고 적습니다.
+  void add(ScheduleRange range) => _ranges.add(range);
+
+  /// [range]를 버렸다고 적습니다.
+  void remove(ScheduleRange range) => _ranges.remove(range);
+
+  /// [dates] 중 하나라도 품은, 들고 있는 범위.
+  List<ScheduleRange> containingAny(List<CalendarDate> dates) => [
+    for (final range in _ranges)
+      if (dates.any((date) => rangeContains(range, date))) range,
+  ];
+}
+
+final _heldRangesProvider = Provider<_HeldRanges>((ref) => _HeldRanges());
+
+/// 로그아웃([AuthEvent.signedOut]) 이벤트.
+Stream<AuthEvent> _signOutsOf(Ref ref) => ref
+    .watch(tokenStoreProvider)
+    .events
+    .where((event) => event == AuthEvent.signedOut);
 
 /// 한 범위의 일정(A34). 메모리에만 들고 앱을 끄면 버립니다(일정은 캐시하지 않음, A5).
 ///
-/// 구독이 끝나도 버리지 않으므로, 오프라인이면 받아 둔 범위의 점과 목록을 그대로 보입니다.
-/// 로그아웃([AuthEvent.signedOut])하면 붙들기를 놓아, 구독이 없는 범위는 바로 버리고 보고
-/// 있는 범위는 화면이 떠날 때 버립니다(이전 계정 일정이 다음 계정에 남지 않음).
+/// 여러 날 범위(달력 격자)는 구독이 끝나도 버리지 않으므로, 오프라인이면 받아 둔 범위의 점과
+/// 목록을 그대로 보입니다. 하루 범위(`from == to`, 오늘 요약·그날 시트)는 구독하는 동안만
+/// 들고 있어, 오늘이 바뀌면 지난 날의 범위가 남지 않습니다.
+///
+/// 로그아웃([AuthEvent.signedOut])하면 받아 둔 값을 빈 목록으로 버리고 붙들기를 놓습니다.
+/// 구독이 없는 범위는 사라지고, 보고 있는 범위는 빈 목록에서 다시 받습니다(이전 계정 일정이
+/// 남지 않음).
+///
+/// 첫 받기와 [SchedulesInRange.refresh]가 겹치면 나중에 시작한 요청의 응답만 반영합니다.
+/// 늦게 끝난 옛 요청이 새 값을 덮지 않습니다.
 /// 만들기·고치기·지우기가 성공하면 [ScheduleEditor]가 바뀐 날짜를 품은 범위만
 /// [SchedulesInRange.refresh]합니다. 자동 재시도는 끕니다(실패는 오류 상태로 남김).
 final AsyncNotifierProviderFamily<
@@ -52,39 +80,89 @@ final class SchedulesInRange extends AsyncNotifier<List<Schedule>> {
   /// 받는 범위.
   final ScheduleRange range;
 
+  /// 마지막으로 시작한 요청 번호.
+  int _started = 0;
+
+  /// 마지막으로 반영한 응답의 요청 번호와 값.
+  int _applied = 0;
+  List<Schedule>? _appliedValue;
+
   @override
-  Future<List<Schedule>> build() {
-    final keepAlive = ref.keepAlive();
-    final signOuts = ref
-        .watch(tokenStoreProvider)
-        .events
-        .where((event) => event == AuthEvent.signedOut)
-        .listen((_) => keepAlive.close());
+  Future<List<Schedule>> build() async {
+    final keepAlive = range.from == range.to ? null : ref.keepAlive();
+    final signOuts = _signOutsOf(ref).listen((_) => _forget(keepAlive));
     final held = ref.read(_heldRangesProvider)..add(range);
     ref.onDispose(() {
       unawaited(signOuts.cancel());
       held.remove(range);
     });
-    return ref.watch(scheduleRepositoryProvider).list(range.from, range.to);
+    final repository = ref.watch(scheduleRepositoryProvider);
+    final request = ++_started;
+    try {
+      final fresh = await repository.list(range.from, range.to);
+      if (_accept(request, fresh)) {
+        return fresh;
+      }
+      // 나중 요청이 이미 반영됐으면 그 값을 지킵니다. 값이 없으면 로그아웃으로 버린 요청이고,
+      // 그 build는 다시 계산되어 결과가 쓰이지 않습니다.
+      return _appliedValue ?? const <Schedule>[];
+    } on Object {
+      // 나중에 시작한 다시 받기가 이미 성공했으면 그 값을 지킵니다.
+      final newer = _appliedValue;
+      if (_applied > request && newer != null) {
+        return newer;
+      }
+      rethrow;
+    }
   }
 
   /// 범위를 다시 받습니다.
   ///
   /// 실패해도 받아 둔 목록이 있으면 그대로 둡니다(오프라인 표시, A34). 받아 둔 목록이
-  /// 없을 때만 오류 상태가 됩니다.
+  /// 없고 이것이 마지막 요청일 때만 오류 상태가 됩니다.
   Future<void> refresh() async {
+    final repository = ref.read(scheduleRepositoryProvider);
+    final request = ++_started;
     final List<Schedule> fresh;
     try {
-      fresh = await ref
-          .read(scheduleRepositoryProvider)
-          .list(range.from, range.to);
+      fresh = await repository.list(range.from, range.to);
     } on Object catch (error, stackTrace) {
-      if (!state.hasValue) {
+      if (!ref.mounted) {
+        return;
+      }
+      if (request == _started && !state.hasValue) {
         state = AsyncError(error, stackTrace);
       }
       return;
     }
-    state = AsyncData(fresh);
+    if (!ref.mounted) {
+      return;
+    }
+    if (_accept(request, fresh)) {
+      state = AsyncData(fresh);
+    }
+  }
+
+  /// [request]의 응답 [value]가 반영한 것보다 새 요청이면 기록하고 true입니다.
+  bool _accept(int request, List<Schedule> value) {
+    if (request <= _applied) {
+      return false;
+    }
+    _applied = request;
+    _appliedValue = value;
+    return true;
+  }
+
+  /// 로그아웃: 받아 둔 값을 버리고 붙들기를 놓습니다. 진행 중인 요청의 응답은 반영하지 않습니다.
+  ///
+  /// Riverpod은 새 상태(loading 포함)에 이전 값을 옮겨 담으므로, 먼저 빈 목록으로 덮어
+  /// 이전 계정 일정이 다시 받는 동안에도 남지 않게 합니다.
+  void _forget(KeepAliveLink? keepAlive) {
+    _applied = ++_started;
+    _appliedValue = null;
+    state = const AsyncData(<Schedule>[]);
+    keepAlive?.close();
+    ref.invalidateSelf();
   }
 }
 
@@ -103,7 +181,12 @@ final class ScheduleEditor extends Notifier<bool> {
   ({ScheduleInput input, String key})? _pendingCreate;
 
   @override
-  bool build() => false;
+  bool build() {
+    // 이전 계정의 대기 저장(키와 본문)을 다음 계정에 넘기지 않습니다.
+    final signOuts = _signOutsOf(ref).listen((_) => _pendingCreate = null);
+    ref.onDispose(signOuts.cancel);
+    return false;
+  }
 
   /// [draft]를 저장합니다. [original]이 없으면 만들기, 있으면 고치기입니다.
   ///
@@ -182,11 +265,7 @@ final class ScheduleEditor extends Notifier<bool> {
 
   /// [dates] 중 하나라도 품은, 들고 있는 범위만 다시 받습니다.
   Future<void> _refreshAround(List<CalendarDate> dates) async {
-    final held = ref.read(_heldRangesProvider);
-    final targets = [
-      for (final range in held)
-        if (dates.any((date) => rangeContains(range, date))) range,
-    ];
+    final targets = ref.read(_heldRangesProvider).containingAny(dates);
     await Future.wait([
       for (final range in targets)
         ref.read(schedulesInRangeProvider(range).notifier).refresh(),
@@ -198,15 +277,16 @@ final class ScheduleEditor extends Notifier<bool> {
 ///
 /// 오늘(`todayProvider`) 하루 범위의 일정과 분마다 바뀌는 벽시계(`nowMinuteProvider`)로
 /// [summarizeTodaySchedules]합니다. 일정이 없거나, 아직 받는 중이거나, 불러오지 못하면
-/// null이라 줄을 그리지 않습니다(today의 다른 상태에 영향 없음).
-final todayScheduleSummaryProvider = Provider<TodayScheduleSummary?>((ref) {
-  final today = ref.watch(todayProvider);
-  final schedules = ref
-      .watch(schedulesInRangeProvider((from: today, to: today)))
-      .value;
-  final now = ref.watch(nowMinuteProvider).value;
-  if (schedules == null || now == null) {
-    return null;
-  }
-  return summarizeTodaySchedules(schedules, now: now);
-});
+/// null이라 줄을 그리지 않습니다(today의 다른 상태에 영향 없음). 구독이 끝나면 버립니다.
+final Provider<TodayScheduleSummary?> todayScheduleSummaryProvider =
+    Provider.autoDispose<TodayScheduleSummary?>((ref) {
+      final today = ref.watch(todayProvider);
+      final schedules = ref
+          .watch(schedulesInRangeProvider((from: today, to: today)))
+          .value;
+      final now = ref.watch(nowMinuteProvider).value;
+      if (schedules == null || now == null) {
+        return null;
+      }
+      return summarizeTodaySchedules(schedules, now: now);
+    });

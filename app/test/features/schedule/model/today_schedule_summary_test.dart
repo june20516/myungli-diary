@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 
-import '../schedule_test_server.dart';
+import '../../../support/schedule_test_server.dart';
 
 /// member 시나리오 2026-10-13 일정(하루 종일·09:07·19:00).
 List<Schedule> _today({bool withAllDay = true}) => [

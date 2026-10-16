@@ -6,7 +6,7 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 
-import '../schedule/schedule_test_server.dart';
+import '../../support/schedule_test_server.dart';
 
 const _october = CalendarMonth(2026, 10);
 
@@ -57,10 +57,15 @@ void main() {
     expect(reporter.errors.single.status, 503);
   });
 
-  test('오프라인도 빈 집합이고 crash 요약만 남긴다', () async {
+  test('연결 없음·시간 초과는 빈 집합이고 보고하지 않는다(통신 환경 탓)', () async {
     server.offline = true;
-
     expect(await datesOf(_october), isEmpty);
-    expect(reporter.errors.single.errorType, 'OfflineError');
+
+    server
+      ..offline = false
+      ..timeout = true;
+    expect(await datesOf(const CalendarMonth(2026, 11)), isEmpty);
+
+    expect(reporter.errors, isEmpty);
   });
 }

@@ -75,21 +75,41 @@ final class ScheduleDraft {
     timeTouched: true,
   );
 
+  /// 저장할 수 있는 초안인지. 제목이 있고, 시각 일정이면 시각이 있어야 합니다.
+  ///
+  /// 편집 화면은 이 값으로 저장 단추를 막습니다. 저장할 수 없는 초안으로 [toInput]·
+  /// [patchFrom]을 부르면 [StateError]입니다(server 422를 미리 막음).
+  bool get isSavable => title.isNotEmpty && (allDay || time != null);
+
+  void _checkSavable() {
+    if (!isSavable) {
+      throw StateError('저장할 수 없는 초안입니다(제목 또는 시각 없음).');
+    }
+  }
+
   /// 만들기 본문. 하루 종일이면 `time`을, 빈 메모면 `memo`를 싣지 않습니다.
-  ScheduleInput toInput() => ScheduleInput(
-    date: date.toIso(),
-    allDay: allDay,
-    time: allDay ? null : time,
-    title: title,
-    memo: memo.isEmpty ? null : memo,
-  );
+  ///
+  /// [isSavable]이 false면 [StateError]입니다.
+  ScheduleInput toInput() {
+    _checkSavable();
+    return ScheduleInput(
+      date: date.toIso(),
+      allDay: allDay,
+      time: allDay ? null : time,
+      title: title,
+      memo: memo.isEmpty ? null : memo,
+    );
+  }
 
   /// [original]에서 바뀐 필드만 담은 merge-patch. 바뀐 것이 없으면 null입니다.
   ///
   /// * `time`은 시각 일정이고, 하루 종일에서 시각 일정으로 바꿨거나 사용자가 시각을 고쳐
   ///   원래와 달라졌을 때만 보냅니다(A36). 하루 종일로 바꾸면 server가 `time`을 지웁니다.
   /// * 메모를 지우면 빈 문자열을 보냅니다(계약: 빈 `memo`로 지움).
+  ///
+  /// [isSavable]이 false면 [StateError]입니다.
   SchedulePatch? patchFrom(Schedule original) {
+    _checkSavable();
     final isoDate = date.toIso();
     final sendTime =
         !allDay && (original.allDay || (timeTouched && time != original.time));

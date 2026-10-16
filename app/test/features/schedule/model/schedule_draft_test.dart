@@ -3,7 +3,7 @@ import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_draft.dart';
 
-import '../schedule_test_server.dart';
+import '../../../support/schedule_test_server.dart';
 
 Schedule _schedule(String id) =>
     Schedule.fromJson(memberSchedules().firstWhere((json) => json['id'] == id));
@@ -92,5 +92,20 @@ void main() {
   test('바뀐 것이 없으면 null', () {
     final original = _schedule('morning');
     expect(_draftOf(original).patchFrom(original), isNull);
+  });
+
+  test('시각 일정에 시각이 없거나 제목이 비면 저장할 수 없다', () {
+    final noTime = ScheduleDraft(
+      date: CalendarDate(2026, 10, 14),
+      allDay: false,
+      title: '산책',
+    );
+    expect(noTime.isSavable, isFalse);
+    expect(noTime.toInput, throwsStateError);
+    expect(() => noTime.patchFrom(_schedule('all-day')), throwsStateError);
+
+    expect(noTime.copyWith(allDay: true).isSavable, isTrue);
+    expect(noTime.withTime('08:00').isSavable, isTrue);
+    expect(noTime.withTime('08:00').copyWith(title: '').isSavable, isFalse);
   });
 }

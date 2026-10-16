@@ -14,7 +14,7 @@ import 'package:myungli_diary/features/schedule/model/schedule_gone.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_range.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 
-import '../schedule_test_server.dart';
+import '../../../support/schedule_test_server.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
@@ -66,6 +66,13 @@ ScheduleDraft _walk() => ScheduleDraft(
   title: '산책',
 );
 
+final ScheduleRange _todayRange = (from: _today, to: _today);
+
+List<String> _titlesOf(ProviderContainer container, ScheduleRange range) => [
+  for (final schedule in container.read(schedulesInRangeProvider(range)).value!)
+    schedule.title,
+];
+
 int _listCount(ScheduleTestServer server) =>
     server.requestsOf('GET', '/v1/schedules').length;
 
@@ -116,14 +123,72 @@ void main() {
       final subscription = container.listen(provider, (_, _) {});
       await container.read(provider.future);
       subscription.close();
-      // Riverpod이 autoDispose 폐기를 다음 이벤트 루프로 미루므로 잠시 기다립니다.
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await container.pump();
       expect(container.exists(provider), isTrue);
 
       await container.read(tokenStoreProvider).signOut();
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await pumpEventQueue();
+      await container.pump();
 
       expect(container.exists(provider), isFalse);
+    });
+
+    test('하루 범위는 구독이 끝나면 버린다(오늘이 바뀌면 지난 날이 남지 않음)', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      final provider = schedulesInRangeProvider(_todayRange);
+      final subscription = container.listen(provider, (_, _) {});
+      await container.read(provider.future);
+      subscription.close();
+      await container.pump();
+
+      expect(container.exists(provider), isFalse);
+    });
+
+    test('첫 받기가 늦게 와도 저장 뒤 다시 받은 값을 덮지 않는다', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      final firstGet = server.holdNextGet();
+      final provider = schedulesInRangeProvider(_octoberGrid);
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      await pumpEventQueue();
+
+      await container.read(scheduleEditorProvider.notifier).save(_walk());
+      expect(_titlesOf(container, _octoberGrid), contains('산책'));
+
+      firstGet.complete();
+      await pumpEventQueue();
+      await container.pump();
+
+      expect(_listCount(server), 2);
+      expect(_titlesOf(container, _octoberGrid), contains('산책'));
+    });
+
+    test('겹친 다시 받기는 먼저 시작한 쪽이 늦게 끝나도 나중 값이 남는다', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      await _hold(container, _octoberGrid);
+      final notifier = container.read(
+        schedulesInRangeProvider(_octoberGrid).notifier,
+      );
+
+      final olderGate = server.holdNextGet();
+      final older = notifier.refresh();
+      await pumpEventQueue();
+      expect(_listCount(server), 2);
+      server.store.create({
+        'date': '2026-10-14',
+        'allDay': true,
+        'title': '새 일정',
+      });
+      await notifier.refresh();
+      expect(_titlesOf(container, _octoberGrid), contains('새 일정'));
+
+      olderGate.complete();
+      await older;
+
+      expect(_titlesOf(container, _octoberGrid), contains('새 일정'));
     });
 
     test('받은 적 없는 범위가 오프라인이면 오류 상태다', () async {
@@ -173,6 +238,42 @@ void main() {
       expect(keys, hasLength(3));
       expect(keys[0], keys[1]);
       expect(keys[2], isNot(keys[1]));
+    });
+
+    test('로그아웃하면 실패한 만들기의 대기 키를 버린다', () async {
+      final server = ScheduleTestServer()..writeFailureStatus = 503;
+      final container = _container(server);
+      final editor = container.read(scheduleEditorProvider.notifier);
+      await expectLater(editor.save(_walk()), throwsA(isA<ProblemError>()));
+
+      await container.read(tokenStoreProvider).signOut();
+      await pumpEventQueue();
+      server.writeFailureStatus = null;
+      await editor.save(_walk());
+
+      final keys = [
+        for (final request in server.requestsOf('POST', '/v1/schedules'))
+          request.headers['Idempotency-Key'] as String,
+      ];
+      expect(keys, hasLength(2));
+      expect(keys[1], isNot(keys[0]));
+    });
+
+    test('저장할 수 없는 초안은 요청 없이 StateError다', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      final noTime = ScheduleDraft(
+        date: CalendarDate(2026, 10, 14),
+        allDay: false,
+        title: '산책',
+      );
+
+      await expectLater(
+        container.read(scheduleEditorProvider.notifier).save(noTime),
+        throwsStateError,
+      );
+      expect(server.requests, isEmpty);
+      expect(container.read(scheduleEditorProvider), isFalse);
     });
 
     test('성공하면 그 날짜를 품은 범위만 다시 받는다', () async {
@@ -362,6 +463,30 @@ void main() {
         'from': '2026-10-13',
         'to': '2026-10-13',
       });
+    });
+
+    test('요약을 구독한 채 로그아웃하면 오늘 범위가 이전 값을 들고 있지 않다', () async {
+      final server = ScheduleTestServer();
+      final container = _container(server);
+      final subscription = container.listen(
+        todayScheduleSummaryProvider,
+        (_, _) {},
+      );
+      addTearDown(subscription.close);
+      await container.read(nowMinuteProvider.future);
+      await container.read(schedulesInRangeProvider(_todayRange).future);
+      expect(container.read(todayScheduleSummaryProvider), isNotNull);
+
+      // 로그아웃 뒤 다시 받기는 붙잡아, 버린 뒤의 상태를 봅니다.
+      final refetch = server.holdNextGet();
+      addTearDown(refetch.complete);
+      await container.read(tokenStoreProvider).signOut();
+      await pumpEventQueue();
+
+      final today = container.read(schedulesInRangeProvider(_todayRange));
+      expect(today.isLoading, isTrue);
+      expect(today.value, isEmpty);
+      expect(container.read(todayScheduleSummaryProvider), isNull);
     });
 
     test('일정이 없으면 null', () async {
