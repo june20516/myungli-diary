@@ -154,6 +154,8 @@
 - {slot: ui.error.code, key: errorPreviewUsed, text: "The preview is available once. Sign in to keep going."}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "We couldn't complete that. Please update the app."}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "We couldn't find that diary entry."}
+- {slot: ui.error.code, key: errorReactionNotFound, text: "We couldn't find the sentence you reacted to. Please refresh the screen."}
+- {slot: ui.error.code, key: errorScheduleNotFound, text: "We couldn't find that event. Please refresh the list."}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "We couldn't complete that. Please update the app."}
 - {slot: ui.error.code, key: errorProfileRequired, text: "Please enter your birth date and time first."}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "There's already a diary entry for that day."}
@@ -163,6 +165,7 @@
 - {slot: ui.error.code, key: errorDateOutOfRange, text: "You can only view dates from January 31, 1900 to December 31, 2099."}
 - {slot: ui.error.code, key: errorBirthOutOfRange, text: "We can only calculate dates from January 31, 1900 to December 31, 2099."}
 - {slot: ui.error.code, key: errorDateInvalid, text: "That date isn't on the calendar."}
+- {slot: ui.error.code, key: errorRangeTooLong, text: "That date range is too long. Please choose a shorter range."}
 - {slot: ui.error.code, key: errorRequestInconsistent, text: "Please check what you entered."}
 - {slot: ui.error.code, key: errorBirthInvalid, text: "Please check the birth date and time you entered."}
 - {slot: ui.error.code, key: errorDiaryFutureDate, text: "You can't write a diary entry for a future date."}

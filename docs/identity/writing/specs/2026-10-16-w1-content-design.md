@@ -18,7 +18,7 @@
 | PR | 묶음 | 슬롯 | ko 건수 | 함께 처리 |
 | --- | --- | --- | --- | --- |
 | W1-1 | 엔진 안내 + 오늘 화면 | `system.notice`(새 슬롯), `daily.*` 10개, `character.reason`, `explain.today_reason`, `calendar.day_level`·`calendar.score_item` | 약 220 | #232, jev shadow 판정 경로(§6.2) |
-| W1-2 | 사주·개인 해석 | `chart.*` 4개, `personal.*` 5개 | 약 85 | #52 |
+| W1-2 | 사주·개인 해석 | `chart.*` 4개, `personal.*` 5개, 그 문장에 끼우는 `glossary.value_name` 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김) | 약 120 | #52, #237(오류 문구 3건), 가이드 질문 기준 확정(W31) |
 | W1-3 | 용어·근거 | `term.meaning`, `glossary.value_name`, `evidence.basis`, `evidence.source` | 약 295 | `--partial` 제거, 스토어 태그라인 |
 
 * W1-1이 먼저입니다. 오늘 화면은 사용자가 매일 보는 곳이고, 첫 라운드에서 굳힌 목소리 규칙이 이후 묶음에 그대로 적용됩니다. #232는 server가 기다리는 요청입니다.
@@ -70,7 +70,7 @@
 * 카드(색·방향·숫자·집중 시간), 태그 이름, 날의 성격 이유, 오늘 그런 이유, 달력 등급·점수 항목, 엔진 안내: 슬롯 상한 안의 짧은 정보 문장입니다.
 
 ### 5.2 사주·개인 해석 (W1-2)
-* `chart.ilgan_head`·`chart.ilgan_body`(일간 10개): 사람을 단정하지 않고 타고난 기운으로 말합니다("~한 기운을 타고났어요").
+* `chart.ilgan_head`·`chart.ilgan_body`(일간 10개): 사람을 단정하지 않고 자연의 비유 하나로 말합니다("~를 닮았어요", R10-1). 성격을 "기운을 품고 있어요"처럼 추상으로 말하지 않습니다.
 * `personal.*`: W16대로 값 이름 조각(`{place}`·`{role}` 등)을 끼우고, 키마다 언어별 문장은 하나입니다.
 
 ### 5.3 용어·근거 (W1-3)

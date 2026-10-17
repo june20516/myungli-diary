@@ -165,7 +165,7 @@
 | ui.depth.explain | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
-| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 39 | - | ko 48, en 78, ja 34 |
+| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 42 | - | ko 48, en 78, ja 34 |
 | ui.event-edit.form | 컴포넌트 segmented<br>컴포넌트 text-field<br>컴포넌트 primary-button<br>컴포넌트 notice-banner<br>컴포넌트 toast | guide | - | 1 | 8 | - | ko -, en -, ja -<br>`eventEditAllDay` ko 13, en 22, ja 10<br>`eventEditTimed` ko 13, en 22, ja 10<br>`eventEditSave` ko 23, en 42, ja 19<br>`eventEditDelete` ko 23, en 42, ja 19<br>`eventEditOfflineNotice` ko 52, en 90, ja 38<br>`eventEditSaveFailed` ko 48, en 78, ja 34 |
 | ui.event-row.label | 컴포넌트 event-row | info | - | 1 | 3 | `count`: number<br>`status`: text<br>`time`: text<br>`title`: text | ko -, en -, ja -<br>`eventRowLabel` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.evidence.title | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 33, ja 15 |

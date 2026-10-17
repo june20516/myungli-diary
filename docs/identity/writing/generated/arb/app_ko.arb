@@ -1015,6 +1015,14 @@
   "@errorDiaryNotFound": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
+  "errorReactionNotFound": "반응을 남길 문장을 찾지 못했어요. 화면을 새로 고쳐 주세요.",
+  "@errorReactionNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorScheduleNotFound": "일정을 찾지 못했어요. 목록을 새로 고쳐 주세요.",
+  "@errorScheduleNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
   "errorMethodNotAllowed": "요청을 처리하지 못했어요. 앱을 업데이트해 주세요.",
   "@errorMethodNotAllowed": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
@@ -1049,6 +1057,10 @@
   },
   "errorDateInvalid": "달력에 없는 날짜예요.",
   "@errorDateInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRangeTooLong": "한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.",
+  "@errorRangeTooLong": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorRequestInconsistent": "입력한 내용을 다시 확인해 주세요.",
