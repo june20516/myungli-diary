@@ -1019,7 +1019,7 @@
   "@errorReactionNotFound": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
-  "errorScheduleNotFound": "이미 지워진 일정이에요. 목록을 새로 고쳐 주세요.",
+  "errorScheduleNotFound": "일정을 찾지 못했어요. 목록을 새로 고쳐 주세요.",
   "@errorScheduleNotFound": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },

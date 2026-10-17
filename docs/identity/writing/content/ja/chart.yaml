@@ -23,4 +23,4 @@
 - {slot: chart.ilgan_body, key: ilgan.body.sin, text: "小さな違いにも気づき、仕上がりにこだわるほうです。締めくくりが大事なことで、その丁寧さがよく表れます。"}
 - {slot: chart.ilgan_body, key: ilgan.body.im, text: "考えの幅が広く、新しい流れを早く読むほうです。いくつものことをまとめて進めるとき、その広さが力になります。"}
 - {slot: chart.ilgan_body, key: ilgan.body.gye, text: "表に出すより、内側で深く考えるほうです。ほかの人が見落としたことに先に気づくとき、その深さが表れます。"}
-- {slot: chart.yongsin_summary, key: yongsin.summary, text: "自分を助ける気は[[{yongsin}]]なので、{yongsin:color}がよく合います。服や小物で身近に取り入れてみてください。"}
+- {slot: chart.yongsin_summary, key: yongsin.summary, text: "自分によく合う五行は[[{yongsin}]]で、色なら{yongsin:color}が似合います。服や小物で身近に取り入れてみてください。"}

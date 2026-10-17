@@ -155,7 +155,7 @@
 - {slot: ui.error.code, key: errorRouteNotFound, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "日記が見つかりませんでした。"}
 - {slot: ui.error.code, key: errorReactionNotFound, text: "反応する文が見つかりませんでした。画面を更新してください。"}
-- {slot: ui.error.code, key: errorScheduleNotFound, text: "この予定はすでに削除されています。一覧を更新してください。"}
+- {slot: ui.error.code, key: errorScheduleNotFound, text: "予定が見つかりませんでした。一覧を更新してください。"}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorProfileRequired, text: "先に生まれた日と時間を入力してください。"}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "その日にはすでに日記があります。"}

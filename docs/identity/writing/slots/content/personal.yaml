@@ -80,7 +80,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: personal.ten_god.pyeongwan, text: "태어난 날의 지지에 [[편관|ten_god.pyeongwan]]이 있어, 부담이 와도 버티며 밀고 나가는 힘이 있어요. 이 자리의 오행 금은 나와 안 맞는 기운이에요.", why: "자리 의미 + 역할을 사실로(R10-5)", source: round-R10-5}
+      - {lang: ko, key: personal.ten_god.pyeongwan, text: "태어난 날의 지지에 [[편관|ten_god.pyeongwan]]이 있어, 부담이 와도 버티며 밀고 나가는 힘이 있어요. 이 자리의 오행 금은 잘 안 맞는 기운이에요.", why: "자리 의미 + 역할을 사실로(R10-5)", source: round-R10-5}
     bad:
       - {lang: ko, key: personal.ten_god.siksin, text: "식신은 먹을 복을 뜻해요.", why: "자리·역할이 없는 일반 뜻(explain 몫)", source: writing}
       - {lang: ko, key: personal.ten_god.pyeongwan, text: "기신 자리의 편관이라 평생 시달릴 수 있어요.", why: "겁주는 단정. 기신은 조심할 쪽을 알려 주는 말로 씁니다", source: writing}

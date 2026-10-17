@@ -50,7 +50,7 @@
 - {slot: glossary.value_name, key: place.hour_branch_hidden, text: "태어난 시 지지 속"}
 - {slot: glossary.value_name, key: role.yongsin, text: "나와 잘 맞는 기운"}
 - {slot: glossary.value_name, key: role.huisin, text: "곁에서 돕는 기운"}
-- {slot: glossary.value_name, key: role.gisin, text: "나와 안 맞는 기운"}
+- {slot: glossary.value_name, key: role.gisin, text: "잘 안 맞는 기운"}
 - {slot: glossary.value_name, key: role.neutral, text: "무난한 기운"}
 - {slot: glossary.value_name, key: strength.very_weak, text: "힘이 아주 약한 편"}
 - {slot: glossary.value_name, key: strength.weak, text: "힘이 약한 편"}

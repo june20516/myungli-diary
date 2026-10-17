@@ -22,4 +22,4 @@
 - {slot: chart.ilgan_body, key: ilgan.body.sin, text: "You tend to notice small differences and care about getting things just right. That care shows in work where the finish matters."}
 - {slot: chart.ilgan_body, key: ilgan.body.im, text: "Your thinking runs wide, and you tend to read new currents quickly. That breadth helps when you have to bring many things together at once."}
 - {slot: chart.ilgan_body, key: ilgan.body.gye, text: "You tend to think things through deeply rather than show them. That depth shows when you notice what others have missed."}
-- {slot: chart.yongsin_summary, key: yongsin.summary, text: "The energy that supports you is [[{yongsin}]], so {yongsin:color} suits you well. Try keeping it close through clothes or small items."}
+- {slot: chart.yongsin_summary, key: yongsin.summary, text: "The element that fits you well is [[{yongsin}]], and its color is {yongsin:color}. Try keeping it close through clothes or small items."}

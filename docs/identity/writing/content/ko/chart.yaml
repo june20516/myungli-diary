@@ -22,4 +22,4 @@
 - {slot: chart.ilgan_body, key: ilgan.body.sin, text: "작은 차이도 알아보고 완성도를 챙기는 편이에요. 마무리가 중요한 일에서 그 꼼꼼함이 잘 보여요."}
 - {slot: chart.ilgan_body, key: ilgan.body.im, text: "생각의 폭이 넓고 새 흐름을 빨리 읽는 편이에요. 여러 일을 한꺼번에 아울러야 할 때 그 넓이가 힘이 돼요."}
 - {slot: chart.ilgan_body, key: ilgan.body.gye, text: "겉으로 드러내기보다 안에서 깊이 생각하는 편이에요. 남들이 놓친 것을 먼저 알아챌 때 그 깊이가 보여요."}
-- {slot: chart.yongsin_summary, key: yongsin.summary, text: "나를 돕는 기운은 [[{yongsin}]](이)에요. 그래서 {yongsin:color}(이)가 잘 맞으니, 옷이나 소품으로 곁에 두어 보세요."}
+- {slot: chart.yongsin_summary, key: yongsin.summary, text: "나와 잘 맞는 오행은 [[{yongsin}]](이)에요. 색으로는 {yongsin:color}(이)가 어울리니, 옷이나 소품으로 곁에 두어 보세요."}

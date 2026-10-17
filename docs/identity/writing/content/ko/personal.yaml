@@ -35,18 +35,18 @@
 - {slot: personal.twelve_stage, key: personal.twelve_stage.yang, text: "{place}에서 내 기운은 양 단계라, 서두르지 않고 안에서 차근차근 준비하는 자리예요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.shinsal, key: personal.shinsal.cheoneul_gwiin, text: "{place}에 [[천을귀인|shinsal.cheoneul_gwiin]]이 있어, 어려울 때 손을 내미는 사람을 만나기 쉬운 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.shinsal, key: personal.shinsal.dohwa, text: "{place}에 [[도화|shinsal.dohwa]]가 있어, 사람들의 눈길을 끄는 매력이 있어요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.shinsal, key: personal.shinsal.yeokma, text: "{place}에 [[역마|shinsal.yeokma]]가 있어, 옮기고 넓히는 일에서 살리면 좋은 움직임의 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.shinsal, key: personal.shinsal.yeokma, text: "{place}의 [[역마|shinsal.yeokma]]는 움직임이 많은 편이라는 뜻이라, 이사나 새 일처럼 옮기고 넓히는 일에서 그 힘을 쓰면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.shinsal, key: personal.shinsal.hwagae, text: "{place}에 [[화개|shinsal.hwagae]]가 있어, 혼자 깊이 파고드는 공부나 예술에 마음이 가는 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.shinsal, key: personal.shinsal.yangin, text: "{place}에 [[양인|shinsal.yangin]]이 있어, 밀어붙이는 힘과 결단이 세게 드러나요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.shinsal, key: personal.shinsal.gongmang, text: "{place}에 [[공망|shinsal.gongmang]]이 있어, 이 자리가 뜻하는 일은 기대만큼 채워지지 않을 때가 있어, 꽉 붙잡기보다 여유를 둘 때 편해요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.luck, key: personal.luck.ten_god.bigyeon, text: "이 {luck}의 {part}에 [[비견|ten_god.bigyeon]]이 들어, 함께하는 사람이 늘고 내 몫을 스스로 챙기게 되는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.luck, key: personal.luck.ten_god.geopjae, text: "이 {luck}의 {part}에 [[겁재|ten_god.geopjae]]가 들어, 겨룰 일과 나눌 일이 함께 많아지는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.shinsal, key: personal.shinsal.gongmang, text: "{place}의 [[공망|shinsal.gongmang]]은 이 자리가 뜻하는 일이 기대만큼 채워지지 않을 때가 있다는 뜻이라, 꽉 붙잡기보다 여유를 두면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.luck, key: personal.luck.ten_god.bigyeon, text: "이 {luck}의 {part}에 [[비견|ten_god.bigyeon]]이 들어, 함께하는 사람이 늘고 내 몫을 스스로 챙기기 쉬운 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.luck, key: personal.luck.ten_god.geopjae, text: "이 {luck}의 {part}에 [[겁재|ten_god.geopjae]]가 들어, 겨룰 일과 나눌 일이 함께 많아지기 쉬운 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.siksin, text: "이 {luck}의 {part}에 [[식신|ten_god.siksin]]이 들어, 하고 싶은 일을 즐기며 펼치기 좋은 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.sanggwan, text: "이 {luck}의 {part}에 [[상관|ten_god.sanggwan]]이 들어, 새로운 생각을 밖으로 내보이기 좋은 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.pyeonjae, text: "이 {luck}의 {part}에 [[편재|ten_god.pyeonjae]]가 들어, 넓게 움직이며 기회를 만나는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.jeongjae, text: "이 {luck}의 {part}에 [[정재|ten_god.jeongjae]]가 들어, 꾸준히 모으고 살림을 다지는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.luck, key: personal.luck.ten_god.pyeongwan, text: "이 {luck}의 {part}에 [[편관|ten_god.pyeongwan]]이 들어, 맡는 일이 무거워지고 버티는 힘을 기르는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
-- {slot: personal.luck, key: personal.luck.ten_god.jeonggwan, text: "이 {luck}의 {part}에 [[정관|ten_god.jeonggwan]]이 들어, 책임과 자리가 생기고 인정을 받는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.luck, key: personal.luck.ten_god.pyeongwan, text: "이 {luck}의 {part}에 [[편관|ten_god.pyeongwan]]이 들어, 맡는 일이 무거워지기 쉬워, 버티는 힘을 기르기 좋은 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
+- {slot: personal.luck, key: personal.luck.ten_god.jeonggwan, text: "이 {luck}의 {part}에 [[정관|ten_god.jeonggwan]]이 들어, 책임과 자리가 생기고 인정받기 쉬운 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.pyeonin, text: "이 {luck}의 {part}에 [[편인|ten_god.pyeonin]]이 들어, 남다른 공부나 생각에 깊이 빠지는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.ten_god.jeongin, text: "이 {luck}의 {part}에 [[정인|ten_god.jeongin]]이 들어, 배우고 기대는 일이 늘어나는 시기예요. 들어온 오행 [[{element}]](은)는 {role}(이)에요."}
 - {slot: personal.luck, key: personal.luck.twelve_stage.jangsaeng, text: "이 대운에서 내 기운은 장생 단계라, 새로 시작하는 일에 힘이 붙는 시기예요. 이 대운의 오행 [[{element}]](은)는 {role}(이)에요."}

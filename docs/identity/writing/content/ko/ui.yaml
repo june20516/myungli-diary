@@ -155,7 +155,7 @@
 - {slot: ui.error.code, key: errorRouteNotFound, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "일기를 찾지 못했어요."}
 - {slot: ui.error.code, key: errorReactionNotFound, text: "반응을 남길 문장을 찾지 못했어요. 화면을 새로 고쳐 주세요."}
-- {slot: ui.error.code, key: errorScheduleNotFound, text: "이미 지워진 일정이에요. 목록을 새로 고쳐 주세요."}
+- {slot: ui.error.code, key: errorScheduleNotFound, text: "일정을 찾지 못했어요. 목록을 새로 고쳐 주세요."}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorProfileRequired, text: "먼저 태어난 날과 시간을 입력해 주세요."}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "그날에는 이미 일기가 있어요."}

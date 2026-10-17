@@ -29,7 +29,7 @@
 - {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "今日誰かから学んだことはありましたか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 1, text: "今日最後まで守りたかった自分の考えを書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "今日譲らずに守ったことはありましたか？"}
-- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "言いたかったのに言えなかったことがあれば、書いてみませんか？"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "今日言えなかったことがあれば、書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 2, text: "今日一番話したかったことは何でしたか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "今日欲しかったものがあれば、一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "今日お金のことを考えた場面はありましたか？"}

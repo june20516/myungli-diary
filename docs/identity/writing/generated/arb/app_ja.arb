@@ -213,7 +213,7 @@
   "errorRouteNotFound": "処理できませんでした。アプリをアップデートしてください。",
   "errorDiaryNotFound": "日記が見つかりませんでした。",
   "errorReactionNotFound": "反応する文が見つかりませんでした。画面を更新してください。",
-  "errorScheduleNotFound": "この予定はすでに削除されています。一覧を更新してください。",
+  "errorScheduleNotFound": "予定が見つかりませんでした。一覧を更新してください。",
   "errorMethodNotAllowed": "処理できませんでした。アプリをアップデートしてください。",
   "errorProfileRequired": "先に生まれた日と時間を入力してください。",
   "errorDiaryDateTaken": "その日にはすでに日記があります。",
