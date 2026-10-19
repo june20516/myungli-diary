@@ -104,46 +104,46 @@
 - {slot: daily.fortune.tag, key: fortune.tag.yongsin_day, type: advice, text: "중요한 일이 있다면 오늘 먼저 시작해 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.yongsin_day, type: state, text: "손대는 일이 막힘 없이 이어지기 쉬운 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.yongsin_day, type: care, text: "오늘은 나를 믿어도 좋은 날이에요."}
-- {slot: daily.guide, key: guide.big_change, variant: 1, text: "오늘 달라진 것 하나를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.big_change, variant: 2, text: "오늘 가장 낯설게 느껴진 순간은 언제였나요?"}
-- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "오늘 고마웠던 사람과 그 이유를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "오늘 받은 도움 중에 가장 고마웠던 건 뭐였나요?"}
+- {slot: daily.guide, key: guide.big_change, variant: 1, text: "오늘 평소와 달랐던 게 있었다면 하나 적어 볼까요?"}
+- {slot: daily.guide, key: guide.big_change, variant: 2, text: "오늘 낯설게 느껴진 순간이 있었나요?"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "오늘 고마운 사람이 있었다면 그 이유를 적어 볼까요?"}
+- {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "오늘 고마웠던 순간이 있었나요?"}
 - {slot: daily.guide, key: guide.clash, variant: 1, text: "오늘 예상 밖으로 흘러간 장면 하나를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.clash, variant: 2, text: "오늘 의견이 달랐던 순간, 나는 뭐라고 말했나요?"}
+- {slot: daily.guide, key: guide.clash, variant: 2, text: "오늘 의견이 엇갈린 순간이 있었다면, 나는 뭐라고 말했나요?"}
 - {slot: daily.guide, key: guide.dohwa, variant: 1, text: "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"}
-- {slot: daily.guide, key: guide.dohwa, variant: 2, text: "오늘 들은 말 중에 기억에 남는 건 뭐였나요?"}
-- {slot: daily.guide, key: guide.gongmang, variant: 1, text: "오늘 기대와 다르게 흘러간 일을 하나 적어 볼까요?"}
+- {slot: daily.guide, key: guide.dohwa, variant: 2, text: "오늘 들은 말 중에 기억에 남는 게 있나요?"}
+- {slot: daily.guide, key: guide.gongmang, variant: 1, text: "오늘 기대와 다르게 흘러간 일이 있었다면 하나 적어 볼까요?"}
 - {slot: daily.guide, key: guide.gongmang, variant: 2, text: "일이 더디게 풀린 하루, 내려놓아도 괜찮았던 일은 뭐였나요?"}
-- {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "오늘 만난 사람 중 한 명을 떠올려 적어 볼까요?"}
-- {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "오늘 나를 가장 편하게 해 준 사람은 누구였나요?"}
-- {slot: daily.guide, key: guide.harmony, variant: 1, text: "오늘 마음이 잘 맞았던 대화를 하나 적어 볼까요?"}
-- {slot: daily.guide, key: guide.harmony, variant: 2, text: "오늘 함께해서 좋았던 사람은 누구였나요?"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "오늘 떠올랐던 사람이 있었다면 한 명 적어 볼까요?"}
+- {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "오늘 나를 편하게 해 준 사람이 있었나요?"}
+- {slot: daily.guide, key: guide.harmony, variant: 1, text: "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"}
+- {slot: daily.guide, key: guide.harmony, variant: 2, text: "오늘 함께해서 좋았던 사람이 있었나요?"}
 - {slot: daily.guide, key: guide.hwagae, variant: 1, text: "오늘 혼자 있던 시간에 떠오른 생각을 적어 볼까요?"}
 - {slot: daily.guide, key: guide.hwagae, variant: 2, text: "오늘 마음이 가장 차분했던 때는 언제였나요?"}
-- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 1, text: "오늘 함께 시간을 보낸 친구나 동료 이야기를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 2, text: "오늘 내 편이 되어 준 사람은 누구였나요?"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 1, text: "오늘 함께 시간을 보낸 사람이 있었다면 그 이야기를 적어 볼까요?"}
+- {slot: daily.guide, key: guide.ten_god.bigyeop, variant: 2, text: "오늘 내 편이 되어 준 사람이 있었나요?"}
 - {slot: daily.guide, key: guide.ten_god.siksang, variant: 1, text: "오늘 내가 한 말 중에 남기고 싶은 한마디를 적어 볼까요?"}
 - {slot: daily.guide, key: guide.ten_god.siksang, variant: 2, text: "오늘 내 손으로 만들거나 해낸 건 뭐였나요?"}
 - {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 1, text: "오늘 돈을 쓴 곳 하나와 그때 기분을 적어 볼까요?"}
-- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 2, text: "오늘 쓴 돈 중에 가장 만족스러웠던 건 뭐였나요?"}
+- {slot: daily.guide, key: guide.ten_god.jaeseong, variant: 2, text: "오늘 돈을 썼다면, 가장 만족스러웠던 건 뭐였나요?"}
 - {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 1, text: "오늘 끝낸 일 하나를 적어 볼까요?"}
 - {slot: daily.guide, key: guide.ten_god.gwanseong, variant: 2, text: "할 일이 눈에 띄는 하루, 가장 먼저 끝낸 건 뭐였나요?"}
 - {slot: daily.guide, key: guide.ten_god.inseong, variant: 1, text: "오늘 새로 알게 된 것 하나를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "오늘 누군가에게 배운 것은 뭐였나요?"}
+- {slot: daily.guide, key: guide.ten_god.inseong, variant: 2, text: "오늘 누군가에게 배운 게 있었나요?"}
 - {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 1, text: "오늘 끝까지 지키고 싶었던 내 생각을 적어 볼까요?"}
-- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "오늘 양보하지 않은 일은 뭐였나요?"}
-- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "오늘 하고 싶었지만 아직 못 한 말을 적어 볼까요?"}
+- {slot: daily.guide, key: guide.ten_god_rush.bigyeop, variant: 2, text: "오늘 양보하지 않고 지킨 게 있었나요?"}
+- {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 1, text: "오늘 하고 싶었지만 못 한 말이 있었다면 적어 볼까요?"}
 - {slot: daily.guide, key: guide.ten_god_rush.siksang, variant: 2, text: "오늘 가장 말하고 싶었던 이야기는 뭐였나요?"}
-- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "오늘 갖고 싶었던 것 하나를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "오늘 돈 생각이 가장 많이 난 때는 언제였나요?"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 1, text: "오늘 갖고 싶었던 게 있었다면 하나 적어 볼까요?"}
+- {slot: daily.guide, key: guide.ten_god_rush.jaeseong, variant: 2, text: "오늘 돈 생각이 났던 때가 있었나요?"}
 - {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 1, text: "오늘 맡은 일 가운데 가장 무거웠던 것을 적어 볼까요?"}
 - {slot: daily.guide, key: guide.ten_god_rush.gwanseong, variant: 2, text: "오늘 나를 가장 바쁘게 만든 일은 뭐였나요?"}
 - {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 1, text: "오늘 오래 붙잡고 있던 생각을 적어 볼까요?"}
 - {slot: daily.guide, key: guide.ten_god_rush.inseong, variant: 2, text: "생각이 많았던 하루, 떠올랐던 사람이 있나요?"}
-- {slot: daily.guide, key: guide.yeokma, variant: 1, text: "오늘 오간 길에서 본 것 하나를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.yeokma, variant: 2, text: "오늘 가장 멀리 간 곳은 어디였나요?"}
-- {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "오늘 잘 풀린 일 하나를 적어 볼까요?"}
-- {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "오늘 가장 뿌듯했던 순간은 언제였나요?"}
+- {slot: daily.guide, key: guide.yeokma, variant: 1, text: "오늘 오간 길이 있었다면, 거기서 본 것 하나를 적어 볼까요?"}
+- {slot: daily.guide, key: guide.yeokma, variant: 2, text: "발길이 바빠지기 쉬웠던 하루, 기억에 남는 곳이 있나요?"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "오늘 잘 풀린 일이 있었다면 하나 적어 볼까요?"}
+- {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "오늘 뿌듯했던 순간이 있었나요?"}
 - {slot: daily.direction, key: direction.day_kind.gisin, text: "오늘 움직일 일이 있다면 {direction}쪽이 좋아요."}
 - {slot: daily.direction, key: direction.day_kind.gwiin, text: "사람을 만날 곳을 고른다면 {direction}쪽이 좋아요."}
 - {slot: daily.direction, key: direction.day_kind.ordinary, text: "약속 장소를 고른다면 {direction}쪽이 좋아요."}

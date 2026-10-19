@@ -154,6 +154,8 @@
 - {slot: ui.error.code, key: errorPreviewUsed, text: "미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요."}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "일기를 찾지 못했어요."}
+- {slot: ui.error.code, key: errorReactionNotFound, text: "반응을 남길 문장을 찾지 못했어요. 화면을 새로 고쳐 주세요."}
+- {slot: ui.error.code, key: errorScheduleNotFound, text: "일정을 찾지 못했어요. 목록을 새로 고쳐 주세요."}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "요청을 처리하지 못했어요. 앱을 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorProfileRequired, text: "먼저 태어난 날과 시간을 입력해 주세요."}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "그날에는 이미 일기가 있어요."}
@@ -163,6 +165,7 @@
 - {slot: ui.error.code, key: errorDateOutOfRange, text: "1900년 1월 31일부터 2099년 12월 31일까지의 날짜만 볼 수 있어요."}
 - {slot: ui.error.code, key: errorBirthOutOfRange, text: "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요."}
 - {slot: ui.error.code, key: errorDateInvalid, text: "달력에 없는 날짜예요."}
+- {slot: ui.error.code, key: errorRangeTooLong, text: "한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요."}
 - {slot: ui.error.code, key: errorRequestInconsistent, text: "입력한 내용을 다시 확인해 주세요."}
 - {slot: ui.error.code, key: errorBirthInvalid, text: "입력한 태어난 날과 시간을 다시 확인해 주세요."}
 - {slot: ui.error.code, key: errorDiaryFutureDate, text: "아직 오지 않은 날의 일기는 쓸 수 없어요."}

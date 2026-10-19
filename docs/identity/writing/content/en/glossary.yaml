@@ -25,3 +25,40 @@
 - {slot: glossary.value_name, key: direction8.sw, text: "Southwest"}
 - {slot: glossary.value_name, key: direction8.w, text: "West"}
 - {slot: glossary.value_name, key: direction8.nw, text: "Northwest"}
+# Element, color, and personal reading fragments (W1-2). Fragments are noun phrases read inside a sentence (W16).
+# Elements use the myungli names (W31). place is written without an article; sentences add "your".
+- {slot: glossary.value_name, key: element.wood, text: "Wood"}
+- {slot: glossary.value_name, key: element.fire, text: "Fire"}
+- {slot: glossary.value_name, key: element.earth, text: "Earth"}
+- {slot: glossary.value_name, key: element.metal, text: "Metal"}
+- {slot: glossary.value_name, key: element.water, text: "Water"}
+- {slot: glossary.value_name, key: color.wood, text: "green"}
+- {slot: glossary.value_name, key: color.fire, text: "red"}
+- {slot: glossary.value_name, key: color.earth, text: "yellow"}
+- {slot: glossary.value_name, key: color.metal, text: "white"}
+- {slot: glossary.value_name, key: color.water, text: "navy"}
+- {slot: glossary.value_name, key: place.year_stem, text: "year stem"}
+- {slot: glossary.value_name, key: place.year_branch, text: "year branch"}
+- {slot: glossary.value_name, key: place.month_stem, text: "month stem"}
+- {slot: glossary.value_name, key: place.month_branch, text: "month branch"}
+- {slot: glossary.value_name, key: place.day_stem, text: "day stem"}
+- {slot: glossary.value_name, key: place.day_branch, text: "day branch"}
+- {slot: glossary.value_name, key: place.hour_stem, text: "hour stem"}
+- {slot: glossary.value_name, key: place.hour_branch, text: "hour branch"}
+- {slot: glossary.value_name, key: place.year_branch_hidden, text: "year hidden stem"}
+- {slot: glossary.value_name, key: place.month_branch_hidden, text: "month hidden stem"}
+- {slot: glossary.value_name, key: place.day_branch_hidden, text: "day hidden stem"}
+- {slot: glossary.value_name, key: place.hour_branch_hidden, text: "hour hidden stem"}
+- {slot: glossary.value_name, key: role.yongsin, text: "a good fit for you"}
+- {slot: glossary.value_name, key: role.huisin, text: "a good support"}
+- {slot: glossary.value_name, key: role.gisin, text: "not a great fit"}
+- {slot: glossary.value_name, key: role.neutral, text: "a neutral one"}
+- {slot: glossary.value_name, key: strength.very_weak, text: "very weak"}
+- {slot: glossary.value_name, key: strength.weak, text: "on the weak side"}
+- {slot: glossary.value_name, key: strength.neutral, text: "well balanced"}
+- {slot: glossary.value_name, key: strength.strong, text: "on the strong side"}
+- {slot: glossary.value_name, key: strength.very_strong, text: "very strong"}
+- {slot: glossary.value_name, key: luck.daeun, text: "10-year luck cycle"}
+- {slot: glossary.value_name, key: luck.seun, text: "yearly luck cycle"}
+- {slot: glossary.value_name, key: part.stem, text: "stem"}
+- {slot: glossary.value_name, key: part.branch, text: "branch"}

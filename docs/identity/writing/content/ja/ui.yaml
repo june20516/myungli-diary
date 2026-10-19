@@ -154,6 +154,8 @@
 - {slot: ui.error.code, key: errorPreviewUsed, text: "プレビューは一度だけ見られます。ログインすると続きを読めます。"}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "日記が見つかりませんでした。"}
+- {slot: ui.error.code, key: errorReactionNotFound, text: "反応する文が見つかりませんでした。画面を更新してください。"}
+- {slot: ui.error.code, key: errorScheduleNotFound, text: "予定が見つかりませんでした。一覧を更新してください。"}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorProfileRequired, text: "先に生まれた日と時間を入力してください。"}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "その日にはすでに日記があります。"}
@@ -163,6 +165,7 @@
 - {slot: ui.error.code, key: errorDateOutOfRange, text: "1900年1月31日〜2099年12月31日の日付だけ見られます。"}
 - {slot: ui.error.code, key: errorBirthOutOfRange, text: "1900年1月31日〜2099年12月31日の日付だけ計算できます。"}
 - {slot: ui.error.code, key: errorDateInvalid, text: "カレンダーにない日付です。"}
+- {slot: ui.error.code, key: errorRangeTooLong, text: "一度に見られる期間を超えています。期間を短くしてください。"}
 - {slot: ui.error.code, key: errorRequestInconsistent, text: "入力内容をもう一度確認してください。"}
 - {slot: ui.error.code, key: errorBirthInvalid, text: "入力した生まれた日と時間をもう一度確認してください。"}
 - {slot: ui.error.code, key: errorDiaryFutureDate, text: "明日以降の日記は書けません。"}
