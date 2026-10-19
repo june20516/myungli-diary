@@ -1,9 +1,9 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 2.5.0 · 토큰 계약 1.1.0 이상을 기대합니다.
+컴포넌트 계약 2.6.0 · 토큰 계약 1.1.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), 결정 V13~V34([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v3([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), 결정 V13~V38([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v3([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
 * 명세는 특정 위젯 라이브러리에 묶이지 않습니다. Material 대응은 각 `.md`에 참고 힌트로만 적습니다.
 * 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
 
@@ -57,7 +57,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 * 문장·UI 문구는 모두 자리 채우기입니다. 문구는 writing(UI 슬롯)과 server(콘텐츠)가 정하고, 명세는 자리·글자 스타일·줄바꿈·자르기 규칙만 정합니다. `.md`에 나오는 문구는 예시입니다.
 * 생김새는 두 플랫폼에서 하나입니다. 뒤로 가기 제스처, 시스템 공유, 스크롤 튕김, 키보드는 플랫폼 방식을 따릅니다.
 * 기기의 글자 크기 설정을 따릅니다. 칸이 고정된 표(원국표·만세력·대운, 달력 칸)만 1.3배 상한을 둡니다(`a11y.textScaleMax`).
-* **고정 높이는 최소 높이(결정 V30):** 명세의 고정 높이(`height`)는 기본 글자 크기에서의 높이입니다. 기기 글자가 커지면 글자가 잘리지 않게 늘어나는 최소 높이로 구현합니다. 대상은 `primary-button`, `text-field`, `segmented`, `social-login-button`, `lucky-card` 칩, `day-character` 배지 등 글자를 담은 칸 전부입니다. 예외는 칸이 고정된 표와 달력이며, 이들은 글자 크기에 상한(`a11y.textScaleMax`)을 두고 칸은 고정입니다.
+* **고정 높이는 최소 높이(결정 V30):** 명세의 고정 높이(`height`)는 기본 글자 크기에서의 높이입니다. 기기 글자가 커지면 글자가 잘리지 않게 늘어나는 최소 높이로 구현합니다. 대상은 `primary-button`, `text-field`, `segmented`, `social-login-button`, `lucky-card` 칩, `day-character` 배지 등 글자를 담은 칸 전부입니다. 칸이 고정된 표와 달력은 글자 크기에 상한(`a11y.textScaleMax`)을 두고, 칸은 그 상한 글자가 들어가는 데까지만 늘어납니다. 상한 위 설정에서는 더 늘지 않습니다(결정 V36).
 * 길흉은 색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말을 넣습니다.
 * **모양 규칙(결정 V26):** 누르면 무언가를 실행하는 동작(버튼: 저장·로그인·공유·광고 보고 열기 등)은 둥근 사각(`radius.md`), 값·상태를 보여 주거나 고르는 것(배지·칩·꼬리표·segmented·toast)은 알약(`radius.full`)입니다. 가르는 기준은 "누른 결과가 무언가를 실행하는가, 그 값을 더 보여 주는가"입니다. 행운 칩·태그 칩은 눌러도 그 값의 설명이나 모음을 보여 줄 뿐이라 값 표시, 곧 알약입니다. 이 기준에 예외는 없습니다.
 * **화면 좌우 여백(결정 V26):** 페이지 화면의 좌우 여백은 `space.20`입니다(시트 안쪽 여백과 같음). app-bar만 아이콘 터치 영역 때문에 `space.16`입니다.
@@ -81,6 +81,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.3.0 | 2026-10-15 | 구현 대응(#118·#142·#154)·IA v3(#159). 글자 링크 화살표는 아이콘 `caret-right`로 컴포넌트가 그림(V29), `depth-link` `navigate`(V32), `dialog` `notice`, `segmented` `none`, `date-picker` 윤달 대체(V31), `social-login-button` `disabled`·Apple 글자, `tab-bar` 아이콘, `app-bar` 뒤로 숨김, `input-step` 아래 버튼 생략, `lucky-card` 시간 형식, 근거 시트 빈 구역 생략, 고정 높이는 최소 높이(V30), 요소 값(`icon.set.flutter`, `mark.caution.size`, `lock.veil.lines`) |
 | 2.4.0 | 2026-10-16 | app 질문(#195·#211): `city-search` `saving`(고른 줄 끝 점 숨쉬기, V34)·지역 구분자 `region.join`, `input-step` `preface` 간격, `skeleton` 글줄 `type`, 안내 글 본문 레이아웃(`frame.md`) |
 | 2.5.0 | 2026-10-16 | 오늘 화면 대표 태그(#239, D76): `lucky-card` 변형 `tag`(글자 굵기 600 + 앞 아이콘 `tag` 본문색, 길흉 색 없음, V35), 칩 줄 맨 앞 순서, 칩 줄 줄 수 제한 없음 |
+| 2.6.0 | 2026-10-20 | app 계획 4 확인(#218): `date-picker` `solar`, `text-field` `multiline`, `event-row` 길이 없는 일정 규칙·두 줄 배치(`twoLines`·`timeColumn.overflow`)·`add`·`failed`·'외 N개' 라벨, `day-cell` 윤달 초하루 표지(V38)·윤달 라벨·높이 규칙(V36), 그날 시트 일기 입구(V37, `depth-link` `navigate` `daySheetSlot`), `dialog` `destructive`에 일정 삭제, 근거 여럿 쌓기(`repeat`)·한자 글꼴(`explainSheet.hanja`, 원전 `fontFallback`). 추가와 문구 |
 
 ## 검사 (design)
 

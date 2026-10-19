@@ -40,16 +40,17 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 * `term` 요소: `term.bg`/`term.fg`, `radius.xs`, 굵게 하지 않음(결정 V0).
 * 변형 `inline`(문장 안, 글자 스타일 그대로) / `label`(표 행 머리·십성 줄, `type.caption.md`).
 * 누르면 풀이 시트(explain-sheet, half)가 열립니다: 제목 + 한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때만) → "근거 보기" 링크(`depth-link` `block`). **모두 무료이고 잠기지 않습니다**(D60).
+* 제목 옆 한자는 `type.caption.md`·`text.secondary`에 글꼴만 `font.family.hanja`입니다. UI 글꼴(Pretendard)에는 한자 글리프가 없어서이고, 다른 한자 자리(`elements` mini, `saju` 지장간)와 같습니다(#218).
 * 2.0.0에서 "내 사주에서는" 상자와 잠김 변형을 뺐습니다. 원국 개인 해석은 근거 시트로 옮겨 처음부터 잠긴 기능으로 둡니다(D60 ②, depth-link 참고).
 * 터치 영역: 글자 높이가 작아도 줄 높이까지 위아래로 넓혀 44px를 맞춥니다.
 
 ## depth-link
 
-* 쓰는 화면: today, explain-sheet, my-saju, evidence-sheet(구성), birthplace(`navigate`)
+* 쓰는 화면: today, explain-sheet, my-saju, evidence-sheet(구성), birthplace·day-sheet(`navigate`)
 * "근거 보기" + 화살표, `action.primary` `type.label.lg`.
 * `inline-end`: 이유 문장 끝에 붙습니다. `link.inline-nowrap`으로 링크 전체가 한 덩어리라, 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 갑니다. "근거 / 보기"처럼 갈라지지 않습니다(시안 비교에서 고른 0-나).
 * `block`: 문단 아래 따로 놓입니다(나 탭).
-* `navigate`: 모양은 `block`과 같지만 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). 지금은 `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크 하나입니다. 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
+* `navigate`: 모양은 `block`과 같지만 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크와, `day-sheet`에서 그날 일기(`diary-view`)로 가는 "이날 일기 보기"(슬롯 `day-sheet.diary.open`, `label.daySheetSlot`, 결정 V37) 두 곳입니다. 출생지 링크의 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
 * `inline-end`·`block`은 누르면 한 단계 깊은 시트가 열립니다. 이미 시트 안이면 `sheet.stack`으로 쌓입니다.
 * **화살표(결정 V29):** 화살표는 원고에 넣지 않습니다. 슬롯 문구는 링크 이름만이고, 컴포넌트가 그 뒤에 아이콘 `caret-right`(regular, 링크 글자 크기, 링크 색, 간격 2px)를 붙입니다. `›` 글리프는 ko·ja 글꼴에서 모양과 굵기가 달라 아이콘으로 바꿨습니다. 스크린리더는 읽지 않고(장식), 링크가 감기면 마지막 줄 끝에 붙어 마지막 낱말과 떨어지지 않습니다. `sentence-block` 잠김의 "열기"와 잠금 안내의 `pass` 링크도 같습니다.
 * 구현 힌트(Flutter): `inline-end`는 문장 끝 `WidgetSpan` 하나로 링크 이름과 화살표를 함께 담습니다.
@@ -67,6 +68,10 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 | 5 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
 
 구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다(`sectionTitle` 스타일, 구역마다 `basisTitle`·`sourceTitle`·`personalTitle`). **구역 제목은 잠겨도 또렷하게 보입니다.** `lock.veil`은 본문에만 씌웁니다.
+
+**근거가 여럿일 때(#218, app A42):** 한 슬롯의 `evidence[]`가 여러 개면 판정 근거는 항목마다 `sentence-block` `body` 문단으로 순서대로 쌓고, 원전 인용은 항목마다 `bg.base` 상자를 따로 둡니다. 문단·상자 사이는 `space.12`(풀이 시트 `todayReason`과 같은 값)이고, 문장이 없는 항목은 건너뜁니다(`repeat`). 원전마다 출처가 달라 상자 하나에 모으지 않습니다.
+
+**원전 인용의 한자:** 문장 글꼴(고운돋움)에는 한자 글리프가 없습니다. 한글은 문장 글꼴 그대로 두고 한자만 `font.family.hanja`로 그립니다(`fontFallback`, Flutter `fontFamilyFallback`). ja 문장 글꼴(Zen Maru Gothic)은 한자가 있어 그대로입니다.
 
 **빈 구역:** `unlocked`에서 본문이 없는 구역(판정 근거·원전·내 사주에서는)은 제목까지 그리지 않고 자리도 남기지 않습니다. `locked`의 `lock.veil`은 본문을 내려받기 전이라 지금처럼 그립니다.
 

@@ -1,5 +1,5 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -17,7 +17,7 @@
       "uses": ["appear.seep", "disappear.seep", "press.ink"],
       "variants": [
         { "id": "confirm", "when": "일반 확인" },
-        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 계정 삭제)", "uses": ["mark.caution"], "a11y": { "focusOnOpen": "cancel", "dismissOnScrim": false },
+        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 일정 삭제, 계정 삭제)", "uses": ["mark.caution"], "a11y": { "focusOnOpen": "cancel", "dismissOnScrim": false },
           "parts": {
             "title": { "leading": "mark.caution" },
             "confirm": { "fg": "{color.text.primary}", "fontWeight": 700 },
