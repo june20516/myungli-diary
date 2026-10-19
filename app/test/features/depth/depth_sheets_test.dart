@@ -10,6 +10,8 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.dart';
@@ -25,8 +27,12 @@ const _sheets = DepthSheets(
 /// 시트 높이가 최대치까지 차도록 긴 본문을 만듭니다.
 Widget _tall(String label) => SizedBox(height: 4000, child: Text(label));
 
-Widget _explain(String termId, String sourceSlotId) =>
-    _tall('풀이 $termId $sourceSlotId');
+Widget _explain(String termId, TermOrigin? origin) =>
+    _tall('풀이 $termId ${origin?.slotId}');
+
+/// 오늘 화면 [slotId] 슬롯에서 연 출처.
+TermOrigin _origin(String slotId) =>
+    TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
 Widget _evidence(String slotId) => _tall('근거 $slotId');
 Widget _share() => _tall('공유');
 
@@ -63,7 +69,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await _pumpHost(tester);
       unawaited(
-        _sheets.openExplain(_context, termId: 'term.x', sourceSlotId: 'a.b'),
+        _sheets.openExplain(_context, termId: 'term.x', origin: _origin('a.b')),
       );
       await tester.pumpAndSettle();
 
@@ -83,7 +89,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await _pumpHost(tester);
       unawaited(
-        _sheets.openExplain(_context, termId: 'term.x', sourceSlotId: 'a.b'),
+        _sheets.openExplain(_context, termId: 'term.x', origin: _origin('a.b')),
       );
       await tester.pumpAndSettle();
 
@@ -130,7 +136,9 @@ void main() {
       tester,
     ) async {
       await _pumpHost(tester);
-      unawaited(_sheets.openExplain(_context, termId: 't', sourceSlotId: 's'));
+      unawaited(
+        _sheets.openExplain(_context, termId: 't', origin: _origin('s')),
+      );
       await tester.pumpAndSettle();
 
       final explainContext = tester.element(find.text('풀이 t s'));
@@ -149,7 +157,10 @@ void main() {
       final plain = ProviderContainer();
       addTearDown(plain.dispose);
       final sheets = plain.read(depthSheetsProvider);
-      expect(() => sheets.explainBody('a.b', 's.t'), throwsUnimplementedError);
+      expect(
+        () => sheets.explainBody('a.b', _origin('s.t')),
+        throwsUnimplementedError,
+      );
       expect(() => sheets.evidenceBody('s.t'), throwsUnimplementedError);
       expect(sheets.shareBody, throwsUnimplementedError);
     });
@@ -161,7 +172,7 @@ void main() {
       final evidence = sheets.evidenceBody('s.t');
       expect(evidence, isA<EvidenceSheet>());
       expect((evidence as EvidenceSheet).slotId, 's.t');
-      final explain = sheets.explainBody('ten_god.siksin', 's.t');
+      final explain = sheets.explainBody('ten_god.siksin', _origin('s.t'));
       expect(explain, isA<ExplainSheet>());
       expect(sheets.shareBody(), isA<SharePreviewSheet>());
     });

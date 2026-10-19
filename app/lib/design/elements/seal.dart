@@ -98,6 +98,19 @@ class Seal extends StatelessWidget {
   }
 }
 
+/// 도장 모양(-8° 기운 낙관 경로)으로 자르는 clipper. skeleton 도장 자리처럼 같은 모양이
+/// 필요한 곳에서 씁니다.
+class SealShapeClipper extends CustomClipper<Path> {
+  /// clipper를 만듭니다.
+  const new();
+
+  @override
+  Path getClip(Size size) => _SealPainter.placedPath(size);
+
+  @override
+  bool shouldReclip(SealShapeClipper oldClipper) => false;
+}
+
 /// 로고 낙관 경로(20 단위 격자)를 크기에 맞춰 그립니다.
 class _SealPainter extends CustomPainter {
   new({required this.color, required this.outline});
@@ -118,6 +131,17 @@ class _SealPainter extends CustomPainter {
     ..relativeQuadraticBezierTo(-8.8, 1.3, -17.6, 0)
     ..relativeQuadraticBezierTo(-1.2, -8.5, 0, -17)
     ..close();
+
+  /// [size] 영역 가운데에 -8° 기울여 맞춘 경로(clip용).
+  static Path placedPath(Size size) {
+    final scale = size.width / _grid;
+    final matrix = Matrix4.identity()
+      ..translateByDouble(size.width / 2, size.height / 2, 0, 1)
+      ..rotateZ(_rotateDegrees * math.pi / 180)
+      ..scaleByDouble(scale, scale, 1, 1)
+      ..translateByDouble(-_grid / 2, -_grid / 2, 0, 1);
+    return _path().transform(matrix.storage);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {

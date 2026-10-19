@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
+import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -14,6 +16,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/features/onboarding/application/preview_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -149,6 +152,31 @@ void main() {
     expect(banner.variant, NoticeBannerVariant.timeUnknown);
     expect(banner.message, '태어난 시간을 몰라 세 기둥으로 계산했어요.');
     expect(find.text(_ko.dayKindYongsinDay), findsOneWidget);
+  });
+
+  testWidgets('time_unknown notice의 문장이 비어 있으면 app 문구로 배너를 그립니다', (
+    tester,
+  ) async {
+    final json = jsonDecode(
+      File('fixtures/time-unknown/createPreview.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final body = json['body']! as Map<String, dynamic>;
+    body['notices'] = [
+      {
+        'code': 'time_unknown',
+        'text': {'segments': <Object>[]},
+      },
+    ];
+    await openPreviewStep(
+      tester,
+      overrides: [
+        previewProvider.overrideWith((ref) async => Preview.fromJson(body)),
+      ],
+    );
+    final banner = tester.widget<NoticeBanner>(
+      find.byKey(const ValueKey('preview.time-unknown')),
+    );
+    expect(banner.message, _ko.noticeTimeUnknown);
   });
 
   testWidgets('new-user는 time-unknown 배너가 없습니다', (tester) async {

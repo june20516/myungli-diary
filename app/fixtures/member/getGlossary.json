@@ -68,6 +68,32 @@
         "yu": "유",
         "sul": "술",
         "hae": "해"
+      },
+      "solar_term": {
+        "sohan": "소한",
+        "daehan": "대한",
+        "ipchun": "입춘",
+        "usu": "우수",
+        "gyeongchip": "경칩",
+        "chunbun": "춘분",
+        "cheongmyeong": "청명",
+        "gogu": "곡우",
+        "ipha": "입하",
+        "soman": "소만",
+        "mangjong": "망종",
+        "haji": "하지",
+        "soseo": "소서",
+        "daeseo": "대서",
+        "ipchu": "입추",
+        "cheoseo": "처서",
+        "baengno": "백로",
+        "chubun": "추분",
+        "hallo": "한로",
+        "sanggang": "상강",
+        "ipdong": "입동",
+        "soseol": "소설",
+        "daeseol": "대설",
+        "dongji": "동지"
       }
     },
     "meanings": {
@@ -80,6 +106,25 @@
       "ten_god.jeonggwan": {
         "segments": [{ "text": "나를 바르게 다잡아 주는 기운이에요. 맡은 일을 차분히 해내는 힘이 돼요." }]
       }
+    },
+    "hanja": {
+      "element.wood": "木",
+      "element.fire": "火",
+      "element.earth": "土",
+      "element.metal": "金",
+      "element.water": "水",
+      "ten_god.bigyeon": "比肩",
+      "ten_god.geopjae": "劫財",
+      "ten_god.siksin": "食神",
+      "ten_god.sanggwan": "傷官",
+      "ten_god.pyeonjae": "偏財",
+      "ten_god.jeongjae": "正財",
+      "ten_god.pyeongwan": "偏官",
+      "ten_god.jeonggwan": "正官",
+      "ten_god.pyeonin": "偏印",
+      "ten_god.jeongin": "正印",
+      "tag.dohwa": "桃花",
+      "tag.yeokma": "驛馬"
     }
   }
 }

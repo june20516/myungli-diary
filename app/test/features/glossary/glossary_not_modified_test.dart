@@ -38,6 +38,7 @@ void main() {
               'ten_god': {'pyeongwan': '편관'},
             },
             'meanings': <String, Object>{},
+            'hanja': <String, Object>{},
           }),
         );
       }

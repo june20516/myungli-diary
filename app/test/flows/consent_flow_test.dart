@@ -23,6 +23,7 @@ import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.da
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
+import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
 
@@ -204,6 +205,11 @@ void main() {
     covers(const Covers(decisions: ['D50']));
     final container = await pumpApp(tester, scenario: 'consent-renewal');
     expect(_screen(ScreenIds.consent), findsOneWidget);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.consentBarTitle,
+      _ko.consentBarTitle,
+    );
     await _checkAll(tester);
 
     await _agreeUntil(tester, ScreenIds.today);

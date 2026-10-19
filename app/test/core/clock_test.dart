@@ -470,6 +470,120 @@ void main() {
       });
     });
 
+    test('nowMinuteProvider는 분이 바뀔 때 프로필 시간대 벽시계를 내보낸다', () {
+      fakeAsync((async) {
+        // 서울 10-13 23:59:30 = UTC 14:59:30
+        final clock = _MutableClock(DateTime.utc(2026, 10, 13, 14, 59, 30));
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(clock),
+            profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
+          ],
+        );
+        final seen = <DateTime>[];
+        c.listen(
+          nowMinuteProvider,
+          (_, next) => next.whenData(seen.add),
+          fireImmediately: true,
+        );
+        async.flushMicrotasks();
+        expect(seen, [DateTime.utc(2026, 10, 13, 23, 59)]);
+
+        clock.now = clock.now.add(const Duration(seconds: 30));
+        async.elapse(const Duration(seconds: 30));
+        expect(seen.last, DateTime.utc(2026, 10, 14));
+
+        clock.now = clock.now.add(const Duration(minutes: 1));
+        async.elapse(const Duration(minutes: 1));
+        expect(seen.last, DateTime.utc(2026, 10, 14, 0, 1));
+        expect(seen, hasLength(3));
+
+        c.dispose();
+        expect(async.pendingTimers, isEmpty);
+      });
+    });
+
+    test('고정 시계면 nowMinuteProvider는 한 번만 내보내고 타이머가 없다', () {
+      fakeAsync((async) {
+        final c = ProviderContainer(
+          overrides: [
+            clockProvider.overrideWithValue(
+              FixedClock(DateTime.utc(2026, 10, 13, 3, 7, 40)),
+            ),
+            profileTimezoneProvider.overrideWithValue('Asia/Seoul'),
+          ],
+        );
+        final seen = <DateTime>[];
+        c.listen(
+          nowMinuteProvider,
+          (_, next) => next.whenData(seen.add),
+          fireImmediately: true,
+        );
+        async.elapse(const Duration(minutes: 5));
+        expect(seen, [DateTime.utc(2026, 10, 13, 12, 7)]);
+        expect(async.pendingTimers, isEmpty);
+        c.dispose();
+      });
+    });
+
+    test('minuteTicks 값은 UTC 그릇의 벽시계이고 기기 DST 건너뜀 값도 그대로다', () {
+      // 서울 2026-03-08 02:30 = UTC 03-07 17:30. 미국 DST 시작일 02:30은 기기
+      // 로컬(LA)에서는 존재하지 않는 시각이지만 벽시계 값은 그대로여야 합니다.
+      final values = <DateTime>[];
+      fakeAsync((async) {
+        minuteTicks(
+          FixedClock(DateTime.utc(2026, 3, 7, 17, 30, 12)),
+          'Asia/Seoul',
+        ).listen(values.add);
+        async.flushMicrotasks();
+      });
+      expect(values, [DateTime.utc(2026, 3, 8, 2, 30)]);
+      expect(values.single.isUtc, isTrue);
+      expect(values.single.hour, 2);
+    });
+
+    test('minuteTicks는 일찍 깨어나도 분이 같으면 내보내지 않고 다시 예약한다', () {
+      fakeAsync((async) {
+        final clock = _MutableClock(DateTime.utc(2026, 10, 13, 0, 0, 30));
+        final seen = <DateTime>[];
+        final sub = minuteTicks(clock, 'Asia/Seoul').listen(seen.add);
+        async
+          ..flushMicrotasks()
+          // 시계가 아직 같은 분인데 타이머가 먼저 깨어납니다.
+          ..elapse(const Duration(seconds: 30));
+        expect(seen, hasLength(1));
+        expect(async.pendingTimers, hasLength(1));
+        clock.now = DateTime.utc(2026, 10, 13, 0, 1);
+        async.elapse(const Duration(seconds: 30));
+        expect(seen, hasLength(2));
+        unawaited(sub.cancel());
+        expect(async.pendingTimers, isEmpty);
+      });
+    });
+
+    test('minuteTicks는 계산 오류 뒤에도 다음 분에 다시 시도한다', () {
+      fakeAsync((async) {
+        final clock = _ThrowingClock();
+        final seen = <DateTime>[];
+        final errors = <Object>[];
+        final sub = minuteTicks(
+          clock,
+          'Asia/Seoul',
+        ).listen(seen.add, onError: errors.add);
+        async.flushMicrotasks();
+        expect(seen, hasLength(1));
+        clock.shouldThrow = true;
+        async.elapse(const Duration(minutes: 1));
+        expect(errors, isNotEmpty);
+        final errorCount = errors.length;
+        clock.shouldThrow = false;
+        async.elapse(const Duration(minutes: 1));
+        expect(errors, hasLength(errorCount));
+        expect(async.pendingTimers, hasLength(1));
+        unawaited(sub.cancel());
+      });
+    });
+
     test('dayChanges는 날짜 계산 실패를 스트림 오류로 전달한다', () {
       fakeAsync((async) {
         final clock = _ThrowingClock();

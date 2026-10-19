@@ -147,7 +147,15 @@ class MyungliSheetFrame extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Flexible(child: child),
+                  // 시트는 셸 바깥 navigator에 쌓여 셸의 Material을 벗어나므로, 내용 글자가
+                  // MaterialApp의 오류 스타일(노란 이중 밑줄)을 받지 않게 그리지 않는
+                  // Material 조상을 둡니다(탭 셸과 같은 방식).
+                  Flexible(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: child,
+                    ),
+                  ),
                 ],
               ),
             ),

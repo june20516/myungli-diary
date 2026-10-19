@@ -347,5 +347,23 @@
     "signedIn": true,
     "rewardedAd": "failed",
     "description": "로그인한 회원. 보상형 광고를 표시하지 못해 오류 toast를 보고 근거 시트가 잠긴 그대로입니다."
+  },
+  {
+    "id": "calendar-error",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 달력(getCalendar)이 503이라 달력 격자를 불러오지 못합니다."
+  },
+  {
+    "id": "schedule-save-error",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 일정 만들기(createSchedule)와 고치기(updateSchedule)가 503이라 저장하지 못합니다."
   }
 ]

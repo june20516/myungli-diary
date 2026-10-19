@@ -4,13 +4,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 
 /// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
@@ -19,7 +23,9 @@ import 'package:myungli_diary/features/depth/application/evidence_unlock_control
 /// ([EvidenceUnlockController])을 [EvidenceSheetBody]에 넘깁니다. 시트가 열리면 광고를 미리
 /// 불러 두고, 닫히면 흐름이 버려져 권한 묻기가 멈추고 toast도 뜨지 않습니다.
 ///
-/// 판정 근거·원전 문장은 계약에 필드가 없어 그리지 않습니다(결정 A22). 원국표와
+/// 판정 근거·원전 문장은 [slotId] 슬롯 근거(`evidence[]`)의 `basis`·`source`를 순서대로 넘기고,
+/// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 근거는 열렸을 때(`unlocked`이고 다시
+/// 받는 중이 아님)만 읽으므로 잠긴 시트는 문장을 받지도 그리지도 않습니다(D60). 원국표와
 /// "내 사주에서는"은 계획 6이 [EvidenceSheetBody]의 `pillars`·`personal`에 값만 넘깁니다.
 ///
 /// 상태: 응답이 아직 없으면 skeleton(`loading`), 받지 못했거나 잠금 해제 뒤 다시 받기에
@@ -50,7 +56,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       controller,
     ) {
       unawaited(_events?.cancel());
-      _events = controller.events.listen(_onEvent);
+      _events = controller.watchEvents().listen(_onEvent);
     }, fireImmediately: true);
   }
 
@@ -84,18 +90,31 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     final unlock = ref.watch(provider);
     final controller = ref.read(provider.notifier);
     final l10n = AppLocalizations.of(context);
+    final opened = unlock.link == DepthLinkState.unlocked && !unlock.refreshing;
+    final evidence = opened
+        ? ref.watch(_subject.evidenceOf(widget.slotId)).value ??
+              const <Evidence>[]
+        : const <Evidence>[];
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
       onRetry: () => unawaited(controller.retry()),
       dataWithNotice: (state, _) => EvidenceSheetBody(
         state: state.link,
         title: l10n.evidenceSheetTitle,
+        basis: _sentences(evidence.map((item) => item.basis)),
+        source: _sentences(evidence.map((item) => item.source_)),
         loading: state.refreshing,
         onWatchAd: state.adReady ? () => unawaited(controller.watchAd()) : null,
         onPass: _openAdFree,
       ),
     );
   }
+
+  /// 근거 순서대로 문장만 남깁니다. 없거나 빈 문장은 건너뜁니다.
+  List<RenderedText> _sentences(Iterable<RenderedText?> texts) => [
+    for (final text in texts)
+      if (text != null && !isBlankText(text)) text,
+  ];
 
   /// 시트 상태. 다시 받기 실패가 먼저이고, 응답이 아직 없으면 응답의 상태를 따릅니다.
   AsyncValue<EvidenceUnlockState> _valueOf(

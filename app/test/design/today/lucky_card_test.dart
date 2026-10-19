@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../input/input_harness.dart';
 
@@ -22,6 +23,9 @@ const Map<LuckyCardVariant, String> _slotIds = {
   LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
   LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
 };
+
+/// 행운 4종(tag 변형은 칩이 여럿일 수 있어 따로 다룹니다).
+const List<LuckyCardVariant> _luckyVariants = LuckyCardVariant.luckyValues;
 
 List<LuckyItem> _items() => [
   LuckyItem(
@@ -119,7 +123,7 @@ void main() {
 
     testWidgets('처음에는 설명이 모두 닫혀 있습니다', (tester) async {
       await tester.pumpWidget(_app());
-      for (final variant in LuckyCardVariant.values) {
+      for (final variant in _luckyVariants) {
         expect(_explain(variant), findsNothing, reason: variant.name);
       }
     });
@@ -182,7 +186,7 @@ void main() {
 
     testWidgets('칩은 높이 34 이상이고 누름 영역은 44 이상입니다', (tester) async {
       await tester.pumpWidget(_app());
-      for (final variant in LuckyCardVariant.values) {
+      for (final variant in _luckyVariants) {
         final chip = find.descendant(
           of: _chip(variant),
           matching: find.byKey(LuckyChip.surfaceKey),
@@ -248,7 +252,7 @@ void main() {
 
     testWidgets('한 줄이어도 모든 칩의 위·아래 바깥 4px를 눌러 열립니다', (tester) async {
       await pumpRow(tester, 360);
-      for (final variant in LuckyCardVariant.values) {
+      for (final variant in _luckyVariants) {
         for (final above in [true, false]) {
           final rect = surfaceOf(tester, variant);
           expect(
@@ -512,7 +516,7 @@ void main() {
         ),
       );
       final tops = {
-        for (final variant in LuckyCardVariant.values)
+        for (final variant in _luckyVariants)
           tester.getTopLeft(_chip(variant)).dy,
       };
       expect(tops.length, greaterThan(1));
@@ -661,15 +665,271 @@ void main() {
       expect(find.byType(Icon), findsOneWidget);
     });
 
-    test('ComponentSpec은 변형 4개를 가집니다', () {
+    test('ComponentSpec은 변형 5개를 가집니다(tag 포함)', () {
       expect(LuckyCardRow.spec.id, 'lucky-card');
       expect(LuckyCardRow.spec.variants, {
         'color',
         'direction',
         'number',
         'time',
+        'tag',
       });
       expect(LuckyCardRow.spec.states, {'pressed', 'open', 'closed'});
+    });
+  });
+
+  group('tag 변형(D76, 컴포넌트 2.5.0)', () {
+    List<LuckyItem> tags() => [
+      LuckyItem.tag(
+        tagKey: 'cheoneul_gwiin',
+        name: '천을귀인',
+        meaning: _text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.'),
+      ),
+      const LuckyItem.tag(tagKey: 'clash', name: '충'),
+    ];
+
+    Widget tagApp({
+      double width = 360,
+      bool interactive = true,
+      List<LuckyItem>? items,
+    }) => inputApp(
+      Center(
+        child: SizedBox(
+          width: width,
+          child: LuckyCardRow(
+            items: items ?? [...tags(), ..._items()],
+            interactive: interactive,
+            slotIds: const {
+              ..._slotIds,
+              LuckyCardVariant.tag: SlotIds.todayLuckyTagBody,
+            },
+          ),
+        ),
+      ),
+    );
+
+    Finder tagChip(String tagKey) =>
+        find.byKey(LuckyCardRow.tagChipKey(tagKey));
+
+    Finder tagExplain() =>
+        find.byKey(const ValueKey<String>(SlotIds.todayLuckyTagBody));
+
+    test('행운 4종은 tag를 뺀 변형이고, tag 칩 키는 chipKey로 만들 수 없습니다', () {
+      expect(LuckyCardVariant.luckyValues, [
+        for (final v in LuckyCardVariant.values)
+          if (v != LuckyCardVariant.tag) v,
+      ]);
+      expect(
+        () => LuckyCardRow.chipKey(LuckyCardVariant.tag),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        LuckyCardRow.tagChipKey('clash'),
+        const ValueKey('lucky-card-chip-tag-clash'),
+      );
+    });
+
+    testWidgets('tag 칩은 칩 줄 맨 앞에 featured 순서로 놓입니다', (tester) async {
+      await tester.pumpWidget(tagApp(width: 1000));
+      expect(
+        find.descendant(
+          of: tagChip('cheoneul_gwiin'),
+          matching: find.text('천을귀인'),
+        ),
+        findsOneWidget,
+      );
+      final first = tester.getTopLeft(tagChip('cheoneul_gwiin')).dx;
+      final second = tester.getTopLeft(tagChip('clash')).dx;
+      final color = tester.getTopLeft(_chip(LuckyCardVariant.color)).dx;
+      expect(first, lessThan(second));
+      expect(second, lessThan(color));
+    });
+
+    testWidgets('tag 칩은 tag 아이콘과 굵기 600이고 polarity와 상관없이 같은 모양입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(tagApp());
+      final tokens = tester.element(tagChip('clash')).tokens;
+      for (final key in ['cheoneul_gwiin', 'clash']) {
+        final chip = tagChip(key);
+        final icon = tester.widget<Icon>(
+          find.descendant(of: chip, matching: find.byType(Icon)),
+        );
+        expect(icon.icon, PhosphorIconsRegular.tag, reason: key);
+        expect(icon.size, 16, reason: key);
+        expect(icon.color, tokens.colors.textPrimary, reason: key);
+        final text = tester.widget<Text>(
+          find.descendant(of: chip, matching: find.byType(Text)),
+        );
+        expect(text.style!.fontWeight, FontWeight.w600, reason: key);
+        expect(text.style!.color, tokens.colors.textPrimary, reason: key);
+        final surface = find.descendant(
+          of: chip,
+          matching: find.byKey(LuckyChip.surfaceKey),
+        );
+        expect(tester.getSize(surface).height, greaterThanOrEqualTo(34));
+        final box =
+            tester.widget<Container>(surface).decoration! as BoxDecoration;
+        expect(box.color, tokens.colors.chipBg, reason: key);
+        expect(box.border, isNull, reason: key);
+      }
+      // 행운 칩의 아이콘은 text.secondary이고 굵기는 그대로입니다.
+      final luckyIcon = tester.widget<Icon>(
+        find.descendant(
+          of: _chip(LuckyCardVariant.number),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(luckyIcon.color, tokens.colors.textSecondary);
+    });
+
+    testWidgets('tag 칩을 누르면 뜻 한 줄이 스미고 슬롯 id를 Key와 identifier로 답니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(tagApp());
+      await tester.tap(tagChip('cheoneul_gwiin'));
+      await tester.pump();
+      // appear.seep 도중에도 상자는 이미 자리에 있습니다.
+      expect(tagExplain(), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
+        findsOneWidget,
+      );
+      expect(_data(tester, tagExplain()).identifier, SlotIds.todayLuckyTagBody);
+
+      // 같은 칩을 다시 누르면 닫힙니다.
+      await tester.tap(tagChip('cheoneul_gwiin'));
+      await tester.pumpAndSettle();
+      expect(tagExplain(), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('행운 칩과 tag 칩 사이에서도 한 번에 하나만 열립니다', (tester) async {
+      await tester.pumpWidget(tagApp());
+      await _tap(tester, LuckyCardVariant.color);
+      await tester.tap(tagChip('cheoneul_gwiin'));
+      await tester.pumpAndSettle();
+      expect(_explain(LuckyCardVariant.color), findsNothing);
+      expect(tagExplain(), findsOneWidget);
+      expect(find.byKey(LuckyCardRow.explainKey), findsOneWidget);
+
+      await _tap(tester, LuckyCardVariant.number);
+      expect(tagExplain(), findsNothing);
+      expect(_explain(LuckyCardVariant.number), findsOneWidget);
+    });
+
+    testWidgets('tag 칩 라벨은 태그 이름만이고 열리면 expanded입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(tagApp());
+      Finder node() => find
+          .descendant(
+            of: tagChip('cheoneul_gwiin'),
+            matching: find.byType(Semantics),
+          )
+          .first;
+      var data = _data(tester, node());
+      expect(data.label, '천을귀인');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isExpanded, Tristate.isFalse);
+      await tester.tap(tagChip('cheoneul_gwiin'));
+      await tester.pumpAndSettle();
+      data = _data(tester, node());
+      expect(data.flagsCollection.isExpanded, Tristate.isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('뜻 문장이 없는 tag 칩은 이름만 보이고 누를 수 없습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(tagApp());
+      await tester.tap(tagChip('clash'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(LuckyCardRow.explainKey), findsNothing);
+      final data = _data(
+        tester,
+        find
+            .descendant(of: tagChip('clash'), matching: find.byType(Semantics))
+            .first,
+      );
+      expect(data.label, '충');
+      expect(data.flagsCollection.isButton, isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('tag 칩도 누르는 동안 press.ink 얼룩이고, 열리면 1.5 action.primary 테두리입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(tagApp());
+      final chip = tagChip('cheoneul_gwiin');
+      final gesture = await tester.startGesture(tester.getCenter(chip));
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(paintsInk(tester, inkLayer(chip)), isTrue);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      final tokens = tester.element(chip).tokens;
+      Border? borderOf(String tagKey) {
+        final surface = find.descendant(
+          of: tagChip(tagKey),
+          matching: find.byKey(LuckyChip.surfaceKey),
+        );
+        final box = tester.widget<Container>(surface);
+        return (box.foregroundDecoration as BoxDecoration?)?.border as Border?;
+      }
+
+      final open = borderOf('cheoneul_gwiin')!;
+      expect(open.top.width, 1.5);
+      expect(open.top.color, tokens.colors.actionPrimary);
+      expect(borderOf('clash'), isNull);
+    });
+
+    testWidgets('뜻 없는 표시 전용 tag 칩은 눌림 잉크 층이 없고 누를 수 없습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(tagApp());
+      final chip = tagChip('clash');
+      final gesture = await tester.startGesture(tester.getCenter(chip));
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 100));
+      // 누를 수 없는 칩에는 press.ink 층 자체가 없습니다.
+      expect(inkLayer(chip), findsNothing);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      final data = _data(
+        tester,
+        find.descendant(of: chip, matching: find.byType(Semantics)).first,
+      );
+      expect(data.flagsCollection.isEnabled, isNot(Tristate.isTrue));
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('interactive: false면 tag 칩도 열리지 않습니다', (tester) async {
+      await tester.pumpWidget(tagApp(interactive: false));
+      await tester.tap(tagChip('cheoneul_gwiin'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(LuckyCardRow.explainKey), findsNothing);
+    });
+
+    testWidgets('tag 칩이 사라지면 열린 뜻을 닫고, 없으면 줄은 행운 칩 4개입니다', (tester) async {
+      await tester.pumpWidget(tagApp());
+      await tester.tap(tagChip('cheoneul_gwiin'));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      expect(find.byKey(LuckyCardRow.explainKey), findsNothing);
+      expect(tagChip('cheoneul_gwiin'), findsNothing);
+      expect(find.byType(LuckyChip), findsNWidgets(4));
+    });
+
+    testWidgets('폭이 모자라면 tag 칩도 칩 하나를 끊지 않고 다음 줄로 넘어갑니다', (tester) async {
+      await tester.pumpWidget(tagApp(width: 240));
+      expect(
+        tester.getTopLeft(_chip(LuckyCardVariant.time)).dy,
+        greaterThan(tester.getTopLeft(tagChip('clash')).dy),
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 }

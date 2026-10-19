@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart'
-    show expect, find, findsNothing, findsWidgets;
+import 'package:flutter_test/flutter_test.dart' show expect, find, findsNothing;
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
@@ -30,25 +29,6 @@ Future<void> _waitUntil(
     }
     await $.pump(const Duration(milliseconds: 100));
   }
-}
-
-/// 시트 덮개(`sheet.scrim`)의 왼쪽 위 모서리 안쪽을 눌러 열린 시트를 모두 닫습니다.
-///
-/// 덮개는 화면 전체이고 시트가 아래쪽을 가리므로, 시트에 가려지지 않는 모서리를
-/// 덮개 위치에서 구해 누릅니다(고정 좌표가 아님). 덮개에 의미 있는 탭 대상(`Semantics`)이
-/// 있지만 그 자식은 `ExcludeSemantics`라 finder로 직접 누르면 가운데(시트 위)를 눌러 버립니다.
-/// 시트가 쌓여 덮개가 여럿이면 맨 위(`.last`)를 누르고, 덮개가 모두 사라질 때까지 되풀이합니다.
-Future<void> _closeSheets(PatrolIntegrationTester $) async {
-  final scrim = find.byKey(const ValueKey('sheet.scrim'));
-  expect(scrim, findsWidgets);
-  // 쌓일 수 있는 시트 수보다 넉넉하게 시도하고, 그래도 남으면 실패로 알립니다.
-  for (var attempt = 0; attempt < 5 && scrim.evaluate().isNotEmpty; attempt++) {
-    await $.tester.tapAt(
-      $.tester.getTopLeft(scrim.last) + const Offset(10, 10),
-    );
-    await $.pumpAndTrySettle();
-  }
-  expect(scrim, findsNothing, reason: '열린 시트가 모두 닫혀야 합니다');
 }
 
 void main() {
@@ -124,7 +104,7 @@ void main() {
       await expectScreen($, ScreenIds.evidenceSheet, state: 'unlocked');
 
       // 바깥을 누르면 쌓인 시트가 모두 닫힙니다.
-      await _closeSheets($);
+      await closeSheets($);
       expect(sheet, findsNothing);
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
 
@@ -150,7 +130,7 @@ void main() {
           ).brightness,
           Brightness.dark,
         );
-        await _closeSheets($);
+        await closeSheets($);
         expect(find.byKey(const Key(ScreenIds.sharePreview)), findsNothing);
       } finally {
         $.tester.platformDispatcher.clearPlatformBrightnessTestValue();

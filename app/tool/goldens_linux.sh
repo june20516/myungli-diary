@@ -16,6 +16,18 @@ app_dir="$(cd "$(dirname "$0")/.." && pwd)"
 repo_root="$(cd "$app_dir/.." && pwd)"
 platform="${DOCKER_PLATFORM:-linux/amd64}"
 
+# Docker Desktop의 자격 증명 도우미(docker-credential-desktop)를 부르지 않도록 빈 설정으로
+# 돌립니다. 공개 이미지라 로그인이 필요 없고, macOS에서 이 도우미가 터미널 앱에 '다른 앱의
+# 데이터 접근' 확인을 매번 띄웁니다. 빈 설정에는 context가 없으므로 소켓 주소를 먼저 읽어 둡니다.
+if [ -z "${DOCKER_HOST:-}" ]; then
+  DOCKER_HOST="$(docker context inspect --format '{{.Endpoints.docker.Host}}')"
+  export DOCKER_HOST
+fi
+DOCKER_CONFIG="$(mktemp -d)"
+export DOCKER_CONFIG
+trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+printf '{}\n' >"$DOCKER_CONFIG/config.json"
+
 version="$("$app_dir/tool/golden_flutter_version.sh")"
 
 image="ghcr.io/cirruslabs/flutter:$version"

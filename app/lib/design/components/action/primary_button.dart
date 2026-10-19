@@ -63,9 +63,6 @@ class PrimaryButton extends StatelessWidget {
   static const Key dotsKey = ValueKey('primary-button-dots');
 
   static const double _minTarget = 48;
-  static const double _dotsGap = 6;
-  static const double _dotSize = 6;
-  static const int _dotCount = 3;
 
   /// 버튼 글자(스크린리더 라벨도 같습니다).
   final String label;
@@ -138,9 +135,9 @@ class PrimaryButton extends StatelessWidget {
                     key: dotsKey,
                     color: fg,
                     animated: animated,
-                    count: _dotCount,
-                    size: _dotSize,
-                    gap: _dotsGap,
+                    count: BreathingDots.standardCount,
+                    size: BreathingDots.standardSize,
+                    gap: BreathingDots.standardGap,
                   )
                 : DefaultTextStyle(
                     style: labelStyle,
@@ -187,7 +184,7 @@ class PrimaryButton extends StatelessWidget {
       child: PressInkTarget(
         semanticLabel: label,
         identifier: identifier,
-        onTap: onPressed!,
+        onTap: onPressed,
         borderRadius: radius,
         inkColor: fg,
         child: wide,

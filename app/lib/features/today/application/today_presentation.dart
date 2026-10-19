@@ -9,18 +9,23 @@ import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/notice_text.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 
 // 그날 응답(`Daily`)을 화면에 보일 값으로 바꾸는 한 곳입니다(결정 A22·A27).
 // 계약 필드가 늘면 화면이 아니라 이 파일만 고칩니다. 오늘 화면과 계획 4 `day-sheet`,
-// 공유 미리보기가 함께 씁니다.
+// 공유 미리보기, 풀이·근거 시트(슬롯별 오늘 그런 이유·근거, [dailySlotText])가 함께 씁니다.
+// A22는 draft.4로 해제되어 계약의 문장 필드를 모두 그리고, 원고가 없어 server가 생략한
+// 선택 문장만 자리 없이 건너뜁니다.
 
 /// 오늘 화면 행운 설명 상자의 슬롯 id.
 const Map<LuckyCardVariant, String> todayLuckySlotIds = {
@@ -28,6 +33,7 @@ const Map<LuckyCardVariant, String> todayLuckySlotIds = {
   LuckyCardVariant.direction: SlotIds.todayLuckyDirectionBody,
   LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
   LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
+  LuckyCardVariant.tag: SlotIds.todayLuckyTagBody,
 };
 
 /// 날의 성격 줄(`day-character`)에 보일 값.
@@ -42,7 +48,7 @@ final class DayCharacterContent {
   final String label;
 
   /// 이유 한 줄(`character.reason`). 계약 draft.3부터 응답에 늘 있습니다.
-  /// 비어 있으면 [DayCharacter]가 이유 줄을 그리지 않습니다(결정 A22).
+  /// 원고가 없어 비어 있으면 [DayCharacter]가 이유 줄을 그리지 않습니다(A22 남은 규칙).
   final RenderedText? reason;
 }
 
@@ -125,13 +131,70 @@ List<LuckyItem> luckyItemsOf(
   ];
 }
 
-/// `time_unknown` notice의 문장 조각 글자를 이은 것. 없으면 null입니다.
+/// 대표 태그 칩 상한(`lucky-card` `tag`: 계약 `Daily.tags.featured` 0~2개).
+const int maxFeaturedTags = 2;
+
+/// [daily]의 대표 태그 칩 값(D76, 계약 `Daily.tags.featured`, 응답 순서,
+/// 앞 [maxFeaturedTags]개).
+///
+/// 이름은 사전 `tag` 범주, 뜻은 `term.meaning`(용어 id `tag.<키>`,
+/// IA `today.lucky-tag.body`)입니다. 사전에 이름이 없는 태그는 키를 그대로 보이지 않도록
+/// 칩을 만들지 않고([unnamedFeaturedTagKeysOf]로 보고), 뜻이 없거나 공백뿐이면 누를 수 없는 이름 칩입니다.
+/// 길흉(`polarity`)은 모양에 쓰지 않습니다(design `tag` 변형).
+/// 응답이 상한을 넘겨도 칩 줄이 깨지지 않도록 칩이 되는 태그 중 앞에서 상한만큼만 씁니다.
+List<LuckyItem> featuredTagsOf(Daily daily, GlossaryNames names) => [
+  for (final tag in daily.tags.featured)
+    if (names.valueName('tag', tag.key) case final name?)
+      LuckyItem.tag(
+        tagKey: tag.key,
+        name: name,
+        meaning: _nonBlank(names.meaningOf('tag.${tag.key}')),
+      ),
+].take(maxFeaturedTags).toList();
+
+/// [daily]의 대표 태그 중 사전에 이름이 없어 칩이 되지 않는 키(응답 순서).
+///
+/// [featuredTagsOf]가 조용히 건너뛰는 태그입니다. 사전과 계약이 어긋난 것을 알 수 있게
+/// 오늘 화면 값이 이 키를 보고합니다(`todayContentProvider`).
+List<String> unnamedFeaturedTagKeysOf(Daily daily, GlossaryNames names) => [
+  for (final tag in daily.tags.featured)
+    if (names.valueName('tag', tag.key) == null) tag.key,
+];
+
+RenderedText? _nonBlank(RenderedText? text) =>
+    text == null || isBlankText(text) ? null : text;
+
+/// [daily]에서 writing 슬롯 id가 [slotId]인 문장. 응답에 없는 슬롯이면 null입니다.
+///
+/// 날의 성격 이유·총운(첫 문장·태그 문장)·가이드 질문·행운 카드 문장을 찾습니다. 풀이 시트는
+/// 이 문장의 `todayReason`(오늘 그런 이유)을, 근거 시트는 `evidence`를 씁니다.
+SlotText? dailySlotText(Daily daily, String slotId) {
+  final cards = daily.cards;
+  final slots = [
+    daily.characterReason,
+    daily.fortune.head,
+    ?daily.fortune.tag,
+    daily.guide,
+    cards.color.text,
+    cards.direction.text,
+    cards.number.text,
+    cards.focusTime.text,
+  ];
+  for (final slot in slots) {
+    if (slot.slot == slotId) {
+      return slot;
+    }
+  }
+  return null;
+}
+
+/// `time_unknown` notice의 배너 문장([noticeTextOf]). 없으면 null입니다.
 ///
 /// 화면 상태가 있는 notice는 이것뿐이고, 나머지는 계획 6에서 다룹니다.
-String? timeUnknownNoticeOf(Daily daily) {
+String? timeUnknownNoticeOf(Daily daily, AppLocalizations l10n) {
   for (final notice in daily.notices) {
     if (notice.code == NoticeCode.timeUnknown) {
-      return notice.text.segments.map((s) => s.text).join();
+      return noticeTextOf(notice, l10n);
     }
   }
   return null;
@@ -148,9 +211,12 @@ final class SentenceLine {
 
   /// writing 슬롯 id(용어·근거 시트가 받음).
   final String slot;
+
+  /// 원고가 없어 글자가 없거나 공백뿐인 문장이면 true. 그리면 빈 카드가 되므로 화면이 건너뜁니다.
+  bool get isBlank => isBlankText(text);
 }
 
-/// 오늘 화면이 그리는 값 묶음(결정 A22). 화면은 이 값으로만 내용을 그립니다.
+/// 오늘 화면이 그리는 값 묶음. 화면은 이 값으로만 내용을 그립니다.
 ///
 /// 값 동등성(`==`)이 있어 캐시 → server 응답으로 바뀔 때 보이는 내용이 같은지 이 값으로
 /// 비교합니다(`SeepOnChange.changeKey`). 보이지 않는 필드(`evidenceAccess`, `evidence`,
@@ -168,6 +234,7 @@ final class TodayDisplay {
     required this.headReactable,
     required this.tag,
     required this.lucky,
+    required this.tags,
     required this.guide,
   });
 
@@ -192,6 +259,9 @@ final class TodayDisplay {
   /// 행운 항목 4개.
   final List<LuckyItem> lucky;
 
+  /// 행운 칩 줄 맨 앞에 그릴 대표 태그 칩(`tag` 변형, D76). 없으면 빈 목록입니다.
+  final List<LuckyItem> tags;
+
   /// 가이드 질문.
   final RenderedText guide;
 
@@ -204,6 +274,7 @@ final class TodayDisplay {
     headReactable,
     tag,
     lucky,
+    tags,
     guide,
   ];
 
@@ -233,8 +304,9 @@ Object? _canonical(Object? value) => switch (value) {
     value.variant.name,
     value.name,
     value.value,
-    value.explain.toJson(),
+    value.explain?.toJson(),
     value.element?.name,
+    value.tagKey,
   ],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
   _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),
@@ -251,7 +323,7 @@ TodayDisplay todayDisplayOf(
   return TodayDisplay(
     character: dayCharacterOf(daily, l10n),
     characterReasonSlot: daily.characterReason.slot,
-    timeUnknown: timeUnknownNoticeOf(daily),
+    timeUnknown: timeUnknownNoticeOf(daily, l10n),
     head: SentenceLine(
       text: daily.fortune.head.text,
       slot: daily.fortune.head.slot,
@@ -259,6 +331,7 @@ TodayDisplay todayDisplayOf(
     headReactable: daily.fortune.head.reactable,
     tag: tag == null ? null : SentenceLine(text: tag.text, slot: tag.slot),
     lucky: luckyItemsOf(daily, names, l10n, timezone),
+    tags: featuredTagsOf(daily, names),
     guide: daily.guide.text,
   );
 }

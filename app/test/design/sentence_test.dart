@@ -11,6 +11,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
@@ -886,12 +887,14 @@ void main() {
           state: state,
           title: '식신',
           pillars: const SizedBox(height: 40, child: Text('원국표')),
-          basis: state == DepthLinkState.unlocked
-              ? _text([Segment(text: '판정 근거 본문')])
-              : null,
-          source: state == DepthLinkState.unlocked
-              ? _text([Segment(text: '원전 인용 본문')])
-              : null,
+          basis: [
+            if (state == DepthLinkState.unlocked)
+              _text([Segment(text: '판정 근거 본문')]),
+          ],
+          source: [
+            if (state == DepthLinkState.unlocked)
+              _text([Segment(text: '원전 인용 본문')]),
+          ],
           personal: state == DepthLinkState.unlocked
               ? _text([Segment(text: '내 사주 해석 본문')])
               : null,
@@ -1018,6 +1021,126 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('unlocked면 근거마다 문단을 순서대로 쌓고 문단 사이는 space.12입니다(A42)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '오늘 풀이의 근거',
+              basis: [
+                _text([Segment(text: '첫째 근거')]),
+                _text([Segment(text: '둘째 근거')]),
+              ],
+              source: [
+                _text([Segment(text: '첫째 원전')]),
+                _text([Segment(text: '둘째 원전')]),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+        findsNWidgets(2),
+      );
+      expect(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetSourceQuote)),
+        findsNWidgets(2),
+      );
+      expect(find.text('판정 근거'), findsOneWidget, reason: '구역 제목은 하나');
+      expect(find.text('원전'), findsOneWidget);
+      final bodies = find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody));
+      final first = tester.getRect(bodies.at(0));
+      final second = tester.getRect(bodies.at(1));
+      expect(
+        tester.getTopLeft(find.text('첫째 근거', findRichText: true)).dy,
+        lessThan(tester.getTopLeft(find.text('둘째 근거', findRichText: true)).dy),
+      );
+      expect(second.top - first.bottom, Space.s12);
+      // 원전은 인용마다 bg.base 상자이고 상자 사이도 space.12입니다.
+      final quotes = find.ancestor(
+        of: find.byKey(const ValueKey(SlotIds.evidenceSheetSourceQuote)),
+        matching: find.descendant(
+          of: find.byType(EvidenceSheetBody),
+          matching: find.byType(DecoratedBox),
+        ),
+      );
+      expect(quotes, findsNWidgets(2));
+      expect(
+        tester.getRect(quotes.at(1)).top - tester.getRect(quotes.at(0)).bottom,
+        Space.s12,
+      );
+    });
+
+    testWidgets('locked면 넘어온 문장이 있어도 그리지 않습니다(D60)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.locked,
+              title: '오늘 풀이의 근거',
+              basis: [
+                _text([Segment(text: '잠긴 근거')]),
+              ],
+              source: [
+                _text([Segment(text: '잠긴 원전')]),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('잠긴 근거', findRichText: true), findsNothing);
+      expect(find.text('잠긴 원전', findRichText: true), findsNothing);
+      expect(find.byType(LockVeil), findsNWidgets(2));
+    });
+
+    testWidgets('잠김이 풀릴 때 여러 문단은 구역 단위로 한 번 나타납니다', (tester) async {
+      Widget sheet(DepthLinkState state) => _app(
+        SizedBox(
+          width: 360,
+          height: 640,
+          child: EvidenceSheetBody(
+            state: state,
+            title: '식신',
+            basis: [
+              if (state == DepthLinkState.unlocked) ...[
+                _text([Segment(text: '첫째 근거')]),
+                _text([Segment(text: '둘째 근거')]),
+              ],
+            ],
+            animated: false,
+          ),
+        ),
+      );
+      await tester.pumpWidget(sheet(DepthLinkState.unlocking));
+      await tester.pumpWidget(sheet(DepthLinkState.unlocked));
+      await tester.pump();
+
+      final bodies = find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody));
+      final seeps = [
+        for (var i = 0; i < 2; i++)
+          find.ancestor(of: bodies.at(i), matching: find.byType(SeepPresence)),
+      ];
+      expect(seeps[0], findsOneWidget, reason: '문단마다 따로 나타나지 않음');
+      expect(
+        tester.widget(seeps[0]),
+        same(tester.widget(seeps[1])),
+        reason: '두 문단이 같은 나타남 안',
+      );
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('unlocked인데 본문이 없는 구역은 제목도 자리도 그리지 않습니다(A22)', (tester) async {
       await tester.pumpWidget(
         _app(
@@ -1027,7 +1150,9 @@ void main() {
             child: EvidenceSheetBody(
               state: DepthLinkState.unlocked,
               title: '오늘 풀이의 근거',
-              source: _text([Segment(text: '원전 인용 본문')]),
+              source: [
+                _text([Segment(text: '원전 인용 본문')]),
+              ],
               showPersonal: true,
             ),
           ),
@@ -1097,9 +1222,10 @@ void main() {
                 state: state,
                 title: '오늘 풀이의 근거',
                 loading: loading,
-                basis: state == DepthLinkState.unlocked
-                    ? _text([Segment(text: '판정 근거 본문')])
-                    : null,
+                basis: [
+                  if (state == DepthLinkState.unlocked)
+                    _text([Segment(text: '판정 근거 본문')]),
+                ],
               ),
             ),
           );
@@ -1749,8 +1875,12 @@ void main() {
             child: EvidenceSheetBody(
               state: DepthLinkState.unlocked,
               title: '식신',
-              basis: _text([Segment(text: '근거')]),
-              source: _text([Segment(text: '원전')]),
+              basis: [
+                _text([Segment(text: '근거')]),
+              ],
+              source: [
+                _text([Segment(text: '원전')]),
+              ],
             ),
           ),
         ),
@@ -1806,8 +1936,8 @@ void main() {
           child: EvidenceSheetBody(
             state: state,
             title: '식신',
-            basis: state == DepthLinkState.unlocked ? long : null,
-            source: state == DepthLinkState.unlocked ? long : null,
+            basis: [if (state == DepthLinkState.unlocked) long],
+            source: [if (state == DepthLinkState.unlocked) long],
             animated: false,
           ),
         ),
@@ -1913,12 +2043,14 @@ void main() {
           child: EvidenceSheetBody(
             state: state,
             title: '식신',
-            basis: state == DepthLinkState.unlocked
-                ? _text([Segment(text: '근거')])
-                : null,
-            source: state == DepthLinkState.unlocked
-                ? _text([Segment(text: '원전')])
-                : null,
+            basis: [
+              if (state == DepthLinkState.unlocked)
+                _text([Segment(text: '근거')]),
+            ],
+            source: [
+              if (state == DepthLinkState.unlocked)
+                _text([Segment(text: '원전')]),
+            ],
             animated: false,
           ),
         ),
@@ -1983,12 +2115,14 @@ void main() {
           child: EvidenceSheetBody(
             state: state,
             title: '식신',
-            basis: state == DepthLinkState.unlocked
-                ? _text([Segment(text: '근거')])
-                : null,
-            source: state == DepthLinkState.unlocked
-                ? _text([Segment(text: '원전')])
-                : null,
+            basis: [
+              if (state == DepthLinkState.unlocked)
+                _text([Segment(text: '근거')]),
+            ],
+            source: [
+              if (state == DepthLinkState.unlocked)
+                _text([Segment(text: '원전')]),
+            ],
             animated: false,
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -35,6 +36,10 @@ const AppGlyph _magnifyingGlass = AppGlyph(
 /// 않고 화면의 스크롤 안에 놓이며, 다시 불러오는 동안(이전 값이 남은 loading)에는 이전 줄을
 /// 그대로 둬서 높이가 줄었다 늘지 않게 합니다. 결과 수는 "결과 N개"로 알립니다.
 ///
+/// 줄을 고른 뒤 저장을 기다리는 동안(아래 버튼이 없는 단계)에는 [savingCityId]를 줍니다.
+/// 그 줄 끝에 점 숨쉬기(`loading.breathe`, `text.secondary`)가 나오고 눌림 없이 그대로
+/// 보이며, 다른 줄은 눌리지 않습니다. 스크린리더는 고른 줄을 "처리 중"으로 읽습니다.
+///
 /// 명세 a11y `role: combobox`는 적용하지 않습니다. Flutter 3.47의 `SemanticsRole.comboBox`는
 /// 디버그 검사(`_unimplemented`)가 "Missing checks for role"로 오류를 내 쓰는 즉시 실패하고
 /// (flutter/flutter#159741), 입력칸은 이미 text field 의미(라벨 "도시 이름")로 읽힙니다.
@@ -52,6 +57,7 @@ class CitySearch extends StatefulWidget {
     required this.onSelected,
     required this.emptyBody,
     required this.onRetry,
+    this.savingCityId,
     this.hint,
     this.hintIdentifier,
     this.emptyIdentifier,
@@ -65,7 +71,19 @@ class CitySearch extends StatefulWidget {
     'pressed',
     'loading',
     'empty',
+    'saving',
   });
+
+  /// 지역 줄의 언어별 구분자(`city-search.parts.region.join`).
+  /// 모르는 언어는 [defaultRegionJoin]입니다.
+  static const Map<String, String> regionJoin = {
+    'ko': ', ',
+    'en': ', ',
+    'ja': '、',
+  };
+
+  /// 명세에 없는 언어의 지역 구분자.
+  static const String defaultRegionJoin = ', ';
 
   /// 결과 카드를 찾는 테스트용 키.
   static const Key resultsKey = ValueKey('city-search-results');
@@ -102,6 +120,9 @@ class CitySearch extends StatefulWidget {
 
   /// 오류 화면의 다시 시도.
   final VoidCallback onRetry;
+
+  /// 저장을 기다리는 도시 id. null이 아니면 그 줄이 `saving`이고 다른 줄은 눌리지 않습니다.
+  final String? savingCityId;
 
   /// skeleton을 보이기 전 대기(기본 300ms).
   final Duration skeletonDelay;
@@ -194,6 +215,8 @@ class _CitySearchState extends State<CitySearch> {
           key: CitySearch.resultsKey,
           cities: cities,
           query: _query.trim(),
+          savingCityId: widget.savingCityId,
+          animated: widget.animated,
           onSelected: widget.onSelected,
         ),
       ],
@@ -205,13 +228,18 @@ class _CitySearchState extends State<CitySearch> {
 ///
 /// 이름이 있는 것만 ", "로 잇고 나라 코드([City.country])는 쓰지 않습니다.
 /// 둘 다 없으면 null이라 줄을 그리지 않습니다. 계약에 지역 필드가 늘면 이 한 곳만
-/// 고칩니다. ja 구분자(", " / "、")는 design 확인 중입니다(#195).
-String? cityRegionLine(City city) {
+/// 고칩니다. 구분자는 언어별로 [CitySearch.regionJoin]이 정하고(명세 2.4.0) 모르는
+/// [languageCode]는 [CitySearch.defaultRegionJoin]입니다.
+String? cityRegionLine(City city, {required String languageCode}) {
   final names = [
     city.regionName,
     city.countryName,
   ].whereType<String>().map((name) => name.trim()).where((n) => n.isNotEmpty);
-  return names.isEmpty ? null : names.join(', ');
+  return names.isEmpty
+      ? null
+      : names.join(
+          CitySearch.regionJoin[languageCode] ?? CitySearch.defaultRegionJoin,
+        );
 }
 
 /// 묶음 카드 모양의 결과 목록(`settings-row`와 같은 모양).
@@ -219,12 +247,16 @@ class _ResultsCard extends StatelessWidget {
   const new({
     required this.cities,
     required this.query,
+    required this.savingCityId,
+    required this.animated,
     required this.onSelected,
     super.key,
   });
 
   final List<City> cities;
   final String query;
+  final String? savingCityId;
+  final bool animated;
   final ValueChanged<City> onSelected;
 
   @override
@@ -251,6 +283,12 @@ class _ResultsCard extends StatelessWidget {
                 key: ValueKey(cities[i].id),
                 city: cities[i],
                 query: query,
+                saving: savingCityId == null
+                    ? _RowSaving.none
+                    : savingCityId == cities[i].id
+                    ? _RowSaving.selected
+                    : _RowSaving.other,
+                animated: animated,
                 onSelected: onSelected,
               ),
             ],
@@ -261,16 +299,32 @@ class _ResultsCard extends StatelessWidget {
   }
 }
 
+/// 저장을 기다리는 동안 이 줄의 자리.
+enum _RowSaving {
+  /// 저장 중이 아닙니다. 누를 수 있습니다.
+  none,
+
+  /// 고른 줄입니다. 눌림 없이 그대로 보이고 끝에 점이 있습니다.
+  selected,
+
+  /// 다른 줄입니다. 누를 수 없습니다.
+  other,
+}
+
 class _CityRow extends StatelessWidget {
   const new({
     required this.city,
     required this.query,
+    required this.saving,
+    required this.animated,
     required this.onSelected,
     super.key,
   });
 
   final City city;
   final String query;
+  final _RowSaving saving;
+  final bool animated;
   final ValueChanged<City> onSelected;
 
   @override
@@ -279,38 +333,71 @@ class _CityRow extends StatelessWidget {
     final nameStyle = tokens.typography.bodyUi.copyWith(
       color: tokens.colors.textPrimary,
     );
-    final region = cityRegionLine(city);
-    return PressInkTarget(
-      semanticLabel: region == null ? city.name : '${city.name}, $region',
-      onTap: () => onSelected(city),
-      borderRadius: BorderRadius.zero,
-      child: ConstrainedBox(
-        key: CitySearch.rowKey(city.id),
-        constraints: const BoxConstraints(minHeight: CitySearch._rowMinHeight),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Space.s16,
-            vertical: Space.s8,
-          ),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(_nameSpan(city.name, query, nameStyle)),
-                if (region != null)
-                  Text(
-                    region,
-                    style: tokens.typography.captionMd.copyWith(
-                      color: tokens.colors.textSecondary,
-                    ),
-                  ),
-              ],
+    final region = cityRegionLine(
+      city,
+      languageCode: Localizations.localeOf(context).languageCode,
+    );
+    final label = region == null ? city.name : '${city.name}, $region';
+    final body = ConstrainedBox(
+      key: CitySearch.rowKey(city.id),
+      constraints: const BoxConstraints(minHeight: CitySearch._rowMinHeight),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Space.s16,
+          vertical: Space.s8,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text.rich(_nameSpan(city.name, query, nameStyle)),
+                    if (region != null)
+                      Text(
+                        region,
+                        style: tokens.typography.captionMd.copyWith(
+                          color: tokens.colors.textSecondary,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            if (saving == _RowSaving.selected) ...[
+              const SizedBox(width: Space.s12),
+              BreathingDots(
+                color: tokens.colors.textSecondary,
+                animated: animated,
+                count: BreathingDots.standardCount,
+                size: BreathingDots.standardSize,
+                gap: BreathingDots.standardGap,
+              ),
+            ],
+          ],
         ),
       ),
+    );
+    if (saving == _RowSaving.none) {
+      return PressInkTarget(
+        semanticLabel: label,
+        onTap: () => onSelected(city),
+        borderRadius: BorderRadius.zero,
+        child: body,
+      );
+    }
+    // 저장을 기다리는 동안은 누를 수 없고(눌림 없음) 고른 줄은 "처리 중"으로 읽습니다
+    // (`primary-button` loading과 같은 방식). 줄 위젯은 갈아 끼우지 않고 PressInkTarget을
+    // 유지해 눌림 잉크가 끊기지 않게 합니다.
+    final busy = AppLocalizations.of(context).actionBusy;
+    return PressInkTarget(
+      semanticLabel: saving == _RowSaving.selected ? '$label, $busy' : label,
+      onTap: null,
+      borderRadius: BorderRadius.zero,
+      child: body,
     );
   }
 

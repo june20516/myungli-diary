@@ -7,6 +7,7 @@ import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/app/router/screen_breadcrumbs.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/app/router/tab_shell.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -15,6 +16,20 @@ import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_m
 
 /// IA 화면 id의 경로.
 String pathOf(String screenId) => '/$screenId';
+
+/// 날짜를 받는 화면의 query 이름. 값은 `YYYY-MM-DD`(양력)입니다.
+///
+/// 계약: `event-edit`·`diary-view`·`diary-edit`은 `?date=YYYY-MM-DD`로 그 날을
+/// 받고, `date`가 없거나 읽을 수 없으면 오늘(`todayProvider`)로 엽니다.
+/// `day-sheet`가 그 날의 일정 추가와 일기 입구에 씁니다(일기 화면은 계획 5가 이
+/// 계약대로 읽습니다).
+const String dateQuery = 'date';
+
+/// [screenId] 화면을 [date] 날로 여는 경로(`/<id>?date=YYYY-MM-DD`, [dateQuery] 계약).
+String datedPathOf(String screenId, CalendarDate date) => Uri(
+  path: pathOf(screenId),
+  queryParameters: {dateQuery: date.toIso()},
+).toString();
 
 final Map<String, IaScreen> _screensById = {
   for (final screen in iaScreens) screen.id: screen,

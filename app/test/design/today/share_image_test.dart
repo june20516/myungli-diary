@@ -597,6 +597,27 @@ void main() {
       expect(_previewOpacity(tester), 1);
     });
   });
+
+  testWidgets('공유 이미지 칩 줄에는 tag 칩이 없습니다(행운 4종만)', (tester) async {
+    final image = ShareImage(
+      variant: ShareImageVariant.story,
+      date: '10월 15일 목요일',
+      dayKind: DayKind.yongsinDay,
+      dayKindLabel: '좋은 날',
+      sentence: _text(_sentenceText),
+      items: [
+        const LuckyItem.tag(tagKey: 'clash', name: '충'),
+        ..._items(),
+      ],
+      footer: '명리일기',
+    );
+    await _bigScreen(tester);
+    await tester.pumpWidget(_app(image));
+    final variants = tester
+        .widgetList<LuckyChip>(find.byType(LuckyChip))
+        .map((chip) => chip.item.variant);
+    expect(variants, LuckyCardVariant.luckyValues);
+  });
 }
 
 double _previewOpacity(WidgetTester tester) {

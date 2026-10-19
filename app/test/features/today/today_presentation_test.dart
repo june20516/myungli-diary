@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -125,12 +126,7 @@ void main() {
 
     test('색은 glossary, 방향은 ARB, 숫자는 그대로, 시간은 프로필 시간대 범위입니다', () {
       final items = luckyItemsOf(daily, _names, l10n, 'Asia/Seoul');
-      expect(items.map((i) => i.variant), [
-        LuckyCardVariant.color,
-        LuckyCardVariant.direction,
-        LuckyCardVariant.number,
-        LuckyCardVariant.time,
-      ]);
+      expect(items.map((i) => i.variant), LuckyCardVariant.luckyValues);
       expect(items.map((i) => i.value), [
         '초록',
         l10n.direction8E,
@@ -202,7 +198,7 @@ void main() {
 
     test('time_unknown notice의 조각 글자를 잇고, 없으면 null입니다', () {
       final json = memberDailyJson();
-      expect(timeUnknownNoticeOf(Daily.fromJson(json)), isNull);
+      expect(timeUnknownNoticeOf(Daily.fromJson(json), _l10n), isNull);
       json['notices'] = [
         {
           'code': 'time_unknown',
@@ -216,9 +212,23 @@ void main() {
         },
       ];
       expect(
-        timeUnknownNoticeOf(Daily.fromJson(json)),
+        timeUnknownNoticeOf(Daily.fromJson(json), _l10n),
         '태어난 시간을 몰라 세 기둥으로 계산했어요.',
       );
+    });
+
+    test('SentenceLine.isBlank는 빈 조각과 공백뿐인 조각을 빈 문장으로 봅니다', () {
+      SentenceLine line(List<String> pieces) => SentenceLine(
+        text: RenderedText.fromJson({
+          'segments': [
+            for (final piece in pieces) {'text': piece},
+          ],
+        }),
+        slot: 'daily.fortune.head',
+      );
+      expect(line([]).isBlank, isTrue);
+      expect(line(['', ' ', '\n']).isBlank, isTrue);
+      expect(line(['오늘은']).isBlank, isFalse);
     });
 
     test('같은 응답은 같은 화면 값, 날의 성격이 다르면 다른 값입니다', () {
@@ -299,6 +309,125 @@ void main() {
       final a = _display(Daily.fromJson(memberDailyJson()));
       final b = _display(Daily.fromJson(memberDailyJson()));
       expect(a.hashCode, b.hashCode);
+    });
+  });
+
+  group('featuredTagsOf(D76)', () {
+    RenderedText text(String value) => RenderedText.fromJson({
+      'segments': [
+        {'text': value},
+      ],
+    });
+
+    final names = GlossaryNames(
+      const {
+        'tag': {'cheoneul_gwiin': '천을귀인', 'clash': '충', 'gongmang': '공망'},
+      },
+      meanings: {
+        'tag.cheoneul_gwiin': text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.'),
+        'tag.clash': text(' '),
+      },
+    );
+
+    Daily dailyWith(List<Map<String, String>> featured) {
+      final json = memberDailyJson();
+      (json['tags'] as Map<String, dynamic>)['featured'] = featured;
+      return Daily.fromJson(json);
+    }
+
+    test('칩 이름은 사전 tag 이름이고 뜻은 term.meaning tag.<키>입니다', () {
+      final tags = featuredTagsOf(Daily.fromJson(memberDailyJson()), names);
+      expect(tags, hasLength(1));
+      expect(tags.single.tagKey, 'cheoneul_gwiin');
+      expect(tags.single.name, '천을귀인');
+      expect(
+        tags.single.explain?.segments.single.text,
+        '어려울 때 도와주는 사람이 곁에 오는 기운이에요.',
+      );
+    });
+
+    test('응답 순서대로 둘까지 그리고, 길흉은 쓰지 않습니다', () {
+      final tags = featuredTagsOf(
+        dailyWith([
+          {'key': 'clash', 'polarity': 'bad'},
+          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+        ]),
+        names,
+      );
+      expect([for (final tag in tags) tag.name], ['충', '천을귀인']);
+    });
+
+    test('응답이 둘을 넘어도 앞 둘만 칩이 되고 모두 tag 변형입니다', () {
+      final tags = featuredTagsOf(
+        dailyWith([
+          {'key': 'clash', 'polarity': 'bad'},
+          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+          {'key': 'gongmang', 'polarity': 'bad'},
+        ]),
+        names,
+      );
+      expect([for (final tag in tags) tag.tagKey], ['clash', 'cheoneul_gwiin']);
+      expect(tags.every((tag) => tag.variant == LuckyCardVariant.tag), isTrue);
+    });
+
+    test('대표 태그가 없으면 빈 목록입니다', () {
+      expect(featuredTagsOf(dailyWith([]), names), isEmpty);
+    });
+
+    test('뜻 문장이 없거나 공백뿐이면 meaning이 null입니다', () {
+      final tags = featuredTagsOf(
+        dailyWith([
+          {'key': 'clash', 'polarity': 'bad'},
+        ]),
+        names,
+      );
+      expect(tags.single.explain, isNull);
+    });
+
+    test('사전에 이름이 없는 태그는 칩을 만들지 않습니다(키를 그대로 보이지 않음)', () {
+      final tags = featuredTagsOf(
+        dailyWith([
+          {'key': 'hwagae', 'polarity': 'neutral'},
+          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+        ]),
+        names,
+      );
+      expect([for (final tag in tags) tag.tagKey], ['cheoneul_gwiin']);
+    });
+
+    test('unnamedFeaturedTagKeysOf는 사전에 이름이 없는 대표 태그 키를 응답 순서로 줍니다', () {
+      expect(
+        unnamedFeaturedTagKeysOf(
+          dailyWith([
+            {'key': 'hwagae', 'polarity': 'neutral'},
+            {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+            {'key': 'unknown_key', 'polarity': 'bad'},
+          ]),
+          names,
+        ),
+        ['hwagae', 'unknown_key'],
+      );
+      expect(
+        unnamedFeaturedTagKeysOf(Daily.fromJson(memberDailyJson()), names),
+        isEmpty,
+      );
+    });
+
+    test('오늘 화면 값에 대표 태그가 담기고, 바뀌면 다른 화면 값입니다', () {
+      TodayDisplay display(Daily daily) =>
+          todayDisplayOf(daily, names, _l10n, 'Asia/Seoul');
+      final base = display(Daily.fromJson(memberDailyJson()));
+      expect([for (final tag in base.tags) tag.tagKey], ['cheoneul_gwiin']);
+      expect(display(Daily.fromJson(memberDailyJson())), base);
+      expect(
+        display(
+          dailyWith([
+            {'key': 'clash', 'polarity': 'bad'},
+          ]),
+        ),
+        isNot(base),
+      );
+      expect(display(dailyWith([])), isNot(base));
     });
   });
 }

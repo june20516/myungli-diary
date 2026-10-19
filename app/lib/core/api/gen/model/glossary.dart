@@ -27,6 +27,8 @@ class Glossary {
     required this.values,
 
     required this.meanings,
+
+    required this.hanja,
   });
 
   @JsonKey(name: r'seedVersion', required: true, includeIfNull: false)
@@ -43,6 +45,10 @@ class Glossary {
   @JsonKey(name: r'meanings', required: true, includeIfNull: false)
   final Map<String, RenderedText> meanings;
 
+  /// 용어 id → 한자 표기(예 `ten_god.siksin` → `食神`). 풀이 시트 제목 옆에 씁니다. 한자 표기가 없는 용어는 키가 없습니다.
+  @JsonKey(name: r'hanja', required: true, includeIfNull: false)
+  final Map<String, String> hanja;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -50,14 +56,16 @@ class Glossary {
           other.seedVersion == seedVersion &&
           other.lang == lang &&
           other.values == values &&
-          other.meanings == meanings;
+          other.meanings == meanings &&
+          other.hanja == hanja;
 
   @override
   int get hashCode =>
       seedVersion.hashCode +
       lang.hashCode +
       values.hashCode +
-      meanings.hashCode;
+      meanings.hashCode +
+      hanja.hashCode;
 
   factory Glossary.fromJson(Map<String, dynamic> json) =>
       _$GlossaryFromJson(json);

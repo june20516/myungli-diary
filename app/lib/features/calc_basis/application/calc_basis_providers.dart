@@ -26,9 +26,10 @@ final lunarDateRepositoryProvider = Provider<LunarDateRepository>(
 
 /// 계산 기준 화면의 경도 보정 기준(A28).
 ///
-/// 입력은 프로필 사본(로그인 뒤), 없으면 온보딩 입력입니다. 도시를 골랐거나(도시 경도를 모름),
-/// 해외 기기에서 도시를 아직 고르지 않았거나(출생지를 모름), 생년월일·시간을 아직 받지
-/// 않았거나, 음력 변환이 실패하면 null이라 경도 문단을 그리지 않습니다(A29).
+/// 입력은 프로필 사본(로그인 뒤), 없으면 온보딩 입력입니다. 도시를 골랐으면 그 도시의 경도를
+/// 씁니다. 프로필 사본에 `birthCity`가 없거나(옛 사본), 해외 기기에서 도시를 아직 고르지
+/// 않았거나(출생지를 모름), 생년월일·시간을 아직 받지 않았거나, 음력 변환이 실패하면 null이라
+/// 경도 문단을 그리지 않습니다(A29).
 ///
 /// 구한 값은 세션 동안 두어 다시 열면 바로 보입니다. 음력 변환 실패는 두지 않으므로, 화면을
 /// 떠나면 버려지고 다시 열 때 다시 시도합니다.
@@ -60,23 +61,27 @@ final FutureProvider<TimeBasis?> calcBasisTimeBasisProvider =
         timezone: birth.timezone,
         solarDate: solarDate,
         time: birth.time,
+        cityLongitude: birth.cityLongitude,
       );
     });
 
-/// 경도 보정에 필요한 출생 입력. 도시를 고른 입력은 담지 않습니다.
+/// 경도 보정에 필요한 출생 입력. `cityLongitude`는 도시를 고른 입력의 도시 경도입니다.
 typedef _BirthInput = ({
   CalendarType calendar,
   LunarOrSolarDate date,
   bool isLeapMonth,
   BirthTime time,
   String timezone,
+  double? cityLongitude,
 });
 
-/// 프로필 사본의 출생 입력. 도시를 골랐으면 null입니다.
+/// 프로필 사본의 출생 입력. 도시를 골랐는데 `birthCity`가 없으면(옛 사본) null입니다.
 _BirthInput? _birthOfProfile(Profile profile) {
   final birth = profile.birth;
+  double? cityLongitude;
   if (birth.place.status == BirthPlaceStatusEnum.city) {
-    return null;
+    cityLongitude = profile.birthCity?.longitude.toDouble();
+    if (cityLongitude == null) return null;
   }
   return (
     calendar: birth.calendar,
@@ -84,14 +89,15 @@ _BirthInput? _birthOfProfile(Profile profile) {
     isLeapMonth: birth.isLeapMonth,
     time: birth.time,
     timezone: birth.timezone,
+    cityLongitude: cityLongitude,
   );
 }
 
-/// 온보딩 입력의 출생 입력. 도시를 골랐거나 값이 비었으면 null입니다.
+/// 온보딩 입력의 출생 입력. 값이 비었거나 해외 기기에서 도시를 아직 안 골랐으면 null입니다.
 ///
 /// 한국 기기는 출생지를 묻지 않으므로 남은 도시를 쓰지 않고 서울 기준입니다
-/// (`OnboardingDraft.toBirth`와 같음). 해외 기기는 도시를 고르기 전이면 출생지를 아직
-/// 모르므로 null입니다.
+/// (`OnboardingDraft.toBirth`와 같음). 해외 기기는 고른 도시의 시간대·경도를 쓰고, 도시를
+/// 고르기 전이면 출생지를 아직 모르므로 null입니다.
 _BirthInput? _birthOfDraft(
   OnboardingDraft draft, {
   required bool deviceRegionIsKorea,
@@ -99,19 +105,28 @@ _BirthInput? _birthOfDraft(
   final calendar = draft.calendar;
   final date = draft.date;
   final time = draft.time;
-  // 해외 기기는 도시를 골랐으면 도시 경도를 몰라서, 안 골랐으면 출생지를 몰라서 null입니다.
-  if (!deviceRegionIsKorea ||
-      calendar == null ||
-      date == null ||
-      time == null) {
-    return null;
+  if (calendar == null || date == null || time == null) return null;
+  final isLeapMonth = calendar == CalendarType.lunar && draft.isLeapMonth;
+  if (deviceRegionIsKorea) {
+    return (
+      calendar: calendar,
+      date: date,
+      isLeapMonth: isLeapMonth,
+      time: time,
+      timezone: _koreaTimezone,
+      cityLongitude: null,
+    );
   }
+  // 해외 기기에서 도시를 안 골랐으면 출생지를 몰라서 null입니다.
+  final city = draft.city;
+  if (city == null) return null;
   return (
     calendar: calendar,
     date: date,
-    isLeapMonth: calendar == CalendarType.lunar && draft.isLeapMonth,
+    isLeapMonth: isLeapMonth,
     time: time,
-    timezone: _koreaTimezone,
+    timezone: city.timezone,
+    cityLongitude: city.longitude.toDouble(),
   );
 }
 

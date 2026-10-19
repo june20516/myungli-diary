@@ -183,11 +183,11 @@ class OnboardingRejectionNotice extends Notifier<AppError?> {
     return null;
   }
 
-  /// 남아 있는 안내. 없으면 null입니다.
-  AppError? get pending => state;
-
   /// 보일 안내를 남깁니다.
-  set pending(AppError? error) => state = error;
+  // riverpod_lint는 Notifier의 공개 setter를 막고 use_setters_to_change_properties는
+  // 한 줄 대입 메서드를 setter로 바꾸라 하여 부딪힙니다. 여기서는 Riverpod 쪽을 따릅니다.
+  // ignore: use_setters_to_change_properties
+  void leave(AppError error) => state = error;
 
   /// 남은 안내를 꺼내고 비웁니다. 없으면 null입니다.
   AppError? take() {

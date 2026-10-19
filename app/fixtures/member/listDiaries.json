@@ -1,0 +1,37 @@
+{
+  "status": 200,
+  "body": {
+    "items": [
+      {
+        "date": "2026-10-12",
+        "excerpt": "오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.",
+        "featuredTags": [
+          {
+            "key": "cheoneul_gwiin",
+            "polarity": "good"
+          }
+        ]
+      },
+      {
+        "date": "2026-10-08",
+        "excerpt": "아침 공기가 갑자기 차가워졌다. 겉옷을 하나 더 챙겼다.",
+        "featuredTags": []
+      },
+      {
+        "date": "2026-10-05",
+        "excerpt": "미뤄 둔 정리를 끝냈다. 책상이 넓어지니 마음도 가벼웠다.",
+        "featuredTags": []
+      },
+      {
+        "date": "2026-10-02",
+        "excerpt": "회의에서 의견이 엇갈렸다. 한 번 더 생각해 보고 내일 다시 말하기로 했다.",
+        "featuredTags": [
+          {
+            "key": "clash",
+            "polarity": "bad"
+          }
+        ]
+      }
+    ]
+  }
+}

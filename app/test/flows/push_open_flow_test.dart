@@ -74,7 +74,8 @@ void main() {
       overrides: [pushMessagingProvider.overrideWithValue(push)],
     );
     final router = container.read(routerProvider)..go('/calendar');
-    await tester.pumpAndSettle();
+    // 달력은 대역 서버(실제 I/O)에서 달을 받으므로 I/O와 함께 정착합니다.
+    await settleWithIo(tester);
     expect(router.routerDelegate.currentConfiguration.uri.path, '/calendar');
 
     push.addOpen(PushOpen.tryCreate('today')!);

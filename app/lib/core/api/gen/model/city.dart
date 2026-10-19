@@ -29,6 +29,8 @@ class City {
     this.regionName,
 
     required this.timezone,
+
+    required this.longitude,
   });
 
   /// GeoNames id
@@ -55,6 +57,12 @@ class City {
   @JsonKey(name: r'timezone', required: true, includeIfNull: false)
   final String timezone;
 
+  /// 경도(도 단위 소수, 동경 양수·서경 음수). 출생 시각의 경도 보정에 쓰는 값입니다.
+  // minimum: -180
+  // maximum: 180
+  @JsonKey(name: r'longitude', required: true, includeIfNull: false)
+  final num longitude;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -64,7 +72,8 @@ class City {
           other.country == country &&
           other.countryName == countryName &&
           other.regionName == regionName &&
-          other.timezone == timezone;
+          other.timezone == timezone &&
+          other.longitude == longitude;
 
   @override
   int get hashCode =>
@@ -73,7 +82,8 @@ class City {
       country.hashCode +
       countryName.hashCode +
       regionName.hashCode +
-      timezone.hashCode;
+      timezone.hashCode +
+      longitude.hashCode;
 
   factory City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
 

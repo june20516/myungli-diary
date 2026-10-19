@@ -44,7 +44,7 @@ class Schedule {
   @JsonKey(name: r'allDay', required: true, includeIfNull: false)
   final bool allDay;
 
-  /// HH:MM
+  /// HH:MM. 프로필의 현재 시간대(`currentTimezone`) 벽시계 시각입니다(D30과 같은 기준). 끝 시각(길이) 필드는 없습니다.
   @JsonKey(name: r'time', required: false, includeIfNull: false)
   final String? time;
 

@@ -135,7 +135,7 @@ class EvidenceLockPanel extends StatelessWidget {
                               link: true,
                               identifier: SlotIds.evidenceSheetLockPass,
                               semanticLabel: l10n.evidenceSheetLockPass,
-                              onTap: onPass!,
+                              onTap: onPass,
                               borderRadius: const BorderRadius.all(
                                 Radius.circular(Radii.xs),
                               ),

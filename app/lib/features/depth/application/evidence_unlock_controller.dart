@@ -5,14 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
     show NotifierProviderFamily, ProviderListenable;
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
 /// 보상형 광고를 끝까지 본 뒤 근거 열람 권한을 다시 묻는 간격(A26, spec §7).
 const rewardPollInterval = Duration(seconds: 2);
@@ -26,7 +31,7 @@ final rewardPollTimingProvider =
       (ref) => (interval: rewardPollInterval, timeout: rewardPollTimeout),
     );
 
-/// 근거를 담은 응답 하나(오늘의 `Daily`, 계획 6의 `Chart`).
+/// 근거와 슬롯 문장을 담은 응답 하나(오늘의 `Daily`, 계획 6의 `Chart`).
 ///
 /// 근거 시트와 잠금 해제 흐름은 화면에 묶이지 않고 이 인터페이스만 봅니다. 잠금이 풀린 뒤
 /// 무엇을 다시 받을지는 응답마다 [reload]가 정합니다. 잠금 해제 흐름의 family 키이므로 값으로
@@ -35,6 +40,16 @@ final rewardPollTimingProvider =
 abstract interface class EvidenceSubject {
   /// 응답의 근거 열람 상태. 받는 중·실패도 그대로 전합니다.
   ProviderListenable<AsyncValue<EvidenceAccess>> get access;
+
+  /// 응답 안 [slotId] 슬롯의 근거 목록. 슬롯이 없거나 근거가 없으면 빈 목록입니다.
+  ///
+  /// server는 [access]가 `unlocked`일 때만 근거를 담습니다(D60). 근거 시트도 열렸을 때만 이 값을
+  /// 읽습니다.
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId);
+
+  /// 응답 안 [slotId] 슬롯의 오늘 그런 이유(`SlotText.todayReason`). 응답을 받는 중이거나 슬롯·
+  /// 문장이 없거나 빈 문장이면 null입니다. 오늘 그런 이유가 없는 응답은 늘 null입니다.
+  ProviderListenable<RenderedText?> todayReasonOf(String slotId);
 
   /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
   /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
@@ -53,6 +68,24 @@ final class DailyEvidenceSubject implements EvidenceSubject {
       dailyControllerProvider.select(
         (value) => value.whenData((view) => view.daily.evidenceAccess),
       );
+
+  @override
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
+      dailyControllerProvider.select(
+        (value) => value.whenData(
+          (view) => dailySlotText(view.daily, slotId)?.evidence ?? const [],
+        ),
+      );
+
+  @override
+  ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
+      dailyControllerProvider.select((value) {
+        final view = value.value;
+        final reason = view == null
+            ? null
+            : dailySlotText(view.daily, slotId)?.todayReason;
+        return reason == null || isBlankText(reason) ? null : reason;
+      });
 
   @override
   Future<void> reload(Ref ref) =>
@@ -172,7 +205,7 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   bool _refreshFromAd = false;
 
   /// 화면이 toast로 알릴 일.
-  Stream<UnlockEvent> get events => _events.stream;
+  Stream<UnlockEvent> watchEvents() => _events.stream;
 
   @override
   EvidenceUnlockState build() {
@@ -192,6 +225,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       })
       ..listen(subject.access, _onAccess);
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
+      // 다른 길(오늘 화면의 다시 받기 등)로 이미 열려 있어도 잠긴 달 길흉을 버립니다(A32).
+      _forgetLockedCalendars();
       return const EvidenceUnlockState(link: DepthLinkState.unlocked);
     }
     // build 안에서는 상태를 바꿀 수 없으므로 준비는 다음 차례에 합니다.
@@ -405,6 +440,9 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     }
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
       state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
+      // 근거 권한이 생겼으므로 잠긴 채 받아 둔 달 길흉도 다시 받게 합니다(A32). 시트가 먼저
+      // 열리도록 상태를 바꾼 뒤에 합니다. 실패는 그 안에서 보고하고 삼킵니다.
+      await ref.read(calendarUnlockSyncProvider).forgetLocked();
       return;
     }
     // 권한이 생겼다는데 응답이 아직 잠김: 열지 않습니다.
@@ -430,6 +468,7 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       // 확인 중이었으면 멈춰 [watchAd]도 끝나게 합니다.
       _stopGrant(_GrantStop.cancelled);
       state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
+      _forgetLockedCalendars();
     } else if (access == EvidenceAccess.locked &&
         state.link == DepthLinkState.unlocked) {
       // 새 날짜의 응답처럼 다시 잠기면 처음처럼 준비합니다.
@@ -437,6 +476,11 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       unawaited(_prepare());
     }
   }
+
+  /// 잠긴 채 받아 둔 달 길흉을 버립니다(A32). 기다리지 않습니다. 여러 번 불려도 지울 것이
+  /// 없으면 아무 일도 없고, 실패는 [CalendarUnlockSync.forgetLocked] 안에서 보고하고 삼킵니다.
+  void _forgetLockedCalendars() =>
+      unawaited(ref.read(calendarUnlockSyncProvider).forgetLocked());
 
   /// 근거 열람 권한을 한 번 묻습니다.
   ///

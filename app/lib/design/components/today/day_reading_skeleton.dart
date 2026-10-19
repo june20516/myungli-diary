@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -15,8 +16,8 @@ class DayReadingSkeleton extends StatelessWidget {
   /// 질문 카드 자리를 둘지.
   final bool guideCard;
 
-  static const double _badgeWidth = 64;
-  static const double _badgeHeight = 26;
+  /// 날의 성격 배지 자리 너비. 같은 배지를 보이는 그날 시트 skeleton도 씁니다.
+  static const double badgeWidth = 64;
   static const double _chipHeight = 34;
   static const List<double> _chipWidths = [76, 68, 52, 112];
   static const double _cardHeight = 168;
@@ -34,8 +35,8 @@ class DayReadingSkeleton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SkeletonBone(
-          width: _badgeWidth,
-          height: _badgeHeight,
+          width: badgeWidth,
+          height: DayCharacterBadge.minHeight,
           borderRadius: Radii.full,
           index: index++,
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary_widgetbook/action_directory.dart';
+import 'package:myungli_diary_widgetbook/calendar_directory.dart';
 import 'package:myungli_diary_widgetbook/elements_directory.dart';
 import 'package:myungli_diary_widgetbook/feedback_directory.dart';
 import 'package:myungli_diary_widgetbook/frame_directory.dart';
@@ -29,6 +30,7 @@ class MyungliWidgetbook extends StatelessWidget {
         sentenceDirectory,
         inputDirectory,
         todayDirectory,
+        calendarDirectory,
       ],
       addons: [
         MaterialThemeAddon(

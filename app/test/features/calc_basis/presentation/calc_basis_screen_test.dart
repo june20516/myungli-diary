@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ja.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -17,6 +19,8 @@ import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/calc_basis/application/calc_basis_providers.dart';
 import 'package:myungli_diary/features/calc_basis/model/time_basis.dart';
 import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
+
+import '../../../support/app_bar_title.dart';
 
 final _ko = AppLocalizationsKo();
 
@@ -91,7 +95,7 @@ void main() {
 
       expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsOneWidget);
       expect(_id(ScreenIds.calcBasis), findsOneWidget);
-      expect(find.text(_ko.calcBasisTitle), findsOneWidget);
+      expect(find.text(_ko.calcBasisBarTitle), findsOneWidget);
       final tops = [
         for (final slot in _bodySlots) tester.getTopLeft(_id(slot)).dy,
       ];
@@ -168,9 +172,7 @@ void main() {
       expect(lunar.top - schools.bottom, schools.top - convention.bottom);
     });
 
-    testWidgets('서머타임 기간 출생이면 경도 문단을 그리지 않고 자리도 남기지 않습니다 (A31)', (
-      tester,
-    ) async {
+    testWidgets('서머타임 기간 출생이면 Dst 문구로 경도 문단을 그립니다 (#214)', (tester) async {
       await tester.pumpWidget(
         _app(
           () async => const TimeBasis(
@@ -182,12 +184,137 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_id(SlotIds.calcBasisLongitudeBody), findsNothing);
-      expect(find.byType(SkeletonBlock), findsNothing);
-      final schools = tester.getRect(_id(SlotIds.calcBasisSchoolsBody));
-      final lunar = tester.getRect(_id(SlotIds.calcBasisLunarBody));
-      final convention = tester.getRect(_id(SlotIds.calcBasisConventionBody));
-      expect(lunar.top - schools.bottom, schools.top - convention.bottom);
+      final text = _longitudeText(tester)!;
+      // 원고(#214 표)와 계산이 함께 맞음을 문장 그대로 고정합니다.
+      expect(text, contains('서머타임 60분을 먼저 빼고, 동경 127.5° 기준으로 30분을 더 빼서'));
+      expect(
+        text,
+        _ko.calcBasisLongitudeBodyDstSubtract(
+          _ko.calcBasisLongitudeBodyEast('127.5'),
+          30,
+          60,
+        ),
+      );
+      expect(_id(SlotIds.calcBasisLongitudeBody), findsOneWidget);
+    });
+
+    testWidgets('1955년 서머타임 출생은 DstNone 문구입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          () async => const TimeBasis(
+            longitude: 127.5,
+            correctionMinutes: 0,
+            daylightSavingMinutes: 60,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        _longitudeText(tester),
+        _ko.calcBasisLongitudeBodyDstNone(
+          _ko.calcBasisLongitudeBodyEast('127.5'),
+          60,
+        ),
+      );
+      expect(_longitudeText(tester), contains('서머타임 60분만 빼고'));
+    });
+
+    test('en·ja도 서머타임 세 분기(Subtract·Add·None)마다 ARB 값에 인자를 채운 문장입니다', () {
+      const basis = TimeBasis(
+        longitude: 127.5,
+        correctionMinutes: -30,
+        daylightSavingMinutes: 60,
+      );
+      final en = AppLocalizationsEn();
+      final ja = AppLocalizationsJa();
+
+      expect(
+        calcBasisLongitudeText(en, basis),
+        en.calcBasisLongitudeBodyDstSubtract(
+          en.calcBasisLongitudeBodyEast('127.5'),
+          30,
+          60,
+        ),
+      );
+      expect(
+        calcBasisLongitudeText(ja, basis),
+        ja.calcBasisLongitudeBodyDstSubtract(
+          ja.calcBasisLongitudeBodyEast('127.5'),
+          30,
+          60,
+        ),
+      );
+      expect(calcBasisLongitudeText(en, basis), contains('60-minute'));
+
+      // DstAdd: 보정 분(4)과 서머타임 분(60)이 서로 다른 자리에 들어갑니다.
+      const add = TimeBasis(
+        longitude: -74.01,
+        correctionMinutes: 4,
+        daylightSavingMinutes: 60,
+      );
+      expect(
+        calcBasisLongitudeText(en, add),
+        en.calcBasisLongitudeBodyDstAdd(
+          en.calcBasisLongitudeBodyWest('74.01'),
+          4,
+          60,
+        ),
+      );
+      expect(
+        calcBasisLongitudeText(ja, add),
+        ja.calcBasisLongitudeBodyDstAdd(
+          ja.calcBasisLongitudeBodyWest('74.01'),
+          4,
+          60,
+        ),
+      );
+      expect(calcBasisLongitudeText(en, add), contains('add 4 minutes'));
+      expect(calcBasisLongitudeText(ja, add), contains('4分を足して'));
+
+      // DstNone: 보정 분 인자가 없고 서머타임 분만 들어갑니다.
+      const none = TimeBasis(
+        longitude: 127.5,
+        correctionMinutes: 0,
+        daylightSavingMinutes: 60,
+      );
+      expect(
+        calcBasisLongitudeText(en, none),
+        en.calcBasisLongitudeBodyDstNone(
+          en.calcBasisLongitudeBodyEast('127.5'),
+          60,
+        ),
+      );
+      expect(
+        calcBasisLongitudeText(ja, none),
+        ja.calcBasisLongitudeBodyDstNone(
+          ja.calcBasisLongitudeBodyEast('127.5'),
+          60,
+        ),
+      );
+      expect(calcBasisLongitudeText(ja, none), contains('60分だけ'));
+    });
+
+    testWidgets('서머타임과 양수 보정은 DstAdd 문구입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          () async => const TimeBasis(
+            longitude: -74.01,
+            correctionMinutes: 4,
+            daylightSavingMinutes: 60,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        _longitudeText(tester),
+        _ko.calcBasisLongitudeBodyDstAdd(
+          _ko.calcBasisLongitudeBodyWest('74.01'),
+          4,
+          60,
+        ),
+      );
     });
 
     testWidgets('불러오는 중에는 그 자리에 skeleton 한 문단, 다른 문단은 바로 보입니다', (tester) async {
@@ -307,7 +434,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
-    expect(find.text(_ko.calcBasisTitle), findsOneWidget);
+    expect(find.text(_ko.calcBasisBarTitle), findsOneWidget);
+    await expectAppBarTitle(
+      tester,
+      SlotIds.calcBasisBarTitle,
+      _ko.calcBasisBarTitle,
+    );
   });
 
   testWidgets('큰 글자(2.0)·작은 화면에서도 넘치지 않고 본문이 스크롤됩니다', (tester) async {

@@ -12,14 +12,17 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/monetization/data/entitlements_repository.dart';
@@ -73,6 +76,36 @@ Future<void> _until(WidgetTester tester, bool Function() done) async {
   fail('조건이 채워지지 않음');
 }
 
+/// 이 계정의 `locked` 달력 캐시가 모두 지워질 때까지 기다립니다. 끝나지 않으면 실패합니다.
+Future<void> _untilCalendarUnlocked(
+  WidgetTester tester,
+  CacheStore cache,
+) async {
+  for (var i = 0; i < 300; i++) {
+    final locked = await tester.runAsync(
+      () => cache.lockedKeys(CacheKind.calendar),
+    );
+    if (locked!.isEmpty) {
+      return;
+    }
+    await _spin(tester);
+  }
+  fail('locked 달력 캐시가 남아 있음');
+}
+
+/// 달력 캐시에 `locked` 달 하나를 심습니다.
+Future<void> _seedLockedCalendar(WidgetTester tester, CacheStore cache) =>
+    tester
+        .runAsync(
+          () => cache.write(
+            CacheKind.calendar,
+            'fp|ko|2026-10',
+            '{}',
+            access: EvidenceAccess.locked,
+          ),
+        )
+        .then((_) {});
+
 /// [scenario]로 부팅해 오늘 응답을 받아 둡니다(근거 시트는 오늘 화면에서 열리므로).
 Future<ProviderContainer> _boot(
   WidgetTester tester, {
@@ -112,7 +145,7 @@ _open(ProviderContainer container) {
   final events = <UnlockEvent>[];
   final eventSubscription = container
       .read(_provider.notifier)
-      .events
+      .watchEvents()
       .listen(events.add);
   addTearDown(eventSubscription.cancel);
   return (subscription: subscription, events: events);
@@ -276,6 +309,14 @@ final _accessProvider = NotifierProvider<_Access, AsyncValue<EvidenceAccess>>(
   _Access.new,
 );
 
+/// 근거가 없는 응답의 근거 목록.
+final _noEvidenceProvider = Provider<AsyncValue<List<Evidence>>>(
+  (ref) => const AsyncData([]),
+);
+
+/// 오늘 그런 이유가 없는 응답의 문장.
+final _noReasonProvider = Provider<RenderedText?>((ref) => null);
+
 /// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
 @immutable
 final class _TestSubject implements EvidenceSubject {
@@ -283,6 +324,14 @@ final class _TestSubject implements EvidenceSubject {
 
   @override
   ProviderListenable<AsyncValue<EvidenceAccess>> get access => _accessProvider;
+
+  @override
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
+      _noEvidenceProvider;
+
+  @override
+  ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
+      _noReasonProvider;
 
   @override
   Future<void> reload(Ref ref) async {}
@@ -342,7 +391,7 @@ void main() {
       var closed = false;
       final done = container
           .read(_provider.notifier)
-          .events
+          .watchEvents()
           .listen(null, onDone: () => closed = true);
       addTearDown(done.cancel);
       await _prepared(tester, container);
@@ -422,6 +471,50 @@ void main() {
         EvidenceAccess.unlocked,
       );
       expect(opened.events, isEmpty);
+    });
+
+    testWidgets('잠금 해제에 성공하면 locked로 받은 달력 캐시를 버린다(A32)', (tester) async {
+      final container = await _boot(tester, scenario: 'reward-unlock');
+      final cache = container.read(cacheStoreProvider);
+      await tester.runAsync(() async {
+        await cache.write(
+          CacheKind.calendar,
+          'fp|ko|2026-10',
+          '{}',
+          access: EvidenceAccess.locked,
+        );
+        await cache.write(
+          CacheKind.calendar,
+          'fp|ko|2026-11',
+          '{}',
+          access: EvidenceAccess.unlocked,
+        );
+      });
+      _open(container);
+      await _prepared(tester, container);
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await _until(
+        tester,
+        () => _state(container).link == DepthLinkState.unlocked,
+      );
+      await _untilCalendarUnlocked(tester, cache);
+
+      final kept = await tester.runAsync(
+        () => cache.read(CacheKind.calendar, 'fp|ko|2026-11'),
+      );
+      expect(kept, isNotNull);
+    });
+
+    testWidgets('시트를 열 때 이미 unlocked여도 locked 달력 캐시를 버린다(A32)', (tester) async {
+      final container = await _boot(tester, scenario: 'evidence-unlocked');
+      final cache = container.read(cacheStoreProvider);
+      await _seedLockedCalendar(tester, cache);
+
+      _open(container);
+
+      expect(_state(container).link, DepthLinkState.unlocked);
+      await _untilCalendarUnlocked(tester, cache);
     });
 
     testWidgets('30초 안에 권한이 없으면 UnlockTimedOut과 locked', (tester) async {
@@ -754,6 +847,42 @@ void main() {
       expect(container.read(_testProvider).link, DepthLinkState.unlocked);
       expect(finished, isTrue);
     });
+
+    testWidgets('다른 길로 열리면 locked 달력 캐시를 버리고, 정리를 거듭 불러도 오류가 없다(A32)', (
+      tester,
+    ) async {
+      final container = await _boot(
+        tester,
+        overrides: [
+          entitlementsRepositoryProvider.overrideWithValue(
+            EntitlementsRepository(_ScriptedApi([_inactive])),
+          ),
+        ],
+      );
+      final cache = container.read(cacheStoreProvider);
+      final reporter =
+          container.read(crashReporterProvider) as FakeCrashReporter;
+      container.listen(_testProvider, (_, _) {});
+      await _until(tester, () => container.read(_testProvider).adReady);
+      await _seedLockedCalendar(tester, cache);
+
+      container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
+      await tester.pump();
+      expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+      await _untilCalendarUnlocked(tester, cache);
+
+      // 거듭 불려도(잠금 해제 성공 뒤 다른 길로도 열림) 지울 것이 없을 뿐 오류가 없습니다.
+      await tester.runAsync(() async {
+        final sync = container.read(calendarUnlockSyncProvider);
+        await sync.forgetLocked();
+        await sync.forgetLocked();
+      });
+      expect(
+        await tester.runAsync(() => cache.lockedKeys(CacheKind.calendar)),
+        isEmpty,
+      );
+      expect(reporter.errors, isEmpty);
+    });
   });
 
   group('수정 라운드 2', () {
@@ -773,7 +902,7 @@ void main() {
       );
       container.listen(_testProvider, (_, _) {});
       final events = <UnlockEvent>[];
-      container.read(_testProvider.notifier).events.listen(events.add);
+      container.read(_testProvider.notifier).watchEvents().listen(events.add);
       await _until(tester, () => container.read(_testProvider).adReady);
       final asked = api.calls;
 

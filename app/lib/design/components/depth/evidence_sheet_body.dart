@@ -23,26 +23,29 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 본문, 아니면 같은 자리에 `lock.veil`로 그립니다. 구역 제목은 잠겨도 또렷합니다.
 /// 잠겼을 때는 시트 아래에 [EvidenceLockPanel]이 고정됩니다.
 ///
-/// 잠긴 구역의 본문은 server가 보내지 않으므로 [basis]·[source]·[personal]은 `null`이어도
-/// 됩니다. 열렸는데 본문이 없는 구역(계약에 아직 필드가 없음)은 제목도 자리도 그리지
-/// 않습니다(결정 A22, `depth-link` 규칙 2.3.0). 잠겼을 때의 `lock.veil`은 본문을 내려받지
-/// 않은 상태라 그대로 그립니다. 이 내용 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
+/// 판정 근거·원전 구역은 근거마다 문단 하나씩([basis]·[source]의 순서)이고 문단 사이는
+/// `space.12`입니다(A42). 원전은 인용마다 `bg.base` 상자입니다. 잠긴 구역의 본문은 server가
+/// 보내지 않고, 잠겼을 때는 넘어온 문장이 있어도 그리지 않습니다(D60). 열렸는데 문장이 없는
+/// 구역(원고가 없어 server가 생략)은 제목도 자리도 그리지 않습니다(A22 남은 규칙, `depth-link`
+/// 규칙 2.3.0). 잠겼을 때의 `lock.veil`은 본문을 내려받지 않은 상태라 그대로 그립니다. 이 내용
+/// 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
 ///
 /// [loading]이면 구역 제목 아래 본문 자리가 skeleton입니다(권한이 생겨 응답을 다시 받는 중,
 /// IA `loading`). 안내 영역은 [state]대로 남습니다.
 ///
 /// 잠김이 풀리는 순간(`locked`·`lockedNoAd`·`unlocking` → `unlocked`)에는 안내 영역이
-/// `disappear.seep`으로 사라지고 본문이 `appear.seep`으로 나타나며 light 햅틱과 "열렸다"는
-/// 알림이 한 번 옵니다. 그 사이 skeleton 단계([loading])를 언제 켤지와 확인 시간 초과 toast는
-/// 화면 쪽 흐름의 몫입니다. 처음부터 권한이 있으면 움직임도 햅틱도 알림도 없습니다.
+/// `disappear.seep`으로 사라지고 본문이 구역 단위로 한 번 `appear.seep`으로 나타나며(문단이
+/// 여럿이어도 문단마다 따로 나타나지 않음) light 햅틱과 "열렸다"는 알림이 한 번 옵니다. 그
+/// 사이 skeleton 단계([loading])를 언제 켤지와 확인 시간 초과 toast는 화면 쪽 흐름의
+/// 몫입니다. 처음부터 권한이 있으면 움직임도 햅틱도 알림도 없습니다.
 class EvidenceSheetBody extends StatefulWidget {
   /// 근거 시트 내용을 만듭니다.
   const new({
     required this.state,
     required this.title,
     this.pillars,
-    this.basis,
-    this.source,
+    this.basis = const [],
+    this.source = const [],
     this.personal,
     this.showPersonal = false,
     this.onWatchAd,
@@ -66,11 +69,11 @@ class EvidenceSheetBody extends StatefulWidget {
   /// 원국표(`saju-pillars`). 표 데이터라 잠기지 않습니다.
   final Widget? pillars;
 
-  /// 판정 근거 본문(`evidence-sheet.basis.body`). 잠기면 없습니다.
-  final RenderedText? basis;
+  /// 판정 근거 본문(`evidence-sheet.basis.body`), 근거마다 한 문단. 잠기면 비어 있습니다.
+  final List<RenderedText> basis;
 
-  /// 원전 인용(`evidence-sheet.source.quote`). 잠기면 없습니다.
-  final RenderedText? source;
+  /// 원전 인용(`evidence-sheet.source.quote`), 근거마다 한 문단. 잠기면 비어 있습니다.
+  final List<RenderedText> source;
 
   /// 내 사주 해석(`evidence-sheet.personal.body`). 잠기면 없습니다.
   final RenderedText? personal;
@@ -154,14 +157,14 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                 _section(
                   context,
                   title: l10n.evidenceSheetSectionBasis,
-                  text: widget.basis,
+                  texts: widget.basis,
                   titleSlotId: SlotIds.evidenceSheetSectionBasis,
                   slotId: SlotIds.evidenceSheetBasisBody,
                 ),
                 _section(
                   context,
                   title: l10n.evidenceSheetSectionSource,
-                  text: widget.source,
+                  texts: widget.source,
                   titleSlotId: SlotIds.evidenceSheetSectionSource,
                   slotId: SlotIds.evidenceSheetSourceQuote,
                   quote: true,
@@ -170,7 +173,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                   _section(
                     context,
                     title: l10n.evidenceSheetSectionPersonal,
-                    text: widget.personal,
+                    texts: [?widget.personal],
                     titleSlotId: SlotIds.evidenceSheetSectionPersonal,
                     slotId: SlotIds.evidenceSheetPersonalBody,
                   ),
@@ -192,18 +195,17 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     );
   }
 
-  /// 구역 하나: 제목(늘 또렷함) + 본문. 잠기면 같은 자리에 `lock.veil`, 받는 중이면 skeleton.
-  /// 열렸는데 본문이 없으면 그리지 않습니다(A22).
+  /// 구역 하나: 제목(늘 또렷함) + 본문 문단들. 잠기면 같은 자리에 `lock.veil`, 받는 중이면
+  /// skeleton. 열렸는데 문단이 없으면 그리지 않습니다(A22 남은 규칙).
   Widget _section(
     BuildContext context, {
     required String title,
-    required RenderedText? text,
+    required List<RenderedText> texts,
     required String titleSlotId,
     required String slotId,
     bool quote = false,
   }) {
     final l10n = AppLocalizations.of(context);
-    final tokens = context.tokens;
     final Widget content;
     if (widget.loading) {
       content = Column(
@@ -219,9 +221,9 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
           ),
         ],
       );
-    } else if (_unlocked && text == null) {
+    } else if (_unlocked && texts.isEmpty) {
       return const SizedBox.shrink();
-    } else if (!_unlocked || text == null) {
+    } else if (!_unlocked) {
       content = LockVeil(
         title: title,
         semanticLabel: '$title, ${l10n.evidenceSheetA11yLocked}',
@@ -230,29 +232,17 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
         a11ySlotId: SlotIds.evidenceSheetA11yLocked,
       );
     } else {
-      final block = SentenceBlock(
-        variant: SentenceBlockVariant.body,
-        text: text,
-        slotId: slotId,
-      );
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _sectionTitle(context, title: title, titleSlotId: titleSlotId),
           const SizedBox(height: Space.s8),
-          if (quote)
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: tokens.colors.bgBase,
-                borderRadius: BorderRadius.circular(Radii.md),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(Space.s12),
-                child: block,
-              ),
-            )
-          else
-            block,
+          for (final (index, text) in texts.indexed)
+            Padding(
+              // 근거가 여럿이면 문단 사이를 space.12로 띄웁니다(A42).
+              padding: EdgeInsets.only(top: index == 0 ? 0 : Space.s12),
+              child: _paragraph(text, slotId: slotId, quote: quote),
+            ),
         ],
       );
     }
@@ -261,6 +251,29 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       child: _justUnlocked
           ? SeepPresence(present: true, child: content)
           : content,
+    );
+  }
+
+  /// 본문 한 문단. [quote]면 원전 인용 상자(`bg.base`, `radius.md`, 안쪽 `space.12`)에 담습니다.
+  Widget _paragraph(
+    RenderedText text, {
+    required String slotId,
+    required bool quote,
+  }) {
+    final block = SentenceBlock(
+      variant: SentenceBlockVariant.body,
+      text: text,
+      slotId: slotId,
+    );
+    if (!quote) {
+      return block;
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.tokens.colors.bgBase,
+        borderRadius: BorderRadius.circular(Radii.md),
+      ),
+      child: Padding(padding: const EdgeInsets.all(Space.s12), child: block),
     );
   }
 

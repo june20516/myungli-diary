@@ -18,16 +18,23 @@ import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
 import '../support/app_harness.dart';
 
-/// [failNext]가 켜져 있으면 다음 갱신 한 번을 계산 없이 실패시키는 진입 갈래(오프라인 등).
+/// [_FlakyEntry]를 실패시키는 스위치. Notifier에 공개 필드를 두지 않으려고 따로 둡니다.
+class _FailSwitch {
+  bool failNext = false;
+}
+
+/// [_FailSwitch.failNext]가 켜져 있으면 다음 갱신 한 번을 계산 없이 실패시키는 진입 갈래(오프라인 등).
 ///
 /// 실제로 실패한 갱신처럼 state는 이전 값 그대로 둡니다.
 class _FlakyEntry extends EntryController {
-  bool failNext = false;
+  new(this._switch);
+
+  final _FailSwitch _switch;
 
   @override
   Future<AppError?> refresh() async {
-    if (failNext) {
-      failNext = false;
+    if (_switch.failNext) {
+      _switch.failNext = false;
       return const OfflineError();
     }
     return await super.refresh();
@@ -38,16 +45,16 @@ FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
 
 /// [scenario] 컨테이너를 만들고 진입 계산이 끝날 때까지 기다립니다.
-Future<(ProviderContainer, _FlakyEntry)> _start(
+Future<(ProviderContainer, _FailSwitch)> _start(
   WidgetTester tester,
   String scenario,
 ) async {
-  final entry = _FlakyEntry();
+  final entry = _FailSwitch();
   final container = (await tester.runAsync(
     () => bootstrapForTest(
       scenario,
       locale: const Locale('ko', 'KR'),
-      overrides: [entryStateProvider.overrideWith(() => entry)],
+      overrides: [entryStateProvider.overrideWith(() => _FlakyEntry(entry))],
     ),
   ))!;
   addTearDown(container.dispose);

@@ -12,7 +12,9 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -79,6 +81,12 @@ Future<void> _search(WidgetTester tester, String text) async {
   await tester.enterText(find.byType(EditableText), text);
   await tester.pump(const Duration(milliseconds: 301));
 }
+
+final String _errorText = errorMessage(
+  AppLocalizationsEn(),
+  UnexpectedError(StateError('x')),
+);
+final Finder _errorLine = find.text(_errorText);
 
 /// 결과 줄(첫 도시)을 누르는 대상.
 final Finder _newYork = find.text('New York City');
@@ -222,7 +230,8 @@ void main() {
     await tester.tap(_newYork);
     await tester.pump();
     await tester.tap(_link);
-    await tester.pumpAndSettle();
+    // 점이 숨 쉬는 동안은 settle되지 않으므로 고정 시간만 돌립니다.
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsNothing);
     gate.complete();
     await tester.pumpAndSettle();
@@ -491,7 +500,7 @@ void main() {
     await tester.pump(const Duration(seconds: 10));
   });
 
-  testWidgets('마무리 동작이 실패하면 toast로 안내하고 다시 고를 수 있습니다', (tester) async {
+  testWidgets('마무리 동작이 실패하면 오류 줄로 안내하고 다시 고를 수 있습니다', (tester) async {
     var calls = 0;
     await _openBirthplace(
       tester,
@@ -511,16 +520,65 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(tester.takeException(), isNull);
-    expect(
-      find.text(
-        errorMessage(AppLocalizationsEn(), UnexpectedError(StateError('x'))),
-      ),
-      findsOneWidget,
-    );
+    expect(_errorLine, findsOneWidget);
+    expect(find.byType(ToastPill), findsNothing);
     await tester.pump(const Duration(seconds: 10));
     await tester.tap(_newYork);
     await tester.pump();
     expect(calls, 2);
+
+    await tester.pump(const Duration(seconds: 10));
+  });
+
+  testWidgets('저장을 기다리는 동안 고른 줄에 점이 있고 다른 줄은 눌리지 않으며, 실패하면 점이 사라집니다', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final gate = Completer<void>();
+    var calls = 0;
+    await _openBirthplace(
+      tester,
+      scenario: 'profile-required',
+      overrides: [
+        onboardingFinishProvider.overrideWithValue(() async {
+          calls++;
+          await gate.future;
+          throw StateError('저장 실패');
+        }),
+      ],
+    );
+    await _search(tester, 'new');
+    await _settleIo(tester);
+    final dots = find.descendant(
+      of: find.byKey(CitySearch.rowKey('5128581')),
+      matching: find.byType(BreathingDots),
+    );
+    expect(dots, findsNothing);
+
+    await tester.tap(_newYork);
+    await tester.pump();
+    expect(dots, findsOneWidget);
+    expect(find.byType(BreathingDots), findsOneWidget);
+
+    // 저장을 기다리는 동안 다시 눌러도 저장을 다시 시작하지 않습니다.
+    await tester.tap(_newYork);
+    await tester.pump();
+    expect(calls, 1);
+
+    gate.complete();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(BreathingDots), findsNothing);
+    expect(_errorLine, findsOneWidget);
+    expect(find.byType(ToastPill), findsNothing);
+    // 스크린리더에도 오류 문구가 alert로 읽힙니다.
+    expect(find.bySemanticsLabel(_errorText), findsWidgets);
+    handle.dispose();
+
+    // 검색어를 바꾸면 오류 줄이 사라집니다.
+    await _search(tester, 'newy');
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(_errorLine, findsNothing);
     await tester.pump(const Duration(seconds: 10));
   });
 }

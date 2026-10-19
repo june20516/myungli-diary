@@ -12,7 +12,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 않아, 문단이 나타나거나 사라져도 다른 문단 사이 간격은 한 번(`space.20`)입니다.
 /// 큰 글자·작은 화면에서도 잘리지 않고 스크롤로 닿습니다.
 ///
-/// 명세에 없는 app layout 부품입니다. design 명세에 올릴지는 #211에서 판단합니다.
+/// IA 컴포넌트가 아닌 레이아웃으로, 값은 `frame.md` "안내 글 본문"(2.4.0, 결정 V34)이
+/// 정합니다(좌우 `space.20`, 위 `space.24`, 아래 `space.32`, 문단 사이 `space.20`).
 class ProsePageBody extends StatelessWidget {
   /// 본문 골격을 만듭니다.
   const new({required this.paragraphs, super.key});

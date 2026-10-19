@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 
 import 'input_harness.dart';
@@ -17,6 +19,7 @@ final _seoul = City(
   country: 'KR',
   countryName: 'South Korea',
   timezone: 'Asia/Seoul',
+  longitude: 126.9780,
 );
 final _newYork = City(
   id: '5128581',
@@ -25,6 +28,7 @@ final _newYork = City(
   countryName: 'United States',
   regionName: 'New York',
   timezone: 'America/New_York',
+  longitude: -74.0060,
 );
 final _busan = City(
   id: '1838524',
@@ -32,6 +36,7 @@ final _busan = City(
   country: 'KR',
   countryName: 'South Korea',
   timezone: 'Asia/Seoul',
+  longitude: 129.0756,
 );
 
 Widget _search({
@@ -39,6 +44,7 @@ Widget _search({
   ValueChanged<String>? onQueryChanged,
   ValueChanged<City>? onSelected,
   VoidCallback? onRetry,
+  String? savingCityId,
 }) => CitySearch(
   label: '도시 이름',
   hint: '예: Seoul',
@@ -47,6 +53,7 @@ Widget _search({
   onSelected: onSelected ?? (_) {},
   emptyBody: '찾는 도시가 없어요.',
   onRetry: onRetry ?? () {},
+  savingCityId: savingCityId,
   skeletonDelay: Duration.zero,
   animated: false,
 );
@@ -185,6 +192,7 @@ void main() {
         country: 'KR',
         countryName: ' ',
         timezone: 'Asia/Seoul',
+        longitude: 126.9780,
       );
       await tester.pumpWidget(
         inputApp(Center(child: _search(results: AsyncData([nameless])))),
@@ -199,8 +207,11 @@ void main() {
     });
 
     test('cityRegionLine은 이름이 있는 것만 잇습니다', () {
-      expect(cityRegionLine(_newYork), 'New York, United States');
-      expect(cityRegionLine(_seoul), 'South Korea');
+      expect(
+        cityRegionLine(_newYork, languageCode: 'en'),
+        'New York, United States',
+      );
+      expect(cityRegionLine(_seoul, languageCode: 'en'), 'South Korea');
     });
 
     testWidgets('줄을 누르면 onSelected가 그 도시로 한 번 불립니다', (tester) async {
@@ -298,5 +309,133 @@ void main() {
       expect(controller.offset, 700);
       expect(find.text('Busan'), findsOneWidget);
     });
+  });
+
+  group('saving', () {
+    testWidgets('savingCityId인 줄 끝에 점 숨쉬기가 있고 다른 줄은 눌리지 않습니다', (tester) async {
+      final selected = <City>[];
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: _search(
+              results: AsyncData([_seoul, _busan]),
+              savingCityId: _seoul.id,
+              onSelected: selected.add,
+            ),
+          ),
+        ),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(CitySearch.rowKey(_seoul.id)),
+          matching: find.byType(BreathingDots),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(BreathingDots), findsOneWidget);
+
+      await tester.tap(find.text('Busan'));
+      await tester.tap(find.text('Seoul'));
+      await tester.pump();
+      expect(selected, isEmpty);
+    });
+
+    testWidgets('saving으로 바뀌어도 줄 위젯이 갈아 끼워지지 않습니다', (tester) async {
+      final saving = ValueNotifier<String?>(null);
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: ValueListenableBuilder(
+              valueListenable: saving,
+              builder: (context, id, _) => _search(
+                results: AsyncData([_seoul, _busan]),
+                savingCityId: id,
+              ),
+            ),
+          ),
+        ),
+      );
+      State<PressInkTarget> inkOf(City city) => tester.state(
+        find.descendant(
+          of: find.byKey(ValueKey(city.id)),
+          matching: find.byType(PressInkTarget),
+        ),
+      );
+      final before = [inkOf(_seoul), inkOf(_busan)];
+
+      saving.value = _seoul.id;
+      await tester.pump();
+      expect(inkOf(_seoul), same(before[0]));
+      expect(inkOf(_busan), same(before[1]));
+    });
+
+    testWidgets('saving이 아니면 점이 없고 줄을 누르면 onSelected입니다', (tester) async {
+      final selected = <City>[];
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: _search(
+              results: AsyncData([_seoul]),
+              onSelected: selected.add,
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(BreathingDots), findsNothing);
+      await tester.tap(find.text('Seoul'));
+      expect(selected, [_seoul]);
+    });
+
+    testWidgets('saving이면 스크린리더에 처리 중을 알립니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: _search(
+              results: AsyncData([_seoul, _busan]),
+              savingCityId: _seoul.id,
+            ),
+          ),
+        ),
+      );
+      // ko actionBusy는 "처리 중"입니다.
+      final busy = find.bySemanticsLabel(RegExp('처리 중'));
+      expect(busy, findsOneWidget);
+      final data = tester.getSemantics(busy).getSemanticsData();
+      expect(data.label, contains('Seoul'));
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      // 다른 줄은 눌러도 아무 일이 없는 꺼진 줄로 읽힙니다.
+      final other = tester.getSemantics(
+        find.bySemanticsLabel('Busan, South Korea'),
+      );
+      expect(other.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+      handle.dispose();
+    });
+  });
+
+  test('ko·en은 ", "로, ja는 "、"로 지역 줄을 잇습니다', () {
+    final city = City(
+      id: '1',
+      name: 'Suwon',
+      country: 'KR',
+      countryName: '대한민국',
+      regionName: '경기도',
+      timezone: 'Asia/Seoul',
+      longitude: 127.0,
+    );
+    expect(cityRegionLine(city, languageCode: 'ko'), '경기도, 대한민국');
+    expect(cityRegionLine(city, languageCode: 'en'), '경기도, 대한민국');
+    expect(cityRegionLine(city, languageCode: 'ja'), '경기도、대한민국');
+    expect(cityRegionLine(city, languageCode: 'fr'), '경기도, 대한민국');
+  });
+
+  testWidgets('ja 로캘이면 화면의 지역 줄도 "、"로 잇습니다', (tester) async {
+    await tester.pumpWidget(
+      inputApp(
+        Center(child: _search(results: AsyncData([_newYork]))),
+        locale: const Locale('ja'),
+      ),
+    );
+    expect(find.text('New York、United States'), findsOneWidget);
   });
 }
