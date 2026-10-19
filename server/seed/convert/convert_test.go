@@ -154,7 +154,7 @@ func withGlossaryKey(t *testing.T, dir, key string) {
 	require.NoError(t, err)
 	updated := strings.Replace(string(data), "    - direction8.n\n", "    - direction8.n\n    - "+key+"\n", 1)
 	require.NotEqual(t, string(data), updated, "glossary 슬롯 명세의 모양이 바뀌었습니다")
-	require.NoError(t, os.WriteFile(file, []byte(updated), 0o600))
+	require.NoError(t, os.WriteFile(file, []byte(updated), 0o600)) //nolint:gosec // 테스트 임시 디렉터리입니다.
 }
 
 // 이름 원고가 갖춰진 언어라도 그 언어에 이름이 아직 없는 용어 id를 명시 토큰과 한자 표기에 쓸 수 있습니다.
