@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/june20516/myungli-diary/server/internal/account"
+	"github.com/june20516/myungli-diary/server/internal/city"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
@@ -34,7 +35,7 @@ func (a *API) GetProfile(ctx context.Context, _ gen.GetProfileRequestObject) (ge
 	if err != nil {
 		return nil, err
 	}
-	return gen.GetProfile200JSONResponse(fromProfile(p)), nil
+	return gen.GetProfile200JSONResponse(a.fromProfile(ctx, p)), nil
 }
 
 // CreateProfile은 프로필을 만들거나 통째로 바꿉니다.
@@ -164,8 +165,8 @@ func parseClock(value *string) (*profile.LocalTime, error) {
 	return &profile.LocalTime{Hour: parsed.Hour(), Minute: parsed.Minute()}, nil
 }
 
-// fromProfile은 도메인 프로필을 응답 본문으로 바꿉니다. 경도는 계약에 없어 내보내지 않습니다.
-func fromProfile(p profile.Profile) gen.Profile {
+// fromProfile은 도메인 프로필을 응답 본문으로 바꿉니다. 경도는 birth.place가 아니라 birthCity에만 내보냅니다.
+func (a *API) fromProfile(ctx context.Context, p profile.Profile) gen.Profile {
 	birth := gen.Birth{
 		Calendar:    gen.CalendarType(p.Birth.Calendar),
 		Date:        gen.LunarOrSolarDate{Year: p.Birth.Date.Year, Month: p.Birth.Date.Month, Day: p.Birth.Date.Day},
@@ -181,6 +182,7 @@ func fromProfile(p profile.Profile) gen.Profile {
 	}
 	return gen.Profile{
 		Birth:           birth,
+		BirthCity:       a.birthCity(ctx, p),
 		CurrentTimezone: p.CurrentTimezone,
 		Honorific:       p.Honorific,
 		Language:        gen.Language(p.Language),
@@ -189,6 +191,37 @@ func fromProfile(p profile.Profile) gen.Profile {
 			Time:   formatClock(p.Notification.Time),
 		},
 	}
+}
+
+// birthCity는 출생 도시를 프로필 언어 이름으로 돌려줍니다(#199). 도시 출생이 아니면 nil입니다.
+// 경도는 엔진 계산에 쓰는 저장된 경도이고, 없으면 도시 자료의 경도입니다(server 결정 S46).
+// 도시 자료가 바뀌어 저장된 id를 찾을 수 없으면 Warn을 남기고 nil입니다. app은 그때 경도 안내를 그리지 않습니다.
+func (a *API) birthCity(ctx context.Context, p profile.Profile) *gen.City {
+	if p.Birth.PlaceStatus != profile.PlaceCity {
+		return nil
+	}
+	c, ok := city.Lookup(p.Birth.CityID)
+	if !ok {
+		a.Logger.WarnContext(ctx, "저장된 출생 도시를 도시 자료에서 찾지 못해 birthCity를 뺍니다",
+			slog.String("city_id", p.Birth.CityID), slog.String("city_data_version", city.DataVersion()))
+		return nil
+	}
+	longitude := c.Longitude
+	if p.Birth.Longitude != nil {
+		longitude = *p.Birth.Longitude
+	}
+	out := &gen.City{
+		Id:          c.ID,
+		Name:        c.Name(p.Language),
+		Country:     c.Country,
+		CountryName: c.CountryName(p.Language),
+		Timezone:    c.Timezone,
+		Longitude:   float32(longitude),
+	}
+	if region, ok := c.RegionName(p.Language); ok {
+		out.RegionName = &region
+	}
+	return out
 }
 
 func formatClock(t *profile.LocalTime) *string {
@@ -211,7 +244,7 @@ func (a *API) fromSaved(ctx context.Context, saved profile.Saved) gen.ProfileRes
 		}
 		warnings = append(warnings, gen.FieldError{Field: warningHonorificField, Code: code})
 	}
-	return gen.ProfileResponse{Profile: fromProfile(saved.Profile), Warnings: warnings}
+	return gen.ProfileResponse{Profile: a.fromProfile(ctx, saved.Profile), Warnings: warnings}
 }
 
 func warningCode(c honorific.Code) (string, bool) {
