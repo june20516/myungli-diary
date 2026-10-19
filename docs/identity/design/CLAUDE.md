@@ -71,7 +71,11 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-지금은 대기합니다. 아래 일이 생기면 엽니다.
+0. **지금 할 일 (지휘 2026-10-20)**
+   * 열린 `drift` #252(PR #249)·#257(PR #254): writing 라운드 원고 문장 수가 늘어 `tools/test_lengths.py` `test_corpus_reads_round_choices`가 49를 고정값으로 대조해 실패합니다(지금 61). 고정값 대신 라운드 원고에서 기대 수를 얻도록 고치고 `Closes`로 닫습니다.
+   * #218(app 계획 4 임시 결정 확인): 본문 1~4와 코멘트(event-row 라벨·시각 칸·summary 두 줄, 윤달 표기 범위, day-cell 높이 V30 문구, 여러 줄 text-field ⑤, day-sheet 3건, 근거 여러 문단 A42·한자 글꼴 ⑥·원전 인용 상자 ⑦)에 답하고, 명세에 반영할 것은 컴포넌트 계약 버전 규칙대로 올립니다.
+
+그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 1. **writing 확인 창 슬롯 답:** 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기를 어떻게 할지 writing 답(Issue #191)이 오면 `tools/lengths.py`의 `DIALOG_SLOTS`·`NO_LIMIT`과 `lengths.md`를 맞춥니다.
 2. **윤달 조회 계약:** server 음력→양력·윤달 조회(#141)가 REST 계약에 들어오면 app에 `date-picker` `birth` 목표 모양(V31)으로 바꾸도록 확인합니다.
 3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.

@@ -50,7 +50,8 @@
 
 ## 다음 할 일
 1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
-2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-15 기준:
+2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-20 기준:
+   * **#258**(writing): `evidence_sources.json` 원전 `quote`의 번체 원문(판본) 여부와, 없으면 간체 `quote`를 근거 시트에 그대로 내도 되는지 답합니다. writing을 막지 않습니다.
    * **#120:** `core.yml`의 GitHub Actions를 Node 24 최신 메이저로.
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.

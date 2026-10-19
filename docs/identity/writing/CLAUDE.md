@@ -84,9 +84,9 @@
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **W1-2 PR을 병합합니다**(사용자). server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
+2. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
 3. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-4. **W1-3**(spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 보고, 원어민 검수를 받습니다. 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
+4. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 보고, 원어민 검수를 받습니다. 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
 5. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)

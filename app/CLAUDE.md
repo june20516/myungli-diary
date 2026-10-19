@@ -83,7 +83,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **계획 4 PR.** `app/calendar` → `main`입니다. 올리기 전에 `git merge origin/main` 뒤 로컬 검사와 로컬 Patrol(아래 "검사")을 돌리고, 브랜치를 push해 `gh workflow run app.yml --ref app/calendar`로 `e2e-android`를 한 번 확인합니다. PR 마무리에 공개 확인(가격·수익 수치, 비공개 저장소 경로 링크)을 합니다(`docs/workflow.md` §3).
+1. **계획 4는 PR #253으로 병합됐습니다(지휘 2026-10-20).** 먼저 열린 `drift` #256(PR #254)을 확인합니다(main 검사가 통과하면 `ci-gate`가 닫습니다). 남아 있으면 다음 PR에서 맞춥니다. 이어서 아래 5번(writing 문구 도착)을 처리합니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 화면 9곳의 `<화면>.bar.title` 제목은 해당 화면을 만드는 계획 5·6에서 붙입니다(임시 키 허용 목록 `test/` 대조가 알려 줍니다, A43). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. 계획 4가 넘기는 것:
    * `diary-view`·`diary-edit`은 날짜를 `?date=YYYY-MM-DD` 계약으로 받습니다(`lib/app/router/app_router.dart`의 `dateQuery`·`datedPathOf`). `day-sheet`의 일기 입구가 이미 이 경로로 엽니다(`today` 가이드 카드는 날짜 없이 오늘로 엽니다).
@@ -91,7 +91,7 @@
    * 연결 상태 provider가 생기면 달력 오프라인 배너를 그것으로 바꿉니다. 지금은 달·일정 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`).
    * 계획 4의 남은 Issue(#218 design) 답이 오면 임시 문구·명세·계약 빈칸(A32~A41)을 맞춥니다.
 4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제), 원전 인용 fixture는 writing 원고가 오면 채웁니다. design #218의 ⑤A42(근거 여러 문단)·⑥한자 글꼴·⑦원전 인용 상자 확인이 오면 `EvidenceSubject` 출처 표시에 맞춥니다.
-5. **writing 대기 문구.** #237(새 error 문구 3개, `noticeTimeUnknown` 알림)·#232(notice)가 오면 가져오고 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지웁니다(문구가 오면 대기 테스트가 실패해 알려 줍니다). 그때까지 4xx 일반 문구입니다. 빈 `segments` notice 문장은 임시 키(A43)로 그립니다.
+5. **writing 대기 문구.** #237(새 error 문구 3개, `noticeTimeUnknown` 알림, PR #254)·#232(notice, PR #249)가 main에 왔습니다. 이것들을 가져오고 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지웁니다(문구가 오면 대기 테스트가 실패해 알려 줍니다). 그때까지 4xx 일반 문구입니다. 빈 `segments` notice 문장은 임시 키(A43)로 그립니다.
 6. **이후 계획으로 넘긴 사항**
    * 계획 6(나·설정): 근거 시트의 원국표와 "내 사주에서는" 개인 해석(`EvidenceSubject`에 차트 주제를 더해 잠금 해제 흐름을 그대로 씀), `legal`에 GeoNames 출처 고지(#165).
    * 계획 6(설정·계정): 자발적 로그아웃과 계정 삭제(`deleteMe` 202 뒤, 계정이 삭제 대기가 되어도 토큰은 `logout`에 쓸 수 있음)는 `revokeAndSignOut`(`lib/app/entry/sign_out.dart`)을 부릅니다. 둘 다 `signedOut` 이벤트로 정리·SDK 해제·진입 재계산이 돕니다. `discardWithoutEvent`를 쓰면 정리가 돌지 않습니다.
