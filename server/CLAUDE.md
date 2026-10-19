@@ -41,10 +41,12 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
+0. **열린 `drift` 먼저 (지휘 2026-10-20):** #250(PR #249 W1-1 원고)·#255(PR #254 W1-2 원고). 다음 PR에서 시드 대조를 맞추고 `Closes`로 닫습니다.
 1. `Profile.birthCity`(#199)를 채웁니다(`city.Lookup`, 프로필 언어 이름). `City.longitude`는 `listCities`(P6)에서 채웁니다.
 2. 다음 계약 개정에서 `getGlossary`·`putReaction`·`deleteReaction`에 409 `profile.required`를 명시합니다(지금은 `default`로 덮임).
 3. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-4. writing notice 문구 슬롯(#232)이 오면 시드 변환과 `Notice.text` 렌더를 잇습니다.
+4. writing notice 문구 슬롯(#232)이 PR #249로 왔습니다. 시드 변환과 `Notice.text` 렌더를 잇습니다.
+4-1. app #248: `getCalendar(1900, 1)`의 응답 규칙(부분 달 200 또는 422 유지와 계약 문장)을 정합니다. 엔진은 1900-01 월간이 `OUT_OF_RANGE`이므로 1을 고르면 core와 `to:core`로 확인합니다.
 5. **P5(일기·일정) 계획**을 씁니다. 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
 6. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)은 P9에서 합니다. #93(staging 테스트 로그인)도 설계(S24)가 끝났고 구현은 P6/P9입니다.
 7. app 질문(#100·#114·#165)이 오면 답합니다.
