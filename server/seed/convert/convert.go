@@ -165,8 +165,9 @@ func Run(writingDir string) (seed.Seed, Report, error) {
 	if err != nil {
 		return seed.Seed{}, Report{}, err
 	}
-	names := nameIndex(entries)
-	if err := checkHanjaTerms(hanjaLines, names); err != nil {
+	known := knownTerms(slots)
+	names := nameIndex(entries, known)
+	if err := checkHanjaTerms(hanjaLines, known); err != nil {
 		return seed.Seed{}, Report{}, err
 	}
 
@@ -193,7 +194,7 @@ func Run(writingDir string) (seed.Seed, Report, error) {
 			return seed.Seed{}, Report{}, fmt.Errorf("%s: 같은 원고가 중복됩니다 (%s)", e.where(), id)
 		}
 		present[id] = true
-		body, err := resolveTokens(e, names)
+		body, err := resolveTokens(e, names, known)
 		if err != nil {
 			return seed.Seed{}, Report{}, err
 		}
@@ -391,22 +392,30 @@ func loadHanja(file string) (hanja map[string]string, lines []hanjaLine, err err
 	return hanja, lines, nil
 }
 
-// checkHanjaTerms는 한자 표기의 용어 id가 이름 원고에 있는지 봅니다. 이름 원고가 갖춰진(complete) 언어 하나라도
-// 그 용어의 이름이 없으면 오타나 사라진 용어로 보고 파일:줄 위치를 담은 오류입니다. 갖춰진 언어가 없으면 보지 않습니다
-// (토큰 검사와 같은 기준). 오류는 파일 순서로 첫 항목입니다.
-func checkHanjaTerms(lines []hanjaLine, index map[string]*termNames) error {
-	langs := make([]string, 0, len(index))
-	for lang, names := range index {
-		if names.complete {
-			langs = append(langs, lang)
+// knownTerms는 슬롯 명세의 용어 id 집합입니다. glossary.value_name의 용어 범주 키(<범주>.<값>)와
+// daily.tag_label의 태그 키(tag.*)입니다(writing mlw term_ids와 같은 기준).
+// 이름 원고는 범주별로 차례로 오므로, 명시 id와 한자 표기는 언어별 이름 원고가 아니라 이 집합과 대조합니다.
+func knownTerms(slots map[string]slotInfo) map[string]bool {
+	known := map[string]bool{}
+	for key := range slots[glossarySlot].keys {
+		if isTermID(key) {
+			known[key] = true
 		}
 	}
-	sort.Strings(langs)
+	for key := range slots[tagLabelSlot].keys {
+		if strings.HasPrefix(key, tagKeyPrefix) {
+			known[key] = true
+		}
+	}
+	return known
+}
+
+// checkHanjaTerms는 한자 표기의 용어 id가 슬롯 명세에 있는지 봅니다. 없으면 오타나 사라진 용어로 보고
+// 파일:줄 위치를 담은 오류입니다. 오류는 파일 순서로 첫 항목입니다.
+func checkHanjaTerms(lines []hanjaLine, known map[string]bool) error {
 	for _, line := range lines {
-		for _, lang := range langs {
-			if !index[lang].ids[line.term] {
-				return fmt.Errorf("%s: 한자 표기의 용어 id %q가 %s 이름 원고에 없습니다", line.where, line.term, lang)
-			}
+		if !known[line.term] {
+			return fmt.Errorf("%s: 한자 표기의 용어 id %q가 슬롯 명세에 없습니다", line.where, line.term)
 		}
 	}
 	return nil
@@ -478,37 +487,22 @@ func parseParamKind(node yaml.Node) (seed.ParamKind, error) {
 // termNames는 한 언어의 이름 글자 -> 용어 id 집합입니다.
 type termNames struct {
 	byText map[string]map[string]bool
-	// ids는 그 언어 사전에 이름이 있는 용어 id 전체입니다.
-	ids map[string]bool
 	// complete는 glossary와 태그 이름 원고가 둘 다 있어 '이름 없음'을 오류로 볼 수 있다는 뜻입니다.
 	complete bool
 }
 
-// nameIndex는 언어별 역조회 사전을 만듭니다. glossary.value_name의 용어 범주 키(<범주>.<값>)와
-// daily.tag_label의 태그 키(tag.*)가 용어 id입니다.
-func nameIndex(entries []entry) map[string]*termNames {
+// nameIndex는 언어별 역조회 사전을 만듭니다. glossary.value_name·daily.tag_label 원고 중 키가 용어 id(known)인 줄이 대상입니다.
+func nameIndex(entries []entry, known map[string]bool) map[string]*termNames {
 	index := map[string]*termNames{}
 	sources := map[string]map[string]bool{}
 	for _, e := range entries {
-		var id string
-		switch e.Slot {
-		case glossarySlot:
-			category, _, _ := strings.Cut(e.Key, ".")
-			if !termCategories[category] {
-				continue
-			}
-			id = e.Key
-		case tagLabelSlot:
-			if !strings.HasPrefix(e.Key, tagKeyPrefix) {
-				continue
-			}
-			id = e.Key
-		default:
+		if (e.Slot != glossarySlot && e.Slot != tagLabelSlot) || !known[e.Key] {
 			continue
 		}
+		id := e.Key
 		names := index[e.lang]
 		if names == nil {
-			names = &termNames{byText: map[string]map[string]bool{}, ids: map[string]bool{}}
+			names = &termNames{byText: map[string]map[string]bool{}}
 			index[e.lang] = names
 			sources[e.lang] = map[string]bool{}
 		}
@@ -516,7 +510,6 @@ func nameIndex(entries []entry) map[string]*termNames {
 			names.byText[e.Text] = map[string]bool{}
 		}
 		names.byText[e.Text][id] = true
-		names.ids[id] = true
 		sources[e.lang][e.Slot] = true
 	}
 	for lang, names := range index {
@@ -528,7 +521,7 @@ func nameIndex(entries []entry) map[string]*termNames {
 // resolveTokens는 본문의 [[글자]]를 [[글자|용어 id]]로 바꿉니다.
 // 토큰 문법은 writing의 parse_tokens와 같습니다. 짝 없는 ]], 닫히지 않거나 중첩된 [[, 빈 글자, 빈 id,
 // id 안의 |는 오류입니다. [[{param}]] 꼴은 그대로 둡니다.
-func resolveTokens(e entry, index map[string]*termNames) (string, error) {
+func resolveTokens(e entry, index map[string]*termNames, known map[string]bool) (string, error) {
 	var b strings.Builder
 	rest := e.Text
 	for {
@@ -549,7 +542,7 @@ func resolveTokens(e entry, index map[string]*termNames) (string, error) {
 		if end < 0 {
 			return "", fmt.Errorf("%s: 용어 토큰의 닫는 ]]가 없습니다", e.where())
 		}
-		replaced, err := resolveToken(e, afterOpen[:end], index[e.lang])
+		replaced, err := resolveToken(e, afterOpen[:end], index[e.lang], known)
 		if err != nil {
 			return "", err
 		}
@@ -565,7 +558,7 @@ func isTermID(id string) bool {
 }
 
 // resolveToken은 대괄호 안쪽 하나를 풀어 돌려줍니다.
-func resolveToken(e entry, inner string, names *termNames) (string, error) {
+func resolveToken(e entry, inner string, names *termNames, known map[string]bool) (string, error) {
 	shown, id, hasID := strings.Cut(inner, termSeparator)
 	if strings.Contains(inner, tokenOpen) || strings.TrimSpace(shown) == "" ||
 		(hasID && (strings.TrimSpace(id) == "" || strings.Contains(id, termSeparator))) {
@@ -575,8 +568,8 @@ func resolveToken(e entry, inner string, names *termNames) (string, error) {
 		if !isTermID(id) {
 			return "", fmt.Errorf("%s: 용어 id %q의 형식이 <범주>.<값> 또는 tag.<키>가 아닙니다", e.where(), id)
 		}
-		if names != nil && names.complete && !names.ids[id] {
-			return "", fmt.Errorf("%s: 용어 id %q가 이 언어 사전에 없습니다", e.where(), id)
+		if !known[id] {
+			return "", fmt.Errorf("%s: 용어 id %q가 슬롯 명세에 없습니다", e.where(), id)
 		}
 		return inner, nil
 	}

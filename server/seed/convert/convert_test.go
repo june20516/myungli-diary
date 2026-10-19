@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -111,7 +112,7 @@ func TestRun_TokenSyntaxAndExplicitIDErrors(t *testing.T) {
 		{"빈 id", "[[식상|]]", "문법"},
 		{"id 형식 아님", "[[식상|아무거나]]", "형식"},
 		{"모르는 범주", "[[식상|foo.bar]]", "형식"},
-		{"complete 언어 사전에 없는 id", "[[식상|ten_god.nope]]", "사전에 없습니다"},
+		{"슬롯 명세에 없는 id", "[[식상|ten_god.nope]]", "슬롯 명세에 없습니다"},
 		{"complete 언어에서 이름 없음", "[[없는말]]", "가진 용어가 없습니다"},
 	}
 	for _, tt := range tests {
@@ -132,9 +133,41 @@ func TestRun_KnownExplicitIDPasses(t *testing.T) {
 
 func TestRun_KeepsTokenWhenLanguageNamesIncomplete(t *testing.T) {
 	// en에는 glossary·태그 이름 원고가 없어 글자를 풀지 못해도 오류가 아닙니다.
-	s, _, err := convert.Run(withLine(t, "en", "[[dohwa]] and [[x|ten_god.anything]]"))
+	s, _, err := convert.Run(withLine(t, "en", "[[dohwa]] and [[x|ten_god.pyeongwan]]"))
 	require.NoError(t, err)
-	assert.Equal(t, "[[dohwa]] and [[x|ten_god.anything]]", bodyOf(t, s, "extra.line", "extra.k", "single", "en"))
+	assert.Equal(t, "[[dohwa]] and [[x|ten_god.pyeongwan]]", bodyOf(t, s, "extra.line", "extra.k", "single", "en"))
+}
+
+// 명시 id는 그 언어의 이름 원고와 상관없이 슬롯 명세의 용어 id와 대조합니다(writing mlw token.term과 같은 기준).
+func TestRun_UnknownExplicitIDIsErrorInIncompleteLanguage(t *testing.T) {
+	_, _, err := convert.Run(withLine(t, "en", "[[x|ten_god.anything]]"))
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "extra.yaml:2")
+	assert.ErrorContains(t, err, "슬롯 명세에 없습니다")
+}
+
+// withGlossaryKey는 dir의 glossary.value_name 슬롯 명세에 이름 원고 없는 용어 키를 더합니다.
+func withGlossaryKey(t *testing.T, dir, key string) {
+	t.Helper()
+	file := filepath.Join(dir, "slots/content/glossary.yaml")
+	data, err := os.ReadFile(file) //nolint:gosec // 테스트 임시 디렉터리입니다.
+	require.NoError(t, err)
+	updated := strings.Replace(string(data), "    - direction8.n\n", "    - direction8.n\n    - "+key+"\n", 1)
+	require.NotEqual(t, string(data), updated, "glossary 슬롯 명세의 모양이 바뀌었습니다")
+	require.NoError(t, os.WriteFile(file, []byte(updated), 0o600))
+}
+
+// 이름 원고가 갖춰진 언어라도 그 언어에 이름이 아직 없는 용어 id를 명시 토큰과 한자 표기에 쓸 수 있습니다.
+// glossary 원고는 범주별로 차례로 오기 때문입니다(W1-2: ko·en에 element만 있고 stem은 아직 없음).
+func TestRun_SpecTermWithoutNameInCompleteLanguagePasses(t *testing.T) {
+	dir := withLine(t, "ko", "[[갑목|stem.gap]]")
+	withGlossaryKey(t, dir, "stem.gap")
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "content", "hanja.yaml"), []byte("- {term: stem.gap, hanja: \"甲\"}\n"), 0o600))
+
+	s, _, err := convert.Run(dir)
+	require.NoError(t, err)
+	assert.Equal(t, "[[갑목|stem.gap]]", bodyOf(t, s, "extra.line", "extra.k", "single", "ko"))
+	assert.Equal(t, map[string]string{"stem.gap": "甲"}, s.Hanja)
 }
 
 func TestRun_UnsupportedLanguageDirIsError(t *testing.T) {
@@ -213,12 +246,13 @@ func TestRun_HanjaChangesVersion(t *testing.T) {
 	assert.NotEqual(t, base.Version, changed.Version)
 }
 
-// 이름 원고가 갖춰진 언어(basic 트리의 ko)에 이름이 없는 용어 id는 오타로 보고 파일:줄 위치와 함께 오류입니다.
-func TestRun_HanjaTermMustHaveName(t *testing.T) {
+// 슬롯 명세에 없는 용어 id는 오타로 보고 파일:줄 위치와 함께 오류입니다.
+func TestRun_HanjaTermMustBeInSlotSpec(t *testing.T) {
 	_, _, err := convert.Run(withHanja(t, "- {term: tag.dohwa, hanja: \"桃花\"}\n- {term: ten_god.pyeongwna, hanja: \"偏官\"}\n"))
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "hanja.yaml:2")
 	assert.ErrorContains(t, err, "ten_god.pyeongwna")
+	assert.ErrorContains(t, err, "슬롯 명세에 없습니다")
 }
 
 func TestRun_HanjaFormatErrors(t *testing.T) {
