@@ -1083,4 +1083,59 @@ func TestContract_Draft8Additions(t *testing.T) {
 	if _, ok := doc.Components.Responses["NotImplemented"]; ok {
 		t.Error("쓰지 않는 NotImplemented 응답 component가 남아 있음")
 	}
+
+	testDraft8PersonalReadings(t, doc)
+}
+
+// testDraft8PersonalReadings는 원국 개인 해석 필드와 Notice.text 설명을 고정합니다. (P6-13·P6-14)
+func testDraft8PersonalReadings(t *testing.T, doc *openapi3.T) {
+	t.Helper()
+
+	chart := doc.Components.Schemas["Chart"].Value
+	readings := chart.Properties["personalReadings"]
+	if readings == nil {
+		t.Fatal("Chart.personalReadings가 없음")
+	}
+	if slices.Contains(chart.Required, "personalReadings") {
+		t.Error("Chart.personalReadings가 required에 있음(선택 필드여야 함)")
+	}
+	if readings.Value.Items == nil || readings.Value.Items.Ref != "#/components/schemas/PersonalReading" {
+		t.Error("Chart.personalReadings 항목이 PersonalReading이 아님")
+	}
+	if !strings.Contains(readings.Value.Description, "근거 열람 권한") {
+		t.Error("Chart.personalReadings 설명에 근거 열람 권한 잠금(D60)이 없음")
+	}
+
+	reading := doc.Components.Schemas["PersonalReading"].Value
+	if !slices.Equal(reading.Required, []string{"kind", "text"}) {
+		t.Errorf("PersonalReading.required = %v, want [kind text]", reading.Required)
+	}
+	wantKinds := []any{
+		"day_master", "ten_god", "hidden_ten_god", "twelve_stage", "shinsal",
+		"daeun_stem_ten_god", "daeun_branch_ten_god", "daeun_twelve_stage", "seun_ten_god",
+	}
+	if got := reading.Properties["kind"].Value.Enum; !slices.Equal(got, wantKinds) {
+		t.Errorf("PersonalReading.kind enum = %v, want %v", got, wantKinds)
+	}
+	for field, ref := range map[string]string{
+		"position": "#/components/schemas/Position",
+		"shinsal":  "#/components/schemas/ShinsalKind",
+		"text":     "#/components/schemas/RenderedText",
+	} {
+		if got := reading.Properties[field].Ref; got != ref {
+			t.Errorf("PersonalReading.%s = %q, want %q", field, got, ref)
+		}
+	}
+	index := reading.Properties["index"].Value
+	if !index.Type.Is("integer") || index.Min == nil || *index.Min != 0 {
+		t.Error("PersonalReading.index가 0 이상 integer가 아님")
+	}
+
+	notice := doc.Components.Schemas["Notice"].Value.Description
+	if !strings.Contains(notice, "배너를 그리지 않습니다") || strings.Contains(notice, "자기 문구를 씁니다") {
+		t.Errorf("Notice 설명이 P6-14와 다름: %q", notice)
+	}
+	if strings.Contains(doc.Info.Description, "원국 개인 해석은 writing 슬롯이 아직 없어") {
+		t.Error("info.description에 원국 개인 해석 설계 메모가 남아 있음")
+	}
 }
