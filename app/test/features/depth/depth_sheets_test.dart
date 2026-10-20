@@ -11,6 +11,7 @@ import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
@@ -33,7 +34,7 @@ Widget _explain(String termId, TermOrigin? origin) =>
 /// 오늘 화면 [slotId] 슬롯에서 연 출처.
 TermOrigin _origin(String slotId) =>
     TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
-Widget _evidence(String slotId) => _tall('근거 $slotId');
+Widget _evidence(String slotId, PersonalReadingKey? _) => _tall('근거 $slotId');
 Widget _share() => _tall('공유');
 
 Future<void> _pumpHost(WidgetTester tester) async {
@@ -161,7 +162,7 @@ void main() {
         () => sheets.explainBody('a.b', _origin('s.t')),
         throwsUnimplementedError,
       );
-      expect(() => sheets.evidenceBody('s.t'), throwsUnimplementedError);
+      expect(() => sheets.evidenceBody('s.t', null), throwsUnimplementedError);
       expect(sheets.shareBody, throwsUnimplementedError);
     });
 
@@ -169,7 +170,7 @@ void main() {
       final wired = ProviderContainer(overrides: depthSheetBodyOverrides);
       addTearDown(wired.dispose);
       final sheets = wired.read(depthSheetsProvider);
-      final evidence = sheets.evidenceBody('s.t');
+      final evidence = sheets.evidenceBody('s.t', null);
       expect(evidence, isA<EvidenceSheet>());
       expect((evidence as EvidenceSheet).slotId, 's.t');
       final explain = sheets.explainBody('ten_god.siksin', _origin('s.t'));

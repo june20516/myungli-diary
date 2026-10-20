@@ -1621,6 +1621,27 @@
       }
     }
   },
+  "sajuPillarDayMaster": "일간",
+  "@sajuPillarDayMaster": {
+    "description": "임시. saju-pillars 일주 천간 위 라벨(term-token, 일간). 누르면 일간 풀이"
+  },
+  "sajuPillarsTableLabel": "원국표",
+  "@sajuPillarsTableLabel": {
+    "description": "임시. saju-pillars 스크린리더 표 이름(saju.json a11y.label)"
+  },
+  "manseTableLabel": "만세력 표",
+  "@manseTableLabel": {
+    "description": "임시. manse-table 스크린리더 표 이름(saju.json a11y.label)"
+  },
+  "seunYearLabel": "{year}년",
+  "@seunYearLabel": {
+    "description": "임시. daeun-table 세운 칸과 대운 시작 연도의 스크린리더 글",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "legalTermsLabel": "이용약관",
   "@legalTermsLabel": {
     "description": "임시. legal 줄 이름: 이용약관(A61)"

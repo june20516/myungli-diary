@@ -1156,6 +1156,20 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get sajuPillarDayMaster => '일간';
+
+  @override
+  String get sajuPillarsTableLabel => '원국표';
+
+  @override
+  String get manseTableLabel => '만세력 표';
+
+  @override
+  String seunYearLabel(int year) {
+    return '$year년';
+  }
+
+  @override
   String get legalTermsLabel => '이용약관';
 
   @override

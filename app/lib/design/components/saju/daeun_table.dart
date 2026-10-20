@@ -22,8 +22,8 @@ final class DaeunPillar {
   /// 시작 나이(한국식, core C22).
   final int age;
 
-  /// 시작 연도.
-  final int startYear;
+  /// 시작 연도. 모르면(출생 연도를 모름) null이고 그 줄을 비웁니다.
+  final int? startYear;
 
   /// 천간 `mini` 칸.
   final OhaengCell stem;
@@ -184,7 +184,7 @@ class _DaeunTableState extends State<DaeunTable> {
                         top: '${pillar.age}',
                         stem: pillar.stem,
                         branch: pillar.branch,
-                        bottom: '${pillar.startYear}',
+                        bottom: pillar.startYear?.toString() ?? '',
                         current: index == widget.currentIndex,
                         currentLabel: widget.nowLabel,
                         semanticLabel: pillar.semanticLabel,

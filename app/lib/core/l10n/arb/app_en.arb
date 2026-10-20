@@ -343,6 +343,10 @@
   "seunTagThisYear": "This year",
   "daeunTableLabel": "Luck cycles from age {age}",
   "ohaengBarItem": "{element} {count}",
+  "sajuPillarDayMaster": "Day master",
+  "sajuPillarsTableLabel": "Birth chart",
+  "manseTableLabel": "Manseryeok table",
+  "seunYearLabel": "{year}",
   "legalTermsLabel": "Terms of Service",
   "legalPrivacyLabel": "Privacy Policy",
   "legalLicensesLabel": "Open source licenses"

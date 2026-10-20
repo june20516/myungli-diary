@@ -28,6 +28,7 @@ const Map<String, String> _barTitleKeys = {
   'diary-view': 'diaryViewBarTitle',
   'tag-diary': 'tagDiaryBarTitle',
   'my-saju': 'mySajuBarTitle',
+  'saju-chart': 'sajuChartBarTitle',
   'event-edit': 'eventEditBarTitle',
   'calc-basis': 'calcBasisBarTitle',
 };
@@ -53,6 +54,10 @@ const Set<String> _allowedTemporaryKeys = {
   'seunTagThisYear',
   'daeunTableLabel',
   'ohaengBarItem',
+  'sajuPillarDayMaster',
+  'sajuPillarsTableLabel',
+  'manseTableLabel',
+  'seunYearLabel',
   'legalTermsLabel',
   'legalPrivacyLabel',
   'legalLicensesLabel',

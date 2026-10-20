@@ -4,14 +4,19 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 
 /// 풀이 시트 본문. [termId]는 용어 id, [origin]은 용어가 눌린 슬롯과 그 응답입니다.
 /// [origin]이 null이면 근거로 이어지지 않는 곳에서 연 것이라 근거 보기도 오늘 그런 이유도 없습니다.
 typedef ExplainBodyBuilder = Widget Function(String termId, TermOrigin? origin);
 
-/// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id입니다.
-typedef EvidenceBodyBuilder = Widget Function(String slotId);
+/// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id이고, [personal]은 "내 사주에서는"에
+/// 보일 원국 개인 해석의 자리입니다(사주 표 칸 용어에서 열었을 때만, A58).
+typedef EvidenceBodyBuilder = Widget Function(
+  String slotId,
+  PersonalReadingKey? personal,
+);
 
 /// 공유 미리보기 시트 본문.
 typedef ShareBodyBuilder = Widget Function();
@@ -58,17 +63,22 @@ final class DepthSheets {
   );
 
   /// 근거 시트(full)를 엽니다. [slotId]는 근거를 보는 슬롯 id입니다.
-  Future<void> openEvidence(BuildContext context, {required String slotId}) =>
-      showMyungliSheet<void>(
-        context,
-        size: SheetSize.full,
-        // 잠긴 상태나 loading·error에서도 시트 이름이 알려지게 합니다.
-        semanticLabel: AppLocalizations.of(context).evidenceSheetTitle,
-        builder: (_) => SheetScreenId(
-          screenId: ScreenIds.evidenceSheet,
-          child: evidenceBody(slotId),
-        ),
-      );
+  ///
+  /// [personal]을 주면 그 자리의 원국 개인 해석("내 사주에서는") 구역을 함께 둡니다(A58).
+  Future<void> openEvidence(
+    BuildContext context, {
+    required String slotId,
+    PersonalReadingKey? personal,
+  }) => showMyungliSheet<void>(
+    context,
+    size: SheetSize.full,
+    // 잠긴 상태나 loading·error에서도 시트 이름이 알려지게 합니다.
+    semanticLabel: AppLocalizations.of(context).evidenceSheetTitle,
+    builder: (_) => SheetScreenId(
+      screenId: ScreenIds.evidenceSheet,
+      child: evidenceBody(slotId, personal),
+    ),
+  );
 
   /// 공유 미리보기 시트(half)를 엽니다.
   Future<void> openSharePreview(BuildContext context) => showMyungliSheet<void>(
@@ -94,7 +104,7 @@ final explainBodyProvider = Provider<ExplainBodyBuilder>(
 /// 근거 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
 final evidenceBodyProvider = Provider<EvidenceBodyBuilder>(
   (ref) =>
-      (_) => throw UnimplementedError(_unwired),
+      (_, _) => throw UnimplementedError(_unwired),
 );
 
 /// 공유 미리보기 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.

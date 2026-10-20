@@ -307,7 +307,7 @@
     "timezone": "Asia/Seoul",
     "network": "online",
     "signedIn": true,
-    "description": "로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)이 unlocked입니다."
+    "description": "로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)과 나의 사주(getChart 두 번째 응답부터)가 unlocked입니다."
   },
   {
     "id": "reward-timeout",

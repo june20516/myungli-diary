@@ -8,13 +8,17 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 
@@ -112,6 +116,86 @@ Future<void> _daySheet(WidgetTester tester, ProviderContainer container) async {
   await settleWithIo(tester);
 }
 
+/// `/v1/chart`를 붙잡거나(받는 중) 503으로 끊습니다(오류).
+final class _ChartGate extends Interceptor {
+  new({required this.fail});
+
+  final bool fail;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.path != '/v1/chart') {
+      handler.next(options);
+      return;
+    }
+    if (!fail) return; // 답하지 않고 붙잡아 둡니다.
+    handler.reject(
+      DioException.badResponse(
+        statusCode: 503,
+        requestOptions: options,
+        response: Response<Object?>(
+          requestOptions: options,
+          statusCode: 503,
+          data: {
+            'type': 'about:blank',
+            'title': 'Unavailable',
+            'status': 503,
+            'code': 'service.unavailable',
+            'traceId': 'screens',
+          },
+          headers: Headers.fromMap({
+            Headers.contentTypeHeader: ['application/problem+json'],
+          }),
+        ),
+      ),
+      true,
+    );
+  }
+}
+
+/// 사주 표를 엽니다. [gate]가 있으면 대역 서버 앞에 끼우고, [after]로 화면 안을 더 조작합니다.
+_Open _sajuChart({
+  _ChartGate? gate,
+  Future<void> Function(WidgetTester tester)? after,
+}) => (tester, container) async {
+  if (gate != null) {
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, gate);
+  }
+  unawaited(
+    container.read(routerProvider).push<void>(pathOf(ScreenIds.sajuChart)),
+  );
+  await pumpUntilScreen(tester, ScreenIds.sajuChart);
+  if (gate != null && !gate.fail) {
+    // 받는 중 skeleton이 숨 쉬는 채로 찍습니다.
+    await tester.pump(const Duration(seconds: 1));
+    return;
+  }
+  await settleWithIo(tester);
+  await after?.call(tester);
+};
+
+/// "만세력·대운" 탭을 누릅니다.
+Future<void> _sajuLuckTab(WidgetTester tester) async {
+  await tester.tap(find.text(AppLocalizationsKo().sajuChartTabLuck));
+  await settleWithIo(tester);
+}
+
+/// 원국표 십성 용어 → 풀이 시트 → 근거 보기(내 사주에서는).
+Future<void> _sajuPersonal(WidgetTester tester) async {
+  final term = find.descendant(
+    of: find.byType(SajuPillars),
+    matching: find.byType(TermToken),
+  );
+  await tester.tap(term.first);
+  await settleWithIo(tester);
+  await tester.tap(
+    depthLinkTarget(of: find.byKey(const Key(ScreenIds.explainSheet))),
+  );
+  await settleWithIo(tester, allowOngoing: true);
+  await tester.pump(const Duration(seconds: 1));
+}
+
 /// 등록할 화면·상태. 계획 2~6에서 만든 화면입니다.
 final List<_Shot> _shots = [
   // 계획 2: 온보딩·로그인
@@ -187,6 +271,28 @@ final List<_Shot> _shots = [
     'time-unknown',
     'member-time-unknown',
     _tab(3, ScreenIds.mySaju),
+  ),
+  _Shot('saju-chart', 'default', 'member', _sajuChart()),
+  _Shot('saju-chart', 'luck', 'member', _sajuChart(after: _sajuLuckTab)),
+  _Shot('saju-chart', 'unlocked', 'evidence-unlocked', _sajuChart()),
+  _Shot('saju-chart', 'time-unknown', 'member-time-unknown', _sajuChart()),
+  _Shot(
+    'saju-chart',
+    'loading',
+    'member',
+    _sajuChart(gate: _ChartGate(fail: false)),
+  ),
+  _Shot(
+    'saju-chart',
+    'error',
+    'member',
+    _sajuChart(gate: _ChartGate(fail: true)),
+  ),
+  _Shot(
+    'evidence-sheet',
+    'personal',
+    'evidence-unlocked',
+    _sajuChart(after: _sajuPersonal),
   ),
 ];
 

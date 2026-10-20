@@ -16,6 +16,7 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 
 /// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
 ///
@@ -25,24 +26,33 @@ import 'package:myungli_diary/features/depth/application/evidence_unlock_control
 ///
 /// 판정 근거·원전 문장은 [slotId] 슬롯 근거(`evidence[]`)의 `basis`·`source`를 순서대로 넘기고,
 /// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 근거는 열렸을 때(`unlocked`이고 다시
-/// 받는 중이 아님)만 읽으므로 잠긴 시트는 문장을 받지도 그리지도 않습니다(D60). 원국표와
-/// "내 사주에서는"은 계획 6이 [EvidenceSheetBody]의 `pillars`·`personal`에 값만 넘깁니다.
+/// 받는 중이 아님)만 읽으므로 잠긴 시트는 문장을 받지도 그리지도 않습니다(D60).
+///
+/// [personal]이 있으면(사주 표 칸 용어에서 연 시트, A58) "내 사주에서는" 구역을 두고, 열렸을 때
+/// 나의 사주 응답에서 그 자리의 원국 개인 해석을 찾아 넘깁니다. 항목이 없으면 구역을 그리지
+/// 않습니다. 이 시트의 응답은 늘 나의 사주입니다([evidenceSubjectFor]).
 ///
 /// 상태: 응답이 아직 없으면 skeleton(`loading`), 받지 못했거나 잠금 해제 뒤 다시 받기에
 /// 실패하면 오류 화면과 다시 시도(`error`), 권한이 생겨 다시 받는 동안은 구역 skeleton입니다.
 class EvidenceSheet extends ConsumerStatefulWidget {
-  /// [slotId] 슬롯의 근거 시트를 만듭니다.
-  const new({required this.slotId, super.key});
+  /// [slotId] 슬롯의 근거 시트를 만듭니다. [personal]은 원국 개인 해석의 자리입니다.
+  const new({required this.slotId, this.personal, super.key});
 
   /// 근거를 보는 writing 슬롯 id.
   final String slotId;
+
+  /// "내 사주에서는"에 보일 원국 개인 해석의 자리. 문장 안 용어·근거 링크에서 열면 null입니다.
+  final PersonalReadingKey? personal;
 
   @override
   ConsumerState<EvidenceSheet> createState() => _EvidenceSheetState();
 }
 
 class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
-  late final EvidenceSubject _subject = evidenceSubjectFor(widget.slotId);
+  late final EvidenceSubject _subject = evidenceSubjectFor(
+    widget.slotId,
+    personal: widget.personal,
+  );
 
   StreamSubscription<UnlockEvent>? _events;
 
@@ -95,6 +105,10 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         ? ref.watch(_subject.evidenceOf(widget.slotId)).value ??
               const <Evidence>[]
         : const <Evidence>[];
+    final personalKey = widget.personal;
+    final personal = opened && personalKey != null
+        ? ref.watch(_subject.personalOf(personalKey)).value
+        : null;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
       onRetry: () => unawaited(controller.retry()),
@@ -104,6 +118,8 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         titleSlotId: SlotIds.evidenceSheetSheetTitle,
         basis: _sentences(evidence.map((item) => item.basis)),
         source: _sentences(evidence.map((item) => item.source_)),
+        personal: personal == null || isBlankText(personal) ? null : personal,
+        showPersonal: personalKey != null,
         loading: state.refreshing,
         onWatchAd: state.adReady ? () => unawaited(controller.watchAd()) : null,
         onPass: _openAdFree,

@@ -10,6 +10,8 @@ core `compose_chart`를 기준일 2026-10-13(시나리오의 오늘)에 돌려 �
 * `evidence-unlocked`: 권한 있음. 용신 판정 문장과 근거(엔진 `evidence`의 `ruleId`·`sourceRef`)와
   원국 개인 해석을 담습니다.
 * `member-time-unknown`: 태어난 시간을 모르는 같은 사람. 시주가 없고 안내 `time_unknown`이 있습니다(잠김).
+* `reward-unlock`: 보상형 광고로 잠금을 푸는 흐름. 첫 응답은 `member`(잠김), 두 번째부터는
+  `evidence-unlocked`(열림)인 `sequence`입니다(오늘 `getDaily`와 같은 방식).
 
 엔진 값이 아닌 것
 * 문장(`yongsin.basis.text`, 근거의 `basis`, 개인 해석 `text`, 안내 `text`)은 writing 슬롯 형식을 따른
@@ -190,18 +192,24 @@ def personal(reading) -> dict:
     return item
 
 
-def write(path: Path, body: dict) -> None:
+def response(body: dict) -> dict:
+    return {"status": 200, "headers": {"Content-Type": "application/json"}, "body": body}
+
+
+def write(path: Path, fixture: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fixture = {"status": 200, "headers": {"Content-Type": "application/json"}, "body": body}
     path.write_text(json.dumps(fixture, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def main(out: Path) -> None:
     known = BirthInput(CalendarType.SOLAR, False, date(1990, 5, 15), time(14, 30), Gender.FEMALE, SEOUL, None)
     unknown = BirthInput(CalendarType.SOLAR, False, date(1990, 5, 15), None, Gender.FEMALE, SEOUL, None)
-    write(out / "member" / "getChart.json", build(known, unlocked=False))
-    write(out / "evidence-unlocked" / "getChart.json", build(known, unlocked=True))
-    write(out / "member-time-unknown" / "getChart.json", build(unknown, unlocked=False))
+    locked = build(known, unlocked=False)
+    unlocked = build(known, unlocked=True)
+    write(out / "member" / "getChart.json", response(locked))
+    write(out / "evidence-unlocked" / "getChart.json", response(unlocked))
+    write(out / "member-time-unknown" / "getChart.json", response(build(unknown, unlocked=False)))
+    write(out / "reward-unlock" / "getChart.json", {"sequence": [response(locked), response(unlocked)]})
 
 
 if __name__ == "__main__":

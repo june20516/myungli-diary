@@ -343,6 +343,10 @@
   "seunTagThisYear": "今年",
   "daeunTableLabel": "{age}歳からの大運",
   "ohaengBarItem": "{element} {count}",
+  "sajuPillarDayMaster": "日干",
+  "sajuPillarsTableLabel": "命式",
+  "manseTableLabel": "万歳暦表",
+  "seunYearLabel": "{year}年",
   "legalTermsLabel": "利用規約",
   "legalPrivacyLabel": "プライバシーポリシー",
   "legalLicensesLabel": "オープンソースライセンス"

@@ -2166,6 +2166,30 @@ abstract class AppLocalizations {
   /// **'{element} {count}'**
   String ohaengBarItem(String element, String count);
 
+  /// 임시. saju-pillars 일주 천간 위 라벨(term-token, 일간). 누르면 일간 풀이
+  ///
+  /// In ko, this message translates to:
+  /// **'일간'**
+  String get sajuPillarDayMaster;
+
+  /// 임시. saju-pillars 스크린리더 표 이름(saju.json a11y.label)
+  ///
+  /// In ko, this message translates to:
+  /// **'원국표'**
+  String get sajuPillarsTableLabel;
+
+  /// 임시. manse-table 스크린리더 표 이름(saju.json a11y.label)
+  ///
+  /// In ko, this message translates to:
+  /// **'만세력 표'**
+  String get manseTableLabel;
+
+  /// 임시. daeun-table 세운 칸과 대운 시작 연도의 스크린리더 글
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년'**
+  String seunYearLabel(int year);
+
   /// 임시. legal 줄 이름: 이용약관(A61)
   ///
   /// In ko, this message translates to:

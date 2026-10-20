@@ -156,6 +156,20 @@
     "note": "locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
+    "id": "render.evidence-sheet.personal.2026-10-20",
+    "title": "evidence-sheet (personal) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-evidence-sheet-personal.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "personal 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
     "id": "render.evidence-sheet.unlocked.2026-10-20",
     "title": "evidence-sheet (unlocked) 화면",
     "kind": "screenshot",
@@ -294,6 +308,90 @@
     "decisions": [],
     "status": "draft",
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.default.2026-10-20",
+    "title": "saju-chart (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.error.2026-10-20",
+    "title": "saju-chart (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-error.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.loading.2026-10-20",
+    "title": "saju-chart (loading) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-loading.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.luck.2026-10-20",
+    "title": "saju-chart (luck) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-luck.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "luck 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.time-unknown.2026-10-20",
+    "title": "saju-chart (time-unknown) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-time-unknown.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "time-unknown 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.unlocked.2026-10-20",
+    "title": "saju-chart (unlocked) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-unlocked.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "unlocked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
     "id": "render.share-preview.default.2026-10-20",

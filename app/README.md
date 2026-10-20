@@ -71,7 +71,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `reaction-failed` | 로그인한 회원. 총운 문장에 반응을 남기는 요청(putReaction)이 503 service.unavailable이라 켠 반응이 되돌아가고 오류 toast가 뜹니다 |
   | `reaction-delete-failed` | 로그인한 회원. 총운 문장의 반응을 지우는 요청(deleteReaction)이 503 service.unavailable이라 끈 반응이 다시 켜지고 오류 toast가 뜹니다. 켜진 채로 시작하는 응답은 테스트가 대는 getDaily 대역으로 만듭니다 |
   | `evidence-unlocked` | 로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)이 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다 |
-  | `reward-unlock` | 로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)이 unlocked입니다 |
+  | `reward-unlock` | 로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)과 나의 사주(getChart 두 번째 응답부터)가 unlocked입니다 |
   | `reward-timeout` | 로그인한 회원. 보상형 광고를 끝까지 봐도 이용권(getEntitlements)이 계속 비활성이라 확인 시간(30초)이 지나 잠금 해제 실패 toast를 봅니다 |
   | `reward-unavailable` | 로그인한 회원. 볼 수 있는 보상형 광고가 없어 근거 시트의 광고 버튼이 꺼지고 안내가 보입니다 |
   | `reward-dismissed` | 로그인한 회원. 보상형 광고를 끝까지 보지 않고 닫아 근거 시트가 잠긴 그대로입니다 |

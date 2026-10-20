@@ -14,35 +14,36 @@ const _cell = OhaengCell(
   size: OhaengCellSize.mini,
 );
 
-Widget _table({int? current = 3, double width = 360}) => SizedBox(
-  width: width,
-  child: DaeunTable(
-    daeun: [
-      for (var i = 0; i < 9; i++)
-        DaeunPillar(
-          age: 4 + i * 10,
-          startYear: 1993 + i * 10,
-          stem: _cell,
-          branch: _cell,
-          semanticLabel: '${4 + i * 10}세',
-        ),
-    ],
-    seun: [
-      for (var year = 2023; year < 2033; year++)
-        SeunYear(
-          year: year,
-          stem: _cell,
-          branch: _cell,
-          semanticLabel: '$year년',
-        ),
-    ],
-    currentIndex: current,
-    thisYear: 2026,
-    nowLabel: '지금',
-    thisYearLabel: '올해',
-    tableLabel: '대운 4세부터',
-  ),
-);
+Widget _table({int? current = 3, double width = 360, bool knownYears = true}) =>
+    SizedBox(
+      width: width,
+      child: DaeunTable(
+        daeun: [
+          for (var i = 0; i < 9; i++)
+            DaeunPillar(
+              age: 4 + i * 10,
+              startYear: knownYears ? 1993 + i * 10 : null,
+              stem: _cell,
+              branch: _cell,
+              semanticLabel: '${4 + i * 10}세',
+            ),
+        ],
+        seun: [
+          for (var year = 2023; year < 2033; year++)
+            SeunYear(
+              year: year,
+              stem: _cell,
+              branch: _cell,
+              semanticLabel: '$year년',
+            ),
+        ],
+        currentIndex: current,
+        thisYear: 2026,
+        nowLabel: '지금',
+        thisYearLabel: '올해',
+        tableLabel: '대운 4세부터',
+      ),
+    );
 
 bool _tagVisible(WidgetTester tester, Key pillar) => tester
     .widget<Visibility>(
@@ -62,6 +63,16 @@ void main() {
     expect(second.left - first.right, DaeunTable.pillarGap);
     expect(find.text('4'), findsOneWidget);
     expect(find.text('1993'), findsOneWidget);
+  });
+
+  testWidgets('시작 연도를 모르면 그 줄을 비우고 나이는 그대로입니다', (tester) async {
+    await tester.pumpWidget(inputApp(_table(current: null, knownYears: false)));
+    expect(find.text('4'), findsOneWidget);
+    expect(find.text('1993'), findsNothing);
+    expect(
+      tester.getSize(find.byKey(DaeunTable.daeunKey(0))).height,
+      greaterThan(0),
+    );
   });
 
   testWidgets('current: 지금 대운만 바탕·굵은 나이·지금 꼬리표', (tester) async {

@@ -1154,6 +1154,20 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get sajuPillarDayMaster => '日干';
+
+  @override
+  String get sajuPillarsTableLabel => '命式';
+
+  @override
+  String get manseTableLabel => '万歳暦表';
+
+  @override
+  String seunYearLabel(int year) {
+    return '$year年';
+  }
+
+  @override
   String get legalTermsLabel => '利用規約';
 
   @override

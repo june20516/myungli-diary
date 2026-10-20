@@ -1250,6 +1250,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sajuPillarDayMaster => 'Day master';
+
+  @override
+  String get sajuPillarsTableLabel => 'Birth chart';
+
+  @override
+  String get manseTableLabel => 'Manseryeok table';
+
+  @override
+  String seunYearLabel(int year) {
+    return '$year';
+  }
+
+  @override
   String get legalTermsLabel => 'Terms of Service';
 
   @override
