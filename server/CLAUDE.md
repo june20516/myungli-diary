@@ -42,7 +42,7 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **P5(일기·일정) 계획**을 씁니다(브랜치 `server/p5-diary`). 넘길 메모는 `docs/plans/README.md` "다음 계획에 넘길 메모"에 있습니다.
+1. **P5(일기·일정)를 구현합니다:** 계획 [`docs/plans/2026-10-20-p5-diary-schedule.md`](docs/plans/2026-10-20-p5-diary-schedule.md)(브랜치 `server/p5-diary`, PR #262 위). Task 1(계약 draft.7)은 계약 먼저 병합합니다.
 2. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 3. `City.longitude`는 `listCities`(P6)에서 채웁니다.
 4. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)은 P9에서 합니다. #93(staging 테스트 로그인)도 설계(S24)가 끝났고 구현은 P6/P9입니다.
