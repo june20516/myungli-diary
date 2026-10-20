@@ -366,7 +366,7 @@ func TestAdmobRewardCallback_VerifyErrors_MapToProblem(t *testing.T) {
 		{"서명", fmt.Errorf("감쌈: %w", billing.ErrRewardSignature), http.StatusUnauthorized, "reward.invalid_signature"},
 		{"만료", billing.ErrRewardExpired, http.StatusUnauthorized, "reward.expired"},
 		{"키 목록", fmt.Errorf("감쌈: %w", billing.ErrRewardKeysUnavailable), http.StatusServiceUnavailable, "service.unavailable"},
-		{"그 밖", errors.New("예상 못 한 오류"), http.StatusInternalServerError, "internal"},
+		{"그 밖", errors.New("예상 못 한 오류 " + rewardQuery), http.StatusInternalServerError, "internal"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -390,6 +390,7 @@ func TestAdmobRewardCallback_GrantError_500(t *testing.T) {
 
 	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
 	check()
+	assert.Contains(t, rec.Body.String(), `"code":"internal"`)
 	assert.NotContains(t, logs.String(), "signature-marker-value")
 }
 

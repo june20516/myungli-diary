@@ -3,6 +3,7 @@ package httpapi
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
@@ -114,7 +115,9 @@ func (a *API) AdmobRewardCallback(ctx context.Context, _ gen.AdmobRewardCallback
 		a.Logger.WarnContext(ctx, "보상 콜백: AdMob 공개 키를 받지 못했습니다", "error", err.Error())
 		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	case err != nil:
-		return nil, err
+		// 오류 문구에 원본 쿼리(signature)가 섞이지 않도록 형식만 남기고 고정 문구로 답합니다.
+		a.Logger.ErrorContext(ctx, "보상 콜백 검증 오류", "errorType", fmt.Sprintf("%T", err))
+		return nil, newError(problem.Internal, "Internal server error")
 	}
 	if err := a.Rewards.Grant(ctx, callback, rawQuery); err != nil {
 		return nil, err

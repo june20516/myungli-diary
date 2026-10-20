@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"log/slog"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -212,6 +213,17 @@ func TestRewards_Grant_NoAccount_RecordsOnlyAndWarns(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRewards_Grant_NoAccount_DuplicateCallbackWarnsOnce(t *testing.T) {
+	f := newRewardFixture(t)
+	cb := callback("tx-1", uuid.NewString())
+
+	require.NoError(t, f.rewards.Grant(context.Background(), cb, rawQuery))
+	require.NoError(t, f.rewards.Grant(context.Background(), cb, rawQuery))
+	require.NoError(t, f.rewards.Grant(context.Background(), cb, rawQuery))
+
+	assert.Equal(t, 1, strings.Count(f.logs.String(), `"severity":"WARNING"`), "중복 콜백은 Warn을 늘리지 않습니다")
 }
 
 func TestRewards_Grant_PendingDeletionAccount_StillGrants(t *testing.T) {

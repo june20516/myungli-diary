@@ -42,7 +42,7 @@ func (r *Rewards) Grant(ctx context.Context, cb RewardCallback, rawQuery string)
 	return postgres.InTx(ctx, r.pool, func(tx pgx.Tx) error {
 		queries := billingdb.New(tx)
 
-		accountID, err := r.findAccount(ctx, queries, cb)
+		accountID, noAccountReason, err := r.findAccount(ctx, queries, cb)
 		if err != nil {
 			return err
 		}
@@ -62,7 +62,7 @@ func (r *Rewards) Grant(ctx context.Context, cb RewardCallback, rawQuery string)
 			return nil
 		}
 		if accountID == uuid.Nil {
-			r.log.WarnContext(ctx, "보상 콜백 계정 없음", "transactionId", cb.TransactionID)
+			r.log.WarnContext(ctx, "보상 콜백 계정 없음", "transactionId", cb.TransactionID, "reason", noAccountReason)
 			return nil
 		}
 
@@ -83,25 +83,24 @@ func (r *Rewards) Grant(ctx context.Context, cb RewardCallback, rawQuery string)
 	})
 }
 
-// findAccount는 콜백의 user_id가 가리키는 계정을 찾습니다. 없으면 uuid.Nil입니다.
-// user_id 원문은 UUID일 때만 로그에 남깁니다.
-func (r *Rewards) findAccount(ctx context.Context, queries *billingdb.Queries, cb RewardCallback) (uuid.UUID, error) {
+// findAccount는 콜백의 user_id가 가리키는 계정을 찾습니다. 없으면 uuid.Nil과 그 사유를 돌려줍니다.
+// 로그는 호출한 쪽이 새 기록일 때 한 번만 남깁니다(중복 콜백마다 반복하지 않음). user_id 원문은 로그에 쓰지 않습니다.
+func (r *Rewards) findAccount(ctx context.Context, queries *billingdb.Queries, cb RewardCallback) (accountID uuid.UUID, noAccountReason string, err error) {
 	if cb.UserID == "" {
-		return uuid.Nil, nil
+		return uuid.Nil, "user_id 없음", nil
 	}
 	parsed, err := uuid.Parse(cb.UserID)
 	if err != nil {
-		return uuid.Nil, nil
+		return uuid.Nil, "user_id가 UUID 아님", nil
 	}
 	found, err := queries.ExistingAccountIDs(ctx, []uuid.UUID{parsed})
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("보상 계정 조회(transaction %s): %w", cb.TransactionID, err)
+		return uuid.Nil, "", fmt.Errorf("보상 계정 조회(transaction %s): %w", cb.TransactionID, err)
 	}
 	if len(found) == 0 {
-		r.log.WarnContext(ctx, "보상 콜백 모르는 계정", "transactionId", cb.TransactionID, "userId", parsed.String())
-		return uuid.Nil, nil
+		return uuid.Nil, "모르는 계정 " + parsed.String(), nil
 	}
-	return found[0], nil
+	return found[0], "", nil
 }
 
 // accountLocation은 프로필의 현재 시간대입니다. 프로필이 없으면 UTC입니다.
@@ -123,7 +122,20 @@ func (r *Rewards) accountLocation(ctx context.Context, queries *billingdb.Querie
 
 // nextMidnight는 now 다음에 오는 loc의 자정입니다. 정각 자정이면 그다음 날 자정입니다.
 // 서머타임 전환일에도 달력 날짜로 구하므로 그 날의 길이(23·25시간)를 따릅니다.
+//
+// 자정이 서머타임 gap에 걸리는 시간대(예: America/Santiago, America/Havana)에서는 그 자정이 존재하지 않고
+// time.Date가 그 날의 앞 시각(전날 23시)을 줄 수 있습니다. 그러면 하루가 일찍 끝나므로,
+// 결과의 달력 날짜가 다음 날이 될 때까지 한 시간씩 더해 그 날의 첫 유효 시각(예: 01:00)으로 맞춥니다.
 func nextMidnight(now time.Time, loc *time.Location) time.Time {
 	local := now.In(loc)
-	return time.Date(local.Year(), local.Month(), local.Day()+1, 0, 0, 0, 0, loc)
+	year, month, day := local.Year(), local.Month(), local.Day()+1
+	next := time.Date(year, month, day, 0, 0, 0, 0, loc)
+	wantYear, wantMonth, wantDay := time.Date(year, month, day, 0, 0, 0, 0, time.UTC).Date()
+	for {
+		y, m, d := next.Date()
+		if next.After(now) && y == wantYear && m == wantMonth && d == wantDay {
+			return next
+		}
+		next = next.Add(time.Hour)
+	}
 }
