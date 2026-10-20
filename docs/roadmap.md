@@ -15,7 +15,7 @@
 | S1 | server 설계 (spec·계획) | server | R0, M0 | S2 | **완료** (PR #62 `8528022`, server 결정 S1~) |
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, P2a Apple 웹 로그인 복귀 PR #113, P3 프로필·엔진·캐시 PR #163·#171(REST draft.3), draft.4 PR #225(근거 문장·도시 경도)·draft.5 PR #233(일정 범위·달력 캐시), P4 콘텐츠 모듈 PR #238(시드·렌더러·운세 operation·용어 사전·반응), P4 후속 PR #262(notice 렌더·`birthCity`, draft.6), P5 일기·일정·`Idempotency-Key` PR #270(draft.7), P6 비로그인·참조와 D66·D60·D75 정리 PR #305(draft.8). 다음 P7 결제와 권한) |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | 시작 전 |
-| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **진행 중** (아키텍처 spec·결정 A1~A15 PR #95, 기반 구현 PR #117: 앱 셸·통신·캐시·디자인 시스템·플랫폼 대역·E2E 뼈대, 결정 A16. 계획 2 온보딩·로그인 PR #149: 화면 13개, 결정 A17~A21, IA v2 반영. 계획 3 오늘·깊이 시트 PR #196: today·풀이·근거·공유 시트, 결정 A22~A27, 컴포넌트 2.3.0 반영. IA v3 화면 PR #215(birthplace 한국 표준 소개·calc-basis, 결정 A28~A31). 계획 4 달력·일정 PR #253(결정 A32~A43, 오늘 대표 태그 D76), 컴포넌트 2.6.0·draft.6 따라잡기 PR #269(A44), 계획 5 일기 1부(컴포넌트·데이터, A45~A53) PR #303. 다음 계획 5 나머지(화면 4개·흐름·E2E)) |
+| A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **진행 중** (아키텍처 spec·결정 A1~A15 PR #95, 기반 구현 PR #117: 앱 셸·통신·캐시·디자인 시스템·플랫폼 대역·E2E 뼈대, 결정 A16. 계획 2 온보딩·로그인 PR #149: 화면 13개, 결정 A17~A21, IA v2 반영. 계획 3 오늘·깊이 시트 PR #196: today·풀이·근거·공유 시트, 결정 A22~A27, 컴포넌트 2.3.0 반영. IA v3 화면 PR #215(birthplace 한국 표준 소개·calc-basis, 결정 A28~A31). 계획 4 달력·일정 PR #253(결정 A32~A43, 오늘 대표 태그 D76), 컴포넌트 2.6.0·draft.6 따라잡기 PR #269(A44), 계획 5 일기 1부(컴포넌트·데이터, A45~A53) PR #303, 계획 5 화면 4개·흐름·E2E와 생일 음력 V31 모양 PR #310(A54, 규칙 정합성 #282 마무리). 다음 계획 6 나·설정(#312) → 계획 7 수익·알림·실제 로그인(#311)) |
 | A2 | app의 실제 API 연동 | app | A1, S3 | I2 | 시작 전 |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | **완료** (D47~D51, `docs/ia/screens.json` v1). v2: 선택 동의 제거(D67)와 계획 2 차이(D68), PR #133. v3: 출생지 화면의 한국 기준 소개·계산 기준 로그인 전 열람(D71), PR #157 |
@@ -34,20 +34,19 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-10-20 저녁 기준, 규칙 정합성 점검 D78 뒤)
+## 현재 진행 순서 (2026-10-20 밤 기준, app 계획 5 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #307(PR #305 REST draft.8)입니다.
-* **규칙 정합성 점검(D78) 마무리:** 지휘 몫(PR #280·#306)과 core·writing·design·server 몫(#285·#283·#284·#281)이 끝났습니다. 남은 것은 app #282(계획 5 PR마다 나눠 처리)입니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 열린 drift가 없습니다.
+* **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
-* **가장 긴 경로:** A1(남은 계획 5 화면·계획 6·7) → A2, 그리고 S2(다음 P7) → S3 → A2 → I2. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
+* **가장 긴 경로:** A1(계획 6·7) → A2, 그리고 S2(다음 P7) → S3 → A2 → I2. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | drift #307(draft.8) → 계획 5 나머지(`diary-list`·`diary-edit`·`diary-view`·`tag-diary`, 흐름·E2E) → #282 2~6번, #292(V31 음력 목표 모양) | A1 완료, A2 |
-| 지금 | server | P7(결제와 권한: RevenueCat·AdMob SSV·근거 열람 권한) 계획과 구현, D75 후속(S77, app에 request) | S2 완료, S3 |
-| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답) | I3, server 시드 strict(S38) |
-| 다음 | app | 계획 6(나·설정) → 계획 7(수익·알림, 대역 adapter) | A1 완료 |
+| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | server | P7(결제와 권한: RevenueCat·AdMob SSV·근거 열람 권한) 계획과 구현, D75 후속(S77 필드 5개 제거, app 확인 끝 #309) | S2 완료, S3 |
+| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). 생일 음력 확인 줄·안내 문구(#313) | I3, server 시드 strict(S38) |
 | 그다음 | server | S3(REST v1 freeze), staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | A2, I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
 | 필요할 때 | design | app·writing 요청 대응 | - |
@@ -57,7 +56,7 @@
 | --- | --- | --- |
 | 한국천문연구원 API 키 (data.go.kr: 24절기·음양력) | core Task 18 | 사용자 |
 | `buf` 설치 | core Task 14 | core 세션 |
-| Apple Developer / Google Play 개발자 계정 | I4 (빌드 배포는 A1부터 필요할 수 있음) | 사용자 |
+| Apple Developer / Google Play 개발자 계정 | A1 계획 7(#311: release·Play App Signing 서명 지문과 스토어 URL을 server에 전달), I4 | 사용자 |
 | 영어·일본어 원어민 검수 | W1 | 사용자 (writing W1) |
 | ~~배포 플랫폼 선정 (서버·엔진)~~ | S1 | **결정 완료** (D56: GCP Cloud Run + Cloud SQL) |
 | GCP 프로젝트 준비: 결제 계정, Artifact Registry·Cloud Run·Cloud SQL·Secret Manager API 사용 설정, GitHub Actions용 Workload Identity Federation (D56) | S1 배포 단계 | 사용자 (설정 절차는 server가 안내) |
