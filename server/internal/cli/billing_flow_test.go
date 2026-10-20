@@ -54,7 +54,10 @@ func TestBillingFlow_InsightGrantUnlocksEvidence(t *testing.T) {
 
 		contents := content.NewStore(deps.Pool, deps.Clock, deps.Logger)
 		deps.Contents = contents
-		deps.Readings = newReadings(contents, service, billing.NewStore(deps.Pool, deps.Clock), deps.Logger, deps.Clock)
+		// serve와 같이 한 Store를 근거 판정과 권한 응답에 함께 씁니다.
+		store := billing.NewStore(deps.Pool, deps.Clock)
+		deps.Entitlements = store
+		deps.Readings = newReadings(contents, service, store, deps.Logger, deps.Clock)
 		code, _, stderr := runCLIWithEnv(t, map[string]string{"DATABASE_URL": deps.Pool.Config().ConnString()}, "seed")
 		require.Equal(t, 0, code, "seed stderr: %s", stderr)
 	})
@@ -104,4 +107,16 @@ func TestBillingFlow_InsightGrantUnlocksEvidence(t *testing.T) {
 	assert.Equal(t, insight, entitlements.body["insight"])
 	plainEnt := env.do(http.MethodGet, "/v1/me/entitlements", without, nil)
 	assert.Equal(t, map[string]any{"active": false}, plainEnt.body["insight"])
+}
+
+// Entitlements가 빠진 조립은 숨기지 않고 getMe가 503 service.unavailable입니다(Readings·Contents와 같은 관례).
+func TestBillingFlow_WithoutEntitlementsIsUnavailable(t *testing.T) {
+	env := newFlowEnvWith(t, func(deps *serverDeps) { deps.Entitlements = nil })
+	login := env.loginKakao("billing-flow-missing")
+	require.Equal(t, http.StatusOK, login.status, "로그인 본문: %v", login.body)
+	access, _ := login.tokens(t)
+	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
+	require.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
+
+	env.do(http.MethodGet, "/v1/me", access, nil).requireProblem(t, http.StatusServiceUnavailable, "service.unavailable")
 }

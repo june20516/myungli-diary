@@ -27,6 +27,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
+	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
@@ -83,6 +84,7 @@ func newFlowEnvWith(t *testing.T, customize func(*serverDeps)) *flowEnv {
 			AppleRevoke: fake.AppleRevokeURL(),
 		},
 	}
+	deps.Entitlements = billing.NewStore(deps.Pool, clk)
 	if customize != nil {
 		customize(&deps)
 	}

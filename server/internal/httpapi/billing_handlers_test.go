@@ -29,7 +29,7 @@ func (f fakeEntitlements) Status(context.Context, uuid.UUID) (billing.Status, er
 	return f.status, f.err
 }
 
-// activeStatus는 광고 제거권(구독 아님)과 광고 제거권 출처 insight가 모두 유효한 상태입니다.
+// activeStatus는 광고 제거권과 `source`가 `ad_free_pass`인 insight가 모두 유효한 상태입니다.
 func activeStatus() (billing.Status, time.Time) {
 	expires := handlerNow.AddDate(0, 1, 0)
 	return billing.Status{

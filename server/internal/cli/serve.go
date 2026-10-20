@@ -350,7 +350,7 @@ type serverDeps struct {
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
 	Contents httpapi.Contents
-	// Entitlements는 getMe·getEntitlements가 쓰는 권한 판정입니다(billing.Store). 비어 있으면 newServer가 Pool·Clock으로 만듭니다.
+	// Entitlements는 getMe·getEntitlements가 쓰는 권한 판정입니다(billing.Store). 비어 있으면 getMe·getEntitlements는 503입니다.
 	Entitlements httpapi.EntitlementService
 	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기 operation은 503입니다.
 	Days   diary.Days
@@ -465,9 +465,6 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
 	}
 	api.Entitlements = deps.Entitlements
-	if api.Entitlements == nil {
-		api.Entitlements = billing.NewStore(deps.Pool, deps.Clock)
-	}
 	deps.TestLogin.enable(api, authService)
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)
