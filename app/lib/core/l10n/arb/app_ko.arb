@@ -1479,5 +1479,51 @@
   "errorRangeTooLong": "한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.",
   "@errorRangeTooLong": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "diaryEditSave": "저장",
+  "@diaryEditSave": {
+    "description": "임시. diary-edit 저장 버튼(IA 슬롯 없음, A53)"
+  },
+  "diaryViewEditAction": "일기 고치기",
+  "@diaryViewEditAction": {
+    "description": "임시. diary-view app-bar 고치기 동작 접근성 라벨(A50·A53)"
+  },
+  "diaryViewDeleteAction": "일기 지우기",
+  "@diaryViewDeleteAction": {
+    "description": "임시. diary-view app-bar 지우기 동작 접근성 라벨(A50·A53)"
+  },
+  "diaryViewDeleted": "일기를 지웠어요.",
+  "@diaryViewDeleted": {
+    "description": "임시. 일기를 지운 뒤 toast(A50·A53)"
+  },
+  "diaryListPickDateConfirm": "{date} 일기",
+  "@diaryListPickDateConfirm": {
+    "description": "임시. 날짜 골라 쓰기 시트의 아래 버튼, 고른 날짜를 넣는 틀(A51·A53)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tagChipLabel": "#{tag}",
+  "@tagChipLabel": {
+    "description": "임시. tag-chip 글자 틀 \"#이름\"(A53)",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "tagChipPolarityGood": "좋은 흐름",
+  "@tagChipPolarityGood": {
+    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+  },
+  "tagChipPolarityBad": "조심할 흐름",
+  "@tagChipPolarityBad": {
+    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+  },
+  "tagChipPolarityNeutral": "중립",
+  "@tagChipPolarityNeutral": {
+    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
   }
 }

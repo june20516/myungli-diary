@@ -448,7 +448,9 @@ void main() {
       });
     });
 
-    testWidgets('calendar 변형은 아직 구현되지 않았습니다', (tester) async {
+    testWidgets('calendar 변형은 휠이 아니라 MonthDatePicker라 ArgumentError입니다', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         inputApp(
           BirthDatePicker(
@@ -461,7 +463,7 @@ void main() {
           ),
         ),
       );
-      expect(tester.takeException(), isA<UnimplementedError>());
+      expect(tester.takeException(), isA<ArgumentError>());
     });
   });
 }

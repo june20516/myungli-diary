@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
 /// problem 응답의 `errors[]` 한 줄(계약 `FieldError`).
@@ -89,5 +91,27 @@ CalendarDate? parseDateParameter(
 void checkDateOrder(CalendarDate? from, CalendarDate? to) {
   if (from != null && to != null && to.compareTo(from) < 0) {
     throw FakeProblem.invalid('to', 'minimum', 'to가 from보다 앞섭니다.');
+  }
+}
+
+/// 요청 본문(생성 클라이언트는 JSON 문자열, 직접 부르면 Map)을 객체로 읽습니다.
+Map<String, Object?> decodeJsonObject(Object? body) {
+  final decoded = body is String ? _tryDecode(body) : body;
+  if (decoded is! Map) {
+    throw const FakeProblem(
+      400,
+      'request.malformed',
+      'Malformed request',
+      '본문은 JSON 객체여야 합니다.',
+    );
+  }
+  return Map<String, Object?>.from(decoded);
+}
+
+Object? _tryDecode(String source) {
+  try {
+    return jsonDecode(source);
+  } on FormatException {
+    return null;
   }
 }

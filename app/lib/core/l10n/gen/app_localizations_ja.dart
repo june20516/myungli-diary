@@ -1058,4 +1058,35 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get errorRangeTooLong => '一度に見られる期間を超えています。期間を短くしてください。';
+
+  @override
+  String get diaryEditSave => '保存';
+
+  @override
+  String get diaryViewEditAction => '日記を編集';
+
+  @override
+  String get diaryViewDeleteAction => '日記を削除';
+
+  @override
+  String get diaryViewDeleted => '日記を削除しました。';
+
+  @override
+  String diaryListPickDateConfirm(String date) {
+    return '$dateの日記';
+  }
+
+  @override
+  String tagChipLabel(String tag) {
+    return '#$tag';
+  }
+
+  @override
+  String get tagChipPolarityGood => '良い流れ';
+
+  @override
+  String get tagChipPolarityBad => '注意の流れ';
+
+  @override
+  String get tagChipPolarityNeutral => '中立';
 }

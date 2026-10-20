@@ -321,9 +321,8 @@ class _CalendarBody extends StatelessWidget {
           ],
           CalendarMonthView(
             month: month,
-            title: DateFormat.yMMMM(locale)
-                .format(DateTime(month.year, month.month)),
-            weekdayLabels: _weekdayLabels(locale),
+            title: calendarMonthTitle(locale, month),
+            weekdayLabels: calendarWeekdayLabels(locale),
             cellOf: cellOf,
             loading: loading,
             today: today,
@@ -349,10 +348,6 @@ class _CalendarBody extends StatelessWidget {
       ),
     );
   }
-
-  /// 일요일부터 토요일까지 [locale]의 짧은 요일 이름(A38).
-  static List<String> _weekdayLabels(String locale) =>
-      DateFormat(null, locale).dateSymbols.STANDALONESHORTWEEKDAYS;
 }
 
 /// 격자 날짜마다 칸 값([DayCellData])을 만듭니다.

@@ -35,6 +35,15 @@ const Set<String> _allowedTemporaryKeys = {
   'todayLuckyDirectionName',
   'todayLuckyNumberName',
   'todayLuckyTimeName',
+  'diaryEditSave',
+  'diaryViewEditAction',
+  'diaryViewDeleteAction',
+  'diaryViewDeleted',
+  'diaryListPickDateConfirm',
+  'tagChipLabel',
+  'tagChipPolarityGood',
+  'tagChipPolarityBad',
+  'tagChipPolarityNeutral',
 };
 
 Map<String, Object?> _readJson(String path) =>

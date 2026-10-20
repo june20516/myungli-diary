@@ -87,6 +87,7 @@ abstract final class SlotIds {
   static const String loginTitleHead = 'login.title.head';
   static const String loginTitleBody = 'login.title.body';
   static const String loginDiscardNotice = 'login.discard.notice';
+  static const String loginErrorBody = 'login.error.body';
   static const String consentBarTitle = 'consent.bar.title';
   static const String consentTitleHead = 'consent.title.head';
   static const String consentRequiredLabel = 'consent.required.label';
@@ -119,6 +120,7 @@ abstract final class SlotIds {
   static const String todayGuideCta = 'today.guide.cta';
   static const String todayEventSummary = 'today.event.summary';
   static const String todayReactionLabel = 'today.reaction.label';
+  static const String todayEvidenceLink = 'today.evidence.link';
   static const String explainSheetTermMeaning = 'explain-sheet.term.meaning';
   static const String explainSheetTodayReason = 'explain-sheet.today.reason';
   static const String evidenceSheetBasisBody = 'evidence-sheet.basis.body';
@@ -144,6 +146,7 @@ abstract final class SlotIds {
       'evidence-sheet.a11y.checking';
   static const String evidenceSheetA11yUnlocked =
       'evidence-sheet.a11y.unlocked';
+  static const String evidenceSheetSheetTitle = 'evidence-sheet.sheet.title';
   static const String sharePreviewImageFooter = 'share-preview.image.footer';
   static const String sharePreviewImageTagline = 'share-preview.image.tagline';
   static const String sharePreviewRatioLabel = 'share-preview.ratio.label';
@@ -161,18 +164,25 @@ abstract final class SlotIds {
   static const String eventEditTitleHint = 'event-edit.title.hint';
   static const String eventEditMemoHint = 'event-edit.memo.hint';
   static const String eventEditDeleteConfirm = 'event-edit.delete.confirm';
+  static const String eventEditSaveCta = 'event-edit.save.cta';
+  static const String eventEditDeleteCta = 'event-edit.delete.cta';
+  static const String eventEditOfflineNotice = 'event-edit.offline.notice';
+  static const String eventEditSaveFailed = 'event-edit.save.failed';
   static const String diaryListBarTitle = 'diary-list.bar.title';
   static const String diaryListEmptyBody = 'diary-list.empty.body';
   static const String diaryListPickDateCta = 'diary-list.pick-date.cta';
+  static const String diaryListPickDateConfirm = 'diary-list.pick-date.confirm';
   static const String diaryEditBarTitle = 'diary-edit.bar.title';
   static const String diaryEditGuideQuestion = 'diary-edit.guide.question';
   static const String diaryEditBodyPlaceholder = 'diary-edit.body.placeholder';
   static const String diaryEditDraftStatus = 'diary-edit.draft.status';
   static const String diaryEditOfflineNotice = 'diary-edit.offline.notice';
   static const String diaryEditSavedTags = 'diary-edit.saved.tags';
+  static const String diaryEditSaveCta = 'diary-edit.save.cta';
   static const String diaryViewBarTitle = 'diary-view.bar.title';
   static const String diaryViewCharacterLabel = 'diary-view.character.label';
   static const String diaryViewDeleteConfirm = 'diary-view.delete.confirm';
+  static const String diaryViewDeletedToast = 'diary-view.deleted.toast';
   static const String tagDiaryBarTitle = 'tag-diary.bar.title';
   static const String tagDiaryTagMeaning = 'tag-diary.tag.meaning';
   static const String tagDiaryEmptyBody = 'tag-diary.empty.body';
@@ -509,7 +519,14 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'diary-edit', trigger: '이날 일기 쓰기'),
       IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
     ],
-    components: ['sheet', 'day-character', 'event-row', 'term-token'],
+    components: [
+      'sheet',
+      'day-character',
+      'event-row',
+      'term-token',
+      'depth-link',
+      'primary-button',
+    ],
   ),
   IaScreen(
     id: 'event-edit',
@@ -526,6 +543,7 @@ const List<IaScreen> iaScreens = [
       'segmented',
       'primary-button',
       'dialog',
+      'toast',
     ],
   ),
   IaScreen(
@@ -580,10 +598,12 @@ const List<IaScreen> iaScreens = [
     ],
     components: [
       'app-bar',
+      'diary-editor',
       'day-character',
       'sentence-block',
       'tag-chip',
       'dialog',
+      'toast',
     ],
   ),
   IaScreen(

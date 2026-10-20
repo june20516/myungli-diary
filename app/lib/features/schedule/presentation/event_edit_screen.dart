@@ -226,7 +226,11 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
       _closeGone();
     } on AppError catch (error) {
       if (!mounted) return;
-      _showFailure(error, AppLocalizations.of(context).eventEditSaveFailed);
+      _showFailure(
+        error,
+        AppLocalizations.of(context).eventEditSaveFailed,
+        identifier: SlotIds.eventEditSaveFailed,
+      );
     }
   }
 
@@ -258,10 +262,10 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
   }
 
   /// 연결 오류면 배너(offline), 그 밖이면 [message] toast(error)입니다. 입력은 그대로 둡니다.
-  void _showFailure(AppError error, String message) {
+  void _showFailure(AppError error, String message, {String? identifier}) {
     final offline = isConnectivityError(error);
     setState(() => _offline = offline);
-    if (!offline) showMyungliToast(context, message);
+    if (!offline) showMyungliToast(context, message, identifier: identifier);
   }
 
   /// 일정이 이미 없음(A41): 목록은 [ScheduleEditor]가 다시 받았으므로 닫고 알립니다.
@@ -307,6 +311,7 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
                   variant: NoticeBannerVariant.offline,
                   message: l10n.eventEditOfflineNotice,
                   present: _offline,
+                  identifier: SlotIds.eventEditOfflineNotice,
                 ),
                 _CharacterHint(date: _draft.date),
                 const SizedBox(height: Space.s24),
@@ -399,6 +404,7 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
               PrimaryButton(
                 key: EventEditScreen.saveKey,
                 label: l10n.eventEditSave,
+                identifier: SlotIds.eventEditSaveCta,
                 loading: saving,
                 onPressed: _savable ? () => unawaited(_save()) : null,
               ),
@@ -408,6 +414,7 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
                   key: EventEditScreen.deleteKey,
                   variant: PrimaryButtonVariant.quiet,
                   label: l10n.eventEditDelete,
+                  identifier: SlotIds.eventEditDeleteCta,
                   onPressed: saving ? null : () => unawaited(_delete()),
                 ),
               ],

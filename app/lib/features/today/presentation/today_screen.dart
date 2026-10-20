@@ -254,6 +254,7 @@ class _TodayBody extends ConsumerWidget {
                     reasonTrailing: DepthLink(
                       variant: DepthLinkVariant.inlineEnd,
                       label: l10n.depthLinkEvidence,
+                      slotId: SlotIds.todayEvidenceLink,
                       onTap: () => sheets.openEvidence(
                         context,
                         slotId: display.characterReasonSlot,
@@ -273,6 +274,7 @@ class _TodayBody extends ConsumerWidget {
                 trailing: DepthLink(
                   variant: DepthLinkVariant.inlineEnd,
                   label: l10n.depthLinkEvidence,
+                  slotId: SlotIds.todayEvidenceLink,
                   onTap: () => sheets.openEvidence(context, slotId: head.slot),
                 ),
               ),

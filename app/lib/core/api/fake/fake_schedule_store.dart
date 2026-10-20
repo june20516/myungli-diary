@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -63,7 +61,7 @@ final class FakeScheduleStore {
 
   /// `createSchedule`: 새 일정(`Schedule` JSON).
   Map<String, Object?> create(Object? body, {String? idempotencyKey}) {
-    final input = _inputFields(_decodeObject(body));
+    final input = _inputFields(decodeJsonObject(body));
     if (idempotencyKey != null) {
       final previous = _idempotent[idempotencyKey];
       if (previous != null) {
@@ -100,7 +98,7 @@ final class FakeScheduleStore {
   /// `updateSchedule`: [id] 일정에 merge-patch [body]를 적용한 결과(`Schedule` JSON).
   Map<String, Object?> update(String id, Object? body) {
     final current = _find(id);
-    final patch = _inputFields(_decodeObject(body));
+    final patch = _inputFields(decodeJsonObject(body));
     final merged = {...current, ...patch};
     if (patch['allDay'] == true && !patch.containsKey('time')) {
       merged.remove('time');
@@ -246,25 +244,3 @@ Map<String, Object?> _inputFields(Map<String, Object?> body) => {
 };
 
 const _inputFieldNames = {'date', 'allDay', 'time', 'title', 'memo'};
-
-/// 요청 본문(생성 클라이언트는 JSON 문자열, 직접 부르면 Map)을 객체로 읽습니다.
-Map<String, Object?> _decodeObject(Object? body) {
-  final decoded = body is String ? _tryDecode(body) : body;
-  if (decoded is! Map) {
-    throw const FakeProblem(
-      400,
-      'request.malformed',
-      'Malformed request',
-      '본문은 JSON 객체여야 합니다.',
-    );
-  }
-  return Map<String, Object?>.from(decoded);
-}
-
-Object? _tryDecode(String source) {
-  try {
-    return jsonDecode(source);
-  } on FormatException {
-    return null;
-  }
-}
