@@ -15,8 +15,9 @@
 **Tech Stack:** 계획 5와 같음(Flutter, Riverpod 3.x 코드 생성 없음, go_router, Dio 생성 클라이언트, drift, `intl`, `url_launcher`). 새 패키지 없음.
 
 **Spec:**
+* 제품 결정 D79: 기본 깊이 설정 없음(IA v4)
 * `app/docs/specs/2026-10-13-app-architecture-design.md`: §4.4 사주 기반 영구 캐시, §5 사주 변경의 무게, §10 계획 6
-* 화면: IA `docs/ia/screens.json` v3(`my-saju`·`saju-chart`·`settings`·`profile-edit`·`account-delete`·`legal`)
+* 화면: IA `docs/ia/screens.json` v4(`my-saju`·`saju-chart`·`settings`·`profile-edit`·`account-delete`·`legal`)
 * 컴포넌트: `docs/identity/design/components/saju.json`·`.md`, `action.json`(`settings-row`), `elements.json`, `today.json`(`lucky-card`), `feedback.json`(`dialog`·`notice-banner`)
 * REST: `server/api/openapi.yaml` 1.0.0-draft.8(`getChart`·`updateProfile`·`getProfile`·`deleteMe`·`logout`·`getMe`)
 * 제품 결정: D15·D16·D18·D28·D29·D36·D37·D53·D60·D61·D64
@@ -24,6 +25,8 @@
 ## 시작 전
 
 * 브랜치 `app/me-settings`(`origin/main`에서 `--no-track`, 같은 이름 원격 추적, 만들어 둠).
+* drift #322(PR #320, IA v4: `settings.depth.desc` 제거)는 첫 commit에서 IA 생성 코드와 커버리지를 다시 만들어 맞췄습니다. PR 본문에 `Closes #322`.
+* #316(D79): writing #317이 원고를 빼면 `import_writing_arb.dart`로 `settingsDepthDesc`·`depthDefaultLabel`·`depthSurface`·`depthEvidence`를 정리합니다(`depthExplain`은 남음). 그 전에 이 계획이 끝나면 PR 본문에 `참고 #316`.
 * 열린 drift가 있으면 첫 commit에서 맞춥니다(세션 시작 때 `gh issue list --label drift`).
 * 검사는 `app/CLAUDE.md` "검사" 절을 따릅니다. 로컬 Patrol은 `tool/patrol_local.sh`입니다.
 
@@ -31,9 +34,8 @@
 
 | 대기 | 요청 | 기다리는 동안 |
 | --- | --- | --- |
-| 기본 깊이를 두 단계로 정리(D37) | 지휘 #315 | `settings`에 기본 깊이 줄을 두지 않습니다(A61). 답이 오면 줄과 동작을 더하는 작은 PR입니다 |
 | `my-saju` 문장(`chart.ilgan_head`·`ilgan_body`·`yongsin_summary` 원고 있음)을 담을 `Chart` 필드가 계약에 없음 | server(Task 1에서 엶) | A55: 문장 자리는 그리지 않고, 일간 이름·용신·행운 색은 `Chart`와 용어 사전으로 그립니다 |
-| 이용약관·개인정보 처리방침 문서의 주소 | 지휘(Task 1에서 엶) | A62: `legal`에 두 줄을 그리되 주소가 비어 있으면 비활성입니다. 오픈소스 고지는 앱 안에서 엽니다 |
+| 이용약관·개인정보 처리방침 문서의 주소 | 지휘(Task 1에서 엶) | A61: `legal`에 두 줄을 그리되 주소가 비어 있으면 비활성입니다. 오픈소스 고지는 앱 안에서 엽니다 |
 
 ## 이 계획이 정하는 것 (계약 사이 빈칸)
 
@@ -45,11 +47,11 @@
 | 원국 개인 해석("내 사주에서는", D60)의 자리 | **A58:** `saju-chart`의 용어 토큰은 `explain-sheet`를 열고, 그 시트의 "근거 보기"가 `evidence-sheet`를 엽니다. 근거 시트는 누른 용어의 (`kind`, `position`, `index`, `shinsal`)과 같은 `Chart.personalReadings` 항목을 보이고, 잠겨 있으면 잠금 안내와 해제 흐름(A26)입니다. 이 경로는 차트 근거 주제 `ChartEvidenceSubject`로 엽니다 |
 | 설정 값의 출처와 저장 | **A59:** 알림 시각은 `Profile.notification`, 언어는 `Profile.language`이고 바꾸면 `updateProfile`(PATCH, 그 필드만) 뒤 응답을 새 사본으로 둡니다. 저장 중에는 그 줄이 비활성이고, 실패하면 오류 toast와 이전 값입니다. 알림 시각은 `time-picker` `notify` half 시트(5분 단위, 끄기 포함). 알림을 처음 켜면 OS 권한을 묻습니다(계획 2 `PushPermission`, 거절하면 `disabled`로 저장). 광고 제거 줄은 `Me.adFree`(활성이면 `settingsAdFreeLabelActive({date})`)이고 누르면 `ad-free`(계획 7 전에는 대기 화면)입니다 |
 | 앱 언어 | **A60:** 앱 언어는 프로필 사본의 `language`, 사본이 없으면 기기 로케일입니다(`localeProvider`가 사본을 봄). 설정에서 바꾸면 PATCH 성공 뒤 앱 전체가 그 언어로 다시 그려지고, 언어별 캐시는 키가 달라 자연히 새로 받습니다. 한국어가 아닌 언어로 바꾸고 출생지가 `not_asked`면 `settings.language.birthplace-notice` 시트(버튼 → `birthplace` 수정 모드)를 띄웁니다(D29) |
-| 기본 깊이 줄 | **A61:** 지휘 #315의 답(두 단계 또는 설정 제거)이 올 때까지 `settings`에 기본 깊이 줄을 두지 않습니다. IA 대조는 `settings.depth.desc` 슬롯을 대기 목록에 둡니다 |
-| `legal` 문서 | **A62:** 줄 셋. "이용약관"·"개인정보 처리방침"은 주소(`lib/app/legal_links.dart`의 상수, 지휘 답 전에는 null)를 외부 브라우저로 엽니다. 주소가 null이면 비활성입니다. "오픈소스 라이선스"는 Flutter `showLicensePage`입니다. GeoNames(CC BY 4.0, #312)와 Pretendard·글꼴 고지는 `LicenseRegistry.addLicense`로 더합니다 |
-| 사주 변경 흐름 | **A63:** `profile-edit`은 줄마다 지금 값을 보이고(사본 기준), 누르면 그 입력 화면을 수정 모드로 엽니다(`extra` = 지금 값). 돌아온 값은 바로 저장하지 않고 화면 안 변경으로 듭니다. 호칭만 바뀌면 바로 PATCH합니다(가벼운 변경). 무거운 항목(생일·시간·성별·출생지)이 바뀌었으면 하단 저장 버튼이 켜집니다. 누르면 `dialog`(`profile-edit.recalc.confirm`, 기본 선택 취소, 본문 `{before} → {after}`는 바뀐 항목만 ` · `로 이음)를 띄웁니다. 확정하면 PATCH 뒤 사주 기반 캐시(달력·차트·그날)를 지우고 `my-saju`로 갑니다(`go`). 실패하면 `profile-edit:error`(`notice-banner` + 다시 시도), 바꾼 값은 남깁니다. 사본이 없으면(새 기기·재설치) 화면을 열 때 `getProfile`로 채웁니다(#312, A18) |
-| 계정 삭제 | **A64:** `account-delete`의 버튼은 `dialog` `destructive` 뒤 `deleteMe`(202)이고, 성공하면 `revokeAndSignOut`으로 로컬 로그아웃해 진입이 `welcome`으로 갑니다. 실패하면 `account-delete:error`(오류 toast, 버튼 다시 시도). 로그아웃은 `settings`의 `dialog`(`settings.logout.confirm`) 뒤 `revokeAndSignOut`입니다 |
-| IA·writing에 없는 문구 | **A65:** app 임시 ARB(A7 방식): 설정 줄 이름 7개(알림 시각·언어·정보 수정·계산 기준·약관·정책·로그아웃·계정 삭제), 알림 꺼짐 값, 언어 이름 3개, `profile-edit` 줄 이름 5개와 저장 버튼, `saju-chart` 탭 이름 2개, 원국표 기둥 머리 4개(시·일·월·연), 만세력 행 머리(지장간·12운성·신살은 용어 사전 이름이 있으면 그것), "나"·"지금"·"올해" 꼬리표, `legal` 줄 3개, 오행 분포 접근성 라벨 틀. writing에 목록을 알립니다 |
+| 기본 깊이 | **D79(#315·#316, 지휘 결정):** 기본 깊이 설정을 없앱니다. 깊이는 입구별로 고릅니다(용어 → 풀이, 근거 보기 → 근거). `settings`에 깊이 줄과 `segmented`가 없습니다(IA v4). |
+| `legal` 문서 | **A61:** 줄 셋. "이용약관"·"개인정보 처리방침"은 주소(`lib/app/legal_links.dart`의 상수, 지휘 답 전에는 null)를 외부 브라우저로 엽니다. 주소가 null이면 비활성입니다. "오픈소스 라이선스"는 Flutter `showLicensePage`입니다. GeoNames(CC BY 4.0, #312)와 Pretendard·글꼴 고지는 `LicenseRegistry.addLicense`로 더합니다 |
+| 사주 변경 흐름 | **A62:** `profile-edit`은 줄마다 지금 값을 보이고(사본 기준), 누르면 그 입력 화면을 수정 모드로 엽니다(`extra` = 지금 값). 돌아온 값은 바로 저장하지 않고 화면 안 변경으로 듭니다. 호칭만 바뀌면 바로 PATCH합니다(가벼운 변경). 무거운 항목(생일·시간·성별·출생지)이 바뀌었으면 하단 저장 버튼이 켜집니다. 누르면 `dialog`(`profile-edit.recalc.confirm`, 기본 선택 취소, 본문 `{before} → {after}`는 바뀐 항목만 ` · `로 이음)를 띄웁니다. 확정하면 PATCH 뒤 사주 기반 캐시(달력·차트·그날)를 지우고 `my-saju`로 갑니다(`go`). 실패하면 `profile-edit:error`(`notice-banner` + 다시 시도), 바꾼 값은 남깁니다. 사본이 없으면(새 기기·재설치) 화면을 열 때 `getProfile`로 채웁니다(#312, A18) |
+| 계정 삭제 | **A63:** `account-delete`의 버튼은 `dialog` `destructive` 뒤 `deleteMe`(202)이고, 성공하면 `revokeAndSignOut`으로 로컬 로그아웃해 진입이 `welcome`으로 갑니다. 실패하면 `account-delete:error`(오류 toast, 버튼 다시 시도). 로그아웃은 `settings`의 `dialog`(`settings.logout.confirm`) 뒤 `revokeAndSignOut`입니다 |
+| IA·writing에 없는 문구 | **A64:** app 임시 ARB(A7 방식): 설정 줄 이름 7개(알림 시각·언어·정보 수정·계산 기준·약관·정책·로그아웃·계정 삭제), 알림 꺼짐 값, 언어 이름 3개, `profile-edit` 줄 이름 5개와 저장 버튼, `saju-chart` 탭 이름 2개, 원국표 기둥 머리 4개(시·일·월·연), 만세력 행 머리(지장간·12운성·신살은 용어 사전 이름이 있으면 그것), "나"·"지금"·"올해" 꼬리표, `legal` 줄 3개, 오행 분포 접근성 라벨 틀. writing에 목록을 알립니다 |
 
 ## Global Constraints
 
@@ -89,12 +91,12 @@
 
 **Files:** Modify `app/docs/decisions.md`, `lib/core/l10n/arb/app_{ko,en,ja}.arb`, `test/contract/app_bar_title_contract_test.dart`(`_allowedTemporaryKeys`)
 
-- [ ] A55~A65를 위 표 문장으로 적습니다.
-- [ ] A65 임시 키를 세 ARB에 더하고(`@키.description`에 `임시`) `flutter gen-l10n`, 허용 목록에 더합니다.
+- [ ] A55~A63를 위 표 문장으로 적습니다.
+- [ ] A64 임시 키를 세 ARB에 더하고(`@키.description`에 `임시`) `flutter gen-l10n`, 허용 목록에 더합니다.
 - [ ] Issue 셋을 엽니다(`gh issue create`, 마일스톤 A1).
   * server(`kind:request`): `Chart`에 `ilganHead`·`ilganBody`·`yongsinSummary`(`SlotText`, 슬롯 `chart.ilgan_head`·`ilgan_body`·`yongsin_summary`, 앞의 것만 호칭) 추가
   * 지휘(`kind:request`): 약관·개인정보 처리방침 문서 주소와 호스팅 주체
-  * writing(`kind:request`): A65 임시 키 목록
+  * writing(`kind:request`): A64 임시 키 목록
 - [ ] commit
 
 ### Task 2: 차트 fixture·저장소·캐시·근거 주제
@@ -211,7 +213,7 @@
 **Interfaces:** Produces `SettingsController.setNotification(NotificationSetting)`·`setLanguage(Language)` → `Future<void>`(실패는 `AppError`)
 
 - [ ] 테스트:
-  * 묶음과 줄(A59·A61, 기본 깊이 줄 없음)
+  * 묶음과 줄(A59, D79로 기본 깊이 줄 없음)
   * 알림 시각 시트 → PATCH `notification` → 값 표시, 처음 켤 때 권한, 거절이면 `disabled`
   * 언어 시트 → PATCH `language` → 앱이 그 언어로, 실패하면 그대로(Review Focus 3)
   * 한국어 밖으로 바꾸고 출생지 `not_asked`면 출생지 안내 → `birthplace` 수정 모드
@@ -239,7 +241,7 @@
 
 - [ ] 테스트:
   * 계정 삭제: 제목·안내·버튼 → `destructive` 확인 → `deleteMe` 한 번 → 로그아웃 정리 → `welcome`, 실패하면 `error` toast와 다시 시도
-  * `legal`: 줄 셋, 주소가 null이면 두 문서 줄 비활성, 오픈소스 라이선스 페이지에 GeoNames 고지(A62, #312)
+  * `legal`: 줄 셋, 주소가 null이면 두 문서 줄 비활성, 오픈소스 라이선스 페이지에 GeoNames 고지(A61, #312)
 - [ ] 구현, commit
 
 ### Task 13: 흐름·E2E·문서
