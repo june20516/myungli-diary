@@ -91,6 +91,12 @@
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "Cancel"}
 - {slot: ui.diary-edit.save, key: diaryEditSave, text: "Save"}
 - {slot: ui.diary-view.deleted, key: diaryViewDeleted, text: "Entry deleted."}
+- {slot: ui.diary-view.actions, key: diaryViewEditAction, text: "Edit entry"}
+- {slot: ui.diary-view.actions, key: diaryViewDeleteAction, text: "Delete entry"}
+- {slot: ui.tag-chip.label, key: tagChipLabel, text: "#{tag}"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityGood, text: "favorable"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityBad, text: "take care"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityNeutral, text: "neutral"}
 - {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "No entries with this tag yet."}
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "Your birth time is unknown, so the hour pillar is left out."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "Unlock"}
@@ -186,6 +192,8 @@
 - {slot: ui.error.code, key: errorBillingProviderUnavailable, text: "We can't check purchases right now. Please try again in a moment."}
 - {slot: ui.error.code, key: errorServiceUnavailable, text: "The app isn't available right now. Please try again in a moment."}
 - {slot: ui.error.code, key: errorEngineTimeout, text: "Calculating your reading is taking too long. Please try again in a moment."}
+- {slot: ui.error.code, key: errorCityNotFound, text: "We couldn't find that city. Please choose your birthplace again."}
+- {slot: ui.error.code, key: errorTimezoneInvalid, text: "We couldn't read the time zone. Please check your device's time zone setting."}
 - {slot: ui.app.name, key: appTitle, text: "Myungli Diary"}
 - {slot: ui.app.bootstrap, key: bootstrapFailed, text: "The app couldn't start. Please close it completely and open it again."}
 - {slot: ui.app.notice, key: noticeOffline, text: "You're offline, so this is what was saved earlier."}
@@ -280,6 +288,7 @@
 - {slot: ui.day-cell.a11y, key: dayCellDiaryWritten, text: "Diary written"}
 - {slot: ui.day-cell.a11y, key: dayCellToday, text: "Today"}
 - {slot: ui.day-cell.a11y, key: a11yListSeparator, text: ", "}
+- {slot: ui.day-cell.lunar, key: dayCellLeapNewMoon, text: "L{month}.1"}
 - {slot: ui.event-row.label, key: eventRowMore, text: "{count, plural, one{+{count} more} other{+{count} more}}"}
 - {slot: ui.event-row.label, key: eventRowAllDay, text: "All day"}
 - {slot: ui.event-row.label, key: eventRowLabel, text: "{status} {time} {title}"}

@@ -91,6 +91,12 @@
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "취소"}
 - {slot: ui.diary-edit.save, key: diaryEditSave, text: "저장"}
 - {slot: ui.diary-view.deleted, key: diaryViewDeleted, text: "일기를 지웠어요."}
+- {slot: ui.diary-view.actions, key: diaryViewEditAction, text: "일기 고치기"}
+- {slot: ui.diary-view.actions, key: diaryViewDeleteAction, text: "일기 지우기"}
+- {slot: ui.tag-chip.label, key: tagChipLabel, text: "#{tag}"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityGood, text: "좋은 흐름"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityBad, text: "조심할 흐름"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityNeutral, text: "무난한 흐름"}
 - {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "이 태그가 붙은 일기가 아직 없어요."}
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "태어난 시간을 몰라 시주는 빼고 보여 드려요."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "열기"}
@@ -186,6 +192,8 @@
 - {slot: ui.error.code, key: errorBillingProviderUnavailable, text: "지금은 결제를 확인할 수 없어요. 잠시 후 다시 시도해 주세요."}
 - {slot: ui.error.code, key: errorServiceUnavailable, text: "지금은 앱을 쓸 수 없어요. 잠시 후 다시 시도해 주세요."}
 - {slot: ui.error.code, key: errorEngineTimeout, text: "풀이 계산이 늦어지고 있어요. 잠시 후 다시 시도해 주세요."}
+- {slot: ui.error.code, key: errorCityNotFound, text: "출생지 도시를 찾지 못했어요. 도시를 다시 골라 주세요."}
+- {slot: ui.error.code, key: errorTimezoneInvalid, text: "시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요."}
 - {slot: ui.app.name, key: appTitle, text: "명리일기"}
 - {slot: ui.app.bootstrap, key: bootstrapFailed, text: "앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요."}
 - {slot: ui.app.notice, key: noticeOffline, text: "인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요."}
@@ -280,6 +288,7 @@
 - {slot: ui.day-cell.a11y, key: dayCellDiaryWritten, text: "일기 있음"}
 - {slot: ui.day-cell.a11y, key: dayCellToday, text: "오늘"}
 - {slot: ui.day-cell.a11y, key: a11yListSeparator, text: ", "}
+- {slot: ui.day-cell.lunar, key: dayCellLeapNewMoon, text: "윤{month}.1"}
 - {slot: ui.event-row.label, key: eventRowMore, text: "외 {count, plural, other{{count}개}}"}
 - {slot: ui.event-row.label, key: eventRowAllDay, text: "하루 종일"}
 - {slot: ui.event-row.label, key: eventRowLabel, text: "{status} {time} {title}"}

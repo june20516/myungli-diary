@@ -84,6 +84,8 @@
     - errorBillingProviderUnavailable
     - errorServiceUnavailable
     - errorEngineTimeout
+    - errorCityNotFound
+    - errorTimezoneInvalid
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -704,3 +706,77 @@
   a11y:
     truncation: "두 줄 안에 들어가게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.day-cell.lunar
+  where: "달력 날짜 칸(day-cell) 음력 줄: 윤달 초하루 표지(#260, design V38). 평달 초하루 `M.1`·절기 이름·일(日)은 app이 숫자로 그립니다"
+  purpose: info
+  user_state: "달력에서 같은 해에 같은 달 초하루가 두 번 보입니다."
+  structure: "숫자 틀 하나. 윤달 표지 + 월 + `.1`입니다. 칸 폭 44px 한 줄이라 표지는 한 글자로 씁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [day-cell]
+  keys:
+    - params: {month: number}
+      keys: [dayCellLeapNewMoon]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: dayCellLeapNewMoon, text: "윤{month}.1", why: "design #260 예시 그대로", source: writing}
+    bad:
+      - {lang: ko, text: "윤달 {month}.1", why: "칸 폭 44px 한 줄을 넘김", source: writing}
+  endings: []
+  a11y:
+    truncation: "칸 한 줄 안에 들어가야 합니다. 상한은 design이 lengths.md에 더합니다."
+    screen_reader: "읽지 않습니다. 스크린리더는 ui.day-cell.a11y의 dayCellLunar·dayCellLeapMonth를 읽습니다."
+
+- id: ui.diary-view.actions
+  where: "일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)"
+  purpose: info
+  user_state: "스크린리더로 일기 보기 화면의 버튼을 듣습니다."
+  structure: "동작 이름 하나. 무엇을 하는지와 대상(일기)을 넣습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [app-bar]
+  keys:
+    - diaryViewEditAction
+    - diaryViewDeleteAction
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryViewEditAction, text: "일기 고치기", why: "app 초안 그대로(동작 + 대상)", source: writing}
+    bad:
+      - {lang: ko, text: "연필", why: "아이콘 모양을 읽어 동작을 알 수 없음", source: writing}
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "버튼 이름으로 읽습니다."
+
+- id: ui.tag-chip.label
+  where: "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
+  purpose: info
+  user_state: "태그 칩을 보거나 스크린리더로 듣습니다."
+  structure: "tagChipLabel은 태그 이름 앞에 `#`을 붙이는 틀입니다. 길흉 낱말은 명사구 하나이고 겁주는 말을 쓰지 않습니다(D72)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  key_max_length:
+    tagChipPolarityGood: {ko: unbounded, en: unbounded, ja: unbounded}
+    tagChipPolarityBad: {ko: unbounded, en: unbounded, ja: unbounded}
+    tagChipPolarityNeutral: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [tag-chip]
+  keys:
+    - params: {tag: text}
+      keys: [tagChipLabel]
+    - tagChipPolarityGood
+    - tagChipPolarityBad
+    - tagChipPolarityNeutral
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: tagChipPolarityBad, text: "조심할 흐름", why: "app 초안 그대로, 겁주지 않는 말", source: writing}
+      - {lang: ko, key: tagChipPolarityNeutral, text: "무난한 흐름", why: "역할 이름 \"무난한 기운\"(W31)과 같은 결", source: writing}
+    bad:
+      - {lang: ko, text: "흉", why: "한 글자 판정어라 겁을 줌(D72)", source: writing}
+  endings: []
+  a11y:
+    truncation: "칩 한 줄 안에 들어갑니다. 태그 이름 길이는 daily.tag_label 상한을 따릅니다."
+    screen_reader: "태그 이름 다음에 길흉 낱말을 이어 읽습니다."

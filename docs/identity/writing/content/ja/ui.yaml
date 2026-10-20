@@ -91,6 +91,12 @@
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "キャンセル"}
 - {slot: ui.diary-edit.save, key: diaryEditSave, text: "保存"}
 - {slot: ui.diary-view.deleted, key: diaryViewDeleted, text: "日記を削除しました。"}
+- {slot: ui.diary-view.actions, key: diaryViewEditAction, text: "日記を編集"}
+- {slot: ui.diary-view.actions, key: diaryViewDeleteAction, text: "日記を削除"}
+- {slot: ui.tag-chip.label, key: tagChipLabel, text: "#{tag}"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityGood, text: "良い流れ"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityBad, text: "気をつけたい流れ"}
+- {slot: ui.tag-chip.label, key: tagChipPolarityNeutral, text: "穏やかな流れ"}
 - {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "このタグが付いた日記はまだありません。"}
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "生まれた時刻がわからないため、時柱を除いて表示しています。"}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "開く"}
@@ -186,6 +192,8 @@
 - {slot: ui.error.code, key: errorBillingProviderUnavailable, text: "今は購入を確認できません。しばらくしてからもう一度お試しください。"}
 - {slot: ui.error.code, key: errorServiceUnavailable, text: "今はアプリを使えません。しばらくしてからもう一度お試しください。"}
 - {slot: ui.error.code, key: errorEngineTimeout, text: "読み解きの計算に時間がかかっています。後でお試しください。"}
+- {slot: ui.error.code, key: errorCityNotFound, text: "出生地の都市が見つかりませんでした。都市を選び直してください。"}
+- {slot: ui.error.code, key: errorTimezoneInvalid, text: "タイムゾーンを確認できませんでした。端末の設定を確認してください。"}
 - {slot: ui.app.name, key: appTitle, text: "命理日記"}
 - {slot: ui.app.bootstrap, key: bootstrapFailed, text: "アプリを開けませんでした。アプリを完全に閉じてから、もう一度開いてください。"}
 - {slot: ui.app.notice, key: noticeOffline, text: "オフラインのため、保存してある内容を表示しています。"}
@@ -280,6 +288,7 @@
 - {slot: ui.day-cell.a11y, key: dayCellDiaryWritten, text: "日記あり"}
 - {slot: ui.day-cell.a11y, key: dayCellToday, text: "今日"}
 - {slot: ui.day-cell.a11y, key: a11yListSeparator, text: "、"}
+- {slot: ui.day-cell.lunar, key: dayCellLeapNewMoon, text: "閏{month}.1"}
 - {slot: ui.event-row.label, key: eventRowMore, text: "ほか{count, plural, other{{count}件}}"}
 - {slot: ui.event-row.label, key: eventRowAllDay, text: "終日"}
 - {slot: ui.event-row.label, key: eventRowLabel, text: "{status} {time} {title}"}
