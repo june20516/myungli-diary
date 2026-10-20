@@ -107,6 +107,21 @@ type DailySelection struct {
 	CreatedAt   time.Time
 }
 
+type Diary struct {
+	ID              uuid.UUID
+	AccountID       uuid.UUID
+	Date            pgtype.Date
+	Body            string
+	AllTags         []string
+	FeaturedTags    []byte
+	GuideQuestion   []byte
+	RulesetVersion  string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       *time.Time
+	ContentPurgedAt *time.Time
+}
+
 type MonthCache struct {
 	BirthHash       []byte
 	RulesetVersion  string
