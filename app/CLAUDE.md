@@ -88,7 +88,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **열린 drift 먼저:** #271·#277·#286·#295·#301은 PR #303이 닫습니다. #288·#299·#300은 원인 PR(#279·#293·#297)이 병합되면 다음 계획 5 PR에서 맞춥니다. PR #303 병합 뒤 화면은 새 브랜치(`--no-track`)에서 이어 갑니다. 이어서 #282 2~6번을 계획 5 PR마다 나눠 처리합니다(A7·A38 D77 반영, V31 음력 목표 모양, A18·A27·A32 갱신, #100·#114·#165 정리, golden Flutter 버전 고정 결정). writing #260(윤달 초하루 표지 문구)이 오면 `dayCellDataOf`의 `lunarText`에 붙입니다(A40).
+1. **열린 drift 먼저 (지휘 2026-10-20):** #307(PR #305 REST draft.8). 계획 5 다음 PR에서 생성 코드를 다시 만들어 맞추고 `Closes #307`로 닫습니다. #271·#277·#286·#288·#295·#299·#300·#301은 모두 닫혔습니다. 이어서 #282 2~6번을 계획 5 PR마다 나눠 처리하고(`참고 #282`), design #292(V31 음력 목표 모양)를 계획에 넣습니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 화면 9곳의 `<화면>.bar.title` 제목은 해당 화면을 만드는 계획 5·6에서 붙입니다(임시 키 허용 목록 `test/` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기) 나머지:** Task 8~12(`diary-list`·`diary-edit`·`diary-view`·`tag-diary` 화면, 흐름·E2E·golden). 계획 4가 넘긴 것:
    * `diary-view`·`diary-edit`은 날짜를 `?date=YYYY-MM-DD` 계약으로 받습니다(`lib/app/router/app_router.dart`의 `dateQuery`·`datedPathOf`). `day-sheet`의 일기 입구가 이미 이 경로로 엽니다(`today` 가이드 카드는 날짜 없이 오늘로 엽니다).
