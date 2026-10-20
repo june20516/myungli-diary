@@ -1044,16 +1044,16 @@ func TestContract_Draft8Additions(t *testing.T) {
 	if !strings.Contains(doc.Components.SecuritySchemes["appCheck"].Value.Description, "convertLunarDate") {
 		t.Error("appCheck 설명에 convertLunarDate가 없음")
 	}
-	for _, text := range []string{"`Accept-Language`", "기본 언어는 `en`"} {
+	for _, text := range []string{"지원 언어는 `ko`·`en`·`ja`", "q값 순서", "기본 언어는 `en`"} {
 		if !strings.Contains(doc.Info.Description, text) {
 			t.Errorf("info.description에 %q가 없음", text)
 		}
 	}
 
 	descriptions := map[string][]string{
-		"getBirthHour":     {"`Asia/Seoul`", "대표 경도", "IP별 요청 한도(분당 30회)"},
+		"getBirthHour":     {"`Asia/Seoul`", "시간대별 대표 경도(한국 127.5°, D29)", "IP별 요청 한도(분당 30회)"},
 		"convertLunarDate": {"IP별 요청 한도(분당 30회)"},
-		"listCities":       {"앞부분", "304"},
+		"listCities":       {"앞부분", "`If-None-Match`가 현재 `ETag`와 같으면 304"},
 		"createPreview":    {"`advice`"},
 	}
 	for id, texts := range descriptions {
@@ -1073,5 +1073,14 @@ func TestContract_Draft8Additions(t *testing.T) {
 				t.Errorf("%s 설명에 %q가 남아 있음", id, text)
 			}
 		}
+	}
+
+	for _, id := range []string{"getBirthHour", "convertLunarDate"} {
+		if operationByID(t, doc, id).Responses.Value("501") != nil {
+			t.Errorf("%s에 501 응답이 남아 있음", id)
+		}
+	}
+	if _, ok := doc.Components.Responses["NotImplemented"]; ok {
+		t.Error("쓰지 않는 NotImplemented 응답 component가 남아 있음")
 	}
 }
