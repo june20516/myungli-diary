@@ -36,6 +36,9 @@ const (
 // characterReasonPrefix는 날의 성격 이유 키의 앞부분입니다. 키는 character.reason.<day_kind>입니다(슬롯 명세 select).
 const characterReasonPrefix = "character.reason."
 
+// personalKeyPrefix는 개인 해석 판정 키의 앞부분입니다. 슬롯 id는 키의 앞 두 마디입니다(예: personal.day_master.gap → personal.day_master).
+const personalKeyPrefix = "personal."
+
 // noticeKeyPrefix는 엔진 안내 문구 키의 앞부분입니다. 키는 notice.<계약 NoticeCode 값>입니다(슬롯 명세 select).
 const noticeKeyPrefix = "notice."
 
@@ -85,8 +88,17 @@ type ChartView struct {
 	// YongsinBasis는 용신 근거 문장(chart.yongsin_method)입니다. evidence 깊이라 잠겨 있거나 원고가 없으면 nil입니다.
 	// 이 문장이 곧 근거라 그 안의 Evidence(판정 근거·원전 문장)는 렌더하지 않아 늘 nil입니다(계약 Yongsin.basis는 문장 하나).
 	YongsinBasis *content.SlotText
-	Notices      []content.Notice
-	Unlocked     bool
+	// PersonalReadings는 원국 개인 해석("내 사주에서는")입니다. 엔진 순서를 따릅니다.
+	// evidence 깊이라 잠겨 있으면 nil이고, 원고가 없거나 키가 잘못된 항목은 빠집니다.
+	PersonalReadings []PersonalReadingText
+	Notices          []content.Notice
+	Unlocked         bool
+}
+
+// PersonalReadingText는 개인 해석 한 항목과 그 렌더된 문장입니다. Reading의 식별자(종류·위치·순서·신살)로 앱이 항목을 찾습니다.
+type PersonalReadingText struct {
+	Reading *enginev1.PersonalReading
+	Text    content.SlotText
 }
 
 // Views는 엔진 결과(Service)와 콘텐츠(문장 선택·렌더)를 묶어 화면별 묶음을 만듭니다.
@@ -268,7 +280,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 }
 
 // Chart는 나의 사주 묶음을 만듭니다. 기준일은 p.CurrentTimezone의 오늘입니다.
-// 용신 근거 문장은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
+// 용신 근거 문장과 원국 개인 해석은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
 func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profile) (ChartView, error) {
 	version, err := v.store.Active(ctx)
 	if err != nil {
@@ -302,7 +314,37 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", false); ok {
 		view.YongsinBasis = &basis
 	}
+	view.PersonalReadings = v.renderPersonalReadings(ctx, tpl, response.GetPersonalReadings())
 	return view, nil
+}
+
+// renderPersonalReadings는 개인 해석을 활성 시드의 single 문장으로 렌더합니다. 호칭은 쓰지 않고 근거는 렌더하지 않습니다.
+// 원고가 없으면(로그는 Renderer가 남김) 그 항목만 뺍니다. 키가 personal.로 시작하지 않거나 슬롯 id를 못 뽑으면 엔진 계약 위반이라 Error 로그를 남기고 뺍니다.
+func (v *Views) renderPersonalReadings(ctx context.Context, tpl content.Templates, readings []*enginev1.PersonalReading) []PersonalReadingText {
+	out := make([]PersonalReadingText, 0, len(readings))
+	for _, reading := range readings {
+		j := reading.GetJudgment()
+		slot, ok := personalSlot(j.GetMessageKey())
+		if !ok {
+			v.log.ErrorContext(ctx, "개인 해석 판정 키가 personal.<종류>.…가 아니라 뺍니다", slog.String("message_key", j.GetMessageKey()))
+			continue
+		}
+		text, ok := v.renderer.Slot(ctx, tpl, slot, seed.VariantSingle, j, "", false)
+		if !ok {
+			continue
+		}
+		out = append(out, PersonalReadingText{Reading: reading, Text: text})
+	}
+	return out
+}
+
+// personalSlot은 개인 해석 판정 키의 앞 두 마디(personal.<종류>)를 슬롯 id로 돌려줍니다.
+func personalSlot(key string) (string, bool) {
+	parts := strings.SplitN(key, ".", 3)
+	if len(parts) < 3 || parts[0]+"." != personalKeyPrefix || parts[1] == "" {
+		return "", false
+	}
+	return parts[0] + "." + parts[1], true
 }
 
 // unlocked는 근거 열람 권한을 묻습니다.

@@ -1117,6 +1117,9 @@ func testDraft8PersonalReadings(t *testing.T, doc *openapi3.T) {
 	if got := reading.Properties["kind"].Value.Enum; !slices.Equal(got, wantKinds) {
 		t.Errorf("PersonalReading.kind enum = %v, want %v", got, wantKinds)
 	}
+	if names, _ := reading.Properties["kind"].Value.Extensions["x-enum-varnames"].([]any); len(names) != len(wantKinds) {
+		t.Errorf("PersonalReading.kind x-enum-varnames 길이 = %d, want %d", len(names), len(wantKinds))
+	}
 	for field, ref := range map[string]string{
 		"position": "#/components/schemas/Position",
 		"shinsal":  "#/components/schemas/ShinsalKind",
