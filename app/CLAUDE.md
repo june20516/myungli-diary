@@ -83,7 +83,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **계획 4는 PR #253으로 병합됐습니다(지휘 2026-10-20).** 먼저 열린 `drift` #256(PR #254)을 확인합니다(main 검사가 통과하면 `ci-gate`가 닫습니다). 남아 있으면 다음 PR에서 맞춥니다. 이어서 아래 5번(writing 문구 도착)을 처리합니다.
+1. **열린 `drift` 먼저 (지휘 2026-10-20):** #264(PR #261 컴포넌트 계약 2.6.0: `date-picker` `solar`, `event-row` `twoLines`·`add`·`failed`, `day-cell` 높이 V36·윤달 V38, 그날 시트 일기 입구 V37, `text-field` `multiline`, 근거 `repeat`, 한자 글꼴)·#266(PR #262 REST draft.6: `Profile.birthCity`, `getCalendar` 첫 달 1900-02, 409 `profile.required`). 계획 5 첫 PR에서 함께 맞추고 `Closes`로 닫습니다. #218 답(2.6.0)으로 임시 결정 A32~A42를 정리하고, `birthCity` 경도를 `calc-basis` 경도 문단에 연결합니다(#199 코멘트). 이어서 아래 5번(writing 문구 도착)을 처리합니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 화면 9곳의 `<화면>.bar.title` 제목은 해당 화면을 만드는 계획 5·6에서 붙입니다(임시 키 허용 목록 `test/` 대조가 알려 줍니다, A43). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. 계획 4가 넘기는 것:
    * `diary-view`·`diary-edit`은 날짜를 `?date=YYYY-MM-DD` 계약으로 받습니다(`lib/app/router/app_router.dart`의 `dateQuery`·`datedPathOf`). `day-sheet`의 일기 입구가 이미 이 경로로 엽니다(`today` 가이드 카드는 날짜 없이 오늘로 엽니다).
