@@ -102,7 +102,6 @@
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "태어난 시간을 몰라 시주는 빼고 보여 드려요."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "열기"}
 - {slot: saju-chart.yongsin.title, key: sajuChartYongsinTitle, text: "용신 판정 근거"}
-- {slot: settings.depth.desc, key: settingsDepthDesc, text: "풀이를 처음에 어디까지 펼쳐 볼지 골라요."}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNotice, text: "한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요."}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNoticeCta, text: "출생지 입력하기"}
 - {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "로그아웃할까요?"}
@@ -137,10 +136,7 @@
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}까지 광고 없이 볼 수 있어요"}
 - {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "구매 복원"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
-- {slot: ui.depth.default_label, key: depthDefaultLabel, text: "명리 풀이 보기"}
-- {slot: ui.depth.surface, key: depthSurface, text: "요약"}
 - {slot: ui.depth.explain, key: depthExplain, text: "풀이"}
-- {slot: ui.depth.evidence, key: depthEvidence, text: "원리"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "알림 받기"}
 
