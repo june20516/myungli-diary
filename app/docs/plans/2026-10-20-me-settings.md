@@ -19,7 +19,7 @@
 * `app/docs/specs/2026-10-13-app-architecture-design.md`: §4.4 사주 기반 영구 캐시, §5 사주 변경의 무게, §10 계획 6
 * 화면: IA `docs/ia/screens.json` v4(`my-saju`·`saju-chart`·`settings`·`profile-edit`·`account-delete`·`legal`)
 * 컴포넌트: `docs/identity/design/components/saju.json`·`.md`, `action.json`(`settings-row`), `elements.json`, `today.json`(`lucky-card`), `feedback.json`(`dialog`·`notice-banner`)
-* REST: `server/api/openapi.yaml` 1.0.0-draft.8(`getChart`·`updateProfile`·`getProfile`·`deleteMe`·`logout`·`getMe`)
+* REST: `server/api/openapi.yaml`(버전·상태는 `docs/contracts/README.md` 기준)(`getChart`·`updateProfile`·`getProfile`·`deleteMe`·`logout`·`getMe`)
 * 제품 결정: D15·D16·D18·D28·D29·D36·D37·D53·D60·D61·D64
 
 ## 시작 전
@@ -42,7 +42,7 @@
 | 빈칸 | 정한 것 |
 | --- | --- |
 | `my-saju`의 content 슬롯 3개에 계약 필드가 없음 | **A55:** `my-saju`는 위에서부터 이렇게 그립니다. ① 일간 표지(`Chart.pillars.day.stem`의 용어 사전 이름, 용어 토큰 → `explain-sheet` `stem.<값>`) ② 슬롯 `my-saju.ilgan.head`·`ilgan.body`(계약 필드가 생기면 `sentence-block` `card`, 그 전에는 그리지 않음) ③ 용신과 행운 색 `lucky-card`(용신·희신 오행 이름과 `color.<element>`, 용어 토큰 → `explain-sheet` `element.<값>`) ④ `my-saju.yongsin.body`(②와 같은 규칙) ⑤ `depth-link` "근거 보기" → `saju-chart`. 시간 모름이면(`Chart.notices`에 `time_unknown`) 맨 위에 `notice-banner` `time-unknown` |
-| `getChart` 캐시 | **A56:** spec §4.4 그대로 사주 기반 영구 캐시입니다(`CacheKind.chart`, 키 = 계정 + 사주 지문 + 언어 + 연도). 프로필 사본이 없으면 캐시 없이 응답만 씁니다(A24와 같음). `evidenceAccess: locked`로 받은 차트는 권한이 생기면 다시 받습니다(달력 A32와 같은 `lockedKeys`). `rulesetVersion`은 `observeRulesetVersion`에 넘깁니다 |
+| `getChart` 캐시 | **A56:** spec §4.4의 사주 기반 영구 캐시입니다(`CacheKind.chart`, 키 = 계정 + 사주 지문 + 언어 + 연도). 오늘처럼 캐시를 먼저 보이고 매 진입 server로 받아 바꿉니다(`loadCacheFirst`, 연결이 안 되면 캐시 유지). 근거 열람 권한(보상형 해제는 그날 자정까지, D60)과 호칭 문장은 매 진입 server로 확인합니다(최종 review I1·I2, 달력 A32도 같음). 프로필 사본이 없으면 캐시 없이 응답만 씁니다(A24와 같음). `evidenceAccess: locked`로 받은 차트는 권한이 생기면 다시 받습니다(달력 A32와 같은 `lockedKeys`). `rulesetVersion`은 `observeRulesetVersion`에 넘깁니다 |
 | `saju-chart` 두 탭의 구성 | **A57:** `segmented` 두 항목. "원국"은 `saju-pillars` → `ohaeng-bar`(`elementWeights`를 목·화·토·금·수 순서로, 값은 소수 한 자리) → 용신 판정 근거 줄(`saju-chart.yongsin.basis`, 잠기면 `sentence-block` locked + "열기" → `evidence-sheet` locked). "만세력"은 `manse-table` → `daeun-table`(지금 대운·올해 세운은 기기 오늘 기준, 처음 열 때 지금 대운이 보이게 가로 위치를 맞춤, 움직임 없음). 탭은 화면을 떠났다 와도 기억하지 않고 "원국"부터입니다 |
 | 원국 개인 해석("내 사주에서는", D60)의 자리 | **A58:** `saju-chart`의 용어 토큰은 `explain-sheet`를 열고, 그 시트의 "근거 보기"가 `evidence-sheet`를 엽니다. 근거 시트는 누른 용어의 (`kind`, `position`, `index`, `shinsal`)과 같은 `Chart.personalReadings` 항목을 보이고, 잠겨 있으면 잠금 안내와 해제 흐름(A26)입니다. 이 경로는 차트 근거 주제 `ChartEvidenceSubject`로 엽니다 |
 | 설정 값의 출처와 저장 | **A59:** 알림 시각은 `Profile.notification`, 언어는 `Profile.language`이고 바꾸면 `updateProfile`(PATCH, 그 필드만) 뒤 응답을 새 사본으로 둡니다. 저장 중에는 그 줄이 비활성이고, 실패하면 오류 toast와 이전 값입니다. 알림 시각은 `time-picker` `notify` half 시트(5분 단위, 끄기 포함). 알림을 처음 켜면 OS 권한을 묻습니다(계획 2 `PushPermission`, 거절하면 `disabled`로 저장). 광고 제거 줄은 `Me.adFree`(활성이면 `settingsAdFreeLabelActive({date})`)이고 누르면 `ad-free`(계획 7 전에는 대기 화면)입니다 |
@@ -103,16 +103,16 @@
 ### Task 2: 차트 fixture·저장소·캐시·근거 주제
 
 **Files:**
-* Create `tool/gen_chart_fixture.py`, `fixtures/member/getChart.json`, `fixtures/evidence-unlocked/getChart.json`, `lib/features/me/data/chart_repository.dart`, `lib/features/me/application/chart_providers.dart`
+* Create `tool/gen_chart_fixtures.py`, `fixtures/member/getChart.json`, `fixtures/evidence-unlocked/getChart.json`, `lib/features/me/data/chart_repository.dart`, `lib/features/me/application/chart_providers.dart`
 * Modify `lib/core/storage/cache_store.dart`(`CacheKind.chart`), `lib/features/depth/application/evidence_unlock_controller.dart`(`ChartEvidenceSubject`)
-* Test `test/features/me/chart_repository_test.dart`, `test/features/me/chart_evidence_subject_test.dart`
+* Test `test/features/me/data/chart_repository_test.dart`, `test/features/me/application/chart_providers_test.dart`(`ChartEvidenceSubject` 포함)
 
 **Interfaces:**
 * Produces:
-  * `chartProvider`: `AsyncNotifierProvider<ChartController, Chart>`, `refreshQuietly()`
+  * `chartControllerProvider`: `AsyncNotifierProvider<ChartController, Chart>`, `reload()`·`refreshQuietly()`
   * `ChartEvidenceSubject implements EvidenceSubject`(`const new()`)
   * `personalReadingOf(Chart, {required PersonalReadingKindEnum kind, Position? position, int? index, ShinsalKind? shinsal}) → PersonalReading?`
-  * `chartYearProvider`(기기 오늘의 연도)
+  * 연도는 따로 provider를 두지 않고 `todayProvider.select((d) => d.year)`를 구독합니다(기기 오늘의 연도)
 
 - [x] fixture: core `compose_chart`로 member 프로필(양력 1990-05-15 14:30, 여성)의 2026년 차트를 만듭니다. 문장(`yongsin.basis`, `personalReadings`)은 writing 슬롯 형식의 대역 문장이고, `member`는 locked(개인 해석·근거 없음), `evidence-unlocked`는 unlocked입니다. 생성 방식과 엔진 값이 아닌 것은 `gen_calendar_fixtures.py`처럼 머리 주석에 적습니다. fixture 검증 통과.
 - [x] 테스트:
@@ -133,7 +133,7 @@
   * `disabled` 글자색과 누를 수 없음, 높이 52·눌림 대상 48 이상
   * 묶음 안 1px 선 안쪽 16, 묶음 제목
   * 스크린리더 라벨은 "글자 + 값"
-- [x] 구현(`mark.caution` 요소는 `lib/design/elements/caution_mark.dart`), golden, commit
+- [x] 구현(`mark.caution` 요소는 `AppIcon.caution`, `lib/design/elements/app_icon.dart`), golden, commit
 
 ### Task 4: `ohaeng.cell`·`tag.me`·`highlight.current`와 `saju-pillars`
 
