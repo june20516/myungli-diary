@@ -112,16 +112,18 @@ void main() {
     await $.takeNativeScreenshot('${ScreenIds.sajuChart}__luck-me');
     await $(_inScreen(ScreenIds.sajuChart, find.text(l10n.sajuChartTabNatal)))
         .tap();
-    await $(_inScreen(ScreenIds.sajuChart, find.byType(SajuPillars)))
-        .waitUntilVisible();
-
-    // 원국표의 십성 용어 → 풀이 시트 → 근거 보기 → 근거 시트의 "내 사주에서는".
-    await $(
+    // 원국표(SajuPillars)는 가운데 점이 열 사이 간격에 떨어져 hit-testable하지 않으므로,
+    // 원국 탭으로 돌아온 것은 표 안의 누를 수 있는 십성 용어가 보이는지로 확인합니다.
+    final bigyeon = $(
       _inScreen(
         ScreenIds.sajuChart,
         find.widgetWithText(TermToken, '비견'),
       ).first,
-    ).tap();
+    );
+    await bigyeon.waitUntilVisible();
+
+    // 원국표의 십성 용어 → 풀이 시트 → 근거 보기 → 근거 시트의 "내 사주에서는".
+    await bigyeon.tap();
     await expectScreen($, ScreenIds.explainSheet);
     await $(_depthLink(ScreenIds.explainSheet)).tap();
     await expectScreen($, ScreenIds.evidenceSheet, state: 'unlocked');
