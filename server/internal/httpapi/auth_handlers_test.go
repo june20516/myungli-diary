@@ -179,6 +179,7 @@ func newHandlerAPIWithLogs(t *testing.T, api *httpapi.API) (http.Handler, *opena
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: authenticateFixedAccount,
+		AppCheck:     passAppCheck,
 	}
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, deps, routes)

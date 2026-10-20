@@ -304,3 +304,100 @@ func TestLoadEngine(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadAppCheck(t *testing.T) {
+	t.Run("APP_ENV가 local이면 비어 있어도 됨", func(t *testing.T) {
+		for _, env := range []map[string]string{nil, {"APP_ENV": "local"}} {
+			cfg, err := LoadAppCheck(fakeEnv(env))
+			if err != nil || cfg.ProjectNumber != "" {
+				t.Errorf("LoadAppCheck(%v) = %+v, %v, want 빈 값과 nil 오류", env, cfg, err)
+			}
+		}
+	})
+	t.Run("staging·prod에서 비면 오류", func(t *testing.T) {
+		for _, appEnv := range []string{"staging", "prod"} {
+			_, err := LoadAppCheck(fakeEnv(map[string]string{"APP_ENV": appEnv}))
+			if err == nil || !strings.Contains(err.Error(), "FIREBASE_PROJECT_NUMBER") {
+				t.Errorf("LoadAppCheck(APP_ENV=%s) error = %v, want FIREBASE_PROJECT_NUMBER 오류", appEnv, err)
+			}
+		}
+	})
+	t.Run("숫자만이 아니면 오류이고 값은 담지 않음", func(t *testing.T) {
+		for _, number := range []string{"12ab", "projects/123", "-1", "1 2"} {
+			_, err := LoadAppCheck(fakeEnv(map[string]string{"APP_ENV": "prod", "FIREBASE_PROJECT_NUMBER": number}))
+			if err == nil || !strings.Contains(err.Error(), "FIREBASE_PROJECT_NUMBER") {
+				t.Errorf("LoadAppCheck(%q) error = %v, want FIREBASE_PROJECT_NUMBER 오류", number, err)
+				continue
+			}
+			if strings.Contains(err.Error(), number) {
+				t.Errorf("오류 문구에 값이 들어 있습니다: %v", err)
+			}
+		}
+	})
+	t.Run("local에서도 값이 있으면 숫자만이어야 함", func(t *testing.T) {
+		_, err := LoadAppCheck(fakeEnv(map[string]string{"FIREBASE_PROJECT_NUMBER": "abc"}))
+		if err == nil {
+			t.Error("LoadAppCheck() error = nil, want 오류")
+		}
+	})
+	t.Run("정상 값은 공백을 지워 그대로", func(t *testing.T) {
+		cfg, err := LoadAppCheck(fakeEnv(map[string]string{"APP_ENV": "prod", "FIREBASE_PROJECT_NUMBER": " 123456789012\n"}))
+		if err != nil || cfg.ProjectNumber != "123456789012" {
+			t.Errorf("LoadAppCheck() = %+v, %v", cfg, err)
+		}
+	})
+}
+
+func TestLoadTrustedProxyHops(t *testing.T) {
+	t.Run("비어 있으면 기본 1", func(t *testing.T) {
+		hops, err := LoadTrustedProxyHops(fakeEnv(nil))
+		if err != nil || hops != 1 {
+			t.Errorf("LoadTrustedProxyHops() = %d, %v, want 1, nil", hops, err)
+		}
+	})
+	t.Run("0 이상 정수는 그대로", func(t *testing.T) {
+		for raw, want := range map[string]int{"0": 0, "2": 2, " 3\n": 3} {
+			hops, err := LoadTrustedProxyHops(fakeEnv(map[string]string{"TRUSTED_PROXY_HOPS": raw}))
+			if err != nil || hops != want {
+				t.Errorf("LoadTrustedProxyHops(%q) = %d, %v, want %d, nil", raw, hops, err, want)
+			}
+		}
+	})
+	t.Run("음수·정수 아님은 오류이고 값은 담지 않음", func(t *testing.T) {
+		for _, raw := range []string{"-1", "1.5", "abc"} {
+			_, err := LoadTrustedProxyHops(fakeEnv(map[string]string{"TRUSTED_PROXY_HOPS": raw}))
+			if err == nil || !strings.Contains(err.Error(), "TRUSTED_PROXY_HOPS") || strings.Contains(err.Error(), raw) {
+				t.Errorf("LoadTrustedProxyHops(%q) error = %v, want 변수 이름만 담은 오류", raw, err)
+			}
+		}
+	})
+}
+
+func TestLoadAppVersions(t *testing.T) {
+	t.Run("비어 있으면 둘 다 0.0.0", func(t *testing.T) {
+		cfg, err := LoadAppVersions(fakeEnv(nil))
+		if err != nil || cfg.MinIOS != "0.0.0" || cfg.MinAndroid != "0.0.0" {
+			t.Errorf("LoadAppVersions() = %+v, %v, want 0.0.0 둘 다, nil", cfg, err)
+		}
+	})
+	t.Run("semver는 그대로이고 공백은 지움", func(t *testing.T) {
+		cfg, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_IOS": " 1.2.3\n", "APP_MIN_VERSION_ANDROID": "10.0.12"}))
+		if err != nil || cfg.MinIOS != "1.2.3" || cfg.MinAndroid != "10.0.12" {
+			t.Errorf("LoadAppVersions() = %+v, %v, want 1.2.3·10.0.12, nil", cfg, err)
+		}
+	})
+	t.Run("semver가 아니면 변수 이름만 담은 오류", func(t *testing.T) {
+		for _, raw := range []string{"1.2", "1.2.3.4", "v1.2.3", "1.2.x", "1.2.3-beta", "01.2.3", "-1.0.0"} {
+			_, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_ANDROID": raw}))
+			if err == nil || !strings.Contains(err.Error(), "APP_MIN_VERSION_ANDROID") || strings.Contains(err.Error(), raw) {
+				t.Errorf("LoadAppVersions(%q) error = %v, want 변수 이름만 담은 오류", raw, err)
+			}
+		}
+	})
+	t.Run("둘 다 틀리면 모두 알림", func(t *testing.T) {
+		_, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_IOS": "x", "APP_MIN_VERSION_ANDROID": "y"}))
+		if err == nil || !strings.Contains(err.Error(), "APP_MIN_VERSION_IOS") || !strings.Contains(err.Error(), "APP_MIN_VERSION_ANDROID") {
+			t.Errorf("error = %v, want 두 변수 이름", err)
+		}
+	})
+}

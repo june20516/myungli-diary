@@ -107,7 +107,8 @@ func ValidateRequests(spec *openapi3.T, logger *slog.Logger) func(http.Handler) 
 			MultiError:          true,
 			SkipSettingDefaults: true,
 			// security 요구는 여기서 검사하지 않고 모두 통과시킵니다. bearerAuth는 RegisterAPI가 이 검증 앞에
-			// 두는 Authenticate(BearerAuth)가 맡고, appCheck(createPreview·getBirthHour)는 P6이 맡습니다.
+			// 두는 Authenticate(BearerAuth)가 맡고, appCheck(createPreview·getBirthHour·convertLunarDate)는
+			// RegisterAPI가 이 검증 앞에 두는 AppCheck(RequireAppCheck, appcheck.go)가 맡습니다.
 			AuthenticationFunc: func(context.Context, *openapi3filter.AuthenticationInput) error { return nil },
 		},
 		SilenceServersWarning: true,

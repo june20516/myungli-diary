@@ -88,7 +88,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **#282 남은 일:** ③ V31 음력 목표 모양(`윤N월` 휠 + 양력 확인 줄, `convertLunarDate`)으로 바꾸거나 유지할 이유를 design에 알림, ⑤ #100·#114·#165를 처리한 부분으로 닫고 남은 부분(계획 6·7)을 새 Issue로 나눔, ⑩ writing #217에 `todayEventSummary`·`todayEventSummaryDone` 제거 동의 답. 다음 계획 PR에서 `참고 #282`로 적습니다. 열린 drift가 생기면 그보다 먼저 맞춥니다. writing #260(윤달 초하루 표지 문구)은 #300으로 반영했습니다.
+1. **#282 남은 일:** ③ design #292(V31 음력 목표 모양: `윤N월` 휠 + 양력 확인 줄, `convertLunarDate`)를 계획에 넣어 바꿈, ⑤ #100·#114·#165를 처리한 부분으로 닫고 남은 부분(계획 6·7)을 새 Issue로 나눔, ⑩ writing #217에 `todayEventSummary`·`todayEventSummaryDone` 제거 동의 답. 다음 계획 PR에서 `참고 #282`로 적습니다. 열린 drift가 생기면 그보다 먼저 맞춥니다. writing #260(윤달 초하루 표지 문구)은 #300으로 반영했습니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 아직 없는 화면(계획 6)의 `<화면>.bar.title` 제목은 그 화면을 만들 때 붙입니다(일기 4곳은 계획 5에서 붙임, `test/contract/app_bar_title_contract_test.dart` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기) 마무리:** 이 PR이 병합되면 계획 5는 끝납니다. 넘긴 것:
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).

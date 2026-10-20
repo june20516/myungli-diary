@@ -210,15 +210,22 @@ func (a *API) birthCity(ctx context.Context, p profile.Profile) *gen.City {
 	if p.Birth.Longitude != nil {
 		longitude = *p.Birth.Longitude
 	}
-	out := &gen.City{
+	out := toCity(c, p.Language, longitude)
+	return &out
+}
+
+// toCity는 도시 자료를 계약 City로 옮깁니다. 이름은 lang(ko·en·ja, 그 밖은 en)이고, 경도는 호출자가 정합니다.
+// birthCity는 저장된 경도를, listCities는 도시 자료의 경도를 넘깁니다.
+func toCity(c city.City, lang string, longitude float64) gen.City {
+	out := gen.City{
 		Id:          c.ID,
-		Name:        c.Name(p.Language),
+		Name:        c.Name(lang),
 		Country:     c.Country,
-		CountryName: c.CountryName(p.Language),
+		CountryName: c.CountryName(lang),
 		Timezone:    c.Timezone,
 		Longitude:   float32(longitude),
 	}
-	if region, ok := c.RegionName(p.Language); ok {
+	if region, ok := c.RegionName(lang); ok {
 		out.RegionName = &region
 	}
 	return out

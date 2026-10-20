@@ -598,7 +598,25 @@ func TestGetChart_UnlockedIncludesYongsinBasis(t *testing.T) {
 	response.Yongsin.Method = enginev1.YongsinMethod_YONGSIN_METHOD_JOHU
 	response.Yongsin.JohuStem = enginev1.Stem_STEM_BYEONG
 	basis := text(fortune.SlotYongsinMethod, "chart.yongsin_method.johu", "single", "조후로")
-	view := fortune.ChartView{Response: response, YongsinBasis: &basis, Unlocked: true, Notices: []content.Notice{}}
+	view := fortune.ChartView{
+		Response: response, YongsinBasis: &basis, Unlocked: true, Notices: []content.Notice{},
+		PersonalReadings: []fortune.PersonalReadingText{
+			{Reading: response.PersonalReadings[0], Text: text("personal.day_master", "personal.day_master.gap", "single", "내 일간은 큰 나무 같아요.")},
+			{
+				Reading: &enginev1.PersonalReading{
+					Kind: enginev1.PersonalTermKind_PERSONAL_TERM_KIND_SHINSAL, Position: enginev1.Position_POSITION_DAY_BRANCH,
+					Shinsal: enginev1.Shinsal_SHINSAL_DOHWA, Judgment: rawJudgment("personal.shinsal.dohwa"),
+				},
+				Text: text("personal.shinsal", "personal.shinsal.dohwa", "single", "도화가 있어요."),
+			},
+			{
+				Reading: &enginev1.PersonalReading{
+					Kind: enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD, Judgment: rawJudgment("personal.luck.ten_god.bigyeon"),
+				},
+				Text: text("personal.luck", "personal.luck.ten_god.bigyeon", "single", "첫 대운이에요."),
+			},
+		},
+	}
 	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{chart: view}}
 
 	req, rec, _ := getFortune(t, api, "/v1/chart")
@@ -614,6 +632,97 @@ func TestGetChart_UnlockedIncludesYongsinBasis(t *testing.T) {
 	assert.Equal(t, gen.StemByeong, *got.Yongsin.JohuStem)
 	require.NotNil(t, got.Yongsin.Basis)
 	assert.Equal(t, "chart.yongsin_method.johu", got.Yongsin.Basis.MessageKey)
-	// 열려 있어도 계약에 없는 원국 개인 해석은 옮기지 않습니다.
+	require.NotNil(t, got.PersonalReadings)
+	readings := *got.PersonalReadings
+	require.Len(t, readings, 3)
+	dayPos := gen.DayStem
+	assert.Equal(t, gen.PersonalReadingKindDayMaster, readings[0].Kind)
+	assert.Equal(t, &dayPos, readings[0].Position)
+	assert.Nil(t, readings[0].Index, "의미 없는 index는 생략")
+	assert.Nil(t, readings[0].Shinsal, "UNSPECIFIED 신살은 생략")
+	assert.Equal(t, "내 일간은 큰 나무 같아요.", readings[0].Text.Segments[0].Text)
+	branchPos, dohwa := gen.DayBranch, gen.Dohwa
+	assert.Equal(t, gen.PersonalReadingKindShinsal, readings[1].Kind)
+	assert.Equal(t, &branchPos, readings[1].Position)
+	assert.Equal(t, &dohwa, readings[1].Shinsal)
+	zero := 0
+	assert.Equal(t, gen.PersonalReadingKindDaeunStemTenGod, readings[2].Kind)
+	assert.Nil(t, readings[2].Position, "대운은 position이 없음")
+	assert.Equal(t, &zero, readings[2].Index, "대운의 첫 번째 index 0은 담음")
+	// 열려 있어도 판정 근거는 옮기지 않습니다.
 	assert.NotContains(t, rec.Body.String(), rawEvidenceRule)
+}
+
+func TestGetChart_UnknownPersonalReadingKindIs500(t *testing.T) {
+	view := fortune.ChartView{
+		Response: chartResponse(), Unlocked: true, Notices: []content.Notice{},
+		PersonalReadings: []fortune.PersonalReadingText{{
+			Reading: &enginev1.PersonalReading{Kind: enginev1.PersonalTermKind(99), Judgment: rawJudgment("personal.day_master.gap")},
+			Text:    text("personal.day_master", "personal.day_master.gap", "single", "문장"),
+		}},
+	}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{chart: view}}
+
+	_, rec, _ := getFortune(t, api, "/v1/chart")
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+}
+
+func TestGetChart_PersonalReadingsIndexAndGates(t *testing.T) {
+	reading := func(kind enginev1.PersonalTermKind, index int32, key string) fortune.PersonalReadingText {
+		return fortune.PersonalReadingText{
+			Reading: &enginev1.PersonalReading{Kind: kind, Position: enginev1.Position_POSITION_UNSPECIFIED, Index: index, Judgment: rawJudgment(key)},
+			Text:    text("personal.x", key, "single", "문장"),
+		}
+	}
+	hidden := reading(enginev1.PersonalTermKind_PERSONAL_TERM_KIND_HIDDEN_TEN_GOD, 1, "personal.hidden.a")
+	hidden.Reading.Position = enginev1.Position_POSITION_DAY_BRANCH
+	seun := reading(enginev1.PersonalTermKind_PERSONAL_TERM_KIND_SEUN_TEN_GOD, 2, "personal.luck.b")
+
+	cases := []struct {
+		name  string
+		view  fortune.ChartView
+		check func(t *testing.T, out gen.Chart, body string)
+	}{
+		{
+			name: "index 담김",
+			view: fortune.ChartView{Unlocked: true, PersonalReadings: []fortune.PersonalReadingText{hidden, seun}},
+			check: func(t *testing.T, out gen.Chart, _ string) {
+				require.NotNil(t, out.PersonalReadings)
+				got := *out.PersonalReadings
+				require.Len(t, got, 2)
+				require.NotNil(t, got[0].Index)
+				assert.Equal(t, 1, *got[0].Index)
+				require.NotNil(t, got[1].Index)
+				assert.Equal(t, 2, *got[1].Index)
+				assert.Nil(t, got[1].Position)
+			},
+		},
+		{
+			name: "열림이고 비면 빈 배열",
+			view: fortune.ChartView{Unlocked: true},
+			check: func(t *testing.T, _ gen.Chart, body string) {
+				assert.Contains(t, body, `"personalReadings":[]`)
+			},
+		},
+		{
+			name: "잠김이면 채워져 와도 뺌",
+			view: fortune.ChartView{PersonalReadings: []fortune.PersonalReadingText{hidden}},
+			check: func(t *testing.T, out gen.Chart, body string) {
+				assert.Nil(t, out.PersonalReadings)
+				assert.NotContains(t, body, "personalReadings")
+			},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.view.Response = chartResponse()
+			tc.view.Notices = []content.Notice{}
+			out, err := httpapi.ToChartForTest(tc.view)
+			require.NoError(t, err)
+			body, err := json.Marshal(out)
+			require.NoError(t, err)
+			tc.check(t, out, string(body))
+		})
+	}
 }

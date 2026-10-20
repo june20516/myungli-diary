@@ -140,3 +140,14 @@ func TestConvertLunarDate_MissingSolarIs500(t *testing.T) {
 
 	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
 }
+
+func TestConvertLunarDate_WithoutEngineIs503(t *testing.T) {
+	handler, _ := newHandlerAPI(t, &httpapi.API{})
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/lunar-date", strings.NewReader(lunarBody(2026, 1, 1, false)))
+	req.Header.Set("Content-Type", "application/json")
+
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
+	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+}

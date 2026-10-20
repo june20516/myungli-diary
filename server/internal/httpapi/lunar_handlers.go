@@ -24,8 +24,12 @@ var errLunarSolarMissing = errors.New("엔진 음력 변환 응답에 양력 날
 
 // ConvertLunarDate는 음력 날짜를 양력으로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려 줍니다. 입력은 저장하지 않습니다.
 // 없는 음력 날짜는 422 date.invalid, 지원 범위 밖은 422 date.out_of_range입니다.
-// App Check와 요청 한도는 아직 검사하지 않습니다(P6, 다른 비로그인 operation과 같음).
+// 엔진이 조립되지 않았으면 503 service.unavailable입니다.
+// App Check와 요청 한도는 register.go가 operation 단위로 감쌉니다.
 func (a *API) ConvertLunarDate(ctx context.Context, req gen.ConvertLunarDateRequestObject) (gen.ConvertLunarDateResponseObject, error) {
+	if a.Lunar == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+	}
 	body := *req.Body
 	resp, err := a.Lunar.ConvertLunarDate(ctx, lunarRequest(body.Date, body.IsLeapMonth))
 	if err != nil {
@@ -56,11 +60,18 @@ func dateInt32(v int) int32 {
 
 // lunarError는 엔진의 입력 판정을 422로 바꿉니다. 그 밖의 엔진 오류는 그대로 돌려 공통 경로(503·504·502)로 보냅니다.
 func (a *API) lunarError(ctx context.Context, body gen.LunarDateRequest, err error) error {
+	return dateError(err, func() string { return a.invalidLunarField(ctx, body) })
+}
+
+// dateError는 엔진의 날짜 판정을 422로 바꿉니다(음력 변환과 시진 확인이 같이 씁니다). 지원 범위 밖은 /date이고,
+// 없는 날짜는 invalidField가 가리키는 필드입니다(필드를 가리는 데 엔진을 다시 부를 수 있어 필요할 때만 부릅니다).
+// 그 밖의 엔진 오류는 그대로 돌려 공통 경로(503·504·502)로 보냅니다.
+func dateError(err error, invalidField func() string) error {
 	switch {
 	case errors.Is(err, engine.ErrOutOfRange):
 		return fieldError(problem.DateOutOfRange, fieldLunarDate)
 	case errors.Is(err, engine.ErrInvalidArgument):
-		return fieldError(problem.DateInvalid, a.invalidLunarField(ctx, body))
+		return fieldError(problem.DateInvalid, invalidField())
 	default:
 		return err
 	}

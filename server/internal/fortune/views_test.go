@@ -45,6 +45,8 @@ var viewSlots = map[string]seed.Slot{
 	fortune.SlotDayLevel:        {ID: fortune.SlotDayLevel, Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"score": {Kind: seed.KindNumber}}},
 	fortune.SlotYongsinMethod:   {ID: fortune.SlotYongsinMethod, Rotation: seed.RotationNone},
 	fortune.SlotNotice:          {ID: fortune.SlotNotice, Rotation: seed.RotationNone},
+	"personal.day_master":       {ID: "personal.day_master", Rotation: seed.RotationNone},
+	"personal.luck":             {ID: "personal.luck", Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"order": {Kind: seed.KindNumber}}},
 	"explain.today_reason":      {ID: "explain.today_reason", Rotation: seed.RotationNone},
 	"evidence.basis":            {ID: "evidence.basis", Rotation: seed.RotationNone},
 	"evidence.source":           {ID: "evidence.source", Rotation: seed.RotationNone},
@@ -79,11 +81,15 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl(fortune.SlotDayLevel, "calendar.good", seed.VariantSingle, "ko", "잘 풀리는 날 {score}"+suffix),
 		tpl(fortune.SlotDayLevel, "calendar.neutral", seed.VariantSingle, "ko", "보통인 날 {score}"+suffix),
 		tpl(fortune.SlotYongsinMethod, "yongsin.method.eokbu", seed.VariantSingle, "ko", "힘의 균형으로 정했어요."+suffix),
+		tpl("personal.day_master", "personal.day_master.gap", seed.VariantSingle, "ko", "내 일간은 큰 나무 같아요."+suffix),
+		tpl("personal.luck", "personal.luck.ten_god.bigyeon", seed.VariantSingle, "ko", "{order}번째 대운은 나란한 흐름이에요."+suffix),
 		tpl("explain.today_reason", "reason.rule/a", seed.VariantSingle, "ko", "오늘 그런 이유예요."+suffix),
 		tpl("explain.today_reason", "reason.rule/a", seed.VariantSingle, "en", "Here is why."+suffix),
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "ko", "판정 근거예요."+suffix),
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "en", "The basis."+suffix),
 		tpl("glossary.value_name", "element.wood", seed.VariantSingle, "ko", "초록"),
+		tpl("glossary.value_name", "day_kind.gwiin_day", seed.VariantSingle, "ko", "귀인의 날"),
+		tpl("glossary.value_name", "day_kind.gwiin_day", seed.VariantSingle, "en", "Day of Help"),
 		// focus_time_fallback 안내는 원고가 없는 경우를 보려고 일부러 뺍니다.
 		tpl(fortune.SlotNotice, "notice.time_unknown", seed.VariantSingle, "ko", "태어난 시간을 몰라 낮 12시로 계산했어요."+suffix),
 		tpl(fortune.SlotNotice, "notice.dayun_start_approximate", seed.VariantSingle, "ko", "대운 시작 나이는 어림으로 계산했어요."+suffix),
@@ -658,4 +664,83 @@ func TestAlwaysLocked_IsLocked(t *testing.T) {
 	unlocked, err := fortune.AlwaysLocked{}.Unlocked(context.Background(), uuid.New())
 	require.NoError(t, err)
 	assert.False(t, unlocked)
+}
+
+// personalReading은 개인 해석 항목 하나입니다.
+func personalReading(kind enginev1.PersonalTermKind, key string, params map[string]*enginev1.Param) *enginev1.PersonalReading {
+	return &enginev1.PersonalReading{Kind: kind, Judgment: judgment(key, params)}
+}
+
+// 원국 개인 해석은 열림일 때만, 엔진 순서대로, 메시지 키 앞 두 마디를 슬롯 id로 렌더합니다(근거는 렌더하지 않음).
+func TestViews_ChartPersonalReadings(t *testing.T) {
+	fake := &enginetest.Fake{Chart: func(*enginev1.ChartRequest) (*enginev1.ChartResponse, error) {
+		return &enginev1.ChartResponse{
+			Meta:    &enginev1.ResponseMeta{RulesetVersion: "rs-1"},
+			Yongsin: &enginev1.YongsinInfo{Judgment: judgment("yongsin.method.eokbu", nil)},
+			PersonalReadings: []*enginev1.PersonalReading{
+				personalReading(enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAY_MASTER, "personal.day_master.gap", nil),
+				personalReading(enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD, "personal.luck.ten_god.bigyeon",
+					map[string]*enginev1.Param{"order": intParam(2)}),
+			},
+		}, nil
+	}}
+	cases := []struct {
+		name     string
+		unlocked bool
+	}{
+		{name: "잠김", unlocked: false},
+		{name: "열림", unlocked: true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newViewsFixture(t, fake, viewSeed(t, ""), fakeInsight{unlocked: tc.unlocked})
+
+			view, err := f.views.Chart(context.Background(), f.account, viewProfile("ko"))
+			require.NoError(t, err)
+
+			if !tc.unlocked {
+				assert.Nil(t, view.PersonalReadings)
+				assert.NotContains(t, f.logs.String(), "level=ERROR", "잠기면 렌더 자체를 하지 않아 원고 누락 로그도 없음")
+				return
+			}
+			require.Len(t, view.PersonalReadings, 2)
+			first, second := view.PersonalReadings[0], view.PersonalReadings[1]
+			assert.Equal(t, enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAY_MASTER, first.Reading.GetKind())
+			assert.Equal(t, "personal.day_master", first.Text.Slot)
+			assert.Equal(t, "personal.day_master.gap", first.Text.MessageKey)
+			assert.Equal(t, "내 일간은 큰 나무 같아요.", plain(first.Text.Text))
+			assert.Equal(t, "personal.luck", second.Text.Slot)
+			assert.Equal(t, "2번째 대운은 나란한 흐름이에요.", plain(second.Text.Text))
+			assert.Nil(t, first.Text.Evidence, "개인 해석 문장의 근거는 렌더하지 않음")
+		})
+	}
+}
+
+// 원고가 없는 항목, personal.로 시작하지 않는 키, 세 마디 미만이거나 마디가 빈 짧은 키는 그 항목만 빠지고 Error 로그를 남깁니다.
+func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
+	kind := enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAY_MASTER
+	fake := &enginetest.Fake{Chart: func(*enginev1.ChartRequest) (*enginev1.ChartResponse, error) {
+		return &enginev1.ChartResponse{
+			Meta:    &enginev1.ResponseMeta{RulesetVersion: "rs-1"},
+			Yongsin: &enginev1.YongsinInfo{Judgment: judgment("yongsin.method.eokbu", nil)},
+			PersonalReadings: []*enginev1.PersonalReading{
+				personalReading(kind, "personal.day_master.eul", nil),
+				personalReading(kind, "fortune.gwiin_day.inseong", nil),
+				personalReading(kind, "personal", nil),
+				personalReading(kind, "personal.day_master", nil),
+				personalReading(kind, "personal.", nil),
+				personalReading(kind, "personal..x", nil),
+				personalReading(kind, "personal.day_master.", nil),
+				personalReading(kind, "personal.day_master.gap", nil),
+			},
+		}, nil
+	}}
+	f := newViewsFixture(t, fake, viewSeed(t, ""), fakeInsight{unlocked: true})
+
+	view, err := f.views.Chart(context.Background(), f.account, viewProfile("ko"))
+	require.NoError(t, err)
+
+	require.Len(t, view.PersonalReadings, 1)
+	assert.Equal(t, "personal.day_master.gap", view.PersonalReadings[0].Text.MessageKey)
+	assert.Equal(t, 7, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
 }

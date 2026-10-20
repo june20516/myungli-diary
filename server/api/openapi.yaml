@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.7
+  version: 1.0.0-draft.8
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -13,10 +13,10 @@ info:
       생략 가능한 필드를 생략하면 "값 없음"만 뜻합니다. 이 계약에는 `null` 값이 없습니다.
     * PATCH(`application/merge-patch+json`)에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다. `null`로 필드를 지우지 않습니다.
     * 요청 본문 상한은 1 MiB입니다. 넘으면 413 `request.too_large`입니다.
-    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
+    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. 지원 언어는 `ko`·`en`·`ja`이고, 헤더의 q값 순서로 첫 지원 언어를 고릅니다(`ko-KR`은 `ko`). 맞는 언어가 없거나 헤더가 없으면 기본 언어는 `en`입니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
     * 생성하는 POST(`createSchedule`, `registerDevice`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
     * 문장 필드는 조각 배열(`RenderedText`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
-    * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
+    * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`). 기간(`from`·`to`)으로 받는 목록(`listSchedules`)은 cursor 없이 범위 안을 한 번에 돌려줍니다.
 
     오류
     * 모든 오류는 RFC 9457 `application/problem+json`(`Problem`)입니다. app은 `code`를 보고 자기 UI 문구로 보여 줍니다. `title`은 개발자용 영어입니다.
@@ -39,9 +39,6 @@ info:
       근거가 원래 없는 것과 잠겨서 빠진 것을 `evidenceAccess`로 구분합니다. surface·explain과 사주 표·만세력·대운 표의 데이터는 잠그지 않습니다.
     * evidence 깊이의 문장(`Evidence.basis`·`Evidence.source`)은 `evidence[]`에 들어 있어 함께 빠집니다.
       explain 깊이의 문장(`SlotText.todayReason`, `Glossary.meanings`)과 용어 한자(`Glossary.hanja`)는 잠그지 않습니다.
-
-    설계 메모 (하위 호환 추가 예정)
-    * 원국 개인 해석은 writing 슬롯이 아직 없어 이 초안에 없습니다. 생기면 `Chart`에 선택 필드로 더하고 근거 열람 권한으로 잠급니다.
 servers:
   - url: /
 security:
@@ -689,8 +686,10 @@ paths:
       summary: 비로그인 미리보기
       description: |
         출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다.
-        App Check가 필요합니다. 설치(`installationId`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다.
+        App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        설치(`installationId`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다.
         언어는 `Accept-Language`를 씁니다.
+        총운 문장은 계정이 없어 순환 기록이 없으므로 `advice` 유형을 쓰고, 호칭은 없습니다.
       security:
         - appCheck: []
       requestBody:
@@ -718,6 +717,8 @@ paths:
           $ref: '#/components/responses/UnsupportedMediaType'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalError'
         '502':
@@ -735,8 +736,8 @@ paths:
       summary: 시진 확인
       description: |
         출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다.
-        App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
-        엔진 RPC가 생기기 전까지는 501을 돌려줍니다.
+        App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        출생 시간대와 출생지를 받지 않으므로 `Asia/Seoul`과 시간대별 대표 경도(한국 127.5°, D29)로 계산합니다. `start`·`end`는 그 시간대의 벽시계 시각입니다.
       security:
         - appCheck: []
       requestBody:
@@ -766,8 +767,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalError'
-        '501':
-          $ref: '#/components/responses/NotImplemented'
         '502':
           $ref: '#/components/responses/BadGateway'
         '503':
@@ -784,7 +783,7 @@ paths:
       description: |
         음력 연·월·일을 양력 날짜로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려줍니다. 입력은 저장하지 않습니다.
         app은 윤달 선택을 보일지 정하려고 `day: 1`, `isLeapMonth: false`로 먼저 물을 수 있습니다.
-        App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
         없는 음력 날짜(윤달이 없는 달의 윤달, 그 달에 없는 30일)는 422 `date.invalid`(`errors[].field`는 `/date` 또는 `/isLeapMonth`),
         D41 지원 범위 밖이면 422 `date.out_of_range`입니다.
       security:
@@ -816,8 +815,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalError'
-        '501':
-          $ref: '#/components/responses/NotImplemented'
         '502':
           $ref: '#/components/responses/BadGateway'
         '503':
@@ -1433,7 +1430,11 @@ paths:
     get:
       operationId: listCities
       summary: 도시 검색
-      description: 출생지 도시를 이름으로 찾습니다(`ETag`). 언어는 `lang`, 생략하면 `Accept-Language`입니다.
+      description: |
+        출생지 도시를 이름으로 찾습니다(`ETag`). 언어는 `lang`, 생략하면 `Accept-Language`입니다.
+        `q`는 한국어·영어·일본어 이름 중 하나의 앞부분과 같은 도시를 찾습니다(대소문자 무시).
+        요청 언어 이름이 앞부분과 같은 도시가 먼저, 그다음은 요청 언어 이름 순입니다. `limit`개까지 돌려줍니다.
+        `If-None-Match`가 현재 `ETag`와 같으면 304를 돌려줍니다.
       security: []
       parameters:
         - name: q
@@ -1529,7 +1530,7 @@ components:
       type: apiKey
       in: header
       name: X-Firebase-AppCheck
-      description: Firebase App Check 토큰. 비로그인 요청(`createPreview`, `getBirthHour`)에 필요합니다.
+      description: Firebase App Check 토큰. 비로그인 요청(`createPreview`, `getBirthHour`, `convertLunarDate`)에 필요합니다.
 
   parameters:
     Date:
@@ -1661,12 +1662,6 @@ components:
             $ref: '#/components/schemas/Problem'
     InternalError:
       description: 예상하지 못한 오류(`internal`). 상세는 server 로그에만 남습니다.
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-    NotImplemented:
-      description: 아직 제공하지 않는 기능
       content:
         application/problem+json:
           schema:
@@ -1975,7 +1970,7 @@ components:
     Notice:
       type: object
       description: |
-        엔진 안내입니다. `text`는 writing 문구가 없으면 빈 `segments`이고, app은 `code`로 자기 문구를 씁니다.
+        엔진 안내입니다. `text`는 writing 문구가 없으면 빈 `segments`이고, 그때 app은 배너를 그리지 않습니다.
       required: [code, text]
       properties:
         code:
@@ -2590,6 +2585,60 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Notice'
+        personalReadings:
+          type: array
+          description: |
+            원국 개인 해석("내 사주에서는")입니다. 근거 열람 권한이 없으면(`evidenceAccess: locked`) 이 필드가 없습니다(D60).
+            원고가 없는 항목은 빠집니다. 앱은 누른 용어의 (`kind`, `position`, `index`, `shinsal`)로 항목을 찾습니다.
+          items:
+            $ref: '#/components/schemas/PersonalReading'
+    PersonalReading:
+      type: object
+      description: |
+        원국 개인 해석 한 항목입니다. 앱이 누른 용어를 (`kind`, `position`, `index`, `shinsal`)로 찾습니다.
+        각 필드는 아래 `kind`에서만 있습니다.
+        * `day_master` 일간. `position`은 `day_stem`.
+        * `ten_god` 원국 천간·지지의 십성. `position`.
+        * `hidden_ten_god` 지장간의 십성. `position`(지지)과 `index`(지장간 순서, 0이 정기).
+        * `twelve_stage` 원국 지지의 12운성. `position`.
+        * `shinsal` 원국 신살. `position`과 `shinsal`.
+        * `daeun_stem_ten_god`·`daeun_branch_ten_god`·`daeun_twelve_stage` 대운. `index`는 `Daeun.periods` 순서. `position`은 없습니다.
+        * `seun_ten_god` 세운. `index`는 `Chart.seun` 순서. `position`은 없습니다.
+        `index`는 `hidden_ten_god`과 대운·세운 kind에서만 의미가 있고, 그 밖에는 없습니다.
+      required: [kind, text]
+      properties:
+        kind:
+          type: string
+          enum:
+            - day_master
+            - ten_god
+            - hidden_ten_god
+            - twelve_stage
+            - shinsal
+            - daeun_stem_ten_god
+            - daeun_branch_ten_god
+            - daeun_twelve_stage
+            - seun_ten_god
+          # 생성 상수 이름이 TenGod·Shinsal 같은 타입 이름과 겹치지 않게 접두어를 붙입니다.
+          x-enum-varnames:
+            - PersonalReadingKindDayMaster
+            - PersonalReadingKindTenGod
+            - PersonalReadingKindHiddenTenGod
+            - PersonalReadingKindTwelveStage
+            - PersonalReadingKindShinsal
+            - PersonalReadingKindDaeunStemTenGod
+            - PersonalReadingKindDaeunBranchTenGod
+            - PersonalReadingKindDaeunTwelveStage
+            - PersonalReadingKindSeunTenGod
+        position:
+          $ref: '#/components/schemas/Position'
+        index:
+          type: integer
+          minimum: 0
+        shinsal:
+          $ref: '#/components/schemas/ShinsalKind'
+        text:
+          $ref: '#/components/schemas/RenderedText'
     ChartPillars:
       type: object
       description: 원국 네 기둥. 출생 시각이 `unknown`이면 `hour`를 생략합니다.

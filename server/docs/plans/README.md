@@ -12,7 +12,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 병합 뒤 #170으로 구현 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
 | P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응, 시드 CI (#55·#129, 계약 draft.5, S33~S44) | §6 | **완료** |
 | P5 | [일기·일정](2026-10-20-p5-diary-schedule.md): soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록, `Idempotency-Key`(계약 draft.7, S50~S64) | §5.3, §3.3 일기, §11.2 | **완료** |
-| P6 | 비로그인·참조: 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config | §5.3, §3.3 기타 | 대기 |
+| P6 | [비로그인·참조](2026-10-20-p6-public-reference.md): 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config, staging 테스트 로그인(#93), 계약 draft.8, S65~S78 | §5.3, §3.3 기타, §13.2 | **완료** |
 | P7 | 결제와 권한: RevenueCat webhook·동기화, entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60) | §10 | 대기 |
 | P8 | Job: precompute, notify(FCM), retention과 익명화 | §8, §9 | 대기 |
 | P9 | 배포: staging·prod, Cloud Run service·Jobs·Scheduler, Cloud SQL 연결, OpenTelemetry, 외부 준비 안내 | §13 | 대기 |
@@ -34,15 +34,17 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 **P5 (일기·일정)** — 완료. 실행 중 정한 것은 S50~S64와 spec §3.3·§5.1·§5.3에 옮겼습니다.
 * 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 끝났습니다(프로필). 일정에도 같은 코드를 씁니다.
 
-**P6 (비로그인·참조)**
-* `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다. `City` 변환은 `birthCity`(httpapi `profile_handlers.go`)와 같은 형태라 함께 쓸 수 있게 뽑아냅니다. `City.longitude`도 이때 채웁니다.
-* `convertLunarDate`에도 App Check·요청 한도를 겁니다.
+**P6 (비로그인·참조)** — 완료. 실행 중 정한 것은 S65~S78과 spec §3.3·§5·§6.4·§9·§14에 옮겼습니다.
+* 참고(계획 때 메모): `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다. `City` 변환은 `birthCity`(httpapi `profile_handlers.go`)와 같은 형태라 함께 쓸 수 있게 뽑아냅니다. `City.longitude`도 이때 채웁니다.
+* `convertLunarDate`에도 App Check·요청 한도를 겁니다(구현됨).
 
 **P7 (결제와 권한)**
 * `getMe.adFree`·`insight`를 채웁니다.
 * AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
 
 **P8 (Job)**
+* 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다. 처음 보는 `kid`로 서명한 위조 토큰이 공개 라우트(App Check)와 로그인 경로에서 JWKS 재조회를 매번 일으키므로 App Check도 이 제한에 포함합니다.
+* 요청 한도(S68)의 키 IP 해시를 서버 비밀 HMAC으로 바꿀지 재검토합니다(salt 없는 SHA-256은 IPv4 전수 대입으로 되찾을 수 있음).
 * soft delete 30일 뒤 일기·일정 내용 비우기(spec §8)는 `content_purged_at`을 찍습니다. 복원은 이미 비워진 행을 제외합니다(P5에서 쿼리에 반영).
 * 멱등 선점 lease: 프로세스가 죽어 남은 `completed_at IS NULL` 선점은 24시간 동안 409가 됩니다. 요청 상한 시간(서버 WriteTimeout의 몇 배)이 지난 미완료 선점을 `ClaimIdempotencyKey`가 덮어쓸지(커밋 직후 죽은 극소수 경우 중복 가능, S61 확장 결정 필요)와, app이 409 `idempotency.in_progress`에 백오프 재시도할지를 계약에 적을지 정합니다.
 * 계정 익명화 때 일기 본문·일정 제목·메모를 지우고 `content_purged_at`을 기록합니다(열은 P5에서 만듦).
@@ -56,9 +58,11 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
 * 익명화 때 `daily_selections`·`rotation_state`·`reactions`는 남깁니다(spec §9 "남기는 것"). 콘텐츠 표의 FK가 `ON DELETE RESTRICT`인 것도 이 때문입니다. 다만 `daily_selections.birth_hash`는 `profiles.birth_hash`를 비우는 이유(생년월일시를 되찾을 수 있음)가 같이 해당하므로 P8 retention이 익명화 때 비웁니다(spec §9, S34). 열은 P4에서 이미 NULL을 허용합니다(값이 있으면 32바이트 CHECK).
 * 프로필 익명화 전용 쿼리를 둡니다. 출생 열·호칭·해시를 비우고 `anonymized_at`을 기록하며, CHECK `profiles_complete_until_anonymized`에 맞춥니다.
-* 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다.
+* 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 지우지 않습니다(1회 제한).
 
 **P9 (배포)**
+* 앞단에 Load Balancer를 두면 `TRUSTED_PROXY_HOPS`=2입니다. 실제 요청의 `X-Forwarded-For` 개수를 로그로 한 번 확인합니다(IP 원문은 남기지 않음).
+* 배포 설정: `FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`(Cloud Run 앞단 수를 확인합니다. 실제보다 크거나 0이면 모든 클라이언트가 한 키를 공유합니다), `APP_MIN_VERSION_IOS`·`APP_MIN_VERSION_ANDROID`, `TEST_LOGIN_SECRET`(staging만, `openssl rand -base64 32` 같은 난수). staging 이미지는 `-tags staging`으로 빌드합니다(Dockerfile·deploy workflow). App Check debug token은 staging Firebase 콘솔에만 둡니다.
 * Cloud Run 엔진 서비스를 h2c end-to-end로 확인하고, gRPC startup probe(`myungli.engine.v1.MyungliEngine`), internal ingress, 8초 grace를 설정합니다(#79).
 * server의 `ENGINE_ADDR`·`ENGINE_AUDIENCE`를 배포 설정에 넣고, `APP_ENV`가 local이 아니면 `ENGINE_AUDIENCE` 필수 검사를 추가합니다. CI 엔진 이미지 빌드 캐시도 검토합니다.
 * 인증 설정 20개를 Secret Manager에 둡니다(`config.LoadAuth`의 이름 그대로). 필수 16개: `JWT_SIGNING_KEY_ID`, `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY_ID`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_APP_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `APPLE_BUNDLE_ID`, `APPLE_SERVICES_ID`, `APPLE_WEB_REDIRECT_URI`, `APP_LINK_BASE`, `ANDROID_APP_PACKAGE`, `ANDROID_CERT_SHA256`, `ANDROID_STORE_URL`. 선택 4개(키 교체 때만, ID와 값이 짝): `JWT_PREVIOUS_KEY_ID`, `JWT_PREVIOUS_KEY`, `TOKEN_PREVIOUS_KEY_ID`, `TOKEN_PREVIOUS_KEY`.

@@ -43,6 +43,7 @@ const noticeKeyPrefix = "notice."
 type ContentStore interface {
 	Active(ctx context.Context) (string, error)
 	Templates(ctx context.Context, version, lang string) (content.Templates, error)
+	Glossary(ctx context.Context, version, lang string) (content.Glossary, error)
 	Select(ctx context.Context, accountID uuid.UUID, date time.Time, birthHash [32]byte,
 		reqs []content.SlotRequest) ([]content.Selection, error)
 }
@@ -85,8 +86,17 @@ type ChartView struct {
 	// YongsinBasis는 용신 근거 문장(chart.yongsin_method)입니다. evidence 깊이라 잠겨 있거나 원고가 없으면 nil입니다.
 	// 이 문장이 곧 근거라 그 안의 Evidence(판정 근거·원전 문장)는 렌더하지 않아 늘 nil입니다(계약 Yongsin.basis는 문장 하나).
 	YongsinBasis *content.SlotText
-	Notices      []content.Notice
-	Unlocked     bool
+	// PersonalReadings는 원국 개인 해석("내 사주에서는")입니다. 엔진 순서를 따릅니다.
+	// evidence 깊이라 잠겨 있으면 nil이고, 원고가 없거나 키가 잘못된 항목은 빠집니다.
+	PersonalReadings []PersonalReadingText
+	Notices          []content.Notice
+	Unlocked         bool
+}
+
+// PersonalReadingText는 개인 해석 한 항목과 그 렌더된 문장입니다. Reading의 식별자(종류·위치·순서·신살)로 앱이 항목을 찾습니다.
+type PersonalReadingText struct {
+	Reading *enginev1.PersonalReading
+	Text    content.SlotText
 }
 
 // Views는 엔진 결과(Service)와 콘텐츠(문장 선택·렌더)를 묶어 화면별 묶음을 만듭니다.
@@ -268,7 +278,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 }
 
 // Chart는 나의 사주 묶음을 만듭니다. 기준일은 p.CurrentTimezone의 오늘입니다.
-// 용신 근거 문장은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
+// 용신 근거 문장과 원국 개인 해석은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
 func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profile) (ChartView, error) {
 	version, err := v.store.Active(ctx)
 	if err != nil {
@@ -302,7 +312,39 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", false); ok {
 		view.YongsinBasis = &basis
 	}
+	view.PersonalReadings = v.renderPersonalReadings(ctx, tpl, response.GetPersonalReadings())
 	return view, nil
+}
+
+// renderPersonalReadings는 개인 해석을 활성 시드의 single 문장으로 렌더합니다. 호칭은 쓰지 않고 근거는 렌더하지 않습니다.
+// 원고가 없으면(로그는 Renderer가 남김) 그 항목만 뺍니다. 키가 personal.로 시작하지 않거나 슬롯 id를 못 뽑으면 엔진 계약 위반이라 Error 로그를 남기고 뺍니다.
+func (v *Views) renderPersonalReadings(ctx context.Context, tpl content.Templates, readings []*enginev1.PersonalReading) []PersonalReadingText {
+	out := make([]PersonalReadingText, 0, len(readings))
+	for _, reading := range readings {
+		j := reading.GetJudgment()
+		slot, ok := personalSlot(j.GetMessageKey())
+		if !ok {
+			v.log.ErrorContext(ctx, "개인 해석 판정 키가 personal.<종류>.…가 아니라 뺍니다", slog.String("message_key", j.GetMessageKey()))
+			continue
+		}
+		text, ok := v.renderer.Slot(ctx, tpl, slot, seed.VariantSingle, j, "", false)
+		if !ok {
+			continue
+		}
+		out = append(out, PersonalReadingText{Reading: reading, Text: text})
+	}
+	return out
+}
+
+// personalSlot은 개인 해석 판정 키의 앞 두 마디(personal.<종류>)를 슬롯 id로 돌려줍니다. 예: personal.day_master.gap → personal.day_master.
+// 슬롯 명세의 키는 모두 personal.<종류>.<값> 세 마디 이상입니다. 두 마디 키(personal.day_master)는 슬롯 id와 같고
+// 세 번째 마디가 빈 키(personal.day_master.)는 값이 없어 무효라 거부합니다.
+func personalSlot(key string) (string, bool) {
+	parts := strings.SplitN(key, ".", 3)
+	if len(parts) < 3 || parts[0] != "personal" || parts[1] == "" || parts[2] == "" {
+		return "", false
+	}
+	return parts[0] + "." + parts[1], true
 }
 
 // unlocked는 근거 열람 권한을 묻습니다.
@@ -367,7 +409,12 @@ func noticeCode(c enginev1.NoticeCode) (string, bool) {
 
 // characterReasonKey는 날의 성격으로 character.reason 키를 만듭니다. 예: DAY_KIND_GWIIN_DAY → character.reason.gwiin_day.
 func characterReasonKey(k enginev1.DayKind) string {
-	return characterReasonPrefix + strings.ToLower(strings.TrimPrefix(k.String(), "DAY_KIND_"))
+	return characterReasonPrefix + dayKindValue(k)
+}
+
+// dayKindValue는 날의 성격의 계약·키 값입니다. 예: DAY_KIND_GWIIN_DAY → gwiin_day.
+func dayKindValue(k enginev1.DayKind) string {
+	return strings.ToLower(strings.TrimPrefix(k.String(), "DAY_KIND_"))
 }
 
 // emptyText는 원고가 없는 필수 문장 필드의 자리입니다. Text는 nil이 아닌 빈 조각 배열이라 응답에 빈 segments로 나갑니다.

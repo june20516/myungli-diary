@@ -163,14 +163,14 @@ func newVerifier(issuer, audience string, keySet oidc.KeySet, clk clock.Clock) *
 }
 
 // verifyIDToken은 id_token을 검증하고 nonce가 hex(sha256(rawNonce))와 같은지 확인합니다.
-// name은 오류 문구에 쓰는 제공자 이름입니다.
+// name은 오류 문구에 쓰는 토큰 이름입니다(예 "카카오 id_token").
 func verifyIDToken(ctx context.Context, verifier *oidc.IDTokenVerifier, name, idToken, rawNonce string) (Identity, error) {
 	token, err := verifyIDTokenClaims(ctx, verifier, name, idToken)
 	if err != nil {
 		return Identity{}, err
 	}
 	if !nonceMatches(token.Nonce, rawNonce) {
-		return Identity{}, fmt.Errorf("%w: %s id_token: nonce 불일치", ErrTokenInvalid, name)
+		return Identity{}, fmt.Errorf("%w: %s: nonce 불일치", ErrTokenInvalid, name)
 	}
 	return Identity{Subject: token.Subject}, nil
 }
@@ -188,15 +188,15 @@ func verifyIDTokenClaims(ctx context.Context, verifier *oidc.IDTokenVerifier, na
 	case err == nil:
 	case record.jwksFailed:
 		// 원인 문구에 JWKS 응답 본문이 섞일 수 있어 go-oidc 오류 문구는 넣지 않습니다.
-		return nil, fmt.Errorf("%w: %s id_token: JWKS 조회 실패: %s", ErrUnavailable, name, record.jwksReason)
+		return nil, fmt.Errorf("%w: %s: JWKS 조회 실패: %s", ErrUnavailable, name, record.jwksReason)
 	case record.keySetFailed:
-		return nil, fmt.Errorf("%w: %s id_token: 서명 검증 실패", ErrTokenInvalid, name)
+		return nil, fmt.Errorf("%w: %s: 서명 검증 실패", ErrTokenInvalid, name)
 	default:
 		// 서명 이후 단계(iss·aud·exp·claim 해석)의 go-oidc 문구는 설정 값과 시각만 담고 토큰 원문은 담지 않습니다.
-		return nil, fmt.Errorf("%w: %s id_token: %w", ErrTokenInvalid, name, err)
+		return nil, fmt.Errorf("%w: %s: %w", ErrTokenInvalid, name, err)
 	}
 	if token.Subject == "" {
-		return nil, fmt.Errorf("%w: %s id_token: sub가 비어 있습니다", ErrTokenInvalid, name)
+		return nil, fmt.Errorf("%w: %s: sub가 비어 있습니다", ErrTokenInvalid, name)
 	}
 	return token, nil
 }
