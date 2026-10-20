@@ -229,3 +229,26 @@ func isHTTPSURL(raw string) bool {
 	parsed, err := url.Parse(raw)
 	return err == nil && parsed.Scheme == "https" && parsed.Host != ""
 }
+
+// AppCheckConfig는 Firebase App Check 검증 설정입니다.
+type AppCheckConfig struct {
+	// ProjectNumber는 Firebase 프로젝트 번호(숫자)입니다. APP_ENV가 local이면 비어 있을 수 있고,
+	// 그때 App Check operation은 검증할 수 없어 503으로 답합니다.
+	ProjectNumber string
+}
+
+// LoadAppCheck는 getenv로 App Check 설정을 읽습니다. FIREBASE_PROJECT_NUMBER는 APP_ENV가 local(기본값)이 아니면 필수이고,
+// 값이 있으면 숫자만이어야 합니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadAppCheck(getenv func(string) string) (AppCheckConfig, error) {
+	getenv = trimmedEnv(getenv)
+	env := orDefault(getenv("APP_ENV"), defaultEnv)
+	number := getenv("FIREBASE_PROJECT_NUMBER")
+
+	switch {
+	case number == "" && env != defaultEnv:
+		return AppCheckConfig{}, errors.New("FIREBASE_PROJECT_NUMBER가 필요합니다(APP_ENV가 local일 때만 비워 둘 수 있습니다)")
+	case number != "" && strings.Trim(number, "0123456789") != "":
+		return AppCheckConfig{}, errors.New("FIREBASE_PROJECT_NUMBER는 숫자만으로 된 프로젝트 번호여야 합니다")
+	}
+	return AppCheckConfig{ProjectNumber: number}, nil
+}

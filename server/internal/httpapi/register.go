@@ -22,15 +22,18 @@ type Routes struct {
 	Validate func(http.Handler) http.Handler
 	// Authenticate는 security 요구에 bearerAuth가 있는 라우트만 감쌉니다(보통 BearerAuth의 결과).
 	Authenticate func(op Operation, next http.Handler) http.Handler
+	// AppCheck는 security 요구에 appCheck가 있는 라우트만 감쌉니다(보통 RequireAppCheck의 결과).
+	// nil이면 appCheck 라우트는 검증할 수 없으므로 503 service.unavailable로 답합니다.
+	AppCheck func(op Operation, next http.Handler) http.Handler
 	// Idempotency는 Idempotency-Key를 다루는 operation을 감쌉니다(보통 Idempotency의 결과). nil이면 멱등 처리가 없습니다.
 	// 인증 뒤, 계약 검증 뒤에 끼므로 계정을 알고, 검증에 실패한 요청은 멱등 표를 건드리지 않습니다.
 	Idempotency func(op Operation, next http.Handler) http.Handler
 }
 
 // RegisterAPI는 계약의 모든 operation을 mux에 등록합니다.
-// bearer 라우트는 Authenticate(op, Validate(Idempotency(op, handler))), 그 밖의 라우트는 Validate(Idempotency(op, handler))로 감쌉니다
-// (Idempotency가 nil이면 그 층은 없습니다).
-// 인증이 검증보다 바깥이라 토큰 없는 요청은 본문이 틀려도 400이 아니라 401을 받습니다.
+// bearer 라우트는 Authenticate(op, Validate(Idempotency(op, handler))), appCheck 라우트는 AppCheck(op, Validate(Idempotency(op, handler))),
+// 그 밖의 라우트는 Validate(Idempotency(op, handler))로 감쌉니다(Idempotency가 nil이면 그 층은 없습니다).
+// 인증과 App Check이 검증보다 바깥이라 토큰 없는 요청은 본문이 틀려도 400이 아니라 401을 받습니다.
 // 라우트가 mux에 직접 등록되므로 접근 로그의 route와 404·405 problem은 다른 라우트와 같게 동작합니다.
 //
 // impl이 계약 밖 정적 경로(App Link 안내 페이지 GET /auth/apple, GET /.well-known/assetlinks.json)를 내주면
@@ -79,6 +82,13 @@ func (c contractMux) HandleFunc(pattern string, handler func(http.ResponseWriter
 	if op.Bearer {
 		wrapped = c.routes.Authenticate(op, wrapped)
 	}
+	if op.AppCheck {
+		appCheck := c.routes.AppCheck
+		if appCheck == nil {
+			appCheck = appCheckUnconfigured
+		}
+		wrapped = appCheck(op, wrapped)
+	}
 	c.mux.Handle(pattern, wrapped)
 }
 
@@ -86,6 +96,9 @@ func (c contractMux) ServeHTTP(w http.ResponseWriter, r *http.Request) { c.mux.S
 
 // securitySchemeBearer는 계약의 bearer 인증 security scheme 이름입니다.
 const securitySchemeBearer = "bearerAuth"
+
+// securitySchemeAppCheck는 계약의 App Check security scheme 이름입니다.
+const securitySchemeAppCheck = "appCheck"
 
 // operationFor는 생성 코드의 ServeMux pattern("METHOD /path")에 맞는 계약 operation을 찾습니다.
 // 생성 코드의 path는 계약의 path 템플릿({date} 등)을 그대로 쓰므로 문자열로 맞춥니다. 없으면 panic합니다.
@@ -106,14 +119,16 @@ func operationFor(spec *openapi3.T, pattern string) Operation {
 	if operation.Security != nil {
 		requirements = *operation.Security
 	}
-	bearer := false
+	var bearer, appCheck bool
 	for _, requirement := range requirements {
 		if _, ok := requirement[securitySchemeBearer]; ok {
 			bearer = true
-			break
+		}
+		if _, ok := requirement[securitySchemeAppCheck]; ok {
+			appCheck = true
 		}
 	}
-	return Operation{ID: contractOperationID(operation.OperationID), Bearer: bearer}
+	return Operation{ID: contractOperationID(operation.OperationID), Bearer: bearer, AppCheck: appCheck}
 }
 
 // contractOperationID는 operationId를 계약의 표기(lowerCamelCase, 예 "getMe")로 맞춥니다.

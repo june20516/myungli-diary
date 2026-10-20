@@ -46,6 +46,8 @@ type Operation struct {
 	ID string
 	// Bearer는 operation의 security 요구에 bearerAuth가 있는지입니다.
 	Bearer bool
+	// AppCheck는 operation의 security 요구에 appCheck가 있는지입니다.
+	AppCheck bool
 }
 
 // AccessTokenVerifier는 access token을 검증해 계정 id를 돌려줍니다. *token.AccessIssuer가 만족합니다.

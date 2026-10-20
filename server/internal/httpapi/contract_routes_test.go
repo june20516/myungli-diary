@@ -39,12 +39,16 @@ func newAPIHandler(t *testing.T) (http.Handler, *bytes.Buffer) {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: authenticateFixedAccount,
+		AppCheck:     passAppCheck,
 	}
 	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, routes)
 	})
 	return handler, logs
 }
+
+// passAppCheck는 App Check 토큰을 보지 않고 통과시키는 AppCheck입니다. 계약 검증과 라우팅만 확인하는 테스트가 씁니다.
+func passAppCheck(_ httpapi.Operation, next http.Handler) http.Handler { return next }
 
 // fixedAccountID는 authenticateFixedAccount가 ctx에 넣는 계정 id입니다.
 var fixedAccountID = uuid.MustParse("0192f0a0-0000-7000-8000-0000000000aa")

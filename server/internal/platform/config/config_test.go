@@ -304,3 +304,46 @@ func TestLoadEngine(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadAppCheck(t *testing.T) {
+	t.Run("APP_ENV가 local이면 비어 있어도 됨", func(t *testing.T) {
+		for _, env := range []map[string]string{nil, {"APP_ENV": "local"}} {
+			cfg, err := LoadAppCheck(fakeEnv(env))
+			if err != nil || cfg.ProjectNumber != "" {
+				t.Errorf("LoadAppCheck(%v) = %+v, %v, want 빈 값과 nil 오류", env, cfg, err)
+			}
+		}
+	})
+	t.Run("staging·prod에서 비면 오류", func(t *testing.T) {
+		for _, appEnv := range []string{"staging", "prod"} {
+			_, err := LoadAppCheck(fakeEnv(map[string]string{"APP_ENV": appEnv}))
+			if err == nil || !strings.Contains(err.Error(), "FIREBASE_PROJECT_NUMBER") {
+				t.Errorf("LoadAppCheck(APP_ENV=%s) error = %v, want FIREBASE_PROJECT_NUMBER 오류", appEnv, err)
+			}
+		}
+	})
+	t.Run("숫자만이 아니면 오류이고 값은 담지 않음", func(t *testing.T) {
+		for _, number := range []string{"12ab", "projects/123", "-1", "1 2"} {
+			_, err := LoadAppCheck(fakeEnv(map[string]string{"APP_ENV": "prod", "FIREBASE_PROJECT_NUMBER": number}))
+			if err == nil || !strings.Contains(err.Error(), "FIREBASE_PROJECT_NUMBER") {
+				t.Errorf("LoadAppCheck(%q) error = %v, want FIREBASE_PROJECT_NUMBER 오류", number, err)
+				continue
+			}
+			if strings.Contains(err.Error(), number) {
+				t.Errorf("오류 문구에 값이 들어 있습니다: %v", err)
+			}
+		}
+	})
+	t.Run("local에서도 값이 있으면 숫자만이어야 함", func(t *testing.T) {
+		_, err := LoadAppCheck(fakeEnv(map[string]string{"FIREBASE_PROJECT_NUMBER": "abc"}))
+		if err == nil {
+			t.Error("LoadAppCheck() error = nil, want 오류")
+		}
+	})
+	t.Run("정상 값은 공백을 지워 그대로", func(t *testing.T) {
+		cfg, err := LoadAppCheck(fakeEnv(map[string]string{"APP_ENV": "prod", "FIREBASE_PROJECT_NUMBER": " 123456789012\n"}))
+		if err != nil || cfg.ProjectNumber != "123456789012" {
+			t.Errorf("LoadAppCheck() = %+v, %v", cfg, err)
+		}
+	})
+}
