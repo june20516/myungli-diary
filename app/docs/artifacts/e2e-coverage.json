@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T05:13:50.942521Z",
+  "generatedAt": "2026-10-20T05:47:34.782429Z",
   "exits": {
     "covered": 54,
     "total": 80,
@@ -86,10 +86,12 @@
         "test/flows/day_sheet_flow_test.dart:202 member: 이유 문장의 용어 칩 → 풀이 시트가 위로 쌓입니다"
       ],
       "diary-edit>diary-view": [
-        "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view"
+        "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-list>diary-edit": [
-        "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기"
+        "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-list>diary-view": [
         "test/flows/diary_list_flow_test.dart:116 줄을 누르면 그날 diary-view, 태그 칩을 누르면 tag-diary"
@@ -104,7 +106,8 @@
         "test/flows/diary_view_flow_test.dart:140 성격을 누르면 그 성격 용어의 풀이 시트"
       ],
       "diary-view>tag-diary": [
-        "test/flows/tag_diary_flow_test.dart:162 diary-view의 태그 칩 → 그 태그 모아보기"
+        "test/flows/tag_diary_flow_test.dart:162 diary-view의 태그 칩 → 그 태그 모아보기",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "evidence-sheet>ad-free": [
         "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
@@ -202,7 +205,8 @@
         "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
       ],
       "tag-diary>diary-view": [
-        "test/flows/tag_diary_flow_test.dart:183 줄을 누르면 그날 diary-view"
+        "test/flows/tag_diary_flow_test.dart:183 줄을 누르면 그날 diary-view",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "tag-diary>explain-sheet": [
         "test/flows/tag_diary_flow_test.dart:196 뜻의 용어 칩 → 풀이 시트"
@@ -302,7 +306,8 @@
         "test/flows/diary_edit_flow_test.dart:241 error: 저장된 일기를 읽지 못하면 오류 화면과 다시 시도"
       ],
       "diary-edit:loading": [
-        "test/flows/diary_edit_flow_test.dart:119 새 일기: 그날 질문과 안내, 빈 본문이면 저장할 수 없습니다"
+        "test/flows/diary_edit_flow_test.dart:119 새 일기: 그날 질문과 안내, 빈 본문이면 저장할 수 없습니다",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-edit:offline": [
         "test/flows/diary_edit_flow_test.dart:211 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
@@ -314,7 +319,8 @@
         "test/flows/diary_list_flow_test.dart:156 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록"
       ],
       "diary-list:loading": [
-        "test/flows/diary_list_flow_test.dart:156 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록"
+        "test/flows/diary_list_flow_test.dart:156 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-list:offline": [
         "test/flows/diary_list_flow_test.dart:167 offline: 받아 둔 목록이 있으면 그대로 보이고 배너"
@@ -406,7 +412,8 @@
         "test/flows/day_sheet_flow_test.dart:146 member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다",
         "test/flows/day_sheet_flow_test.dart:191 member: 미래 날은 일기 입구가 없습니다(D49)",
         "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
-        "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기"
+        "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기",
+        "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "D50": [
         "test/flows/consent_flow_test.dart:122 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",

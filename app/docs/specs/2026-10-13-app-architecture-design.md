@@ -3,7 +3,7 @@
 * 작성: app 세션, 2026-10-13
 * 상태: 승인 (2026-10-13)
 * 마일스톤: A1 (app 설계, 대역 데이터로 화면 구현)
-* 관련 결정: app 결정 A1~A27([`../decisions.md`](../decisions.md)), 루트 D13·D27~D30·D36~D41·D47~D62
+* 관련 결정: app 결정 A1~([`../decisions.md`](../decisions.md), 처음 승인 때 A1~A27), 루트 D13·D27~D30·D36~D41·D47~D62 이후 결정
 * 쓰는 계약(버전·상태는 [`docs/contracts/README.md`](../../../docs/contracts/README.md) 기준)
   * REST API `server/api/openapi.yaml`
   * IA `docs/ia/screens.json`
@@ -72,7 +72,7 @@ app/
   * app이 의미를 더하는 곳에만 작은 값 객체를 둡니다. 예: `segments`를 표시 조각으로 바꾼 것, 근거 잠금 상태, 진입 갈래.
 * **상태 관리는 Riverpod 3.x입니다(결정 A1).**
   * 이 앱의 상태는 대부분 "server 응답 + 캐시 + 권한"입니다. 비동기 상태(`AsyncValue`)와 의존성 주입이 내장된 Riverpod가 이 구조에 맞습니다.
-  * 대역 교체는 provider override 한 줄입니다. 코드 생성(`riverpod_generator`) 사용 여부는 기반 계획에서 그때의 안정판을 확인하고 정합니다.
+  * 대역 교체는 provider override 한 줄입니다. 코드 생성(`riverpod_generator`)은 쓰지 않고 provider를 직접 선언합니다(A15).
 
 ## 3. 라우팅과 진입 갈래 (결정 A4)
 
@@ -152,7 +152,7 @@ app/
 * 달력의 길흉과 나의 사주는 (내 사주, 그 달·그해)로 정해집니다. server도 `birth_hash + rulesetVersion + 연·월 + 시간대`로 캐시합니다. 그날 문장(`level`)도 server가 (계정, 날짜, 슬롯)마다 한 번 골라 고정합니다(D59②).
 * **키:** 계정 + **사주 지문** + 언어 + 연·월. 나의 사주는 연·월 대신 연도를 씁니다(세운 표가 해마다 바뀜).
   * 사주 지문은 프로필의 출생 정보, 출생지, 현재 시간대를 정규화해 해시한 값입니다.
-* 한 번 받은 달은 다시 요청하지 않고 바로 그립니다. 보고 있는 달의 앞뒤 한 달은 미리 받습니다. D41 범위(1900-01 ~ 2099-12) 밖으로는 넘기지 않습니다.
+* 한 번 받은 달은 다시 요청하지 않고 바로 그립니다. 보고 있는 달의 앞뒤 한 달은 미리 받습니다. 1900-02 ~ 2099-12 밖으로는 넘기지 않습니다(D41의 첫 날이 든 1900-01은 묻지 않음, A44).
 * **버리는 때**
   1. **사주가 바뀜:** 프로필 수정이 성공하면 이전 지문의 캐시를 모두 지웁니다.
   2. **규칙이 바뀜:** `getDaily` 응답의 `rulesetVersion`이 저장된 값과 다르면 사주 기반 캐시를 모두 버리고 새 값을 저장합니다.
@@ -166,7 +166,7 @@ app/
 * 잠금이 풀리면 다시 받습니다.
 
 **사용자 데이터: 일정·일기**
-* 일정(`listSchedules`)은 사주 캐시와 분리합니다. 만들기·수정·삭제가 성공하면 해당 달 일정만 다시 받습니다.
+* 일정(`listSchedules`)은 사주 캐시와 분리합니다. 보이는 6주 격자 범위(42일)를 메모리에만 들고, 만들기·수정·삭제가 성공하면 그 범위만 다시 받습니다(A34).
 * 일기 목록과 본문은 캐시하지 않고 매번 받습니다. 동기화는 MVP 밖입니다(D47②).
 
 **참조 데이터**
@@ -196,7 +196,7 @@ app/
   1. `profile-edit` 위쪽에 안내(`profile-edit.recalc.notice`)를 둡니다.
   2. 무거운 항목을 고쳐 저장하면 확인 창을 띄웁니다. 창에는 바뀌기 전 → 바뀐 뒤 값과 위 표의 영향을 보입니다. 기본 선택은 취소입니다.
   3. 확정하면 저장하고, 사주 기반 캐시를 지운 뒤(§4.4) 나의 사주로 이동해 새 원국을 먼저 보여 줍니다.
-* 확인 창에 필요한 `dialog` 컴포넌트와 슬롯 `profile-edit.recalc.confirm`(ui)은 IA에 없으므로 지휘 세션에 추가를 요청합니다(§11).
+* 확인 창은 `dialog` 컴포넌트와 IA 슬롯 `profile-edit.recalc.confirm`(ui)으로 그립니다(#84로 IA에 들어감).
 * 태그 모아보기에서 옛 사주와 새 사주 태그를 구분해 보이는 일은 Phase 2 아이디어로 넘깁니다.
 
 ## 6. 디자인 시스템과 문장 표시
@@ -228,7 +228,7 @@ app/
   * 모양 규칙(결정 V26): 동작은 둥근 사각, 값 표시·고르기는 알약입니다. 화면 좌우 여백은 `space.20`입니다.
   * 길흉은 색만으로 전하지 않고 스크린리더 라벨에 길흉 낱말을 넣습니다.
 * **검증**
-  * **golden:** 컴포넌트 × 변형·상태 × 라이트·다크 × ko·ja × 글자 크기(1.0·1.3·2.0). 기준 이미지는 CI(Linux)에서 만듭니다. Flutter 버전이 올라가 렌더가 달라지면 수동 실행 job(`--update-goldens`)으로 다시 만듭니다.
+  * **golden:** 컴포넌트 × 변형·상태 × 라이트·다크 × ko·ja × 글자 크기(1.0·1.3·2.0). 기준 이미지는 CI(Linux)에서 만듭니다. 비교에 쓰는 Flutter 버전은 `tool/golden_flutter_version`으로 고정합니다(A54). Flutter를 올릴 때 이 값을 올리고 수동 실행 job(`--update-goldens`) 또는 `tool/goldens_linux.sh`로 같은 PR에서 다시 만듭니다.
   * **Widgetbook:** 변형과 상태를 넘겨 보며 명세와 눈으로 대조합니다.
   * **명세 대조 테스트:** 컴포넌트 JSON의 변형·상태 id가 Dart enum에 모두 있는지 확인합니다.
 
@@ -236,7 +236,8 @@ app/
 
 * UI 문구는 `flutter gen-l10n`과 ARB(ko·en·ja)를 씁니다. CI에서 `mlw check-arb`로 검사합니다.
 * **ARB 키 이름**
-  * writing 슬롯의 `keys`를 따릅니다.
+  * writing 슬롯의 `keys`를 따릅니다. IA 슬롯 id와 ARB 키는 다를 수 있고 `keys`가 기준입니다(D77로 IA에 올린 문구도 키 이름 그대로, D78 ⑦).
+  * IA 밖 임시 문구는 writing `ui.*` 원고로 요청하고, IA 슬롯감인지는 지휘가 고릅니다(A7, D77).
   * 원고가 오기 전에는 IA 슬롯 id를 lowerCamelCase로 바꾼 키(예 `today.guide.cta` → `todayGuideCta`)와 임시 한국어 문구를 씁니다. 임시 문구는 `@<키>` 메타데이터의 `description`에 `임시`라고 표시합니다.
   * 같은 이름 규칙을 슬롯에 써 달라고 writing에 요청합니다(§11). 나중에 키 이름을 바꾸는 비용을 없애기 위해서입니다.
 * 언어는 기기 설정이 기본이고 설정에서 바꿀 수 있습니다. 바꾸면 프로필 `language`를 고치고 출생지 안내를 띄웁니다(D29, IA `settings.language.birthplace-notice`).
@@ -321,7 +322,7 @@ IA·결정 로그·계약이 기계가 읽을 수 있는 형태로 있으므로,
 ## 9. 도구와 CI (결정 A11)
 
 **도구 버전: 커뮤니티 표준을 따릅니다.**
-* Flutter는 **stable 채널을 따라갑니다.** `pubspec.yaml`에는 Dart SDK 하한(`sdk: ^3.x`)만 둡니다. FVM이나 정확한 SDK 고정은 쓰지 않습니다.
+* Flutter는 **stable 채널을 따라갑니다.** `pubspec.yaml`에는 Dart SDK 하한(`sdk: ^3.x`)만 둡니다. FVM이나 정확한 SDK 고정은 쓰지 않습니다. 예외는 golden 비교 하나로, `tool/golden_flutter_version`의 버전으로 돕니다(A54).
 * `pubspec.lock`은 commit합니다. 의존성은 안정판만 씁니다(pre-release 금지). 올릴 때는 PR 하나로 묶어 CI로 확인합니다.
 * 의존성 자동 갱신은 규약대로 MVP 안정화 뒤에 합니다(workflow §8).
 * lint는 엄격한 규칙 세트(`very_good_analysis` 수준)를 쓰고 경고 0을 유지합니다.
@@ -336,11 +337,10 @@ IA·결정 로그·계약이 기계가 읽을 수 있는 형태로 있으므로,
 
 **CI (`.github/workflows/app.yml`, app 소유)**
 * 처음부터 `workflow_call`을 지원합니다. `ci-gate` 연결은 지휘 소유라 요청합니다(§11).
-* 경로 필터: `app/`, `.github/workflows/app.yml`, 그리고 app이 쓰는 계약 경로입니다.
-  * `server/api/openapi.yaml`
-  * `docs/ia/screens.json`
-  * `docs/identity/design/tokens/`, `docs/identity/design/components/`
-  * `docs/identity/writing/slots/`
+* PR 검사는 `ci-gate`가 부릅니다(#85). 어느 PR에서 app 검사를 돌릴지는 `ci-gate`가 정합니다(D73).
+  * `own`: `app/`·`.github/workflows/app.yml`을 바꾼 PR. 실패하면 막습니다.
+  * `drift`: app이 쓰는 계약 경로만 바뀐 PR(`server/api/openapi.yaml`, `docs/ia/screens.json`, `docs/identity/design/tokens/`·`components/`, `docs/identity/writing/slots/`·`tools/`). 실패해도 경고이고 app 앞으로 `drift` Issue가 열립니다.
+* `app.yml`의 main push 경로 필터는 `app/`, `.github/workflows/app.yml`뿐입니다(계약 경로는 `ci-gate`의 drift 판정이 맡음).
 * 단계:
   1. format 확인, analyze
   2. 생성 코드 차이 확인: openapi, 토큰, `build_runner`, l10n
@@ -352,7 +352,7 @@ IA·결정 로그·계약이 기계가 읽을 수 있는 형태로 있으므로,
 * iOS 빌드는 규약대로 로컬 Mac에서 합니다(workflow §8).
 * golden 갱신용 수동 실행 job(`workflow_dispatch`)을 둡니다.
 * **기기 E2E job**은 Android 에뮬레이터(Linux, KVM)에서 Patrol을 돌립니다.
-  * 비공개 저장소의 무료 플랜이라 Actions 사용 시간이 제한되므로 PR마다 돌리지 않습니다. `main` 병합 뒤, 매일 밤, 수동 실행으로 돕니다.
+  * PR마다 돌리지 않고 `main` 병합 뒤, 매일 밤, 수동 실행으로 돕니다. 처음 이유였던 비공개 저장소 Actions 시간 제한은 공개 전환(D74)으로 없어졌고, 지금은 PR 검사를 짧게 두려는 운영 선택입니다. PR 직전에는 로컬 Patrol이나 수동 실행으로 한 번 확인합니다.
   * PR에서는 위젯 수준 앱 흐름 테스트가 같은 흐름을 지킵니다.
   * 이 job은 `ci-gate` 판정에 넣지 않고, 실패하면 Issue로 다룹니다. 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행(`github.workflow == 'app'`)일 때만 이벤트로 켜고 `workflow_call`로 불리면 입력 `run_e2e`(기본 false)로만 켭니다.
 
