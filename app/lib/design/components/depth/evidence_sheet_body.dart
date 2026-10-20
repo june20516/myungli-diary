@@ -254,16 +254,20 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     );
   }
 
-  /// 본문 한 문단. [quote]면 원전 인용 상자(`bg.base`, `radius.md`, 안쪽 `space.12`)에 담습니다.
+  /// 본문 한 문단. [quote]면 원전 인용 상자(`bg.base`, `radius.md`, 안쪽 `space.12`)에 담고
+  /// 한자는 `font.family.hanja`(`fontFallback`)로 그립니다.
   Widget _paragraph(
     RenderedText text, {
     required String slotId,
     required bool quote,
   }) {
+    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
     final block = SentenceBlock(
       variant: SentenceBlockVariant.body,
       text: text,
       slotId: slotId,
+      // 원전의 한자는 문장 글꼴에 글리프가 없어 한자 글꼴로만 그립니다(한글은 그대로).
+      fontFallback: quote && hanjaFamily != null ? [hanjaFamily] : const [],
     );
     if (!quote) {
       return block;

@@ -45,6 +45,7 @@ class SentenceBlock extends StatelessWidget {
     this.trailing,
     this.color,
     this.maxLines,
+    this.fontFallback = const [],
     super.key,
   }) : assert(
          variant != SentenceBlockVariant.preview ||
@@ -108,6 +109,10 @@ class SentenceBlock extends StatelessWidget {
   /// [SentenceBlockVariant.preview]는 항상 두 줄입니다.
   final int? maxLines;
 
+  /// 문장 글꼴의 대체 글꼴 맨 앞에 끼울 글꼴 family. 문장 글꼴에 없는 글리프만 이 글꼴로
+  /// 그립니다(원전 인용의 한자 `fontFallback: font.family.hanja`).
+  final List<String> fontFallback;
+
   @override
   Widget build(BuildContext context) {
     final content = locked ? _buildLocked(context) : _buildText(context);
@@ -139,6 +144,9 @@ class SentenceBlock extends StatelessWidget {
       style: base.copyWith(
         color: color ?? context.tokens.colors.textPrimary,
         fontSize: preview ? _previewFontSize : null,
+        fontFamilyFallback: fontFallback.isEmpty
+            ? null
+            : [...fontFallback, ...?base.fontFamilyFallback],
       ),
       termStyle: onTerm == null ? TermStyle.plain : terms,
       onTerm: onTerm,
