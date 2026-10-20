@@ -1390,12 +1390,6 @@ abstract class AppLocalizations {
   /// **'{date}까지'**
   String settingsAdFreeLabelActive(String date);
 
-  /// settings.depth.desc: 기본 깊이 설명
-  ///
-  /// In ko, this message translates to:
-  /// **'풀이를 처음에 어디까지 펼쳐 볼지 골라요.'**
-  String get settingsDepthDesc;
-
   /// settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내
   ///
   /// In ko, this message translates to:
@@ -1540,29 +1534,11 @@ abstract class AppLocalizations {
   /// **'좋아요 취소'**
   String get todayReactionLabelSelected;
 
-  /// 깊이 단계 선택의 기본 단계 이름
-  ///
-  /// In ko, this message translates to:
-  /// **'명리 풀이 보기'**
-  String get depthDefaultLabel;
-
-  /// 깊이 단계 근거 단계(셋째 단계)의 안내
-  ///
-  /// In ko, this message translates to:
-  /// **'원리'**
-  String get depthEvidence;
-
-  /// 깊이 단계 풀이 단계(둘째 단계)의 안내
+  /// 풀이 시트(sheet)의 접근성 라벨. 깊이 풀이 단계(explain)의 이름입니다(D79로 기본 깊이 설정이 빠져 segmented 칸에는 쓰지 않음)
   ///
   /// In ko, this message translates to:
   /// **'풀이'**
   String get depthExplain;
-
-  /// 깊이 단계 표면 단계(첫 단계)의 안내
-  ///
-  /// In ko, this message translates to:
-  /// **'요약'**
-  String get depthSurface;
 
   /// 깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)
   ///

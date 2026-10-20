@@ -701,9 +701,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get settingsDepthDesc => '풀이를 처음에 어디까지 펼쳐 볼지 골라요.';
-
-  @override
   String get settingsLanguageBirthplaceNotice =>
       '한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.';
 
@@ -779,16 +776,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayReactionLabelSelected => '좋아요 취소';
 
   @override
-  String get depthDefaultLabel => '명리 풀이 보기';
-
-  @override
-  String get depthEvidence => '원리';
-
-  @override
   String get depthExplain => '풀이';
-
-  @override
-  String get depthSurface => '요약';
 
   @override
   String get depthLinkEvidence => '근거 보기';

@@ -960,10 +960,6 @@
       }
     }
   },
-  "settingsDepthDesc": "풀이를 처음에 어디까지 펼쳐 볼지 골라요.",
-  "@settingsDepthDesc": {
-    "description": "settings.depth.desc: 기본 깊이 설명"
-  },
   "settingsLanguageBirthplaceNotice": "한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.",
   "@settingsLanguageBirthplaceNotice": {
     "description": "settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내"
@@ -1068,21 +1064,9 @@
   "@todayReactionLabelSelected": {
     "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
   },
-  "depthDefaultLabel": "명리 풀이 보기",
-  "@depthDefaultLabel": {
-    "description": "깊이 단계 선택의 기본 단계 이름"
-  },
-  "depthEvidence": "원리",
-  "@depthEvidence": {
-    "description": "깊이 단계 근거 단계(셋째 단계)의 안내"
-  },
   "depthExplain": "풀이",
   "@depthExplain": {
-    "description": "깊이 단계 풀이 단계(둘째 단계)의 안내"
-  },
-  "depthSurface": "요약",
-  "@depthSurface": {
-    "description": "깊이 단계 표면 단계(첫 단계)의 안내"
+    "description": "풀이 시트(sheet)의 접근성 라벨. 깊이 풀이 단계(explain)의 이름입니다(D79로 기본 깊이 설정이 빠져 segmented 칸에는 쓰지 않음)"
   },
   "depthLinkEvidence": "근거 보기",
   "@depthLinkEvidence": {

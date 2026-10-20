@@ -699,9 +699,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get settingsDepthDesc => '読み解きを最初にどこまで広げて見るかを選びます。';
-
-  @override
   String get settingsLanguageBirthplaceNotice =>
       '韓国以外で生まれた場合は、出生地を入力してください。生まれた時刻をより正確に合わせられます。';
 
@@ -777,16 +774,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayReactionLabelSelected => 'いいねを取り消す';
 
   @override
-  String get depthDefaultLabel => '命理の読み解き';
-
-  @override
-  String get depthEvidence => '原理';
-
-  @override
   String get depthExplain => '読み解き';
-
-  @override
-  String get depthSurface => '要約';
 
   @override
   String get depthLinkEvidence => '根拠を見る';

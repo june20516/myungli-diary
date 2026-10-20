@@ -761,10 +761,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsDepthDesc =>
-      'Choose how much of each reading to show at first.';
-
-  @override
   String get settingsLanguageBirthplaceNotice =>
       'If you were born outside Korea, please enter your birthplace. It helps us match your birth hour more precisely.';
 
@@ -841,16 +837,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayReactionLabelSelected => 'Unlike';
 
   @override
-  String get depthDefaultLabel => 'Reading detail';
-
-  @override
-  String get depthEvidence => 'Basis';
-
-  @override
   String get depthExplain => 'Reading';
-
-  @override
-  String get depthSurface => 'Summary';
 
   @override
   String get depthLinkEvidence => 'See the basis';
