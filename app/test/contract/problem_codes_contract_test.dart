@@ -13,17 +13,12 @@ import '../../tool/common/openapi_spec.dart';
 /// 나오며 app은 그 operation을 부르지 않습니다.
 const _notUserFacing = {'reward.invalid_signature', 'reward.expired'};
 
-/// 계약 draft.3(#165 ⑧)·draft.5(#233)에 들어왔지만 writing 오류 문구
-/// (`slots/ui/common.yaml`)가 아직 없는 code입니다. 그동안은 4xx 일반 문구
-/// (`errorClient`)로 보입니다. writing이 ARB 키를 더하면 아래 '대기 목록' 테스트가
-/// 실패하니, 이 목록에서 지우고 [problemMessages]에 연결합니다.
-const _awaitingWriting = {
-  'timezone.invalid',
-  'city.not_found',
-  'reaction.not_found',
-  'schedule.not_found',
-  'range.too_long',
-};
+/// 계약 draft.3(#165 ⑧)에 들어왔지만 writing 오류 문구(`slots/ui/common.yaml`)가
+/// 아직 없는 code입니다. 그동안은 4xx 일반 문구(`errorClient`)로 보입니다. writing에
+/// 키 이름(`errorTimezoneInvalid`·`errorCityNotFound`)을 알렸습니다(#268).
+/// writing이 ARB 키를 더하면 아래 '대기 목록' 테스트가 실패하니, 이 목록에서 지우고
+/// [problemMessages]에 연결합니다.
+const _awaitingWriting = {'timezone.invalid', 'city.not_found'};
 
 /// 계약 `Problem.code`의 `x-problem-codes` 목록을 읽습니다.
 Set<String> _contractCodes() {

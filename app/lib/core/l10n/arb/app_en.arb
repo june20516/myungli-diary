@@ -116,7 +116,6 @@
   "onboardCallInputLabel": "Name to call you",
   "onboardTimeQuestionHead": "What time were you born?",
   "onboardTimeUnknownNote": "If you don't know the time, we read your chart from three pillars, leaving out the hour.",
-  "noticeTimeUnknown": "If you don't know the time, we read your chart from three pillars, leaving out the hour.",
   "timeUnknownLabel": "Don't know",
   "onboardTimeHourConfirm": "You were born in the {branch} hour, {start}–{end}.",
   "branchJa": "Rat",
@@ -313,5 +312,8 @@
   "sajuChartBarTitle": "Saju chart",
   "settingsBarTitle": "Settings",
   "tagDiaryBarTitle": "Tag: {tag}",
-  "todayBarTitle": "Today"
+  "todayBarTitle": "Today",
+  "errorReactionNotFound": "We couldn't find the sentence you reacted to. Please refresh the screen.",
+  "errorScheduleNotFound": "We couldn't find that event. Please refresh the list.",
+  "errorRangeTooLong": "That date range is too long. Please choose a shorter range."
 }

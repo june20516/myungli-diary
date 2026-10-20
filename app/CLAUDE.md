@@ -50,11 +50,13 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-10-16, app 세션 갱신)
-* **계획 4(달력·일정) 구현 완료, PR 전**입니다. 브랜치 `app/calendar`, 계획 [`docs/plans/2026-10-16-calendar.md`](docs/plans/2026-10-16-calendar.md), 결정 A32~A41(`docs/decisions.md`). `features/calendar`(달 길흉 영구 캐시와 앞뒤 달 미리 받기, `calendar` 탭, `day-sheet`)와 `features/schedule`(보이는 6주 격자 범위만 메모리에 드는 일정, `event-edit` 만들기·고치기·지우기)를 만들었고, `today`에 오늘 일정 한 줄과 `today` → `day-sheet` 출구를 붙였습니다. 시트·확인 창·toast는 셸 바깥에 그려도 글자가 Material 오류 스타일을 받지 않습니다.
+## 현재 상태 (2026-10-20, app 세션 갱신)
+* **컴포넌트 2.6.0·REST draft.6 따라잡기(drift #264·#266) 구현 완료, PR 전**입니다. 브랜치 `app/contract-2-6`, 계획 [`docs/plans/2026-10-20-contract-2-6.md`](docs/plans/2026-10-20-contract-2-6.md). `date-picker` `solar`(옛 `lunarAllowed`), `text-field` `multiline`(첫 줄·지우기가 한 줄 칸과 같은 높이), `event-row` `failed`(`EventRowListFailed`), 그날 시트 일기 쓰기 `primary-button` `filled`(V37, 입구 자리는 링크·버튼 중 큰 높이로 고정), 원전 인용 한자 `fontFallback`(`SentenceBlock.fontFallback`). writing 오류 문구 3개(#237)를 연결했고, server가 notice 문장을 채우므로(#262) 임시 키 `noticeTimeUnknown`을 지웠습니다(A43 해제). 결정 A35·A37·A40~A42·A44를 확정 문장으로 고쳤습니다. 풀이 시트 한자 글꼴·근거 여럿 쌓기·윤달 라벨·1900-02 첫 달·`birthCity` 경도는 계획 4에서 이미 맞았습니다.
+  * `city.not_found`·`timezone.invalid`는 writing 문구 대기라 4xx 일반 문구입니다(키 이름 `errorCityNotFound`·`errorTimezoneInvalid`를 #237 답으로 writing에 알림, #268).
+* **계획 4(달력·일정) 완료**이고 PR #253으로 main에 병합됐습니다. 브랜치 `app/calendar`, 계획 [`docs/plans/2026-10-16-calendar.md`](docs/plans/2026-10-16-calendar.md), 결정 A32~A41(`docs/decisions.md`). `features/calendar`(달 길흉 영구 캐시와 앞뒤 달 미리 받기, `calendar` 탭, `day-sheet`)와 `features/schedule`(보이는 6주 격자 범위만 메모리에 드는 일정, `event-edit` 만들기·고치기·지우기)를 만들었고, `today`에 오늘 일정 한 줄과 `today` → `day-sheet` 출구를 붙였습니다. 시트·확인 창·toast는 셸 바깥에 그려도 글자가 Material 오류 스타일을 받지 않습니다.
   * **E2E 커버리지(도구로 확인, 2026-10-16):** 경로 45/80, 상태 26/54, 결정 5/6(`dart run tool/ia_coverage.dart --check`). Patrol 흐름 `patrol_test/calendar_test.dart`.
   * **drift 따라잡기(#224·#227·#229·#231·#234) 반영 완료**, 결정 A22·A29·A30·A31·A38 해제, A42(근거 여러 문단)·A43(빈 notice 문장 임시 키) 추가. city-search saving·지역 구분자, 생성물·fixture, 일정·반응 404 code·범위 422, calc-basis 도시 경도·서머타임 문구, app-bar 제목 13곳, 용어 한자·오늘 그런 이유·근거 basis·source 문장을 이었습니다.
-  * **남은 Issue:** design #218(진행 중 규칙·양력 date-picker·윤달·삭제 확인·A42·한자 글꼴·원전 상자), writing #237·#232·#236. #217·#219는 닫혔고 #220은 D75로 닫혔습니다.
+  * **남은 Issue:** 없음. design #218(2.6.0)·writing #237·#232·#236은 닫혔고 이번 따라잡기에서 반영했습니다. #217·#219는 닫혔고 #220은 D75로 닫혔습니다.
 * **IA v3(#160·#173·#184) 완료**이고 PR #215로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-16-ia-v3.md`](docs/plans/2026-10-16-ia-v3.md), 결정 A28~A31. 새 화면 `calc-basis`와 경도 보정 순수 함수(`features/calc_basis/model/time_basis.dart`)가 있습니다. #199·#201·#214의 반영은 위 drift 따라잡기로 끝났고, 남은 것은 아래 "다음 할 일" 2입니다.
 * **계획 3(오늘·깊이 시트) 완료**이고 PR #196으로 main에 병합됐습니다. 계획: [`docs/plans/2026-10-15-today-depth.md`](docs/plans/2026-10-15-today-depth.md)
 * **계획 2(온보딩·로그인) 완료**이고 PR #149로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md), 결정 A17~A21. 화면 13개(launch~ad-consent)와 새 계정 흐름 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`, fake 시나리오 표는 [`README.md`](README.md)에 있습니다.
@@ -83,15 +85,14 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **열린 `drift` 먼저 (지휘 2026-10-20):** #264(PR #261 컴포넌트 계약 2.6.0: `date-picker` `solar`, `event-row` `twoLines`·`add`·`failed`, `day-cell` 높이 V36·윤달 V38, 그날 시트 일기 입구 V37, `text-field` `multiline`, 근거 `repeat`, 한자 글꼴)·#266(PR #262 REST draft.6: `Profile.birthCity`, `getCalendar` 첫 달 1900-02, 409 `profile.required`). 계획 5 첫 PR에서 함께 맞추고 `Closes`로 닫습니다. #218 답(2.6.0)으로 임시 결정 A32~A42를 정리하고, `birthCity` 경도를 `calc-basis` 경도 문단에 연결합니다(#199 코멘트). 이어서 아래 5번(writing 문구 도착)을 처리합니다.
+1. **이 따라잡기 PR을 올리고 병합을 기다립니다**(`Closes #264`·`Closes #266`). 병합 뒤 아래 3번 계획 5로 갑니다. writing #260(윤달 초하루 표지 문구)이 오면 `dayCellDataOf`의 `lunarText`에 붙입니다(A40).
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 화면 9곳의 `<화면>.bar.title` 제목은 해당 화면을 만드는 계획 5·6에서 붙입니다(임시 키 허용 목록 `test/` 대조가 알려 줍니다, A43). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. 계획 4가 넘기는 것:
    * `diary-view`·`diary-edit`은 날짜를 `?date=YYYY-MM-DD` 계약으로 받습니다(`lib/app/router/app_router.dart`의 `dateQuery`·`datedPathOf`). `day-sheet`의 일기 입구가 이미 이 경로로 엽니다(`today` 가이드 카드는 날짜 없이 오늘로 엽니다).
    * `date-picker`의 `calendar` 변형(일기 날짜 고르기)은 `CalendarMonthView.isDateEnabled`로 미래 날짜를 막습니다.
    * 연결 상태 provider가 생기면 달력 오프라인 배너를 그것으로 바꿉니다. 지금은 달·일정 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`).
-   * 계획 4의 남은 Issue(#218 design) 답이 오면 임시 문구·명세·계약 빈칸(A32~A41)을 맞춥니다.
-4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제), 원전 인용 fixture는 writing 원고가 오면 채웁니다. design #218의 ⑤A42(근거 여러 문단)·⑥한자 글꼴·⑦원전 인용 상자 확인이 오면 `EvidenceSubject` 출처 표시에 맞춥니다.
-5. **writing 대기 문구.** #237(새 error 문구 3개, `noticeTimeUnknown` 알림, PR #254)·#232(notice, PR #249)가 main에 왔습니다. 이것들을 가져오고 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지웁니다(문구가 오면 대기 테스트가 실패해 알려 줍니다). 그때까지 4xx 일반 문구입니다. 빈 `segments` notice 문장은 임시 키(A43)로 그립니다.
+4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제, 2.6.0 `repeat`·한자 `fontFallback` 반영), 원전 인용 fixture는 writing 원고(W1-3)가 오면 채웁니다.
+5. **writing 대기 문구.** `city.not_found`·`timezone.invalid` 문구가 오면 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지우고 `problemMessages`에 연결합니다(대기 테스트가 실패해 알려 줍니다).
 6. **이후 계획으로 넘긴 사항**
    * 계획 6(나·설정): 근거 시트의 원국표와 "내 사주에서는" 개인 해석(`EvidenceSubject`에 차트 주제를 더해 잠금 해제 흐름을 그대로 씀), `legal`에 GeoNames 출처 고지(#165).
    * 계획 6(설정·계정): 자발적 로그아웃과 계정 삭제(`deleteMe` 202 뒤, 계정이 삭제 대기가 되어도 토큰은 `logout`에 쓸 수 있음)는 `revokeAndSignOut`(`lib/app/entry/sign_out.dart`)을 부릅니다. 둘 다 `signedOut` 이벤트로 정리·SDK 해제·진입 재계산이 돕니다. `discardWithoutEvent`를 쓰면 정리가 돌지 않습니다.

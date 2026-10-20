@@ -697,7 +697,7 @@ void main() {
           () => find.byType(ToastPill).evaluate().isNotEmpty,
         );
 
-        expect(find.text(_ko.errorClient), findsOneWidget);
+        expect(find.text(_ko.errorReactionNotFound), findsOneWidget);
         expect(
           tester.widget<ReactionButton>(find.byType(ReactionButton)).on,
           isFalse,
@@ -707,9 +707,7 @@ void main() {
       },
     );
 
-    testWidgets('time_unknown notice의 문장이 비어 있으면 app 문구로 배너를 그립니다', (
-      tester,
-    ) async {
+    testWidgets('time_unknown notice의 문장이 비어 있으면 배너를 그리지 않습니다', (tester) async {
       final json = memberDailyJson();
       json['notices'] = [
         {
@@ -734,13 +732,13 @@ void main() {
         ],
       );
       await _settleToday(tester);
-      final banner = tester.widget<NoticeBanner>(
+      expect(
         find.byWidgetPredicate(
           (w) =>
               w is NoticeBanner && w.variant == NoticeBannerVariant.timeUnknown,
         ),
+        findsNothing,
       );
-      expect(banner.message, _ko.noticeTimeUnknown);
     });
 
     testWidgets('태그 문장이 빈 segments면 태그 카드를 그리지 않습니다', (tester) async {

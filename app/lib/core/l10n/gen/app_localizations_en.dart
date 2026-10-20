@@ -218,10 +218,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'re offline, so this is what was saved earlier.';
 
   @override
-  String get noticeTimeUnknown =>
-      'If you don\'t know the time, we read your chart from three pillars, leaving out the hour.';
-
-  @override
   String get emptyStateDefault => 'Nothing here yet.';
 
   @override
@@ -1146,4 +1142,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayBarTitle => 'Today';
+
+  @override
+  String get errorReactionNotFound =>
+      'We couldn\'t find the sentence you reacted to. Please refresh the screen.';
+
+  @override
+  String get errorScheduleNotFound =>
+      'We couldn\'t find that event. Please refresh the list.';
+
+  @override
+  String get errorRangeTooLong =>
+      'That date range is too long. Please choose a shorter range.';
 }

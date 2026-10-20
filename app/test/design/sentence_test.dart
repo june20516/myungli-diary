@@ -1079,6 +1079,61 @@ void main() {
       );
     });
 
+    testWidgets('원전 인용은 한자만 font.family.hanja(대체 글꼴 맨 앞)이고 판정 근거는 그대로입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '오늘 풀이의 근거',
+              basis: [
+                _text([Segment(text: '근거')]),
+              ],
+              source: [
+                _text([Segment(text: '用神 원전')]),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Text.rich의 바깥 span은 DefaultTextStyle이고, 문장 스타일은 그 안 첫 span입니다.
+      TextStyle rootStyle(String slotId) {
+        final rich = tester.widget<RichText>(
+          find
+              .descendant(
+                of: find.byKey(ValueKey(slotId)),
+                matching: find.byType(RichText),
+              )
+              .first,
+        );
+        final outer = rich.text as TextSpan;
+        return (outer.children!.first as TextSpan).style!;
+      }
+
+      final typography = tester
+          .element(find.byType(EvidenceSheetBody))
+          .tokens
+          .typography;
+      final hanja = typography.hanjaPillar.fontFamily;
+      final quote = rootStyle(SlotIds.evidenceSheetSourceQuote);
+      expect(quote.fontFamily, typography.sentenceBody.fontFamily);
+      expect(quote.fontFamilyFallback, [
+        hanja,
+        ...?typography.sentenceBody.fontFamilyFallback,
+      ]);
+      final basis = rootStyle(SlotIds.evidenceSheetBasisBody);
+      expect(
+        basis.fontFamilyFallback,
+        typography.sentenceBody.fontFamilyFallback,
+      );
+    });
+
     testWidgets('locked면 넘어온 문장이 있어도 그리지 않습니다(D60)', (tester) async {
       await tester.pumpWidget(
         _app(

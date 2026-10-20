@@ -20,6 +20,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -146,12 +147,19 @@ class _ScheduleSection extends ConsumerWidget {
     }
     final list = schedules.value;
     if (list == null) {
-      return _ScheduleError(
-        error: schedules.error,
+      final cause = schedules.error;
+      return EventRowListFailed(
+        message: errorMessage(
+          l10n,
+          cause is AppError ? cause : UnexpectedError(cause ?? 'unknown'),
+        ),
+        retryLabel: l10n.actionRetry,
         // 값 없이 실패한 격자는 고르지 않으므로, 실패는 그 날 하루 범위입니다.
         onRetry: () =>
             ref.invalidate(schedulesInRangeProvider((from: date, to: date))),
-        addButton: addButton,
+        addLabel: l10n.daySheetEventAdd,
+        onAdd: add,
+        addIdentifier: SlotIds.daySheetEventAdd,
       );
     }
     if (list.isEmpty) {
@@ -184,58 +192,15 @@ class _ScheduleSection extends ConsumerWidget {
       _push(context, pathOf(ScreenIds.eventEdit), extra: schedule);
 }
 
-/// 일정을 받지 못했을 때: 오류 종류에 맞는 조용한 한 줄, 다시 시도, 일정 추가.
+/// 일기 입구(오늘·지난 날, 결정 V37). 쓴 일기를 보러 가는 이동은 `depth-link` `navigate`,
+/// 새로 쓰는 동작은 `primary-button` `filled`입니다.
 ///
-/// 시트 전체의 `error`(날의 성격을 못 받음)와 달리 목록 자리만의 표시입니다. 모양은 임시이고
-/// design 확인 대기입니다(#218).
-class _ScheduleError extends StatelessWidget {
-  const new({
-    required this.error,
-    required this.onRetry,
-    required this.addButton,
-  });
-
-  static const Key messageKey = ValueKey('day-sheet.event.error');
-
-  final Object? error;
-  final VoidCallback onRetry;
-  final Widget addButton;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final tokens = context.tokens;
-    final cause = error;
-    final appError = cause is AppError
-        ? cause
-        : UnexpectedError(cause ?? 'unknown');
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: Space.s4,
-      children: [
-        Text(
-          errorMessage(l10n, appError),
-          key: messageKey,
-          textAlign: TextAlign.center,
-          style: tokens.typography.captionLg.copyWith(
-            color: tokens.colors.textSecondary,
-          ),
-        ),
-        PrimaryButton(
-          label: l10n.actionRetry,
-          onPressed: onRetry,
-          variant: PrimaryButtonVariant.quiet,
-        ),
-        addButton,
-      ],
-    );
-  }
-}
-
-/// 일기 입구(오늘·지난 날). 일기 여부를 묻는 동안은 링크 한 줄 자리를 skeleton으로 잡아 두어,
-/// 답이 와도 시트 높이가 바뀌지 않게 합니다.
+/// 입구 자리는 늘 링크·버튼 중 큰 쪽 높이로 잡아 둡니다. 일기 여부를 묻는 동안(skeleton)과
+/// 답이 온 뒤의 시트 높이가 같아, 시트가 출렁이지 않습니다.
 class _DiaryEntry extends ConsumerWidget {
   const new({required this.date});
+
+  static const Key entryKey = ValueKey('day-sheet.diary.entry');
 
   final CalendarDate date;
 
@@ -243,16 +208,35 @@ class _DiaryEntry extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final written = ref.watch(diaryExistsOnProvider(date)).value;
-    if (written == null) {
-      return const _LinkSkeleton();
-    }
-    return DepthLink(
+    // [placeholder]면 자리만 잡는 후보라 슬롯 id를 붙이지 않습니다.
+    Widget open({bool placeholder = false}) => DepthLink(
       variant: DepthLinkVariant.navigate,
-      label: written ? l10n.daySheetDiaryOpen : l10n.daySheetDiaryWriteCta,
-      slotId: written
-          ? SlotIds.daySheetDiaryOpen
-          : SlotIds.daySheetDiaryWriteCta,
-      onTap: () => _openDiary(context, ref, written: written),
+      label: l10n.daySheetDiaryOpen,
+      slotId: placeholder ? null : SlotIds.daySheetDiaryOpen,
+      onTap: () => _openDiary(context, ref, written: true),
+    );
+    Widget write({bool placeholder = false}) => Padding(
+      padding: const EdgeInsets.only(top: Space.s12),
+      child: PrimaryButton(
+        label: l10n.daySheetDiaryWriteCta,
+        onPressed: () => _openDiary(context, ref, written: false),
+        identifier: placeholder ? null : SlotIds.daySheetDiaryWriteCta,
+      ),
+    );
+    return Stack(
+      key: entryKey,
+      children: [
+        // 보이지 않는 후보가 자리만 잡습니다(누를 수 없고 스크린리더도 읽지 않음).
+        if (written != true)
+          Visibility.maintain(visible: false, child: open(placeholder: true)),
+        if (written != false)
+          Visibility.maintain(visible: false, child: write(placeholder: true)),
+        switch (written) {
+          null => const _LinkSkeleton(),
+          true => open(),
+          false => write(),
+        },
+      ],
     );
   }
 
@@ -285,8 +269,7 @@ Future<void> _push(BuildContext context, String location, {Object? extra}) =>
   BuildContext context,
   TextStyle style,
 ) {
-  final fontSize = MediaQuery.textScalerOf(context).scale(style.fontSize ?? 16);
-  final line = fontSize * (style.height ?? 1.5);
+  final line = lineHeightOf(style, MediaQuery.textScalerOf(context));
   return (line: line, bone: line * 0.6);
 }
 

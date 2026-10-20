@@ -474,4 +474,49 @@ void main() {
       handle.dispose();
     });
   });
+
+  group('EventRowListFailed', () {
+    testWidgets('문구 한 줄(caption.lg text.secondary 가운데) + quiet 다시 시도·일정 추가', (
+      tester,
+    ) async {
+      var retries = 0;
+      var adds = 0;
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          EventRowListFailed(
+            message: '인터넷에 연결되어 있지 않아요.',
+            retryLabel: '다시 시도',
+            onRetry: () => retries++,
+            addLabel: '일정 추가',
+            onAdd: () => adds++,
+            addIdentifier: SlotIds.daySheetEventAdd,
+          ),
+        ),
+      );
+      final tokens = _context(tester).tokens;
+      final message = _text(tester, '인터넷에 연결되어 있지 않아요.');
+      expect(message.key, EventRowListFailed.messageKey);
+      expect(message.textAlign, TextAlign.center);
+      expect(message.style!.fontSize, tokens.typography.captionLg.fontSize);
+      expect(message.style!.color, tokens.colors.textSecondary);
+      final buttons = tester
+          .widgetList<PrimaryButton>(find.byType(PrimaryButton))
+          .toList();
+      expect(buttons.map((b) => b.label), ['다시 시도', '일정 추가']);
+      expect(
+        buttons.map((b) => b.variant),
+        everyElement(PrimaryButtonVariant.quiet),
+      );
+      expect(
+        tester.getSemantics(find.text('일정 추가')).getSemanticsData().identifier,
+        SlotIds.daySheetEventAdd,
+      );
+      await tester.tap(find.text('다시 시도'));
+      await tester.tap(find.text('일정 추가'));
+      await tester.pumpAndSettle();
+      expect((retries, adds), (1, 1));
+      handle.dispose();
+    });
+  });
 }

@@ -107,6 +107,9 @@ enum DatePickerVariant {
   /// 생일 입력.
   birth,
 
+  /// 일정 날짜(양력만). `birth`에서 양력·음력 선택과 윤달 줄을 뺀 모양입니다.
+  solar,
+
   /// 일기 목록에서 날짜로 가기(시트 안). 계획 5에서 구현합니다.
   calendar,
 }
@@ -119,6 +122,9 @@ enum DatePickerVariant {
 /// 윤달 표시가 꺼집니다. 음력 날짜의 양력 확인 줄과 월 휠의 '윤N월' 항목은 그리지 않습니다
 /// (결정 A20 ④: 변환·윤달 유무 API가 없어 server 422로 받습니다).
 ///
+/// [DatePickerVariant.solar]는 양력·음력 선택과 윤달 줄을 그리지 않고, 받은 값이 음력이어도
+/// 양력으로 보고 늘 양력 값만 돌려줍니다(일정 날짜). 휠·선택 띠·범위는 `birth`와 같습니다.
+///
 /// [variant]가 [DatePickerVariant.calendar]이면 아직 구현 전이라 [UnimplementedError]입니다.
 class BirthDatePicker extends StatelessWidget {
   /// 생일 휠을 만듭니다. 글자(양력·음력·윤달)는 화면이 줍니다.
@@ -129,7 +135,6 @@ class BirthDatePicker extends StatelessWidget {
     required this.calendarLabelLunar,
     required this.leapMonthLabel,
     this.variant = DatePickerVariant.birth,
-    this.lunarAllowed = true,
     this.identifier,
     super.key,
   });
@@ -137,7 +142,7 @@ class BirthDatePicker extends StatelessWidget {
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'date-picker',
-    {'birth', 'calendar'},
+    {'birth', 'solar', 'calendar'},
     {'wheelTick', 'out-of-range'},
   );
 
@@ -168,16 +173,15 @@ class BirthDatePicker extends StatelessWidget {
   /// 윤달 체크 글자.
   final String leapMonthLabel;
 
-  /// 음력 선택을 허용하는지. false면 양력·음력 선택과 윤달 줄을 그리지 않고, 받은 값이 음력이어도
-  /// 양력으로 보고 늘 양력 값만 돌려줍니다(결정 A37: 일정 날짜는 양력 전용).
-  final bool lunarAllowed;
+  /// 음력을 고를 수 있는 변형인지(`birth`만).
+  bool get _lunarAllowed => variant == DatePickerVariant.birth;
 
   /// 양력·음력 선택의 IA 슬롯 id.
   final String? identifier;
 
-  /// [lunarAllowed]가 false면 양력·윤달 아님으로 고정하고, 일을 그달 양력 날수에 맞춘 값입니다.
+  /// [_lunarAllowed]가 false면 양력·윤달 아님으로 고정하고, 일을 그달 양력 날수에 맞춘 값입니다.
   BirthDateValue get _effectiveValue {
-    if (lunarAllowed) return value;
+    if (_lunarAllowed) return value;
     final solar = value.copyWith(
       calendar: BirthCalendar.solar,
       isLeapMonth: false,
@@ -213,7 +217,7 @@ class BirthDatePicker extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (lunarAllowed) ...[
+        if (_lunarAllowed) ...[
           Segmented<BirthCalendar>(
             label: '$calendarLabelSolar $calendarLabelLunar',
             identifier: identifier,

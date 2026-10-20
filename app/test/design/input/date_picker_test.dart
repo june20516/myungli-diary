@@ -30,13 +30,13 @@ class _Host extends StatefulWidget {
   const new({
     required this.initial,
     required this.changes,
-    this.lunarAllowed = true,
+    this.variant = DatePickerVariant.birth,
     super.key,
   });
 
   final BirthDateValue initial;
   final List<BirthDateValue> changes;
-  final bool lunarAllowed;
+  final DatePickerVariant variant;
 
   @override
   State<_Host> createState() => _HostState();
@@ -57,7 +57,7 @@ class _HostState extends State<_Host> {
       calendarLabelSolar: '양력',
       calendarLabelLunar: '음력',
       leapMonthLabel: '윤달',
-      lunarAllowed: widget.lunarAllowed,
+      variant: widget.variant,
     ),
   );
 }
@@ -70,7 +70,7 @@ Widget _solarOnlyPicker(BirthDateValue value, List<BirthDateValue> changes) =>
       key: ValueKey(value),
       initial: value,
       changes: changes,
-      lunarAllowed: false,
+      variant: DatePickerVariant.solar,
     );
 
 int _itemCount(WidgetTester tester, Key key) =>
@@ -368,7 +368,7 @@ void main() {
       expect(followed, free);
     });
 
-    group('lunarAllowed: false (양력 전용, A37)', () {
+    group('date-picker(solar)', () {
       testWidgets('양력·음력 선택과 윤달 줄을 그리지 않고 휠은 그대로입니다', (tester) async {
         await tester.pumpWidget(inputApp(_solarOnlyPicker(_value(), [])));
         expect(find.byType(Segmented<BirthCalendar>), findsNothing);

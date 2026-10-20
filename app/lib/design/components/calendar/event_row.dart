@@ -32,10 +32,9 @@ const AppGlyph _caretRight = AppGlyph(
   regular: PhosphorIconsRegular.caretRight,
 );
 
-/// `summary`를 한 줄로 둘 때 제목에 남겨야 하는 최소 자리(글자 수). 모자라면 두 줄로 내립니다.
-///
-/// 임시, design 확인 대기 #218. 글자 하나 폭을 글자 크기로 어림하므로 영어처럼 글자가
-/// 좁은 언어에서는 실제로 들어가는 글자 수가 더 많습니다.
+/// `summary`를 한 줄로 둘 때 제목에 남겨야 하는 최소 자리(글자 수, `twoLines`). 모자라면 두
+/// 줄로 내립니다. 글자 하나 폭을 글자 크기로 어림하므로 영어처럼 글자가 좁은 언어에서는 실제로
+/// 들어가는 글자 수가 더 많습니다.
 const int _summaryTitleMinChars = 4;
 
 /// 일정 한 줄(`event-row`).
@@ -263,9 +262,8 @@ class EventRow extends StatelessWidget {
         if (fitsOneLine) {
           return Row(spacing: Space.s8, children: [...lead, ...tail]);
         }
-        // 큰 글자에서 제목 자리가 모자라면 상태·시각 / 제목·외 N개 두 줄로 내립니다.
+        // 큰 글자에서 제목 자리가 모자라면 상태·시각 / 제목·외 N개 두 줄로 내립니다(`twoLines`).
         // 좁은 폭에서 상태·시각도 한 줄에 못 들어가면 시각이 다음 줄로 넘어갑니다.
-        // 임시, design 확인 대기 #218.
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: Space.s4,
@@ -321,9 +319,8 @@ class EventRow extends StatelessWidget {
       ],
     );
     // 시각 글자는 줄이지 않습니다. 배율 그대로 칸에 들어가면 58 고정 칸(하루 종일도
-    // 같은 폭), 들어가지 않으면 시각 / 제목·화살표 두 줄로 내립니다. 판정은 칸 폭(고정값)과
-    // 글자 폭만 보므로 부모 제약이 필요 없습니다.
-    // 큰 글자 처리는 임시, design 확인 대기 #218.
+    // 같은 폭), 들어가지 않으면 시각 / 제목·화살표 두 줄로 내립니다(`timeColumn.overflow`).
+    // 판정은 칸 폭(고정값)과 글자 폭만 보므로 부모 제약이 필요 없습니다.
     final timeFits =
         _textWidth(context, timeText, timeStyle) <=
         timeColumnWidth - timeColumnGap;
@@ -402,6 +399,75 @@ class EventRowListEmpty extends StatelessWidget {
               color: tokens.colors.textSecondary,
             ),
           ),
+        ),
+        PrimaryButton(
+          label: addLabel,
+          onPressed: onAdd,
+          variant: PrimaryButtonVariant.quiet,
+          identifier: addIdentifier,
+        ),
+      ],
+    );
+  }
+}
+
+/// 날의 성격은 받았는데 일정 목록만 받지 못했을 때의 목록 자리(`event-row` `list`
+/// `parts.failed`): 오류 종류별 문구 한 줄 + `quiet` 다시 시도 + `quiet` 일정 추가.
+///
+/// 없는 일정을 없다고 말하지 않으려고 빈 문장 대신 씁니다. 시트 전체 `error`(`error-state`)는
+/// 날의 성격을 받지 못했을 때만입니다.
+class EventRowListFailed extends StatelessWidget {
+  /// 실패 자리를 만듭니다. [addIdentifier]는 일정 추가의 IA 슬롯 id(`day-sheet.event.add`)입니다.
+  const new({
+    required this.message,
+    required this.retryLabel,
+    required this.onRetry,
+    required this.addLabel,
+    required this.onAdd,
+    this.addIdentifier,
+    super.key,
+  });
+
+  /// 문구 한 줄을 찾는 테스트용 키.
+  static const Key messageKey = ValueKey('event-row-failed-message');
+
+  /// 오류 종류별 문구(`errorMessage`).
+  final String message;
+
+  /// 다시 시도 버튼 글자.
+  final String retryLabel;
+
+  /// 다시 시도를 눌렀을 때.
+  final VoidCallback onRetry;
+
+  /// 일정 추가 버튼 글자.
+  final String addLabel;
+
+  /// 일정 추가를 눌렀을 때.
+  final VoidCallback onAdd;
+
+  /// 일정 추가 버튼의 IA 슬롯 id.
+  final String? addIdentifier;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: Space.s4,
+      children: [
+        Text(
+          message,
+          key: messageKey,
+          textAlign: TextAlign.center,
+          style: tokens.typography.captionLg.copyWith(
+            color: tokens.colors.textSecondary,
+          ),
+        ),
+        PrimaryButton(
+          label: retryLabel,
+          onPressed: onRetry,
+          variant: PrimaryButtonVariant.quiet,
         ),
         PrimaryButton(
           label: addLabel,
