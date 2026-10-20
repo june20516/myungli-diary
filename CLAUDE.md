@@ -3,7 +3,7 @@
 이 파일은 저장소의 **모든 세션**이 읽습니다. 서브 프로젝트 디렉터리에서 시작한 세션도 함께 읽습니다. 상세 규약은 [`docs/workflow.md`](docs/workflow.md)에 있으며, 작업을 시작하기 전에 반드시 읽습니다.
 
 ## 나는 어떤 세션인가
-* 작업 디렉터리가 **저장소 루트**면 → **지휘 세션**입니다. 아래 "지휘 세션" 절을 따릅니다.
+* 작업 디렉터리가 **본 저장소(`myungli-diary`) 루트**면 → **지휘 세션**입니다. 아래 "지휘 세션" 절을 따릅니다. 단위 worktree(`../myungli-diary-<단위>`)의 루트는 지휘 세션이 아닙니다.
 * 작업 디렉터리가 `core/`, `server/`, `app/` 아래면 → 그 **서브 프로젝트 세션**입니다. 그 디렉터리의 `CLAUDE.md`를 따르고, 자기 소유 경로(`docs/workflow.md` §2) 밖은 고치지 않습니다.
 * 작업 디렉터리가 `docs/identity/writing/` 또는 `docs/identity/design/` 아래면 → 그 **작업 단위 세션**(writing / design)입니다. 서브 프로젝트 세션과 같은 규칙을 따릅니다.
 
@@ -25,9 +25,9 @@
   1. 요청함 정리(`gh issue list`). 닫는 조건은 `docs/workflow.md` §5.2입니다.
      * 새 요청에 `accepted`/`rejected` 라벨을 붙입니다.
      * 완료 보고(`kind:report`)를 확인하고 닫습니다.
-     * 처리했다는 코멘트가 달렸는데 열려 있는 Issue를 닫거나, 받는 쪽에 닫아 달라고 남깁니다.
+     * 처리했다는 코멘트가 달렸는데 열려 있는 Issue를 닫거나, 받는 쪽에 닫아 달라고 남깁니다(종류와 상관없이 지휘가 대신 닫을 수 있음, D78).
      * 일을 시키는 공지는 `kind:request`로 바꿉니다.
-     * 닫힌 Issue의 `docs/coordination/` 원문을 `archive/`로 옮깁니다.
+     * 닫힌 Issue의 `docs/coordination/` 원문을 `archive/`로 옮깁니다(예외는 `docs/coordination/README.md`).
      * 열린 `drift` Issue(`gh issue list --label drift`)를 확인하고, 받는 쪽 단위의 다음 할 일 맨 앞에 둡니다(`docs/workflow.md` §6.1).
   2. `docs/roadmap.md` "현재 진행 순서"를 갱신합니다.
   3. 제품 지도를 갱신합니다(`tools/product-map/README.md`).
