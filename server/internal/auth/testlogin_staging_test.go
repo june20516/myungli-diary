@@ -16,7 +16,7 @@ func TestValidTestLabel(t *testing.T) {
 	for _, label := range []string{"a", "E2E01", strings.Repeat("z", 32)} {
 		assert.True(t, auth.ValidTestLabel(label), label)
 	}
-	for _, label := range []string{"", strings.Repeat("z", 33), "e2e-01", "e2e 01", "가나", "e2e01\n"} {
+	for _, label := range []string{"", strings.Repeat("z", 33), "e2e-01", "e2e 01", "가나", "e2e01\n", "١٢٣", "１", "Ａ"} {
 		assert.False(t, auth.ValidTestLabel(label), label)
 	}
 }

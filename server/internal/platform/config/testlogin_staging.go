@@ -16,10 +16,18 @@ type TestLoginConfig struct {
 	Secret string
 }
 
+// testLoginEnvs는 테스트 로그인이 든 staging 빌드가 시작할 수 있는 APP_ENV 값입니다.
+var testLoginEnvs = map[string]bool{"local": true, "staging": true}
+
 // LoadTestLogin은 getenv로 TEST_LOGIN_SECRET을 읽습니다. staging 빌드에서는 필수이고 32바이트 이상이어야 합니다.
-// 값은 앞뒤 공백을 지운 뒤 씁니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+// APP_ENV가 local·staging이 아니면(prod) 테스트 로그인이 든 바이너리가 prod에 배포된 것이라 오류입니다.
+// 값은 앞뒤 공백을 지운 뒤 씁니다. 오류에 APP_ENV 값은 담지만 비밀은 담지 않습니다.
 func LoadTestLogin(getenv func(string) string) (TestLoginConfig, error) {
-	secret := trimmedEnv(getenv)("TEST_LOGIN_SECRET")
+	getenv = trimmedEnv(getenv)
+	if env := orDefault(getenv("APP_ENV"), defaultEnv); !testLoginEnvs[env] {
+		return TestLoginConfig{}, fmt.Errorf("staging 빌드(테스트 로그인 포함)는 APP_ENV가 local 또는 staging이어야 합니다: APP_ENV=%q", env)
+	}
+	secret := getenv("TEST_LOGIN_SECRET")
 	switch {
 	case secret == "":
 		return TestLoginConfig{}, errors.New("TEST_LOGIN_SECRET이 필요합니다(staging 빌드)")

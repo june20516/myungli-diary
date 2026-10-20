@@ -49,7 +49,27 @@ jobs:
       - run: go test -race ./...
       - name: staging 테스트 로그인
         # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24).
-        run: go test -race -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin'
+        run: go test -race -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv'
+      - name: prod 바이너리에 테스트 로그인이 없는지 확인
+        # prod 빌드(tag 없음)에는 없고 staging 빌드에는 있어야 합니다. staging 쪽도 확인해 검사가 헛돌지 않게 합니다(S24).
+        run: |
+          out="$RUNNER_TEMP/testlogin-check"
+          mkdir -p "$out"
+          go build -o "$out/prod" ./cmd/server
+          go build -tags staging -o "$out/staging" ./cmd/server
+          check() {
+            symbol=$(go tool nm "$out/$1" | grep -c 'auth.(\*Service).LoginTest' || true)
+            header=$(grep -c -a 'X-Test-Login-Secret' "$out/$1" || true)
+            route=$(grep -c -a '/test/v1/auth/login' "$out/$1" || true)
+            echo "$1: LoginTest=$symbol X-Test-Login-Secret=$header /test/v1/auth/login=$route"
+            if [ "$2" = absent ]; then
+              [ "$symbol" -eq 0 ] && [ "$header" -eq 0 ] && [ "$route" -eq 0 ]
+            else
+              [ "$symbol" -gt 0 ] && [ "$header" -gt 0 ] && [ "$route" -gt 0 ]
+            fi
+          }
+          check prod absent
+          check staging present
       - name: 실제 엔진과 계약 테스트
         # core/Dockerfile로 엔진 이미지를 빌드해 띄우고 server 클라이언트로 실제 RPC를 부른다(#79).
         run: go test -tags enginecontract ./internal/engine/...

@@ -50,3 +50,19 @@ func TestServe_AssemblesTestLogin(t *testing.T) {
 	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
 	assert.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
 }
+
+// staging 빌드는 APP_ENV가 prod면 시작하지 않습니다. 테스트 로그인이 든 바이너리가 prod에 배포되는 것을 막습니다.
+func TestServe_StagingBuildRefusesProdEnv(t *testing.T) {
+	env := testAuthEnv(t)
+	env["APP_ENV"] = "prod"
+	env["PORT"] = freePort(t)
+	env["DATABASE_URL"] = "postgres://x@127.0.0.1:1/x"
+	var stdout, stderr bytes.Buffer
+
+	code := Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+
+	assert.Equal(t, 1, code)
+	assert.Contains(t, stderr.String(), "APP_ENV")
+	assert.Contains(t, stderr.String(), "prod")
+	assert.NotContains(t, stderr.String(), env["TEST_LOGIN_SECRET"], "오류에 비밀을 담지 않습니다")
+}

@@ -34,3 +34,19 @@ func TestLoadTestLogin(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadTestLogin_AppEnv(t *testing.T) {
+	strong := strings.Repeat("s", minTestLoginSecretBytes)
+	for _, appEnv := range []string{"", "local", "staging"} {
+		if _, err := LoadTestLogin(fakeEnv(map[string]string{"APP_ENV": appEnv, "TEST_LOGIN_SECRET": strong})); err != nil {
+			t.Errorf("LoadTestLogin(APP_ENV=%q) error = %v, want nil", appEnv, err)
+		}
+	}
+	_, err := LoadTestLogin(fakeEnv(map[string]string{"APP_ENV": "prod", "TEST_LOGIN_SECRET": strong}))
+	if err == nil || !strings.Contains(err.Error(), "APP_ENV") || !strings.Contains(err.Error(), "prod") {
+		t.Fatalf("LoadTestLogin(APP_ENV=prod) error = %v, want APP_ENV 오류", err)
+	}
+	if strings.Contains(err.Error(), strong) {
+		t.Errorf("오류 문구에 비밀이 들어 있습니다: %v", err)
+	}
+}
