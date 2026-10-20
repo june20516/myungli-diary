@@ -25,34 +25,6 @@ import (
 // (ChartResponse.personal_readings)은 계약에 자리가 없어 옮기지 않습니다.
 // 엔진 값이 계약 enum에 없으면(UNSPECIFIED, 모르는 번호) 엔진 계약 위반이라 오류(500)입니다.
 
-// tagPrefix는 엔진 태그 키의 앞부분입니다. 계약 Tag.key는 이 접두어를 뗀 glossary `tag` 범주의 키입니다.
-const tagPrefix = "tag."
-
-// tagPolarity는 태그 키 → 길흉입니다(P4-6). proto에 길흉이 없어 server가 고정 표로 둡니다.
-// 원본: core/docs/specs/2026-10-10-myungli-engine-design.md §7.7 "해시태그" 표의 길흉 열(15키).
-// 길=good, 흉=bad, 중립=neutral입니다.
-var tagPolarity = map[string]gen.TagPolarity{
-	// 1. 합·충
-	"tag.big_change": gen.TagPolarityBad,
-	"tag.clash":      gen.TagPolarityBad,
-	"tag.harmony":    gen.TagPolarityGood,
-	// 2. 십성 쏠림: 관성=흉, 재성·인성·식상=길, 비겁=중립
-	"tag.ten_god_rush.bigyeop":   gen.TagPolarityNeutral,
-	"tag.ten_god_rush.siksang":   gen.TagPolarityGood,
-	"tag.ten_god_rush.jaeseong":  gen.TagPolarityGood,
-	"tag.ten_god_rush.gwanseong": gen.TagPolarityBad,
-	"tag.ten_god_rush.inseong":   gen.TagPolarityGood,
-	// 3. 신살: 귀인·도화=길, 역마·화개=중립, 공망=흉
-	"tag.cheoneul_gwiin": gen.TagPolarityGood,
-	"tag.dohwa":          gen.TagPolarityGood,
-	"tag.yeokma":         gen.TagPolarityNeutral,
-	"tag.hwagae":         gen.TagPolarityNeutral,
-	"tag.gongmang":       gen.TagPolarityBad,
-	// 보조
-	"tag.yongsin_day": gen.TagPolarityGood,
-	"tag.gwiin_day":   gen.TagPolarityGood,
-}
-
 // contractEnum은 생성 코드의 계약 enum 타입입니다.
 type contractEnum interface {
 	~string
@@ -165,12 +137,12 @@ func (c *converter) instant(ts *timestamppb.Timestamp) time.Time {
 
 // tag는 엔진 태그 키를 계약 Tag(접두어를 뗀 키와 길흉)로 바꿉니다. 표에 없는 키는 오류입니다.
 func (c *converter) tag(key string) gen.Tag {
-	polarity, ok := tagPolarity[key]
+	polarity, ok := fortune.TagPolarity(key)
 	if !ok {
 		c.fail(fmt.Errorf("엔진 태그 키 %q의 길흉을 모릅니다", key))
 		return gen.Tag{}
 	}
-	return gen.Tag{Key: strings.TrimPrefix(key, tagPrefix), Polarity: polarity}
+	return gen.Tag{Key: fortune.TagContractKey(key), Polarity: gen.TagPolarity(polarity)}
 }
 
 // tagKey는 엔진 태그 키에서 접두어를 뗍니다. 표에 없는 키는 오류입니다.
