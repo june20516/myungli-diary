@@ -9,3 +9,36 @@ WHERE account_id = @account_id
   AND revoked_at IS NULL
   AND expires_at > @now
 ORDER BY expires_at, id;
+
+-- name: ListAdFreePassGrants :many
+-- 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
+SELECT id, entitlement, source_ref, revoked_at
+FROM entitlement_grants
+WHERE account_id = @account_id
+  AND source = 'ad_free_pass'
+ORDER BY id;
+
+-- name: UpsertGrant :exec
+-- (entitlement, source, source_ref)로 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5).
+-- 같은 구매가 다른 계정 행으로 이미 있으면(RevenueCat transfer 등) 지금 구매 목록에 그 구매가 있는 계정으로 옮깁니다(구매 목록이 권위).
+-- 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES (@account_id, @entitlement, @source, @source_ref, @starts_at, @expires_at)
+ON CONFLICT (entitlement, source, source_ref) DO UPDATE
+SET account_id = EXCLUDED.account_id,
+    starts_at  = EXCLUDED.starts_at,
+    expires_at = EXCLUDED.expires_at,
+    revoked_at = NULL
+WHERE entitlement_grants.account_id <> EXCLUDED.account_id
+   OR entitlement_grants.starts_at <> EXCLUDED.starts_at
+   OR entitlement_grants.expires_at <> EXCLUDED.expires_at
+   OR entitlement_grants.revoked_at IS NOT NULL;
+
+-- name: RevokeGrant :exec
+-- 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
+-- account_id 조건은 그 사이 다른 계정의 동기화가 이 행을 옮겨 간 경우(transfer) 그 계정 행을 취소하지 않게 합니다.
+UPDATE entitlement_grants
+SET revoked_at = @now::timestamptz
+WHERE id = @id
+  AND account_id = @account_id
+  AND revoked_at IS NULL;

@@ -12,6 +12,47 @@ import (
 	"github.com/google/uuid"
 )
 
+const listAdFreePassGrants = `-- name: ListAdFreePassGrants :many
+SELECT id, entitlement, source_ref, revoked_at
+FROM entitlement_grants
+WHERE account_id = $1
+  AND source = 'ad_free_pass'
+ORDER BY id
+`
+
+type ListAdFreePassGrantsRow struct {
+	ID          int64
+	Entitlement string
+	SourceRef   string
+	RevokedAt   *time.Time
+}
+
+// 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
+func (q *Queries) ListAdFreePassGrants(ctx context.Context, accountID uuid.UUID) ([]ListAdFreePassGrantsRow, error) {
+	rows, err := q.db.Query(ctx, listAdFreePassGrants, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAdFreePassGrantsRow
+	for rows.Next() {
+		var i ListAdFreePassGrantsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Entitlement,
+			&i.SourceRef,
+			&i.RevokedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLiveGrants = `-- name: ListLiveGrants :many
 
 SELECT entitlement, source, starts_at, expires_at
@@ -60,4 +101,63 @@ func (q *Queries) ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const revokeGrant = `-- name: RevokeGrant :exec
+UPDATE entitlement_grants
+SET revoked_at = $1::timestamptz
+WHERE id = $2
+  AND account_id = $3
+  AND revoked_at IS NULL
+`
+
+type RevokeGrantParams struct {
+	Now       time.Time
+	ID        int64
+	AccountID uuid.UUID
+}
+
+// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
+// account_id 조건은 그 사이 다른 계정의 동기화가 이 행을 옮겨 간 경우(transfer) 그 계정 행을 취소하지 않게 합니다.
+func (q *Queries) RevokeGrant(ctx context.Context, arg RevokeGrantParams) error {
+	_, err := q.db.Exec(ctx, revokeGrant, arg.Now, arg.ID, arg.AccountID)
+	return err
+}
+
+const upsertGrant = `-- name: UpsertGrant :exec
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (entitlement, source, source_ref) DO UPDATE
+SET account_id = EXCLUDED.account_id,
+    starts_at  = EXCLUDED.starts_at,
+    expires_at = EXCLUDED.expires_at,
+    revoked_at = NULL
+WHERE entitlement_grants.account_id <> EXCLUDED.account_id
+   OR entitlement_grants.starts_at <> EXCLUDED.starts_at
+   OR entitlement_grants.expires_at <> EXCLUDED.expires_at
+   OR entitlement_grants.revoked_at IS NOT NULL
+`
+
+type UpsertGrantParams struct {
+	AccountID   uuid.UUID
+	Entitlement string
+	Source      string
+	SourceRef   string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+}
+
+// (entitlement, source, source_ref)로 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5).
+// 같은 구매가 다른 계정 행으로 이미 있으면(RevenueCat transfer 등) 지금 구매 목록에 그 구매가 있는 계정으로 옮깁니다(구매 목록이 권위).
+// 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
+func (q *Queries) UpsertGrant(ctx context.Context, arg UpsertGrantParams) error {
+	_, err := q.db.Exec(ctx, upsertGrant,
+		arg.AccountID,
+		arg.Entitlement,
+		arg.Source,
+		arg.SourceRef,
+		arg.StartsAt,
+		arg.ExpiresAt,
+	)
+	return err
 }

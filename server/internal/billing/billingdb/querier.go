@@ -6,13 +6,24 @@ package billingdb
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
+	// 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
+	ListAdFreePassGrants(ctx context.Context, accountID uuid.UUID) ([]ListAdFreePassGrantsRow, error)
 	// 권한 기록 쿼리입니다. 판정은 이 쿼리가 돌려준 유효한 행으로 계산합니다(spec §3.3).
 	// 계정의 취소되지 않았고 아직 만료되지 않은 권한 행입니다. 시작 전인 행도 포함하므로 호출한 쪽이 starts_at을 봅니다.
 	// 순서는 (expires_at, id) 오름차순으로 고정합니다.
 	ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) ([]ListLiveGrantsRow, error)
+	// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
+	// account_id 조건은 그 사이 다른 계정의 동기화가 이 행을 옮겨 간 경우(transfer) 그 계정 행을 취소하지 않게 합니다.
+	RevokeGrant(ctx context.Context, arg RevokeGrantParams) error
+	// (entitlement, source, source_ref)로 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5).
+	// 같은 구매가 다른 계정 행으로 이미 있으면(RevenueCat transfer 등) 지금 구매 목록에 그 구매가 있는 계정으로 옮깁니다(구매 목록이 권위).
+	// 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
+	UpsertGrant(ctx context.Context, arg UpsertGrantParams) error
 }
 
 var _ Querier = (*Queries)(nil)
