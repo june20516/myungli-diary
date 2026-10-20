@@ -28,7 +28,8 @@ type Deps struct {
 }
 
 // NewHandler는 공통 미들웨어를 입힌 http.Handler를 만듭니다.
-// 미들웨어는 바깥부터 trace, 접근 로그, panic 복구, 본문 상한 순서입니다.
+// 미들웨어는 바깥부터 trace, 요청 언어, 접근 로그, panic 복구, 본문 상한 순서입니다.
+// 요청 언어는 context만 바꾸므로 접근 로그보다 바깥에 둡니다(r.Pattern을 접근 로그가 읽는 요청과 mux가 채우는 요청이 같아야 합니다).
 // 접근 로그가 복구·상한보다 바깥이라 413과 panic 500도 실제 상태로 기록됩니다.
 // routes가 nil이 아니면 mux에 경로를 등록하게 합니다. 계약 라우트(/healthz 포함)는 routes에서 RegisterAPI로 등록합니다.
 func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
@@ -41,6 +42,7 @@ func NewHandler(deps Deps, routes func(mux *http.ServeMux)) http.Handler {
 	handler = limitBody(handler)
 	handler = recoverPanic(deps, handler)
 	handler = accessLog(deps, handler)
+	handler = withRequestLanguage(handler)
 	return logging.WithTrace(handler)
 }
 
