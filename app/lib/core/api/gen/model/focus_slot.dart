@@ -3,7 +3,6 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -22,24 +21,17 @@ class FocusSlot {
   FocusSlot({
     required this.branch,
 
-    required this.pillar,
-
     required this.start,
 
     required this.end,
 
     required this.huangdaoLucky,
 
-    required this.score,
-
     required this.reasons,
   });
 
   @JsonKey(name: r'branch', required: true, includeIfNull: false)
   final Branch branch;
-
-  @JsonKey(name: r'pillar', required: true, includeIfNull: false)
-  final Pillar pillar;
 
   /// 프로필 현재 시간대의 offset으로 나타냅니다.
   @JsonKey(name: r'start', required: true, includeIfNull: false)
@@ -53,9 +45,6 @@ class FocusSlot {
   @JsonKey(name: r'huangdaoLucky', required: true, includeIfNull: false)
   final bool huangdaoLucky;
 
-  @JsonKey(name: r'score', required: true, includeIfNull: false)
-  final int score;
-
   /// 가점 사유 식별자(glossary `focus_reason` 범주의 키)
   @JsonKey(name: r'reasons', required: true, includeIfNull: false)
   final List<FocusSlotReasonsEnum> reasons;
@@ -65,21 +54,17 @@ class FocusSlot {
       identical(this, other) ||
       other is FocusSlot &&
           other.branch == branch &&
-          other.pillar == pillar &&
           other.start == start &&
           other.end == end &&
           other.huangdaoLucky == huangdaoLucky &&
-          other.score == score &&
           other.reasons == reasons;
 
   @override
   int get hashCode =>
       branch.hashCode +
-      pillar.hashCode +
       start.hashCode +
       end.hashCode +
       huangdaoLucky.hashCode +
-      score.hashCode +
       reasons.hashCode;
 
   factory FocusSlot.fromJson(Map<String, dynamic> json) =>

@@ -17,8 +17,6 @@ abstract class _$CalendarCWProxy {
 
   Calendar days(List<CalendarDay> days);
 
-  Calendar notices(List<Notice> notices);
-
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Calendar(...).copyWith.fieldName(value)`.
@@ -33,7 +31,6 @@ abstract class _$CalendarCWProxy {
     String rulesetVersion,
     EvidenceAccess evidenceAccess,
     List<CalendarDay> days,
-    List<Notice> notices,
   });
 }
 
@@ -61,9 +58,6 @@ class _$CalendarCWProxyImpl implements _$CalendarCWProxy {
   @override
   Calendar days(List<CalendarDay> days) => call(days: days);
 
-  @override
-  Calendar notices(List<Notice> notices) => call(notices: notices);
-
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Calendar(...).copyWith.fieldName(value)`.
@@ -79,7 +73,6 @@ class _$CalendarCWProxyImpl implements _$CalendarCWProxy {
     Object? rulesetVersion = const $CopyWithPlaceholder(),
     Object? evidenceAccess = const $CopyWithPlaceholder(),
     Object? days = const $CopyWithPlaceholder(),
-    Object? notices = const $CopyWithPlaceholder(),
   }) {
     return Calendar(
       year: year == const $CopyWithPlaceholder() || year == null
@@ -106,10 +99,6 @@ class _$CalendarCWProxyImpl implements _$CalendarCWProxy {
           ? _value.days
           // ignore: cast_nullable_to_non_nullable
           : days as List<CalendarDay>,
-      notices: notices == const $CopyWithPlaceholder() || notices == null
-          ? _value.notices
-          // ignore: cast_nullable_to_non_nullable
-          : notices as List<Notice>,
     );
   }
 }
@@ -135,7 +124,6 @@ Calendar _$CalendarFromJson(Map<String, dynamic> json) =>
           'rulesetVersion',
           'evidenceAccess',
           'days',
-          'notices',
         ],
       );
       final val = Calendar(
@@ -152,12 +140,6 @@ Calendar _$CalendarFromJson(Map<String, dynamic> json) =>
               .map((e) => CalendarDay.fromJson(e as Map<String, dynamic>))
               .toList(),
         ),
-        notices: $checkedConvert(
-          'notices',
-          (v) => (v as List<dynamic>)
-              .map((e) => Notice.fromJson(e as Map<String, dynamic>))
-              .toList(),
-        ),
       );
       return val;
     });
@@ -168,7 +150,6 @@ Map<String, dynamic> _$CalendarToJson(Calendar instance) => <String, dynamic>{
   'rulesetVersion': instance.rulesetVersion,
   'evidenceAccess': _$EvidenceAccessEnumMap[instance.evidenceAccess]!,
   'days': instance.days.map((e) => e.toJson()).toList(),
-  'notices': instance.notices.map((e) => e.toJson()).toList(),
 };
 
 const _$EvidenceAccessEnumMap = {

@@ -9,15 +9,11 @@ part of 'focus_slot.dart';
 abstract class _$FocusSlotCWProxy {
   FocusSlot branch(Branch branch);
 
-  FocusSlot pillar(Pillar pillar);
-
   FocusSlot start(DateTime start);
 
   FocusSlot end(DateTime end);
 
   FocusSlot huangdaoLucky(bool huangdaoLucky);
-
-  FocusSlot score(int score);
 
   FocusSlot reasons(List<FocusSlotReasonsEnum> reasons);
 
@@ -31,11 +27,9 @@ abstract class _$FocusSlotCWProxy {
   /// ```
   FocusSlot call({
     Branch branch,
-    Pillar pillar,
     DateTime start,
     DateTime end,
     bool huangdaoLucky,
-    int score,
     List<FocusSlotReasonsEnum> reasons,
   });
 }
@@ -51,9 +45,6 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
   FocusSlot branch(Branch branch) => call(branch: branch);
 
   @override
-  FocusSlot pillar(Pillar pillar) => call(pillar: pillar);
-
-  @override
   FocusSlot start(DateTime start) => call(start: start);
 
   @override
@@ -62,9 +53,6 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
   @override
   FocusSlot huangdaoLucky(bool huangdaoLucky) =>
       call(huangdaoLucky: huangdaoLucky);
-
-  @override
-  FocusSlot score(int score) => call(score: score);
 
   @override
   FocusSlot reasons(List<FocusSlotReasonsEnum> reasons) =>
@@ -81,11 +69,9 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
   @override
   FocusSlot call({
     Object? branch = const $CopyWithPlaceholder(),
-    Object? pillar = const $CopyWithPlaceholder(),
     Object? start = const $CopyWithPlaceholder(),
     Object? end = const $CopyWithPlaceholder(),
     Object? huangdaoLucky = const $CopyWithPlaceholder(),
-    Object? score = const $CopyWithPlaceholder(),
     Object? reasons = const $CopyWithPlaceholder(),
   }) {
     return FocusSlot(
@@ -93,10 +79,6 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
           ? _value.branch
           // ignore: cast_nullable_to_non_nullable
           : branch as Branch,
-      pillar: pillar == const $CopyWithPlaceholder() || pillar == null
-          ? _value.pillar
-          // ignore: cast_nullable_to_non_nullable
-          : pillar as Pillar,
       start: start == const $CopyWithPlaceholder() || start == null
           ? _value.start
           // ignore: cast_nullable_to_non_nullable
@@ -110,10 +92,6 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
           ? _value.huangdaoLucky
           // ignore: cast_nullable_to_non_nullable
           : huangdaoLucky as bool,
-      score: score == const $CopyWithPlaceholder() || score == null
-          ? _value.score
-          // ignore: cast_nullable_to_non_nullable
-          : score as int,
       reasons: reasons == const $CopyWithPlaceholder() || reasons == null
           ? _value.reasons
           // ignore: cast_nullable_to_non_nullable
@@ -133,50 +111,33 @@ extension $FocusSlotCopyWith on FocusSlot {
 // JsonSerializableGenerator
 // **************************************************************************
 
-FocusSlot _$FocusSlotFromJson(Map<String, dynamic> json) => $checkedCreate(
-  'FocusSlot',
-  json,
-  ($checkedConvert) {
-    $checkKeys(
-      json,
-      requiredKeys: const [
-        'branch',
-        'pillar',
-        'start',
-        'end',
-        'huangdaoLucky',
-        'score',
-        'reasons',
-      ],
-    );
-    final val = FocusSlot(
-      branch: $checkedConvert('branch', (v) => $enumDecode(_$BranchEnumMap, v)),
-      pillar: $checkedConvert(
-        'pillar',
-        (v) => Pillar.fromJson(v as Map<String, dynamic>),
-      ),
-      start: $checkedConvert('start', (v) => DateTime.parse(v as String)),
-      end: $checkedConvert('end', (v) => DateTime.parse(v as String)),
-      huangdaoLucky: $checkedConvert('huangdaoLucky', (v) => v as bool),
-      score: $checkedConvert('score', (v) => (v as num).toInt()),
-      reasons: $checkedConvert(
-        'reasons',
-        (v) => (v as List<dynamic>)
-            .map((e) => $enumDecode(_$FocusSlotReasonsEnumEnumMap, e))
-            .toList(),
-      ),
-    );
-    return val;
-  },
-);
+FocusSlot _$FocusSlotFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('FocusSlot', json, ($checkedConvert) {
+  $checkKeys(
+    json,
+    requiredKeys: const ['branch', 'start', 'end', 'huangdaoLucky', 'reasons'],
+  );
+  final val = FocusSlot(
+    branch: $checkedConvert('branch', (v) => $enumDecode(_$BranchEnumMap, v)),
+    start: $checkedConvert('start', (v) => DateTime.parse(v as String)),
+    end: $checkedConvert('end', (v) => DateTime.parse(v as String)),
+    huangdaoLucky: $checkedConvert('huangdaoLucky', (v) => v as bool),
+    reasons: $checkedConvert(
+      'reasons',
+      (v) => (v as List<dynamic>)
+          .map((e) => $enumDecode(_$FocusSlotReasonsEnumEnumMap, e))
+          .toList(),
+    ),
+  );
+  return val;
+});
 
 Map<String, dynamic> _$FocusSlotToJson(FocusSlot instance) => <String, dynamic>{
   'branch': _$BranchEnumMap[instance.branch]!,
-  'pillar': instance.pillar.toJson(),
   'start': instance.start.toIso8601String(),
   'end': instance.end.toIso8601String(),
   'huangdaoLucky': instance.huangdaoLucky,
-  'score': instance.score,
   'reasons': instance.reasons
       .map((e) => _$FocusSlotReasonsEnumEnumMap[e]!)
       .toList(),

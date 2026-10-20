@@ -563,10 +563,8 @@ void main() {
       );
       expect(today.luckLevel, LuckLevel.good);
       expect(today.level.messageKey, 'calendar.good');
-      expect(
-        today.score,
-        today.scoreItems.fold<int>(0, (sum, item) => sum + item.score),
-      );
+      // 엔진 규칙(rules/calendar_luck.py)의 good 기준은 2점 이상입니다.
+      expect(today.score, greaterThanOrEqualTo(2));
     });
 
     test('calendar-error는 getCalendar가 503이다', () async {

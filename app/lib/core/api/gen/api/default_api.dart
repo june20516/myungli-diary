@@ -56,7 +56,7 @@ class DefaultApi {
   const DefaultApi(this._dio);
 
   /// AdMob 보상형 광고 SSV 콜백
-  /// AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다. 서명은 핸들러가 원본 쿼리 문자열(&#x60;signature&#x60; 앞까지)로 AdMob 공개 키(&#x60;key_id&#x60;로 고름)를 써 ECDSA 검증합니다. &#x60;user_id&#x60;는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 &#x60;transaction_id&#x60;는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다. 검증되면 근거 열람 권한(&#x60;insight&#x60;)을 출처 &#x60;rewarded_ad&#x60;로 그 계정 현재 시간대의 다음 자정까지 부여합니다. 서명 검증 실패는 401 &#x60;reward.invalid_signature&#x60;, 1시간 넘게 오래된 &#x60;timestamp&#x60;는 401 &#x60;reward.expired&#x60;입니다. 검증 키 목록을 받지 못하면 503입니다.
+  /// AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다. 서명은 핸들러가 원본 쿼리 문자열(&#x60;signature&#x60; 앞까지)로 AdMob 공개 키(&#x60;key_id&#x60;로 고름)를 써 ECDSA 검증합니다. &#x60;user_id&#x60;는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 &#x60;transaction_id&#x60;는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다. 서명이 맞아도 &#x60;user_id&#x60;가 없거나 없는 계정이면 기록만 하고 200입니다(재시도를 막음). 검증되면 근거 열람 권한(&#x60;insight&#x60;)을 출처 &#x60;rewarded_ad&#x60;로 그 계정 현재 시간대의 다음 자정까지 부여합니다. 서명 검증 실패는 401 &#x60;reward.invalid_signature&#x60;, 현재와 1시간 넘게 어긋난(오래됐거나 미래) &#x60;timestamp&#x60;는 401 &#x60;reward.expired&#x60;입니다. 검증 키 목록을 받지 못하면 503입니다.
   ///
   /// Parameters:
   /// * [keyId]
@@ -2831,7 +2831,7 @@ class DefaultApi {
   }
 
   /// 구매 복원
-  /// RevenueCat 구매 내역을 다시 조회해 이용권을 맞춥니다. RevenueCat 장애는 503 &#x60;billing.provider_unavailable&#x60;입니다.
+  /// RevenueCat 구매 목록을 다시 조회해 광고 제거권을 처음부터 다시 계산합니다. 환불된 구매는 빼고 계산합니다. app은 RevenueCat &#x60;Purchases.logIn&#x60;에 &#x60;Me.accountId&#x60; 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다. 다른 표기면 server가 구매를 찾지 못합니다. RevenueCat 장애는 503 &#x60;billing.provider_unavailable&#x60;입니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -2988,7 +2988,7 @@ class DefaultApi {
   }
 
   /// RevenueCat webhook
-  /// RevenueCat이 부르는 주소입니다. app은 부르지 않습니다. Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401). 그래서 security와 parameter로 적지 않습니다. 저장·동기화에 실패하면 500을 돌려주고 RevenueCat의 재전송에 맡깁니다.
+  /// RevenueCat이 부르는 주소입니다. app은 부르지 않습니다. Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401). 그래서 security와 parameter로 적지 않습니다. webhook은 신호로만 씁니다. 이벤트에서 계정을 찾아 RevenueCat 구매 목록으로 이용권을 다시 계산하며, 같은 &#x60;event.id&#x60;는 한 번만 처리합니다. 이벤트에서 계정 id를 찾지 못하거나 모르는 계정이면 기록만 하고 200입니다(재시도를 막음). &#x60;type&#x60;이 &#x60;TEST&#x60;인 이벤트도 기록만 하고 200입니다. 저장·동기화에 실패하면 500을 돌려주고 RevenueCat의 재전송에 맡깁니다.
   ///
   /// Parameters:
   /// * [body]

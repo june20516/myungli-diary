@@ -20,11 +20,9 @@ import '../../support/daily_fixture.dart';
 
 FocusSlot _slot(String start, String end) => FocusSlot.fromJson({
   'branch': 'sa',
-  'pillar': {'stem': 'gi', 'branch': 'sa'},
   'start': start,
   'end': end,
   'huangdaoLucky': true,
-  'score': 3,
   'reasons': ['yongsin'],
 });
 

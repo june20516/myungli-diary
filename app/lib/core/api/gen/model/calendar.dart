@@ -4,7 +4,6 @@
 
 // ignore_for_file: unused_element
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
-import 'package:myungli_diary/core/api/gen/model/notice.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -30,8 +29,6 @@ class Calendar {
     required this.evidenceAccess,
 
     required this.days,
-
-    required this.notices,
   });
 
   @JsonKey(name: r'year', required: true, includeIfNull: false)
@@ -49,9 +46,6 @@ class Calendar {
   @JsonKey(name: r'days', required: true, includeIfNull: false)
   final List<CalendarDay> days;
 
-  @JsonKey(name: r'notices', required: true, includeIfNull: false)
-  final List<Notice> notices;
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -60,8 +54,7 @@ class Calendar {
           other.month == month &&
           other.rulesetVersion == rulesetVersion &&
           other.evidenceAccess == evidenceAccess &&
-          other.days == days &&
-          other.notices == notices;
+          other.days == days;
 
   @override
   int get hashCode =>
@@ -69,8 +62,7 @@ class Calendar {
       month.hashCode +
       rulesetVersion.hashCode +
       evidenceAccess.hashCode +
-      days.hashCode +
-      notices.hashCode;
+      days.hashCode;
 
   factory Calendar.fromJson(Map<String, dynamic> json) =>
       _$CalendarFromJson(json);
