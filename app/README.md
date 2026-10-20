@@ -99,6 +99,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 | drift·json 직렬화 | `dart run build_runner build --delete-conflicting-outputs` | `*.g.dart` |
 
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
+* 계약의 열린 enum(`info.description` "호환과 버전" 절)만 모르는 값을 `unknownDefaultOpenApi`로 읽습니다(`isKnown`으로 거름). `gen_api.sh`가 계약 사본에 표시를 달고(`tool/mark_open_enums.dart`) 생성기 기본 템플릿에 `tool/openapi-templates/open_enum.patch`를 적용해 만듭니다. 생성기 버전을 올려 patch가 맞지 않으면 새 기본 템플릿에서 같은 변경으로 patch를 다시 만듭니다. 대조는 `test/contract/open_enums_contract_test.dart`입니다(결정 A66).
 * Riverpod provider는 코드 생성 없이 직접 선언합니다(결정 A15).
 * CI의 `checks` job이 위 명령을 모두 다시 돌린 뒤 `git status`가 깨끗하지 않으면 실패합니다. 원본을 고치고 생성물을 commit하지 않으면 CI가 잡습니다.
 

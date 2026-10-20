@@ -1,0 +1,84 @@
+openapi-generator 7.26.0 dart-dio(json_serializable) 기본 템플릿에 더하는 patch입니다. 결정 A66.
+tool/gen_api.sh가 생성기 이미지에서 기본 템플릿을 꺼내(author template) 이 patch를 적용한 뒤 생성합니다.
+계약 사본에서 열린 enum(x-myungli-open-enum, tool/mark_open_enums.dart)에만 모르는 값
+unknownDefaultOpenApi와 isKnown, 필드의 unknownEnumValue를 넣습니다. 닫힌 enum은 그대로입니다.
+생성기 버전을 올려 patch가 맞지 않으면 gen_api.sh가 실패합니다. 새 기본 템플릿에 같은 변경을 다시 만듭니다.
+
+--- a/serialization/json_serializable/class.mustache
++++ b/serialization/json_serializable/class.mustache
+@@ -73,6 +73,17 @@
+   {{/isMap}}
+   {{/isArray}}
+   {{/enumUnknownDefaultCase}}
++  {{! myungli: 열린 enum(x-myungli-open-enum)만 모르는 값을 unknownDefaultOpenApi로 읽는다. 결정 A66 }}
++  {{#isArray}}
++  {{#items.vendorExtensions.x-myungli-open-enum}}
++  unknownEnumValue: {{{items.datatypeWithEnum}}}.unknownDefaultOpenApi,
++  {{/items.vendorExtensions.x-myungli-open-enum}}
++  {{/isArray}}
++  {{^isArray}}
++  {{#vendorExtensions.x-myungli-open-enum}}
++  unknownEnumValue: {{{datatypeWithEnum}}}.unknownDefaultOpenApi,
++  {{/vendorExtensions.x-myungli-open-enum}}
++  {{/isArray}}
+   )
+   {{/isBinary}}
+   {{#isBinary}}
+--- a/serialization/json_serializable/enum.mustache
++++ b/serialization/json_serializable/enum.mustache
+@@ -16,14 +16,25 @@
+    */
+   {{/enumDescription}}
+   @JsonValue({{#isString}}r{{/isString}}{{{value}}})
+-  {{{name}}}({{^isString}}'{{/isString}}{{#isString}}r{{/isString}}{{{value}}}{{^isString}}'{{/isString}}){{^-last}},{{/-last}}{{#-last}};{{/-last}}
++  {{{name}}}({{^isString}}'{{/isString}}{{#isString}}r{{/isString}}{{{value}}}{{^isString}}'{{/isString}}){{^-last}},{{/-last}}{{#-last}}{{#vendorExtensions.x-myungli-open-enum}},{{/vendorExtensions.x-myungli-open-enum}}{{^vendorExtensions.x-myungli-open-enum}};{{/vendorExtensions.x-myungli-open-enum}}{{/-last}}
+   {{/isNull}}
+ {{/enumVars}}
+ {{/allowableValues}}
++{{! myungli: 열린 enum(x-myungli-open-enum)에는 모르는 값과 isKnown을 더한다. 결정 A66 }}
++{{#vendorExtensions.x-myungli-open-enum}}
++  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
++  @JsonValue(r'unknown_default_open_api')
++  unknownDefaultOpenApi(r'unknown_default_open_api');
++{{/vendorExtensions.x-myungli-open-enum}}
+ 
+   const {{{classname}}}(this.value);
+ 
+   final String value;
++{{#vendorExtensions.x-myungli-open-enum}}
++
++  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
++  bool get isKnown => this != unknownDefaultOpenApi;
++{{/vendorExtensions.x-myungli-open-enum}}
+ 
+   @override
+   String toString() => value;
+--- a/serialization/json_serializable/enum_inline.mustache
++++ b/serialization/json_serializable/enum_inline.mustache
+@@ -15,14 +15,25 @@
+  */
+ {{/enumDescription}}
+ @JsonValue({{#isString}}r{{/isString}}{{{value}}})
+-{{{name}}}({{^isString}}'{{/isString}}{{#isString}}r{{/isString}}{{{value}}}{{^isString}}'{{/isString}}){{^-last}},{{/-last}}{{#-last}};{{/-last}}
++{{{name}}}({{^isString}}'{{/isString}}{{#isString}}r{{/isString}}{{{value}}}{{^isString}}'{{/isString}}){{^-last}},{{/-last}}{{#-last}}{{#vendorExtensions.x-myungli-open-enum}},{{/vendorExtensions.x-myungli-open-enum}}{{^vendorExtensions.x-myungli-open-enum}};{{/vendorExtensions.x-myungli-open-enum}}{{/-last}}
+ {{/isNull}}
+ {{/enumVars}}
+ {{/allowableValues}}
++{{! myungli: 열린 enum(x-myungli-open-enum)에는 모르는 값과 isKnown을 더한다. 결정 A66 }}
++{{#vendorExtensions.x-myungli-open-enum}}
++  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
++  @JsonValue(r'unknown_default_open_api')
++  unknownDefaultOpenApi(r'unknown_default_open_api');
++{{/vendorExtensions.x-myungli-open-enum}}
+ 
+ const {{{enumName}}}(this.value);
+ 
+ final String value;
++{{#vendorExtensions.x-myungli-open-enum}}
++
++/// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
++bool get isKnown => this != unknownDefaultOpenApi;
++{{/vendorExtensions.x-myungli-open-enum}}
+ 
+ @override
+ String toString() => value;

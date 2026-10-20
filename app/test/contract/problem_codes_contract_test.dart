@@ -9,9 +9,16 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import '../../tool/common/openapi_spec.dart';
 
 /// 사용자에게 보이지 않아 문구가 필요 없는 code입니다.
-/// `reward.*`는 AdMob이 server에 부르는 SSV 웹훅(`admobRewardCallback`)에서만
-/// 나오며 app은 그 operation을 부르지 않습니다.
-const _notUserFacing = {'reward.invalid_signature', 'reward.expired'};
+/// * `reward.*`는 AdMob이 server에 부르는 SSV 웹훅(`admobRewardCallback`)에서만
+///   나오며 app은 그 operation을 부르지 않습니다.
+/// * `device.not_found`는 `deleteDevice`(404)에서만 나옵니다. app은 로그아웃 전과 FCM 토큰
+///   교체 뒤 이 호출을 화면 없이 best-effort로 부르고(#347 ②, 계획 7), 없는 기기는 이미 해제된
+///   것과 같아 사용자에게 알리지 않습니다(결정 A66).
+const _notUserFacing = {
+  'reward.invalid_signature',
+  'reward.expired',
+  'device.not_found',
+};
 
 /// writing 오류 문구(`slots/ui/common.yaml`)가 아직 없는 code입니다. 그동안은 4xx 일반
 /// 문구(`errorClient`)로 보입니다. writing이 ARB 키를 더하면 아래 '대기 목록' 테스트가

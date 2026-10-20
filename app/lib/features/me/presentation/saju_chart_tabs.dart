@@ -530,8 +530,9 @@ class SajuChartLuckTab extends ConsumerWidget {
               ),
             ),
       shinsal: [
+        // 신살은 열린 enum이라 이 app이 모르는 신살은 그 칸에서 건너뜁니다(A66).
         for (final item in chart.shinsal)
-          if (positions.contains(item.position))
+          if (item.kind.isKnown && positions.contains(item.position))
             ?text.termValue(
               'shinsal',
               item.kind.value,

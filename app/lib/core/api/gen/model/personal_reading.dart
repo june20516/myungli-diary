@@ -32,7 +32,12 @@ class PersonalReading {
     required this.text,
   });
 
-  @JsonKey(name: r'kind', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'kind',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: PersonalReadingKindEnum.unknownDefaultOpenApi,
+  )
   final PersonalReadingKindEnum kind;
 
   @JsonKey(name: r'position', required: false, includeIfNull: false)
@@ -42,7 +47,12 @@ class PersonalReading {
   @JsonKey(name: r'index', required: false, includeIfNull: false)
   final int? index;
 
-  @JsonKey(name: r'shinsal', required: false, includeIfNull: false)
+  @JsonKey(
+    name: r'shinsal',
+    required: false,
+    includeIfNull: false,
+    unknownEnumValue: ShinsalKind.unknownDefaultOpenApi,
+  )
   final ShinsalKind? shinsal;
 
   @JsonKey(name: r'text', required: true, includeIfNull: false)
@@ -95,11 +105,18 @@ enum PersonalReadingKindEnum {
   @JsonValue(r'daeun_twelve_stage')
   PersonalReadingKindDaeunTwelveStage(r'daeun_twelve_stage'),
   @JsonValue(r'seun_ten_god')
-  PersonalReadingKindSeunTenGod(r'seun_ten_god');
+  PersonalReadingKindSeunTenGod(r'seun_ten_god'),
+
+  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
+  @JsonValue(r'unknown_default_open_api')
+  unknownDefaultOpenApi(r'unknown_default_open_api');
 
   const PersonalReadingKindEnum(this.value);
 
   final String value;
+
+  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
+  bool get isKnown => this != unknownDefaultOpenApi;
 
   @override
   String toString() => value;

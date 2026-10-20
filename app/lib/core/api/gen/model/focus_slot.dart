@@ -46,7 +46,12 @@ class FocusSlot {
   final bool huangdaoLucky;
 
   /// 가점 사유 식별자(glossary `focus_reason` 범주의 키)
-  @JsonKey(name: r'reasons', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'reasons',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: FocusSlotReasonsEnum.unknownDefaultOpenApi,
+  )
   final List<FocusSlotReasonsEnum> reasons;
 
   @override
@@ -86,11 +91,18 @@ enum FocusSlotReasonsEnum {
   @JsonValue(r'huisin')
   huisin(r'huisin'),
   @JsonValue(r'hap')
-  hap(r'hap');
+  hap(r'hap'),
+
+  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
+  @JsonValue(r'unknown_default_open_api')
+  unknownDefaultOpenApi(r'unknown_default_open_api');
 
   const FocusSlotReasonsEnum(this.value);
 
   final String value;
+
+  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
+  bool get isKnown => this != unknownDefaultOpenApi;
 
   @override
   String toString() => value;

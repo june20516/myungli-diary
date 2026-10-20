@@ -44,7 +44,12 @@ class SlotText {
   @JsonKey(name: r'messageKey', required: true, includeIfNull: false)
   final String messageKey;
 
-  @JsonKey(name: r'variant', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'variant',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: SlotTextVariantEnum.unknownDefaultOpenApi,
+  )
   final SlotTextVariantEnum variant;
 
   @JsonKey(name: r'text', required: true, includeIfNull: false)
@@ -111,11 +116,18 @@ enum SlotTextVariantEnum {
   @JsonValue(r'2')
   n2(r'2'),
   @JsonValue(r'single')
-  single(r'single');
+  single(r'single'),
+
+  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
+  @JsonValue(r'unknown_default_open_api')
+  unknownDefaultOpenApi(r'unknown_default_open_api');
 
   const SlotTextVariantEnum(this.value);
 
   final String value;
+
+  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
+  bool get isKnown => this != unknownDefaultOpenApi;
 
   @override
   String toString() => value;

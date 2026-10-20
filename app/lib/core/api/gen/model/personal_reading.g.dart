@@ -114,7 +114,11 @@ PersonalReading _$PersonalReadingFromJson(Map<String, dynamic> json) =>
       final val = PersonalReading(
         kind: $checkedConvert(
           'kind',
-          (v) => $enumDecode(_$PersonalReadingKindEnumEnumMap, v),
+          (v) => $enumDecode(
+            _$PersonalReadingKindEnumEnumMap,
+            v,
+            unknownValue: PersonalReadingKindEnum.unknownDefaultOpenApi,
+          ),
         ),
         position: $checkedConvert(
           'position',
@@ -123,7 +127,11 @@ PersonalReading _$PersonalReadingFromJson(Map<String, dynamic> json) =>
         index: $checkedConvert('index', (v) => (v as num?)?.toInt()),
         shinsal: $checkedConvert(
           'shinsal',
-          (v) => $enumDecodeNullable(_$ShinsalKindEnumMap, v),
+          (v) => $enumDecodeNullable(
+            _$ShinsalKindEnumMap,
+            v,
+            unknownValue: ShinsalKind.unknownDefaultOpenApi,
+          ),
         ),
         text: $checkedConvert(
           'text',
@@ -155,6 +163,7 @@ const _$PersonalReadingKindEnumEnumMap = {
   PersonalReadingKindEnum.PersonalReadingKindDaeunTwelveStage:
       'daeun_twelve_stage',
   PersonalReadingKindEnum.PersonalReadingKindSeunTenGod: 'seun_ten_god',
+  PersonalReadingKindEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 
 const _$PositionEnumMap = {
@@ -175,4 +184,5 @@ const _$ShinsalKindEnumMap = {
   ShinsalKind.hwagae: 'hwagae',
   ShinsalKind.yangin: 'yangin',
   ShinsalKind.gongmang: 'gongmang',
+  ShinsalKind.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

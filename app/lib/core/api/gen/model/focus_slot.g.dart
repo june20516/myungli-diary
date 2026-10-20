@@ -126,7 +126,13 @@ FocusSlot _$FocusSlotFromJson(
     reasons: $checkedConvert(
       'reasons',
       (v) => (v as List<dynamic>)
-          .map((e) => $enumDecode(_$FocusSlotReasonsEnumEnumMap, e))
+          .map(
+            (e) => $enumDecode(
+              _$FocusSlotReasonsEnumEnumMap,
+              e,
+              unknownValue: FocusSlotReasonsEnum.unknownDefaultOpenApi,
+            ),
+          )
           .toList(),
     ),
   );
@@ -163,4 +169,5 @@ const _$FocusSlotReasonsEnumEnumMap = {
   FocusSlotReasonsEnum.yongsin: 'yongsin',
   FocusSlotReasonsEnum.huisin: 'huisin',
   FocusSlotReasonsEnum.hap: 'hap',
+  FocusSlotReasonsEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

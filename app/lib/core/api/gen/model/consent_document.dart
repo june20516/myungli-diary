@@ -19,7 +19,12 @@ class ConsentDocument {
   /// Returns a new [ConsentDocument] instance.
   ConsentDocument({required this.document, required this.version});
 
-  @JsonKey(name: r'document', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'document',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: ConsentDocumentDocumentEnum.unknownDefaultOpenApi,
+  )
   final ConsentDocumentDocumentEnum document;
 
   @JsonKey(name: r'version', required: true, includeIfNull: false)
@@ -50,11 +55,18 @@ enum ConsentDocumentDocumentEnum {
   @JsonValue(r'terms')
   terms(r'terms'),
   @JsonValue(r'privacy')
-  privacy(r'privacy');
+  privacy(r'privacy'),
+
+  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
+  @JsonValue(r'unknown_default_open_api')
+  unknownDefaultOpenApi(r'unknown_default_open_api');
 
   const ConsentDocumentDocumentEnum(this.value);
 
   final String value;
+
+  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
+  bool get isKnown => this != unknownDefaultOpenApi;
 
   @override
   String toString() => value;

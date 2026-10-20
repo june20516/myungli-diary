@@ -215,6 +215,31 @@ void main() {
       );
     });
 
+    test('모르는 notice code(열린 enum)는 건너뛰고 time_unknown만 고릅니다', () {
+      // A66: NoticeCode는 열린 enum이라 모르는 code가 와도 응답이 실패하지 않습니다.
+      final json = memberDailyJson()
+        ..['notices'] = [
+          {
+            'code': 'added_after_freeze',
+            'text': {
+              'segments': [
+                {'text': '새 안내'},
+              ],
+            },
+          },
+        ];
+      expect(timeUnknownNoticeOf(Daily.fromJson(json)), isNull);
+      (json['notices'] as List<Object?>).add({
+        'code': 'time_unknown',
+        'text': {
+          'segments': [
+            {'text': '시간 모름'},
+          ],
+        },
+      });
+      expect(timeUnknownNoticeOf(Daily.fromJson(json)), '시간 모름');
+    });
+
     test('SentenceLine.isBlank는 빈 조각과 공백뿐인 조각을 빈 문장으로 봅니다', () {
       SentenceLine line(List<String> pieces) => SentenceLine(
         text: RenderedText.fromJson({

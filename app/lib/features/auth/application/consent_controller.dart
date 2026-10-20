@@ -19,6 +19,17 @@ final consentRepositoryProvider = Provider<ConsentRepository>(
 bool isConsentVersionMismatch(AppError error) =>
     error is ProblemError && error.code == 'consent.version_mismatch';
 
+/// 동의 화면에 보이고 동의로 보낼 문서입니다.
+///
+/// `ConsentDocument.document`는 계약의 열린 enum이라 이 app이 모르는 문서가 올 수 있습니다
+/// (결정 A66). 모르는 문서는 이름과 문서 주소가 없고 원래 값도 남지 않아 보이지도 보내지도
+/// 않습니다. server가 새 문서를 필수로 요구하면 그 문서를 아는 앱 버전을 `minimumVersion`으로
+/// 함께 올려 강제 업데이트(`force-update`)로 받게 합니다(#347 답).
+List<ConsentDocument> displayableConsents(List<ConsentDocument> documents) => [
+  for (final document in documents)
+    if (document.document.isKnown) document,
+];
+
 /// 약관 동의 화면의 동작입니다(D50).
 ///
 /// 동의에 성공하면, 프로필이 없는 계정(동의 전 내 정보의 `hasProfile == false`)이고 온보딩

@@ -78,7 +78,11 @@ ShinsalAt _$ShinsalAtFromJson(Map<String, dynamic> json) =>
       final val = ShinsalAt(
         kind: $checkedConvert(
           'kind',
-          (v) => $enumDecode(_$ShinsalKindEnumMap, v),
+          (v) => $enumDecode(
+            _$ShinsalKindEnumMap,
+            v,
+            unknownValue: ShinsalKind.unknownDefaultOpenApi,
+          ),
         ),
         position: $checkedConvert(
           'position',
@@ -100,6 +104,7 @@ const _$ShinsalKindEnumMap = {
   ShinsalKind.hwagae: 'hwagae',
   ShinsalKind.yangin: 'yangin',
   ShinsalKind.gongmang: 'gongmang',
+  ShinsalKind.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 
 const _$PositionEnumMap = {

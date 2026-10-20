@@ -21,7 +21,12 @@ class ShinsalAt {
   /// Returns a new [ShinsalAt] instance.
   ShinsalAt({required this.kind, required this.position});
 
-  @JsonKey(name: r'kind', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'kind',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: ShinsalKind.unknownDefaultOpenApi,
+  )
   final ShinsalKind kind;
 
   @JsonKey(name: r'position', required: true, includeIfNull: false)

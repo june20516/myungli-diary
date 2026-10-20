@@ -79,7 +79,11 @@ ConsentDocument _$ConsentDocumentFromJson(Map<String, dynamic> json) =>
       final val = ConsentDocument(
         document: $checkedConvert(
           'document',
-          (v) => $enumDecode(_$ConsentDocumentDocumentEnumEnumMap, v),
+          (v) => $enumDecode(
+            _$ConsentDocumentDocumentEnumEnumMap,
+            v,
+            unknownValue: ConsentDocumentDocumentEnum.unknownDefaultOpenApi,
+          ),
         ),
         version: $checkedConvert('version', (v) => v as String),
       );
@@ -95,4 +99,5 @@ Map<String, dynamic> _$ConsentDocumentToJson(ConsentDocument instance) =>
 const _$ConsentDocumentDocumentEnumEnumMap = {
   ConsentDocumentDocumentEnum.terms: 'terms',
   ConsentDocumentDocumentEnum.privacy: 'privacy',
+  ConsentDocumentDocumentEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

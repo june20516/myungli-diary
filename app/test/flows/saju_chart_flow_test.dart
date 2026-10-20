@@ -202,6 +202,26 @@ final class _DropPersonal extends Interceptor {
   }
 }
 
+/// 받은 나의 사주의 일지 자리에 이 app이 모르는 신살(열린 enum, A66)을 더합니다.
+final class _AddUnknownShinsal extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/chart' && data is Map) {
+      final body = Map<String, Object?>.of(data.cast<String, Object?>());
+      body['shinsal'] = [
+        ...body['shinsal']! as List<Object?>,
+        {'kind': 'added_after_freeze', 'position': 'day_branch'},
+      ];
+      response.data = body;
+    }
+    handler.next(response);
+  }
+}
+
 void main() {
   setUpAll(ensureTimeZonesInitialized);
 
@@ -513,6 +533,32 @@ void main() {
       ),
     );
     expect(_personalText('이 신살 자리는'), findsOneWidget);
+  });
+
+  testWidgets('모르는 신살(열린 enum)은 사전과 상관없이 그 칸에서 건너뜁니다', (tester) async {
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      network: _AddUnknownShinsal(),
+      overrides: [
+        glossaryProvider.overrideWith((ref) async {
+          final names = await _glossaryWithStages();
+          // 모르는 값의 이름이 사전에 있어도 보이지 않아야 합니다.
+          return GlossaryNames({
+            ...names.values,
+            'shinsal': const {
+              'hwagae': '화개',
+              'unknown_default_open_api': '모르는 신살',
+            },
+          });
+        }),
+      ],
+    );
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    expect(manse.day.shinsal, hasLength(1));
+    expect((manse.day.shinsal.single as TermToken).label, '화개');
+    expect(find.text('모르는 신살'), findsNothing);
   });
 
   testWidgets('잠긴 표 칸 근거 시트는 내 사주에서는 구역 하나만 잠깁니다', (tester) async {

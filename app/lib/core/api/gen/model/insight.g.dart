@@ -93,7 +93,11 @@ Insight _$InsightFromJson(Map<String, dynamic> json) =>
         ),
         source_: $checkedConvert(
           'source',
-          (v) => $enumDecodeNullable(_$InsightSource_EnumEnumMap, v),
+          (v) => $enumDecodeNullable(
+            _$InsightSource_EnumEnumMap,
+            v,
+            unknownValue: InsightSource_Enum.unknownDefaultOpenApi,
+          ),
         ),
       );
       return val;
@@ -109,4 +113,5 @@ const _$InsightSource_EnumEnumMap = {
   InsightSource_Enum.rewardedAd: 'rewarded_ad',
   InsightSource_Enum.adFreePass: 'ad_free_pass',
   InsightSource_Enum.subscription: 'subscription',
+  InsightSource_Enum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

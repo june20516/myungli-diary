@@ -21,7 +21,12 @@ class Notice {
   /// Returns a new [Notice] instance.
   Notice({required this.code, required this.text});
 
-  @JsonKey(name: r'code', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'code',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: NoticeCode.unknownDefaultOpenApi,
+  )
   final NoticeCode code;
 
   @JsonKey(name: r'text', required: true, includeIfNull: false)
