@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/me/model/ganji.dart';
 
 import '../support/golden.dart';
 
@@ -156,6 +160,66 @@ Widget _manse(BuildContext context, {bool hourUnknown = false}) {
   );
 }
 
+const List<(int, Stem, Branch)> _memberDaeun = [
+  (4, Stem.gyeong, Branch.jin),
+  (14, Stem.gi, Branch.myo),
+  (24, Stem.mu, Branch.in_),
+  (34, Stem.jeong, Branch.chuk),
+  (44, Stem.byeong, Branch.ja),
+  (54, Stem.eul, Branch.hae),
+  (64, Stem.gap, Branch.sul),
+  (74, Stem.gye, Branch.yu),
+  (84, Stem.im, Branch.shin),
+  (94, Stem.sin, Branch.mi),
+];
+
+const List<(int, Stem, Branch)> _memberSeun = [
+  (2023, Stem.gye, Branch.myo),
+  (2024, Stem.gap, Branch.jin),
+  (2025, Stem.eul, Branch.sa),
+  (2026, Stem.byeong, Branch.o),
+  (2027, Stem.jeong, Branch.mi),
+  (2028, Stem.mu, Branch.shin),
+  (2029, Stem.gi, Branch.yu),
+  (2030, Stem.gyeong, Branch.sul),
+  (2031, Stem.sin, Branch.hae),
+  (2032, Stem.im, Branch.ja),
+];
+
+/// member 대운(지금 34세)·세운(올해 2026).
+Widget _daeun(BuildContext context) {
+  final ja = _ja(context);
+  OhaengCell stem(Stem value) => _mini(stemElement(value), stemHanja(value));
+  OhaengCell branch(Branch value) =>
+      _mini(branchElement(value), branchHanja(value));
+  return DaeunTable(
+    daeun: [
+      for (final (age, s, b) in _memberDaeun)
+        DaeunPillar(
+          age: age,
+          startYear: 1989 + age,
+          stem: stem(s),
+          branch: branch(b),
+          semanticLabel: '$age',
+        ),
+    ],
+    seun: [
+      for (final (year, s, b) in _memberSeun)
+        SeunYear(
+          year: year,
+          stem: stem(s),
+          branch: branch(b),
+          semanticLabel: '$year',
+        ),
+    ],
+    currentIndex: 3,
+    thisYear: 2026,
+    nowLabel: ja ? '今' : '지금',
+    thisYearLabel: ja ? '今年' : '올해',
+    tableLabel: '',
+  );
+}
+
 void main() {
   goldenTest('saju-pillars: 원국표·시간 모름·loading', (tester) async {
     await goldenMatrix(
@@ -216,6 +280,14 @@ void main() {
           children: [_manse(context), _manse(context, hourUnknown: true)],
         ),
       ),
+    );
+  });
+
+  goldenTest('daeun-table: 대운(지금)·세운(올해)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'saju_daeun_table',
+      () => const Builder(builder: _daeun),
     );
   });
 }
