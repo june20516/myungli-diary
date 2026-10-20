@@ -102,7 +102,6 @@
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "Your birth time is unknown, so the hour pillar is left out."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "Unlock"}
 - {slot: saju-chart.yongsin.title, key: sajuChartYongsinTitle, text: "Yongsin basis"}
-- {slot: settings.depth.desc, key: settingsDepthDesc, text: "Choose how much of each reading to show at first."}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNotice, text: "If you were born outside Korea, please enter your birthplace. It helps us match your birth hour more precisely."}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNoticeCta, text: "Enter birthplace"}
 - {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "Sign out?"}
@@ -137,10 +136,7 @@
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
 - {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "Restore purchase"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
-- {slot: ui.depth.default_label, key: depthDefaultLabel, text: "Reading detail"}
-- {slot: ui.depth.surface, key: depthSurface, text: "Summary"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
-- {slot: ui.depth.evidence, key: depthEvidence, text: "Basis"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
 
