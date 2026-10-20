@@ -1752,7 +1752,7 @@ components:
               description: 'AdMob 보상 콜백 서명 검증 실패'
             reward.expired:
               status: 401
-              description: 'AdMob 보상 콜백 timestamp가 1시간 넘게 오래됨'
+              description: 'AdMob 보상 콜백 timestamp가 현재와 1시간 넘게 어긋남(오래됐거나 미래)'
             consent.required:
               status: 403
               description: '약관 미동의 또는 문서 버전 변경'

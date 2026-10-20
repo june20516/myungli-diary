@@ -44,7 +44,7 @@
 * P4 후속(브랜치 `server/p4-followups`): drift #250·#255(시드 변환이 용어 id를 슬롯 명세와 대조, S48), 엔진 안내 `Notice.text` 렌더(#232, S49), `Profile.birthCity`(#199, S46), 계약 개정(달력 첫 달 1900-02 #248·S47, `getGlossary`·`putReaction`·`deleteReaction`의 409 `profile.required` 명시).
 * P5로 일기·일정이 `serve`에 조립됐습니다: 일기 저장·조회·삭제·복원·목록(저장 때 태그·길흉·`ruleset_version`·가이드 질문 기록, 고칠 때는 본문만 변경), 일정 CRUD·복원·목록(62일 상한), `createSchedule`의 `Idempotency-Key`(24시간 재생). 새 결정은 S50~S64입니다.
 * P6로 비로그인·참조가 `serve`에 조립됐습니다: App Check 검증(`createPreview`·`getBirthHour`·`convertLunarDate`, 설정이 비면 503), `getBirthHour`·`convertLunarDate`의 IP별 요청 한도, 시진 확인(엔진 `GetBirthHour`), 미리보기(설치당 1회, 입력 저장 없음), 도시 검색(ETag)과 앱 설정(`getAppConfig`), 요청 언어 선택, 원국 개인 해석(`Chart.personalReadings`), Apple 복귀 페이지 writing 원고, staging 테스트 로그인(`-tags staging`, #93). 계약 개정은 설명과 하위 호환 추가뿐이고 새 결정은 S65~S78입니다. 규칙 정합성 점검 #281도 이 PR에서 정리했습니다.
-* P7로 결제와 권한이 `serve`에 조립됐습니다: 결제 표 3개(migration 00012), RevenueCat REST v2 동기화(광고 제거권 이어 붙이기·환불), webhook 멱등 처리와 구매 복원(`restorePurchases`), AdMob SSV 검증과 보상 권한(`rewarded_ad`), 근거 잠금의 실제 판정(D60), 계약 draft.9(결제 설명, S77 필드 제거). 새 결정은 S79~S89입니다.
+* P7로 결제와 권한이 `serve`에 조립됐습니다: 결제 표 3개(migration 00012), RevenueCat REST v2 동기화(광고 제거권 이어 붙이기·환불), webhook 멱등 처리와 구매 복원(`restorePurchases`), AdMob SSV 검증과 보상 권한(`rewarded_ad`), 근거 잠금의 실제 판정(D60), 계약 개정(결제 설명, S77 필드 제거). 새 결정은 S79~S89입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
