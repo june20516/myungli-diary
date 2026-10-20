@@ -2,7 +2,7 @@
 
 # 슬롯 목록
 
-원본은 `slots/`의 YAML입니다. 글자 수 상한의 `-`는 아직 정하지 않음입니다. 값 종류는 범주 목록(첫째가 기본), `list:<범주>`, `number`, `none`이고 `name`은 어느 슬롯에서나 씁니다.
+원본은 `slots/`의 YAML입니다. 글자 수 상한의 `-`는 아직 정하지 않음입니다. 값 종류는 범주 목록(첫째가 기본), `list:<범주>`, `number`, `none`, `text`이고 `name`은 어느 슬롯에서나 씁니다.
 
 | ID | 자리 | 목적 | 유형 | 변주 | 키 수 | 매개변수: 값 종류 | 글자 수 상한 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -159,6 +159,7 @@
 | ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 6 | - | ko 13, en 22, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko -, en -, ja - |
 | ui.depth.default_label | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 10, en 18, ja 10 |
 | ui.depth.evidence | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.evidence_link | today.evidence.link<br>컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
@@ -166,9 +167,10 @@
 | ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.diary-edit.save | diary-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 1 | `date`: text | ko 23, en 42, ja 19 |
+| ui.diary-view.actions | 컴포넌트 app-bar | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-view.deleted | diary-view.deleted.toast<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
-| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 42 | - | ko 48, en 78, ja 34 |
+| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 44 | - | ko 48, en 78, ja 34 |
 | ui.event-edit.delete | event-edit.delete.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.event-edit.form | 컴포넌트 segmented<br>컴포넌트 text-field | guide | - | 1 | 4 | - | ko -, en -, ja -<br>`eventEditAllDay` ko 13, en 22, ja 10<br>`eventEditTimed` ko 13, en 22, ja 10 |
 | ui.event-edit.offline | event-edit.offline.notice<br>컴포넌트 notice-banner | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
@@ -184,6 +186,7 @@
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.cta.signin | welcome.cta.signin | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |

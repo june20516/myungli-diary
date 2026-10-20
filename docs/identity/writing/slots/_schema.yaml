@@ -1,4 +1,4 @@
-# 슬롯 명세 틀 v1.1 (W0 spec §4.1, IA 슬롯 spec §2). 로더는 이 파일을 슬롯 검증 기준으로 씁니다.
+# 슬롯 명세 틀 (W0 spec §4.1, IA 슬롯 spec §2). 판 번호는 계약 목록(docs/contracts/README.md)에 둡니다. 로더는 이 파일을 슬롯 검증 기준으로 씁니다.
 
 - name: id
   required: true
@@ -53,7 +53,7 @@
   type: "list[string | map]"
   description: >-
     메시지 키 또는 식별자 목록과 키별 매개변수. 항목은 문자열(매개변수 없는 키) 또는 {params, keys} 맵입니다.
-    params는 매개변수 -> 값 종류 맵이고 값 종류는 넷 중 하나입니다.
+    params는 매개변수 -> 값 종류 맵이고 값 종류는 다섯 중 하나입니다.
     ① glossary 범주 목록(예 [element, color]): 첫째가 기본 범주, 나머지는 {p:cat}로 고를 수 있는 범주.
     ② list:<범주>(예 list:branch): 목록 값을 범주 이름으로 바꿔 ", "로 잇습니다.
     ③ number: 숫자를 그대로 씁니다.
@@ -66,7 +66,8 @@
   type: "list[string]"
   description: >-
     이 슬롯의 문장이 들어가는 IA 슬롯 id(docs/ia/screens.json). 여러 개일 수 있습니다.
-    ui 슬롯은 id가 IA 슬롯 id 그대로라 적지 않습니다.
+    ui 슬롯은 보통 id가 IA 슬롯 id 그대로라 적지 않습니다. 예외로 D77로 IA에 올린 기존 문구는 키를 바꾸지 않게
+    `ui.*` 슬롯 id를 두고 여기에 IA 슬롯 id를 적습니다(W20 개정, W33).
 - name: components
   required: false
   type: "list[string]"
