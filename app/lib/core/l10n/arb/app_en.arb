@@ -315,5 +315,11 @@
   "todayBarTitle": "Today",
   "errorReactionNotFound": "We couldn't find the sentence you reacted to. Please refresh the screen.",
   "errorScheduleNotFound": "We couldn't find that event. Please refresh the list.",
-  "errorRangeTooLong": "That date range is too long. Please choose a shorter range."
+  "errorRangeTooLong": "That date range is too long. Please choose a shorter range.",
+  "diaryEditSave": "Save",
+  "diaryViewEditAction": "Edit entry",
+  "diaryViewDeleteAction": "Delete entry",
+  "diaryViewDeleted": "Entry deleted.",
+  "diaryListPickDateConfirm": "Diary for {date}",
+  "tagChipLabel": "#{tag}"
 }

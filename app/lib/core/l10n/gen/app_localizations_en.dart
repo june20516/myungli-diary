@@ -1154,4 +1154,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorRangeTooLong =>
       'That date range is too long. Please choose a shorter range.';
+
+  @override
+  String get diaryEditSave => 'Save';
+
+  @override
+  String get diaryViewEditAction => 'Edit entry';
+
+  @override
+  String get diaryViewDeleteAction => 'Delete entry';
+
+  @override
+  String get diaryViewDeleted => 'Entry deleted.';
+
+  @override
+  String diaryListPickDateConfirm(String date) {
+    return 'Diary for $date';
+  }
+
+  @override
+  String tagChipLabel(String tag) {
+    return '#$tag';
+  }
 }
