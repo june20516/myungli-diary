@@ -43,6 +43,8 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
 
 **P8 (Job)**
+* soft delete 30일 뒤 일기·일정 내용 비우기(spec §8)는 `content_purged_at`을 찍습니다. 복원은 이미 비워진 행을 제외합니다(P5에서 쿼리에 반영).
+* 멱등 선점 lease: 프로세스가 죽어 남은 `completed_at IS NULL` 선점은 24시간 동안 409가 됩니다. 요청 상한 시간(서버 WriteTimeout의 몇 배)이 지난 미완료 선점을 `ClaimIdempotencyKey`가 덮어쓸지(커밋 직후 죽은 극소수 경우 중복 가능, S61 확장 결정 필요)와, app이 409 `idempotency.in_progress`에 백오프 재시도할지를 계약에 적을지 정합니다.
 * 계정 익명화 때 일기 본문·일정 제목·메모를 지우고 `content_purged_at`을 기록합니다(열은 P5에서 만듦).
 * `job retention`이 24시간 지난 `idempotency_keys`를 지웁니다. `completed_at IS NULL`이고 오래된 행(프로세스가 죽어 남은 선점)도 정리 대상입니다. FK가 `ON DELETE RESTRICT`라 계정을 물리적으로 지우는 경로가 생기면 이 표를 먼저 지워야 합니다.
 * `registerDevice`를 멱등 대상(`Idempotency(..., "createSchedule", "registerDevice")`)에 더합니다.

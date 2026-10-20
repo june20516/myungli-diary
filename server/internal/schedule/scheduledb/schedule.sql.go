@@ -16,7 +16,7 @@ import (
 const getScheduleForRestore = `-- name: GetScheduleForRestore :one
 SELECT id, date, all_day, time, title, memo, created_at, updated_at, (deleted_at IS NOT NULL)::boolean AS is_deleted
 FROM schedules
-WHERE id = $1 AND account_id = $2
+WHERE id = $1 AND account_id = $2 AND content_purged_at IS NULL
 FOR UPDATE
 `
 
@@ -37,7 +37,7 @@ type GetScheduleForRestoreRow struct {
 	IsDeleted bool
 }
 
-// 지운 것까지 포함해 잠가 읽습니다. is_deleted로 되살릴지, 이미 살아 있어 그대로 답할지 가립니다.
+// 지운 것까지 포함해 잠가 읽되, 내용을 이미 비운 행은 없는 것으로 봅니다. is_deleted로 되살릴지, 이미 살아 있어 그대로 답할지 가립니다.
 func (q *Queries) GetScheduleForRestore(ctx context.Context, arg GetScheduleForRestoreParams) (GetScheduleForRestoreRow, error) {
 	row := q.db.QueryRow(ctx, getScheduleForRestore, arg.ID, arg.AccountID)
 	var i GetScheduleForRestoreRow
@@ -205,7 +205,7 @@ func (q *Queries) ListSchedules(ctx context.Context, arg ListSchedulesParams) ([
 
 const restoreSchedule = `-- name: RestoreSchedule :one
 UPDATE schedules SET deleted_at = NULL
-WHERE id = $1 AND account_id = $2 AND deleted_at IS NOT NULL
+WHERE id = $1 AND account_id = $2 AND deleted_at IS NOT NULL AND content_purged_at IS NULL
 RETURNING id, date, all_day, time, title, memo, created_at, updated_at
 `
 
@@ -225,7 +225,7 @@ type RestoreScheduleRow struct {
 	UpdatedAt time.Time
 }
 
-// 지운 일정만 되살립니다. 지운 일정이 아니면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+// 지운 일정만 되살립니다. 지운 일정이 아니거나 내용을 이미 비운(content_purged_at) 일정이면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 func (q *Queries) RestoreSchedule(ctx context.Context, arg RestoreScheduleParams) (RestoreScheduleRow, error) {
 	row := q.db.QueryRow(ctx, restoreSchedule, arg.ID, arg.AccountID)
 	var i RestoreScheduleRow

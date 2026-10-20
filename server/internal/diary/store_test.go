@@ -163,6 +163,20 @@ func TestStore_RestoreWithoutDeletedIsNotFound(t *testing.T) {
 	assert.ErrorIs(t, err, diary.ErrNotFound)
 }
 
+func TestStore_RestorePurgedIsNotFound(t *testing.T) {
+	ctx := context.Background()
+	store, acc, pool := setup(t)
+	_, _, err := store.Upsert(ctx, acc, entry(10, "비워질 것"))
+	require.NoError(t, err)
+	require.NoError(t, store.Delete(ctx, acc, day(10)))
+	// P8의 내용 비우기가 content_purged_at을 찍은 상태를 SQL로 만듭니다.
+	_, err = pool.Exec(ctx, "UPDATE diaries SET content_purged_at = now() WHERE account_id = $1", acc)
+	require.NoError(t, err)
+
+	_, err = store.Restore(ctx, acc, day(10))
+	assert.ErrorIs(t, err, diary.ErrNotFound)
+}
+
 func dates(entries []diary.Entry) []int {
 	out := make([]int, len(entries))
 	for i, e := range entries {
@@ -214,6 +228,8 @@ func TestStore_ListBeforeIsKeyset(t *testing.T) {
 		_, _, err := store.Upsert(ctx, acc, entry(d, "새 글"))
 		require.NoError(t, err)
 	}
+	// 앞 쪽의 마지막 항목(7일)을 지워도 다음 쪽은 중복·빠짐이 없습니다.
+	require.NoError(t, store.Delete(ctx, acc, day(7)))
 	before := page1[len(page1)-1].Date
 	page2, err := store.List(ctx, acc, diary.ListQuery{Before: &before, Limit: 2})
 	require.NoError(t, err)

@@ -13,7 +13,7 @@ type Querier interface {
 	// 날짜 역순입니다. 범위(from·to, 포함)·태그·keyset(before: 그 날짜보다 앞)은 NULL이면 걸지 않습니다.
 	ListDiaries(ctx context.Context, arg ListDiariesParams) ([]ListDiariesRow, error)
 	LiveDiaryExists(ctx context.Context, arg LiveDiaryExistsParams) (bool, error)
-	// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 내용을 이미 비운(content_purged_at) 행은 제외합니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	RestoreLatestDeletedDiary(ctx context.Context, arg RestoreLatestDeletedDiaryParams) (RestoreLatestDeletedDiaryRow, error)
 	SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams) (int64, error)
 	// 살아 있는 일기의 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).

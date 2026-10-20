@@ -9,7 +9,7 @@ import (
 )
 
 type Querier interface {
-	// 지운 것까지 포함해 잠가 읽습니다. is_deleted로 되살릴지, 이미 살아 있어 그대로 답할지 가립니다.
+	// 지운 것까지 포함해 잠가 읽되, 내용을 이미 비운 행은 없는 것으로 봅니다. is_deleted로 되살릴지, 이미 살아 있어 그대로 답할지 가립니다.
 	GetScheduleForRestore(ctx context.Context, arg GetScheduleForRestoreParams) (GetScheduleForRestoreRow, error)
 	// 수정할 일정을 잠가 읽습니다. 없거나 지웠거나 남의 것이면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	GetScheduleForUpdate(ctx context.Context, arg GetScheduleForUpdateParams) (GetScheduleForUpdateRow, error)
@@ -17,7 +17,7 @@ type Querier interface {
 	InsertSchedule(ctx context.Context, arg InsertScheduleParams) (InsertScheduleRow, error)
 	// 날짜 → 종일 먼저 → 시각 → 만든 순입니다. from·to는 포함입니다.
 	ListSchedules(ctx context.Context, arg ListSchedulesParams) ([]ListSchedulesRow, error)
-	// 지운 일정만 되살립니다. 지운 일정이 아니면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	// 지운 일정만 되살립니다. 지운 일정이 아니거나 내용을 이미 비운(content_purged_at) 일정이면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	RestoreSchedule(ctx context.Context, arg RestoreScheduleParams) (RestoreScheduleRow, error)
 	SoftDeleteSchedule(ctx context.Context, arg SoftDeleteScheduleParams) (int64, error)
 	UpdateSchedule(ctx context.Context, arg UpdateScheduleParams) (UpdateScheduleRow, error)

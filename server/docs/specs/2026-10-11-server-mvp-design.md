@@ -170,7 +170,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
 | `preview_usage` | device_hash(unique), used_at | 지우지 않음. 지우면 1회 제한이 풀림 |
 | `rate_limits` | key, window_start, count | 정리 대상 |
-| `idempotency_keys` | account_id, key (PK), request_hash(SHA-256), status, headers(jsonb), body, created_at, completed_at | 24시간 뒤 정리. `completed_at`이 NULL이면 처리 중 |
+| `idempotency_keys` | PK (account_id, key), request_hash(SHA-256), status, headers(jsonb), body, created_at, completed_at | 24시간 뒤 정리. `completed_at`이 NULL이면 처리 중 |
 
 도시 목록은 읽기 전용 참조 데이터라 DB에 넣지 않고, 버전을 붙인 정적 파일로 바이너리에 포함합니다(`go:embed`). 원본은 GeoNames `cities15000`(CC BY 4.0)에서 이름(ko·en·ja), IANA 시간대, 경도를 뽑아 만들고, 출처 표기는 app의 오픈소스 고지에 넣도록 요청합니다.
 

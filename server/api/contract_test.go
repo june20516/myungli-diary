@@ -1008,7 +1008,7 @@ func TestContract_Draft7Additions(t *testing.T) {
 
 	descriptions := map[string][]string{
 		"putDiary":        {"본문만 바꾸고"},
-		"restoreDiary":    {"가장 늦게 지운"},
+		"restoreDiary":    {"가장 늦게 지운", "404 `diary.not_found`"},
 		"listDiaries":     {"`from`이 `to`보다 늦으면 빈 목록"},
 		"listSchedules":   {"`from`이 `to`보다 늦으면 400 `request.invalid`"},
 		"restoreSchedule": {"이미 살아 있는 일정이면 그대로"},

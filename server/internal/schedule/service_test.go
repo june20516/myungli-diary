@@ -298,3 +298,18 @@ func TestService_RestoreIsIdempotent(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, []uuid.UUID{s.ID}, ids(got))
 }
+
+func TestService_RestorePurgedIsNotFound(t *testing.T) {
+	ctx := context.Background()
+	svc, acc, pool := setup(t)
+
+	s, err := svc.Create(ctx, acc, allDay(date(10, 20), "회의"))
+	require.NoError(t, err)
+	require.NoError(t, svc.Delete(ctx, acc, s.ID))
+	// P8의 내용 비우기가 content_purged_at을 찍은 상태를 SQL로 만듭니다.
+	_, err = pool.Exec(ctx, "UPDATE schedules SET content_purged_at = now() WHERE id = $1", s.ID)
+	require.NoError(t, err)
+
+	_, err = svc.Restore(ctx, acc, s.ID)
+	assert.ErrorIs(t, err, schedule.ErrNotFound)
+}

@@ -25,11 +25,12 @@ SELECT EXISTS (
 );
 
 -- name: RestoreLatestDeletedDiary :one
--- 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+-- 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 내용을 이미 비운(content_purged_at) 행은 제외합니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 UPDATE diaries SET deleted_at = NULL
 WHERE id = (
     SELECT d.id FROM diaries d
     WHERE d.account_id = @account_id AND d.date = @date AND d.deleted_at IS NOT NULL
+    AND d.content_purged_at IS NULL
     ORDER BY d.deleted_at DESC, d.created_at DESC, d.id DESC
     LIMIT 1
 )

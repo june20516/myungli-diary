@@ -291,7 +291,7 @@ type serverDeps struct {
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
 	Contents httpapi.Contents
-	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기를 새로 쓰는 요청이 실패합니다.
+	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기 operation은 503입니다.
 	Days   diary.Days
 	Logger *slog.Logger
 	Clock  clock.Clock
@@ -379,11 +379,14 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Lunar:     deps.Lunar,
 		Readings:  deps.Readings,
 		Contents:  deps.Contents,
-		Diaries:   diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock),
 		Schedules: schedule.NewService(schedule.NewStore(deps.Pool)),
 		DB:        deps.Pool,
 		Logger:    deps.Logger,
 		AppLink:   settings.appLink,
+	}
+	// Days가 없으면 일기를 새로 쓸 수 없으므로 Readings·Contents처럼 조립하지 않아 일기 operation이 503입니다.
+	if deps.Days != nil {
+		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
 	}
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)

@@ -62,3 +62,10 @@ func TestViews_DayRecordUnknownFeaturedTagIsError(t *testing.T) {
 	_, err := fx.views.DayRecord(context.Background(), fx.account, viewProfile("ko"), viewDate)
 	assert.Error(t, err)
 }
+
+func TestViews_DayRecordUnknownAllTagIsError(t *testing.T) {
+	fx := newViewsFixture(t, taggedFake([]string{"tag.dohwa", "tag.unknown"}, []string{"tag.dohwa"}), viewSeed(t, ""), fakeInsight{})
+
+	_, err := fx.views.DayRecord(context.Background(), fx.account, viewProfile("ko"), viewDate)
+	assert.Error(t, err)
+}
