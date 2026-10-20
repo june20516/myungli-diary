@@ -53,3 +53,18 @@ server 안에서 정한 사항을 모읍니다. 제품 결정(D#)과 부딪히�
 | S47 | 2026-10-20 | 계약 | `getCalendar`는 한 달 전체가 D41 지원 범위 안인 달(1900-02 ~ 2099-12)만 주고, 1900-01은 422 `date.out_of_range`를 유지합니다(계약 draft.6 문장). 1900-01은 지원 범위 안 날이 31일 하루뿐이라 부분 달은 30칸이 빈 달력이 되고, 앞뒤 끝이 "한 달 전체" 같은 규칙이 됩니다. 엔진 월간 검사와도 같아 core 변경이 없습니다 | #248 |
 | S48 | 2026-10-20 | 콘텐츠 | 시드 변환은 명시 용어 id(`[[글자\|용어 id]]`)와 한자 표기의 용어 id를 언어별 이름 원고가 아니라 슬롯 명세의 용어 id 집합(glossary 용어 범주 키 + `tag.*`)과 대조합니다(writing mlw `term_ids`와 같은 기준). 이름 원고는 범주별로 차례로 와서, 한 언어에 일부 범주만 있으면 아직 없는 범주의 정상 id가 오류가 났기 때문입니다(drift #250·#255). bare 토큰의 역조회 기준(S35)은 그대로입니다 | drift #250·#255 |
 | S49 | 2026-10-20 | 콘텐츠 | 엔진 안내 `Notice.text`는 활성 시드의 `system.notice` / `notice.<code>` 문장입니다. 선택 기록이 없는 문장이라 데일리도 활성 시드로 렌더합니다(S45의 캘린더·사주 표와 같음). 원고가 없으면 빈 `segments`이고 app이 `code`로 자기 문구를 씁니다 | #232 |
+| S50 | 2026-10-20 | 일기 | 이미 있는 일기를 고치면 본문만 바꾸고 태그·`ruleset_version`·가이드 질문은 처음 기록을 유지합니다. 기존 일기 경로는 살아 있는 행의 본문만 바꾸는 UPDATE이고, 없으면(그 사이 지워짐 포함) 새 일기 경로(그날 기록 → upsert)로 갑니다. 기록은 그 일기를 쓸 때 본 질문과 그날 결과이기 때문입니다 | P5 계획 P5-1, P5 Task 4 |
+| S51 | 2026-10-20 | 일기 | 태그는 계약 키(접두어 `tag.` 없음)로 `all_tags`·`featured_tags`에 저장하고, 길흉은 저장 때 `featured_tags`(jsonb `[{key, polarity}]`)에 같이 적습니다. 태그 길흉 표(S36)는 `fortune.TagPolarity`로 옮겨 운세 응답과 일기가 함께 씁니다 | P5 계획 P5-2, P5 Task 2 |
+| S52 | 2026-10-20 | 일기 | 가이드 질문은 `fortune.Views.DayRecord`가 `Daily`로 렌더한 `daily.guide` 문장이고(선택 기록도 그때 남김), 원고가 없어 문장이 비면 NULL로 저장해 응답에서 생략합니다(계약에서 선택 필드) | P5 계획 P5-3 |
+| S53 | 2026-10-20 | 일기 | `restoreDiary`는 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 살아 있는 일기가 있으면 409 `diary.date_taken`, 지운 일기가 없으면 404 `diary.not_found`입니다 | P5 계획 P5-4 |
+| S54 | 2026-10-20 | 일정 | `restoreSchedule`은 이미 살아 있는 일정이면 그대로 200입니다(같은 요청을 다시 보내도 같은 결과). 판정은 `FOR UPDATE`로 읽은 한 트랜잭션 안에서 합니다 | P5 계획 P5-5, P5 Task 6 |
+| S55 | 2026-10-20 | API | 일기 목록 cursor는 마지막 항목 날짜를 base64url(패딩 없음)로 감싼 불투명 문자열이고 keyset `date < cursor`로 넘깁니다(살아 있는 일기의 날짜는 계정 안에서 유일). 해석할 수 없으면 400 `request.invalid`입니다 | P5 계획 P5-6 |
+| S56 | 2026-10-20 | API | `listDiaries`의 `from > to`는 빈 목록, `listSchedules`의 `from > to`는 400 `request.invalid`입니다. 일정 목록은 범위가 필수이고 62일 검사와 같은 자리에서 판정하기 때문입니다 | P5 계획 P5-7 |
+| S57 | 2026-10-20 | API | 경로·쿼리 매개변수 오류의 `errors[].field`는 매개변수 이름 그대로(`date`, `cursor`, `from`, `to`)이고 본문 위치만 JSON Pointer입니다. 요청 검증과 운세 operation의 기존 관례입니다 | P5 Task 5 |
+| S58 | 2026-10-20 | 일기 | `excerpt`는 NFC 뒤 본문 앞 100 code point입니다 | P5 계획 P5-8 |
+| S59 | 2026-10-20 | 일정 | `memo`의 빈 문자열은 NULL로 저장하고 응답에서 생략합니다(PATCH의 `""`는 지우기, 생략은 바꾸지 않음). 일정 날짜에는 D41 범위 검사를 하지 않습니다(엔진 계산이 없는 사용자 기록이기 때문) | P5 계획 P5-9·P5-10 |
+| S60 | 2026-10-20 | API | `Idempotency-Key`는 `RegisterAPI`가 operation 단위로 인증 → 계약 검증 → 멱등 → 핸들러 순으로 감쌉니다(대상 `createSchedule`, P8에서 `registerDevice`). 첫 요청 때 행을 선점하고 2xx면 상태·`Location`·`Content-Type`·본문을 저장, 2xx가 아니거나 panic·끊김이면 행을 지워 다시 시도할 수 있게 합니다. 24시간 지난 행은 덮어씁니다. 지문은 메서드·경로·본문의 SHA-256입니다 | P5 계획 P5-11, P5 Task 7 |
+| S61 | 2026-10-20 | API | 핸들러가 2xx로 끝났는데 멱등 행 완료 기록이 실패하면 행을 지우지 않고(그 키는 24시간 409) Error 로그를 남깁니다. 이미 만들어진 뒤라 행을 풀면 재시도가 중복을 만들기 때문입니다. 완료·해제는 요청 ctx 취소와 분리합니다 | P5 Task 7 |
+| S62 | 2026-10-20 | 데이터 | LocalDate·LocalTime ↔ pgtype 변환은 `profile`(값 타입 소유자)의 공용 함수를 씁니다. `content`는 다른 도메인을 모른다는 규칙(spec §2.2)으로 제외합니다 | P5 Task 6 |
+| S63 | 2026-10-20 | 데이터 | `diaries`의 목록 인덱스를 따로 두지 않습니다. partial unique `diaries_one_per_day (account_id, date) WHERE deleted_at IS NULL`이 역방향 스캔으로 날짜 내림차순 목록을 덮습니다. 태그 필터는 GIN이 쓰는 `all_tags @> ARRAY[...]`입니다 | P5 Task 3 |
+| S64 | 2026-10-20 | 계약 | draft.7은 설명만 바꿔 계약 먼저 병합 PR을 따로 내지 않고 P5 PR에 함께 담았습니다 | P5 Task 1 |
