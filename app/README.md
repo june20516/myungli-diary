@@ -65,12 +65,14 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `notify-profile-save-unavailable` | 로그인한 회원. 알림 허락 뒤 기기 등록은 성공하지만 알림 설정 저장(updateProfile)이 한 번 503 service.unavailable이고 두 번째에 저장됩니다 |
   | `profile-name-invalid` | 미리보기 없이 로그인한 새 계정(`new-user-signin`과 같음). 첫 프로필 저장(createProfile)이 422 name.emoji(필드 `/honorific`)이고 두 번째에 저장됩니다. 호칭 칸 오류 줄을 확인합니다 |
   | `login-entry-unavailable` | 처음 설치한 사용자. 로그인은 성공하지만 직후 내 정보(getMe)가 한 번 503 service.unavailable이라 진입 계산이 실패합니다(login 화면 안내와 다시 시도). 두 번째부터는 약관 동의가 필요한 새 계정입니다 |
-  | `member-time-unknown` | 로그인한 회원. 오늘(getDaily) 응답에 time_unknown notice가 있어 오늘 화면에 시간 모름 배너가 보입니다 |
+  | `member-time-unknown` | 로그인한 회원. 오늘(getDaily)과 나의 사주(getChart) 응답에 time_unknown notice가 있어 오늘·나의 사주·사주 표에 시간 모름 배너가 보이고, 사주 표의 시주가 빈 칸입니다 |
+  | `calendar-error` | 로그인한 회원. 달력(getCalendar)이 503이라 달력 격자를 불러오지 못합니다 |
+  | `schedule-save-error` | 로그인한 회원. 일정 만들기(createSchedule)와 고치기(updateSchedule)가 503이라 저장하지 못합니다 |
   | `daily-error` | 로그인한 회원. 오늘(getDaily)이 503 service.unavailable이라 오늘 화면의 오류 상태와 다시 시도를 확인합니다 |
   | `diary-written` | 로그인한 회원. 오늘 일기를 이미 써서(getDiary 200) 오늘 화면의 가이드 질문 카드가 쓴 뒤(after) 상태이고 쓴 일기 보기로 이어집니다 |
   | `reaction-failed` | 로그인한 회원. 총운 문장에 반응을 남기는 요청(putReaction)이 503 service.unavailable이라 켠 반응이 되돌아가고 오류 toast가 뜹니다 |
   | `reaction-delete-failed` | 로그인한 회원. 총운 문장의 반응을 지우는 요청(deleteReaction)이 503 service.unavailable이라 끈 반응이 다시 켜지고 오류 toast가 뜹니다. 켜진 채로 시작하는 응답은 테스트가 대는 getDaily 대역으로 만듭니다 |
-  | `evidence-unlocked` | 로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)이 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다 |
+  | `evidence-unlocked` | 로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)과 나의 사주(getChart)가 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다. 나의 사주에는 용신 판정 근거와 원국 개인 해석(`personalReadings`)이 있습니다 |
   | `reward-unlock` | 로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)과 나의 사주(getChart 두 번째 응답부터)가 unlocked입니다 |
   | `reward-timeout` | 로그인한 회원. 보상형 광고를 끝까지 봐도 이용권(getEntitlements)이 계속 비활성이라 확인 시간(30초)이 지나 잠금 해제 실패 toast를 봅니다 |
   | `reward-unavailable` | 로그인한 회원. 볼 수 있는 보상형 광고가 없어 근거 시트의 광고 버튼이 꺼지고 안내가 보입니다 |
@@ -83,6 +85,8 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   일기(`listDiaries`·`getDiary`·`putDiary`·`deleteDiary`)는 시나리오마다 새로 만드는 메모리 저장소가 답합니다(`lib/core/api/fake/fake_diary_store.dart`). 처음 내용은 시나리오의 `listDiaries`·`getDiary` 200 응답이고, 쓰면 목록과 그날 일기에 생기고 지우면 사라집니다. 새 일기의 태그·질문은 그날 `getDaily` fixture에서 가져오고, 오늘 뒤 날짜는 422 `diary.future_date`, 없는 일기는 404 `diary.not_found`입니다. 앱을 다시 띄우면 처음 내용으로 돌아갑니다.
 
   프로필 저장(`updateProfile`)은 시나리오 파일이 200이면 보낸 필드만 그 응답의 프로필에 덮어 답하고(merge-patch) 다음 저장은 그 결과에서 이어 갑니다. 그래서 설정에서 언어·알림을 바꾸면 앱에 그대로 보입니다. 200이 아닌 파일(오류 시나리오)은 파일이 답합니다. 프로필 읽기(`getProfile`)는 파일이 없으면 마지막으로 저장한 프로필, 그것도 없으면 `updateProfile` 200 파일의 프로필입니다.
+
+  나의 사주(`getChart`)는 `tool/gen_chart_fixtures.py`가 member 프로필(양력 1990-05-15 14:30, 여성, Asia/Seoul)로 core 엔진을 시나리오의 오늘(2026-10-13)에 돌려 만듭니다. 문장(용신 판정 근거·개인 해석·`ilganHead`·`ilganBody`·`yongsinSummary`)은 writing 슬롯 형식의 대역 문장입니다. `member`는 locked라 판정 근거와 개인 해석이 없습니다. fixture는 입력과 상관없이 같으므로, 정보 수정에서 사주를 바꾼 뒤의 새 원국은 테스트가 응답 대역으로 만듭니다(`test/flows/me_journey_flow_test.dart`). 계정 삭제(`deleteMe`)는 member에서 202(삭제 예정 시각)이고, 진입 설정(`getAppConfig`)의 `legal`은 대역 주소(`example.com`)라 약관 줄이 외부 브라우저 대역으로 열립니다(D80).
 
   원본은 `fixtures/scenarios.json`입니다. `extends`로 다른 시나리오의 fixture를 이어받습니다. `rewardedAd`(`earned`·`dismissed`·`unavailable`·`failed`, 생략하면 `earned`)는 보상형 광고 대역의 결과이고, 이어받지 않고 시나리오마다 정합니다.
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).
@@ -103,6 +107,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
 * 계약의 열린 enum(`info.description` "호환과 버전" 절)만 모르는 값을 `unknownDefaultOpenApi`로 읽습니다(`isKnown`으로 거름). `gen_api.sh`가 계약 사본에 표시를 달고(`tool/mark_open_enums.dart`) 생성기 기본 템플릿에 `tool/openapi-templates/open_enum.patch`를 적용해 만듭니다. 생성기 버전을 올려 patch가 맞지 않으면 새 기본 템플릿에서 같은 변경으로 patch를 다시 만듭니다. 대조는 `test/contract/open_enums_contract_test.dart`입니다(결정 A66).
+  * **생성기를 올릴 때 patch 다시 만들기:** `gen_api.sh`의 이미지(버전·digest)를 바꾸면 `git apply` 단계에서 멈춥니다. 새 이미지로 `docker run --rm -v "$PWD/build/tpl:/work" <이미지> author template -g dart-dio --library dio -o /work`로 기본 템플릿을 꺼내 그 디렉터리를 git 저장소로 commit하고, 이전 patch의 변경(`{{! myungli: … }}` 표시가 붙은 줄)을 같은 자리에 옮긴 뒤 `git diff`로 `tool/openapi-templates/open_enum.patch`를 새로 씁니다. 머리말(첫 `--- a/` 줄 앞 글)의 생성기 버전도 고칩니다. 그 뒤 `tool/gen_api.sh`를 돌리고 열린 enum 대조 테스트로 확인합니다.
 * Riverpod provider는 코드 생성 없이 직접 선언합니다(결정 A15).
 * CI의 `checks` job이 위 명령을 모두 다시 돌린 뒤 `git status`가 깨끗하지 않으면 실패합니다. 원본을 고치고 생성물을 commit하지 않으면 CI가 잡습니다.
 
