@@ -55,9 +55,16 @@ void main() {
     final repository = container.read(profileRepositoryProvider);
     expect(await tester.runAsync(repository.cached), isNull);
 
-    final profile = await tester.runAsync(
-      () => container.read(profileProvider.future),
-    );
+    // autoDispose라 보는 쪽(listen)이 있는 동안 받습니다. 받기와 사본 쓰기가 실제 I/O라
+    // 실제 시계 영역에서 듣고 기다립니다.
+    final profile = await tester.runAsync(() async {
+      final subscription = container.listen(profileProvider, (_, _) {});
+      try {
+        return await container.read(profileProvider.future);
+      } finally {
+        subscription.close();
+      }
+    });
     expect(profile?.honorific, '하늘');
     expect((await tester.runAsync(repository.cached))?.honorific, '하늘');
   });

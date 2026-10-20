@@ -283,6 +283,9 @@ final class FakeServerInterceptor extends Interceptor {
 
   /// 프로필 operation을 대역 프로필로 답합니다. 그 밖의 경우는 null입니다.
   ///
+  /// * `createProfile`: 답은 시나리오 파일 그대로이고, 200이면 그 `profile`을 기억해 뒤의
+  ///   `updateProfile`·`getProfile`이 그 위에서 이어 갑니다. 요청 본문(입력값)은 응답에 반영하지
+  ///   않습니다(fixture가 정한 프로필이 기준).
   /// * `updateProfile`: 시나리오 파일이 200이면 보낸 필드만 프로필에 덮어(merge-patch, 필드가
   ///   없으면 "바꾸지 않음") 답하고 기억합니다. 처음 프로필은 그 200 응답의 `profile`입니다.
   ///   200이 아니면(오류 시나리오) 파일이 그대로 답합니다.
@@ -294,6 +297,12 @@ final class FakeServerInterceptor extends Interceptor {
     _Fixture? fixture,
   ) async {
     switch (route.operationId) {
+      case 'createProfile':
+        final body = fixture?.body;
+        if (fixture?.status == 200 && body is Map<String, Object?>) {
+          _profile = _profileOf(body) ?? _profile;
+        }
+        return null;
       case 'updateProfile':
         final body = fixture?.body;
         if (fixture?.status != 200 || body is! Map<String, Object?>) {

@@ -50,19 +50,27 @@ List<Map<String, Object?>> _patches(
     if (_bodyOf(body).containsKey(field)) _bodyOf(body),
 ];
 
-/// 프로필 저장(PATCH)을 [gate]가 끝날 때까지 붙잡고, [failures]번은 503으로 답합니다.
+/// [method] [path] 요청을 [gate]가 끝날 때까지 붙잡고, [failures]번은 503으로 답합니다.
+/// 기본은 프로필 저장(PATCH)입니다.
 final class _ProfilePatchGate extends Interceptor {
-  new({this.failures = 0, this.gate});
+  new({
+    this.failures = 0,
+    this.gate,
+    this.method = 'PATCH',
+    this.path = '/v1/me/profile',
+  });
 
   int failures;
   final Completer<void>? gate;
+  final String method;
+  final String path;
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    if (options.method != 'PATCH' || options.path != '/v1/me/profile') {
+    if (options.method != method || options.path != path) {
       handler.next(options);
       return;
     }
@@ -548,5 +556,121 @@ void main() {
     await tester.tap(find.text(_ko.settingsLogoutConfirmLogout).last);
     await pumpUntilScreen(tester, ScreenIds.welcome);
     expect(_fake(container).callCountOf('logout'), 1);
+  });
+
+  testWidgets('알림 줄도 저장 중에는 비활성이고, 끝나면 다시 눌립니다', (tester) async {
+    final gate = Completer<void>();
+    await _openSettings(tester, network: _ProfilePatchGate(gate: gate));
+    await _tapRow(tester, SettingsScreen.notifyRowKey);
+    await _toggleNotify(tester);
+    await tester.tap(find.byKey(NotifyTimeSheet.saveKey));
+    await tester.pumpAndSettle();
+    expect(_row(tester, SettingsScreen.notifyRowKey).onTap, isNull);
+    // 다른 값(언어) 줄은 그대로 눌립니다.
+    expect(_row(tester, SettingsScreen.languageRowKey).onTap, isNotNull);
+
+    gate.complete();
+    // 대역 서버가 fixture를 실제 I/O로 읽으므로 저장이 끝날 때까지 기다립니다.
+    await pumpUntil(
+      tester,
+      () => _row(tester, SettingsScreen.notifyRowKey).onTap != null,
+    );
+    expect(_row(tester, SettingsScreen.notifyRowKey).value, _timeLabel(8, 0));
+  });
+
+  testWidgets('프로필을 받지 못하면 오류 toast, 알림·언어 줄을 누르면 다시 받습니다(#312)', (
+    tester,
+  ) async {
+    // 앱 시작의 시간대 동기화(PATCH)가 실패해 사본이 없는 기기입니다.
+    final read = _ProfilePatchGate(failures: 1, method: 'GET');
+    final container = await _openSettings(
+      tester,
+      startNetwork: _ProfilePatchGate(failures: 100),
+      network: read,
+    );
+    expect(find.byType(ToastPill), findsOneWidget);
+    final row = _row(tester, SettingsScreen.notifyRowKey);
+    expect(row.value, isNull);
+    expect(row.onTap, isNotNull);
+    expect(_row(tester, SettingsScreen.languageRowKey).value, isNull);
+
+    await tester.tap(find.byKey(SettingsScreen.languageRowKey));
+    await settleWithIo(tester);
+    expect(_fake(container).callCountOf('getProfile'), 1);
+    expect(
+      _row(tester, SettingsScreen.notifyRowKey).value,
+      _ko.settingsNotifyOff,
+    );
+    expect(_row(tester, SettingsScreen.languageRowKey).value, '한국어');
+    // 다시 받기는 시트를 열지 않습니다.
+    expect(find.byKey(LanguageSheet.sheetKey), findsNothing);
+    await tester.pump(const Duration(seconds: 5));
+    await settleWithIo(tester);
+  });
+
+  testWidgets('빠르게 두 번 눌러도 시트·화면은 한 번만 열립니다', (tester) async {
+    final container = await _openSettings(tester);
+    await tester.tap(find.byKey(SettingsScreen.notifyRowKey));
+    await tester.tap(find.byKey(SettingsScreen.notifyRowKey));
+    await settleWithIo(tester);
+    expect(find.byKey(NotifyTimeSheet.sheetKey), findsOneWidget);
+    Navigator.of(tester.element(find.byKey(NotifyTimeSheet.sheetKey))).pop();
+    await settleWithIo(tester);
+
+    await tester.tap(find.byKey(SettingsScreen.calcBasisRowKey));
+    await tester.tap(find.byKey(SettingsScreen.calcBasisRowKey));
+    await settleWithIo(tester);
+    expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsOneWidget);
+    container.read(routerProvider).pop();
+    await settleWithIo(tester);
+    // 한 번만 쌓였으므로 한 번 돌아오면 설정입니다.
+    expect(find.byKey(const ValueKey(ScreenIds.calcBasis)), findsNothing);
+    expect(find.byKey(const ValueKey(ScreenIds.settings)), findsOneWidget);
+  });
+
+  testWidgets('로그아웃 중에는 모든 줄이 비활성입니다', (tester) async {
+    final gate = Completer<void>();
+    await _openSettings(
+      tester,
+      network: _ProfilePatchGate(
+        gate: gate,
+        method: 'POST',
+        path: '/v1/auth/logout',
+      ),
+    );
+    await _tapRow(tester, SettingsScreen.logoutRowKey);
+    await tester.tap(find.text(_ko.settingsLogoutConfirmLogout).last);
+    await tester.pumpAndSettle();
+    for (final key in [
+      SettingsScreen.notifyRowKey,
+      SettingsScreen.languageRowKey,
+      SettingsScreen.adFreeRowKey,
+      SettingsScreen.profileEditRowKey,
+      SettingsScreen.calcBasisRowKey,
+      SettingsScreen.legalRowKey,
+      SettingsScreen.logoutRowKey,
+      SettingsScreen.accountDeleteRowKey,
+    ]) {
+      expect(_row(tester, key).onTap, isNull, reason: '$key');
+    }
+    gate.complete();
+    await pumpUntilScreen(tester, ScreenIds.welcome);
+  });
+
+  testWidgets('같은 필드에 진행 중과 다른 값을 저장하면 StateError입니다', (tester) async {
+    final gate = Completer<void>();
+    final container = await _openSettings(
+      tester,
+      network: _ProfilePatchGate(gate: gate),
+    );
+    final controller = container.read(settingsControllerProvider.notifier);
+    final first = controller.setLanguage(Language.ja);
+    expect(() => controller.setLanguage(Language.en), throwsStateError);
+    gate.complete();
+    await settleWithIo(tester);
+    await first;
+    expect(_patches(container, 'language'), [
+      {'language': 'ja'},
+    ]);
   });
 }

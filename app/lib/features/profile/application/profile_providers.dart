@@ -26,12 +26,14 @@ final cachedProfileProvider = FutureProvider<Profile?>((ref) {
 /// 화면에 보일 프로필: 사본, 사본이 없으면(새 기기·재설치) server에서 받아 사본으로 둔 값입니다
 /// (A18, #312). 로그아웃 상태면 null입니다.
 ///
-/// 받아 둔 사본이 바뀌면(저장 응답) 그 값을 다시 냅니다. 받지 못하면 그 [AppError]가 오류
-/// 값이고, 다시 읽으려면 이 provider를 invalidate합니다.
-final profileProvider = FutureProvider<Profile?>((ref) async {
-  final cached = await ref.watch(cachedProfileProvider.future);
-  if (cached != null || ref.watch(meProvider) == null) {
-    return cached;
-  }
-  return await ref.read(profileRepositoryProvider).fetch();
-});
+/// 보는 화면(설정·정보 수정)이 있는 동안만 둡니다(autoDispose). 받지 못하면 그 [AppError]가
+/// 오류 값이고 자동으로 다시 받지 않습니다. 화면을 다시 열거나(새로 만들어짐) invalidate하면
+/// 다시 받습니다. 받아 둔 사본이 바뀌면(저장 응답) 그 값을 다시 냅니다.
+final FutureProvider<Profile?> profileProvider =
+    FutureProvider.autoDispose<Profile?>((ref) async {
+      final cached = await ref.watch(cachedProfileProvider.future);
+      if (cached != null || ref.watch(meProvider) == null) {
+        return cached;
+      }
+      return await ref.read(profileRepositoryProvider).fetch();
+    }, retry: (_, _) => null);

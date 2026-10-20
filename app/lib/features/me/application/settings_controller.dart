@@ -37,14 +37,17 @@ bool offersBirthplaceNotice(Language language, BirthPlaceStatusEnum place) =>
 ///
 /// * 저장은 `updateProfile`(PATCH, 그 필드만)이고 응답이 새 사본이 됩니다. 사본이 바뀌면 화면 값과
 ///   앱 언어(`localeProvider`)가 따라 바뀝니다.
-/// * 같은 값의 저장이 진행 중이면 다시 부르지 않고 진행 중인 시도를 돌려줍니다(두 번 누르기).
+/// * 같은 필드에 같은 값의 저장이 진행 중이면 다시 보내지 않고 진행 중인 시도를 돌려줍니다(두 번
+///   누르기). 같은 필드에 다른 값을 부르면 조용히 버리지 않고 [StateError]입니다(화면은 저장 중
+///   그 줄을 비활성으로 두므로 이 경우를 만들지 않습니다).
 /// * 실패는 [AppError]로 던지고 사본은 그대로라 화면은 이전 값입니다. 예상 밖 오류(플랫폼 SDK)는
 ///   요약만 crash 기록에 남기고(D64) [UnexpectedError]로 던집니다.
 class SettingsController extends Notifier<Set<SettingsField>> {
   @override
   Set<SettingsField> build() => const {};
 
-  final Map<SettingsField, Future<void>> _inFlight = {};
+  final Map<SettingsField, ({Object? value, Future<void> attempt})> _inFlight =
+      {};
 
   /// 아침 알림을 [setting]으로 저장합니다.
   ///
@@ -53,7 +56,7 @@ class SettingsController extends Notifier<Set<SettingsField>> {
   /// 기기를 아직 등록하지 않았으면 기기를 등록(`registerDevice`)한 뒤 저장합니다. 이미 켜진 채
   /// 시각만 바꾸면 권한을 다시 묻지 않습니다.
   Future<void> setNotification(NotificationSetting setting) =>
-      _run(SettingsField.notification, () async {
+      _run(SettingsField.notification, setting, () async {
         final profiles = ref.read(profileRepositoryProvider);
         final current = (await profiles.cached())?.notification.status;
         final turningOn =
@@ -66,6 +69,7 @@ class SettingsController extends Notifier<Set<SettingsField>> {
   /// 앱 언어를 [language]로 저장합니다. 성공하면 앱 전체가 그 언어로 다시 그려집니다(A60).
   Future<void> setLanguage(Language language) => _run(
     SettingsField.language,
+    language,
     () => ref
         .read(profileRepositoryProvider)
         .update(ProfilePatch(language: language)),
@@ -75,16 +79,24 @@ class SettingsController extends Notifier<Set<SettingsField>> {
   /// 라우터가 `welcome`으로 보냅니다.
   Future<void> signOut() => _run(
     SettingsField.signOut,
+    null,
     () => revokeAndSignOut(
       api: ref.read(restClientProvider),
       tokens: ref.read(tokenStoreProvider),
     ),
   );
 
-  Future<void> _run(SettingsField field, Future<void> Function() action) {
+  Future<void> _run(
+    SettingsField field,
+    Object? value,
+    Future<void> Function() action,
+  ) {
     final running = _inFlight[field];
     if (running != null) {
-      return running;
+      if (running.value != value) {
+        throw StateError('$field 저장이 진행 중입니다. 끝난 뒤 다른 값을 저장하세요.');
+      }
+      return running.attempt;
     }
     state = {...state, field};
     final attempt = _guard(action).whenComplete(() {
@@ -94,7 +106,7 @@ class SettingsController extends Notifier<Set<SettingsField>> {
         state = {...state}..remove(field);
       }
     });
-    _inFlight[field] = attempt;
+    _inFlight[field] = (value: value, attempt: attempt);
     return attempt;
   }
 

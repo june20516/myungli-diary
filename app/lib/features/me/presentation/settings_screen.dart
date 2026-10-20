@@ -68,9 +68,11 @@ String? adFreeLabel(AppLocalizations l10n, AdFree? adFree, String timezone) {
 /// 날짜) ③ 정보 수정·계산 기준·약관·정책 ④ 로그아웃·계정 삭제(`destructive`). 기본 깊이 줄은
 /// 없습니다(D79).
 ///
-/// * 알림 시각·언어 값은 프로필 사본(없으면 `getProfile`로 받음)이고, 받기 전이거나 받지 못하면
-///   그 두 줄은 값 없이 비활성입니다. 저장 중에도 그 줄이 비활성이고, 실패하면 오류 toast와
-///   이전 값입니다.
+/// * 알림 시각·언어 값은 프로필 사본(없으면 `getProfile`로 받음)입니다. 받는 동안 그 두 줄은 값
+///   없이 비활성이고, 받지 못하면 오류 toast를 보이고 두 줄 중 하나를 누르면 다시 받습니다.
+///   저장 중에는 그 줄이 비활성이고, 실패하면 오류 toast와 이전 값입니다.
+/// * 시트·다음 화면이 열리는 동안(닫히기 전) 다른 줄을 다시 눌러도 또 열지 않고, 로그아웃
+///   중에는 모든 줄이 비활성입니다.
 /// * 언어를 한국어가 아닌 말로 바꾸는 데 성공하고 출생지를 묻지 않았으면 출생지 안내 시트를
 ///   띄웁니다. 버튼은 `birthplace` 수정 모드를 열고, 고른 도시는 무거운 변경이라(A6) 저장하지
 ///   않고 `profile-edit`에 `extra`로 넘깁니다(확인 창은 그 화면이 띄움).
@@ -112,6 +114,40 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   SettingsController get _controller =>
       ref.read(settingsControllerProvider.notifier);
+
+  /// 줄을 눌러 연 시트·화면이 아직 닫히지 않았는지. 빠른 두 번 누르기로 두 번 열지 않게 합니다.
+  bool _opening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 프로필을 받지 못하면 이유를 알립니다(다시 받을 때마다 새 오류면 다시 알림).
+    ref.listenManual<AsyncValue<Profile?>>(profileProvider, (previous, next) {
+      final error = next.error;
+      if (next.isLoading ||
+          error == null ||
+          identical(error, previous?.error)) {
+        return;
+      }
+      showMyungliToast(
+        context,
+        errorMessage(
+          AppLocalizations.of(context),
+          error is AppError ? error : UnexpectedError(error),
+        ),
+      );
+    });
+  }
+
+  /// [action](시트·화면 열기와 그 뒤 처리)이 끝날 때까지 다른 열기를 받지 않습니다.
+  void _guarded(Future<void> Function() action) {
+    if (_opening) return;
+    _opening = true;
+    unawaited(action().whenComplete(() => _opening = false));
+  }
+
+  /// 받지 못한 프로필을 다시 받습니다.
+  void _reloadProfile() => ref.invalidate(profileProvider);
 
   /// [action]을 기다리고, 실패하면 오류 toast를 보입니다. 성공하면 true입니다.
   Future<bool> _save(Future<void> Function() action) async {
@@ -186,13 +222,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _open(String screenId) =>
-      unawaited(context.push<void>(pathOf(screenId)));
+      _guarded(() => context.push<void>(pathOf(screenId)));
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final saving = ref.watch(settingsControllerProvider);
-    final profile = ref.watch(profileProvider).value;
+    final profileState = ref.watch(profileProvider);
+    final profile = profileState.value;
+    final profileFailed =
+        profile == null && profileState.hasError && !profileState.isLoading;
     final adFree = adFreeLabel(
       l10n,
       ref.watch(meProvider)?.adFree,
@@ -200,8 +239,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
     final bottom = MediaQuery.viewPaddingOf(context).bottom;
 
-    VoidCallback? whenIdle(SettingsField field, VoidCallback action) =>
-        saving.contains(field) ? null : action;
+    // 로그아웃 중에는 모든 줄, 저장 중에는 그 값의 줄이 비활성입니다.
+    final signingOut = saving.contains(SettingsField.signOut);
+    VoidCallback? whenIdle(VoidCallback action, {SettingsField? field}) =>
+        signingOut || (field != null && saving.contains(field)) ? null : action;
+
+    /// 프로필 값 줄: 값이 있으면 [edit], 받지 못했으면 다시 받기, 받는 중이면 비활성.
+    VoidCallback? profileRow(
+      SettingsField field,
+      Future<void> Function(Profile profile) edit,
+    ) {
+      if (profile != null) {
+        return whenIdle(() => _guarded(() => edit(profile)), field: field);
+      }
+      return profileFailed ? whenIdle(_reloadProfile) : null;
+    }
 
     return Semantics(
       identifier: ScreenIds.settings,
@@ -236,12 +288,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: profile == null
                               ? null
                               : notificationLabel(l10n, profile.notification),
-                          onTap: profile == null
-                              ? null
-                              : whenIdle(
-                                  SettingsField.notification,
-                                  () => unawaited(_editNotification(profile)),
-                                ),
+                          onTap: profileRow(
+                            SettingsField.notification,
+                            _editNotification,
+                          ),
                         ),
                         SettingsRow(
                           key: SettingsScreen.languageRowKey,
@@ -250,12 +300,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: profile == null
                               ? null
                               : languageNames[profile.language],
-                          onTap: profile == null
-                              ? null
-                              : whenIdle(
-                                  SettingsField.language,
-                                  () => unawaited(_editLanguage(profile)),
-                                ),
+                          onTap: profileRow(
+                            SettingsField.language,
+                            _editLanguage,
+                          ),
                         ),
                       ],
                     ),
@@ -269,7 +317,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               : SettingsRowVariant.value,
                           label: l10n.settingsAdFreeLabel,
                           value: adFree,
-                          onTap: () => _open(ScreenIds.adFree),
+                          onTap: whenIdle(() => _open(ScreenIds.adFree)),
                         ),
                       ],
                     ),
@@ -280,19 +328,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           key: SettingsScreen.profileEditRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.profileEditBarTitle,
-                          onTap: () => _open(ScreenIds.profileEdit),
+                          onTap: whenIdle(() => _open(ScreenIds.profileEdit)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.calcBasisRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.calcBasisBarTitle,
-                          onTap: () => _open(ScreenIds.calcBasis),
+                          onTap: whenIdle(() => _open(ScreenIds.calcBasis)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.legalRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.legalBarTitle,
-                          onTap: () => _open(ScreenIds.legal),
+                          onTap: whenIdle(() => _open(ScreenIds.legal)),
                         ),
                       ],
                     ),
@@ -302,16 +350,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           key: SettingsScreen.logoutRowKey,
                           variant: SettingsRowVariant.destructive,
                           label: l10n.settingsLogoutLabel,
-                          onTap: whenIdle(
-                            SettingsField.signOut,
-                            () => unawaited(_logout()),
-                          ),
+                          onTap: whenIdle(() => _guarded(_logout)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.accountDeleteRowKey,
                           variant: SettingsRowVariant.destructive,
                           label: l10n.accountDeleteBarTitle,
-                          onTap: () => _open(ScreenIds.accountDelete),
+                          onTap: whenIdle(() => _open(ScreenIds.accountDelete)),
                         ),
                       ],
                     ),

@@ -364,6 +364,24 @@ void main() {
       expect(second['notification'], {'status': 'enabled', 'time': '07:30'});
     });
 
+    test('createProfile 200 응답의 프로필을 기억해 그 위에 저장합니다', () async {
+      final created = Map<String, Object?>.of(profile)..['honorific'] = '별님';
+      final dio = _dio(
+        _scenario('s'),
+        _MemoryBundle({
+          'fixtures/s/createProfile.json': jsonEncode({
+            'status': 200,
+            'body': {'profile': created, 'warnings': <Object?>[]},
+          }),
+          'fixtures/s/updateProfile.json': saved(200),
+        }),
+      );
+      await dio.put<Object?>('/v1/me/profile', data: created);
+      final updated = await patch(dio, {'language': 'en'});
+      expect(updated['honorific'], '별님');
+      expect(updated['language'], 'en');
+    });
+
     test('200이 아닌 fixture는 파일이 그대로 답합니다', () async {
       final dio = _dio(
         _scenario('s'),
