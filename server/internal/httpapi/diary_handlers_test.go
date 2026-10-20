@@ -164,7 +164,7 @@ func TestPutDiary_Errors(t *testing.T) {
 		code   string
 		field  string
 	}{
-		{"미래 날짜", diary.ErrFutureDate, http.StatusUnprocessableEntity, "diary.future_date", "/date"},
+		{"미래 날짜", diary.ErrFutureDate, http.StatusUnprocessableEntity, "diary.future_date", "date"},
 		{"엔진 범위 밖", engine.ErrOutOfRange, http.StatusUnprocessableEntity, "date.out_of_range", "date"},
 	}
 	for _, tt := range tests {
@@ -182,8 +182,15 @@ func TestPutDiary_Errors(t *testing.T) {
 
 func TestDiary_Unavailable(t *testing.T) {
 	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}}
-	for _, method := range []string{http.MethodGet, http.MethodDelete} {
-		_, rec := sendDiary(t, api, method, diaryTarget, "")
+	targets := []struct{ method, target, body string }{
+		{http.MethodGet, diaryTarget, ""},
+		{http.MethodDelete, diaryTarget, ""},
+		{http.MethodPut, diaryTarget, `{"body":"x"}`},
+		{http.MethodPost, diaryTarget + "/restore", ""},
+		{http.MethodGet, "/v1/diaries", ""},
+	}
+	for _, tt := range targets {
+		_, rec := sendDiary(t, api, tt.method, tt.target, tt.body)
 		require.Equal(t, http.StatusServiceUnavailable, rec.Code)
 		assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
 	}
@@ -313,7 +320,7 @@ func TestListDiaries_InvalidCursor(t *testing.T) {
 		_, rec := sendDiary(t, diaryAPI(diaries), http.MethodGet, "/v1/diaries?cursor="+cursor, "")
 
 		require.Equal(t, http.StatusBadRequest, rec.Code, cursor)
-		expectInvalid(t, rec, "/cursor")
+		expectInvalid(t, rec, "cursor")
 	}
 }
 

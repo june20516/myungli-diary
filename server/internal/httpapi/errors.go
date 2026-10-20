@@ -80,10 +80,10 @@ var domainErrors = []domainError{
 	{target: engine.ErrInternal, code: problem.EngineError, title: "Engine error"},
 	// 활성 콘텐츠 시드가 없으면 seed 명령을 돌리지 않은 배포입니다(P4-7). 사용자 탓이 아니라 503이고 로그를 남깁니다.
 	{target: content.ErrNoActiveSeed, code: problem.ServiceUnavailable, title: "Service unavailable", logged: true},
-	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: diary.ErrNotFound, code: problem.DiaryNotFound, title: "Diary not found"},
 	{target: diary.ErrDateTaken, code: problem.DiaryDateTaken, title: "Diary date taken"},
-	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future", field: "/date"},
+	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future", field: "date"},
+	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
 

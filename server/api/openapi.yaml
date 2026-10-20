@@ -1026,7 +1026,7 @@ paths:
       summary: 일정 목록
       description: |
         `from`부터 `to`까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 `range.too_long`입니다.
-        `from`이 `to`보다 늦으면 400 `request.invalid`(field `/from`)입니다.
+        `from`이 `to`보다 늦으면 400 `request.invalid`(field `from`)입니다.
       parameters:
         - name: from
           in: query

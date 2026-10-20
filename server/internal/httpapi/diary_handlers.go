@@ -26,7 +26,7 @@ const (
 // 일기 operation 오류가 가리키는 field입니다(계약 FieldError.field).
 const (
 	fieldDiaryDate   = "date"
-	fieldDiaryCursor = "/cursor"
+	fieldDiaryCursor = "cursor"
 )
 
 // PutDiary는 그날 일기 본문을 저장합니다. 새로 만들면 201, 고치면 200입니다.
@@ -103,7 +103,7 @@ func (a *API) RestoreDiary(ctx context.Context, req gen.RestoreDiaryRequestObjec
 }
 
 // ListDiaries는 날짜 내림차순으로 일기 요약을 돌려줍니다. 쪽 크기보다 하나 더 받아 다음 쪽 여부를 정합니다(P5-6).
-// 해석할 수 없는 cursor는 400 request.invalid(field /cursor)이고, from > to는 빈 목록입니다(P5-7).
+// 해석할 수 없는 cursor는 400 request.invalid(field cursor)이고, from > to는 빈 목록입니다(P5-7).
 func (a *API) ListDiaries(ctx context.Context, req gen.ListDiariesRequestObject) (gen.ListDiariesResponseObject, error) {
 	id, err := a.diaryAccountID(ctx)
 	if err != nil {
@@ -112,6 +112,10 @@ func (a *API) ListDiaries(ctx context.Context, req gen.ListDiariesRequestObject)
 	query := diary.ListQuery{Tag: req.Params.Tag, Limit: defaultDiaryLimit}
 	if req.Params.Limit != nil {
 		query.Limit = *req.Params.Limit
+	}
+	// 계약 검증이 limit을 1~100으로 보장하지만, 아래 entries[pageSize-1]이 panic하지 않게 한 번 더 막습니다.
+	if query.Limit < 1 {
+		query.Limit = defaultDiaryLimit
 	}
 	pageSize := query.Limit
 	query.Limit++
@@ -144,10 +148,15 @@ func (a *API) ListDiaries(ctx context.Context, req gen.ListDiariesRequestObject)
 		cursor := encodeDiaryCursor(entries[pageSize-1].Date)
 		nextCursor = &cursor
 	}
-	return gen.ListDiaries200JSONResponse(gen.DiaryList{
-		Items:      convertAll(entries, toDiarySummary),
-		NextCursor: nextCursor,
-	}), nil
+	items := make([]gen.DiarySummary, 0, len(entries))
+	for _, e := range entries {
+		item, err := toDiarySummary(e)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return gen.ListDiaries200JSONResponse(gen.DiaryList{Items: items, NextCursor: nextCursor}), nil
 }
 
 // diaryAccountID는 일기 operation 공통 앞부분으로, 인증된 계정 id를 돌려줍니다.
@@ -213,12 +222,17 @@ func toDiary(e diary.Entry) (gen.Diary, error) {
 }
 
 // toDiarySummary는 목록의 일기 한 편을 요약으로 옮깁니다.
-func toDiarySummary(e diary.Entry) gen.DiarySummary {
-	return gen.DiarySummary{
+func toDiarySummary(e diary.Entry) (gen.DiarySummary, error) {
+	c := &converter{}
+	out := gen.DiarySummary{
 		Date:         contractDate(e.Date),
 		Excerpt:      excerpt(e.Body),
-		FeaturedTags: featuredTags(&converter{}, e),
+		FeaturedTags: featuredTags(c, e),
 	}
+	if c.err != nil {
+		return gen.DiarySummary{}, c.err
+	}
+	return out, nil
 }
 
 // featuredTags는 대표 태그를 계약 Tag로 옮깁니다. 길흉이 계약 값이 아니면 c에 오류를 남깁니다(저장된 값이 깨진 경우).
