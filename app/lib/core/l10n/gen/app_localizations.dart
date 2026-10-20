@@ -2003,6 +2003,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.'**
   String get errorRangeTooLong;
+
+  /// 임시. diary-edit 저장 버튼(IA 슬롯 없음, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get diaryEditSave;
+
+  /// 임시. diary-view app-bar 고치기 동작 접근성 라벨(A50·A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 고치기'**
+  String get diaryViewEditAction;
+
+  /// 임시. diary-view app-bar 지우기 동작 접근성 라벨(A50·A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 지우기'**
+  String get diaryViewDeleteAction;
+
+  /// 임시. 일기를 지운 뒤 toast(A50·A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'일기를 지웠어요.'**
+  String get diaryViewDeleted;
+
+  /// 임시. 날짜 골라 쓰기 시트의 아래 버튼, 고른 날짜를 넣는 틀(A51·A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'{date} 일기'**
+  String diaryListPickDateConfirm(String date);
+
+  /// 임시. tag-chip 글자 틀 "#이름"(A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'#{tag}'**
+  String tagChipLabel(String tag);
+
+  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'좋은 흐름'**
+  String get tagChipPolarityGood;
+
+  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'조심할 흐름'**
+  String get tagChipPolarityBad;
+
+  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'중립'**
+  String get tagChipPolarityNeutral;
 }
 
 class _AppLocalizationsDelegate

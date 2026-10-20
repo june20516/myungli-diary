@@ -33,7 +33,12 @@ _ToastSession? _activeToast;
 /// 위치는 [BottomBarInsetScope]의 하단 틀 높이 위 16px이고, 범위가 없으면 아래 안전 영역
 /// 위 16px입니다. [icon]은 선택이며 누르는 동작은 담지 않습니다. 부른 화면([context])이
 /// 바로 닫혀도 토스트는 끝까지 보입니다.
-void showMyungliToast(BuildContext context, String message, {AppGlyph? icon}) {
+void showMyungliToast(
+  BuildContext context,
+  String message, {
+  AppGlyph? icon,
+  String? identifier,
+}) {
   final overlay = Overlay.of(context, rootOverlay: true);
   final barHeight = BottomBarInsetScope.of(context);
   final bottom =
@@ -61,7 +66,11 @@ void showMyungliToast(BuildContext context, String message, {AppGlyph? icon}) {
             child: Align(
               child: Material(
                 type: MaterialType.transparency,
-                child: ToastPill(message: message, icon: icon),
+                child: ToastPill(
+                  message: message,
+                  icon: icon,
+                  identifier: identifier,
+                ),
               ),
             ),
           ),
@@ -100,7 +109,7 @@ class _ToastSession {
 /// 토스트 알약 하나. 위치와 나타남은 [showMyungliToast]가 맡습니다.
 class ToastPill extends StatelessWidget {
   /// 반전색 알약을 만듭니다.
-  const new({required this.message, this.icon, super.key});
+  const new({required this.message, this.icon, this.identifier, super.key});
 
   /// 문구. 스크린리더가 글자 그대로 읽습니다.
   final String message;
@@ -108,13 +117,19 @@ class ToastPill extends StatelessWidget {
   /// 앞 아이콘(16px Regular, 선택).
   final AppGlyph? icon;
 
+  /// IA 슬롯 id. 있으면 Key와 Semantics `identifier`로 붙입니다.
+  final String? identifier;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
+    final identifier = this.identifier;
     return LiveAnnouncement(
+      key: identifier == null ? null : ValueKey<String>(identifier),
       label: message,
       role: SemanticsRole.status,
+      identifier: identifier,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.inverseBg,

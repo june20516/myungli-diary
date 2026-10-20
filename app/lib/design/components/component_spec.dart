@@ -5,6 +5,10 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
+import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -82,4 +86,8 @@ const List<ComponentSpec> implementedComponents = [
   EventRow.spec,
   CalendarMonthView.spec,
   DayCell.spec,
+  TagChip.spec,
+  DiaryRow.spec,
+  DiaryEditor.spec,
+  DraftIndicator.spec,
 ];

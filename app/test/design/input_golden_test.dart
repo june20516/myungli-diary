@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
@@ -492,7 +495,27 @@ Widget _citySearchSaving() => Builder(
   },
 );
 
+/// date-picker calendar: 일기 쓴 날 도장, 오늘·선택, 미래 막힘, 아래 버튼.
+Widget _monthDatePicker() => Builder(
+  builder: (context) => MonthDatePicker(
+    month: const CalendarMonth(2026, 10),
+    selected: CalendarDate(2026, 10, 8),
+    today: CalendarDate(2026, 10, 13),
+    markedDates: {CalendarDate(2026, 10, 2), CalendarDate(2026, 10, 12)},
+    onSelect: (_) {},
+    onMonthChange: (_) {},
+    confirmLabel: AppLocalizations.of(context).diaryListPickDateConfirm(
+      Localizations.localeOf(context).languageCode == 'ja' ? '10月8日' : '10월 8일',
+    ),
+    onConfirm: () {},
+  ),
+);
+
 void main() {
+  goldenTest('date-picker: calendar', (tester) async {
+    await goldenMatrix(tester, 'input_month_date_picker', _monthDatePicker);
+  });
+
   goldenTest('input-step: onboarding(valid)·standalone(out-of-range)', (
     tester,
   ) async {

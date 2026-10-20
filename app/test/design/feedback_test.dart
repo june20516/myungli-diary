@@ -14,6 +14,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
@@ -520,6 +521,20 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('identifier를 주면 Key와 Semantics identifier로 붙습니다(D77 슬롯)', (
+      tester,
+    ) async {
+      await pumpHost(tester);
+      showMyungliToast(hostContext(tester), '저장했어요', identifier: 'x.toast');
+      await tester.pump(const Duration(milliseconds: 600));
+      final announcement = tester.widget<LiveAnnouncement>(
+        find.byKey(const ValueKey('x.toast')),
+      );
+      expect(announcement.identifier, 'x.toast');
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('2.5초 뒤 사라집니다', (tester) async {
       await pumpHost(tester);
       showMyungliToast(hostContext(tester), '저장했어요');
@@ -671,6 +686,25 @@ void main() {
       await tester.pumpWidget(banner(present: false));
       await tester.pumpAndSettle();
       expect(find.text('이어 쓸 일기가 있어요'), findsNothing);
+    });
+
+    testWidgets('identifier를 주면 Key와 Semantics identifier로 붙습니다(D77 슬롯)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const NoticeBanner(
+            variant: NoticeBannerVariant.offline,
+            message: '연결되면 저장할게요',
+            identifier: 'x.notice',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('x.notice')), findsOneWidget);
+      expect(find.bySemanticsIdentifier('x.notice'), findsOneWidget);
+      handle.dispose();
     });
 
     testWidgets('변형마다 아이콘이 다릅니다', (tester) async {

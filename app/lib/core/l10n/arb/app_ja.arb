@@ -315,5 +315,14 @@
   "todayBarTitle": "今日",
   "errorReactionNotFound": "反応する文が見つかりませんでした。画面を更新してください。",
   "errorScheduleNotFound": "予定が見つかりませんでした。一覧を更新してください。",
-  "errorRangeTooLong": "一度に見られる期間を超えています。期間を短くしてください。"
+  "errorRangeTooLong": "一度に見られる期間を超えています。期間を短くしてください。",
+  "diaryEditSave": "保存",
+  "diaryViewEditAction": "日記を編集",
+  "diaryViewDeleteAction": "日記を削除",
+  "diaryViewDeleted": "日記を削除しました。",
+  "diaryListPickDateConfirm": "{date}の日記",
+  "tagChipLabel": "#{tag}",
+  "tagChipPolarityGood": "良い流れ",
+  "tagChipPolarityBad": "注意の流れ",
+  "tagChipPolarityNeutral": "中立"
 }

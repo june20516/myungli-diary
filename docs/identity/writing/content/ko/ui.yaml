@@ -80,6 +80,7 @@
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "근거와 해석이 열렸어요"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "날짜 골라 쓰기"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date} 일기"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "오늘 있었던 일을 적어 보세요"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "기기에 임시 저장됨"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "저장 중"}
@@ -89,6 +90,8 @@
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirm, text: "이 일기를 지울까요? 지우면 되돌릴 수 없어요."}
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmDelete, text: "지우기"}
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "취소"}
+- {slot: ui.diary-edit.save, key: diaryEditSave, text: "저장"}
+- {slot: ui.diary-view.deleted, key: diaryViewDeleted, text: "일기를 지웠어요."}
 - {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "이 태그가 붙은 일기가 아직 없어요."}
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "태어난 시간을 몰라 시주는 빼고 보여 드려요."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "열기"}
@@ -285,7 +288,7 @@
 - {slot: ui.event-edit.form, key: eventEditTimed, text: "시간 지정"}
 - {slot: ui.event-edit.form, key: eventEditDateLabel, text: "날짜"}
 - {slot: ui.event-edit.form, key: eventEditTimeLabel, text: "시간"}
-- {slot: ui.event-edit.form, key: eventEditSave, text: "저장"}
-- {slot: ui.event-edit.form, key: eventEditDelete, text: "일정 지우기"}
-- {slot: ui.event-edit.form, key: eventEditOfflineNotice, text: "인터넷에 연결되어 있지 않아 저장할 수 없어요."}
-- {slot: ui.event-edit.form, key: eventEditSaveFailed, text: "일정을 저장하지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.event-edit.save, key: eventEditSave, text: "저장"}
+- {slot: ui.event-edit.delete, key: eventEditDelete, text: "일정 지우기"}
+- {slot: ui.event-edit.offline, key: eventEditOfflineNotice, text: "인터넷에 연결되어 있지 않아 저장할 수 없어요."}
+- {slot: ui.event-edit.save-failed, key: eventEditSaveFailed, text: "일정을 저장하지 못했어요. 다시 시도해 주세요."}

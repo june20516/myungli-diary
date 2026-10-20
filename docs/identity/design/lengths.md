@@ -21,11 +21,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |
 | `ui.depth.surface`<br>`ui.depth.explain`<br>`ui.depth.evidence` | segmented 세 칸 중 한 칸 | 104px | 1 | 10 | 8 | **8** | **6** | **13** |
 | `ui.depth.default_label` | settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름) | 177.4px | 1 | 10 | 15 | **10** | **10** | **18** |
-| `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`evidence-sheet.lock.cta`<br>`ad-free.restore.cta`<br>`diary-list.pick-date.cta`<br>`day-sheet.event.add`<br>`day-sheet.diary.write-cta`<br>`share-preview.cta.share` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
+| `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`evidence-sheet.lock.cta`<br>`ad-free.restore.cta`<br>`diary-list.pick-date.cta`<br>`day-sheet.event.add`<br>`day-sheet.diary.write-cta`<br>`share-preview.cta.share`<br>`ui.event-edit.save`<br>`ui.event-edit.delete`<br>`ui.diary-edit.save` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
 | `diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm` | dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15) | 241px | 2 | - | 34 | **34** | **28** | **60** |
 | `ui.action.button`<br>`diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm` | dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 버튼 사이 8) | 124px | 1 | - | 10 | **10** | **7** | **16** |
 | `ui.login.provider` | social-login-button 글자 (좌우 16, 로고 20 + 간격 8) | 260px | 1 | - | 21 | **21** | **17** | **38** |
-| `ui.error.client`<br>`ui.error.code`<br>`ui.login.error`<br>`ui.app.trace`<br>`evidence-sheet.unlock.failed`<br>`diary-edit.saved.tags` | toast (좌우 16, 앞 아이콘 16 + 간격 16) | 256px | 2 | - | 48 | **48** | **34** | **78** |
+| `ui.error.client`<br>`ui.error.code`<br>`ui.login.error`<br>`ui.app.trace`<br>`evidence-sheet.unlock.failed`<br>`diary-edit.saved.tags`<br>`ui.event-edit.save-failed`<br>`ui.diary-view.deleted` | toast (좌우 16, 앞 아이콘 16 + 간격 16) | 256px | 2 | - | 48 | **48** | **34** | **78** |
 | `ui.nav.tab` | tab-bar 탭 라벨 (화면 폭 4등분) | 90px | 1 | - | 9 | **9** | **7** | **15** |
 | `ui.birth.option` | segmented 두 칸 중 한 칸 (check-row inline 글자 포함) | 156px | 1 | - | 13 | **13** | **10** | **22** |
 | `share-preview.ratio.label` | segmented 세 칸 중 한 칸 | 104px | 1 | - | 8 | **8** | **6** | **13** |
@@ -33,7 +33,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `onboard-call.input.hint`<br>`event-edit.title.hint`<br>`event-edit.memo.hint` | text-field 안내 (좌우 16, 지우기 20 + 간격 8) | 260px | 1 | - | 17 | **17** | **14** | **31** |
 | `birthplace.search.hint` | city-search 검색칸 안내 (text-field에서 돋보기 20 + 간격 8) | 232px | 1 | - | 15 | **15** | **12** | **27** |
 | `diary-edit.body.placeholder` | diary-editor 입력칸 안내 (좌우 16) | 288px | 2 | - | 42 | **42** | **36** | **82** |
-| `ui.app.notice`<br>`saju-chart.time-unknown.notice`<br>`diary-edit.offline.notice` | notice-banner (좌우 12, 아이콘 16 + 간격 8) | 272px | 2 | - | 52 | **52** | **38** | **90** |
+| `ui.app.notice`<br>`saju-chart.time-unknown.notice`<br>`diary-edit.offline.notice`<br>`ui.event-edit.offline` | notice-banner (좌우 12, 아이콘 16 + 간격 8) | 272px | 2 | - | 52 | **52** | **38** | **90** |
 | `ui.picker.item` | date-picker·time-picker 휠 칸 (본문 폭 3등분) | 106.7px | 1 | - | 7 | **7** | **5** | **12** |
 | `evidence-sheet.section.basis`<br>`evidence-sheet.section.source`<br>`evidence-sheet.section.personal`<br>`saju-chart.yongsin.title` | lock.veil 제목 (잠기면 앞에 자물쇠 14 + 간격 4) | 302px | 1 | - | 27 | **27** | **22** | **50** |
 | `ui.depth.evidence_link`<br>`birthplace.standard.link`<br>`day-sheet.diary.open` | depth-link 이름 (화살표 14 + 간격 2) | 304px | 1 | - | 25 | **25** | **20** | **45** |
@@ -46,7 +46,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ui.evidence.title` | evidence-sheet 제목 (sheet 안쪽 space.20) | 320px | 1 | - | 18 | **18** | **15** | **33** |
 | `chart.ilgan_head` | my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸) | 320px | 2 | - | 42 | **42** | **34** | **82** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
-| `settings.calculation_basis` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
+| `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
 
 상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):
 
@@ -68,8 +68,9 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `login.discard.notice` | 확인 창 본문(창이 늘어남) |
 
 * **ko 계산**: 레이아웃에 들어가는 글자 수입니다. 확정값은 writing 초안과 이 값 중 작은 값입니다(ja 초안 = ko, en 초안 = ko × 1.8). 초안이 `-`인 칸(#131에서 더한 칸)은 계산값이 곧 확정값입니다.
+* **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `today.evidence.link` = `ui.depth.evidence_link`, `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21).
 * **여러 자리에 쓰는 슬롯은 가장 좁은 자리의 값**을 받습니다. 예를 들어 `ui.action.button`은 `primary-button`과 `dialog` 버튼에 쓰이므로 dialog 버튼 폭(124px)으로 잽니다.
-* **확인 창 슬롯**(`diary-view.delete.confirm` 등 6개)은 한 슬롯에 제목·본문·버튼 키가 함께 있어 두 칸에 나옵니다. 제목 키는 "dialog title" 행, 버튼 키는 "dialog 버튼" 행의 값이고, 본문 키는 창이 늘어나므로 상한이 없습니다. 슬롯을 역할별로 나눌지는 writing에 요청했습니다.
+* **확인 창 슬롯**(`diary-view.delete.confirm` 등 6개)은 한 슬롯에 제목·본문·버튼 키가 함께 있어 두 칸에 나옵니다. 제목 키는 "dialog title" 행, 버튼 키는 "dialog 버튼" 행의 값이고, 본문 키는 창이 늘어나므로 상한이 없습니다. writing은 슬롯을 나누지 않고 제목 키 상한을 `key_max_length`로 담았습니다(W26, #191).
 * `character.reason`은 마지막 줄 끝에 `depth-link` `inline-end`(앞 U+00A0 + `ui.depth.evidence_link` 원고 + 화살표 16)가 붙으므로, 마지막 줄에서 그 폭에 해당하는 글자 수를 한 번 뺐습니다. 링크 폭은 언어별 원고(ko "근거 보기", ja "根拠を見る", en "See the basis")로 재므로 링크 문구가 바뀌면 이 값도 다시 계산합니다.
 * 칸 앞에 아이콘이 붙는 상태가 있으면 그 폭을 뺐습니다: 잠긴 구역 제목(자물쇠 14 + 간격 4), destructive 확인 창 제목(`mark.caution` 11.3 + 띄어쓰기 3.5 → 15), toast(아이콘 16 + 간격 16).
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px), `ui.depth.surface`·`explain`·`evidence`(segmented 한 칸).
@@ -77,7 +78,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 
 ## 상한 없음
 
-"상한을 두지 않는 슬롯" 표의 슬롯은 레이아웃이 길이를 막지 않으므로 design이 상한을 정하지 않습니다(스크린리더 전용, 스크롤 본문, 확인 창 본문, app 밖 화면). 슬롯 명세에는 `null` 대신 이 사실을 적도록 writing에 요청했습니다. 편집상의 길이 규칙이 필요하면 writing이 정합니다.
+"상한을 두지 않는 슬롯" 표의 슬롯은 레이아웃이 길이를 막지 않으므로 design이 상한을 정하지 않습니다(스크린리더 전용, 스크롤 본문, 확인 창 본문, app 밖 화면). 슬롯 명세에는 상한 값 `unbounded`로 적혀 있습니다(W26, #191). 편집상의 길이 규칙이 필요하면 writing이 정합니다.
 
 #131이 묻지 않은 문장형 ui 슬롯(질문 제목 `*.question.head`, 설명 `*.why.body`, 잠금 안내 `evidence-sheet.lock.*` 등)은 아직 계산하지 않았습니다. 이름형 중에서는 다음 셋을 계산하지 않았습니다. 필요하면 writing이 다시 요청합니다.
 

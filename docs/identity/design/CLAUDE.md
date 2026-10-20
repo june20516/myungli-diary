@@ -31,7 +31,12 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-10-20, design 세션 작성)
-* **app 계획 4 확인 #218·drift #252·#257** (브랜치 `design/calendar-answers`, 컴포넌트 계약 2.6.0).
+* **규칙 정합성 점검 #284** (브랜치 `design/rules-audit`, D78).
+  * 글자 수 상한: D77 IA 자리 9개를 writing 슬롯(W33, `ui.*`에 `ia`) 기준으로 기존 행에 더함(값 그대로). `settings.calculation_basis` → `calc-basis.longitude.body`(W21). #191은 W26 `unbounded`·`key_max_length`로 끝남.
+  * MD "쓰는 화면"을 IA에 맞추고 테스트가 대조함. 예외 `diary-editor` diary-view는 IA 보완 요청 #290.
+  * V19·V37 개정 표시, `lucky-card` 칩 줄 전체 최대 6개, `visual-identity.md`는 계약 표를 가리킴.
+  * #141 끝남: app에 V31 목표 모양 요청 #292(#282 3번과 같은 항목).
+* **app 계획 4 확인 #218·drift #252·#257** (브랜치 `design/calendar-answers`).
   * `date-picker` `solar`(일정 날짜 양력만), `text-field` `multiline`(6줄까지, 줄바꿈 키), `dialog` `destructive`에 일정 삭제.
   * `event-row`: 일정에 길이가 없음(시각 일정은 진행 중 아님), '외 N개'는 라벨 끝 목록 구분자, summary `twoLines`, list `timeColumn.overflow`·`add`·`failed`.
   * `day-cell`: 높이는 1.3배 글자까지만 늘어나는 최소 높이(V36), 윤달 초하루 표지(V38, 문구는 writing #260)·윤달 라벨은 윤달 모든 날.
@@ -78,11 +83,11 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-0. **윤달 표지 문구:** writing이 #260에 답하면 `tools/lengths.py`에 그 슬롯(칸 폭 44px, 10.5px 400, 한 줄) 상한 행을 더하고 `calendar.json` `leapNewMoon`에 슬롯 id를 적습니다.
+0. **IA 보완 #290:** 지휘가 IA diary-view에 `diary-editor`를 더하면 `tools/test_components.py`의 `USED_ON_EXCEPTIONS`를 지웁니다.
+1. **윤달 표지 문구:** writing이 #260에 답하면 `tools/lengths.py`에 그 슬롯(칸 폭 44px, 10.5px 400, 한 줄) 상한 행을 더하고 `calendar.json` `leapNewMoon`에 슬롯 id를 적습니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-1. **writing 확인 창 슬롯 답:** 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기를 어떻게 할지 writing 답(Issue #191)이 오면 `tools/lengths.py`의 `DIALOG_SLOTS`·`NO_LIMIT`과 `lengths.md`를 맞춥니다.
-2. **윤달 조회 계약:** server 음력→양력·윤달 조회(#141)가 REST 계약에 들어오면 app에 `date-picker` `birth` 목표 모양(V31)으로 바꾸도록 확인합니다.
+2. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
 3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
 4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
 5. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

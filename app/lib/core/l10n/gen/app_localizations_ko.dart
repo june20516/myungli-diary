@@ -1060,4 +1060,35 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get errorRangeTooLong => '한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.';
+
+  @override
+  String get diaryEditSave => '저장';
+
+  @override
+  String get diaryViewEditAction => '일기 고치기';
+
+  @override
+  String get diaryViewDeleteAction => '일기 지우기';
+
+  @override
+  String get diaryViewDeleted => '일기를 지웠어요.';
+
+  @override
+  String diaryListPickDateConfirm(String date) {
+    return '$date 일기';
+  }
+
+  @override
+  String tagChipLabel(String tag) {
+    return '#$tag';
+  }
+
+  @override
+  String get tagChipPolarityGood => '좋은 흐름';
+
+  @override
+  String get tagChipPolarityBad => '조심할 흐름';
+
+  @override
+  String get tagChipPolarityNeutral => '중립';
 }

@@ -1,4 +1,5 @@
 """글자 수 상한 계산 테스트 (depth-lock spec §5, spec-followups spec §5)."""
+import json
 import pathlib
 import re
 import sys
@@ -31,8 +32,22 @@ EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행. 값이 바뀌면 �
     '| `ui.depth.surface`<br>`ui.depth.explain`<br>`ui.depth.evidence` | segmented 세 칸 중 한 칸 | 104px | 1 | 10 | 8 | **8** | **6** | **13** |',
     '| `ui.depth.default_label` | settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름) | 177.4px | 1 | 10 | 15 | **10** | **10** | **18** |',
     '| `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |',
-    '| `settings.calculation_basis` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |',
+    # settings.calculation_basis는 W21로 ui 슬롯 calc-basis.longitude.body로 옮겨 감. 값은 그대로 (#284)
+    '| `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |',
 ]
+
+# D77로 IA에 더한 ui 자리 → 그 자리를 담은 writing 슬롯 (writing W33, 슬롯 id를 두고 ia 필드로 자리를 적음)
+D77_SLOTS = {
+    "today.evidence.link": "ui.depth.evidence_link",
+    "evidence-sheet.sheet.title": "ui.evidence.title",
+    "login.error.body": "ui.login.error",
+    "event-edit.save.cta": "ui.event-edit.save",
+    "event-edit.delete.cta": "ui.event-edit.delete",
+    "event-edit.offline.notice": "ui.event-edit.offline",
+    "event-edit.save.failed": "ui.event-edit.save-failed",
+    "diary-edit.save.cta": "ui.diary-edit.save",
+    "diary-view.deleted.toast": "ui.diary-view.deleted",
+}
 
 DIALOG_SLOTS_EXPECTED = {"diary-view.delete.confirm", "event-edit.delete.confirm", "account-delete.delete.confirm",
                          "settings.logout.confirm", "preview.share.login-notice", "profile-edit.recalc.confirm"}
@@ -113,7 +128,7 @@ def test_render_table_lists_targets_and_unbounded_slots():
     target = Target(("a", "b"), "칸", "ui", 10, 0, 45, 1, False, 10)
     table = render_table([Result(target, ko=4, ja=3, en=6)])
     assert "| `a`<br>`b` | 칸 | 45px | 1 | 10 | 4 | **4** | **3** | **6** |" in table
-    assert "| `settings.calculation_basis` |" in table and "**216**" in table
+    assert "| `calc-basis.longitude.body` |" in table and "**216**" in table
 
 
 def test_corpus_reads_round_choices():
@@ -138,7 +153,8 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "daily.fortune.head", "daily.fortune.tag", "daily.guide", "daily.color", "daily.direction", "daily.number",
         "daily.focus_time", "daily.tag_label", "daily.focus_reason", "calendar.day_level", "calendar.score_item",
         "calendar.solar_term", "glossary.value_name", "ui.depth.default_label", "ui.depth.surface",
-        "ui.depth.explain", "ui.depth.evidence", "chart.yongsin_method", "settings.calculation_basis",
+        "ui.depth.explain", "ui.depth.evidence", "chart.yongsin_method",
+        "calc-basis.longitude.body",  # 옛 settings.calculation_basis (W21)
     }
     issue_131 = {  # spec-followups spec §5.2 표
         "welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
@@ -157,7 +173,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131
+    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values())
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
@@ -202,3 +218,15 @@ def test_committed_table_matches_measurement(capsys):
     lengths.main(["--font-dir", str(FONT_DIR)])
     table = capsys.readouterr().out
     assert table in (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8")
+
+
+def test_d77_ia_slots_are_measured():
+    ia = json.loads((REPO_ROOT / "docs" / "ia" / "screens.json").read_text(encoding="utf-8"))
+    ia_slots = {slot["id"] for screen in ia["screens"] for slot in screen.get("slots", [])}
+    assert set(D77_SLOTS) <= ia_slots
+    measured = {slot for target in lengths.TARGETS for slot in target.slots}
+    assert set(D77_SLOTS.values()) <= measured
+    places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
+    assert {places[D77_SLOTS[ia_id]].split(" ")[0] for ia_id in ("event-edit.save.cta", "diary-edit.save.cta")} == {"primary-button"}
+    assert places["ui.event-edit.offline"].startswith("notice-banner")
+    assert places["ui.diary-view.deleted"].startswith("toast") and places["ui.event-edit.save-failed"].startswith("toast")

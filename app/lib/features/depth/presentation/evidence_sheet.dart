@@ -101,6 +101,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       dataWithNotice: (state, _) => EvidenceSheetBody(
         state: state.link,
         title: l10n.evidenceSheetTitle,
+        titleSlotId: SlotIds.evidenceSheetSheetTitle,
         basis: _sentences(evidence.map((item) => item.basis)),
         source: _sentences(evidence.map((item) => item.source_)),
         loading: state.refreshing,

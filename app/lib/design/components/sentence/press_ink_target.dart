@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/interaction/press_ink_state.dart';
@@ -20,6 +21,7 @@ class PressInkTarget extends StatefulWidget {
     this.expanded,
     this.identifier,
     this.inkColor,
+    this.customActions = const {},
     super.key,
   });
 
@@ -45,6 +47,10 @@ class PressInkTarget extends StatefulWidget {
   /// 얼룩 색(그 컴포넌트의 글자색). 없으면 `text.primary`.
   final Color? inkColor;
 
+  /// 스크린리더의 추가 동작(이름 → 동작). 안에 따로 눌리는 것(카드 안 태그 칩 등)이 있어도
+  /// 이 자리 전체를 한 덩어리로 읽으므로, 그 동작을 여기에 올려 스크린리더에서도 닿게 합니다.
+  final Map<CustomSemanticsAction, VoidCallback> customActions;
+
   /// 눌리는 모습.
   final Widget child;
 
@@ -66,6 +72,9 @@ class _PressInkTargetState extends State<PressInkTarget>
       identifier: widget.identifier,
       label: widget.semanticLabel,
       onTap: onTap,
+      customSemanticsActions: widget.customActions.isEmpty
+          ? null
+          : widget.customActions,
       child: ExcludeSemantics(
         child: FocusableActionDetector(
           enabled: onTap != null,

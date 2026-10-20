@@ -139,6 +139,9 @@ final class CalendarMonth {
   bool get isSupported =>
       _index >= supportedFirst._index && _index <= supportedLast._index;
 
+  /// 달 순서 비교: [other]보다 앞이면 음수, 같으면 0, 뒤면 양수입니다.
+  int compareTo(CalendarMonth other) => _index.compareTo(other._index);
+
   /// 달 순서 비교용 번호.
   int get _index => year * 12 + month - 1;
 
