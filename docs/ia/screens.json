@@ -1859,6 +1859,7 @@
       ],
       "components": [
         "app-bar",
+        "diary-editor",
         "day-character",
         "sentence-block",
         "tag-chip",
