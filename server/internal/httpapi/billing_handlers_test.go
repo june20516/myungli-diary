@@ -302,3 +302,113 @@ func TestRestorePurchases_RequiresBearer(t *testing.T) {
 
 	expectBearerFailure(t, rec, "auth.token_invalid")
 }
+
+// fakeRewardVerifier는 RewardVerifier 대역입니다.
+type fakeRewardVerifier struct {
+	callback billing.RewardCallback
+	err      error
+	gotQuery string
+}
+
+func (f *fakeRewardVerifier) Verify(_ context.Context, rawQuery string) (billing.RewardCallback, error) {
+	f.gotQuery = rawQuery
+	return f.callback, f.err
+}
+
+// fakeRewards는 RewardGranter 대역입니다.
+type fakeRewards struct {
+	err       error
+	calls     int
+	gotQuery  string
+	gotCaller billing.RewardCallback
+}
+
+func (f *fakeRewards) Grant(_ context.Context, cb billing.RewardCallback, rawQuery string) error {
+	f.calls++
+	f.gotCaller = cb
+	f.gotQuery = rawQuery
+	return f.err
+}
+
+// rewardQuery는 서명 값에 로그에 남으면 안 되는 표식이 든 원본 쿼리입니다. 퍼센트 인코딩과 +를 그대로 둡니다.
+const rewardQuery = "ad_network=5450213213286189855&ad_unit=123&key_id=3335741209&reward_item=insight&timestamp=1507770365237&transaction_id=tx%2B1&user_id=a-b&signature=signature-marker-value"
+
+func getReward(t *testing.T, api *httpapi.API) (*httptest.ResponseRecorder, *bytes.Buffer, func()) {
+	t.Helper()
+	handler, spec, logs := newHandlerAPIWithLogs(t, api)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/webhooks/admob-ssv?"+rewardQuery, nil)
+	rec := serve(handler, req)
+	return rec, logs, func() { expectContractResponse(t, spec, req, rec) }
+}
+
+func TestAdmobRewardCallback_Success_PassesRawQueryAndReturns200WithoutBody(t *testing.T) {
+	verifier := &fakeRewardVerifier{callback: billing.RewardCallback{TransactionID: "tx+1", UserID: "a-b"}}
+	rewards := &fakeRewards{}
+	rec, logs, check := getReward(t, &httpapi.API{RewardVerifier: verifier, Rewards: rewards})
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	check()
+	assert.Empty(t, rec.Body.String())
+	assert.Equal(t, rewardQuery, verifier.gotQuery, "원본 쿼리를 계약 검증 뒤에도 같은 문자열로 넘깁니다")
+	assert.Equal(t, 1, rewards.calls)
+	assert.Equal(t, rewardQuery, rewards.gotQuery)
+	assert.Equal(t, "tx+1", rewards.gotCaller.TransactionID)
+	assert.NotContains(t, logs.String(), "signature-marker-value")
+}
+
+func TestAdmobRewardCallback_VerifyErrors_MapToProblem(t *testing.T) {
+	tests := []struct {
+		name   string
+		err    error
+		status int
+		code   string
+	}{
+		{"서명", fmt.Errorf("감쌈: %w", billing.ErrRewardSignature), http.StatusUnauthorized, "reward.invalid_signature"},
+		{"만료", billing.ErrRewardExpired, http.StatusUnauthorized, "reward.expired"},
+		{"키 목록", fmt.Errorf("감쌈: %w", billing.ErrRewardKeysUnavailable), http.StatusServiceUnavailable, "service.unavailable"},
+		{"그 밖", errors.New("예상 못 한 오류"), http.StatusInternalServerError, "internal"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rewards := &fakeRewards{}
+			rec, logs, check := getReward(t, &httpapi.API{RewardVerifier: &fakeRewardVerifier{err: tt.err}, Rewards: rewards})
+
+			require.Equal(t, tt.status, rec.Code, rec.Body.String())
+			check()
+			assert.Contains(t, rec.Body.String(), tt.code)
+			assert.Zero(t, rewards.calls, "검증 실패면 권한을 부여하지 않습니다")
+			assert.NotContains(t, logs.String(), "signature-marker-value")
+		})
+	}
+}
+
+func TestAdmobRewardCallback_GrantError_500(t *testing.T) {
+	rec, logs, check := getReward(t, &httpapi.API{
+		RewardVerifier: &fakeRewardVerifier{},
+		Rewards:        &fakeRewards{err: errors.New("db down")},
+	})
+
+	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+	check()
+	assert.NotContains(t, logs.String(), "signature-marker-value")
+}
+
+func TestAdmobRewardCallback_MissingDependency_503(t *testing.T) {
+	tests := []struct {
+		name string
+		api  *httpapi.API
+	}{
+		{"둘 다 없음", &httpapi.API{}},
+		{"Rewards 없음", &httpapi.API{RewardVerifier: &fakeRewardVerifier{}}},
+		{"RewardVerifier 없음", &httpapi.API{Rewards: &fakeRewards{}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rec, _, check := getReward(t, tt.api)
+
+			require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
+			check()
+			assert.Contains(t, rec.Body.String(), "service.unavailable")
+		})
+	}
+}

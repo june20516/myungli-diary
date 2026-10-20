@@ -10,7 +10,22 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const accountCurrentTimezone = `-- name: AccountCurrentTimezone :one
+SELECT current_timezone
+FROM profiles
+WHERE account_id = $1
+`
+
+// 계정 프로필의 현재 시간대(IANA 이름)입니다. 프로필이 없으면 행이 없습니다.
+func (q *Queries) AccountCurrentTimezone(ctx context.Context, accountID uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, accountCurrentTimezone, accountID)
+	var current_timezone string
+	err := row.Scan(&current_timezone)
+	return current_timezone, err
+}
 
 const billingEventProcessedAt = `-- name: BillingEventProcessedAt :one
 SELECT processed_at
@@ -73,6 +88,61 @@ func (q *Queries) InsertBillingEvent(ctx context.Context, arg InsertBillingEvent
 		arg.AccountID,
 		arg.Payload,
 		arg.ReceivedAt,
+	)
+	return err
+}
+
+const insertRewardEvent = `-- name: InsertRewardEvent :execrows
+INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, raw_query, received_at)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (transaction_id) DO NOTHING
+`
+
+type InsertRewardEventParams struct {
+	TransactionID string
+	AccountID     uuid.NullUUID
+	AdUnit        pgtype.Text
+	RewardItem    pgtype.Text
+	RawQuery      string
+	ReceivedAt    time.Time
+}
+
+// 보상형 광고 콜백을 기록합니다. 같은 transaction_id가 이미 있으면 아무것도 하지 않고 0행입니다(P7-14).
+func (q *Queries) InsertRewardEvent(ctx context.Context, arg InsertRewardEventParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertRewardEvent,
+		arg.TransactionID,
+		arg.AccountID,
+		arg.AdUnit,
+		arg.RewardItem,
+		arg.RawQuery,
+		arg.ReceivedAt,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const insertRewardedAdGrant = `-- name: InsertRewardedAdGrant :exec
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES ($1, 'insight', 'rewarded_ad', $2, $3, $4)
+ON CONFLICT (entitlement, source, source_ref) DO NOTHING
+`
+
+type InsertRewardedAdGrantParams struct {
+	AccountID uuid.UUID
+	SourceRef string
+	StartsAt  time.Time
+	ExpiresAt time.Time
+}
+
+// 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
+func (q *Queries) InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedAdGrantParams) error {
+	_, err := q.db.Exec(ctx, insertRewardedAdGrant,
+		arg.AccountID,
+		arg.SourceRef,
+		arg.StartsAt,
+		arg.ExpiresAt,
 	)
 	return err
 }

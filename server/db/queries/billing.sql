@@ -67,3 +67,21 @@ UPDATE billing_events
 SET processed_at = @now::timestamptz
 WHERE event_id = @event_id
   AND processed_at IS NULL;
+
+-- name: InsertRewardEvent :execrows
+-- 보상형 광고 콜백을 기록합니다. 같은 transaction_id가 이미 있으면 아무것도 하지 않고 0행입니다(P7-14).
+INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, raw_query, received_at)
+VALUES (@transaction_id, @account_id, @ad_unit, @reward_item, @raw_query, @received_at)
+ON CONFLICT (transaction_id) DO NOTHING;
+
+-- name: AccountCurrentTimezone :one
+-- 계정 프로필의 현재 시간대(IANA 이름)입니다. 프로필이 없으면 행이 없습니다.
+SELECT current_timezone
+FROM profiles
+WHERE account_id = @account_id;
+
+-- name: InsertRewardedAdGrant :exec
+-- 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES (@account_id, 'insight', 'rewarded_ad', @source_ref, @starts_at, @expires_at)
+ON CONFLICT (entitlement, source, source_ref) DO NOTHING;

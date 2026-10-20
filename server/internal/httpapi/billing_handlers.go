@@ -92,3 +92,32 @@ func (a *API) RevenuecatWebhook(ctx context.Context, request gen.RevenuecatWebho
 	}
 	return gen.RevenuecatWebhook200Response{}, nil
 }
+
+// AdmobRewardCallback은 AdMob 보상형 광고 SSV 콜백을 받습니다(P7-10~P7-14).
+//
+// 원본 쿼리를 그대로 Verify에 넘겨 서명과 시각을 검증하고, 통과하면 Grant가 기록과 권한 부여를 합니다.
+// 응답: 성공(이미 처리한 transaction_id 포함) 200 본문 없음, 서명·형식 오류 401 reward.invalid_signature,
+// 오래된 timestamp 401 reward.expired, 공개 키 목록을 못 받음 503 service.unavailable, 그 밖의 오류 500.
+// RewardVerifier나 Rewards가 비어 있으면 503 service.unavailable입니다. 로그에 signature를 남기지 않습니다.
+func (a *API) AdmobRewardCallback(ctx context.Context, _ gen.AdmobRewardCallbackRequestObject) (gen.AdmobRewardCallbackResponseObject, error) {
+	if a.RewardVerifier == nil || a.Rewards == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+	}
+	rawQuery := RawRequestFrom(ctx).RawQuery
+	callback, err := a.RewardVerifier.Verify(ctx, rawQuery)
+	switch {
+	case errors.Is(err, billing.ErrRewardSignature):
+		return nil, newError(problem.RewardInvalidSignature, "Reward signature invalid")
+	case errors.Is(err, billing.ErrRewardExpired):
+		return nil, newError(problem.RewardExpired, "Reward callback expired")
+	case errors.Is(err, billing.ErrRewardKeysUnavailable):
+		a.Logger.WarnContext(ctx, "보상 콜백: AdMob 공개 키를 받지 못했습니다", "error", err.Error())
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+	case err != nil:
+		return nil, err
+	}
+	if err := a.Rewards.Grant(ctx, callback, rawQuery); err != nil {
+		return nil, err
+	}
+	return gen.AdmobRewardCallback200Response{}, nil
+}

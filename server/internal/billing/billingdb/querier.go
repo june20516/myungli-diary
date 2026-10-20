@@ -12,12 +12,18 @@ import (
 )
 
 type Querier interface {
+	// 계정 프로필의 현재 시간대(IANA 이름)입니다. 프로필이 없으면 행이 없습니다.
+	AccountCurrentTimezone(ctx context.Context, accountID uuid.UUID) (string, error)
 	// 이벤트의 처리 완료 시각입니다. NULL이면 아직 처리하지 않았거나 앞선 처리가 실패했습니다.
 	BillingEventProcessedAt(ctx context.Context, eventID string) (*time.Time, error)
 	// 후보 id 중 accounts에 있는 id입니다(webhook 계정 찾기, P7-7). 순서는 보장하지 않으므로 호출한 쪽이 후보 순서로 맞춥니다.
 	ExistingAccountIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error)
 	// webhook 이벤트를 기록합니다. 같은 event_id가 이미 있으면 아무것도 하지 않습니다(P7-8).
 	InsertBillingEvent(ctx context.Context, arg InsertBillingEventParams) error
+	// 보상형 광고 콜백을 기록합니다. 같은 transaction_id가 이미 있으면 아무것도 하지 않고 0행입니다(P7-14).
+	InsertRewardEvent(ctx context.Context, arg InsertRewardEventParams) (int64, error)
+	// 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
+	InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedAdGrantParams) error
 	// 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
 	ListAdFreePassGrants(ctx context.Context, accountID uuid.UUID) ([]ListAdFreePassGrantsRow, error)
 	// 권한 기록 쿼리입니다. 판정은 이 쿼리가 돌려준 유효한 행으로 계산합니다(spec §3.3).

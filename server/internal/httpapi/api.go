@@ -93,6 +93,21 @@ type PurchaseRestorer interface {
 
 var _ PurchaseRestorer = (*billing.Syncer)(nil)
 
+// RewardVerifier는 admobRewardCallback이 쓰는 SSV 서명·시각 검증입니다. *billing.RewardVerifier가 만족합니다.
+type RewardVerifier interface {
+	// Verify는 원본 쿼리의 서명과 timestamp를 검증합니다. 오류는 billing.ErrRewardSignature·ErrRewardExpired·ErrRewardKeysUnavailable입니다.
+	Verify(ctx context.Context, rawQuery string) (billing.RewardCallback, error)
+}
+
+var _ RewardVerifier = (*billing.RewardVerifier)(nil)
+
+// RewardGranter는 검증된 보상 콜백을 기록하고 권한을 부여합니다. *billing.Rewards가 만족합니다.
+type RewardGranter interface {
+	Grant(ctx context.Context, cb billing.RewardCallback, rawQuery string) error
+}
+
+var _ RewardGranter = (*billing.Rewards)(nil)
+
 // RevenueCatWebhooks는 revenuecatWebhook이 쓰는 webhook 검증·처리입니다. *billing.Webhooks가 만족합니다.
 type RevenueCatWebhooks interface {
 	// Authorized는 Authorization 헤더 값이 설정 값과 같은지 봅니다.
@@ -150,6 +165,9 @@ type API struct {
 	Purchases PurchaseRestorer
 	// Webhooks는 RevenueCat webhook 처리입니다. 비어 있으면(결제 설정 없음) revenuecatWebhook은 500이고 Error 로그를 남깁니다(P7-16).
 	Webhooks RevenueCatWebhooks
+	// RewardVerifier와 Rewards는 AdMob SSV 콜백의 서명 검증과 권한 부여입니다. 하나라도 비어 있으면 admobRewardCallback은 503 service.unavailable입니다.
+	RewardVerifier RewardVerifier
+	Rewards        RewardGranter
 	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.
 	Diaries DiaryService
 	// Schedules는 일정 서비스입니다. 비어 있으면 일정 operation은 503 service.unavailable입니다.
