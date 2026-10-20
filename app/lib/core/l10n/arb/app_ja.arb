@@ -93,6 +93,7 @@
   "timePickerHourItem": "{hour}時",
   "timePickerMinuteItem": "{minute}分",
   "datePickerLeapMonthValue": "閏{month}月",
+  "datePickerSolarConfirm": "新暦 {date}",
   "citySearchResults": "{count, plural, other{結果{count}件}}",
   "forceUpdateNoticeHead": "新しいバージョンにアップデートしてください",
   "forceUpdateNoticeBody": "読み解きの計算方法が変わったため、このバージョンでは開けません。",

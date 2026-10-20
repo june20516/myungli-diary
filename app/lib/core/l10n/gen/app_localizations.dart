@@ -658,6 +658,12 @@ abstract class AppLocalizations {
   /// **'윤{month}월'**
   String datePickerLeapMonthValue(int month);
 
+  /// 임시. date-picker birth 음력 확인 줄(solarConfirm): 고른 음력 날짜를 양력으로 바꾼 날짜. date는 로케일 날짜 서식(yMMMMd)으로 app이 만듭니다(V31, A20 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'양력 {date}'**
+  String datePickerSolarConfirm(String date);
+
   /// 스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)
   ///
   /// In ko, this message translates to:

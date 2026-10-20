@@ -21,6 +21,15 @@ final class LunarDateRepository {
   Future<DateTime> toSolar(
     LunarOrSolarDate date, {
     required bool isLeapMonth,
+  }) async => (await convert(date, isLeapMonth: isLeapMonth)).solarDate;
+
+  /// 음력 [date](윤달이면 [isLeapMonth])를 양력으로 바꾸고, 그 달에 윤달이 있는지도 받습니다.
+  ///
+  /// 실패(없는 음력 날짜 422 `date.invalid`, 범위 밖 422 `date.out_of_range` 포함)는
+  /// [AppError]입니다.
+  Future<LunarDateConversion> convert(
+    LunarOrSolarDate date, {
+    required bool isLeapMonth,
   }) async {
     final request = LunarDateRequest(
       installationId: await _installationId(),
@@ -33,11 +42,26 @@ final class LunarDateRepository {
       if (data == null) {
         throw UnexpectedError(StateError('빈 응답'));
       }
-      return _parseSolarDate(data.solarDate);
+      return LunarDateConversion(
+        solarDate: _parseSolarDate(data.solarDate),
+        monthHasLeap: data.monthHasLeap,
+      );
     } on DioException catch (e) {
       throw appErrorFrom(e);
     }
   }
+}
+
+/// 음력 날짜 하나의 변환 결과.
+final class LunarDateConversion {
+  /// 결과를 만듭니다.
+  const new({required this.solarDate, required this.monthHasLeap});
+
+  /// 양력 날짜(연·월·일).
+  final DateTime solarDate;
+
+  /// 요청한 음력 달에 윤달이 있는지.
+  final bool monthHasLeap;
 }
 
 DateTime _parseSolarDate(String value) {

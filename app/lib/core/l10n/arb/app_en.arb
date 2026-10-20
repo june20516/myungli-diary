@@ -93,6 +93,7 @@
   "timePickerHourItem": "{hour}",
   "timePickerMinuteItem": "{minute}",
   "datePickerLeapMonthValue": "Leap month {month}",
+  "datePickerSolarConfirm": "Solar {date}",
   "citySearchResults": "{count, plural, one{{count} result} other{{count} results}}",
   "forceUpdateNoticeHead": "Please update to the new version",
   "forceUpdateNoticeBody": "The way readings are calculated has changed, so this version can't open them.",

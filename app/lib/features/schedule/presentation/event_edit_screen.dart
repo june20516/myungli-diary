@@ -330,7 +330,6 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
                     variant: DatePickerVariant.solar,
                     calendarLabelSolar: l10n.calendarSolar,
                     calendarLabelLunar: l10n.calendarLunar,
-                    leapMonthLabel: l10n.leapMonth,
                   ),
                 ),
                 const SizedBox(height: Space.s24),

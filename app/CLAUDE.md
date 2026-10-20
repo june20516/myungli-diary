@@ -53,13 +53,13 @@
 ## 현재 상태 (2026-10-20, app 세션 갱신)
 * **계획 5(일기) 화면 PR 검토 중**입니다. 브랜치 `app/diary-screens`, 계획 [`docs/plans/2026-10-20-diary.md`](docs/plans/2026-10-20-diary.md), 결정 A45~A54. 첫 PR #303(Task 1~7: fake 일기 저장소, `tag-chip`·`diary-row`·`diary-editor`·`draft-indicator`·`date-picker` `calendar`, 일기 provider, drift #271·#277·#286·#295·#301)은 병합됐습니다.
   * 이 PR은 Task 8~12입니다: `diary-list`(쪽 목록, 날짜 골라 쓰기 시트 `PickDateSheet`), `diary-edit`(초안·저장 순간·오프라인 배너), `diary-view`(성격 → 풀이 시트, 고치기·지우기), `tag-diary`(태그 이름 제목, 뜻 한 줄, 같은 목록 `DiaryPageList`). 흐름 테스트 `test/flows/diary_*_flow_test.dart`·`tag_diary_flow_test.dart`, Patrol `patrol_test/diary_test.dart`.
-  * drift #288·#299·#300(writing·design 원고 가져오기, 윤달 초하루 표지)과 #307(PR #305: 생성 클라이언트에 `Chart.personalReadings`, 비로그인 시진 확인·음력 변환의 501 제거에 맞춰 `birth-hour-unavailable` fixture를 503으로)을 맞췄습니다. 원국 개인 해석 표시는 계획 6입니다. #309(필드 5개 제거)에는 "빼도 됨, fake 자료만 정리"로 답했습니다. #282는 ②④⑥⑨(A7·A11·A18·A27·A32·A38·A41 갱신, A54 golden만 Flutter 고정, spec 정리)를 담았습니다.
+  * drift #288·#299·#300(writing·design 원고 가져오기, 윤달 초하루 표지)과 #307(PR #305: 생성 클라이언트에 `Chart.personalReadings`, 비로그인 시진 확인·음력 변환의 501 제거에 맞춰 `birth-hour-unavailable` fixture를 503으로)을 맞췄습니다. 원국 개인 해석 표시는 계획 6입니다. #309(필드 5개 제거)에는 "빼도 됨, fake 자료만 정리"로 답했습니다. #282는 2~10번을 모두 처리했습니다: ②④⑥⑨ 문서(A7·A11·A18·A27·A32·A38·A41 갱신, A54 golden만 Flutter 고정, spec 정리), ③ design #292 생일 음력 V31 목표 모양(월 휠 `윤N월` + 양력 확인 줄, `convertLunarDate`, A20 ④ 갱신), ⑤ #100·#114·#165를 처리한 부분으로 닫고 남은 일을 #311(계획 7)·#312(계획 6)로 나눔, ⑩ writing #217에 답.
 * **컴포넌트·REST 따라잡기(drift #264·#266) 완료**이고 PR #269로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-20-contract-2-6.md`](docs/plans/2026-10-20-contract-2-6.md). `date-picker` `solar`, `text-field` `multiline`, `event-row` `failed`, 그날 시트 일기 쓰기 `filled`(V37), 원전 인용 한자 `fontFallback`, writing 오류 문구 3개(#237), A43 해제.
   * `city.not_found`·`timezone.invalid`는 writing 문구 대기라 4xx 일반 문구입니다(#268).
 * **계획 4(달력·일정) 완료**이고 PR #253으로 main에 병합됐습니다. 브랜치 `app/calendar`, 계획 [`docs/plans/2026-10-16-calendar.md`](docs/plans/2026-10-16-calendar.md), 결정 A32~A41(`docs/decisions.md`). `features/calendar`(달 길흉 영구 캐시와 앞뒤 달 미리 받기, `calendar` 탭, `day-sheet`)와 `features/schedule`(보이는 6주 격자 범위만 메모리에 드는 일정, `event-edit` 만들기·고치기·지우기)를 만들었고, `today`에 오늘 일정 한 줄과 `today` → `day-sheet` 출구를 붙였습니다. 시트·확인 창·toast는 셸 바깥에 그려도 글자가 Material 오류 스타일을 받지 않습니다.
   * **E2E 커버리지(도구로 확인, 2026-10-16):** 경로 45/80, 상태 26/54, 결정 5/6(`dart run tool/ia_coverage.dart --check`). Patrol 흐름 `patrol_test/calendar_test.dart`.
   * **drift 따라잡기(#224·#227·#229·#231·#234) 반영 완료**, 결정 A22·A29·A30·A31·A38 해제, A42(근거 여러 문단)·A43(빈 notice 문장 임시 키) 추가. city-search saving·지역 구분자, 생성물·fixture, 일정·반응 404 code·범위 422, calc-basis 도시 경도·서머타임 문구, app-bar 제목 13곳, 용어 한자·오늘 그런 이유·근거 basis·source 문장을 이었습니다.
-  * 계획 4 때의 Issue(design #218, writing #237·#232·#236, #217·#219·#220)는 모두 닫혔습니다. 열린 server 요청 #100·#114·#165의 정리는 #282 ⑤입니다.
+  * 계획 4 때의 Issue(design #218, writing #237·#232·#236, #217·#219·#220)는 모두 닫혔습니다. server 요청 #100·#114·#165는 처리한 부분으로 닫고 남은 일을 #311·#312로 나눴습니다(#282 ⑤).
 * **IA v3(#160·#173·#184) 완료**이고 PR #215로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-16-ia-v3.md`](docs/plans/2026-10-16-ia-v3.md), 결정 A28~A31. 새 화면 `calc-basis`와 경도 보정 순수 함수(`features/calc_basis/model/time_basis.dart`)가 있습니다. #199·#201·#214의 반영은 위 drift 따라잡기로 끝났고, 남은 것은 아래 "다음 할 일" 2입니다.
 * **계획 3(오늘·깊이 시트) 완료**이고 PR #196으로 main에 병합됐습니다. 계획: [`docs/plans/2026-10-15-today-depth.md`](docs/plans/2026-10-15-today-depth.md)
 * **계획 2(온보딩·로그인) 완료**이고 PR #149로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-14-onboarding-login.md`](docs/plans/2026-10-14-onboarding-login.md), 결정 A17~A21. 화면 13개(launch~ad-consent)와 새 계정 흐름 `welcome → 온보딩 → preview → login → consent → 프로필 저장 → notify-ask → ad-consent → today`, fake 시나리오 표는 [`README.md`](README.md)에 있습니다.
@@ -88,7 +88,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **#282 남은 일:** ③ design #292(V31 음력 목표 모양: `윤N월` 휠 + 양력 확인 줄, `convertLunarDate`)를 계획에 넣어 바꿈, ⑤ #100·#114·#165를 처리한 부분으로 닫고 남은 부분(계획 6·7)을 새 Issue로 나눔, ⑩ writing #217에 `todayEventSummary`·`todayEventSummaryDone` 제거 동의 답. 다음 계획 PR에서 `참고 #282`로 적습니다. 열린 drift가 생기면 그보다 먼저 맞춥니다. writing #260(윤달 초하루 표지 문구)은 #300으로 반영했습니다.
+1. **writing 답 대기:** #313(생일 음력 확인 줄 임시 키 `datePickerSolarConfirm`, `onboardBirthCalendarHint` 재검토, 쓰지 않게 된 `leapMonth`). 원고가 오면 `import_writing_arb.dart`로 가져오고 임시 키 허용 목록에서 지웁니다. 열린 drift가 생기면 그보다 먼저 맞춥니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 아직 없는 화면(계획 6)의 `<화면>.bar.title` 제목은 그 화면을 만들 때 붙입니다(일기 4곳은 계획 5에서 붙임, `test/contract/app_bar_title_contract_test.dart` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기) 마무리:** 이 PR이 병합되면 계획 5는 끝납니다. 넘긴 것:
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).
@@ -100,7 +100,7 @@
    * 계획 6(설정·계정): 자발적 로그아웃과 계정 삭제(`deleteMe` 202 뒤, 계정이 삭제 대기가 되어도 토큰은 `logout`에 쓸 수 있음)는 `revokeAndSignOut`(`lib/app/entry/sign_out.dart`)을 부릅니다. 둘 다 `signedOut` 이벤트로 정리·SDK 해제·진입 재계산이 돕니다. `discardWithoutEvent`를 쓰면 정리가 돌지 않습니다.
    * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. RevenueCat·Crashlytics adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 IA 화면이 아니라 라우터 `onException`이 첫 화면으로 보내므로, 그보다 먼저 가로채는 전용 처리를 둡니다. 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
    * 계획 6(설정·프로필 수정):
-     * 프로필 사본이 없을 때(새 기기 로그인·재설치) `getProfile`로 채웁니다(A18 갱신, #282 ④).
+     * 프로필 사본이 없을 때(새 기기 로그인·재설치) `getProfile`로 채우고, `legal`에 GeoNames 출처를 넣습니다(#312).
      * `profile-edit`은 `onboard-*`·`birthplace`를 수정 모드로 열 때 현재 값을 `push` extra로 넘깁니다(호칭 `String`, 생일 `BirthDateValue`). extra가 없으면 프로필 사본(`cachedProfileProvider`)에서 시작합니다.
      * 사본의 알림 값을 읽을 때 `updateProfile` fixture가 요청과 무관한 고정 응답인 점을 다시 확인합니다.
      * `toBirth(deviceRegionIsKorea)`는 한국 기기면 도시가 남아 있어도 `not_asked`·`Asia/Seoul`입니다(D29). 해외 출생 한국 거주자는 `profile-edit`에서 출생지를 지정할 수 있어야 합니다.

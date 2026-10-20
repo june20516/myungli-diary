@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
@@ -31,12 +32,16 @@ class _Host extends StatefulWidget {
     required this.initial,
     required this.changes,
     this.variant = DatePickerVariant.birth,
+    this.leapMonth,
+    this.solarConfirm,
     super.key,
   });
 
   final BirthDateValue initial;
   final List<BirthDateValue> changes;
   final DatePickerVariant variant;
+  final int? leapMonth;
+  final SolarConfirm? solarConfirm;
 
   @override
   State<_Host> createState() => _HostState();
@@ -56,14 +61,25 @@ class _HostState extends State<_Host> {
       },
       calendarLabelSolar: '양력',
       calendarLabelLunar: '음력',
-      leapMonthLabel: '윤달',
+      leapMonth: widget.leapMonth,
+      solarConfirm: widget.solarConfirm,
       variant: widget.variant,
     ),
   );
 }
 
-Widget _picker(BirthDateValue value, [List<BirthDateValue>? changes]) =>
-    _Host(key: ValueKey(value), initial: value, changes: changes ?? []);
+Widget _picker(
+  BirthDateValue value, [
+  List<BirthDateValue>? changes,
+  int? leapMonth,
+  SolarConfirm? solarConfirm,
+]) => _Host(
+  key: ValueKey((value, leapMonth, solarConfirm?.text)),
+  initial: value,
+  changes: changes ?? [],
+  leapMonth: leapMonth,
+  solarConfirm: solarConfirm,
+);
 
 Widget _solarOnlyPicker(BirthDateValue value, List<BirthDateValue> changes) =>
     _Host(
@@ -82,6 +98,33 @@ String _selectedLabel(WidgetTester tester, Key key) {
 }
 
 void main() {
+  group('BirthDatePicker 월 칸 자리', () {
+    test('윤달이 없으면 칸 자리 + 1이 달입니다', () {
+      expect(BirthDatePicker.monthAt(0, null), (month: 1, leap: false));
+      expect(BirthDatePicker.monthAt(11, null), (month: 12, leap: false));
+      expect(BirthDatePicker.monthIndexOf(7, leap: false), 6);
+    });
+
+    test('윤4월이면 4월 다음 칸이 윤4월이고 그 뒤는 한 칸씩 밀립니다', () {
+      expect(BirthDatePicker.monthAt(3, 4), (month: 4, leap: false));
+      expect(BirthDatePicker.monthAt(4, 4), (month: 4, leap: true));
+      expect(BirthDatePicker.monthAt(5, 4), (month: 5, leap: false));
+      expect(BirthDatePicker.monthAt(12, 4), (month: 12, leap: false));
+      for (var i = 0; i < 13; i++) {
+        final at = BirthDatePicker.monthAt(i, 4);
+        expect(
+          BirthDatePicker.monthIndexOf(at.month, leap: at.leap, leapMonth: 4),
+          i,
+        );
+      }
+    });
+
+    test('윤12월은 마지막 칸입니다', () {
+      expect(BirthDatePicker.monthAt(12, 12), (month: 12, leap: true));
+      expect(BirthDatePicker.monthIndexOf(12, leap: true, leapMonth: 12), 12);
+    });
+  });
+
   group('BirthDateValue', () {
     test('양력 1900-01-30은 범위 밖, 1900-01-31은 안입니다', () {
       expect(
@@ -165,23 +208,73 @@ void main() {
       expect(_itemCount(tester, BirthDatePicker.dayWheelKey), 28);
     });
 
-    testWidgets('음력이면 윤달 체크가 보이고 양력이면 없습니다', (tester) async {
-      await tester.pumpWidget(inputApp(_picker(_value())));
-      expect(find.text('윤달'), findsNothing);
-      await tester.pumpWidget(inputApp(_picker(_value(calendar: _lunar))));
-      expect(find.text('윤달'), findsOneWidget);
-      final row = tester.widget<CheckRow>(find.byType(CheckRow));
-      expect(row.variant, CheckRowVariant.inline);
+    testWidgets('윤달 체크는 없고, 음력이면 휠 아래 확인 줄을 그립니다(V31)', (tester) async {
+      const confirm = SolarConfirm.text('양력 1990년 5월 15일');
+      await tester.pumpWidget(inputApp(_picker(_value(), null, null, confirm)));
+      expect(find.byKey(BirthDatePicker.solarConfirmKey), findsNothing);
+      await tester.pumpWidget(
+        inputApp(_picker(_value(calendar: _lunar), null, null, confirm)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('양력 1990년 5월 15일'), findsOneWidget);
+      expect(find.byType(CheckRow), findsNothing);
     });
 
-    testWidgets('윤달 체크를 누르면 isLeapMonth가 켜집니다', (tester) async {
+    testWidgets('조회 중이면 확인 줄 자리에 skeleton 한 줄', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          _picker(
+            _value(calendar: _lunar),
+            null,
+            null,
+            const SolarConfirm.loading(),
+          ),
+        ),
+      );
+      final skeleton = tester.widget<SkeletonBlock>(
+        find.descendant(
+          of: find.byKey(BirthDatePicker.solarConfirmKey),
+          matching: find.byType(SkeletonBlock),
+        ),
+      );
+      expect(skeleton.lines, 1);
+    });
+
+    testWidgets('그해 윤달이 든 달 다음에 윤N월 칸이 끼워지고, 고르면 윤달입니다', (tester) async {
+      final handle = tester.ensureSemantics();
       final changes = <BirthDateValue>[];
       await tester.pumpWidget(
-        inputApp(_picker(_value(calendar: _lunar), changes)),
+        inputApp(_picker(_value(calendar: _lunar, month: 4), changes, 4)),
       );
-      await tester.tap(find.text('윤달'));
+      expect(_itemCount(tester, BirthDatePicker.monthWheelKey), 13);
+      expect(_selectedLabel(tester, BirthDatePicker.monthWheelKey), '4월');
+
+      tester.semantics.increase(find.semantics.byLabel('월'));
       await tester.pumpAndSettle();
-      expect(changes.single.isLeapMonth, isTrue);
+      expect(changes.last.month, 4);
+      expect(changes.last.isLeapMonth, isTrue);
+      expect(_selectedLabel(tester, BirthDatePicker.monthWheelKey), '윤4월');
+
+      tester.semantics.increase(find.semantics.byLabel('월'));
+      await tester.pumpAndSettle();
+      expect(changes.last.month, 5);
+      expect(changes.last.isLeapMonth, isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('윤달 칸을 모르면 12칸이고 받은 윤달 표시는 보지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          _picker(_value(calendar: _lunar, month: 4, isLeapMonth: true)),
+        ),
+      );
+      expect(_itemCount(tester, BirthDatePicker.monthWheelKey), 12);
+      expect(_selectedLabel(tester, BirthDatePicker.monthWheelKey), '4월');
+    });
+
+    testWidgets('양력이면 윤달 칸을 받아도 끼우지 않습니다', (tester) async {
+      await tester.pumpWidget(inputApp(_picker(_value(month: 4), null, 4)));
+      expect(_itemCount(tester, BirthDatePicker.monthWheelKey), 12);
     });
 
     testWidgets('양력으로 바꾸면 isLeapMonth가 false가 됩니다', (tester) async {
@@ -239,7 +332,6 @@ void main() {
           onChanged: (_) {},
           calendarLabelSolar: '양력',
           calendarLabelLunar: '음력',
-          leapMonthLabel: '윤달',
         ),
       );
       await tester.pumpWidget(plain(10));
@@ -277,30 +369,29 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('윤달이 켜져 있으면 월 휠 낭독 값에 윤을 붙입니다', (tester) async {
+    testWidgets('윤달 칸은 낭독 값도 윤을 붙여 읽습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         inputApp(
-          _picker(_value(calendar: _lunar, month: 4, isLeapMonth: true)),
+          _picker(
+            _value(calendar: _lunar, month: 4, isLeapMonth: true),
+            null,
+            4,
+          ),
         ),
       );
-      final data = tester
+      var data = tester
           .getSemantics(find.bySemanticsLabel('월'))
           .getSemanticsData();
       expect(data.value, '윤4월');
-      expect(data.increasedValue, '윤5월');
-      // 화면에 그려지는 칸 글자는 그대로입니다.
-      expect(_selectedLabel(tester, BirthDatePicker.monthWheelKey), '4월');
+      expect(data.increasedValue, '5월');
+      expect(data.decreasedValue, '4월');
       await tester.pumpWidget(
-        inputApp(_picker(_value(calendar: _lunar, month: 4))),
+        inputApp(_picker(_value(calendar: _lunar, month: 4), null, 4)),
       );
-      expect(
-        tester
-            .getSemantics(find.bySemanticsLabel('월'))
-            .getSemanticsData()
-            .value,
-        '4월',
-      );
+      data = tester.getSemantics(find.bySemanticsLabel('월')).getSemanticsData();
+      expect(data.value, '4월');
+      expect(data.increasedValue, '윤4월');
       handle.dispose();
     });
 
@@ -459,7 +550,6 @@ void main() {
             onChanged: (_) {},
             calendarLabelSolar: '양력',
             calendarLabelLunar: '음력',
-            leapMonthLabel: '윤달',
           ),
         ),
       );

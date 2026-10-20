@@ -313,6 +313,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String datePickerSolarConfirm(String date) {
+    return '양력 $date';
+  }
+
+  @override
   String citySearchResults(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
