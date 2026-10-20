@@ -55,14 +55,45 @@ func TestSearch_OrdersRequestLanguageMatchesFirstThenByName(t *testing.T) {
 	}
 }
 
-func TestSearch_OtherLanguageMatchComesAfterRequestLanguageMatch(t *testing.T) {
-	// 일본어 요청 "東京"은 ja 이름 일치만 있고, 영어 "Tokyo"로 찾으면 ja 요청에서 뒤로 갑니다.
-	got := city.Search("tokyo", "ja", 50)
-	require.NotEmpty(t, got)
-	for _, c := range got {
-		assert.True(t, strings.HasPrefix(strings.ToLower(c.Name("en")), "tokyo") ||
-			strings.HasPrefix(strings.ToLower(c.Name("ko")), "tokyo") ||
-			strings.HasPrefix(strings.ToLower(c.Name("ja")), "tokyo"))
+func TestSearch_RequestLanguageMatchesComeBeforeOtherLanguageMatches(t *testing.T) {
+	for _, tc := range []struct{ lang, query string }{{"ko", "to"}, {"ja", "ab"}} {
+		t.Run(tc.lang, func(t *testing.T) {
+			got := city.Search(tc.query, tc.lang, 5000)
+			matchesRequestLang := func(c city.City) bool {
+				return strings.HasPrefix(strings.ToLower(c.Name(tc.lang)), tc.query)
+			}
+			requestLangCount, otherCount := 0, 0
+			seenOther := false
+			for _, c := range got {
+				if !matchesRequestLang(c) {
+					otherCount++
+					seenOther = true
+					continue
+				}
+				requestLangCount++
+				assert.False(t, seenOther, "요청 언어 일치가 다른 언어 일치 뒤에 나왔습니다: %s", c.Name(tc.lang))
+			}
+			require.NotZero(t, requestLangCount, "질의가 요청 언어 일치를 포함해야 의미가 있습니다")
+			require.NotZero(t, otherCount, "질의가 다른 언어로만 맞는 도시를 포함해야 의미가 있습니다")
+		})
+	}
+}
+
+func TestSearch_BlankQueryIsEmpty(t *testing.T) {
+	for _, q := range []string{"", "   ", "\t\n"} {
+		got := city.Search(q, "en", 20)
+		assert.NotNil(t, got)
+		assert.Empty(t, got, "q=%q", q)
+	}
+}
+
+func TestSearch_OrdersByLowercasedName(t *testing.T) {
+	got := city.Search("a", "en", 5000)
+	for i := 1; i < len(got); i++ {
+		prev, cur := strings.ToLower(got[i-1].Name("en")), strings.ToLower(got[i].Name("en"))
+		if strings.HasPrefix(prev, "a") && strings.HasPrefix(cur, "a") {
+			assert.LessOrEqual(t, prev, cur)
+		}
 	}
 }
 

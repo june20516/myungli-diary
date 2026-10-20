@@ -34,17 +34,20 @@ func normalizeForSearch(s string) string {
 }
 
 // Search는 q로 도시를 찾습니다(P6-9). NFC·소문자로 맞춘 q가 ko·en·ja 이름 중 하나의 앞부분과 같으면 후보입니다.
-// 정렬은 ① 요청 언어 이름이 앞부분 일치인 도시 먼저 ② 요청 언어 이름 순(같으면 id 순)이고, limit개까지 자릅니다.
+// 정렬은 ① 요청 언어 이름이 앞부분 일치인 도시 먼저 ② 요청 언어 이름(소문자) 순(같으면 id 순)이고, limit개까지 자릅니다.
 // lang이 ko·en·ja가 아니면 en으로 봅니다. 결과가 없으면 빈 슬라이스입니다.
 func Search(q, lang string, limit int) []City {
 	if !isSupported(lang) {
 		lang = "en"
 	}
-	query := normalizeForSearch(q)
+	query := strings.TrimSpace(normalizeForSearch(q))
+	if query == "" {
+		return []City{}
+	}
 
 	type match struct {
 		city        City
-		name        string
+		name        string // 요청 언어 이름(맞춘 꼴)
 		langMatches bool
 	}
 	var matches []match
@@ -54,7 +57,7 @@ func Search(q, lang string, limit int) []City {
 		}
 		matches = append(matches, match{
 			city:        entry.city,
-			name:        entry.city.Name(lang),
+			name:        entry.names[lang],
 			langMatches: strings.HasPrefix(entry.names[lang], query),
 		})
 	}

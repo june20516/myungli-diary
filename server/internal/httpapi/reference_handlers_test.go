@@ -95,8 +95,23 @@ func TestListCities_DifferentLanguageETagIsNotMatched(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
+func TestListCities_VaryAcceptLanguageOnlyWithoutLangQuery(t *testing.T) {
+	_, rec := getReference(t, "/v1/cities?q=Seoul", "Accept-Language", "ko")
+	assert.Equal(t, "Accept-Language", rec.Header().Get("Vary"))
+
+	_, rec = getReference(t, "/v1/cities?q=Seoul", "Accept-Language", "ko", "If-None-Match", `"`+city.DataVersion()+`-ko"`)
+	require.Equal(t, http.StatusNotModified, rec.Code)
+	assert.Equal(t, "Accept-Language", rec.Header().Get("Vary"))
+
+	_, rec = getReference(t, "/v1/cities?q=Seoul&lang=ko")
+	assert.Empty(t, rec.Header().Get("Vary"))
+}
+
 func TestListCities_InvalidQueryIsRejectedByContract(t *testing.T) {
 	_, rec := getReference(t, "/v1/cities")
+	expectInvalid(t, rec, "q")
+
+	_, rec = getReference(t, "/v1/cities?q=")
 	expectInvalid(t, rec, "q")
 
 	_, rec = getReference(t, "/v1/cities?q=Seoul&limit=51")

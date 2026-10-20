@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/june20516/myungli-diary/server/internal/city"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
@@ -15,7 +16,8 @@ const defaultCityLimit = 20
 // 같은 URL이면 자료 버전이 같을 때 결과도 같으므로 If-None-Match가 맞으면 본문 없이 304입니다.
 func (a *API) ListCities(ctx context.Context, req gen.ListCitiesRequestObject) (gen.ListCitiesResponseObject, error) {
 	lang := LanguageFrom(ctx)
-	if req.Params.Lang != nil {
+	langFromHeader := req.Params.Lang == nil
+	if !langFromHeader {
 		lang = string(*req.Params.Lang)
 	}
 	limit := defaultCityLimit
@@ -26,7 +28,7 @@ func (a *API) ListCities(ctx context.Context, req gen.ListCitiesRequestObject) (
 	version := city.DataVersion()
 	etag := `"` + version + "-" + lang + `"`
 	if req.Params.IfNoneMatch != nil && etagMatches(*req.Params.IfNoneMatch, etag) {
-		return gen.ListCities304Response{Headers: gen.NotModifiedResponseHeaders{ETag: &etag}}, nil
+		return varyByLanguage(gen.ListCities304Response{Headers: gen.NotModifiedResponseHeaders{ETag: &etag}}, langFromHeader), nil
 	}
 
 	found := city.Search(req.Params.Q, lang, limit)
@@ -34,10 +36,26 @@ func (a *API) ListCities(ctx context.Context, req gen.ListCitiesRequestObject) (
 	for _, c := range found {
 		items = append(items, toCity(c, lang, c.Longitude))
 	}
-	return gen.ListCities200JSONResponse{
+	return varyByLanguage(gen.ListCities200JSONResponse{
 		Body:    gen.CityList{DataVersion: version, Items: items},
 		Headers: gen.ListCities200ResponseHeaders{ETag: &etag},
-	}, nil
+	}, langFromHeader), nil
+}
+
+// vary는 응답에 Vary: Accept-Language를 더해 쓰는 listCities 응답입니다.
+type vary struct{ gen.ListCitiesResponseObject }
+
+func (v vary) VisitListCitiesResponse(w http.ResponseWriter) error {
+	w.Header().Add("Vary", "Accept-Language")
+	return v.ListCitiesResponseObject.VisitListCitiesResponse(w)
+}
+
+// varyByLanguage는 언어를 Accept-Language로 골랐을 때만 Vary: Accept-Language를 붙입니다. lang 쿼리면 URL이 언어를 정합니다.
+func varyByLanguage(resp gen.ListCitiesResponseObject, langFromHeader bool) gen.ListCitiesResponseObject {
+	if !langFromHeader {
+		return resp
+	}
+	return vary{resp}
 }
 
 // GetAppConfig는 플랫폼별 최소 앱 버전을 돌려줍니다(P6-10).
