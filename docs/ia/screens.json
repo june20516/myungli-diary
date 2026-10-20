@@ -779,6 +779,11 @@
           "id": "login.discard.notice",
           "source": "ui",
           "role": "사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
+        },
+        {
+          "id": "login.error.body",
+          "source": "ui",
+          "role": "로그인을 끝내지 못했을 때의 안내(로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패)"
         }
       ],
       "components": [
@@ -1115,6 +1120,11 @@
           "id": "today.reaction.label",
           "source": "ui",
           "role": "좋아요 반응 접근성 라벨"
+        },
+        {
+          "id": "today.evidence.link",
+          "source": "ui",
+          "role": "근거 시트로 가는 링크 이름(출구 \"근거 보기\")"
         }
       ],
       "components": [
@@ -1314,6 +1324,11 @@
           "id": "evidence-sheet.a11y.unlocked",
           "source": "ui",
           "role": "접근성 문구: 근거와 해석이 열렸을 때 한 번 알림"
+        },
+        {
+          "id": "evidence-sheet.sheet.title",
+          "source": "ui",
+          "role": "시트 제목(화면 이름 \"근거\")"
         }
       ],
       "components": [
@@ -1525,7 +1540,9 @@
         "sheet",
         "day-character",
         "event-row",
-        "term-token"
+        "term-token",
+        "depth-link",
+        "primary-button"
       ],
       "exits": [
         {
@@ -1599,6 +1616,26 @@
           "id": "event-edit.delete.confirm",
           "source": "ui",
           "role": "일정 삭제 확인"
+        },
+        {
+          "id": "event-edit.save.cta",
+          "source": "ui",
+          "role": "일정 저장 버튼"
+        },
+        {
+          "id": "event-edit.delete.cta",
+          "source": "ui",
+          "role": "일정 지우기 버튼. 누르면 delete.confirm을 엽니다"
+        },
+        {
+          "id": "event-edit.offline.notice",
+          "source": "ui",
+          "role": "연결이 없어 지금 저장할 수 없다는 안내"
+        },
+        {
+          "id": "event-edit.save.failed",
+          "source": "ui",
+          "role": "일정 저장에 실패했다는 안내"
         }
       ],
       "components": [
@@ -1608,7 +1645,8 @@
         "time-picker",
         "segmented",
         "primary-button",
-        "dialog"
+        "dialog",
+        "toast"
       ],
       "exits": [],
       "decisions": [
@@ -1746,6 +1784,11 @@
           "id": "diary-edit.saved.tags",
           "source": "ui",
           "role": "저장 뒤 붙은 태그 알림"
+        },
+        {
+          "id": "diary-edit.save.cta",
+          "source": "ui",
+          "role": "저장 버튼. 누르면 diary-view로 갑니다"
         }
       ],
       "components": [
@@ -1807,6 +1850,11 @@
           "id": "diary-view.delete.confirm",
           "source": "ui",
           "role": "일기 삭제 확인"
+        },
+        {
+          "id": "diary-view.deleted.toast",
+          "source": "ui",
+          "role": "일기를 지운 뒤 toast"
         }
       ],
       "components": [
@@ -1814,7 +1862,8 @@
         "day-character",
         "sentence-block",
         "tag-chip",
-        "dialog"
+        "dialog",
+        "toast"
       ],
       "exits": [
         {
