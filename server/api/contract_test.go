@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft9(t *testing.T) {
+func TestContract_VersionIsDraft10(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.9" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.9", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.10" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.10", doc.Info.Version)
 	}
 }
 

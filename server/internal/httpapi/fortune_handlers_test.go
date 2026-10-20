@@ -580,9 +580,49 @@ func TestGetChart_Returns200(t *testing.T) {
 	require.True(t, ok)
 	assert.NotContains(t, yongsin, "johuStem", "조후 천간이 없으면 생략합니다")
 	assert.NotContains(t, yongsin, "basis", "잠겨 있으면 용신 근거를 생략합니다")
+	for _, field := range []string{"ilganHead", "ilganBody", "yongsinSummary"} {
+		assert.NotContains(t, m, field, "문장이 없으면 생략합니다")
+	}
 	body := rec.Body.String()
 	assert.NotContains(t, body, rawEvidenceRule)
 	assert.NotContains(t, body, "personal")
+}
+
+// 나의 사주 문장 셋은 잠겨 있어도 옮깁니다(#329).
+func TestGetChart_LockedIncludesChartTexts(t *testing.T) {
+	head := text(fortune.SlotIlganHead, "ilgan.head.gap", "single", "민지님, 큰 나무를 닮았어요.")
+	body := text(fortune.SlotIlganBody, "ilgan.body.gap", "single", "한번 정한 길을 가요.")
+	summary := text(fortune.SlotYongsinSummary, "yongsin.summary", "single", "청록색이 어울려요.")
+	view := fortune.ChartView{
+		Response: chartResponse(), Notices: []content.Notice{},
+		IlganHead: &head, IlganBody: &body, YongsinSummary: &summary,
+	}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{chart: view}}
+
+	req, rec, _ := getFortune(t, api, "/v1/chart")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	var got gen.Chart
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	assert.Equal(t, gen.Locked, got.EvidenceAccess)
+	for _, tc := range []struct {
+		got       *gen.SlotText
+		slot, key string
+		want      string
+	}{
+		{got.IlganHead, fortune.SlotIlganHead, "ilgan.head.gap", "민지님, 큰 나무를 닮았어요."},
+		{got.IlganBody, fortune.SlotIlganBody, "ilgan.body.gap", "한번 정한 길을 가요."},
+		{got.YongsinSummary, fortune.SlotYongsinSummary, "yongsin.summary", "청록색이 어울려요."},
+	} {
+		require.NotNil(t, tc.got, tc.slot)
+		assert.Equal(t, tc.slot, tc.got.Slot)
+		assert.Equal(t, tc.key, tc.got.MessageKey)
+		assert.Equal(t, gen.Single, tc.got.Variant)
+		assert.False(t, tc.got.Reactable)
+		require.Len(t, tc.got.Text.Segments, 1)
+		assert.Equal(t, tc.want, tc.got.Text.Segments[0].Text)
+	}
 }
 
 func TestGetChart_UnlockedIncludesYongsinBasis(t *testing.T) {

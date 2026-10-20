@@ -115,14 +115,17 @@ func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string
 }
 
 // Identifier는 판정이 아니라 식별자 키(예: 캐릭터 이유, 달력 일 수준)로 슬롯 문장을 만듭니다.
-// 변주는 single이고 호칭과 근거는 없습니다. 실패 처리는 Slot과 같습니다.
-func (r *Renderer) Identifier(ctx context.Context, tpl Templates, slot, key string, params map[string]render.Value) (SlotText, bool) {
+// 변주는 single이고 근거는 없습니다. 호칭 name은 Slot처럼 호칭 슬롯에만 넘깁니다. 실패 처리는 Slot과 같습니다.
+func (r *Renderer) Identifier(ctx context.Context, tpl Templates, slot, key string, params map[string]render.Value, name string) (SlotText, bool) {
 	def, ok := tpl.Slot(slot)
 	if !ok {
 		r.logFailure(ctx, tpl, slot, key, seed.VariantSingle)
 		return SlotText{}, false
 	}
-	text, ok := r.render(ctx, tpl, def, key, seed.VariantSingle, params, "")
+	if !def.Vocative {
+		name = ""
+	}
+	text, ok := r.render(ctx, tpl, def, key, seed.VariantSingle, params, name)
 	if !ok {
 		return SlotText{}, false
 	}

@@ -146,6 +146,10 @@ func TestPublicFlow_ReferenceOperationsNeedNoAuth(t *testing.T) {
 	appConfig := env.do(http.MethodGet, "/v1/app-config", "", nil)
 	require.Equal(t, http.StatusOK, appConfig.status, "앱 설정 본문: %v", appConfig.body)
 	assert.Equal(t, map[string]any{"ios": "1.2.0", "android": "1.3.0"}, appConfig.body["minimumVersion"])
+	assert.Equal(t, map[string]any{
+		"terms":   "https://app.myungli.example/legal/terms",
+		"privacy": "https://app.myungli.example/legal/privacy",
+	}, appConfig.body["legal"], "법적 문서는 App Link와 같은 서비스 도메인")
 }
 
 // 검증기를 조립하지 않으면(프로젝트 번호 없음) App Check operation은 503입니다.

@@ -65,6 +65,7 @@ func newTestTemplates() fakeTemplates {
 		bodies: map[[3]string]string{
 			{"daily.color", "color.yongsin_day", "single"}:                             "{element}색이 좋아요. 점수는 {score}점이에요.",
 			{"daily.fortune.head", "fortune.x", "advice"}:                              "{name}님, 오늘은 쉬어 가요.",
+			{"daily.fortune.head", "fortune.y", "single"}:                              "{name}님, 반가워요.",
 			{"explain.today_reason", "reason.color/lucky_element", "single"}:           "[[용신|tag.yongsin]]이 들어와서 그래요.",
 			{"evidence.basis", "basis.color/lucky_element", "single"}:                  "{element} 오행이 {strength_score}점이라 행운 오행으로 봤어요.",
 			{"evidence.source", "source.gungtong-bogam/five_elements#color", "single"}: "궁통보감 오행 편",
@@ -300,14 +301,28 @@ func TestIdentifier_RendersKeyWithGivenParams(t *testing.T) {
 		"score":   {Kind: render.ValueNumber, Text: "7"},
 	}
 
-	got, ok := r.Identifier(context.Background(), tpl, "daily.color", "color.yongsin_day", params)
+	got, ok := r.Identifier(context.Background(), tpl, "daily.color", "color.yongsin_day", params, "")
 	require.True(t, ok)
 	assert.Equal(t, "color.yongsin_day", got.MessageKey)
 	assert.Equal(t, seed.VariantSingle, got.Variant)
 	assert.Equal(t, "초록색이 좋아요. 점수는 7점이에요.", joinSegments(got.Text))
 
-	_, ok = r.Identifier(context.Background(), tpl, "daily.color", "nope", params)
+	_, ok = r.Identifier(context.Background(), tpl, "daily.color", "nope", params, "")
 	assert.False(t, ok)
+}
+
+// 호칭은 호칭 슬롯에만 넘기고, 호칭이 비면 호칭 덩어리를 지운 문장이 됩니다.
+func TestIdentifier_VocativeOnlyForVocativeSlot(t *testing.T) {
+	r, _ := newTestRenderer()
+	tpl := newTestTemplates()
+
+	got, ok := r.Identifier(context.Background(), tpl, "daily.fortune.head", "fortune.y", nil, "민지")
+	require.True(t, ok)
+	assert.Equal(t, "민지님, 반가워요.", joinSegments(got.Text))
+
+	got, ok = r.Identifier(context.Background(), tpl, "daily.fortune.head", "fortune.y", nil, "")
+	require.True(t, ok)
+	assert.Equal(t, "반가워요.", joinSegments(got.Text))
 }
 
 func TestSlot_ReactableOnlyFortuneSlots(t *testing.T) {
