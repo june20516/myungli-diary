@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"slices"
 	"time"
@@ -146,7 +147,7 @@ func (s *PgIdempotencyStore) Release(ctx context.Context, accountID uuid.UUID, k
 //   - 첫 요청이 처리 중이면 409 idempotency.in_progress, 끝났으면 저장한 응답을 그대로 다시 보냅니다.
 //
 // 저장소 오류는 응답 본문 없이 panic으로 올려 recoverPanic이 로그(본문 제외)와 500으로 처리하게 합니다.
-func Idempotency(store IdempotencyStore, clk clock.Clock, operations ...string) func(op Operation, next http.Handler) http.Handler {
+func Idempotency(store IdempotencyStore, clk clock.Clock, log *slog.Logger, operations ...string) func(op Operation, next http.Handler) http.Handler {
 	return func(op Operation, next http.Handler) http.Handler {
 		if !slices.Contains(operations, op.ID) {
 			return next
@@ -158,14 +159,19 @@ func Idempotency(store IdempotencyStore, clk clock.Clock, operations ...string) 
 				next.ServeHTTP(w, r)
 				return
 			}
-			serveIdempotent(store, clk, key, accountID, next, w, r)
+			serveIdempotent(store, clk, log, op.ID, key, accountID, next, w, r)
 		})
 	}
 }
 
-func serveIdempotent(store IdempotencyStore, clk clock.Clock, key string, accountID uuid.UUID, next http.Handler, w http.ResponseWriter, r *http.Request) {
+func serveIdempotent(store IdempotencyStore, clk clock.Clock, log *slog.Logger, operationID, key string, accountID uuid.UUID, next http.Handler, w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) {
+			writeTooLarge(w, r)
+			return
+		}
 		panic(fmt.Errorf("멱등 키 요청 본문 읽기: %w", err))
 	}
 	r.Body = io.NopCloser(bytes.NewReader(body))
@@ -173,6 +179,10 @@ func serveIdempotent(store IdempotencyStore, clk clock.Clock, key string, accoun
 
 	claimed, existing, err := store.Claim(r.Context(), accountID, key, hash, clk.Now())
 	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			// Claim 전에 클라이언트가 끊었습니다. 경보가 되지 않게 조용히 연결을 닫습니다.
+			panic(http.ErrAbortHandler)
+		}
 		panic(err)
 	}
 	if !claimed {
@@ -182,10 +192,15 @@ func serveIdempotent(store IdempotencyStore, clk clock.Clock, key string, accoun
 
 	// 정상 종료가 아니면(2xx 아님, panic, 연결 끊김) 선점을 풀어 같은 키로 다시 시도할 수 있게 합니다.
 	// 연결이 끊겨 ctx가 취소돼도 풀 수 있게 취소를 떼어 냅니다.
-	completed := false
+	// 2xx로 끝난 요청은 일정이 이미 생겼으므로 지우지 않습니다(keep).
+	keep := false
+	detached := context.WithoutCancel(r.Context())
 	defer func() {
-		if !completed {
-			_ = store.Release(context.WithoutCancel(r.Context()), accountID, key, hash)
+		if keep {
+			return
+		}
+		if err := store.Release(detached, accountID, key, hash); err != nil {
+			log.ErrorContext(detached, "멱등 키 해제 실패", "operation", operationID, "accountId", accountID, "error", err)
 		}
 	}()
 
@@ -195,9 +210,11 @@ func serveIdempotent(store IdempotencyStore, clk clock.Clock, key string, accoun
 	if buffered.status/100 == 2 {
 		stored := StoredResponse{Status: buffered.status, Header: pickHeaders(buffered.header), Body: buffered.body.Bytes()}
 		// 클라이언트가 성공 응답을 받기 전에 행을 완료로 만들어, 응답을 받은 뒤 보낸 재시도가 처리 중으로 보이지 않게 합니다.
-		// 완료 기록이 실패해도 이미 처리된 요청이므로 응답은 그대로 보내고, 행은 풀려 재시도는 새 요청이 됩니다.
-		if err := store.Complete(r.Context(), accountID, key, hash, stored, clk.Now()); err == nil {
-			completed = true
+		// 클라이언트가 끊겨도 이미 커밋된 처리의 기록은 남아야 하므로 취소를 떼어 냅니다.
+		// 완료 기록이 실패해도 행을 지우지 않습니다. 재시도가 중복 생성되는 것보다 409 in_progress가 낫습니다.
+		keep = true
+		if err := store.Complete(detached, accountID, key, hash, stored, clk.Now()); err != nil {
+			log.ErrorContext(detached, "멱등 키 완료 기록 실패", "operation", operationID, "accountId", accountID, "error", err)
 		}
 	}
 	buffered.flush()

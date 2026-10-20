@@ -2,6 +2,7 @@ package httpapi_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -99,7 +100,7 @@ func newIdempotencyEnv(t *testing.T) *idempotencyEnv {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: env.authenticate,
-		Idempotency:  httpapi.Idempotency(httpapi.NewPgIdempotencyStore(pool), env.clk, "createSchedule"),
+		Idempotency:  httpapi.Idempotency(httpapi.NewPgIdempotencyStore(pool), env.clk, deps.Logger, "createSchedule"),
 	}
 	env.handler = httpapi.NewHandler(deps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, deps, routes)
@@ -110,6 +111,11 @@ func newIdempotencyEnv(t *testing.T) *idempotencyEnv {
 // post는 POST /v1/schedules를 보냅니다. key나 account가 빈 문자열이면 그 헤더를 보내지 않습니다.
 func (e *idempotencyEnv) post(t *testing.T, key, accountName, body string) *httptest.ResponseRecorder {
 	t.Helper()
+	return serve(e.handler, e.newPost(t, key, accountName, body))
+}
+
+func (e *idempotencyEnv) newPost(t *testing.T, key, accountName, body string) *http.Request {
+	t.Helper()
 	req := newBodyRequest(t, http.MethodPost, schedulesTarget, contentTypeJSON, body)
 	if key != "" {
 		req.Header.Set("Idempotency-Key", key)
@@ -117,7 +123,7 @@ func (e *idempotencyEnv) post(t *testing.T, key, accountName, body string) *http
 	if accountName != "" {
 		req.Header.Set("X-Test-Account", accountName)
 	}
-	return serve(e.handler, req)
+	return req
 }
 
 func (e *idempotencyEnv) count(t *testing.T, table string) int {
@@ -158,8 +164,9 @@ func TestIdempotency_InProgress(t *testing.T) {
 	env.service.entered = make(chan struct{})
 	env.service.release = make(chan struct{})
 
+	firstReq := env.newPost(t, "key-1", "", createBody)
 	firstDone := make(chan *httptest.ResponseRecorder, 1)
-	go func() { firstDone <- env.post(t, "key-1", "", createBody) }()
+	go func() { firstDone <- serve(env.handler, firstReq) }()
 	<-env.service.entered
 
 	rec := env.post(t, "key-1", "", createBody)
@@ -264,4 +271,75 @@ func TestIdempotency_InvalidRequestTouchesNothing(t *testing.T) {
 
 	require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
 	assert.Equal(t, 0, env.count(t, "idempotency_keys"))
+}
+
+// cancelingSchedules는 Create가 성공한 뒤 요청 ctx를 취소합니다(클라이언트가 응답 전에 끊긴 상황).
+type cancelingSchedules struct {
+	*gatedSchedules
+	cancel context.CancelFunc
+}
+
+func (c *cancelingSchedules) Create(ctx context.Context, accountID uuid.UUID, in schedule.Input) (schedule.Schedule, error) {
+	created, err := c.gatedSchedules.Create(ctx, accountID, in)
+	c.cancel()
+	return created, err
+}
+
+func TestIdempotency_ClientDisconnectKeepsCompletedRow(t *testing.T) {
+	env := newIdempotencyEnv(t)
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	spec, err := gen.GetSpec()
+	require.NoError(t, err)
+	deps, _ := newTestDeps()
+	api := &httpapi.API{Schedules: &cancelingSchedules{gatedSchedules: env.service, cancel: cancel}, Logger: deps.Logger, AppLink: testAppLink(t)}
+	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
+		httpapi.RegisterAPI(mux, api, deps, httpapi.Routes{
+			Spec: spec, Validate: httpapi.ValidateRequests(spec, deps.Logger), Authenticate: env.authenticate,
+			Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(env.pool), env.clk, deps.Logger, "createSchedule"),
+		})
+	})
+
+	req := env.newPost(t, "key-1", "", createBody).WithContext(ctx)
+	first := serve(handler, req)
+	require.Equal(t, http.StatusCreated, first.Code, first.Body.String())
+
+	replay := env.post(t, "key-1", "", createBody)
+	require.Equal(t, http.StatusCreated, replay.Code, replay.Body.String())
+	assert.Equal(t, first.Body.String(), replay.Body.String())
+	assert.Equal(t, 1, env.count(t, "schedules"))
+}
+
+// failingCompleteStore는 Complete만 실패하는 저장소입니다.
+type failingCompleteStore struct{ httpapi.IdempotencyStore }
+
+func (failingCompleteStore) Complete(context.Context, uuid.UUID, string, []byte, httpapi.StoredResponse, time.Time) error {
+	return errors.New("저장소 장애")
+}
+
+func TestIdempotency_CompleteFailureKeepsRowAndLogs(t *testing.T) {
+	env := newIdempotencyEnv(t)
+	spec, err := gen.GetSpec()
+	require.NoError(t, err)
+	deps, logs := newTestDeps()
+	api := &httpapi.API{Schedules: env.service, Logger: deps.Logger, AppLink: testAppLink(t)}
+	store := failingCompleteStore{httpapi.NewPgIdempotencyStore(env.pool)}
+	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
+		httpapi.RegisterAPI(mux, api, deps, httpapi.Routes{
+			Spec: spec, Validate: httpapi.ValidateRequests(spec, deps.Logger), Authenticate: env.authenticate,
+			Idempotency: httpapi.Idempotency(store, env.clk, deps.Logger, "createSchedule"),
+		})
+	})
+
+	rec := serve(handler, env.newPost(t, "secret-key", "", createBody))
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	assert.Equal(t, 1, env.count(t, "idempotency_keys"))
+	assert.Contains(t, logs.String(), "멱등 키 완료 기록 실패")
+	assert.Contains(t, logs.String(), `"severity":"ERROR"`)
+	assert.NotContains(t, logs.String(), "secret-key")
+	assert.NotContains(t, logs.String(), "회의")
+
+	retry := serve(handler, env.newPost(t, "secret-key", "", createBody))
+	require.Equal(t, http.StatusConflict, retry.Code)
+	assert.Equal(t, 1, env.count(t, "schedules"))
 }
