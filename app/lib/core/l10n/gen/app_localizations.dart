@@ -2039,6 +2039,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'#{tag}'**
   String tagChipLabel(String tag);
+
+  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'좋은 흐름'**
+  String get tagChipPolarityGood;
+
+  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'조심할 흐름'**
+  String get tagChipPolarityBad;
+
+  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  ///
+  /// In ko, this message translates to:
+  /// **'중립'**
+  String get tagChipPolarityNeutral;
 }
 
 class _AppLocalizationsDelegate

@@ -1082,4 +1082,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String tagChipLabel(String tag) {
     return '#$tag';
   }
+
+  @override
+  String get tagChipPolarityGood => '좋은 흐름';
+
+  @override
+  String get tagChipPolarityBad => '조심할 흐름';
+
+  @override
+  String get tagChipPolarityNeutral => '중립';
 }

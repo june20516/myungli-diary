@@ -321,5 +321,8 @@
   "diaryViewDeleteAction": "Delete entry",
   "diaryViewDeleted": "Entry deleted.",
   "diaryListPickDateConfirm": "Diary for {date}",
-  "tagChipLabel": "#{tag}"
+  "tagChipLabel": "#{tag}",
+  "tagChipPolarityGood": "favorable",
+  "tagChipPolarityBad": "take care",
+  "tagChipPolarityNeutral": "neutral"
 }

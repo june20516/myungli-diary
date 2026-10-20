@@ -1080,4 +1080,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String tagChipLabel(String tag) {
     return '#$tag';
   }
+
+  @override
+  String get tagChipPolarityGood => '良い流れ';
+
+  @override
+  String get tagChipPolarityBad => '注意の流れ';
+
+  @override
+  String get tagChipPolarityNeutral => '中立';
 }

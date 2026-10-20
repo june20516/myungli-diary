@@ -1513,5 +1513,17 @@
         "type": "String"
       }
     }
+  },
+  "tagChipPolarityGood": "좋은 흐름",
+  "@tagChipPolarityGood": {
+    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+  },
+  "tagChipPolarityBad": "조심할 흐름",
+  "@tagChipPolarityBad": {
+    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+  },
+  "tagChipPolarityNeutral": "중립",
+  "@tagChipPolarityNeutral": {
+    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
   }
 }

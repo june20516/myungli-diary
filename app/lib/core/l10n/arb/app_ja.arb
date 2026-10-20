@@ -321,5 +321,8 @@
   "diaryViewDeleteAction": "日記を削除",
   "diaryViewDeleted": "日記を削除しました。",
   "diaryListPickDateConfirm": "{date}の日記",
-  "tagChipLabel": "#{tag}"
+  "tagChipLabel": "#{tag}",
+  "tagChipPolarityGood": "良い流れ",
+  "tagChipPolarityBad": "注意の流れ",
+  "tagChipPolarityNeutral": "中立"
 }
