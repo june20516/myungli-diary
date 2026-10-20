@@ -449,7 +449,7 @@
   "@onboardBirthBasisNote": {
     "description": "onboard-birth.basis.note: 한국 출생 기준으로 계산한다는 안내"
   },
-  "onboardBirthCalendarHint": "음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.",
+  "onboardBirthCalendarHint": "음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요.",
   "@onboardBirthCalendarHint": {
     "description": "onboard-birth.calendar.hint: 음력·윤달 고르는 법"
   },
@@ -852,27 +852,23 @@
   },
   "calendarSolar": "양력",
   "@calendarSolar": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
   },
   "calendarLunar": "음력",
   "@calendarLunar": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
-  },
-  "leapMonth": "윤달",
-  "@leapMonth": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
   },
   "timeUnknownLabel": "모름",
   "@timeUnknownLabel": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
   },
   "genderMale": "남성",
   "@genderMale": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
   },
   "genderFemale": "여성",
   "@genderFemale": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
   },
   "calendarPrevMonth": "이전 달",
   "@calendarPrevMonth": {
@@ -881,6 +877,15 @@
   "calendarNextMonth": "다음 달",
   "@calendarNextMonth": {
     "description": "달력 한 달 보기(calendar-month): 이전 달·다음 달 버튼 이름"
+  },
+  "datePickerSolarConfirm": "양력 {date}",
+  "@datePickerSolarConfirm": {
+    "description": "생일 날짜 휠(date-picker birth)의 양력 확인 줄(solarConfirm, design V31, #313). 고른 음력 날짜를 양력으로 바꾼 날짜를 보입니다",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "dayCellLunar": "음력 {month}월 {day}일",
   "@dayCellLunar": {
