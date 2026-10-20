@@ -10,15 +10,19 @@ const Set<String> legalDocumentLanguages = {'ko', 'en', 'ja'};
 
 /// 법적 문서 주소 [address]에 화면 언어 [languageCode]를 `lang`으로 붙입니다(D80).
 ///
-/// 주소에는 query가 없다는 것이 계약이지만, 있더라도 지우지 않고 `lang`만 더합니다. 페이지가
-/// 모르는 언어면 붙이지 않아 server 기본 언어(`en`)로 열립니다.
+/// 주소에는 query가 없다는 것이 계약이지만, 있더라도(반복 키 포함) 지우지 않고 `lang`만 더하거나
+/// 바꿉니다. 페이지가 모르는 언어면 붙이지 않아 server 기본 언어(`en`)로 열립니다.
 Uri legalDocumentUri(String address, String languageCode) {
   final uri = Uri.parse(address);
   if (!legalDocumentLanguages.contains(languageCode)) {
     return uri;
   }
+  // 반복 키를 잃지 않게 queryParametersAll로 펼치고, lang은 화면 언어 하나로 둡니다.
   return uri.replace(
-    queryParameters: {...uri.queryParameters, 'lang': languageCode},
+    queryParameters: {
+      ...uri.queryParametersAll,
+      'lang': [languageCode],
+    },
   );
 }
 

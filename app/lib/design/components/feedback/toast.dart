@@ -31,8 +31,8 @@ _ToastSession? _activeToast;
 /// 토스트를 보입니다. 한 번에 하나만 보이며, 새 토스트가 오면 이전 것은 바로 사라집니다.
 ///
 /// 위치는 [BottomBarInsetScope]의 하단 틀 높이 위 16px이고, 범위가 없으면 아래 안전 영역
-/// 위 16px입니다. [icon]은 선택이며 누르는 동작은 담지 않습니다. 부른 화면([context])이
-/// 바로 닫혀도 토스트는 끝까지 보입니다.
+/// 위 16px입니다. [icon]은 선택이며 누르는 동작은 담지 않아, 누름은 아래 화면(하단 버튼
+/// 등)으로 지나갑니다. 부른 화면([context])이 바로 닫혀도 토스트는 끝까지 보입니다.
 void showMyungliToast(
   BuildContext context,
   String message, {
@@ -63,13 +63,17 @@ void showMyungliToast(
             onGone: session.remove,
             // root overlay는 화면의 Material 밖이므로, 글자가 MaterialApp의 오류
             // 스타일(노란 이중 밑줄)을 받지 않게 그리지 않는 Material 조상을 둡니다.
-            child: Align(
-              child: Material(
-                type: MaterialType.transparency,
-                child: ToastPill(
-                  message: message,
-                  icon: icon,
-                  identifier: identifier,
+            // 누르는 동작이 없으므로 누름은 아래 화면(하단 버튼 등)으로 보냅니다. 읽기(semantics)는
+            // 그대로 남습니다.
+            child: IgnorePointer(
+              child: Align(
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: ToastPill(
+                    message: message,
+                    icon: icon,
+                    identifier: identifier,
+                  ),
                 ),
               ),
             ),

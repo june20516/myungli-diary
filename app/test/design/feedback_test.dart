@@ -643,6 +643,27 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
     });
 
+    testWidgets('보이는 동안 누름을 받지 않아 아래 위젯이 눌립니다(누르는 동작 없음)', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        _app(
+          GestureDetector(
+            key: hostKey,
+            behavior: HitTestBehavior.opaque,
+            onTap: () => taps++,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      );
+      showMyungliToast(hostContext(tester), '저장했어요');
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.byType(ToastPill), findsOneWidget);
+      // 알약 한가운데를 눌러도 그 아래 위젯이 받습니다.
+      await tester.tapAt(tester.getCenter(find.byType(ToastPill)));
+      expect(taps, 1);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
     testWidgets('알약이고 반전색이며 live region입니다', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpHost(tester);

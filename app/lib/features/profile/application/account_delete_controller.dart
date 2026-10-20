@@ -14,7 +14,8 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 ///   비활성으로 바꾸므로 `deleteDevice`를 따로 부르지 않습니다(계약 draft.11).
 /// * 진행 중에 다시 부르면 새로 보내지 않고 진행 중인 시도를 돌려줍니다(두 번 누르기, Review Focus 2).
 /// * `deleteMe`가 실패하면 [AppError]를 던지고 로그인 상태 그대로입니다(화면이 오류 toast와 다시
-///   시도). 예상 밖 오류는 요약만 crash 기록에 남기고(D64) [UnexpectedError]로 던집니다.
+///   시도). 예상 밖 오류(`deleteMe` 뒤 로컬 로그아웃 실패 포함)는 요약만 crash 기록에 남기고(D64)
+///   [UnexpectedError]로 던집니다.
 class AccountDeleteController extends Notifier<bool> {
   @override
   bool build() => false;
@@ -43,14 +44,17 @@ class AccountDeleteController extends Notifier<bool> {
     final tokens = ref.read(tokenStoreProvider);
     try {
       await api.deleteMe();
+      // 계정은 이미 삭제 대기입니다. 로그아웃은 best-effort server 폐기 뒤 로컬에서 반드시 합니다.
+      await revokeAndSignOut(api: api, tokens: tokens);
     } on DioException catch (error) {
       throw appErrorFrom(error);
+    } on AppError {
+      rethrow;
     } on Object catch (error, stack) {
+      // 로컬 로그아웃(보안 저장소) 실패 등도 화면이 알릴 수 있게 감쌉니다(요약만 기록, D64).
       ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
       throw UnexpectedError(error);
     }
-    // 계정은 이미 삭제 대기입니다. 로그아웃은 best-effort server 폐기 뒤 로컬에서 반드시 합니다.
-    await revokeAndSignOut(api: api, tokens: tokens);
   }
 }
 

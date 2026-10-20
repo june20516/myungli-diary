@@ -98,6 +98,33 @@ void main() {
       );
     });
 
+    test('기존 query는 반복 키까지 그대로 두고 lang만 더합니다', () {
+      expect(
+        legalDocumentUri(
+          'https://example.com/legal/terms?v=1&v=2',
+          'ko',
+        ).toString(),
+        'https://example.com/legal/terms?v=1&v=2&lang=ko',
+      );
+    });
+
+    test('끝 슬래시는 그대로입니다', () {
+      expect(
+        legalDocumentUri('https://example.com/legal/terms/', 'en').toString(),
+        'https://example.com/legal/terms/?lang=en',
+      );
+    });
+
+    test('이미 lang이 있으면 화면 언어 하나로 바꿉니다', () {
+      expect(
+        legalDocumentUri(
+          'https://example.com/legal/terms?lang=en&lang=ja',
+          'ko',
+        ).toString(),
+        'https://example.com/legal/terms?lang=ko',
+      );
+    });
+
     test('ko·en·ja가 아닌 언어는 lang 없이 엽니다(server 기본 en)', () {
       expect(
         legalDocumentUri('https://example.com/legal/terms', 'fr').toString(),

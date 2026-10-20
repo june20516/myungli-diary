@@ -146,13 +146,19 @@ void main() {
     expect(_button(tester).loading, isFalse);
     expect(_button(tester).onPressed, isNotNull);
 
-    await tester.pump(const Duration(seconds: 5));
-    await settleWithIo(tester);
-    await _tapDelete(tester);
+    // toast가 보이는 동안에도 아래 버튼이 눌려 확인 창이 뜹니다(toast는 누름을 받지 않음).
+    await tester.tap(find.byKey(AccountDeleteScreen.deleteKey));
+    await tester.pump();
+    expect(find.byType(ToastPill), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text(_ko.accountDeleteDeleteConfirm), findsOneWidget);
     await _confirm(tester);
     await pumpUntilScreen(tester, ScreenIds.welcome);
     await settleWithIo(tester);
     expect(_fake(container).callCountOf('deleteMe'), 1);
+    // 남은 toast 타이머를 흘려보냅니다.
+    await tester.pump(const Duration(seconds: 5));
+    await settleWithIo(tester);
   });
 
   testWidgets('삭제 버튼을 빠르게 두 번 눌러도 확인 창은 하나, 지우는 중에는 눌리지 않아 deleteMe는 한 번입니다', (
