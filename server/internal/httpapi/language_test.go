@@ -23,6 +23,16 @@ func TestPickLanguage(t *testing.T) {
 		{"잘못된 항목 뒤의 유효 항목", "ko;q=x, ja;q=0.4", "ja"},
 		{"q 같으면 앞선 항목", "ja, ko", "ja"},
 		{"대소문자 무시", "KO-kr", "ko"},
+		{"NaN은 무효", "ko;q=NaN, ja;q=0.9", "ja"},
+		{"지수 표기는 무효", "ko;q=1e-1", "en"},
+		{"소수 넷째 자리는 무효", "ko;q=0.1234", "en"},
+		{"1 초과는 무효", "ko;q=1.001", "en"},
+		{"부호는 무효", "ko;q=+0.5", "en"},
+		{"세미콜론 앞 공백", "ko ; q=0.9", "ko"},
+		{"대문자 Q", "ko;Q=0.9", "ko"},
+		{"같은 q면 앞선 항목(사전순 뒤)", "ko;q=0.5, ja;q=0.5", "ko"},
+		{"같은 q면 앞선 항목(사전순 앞)", "ko;q=0.5, en;q=0.5", "ko"},
+		{"세 항목", "en;q=0.2, ja;q=0.8, ko;q=0.8", "ja"},
 		{"범위를 벗어난 q값 무시", "ko;q=2, ja;q=0.5", "ja"},
 	}
 	for _, tt := range tests {
@@ -41,7 +51,8 @@ func TestRequestLanguageMiddleware(t *testing.T) {
 	}))
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
-	req.Header.Set("Accept-Language", "ja,en;q=0.5")
+	req.Header.Add("Accept-Language", "en;q=0.5")
+	req.Header.Add("Accept-Language", "ja")
 	handler.ServeHTTP(httptest.NewRecorder(), req)
 	if got != "ja" {
 		t.Errorf("LanguageFrom = %q, want ja", got)
