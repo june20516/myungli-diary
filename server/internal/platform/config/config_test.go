@@ -372,3 +372,32 @@ func TestLoadTrustedProxyHops(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadAppVersions(t *testing.T) {
+	t.Run("비어 있으면 둘 다 0.0.0", func(t *testing.T) {
+		cfg, err := LoadAppVersions(fakeEnv(nil))
+		if err != nil || cfg.MinIOS != "0.0.0" || cfg.MinAndroid != "0.0.0" {
+			t.Errorf("LoadAppVersions() = %+v, %v, want 0.0.0 둘 다, nil", cfg, err)
+		}
+	})
+	t.Run("semver는 그대로이고 공백은 지움", func(t *testing.T) {
+		cfg, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_IOS": " 1.2.3\n", "APP_MIN_VERSION_ANDROID": "10.0.12"}))
+		if err != nil || cfg.MinIOS != "1.2.3" || cfg.MinAndroid != "10.0.12" {
+			t.Errorf("LoadAppVersions() = %+v, %v, want 1.2.3·10.0.12, nil", cfg, err)
+		}
+	})
+	t.Run("semver가 아니면 변수 이름만 담은 오류", func(t *testing.T) {
+		for _, raw := range []string{"1.2", "1.2.3.4", "v1.2.3", "1.2.x", "1.2.3-beta", "01.2.3", "-1.0.0"} {
+			_, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_ANDROID": raw}))
+			if err == nil || !strings.Contains(err.Error(), "APP_MIN_VERSION_ANDROID") || strings.Contains(err.Error(), raw) {
+				t.Errorf("LoadAppVersions(%q) error = %v, want 변수 이름만 담은 오류", raw, err)
+			}
+		}
+	})
+	t.Run("둘 다 틀리면 모두 알림", func(t *testing.T) {
+		_, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_IOS": "x", "APP_MIN_VERSION_ANDROID": "y"}))
+		if err == nil || !strings.Contains(err.Error(), "APP_MIN_VERSION_IOS") || !strings.Contains(err.Error(), "APP_MIN_VERSION_ANDROID") {
+			t.Errorf("error = %v, want 두 변수 이름", err)
+		}
+	})
+}

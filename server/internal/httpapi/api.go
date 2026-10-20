@@ -126,6 +126,13 @@ type API struct {
 	Logger *slog.Logger
 	// AppLink는 Apple 웹 콜백의 redirect 주소, 안내 페이지, assetlinks.json을 만드는 Android App Link 설정입니다.
 	AppLink AppLinkConfig
+	// AppConfig는 getAppConfig가 돌려주는 플랫폼별 최소 앱 버전입니다. 조립에서 설정 값을 넣습니다.
+	AppConfig AppConfig
+}
+
+// AppConfig는 플랫폼별 최소 앱 버전(semver 문자열)입니다(P6-10).
+type AppConfig struct {
+	MinIOS, MinAndroid string
 }
 
 var _ gen.StrictServerInterface = (*API)(nil)

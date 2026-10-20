@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -266,4 +267,34 @@ func LoadTrustedProxyHops(getenv func(string) string) (int, error) {
 		return 0, errors.New("TRUSTED_PROXY_HOPS는 0 이상의 정수여야 합니다")
 	}
 	return hops, nil
+}
+
+// defaultMinAppVersion은 최소 앱 버전의 기본값입니다(강제 업데이트 없음, P6-10).
+const defaultMinAppVersion = "0.0.0"
+
+// semverPattern은 MAJOR.MINOR.PATCH 숫자 형식입니다(앞자리 0 없음, 접두어·사전 배포 표기 없음).
+var semverPattern = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$`)
+
+// AppVersionConfig는 플랫폼별 최소 앱 버전(getAppConfig)입니다.
+type AppVersionConfig struct {
+	MinIOS, MinAndroid string
+}
+
+// LoadAppVersions는 getenv로 APP_MIN_VERSION_IOS·APP_MIN_VERSION_ANDROID를 읽습니다. 비어 있으면 0.0.0이고,
+// MAJOR.MINOR.PATCH 숫자 형식이 아니면 오류입니다(P6-10). 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadAppVersions(getenv func(string) string) (AppVersionConfig, error) {
+	getenv = trimmedEnv(getenv)
+	var errs []error
+	read := func(name string) string {
+		raw := orDefault(getenv(name), defaultMinAppVersion)
+		if !semverPattern.MatchString(raw) {
+			errs = append(errs, fmt.Errorf("%s는 MAJOR.MINOR.PATCH 숫자 형식이어야 합니다", name))
+		}
+		return raw
+	}
+	cfg := AppVersionConfig{MinIOS: read("APP_MIN_VERSION_IOS"), MinAndroid: read("APP_MIN_VERSION_ANDROID")}
+	if err := errors.Join(errs...); err != nil {
+		return AppVersionConfig{}, err
+	}
+	return cfg, nil
 }
