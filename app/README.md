@@ -46,7 +46,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `force-update` | 최소 앱 버전이 99.0.0이라 업데이트 필요 |
   | `offline` | 네트워크에 연결할 수 없음 |
   | `overseas` | 한국 밖(기기 지역 US) 기기에서 처음 설치한 사용자. 시진 확인 줄과 출생지 질문 갈래를 확인합니다 |
-  | `birth-hour-unavailable` | 처음 설치한 사용자. 시진 확인(getBirthHour)이 아직 501이라 확인 줄이 보이지 않습니다 |
+  | `birth-hour-unavailable` | 처음 설치한 사용자. 시진 확인(getBirthHour)이 503 service.unavailable이라 확인 줄이 보이지 않습니다 |
   | `birth-hour-rate-limited` | 처음 설치한 사용자. 시진 확인(getBirthHour)이 분당 한도(429 rate_limited)에 걸려 확인 줄이 보이지 않습니다 |
   | `cities-error` | 한국 밖 기기의 처음 설치한 사용자. 도시 검색(listCities)이 503이라 출생지 오류 상태를 확인합니다 |
   | `cities-slow` | 한국 밖 기기의 처음 설치한 사용자. 응답마다 1초가 걸려 도시 검색 중 skeleton을 확인합니다 |
@@ -165,10 +165,18 @@ flutter run -d chrome   # 또는 -d macos, 기기 id
 
 ```
 dart pub global activate patrol_cli 4.8.0
-patrol test -t patrol_test --dart-define=API_MODE=fake
+tool/patrol_local.sh                              # patrol_test 전체
+tool/patrol_local.sh patrol_test/diary_test.dart  # 흐름 하나
 ```
 
-* 에뮬레이터나 기기가 필요합니다. CI(`e2e-android`)는 API 34 에뮬레이터에서 같은 명령을 돌립니다.
+* 에뮬레이터가 필요합니다. 연결된 에뮬레이터가 하나면 그것을 쓰고, 여럿이면 `PATROL_DEVICE`, 하나도 없으면 `PATROL_AVD`(띄울 AVD 이름)를 줍니다. CI(`e2e-android`)는 API 34 에뮬레이터에서 `patrol test`를 직접 돌립니다.
+* `tool/patrol_local.sh`는 `patrol test -d <기기> --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`를 감싸 멈춤을 막습니다.
+  * 기기를 늘 지정하고 입력을 닫습니다. 기기가 여러 대일 때 patrol이 고르라고 묻는 입력에서 멈추지 않게 하기 위해서입니다.
+  * 실행 중 기기 상태를 10초마다 봅니다. 기기가 `PATROL_OFFLINE_GRACE`(기본 60초)보다 오래 빠지거나 `PATROL_RUN_TIMEOUT`(기본 1800초)을 넘기면 끝냅니다.
+  * 테스트가 하나도 돌지 못한 기기 문제(설치 단계 `device offline` 등)는 기기가 돌아오면 `PATROL_RETRIES`(기본 1)번 다시 돌립니다. 테스트 실패는 다시 돌리지 않습니다.
+  * 잠금으로 동시 실행을 막고, 실행마다 새 로그를 `build/patrol-local/`에 씁니다.
+  * 종료 코드: 0 통과, 1 테스트 실패, 2 기기 문제, 3 환경 문제(잠금·기기 없음·CLI 없음), 4 시간 초과.
+  * adb 서버는 다른 프로젝트와 함께 쓰므로 `adb kill-server`를 하지 않습니다.
 * **커버리지 보고:** `dart run tool/ia_coverage.dart`가 선언을 `screens.json`·결정 로그와 대조해 `docs/artifacts/e2e-coverage.json`을 씁니다. `--check`는 `tool/coverage_baseline.json`보다 줄었을 때만 실패합니다(개수만 비교). 덮는 범위를 넓힌 PR은 `dart run tool/ia_coverage.dart --update-baseline`으로 baseline을 올려 같이 commit합니다. 대상 결정은 `tool/decision_targets.json`입니다.
 * **스크린샷 등록:** `expectScreen`이 `<화면>__<상태|default>` 태그로 캡처합니다(네이티브 캡처는 Android만 동작).
   ```
