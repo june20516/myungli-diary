@@ -23,6 +23,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
+	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/engine"
@@ -130,7 +131,9 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
 	contents := content.NewStore(pool, clock.System{}, logger)
-	readings := newReadings(contents, fortuneService, logger, clock.System{})
+	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements 응답에 쓰입니다.
+	entitlements := billing.NewStore(pool, clock.System{})
+	readings := newReadings(contents, fortuneService, entitlements, logger, clock.System{})
 
 	// 외부 제공자 호출(로그인 제공자·App Check)이 이 client 하나를 나눠 씁니다.
 	providerHTTP := newProviderHTTPClient()
@@ -151,17 +154,18 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}
 
 	handler, err := newServer(settings, serverDeps{
-		Pool:      pool,
-		Charts:    fortuneService,
-		Lunar:     engineClient,
-		BirthHour: engineClient,
-		Previews:  readings,
-		Readings:  readings,
-		Days:      readings,
-		Contents:  contents,
-		Logger:    logger,
-		Clock:     clock.System{},
-		HTTP:      providerHTTP,
+		Pool:         pool,
+		Charts:       fortuneService,
+		Lunar:        engineClient,
+		BirthHour:    engineClient,
+		Previews:     readings,
+		Readings:     readings,
+		Days:         readings,
+		Contents:     contents,
+		Entitlements: entitlements,
+		Logger:       logger,
+		Clock:        clock.System{},
+		HTTP:         providerHTTP,
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
 		TestLogin: testLogin,
@@ -346,6 +350,8 @@ type serverDeps struct {
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
 	Contents httpapi.Contents
+	// Entitlements는 getMe·getEntitlements가 쓰는 권한 판정입니다(billing.Store). 비어 있으면 newServer가 Pool·Clock으로 만듭니다.
+	Entitlements httpapi.EntitlementService
 	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기 operation은 503입니다.
 	Days   diary.Days
 	Logger *slog.Logger
@@ -358,9 +364,9 @@ type serverDeps struct {
 }
 
 // newReadings는 운세 화면 묶음을 조립합니다. 문장 틀과 슬롯 명세는 시드 버전마다 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
-// 근거 열람 권한 판정은 P7 전까지 늘 잠김입니다(D60).
-func newReadings(store *content.Store, service *fortune.Service, logger *slog.Logger, clk clock.Clock) *fortune.Views {
-	return fortune.NewViews(service, store, content.NewRenderer(logger), fortune.AlwaysLocked{}, clk, logger)
+// 근거 열람 권한(D60 insight)은 insight가 판정합니다.
+func newReadings(store *content.Store, service *fortune.Service, insight fortune.Insight, logger *slog.Logger, clk clock.Clock) *fortune.Views {
+	return fortune.NewViews(service, store, content.NewRenderer(logger), insight, clk, logger)
 }
 
 // newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
@@ -457,6 +463,10 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	// Days가 없으면 일기를 새로 쓸 수 없으므로 Readings·Contents처럼 조립하지 않아 일기 operation이 503입니다.
 	if deps.Days != nil {
 		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
+	}
+	api.Entitlements = deps.Entitlements
+	if api.Entitlements == nil {
+		api.Entitlements = billing.NewStore(deps.Pool, deps.Clock)
 	}
 	deps.TestLogin.enable(api, authService)
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {

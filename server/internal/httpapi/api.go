@@ -10,6 +10,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
@@ -78,6 +79,13 @@ type Contents interface {
 
 var _ Contents = (*content.Store)(nil)
 
+// EntitlementService는 getMe·getEntitlements가 쓰는 권한 판정입니다. *billing.Store가 만족합니다.
+type EntitlementService interface {
+	Status(ctx context.Context, accountID uuid.UUID) (billing.Status, error)
+}
+
+var _ EntitlementService = (*billing.Store)(nil)
+
 // DiaryService는 일기 operation이 쓰는 서비스입니다. *diary.Service가 만족합니다.
 type DiaryService interface {
 	Put(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (entry diary.Entry, created bool, err error)
@@ -119,6 +127,8 @@ type API struct {
 	PreviewUsage PreviewUsage
 	// Contents는 콘텐츠 저장소입니다. 비어 있으면 getGlossary·반응 operation·getDaily는 503 service.unavailable입니다.
 	Contents Contents
+	// Entitlements는 권한 판정입니다. 비어 있으면 getMe·getEntitlements는 503 service.unavailable입니다.
+	Entitlements EntitlementService
 	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.
 	Diaries DiaryService
 	// Schedules는 일정 서비스입니다. 비어 있으면 일정 operation은 503 service.unavailable입니다.

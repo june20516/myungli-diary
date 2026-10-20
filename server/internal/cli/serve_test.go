@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/seed"
@@ -439,7 +440,7 @@ func TestServe_AssemblesContentRoutes(t *testing.T) {
 
 		contents := content.NewStore(deps.Pool, deps.Clock, deps.Logger)
 		deps.Contents = contents
-		deps.Readings = newReadings(contents, nil, deps.Logger, deps.Clock)
+		deps.Readings = newReadings(contents, nil, fortune.AlwaysLocked{}, deps.Logger, deps.Clock)
 	})
 
 	login := env.loginKakao("kakao-content-subject")
