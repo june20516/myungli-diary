@@ -1,11 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
+
+/// settings-row: 묶음 제목 + navigate·value·toggle(켬·끔)·disabled,
+/// 아래 묶음 destructive 둘.
+Widget _settingsRows() => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SettingsGroup(
+          title: ja ? '基本' : '기본',
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.navigate,
+              label: ja ? '情報の修正' : '정보 수정',
+              onTap: () {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.value,
+              label: ja ? '通知時刻' : '알림 시각',
+              value: ja ? '午前8:00' : '오전 8:00',
+              onTap: () {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.toggle,
+              label: ja ? '通知' : '알림',
+              toggled: true,
+              onToggle: (_) {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.toggle,
+              label: ja ? '通知' : '알림',
+              onToggle: (_) {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.navigate,
+              label: ja ? '計算の基準' : '계산 기준',
+            ),
+          ],
+        ),
+        SettingsGroup(
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.destructive,
+              label: ja ? 'ログアウト' : '로그아웃',
+              onTap: () {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.destructive,
+              label: ja ? 'アカウント削除' : '계정 삭제',
+              onTap: () {},
+            ),
+          ],
+        ),
+      ],
+    );
+  },
+);
 
 /// 변형 3 × 상태(기본·disabled·loading). pressed는 움직이는 상태라 담지 않습니다.
 Widget _buttons() => Builder(
@@ -141,5 +200,11 @@ void main() {
 
   goldenTest('share-button: icon·soft', (tester) async {
     await goldenMatrix(tester, 'action_share_button', _shareButtons);
+  });
+
+  goldenTest('settings-row: navigate·value·toggle·disabled·destructive, 묶음', (
+    tester,
+  ) async {
+    await goldenMatrix(tester, 'action_settings_row', _settingsRows);
   });
 }

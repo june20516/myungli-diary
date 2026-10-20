@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
@@ -70,6 +71,7 @@ const List<ComponentSpec> implementedComponents = [
   DepthLink.spec,
   ReactionButton.spec,
   PrimaryButton.spec,
+  SettingsRow.spec,
   InputStep.spec,
   MyungliTextField.spec,
   Segmented.spec,
