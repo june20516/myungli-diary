@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.6
+  version: 1.0.0-draft.7
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -831,7 +831,9 @@ paths:
     get:
       operationId: listDiaries
       summary: 일기 목록
-      description: 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순입니다.
+      description: |
+        날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순입니다.
+        `from`이 `to`보다 늦으면 빈 목록입니다.
       parameters:
         - name: from
           in: query
@@ -918,6 +920,7 @@ paths:
       description: |
         그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다.
         오늘 이후 날짜는 422 `diary.future_date`입니다. 저장할 때 그날 엔진 결과의 태그와 `rulesetVersion`, 가이드 질문을 함께 기록합니다.
+        이미 있는 일기를 고치면 본문만 바꾸고, 태그·`rulesetVersion`·가이드 질문은 처음 쓸 때 기록한 값을 유지합니다.
         프로필이 없으면 409 `profile.required`입니다.
       requestBody:
         required: true
@@ -990,7 +993,9 @@ paths:
     post:
       operationId: restoreDiary
       summary: 지운 일기 되살리기
-      description: 그 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`입니다.
+      description: |
+        그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다.
+        그 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`, 지운 일기가 없으면 404 `diary.not_found`입니다.
       responses:
         '200':
           description: 되살린 일기
@@ -1019,7 +1024,9 @@ paths:
     get:
       operationId: listSchedules
       summary: 일정 목록
-      description: '`from`부터 `to`까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 `range.too_long`입니다.'
+      description: |
+        `from`부터 `to`까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 `range.too_long`입니다.
+        `from`이 `to`보다 늦으면 400 `request.invalid`(field `/from`)입니다.
       parameters:
         - name: from
           in: query
@@ -1178,6 +1185,9 @@ paths:
     post:
       operationId: restoreSchedule
       summary: 지운 일정 되살리기
+      description: |
+        지운 일정을 되살립니다. 이미 살아 있는 일정이면 그대로 200입니다(같은 요청을 다시 보내도 같은 결과).
+        없는 일정(남의 일정 포함)은 404 `schedule.not_found`입니다.
       responses:
         '200':
           description: 되살린 일정
