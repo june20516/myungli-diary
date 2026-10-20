@@ -105,6 +105,7 @@
    * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
    * `ad-free` 화면(설정 광고 제거 줄의 대기 화면을 바꿈)과 구매 흐름, 남은 IA 경로(`ad-free>*`, `system-purchase>*`, `system-rewarded-ad>evidence-sheet`)와 상태(`ad-free:*`).
    * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), server #351(받으면 `lib/features/me/application/luck_years.dart`의 시작 연도 계산을 지우고 계약 값을 씀), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
+   * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. 남은 것은 `ad-free`(계획 7)의 제목입니다(`test/contract/app_bar_title_contract_test.dart` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
 3. **계획 5(일기)에서 넘긴 것:**
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).
