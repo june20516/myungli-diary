@@ -34,7 +34,7 @@ class Problem {
     this.errors,
   });
 
-  /// `https://api.myungli.app/problems/<code>`
+  /// `https://api.myungli.app/problems/<code>`. 도메인은 바뀔 수 있어 app은 `code`로 구분합니다.
   @JsonKey(name: r'type', required: true, includeIfNull: false)
   final String type;
 

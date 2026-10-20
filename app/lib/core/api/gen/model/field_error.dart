@@ -23,7 +23,7 @@ class FieldError {
   @JsonKey(name: r'field', required: true, includeIfNull: false)
   final String field;
 
-  /// `request.invalid`에서는 위반한 JSON Schema keyword(예 `required`, `pattern`, `minimum`, `format`)이고, parameter를 타입으로 읽지 못하면 `type`입니다. `request.inconsistent`에서는 `required_by_status`(상태가 요구하는 값이 없음) 또는 `forbidden_by_status`(상태가 허용하지 않는 값이 있음)입니다. 그 밖(예 `ProfileResponse.warnings`)에서는 그 응답이 정한 코드입니다.
+  /// `request.invalid`에서는 위반한 JSON Schema keyword(예 `required`, `pattern`, `minimum`, `format`)이고, parameter를 타입으로 읽지 못하면 `type`입니다. keyword를 알 수 없는 스키마 위반은 `invalid`입니다. 스키마 밖 검사로 나는 `request.invalid`(`listSchedules`의 `from` > `to`, 읽지 못하는 `cursor`)는 `request.invalid`입니다. `request.inconsistent`에서는 `required_by_status`(상태가 요구하는 값이 없음) 또는 `forbidden_by_status`(상태가 허용하지 않는 값이 있음)입니다. 그 밖(예 `ProfileResponse.warnings`)에서는 그 응답이 정한 코드입니다.
   @JsonKey(name: r'code', required: true, includeIfNull: false)
   final String code;
 

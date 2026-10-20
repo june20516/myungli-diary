@@ -60,7 +60,7 @@ class SlotText {
   @JsonKey(name: r'todayReason', required: false, includeIfNull: false)
   final RenderedText? todayReason;
 
-  /// 판정 근거. 응답의 `evidenceAccess`가 `unlocked`일 때만 담깁니다.
+  /// 판정 근거. 응답의 `evidenceAccess`가 `unlocked`이고 근거가 있을 때만 담깁니다. 빈 배열은 보내지 않습니다.
   @JsonKey(name: r'evidence', required: false, includeIfNull: false)
   final List<Evidence>? evidence;
 
