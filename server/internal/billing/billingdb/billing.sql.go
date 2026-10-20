@@ -12,6 +12,71 @@ import (
 	"github.com/google/uuid"
 )
 
+const billingEventProcessedAt = `-- name: BillingEventProcessedAt :one
+SELECT processed_at
+FROM billing_events
+WHERE event_id = $1
+`
+
+// 이벤트의 처리 완료 시각입니다. NULL이면 아직 처리하지 않았거나 앞선 처리가 실패했습니다.
+func (q *Queries) BillingEventProcessedAt(ctx context.Context, eventID string) (*time.Time, error) {
+	row := q.db.QueryRow(ctx, billingEventProcessedAt, eventID)
+	var processed_at *time.Time
+	err := row.Scan(&processed_at)
+	return processed_at, err
+}
+
+const existingAccountIDs = `-- name: ExistingAccountIDs :many
+SELECT id
+FROM accounts
+WHERE id = ANY($1::uuid[])
+`
+
+// 후보 id 중 accounts에 있는 id입니다(webhook 계정 찾기, P7-7). 순서는 보장하지 않으므로 호출한 쪽이 후보 순서로 맞춥니다.
+func (q *Queries) ExistingAccountIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, existingAccountIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const insertBillingEvent = `-- name: InsertBillingEvent :exec
+INSERT INTO billing_events (event_id, account_id, payload, received_at)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (event_id) DO NOTHING
+`
+
+type InsertBillingEventParams struct {
+	EventID    string
+	AccountID  uuid.NullUUID
+	Payload    []byte
+	ReceivedAt time.Time
+}
+
+// webhook 이벤트를 기록합니다. 같은 event_id가 이미 있으면 아무것도 하지 않습니다(P7-8).
+func (q *Queries) InsertBillingEvent(ctx context.Context, arg InsertBillingEventParams) error {
+	_, err := q.db.Exec(ctx, insertBillingEvent,
+		arg.EventID,
+		arg.AccountID,
+		arg.Payload,
+		arg.ReceivedAt,
+	)
+	return err
+}
+
 const listAdFreePassGrants = `-- name: ListAdFreePassGrants :many
 SELECT id, entitlement, source_ref, revoked_at
 FROM entitlement_grants
@@ -101,6 +166,24 @@ func (q *Queries) ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const markBillingEventProcessed = `-- name: MarkBillingEventProcessed :exec
+UPDATE billing_events
+SET processed_at = $1::timestamptz
+WHERE event_id = $2
+  AND processed_at IS NULL
+`
+
+type MarkBillingEventProcessedParams struct {
+	Now     time.Time
+	EventID string
+}
+
+// 이벤트 처리를 마쳤다고 찍습니다. 이미 찍혀 있으면 처음 시각을 그대로 둡니다.
+func (q *Queries) MarkBillingEventProcessed(ctx context.Context, arg MarkBillingEventProcessedParams) error {
+	_, err := q.db.Exec(ctx, markBillingEventProcessed, arg.Now, arg.EventID)
+	return err
 }
 
 const revokeGrant = `-- name: RevokeGrant :exec

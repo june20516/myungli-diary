@@ -86,6 +86,23 @@ type EntitlementService interface {
 
 var _ EntitlementService = (*billing.Store)(nil)
 
+// PurchaseRestorer는 restorePurchases가 쓰는 구매 복원입니다. *billing.Syncer가 만족합니다.
+type PurchaseRestorer interface {
+	Restore(ctx context.Context, accountID uuid.UUID) (billing.Status, error)
+}
+
+var _ PurchaseRestorer = (*billing.Syncer)(nil)
+
+// RevenueCatWebhooks는 revenuecatWebhook이 쓰는 webhook 검증·처리입니다. *billing.Webhooks가 만족합니다.
+type RevenueCatWebhooks interface {
+	// Authorized는 Authorization 헤더 값이 설정 값과 같은지 봅니다.
+	Authorized(header string) bool
+	// Handle은 이벤트를 기록하고 계정을 동기화합니다. 형식 오류는 billing.ErrWebhookInvalid입니다.
+	Handle(ctx context.Context, body map[string]any) error
+}
+
+var _ RevenueCatWebhooks = (*billing.Webhooks)(nil)
+
 // DiaryService는 일기 operation이 쓰는 서비스입니다. *diary.Service가 만족합니다.
 type DiaryService interface {
 	Put(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (entry diary.Entry, created bool, err error)
@@ -129,13 +146,17 @@ type API struct {
 	Contents Contents
 	// Entitlements는 권한 판정입니다. 비어 있으면 getMe·getEntitlements는 503 service.unavailable입니다.
 	Entitlements EntitlementService
+	// Purchases는 구매 복원입니다. 비어 있으면(결제 설정 없음) restorePurchases는 503 billing.provider_unavailable입니다(P7-16).
+	Purchases PurchaseRestorer
+	// Webhooks는 RevenueCat webhook 처리입니다. 비어 있으면(결제 설정 없음) revenuecatWebhook은 500이고 Error 로그를 남깁니다(P7-16).
+	Webhooks RevenueCatWebhooks
 	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.
 	Diaries DiaryService
 	// Schedules는 일정 서비스입니다. 비어 있으면 일정 operation은 503 service.unavailable입니다.
 	Schedules ScheduleService
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
-	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)가 원인을 남길 때 씁니다.
+	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)와 결제 핸들러(webhook·구매 복원)가 원인을 남길 때 씁니다.
 	Logger *slog.Logger
 	// AppLink는 Apple 웹 콜백의 redirect 주소, 안내 페이지, assetlinks.json을 만드는 Android App Link 설정입니다.
 	AppLink AppLinkConfig

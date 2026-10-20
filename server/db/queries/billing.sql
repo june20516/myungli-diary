@@ -42,3 +42,28 @@ SET revoked_at = @now::timestamptz
 WHERE id = @id
   AND account_id = @account_id
   AND revoked_at IS NULL;
+
+-- name: ExistingAccountIDs :many
+-- 후보 id 중 accounts에 있는 id입니다(webhook 계정 찾기, P7-7). 순서는 보장하지 않으므로 호출한 쪽이 후보 순서로 맞춥니다.
+SELECT id
+FROM accounts
+WHERE id = ANY(@ids::uuid[]);
+
+-- name: InsertBillingEvent :exec
+-- webhook 이벤트를 기록합니다. 같은 event_id가 이미 있으면 아무것도 하지 않습니다(P7-8).
+INSERT INTO billing_events (event_id, account_id, payload, received_at)
+VALUES (@event_id, @account_id, @payload, @received_at)
+ON CONFLICT (event_id) DO NOTHING;
+
+-- name: BillingEventProcessedAt :one
+-- 이벤트의 처리 완료 시각입니다. NULL이면 아직 처리하지 않았거나 앞선 처리가 실패했습니다.
+SELECT processed_at
+FROM billing_events
+WHERE event_id = @event_id;
+
+-- name: MarkBillingEventProcessed :exec
+-- 이벤트 처리를 마쳤다고 찍습니다. 이미 찍혀 있으면 처음 시각을 그대로 둡니다.
+UPDATE billing_events
+SET processed_at = @now::timestamptz
+WHERE event_id = @event_id
+  AND processed_at IS NULL;
