@@ -1,5 +1,7 @@
 # 명리 엔진 (core/) Implementation Plan
 
+> **이후 바뀐 것:** 요청함은 `docs/coordination/`에서 GitHub Issues로 바뀌었습니다(D44). 아래의 `docs/coordination/` 안내는 작성 당시 기준이며, 지금은 `from:core` Issue로 요청·보고합니다.
+
 > **agentic worker에게:** REQUIRED SUB-SKILL: 이 plan을 task 단위로 구현하려면 suberpower:subagent-driven-development(권장) 또는 suberpower:executing-plans를 사용하세요. Step은 추적을 위해 checkbox(`- [ ]`) 문법을 사용합니다.
 
 **Goal:** 출생 정보로 원국을 세우고, 일진 × 원국으로 데일리·월간 판정을 계산해 gRPC로 반환하는 상태 없는 Python 명리 엔진을 `core/`에 만듭니다.

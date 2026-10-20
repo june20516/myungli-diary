@@ -5,7 +5,7 @@
 
 * 설계: [`docs/specs/2026-10-10-myungli-engine-design.md`](docs/specs/2026-10-10-myungli-engine-design.md)
 * 연산 로직 위키(v1.7): [`docs/engine-logic-wiki.md`](docs/engine-logic-wiki.md)
-* core 결정 로그(C1~C5): [`docs/decisions.md`](docs/decisions.md)
+* core 결정 로그: [`docs/decisions.md`](docs/decisions.md)
 * 필요한 도구: [uv](https://docs.astral.sh/uv/)(Python 3.13), proto 검사에 [buf](https://buf.build/)
 
 ## 설치와 실행
@@ -41,7 +41,7 @@ uv run mypy src tools
 ```
 
 KASI 골든은 저장된 fixture(`tests/golden/fixtures/`)만 읽고 네트워크를 쓰지 않습니다.
-CI(`.github/workflows/core.yml`)는 PR과 main push에서 ci-gate가 불러 기본 검사와 이미지 검사를 돌립니다. slow 테스트는 계산·규칙·근거 데이터를 바꾸는 변경, 수동 실행, 매주 한 번 돌립니다.
+CI(`.github/workflows/core.yml`)는 PR과 main push에서 ci-gate가 불러 기본 검사와 이미지 검사를 돌립니다. slow 테스트는 계산·원국·규칙·조립·상수(보정 상수 포함)·근거 데이터·의존성과 보정 도구·테스트를 바꾸는 변경, 수동 실행, 매주 한 번 돌립니다. 경로 조건은 `core.yml`의 `core-paths` job에 있습니다.
 
 ## proto 코드 생성
 
@@ -113,4 +113,5 @@ uv run python tools/fetch_kasi.py --years 2000-2028
    ```bash
    UPDATE_RULESET_HASH=1 uv run pytest tests/unit/test_ruleset_version.py
    ```
-4. 서버가 일기 태그와 캐시에 `ruleset_version`을 쓰므로(D31), 값이 바뀌었음을 `from:core` GitHub Issue로 알립니다.
+4. [`docs/contracts/README.md`](../docs/contracts/README.md)의 "엔진 버전 표기" 행에서 버전 값을 같은 PR에서 고칩니다(`docs/workflow.md` §5.1). `engine_version`을 올릴 때도 같습니다.
+5. 서버가 일기 태그와 캐시에 `ruleset_version`을 쓰므로(D31), 값이 바뀌었음을 GitHub Issue로 알립니다. 라벨은 `from:core`·`to:server`이고, server가 대응해야 하면(하위 호환을 깨는 변경 등) `kind:request`, 알리기만 하면 `kind:notice`입니다(D78 ①).
