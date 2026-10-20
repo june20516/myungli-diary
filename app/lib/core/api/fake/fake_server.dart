@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/api_route.dart';
-import 'package:myungli_diary/core/api/fake/fake_diary_list.dart';
+import 'package:myungli_diary/core/api/fake/fake_diary_store.dart';
 import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/api/fake/fake_schedule_store.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
@@ -91,17 +91,13 @@ final class FakeServerInterceptor extends Interceptor {
     });
     final path = routePathOf(options);
     final fixture = await _findFixture(route, path);
-    final stored = await _answerFromScheduleStore(
-      route,
-      path,
-      options,
-      fixture,
-    );
+    final stored =
+        await _answerFromScheduleStore(route, path, options, fixture) ??
+        await _answerFromDiaryStore(route, path, options, fixture);
     _respond(
       options,
       handler,
       stored ??
-          _filteredDiaryList(route, options, fixture) ??
           fixture ??
           _problem(
             501,
@@ -183,36 +179,89 @@ final class FakeServerInterceptor extends Interceptor {
     }
   }
 
-  /// `listDiaries`의 200 fixture를 요청의 `from`·`to`·`tag`·`cursor`·`limit`으로 걸러
-  /// 답합니다([filterDiaryList]). 그 밖이면 null입니다.
-  _Fixture? _filteredDiaryList(
+  Future<FakeDiaryStore>? _diaryStore;
+
+  /// 일기 operation이면 대역 일기 저장소로 답합니다. 그 밖의 operation이면 null입니다.
+  ///
+  /// 시나리오가 오류 응답 파일을 두면(오류 시나리오) 파일이 우선이라 null입니다.
+  /// `listDiaries`·`getDiary` 파일의 200 응답은 저장소의 처음 상태이고, `getDiary`의 404
+  /// 파일은 "기본은 없음"이라 저장소가 답합니다.
+  Future<_Fixture?> _answerFromDiaryStore(
     ApiRoute route,
+    String path,
     RequestOptions options,
     _Fixture? fixture,
-  ) {
-    final body = fixture?.body;
-    if (route.operationId != 'listDiaries' ||
-        fixture == null ||
-        fixture.status != 200 ||
-        body is! Map<String, Object?>) {
+  ) async {
+    final operationId = route.operationId;
+    if (!_diaryOperations.contains(operationId)) {
       return null;
     }
+    final status = fixture?.status;
+    final fileWins = switch (operationId) {
+      'listDiaries' => status != null && status != 200,
+      'getDiary' => status != null && status != 200 && status != 404,
+      _ => fixture != null,
+    };
+    if (fileWins) {
+      return null;
+    }
+    final store = await (_diaryStore ??= _loadDiaryStore());
+    final date = route.pathParametersOf(path)?['date'];
     try {
-      return _Fixture(
-        status: 200,
-        headers: fixture.headers,
-        body: filterDiaryList(
-          body,
-          from: options.queryParameters['from'],
-          to: options.queryParameters['to'],
-          tag: options.queryParameters['tag'],
-          cursor: options.queryParameters['cursor'],
-          limit: options.queryParameters['limit'],
-        ),
-      );
+      switch (operationId) {
+        case 'listDiaries':
+          final query = options.queryParameters;
+          return _ok(
+            200,
+            store.list(
+              from: query['from'],
+              to: query['to'],
+              tag: query['tag'],
+              cursor: query['cursor'],
+              limit: query['limit'],
+            ),
+          );
+        case 'getDiary':
+          return _ok(200, store.get(date!));
+        case 'putDiary':
+          final result = store.put(date!, options.data);
+          return _ok(result.status, result.diary);
+        default:
+          store.delete(date!);
+          return const _Fixture(status: 204, headers: {}, body: null);
+      }
     } on FakeProblem catch (problem) {
       return _problemOf(problem);
     }
+  }
+
+  /// 시나리오의 `listDiaries`·`getDiary`(200일 때)로 일기 저장소를 시작하고, 새 일기의
+  /// 태그·가이드 질문은 `getDaily`(200일 때)에서 가져옵니다. 시각은 시나리오 시계입니다.
+  Future<FakeDiaryStore> _loadDiaryStore() async {
+    Future<Map<String, Object?>?> firstOkBody(String name) async {
+      final found = await findFixtureSource([name]);
+      final first = found == null
+          ? null
+          : _parseFixture(found.source, found.key).first;
+      final body = first?.status == 200 ? first!.body : null;
+      return body is Map<String, Object?> ? body : null;
+    }
+
+    final list = await firstOkBody('listDiaries.json');
+    final diary = await firstOkBody('getDiary.json');
+    final daily = await firstOkBody('getDaily.json');
+    final items = list?['items'];
+    final clock = noonClockOn(scenario.today, scenario.timezone);
+    return FakeDiaryStore(
+      summaries: [
+        if (items is List<Object?>)
+          for (final item in items) Map<String, Object?>.from(item! as Map),
+      ],
+      diaries: [?diary],
+      daily: daily,
+      today: scenario.today,
+      nowUtc: clock.nowUtc,
+    );
   }
 
   _Fixture _problemOf(FakeProblem problem) => _problem(
@@ -357,6 +406,9 @@ final class FakeServerInterceptor extends Interceptor {
     );
   }
 }
+
+/// 대역 일기 저장소가 답하는 operation.
+const _diaryOperations = {'listDiaries', 'getDiary', 'putDiary', 'deleteDiary'};
 
 /// 대역 일정 저장소가 답하는 operation.
 const _scheduleOperations = {
