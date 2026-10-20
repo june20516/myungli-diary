@@ -159,7 +159,7 @@ type staticRouter interface {
 	staticRoutes() []staticRoute
 }
 
-// staticRoutes는 App Link 안내 페이지와 assetlinks.json 경로입니다. 인증·계약 검증 없이 등록됩니다.
+// staticRoutes는 App Link 안내 페이지와 assetlinks.json 경로, staging 빌드의 테스트 로그인 경로입니다. 인증·계약 검증 없이 등록됩니다.
 // AppLink 설정이 비어 있으면 시작 시점의 조립 버그이므로 panic합니다.
 func (a *API) staticRoutes() []staticRoute {
 	c := a.AppLink
@@ -178,7 +178,7 @@ func (a *API) staticRoutes() []staticRoute {
 		panic("httpapi.API: assetlinks.json 만들기: " + err.Error())
 	}
 	logger := a.logger()
-	return []staticRoute{
+	routes := []staticRoute{
 		{pattern: http.MethodGet + " " + appLinkPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			serveAppLinkPage(a, c, logger, w, r)
 		})},
@@ -188,6 +188,8 @@ func (a *API) staticRoutes() []staticRoute {
 			writeBody(logger, w, r, assetLinks)
 		})},
 	}
+	// staging 빌드에서 테스트 로그인을 켰으면 그 경로도 더합니다(prod 빌드에서는 늘 없음, S24).
+	return append(routes, a.testLoginRoutes()...)
 }
 
 // appLinkErrors는 Apple 웹 콜백이 Location에 담는 error 값입니다(계약 appleCallback 303 설명).

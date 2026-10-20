@@ -40,6 +40,9 @@ import (
 const (
 	providerKakao = "kakao"
 	providerApple = "apple"
+	// providerTest는 staging 테스트 로그인(S24)의 연결입니다. 발급 경로(LoginTest)는 build tag staging 파일에만 있고,
+	// 여기의 상수는 연결 해제가 staging의 테스트 계정 삭제를 처리하려고 씁니다.
+	providerTest = "test"
 )
 
 // DB의 accounts.status 값입니다.

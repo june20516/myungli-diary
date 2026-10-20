@@ -352,7 +352,7 @@ const testStoreURL = "https://play.google.com/store/apps/details?id=app.myungli.
 // testClosedEngineAddr는 아무도 듣지 않는 엔진 주소입니다.
 const testClosedEngineAddr = "127.0.0.1:1"
 
-// testAuthEnv는 인증 설정 20개 중 필수 값 16개와 ENGINE_ADDR를 채운 환경을 만듭니다.
+// testAuthEnv는 인증 설정 20개 중 필수 값 16개와 ENGINE_ADDR, TEST_LOGIN_SECRET(staging 빌드만 읽음)을 채운 환경을 만듭니다.
 // JWT 키는 실제로 파싱되는 P-256 PKCS8 PEM이고, 토큰 암호 키는 32바이트 난수의 base64(표준)입니다.
 func testAuthEnv(t *testing.T) map[string]string {
 	t.Helper()
@@ -388,6 +388,8 @@ func testAuthEnv(t *testing.T) map[string]string {
 		"ANDROID_STORE_URL":       testStoreURL,
 		// 닫힌 로컬 포트입니다. 엔진 연결은 lazy라 서버는 시작합니다.
 		"ENGINE_ADDR": testClosedEngineAddr,
+		// staging 빌드에서만 읽는 테스트 로그인 비밀입니다(S24). prod 빌드는 읽지 않습니다.
+		"TEST_LOGIN_SECRET": "staging-test-login-secret-0123456789",
 	}
 }
 

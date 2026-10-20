@@ -103,6 +103,8 @@ var _ ScheduleService = (*schedule.Service)(nil)
 // API는 gen.StrictServerInterface 구현입니다. 아직 구현하지 않은 operation은 Unimplemented가 501로 답합니다.
 type API struct {
 	Unimplemented
+	// testLoginHolder는 staging 테스트 로그인(S24)의 상태 자리입니다. staging 빌드에서만 필드가 있고 prod 빌드에서는 빈 struct입니다.
+	testLoginHolder
 
 	Auth     AuthService
 	Accounts AccountService

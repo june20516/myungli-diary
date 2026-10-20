@@ -80,6 +80,11 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	// staging 빌드에서만 TEST_LOGIN_SECRET을 읽고 검사합니다(prod 빌드는 아무것도 읽지 않음, S24).
+	testLogin, err := loadTestLogin(getenv)
+	if err != nil {
+		return err
+	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
@@ -123,6 +128,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		HTTP:     newProviderHTTPClient(),
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
+		TestLogin: testLogin,
 	})
 	if err != nil {
 		logger.ErrorContext(ctx, "서버 조립 실패", "error", err)
@@ -298,6 +304,8 @@ type serverDeps struct {
 	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
 	HTTP      *http.Client
 	Providers providerURLs
+	// TestLogin은 staging 테스트 로그인 설정입니다(S24). prod 빌드에서는 빈 타입이고, 비어 있으면 켜지 않습니다.
+	TestLogin testLoginSettings
 }
 
 // newReadings는 운세 화면 묶음을 조립합니다. 문장 틀과 슬롯 명세는 시드 버전마다 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
@@ -388,6 +396,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	if deps.Days != nil {
 		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
 	}
+	deps.TestLogin.enable(api, authService)
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)
 	}), nil

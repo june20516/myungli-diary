@@ -23,6 +23,8 @@ jobs:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
       - run: go vet ./...
+      # staging 테스트 로그인(S24)은 build tag staging 파일에만 있어 그 tag로 한 번 더 검사합니다.
+      - run: go vet -tags staging ./...
       # 시드의 원본인 writing 원고를 검사합니다(spec §6.1). 원고가 W1로 다 오기 전까지 --partial입니다(P4-8).
       - uses: astral-sh/setup-uv@v10.3.0
         with:
@@ -37,8 +39,17 @@ jobs:
         with:
           version: v2.14.0
           working-directory: server
+      - name: golangci-lint (staging tag)
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+          working-directory: server
+          args: --build-tags=staging
       # testcontainers가 ubuntu runner의 Docker로 PostgreSQL을 띄운다.
       - run: go test -race ./...
+      - name: staging 테스트 로그인
+        # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24).
+        run: go test -race -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin'
       - name: 실제 엔진과 계약 테스트
         # core/Dockerfile로 엔진 이미지를 빌드해 띄우고 server 클라이언트로 실제 RPC를 부른다(#79).
         run: go test -tags enginecontract ./internal/engine/...
