@@ -45,7 +45,7 @@
 * P5로 일기·일정이 `serve`에 조립됐습니다: 일기 저장·조회·삭제·복원·목록(저장 때 태그·길흉·`ruleset_version`·가이드 질문 기록, 고칠 때는 본문만 변경), 일정 CRUD·복원·목록(62일 상한), `createSchedule`의 `Idempotency-Key`(24시간 재생). 새 결정은 S50~S64입니다.
 * P6로 비로그인·참조가 `serve`에 조립됐습니다: App Check 검증(`createPreview`·`getBirthHour`·`convertLunarDate`, 설정이 비면 503), `getBirthHour`·`convertLunarDate`의 IP별 요청 한도, 시진 확인(엔진 `GetBirthHour`), 미리보기(설치당 1회, 입력 저장 없음), 도시 검색(ETag)과 앱 설정(`getAppConfig`), 요청 언어 선택, 원국 개인 해석(`Chart.personalReadings`), Apple 복귀 페이지 writing 원고, staging 테스트 로그인(`-tags staging`, #93). 계약 개정은 설명과 하위 호환 추가뿐이고 새 결정은 S65~S78입니다. 규칙 정합성 점검 #281도 이 PR에서 정리했습니다.
 * P7로 결제와 권한이 `serve`에 조립됐습니다: 결제 표 3개(migration 00012), RevenueCat REST v2 동기화(광고 제거권 이어 붙이기·환불), webhook 멱등 처리와 구매 복원(`restorePurchases`), AdMob SSV 검증과 보상 권한(`rewarded_ad`), 근거 잠금의 실제 판정(D60), 계약 개정(결제 설명, S77 필드 제거). 새 결정은 S79~S89입니다.
-* P7 후속(브랜치 `server/p7-followups`, #338 위에 쌓음): 나의 사주 문장 `Chart.ilganHead`·`ilganBody`·`yongsinSummary`(#329, S90), 법적 문서 정적 페이지 `GET /legal/terms`·`/legal/privacy`와 `AppConfig.legal`(#332·D80, S91). 원문 `docs/legal/<언어>/`는 `go generate ./legal/`로 내장하며 아직 원문이 없어 페이지는 404 준비 중입니다. 계약 draft.10(하위 호환 추가). ci-gate server drift 경로에 `^docs/legal/`을 넣는 일은 지휘에 요청했습니다.
+* P7 후속(브랜치 `server/p7-followups`, #338 위에 쌓음): 나의 사주 문장 `Chart.ilganHead`·`ilganBody`·`yongsinSummary`(#329, S90), 법적 문서 정적 페이지 `GET /legal/terms`·`/legal/privacy`와 `AppConfig.legal`(#332·D80, S91). 원문 `docs/legal/<언어>/`는 `go generate ./legal/`로 내장하며 아직 원문이 없어 페이지는 404 준비 중입니다. 계약 draft.10(하위 호환 추가). ci-gate server drift 경로에 `docs/legal/<언어>/`가 들어갔습니다(#341).
 * S3 준비(브랜치 `server/s3-freeze-prep`, `server/p7-followups` 위에 쌓음): 계약 draft.11. 알림 기기 계약 확정(S92), 호환·버전 정책과 열린 enum(S93), 점검에서 찾은 응답 목록·설명 차이 정리. 점검 목록과 남은 일은 [`docs/plans/2026-10-20-s3-freeze-prep.md`](docs/plans/2026-10-20-s3-freeze-prep.md)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
@@ -55,7 +55,7 @@
 ## 다음 할 일
 1. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
 2. P8(Job: precompute, notify, retention과 익명화)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92).
-3. 원문 `docs/legal/<언어>/`가 들어오면 `go generate ./legal/`로 내장 문서를 다시 만듭니다(ci-gate drift 경로 반영 뒤에는 drift Issue로 옵니다).
+3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. core #304가 반영되면 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
 5. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 6. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
