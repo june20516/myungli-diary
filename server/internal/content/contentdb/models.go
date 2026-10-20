@@ -181,3 +181,17 @@ type RotationState struct {
 	MessageKey  string
 	NextVariant string
 }
+
+type Schedule struct {
+	ID              uuid.UUID
+	AccountID       uuid.UUID
+	Date            pgtype.Date
+	AllDay          bool
+	Time            pgtype.Time
+	Title           string
+	Memo            pgtype.Text
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       *time.Time
+	ContentPurgedAt *time.Time
+}

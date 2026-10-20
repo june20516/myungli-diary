@@ -19,6 +19,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
+	"github.com/june20516/myungli-diary/server/internal/schedule"
 )
 
 // 이 파일은 핸들러가 돌려준 오류를 problem 응답으로 바꾸는 단일 경로를 둡니다.
@@ -83,6 +84,10 @@ var domainErrors = []domainError{
 	{target: diary.ErrNotFound, code: problem.DiaryNotFound, title: "Diary not found"},
 	{target: diary.ErrDateTaken, code: problem.DiaryDateTaken, title: "Diary date taken"},
 	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future", field: "date"},
+	{target: schedule.ErrNotFound, code: problem.ScheduleNotFound, title: "Schedule not found"},
+	// 경로·쿼리 매개변수 위반의 errors[].field는 이름 그대로입니다.
+	{target: schedule.ErrRangeTooLong, code: problem.RangeTooLong, title: "Range too long", field: "to"},
+	{target: schedule.ErrRangeReversed, code: problem.RequestInvalid, title: "Range reversed", field: "from"},
 	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
