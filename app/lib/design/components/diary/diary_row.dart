@@ -62,6 +62,9 @@ class DiaryRow extends StatelessWidget {
   /// 날짜 열 너비(`parts.dateColumn.width`).
   static const double dateColumnWidth = 44;
 
+  /// 날짜 열 글자 배율 상한. 폭이 고정된 열이라 칸 고정 표와 같은 1.3배입니다.
+  static const double textScaleMax = 1.3;
+
   static const double _numberSize = 18;
   static const double _weekdayGap = 4;
   static const double _railWidth = 1.5;
@@ -147,6 +150,8 @@ class DiaryRow extends StatelessWidget {
       isLast: isLast,
       number: Text(
         '${date.day}',
+        maxLines: 1,
+        softWrap: false,
         style: tokens.typography.bodyUi.copyWith(
           fontSize: _numberSize,
           fontWeight: FontWeight.w600,
@@ -239,6 +244,14 @@ class _DateColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 폭이 고정된 열이라 글자는 1.3배에서 멈춥니다(칸 고정 표와 같은 규칙, `a11y.textScaleMax`).
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: DiaryRow.textScaleMax,
+      child: _column(context),
+    );
+  }
+
+  Widget _column(BuildContext context) {
     return SizedBox(
       key: DiaryRow.dateColumnKey,
       width: DiaryRow.dateColumnWidth,

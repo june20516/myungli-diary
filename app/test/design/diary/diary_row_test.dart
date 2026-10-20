@@ -88,6 +88,22 @@ void main() {
       expect(weekday.style!.color, tokens.colors.textSecondary);
     });
 
+    testWidgets('날짜 열은 글자 1.3배에서 멈춰 큰 글자에서도 숫자가 한 줄입니다', (tester) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: _rows(),
+        ),
+      );
+      final number = _in('first', find.text('12'));
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.descendant(of: number, matching: find.byType(RichText)),
+      );
+      expect(paragraph.textScaler.scale(10), closeTo(13, 0.01));
+      expect(tester.getSize(number).height, lessThan(18 * 1.3 * 1.5));
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('흐름 줄 1.5는 요일 아래에서 줄 끝까지 이어지고 마지막 줄 뒤에는 없습니다', (tester) async {
       await tester.pumpWidget(_rows());
       final rail = _in('first', find.byKey(DiaryRow.railKey));
