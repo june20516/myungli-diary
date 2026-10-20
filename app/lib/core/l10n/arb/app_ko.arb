@@ -1203,35 +1203,35 @@
   },
   "eventEditAllDay": "하루 종일",
   "@eventEditAllDay": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditTimed": "시간 지정",
   "@eventEditTimed": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditDateLabel": "날짜",
   "@eventEditDateLabel": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditTimeLabel": "시간",
   "@eventEditTimeLabel": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditSave": "저장",
   "@eventEditSave": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 저장 버튼"
   },
   "eventEditDelete": "일정 지우기",
   "@eventEditDelete": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 일정 지우기 버튼. 누르면 `event-edit.delete.confirm`을 엽니다"
   },
   "eventEditOfflineNotice": "인터넷에 연결되어 있지 않아 저장할 수 없어요.",
   "@eventEditOfflineNotice": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 연결이 없어 지금 저장할 수 없다는 안내"
   },
   "eventEditSaveFailed": "일정을 저장하지 못했어요. 다시 시도해 주세요.",
   "@eventEditSaveFailed": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 일정 저장에 실패했다는 안내"
   },
   "direction8N": "북",
   "@direction8N": {
@@ -1482,23 +1482,23 @@
   },
   "diaryEditSave": "저장",
   "@diaryEditSave": {
-    "description": "임시. diary-edit 저장 버튼(IA 슬롯 없음, A53)"
+    "description": "일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)"
   },
   "diaryViewEditAction": "일기 고치기",
   "@diaryViewEditAction": {
-    "description": "임시. diary-view app-bar 고치기 동작 접근성 라벨(A50·A53)"
+    "description": "일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)"
   },
   "diaryViewDeleteAction": "일기 지우기",
   "@diaryViewDeleteAction": {
-    "description": "임시. diary-view app-bar 지우기 동작 접근성 라벨(A50·A53)"
+    "description": "일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)"
   },
   "diaryViewDeleted": "일기를 지웠어요.",
   "@diaryViewDeleted": {
-    "description": "임시. 일기를 지운 뒤 toast(A50·A53)"
+    "description": "일기 보기 화면(diary-view): 일기를 지운 뒤 toast(#275)"
   },
   "diaryListPickDateConfirm": "{date} 일기",
   "@diaryListPickDateConfirm": {
-    "description": "임시. 날짜 골라 쓰기 시트의 아래 버튼, 고른 날짜를 넣는 틀(A51·A53)",
+    "description": "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 diary-edit 또는 diary-view로 갑니다(#294)",
     "placeholders": {
       "date": {
         "type": "String"
@@ -1507,7 +1507,7 @@
   },
   "tagChipLabel": "#{tag}",
   "@tagChipLabel": {
-    "description": "임시. tag-chip 글자 틀 \"#이름\"(A53)",
+    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다",
     "placeholders": {
       "tag": {
         "type": "String"
@@ -1516,14 +1516,31 @@
   },
   "tagChipPolarityGood": "좋은 흐름",
   "@tagChipPolarityGood": {
-    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
   },
   "tagChipPolarityBad": "조심할 흐름",
   "@tagChipPolarityBad": {
-    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
   },
-  "tagChipPolarityNeutral": "중립",
+  "tagChipPolarityNeutral": "무난한 흐름",
   "@tagChipPolarityNeutral": {
-    "description": "임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)"
+    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
+  },
+  "dayCellLeapNewMoon": "윤{month}.1",
+  "@dayCellLeapNewMoon": {
+    "description": "달력 날짜 칸(day-cell) 음력 줄: 윤달 초하루 표지(#260, design V38). 평달 초하루 `M.1`·절기 이름·일(日)은 app이 숫자로 그립니다",
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "errorCityNotFound": "출생지 도시를 찾지 못했어요. 도시를 다시 골라 주세요.",
+  "@errorCityNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorTimezoneInvalid": "시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.",
+  "@errorTimezoneInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   }
 }

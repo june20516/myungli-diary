@@ -1684,49 +1684,49 @@ abstract class AppLocalizations {
   /// **'오늘 일정 {count, plural, other{{count}개}}가 모두 지났어요'**
   String todayEventSummaryAllPast(int count);
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)
   ///
   /// In ko, this message translates to:
   /// **'하루 종일'**
   String get eventEditAllDay;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)
   ///
   /// In ko, this message translates to:
   /// **'시간 지정'**
   String get eventEditTimed;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)
   ///
   /// In ko, this message translates to:
   /// **'날짜'**
   String get eventEditDateLabel;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)
   ///
   /// In ko, this message translates to:
   /// **'시간'**
   String get eventEditTimeLabel;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 저장 버튼
   ///
   /// In ko, this message translates to:
   /// **'저장'**
   String get eventEditSave;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 일정 지우기 버튼. 누르면 `event-edit.delete.confirm`을 엽니다
   ///
   /// In ko, this message translates to:
   /// **'일정 지우기'**
   String get eventEditDelete;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 연결이 없어 지금 저장할 수 없다는 안내
   ///
   /// In ko, this message translates to:
   /// **'인터넷에 연결되어 있지 않아 저장할 수 없어요.'**
   String get eventEditOfflineNotice;
 
-  /// 일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내
+  /// 일정 편집 화면(event-edit): 일정 저장에 실패했다는 안내
   ///
   /// In ko, this message translates to:
   /// **'일정을 저장하지 못했어요. 다시 시도해 주세요.'**
@@ -2004,59 +2004,77 @@ abstract class AppLocalizations {
   /// **'한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.'**
   String get errorRangeTooLong;
 
-  /// 임시. diary-edit 저장 버튼(IA 슬롯 없음, A53)
+  /// 일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)
   ///
   /// In ko, this message translates to:
   /// **'저장'**
   String get diaryEditSave;
 
-  /// 임시. diary-view app-bar 고치기 동작 접근성 라벨(A50·A53)
+  /// 일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)
   ///
   /// In ko, this message translates to:
   /// **'일기 고치기'**
   String get diaryViewEditAction;
 
-  /// 임시. diary-view app-bar 지우기 동작 접근성 라벨(A50·A53)
+  /// 일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)
   ///
   /// In ko, this message translates to:
   /// **'일기 지우기'**
   String get diaryViewDeleteAction;
 
-  /// 임시. 일기를 지운 뒤 toast(A50·A53)
+  /// 일기 보기 화면(diary-view): 일기를 지운 뒤 toast(#275)
   ///
   /// In ko, this message translates to:
   /// **'일기를 지웠어요.'**
   String get diaryViewDeleted;
 
-  /// 임시. 날짜 골라 쓰기 시트의 아래 버튼, 고른 날짜를 넣는 틀(A51·A53)
+  /// 일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 diary-edit 또는 diary-view로 갑니다(#294)
   ///
   /// In ko, this message translates to:
   /// **'{date} 일기'**
   String diaryListPickDateConfirm(String date);
 
-  /// 임시. tag-chip 글자 틀 "#이름"(A53)
+  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
   ///
   /// In ko, this message translates to:
   /// **'#{tag}'**
   String tagChipLabel(String tag);
 
-  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
   ///
   /// In ko, this message translates to:
   /// **'좋은 흐름'**
   String get tagChipPolarityGood;
 
-  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
   ///
   /// In ko, this message translates to:
   /// **'조심할 흐름'**
   String get tagChipPolarityBad;
 
-  /// 임시. tag-chip 스크린리더 라벨의 길흉 낱말(a11y label 태그 이름 + 길흉 낱말, A53)
+  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
   ///
   /// In ko, this message translates to:
-  /// **'중립'**
+  /// **'무난한 흐름'**
   String get tagChipPolarityNeutral;
+
+  /// 달력 날짜 칸(day-cell) 음력 줄: 윤달 초하루 표지(#260, design V38). 평달 초하루 `M.1`·절기 이름·일(日)은 app이 숫자로 그립니다
+  ///
+  /// In ko, this message translates to:
+  /// **'윤{month}.1'**
+  String dayCellLeapNewMoon(int month);
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'출생지 도시를 찾지 못했어요. 도시를 다시 골라 주세요.'**
+  String get errorCityNotFound;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.'**
+  String get errorTimezoneInvalid;
 }
 
 class _AppLocalizationsDelegate

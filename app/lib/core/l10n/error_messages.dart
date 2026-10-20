@@ -38,6 +38,8 @@ final Map<String, String Function(AppLocalizations)> problemMessages = {
   'request.unsupported_media_type': (l10n) =>
       l10n.errorRequestUnsupportedMediaType,
   'date.out_of_range': (l10n) => l10n.errorDateOutOfRange,
+  'timezone.invalid': (l10n) => l10n.errorTimezoneInvalid,
+  'city.not_found': (l10n) => l10n.errorCityNotFound,
   'range.too_long': (l10n) => l10n.errorRangeTooLong,
   'birth.out_of_range': (l10n) => l10n.errorBirthOutOfRange,
   'date.invalid': (l10n) => l10n.errorDateInvalid,

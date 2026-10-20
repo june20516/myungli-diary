@@ -1169,7 +1169,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String diaryListPickDateConfirm(String date) {
-    return 'Diary for $date';
+    return '$date entry';
   }
 
   @override
@@ -1185,4 +1185,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tagChipPolarityNeutral => 'neutral';
+
+  @override
+  String dayCellLeapNewMoon(int month) {
+    return 'L$month.1';
+  }
+
+  @override
+  String get errorCityNotFound =>
+      'We couldn\'t find that city. Please choose your birthplace again.';
+
+  @override
+  String get errorTimezoneInvalid =>
+      'We couldn\'t read the time zone. Please check your device\'s time zone setting.';
 }

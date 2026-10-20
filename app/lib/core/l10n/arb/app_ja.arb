@@ -323,6 +323,9 @@
   "diaryListPickDateConfirm": "{date}の日記",
   "tagChipLabel": "#{tag}",
   "tagChipPolarityGood": "良い流れ",
-  "tagChipPolarityBad": "注意の流れ",
-  "tagChipPolarityNeutral": "中立"
+  "tagChipPolarityBad": "気をつけたい流れ",
+  "tagChipPolarityNeutral": "穏やかな流れ",
+  "dayCellLeapNewMoon": "閏{month}.1",
+  "errorCityNotFound": "出生地の都市が見つかりませんでした。都市を選び直してください。",
+  "errorTimezoneInvalid": "タイムゾーンを確認できませんでした。端末の設定を確認してください。"
 }
