@@ -13,7 +13,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응, 시드 CI (#55·#129, 계약 draft.5, S33~S44) | §6 | **완료** |
 | P5 | [일기·일정](2026-10-20-p5-diary-schedule.md): soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록, `Idempotency-Key`(계약 draft.7, S50~S64) | §5.3, §3.3 일기, §11.2 | **완료** |
 | P6 | [비로그인·참조](2026-10-20-p6-public-reference.md): 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config, staging 테스트 로그인(#93), 계약 draft.8, S65~S78 | §5.3, §3.3 기타, §13.2 | **완료** |
-| P7 | [결제와 권한](2026-10-20-p7-billing.md): RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60), 계약 draft.9 | §10 | 진행 중 |
+| P7 | [결제와 권한](2026-10-20-p7-billing.md): RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60), 계약 draft.9, S79~S89 | §10 | **완료** |
 | P8 | Job: precompute, notify(FCM), retention과 익명화 | §8, §9 | 대기 |
 | P9 | 배포: staging·prod, Cloud Run service·Jobs·Scheduler, Cloud SQL 연결, OpenTelemetry, 외부 준비 안내 | §13 | 대기 |
 
@@ -38,9 +38,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 참고(계획 때 메모): `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다. `City` 변환은 `birthCity`(httpapi `profile_handlers.go`)와 같은 형태라 함께 쓸 수 있게 뽑아냅니다. `City.longitude`도 이때 채웁니다.
 * `convertLunarDate`에도 App Check·요청 한도를 겁니다(구현됨).
 
-**P7 (결제와 권한)**
-* `getMe.adFree`·`insight`를 채웁니다.
-* AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
+**P7 (결제와 권한)** — 완료. 실행 중 정한 것은 S79~S89와 spec §10·§10.1·§11.3·§13.3에 옮겼습니다.
 
 **P8 (Job)**
 * 익명화 때 `reward_events`·`billing_events`·`entitlement_grants`는 남깁니다(spec §9). 세 표의 계정 FK는 `ON DELETE RESTRICT`이고 결제 기록 보관 의무가 있어 계정을 물리적으로 지우는 경로가 없습니다.

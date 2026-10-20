@@ -1042,9 +1042,9 @@ func TestContract_Draft9Additions(t *testing.T) {
 	doc := loadDoc(t)
 
 	descriptions := map[string][]string{
-		"admobRewardCallback": {"`user_id`가 없거나 없는 계정이면 기록만 하고 200"},
+		"admobRewardCallback": {"`user_id`가 없거나 없는 계정이면 기록만 하고 200", "현재와 1시간 넘게 어긋난(오래됐거나 미래) `timestamp`"},
 		"revenuecatWebhook":   {"모르는 계정이면 기록만 하고 200", "`type`이 `TEST`인 이벤트도 기록만 하고 200", "같은 `event.id`는 한 번만 처리"},
-		"restorePurchases":    {"환불된 구매"},
+		"restorePurchases":    {"환불된 구매", "`Purchases.logIn`에 `Me.accountId` 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다"},
 	}
 	for id, texts := range descriptions {
 		t.Run(id, func(t *testing.T) {

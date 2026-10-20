@@ -1,6 +1,6 @@
 # server MVP 설계
 
-* 상태: 확정, 구현 P1~P6 완료(계획은 `docs/plans/README.md`)
+* 상태: 확정, 구현 P1~P7 완료(계획은 `docs/plans/README.md`)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
 * 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클(비공개 기록 `business/cycles/2026-10-11-launch-payment.md`, D74)
 * server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다(S1~S89). 이 문서의 각 절에 해당 번호를 붙입니다.
@@ -393,7 +393,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 
 ## 10. 결제와 권한 (D53·D54·D60, S11·S14)
 
-* app은 RevenueCat `app_user_id`를 계정 id로 맞춥니다(`Purchases.logIn`).
+* app은 RevenueCat `app_user_id`를 계정 id로 맞춥니다(`Purchases.logIn`). 값은 `Me.accountId` 문자열(소문자 표준 UUID 표기)을 그대로 씁니다. 다른 표기면 server가 구매를 찾지 못합니다.
 * **webhook은 신호로만 씁니다.**
   1. RevenueCat에 설정한 Authorization 헤더 값을 검증합니다.
   2. 원본 이벤트를 `billing_events`에 저장합니다. 같은 `event_id`는 한 번만 처리합니다.
