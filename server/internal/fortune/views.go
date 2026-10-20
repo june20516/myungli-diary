@@ -36,9 +36,6 @@ const (
 // characterReasonPrefix는 날의 성격 이유 키의 앞부분입니다. 키는 character.reason.<day_kind>입니다(슬롯 명세 select).
 const characterReasonPrefix = "character.reason."
 
-// personalKeyPrefix는 개인 해석 판정 키의 앞부분입니다. 슬롯 id는 키의 앞 두 마디입니다(예: personal.day_master.gap → personal.day_master).
-const personalKeyPrefix = "personal."
-
 // noticeKeyPrefix는 엔진 안내 문구 키의 앞부분입니다. 키는 notice.<계약 NoticeCode 값>입니다(슬롯 명세 select).
 const noticeKeyPrefix = "notice."
 
@@ -338,10 +335,11 @@ func (v *Views) renderPersonalReadings(ctx context.Context, tpl content.Template
 	return out
 }
 
-// personalSlot은 개인 해석 판정 키의 앞 두 마디(personal.<종류>)를 슬롯 id로 돌려줍니다.
+// personalSlot은 개인 해석 판정 키의 앞 두 마디(personal.<종류>)를 슬롯 id로 돌려줍니다. 예: personal.day_master.gap → personal.day_master.
+// 슬롯 명세의 키는 모두 personal.<종류>.<값> 세 마디 이상입니다. 두 마디 키(personal.day_master)는 슬롯 id와 같아 무효라 거부합니다.
 func personalSlot(key string) (string, bool) {
 	parts := strings.SplitN(key, ".", 3)
-	if len(parts) < 3 || parts[0]+"." != personalKeyPrefix || parts[1] == "" {
+	if len(parts) < 3 || parts[0] != "personal" || parts[1] == "" {
 		return "", false
 	}
 	return parts[0] + "." + parts[1], true

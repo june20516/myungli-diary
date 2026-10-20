@@ -667,3 +667,51 @@ func TestGetChart_UnknownPersonalReadingKindIs500(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
 }
+
+func TestGetChart_PersonalReadingsIndexAndGates(t *testing.T) {
+	reading := func(kind enginev1.PersonalTermKind, index int32, key string) fortune.PersonalReadingText {
+		return fortune.PersonalReadingText{
+			Reading: &enginev1.PersonalReading{Kind: kind, Position: enginev1.Position_POSITION_UNSPECIFIED, Index: index, Judgment: rawJudgment(key)},
+			Text:    text("personal.x", key, "single", "문장"),
+		}
+	}
+	hidden := reading(enginev1.PersonalTermKind_PERSONAL_TERM_KIND_HIDDEN_TEN_GOD, 1, "personal.hidden.a")
+	hidden.Reading.Position = enginev1.Position_POSITION_DAY_BRANCH
+	seun := reading(enginev1.PersonalTermKind_PERSONAL_TERM_KIND_SEUN_TEN_GOD, 2, "personal.luck.b")
+
+	cases := []struct {
+		name     string
+		view     fortune.ChartView
+		wantJSON string
+	}{
+		{name: "index 담김", view: fortune.ChartView{Unlocked: true, PersonalReadings: []fortune.PersonalReadingText{hidden, seun}}},
+		{name: "열림이고 비면 빈 배열", view: fortune.ChartView{Unlocked: true}, wantJSON: `"personalReadings":[]`},
+		{name: "잠김이면 채워져 와도 뺌", view: fortune.ChartView{PersonalReadings: []fortune.PersonalReadingText{hidden}}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.view.Response = chartResponse()
+			tc.view.Notices = []content.Notice{}
+			out, err := httpapi.ToChartForTest(tc.view)
+			require.NoError(t, err)
+			body, err := json.Marshal(out)
+			require.NoError(t, err)
+			switch tc.name {
+			case "index 담김":
+				require.NotNil(t, out.PersonalReadings)
+				got := *out.PersonalReadings
+				require.Len(t, got, 2)
+				require.NotNil(t, got[0].Index)
+				assert.Equal(t, 1, *got[0].Index)
+				require.NotNil(t, got[1].Index)
+				assert.Equal(t, 2, *got[1].Index)
+				assert.Nil(t, got[1].Position)
+			case "잠김이면 채워져 와도 뺌":
+				assert.Nil(t, out.PersonalReadings)
+				assert.NotContains(t, string(body), "personalReadings")
+			default:
+				assert.Contains(t, string(body), tc.wantJSON)
+			}
+		})
+	}
+}

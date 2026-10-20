@@ -725,6 +725,9 @@ func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
 				personalReading(kind, "personal.day_master.eul", nil),
 				personalReading(kind, "fortune.gwiin_day.inseong", nil),
 				personalReading(kind, "personal", nil),
+				personalReading(kind, "personal.day_master", nil),
+				personalReading(kind, "personal.", nil),
+				personalReading(kind, "personal..x", nil),
 				personalReading(kind, "personal.day_master.gap", nil),
 			},
 		}, nil
@@ -736,5 +739,5 @@ func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
 
 	require.Len(t, view.PersonalReadings, 1)
 	assert.Equal(t, "personal.day_master.gap", view.PersonalReadings[0].Text.MessageKey)
-	assert.Equal(t, 3, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
+	assert.Equal(t, 6, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
 }
