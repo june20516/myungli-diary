@@ -2,6 +2,7 @@ package config
 
 import (
 	"log/slog"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -398,6 +399,73 @@ func TestLoadAppVersions(t *testing.T) {
 		_, err := LoadAppVersions(fakeEnv(map[string]string{"APP_MIN_VERSION_IOS": "x", "APP_MIN_VERSION_ANDROID": "y"}))
 		if err == nil || !strings.Contains(err.Error(), "APP_MIN_VERSION_IOS") || !strings.Contains(err.Error(), "APP_MIN_VERSION_ANDROID") {
 			t.Errorf("error = %v, want 두 변수 이름", err)
+		}
+	})
+}
+
+func TestLoadBilling(t *testing.T) {
+	full := map[string]string{
+		"APP_ENV":                 "staging",
+		"REVENUECAT_PROJECT_ID":   "proj_test",
+		"REVENUECAT_API_KEY":      "sk_test_secret",
+		"REVENUECAT_WEBHOOK_AUTH": "Bearer webhook_secret",
+		"AD_FREE_PRODUCT_IDS":     " test.ad_free.month , test.ad_free.android ,",
+	}
+	with := func(overrides map[string]string) map[string]string {
+		vars := map[string]string{}
+		for k, v := range full {
+			vars[k] = v
+		}
+		for k, v := range overrides {
+			vars[k] = v
+		}
+		return vars
+	}
+
+	t.Run("local에서 모두 비면 통과하고 Configured는 false", func(t *testing.T) {
+		for _, env := range []map[string]string{nil, {"APP_ENV": "local"}} {
+			cfg, err := LoadBilling(fakeEnv(env))
+			if err != nil || cfg.Configured() || cfg.ProductionOnly {
+				t.Errorf("LoadBilling(%v) = %+v, %v, want 미설정과 nil 오류", env, cfg, err)
+			}
+		}
+	})
+	t.Run("staging에서 하나라도 비면 오류이고 변수 이름만 담음", func(t *testing.T) {
+		for _, name := range []string{"REVENUECAT_PROJECT_ID", "REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH", "AD_FREE_PRODUCT_IDS"} {
+			_, err := LoadBilling(fakeEnv(with(map[string]string{name: " "})))
+			if err == nil || !strings.Contains(err.Error(), name) {
+				t.Errorf("LoadBilling(%s 비움) error = %v, want 변수 이름을 담은 오류", name, err)
+				continue
+			}
+			for _, secret := range []string{"sk_test_secret", "webhook_secret", "proj_test", "test.ad_free.month"} {
+				if strings.Contains(err.Error(), secret) {
+					t.Errorf("오류 문구에 값이 들어 있습니다: %v", err)
+				}
+			}
+		}
+	})
+	t.Run("쉼표 목록은 공백과 빈 항목을 지움", func(t *testing.T) {
+		cfg, err := LoadBilling(fakeEnv(full))
+		want := []string{"test.ad_free.month", "test.ad_free.android"}
+		if err != nil || !reflect.DeepEqual(cfg.AdFreeProductIDs, want) {
+			t.Errorf("LoadBilling() = %+v, %v, want 상품 %v", cfg, err, want)
+		}
+		if !cfg.Configured() || cfg.RevenueCatAPIKey != "sk_test_secret" || cfg.RevenueCatWebhookAuth != "Bearer webhook_secret" || cfg.RevenueCatProjectID != "proj_test" {
+			t.Errorf("LoadBilling() = %+v, want 값이 채워지고 Configured true", cfg)
+		}
+	})
+	t.Run("쉼표뿐인 목록은 비어 있는 것으로 봄", func(t *testing.T) {
+		_, err := LoadBilling(fakeEnv(with(map[string]string{"AD_FREE_PRODUCT_IDS": " , ,"})))
+		if err == nil || !strings.Contains(err.Error(), "AD_FREE_PRODUCT_IDS") {
+			t.Errorf("error = %v, want AD_FREE_PRODUCT_IDS 오류", err)
+		}
+	})
+	t.Run("ProductionOnly는 prod에서만 true", func(t *testing.T) {
+		for appEnv, want := range map[string]bool{"prod": true, "staging": false, "local": false} {
+			cfg, err := LoadBilling(fakeEnv(with(map[string]string{"APP_ENV": appEnv})))
+			if err != nil || cfg.ProductionOnly != want {
+				t.Errorf("LoadBilling(APP_ENV=%s) = %+v, %v, want ProductionOnly %v", appEnv, cfg, err, want)
+			}
 		}
 	})
 }

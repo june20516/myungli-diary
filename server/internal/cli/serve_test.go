@@ -23,6 +23,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/fortune"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/seed"
@@ -238,6 +240,52 @@ func TestRun_ServeRequiresAuthConfig(t *testing.T) {
 	}
 }
 
+func TestRun_ServeRequiresBillingConfigOutsideLocal(t *testing.T) {
+	env := testAuthEnv(t)
+	env["PORT"] = freePort(t)
+	env["APP_ENV"] = "staging"
+	env["FIREBASE_PROJECT_NUMBER"] = "123456789012"
+	// 결제 설정 검사는 DB 연결보다 먼저이므로 닿지 않는 주소여도 설정 오류로 끝나야 합니다.
+	env["DATABASE_URL"] = "postgres://x@127.0.0.1:1/x"
+	var stdout, stderr bytes.Buffer
+
+	code := Run(t.Context(), []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
+	if code != 1 {
+		t.Errorf("종료 코드 = %d, want 1", code)
+	}
+	if !strings.Contains(stderr.String(), "REVENUECAT_PROJECT_ID") {
+		t.Errorf("stderr에 누락된 변수 이름이 없습니다: %q", stderr.String())
+	}
+	if strings.Contains(stderr.String(), "DB 연결 실패") {
+		t.Errorf("결제 설정 검사 전에 DB에 연결했습니다: %q", stderr.String())
+	}
+}
+
+// 결제 설정이 없으면 구매 복원·webhook 필드는 nil 인터페이스여야 합니다(nil 포인터가 들어가면 핸들러의 nil 검사를 통과합니다).
+// AdMob 검증기와 보상 처리는 설정과 무관하게 조립됩니다.
+func TestNewBillingParts_WithoutConfigLeavesRevenueCatPartsNil(t *testing.T) {
+	parts := newBillingParts(config.BillingConfig{}, nil, nil, billingURLs{}, clock.System{}, slog.New(slog.DiscardHandler))
+
+	assert.True(t, parts.Purchases == nil, "Purchases는 nil 인터페이스여야 합니다")
+	assert.True(t, parts.Webhooks == nil, "Webhooks는 nil 인터페이스여야 합니다")
+	assert.NotNil(t, parts.RewardVerifier)
+	assert.NotNil(t, parts.Rewards)
+}
+
+func TestNewBillingParts_WithConfigAssemblesAll(t *testing.T) {
+	cfg := config.BillingConfig{
+		RevenueCatProjectID: "proj", RevenueCatAPIKey: "key", RevenueCatWebhookAuth: "Bearer x",
+		AdFreeProductIDs: []string{"test.ad_free.month"},
+	}
+
+	parts := newBillingParts(cfg, nil, nil, billingURLs{}, clock.System{}, slog.New(slog.DiscardHandler))
+
+	assert.NotNil(t, parts.Purchases)
+	assert.NotNil(t, parts.Webhooks)
+	assert.NotNil(t, parts.RewardVerifier)
+	assert.NotNil(t, parts.Rewards)
+}
+
 func TestRun_ServeRejectsUnparsableAuthSettings(t *testing.T) {
 	// secret은 로그에 나오면 안 되는 값입니다. 오류에는 변수 이름만 있어야 합니다.
 	const secret = "leak-check-secret-value" //nolint:gosec // 로그 유출 검사용 테스트 값이며 실제 자격 증명이 아닙니다
@@ -439,7 +487,7 @@ func TestServe_AssemblesContentRoutes(t *testing.T) {
 
 		contents := content.NewStore(deps.Pool, deps.Clock, deps.Logger)
 		deps.Contents = contents
-		deps.Readings = newReadings(contents, nil, deps.Logger, deps.Clock)
+		deps.Readings = newReadings(contents, nil, fortune.AlwaysLocked{}, deps.Logger, deps.Clock)
 	})
 
 	login := env.loginKakao("kakao-content-subject")

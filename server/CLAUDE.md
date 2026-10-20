@@ -37,22 +37,22 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` | **사용** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
 ## 현재 상태 (2026-10-20, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S78)에 모읍니다.
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조)·P7(결제와 권한) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S89)에 모읍니다.
 * P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 조립됐습니다(S22). 새 결정은 S15~S24(nonce, 삭제 대기 계정, 도메인별 sqlc, 동의 문서 버전, Apple 토큰 처리, refresh 유예, Apple 웹 교환 코드, 문장 선택 지문, staging 테스트 로그인)입니다.
 * P3로 프로필 저장·조회·수정(`PUT/GET/PATCH /v1/me/profile`), 엔진 gRPC 클라이언트·대역, 결과 캐시(`ResultCache`)와 `ruleset_version` 확인, 도시 자료 내장이 조립됐습니다. 계약 변경은 PR #163으로 먼저 병합했습니다. 새 결정은 S25(프로필 Put 멱등)·S26(출생 해시 = 사주 지문)·S27(엔진 연결)·S28(도시 자료)·S29(엔진 검증 시점)·S30(캐시 흐름)·S31(tzdata 내장)입니다. `convertLunarDate`(`POST /v1/lunar-date`)는 core RPC(#164) 병합 뒤 #170으로 조립됐습니다(엔진 `INVALID_ARGUMENT` → 422 `date.invalid`, `OUT_OF_RANGE` → 422 `date.out_of_range`).
-* P4로 콘텐츠 모듈이 조립됐습니다: 원고 → 시드 변환(`go generate ./seed/`)과 `seed` 명령, 렌더러(호칭·조사·용어 토큰), 문장 선택·순환·돌봄 상한, 용어 사전(`getGlossary`, ETag), 데일리·캘린더·나의 사주 응답과 잠금(D60, 판정은 P7 전까지 늘 잠김), 문장 반응(`put/deleteReaction`), 시드 CI(`mlw check --partial`). 새 결정은 S33~S44(문장 틀 키, 선택 지문, 변환 때 용어 역조회, 태그 polarity 표, serve는 시드를 넣지 않음, `--partial`, 반응 이력, 계정 advisory lock, 상한 우선, 잠금 시 근거 렌더 생략, 한자 표, 시드 출처 열 없음)입니다.
+* P4로 콘텐츠 모듈이 조립됐습니다: 원고 → 시드 변환(`go generate ./seed/`)과 `seed` 명령, 렌더러(호칭·조사·용어 토큰), 문장 선택·순환·돌봄 상한, 용어 사전(`getGlossary`, ETag), 데일리·캘린더·나의 사주 응답과 잠금(D60, P7에서 실제 판정으로 연결), 문장 반응(`put/deleteReaction`), 시드 CI(`mlw check --partial`). 새 결정은 S33~S44(문장 틀 키, 선택 지문, 변환 때 용어 역조회, 태그 polarity 표, serve는 시드를 넣지 않음, `--partial`, 반응 이력, 계정 advisory lock, 상한 우선, 잠금 시 근거 렌더 생략, 한자 표, 시드 출처 열 없음)입니다.
 * P4 후속(브랜치 `server/p4-followups`): drift #250·#255(시드 변환이 용어 id를 슬롯 명세와 대조, S48), 엔진 안내 `Notice.text` 렌더(#232, S49), `Profile.birthCity`(#199, S46), 계약 개정(달력 첫 달 1900-02 #248·S47, `getGlossary`·`putReaction`·`deleteReaction`의 409 `profile.required` 명시).
 * P5로 일기·일정이 `serve`에 조립됐습니다: 일기 저장·조회·삭제·복원·목록(저장 때 태그·길흉·`ruleset_version`·가이드 질문 기록, 고칠 때는 본문만 변경), 일정 CRUD·복원·목록(62일 상한), `createSchedule`의 `Idempotency-Key`(24시간 재생). 새 결정은 S50~S64입니다.
 * P6로 비로그인·참조가 `serve`에 조립됐습니다: App Check 검증(`createPreview`·`getBirthHour`·`convertLunarDate`, 설정이 비면 503), `getBirthHour`·`convertLunarDate`의 IP별 요청 한도, 시진 확인(엔진 `GetBirthHour`), 미리보기(설치당 1회, 입력 저장 없음), 도시 검색(ETag)과 앱 설정(`getAppConfig`), 요청 언어 선택, 원국 개인 해석(`Chart.personalReadings`), Apple 복귀 페이지 writing 원고, staging 테스트 로그인(`-tags staging`, #93). 계약 개정은 설명과 하위 호환 추가뿐이고 새 결정은 S65~S78입니다. 규칙 정합성 점검 #281도 이 PR에서 정리했습니다.
+* P7로 결제와 권한이 `serve`에 조립됐습니다: 결제 표 3개(migration 00012), RevenueCat REST v2 동기화(광고 제거권 이어 붙이기·환불), webhook 멱등 처리와 구매 복원(`restorePurchases`), AdMob SSV 검증과 보상 권한(`rewarded_ad`), 근거 잠금의 실제 판정(D60), 계약 개정(결제 설명, S77 필드 제거). 새 결정은 S79~S89입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **P7(결제와 권한)을 계획합니다:** RevenueCat webhook·동기화, entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60). P6이 병합된 뒤 실제 코드를 보고 계획을 씁니다([`docs/plans/README.md`](docs/plans/README.md)).
-2. D75 후속(S77): app 앞으로 `kind:request`를 연 뒤, 다음 계약 개정에서 `FocusSlot.score`·`pillar`, `CalendarDay.scoreItems`·`featuredTag`, `Calendar.notices`를 뺍니다(REST freeze 전).
-3. core #304가 반영되면 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
-4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-5. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
-6. app 질문(#100·#114·#165)이 오면 답합니다.
+1. 다음 후보: app 요청 #329(Chart "나의 사주" 문장 필드)와 P8(Job: precompute, notify, retention과 익명화).
+2. core #304가 반영되면 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
+3. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
+4. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
+5. app 질문(#100·#114·#165)이 오면 답합니다.

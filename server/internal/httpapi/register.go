@@ -50,7 +50,9 @@ func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, 
 	if routes.Spec == nil || routes.Validate == nil || routes.Authenticate == nil {
 		panic("httpapi.RegisterAPI: Routes의 Spec·Validate·Authenticate가 모두 있어야 합니다")
 	}
-	strict := gen.NewStrictHandlerWithOptions(impl, nil, gen.StrictHTTPServerOptions{
+	// webhook·AdMob SSV 핸들러는 Authorization과 원본 쿼리를 직접 읽습니다(P7-10).
+	middlewares := []gen.StrictMiddlewareFunc{withRawRequest(operationRevenuecatWebhook, operationAdmobRewardCallback)}
+	strict := gen.NewStrictHandlerWithOptions(impl, middlewares, gen.StrictHTTPServerOptions{
 		// 검증을 통과한 본문이 생성 타입으로 디코드되지 않는 예외 경로입니다. 날짜·시각 형식은 검증 단계(validate.go의
 		// format validator)가 먼저 잡으므로 정상 요청에서는 닿지 않습니다.
 		RequestErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, _ error) {
@@ -102,6 +104,12 @@ func (c contractMux) HandleFunc(pattern string, handler func(http.ResponseWriter
 }
 
 func (c contractMux) ServeHTTP(w http.ResponseWriter, r *http.Request) { c.mux.ServeHTTP(w, r) }
+
+// 원본 요청 값(RawRequest)을 읽는 operation의 계약 표기 operationId입니다.
+const (
+	operationRevenuecatWebhook   = "revenuecatWebhook"
+	operationAdmobRewardCallback = "admobRewardCallback"
+)
 
 // securitySchemeBearer는 계약의 bearer 인증 security scheme 이름입니다.
 const securitySchemeBearer = "bearerAuth"

@@ -76,7 +76,6 @@ type DayTexts struct {
 type CalendarView struct {
 	Response *enginev1.MonthResponse
 	Days     []DayTexts
-	Notices  []content.Notice
 	Unlocked bool
 }
 
@@ -274,7 +273,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 		}
 		days[i] = DayTexts{CharacterReason: reason, Level: level}
 	}
-	return CalendarView{Response: response, Days: days, Notices: v.renderNotices(ctx, tpl, response.GetMeta()), Unlocked: unlocked}, nil
+	return CalendarView{Response: response, Days: days, Unlocked: unlocked}, nil
 }
 
 // Chart는 나의 사주 묶음을 만듭니다. 기준일은 p.CurrentTimezone의 오늘입니다.

@@ -599,12 +599,6 @@ func TestViews_NoticeRendersTemplateOrEmptyText(t *testing.T) {
 			Notices:        []*enginev1.Notice{{Code: enginev1.NoticeCode_NOTICE_CODE_DAYUN_START_APPROXIMATE}},
 		}}, nil
 	}
-	fake.MonthCalendar = func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error) {
-		return &enginev1.MonthResponse{Meta: &enginev1.ResponseMeta{
-			RulesetVersion: "rs-1",
-			Notices:        []*enginev1.Notice{{Code: enginev1.NoticeCode_NOTICE_CODE_TIME_UNKNOWN}},
-		}}, nil
-	}
 	f := newViewsFixture(t, fake, viewSeed(t, ""), fortune.AlwaysLocked{})
 	ctx := context.Background()
 
@@ -623,11 +617,6 @@ func TestViews_NoticeRendersTemplateOrEmptyText(t *testing.T) {
 	require.Len(t, chart.Notices, 1)
 	assert.Equal(t, "dayun_start_approximate", chart.Notices[0].Code)
 	assert.Equal(t, "대운 시작 나이는 어림으로 계산했어요.", plain(chart.Notices[0].Text))
-
-	calendar, err := f.views.Calendar(ctx, f.account, viewProfile("ko"), 2026, 10)
-	require.NoError(t, err)
-	require.Len(t, calendar.Notices, 1)
-	assert.Equal(t, "태어난 시간을 몰라 낮 12시로 계산했어요.", plain(calendar.Notices[0].Text))
 }
 
 func TestViews_NoActiveSeedIsErrNoActiveSeed(t *testing.T) {

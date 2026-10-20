@@ -298,3 +298,70 @@ func LoadAppVersions(getenv func(string) string) (AppVersionConfig, error) {
 	}
 	return cfg, nil
 }
+
+// BillingConfig는 결제(RevenueCat) 설정입니다.
+type BillingConfig struct {
+	// RevenueCatProjectID는 RevenueCat 프로젝트 id입니다(REST v2 경로에 씁니다).
+	RevenueCatProjectID string
+	// RevenueCatAPIKey는 RevenueCat REST v2 secret key입니다. 로그·오류에 남기지 않습니다.
+	RevenueCatAPIKey string
+	// RevenueCatWebhookAuth는 webhook Authorization 헤더와 비교할 값 전체입니다(예: "Bearer <난수>").
+	RevenueCatWebhookAuth string
+	// AdFreeProductIDs는 광고 제거권으로 치는 상품 id 목록입니다(iOS·Android). 목록 밖 상품은 무시합니다.
+	AdFreeProductIDs []string
+	// ProductionOnly가 true면 production 환경 구매만 셉니다(APP_ENV가 prod일 때, P7-2).
+	ProductionOnly bool
+}
+
+// Configured는 결제 동기화에 필요한 네 값이 모두 있는지 알려 줍니다.
+func (c BillingConfig) Configured() bool {
+	return c.RevenueCatProjectID != "" && c.RevenueCatAPIKey != "" && c.RevenueCatWebhookAuth != "" && len(c.AdFreeProductIDs) > 0
+}
+
+// LoadBilling은 getenv로 결제 설정을 읽습니다. REVENUECAT_PROJECT_ID·REVENUECAT_API_KEY·REVENUECAT_WEBHOOK_AUTH·
+// AD_FREE_PRODUCT_IDS(쉼표 목록)는 APP_ENV가 local(기본값)이 아니면 모두 필수입니다(P7-16).
+// 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadBilling(getenv func(string) string) (BillingConfig, error) {
+	getenv = trimmedEnv(getenv)
+	env := orDefault(getenv("APP_ENV"), defaultEnv)
+
+	cfg := BillingConfig{
+		RevenueCatProjectID:   getenv("REVENUECAT_PROJECT_ID"),
+		RevenueCatAPIKey:      getenv("REVENUECAT_API_KEY"),
+		RevenueCatWebhookAuth: getenv("REVENUECAT_WEBHOOK_AUTH"),
+		AdFreeProductIDs:      splitList(getenv("AD_FREE_PRODUCT_IDS")),
+		ProductionOnly:        env == "prod",
+	}
+
+	if env != defaultEnv {
+		var missing []string
+		for _, required := range []struct {
+			name    string
+			present bool
+		}{
+			{"REVENUECAT_PROJECT_ID", cfg.RevenueCatProjectID != ""},
+			{"REVENUECAT_API_KEY", cfg.RevenueCatAPIKey != ""},
+			{"REVENUECAT_WEBHOOK_AUTH", cfg.RevenueCatWebhookAuth != ""},
+			{"AD_FREE_PRODUCT_IDS", len(cfg.AdFreeProductIDs) > 0},
+		} {
+			if !required.present {
+				missing = append(missing, required.name)
+			}
+		}
+		if len(missing) > 0 {
+			return BillingConfig{}, fmt.Errorf("%s가 필요합니다(APP_ENV가 local일 때만 비워 둘 수 있습니다)", strings.Join(missing, ", "))
+		}
+	}
+	return cfg, nil
+}
+
+// splitList는 쉼표 목록을 나눠 앞뒤 공백을 지우고 빈 항목을 뺍니다.
+func splitList(raw string) []string {
+	var items []string
+	for _, item := range strings.Split(raw, ",") {
+		if item = strings.TrimSpace(item); item != "" {
+			items = append(items, item)
+		}
+	}
+	return items
+}
