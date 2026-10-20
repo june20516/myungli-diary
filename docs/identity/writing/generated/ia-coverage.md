@@ -144,7 +144,6 @@
 | saju-chart.yongsin.open | ui | saju-chart.yongsin.open |
 | saju-chart.yongsin.title | ui | saju-chart.yongsin.title |
 | settings.bar.title | ui | settings.bar.title |
-| settings.depth.desc | ui | settings.depth.desc |
 | settings.language.birthplace-notice | ui | settings.language.birthplace-notice |
 | settings.logout.confirm | ui | settings.logout.confirm |
 | settings.ad-free.label | ui | settings.ad-free.label |

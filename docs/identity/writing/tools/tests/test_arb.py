@@ -57,9 +57,9 @@ def test_arb_invalid_json_is_load_error(tmp_path: Path, rules: RuleSet, slots: d
 
 
 def test_arb_slot_allowed_skips_rule(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
-    depth_slot = next(slot for slot in slots.values() if "depthSurface" in slot.keys)
+    depth_slot = next(slot for slot in slots.values() if "depthExplain" in slot.keys)
     allowing = {**slots, depth_slot.id: replace(depth_slot, allowed=frozenset({"slop.P8"}))}
-    path = write_arb(tmp_path, {"@@locale": "ko", "depthSurface": "반가워요!"})
+    path = write_arb(tmp_path, {"@@locale": "ko", "depthExplain": "반가워요!"})
     assert check_arb([path], allowing, rules) == []
 
 

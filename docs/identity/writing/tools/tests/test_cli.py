@@ -298,7 +298,7 @@ def test_cli_check_includes_ui_manuscripts(tmp_path: Path, capsys: pytest.Captur
     content = tmp_path / "content" / "ko"
     content.mkdir(parents=True)
     (content / "ui.yaml").write_text(
-        '- {slot: ui.depth.surface, key: depthSurface, text: "[[요약]]"}\n', encoding="utf-8"
+        '- {slot: ui.depth.explain, key: depthExplain, text: "[[풀이]]"}\n', encoding="utf-8"
     )
     main(["check", str(tmp_path / "content"), "--partial"])
     assert "ui.markup" in capsys.readouterr().out
