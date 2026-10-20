@@ -2,7 +2,7 @@
 
 > **agentic worker에게:** REQUIRED SUB-SKILL: 이 plan을 task 단위로 구현하려면 suberpower:subagent-driven-development(권장) 또는 suberpower:executing-plans를 사용하세요. Step은 추적을 위해 checkbox(`- [ ]`) 문법을 사용합니다.
 
-**Goal:** 로그인 없는 요청(`createPreview`·`getBirthHour`·`convertLunarDate`)이 App Check와 요청 한도를 거쳐 실제로 응답하고, 참조 요청(`listCities`·`getAppConfig`)과 staging E2E 테스트 로그인(#93, S24)이 동작하게 합니다.
+**Goal:** 로그인 없는 요청(`createPreview`·`getBirthHour`·`convertLunarDate`)이 App Check와 요청 한도를 거쳐 실제로 응답하고, 참조 요청(`listCities`·`getAppConfig`)과 staging E2E 테스트 로그인(#93, S24)이 동작하게 합니다. 규칙 정합성 점검 #281(D78)의 server 몫(Apple 복귀 페이지 원고 렌더 D66, 원국 개인 해석 D60, D75 결정, `Notice.text` 설명, 문서 정리)도 함께 처리합니다.
 
 **Architecture:** App Check 토큰은 `auth/provider`의 JWKS 검증 기반(go-oidc RemoteKeySet) 위에서 검증하고, `httpapi`는 계약의 `security: appCheck` operation을 `RegisterAPI`에서 감쌉니다(bearer와 같은 방식). 요청 한도는 `internal/ratelimit`(PostgreSQL 고정 창)이고 `httpapi`가 operation 단위로 겁니다. 미리보기는 `fortune`이 계정 없이 오늘 데일리를 렌더하고, 1회 제한은 `internal/preview`가 `preview_usage`로 지킵니다. 언어는 `Accept-Language` middleware가 고릅니다.
 
@@ -47,7 +47,11 @@
 | P6-9 | 도시 검색은 NFC·소문자로 맞춘 `q`가 세 언어 이름 중 하나의 앞부분과 같으면 후보이고, 정렬은 ① 요청 언어 이름이 앞부분 일치 ② 요청 언어 이름 순입니다. `limit`까지 자릅니다. `ETag`는 도시 자료 버전(`city.DataVersion()`)과 언어로 만들고, 같으면 304입니다. | 계약 `listCities` |
 | P6-10 | 최소 앱 버전은 설정 `APP_MIN_VERSION_IOS`·`APP_MIN_VERSION_ANDROID`이고 없으면 `0.0.0`(강제 업데이트 없음)입니다. semver 형식이 아니면 시작에 실패합니다. 실제 값은 P9 배포 설정입니다. | 계약 `AppConfig` |
 | P6-11 | App Check 검증기는 `auth/provider`에 둡니다. 카카오·Apple과 JWKS 조회·장애 분류(`jwksTransport`, `jwksFailureReason`)를 공유하기 때문입니다. 설정은 `FIREBASE_PROJECT_NUMBER`이고 `APP_ENV`가 `local`이면 비어 있을 수 있습니다(그때 App Check operation은 503). | spec §2.2 외부 의존 인터페이스 |
-| P6-12 | 계약 draft.8은 설명만 바꿉니다(Task 1). 응답 형태는 그대로이고 P6 PR에 함께 담습니다. | S64와 같은 이유 |
+| P6-12 | 계약 draft.8은 설명과 하위 호환 추가만 합니다(Task 1·1b). P6 PR에 함께 담습니다. | S64, D78 ⑤ |
+| P6-13 | 원국 개인 해석은 `Chart.personalReadings`(선택 배열)입니다. 항목은 `{kind, position?, index?, shinsal?, text}`로 proto `PersonalReading`과 같은 식별자(앱이 누른 용어를 (kind, position, index, shinsal)로 찾음)이고, `text`는 판정 메시지 키의 앞 두 마디(`personal.<종류>`)를 슬롯 id로 렌더한 문장입니다. 근거 열람 권한이 없으면 필드를 뺍니다(D60). 원고가 없는 항목은 빼고 Error 로그(선택 문장 규칙). | D60, 슬롯 명세 v1.5 `personal.*` |
+| P6-14 | 빈 `Notice.text`면 app은 배너를 그리지 않습니다(app A43). 계약 설명과 S49를 이에 맞춥니다. | D78 ④ |
+| P6-15 | Apple 복귀 페이지(`GET /auth/apple`)는 활성 시드의 `system.apple_return` 원고(제목·본문·두 링크 문구)를 `Accept-Language`로 고른 언어로 렌더하고 `<html lang>`도 그 언어입니다. 활성 시드나 원고가 없으면 지금의 내장 한국어 문구로 보이고 Error 로그를 남깁니다(로그인 복귀 길을 막지 않음). | D66, S22 |
+| P6-16 | D75: `restoreSchedule`은 유지하고, 쓰는 곳이 없는 `FocusSlot.score`·`pillar`, `CalendarDay.scoreItems`·`featuredTag`, `Calendar.notices`는 REST freeze(S3) 전 다음 계약 개정에서 뺍니다. 하위 호환을 깨므로 app 앞으로 `kind:request`를 연 뒤 합니다(D78 ①). P6에서는 결정(S 번호)과 다음 할 일만 기록합니다. | D75, D78 ① |
 
 ---
 
@@ -60,6 +64,27 @@
 - [ ] **Step 2:** `cd server && go test ./api/` → FAIL.
 - [ ] **Step 3:** P6-1·P6-5·P6-7·P6-9와 D58 ②를 operation 설명에 넣고 `info.version`을 `1.0.0-draft.8`로. `go generate ./...`.
 - [ ] **Step 4:** `go test ./api/ ./internal/httpapi/` → PASS. README REST 행 버전과 이력(draft.8: 설명만)을 고치고 commit `feat(server): 계약 1.0.0-draft.8 — 비로그인·참조 동작 설명`.
+
+### Task 1b: 계약 draft.8 추가분 (#281 2·4)
+
+**Files:**
+- Modify: `server/api/openapi.yaml`, `server/api/contract_test.go`, `server/internal/httpapi/gen/api.gen.go`(재생성), `docs/contracts/README.md`(REST 행 draft.8 이력)
+
+- [ ] **Step 1:** `TestContract_Draft8Additions`에 더합니다: `Chart.properties.personalReadings`가 있고 `required`에 없음, 스키마 `PersonalReading`의 `required: [kind, text]`와 `kind` enum 9개(proto `PersonalTermKind`에서 접두어를 떼고 소문자: `day_master`, `ten_god`, `hidden_ten_god`, `twelve_stage`, `shinsal`, `daeun_stem_ten_god`, `daeun_branch_ten_god`, `daeun_twelve_stage`, `seun_ten_god`), `position`(`Position` 참조)·`index`(integer ≥ 0)·`shinsal`(`Shinsal` 참조)은 선택, `text`는 `RenderedText`; `Notice` 설명에 "배너를 그리지 않습니다"(P6-14)가 있고 "자기 문구를 씁니다"가 없음; info 설명의 "원국 개인 해석은 writing 슬롯이 아직 없어" 문장이 없음; 계약 어디에도 "P6 구현 전까지" 같은 501 예고 문장이 없음(#281 9); `Chart.personalReadings` 설명에 근거 열람 권한 잠금(D60).
+- [ ] **Step 2:** FAIL → openapi 수정(P6-13·P6-14, info "설계 메모"의 원국 개인 해석 문장 정리) → `go generate ./...` → `go test ./api/ ./internal/httpapi/` PASS. README 이력 문구를 "설명과 하위 호환 추가"로.
+- [ ] **Step 3:** Commit `feat(server): 계약 draft.8 — 원국 개인 해석 필드, Notice.text 설명 (#281)`.
+
+### Task 1c: 원국 개인 해석 렌더 (#281 2, D60)
+
+**Files:**
+- Modify: `server/internal/fortune/views.go`(ChartView에 `PersonalReadings []PersonalReadingText`), `views_test.go`, `server/internal/httpapi/fortune_convert.go`(`toChart`, 파일 머리 주석의 "원국 개인 해석은 계약에 자리가 없어" 정리), `fortune_handlers_test.go`
+
+**Interfaces:**
+- Produces: `type PersonalReadingText struct{ Reading *enginev1.PersonalReading; Text content.SlotText }`, `ChartView.PersonalReadings`(잠겨 있으면 nil)
+
+- [ ] **Step 1:** 테스트: 열림이면 엔진 `personal_readings` 순서대로 렌더되고 슬롯 id는 메시지 키 앞 두 마디(`personal.day_master.gap` → `personal.day_master`), 매개변수는 판정 params로 렌더; 잠김이면 nil이고 렌더하지 않음(원고 누락 로그도 없음, S42와 같음); 원고 없는 항목은 빠지고 Error 로그 하나; 키가 `personal.`로 시작하지 않으면 그 항목만 빼고 Error 로그. httpapi: `Chart.personalReadings`의 kind·position·index·shinsal 변환(UNSPECIFIED는 생략, 모르는 enum은 500 기존 규칙), 잠김이면 필드 없음, 계약 응답 검증.
+- [ ] **Step 2:** FAIL → 구현 → `go test -race ./internal/fortune/ ./internal/httpapi/` PASS.
+- [ ] **Step 3:** Commit `feat(server): 원국 개인 해석을 Chart에 (#281, D60)`.
 
 ### Task 2: 요청 언어 고르기
 
@@ -152,6 +177,15 @@
 - [ ] **Step 2:** FAIL → 구현 → `go test ./internal/city/ ./internal/httpapi/ ./internal/platform/config/` PASS.
 - [ ] **Step 3:** Commit `feat(server): 도시 검색과 앱 설정`.
 
+### Task 7b: Apple 복귀 페이지 원고 렌더 (#281 1, D66)
+
+**Files:**
+- Modify: `server/internal/httpapi/applink.go`(`appLinkPageTemplate`의 박힌 한국어 문구 → 원고), `applink_test.go`(또는 기존 테스트 파일), `server/internal/httpapi/api.go`(복귀 페이지가 쓰는 문장 틀 의존: 기존 `Contents`의 `Active`·`Templates` 재사용)
+
+- [ ] **Step 1:** 테스트: `Accept-Language: ja`면 `system.apple_return` ja 원고(`apple_return.title`·`body`·`open`·`install`)와 `<html lang="ja">`; 기본 `en`; 원고 문구가 HTML 이스케이프됨; 활성 시드가 없거나 원고가 없으면 내장 한국어 문구와 Error 로그 하나(P6-15); 교환 코드·intent URL 동작은 그대로(기존 테스트 통과).
+- [ ] **Step 2:** FAIL → 구현(언어는 Task 2 `LanguageFrom`, 문장은 `content.Renderer.Identifier`로 single 렌더 후 평문 이어붙임) → `go test ./internal/httpapi/` PASS.
+- [ ] **Step 3:** Commit `feat(server): Apple 복귀 페이지를 writing 원고로 (#281, D66)`.
+
 ### Task 8: staging 테스트 로그인 (#93, S24)
 
 **Files:**
@@ -170,4 +204,10 @@
 
 - [ ] **Step 1:** 조립 테스트: 비로그인 operation이 App Check 대역을 거쳐 501이 아니고, App Check 헤더가 없으면 401, `listCities`·`getAppConfig`는 인증 없이 200.
 - [ ] **Step 2:** 전체 확인: `cd server && go vet ./... && golangci-lint run ./... && go test -race ./... && go test -tags staging ./internal/httpapi/ && go generate ./... && git status --porcelain`(빈 출력).
-- [ ] **Step 3:** 문서 갱신 후 commit `docs(server): P6 결정과 현재 상태`. PR 본문에 처리한 Issue가 없으면 `처리한 Issue: 없음`(#93은 이미 닫힘).
+- [ ] **Step 3:** #281 문서 정리(5~10번)를 같은 commit에 담습니다.
+  * `server/CLAUDE.md`: 계약 버전·상태 문장(draft.6·draft.7, "구현 완료")을 지우고 계약 표(`docs/contracts/README.md`)를 가리킴; 고칠 수 있는 곳에 `.github/workflows/deploy-*.yml`(D65)과 `docs/contracts/README.md`의 자기 행; 계약 표에 사용 계약 `core/message_params.json`·`evidence_rules.json`·`evidence_sources.json`·근거 참조 형식(`source_ref`)·엔진 버전 표기를 더하고 IA를 "사용"으로(역할과 상대만); 대표 태그 "1~2개" → "0~2개"(D76); 다음 할 일 0번(#272) 삭제; D75 후속(P6-16)을 다음 할 일에.
+  * spec: 머리말 상태·결정 범위, §5 머리·§14의 "계약 등록 요청" → 주는 쪽이 계약 표 행을 직접 고침, §5.3·§14의 시진 RPC·`message_params` 대기 문장, §6.4 Notice(P6-14), §9 익명화 호칭 "deleted user" → 비움(migration 00004와 같게), §3.1 물리 삭제 예외에 `idempotency_keys`·`apple_web_logins`, §5.2 프로필 PUT "첫 등록" → 생성 또는 교체(S25), §6.3 "호칭·조사 v1" → 계약 표 참조, §5.1 `Idempotency-Key`를 `createSchedule`·`registerDevice`로 한정(S60), §5.2 Apple 복귀 페이지 문구(P6-15)와 S22 설명.
+  * 계약 `info.description`: "목록은 cursor 방식" 문장에 범위로 받는 목록(`listSchedules`) 예외 (설명만, draft.8 안).
+  * `server/docs/decisions.md`: S49 문장을 P6-14에 맞게 고치고, P6 결정(P6-1~P6-16 중 오래 남을 것)을 S65~로, D75 결정(P6-16)을 그 안에.
+  * Task 3에서 빠진 주석: `server/internal/platform/config/config.go`의 `LoadAppCheck` 숫자 검사가 `provider/appcheck.go`의 `isDigits`를 가리키게.
+  * commit `docs(server): P6 결정과 현재 상태, 규칙 정합성 정리 (#281)`. PR 본문에 `Closes #281`.
