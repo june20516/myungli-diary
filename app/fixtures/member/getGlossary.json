@@ -102,9 +102,43 @@
         "gwiin_day": "귀인의 날",
         "gisin_day": "기신의 날",
         "ordinary_day": "평범한 날"
+      },
+      "role": {
+        "yongsin": "나와 잘 맞는 기운",
+        "huisin": "곁에서 돕는 기운",
+        "gisin": "잘 안 맞는 기운",
+        "neutral": "무난한 기운"
       }
     },
     "meanings": {
+      "element.earth": {
+        "segments": [
+          {
+            "text": "받쳐 주고 모으는 기운이에요. 중심을 잡고 이어 주는 일에서 드러나요."
+          }
+        ]
+      },
+      "element.fire": {
+        "segments": [
+          {
+            "text": "밝게 피어올라 드러나는 기운이에요. 표현하고 알리는 일에서 드러나요."
+          }
+        ]
+      },
+      "element.metal": {
+        "segments": [
+          {
+            "text": "단단하게 다듬고 정리하는 기운이에요. 결정하고 마무리하는 일에서 드러나요."
+          }
+        ]
+      },
+      "element.water": {
+        "segments": [
+          {
+            "text": "흐르며 스며드는 기운이에요. 생각하고 살피는 일에서 드러나요."
+          }
+        ]
+      },
       "element.wood": {
         "segments": [
           {

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-20T07:29:23.344230Z",
+  "generatedAt": "2026-10-20T09:58:58.450254Z",
   "exits": {
-    "covered": 54,
+    "covered": 57,
     "total": 80,
     "uncovered": [
       "account-delete>welcome",
@@ -9,9 +9,6 @@
       "ad-free>system-purchase",
       "birthplace>notify-ask",
       "launch>ad-consent",
-      "my-saju>explain-sheet",
-      "my-saju>saju-chart",
-      "my-saju>settings",
       "onboard-gender>notify-ask",
       "profile-edit>birthplace",
       "profile-edit>onboard-birth",
@@ -146,6 +143,15 @@
         "test/flows/login_flow_test.dart:162 returning-user: 이 기기에서 광고 동의를 이미 했으면 바로 today",
         "test/flows/login_flow_test.dart:186 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
       ],
+      "my-saju>explain-sheet": [
+        "test/flows/my_saju_flow_test.dart:109 일간 이름 용어 → 풀이 시트"
+      ],
+      "my-saju>saju-chart": [
+        "test/flows/my_saju_flow_test.dart:117 근거 보기 → 사주 표"
+      ],
+      "my-saju>settings": [
+        "test/flows/my_saju_flow_test.dart:130 톱니 → 설정"
+      ],
       "notify-ask>ad-consent": [
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
@@ -246,7 +252,7 @@
     }
   },
   "states": {
-    "covered": 39,
+    "covered": 42,
     "total": 54,
     "uncovered": [
       "account-delete:error",
@@ -256,9 +262,6 @@
       "event-edit:loading",
       "event-edit:offline",
       "launch:loading",
-      "my-saju:error",
-      "my-saju:loading",
-      "my-saju:time-unknown",
       "onboard-birth:out-of-range",
       "profile-edit:error",
       "saju-chart:error",
@@ -355,6 +358,15 @@
         "test/flows/login_flow_test.dart:268 카카오 취소는 오류 상태에 취소 안내를 보입니다",
         "test/flows/login_flow_test.dart:291 login-exchange-invalid: Android Apple 웹 교환 코드가 만료되면 처음부터 다시 안내",
         "test/flows/login_flow_test.dart:318 Android Apple 웹 로그인을 취소하면 취소 안내를 보이고 server를 부르지 않습니다"
+      ],
+      "my-saju:error": [
+        "test/flows/my_saju_flow_test.dart:165 error: 받지 못하면 오류와 다시 시도"
+      ],
+      "my-saju:loading": [
+        "test/flows/my_saju_flow_test.dart:145 loading: 받는 동안 skeleton, 오면 내용"
+      ],
+      "my-saju:time-unknown": [
+        "test/flows/my_saju_flow_test.dart:138 time-unknown: 3주로 계산했다는 배너"
       ],
       "onboard-time:time-unknown": [
         "test/flows/onboarding_flow_test.dart:409 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
@@ -713,11 +725,11 @@
     },
     "my-saju": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },

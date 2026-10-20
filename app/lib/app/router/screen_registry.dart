@@ -11,6 +11,7 @@ import 'package:myungli_diary/features/diary/presentation/diary_edit_screen.dart
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/tag_diary_screen.dart';
+import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -157,6 +158,12 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: tagDiaryHandledStates,
     exits: tagDiaryExits,
   ),
+  ScreenIds.mySaju: const ScreenSpec(
+    ScreenIds.mySaju,
+    _buildMySaju,
+    handledStates: mySajuHandledStates,
+    exits: mySajuExits,
+  ),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -216,3 +223,5 @@ Widget _buildDiaryEdit(BuildContext context) => const DiaryEditScreen();
 Widget _buildDiaryView(BuildContext context) => const DiaryViewScreen();
 
 Widget _buildTagDiary(BuildContext context) => const TagDiaryScreen();
+
+Widget _buildMySaju(BuildContext context) => const MySajuScreen();
