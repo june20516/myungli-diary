@@ -11,9 +11,9 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 )
 
-// TestTagPolarity_AllFifteenTags는 태그 길흉 표가 엔진 spec §7.7 표(15키)와 같은지 고정합니다.
-// 원본: core/docs/specs/2026-10-10-myungli-engine-design.md §7.7 "해시태그".
-func TestTagPolarity_AllFifteenTags(t *testing.T) {
+// TestConvertTag_AllFifteenTags는 계약 Tag 변환이 fortune 길흉 표의 15키를 접두어를 떼고 그대로 옮기는지 고정합니다.
+// 표 자체의 값은 fortune.TestTagPolarity가 고정합니다.
+func TestConvertTag_AllFifteenTags(t *testing.T) {
 	want := map[string]gen.TagPolarity{
 		"tag.big_change":             gen.TagPolarityBad,
 		"tag.clash":                  gen.TagPolarityBad,
@@ -31,8 +31,7 @@ func TestTagPolarity_AllFifteenTags(t *testing.T) {
 		"tag.yongsin_day":            gen.TagPolarityGood,
 		"tag.gwiin_day":              gen.TagPolarityGood,
 	}
-	assert.Equal(t, want, tagPolarity)
-	assert.Len(t, tagPolarity, 15)
+	assert.Len(t, want, 15)
 
 	for key, polarity := range want {
 		var c converter

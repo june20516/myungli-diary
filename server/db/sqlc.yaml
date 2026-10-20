@@ -62,3 +62,33 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/diary.sql
+    gen:
+      go:
+        package: diarydb
+        out: ../internal/diary/diarydb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/schedule.sql
+    gen:
+      go:
+        package: scheduledb
+        out: ../internal/schedule/scheduledb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/idempotency.sql
+    gen:
+      go:
+        package: idempotencydb
+        out: ../internal/httpapi/idempotencydb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides

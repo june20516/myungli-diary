@@ -88,6 +88,11 @@ func checkPair(required, present bool, field string) error {
 	return nil
 }
 
+// After는 d가 other보다 뒤 날짜인지 알려 줍니다.
+func (d LocalDate) After(other LocalDate) bool {
+	return other.before(d)
+}
+
 func (d LocalDate) before(other LocalDate) bool {
 	if d.Year != other.Year {
 		return d.Year < other.Year

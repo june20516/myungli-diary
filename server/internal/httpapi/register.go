@@ -22,10 +22,14 @@ type Routes struct {
 	Validate func(http.Handler) http.Handler
 	// Authenticate는 security 요구에 bearerAuth가 있는 라우트만 감쌉니다(보통 BearerAuth의 결과).
 	Authenticate func(op Operation, next http.Handler) http.Handler
+	// Idempotency는 Idempotency-Key를 다루는 operation을 감쌉니다(보통 Idempotency의 결과). nil이면 멱등 처리가 없습니다.
+	// 인증 뒤, 계약 검증 뒤에 끼므로 계정을 알고, 검증에 실패한 요청은 멱등 표를 건드리지 않습니다.
+	Idempotency func(op Operation, next http.Handler) http.Handler
 }
 
 // RegisterAPI는 계약의 모든 operation을 mux에 등록합니다.
-// bearer 라우트는 Authenticate(op, Validate(handler)), 그 밖의 라우트는 Validate(handler)로 감쌉니다.
+// bearer 라우트는 Authenticate(op, Validate(Idempotency(op, handler))), 그 밖의 라우트는 Validate(Idempotency(op, handler))로 감쌉니다
+// (Idempotency가 nil이면 그 층은 없습니다).
 // 인증이 검증보다 바깥이라 토큰 없는 요청은 본문이 틀려도 400이 아니라 401을 받습니다.
 // 라우트가 mux에 직접 등록되므로 접근 로그의 route와 404·405 problem은 다른 라우트와 같게 동작합니다.
 //
@@ -67,7 +71,11 @@ type contractMux struct {
 
 func (c contractMux) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
 	op := operationFor(c.routes.Spec, pattern)
-	wrapped := c.routes.Validate(http.HandlerFunc(handler))
+	var wrapped http.Handler = http.HandlerFunc(handler)
+	if c.routes.Idempotency != nil {
+		wrapped = c.routes.Idempotency(op, wrapped)
+	}
+	wrapped = c.routes.Validate(wrapped)
 	if op.Bearer {
 		wrapped = c.routes.Authenticate(op, wrapped)
 	}

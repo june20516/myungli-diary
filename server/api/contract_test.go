@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft6(t *testing.T) {
+func TestContract_VersionIsDraft7(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.6" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.6", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.7" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.7", doc.Info.Version)
 	}
 }
 
@@ -1000,4 +1000,39 @@ func TestContract_Draft6Additions(t *testing.T) {
 			}
 		}
 	})
+}
+
+// TestContract_Draft7Additions는 draft.7에서 더한 일기·일정 동작 설명을 고정합니다. (P5, 응답 형태는 그대로)
+func TestContract_Draft7Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	descriptions := map[string][]string{
+		"putDiary":        {"본문만 바꾸고"},
+		"restoreDiary":    {"가장 늦게 지운", "404 `diary.not_found`"},
+		"listDiaries":     {"`from`이 `to`보다 늦으면 빈 목록"},
+		"listSchedules":   {"`from`이 `to`보다 늦으면 400 `request.invalid`"},
+		"restoreSchedule": {"이미 살아 있는 일정이면 그대로"},
+	}
+	for id, texts := range descriptions {
+		t.Run(id, func(t *testing.T) {
+			description := operationByID(t, doc, id).Description
+			for _, text := range texts {
+				if !strings.Contains(description, text) {
+					t.Errorf("%s 설명에 %q가 없음", id, text)
+				}
+			}
+		})
+	}
+
+	for _, id := range []string{"updateSchedule", "deleteSchedule", "restoreSchedule"} {
+		t.Run(id+" 404", func(t *testing.T) {
+			op := operationByID(t, doc, id)
+			if !strings.Contains(op.Description, "404 `schedule.not_found`") {
+				t.Errorf("%s 설명에 404 schedule.not_found가 없음", id)
+			}
+			if op.Responses.Value("404") == nil {
+				t.Errorf("%s에 404 응답이 없음", id)
+			}
+		})
+	}
 }

@@ -11,7 +11,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P2a | [Apple 웹 로그인 복귀](2026-10-13-apple-web-login.md): 일회용 교환 코드, `completeAppleWebLogin`, App Link 안내 페이지·assetlinks (Issue #89, S22) | §4 | **완료** |
 | P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 병합 뒤 #170으로 구현 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
 | P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응, 시드 CI (#55·#129, 계약 draft.5, S33~S44) | §6 | **완료** |
-| P5 | 일기·일정: soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록 | §5.3, §3.3 일기 | 대기 |
+| P5 | [일기·일정](2026-10-20-p5-diary-schedule.md): soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록, `Idempotency-Key`(계약 draft.7, S50~S64) | §5.3, §3.3 일기, §11.2 | **완료** |
 | P6 | 비로그인·참조: 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config | §5.3, §3.3 기타 | 대기 |
 | P7 | 결제와 권한: RevenueCat webhook·동기화, entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60) | §10 | 대기 |
 | P8 | Job: precompute, notify(FCM), retention과 익명화 | §8, §9 | 대기 |
@@ -31,7 +31,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 
 **P4 후속** — 완료(브랜치 `server/p4-followups`). notice 렌더(#232, S49), `Profile.birthCity`(#199, S46), 계약 draft.6(달력 범위 #248·S47, 409 `profile.required` 명시), 용어 id 대조 기준(S48).
 
-**P5 (일기·일정)**
+**P5 (일기·일정)** — 완료. 실행 중 정한 것은 S50~S64와 spec §3.3·§5.1·§5.3에 옮겼습니다.
 * 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 끝났습니다(프로필). 일정에도 같은 코드를 씁니다.
 
 **P6 (비로그인·참조)**
@@ -43,6 +43,11 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
 
 **P8 (Job)**
+* soft delete 30일 뒤 일기·일정 내용 비우기(spec §8)는 `content_purged_at`을 찍습니다. 복원은 이미 비워진 행을 제외합니다(P5에서 쿼리에 반영).
+* 멱등 선점 lease: 프로세스가 죽어 남은 `completed_at IS NULL` 선점은 24시간 동안 409가 됩니다. 요청 상한 시간(서버 WriteTimeout의 몇 배)이 지난 미완료 선점을 `ClaimIdempotencyKey`가 덮어쓸지(커밋 직후 죽은 극소수 경우 중복 가능, S61 확장 결정 필요)와, app이 409 `idempotency.in_progress`에 백오프 재시도할지를 계약에 적을지 정합니다.
+* 계정 익명화 때 일기 본문·일정 제목·메모를 지우고 `content_purged_at`을 기록합니다(열은 P5에서 만듦).
+* `job retention`이 24시간 지난 `idempotency_keys`를 지웁니다. `completed_at IS NULL`이고 오래된 행(프로세스가 죽어 남은 선점)도 정리 대상입니다. FK가 `ON DELETE RESTRICT`라 계정을 물리적으로 지우는 경로가 생기면 이 표를 먼저 지워야 합니다.
+* `registerDevice`를 멱등 대상(`Idempotency(..., "createSchedule", "registerDevice")`)에 더합니다.
 * 계정 삭제 때 기기 비활성: `devices`가 생기면 `RequestDeletion`에 추가합니다.
 * `apple_web_logins` 만료·소진 행을 정리합니다. 만료됐는데 소진되지 않은 행은 그 subject의 연결 행이 없을 때만 Apple refresh token을 revoke합니다(S19와 같은 규칙). 소진된 행도 암호화한 Apple refresh token과 subject를 담으므로, 계정 익명화보다 먼저(또는 같은 작업에서) 지웁니다.
 * `job retention`이 `DisconnectProviders`를 재시도하고 만료된 refresh token을 지웁니다. `DisconnectProviders`는 계정이 `pending_deletion`일 때만 외부 호출과 기록을 하고, 그 밖의 상태(active·deleted)에서는 아무것도 하지 않습니다. 그래서 retention은 **연결 해제 재시도를 익명화(`deleted` 전환)보다 먼저** 해야 합니다. 익명화한 뒤에는 남은 연결을 더 이상 끊을 수 없습니다.

@@ -107,6 +107,32 @@ type DailySelection struct {
 	CreatedAt   time.Time
 }
 
+type Diary struct {
+	ID              uuid.UUID
+	AccountID       uuid.UUID
+	Date            pgtype.Date
+	Body            string
+	AllTags         []string
+	FeaturedTags    []byte
+	GuideQuestion   []byte
+	RulesetVersion  string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       *time.Time
+	ContentPurgedAt *time.Time
+}
+
+type IdempotencyKey struct {
+	AccountID   uuid.UUID
+	Key         string
+	RequestHash []byte
+	Status      pgtype.Int4
+	Headers     []byte
+	Body        []byte
+	CreatedAt   time.Time
+	CompletedAt *time.Time
+}
+
 type MonthCache struct {
 	BirthHash       []byte
 	RulesetVersion  string
@@ -165,4 +191,18 @@ type RotationState struct {
 	AccountID   uuid.UUID
 	MessageKey  string
 	NextVariant string
+}
+
+type Schedule struct {
+	ID              uuid.UUID
+	AccountID       uuid.UUID
+	Date            pgtype.Date
+	AllDay          bool
+	Time            pgtype.Time
+	Title           string
+	Memo            pgtype.Text
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       *time.Time
+	ContentPurgedAt *time.Time
 }

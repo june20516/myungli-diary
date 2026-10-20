@@ -154,17 +154,31 @@ func (e *flowEnv) do(method, path, accessToken string, body any) flowResponse {
 	if accessToken != "" {
 		req.Header.Set("Authorization", "Bearer "+accessToken)
 	}
+	return e.send(req)
+}
+
+// send는 요청을 보내고 상태 코드와 JSON 본문을 읽습니다.
+func (e *flowEnv) send(req *http.Request) flowResponse {
+	e.t.Helper()
 	resp, err := e.client.Do(req)
-	require.NoError(e.t, err, "%s %s", method, path)
+	require.NoError(e.t, err, "%s %s", req.Method, req.URL.Path)
 	defer func() { _ = resp.Body.Close() }()
 
 	raw, err := io.ReadAll(resp.Body)
 	require.NoError(e.t, err)
 	out := flowResponse{status: resp.StatusCode, body: map[string]any{}}
 	if len(raw) > 0 {
-		require.NoError(e.t, json.Unmarshal(raw, &out.body), "%s %s 응답 JSON: %s", method, path, raw)
+		require.NoError(e.t, json.Unmarshal(raw, &out.body), "%s %s 응답 JSON: %s", req.Method, req.URL.Path, raw)
 	}
 	return out
+}
+
+// mustJSON은 값을 JSON으로 바꿉니다.
+func mustJSON(t *testing.T, value any) []byte {
+	t.Helper()
+	raw, err := json.Marshal(value)
+	require.NoError(t, err)
+	return raw
 }
 
 // tokens는 로그인·갱신 응답에서 access·refresh token을 꺼냅니다. 로그인 응답은 tokens 아래에 있습니다.

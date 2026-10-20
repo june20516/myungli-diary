@@ -24,6 +24,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
@@ -33,6 +34,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/internal/profile"
+	"github.com/june20516/myungli-diary/server/internal/schedule"
 )
 
 const (
@@ -114,6 +116,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Charts:   fortuneService,
 		Lunar:    engineClient,
 		Readings: readings,
+		Days:     readings,
 		Contents: contents,
 		Logger:   logger,
 		Clock:    clock.System{},
@@ -288,8 +291,10 @@ type serverDeps struct {
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
 	Contents httpapi.Contents
-	Logger   *slog.Logger
-	Clock    clock.Clock
+	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기 operation은 503입니다.
+	Days   diary.Days
+	Logger *slog.Logger
+	Clock  clock.Clock
 	// HTTP는 모든 외부 제공자 호출이 나눠 쓰는 client입니다.
 	HTTP      *http.Client
 	Providers providerURLs
@@ -364,17 +369,24 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
+		// Idempotency-Key는 일정 만들기에만 적용합니다. registerDevice는 P8에서 더합니다.
+		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule"),
 	}
 	api := &httpapi.API{
-		Auth:     authService,
-		Accounts: accountService,
-		Profiles: profileService,
-		Lunar:    deps.Lunar,
-		Readings: deps.Readings,
-		Contents: deps.Contents,
-		DB:       deps.Pool,
-		Logger:   deps.Logger,
-		AppLink:  settings.appLink,
+		Auth:      authService,
+		Accounts:  accountService,
+		Profiles:  profileService,
+		Lunar:     deps.Lunar,
+		Readings:  deps.Readings,
+		Contents:  deps.Contents,
+		Schedules: schedule.NewService(schedule.NewStore(deps.Pool)),
+		DB:        deps.Pool,
+		Logger:    deps.Logger,
+		AppLink:   settings.appLink,
+	}
+	// Days가 없으면 일기를 새로 쓸 수 없으므로 Readings·Contents처럼 조립하지 않아 일기 operation이 503입니다.
+	if deps.Days != nil {
+		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
 	}
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)

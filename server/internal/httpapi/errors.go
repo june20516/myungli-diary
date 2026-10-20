@@ -14,10 +14,12 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
+	"github.com/june20516/myungli-diary/server/internal/schedule"
 )
 
 // 이 파일은 핸들러가 돌려준 오류를 problem 응답으로 바꾸는 단일 경로를 둡니다.
@@ -56,6 +58,8 @@ type domainError struct {
 	title           string
 	bearerChallenge bool
 	retryAfter      time.Duration
+	// field가 비어 있지 않으면 errors[]에 code와 같은 코드로 그 필드를 가리킵니다.
+	field string
 	// logged가 true이면 운영자가 알아야 하는 상태라 Error 로그를 남깁니다.
 	logged bool
 }
@@ -77,6 +81,13 @@ var domainErrors = []domainError{
 	{target: engine.ErrInternal, code: problem.EngineError, title: "Engine error"},
 	// 활성 콘텐츠 시드가 없으면 seed 명령을 돌리지 않은 배포입니다(P4-7). 사용자 탓이 아니라 503이고 로그를 남깁니다.
 	{target: content.ErrNoActiveSeed, code: problem.ServiceUnavailable, title: "Service unavailable", logged: true},
+	{target: diary.ErrNotFound, code: problem.DiaryNotFound, title: "Diary not found"},
+	{target: diary.ErrDateTaken, code: problem.DiaryDateTaken, title: "Diary date taken"},
+	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future", field: "date"},
+	{target: schedule.ErrNotFound, code: problem.ScheduleNotFound, title: "Schedule not found"},
+	// 경로·쿼리 매개변수 위반의 errors[].field는 이름 그대로입니다.
+	{target: schedule.ErrRangeTooLong, code: problem.RangeTooLong, title: "Range too long", field: "to"},
+	{target: schedule.ErrRangeReversed, code: problem.RequestInvalid, title: "Range reversed", field: "from"},
 	// 인증은 통과했는데 계정이 없는 경우입니다. access token이 가리키는 계정이 없으므로 bearer 실패입니다.
 	{target: account.ErrNotFound, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 }
@@ -115,7 +126,11 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 			if d.logged {
 				logHandlerError(r.Context(), deps.Logger, err)
 			}
-			writeProblem(w, r, d.code.Problem(d.title), d.bearerChallenge, d.retryAfter)
+			p := d.code.Problem(d.title)
+			if d.field != "" {
+				p.Errors = []problem.FieldError{{Field: d.field, Code: d.code.Value}}
+			}
+			writeProblem(w, r, p, d.bearerChallenge, d.retryAfter)
 			return
 		}
 	}

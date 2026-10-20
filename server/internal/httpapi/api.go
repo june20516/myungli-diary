@@ -11,11 +11,13 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/profile"
+	"github.com/june20516/myungli-diary/server/internal/schedule"
 )
 
 // healthPingTimeout은 헬스 체크가 DB 응답을 기다리는 최대 시간입니다.
@@ -75,6 +77,28 @@ type Contents interface {
 
 var _ Contents = (*content.Store)(nil)
 
+// DiaryService는 일기 operation이 쓰는 서비스입니다. *diary.Service가 만족합니다.
+type DiaryService interface {
+	Put(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (entry diary.Entry, created bool, err error)
+	Get(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (diary.Entry, error)
+	Delete(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) error
+	Restore(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (diary.Entry, error)
+	List(ctx context.Context, accountID uuid.UUID, q diary.ListQuery) ([]diary.Entry, error)
+}
+
+var _ DiaryService = (*diary.Service)(nil)
+
+// ScheduleService는 일정 operation이 쓰는 서비스입니다. *schedule.Service가 만족합니다.
+type ScheduleService interface {
+	List(ctx context.Context, accountID uuid.UUID, from, to profile.LocalDate) ([]schedule.Schedule, error)
+	Create(ctx context.Context, accountID uuid.UUID, in schedule.Input) (schedule.Schedule, error)
+	Update(ctx context.Context, accountID, id uuid.UUID, p schedule.Patch) (schedule.Schedule, error)
+	Delete(ctx context.Context, accountID, id uuid.UUID) error
+	Restore(ctx context.Context, accountID, id uuid.UUID) (schedule.Schedule, error)
+}
+
+var _ ScheduleService = (*schedule.Service)(nil)
+
 // API는 gen.StrictServerInterface 구현입니다. 아직 구현하지 않은 operation은 Unimplemented가 501로 답합니다.
 type API struct {
 	Unimplemented
@@ -87,6 +111,10 @@ type API struct {
 	Readings Readings
 	// Contents는 콘텐츠 저장소입니다. 비어 있으면 getGlossary·반응 operation·getDaily는 503 service.unavailable입니다.
 	Contents Contents
+	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.
+	Diaries DiaryService
+	// Schedules는 일정 서비스입니다. 비어 있으면 일정 operation은 503 service.unavailable입니다.
+	Schedules ScheduleService
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
 	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)가 원인을 남길 때 씁니다.

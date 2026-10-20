@@ -230,24 +230,6 @@ func (s *Service) checkBirthWithEngine(ctx context.Context, b Birth, timezone st
 	}
 }
 
-// timeOfDay는 시:분을 DB time 값으로 바꿉니다. nil이면 NULL입니다.
-func timeOfDay(t *LocalTime) pgtype.Time {
-	if t == nil {
-		return pgtype.Time{}
-	}
-	micros := int64(t.Hour*60+t.Minute) * int64(time.Minute/time.Microsecond)
-	return pgtype.Time{Microseconds: micros, Valid: true}
-}
-
-// localTime은 DB time 값을 시:분으로 바꿉니다. NULL이면 nil입니다.
-func localTime(t pgtype.Time) *LocalTime {
-	if !t.Valid {
-		return nil
-	}
-	minutes := int(t.Microseconds / int64(time.Minute/time.Microsecond))
-	return &LocalTime{Hour: minutes / 60, Minute: minutes % 60}
-}
-
 // smallint는 출생 날짜의 한 구성요소를 smallint 열 값으로 바꿉니다.
 // 날짜는 엔진 검증을 통과했거나 저장된 값이라 범위 안이고, 범위 밖이면 DB CHECK가 막습니다.
 func smallint(v int) int16 {
@@ -267,12 +249,12 @@ func upsertParams(accountID uuid.UUID, p Profile, hash [32]byte) profiledb.Upser
 		BirthMonth:       pgtype.Int2{Int16: smallint(b.Date.Month), Valid: true},
 		BirthDay:         pgtype.Int2{Int16: smallint(b.Date.Day), Valid: true},
 		BirthTimeStatus:  pgtype.Text{String: string(b.TimeStatus), Valid: true},
-		BirthTime:        timeOfDay(b.Time),
+		BirthTime:        PgTime(b.Time),
 		Gender:           pgtype.Text{String: b.Gender, Valid: true},
 		BirthTimezone:    pgtype.Text{String: b.Timezone, Valid: true},
 		BirthPlaceStatus: pgtype.Text{String: string(b.PlaceStatus), Valid: true},
 		NotifyStatus:     string(p.Notification.Status),
-		NotifyTime:       timeOfDay(p.Notification.Time),
+		NotifyTime:       PgTime(p.Notification.Time),
 		BirthHash:        hash[:],
 	}
 	if b.PlaceStatus == PlaceCity {
@@ -294,7 +276,7 @@ func profileFromRow(r profiledb.Profile) Profile {
 			Day:   int(r.BirthDay.Int16),
 		},
 		TimeStatus:  TimeStatus(r.BirthTimeStatus.String),
-		Time:        localTime(r.BirthTime),
+		Time:        LocalTimeFromPg(r.BirthTime),
 		Gender:      r.Gender.String,
 		Timezone:    r.BirthTimezone.String,
 		PlaceStatus: PlaceStatus(r.BirthPlaceStatus.String),
@@ -313,7 +295,7 @@ func profileFromRow(r profiledb.Profile) Profile {
 		Birth:           b,
 		Notification: Notification{
 			Status: NotifyStatus(r.NotifyStatus),
-			Time:   localTime(r.NotifyTime),
+			Time:   LocalTimeFromPg(r.NotifyTime),
 		},
 	}
 }

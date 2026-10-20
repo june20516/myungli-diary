@@ -131,7 +131,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 테이블 | 주요 열 | 비고 |
 | --- | --- | --- |
-| `diaries` | account_id, date, body, all_tags(text[]), featured_tags(jsonb: 키·길흉), guide_question(jsonb: 렌더된 조각 배열), ruleset_version, deleted_at, content_purged_at | partial unique(account_id, date) WHERE deleted_at IS NULL. all_tags에 GIN 인덱스 (D47·D49·D59④) |
+| `diaries` | account_id, date, body, all_tags(text[]), featured_tags(jsonb `[{key, polarity}]`, 계약 키), guide_question(jsonb: 렌더된 조각 배열), ruleset_version, deleted_at, content_purged_at | partial unique(account_id, date) WHERE deleted_at IS NULL. all_tags에 GIN 인덱스. 날짜 내림차순 목록은 partial unique의 역방향 스캔이 덮으므로 목록 인덱스는 따로 두지 않음 (D47·D49·D59④) |
 | `schedules` | account_id, date, all_day, time, title, memo, deleted_at, content_purged_at | |
 
 **엔진 결과 캐시 (S4)**
@@ -170,7 +170,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
 | `preview_usage` | device_hash(unique), used_at | 지우지 않음. 지우면 1회 제한이 풀림 |
 | `rate_limits` | key, window_start, count | 정리 대상 |
-| `idempotency_keys` | account_id, key, request_hash, response, created_at | 24시간 뒤 정리 |
+| `idempotency_keys` | PK (account_id, key), request_hash(SHA-256), status, headers(jsonb), body, created_at, completed_at | 24시간 뒤 정리. `completed_at`이 NULL이면 처리 중 |
 
 도시 목록은 읽기 전용 참조 데이터라 DB에 넣지 않고, 버전을 붙인 정적 파일로 바이너리에 포함합니다(`go:embed`). 원본은 GeoNames `cities15000`(CC BY 4.0)에서 이름(ko·en·ja), IANA 시간대, 경도를 뽑아 만들고, 출처 표기는 app의 오픈소스 고지에 넣도록 요청합니다.
 
@@ -219,7 +219,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * 경로 버전 `/v1`. JSON 필드는 camelCase(Google API 가이드, proto JSON 매핑과 같음).
 * 날짜 `YYYY-MM-DD`, 시각은 RFC 3339입니다. 시각은 기본이 UTC이고, 화면 표시용 시각(`FocusSlot.start`·`end`, `CalendarDay.solarTerm.at`)만 프로필 현재 시간대의 offset으로 보냅니다.
 * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
-* 생성하는 POST는 `Idempotency-Key` 헤더를 받습니다(IETF `draft-ietf-httpapi-idempotency-key-header`). 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
+* 생성하는 POST는 `Idempotency-Key` 헤더를 받습니다(IETF `draft-ietf-httpapi-idempotency-key-header`). 24시간 동안 같은 키에는 같은 응답을 돌려줍니다. 계약 검증 뒤 핸들러 앞에서 operation 단위로 처리하며(`httpapi.Idempotency`), 첫 요청이 행을 선점하고 2xx 응답만 저장합니다. 2xx가 아니면 행을 지워 같은 키로 다시 시도할 수 있습니다.
 * 사용자의 선택은 상태 필드로 보냅니다(§3.2). 필드를 빼거나 `null`을 보내는 것으로 "모름"을 뜻하게 하지 않습니다. PATCH에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다.
 * 언어는 로그인 사용자면 프로필 값, 비로그인 요청이면 `Accept-Language`를 씁니다.
 * 문장 필드는 조각 배열입니다(§6.4). 화면의 고정 UI 문구는 app 몫입니다(D59⑤).
@@ -246,7 +246,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 * **오늘(D30):** "오늘"은 프로필의 `current_timezone` 기준 날짜입니다. app은 기기 시간대가 바뀌면 `PATCH /v1/me/profile`로 알립니다.
 * **일기 날짜(D49):** 오늘 이후 날짜는 422 `diary.future_date`입니다. 지운 일기를 되살리려는 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`입니다.
-* **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다.
+* **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다. 이미 있는 일기를 고칠 때는 본문만 바꾸고 이 기록은 처음 값을 유지합니다.
 * **일기 동시 저장:** 기기 동기화는 MVP 범위 밖이라(D47②) 마지막 쓰기가 남습니다.
 * **날짜 경로 검증:** `/calendar/{year}/{month}`는 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 그 안이지만 D41 범위를 벗어나면 422 `date.out_of_range`입니다. `/daily/{date}`의 날짜는 형식이 틀리거나 달력에 없는 날짜(예 `2026-02-30`, `format: date` 위반)면 400 `request.invalid`, 형식은 맞지만 D41 범위 밖이면 422 `date.out_of_range`입니다. 422 `date.invalid`는 정수 필드 객체 `LunarOrSolarDate`(예 양력 2월 31일)에만 씁니다.
 * **미리보기(D50):** 출생 정보·현재 시간대를 받아 오늘의 데일리 중 surface만 돌려줍니다. 호칭을 받지 않으므로 호칭이 들어가는 슬롯은 호칭 없는 변주를 쓰도록 writing에 확인합니다(§13). 기기 해시(`device_hash`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 기기 식별값은 재설치로 바뀔 수 있어 1회 제한은 최선 노력입니다.
