@@ -54,6 +54,7 @@ var (
 	DiaryNotFound            = Code{"diary.not_found", http.StatusNotFound}
 	ReactionNotFound         = Code{"reaction.not_found", http.StatusNotFound}
 	ScheduleNotFound         = Code{"schedule.not_found", http.StatusNotFound}
+	DeviceNotFound           = Code{"device.not_found", http.StatusNotFound}
 	ProfileRequired          = Code{"profile.required", http.StatusConflict}
 	DiaryDateTaken           = Code{"diary.date_taken", http.StatusConflict}
 	IdempotencyInProgress    = Code{"idempotency.in_progress", http.StatusConflict}
@@ -82,7 +83,7 @@ func AllCodes() []Code {
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
 		TimezoneInvalid, CityNotFound, RangeTooLong,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,
-		ConsentRequired, PreviewUsed, DiaryNotFound, ReactionNotFound, ScheduleNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
+		ConsentRequired, PreviewUsed, DiaryNotFound, ReactionNotFound, ScheduleNotFound, DeviceNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
 		RateLimited, NotImplemented,
 		EngineUnavailable, EngineTimeout, EngineError, AuthProviderUnavailable, BillingUnavailable,
 		RewardInvalidSignature, RewardExpired, ServiceUnavailable, Internal,
