@@ -374,6 +374,35 @@ void main() {
       });
     }
 
+    testWidgets('multiline의 앞 아이콘은 첫 줄 가운데(지우기와 같은 높이)입니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: SizedBox(
+              width: 360,
+              child: MyungliTextField(
+                label: '메모',
+                maxLines: 6,
+                leadingIcon: AppGlyph(
+                  light: PhosphorIconsLight.magnifyingGlass,
+                  regular: PhosphorIconsRegular.magnifyingGlass,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '하나\n둘\n셋');
+      await tester.pump();
+      expect(
+        tester.getCenter(find.byIcon(PhosphorIconsLight.magnifyingGlass)).dy,
+        moreOrLessEquals(
+          tester.getCenter(find.byKey(MyungliTextField.clearKey)).dy,
+          epsilon: 0.5,
+        ),
+      );
+    });
+
     testWidgets('maxLines가 1보다 크면 줄바꿈을 받고 그 줄 수까지만 늘어납니다', (tester) async {
       final controller = TextEditingController();
       addTearDown(controller.dispose);

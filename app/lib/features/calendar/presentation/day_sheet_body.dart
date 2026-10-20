@@ -20,6 +20,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -268,8 +269,7 @@ Future<void> _push(BuildContext context, String location, {Object? extra}) =>
   BuildContext context,
   TextStyle style,
 ) {
-  final fontSize = MediaQuery.textScalerOf(context).scale(style.fontSize ?? 16);
-  final line = fontSize * (style.height ?? 1.5);
+  final line = lineHeightOf(style, MediaQuery.textScalerOf(context));
   return (line: line, bone: line * 0.6);
 }
 

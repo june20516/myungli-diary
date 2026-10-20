@@ -7,6 +7,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -189,7 +190,10 @@ class _MyungliTextFieldState extends State<MyungliTextField>
     // 늘어납니다. 여러 줄 칸도 첫 줄과 지우기를 그 높이에 두고 아래로 늘어납니다
     // (`clear.align: first-line`).
     final multiline = widget._multiline;
-    final lineHeight = _lineHeight(textStyle, MediaQuery.textScalerOf(context));
+    final lineHeight = lineHeightOf(
+      textStyle,
+      MediaQuery.textScalerOf(context),
+    );
     final firstLineCenter = math.max(
       MyungliTextField._minHeight / 2,
       Space.s8 + lineHeight / 2,
@@ -211,7 +215,13 @@ class _MyungliTextFieldState extends State<MyungliTextField>
           children: [
             if (leading != null)
               Padding(
-                padding: const EdgeInsetsDirectional.only(end: Space.s12),
+                padding: EdgeInsetsDirectional.only(
+                  // 여러 줄 칸에서도 아이콘은 첫 줄 가운데입니다.
+                  top: multiline
+                      ? firstLineCenter - AppIconSize.inline.logical / 2
+                      : 0,
+                  end: Space.s12,
+                ),
                 child: ExcludeSemantics(
                   child: AppIcon(
                     leading,
@@ -365,21 +375,9 @@ class _MyungliTextFieldState extends State<MyungliTextField>
       ],
     );
   }
-
-  /// [style] 글줄 하나의 높이(기기 글자 크기 반영).
-  static double _lineHeight(TextStyle style, TextScaler scaler) {
-    final painter = TextPainter(
-      text: TextSpan(text: ' ', style: style),
-      textDirection: TextDirection.ltr,
-      textScaler: scaler,
-      maxLines: 1,
-    )..layout();
-    final height = painter.height;
-    painter.dispose();
-    return height;
-  }
 }
 
+/// 지우기 아이콘(`x-circle` light 20). 눌림 영역은 48px이고 입력 초점을 빼앗지 않습니다.
 class _ClearButton extends StatelessWidget {
   const new({required this.onClear});
 
