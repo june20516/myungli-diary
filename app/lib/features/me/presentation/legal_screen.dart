@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/entry/legal_links_provider.dart';
-import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
-import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
+import 'package:myungli_diary/design/components/feedback/load_feedback.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 약관·정책(`legal`, 결정 A61·D80).
@@ -43,39 +43,13 @@ class LegalScreen extends ConsumerStatefulWidget {
   ConsumerState<LegalScreen> createState() => _LegalScreenState();
 }
 
-class _LegalScreenState extends ConsumerState<LegalScreen> {
-  /// 연 페이지가 아직 닫히지 않았는지(브라우저 열기 요청 중 포함).
-  bool _opening = false;
-
+class _LegalScreenState extends ConsumerState<LegalScreen>
+    with SingleOpenGuard<LegalScreen> {
   @override
   void initState() {
     super.initState();
     // 주소를 받지 못하면 이유를 알립니다(다시 받을 때마다 새 오류면 다시 알림).
-    ref.listenManual<AsyncValue<LegalLinks>>(legalLinksProvider, (
-      previous,
-      next,
-    ) {
-      final error = next.error;
-      if (next.isLoading ||
-          error == null ||
-          identical(error, previous?.error)) {
-        return;
-      }
-      showMyungliToast(
-        context,
-        errorMessage(
-          AppLocalizations.of(context),
-          error is AppError ? error : UnexpectedError(error),
-        ),
-      );
-    });
-  }
-
-  /// [action]이 끝날 때까지 다른 열기를 받지 않습니다.
-  void _guarded(Future<void> Function() action) {
-    if (_opening) return;
-    _opening = true;
-    unawaited(action().whenComplete(() => _opening = false));
+    listenLoadErrorToast(ref, context, legalLinksProvider);
   }
 
   Future<void> _openDocument(String address) async {
@@ -110,14 +84,13 @@ class _LegalScreenState extends ConsumerState<LegalScreen> {
     final l10n = AppLocalizations.of(context);
     final linksState = ref.watch(legalLinksProvider);
     final links = linksState.value;
-    final failed =
-        links == null && linksState.hasError && !linksState.isLoading;
+    final failed = linksState.failedWithoutValue;
     final bottom = MediaQuery.viewPaddingOf(context).bottom;
 
     /// 문서 줄: 주소가 있으면 열기, 받지 못했으면 다시 받기, 받는 중이면 비활성(A61).
     VoidCallback? documentRow(String Function(LegalLinks links) address) {
       if (links != null) {
-        return () => _guarded(() => _openDocument(address(links)));
+        return () => guardOpen(() => _openDocument(address(links)));
       }
       return failed ? () => ref.invalidate(legalLinksProvider) : null;
     }
@@ -164,7 +137,7 @@ class _LegalScreenState extends ConsumerState<LegalScreen> {
                           key: LegalScreen.licensesRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.legalLicensesLabel,
-                          onTap: () => _guarded(_openLicenses),
+                          onTap: () => guardOpen(_openLicenses),
                         ),
                       ],
                     ),

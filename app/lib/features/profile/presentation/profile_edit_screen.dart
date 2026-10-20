@@ -16,10 +16,12 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
+import 'package:myungli_diary/design/components/feedback/load_feedback.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
+import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/onboarding/model/time_step_edit.dart';
@@ -173,13 +175,11 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
-class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
+class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
+    with SingleOpenGuard<ProfileEditScreen> {
   /// 열 때 넘겨받은 출생 도시(settings 출생지 안내).
   City? _initialCity;
   bool _routeRead = false;
-
-  /// 줄·저장 버튼으로 연 화면·확인 창이 아직 닫히지 않았는지. 두 번 열지 않게 합니다.
-  bool _opening = false;
 
   /// 사라지는 동안에도 보일 마지막 오류 글자.
   String _bannerMessage = '';
@@ -193,15 +193,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   void initState() {
     super.initState();
     // 프로필을 받지 못하면 이유를 알립니다(다시 받을 때마다 새 오류면 다시 알림).
-    ref.listenManual<AsyncValue<Profile?>>(profileProvider, (previous, next) {
-      final error = next.error;
-      if (next.isLoading ||
-          error == null ||
-          identical(error, previous?.error)) {
-        return;
-      }
-      _toast(error is AppError ? error : UnexpectedError(error));
-    });
+    listenLoadErrorToast(ref, context, profileProvider);
   }
 
   @override
@@ -219,13 +211,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       context,
       errorMessage(AppLocalizations.of(context), error),
     );
-  }
-
-  /// [action](화면·확인 창 열기와 그 뒤 처리)이 끝날 때까지 다른 열기를 받지 않습니다.
-  void _guarded(Future<void> Function() action) {
-    if (_opening) return;
-    _opening = true;
-    unawaited(action().whenComplete(() => _opening = false));
   }
 
   /// [screenId] 입력 화면을 수정 모드로 열고 돌아온 값을 [onValue]로 넘깁니다.
@@ -291,8 +276,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     final state = ref.watch(_provider);
     final profileState = ref.watch(profileProvider);
     final profile = profileState.value;
-    final profileFailed =
-        profile == null && profileState.hasError && !profileState.isLoading;
+    final profileFailed = profileState.failedWithoutValue;
     final before = profile == null ? null : BirthValues.of(profile);
     final after = before?.applying(state.edits);
     final changed = before != null && after!.changesFrom(before).isNotEmpty;
@@ -308,7 +292,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       if (profile != null && after != null) {
         return state.savingBirth || busy
             ? null
-            : () => _guarded(() => edit(profile, after));
+            : () => guardOpen(() => edit(profile, after));
       }
       return profileFailed ? () => ref.invalidate(profileProvider) : null;
     }
@@ -321,7 +305,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         changed &&
         !state.savingBirth &&
         state.savingHonorific == null) {
-      onSave = () => _guarded(() => _save(profile, before, after));
+      onSave = () => guardOpen(() => _save(profile, before, after));
     }
 
     return Semantics(

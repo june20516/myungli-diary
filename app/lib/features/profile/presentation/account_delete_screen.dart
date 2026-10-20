@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
+import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/profile/application/account_delete_controller.dart';
@@ -39,13 +40,11 @@ class AccountDeleteScreen extends ConsumerStatefulWidget {
       _AccountDeleteScreenState();
 }
 
-class _AccountDeleteScreenState extends ConsumerState<AccountDeleteScreen> {
-  /// 확인 창이 열려 있거나 지우는 중인지. 같은 프레임의 두 번째 누름도 막습니다.
-  bool _busy = false;
-
+class _AccountDeleteScreenState extends ConsumerState<AccountDeleteScreen>
+    with SingleOpenGuard<AccountDeleteScreen> {
+  /// 확인 창 뒤 지웁니다. 확인 창이 열려 있거나 지우는 중이면 같은 프레임의 두 번째 누름도
+  /// 받지 않습니다([guardOpen]).
   Future<void> _delete() async {
-    if (_busy) return;
-    _busy = true;
     try {
       final l10n = AppLocalizations.of(context);
       final confirmed = await showMyungliDialog(
@@ -66,8 +65,6 @@ class _AccountDeleteScreenState extends ConsumerState<AccountDeleteScreen> {
           errorMessage(AppLocalizations.of(context), error),
         );
       }
-    } finally {
-      _busy = false;
     }
   }
 
@@ -126,7 +123,7 @@ class _AccountDeleteScreenState extends ConsumerState<AccountDeleteScreen> {
                         variant: PrimaryButtonVariant.destructive,
                         label: l10n.accountDeleteCtaDelete,
                         loading: deleting,
-                        onPressed: _delete,
+                        onPressed: () => guardOpen(_delete),
                       ),
                     ],
                   ),

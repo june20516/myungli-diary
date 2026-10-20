@@ -18,9 +18,11 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
+import 'package:myungli_diary/design/components/feedback/load_feedback.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/me/application/settings_controller.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
@@ -111,39 +113,16 @@ class SettingsScreen extends ConsumerStatefulWidget {
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen>
+    with SingleOpenGuard<SettingsScreen> {
   SettingsController get _controller =>
       ref.read(settingsControllerProvider.notifier);
-
-  /// 줄을 눌러 연 시트·화면이 아직 닫히지 않았는지. 빠른 두 번 누르기로 두 번 열지 않게 합니다.
-  bool _opening = false;
 
   @override
   void initState() {
     super.initState();
     // 프로필을 받지 못하면 이유를 알립니다(다시 받을 때마다 새 오류면 다시 알림).
-    ref.listenManual<AsyncValue<Profile?>>(profileProvider, (previous, next) {
-      final error = next.error;
-      if (next.isLoading ||
-          error == null ||
-          identical(error, previous?.error)) {
-        return;
-      }
-      showMyungliToast(
-        context,
-        errorMessage(
-          AppLocalizations.of(context),
-          error is AppError ? error : UnexpectedError(error),
-        ),
-      );
-    });
-  }
-
-  /// [action](시트·화면 열기와 그 뒤 처리)이 끝날 때까지 다른 열기를 받지 않습니다.
-  void _guarded(Future<void> Function() action) {
-    if (_opening) return;
-    _opening = true;
-    unawaited(action().whenComplete(() => _opening = false));
+    listenLoadErrorToast(ref, context, profileProvider);
   }
 
   /// 받지 못한 프로필을 다시 받습니다.
@@ -222,7 +201,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _open(String screenId) =>
-      _guarded(() => context.push<void>(pathOf(screenId)));
+      guardOpen(() => context.push<void>(pathOf(screenId)));
 
   @override
   Widget build(BuildContext context) {
@@ -230,8 +209,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final saving = ref.watch(settingsControllerProvider);
     final profileState = ref.watch(profileProvider);
     final profile = profileState.value;
-    final profileFailed =
-        profile == null && profileState.hasError && !profileState.isLoading;
+    final profileFailed = profileState.failedWithoutValue;
     final adFree = adFreeLabel(
       l10n,
       ref.watch(meProvider)?.adFree,
@@ -250,7 +228,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       Future<void> Function(Profile profile) edit,
     ) {
       if (profile != null) {
-        return whenIdle(() => _guarded(() => edit(profile)), field: field);
+        return whenIdle(() => guardOpen(() => edit(profile)), field: field);
       }
       return profileFailed ? whenIdle(_reloadProfile) : null;
     }
@@ -350,7 +328,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           key: SettingsScreen.logoutRowKey,
                           variant: SettingsRowVariant.destructive,
                           label: l10n.settingsLogoutLabel,
-                          onTap: whenIdle(() => _guarded(_logout)),
+                          onTap: whenIdle(() => guardOpen(_logout)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.accountDeleteRowKey,
