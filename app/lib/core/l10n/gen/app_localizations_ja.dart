@@ -311,6 +311,11 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String datePickerSolarConfirm(String date) {
+    return '新暦 $date';
+  }
+
+  @override
   String citySearchResults(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1085,8 +1090,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tagChipPolarityGood => '良い流れ';
 
   @override
-  String get tagChipPolarityBad => '注意の流れ';
+  String get tagChipPolarityBad => '気をつけたい流れ';
 
   @override
-  String get tagChipPolarityNeutral => '中立';
+  String get tagChipPolarityNeutral => '穏やかな流れ';
+
+  @override
+  String dayCellLeapNewMoon(int month) {
+    return '閏$month.1';
+  }
+
+  @override
+  String get errorCityNotFound => '出生地の都市が見つかりませんでした。都市を選び直してください。';
+
+  @override
+  String get errorTimezoneInvalid => 'タイムゾーンを確認できませんでした。端末の設定を確認してください。';
 }

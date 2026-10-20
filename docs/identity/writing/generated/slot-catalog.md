@@ -134,7 +134,6 @@
 | saju-chart.yongsin.title | saju-chart.yongsin.title | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
 | settings.ad-free.label | settings.ad-free.label | info | - | 1 | 2 | `date`: text | ko 23, en 42, ja 18 |
 | settings.bar.title | settings.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| settings.depth.desc | settings.depth.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
 | settings.language.birthplace-notice | settings.language.birthplace-notice | guide | - | 1 | 2 | - | ko -, en -, ja - |
 | settings.logout.confirm | settings.logout.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`settingsLogoutConfirm` ko 34, en 60, ja 28 |
 | share-preview.cta.share | share-preview.cta.share | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
@@ -156,15 +155,13 @@
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
 | ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko 52, en 90, ja 38 |
 | ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
-| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 6 | - | ko 13, en 22, ja 10 |
+| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 22, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.date-picker.solar-confirm | 컴포넌트 date-picker | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko -, en -, ja - |
-| ui.depth.default_label | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 10, en 18, ja 10 |
-| ui.depth.evidence | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.evidence_link | today.evidence.link<br>컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
-| ui.depth.explain | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
-| ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
+| ui.depth.explain | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.diary-edit.save | diary-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 1 | `date`: text | ko 23, en 42, ja 19 |
 | ui.diary-view.actions | 컴포넌트 app-bar | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |

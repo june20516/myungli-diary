@@ -52,6 +52,7 @@ import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
 import 'package:myungli_diary/core/api/gen/model/notice.dart';
 import 'package:myungli_diary/core/api/gen/model/notification_setting.dart';
 import 'package:myungli_diary/core/api/gen/model/number_card.dart';
+import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/api/gen/model/preview_request.dart';
@@ -239,6 +240,9 @@ ReturnType deserialize<ReturnType, BaseType>(
           as ReturnType;
     case 'NumberCard':
       return NumberCard.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'PersonalReading':
+      return PersonalReading.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'Pillar':
       return Pillar.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Position':

@@ -228,8 +228,9 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: onboardBirthCalendarHint, text: "음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
+      - {lang: ko, key: onboardBirthCalendarHint, text: "음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요.", why: "윤달을 월 휠에서 고르는 방식(V31, #313)", source: writing}
+    bad:
+      - {lang: ko, text: "음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.", why: "없어진 윤달 체크를 전제함(#313)", source: writing}
   endings: ["~해 주세요", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."

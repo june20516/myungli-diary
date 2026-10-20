@@ -23,27 +23,23 @@ const Map<String, String> _barTitleKeys = {
   'notify-ask': 'notifyAskBarTitle',
   'today': 'todayBarTitle',
   'calendar': 'calendarBarTitle',
+  'diary-list': 'diaryListBarTitle',
+  'diary-edit': 'diaryEditBarTitle',
+  'diary-view': 'diaryViewBarTitle',
+  'tag-diary': 'tagDiaryBarTitle',
   'event-edit': 'eventEditBarTitle',
   'calc-basis': 'calcBasisBarTitle',
 };
 
 /// ARB에 "임시" 표시가 남아도 되는 키(슬롯이 없는 접근성 라벨·writing 원고 대기 문구).
 const Set<String> _allowedTemporaryKeys = {
+  'datePickerSolarConfirm',
   'shareImageSemantics',
   'sharePreviewRatioGroup',
   'todayLuckyColorName',
   'todayLuckyDirectionName',
   'todayLuckyNumberName',
   'todayLuckyTimeName',
-  'diaryEditSave',
-  'diaryViewEditAction',
-  'diaryViewDeleteAction',
-  'diaryViewDeleted',
-  'diaryListPickDateConfirm',
-  'tagChipLabel',
-  'tagChipPolarityGood',
-  'tagChipPolarityBad',
-  'tagChipPolarityNeutral',
 };
 
 Map<String, Object?> _readJson(String path) =>

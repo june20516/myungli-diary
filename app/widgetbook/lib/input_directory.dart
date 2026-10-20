@@ -124,6 +124,8 @@ class _MonthDatePickerDemoState extends State<_MonthDatePickerDemo> {
 Widget _datePicker(
   BirthDateValue initial, {
   DatePickerVariant variant = DatePickerVariant.birth,
+  int? leapMonth,
+  SolarConfirm? solarConfirm,
 }) {
   var value = initial;
   return SizedBox(
@@ -134,7 +136,8 @@ Widget _datePicker(
         onChanged: (next) => setState(() => value = next),
         calendarLabelSolar: '양력',
         calendarLabelLunar: '음력',
-        leapMonthLabel: '윤달',
+        leapMonth: leapMonth,
+        solarConfirm: solarConfirm,
         variant: variant,
       ),
     ),
@@ -392,15 +395,29 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
           ),
         ),
         _stage(
-          'birth(음력, 윤달 체크)',
+          'birth(음력, 윤2월 칸·확인 줄)',
           () => _datePicker(
             const BirthDateValue(
               calendar: BirthCalendar.lunar,
               year: 2023,
               month: 2,
-              day: 30,
+              day: 29,
               isLeapMonth: true,
             ),
+            leapMonth: 2,
+            solarConfirm: const SolarConfirm.text('양력 2023년 4월 19일'),
+          ),
+        ),
+        _stage(
+          'birth(음력, 확인 조회 중)',
+          () => _datePicker(
+            const BirthDateValue(
+              calendar: BirthCalendar.lunar,
+              year: 1990,
+              month: 4,
+              day: 15,
+            ),
+            solarConfirm: const SolarConfirm.loading(),
           ),
         ),
         _stage('calendar(일기 날짜)', () => const _MonthDatePickerDemo()),

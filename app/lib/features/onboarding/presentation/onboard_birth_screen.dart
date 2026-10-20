@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -13,6 +18,7 @@ import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/onboarding/application/lunar_birth_check.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
@@ -27,6 +33,9 @@ const Set<String> onboardBirthExits = {
 
 /// IA `onboard-birth`가 직접 처리하는 상태.
 const Set<String> onboardBirthHandledStates = {'out-of-range'};
+
+/// 음력 휠이 멈춘 뒤 확인을 묻기까지 기다리는 시간. 넘기는 동안에는 묻지 않습니다.
+const Duration lunarBirthCheckDelay = Duration(milliseconds: 350);
 
 /// 값이 없을 때 휠이 시작하는 생일.
 const BirthDateValue _defaultBirth = BirthDateValue(
@@ -83,6 +92,12 @@ BirthDateValue? birthDateValueOfProfile(Profile? profile) {
 }
 
 /// 온보딩 둘째 단계: 생일(양력·음력, 윤달)을 받습니다(D18·D41).
+///
+/// 음력이면 휠이 멈춘 뒤 `convertLunarDate`로 그 날을 확인합니다(V31 목표 모양, A20 ④). 그 달에
+/// 윤달이 있으면 그해의 윤달 칸을 월 휠에 끼우고(해가 같은 동안 기억해 넘길 때마다 빠졌다
+/// 끼워지지 않음), 휠 아래 확인 줄에 양력 날짜를 보입니다. 묻는 동안은 skeleton, 그 달에 없는
+/// 날이나 조회 실패는 그 오류 문구입니다. 조회 결과와 상관없이 다음으로 갈 수 있고, 맞지 않는
+/// 날짜는 저장할 때 server 오류로 보입니다.
 ///
 /// 수정 모드(`?mode=edit`)에서는 저장 버튼이 [BirthDateValue]를 `pop`으로 돌려줍니다.
 class OnboardBirthScreen extends ConsumerWidget {
@@ -146,6 +161,84 @@ class _BirthFormState extends ConsumerState<_BirthForm> {
   late BirthDateValue _value = widget.initial;
   bool _saving = false;
 
+  /// 확인을 묻는 음력 값. 휠이 멈추고 [lunarBirthCheckDelay]가 지나면 [_value]로 바뀝니다.
+  late LunarBirthQuery? _query = _queryOf(widget.initial);
+  Timer? _queryTimer;
+
+  /// 해 → 그해 윤달이 든 달. 확인 응답의 `monthHasLeap`으로 알게 된 것만 듭니다.
+  final Map<int, int> _leapMonthByYear = {};
+
+  @override
+  void dispose() {
+    _queryTimer?.cancel();
+    super.dispose();
+  }
+
+  static LunarBirthQuery? _queryOf(BirthDateValue value) =>
+      value.calendar == BirthCalendar.lunar
+      ? (
+          year: value.year,
+          month: value.month,
+          day: value.day,
+          leap: value.isLeapMonth,
+        )
+      : null;
+
+  /// 그해 윤달 칸이 아닌 달의 윤달 표시는 지웁니다(해를 바꿔 윤달 자리가 달라진 경우 등).
+  BirthDateValue _normalized(BirthDateValue value) {
+    if (!value.isLeapMonth) return value;
+    final leapMonth = _leapMonthByYear[value.year];
+    return leapMonth == value.month
+        ? value
+        : value.copyWith(isLeapMonth: false);
+  }
+
+  void _onChanged(BirthDateValue value) {
+    setState(() => _value = _normalized(value));
+    _queryTimer?.cancel();
+    final query = _queryOf(_value);
+    if (query == null) {
+      setState(() => _query = null);
+      return;
+    }
+    _queryTimer = Timer(lunarBirthCheckDelay, () {
+      if (mounted) setState(() => _query = _queryOf(_value));
+    });
+  }
+
+  /// 확인 응답이 그 달에 윤달이 있다고 하면 그해 윤달 칸을 기억합니다.
+  void _onChecked(LunarBirthQuery query, LunarBirthCheck check) {
+    if (!check.monthHasLeap || _leapMonthByYear[query.year] == query.month) {
+      return;
+    }
+    setState(() => _leapMonthByYear[query.year] = query.month);
+  }
+
+  /// 확인 줄. 음력이 아니면 null입니다.
+  SolarConfirm? _solarConfirm(AppLocalizations l10n) {
+    final query = _query;
+    if (query == null || query != _queryOf(_value)) {
+      return _value.calendar == BirthCalendar.lunar
+          ? const SolarConfirm.loading()
+          : null;
+    }
+    final check = ref.watch(lunarBirthCheckProvider(query));
+    return switch (check) {
+      AsyncData(:final value) => SolarConfirm.text(
+        value.solarDate == null
+            ? errorMessage(l10n, value.dayError!)
+            : l10n.datePickerSolarConfirm(
+                DateFormat.yMMMMd(Localizations.localeOf(context).toString())
+                    .format(value.solarDate!),
+              ),
+      ),
+      AsyncError(:final error) => SolarConfirm.text(
+        errorMessage(l10n, error is AppError ? error : UnexpectedError(error)),
+      ),
+      _ => const SolarConfirm.loading(),
+    };
+  }
+
   Future<void> _submit() async {
     if (_saving || !_value.isWithinSupportedRange) return;
     final value = _value;
@@ -171,6 +264,12 @@ class _BirthFormState extends ConsumerState<_BirthForm> {
     final tokens = context.tokens;
     final edit = widget.mode == OnboardingStepMode.edit;
     final inRange = _value.isWithinSupportedRange;
+    final query = _query;
+    if (query != null) {
+      ref.listen(lunarBirthCheckProvider(query), (_, next) {
+        if (next case AsyncData(:final value)) _onChecked(query, value);
+      });
+    }
     return InputStep(
       screenId: ScreenIds.onboardBirth,
       variant: edit ? InputStepVariant.standalone : InputStepVariant.onboarding,
@@ -182,10 +281,11 @@ class _BirthFormState extends ConsumerState<_BirthForm> {
         children: [
           BirthDatePicker(
             value: _value,
-            onChanged: (value) => setState(() => _value = value),
+            onChanged: _onChanged,
             calendarLabelSolar: l10n.calendarSolar,
             calendarLabelLunar: l10n.calendarLunar,
-            leapMonthLabel: l10n.leapMonth,
+            leapMonth: _leapMonthByYear[_value.year],
+            solarConfirm: _solarConfirm(l10n),
           ),
           const SizedBox(height: Space.s12),
           Semantics(

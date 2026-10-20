@@ -105,7 +105,7 @@ void main() {
     expect(view.lunarBold, isTrue);
   });
 
-  test('윤달 초하루는 M.1로 보이고 라벨에만 윤달을 넣는다(A40)', () {
+  test('윤달 초하루는 윤달 표지를 붙인 M.1이고 라벨에 윤달을 넣는다(A40, V38)', () {
     final view = viewOf(
       _withLunar(
         _day('2026-10-11'),
@@ -115,8 +115,22 @@ void main() {
       ),
     );
 
-    expect(view.lunarText, '6.1');
+    expect(view.lunarText, '윤6.1');
     expect(view.semanticLabel, '10월 11일 일요일, 음력 6월 1일, 윤달, 무난한 날');
+  });
+
+  test('윤달의 다른 날은 일(日)만이고 라벨에 윤달을 넣는다(V38)', () {
+    final view = viewOf(
+      _withLunar(
+        _day('2026-10-11'),
+        month: 6,
+        dayOfMonth: 5,
+        isLeapMonth: true,
+      ),
+    );
+
+    expect(view.lunarText, '5');
+    expect(view.semanticLabel, '10월 11일 일요일, 음력 6월 5일, 윤달, 무난한 날');
   });
 
   test('라벨은 날짜, 음력, 길흉 낱말(level.text), 일기, 일정, 오늘 순서(A39)', () {

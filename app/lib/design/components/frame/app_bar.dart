@@ -132,6 +132,7 @@ class AppBarAction extends StatefulWidget {
     required this.icon,
     required this.semanticLabel,
     required this.onPressed,
+    this.identifier,
     super.key,
   });
 
@@ -143,6 +144,9 @@ class AppBarAction extends StatefulWidget {
 
   /// 눌렀을 때.
   final VoidCallback onPressed;
+
+  /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
+  final String? identifier;
 
   @override
   State<AppBarAction> createState() => _AppBarActionState();
@@ -188,6 +192,7 @@ class _AppBarActionState extends State<AppBarAction>
     final colors = context.tokens.colors;
     return Semantics(
       button: true,
+      identifier: widget.identifier,
       label: widget.semanticLabel,
       onTap: widget.onPressed,
       child: ExcludeSemantics(

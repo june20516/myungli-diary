@@ -313,6 +313,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String datePickerSolarConfirm(String date) {
+    return '양력 $date';
+  }
+
+  @override
   String citySearchResults(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1090,5 +1095,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tagChipPolarityBad => '조심할 흐름';
 
   @override
-  String get tagChipPolarityNeutral => '중립';
+  String get tagChipPolarityNeutral => '무난한 흐름';
+
+  @override
+  String dayCellLeapNewMoon(int month) {
+    return '윤$month.1';
+  }
+
+  @override
+  String get errorCityNotFound => '출생지 도시를 찾지 못했어요. 도시를 다시 골라 주세요.';
+
+  @override
+  String get errorTimezoneInvalid => '시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.';
 }

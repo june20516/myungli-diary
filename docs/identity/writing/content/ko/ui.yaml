@@ -10,7 +10,7 @@
 - {slot: onboard-call.input.hint, key: onboardCallInputHint, text: "예: 민지"}
 - {slot: onboard-call.note.body, key: onboardCallNoteBody, text: "실명이 아니어도 돼요. 나중에 바꿀 수 있어요."}
 - {slot: onboard-birth.question.head, key: onboardBirthQuestionHead, text: "언제 태어났나요?"}
-- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요."}
+- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요."}
 - {slot: onboard-birth.basis.note, key: onboardBirthBasisNote, text: "한국에서 태어난 것을 기준으로 계산해요."}
 - {slot: onboard-birth.error.range, key: onboardBirthErrorRange, text: "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요."}
 - {slot: onboard-time.question.head, key: onboardTimeQuestionHead, text: "몇 시에 태어났나요?"}
@@ -102,7 +102,6 @@
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "태어난 시간을 몰라 시주는 빼고 보여 드려요."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "열기"}
 - {slot: saju-chart.yongsin.title, key: sajuChartYongsinTitle, text: "용신 판정 근거"}
-- {slot: settings.depth.desc, key: settingsDepthDesc, text: "풀이를 처음에 어디까지 펼쳐 볼지 골라요."}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNotice, text: "한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요."}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNoticeCta, text: "출생지 입력하기"}
 - {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "로그아웃할까요?"}
@@ -137,10 +136,7 @@
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}까지 광고 없이 볼 수 있어요"}
 - {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "구매 복원"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
-- {slot: ui.depth.default_label, key: depthDefaultLabel, text: "명리 풀이 보기"}
-- {slot: ui.depth.surface, key: depthSurface, text: "요약"}
 - {slot: ui.depth.explain, key: depthExplain, text: "풀이"}
-- {slot: ui.depth.evidence, key: depthEvidence, text: "원리"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "알림 받기"}
 
@@ -238,9 +234,9 @@
 - {slot: ui.picker.item, key: timePickerAm, text: "오전"}
 - {slot: ui.picker.item, key: timePickerPm, text: "오후"}
 - {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "윤{month}월"}
+- {slot: ui.date-picker.solar-confirm, key: datePickerSolarConfirm, text: "양력 {date}"}
 - {slot: ui.birth.option, key: calendarSolar, text: "양력"}
 - {slot: ui.birth.option, key: calendarLunar, text: "음력"}
-- {slot: ui.birth.option, key: leapMonth, text: "윤달"}
 - {slot: ui.birth.option, key: timeUnknownLabel, text: "모름"}
 - {slot: ui.birth.option, key: genderMale, text: "남성"}
 - {slot: ui.birth.option, key: genderFemale, text: "여성"}

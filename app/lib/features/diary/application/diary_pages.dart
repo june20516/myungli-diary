@@ -56,6 +56,26 @@ DiaryPagesView? heldDiaryPagesOf(AsyncValue<DiaryPagesView> state) {
   return identical(value, _forgottenPages) ? null : value;
 }
 
+/// [state]에서 로그아웃으로 버린 값을 뺀 상태. 화면은 이 값을 그립니다.
+///
+/// 버린 값만 들고 다시 받는 중이면 값 없는 loading, 다시 받기가 실패했으면 값 없는 오류라,
+/// 이전 계정 일기도 잠깐의 "일기 없음"도 보이지 않습니다.
+AsyncValue<DiaryPagesView> visibleDiaryPagesOf(
+  AsyncValue<DiaryPagesView> state,
+) {
+  if (!identical(state.value, _forgottenPages)) {
+    return state;
+  }
+  final error = state.error;
+  if (state.isLoading || error == null) {
+    return const AsyncLoading<DiaryPagesView>();
+  }
+  return AsyncError<DiaryPagesView>(
+    error,
+    state.stackTrace ?? StackTrace.empty,
+  );
+}
+
 /// 일기 목록(A45). family 값은 태그 키이고 null이면 모든 일기(`diary-list`), 있으면 그 태그
 /// 일기(`tag-diary`)입니다.
 ///

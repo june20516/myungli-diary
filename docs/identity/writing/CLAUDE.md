@@ -49,8 +49,10 @@
 ## 현재 상태 (2026-10-20, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
-* **IA D77 따라잡기**(브랜치 `writing/ia-d77`, W33, #278·#275 일부): IA ui 슬롯 9개를 `ia` 필드로 담고(ARB 키 이름 그대로), `ui.event-edit.form`의 버튼·안내 4개를 키별 슬롯으로 나눴습니다. 일기 저장 버튼·삭제 toast 원고(`diaryEditSave`·`diaryViewDeleted`).
-* **규칙 정합성 점검·남은 ui 원고**(브랜치 `writing/rules-d78`, D78, #283·#268·#260·#275): W20 개정(D77 예외), 원어민 검수는 보강 단계(D70), 가이드 질문 W31 ③ 기준을 voice-tone에, 사용 계약 행 정리. 오류 문구 `errorCityNotFound`·`errorTimezoneInvalid`, 윤달 초하루 표지 `dayCellLeapNewMoon`(en `L{month}.1`은 칸 폭 때문에 한 글자 표지), 일기 보기 아이콘 라벨과 태그 칩 틀·길흉 낱말.
+* **IA D77 따라잡기**(PR #279, W33, #278·#275 일부): IA ui 슬롯 9개를 `ia` 필드로 담고(ARB 키 이름 그대로), `ui.event-edit.form`의 버튼·안내 4개를 키별 슬롯으로 나눴습니다. 일기 저장 버튼·삭제 toast 원고(`diaryEditSave`·`diaryViewDeleted`).
+* **생일 음력 입력 문구**(브랜치 `writing/lunar-birth`, W34, #313): 양력 확인 줄 `datePickerSolarConfirm({date})`, 음력 안내를 월 휠 윤달 방식으로 고침, 윤달 체크 `leapMonth` 삭제.
+* **기본 깊이 설정 삭제**(PR #326, D79, #317·#323): 설정 이름·설명과 설정에만 쓰던 단계 이름(요약·원리) 원고를 3개 언어에서 지우고 W15를 개정했습니다. `depthExplain`(풀이 시트 접근성 라벨)·`depthLinkEvidence`는 남깁니다. design `lengths.md`의 해당 행은 #324로 design이 지웁니다(그때까지 writing 상한 대조 테스트가 건너뜀).
+* **규칙 정합성 점검·남은 ui 원고**(PR #297, D78, #283·#268·#260·#275): W20 개정(D77 예외), 원어민 검수는 보강 단계(D70), 가이드 질문 W31 ③ 기준을 voice-tone에, 사용 계약 행 정리. 오류 문구 `errorCityNotFound`·`errorTimezoneInvalid`, 윤달 초하루 표지 `dayCellLeapNewMoon`(en `L{month}.1`은 칸 폭 때문에 한 글자 표지), 일기 보기 아이콘 라벨과 태그 칩 틀·길흉 낱말.
 * **jev 판정 평가**(PR #263, `artifacts/2026-10-20-jev-evaluation.md`, W32): `mlw judge` 본 판정은 `claude -p` 그대로입니다. jev는 갈린 문장 17건 중 15건이 오탐이었습니다. `--shadow jev`와 기록은 남깁니다. `claude -p`도 사람이 문제로 본 문장을 많이 놓쳐, W1-3 라운드에서 judge 표시와 사용자 선택을 함께 봅니다.
 * **W1-2 사주·개인 해석**(PR #254, 계획 `plans/2026-10-16-w1-2-chart.md`, W31, #52·#237)
   * 명식(`chart.*` 24)·원국 개인 해석(`personal.*` 60)과 그 문장에 끼우는 값 이름 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김)의 3개 언어 원고. ja 조각은 W24 용어 표기 그대로이고, 빈 3개(閑神·極身弱·極身強)는 W1-3.
@@ -69,7 +71,7 @@
 * **IA v3·D70~D72**(PR #185, W24): IA v3 ui 슬롯 3개, 출생 시간대별 경도 키, glossary ja 근거 표기(91개, 閑神·極身弱·極身強은 비움), D72 규칙 `style.S7`.
 * **공용 ui 문구·ICU plural**(PR #155, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22): 공용 ui 슬롯(`slots/ui/common.yaml`), glossary 지지·날의 성격·방향 이름(`content/<lang>/glossary.yaml`, ARB로도 나감), ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`). `writing.yml`은 ci-gate만 부릅니다(#148).
 * **IA 슬롯 정렬**(spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 129개입니다(app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298 포함).
+  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 128개입니다(IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298 포함, D79로 기본 깊이 설명 빠짐).
   * 슬롯 명세 필드 `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
   * 호칭·조사 규칙: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
@@ -86,7 +88,7 @@
   * `engine.proto`가 바뀌면 `tools/gen_proto.sh`로 생성 코드를 다시 만듭니다(CI가 차이를 막습니다).
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
   * LLM 1차 거르기: `mlw judge docs/identity/writing/content --lang ko [--slot <id>]`(로컬 `claude` CLI 필요)
-* 결정은 W1~W33입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지).
+* 결정은 W1~W34입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일

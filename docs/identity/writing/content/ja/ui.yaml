@@ -10,7 +10,7 @@
 - {slot: onboard-call.input.hint, key: onboardCallInputHint, text: "例:ゆき"}
 - {slot: onboard-call.note.body, key: onboardCallNoteBody, text: "本名でなくてもかまいません。あとで変えられます。"}
 - {slot: onboard-birth.question.head, key: onboardBirthQuestionHead, text: "いつ生まれましたか?"}
-- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "旧暦の誕生日なら旧暦を選び、閏月なら閏月にも印をつけてください。"}
+- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "旧暦の誕生日なら旧暦を選んでください。閏月なら、月の一覧にある閏月を選びます。"}
 - {slot: onboard-birth.basis.note, key: onboardBirthBasisNote, text: "韓国で生まれたものとして計算します。"}
 - {slot: onboard-birth.error.range, key: onboardBirthErrorRange, text: "1900年1月31日から2099年12月31日までの日付だけ計算できます。"}
 - {slot: onboard-time.question.head, key: onboardTimeQuestionHead, text: "何時に生まれましたか?"}
@@ -102,7 +102,6 @@
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "生まれた時刻がわからないため、時柱を除いて表示しています。"}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "開く"}
 - {slot: saju-chart.yongsin.title, key: sajuChartYongsinTitle, text: "用神の判定根拠"}
-- {slot: settings.depth.desc, key: settingsDepthDesc, text: "読み解きを最初にどこまで広げて見るかを選びます。"}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNotice, text: "韓国以外で生まれた場合は、出生地を入力してください。生まれた時刻をより正確に合わせられます。"}
 - {slot: settings.language.birthplace-notice, key: settingsLanguageBirthplaceNoticeCta, text: "出生地を入力する"}
 - {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "ログアウトしますか?"}
@@ -137,10 +136,7 @@
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}まで広告なしで使えます"}
 - {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "購入を復元"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入前に利用規約とプライバシーポリシーをご確認ください。"}
-- {slot: ui.depth.default_label, key: depthDefaultLabel, text: "命理の読み解き"}
-- {slot: ui.depth.surface, key: depthSurface, text: "要約"}
 - {slot: ui.depth.explain, key: depthExplain, text: "読み解き"}
-- {slot: ui.depth.evidence, key: depthEvidence, text: "原理"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}の刻、{start}〜{end}に生まれました。"}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "通知を受け取る"}
 
@@ -238,9 +234,9 @@
 - {slot: ui.picker.item, key: timePickerAm, text: "午前"}
 - {slot: ui.picker.item, key: timePickerPm, text: "午後"}
 - {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "閏{month}月"}
+- {slot: ui.date-picker.solar-confirm, key: datePickerSolarConfirm, text: "新暦 {date}"}
 - {slot: ui.birth.option, key: calendarSolar, text: "新暦"}
 - {slot: ui.birth.option, key: calendarLunar, text: "旧暦"}
-- {slot: ui.birth.option, key: leapMonth, text: "閏月"}
 - {slot: ui.birth.option, key: timeUnknownLabel, text: "わからない"}
 - {slot: ui.birth.option, key: genderMale, text: "男性"}
 - {slot: ui.birth.option, key: genderFemale, text: "女性"}

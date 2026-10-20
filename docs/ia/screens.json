@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "tabs": [
     {
       "id": "today",
@@ -2118,7 +2118,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "기본 깊이, 알림 시각, 광고 제거, 언어, 정보 수정, 계산 기준, 로그아웃, 계정 삭제, 약관을 둡니다",
+      "purpose": "알림 시각, 광고 제거, 언어, 정보 수정, 계산 기준, 로그아웃, 계정 삭제, 약관을 둡니다",
       "depths": [],
       "states": [],
       "slots": [
@@ -2126,11 +2126,6 @@
           "id": "settings.bar.title",
           "source": "ui",
           "role": "app-bar 제목(화면 이름 \"설정\")"
-        },
-        {
-          "id": "settings.depth.desc",
-          "source": "ui",
-          "role": "기본 깊이 설명"
         },
         {
           "id": "settings.language.birthplace-notice",
@@ -2151,7 +2146,6 @@
       "components": [
         "app-bar",
         "settings-row",
-        "segmented",
         "time-picker",
         "sheet",
         "dialog"
@@ -2192,7 +2186,8 @@
         "D29",
         "D37",
         "D39",
-        "D53"
+        "D53",
+        "D79"
       ]
     },
     {

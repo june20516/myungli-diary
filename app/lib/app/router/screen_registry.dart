@@ -7,6 +7,10 @@ import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_edit_screen.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
+import 'package:myungli_diary/features/diary/presentation/tag_diary_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -129,6 +133,30 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: calendarHandledStates,
     exits: calendarExits,
   ),
+  ScreenIds.diaryList: const ScreenSpec(
+    ScreenIds.diaryList,
+    _buildDiaryList,
+    handledStates: diaryListHandledStates,
+    exits: diaryListExits,
+  ),
+  ScreenIds.diaryEdit: const ScreenSpec(
+    ScreenIds.diaryEdit,
+    _buildDiaryEdit,
+    handledStates: diaryEditHandledStates,
+    exits: diaryEditExits,
+  ),
+  ScreenIds.diaryView: const ScreenSpec(
+    ScreenIds.diaryView,
+    _buildDiaryView,
+    handledStates: diaryViewHandledStates,
+    exits: diaryViewExits,
+  ),
+  ScreenIds.tagDiary: const ScreenSpec(
+    ScreenIds.tagDiary,
+    _buildTagDiary,
+    handledStates: tagDiaryHandledStates,
+    exits: tagDiaryExits,
+  ),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -180,3 +208,11 @@ Widget _buildToday(BuildContext context) => const TodayScreen();
 Widget _buildCalcBasis(BuildContext context) => const CalcBasisScreen();
 
 Widget _buildEventEdit(BuildContext context) => const EventEditScreen();
+
+Widget _buildDiaryList(BuildContext context) => const DiaryListScreen();
+
+Widget _buildDiaryEdit(BuildContext context) => const DiaryEditScreen();
+
+Widget _buildDiaryView(BuildContext context) => const DiaryViewScreen();
+
+Widget _buildTagDiary(BuildContext context) => const TagDiaryScreen();

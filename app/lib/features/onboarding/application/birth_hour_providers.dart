@@ -20,7 +20,7 @@ typedef BirthHourQuery = ({BirthDateValue date, String time});
 
 /// 시진 확인 줄에 쓸 시진. 한국 기기가 아니면 요청하지 않고 null입니다(D58).
 ///
-/// 요청이 실패하면(엔진 RPC 전 501 포함) null이라 줄을 그리지 않습니다(A20).
+/// 요청이 실패하면 null이라 줄을 그리지 않습니다(A20).
 // family 타입 이름이 flutter_riverpod 공개 API에 없어(misc) 추론에 맡깁니다.
 // ignore: specify_nonobvious_property_types
 final birthHourProvider = FutureProvider.autoDispose
