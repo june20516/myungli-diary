@@ -103,7 +103,7 @@ func (s *Syncer) Sync(ctx context.Context, accountID uuid.UUID) error {
 //
 // UpsertGrant는 다른 계정에 있던 같은 구매 행을 이 계정으로 옮깁니다(transfer). lock은 계정별이라, transfer 전에 조회한
 // 원래 계정의 오래된 목록이 새 주인보다 늦게 upsert하면 행이 원래 계정으로 되돌아가고, 원래 계정의 다음 동기화가 그 행을 취소해
-// 새 주인이 다시 동기화할 때까지 권한이 빠질 수 있습니다. RevenueCat이 TRANSFER 때 양쪽 계정의 webhook을 보내 결국 수렴하므로 받아들입니다.
+// 새 주인이 다시 동기화할 때까지 권한이 빠질 수 있습니다. TRANSFER 이벤트 하나에 transferred_from·transferred_to가 함께 오고 webhook이 그 계정들을 모두 동기화하므로(P7-7) 결국 수렴해 받아들입니다.
 func (s *Syncer) reconcile(ctx context.Context, q *billingdb.Queries, accountID uuid.UUID, want []Grant) error {
 	wanted := make(map[grantKey]bool, len(want))
 	for _, g := range want {

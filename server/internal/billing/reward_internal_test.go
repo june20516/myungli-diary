@@ -41,3 +41,14 @@ func TestNextMidnight(t *testing.T) {
 		})
 	}
 }
+
+// 달력 날짜가 통째로 사라진 날(Pacific/Apia 2011-12-30) 전날에도 끝나고, 결과가 now 이후입니다.
+func TestNextMidnight_사라진_달력_날짜에서도_끝난다(t *testing.T) {
+	apia := loadLocation(t, "Pacific/Apia")
+	now := time.Date(2011, 12, 29, 12, 0, 0, 0, apia)
+
+	got := nextMidnight(now, apia)
+
+	assert.True(t, got.After(now), "now=%s got=%s", now, got)
+	assert.True(t, got.Before(now.Add(48*time.Hour)), "하루 안팎에 끝나야 합니다: %s", got)
+}

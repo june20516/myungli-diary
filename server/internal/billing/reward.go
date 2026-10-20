@@ -126,16 +126,26 @@ func (r *Rewards) accountLocation(ctx context.Context, queries *billingdb.Querie
 // 자정이 서머타임 gap에 걸리는 시간대(예: America/Santiago, America/Havana)에서는 그 자정이 존재하지 않고
 // time.Date가 그 날의 앞 시각(전날 23시)을 줄 수 있습니다. 그러면 하루가 일찍 끝나므로,
 // 결과의 달력 날짜가 다음 날이 될 때까지 한 시간씩 더해 그 날의 첫 유효 시각(예: 01:00)으로 맞춥니다.
+//
+// 달력 날짜가 통째로 사라진 날(Pacific/Apia 2011-12-30)에는 목표 날짜가 존재하지 않아 보정이 끝나지 않으므로
+// 반복을 maxMidnightAdjust번으로 막고, 넘으면 UTC 기준 다음 자정으로 폴백합니다.
+// 그 시간대의 하루를 정확히 맞추는 것보다 부여가 반드시 끝나고 now 이후라는 보장이 중요하고,
+// UTC 자정은 항상 now보다 늦으며 하루 안에 끝나 너그럽지도 인색하지도 않은 합리적인 값이기 때문입니다.
 func nextMidnight(now time.Time, loc *time.Location) time.Time {
 	local := now.In(loc)
 	year, month, day := local.Year(), local.Month(), local.Day()+1
 	next := time.Date(year, month, day, 0, 0, 0, 0, loc)
 	wantYear, wantMonth, wantDay := time.Date(year, month, day, 0, 0, 0, 0, time.UTC).Date()
-	for {
+	for range maxMidnightAdjust {
 		y, m, d := next.Date()
 		if next.After(now) && y == wantYear && m == wantMonth && d == wantDay {
 			return next
 		}
 		next = next.Add(time.Hour)
 	}
+	utc := now.UTC()
+	return time.Date(utc.Year(), utc.Month(), utc.Day()+1, 0, 0, 0, 0, time.UTC)
 }
+
+// maxMidnightAdjust는 nextMidnight가 한 시간씩 더해 보는 최대 횟수입니다. 서머타임 gap은 길어야 몇 시간입니다.
+const maxMidnightAdjust = 48

@@ -234,7 +234,9 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 		AdFreeProductIDs:      []string{flowProductID},
 		ProductionOnly:        true,
 	}
+	var pool *pgxpool.Pool
 	env := newFlowEnvWith(t, func(deps *serverDeps) {
+		pool = deps.Pool
 		deps.Charts = okCharts{}
 		wireBillingReadings(t, deps, newFlowFortuneService(t, deps))
 		deps.Billing = newBillingParts(cfg, deps.Pool, deps.HTTP, billingURLs{RevenueCat: revenueCatURL, AdMobKeys: keysURL}, deps.Clock, deps.Logger)
@@ -288,6 +290,9 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 		// 같은 event.id를 다시 받아도 결과가 같고 200입니다.
 		again := env.webhook(event, flowWebhookAuth)
 		assert.Equal(t, http.StatusOK, again.status)
+		var events int
+		require.NoError(t, pool.QueryRow(t.Context(), `SELECT count(*) FROM billing_events WHERE event_id = $1`, "evt-flow-1").Scan(&events))
+		assert.Equal(t, 1, events, "같은 event.id는 한 행만 남습니다")
 		assert.Equal(t, true, adFreeOf(access)["active"])
 	})
 

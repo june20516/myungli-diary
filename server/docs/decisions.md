@@ -86,9 +86,10 @@ server 안에서 정한 사항을 모읍니다. 제품 결정(D#)과 부딪히�
 | S80 | 2026-10-20 | 결제 | "1개월"은 UTC 달력 기준이고 달의 날이 없으면 그 달 마지막 날로 맞춥니다(시각 유지). 광고 제거권 구매 하나가 같은 기간의 `ad_free`·`insight` 행 둘(출처 `ad_free_pass`)이 됩니다 | P7 계획 P7-3·P7-4 |
 | S81 | 2026-10-20 | 결제 | 조정(reconcile)은 `ad_free_pass` 행을 원하는 집합과 비교해 넣고, 고치고, 빠진 행에 `revoked_at`을 찍습니다. 행을 지우지 않습니다 | P7 계획 P7-5 |
 | S82 | 2026-10-20 | 결제 | 동기화는 계정 advisory lock을 잡은 뒤 RevenueCat을 조회합니다. lock 키는 저장소 관례의 int4 쌍(구분 'bil', `hashtext(account)`)이며 다른 lock과 겹치지 않습니다 | P7 계획 P7-6, P7 Task 5 |
-| S83 | 2026-10-20 | 결제 | 같은 구매 id가 다른 계정 행에 있으면 행의 주인을 지금 목록의 계정으로 옮깁니다(RevenueCat 구매 목록이 권위, transfer). 오래된 목록의 늦은 조정이 행을 되찾는 역방향 경합은 받아들이고 주석으로 남깁니다. TRANSFER가 양쪽에 webhook을 보내 수렴합니다 | P7 Task 5 |
-| S84 | 2026-10-20 | 결제 | webhook 계정 찾기는 `app_user_id`·`original_app_user_id`·`aliases`·`transferred_from`·`transferred_to`의 UUID 중 `accounts`에 있는 것 모두입니다. 하나도 없거나 `TEST`면 기록만 하고 200입니다 | P7 계획 P7-7 |
+| S83 | 2026-10-20 | 결제 | 같은 구매 id가 다른 계정 행에 있으면 행의 주인을 지금 목록의 계정으로 옮깁니다(RevenueCat 구매 목록이 권위, transfer). 오래된 목록의 늦은 조정이 행을 되찾는 역방향 경합은 받아들이고 주석으로 남깁니다. TRANSFER 이벤트 하나에 `transferred_from`·`transferred_to`가 함께 오고 webhook이 그 계정들을 모두 동기화하므로 수렴합니다 | P7 Task 5 |
+| S84 | 2026-10-20 | 결제 | webhook 멱등은 `billing_events`의 `event_id` 한 행으로 하고(이미 처리됐으면 바로 200, 처리 못 했으면 다시 처리), `event.id`가 없으면 400입니다. Authorization은 설정 값과 헤더 값의 SHA-256을 상수 시간으로 비교합니다. webhook 계정 찾기는 `app_user_id`·`original_app_user_id`·`aliases`·`transferred_from`·`transferred_to`의 UUID 중 `accounts`에 있는 것 모두입니다. 하나도 없거나 `TEST`면 기록만 하고 200입니다 | P7 계획 P7-7 |
 | S85 | 2026-10-20 | 오류 | webhook Authorization 불일치 401은 기존 code `auth.token_invalid`(challenge 없음)를 씁니다. 계약에 code를 더하지 않습니다. 잘못된 JSON이면 인증보다 계약 검증이 먼저라 400이 먼저 나옵니다(RevenueCat은 늘 JSON이고 2xx가 아니면 재시도해 결과가 같음) | P7 Task 6 |
 | S86 | 2026-10-20 | 결제 | AdMob 공개 키는 24시간 캐시하고, 모르는 `key_id`는 마지막 조회 뒤 1분이 지나야 다시 받습니다. 캐시가 없거나 만료된 상태에서 받기에 실패하면 10초 동안 키 서버를 부르지 않고 바로 503입니다 | P7 계획 P7-11, P7 Task 7 |
 | S87 | 2026-10-20 | 결제 | SSV `timestamp`는 13자리 이하면 ms, 16자리면 µs로 읽고 그 밖의 형식은 서명 오류입니다. 서명 검증 뒤 ±1시간을 벗어나면 `reward.expired`입니다. 실제 단위는 P9 staging에서 확인합니다 | P7 계획 P7-13 |
 | S88 | 2026-10-20 | 결제 | 보상 기록·부여는 계정 상태와 무관하게 한 트랜잭션에서 합니다. `transaction_id`는 한 번만 처리합니다. 다음 자정은 `profiles.current_timezone` 기준이고 못 읽으면 UTC 자정과 Error 로그입니다 | P7 계획 P7-14, P7 Task 8 |
+| S89 | 2026-10-20 | 결제 | 광고 제거권 상품은 설정 `AD_FREE_PRODUCT_IDS`(쉼표 목록)이고 목록 밖 상품은 무시합니다(상품 id를 코드에 넣지 않음, D74). `APP_ENV`가 prod면 `environment=production` 구매만, 그 밖에는 sandbox·production 모두 셉니다 | P7 계획 P7-2 |

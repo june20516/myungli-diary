@@ -23,7 +23,7 @@ func runStrict(t *testing.T, operationID string, req *http.Request) RawRequest {
 		got = RawRequestFrom(ctx)
 		return nil, nil
 	}
-	wrapped := withRawRequest("revenuecatWebhook", "admobRewardCallback")(handler, operationID)
+	wrapped := withRawRequest(operationRevenuecatWebhook, operationAdmobRewardCallback)(handler, operationID)
 	_, err := wrapped(req.Context(), httptest.NewRecorder(), req, nil)
 	require.NoError(t, err)
 	return got

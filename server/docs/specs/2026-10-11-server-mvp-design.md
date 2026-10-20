@@ -3,7 +3,7 @@
 * 상태: 확정, 구현 P1~P6 완료(계획은 `docs/plans/README.md`)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
 * 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클(비공개 기록 `business/cycles/2026-10-11-launch-payment.md`, D74)
-* server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다(S1~S88). 이 문서의 각 절에 해당 번호를 붙입니다.
+* server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다(S1~S89). 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
 
@@ -402,24 +402,25 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 * `POST /v1/billing/restore`도 3번의 같은 동기화 함수를 씁니다. 비갱신 상품은 스토어가 복원해 주지 않으므로 server가 복원합니다.
 * **만료일 계산:** 광고 제거권 구매를 구매일 순으로 보며 `만료일 = max(직전 만료일, 구매일) + 1개월`로 이어 붙입니다.
   * 만료 전 재구매를 이어 붙이는 규칙은 D61로 확정됐습니다.
-  * 환불된 구매는 빼고 다시 계산합니다. 동기화는 RevenueCat REST v2 구매 목록을 쓰며 환불은 `status: refunded`로 표시됩니다(P7-1). 없는 고객은 404이고 구매 없음으로 봅니다.
-  * "1개월"은 UTC 달력 기준이고 달의 날이 없으면 그 달 마지막 날로 맞춥니다(1월 31일 → 2월 28·29일, 시각 유지, P7-3).
-* **조정:** 계정의 `ad_free_pass` 행을 원하는 집합과 비교해 없는 행은 넣고 기간이 다른 행은 고치고, 집합에서 빠진 행은 `revoked_at`을 찍습니다. 행을 지우지 않습니다(P7-5).
-* **동시성:** 동기화는 트랜잭션 안에서 계정 advisory lock(저장소 관례의 int4 키 쌍, 구분 'bil')을 잡은 뒤 RevenueCat을 조회하고 조정합니다. 동시에 온 webhook·복원이 오래된 조회 결과로 새 결과를 덮지 않게 하려는 것입니다(P7-6).
-* **webhook 계정 찾기:** `app_user_id`, `original_app_user_id`, `aliases`, `transferred_from`, `transferred_to`에서 UUID 형식이고 `accounts`에 있는 id를 모두 모아 각각 동기화합니다. 하나도 없으면 기록만 하고 200(Warn 로그)이며 `TEST` 이벤트도 기록만 합니다(P7-7).
-* **transfer:** 같은 구매 id가 다른 계정 행에 있으면 지금 목록의 주인으로 행을 옮깁니다(RevenueCat 구매 목록이 권위입니다). 오래된 목록으로 늦게 조정한 이전 주인이 행을 되찾는 경합은 받아들입니다. TRANSFER가 양쪽 계정에 webhook을 보내 다음 동기화에서 수렴합니다.
+  * 환불된 구매는 빼고 다시 계산합니다. 동기화는 RevenueCat REST v2 구매 목록을 쓰며 환불은 `status: refunded`로 표시됩니다(S79). 없는 고객은 404이고 구매 없음으로 봅니다.
+  * "1개월"은 UTC 달력 기준이고 달의 날이 없으면 그 달 마지막 날로 맞춥니다(1월 31일 → 2월 28·29일, 시각 유지, S80).
+* **구매 범위:** 광고 제거권 상품은 설정 `AD_FREE_PRODUCT_IDS`의 목록이고 밖의 상품은 무시합니다. `APP_ENV`가 prod면 `environment=production` 구매만, 그 밖에는 sandbox도 셉니다(S89).
+* **조정:** 계정의 `ad_free_pass` 행을 원하는 집합과 비교해 없는 행은 넣고 기간이 다른 행은 고치고, 집합에서 빠진 행은 `revoked_at`을 찍습니다. 행을 지우지 않습니다(S81).
+* **동시성:** 동기화는 트랜잭션 안에서 계정 advisory lock(저장소 관례의 int4 키 쌍, 구분 'bil')을 잡은 뒤 RevenueCat을 조회하고 조정합니다. 동시에 온 webhook·복원이 오래된 조회 결과로 새 결과를 덮지 않게 하려는 것입니다(S82).
+* **webhook 계정 찾기:** `app_user_id`, `original_app_user_id`, `aliases`, `transferred_from`, `transferred_to`에서 UUID 형식이고 `accounts`에 있는 id를 모두 모아 각각 동기화합니다. 하나도 없으면 기록만 하고 200(Warn 로그)이며 `TEST` 이벤트도 기록만 합니다(S84).
+* **transfer:** 같은 구매 id가 다른 계정 행에 있으면 지금 목록의 주인으로 행을 옮깁니다(RevenueCat 구매 목록이 권위입니다). 오래된 목록으로 늦게 조정한 이전 주인이 행을 되찾는 경합은 받아들입니다. TRANSFER 이벤트 하나에 `transferred_from`·`transferred_to`가 함께 오고 webhook이 그 계정들을 모두 동기화하므로 수렴합니다(S84).
 * 광고 제거권 구매를 동기화할 때 같은 기간의 `insight` 권한도 출처 `ad_free_pass`로 함께 부여합니다(D60③). 환불로 광고 제거권이 줄면 이 권한도 같이 줄입니다.
 * 광고 제거 여부와 근거 열람 권한은 `GET /v1/me`와 `GET /v1/me/entitlements`로 알려 줍니다. 근거 열람 권한은 만료 시각과 출처를 함께 보냅니다.
 
 ### 10.1 보상형 광고 SSV (D60, S14)
 
 1. app은 보상형 광고를 띄울 때 SSV 옵션의 `user_id`에 계정 id를 넣습니다.
-2. AdMob이 `GET /webhooks/admob-ssv?...&signature=…&key_id=…`로 부릅니다. server는 서명 대상 문자열(쿼리에서 `signature` 앞까지)을 AdMob 공개 키(`https://www.gstatic.com/admob/reward/verifier-keys.json`, `key_id`로 고름)로 ECDSA 검증합니다. 공개 키는 24시간 캐시하되, 모르는 `key_id`가 오면 마지막 조회 뒤 1분이 지났을 때만 다시 받습니다. 캐시가 없거나 만료된 상태에서 받기에 실패하면 10초 동안은 키 서버를 부르지 않고 바로 503입니다(장애 중 호출 억제, P7-11).
+2. AdMob이 `GET /webhooks/admob-ssv?...&signature=…&key_id=…`로 부릅니다. server는 서명 대상 문자열(쿼리에서 `signature` 앞까지)을 AdMob 공개 키(`https://www.gstatic.com/admob/reward/verifier-keys.json`, `key_id`로 고름)로 ECDSA 검증합니다. 공개 키는 24시간 캐시하되, 모르는 `key_id`가 오면 마지막 조회 뒤 1분이 지났을 때만 다시 받습니다. 캐시가 없거나 만료된 상태에서 받기에 실패하면 10초 동안은 키 서버를 부르지 않고 바로 503입니다(장애 중 호출 억제, S86).
 3. 검증에 실패하면 401로 응답하고 아무것도 부여하지 않습니다.
 4. `transaction_id`로 `reward_events`에 한 번만 저장하고, 같은 트랜잭션에서 `insight` 권한을 출처 `rewarded_ad`로 부여합니다. 만료는 그 계정의 **현재 시간대 기준 다음 자정**입니다(D60③). 같은 `transaction_id`가 다시 오면 아무것도 하지 않고 200을 돌려줍니다.
 5. `user_id`가 없거나 존재하지 않는 계정이면 이벤트만 기록하고 200을 돌려줍니다. AdMob이 재시도하지 않게 하기 위해서이며, 로그에 경고를 남깁니다.
-6. 쿼리의 `timestamp`가 현재보다 1시간 넘게 오래됐으면 재전송 공격으로 보고 부여하지 않습니다(401). 서명 검증이 먼저이고, 단위는 숫자 13자리 이하면 ms, 16자리면 µs로 읽습니다(P7-13). 실제 단위는 staging에서 콘솔 테스트 콜백으로 확인합니다.
-7. 보상 기록·부여는 계정 상태(`pending_deletion`·`deleted`)와 무관하게 합니다. 다음 자정을 구할 `profiles.current_timezone`을 못 읽으면 UTC 자정으로 부여하고 Error 로그를 남깁니다(저장 때 검증하므로 버그 신호, P7-14).
+6. 쿼리의 `timestamp`가 현재보다 1시간 넘게 어긋나면(오래됐거나 미래) 재전송 공격으로 보고 부여하지 않습니다(401). 서명 검증이 먼저이고, 단위는 숫자 13자리 이하면 ms, 16자리면 µs로 읽습니다(S87). 실제 단위는 staging에서 콘솔 테스트 콜백으로 확인합니다.
+7. 보상 기록·부여는 계정 상태(`pending_deletion`·`deleted`)와 무관하게 합니다. 다음 자정을 구할 `profiles.current_timezone`을 못 읽으면 UTC 자정으로 부여하고 Error 로그를 남깁니다(저장 때 검증하므로 버그 신호, S88).
 
 ## 11. 오류 (S10)
 
