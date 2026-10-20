@@ -28,7 +28,7 @@ func (a *API) ListSchedules(ctx context.Context, req gen.ListSchedulesRequestObj
 	return gen.ListSchedules200JSONResponse(gen.ScheduleList{Items: items}), nil
 }
 
-// CreateSchedule은 일정을 만들고 201과 Location을 돌려줍니다. Idempotency-Key는 핸들러가 아니라 멱등 미들웨어(P5 Task 7)가 다룹니다.
+// CreateSchedule은 일정을 만들고 201과 Location을 돌려줍니다. Idempotency-Key는 핸들러가 아니라 멱등 미들웨어(register.go의 Routes.Idempotency, idempotency.go)가 다룹니다.
 func (a *API) CreateSchedule(ctx context.Context, req gen.CreateScheduleRequestObject) (gen.CreateScheduleResponseObject, error) {
 	id, err := a.scheduleAccountID(ctx)
 	if err != nil {

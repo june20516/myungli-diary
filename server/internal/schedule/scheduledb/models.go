@@ -122,6 +122,17 @@ type Diary struct {
 	ContentPurgedAt *time.Time
 }
 
+type IdempotencyKey struct {
+	AccountID   uuid.UUID
+	Key         string
+	RequestHash []byte
+	Status      pgtype.Int4
+	Headers     []byte
+	Body        []byte
+	CreatedAt   time.Time
+	CompletedAt *time.Time
+}
+
 type MonthCache struct {
 	BirthHash       []byte
 	RulesetVersion  string
