@@ -157,3 +157,16 @@ func TestStore_Unlocked_MatchesInsightActive(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, unlocked)
 }
+
+func TestStore_Status_SameExpiry_LaterRowSourceWins(t *testing.T) {
+	store, pool := newStore(t)
+	accountID := newAccount(t, pool)
+	expires := now.AddDate(0, 0, 3)
+	insertGrant(t, pool, accountID, grant(billing.Insight, billing.SourceRewardedAd, "tx1", now.Add(-time.Hour), expires))
+	insertGrant(t, pool, accountID, grant(billing.Insight, billing.SourceAdFreePass, "p1", now.Add(-time.Hour), expires))
+
+	status, err := store.Status(context.Background(), accountID)
+
+	require.NoError(t, err)
+	assert.Equal(t, billing.SourceAdFreePass, status.Insight.Source, "만료가 같으면 나중에 만든 행")
+}

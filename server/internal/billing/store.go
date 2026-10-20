@@ -74,13 +74,15 @@ func (s *Store) Status(ctx context.Context, accountID uuid.UUID) (Status, error)
 		return Status{}, fmt.Errorf("권한 행 조회: %w", err)
 	}
 
-	var started, latest = map[Entitlement]bool{}, map[Entitlement]billingdb.ListLiveGrantsRow{}
+	started := map[Entitlement]bool{}
+	latest := map[Entitlement]billingdb.ListLiveGrantsRow{}
+	// 행은 (expires_at, id) 오름차순이라, 만료가 같으면 나중에 만든 행(id가 큰 행)이 이깁니다.
 	for _, row := range rows {
 		entitlement := Entitlement(row.Entitlement)
 		if !row.StartsAt.After(now) {
 			started[entitlement] = true
 		}
-		if current, ok := latest[entitlement]; !ok || row.ExpiresAt.After(current.ExpiresAt) {
+		if current, ok := latest[entitlement]; !ok || !row.ExpiresAt.Before(current.ExpiresAt) {
 			latest[entitlement] = row
 		}
 	}
