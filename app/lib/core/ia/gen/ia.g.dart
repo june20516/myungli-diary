@@ -171,6 +171,7 @@ abstract final class SlotIds {
   static const String diaryListBarTitle = 'diary-list.bar.title';
   static const String diaryListEmptyBody = 'diary-list.empty.body';
   static const String diaryListPickDateCta = 'diary-list.pick-date.cta';
+  static const String diaryListPickDateConfirm = 'diary-list.pick-date.confirm';
   static const String diaryEditBarTitle = 'diary-edit.bar.title';
   static const String diaryEditGuideQuestion = 'diary-edit.guide.question';
   static const String diaryEditBodyPlaceholder = 'diary-edit.body.placeholder';
@@ -597,6 +598,7 @@ const List<IaScreen> iaScreens = [
     ],
     components: [
       'app-bar',
+      'diary-editor',
       'day-character',
       'sentence-block',
       'tag-chip',
