@@ -2311,6 +2311,7 @@ components:
       type: object
       description: |
         저장된 프로필입니다. `birthCity`는 출생 도시(`birth.place.status`가 `city`일 때만)이고 이름은 프로필 언어입니다.
+        `birthCity.longitude`는 계산에 쓴 저장된 경도입니다. 도시 자료가 바뀌어 저장된 도시를 찾지 못하면 `city`여도 `birthCity`를 뺍니다.
         계산 기준 화면의 경도 안내에 씁니다. 응답에만 있는 필드이며, 요청(`ProfileInput`·`ProfilePatch`)은 `birth.place.cityId`로만 보냅니다.
       required: [honorific, language, currentTimezone, birth, notification]
       properties:

@@ -983,6 +983,15 @@ func TestContract_Draft6Additions(t *testing.T) {
 		})
 	}
 
+	t.Run("Profile.birthCity 생략 조건", func(t *testing.T) {
+		description := doc.Components.Schemas["Profile"].Value.Description
+		for _, text := range []string{"계산에 쓴 저장된 경도", "찾지 못하면 `city`여도 `birthCity`를 뺍니다"} {
+			if !strings.Contains(description, text) {
+				t.Errorf("Profile 설명에 %q가 없음", text)
+			}
+		}
+	})
+
 	t.Run("getCalendar 첫 달", func(t *testing.T) {
 		description := operationByID(t, doc, "getCalendar").Description
 		for _, text := range []string{"첫 달은 1900-02", "마지막 달은 2099-12"} {

@@ -286,13 +286,17 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if err != nil {
 		return ChartView{}, err
 	}
-	tpl, err := v.store.Templates(ctx, version, p.Language)
+	notices, err := v.notices(ctx, version, p.Language, response.GetMeta())
 	if err != nil {
 		return ChartView{}, err
 	}
-	view := ChartView{Response: response, Notices: v.renderNotices(ctx, tpl, response.GetMeta()), Unlocked: unlocked}
+	view := ChartView{Response: response, Notices: notices, Unlocked: unlocked}
 	if !unlocked {
 		return view, nil
+	}
+	tpl, err := v.store.Templates(ctx, version, p.Language)
+	if err != nil {
+		return ChartView{}, err
 	}
 	// 계약에서 선택 필드라 원고가 없으면 nil로 둡니다(로그는 Renderer가 남김).
 	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", false); ok {

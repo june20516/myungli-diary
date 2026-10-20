@@ -91,13 +91,15 @@ func TestGetProfile_BirthCityOmitted(t *testing.T) {
 	cases := []struct {
 		name string
 		p    profile.Profile
+		// wantWarn은 도시 자료가 바뀐 것을 운영에서 알아챌 Warn 로그가 남아야 하는지입니다(S46).
+		wantWarn bool
 	}{
 		{name: "도시 출생이 아님", p: notAsked},
-		{name: "도시 자료에 없는 id", p: removed},
+		{name: "도시 자료에 없는 id", p: removed, wantWarn: true},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: &fakeProfiles{profile: tc.p}})
+			handler, spec, logs := newHandlerAPIWithLogs(t, &httpapi.API{Profiles: &fakeProfiles{profile: tc.p}})
 
 			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me/profile", nil)
 			rec := serve(handler, req)
@@ -105,6 +107,12 @@ func TestGetProfile_BirthCityOmitted(t *testing.T) {
 			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 			expectContractResponse(t, spec, req, rec)
 			assert.NotContains(t, rec.Body.String(), "birthCity")
+			if tc.wantWarn {
+				assert.Contains(t, logs.String(), `"severity":"WARNING"`)
+				assert.Contains(t, logs.String(), `"city_id":"0"`)
+			} else {
+				assert.NotContains(t, logs.String(), `"severity":"WARNING"`)
+			}
 		})
 	}
 }
