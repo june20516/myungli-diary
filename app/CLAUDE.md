@@ -85,7 +85,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **이 따라잡기 PR을 올리고 병합을 기다립니다**(`Closes #264`·`Closes #266`). 병합 뒤 아래 3번 계획 5로 갑니다. writing #260(윤달 초하루 표지 문구)이 오면 `dayCellDataOf`의 `lunarText`에 붙입니다(A40).
+1. **따라잡기 PR #269는 병합됐습니다(지휘 2026-10-20).** 열린 `drift` #271(PR #270 REST draft.7, 설명만 바뀌어 생성 코드 문서 주석 차이)을 계획 5 첫 PR에서 생성 코드를 다시 만들어 맞추고 `Closes #271`로 닫습니다. 이어서 아래 3번 계획 5로 갑니다. server P5(#270)로 일기·일정 operation이 실제로 응답합니다(A1은 대역 fixture 그대로). writing #260(윤달 초하루 표지 문구)이 오면 `dayCellDataOf`의 `lunarText`에 붙입니다(A40).
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 화면 9곳의 `<화면>.bar.title` 제목은 해당 화면을 만드는 계획 5·6에서 붙입니다(임시 키 허용 목록 `test/` 대조가 알려 줍니다, A43). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기)를 writing-plans로.** 순서는 `docs/roadmap.md`를 따릅니다. 계획 4가 넘기는 것:
    * `diary-view`·`diary-edit`은 날짜를 `?date=YYYY-MM-DD` 계약으로 받습니다(`lib/app/router/app_router.dart`의 `dateQuery`·`datedPathOf`). `day-sheet`의 일기 입구가 이미 이 경로로 엽니다(`today` 가이드 카드는 날짜 없이 오늘로 엽니다).
