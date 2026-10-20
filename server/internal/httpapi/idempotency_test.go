@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -342,4 +343,30 @@ func TestIdempotency_CompleteFailureKeepsRowAndLogs(t *testing.T) {
 	retry := serve(handler, env.newPost(t, "secret-key", "", createBody))
 	require.Equal(t, http.StatusConflict, retry.Code)
 	assert.Equal(t, 1, env.count(t, "schedules"))
+}
+
+// 본문 읽기 중 MaxBytesReader 상한을 넘으면 413 request.too_large이고, 핸들러도 표도 건드리지 않습니다.
+// (전체 체인에서는 계약 검증이 먼저 같은 오류를 내므로, 멱등 층만 떼어 그 경로를 직접 확인합니다.)
+func TestIdempotency_BodyTooLargeReturns413WithoutRow(t *testing.T) {
+	env := newIdempotencyEnv(t)
+	deps, _ := newTestDeps()
+	middleware := httpapi.Idempotency(httpapi.NewPgIdempotencyStore(env.pool), env.clk, deps.Logger, "createSchedule")
+	handlerCalled := false
+	next := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { handlerCalled = true })
+	handler := middleware(httpapi.Operation{ID: "createSchedule", Bearer: true}, next)
+
+	const limit = 16
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, schedulesTarget, strings.NewReader(strings.Repeat("x", limit*2)))
+	req.Header.Set("Idempotency-Key", "key-too-large")
+	req = req.WithContext(httpapi.WithAccount(req.Context(), env.accounts["a"], account.Access{Status: account.StatusActive}))
+	rec := httptest.NewRecorder()
+	req.Body = http.MaxBytesReader(rec, req.Body, limit)
+
+	handler.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusRequestEntityTooLarge, rec.Code, rec.Body.String())
+	assert.Equal(t, "application/problem+json", rec.Header().Get("Content-Type"))
+	assert.Contains(t, rec.Body.String(), `"request.too_large"`)
+	assert.False(t, handlerCalled, "핸들러를 부르면 안 됩니다")
+	assert.Equal(t, 0, env.count(t, "idempotency_keys"))
 }

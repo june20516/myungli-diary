@@ -109,6 +109,9 @@ func TestRun_MigrateUnreachableDatabase_FailsFastWithCauseWithoutPassword(t *tes
 	}
 }
 
+// migrationFileCount는 migration 디렉터리의 파일 수입니다. migration을 더하면 함께 올립니다.
+const migrationFileCount = 8
+
 func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
@@ -124,8 +127,8 @@ func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Status: %v", err)
 	}
-	if len(statuses) != 5 {
-		t.Fatalf("migrate up 뒤 status = %+v, want migration 다섯 개", statuses)
+	if len(statuses) != migrationFileCount {
+		t.Fatalf("migrate up 뒤 status = %+v, want migration %d개", statuses, migrationFileCount)
 	}
 	for _, status := range statuses {
 		if !status.Applied {
@@ -155,8 +158,8 @@ func TestRun_MigrateDownWithNothingApplied_Exits1WithClearLog(t *testing.T) {
 	pool := dbtest.New(t)
 	env := map[string]string{"DATABASE_URL": pool.Config().ConnString()}
 
-	// migration 파일이 다섯이므로 다섯 다 되돌려야 적용된 것이 없어집니다.
-	for i := 1; i <= 5; i++ {
+	// migration 파일을 다 되돌려야 적용된 것이 없어집니다.
+	for i := 1; i <= migrationFileCount; i++ {
 		if code, _, stderr := runCLIWithEnv(t, env, "migrate", "down"); code != 0 {
 			t.Fatalf("%d번째 down 종료 코드 = %d, stderr = %q", i, code, stderr)
 		}

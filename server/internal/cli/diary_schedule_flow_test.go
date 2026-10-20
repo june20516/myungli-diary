@@ -1,0 +1,54 @@
+package cli
+
+import (
+	"bytes"
+	"net/http"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+// serve 조립(newServer)에 일기·일정 서비스와 멱등 미들웨어가 들어 있는지 확인합니다.
+// 조립이 빠지면 일기·일정 operation은 501 not_implemented 또는 503 service.unavailable로 답합니다.
+func TestDiaryScheduleFlow_AssembledOperationsAreNotStubbed(t *testing.T) {
+	env := newFlowEnv(t)
+	login := env.loginKakao("diary-flow-subject")
+	require.Equal(t, http.StatusOK, login.status, "로그인 본문: %v", login.body)
+	access, _ := login.tokens(t)
+	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
+	require.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
+
+	list := env.do(http.MethodGet, "/v1/diaries", access, nil)
+	require.Equal(t, http.StatusOK, list.status, "일기 목록 본문: %v", list.body)
+
+	env.do(http.MethodGet, "/v1/diaries/2026-10-12", access, nil).requireProblem(t, http.StatusNotFound, "diary.not_found")
+
+	schedules := env.do(http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", access, nil)
+	require.Equal(t, http.StatusOK, schedules.status, "일정 목록 본문: %v", schedules.body)
+
+	// Idempotency-Key가 같은 일정 만들기는 한 번만 만들고 같은 응답을 다시 줍니다.
+	body := map[string]any{"date": "2026-10-21", "allDay": true, "title": "회의"}
+	first := env.doWithKey(http.MethodPost, "/v1/schedules", access, "flow-key-1", body)
+	require.Equal(t, http.StatusCreated, first.status, "일정 만들기 본문: %v", first.body)
+	second := env.doWithKey(http.MethodPost, "/v1/schedules", access, "flow-key-1", body)
+	require.Equal(t, http.StatusCreated, second.status, "재시도 본문: %v", second.body)
+	assert.Equal(t, first.body["id"], second.body["id"], "같은 키의 재시도는 같은 일정을 돌려줍니다")
+
+	after := env.do(http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", access, nil)
+	require.Equal(t, http.StatusOK, after.status)
+	items, _ := after.body["items"].([]any)
+	assert.Len(t, items, 1, "일정은 한 번만 만들어집니다")
+}
+
+// doWithKey는 do와 같되 Idempotency-Key 헤더를 더합니다.
+func (e *flowEnv) doWithKey(method, path, accessToken, key string, body map[string]any) flowResponse {
+	e.t.Helper()
+	raw := mustJSON(e.t, body)
+	req, err := http.NewRequestWithContext(e.t.Context(), method, e.url+path, bytes.NewReader(raw))
+	require.NoError(e.t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Idempotency-Key", key)
+	return e.send(req)
+}
