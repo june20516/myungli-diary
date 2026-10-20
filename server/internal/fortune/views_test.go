@@ -88,6 +88,8 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "ko", "판정 근거예요."+suffix),
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "en", "The basis."+suffix),
 		tpl("glossary.value_name", "element.wood", seed.VariantSingle, "ko", "초록"),
+		tpl("glossary.value_name", "day_kind.gwiin_day", seed.VariantSingle, "ko", "귀인의 날"),
+		tpl("glossary.value_name", "day_kind.gwiin_day", seed.VariantSingle, "en", "Day of Help"),
 		// focus_time_fallback 안내는 원고가 없는 경우를 보려고 일부러 뺍니다.
 		tpl(fortune.SlotNotice, "notice.time_unknown", seed.VariantSingle, "ko", "태어난 시간을 몰라 낮 12시로 계산했어요."+suffix),
 		tpl(fortune.SlotNotice, "notice.dayun_start_approximate", seed.VariantSingle, "ko", "대운 시작 나이는 어림으로 계산했어요."+suffix),

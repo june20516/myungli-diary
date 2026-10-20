@@ -102,3 +102,13 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/preview.sql
+    gen:
+      go:
+        package: previewdb
+        out: ../internal/preview/previewdb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides

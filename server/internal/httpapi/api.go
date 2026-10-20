@@ -111,6 +111,9 @@ type API struct {
 	BirthHour BirthHourChecker
 	// Readings는 운세 화면 묶음입니다. 비어 있으면 운세 operation은 503 service.unavailable입니다.
 	Readings Readings
+	// Previews와 PreviewUsage는 비로그인 미리보기(createPreview)의 화면 묶음과 설치별 1회 기록입니다. 하나라도 비어 있으면 503 service.unavailable입니다.
+	Previews     PreviewService
+	PreviewUsage PreviewUsage
 	// Contents는 콘텐츠 저장소입니다. 비어 있으면 getGlossary·반응 operation·getDaily는 503 service.unavailable입니다.
 	Contents Contents
 	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.

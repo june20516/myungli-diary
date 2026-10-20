@@ -43,6 +43,7 @@ const noticeKeyPrefix = "notice."
 type ContentStore interface {
 	Active(ctx context.Context) (string, error)
 	Templates(ctx context.Context, version, lang string) (content.Templates, error)
+	Glossary(ctx context.Context, version, lang string) (content.Glossary, error)
 	Select(ctx context.Context, accountID uuid.UUID, date time.Time, birthHash [32]byte,
 		reqs []content.SlotRequest) ([]content.Selection, error)
 }

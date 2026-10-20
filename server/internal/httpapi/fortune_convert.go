@@ -252,6 +252,27 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 	return out, c.err
 }
 
+// toPreview는 미리보기 묶음을 계약 Preview로 바꿉니다. 근거 열람 권한이 없어 evidenceAccess는 늘 locked입니다.
+func toPreview(view fortune.PreviewView) (gen.Preview, error) {
+	c := &converter{}
+	r := view.Response
+	d := view.Date
+	out := gen.Preview{
+		Date:           openapi_types.Date{Time: time.Date(d.Year, time.Month(d.Month), d.Day, 0, 0, 0, 0, time.UTC)},
+		EvidenceAccess: evidenceAccess(false),
+		DayKind:        enumValue[gen.DayKind](c, r.GetKind()),
+		DayKindName:    view.DayKindName,
+		Fortune:        gen.Fortune{Head: c.slotText(view.Head)},
+		FeaturedTags:   convertAll(r.GetFeaturedTags(), c.tag),
+		Notices:        c.notices(view.Notices),
+	}
+	if view.Tag != nil {
+		tag := c.slotText(*view.Tag)
+		out.Fortune.Tag = &tag
+	}
+	return out, c.err
+}
+
 // dailyCards는 카드 네 장을 옮깁니다.
 func (c *converter) dailyCards(view fortune.DailyView) gen.DailyCards {
 	r := view.Response

@@ -143,6 +143,11 @@ type MonthCache struct {
 	CreatedAt       time.Time
 }
 
+type PreviewUsage struct {
+	DeviceHash []byte
+	UsedAt     time.Time
+}
+
 type Profile struct {
 	AccountID        uuid.UUID
 	Honorific        pgtype.Text
