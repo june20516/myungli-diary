@@ -89,6 +89,8 @@
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirm, text: "Delete this entry? This can't be undone."}
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmDelete, text: "Delete"}
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "Cancel"}
+- {slot: ui.diary-edit.save, key: diaryEditSave, text: "Save"}
+- {slot: ui.diary-view.deleted, key: diaryViewDeleted, text: "Entry deleted."}
 - {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "No entries with this tag yet."}
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "Your birth time is unknown, so the hour pillar is left out."}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "Unlock"}
@@ -285,7 +287,7 @@
 - {slot: ui.event-edit.form, key: eventEditTimed, text: "Set time"}
 - {slot: ui.event-edit.form, key: eventEditDateLabel, text: "Date"}
 - {slot: ui.event-edit.form, key: eventEditTimeLabel, text: "Time"}
-- {slot: ui.event-edit.form, key: eventEditSave, text: "Save"}
-- {slot: ui.event-edit.form, key: eventEditDelete, text: "Delete event"}
-- {slot: ui.event-edit.form, key: eventEditOfflineNotice, text: "You're offline, so this can't be saved."}
-- {slot: ui.event-edit.form, key: eventEditSaveFailed, text: "We couldn't save the event. Please try again."}
+- {slot: ui.event-edit.save, key: eventEditSave, text: "Save"}
+- {slot: ui.event-edit.delete, key: eventEditDelete, text: "Delete event"}
+- {slot: ui.event-edit.offline, key: eventEditOfflineNotice, text: "You're offline, so this can't be saved."}
+- {slot: ui.event-edit.save-failed, key: eventEditSaveFailed, text: "We couldn't save the event. Please try again."}

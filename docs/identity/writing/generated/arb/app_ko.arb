@@ -943,6 +943,14 @@
   "@depthSurface": {
     "description": "깊이 단계 표면 단계(첫 단계)의 안내"
   },
+  "diaryEditSave": "저장",
+  "@diaryEditSave": {
+    "description": "일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)"
+  },
+  "diaryViewDeleted": "일기를 지웠어요.",
+  "@diaryViewDeleted": {
+    "description": "일기 보기 화면(diary-view): 일기를 지운 뒤 toast(#275)"
+  },
   "errorOffline": "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.",
   "@errorOffline": {
     "description": "오류 상태·토스트: 앱이 나눈 통신 오류 종류별 안내(연결 없음, 시간 초과, 4xx, 5xx, 그 밖, 준비 중)"
@@ -1135,37 +1143,37 @@
   "@errorEngineTimeout": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
+  "eventEditDelete": "일정 지우기",
+  "@eventEditDelete": {
+    "description": "일정 편집 화면(event-edit): 일정 지우기 버튼. 누르면 `event-edit.delete.confirm`을 엽니다"
+  },
   "eventEditAllDay": "하루 종일",
   "@eventEditAllDay": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditTimed": "시간 지정",
   "@eventEditTimed": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditDateLabel": "날짜",
   "@eventEditDateLabel": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditTimeLabel": "시간",
   "@eventEditTimeLabel": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
-  },
-  "eventEditSave": "저장",
-  "@eventEditSave": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
-  },
-  "eventEditDelete": "일정 지우기",
-  "@eventEditDelete": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   },
   "eventEditOfflineNotice": "인터넷에 연결되어 있지 않아 저장할 수 없어요.",
   "@eventEditOfflineNotice": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 연결이 없어 지금 저장할 수 없다는 안내"
+  },
+  "eventEditSave": "저장",
+  "@eventEditSave": {
+    "description": "일정 편집 화면(event-edit): 저장 버튼"
   },
   "eventEditSaveFailed": "일정을 저장하지 못했어요. 다시 시도해 주세요.",
   "@eventEditSaveFailed": {
-    "description": "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+    "description": "일정 편집 화면(event-edit): 일정 저장에 실패했다는 안내"
   },
   "eventRowMore": "외 {count, plural, other{{count}개}}",
   "@eventRowMore": {

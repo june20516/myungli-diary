@@ -394,6 +394,7 @@
   structure: "한두 문장. 무엇이 안 됐는지와 다시 하는 방법."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 48, en: 78, ja: 34}
+  ia: [login.error.body]
   components: [toast, error-state]
   keys:
     - loginCancelled
@@ -418,6 +419,7 @@
   structure: "제목 하나. 무엇의 근거인지(오늘 풀이)를 말합니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 18, en: 33, ja: 15}
+  ia: [evidence-sheet.sheet.title]
   components: [sheet]
   keys:
     - evidenceSheetTitle
@@ -552,28 +554,104 @@
     screen_reader: "eventRowLabel을 읽습니다."
 
 - id: ui.event-edit.form
-  where: "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름, 저장·지우기 버튼, 오프라인·실패 안내"
+  where: "일정 편집 화면(event-edit): 하루 종일·시간 지정, 날짜·시간 이름. 저장·지우기 버튼과 오프라인·실패 안내는 IA 슬롯 `event-edit.*`(D77)"
   purpose: guide
   user_state: "일정을 만들거나 고칩니다."
-  structure: "이름·버튼은 한 낱말, 안내는 한두 문장(무엇이 안 됐는지와 다음 할 일)."
+  structure: "이름 한 낱말."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   key_max_length:
     eventEditAllDay: {ko: 13, en: 22, ja: 10}
     eventEditTimed: {ko: 13, en: 22, ja: 10}
-    eventEditSave: {ko: 23, en: 42, ja: 19}
-    eventEditDelete: {ko: 23, en: 42, ja: 19}
-    eventEditOfflineNotice: {ko: 52, en: 90, ja: 38}
-    eventEditSaveFailed: {ko: 48, en: 78, ja: 34}
-  components: [segmented, text-field, primary-button, notice-banner, toast]
+  components: [segmented, text-field]
   keys:
     - eventEditAllDay
     - eventEditTimed
     - eventEditDateLabel
     - eventEditTimeLabel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventEditAllDay, text: "하루 종일", why: "이름 한 낱말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다. 상한은 design lengths.md의 같은 칸(segmented 두 칸) 값입니다."
+    screen_reader: "이름 그대로 읽습니다."
+
+- id: ui.event-edit.save
+  where: "일정 편집 화면(event-edit): 저장 버튼"
+  purpose: guide
+  user_state: "일정을 다 썼습니다."
+  structure: "동작 이름 하나."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 42, ja: 19}
+  ia: [event-edit.save.cta]
+  components: [primary-button]
+  keys:
     - eventEditSave
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventEditSave, text: "저장", why: "동작 이름 한 낱말", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어갑니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: ui.event-edit.delete
+  where: "일정 편집 화면(event-edit): 일정 지우기 버튼. 누르면 `event-edit.delete.confirm`을 엽니다"
+  purpose: guide
+  user_state: "이 일정을 지우려 합니다."
+  structure: "동작 이름 하나. 무엇을 지우는지(일정)를 넣습니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 42, ja: 19}
+  ia: [event-edit.delete.cta]
+  components: [primary-button]
+  keys:
     - eventEditDelete
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventEditDelete, text: "일정 지우기", why: "무엇을 지우는지 말함", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어갑니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: ui.event-edit.offline
+  where: "일정 편집 화면(event-edit): 연결이 없어 지금 저장할 수 없다는 안내"
+  purpose: info
+  user_state: "인터넷에 연결되어 있지 않습니다."
+  structure: "한두 문장. 무엇이 안 되는지와 그 까닭."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 52, en: 90, ja: 38}
+  ia: [event-edit.offline.notice]
+  components: [notice-banner]
+  keys:
     - eventEditOfflineNotice
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: eventEditOfflineNotice, text: "인터넷에 연결되어 있지 않아 저장할 수 없어요.", why: "무엇이 안 되는지와 까닭", source: writing}
+    bad: []
+  endings: ["~어요"]
+  a11y:
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.event-edit.save-failed
+  where: "일정 편집 화면(event-edit): 일정 저장에 실패했다는 안내"
+  purpose: info
+  user_state: "일정을 저장하지 못했습니다."
+  structure: "한두 문장. 무엇이 안 됐는지와 다음 할 일."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 48, en: 78, ja: 34}
+  ia: [event-edit.save.failed]
+  components: [toast]
+  keys:
     - eventEditSaveFailed
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
@@ -582,5 +660,47 @@
     bad: []
   endings: ["~어요", "~해 주세요"]
   a11y:
-    truncation: "잘리지 않게 씁니다. 상한은 design lengths.md의 같은 칸(segmented 두 칸, primary-button, notice-banner, toast) 값입니다."
-    screen_reader: "이름 그대로 읽습니다."
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.diary-edit.save
+  where: "일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)"
+  purpose: guide
+  user_state: "일기를 다 썼습니다."
+  structure: "동작 이름 하나."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 42, ja: 19}
+  ia: [diary-edit.save.cta]
+  components: [primary-button]
+  keys:
+    - diaryEditSave
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryEditSave, text: "저장", why: "동작 이름 한 낱말(일정 저장과 같음)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어갑니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: ui.diary-view.deleted
+  where: "일기 보기 화면(diary-view): 일기를 지운 뒤 toast(#275)"
+  purpose: info
+  user_state: "방금 일기를 지웠습니다."
+  structure: "한 문장. 무엇을 했는지."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 48, en: 78, ja: 34}
+  ia: [diary-view.deleted.toast]
+  components: [toast]
+  keys:
+    - diaryViewDeleted
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryViewDeleted, text: "일기를 지웠어요.", why: "한 일을 그대로 알림", source: writing}
+    bad: []
+  endings: ["~어요"]
+  a11y:
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."

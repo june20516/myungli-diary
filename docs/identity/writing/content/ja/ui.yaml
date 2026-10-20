@@ -89,6 +89,8 @@
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirm, text: "この日記を削除しますか?削除すると元に戻せません。"}
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmDelete, text: "削除"}
 - {slot: diary-view.delete.confirm, key: diaryViewDeleteConfirmCancel, text: "キャンセル"}
+- {slot: ui.diary-edit.save, key: diaryEditSave, text: "保存"}
+- {slot: ui.diary-view.deleted, key: diaryViewDeleted, text: "日記を削除しました。"}
 - {slot: tag-diary.empty.body, key: tagDiaryEmptyBody, text: "このタグが付いた日記はまだありません。"}
 - {slot: saju-chart.time-unknown.notice, key: sajuChartTimeUnknownNotice, text: "生まれた時刻がわからないため、時柱を除いて表示しています。"}
 - {slot: saju-chart.yongsin.open, key: sajuChartYongsinOpen, text: "開く"}
@@ -285,7 +287,7 @@
 - {slot: ui.event-edit.form, key: eventEditTimed, text: "時間指定"}
 - {slot: ui.event-edit.form, key: eventEditDateLabel, text: "日付"}
 - {slot: ui.event-edit.form, key: eventEditTimeLabel, text: "時間"}
-- {slot: ui.event-edit.form, key: eventEditSave, text: "保存"}
-- {slot: ui.event-edit.form, key: eventEditDelete, text: "予定を削除"}
-- {slot: ui.event-edit.form, key: eventEditOfflineNotice, text: "インターネットに接続されていないため、保存できません。"}
-- {slot: ui.event-edit.form, key: eventEditSaveFailed, text: "予定を保存できませんでした。もう一度お試しください。"}
+- {slot: ui.event-edit.save, key: eventEditSave, text: "保存"}
+- {slot: ui.event-edit.delete, key: eventEditDelete, text: "予定を削除"}
+- {slot: ui.event-edit.offline, key: eventEditOfflineNotice, text: "インターネットに接続されていないため、保存できません。"}
+- {slot: ui.event-edit.save-failed, key: eventEditSaveFailed, text: "予定を保存できませんでした。もう一度お試しください。"}
