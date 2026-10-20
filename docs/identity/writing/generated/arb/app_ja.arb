@@ -195,6 +195,7 @@
   "depthExplain": "読み解き",
   "depthSurface": "要約",
   "diaryEditSave": "保存",
+  "diaryListPickDateConfirm": "{date}の日記",
   "diaryViewDeleted": "日記を削除しました。",
   "errorOffline": "インターネットに接続されていません。接続を確認してください。",
   "errorTimeout": "応答に時間がかかっています。しばらくしてからもう一度お試しください。",

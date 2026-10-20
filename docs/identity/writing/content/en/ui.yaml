@@ -80,6 +80,7 @@
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "The basis and interpretation are unlocked"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "No diary entries yet. Why not start with today?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Pick a date to write"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date} entry"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft saved on this device"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "Saving"}
