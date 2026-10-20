@@ -17,6 +17,7 @@ import 'package:myungli_diary/core/api/gen/model/chart_pillars.dart';
 import 'package:myungli_diary/core/api/gen/model/element_weight.dart';
 import 'package:myungli_diary/core/api/gen/model/strength.dart';
 import 'package:myungli_diary/core/api/gen/model/branch.dart';
+import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -59,6 +60,12 @@ class Chart {
     required this.seun,
 
     required this.notices,
+
+    this.ilganHead,
+
+    this.ilganBody,
+
+    this.yongsinSummary,
 
     this.personalReadings,
   });
@@ -105,6 +112,15 @@ class Chart {
   @JsonKey(name: r'notices', required: true, includeIfNull: false)
   final List<Notice> notices;
 
+  @JsonKey(name: r'ilganHead', required: false, includeIfNull: false)
+  final SlotText? ilganHead;
+
+  @JsonKey(name: r'ilganBody', required: false, includeIfNull: false)
+  final SlotText? ilganBody;
+
+  @JsonKey(name: r'yongsinSummary', required: false, includeIfNull: false)
+  final SlotText? yongsinSummary;
+
   /// 원국 개인 해석(\"내 사주에서는\")입니다. 근거 열람 권한이 없으면(`evidenceAccess: locked`) 이 필드가 없습니다(D60). 원고가 없는 항목은 빠집니다. 앱은 누른 용어의 (`kind`, `position`, `index`, `shinsal`)로 항목을 찾습니다.
   @JsonKey(name: r'personalReadings', required: false, includeIfNull: false)
   final List<PersonalReading>? personalReadings;
@@ -127,6 +143,9 @@ class Chart {
           other.daeun == daeun &&
           other.seun == seun &&
           other.notices == notices &&
+          other.ilganHead == ilganHead &&
+          other.ilganBody == ilganBody &&
+          other.yongsinSummary == yongsinSummary &&
           other.personalReadings == personalReadings;
 
   @override
@@ -145,6 +164,9 @@ class Chart {
       daeun.hashCode +
       seun.hashCode +
       notices.hashCode +
+      ilganHead.hashCode +
+      ilganBody.hashCode +
+      yongsinSummary.hashCode +
       personalReadings.hashCode;
 
   factory Chart.fromJson(Map<String, dynamic> json) => _$ChartFromJson(json);

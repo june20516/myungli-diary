@@ -1,4 +1,13 @@
 {
   "status": 200,
-  "body": { "minimumVersion": { "ios": "99.0.0", "android": "99.0.0" } }
+  "body": {
+    "minimumVersion": {
+      "ios": "99.0.0",
+      "android": "99.0.0"
+    },
+    "legal": {
+      "terms": "https://example.com/legal/terms",
+      "privacy": "https://example.com/legal/privacy"
+    }
+  }
 }

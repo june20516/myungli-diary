@@ -1047,7 +1047,7 @@ class DefaultApi {
   }
 
   /// 앱 설정
-  /// 플랫폼별 최소 앱 버전입니다.
+  /// 플랫폼별 최소 앱 버전과 법적 문서 주소입니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation

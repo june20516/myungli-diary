@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
+import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
 import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
@@ -55,6 +56,12 @@ EntryState compute({
   me: me,
   adConsentDone: adConsentDone,
   notifyAskPending: notifyAskPending,
+);
+
+/// 계약 draft.10 `AppConfig.legal` 필수 값(이 테스트는 쓰지 않음).
+final _legal = LegalLinks(
+  terms: 'https://example.com/legal/terms',
+  privacy: 'https://example.com/legal/privacy',
 );
 
 void main() {
@@ -188,6 +195,7 @@ void main() {
     test('minimumVersionFor는 android만 android 값, 나머지는 iOS 값', () {
       final config = AppConfig(
         minimumVersion: MinimumVersion(ios: '1.0.0', android: '2.0.0'),
+        legal: _legal,
       );
       expect(minimumVersionFor(config, TargetPlatform.android), '2.0.0');
       expect(minimumVersionFor(config, TargetPlatform.iOS), '1.0.0');
@@ -503,6 +511,7 @@ void main() {
       await signIn();
       api.config = AppConfig(
         minimumVersion: MinimumVersion(ios: '1.0.0', android: '2.0.0'),
+        legal: _legal,
       );
       final ios = container();
       expect(
@@ -663,6 +672,7 @@ class _Api implements DefaultApi {
           config ??
           AppConfig(
             minimumVersion: MinimumVersion(ios: '1.0.0', android: '1.0.0'),
+            legal: _legal,
           ),
     );
   }

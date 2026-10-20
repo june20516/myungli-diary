@@ -42,6 +42,7 @@ import 'package:myungli_diary/core/api/gen/model/hidden_stem.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_conversion.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
@@ -211,6 +212,8 @@ ReturnType deserialize<ReturnType, BaseType>(
       return KakaoLoginRequest.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'Language':
+    case 'LegalLinks':
+      return LegalLinks.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'LoginResponse':
       return LoginResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
