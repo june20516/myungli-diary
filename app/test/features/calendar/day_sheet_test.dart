@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
@@ -295,6 +296,7 @@ void main() {
 
       expect(find.byType(EventRow), findsNothing);
       expect(find.text(_ko.daySheetEventEmpty), findsNothing);
+      expect(find.byType(EventRowListFailed), findsOneWidget);
       expect(find.text(_ko.errorOffline), findsOneWidget);
       expect(
         find.bySemanticsIdentifier(SlotIds.daySheetEventAdd),
@@ -325,40 +327,42 @@ void main() {
       expect(_rowTitles(tester), ['엄마 생신', '팀 주간 회의', '요가 수업']);
     });
 
-    testWidgets('일기 여부를 묻는 동안 링크 자리를 잡아 두어 높이가 바뀌지 않습니다', (tester) async {
-      final answer = Completer<bool>();
-      tester.view
-        ..physicalSize = const Size(400, 900)
-        ..devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final harness = _Harness(
-        server: ScheduleTestServer(),
-        calendar: () async => _october(),
-        diaryExists: (_) => answer.future,
-      );
-      addTearDown(harness.router.dispose);
-      await tester.pumpWidget(harness.app());
-      final container = ProviderScope.containerOf(harness.context);
-      unawaited(
-        container.read(daySheetsProvider).open(harness.context, _today),
-      );
-      for (var i = 0; i < 20; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-      }
+    for (final written in [false, true]) {
+      testWidgets(
+        '일기 여부를 묻는 동안 입구 자리를 잡아 두어 답(written: $written) 뒤에도 높이가 같습니다',
+        (tester) async {
+          final answer = Completer<bool>();
+          tester.view
+            ..physicalSize = const Size(400, 900)
+            ..devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final harness = _Harness(
+            server: ScheduleTestServer(),
+            calendar: () async => _october(),
+            diaryExists: (_) => answer.future,
+          );
+          addTearDown(harness.router.dispose);
+          await tester.pumpWidget(harness.app());
+          final container = ProviderScope.containerOf(harness.context);
+          unawaited(
+            container.read(daySheetsProvider).open(harness.context, _today),
+          );
+          for (var i = 0; i < 20; i++) {
+            await tester.pump(const Duration(milliseconds: 100));
+          }
 
-      const skeleton = ValueKey('day-sheet.diary.skeleton');
-      expect(find.byKey(skeleton), findsOneWidget);
-      final reserved = tester.getSize(find.byKey(skeleton)).height;
+          const skeleton = ValueKey('day-sheet.diary.skeleton');
+          const entry = ValueKey('day-sheet.diary.entry');
+          expect(find.byKey(skeleton), findsOneWidget);
+          final reserved = tester.getSize(find.byKey(entry)).height;
 
-      answer.complete(false);
-      await tester.pumpAndSettle();
-      expect(find.byKey(skeleton), findsNothing);
-      // 글줄 높이는 글꼴의 반올림만큼(1px 미만) 다를 수 있습니다.
-      expect(
-        tester.getSize(find.byType(DepthLink)).height,
-        closeTo(reserved, 1),
+          answer.complete(written);
+          await tester.pumpAndSettle();
+          expect(find.byKey(skeleton), findsNothing);
+          expect(tester.getSize(find.byKey(entry)).height, reserved);
+        },
       );
-    });
+    }
 
     testWidgets('지난 날에 일기가 있으면 일기 보기 → 그날 diary-view', (tester) async {
       await _open(
@@ -387,9 +391,15 @@ void main() {
       final harness = await _open(tester, _today);
 
       expect(harness.diaryChecks, [_today]);
-      final link = tester.widget<DepthLink>(find.byType(DepthLink));
-      expect(link.label, _ko.daySheetDiaryWriteCta);
-      expect(link.variant, DepthLinkVariant.navigate);
+      // 쓰기는 실행하는 동작이라 filled 버튼입니다(V37).
+      final button = tester.widget<PrimaryButton>(
+        find.ancestor(
+          of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
+          matching: find.byType(PrimaryButton),
+        ),
+      );
+      expect(button.label, _ko.daySheetDiaryWriteCta);
+      expect(button.variant, PrimaryButtonVariant.filled);
       expect(
         find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
         findsNothing,

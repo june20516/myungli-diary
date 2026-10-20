@@ -374,9 +374,7 @@ void main() {
       });
     }
 
-    testWidgets('maxLines가 1보다 크면 줄바꿈을 받고 그 줄 수까지만 늘어납니다', (
-      tester,
-    ) async {
+    testWidgets('maxLines가 1보다 크면 줄바꿈을 받고 그 줄 수까지만 늘어납니다', (tester) async {
       final controller = TextEditingController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
