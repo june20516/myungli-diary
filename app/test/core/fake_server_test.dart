@@ -250,12 +250,13 @@ void main() {
         'reward-failed',
         'calendar-error',
         'schedule-save-error',
+        'ad-free-active',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(23));
+      expect(scenarios.where((s) => s.signedIn), hasLength(24));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),
@@ -306,6 +307,103 @@ void main() {
         throwsA(isA<ScenarioFormatException>()),
       );
     });
+  });
+
+  group('프로필 저장(updateProfile merge-patch)', () {
+    final profile = <String, Object?>{
+      'honorific': '하늘',
+      'language': 'ko',
+      'currentTimezone': 'Asia/Seoul',
+      'birth': {
+        'calendar': 'solar',
+        'date': {'year': 1990, 'month': 5, 'day': 15},
+        'isLeapMonth': false,
+        'time': {'status': 'known', 'value': '14:30'},
+        'gender': 'female',
+        'timezone': 'Asia/Seoul',
+        'place': {'status': 'not_asked'},
+      },
+      'notification': {'status': 'not_asked'},
+    };
+    String saved(int status) => jsonEncode({
+      'status': status,
+      'body': status == 200
+          ? {'profile': profile, 'warnings': <Object?>[]}
+          : {
+              'type': 'https://api.myungli.app/problems/server.unavailable',
+              'title': 'x',
+              'status': status,
+              'code': 'server.unavailable',
+              'traceId': 't',
+            },
+    });
+
+    Future<Map<String, Object?>> patch(
+      Dio dio,
+      Map<String, Object?> body,
+    ) async {
+      final response = await dio.patch<Map<String, Object?>>(
+        '/v1/me/profile',
+        data: body,
+      );
+      return response.data!['profile']! as Map<String, Object?>;
+    }
+
+    test('보낸 필드만 fixture 프로필에 덮고, 다음 저장은 그 결과에서 이어 갑니다', () async {
+      final dio = _dio(
+        _scenario('s'),
+        _MemoryBundle({'fixtures/s/updateProfile.json': saved(200)}),
+      );
+      final first = await patch(dio, {'language': 'en'});
+      expect(first['language'], 'en');
+      expect(first['honorific'], '하늘');
+      final second = await patch(dio, {
+        'notification': {'status': 'enabled', 'time': '07:30'},
+      });
+      expect(second['language'], 'en');
+      expect(second['notification'], {'status': 'enabled', 'time': '07:30'});
+    });
+
+    test('createProfile 200 응답의 프로필을 기억해 그 위에 저장합니다', () async {
+      final created = Map<String, Object?>.of(profile)..['honorific'] = '별님';
+      final dio = _dio(
+        _scenario('s'),
+        _MemoryBundle({
+          'fixtures/s/createProfile.json': jsonEncode({
+            'status': 200,
+            'body': {'profile': created, 'warnings': <Object?>[]},
+          }),
+          'fixtures/s/updateProfile.json': saved(200),
+        }),
+      );
+      await dio.put<Object?>('/v1/me/profile', data: created);
+      final updated = await patch(dio, {'language': 'en'});
+      expect(updated['honorific'], '별님');
+      expect(updated['language'], 'en');
+    });
+
+    test('200이 아닌 fixture는 파일이 그대로 답합니다', () async {
+      final dio = _dio(
+        _scenario('s'),
+        _MemoryBundle({'fixtures/s/updateProfile.json': saved(503)}),
+      );
+      final error = await _errorOf(() => patch(dio, {'language': 'en'}));
+      expect((error as ProblemError).status, 503);
+    });
+
+    test(
+      'getProfile 파일이 없으면 저장된(없으면 updateProfile fixture) 프로필로 답합니다',
+      () async {
+        final dio = _dio(
+          _scenario('s'),
+          _MemoryBundle({'fixtures/s/updateProfile.json': saved(200)}),
+        );
+        final api = DefaultApi(dio);
+        expect((await api.getProfile()).data!.language.value, 'ko');
+        await patch(dio, {'language': 'ja'});
+        expect((await api.getProfile()).data!.language.value, 'ja');
+      },
+    );
   });
 
   group('sequence', () {

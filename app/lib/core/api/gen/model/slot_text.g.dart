@@ -155,7 +155,11 @@ SlotText _$SlotTextFromJson(
     messageKey: $checkedConvert('messageKey', (v) => v as String),
     variant: $checkedConvert(
       'variant',
-      (v) => $enumDecode(_$SlotTextVariantEnumEnumMap, v),
+      (v) => $enumDecode(
+        _$SlotTextVariantEnumEnumMap,
+        v,
+        unknownValue: SlotTextVariantEnum.unknownDefaultOpenApi,
+      ),
     ),
     text: $checkedConvert(
       'text',
@@ -199,6 +203,7 @@ const _$SlotTextVariantEnumEnumMap = {
   SlotTextVariantEnum.n1: '1',
   SlotTextVariantEnum.n2: '2',
   SlotTextVariantEnum.single: 'single',
+  SlotTextVariantEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 
 const _$SlotTextReactionEnumEnumMap = {SlotTextReactionEnum.like: 'like'};

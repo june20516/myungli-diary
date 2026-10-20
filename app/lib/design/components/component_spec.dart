@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
@@ -26,6 +27,10 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/manse_table.dart';
+import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
+import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -70,6 +75,11 @@ const List<ComponentSpec> implementedComponents = [
   DepthLink.spec,
   ReactionButton.spec,
   PrimaryButton.spec,
+  SettingsRow.spec,
+  SajuPillars.spec,
+  OhaengBar.spec,
+  ManseTable.spec,
+  DaeunTable.spec,
   InputStep.spec,
   MyungliTextField.spec,
   Segmented.spec,

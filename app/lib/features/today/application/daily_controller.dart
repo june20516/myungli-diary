@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
@@ -289,3 +291,27 @@ final dailyControllerProvider =
       DailyController.new,
       retry: (_, _) => null,
     );
+
+/// 근거 열람 권한이 생긴 뒤, 들고 있는 오늘 응답이 잠겨 있으면 화면 상태를 건드리지 않고 다시
+/// 받습니다(사주 표에서 잠금을 풀어도 오늘 화면이 함께 열림, 계획 6 Review Focus 5).
+///
+/// 아무도 오늘 응답을 들고 있지 않거나 이미 열려 있으면 아무 일도 없습니다. 통신 실패는 오늘
+/// 화면이 이전 값을 둔 채 다음 받기에 맡기고, 그 밖의 실패는 비정상 종료 보고에 남기고 삼킵니다
+/// (`forgetLockedCharts`와 같음).
+Future<void> refreshLockedDaily(Ref ref) async {
+  if (!ref.exists(dailyControllerProvider)) {
+    return;
+  }
+  final held = ref.read(dailyControllerProvider).value;
+  if (held == null || held.daily.evidenceAccess != EvidenceAccess.locked) {
+    return;
+  }
+  final reporter = ref.read(crashReporterProvider);
+  try {
+    await ref.read(dailyControllerProvider.notifier).refreshQuietly();
+  } on AppError {
+    // 오늘 화면은 이전 값 그대로이고, 다음 받기(자정·다시 시도·근거 시트)가 다시 받습니다.
+  } on Object catch (error, stack) {
+    reporter.record(CrashSummary.from(error), stack);
+  }
+}

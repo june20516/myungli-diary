@@ -359,7 +359,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardBirthQuestionHead => 'いつ生まれましたか?';
 
   @override
-  String get onboardBirthCalendarHint => '旧暦の誕生日なら旧暦を選び、閏月なら閏月にも印をつけてください。';
+  String get onboardBirthCalendarHint =>
+      '旧暦の誕生日なら旧暦を選んでください。閏月なら、月の一覧にある閏月を選びます。';
 
   @override
   String get onboardBirthBasisNote => '韓国で生まれたものとして計算します。';
@@ -378,9 +379,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarLunar => '旧暦';
-
-  @override
-  String get leapMonth => '閏月';
 
   @override
   String get onboardCallInputLabel => '呼び名';
@@ -699,9 +697,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get settingsDepthDesc => '読み解きを最初にどこまで広げて見るかを選びます。';
-
-  @override
   String get settingsLanguageBirthplaceNotice =>
       '韓国以外で生まれた場合は、出生地を入力してください。生まれた時刻をより正確に合わせられます。';
 
@@ -777,16 +772,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayReactionLabelSelected => 'いいねを取り消す';
 
   @override
-  String get depthDefaultLabel => '命理の読み解き';
-
-  @override
-  String get depthEvidence => '原理';
-
-  @override
   String get depthExplain => '読み解き';
-
-  @override
-  String get depthSurface => '要約';
 
   @override
   String get depthLinkEvidence => '根拠を見る';
@@ -1105,4 +1091,91 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get errorTimezoneInvalid => 'タイムゾーンを確認できませんでした。端末の設定を確認してください。';
+
+  @override
+  String get settingsNotifyLabel => '通知時刻';
+
+  @override
+  String get settingsNotifyOff => 'オフ';
+
+  @override
+  String get settingsLanguageLabel => '言語';
+
+  @override
+  String get settingsLogoutLabel => 'ログアウト';
+
+  @override
+  String get profileEditBirthplaceKorea => '韓国';
+
+  @override
+  String get sajuChartTabNatal => '命式';
+
+  @override
+  String get sajuChartTabLuck => '万年暦・大運';
+
+  @override
+  String get sajuPillarHour => '時柱';
+
+  @override
+  String get sajuPillarDay => '日柱';
+
+  @override
+  String get sajuPillarMonth => '月柱';
+
+  @override
+  String get sajuPillarYear => '年柱';
+
+  @override
+  String get manseRowHiddenStems => '蔵干';
+
+  @override
+  String get manseRowTwelveStages => '十二運';
+
+  @override
+  String get manseRowShinsal => '神殺';
+
+  @override
+  String get sajuTagMe => '私';
+
+  @override
+  String get daeunTagNow => '今';
+
+  @override
+  String get seunTagThisYear => '今年';
+
+  @override
+  String daeunTableLabel(int age) {
+    return '$age歳からの大運';
+  }
+
+  @override
+  String ohaengBarItem(String element, String count) {
+    return '$element $count';
+  }
+
+  @override
+  String get sajuPillarDayMaster => '日干';
+
+  @override
+  String get sajuPillarsTableLabel => '命式';
+
+  @override
+  String get manseTableLabel => '万歳暦表';
+
+  @override
+  String get evidenceSheetPersonalEmpty => 'この位置の解釈はまだ準備中です。';
+
+  @override
+  String luckYearLabel(int year) {
+    return '$year年';
+  }
+
+  @override
+  String get legalTermsLabel => '利用規約';
+
+  @override
+  String get legalPrivacyLabel => 'プライバシーポリシー';
+
+  @override
+  String get legalLicensesLabel => 'オープンソースライセンス';
 }

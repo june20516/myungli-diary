@@ -39,7 +39,12 @@ class SeunYear {
   @JsonKey(name: r'tenGod', required: true, includeIfNull: false)
   final TenGod tenGod;
 
-  @JsonKey(name: r'relationsWithNatal', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'relationsWithNatal',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: RelationKind.unknownDefaultOpenApi,
+  )
   final List<RelationKind> relationsWithNatal;
 
   @override

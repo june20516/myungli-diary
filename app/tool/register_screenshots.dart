@@ -1,9 +1,14 @@
-// E2E 스크린샷을 app/docs/artifacts/에 복사하고 index.json에 등록합니다.
+// 화면 스크린샷을 app/docs/artifacts/에 복사하고 index.json에 등록합니다.
 // 실행: dart run tool/register_screenshots.dart <dir> [--date YYYY-MM-DD]
-//        [--decisions D50,D49] [--source <원본 파일 이름>]
+//        [--decisions D50,D49] [--source <원본 파일 이름>] [--origin e2e|render]
 //
 // <dir>의 `<화면>__<상태|default>.png`를 `YYYY-MM-DD-<화면>-<상태>.png`로 복사합니다.
-// 같은 화면·상태의 이전 항목은 지우지 않고 `superseded`로 바꿉니다(workflow §7).
+// * `e2e`(기본, Patrol 캡처): 같은 화면·상태의 이전 항목은 지우지 않고 `superseded`로 바꿉니다
+//   (workflow §7).
+// * `render`(tool/screens_linux.sh가 대역 데이터로 그린 화면, #336): 언제든 다시 만들 수 있으므로
+//   같은 화면·상태의 이전 렌더는 파일까지 지우고, 이전과 바이트가 같으면 새로 등록하지 않습니다
+//   (공개 저장소가 같은 그림으로 커지지 않게). 이번 입력에 없는 화면·상태의 `render.*` 항목과
+//   파일도 지웁니다. 그래서 <dir>은 사례 전체를 그린 결과(`build/screens`)여야 합니다.
 
 import 'dart:convert';
 import 'dart:io';
@@ -15,6 +20,15 @@ const _iaPath = '../docs/ia/screens.json';
 const int _maxBytes = 2 * 1024 * 1024;
 const _decisionLogPaths = ['../docs/decisions.md', 'docs/decisions.md'];
 const String _milestone = 'A1';
+
+/// 스크린샷의 출처.
+enum ScreenshotOrigin {
+  /// Patrol E2E 캡처.
+  e2e,
+
+  /// 대역 데이터로 그린 화면(tool/screens_linux.sh).
+  render,
+}
 
 /// 스크린샷 파일이 규칙에 맞지 않을 때의 오류.
 class ScreenshotError implements Exception {
@@ -38,7 +52,8 @@ class ScreenshotError implements Exception {
   return (screen: match.group(1)!, state: match.group(2)!);
 }
 
-String _idPrefix(String screen, String state) => 'e2e.$screen.$state.';
+String _idPrefix(ScreenshotOrigin origin, String screen, String state) =>
+    '${origin.name}.$screen.$state.';
 
 /// [sourceDir]의 스크린샷을 [artifactsDir]에 등록하고 등록한 항목 id를 돌려줍니다.
 ///
@@ -52,6 +67,7 @@ List<String> registerScreenshots({
   List<String> decisions = const [],
   Set<String>? knownDecisions,
   String? source,
+  ScreenshotOrigin origin = ScreenshotOrigin.e2e,
 }) {
   for (final decision in decisions) {
     if (knownDecisions != null && !knownDecisions.contains(decision)) {
@@ -87,15 +103,56 @@ List<String> registerScreenshots({
 
   final ids = <String>[];
   for (final (file, screen, state) in parsed) {
-    final id = '${_idPrefix(screen, state)}$date';
+    final prefix = _idPrefix(origin, screen, state);
+    final id = '$prefix$date';
     final fileName = '$date-$screen-$state.png';
+    final bytes = file.readAsBytesSync();
+
+    if (origin == ScreenshotOrigin.render) {
+      final previous = [
+        for (final entry in entries)
+          if ((entry['id']! as String).startsWith(prefix)) entry,
+      ];
+      // 같은 그림이 이미 등록돼 있으면 그대로 둡니다.
+      final same = previous.any((entry) {
+        final old = File('${artifactsDir.path}/${entry['file']}');
+        return old.existsSync() && _sameBytes(old.readAsBytesSync(), bytes);
+      });
+      if (same) {
+        continue;
+      }
+      for (final entry in previous) {
+        final old = File('${artifactsDir.path}/${entry['file']}');
+        if (entry['file'] != fileName && old.existsSync()) {
+          old.deleteSync();
+        }
+        entries.remove(entry);
+      }
+      file.copySync('${artifactsDir.path}/$fileName');
+      entries.add({
+        'id': id,
+        'title': '$screen ($state) 화면',
+        'kind': 'screenshot',
+        'file': fileName,
+        'source': ?source,
+        'date': date,
+        'milestone': _milestone,
+        'screens': [screen],
+        'decisions': decisions,
+        'status': 'draft',
+        'note': '$state 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)',
+      });
+      ids.add(id);
+      continue;
+    }
+
     file.copySync('${artifactsDir.path}/$fileName');
 
     // 더 최신 항목은 건드리지 않고, 이전 날짜 항목만 대체합니다.
     var hasNewer = false;
     for (final entry in entries) {
       final entryId = entry['id']! as String;
-      if (!entryId.startsWith(_idPrefix(screen, state)) || entryId == id) {
+      if (!entryId.startsWith(prefix) || entryId == id) {
         continue;
       }
       if ((entry['date']! as String).compareTo(date) > 0) {
@@ -121,10 +178,52 @@ List<String> registerScreenshots({
       });
     ids.add(id);
   }
+  if (origin == ScreenshotOrigin.render) {
+    _dropOrphanRenders(entries, artifactsDir, {
+      for (final (_, screen, state) in parsed)
+        _idPrefix(ScreenshotOrigin.render, screen, state),
+    });
+  }
+  // 화면·상태 순으로 정렬해 diff가 흔들리지 않게 합니다.
+  entries.sort((a, b) => (a['id']! as String).compareTo(b['id']! as String));
   indexFile.writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(entries)}\n',
   );
   return ids;
+}
+
+/// 이번 렌더 입력([kept] 접두어)에 없는 화면·상태의 `render.*` 항목과 그 파일을 지웁니다.
+///
+/// 렌더는 `screens_test.dart`가 모든 사례를 한 번에 그린 결과이고 언제든 다시 만들 수 있으므로,
+/// 사례가 빠지거나 이름이 바뀐 그림이 공개 저장소에 고아로 남지 않게 합니다. Patrol 캡처(`e2e.*`)는
+/// 기록이라 건드리지 않습니다.
+void _dropOrphanRenders(
+  List<Map<String, Object?>> entries,
+  Directory artifactsDir,
+  Set<String> kept,
+) {
+  final renderPrefix = '${ScreenshotOrigin.render.name}.';
+  final orphans = [
+    for (final entry in entries)
+      if (entry['id'] case final String id
+          when id.startsWith(renderPrefix) && !kept.any(id.startsWith))
+        entry,
+  ];
+  for (final entry in orphans) {
+    final file = File('${artifactsDir.path}/${entry['file']}');
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
+    entries.remove(entry);
+  }
+}
+
+bool _sameBytes(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 String _today() {
@@ -149,12 +248,18 @@ Future<void> main(List<String> args) async {
     }
   }
   final unknown = options.keys.where(
-    (key) => !const {'--date', '--decisions', '--source'}.contains(key),
+    (key) =>
+        !const {'--date', '--decisions', '--source', '--origin'}.contains(key),
   );
-  if (positional.length != 1 || unknown.isNotEmpty) {
+  final originName = options['--origin'] ?? ScreenshotOrigin.e2e.name;
+  final origin = ScreenshotOrigin.values
+      .where((value) => value.name == originName)
+      .firstOrNull;
+  if (positional.length != 1 || unknown.isNotEmpty || origin == null) {
     stderr.writeln(
       '사용법: dart run tool/register_screenshots.dart <dir> '
-      '[--date YYYY-MM-DD] [--decisions D50,D49] [--source <파일>]',
+      '[--date YYYY-MM-DD] [--decisions D50,D49] [--source <파일>] '
+      '[--origin e2e|render]',
     );
     exitCode = 64;
     return;
@@ -182,6 +287,7 @@ Future<void> main(List<String> args) async {
           .toList(),
       knownDecisions: knownDecisions,
       source: options['--source'],
+      origin: origin,
     );
     stdout.writeln('스크린샷 ${ids.length}장 등록: ${ids.join(', ')}');
   } on ScreenshotError catch (error) {

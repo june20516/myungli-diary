@@ -155,6 +155,8 @@ flutter:
     - fixtures/profile-name-invalid/
     - fixtures/login-entry-unavailable/
     - fixtures/member-time-unknown/
+    - fixtures/member-overseas/
+    - fixtures/ad-free-active/
     - fixtures/daily-error/
     - fixtures/diary-written/
     - fixtures/reaction-failed/

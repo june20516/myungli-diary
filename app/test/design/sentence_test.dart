@@ -944,6 +944,53 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('표 칸에서 연 근거 시트(showJudgment 없음)는 잠겨도 내 사주에서는 구역 하나입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.locked,
+              title: '정재',
+              showJudgment: false,
+              showPersonal: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('판정 근거, 잠김'), findsNothing);
+      expect(find.bySemanticsLabel('원전, 잠김'), findsNothing);
+      expect(find.bySemanticsLabel('내 사주에서는, 잠김'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('열렸는데 내 사주 해석이 없으면 구역 제목 아래 빈 안내를 둡니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '정재',
+              showJudgment: false,
+              showPersonal: true,
+              personalEmpty: '이 자리의 해석은 아직 준비 중이에요.',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('내 사주에서는'), findsOneWidget);
+      expect(find.text('이 자리의 해석은 아직 준비 중이에요.'), findsOneWidget);
+      expect(find.text('판정 근거'), findsNothing);
+    });
+
     testWidgets('오늘 화면에서 연 근거 시트(showPersonal 없음)는 잠긴 구역이 둘입니다', (
       tester,
     ) async {

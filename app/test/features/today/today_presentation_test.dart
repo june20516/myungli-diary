@@ -20,11 +20,9 @@ import '../../support/daily_fixture.dart';
 
 FocusSlot _slot(String start, String end) => FocusSlot.fromJson({
   'branch': 'sa',
-  'pillar': {'stem': 'gi', 'branch': 'sa'},
   'start': start,
   'end': end,
   'huangdaoLucky': true,
-  'score': 3,
   'reasons': ['yongsin'],
 });
 
@@ -215,6 +213,31 @@ void main() {
         timeUnknownNoticeOf(Daily.fromJson(json)),
         '태어난 시간을 몰라 세 기둥으로 계산했어요.',
       );
+    });
+
+    test('모르는 notice code(열린 enum)는 건너뛰고 time_unknown만 고릅니다', () {
+      // A66: NoticeCode는 열린 enum이라 모르는 code가 와도 응답이 실패하지 않습니다.
+      final json = memberDailyJson()
+        ..['notices'] = [
+          {
+            'code': 'added_after_freeze',
+            'text': {
+              'segments': [
+                {'text': '새 안내'},
+              ],
+            },
+          },
+        ];
+      expect(timeUnknownNoticeOf(Daily.fromJson(json)), isNull);
+      (json['notices'] as List<Object?>).add({
+        'code': 'time_unknown',
+        'text': {
+          'segments': [
+            {'text': '시간 모름'},
+          ],
+        },
+      });
+      expect(timeUnknownNoticeOf(Daily.fromJson(json)), '시간 모름');
     });
 
     test('SentenceLine.isBlank는 빈 조각과 공백뿐인 조각을 빈 문장으로 봅니다', () {

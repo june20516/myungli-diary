@@ -658,7 +658,7 @@ abstract class AppLocalizations {
   /// **'윤{month}월'**
   String datePickerLeapMonthValue(int month);
 
-  /// 임시. date-picker birth 음력 확인 줄(solarConfirm): 고른 음력 날짜를 양력으로 바꾼 날짜. date는 로케일 날짜 서식(yMMMMd)으로 app이 만듭니다(V31, A20 ④)
+  /// 생일 날짜 휠(date-picker birth)의 양력 확인 줄(solarConfirm, design V31, #313). 고른 음력 날짜를 양력으로 바꾼 날짜를 보입니다
   ///
   /// In ko, this message translates to:
   /// **'양력 {date}'**
@@ -739,7 +739,7 @@ abstract class AppLocalizations {
   /// onboard-birth.calendar.hint: 음력·윤달 고르는 법
   ///
   /// In ko, this message translates to:
-  /// **'음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.'**
+  /// **'음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요.'**
   String get onboardBirthCalendarHint;
 
   /// onboard-birth.basis.note: 한국 출생 기준으로 계산한다는 안내
@@ -766,23 +766,17 @@ abstract class AppLocalizations {
   /// **'저장'**
   String get onboardingSave;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'양력'**
   String get calendarSolar;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'음력'**
   String get calendarLunar;
-
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
-  ///
-  /// In ko, this message translates to:
-  /// **'윤달'**
-  String get leapMonth;
 
   /// 스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)
   ///
@@ -802,7 +796,7 @@ abstract class AppLocalizations {
   /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
   String get onboardTimeUnknownNote;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'모름'**
@@ -928,13 +922,13 @@ abstract class AppLocalizations {
   /// **'태어난 도시 찾기'**
   String get birthplaceSearchLabel;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'남성'**
   String get genderMale;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'여성'**
@@ -1390,12 +1384,6 @@ abstract class AppLocalizations {
   /// **'{date}까지'**
   String settingsAdFreeLabelActive(String date);
 
-  /// settings.depth.desc: 기본 깊이 설명
-  ///
-  /// In ko, this message translates to:
-  /// **'풀이를 처음에 어디까지 펼쳐 볼지 골라요.'**
-  String get settingsDepthDesc;
-
   /// settings.language.birthplace-notice: 언어를 바꿀 때 출생지 입력 안내
   ///
   /// In ko, this message translates to:
@@ -1540,29 +1528,11 @@ abstract class AppLocalizations {
   /// **'좋아요 취소'**
   String get todayReactionLabelSelected;
 
-  /// 깊이 단계 선택의 기본 단계 이름
-  ///
-  /// In ko, this message translates to:
-  /// **'명리 풀이 보기'**
-  String get depthDefaultLabel;
-
-  /// 깊이 단계 근거 단계(셋째 단계)의 안내
-  ///
-  /// In ko, this message translates to:
-  /// **'원리'**
-  String get depthEvidence;
-
-  /// 깊이 단계 풀이 단계(둘째 단계)의 안내
+  /// 풀이 시트(sheet)의 접근성 라벨. 깊이 풀이 단계(explain)의 이름입니다(D79로 기본 깊이 설정이 빠져 segmented 칸에는 쓰지 않음)
   ///
   /// In ko, this message translates to:
   /// **'풀이'**
   String get depthExplain;
-
-  /// 깊이 단계 표면 단계(첫 단계)의 안내
-  ///
-  /// In ko, this message translates to:
-  /// **'요약'**
-  String get depthSurface;
 
   /// 깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)
   ///
@@ -2081,6 +2051,168 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.'**
   String get errorTimezoneInvalid;
+
+  /// 임시. settings 줄 이름: 아침 알림 시각(A59)
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 시각'**
+  String get settingsNotifyLabel;
+
+  /// 임시. settings 알림 시각 줄의 값: 알림을 끔
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼짐'**
+  String get settingsNotifyOff;
+
+  /// 임시. settings 줄 이름: 앱 언어(A60)
+  ///
+  /// In ko, this message translates to:
+  /// **'언어'**
+  String get settingsLanguageLabel;
+
+  /// 임시. settings 줄 이름: 로그아웃(destructive, A63)
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃'**
+  String get settingsLogoutLabel;
+
+  /// 임시. profile-edit 출생지 줄의 값: 출생지를 묻지 않았거나 건너뛰어 한국 기준으로 계산함(D29)
+  ///
+  /// In ko, this message translates to:
+  /// **'한국'**
+  String get profileEditBirthplaceKorea;
+
+  /// 임시. saju-chart 탭 이름: 원국표·오행 분포·용신 판정 근거(A57)
+  ///
+  /// In ko, this message translates to:
+  /// **'원국'**
+  String get sajuChartTabNatal;
+
+  /// 임시. saju-chart 탭 이름: 만세력 표·대운·세운(A57)
+  ///
+  /// In ko, this message translates to:
+  /// **'만세력·대운'**
+  String get sajuChartTabLuck;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 시주
+  ///
+  /// In ko, this message translates to:
+  /// **'시주'**
+  String get sajuPillarHour;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 일주
+  ///
+  /// In ko, this message translates to:
+  /// **'일주'**
+  String get sajuPillarDay;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 월주
+  ///
+  /// In ko, this message translates to:
+  /// **'월주'**
+  String get sajuPillarMonth;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 연주
+  ///
+  /// In ko, this message translates to:
+  /// **'연주'**
+  String get sajuPillarYear;
+
+  /// 임시. manse-table 행 머리: 지장간
+  ///
+  /// In ko, this message translates to:
+  /// **'지장간'**
+  String get manseRowHiddenStems;
+
+  /// 임시. manse-table 행 머리: 12운성
+  ///
+  /// In ko, this message translates to:
+  /// **'12운성'**
+  String get manseRowTwelveStages;
+
+  /// 임시. manse-table 행 머리: 신살
+  ///
+  /// In ko, this message translates to:
+  /// **'신살'**
+  String get manseRowShinsal;
+
+  /// 임시. saju-pillars 일간 칸의 '나' 꼬리표(tag.me)
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get sajuTagMe;
+
+  /// 임시. daeun-table 지금 대운 꼬리표(tag.status)
+  ///
+  /// In ko, this message translates to:
+  /// **'지금'**
+  String get daeunTagNow;
+
+  /// 임시. daeun-table 올해 세운 꼬리표(tag.status)
+  ///
+  /// In ko, this message translates to:
+  /// **'올해'**
+  String get seunTagThisYear;
+
+  /// 임시. daeun-table 스크린리더 표 이름. age는 첫 대운의 한국식 나이
+  ///
+  /// In ko, this message translates to:
+  /// **'대운 {age}세부터'**
+  String daeunTableLabel(int age);
+
+  /// 임시. ohaeng-bar 스크린리더 항목(오행 이름 + 개수). 항목은 a11yListSeparator로 잇습니다
+  ///
+  /// In ko, this message translates to:
+  /// **'{element} {count}'**
+  String ohaengBarItem(String element, String count);
+
+  /// 임시. saju-pillars 일주 천간 위 라벨(term-token, 일간). 누르면 일간 풀이
+  ///
+  /// In ko, this message translates to:
+  /// **'일간'**
+  String get sajuPillarDayMaster;
+
+  /// 임시. saju-pillars 스크린리더 표 이름(saju.json a11y.label)
+  ///
+  /// In ko, this message translates to:
+  /// **'원국표'**
+  String get sajuPillarsTableLabel;
+
+  /// 임시. manse-table 스크린리더 표 이름(saju.json a11y.label)
+  ///
+  /// In ko, this message translates to:
+  /// **'만세력 표'**
+  String get manseTableLabel;
+
+  /// 임시. evidence-sheet 표 칸 용어에서 열었는데 그 자리의 원국 개인 해석(personal.body)이 없을 때 구역 제목 아래 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이 자리의 해석은 아직 준비 중이에요.'**
+  String get evidenceSheetPersonalEmpty;
+
+  /// 임시. daeun-table 대운 시작 연도와 세운 칸의 스크린리더 글(연도)
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년'**
+  String luckYearLabel(int year);
+
+  /// 임시. legal 줄 이름: 이용약관(A61)
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get legalTermsLabel;
+
+  /// 임시. legal 줄 이름: 개인정보 처리방침(A61)
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 처리방침'**
+  String get legalPrivacyLabel;
+
+  /// 임시. legal 줄 이름: 오픈소스 라이선스(A61, GeoNames 고지 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'오픈소스 라이선스'**
+  String get legalLicensesLabel;
 }
 
 class _AppLocalizationsDelegate

@@ -118,7 +118,13 @@ SeunYear _$SeunYearFromJson(Map<String, dynamic> json) => $checkedCreate(
       relationsWithNatal: $checkedConvert(
         'relationsWithNatal',
         (v) => (v as List<dynamic>)
-            .map((e) => $enumDecode(_$RelationKindEnumMap, e))
+            .map(
+              (e) => $enumDecode(
+                _$RelationKindEnumMap,
+                e,
+                unknownValue: RelationKind.unknownDefaultOpenApi,
+              ),
+            )
             .toList(),
       ),
     );
@@ -153,4 +159,5 @@ const _$RelationKindEnumMap = {
   RelationKind.branchHap: 'branch_hap',
   RelationKind.chung: 'chung',
   RelationKind.hyeong: 'hyeong',
+  RelationKind.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

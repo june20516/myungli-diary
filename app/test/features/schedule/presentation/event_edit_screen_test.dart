@@ -197,7 +197,7 @@ void main() {
     await _open(
       tester,
       overrides: [
-        calendarMonthProvider.overrideWith((ref, month) => pending.future),
+        calendarMonthProvider.overrideWithBuild((ref, _) => pending.future),
       ],
       allowOngoing: true,
     );

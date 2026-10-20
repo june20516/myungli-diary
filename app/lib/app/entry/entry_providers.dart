@@ -6,6 +6,7 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/app_config.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -43,7 +44,14 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     final subscription = tokens.events.listen((event) {
       if (event == AuthEvent.signedOut) {
         // 다시 계산이 실패해도 이전 계정의 갈래(ready 등)가 남지 않게 먼저 로그아웃으로 둡니다.
-        state = const AsyncData(EntrySnapshot(EntryState.signedOut, null));
+        // 앱 설정(법적 문서 주소)은 계정과 상관없으므로 이전 값을 그대로 둡니다.
+        state = AsyncData(
+          EntrySnapshot(
+            EntryState.signedOut,
+            null,
+            config: state.value?.config,
+          ),
+        );
       }
       ref.invalidateSelf();
     });
@@ -104,14 +112,14 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
         if (await tokens.hasSession()) {
           await tokens.signOut();
         }
-        return const EntrySnapshot(EntryState.signedOut, null);
+        return EntrySnapshot(EntryState.signedOut, null, config: config);
       }
     }
 
     if (me != null && isPendingDeletion(me)) {
       // signOut 이벤트로 다시 계산되며, 그때는 세션이 없어 getMe를 부르지 않습니다.
       await revokeAndSignOut(api: api, tokens: tokens);
-      return const EntrySnapshot(EntryState.signedOut, null);
+      return EntrySnapshot(EntryState.signedOut, null, config: config);
     }
 
     final notifyAskPending = await flags.readBool(notifyAskPendingKey);
@@ -128,12 +136,12 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     final entry = compute(adConsentDone: adConsentDone);
     if (entry != EntryState.adConsentRequired) {
       // 알림 허락 대기(notifyAskRequired)면 광고 동의는 notify-ask 뒤로 미룹니다(A17).
-      return EntrySnapshot(entry, me);
+      return EntrySnapshot(entry, me, config: config);
     }
     // 결과(맞춤·비맞춤)와 상관없이 이 기기에서 한 번 거친 것으로 칩니다.
     await ref.read(adConsentProvider).gather();
     await flags.writeBool(adConsentDoneKey, value: true);
-    return EntrySnapshot(compute(adConsentDone: true), me);
+    return EntrySnapshot(compute(adConsentDone: true), me, config: config);
   }
 
   bool _isUnauthorized(AppError error) => switch (error) {
@@ -172,6 +180,13 @@ final entryProvider = Provider<EntryState?>(
 /// 로그인한 사용자의 내 정보. 로그아웃이거나 아직 계산 전이면 null입니다.
 final meProvider = Provider<Me?>(
   (ref) => ref.watch(entryStateProvider).value?.me,
+);
+
+/// 진입 계산이 받은 앱 설정(`getAppConfig`). 계산 전이거나 받지 못했으면 null입니다.
+///
+/// 법적 문서 주소(`legalLinksProvider`)가 다시 부르지 않고 이 값을 씁니다.
+final entryAppConfigProvider = Provider<AppConfig?>(
+  (ref) => ref.watch(entryStateProvider).value?.config,
 );
 
 /// 이 기기에서 광고 동의를 거쳤는지. 진입 계산이 끝날 때마다 다시 읽습니다.

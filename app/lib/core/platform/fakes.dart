@@ -11,6 +11,7 @@ import 'package:myungli_diary/core/platform/app_check.dart';
 import 'package:myungli_diary/core/platform/apple_web_return.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
+import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
@@ -407,6 +408,22 @@ final class FakeDeviceTimezone implements DeviceTimezone {
 
   @override
   Future<String> current() async => value;
+}
+
+/// 외부 브라우저 대역. 연 주소를 [opened]에 차례로 남깁니다.
+final class FakeExternalBrowser implements ExternalBrowser {
+  /// 연 주소(실패한 시도 포함).
+  final List<Uri> opened = [];
+
+  /// 있으면 열 때 이 오류를 던집니다(브라우저 없음 등).
+  Exception? failure;
+
+  @override
+  Future<void> open(Uri uri) async {
+    opened.add(uri);
+    final failure = this.failure;
+    if (failure != null) throw failure;
+  }
 }
 
 /// 스토어 열기 대역. 연 횟수를 [opened]에 셉니다.

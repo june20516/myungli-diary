@@ -1,0 +1,1701 @@
+{
+  "status": 200,
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": {
+    "rulesetVersion": "r1",
+    "evidenceAccess": "unlocked",
+    "pillars": {
+      "year": {
+        "stem": "gyeong",
+        "branch": "o"
+      },
+      "month": {
+        "stem": "sin",
+        "branch": "sa"
+      },
+      "day": {
+        "stem": "gyeong",
+        "branch": "jin"
+      },
+      "hour": {
+        "stem": "gye",
+        "branch": "mi"
+      }
+    },
+    "tenGods": [
+      {
+        "position": "year_stem",
+        "tenGod": "bigyeon"
+      },
+      {
+        "position": "year_branch",
+        "tenGod": "jeonggwan"
+      },
+      {
+        "position": "month_stem",
+        "tenGod": "geopjae"
+      },
+      {
+        "position": "month_branch",
+        "tenGod": "pyeongwan"
+      },
+      {
+        "position": "day_branch",
+        "tenGod": "pyeonin"
+      },
+      {
+        "position": "hour_stem",
+        "tenGod": "sanggwan"
+      },
+      {
+        "position": "hour_branch",
+        "tenGod": "jeongin"
+      }
+    ],
+    "hiddenStems": [
+      {
+        "position": "year_branch",
+        "stems": [
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          }
+        ]
+      },
+      {
+        "position": "month_branch",
+        "stems": [
+          {
+            "stem": "byeong",
+            "tenGod": "pyeongwan"
+          },
+          {
+            "stem": "gyeong",
+            "tenGod": "bigyeon"
+          },
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          }
+        ]
+      },
+      {
+        "position": "day_branch",
+        "stems": [
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          },
+          {
+            "stem": "gye",
+            "tenGod": "sanggwan"
+          }
+        ]
+      },
+      {
+        "position": "hour_branch",
+        "stems": [
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          },
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          }
+        ]
+      }
+    ],
+    "twelveStages": [
+      {
+        "position": "year_branch",
+        "stage": "mokyok"
+      },
+      {
+        "position": "month_branch",
+        "stage": "jangsaeng"
+      },
+      {
+        "position": "day_branch",
+        "stage": "yang"
+      },
+      {
+        "position": "hour_branch",
+        "stage": "gwandae"
+      }
+    ],
+    "shinsal": [
+      {
+        "kind": "cheoneul_gwiin",
+        "position": "hour_branch"
+      },
+      {
+        "kind": "hwagae",
+        "position": "day_branch"
+      }
+    ],
+    "gongmang": [
+      "shin",
+      "yu"
+    ],
+    "elementWeights": [
+      {
+        "element": "wood",
+        "weight": 0.6
+      },
+      {
+        "element": "fire",
+        "weight": 3.3
+      },
+      {
+        "element": "earth",
+        "weight": 2.55
+      },
+      {
+        "element": "metal",
+        "weight": 2.9
+      },
+      {
+        "element": "water",
+        "weight": 1.15
+      }
+    ],
+    "strength": {
+      "score": 51.9,
+      "level": "strong"
+    },
+    "yongsin": {
+      "yongsin": "water",
+      "huisin": "metal",
+      "gisin": "earth",
+      "tonggwan": "metal",
+      "method": "johu",
+      "johuStem": "im",
+      "basis": {
+        "slot": "chart.yongsin_method",
+        "messageKey": "yongsin.method.johu",
+        "variant": "single",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 계절의 온도를 맞추는 오행으로 "
+            },
+            {
+              "text": "용신",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 정했어요."
+            }
+          ]
+        },
+        "reactable": false,
+        "evidence": [
+          {
+            "ruleId": "yongsin/johu",
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳",
+            "basis": {
+              "segments": [
+                {
+                  "text": "태어난 달의 기운과 오행 비중을 견주어 정했어요."
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "daeun": {
+      "forward": false,
+      "startYears": 3,
+      "startMonths": 2,
+      "periods": [
+        {
+          "pillar": {
+            "stem": "gyeong",
+            "branch": "jin"
+          },
+          "startAge": 3,
+          "startAgeKorean": 4,
+          "stemTenGod": "bigyeon",
+          "branchTenGod": "pyeonin",
+          "twelveStage": "yang"
+        },
+        {
+          "pillar": {
+            "stem": "gi",
+            "branch": "myo"
+          },
+          "startAge": 13,
+          "startAgeKorean": 14,
+          "stemTenGod": "jeongin",
+          "branchTenGod": "jeongjae",
+          "twelveStage": "tae"
+        },
+        {
+          "pillar": {
+            "stem": "mu",
+            "branch": "in"
+          },
+          "startAge": 23,
+          "startAgeKorean": 24,
+          "stemTenGod": "pyeonin",
+          "branchTenGod": "pyeonjae",
+          "twelveStage": "jeol"
+        },
+        {
+          "pillar": {
+            "stem": "jeong",
+            "branch": "chuk"
+          },
+          "startAge": 33,
+          "startAgeKorean": 34,
+          "stemTenGod": "jeonggwan",
+          "branchTenGod": "jeongin",
+          "twelveStage": "myo"
+        },
+        {
+          "pillar": {
+            "stem": "byeong",
+            "branch": "ja"
+          },
+          "startAge": 43,
+          "startAgeKorean": 44,
+          "stemTenGod": "pyeongwan",
+          "branchTenGod": "sanggwan",
+          "twelveStage": "sa"
+        },
+        {
+          "pillar": {
+            "stem": "eul",
+            "branch": "hae"
+          },
+          "startAge": 53,
+          "startAgeKorean": 54,
+          "stemTenGod": "jeongjae",
+          "branchTenGod": "siksin",
+          "twelveStage": "byeong"
+        },
+        {
+          "pillar": {
+            "stem": "gap",
+            "branch": "sul"
+          },
+          "startAge": 63,
+          "startAgeKorean": 64,
+          "stemTenGod": "pyeonjae",
+          "branchTenGod": "pyeonin",
+          "twelveStage": "soe"
+        },
+        {
+          "pillar": {
+            "stem": "gye",
+            "branch": "yu"
+          },
+          "startAge": 73,
+          "startAgeKorean": 74,
+          "stemTenGod": "sanggwan",
+          "branchTenGod": "geopjae",
+          "twelveStage": "jewang"
+        },
+        {
+          "pillar": {
+            "stem": "im",
+            "branch": "shin"
+          },
+          "startAge": 83,
+          "startAgeKorean": 84,
+          "stemTenGod": "siksin",
+          "branchTenGod": "bigyeon",
+          "twelveStage": "geonrok"
+        },
+        {
+          "pillar": {
+            "stem": "sin",
+            "branch": "mi"
+          },
+          "startAge": 93,
+          "startAgeKorean": 94,
+          "stemTenGod": "geopjae",
+          "branchTenGod": "jeongin",
+          "twelveStage": "gwandae"
+        }
+      ]
+    },
+    "seun": [
+      {
+        "year": 2023,
+        "pillar": {
+          "stem": "gye",
+          "branch": "myo"
+        },
+        "tenGod": "sanggwan",
+        "relationsWithNatal": []
+      },
+      {
+        "year": 2024,
+        "pillar": {
+          "stem": "gap",
+          "branch": "jin"
+        },
+        "tenGod": "pyeonjae",
+        "relationsWithNatal": [
+          "hyeong"
+        ]
+      },
+      {
+        "year": 2025,
+        "pillar": {
+          "stem": "eul",
+          "branch": "sa"
+        },
+        "tenGod": "jeongjae",
+        "relationsWithNatal": [
+          "stem_hap"
+        ]
+      },
+      {
+        "year": 2026,
+        "pillar": {
+          "stem": "byeong",
+          "branch": "o"
+        },
+        "tenGod": "pyeongwan",
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ]
+      },
+      {
+        "year": 2027,
+        "pillar": {
+          "stem": "jeong",
+          "branch": "mi"
+        },
+        "tenGod": "jeonggwan",
+        "relationsWithNatal": [
+          "branch_hap"
+        ]
+      },
+      {
+        "year": 2028,
+        "pillar": {
+          "stem": "mu",
+          "branch": "shin"
+        },
+        "tenGod": "pyeonin",
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ]
+      },
+      {
+        "year": 2029,
+        "pillar": {
+          "stem": "gi",
+          "branch": "yu"
+        },
+        "tenGod": "jeongin",
+        "relationsWithNatal": [
+          "branch_hap"
+        ]
+      },
+      {
+        "year": 2030,
+        "pillar": {
+          "stem": "gyeong",
+          "branch": "sul"
+        },
+        "tenGod": "bigyeon",
+        "relationsWithNatal": [
+          "chung",
+          "hyeong"
+        ]
+      },
+      {
+        "year": 2031,
+        "pillar": {
+          "stem": "sin",
+          "branch": "hae"
+        },
+        "tenGod": "geopjae",
+        "relationsWithNatal": [
+          "chung"
+        ]
+      },
+      {
+        "year": 2032,
+        "pillar": {
+          "stem": "im",
+          "branch": "ja"
+        },
+        "tenGod": "siksin",
+        "relationsWithNatal": [
+          "chung"
+        ]
+      }
+    ],
+    "notices": [],
+    "ilganHead": {
+      "slot": "chart.ilgan_head",
+      "messageKey": "ilgan.head.gyeong",
+      "variant": "single",
+      "text": {
+        "segments": [
+          {
+            "text": "하늘님, 다듬기 전의 단단한 쇠를 닮았어요."
+          }
+        ]
+      },
+      "reactable": false
+    },
+    "ilganBody": {
+      "slot": "chart.ilgan_body",
+      "messageKey": "ilgan.body.gyeong",
+      "variant": "single",
+      "text": {
+        "segments": [
+          {
+            "text": "옳다고 여긴 일은 바로 행동으로 옮기는 편이에요. 결단이 필요한 순간에 망설이지 않는 모습이 돋보여요."
+          }
+        ]
+      },
+      "reactable": false
+    },
+    "yongsinSummary": {
+      "slot": "chart.yongsin_summary",
+      "messageKey": "yongsin.summary",
+      "variant": "single",
+      "text": {
+        "segments": [
+          {
+            "text": "나와 잘 맞는 오행은 "
+          },
+          {
+            "text": "수",
+            "term": "element.water"
+          },
+          {
+            "text": "예요. 색으로는 남색이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
+          }
+        ]
+      },
+      "reactable": false
+    },
+    "personalReadings": [
+      {
+        "kind": "day_master",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 일간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "year_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "month_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 십성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 2
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 2
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 지장간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 2
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 0
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 0
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0
+      },
+      {
+        "kind": "shinsal",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 신살 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0,
+        "shinsal": "cheoneul_gwiin"
+      },
+      {
+        "kind": "shinsal",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 신살 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0,
+        "shinsal": "hwagae"
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 천간 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 9
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 지지 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 9
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 대운 12운성 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 9
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이 세운 자리는 "
+            },
+            {
+              "text": "기운의 균형",
+              "term": "role.yongsin"
+            },
+            {
+              "text": "을 돕는 쪽으로 읽어요."
+            }
+          ]
+        },
+        "index": 9
+      }
+    ]
+  }
+}

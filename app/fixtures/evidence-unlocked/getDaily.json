@@ -150,14 +150,9 @@
         "picks": [
           {
             "branch": "sa",
-            "pillar": {
-              "stem": "gi",
-              "branch": "sa"
-            },
             "start": "2026-10-13T09:30:00+09:00",
             "end": "2026-10-13T11:30:00+09:00",
             "huangdaoLucky": true,
-            "score": 3,
             "reasons": [
               "yongsin"
             ]

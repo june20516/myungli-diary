@@ -197,7 +197,6 @@ abstract final class SlotIds {
   static const String sajuChartYongsinOpen = 'saju-chart.yongsin.open';
   static const String sajuChartYongsinTitle = 'saju-chart.yongsin.title';
   static const String settingsBarTitle = 'settings.bar.title';
-  static const String settingsDepthDesc = 'settings.depth.desc';
   static const String settingsLanguageBirthplaceNotice =
       'settings.language.birthplace-notice';
   static const String settingsLogoutConfirm = 'settings.logout.confirm';
@@ -682,14 +681,7 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'legal', trigger: '약관·정책'),
       IaExit(to: 'welcome', trigger: '로그아웃 확인'),
     ],
-    components: [
-      'app-bar',
-      'settings-row',
-      'segmented',
-      'time-picker',
-      'sheet',
-      'dialog',
-    ],
+    components: ['app-bar', 'settings-row', 'time-picker', 'sheet', 'dialog'],
   ),
   IaScreen(
     id: 'ad-free',

@@ -72,21 +72,25 @@ extension $NoticeCopyWith on Notice {
 // JsonSerializableGenerator
 // **************************************************************************
 
-Notice _$NoticeFromJson(Map<String, dynamic> json) => $checkedCreate(
-  'Notice',
-  json,
-  ($checkedConvert) {
-    $checkKeys(json, requiredKeys: const ['code', 'text']);
-    final val = Notice(
-      code: $checkedConvert('code', (v) => $enumDecode(_$NoticeCodeEnumMap, v)),
-      text: $checkedConvert(
-        'text',
-        (v) => RenderedText.fromJson(v as Map<String, dynamic>),
-      ),
-    );
-    return val;
-  },
-);
+Notice _$NoticeFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('Notice', json, ($checkedConvert) {
+      $checkKeys(json, requiredKeys: const ['code', 'text']);
+      final val = Notice(
+        code: $checkedConvert(
+          'code',
+          (v) => $enumDecode(
+            _$NoticeCodeEnumMap,
+            v,
+            unknownValue: NoticeCode.unknownDefaultOpenApi,
+          ),
+        ),
+        text: $checkedConvert(
+          'text',
+          (v) => RenderedText.fromJson(v as Map<String, dynamic>),
+        ),
+      );
+      return val;
+    });
 
 Map<String, dynamic> _$NoticeToJson(Notice instance) => <String, dynamic>{
   'code': _$NoticeCodeEnumMap[instance.code]!,
@@ -101,4 +105,5 @@ const _$NoticeCodeEnumMap = {
   NoticeCode.nearSolarTerm: 'near_solar_term',
   NoticeCode.dayunStartApproximate: 'dayun_start_approximate',
   NoticeCode.focusTimeFallback: 'focus_time_fallback',
+  NoticeCode.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

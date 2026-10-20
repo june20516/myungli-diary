@@ -54,7 +54,11 @@ class ExplainSheet extends ConsumerWidget {
             ? null
             : () => ref
                   .read(depthSheetsProvider)
-                  .openEvidence(context, slotId: origin.slotId),
+                  .openEvidence(
+                    context,
+                    slotId: origin.slotId,
+                    personal: origin.personal,
+                  ),
       ),
     );
   }

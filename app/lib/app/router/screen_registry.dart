@@ -11,6 +11,10 @@ import 'package:myungli_diary/features/diary/presentation/diary_edit_screen.dart
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/tag_diary_screen.dart';
+import 'package:myungli_diary/features/me/presentation/legal_screen.dart';
+import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
+import 'package:myungli_diary/features/me/presentation/saju_chart_screen.dart';
+import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -20,6 +24,8 @@ import 'package:myungli_diary/features/onboarding/presentation/onboard_gender_sc
 import 'package:myungli_diary/features/onboarding/presentation/onboard_time_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
+import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
+import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 import 'package:myungli_diary/features/schedule/presentation/event_edit_screen.dart';
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
@@ -157,6 +163,36 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: tagDiaryHandledStates,
     exits: tagDiaryExits,
   ),
+  ScreenIds.mySaju: const ScreenSpec(
+    ScreenIds.mySaju,
+    _buildMySaju,
+    handledStates: mySajuHandledStates,
+    exits: mySajuExits,
+  ),
+  ScreenIds.sajuChart: const ScreenSpec(
+    ScreenIds.sajuChart,
+    _buildSajuChart,
+    handledStates: sajuChartHandledStates,
+    exits: sajuChartExits,
+  ),
+  ScreenIds.settings: const ScreenSpec(
+    ScreenIds.settings,
+    _buildSettings,
+    exits: settingsExits,
+  ),
+  ScreenIds.profileEdit: const ScreenSpec(
+    ScreenIds.profileEdit,
+    _buildProfileEdit,
+    handledStates: profileEditHandledStates,
+    exits: profileEditExits,
+  ),
+  ScreenIds.accountDelete: const ScreenSpec(
+    ScreenIds.accountDelete,
+    _buildAccountDelete,
+    handledStates: accountDeleteHandledStates,
+    exits: accountDeleteExits,
+  ),
+  ScreenIds.legal: const ScreenSpec(ScreenIds.legal, _buildLegal),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -216,3 +252,15 @@ Widget _buildDiaryEdit(BuildContext context) => const DiaryEditScreen();
 Widget _buildDiaryView(BuildContext context) => const DiaryViewScreen();
 
 Widget _buildTagDiary(BuildContext context) => const TagDiaryScreen();
+
+Widget _buildMySaju(BuildContext context) => const MySajuScreen();
+
+Widget _buildSajuChart(BuildContext context) => const SajuChartScreen();
+
+Widget _buildSettings(BuildContext context) => const SettingsScreen();
+
+Widget _buildProfileEdit(BuildContext context) => const ProfileEditScreen();
+
+Widget _buildAccountDelete(BuildContext context) => const AccountDeleteScreen();
+
+Widget _buildLegal(BuildContext context) => const LegalScreen();

@@ -56,7 +56,7 @@ class DefaultApi {
   const DefaultApi(this._dio);
 
   /// AdMob 보상형 광고 SSV 콜백
-  /// AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다. 서명은 핸들러가 원본 쿼리 문자열(&#x60;signature&#x60; 앞까지)로 AdMob 공개 키(&#x60;key_id&#x60;로 고름)를 써 ECDSA 검증합니다. &#x60;user_id&#x60;는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 &#x60;transaction_id&#x60;는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다. 검증되면 근거 열람 권한(&#x60;insight&#x60;)을 출처 &#x60;rewarded_ad&#x60;로 그 계정 현재 시간대의 다음 자정까지 부여합니다. 서명 검증 실패는 401 &#x60;reward.invalid_signature&#x60;, 1시간 넘게 오래된 &#x60;timestamp&#x60;는 401 &#x60;reward.expired&#x60;입니다. 검증 키 목록을 받지 못하면 503입니다.
+  /// AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다. 서명은 핸들러가 원본 쿼리 문자열(&#x60;signature&#x60; 앞까지)로 AdMob 공개 키(&#x60;key_id&#x60;로 고름)를 써 ECDSA 검증합니다. &#x60;user_id&#x60;는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 &#x60;transaction_id&#x60;는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다. 서명이 맞아도 &#x60;user_id&#x60;가 없거나 없는 계정이면 기록만 하고 200입니다(재시도를 막음). 검증되면 근거 열람 권한(&#x60;insight&#x60;)을 출처 &#x60;rewarded_ad&#x60;로 그 계정 현재 시간대의 다음 자정까지 부여합니다. 서명 검증 실패는 401 &#x60;reward.invalid_signature&#x60;, 현재와 1시간 넘게 어긋난(오래됐거나 미래) &#x60;timestamp&#x60;는 401 &#x60;reward.expired&#x60;입니다. 검증 키 목록을 받지 못하면 503입니다.
   ///
   /// Parameters:
   /// * [keyId]
@@ -130,7 +130,7 @@ class DefaultApi {
   }
 
   /// 약관 동의
-  /// 현재 버전 문서에 동의합니다. 동의 전에는 &#x60;getMe&#x60;, 동의, 로그아웃, 계정 삭제 말고는 403 &#x60;consent.required&#x60;입니다.
+  /// 현재 버전 문서에 동의합니다. 동의 전에는 &#x60;getMe&#x60;, 동의, 로그아웃, 계정 삭제, 알림 기기 해제(&#x60;deleteDevice&#x60;) 말고는 403 &#x60;consent.required&#x60;입니다.
   ///
   /// Parameters:
   /// * [consentRequest]
@@ -755,7 +755,7 @@ class DefaultApi {
   }
 
   /// 알림 기기 해제
-  ///
+  /// 기기를 비활성으로 바꿔 알림을 멈춥니다. app은 로그아웃하기 전과, FCM 토큰이 바뀌어 새 토큰을 등록한 뒤 이전 &#x60;id&#x60;에 부릅니다. 이미 비활성인 자기 기기도 204입니다. 없는 기기(남의 기기 포함)는 404 &#x60;device.not_found&#x60;입니다. 계정 삭제(&#x60;deleteMe&#x60;)는 그 계정의 기기를 모두 비활성으로 바꾸므로 따로 부르지 않아도 됩니다.
   ///
   /// Parameters:
   /// * [id]
@@ -807,7 +807,7 @@ class DefaultApi {
   }
 
   /// 일기 지우기
-  /// 일기를 지웁니다. 지운 일기는 &#x60;restoreDiary&#x60;로 되살릴 수 있습니다.
+  /// 일기를 지웁니다. 지운 일기는 &#x60;restoreDiary&#x60;로 되살릴 수 있습니다. 없거나 이미 지운 일기는 404 &#x60;diary.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [date]
@@ -1047,7 +1047,7 @@ class DefaultApi {
   }
 
   /// 앱 설정
-  /// 플랫폼별 최소 앱 버전입니다.
+  /// 플랫폼별 최소 앱 버전과 법적 문서 주소입니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -1117,7 +1117,7 @@ class DefaultApi {
   }
 
   /// 시진 확인
-  /// 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 출생 시간대와 출생지를 받지 않으므로 &#x60;Asia/Seoul&#x60;과 시간대별 대표 경도(한국 127.5°, D29)로 계산합니다. &#x60;start&#x60;·&#x60;end&#x60;는 그 시간대의 벽시계 시각입니다.
+  /// 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 출생 시간대와 출생지를 받지 않으므로 &#x60;Asia/Seoul&#x60;과 시간대별 대표 경도(한국 127.5°, D29)로 계산합니다. &#x60;start&#x60;·&#x60;end&#x60;는 그 시간대의 벽시계 시각입니다. 422는 &#x60;request.inconsistent&#x60;(양력인데 &#x60;isLeapMonth&#x60; true), &#x60;date.invalid&#x60;(달력에 없는 날짜, 없는 음력 날짜 포함), &#x60;date.out_of_range&#x60;(D41 범위 밖)입니다.
   ///
   /// Parameters:
   /// * [birthHourRequest]
@@ -1454,7 +1454,7 @@ class DefaultApi {
   }
 
   /// 일기 읽기
-  ///
+  /// 그날 일기를 돌려줍니다. 없거나 지운 일기는 404 &#x60;diary.not_found&#x60;입니다.
   ///
   /// Parameters:
   /// * [date]
@@ -2082,7 +2082,7 @@ class DefaultApi {
   }
 
   /// 일정 목록
-  /// &#x60;from&#x60;부터 &#x60;to&#x60;까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 &#x60;range.too_long&#x60;입니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 400 &#x60;request.invalid&#x60;(field &#x60;from&#x60;)입니다.
+  /// &#x60;from&#x60;부터 &#x60;to&#x60;까지(둘 다 포함) 일정을 돌려줍니다. 범위는 62일 이내이고, 넘으면 422 &#x60;range.too_long&#x60;입니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 400 &#x60;request.invalid&#x60;(field &#x60;from&#x60;), 62일을 넘으면 field는 &#x60;to&#x60;입니다. 정렬은 날짜, 같은 날이면 종일 일정 먼저, 그다음 시각, 만든 시각 순입니다.
   ///
   /// Parameters:
   /// * [from]
@@ -2338,7 +2338,7 @@ class DefaultApi {
   }
 
   /// 로그아웃
-  /// 보낸 refresh token의 family를 폐기합니다.
+  /// 보낸 refresh token의 family를 폐기합니다. 모르는 refresh token이나 다른 계정의 refresh token이면 아무것도 하지 않고 204입니다. 알림을 멈추려면 로그아웃하기 전에 &#x60;deleteDevice&#x60;를 부릅니다.
   ///
   /// Parameters:
   /// * [refreshRequest]
@@ -2400,7 +2400,7 @@ class DefaultApi {
   }
 
   /// 일기 쓰기
-  /// 그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다. 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;입니다. 저장할 때 그날 엔진 결과의 태그와 &#x60;rulesetVersion&#x60;, 가이드 질문을 함께 기록합니다. 이미 있는 일기를 고치면 본문만 바꾸고, 태그·&#x60;rulesetVersion&#x60;·가이드 질문은 처음 쓸 때 기록한 값을 유지합니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  /// 그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다. 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 저장할 때 그날 엔진 결과의 태그와 &#x60;rulesetVersion&#x60;, 가이드 질문을 함께 기록합니다. 이미 있는 일기를 고치면 본문만 바꾸고, 태그·&#x60;rulesetVersion&#x60;·가이드 질문은 처음 쓸 때 기록한 값을 유지합니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
   ///
   /// Parameters:
   /// * [date]
@@ -2660,7 +2660,7 @@ class DefaultApi {
   }
 
   /// 알림 기기 등록
-  /// FCM 토큰을 등록합니다. 같은 토큰이 다시 오면 소유 계정을 요청한 계정으로 옮깁니다.
+  /// 아침 알림을 받을 FCM 토큰을 등록합니다. app은 실행할 때와 FCM 토큰이 바뀔 때 부릅니다. 프로필은 요구하지 않습니다. * 처음 보는 토큰이면 기기를 만들고 201입니다. * 이미 등록된 토큰이면 같은 &#x60;id&#x60;로 200입니다. 다른 계정의 토큰이었으면 요청한 계정으로 옮기고, 비활성이었으면 다시 활성으로 바꿉니다. * 토큰이 바뀌면 app은 새 토큰을 등록한 뒤 이전 &#x60;id&#x60;를 &#x60;deleteDevice&#x60;로 해제합니다.   해제하지 못한 이전 토큰은 FCM이 무효라고 답할 때 server가 비활성으로 바꿉니다. * 한 계정의 활성 기기는 10대까지입니다. 넘으면 가장 오래 등록·갱신하지 않은 기기를 비활성으로 바꿉니다. * 알림을 켜고 끄는 것은 프로필의 &#x60;notification&#x60;이 정합니다. 기기 등록은 받을 곳만 정합니다. * &#x60;Idempotency-Key&#x60;를 보내면 24시간 안의 같은 키에는 처음 응답(201 포함)을 그대로 돌려줍니다. 키 없이 다시 보내면 위 규칙대로 200입니다.
   ///
   /// Parameters:
   /// * [deviceInput]
@@ -2831,7 +2831,7 @@ class DefaultApi {
   }
 
   /// 구매 복원
-  /// RevenueCat 구매 내역을 다시 조회해 이용권을 맞춥니다. RevenueCat 장애는 503 &#x60;billing.provider_unavailable&#x60;입니다.
+  /// RevenueCat 구매 목록을 다시 조회해 광고 제거권을 처음부터 다시 계산합니다. 환불된 구매는 빼고 계산합니다. app은 RevenueCat &#x60;Purchases.logIn&#x60;에 &#x60;Me.accountId&#x60; 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다. 다른 표기면 server가 구매를 찾지 못합니다. RevenueCat 장애는 503 &#x60;billing.provider_unavailable&#x60;입니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -2988,7 +2988,7 @@ class DefaultApi {
   }
 
   /// RevenueCat webhook
-  /// RevenueCat이 부르는 주소입니다. app은 부르지 않습니다. Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401). 그래서 security와 parameter로 적지 않습니다. 저장·동기화에 실패하면 500을 돌려주고 RevenueCat의 재전송에 맡깁니다.
+  /// RevenueCat이 부르는 주소입니다. app은 부르지 않습니다. Authorization 헤더는 RevenueCat에 설정한 값과 같은지 핸들러가 검증합니다(다르면 401 &#x60;auth.token_invalid&#x60;). 그래서 security와 parameter로 적지 않습니다. webhook은 신호로만 씁니다. 이벤트에서 계정을 찾아 RevenueCat 구매 목록으로 이용권을 다시 계산하며, 같은 &#x60;event.id&#x60;는 한 번만 처리합니다. 이벤트에서 계정 id를 찾지 못하거나 모르는 계정이면 기록만 하고 200입니다(재시도를 막음). &#x60;type&#x60;이 &#x60;TEST&#x60;인 이벤트도 기록만 하고 200입니다. 저장·동기화에 실패하면 500을 돌려주고 RevenueCat의 재전송에 맡깁니다.
   ///
   /// Parameters:
   /// * [body]

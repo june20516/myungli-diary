@@ -23,6 +23,7 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
+import '../support/sheet_close.dart';
 import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
@@ -235,9 +236,11 @@ void main() {
       find.byKey(CalendarMonthView.cellKey(CalendarDate(2026, 10, 21))),
     );
     await settleWithIo(tester);
-    await tester.tapAt(const Offset(10, 10));
-    await settleWithIo(tester);
-    expect(find.byKey(const Key(ScreenIds.daySheet)), findsNothing);
+    await closeSheet(
+      tester,
+      find.byKey(const Key(ScreenIds.daySheet)),
+      settle: settleWithIo,
+    );
     await tester.tap(add);
     await settleWithIo(tester);
     expect(
@@ -563,8 +566,11 @@ void main() {
     final picked = CalendarDate(2026, 10, 20);
     await tester.tap(find.byKey(CalendarMonthView.cellKey(picked)));
     await settleWithIo(tester);
-    await tester.tapAt(const Offset(10, 10));
-    await settleWithIo(tester);
+    await closeSheet(
+      tester,
+      find.byKey(const Key(ScreenIds.daySheet)),
+      settle: settleWithIo,
+    );
 
     container.read(today.provider.notifier).moveTo(CalendarDate(2026, 11, 1));
     await settleWithIo(tester);

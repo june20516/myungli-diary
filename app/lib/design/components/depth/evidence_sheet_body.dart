@@ -19,6 +19,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 근거 시트의 내용(`depth-link.evidenceSheet`). 시트 틀(`sheet` `full`) 안에 놓습니다.
 ///
 /// 제목 → 원국표 → 판정 근거 → 원전 → 내 사주에서는 순서이고, 제목과 원국표는 늘 보입니다.
+/// 표 칸 용어에서 연 시트([showJudgment]가 false)는 내 사주에서는 구역 하나입니다.
 /// 세 구역([showPersonal]이 false면 두 구역)은 [state]가 [DepthLinkState.unlocked]이면
 /// 본문, 아니면 같은 자리에 `lock.veil`로 그립니다. 구역 제목은 잠겨도 또렷합니다.
 /// 잠겼을 때는 시트 아래에 [EvidenceLockPanel]이 고정됩니다.
@@ -49,6 +50,8 @@ class EvidenceSheetBody extends StatefulWidget {
     this.source = const [],
     this.personal,
     this.showPersonal = false,
+    this.showJudgment = true,
+    this.personalEmpty,
     this.onWatchAd,
     this.onPass,
     this.loading = false,
@@ -85,6 +88,14 @@ class EvidenceSheetBody extends StatefulWidget {
 
   /// "내 사주에서는" 구역을 둘지. 사주 표·만세력·대운 표의 용어에서 열었을 때만 true입니다.
   final bool showPersonal;
+
+  /// 판정 근거·원전 구역을 둘지. 표 칸 용어에서 연 시트는 그 칸에 판정 근거가 없으므로 false이고,
+  /// 잠겨도 열린 뒤 없을 구역을 약속하지 않습니다(A58).
+  final bool showJudgment;
+
+  /// 열렸는데 [personal]이 없을 때(원고 없음) "내 사주에서는" 구역 제목 아래 보일 안내. 없으면
+  /// 그 구역을 그리지 않습니다(A22 남은 규칙).
+  final String? personalEmpty;
 
   /// 광고 보고 열기(`locked`).
   final VoidCallback? onWatchAd;
@@ -165,21 +176,23 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     padding: const EdgeInsets.only(top: Space.s12),
                     child: pillars,
                   ),
-                _section(
-                  context,
-                  title: l10n.evidenceSheetSectionBasis,
-                  texts: widget.basis,
-                  titleSlotId: SlotIds.evidenceSheetSectionBasis,
-                  slotId: SlotIds.evidenceSheetBasisBody,
-                ),
-                _section(
-                  context,
-                  title: l10n.evidenceSheetSectionSource,
-                  texts: widget.source,
-                  titleSlotId: SlotIds.evidenceSheetSectionSource,
-                  slotId: SlotIds.evidenceSheetSourceQuote,
-                  quote: true,
-                ),
+                if (widget.showJudgment) ...[
+                  _section(
+                    context,
+                    title: l10n.evidenceSheetSectionBasis,
+                    texts: widget.basis,
+                    titleSlotId: SlotIds.evidenceSheetSectionBasis,
+                    slotId: SlotIds.evidenceSheetBasisBody,
+                  ),
+                  _section(
+                    context,
+                    title: l10n.evidenceSheetSectionSource,
+                    texts: widget.source,
+                    titleSlotId: SlotIds.evidenceSheetSectionSource,
+                    slotId: SlotIds.evidenceSheetSourceQuote,
+                    quote: true,
+                  ),
+                ],
                 if (widget.showPersonal)
                   _section(
                     context,
@@ -187,6 +200,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     texts: [?widget.personal],
                     titleSlotId: SlotIds.evidenceSheetSectionPersonal,
                     slotId: SlotIds.evidenceSheetPersonalBody,
+                    emptyText: widget.personalEmpty,
                   ),
               ],
             ),
@@ -215,8 +229,10 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     required String titleSlotId,
     required String slotId,
     bool quote = false,
+    String? emptyText,
   }) {
     final l10n = AppLocalizations.of(context);
+    final tokens = context.tokens;
     final Widget content;
     if (widget.loading) {
       content = Column(
@@ -229,6 +245,20 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
             lines: 2,
             delay: Duration.zero,
             animated: widget.animated,
+          ),
+        ],
+      );
+    } else if (_unlocked && texts.isEmpty && emptyText != null) {
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _sectionTitle(context, title: title, titleSlotId: titleSlotId),
+          const SizedBox(height: Space.s8),
+          Text(
+            emptyText,
+            style: tokens.typography.bodyUi.copyWith(
+              color: tokens.colors.textSecondary,
+            ),
           ),
         ],
       );

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart' show Interceptor;
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +19,9 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-/// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 로케일 ko.
+/// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 기기 로케일 ko.
+///
+/// 기기 로케일만 덮으므로 앱 로케일은 프로필 사본의 언어를 따릅니다(A60).
 ///
 /// [database]를 주면 그 실행기로 DB를 엽니다(여러 컨테이너가 같은 파일을 공유할 때).
 ///
@@ -35,7 +38,7 @@ List<Override> testOverrides({
     return db;
   }),
   secureStoreProvider.overrideWithValue(MemorySecureStore()),
-  if (locale != null) localeProvider.overrideWithValue(locale),
+  if (locale != null) deviceLocaleProvider.overrideWithValue(locale),
   appVersionProvider.overrideWith((ref) => Version(1, 0, 0)),
 ];
 
@@ -146,17 +149,24 @@ Future<void> settleTimezoneSync(
 /// 앱 전체를 fake 모드의 [scenario]로 띄우고 진입 계산이 끝날 때까지 기다립니다.
 ///
 /// 도착 화면의 응답을 일부러 붙잡는 테스트는 [allowOngoing]을 true로 줍니다.
+/// [network]는 진입 계산 전에 대역 서버 바로 앞에 끼울 interceptor입니다(fixture로 둘 수
+/// 없는 계약 밖 응답 등).
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   required String scenario,
   List<Override> overrides = const [],
   Locale? locale = const Locale('ko'),
   bool allowOngoing = false,
+  Interceptor? network,
 }) async {
   final container = (await tester.runAsync(
     () => bootstrapForTest(scenario, overrides: overrides, locale: locale),
   ))!;
   addTearDown(container.dispose);
+  if (network != null) {
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+  }
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const MyungliApp()),
   );

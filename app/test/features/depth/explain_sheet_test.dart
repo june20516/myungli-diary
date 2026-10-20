@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
+import 'package:myungli_diary/core/api/gen/model/position.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -20,6 +22,7 @@ import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -37,7 +40,11 @@ const _names = GlossaryNames({
 
 final _depthSheets = DepthSheets(
   explainBody: (termId, origin) => ExplainSheet(termId: termId, origin: origin),
-  evidenceBody: (slotId) => Text('근거 $slotId'),
+  evidenceBody: (slotId, personal) => Text(
+    personal == null
+        ? '근거 $slotId'
+        : '근거 $slotId ${personal.kind.value} ${personal.position?.value}',
+  ),
   shareBody: SizedBox.shrink,
 );
 
@@ -271,6 +278,32 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('근거 a.b'), findsOneWidget);
+    });
+
+    testWidgets('표 칸 용어(개인 해석 자리)에서 열면 근거 보기가 그 자리를 근거 시트에 넘깁니다', (
+      tester,
+    ) async {
+      const sheet = ExplainSheet(
+        termId: 'ten_god.siksin',
+        origin: TermOrigin(
+          slotId: SlotIds.evidenceSheetPersonalBody,
+          subject: ChartEvidenceSubject(),
+          personal: PersonalReadingKey(
+            kind: PersonalReadingKindEnum.PersonalReadingKindTenGod,
+            position: Position.yearStem,
+          ),
+        ),
+      );
+      await tester.pumpWidget(_app(sheet, glossary: () async => _names));
+      await tester.pumpAndSettle();
+
+      await tester.tap(depthLinkTarget());
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('근거 ${SlotIds.evidenceSheetPersonalBody} ten_god year_stem'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('근거 슬롯 없이 열면(그날 시트) 근거 보기가 없습니다', (tester) async {

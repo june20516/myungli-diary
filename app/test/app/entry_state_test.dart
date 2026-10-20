@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
+import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
 import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
@@ -30,12 +31,16 @@ Me meWith({
   bool hasProfile = true,
   String accountId = 'acc-1',
   bool pendingDeletion = false,
+  List<String> requiredDocuments = const [],
 }) => Me.fromJson({
   'accountId': accountId,
   'status': pendingDeletion ? 'pending_deletion' : 'active',
   if (pendingDeletion) 'deletionScheduledAt': '2026-11-13T00:00:00Z',
   'consentRequired': consentRequired,
-  'requiredConsents': <String>[],
+  'requiredConsents': [
+    for (final document in requiredDocuments)
+      {'document': document, 'version': '2026-10-01'},
+  ],
   'hasProfile': hasProfile,
   'adFree': {'active': false},
   'insight': {'active': false},
@@ -55,6 +60,12 @@ EntryState compute({
   me: me,
   adConsentDone: adConsentDone,
   notifyAskPending: notifyAskPending,
+);
+
+/// 계약 draft.10 `AppConfig.legal` 필수 값(이 테스트는 쓰지 않음).
+final _legal = LegalLinks(
+  terms: 'https://example.com/legal/terms',
+  privacy: 'https://example.com/legal/privacy',
 );
 
 void main() {
@@ -105,6 +116,68 @@ void main() {
       expect(
         compute(me: meWith(consentRequired: true), adConsentDone: false),
         EntryState.consentRequired,
+      );
+    });
+
+    test('이 앱이 모르는 필수 동의 문서가 있으면 forceUpdate(A66)', () {
+      // 열린 enum ConsentDocument.document의 모르는 문서는 그릴 수도 보낼 수도 없어,
+      // 동의 화면이 막다른 길이 되지 않게 그 문서를 아는 앱으로 업데이트하게 합니다.
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            requiredDocuments: ['terms', 'added_after_freeze'],
+          ),
+        ),
+        EntryState.forceUpdate,
+      );
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            hasProfile: false,
+            requiredDocuments: ['added_after_freeze'],
+          ),
+          adConsentDone: false,
+        ),
+        EntryState.forceUpdate,
+      );
+    });
+
+    test('아는 문서만 필수면 consentRequired 그대로', () {
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            requiredDocuments: ['terms', 'privacy'],
+          ),
+        ),
+        EntryState.consentRequired,
+      );
+    });
+
+    test('동의가 필요 없으면 모르는 문서가 목록에 있어도 업데이트를 강제하지 않음', () {
+      expect(
+        compute(me: meWith(requiredDocuments: ['added_after_freeze'])),
+        EntryState.ready,
+      );
+    });
+
+    test('모르는 필수 문서가 있어도 로그아웃·삭제 대기는 signedOut이 먼저', () {
+      final me = meWith(
+        consentRequired: true,
+        requiredDocuments: ['added_after_freeze'],
+      );
+      expect(compute(hasSession: false, me: me), EntryState.signedOut);
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            pendingDeletion: true,
+            requiredDocuments: ['added_after_freeze'],
+          ),
+        ),
+        EntryState.signedOut,
       );
     });
 
@@ -188,6 +261,7 @@ void main() {
     test('minimumVersionFor는 android만 android 값, 나머지는 iOS 값', () {
       final config = AppConfig(
         minimumVersion: MinimumVersion(ios: '1.0.0', android: '2.0.0'),
+        legal: _legal,
       );
       expect(minimumVersionFor(config, TargetPlatform.android), '2.0.0');
       expect(minimumVersionFor(config, TargetPlatform.iOS), '1.0.0');
@@ -431,6 +505,36 @@ void main() {
       expect(c.read(meProvider), isNull);
     });
 
+    test('snapshot은 받은 앱 설정을 담고, 로그아웃 직후 값에도 이전 설정이 남습니다(D80)', () async {
+      await signIn();
+      final c = container();
+      final ready = await c.read(entryStateProvider.future);
+      expect(ready.config?.legal, _legal);
+      expect(c.read(entryAppConfigProvider)?.legal, _legal);
+
+      // 로그아웃 이벤트 직후(다시 계산 전) 값도 법적 문서 주소를 잃지 않습니다.
+      final interim = <AppConfig?>[];
+      c.listen(entryStateProvider, (_, next) {
+        if (next.value?.entry == EntryState.signedOut) {
+          interim.add(next.value?.config);
+        }
+      });
+      await tokens.signOut();
+      // 토큰 이벤트는 비동기로 옵니다.
+      await pumpEventQueue();
+      expect(interim, isNotEmpty);
+      expect(interim.first?.legal, _legal);
+      final signedOut = await c.read(entryStateProvider.future);
+      expect(signedOut.config?.legal, _legal);
+    });
+
+    test('세션이 없거나 삭제 대기여도 snapshot에 앱 설정이 있습니다', () async {
+      expect(
+        (await container().read(entryStateProvider.future)).config,
+        isNotNull,
+      );
+    });
+
     test('삭제 대기 계정이면 signOut해 토큰을 지우고 signedOut', () async {
       await signIn();
       api.me = meWith(pendingDeletion: true);
@@ -503,6 +607,7 @@ void main() {
       await signIn();
       api.config = AppConfig(
         minimumVersion: MinimumVersion(ios: '1.0.0', android: '2.0.0'),
+        legal: _legal,
       );
       final ios = container();
       expect(
@@ -663,6 +768,7 @@ class _Api implements DefaultApi {
           config ??
           AppConfig(
             minimumVersion: MinimumVersion(ios: '1.0.0', android: '1.0.0'),
+            legal: _legal,
           ),
     );
   }

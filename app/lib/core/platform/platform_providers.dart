@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
+import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
@@ -78,4 +79,9 @@ final nonceGeneratorProvider = Provider<NonceGenerator>(
 /// 스토어 열기. 기본은 대역이고, http 모드 부팅이 실제 adapter로 바꿉니다.
 final storeLauncherProvider = Provider<StoreLauncher>(
   (ref) => FakeStoreLauncher(),
+);
+
+/// 외부 브라우저 열기(약관·정책). 기본은 대역이고, http 모드 부팅이 실제 adapter로 바꿉니다.
+final externalBrowserProvider = Provider<ExternalBrowser>(
+  (ref) => FakeExternalBrowser(),
 );

@@ -9,6 +9,8 @@ part of 'app_config.dart';
 abstract class _$AppConfigCWProxy {
   AppConfig minimumVersion(MinimumVersion minimumVersion);
 
+  AppConfig legal(LegalLinks legal);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `AppConfig(...).copyWith.fieldName(value)`.
@@ -17,7 +19,7 @@ abstract class _$AppConfigCWProxy {
   /// ```dart
   /// AppConfig(...).copyWith(id: 12, name: "My name")
   /// ```
-  AppConfig call({MinimumVersion minimumVersion});
+  AppConfig call({MinimumVersion minimumVersion, LegalLinks legal});
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -31,6 +33,9 @@ class _$AppConfigCWProxyImpl implements _$AppConfigCWProxy {
   AppConfig minimumVersion(MinimumVersion minimumVersion) =>
       call(minimumVersion: minimumVersion);
 
+  @override
+  AppConfig legal(LegalLinks legal) => call(legal: legal);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `AppConfig(...).copyWith.fieldName(value)`.
@@ -40,7 +45,10 @@ class _$AppConfigCWProxyImpl implements _$AppConfigCWProxy {
   /// AppConfig(...).copyWith(id: 12, name: "My name")
   /// ```
   @override
-  AppConfig call({Object? minimumVersion = const $CopyWithPlaceholder()}) {
+  AppConfig call({
+    Object? minimumVersion = const $CopyWithPlaceholder(),
+    Object? legal = const $CopyWithPlaceholder(),
+  }) {
     return AppConfig(
       minimumVersion:
           minimumVersion == const $CopyWithPlaceholder() ||
@@ -48,6 +56,10 @@ class _$AppConfigCWProxyImpl implements _$AppConfigCWProxy {
           ? _value.minimumVersion
           // ignore: cast_nullable_to_non_nullable
           : minimumVersion as MinimumVersion,
+      legal: legal == const $CopyWithPlaceholder() || legal == null
+          ? _value.legal
+          // ignore: cast_nullable_to_non_nullable
+          : legal as LegalLinks,
     );
   }
 }
@@ -65,11 +77,15 @@ extension $AppConfigCopyWith on AppConfig {
 
 AppConfig _$AppConfigFromJson(Map<String, dynamic> json) =>
     $checkedCreate('AppConfig', json, ($checkedConvert) {
-      $checkKeys(json, requiredKeys: const ['minimumVersion']);
+      $checkKeys(json, requiredKeys: const ['minimumVersion', 'legal']);
       final val = AppConfig(
         minimumVersion: $checkedConvert(
           'minimumVersion',
           (v) => MinimumVersion.fromJson(v as Map<String, dynamic>),
+        ),
+        legal: $checkedConvert(
+          'legal',
+          (v) => LegalLinks.fromJson(v as Map<String, dynamic>),
         ),
       );
       return val;
@@ -77,4 +93,5 @@ AppConfig _$AppConfigFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$AppConfigToJson(AppConfig instance) => <String, dynamic>{
   'minimumVersion': instance.minimumVersion.toJson(),
+  'legal': instance.legal.toJson(),
 };

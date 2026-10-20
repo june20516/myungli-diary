@@ -24,6 +24,7 @@ import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/monetization/data/entitlements_repository.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -149,6 +150,37 @@ _open(ProviderContainer container) {
       .listen(events.add);
   addTearDown(eventSubscription.cancel);
   return (subscription: subscription, events: events);
+}
+
+/// 오늘 응답(`/v1/daily/`)의 받은 횟수를 셉니다.
+final class _DailyResponses extends Interceptor {
+  int count = 0;
+
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    if (response.requestOptions.path.startsWith('/v1/daily/')) count++;
+    handler.next(response);
+  }
+}
+
+/// [container]의 대역 서버 바로 앞에 [interceptor]를 끼웁니다.
+void _intercept(ProviderContainer container, Interceptor interceptor) {
+  final interceptors = container.read(dioProvider).interceptors;
+  interceptors.insert(interceptors.length - 1, interceptor);
+}
+
+/// 다른 길로 열려 잠긴 오늘 응답을 다시 받는 일(`refreshLockedDaily`)이 끝날 때까지 기다립니다.
+Future<void> _untilDailyRefetched(
+  WidgetTester tester,
+  _DailyResponses responses,
+) async {
+  await _until(tester, () => responses.count > 0);
+  for (var i = 0; i < 3; i++) {
+    await _spin(tester);
+  }
 }
 
 /// 처음 오는 `/v1/daily/` 요청 하나만 503으로 끊습니다.
@@ -317,6 +349,11 @@ final _noEvidenceProvider = Provider<AsyncValue<List<Evidence>>>(
 /// 오늘 그런 이유가 없는 응답의 문장.
 final _noReasonProvider = Provider<RenderedText?>((ref) => null);
 
+/// 원국 개인 해석이 없는 응답의 문장.
+final _noPersonalProvider = Provider<AsyncValue<RenderedText?>>(
+  (ref) => const AsyncData(null),
+);
+
 /// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
 @immutable
 final class _TestSubject implements EvidenceSubject {
@@ -332,6 +369,11 @@ final class _TestSubject implements EvidenceSubject {
   @override
   ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
       _noReasonProvider;
+
+  @override
+  ProviderListenable<AsyncValue<RenderedText?>> personalOf(
+    PersonalReadingKey key,
+  ) => _noPersonalProvider;
 
   @override
   Future<void> reload(Ref ref) async {}
@@ -831,6 +873,8 @@ void main() {
       );
       container.listen(_testProvider, (_, _) {});
       await _until(tester, () => container.read(_testProvider).adReady);
+      final daily = _DailyResponses();
+      _intercept(container, daily);
 
       var finished = false;
       unawaited(
@@ -846,6 +890,7 @@ void main() {
       await tester.pump();
       expect(container.read(_testProvider).link, DepthLinkState.unlocked);
       expect(finished, isTrue);
+      await _untilDailyRefetched(tester, daily);
     });
 
     testWidgets('다른 길로 열리면 locked 달력 캐시를 버리고, 정리를 거듭 불러도 오류가 없다(A32)', (
@@ -865,11 +910,15 @@ void main() {
       container.listen(_testProvider, (_, _) {});
       await _until(tester, () => container.read(_testProvider).adReady);
       await _seedLockedCalendar(tester, cache);
+      final daily = _DailyResponses();
+      _intercept(container, daily);
 
       container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
       await tester.pump();
       expect(container.read(_testProvider).link, DepthLinkState.unlocked);
       await _untilCalendarUnlocked(tester, cache);
+      // 같은 권한이므로 잠긴 채 들고 있던 오늘 응답도 다시 받습니다(계획 6 Review Focus 5).
+      await _untilDailyRefetched(tester, daily);
 
       // 거듭 불려도(잠금 해제 성공 뒤 다른 길로도 열림) 지울 것이 없을 뿐 오류가 없습니다.
       await tester.runAsync(() async {

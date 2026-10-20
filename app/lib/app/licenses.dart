@@ -51,3 +51,25 @@ void registerFontLicenses() {
     });
   }
 }
+
+/// 출생지 도시 자료의 출처 고지(GeoNames, CC BY 4.0, #312).
+///
+/// 도시 목록은 server가 GeoNames `cities15000`으로 만들고(`server/internal/city`), 앱은 그
+/// 이름·시간대를 출생지 검색에 보이므로 오픈소스 고지에 출처·라이선스·가공 사실을 적습니다.
+/// 고지 페이지(`showLicensePage`)의 다른 라이선스처럼 원문 언어(영어)로 둡니다.
+const String geoNamesNotice = '''
+City data (birthplace search): GeoNames, https://www.geonames.org/
+
+Licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/
+
+Changes: uses the cities15000 extract (cities with a population above 15,000, and capitals) and picks Korean, English and Japanese names from the GeoNames alternate names.''';
+
+/// 글꼴 OFL 전문과 고지, 데이터 출처 고지를 오픈소스 고지(`showLicensePage`)에 더합니다(A61).
+///
+/// 앱을 시작할 때 한 번 부릅니다(`bootstrap`).
+void registerAppLicenses() {
+  registerFontLicenses();
+  LicenseRegistry.addLicense(() async* {
+    yield const LicenseEntryWithLineBreaks(['GeoNames'], geoNamesNotice);
+  });
+}

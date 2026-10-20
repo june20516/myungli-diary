@@ -361,7 +361,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardBirthQuestionHead => '언제 태어났나요?';
 
   @override
-  String get onboardBirthCalendarHint => '음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.';
+  String get onboardBirthCalendarHint =>
+      '음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요.';
 
   @override
   String get onboardBirthBasisNote => '한국에서 태어난 것을 기준으로 계산해요.';
@@ -381,9 +382,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calendarLunar => '음력';
-
-  @override
-  String get leapMonth => '윤달';
 
   @override
   String get onboardCallInputLabel => '불러 드릴 이름';
@@ -701,9 +699,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get settingsDepthDesc => '풀이를 처음에 어디까지 펼쳐 볼지 골라요.';
-
-  @override
   String get settingsLanguageBirthplaceNotice =>
       '한국 밖에서 태어났다면 출생지를 입력해 주세요. 태어난 시를 더 정확히 맞출 수 있어요.';
 
@@ -779,16 +774,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayReactionLabelSelected => '좋아요 취소';
 
   @override
-  String get depthDefaultLabel => '명리 풀이 보기';
-
-  @override
-  String get depthEvidence => '원리';
-
-  @override
   String get depthExplain => '풀이';
-
-  @override
-  String get depthSurface => '요약';
 
   @override
   String get depthLinkEvidence => '근거 보기';
@@ -1107,4 +1093,91 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get errorTimezoneInvalid => '시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.';
+
+  @override
+  String get settingsNotifyLabel => '알림 시각';
+
+  @override
+  String get settingsNotifyOff => '꺼짐';
+
+  @override
+  String get settingsLanguageLabel => '언어';
+
+  @override
+  String get settingsLogoutLabel => '로그아웃';
+
+  @override
+  String get profileEditBirthplaceKorea => '한국';
+
+  @override
+  String get sajuChartTabNatal => '원국';
+
+  @override
+  String get sajuChartTabLuck => '만세력·대운';
+
+  @override
+  String get sajuPillarHour => '시주';
+
+  @override
+  String get sajuPillarDay => '일주';
+
+  @override
+  String get sajuPillarMonth => '월주';
+
+  @override
+  String get sajuPillarYear => '연주';
+
+  @override
+  String get manseRowHiddenStems => '지장간';
+
+  @override
+  String get manseRowTwelveStages => '12운성';
+
+  @override
+  String get manseRowShinsal => '신살';
+
+  @override
+  String get sajuTagMe => '나';
+
+  @override
+  String get daeunTagNow => '지금';
+
+  @override
+  String get seunTagThisYear => '올해';
+
+  @override
+  String daeunTableLabel(int age) {
+    return '대운 $age세부터';
+  }
+
+  @override
+  String ohaengBarItem(String element, String count) {
+    return '$element $count';
+  }
+
+  @override
+  String get sajuPillarDayMaster => '일간';
+
+  @override
+  String get sajuPillarsTableLabel => '원국표';
+
+  @override
+  String get manseTableLabel => '만세력 표';
+
+  @override
+  String get evidenceSheetPersonalEmpty => '이 자리의 해석은 아직 준비 중이에요.';
+
+  @override
+  String luckYearLabel(int year) {
+    return '$year년';
+  }
+
+  @override
+  String get legalTermsLabel => '이용약관';
+
+  @override
+  String get legalPrivacyLabel => '개인정보 처리방침';
+
+  @override
+  String get legalLicensesLabel => '오픈소스 라이선스';
 }

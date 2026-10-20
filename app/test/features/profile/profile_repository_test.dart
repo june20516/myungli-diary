@@ -43,4 +43,29 @@ void main() {
     );
     expect(await tester.runAsync(repository.cached), isNull);
   });
+
+  testWidgets('사본이 없으면 profileProvider가 getProfile로 받아 사본으로 둔다(#312)', (
+    tester,
+  ) async {
+    final container = (await tester.runAsync(
+      () => bootstrapForTest('member'),
+    ))!;
+    addTearDown(container.dispose);
+    await tester.runAsync(() => container.read(entryStateProvider.future));
+    final repository = container.read(profileRepositoryProvider);
+    expect(await tester.runAsync(repository.cached), isNull);
+
+    // autoDispose라 보는 쪽(listen)이 있는 동안 받습니다. 받기와 사본 쓰기가 실제 I/O라
+    // 실제 시계 영역에서 듣고 기다립니다.
+    final profile = await tester.runAsync(() async {
+      final subscription = container.listen(profileProvider, (_, _) {});
+      try {
+        return await container.read(profileProvider.future);
+      } finally {
+        subscription.close();
+      }
+    });
+    expect(profile?.honorific, '하늘');
+    expect((await tester.runAsync(repository.cached))?.honorific, '하늘');
+  });
 }

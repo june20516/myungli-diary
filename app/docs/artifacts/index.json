@@ -14,5 +14,691 @@
     ],
     "status": "draft",
     "note": "Patrol E2E가 welcome 화면(default)에 도착해 남긴 캡처"
+  },
+  {
+    "id": "render.account-delete.confirm.2026-10-20",
+    "title": "account-delete (confirm) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-account-delete-confirm.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "account-delete"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "confirm 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.account-delete.default.2026-10-20",
+    "title": "account-delete (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-account-delete-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "account-delete"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.account-delete.error.2026-10-20",
+    "title": "account-delete (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-account-delete-error.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "account-delete"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.calc-basis.default.2026-10-20",
+    "title": "calc-basis (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-calc-basis-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "calc-basis"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.calendar.default.2026-10-20",
+    "title": "calendar (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-calendar-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "calendar"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.calendar.error.2026-10-20",
+    "title": "calendar (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-calendar-error.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "calendar"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.consent.default.2026-10-20",
+    "title": "consent (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-consent-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "consent"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.day-sheet.default.2026-10-20",
+    "title": "day-sheet (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-day-sheet-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "day-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.diary-edit.default.2026-10-20",
+    "title": "diary-edit (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-diary-edit-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "diary-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.diary-list.default.2026-10-20",
+    "title": "diary-list (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-diary-list-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "diary-list"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.diary-view.default.2026-10-20",
+    "title": "diary-view (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-diary-view-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "diary-view"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.event-edit.default.2026-10-20",
+    "title": "event-edit (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-event-edit-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "event-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.evidence-sheet.locked.2026-10-20",
+    "title": "evidence-sheet (locked) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-evidence-sheet-locked.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.evidence-sheet.personal-locked.2026-10-20",
+    "title": "evidence-sheet (personal-locked) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-evidence-sheet-personal-locked.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "personal-locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.evidence-sheet.personal.2026-10-20",
+    "title": "evidence-sheet (personal) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-evidence-sheet-personal.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "personal 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.evidence-sheet.unlocked.2026-10-20",
+    "title": "evidence-sheet (unlocked) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-evidence-sheet-unlocked.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "unlocked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.explain-sheet.default.2026-10-20",
+    "title": "explain-sheet (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-explain-sheet-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "explain-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.force-update.default.2026-10-20",
+    "title": "force-update (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-force-update-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "force-update"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.legal.default.2026-10-20",
+    "title": "legal (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-legal-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "legal"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.legal.no-address.2026-10-20",
+    "title": "legal (no-address) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-legal-no-address.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "legal"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "no-address 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.my-saju.default.2026-10-20",
+    "title": "my-saju (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-my-saju-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "my-saju"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.my-saju.time-unknown.2026-10-20",
+    "title": "my-saju (time-unknown) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-my-saju-time-unknown.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "my-saju"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "time-unknown 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.notify-ask.default.2026-10-20",
+    "title": "notify-ask (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-notify-ask-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "notify-ask"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.onboard-birth.default.2026-10-20",
+    "title": "onboard-birth (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-onboard-birth-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "onboard-birth"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.onboard-call.default.2026-10-20",
+    "title": "onboard-call (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-onboard-call-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "onboard-call"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.onboard-gender.default.2026-10-20",
+    "title": "onboard-gender (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-onboard-gender-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "onboard-gender"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.onboard-time.default.2026-10-20",
+    "title": "onboard-time (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-onboard-time-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "onboard-time"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.profile-edit.changed.2026-10-20",
+    "title": "profile-edit (changed) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-profile-edit-changed.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "profile-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "changed 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.profile-edit.confirm.2026-10-20",
+    "title": "profile-edit (confirm) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-profile-edit-confirm.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "profile-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "confirm 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.profile-edit.default.2026-10-20",
+    "title": "profile-edit (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-profile-edit-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "profile-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.profile-edit.error.2026-10-20",
+    "title": "profile-edit (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-profile-edit-error.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "profile-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.default.2026-10-20",
+    "title": "saju-chart (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.error.2026-10-20",
+    "title": "saju-chart (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-error.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.loading.2026-10-20",
+    "title": "saju-chart (loading) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-loading.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.luck.2026-10-20",
+    "title": "saju-chart (luck) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-luck.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "luck 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.time-unknown.2026-10-20",
+    "title": "saju-chart (time-unknown) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-time-unknown.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "time-unknown 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.unlocked.2026-10-20",
+    "title": "saju-chart (unlocked) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-saju-chart-unlocked.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "unlocked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.settings.ad-free.2026-10-20",
+    "title": "settings (ad-free) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-settings-ad-free.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "settings"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "ad-free 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.settings.birthplace-notice.2026-10-20",
+    "title": "settings (birthplace-notice) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-settings-birthplace-notice.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "settings"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "birthplace-notice 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.settings.default.2026-10-20",
+    "title": "settings (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-settings-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "settings"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.settings.language-sheet.2026-10-20",
+    "title": "settings (language-sheet) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-settings-language-sheet.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "settings"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "language-sheet 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.settings.logout-confirm.2026-10-20",
+    "title": "settings (logout-confirm) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-settings-logout-confirm.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "settings"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "logout-confirm 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.settings.notify-sheet.2026-10-20",
+    "title": "settings (notify-sheet) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-settings-notify-sheet.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "settings"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "notify-sheet 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.share-preview.default.2026-10-20",
+    "title": "share-preview (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-share-preview-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "share-preview"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.tag-diary.default.2026-10-20",
+    "title": "tag-diary (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-tag-diary-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "tag-diary"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.today.default.2026-10-20",
+    "title": "today (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-today-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.today.error.2026-10-20",
+    "title": "today (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-today-error.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.today.time-unknown.2026-10-20",
+    "title": "today (time-unknown) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-today-time-unknown.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "time-unknown 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.welcome.default.2026-10-20",
+    "title": "welcome (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-welcome-default.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "welcome"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   }
 ]

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
@@ -79,8 +80,65 @@ WidgetbookComponent _share(ShareButtonVariant variant) => WidgetbookComponent(
   ],
 );
 
+/// 눌러서 켜고 끄는 설정 줄 묶음(navigate·value·toggle·destructive·disabled).
+class _SettingsRowsDemo extends StatefulWidget {
+  const new();
+
+  @override
+  State<_SettingsRowsDemo> createState() => _SettingsRowsDemoState();
+}
+
+class _SettingsRowsDemoState extends State<_SettingsRowsDemo> {
+  bool _on = true;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 360,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SettingsGroup(
+          title: '기본',
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.navigate,
+              label: '정보 수정',
+              onTap: () {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.value,
+              label: '알림 시각',
+              value: '오전 8:00',
+              onTap: () {},
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.toggle,
+              label: '알림',
+              toggled: _on,
+              onToggle: (value) => setState(() => _on = value),
+            ),
+            const SettingsRow(
+              variant: SettingsRowVariant.navigate,
+              label: '계산 기준',
+            ),
+          ],
+        ),
+        SettingsGroup(
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.destructive,
+              label: '로그아웃',
+              onTap: () {},
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 /// 동작 카탈로그: primary-button(filled·quiet·destructive), social-login-button
-/// (kakao·apple), share-button(icon·soft).
+/// (kakao·apple), share-button(icon·soft), settings-row(묶음).
 final WidgetbookFolder actionDirectory = WidgetbookFolder(
   name: '동작',
   children: [
@@ -104,6 +162,15 @@ final WidgetbookFolder actionDirectory = WidgetbookFolder(
       children: [
         _share(ShareButtonVariant.icon),
         _share(ShareButtonVariant.soft),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'settings-row',
+      useCases: [
+        WidgetbookUseCase(
+          name: '묶음',
+          builder: (context) => const Stage(child: _SettingsRowsDemo()),
+        ),
       ],
     ),
   ],

@@ -39,6 +39,7 @@ import 'package:myungli_diary/testing/covers.dart';
 import '../support/app_harness.dart';
 import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart' show pumpUntil;
+import '../support/sheet_close.dart';
 import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
@@ -180,9 +181,12 @@ final class _UnlockRefetch extends Interceptor {
 final NotifierProvider<TestToday, CalendarDate> _testTodayProvider =
     testTodayProvider(CalendarDate(2026, 10, 13));
 
+/// 열린 시트를 바깥(scrim)을 눌러 모두 닫고 사라졌는지 확인합니다.
 Future<void> _closeSheet(WidgetTester tester) async {
-  await tester.tapAt(const Offset(10, 10));
+  await tapSheetScrim(tester);
   await tester.pumpAndSettle();
+  expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
+  expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
 }
 
 void main() {
@@ -397,7 +401,7 @@ void main() {
               ],
               child: ExplainSheet(termId: termId, origin: origin),
             ),
-            evidenceBody: (_) => const SizedBox.shrink(),
+            evidenceBody: (_, _) => const SizedBox.shrink(),
             shareBody: SizedBox.shrink,
           ),
         ),

@@ -42,6 +42,7 @@ import 'package:myungli_diary/core/api/gen/model/hidden_stem.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_conversion.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
@@ -69,7 +70,6 @@ import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_input.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_list.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_patch.dart';
-import 'package:myungli_diary/core/api/gen/model/score_item.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/api/gen/model/seun_year.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_at.dart';
@@ -212,6 +212,8 @@ ReturnType deserialize<ReturnType, BaseType>(
       return KakaoLoginRequest.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'Language':
+    case 'LegalLinks':
+      return LegalLinks.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'LoginResponse':
       return LoginResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -283,8 +285,6 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'SchedulePatch':
       return SchedulePatch.fromJson(value as Map<String, dynamic>)
           as ReturnType;
-    case 'ScoreItem':
-      return ScoreItem.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Segment':
       return Segment.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'SeunYear':

@@ -29,7 +29,12 @@ class Relation {
     this.suppressedBy,
   });
 
-  @JsonKey(name: r'kind', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'kind',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: RelationKind.unknownDefaultOpenApi,
+  )
   final RelationKind kind;
 
   @JsonKey(name: r'natalPosition', required: true, includeIfNull: false)
@@ -38,7 +43,12 @@ class Relation {
   @JsonKey(name: r'suppressed', required: true, includeIfNull: false)
   final bool suppressed;
 
-  @JsonKey(name: r'suppressedBy', required: false, includeIfNull: false)
+  @JsonKey(
+    name: r'suppressedBy',
+    required: false,
+    includeIfNull: false,
+    unknownEnumValue: RelationKind.unknownDefaultOpenApi,
+  )
   final RelationKind? suppressedBy;
 
   @override

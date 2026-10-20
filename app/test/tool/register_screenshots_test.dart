@@ -168,4 +168,105 @@ void main() {
       throwsA(isA<ScreenshotError>()),
     );
   });
+
+  group('render 출처(#336)', () {
+    void render(String date) => registerScreenshots(
+      sourceDir: source,
+      artifactsDir: artifacts,
+      date: date,
+      origin: ScreenshotOrigin.render,
+    );
+
+    test('render 접두어 id와 상태 이름 설명으로 등록합니다', () {
+      shot('today__loading.png');
+      render('2026-10-20');
+      final entry = readIndex().single;
+      expect(entry['id'], 'render.today.loading.2026-10-20');
+      expect(entry['note'], startsWith('loading 상태'));
+      expect(entry['screens'], ['today']);
+    });
+
+    test('그림이 바뀌면 이전 렌더는 파일과 항목을 지우고 새로 둡니다', () {
+      shot('today__default.png');
+      render('2026-10-19');
+      shot('today__default.png', bytes: 20);
+      render('2026-10-20');
+      final entry = readIndex().single;
+      expect(entry['date'], '2026-10-20');
+      expect(
+        File('${artifacts.path}/2026-10-19-today-default.png').existsSync(),
+        isFalse,
+      );
+      expect(
+        File('${artifacts.path}/2026-10-20-today-default.png').existsSync(),
+        isTrue,
+      );
+    });
+
+    test('그림이 같으면 새로 등록하지 않습니다', () {
+      shot('today__default.png');
+      render('2026-10-19');
+      render('2026-10-20');
+      final entry = readIndex().single;
+      expect(entry['date'], '2026-10-19');
+      expect(
+        File('${artifacts.path}/2026-10-20-today-default.png').existsSync(),
+        isFalse,
+      );
+    });
+
+    test('이번 입력에 없는 화면·상태의 이전 렌더는 항목과 파일을 지웁니다', () {
+      shot('today__default.png');
+      shot('today__loading.png');
+      render('2026-10-19');
+      File('${source.path}/today__loading.png').deleteSync();
+      render('2026-10-20');
+
+      expect(readIndex().map((e) => e['id']), [
+        'render.today.default.2026-10-19',
+      ]);
+      expect(
+        File('${artifacts.path}/2026-10-19-today-loading.png').existsSync(),
+        isFalse,
+      );
+      expect(
+        File('${artifacts.path}/2026-10-19-today-default.png').existsSync(),
+        isTrue,
+      );
+    });
+
+    test('Patrol 캡처 항목은 입력에 없어도 지우지 않습니다', () {
+      shot('welcome__default.png');
+      registerScreenshots(
+        sourceDir: source,
+        artifactsDir: artifacts,
+        date: '2026-10-14',
+      );
+      File('${source.path}/welcome__default.png').deleteSync();
+      shot('today__default.png');
+      render('2026-10-20');
+      expect(readIndex().map((e) => e['id']), [
+        'e2e.welcome.default.2026-10-14',
+        'render.today.default.2026-10-20',
+      ]);
+      expect(
+        File('${artifacts.path}/2026-10-14-welcome-default.png').existsSync(),
+        isTrue,
+      );
+    });
+
+    test('Patrol 캡처 항목은 건드리지 않습니다', () {
+      shot('welcome__default.png');
+      registerScreenshots(
+        sourceDir: source,
+        artifactsDir: artifacts,
+        date: '2026-10-14',
+      );
+      render('2026-10-20');
+      expect(readIndex().map((e) => e['id']), [
+        'e2e.welcome.default.2026-10-14',
+        'render.welcome.default.2026-10-20',
+      ]);
+    });
+  });
 }

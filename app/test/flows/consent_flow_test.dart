@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
@@ -10,6 +12,7 @@ import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/consent_document.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
+import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
@@ -114,6 +117,46 @@ class _SeededDraftStore extends OnboardingDraftStore {
       await write(seed);
     }
     return await super.read();
+  }
+}
+
+/// `getMe`만 [requiredDocuments]를 필수 동의로 답하고 나머지는 대역 서버에 넘깁니다.
+///
+/// 대역 fixture는 계약 스키마로 검증되어 계약 밖 문서 값을 둘 수 없으므로 여기서 만듭니다.
+final class _RequiredDocumentsMe extends Interceptor {
+  new(this.requiredDocuments);
+
+  /// 필수 동의 문서 값(계약 밖 값 포함).
+  final List<String> requiredDocuments;
+
+  /// `getMe`에 답한 횟수.
+  int answered = 0;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method != 'GET' || options.path != '/v1/me') {
+      handler.next(options);
+      return;
+    }
+    answered++;
+    handler.resolve(
+      Response<Object?>(
+        requestOptions: options,
+        statusCode: 200,
+        data: {
+          'accountId': '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
+          'status': 'active',
+          'consentRequired': true,
+          'requiredConsents': [
+            for (final document in requiredDocuments)
+              {'document': document, 'version': '2026-10-01'},
+          ],
+          'hasProfile': true,
+          'adFree': {'active': false},
+          'insight': {'active': false},
+        },
+      ),
+    );
   }
 }
 
@@ -309,6 +352,72 @@ void main() {
       findsOneWidget,
     );
     handle.dispose();
+  });
+
+  for (final documents in [
+    ['terms', 'added_after_freeze', 'privacy'],
+    ['added_after_freeze'],
+  ]) {
+    testWidgets('모르는 필수 문서 $documents가 있으면 동의 대신 force-update(A66)', (
+      tester,
+    ) async {
+      final me = _RequiredDocumentsMe(documents);
+      final container = await pumpApp(
+        tester,
+        scenario: 'consent-required',
+        network: me,
+      );
+      expect(me.answered, greaterThan(0));
+      expect(_screen(ScreenIds.forceUpdate), findsOneWidget);
+      expect(_screen(ScreenIds.consent), findsNothing);
+      expect(_fake(container).callCountOf('agreeConsents'), 0);
+    });
+  }
+
+  testWidgets('모르는 문서(열린 enum)는 줄을 그리지 않고 동의에도 보내지 않습니다', (tester) async {
+    // 계약 ConsentDocument.document는 열린 enum입니다(A66). 진입 계산이 모르는 필수 문서를
+    // force-update로 보내지만, 화면도 모르는 문서는 그리지도 보내지도 않습니다(안전망).
+    final me = Me.fromJson({
+      'accountId': '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
+      'status': 'active',
+      'consentRequired': true,
+      'requiredConsents': [
+        {'document': 'terms', 'version': '2026-10-01'},
+        {'document': 'added_after_freeze', 'version': '2026-10-01'},
+        {'document': 'privacy', 'version': '2026-10-01'},
+      ],
+      'hasProfile': true,
+      'adFree': {'active': false},
+      'insight': {'active': false},
+    });
+    final container = await pumpApp(
+      tester,
+      scenario: 'consent-required',
+      overrides: [meProvider.overrideWithValue(me)],
+    );
+    expect(find.byType(CheckRow), findsNWidgets(2));
+    expect(
+      find.byKey(
+        consentDocumentKey(ConsentDocumentDocumentEnum.unknownDefaultOpenApi),
+      ),
+      findsNothing,
+    );
+
+    await _checkAll(tester);
+    expect(_agreeEnabled(tester), isTrue);
+    await tester.tap(_agreeButton);
+    await pumpUntil(
+      tester,
+      () => _fake(container).callCountOf('agreeConsents') == 1,
+    );
+
+    final body = _bodyOf(
+      _fake(container).requestBodiesOf('agreeConsents').single,
+    );
+    expect(body['documents'], [
+      {'document': 'terms', 'version': '2026-10-01'},
+      {'document': 'privacy', 'version': '2026-10-01'},
+    ]);
   });
 
   testWidgets('동의 버튼을 빠르게 두 번 눌러도 agreeConsents는 한 번입니다', (tester) async {

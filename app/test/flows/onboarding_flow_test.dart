@@ -201,7 +201,8 @@ void main() {
         exits: ['onboard-call>profile-edit', 'onboard-birth>profile-edit'],
       ),
     );
-    final container = await pumpApp(tester, scenario: 'member-overseas');
+    // 한국어 문구로 확인하므로 프로필 언어가 ko인 회원입니다(member-overseas는 en, A60).
+    final container = await pumpApp(tester, scenario: 'member');
     final router = container.read(routerProvider);
 
     String? result;

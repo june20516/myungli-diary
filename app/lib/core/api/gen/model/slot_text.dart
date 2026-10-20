@@ -44,7 +44,12 @@ class SlotText {
   @JsonKey(name: r'messageKey', required: true, includeIfNull: false)
   final String messageKey;
 
-  @JsonKey(name: r'variant', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'variant',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: SlotTextVariantEnum.unknownDefaultOpenApi,
+  )
   final SlotTextVariantEnum variant;
 
   @JsonKey(name: r'text', required: true, includeIfNull: false)
@@ -60,7 +65,7 @@ class SlotText {
   @JsonKey(name: r'todayReason', required: false, includeIfNull: false)
   final RenderedText? todayReason;
 
-  /// 판정 근거. 응답의 `evidenceAccess`가 `unlocked`일 때만 담깁니다.
+  /// 판정 근거. 응답의 `evidenceAccess`가 `unlocked`이고 근거가 있을 때만 담깁니다. 빈 배열은 보내지 않습니다.
   @JsonKey(name: r'evidence', required: false, includeIfNull: false)
   final List<Evidence>? evidence;
 
@@ -111,11 +116,18 @@ enum SlotTextVariantEnum {
   @JsonValue(r'2')
   n2(r'2'),
   @JsonValue(r'single')
-  single(r'single');
+  single(r'single'),
+
+  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
+  @JsonValue(r'unknown_default_open_api')
+  unknownDefaultOpenApi(r'unknown_default_open_api');
 
   const SlotTextVariantEnum(this.value);
 
   final String value;
+
+  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
+  bool get isKnown => this != unknownDefaultOpenApi;
 
   @override
   String toString() => value;

@@ -346,7 +346,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String datePickerSolarConfirm(String date) {
-    return 'Solar $date';
+    return 'Solar: $date';
   }
 
   @override
@@ -399,7 +399,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardBirthCalendarHint =>
-      'If your birthday is on the lunar calendar, choose Lunar, and mark Leap month if it applies.';
+      'If your birthday is on the lunar calendar, choose Lunar. For a leap month, pick the leap month in the month list.';
 
   @override
   String get onboardBirthBasisNote =>
@@ -420,9 +420,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarLunar => 'Lunar';
-
-  @override
-  String get leapMonth => 'Leap month';
 
   @override
   String get onboardCallInputLabel => 'Name to call you';
@@ -761,10 +758,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsDepthDesc =>
-      'Choose how much of each reading to show at first.';
-
-  @override
   String get settingsLanguageBirthplaceNotice =>
       'If you were born outside Korea, please enter your birthplace. It helps us match your birth hour more precisely.';
 
@@ -841,16 +834,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayReactionLabelSelected => 'Unlike';
 
   @override
-  String get depthDefaultLabel => 'Reading detail';
-
-  @override
-  String get depthEvidence => 'Basis';
-
-  @override
   String get depthExplain => 'Reading';
-
-  @override
-  String get depthSurface => 'Summary';
 
   @override
   String get depthLinkEvidence => 'See the basis';
@@ -1203,4 +1187,92 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorTimezoneInvalid =>
       'We couldn\'t read the time zone. Please check your device\'s time zone setting.';
+
+  @override
+  String get settingsNotifyLabel => 'Reading time';
+
+  @override
+  String get settingsNotifyOff => 'Off';
+
+  @override
+  String get settingsLanguageLabel => 'Language';
+
+  @override
+  String get settingsLogoutLabel => 'Log out';
+
+  @override
+  String get profileEditBirthplaceKorea => 'South Korea';
+
+  @override
+  String get sajuChartTabNatal => 'Natal chart';
+
+  @override
+  String get sajuChartTabLuck => 'Pillars & cycles';
+
+  @override
+  String get sajuPillarHour => 'Hour';
+
+  @override
+  String get sajuPillarDay => 'Day';
+
+  @override
+  String get sajuPillarMonth => 'Month';
+
+  @override
+  String get sajuPillarYear => 'Year';
+
+  @override
+  String get manseRowHiddenStems => 'Hidden stems';
+
+  @override
+  String get manseRowTwelveStages => '12 stages';
+
+  @override
+  String get manseRowShinsal => 'Spirit stars';
+
+  @override
+  String get sajuTagMe => 'Me';
+
+  @override
+  String get daeunTagNow => 'Now';
+
+  @override
+  String get seunTagThisYear => 'This year';
+
+  @override
+  String daeunTableLabel(int age) {
+    return 'Luck cycles from age $age';
+  }
+
+  @override
+  String ohaengBarItem(String element, String count) {
+    return '$element $count';
+  }
+
+  @override
+  String get sajuPillarDayMaster => 'Day master';
+
+  @override
+  String get sajuPillarsTableLabel => 'Birth chart';
+
+  @override
+  String get manseTableLabel => 'Manseryeok table';
+
+  @override
+  String get evidenceSheetPersonalEmpty =>
+      'The reading for this spot isn\'t ready yet.';
+
+  @override
+  String luckYearLabel(int year) {
+    return '$year';
+  }
+
+  @override
+  String get legalTermsLabel => 'Terms of Service';
+
+  @override
+  String get legalPrivacyLabel => 'Privacy Policy';
+
+  @override
+  String get legalLicensesLabel => 'Open source licenses';
 }

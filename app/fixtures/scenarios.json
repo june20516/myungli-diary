@@ -60,7 +60,7 @@
     "timezone": "America/Los_Angeles",
     "network": "online",
     "signedIn": true,
-    "description": "한국 밖(America/Los_Angeles) 기기의 회원입니다. 기기 시간대가 한국이 아닙니다."
+    "description": "한국 밖(America/Los_Angeles) 기기의 회원입니다. 기기 시간대가 한국이 아니고 프로필 언어(updateProfile)가 en이라 앱이 영어입니다."
   },
   {
     "id": "birth-hour-unavailable",
@@ -253,7 +253,7 @@
     "timezone": "Asia/Seoul",
     "network": "online",
     "signedIn": true,
-    "description": "로그인한 회원. 오늘(getDaily) 응답에 time_unknown notice가 있어 오늘 화면에 시간 모름 배너가 보입니다."
+    "description": "로그인한 회원. 오늘(getDaily)과 나의 사주(getChart) 응답에 time_unknown notice가 있어 시간 모름 배너가 보이고 사주 표의 시주가 빈 칸입니다."
   },
   {
     "id": "daily-error",
@@ -298,7 +298,7 @@
     "timezone": "Asia/Seoul",
     "network": "online",
     "signedIn": true,
-    "description": "로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)이 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다."
+    "description": "로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)과 나의 사주(getChart)가 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다."
   },
   {
     "id": "reward-unlock",
@@ -307,7 +307,7 @@
     "timezone": "Asia/Seoul",
     "network": "online",
     "signedIn": true,
-    "description": "로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)이 unlocked입니다."
+    "description": "로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)과 나의 사주(getChart 두 번째 응답부터)가 unlocked입니다."
   },
   {
     "id": "reward-timeout",
@@ -365,5 +365,14 @@
     "network": "online",
     "signedIn": true,
     "description": "로그인한 회원. 일정 만들기(createSchedule)와 고치기(updateSchedule)가 503이라 저장하지 못합니다."
+  },
+  {
+    "id": "ad-free-active",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "광고 제거권이 활성인 회원(2026-11-12T03:00Z 만료, 한국 시각 11월 12일 정오). 설정의 광고 제거 줄에 만료 날짜가 보입니다."
   }
 ]

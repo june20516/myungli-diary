@@ -101,24 +101,37 @@ extension $RelationCopyWith on Relation {
 // JsonSerializableGenerator
 // **************************************************************************
 
-Relation _$RelationFromJson(
-  Map<String, dynamic> json,
-) => $checkedCreate('Relation', json, ($checkedConvert) {
-  $checkKeys(json, requiredKeys: const ['kind', 'natalPosition', 'suppressed']);
-  final val = Relation(
-    kind: $checkedConvert('kind', (v) => $enumDecode(_$RelationKindEnumMap, v)),
-    natalPosition: $checkedConvert(
-      'natalPosition',
-      (v) => $enumDecode(_$PositionEnumMap, v),
-    ),
-    suppressed: $checkedConvert('suppressed', (v) => v as bool),
-    suppressedBy: $checkedConvert(
-      'suppressedBy',
-      (v) => $enumDecodeNullable(_$RelationKindEnumMap, v),
-    ),
-  );
-  return val;
-});
+Relation _$RelationFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('Relation', json, ($checkedConvert) {
+      $checkKeys(
+        json,
+        requiredKeys: const ['kind', 'natalPosition', 'suppressed'],
+      );
+      final val = Relation(
+        kind: $checkedConvert(
+          'kind',
+          (v) => $enumDecode(
+            _$RelationKindEnumMap,
+            v,
+            unknownValue: RelationKind.unknownDefaultOpenApi,
+          ),
+        ),
+        natalPosition: $checkedConvert(
+          'natalPosition',
+          (v) => $enumDecode(_$PositionEnumMap, v),
+        ),
+        suppressed: $checkedConvert('suppressed', (v) => v as bool),
+        suppressedBy: $checkedConvert(
+          'suppressedBy',
+          (v) => $enumDecodeNullable(
+            _$RelationKindEnumMap,
+            v,
+            unknownValue: RelationKind.unknownDefaultOpenApi,
+          ),
+        ),
+      );
+      return val;
+    });
 
 Map<String, dynamic> _$RelationToJson(Relation instance) => <String, dynamic>{
   'kind': _$RelationKindEnumMap[instance.kind]!,
@@ -132,6 +145,7 @@ const _$RelationKindEnumMap = {
   RelationKind.branchHap: 'branch_hap',
   RelationKind.chung: 'chung',
   RelationKind.hyeong: 'hyeong',
+  RelationKind.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 
 const _$PositionEnumMap = {

@@ -8,9 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/solar_term.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/luck_level.dart';
-import 'package:myungli_diary/core/api/gen/model/score_item.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
-import 'package:myungli_diary/core/api/gen/model/tag.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -42,10 +40,6 @@ class CalendarDay {
 
     required this.score,
 
-    required this.scoreItems,
-
-    this.featuredTag,
-
     required this.level,
   });
 
@@ -73,13 +67,6 @@ class CalendarDay {
   @JsonKey(name: r'score', required: true, includeIfNull: false)
   final int score;
 
-  /// 점수 구성 원본 값
-  @JsonKey(name: r'scoreItems', required: true, includeIfNull: false)
-  final List<ScoreItem> scoreItems;
-
-  @JsonKey(name: r'featuredTag', required: false, includeIfNull: false)
-  final Tag? featuredTag;
-
   @JsonKey(name: r'level', required: true, includeIfNull: false)
   final SlotText level;
 
@@ -95,8 +82,6 @@ class CalendarDay {
           other.characterReason == characterReason &&
           other.luckLevel == luckLevel &&
           other.score == score &&
-          other.scoreItems == scoreItems &&
-          other.featuredTag == featuredTag &&
           other.level == level;
 
   @override
@@ -109,8 +94,6 @@ class CalendarDay {
       characterReason.hashCode +
       luckLevel.hashCode +
       score.hashCode +
-      scoreItems.hashCode +
-      featuredTag.hashCode +
       level.hashCode;
 
   factory CalendarDay.fromJson(Map<String, dynamic> json) =>

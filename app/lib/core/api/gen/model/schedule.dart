@@ -51,6 +51,7 @@ class Schedule {
   @JsonKey(name: r'title', required: true, includeIfNull: false)
   final String title;
 
+  /// 메모. 빈 문자열로 저장하면 메모 없음으로 보고 생략합니다.
   @JsonKey(name: r'memo', required: false, includeIfNull: false)
   final String? memo;
 

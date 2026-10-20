@@ -9,12 +9,15 @@ import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
+import 'package:myungli_diary/features/me/application/chart_providers.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
@@ -50,6 +53,12 @@ abstract interface class EvidenceSubject {
   /// 응답 안 [slotId] 슬롯의 오늘 그런 이유(`SlotText.todayReason`). 응답을 받는 중이거나 슬롯·
   /// 문장이 없거나 빈 문장이면 null입니다. 오늘 그런 이유가 없는 응답은 늘 null입니다.
   ProviderListenable<RenderedText?> todayReasonOf(String slotId);
+
+  /// 응답 안 [key] 자리의 원국 개인 해석("내 사주에서는", A58). 항목이 없거나(잠김·원고 없음)
+  /// 개인 해석이 없는 응답이면 null입니다. 근거 시트는 열렸을 때만 이 값을 읽습니다.
+  ProviderListenable<AsyncValue<RenderedText?>> personalOf(
+    PersonalReadingKey key,
+  );
 
   /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
   /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
@@ -87,6 +96,12 @@ final class DailyEvidenceSubject implements EvidenceSubject {
         return reason == null || isBlankText(reason) ? null : reason;
       });
 
+  /// 오늘 응답에는 원국 개인 해석이 없습니다.
+  @override
+  ProviderListenable<AsyncValue<RenderedText?>> personalOf(
+    PersonalReadingKey key,
+  ) => dailyControllerProvider.select((value) => value.whenData((_) => null));
+
   @override
   Future<void> reload(Ref ref) =>
       ref.read(dailyControllerProvider.notifier).refreshQuietly();
@@ -98,9 +113,75 @@ final class DailyEvidenceSubject implements EvidenceSubject {
   int get hashCode => (DailyEvidenceSubject).hashCode;
 }
 
-/// [slotId] 슬롯의 근거를 담은 응답. 계획 6이 사주 표 계열 슬롯을 여기서 가릅니다.
-EvidenceSubject evidenceSubjectFor(String slotId) =>
-    const DailyEvidenceSubject();
+/// 오늘 그런 이유가 없는 응답이 돌려주는 값.
+final Provider<RenderedText?> _noTodayReasonProvider = Provider<RenderedText?>(
+  (_) => null,
+);
+
+/// 나의 사주 응답(`getChart`)의 근거. 슬롯은 용신 판정 근거(`saju-chart.yongsin.basis`) 하나이고,
+/// 잠금이 풀리면 [ChartController.refreshQuietly]로 다시 받습니다(A56·A58). 오늘 그런 이유는
+/// 없습니다.
+@immutable
+final class ChartEvidenceSubject implements EvidenceSubject {
+  /// 나의 사주 응답의 근거.
+  const new();
+
+  @override
+  ProviderListenable<AsyncValue<EvidenceAccess>> get access =>
+      chartControllerProvider.select(
+        (value) => value.whenData((chart) => chart.evidenceAccess),
+      );
+
+  @override
+  ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
+      chartControllerProvider.select(
+        (value) => value.whenData(
+          (chart) => slotId == SlotIds.sajuChartYongsinBasis
+              ? chart.yongsin.basis?.evidence ?? const []
+              : const [],
+        ),
+      );
+
+  @override
+  ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
+      _noTodayReasonProvider;
+
+  @override
+  ProviderListenable<AsyncValue<RenderedText?>> personalOf(
+    PersonalReadingKey key,
+  ) => chartControllerProvider.select(
+    (value) => value.whenData(
+      (chart) => personalReadingOf(
+        chart,
+        kind: key.kind,
+        position: key.position,
+        index: key.index,
+        shinsal: key.shinsal,
+      )?.text,
+    ),
+  );
+
+  @override
+  Future<void> reload(Ref ref) =>
+      ref.read(chartControllerProvider.notifier).refreshQuietly();
+
+  @override
+  bool operator ==(Object other) => other is ChartEvidenceSubject;
+
+  @override
+  int get hashCode => (ChartEvidenceSubject).hashCode;
+}
+
+/// [slotId] 슬롯의 근거를 담은 응답. 사주 표(`saju-chart.*`) 슬롯은 나의 사주, 그 밖은 오늘입니다.
+///
+/// 원국 개인 해석([personal])을 보는 근거 시트는 늘 나의 사주입니다(개인 해석은 `Chart`에만 있음,
+/// A58).
+EvidenceSubject evidenceSubjectFor(
+  String slotId, {
+  PersonalReadingKey? personal,
+}) => personal != null || slotId.startsWith('${ScreenIds.sajuChart}.')
+    ? const ChartEvidenceSubject()
+    : const DailyEvidenceSubject();
 
 /// 잠금 해제 흐름에서 화면이 알려야 하는 일(toast). 사용자가 광고 보기를 시작한 흐름에서만
 /// 생깁니다(시트를 열 때의 확인은 결과가 무엇이든 조용합니다).
@@ -443,6 +524,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       // 근거 권한이 생겼으므로 잠긴 채 받아 둔 달 길흉도 다시 받게 합니다(A32). 시트가 먼저
       // 열리도록 상태를 바꾼 뒤에 합니다. 실패는 그 안에서 보고하고 삼킵니다.
       await ref.read(calendarUnlockSyncProvider).forgetLocked();
+      await forgetLockedCharts(ref);
+      await refreshLockedDaily(ref);
       return;
     }
     // 권한이 생겼다는데 응답이 아직 잠김: 열지 않습니다.
@@ -477,10 +560,14 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     }
   }
 
-  /// 잠긴 채 받아 둔 달 길흉을 버립니다(A32). 기다리지 않습니다. 여러 번 불려도 지울 것이
-  /// 없으면 아무 일도 없고, 실패는 [CalendarUnlockSync.forgetLocked] 안에서 보고하고 삼킵니다.
-  void _forgetLockedCalendars() =>
-      unawaited(ref.read(calendarUnlockSyncProvider).forgetLocked());
+  /// 잠긴 채 받아 둔 달 길흉과 나의 사주를 버리고, 잠긴 오늘 응답을 다시 받습니다(A32·A56,
+  /// Review Focus 5). 기다리지 않습니다. 여러 번 불려도 지울 것이 없으면 아무 일도 없고, 실패는
+  /// 각 정리 안에서 보고하고 삼킵니다.
+  void _forgetLockedCalendars() {
+    unawaited(ref.read(calendarUnlockSyncProvider).forgetLocked());
+    unawaited(forgetLockedCharts(ref));
+    unawaited(refreshLockedDaily(ref));
+  }
 
   /// 근거 열람 권한을 한 번 묻습니다.
   ///

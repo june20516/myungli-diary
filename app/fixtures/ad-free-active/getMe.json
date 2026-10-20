@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "body": {
+    "accountId": "0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10",
+    "status": "active",
+    "consentRequired": false,
+    "requiredConsents": [],
+    "hasProfile": true,
+    "adFree": {
+      "active": true,
+      "expiresAt": "2026-11-12T03:00:00Z"
+    },
+    "insight": {
+      "active": false
+    }
+  }
+}

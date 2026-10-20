@@ -1,37 +1,22 @@
 {
-  "generatedAt": "2026-10-20T05:47:34.782429Z",
+  "generatedAt": "2026-10-20T15:54:43.765209Z",
   "exits": {
-    "covered": 54,
+    "covered": 72,
     "total": 80,
     "uncovered": [
-      "account-delete>welcome",
       "ad-free>legal",
       "ad-free>system-purchase",
       "birthplace>notify-ask",
       "launch>ad-consent",
-      "my-saju>explain-sheet",
-      "my-saju>saju-chart",
-      "my-saju>settings",
       "onboard-gender>notify-ask",
-      "profile-edit>birthplace",
-      "profile-edit>onboard-birth",
-      "profile-edit>onboard-call",
-      "profile-edit>onboard-gender",
-      "profile-edit>onboard-time",
-      "saju-chart>evidence-sheet",
-      "saju-chart>explain-sheet",
-      "settings>account-delete",
-      "settings>ad-free",
-      "settings>birthplace",
-      "settings>calc-basis",
-      "settings>legal",
-      "settings>profile-edit",
-      "settings>welcome",
       "system-apple-return>welcome",
       "system-purchase>ad-free",
       "system-rewarded-ad>evidence-sheet"
     ],
     "coveredBy": {
+      "account-delete>welcome": [
+        "test/flows/account_delete_flow_test.dart:101 확인 창에서 취소하면 지우지 않고, 확정하면 deleteMe 한 번 → 로그아웃 정리 → welcome(A63)"
+      ],
       "ad-consent>today": [
         "test/flows/login_flow_test.dart:138 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
@@ -61,15 +46,15 @@
         "test/flows/calendar_flow_test.dart:215 member: 일정 추가 → 선택한 날의 event-edit"
       ],
       "consent>legal": [
-        "test/flows/consent_flow_test.dart:278 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
+        "test/flows/consent_flow_test.dart:321 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
       ],
       "consent>notify-ask": [
-        "test/flows/consent_flow_test.dart:122 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
+        "test/flows/consent_flow_test.dart:165 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "consent>onboard-call": [
-        "test/flows/consent_flow_test.dart:167 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
+        "test/flows/consent_flow_test.dart:210 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
       ],
       "day-sheet>diary-edit": [
         "test/flows/day_sheet_flow_test.dart:146 member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다"
@@ -117,8 +102,11 @@
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "explain-sheet>evidence-sheet": [
+        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/saju_chart_flow_test.dart:383 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
         "test/flows/today_flow_test.dart:194 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
         "test/flows/today_flow_test.dart:281 evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장",
+        "patrol_test/me_test.dart:61",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "launch>force-update": [
@@ -146,6 +134,20 @@
         "test/flows/login_flow_test.dart:162 returning-user: 이 기기에서 광고 동의를 이미 했으면 바로 today",
         "test/flows/login_flow_test.dart:186 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
       ],
+      "my-saju>explain-sheet": [
+        "test/flows/my_saju_flow_test.dart:124 일간 이름 용어 → 풀이 시트"
+      ],
+      "my-saju>saju-chart": [
+        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/my_saju_flow_test.dart:132 근거 보기 → 사주 표",
+        "patrol_test/me_test.dart:61"
+      ],
+      "my-saju>settings": [
+        "test/flows/me_journey_flow_test.dart:220 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/me_journey_flow_test.dart:291 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
+        "test/flows/my_saju_flow_test.dart:155 톱니 → 설정",
+        "patrol_test/me_test.dart:61"
+      ],
       "notify-ask>ad-consent": [
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
@@ -169,24 +171,24 @@
         "test/flows/onboarding_flow_test.dart:199 수정 모드: onboard-call은 저장 버튼으로 값을 돌려주고 초안은 그대로입니다"
       ],
       "onboard-gender>birthplace": [
-        "test/flows/onboarding_flow_test.dart:610 한국 밖 기기는 다음 → birthplace입니다",
+        "test/flows/onboarding_flow_test.dart:611 한국 밖 기기는 다음 → birthplace입니다",
         "patrol_test/onboarding_test.dart:94 해외 기기: 출생지에서 계산 기준을 읽고 돌아와 도시를 고릅니다"
       ],
       "onboard-gender>preview": [
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
-        "test/flows/onboarding_flow_test.dart:585 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다",
+        "test/flows/onboarding_flow_test.dart:586 고르기 전에는 다음이 꺼져 있고, 한국 기기는 다음 → preview입니다",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-gender>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:714 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+        "test/flows/onboarding_flow_test.dart:715 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "onboard-time>onboard-gender": [
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
-        "test/flows/onboarding_flow_test.dart:409 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다",
+        "test/flows/onboarding_flow_test.dart:410 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "onboard-time>profile-edit": [
-        "test/flows/onboarding_flow_test.dart:714 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
+        "test/flows/onboarding_flow_test.dart:715 수정 모드: onboard-time은 BirthTime, onboard-gender는 성별을 돌려줍니다"
       ],
       "preview>login": [
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
@@ -196,6 +198,59 @@
       ],
       "preview>onboard-call": [
         "test/flows/preview_flow_test.dart:120 다시 입력 → onboard-call, 호칭이 채워져 있고 같은 입력이면 미리보기를 다시 쓰지 않습니다"
+      ],
+      "profile-edit>birthplace": [
+        "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
+      ],
+      "profile-edit>onboard-birth": [
+        "test/flows/me_journey_flow_test.dart:220 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다",
+        "patrol_test/me_test.dart:61"
+      ],
+      "profile-edit>onboard-call": [
+        "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
+      ],
+      "profile-edit>onboard-gender": [
+        "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
+      ],
+      "profile-edit>onboard-time": [
+        "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
+      ],
+      "saju-chart>evidence-sheet": [
+        "test/flows/saju_chart_flow_test.dart:316 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)"
+      ],
+      "saju-chart>explain-sheet": [
+        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/saju_chart_flow_test.dart:383 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
+        "patrol_test/me_test.dart:61"
+      ],
+      "settings>account-delete": [
+        "test/flows/account_delete_flow_test.dart:76 제목·안내·삭제 버튼(destructive)이 있습니다",
+        "test/flows/settings_flow_test.dart:524"
+      ],
+      "settings>ad-free": [
+        "test/flows/settings_flow_test.dart:485 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free"
+      ],
+      "settings>birthplace": [
+        "test/flows/settings_flow_test.dart:356 언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드"
+      ],
+      "settings>calc-basis": [
+        "test/flows/settings_flow_test.dart:524"
+      ],
+      "settings>legal": [
+        "test/flows/settings_flow_test.dart:524"
+      ],
+      "settings>profile-edit": [
+        "test/flows/me_journey_flow_test.dart:220 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/profile_edit_flow_test.dart:629 settings 출생지 안내에서 고른 도시는 켜진 저장 버튼으로 열리고, 한국 기기여도 그 도시로 저장합니다(D29)",
+        "test/flows/settings_flow_test.dart:385 출생지 수정 모드에서 고른 도시는 정보 수정으로 넘깁니다(무거운 변경 확인은 그 화면, A6)",
+        "test/flows/settings_flow_test.dart:524",
+        "patrol_test/me_test.dart:61"
+      ],
+      "settings>welcome": [
+        "test/flows/me_journey_flow_test.dart:291 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
+        "test/flows/settings_flow_test.dart:546 로그아웃: 확인 창에서 취소하면 그대로, 확정하면 revokeAndSignOut → welcome",
+        "patrol_test/me_test.dart:61"
       ],
       "share-preview>system-share": [
         "test/flows/today_flow_test.dart:329 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다"
@@ -246,26 +301,21 @@
     }
   },
   "states": {
-    "covered": 39,
+    "covered": 47,
     "total": 54,
     "uncovered": [
-      "account-delete:error",
       "ad-free:error",
       "ad-free:loading",
       "ad-free:offline",
       "event-edit:loading",
       "event-edit:offline",
       "launch:loading",
-      "my-saju:error",
-      "my-saju:loading",
-      "my-saju:time-unknown",
-      "onboard-birth:out-of-range",
-      "profile-edit:error",
-      "saju-chart:error",
-      "saju-chart:loading",
-      "saju-chart:time-unknown"
+      "onboard-birth:out-of-range"
     ],
     "coveredBy": {
+      "account-delete:error": [
+        "test/flows/account_delete_flow_test.dart:132 지우지 못하면 오류 toast이고 화면에 남아, 다시 누르면 다시 시도합니다"
+      ],
       "birthplace:empty": [
         "test/flows/birthplace_flow_test.dart:306 결과가 없으면 안내 문장이 나옵니다"
       ],
@@ -287,7 +337,7 @@
         "test/flows/calendar_flow_test.dart:378 offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다"
       ],
       "consent:error": [
-        "test/flows/consent_flow_test.dart:333 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
+        "test/flows/consent_flow_test.dart:442 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
       ],
       "day-sheet:empty": [
         "test/flows/day_sheet_flow_test.dart:126 member: 일정 없는 날은 빈 문장, 일정 추가 → 그날 event-edit",
@@ -356,8 +406,17 @@
         "test/flows/login_flow_test.dart:291 login-exchange-invalid: Android Apple 웹 교환 코드가 만료되면 처음부터 다시 안내",
         "test/flows/login_flow_test.dart:318 Android Apple 웹 로그인을 취소하면 취소 안내를 보이고 server를 부르지 않습니다"
       ],
+      "my-saju:error": [
+        "test/flows/my_saju_flow_test.dart:190 error: 받지 못하면 오류와 다시 시도"
+      ],
+      "my-saju:loading": [
+        "test/flows/my_saju_flow_test.dart:170 loading: 받는 동안 skeleton, 오면 내용"
+      ],
+      "my-saju:time-unknown": [
+        "test/flows/my_saju_flow_test.dart:163 time-unknown: 3주로 계산했다는 배너"
+      ],
       "onboard-time:time-unknown": [
-        "test/flows/onboarding_flow_test.dart:409 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
+        "test/flows/onboarding_flow_test.dart:410 04:00이면 인시 확인 줄이 보이고 요청은 휠이 멈춘 뒤 한 번이며, 모름은 3주 안내입니다"
       ],
       "preview:error": [
         "test/flows/preview_flow_test.dart:225 preview-invalid: birth.invalid 문구와 다시 입력, 입력은 그대로입니다"
@@ -370,6 +429,18 @@
       ],
       "preview:time-unknown": [
         "test/flows/preview_flow_test.dart:147 time-unknown: 시간 모름 배너"
+      ],
+      "profile-edit:error": [
+        "test/flows/profile_edit_flow_test.dart:513 저장이 실패하면 오류 배너와 다시 시도, 바꾼 값과 이전 캐시는 그대로입니다"
+      ],
+      "saju-chart:error": [
+        "test/flows/saju_chart_flow_test.dart:642 error: 받지 못하면 오류와 다시 시도"
+      ],
+      "saju-chart:loading": [
+        "test/flows/saju_chart_flow_test.dart:628 loading: 받는 동안 skeleton, 오면 내용"
+      ],
+      "saju-chart:time-unknown": [
+        "test/flows/saju_chart_flow_test.dart:608 time-unknown: 시주 빈 칸과 안내"
       ],
       "tag-diary:empty": [
         "test/flows/tag_diary_flow_test.dart:209 empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다"
@@ -416,8 +487,8 @@
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "D50": [
-        "test/flows/consent_flow_test.dart:122 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
-        "test/flows/consent_flow_test.dart:205 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
+        "test/flows/consent_flow_test.dart:165 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
+        "test/flows/consent_flow_test.dart:248 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
         "test/flows/launch_flow_test.dart:42 new-user 시나리오는 welcome 화면에 도착합니다",
         "test/flows/login_flow_test.dart:115 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
@@ -432,10 +503,14 @@
         "test/flows/login_flow_test.dart:138 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "test/flows/settings_flow_test.dart:485 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "D60": [
+        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/saju_chart_flow_test.dart:316 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)",
         "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
+        "patrol_test/me_test.dart:61",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ]
     }
@@ -713,27 +788,27 @@
     },
     "my-saju": {
       "exits": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },
     "saju-chart": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },
     "settings": {
       "exits": {
-        "covered": 0,
+        "covered": 7,
         "total": 7
       },
       "states": {
@@ -773,11 +848,11 @@
     },
     "profile-edit": {
       "exits": {
-        "covered": 0,
+        "covered": 5,
         "total": 5
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },
@@ -793,11 +868,11 @@
     },
     "account-delete": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },

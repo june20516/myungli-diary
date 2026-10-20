@@ -35,6 +35,12 @@ abstract class _$ChartCWProxy {
 
   Chart notices(List<Notice> notices);
 
+  Chart ilganHead(SlotText? ilganHead);
+
+  Chart ilganBody(SlotText? ilganBody);
+
+  Chart yongsinSummary(SlotText? yongsinSummary);
+
   Chart personalReadings(List<PersonalReading>? personalReadings);
 
   /// Creates a new instance with the provided field values.
@@ -60,6 +66,9 @@ abstract class _$ChartCWProxy {
     Daeun daeun,
     List<SeunYear> seun,
     List<Notice> notices,
+    SlotText? ilganHead,
+    SlotText? ilganBody,
+    SlotText? yongsinSummary,
     List<PersonalReading>? personalReadings,
   });
 }
@@ -119,6 +128,16 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
   Chart notices(List<Notice> notices) => call(notices: notices);
 
   @override
+  Chart ilganHead(SlotText? ilganHead) => call(ilganHead: ilganHead);
+
+  @override
+  Chart ilganBody(SlotText? ilganBody) => call(ilganBody: ilganBody);
+
+  @override
+  Chart yongsinSummary(SlotText? yongsinSummary) =>
+      call(yongsinSummary: yongsinSummary);
+
+  @override
   Chart personalReadings(List<PersonalReading>? personalReadings) =>
       call(personalReadings: personalReadings);
 
@@ -146,6 +165,9 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
     Object? daeun = const $CopyWithPlaceholder(),
     Object? seun = const $CopyWithPlaceholder(),
     Object? notices = const $CopyWithPlaceholder(),
+    Object? ilganHead = const $CopyWithPlaceholder(),
+    Object? ilganBody = const $CopyWithPlaceholder(),
+    Object? yongsinSummary = const $CopyWithPlaceholder(),
     Object? personalReadings = const $CopyWithPlaceholder(),
   }) {
     return Chart(
@@ -213,6 +235,18 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
           ? _value.notices
           // ignore: cast_nullable_to_non_nullable
           : notices as List<Notice>,
+      ilganHead: ilganHead == const $CopyWithPlaceholder()
+          ? _value.ilganHead
+          // ignore: cast_nullable_to_non_nullable
+          : ilganHead as SlotText?,
+      ilganBody: ilganBody == const $CopyWithPlaceholder()
+          ? _value.ilganBody
+          // ignore: cast_nullable_to_non_nullable
+          : ilganBody as SlotText?,
+      yongsinSummary: yongsinSummary == const $CopyWithPlaceholder()
+          ? _value.yongsinSummary
+          // ignore: cast_nullable_to_non_nullable
+          : yongsinSummary as SlotText?,
       personalReadings: personalReadings == const $CopyWithPlaceholder()
           ? _value.personalReadings
           // ignore: cast_nullable_to_non_nullable
@@ -323,6 +357,21 @@ Chart _$ChartFromJson(Map<String, dynamic> json) =>
               .map((e) => Notice.fromJson(e as Map<String, dynamic>))
               .toList(),
         ),
+        ilganHead: $checkedConvert(
+          'ilganHead',
+          (v) =>
+              v == null ? null : SlotText.fromJson(v as Map<String, dynamic>),
+        ),
+        ilganBody: $checkedConvert(
+          'ilganBody',
+          (v) =>
+              v == null ? null : SlotText.fromJson(v as Map<String, dynamic>),
+        ),
+        yongsinSummary: $checkedConvert(
+          'yongsinSummary',
+          (v) =>
+              v == null ? null : SlotText.fromJson(v as Map<String, dynamic>),
+        ),
         personalReadings: $checkedConvert(
           'personalReadings',
           (v) => (v as List<dynamic>?)
@@ -348,6 +397,9 @@ Map<String, dynamic> _$ChartToJson(Chart instance) => <String, dynamic>{
   'daeun': instance.daeun.toJson(),
   'seun': instance.seun.map((e) => e.toJson()).toList(),
   'notices': instance.notices.map((e) => e.toJson()).toList(),
+  'ilganHead': ?instance.ilganHead?.toJson(),
+  'ilganBody': ?instance.ilganBody?.toJson(),
+  'yongsinSummary': ?instance.yongsinSummary?.toJson(),
   'personalReadings': ?instance.personalReadings
       ?.map((e) => e.toJson())
       .toList(),

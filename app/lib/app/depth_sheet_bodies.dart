@@ -15,7 +15,7 @@ final List<Override> depthSheetBodyOverrides = [
     (termId, origin) => ExplainSheet(termId: termId, origin: origin),
   ),
   evidenceBodyProvider.overrideWithValue(
-    (slotId) => EvidenceSheet(slotId: slotId),
+    (slotId, personal) => EvidenceSheet(slotId: slotId, personal: personal),
   ),
   shareBodyProvider.overrideWithValue(SharePreviewSheet.new),
 ];
