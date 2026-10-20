@@ -26,6 +26,7 @@ class MonthDatePicker extends StatelessWidget {
     required this.confirmLabel,
     required this.onConfirm,
     this.markedDates = const {},
+    this.confirmIdentifier,
     super.key,
   });
 
@@ -53,6 +54,9 @@ class MonthDatePicker extends StatelessWidget {
   /// 아래 버튼을 눌렀을 때.
   final VoidCallback onConfirm;
 
+  /// 아래 버튼의 IA 슬롯 id(`diary-list.pick-date.confirm`).
+  final String? confirmIdentifier;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -75,7 +79,11 @@ class MonthDatePicker extends StatelessWidget {
           lastMonth: CalendarMonth.of(today),
         ),
         const SizedBox(height: Space.s16),
-        PrimaryButton(label: confirmLabel, onPressed: onConfirm),
+        PrimaryButton(
+          label: confirmLabel,
+          onPressed: onConfirm,
+          identifier: confirmIdentifier,
+        ),
       ],
     );
   }

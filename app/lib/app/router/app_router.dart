@@ -31,6 +31,15 @@ String datedPathOf(String screenId, CalendarDate date) => Uri(
   queryParameters: {dateQuery: date.toIso()},
 ).toString();
 
+/// 태그 모아보기(`tag-diary`)의 query 이름. 값은 태그 키(`Tag.key`)입니다.
+const String tagQuery = 'tag';
+
+/// [tag] 태그 모아보기를 여는 경로(`/tag-diary?tag=<key>`, [tagQuery] 계약).
+String taggedPathOf(String tag) => Uri(
+  path: pathOf(ScreenIds.tagDiary),
+  queryParameters: {tagQuery: tag},
+).toString();
+
 final Map<String, IaScreen> _screensById = {
   for (final screen in iaScreens) screen.id: screen,
 };
