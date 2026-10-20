@@ -341,7 +341,7 @@
     screen_reader: "칸 글자 그대로 읽습니다."
 
 - id: ui.birth.option
-  where: "출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)"
+  where: "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
   purpose: info
   user_state: "태어난 날의 달력 종류, 시간을 아는지, 성별을 고릅니다."
   structure: "선택지 이름 하나."
@@ -351,7 +351,6 @@
   keys:
     - calendarSolar
     - calendarLunar
-    - leapMonth
     - timeUnknownLabel
     - genderMale
     - genderFemale
@@ -803,3 +802,25 @@
   a11y:
     truncation: "버튼 한 줄 안에 들어갑니다. 날짜는 app이 짧은 서식으로 넣습니다."
     screen_reader: "버튼 이름 그대로 읽습니다."
+
+- id: ui.date-picker.solar-confirm
+  where: "생일 날짜 휠(date-picker birth)의 양력 확인 줄(solarConfirm, design V31, #313). 고른 음력 날짜를 양력으로 바꾼 날짜를 보입니다"
+  purpose: info
+  user_state: "음력으로 생일을 고르고, 양력으로는 언제인지 확인합니다."
+  structure: "달력 이름 + 날짜. 날짜는 app이 로케일 서식(yMMMMd)으로 넣습니다. 달력 이름은 선택지 calendarSolar와 같은 말입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [date-picker]
+  keys:
+    - params: {date: text}
+      keys: [datePickerSolarConfirm]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: datePickerSolarConfirm, text: "양력 {date}", why: "app 초안 그대로, 선택지 이름과 같은 말", source: writing}
+    bad:
+      - {lang: ko, text: "양력으로 바꾸면 {date}이에요", why: "확인 줄에 문장을 써서 길어짐", source: writing}
+  endings: []
+  a11y:
+    truncation: "휠 아래 한 줄 안에 들어갑니다. 상한은 design이 정합니다."
+    screen_reader: "줄 그대로 읽습니다."
