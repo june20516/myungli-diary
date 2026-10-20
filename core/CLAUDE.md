@@ -11,7 +11,7 @@
 
 ## 계약을 바꿀 때
 공개 저장소(D74)·세션 시작 시 drift 우선·병합 주체는 루트 `CLAUDE.md` 공통 규칙을 따릅니다. core에 해당하는 것만 적습니다.
-* core는 계약을 **주는 쪽**입니다(`ci-gate`의 core 검사는 받는 계약 없이 `own`만 돕니다). 계약만 바꾼 PR은 받는 쪽(server·writing) 검사가 실패해도 경고로 병합되고, `ci-gate`가 받는 쪽 앞으로 `drift` Issue를 엽니다(D73, `docs/workflow.md` §6.1). 하위 호환을 깨는 변경은 `kind:notice`로 따로 알립니다.
+* core는 계약을 **주는 쪽**입니다(`ci-gate`의 core 검사는 받는 계약이 없어 `own`(또는 `ci-gate.yml`만 바뀐 PR에서 `gate`)으로만 돌고, `drift`는 없습니다). 계약만 바꾼 PR은 받는 쪽(server·writing) 검사가 실패해도 경고로 병합되고, `ci-gate`가 받는 쪽 앞으로 `drift` Issue를 엽니다(D73, `docs/workflow.md` §6.1). 하위 호환을 깨는 변경은 `kind:notice`로 따로 알립니다.
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수, 근거 규칙 목록, 근거 원전 목록)을 직접 고칩니다.
 
 ## 계약
@@ -21,6 +21,7 @@
 | `core/message_keys.json` (메시지 키 목록) | **제공** | server (콘텐츠 모듈), writing |
 | `core/message_params.json` (메시지 키별 매개변수 이름) | **제공** | server, writing |
 | `source_ref` 형식 (spec §11) | **제공** | server, app (`evidence` 깊이의 근거 표시) |
+| 엔진 버전 표기 (`engine_version`, `ruleset_version`, spec §12) | **제공** | server (일기 태그 기록, 캐시 키) |
 | `core/evidence_rules.json` (`rule_id`별 `detail` 키) | **제공** | writing (`basis.<rule_id>`·`reason.<rule_id>` 키), server |
 | `core/evidence_sources.json` (`source_ref`별 원전 이름·원문) | **제공** | writing (`source.<source_ref>` 키), server |
 
@@ -35,9 +36,9 @@
 | 원전 근거 자료 | `core/docs/references/` |
 | core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C27, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
-| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34 |
+| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78 |
 
-## 현재 상태 (엔진 MVP 완료, 원국 개인 해석 추가, 2026-10-11)
+## 현재 상태 (엔진 MVP 완료, 원국 개인 해석·음력 변환·근거 목록 추가, 2026-10-20)
 * **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), 음력 변환 RPC(`ConvertLunarDate`, #164), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).
 * **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
 * **제공 계약:** 위 "계약" 표. 버전과 상태는 `docs/contracts/README.md`의 core 행에 있습니다.
@@ -51,8 +52,6 @@
 ## 다음 할 일
 1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
 2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-20 기준:
-   * **#258**(writing): `evidence_sources.json` 원전 `quote`의 번체 원문(판본) 여부와, 없으면 간체 `quote`를 근거 시트에 그대로 내도 되는지 답합니다. writing을 막지 않습니다.
-   * **#120:** `core.yml`의 GitHub Actions를 Node 24 최신 메이저로.
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
