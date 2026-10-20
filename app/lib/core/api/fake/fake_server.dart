@@ -93,7 +93,8 @@ final class FakeServerInterceptor extends Interceptor {
     final fixture = await _findFixture(route, path);
     final stored =
         await _answerFromScheduleStore(route, path, options, fixture) ??
-        await _answerFromDiaryStore(route, path, options, fixture);
+        await _answerFromDiaryStore(route, path, options, fixture) ??
+        await _answerFromProfile(route, options, fixture);
     _respond(
       options,
       handler,
@@ -277,6 +278,64 @@ final class FakeServerInterceptor extends Interceptor {
     errors: problem.errors,
   );
 
+  /// 마지막으로 저장한 프로필(`Profile` JSON). 처음 저장 전에는 null입니다.
+  Map<String, Object?>? _profile;
+
+  /// 프로필 operation을 대역 프로필로 답합니다. 그 밖의 경우는 null입니다.
+  ///
+  /// * `updateProfile`: 시나리오 파일이 200이면 보낸 필드만 프로필에 덮어(merge-patch, 필드가
+  ///   없으면 "바꾸지 않음") 답하고 기억합니다. 처음 프로필은 그 200 응답의 `profile`입니다.
+  ///   200이 아니면(오류 시나리오) 파일이 그대로 답합니다.
+  /// * `getProfile`: 시나리오 파일이 없으면 기억한 프로필, 그것도 없으면 `updateProfile`
+  ///   200 파일의 `profile`로 답합니다.
+  Future<_Fixture?> _answerFromProfile(
+    ApiRoute route,
+    RequestOptions options,
+    _Fixture? fixture,
+  ) async {
+    switch (route.operationId) {
+      case 'updateProfile':
+        final body = fixture?.body;
+        if (fixture?.status != 200 || body is! Map<String, Object?>) {
+          return null;
+        }
+        final base = _profile ?? _profileOf(body);
+        if (base == null) {
+          return null;
+        }
+        final patch = decodeJsonObject(options.data);
+        final merged = _profile = {
+          ...base,
+          for (final field in _profilePatchFields)
+            if (patch.containsKey(field)) field: patch[field],
+        };
+        return _ok(200, {...body, 'profile': merged});
+      case 'getProfile':
+        if (fixture != null) {
+          return null;
+        }
+        final profile = _profile ?? await _savedProfileFixture();
+        return profile == null ? null : _ok(200, profile);
+      default:
+        return null;
+    }
+  }
+
+  /// 시나리오 `updateProfile` 파일의 첫 200 응답의 `profile`. 없으면 null입니다.
+  Future<Map<String, Object?>?> _savedProfileFixture() async {
+    final found = await findFixtureSource(const ['updateProfile.json']);
+    if (found == null) {
+      return null;
+    }
+    for (final response in _parseFixture(found.source, found.key)) {
+      final body = response.body;
+      if (response.status == 200 && body is Map<String, Object?>) {
+        return _profileOf(body);
+      }
+    }
+    return null;
+  }
+
   /// 시나리오의 `listSchedules` 파일(첫 응답이 200일 때 그 `items`)로 저장소를 시작합니다.
   /// 파일이 없으면 빈 저장소입니다. 시각은 시나리오 시계(오늘 현지 정오)입니다.
   Future<FakeScheduleStore> _loadScheduleStore() async {
@@ -414,6 +473,21 @@ final class FakeServerInterceptor extends Interceptor {
 
 /// 대역 일기 저장소가 답하는 operation.
 const _diaryOperations = {'listDiaries', 'getDiary', 'putDiary', 'deleteDiary'};
+
+/// `ProfilePatch`의 필드. 대역 프로필 저장이 이 필드만 덮습니다.
+const _profilePatchFields = {
+  'honorific',
+  'language',
+  'currentTimezone',
+  'birth',
+  'notification',
+};
+
+/// 프로필 저장 응답 본문의 `profile`을 복사해 돌려줍니다. 없으면 null입니다.
+Map<String, Object?>? _profileOf(Map<String, Object?> body) {
+  final profile = body['profile'];
+  return profile is Map ? Map<String, Object?>.from(profile) : null;
+}
 
 /// 대역 일정 저장소가 답하는 operation.
 const _scheduleOperations = {

@@ -19,7 +19,9 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-/// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 로케일 ko.
+/// 테스트용으로 바꾸는 provider: 메모리 DB, 메모리 보안 저장소, 앱 버전 1.0.0, 기기 로케일 ko.
+///
+/// 기기 로케일만 덮으므로 앱 로케일은 프로필 사본의 언어를 따릅니다(A60).
 ///
 /// [database]를 주면 그 실행기로 DB를 엽니다(여러 컨테이너가 같은 파일을 공유할 때).
 ///
@@ -36,7 +38,7 @@ List<Override> testOverrides({
     return db;
   }),
   secureStoreProvider.overrideWithValue(MemorySecureStore()),
-  if (locale != null) localeProvider.overrideWithValue(locale),
+  if (locale != null) deviceLocaleProvider.overrideWithValue(locale),
   appVersionProvider.overrideWith((ref) => Version(1, 0, 0)),
 ];
 

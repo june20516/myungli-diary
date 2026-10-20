@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
+import 'package:myungli_diary/app/profile_language.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
@@ -72,9 +73,10 @@ Future<ProviderContainer> bootstrap({
   final container = ProviderContainer(
     overrides: [
       apiModeProvider.overrideWithValue(resolvedMode),
-      if (locale != null) localeProvider.overrideWithValue(locale),
+      if (locale != null) deviceLocaleProvider.overrideWithValue(locale),
       ...entryOverrides,
       ...profileTimezoneOverrides,
+      ...profileLanguageOverrides,
       ...depthSheetBodyOverrides,
       ...daySheetBodyOverrides,
       ...realPlatformOverrides(resolvedMode),

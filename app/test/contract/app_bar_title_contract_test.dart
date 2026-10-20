@@ -31,6 +31,7 @@ const Map<String, String> _barTitleKeys = {
   'saju-chart': 'sajuChartBarTitle',
   'event-edit': 'eventEditBarTitle',
   'calc-basis': 'calcBasisBarTitle',
+  'settings': 'settingsBarTitle',
 };
 
 /// ARB에 "임시" 표시가 남아도 되는 키(슬롯이 없는 접근성 라벨·writing 원고 대기 문구).

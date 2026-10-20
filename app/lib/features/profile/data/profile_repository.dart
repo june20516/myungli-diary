@@ -24,7 +24,8 @@ Future<Profile?> readCachedProfile(CacheStore cache) async {
 
 /// 프로필 저장과 사본 캐시(결정 A18).
 ///
-/// 프로필을 읽는 GET이 없어, 저장 응답의 `profile`을 계정 범위 캐시에 사본으로 둡니다.
+/// 저장 응답의 `profile`을 계정 범위 캐시에 사본으로 둡니다. 사본이 없으면 [fetch]로
+/// server의 프로필을 받아 사본으로 둡니다.
 final class ProfileRepository {
   /// `api`로 저장하고 `cache`에 사본을 둡니다. 사본이 바뀌면 `onCacheChanged`를 부릅니다.
   const new(this._api, this._cache, {this.onCacheChanged});
@@ -46,6 +47,22 @@ final class ProfileRepository {
   /// 사본을 읽습니다. 없으면 null입니다.
   Future<Profile?> cached() => readCachedProfile(_cache);
 
+  /// server의 프로필(`getProfile`)을 받아 사본으로 둡니다. 사본이 없을 때(새 기기·재설치,
+  /// #312) 씁니다.
+  Future<Profile> fetch() async {
+    final Profile? profile;
+    try {
+      profile = (await _api.getProfile()).data;
+    } on DioException catch (e) {
+      throw appErrorFrom(e);
+    }
+    if (profile == null) {
+      throw UnexpectedError(StateError('빈 응답'));
+    }
+    await _keep(profile);
+    return profile;
+  }
+
   Future<ProfileResponse> _save(
     Future<Response<ProfileResponse>> Function() request,
   ) async {
@@ -58,14 +75,18 @@ final class ProfileRepository {
     if (data == null) {
       throw UnexpectedError(StateError('빈 응답'));
     }
+    await _keep(data.profile);
+    return data;
+  }
+
+  Future<void> _keep(Profile profile) async {
     await _cache.write(
       CacheKind.profile,
       profileCacheKey,
-      jsonEncode(data.profile.toJson()),
+      jsonEncode(profile.toJson()),
       // 근거 잠금과 무관한 값입니다. `CacheStore.write`의 필수 인자라 채웁니다.
       access: EvidenceAccess.unlocked,
     );
     onCacheChanged?.call();
-    return data;
   }
 }

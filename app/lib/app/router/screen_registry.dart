@@ -13,6 +13,7 @@ import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart
 import 'package:myungli_diary/features/diary/presentation/tag_diary_screen.dart';
 import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/saju_chart_screen.dart';
+import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -171,6 +172,11 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: sajuChartHandledStates,
     exits: sajuChartExits,
   ),
+  ScreenIds.settings: const ScreenSpec(
+    ScreenIds.settings,
+    _buildSettings,
+    exits: settingsExits,
+  ),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -234,3 +240,5 @@ Widget _buildTagDiary(BuildContext context) => const TagDiaryScreen();
 Widget _buildMySaju(BuildContext context) => const MySajuScreen();
 
 Widget _buildSajuChart(BuildContext context) => const SajuChartScreen();
+
+Widget _buildSettings(BuildContext context) => const SettingsScreen();

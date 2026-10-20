@@ -43,4 +43,22 @@ void main() {
     );
     expect(await tester.runAsync(repository.cached), isNull);
   });
+
+  testWidgets('사본이 없으면 profileProvider가 getProfile로 받아 사본으로 둔다(#312)', (
+    tester,
+  ) async {
+    final container = (await tester.runAsync(
+      () => bootstrapForTest('member'),
+    ))!;
+    addTearDown(container.dispose);
+    await tester.runAsync(() => container.read(entryStateProvider.future));
+    final repository = container.read(profileRepositoryProvider);
+    expect(await tester.runAsync(repository.cached), isNull);
+
+    final profile = await tester.runAsync(
+      () => container.read(profileProvider.future),
+    );
+    expect(profile?.honorific, '하늘');
+    expect((await tester.runAsync(repository.cached))?.honorific, '하늘');
+  });
 }

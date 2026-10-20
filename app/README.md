@@ -42,7 +42,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `member` | 로그인한 회원. 약관 동의, 프로필 있음 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
   | `profile-required` | 약관 동의했지만 프로필 없음. 프로필을 저장하면 내 정보가 프로필 있음으로 바뀝니다 |
-  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아님 |
+  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아니고 프로필 언어가 en이라 앱이 영어입니다(A60) |
   | `force-update` | 최소 앱 버전이 99.0.0이라 업데이트 필요 |
   | `offline` | 네트워크에 연결할 수 없음 |
   | `overseas` | 한국 밖(기기 지역 US) 기기에서 처음 설치한 사용자. 시진 확인 줄과 출생지 질문 갈래를 확인합니다 |
@@ -76,10 +76,13 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `reward-unavailable` | 로그인한 회원. 볼 수 있는 보상형 광고가 없어 근거 시트의 광고 버튼이 꺼지고 안내가 보입니다 |
   | `reward-dismissed` | 로그인한 회원. 보상형 광고를 끝까지 보지 않고 닫아 근거 시트가 잠긴 그대로입니다 |
   | `reward-failed` | 로그인한 회원. 보상형 광고를 표시하지 못해 오류 toast를 보고 근거 시트가 잠긴 그대로입니다 |
+  | `ad-free-active` | 로그인한 회원. 광고 제거권이 활성이라(getMe `adFree`, 한국 시각 11월 12일 만료) 설정의 광고 제거 줄에 만료 날짜가 보입니다 |
 
   `new-user`와 `profile-required`의 내 정보(getMe)는 호출 순서대로 바뀌며 **두 번째부터 "프로필 있음"**입니다(미리보기·동의 직후 프로필 저장을 흉내 냄). 그래서 fake 모드 수동 확인에서 `new-user`로 미리보기 없이 로그인·동의하거나 `profile-required`에서 저장 없이 진입을 다시 계산해도 프로필이 생긴 것처럼 진행됩니다. 미리보기 없이 로그인한 새 계정은 `new-user-signin`으로 확인합니다.
 
   일기(`listDiaries`·`getDiary`·`putDiary`·`deleteDiary`)는 시나리오마다 새로 만드는 메모리 저장소가 답합니다(`lib/core/api/fake/fake_diary_store.dart`). 처음 내용은 시나리오의 `listDiaries`·`getDiary` 200 응답이고, 쓰면 목록과 그날 일기에 생기고 지우면 사라집니다. 새 일기의 태그·질문은 그날 `getDaily` fixture에서 가져오고, 오늘 뒤 날짜는 422 `diary.future_date`, 없는 일기는 404 `diary.not_found`입니다. 앱을 다시 띄우면 처음 내용으로 돌아갑니다.
+
+  프로필 저장(`updateProfile`)은 시나리오 파일이 200이면 보낸 필드만 그 응답의 프로필에 덮어 답하고(merge-patch) 다음 저장은 그 결과에서 이어 갑니다. 그래서 설정에서 언어·알림을 바꾸면 앱에 그대로 보입니다. 200이 아닌 파일(오류 시나리오)은 파일이 답합니다. 프로필 읽기(`getProfile`)는 파일이 없으면 마지막으로 저장한 프로필, 그것도 없으면 `updateProfile` 200 파일의 프로필입니다.
 
   원본은 `fixtures/scenarios.json`입니다. `extends`로 다른 시나리오의 fixture를 이어받습니다. `rewardedAd`(`earned`·`dismissed`·`unavailable`·`failed`, 생략하면 `earned`)는 보상형 광고 대역의 결과이고, 이어받지 않고 시나리오마다 정합니다.
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).

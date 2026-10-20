@@ -43,6 +43,14 @@ CalendarDate? dateOfQuery(String? source) {
   }
 }
 
+/// 온보딩 입력 화면 [screenId]를 프로필 수정 모드로 여는 경로(`/<id>?mode=edit`, A19).
+///
+/// `profile-edit`과 `settings`(출생지 안내)가 씁니다. 화면은 값을 `pop`으로 돌려줍니다.
+String editModePathOf(String screenId) => Uri(
+  path: pathOf(screenId),
+  queryParameters: {onboardingModeQuery: onboardingModeEdit},
+).toString();
+
 /// 태그 모아보기(`tag-diary`)의 query 이름. 값은 태그 키(`Tag.key`)입니다.
 const String tagQuery = 'tag';
 

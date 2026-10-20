@@ -106,7 +106,7 @@ class NotifyAskController extends Notifier<void> {
           .read(deviceRepositoryProvider)
           .register(
             fcmToken: token,
-            platform: _platformOf(ref.read(targetPlatformProvider)),
+            platform: devicePlatformOf(ref.read(targetPlatformProvider)),
             idempotencyKey: registerKey.key,
           );
     }
@@ -137,7 +137,8 @@ class NotifyAskController extends Notifier<void> {
   }
 }
 
-DevicePlatform _platformOf(TargetPlatform platform) => switch (platform) {
+/// 기기 등록에 보낼 플랫폼. 푸시 알림은 iOS와 Android만 지원합니다(notify-ask·설정이 함께 씀).
+DevicePlatform devicePlatformOf(TargetPlatform platform) => switch (platform) {
   TargetPlatform.iOS => DevicePlatform.ios,
   TargetPlatform.android => DevicePlatform.android,
   _ => throw UnsupportedError('푸시 알림은 iOS와 Android만 지원합니다.'),

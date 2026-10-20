@@ -13,13 +13,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
+import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
+import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 
 import '../support/app_harness.dart';
 import '../support/chart_network.dart';
@@ -159,6 +163,51 @@ Future<void> _sajuPersonal(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
+/// 설정을 열고 [after]로 화면 안을 더 조작합니다.
+_Open _settings({Future<void> Function(WidgetTester tester)? after}) =>
+    (tester, container) async {
+      unawaited(
+        container.read(routerProvider).push<void>(pathOf(ScreenIds.settings)),
+      );
+      await pumpUntilScreen(tester, ScreenIds.settings);
+      await settleWithIo(tester);
+      await after?.call(tester);
+    };
+
+Future<void> _tapAndSettle(WidgetTester tester, Finder finder) async {
+  await tester.tap(finder);
+  await settleWithIo(tester);
+}
+
+/// 알림 시각 시트를 열고 켭니다.
+Future<void> _settingsNotify(WidgetTester tester) async {
+  await _tapAndSettle(tester, find.byKey(SettingsScreen.notifyRowKey));
+  await _tapAndSettle(
+    tester,
+    find.descendant(
+      of: find.byKey(NotifyTimeSheet.sheetKey),
+      matching: find.byKey(SettingsRow.toggleKey),
+    ),
+  );
+}
+
+/// 언어 시트를 엽니다.
+Future<void> _settingsLanguage(WidgetTester tester) =>
+    _tapAndSettle(tester, find.byKey(SettingsScreen.languageRowKey));
+
+/// 언어를 English로 바꿔 출생지 안내 시트를 띄웁니다.
+Future<void> _settingsBirthplaceNotice(WidgetTester tester) async {
+  await _settingsLanguage(tester);
+  await _tapAndSettle(tester, find.byKey(LanguageSheet.rowKey(Language.en)));
+}
+
+/// 로그아웃 확인 창을 엽니다.
+Future<void> _settingsLogout(WidgetTester tester) async {
+  await tester.ensureVisible(find.byKey(SettingsScreen.logoutRowKey));
+  await tester.pumpAndSettle();
+  await _tapAndSettle(tester, find.byKey(SettingsScreen.logoutRowKey));
+}
+
 /// 등록할 화면·상태. 계획 2~6에서 만든 화면입니다.
 final List<_Shot> _shots = [
   // 계획 2: 온보딩·로그인
@@ -262,6 +311,32 @@ final List<_Shot> _shots = [
     'personal-locked',
     'member',
     _sajuChart(after: _sajuPersonal),
+  ),
+  _Shot('settings', 'default', 'member', _settings()),
+  _Shot('settings', 'ad-free', 'ad-free-active', _settings()),
+  _Shot(
+    'settings',
+    'notify-sheet',
+    'member',
+    _settings(after: _settingsNotify),
+  ),
+  _Shot(
+    'settings',
+    'language-sheet',
+    'member',
+    _settings(after: _settingsLanguage),
+  ),
+  _Shot(
+    'settings',
+    'birthplace-notice',
+    'member',
+    _settings(after: _settingsBirthplaceNotice),
+  ),
+  _Shot(
+    'settings',
+    'logout-confirm',
+    'member',
+    _settings(after: _settingsLogout),
   ),
 ];
 
