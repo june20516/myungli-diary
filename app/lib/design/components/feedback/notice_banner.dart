@@ -50,6 +50,7 @@ class NoticeBanner extends StatelessWidget {
     required this.variant,
     required this.message,
     this.present = true,
+    this.identifier,
     super.key,
   });
 
@@ -69,6 +70,9 @@ class NoticeBanner extends StatelessWidget {
   /// 보이는지. false가 되면 사라지는 움직임 뒤 자리가 비워집니다.
   final bool present;
 
+  /// IA 슬롯 id. 있으면 Key와 Semantics `identifier`로 붙입니다.
+  final String? identifier;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
@@ -76,8 +80,10 @@ class NoticeBanner extends StatelessWidget {
     return SeepPresence(
       present: present,
       child: LiveAnnouncement(
+        key: identifier == null ? null : ValueKey<String>(identifier!),
         label: message,
         role: SemanticsRole.status,
+        identifier: identifier,
         child: Padding(
           padding: const EdgeInsets.only(bottom: Space.s16),
           child: DecoratedBox(

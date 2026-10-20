@@ -17,7 +17,6 @@ import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
-import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
@@ -38,7 +37,7 @@ final class _Network extends Interceptor {
 }
 
 final class _Harness {
-  _Harness(this.container, this.server, this.network);
+  new(this.container, this.server, this.network);
 
   final ProviderContainer container;
   final FakeServerInterceptor server;

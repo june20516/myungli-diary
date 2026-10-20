@@ -137,6 +137,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     if (failureMessage != null) ...[
                       LiveAnnouncement(
                         key: loginErrorKey,
+                        identifier: SlotIds.loginErrorBody,
                         label: failureMessage,
                         role: SemanticsRole.alert,
                         child: Text(

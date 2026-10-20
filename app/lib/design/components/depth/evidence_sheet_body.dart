@@ -43,6 +43,7 @@ class EvidenceSheetBody extends StatefulWidget {
   const new({
     required this.state,
     required this.title,
+    this.titleSlotId,
     this.pillars,
     this.basis = const [],
     this.source = const [],
@@ -65,6 +66,10 @@ class EvidenceSheetBody extends StatefulWidget {
 
   /// 시트 제목(`type.title`).
   final String title;
+
+  /// 시트 제목의 IA 슬롯 id(`evidence-sheet.sheet.title`). 있으면 Key와 Semantics
+  /// `identifier`로 붙입니다.
+  final String? titleSlotId;
 
   /// 원국표(`saju-pillars`). 표 데이터라 잠기지 않습니다.
   final Widget? pillars;
@@ -143,10 +148,16 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  widget.title,
-                  style: tokens.typography.title.copyWith(
-                    color: tokens.colors.textPrimary,
+                Semantics(
+                  identifier: widget.titleSlotId,
+                  child: Text(
+                    widget.title,
+                    key: widget.titleSlotId == null
+                        ? null
+                        : ValueKey<String>(widget.titleSlotId!),
+                    style: tokens.typography.title.copyWith(
+                      color: tokens.colors.textPrimary,
+                    ),
                   ),
                 ),
                 if (pillars != null)

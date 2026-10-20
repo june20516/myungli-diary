@@ -308,6 +308,15 @@ void main() {
     await _tapSave(tester);
 
     expect(find.text(_ko.eventEditSaveFailed), findsOneWidget);
+    // D77: 저장 실패 toast·저장 버튼은 IA 슬롯입니다.
+    expect(
+      find.byKey(const ValueKey(SlotIds.eventEditSaveFailed)),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<PrimaryButton>(_save).identifier,
+      SlotIds.eventEditSaveCta,
+    );
     expect(_screen, findsOneWidget);
     expect(find.text('산책'), findsOneWidget);
     expect(_bannerShown(tester), isFalse);
