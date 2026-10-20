@@ -43,9 +43,8 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-0. **#272 먼저 (지휘 2026-10-20):** `internal/content/texts_test.go`의 로그 검사가 줄 전체 문자열에서 `"80"`을 찾아 로그 시각(`.800`)에 걸려 간헐 실패합니다. 시각과 탐지 값 80은 그대로 두고, `time`을 뺀 속성 값만 보는 도우미로 좁힙니다(#272 코멘트). P6 첫 PR에 함께 넣어도 됩니다.
-1. **P6(비로그인·참조)를 계획합니다:** 넘길 메모는 [`docs/plans/README.md`](docs/plans/README.md).
+0. #272(로그 검사 간헐 실패)는 PR #274로 처리했습니다. 병합되면 닫힙니다.
+1. **P6(비로그인·참조)를 구현합니다:** 계획 [`docs/plans/2026-10-20-p6-public-reference.md`](docs/plans/2026-10-20-p6-public-reference.md)(브랜치 `server/p6-public`). 계약 draft.8(설명만)은 P6 PR에 함께 담습니다.
 2. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-3. `City.longitude`는 `listCities`(P6)에서 채웁니다.
-4. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)은 P9에서 합니다. #93(staging 테스트 로그인)도 설계(S24)가 끝났고 구현은 P6/P9입니다.
-5. app 질문(#100·#114·#165)이 오면 답합니다.
+3. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)은 P9에서 합니다. staging 테스트 로그인(#93) 구현은 P6 Task 8입니다.
+4. app 질문(#100·#114·#165)이 오면 답합니다.
