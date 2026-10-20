@@ -163,7 +163,8 @@ void main() {
           _screen(ScreenIds.mySaju).evaluate().isNotEmpty &&
           _screen(ScreenIds.profileEdit).evaluate().isEmpty,
     );
-    await expectScreen($, ScreenIds.mySaju, state: 'recalculated');
+    // 화면 도착만 확인합니다. 새 원국 내용은 흐름 테스트(me_journey_flow_test)가 봅니다.
+    await expectScreen($, ScreenIds.mySaju, state: 'after-edit');
 
     // 톱니 → 설정 → 로그아웃 → 확인 → welcome.
     await $(find.byKey(MySajuScreen.settingsKey)).tap();

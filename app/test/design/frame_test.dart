@@ -26,6 +26,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../support/error_text_style.dart';
+import '../support/sheet_close.dart';
 
 const MotionPrefs _normal = MotionPrefs(
   reduceMotion: false,
@@ -1392,7 +1393,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(MyungliSheetFrame), findsNWidgets(2));
 
-      await tester.tapAt(const Offset(10, 10));
+      await tapSheetScrim(tester);
       await tester.pumpAndSettle();
 
       expect(find.byType(MyungliSheetFrame), findsNothing);

@@ -28,6 +28,7 @@ import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
 import '../../support/depth_link_finders.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
+import '../../support/sheet_close.dart';
 
 final _ko = AppLocalizationsKo();
 
@@ -267,7 +268,7 @@ void main() {
       handle.dispose();
 
       // 시트를 닫으면 묻기를 멈추고, 닫힌 화면에 toast가 뜨지 않습니다(Review Focus 5).
-      await tester.tapAt(const Offset(10, 10));
+      await tapSheetScrim(tester);
       await pumpUntil(tester, () => _sheet.evaluate().isEmpty);
       await tester.pump(const Duration(minutes: 11));
       expect(find.byType(ToastPill), findsNothing);

@@ -42,6 +42,7 @@ import '../support/app_harness.dart';
 import '../support/chart_network.dart';
 import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart';
+import '../support/sheet_close.dart';
 import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
@@ -154,13 +155,6 @@ Future<void> _openPersonal(WidgetTester tester, Finder term) async {
   await tester.tap(depthLinkTarget(of: explain));
   await settleWithIo(tester);
   expect(_evidenceSheet, findsOneWidget);
-}
-
-/// [sheet]가 담긴 시트 route를 닫습니다(누를 자리를 짐작하지 않음).
-Future<void> _closeSheet(WidgetTester tester, Finder sheet) async {
-  Navigator.of(tester.element(sheet)).pop();
-  await tester.pumpAndSettle();
-  expect(sheet, findsNothing);
 }
 
 /// 열린 근거 시트가 받은 원국 개인 해석의 자리.
@@ -368,7 +362,7 @@ void main() {
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsNothing);
 
     // 시트를 닫으면 사주 표의 용신 판정 근거가 문장으로 보입니다.
-    await _closeSheet(tester, _evidenceSheet);
+    await closeSheet(tester, _evidenceSheet);
     final basis = tester.widget<SentenceBlock>(_yongsinBasis);
     expect(basis.locked, isFalse);
     expect(
@@ -516,8 +510,8 @@ void main() {
     expect(_personalText('이 12운성 자리는'), findsOneWidget);
 
     // 근거 시트와 풀이 시트를 닫고 신살 칸을 누릅니다.
-    await _closeSheet(tester, _evidenceSheet);
-    await _closeSheet(tester, find.byKey(const Key(ScreenIds.explainSheet)));
+    await closeSheet(tester, _evidenceSheet);
+    await closeSheet(tester, find.byKey(const Key(ScreenIds.explainSheet)));
     final shinsal = tester
         .widget<ManseTable>(_inChart(find.byType(ManseTable)))
         .day
