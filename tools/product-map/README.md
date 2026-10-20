@@ -23,7 +23,7 @@
 | `gh issue list` (실패하면 빈 목록) | 열린 Issue, 역 상세 |
 
 ## 갱신 (지휘 세션 정기 일과)
-1. 지휘 worktree를 `main` 최신으로 맞춥니다: `git fetch origin && git merge origin/main`
+1. 지휘 디렉터리(본 저장소)를 `main` 최신으로 맞춥니다: `git fetch origin && git merge origin/main`
 2. 데이터를 만들고 페이지를 함께 둡니다. 출력 디렉터리는 세션 scratchpad를 씁니다.
    ```
    OUT=<scratchpad>/product-map

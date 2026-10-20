@@ -29,7 +29,7 @@
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
 | `docs/coordination/` | 지휘 | 이관 전 문서 보관소 |
-| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**은 주는 쪽이 계약 PR에서 직접 고치거나 새로 넣습니다. 새 계약 파일이 받는 쪽 검사와 맞물리면 `ci-gate`의 drift 경로에 넣어 달라고 지휘에게 요청합니다. 표의 열 구성과 표 밖 내용은 지휘가 합니다 |
+| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/ia/`, `docs/specs/`, `docs/plans/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**은 주는 쪽이 계약 PR에서 직접 고치거나 새로 넣습니다. 새 계약 파일이 받는 쪽 검사와 맞물리면 `ci-gate`의 drift 경로에 넣어 달라고 지휘에게 요청합니다. 표의 열 구성과 표 밖 내용은 지휘가 합니다 |
 | 단위의 `CLAUDE.md` | 해당 단위 | 지휘는 착수 안내나 공통 규약 정리 때만 고치고 PR 본문에 적습니다 |
 
 ## 3. 서브 프로젝트의 작업 주기
@@ -64,7 +64,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 ### 5.1. 계약
 * 목록과 상태는 `docs/contracts/README.md`에 있고, 버전의 기준은 이 표 하나입니다. 단위 `CLAUDE.md`의 계약 표는 역할(제공·사용)과 상대만 적습니다.
 * 계약은 **제공하는 쪽만** 바꿉니다. 사용하는 쪽은 요청합니다. 제공하는 쪽은 계약 PR에서 위 표의 자기 행도 함께 고칩니다(§2).
-* 하위 호환이 깨지는 변경은 다음 절차를 따릅니다: ① `kind:notice` Issue로 공지 ② 계약 버전 올림 ③ 사용하는 쪽이 대응을 마쳤다고 보고한 뒤 이전 버전 제거.
+* 하위 호환이 깨지는 변경은 다음 절차를 따릅니다: ① 사용하는 쪽마다 `kind:request` Issue로 알림(대응해야 하는 일이라 request, D78) ② 계약 버전 올림 ③ 사용하는 쪽이 대응을 마쳤다고 보고한 뒤 이전 버전 제거. 대응이 필요 없는 고지만 `kind:notice`입니다.
 
 ### 5.2. 요청함: GitHub Issues (D44)
 * 브랜치와 상관없이 모든 세션이 같은 목록을 봅니다.
@@ -75,13 +75,14 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   | `kind:request` | 요청을 처리한 PR이 병합될 때. PR 본문의 `Closes #<번호>`로 자동으로 닫힙니다 | 받는 쪽 |
   | `kind:notice` | 받는 쪽이 읽고 자기 `CLAUDE.md`(현재 상태·다음 할 일)에 반영했을 때. 반영한 위치를 코멘트로 남깁니다. 지휘 세션이 착수 안내로 받는 쪽 `CLAUDE.md`를 이미 고쳤다면 지휘 세션이 닫습니다. 진행 추적은 로드맵이 맡습니다 | 받는 쪽 |
   | `kind:report` | 지휘 세션이 확인했을 때 | 지휘 |
+  | (모든 종류) | 처리했다는 코멘트만 남고 열려 있을 때 | 지휘가 대신 닫을 수 있음(D78). 받는 쪽에 닫아 달라고 남겨도 됩니다 |
   | `kind:task` | 작업이 끝났을 때 | 받는 쪽 |
 * **받는 쪽에 일을 시키는 공지는 `kind:request`로 엽니다.** 공지(`kind:notice`)는 알리기만 합니다. 수령으로 닫혀도 남은 일이 목록에서 사라지지 않게 하려는 것입니다.
 * **일부만 처리했으면** 처리한 부분으로 닫고, 남은 부분은 새 Issue로 엽니다. 새 Issue 번호를 닫는 코멘트에 남깁니다.
-* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `ci-gate`의 `pr-body` 검사가 둘 중 하나가 있는지 확인합니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다.
+* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `ci-gate`의 `pr-body` 검사가 둘 중 하나가 있는지 확인합니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다. `pr-body` 검사가 `참고 #`를 인정하기 전까지는 `처리한 Issue: 없음`을 함께 적습니다(D78).
 * **라벨:** `from:<단위>`, `to:<단위>`(단위: `root`, `core`, `server`, `app`, `writing`, `design`), `kind:request`·`kind:report`·`kind:notice`·`kind:task`, `blocking`(다른 작업을 막음)
 * **상태:** 열림 → 지휘 세션이 `accepted` 또는 `rejected` 라벨(거절은 닫음) → 받는 쪽이 처리하고 닫음. 완료 보고(`kind:report`)는 지휘 세션이 확인하고 닫습니다.
-* **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다.
+* **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다. `ci-gate`가 자동으로 여는 `drift` Issue는 마일스톤 없이 열리고, `accepted`는 지휘가 정기 일과에서 붙입니다.
 * **코드가 아닌 지속 작업**(검수 라운드, 콘텐츠, 시안 반복)도 `kind:task` Issue로 엽니다.
 * **결정은 git에:** Issue에서 정한 결정은 결정 로그(§4)에 적고, 그 번호를 Issue에 남깁니다.
 * `docs/coordination/`은 이관 전(2026-10-10) 문서의 보관소입니다. 새 문서는 만들지 않습니다.
@@ -90,9 +91,9 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 저장소: `june20516/myungli-diary` (모노레포, D33).
 * **`main` 중심, 짧은 브랜치 (D44):** 브랜치는 마일스톤 하나나 task 몇 개 단위로 짧게 씁니다. 이름은 `<단위>/<주제>`(예: `core/engine-mvp`, `writing/rounds-2026-10-11`). 지휘 세션은 `root/<주제>`.
 * **세션 시작:** `git fetch origin && git merge origin/main`.
-* **계약 먼저 병합:** 다른 단위가 기대는 계약(proto, `message_keys.json`, 디자인 토큰, IA, 슬롯 명세, 호칭·조사 규칙, REST API 명세)이 확정되면, 구현 브랜치 전체를 기다리지 않고 **계약 파일만 담은 작은 PR**로 먼저 `main`에 넣습니다. 받는 쪽 검사는 이 PR에서 경고만 내고(§6.1), 받는 쪽이 다음 PR에서 따라잡습니다.
+* **계약 먼저 병합:** 다른 단위가 기대는 계약(proto, `message_keys.json`, 디자인 토큰, IA, 슬롯 명세, 호칭·조사 규칙, REST API 명세)이 확정되면, 구현 브랜치 전체를 기다리지 않고 **계약 파일만 담은 작은 PR**로 먼저 `main`에 넣습니다. 받는 쪽 검사는 이 PR에서 경고만 내고(§6.1), 받는 쪽이 다음 PR에서 따라잡습니다. **예외(D78):** 설명·주석만 바뀌고 동작이 같은 계약 변경은 구현 PR에 함께 담아도 됩니다(예: REST draft.7, S64).
 * **병합:** 모든 변경은 PR → `ci-gate` 통과 → merge commit으로 합칩니다. 단위 PR은 사용자가, 지휘의 `root/` PR은 지휘가 병합합니다. **`main`에 직접 push하지 않습니다**(D43). 보호 규칙은 아직 걸지 않아 규약으로 지키고, `ci-gate`가 `main` push에서도 돌아 사후에 잡습니다(공개 전환 뒤 보호 규칙은 §8).
-* 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git worktree add ../myungli-diary-core -b core/<주제> --no-track origin/main`. 만든 직후 `git status -sb`로 확인합니다.
+* 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git worktree add ../myungli-diary-core -b core/<주제> --no-track origin/main`. 만든 직후 `git push -u origin <브랜치>`로 같은 이름의 원격을 추적하게 하고 `git status -sb`로 확인합니다.
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
 * commit 메시지의 범위 표기: `feat(core): …`, `fix(server): …`, `docs(root): …`.
 * **같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다.** 그래서 디렉터리를 단위마다 하나씩 고정해 둡니다.
@@ -101,7 +102,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   | `myungli-diary` (본 저장소) | 지휘 |
   | `../myungli-diary-<단위>` (`git worktree`) | core, server, app, writing, design |
   | `../myungli-diary-internal` (**별도 비공개 저장소**, worktree 아님) | 지휘만. 수익화 기록·아이디어 함·제품 배경 원문(D74). 공개 저장소는 이곳을 링크하거나 CI에서 읽지 않습니다 |
-* **단위의 worktree는 한 번 만들고 재사용합니다.** 브랜치가 병합되면 디렉터리를 새로 만들지 않고 그 안에서 브랜치만 바꿉니다: `git fetch origin && git switch -c <단위>/<주제> --no-track origin/main && git push -u origin <단위>/<주제>`. 단위의 worktree가 아직 없을 때만 `git worktree add ../myungli-diary-<단위> -b <브랜치> --no-track origin/main`으로 만듭니다.
+* **단위의 worktree는 한 번 만들고 재사용합니다.** 브랜치가 병합되면 디렉터리를 새로 만들지 않고 그 안에서 브랜치만 바꿉니다: `git fetch origin && git switch -c <단위>/<주제> --no-track origin/main && git push -u origin <단위>/<주제> && git status -sb`. 단위의 worktree가 아직 없을 때만 `git worktree add ../myungli-diary-<단위> -b <브랜치> --no-track origin/main && cd ../myungli-diary-<단위> && git push -u origin <브랜치> && git status -sb`로 만듭니다.
 * **착수 안내는 한 덩어리 명령으로 적습니다.** 그 디렉터리가 지금 어느 브랜치에 있든 따라 할 수 있게, `cd ../myungli-diary-<단위>` → 위의 브랜치 바꾸기(없으면 worktree 만들기) → `cd <시작 디렉터리> && claude` 순서로 씁니다. 다른 단위 브랜치 위에 쌓아야 하면 `origin/main`에서 딴 뒤 그 브랜치를 `git merge`합니다.
 * 릴리스 태그에는 접두어를 붙입니다: `core/v1.0.0`.
 
@@ -111,14 +112,14 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 | 검사 | 예 | 주는 쪽 PR | 받는 쪽 PR | `main` |
 | --- | --- | --- | --- | --- |
 | 자기 코드 | 각 단위의 테스트·린트 | 막음 | 막음 | 막음 |
-| 계약 자체의 유효성 | REST 생성·계약 테스트(server), `buf breaking`(core), docs 검사(IA·근거 용어집) | 막음 | - | 막음 |
+| 계약 자체의 유효성 | REST 생성·계약 테스트(server), `buf breaking`(core, PR에서만 비교), docs 검사(IA·근거 용어집) | 막음 | - | 막음 |
 | 단위 간 맞물림 | app 생성 코드 차이·ARB, writing의 IA 대조, server의 슬롯 대조, design의 IA 대조·라운드 원고 글자 수 | **경고** | 막음 | 경고 |
 
-* **판별:** PR이 그 단위의 소유 경로(또는 그 단위 workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다. `ci-gate.yml`만 바뀌었으면 `gate`입니다. 실패하면 막지만, 그 단위 앞으로 열린 `drift` Issue가 있으면 알려진 실패로 보고 경고만 남깁니다. 단위들이 병렬로 일하는 동안 drift가 0이 되는 때는 드물어, workflow 수정이 그때를 기다리지 않게 하려는 것입니다.
-* **과정 문서:** writing·design의 `CLAUDE.md`·`decisions.md`·`specs/`·`plans/`·`artifacts/`는 검사기가 읽지 않아 그 단위 검사를 고르지 않습니다(core·server·app은 `.md`만 바뀌면 고르지 않습니다). 그래서 지휘가 단위 `CLAUDE.md`를 고쳐도 그 단위의 열린 drift에 막히지 않습니다.
-* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에 `Closes #<drift Issue>`를 적습니다. 빠뜨려도 `main` push에서 그 단위 검사가 통과하면 `ci-gate`(`drift-close` job)가 그 단위 앞 drift Issue를 닫습니다. 그 커밋에서 통과했다는 것이 곧 그 커밋의 계약을 모두 따라잡았다는 뜻이기 때문입니다. 단, 원인 PR이 그 커밋에 들어 있는 Issue만 닫습니다(원인 PR이 열린 채 다른 PR이 먼저 병합되거나, 예전 실행을 다시 돌린 경우를 거릅니다). 원인 PR이 병합 없이 닫혔으면 not planned로 닫습니다.
+* **판별:** PR이 그 단위의 소유 경로(또는 그 단위 workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다. 그 단위의 소유·계약 경로는 바뀌지 않았고 `ci-gate.yml`이 바뀌었으면 `gate`입니다. 실패하면 막지만, 그 단위 앞으로 열린 `drift` Issue가 있으면 알려진 실패로 보고 경고만 남깁니다. 단위들이 병렬로 일하는 동안 drift가 0이 되는 때는 드물어, workflow 수정이 그때를 기다리지 않게 하려는 것입니다.
+* **과정 문서:** writing·design의 `CLAUDE.md`·`decisions.md`·`specs/`·`plans/`·`artifacts/`는 자기 검사기가 읽지 않아 그 단위 검사를 고르지 않습니다(writing `artifacts/`의 라운드 원고는 design 검사가 읽으므로 design에는 계약입니다)(core·server·app은 `.md`만 바뀌면 고르지 않습니다). 그래서 지휘가 단위 `CLAUDE.md`를 고쳐도 그 단위의 열린 drift에 막히지 않습니다.
+* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에 `Closes #<drift Issue>`를 적습니다. 빠뜨려도 `main` push에서 그 단위 검사가 통과하면 `ci-gate`(`drift-close` job)가 그 단위 앞 drift Issue를 닫습니다. 그 커밋에서 통과했다는 것이 곧 그 커밋의 계약을 모두 따라잡았다는 뜻이기 때문입니다. 단, 원인 PR이 그 커밋에 들어 있는 Issue만 닫습니다(원인 PR이 열린 채 다른 PR이 먼저 병합되거나, 예전 실행을 다시 돌린 경우를 거릅니다). 원인 PR이 병합 없이 닫혔으면, 이후 `main`에서 그 단위 검사가 통과할 때 not planned로 닫습니다(그 단위 검사가 돌지 않으면 남습니다).
 * **통합 시점:** 통합 마일스톤(I1~I4)은 열린 `drift` Issue가 0이어야 시작합니다. 지휘는 정기 일과에서 `drift` Issue를 확인합니다.
-* **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 지금처럼 `kind:notice`로 알립니다. REST는 S3 freeze 뒤에는 추가 변경만 합니다.
+* **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 §5.1대로 사용하는 쪽마다 `kind:request`로 알립니다(D78). REST는 S3 freeze 뒤에는 추가 변경만 합니다.
 * **쌓아서 함께 병합하기**(예: IA v2 #133 → #138 → #149)는 더 이상 기본이 아닙니다. 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
 
 ## 7. 시각 산출물 (`artifacts/`)
@@ -147,6 +148,5 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 | 배포 파이프라인(환경별 시크릿, 접두어 태그 릴리스) | 배포 플랫폼 결정 뒤(S1) |
 | iOS 빌드 | A1·I4. 로컬 Mac 또는 자체 러너. 호스티드 macOS는 분 단위 비용 10배 |
 | 의존성 자동 갱신(Dependabot) | MVP 안정화 뒤 |
-| slow 테스트 경로 조건 | core에 요청됨(Issue #5) |
 | `main` 보호 규칙 강제 | 공개 전환(D74)으로 조건이 됐습니다. `ci-gate`를 필수 검사로 지정할지 사용자가 정합니다 |
 

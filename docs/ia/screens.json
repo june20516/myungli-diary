@@ -1540,7 +1540,9 @@
         "sheet",
         "day-character",
         "event-row",
-        "term-token"
+        "term-token",
+        "depth-link",
+        "primary-button"
       ],
       "exits": [
         {
@@ -1643,7 +1645,8 @@
         "time-picker",
         "segmented",
         "primary-button",
-        "dialog"
+        "dialog",
+        "toast"
       ],
       "exits": [],
       "decisions": [
@@ -1859,7 +1862,8 @@
         "day-character",
         "sentence-block",
         "tag-chip",
-        "dialog"
+        "dialog",
+        "toast"
       ],
       "exits": [
         {
