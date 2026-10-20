@@ -47,6 +47,7 @@
 | login.title.head | ui | login.title.head |
 | login.title.body | ui | login.title.body |
 | login.discard.notice | ui | login.discard.notice |
+| login.error.body | ui | ui.login.error |
 | consent.bar.title | ui | consent.bar.title |
 | consent.title.head | ui | consent.title.head |
 | consent.required.label | ui | consent.required.label |
@@ -75,6 +76,7 @@
 | today.guide.cta | ui | today.guide.cta |
 | today.event.summary | ui | today.event.summary |
 | today.reaction.label | ui | today.reaction.label |
+| today.evidence.link | ui | ui.depth.evidence_link |
 | explain-sheet.term.meaning | content | term.meaning |
 | explain-sheet.today.reason | content | explain.today_reason |
 | evidence-sheet.basis.body | content | evidence.basis |
@@ -92,6 +94,7 @@
 | evidence-sheet.a11y.locked | ui | evidence-sheet.a11y.locked |
 | evidence-sheet.a11y.checking | ui | evidence-sheet.a11y.checking |
 | evidence-sheet.a11y.unlocked | ui | evidence-sheet.a11y.unlocked |
+| evidence-sheet.sheet.title | ui | ui.evidence.title |
 | share-preview.image.footer | ui | share-preview.image.footer |
 | share-preview.image.tagline | ui | share-preview.image.tagline |
 | share-preview.ratio.label | ui | share-preview.ratio.label |
@@ -109,6 +112,10 @@
 | event-edit.title.hint | ui | event-edit.title.hint |
 | event-edit.memo.hint | ui | event-edit.memo.hint |
 | event-edit.delete.confirm | ui | event-edit.delete.confirm |
+| event-edit.save.cta | ui | ui.event-edit.save |
+| event-edit.delete.cta | ui | ui.event-edit.delete |
+| event-edit.offline.notice | ui | ui.event-edit.offline |
+| event-edit.save.failed | ui | ui.event-edit.save-failed |
 | diary-list.bar.title | ui | diary-list.bar.title |
 | diary-list.empty.body | ui | diary-list.empty.body |
 | diary-list.pick-date.cta | ui | diary-list.pick-date.cta |
@@ -118,9 +125,11 @@
 | diary-edit.draft.status | ui | diary-edit.draft.status |
 | diary-edit.offline.notice | ui | diary-edit.offline.notice |
 | diary-edit.saved.tags | ui | diary-edit.saved.tags |
+| diary-edit.save.cta | ui | ui.diary-edit.save |
 | diary-view.bar.title | ui | diary-view.bar.title |
 | diary-view.character.label | content | glossary.value_name |
 | diary-view.delete.confirm | ui | diary-view.delete.confirm |
+| diary-view.deleted.toast | ui | ui.diary-view.deleted |
 | tag-diary.bar.title | ui | tag-diary.bar.title |
 | tag-diary.tag.meaning | content | term.meaning |
 | tag-diary.empty.body | ui | tag-diary.empty.body |

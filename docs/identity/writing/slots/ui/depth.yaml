@@ -97,6 +97,7 @@
   structure: "동작 이름 하나. 무엇을 보는지(근거)를 넣습니다."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: 25, en: 45, ja: 20}
+  ia: [today.evidence.link]
   components: [depth-link]
   keys:
     - depthLinkEvidence

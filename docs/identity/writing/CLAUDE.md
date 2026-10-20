@@ -45,7 +45,8 @@
 ## 현재 상태 (2026-10-20, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
-* **jev 판정 평가**(브랜치 `writing/jev-evaluation`, `artifacts/2026-10-20-jev-evaluation.md`, W32): `mlw judge` 본 판정은 `claude -p` 그대로입니다. jev는 갈린 문장 17건 중 15건이 오탐이었습니다. `--shadow jev`와 기록은 남깁니다. `claude -p`도 사람이 문제로 본 문장을 많이 놓쳐, W1-3 라운드에서 judge 표시와 사용자 선택을 함께 봅니다.
+* **IA D77 따라잡기**(브랜치 `writing/ia-d77`, W33, #278·#275 일부): IA ui 슬롯 9개를 `ia` 필드로 담고(ARB 키 이름 그대로), `ui.event-edit.form`의 버튼·안내 4개를 키별 슬롯으로 나눴습니다. 일기 저장 버튼·삭제 toast 원고(`diaryEditSave`·`diaryViewDeleted`). 슬롯 명세 v1.6.
+* **jev 판정 평가**(PR #263, `artifacts/2026-10-20-jev-evaluation.md`, W32): `mlw judge` 본 판정은 `claude -p` 그대로입니다. jev는 갈린 문장 17건 중 15건이 오탐이었습니다. `--shadow jev`와 기록은 남깁니다. `claude -p`도 사람이 문제로 본 문장을 많이 놓쳐, W1-3 라운드에서 judge 표시와 사용자 선택을 함께 봅니다.
 * **W1-2 사주·개인 해석**(PR #254, 계획 `plans/2026-10-16-w1-2-chart.md`, W31, #52·#237)
   * 명식(`chart.*` 24)·원국 개인 해석(`personal.*` 60)과 그 문장에 끼우는 값 이름 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김)의 3개 언어 원고. ja 조각은 W24 용어 표기 그대로이고, 빈 3개(閑神·極身弱·極身強)는 W1-3.
   * 라운드 R10(`artifacts/2026-10-17-round-R10.md`, W31): 개인 해석 둘째 문장은 오행 역할 사실, 오행 목·화·토·금·수, 역할 "나와 잘 맞는 기운"류. 가이드 질문 기준 ①②(과거형, 전제 없음) 확정과 3개 언어 23건 반영.
@@ -80,11 +81,12 @@
   * `engine.proto`가 바뀌면 `tools/gen_proto.sh`로 생성 코드를 다시 만듭니다(CI가 차이를 막습니다).
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
   * LLM 1차 거르기: `mlw judge docs/identity/writing/content --lang ko [--slot <id>]`(로컬 `claude` CLI 필요)
-* 결정은 W1~W32입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩).
+* 결정은 W1~W33입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
+   - **#275 남은 7개:** `diary-list.pick-date.cta`의 `{date}` 원고(app이 키를 `diaryListPickDateCta`로 맞춤), IA 밖 ui 키 `diaryViewEditAction`·`diaryViewDeleteAction`(아이콘 접근성 라벨)·`tagChipLabel({tag})`(글자 없는 틀)·`tagChipPolarityGood`·`Bad`·`Neutral`(태그 칩 스크린리더 길흉 낱말).
 2. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
 3. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
 4. **W1-3**(지금 할 일. design #260(달력 칸 윤달 초하루 표지 문구, ko 예 `윤6.1`, ja·en, 칸 폭 44px 한 줄)도 이 묶음에서 답합니다. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 보고, 원어민 검수를 받습니다. 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
