@@ -9,6 +9,7 @@ import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_edit_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/birthplace_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/force_update_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
@@ -143,6 +144,12 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: diaryEditHandledStates,
     exits: diaryEditExits,
   ),
+  ScreenIds.diaryView: const ScreenSpec(
+    ScreenIds.diaryView,
+    _buildDiaryView,
+    handledStates: diaryViewHandledStates,
+    exits: diaryViewExits,
+  ),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -198,3 +205,5 @@ Widget _buildEventEdit(BuildContext context) => const EventEditScreen();
 Widget _buildDiaryList(BuildContext context) => const DiaryListScreen();
 
 Widget _buildDiaryEdit(BuildContext context) => const DiaryEditScreen();
+
+Widget _buildDiaryView(BuildContext context) => const DiaryViewScreen();
