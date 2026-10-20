@@ -36,8 +36,9 @@ UPDATE schedules SET deleted_at = NULL
 WHERE id = @id AND account_id = @account_id AND deleted_at IS NOT NULL
 RETURNING id, date, all_day, time, title, memo, created_at, updated_at;
 
--- name: GetScheduleAnyState :one
--- 지운 것까지 포함해 읽습니다. 이미 살아 있는 일정의 복원을 같은 결과로 답할 때 씁니다.
-SELECT id, date, all_day, time, title, memo, created_at, updated_at
+-- name: GetScheduleForRestore :one
+-- 지운 것까지 포함해 잠가 읽습니다. is_deleted로 되살릴지, 이미 살아 있어 그대로 답할지 가립니다.
+SELECT id, date, all_day, time, title, memo, created_at, updated_at, (deleted_at IS NOT NULL)::boolean AS is_deleted
 FROM schedules
-WHERE id = @id AND account_id = @account_id;
+WHERE id = @id AND account_id = @account_id
+FOR UPDATE;

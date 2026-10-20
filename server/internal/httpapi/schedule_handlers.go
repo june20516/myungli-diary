@@ -2,22 +2,13 @@ package httpapi
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
-	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
 )
-
-// 일정 시각의 계약 표기(HH:MM)입니다.
-const scheduleTimeLayout = "15:04"
-
-// 본문 시각을 읽지 못할 때 가리키는 field입니다(계약 FieldError.field, 본문 기준 JSON Pointer).
-const fieldScheduleTime = "/time"
 
 // ListSchedules는 from~to(포함) 일정을 돌려줍니다. 62일을 넘으면 422 range.too_long(field to),
 // from이 to보다 늦으면 400 request.invalid(field from)입니다.
@@ -37,13 +28,13 @@ func (a *API) ListSchedules(ctx context.Context, req gen.ListSchedulesRequestObj
 	return gen.ListSchedules200JSONResponse(gen.ScheduleList{Items: items}), nil
 }
 
-// CreateSchedule은 일정을 만들고 201과 Location을 돌려줍니다. Idempotency-Key는 멱등 미들웨어가 다룹니다.
+// CreateSchedule은 일정을 만들고 201과 Location을 돌려줍니다. Idempotency-Key는 핸들러가 아니라 멱등 미들웨어(P5 Task 7)가 다룹니다.
 func (a *API) CreateSchedule(ctx context.Context, req gen.CreateScheduleRequestObject) (gen.CreateScheduleResponseObject, error) {
 	id, err := a.scheduleAccountID(ctx)
 	if err != nil {
 		return nil, err
 	}
-	t, err := parseScheduleTime(req.Body.Time)
+	t, err := parseClock(req.Body.Time)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +61,7 @@ func (a *API) UpdateSchedule(ctx context.Context, req gen.UpdateScheduleRequestO
 	if err != nil {
 		return nil, err
 	}
-	t, err := parseScheduleTime(req.Body.Time)
+	t, err := parseClock(req.Body.Time)
 	if err != nil {
 		return nil, err
 	}
@@ -129,19 +120,6 @@ func (a *API) scheduleAccountID(ctx context.Context) (uuid.UUID, error) {
 	return id, nil
 }
 
-// parseScheduleTime은 HH:MM 문자열을 시각으로 바꿉니다. nil이면 nil입니다.
-// 요청 검증이 형식을 이미 막으므로 여기서 실패하는 것은 방어 경로이고, 400 request.invalid(field /time)로 답합니다.
-func parseScheduleTime(s *string) (*profile.LocalTime, error) {
-	if s == nil {
-		return nil, nil
-	}
-	t, err := time.Parse(scheduleTimeLayout, *s)
-	if err != nil {
-		return nil, fieldError(problem.RequestInvalid, fieldScheduleTime)
-	}
-	return &profile.LocalTime{Hour: t.Hour(), Minute: t.Minute()}, nil
-}
-
 // toSchedule은 일정 하나를 계약 Schedule로 옮깁니다. 종일이면 time을, 메모가 없으면 memo를 생략합니다.
 func toSchedule(s schedule.Schedule) gen.Schedule {
 	out := gen.Schedule{
@@ -153,9 +131,6 @@ func toSchedule(s schedule.Schedule) gen.Schedule {
 		Title:     s.Title,
 		UpdatedAt: s.UpdatedAt,
 	}
-	if s.Time != nil {
-		formatted := fmt.Sprintf("%02d:%02d", s.Time.Hour, s.Time.Minute)
-		out.Time = &formatted
-	}
+	out.Time = formatClock(s.Time)
 	return out
 }

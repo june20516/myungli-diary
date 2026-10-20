@@ -66,7 +66,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 
 // Get은 그 날짜의 살아 있는 일기를 돌려줍니다. 없으면 ErrNotFound입니다.
 func (s *Store) Get(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (Entry, error) {
-	row, err := diarydb.New(s.pool).GetDiary(ctx, diarydb.GetDiaryParams{AccountID: accountID, Date: toPgDate(date)})
+	row, err := diarydb.New(s.pool).GetDiary(ctx, diarydb.GetDiaryParams{AccountID: accountID, Date: profile.PgDate(date)})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Entry{}, ErrNotFound
 	}
@@ -95,7 +95,7 @@ func (s *Store) Upsert(ctx context.Context, accountID uuid.UUID, e Entry) (Entry
 	row, err := diarydb.New(s.pool).UpsertDiary(ctx, diarydb.UpsertDiaryParams{
 		ID:             id,
 		AccountID:      accountID,
-		Date:           toPgDate(e.Date),
+		Date:           profile.PgDate(e.Date),
 		Body:           e.Body,
 		AllTags:        allTags,
 		FeaturedTags:   featured,
@@ -112,7 +112,7 @@ func (s *Store) Upsert(ctx context.Context, accountID uuid.UUID, e Entry) (Entry
 // UpdateBody는 그 날짜의 살아 있는 일기의 본문만 바꿉니다. 태그·질문·규칙 버전·생성 시각은 그대로입니다.
 // 살아 있는 일기가 없으면 ErrNotFound입니다.
 func (s *Store) UpdateBody(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string) (Entry, error) {
-	row, err := diarydb.New(s.pool).UpdateDiaryBody(ctx, diarydb.UpdateDiaryBodyParams{AccountID: accountID, Date: toPgDate(date), Body: body})
+	row, err := diarydb.New(s.pool).UpdateDiaryBody(ctx, diarydb.UpdateDiaryBodyParams{AccountID: accountID, Date: profile.PgDate(date), Body: body})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Entry{}, ErrNotFound
 	}
@@ -124,7 +124,7 @@ func (s *Store) UpdateBody(ctx context.Context, accountID uuid.UUID, date profil
 
 // Delete는 그 날짜의 일기를 지운 것으로 표시합니다(soft delete). 살아 있는 일기가 없으면 ErrNotFound입니다.
 func (s *Store) Delete(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) error {
-	n, err := diarydb.New(s.pool).SoftDeleteDiary(ctx, diarydb.SoftDeleteDiaryParams{AccountID: accountID, Date: toPgDate(date)})
+	n, err := diarydb.New(s.pool).SoftDeleteDiary(ctx, diarydb.SoftDeleteDiaryParams{AccountID: accountID, Date: profile.PgDate(date)})
 	if err != nil {
 		return fmt.Errorf("일기 삭제: %w", err)
 	}
@@ -140,7 +140,7 @@ func (s *Store) Restore(ctx context.Context, accountID uuid.UUID, date profile.L
 	var entry Entry
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		q := diarydb.New(tx)
-		pgDate := toPgDate(date)
+		pgDate := profile.PgDate(date)
 		alive, err := q.LiveDiaryExists(ctx, diarydb.LiveDiaryExistsParams{AccountID: accountID, Date: pgDate})
 		if err != nil {
 			return fmt.Errorf("살아 있는 일기 확인: %w", err)
@@ -177,9 +177,9 @@ func (s *Store) List(ctx context.Context, accountID uuid.UUID, q ListQuery) ([]E
 	}
 	params := diarydb.ListDiariesParams{
 		AccountID:  accountID,
-		FromDate:   toNullablePgDate(q.From),
-		ToDate:     toNullablePgDate(q.To),
-		BeforeDate: toNullablePgDate(q.Before),
+		FromDate:   profile.PgDateOrNull(q.From),
+		ToDate:     profile.PgDateOrNull(q.To),
+		BeforeDate: profile.PgDateOrNull(q.Before),
 		RowLimit:   int32(q.Limit), // 위에서 범위를 검사했습니다.
 	}
 	if q.Tag != nil {
@@ -255,7 +255,7 @@ func toEntry(row diarydb.GetDiaryRow) (Entry, error) {
 		}
 	}
 	return Entry{
-		Date:           fromPgDate(row.Date),
+		Date:           profile.LocalDateFromPg(row.Date),
 		Body:           row.Body,
 		AllTags:        row.AllTags,
 		Featured:       featured,
@@ -273,19 +273,4 @@ func fromUpsertRow(row diarydb.UpsertDiaryRow) diarydb.GetDiaryRow {
 		FeaturedTags: row.FeaturedTags, GuideQuestion: row.GuideQuestion, RulesetVersion: row.RulesetVersion,
 		CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt,
 	}
-}
-
-func toPgDate(d profile.LocalDate) pgtype.Date {
-	return pgtype.Date{Time: time.Date(d.Year, time.Month(d.Month), d.Day, 0, 0, 0, 0, time.UTC), Valid: true}
-}
-
-func toNullablePgDate(d *profile.LocalDate) pgtype.Date {
-	if d == nil {
-		return pgtype.Date{}
-	}
-	return toPgDate(*d)
-}
-
-func fromPgDate(d pgtype.Date) profile.LocalDate {
-	return profile.LocalDate{Year: d.Time.Year(), Month: int(d.Time.Month()), Day: d.Time.Day()}
 }

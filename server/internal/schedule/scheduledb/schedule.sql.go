@@ -13,18 +13,19 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getScheduleAnyState = `-- name: GetScheduleAnyState :one
-SELECT id, date, all_day, time, title, memo, created_at, updated_at
+const getScheduleForRestore = `-- name: GetScheduleForRestore :one
+SELECT id, date, all_day, time, title, memo, created_at, updated_at, (deleted_at IS NOT NULL)::boolean AS is_deleted
 FROM schedules
 WHERE id = $1 AND account_id = $2
+FOR UPDATE
 `
 
-type GetScheduleAnyStateParams struct {
+type GetScheduleForRestoreParams struct {
 	ID        uuid.UUID
 	AccountID uuid.UUID
 }
 
-type GetScheduleAnyStateRow struct {
+type GetScheduleForRestoreRow struct {
 	ID        uuid.UUID
 	Date      pgtype.Date
 	AllDay    bool
@@ -33,12 +34,13 @@ type GetScheduleAnyStateRow struct {
 	Memo      pgtype.Text
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	IsDeleted bool
 }
 
-// 지운 것까지 포함해 읽습니다. 이미 살아 있는 일정의 복원을 같은 결과로 답할 때 씁니다.
-func (q *Queries) GetScheduleAnyState(ctx context.Context, arg GetScheduleAnyStateParams) (GetScheduleAnyStateRow, error) {
-	row := q.db.QueryRow(ctx, getScheduleAnyState, arg.ID, arg.AccountID)
-	var i GetScheduleAnyStateRow
+// 지운 것까지 포함해 잠가 읽습니다. is_deleted로 되살릴지, 이미 살아 있어 그대로 답할지 가립니다.
+func (q *Queries) GetScheduleForRestore(ctx context.Context, arg GetScheduleForRestoreParams) (GetScheduleForRestoreRow, error) {
+	row := q.db.QueryRow(ctx, getScheduleForRestore, arg.ID, arg.AccountID)
+	var i GetScheduleForRestoreRow
 	err := row.Scan(
 		&i.ID,
 		&i.Date,
@@ -48,6 +50,7 @@ func (q *Queries) GetScheduleAnyState(ctx context.Context, arg GetScheduleAnySta
 		&i.Memo,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IsDeleted,
 	)
 	return i, err
 }

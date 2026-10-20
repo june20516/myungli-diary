@@ -273,3 +273,26 @@ func TestSchedules_Unavailable(t *testing.T) {
 		assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
 	}
 }
+
+func TestUpdateSchedule_Inconsistent(t *testing.T) {
+	violation := &profile.ValidationError{Violation: profile.Inconsistent, Fields: []profile.FieldViolation{{Field: "/time", Rule: profile.RequiredByStatus}}}
+	handler, _ := newHandlerAPI(t, scheduleAPI(&fakeSchedules{err: violation}))
+	req := newBodyRequest(t, http.MethodPatch, scheduleTarget, contentTypeMergePatch, `{"allDay":false}`)
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
+	p := decodeProblem(t, rec)
+	assert.Equal(t, "request.inconsistent", p.Code)
+	require.Len(t, p.Errors, 1)
+	assert.Equal(t, "/time", p.Errors[0].Field)
+	assert.Equal(t, "required_by_status", p.Errors[0].Code)
+	expectFortuneContract(t, req, rec)
+}
+
+func TestUpdateSchedule_Unavailable(t *testing.T) {
+	handler, _ := newHandlerAPI(t, &httpapi.API{})
+	rec := serve(handler, newBodyRequest(t, http.MethodPatch, scheduleTarget, contentTypeMergePatch, `{"title":"x"}`))
+
+	require.Equal(t, http.StatusServiceUnavailable, rec.Code)
+	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+}
