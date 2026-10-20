@@ -83,6 +83,7 @@ a { color: var(--term); }
 .card { background: var(--surface); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; border: 0; text-align: left; font: inherit; color: inherit; }
 button.card { cursor: pointer; }
 .card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 10px; background: var(--line); max-width: 100%; }
+.doc-link { font-size: .85rem; color: var(--accent); }
 .card .meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: .75rem; color: var(--muted); }
 .notice { background: var(--accent-soft); color: var(--fg); border-radius: 12px; padding: 10px 14px; font-size: .88rem; }
 
@@ -244,6 +245,11 @@ let DATA = null;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const imgSrc = (path) => "images/" + path.split("/").map(encodeURIComponent).join("/");
+const isImage = (path) => /\.(png|jpe?g|gif|webp|svg)$/i.test(path);
+// 이미지 산출물은 확대 가능한 그림으로, 원고(.md) 같은 문서 산출물은 그림 없이 여는 링크로 그립니다.
+const artMedia = (a) => isImage(a.path)
+  ? `<img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy">`
+  : `<a class="doc-link" href="${imgSrc(a.path)}" target="_blank" rel="noopener">원고 열기</a>`;
 
 function lineOf(owner) {
   if (/판단|\+/.test(owner)) return "int";
@@ -352,7 +358,7 @@ function stateLabel(m) { return m.state === "done" ? "완료" : m.state === "doi
 
 function thumbs(items) {
   if (!items.length) return `<p class="muted">아직 없음</p>`;
-  return `<div class="thumbs">${items.map((a) => `<figure><img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy"><figcaption>${esc(a.title)} <span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span></figcaption></figure>`).join("")}</div>`;
+  return `<div class="thumbs">${items.map((a) => `<figure>${artMedia(a)}<figcaption>${esc(a.title)} <span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span></figcaption></figure>`).join("")}</div>`;
 }
 function issueList(items) {
   if (!items.length) return `<p class="muted">없음</p>`;
@@ -413,7 +419,8 @@ const SCREEN_LABELS = {
 
 function screenCard(s) {
   const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
-  const cover = arts.find((a) => a.status === "chosen") || arts[0];
+  const images = arts.filter((a) => isImage(a.path));
+  const cover = images.find((a) => a.status === "chosen") || images[0];
   const counts = s.provisional ? [] : [`슬롯 ${(s.slots || []).length}`, `컴포넌트 ${(s.components || []).length}`];
   return `<button class="card" type="button" data-id="${esc(s.id)}">${cover ? `<img src="${imgSrc(cover.path)}" alt="" loading="lazy">` : ""}
     <h3>${esc(s.title)} <span class="muted" style="font-size:.75rem;font-weight:400">${esc(s.id)}</span></h3>
@@ -483,7 +490,7 @@ function renderGallery() {
       `<span style="width:12px"></span>` + chip("milestone", "all", "모든 마일스톤") + milestones.map((m) => chip("milestone", m, m)).join("");
     const items = DATA.artifacts.filter((a) => (state.unit === "all" || a.unit === state.unit) && (state.status === "all" || a.status === state.status) && (state.milestone === "all" || a.milestone === state.milestone));
     document.getElementById("gallery").innerHTML = items.map((a) => `<div class="card">
-      <img class="zoomable" src="${imgSrc(a.path)}" alt="${esc(a.title)}" loading="lazy">
+      ${artMedia(a)}
       <h3>${esc(a.title)}</h3><span style="font-size:.85rem">${esc(a.note)}</span>
       <span class="meta"><span class="pill ${a.status === "chosen" ? "done" : "todo"}">${esc(STATUS_NAMES[a.status] || a.status)}</span><span>${esc(UNIT_NAMES[a.unit] || a.unit)}</span><span>${esc(a.milestone)}</span><span>${esc(a.date)}</span></span></div>`).join("") ||
       `<p class="muted">조건에 맞는 산출물이 없습니다.</p>`;
@@ -624,6 +631,9 @@ function zoomSvgFrom(container, title) {
   }
   openViewer(clone, base, title);
 }
+// 불러오지 못한 그림은 깨진 자리를 남기지 않고 지워, 그림 없는 카드로 보이게 합니다.
+document.addEventListener("error", (e) => { if (e.target instanceof HTMLImageElement) e.target.remove(); }, true);
+
 document.addEventListener("click", (e) => {
   const img = e.target.closest("img.zoomable");
   if (img) {
