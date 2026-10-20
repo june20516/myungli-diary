@@ -196,6 +196,7 @@
   "depthExplain": "読み解き",
   "depthSurface": "要約",
   "diaryEditSave": "保存",
+  "diaryListPickDateConfirm": "{date}の日記",
   "diaryViewEditAction": "日記を編集",
   "diaryViewDeleteAction": "日記を削除",
   "diaryViewDeleted": "日記を削除しました。",

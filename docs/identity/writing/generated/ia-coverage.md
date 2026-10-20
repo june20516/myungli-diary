@@ -119,6 +119,7 @@
 | diary-list.bar.title | ui | diary-list.bar.title |
 | diary-list.empty.body | ui | diary-list.empty.body |
 | diary-list.pick-date.cta | ui | diary-list.pick-date.cta |
+| diary-list.pick-date.confirm | ui | ui.diary-list.pick-date-confirm |
 | diary-edit.bar.title | ui | diary-edit.bar.title |
 | diary-edit.guide.question | content | daily.guide |
 | diary-edit.body.placeholder | ui | diary-edit.body.placeholder |

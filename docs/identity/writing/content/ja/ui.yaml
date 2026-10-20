@@ -80,6 +80,7 @@
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "根拠と解釈が開きました"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "まだ日記がありません。今日のことから書いてみませんか?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "日付を選んで書く"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date}の日記"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "今日あったことを書いてみましょう"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "端末に下書きを保存しました"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "保存中"}

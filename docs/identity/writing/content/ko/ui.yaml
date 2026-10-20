@@ -80,6 +80,7 @@
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "근거와 해석이 열렸어요"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "날짜 골라 쓰기"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date} 일기"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "오늘 있었던 일을 적어 보세요"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "기기에 임시 저장됨"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "저장 중"}

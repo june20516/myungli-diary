@@ -196,6 +196,7 @@
   "depthExplain": "Reading",
   "depthSurface": "Summary",
   "diaryEditSave": "Save",
+  "diaryListPickDateConfirm": "{date} entry",
   "diaryViewEditAction": "Edit entry",
   "diaryViewDeleteAction": "Delete entry",
   "diaryViewDeleted": "Entry deleted.",

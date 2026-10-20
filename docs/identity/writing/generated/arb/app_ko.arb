@@ -956,6 +956,15 @@
   "@diaryEditSave": {
     "description": "일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)"
   },
+  "diaryListPickDateConfirm": "{date} 일기",
+  "@diaryListPickDateConfirm": {
+    "description": "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 diary-edit 또는 diary-view로 갑니다(#294)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "diaryViewEditAction": "일기 고치기",
   "@diaryViewEditAction": {
     "description": "일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)"

@@ -166,6 +166,7 @@
 | ui.depth.explain | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.depth.surface | 컴포넌트 segmented | info | - | 1 | 1 | - | ko 8, en 13, ja 6 |
 | ui.diary-edit.save | diary-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 1 | `date`: text | ko 23, en 42, ja 19 |
 | ui.diary-view.actions | 컴포넌트 app-bar | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-view.deleted | diary-view.deleted.toast<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
