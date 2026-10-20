@@ -2488,12 +2488,10 @@ components:
           $ref: '#/components/schemas/SlotText'
     FocusSlot:
       type: object
-      required: [branch, pillar, start, end, huangdaoLucky, score, reasons]
+      required: [branch, start, end, huangdaoLucky, reasons]
       properties:
         branch:
           $ref: '#/components/schemas/Branch'
-        pillar:
-          $ref: '#/components/schemas/Pillar'
         start:
           type: string
           format: date-time
@@ -2505,8 +2503,6 @@ components:
         huangdaoLucky:
           type: boolean
           description: 황도길시
-        score:
-          type: integer
         reasons:
           type: array
           description: 가점 사유 식별자(glossary `focus_reason` 범주의 키)
@@ -2787,7 +2783,7 @@ components:
     # ---- 달력 ----
     Calendar:
       type: object
-      required: [year, month, rulesetVersion, evidenceAccess, days, notices]
+      required: [year, month, rulesetVersion, evidenceAccess, days]
       properties:
         year:
           type: integer
@@ -2801,14 +2797,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CalendarDay'
-        notices:
-          type: array
-          items:
-            $ref: '#/components/schemas/Notice'
     CalendarDay:
       type: object
-      description: '`solarTerm`은 입절일에만, `featuredTag`는 대표 태그가 있는 날에만 있습니다. `characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다.'
-      required: [date, pillar, lunar, dayKind, characterReason, luckLevel, score, scoreItems, level]
+      description: '`solarTerm`은 입절일에만 있습니다. `characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다.'
+      required: [date, pillar, lunar, dayKind, characterReason, luckLevel, score, level]
       properties:
         date:
           type: string
@@ -2827,13 +2819,6 @@ components:
           $ref: '#/components/schemas/LuckLevel'
         score:
           type: integer
-        scoreItems:
-          type: array
-          description: 점수 구성 원본 값
-          items:
-            $ref: '#/components/schemas/ScoreItem'
-        featuredTag:
-          $ref: '#/components/schemas/Tag'
         level:
           $ref: '#/components/schemas/SlotText'
     LunarDate:
@@ -2856,15 +2841,6 @@ components:
           type: string
           format: date-time
           description: 프로필 현재 시간대의 offset으로 나타냅니다.
-    ScoreItem:
-      type: object
-      required: [id, score]
-      properties:
-        id:
-          type: string
-          description: glossary `score_item` 범주의 키
-        score:
-          type: integer
     ReactionInput:
       type: object
       required: [reaction]

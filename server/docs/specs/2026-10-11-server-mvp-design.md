@@ -299,7 +299,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 5. 토큰 위치를 다시 계산해 조각 배열로 만듦
 
 * 판정은 `docs/identity/writing/rules/josa.yaml`과 기준 구현 `tools/src/mlw/josa.py`·`placeholders.py`를 따릅니다. 테스트가 `examples`와 `name_rules.examples`를 그대로 읽어 씁니다.
-* 식별자의 언어별 이름도 콘텐츠 모듈이 만듭니다: `score_items[].id`, `FocusSlot.reasons`, `SolarTerm.kind`. `SolarTerm.name`(간체 한자)은 쓰지 않습니다.
+* 식별자의 언어별 이름도 콘텐츠 모듈이 만듭니다: `FocusSlot.reasons`, `SolarTerm.kind`. `SolarTerm.name`(간체 한자)은 쓰지 않습니다.
 * 시각(`FocusSlot.start/end`, `SolarTerm.at`)은 사용자의 `current_timezone`으로 바꿔 보냅니다.
 * `ResponseMeta.notices`도 메시지 키이므로 같은 렌더 경로를 씁니다.
 

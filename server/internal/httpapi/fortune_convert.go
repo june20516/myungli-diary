@@ -302,11 +302,9 @@ func (c *converter) dailyCards(view fortune.DailyView) gen.DailyCards {
 func (c *converter) focusSlot(s *enginev1.FocusSlot) gen.FocusSlot {
 	return gen.FocusSlot{
 		Branch:        enumValue[gen.Branch](c, s.GetBranch()),
-		Pillar:        c.pillar(s.GetPillar()),
 		Start:         c.instant(s.GetStart()),
 		End:           c.instant(s.GetEnd()),
 		HuangdaoLucky: s.GetHuangdaoLucky(),
-		Score:         int(s.GetScore()),
 		Reasons: convertAll(s.GetReasons(), func(reason string) gen.FocusSlotReasons {
 			return contractValue[gen.FocusSlotReasons](c, "FocusSlot.reasons", reason)
 		}),
@@ -344,12 +342,11 @@ func toCalendar(view fortune.CalendarView, year, month int, loc *time.Location) 
 		RulesetVersion: c.rulesetVersion(r.GetMeta()),
 		EvidenceAccess: evidenceAccess(view.Unlocked),
 		Days:           days,
-		Notices:        c.notices(view.Notices),
 	}
 	return out, c.err
 }
 
-// calendarDay는 달력 하루를 옮깁니다. solarTerm은 입절일에만, featuredTag는 대표 태그가 있는 날에만 담습니다.
+// calendarDay는 달력 하루를 옮깁니다. solarTerm은 입절일에만 담습니다.
 func (c *converter) calendarDay(d *enginev1.MonthDay, texts fortune.DayTexts) gen.CalendarDay {
 	out := gen.CalendarDay{
 		Date:            c.localDate(d.GetDate()),
@@ -359,17 +356,10 @@ func (c *converter) calendarDay(d *enginev1.MonthDay, texts fortune.DayTexts) ge
 		CharacterReason: c.slotText(texts.CharacterReason),
 		LuckLevel:       enumValue[gen.LuckLevel](c, d.GetLuckLevel()),
 		Score:           int(d.GetScore()),
-		ScoreItems: convertAll(d.GetScoreItems(), func(s *enginev1.ScoreItem) gen.ScoreItem {
-			return gen.ScoreItem{Id: s.GetId(), Score: int(s.GetScore())}
-		}),
-		Level: c.slotText(texts.Level),
+		Level:           c.slotText(texts.Level),
 	}
 	if term := d.GetSolarTerm(); term != nil {
 		out.SolarTerm = &gen.SolarTerm{Kind: enumValue[gen.SolarTermKind](c, term.GetKind()), At: c.instant(term.GetAt())}
-	}
-	if d.FeaturedTag != nil {
-		tag := c.tag(d.GetFeaturedTag())
-		out.FeaturedTag = &tag
 	}
 	return out
 }

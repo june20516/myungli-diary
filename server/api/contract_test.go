@@ -1058,6 +1058,48 @@ func TestContract_Draft9Additions(t *testing.T) {
 	}
 }
 
+// TestContract_Draft9Removals는 draft.9에서 뺀, app이 쓰지 않는 필드 다섯 개가 없음을 고정합니다. (S77, app 확인 #309)
+func TestContract_Draft9Removals(t *testing.T) {
+	doc := loadDoc(t)
+
+	removed := map[string][]string{
+		"FocusSlot":   {"score", "pillar"},
+		"CalendarDay": {"scoreItems", "featuredTag"},
+		"Calendar":    {"notices"},
+	}
+	for name, properties := range removed {
+		schema := doc.Components.Schemas[name].Value
+		for _, property := range properties {
+			t.Run(name+"."+property, func(t *testing.T) {
+				if _, ok := schema.Properties[property]; ok {
+					t.Errorf("%s.%s가 properties에 남아 있음", name, property)
+				}
+				if slices.Contains(schema.Required, property) {
+					t.Errorf("%s.%s가 required에 남아 있음", name, property)
+				}
+			})
+		}
+	}
+
+	// 다른 스키마의 notices·featuredTags와 CalendarDay.score·pillar는 그대로입니다.
+	kept := map[string][]string{
+		"Daily":       {"notices"},
+		"Chart":       {"notices"},
+		"CalendarDay": {"score", "pillar"},
+	}
+	for name, properties := range kept {
+		for _, property := range properties {
+			if _, ok := doc.Components.Schemas[name].Value.Properties[property]; !ok {
+				t.Errorf("%s.%s가 없음", name, property)
+			}
+		}
+	}
+
+	if _, ok := doc.Components.Schemas["ScoreItem"]; ok {
+		t.Error("참조되지 않는 ScoreItem 스키마가 남아 있음")
+	}
+}
+
 // TestContract_Draft8Additions는 draft.8에서 더한 비로그인·참조 동작 설명을 고정합니다. (P6, 응답 형태는 그대로)
 func TestContract_Draft8Additions(t *testing.T) {
 	doc := loadDoc(t)
