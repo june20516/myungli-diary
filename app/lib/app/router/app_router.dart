@@ -31,6 +31,18 @@ String datedPathOf(String screenId, CalendarDate date) => Uri(
   queryParameters: {dateQuery: date.toIso()},
 ).toString();
 
+/// [dateQuery] 값을 날짜로 읽습니다. 없거나 형식·지원 범위(D41)가 틀리면 null이고, 화면은
+/// 오늘로 엽니다.
+CalendarDate? dateOfQuery(String? source) {
+  if (source == null) return null;
+  try {
+    final date = CalendarDate.parse(source);
+    return date.isSupported ? date : null;
+  } on FormatException {
+    return null;
+  }
+}
+
 /// 태그 모아보기(`tag-diary`)의 query 이름. 값은 태그 키(`Tag.key`)입니다.
 const String tagQuery = 'tag';
 

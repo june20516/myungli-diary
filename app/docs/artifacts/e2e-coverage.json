@@ -1,14 +1,13 @@
 {
-  "generatedAt": "2026-10-20T04:37:14.777699Z",
+  "generatedAt": "2026-10-20T04:51:03.852024Z",
   "exits": {
-    "covered": 48,
+    "covered": 49,
     "total": 80,
     "uncovered": [
       "account-delete>welcome",
       "ad-free>legal",
       "ad-free>system-purchase",
       "birthplace>notify-ask",
-      "diary-edit>diary-view",
       "diary-view>diary-edit",
       "diary-view>explain-sheet",
       "diary-view>tag-diary",
@@ -90,6 +89,9 @@
       ],
       "day-sheet>explain-sheet": [
         "test/flows/day_sheet_flow_test.dart:202 member: 이유 문장의 용어 칩 → 풀이 시트가 위로 쌓입니다"
+      ],
+      "diary-edit>diary-view": [
+        "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view"
       ],
       "diary-list>diary-edit": [
         "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기"
@@ -230,17 +232,13 @@
     }
   },
   "states": {
-    "covered": 30,
+    "covered": 34,
     "total": 54,
     "uncovered": [
       "account-delete:error",
       "ad-free:error",
       "ad-free:loading",
       "ad-free:offline",
-      "diary-edit:draft",
-      "diary-edit:error",
-      "diary-edit:loading",
-      "diary-edit:offline",
       "diary-view:error",
       "diary-view:loading",
       "event-edit:loading",
@@ -291,6 +289,18 @@
       ],
       "day-sheet:loading": [
         "test/flows/day_sheet_flow_test.dart:233 loading: 달 길흉을 기다리는 동안 skeleton, 오면 내용"
+      ],
+      "diary-edit:draft": [
+        "test/flows/diary_edit_flow_test.dart:210 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
+      ],
+      "diary-edit:error": [
+        "test/flows/diary_edit_flow_test.dart:240 error: 저장된 일기를 읽지 못하면 오류 화면과 다시 시도"
+      ],
+      "diary-edit:loading": [
+        "test/flows/diary_edit_flow_test.dart:119 새 일기: 그날 질문과 안내, 빈 본문이면 저장할 수 없습니다"
+      ],
+      "diary-edit:offline": [
+        "test/flows/diary_edit_flow_test.dart:210 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
       ],
       "diary-list:empty": [
         "test/flows/diary_list_flow_test.dart:143 empty: 쓴 일기가 없으면 안내와 날짜 골라 쓰기"
@@ -374,6 +384,7 @@
       "D49": [
         "test/flows/day_sheet_flow_test.dart:146 member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다",
         "test/flows/day_sheet_flow_test.dart:191 member: 미래 날은 일기 입구가 없습니다(D49)",
+        "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
         "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기"
       ],
       "D50": [
@@ -644,11 +655,11 @@
     },
     "diary-edit": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {
-        "covered": 0,
+        "covered": 4,
         "total": 4
       }
     },

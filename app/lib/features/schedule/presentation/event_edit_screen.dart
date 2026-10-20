@@ -81,7 +81,7 @@ class EventEditScreen extends ConsumerWidget {
     final original = extra is Schedule ? extra : null;
     final today = ref.read(todayProvider);
     final initialDate =
-        _dateOf(routeState.uri.queryParameters[dateQuery]) ?? today;
+        dateOfQuery(routeState.uri.queryParameters[dateQuery]) ?? today;
     final saving = ref.watch(scheduleEditorProvider);
     // 저장·삭제 중에는 뒤로 가기(기기·app-bar 모두 이 route의 pop을 거침)를 막습니다.
     // 결과를 기다리는 동안 화면이 사라지면 실패를 알릴 곳이 없습니다.
@@ -112,17 +112,6 @@ class EventEditScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-}
-
-/// query 값을 날짜로 읽습니다. 없거나 형식·범위가 틀리면 null입니다.
-CalendarDate? _dateOf(String? source) {
-  if (source == null) return null;
-  try {
-    final date = CalendarDate.parse(source);
-    return date.isSupported ? date : null;
-  } on FormatException {
-    return null;
   }
 }
 

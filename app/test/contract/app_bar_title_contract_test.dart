@@ -24,6 +24,7 @@ const Map<String, String> _barTitleKeys = {
   'today': 'todayBarTitle',
   'calendar': 'calendarBarTitle',
   'diary-list': 'diaryListBarTitle',
+  'diary-edit': 'diaryEditBarTitle',
   'event-edit': 'eventEditBarTitle',
   'calc-basis': 'calcBasisBarTitle',
 };

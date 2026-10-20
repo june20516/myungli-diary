@@ -12,11 +12,11 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 
 /// 끝에서 이 줄 수 안쪽이 그려지면 다음 쪽을 받습니다.
@@ -146,10 +146,7 @@ class _DiaryPageRowState extends ConsumerState<_DiaryPageRow> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final day = ref.watch(calendarDayProvider(widget.date));
-    final names = ref.watch(glossaryProvider).value;
     final featured = widget.summary.featuredTags;
-    final tag = featured.isEmpty ? null : featured.first;
-    final tagName = tag == null ? null : names?.valueName('tag', tag.key);
     final kind = day.value?.dayKind;
     return DiaryRow(
       date: widget.date,
@@ -157,12 +154,12 @@ class _DiaryPageRowState extends ConsumerState<_DiaryPageRow> {
       character: kind == null ? null : dayCharacterVariantOf(kind),
       characterLabel: kind == null ? null : dayKindName(l10n, kind),
       characterPending: day.isLoading && !day.hasValue,
-      tag: tag == null || tagName == null
+      tag: featured.isEmpty
           ? null
-          : TagChip(
-              name: tagName,
-              variant: TagChipVariant.ofPolarity(tag.polarity),
-              onTap: () => context.push<void>(taggedPathOf(tag.key)),
+          : diaryTagChipOf(
+              context,
+              ref.watch(glossaryProvider).value,
+              featured.first,
             ),
       isLast: widget.isLast,
       onTap: () =>

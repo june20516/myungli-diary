@@ -6,7 +6,6 @@
 /// 테스트가 즉시 실패합니다). 시트 화면은 registry에 없으므로 시트를 만드는 계획이
 /// registry에 등록하면서 지웁니다.
 const Set<String> pendingStateScreens = {
-  'diary-edit',
   'diary-view',
   'tag-diary',
   'my-saju',
@@ -23,7 +22,6 @@ const Set<String> pendingStateScreens = {
 /// 빈 집합이 목표입니다. IA `exits`가 빈 화면은 넣지 않습니다(넣으면 ratchet
 /// 테스트가 즉시 실패합니다).
 const Set<String> pendingExitScreens = {
-  'diary-edit',
   'diary-view',
   'tag-diary',
   'my-saju',
