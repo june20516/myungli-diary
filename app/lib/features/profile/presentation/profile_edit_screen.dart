@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/onboarding/model/time_step_edit.dart';
 import 'package:myungli_diary/features/profile/application/profile_edit_controller.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
@@ -266,6 +267,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         after: after,
       );
       // 첫 초점·기본 동작이 취소인 변형입니다(A62, dialog 명세의 destructive 규칙).
+      // confirm 변형에 첫 초점 취소가 생기면 바꿉니다(design #354).
       final confirmed = await showMyungliDialog(
         context,
         variant: DialogVariant.destructive,
@@ -346,7 +348,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                     Space.s24,
                   ),
                   children: [
-                    // 오류 배너의 변형은 명세에 오류용이 없어 연결 없음 변형을 씁니다(보고서 우려).
+                    // 오류 배너의 변형은 명세에 오류용이 없어 연결 없음 변형을 씁니다(design #354에 요청).
                     NoticeBanner(
                       key: ProfileEditScreen.errorKey,
                       variant: NoticeBannerVariant.offline,
@@ -367,6 +369,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                         ),
                       ],
                     ),
+                    // 다시 계산 안내는 맞는 배너 변형이 없어 묶음 위 캡션입니다(design #354).
                     Padding(
                       padding: const EdgeInsets.fromLTRB(
                         Space.s16,
@@ -411,9 +414,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                               ? null
                               : birthTimeLabel(l10n, after.time),
                           onTap: rowTap(
+                            // 시진 확인이 화면 안에서 바꾼 생일을 쓰도록 함께 넘깁니다(D58).
                             (_, values) => _openStep<BirthTime>(
                               ScreenIds.onboardTime,
-                              extra: values.time,
+                              extra: TimeStepEdit(
+                                time: values.time,
+                                date: values.date,
+                              ),
                               _controller.editTime,
                             ),
                           ),

@@ -18,6 +18,9 @@ import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -27,6 +30,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
+import 'package:myungli_diary/features/onboarding/model/time_step_edit.dart';
 import 'package:myungli_diary/features/profile/application/profile_edit_controller.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
@@ -67,12 +71,14 @@ String _timeLabel(int hour, int minute, {String locale = 'ko'}) =>
 Future<ProviderContainer> _openProfileEdit(
   WidgetTester tester, {
   String scenario = 'member',
+  Locale locale = const Locale('ko'),
   Interceptor? startNetwork,
   Interceptor? network,
 }) async {
   final container = await pumpApp(
     tester,
     scenario: scenario,
+    locale: locale,
     network: startNetwork,
   );
   if (network != null) {
@@ -136,35 +142,50 @@ Future<void> _tapSave(WidgetTester tester) async {
   await settleWithIo(tester);
 }
 
-/// 사본의 사주 지문으로 차트 캐시 한 줄을 심고 그 키를 돌려줍니다.
-Future<String> _seedChartCache(
+/// 사본의 사주 지문으로 사주 기반 캐시(달력·차트·그날)를 한 줄씩 심고 그 키를 돌려줍니다.
+Future<List<(CacheKind, String)>> _seedSajuCaches(
   WidgetTester tester,
   ProviderContainer container,
-) async {
-  final key = (await tester.runAsync(() async {
-    final profile = (await container.read(cachedProfileProvider.future))!;
-    final key = chartKey(
-      fingerprint: sajuFingerprint(profile),
-      language: 'ko',
-      year: 1999,
-    );
-    await container
-        .read(cacheStoreProvider)
-        .write(CacheKind.chart, key, '{}', access: EvidenceAccess.unlocked);
-    return key;
-  }))!;
-  return key;
-}
+) async => (await tester.runAsync(() async {
+  final profile = (await container.read(cachedProfileProvider.future))!;
+  final fingerprint = sajuFingerprint(profile);
+  final keys = [
+    (
+      CacheKind.calendar,
+      calendarKey(
+        fingerprint: fingerprint,
+        language: 'ko',
+        year: 1999,
+        month: 1,
+      ),
+    ),
+    (
+      CacheKind.chart,
+      chartKey(fingerprint: fingerprint, language: 'ko', year: 1999),
+    ),
+    (
+      CacheKind.daily,
+      dailyKey(fingerprint: fingerprint, language: 'ko', date: '1999-01-01'),
+    ),
+  ];
+  final cache = container.read(cacheStoreProvider);
+  for (final (kind, key) in keys) {
+    await cache.write(kind, key, '{}', access: EvidenceAccess.unlocked);
+  }
+  return keys;
+}))!;
 
-Future<String?> _readChartCache(
+/// 심은 캐시 줄의 값(없으면 null).
+Future<List<String?>> _readCaches(
   WidgetTester tester,
   ProviderContainer container,
-  String key,
-) => tester
-    .runAsync(
-      () => container.read(cacheStoreProvider).read(CacheKind.chart, key),
-    )
-    .then((value) => value);
+  List<(CacheKind, String)> keys,
+) async => (await tester.runAsync(
+  () => Future.wait([
+    for (final (kind, key) in keys)
+      container.read(cacheStoreProvider).read(kind, key),
+  ]),
+))!;
 
 void main() {
   testWidgets('제목과 줄마다 지금 값(사본), 저장 버튼은 꺼져 있습니다', (tester) async {
@@ -233,7 +254,15 @@ void main() {
       (
         ProfileEditScreen.timeRowKey,
         ScreenIds.onboardTime,
-        BirthTime(status: BirthTimeStatusEnum.known, value: '14:30'),
+        TimeStepEdit(
+          time: BirthTime(status: BirthTimeStatusEnum.known, value: '14:30'),
+          date: const BirthDateValue(
+            calendar: BirthCalendar.solar,
+            year: 1990,
+            month: 5,
+            day: 15,
+          ),
+        ),
       ),
       (
         ProfileEditScreen.genderRowKey,
@@ -351,9 +380,8 @@ void main() {
   testWidgets('확정하면 PATCH 한 번(빠르게 두 번 눌러도) → 이전 사주 캐시를 지우고 my-saju로', (
     tester,
   ) async {
-    covers(const Covers(exits: ['settings>profile-edit']));
     final container = await _openProfileEdit(tester);
-    final seeded = await _seedChartCache(tester, container);
+    final seeded = await _seedSajuCaches(tester, container);
     await _changeGender(tester, _ko.genderMale);
 
     // 저장 버튼을 빠르게 두 번 눌러도 확인 창은 하나입니다.
@@ -379,7 +407,7 @@ void main() {
     expect(birth.date.day, 15);
     expect(birth.time.value, '14:30');
     expect(birth.timezone, 'Asia/Seoul');
-    expect(await _readChartCache(tester, container, seeded), isNull);
+    expect(await _readCaches(tester, container, seeded), [null, null, null]);
     final saved = await tester.runAsync(
       () => container.read(cachedProfileProvider.future),
     );
@@ -416,13 +444,78 @@ void main() {
     expect(_patches(container, 'birth'), hasLength(1));
   });
 
+  testWidgets('호칭과 무거운 변경이 섞이면 호칭은 바로, 무거운 변경은 남았다가 확정 때 birth만 PATCH', (
+    tester,
+  ) async {
+    final container = await _openProfileEdit(tester);
+    await _changeGender(tester, _ko.genderMale);
+    await _tapRow(tester, ProfileEditScreen.callRowKey);
+    await tester.enterText(find.byType(EditableText), '달님');
+    await tester.pump();
+    await tapNext(tester);
+    await settleWithIo(tester);
+
+    expect(_patches(container, 'honorific'), [
+      {'honorific': '달님'},
+    ]);
+    expect(_patches(container, 'birth'), isEmpty);
+    // 호칭 저장(사본 갱신) 뒤에도 무거운 변경은 화면 안에 남아 있습니다.
+    expect(_row(tester, ProfileEditScreen.genderRowKey).value, _ko.genderMale);
+    expect(_row(tester, ProfileEditScreen.callRowKey).value, '달님');
+    expect(_saveButton(tester).onPressed, isNotNull);
+
+    await _tapSave(tester);
+    expect(
+      find.text(
+        _ko.profileEditRecalcConfirmBody(_ko.genderFemale, _ko.genderMale),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text(_ko.profileEditRecalcConfirmSave));
+    await pumpUntilScreen(tester, ScreenIds.mySaju);
+    await settleWithIo(tester);
+
+    expect(_patches(container, 'birth').single.keys, ['birth']);
+    expect(_patches(container, 'honorific'), hasLength(1));
+  });
+
+  testWidgets('저장 뒤 이전 사주 캐시 지우기가 실패해도 저장 성공으로 my-saju에 가고 요약만 보고합니다', (
+    tester,
+  ) async {
+    final container = await _openProfileEdit(tester);
+    await _changeGender(tester, _ko.genderMale);
+    // 캐시 줄 지우기만 실패하게 합니다(쓰기는 그대로).
+    await tester.runAsync(
+      () => container
+          .read(appDatabaseProvider)
+          .customStatement(
+            'CREATE TRIGGER fail_cache_delete '
+            'BEFORE DELETE ON cached_responses '
+            "BEGIN SELECT RAISE(ABORT, 'x'); END",
+          ),
+    );
+    final reporter = container.read(crashReporterProvider) as FakeCrashReporter;
+    final reported = reporter.errors.length;
+
+    await _tapSave(tester);
+    await tester.tap(find.text(_ko.profileEditRecalcConfirmSave));
+    await pumpUntilScreen(tester, ScreenIds.mySaju);
+    await settleWithIo(tester);
+
+    expect(reporter.errors.length, greaterThan(reported));
+    final saved = await tester.runAsync(
+      () => container.read(cachedProfileProvider.future),
+    );
+    expect(saved!.birth.gender, BirthGenderEnum.male);
+  });
+
   testWidgets('저장이 실패하면 오류 배너와 다시 시도, 바꾼 값과 이전 캐시는 그대로입니다', (tester) async {
     covers(const Covers(states: ['profile-edit:error']));
     final container = await _openProfileEdit(
       tester,
       network: ProfileRequestGate(failures: 1),
     );
-    final seeded = await _seedChartCache(tester, container);
+    final seeded = await _seedSajuCaches(tester, container);
     await _changeGender(tester, _ko.genderMale);
     await _tapSave(tester);
     await tester.tap(find.text(_ko.profileEditRecalcConfirmSave));
@@ -434,7 +527,7 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.profileEdit)), findsOneWidget);
     expect(_row(tester, ProfileEditScreen.genderRowKey).value, _ko.genderMale);
     expect(_saveButton(tester).label, _ko.actionRetry);
-    expect(await _readChartCache(tester, container, seeded), '{}');
+    expect(await _readCaches(tester, container, seeded), ['{}', '{}', '{}']);
     final kept = await tester.runAsync(
       () => container.read(cachedProfileProvider.future),
     );
@@ -444,7 +537,33 @@ void main() {
     await tester.tap(find.byKey(ProfileEditScreen.saveKey));
     await pumpUntilScreen(tester, ScreenIds.mySaju);
     await settleWithIo(tester);
-    expect(await _readChartCache(tester, container, seeded), isNull);
+    expect(await _readCaches(tester, container, seeded), [null, null, null]);
+  });
+
+  testWidgets('생일을 바꾼 뒤 시간 화면을 열면 시진 확인은 바꾼 생일로 묻습니다(D58)', (tester) async {
+    covers(const Covers(decisions: ['D58']));
+    final container = await _openProfileEdit(tester, locale: koreaLocale);
+    await _changeBirthDay(tester);
+    await _tapRow(tester, ProfileEditScreen.timeRowKey);
+    expect(
+      _stateOf(tester, ScreenIds.onboardTime).extra,
+      TimeStepEdit(
+        time: BirthTime(status: BirthTimeStatusEnum.known, value: '14:30'),
+        date: const BirthDateValue(
+          calendar: BirthCalendar.solar,
+          year: 1990,
+          month: 5,
+          day: 16,
+        ),
+      ),
+    );
+    await pumpUntil(
+      tester,
+      () => _fake(container).callCountOf('getBirthHour') > 0,
+    );
+    final body = _bodyOf(_fake(container).requestBodiesOf('getBirthHour').last);
+    expect(body['date'], {'year': 1990, 'month': 5, 'day': 16});
+    expect(body['time'], '14:30');
   });
 
   testWidgets('실패 뒤 값을 또 바꾸면 배너가 풀리고 저장은 다시 확인 창입니다', (tester) async {
@@ -507,7 +626,9 @@ void main() {
   testWidgets(
     'settings 출생지 안내에서 고른 도시는 켜진 저장 버튼으로 열리고, 한국 기기여도 그 도시로 저장합니다(D29)',
     (tester) async {
-      covers(const Covers(decisions: ['D29']));
+      covers(
+        const Covers(exits: ['settings>profile-edit'], decisions: ['D29']),
+      );
       final container = await pumpApp(tester, scenario: 'member');
       unawaited(
         container.read(routerProvider).push<void>(pathOf(ScreenIds.settings)),

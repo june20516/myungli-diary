@@ -3,6 +3,7 @@ import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/profile/data/profile_repository.dart';
 
@@ -11,6 +12,7 @@ final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepository(
     ref.watch(restClientProvider),
     ref.watch(cacheStoreProvider),
+    ref.watch(crashReporterProvider),
     onCacheChanged: () => ref.invalidate(cachedProfileProvider),
   ),
 );

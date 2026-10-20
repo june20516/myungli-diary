@@ -15,6 +15,7 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/features/onboarding/application/birth_hour_providers.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
+import 'package:myungli_diary/features/onboarding/model/time_step_edit.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboard_birth_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
@@ -99,10 +100,16 @@ class OnboardTimeScreen extends ConsumerWidget {
     final BirthTime? initial;
     final BirthDateValue? date;
     if (edit) {
-      initial = routeState.extra is BirthTime
-          ? routeState.extra! as BirthTime
-          : profile?.value?.birth.time;
-      date = birthDateValueOfProfile(profile?.value);
+      // 정보 수정은 화면 안에서 바꾼 생일을 함께 넘깁니다([TimeStepEdit]). 시각만 넘기거나
+      // 넘기지 않은 값은 사본에서 채웁니다.
+      final extra = routeState.extra;
+      final start = switch (extra) {
+        final TimeStepEdit value => value,
+        final BirthTime time => TimeStepEdit(time: time),
+        _ => const TimeStepEdit(),
+      };
+      initial = start.time ?? profile?.value?.birth.time;
+      date = start.date ?? birthDateValueOfProfile(profile?.value);
     } else {
       initial = draft?.value?.time;
       date = birthDateValueOfDraft(draft?.value);
