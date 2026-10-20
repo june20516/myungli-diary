@@ -333,16 +333,8 @@ class ProfileEditController extends Notifier<ProfileEditState> {
     return true;
   }
 
-  Future<void> _guard(Future<Object?> Function() action) async {
-    try {
-      await action();
-    } on AppError {
-      rethrow;
-    } on Object catch (error, stack) {
-      ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
-      throw UnexpectedError(error);
-    }
-  }
+  Future<void> _guard(Future<Object?> Function() action) =>
+      guardUnexpected(ref.read(crashReporterProvider), action);
 }
 
 /// `profile-edit` 화면의 상태. 화면이 보이는 동안만 둡니다. 인자는 열 때 넘겨받은 출생 도시

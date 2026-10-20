@@ -110,16 +110,8 @@ class SettingsController extends Notifier<Set<SettingsField>> {
     return attempt;
   }
 
-  Future<void> _guard(Future<void> Function() action) async {
-    try {
-      await action();
-    } on AppError {
-      rethrow;
-    } on Object catch (error, stack) {
-      ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
-      throw UnexpectedError(error);
-    }
-  }
+  Future<void> _guard(Future<void> Function() action) =>
+      guardUnexpected(ref.read(crashReporterProvider), action);
 
   /// 알림 권한을 묻고 기기를 등록해 저장할 값을 정합니다. 켤 수 없으면 `disabled`입니다.
   Future<NotificationSetting> _enablePush(NotificationSetting setting) async {

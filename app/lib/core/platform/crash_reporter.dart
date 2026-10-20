@@ -54,6 +54,25 @@ final class CrashSummary {
   final int? status;
 }
 
+/// [action]을 실행해 결과를 돌려줍니다. 화면 동작 controller의 예상 밖 오류 가드입니다.
+///
+/// [AppError](이미 분류된 실패)는 그대로 던집니다. 그 밖의 오류(플랫폼 SDK 등)는 [reporter]에
+/// [CrashSummary](타입 이름 등 안전한 값만, D64)로 남긴 뒤 [UnexpectedError]로 감싸 던져, 화면이
+/// 일반 오류로 알릴 수 있게 합니다.
+Future<T> guardUnexpected<T>(
+  CrashReporter reporter,
+  Future<T> Function() action,
+) async {
+  try {
+    return await action();
+  } on AppError {
+    rethrow;
+  } on Object catch (error, stack) {
+    reporter.record(CrashSummary.from(error), stack);
+    throw UnexpectedError(error);
+  }
+}
+
 /// 비정상 종료 보고(Crashlytics).
 ///
 /// 일기 본문, 출생 정보, 호칭은 어떤 경로로도 넘기지 않습니다(D64 ②).

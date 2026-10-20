@@ -42,19 +42,16 @@ class AccountDeleteController extends Notifier<bool> {
   Future<void> _delete() async {
     final api = ref.read(restClientProvider);
     final tokens = ref.read(tokenStoreProvider);
-    try {
-      await api.deleteMe();
-      // 계정은 이미 삭제 대기입니다. 로그아웃은 best-effort server 폐기 뒤 로컬에서 반드시 합니다.
-      await revokeAndSignOut(api: api, tokens: tokens);
-    } on DioException catch (error) {
-      throw appErrorFrom(error);
-    } on AppError {
-      rethrow;
-    } on Object catch (error, stack) {
-      // 로컬 로그아웃(보안 저장소) 실패 등도 화면이 알릴 수 있게 감쌉니다(요약만 기록, D64).
-      ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
-      throw UnexpectedError(error);
-    }
+    // 로컬 로그아웃(보안 저장소) 실패 등도 화면이 알릴 수 있게 감쌉니다(요약만 기록, D64).
+    await guardUnexpected(ref.read(crashReporterProvider), () async {
+      try {
+        await api.deleteMe();
+        // 계정은 이미 삭제 대기입니다. 로그아웃은 best-effort server 폐기 뒤 로컬에서 반드시 합니다.
+        await revokeAndSignOut(api: api, tokens: tokens);
+      } on DioException catch (error) {
+        throw appErrorFrom(error);
+      }
+    });
   }
 }
 
