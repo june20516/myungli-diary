@@ -50,7 +50,8 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **P7(결제와 권한)을 구현합니다:** 계획 [`docs/plans/2026-10-20-p7-billing.md`](docs/plans/2026-10-20-p7-billing.md). RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60).
+1. **P7(결제와 권한) PR 병합 대기:** 계획 [`docs/plans/2026-10-20-p7-billing.md`](docs/plans/2026-10-20-p7-billing.md). 구현·조립은 끝났습니다. 병합 뒤 plans README의 P7을 완료로 바꿉니다.
+   * 다음 후보: app 요청 #329(Chart "나의 사주" 문장 필드)와 P8(Job: precompute, notify, retention과 익명화).
 2. D75 후속(S77): app 앞으로 `kind:request`를 연 뒤, 다음 계약 개정에서 `FocusSlot.score`·`pillar`, `CalendarDay.scoreItems`·`featuredTag`, `Calendar.notices`를 뺍니다(REST freeze 전).
 3. core #304가 반영되면 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).

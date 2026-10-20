@@ -43,6 +43,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
 
 **P8 (Job)**
+* 익명화 때 `reward_events`·`billing_events`·`entitlement_grants`는 남깁니다(spec §9). 세 표의 계정 FK는 `ON DELETE RESTRICT`이고 결제 기록 보관 의무가 있어 계정을 물리적으로 지우는 경로가 없습니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다. 처음 보는 `kid`로 서명한 위조 토큰이 공개 라우트(App Check)와 로그인 경로에서 JWKS 재조회를 매번 일으키므로 App Check도 이 제한에 포함합니다.
 * 요청 한도(S68)의 키 IP 해시를 서버 비밀 HMAC으로 바꿀지 재검토합니다(salt 없는 SHA-256은 IPv4 전수 대입으로 되찾을 수 있음).
 * soft delete 30일 뒤 일기·일정 내용 비우기(spec §8)는 `content_purged_at`을 찍습니다. 복원은 이미 비워진 행을 제외합니다(P5에서 쿼리에 반영).
@@ -61,6 +62,9 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 지우지 않습니다(1회 제한).
 
 **P9 (배포)**
+* 결제 설정 4개를 Secret Manager에 둡니다(`config.LoadBilling`의 이름 그대로): `REVENUECAT_PROJECT_ID`, `REVENUECAT_API_KEY`(REST v2 secret key), `REVENUECAT_WEBHOOK_AUTH`(대시보드에 적은 Authorization 값 전체), `AD_FREE_PRODUCT_IDS`(쉼표 목록). `APP_ENV`가 local이 아니면 모두 필수이고 없으면 시작에 실패합니다.
+* staging에서 확인할 것(문서로 확정되지 않은 외부 사실): AdMob 테스트 콜백의 `timestamp` 단위(ms/µs), RevenueCat webhook Authorization 헤더의 실제 형식(값 그대로인지), v2 구매 목록의 `next_page` 형태, Apple 비갱신 구독이 v2 구매 목록에 일회성 구매로 오는지.
+* `billing_events`는 5년 보관하므로 `job retention`이 지우지 않습니다.
 * 앞단에 Load Balancer를 두면 `TRUSTED_PROXY_HOPS`=2입니다. 실제 요청의 `X-Forwarded-For` 개수를 로그로 한 번 확인합니다(IP 원문은 남기지 않음).
 * 배포 설정: `FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`(Cloud Run 앞단 수를 확인합니다. 실제보다 크거나 0이면 모든 클라이언트가 한 키를 공유합니다), `APP_MIN_VERSION_IOS`·`APP_MIN_VERSION_ANDROID`, `TEST_LOGIN_SECRET`(staging만, `openssl rand -base64 32` 같은 난수). staging 이미지는 `-tags staging`으로 빌드합니다(Dockerfile·deploy workflow). App Check debug token은 staging Firebase 콘솔에만 둡니다.
 * Cloud Run 엔진 서비스를 h2c end-to-end로 확인하고, gRPC startup probe(`myungli.engine.v1.MyungliEngine`), internal ingress, 8초 grace를 설정합니다(#79).
