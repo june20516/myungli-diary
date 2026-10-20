@@ -3,6 +3,7 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
 import 'package:myungli_diary/core/api/gen/model/position.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
@@ -145,3 +146,13 @@ PersonalReading? personalReadingOf(
   }
   return null;
 }
+
+/// 나의 사주가 태어난 시간을 모른 채 계산됐는지(시주 없음). `my-saju`·`saju-chart`가 같은 판정을
+/// 씁니다. server는 시주를 빼면 `time_unknown` 안내를 함께 보내므로 둘 중 하나면 참입니다.
+///
+/// 안내 문구의 출처는 IA 슬롯마다 다릅니다. `my-saju`는 그 상태의 ui 슬롯이 없어 server
+/// 안내 문장(`Notice.text`)을, `saju-chart`는 ui 슬롯
+/// `saju-chart.time-unknown.notice`(ARB)를 보입니다.
+bool chartTimeUnknown(Chart chart) =>
+    chart.pillars.hour == null ||
+    chart.notices.any((notice) => notice.code == NoticeCode.timeUnknown);

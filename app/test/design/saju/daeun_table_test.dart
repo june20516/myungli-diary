@@ -14,36 +14,49 @@ const _cell = OhaengCell(
   size: OhaengCellSize.mini,
 );
 
-Widget _table({int? current = 3, double width = 360, bool knownYears = true}) =>
-    SizedBox(
-      width: width,
-      child: DaeunTable(
-        daeun: [
-          for (var i = 0; i < 9; i++)
-            DaeunPillar(
-              age: 4 + i * 10,
-              startYear: knownYears ? 1993 + i * 10 : null,
-              stem: _cell,
-              branch: _cell,
-              semanticLabel: '${4 + i * 10}세',
-            ),
-        ],
-        seun: [
-          for (var year = 2023; year < 2033; year++)
-            SeunYear(
-              year: year,
-              stem: _cell,
-              branch: _cell,
-              semanticLabel: '$year년',
-            ),
-        ],
-        currentIndex: current,
-        thisYear: 2026,
-        nowLabel: '지금',
-        thisYearLabel: '올해',
-        tableLabel: '대운 4세부터',
-      ),
-    );
+Widget _table({
+  int? current = 3,
+  double width = 360,
+  bool knownYears = true,
+  void Function(String term)? onTerm,
+}) => SizedBox(
+  width: width,
+  child: DaeunTable(
+    daeun: [
+      for (var i = 0; i < 9; i++)
+        DaeunPillar(
+          age: 4 + i * 10,
+          startYear: knownYears ? 1993 + i * 10 : null,
+          stem: _cell,
+          branch: _cell,
+          stemLabel: onTerm == null ? null : _term('대운$i-천간', onTerm),
+          branchLabel: onTerm == null ? null : _term('대운$i-지지', onTerm),
+          semanticLabel: '${4 + i * 10}세',
+        ),
+    ],
+    seun: [
+      for (var year = 2023; year < 2033; year++)
+        SeunYear(
+          year: year,
+          stem: _cell,
+          branch: _cell,
+          label: onTerm == null ? null : _term('세운$year', onTerm),
+          semanticLabel: '$year년',
+        ),
+    ],
+    currentIndex: current,
+    thisYear: 2026,
+    nowLabel: '지금',
+    thisYearLabel: '올해',
+    tableLabel: '대운 4세부터',
+  ),
+);
+
+/// 누르면 [onTerm]에 [text]를 알리는 용어 라벨.
+Widget _term(String text, void Function(String term) onTerm) => Semantics(
+  button: true,
+  child: GestureDetector(onTap: () => onTerm(text), child: Text(text)),
+);
 
 bool _tagVisible(WidgetTester tester, Key pillar) => tester
     .widget<Visibility>(
@@ -114,6 +127,43 @@ void main() {
     expect(_tagVisible(tester, DaeunTable.seunKey(2026)), isTrue);
     expect(_tagVisible(tester, DaeunTable.seunKey(2025)), isFalse);
     expect(find.byType(StatusTag), findsNWidgets(9 + 10));
+  });
+
+  testWidgets('십성 라벨: 대운은 천간 위·지지 아래, 세운은 천간 위이고 누르면 그 용어', (tester) async {
+    final handle = tester.ensureSemantics();
+    final tapped = <String>[];
+    // 라벨만큼 키가 커지므로 화면처럼 스크롤 안에 둡니다.
+    await tester.pumpWidget(
+      inputApp(SingleChildScrollView(child: _table(onTerm: tapped.add))),
+    );
+    final cells = find.descendant(
+      of: find.byKey(DaeunTable.daeunKey(3)),
+      matching: find.byType(OhaengCell),
+    );
+    expect(
+      tester.getRect(find.text('대운3-천간')).bottom,
+      lessThanOrEqualTo(tester.getRect(cells.first).top),
+    );
+    expect(
+      tester.getRect(find.text('대운3-지지')).top,
+      greaterThanOrEqualTo(tester.getRect(cells.last).bottom),
+    );
+    final seunCell = find.descendant(
+      of: find.byKey(DaeunTable.seunKey(2026)),
+      matching: find.byType(OhaengCell),
+    );
+    expect(
+      tester.getRect(find.text('세운2026')).bottom,
+      lessThanOrEqualTo(tester.getRect(seunCell.first).top),
+    );
+
+    await tester.tap(find.text('대운3-천간'));
+    await tester.tap(find.text('세운2026'));
+    expect(tapped, ['대운3-천간', '세운2026']);
+    // 라벨은 기둥 글과 따로 눌리는 자리로 읽힙니다.
+    expect(find.bySemanticsLabel('대운3-지지'), findsOneWidget);
+    expect(find.bySemanticsLabel('34세, 지금'), findsOneWidget);
+    handle.dispose();
   });
 
   testWidgets('표 이름과 지금·올해를 읽습니다', (tester) async {

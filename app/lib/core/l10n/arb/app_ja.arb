@@ -346,7 +346,8 @@
   "sajuPillarDayMaster": "日干",
   "sajuPillarsTableLabel": "命式",
   "manseTableLabel": "万歳暦表",
-  "seunYearLabel": "{year}年",
+  "evidenceSheetPersonalEmpty": "この位置の解釈はまだ準備中です。",
+  "luckYearLabel": "{year}年",
   "legalTermsLabel": "利用規約",
   "legalPrivacyLabel": "プライバシーポリシー",
   "legalLicensesLabel": "オープンソースライセンス"

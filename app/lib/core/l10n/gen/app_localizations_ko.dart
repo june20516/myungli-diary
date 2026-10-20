@@ -1165,7 +1165,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get manseTableLabel => '만세력 표';
 
   @override
-  String seunYearLabel(int year) {
+  String get evidenceSheetPersonalEmpty => '이 자리의 해석은 아직 준비 중이에요.';
+
+  @override
+  String luckYearLabel(int year) {
     return '$year년';
   }
 

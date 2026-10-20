@@ -16,6 +16,11 @@ core `compose_chart`를 기준일 2026-10-13(시나리오의 오늘)에 돌려 �
 엔진 값이 아닌 것
 * 문장(`yongsin.basis.text`, 근거의 `basis`, 개인 해석 `text`, 안내 `text`)은 writing 슬롯 형식을 따른
   대역 문장입니다. 개인 해석은 항목 종류마다 같은 틀에 용어 이름을 넣습니다.
+* 나의 사주 문장(`ilganHead`·`ilganBody`·`yongsinSummary`, draft.10, 표면 깊이라 잠기지 않음)은
+  writing ko 원고(`docs/identity/writing/content/ko/chart.yaml`의 `chart.ilgan_head`·`ilgan_body`·
+  `yongsin_summary`)를 이 도구가 대신 렌더한 것입니다. 호칭은 member 프로필의 "하늘", 오행·색 이름은
+  member 사전 fixture(`getGlossary.json`) 값, 조사 `(이)` 자리는 받침으로 고릅니다. server 렌더와
+  같은 결과를 보장하지는 않습니다.
 
 core/에서 실행합니다(엔진 가상환경을 씁니다).
     uv run python ../app/tool/gen_chart_fixtures.py ../app/fixtures
@@ -24,6 +29,7 @@ core/에서 실행합니다(엔진 가상환경을 씁니다).
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import date, time
 from pathlib import Path
@@ -37,6 +43,12 @@ AS_OF = date(2026, 10, 13)
 RULESET = "2026.10.1"
 
 ELEMENT = {"WOOD": "wood", "FIRE": "fire", "EARTH": "earth", "METAL": "metal", "WATER": "water"}
+
+# member 프로필의 호칭(`fixtures/member/updateProfile.json`).
+HONORIFIC = "하늘"
+
+# 이 도구 기준 저장소 경로(app/tool/ → 저장소 뿌리).
+REPO = Path(__file__).resolve().parents[2]
 
 # 용신 산출 방법 문장(writing `chart.yongsin_method` 예시와 같은 틀).
 METHOD_TEXT = {
@@ -149,6 +161,7 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
     }
     if yongsin.johu_stem is not None:
         body["yongsin"]["johuStem"] = lower(yongsin.johu_stem)
+    body.update(my_saju_texts(pillars["day"]["stem"], body["yongsin"]["yongsin"]))
     if unlocked:
         body["yongsin"]["basis"] = {
             "slot": "chart.yongsin_method",
@@ -171,6 +184,79 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
         }
         body["personalReadings"] = [personal(reading) for reading in view.personal_readings]
     return body
+
+
+def _chart_lines() -> dict[str, str]:
+    """writing ko 원고 chart.yaml의 `key → text`."""
+    lines = (REPO / "docs/identity/writing/content/ko/chart.yaml").read_text(encoding="utf-8")
+    return {
+        m.group(1): m.group(2)
+        for m in re.finditer(r'key: ([\w.]+), text: "([^"]*)"', lines)
+    }
+
+
+def _glossary_values() -> dict:
+    glossary = json.loads(
+        (REPO / "app/fixtures/member/getGlossary.json").read_text(encoding="utf-8")
+    )
+    return glossary["body"]["values"]
+
+
+def _has_final(word: str) -> bool:
+    """마지막 글자에 받침이 있는지(한글이 아니면 없음으로 봄)."""
+    code = ord(word[-1]) - 0xAC00
+    return 0 <= code <= 11171 and code % 28 != 0
+
+
+def _josa(word: str, rest: str) -> str:
+    """`(이)에요`·`(이)가`를 [word]의 받침에 맞춥니다."""
+    if rest.startswith("(이)에요"):
+        return ("이에요" if _has_final(word) else "예요") + rest[len("(이)에요"):]
+    if rest.startswith("(이)가"):
+        return ("이" if _has_final(word) else "가") + rest[len("(이)가"):]
+    return rest
+
+
+def slot_text(slot: str, key: str, segments: list) -> dict:
+    return {
+        "slot": slot,
+        "messageKey": key,
+        "variant": "single",
+        "text": {"segments": segments},
+        "reactable": False,
+    }
+
+
+def my_saju_texts(day_stem: str, yongsin: str) -> dict:
+    """`my-saju` 문장 세 필드(A55, draft.10)."""
+    lines = _chart_lines()
+    values = _glossary_values()
+    element = values["element"][yongsin]
+    color = values["color"][yongsin]
+    summary = lines["yongsin.summary"]
+    head, rest = summary.split("[[{yongsin}]]", 1)
+    before_color, after_color = rest.split("{yongsin:color}", 1)
+    return {
+        "ilganHead": slot_text(
+            "chart.ilgan_head",
+            f"ilgan.head.{day_stem}",
+            [{"text": lines[f"ilgan.head.{day_stem}"].replace("{name}", HONORIFIC)}],
+        ),
+        "ilganBody": slot_text(
+            "chart.ilgan_body",
+            f"ilgan.body.{day_stem}",
+            [{"text": lines[f"ilgan.body.{day_stem}"]}],
+        ),
+        "yongsinSummary": slot_text(
+            "chart.yongsin_summary",
+            "yongsin.summary",
+            [
+                {"text": head},
+                {"text": element, "term": f"element.{yongsin}"},
+                {"text": _josa(element, before_color) + color + _josa(color, after_color)},
+            ],
+        ),
+    }
 
 
 def personal(reading) -> dict:

@@ -17,6 +17,8 @@ final class DaeunPillar {
     required this.stem,
     required this.branch,
     required this.semanticLabel,
+    this.stemLabel,
+    this.branchLabel,
   });
 
   /// 시작 나이(한국식, core C22).
@@ -33,6 +35,12 @@ final class DaeunPillar {
 
   /// 스크린리더 글.
   final String semanticLabel;
+
+  /// 천간 위 십성 용어(`term-token` `label`, 누르면 풀이). 없으면 자리를 두지 않습니다.
+  final Widget? stemLabel;
+
+  /// 지지 아래 십성 용어. 없으면 자리를 두지 않습니다.
+  final Widget? branchLabel;
 }
 
 /// 세운(한 해) 칸.
@@ -44,6 +52,7 @@ final class SeunYear {
     required this.stem,
     required this.branch,
     required this.semanticLabel,
+    this.label,
   });
 
   /// 연도.
@@ -57,12 +66,17 @@ final class SeunYear {
 
   /// 스크린리더 글.
   final String semanticLabel;
+
+  /// 천간 위 그 해의 십성 용어(`term-token` `label`). 없으면 자리를 두지 않습니다.
+  final Widget? label;
 }
 
 /// 대운·세운 표(`daeun-table`).
 ///
 /// 대운은 가로로 넘기는 기둥 줄(너비 52, 사이 4)이고 기둥마다 한국식 나이·천간·지지
-/// `ohaeng.cell` `mini`·시작 연도입니다. 세운은 지금 대운 10년을 5열 2줄로 둡니다.
+/// `ohaeng.cell` `mini`·시작 연도입니다. 세운은 지금 대운 10년을 5열 2줄로 둡니다. 십성 용어가
+/// 있으면 대운은 천간 위·지지 아래, 세운은 천간 위에 둡니다(원국표와 같은 자리, 누르면 풀이).
+/// 같은 줄의 기둥이 모두 라벨을 가지므로 칸 높이가 맞습니다.
 ///
 /// 지금 대운([currentIndex])은 `highlight.current`(바탕 `status.bg`,
 /// 나이 `action.primary` 굵게)와 위에 [nowLabel] 꼬리표(`tag.status`)입니다.
@@ -185,6 +199,8 @@ class _DaeunTableState extends State<DaeunTable> {
                         stem: pillar.stem,
                         branch: pillar.branch,
                         bottom: pillar.startYear?.toString() ?? '',
+                        stemLabel: pillar.stemLabel,
+                        branchLabel: pillar.branchLabel,
                         current: index == widget.currentIndex,
                         currentLabel: widget.nowLabel,
                         semanticLabel: pillar.semanticLabel,
@@ -242,6 +258,7 @@ class _SeunGrid extends StatelessWidget {
                         top: '${slice[i].year}',
                         stem: slice[i].stem,
                         branch: slice[i].branch,
+                        stemLabel: slice[i].label,
                         current: slice[i].year == thisYear,
                         currentLabel: thisYearLabel,
                         semanticLabel: slice[i].semanticLabel,
@@ -261,7 +278,11 @@ class _SeunGrid extends StatelessWidget {
   }
 }
 
-/// 기둥 하나: 위 꼬리표 자리, 위 숫자, 천간·지지 칸, 아래 숫자. 지금이면 `highlight.current`.
+/// 기둥 하나: 위 꼬리표 자리, 위 숫자, (십성) 천간·지지 칸 (십성), 아래 숫자. 지금이면
+/// `highlight.current`.
+///
+/// 스크린리더는 기둥 글([semanticLabel], 지금이면 꼬리표까지)을 한 번 읽고, 십성 라벨은 그와 따로
+/// 누를 수 있는 자리로 읽습니다.
 class _Pillar extends StatelessWidget {
   const new({
     required this.top,
@@ -271,6 +292,8 @@ class _Pillar extends StatelessWidget {
     required this.currentLabel,
     required this.semanticLabel,
     this.bottom,
+    this.stemLabel,
+    this.branchLabel,
     this.width,
     super.key,
   });
@@ -279,6 +302,8 @@ class _Pillar extends StatelessWidget {
   final OhaengCell stem;
   final OhaengCell branch;
   final String? bottom;
+  final Widget? stemLabel;
+  final Widget? branchLabel;
   final bool current;
   final String currentLabel;
   final String semanticLabel;
@@ -298,18 +323,21 @@ class _Pillar extends StatelessWidget {
           )
         : numberStyle;
     final bottomText = bottom;
+    final stemLabel = this.stemLabel;
+    final branchLabel = this.branchLabel;
     return Semantics(
       container: true,
       label: current ? '$semanticLabel, $currentLabel' : semanticLabel,
-      excludeSemantics: true,
       child: SizedBox(
         width: width,
         child: Column(
           children: [
             // 꼬리표 자리는 모든 기둥이 같은 높이로 둡니다(줄이 흔들리지 않게).
-            Visibility.maintain(
-              visible: current,
-              child: StatusTag(currentLabel),
+            ExcludeSemantics(
+              child: Visibility.maintain(
+                visible: current,
+                child: StatusTag(currentLabel),
+              ),
             ),
             const SizedBox(height: Space.s4),
             DecoratedBox(
@@ -322,14 +350,24 @@ class _Pillar extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: Space.s4),
                 child: Column(
                   children: [
-                    Text(top, style: topStyle),
+                    ExcludeSemantics(child: Text(top, style: topStyle)),
+                    if (stemLabel != null) ...[
+                      const SizedBox(height: Space.s4),
+                      Semantics(container: true, child: stemLabel),
+                    ],
                     const SizedBox(height: Space.s4),
-                    stem,
+                    ExcludeSemantics(child: stem),
                     const SizedBox(height: 2),
-                    branch,
+                    ExcludeSemantics(child: branch),
+                    if (branchLabel != null) ...[
+                      const SizedBox(height: Space.s4),
+                      Semantics(container: true, child: branchLabel),
+                    ],
                     if (bottomText != null) ...[
                       const SizedBox(height: Space.s4),
-                      Text(bottomText, style: numberStyle),
+                      ExcludeSemantics(
+                        child: Text(bottomText, style: numberStyle),
+                      ),
                     ],
                   ],
                 ),

@@ -152,7 +152,6 @@ _open(ProviderContainer container) {
   return (subscription: subscription, events: events);
 }
 
-/// 처음 오는 `/v1/daily/` 요청 하나만 503으로 끊습니다.
 /// 오늘 응답(`/v1/daily/`)의 받은 횟수를 셉니다.
 final class _DailyResponses extends Interceptor {
   int count = 0;
@@ -184,6 +183,7 @@ Future<void> _untilDailyRefetched(
   }
 }
 
+/// 처음 오는 `/v1/daily/` 요청 하나만 503으로 끊습니다.
 final class _FailDailyOnce extends Interceptor {
   bool _failed = false;
 

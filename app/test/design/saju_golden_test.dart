@@ -112,10 +112,22 @@ OhaengCell _mini(FiveElement element, String hanja) =>
 /// member 만세력. [hourUnknown]이면 시주 열이 빕니다.
 Widget _manse(BuildContext context, {bool hourUnknown = false}) {
   final ja = _ja(context);
-  ManseHiddenStem h(String hanja, String ko, String jaReading) =>
-      ManseHiddenStem(hanja: hanja, reading: ja ? jaReading : ko);
-  final gwiin = ja ? '天乙貴人' : '천을귀인';
-  final hwagae = ja ? '華蓋' : '화개';
+  // 지장간 십성 라벨은 지장간마다 붙습니다(member 화면처럼 사전에 이름이 있을 때).
+  ManseHiddenStem h(
+    String hanja,
+    String ko,
+    String jaReading, [
+    String? god,
+    String? jaGod,
+  ]) => ManseHiddenStem(
+    hanja: hanja,
+    reading: ja ? jaReading : ko,
+    label: god == null ? null : _label(ja ? jaGod! : god),
+  );
+  TermToken value(String text) =>
+      TermToken(label: text, variant: TermTokenVariant.inline, onTap: () {});
+  final gwiin = value(ja ? '天乙貴人' : '천을귀인');
+  final hwagae = value(ja ? '華蓋' : '화개');
   return ManseTable(
     hour: hourUnknown
         ? ManseColumn(header: ja ? '時柱' : '시주')
@@ -124,11 +136,11 @@ Widget _manse(BuildContext context, {bool hourUnknown = false}) {
             stem: _mini(FiveElement.water, '癸'),
             branch: _mini(FiveElement.earth, '未'),
             hiddenStems: [
-              h('丁', '정', 'てい'),
-              h('乙', '을', 'おつ'),
-              h('己', '기', 'き'),
+              h('丁', '정', 'てい', '정관', '正官'),
+              h('乙', '을', 'おつ', '정재', '正財'),
+              h('己', '기', 'き', '정인', '正印'),
             ],
-            twelveStage: ja ? '冠帯' : '관대',
+            twelveStage: value(ja ? '冠帯' : '관대'),
             shinsal: [gwiin],
           ),
     day: ManseColumn(
@@ -136,7 +148,7 @@ Widget _manse(BuildContext context, {bool hourUnknown = false}) {
       stem: _mini(FiveElement.metal, '庚'),
       branch: _mini(FiveElement.earth, '辰'),
       hiddenStems: [h('乙', '을', 'おつ'), h('癸', '계', 'き'), h('戊', '무', 'ぼ')],
-      twelveStage: ja ? '養' : '양',
+      twelveStage: value(ja ? '養' : '양'),
       shinsal: [hwagae],
     ),
     month: ManseColumn(
@@ -144,14 +156,15 @@ Widget _manse(BuildContext context, {bool hourUnknown = false}) {
       stem: _mini(FiveElement.metal, '辛'),
       branch: _mini(FiveElement.fire, '巳'),
       hiddenStems: [h('丙', '병', 'へい'), h('庚', '경', 'こう'), h('戊', '무', 'ぼ')],
-      twelveStage: ja ? '長生' : '장생',
+      twelveStage: value(ja ? '長生' : '장생'),
     ),
     year: ManseColumn(
       header: ja ? '年柱' : '연주',
       stem: _mini(FiveElement.metal, '庚'),
       branch: _mini(FiveElement.fire, '午'),
       hiddenStems: [h('丁', '정', 'てい'), h('己', '기', 'き')],
-      twelveStage: ja ? '沐浴' : '목욕',
+      // 사전에 이름이 없으면(A65) 화면은 누를 수 없는 글자를 넘깁니다.
+      twelveStage: Text(ja ? '沐浴' : '목욕'),
     ),
     hiddenStemsHeader: _label(ja ? '蔵干' : '지장간'),
     twelveStageHeader: _label(ja ? '十二運' : '12운성'),
@@ -200,6 +213,8 @@ Widget _daeun(BuildContext context) {
           startYear: 1989 + age,
           stem: stem(s),
           branch: branch(b),
+          stemLabel: _label(ja ? '比肩' : '비견'),
+          branchLabel: _label(ja ? '偏印' : '편인'),
           semanticLabel: '$age',
         ),
     ],
@@ -209,6 +224,7 @@ Widget _daeun(BuildContext context) {
           year: year,
           stem: stem(s),
           branch: branch(b),
+          label: _label(ja ? '傷官' : '상관'),
           semanticLabel: '$year',
         ),
     ],

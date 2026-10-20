@@ -1163,7 +1163,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get manseTableLabel => '万歳暦表';
 
   @override
-  String seunYearLabel(int year) {
+  String get evidenceSheetPersonalEmpty => 'この位置の解釈はまだ準備中です。';
+
+  @override
+  String luckYearLabel(int year) {
     return '$year年';
   }
 

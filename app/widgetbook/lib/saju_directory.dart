@@ -13,6 +13,10 @@ import 'package:widgetbook/widgetbook.dart';
 TermToken _label(String text) =>
     TermToken(label: text, variant: TermTokenVariant.label, onTap: () {});
 
+/// 표 값 칸(12운성·신살)의 용어.
+TermToken _value(String text) =>
+    TermToken(label: text, variant: TermTokenVariant.inline, onTap: () {});
+
 SajuPillarColumn _column(
   String header,
   (FiveElement, String, String) stem,
@@ -102,13 +106,13 @@ Widget _manse({bool hourUnknown = false}) => SizedBox(
             header: '시주',
             stem: _mini(FiveElement.water, '癸'),
             branch: _mini(FiveElement.earth, '未'),
-            hiddenStems: const [
-              ManseHiddenStem(hanja: '丁', reading: '정'),
-              ManseHiddenStem(hanja: '乙', reading: '을'),
-              ManseHiddenStem(hanja: '己', reading: '기'),
+            hiddenStems: [
+              ManseHiddenStem(hanja: '丁', reading: '정', label: _label('정관')),
+              ManseHiddenStem(hanja: '乙', reading: '을', label: _label('정재')),
+              ManseHiddenStem(hanja: '己', reading: '기', label: _label('정인')),
             ],
-            twelveStage: '관대',
-            shinsal: const ['천을귀인'],
+            twelveStage: _value('관대'),
+            shinsal: [_value('천을귀인')],
           ),
     day: ManseColumn(
       header: '일주',
@@ -119,8 +123,8 @@ Widget _manse({bool hourUnknown = false}) => SizedBox(
         ManseHiddenStem(hanja: '癸', reading: '계'),
         ManseHiddenStem(hanja: '戊', reading: '무'),
       ],
-      twelveStage: '양',
-      shinsal: const ['화개'],
+      twelveStage: _value('양'),
+      shinsal: [_value('화개')],
     ),
     month: ManseColumn(
       header: '월주',
@@ -131,7 +135,7 @@ Widget _manse({bool hourUnknown = false}) => SizedBox(
         ManseHiddenStem(hanja: '庚', reading: '경'),
         ManseHiddenStem(hanja: '戊', reading: '무'),
       ],
-      twelveStage: '장생',
+      twelveStage: _value('장생'),
     ),
     year: ManseColumn(
       header: '연주',
@@ -141,7 +145,7 @@ Widget _manse({bool hourUnknown = false}) => SizedBox(
         ManseHiddenStem(hanja: '丁', reading: '정'),
         ManseHiddenStem(hanja: '己', reading: '기'),
       ],
-      twelveStage: '목욕',
+      twelveStage: _value('목욕'),
     ),
     hiddenStemsHeader: _label('지장간'),
     twelveStageHeader: _label('12운성'),
@@ -182,6 +186,8 @@ Widget _daeun() {
             startYear: 1989 + age,
             stem: _mini(se, sh),
             branch: _mini(be, bh),
+            stemLabel: _label('비견'),
+            branchLabel: _label('편인'),
             semanticLabel: '$age세',
           ),
       ],
@@ -191,6 +197,7 @@ Widget _daeun() {
             year: year,
             stem: _mini(se, sh),
             branch: _mini(be, bh),
+            label: _label('상관'),
             semanticLabel: '$year년',
           ),
       ],

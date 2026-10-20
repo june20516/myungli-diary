@@ -1259,7 +1259,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manseTableLabel => 'Manseryeok table';
 
   @override
-  String seunYearLabel(int year) {
+  String get evidenceSheetPersonalEmpty =>
+      'The reading for this spot isn\'t ready yet.';
+
+  @override
+  String luckYearLabel(int year) {
     return '$year';
   }
 

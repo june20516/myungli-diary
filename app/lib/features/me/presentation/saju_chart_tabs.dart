@@ -127,6 +127,25 @@ final class _ChartText {
     return hanja == null ? null : plainLabel(hanja);
   }
 
+  /// 표 값 칸(12운성·신살)의 용어. 글자는 표가 주는 값 글자를 따릅니다(`term-token` `inline`).
+  /// 이름이 없으면 한자 글자, 그것도 없으면 null입니다.
+  Widget? termValue(
+    String category,
+    String value,
+    PersonalReadingKey personal,
+  ) {
+    final name = names?.valueName(category, value);
+    if (name != null) {
+      return TermToken(
+        label: name,
+        variant: TermTokenVariant.inline,
+        onTap: () => openTerm('$category.$value', personal),
+      );
+    }
+    final hanja = names?.hanjaOf('$category.$value');
+    return hanja == null ? null : Text(hanja);
+  }
+
   /// 누를 수 없는 라벨 글자(`term-token` `label`과 같은 크기).
   Widget plainLabel(String text) {
     final tokens = context.tokens;
@@ -405,23 +424,50 @@ class SajuChartLuckTab extends ConsumerWidget {
                   startYear: years.startYears[index],
                   stem: _mini(period.pillar.stem),
                   branch: _miniBranch(period.pillar.branch),
+                  stemLabel: text.termLabel(
+                    'ten_god',
+                    period.stemTenGod.value,
+                    PersonalReadingKey(
+                      kind: PersonalReadingKindEnum
+                          .PersonalReadingKindDaeunStemTenGod,
+                      index: index,
+                    ),
+                  ),
+                  branchLabel: text.termLabel(
+                    'ten_god',
+                    period.branchTenGod.value,
+                    PersonalReadingKey(
+                      kind: PersonalReadingKindEnum
+                          .PersonalReadingKindDaeunBranchTenGod,
+                      index: index,
+                    ),
+                  ),
                   semanticLabel: text.join([
                     l10n.daeunTableLabel(period.startAgeKorean),
                     if (years.startYears[index] case final start?)
-                      l10n.seunYearLabel(start),
+                      l10n.luckYearLabel(start),
                     text.stemText(period.pillar.stem),
                     text.branchText(period.pillar.branch),
                   ]),
                 ),
             ],
             seun: [
-              for (final year in chart.seun)
+              for (final (index, year) in chart.seun.indexed)
                 SeunYear(
                   year: year.year,
                   stem: _mini(year.pillar.stem),
                   branch: _miniBranch(year.pillar.branch),
+                  label: text.termLabel(
+                    'ten_god',
+                    year.tenGod.value,
+                    PersonalReadingKey(
+                      kind:
+                          PersonalReadingKindEnum.PersonalReadingKindSeunTenGod,
+                      index: index,
+                    ),
+                  ),
                   semanticLabel: text.join([
-                    l10n.seunYearLabel(year.year),
+                    l10n.luckYearLabel(year.year),
                     text.stemText(year.pillar.stem),
                     text.branchText(year.pillar.branch),
                   ]),
@@ -456,21 +502,45 @@ class SajuChartLuckTab extends ConsumerWidget {
       header: header,
       stem: _mini(pillar.stem),
       branch: _miniBranch(pillar.branch),
-      // 계약 순서(0이 정기) 그대로입니다.
+      // 계약 순서(0이 정기) 그대로이고, 개인 해석의 `index`도 이 순서입니다.
       hiddenStems: [
-        for (final item in hidden)
+        for (final (index, item) in hidden.indexed)
           ManseHiddenStem(
             hanja: stemHanja(item.stem),
             reading: text.stemReading(item.stem),
+            label: text.termLabel(
+              'ten_god',
+              item.tenGod.value,
+              PersonalReadingKey(
+                kind: PersonalReadingKindEnum.PersonalReadingKindHiddenTenGod,
+                position: column.branch,
+                index: index,
+              ),
+            ),
           ),
       ],
       twelveStage: stage == null
           ? null
-          : text.nameOf('twelve_stage', stage.value),
+          : text.termValue(
+              'twelve_stage',
+              stage.value,
+              PersonalReadingKey(
+                kind: PersonalReadingKindEnum.PersonalReadingKindTwelveStage,
+                position: column.branch,
+              ),
+            ),
       shinsal: [
         for (final item in chart.shinsal)
           if (positions.contains(item.position))
-            ?text.nameOf('shinsal', item.kind.value),
+            ?text.termValue(
+              'shinsal',
+              item.kind.value,
+              PersonalReadingKey(
+                kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+                position: item.position,
+                shinsal: item.kind,
+              ),
+            ),
       ],
     );
   }

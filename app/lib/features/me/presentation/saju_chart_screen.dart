@@ -134,7 +134,7 @@ class _SajuChartBody extends StatelessWidget {
       ),
       children: [
         offlineNotice,
-        if (chart.pillars.hour == null)
+        if (chartTimeUnknown(chart))
           Padding(
             padding: const EdgeInsets.only(bottom: Space.s16),
             child: NoticeBanner(

@@ -8,7 +8,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +22,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 
 import '../support/app_harness.dart';
+import '../support/chart_network.dart';
 import '../support/depth_link_finders.dart';
 import '../support/golden.dart';
 import '../support/onboarding_steps.dart';
@@ -116,46 +116,9 @@ Future<void> _daySheet(WidgetTester tester, ProviderContainer container) async {
   await settleWithIo(tester);
 }
 
-/// `/v1/chart`를 붙잡거나(받는 중) 503으로 끊습니다(오류).
-final class _ChartGate extends Interceptor {
-  new({required this.fail});
-
-  final bool fail;
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (options.path != '/v1/chart') {
-      handler.next(options);
-      return;
-    }
-    if (!fail) return; // 답하지 않고 붙잡아 둡니다.
-    handler.reject(
-      DioException.badResponse(
-        statusCode: 503,
-        requestOptions: options,
-        response: Response<Object?>(
-          requestOptions: options,
-          statusCode: 503,
-          data: {
-            'type': 'about:blank',
-            'title': 'Unavailable',
-            'status': 503,
-            'code': 'service.unavailable',
-            'traceId': 'screens',
-          },
-          headers: Headers.fromMap({
-            Headers.contentTypeHeader: ['application/problem+json'],
-          }),
-        ),
-      ),
-      true,
-    );
-  }
-}
-
 /// 사주 표를 엽니다. [gate]가 있으면 대역 서버 앞에 끼우고, [after]로 화면 안을 더 조작합니다.
 _Open _sajuChart({
-  _ChartGate? gate,
+  ChartNetwork? gate,
   Future<void> Function(WidgetTester tester)? after,
 }) => (tester, container) async {
   if (gate != null) {
@@ -166,7 +129,7 @@ _Open _sajuChart({
     container.read(routerProvider).push<void>(pathOf(ScreenIds.sajuChart)),
   );
   await pumpUntilScreen(tester, ScreenIds.sajuChart);
-  if (gate != null && !gate.fail) {
+  if (gate != null && gate.hold) {
     // 받는 중 skeleton이 숨 쉬는 채로 찍습니다.
     await tester.pump(const Duration(seconds: 1));
     return;
@@ -280,18 +243,24 @@ final List<_Shot> _shots = [
     'saju-chart',
     'loading',
     'member',
-    _sajuChart(gate: _ChartGate(fail: false)),
+    _sajuChart(gate: ChartNetwork()..hold = true),
   ),
   _Shot(
     'saju-chart',
     'error',
     'member',
-    _sajuChart(gate: _ChartGate(fail: true)),
+    _sajuChart(gate: ChartNetwork()..fail = true),
   ),
   _Shot(
     'evidence-sheet',
     'personal',
     'evidence-unlocked',
+    _sajuChart(after: _sajuPersonal),
+  ),
+  _Shot(
+    'evidence-sheet',
+    'personal-locked',
+    'member',
     _sajuChart(after: _sajuPersonal),
   ),
 ];

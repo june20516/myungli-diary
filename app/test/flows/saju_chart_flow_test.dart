@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -9,6 +12,9 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
+import 'package:myungli_diary/core/api/gen/model/position.dart';
+import 'package:myungli_diary/core/api/gen/model/shinsal_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -24,12 +30,17 @@ import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
+import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
+import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
+import '../support/chart_network.dart';
 import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart';
 import '../support/test_today.dart';
@@ -55,52 +66,6 @@ final Finder _evidenceSheet = find.byKey(const Key(ScreenIds.evidenceSheet));
 Finder _inEvidence(Finder matching) =>
     find.descendant(of: _evidenceSheet, matching: matching);
 
-/// `/v1/chart`를 세고, [hold]면 [gate]까지 붙잡고, [fail]이면 503으로 답합니다.
-final class _ChartNetwork extends Interceptor {
-  bool hold = false;
-  bool fail = false;
-  int requests = 0;
-  final gate = Completer<void>();
-
-  @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    if (options.path != '/v1/chart') {
-      handler.next(options);
-      return;
-    }
-    requests++;
-    if (hold) await gate.future;
-    if (fail) {
-      handler.reject(
-        DioException.badResponse(
-          statusCode: 503,
-          requestOptions: options,
-          response: Response<Object?>(
-            requestOptions: options,
-            statusCode: 503,
-            data: {
-              'type': 'about:blank',
-              'title': 'Unavailable',
-              'status': 503,
-              'code': 'service.unavailable',
-              'traceId': 'test',
-            },
-            headers: Headers.fromMap({
-              Headers.contentTypeHeader: ['application/problem+json'],
-            }),
-          ),
-        ),
-        true,
-      );
-      return;
-    }
-    handler.next(options);
-  }
-}
-
 /// 내용이 그려졌거나 오류가 보일 때까지 기다립니다.
 Future<void> _settleChart(WidgetTester tester) async {
   await pumpUntil(
@@ -117,7 +82,7 @@ Future<ProviderContainer> _openFromMySaju(
   WidgetTester tester, {
   String scenario = 'member',
   List<Override> overrides = const [],
-  _ChartNetwork? network,
+  Interceptor? network,
 }) async {
   final container = await pumpApp(
     tester,
@@ -134,7 +99,17 @@ Future<ProviderContainer> _openFromMySaju(
   final link = depthLinkTarget(
     of: find.byKey(const ValueKey(ScreenIds.mySaju)),
   );
-  await tester.ensureVisible(link);
+  await tester.scrollUntilVisible(
+    link,
+    120,
+    scrollable: find
+        .descendant(
+          of: find.byKey(const ValueKey(ScreenIds.mySaju)),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.pumpAndSettle();
   await tester.tap(link);
   await pumpUntilScreen(tester, ScreenIds.sajuChart);
   await _settleChart(tester);
@@ -144,7 +119,7 @@ Future<ProviderContainer> _openFromMySaju(
 /// [network]를 끼운 뒤 오늘 화면에서 사주 표로 바로 갑니다(나의 사주가 먼저 받지 않게).
 Future<ProviderContainer> _pushChart(
   WidgetTester tester,
-  _ChartNetwork network, {
+  ChartNetwork network, {
   bool settle = true,
 }) async {
   final container = await pumpApp(tester, scenario: 'member');
@@ -162,6 +137,63 @@ Future<ProviderContainer> _pushChart(
 Future<void> _openLuckTab(WidgetTester tester) async {
   await tester.tap(_inChart(find.text(_ko.sajuChartTabLuck)));
   await tester.pumpAndSettle();
+}
+
+/// 표 칸 용어 [term]을 눌러 풀이 시트 → "근거 보기"로 근거 시트를 엽니다.
+Future<void> _openPersonal(WidgetTester tester, Finder term) async {
+  // 사주 표의 세로 목록(첫 Scrollable)을 내려 칸이 화면에 들어오게 합니다.
+  await tester.scrollUntilVisible(
+    term,
+    120,
+    scrollable: _inChart(find.byType(Scrollable)).first,
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(term);
+  await settleWithIo(tester);
+  final explain = find.byKey(const Key(ScreenIds.explainSheet));
+  expect(explain, findsOneWidget);
+  await tester.tap(depthLinkTarget(of: explain));
+  await settleWithIo(tester);
+  expect(_evidenceSheet, findsOneWidget);
+}
+
+/// 열린 근거 시트가 받은 원국 개인 해석의 자리.
+PersonalReadingKey? _personalKey(WidgetTester tester) =>
+    tester.widget<EvidenceSheet>(find.byType(EvidenceSheet)).personal;
+
+/// 근거 시트의 "내 사주에서는" 문장에 [text]가 있는지.
+Finder _personalText(String text) =>
+    _inEvidence(find.textContaining(text, findRichText: true));
+
+/// member 사전에 12운성·신살 범주를 더한 사전(writing #331 원고가 온 뒤를 흉내 냄).
+Future<GlossaryNames> _glossaryWithStages() async {
+  final json = jsonDecode(
+    File('fixtures/member/getGlossary.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final body = json['body'] as Map<String, dynamic>;
+  final values = {
+    for (final entry in (body['values'] as Map<String, dynamic>).entries)
+      entry.key: Map<String, String>.from(entry.value as Map),
+  };
+  values['twelve_stage'] = const {'yang': '양', 'mokyok': '목욕'};
+  values['shinsal'] = const {'hwagae': '화개'};
+  return GlossaryNames(values);
+}
+
+/// 받은 나의 사주에서 원국 개인 해석을 뺍니다(원고가 없는 자리를 흉내 냄).
+final class _DropPersonal extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/chart' && data is Map) {
+      response.data = Map<String, Object?>.of(data.cast<String, Object?>())
+        ..remove('personalReadings');
+    }
+    handler.next(response);
+  }
 }
 
 void main() {
@@ -352,6 +384,177 @@ void main() {
     expect(_inEvidence(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
   });
 
+  testWidgets('evidence-unlocked: 일간 → 일간(천간) 풀이 → 근거 보기 → 일간 개인 해석', (
+    tester,
+  ) async {
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    final pillars = tester.widget<SajuPillars>(
+      _inChart(find.byType(SajuPillars)),
+    );
+    await _openPersonal(tester, find.byWidget(pillars.day.stemLabel!));
+    // 풀이 시트 제목은 일간(庚)의 이름입니다.
+    expect(
+      find.descendant(
+        of: find.byKey(const Key(ScreenIds.explainSheet)),
+        matching: find.text('경'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindDayMaster,
+        position: Position.dayStem,
+      ),
+    );
+    expect(_personalText('이 일간 자리는'), findsOneWidget);
+  });
+
+  testWidgets('evidence-unlocked: 지장간 십성 → 지장간 개인 해석(지지 자리·순서)', (
+    tester,
+  ) async {
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    // 연지 午의 지장간 丁(정관)·己(정인). 둘째(己)의 십성을 누릅니다.
+    final label = manse.year.hiddenStems[1].label;
+    expect(label, isA<TermToken>());
+    expect((label! as TermToken).label, '정인');
+    // 사전에 12운성·신살 이름이 없으면 칸을 비우고(A65) 줄 머리는 누를 수 없는 라벨입니다.
+    expect(manse.year.twelveStage, isNull);
+    expect(manse.hiddenStemsHeader, isNot(isA<TermToken>()));
+
+    await _openPersonal(tester, find.byWidget(label));
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindHiddenTenGod,
+        position: Position.yearBranch,
+        index: 1,
+      ),
+    );
+    expect(_personalText('이 지장간 자리는'), findsOneWidget);
+  });
+
+  testWidgets('evidence-unlocked: 대운 천간 십성 → 대운 개인 해석(대운 순서)', (tester) async {
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
+    expect(daeun.daeun[3].branchLabel, isA<TermToken>());
+    await _openPersonal(tester, find.byWidget(daeun.daeun[3].stemLabel!));
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindDaeunStemTenGod,
+        index: 3,
+      ),
+    );
+    expect(_personalText('이 대운 천간 자리는'), findsOneWidget);
+  });
+
+  testWidgets('evidence-unlocked: 세운 십성 → 세운 개인 해석(세운 순서)', (tester) async {
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
+    await _openPersonal(tester, find.byWidget(daeun.seun[3].label!));
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindSeunTenGod,
+        index: 3,
+      ),
+    );
+    expect(_personalText('이 세운 자리는'), findsOneWidget);
+  });
+
+  testWidgets('사전에 12운성·신살 이름이 있으면 그 칸도 개인 해석으로 이어집니다', (tester) async {
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      overrides: [
+        glossaryProvider.overrideWith((ref) => _glossaryWithStages()),
+      ],
+    );
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    expect(manse.day.twelveStage, isA<TermToken>());
+    expect((manse.day.shinsal.single as TermToken).label, '화개');
+
+    await _openPersonal(tester, find.byWidget(manse.day.twelveStage!));
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindTwelveStage,
+        position: Position.dayBranch,
+      ),
+    );
+    expect(_personalText('이 12운성 자리는'), findsOneWidget);
+
+    // 시트 둘을 닫고 신살 칸을 누릅니다.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    final shinsal = tester
+        .widget<ManseTable>(_inChart(find.byType(ManseTable)))
+        .day
+        .shinsal
+        .single;
+    await _openPersonal(tester, find.byWidget(shinsal));
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+        position: Position.dayBranch,
+        shinsal: ShinsalKind.hwagae,
+      ),
+    );
+    expect(_personalText('이 신살 자리는'), findsOneWidget);
+  });
+
+  testWidgets('잠긴 표 칸 근거 시트는 내 사주에서는 구역 하나만 잠깁니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _openFromMySaju(tester);
+    await _openPersonal(
+      tester,
+      _inChart(find.widgetWithText(TermToken, '비견')).first,
+    );
+    expect(_inEvidence(find.byType(EvidenceLockPanel)), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(
+        '${_ko.evidenceSheetSectionPersonal}, ${_ko.evidenceSheetA11yLocked}',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        '${_ko.evidenceSheetSectionBasis}, ${_ko.evidenceSheetA11yLocked}',
+      ),
+      findsNothing,
+    );
+    handle.dispose();
+  });
+
+  testWidgets('열렸는데 그 자리의 해석이 없으면 빈 안내입니다', (tester) async {
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      network: _DropPersonal(),
+    );
+    await _openPersonal(
+      tester,
+      _inChart(find.widgetWithText(TermToken, '비견')).first,
+    );
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionPersonal)),
+      findsOneWidget,
+    );
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetPersonalEmpty)),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('time-unknown: 시주 빈 칸과 안내', (tester) async {
     covers(const Covers(states: ['saju-chart:time-unknown']));
     await _openFromMySaju(tester, scenario: 'member-time-unknown');
@@ -374,7 +577,7 @@ void main() {
 
   testWidgets('loading: 받는 동안 skeleton, 오면 내용', (tester) async {
     covers(const Covers(states: ['saju-chart:loading']));
-    final network = _ChartNetwork()..hold = true;
+    final network = ChartNetwork()..hold = true;
     await _pushChart(tester, network, settle: false);
     await tester.pump(const Duration(milliseconds: 400));
     expect(
@@ -388,7 +591,7 @@ void main() {
 
   testWidgets('error: 받지 못하면 오류와 다시 시도', (tester) async {
     covers(const Covers(states: ['saju-chart:error']));
-    final network = _ChartNetwork()..fail = true;
+    final network = ChartNetwork()..fail = true;
     await _pushChart(tester, network);
     expect(_inChart(find.byType(ErrorState)), findsOneWidget);
     network.fail = false;
@@ -399,7 +602,7 @@ void main() {
 
   testWidgets('올해가 바뀌면 새 연도로 다시 받고 올해 세운 강조가 새 해를 따릅니다', (tester) async {
     final today = testTodayProvider(CalendarDate(2026, 12, 31));
-    final network = _ChartNetwork();
+    final network = ChartNetwork();
     final container = await _openFromMySaju(
       tester,
       overrides: [todayProvider.overrideWith((ref) => ref.watch(today))],

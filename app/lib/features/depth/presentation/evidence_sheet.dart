@@ -28,9 +28,10 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 /// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 근거는 열렸을 때(`unlocked`이고 다시
 /// 받는 중이 아님)만 읽으므로 잠긴 시트는 문장을 받지도 그리지도 않습니다(D60).
 ///
-/// [personal]이 있으면(사주 표 칸 용어에서 연 시트, A58) "내 사주에서는" 구역을 두고, 열렸을 때
-/// 나의 사주 응답에서 그 자리의 원국 개인 해석을 찾아 넘깁니다. 항목이 없으면 구역을 그리지
-/// 않습니다. 이 시트의 응답은 늘 나의 사주입니다([evidenceSubjectFor]).
+/// [personal]이 있으면(사주 표 칸 용어에서 연 시트, A58) "내 사주에서는" 구역 하나만 두고(판정
+/// 근거·원전 없음, 잠겨도 그 구역만 잠김), 열렸을 때 나의 사주 응답에서 그 자리의 원국 개인 해석을
+/// 찾아 넘깁니다. 항목이 없으면 빈 안내입니다. 이 시트의 응답은 늘 나의 사주입니다
+/// ([evidenceSubjectFor]).
 ///
 /// 상태: 응답이 아직 없으면 skeleton(`loading`), 받지 못했거나 잠금 해제 뒤 다시 받기에
 /// 실패하면 오류 화면과 다시 시도(`error`), 권한이 생겨 다시 받는 동안은 구역 skeleton입니다.
@@ -120,6 +121,12 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         source: _sentences(evidence.map((item) => item.source_)),
         personal: personal == null || isBlankText(personal) ? null : personal,
         showPersonal: personalKey != null,
+        // 표 칸의 시트는 판정 근거·원전이 없는 자리라 내 사주에서는 구역 하나이고, 열렸는데
+        // 그 자리의 해석이 없으면(원고 없음) 빈 안내를 둡니다.
+        showJudgment: personalKey == null,
+        personalEmpty: personalKey == null
+            ? null
+            : l10n.evidenceSheetPersonalEmpty,
         loading: state.refreshing,
         onWatchAd: state.adReady ? () => unawaited(controller.watchAd()) : null,
         onPass: _openAdFree,

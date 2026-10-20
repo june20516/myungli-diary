@@ -1633,9 +1633,13 @@
   "@manseTableLabel": {
     "description": "임시. manse-table 스크린리더 표 이름(saju.json a11y.label)"
   },
-  "seunYearLabel": "{year}년",
-  "@seunYearLabel": {
-    "description": "임시. daeun-table 세운 칸과 대운 시작 연도의 스크린리더 글",
+  "evidenceSheetPersonalEmpty": "이 자리의 해석은 아직 준비 중이에요.",
+  "@evidenceSheetPersonalEmpty": {
+    "description": "임시. evidence-sheet 표 칸 용어에서 열었는데 그 자리의 원국 개인 해석(personal.body)이 없을 때 구역 제목 아래 안내"
+  },
+  "luckYearLabel": "{year}년",
+  "@luckYearLabel": {
+    "description": "임시. daeun-table 대운 시작 연도와 세운 칸의 스크린리더 글(연도)",
     "placeholders": {
       "year": {
         "type": "int"

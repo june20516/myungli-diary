@@ -5,6 +5,8 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/notice_text.dart';
@@ -13,6 +15,7 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -47,8 +50,12 @@ const AppGlyph _gear = AppGlyph(
 ///   `explain-sheet` `stem.<값>`), 용신 줄(사전 `role.yongsin` 이름 + 오행 용어 →
 ///   `explain-sheet` `element.<값>`)과 행운 색 칩(`lucky-card` `color`, 누르면 오행 뜻),
 ///   "근거 보기"(`depth-link` `block` → `saju-chart`)입니다.
-/// * 문장 슬롯(`my-saju.ilgan.head`·`ilgan.body`·`yongsin.body`)은 계약 `Chart`에 필드가
-///   생기면 그립니다(server #329). 그 전에는 자리를 비웁니다.
+/// * 문장 슬롯(`my-saju.ilgan.head`·`ilgan.body`·`yongsin.body`)은 draft.10의
+///   선택 필드 `Chart.ilganHead`·`ilganBody`·`yongsinSummary`를
+///   `sentence-block` `card`로 그립니다(A55 해제). 일간 소개 둘은 일간 이름
+///   아래, 용신 설명은 행운 색 아래입니다. 필드가 없거나 빈 문장이면 그 자리를
+///   그리지 않습니다. 호칭은 server가 문장 안에 넣어 보냅니다. 문장 안 용어는
+///   풀이 시트를 엽니다(이 화면의 근거는 "근거 보기" → 사주 표).
 /// * 받는 중 skeleton(`loading`), 받지 못하면 오류와 다시 시도(`error`).
 /// * 앱 바 톱니는 `settings`, 아래 광고 배너는 탭 틀이 그립니다(D53).
 class MySajuScreen extends ConsumerWidget {
@@ -123,11 +130,15 @@ class _MySajuBody extends ConsumerWidget {
     final sheets = ref.read(depthSheetsProvider);
     void explain(String termId) => sheets.openExplain(context, termId: termId);
 
-    final timeUnknown = chart.notices
-        .where((n) => n.code == NoticeCode.timeUnknown)
-        .map(noticeTextOf)
-        .nonNulls
-        .firstOrNull;
+    // 판정은 사주 표와 같은 [chartTimeUnknown]이고, 문구는 이 화면에 ui 슬롯이 없어 server 안내
+    // 문장입니다(문장이 없으면 배너도 없음).
+    final timeUnknown = chartTimeUnknown(chart)
+        ? chart.notices
+              .where((n) => n.code == NoticeCode.timeUnknown)
+              .map(noticeTextOf)
+              .nonNulls
+              .firstOrNull
+        : null;
     final dayStem = chart.pillars.day.stem;
     final dayStemName = names?.valueName('stem', dayStem.value);
     final yongsin = chart.yongsin.yongsin;
@@ -174,6 +185,8 @@ class _MySajuBody extends ConsumerWidget {
             ),
           ),
         ],
+        ?_sentence(chart.ilganHead, SlotIds.mySajuIlganHead, explain),
+        ?_sentence(chart.ilganBody, SlotIds.mySajuIlganBody, explain),
         const SizedBox(height: Space.s24),
         if (roleName != null && yongsinName != null)
           Wrap(
@@ -200,12 +213,32 @@ class _MySajuBody extends ConsumerWidget {
             items: [_colorItem(l10n, names!, chart, colorName, colorMeaning)],
           ),
         ],
+        ?_sentence(chart.yongsinSummary, SlotIds.mySajuYongsinBody, explain),
         DepthLink(
           variant: DepthLinkVariant.block,
           label: l10n.depthLinkEvidence,
           onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
         ),
       ],
+    );
+  }
+
+  /// 문장 필드 하나를 [slotId] 자리의 `card`로 그립니다. 없거나 빈 문장이면 null입니다.
+  static Widget? _sentence(
+    SlotText? sentence,
+    String slotId,
+    void Function(String termId) explain,
+  ) {
+    final text = sentence?.text;
+    if (text == null || isBlankText(text)) return null;
+    return Padding(
+      padding: const EdgeInsets.only(top: Space.s12),
+      child: SentenceBlock(
+        variant: SentenceBlockVariant.card,
+        text: text,
+        slotId: slotId,
+        onTerm: explain,
+      ),
     );
   }
 

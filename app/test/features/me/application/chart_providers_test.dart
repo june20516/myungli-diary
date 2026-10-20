@@ -101,4 +101,18 @@ void main() {
     expect(fake.callCountOf('getChart'), before + 1);
     expect(container.read(chartControllerProvider).hasValue, isTrue);
   });
+
+  test(
+    '시간 모름 판정: 시주가 없거나 time_unknown 안내가 있으면 참(my-saju·saju-chart 공통)',
+    () async {
+      final (_, member) = await _load('member');
+      expect(chartTimeUnknown(member), isFalse);
+      final (_, unknown) = await _load('member-time-unknown');
+      expect(chartTimeUnknown(unknown), isTrue);
+      expect(
+        chartTimeUnknown(member.copyWith(notices: unknown.notices)),
+        isTrue,
+      );
+    },
+  );
 }

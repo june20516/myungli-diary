@@ -156,6 +156,20 @@
     "note": "locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
+    "id": "render.evidence-sheet.personal-locked.2026-10-20",
+    "title": "evidence-sheet (personal-locked) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-20-evidence-sheet-personal-locked.png",
+    "date": "2026-10-20",
+    "milestone": "A1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "personal-locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
     "id": "render.evidence-sheet.personal.2026-10-20",
     "title": "evidence-sheet (personal) 화면",
     "kind": "screenshot",

@@ -7,7 +7,11 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import '../input/input_harness.dart';
 
-ManseColumn _column(String header, {bool empty = false}) => empty
+ManseColumn _column(
+  String header, {
+  bool empty = false,
+  VoidCallback? onHiddenTenGod,
+}) => empty
     ? ManseColumn(header: header)
     : ManseColumn(
         header: header,
@@ -21,17 +25,30 @@ ManseColumn _column(String header, {bool empty = false}) => empty
           hanja: '辰',
           size: OhaengCellSize.mini,
         ),
-        hiddenStems: const [
-          ManseHiddenStem(hanja: '乙', reading: '을'),
-          ManseHiddenStem(hanja: '癸', reading: '계'),
+        hiddenStems: [
+          ManseHiddenStem(
+            hanja: '乙',
+            reading: '을',
+            label: onHiddenTenGod == null
+                ? null
+                : GestureDetector(
+                    onTap: onHiddenTenGod,
+                    child: Text('$header-정재'),
+                  ),
+          ),
+          const ManseHiddenStem(hanja: '癸', reading: '계'),
         ],
-        twelveStage: '$header-운성',
-        shinsal: ['$header-신살1', '$header-신살2'],
+        twelveStage: Text('$header-운성'),
+        shinsal: [Text('$header-신살1'), Text('$header-신살2')],
       );
 
-Widget _table({bool hourUnknown = false, VoidCallback? onHeader}) => ManseTable(
+Widget _table({
+  bool hourUnknown = false,
+  VoidCallback? onHeader,
+  VoidCallback? onHiddenTenGod,
+}) => ManseTable(
   hour: _column('시주', empty: hourUnknown),
-  day: _column('일주'),
+  day: _column('일주', onHiddenTenGod: onHiddenTenGod),
   month: _column('월주'),
   year: _column('연주'),
   hiddenStemsHeader: GestureDetector(onTap: onHeader, child: const Text('지장간')),
@@ -80,8 +97,36 @@ void main() {
       context.tokens.typography.hanjaPillar.fontFamily,
     );
     expect(spanOf(' 을')?.style?.color, context.tokens.colors.textSecondary);
-    expect(find.text('시주-신살1\n시주-신살2'), findsOneWidget);
+    // 신살은 칸 안 여러 줄(위아래)입니다.
+    expect(
+      tester.getTopLeft(find.text('시주-신살2')).dy,
+      greaterThan(tester.getTopLeft(find.text('시주-신살1')).dy),
+    );
     expect(find.text('일주-운성'), findsOneWidget);
+  });
+
+  testWidgets('값 칸(12운성·신살)은 받은 위젯에 값 글자(type.body.ui text.primary)를 줍니다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(inputApp(SizedBox(width: 360, child: _table())));
+    final context = tester.element(find.text('일주-운성'));
+    final style = DefaultTextStyle.of(context).style;
+    final tokens = context.tokens;
+    expect(style.fontSize, tokens.typography.bodyUi.fontSize);
+    expect(style.color, tokens.colors.textPrimary);
+  });
+
+  testWidgets('지장간 옆 용어 라벨을 누르면 그 콜백(지장간 십성 풀이)', (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      inputApp(
+        SizedBox(width: 360, child: _table(onHiddenTenGod: () => taps++)),
+      ),
+    );
+    await tester.tap(find.text('일주-정재'));
+    expect(taps, 1);
+    // 라벨이 없는 지장간은 한자·독음만입니다.
+    expect(find.text('시주-정재'), findsNothing);
   });
 
   testWidgets('time-unknown: 시주 열은 빈 칸', (tester) async {

@@ -2184,11 +2184,17 @@ abstract class AppLocalizations {
   /// **'만세력 표'**
   String get manseTableLabel;
 
-  /// 임시. daeun-table 세운 칸과 대운 시작 연도의 스크린리더 글
+  /// 임시. evidence-sheet 표 칸 용어에서 열었는데 그 자리의 원국 개인 해석(personal.body)이 없을 때 구역 제목 아래 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이 자리의 해석은 아직 준비 중이에요.'**
+  String get evidenceSheetPersonalEmpty;
+
+  /// 임시. daeun-table 대운 시작 연도와 세운 칸의 스크린리더 글(연도)
   ///
   /// In ko, this message translates to:
   /// **'{year}년'**
-  String seunYearLabel(int year);
+  String luckYearLabel(int year);
 
   /// 임시. legal 줄 이름: 이용약관(A61)
   ///

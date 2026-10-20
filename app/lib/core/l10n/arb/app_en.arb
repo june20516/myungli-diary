@@ -346,7 +346,8 @@
   "sajuPillarDayMaster": "Day master",
   "sajuPillarsTableLabel": "Birth chart",
   "manseTableLabel": "Manseryeok table",
-  "seunYearLabel": "{year}",
+  "evidenceSheetPersonalEmpty": "The reading for this spot isn't ready yet.",
+  "luckYearLabel": "{year}",
   "legalTermsLabel": "Terms of Service",
   "legalPrivacyLabel": "Privacy Policy",
   "legalLicensesLabel": "Open source licenses"

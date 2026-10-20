@@ -452,6 +452,52 @@
       }
     ],
     "notices": [],
+    "ilganHead": {
+      "slot": "chart.ilgan_head",
+      "messageKey": "ilgan.head.gyeong",
+      "variant": "single",
+      "text": {
+        "segments": [
+          {
+            "text": "하늘님, 다듬기 전의 단단한 쇠를 닮았어요."
+          }
+        ]
+      },
+      "reactable": false
+    },
+    "ilganBody": {
+      "slot": "chart.ilgan_body",
+      "messageKey": "ilgan.body.gyeong",
+      "variant": "single",
+      "text": {
+        "segments": [
+          {
+            "text": "옳다고 여긴 일은 바로 행동으로 옮기는 편이에요. 결단이 필요한 순간에 망설이지 않는 모습이 돋보여요."
+          }
+        ]
+      },
+      "reactable": false
+    },
+    "yongsinSummary": {
+      "slot": "chart.yongsin_summary",
+      "messageKey": "yongsin.summary",
+      "variant": "single",
+      "text": {
+        "segments": [
+          {
+            "text": "나와 잘 맞는 오행은 "
+          },
+          {
+            "text": "수",
+            "term": "element.water"
+          },
+          {
+            "text": "예요. 색으로는 남색이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
+          }
+        ]
+      },
+      "reactable": false
+    },
     "personalReadings": [
       {
         "kind": "day_master",
