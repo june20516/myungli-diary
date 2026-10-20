@@ -1043,7 +1043,7 @@ func TestContract_Draft9Additions(t *testing.T) {
 
 	descriptions := map[string][]string{
 		"admobRewardCallback": {"`user_id`가 없거나 없는 계정이면 기록만 하고 200"},
-		"revenuecatWebhook":   {"기록만 하고 200", "`TEST`"},
+		"revenuecatWebhook":   {"모르는 계정이면 기록만 하고 200", "`type`이 `TEST`인 이벤트도 기록만 하고 200", "같은 `event.id`는 한 번만 처리"},
 		"restorePurchases":    {"환불된 구매"},
 	}
 	for id, texts := range descriptions {
