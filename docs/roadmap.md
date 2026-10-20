@@ -44,12 +44,12 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기, #316: 기본 깊이 설정 삭제·IA v4, D79) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
 | 지금 | server | P7(결제와 권한: RevenueCat·AdMob SSV·근거 열람 권한) 계획과 구현, D75 후속(S77 필드 5개 제거, app 확인 끝 #309) | S2 완료, S3 |
-| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). 생일 음력 확인 줄·안내 문구(#313) | I3, server 시드 strict(S38) |
+| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). 생일 음력 확인 줄·안내 문구(#313), 기본 깊이 원고 빼기·W15 개정(#317, D79) | I3, server 시드 strict(S38) |
 | 그다음 | server | S3(REST v1 freeze), staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | A2, I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 필요할 때 | design | app·writing 요청 대응 | - |
+| 필요할 때 | design | app·writing 요청 대응, #318(글자 수 상한 표의 깊이 이름 대상 빼기, D79) | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
