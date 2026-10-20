@@ -69,9 +69,10 @@ func TestGetBirthHour_SendsSeoulFixedGenderWithoutLongitude(t *testing.T) {
 				return &enginev1.BirthHourResponse{Branch: enginev1.Branch_BRANCH_JA, Start: seoulInstant(t, "1990-05-14", "23:30"), End: seoulInstant(t, "1990-05-15", "01:30")}, nil
 			}}
 
-			_, rec, _ := postBirthHourBody(t, fake, birthHourPayload(tt.calendar, tt.isLeap))
+			req, rec, spec := postBirthHourBody(t, fake, birthHourPayload(tt.calendar, tt.isLeap))
 
 			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			expectContractResponse(t, spec, req, rec)
 			birth := got.GetBirth()
 			assert.Equal(t, tt.wantCalendar, birth.GetCalendar())
 			assert.Equal(t, tt.isLeap, birth.GetIsLeapMonth())
@@ -111,9 +112,10 @@ func TestGetBirthHour_ReturnsSeoulWallClockAcrossMidnight(t *testing.T) {
 func TestGetBirthHour_SolarLeapMonthIs422Inconsistent(t *testing.T) {
 	fake := &enginetest.Fake{}
 
-	_, rec, _ := postBirthHourBody(t, fake, birthHourPayload("solar", true))
+	req, rec, spec := postBirthHourBody(t, fake, birthHourPayload("solar", true))
 
 	require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
 	p := decodeProblem(t, rec)
 	assert.Equal(t, "request.inconsistent", p.Code)
 	assert.Equal(t, []problem.FieldError{{Field: "/isLeapMonth", Code: "forbidden_by_status"}}, p.Errors)
@@ -135,9 +137,10 @@ func TestGetBirthHour_EngineDateErrorsAre422(t *testing.T) {
 				return nil, tt.err
 			}}
 
-			_, rec, _ := postBirthHourBody(t, fake, birthHourPayload("lunar", false))
+			req, rec, spec := postBirthHourBody(t, fake, birthHourPayload("lunar", false))
 
 			require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
+			expectContractResponse(t, spec, req, rec)
 			p := decodeProblem(t, rec)
 			assert.Equal(t, tt.wantCode, p.Code)
 			assert.Equal(t, []problem.FieldError{{Field: "/date", Code: tt.wantCode}}, p.Errors)
@@ -153,4 +156,18 @@ func TestGetBirthHour_MissingEngineInstantIs500(t *testing.T) {
 	_, rec, _ := postBirthHourBody(t, fake, birthHourPayload("solar", false))
 
 	assert.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+}
+
+func TestGetBirthHour_WithoutEngineIs503(t *testing.T) {
+	handler, spec := newHandlerAPI(t, &httpapi.API{})
+	raw, err := json.Marshal(birthHourPayload("solar", false))
+	require.NoError(t, err)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/birth-hour", strings.NewReader(string(raw)))
+	req.Header.Set("Content-Type", "application/json")
+
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
+	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+	expectContractResponse(t, spec, req, rec)
 }

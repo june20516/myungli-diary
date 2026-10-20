@@ -1054,7 +1054,7 @@ func TestContract_Draft8Additions(t *testing.T) {
 		"getBirthHour":     {"`Asia/Seoul`", "시간대별 대표 경도(한국 127.5°, D29)", "IP별 요청 한도(분당 30회)"},
 		"convertLunarDate": {"IP별 요청 한도(분당 30회)"},
 		"listCities":       {"앞부분", "`If-None-Match`가 현재 `ETag`와 같으면 304"},
-		"createPreview":    {"`advice`"},
+		"createPreview":    {"`advice`", "IP별 요청 한도(분당 30회)"},
 	}
 	for id, texts := range descriptions {
 		t.Run(id, func(t *testing.T) {
@@ -1075,6 +1075,11 @@ func TestContract_Draft8Additions(t *testing.T) {
 		}
 	}
 
+	for _, id := range []string{"createPreview", "getBirthHour", "convertLunarDate"} {
+		if operationByID(t, doc, id).Responses.Value("429") == nil {
+			t.Errorf("%s에 429 응답이 없음", id)
+		}
+	}
 	for _, id := range []string{"getBirthHour", "convertLunarDate"} {
 		if operationByID(t, doc, id).Responses.Value("501") != nil {
 			t.Errorf("%s에 501 응답이 남아 있음", id)

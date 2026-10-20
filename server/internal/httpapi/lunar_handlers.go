@@ -24,8 +24,12 @@ var errLunarSolarMissing = errors.New("엔진 음력 변환 응답에 양력 날
 
 // ConvertLunarDate는 음력 날짜를 양력으로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려 줍니다. 입력은 저장하지 않습니다.
 // 없는 음력 날짜는 422 date.invalid, 지원 범위 밖은 422 date.out_of_range입니다.
+// 엔진이 조립되지 않았으면 503 service.unavailable입니다.
 // App Check와 요청 한도는 register.go가 operation 단위로 감쌉니다.
 func (a *API) ConvertLunarDate(ctx context.Context, req gen.ConvertLunarDateRequestObject) (gen.ConvertLunarDateResponseObject, error) {
+	if a.Lunar == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+	}
 	body := *req.Body
 	resp, err := a.Lunar.ConvertLunarDate(ctx, lunarRequest(body.Date, body.IsLeapMonth))
 	if err != nil {

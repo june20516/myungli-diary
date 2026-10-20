@@ -271,6 +271,21 @@ func TestAppLinkPage_DefaultsToEnglishAndEscapesScript(t *testing.T) {
 	assert.NotContains(t, body, "<b>")
 }
 
+// 원고에 용어 토큰이 섞여 있어도 조각(Segment)의 글자가 이어져 평문으로 나옵니다(용어 id는 드러나지 않음).
+func TestAppLinkPage_JoinsTermSegmentsIntoPlainText(t *testing.T) {
+	contents := &fakeContents{active: "v1", templates: map[string]content.Templates{
+		"en": appReturnTemplates("en", "Myungli Diary", "Please [[continue|term.continue]] in the app.", "Open in app", "Install the app"),
+	}}
+
+	rec, logs := getAppLinkPageIn(t, &httpapi.API{Contents: contents}, "en")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	body := rec.Body.String()
+	assert.Contains(t, body, "<p>Please continue in the app.</p>")
+	assert.NotContains(t, body, "term.continue")
+	assert.NotContains(t, logs.String(), `"severity":"ERROR"`)
+}
+
 func TestAppLinkPage_FallsBackToKoreanAndLogsOnce(t *testing.T) {
 	missingOne := appReturnContents()
 	missingOne.templates["ja"] = appReturnTemplates("ja", "t", "b", "o", "i", "apple_return.open")

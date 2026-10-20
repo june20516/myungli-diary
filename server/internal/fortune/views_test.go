@@ -716,7 +716,7 @@ func TestViews_ChartPersonalReadings(t *testing.T) {
 	}
 }
 
-// 원고가 없는 항목과 personal.로 시작하지 않는 키는 그 항목만 빠지고 Error 로그를 남깁니다.
+// 원고가 없는 항목, personal.로 시작하지 않는 키, 세 마디 미만이거나 마디가 빈 짧은 키는 그 항목만 빠지고 Error 로그를 남깁니다.
 func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
 	kind := enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAY_MASTER
 	fake := &enginetest.Fake{Chart: func(*enginev1.ChartRequest) (*enginev1.ChartResponse, error) {
@@ -730,6 +730,7 @@ func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
 				personalReading(kind, "personal.day_master", nil),
 				personalReading(kind, "personal.", nil),
 				personalReading(kind, "personal..x", nil),
+				personalReading(kind, "personal.day_master.", nil),
 				personalReading(kind, "personal.day_master.gap", nil),
 			},
 		}, nil
@@ -741,5 +742,5 @@ func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
 
 	require.Len(t, view.PersonalReadings, 1)
 	assert.Equal(t, "personal.day_master.gap", view.PersonalReadings[0].Text.MessageKey)
-	assert.Equal(t, 6, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
+	assert.Equal(t, 7, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
 }

@@ -36,7 +36,7 @@
 
 | # | 결정 | 근거 |
 | --- | --- | --- |
-| P6-1 | 요청 한도 키는 operation + 클라이언트 IP입니다. 계약이 말하는 "기기"는 요청에 기기 식별값이 없어(App Check `sub`는 앱 id) IP만 씁니다. 계약 설명을 "IP별"로 고칩니다(Task 1). | 계약 `BirthHourRequest`·`LunarDateRequest` |
+| P6-1 | 요청 한도 키는 operation + 클라이언트 IP입니다. 계약이 말하는 "기기"는 IP만 씁니다. `installationId`는 클라이언트가 바꿀 수 있어 한도 키로 믿을 수 없고 App Check `sub`는 앱 id입니다. 계약 설명을 "IP별"로 고칩니다(Task 1). | 계약 `BirthHourRequest`·`LunarDateRequest` |
 | P6-2 | 클라이언트 IP는 `X-Forwarded-For`를 오른쪽에서 `TRUSTED_PROXY_HOPS`(기본 1, Cloud Run 앞단 하나)번째 값, 헤더가 그보다 짧으면 `RemoteAddr`의 호스트입니다. 실제 값은 P9 배포에서 확인합니다. | Review Focus 3 |
 | P6-3 | 요청 한도는 고정 1분 창(`window_start` = 분 단위 내림)이고 `INSERT … ON CONFLICT (key, window_start) DO UPDATE SET count = count + 1 RETURNING count` 한 문장으로 셉니다. 한도를 넘어도 센 값은 남습니다. 지난 창 정리는 P8 retention입니다. | spec §3.3 `rate_limits` |
 | P6-4 | 미리보기 1회 기록은 출생 정보 검증을 통과한 뒤 엔진을 부르기 전에 선점(`INSERT … ON CONFLICT DO NOTHING`)하고, 엔진·렌더 실패로 응답을 못 주면 그 행을 지웁니다(D50 "최선 노력"과 실패 재시도). 성공한 행은 지우지 않습니다. | spec §3.3 `preview_usage` |

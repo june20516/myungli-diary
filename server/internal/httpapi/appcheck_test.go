@@ -188,24 +188,31 @@ func TestAppCheck_NilRoutesAppCheckIs503AndLogged(t *testing.T) {
 }
 
 func TestRegisterAPI_PanicsOnSecurityAlternatives(t *testing.T) {
-	spec, err := gen.GetSpec()
-	require.NoError(t, err)
-	operation := spec.Paths.Value("/v1/birth-hour").Post
-	operation.Security = &openapi3.SecurityRequirements{
-		{"appCheck": []string{}},
-		{"bearerAuth": []string{}},
+	tests := []struct {
+		name         string
+		requirements openapi3.SecurityRequirements
+	}{
+		{"서로 다른 scheme", openapi3.SecurityRequirements{{"appCheck": []string{}}, {"bearerAuth": []string{}}}},
+		{"선택적 인증(빈 requirement)과 scheme", openapi3.SecurityRequirements{{}, {"bearerAuth": []string{}}}},
 	}
-	deps, _ := newTestDeps()
-	routes := httpapi.Routes{
-		Spec:         spec,
-		Validate:     func(next http.Handler) http.Handler { return next },
-		Authenticate: authenticateFixedAccount,
-		AppCheck:     passAppCheck,
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spec, err := gen.GetSpec()
+			require.NoError(t, err)
+			spec.Paths.Value("/v1/birth-hour").Post.Security = &tt.requirements
+			deps, _ := newTestDeps()
+			routes := httpapi.Routes{
+				Spec:         spec,
+				Validate:     func(next http.Handler) http.Handler { return next },
+				Authenticate: authenticateFixedAccount,
+				AppCheck:     passAppCheck,
+			}
 
-	assert.Panics(t, func() {
-		httpapi.RegisterAPI(http.NewServeMux(), httpapi.Unimplemented{}, deps, routes)
-	})
+			assert.Panics(t, func() {
+				httpapi.RegisterAPI(http.NewServeMux(), httpapi.Unimplemented{}, deps, routes)
+			})
+		})
+	}
 }
 
 // Operation.AppCheck은 원본 계약(api/openapi.yaml)에서 security가 appCheck인 operationId 집합과 같아야 합니다.

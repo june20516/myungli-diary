@@ -686,7 +686,8 @@ paths:
       summary: 비로그인 미리보기
       description: |
         출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다.
-        App Check가 필요합니다. 설치(`installationId`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다.
+        App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        설치(`installationId`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다.
         언어는 `Accept-Language`를 씁니다.
         총운 문장은 계정이 없어 순환 기록이 없으므로 `advice` 유형을 쓰고, 호칭은 없습니다.
       security:
@@ -716,6 +717,8 @@ paths:
           $ref: '#/components/responses/UnsupportedMediaType'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalError'
         '502':

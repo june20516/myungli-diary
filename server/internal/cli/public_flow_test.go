@@ -3,7 +3,9 @@ package cli
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -120,6 +122,18 @@ func TestPublicFlow_RateLimitsBirthHourPerClient(t *testing.T) {
 		require.Equal(t, http.StatusOK, env.postPublic("/v1/birth-hour", birthHourJSON, stubAppCheckValue).status)
 	}
 	env.postPublic("/v1/birth-hour", birthHourJSON, stubAppCheckValue).requireProblem(t, http.StatusTooManyRequests, "rate_limited")
+}
+
+// 미리보기는 installationId를 바꿔 보내도 같은 IP면 한도에 걸립니다(installationId는 한도 키로 믿을 수 없음).
+func TestPublicFlow_RateLimitsPreviewPerClient(t *testing.T) {
+	env, _ := newPublicFlowEnv(t)
+
+	for i := range publicRateLimit {
+		body := strings.Replace(previewJSON, "flow-installation", fmt.Sprintf("flow-installation-%d", i), 1)
+		require.Equal(t, http.StatusOK, env.postPublic("/v1/preview", body, stubAppCheckValue).status)
+	}
+	body := strings.Replace(previewJSON, "flow-installation", "flow-installation-extra", 1)
+	env.postPublic("/v1/preview", body, stubAppCheckValue).requireProblem(t, http.StatusTooManyRequests, "rate_limited")
 }
 
 // 도시 검색과 앱 설정은 인증도 App Check도 필요 없습니다.

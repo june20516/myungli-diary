@@ -132,12 +132,15 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	contents := content.NewStore(pool, clock.System{}, logger)
 	readings := newReadings(contents, fortuneService, logger, clock.System{})
 
+	// 외부 제공자 호출(로그인 제공자·App Check)이 이 client 하나를 나눠 씁니다.
+	providerHTTP := newProviderHTTPClient()
+
 	// 프로젝트 번호가 없으면(APP_ENV=local) 검증기를 두지 않아 App Check operation이 503입니다.
 	var appCheck httpapi.AppCheckVerifier
 	if appCheckCfg.ProjectNumber != "" {
 		verifier, err := provider.NewAppCheck(provider.AppCheckConfig{
 			ProjectNumber: appCheckCfg.ProjectNumber,
-			HTTPClient:    newProviderHTTPClient(),
+			HTTPClient:    providerHTTP,
 			Clock:         clock.System{},
 		})
 		if err != nil {
@@ -158,7 +161,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Contents:  contents,
 		Logger:    logger,
 		Clock:     clock.System{},
-		HTTP:      newProviderHTTPClient(),
+		HTTP:      providerHTTP,
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
 		TestLogin: testLogin,
@@ -425,8 +428,8 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
 		// Idempotency-Key는 일정 만들기에만 적용합니다. registerDevice는 P8에서 더합니다.
 		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule"),
-		// 시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.
-		RateLimit: httpapi.RateLimit(ratelimit.New(deps.Pool, deps.Clock), deps.ProxyHops, publicRateLimit, time.Minute, "getBirthHour", "convertLunarDate"),
+		// 미리보기·시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.
+		RateLimit: httpapi.RateLimit(ratelimit.New(deps.Pool, deps.Clock), deps.ProxyHops, publicRateLimit, time.Minute, "createPreview", "getBirthHour", "convertLunarDate"),
 	}
 	// 검증기가 없으면 nil로 두어 App Check operation이 503입니다(nil 인터페이스를 RequireAppCheck에 넘기지 않음).
 	if deps.AppCheck != nil {

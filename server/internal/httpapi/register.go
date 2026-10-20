@@ -146,12 +146,16 @@ func operationFor(spec *openapi3.T, pattern string) Operation {
 }
 
 // hasSecurityAlternatives는 requirement가 둘 이상이고 서로 다른 scheme을 요구하는지 판별합니다.
+// 빈 requirement(`{}`, 선택적 인증)도 하나의 대안으로 셉니다(`[{}, {bearerAuth}]`).
 func hasSecurityAlternatives(requirements openapi3.SecurityRequirements) bool {
 	if len(requirements) < 2 {
 		return false
 	}
 	schemes := map[string]bool{}
 	for _, requirement := range requirements {
+		if len(requirement) == 0 {
+			schemes[""] = true
+		}
 		for name := range requirement {
 			schemes[name] = true
 		}

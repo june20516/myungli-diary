@@ -55,10 +55,11 @@ func Search(q, lang string, limit int) []City {
 		if !hasNamePrefix(entry.names, query) {
 			continue
 		}
+		name := normalizeForSearch(entry.city.Name(lang)) // 이름이 없으면 en으로 대체합니다.
 		matches = append(matches, match{
 			city:        entry.city,
-			name:        entry.names[lang],
-			langMatches: strings.HasPrefix(entry.names[lang], query),
+			name:        name,
+			langMatches: strings.HasPrefix(name, query),
 		})
 	}
 	slices.SortFunc(matches, func(a, b match) int {

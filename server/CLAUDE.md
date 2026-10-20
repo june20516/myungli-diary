@@ -46,7 +46,7 @@
 * P6로 비로그인·참조가 `serve`에 조립됐습니다: App Check 검증(`createPreview`·`getBirthHour`·`convertLunarDate`, 설정이 비면 503), `getBirthHour`·`convertLunarDate`의 IP별 요청 한도, 시진 확인(엔진 `GetBirthHour`), 미리보기(설치당 1회, 입력 저장 없음), 도시 검색(ETag)과 앱 설정(`getAppConfig`), 요청 언어 선택, 원국 개인 해석(`Chart.personalReadings`), Apple 복귀 페이지 writing 원고, staging 테스트 로그인(`-tags staging`, #93). 계약 개정은 설명과 하위 호환 추가뿐이고 새 결정은 S65~S78입니다. 규칙 정합성 점검 #281도 이 PR에서 정리했습니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
-* 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(규칙 v1.1, 용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
+* 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
