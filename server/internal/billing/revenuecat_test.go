@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -22,8 +23,11 @@ func newTestRevenueCat(t *testing.T, handler http.HandlerFunc) *RevenueCat {
 }
 
 func TestRevenueCat_Purchases_요청_모양과_해석(t *testing.T) {
+	var mu sync.Mutex
 	var gotPath, gotQuery, gotAuth string
 	client := newTestRevenueCat(t, func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		defer mu.Unlock()
 		gotPath, gotQuery, gotAuth = r.URL.EscapedPath(), r.URL.RawQuery, r.Header.Get("Authorization")
 		_, _ = w.Write([]byte(`{"object":"list","next_page":null,"items":[
 			{"id":"pur_1","product_id":"test.ad_free.month","purchased_at":1760918400123,"status":"owned","environment":"production","unknown":{"a":1}},
@@ -34,6 +38,8 @@ func TestRevenueCat_Purchases_요청_모양과_해석(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Purchases() error = %v", err)
 	}
+	mu.Lock()
+	defer mu.Unlock()
 	if gotPath != "/v2/projects/proj_test/customers/cust-1/purchases" || gotQuery != "limit=100" {
 		t.Errorf("요청 = %s?%s, want 경로와 limit=100", gotPath, gotQuery)
 	}
@@ -79,9 +85,9 @@ func TestRevenueCat_Purchases_다음_페이지는_starting_after로_이어_받�
 }
 
 func TestRevenueCat_Purchases_페이지_상한을_넘으면_오류(t *testing.T) {
-	calls := 0
+	var calls atomic.Int32
 	client := newTestRevenueCat(t, func(w http.ResponseWriter, r *http.Request) {
-		calls++
+		calls.Add(1)
 		_, _ = w.Write([]byte(`{"items":[{"id":"pur_x","product_id":"p","purchased_at":1,"status":"owned","environment":"production"}],"next_page":"more"}`))
 	})
 
@@ -89,21 +95,21 @@ func TestRevenueCat_Purchases_페이지_상한을_넘으면_오류(t *testing.T)
 	if err == nil || errors.Is(err, ErrProviderUnavailable) {
 		t.Errorf("error = %v, want ErrProviderUnavailable이 아닌 오류", err)
 	}
-	if calls != maxPurchasePages {
-		t.Errorf("요청 %d번, want %d번", calls, maxPurchasePages)
+	if int(calls.Load()) != maxPurchasePages {
+		t.Errorf("요청 %d번, want %d번", calls.Load(), maxPurchasePages)
 	}
 }
 
 func TestRevenueCat_Purchases_빈_next_page_항목이_없으면_멈춤(t *testing.T) {
-	calls := 0
+	var calls atomic.Int32
 	client := newTestRevenueCat(t, func(w http.ResponseWriter, r *http.Request) {
-		calls++
+		calls.Add(1)
 		_, _ = w.Write([]byte(`{"items":[],"next_page":"more"}`))
 	})
 
 	got, err := client.Purchases(context.Background(), "cust-1")
-	if err != nil || len(got) != 0 || calls != 1 {
-		t.Errorf("Purchases() = %+v, %v (요청 %d번), want 빈 목록, nil, 1번", got, err, calls)
+	if err != nil || len(got) != 0 || calls.Load() != 1 {
+		t.Errorf("Purchases() = %+v, %v (요청 %d번), want 빈 목록, nil, 1번", got, err, calls.Load())
 	}
 }
 
@@ -171,16 +177,49 @@ func TestRevenueCat_Purchases_인증_오류는_설정_문제(t *testing.T) {
 }
 
 func TestRevenueCat_Purchases_customer_id는_경로에서_escape(t *testing.T) {
+	var mu sync.Mutex
 	var gotPath string
 	client := newTestRevenueCat(t, func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
 		gotPath = r.URL.EscapedPath()
+		mu.Unlock()
 		_, _ = w.Write([]byte(`{"items":[]}`))
 	})
 
 	if _, err := client.Purchases(context.Background(), "a/b?c#d"); err != nil {
 		t.Fatalf("Purchases() error = %v", err)
 	}
+	mu.Lock()
+	defer mu.Unlock()
 	if want := "/v2/projects/proj_test/customers/a%2Fb%3Fc%23d/purchases"; gotPath != want {
 		t.Errorf("경로 = %s, want %s", gotPath, want)
+	}
+}
+
+func TestRevenueCat_Purchases_마지막_항목_id가_비면_형식_오류(t *testing.T) {
+	var calls atomic.Int32
+	client := newTestRevenueCat(t, func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write([]byte(`{"items":[{"id":"","product_id":"p","purchased_at":1,"status":"owned","environment":"production"}],"next_page":"more"}`))
+	})
+
+	_, err := client.Purchases(context.Background(), "cust-1")
+	if !errors.Is(err, ErrProviderUnavailable) || calls.Load() != 1 {
+		t.Errorf("error = %v (요청 %d번), want ErrProviderUnavailable과 1번", err, calls.Load())
+	}
+}
+
+func TestRevenueCat_Purchases_둘째_페이지_404는_장애(t *testing.T) {
+	client := newTestRevenueCat(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("starting_after") == "" {
+			_, _ = w.Write([]byte(`{"items":[{"id":"pur_1","product_id":"p","purchased_at":1,"status":"owned","environment":"production"}],"next_page":"more"}`))
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	got, err := client.Purchases(context.Background(), "cust-1")
+	if !errors.Is(err, ErrProviderUnavailable) || got != nil {
+		t.Errorf("Purchases() = %+v, %v, want nil, ErrProviderUnavailable", got, err)
 	}
 }

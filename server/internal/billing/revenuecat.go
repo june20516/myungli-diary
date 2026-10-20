@@ -94,6 +94,10 @@ func (r *RevenueCat) Purchases(ctx context.Context, customerID string) ([]Purcha
 			return nil, err
 		}
 		if !found {
+			// 404는 첫 페이지에서만 구매 없음입니다. 이어 받던 중이면 부분 목록으로 권한을 계산하지 않도록 장애로 봅니다.
+			if startingAfter != "" {
+				return nil, fmt.Errorf("%w: 다음 페이지를 찾을 수 없습니다", ErrProviderUnavailable)
+			}
 			return nil, nil
 		}
 		for _, item := range page.Items {
@@ -111,6 +115,10 @@ func (r *RevenueCat) Purchases(ctx context.Context, customerID string) ([]Purcha
 			return purchases, nil
 		}
 		startingAfter = page.Items[len(page.Items)-1].ID
+		if startingAfter == "" {
+			// 커서가 없으면 첫 페이지를 다시 받게 되므로 형식 오류로 봅니다.
+			return nil, fmt.Errorf("%w: 마지막 구매의 id가 없습니다", ErrProviderUnavailable)
+		}
 	}
 	return nil, fmt.Errorf("RevenueCat 구매 목록이 %d페이지를 넘었습니다", maxPurchasePages)
 }
