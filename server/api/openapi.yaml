@@ -16,7 +16,7 @@ info:
     * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. 지원 언어는 `ko`·`en`·`ja`이고, 헤더의 q값 순서로 첫 지원 언어를 고릅니다(`ko-KR`은 `ko`). 맞는 언어가 없거나 헤더가 없으면 기본 언어는 `en`입니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
     * 생성하는 POST(`createSchedule`, `registerDevice`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
     * 문장 필드는 조각 배열(`RenderedText`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
-    * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
+    * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`). 기간(`from`·`to`)으로 받는 목록(`listSchedules`)은 cursor 없이 범위 안을 한 번에 돌려줍니다.
 
     오류
     * 모든 오류는 RFC 9457 `application/problem+json`(`Problem`)입니다. app은 `code`를 보고 자기 UI 문구로 보여 줍니다. `title`은 개발자용 영어입니다.

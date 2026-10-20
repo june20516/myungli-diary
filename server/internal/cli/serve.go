@@ -84,6 +84,11 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	// staging 빌드에서만 TEST_LOGIN_SECRET을 읽고 검사합니다(prod 빌드는 아무것도 읽지 않음, S24).
+	testLogin, err := loadTestLogin(getenv)
+	if err != nil {
+		return err
+	}
 	appCheckCfg, err := config.LoadAppCheck(getenv)
 	if err != nil {
 		return err
@@ -93,11 +98,6 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		return err
 	}
 	appVersions, err := config.LoadAppVersions(getenv)
-	if err != nil {
-		return err
-	}
-	// staging 빌드에서만 TEST_LOGIN_SECRET을 읽고 검사합니다(prod 빌드는 아무것도 읽지 않음, S24).
-	testLogin, err := loadTestLogin(getenv)
 	if err != nil {
 		return err
 	}
