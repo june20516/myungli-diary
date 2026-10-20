@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
@@ -25,6 +26,14 @@ const AppGlyph _caretRight = AppGlyph(
   light: PhosphorIconsLight.caretRight,
   regular: PhosphorIconsRegular.caretRight,
 );
+
+/// [locale]의 달 제목(예: "2026년 10월", A38).
+String calendarMonthTitle(String locale, CalendarMonth month) =>
+    DateFormat.yMMMM(locale).format(DateTime(month.year, month.month));
+
+/// 일요일부터 토요일까지 [locale]의 짧은 요일 이름(A38).
+List<String> calendarWeekdayLabels(String locale) =>
+    DateFormat(null, locale).dateSymbols.STANDALONESHORTWEEKDAYS;
 
 /// 범례 한 줄: 색 견본과 낱말.
 typedef CalendarLegendEntry = ({Color swatch, String label});
@@ -64,6 +73,7 @@ class CalendarMonthView extends StatefulWidget {
     this.legend,
     this.legendIdentifier,
     this.isDateEnabled,
+    this.lastMonth,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
     this.skeletonAnimated = true,
     super.key,
@@ -163,6 +173,10 @@ class CalendarMonthView extends StatefulWidget {
   /// 날짜를 누를 수 있는지. null이면 지원 범위 안의 모든 날짜를 누를 수 있습니다.
   final bool Function(CalendarDate date)? isDateEnabled;
 
+  /// 이 달 뒤로는 넘기지 않습니다(다음 버튼이 막힘). null이면 지원 범위 끝까지입니다.
+  /// date-picker `calendar`가 오늘이 든 달 뒤의 미래 달로 넘어가지 않게 씁니다.
+  final CalendarMonth? lastMonth;
+
   /// skeleton이 보이기 전 대기. 이보다 빨리 끝나면 skeleton은 나오지 않습니다.
   final Duration skeletonDelay;
 
@@ -233,7 +247,9 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
 
   CalendarMonth? get _next {
     final next = widget.month.next();
-    return next.isSupported ? next : null;
+    final last = widget.lastMonth;
+    final beyondLast = last != null && next.compareTo(last) > 0;
+    return next.isSupported && !beyondLast ? next : null;
   }
 
   void _go(CalendarMonth? target) {

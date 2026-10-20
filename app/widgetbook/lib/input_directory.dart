@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
@@ -85,6 +87,35 @@ Widget _checkRow(
         viewLabel: '보기',
         onView: () {},
       ),
+    ),
+  );
+}
+
+/// 달을 넘기고 날을 고르는 date-picker calendar.
+class _MonthDatePickerDemo extends StatefulWidget {
+  const new();
+
+  @override
+  State<_MonthDatePickerDemo> createState() => _MonthDatePickerDemoState();
+}
+
+class _MonthDatePickerDemoState extends State<_MonthDatePickerDemo> {
+  static final _today = CalendarDate(2026, 10, 13);
+  CalendarMonth _month = CalendarMonth.of(_today);
+  CalendarDate _selected = _today;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 360,
+    child: MonthDatePicker(
+      month: _month,
+      selected: _selected,
+      today: _today,
+      markedDates: {CalendarDate(2026, 10, 2), CalendarDate(2026, 10, 12)},
+      onSelect: (date) => setState(() => _selected = date),
+      onMonthChange: (month) => setState(() => _month = month),
+      confirmLabel: '${_selected.month}월 ${_selected.day}일 일기',
+      onConfirm: () {},
     ),
   );
 }
@@ -372,8 +403,9 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
             ),
           ),
         ),
+        _stage('calendar(일기 날짜)', () => const _MonthDatePickerDemo()),
         _stage(
-          'birth(양력 전용)',
+          'solar(일정 날짜)',
           () => _datePicker(
             const BirthDateValue(
               calendar: BirthCalendar.solar,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/wheel.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -110,7 +111,8 @@ enum DatePickerVariant {
   /// 일정 날짜(양력만). `birth`에서 양력·음력 선택과 윤달 줄을 뺀 모양입니다.
   solar,
 
-  /// 일기 목록에서 날짜로 가기(시트 안). 계획 5에서 구현합니다.
+  /// 일기 목록에서 날짜로 가기(시트 안). 휠이 아니라 달력 격자라 [MonthDatePicker]가
+  /// 그립니다.
   calendar,
 }
 
@@ -125,7 +127,8 @@ enum DatePickerVariant {
 /// [DatePickerVariant.solar]는 양력·음력 선택과 윤달 줄을 그리지 않고, 받은 값이 음력이어도
 /// 양력으로 보고 늘 양력 값만 돌려줍니다(일정 날짜). 휠·선택 띠·범위는 `birth`와 같습니다.
 ///
-/// [variant]가 [DatePickerVariant.calendar]이면 아직 구현 전이라 [UnimplementedError]입니다.
+/// [DatePickerVariant.calendar]는 휠이 아니라 [MonthDatePicker]입니다. 이 위젯에 주면
+/// [ArgumentError]입니다.
 class BirthDatePicker extends StatelessWidget {
   /// 생일 휠을 만듭니다. 글자(양력·음력·윤달)는 화면이 줍니다.
   const new({
@@ -206,7 +209,11 @@ class BirthDatePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (variant == DatePickerVariant.calendar) {
-      throw UnimplementedError('date-picker calendar 변형은 계획 5에서 구현합니다.');
+      throw ArgumentError.value(
+        variant,
+        'variant',
+        'date-picker calendar 변형은 MonthDatePicker입니다.',
+      );
     }
     final l10n = AppLocalizations.of(context);
     final value = _effectiveValue;
