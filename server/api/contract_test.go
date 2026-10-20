@@ -659,10 +659,48 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft10(t *testing.T) {
+func TestContract_VersionIsDraft11(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.10" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.10", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.11" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.11", doc.Info.Version)
+	}
+}
+
+// TestContract_DeviceOperations는 알림 기기 계약(S92)을 확인합니다. 이미 등록된 토큰은 같은 Device로 200,
+// 새 토큰은 201이고, 해제의 404는 device.not_found입니다.
+func TestContract_DeviceOperations(t *testing.T) {
+	doc := loadDoc(t)
+	register := operationByID(t, doc, "registerDevice")
+	for _, status := range []int{200, 201} {
+		resp := register.Responses.Status(status)
+		if resp == nil || resp.Value == nil || resp.Value.Content.Get("application/json") == nil {
+			t.Errorf("registerDevice %d 응답(application/json)이 없음", status)
+		}
+	}
+	if operationByID(t, doc, "deleteDevice").Responses.Status(404) == nil {
+		t.Error("deleteDevice 404 응답이 없음")
+	}
+	entry, ok := loadProblemCodes(t)["device.not_found"]
+	if !ok {
+		t.Fatal("x-problem-codes에 device.not_found가 없음")
+	}
+	if entry.Status != 404 {
+		t.Errorf("device.not_found status = %d, want 404", entry.Status)
+	}
+}
+
+// TestContract_ResponsesMatchImplementation은 S3 점검에서 맞춘 응답 목록을 확인합니다(S93).
+// completeAppleWebLogin에는 요청 한도가 없고, admobRewardCallback은 query 검증 400과 저장 실패 500을 냅니다.
+func TestContract_ResponsesMatchImplementation(t *testing.T) {
+	doc := loadDoc(t)
+	if operationByID(t, doc, "completeAppleWebLogin").Responses.Status(429) != nil {
+		t.Error("completeAppleWebLogin에 나지 않는 429 응답이 있음")
+	}
+	admob := operationByID(t, doc, "admobRewardCallback")
+	for _, status := range []int{400, 500} {
+		if admob.Responses.Status(status) == nil {
+			t.Errorf("admobRewardCallback %d 응답이 없음", status)
+		}
 	}
 }
 

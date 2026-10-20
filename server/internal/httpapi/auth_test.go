@@ -189,6 +189,8 @@ func TestBearer_ConsentRequiredBlocksOtherOperations(t *testing.T) {
 		{http.MethodDelete, "/v1/me", ""},
 		{http.MethodPost, "/v1/auth/logout", `{"refreshToken":"r"}`},
 		{http.MethodPost, "/v1/me/consents", `{"documents":[{"document":"terms","version":"1"}]}`},
+		// 로그아웃 전에 알림을 멈추려고 부르므로 동의 전에도 엽니다(S92).
+		{http.MethodDelete, "/v1/devices/00000000-0000-0000-0000-000000000001", ""},
 	}
 	for _, tt := range allowed {
 		t.Run(tt.method+" "+tt.target, func(t *testing.T) {
