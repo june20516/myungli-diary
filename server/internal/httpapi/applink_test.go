@@ -1,6 +1,7 @@
 package httpapi_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"html"
 	"net/http"
@@ -13,7 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
+	"github.com/june20516/myungli-diary/server/seed"
 )
 
 // hrefPattern은 안내 페이지의 링크 주소(href 속성 값)를 찾습니다.
@@ -186,4 +189,113 @@ func mustJSON(t *testing.T, value any) string {
 	encoded, err := json.Marshal(value)
 	require.NoError(t, err)
 	return string(encoded)
+}
+
+// fakeTemplates는 (slot, key) -> 원문과 슬롯 명세를 가진 content.Templates 대역입니다.
+type fakeTemplates struct {
+	lang   string
+	slots  map[string]seed.Slot
+	bodies map[string]string
+}
+
+func (f fakeTemplates) Lang() string { return f.lang }
+
+func (f fakeTemplates) Slot(id string) (seed.Slot, bool) {
+	slot, ok := f.slots[id]
+	return slot, ok
+}
+
+func (f fakeTemplates) Body(slot, key, _ string) (string, bool) {
+	body, ok := f.bodies[slot+"/"+key]
+	return body, ok
+}
+
+func (f fakeTemplates) ValueName(string, string) (string, bool) { return "", false }
+
+// appReturnTemplates는 system.apple_return 원고 넷을 가진 lang의 문장 틀입니다. omit 키는 뺍니다.
+func appReturnTemplates(lang, title, body, open, install string, omit ...string) fakeTemplates {
+	bodies := map[string]string{
+		"system.apple_return/apple_return.title":   title,
+		"system.apple_return/apple_return.body":    body,
+		"system.apple_return/apple_return.open":    open,
+		"system.apple_return/apple_return.install": install,
+	}
+	for _, key := range omit {
+		delete(bodies, "system.apple_return/"+key)
+	}
+	return fakeTemplates{
+		lang:   lang,
+		slots:  map[string]seed.Slot{"system.apple_return": {ID: "system.apple_return"}},
+		bodies: bodies,
+	}
+}
+
+func appReturnContents() *fakeContents {
+	return &fakeContents{active: "v1", templates: map[string]content.Templates{
+		"ja": appReturnTemplates("ja", "メオンリ日記", "アプリで続けてください。", "アプリで開く", "アプリをインストール"),
+		"en": appReturnTemplates("en", "Myungli Diary", "Please continue in the app. <b>", "Open in app", "Install the app"),
+	}}
+}
+
+func getAppLinkPageIn(t *testing.T, api *httpapi.API, language string) (*httptest.ResponseRecorder, *bytes.Buffer) {
+	t.Helper()
+	handler, _, logs := newHandlerAPIWithLogs(t, api)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth/apple?"+url.Values{"exchange": {testExchangeCode}}.Encode(), nil)
+	if language != "" {
+		req.Header.Set("Accept-Language", language)
+	}
+	return serve(handler, req), logs
+}
+
+func TestAppLinkPage_RendersScriptInRequestLanguage(t *testing.T) {
+	rec, logs := getAppLinkPageIn(t, &httpapi.API{Contents: appReturnContents()}, "ja")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	body := rec.Body.String()
+	assert.Contains(t, body, `<html lang="ja">`)
+	assert.Contains(t, body, "<title>メオンリ日記</title>")
+	assert.Contains(t, body, "<p>アプリで続けてください。</p>")
+	assert.Contains(t, body, ">アプリで開く</a>")
+	assert.Contains(t, body, ">アプリをインストール</a>")
+	assert.NotContains(t, logs.String(), `"severity":"ERROR"`)
+	assert.Len(t, pageLinks(body), 2, "교환 코드가 있으면 intent·스토어 링크가 그대로입니다")
+}
+
+func TestAppLinkPage_DefaultsToEnglishAndEscapesScript(t *testing.T) {
+	rec, _ := getAppLinkPageIn(t, &httpapi.API{Contents: appReturnContents()}, "")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	body := rec.Body.String()
+	assert.Contains(t, body, `<html lang="en">`)
+	assert.Contains(t, body, "<p>Please continue in the app. &lt;b&gt;</p>")
+	assert.NotContains(t, body, "<b>")
+}
+
+func TestAppLinkPage_FallsBackToKoreanAndLogsOnce(t *testing.T) {
+	missingOne := appReturnContents()
+	missingOne.templates["ja"] = appReturnTemplates("ja", "t", "b", "o", "i", "apple_return.open")
+	noSeed := &noSeedContents{appReturnContents()}
+	tests := []struct {
+		name string
+		api  *httpapi.API
+	}{
+		{"Contents 없음", &httpapi.API{}},
+		{"활성 시드 없음", &httpapi.API{Contents: noSeed}},
+		{"그 언어 원고 없음", &httpapi.API{Contents: &fakeContents{active: "v1"}}},
+		{"문장 하나가 없음(부분 대체 없음)", &httpapi.API{Contents: missingOne}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rec, logs := getAppLinkPageIn(t, tt.api, "ja")
+
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			body := rec.Body.String()
+			assert.Contains(t, body, `<html lang="ko">`)
+			assert.Contains(t, body, "<p>명리일기 앱에서 계속해 주세요.</p>")
+			assert.Contains(t, body, ">앱에서 열기</a>")
+			assert.Contains(t, body, ">앱 설치하기</a>")
+			assert.Equal(t, 1, strings.Count(logs.String(), `"severity":"ERROR"`), logs.String())
+			assert.NotContains(t, logs.String(), testExchangeCode, "교환 코드는 로그에 남기지 않습니다")
+		})
+	}
 }

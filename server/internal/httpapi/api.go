@@ -64,10 +64,11 @@ type Readings interface {
 
 var _ Readings = (*fortune.Views)(nil)
 
-// Contents는 용어 사전(getGlossary)과 문장 반응(putReaction·deleteReaction, getDaily의 반응 표시)이 쓰는 콘텐츠 저장소입니다.
+// Contents는 용어 사전(getGlossary), 문장 반응(putReaction·deleteReaction, getDaily의 반응 표시), Apple 복귀 페이지 문구가 쓰는 콘텐츠 저장소입니다.
 // *content.Store가 만족합니다.
 type Contents interface {
 	Active(ctx context.Context) (string, error)
+	Templates(ctx context.Context, version, lang string) (content.Templates, error)
 	Glossary(ctx context.Context, version, lang string) (content.Glossary, error)
 	SelectionFor(ctx context.Context, accountID uuid.UUID, date time.Time, slot string, birthHash [32]byte) (content.Selection, error)
 	PutReaction(ctx context.Context, selectionID int64, reaction string) error
