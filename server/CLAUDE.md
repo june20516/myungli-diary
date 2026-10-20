@@ -53,7 +53,7 @@
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
+1. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
 2. P8(Job: precompute, notify, retention과 익명화)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92).
 3. 원문 `docs/legal/<언어>/`가 들어오면 `go generate ./legal/`로 내장 문서를 다시 만듭니다(ci-gate drift 경로 반영 뒤에는 drift Issue로 옵니다).
 4. core #304가 반영되면 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).

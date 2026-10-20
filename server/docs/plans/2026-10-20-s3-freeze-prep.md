@@ -26,7 +26,7 @@
 
 ## freeze 전에 남은 일
 
-1. app에 요청: 생성 옵션 `enumUnknownDefaultCase`(열린 enum의 모르는 값을 decode 실패로 보지 않음). Issue로 엽니다.
+1. app에 요청: 생성 옵션 `enumUnknownDefaultCase`(열린 enum의 모르는 값을 decode 실패로 보지 않음)와 알림 기기 호출 시점. #347로 요청했고, 답을 받은 뒤 freeze PR을 올립니다.
 2. `registerDevice`·`deleteDevice` 구현(P8). 계약은 draft.11로 확정입니다.
 3. 예시(example): 하위 호환 추가라 freeze 뒤에도 넣을 수 있습니다. 우선 `Problem`(errors 포함), `ProfileResponse.warnings`, `LoginResponse`, `Daily`, `Chart` 순서로 넣고, 계약 테스트의 `doc.Validate`가 예시를 검사하는지 확인합니다.
 4. IA 화면별 슬롯과 계약 데이터의 끝까지 대조(이번 점검에서 다 하지 못함).
