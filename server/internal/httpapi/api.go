@@ -107,6 +107,8 @@ type API struct {
 	Accounts AccountService
 	Profiles ProfileService
 	Lunar    LunarConverter
+	// BirthHour는 시진 확인(getBirthHour)이 쓰는 엔진입니다. 조립에서 반드시 넣습니다.
+	BirthHour BirthHourChecker
 	// Readings는 운세 화면 묶음입니다. 비어 있으면 운세 operation은 503 service.unavailable입니다.
 	Readings Readings
 	// Contents는 콘텐츠 저장소입니다. 비어 있으면 getGlossary·반응 operation·getDaily는 503 service.unavailable입니다.

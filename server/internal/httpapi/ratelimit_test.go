@@ -139,3 +139,14 @@ func TestRateLimit_IPv6SharesKeyWithinSlash64(t *testing.T) {
 	assert.Equal(t, limiter.keys[0], limiter.keys[1], "같은 /64는 같은 키")
 	assert.NotEqual(t, limiter.keys[0], limiter.keys[2], "다른 /64는 다른 키")
 }
+
+func TestRateLimit_DistinctIPv4MappedAddressesUseDistinctKeys(t *testing.T) {
+	limiter := &fakeLimiter{limit: 30}
+	handler, _ := newRateLimitHandler(t, limiter, &fakeAppCheck{})
+
+	serve(handler, rateLimitedRequest(t, "::ffff:1.2.3.4"))
+	serve(handler, rateLimitedRequest(t, "::ffff:5.6.7.8"))
+
+	require.Len(t, limiter.keys, 2)
+	assert.NotEqual(t, limiter.keys[0], limiter.keys[1], "IPv4-mapped 주소는 /64로 묶지 않고 IPv4로 구분")
+}
