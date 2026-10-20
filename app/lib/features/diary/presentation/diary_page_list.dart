@@ -27,7 +27,8 @@ const int _loadMoreThreshold = 3;
 ///
 /// [leading]은 목록 맨 위에 놓는 것(오프라인 배너, 태그 뜻 줄 등)입니다. 다음 쪽을 받는
 /// 동안은 맨 아래에 skeleton 줄, 받지 못하면 다시 시도 버튼을 둡니다. 줄을 누르면 그날
-/// `diary-view`, 태그 칩을 누르면 그 태그의 `tag-diary`입니다.
+/// `diary-view`, 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([tag])와 같은
+/// 칩은 같은 화면을 다시 쌓지 않도록 누를 수 없는 표시입니다.
 class DiaryPageList extends ConsumerWidget {
   /// [view] 목록을 그립니다. [tag]는 [diaryPagesProvider]의 family 값입니다.
   const new({
@@ -73,6 +74,7 @@ class DiaryPageList extends ConsumerWidget {
       entries.add(
         _DiaryPageRow(
           summary: item,
+          listTag: tag,
           date: date,
           isLast: index == items.length - 1 && !view.hasMore,
           onShown: index >= items.length - _loadMoreThreshold
@@ -107,16 +109,38 @@ class DiaryPageList extends ConsumerWidget {
   }
 }
 
+/// 첫 쪽을 받는 동안의 목록 skeleton(`diary-row` 모양 세 줄).
+class DiaryPageListSkeleton extends StatelessWidget {
+  /// skeleton을 만듭니다.
+  const new({super.key});
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
+    child: Column(
+      children: [
+        DiaryRowSkeleton(),
+        DiaryRowSkeleton(index: 2),
+        DiaryRowSkeleton(index: 4),
+      ],
+    ),
+  );
+}
+
 /// 목록 한 줄: 그날 성격 배지(달 길흉 캐시, A46)와 대표 태그 칩을 채운 `diary-row`.
 class _DiaryPageRow extends ConsumerStatefulWidget {
   const new({
     required this.summary,
+    required this.listTag,
     required this.date,
     required this.isLast,
     required this.onShown,
   });
 
   final DiarySummary summary;
+
+  /// 목록의 태그(null이면 모든 일기).
+  final String? listTag;
   final CalendarDate date;
   final bool isLast;
 
@@ -160,6 +184,7 @@ class _DiaryPageRowState extends ConsumerState<_DiaryPageRow> {
               context,
               ref.watch(glossaryProvider).value,
               featured.first,
+              linked: featured.first.key != widget.listTag,
             ),
       isLast: widget.isLast,
       onTap: () =>

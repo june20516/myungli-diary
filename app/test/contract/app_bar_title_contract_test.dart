@@ -26,6 +26,7 @@ const Map<String, String> _barTitleKeys = {
   'diary-list': 'diaryListBarTitle',
   'diary-edit': 'diaryEditBarTitle',
   'diary-view': 'diaryViewBarTitle',
+  'tag-diary': 'tagDiaryBarTitle',
   'event-edit': 'eventEditBarTitle',
   'calc-basis': 'calcBasisBarTitle',
 };

@@ -28,10 +28,12 @@ final _written = CalendarDate(2026, 10, 12);
 const _writtenPath = '/v1/diaries/2026-10-12';
 
 /// [failingPaths]의 GET은 503으로 답하고, [hold]가 있으면 그 GET을 [gate]가 열릴 때까지
-/// 붙잡습니다.
+/// 붙잡습니다. [deleteGone]이면 지우기를 404 `diary.not_found`로 답합니다(다른 곳에서
+/// 이미 지움).
 final class _Network extends Interceptor {
   final failingPaths = <String>{};
   String? hold;
+  bool deleteGone = false;
   final gate = Completer<void>();
 
   @override
@@ -43,31 +45,38 @@ final class _Network extends Interceptor {
       await gate.future;
     }
     if (options.method == 'GET' && failingPaths.contains(options.path)) {
-      handler.reject(
-        DioException.badResponse(
-          statusCode: 503,
-          requestOptions: options,
-          response: Response<Object?>(
-            requestOptions: options,
-            statusCode: 503,
-            data: {
-              'type': 'about:blank',
-              'title': 'Unavailable',
-              'status': 503,
-              'code': 'service.unavailable',
-              'traceId': 'test',
-            },
-            headers: Headers.fromMap({
-              Headers.contentTypeHeader: ['application/problem+json'],
-            }),
-          ),
-        ),
-        true,
-      );
+      handler.reject(_problem(options, 503, 'service.unavailable'), true);
+      return;
+    }
+    if (options.method == 'DELETE' && deleteGone) {
+      handler.reject(_problem(options, 404, 'diary.not_found'), true);
       return;
     }
     handler.next(options);
   }
+
+  static DioException _problem(
+    RequestOptions options,
+    int status,
+    String code,
+  ) => DioException.badResponse(
+    statusCode: status,
+    requestOptions: options,
+    response: Response<Object?>(
+      requestOptions: options,
+      statusCode: status,
+      data: {
+        'type': 'about:blank',
+        'title': 'Problem',
+        'status': status,
+        'code': code,
+        'traceId': 'test',
+      },
+      headers: Headers.fromMap({
+        Headers.contentTypeHeader: ['application/problem+json'],
+      }),
+    ),
+  );
 }
 
 /// member로 앱을 띄우고 홈 위에 [date] 일기 보기를 엽니다.
@@ -174,6 +183,20 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsNothing);
     expect(find.text(_ko.diaryViewDeleted), findsOneWidget);
     // toast가 사라질 때까지 둡니다.
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
+  });
+
+  testWidgets('지우기: 이미 없는 일기(404)면 그 문구 toast와 함께 앞 화면으로', (tester) async {
+    final network = _Network()..deleteGone = true;
+    await _openView(tester, _written, network: network);
+    await tester.tap(find.byKey(DiaryViewScreen.deleteKey));
+    await settleWithIo(tester);
+    await tester.tap(find.text(_ko.diaryViewDeleteConfirmDelete));
+    await settleWithIo(tester, allowOngoing: true);
+
+    expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsNothing);
+    expect(find.text(_ko.errorDiaryNotFound), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
     await settleWithIo(tester);
   });

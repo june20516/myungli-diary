@@ -1,14 +1,13 @@
 {
-  "generatedAt": "2026-10-20T05:05:29.983606Z",
+  "generatedAt": "2026-10-20T05:13:50.942521Z",
   "exits": {
-    "covered": 51,
+    "covered": 54,
     "total": 80,
     "uncovered": [
       "account-delete>welcome",
       "ad-free>legal",
       "ad-free>system-purchase",
       "birthplace>notify-ask",
-      "diary-view>tag-diary",
       "launch>ad-consent",
       "my-saju>explain-sheet",
       "my-saju>saju-chart",
@@ -30,9 +29,7 @@
       "settings>welcome",
       "system-apple-return>welcome",
       "system-purchase>ad-free",
-      "system-rewarded-ad>evidence-sheet",
-      "tag-diary>diary-view",
-      "tag-diary>explain-sheet"
+      "system-rewarded-ad>evidence-sheet"
     ],
     "coveredBy": {
       "ad-consent>today": [
@@ -101,10 +98,13 @@
         "test/flows/diary_list_flow_test.dart:116 줄을 누르면 그날 diary-view, 태그 칩을 누르면 tag-diary"
       ],
       "diary-view>diary-edit": [
-        "test/flows/diary_view_flow_test.dart:144 고치기는 이 화면을 그날 쓰기 화면으로 바꿉니다"
+        "test/flows/diary_view_flow_test.dart:153 고치기는 이 화면을 그날 쓰기 화면으로 바꿉니다"
       ],
       "diary-view>explain-sheet": [
-        "test/flows/diary_view_flow_test.dart:131 성격을 누르면 그 성격 용어의 풀이 시트"
+        "test/flows/diary_view_flow_test.dart:140 성격을 누르면 그 성격 용어의 풀이 시트"
+      ],
+      "diary-view>tag-diary": [
+        "test/flows/tag_diary_flow_test.dart:162 diary-view의 태그 칩 → 그 태그 모아보기"
       ],
       "evidence-sheet>ad-free": [
         "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
@@ -201,6 +201,12 @@
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
       ],
+      "tag-diary>diary-view": [
+        "test/flows/tag_diary_flow_test.dart:183 줄을 누르면 그날 diary-view"
+      ],
+      "tag-diary>explain-sheet": [
+        "test/flows/tag_diary_flow_test.dart:196 뜻의 용어 칩 → 풀이 시트"
+      ],
       "today>day-sheet": [
         "test/flows/today_flow_test.dart:467 member: 오늘 일정 한 줄 → 오늘 day-sheet",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
@@ -236,7 +242,7 @@
     }
   },
   "states": {
-    "covered": 36,
+    "covered": 39,
     "total": 54,
     "uncovered": [
       "account-delete:error",
@@ -253,10 +259,7 @@
       "profile-edit:error",
       "saju-chart:error",
       "saju-chart:loading",
-      "saju-chart:time-unknown",
-      "tag-diary:empty",
-      "tag-diary:error",
-      "tag-diary:loading"
+      "saju-chart:time-unknown"
     ],
     "coveredBy": {
       "birthplace:empty": [
@@ -317,10 +320,10 @@
         "test/flows/diary_list_flow_test.dart:167 offline: 받아 둔 목록이 있으면 그대로 보이고 배너"
       ],
       "diary-view:error": [
-        "test/flows/diary_view_flow_test.dart:215 error: 일기를 받지 못하면 오류 화면과 다시 시도"
+        "test/flows/diary_view_flow_test.dart:238 error: 일기를 받지 못하면 오류 화면과 다시 시도"
       ],
       "diary-view:loading": [
-        "test/flows/diary_view_flow_test.dart:201 loading: 일기를 받는 동안 skeleton, 오면 본문"
+        "test/flows/diary_view_flow_test.dart:224 loading: 일기를 받는 동안 skeleton, 오면 본문"
       ],
       "event-edit:error": [
         "test/flows/event_edit_flow_test.dart:92 schedule-save-error: 저장 실패 toast를 띄우고 화면과 입력이 남습니다"
@@ -362,6 +365,15 @@
       "preview:time-unknown": [
         "test/flows/preview_flow_test.dart:147 time-unknown: 시간 모름 배너"
       ],
+      "tag-diary:empty": [
+        "test/flows/tag_diary_flow_test.dart:209 empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다"
+      ],
+      "tag-diary:error": [
+        "test/flows/tag_diary_flow_test.dart:249 error: 목록을 받지 못하면 오류 화면과 다시 시도"
+      ],
+      "tag-diary:loading": [
+        "test/flows/tag_diary_flow_test.dart:230 loading: 목록을 받는 동안 skeleton, 오면 줄"
+      ],
       "today:error": [
         "test/flows/today_flow_test.dart:528 daily-error: 오류 화면과 다시 시도"
       ],
@@ -386,6 +398,7 @@
       "D47": [
         "test/flows/diary_list_flow_test.dart:94 member: 달 머리 아래 일기 줄(날짜 내림차순)과 배지·대표 태그",
         "test/flows/event_edit_flow_test.dart:80 새 일정을 저장하면 닫히고 보이는 달 범위를 다시 받아 점이 갱신됩니다 (A34)",
+        "test/flows/tag_diary_flow_test.dart:144 제목은 태그 이름, 뜻 한 줄, 그 태그의 일기 줄",
         "test/flows/today_flow_test.dart:329 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
       ],
@@ -673,7 +686,7 @@
     },
     "diary-view": {
       "exits": {
-        "covered": 2,
+        "covered": 3,
         "total": 3
       },
       "states": {
@@ -683,11 +696,11 @@
     },
     "tag-diary": {
       "exits": {
-        "covered": 0,
+        "covered": 2,
         "total": 2
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },

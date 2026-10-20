@@ -12,7 +12,6 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
-import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -123,7 +122,7 @@ class _DiaryListScreenState extends ConsumerState<DiaryListScreen> {
                 child: ScreenStateView<DiaryPagesView>(
                   value: pages,
                   onRetry: () => ref.invalidate(diaryPagesProvider(null)),
-                  skeleton: const _ListSkeleton(),
+                  skeleton: const DiaryPageListSkeleton(),
                   isEmpty: (view) => view.items.isEmpty,
                   empty: EmptyState(
                     body: l10n.diaryListEmptyBody,
@@ -207,21 +206,4 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
       ),
     );
   }
-}
-
-/// 목록을 받는 동안의 skeleton 세 줄.
-class _ListSkeleton extends StatelessWidget {
-  const new();
-
-  @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
-    child: Column(
-      children: [
-        DiaryRowSkeleton(),
-        DiaryRowSkeleton(index: 2),
-        DiaryRowSkeleton(index: 4),
-      ],
-    ),
-  );
 }
