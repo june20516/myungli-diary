@@ -1095,4 +1095,74 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get errorTimezoneInvalid => '시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.';
+
+  @override
+  String get settingsNotifyLabel => '알림 시각';
+
+  @override
+  String get settingsNotifyOff => '꺼짐';
+
+  @override
+  String get settingsLanguageLabel => '언어';
+
+  @override
+  String get settingsLogoutLabel => '로그아웃';
+
+  @override
+  String get profileEditBirthplaceKorea => '한국';
+
+  @override
+  String get sajuChartTabNatal => '원국';
+
+  @override
+  String get sajuChartTabLuck => '만세력·대운';
+
+  @override
+  String get sajuPillarHour => '시주';
+
+  @override
+  String get sajuPillarDay => '일주';
+
+  @override
+  String get sajuPillarMonth => '월주';
+
+  @override
+  String get sajuPillarYear => '연주';
+
+  @override
+  String get manseRowHiddenStems => '지장간';
+
+  @override
+  String get manseRowTwelveStages => '12운성';
+
+  @override
+  String get manseRowShinsal => '신살';
+
+  @override
+  String get sajuTagMe => '나';
+
+  @override
+  String get daeunTagNow => '지금';
+
+  @override
+  String get seunTagThisYear => '올해';
+
+  @override
+  String daeunTableLabel(int age) {
+    return '대운 $age세부터';
+  }
+
+  @override
+  String ohaengBarItem(String element, String count) {
+    return '$element $count';
+  }
+
+  @override
+  String get legalTermsLabel => '이용약관';
+
+  @override
+  String get legalPrivacyLabel => '개인정보 처리방침';
+
+  @override
+  String get legalLicensesLabel => '오픈소스 라이선스';
 }

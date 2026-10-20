@@ -2057,6 +2057,138 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.'**
   String get errorTimezoneInvalid;
+
+  /// 임시. settings 줄 이름: 아침 알림 시각(A59)
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 시각'**
+  String get settingsNotifyLabel;
+
+  /// 임시. settings 알림 시각 줄의 값: 알림을 끔
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼짐'**
+  String get settingsNotifyOff;
+
+  /// 임시. settings 줄 이름: 앱 언어(A60)
+  ///
+  /// In ko, this message translates to:
+  /// **'언어'**
+  String get settingsLanguageLabel;
+
+  /// 임시. settings 줄 이름: 로그아웃(destructive, A63)
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃'**
+  String get settingsLogoutLabel;
+
+  /// 임시. profile-edit 출생지 줄의 값: 출생지를 묻지 않았거나 건너뛰어 한국 기준으로 계산함(D29)
+  ///
+  /// In ko, this message translates to:
+  /// **'한국'**
+  String get profileEditBirthplaceKorea;
+
+  /// 임시. saju-chart 탭 이름: 원국표·오행 분포·용신 판정 근거(A57)
+  ///
+  /// In ko, this message translates to:
+  /// **'원국'**
+  String get sajuChartTabNatal;
+
+  /// 임시. saju-chart 탭 이름: 만세력 표·대운·세운(A57)
+  ///
+  /// In ko, this message translates to:
+  /// **'만세력·대운'**
+  String get sajuChartTabLuck;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 시주
+  ///
+  /// In ko, this message translates to:
+  /// **'시주'**
+  String get sajuPillarHour;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 일주
+  ///
+  /// In ko, this message translates to:
+  /// **'일주'**
+  String get sajuPillarDay;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 월주
+  ///
+  /// In ko, this message translates to:
+  /// **'월주'**
+  String get sajuPillarMonth;
+
+  /// 임시. saju-pillars·manse-table 열 머리: 연주
+  ///
+  /// In ko, this message translates to:
+  /// **'연주'**
+  String get sajuPillarYear;
+
+  /// 임시. manse-table 행 머리: 지장간
+  ///
+  /// In ko, this message translates to:
+  /// **'지장간'**
+  String get manseRowHiddenStems;
+
+  /// 임시. manse-table 행 머리: 12운성
+  ///
+  /// In ko, this message translates to:
+  /// **'12운성'**
+  String get manseRowTwelveStages;
+
+  /// 임시. manse-table 행 머리: 신살
+  ///
+  /// In ko, this message translates to:
+  /// **'신살'**
+  String get manseRowShinsal;
+
+  /// 임시. saju-pillars 일간 칸의 '나' 꼬리표(tag.me)
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get sajuTagMe;
+
+  /// 임시. daeun-table 지금 대운 꼬리표(tag.status)
+  ///
+  /// In ko, this message translates to:
+  /// **'지금'**
+  String get daeunTagNow;
+
+  /// 임시. daeun-table 올해 세운 꼬리표(tag.status)
+  ///
+  /// In ko, this message translates to:
+  /// **'올해'**
+  String get seunTagThisYear;
+
+  /// 임시. daeun-table 스크린리더 표 이름. age는 첫 대운의 한국식 나이
+  ///
+  /// In ko, this message translates to:
+  /// **'대운 {age}세부터'**
+  String daeunTableLabel(int age);
+
+  /// 임시. ohaeng-bar 스크린리더 항목(오행 이름 + 개수). 항목은 a11yListSeparator로 잇습니다
+  ///
+  /// In ko, this message translates to:
+  /// **'{element} {count}'**
+  String ohaengBarItem(String element, String count);
+
+  /// 임시. legal 줄 이름: 이용약관(A61)
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get legalTermsLabel;
+
+  /// 임시. legal 줄 이름: 개인정보 처리방침(A61)
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 처리방침'**
+  String get legalPrivacyLabel;
+
+  /// 임시. legal 줄 이름: 오픈소스 라이선스(A61, GeoNames 고지 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'오픈소스 라이선스'**
+  String get legalLicensesLabel;
 }
 
 class _AppLocalizationsDelegate

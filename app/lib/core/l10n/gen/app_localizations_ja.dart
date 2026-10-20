@@ -1093,4 +1093,74 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get errorTimezoneInvalid => 'タイムゾーンを確認できませんでした。端末の設定を確認してください。';
+
+  @override
+  String get settingsNotifyLabel => '通知時刻';
+
+  @override
+  String get settingsNotifyOff => 'オフ';
+
+  @override
+  String get settingsLanguageLabel => '言語';
+
+  @override
+  String get settingsLogoutLabel => 'ログアウト';
+
+  @override
+  String get profileEditBirthplaceKorea => '韓国';
+
+  @override
+  String get sajuChartTabNatal => '命式';
+
+  @override
+  String get sajuChartTabLuck => '万年暦・大運';
+
+  @override
+  String get sajuPillarHour => '時柱';
+
+  @override
+  String get sajuPillarDay => '日柱';
+
+  @override
+  String get sajuPillarMonth => '月柱';
+
+  @override
+  String get sajuPillarYear => '年柱';
+
+  @override
+  String get manseRowHiddenStems => '蔵干';
+
+  @override
+  String get manseRowTwelveStages => '十二運';
+
+  @override
+  String get manseRowShinsal => '神殺';
+
+  @override
+  String get sajuTagMe => '私';
+
+  @override
+  String get daeunTagNow => '今';
+
+  @override
+  String get seunTagThisYear => '今年';
+
+  @override
+  String daeunTableLabel(int age) {
+    return '$age歳からの大運';
+  }
+
+  @override
+  String ohaengBarItem(String element, String count) {
+    return '$element $count';
+  }
+
+  @override
+  String get legalTermsLabel => '利用規約';
+
+  @override
+  String get legalPrivacyLabel => 'プライバシーポリシー';
+
+  @override
+  String get legalLicensesLabel => 'オープンソースライセンス';
 }
