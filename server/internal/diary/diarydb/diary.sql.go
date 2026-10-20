@@ -212,6 +212,50 @@ func (q *Queries) SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams
 	return result.RowsAffected(), nil
 }
 
+const updateDiaryBody = `-- name: UpdateDiaryBody :one
+UPDATE diaries SET body = $1, updated_at = now()
+WHERE account_id = $2 AND date = $3 AND deleted_at IS NULL
+RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at
+`
+
+type UpdateDiaryBodyParams struct {
+	Body      string
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+type UpdateDiaryBodyRow struct {
+	ID             uuid.UUID
+	AccountID      uuid.UUID
+	Date           pgtype.Date
+	Body           string
+	AllTags        []string
+	FeaturedTags   []byte
+	GuideQuestion  []byte
+	RulesetVersion string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+// 살아 있는 일기의 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+func (q *Queries) UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams) (UpdateDiaryBodyRow, error) {
+	row := q.db.QueryRow(ctx, updateDiaryBody, arg.Body, arg.AccountID, arg.Date)
+	var i UpdateDiaryBodyRow
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Date,
+		&i.Body,
+		&i.AllTags,
+		&i.FeaturedTags,
+		&i.GuideQuestion,
+		&i.RulesetVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const upsertDiary = `-- name: UpsertDiary :one
 
 INSERT INTO diaries (id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version)

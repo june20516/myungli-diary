@@ -248,3 +248,13 @@ func TestValidationError_ErrorHasNoValues(t *testing.T) {
 }
 
 func ptr[T any](v T) *T { return &v }
+
+func TestLocalDate_After(t *testing.T) {
+	base := LocalDate{2026, 10, 20}
+	assert.True(t, LocalDate{2026, 10, 21}.After(base))
+	assert.True(t, LocalDate{2026, 11, 1}.After(base))
+	assert.True(t, LocalDate{2027, 1, 1}.After(base))
+	assert.False(t, base.After(base))
+	assert.False(t, LocalDate{2026, 10, 19}.After(base))
+	assert.False(t, LocalDate{2025, 12, 31}.After(base))
+}

@@ -46,3 +46,9 @@ WHERE account_id = @account_id AND deleted_at IS NULL
   AND (sqlc.narg('before_date')::date IS NULL OR date < sqlc.narg('before_date')::date)
 ORDER BY date DESC
 LIMIT @row_limit;
+
+-- name: UpdateDiaryBody :one
+-- 살아 있는 일기의 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+UPDATE diaries SET body = @body, updated_at = now()
+WHERE account_id = @account_id AND date = @date AND deleted_at IS NULL
+RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at;

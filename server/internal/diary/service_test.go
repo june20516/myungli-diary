@@ -51,6 +51,48 @@ func TestService_PutFutureDateIsError(t *testing.T) {
 	assert.ErrorIs(t, err, diary.ErrFutureDate)
 }
 
+func TestService_PutFutureDateBoundaries(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name         string
+		now          time.Time // UTC
+		ok, tomorrow profile.LocalDate
+	}{
+		{"서울 23:59", time.Date(2026, 10, 20, 14, 59, 0, 0, time.UTC), day(20), day(21)},
+		{"연 경계", time.Date(2026, 12, 31, 14, 30, 0, 0, time.UTC), profile.LocalDate{Year: 2026, Month: 12, Day: 31}, profile.LocalDate{Year: 2027, Month: 1, Day: 1}},
+		{"월 경계", time.Date(2026, 10, 31, 14, 30, 0, 0, time.UTC), day(31), profile.LocalDate{Year: 2026, Month: 11, Day: 1}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			store, acc, _ := setup(t)
+			svc := diary.NewService(store, &fakeDays{}, clocktest.New(tt.now))
+
+			_, _, err := svc.Put(ctx, acc, seoulProfile(), tt.ok, "오늘")
+			require.NoError(t, err)
+			_, _, err = svc.Put(ctx, acc, seoulProfile(), tt.tomorrow, "내일")
+			assert.ErrorIs(t, err, diary.ErrFutureDate)
+		})
+	}
+}
+
+func TestService_PutAfterDeleteRecordsDayAgain(t *testing.T) {
+	ctx := context.Background()
+	days := &fakeDays{record: fortune.DayRecord{AllTags: []string{"first"}, RulesetVersion: "r1"}}
+	svc, _, acc := newService(t, days)
+
+	_, _, err := svc.Put(ctx, acc, seoulProfile(), day(10), "처음")
+	require.NoError(t, err)
+	require.NoError(t, svc.Delete(ctx, acc, day(10)))
+
+	days.record = fortune.DayRecord{AllTags: []string{"second"}, RulesetVersion: "r2"}
+	got, created, err := svc.Put(ctx, acc, seoulProfile(), day(10), "다시")
+	require.NoError(t, err)
+	assert.True(t, created)
+	assert.Equal(t, 2, days.calls)
+	assert.Equal(t, []string{"second"}, got.AllTags)
+	assert.Equal(t, "r2", got.RulesetVersion)
+}
+
 func TestService_PutNewRecordsDay(t *testing.T) {
 	ctx := context.Background()
 	days := &fakeDays{record: fortune.DayRecord{

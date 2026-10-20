@@ -271,3 +271,32 @@ func TestStore_ListRejectsInvalidLimit(t *testing.T) {
 		assert.Error(t, err, "limit %d", limit)
 	}
 }
+
+func TestStore_UpdateBodyChangesOnlyLiveBody(t *testing.T) {
+	ctx := context.Background()
+	store, acc, _ := setup(t)
+
+	_, _, err := store.Upsert(ctx, acc, entry(10, "처음", "dohwa", "a"))
+	require.NoError(t, err)
+
+	got, err := store.UpdateBody(ctx, acc, day(10), "고침")
+	require.NoError(t, err)
+	assert.Equal(t, "고침", got.Body)
+	assert.Equal(t, []string{"dohwa", "a"}, got.AllTags)
+	assert.Equal(t, "r1", got.RulesetVersion)
+	assert.Equal(t, entry(10, "").GuideQuestion, got.GuideQuestion)
+}
+
+func TestStore_UpdateBodyMissingOrDeletedIsNotFound(t *testing.T) {
+	ctx := context.Background()
+	store, acc, _ := setup(t)
+
+	_, err := store.UpdateBody(ctx, acc, day(10), "없음")
+	assert.ErrorIs(t, err, diary.ErrNotFound)
+
+	_, _, err = store.Upsert(ctx, acc, entry(10, "처음", "a"))
+	require.NoError(t, err)
+	require.NoError(t, store.Delete(ctx, acc, day(10)))
+	_, err = store.UpdateBody(ctx, acc, day(10), "지운 뒤")
+	assert.ErrorIs(t, err, diary.ErrNotFound)
+}

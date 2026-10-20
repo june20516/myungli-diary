@@ -41,23 +41,23 @@ func (s *Service) Put(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if err != nil {
 		return Entry{}, false, err
 	}
-	if isAfter(date, today) {
+	if date.After(today) {
 		return Entry{}, false, ErrFutureDate
 	}
 
-	_, err = s.store.Get(ctx, accountID, date)
-	switch {
-	case err == nil:
-		return s.store.Upsert(ctx, accountID, Entry{Date: date, Body: body}) // 본문만 바뀝니다.
-	case errors.Is(err, ErrNotFound):
-		return s.createWithRecord(ctx, accountID, p, date, body)
-	default:
+	// 이미 있으면 엔진을 부르지 않고 본문만 바꿉니다. 그 사이 지워졌으면(ErrNotFound) 새 일기로 씁니다.
+	entry, err := s.store.UpdateBody(ctx, accountID, date, body)
+	if err == nil {
+		return entry, false, nil
+	}
+	if !errors.Is(err, ErrNotFound) {
 		return Entry{}, false, err
 	}
+	return s.createWithRecord(ctx, accountID, p, date, body)
 }
 
 // createWithRecord는 그날 기록을 만들어 새 일기로 저장합니다.
-// 그 사이 다른 기기가 먼저 만들었으면 Upsert가 본문만 고치므로 결과는 같습니다.
+// 그 사이 다른 기기가 먼저 만들었으면 Upsert가 본문만 고치므로 결과는 같습니다(TestStore_ConcurrentUpsertKeepsOneRow).
 func (s *Service) createWithRecord(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (Entry, bool, error) {
 	record, err := s.days.DayRecord(ctx, accountID, p, date)
 	if err != nil {
@@ -81,17 +81,6 @@ func (s *Service) today(timezone string) (profile.LocalDate, error) {
 	}
 	now := s.clk.Now().In(loc)
 	return profile.LocalDate{Year: now.Year(), Month: int(now.Month()), Day: now.Day()}, nil
-}
-
-// isAfter는 a가 b보다 뒤 날짜인지 봅니다.
-func isAfter(a, b profile.LocalDate) bool {
-	if a.Year != b.Year {
-		return a.Year > b.Year
-	}
-	if a.Month != b.Month {
-		return a.Month > b.Month
-	}
-	return a.Day > b.Day
 }
 
 // Get은 그 날짜의 살아 있는 일기를 돌려줍니다. 없으면 ErrNotFound입니다.

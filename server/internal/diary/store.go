@@ -109,6 +109,19 @@ func (s *Store) Upsert(ctx context.Context, accountID uuid.UUID, e Entry) (Entry
 	return entry, row.Created, err
 }
 
+// UpdateBody는 그 날짜의 살아 있는 일기의 본문만 바꿉니다. 태그·질문·규칙 버전·생성 시각은 그대로입니다.
+// 살아 있는 일기가 없으면 ErrNotFound입니다.
+func (s *Store) UpdateBody(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string) (Entry, error) {
+	row, err := diarydb.New(s.pool).UpdateDiaryBody(ctx, diarydb.UpdateDiaryBodyParams{AccountID: accountID, Date: toPgDate(date), Body: body})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Entry{}, ErrNotFound
+	}
+	if err != nil {
+		return Entry{}, fmt.Errorf("일기 본문 수정: %w", err)
+	}
+	return toEntry(diarydb.GetDiaryRow(row))
+}
+
 // Delete는 그 날짜의 일기를 지운 것으로 표시합니다(soft delete). 살아 있는 일기가 없으면 ErrNotFound입니다.
 func (s *Store) Delete(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) error {
 	n, err := diarydb.New(s.pool).SoftDeleteDiary(ctx, diarydb.SoftDeleteDiaryParams{AccountID: accountID, Date: toPgDate(date)})

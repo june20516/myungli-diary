@@ -16,6 +16,8 @@ type Querier interface {
 	// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	RestoreLatestDeletedDiary(ctx context.Context, arg RestoreLatestDeletedDiaryParams) (RestoreLatestDeletedDiaryRow, error)
 	SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams) (int64, error)
+	// 살아 있는 일기의 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams) (UpdateDiaryBodyRow, error)
 	// 일기 쿼리입니다. 조회는 모두 살아 있는 행(deleted_at IS NULL)만 봅니다.
 	// 그날 일기가 없으면 만들고, 있으면 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 처음 값을 유지합니다).
 	// 동시 요청도 partial unique 인덱스가 하나의 행으로 모읍니다. created는 새 행일 때만 true입니다.
