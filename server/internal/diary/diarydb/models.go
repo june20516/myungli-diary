@@ -168,6 +168,12 @@ type Profile struct {
 	UpdatedAt        time.Time
 }
 
+type RateLimit struct {
+	Key         string
+	WindowStart time.Time
+	Count       int32
+}
+
 type Reaction struct {
 	SelectionID int64
 	Reaction    string

@@ -252,3 +252,17 @@ func LoadAppCheck(getenv func(string) string) (AppCheckConfig, error) {
 	}
 	return AppCheckConfig{ProjectNumber: number}, nil
 }
+
+// defaultTrustedProxyHops는 TRUSTED_PROXY_HOPS의 기본값입니다(Cloud Run 앞단 하나).
+const defaultTrustedProxyHops = 1
+
+// LoadTrustedProxyHops는 getenv로 TRUSTED_PROXY_HOPS를 읽습니다. 클라이언트 IP를 X-Forwarded-For의
+// 오른쪽에서 몇 번째 값으로 볼지 정하며, 비어 있으면 1이고 0 이상 정수만 받습니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadTrustedProxyHops(getenv func(string) string) (int, error) {
+	raw := orDefault(trimmedEnv(getenv)("TRUSTED_PROXY_HOPS"), strconv.Itoa(defaultTrustedProxyHops))
+	hops, err := strconv.Atoi(raw)
+	if err != nil || hops < 0 {
+		return 0, errors.New("TRUSTED_PROXY_HOPS는 0 이상의 정수여야 합니다")
+	}
+	return hops, nil
+}

@@ -347,3 +347,28 @@ func TestLoadAppCheck(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadTrustedProxyHops(t *testing.T) {
+	t.Run("비어 있으면 기본 1", func(t *testing.T) {
+		hops, err := LoadTrustedProxyHops(fakeEnv(nil))
+		if err != nil || hops != 1 {
+			t.Errorf("LoadTrustedProxyHops() = %d, %v, want 1, nil", hops, err)
+		}
+	})
+	t.Run("0 이상 정수는 그대로", func(t *testing.T) {
+		for raw, want := range map[string]int{"0": 0, "2": 2, " 3\n": 3} {
+			hops, err := LoadTrustedProxyHops(fakeEnv(map[string]string{"TRUSTED_PROXY_HOPS": raw}))
+			if err != nil || hops != want {
+				t.Errorf("LoadTrustedProxyHops(%q) = %d, %v, want %d, nil", raw, hops, err, want)
+			}
+		}
+	})
+	t.Run("음수·정수 아님은 오류이고 값은 담지 않음", func(t *testing.T) {
+		for _, raw := range []string{"-1", "1.5", "abc"} {
+			_, err := LoadTrustedProxyHops(fakeEnv(map[string]string{"TRUSTED_PROXY_HOPS": raw}))
+			if err == nil || !strings.Contains(err.Error(), "TRUSTED_PROXY_HOPS") || strings.Contains(err.Error(), raw) {
+				t.Errorf("LoadTrustedProxyHops(%q) error = %v, want 변수 이름만 담은 오류", raw, err)
+			}
+		}
+	})
+}

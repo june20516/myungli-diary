@@ -29,11 +29,15 @@ type Routes struct {
 	// Idempotency는 Idempotency-Key를 다루는 operation을 감쌉니다(보통 Idempotency의 결과). nil이면 멱등 처리가 없습니다.
 	// 인증 뒤, 계약 검증 뒤에 끼므로 계정을 알고, 검증에 실패한 요청은 멱등 표를 건드리지 않습니다.
 	Idempotency func(op Operation, next http.Handler) http.Handler
+	// RateLimit은 IP별 요청 한도를 두는 operation을 감쌉니다(보통 RateLimit의 결과). nil이면 한도가 없습니다.
+	// App Check 바로 안쪽(인증·계약 검증 바깥)이라 App Check를 통과하지 못한 요청은 한도를 쓰지 않습니다.
+	RateLimit func(op Operation, next http.Handler) http.Handler
 }
 
 // RegisterAPI는 계약의 모든 operation을 mux에 등록합니다.
 // bearer 라우트는 Authenticate(op, Validate(Idempotency(op, handler))), appCheck 라우트는 AppCheck(op, Validate(Idempotency(op, handler))),
 // 그 밖의 라우트는 Validate(Idempotency(op, handler))로 감쌉니다(Idempotency가 nil이면 그 층은 없습니다).
+// RateLimit이 있으면 이들 바깥에 한 겹 더하되 App Check보다는 안쪽입니다: AppCheck → RateLimit → Authenticate → Validate → ...
 // 인증과 App Check이 검증보다 바깥이라 토큰 없는 요청은 본문이 틀려도 400이 아니라 401을 받습니다.
 // 라우트가 mux에 직접 등록되므로 접근 로그의 route와 404·405 problem은 다른 라우트와 같게 동작합니다.
 //
@@ -83,6 +87,9 @@ func (c contractMux) HandleFunc(pattern string, handler func(http.ResponseWriter
 	wrapped = c.routes.Validate(wrapped)
 	if op.Bearer {
 		wrapped = c.routes.Authenticate(op, wrapped)
+	}
+	if c.routes.RateLimit != nil {
+		wrapped = c.routes.RateLimit(op, wrapped)
 	}
 	if op.AppCheck {
 		appCheck := c.routes.AppCheck
