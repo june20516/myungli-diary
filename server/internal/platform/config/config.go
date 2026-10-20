@@ -239,7 +239,7 @@ type AppCheckConfig struct {
 }
 
 // LoadAppCheck는 getenv로 App Check 설정을 읽습니다. FIREBASE_PROJECT_NUMBER는 APP_ENV가 local(기본값)이 아니면 필수이고,
-// 값이 있으면 숫자만이어야 합니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+// 값이 있으면 숫자만이어야 합니다(auth/provider/appcheck.go의 isDigits와 같은 검사). 오류에는 변수 이름만 담고 값은 담지 않습니다.
 func LoadAppCheck(getenv func(string) string) (AppCheckConfig, error) {
 	getenv = trimmedEnv(getenv)
 	env := orDefault(getenv("APP_ENV"), defaultEnv)

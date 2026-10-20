@@ -85,11 +85,11 @@ type appLinkTexts struct {
 }
 
 // fallbackAppLinkTexts는 활성 시드나 원고를 쓰지 못할 때의 내장 한국어 문구입니다.
-// 로그인 복귀 길을 막지 않으려는 것이라 writing 원고(ko)와 같은 뜻으로 두고, 원고가 바뀌어도 따라가지 않습니다.
+// 로그인 복귀 길을 막지 않으려는 것이라 writing 원고(ko)와 같은 문구로 둡니다(원고가 바뀌면 여기도 맞춥니다).
 var fallbackAppLinkTexts = appLinkTexts{
 	Lang:    "ko",
 	Title:   "명리일기",
-	Body:    "명리일기 앱에서 계속해 주세요.",
+	Body:    "명리일기 앱에서 이어서 로그인해 주세요.",
 	Open:    "앱에서 열기",
 	Install: "앱 설치하기",
 }

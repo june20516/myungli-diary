@@ -33,7 +33,9 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
+	"github.com/june20516/myungli-diary/server/internal/preview"
 	"github.com/june20516/myungli-diary/server/internal/profile"
+	"github.com/june20516/myungli-diary/server/internal/ratelimit"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
 )
 
@@ -51,6 +53,8 @@ const (
 	shutdownTimeout = 8 * time.Second
 	// providerHTTPTimeout은 외부 제공자(카카오·Apple) 호출 한 번의 상한입니다. provider도 호출마다 같은 deadline을 둡니다.
 	providerHTTPTimeout = 5 * time.Second
+	// publicRateLimit은 비로그인 계산 operation의 클라이언트 IP별 분당 허용 횟수입니다.
+	publicRateLimit = 30
 )
 
 // runServe는 HTTP 서버를 시작하고 ctx가 취소되면 처리 중인 요청을 마친 뒤 종료합니다.
@@ -77,6 +81,18 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		return err
 	}
 	engineCfg, err := config.LoadEngine(getenv)
+	if err != nil {
+		return err
+	}
+	appCheckCfg, err := config.LoadAppCheck(getenv)
+	if err != nil {
+		return err
+	}
+	proxyHops, err := config.LoadTrustedProxyHops(getenv)
+	if err != nil {
+		return err
+	}
+	appVersions, err := config.LoadAppVersions(getenv)
 	if err != nil {
 		return err
 	}
@@ -116,19 +132,39 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	contents := content.NewStore(pool, clock.System{}, logger)
 	readings := newReadings(contents, fortuneService, logger, clock.System{})
 
+	// 프로젝트 번호가 없으면(APP_ENV=local) 검증기를 두지 않아 App Check operation이 503입니다.
+	var appCheck httpapi.AppCheckVerifier
+	if appCheckCfg.ProjectNumber != "" {
+		verifier, err := provider.NewAppCheck(provider.AppCheckConfig{
+			ProjectNumber: appCheckCfg.ProjectNumber,
+			HTTPClient:    newProviderHTTPClient(),
+			Clock:         clock.System{},
+		})
+		if err != nil {
+			logger.ErrorContext(ctx, "App Check 검증기 생성 실패", "error", err)
+			return &loggedError{err: err}
+		}
+		appCheck = verifier
+	}
+
 	handler, err := newServer(settings, serverDeps{
-		Pool:     pool,
-		Charts:   fortuneService,
-		Lunar:    engineClient,
-		Readings: readings,
-		Days:     readings,
-		Contents: contents,
-		Logger:   logger,
-		Clock:    clock.System{},
-		HTTP:     newProviderHTTPClient(),
+		Pool:      pool,
+		Charts:    fortuneService,
+		Lunar:     engineClient,
+		BirthHour: engineClient,
+		Previews:  readings,
+		Readings:  readings,
+		Days:      readings,
+		Contents:  contents,
+		Logger:    logger,
+		Clock:     clock.System{},
+		HTTP:      newProviderHTTPClient(),
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
 		TestLogin: testLogin,
+		AppCheck:  appCheck,
+		ProxyHops: proxyHops,
+		AppConfig: httpapi.AppConfig{MinIOS: appVersions.MinIOS, MinAndroid: appVersions.MinAndroid},
 	})
 	if err != nil {
 		logger.ErrorContext(ctx, "서버 조립 실패", "error", err)
@@ -293,6 +329,16 @@ type serverDeps struct {
 	Charts profile.ChartChecker
 	// Lunar는 음력 변환 operation이 부르는 엔진입니다(engine.Client).
 	Lunar httpapi.LunarConverter
+	// BirthHour는 시진 확인 operation이 부르는 엔진입니다(engine.Client).
+	BirthHour httpapi.BirthHourChecker
+	// Previews는 비로그인 미리보기의 화면 묶음입니다(fortune.Views). 비어 있으면 미리보기는 503입니다.
+	Previews httpapi.PreviewService
+	// AppCheck은 비로그인 operation의 App Check 토큰 검증기입니다(provider.AppCheck). 비어 있으면 그 operation은 503입니다.
+	AppCheck httpapi.AppCheckVerifier
+	// ProxyHops는 클라이언트 IP를 X-Forwarded-For 오른쪽에서 몇 번째로 볼지 정합니다(TRUSTED_PROXY_HOPS).
+	ProxyHops int
+	// AppConfig는 getAppConfig가 돌려주는 최소 앱 버전입니다.
+	AppConfig httpapi.AppConfig
 	// Readings는 운세 operation의 화면 묶음입니다(fortune.Views). 비어 있으면 운세 operation은 503입니다.
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
@@ -379,18 +425,31 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
 		// Idempotency-Key는 일정 만들기에만 적용합니다. registerDevice는 P8에서 더합니다.
 		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule"),
+		// 시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.
+		RateLimit: httpapi.RateLimit(ratelimit.New(deps.Pool, deps.Clock), deps.ProxyHops, publicRateLimit, time.Minute, "getBirthHour", "convertLunarDate"),
+	}
+	// 검증기가 없으면 nil로 두어 App Check operation이 503입니다(nil 인터페이스를 RequireAppCheck에 넘기지 않음).
+	if deps.AppCheck != nil {
+		routes.AppCheck = httpapi.RequireAppCheck(deps.AppCheck, deps.Logger)
 	}
 	api := &httpapi.API{
 		Auth:      authService,
 		Accounts:  accountService,
 		Profiles:  profileService,
 		Lunar:     deps.Lunar,
+		BirthHour: deps.BirthHour,
 		Readings:  deps.Readings,
 		Contents:  deps.Contents,
 		Schedules: schedule.NewService(schedule.NewStore(deps.Pool)),
 		DB:        deps.Pool,
 		Logger:    deps.Logger,
 		AppLink:   settings.appLink,
+		AppConfig: deps.AppConfig,
+	}
+	// Previews가 없으면 미리보기를 조립하지 않아 503입니다(Readings·Contents와 같은 관례).
+	if deps.Previews != nil {
+		api.Previews = deps.Previews
+		api.PreviewUsage = preview.NewUsage(deps.Pool)
 	}
 	// Days가 없으면 일기를 새로 쓸 수 없으므로 Readings·Contents처럼 조립하지 않아 일기 operation이 503입니다.
 	if deps.Days != nil {
