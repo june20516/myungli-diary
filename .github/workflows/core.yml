@@ -57,7 +57,8 @@ jobs:
         working-directory: core
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -82,7 +83,8 @@ jobs:
         working-directory: core
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -145,7 +147,8 @@ jobs:
         working-directory: core
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           version: "0.11.3"
           python-version: "3.13"
