@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -64,10 +65,58 @@ Widget _pillars({bool hourUnknown = false}) => SizedBox(
   ),
 );
 
-/// 사주 카탈로그: saju-pillars(원국표·시간 모름·loading).
+Widget _ohaengBar(Map<FiveElement, double> values) => SizedBox(
+  width: 360,
+  child: OhaengBar(
+    semanticLabel: '오행 분포',
+    items: [
+      for (final (element, name) in [
+        (FiveElement.wood, '목'),
+        (FiveElement.fire, '화'),
+        (FiveElement.earth, '토'),
+        (FiveElement.metal, '금'),
+        (FiveElement.water, '수'),
+      ])
+        OhaengBarItem(
+          element: element,
+          name: name,
+          value: values[element] ?? 0,
+          count: (values[element] ?? 0).toStringAsFixed(1),
+        ),
+    ],
+  ),
+);
+
+/// 사주 카탈로그: saju-pillars(원국표·시간 모름·loading), ohaeng-bar(분포·zero).
 final WidgetbookFolder sajuDirectory = WidgetbookFolder(
   name: '사주',
   children: [
+    WidgetbookComponent(
+      name: 'ohaeng-bar',
+      useCases: [
+        WidgetbookUseCase(
+          name: '분포',
+          builder: (context) => Stage(
+            child: _ohaengBar(const {
+              FiveElement.wood: 0.6,
+              FiveElement.fire: 3.3,
+              FiveElement.earth: 2.55,
+              FiveElement.metal: 2.9,
+              FiveElement.water: 1.15,
+            }),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'zero',
+          builder: (context) => Stage(
+            child: _ohaengBar(const {
+              FiveElement.fire: 4,
+              FiveElement.metal: 2,
+            }),
+          ),
+        ),
+      ],
+    ),
     WidgetbookComponent(
       name: 'saju-pillars',
       useCases: [

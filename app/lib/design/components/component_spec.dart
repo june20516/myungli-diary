@@ -27,6 +27,7 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
@@ -74,6 +75,7 @@ const List<ComponentSpec> implementedComponents = [
   PrimaryButton.spec,
   SettingsRow.spec,
   SajuPillars.spec,
+  OhaengBar.spec,
   InputStep.spec,
   MyungliTextField.spec,
   Segmented.spec,

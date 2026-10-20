@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -70,6 +71,36 @@ Widget _member(BuildContext context, {bool hourUnknown = false}) {
   );
 }
 
+OhaengBar _ohaengBar(BuildContext context, Map<FiveElement, double> values) {
+  final ja = Localizations.localeOf(context).languageCode == 'ja';
+  const ko = {
+    FiveElement.wood: '목',
+    FiveElement.fire: '화',
+    FiveElement.earth: '토',
+    FiveElement.metal: '금',
+    FiveElement.water: '수',
+  };
+  const jaNames = {
+    FiveElement.wood: '木',
+    FiveElement.fire: '火',
+    FiveElement.earth: '土',
+    FiveElement.metal: '金',
+    FiveElement.water: '水',
+  };
+  return OhaengBar(
+    semanticLabel: '',
+    items: [
+      for (final element in FiveElement.values)
+        OhaengBarItem(
+          element: element,
+          name: (ja ? jaNames : ko)[element]!,
+          value: values[element] ?? 0,
+          count: (values[element] ?? 0).toStringAsFixed(1),
+        ),
+    ],
+  );
+}
+
 void main() {
   goldenTest('saju-pillars: 원국표·시간 모름·loading', (tester) async {
     await goldenMatrix(
@@ -87,6 +118,32 @@ void main() {
               animated: false,
               child: SajuPillarsSkeleton(animated: false),
             ),
+          ],
+        ),
+      ),
+    );
+  });
+
+  goldenTest('ohaeng-bar: member 분포·0이 섞인 분포', (tester) async {
+    await goldenMatrix(
+      tester,
+      'saju_ohaeng_bar',
+      () => Builder(
+        builder: (context) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: Space.s24,
+          children: [
+            _ohaengBar(context, const {
+              FiveElement.wood: 0.6,
+              FiveElement.fire: 3.3,
+              FiveElement.earth: 2.55,
+              FiveElement.metal: 2.9,
+              FiveElement.water: 1.15,
+            }),
+            _ohaengBar(context, const {
+              FiveElement.fire: 4,
+              FiveElement.metal: 2,
+            }),
           ],
         ),
       ),
