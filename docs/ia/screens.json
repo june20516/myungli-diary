@@ -1695,6 +1695,11 @@
           "id": "diary-list.pick-date.cta",
           "source": "ui",
           "role": "날짜 골라 쓰기 버튼"
+        },
+        {
+          "id": "diary-list.pick-date.confirm",
+          "source": "ui",
+          "role": "날짜 시트 아래 버튼. 고른 날짜를 넣는 틀(매개변수 date)이고 누르면 그날 diary-edit 또는 diary-view로 갑니다"
         }
       ],
       "components": [
