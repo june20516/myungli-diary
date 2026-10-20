@@ -17,7 +17,7 @@ final class LunarDateRepository {
 
   /// 음력 [date](윤달이면 [isLeapMonth])의 양력 날짜입니다. 연·월·일만 담습니다.
   ///
-  /// 실패(없는 음력 날짜 422, 엔진 연결 전 501 포함)는 [AppError]입니다.
+  /// 실패(없는 음력 날짜 422 포함)는 [AppError]입니다.
   Future<DateTime> toSolar(
     LunarOrSolarDate date, {
     required bool isLeapMonth,

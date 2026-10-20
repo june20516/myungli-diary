@@ -6,6 +6,7 @@
 import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
 import 'package:myungli_diary/core/api/gen/model/notice.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_at.dart';
+import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_at.dart';
 import 'package:myungli_diary/core/api/gen/model/seun_year.dart';
 import 'package:myungli_diary/core/api/gen/model/twelve_stage_at.dart';
@@ -58,6 +59,8 @@ class Chart {
     required this.seun,
 
     required this.notices,
+
+    this.personalReadings,
   });
 
   @JsonKey(name: r'rulesetVersion', required: true, includeIfNull: false)
@@ -102,6 +105,10 @@ class Chart {
   @JsonKey(name: r'notices', required: true, includeIfNull: false)
   final List<Notice> notices;
 
+  /// 원국 개인 해석(\"내 사주에서는\")입니다. 근거 열람 권한이 없으면(`evidenceAccess: locked`) 이 필드가 없습니다(D60). 원고가 없는 항목은 빠집니다. 앱은 누른 용어의 (`kind`, `position`, `index`, `shinsal`)로 항목을 찾습니다.
+  @JsonKey(name: r'personalReadings', required: false, includeIfNull: false)
+  final List<PersonalReading>? personalReadings;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -119,7 +126,8 @@ class Chart {
           other.yongsin == yongsin &&
           other.daeun == daeun &&
           other.seun == seun &&
-          other.notices == notices;
+          other.notices == notices &&
+          other.personalReadings == personalReadings;
 
   @override
   int get hashCode =>
@@ -136,7 +144,8 @@ class Chart {
       yongsin.hashCode +
       daeun.hashCode +
       seun.hashCode +
-      notices.hashCode;
+      notices.hashCode +
+      personalReadings.hashCode;
 
   factory Chart.fromJson(Map<String, dynamic> json) => _$ChartFromJson(json);
 

@@ -376,7 +376,7 @@ class DefaultApi {
   }
 
   /// 음력 날짜를 양력으로 변환
-  /// 음력 연·월·일을 양력 날짜로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려줍니다. 입력은 저장하지 않습니다. app은 윤달 선택을 보일지 정하려고 &#x60;day: 1&#x60;, &#x60;isLeapMonth: false&#x60;로 먼저 물을 수 있습니다. App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 없는 음력 날짜(윤달이 없는 달의 윤달, 그 달에 없는 30일)는 422 &#x60;date.invalid&#x60;(&#x60;errors[].field&#x60;는 &#x60;/date&#x60; 또는 &#x60;/isLeapMonth&#x60;), D41 지원 범위 밖이면 422 &#x60;date.out_of_range&#x60;입니다.
+  /// 음력 연·월·일을 양력 날짜로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려줍니다. 입력은 저장하지 않습니다. app은 윤달 선택을 보일지 정하려고 &#x60;day: 1&#x60;, &#x60;isLeapMonth: false&#x60;로 먼저 물을 수 있습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 없는 음력 날짜(윤달이 없는 달의 윤달, 그 달에 없는 30일)는 422 &#x60;date.invalid&#x60;(&#x60;errors[].field&#x60;는 &#x60;/date&#x60; 또는 &#x60;/isLeapMonth&#x60;), D41 지원 범위 밖이면 422 &#x60;date.out_of_range&#x60;입니다.
   ///
   /// Parameters:
   /// * [lunarDateRequest]
@@ -473,7 +473,7 @@ class DefaultApi {
   }
 
   /// 비로그인 미리보기
-  /// 출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요합니다. 설치(&#x60;installationId&#x60;)마다 1번이며, 두 번째는 403 &#x60;preview.used&#x60;입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다. 언어는 &#x60;Accept-Language&#x60;를 씁니다.
+  /// 출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 설치(&#x60;installationId&#x60;)마다 1번이며, 두 번째는 403 &#x60;preview.used&#x60;입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다. 언어는 &#x60;Accept-Language&#x60;를 씁니다. 총운 문장은 계정이 없어 순환 기록이 없으므로 &#x60;advice&#x60; 유형을 쓰고, 호칭은 없습니다.
   ///
   /// Parameters:
   /// * [previewRequest]
@@ -1117,7 +1117,7 @@ class DefaultApi {
   }
 
   /// 시진 확인
-  /// 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 엔진 RPC가 생기기 전까지는 501을 돌려줍니다.
+  /// 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 출생 시간대와 출생지를 받지 않으므로 &#x60;Asia/Seoul&#x60;과 시간대별 대표 경도(한국 127.5°, D29)로 계산합니다. &#x60;start&#x60;·&#x60;end&#x60;는 그 시간대의 벽시계 시각입니다.
   ///
   /// Parameters:
   /// * [birthHourRequest]
@@ -1900,7 +1900,7 @@ class DefaultApi {
   }
 
   /// 도시 검색
-  /// 출생지 도시를 이름으로 찾습니다(&#x60;ETag&#x60;). 언어는 &#x60;lang&#x60;, 생략하면 &#x60;Accept-Language&#x60;입니다.
+  /// 출생지 도시를 이름으로 찾습니다(&#x60;ETag&#x60;). 언어는 &#x60;lang&#x60;, 생략하면 &#x60;Accept-Language&#x60;입니다. &#x60;q&#x60;는 한국어·영어·일본어 이름 중 하나의 앞부분과 같은 도시를 찾습니다(대소문자 무시). 요청 언어 이름이 앞부분과 같은 도시가 먼저, 그다음은 요청 언어 이름 순입니다. &#x60;limit&#x60;개까지 돌려줍니다. &#x60;If-None-Match&#x60;가 현재 &#x60;ETag&#x60;와 같으면 304를 돌려줍니다.
   ///
   /// Parameters:
   /// * [q]
