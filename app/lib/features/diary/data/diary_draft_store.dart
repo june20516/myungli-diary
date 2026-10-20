@@ -7,7 +7,7 @@ import 'package:myungli_diary/core/storage/app_database.dart';
 ///
 /// 로그아웃하면 정리(`SignOutCleaner`)가 모든 계정의 초안을 지웁니다.
 final class DiaryDraftStore {
-  /// [accountId] 범위의 초안 저장소를 만듭니다. [nowUtc]는 마지막 저장 시각입니다.
+  /// [accountId] 범위의 초안 저장소를 만듭니다. `nowUtc`는 마지막 저장 시각입니다.
   const new(this._database, {required this.accountId, required this._nowUtc});
 
   final AppDatabase _database;

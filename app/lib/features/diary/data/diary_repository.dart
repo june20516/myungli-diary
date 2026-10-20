@@ -17,7 +17,7 @@ const int diaryPageLimit = 30;
 /// 일기 저장소(`listDiaries`·`getDiary`·`putDiary`·`deleteDiary`).
 ///
 /// 실패는 [appErrorFrom]이 분류한 [AppError]입니다([existsOn] 설명). 일기는 기기에 저장하지
-/// 않습니다(A45). 초안은 [DiaryDraftStore]가 따로 둡니다.
+/// 않습니다(A45). 초안은 `DiaryDraftStore`가 따로 둡니다.
 final class DiaryRepository {
   /// `api`로 묻습니다.
   const new(this._api);
