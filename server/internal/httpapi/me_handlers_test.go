@@ -22,7 +22,7 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 			{Document: account.Privacy, Version: "1"}, {Document: account.Terms, Version: "1"},
 		},
 	}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -41,7 +41,7 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 
 func TestGetMe_HasProfileTrue(t *testing.T) {
 	accts := &fakeAccounts{me: account.Me{AccountID: fixedAccountID, Access: account.Access{Status: account.StatusActive}}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{exists: true}})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{exists: true}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -55,7 +55,7 @@ func TestGetMe_HasProfileTrue(t *testing.T) {
 
 func TestGetMe_NoRequiredConsentsIsEmptyArray(t *testing.T) {
 	accts := &fakeAccounts{me: account.Me{AccountID: fixedAccountID, Access: account.Access{Status: account.StatusActive}}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -71,7 +71,7 @@ func TestGetMe_PendingDeletionShowsSchedule(t *testing.T) {
 		AccountID: fixedAccountID,
 		Access:    account.Access{Status: account.StatusPendingDeletion, DeletionScheduledAt: &at},
 	}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -86,7 +86,7 @@ func TestGetMe_PendingDeletionShowsSchedule(t *testing.T) {
 }
 
 func TestGetMe_UnknownAccountIs401(t *testing.T) {
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: &fakeAccounts{err: account.ErrNotFound}, Profiles: &fakeProfiles{}})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: &fakeAccounts{err: account.ErrNotFound}, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me", nil)
 	rec := serve(handler, req)

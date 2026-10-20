@@ -47,6 +47,15 @@ type AuthIdentity struct {
 	UpdatedAt              time.Time
 }
 
+type BillingEvent struct {
+	ID          int64
+	EventID     string
+	AccountID   uuid.NullUUID
+	Payload     []byte
+	ReceivedAt  time.Time
+	ProcessedAt *time.Time
+}
+
 type ChartCache struct {
 	BirthHash      []byte
 	RulesetVersion string
@@ -120,6 +129,18 @@ type Diary struct {
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time
 	ContentPurgedAt *time.Time
+}
+
+type EntitlementGrant struct {
+	ID          int64
+	AccountID   uuid.UUID
+	Entitlement string
+	Source      string
+	SourceRef   string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+	RevokedAt   *time.Time
+	CreatedAt   time.Time
 }
 
 type IdempotencyKey struct {
@@ -196,6 +217,15 @@ type RefreshToken struct {
 	ReplacedByID uuid.NullUUID
 	RevokedAt    *time.Time
 	CreatedAt    time.Time
+}
+
+type RewardEvent struct {
+	TransactionID string
+	AccountID     uuid.NullUUID
+	AdUnit        pgtype.Text
+	RewardItem    pgtype.Text
+	RawQuery      string
+	ReceivedAt    time.Time
 }
 
 type RotationState struct {

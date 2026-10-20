@@ -10,12 +10,15 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
 
-// GetMe는 계정 상태와 동의 필요 여부를 돌려줍니다.
-// adFree, insight는 수익(P7)이 생길 때까지 고정값입니다.
+// GetMe는 계정 상태, 동의 필요 여부, 권한(adFree, insight)을 돌려줍니다.
+// 권한 판정(Entitlements)이 없으면 503 service.unavailable입니다.
 func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
 	id, _, ok := AccountFrom(ctx)
 	if !ok {
 		return nil, errNoAccount
+	}
+	if a.Entitlements == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	}
 	me, err := a.Accounts.Me(ctx, id)
 	if err != nil {
@@ -27,6 +30,12 @@ func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeRes
 		return nil, err
 	}
 
+	status, err := a.Entitlements.Status(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	entitlements := toEntitlements(status)
+
 	// 계약상 requiredConsents는 빈 배열이어도 항상 있어야 하므로 nil을 피합니다.
 	required := make([]gen.ConsentDocument, 0, len(me.RequiredConsents))
 	for _, doc := range me.RequiredConsents {
@@ -34,10 +43,10 @@ func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeRes
 	}
 	body := gen.Me{
 		AccountId:        id,
-		AdFree:           gen.AdFree{Active: false},
+		AdFree:           entitlements.AdFree,
 		ConsentRequired:  me.ConsentRequired,
 		HasProfile:       hasProfile,
-		Insight:          gen.Insight{Active: false},
+		Insight:          entitlements.Insight,
 		RequiredConsents: required,
 		Status:           gen.MeStatus(me.Status),
 	}

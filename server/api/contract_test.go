@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft8(t *testing.T) {
+func TestContract_VersionIsDraft9(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.8" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.8", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.9" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.9", doc.Info.Version)
 	}
 }
 
@@ -1034,6 +1034,69 @@ func TestContract_Draft7Additions(t *testing.T) {
 				t.Errorf("%s에 404 응답이 없음", id)
 			}
 		})
+	}
+}
+
+// TestContract_Draft9Additions는 draft.9에서 더한 결제 webhook·복원 동작 설명을 고정합니다. (P7, 응답 형태는 그대로)
+func TestContract_Draft9Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	descriptions := map[string][]string{
+		"admobRewardCallback": {"`user_id`가 없거나 없는 계정이면 기록만 하고 200", "현재와 1시간 넘게 어긋난(오래됐거나 미래) `timestamp`"},
+		"revenuecatWebhook":   {"모르는 계정이면 기록만 하고 200", "`type`이 `TEST`인 이벤트도 기록만 하고 200", "같은 `event.id`는 한 번만 처리"},
+		"restorePurchases":    {"환불된 구매", "`Purchases.logIn`에 `Me.accountId` 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다"},
+	}
+	for id, texts := range descriptions {
+		t.Run(id, func(t *testing.T) {
+			description := operationByID(t, doc, id).Description
+			for _, text := range texts {
+				if !strings.Contains(description, text) {
+					t.Errorf("%s 설명에 %q가 없음", id, text)
+				}
+			}
+		})
+	}
+}
+
+// TestContract_Draft9Removals는 draft.9에서 뺀, app이 쓰지 않는 필드 다섯 개가 없음을 고정합니다. (S77, app 확인 #309)
+func TestContract_Draft9Removals(t *testing.T) {
+	doc := loadDoc(t)
+
+	removed := map[string][]string{
+		"FocusSlot":   {"score", "pillar"},
+		"CalendarDay": {"scoreItems", "featuredTag"},
+		"Calendar":    {"notices"},
+	}
+	for name, properties := range removed {
+		schema := doc.Components.Schemas[name].Value
+		for _, property := range properties {
+			t.Run(name+"."+property, func(t *testing.T) {
+				if _, ok := schema.Properties[property]; ok {
+					t.Errorf("%s.%s가 properties에 남아 있음", name, property)
+				}
+				if slices.Contains(schema.Required, property) {
+					t.Errorf("%s.%s가 required에 남아 있음", name, property)
+				}
+			})
+		}
+	}
+
+	// 다른 스키마의 notices·featuredTags와 CalendarDay.score·pillar는 그대로입니다.
+	kept := map[string][]string{
+		"Daily":       {"notices"},
+		"Chart":       {"notices"},
+		"CalendarDay": {"score", "pillar"},
+	}
+	for name, properties := range kept {
+		for _, property := range properties {
+			if _, ok := doc.Components.Schemas[name].Value.Properties[property]; !ok {
+				t.Errorf("%s.%s가 없음", name, property)
+			}
+		}
+	}
+
+	if _, ok := doc.Components.Schemas["ScoreItem"]; ok {
+		t.Error("참조되지 않는 ScoreItem 스키마가 남아 있음")
 	}
 }
 

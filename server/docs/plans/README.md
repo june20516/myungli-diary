@@ -13,7 +13,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응, 시드 CI (#55·#129, 계약 draft.5, S33~S44) | §6 | **완료** |
 | P5 | [일기·일정](2026-10-20-p5-diary-schedule.md): soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록, `Idempotency-Key`(계약 draft.7, S50~S64) | §5.3, §3.3 일기, §11.2 | **완료** |
 | P6 | [비로그인·참조](2026-10-20-p6-public-reference.md): 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config, staging 테스트 로그인(#93), 계약 draft.8, S65~S78 | §5.3, §3.3 기타, §13.2 | **완료** |
-| P7 | 결제와 권한: RevenueCat webhook·동기화, entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60) | §10 | 대기 |
+| P7 | [결제와 권한](2026-10-20-p7-billing.md): RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60), 계약 draft.9, S79~S89 | §10 | **완료** |
 | P8 | Job: precompute, notify(FCM), retention과 익명화 | §8, §9 | 대기 |
 | P9 | 배포: staging·prod, Cloud Run service·Jobs·Scheduler, Cloud SQL 연결, OpenTelemetry, 외부 준비 안내 | §13 | 대기 |
 
@@ -38,11 +38,10 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 참고(계획 때 메모): `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다. `City` 변환은 `birthCity`(httpapi `profile_handlers.go`)와 같은 형태라 함께 쓸 수 있게 뽑아냅니다. `City.longitude`도 이때 채웁니다.
 * `convertLunarDate`에도 App Check·요청 한도를 겁니다(구현됨).
 
-**P7 (결제와 권한)**
-* `getMe.adFree`·`insight`를 채웁니다.
-* AdMob SSV 서명은 원본 쿼리 문자열로 검증합니다. 요청 검증 미들웨어는 RawQuery를 바꾸지 않도록 설정되어 있고(`SkipSettingDefaults`) 테스트로 고정되어 있습니다.
+**P7 (결제와 권한)** — 완료. 실행 중 정한 것은 S79~S89와 spec §10·§10.1·§11.3·§13.3에 옮겼습니다.
 
 **P8 (Job)**
+* 익명화 때 `reward_events`·`billing_events`·`entitlement_grants`는 남깁니다(spec §9). 세 표의 계정 FK는 `ON DELETE RESTRICT`이고 결제 기록 보관 의무가 있어 계정을 물리적으로 지우는 경로가 없습니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다. 처음 보는 `kid`로 서명한 위조 토큰이 공개 라우트(App Check)와 로그인 경로에서 JWKS 재조회를 매번 일으키므로 App Check도 이 제한에 포함합니다.
 * 요청 한도(S68)의 키 IP 해시를 서버 비밀 HMAC으로 바꿀지 재검토합니다(salt 없는 SHA-256은 IPv4 전수 대입으로 되찾을 수 있음).
 * soft delete 30일 뒤 일기·일정 내용 비우기(spec §8)는 `content_purged_at`을 찍습니다. 복원은 이미 비워진 행을 제외합니다(P5에서 쿼리에 반영).
@@ -61,6 +60,9 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 지우지 않습니다(1회 제한).
 
 **P9 (배포)**
+* 결제 설정 4개를 Secret Manager에 둡니다(`config.LoadBilling`의 이름 그대로): `REVENUECAT_PROJECT_ID`, `REVENUECAT_API_KEY`(REST v2 secret key), `REVENUECAT_WEBHOOK_AUTH`(대시보드에 적은 Authorization 값 전체), `AD_FREE_PRODUCT_IDS`(쉼표 목록). `APP_ENV`가 local이 아니면 모두 필수이고 없으면 시작에 실패합니다.
+* staging에서 확인할 것(문서로 확정되지 않은 외부 사실): AdMob 테스트 콜백의 `timestamp` 단위(ms/µs), RevenueCat webhook Authorization 헤더의 실제 형식(값 그대로인지), v2 구매 목록의 `next_page` 형태, Apple 비갱신 구독이 v2 구매 목록에 일회성 구매로 오는지.
+* `billing_events`는 5년 보관하므로 `job retention`이 지우지 않습니다.
 * 앞단에 Load Balancer를 두면 `TRUSTED_PROXY_HOPS`=2입니다. 실제 요청의 `X-Forwarded-For` 개수를 로그로 한 번 확인합니다(IP 원문은 남기지 않음).
 * 배포 설정: `FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`(Cloud Run 앞단 수를 확인합니다. 실제보다 크거나 0이면 모든 클라이언트가 한 키를 공유합니다), `APP_MIN_VERSION_IOS`·`APP_MIN_VERSION_ANDROID`, `TEST_LOGIN_SECRET`(staging만, `openssl rand -base64 32` 같은 난수). staging 이미지는 `-tags staging`으로 빌드합니다(Dockerfile·deploy workflow). App Check debug token은 staging Firebase 콘솔에만 둡니다.
 * Cloud Run 엔진 서비스를 h2c end-to-end로 확인하고, gRPC startup probe(`myungli.engine.v1.MyungliEngine`), internal ingress, 8초 grace를 설정합니다(#79).

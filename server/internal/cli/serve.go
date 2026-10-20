@@ -23,6 +23,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
+	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/engine"
@@ -101,6 +102,10 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	billingCfg, err := config.LoadBilling(getenv)
+	if err != nil {
+		return err
+	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
@@ -130,7 +135,9 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
 	contents := content.NewStore(pool, clock.System{}, logger)
-	readings := newReadings(contents, fortuneService, logger, clock.System{})
+	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements 응답에 쓰입니다.
+	entitlements := billing.NewStore(pool, clock.System{})
+	readings := newReadings(contents, fortuneService, entitlements, logger, clock.System{})
 
 	// 외부 제공자 호출(로그인 제공자·App Check)이 이 client 하나를 나눠 씁니다.
 	providerHTTP := newProviderHTTPClient()
@@ -150,18 +157,22 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		appCheck = verifier
 	}
 
+	billingParts := newBillingParts(billingCfg, pool, providerHTTP, billingURLs{}, clock.System{}, logger)
+
 	handler, err := newServer(settings, serverDeps{
-		Pool:      pool,
-		Charts:    fortuneService,
-		Lunar:     engineClient,
-		BirthHour: engineClient,
-		Previews:  readings,
-		Readings:  readings,
-		Days:      readings,
-		Contents:  contents,
-		Logger:    logger,
-		Clock:     clock.System{},
-		HTTP:      providerHTTP,
+		Pool:         pool,
+		Charts:       fortuneService,
+		Lunar:        engineClient,
+		BirthHour:    engineClient,
+		Previews:     readings,
+		Readings:     readings,
+		Days:         readings,
+		Contents:     contents,
+		Entitlements: entitlements,
+		Billing:      billingParts,
+		Logger:       logger,
+		Clock:        clock.System{},
+		HTTP:         providerHTTP,
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
 		Providers: providerURLs{},
 		TestLogin: testLogin,
@@ -346,6 +357,10 @@ type serverDeps struct {
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
 	Contents httpapi.Contents
+	// Entitlements는 getMe·getEntitlements가 쓰는 권한 판정입니다(billing.Store). 비어 있으면 getMe·getEntitlements는 503입니다.
+	Entitlements httpapi.EntitlementService
+	// Billing은 구매 복원·RevenueCat webhook·보상형 광고 콜백의 의존성입니다. 필드가 비면 그 operation은 각자 정한 오류로 답합니다.
+	Billing billingParts
 	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기 operation은 503입니다.
 	Days   diary.Days
 	Logger *slog.Logger
@@ -357,10 +372,51 @@ type serverDeps struct {
 	TestLogin testLoginSettings
 }
 
+// billingURLs는 결제 외부 서비스의 주소입니다. 빈 값은 실제 주소를 씁니다. 테스트는 httptest 대역 주소를 넣습니다.
+type billingURLs struct {
+	RevenueCat string
+	AdMobKeys  string
+}
+
+// billingParts는 결제 관련 operation의 의존성 묶음입니다.
+// 필드는 인터페이스라, 값이 없을 때는 nil *T를 넣지 않고 비워 둬야 핸들러의 nil 검사가 동작합니다.
+type billingParts struct {
+	Purchases      httpapi.PurchaseRestorer
+	Webhooks       httpapi.RevenueCatWebhooks
+	RewardVerifier httpapi.RewardVerifier
+	Rewards        httpapi.RewardGranter
+}
+
+// newBillingParts는 결제 의존성을 조립합니다.
+// 구매 복원과 webhook은 RevenueCat 설정이 모두 있을 때만 조립하고(없으면 APP_ENV=local이며 503·500 경로),
+// AdMob 검증기와 보상 처리는 설정과 무관하게 늘 조립합니다.
+func newBillingParts(cfg config.BillingConfig, pool *pgxpool.Pool, httpClient *http.Client, urls billingURLs, clk clock.Clock, logger *slog.Logger) billingParts {
+	parts := billingParts{
+		RewardVerifier: billing.NewRewardVerifier(billing.RewardVerifierConfig{KeysURL: urls.AdMobKeys, HTTPClient: httpClient, Clock: clk}),
+		Rewards:        billing.NewRewards(pool, clk, logger),
+	}
+	if !cfg.Configured() {
+		return parts
+	}
+	source := billing.NewRevenueCat(billing.RevenueCatConfig{
+		ProjectID:  cfg.RevenueCatProjectID,
+		APIKey:     cfg.RevenueCatAPIKey,
+		HTTPClient: httpClient,
+		BaseURL:    urls.RevenueCat,
+	})
+	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
+		AdFreeProductIDs: cfg.AdFreeProductIDs,
+		ProductionOnly:   cfg.ProductionOnly,
+	}, clk)
+	parts.Purchases = syncer
+	parts.Webhooks = billing.NewWebhooks(pool, syncer, cfg.RevenueCatWebhookAuth, clk, logger)
+	return parts
+}
+
 // newReadings는 운세 화면 묶음을 조립합니다. 문장 틀과 슬롯 명세는 시드 버전마다 DB(seed 명령이 넣음, P4-7)에서 읽습니다.
-// 근거 열람 권한 판정은 P7 전까지 늘 잠김입니다(D60).
-func newReadings(store *content.Store, service *fortune.Service, logger *slog.Logger, clk clock.Clock) *fortune.Views {
-	return fortune.NewViews(service, store, content.NewRenderer(logger), fortune.AlwaysLocked{}, clk, logger)
+// 근거 열람 권한(D60 insight)은 insight가 판정합니다.
+func newReadings(store *content.Store, service *fortune.Service, insight fortune.Insight, logger *slog.Logger, clk clock.Clock) *fortune.Views {
+	return fortune.NewViews(service, store, content.NewRenderer(logger), insight, clk, logger)
 }
 
 // newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
@@ -458,6 +514,11 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	if deps.Days != nil {
 		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
 	}
+	api.Entitlements = deps.Entitlements
+	api.Purchases = deps.Billing.Purchases
+	api.Webhooks = deps.Billing.Webhooks
+	api.RewardVerifier = deps.Billing.RewardVerifier
+	api.Rewards = deps.Billing.Rewards
 	deps.TestLogin.enable(api, authService)
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)

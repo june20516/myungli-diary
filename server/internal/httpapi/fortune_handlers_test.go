@@ -234,7 +234,6 @@ func TestGetDaily_Returns200(t *testing.T) {
 	assert.Equal(t, gen.BranchSa, pick.Branch)
 	assert.Equal(t, []gen.FocusSlotReasons{gen.FocusSlotReasonsGwiin, gen.FocusSlotReasonsHap}, pick.Reasons)
 	assert.True(t, pick.HuangdaoLucky)
-	assert.Equal(t, 3, pick.Score)
 
 	// 태그: 접두어를 뗀 키와 spec §7.7 길흉.
 	assert.Equal(t, []gen.Tag{
@@ -402,11 +401,10 @@ func calendarView() fortune.CalendarView {
 			Date:       &enginev1.LocalDate{Year: 2026, Month: 10, Day: d},
 			Pillar:     pillar(enginev1.Stem_STEM_GAP, enginev1.Branch_BRANCH_IN),
 			LunarMonth: 8, LunarDay: d, IsLeapMonth: d == 2,
-			Kind:       enginev1.DayKind_DAY_KIND_ORDINARY_DAY,
-			LuckLevel:  enginev1.LuckLevel_LUCK_LEVEL_GOOD,
-			Score:      2,
-			ScoreItems: []*enginev1.ScoreItem{{Id: "gwiin_day", Score: 2}},
-			Judgment:   rawJudgment("calendar.good"),
+			Kind:      enginev1.DayKind_DAY_KIND_ORDINARY_DAY,
+			LuckLevel: enginev1.LuckLevel_LUCK_LEVEL_GOOD,
+			Score:     2,
+			Judgment:  rawJudgment("calendar.good"),
 		}
 	}
 	first := day(1)
@@ -414,8 +412,6 @@ func calendarView() fortune.CalendarView {
 		Name: "寒露", Kind: enginev1.SolarTermKind_SOLAR_TERM_KIND_HALLO,
 		At: timestamppb.New(time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)),
 	}
-	featured := "tag.gongmang"
-	first.FeaturedTag = &featured
 
 	texts := func() fortune.DayTexts {
 		return fortune.DayTexts{
@@ -426,7 +422,6 @@ func calendarView() fortune.CalendarView {
 	return fortune.CalendarView{
 		Response: &enginev1.MonthResponse{Days: []*enginev1.MonthDay{first, day(2)}, Meta: &enginev1.ResponseMeta{RulesetVersion: "r1"}},
 		Days:     []fortune.DayTexts{texts(), texts()},
-		Notices:  []content.Notice{},
 	}
 }
 
@@ -455,11 +450,8 @@ func TestGetCalendar_Returns200(t *testing.T) {
 	assert.Equal(t, gen.OrdinaryDay, first.DayKind)
 	assert.Equal(t, gen.LuckLevelGood, first.LuckLevel)
 	assert.Equal(t, 2, first.Score)
-	assert.Equal(t, []gen.ScoreItem{{Id: "gwiin_day", Score: 2}}, first.ScoreItems)
 	require.NotNil(t, first.SolarTerm)
 	assert.Equal(t, gen.Hallo, first.SolarTerm.Kind)
-	require.NotNil(t, first.FeaturedTag)
-	assert.Equal(t, gen.Tag{Key: "gongmang", Polarity: gen.TagPolarityBad}, *first.FeaturedTag)
 	assert.Equal(t, "calendar.good", first.Level.MessageKey)
 	assert.Equal(t, "평범", first.CharacterReason.Text.Segments[0].Text)
 	assert.Equal(t, gen.LunarDate{Month: 8, Day: 2, IsLeapMonth: true}, got.Days[1].Lunar)
@@ -470,12 +462,13 @@ func TestGetCalendar_Returns200(t *testing.T) {
 	second, ok := days[1].(map[string]any)
 	require.True(t, ok)
 	assert.NotContains(t, second, "solarTerm", "입절일이 아니면 solarTerm을 생략합니다")
-	assert.NotContains(t, second, "featuredTag")
 
 	body := rec.Body.String()
 	assert.Contains(t, body, `"at":"2026-10-01T12:00:00+09:00"`)
 	assert.Contains(t, body, `"slot":"calendar.day_level","text":{"segments":[]}`)
-	assert.Contains(t, body, `"notices":[]`)
+	for _, key := range []string{`"notices"`, `"scoreItems"`, `"featuredTag"`} {
+		assert.NotContains(t, body, key, "쓰지 않는 필드(S77)는 응답에 나가지 않습니다")
+	}
 	assert.NotContains(t, body, `"evidence"`)
 	assert.NotContains(t, body, rawEvidenceRule)
 }

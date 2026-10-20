@@ -10,6 +10,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
@@ -78,6 +79,45 @@ type Contents interface {
 
 var _ Contents = (*content.Store)(nil)
 
+// EntitlementService는 getMe·getEntitlements가 쓰는 권한 판정입니다. *billing.Store가 만족합니다.
+type EntitlementService interface {
+	Status(ctx context.Context, accountID uuid.UUID) (billing.Status, error)
+}
+
+var _ EntitlementService = (*billing.Store)(nil)
+
+// PurchaseRestorer는 restorePurchases가 쓰는 구매 복원입니다. *billing.Syncer가 만족합니다.
+type PurchaseRestorer interface {
+	Restore(ctx context.Context, accountID uuid.UUID) (billing.Status, error)
+}
+
+var _ PurchaseRestorer = (*billing.Syncer)(nil)
+
+// RewardVerifier는 admobRewardCallback이 쓰는 SSV 서명·시각 검증입니다. *billing.RewardVerifier가 만족합니다.
+type RewardVerifier interface {
+	// Verify는 원본 쿼리의 서명과 timestamp를 검증합니다. 오류는 billing.ErrRewardSignature·ErrRewardExpired·ErrRewardKeysUnavailable입니다.
+	Verify(ctx context.Context, rawQuery string) (billing.RewardCallback, error)
+}
+
+var _ RewardVerifier = (*billing.RewardVerifier)(nil)
+
+// RewardGranter는 검증된 보상 콜백을 기록하고 권한을 부여합니다. *billing.Rewards가 만족합니다.
+type RewardGranter interface {
+	Grant(ctx context.Context, cb billing.RewardCallback, rawQuery string) error
+}
+
+var _ RewardGranter = (*billing.Rewards)(nil)
+
+// RevenueCatWebhooks는 revenuecatWebhook이 쓰는 webhook 검증·처리입니다. *billing.Webhooks가 만족합니다.
+type RevenueCatWebhooks interface {
+	// Authorized는 Authorization 헤더 값이 설정 값과 같은지 봅니다.
+	Authorized(header string) bool
+	// Handle은 이벤트를 기록하고 계정을 동기화합니다. 형식 오류는 billing.ErrWebhookInvalid입니다.
+	Handle(ctx context.Context, body map[string]any) error
+}
+
+var _ RevenueCatWebhooks = (*billing.Webhooks)(nil)
+
 // DiaryService는 일기 operation이 쓰는 서비스입니다. *diary.Service가 만족합니다.
 type DiaryService interface {
 	Put(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (entry diary.Entry, created bool, err error)
@@ -119,13 +159,22 @@ type API struct {
 	PreviewUsage PreviewUsage
 	// Contents는 콘텐츠 저장소입니다. 비어 있으면 getGlossary·반응 operation·getDaily는 503 service.unavailable입니다.
 	Contents Contents
+	// Entitlements는 권한 판정입니다. 비어 있으면 getMe·getEntitlements는 503 service.unavailable입니다.
+	Entitlements EntitlementService
+	// Purchases는 구매 복원입니다. 비어 있으면(결제 설정 없음) restorePurchases는 503 billing.provider_unavailable입니다(P7-16).
+	Purchases PurchaseRestorer
+	// Webhooks는 RevenueCat webhook 처리입니다. 비어 있으면(결제 설정 없음) revenuecatWebhook은 500이고 Error 로그를 남깁니다(P7-16).
+	Webhooks RevenueCatWebhooks
+	// RewardVerifier와 Rewards는 AdMob SSV 콜백의 서명 검증과 권한 부여입니다. 하나라도 비어 있으면 admobRewardCallback은 503 service.unavailable입니다.
+	RewardVerifier RewardVerifier
+	Rewards        RewardGranter
 	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.
 	Diaries DiaryService
 	// Schedules는 일정 서비스입니다. 비어 있으면 일정 operation은 503 service.unavailable입니다.
 	Schedules ScheduleService
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
-	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)가 원인을 남길 때 씁니다.
+	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)와 결제 핸들러(webhook·구매 복원)가 원인을 남길 때 씁니다.
 	Logger *slog.Logger
 	// AppLink는 Apple 웹 콜백의 redirect 주소, 안내 페이지, assetlinks.json을 만드는 Android App Link 설정입니다.
 	AppLink AppLinkConfig
