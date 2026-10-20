@@ -32,12 +32,13 @@ var allowedWhilePendingDeletion = map[string]bool{
 }
 
 // allowedWhileConsentRequired는 현재 버전 약관에 아직 동의하지 않은 계정이 부를 수 있는 operation입니다.
-// 계약의 agreeConsents 설명과 같습니다.
+// 계약의 agreeConsents 설명과 같습니다. deleteDevice는 로그아웃 전에 알림을 멈추려고 부르므로 엽니다(S92).
 var allowedWhileConsentRequired = map[string]bool{
 	"getMe":         true,
 	"agreeConsents": true,
 	"logout":        true,
 	"deleteMe":      true,
+	"deleteDevice":  true,
 }
 
 // Operation은 RegisterAPI가 라우트마다 Authenticate에 넘기는 계약 operation 정보입니다.
