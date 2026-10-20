@@ -20,6 +20,7 @@
 | 근거 원전 목록 (`source_ref` → 원전 이름·대목·원문) | `core/evidence_sources.json` (생성 `core/src/myungli_engine/references/sources.py`) | core | writing (`evidence.source` 키), server | - | **구현 완료**, 124개(조후 120칸 + 오행 근거 4개, #130). 항목 `work`·`section`·`quote`·`passage`·`evidence_level`·`note` | 엔진 spec §11, Issue #130 |
 | 메시지 키별 매개변수 | `core/message_params.json` (키 → 매개변수 이름 목록) | core | writing (슬롯 `params` 대조), server | - | **구현 완료**, 153개 키 (PR #57 `d33573e`, PR #67). `message_keys.json`과 키 집합이 같고, 엔진이 판정을 만들 때 선언과 대조함. `message_keys.json` 형식은 그대로 | D27, `writing-to-root-contracts`, Issue #38 |
 | 라운드 원고 (글자 수 측정 근거) | `docs/identity/writing/artifacts/*-round-R*.md` | writing | design (`tools/lengths.py`가 선택 문장으로 상한을 잼) | - | **사용 중** (design 측정 근거는 R1~R8 고정, PR #261) | design `lengths.md`, D73 |
+| 법적 문서 원문 (이용약관·개인정보 처리방침) | `docs/legal/<언어>/{terms,privacy}.md` (읽는 문서 `docs/legal/README.md`) | 지휘 | server (`/legal/*` 정적 페이지), app (`getAppConfig`의 주소로 엶) | - | **원문 없음** (D80, #330. 초안 지휘, 확정 사용자. server가 내주기 시작하면 `ci-gate` server drift 경로에 넣음) | D80, D64, D74 |
 | 글자 수 상한 표 | `docs/identity/design/lengths.md` | design | writing (슬롯 `max_length` 대조 테스트) | - | **사용 중** (W26, #191) | design `lengths.md`, writing W26 |
 
 ## 생성 코드
