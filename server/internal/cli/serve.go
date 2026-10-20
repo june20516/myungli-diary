@@ -38,6 +38,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/ratelimit"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
+	"github.com/june20516/myungli-diary/server/legal"
 )
 
 const (
@@ -477,6 +478,11 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	if err != nil {
 		return nil, fmt.Errorf("계약 읽기: %w", err)
 	}
+	// 이용약관·개인정보 처리방침은 바이너리에 내장한 원문입니다(D80).
+	legalDocs, err := legal.Load()
+	if err != nil {
+		return nil, err
+	}
 	httpDeps := httpapi.Deps{Logger: deps.Logger, Clock: deps.Clock, DB: deps.Pool}
 	routes := httpapi.Routes{
 		Spec:         spec,
@@ -504,6 +510,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Logger:    deps.Logger,
 		AppLink:   settings.appLink,
 		AppConfig: deps.AppConfig,
+		Legal:     legalDocs,
 	}
 	// Previews가 없으면 미리보기를 조립하지 않아 503입니다(Readings·Contents와 같은 관례).
 	if deps.Previews != nil {

@@ -19,6 +19,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
+	"github.com/june20516/myungli-diary/server/legal"
 )
 
 // healthPingTimeout은 헬스 체크가 DB 응답을 기다리는 최대 시간입니다.
@@ -180,6 +181,8 @@ type API struct {
 	AppLink AppLinkConfig
 	// AppConfig는 getAppConfig가 돌려주는 플랫폼별 최소 앱 버전입니다. 조립에서 설정 값을 넣습니다.
 	AppConfig AppConfig
+	// Legal은 /legal/<문서>가 내주는 이용약관·개인정보 처리방침입니다(D80). 비어 있으면 모든 문서가 준비 중(404)입니다.
+	Legal legal.Documents
 }
 
 // AppConfig는 플랫폼별 최소 앱 버전(semver 문자열)입니다(P6-10).

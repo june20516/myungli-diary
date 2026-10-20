@@ -118,10 +118,13 @@ func TestListCities_InvalidQueryIsRejectedByContract(t *testing.T) {
 	expectInvalid(t, rec, "limit")
 }
 
-func TestGetAppConfig_ReturnsConfiguredMinimumVersions(t *testing.T) {
+func TestGetAppConfig_ReturnsMinimumVersionsAndLegalLinks(t *testing.T) {
 	req, rec := getReference(t, "/v1/app-config")
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectFortuneContract(t, req, rec)
-	assert.JSONEq(t, `{"minimumVersion":{"ios":"1.2.0","android":"3.4.5"}}`, rec.Body.String())
+	assert.JSONEq(t, `{
+		"minimumVersion":{"ios":"1.2.0","android":"3.4.5"},
+		"legal":{"terms":"`+testAppLinkBase+`/legal/terms","privacy":"`+testAppLinkBase+`/legal/privacy"}
+	}`, rec.Body.String())
 }

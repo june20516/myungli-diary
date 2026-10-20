@@ -45,11 +45,16 @@ var viewSlots = map[string]seed.Slot{
 	fortune.SlotDayLevel:        {ID: fortune.SlotDayLevel, Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"score": {Kind: seed.KindNumber}}},
 	fortune.SlotYongsinMethod:   {ID: fortune.SlotYongsinMethod, Rotation: seed.RotationNone},
 	fortune.SlotNotice:          {ID: fortune.SlotNotice, Rotation: seed.RotationNone},
-	"personal.day_master":       {ID: "personal.day_master", Rotation: seed.RotationNone},
-	"personal.luck":             {ID: "personal.luck", Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"order": {Kind: seed.KindNumber}}},
-	"explain.today_reason":      {ID: "explain.today_reason", Rotation: seed.RotationNone},
-	"evidence.basis":            {ID: "evidence.basis", Rotation: seed.RotationNone},
-	"evidence.source":           {ID: "evidence.source", Rotation: seed.RotationNone},
+	fortune.SlotIlganHead:       {ID: fortune.SlotIlganHead, Vocative: true, Rotation: seed.RotationNone},
+	fortune.SlotIlganBody:       {ID: fortune.SlotIlganBody, Rotation: seed.RotationNone},
+	fortune.SlotYongsinSummary: {ID: fortune.SlotYongsinSummary, Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{
+		"yongsin": {Kind: seed.KindCategory, Categories: []string{"element", "color"}},
+	}},
+	"personal.day_master":  {ID: "personal.day_master", Rotation: seed.RotationNone},
+	"personal.luck":        {ID: "personal.luck", Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"order": {Kind: seed.KindNumber}}},
+	"explain.today_reason": {ID: "explain.today_reason", Rotation: seed.RotationNone},
+	"evidence.basis":       {ID: "evidence.basis", Rotation: seed.RotationNone},
+	"evidence.source":      {ID: "evidence.source", Rotation: seed.RotationNone},
 }
 
 // tpl은 시드 문장 틀 하나를 만듭니다.
@@ -81,6 +86,9 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl(fortune.SlotDayLevel, "calendar.good", seed.VariantSingle, "ko", "잘 풀리는 날 {score}"+suffix),
 		tpl(fortune.SlotDayLevel, "calendar.neutral", seed.VariantSingle, "ko", "보통인 날 {score}"+suffix),
 		tpl(fortune.SlotYongsinMethod, "yongsin.method.eokbu", seed.VariantSingle, "ko", "힘의 균형으로 정했어요."+suffix),
+		tpl(fortune.SlotIlganHead, "ilgan.head.gap", seed.VariantSingle, "ko", "{name}님, 큰 나무를 닮았어요."+suffix),
+		tpl(fortune.SlotIlganBody, "ilgan.body.gap", seed.VariantSingle, "ko", "한번 정한 길을 가요."+suffix),
+		tpl(fortune.SlotYongsinSummary, "yongsin.summary", seed.VariantSingle, "ko", "나를 돕는 색은 {yongsin:color}이에요."+suffix),
 		tpl("personal.day_master", "personal.day_master.gap", seed.VariantSingle, "ko", "내 일간은 큰 나무 같아요."+suffix),
 		tpl("personal.luck", "personal.luck.ten_god.bigyeon", seed.VariantSingle, "ko", "{order}번째 대운은 나란한 흐름이에요."+suffix),
 		tpl("explain.today_reason", "reason.rule/a", seed.VariantSingle, "ko", "오늘 그런 이유예요."+suffix),
@@ -88,6 +96,7 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "ko", "판정 근거예요."+suffix),
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "en", "The basis."+suffix),
 		tpl("glossary.value_name", "element.wood", seed.VariantSingle, "ko", "초록"),
+		tpl("glossary.value_name", "color.wood", seed.VariantSingle, "ko", "청록색"),
 		tpl("glossary.value_name", "day_kind.gwiin_day", seed.VariantSingle, "ko", "귀인의 날"),
 		tpl("glossary.value_name", "day_kind.gwiin_day", seed.VariantSingle, "en", "Day of Help"),
 		// focus_time_fallback 안내는 원고가 없는 경우를 보려고 일부러 뺍니다.
@@ -732,4 +741,64 @@ func TestViews_ChartPersonalReadingsSkipsBadEntries(t *testing.T) {
 	require.Len(t, view.PersonalReadings, 1)
 	assert.Equal(t, "personal.day_master.gap", view.PersonalReadings[0].Text.MessageKey)
 	assert.Equal(t, 7, strings.Count(f.logs.String(), "level=ERROR"), f.logs.String())
+}
+
+// 일간 소개와 용신 설명은 잠금과 상관없이 렌더하고, 일간 첫 문장만 호칭을 씁니다.
+func TestViews_ChartTexts(t *testing.T) {
+	fake := &enginetest.Fake{Chart: func(*enginev1.ChartRequest) (*enginev1.ChartResponse, error) {
+		return &enginev1.ChartResponse{
+			Meta:    &enginev1.ResponseMeta{RulesetVersion: "rs-1"},
+			Pillars: &enginev1.FourPillars{Day: &enginev1.Pillar{Stem: enginev1.Stem_STEM_GAP}},
+			Yongsin: &enginev1.YongsinInfo{Yongsin: enginev1.Element_ELEMENT_WOOD, Judgment: judgment("yongsin.method.eokbu", nil)},
+		}, nil
+	}}
+	for _, unlocked := range []bool{false, true} {
+		f := newViewsFixture(t, fake, viewSeed(t, ""), fakeInsight{unlocked: unlocked})
+
+		view, err := f.views.Chart(context.Background(), f.account, viewProfile("ko"))
+		require.NoError(t, err)
+
+		require.NotNil(t, view.IlganHead)
+		assert.Equal(t, fortune.SlotIlganHead, view.IlganHead.Slot)
+		assert.Equal(t, "ilgan.head.gap", view.IlganHead.MessageKey)
+		assert.Equal(t, "민지님, 큰 나무를 닮았어요.", plain(view.IlganHead.Text))
+		require.NotNil(t, view.IlganBody)
+		assert.Equal(t, "ilgan.body.gap", view.IlganBody.MessageKey)
+		assert.Equal(t, "한번 정한 길을 가요.", plain(view.IlganBody.Text))
+		require.NotNil(t, view.YongsinSummary)
+		assert.Equal(t, "yongsin.summary", view.YongsinSummary.MessageKey)
+		assert.Equal(t, "나를 돕는 색은 청록색이에요.", plain(view.YongsinSummary.Text))
+	}
+}
+
+// 원고가 없거나(을목 일간, 영어) 고를 값이 없으면(일간·용신 UNSPECIFIED) 그 문장은 nil입니다.
+func TestViews_ChartTextsMissing(t *testing.T) {
+	cases := []struct {
+		name     string
+		lang     string
+		response *enginev1.ChartResponse
+	}{
+		{name: "원고 없는 일간", lang: "ko", response: &enginev1.ChartResponse{
+			Pillars: &enginev1.FourPillars{Day: &enginev1.Pillar{Stem: enginev1.Stem_STEM_EUL}},
+		}},
+		{name: "원고 없는 언어", lang: "en", response: &enginev1.ChartResponse{
+			Pillars: &enginev1.FourPillars{Day: &enginev1.Pillar{Stem: enginev1.Stem_STEM_GAP}},
+			Yongsin: &enginev1.YongsinInfo{Yongsin: enginev1.Element_ELEMENT_WOOD},
+		}},
+		{name: "값 없음", lang: "ko", response: &enginev1.ChartResponse{}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.response.Meta = &enginev1.ResponseMeta{RulesetVersion: "rs-1"}
+			fake := &enginetest.Fake{Chart: func(*enginev1.ChartRequest) (*enginev1.ChartResponse, error) { return tc.response, nil }}
+			f := newViewsFixture(t, fake, viewSeed(t, ""), fortune.AlwaysLocked{})
+
+			view, err := f.views.Chart(context.Background(), f.account, viewProfile(tc.lang))
+			require.NoError(t, err)
+
+			assert.Nil(t, view.IlganHead)
+			assert.Nil(t, view.IlganBody)
+			assert.Nil(t, view.YongsinSummary)
+		})
+	}
 }
