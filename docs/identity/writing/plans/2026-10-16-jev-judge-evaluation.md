@@ -1,6 +1,6 @@
 # jev 판정 대체 가능성 과제 계획
 
-* 날짜: 2026-10-16 (계획만, 실행은 W1-1 첫 라운드 뒤)
+* 날짜: 2026-10-16 (계획). **2026-10-20 실행: 대체하지 않음**(`artifacts/2026-10-20-jev-evaluation.md`, W32). 기준 ②는 빼고 ①③으로 판단했고, 정답 표본은 §3-1 대신 ko 기록 층별 30문항입니다
 * 근거: W1 spec `specs/2026-10-16-w1-content-design.md` §6.2, 결정 W1·W27, TypeSafe 문서(https://docs.typesafe.ai/, 2026-10-16 확인)
 * 입력: W1-1 첫 라운드의 shadow 판정 기록 `artifacts/judge-shadow/`(문장 단위 `claude -p` 표시와 jev `noul` 확률)
 

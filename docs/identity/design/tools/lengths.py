@@ -31,6 +31,8 @@ from dataclasses import dataclass, replace
 
 DESIGN_DIR = pathlib.Path(__file__).resolve().parent.parent
 ROUNDS_DIR = DESIGN_DIR.parent / "writing" / "artifacts"
+# 확정 표를 잰 라운드(lengths.md "ko 문장 자리"). 뒤 라운드가 늘어도 확정값이 움직이지 않게 여기서 멈춥니다
+MEASURED_LAST_ROUND = 8
 UI_TEXT_DIR = DESIGN_DIR.parent / "writing" / "content"
 LANGUAGES = ("ko", "ja", "en")
 
@@ -212,11 +214,20 @@ class Fonts:
         return self.advances(file_name) if file_name else None
 
 
-def corpus_sentences(rounds_dir: pathlib.Path = ROUNDS_DIR) -> list[str]:
-    """라운드 기록 표의 선택지 문장(한글 문장만, "다 별로" 제외, 처음 나온 순서로 중복 제거)."""
+def round_number(path: pathlib.Path) -> int:
+    return int(re.search(r"-round-R(\d+)\.md$", path.name).group(1))
+
+
+def corpus_sentences(rounds_dir: pathlib.Path = ROUNDS_DIR, last_round: int | None = None) -> list[str]:
+    """라운드 기록 표의 선택지 문장(한글 문장만, "다 별로" 제외, 라운드 순서로 처음 나온 것만).
+
+    last_round를 주면 그 라운드까지만 읽습니다."""
     sentences: list[str] = []
     row = re.compile(r"^\|\s*\d+\s*\|\s*(.+?)\s*\|")
-    for path in sorted(rounds_dir.glob("*-round-R*.md")):
+    paths = sorted(rounds_dir.glob("*-round-R*.md"), key=round_number)
+    for path in paths:
+        if last_round is not None and round_number(path) > last_round:
+            continue
         for line in path.read_text(encoding="utf-8").splitlines():
             match = row.match(line)
             if not match:
@@ -378,7 +389,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--font-dir", type=pathlib.Path, required=True)
     args = parser.parse_args(argv)
-    words = " ".join(corpus_sentences()).split()
+    words = " ".join(corpus_sentences(last_round=MEASURED_LAST_ROUND)).split()
     links = link_texts({target.trailing_link for target in TARGETS if target.trailing_link})
     sys.stdout.write(render_table(measure(Fonts(args.font_dir), words, links=links)))
     return 0
