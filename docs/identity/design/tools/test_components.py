@@ -2,6 +2,7 @@
 import copy
 import json
 import pathlib
+import re
 import sys
 
 TOOLS_DIR = pathlib.Path(__file__).resolve().parent
@@ -428,7 +429,7 @@ def test_actions_are_rounded_rectangles():
 
 
 def test_contract_version_is_2_6():
-    assert VERSION == "2.6.0"
+    assert VERSION == "2.6.1"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -442,6 +443,7 @@ def test_readme_states_minimum_height_rule():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme and "| 2.4.0 | 2026-10-16 |" in readme
     assert "| 2.5.0 | 2026-10-16 |" in readme and "| 2.6.0 | 2026-10-20 |" in readme
+    assert "| 2.6.1 | 2026-10-20 |" in readme
 
 
 def ia_screens():
@@ -745,3 +747,35 @@ def test_day_sheet_diary_entrances():
     assert navigate["parts"]["label"]["daySheetSlot"] == "day-sheet.diary.open"
     calendar_md = (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
     assert "`day-sheet.diary.write-cta`" in calendar_md and "V37" in calendar_md
+
+
+# 규칙 정합성 점검 #284 (D78): MD "쓰는 화면"은 IA components와 같다
+USED_ON_EXCEPTIONS = {"diary-editor": {"diary-view"}}  # view 변형. IA에 더해 달라고 요청함(#290)
+
+
+def used_on_lines():
+    """MD의 컴포넌트 절(## id)마다 "쓰는 화면" 줄에서 읽은 IA 화면 id. IA 전체를 가리키는 줄은 건너뜁니다."""
+    screens = set(ia_screens())
+    for md in sorted(COMPONENTS_DIR.glob("*.md")):
+        current = None
+        for line in md.read_text(encoding="utf-8").splitlines():
+            heading = re.match(r"^## `?([a-z-]+)`?\s*$", line)
+            if line.startswith("## "):
+                current = heading.group(1) if heading else None
+            if current and line.startswith("* 쓰는 화면") and "IA `" not in line:
+                outside_code = re.sub(r"`[^`]*`", "", line)
+                yield md.name, current, {token for token in re.findall(r"[a-z][a-z-]+", outside_code) if token in screens}
+
+
+def test_md_used_on_matches_ia_components():
+    used = {}
+    for screen in ia_screens().values():
+        for component_id in screen["components"]:
+            used.setdefault(component_id, set()).add(screen["id"])
+    checked = 0
+    for name, component_id, listed in used_on_lines():
+        if component_id not in used:
+            continue
+        checked += 1
+        assert listed == used[component_id] | USED_ON_EXCEPTIONS.get(component_id, set()), (name, component_id)
+    assert checked >= 30

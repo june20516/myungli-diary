@@ -19,7 +19,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 ## dialog
 
-* 쓰는 화면: preview, login, event-edit, diary-view, settings, account-delete
+* 쓰는 화면: preview, login, event-edit, diary-view, settings, profile-edit, account-delete
 * `bg.sheet`, `radius.lg`, 좌우 28px. 제목 `type.subtitle`, 본문 `type.body.ui` `text.secondary`, 오른쪽 아래 글자 버튼. 나타남 `appear.seep`.
 * `destructive` 변형(일기 삭제, 일정 삭제, 계정 삭제): 제목 앞 `mark.caution`, 확정 버튼 글자는 `text.primary` 굵게, 취소는 `action.primary`. **빨간색을 쓰지 않습니다.** 첫 초점은 취소, 바깥 누르기로 닫히지 않음, 확정 시 햅틱 medium.
 * `notice` 변형: 확인 버튼 하나만 있는 안내입니다. `login.discard.notice`(미리보기 입력을 쓰지 않는다는 안내)처럼 고를 것이 없고 읽었다는 확인만 받는 곳에 씁니다. 확인 버튼은 `confirm`과 같은 모양으로 오른쪽 끝에 놓입니다. 바깥을 누르거나 뒤로 가면 확인과 같고, 첫 초점은 확인 버튼입니다. 두 버튼 형식에서 "닫기"가 취소처럼 읽히던 문제가 없어집니다.
@@ -27,7 +27,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 ## toast
 
-* 쓰는 화면: diary-edit(저장 완료)
+* 쓰는 화면: evidence-sheet(해제 실패), event-edit(저장 실패), diary-edit(저장 완료), diary-view(지운 뒤)
 * 반전색 알약(`inverse.bg`/`inverse.fg`), 탭 바 위 16px. `appear.seep`으로 나타나 `toast-hold`(2.5초) 뒤 `disappear.seep`.
 * 한 번에 하나만 보입니다. 누르는 동작을 담지 않습니다.
 

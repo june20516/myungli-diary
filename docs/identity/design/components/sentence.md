@@ -7,7 +7,7 @@
 
 ## sentence-block
 
-* 쓰는 화면: welcome, preview, login, today, explain-sheet, evidence-sheet, diary-edit, diary-view, tag-diary, my-saju, calc-basis, account-delete, force-update
+* 쓰는 화면: preview, today, explain-sheet, evidence-sheet, diary-edit, diary-view, tag-diary, my-saju, saju-chart. ui 문구만 있는 화면은 쓰지 않습니다(D68 ③).
 * 변형 `card`(`type.sentence.card` 17px) / `body`(`type.sentence.body` 15px) / `preview`(일기 목록, 14.5px 두 줄 말줄임).
 * my-saju 일간 소개의 첫 문장(`my-saju.ilgan.head`, 호칭 자리)은 today 총운 첫 문장과 같은 `card`이고, 이어지는 문장은 `body`입니다.
 * 한국어는 어절 단위 줄바꿈(keep-all), 일본어는 글자 단위 + 금칙 처리.
@@ -46,7 +46,8 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 ## depth-link
 
-* 쓰는 화면: today, explain-sheet, my-saju, evidence-sheet(구성), birthplace·day-sheet(`navigate`)
+* 쓰는 화면: today, explain-sheet, my-saju, birthplace·day-sheet(`navigate`)
+* 근거 시트(evidence-sheet)의 구성도 이 컴포넌트가 정합니다(`parts.evidenceSheet`, 아래).
 * "근거 보기" + 화살표, `action.primary` `type.label.lg`.
 * `inline-end`: 이유 문장 끝에 붙습니다. `link.inline-nowrap`으로 링크 전체가 한 덩어리라, 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 갑니다. "근거 / 보기"처럼 갈라지지 않습니다(시안 비교에서 고른 0-나).
 * `block`: 문단 아래 따로 놓입니다(나 탭).
