@@ -10,5 +10,8 @@ CREATE TABLE rate_limits (
     CONSTRAINT rate_limits_count_positive CHECK (count > 0)
 );
 
+-- 지난 창 정리(DELETE ... WHERE window_start < $1)가 표 전체를 훑지 않게 합니다.
+CREATE INDEX rate_limits_window_start_idx ON rate_limits (window_start);
+
 -- +goose Down
 DROP TABLE rate_limits;

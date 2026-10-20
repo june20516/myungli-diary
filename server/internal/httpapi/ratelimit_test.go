@@ -126,3 +126,16 @@ func TestRateLimit_StoreErrorIs500(t *testing.T) {
 	assert.Equal(t, "internal", decodeProblem(t, rec).Code)
 	assert.NotContains(t, logs.String(), "203.0.113.7")
 }
+
+func TestRateLimit_IPv6SharesKeyWithinSlash64(t *testing.T) {
+	limiter := &fakeLimiter{limit: 30}
+	handler, _ := newRateLimitHandler(t, limiter, &fakeAppCheck{})
+
+	serve(handler, rateLimitedRequest(t, "2001:db8:1:2::1"))
+	serve(handler, rateLimitedRequest(t, "2001:db8:1:2:ffff:ffff:ffff:ffff"))
+	serve(handler, rateLimitedRequest(t, "2001:db8:1:3::1"))
+
+	require.Len(t, limiter.keys, 3)
+	assert.Equal(t, limiter.keys[0], limiter.keys[1], "같은 /64는 같은 키")
+	assert.NotEqual(t, limiter.keys[0], limiter.keys[2], "다른 /64는 다른 키")
+}

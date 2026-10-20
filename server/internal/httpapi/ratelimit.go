@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/netip"
 	"slices"
 	"time"
 
@@ -32,7 +33,7 @@ func RateLimit(l Limiter, trustedHops int, limit int, window time.Duration, oper
 			return next
 		}
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			digest := sha256.Sum256([]byte(ClientIP(r, trustedHops)))
+			digest := sha256.Sum256([]byte(limitGroup(ClientIP(r, trustedHops))))
 			key := op.ID + ":" + hex.EncodeToString(digest[:])
 			allowed, retryAfter, err := l.Allow(r.Context(), key, limit, window)
 			if err != nil {
@@ -54,4 +55,14 @@ func RateLimit(l Limiter, trustedHops int, limit int, window time.Duration, oper
 // ceilSeconds는 d를 초 단위로 올리고 최소 1초로 맞춥니다(Retry-After가 0이면 헤더가 빠지므로).
 func ceilSeconds(d time.Duration) time.Duration {
 	return max(time.Second, (d+time.Second-1)/time.Second*time.Second)
+}
+
+// limitGroup은 한도를 함께 세는 주소 묶음의 대표 문자열입니다. IPv6는 한 사용자가 /64 대역을 통째로 받으므로
+// 앞 64비트만 남겨(나머지 0) 주소를 바꿔 한도를 피하지 못하게 합니다. IPv4와 IPv4-mapped는 주소 그대로입니다.
+func limitGroup(ip string) string {
+	addr, err := netip.ParseAddr(ip)
+	if err != nil || addr.Is4() || addr.Is4In6() {
+		return ip
+	}
+	return netip.PrefixFrom(addr, 64).Masked().Addr().String()
 }

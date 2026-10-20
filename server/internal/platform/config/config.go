@@ -257,7 +257,8 @@ func LoadAppCheck(getenv func(string) string) (AppCheckConfig, error) {
 const defaultTrustedProxyHops = 1
 
 // LoadTrustedProxyHops는 getenv로 TRUSTED_PROXY_HOPS를 읽습니다. 클라이언트 IP를 X-Forwarded-For의
-// 오른쪽에서 몇 번째 값으로 볼지 정하며, 비어 있으면 1이고 0 이상 정수만 받습니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+// 오른쪽에서 몇 번째 값으로 볼지 정합니다. 실제 프록시 수보다 크거나 0이면 모든 클라이언트가 프록시 주소(RemoteAddr) 하나를
+// 키로 함께 써서 전체가 분당 한도에 묶이니 배포 구성과 맞춰야 합니다. 비어 있으면 1이고 0 이상 정수만 받습니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
 func LoadTrustedProxyHops(getenv func(string) string) (int, error) {
 	raw := orDefault(trimmedEnv(getenv)("TRUSTED_PROXY_HOPS"), strconv.Itoa(defaultTrustedProxyHops))
 	hops, err := strconv.Atoi(raw)

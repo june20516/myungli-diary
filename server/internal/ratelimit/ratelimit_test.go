@@ -43,24 +43,29 @@ func TestAllow_RejectsAfterLimitWithRetryAfterToWindowEnd(t *testing.T) {
 	assert.Equal(t, 45*time.Second, retryAfter, "창 끝(09:01:00)까지 남은 시간")
 }
 
-func TestAllow_NextWindowStartsFresh(t *testing.T) {
+func TestAllow_WindowBoundary(t *testing.T) {
 	ctx := context.Background()
 	limiter, clk := newLimiter(t, time.Date(2026, 10, 20, 9, 0, 0, 0, time.UTC))
-	for range testLimit + 1 {
-		_, _, err := limiter.Allow(ctx, "k", testLimit, testWindow)
+	for i := 1; i <= testLimit-1; i++ {
+		allowed, _, err := limiter.Allow(ctx, "k", testLimit, testWindow)
 		require.NoError(t, err)
+		require.True(t, allowed, "0초의 %d번째 요청", i)
 	}
 
 	clk.Set(time.Date(2026, 10, 20, 9, 0, 59, 0, time.UTC))
+	allowed, _, err := limiter.Allow(ctx, "k", testLimit, testWindow)
+	require.NoError(t, err)
+	assert.True(t, allowed, "59초의 30번째 요청은 같은 창이라 허용")
+
 	allowed, retryAfter, err := limiter.Allow(ctx, "k", testLimit, testWindow)
 	require.NoError(t, err)
-	assert.False(t, allowed, "59초에는 같은 창입니다")
+	assert.False(t, allowed, "59초의 31번째 요청은 같은 창이라 거부")
 	assert.Equal(t, time.Second, retryAfter)
 
 	clk.Set(time.Date(2026, 10, 20, 9, 1, 1, 0, time.UTC))
 	allowed, _, err = limiter.Allow(ctx, "k", testLimit, testWindow)
 	require.NoError(t, err)
-	assert.True(t, allowed, "61초에는 다음 창의 첫 요청입니다")
+	assert.True(t, allowed, "61초에는 다음 창의 첫 요청")
 }
 
 func TestAllow_KeysAreIndependent(t *testing.T) {
