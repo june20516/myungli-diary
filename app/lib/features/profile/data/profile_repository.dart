@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_input.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_patch.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_response.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
+import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
 
 /// 프로필 사본을 두는 [CacheKind.profile] 캐시 키.
 const profileCacheKey = 'profile';
@@ -43,6 +45,23 @@ final class ProfileRepository {
   /// 보낸 필드만 바꾸고 응답을 사본으로 둡니다.
   Future<ProfileResponse> update(ProfilePatch patch) =>
       _save(() => _api.updateProfile(profilePatch: patch));
+
+  /// 출생 정보를 [birth]로 바꾸고(PATCH, `birth`만) 바뀌기 전 사주의 캐시를 지웁니다(A62).
+  ///
+  /// 사주 기반 캐시(달력·나의 사주·그날)는 키에 사주 지문이 들어 있어(spec §4.4) 바뀌기 전
+  /// 사본의 지문으로 만든 줄을 모두 지웁니다. 저장이 실패하면 사본도 캐시도 그대로라 이전
+  /// 풀이가 보입니다(Review Focus 1).
+  Future<ProfileResponse> changeBirth(Birth birth) async {
+    final previous = await cached();
+    final response = await update(ProfilePatch(birth: birth));
+    if (previous != null) {
+      final before = sajuFingerprint(previous);
+      if (before != sajuFingerprint(response.profile)) {
+        await _cache.dropFingerprint(before);
+      }
+    }
+    return response;
+  }
 
   /// 사본을 읽습니다. 없으면 null입니다.
   Future<Profile?> cached() => readCachedProfile(_cache);

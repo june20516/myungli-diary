@@ -23,6 +23,7 @@ import 'package:myungli_diary/features/onboarding/presentation/onboard_gender_sc
 import 'package:myungli_diary/features/onboarding/presentation/onboard_time_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
+import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 import 'package:myungli_diary/features/schedule/presentation/event_edit_screen.dart';
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
@@ -177,6 +178,12 @@ final Map<String, ScreenSpec> _implementedScreens = {
     _buildSettings,
     exits: settingsExits,
   ),
+  ScreenIds.profileEdit: const ScreenSpec(
+    ScreenIds.profileEdit,
+    _buildProfileEdit,
+    handledStates: profileEditHandledStates,
+    exits: profileEditExits,
+  ),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -242,3 +249,5 @@ Widget _buildMySaju(BuildContext context) => const MySajuScreen();
 Widget _buildSajuChart(BuildContext context) => const SajuChartScreen();
 
 Widget _buildSettings(BuildContext context) => const SettingsScreen();
+
+Widget _buildProfileEdit(BuildContext context) => const ProfileEditScreen();

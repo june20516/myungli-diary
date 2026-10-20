@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,12 +25,14 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
+import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 
 import '../support/app_harness.dart';
 import '../support/chart_network.dart';
 import '../support/depth_link_finders.dart';
 import '../support/golden.dart';
 import '../support/onboarding_steps.dart';
+import '../support/profile_network.dart';
 
 final bool _enabled = Platform.environment['MYUNGLI_SCREENSHOTS'] == '1';
 
@@ -208,6 +211,46 @@ Future<void> _settingsLogout(WidgetTester tester) async {
   await _tapAndSettle(tester, find.byKey(SettingsScreen.logoutRowKey));
 }
 
+/// 정보 수정을 열고 [after]로 화면 안을 더 조작합니다. [network]는 연 뒤 대역 서버 앞에 끼웁니다.
+_Open _profileEdit({
+  Future<void> Function(WidgetTester tester)? after,
+  Interceptor? network,
+}) => (tester, container) async {
+  if (network != null) {
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+  }
+  unawaited(
+    container.read(routerProvider).push<void>(pathOf(ScreenIds.profileEdit)),
+  );
+  await pumpUntilScreen(tester, ScreenIds.profileEdit);
+  await settleWithIo(tester);
+  await after?.call(tester);
+};
+
+/// 성별을 남성으로 바꿉니다(화면 안 변경, 저장 버튼이 켜짐).
+Future<void> _profileEditChanged(WidgetTester tester) async {
+  await _tapAndSettle(tester, find.byKey(ProfileEditScreen.genderRowKey));
+  await _tapAndSettle(tester, find.text(AppLocalizationsKo().genderMale));
+  await tapNext(tester);
+  await settleWithIo(tester);
+}
+
+/// 성별을 바꾸고 저장을 눌러 확인 창을 띄웁니다.
+Future<void> _profileEditConfirm(WidgetTester tester) async {
+  await _profileEditChanged(tester);
+  await _tapAndSettle(tester, find.byKey(ProfileEditScreen.saveKey));
+}
+
+/// 확인 창에서 바꾸기를 눌러 저장이 실패한 상태로 둡니다.
+Future<void> _profileEditError(WidgetTester tester) async {
+  await _profileEditConfirm(tester);
+  await _tapAndSettle(
+    tester,
+    find.text(AppLocalizationsKo().profileEditRecalcConfirmSave),
+  );
+}
+
 /// 등록할 화면·상태. 계획 2~6에서 만든 화면입니다.
 final List<_Shot> _shots = [
   // 계획 2: 온보딩·로그인
@@ -337,6 +380,28 @@ final List<_Shot> _shots = [
     'logout-confirm',
     'member',
     _settings(after: _settingsLogout),
+  ),
+  _Shot('profile-edit', 'default', 'member', _profileEdit()),
+  _Shot(
+    'profile-edit',
+    'changed',
+    'member',
+    _profileEdit(after: _profileEditChanged),
+  ),
+  _Shot(
+    'profile-edit',
+    'confirm',
+    'member',
+    _profileEdit(after: _profileEditConfirm),
+  ),
+  _Shot(
+    'profile-edit',
+    'error',
+    'member',
+    _profileEdit(
+      after: _profileEditError,
+      network: ProfileRequestGate(failures: 1),
+    ),
   ),
 ];
 
