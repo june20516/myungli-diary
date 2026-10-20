@@ -24,7 +24,7 @@
 | V0 | 시각 정체성 | design | B0 | V1 | **완료** (PR #10 `77b7e4f`, 결정 V1~V7) |
 | V1 | **디자인 토큰 freeze** | design | V0 | V2, A1 | **완료** (PR #18 `d049e08`, 계약 1.0.0, 결정 V8~V12) |
 | V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | **완료** (PR #43 `47a1867`, 컴포넌트 계약 1.0.0, 토큰 1.1.0, 결정 V13~V24). 후속 PR #66 `b1317e4`: 컴포넌트 2.0.0(근거 잠금, D60), 결정 V25~V27. PR #83: 2.1.0(문장 조각 `term` 표시, 근거 잠금 슬롯), 결정 V28. PR #110: 2.2.0(용신 근거 줄 이름 슬롯). PR #189: 2.3.0(app 구현 대응, `depth-link` 화면 이동, 글자 수 상한). PR #221: 2.4.0(`city-search` 처리 중·`skeleton`). PR #245: 2.5.0(`lucky-card` 변형 `tag`, D76). PR #261: 2.6.0(app 계획 4 확인, V36~V38). PR #293: 2.6.1(규칙 정합성, D77 슬롯 상한) |
-| W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | **진행 중** (W1 spec `docs/identity/writing/specs/2026-10-16-w1-content-design.md`. W1-1 오늘 화면·엔진 안내 PR #249, W1-2 사주·개인 해석 PR #254, D77 IA ui 슬롯·남은 ui 원고 PR #279·#297(W33). 다음 W1-3 용어·근거. 원어민 검수는 사용자 준비물) |
+| W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | **진행 중** (W1 spec `docs/identity/writing/specs/2026-10-16-w1-content-design.md`. W1-1 오늘 화면·엔진 안내 PR #249, W1-2 사주·개인 해석 PR #254, D77 IA ui 슬롯·남은 ui 원고 PR #279·#297(W33), 기본 깊이 원고 삭제 PR #326(D79), 생일 음력 문구 PR #328(W34). 다음 W1-3 용어·근거. 원어민 검수는 사용자 준비물) |
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3 | - |
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3 | - |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
@@ -37,20 +37,19 @@
 ## 현재 진행 순서 (2026-10-20 밤 기준, app 계획 5 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 PR #320(IA v4, D79)의 app #322·writing #323·design #324·server #321입니다. server는 고칠 것이 없고 writing #317(`blocking`)이 원고에서 `settings.depth.desc`를 빼면 풀립니다. 그 전까지 server own PR은 `mlw check`로 막힙니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #322(IA v4)·#327(writing PR #326 원고)과 design #324(IA v4)입니다. server #321·writing #323은 writing PR #326으로 닫혔습니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
 * **가장 긴 경로:** A1(계획 6·7) → A2, 그리고 S2(다음 P7) → S3 → A2 → I2. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기, #316: 기본 깊이 설정 삭제·IA v4, D79) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
-| 지금 | writing | #317·drift #323(`blocking`: 기본 깊이 원고 빼기, W15 개정, D79) — server 검사를 막고 있어 먼저 | server own PR |
-| 지금 | server | P7(결제와 권한: RevenueCat·AdMob SSV·근거 열람 권한) 계획과 구현, D75 후속(S77 필드 5개 제거, app 확인 끝 #309) | S2 완료, S3 |
-| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). 생일 음력 확인 줄·안내 문구(#313) | I3, server 시드 strict(S38) |
+| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기, #316·drift #322·#327: 기본 깊이 설정 삭제·IA v4, D79) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | server | P7(결제와 권한: RevenueCat·AdMob SSV·근거 열람 권한) 계획과 구현, D75 후속(S77 필드 5개 제거, app 확인 끝 #309), 나의 사주 문장 필드(#329), 법적 문서 정적 페이지·`AppConfig` 주소(#332, D80) | S2 완료, S3 |
+| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331) | I3, server 시드 strict(S38) |
 | 그다음 | server | S3(REST v1 freeze), staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | A2, I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 필요할 때 | design | app·writing 요청 대응, #318(글자 수 상한 표의 깊이 이름 대상 빼기, D79) | - |
+| 필요할 때 | design | drift #324·#318(글자 수 상한 표의 깊이 이름 대상 빼기, D79), app·writing 요청 대응 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
