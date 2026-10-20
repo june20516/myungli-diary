@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.7
+  version: 1.0.0-draft.8
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -13,7 +13,7 @@ info:
       생략 가능한 필드를 생략하면 "값 없음"만 뜻합니다. 이 계약에는 `null` 값이 없습니다.
     * PATCH(`application/merge-patch+json`)에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다. `null`로 필드를 지우지 않습니다.
     * 요청 본문 상한은 1 MiB입니다. 넘으면 413 `request.too_large`입니다.
-    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
+    * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. 지원 언어는 `ko`·`en`·`ja`이고, 헤더의 q값 순서로 첫 지원 언어를 고릅니다(`ko-KR`은 `ko`). 맞는 언어가 없거나 헤더가 없으면 기본 언어는 `en`입니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
     * 생성하는 POST(`createSchedule`, `registerDevice`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
     * 문장 필드는 조각 배열(`RenderedText`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
     * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
@@ -691,6 +691,7 @@ paths:
         출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다.
         App Check가 필요합니다. 설치(`installationId`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다.
         언어는 `Accept-Language`를 씁니다.
+        총운 문장은 계정이 없어 순환 기록이 없으므로 `advice` 유형을 쓰고, 호칭은 없습니다.
       security:
         - appCheck: []
       requestBody:
@@ -735,8 +736,8 @@ paths:
       summary: 시진 확인
       description: |
         출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 입력은 저장하지 않습니다.
-        App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
-        엔진 RPC가 생기기 전까지는 501을 돌려줍니다.
+        App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        출생 시간대와 출생지를 받지 않으므로 `Asia/Seoul`과 대표 경도로 계산합니다. `start`·`end`는 그 시간대의 벽시계 시각입니다.
       security:
         - appCheck: []
       requestBody:
@@ -784,7 +785,7 @@ paths:
       description: |
         음력 연·월·일을 양력 날짜로 바꾸고, 그해 그 음력 달에 윤달이 있는지 알려줍니다. 입력은 저장하지 않습니다.
         app은 윤달 선택을 보일지 정하려고 `day: 1`, `isLeapMonth: false`로 먼저 물을 수 있습니다.
-        App Check가 필요하며, 기기·IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
+        App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 `rate_limited`).
         없는 음력 날짜(윤달이 없는 달의 윤달, 그 달에 없는 30일)는 422 `date.invalid`(`errors[].field`는 `/date` 또는 `/isLeapMonth`),
         D41 지원 범위 밖이면 422 `date.out_of_range`입니다.
       security:
@@ -1433,7 +1434,11 @@ paths:
     get:
       operationId: listCities
       summary: 도시 검색
-      description: 출생지 도시를 이름으로 찾습니다(`ETag`). 언어는 `lang`, 생략하면 `Accept-Language`입니다.
+      description: |
+        출생지 도시를 이름으로 찾습니다(`ETag`). 언어는 `lang`, 생략하면 `Accept-Language`입니다.
+        `q`는 한국어·영어·일본어 이름 중 하나의 앞부분과 같은 도시를 찾습니다(대소문자 무시).
+        요청 언어 이름이 앞부분과 같은 도시가 먼저, 그다음은 요청 언어 이름 순입니다. `limit`개까지 돌려줍니다.
+        `If-None-Match`가 현재 `ETag`와 같으면 304를 돌려줍니다.
       security: []
       parameters:
         - name: q
@@ -1529,7 +1534,7 @@ components:
       type: apiKey
       in: header
       name: X-Firebase-AppCheck
-      description: Firebase App Check 토큰. 비로그인 요청(`createPreview`, `getBirthHour`)에 필요합니다.
+      description: Firebase App Check 토큰. 비로그인 요청(`createPreview`, `getBirthHour`, `convertLunarDate`)에 필요합니다.
 
   parameters:
     Date:

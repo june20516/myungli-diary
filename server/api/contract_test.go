@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft7(t *testing.T) {
+func TestContract_VersionIsDraft8(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.7" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.7", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.8" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.8", doc.Info.Version)
 	}
 }
 
@@ -1034,5 +1034,44 @@ func TestContract_Draft7Additions(t *testing.T) {
 				t.Errorf("%s에 404 응답이 없음", id)
 			}
 		})
+	}
+}
+
+// TestContract_Draft8Additions는 draft.8에서 더한 비로그인·참조 동작 설명을 고정합니다. (P6, 응답 형태는 그대로)
+func TestContract_Draft8Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	if !strings.Contains(doc.Components.SecuritySchemes["appCheck"].Value.Description, "convertLunarDate") {
+		t.Error("appCheck 설명에 convertLunarDate가 없음")
+	}
+	for _, text := range []string{"`Accept-Language`", "기본 언어는 `en`"} {
+		if !strings.Contains(doc.Info.Description, text) {
+			t.Errorf("info.description에 %q가 없음", text)
+		}
+	}
+
+	descriptions := map[string][]string{
+		"getBirthHour":     {"`Asia/Seoul`", "대표 경도", "IP별 요청 한도(분당 30회)"},
+		"convertLunarDate": {"IP별 요청 한도(분당 30회)"},
+		"listCities":       {"앞부분", "304"},
+		"createPreview":    {"`advice`"},
+	}
+	for id, texts := range descriptions {
+		t.Run(id, func(t *testing.T) {
+			description := operationByID(t, doc, id).Description
+			for _, text := range texts {
+				if !strings.Contains(description, text) {
+					t.Errorf("%s 설명에 %q가 없음", id, text)
+				}
+			}
+		})
+	}
+
+	for _, text := range []string{"엔진 RPC가 생기기 전까지는 501", "기기·IP별"} {
+		for _, id := range []string{"getBirthHour", "convertLunarDate"} {
+			if strings.Contains(operationByID(t, doc, id).Description, text) {
+				t.Errorf("%s 설명에 %q가 남아 있음", id, text)
+			}
+		}
 	}
 }
