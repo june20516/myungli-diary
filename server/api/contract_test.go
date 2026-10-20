@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft8(t *testing.T) {
+func TestContract_VersionIsDraft9(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.8" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.8", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.9" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.9", doc.Info.Version)
 	}
 }
 
@@ -1032,6 +1032,27 @@ func TestContract_Draft7Additions(t *testing.T) {
 			}
 			if op.Responses.Value("404") == nil {
 				t.Errorf("%s에 404 응답이 없음", id)
+			}
+		})
+	}
+}
+
+// TestContract_Draft9Additions는 draft.9에서 더한 결제 webhook·복원 동작 설명을 고정합니다. (P7, 응답 형태는 그대로)
+func TestContract_Draft9Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	descriptions := map[string][]string{
+		"admobRewardCallback": {"`user_id`가 없거나 없는 계정이면 기록만 하고 200"},
+		"revenuecatWebhook":   {"기록만 하고 200", "`TEST`"},
+		"restorePurchases":    {"환불된 구매"},
+	}
+	for id, texts := range descriptions {
+		t.Run(id, func(t *testing.T) {
+			description := operationByID(t, doc, id).Description
+			for _, text := range texts {
+				if !strings.Contains(description, text) {
+					t.Errorf("%s 설명에 %q가 없음", id, text)
+				}
 			}
 		})
 	}
