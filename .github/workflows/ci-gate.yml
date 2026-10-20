@@ -8,15 +8,15 @@
 #      `uses: ./.github/workflows/<단위>.yml` job을 더해 `ci-gate`의 needs에 넣습니다.
 #   3. (단위) 단위 workflow의 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지).
 #   이 순서면 검사가 하나도 돌지 않는 구간이 생기지 않습니다. 전환 전까지 그 단위는 이 판정에 들어가지 않습니다.
-# * PR 본문 검사(pr-body): 처리한 Issue는 `Closes #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2).
+# * PR 본문 검사(pr-body): 처리한 Issue는 `Closes #<번호>`, 일부만 처리했으면 `참고 #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2, D78 ③).
 #   본문만 고쳐도 다시 판정하도록 `edited`에서도 돕니다.
 # * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
 # * 단위 간 맞물림(drift, docs/workflow.md §6.1): 단위 검사는 두 방식으로 돕니다.
-#   - own: PR이 그 단위의 코드(소유 경로)나 그 단위·이 workflow를 바꿨습니다. 실패하면 판정을 막습니다.
+#   - own: PR이 그 단위의 코드(소유 경로)나 그 단위 workflow를 바꿨습니다. 실패하면 판정을 막습니다.
 #   - drift: 그 단위가 쓰는 계약 파일만 바뀌었습니다(예: server PR이 openapi.yaml만 바꿈). 받는 쪽이 아직
 #     따라오지 않아 실패할 수 있으므로 판정에서 빼고 경고로 남기며, PR이면 받는 쪽 앞으로 `drift` Issue를 엽니다.
 #     받는 쪽은 다음 PR(own)에서 맞춰야 병합할 수 있습니다. 통합 마일스톤(I1~I4)은 남은 drift 0이 조건입니다.
-#   - gate: 이 workflow(ci-gate.yml)만 바뀌었습니다. 실패하면 막되, 그 단위 앞으로 열린 `drift` Issue가 있으면
+#   - gate: 그 단위의 소유·계약 경로는 바뀌지 않았고 이 workflow(ci-gate.yml)가 바뀌었습니다. 실패하면 막되, 그 단위 앞으로 열린 `drift` Issue가 있으면
 #     이미 알려진 실패로 보고 경고만 남깁니다. 병렬로 일하는 동안 drift가 0이 되기를 기다리지 않으려는 것입니다.
 
 name: ci-gate
@@ -105,14 +105,14 @@ jobs:
           }
           # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있어 core 소유입니다.
           unit core "$code_changed" '^core/|^proto/' ''
-          # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙.
-          unit server "$code_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/'
+          # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙, IA(시드 CI의 `mlw check`가 IA 대조까지 함).
+          unit server "$code_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/|^docs/ia/screens\.json$'
           # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
           unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/'
-          # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144).
+          # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144), design 글자 수 상한 표(슬롯 max_length 대조, W26).
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
-          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/'
+          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$'
           # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고(lengths.py). 과정 문서는 writing과 같이 뺍니다.
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/'
@@ -150,12 +150,16 @@ jobs:
           # GitHub처럼 문장 안의 키워드도 인정합니다(줄 맨 앞만 보면 GitHub은 닫는데 검사만 실패합니다).
           closes = re.findall(r"(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)", body)
           none = re.search(r"(?m)^[\s*-]*처리한 Issue:\s*없음", body)
+          # 일부만 처리한 Issue는 `참고 #<번호>`로 적습니다(D78 ③). 남은 일은 새 Issue로 나눕니다.
+          partial = re.findall(r"참고(?:\s*Issue)?:?\s*#(\d+)", body)
           if closes:
               print("처리한 Issue: " + ", ".join("#" + n for n in closes))
+          elif partial:
+              print("일부 처리한 Issue: " + ", ".join("#" + n for n in partial))
           elif none:
               print("처리한 Issue: 없음")
           else:
-              print("PR 본문에 `Closes #<번호>` 또는 `처리한 Issue: 없음`이 없습니다 (docs/workflow.md §5.2).")
+              print("PR 본문에 `Closes #<번호>`, `참고 #<번호>`, `처리한 Issue: 없음` 중 하나가 없습니다 (docs/workflow.md §5.2).")
               sys.exit(1)
           PY
 
