@@ -79,65 +79,66 @@ String _key({int year = 2026, String language = 'ko'}) =>
     chartKey(fingerprint: 'fingerprint', language: language, year: year);
 
 void main() {
-  test('키가 있으면 한 번 받은 차트는 다시 묻지 않고, 오프라인이어도 캐시를 보입니다', () async {
+  test('fetch는 매번 server에 묻고, 연결이 안 되면 OfflineError입니다', () async {
     final s = _setUp();
-    final first = await s.repository.chart(cacheKey: _key());
+    final first = await s.repository.fetch();
     expect(first.pillars.day.stem.value, 'gyeong');
-    expect(s.server.requests, 1);
+    await s.repository.fetch();
+    expect(s.server.requests, 2);
 
     s.server.offline = true;
-    final cached = await s.repository.chart(cacheKey: _key());
-    expect(cached.toJson(), first.toJson());
-    expect(s.server.requests, 1);
+    await expectLater(s.repository.fetch(), throwsA(isA<OfflineError>()));
   });
 
-  test('연도·언어가 다르면 키가 달라 새로 받습니다', () async {
+  test('store한 차트를 cached가 근거 열람 상태와 함께 돌려줍니다', () async {
     final s = _setUp();
-    await s.repository.chart(cacheKey: _key());
-    await s.repository.chart(cacheKey: _key(year: 2027));
-    await s.repository.chart(cacheKey: _key(language: 'en'));
-    expect(s.server.requests, 3);
+    expect(await s.repository.cached(_key()), isNull);
+    final fresh = await s.repository.fetch();
+    await s.repository.store(_key(), fresh);
+
+    final cached = await s.repository.cached(_key());
+    expect(cached?.toJson(), fresh.toJson());
+    expect(await s.cache.lockedKeys(CacheKind.chart), [_key()]);
+    // 연도·언어가 다르면 다른 키라 캐시가 없습니다.
+    expect(await s.repository.cached(_key(year: 2027)), isNull);
+    expect(await s.repository.cached(_key(language: 'en')), isNull);
   });
 
-  test('사본이 없으면(키 없음) 캐시를 읽지도 쓰지도 않고 매번 받습니다', () async {
-    final s = _setUp();
-    await s.repository.chart(cacheKey: null);
-    await s.repository.chart(cacheKey: null);
-    expect(s.server.requests, 2);
+  test('unlocked로 둔 차트는 locked 목록에 들지 않습니다', () async {
+    final s = _setUp(scenario: 'evidence-unlocked');
+    await s.repository.store(_key(), await s.repository.fetch());
     expect(await s.cache.lockedKeys(CacheKind.chart), isEmpty);
+    expect(
+      (await s.repository.cached(_key()))?.evidenceAccess,
+      EvidenceAccess.unlocked,
+    );
   });
 
-  test('skipCache면 캐시가 있어도 받고 새 값으로 씁니다', () async {
+  test('깨진 캐시는 없는 것으로 봅니다', () async {
     final s = _setUp();
-    await s.repository.chart(cacheKey: _key());
-    s.server.scenario = 'evidence-unlocked';
-    final fresh = await s.repository.chart(cacheKey: _key(), skipCache: true);
-    expect(fresh.evidenceAccess, EvidenceAccess.unlocked);
-    expect(s.server.requests, 2);
-    final again = await s.repository.chart(cacheKey: _key());
-    expect(again.evidenceAccess, EvidenceAccess.unlocked);
-    expect(s.server.requests, 2);
+    await s.cache.write(
+      CacheKind.chart,
+      _key(),
+      '{"pillars": ',
+      access: EvidenceAccess.locked,
+    );
+    expect(await s.repository.cached(_key()), isNull);
   });
 
-  test('locked로 받은 차트는 dropLocked 뒤 다시 받습니다', () async {
+  test('dropLocked는 locked로 둔 차트 캐시를 지웁니다', () async {
     final s = _setUp();
-    await s.repository.chart(cacheKey: _key());
+    await s.repository.store(_key(), await s.repository.fetch());
     expect(await s.cache.lockedKeys(CacheKind.chart), [_key()]);
     await s.repository.dropLocked();
     expect(await s.cache.lockedKeys(CacheKind.chart), isEmpty);
-    await s.repository.chart(cacheKey: _key());
-    expect(s.server.requests, 2);
+    expect(await s.repository.cached(_key()), isNull);
   });
 
   test('규칙 버전이 바뀐 응답을 받으면 이전 사주 기반 캐시가 지워집니다', () async {
     final s = _setUp();
-    await s.repository.chart(cacheKey: _key());
+    await s.repository.store(_key(), await s.repository.fetch());
     s.server.rulesetVersion = '2099.1.1';
-    await s.repository.chart(cacheKey: _key(year: 2027));
-    s.server.offline = true;
-    await expectLater(
-      s.repository.chart(cacheKey: _key()),
-      throwsA(isA<OfflineError>()),
-    );
+    await s.repository.fetch();
+    expect(await s.repository.cached(_key()), isNull);
   });
 }

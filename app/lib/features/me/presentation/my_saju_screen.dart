@@ -65,6 +65,9 @@ class MySajuScreen extends ConsumerWidget {
   /// 앱 바 톱니(설정).
   static const Key settingsKey = ValueKey('my-saju.settings');
 
+  /// 일간 표지 칸(`ohaeng.cell`).
+  static const Key dayStemKey = ValueKey('my-saju.day-stem');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -168,6 +171,7 @@ class _MySajuBody extends ConsumerWidget {
           child: SizedBox(
             width: 88,
             child: OhaengCell(
+              key: MySajuScreen.dayStemKey,
               element: stemElement(dayStem),
               hanja: stemHanja(dayStem),
               reading: dayStemName,

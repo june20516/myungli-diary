@@ -6,10 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/storage/cache_store.dart';
+import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
@@ -20,6 +23,7 @@ import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
 import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
+import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -127,6 +131,76 @@ final class _RecalculatedChart extends Interceptor {
     }
     handler.next(response);
   }
+}
+
+/// 호칭·언어 PATCH가 성공한 뒤의 나의 사주 응답에서 첫 문장(`Chart.ilganHead`)을 그 값으로 바꿉니다.
+///
+/// 대역 서버의 차트 fixture는 프로필과 상관없이 같으므로, server가 새 호칭·언어로 문장을 만드는
+/// 것을 흉내 냅니다. PATCH 뒤에 들어온 차트 요청 수를 [chartRequestsAfterPatch]로 셉니다.
+final class _ProfileEchoChart extends Interceptor {
+  String? _honorific;
+  String? _language;
+
+  /// 마지막 호칭·언어 PATCH 뒤 들어온 `/v1/chart` 요청 수.
+  int chartRequestsAfterPatch = 0;
+
+  /// 지금 server가 만들 첫 문장.
+  String get sentence => _language == 'en'
+      ? '${_honorific ?? 'Haneul'}, you resemble unpolished iron.'
+      : '${_honorific ?? '하늘'}님, 다듬기 전의 단단한 쇠를 닮았어요.';
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if ((_honorific != null || _language != null) &&
+        options.path == '/v1/chart') {
+      chartRequestsAfterPatch++;
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final options = response.requestOptions;
+    final data = response.data;
+    if (options.method == 'PATCH' && options.path == '/v1/me/profile') {
+      final patch = _bodyOf(options.data);
+      if (patch['honorific'] case final String honorific) {
+        _honorific = honorific;
+        chartRequestsAfterPatch = 0;
+      }
+      if (patch['language'] case final String language) {
+        _language = language;
+        chartRequestsAfterPatch = 0;
+      }
+    } else if ((_honorific != null || _language != null) &&
+        options.path == '/v1/chart' &&
+        data is Map) {
+      final body = Map<String, Object?>.of(data.cast<String, Object?>());
+      body['ilganHead'] = {
+        ...(body['ilganHead']! as Map).cast<String, Object?>(),
+        'text': {
+          'segments': [
+            {'text': sentence},
+          ],
+        },
+      };
+      response.data = body;
+    }
+    handler.next(response);
+  }
+}
+
+/// 나의 사주 화면 안의 [text] 문장(문장 블록은 RichText로 그림).
+Finder _sentenceInMySaju(String text) =>
+    _inScreen(ScreenIds.mySaju, find.text(text, findRichText: true));
+
+/// [id] 화면을 닫습니다(뒤로).
+Future<void> _pop(WidgetTester tester, String id) async {
+  Navigator.of(tester.element(_screen(id))).pop();
+  await settleWithIo(tester);
 }
 
 void main() {
@@ -281,7 +355,21 @@ void main() {
     expect(saved!.birth.date.day, 16);
     // 새 사주 지문이라 캐시가 아니라 새로 받은 원국입니다.
     expect(network.chartRequestsAfterSave, greaterThanOrEqualTo(1));
-    expect(_inScreen(ScreenIds.mySaju, find.text('갑')), findsWidgets);
+    // 일간 표지 칸이 새 일간(갑, 甲)입니다.
+    expect(
+      find.descendant(
+        of: find.byKey(MySajuScreen.dayStemKey),
+        matching: find.text('甲'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(MySajuScreen.dayStemKey),
+        matching: find.text('갑'),
+      ),
+      findsOneWidget,
+    );
     // 정보 수정·설정은 스택에서 빠졌습니다(go).
     expect(_screen(ScreenIds.profileEdit), findsNothing);
     expect(_screen(ScreenIds.settings), findsNothing);
@@ -306,5 +394,92 @@ void main() {
       () => container.read(cachedProfileProvider.future),
     );
     expect(copy, isNull);
+  });
+
+  testWidgets('정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['my-saju>settings', 'settings>profile-edit'],
+        decisions: ['D60'],
+      ),
+    );
+    final network = _ProfileEchoChart();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+
+    await _openMySaju(tester);
+    expect(_sentenceInMySaju(network.sentence), findsOneWidget);
+    await _openSettingsFromMySaju(tester);
+    await _tapRow(tester, SettingsScreen.profileEditRowKey);
+    await pumpUntilScreen(tester, ScreenIds.profileEdit);
+
+    await _tapRow(tester, ProfileEditScreen.callRowKey);
+    await tester.enterText(find.byType(EditableText), '달');
+    await tester.pump();
+    await tapNext(tester);
+    await settleWithIo(tester);
+    expect(_screen(ScreenIds.profileEdit), findsOneWidget);
+
+    await _pop(tester, ScreenIds.profileEdit);
+    await _pop(tester, ScreenIds.settings);
+    await pumpUntil(
+      tester,
+      () => _sentenceInMySaju('달님, 다듬기 전의 단단한 쇠를 닮았어요.').evaluate().isNotEmpty,
+    );
+    // 호칭 PATCH 뒤에 차트를 다시 물었습니다(캐시의 이전 호칭 문장이 남지 않음).
+    expect(network.chartRequestsAfterPatch, greaterThanOrEqualTo(1));
+    expect(_sentenceInMySaju('하늘님, 다듬기 전의 단단한 쇠를 닮았어요.'), findsNothing);
+  });
+
+  testWidgets('설정에서 언어를 en으로 바꾸면 나의 사주를 다시 받아 en 문장이 보입니다(A60)', (
+    tester,
+  ) async {
+    covers(const Covers(exits: ['my-saju>settings'], decisions: ['D28']));
+    final network = _ProfileEchoChart();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+
+    await _openMySaju(tester);
+    await _openSettingsFromMySaju(tester);
+    await _tapRow(tester, SettingsScreen.languageRowKey);
+    await tester.tap(find.byKey(LanguageSheet.rowKey(Language.en)));
+    await settleWithIo(tester);
+    // 출생지를 묻지 않은 계정이라 안내 시트가 뜹니다. 닫고 돌아갑니다.
+    final notice = find.byKey(
+      const ValueKey(SlotIds.settingsLanguageBirthplaceNotice),
+    );
+    if (notice.evaluate().isNotEmpty) {
+      Navigator.of(tester.element(notice)).pop();
+      await settleWithIo(tester);
+    }
+    await _pop(tester, ScreenIds.settings);
+
+    await pumpUntil(
+      tester,
+      () =>
+          _sentenceInMySaju('Haneul, you resemble unpolished iron.')
+              .evaluate()
+              .isNotEmpty,
+    );
+    expect(network.chartRequestsAfterPatch, greaterThanOrEqualTo(1));
+    // bearer 요청이라 언어는 Accept-Language가 아니라 프로필 언어로 server가 고릅니다.
+    // 캐시는 en 키로 갈라 둡니다.
+    final profile = await tester.runAsync(
+      () => container.read(cachedProfileProvider.future),
+    );
+    expect(profile!.language, Language.en);
+    final key = chartKey(
+      fingerprint: sajuFingerprint(profile),
+      language: 'en',
+      year: container.read(todayProvider).year,
+    );
+    final cached = await tester.runAsync(
+      () => container.read(cacheStoreProvider).read(CacheKind.chart, key),
+    );
+    expect(cached, contains('you resemble unpolished iron'));
   });
 }

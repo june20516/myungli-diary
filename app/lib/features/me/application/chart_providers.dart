@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
@@ -11,6 +13,7 @@ import 'package:myungli_diary/core/api/gen/model/shinsal_kind.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
 import 'package:myungli_diary/features/me/data/chart_repository.dart';
@@ -29,11 +32,16 @@ final chartRepositoryProvider = Provider<ChartRepository>(
 /// 나의 사주(A56). `my-saju`·`saju-chart`·근거 시트가 함께 씁니다.
 ///
 /// 1. 기기 시간대 동기화([TimezoneSync.syncIfChanged])를 먼저 기다립니다.
-/// 2. 프로필 사본이 있으면 키 `chartKey(지문, 사본 language, 오늘의 연도)`로 캐시를 쓰고, 없으면
-///    키 없이 받습니다. 오늘([todayProvider])이 해를 넘기면 새 연도로 다시 받습니다(세운 표).
+/// 2. 프로필 사본이 있으면 키 `chartKey(지문, 사본 language, 오늘의 연도)`의 캐시를 먼저 내보내고
+///    server 응답으로 바꿉니다([loadCacheFirst], 오늘과 같은 흐름). 연결이 안 되면 캐시를 그대로
+///    둡니다. 캐시는 먼저 보이기용이고, 근거 열람 권한(보상형 해제는 그날 자정까지, D60)과 문장
+///    (호칭 등)은 매 진입 server 응답으로 맞춥니다.
+/// 3. 사본이 없으면 캐시 없이 받습니다. 오늘([todayProvider])이 해를 넘기면 새 연도로 다시
+///    받습니다(세운 표). 자정마다 다시 받지는 않습니다(연도만 구독).
 ///
-/// 자동 재시도는 끕니다. 실패는 오류 상태로 남기고 화면의 다시 시도([ChartController.reload])로만
-/// 다시 받습니다.
+/// 사본(사주·시간대·언어·호칭)이 바뀌면 다시 받습니다. 대체된 build는 캐시를 쓰지 않습니다(늦게 온
+/// 이전 응답이 새 응답을 덮지 않게). 자동 재시도는 끕니다. 실패는 오류 상태로 남기고 화면의 다시
+/// 시도([ChartController.reload])로만 다시 받습니다.
 final AsyncNotifierProvider<ChartController, Chart> chartControllerProvider =
     AsyncNotifierProvider.autoDispose<ChartController, Chart>(
       ChartController.new,
@@ -47,14 +55,40 @@ final class ChartController extends AsyncNotifier<Chart> {
 
   @override
   Future<Chart> build() async {
-    final year = ref.watch(todayProvider).year;
+    // rebuild(사본 변경·해 넘김·reload) 뒤에는 이 ref가 unmounted가 됩니다.
+    final buildRef = ref;
+    bool superseded() => !buildRef.mounted;
+    final year = ref.watch(todayProvider.select((today) => today.year));
+    final repository = ref.watch(chartRepositoryProvider);
+    final reporter = ref.watch(crashReporterProvider);
     final skipCache = _skipCacheOnce;
     _skipCacheOnce = false;
     await ref.read(timezoneSyncProvider).syncIfChanged();
-    final key = await _cacheKey(year);
-    return await ref
-        .watch(chartRepositoryProvider)
-        .chart(cacheKey: key, skipCache: skipCache);
+    if (superseded()) {
+      // 다음 build가 결과를 냅니다. Riverpod은 대체된 build의 결과를 쓰지 않습니다.
+      return await Completer<Chart>().future;
+    }
+    // 동기화가 끝난 뒤 구독해, 동기화로 바뀐 사본에 다시 build되지 않게 합니다.
+    final key = _cacheKeyOf(await _profileOrNull(watch: true), year);
+    final result = await loadCacheFirst<Chart>(
+      reporter: reporter,
+      fetch: () =>
+          superseded() ? Completer<Chart>().future : repository.fetch(),
+      readCache: key == null || skipCache ? null : () => repository.cached(key),
+      writeCache: key == null
+          ? null
+          : (chart) async {
+              if (!superseded()) {
+                await repository.store(key, chart);
+              }
+            },
+      onCached: (chart) {
+        if (!superseded()) {
+          state = AsyncData(chart);
+        }
+      },
+    );
+    return result.value;
   }
 
   /// 캐시를 건너뛰고 다시 받습니다(오류 화면의 다시 시도). 실패는 상태로 남습니다.
@@ -70,8 +104,9 @@ final class ChartController extends AsyncNotifier<Chart> {
 
   /// 화면 상태를 진행 중·오류로 바꾸지 않고 캐시를 건너뛰어 다시 받습니다(잠금 해제 뒤).
   ///
-  /// 성공하면 값을 바꾸고, 실패하면 이전 값을 두고 오류([AppError])를 호출자에게만 던집니다.
-  /// 보이는 값이 없거나 받는 중이면 [reload]와 같고, 그 결과가 오류면 그 오류를 던집니다.
+  /// 성공하면 값과 캐시를 바꾸고, 실패하면 이전 값을 두고 오류([AppError])를 호출자에게만
+  /// 던집니다. 보이는 값이 없거나 받는 중이면 [reload]와 같고, 그 결과가 오류면 그 오류를 던집니다.
+  /// build 밖이라 사본·오늘은 구독하지 않고 읽기만 합니다.
   Future<void> refreshQuietly() async {
     if (state.value == null || state.isLoading) {
       await reload();
@@ -81,32 +116,46 @@ final class ChartController extends AsyncNotifier<Chart> {
       }
       return;
     }
-    final key = await _cacheKey(ref.read(todayProvider).year);
-    final fresh = await ref
-        .read(chartRepositoryProvider)
-        .chart(cacheKey: key, skipCache: true);
-    if (ref.mounted) {
+    final callRef = ref;
+    final repository = ref.read(chartRepositoryProvider);
+    final reporter = ref.read(crashReporterProvider);
+    final key = _cacheKeyOf(
+      await _profileOrNull(watch: false),
+      ref.read(todayProvider).year,
+    );
+    final fresh = await repository.fetch();
+    // 그사이 다시 build됐으면(사본 변경 등) 받은 값을 버립니다. 그 build가 새로 받습니다.
+    if (!callRef.mounted) {
+      return;
+    }
+    if (key != null) {
+      await writeCacheOrReport(() => repository.store(key, fresh), reporter);
+    }
+    if (callRef.mounted) {
       state = AsyncData(fresh);
     }
   }
 
-  /// 사본으로 만든 [year]의 캐시 키. 사본이 없거나 읽지 못하면 null입니다.
-  Future<String?> _cacheKey(int year) async {
-    Profile? profile;
+  /// 프로필 사본. 없거나 읽지 못하면 null입니다. build 안에서만 [watch]로 구독합니다.
+  Future<Profile?> _profileOrNull({required bool watch}) async {
     try {
-      profile = await ref.watch(cachedProfileProvider.future);
+      return await (watch
+          ? ref.watch(cachedProfileProvider.future)
+          : ref.read(cachedProfileProvider.future));
     } on Object {
-      profile = null;
-    }
-    if (profile == null) {
+      // 사본을 읽지 못하면 사본이 없을 때처럼 캐시 없이 받습니다.
       return null;
     }
-    return chartKey(
-      fingerprint: sajuFingerprint(profile),
-      language: profile.language.value,
-      year: year,
-    );
   }
+
+  /// [profile]로 만든 [year]의 캐시 키. 사본이 없으면 null입니다.
+  static String? _cacheKeyOf(Profile? profile, int year) => profile == null
+      ? null
+      : chartKey(
+          fingerprint: sajuFingerprint(profile),
+          language: profile.language.value,
+          year: year,
+        );
 }
 
 /// 근거 열람 권한이 생긴 뒤 잠긴 채 받아 둔 차트를 버리고, 들고 있는 차트가 잠겨 있으면 다시

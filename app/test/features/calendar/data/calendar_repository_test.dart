@@ -139,50 +139,45 @@ Future<int> _rowCount(AppDatabase database) async =>
     (await database.select(database.cachedResponses).get()).length;
 
 void main() {
-  group('month', () {
-    test('캐시가 있으면 요청하지 않고 캐시를 돌려준다(A32)', () async {
+  group('fetch·cached·store', () {
+    test('cached는 심어 둔 캐시를 요청 없이 돌려준다', () async {
       final s = _setUp();
       await _seed(s.cache, _october);
 
-      final calendar = await s.repository.month(
-        _october,
-        cacheKey: _key(_october),
-      );
+      final calendar = await s.repository.cached(_key(_october));
 
       expect(s.server.paths, isEmpty);
-      expect(_firstLevel(calendar), '캐시');
+      expect(_firstLevel(calendar!), '캐시');
     });
 
-    test('캐시가 없으면 한 번 받아 근거 열람 상태와 함께 저장한다', () async {
+    test('fetch는 매번 server에 묻고, store가 근거 열람 상태와 함께 둔다', () async {
       final s = _setUp();
 
-      final calendar = await s.repository.month(
-        _october,
-        cacheKey: _key(_october),
-      );
+      final calendar = await s.repository.fetch(_october);
+      await s.repository.store(_key(_october), calendar);
+      await s.repository.fetch(_october);
 
-      expect(s.server.paths, ['/v1/calendar/2026/10']);
+      expect(s.server.paths, ['/v1/calendar/2026/10', '/v1/calendar/2026/10']);
       expect(calendar.year, 2026);
       expect(calendar.month, 10);
-      expect(await s.cache.read(CacheKind.calendar, _key(_october)), isNotNull);
+      expect(await s.repository.cached(_key(_october)), isNotNull);
       expect(await s.cache.lockedKeys(CacheKind.calendar), [_key(_october)]);
-
-      // 다음에는 저장한 캐시를 씁니다.
-      await s.repository.month(_october, cacheKey: _key(_october));
-      expect(s.server.paths, hasLength(1));
     });
 
-    test('키가 없으면(사본 없음) 매번 요청하고 저장하지 않는다', () async {
+    test('unlocked로 둔 달은 locked 목록에 들지 않는다', () async {
       final s = _setUp();
+      s.server.evidenceAccess = EvidenceAccess.unlocked;
 
-      await s.repository.month(_october, cacheKey: null);
-      await s.repository.month(_october, cacheKey: null);
+      await s.repository.store(
+        _key(_october),
+        await s.repository.fetch(_october),
+      );
 
-      expect(s.server.paths, hasLength(2));
-      expect(await _rowCount(s.database), 0);
+      expect(await s.cache.lockedKeys(CacheKind.calendar), isEmpty);
+      expect(await _rowCount(s.database), 1);
     });
 
-    test('깨진 캐시는 없는 것으로 보고 다시 받아 덮어쓴다', () async {
+    test('깨진 캐시는 없는 것으로 본다', () async {
       final s = _setUp();
       await s.cache.write(
         CacheKind.calendar,
@@ -191,15 +186,7 @@ void main() {
         access: EvidenceAccess.locked,
       );
 
-      final calendar = await s.repository.month(
-        _october,
-        cacheKey: _key(_october),
-      );
-
-      expect(s.server.paths, hasLength(1));
-      expect(calendar.days, isNotEmpty);
-      final stored = await s.cache.read(CacheKind.calendar, _key(_october));
-      expect(jsonDecode(stored!), isA<Map<String, dynamic>>());
+      expect(await s.repository.cached(_key(_october)), isNull);
     });
 
     test('받은 rulesetVersion을 관찰해 옛 규칙의 다른 달 캐시를 버린다', () async {
@@ -207,77 +194,20 @@ void main() {
       await s.cache.observeRulesetVersion('r0');
       await _seed(s.cache, _september);
 
-      await s.repository.month(_october, cacheKey: _key(_october));
+      final october = await s.repository.fetch(_october);
+      await s.repository.store(_key(_october), october);
 
-      expect(await s.cache.read(CacheKind.calendar, _key(_september)), isNull);
+      expect(await s.repository.cached(_key(_september)), isNull);
       // 방금 받은 달은 관찰 뒤에 썼으므로 남습니다.
-      expect(await s.cache.read(CacheKind.calendar, _key(_october)), isNotNull);
-      // 버린 달은 다음 진입에서 다시 받습니다.
-      await s.repository.month(_september, cacheKey: _key(_september));
-      expect(s.server.paths, ['/v1/calendar/2026/10', '/v1/calendar/2026/9']);
+      expect(await s.repository.cached(_key(_october)), isNotNull);
     });
 
-    test('규칙 버전이 바뀌면(다른 응답이 관찰) 다음 진입에서 다시 받는다', () async {
-      final s = _setUp();
-      await s.repository.month(_october, cacheKey: _key(_october));
-      expect(s.server.paths, hasLength(1));
-
-      // 오늘 응답 같은 다른 응답이 새 규칙 버전을 관찰합니다.
-      expect(await s.cache.observeRulesetVersion('r2'), isTrue);
-      s.server.rulesetVersion = 'r2';
-
-      await s.repository.month(_october, cacheKey: _key(_october));
-      expect(s.server.paths, hasLength(2));
-      await s.repository.month(_october, cacheKey: _key(_october));
-      expect(s.server.paths, hasLength(2));
-    });
-
-    test('mayStoreLocked가 false면 locked 응답은 저장하지 않고 값만 돌려준다', () async {
-      final s = _setUp();
-
-      final calendar = await s.repository.month(
-        _october,
-        cacheKey: _key(_october),
-        mayStoreLocked: () => false,
-      );
-
-      expect(calendar.evidenceAccess, EvidenceAccess.locked);
-      expect(await _rowCount(s.database), 0);
-    });
-
-    test('mayStoreLocked가 false여도 unlocked 응답은 저장한다', () async {
-      final s = _setUp();
-      s.server.evidenceAccess = EvidenceAccess.unlocked;
-
-      await s.repository.month(
-        _october,
-        cacheKey: _key(_october),
-        mayStoreLocked: () => false,
-      );
-
-      expect(await s.cache.read(CacheKind.calendar, _key(_october)), isNotNull);
-    });
-
-    test('오프라인이고 캐시가 있으면 요청 없이 캐시', () async {
-      final s = _setUp();
-      await _seed(s.cache, _october);
-      s.server.offline = true;
-
-      final calendar = await s.repository.month(
-        _october,
-        cacheKey: _key(_october),
-      );
-
-      expect(_firstLevel(calendar), '캐시');
-      expect(s.server.paths, isEmpty);
-    });
-
-    test('오프라인이고 캐시가 없으면 OfflineError', () async {
+    test('오프라인이면 fetch는 OfflineError이고 아무것도 쓰지 않는다', () async {
       final s = _setUp();
       s.server.offline = true;
 
       await expectLater(
-        s.repository.month(_october, cacheKey: _key(_october)),
+        s.repository.fetch(_october),
         throwsA(isA<OfflineError>()),
       );
       expect(await _rowCount(s.database), 0);
@@ -289,7 +219,7 @@ void main() {
         final s = _setUp();
 
         await expectLater(
-          s.repository.month(const CalendarMonth(1900, 1), cacheKey: null),
+          s.repository.fetch(const CalendarMonth(1900, 1)),
           throwsA(
             isA<ProblemError>()
                 .having((e) => e.code, 'code', 'date.out_of_range')

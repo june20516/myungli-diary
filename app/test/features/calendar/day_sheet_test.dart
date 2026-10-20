@@ -105,7 +105,7 @@ final class _Harness {
       secureStoreProvider.overrideWithValue(MemorySecureStore()),
       todayProvider.overrideWithValue(_today),
       crashReporterProvider.overrideWithValue(crash),
-      calendarMonthProvider.overrideWith((ref, month) => calendar()),
+      calendarMonthProvider.overrideWithBuild((ref, _) => calendar()),
       diaryExistsOnProvider.overrideWith((ref, date) {
         diaryChecks.add(date);
         return diaryExists(date);

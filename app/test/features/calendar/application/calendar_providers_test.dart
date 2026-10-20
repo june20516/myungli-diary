@@ -31,6 +31,9 @@ final class _CalendarTap extends Interceptor {
   final hold = <String, Completer<void>>{};
   bool unlockFromNow = false;
 
+  /// true면 `/v1/calendar/` 요청을 연결 오류로 끊습니다(오프라인).
+  bool offline = false;
+
   /// 돌아온 `/v1/calendar/` 응답 수.
   int responses = 0;
 
@@ -50,6 +53,12 @@ final class _CalendarTap extends Interceptor {
     final gate = hold.remove(options.path);
     if (gate != null) {
       await gate.future;
+    }
+    if (offline) {
+      handler.reject(
+        DioException.connectionError(requestOptions: options, reason: 'off'),
+      );
+      return;
     }
     handler.next(options);
   }
@@ -144,7 +153,9 @@ Future<String> _keyFor(
 void main() {
   setUpAll(ensureTimeZonesInitialized);
 
-  testWidgets('사본의 키로 받아 저장하고, 다시 build해도 요청하지 않는다(A32)', (tester) async {
+  testWidgets('사본의 키로 받아 저장하고, 다시 build하면 캐시를 먼저 보인 뒤 server로 확인한다(A32·D60)', (
+    tester,
+  ) async {
     final (container, tap) = await _boot(tester);
 
     final first = await _settle(tester, container, _october);
@@ -156,10 +167,72 @@ void main() {
     );
     expect(stored, isNotNull);
 
+    // 두 번째 요청을 붙잡아, 응답 전에 캐시가 먼저 보이는지 봅니다.
+    final release = Completer<void>();
+    tap.hold['/v1/calendar/2026/10'] = release;
     container.invalidate(calendarMonthProvider(_october));
-    final second = await _settle(tester, container, _october);
-    expect(second.value!.month, 10);
-    expect(tap.paths, hasLength(1));
+    final subscription = container.listen(
+      calendarMonthProvider(_october),
+      (_, _) {},
+    );
+    addTearDown(subscription.close);
+    await _until(tester, () => tap.paths.length == 2);
+    await _until(
+      tester,
+      () => container.read(calendarMonthProvider(_october)).hasValue,
+    );
+    expect(tap.responses, 1);
+    expect(container.read(calendarMonthProvider(_october)).value!.month, 10);
+
+    release.complete();
+    await _until(tester, () => tap.responses == 2);
+  });
+
+  testWidgets('unlocked로 캐시한 달도 server가 locked로 답하면 잠긴다(D60 ③, 자정 만료)', (
+    tester,
+  ) async {
+    final (container, tap) = await _boot(tester);
+    final cache = container.read(cacheStoreProvider);
+    // 보상형 광고로 연 날: unlocked로 받아 캐시합니다.
+    tap.unlockFromNow = true;
+    final opened = await _settle(tester, container, _october);
+    expect(opened.value!.evidenceAccess, EvidenceAccess.unlocked);
+    expect(
+      await tester.runAsync(() => cache.lockedKeys(CacheKind.calendar)),
+      isEmpty,
+    );
+
+    // 자정이 지나 권한이 끝난 server: 다시 들어오면 잠긴 달입니다.
+    tap.unlockFromNow = false;
+    container.invalidate(calendarMonthProvider(_october));
+    await _until(
+      tester,
+      () =>
+          container
+              .read(calendarMonthProvider(_october))
+              .value
+              ?.evidenceAccess ==
+          EvidenceAccess.locked,
+    );
+    expect(tap.paths, hasLength(2));
+    final key = await _keyFor(tester, container, _october);
+    expect(await tester.runAsync(() => cache.lockedKeys(CacheKind.calendar)), [
+      key,
+    ]);
+  });
+
+  testWidgets('오프라인이면 캐시한 달을 그대로 보인다', (tester) async {
+    final (container, tap) = await _boot(tester);
+    tap.unlockFromNow = true;
+    await _settle(tester, container, _october);
+
+    tap.offline = true;
+    container.invalidate(calendarMonthProvider(_october));
+    final offline = await _settle(tester, container, _october);
+
+    expect(tap.paths, hasLength(2));
+    expect(offline.hasError, isFalse);
+    expect(offline.value!.evidenceAccess, EvidenceAccess.unlocked);
   });
 
   testWidgets('같은 달을 동시에 읽으면 요청은 하나', (tester) async {
@@ -433,6 +506,8 @@ void main() {
         EvidenceAccess.locked,
       );
 
+      // 잠금을 푼 뒤의 server입니다. B의 hold가 남아 있어야 정리가 이 달을 다시 받습니다.
+      tap.unlockFromNow = true;
       await tester.runAsync(
         () => container.read(calendarUnlockSyncProvider).forgetLocked(),
       );
@@ -445,6 +520,7 @@ void main() {
                 ?.evidenceAccess ==
             EvidenceAccess.unlocked,
       );
+      expect(tap.paths, hasLength(3));
     },
   );
 
