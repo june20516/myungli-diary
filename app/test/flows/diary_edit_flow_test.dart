@@ -143,15 +143,16 @@ void main() {
     );
 
     await tester.tap(find.text(_ko.diaryEditSave));
-    await tester.pump();
-    await settleWithIo(tester, allowOngoing: true);
-    for (var i = 0; i < 10; i++) {
-      await tester.pump(const Duration(milliseconds: 200));
-    }
+    // 저장 순간이 끝나면 toast가 뜹니다. 뒤이어 여는 diary-view의 읽기를 기다리는 사이
+    // toast가 사라질 수 있어, 뜨는 때를 먼저 확인합니다.
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
+    );
+    expect(_server(container).callCountOf('putDiary'), 1);
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
     await settleWithIo(tester, allowOngoing: true);
 
-    expect(_server(container).callCountOf('putDiary'), 1);
-    expect(find.text(_ko.diaryEditSavedTags), findsOneWidget);
     final view = find.byKey(const ValueKey(ScreenIds.diaryView)).last;
     expect(
       GoRouterState.of(tester.element(view)).uri.toString(),

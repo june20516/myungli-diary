@@ -1,9 +1,9 @@
 {
   "exits": {
-    "covered": 49
+    "covered": 51
   },
   "states": {
-    "covered": 34
+    "covered": 36
   },
   "decisions": {
     "covered": 5
