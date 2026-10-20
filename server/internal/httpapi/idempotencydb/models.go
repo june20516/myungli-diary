@@ -143,6 +143,11 @@ type MonthCache struct {
 	CreatedAt       time.Time
 }
 
+type PreviewUsage struct {
+	DeviceHash []byte
+	UsedAt     time.Time
+}
+
 type Profile struct {
 	AccountID        uuid.UUID
 	Honorific        pgtype.Text
@@ -166,6 +171,12 @@ type Profile struct {
 	AnonymizedAt     *time.Time
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+}
+
+type RateLimit struct {
+	Key         string
+	WindowStart time.Time
+	Count       int32
 }
 
 type Reaction struct {

@@ -21,8 +21,8 @@ import (
 // 이 파일은 운세 화면 묶음(fortune.DailyView·CalendarView·ChartView)을 계약 타입으로 옮깁니다.
 //
 // 잠금(D60): 문장의 근거는 View가 권한에 따라 이미 비웠고, 여기서는 View의 문장만 옮깁니다.
-// 엔진 응답의 판정 근거(Judgment.evidence, DailyResponse.tag_evidence)와 원국 개인 해석
-// (ChartResponse.personal_readings)은 계약에 자리가 없어 옮기지 않습니다.
+// 엔진 응답의 판정 근거(Judgment.evidence, DailyResponse.tag_evidence)는 계약에 자리가 없어 옮기지 않습니다.
+// 원국 개인 해석(ChartResponse.personal_readings)은 View가 렌더한 문장만 Chart.personalReadings로 옮깁니다.
 // 엔진 값이 계약 enum에 없으면(UNSPECIFIED, 모르는 번호) 엔진 계약 위반이라 오류(500)입니다.
 
 // contractEnum은 생성 코드의 계약 enum 타입입니다.
@@ -252,6 +252,26 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 	return out, c.err
 }
 
+// toPreview는 미리보기 묶음을 계약 Preview로 바꿉니다. 근거 열람 권한이 없어 evidenceAccess는 늘 locked입니다.
+func toPreview(view fortune.PreviewView) (gen.Preview, error) {
+	c := &converter{}
+	r := view.Response
+	out := gen.Preview{
+		Date:           contractDate(view.Date),
+		EvidenceAccess: evidenceAccess(false),
+		DayKind:        enumValue[gen.DayKind](c, r.GetKind()),
+		DayKindName:    view.DayKindName,
+		Fortune:        gen.Fortune{Head: c.slotText(view.Head)},
+		FeaturedTags:   convertAll(r.GetFeaturedTags(), c.tag),
+		Notices:        c.notices(view.Notices),
+	}
+	if view.Tag != nil {
+		tag := c.slotText(*view.Tag)
+		out.Fortune.Tag = &tag
+	}
+	return out, c.err
+}
+
 // dailyCards는 카드 네 장을 옮깁니다.
 func (c *converter) dailyCards(view fortune.DailyView) gen.DailyCards {
 	r := view.Response
@@ -354,7 +374,7 @@ func (c *converter) calendarDay(d *enginev1.MonthDay, texts fortune.DayTexts) ge
 	return out
 }
 
-// toChart는 나의 사주 묶음을 계약 Chart로 바꿉니다. 원국 개인 해석(personal_readings)은 계약에 없어 옮기지 않습니다.
+// toChart는 나의 사주 묶음을 계약 Chart로 바꿉니다.
 func toChart(view fortune.ChartView) (gen.Chart, error) {
 	c := &converter{unlocked: view.Unlocked}
 	r := view.Response
@@ -392,7 +412,46 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 		Seun:    convertAll(r.GetSeun(), c.seunYear),
 		Notices: c.notices(view.Notices),
 	}
+	if view.Unlocked {
+		readings := convertAll(view.PersonalReadings, c.personalReading)
+		out.PersonalReadings = &readings
+	}
 	return out, c.err
+}
+
+// personalReading은 개인 해석 한 항목을 옮깁니다. UNSPECIFIED 위치·신살과 의미 없는 순서(HIDDEN·DAEUN·SEUN 밖의 0)는 생략합니다.
+func (c *converter) personalReading(r fortune.PersonalReadingText) gen.PersonalReading {
+	reading := r.Reading
+	out := gen.PersonalReading{
+		Kind: enumValue[gen.PersonalReadingKind](c, reading.GetKind()),
+		Text: renderedText(r.Text.Text),
+	}
+	if reading.GetPosition() != enginev1.Position_POSITION_UNSPECIFIED {
+		position := enumValue[gen.Position](c, reading.GetPosition())
+		out.Position = &position
+	}
+	if reading.GetShinsal() != enginev1.Shinsal_SHINSAL_UNSPECIFIED {
+		shinsal := enumValue[gen.ShinsalKind](c, reading.GetShinsal())
+		out.Shinsal = &shinsal
+	}
+	if indexed(reading.GetKind()) {
+		index := int(reading.GetIndex())
+		out.Index = &index
+	}
+	return out
+}
+
+// indexed는 순서(index)가 의미 있는 종류인지입니다. 지장간 십성과 대운·세운은 0도 첫 번째라는 뜻입니다.
+func indexed(k enginev1.PersonalTermKind) bool {
+	switch k {
+	case enginev1.PersonalTermKind_PERSONAL_TERM_KIND_HIDDEN_TEN_GOD,
+		enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAEUN_STEM_TEN_GOD,
+		enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAEUN_BRANCH_TEN_GOD,
+		enginev1.PersonalTermKind_PERSONAL_TERM_KIND_DAEUN_TWELVE_STAGE,
+		enginev1.PersonalTermKind_PERSONAL_TERM_KIND_SEUN_TEN_GOD:
+		return true
+	}
+	return false
 }
 
 // chartPillars는 원국 네 기둥을 옮깁니다. 시간 모름이면 시주가 없어 hour를 생략합니다.

@@ -266,3 +266,51 @@ func TestRealEngine_ConvertLunarDateUpperBoundIsOutOfRange(t *testing.T) {
 	})
 	require.ErrorIs(t, err, engine.ErrOutOfRange)
 }
+
+// birthHourInfo는 성별만 바꿔 가며 시진 확인에 보내는 출생 정보입니다.
+func birthHourInfo(gender enginev1.Gender, date *enginev1.LocalDate, hour, minute int32) *enginev1.BirthHourRequest {
+	return &enginev1.BirthHourRequest{Birth: &enginev1.BirthInfo{
+		Calendar: enginev1.CalendarType_CALENDAR_TYPE_SOLAR,
+		Date:     date,
+		Time:     &enginev1.LocalTime{Hour: hour, Minute: minute},
+		Gender:   gender,
+		Timezone: "Asia/Seoul",
+	}}
+}
+
+// 서버는 시진 확인에 고정 성별을 보냅니다(엔진이 UNSPECIFIED를 거부). 성별이 결과를 바꾸지 않는다는 근거를 고정합니다.
+// 자시 경계(00:10은 전날 23:30부터)처럼 날을 넘는 시각도 함께 확인합니다.
+func TestRealEngine_GetBirthHourIgnoresGender(t *testing.T) {
+	client := newRealClient(t)
+	for _, tt := range []struct {
+		name         string
+		date         *enginev1.LocalDate
+		hour, minute int32
+		wantBranch   enginev1.Branch
+	}{
+		{"자시 날을 넘음", &enginev1.LocalDate{Year: 1990, Month: 5, Day: 15}, 0, 10, enginev1.Branch_BRANCH_JA},
+		{"오전", &enginev1.LocalDate{Year: 1990, Month: 5, Day: 15}, 10, 30, enginev1.Branch_BRANCH_SA},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			male, err := client.GetBirthHour(t.Context(), birthHourInfo(enginev1.Gender_GENDER_MALE, tt.date, tt.hour, tt.minute))
+			require.NoError(t, err)
+			female, err := client.GetBirthHour(t.Context(), birthHourInfo(enginev1.Gender_GENDER_FEMALE, tt.date, tt.hour, tt.minute))
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantBranch, male.GetBranch())
+			assert.Equal(t, male.GetBranch(), female.GetBranch())
+			assert.True(t, male.GetStart().AsTime().Equal(female.GetStart().AsTime()))
+			assert.True(t, male.GetEnd().AsTime().Equal(female.GetEnd().AsTime()))
+			if tt.hour == 0 {
+				assert.Equal(t, 23, male.GetStart().AsTime().In(seoul(t)).Hour())
+				assert.Equal(t, 30, male.GetStart().AsTime().In(seoul(t)).Minute())
+			}
+		})
+	}
+}
+
+func seoul(t *testing.T) *time.Location {
+	t.Helper()
+	loc, err := time.LoadLocation("Asia/Seoul")
+	require.NoError(t, err)
+	return loc
+}

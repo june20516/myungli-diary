@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -228,4 +229,72 @@ func LoadEngine(getenv func(string) string) (EngineConfig, error) {
 func isHTTPSURL(raw string) bool {
 	parsed, err := url.Parse(raw)
 	return err == nil && parsed.Scheme == "https" && parsed.Host != ""
+}
+
+// AppCheckConfig는 Firebase App Check 검증 설정입니다.
+type AppCheckConfig struct {
+	// ProjectNumber는 Firebase 프로젝트 번호(숫자)입니다. APP_ENV가 local이면 비어 있을 수 있고,
+	// 그때 App Check operation은 검증할 수 없어 503으로 답합니다.
+	ProjectNumber string
+}
+
+// LoadAppCheck는 getenv로 App Check 설정을 읽습니다. FIREBASE_PROJECT_NUMBER는 APP_ENV가 local(기본값)이 아니면 필수이고,
+// 값이 있으면 숫자만이어야 합니다(auth/provider/appcheck.go의 isDigits와 같은 검사). 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadAppCheck(getenv func(string) string) (AppCheckConfig, error) {
+	getenv = trimmedEnv(getenv)
+	env := orDefault(getenv("APP_ENV"), defaultEnv)
+	number := getenv("FIREBASE_PROJECT_NUMBER")
+
+	switch {
+	case number == "" && env != defaultEnv:
+		return AppCheckConfig{}, errors.New("FIREBASE_PROJECT_NUMBER가 필요합니다(APP_ENV가 local일 때만 비워 둘 수 있습니다)")
+	case number != "" && strings.Trim(number, "0123456789") != "":
+		return AppCheckConfig{}, errors.New("FIREBASE_PROJECT_NUMBER는 숫자만으로 된 프로젝트 번호여야 합니다")
+	}
+	return AppCheckConfig{ProjectNumber: number}, nil
+}
+
+// defaultTrustedProxyHops는 TRUSTED_PROXY_HOPS의 기본값입니다(Cloud Run 앞단 하나).
+const defaultTrustedProxyHops = 1
+
+// LoadTrustedProxyHops는 getenv로 TRUSTED_PROXY_HOPS를 읽습니다. 클라이언트 IP를 X-Forwarded-For의
+// 오른쪽에서 몇 번째 값으로 볼지 정합니다. 실제 프록시 수보다 크거나 0이면 모든 클라이언트가 프록시 주소(RemoteAddr) 하나를
+// 키로 함께 써서 전체가 분당 한도에 묶이니 배포 구성과 맞춰야 합니다. 비어 있으면 1이고 0 이상 정수만 받습니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadTrustedProxyHops(getenv func(string) string) (int, error) {
+	raw := orDefault(trimmedEnv(getenv)("TRUSTED_PROXY_HOPS"), strconv.Itoa(defaultTrustedProxyHops))
+	hops, err := strconv.Atoi(raw)
+	if err != nil || hops < 0 {
+		return 0, errors.New("TRUSTED_PROXY_HOPS는 0 이상의 정수여야 합니다")
+	}
+	return hops, nil
+}
+
+// defaultMinAppVersion은 최소 앱 버전의 기본값입니다(강제 업데이트 없음, P6-10).
+const defaultMinAppVersion = "0.0.0"
+
+// semverPattern은 MAJOR.MINOR.PATCH 숫자 형식입니다(앞자리 0 없음, 접두어·사전 배포 표기 없음).
+var semverPattern = regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$`)
+
+// AppVersionConfig는 플랫폼별 최소 앱 버전(getAppConfig)입니다.
+type AppVersionConfig struct {
+	MinIOS, MinAndroid string
+}
+
+// LoadAppVersions는 getenv로 APP_MIN_VERSION_IOS·APP_MIN_VERSION_ANDROID를 읽습니다. 비어 있으면 0.0.0이고,
+// MAJOR.MINOR.PATCH 숫자 형식이 아니면 오류입니다(P6-10). 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadAppVersions(getenv func(string) string) (AppVersionConfig, error) {
+	getenv = trimmedEnv(getenv)
+	var errs []error
+	read := func(name string) string {
+		raw := orDefault(getenv(name), defaultMinAppVersion)
+		if !semverPattern.MatchString(raw) {
+			errs = append(errs, fmt.Errorf("%s는 MAJOR.MINOR.PATCH 숫자 형식이어야 합니다", name))
+		}
+		return raw
+	}
+	cfg := AppVersionConfig{MinIOS: read("APP_MIN_VERSION_IOS"), MinAndroid: read("APP_MIN_VERSION_ANDROID")}
+	if err := errors.Join(errs...); err != nil {
+		return AppVersionConfig{}, err
+	}
+	return cfg, nil
 }

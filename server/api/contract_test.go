@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft7(t *testing.T) {
+func TestContract_VersionIsDraft8(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.7" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.7", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.8" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.8", doc.Info.Version)
 	}
 }
 
@@ -1034,5 +1034,116 @@ func TestContract_Draft7Additions(t *testing.T) {
 				t.Errorf("%s에 404 응답이 없음", id)
 			}
 		})
+	}
+}
+
+// TestContract_Draft8Additions는 draft.8에서 더한 비로그인·참조 동작 설명을 고정합니다. (P6, 응답 형태는 그대로)
+func TestContract_Draft8Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	if !strings.Contains(doc.Components.SecuritySchemes["appCheck"].Value.Description, "convertLunarDate") {
+		t.Error("appCheck 설명에 convertLunarDate가 없음")
+	}
+	for _, text := range []string{"지원 언어는 `ko`·`en`·`ja`", "q값 순서", "기본 언어는 `en`"} {
+		if !strings.Contains(doc.Info.Description, text) {
+			t.Errorf("info.description에 %q가 없음", text)
+		}
+	}
+
+	descriptions := map[string][]string{
+		"getBirthHour":     {"`Asia/Seoul`", "시간대별 대표 경도(한국 127.5°, D29)", "IP별 요청 한도(분당 30회)"},
+		"convertLunarDate": {"IP별 요청 한도(분당 30회)"},
+		"listCities":       {"앞부분", "`If-None-Match`가 현재 `ETag`와 같으면 304"},
+		"createPreview":    {"`advice`", "IP별 요청 한도(분당 30회)"},
+	}
+	for id, texts := range descriptions {
+		t.Run(id, func(t *testing.T) {
+			description := operationByID(t, doc, id).Description
+			for _, text := range texts {
+				if !strings.Contains(description, text) {
+					t.Errorf("%s 설명에 %q가 없음", id, text)
+				}
+			}
+		})
+	}
+
+	for _, text := range []string{"엔진 RPC가 생기기 전까지는 501", "기기·IP별"} {
+		for _, id := range []string{"getBirthHour", "convertLunarDate"} {
+			if strings.Contains(operationByID(t, doc, id).Description, text) {
+				t.Errorf("%s 설명에 %q가 남아 있음", id, text)
+			}
+		}
+	}
+
+	for _, id := range []string{"createPreview", "getBirthHour", "convertLunarDate"} {
+		if operationByID(t, doc, id).Responses.Value("429") == nil {
+			t.Errorf("%s에 429 응답이 없음", id)
+		}
+	}
+	for _, id := range []string{"getBirthHour", "convertLunarDate"} {
+		if operationByID(t, doc, id).Responses.Value("501") != nil {
+			t.Errorf("%s에 501 응답이 남아 있음", id)
+		}
+	}
+	if _, ok := doc.Components.Responses["NotImplemented"]; ok {
+		t.Error("쓰지 않는 NotImplemented 응답 component가 남아 있음")
+	}
+
+	testDraft8PersonalReadings(t, doc)
+}
+
+// testDraft8PersonalReadings는 원국 개인 해석 필드와 Notice.text 설명을 고정합니다. (P6-13·P6-14)
+func testDraft8PersonalReadings(t *testing.T, doc *openapi3.T) {
+	t.Helper()
+
+	chart := doc.Components.Schemas["Chart"].Value
+	readings := chart.Properties["personalReadings"]
+	if readings == nil {
+		t.Fatal("Chart.personalReadings가 없음")
+	}
+	if slices.Contains(chart.Required, "personalReadings") {
+		t.Error("Chart.personalReadings가 required에 있음(선택 필드여야 함)")
+	}
+	if readings.Value.Items == nil || readings.Value.Items.Ref != "#/components/schemas/PersonalReading" {
+		t.Error("Chart.personalReadings 항목이 PersonalReading이 아님")
+	}
+	if !strings.Contains(readings.Value.Description, "근거 열람 권한") {
+		t.Error("Chart.personalReadings 설명에 근거 열람 권한 잠금(D60)이 없음")
+	}
+
+	reading := doc.Components.Schemas["PersonalReading"].Value
+	if !slices.Equal(reading.Required, []string{"kind", "text"}) {
+		t.Errorf("PersonalReading.required = %v, want [kind text]", reading.Required)
+	}
+	wantKinds := []any{
+		"day_master", "ten_god", "hidden_ten_god", "twelve_stage", "shinsal",
+		"daeun_stem_ten_god", "daeun_branch_ten_god", "daeun_twelve_stage", "seun_ten_god",
+	}
+	if got := reading.Properties["kind"].Value.Enum; !slices.Equal(got, wantKinds) {
+		t.Errorf("PersonalReading.kind enum = %v, want %v", got, wantKinds)
+	}
+	if names, _ := reading.Properties["kind"].Value.Extensions["x-enum-varnames"].([]any); len(names) != len(wantKinds) {
+		t.Errorf("PersonalReading.kind x-enum-varnames 길이 = %d, want %d", len(names), len(wantKinds))
+	}
+	for field, ref := range map[string]string{
+		"position": "#/components/schemas/Position",
+		"shinsal":  "#/components/schemas/ShinsalKind",
+		"text":     "#/components/schemas/RenderedText",
+	} {
+		if got := reading.Properties[field].Ref; got != ref {
+			t.Errorf("PersonalReading.%s = %q, want %q", field, got, ref)
+		}
+	}
+	index := reading.Properties["index"].Value
+	if !index.Type.Is("integer") || index.Min == nil || *index.Min != 0 {
+		t.Error("PersonalReading.index가 0 이상 integer가 아님")
+	}
+
+	notice := doc.Components.Schemas["Notice"].Value.Description
+	if !strings.Contains(notice, "배너를 그리지 않습니다") || strings.Contains(notice, "자기 문구를 씁니다") {
+		t.Errorf("Notice 설명이 P6-14와 다름: %q", notice)
+	}
+	if strings.Contains(doc.Info.Description, "원국 개인 해석은 writing 슬롯이 아직 없어") {
+		t.Error("info.description에 원국 개인 해석 설계 메모가 남아 있음")
 	}
 }

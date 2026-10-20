@@ -17,6 +17,7 @@ import (
 //
 //   - Apple: 저장한 refresh token을 복호화해 revoke합니다.
 //   - 카카오: 앱과의 연결을 끊습니다(unlink).
+//   - 테스트(staging, S24): 외부 호출 없이 해제된 것으로 기록합니다.
 //
 // 각 연결의 외부 호출 직전에 계정이 아직 삭제 대기인지 확인하고(stillPendingDeletion), 아니면(복구 로그인으로
 // active가 됐거나 계정이 없으면) 그 연결은 건너뜁니다. 확인과 외부 호출 사이에 끼어드는 복구 로그인은 막지 못하며,
@@ -131,6 +132,9 @@ func (s *Service) disconnect(ctx context.Context, identity authdb.ListIdentities
 		return nil
 	case providerApple:
 		return s.revokeApple(ctx, identity)
+	case providerTest:
+		// 테스트 연결은 외부 제공자가 없어 끊을 것이 없습니다. 해제된 것으로 기록되게 성공으로 돌려줍니다.
+		return nil
 	default:
 		return fmt.Errorf("identity %s: 알 수 없는 제공자 %q", identity.ID, identity.Provider)
 	}

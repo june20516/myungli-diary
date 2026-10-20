@@ -191,3 +191,43 @@ func TestDisconnectProviders_RestoredDuringRevokeKeepsNewConnection(t *testing.T
 	require.NoError(t, err)
 	assert.Equal(t, "restored-refresh", string(plain))
 }
+
+// staging 테스트 로그인(S24)의 test 연결은 외부 제공자가 없으므로 호출 없이 해제된 것으로 기록합니다.
+// 기록하지 않으면 계정 삭제 뒤 retention이 같은 연결을 끝없이 다시 시도합니다.
+func TestDisconnectProviders_TestProviderIsRecordedWithoutCalls(t *testing.T) {
+	f := newFixture(t)
+	accountID := uuid.Must(uuid.NewV7())
+	f.exec(t, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', $2)`, accountID, f.clk.Now())
+	f.exec(t, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'test', 'e2e01')`,
+		uuid.Must(uuid.NewV7()), accountID)
+	f.requestDeletion(t, accountID)
+
+	require.NoError(t, f.service.DisconnectProviders(f.ctx, accountID))
+
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+	assert.Empty(t, f.fake.KakaoUnlinkRequests())
+	assert.NotNil(t, f.identityState(t, accountID, "test").disconnectedAt)
+}
+
+// auth_identities.provider는 kakao·apple·test만 받고, test 연결에는 Apple 토큰 열이 없습니다(00011, spec §13.2).
+func TestAuthIdentities_ProviderCheckAllowsTest(t *testing.T) {
+	f := newFixture(t)
+	accountID := uuid.Must(uuid.NewV7())
+	f.exec(t, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', $2)`, accountID, f.clk.Now())
+
+	insert := func(prov, subject string, withApple bool) error {
+		var token any
+		var keyID, clientID any
+		if withApple {
+			token, keyID, clientID = []byte{1}, "b1", "client"
+		}
+		_, err := f.pool.Exec(f.ctx,
+			`INSERT INTO auth_identities (id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id)
+			 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+			uuid.Must(uuid.NewV7()), accountID, prov, subject, token, keyID, clientID)
+		return err
+	}
+	require.NoError(t, insert("test", "e2e01", false))
+	require.Error(t, insert("google", "g-1", false), "목록 밖 제공자는 거절합니다")
+	require.Error(t, insert("test", "e2e02", true), "test 연결에는 Apple 토큰이 없습니다")
+}

@@ -1,9 +1,9 @@
 # server MVP 설계
 
-* 상태: 초안 (사용자 검토 대기)
+* 상태: 확정, 구현 P1~P6 완료(계획은 `docs/plans/README.md`)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
 * 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클(비공개 기록 `business/cycles/2026-10-11-launch-payment.md`, D74)
-* server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다. 이 문서의 각 절에 해당 번호를 붙입니다.
+* server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다(S1~S78). 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
 
@@ -86,7 +86,7 @@ server/
 ### 3.1 공통 원칙
 
 * ID는 UUIDv7, 시각은 `timestamptz`, 날짜는 `date`입니다.
-* **행을 물리적으로 지우지 않습니다 (S6·S7).** 계정은 익명화하고(§9), 사용자가 지우는 일기·일정은 soft delete합니다. 그래서 FK는 모두 `ON DELETE RESTRICT`로 두어 실수로 지우는 일을 DB가 막습니다. 예외는 사용자 데이터가 아닌 시스템 데이터(캐시, 만료된 refresh token, 요청 한도 카운터)로, 정리할 때 지웁니다.
+* **행을 물리적으로 지우지 않습니다 (S6·S7).** 계정은 익명화하고(§9), 사용자가 지우는 일기·일정은 soft delete합니다. 그래서 FK는 모두 `ON DELETE RESTRICT`로 두어 실수로 지우는 일을 DB가 막습니다. 예외는 사용자 데이터가 아닌 시스템 데이터(캐시, 만료된 refresh token, 요청 한도 카운터, 멱등 키 `idempotency_keys`, Apple 웹 로그인 교환 코드 `apple_web_logins`)로, 정리할 때 지웁니다.
 * soft delete 행은 `deleted_at`으로 표시하고, 조회는 모두 `deleted_at IS NULL` 조건으로 합니다.
 
 ### 3.2 "모름"과 null (S5)
@@ -168,8 +168,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | `entitlement_grants` | account_id, entitlement(`ad_free`·`insight`), source(`ad_free_pass`·`rewarded_ad`·`subscription`), source_ref(구매 id·`transaction_id`), starts_at, expires_at, revoked_at | 권한 부여 한 건이 한 행입니다. 판정은 같은 entitlement의 유효한 행(`revoked_at`이 없고 `starts_at ≤ now < expires_at`)이 하나라도 있는지입니다. 출처를 기록하라는 D60④를 이 구조가 만족하고, 구독도 같은 모양으로 담습니다 (D53·D60) |
 | `reward_events` | transaction_id(unique), account_id, ad_unit, reward_item, raw_query, received_at | AdMob SSV 원본. 같은 `transaction_id`는 한 번만 처리 (D60④) |
 | `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
-| `preview_usage` | device_hash(unique), used_at | 지우지 않음. 지우면 1회 제한이 풀림 |
-| `rate_limits` | key, window_start, count | 정리 대상 |
+| `preview_usage` | device_hash(PK, 설치 id의 SHA-256 32바이트), used_at | 지우지 않음. 지우면 1회 제한이 풀림. 출생 정보는 저장하지 않음(S70) |
+| `rate_limits` | key(`<operation>:<IP의 SHA-256 hex>`), window_start(분 단위 내림), count. PK (key, window_start) | 지난 창은 정리 대상(`window_start` 인덱스) |
 | `idempotency_keys` | PK (account_id, key), request_hash(SHA-256), status, headers(jsonb), body, created_at, completed_at | 24시간 뒤 정리. `completed_at`이 NULL이면 처리 중 |
 
 도시 목록은 읽기 전용 참조 데이터라 DB에 넣지 않고, 버전을 붙인 정적 파일로 바이너리에 포함합니다(`go:embed`). 원본은 GeoNames `cities15000`(CC BY 4.0)에서 이름(ko·en·ja), IANA 시간대, 경도를 뽑아 만들고, 출처 표기는 app의 오픈소스 고지에 넣도록 요청합니다.
@@ -212,16 +212,16 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 ## 5. REST API v1 (S2)
 
-계약 원본은 `server/api/openapi.yaml`입니다. 초안이 나오면 계약 등록을 요청하고(§13), S3에서 freeze합니다.
+계약 원본은 `server/api/openapi.yaml`입니다. 계약 표(`docs/contracts/README.md`)의 자기 행은 server가 계약을 바꾸는 PR에서 직접 고치고, S3에서 freeze합니다.
 
 ### 5.1 공통 규약
 
 * 경로 버전 `/v1`. JSON 필드는 camelCase(Google API 가이드, proto JSON 매핑과 같음).
 * 날짜 `YYYY-MM-DD`, 시각은 RFC 3339입니다. 시각은 기본이 UTC이고, 화면 표시용 시각(`FocusSlot.start`·`end`, `CalendarDay.solarTerm.at`)만 프로필 현재 시간대의 offset으로 보냅니다.
-* 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`).
-* 생성하는 POST는 `Idempotency-Key` 헤더를 받습니다(IETF `draft-ietf-httpapi-idempotency-key-header`). 24시간 동안 같은 키에는 같은 응답을 돌려줍니다. 계약 검증 뒤 핸들러 앞에서 operation 단위로 처리하며(`httpapi.Idempotency`), 첫 요청이 행을 선점하고 2xx 응답만 저장합니다. 2xx가 아니면 행을 지워 같은 키로 다시 시도할 수 있습니다.
+* 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`). 기간(`from`·`to`)으로 받는 목록(`listSchedules`)은 예외로 범위 안을 한 번에 돌려줍니다.
+* `Idempotency-Key` 헤더는 `createSchedule`·`registerDevice`(P8)만 받습니다(S60). 규격은 IETF `draft-ietf-httpapi-idempotency-key-header`를 따릅니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다. 계약 검증 뒤 핸들러 앞에서 operation 단위로 처리하며(`httpapi.Idempotency`), 첫 요청이 행을 선점하고 2xx 응답만 저장합니다. 2xx가 아니면 행을 지워 같은 키로 다시 시도할 수 있습니다.
 * 사용자의 선택은 상태 필드로 보냅니다(§3.2). 필드를 빼거나 `null`을 보내는 것으로 "모름"을 뜻하게 하지 않습니다. PATCH에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다.
-* 언어는 로그인 사용자면 프로필 값, 비로그인 요청이면 `Accept-Language`를 씁니다.
+* 언어는 로그인 사용자면 프로필 값, 비로그인 요청이면 `Accept-Language`를 RFC 9110 q값 순서로 읽어 `ko`·`en`·`ja` 중 첫째를 씁니다. 없으면 `en`입니다(S65).
 * 문장 필드는 조각 배열입니다(§6.4). 화면의 고정 UI 문구는 app 몫입니다(D59⑤).
 
 ### 5.2 엔드포인트
@@ -229,9 +229,9 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 영역 | 메서드와 경로 | 비고 |
 | --- | --- | --- |
 | 인증 | `POST /v1/auth/kakao`, `POST /v1/auth/apple`, `POST /v1/auth/apple/callback`, `POST /v1/auth/apple/web`, `POST /v1/auth/refresh`, `POST /v1/auth/logout` | 로그아웃은 refresh token family 폐기. Android Apple 웹 로그인은 콜백이 교환 코드를 App Link로 넘기고 `apple/web`이 토큰을 발급(S22) |
-| 정적(계약 밖) | `GET /auth/apple`, `GET /.well-known/assetlinks.json` | `/auth/apple`은 App Link가 앱을 열지 못했을 때의 "앱에서 계속하기" 안내 페이지, `assetlinks.json`은 Android App Link 검증용(S22). `/v1` 밖이라 REST 계약에 넣지 않음 |
+| 정적(계약 밖) | `GET /auth/apple`, `GET /.well-known/assetlinks.json` | `/auth/apple`은 App Link가 앱을 열지 못했을 때 앱에서 이어서 로그인하라고 알리는 안내 페이지(문구는 활성 시드의 `system.apple_return` 원고를 `Accept-Language` 언어로 렌더, S75), `assetlinks.json`은 Android App Link 검증용(S22). `/v1` 밖이라 REST 계약에 넣지 않음 |
 | 계정 | `GET /v1/me`, `DELETE /v1/me`, `POST /v1/me/consents` | `GET /v1/me`에 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태 포함 |
-| 프로필 | `GET /v1/me/profile`(읽기), `PUT /v1/me/profile`(첫 등록), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
+| 프로필 | `GET /v1/me/profile`(읽기), `PUT /v1/me/profile`(생성 또는 교체, S25), `PATCH /v1/me/profile` | 출생 정보를 저장할 때 엔진으로 검증(§7.2). 호칭 경고는 200 응답의 `warnings` |
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
 | 반응 | `PUT /v1/daily/{date}/slots/{slot}/reaction`, `DELETE` 같은 경로 | 그날 선택 기록에 붙음 |
 | 비로그인 | `POST /v1/preview`, `POST /v1/birth-hour`, `POST /v1/lunar-date`(음력→양력, 윤달 유무) | App Check 필수. 입력 저장 안 함 (D50·D58) |
@@ -249,8 +249,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다. 이미 있는 일기를 고칠 때는 본문만 바꾸고 이 기록은 처음 값을 유지합니다.
 * **일기 동시 저장:** 기기 동기화는 MVP 범위 밖이라(D47②) 마지막 쓰기가 남습니다.
 * **날짜 경로 검증:** `/calendar/{year}/{month}`는 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 그 안이지만 D41 범위를 벗어나면 422 `date.out_of_range`입니다. `/daily/{date}`의 날짜는 형식이 틀리거나 달력에 없는 날짜(예 `2026-02-30`, `format: date` 위반)면 400 `request.invalid`, 형식은 맞지만 D41 범위 밖이면 422 `date.out_of_range`입니다. 422 `date.invalid`는 정수 필드 객체 `LunarOrSolarDate`(예 양력 2월 31일)에만 씁니다.
-* **미리보기(D50):** 출생 정보·현재 시간대를 받아 오늘의 데일리 중 surface만 돌려줍니다. 호칭을 받지 않으므로 호칭이 들어가는 슬롯은 호칭 없는 변주를 쓰도록 writing에 확인합니다(§13). 기기 해시(`device_hash`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 기기 식별값은 재설치로 바뀔 수 있어 1회 제한은 최선 노력입니다.
-* **시진 확인(D58):** 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 시간을 고칠 때마다 부르는 요청이라 1회 제한 대신 기기·IP별 요청 한도(분당 30회)를 둡니다. 엔진 RPC는 core가 추가하는 대로 붙입니다.
+* **미리보기(D50):** 출생 정보·현재 시간대를 받아 오늘의 데일리 중 surface만 돌려줍니다. 호칭을 받지 않으므로 호칭이 들어가는 슬롯은 호칭 없는 변주를 쓰도록 writing에 확인합니다(§13). 설치 id의 SHA-256(`device_hash`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 설치 id는 재설치로 바뀔 수 있어 1회 제한은 최선 노력입니다. 엔진 결과 캐시는 읽지도 쓰지도 않습니다(S70).
+* **시진 확인(D58):** 출생 날짜·시각을 받아 시진과 그 벽시계 범위를 돌려줍니다. 시간을 고칠 때마다 부르는 요청이라 1회 제한 대신 요청 한도를 둡니다(`convertLunarDate`도 같음). 키는 operation + 클라이언트 IP(SHA-256)이고 고정 1분 창에 30회, 넘으면 429 `rate_limited`와 `Retry-After`입니다. 클라이언트 IP는 `X-Forwarded-For` 오른쪽에서 `TRUSTED_PROXY_HOPS`번째이며 계산은 `GetBirthHour` RPC입니다(S68·S69).
 
 ## 6. 콘텐츠 모듈 (D27·D36·D40·D57·D59)
 
@@ -290,7 +290,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 4. 새로 고른 결과를 기록하고 `rotation_state`를 실제로 고른 것의 다음 차례로 넘깁니다. 같은 트랜잭션에서 하고, 트랜잭션 처음에 계정 단위 advisory lock(`pg_advisory_xact_lock`, int4 키 둘)을 겁니다(S40). 날짜·지문이 다른 동시 요청도 같은 계정이면 차례로 처리해, 순환을 잃거나 돌봄 상한을 넘지 않습니다. unique 제약은 그 위의 마지막 방어입니다.
 5. 언어를 바꿔도 선택은 그대로 두고, 같은 (키, 변주, 시드 버전)을 새 언어로 렌더합니다.
 
-### 6.3 렌더 (계약 "호칭·조사 처리 규칙" v1)
+### 6.3 렌더 (계약 "호칭·조사 처리 규칙", 버전은 계약 표 참조)
 
 1. NFC 정규화
 2. `[[용어]]` 토큰 위치를 기억하고 괄호를 뗌
@@ -317,7 +317,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * **잠긴 내용 (D60, S14):** 근거 열람 권한(`insight`)이 없으면 evidence 깊이의 해석(판정 근거 문장, 원전 인용, 원국 개인 해석, `saju-chart.yongsin.basis`)을 응답에 담지 않습니다. 대신 응답마다 `evidenceAccess`(`unlocked`·`locked`)를 명시해, 근거가 원래 없는 것과 잠겨서 빠진 것을 app이 구분하게 합니다(§3.2 원칙). 사주 표·만세력·대운 표의 데이터와 surface·explain은 잠그지 않습니다(D60①). 그래서 판정 근거·원전 문장(`Evidence.basis`·`source`)은 `evidence[]`와 함께 빠지고, 오늘 그런 이유(`SlotText.todayReason`, writing `explain.today_reason`)와 용어 뜻·한자(`Glossary.meanings`·`hanja`)는 남습니다.
 * 잠긴 응답은 근거 문장을 아예 렌더하지 않습니다(S42). 버릴 문장을 만들지 않고, 원고가 없을 때의 오류 로그도 줄입니다.
 * 실행 중에 템플릿이 없으면(CI가 막으므로 원래 일어나지 않음) 그 슬롯(선택 필드)만 빼고 Error 로그를 남깁니다. 필수 문장 필드는 빈 `segments`로 채우고 같은 로그를 남깁니다. 빠진 언어를 다른 언어로 대신하지 않습니다.
-* `Notice.text`는 writing 문구 슬롯이 오기 전까지(#232) 빈 `segments`입니다. app은 `code`로 자기 문구를 씁니다.
+* `Notice.text`는 활성 시드의 `system.notice` 문장이고(S49), 원고가 없으면 빈 `segments`입니다. 빈 `text`면 app은 배너를 그리지 않습니다(S78).
 
 ## 7. 엔진 연동과 캐시 (D26·D31)
 
@@ -379,7 +379,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 | --- | --- |
 | `accounts` | status `deleted`, anonymized_at 기록 |
 | `auth_identities` | subject를 `deleted:<uuid>`로 바꾸고 Apple 토큰을 비움. 원래 제공자 계정과 연결이 끊겨 로그인할 수 없고, 같은 제공자 계정으로 가입하면 새 계정이 됨 |
-| `profiles` | 호칭을 `deleted user`로 바꿈. 출생 정보와 `birth_hash`는 비움(anonymized_at 기록) |
+| `profiles` | 호칭, 출생 정보, `birth_hash`를 비움(anonymized_at 기록) |
 | `diaries`, `schedules` | 본문·가이드 질문·제목·메모를 비움. 날짜와 태그는 남김 |
 | `devices` | 토큰을 지우고 비활성 |
 | `daily_selections` | 행은 남기고 `birth_hash`만 비움(NULL) |
@@ -554,13 +554,14 @@ app E2E를 staging에서 사람 손 없이 돌리기 위한 장치입니다. pro
 
 | 받는 쪽 | 내용 |
 | --- | --- |
-| root (계약) | REST API v1 계약 등록: `server/api/openapi.yaml`. proto 생성 코드 위치 `server/internal/gen/enginev1/`. 초안을 먼저 계약 전용 PR로 올림 |
+| root (계약) | REST API v1 계약 등록: `server/api/openapi.yaml`. proto 생성 코드 위치 `server/internal/gen/enginev1/`. 계약 표의 자기 행은 server가 계약 PR에서 직접 고침 |
 | root (IA) | 알림 문장 슬롯 추가 요청(개인화하되 호칭 없음). 완료: D62 |
 | root (제품 결정) | 광고 제거권 만료 전 재구매를 이어 붙일지 확인. 완료: D61 |
 | root → app·design | 문장 조각 배열 형식(§6.4)과 `term` 표시 방식 |
 | root → writing | 미리보기에서 호칭이 들어가는 슬롯을 호칭 없이 보이는 방법 |
 | root → app | GeoNames 출처 표기를 오픈소스 고지에 넣기 |
-| core (기다림) | `core/message_params.json`(Issue #38), D58 시진 RPC |
+| core (완료) | `core/message_params.json`(Issue #38), D58 시진 RPC `GetBirthHour` |
+| core (요청) | 시진 확인에 성별 미지정을 허용(#304). 반영되면 `GENDER_UNSPECIFIED`로 되돌림(S69) |
 | core (요청) | `ruleset_version` 조회 RPC (§7.1). 완료: `GetInfo`, PR #67 |
 
 ## 15. 구현 순서 (계획의 큰 줄기)

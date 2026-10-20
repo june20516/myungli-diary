@@ -72,7 +72,7 @@ func NewKakao(cfg KakaoConfig) (*Kakao, error) {
 // Verify는 카카오 id_token을 검증합니다.
 // iss, aud(AppKey), exp, RS256 서명, nonce(hex(sha256(rawNonce)))를 확인합니다.
 func (k *Kakao) Verify(ctx context.Context, idToken, rawNonce string) (Identity, error) {
-	return verifyIDToken(ctx, k.verifier, "카카오", idToken, rawNonce)
+	return verifyIDToken(ctx, k.verifier, "카카오 id_token", idToken, rawNonce)
 }
 
 // Unlink는 카카오 사용자와 우리 앱의 연결을 끊습니다(Admin 키 방식).

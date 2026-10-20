@@ -64,10 +64,11 @@ type Readings interface {
 
 var _ Readings = (*fortune.Views)(nil)
 
-// Contents는 용어 사전(getGlossary)과 문장 반응(putReaction·deleteReaction, getDaily의 반응 표시)이 쓰는 콘텐츠 저장소입니다.
+// Contents는 용어 사전(getGlossary), 문장 반응(putReaction·deleteReaction, getDaily의 반응 표시), Apple 복귀 페이지 문구가 쓰는 콘텐츠 저장소입니다.
 // *content.Store가 만족합니다.
 type Contents interface {
 	Active(ctx context.Context) (string, error)
+	Templates(ctx context.Context, version, lang string) (content.Templates, error)
 	Glossary(ctx context.Context, version, lang string) (content.Glossary, error)
 	SelectionFor(ctx context.Context, accountID uuid.UUID, date time.Time, slot string, birthHash [32]byte) (content.Selection, error)
 	PutReaction(ctx context.Context, selectionID int64, reaction string) error
@@ -102,13 +103,20 @@ var _ ScheduleService = (*schedule.Service)(nil)
 // API는 gen.StrictServerInterface 구현입니다. 아직 구현하지 않은 operation은 Unimplemented가 501로 답합니다.
 type API struct {
 	Unimplemented
+	// testLoginHolder는 staging 테스트 로그인(S24)의 상태 자리입니다. staging 빌드에서만 필드가 있고 prod 빌드에서는 빈 struct입니다.
+	testLoginHolder
 
 	Auth     AuthService
 	Accounts AccountService
 	Profiles ProfileService
 	Lunar    LunarConverter
+	// BirthHour는 시진 확인(getBirthHour)이 쓰는 엔진입니다. 조립에서 반드시 넣습니다.
+	BirthHour BirthHourChecker
 	// Readings는 운세 화면 묶음입니다. 비어 있으면 운세 operation은 503 service.unavailable입니다.
 	Readings Readings
+	// Previews와 PreviewUsage는 비로그인 미리보기(createPreview)의 화면 묶음과 설치별 1회 기록입니다. 하나라도 비어 있으면 503 service.unavailable입니다.
+	Previews     PreviewService
+	PreviewUsage PreviewUsage
 	// Contents는 콘텐츠 저장소입니다. 비어 있으면 getGlossary·반응 operation·getDaily는 503 service.unavailable입니다.
 	Contents Contents
 	// Diaries는 일기 서비스입니다. 비어 있으면 일기 operation은 503 service.unavailable입니다.
@@ -121,6 +129,13 @@ type API struct {
 	Logger *slog.Logger
 	// AppLink는 Apple 웹 콜백의 redirect 주소, 안내 페이지, assetlinks.json을 만드는 Android App Link 설정입니다.
 	AppLink AppLinkConfig
+	// AppConfig는 getAppConfig가 돌려주는 플랫폼별 최소 앱 버전입니다. 조립에서 설정 값을 넣습니다.
+	AppConfig AppConfig
+}
+
+// AppConfig는 플랫폼별 최소 앱 버전(semver 문자열)입니다(P6-10).
+type AppConfig struct {
+	MinIOS, MinAndroid string
 }
 
 var _ gen.StrictServerInterface = (*API)(nil)

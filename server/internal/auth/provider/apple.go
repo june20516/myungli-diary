@@ -117,7 +117,7 @@ func (a *Apple) Verify(ctx context.Context, idToken, rawNonce string, client App
 	if !ok {
 		return Identity{}, fmt.Errorf("Apple id_token: 알 수 없는 client %q", client)
 	}
-	return verifyIDToken(ctx, verifier, "Apple", idToken, rawNonce)
+	return verifyIDToken(ctx, verifier, "Apple id_token", idToken, rawNonce)
 }
 
 // VerifyWebCallback은 Apple 웹 콜백으로 받은 id_token을 web(ServicesID) 검증기로 검증하고
@@ -126,7 +126,7 @@ func (a *Apple) Verify(ctx context.Context, idToken, rawNonce string, client App
 // nonce 비교는 호출자가 원문을 받은 뒤에 합니다. nonce claim이 비어 있으면 나중에 비교할 수 없으므로 ErrTokenInvalid입니다.
 // 오류 분류는 Verify와 같습니다(JWKS 조회 실패는 ErrUnavailable).
 func (a *Apple) VerifyWebCallback(ctx context.Context, idToken string) (Identity, string, error) {
-	token, err := verifyIDTokenClaims(ctx, a.verifiers[AppleWeb], "Apple", idToken)
+	token, err := verifyIDTokenClaims(ctx, a.verifiers[AppleWeb], "Apple id_token", idToken)
 	if err != nil {
 		return Identity{}, "", err
 	}
@@ -188,7 +188,7 @@ func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClien
 		return "", "", fmt.Errorf("%w: Apple token: 2xx 응답에 id_token이 없습니다", ErrUnavailable)
 	}
 	// clientID 조회에 성공했으므로 client는 native·web 중 하나이고 검증기가 있습니다.
-	exchanged, err := verifyIDTokenClaims(ctx, a.verifiers[client], "Apple token", body.IDToken)
+	exchanged, err := verifyIDTokenClaims(ctx, a.verifiers[client], "Apple token id_token", body.IDToken)
 	if err != nil {
 		return "", "", err
 	}

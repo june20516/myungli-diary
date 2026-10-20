@@ -27,8 +27,9 @@ type selectionQuery struct {
 
 // fakeContents는 Contents 대역입니다. 반응은 메모리 맵에 두고, 받은 인자를 기록합니다.
 type fakeContents struct {
-	active   string
-	glossary content.Glossary
+	active    string
+	templates map[string]content.Templates
+	glossary  content.Glossary
 	// selections는 슬롯 id -> 선택 기록입니다. 없으면 ErrSelectionNotFound입니다.
 	selections map[string]content.Selection
 	reactions  map[int64]string
@@ -42,6 +43,14 @@ type fakeContents struct {
 }
 
 func (f *fakeContents) Active(context.Context) (string, error) { return f.active, nil }
+
+func (f *fakeContents) Templates(_ context.Context, _, lang string) (content.Templates, error) {
+	tpl, ok := f.templates[lang]
+	if !ok {
+		return nil, content.ErrNoActiveSeed
+	}
+	return tpl, nil
+}
 
 func (f *fakeContents) Glossary(_ context.Context, version, lang string) (content.Glossary, error) {
 	f.glossaryCalls++
