@@ -37,19 +37,20 @@
 ## 현재 진행 순서 (2026-10-20 밤 기준, app 계획 5 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 열린 drift가 없습니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 PR #320(IA v4, D79)의 app #322·writing #323·design #324·server #321입니다. server는 고칠 것이 없고 writing #317(`blocking`)이 원고에서 `settings.depth.desc`를 빼면 풀립니다. 그 전까지 server own PR은 `mlw check`로 막힙니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
 * **가장 긴 경로:** A1(계획 6·7) → A2, 그리고 S2(다음 P7) → S3 → A2 → I2. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | app | 계획 6 나·설정(#312: GeoNames 고지, `getProfile` 사본 채우기, #316: 기본 깊이 설정 삭제·IA v4, D79) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link). 미루지 않고 이어서 진행. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | writing | #317·drift #323(`blocking`: 기본 깊이 원고 빼기, W15 개정, D79) — server 검사를 막고 있어 먼저 | server own PR |
 | 지금 | server | P7(결제와 권한: RevenueCat·AdMob SSV·근거 열람 권한) 계획과 구현, D75 후속(S77 필드 5개 제거, app 확인 끝 #309) | S2 완료, S3 |
 | 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). 생일 음력 확인 줄·안내 문구(#313) | I3, server 시드 strict(S38) |
 | 그다음 | server | S3(REST v1 freeze), staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | A2, I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 필요할 때 | design | app·writing 요청 대응 | - |
+| 필요할 때 | design | app·writing 요청 대응, #318(글자 수 상한 표의 깊이 이름 대상 빼기, D79) | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
