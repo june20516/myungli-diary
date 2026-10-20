@@ -155,8 +155,9 @@
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
 | ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko 52, en 90, ja 38 |
 | ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
-| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 6 | - | ko 13, en 22, ja 10 |
+| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 22, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.date-picker.solar-confirm | 컴포넌트 date-picker | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko -, en -, ja - |
 | ui.depth.evidence_link | today.evidence.link<br>컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |

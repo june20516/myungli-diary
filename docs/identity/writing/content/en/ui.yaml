@@ -10,7 +10,7 @@
 - {slot: onboard-call.input.hint, key: onboardCallInputHint, text: "e.g. Alex"}
 - {slot: onboard-call.note.body, key: onboardCallNoteBody, text: "It doesn't have to be your real name. You can change it later."}
 - {slot: onboard-birth.question.head, key: onboardBirthQuestionHead, text: "When were you born?"}
-- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "If your birthday is on the lunar calendar, choose Lunar, and mark Leap month if it applies."}
+- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "If your birthday is on the lunar calendar, choose Lunar. For a leap month, pick the leap month in the month list."}
 - {slot: onboard-birth.basis.note, key: onboardBirthBasisNote, text: "We calculate as if you were born in Korea."}
 - {slot: onboard-birth.error.range, key: onboardBirthErrorRange, text: "We can only calculate dates from January 31, 1900 to December 31, 2099."}
 - {slot: onboard-time.question.head, key: onboardTimeQuestionHead, text: "What time were you born?"}
@@ -234,9 +234,9 @@
 - {slot: ui.picker.item, key: timePickerAm, text: "AM"}
 - {slot: ui.picker.item, key: timePickerPm, text: "PM"}
 - {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "Leap month {month}"}
+- {slot: ui.date-picker.solar-confirm, key: datePickerSolarConfirm, text: "Solar: {date}"}
 - {slot: ui.birth.option, key: calendarSolar, text: "Solar"}
 - {slot: ui.birth.option, key: calendarLunar, text: "Lunar"}
-- {slot: ui.birth.option, key: leapMonth, text: "Leap month"}
 - {slot: ui.birth.option, key: timeUnknownLabel, text: "Don't know"}
 - {slot: ui.birth.option, key: genderMale, text: "Male"}
 - {slot: ui.birth.option, key: genderFemale, text: "Female"}

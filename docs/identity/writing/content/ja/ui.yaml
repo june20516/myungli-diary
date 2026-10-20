@@ -10,7 +10,7 @@
 - {slot: onboard-call.input.hint, key: onboardCallInputHint, text: "例:ゆき"}
 - {slot: onboard-call.note.body, key: onboardCallNoteBody, text: "本名でなくてもかまいません。あとで変えられます。"}
 - {slot: onboard-birth.question.head, key: onboardBirthQuestionHead, text: "いつ生まれましたか?"}
-- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "旧暦の誕生日なら旧暦を選び、閏月なら閏月にも印をつけてください。"}
+- {slot: onboard-birth.calendar.hint, key: onboardBirthCalendarHint, text: "旧暦の誕生日なら旧暦を選んでください。閏月なら、月の一覧にある閏月を選びます。"}
 - {slot: onboard-birth.basis.note, key: onboardBirthBasisNote, text: "韓国で生まれたものとして計算します。"}
 - {slot: onboard-birth.error.range, key: onboardBirthErrorRange, text: "1900年1月31日から2099年12月31日までの日付だけ計算できます。"}
 - {slot: onboard-time.question.head, key: onboardTimeQuestionHead, text: "何時に生まれましたか?"}
@@ -234,9 +234,9 @@
 - {slot: ui.picker.item, key: timePickerAm, text: "午前"}
 - {slot: ui.picker.item, key: timePickerPm, text: "午後"}
 - {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "閏{month}月"}
+- {slot: ui.date-picker.solar-confirm, key: datePickerSolarConfirm, text: "新暦 {date}"}
 - {slot: ui.birth.option, key: calendarSolar, text: "新暦"}
 - {slot: ui.birth.option, key: calendarLunar, text: "旧暦"}
-- {slot: ui.birth.option, key: leapMonth, text: "閏月"}
 - {slot: ui.birth.option, key: timeUnknownLabel, text: "わからない"}
 - {slot: ui.birth.option, key: genderMale, text: "男性"}
 - {slot: ui.birth.option, key: genderFemale, text: "女性"}
