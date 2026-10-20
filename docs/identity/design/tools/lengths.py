@@ -107,7 +107,9 @@ TARGETS = (
     Target(("welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
             "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
             "today.guide.cta", "evidence-sheet.lock.cta", "ad-free.restore.cta", "diary-list.pick-date.cta",
-            "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share"),
+            "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share",
+            # D77 IA 자리 event-edit.save.cta·delete.cta·diary-edit.save.cta (writing W33: ui 슬롯에 ia로 담음)
+            "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save"),
            "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
     # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15
     Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15)",
@@ -116,8 +118,10 @@ TARGETS = (
            "ui-600", 14, -0.28, (SCREEN_WIDTH - 2 * 28 - 2 * 24 - 8) / 2, 1, False, None),
     Target(("ui.login.provider",), "social-login-button 글자 (좌우 16, 로고 20 + 간격 8)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 20 - 8, 1, False, None),
+    # D77 IA 자리 login.error.body = ui.login.error, event-edit.save.failed·diary-view.deleted.toast (W33)
     Target(("ui.error.client", "ui.error.code", "ui.login.error", "ui.app.trace", "evidence-sheet.unlock.failed",
-            "diary-edit.saved.tags"), "toast (좌우 16, 앞 아이콘 16 + 간격 16)",
+            "diary-edit.saved.tags", "ui.event-edit.save-failed", "ui.diary-view.deleted"),
+           "toast (좌우 16, 앞 아이콘 16 + 간격 16)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - 16, 2, True, None),
     Target(("ui.nav.tab",), "tab-bar 탭 라벨 (화면 폭 4등분)", "ui-500", 11, -0.22, SCREEN_WIDTH / 4, 1, False, None),
     Target(("ui.birth.option",), "segmented 두 칸 중 한 칸 (check-row inline 글자 포함)",
@@ -132,13 +136,15 @@ TARGETS = (
            "ui-400", 17, 0, CONTENT_WIDTH - 2 * 16 - 20 - 8 - 20 - 8, 1, False, None),
     Target(("diary-edit.body.placeholder",), "diary-editor 입력칸 안내 (좌우 16)",
            "sentence", 15, 0, CONTENT_WIDTH - 2 * 16, 2, True, None),
-    Target(("ui.app.notice", "saju-chart.time-unknown.notice", "diary-edit.offline.notice"),
+    # D77 IA 자리 event-edit.offline.notice (W33)
+    Target(("ui.app.notice", "saju-chart.time-unknown.notice", "diary-edit.offline.notice", "ui.event-edit.offline"),
            "notice-banner (좌우 12, 아이콘 16 + 간격 8)", "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 12 - 16 - 8, 2, True, None),
     Target(("ui.picker.item",), "date-picker·time-picker 휠 칸 (본문 폭 3등분)",
            "ui-600", 16, -0.32, CONTENT_WIDTH / 3, 1, False, None),
     Target(("evidence-sheet.section.basis", "evidence-sheet.section.source", "evidence-sheet.section.personal",
             "saju-chart.yongsin.title"), "lock.veil 제목 (잠기면 앞에 자물쇠 14 + 간격 4)",
            "ui-500", 13, -0.26, CONTENT_WIDTH - 14 - 4, 1, False, None),
+    # D77 IA 자리 today.evidence.link = ui.depth.evidence_link (W33)
     Target(("ui.depth.evidence_link", "birthplace.standard.link", "day-sheet.diary.open"),
            "depth-link 이름 (화살표 14 + 간격 2)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 14 - 2, 1, False, None),
@@ -152,6 +158,7 @@ TARGETS = (
     Target(("ui.guide.card",), "guide-question-card 머리글 (안쪽 space.20)", "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 20, 1, False, None),
     Target(("settings.ad-free.label",), "settings-row 이름 (좌우 16, 화살표 16, 남은 기간을 담은 키 포함)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
+    # D77 IA 자리 evidence-sheet.sheet.title = ui.evidence.title (W33)
     Target(("ui.evidence.title",), "evidence-sheet 제목 (sheet 안쪽 space.20)", "ui-600", 20, -0.4, CONTENT_WIDTH, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
            "sentence", 17, 0, CONTENT_WIDTH, 2, True, None),
@@ -160,7 +167,8 @@ TARGETS = (
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
 UNBOUNDED = {
     "chart.yongsin_method": ("saju-chart 본문 sentence-block body", 60),
-    "settings.calculation_basis": ("calc-basis 본문 sentence-block body", 120),
+    # W21로 content 슬롯 settings.calculation_basis가 ui 슬롯 calc-basis.longitude.body로 옮겨 감. 값은 그대로
+    "calc-basis.longitude.body": ("calc-basis 본문 sentence-block body", 120),
 }
 
 # 레이아웃이 길이를 막지 않아 design이 상한을 두지 않는 슬롯 (spec-followups spec §5.3)
