@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart' show Interceptor;
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
@@ -146,17 +147,24 @@ Future<void> settleTimezoneSync(
 /// 앱 전체를 fake 모드의 [scenario]로 띄우고 진입 계산이 끝날 때까지 기다립니다.
 ///
 /// 도착 화면의 응답을 일부러 붙잡는 테스트는 [allowOngoing]을 true로 줍니다.
+/// [network]는 진입 계산 전에 대역 서버 바로 앞에 끼울 interceptor입니다(fixture로 둘 수
+/// 없는 계약 밖 응답 등).
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   required String scenario,
   List<Override> overrides = const [],
   Locale? locale = const Locale('ko'),
   bool allowOngoing = false,
+  Interceptor? network,
 }) async {
   final container = (await tester.runAsync(
     () => bootstrapForTest(scenario, overrides: overrides, locale: locale),
   ))!;
   addTearDown(container.dispose);
+  if (network != null) {
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+  }
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const MyungliApp()),
   );

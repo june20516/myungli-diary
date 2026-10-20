@@ -67,7 +67,17 @@ void main() {
   final targets = resolveOpenEnums(loadOpenApi());
 
   test('계약에서 열린 enum을 읽고 생성 모델을 찾는다', () {
-    expect(targets.where((t) => t.isEnum), hasLength(8));
+    // 계약 목록이 바뀌면 이 집합이 무엇이 늘거나 줄었는지 보여 줍니다.
+    expect(targets.where((t) => t.isEnum).map((t) => t.name).toSet(), {
+      'NoticeCode',
+      'ShinsalKind',
+      'RelationKind',
+      'PersonalReading.kind',
+      'FocusSlot.reasons',
+      'SlotText.variant',
+      'Insight.source',
+      'ConsentDocument.document',
+    });
     expect(targets.where((t) => !t.isEnum).map((t) => t.name), [
       'Problem.code',
     ]);
@@ -108,23 +118,34 @@ void main() {
       for (final MapEntry(:key, :value) in enums.entries)
         if (value.contains('$_unknownValue(')) key,
     };
-    var checked = 0;
+    // 열린 enum을 쓰는 필드 `모델 파일:JSON 이름`.
+    final fields = <String>{};
     for (final MapEntry(key: file, value: source) in sources.entries) {
       for (final match in _field.allMatches(source)) {
         final type = _elementType(match[2]!);
         if (!tolerant.contains(type)) continue;
-        checked++;
+        final name = RegExp(r"name: r'(\w+)'").firstMatch(match[1]!)![1];
+        fields.add('$file:$name');
         expect(
           match[1],
           contains('unknownEnumValue: $type.$_unknownValue'),
-          reason: '$file의 ${match[0]!.split('\n').last.trim()}',
+          reason: '$file의 $name',
         );
       }
     }
-    // Notice.code, ShinsalAt.kind, Relation.kind·suppressedBy,
-    // SeunYear.relationsWithNatal, PersonalReading.kind·shinsal,
-    // FocusSlot.reasons, SlotText.variant, Insight.source,
-    // ConsentDocument.document. 쓰는 곳이 바뀌면 이 수를 고칩니다.
-    expect(checked, 11);
+    // 쓰는 곳이 바뀌면 이 집합이 무엇이 늘거나 줄었는지 보여 줍니다.
+    expect(fields, {
+      'notice.dart:code',
+      'shinsal_at.dart:kind',
+      'relation.dart:kind',
+      'relation.dart:suppressedBy',
+      'seun_year.dart:relationsWithNatal',
+      'personal_reading.dart:kind',
+      'personal_reading.dart:shinsal',
+      'focus_slot.dart:reasons',
+      'slot_text.dart:variant',
+      'insight.dart:source',
+      'consent_document.dart:document',
+    });
   });
 }

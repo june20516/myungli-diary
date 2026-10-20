@@ -31,12 +31,16 @@ Me meWith({
   bool hasProfile = true,
   String accountId = 'acc-1',
   bool pendingDeletion = false,
+  List<String> requiredDocuments = const [],
 }) => Me.fromJson({
   'accountId': accountId,
   'status': pendingDeletion ? 'pending_deletion' : 'active',
   if (pendingDeletion) 'deletionScheduledAt': '2026-11-13T00:00:00Z',
   'consentRequired': consentRequired,
-  'requiredConsents': <String>[],
+  'requiredConsents': [
+    for (final document in requiredDocuments)
+      {'document': document, 'version': '2026-10-01'},
+  ],
   'hasProfile': hasProfile,
   'adFree': {'active': false},
   'insight': {'active': false},
@@ -112,6 +116,68 @@ void main() {
       expect(
         compute(me: meWith(consentRequired: true), adConsentDone: false),
         EntryState.consentRequired,
+      );
+    });
+
+    test('이 앱이 모르는 필수 동의 문서가 있으면 forceUpdate(A66)', () {
+      // 열린 enum ConsentDocument.document의 모르는 문서는 그릴 수도 보낼 수도 없어,
+      // 동의 화면이 막다른 길이 되지 않게 그 문서를 아는 앱으로 업데이트하게 합니다.
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            requiredDocuments: ['terms', 'added_after_freeze'],
+          ),
+        ),
+        EntryState.forceUpdate,
+      );
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            hasProfile: false,
+            requiredDocuments: ['added_after_freeze'],
+          ),
+          adConsentDone: false,
+        ),
+        EntryState.forceUpdate,
+      );
+    });
+
+    test('아는 문서만 필수면 consentRequired 그대로', () {
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            requiredDocuments: ['terms', 'privacy'],
+          ),
+        ),
+        EntryState.consentRequired,
+      );
+    });
+
+    test('동의가 필요 없으면 모르는 문서가 목록에 있어도 업데이트를 강제하지 않음', () {
+      expect(
+        compute(me: meWith(requiredDocuments: ['added_after_freeze'])),
+        EntryState.ready,
+      );
+    });
+
+    test('모르는 필수 문서가 있어도 로그아웃·삭제 대기는 signedOut이 먼저', () {
+      final me = meWith(
+        consentRequired: true,
+        requiredDocuments: ['added_after_freeze'],
+      );
+      expect(compute(hasSession: false, me: me), EntryState.signedOut);
+      expect(
+        compute(
+          me: meWith(
+            consentRequired: true,
+            pendingDeletion: true,
+            requiredDocuments: ['added_after_freeze'],
+          ),
+        ),
+        EntryState.signedOut,
       );
     });
 

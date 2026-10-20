@@ -29,10 +29,12 @@ enum EntryState {
 
 /// 진입 갈래를 판정합니다. 순서는 IA spec §3입니다.
 ///
-/// 업데이트 강제 > 로그아웃 > 약관 미동의 > 프로필 없음 > 알림 허락 대기 > 광고 동의 전 >
-/// 완료. 알림 허락 대기([notifyAskPending])는 IA 순서(프로필 저장 → notify-ask →
-/// ad-consent)를 지키려는 기기 플래그입니다(A17). 삭제 대기 계정(server 결정 S16)은
-/// 로그아웃으로 봅니다.
+/// 업데이트 강제 > 로그아웃 > (모르는 필수 약관이면 업데이트 강제) > 약관 미동의 >
+/// 프로필 없음 > 알림 허락 대기 > 광고 동의 전 > 완료. 알림 허락 대기
+/// ([notifyAskPending])는 IA 순서(프로필 저장 → notify-ask → ad-consent)를 지키려는
+/// 기기 플래그입니다(A17). 삭제 대기 계정(server 결정 S16)은 로그아웃으로 봅니다.
+/// 동의할 문서에 이 앱이 모르는 문서가 있으면([requiresUnknownConsent]) 동의 화면에서
+/// 그 문서를 그리지도 보내지도 못해 막다른 길이 되므로 업데이트를 강제합니다(A66).
 EntryState computeEntry({
   required Version appVersion,
   required Version minimumVersion,
@@ -48,6 +50,9 @@ EntryState computeEntry({
     return EntryState.signedOut;
   }
   if (me.consentRequired) {
+    if (requiresUnknownConsent(me)) {
+      return EntryState.forceUpdate;
+    }
     return EntryState.consentRequired;
   }
   if (!me.hasProfile) {
@@ -61,6 +66,12 @@ EntryState computeEntry({
   }
   return EntryState.ready;
 }
+
+/// 동의할 문서(`requiredConsents`)에 이 앱이 모르는 문서가 있는지.
+///
+/// `ConsentDocument.document`는 계약의 열린 enum이라 freeze 뒤 새 문서가 올 수 있습니다(A66).
+bool requiresUnknownConsent(Me me) =>
+    me.requiredConsents.any((consent) => !consent.document.isKnown);
 
 /// 삭제 대기 계정인지. 남은 토큰으로는 getMe·deleteMe·logout만 됩니다(S16).
 bool isPendingDeletion(Me me) => me.status == MeStatusEnum.pendingDeletion;

@@ -23,8 +23,8 @@ bool isConsentVersionMismatch(AppError error) =>
 ///
 /// `ConsentDocument.document`는 계약의 열린 enum이라 이 app이 모르는 문서가 올 수 있습니다
 /// (결정 A66). 모르는 문서는 이름과 문서 주소가 없고 원래 값도 남지 않아 보이지도 보내지도
-/// 않습니다. server가 새 문서를 필수로 요구하면 그 문서를 아는 앱 버전을 `minimumVersion`으로
-/// 함께 올려 강제 업데이트(`force-update`)로 받게 합니다(#347 답).
+/// 않습니다. 동의가 필요한데 모르는 문서가 있으면 진입 계산이 먼저 `force-update`로 보내므로
+/// (`requiresUnknownConsent`) 이 거름은 화면의 안전망입니다.
 List<ConsentDocument> displayableConsents(List<ConsentDocument> documents) => [
   for (final document in documents)
     if (document.document.isKnown) document,

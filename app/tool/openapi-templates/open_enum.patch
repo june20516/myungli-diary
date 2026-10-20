@@ -3,6 +3,7 @@ tool/gen_api.sh가 생성기 이미지에서 기본 템플릿을 꺼내(author t
 계약 사본에서 열린 enum(x-myungli-open-enum, tool/mark_open_enums.dart)에만 모르는 값
 unknownDefaultOpenApi와 isKnown, 필드의 unknownEnumValue를 넣습니다. 닫힌 enum은 그대로입니다.
 생성기 버전을 올려 patch가 맞지 않으면 gen_api.sh가 실패합니다. 새 기본 템플릿에 같은 변경을 다시 만듭니다.
+이 머리말처럼 첫 `--- a/…` 줄 앞의 글은 git apply가 patch 머리말로 보고 무시합니다.
 
 --- a/serialization/json_serializable/class.mustache
 +++ b/serialization/json_serializable/class.mustache
