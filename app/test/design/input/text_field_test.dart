@@ -325,7 +325,56 @@ void main() {
       );
     });
 
-    testWidgets('maxLines가 1보다 크면 줄바꿈을 받고 그 줄 수까지만 늘어납니다 (#218 ⑤)', (
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('multiline의 첫 줄과 지우기는 한 줄 칸과 같은 높이입니다 (글자 $scale배)', (
+        tester,
+      ) async {
+        Future<({double textTop, double clearCenter})> measure(
+          int maxLines,
+          String text,
+        ) async {
+          await tester.pumpWidget(
+            MediaQuery(
+              data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+              child: inputApp(
+                Center(
+                  child: SizedBox(
+                    width: 360,
+                    child: MyungliTextField(
+                      key: ValueKey(maxLines),
+                      label: '메모',
+                      maxLines: maxLines,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+          await tester.enterText(find.byType(TextField), text);
+          await tester.pump();
+          final top = tester
+              .getTopLeft(find.byKey(MyungliTextField.containerKey))
+              .dy;
+          return (
+            textTop: tester.getTopLeft(find.byType(TextField)).dy - top,
+            clearCenter:
+                tester.getCenter(find.byKey(MyungliTextField.clearKey)).dy -
+                top,
+          );
+        }
+
+        final single = await measure(1, '하나');
+        final multi = await measure(6, '하나\n둘\n셋');
+        expect(multi.textTop, moreOrLessEquals(single.textTop, epsilon: 0.5));
+        expect(
+          multi.clearCenter,
+          moreOrLessEquals(single.clearCenter, epsilon: 0.5),
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('maxLines가 1보다 크면 줄바꿈을 받고 그 줄 수까지만 늘어납니다', (
       tester,
     ) async {
       final controller = TextEditingController();

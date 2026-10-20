@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -47,12 +49,12 @@ class MyungliTextField extends StatefulWidget {
          'maxLines는 1~$maxLinesLimit이어야 합니다.',
        );
 
-  /// 명세 대조용 요약.
-  static const ComponentSpec spec = ComponentSpec('text-field', {}, {
-    'focused',
-    'disabled',
-    'error',
-  });
+  /// 명세 대조용 요약. 변형 `multiline`은 [maxLines]가 1보다 큰 칸입니다.
+  static const ComponentSpec spec = ComponentSpec(
+    'text-field',
+    {'multiline'},
+    {'focused', 'disabled', 'error'},
+  );
 
   /// 칸 바탕(`bg.sheet`)을 그리는 상자를 찾는 테스트용 키.
   static const Key containerKey = ValueKey('text-field-container');
@@ -100,9 +102,10 @@ class MyungliTextField extends StatefulWidget {
 
   /// 늘어날 수 있는 줄 수(1~[maxLinesLimit]). 1이면 한 줄 칸이고 키보드 동작은 완료입니다.
   ///
-  /// 1보다 크면 한 줄 높이에서 시작해 글이 길어지면 이 줄 수까지 늘어나고, 그 뒤는 칸 안에서
-  /// 스크롤합니다. 키보드는 여러 줄 입력이고 키보드 동작은 줄바꿈이라 [onSubmitted]는 불리지
-  /// 않습니다(event-edit 메모 2000자). 명세 반영은 design에 요청했습니다(#218 ⑤).
+  /// 1보다 크면 `multiline` 변형입니다. 한 줄 높이에서 시작해 글이 길어지면 이 줄 수까지
+  /// 늘어나고, 그 뒤는 칸 안에서 스크롤합니다. 첫 줄과 지우기 아이콘은 한 줄 칸과 같은
+  /// 높이입니다. 키보드는 여러 줄 입력이고 키보드 동작은 줄바꿈이라 [onSubmitted]는 불리지
+  /// 않습니다(event-edit 메모 2000자).
   final int maxLines;
 
   bool get _multiline => maxLines > 1;
@@ -182,6 +185,19 @@ class _MyungliTextFieldState extends State<MyungliTextField>
     );
     const radius = BorderRadius.all(Radius.circular(Radii.md));
 
+    // 한 줄 칸의 글줄은 최소 높이(52) 가운데이고, 글자가 커지면 위아래 `space.8`로 칸이
+    // 늘어납니다. 여러 줄 칸도 첫 줄과 지우기를 그 높이에 두고 아래로 늘어납니다
+    // (`clear.align: first-line`).
+    final multiline = widget._multiline;
+    final lineHeight = _lineHeight(textStyle, MediaQuery.textScalerOf(context));
+    final firstLineCenter = math.max(
+      MyungliTextField._minHeight / 2,
+      Space.s8 + lineHeight / 2,
+    );
+    final textPadding = EdgeInsets.symmetric(
+      vertical: multiline ? firstLineCenter - lineHeight / 2 : Space.s8,
+    );
+
     final field = ListenableBuilder(
       listenable: Listenable.merge([_focus, _controller]),
       builder: (context, _) {
@@ -189,6 +205,9 @@ class _MyungliTextFieldState extends State<MyungliTextField>
             enabled && _focus.hasFocus && _controller.text.isNotEmpty;
         final leading = widget.leadingIcon;
         return Row(
+          crossAxisAlignment: multiline
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             if (leading != null)
               Padding(
@@ -203,7 +222,7 @@ class _MyungliTextFieldState extends State<MyungliTextField>
               ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: Space.s8),
+                padding: textPadding,
                 child: Semantics(
                   label: widget.label,
                   identifier: widget.identifier,
@@ -223,10 +242,8 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                     cursorColor: colors.actionPrimary,
                     minLines: 1,
                     maxLines: widget.maxLines,
-                    keyboardType: widget._multiline
-                        ? TextInputType.multiline
-                        : null,
-                    textInputAction: widget._multiline
+                    keyboardType: multiline ? TextInputType.multiline : null,
+                    textInputAction: multiline
                         ? TextInputAction.newline
                         : TextInputAction.done,
                     onChanged: widget.onChanged,
@@ -242,7 +259,14 @@ class _MyungliTextFieldState extends State<MyungliTextField>
               ),
             ),
             if (showClear)
-              _ClearButton(onClear: _clear)
+              Padding(
+                padding: EdgeInsets.only(
+                  top: multiline
+                      ? firstLineCenter - MyungliTextField._clearTarget / 2
+                      : 0,
+                ),
+                child: _ClearButton(onClear: _clear),
+              )
             else
               const SizedBox(width: Space.s16),
           ],
@@ -341,9 +365,21 @@ class _MyungliTextFieldState extends State<MyungliTextField>
       ],
     );
   }
+
+  /// [style] 글줄 하나의 높이(기기 글자 크기 반영).
+  static double _lineHeight(TextStyle style, TextScaler scaler) {
+    final painter = TextPainter(
+      text: TextSpan(text: ' ', style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    final height = painter.height;
+    painter.dispose();
+    return height;
+  }
 }
 
-/// 지우기 아이콘(`x-circle` light 20). 눌림 영역은 48px이고 입력 초점을 빼앗지 않습니다.
 class _ClearButton extends StatelessWidget {
   const new({required this.onClear});
 
