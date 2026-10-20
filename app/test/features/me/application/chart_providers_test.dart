@@ -95,7 +95,12 @@ Future<(ProviderContainer, _ChartTap)> _loadWithTap({
   final interceptors = container.read(dioProvider).interceptors;
   interceptors.insert(interceptors.length - 1, tap);
   container.listen(chartControllerProvider, (_, _) {});
-  await _untilChart(container, () => tap.responses == 1);
+  // 응답을 받은 뒤 캐시 쓰기와 state 갱신은 비동기라, state에 값이 들 때까지 기다립니다.
+  await _untilChart(
+    container,
+    () =>
+        tap.responses == 1 && container.read(chartControllerProvider).hasValue,
+  );
   return (container, tap);
 }
 
