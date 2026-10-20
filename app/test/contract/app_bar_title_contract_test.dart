@@ -55,7 +55,6 @@ const Set<String> _allowedTemporaryKeys = {
   'legalTermsLabel',
   'legalPrivacyLabel',
   'legalLicensesLabel',
-  'datePickerSolarConfirm',
   'shareImageSemantics',
   'sharePreviewRatioGroup',
   'todayLuckyColorName',

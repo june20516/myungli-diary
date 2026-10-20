@@ -658,7 +658,7 @@ abstract class AppLocalizations {
   /// **'윤{month}월'**
   String datePickerLeapMonthValue(int month);
 
-  /// 임시. date-picker birth 음력 확인 줄(solarConfirm): 고른 음력 날짜를 양력으로 바꾼 날짜. date는 로케일 날짜 서식(yMMMMd)으로 app이 만듭니다(V31, A20 ④)
+  /// 생일 날짜 휠(date-picker birth)의 양력 확인 줄(solarConfirm, design V31, #313). 고른 음력 날짜를 양력으로 바꾼 날짜를 보입니다
   ///
   /// In ko, this message translates to:
   /// **'양력 {date}'**
@@ -739,7 +739,7 @@ abstract class AppLocalizations {
   /// onboard-birth.calendar.hint: 음력·윤달 고르는 법
   ///
   /// In ko, this message translates to:
-  /// **'음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.'**
+  /// **'음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요.'**
   String get onboardBirthCalendarHint;
 
   /// onboard-birth.basis.note: 한국 출생 기준으로 계산한다는 안내
@@ -766,23 +766,17 @@ abstract class AppLocalizations {
   /// **'저장'**
   String get onboardingSave;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'양력'**
   String get calendarSolar;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'음력'**
   String get calendarLunar;
-
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
-  ///
-  /// In ko, this message translates to:
-  /// **'윤달'**
-  String get leapMonth;
 
   /// 스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)
   ///
@@ -802,7 +796,7 @@ abstract class AppLocalizations {
   /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
   String get onboardTimeUnknownNote;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'모름'**
@@ -928,13 +922,13 @@ abstract class AppLocalizations {
   /// **'태어난 도시 찾기'**
   String get birthplaceSearchLabel;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'남성'**
   String get genderMale;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 윤달, 시간 모름, 성별)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
   ///
   /// In ko, this message translates to:
   /// **'여성'**

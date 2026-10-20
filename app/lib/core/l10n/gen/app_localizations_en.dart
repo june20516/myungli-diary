@@ -346,7 +346,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String datePickerSolarConfirm(String date) {
-    return 'Solar $date';
+    return 'Solar: $date';
   }
 
   @override
@@ -399,7 +399,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardBirthCalendarHint =>
-      'If your birthday is on the lunar calendar, choose Lunar, and mark Leap month if it applies.';
+      'If your birthday is on the lunar calendar, choose Lunar. For a leap month, pick the leap month in the month list.';
 
   @override
   String get onboardBirthBasisNote =>
@@ -420,9 +420,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarLunar => 'Lunar';
-
-  @override
-  String get leapMonth => 'Leap month';
 
   @override
   String get onboardCallInputLabel => 'Name to call you';

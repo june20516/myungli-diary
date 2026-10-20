@@ -88,7 +88,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **writing 답 대기:** #313(생일 음력 확인 줄 임시 키 `datePickerSolarConfirm`, `onboardBirthCalendarHint` 재검토, 쓰지 않게 된 `leapMonth`). 원고가 오면 `import_writing_arb.dart`로 가져오고 임시 키 허용 목록에서 지웁니다. 열린 drift가 생기면 그보다 먼저 맞춥니다.
+1. **writing 답 대기:** #331(계획 6 임시 문구 22개와 사주 용어 사전 범주). #313(생일 음력 문구)은 W34로 반영했습니다. 열린 drift가 생기면 그보다 먼저 맞춥니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 아직 없는 화면(계획 6)의 `<화면>.bar.title` 제목은 그 화면을 만들 때 붙입니다(일기 4곳은 계획 5에서 붙임, `test/contract/app_bar_title_contract_test.dart` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기) 마무리:** 이 PR이 병합되면 계획 5는 끝납니다. 넘긴 것:
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).

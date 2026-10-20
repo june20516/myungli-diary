@@ -13,6 +13,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/wheel.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -202,7 +203,7 @@ void main() {
         lunarApi: api,
       );
       expect(_confirmText(tester), _ko.datePickerSolarConfirm('1990년 5월 15일'));
-      expect(find.text(_ko.leapMonth), findsNothing);
+      expect(find.byType(CheckRow), findsNothing);
       // 1일·평달로 그 달의 윤달을 묻고, 고른 날로 양력을 묻습니다.
       expect(api.requests.map((r) => (r['date']! as Map)['day']), [1, 15]);
     });

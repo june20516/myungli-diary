@@ -359,7 +359,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardBirthQuestionHead => 'いつ生まれましたか?';
 
   @override
-  String get onboardBirthCalendarHint => '旧暦の誕生日なら旧暦を選び、閏月なら閏月にも印をつけてください。';
+  String get onboardBirthCalendarHint =>
+      '旧暦の誕生日なら旧暦を選んでください。閏月なら、月の一覧にある閏月を選びます。';
 
   @override
   String get onboardBirthBasisNote => '韓国で生まれたものとして計算します。';
@@ -378,9 +379,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarLunar => '旧暦';
-
-  @override
-  String get leapMonth => '閏月';
 
   @override
   String get onboardCallInputLabel => '呼び名';

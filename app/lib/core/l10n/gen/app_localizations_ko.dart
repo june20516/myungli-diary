@@ -361,7 +361,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardBirthQuestionHead => '언제 태어났나요?';
 
   @override
-  String get onboardBirthCalendarHint => '음력 생일이면 음력을 고르고, 윤달이면 윤달에도 표시해 주세요.';
+  String get onboardBirthCalendarHint =>
+      '음력 생일이면 음력을 골라 주세요. 윤달이면 달 목록에 있는 윤달을 고르면 돼요.';
 
   @override
   String get onboardBirthBasisNote => '한국에서 태어난 것을 기준으로 계산해요.';
@@ -381,9 +382,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calendarLunar => '음력';
-
-  @override
-  String get leapMonth => '윤달';
 
   @override
   String get onboardCallInputLabel => '불러 드릴 이름';
