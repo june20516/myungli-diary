@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -104,11 +105,7 @@ func (s *Store) Upsert(ctx context.Context, accountID uuid.UUID, e Entry) (Entry
 	if err != nil {
 		return Entry{}, false, fmt.Errorf("일기 저장: %w", err)
 	}
-	entry, err := toEntry(diarydb.GetDiaryRow{
-		ID: row.ID, AccountID: row.AccountID, Date: row.Date, Body: row.Body, AllTags: row.AllTags,
-		FeaturedTags: row.FeaturedTags, GuideQuestion: row.GuideQuestion, RulesetVersion: row.RulesetVersion,
-		CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt,
-	})
+	entry, err := toEntry(fromUpsertRow(row))
 	return entry, row.Created, err
 }
 
@@ -144,7 +141,8 @@ func (s *Store) Restore(ctx context.Context, accountID uuid.UUID, date profile.L
 		}
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == uniqueViolation {
-			// 확인과 복원 사이에 같은 날짜 일기가 새로 생긴 경우입니다.
+			// 살아 있는 일기 확인과 복원 사이에 같은 날짜 일기가 새로 생긴 경쟁을 막는 방어 경로입니다.
+			// 두 문장 사이에 끼어들게 만들 수 없어 테스트하지 않습니다.
 			return ErrDateTaken
 		}
 		if err != nil {
@@ -161,12 +159,15 @@ func (s *Store) Restore(ctx context.Context, accountID uuid.UUID, date profile.L
 
 // List는 날짜 역순으로 살아 있는 일기를 q.Limit편까지 돌려줍니다.
 func (s *Store) List(ctx context.Context, accountID uuid.UUID, q ListQuery) ([]Entry, error) {
+	if q.Limit <= 0 || q.Limit > math.MaxInt32 {
+		return nil, fmt.Errorf("일기 목록 Limit이 범위를 벗어났습니다: %d", q.Limit)
+	}
 	params := diarydb.ListDiariesParams{
 		AccountID:  accountID,
 		FromDate:   toNullablePgDate(q.From),
 		ToDate:     toNullablePgDate(q.To),
 		BeforeDate: toNullablePgDate(q.Before),
-		RowLimit:   int32(q.Limit), //nolint:gosec // 호출자(서비스)가 상한을 검증한 값입니다.
+		RowLimit:   int32(q.Limit), // 위에서 범위를 검사했습니다.
 	}
 	if q.Tag != nil {
 		params.Tag = pgtype.Text{String: *q.Tag, Valid: true}
@@ -250,6 +251,15 @@ func toEntry(row diarydb.GetDiaryRow) (Entry, error) {
 		CreatedAt:      row.CreatedAt,
 		UpdatedAt:      row.UpdatedAt,
 	}, nil
+}
+
+// fromUpsertRow는 Upsert가 돌려준 행을 다른 조회와 같은 모양으로 맞춥니다. 일기 열이 늘면 여기서 옮깁니다.
+func fromUpsertRow(row diarydb.UpsertDiaryRow) diarydb.GetDiaryRow {
+	return diarydb.GetDiaryRow{
+		ID: row.ID, AccountID: row.AccountID, Date: row.Date, Body: row.Body, AllTags: row.AllTags,
+		FeaturedTags: row.FeaturedTags, GuideQuestion: row.GuideQuestion, RulesetVersion: row.RulesetVersion,
+		CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt,
+	}
 }
 
 func toPgDate(d profile.LocalDate) pgtype.Date {

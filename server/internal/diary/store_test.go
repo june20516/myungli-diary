@@ -2,6 +2,7 @@ package diary_test
 
 import (
 	"context"
+	"math"
 	"sync"
 	"testing"
 
@@ -244,4 +245,29 @@ func TestStore_OtherAccountInvisible(t *testing.T) {
 	_, created, err := store.Upsert(ctx, other, entry(10, "남의 일기"))
 	require.NoError(t, err)
 	assert.True(t, created)
+}
+
+func TestStore_StoresJSONShape(t *testing.T) {
+	ctx := context.Background()
+	store, acc, pool := setup(t)
+	_, _, err := store.Upsert(ctx, acc, entry(10, "본문", "dohwa"))
+	require.NoError(t, err)
+
+	var guide, featured string
+	require.NoError(t, pool.QueryRow(ctx,
+		"SELECT guide_question::text, featured_tags::text FROM diaries WHERE account_id = $1", acc).Scan(&guide, &featured))
+	assert.JSONEq(t, `[{"text":"오늘은 "},{"text":"비견","term":"term.ten_god.bigyeon"},{"text":"을 느꼈나요?"}]`, guide)
+	var withoutTerm int
+	require.NoError(t, pool.QueryRow(ctx,
+		"SELECT count(*) FROM diaries, jsonb_array_elements(guide_question) seg WHERE account_id = $1 AND NOT seg ? 'term'", acc).Scan(&withoutTerm))
+	assert.Equal(t, 2, withoutTerm, "term 없는 조각 둘에는 term 키 자체가 없음")
+	assert.JSONEq(t, `[{"key":"dohwa","polarity":"neutral"}]`, featured)
+}
+
+func TestStore_ListRejectsInvalidLimit(t *testing.T) {
+	store, acc, _ := setup(t)
+	for _, limit := range []int{0, -1, math.MaxInt32 + 1} {
+		_, err := store.List(context.Background(), acc, diary.ListQuery{Limit: limit})
+		assert.Error(t, err, "limit %d", limit)
+	}
 }

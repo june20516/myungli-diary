@@ -61,7 +61,7 @@ FROM diaries
 WHERE account_id = $1 AND deleted_at IS NULL
   AND ($2::date IS NULL OR date >= $2::date)
   AND ($3::date IS NULL OR date <= $3::date)
-  AND ($4::text IS NULL OR $4::text = ANY (all_tags))
+  AND ($4::text IS NULL OR all_tags @> ARRAY[$4::text])
   AND ($5::date IS NULL OR date < $5::date)
 ORDER BY date DESC
 LIMIT $6
@@ -151,7 +151,7 @@ UPDATE diaries SET deleted_at = NULL
 WHERE id = (
     SELECT d.id FROM diaries d
     WHERE d.account_id = $1 AND d.date = $2 AND d.deleted_at IS NOT NULL
-    ORDER BY d.deleted_at DESC, d.created_at DESC
+    ORDER BY d.deleted_at DESC, d.created_at DESC, d.id DESC
     LIMIT 1
 )
 RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at

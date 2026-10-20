@@ -30,7 +30,7 @@ UPDATE diaries SET deleted_at = NULL
 WHERE id = (
     SELECT d.id FROM diaries d
     WHERE d.account_id = @account_id AND d.date = @date AND d.deleted_at IS NOT NULL
-    ORDER BY d.deleted_at DESC, d.created_at DESC
+    ORDER BY d.deleted_at DESC, d.created_at DESC, d.id DESC
     LIMIT 1
 )
 RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at;
@@ -42,7 +42,7 @@ FROM diaries
 WHERE account_id = @account_id AND deleted_at IS NULL
   AND (sqlc.narg('from_date')::date IS NULL OR date >= sqlc.narg('from_date')::date)
   AND (sqlc.narg('to_date')::date IS NULL OR date <= sqlc.narg('to_date')::date)
-  AND (sqlc.narg('tag')::text IS NULL OR sqlc.narg('tag')::text = ANY (all_tags))
+  AND (sqlc.narg('tag')::text IS NULL OR all_tags @> ARRAY[sqlc.narg('tag')::text])
   AND (sqlc.narg('before_date')::date IS NULL OR date < sqlc.narg('before_date')::date)
 ORDER BY date DESC
 LIMIT @row_limit;

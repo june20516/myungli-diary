@@ -24,8 +24,7 @@ CREATE UNIQUE INDEX diaries_one_per_day ON diaries (account_id, date) WHERE dele
 -- 태그로 거르는 목록용입니다.
 CREATE INDEX diaries_all_tags ON diaries USING gin (all_tags);
 
--- 날짜 역순 목록용입니다.
-CREATE INDEX diaries_list ON diaries (account_id, date DESC) WHERE deleted_at IS NULL;
+-- 날짜 역순 목록용 인덱스는 따로 두지 않습니다. 위 diaries_one_per_day가 같은 열·조건이라 역방향 스캔으로 정렬을 덮습니다.
 
 CREATE TRIGGER diaries_set_updated_at BEFORE UPDATE ON diaries
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
