@@ -220,11 +220,18 @@ func (s *Service) checkBirthWithEngine(ctx context.Context, b Birth, timezone st
 	asOf := LocalDate{Year: now.Year(), Month: int(now.Month()), Day: now.Day()}
 
 	_, err = s.charts.Chart(ctx, b, asOf)
+	return EngineBirthViolation(err, "/birth")
+}
+
+// EngineBirthViolation은 엔진이 출생 정보를 계산하지 못한 오류를 의미 검사 위반으로 바꿉니다.
+// ErrInvalidArgument는 pointer의 BirthInvalid, ErrOutOfRange는 pointer/date의 BirthOutOfRange입니다.
+// nil과 해당 없는 오류는 그대로 돌려줍니다(nil이면 nil).
+func EngineBirthViolation(err error, pointer string) error {
 	switch {
 	case errors.Is(err, engine.ErrInvalidArgument):
-		return newViolation(BirthInvalid, "/birth", NoStatusRule)
+		return newViolation(BirthInvalid, pointer, NoStatusRule)
 	case errors.Is(err, engine.ErrOutOfRange):
-		return newViolation(BirthOutOfRange, "/birth/date", NoStatusRule)
+		return newViolation(BirthOutOfRange, pointer+"/date", NoStatusRule)
 	default:
 		return err
 	}

@@ -2,10 +2,8 @@ package httpapi
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
@@ -75,7 +73,7 @@ func (a *API) CreatePreview(ctx context.Context, req gen.CreatePreviewRequestObj
 
 	view, err := a.Previews.Preview(ctx, birth, body.CurrentTimezone, LanguageFrom(ctx))
 	if err != nil {
-		return nil, previewEngineError(err)
+		return nil, profile.EngineBirthViolation(err, pointerPreviewBirth)
 	}
 	out, err := toPreview(view)
 	if err != nil {
@@ -92,18 +90,5 @@ func (a *API) releasePreview(ctx context.Context, installationID string) {
 	defer cancel()
 	if err := a.PreviewUsage.Release(detached, installationID); err != nil && a.Logger != nil {
 		a.Logger.ErrorContext(detached, "미리보기 선점 해제 실패", "error", err)
-	}
-}
-
-// previewEngineError는 사용자가 보낸 출생 정보를 엔진이 계산하지 못한 경우를 422로 바꿉니다(프로필 저장과 같은 판정).
-// 그 밖의 엔진 오류는 그대로 돌려 공통 경로(503·504·502·500)로 보냅니다.
-func previewEngineError(err error) error {
-	switch {
-	case errors.Is(err, engine.ErrInvalidArgument):
-		return &profile.ValidationError{Violation: profile.BirthInvalid, Fields: []profile.FieldViolation{{Field: pointerPreviewBirth}}}
-	case errors.Is(err, engine.ErrOutOfRange):
-		return &profile.ValidationError{Violation: profile.BirthOutOfRange, Fields: []profile.FieldViolation{{Field: pointerPreviewBirth + "/date"}}}
-	default:
-		return err
 	}
 }

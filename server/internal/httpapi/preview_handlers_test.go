@@ -29,6 +29,8 @@ type fakePreviews struct {
 	view fortune.PreviewView
 	// errs는 호출마다 차례로 돌려줄 오류입니다. 다 쓰면 view를 돌려줍니다.
 	errs []error
+	// panics는 앞의 호출 몇 번을 panic으로 끝낼지입니다.
+	panics int
 
 	calls    int
 	gotBirth profile.Birth
@@ -39,6 +41,10 @@ type fakePreviews struct {
 func (f *fakePreviews) Preview(_ context.Context, b profile.Birth, zone, lang string) (fortune.PreviewView, error) {
 	f.calls++
 	f.gotBirth, f.gotZone, f.gotLang = b, zone, lang
+	if f.panics > 0 {
+		f.panics--
+		panic("미리보기 대역 panic")
+	}
 	if len(f.errs) > 0 {
 		err := f.errs[0]
 		f.errs = f.errs[1:]
@@ -176,6 +182,33 @@ func TestCreatePreview_EngineRejectingBirthIs422AndReleasesClaim(t *testing.T) {
 	p := decodeProblem(t, rec)
 	assert.Equal(t, problem.BirthInvalid.Value, p.Code)
 	assert.Equal(t, []problem.FieldError{{Field: "/birth", Code: problem.BirthInvalid.Value}}, p.Errors)
+
+	_, retried := postPreview(t, api, previewBody("install-1"), "")
+	assert.Equal(t, http.StatusOK, retried.Code)
+}
+
+func TestCreatePreview_EngineOutOfRangeIs422AndReleasesClaim(t *testing.T) {
+	previews := &fakePreviews{view: previewView(), errs: []error{engine.ErrOutOfRange}}
+	api, _ := newPreviewAPI(t, previews)
+
+	_, rec := postPreview(t, api, previewBody("install-1"), "")
+
+	require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
+	p := decodeProblem(t, rec)
+	assert.Equal(t, problem.BirthOutOfRange.Value, p.Code)
+	assert.Equal(t, []problem.FieldError{{Field: "/birth/date", Code: problem.BirthOutOfRange.Value}}, p.Errors)
+
+	_, retried := postPreview(t, api, previewBody("install-1"), "")
+	assert.Equal(t, http.StatusOK, retried.Code)
+}
+
+// panic으로 끝나도(recoverPanic이 500으로 바꿈) 선점은 풀립니다.
+func TestCreatePreview_PanicReleasesClaim(t *testing.T) {
+	previews := &fakePreviews{view: previewView(), panics: 1}
+	api, _ := newPreviewAPI(t, previews)
+
+	_, rec := postPreview(t, api, previewBody("install-1"), "")
+	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
 
 	_, retried := postPreview(t, api, previewBody("install-1"), "")
 	assert.Equal(t, http.StatusOK, retried.Code)

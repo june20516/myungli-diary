@@ -105,3 +105,24 @@ func TestViews_PreviewNoActiveSeedIsErrNoActiveSeed(t *testing.T) {
 	_, err := f.views.Preview(context.Background(), testBirth(), "Asia/Seoul", "ko")
 	assert.ErrorIs(t, err, content.ErrNoActiveSeed)
 }
+
+// 미리보기는 daily_cache를 읽지도 쓰지도 않습니다(birth_hash는 출생 정보를 되찾을 수 있는 값이라 D50 위반).
+func TestViews_PreviewDoesNotTouchDailyCache(t *testing.T) {
+	calls := 0
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		calls++
+		return dailyResponse(true), nil
+	}}
+	f := newViewsFixture(t, fake, viewSeed(t, ""), fortune.AlwaysLocked{})
+	ctx := context.Background()
+
+	for range 2 {
+		_, err := f.views.Preview(ctx, testBirth(), "Asia/Seoul", "ko")
+		require.NoError(t, err)
+	}
+
+	var cached int
+	require.NoError(t, f.pool.QueryRow(ctx, "SELECT count(*) FROM daily_cache").Scan(&cached))
+	assert.Zero(t, cached, "캐시에 행이 없음")
+	assert.Equal(t, 2, calls, "캐시를 읽지 않아 매번 엔진 호출")
+}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
@@ -42,7 +41,7 @@ func (v *Views) Preview(ctx context.Context, b profile.Birth, currentTimezone, l
 	if err != nil {
 		return PreviewView{}, err
 	}
-	response, err := v.service.Daily(ctx, b, date, currentTimezone)
+	response, err := v.service.DailyUncached(ctx, b, date, currentTimezone)
 	if err != nil {
 		return PreviewView{}, err
 	}
@@ -77,7 +76,7 @@ func (v *Views) Preview(ctx context.Context, b profile.Birth, currentTimezone, l
 
 // dayKindName은 용어 사전의 날의 성격 이름입니다. 이름이 없으면 원고 누락이라 오류입니다(P6-6).
 func (v *Views) dayKindName(ctx context.Context, version, lang string, kind enginev1.DayKind) (string, error) {
-	value := strings.ToLower(strings.TrimPrefix(kind.String(), "DAY_KIND_"))
+	value := dayKindValue(kind)
 	glossary, err := v.store.Glossary(ctx, version, lang)
 	if err != nil {
 		return "", err

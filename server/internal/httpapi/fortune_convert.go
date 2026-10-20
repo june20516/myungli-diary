@@ -256,9 +256,8 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 func toPreview(view fortune.PreviewView) (gen.Preview, error) {
 	c := &converter{}
 	r := view.Response
-	d := view.Date
 	out := gen.Preview{
-		Date:           openapi_types.Date{Time: time.Date(d.Year, time.Month(d.Month), d.Day, 0, 0, 0, 0, time.UTC)},
+		Date:           contractDate(view.Date),
 		EvidenceAccess: evidenceAccess(false),
 		DayKind:        enumValue[gen.DayKind](c, r.GetKind()),
 		DayKindName:    view.DayKindName,

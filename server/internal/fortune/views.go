@@ -408,7 +408,12 @@ func noticeCode(c enginev1.NoticeCode) (string, bool) {
 
 // characterReasonKey는 날의 성격으로 character.reason 키를 만듭니다. 예: DAY_KIND_GWIIN_DAY → character.reason.gwiin_day.
 func characterReasonKey(k enginev1.DayKind) string {
-	return characterReasonPrefix + strings.ToLower(strings.TrimPrefix(k.String(), "DAY_KIND_"))
+	return characterReasonPrefix + dayKindValue(k)
+}
+
+// dayKindValue는 날의 성격의 계약·키 값입니다. 예: DAY_KIND_GWIIN_DAY → gwiin_day.
+func dayKindValue(k enginev1.DayKind) string {
+	return strings.ToLower(strings.TrimPrefix(k.String(), "DAY_KIND_"))
 }
 
 // emptyText는 원고가 없는 필수 문장 필드의 자리입니다. Text는 nil이 아닌 빈 조각 배열이라 응답에 빈 segments로 나갑니다.

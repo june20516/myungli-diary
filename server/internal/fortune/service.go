@@ -98,6 +98,19 @@ func (s *Service) Daily(ctx context.Context, b profile.Birth, date profile.Local
 	})
 }
 
+// DailyUncached는 Daily와 같은 요청을 캐시와 singleflight 없이 엔진에 바로 보냅니다.
+// 계정 없는 요청(미리보기)처럼 출생 정보에서 되찾을 수 있는 값(birth_hash)을 저장하면 안 될 때 씁니다(D50).
+func (s *Service) DailyUncached(ctx context.Context, b profile.Birth, date profile.LocalDate, currentTimezone string) (*enginev1.DailyResponse, error) {
+	if _, err := s.currentRuleset(); err != nil {
+		return nil, err
+	}
+	info, err := toBirthInfo(b)
+	if err != nil {
+		return nil, err
+	}
+	return s.engine.GetDaily(ctx, &enginev1.DailyRequest{Birth: info, Date: toLocalDate(date), CurrentTimezone: currentTimezone})
+}
+
 // Month는 한 달 달력을 조회합니다.
 func (s *Service) Month(ctx context.Context, b profile.Birth, year, month int, currentTimezone string) (*enginev1.MonthResponse, error) {
 	ruleset, err := s.currentRuleset()

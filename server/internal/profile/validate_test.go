@@ -2,10 +2,13 @@ package profile
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/june20516/myungli-diary/server/internal/engine"
 )
 
 const (
@@ -257,4 +260,12 @@ func TestLocalDate_After(t *testing.T) {
 	assert.False(t, base.After(base))
 	assert.False(t, LocalDate{2026, 10, 19}.After(base))
 	assert.False(t, LocalDate{2025, 12, 31}.After(base))
+}
+
+func TestEngineBirthViolation(t *testing.T) {
+	requireViolation(t, EngineBirthViolation(engine.ErrInvalidArgument, "/birth"), BirthInvalid, "/birth", NoStatusRule)
+	requireViolation(t, EngineBirthViolation(fmt.Errorf("감쌈: %w", engine.ErrOutOfRange), "/birth"), BirthOutOfRange, "/birth/date", NoStatusRule)
+	assert.NoError(t, EngineBirthViolation(nil, "/birth"))
+	other := errors.New("그 밖")
+	assert.Same(t, other, EngineBirthViolation(other, "/birth"), "해당 없는 오류는 그대로")
 }
