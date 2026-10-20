@@ -127,7 +127,7 @@ def _render_slots(slots: Mapping[str, Slot], ia: Ia) -> str:
     table = _table(("ID", "자리", "목적", "유형", "변주", "키 수", "매개변수: 값 종류", "글자 수 상한"), rows)
     description = (
         "원본은 `slots/`의 YAML입니다. 글자 수 상한의 `-`는 아직 정하지 않음입니다. "
-        "값 종류는 범주 목록(첫째가 기본), `list:<범주>`, `number`, `none`이고 `name`은 어느 슬롯에서나 씁니다."
+        "값 종류는 범주 목록(첫째가 기본), `list:<범주>`, `number`, `none`, `text`이고 `name`은 어느 슬롯에서나 씁니다."
     )
     return _document("슬롯 목록", description, table)
 
