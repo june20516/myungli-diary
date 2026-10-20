@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
@@ -87,10 +88,85 @@ Widget _ohaengBar(Map<FiveElement, double> values) => SizedBox(
   ),
 );
 
-/// 사주 카탈로그: saju-pillars(원국표·시간 모름·loading), ohaeng-bar(분포·zero).
+OhaengCell _mini(FiveElement element, String hanja) =>
+    OhaengCell(element: element, hanja: hanja, size: OhaengCellSize.mini);
+
+/// 만세력 예시. [hourUnknown]이면 시주 열이 빕니다.
+Widget _manse({bool hourUnknown = false}) => SizedBox(
+  width: 360,
+  child: ManseTable(
+    hour: hourUnknown
+        ? const ManseColumn(header: '시주')
+        : ManseColumn(
+            header: '시주',
+            stem: _mini(FiveElement.water, '癸'),
+            branch: _mini(FiveElement.earth, '未'),
+            hiddenStems: const [
+              ManseHiddenStem(hanja: '丁', reading: '정'),
+              ManseHiddenStem(hanja: '乙', reading: '을'),
+              ManseHiddenStem(hanja: '己', reading: '기'),
+            ],
+            twelveStage: '관대',
+            shinsal: const ['천을귀인'],
+          ),
+    day: ManseColumn(
+      header: '일주',
+      stem: _mini(FiveElement.metal, '庚'),
+      branch: _mini(FiveElement.earth, '辰'),
+      hiddenStems: const [
+        ManseHiddenStem(hanja: '乙', reading: '을'),
+        ManseHiddenStem(hanja: '癸', reading: '계'),
+        ManseHiddenStem(hanja: '戊', reading: '무'),
+      ],
+      twelveStage: '양',
+      shinsal: const ['화개'],
+    ),
+    month: ManseColumn(
+      header: '월주',
+      stem: _mini(FiveElement.metal, '辛'),
+      branch: _mini(FiveElement.fire, '巳'),
+      hiddenStems: const [
+        ManseHiddenStem(hanja: '丙', reading: '병'),
+        ManseHiddenStem(hanja: '庚', reading: '경'),
+        ManseHiddenStem(hanja: '戊', reading: '무'),
+      ],
+      twelveStage: '장생',
+    ),
+    year: ManseColumn(
+      header: '연주',
+      stem: _mini(FiveElement.metal, '庚'),
+      branch: _mini(FiveElement.fire, '午'),
+      hiddenStems: const [
+        ManseHiddenStem(hanja: '丁', reading: '정'),
+        ManseHiddenStem(hanja: '己', reading: '기'),
+      ],
+      twelveStage: '목욕',
+    ),
+    hiddenStemsHeader: _label('지장간'),
+    twelveStageHeader: _label('12운성'),
+    shinsalHeader: _label('신살'),
+    tableLabel: '만세력 표',
+  ),
+);
+
+/// 사주 카탈로그: saju-pillars(원국표·시간 모름·loading), ohaeng-bar(분포·zero),
+/// manse-table(만세력·시간 모름).
 final WidgetbookFolder sajuDirectory = WidgetbookFolder(
   name: '사주',
   children: [
+    WidgetbookComponent(
+      name: 'manse-table',
+      useCases: [
+        WidgetbookUseCase(
+          name: '만세력',
+          builder: (context) => Stage(child: _manse()),
+        ),
+        WidgetbookUseCase(
+          name: 'time-unknown',
+          builder: (context) => Stage(child: _manse(hourUnknown: true)),
+        ),
+      ],
+    ),
     WidgetbookComponent(
       name: 'ohaeng-bar',
       useCases: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
@@ -101,6 +102,60 @@ OhaengBar _ohaengBar(BuildContext context, Map<FiveElement, double> values) {
   );
 }
 
+OhaengCell _mini(FiveElement element, String hanja) =>
+    OhaengCell(element: element, hanja: hanja, size: OhaengCellSize.mini);
+
+/// member 만세력. [hourUnknown]이면 시주 열이 빕니다.
+Widget _manse(BuildContext context, {bool hourUnknown = false}) {
+  final ja = _ja(context);
+  ManseHiddenStem h(String hanja, String ko, String jaReading) =>
+      ManseHiddenStem(hanja: hanja, reading: ja ? jaReading : ko);
+  final gwiin = ja ? '天乙貴人' : '천을귀인';
+  final hwagae = ja ? '華蓋' : '화개';
+  return ManseTable(
+    hour: hourUnknown
+        ? ManseColumn(header: ja ? '時柱' : '시주')
+        : ManseColumn(
+            header: ja ? '時柱' : '시주',
+            stem: _mini(FiveElement.water, '癸'),
+            branch: _mini(FiveElement.earth, '未'),
+            hiddenStems: [
+              h('丁', '정', 'てい'),
+              h('乙', '을', 'おつ'),
+              h('己', '기', 'き'),
+            ],
+            twelveStage: ja ? '冠帯' : '관대',
+            shinsal: [gwiin],
+          ),
+    day: ManseColumn(
+      header: ja ? '日柱' : '일주',
+      stem: _mini(FiveElement.metal, '庚'),
+      branch: _mini(FiveElement.earth, '辰'),
+      hiddenStems: [h('乙', '을', 'おつ'), h('癸', '계', 'き'), h('戊', '무', 'ぼ')],
+      twelveStage: ja ? '養' : '양',
+      shinsal: [hwagae],
+    ),
+    month: ManseColumn(
+      header: ja ? '月柱' : '월주',
+      stem: _mini(FiveElement.metal, '辛'),
+      branch: _mini(FiveElement.fire, '巳'),
+      hiddenStems: [h('丙', '병', 'へい'), h('庚', '경', 'こう'), h('戊', '무', 'ぼ')],
+      twelveStage: ja ? '長生' : '장생',
+    ),
+    year: ManseColumn(
+      header: ja ? '年柱' : '연주',
+      stem: _mini(FiveElement.metal, '庚'),
+      branch: _mini(FiveElement.fire, '午'),
+      hiddenStems: [h('丁', '정', 'てい'), h('己', '기', 'き')],
+      twelveStage: ja ? '沐浴' : '목욕',
+    ),
+    hiddenStemsHeader: _label(ja ? '蔵干' : '지장간'),
+    twelveStageHeader: _label(ja ? '十二運' : '12운성'),
+    shinsalHeader: _label(ja ? '神殺' : '신살'),
+    tableLabel: ja ? '万年暦' : '만세력 표',
+  );
+}
+
 void main() {
   goldenTest('saju-pillars: 원국표·시간 모름·loading', (tester) async {
     await goldenMatrix(
@@ -145,6 +200,20 @@ void main() {
               FiveElement.metal: 2,
             }),
           ],
+        ),
+      ),
+    );
+  });
+
+  goldenTest('manse-table: member 만세력·시간 모름', (tester) async {
+    await goldenMatrix(
+      tester,
+      'saju_manse_table',
+      () => Builder(
+        builder: (context) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: Space.s24,
+          children: [_manse(context), _manse(context, hourUnknown: true)],
         ),
       ),
     );
