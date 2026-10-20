@@ -505,6 +505,36 @@ void main() {
       expect(c.read(meProvider), isNull);
     });
 
+    test('snapshot은 받은 앱 설정을 담고, 로그아웃 직후 값에도 이전 설정이 남습니다(D80)', () async {
+      await signIn();
+      final c = container();
+      final ready = await c.read(entryStateProvider.future);
+      expect(ready.config?.legal, _legal);
+      expect(c.read(entryAppConfigProvider)?.legal, _legal);
+
+      // 로그아웃 이벤트 직후(다시 계산 전) 값도 법적 문서 주소를 잃지 않습니다.
+      final interim = <AppConfig?>[];
+      c.listen(entryStateProvider, (_, next) {
+        if (next.value?.entry == EntryState.signedOut) {
+          interim.add(next.value?.config);
+        }
+      });
+      await tokens.signOut();
+      // 토큰 이벤트는 비동기로 옵니다.
+      await pumpEventQueue();
+      expect(interim, isNotEmpty);
+      expect(interim.first?.legal, _legal);
+      final signedOut = await c.read(entryStateProvider.future);
+      expect(signedOut.config?.legal, _legal);
+    });
+
+    test('세션이 없거나 삭제 대기여도 snapshot에 앱 설정이 있습니다', () async {
+      expect(
+        (await container().read(entryStateProvider.future)).config,
+        isNotNull,
+      );
+    });
+
     test('삭제 대기 계정이면 signOut해 토큰을 지우고 signedOut', () async {
       await signIn();
       api.me = meWith(pendingDeletion: true);

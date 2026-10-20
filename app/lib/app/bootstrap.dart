@@ -17,6 +17,7 @@ import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
+import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
@@ -32,7 +33,7 @@ const fakeDatabaseName = 'myungli_diary_fake';
 /// `--dart-define=SCENARIO=<id>`로 고르는 fake 모드 시작 시나리오.
 const _scenarioFromEnvironment = String.fromEnvironment('SCENARIO');
 
-var _fontLicensesRegistered = false;
+var _licensesRegistered = false;
 
 /// 앱이 뜨기 전에 필요한 준비를 하고 앱 루트 [ProviderContainer]를 돌려줍니다.
 ///
@@ -59,9 +60,9 @@ Future<ProviderContainer> bootstrap({
   }
   WidgetsFlutterBinding.ensureInitialized();
   ensureTimeZonesInitialized();
-  if (!_fontLicensesRegistered) {
-    registerFontLicenses();
-    _fontLicensesRegistered = true;
+  if (!_licensesRegistered) {
+    registerAppLicenses();
+    _licensesRegistered = true;
   }
 
   final scenario = resolvedMode == ApiMode.fake
@@ -133,6 +134,7 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
   ApiMode.http => [
     deviceTimezoneProvider.overrideWithValue(const FlutterDeviceTimezone()),
     storeLauncherProvider.overrideWithValue(const UrlStoreLauncher()),
+    externalBrowserProvider.overrideWithValue(const UrlExternalBrowser()),
   ],
 };
 

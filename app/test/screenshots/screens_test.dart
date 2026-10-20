@@ -11,7 +11,9 @@ import 'dart:ui' as ui;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
@@ -25,6 +27,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
+import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
 import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 
 import '../support/app_harness.dart';
@@ -50,13 +53,22 @@ typedef _Open = Future<void> Function(
 );
 
 /// 사례 하나: [screen] 화면의 [state] 상태를 [scenario]로 띄워 [open]으로 엽니다.
+///
+/// [overrides]는 앱을 띄울 때 더하는 provider override입니다.
 final class _Shot {
-  const new(this.screen, this.state, this.scenario, this.open);
+  const new(
+    this.screen,
+    this.state,
+    this.scenario,
+    this.open, {
+    this.overrides = const [],
+  });
 
   final String screen;
   final String state;
   final String scenario;
   final _Open open;
+  final List<Override> overrides;
 }
 
 /// 앱이 진입 화면에 도착한 채로 둡니다.
@@ -251,6 +263,35 @@ Future<void> _profileEditError(WidgetTester tester) async {
   );
 }
 
+/// [network]를 대역 서버 앞에 끼우고 [screen]을 push한 뒤 [after]로 화면 안을 더 조작합니다.
+_Open _pushWith(
+  String screen, {
+  Interceptor? network,
+  Future<void> Function(WidgetTester tester)? after,
+}) => (tester, container) async {
+  if (network != null) {
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+  }
+  unawaited(container.read(routerProvider).push<void>(pathOf(screen)));
+  await pumpUntilScreen(tester, screen);
+  await settleWithIo(tester);
+  await after?.call(tester);
+};
+
+/// 계정 삭제 버튼을 눌러 확인 창을 띄웁니다.
+Future<void> _accountDeleteConfirm(WidgetTester tester) =>
+    _tapAndSettle(tester, find.byKey(AccountDeleteScreen.deleteKey));
+
+/// 확인 창에서 지우기를 눌러 삭제가 실패한 상태(오류 toast)로 둡니다.
+Future<void> _accountDeleteError(WidgetTester tester) async {
+  await _accountDeleteConfirm(tester);
+  await _tapAndSettle(
+    tester,
+    find.text(AppLocalizationsKo().accountDeleteDeleteConfirmDelete).last,
+  );
+}
+
 /// 등록할 화면·상태. 계획 2~6에서 만든 화면입니다.
 final List<_Shot> _shots = [
   // 계획 2: 온보딩·로그인
@@ -403,6 +444,48 @@ final List<_Shot> _shots = [
       network: ProfileRequestGate(failures: 1),
     ),
   ),
+  _Shot(
+    'account-delete',
+    'default',
+    'member',
+    _pushWith(ScreenIds.accountDelete),
+  ),
+  _Shot(
+    'account-delete',
+    'confirm',
+    'member',
+    _pushWith(ScreenIds.accountDelete, after: _accountDeleteConfirm),
+  ),
+  _Shot(
+    'account-delete',
+    'error',
+    'member',
+    _pushWith(
+      ScreenIds.accountDelete,
+      network: ProfileRequestGate(
+        failures: 1,
+        method: 'DELETE',
+        path: '/v1/me',
+      ),
+      after: _accountDeleteError,
+    ),
+  ),
+  _Shot('legal', 'default', 'member', _pushWith(ScreenIds.legal)),
+  // 진입 계산이 받은 주소가 없고 다시 받는 요청이 끝나지 않은 상태: 두 문서 줄이 비활성입니다(A61).
+  _Shot(
+    'legal',
+    'no-address',
+    'member',
+    _pushWith(
+      ScreenIds.legal,
+      network: ProfileRequestGate(
+        gate: Completer<void>(),
+        method: 'GET',
+        path: '/v1/app-config',
+      ),
+    ),
+    overrides: [entryAppConfigProvider.overrideWithValue(null)],
+  ),
 ];
 
 /// 지금 화면 전체를 PNG로 씁니다.
@@ -435,7 +518,11 @@ void main() {
         await openNotifyAsk(tester);
         await settleWithIo(tester);
       } else {
-        final container = await pumpApp(tester, scenario: shot.scenario);
+        final container = await pumpApp(
+          tester,
+          scenario: shot.scenario,
+          overrides: shot.overrides,
+        );
         await shot.open(tester, container);
       }
       await _write(tester, shot);

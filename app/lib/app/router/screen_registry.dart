@@ -11,6 +11,7 @@ import 'package:myungli_diary/features/diary/presentation/diary_edit_screen.dart
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/tag_diary_screen.dart';
+import 'package:myungli_diary/features/me/presentation/legal_screen.dart';
 import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/saju_chart_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
@@ -23,6 +24,7 @@ import 'package:myungli_diary/features/onboarding/presentation/onboard_gender_sc
 import 'package:myungli_diary/features/onboarding/presentation/onboard_time_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.dart';
+import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
 import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 import 'package:myungli_diary/features/schedule/presentation/event_edit_screen.dart';
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
@@ -184,6 +186,13 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: profileEditHandledStates,
     exits: profileEditExits,
   ),
+  ScreenIds.accountDelete: const ScreenSpec(
+    ScreenIds.accountDelete,
+    _buildAccountDelete,
+    handledStates: accountDeleteHandledStates,
+    exits: accountDeleteExits,
+  ),
+  ScreenIds.legal: const ScreenSpec(ScreenIds.legal, _buildLegal),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
     _buildEventEdit,
@@ -251,3 +260,7 @@ Widget _buildSajuChart(BuildContext context) => const SajuChartScreen();
 Widget _buildSettings(BuildContext context) => const SettingsScreen();
 
 Widget _buildProfileEdit(BuildContext context) => const ProfileEditScreen();
+
+Widget _buildAccountDelete(BuildContext context) => const AccountDeleteScreen();
+
+Widget _buildLegal(BuildContext context) => const LegalScreen();

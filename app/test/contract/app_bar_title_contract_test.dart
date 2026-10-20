@@ -33,6 +33,8 @@ const Map<String, String> _barTitleKeys = {
   'calc-basis': 'calcBasisBarTitle',
   'settings': 'settingsBarTitle',
   'profile-edit': 'profileEditBarTitle',
+  'account-delete': 'accountDeleteBarTitle',
+  'legal': 'legalBarTitle',
 };
 
 /// ARB에 "임시" 표시가 남아도 되는 키(슬롯이 없는 접근성 라벨·writing 원고 대기 문구).

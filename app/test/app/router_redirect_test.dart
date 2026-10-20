@@ -12,6 +12,9 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/app_config.dart';
+import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
+import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
@@ -28,8 +31,19 @@ class _FixedEntry extends EntryController {
 
   final EntryState value;
 
+  /// 실제 진입 계산처럼 받은 앱 설정을 담습니다(legal 화면이 다시 부르지 않음, D80).
   @override
-  Future<EntrySnapshot> build() async => EntrySnapshot(value, null);
+  Future<EntrySnapshot> build() async => EntrySnapshot(
+    value,
+    null,
+    config: AppConfig(
+      minimumVersion: MinimumVersion(ios: '1.0.0', android: '1.0.0'),
+      legal: LegalLinks(
+        terms: 'https://example.com/legal/terms',
+        privacy: 'https://example.com/legal/privacy',
+      ),
+    ),
+  );
 }
 
 /// 라우터 테스트용 컨테이너. 진입 갈래는 [entry]로 바꾸고 DB는 메모리 DB를 씁니다.

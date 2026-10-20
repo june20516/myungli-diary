@@ -76,17 +76,22 @@ bool requiresUnknownConsent(Me me) =>
 /// 삭제 대기 계정인지. 남은 토큰으로는 getMe·deleteMe·logout만 됩니다(S16).
 bool isPendingDeletion(Me me) => me.status == MeStatusEnum.pendingDeletion;
 
-/// 진입 갈래와 그때 받은 내 정보. 로그아웃이면 [me]가 null입니다.
+/// 진입 갈래와 그때 받은 내 정보·앱 설정. 로그아웃이면 [me]가 null입니다.
 @immutable
 final class EntrySnapshot {
-  /// 갈래와 내 정보를 묶습니다.
-  const new(this.entry, this.me);
+  /// 갈래와 내 정보, 그 계산이 받은 앱 설정([config])을 묶습니다.
+  const new(this.entry, this.me, {this.config});
 
   /// 진입 갈래.
   final EntryState entry;
 
   /// 내 정보.
   final Me? me;
+
+  /// 이 계산이 받은 `getAppConfig` 응답. 받기 전에 끝난 계산(대역·테스트)이면 null입니다.
+  ///
+  /// 법적 문서 주소(`AppConfig.legal`, D80)를 다시 부르지 않고 쓰는 출처입니다.
+  final AppConfig? config;
 }
 
 /// [platform]에 맞는 최소 앱 버전 문자열.
