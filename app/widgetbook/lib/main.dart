@@ -8,6 +8,7 @@ import 'package:myungli_diary_widgetbook/elements_directory.dart';
 import 'package:myungli_diary_widgetbook/feedback_directory.dart';
 import 'package:myungli_diary_widgetbook/frame_directory.dart';
 import 'package:myungli_diary_widgetbook/input_directory.dart';
+import 'package:myungli_diary_widgetbook/saju_directory.dart';
 import 'package:myungli_diary_widgetbook/sentence_directory.dart';
 import 'package:myungli_diary_widgetbook/today_directory.dart';
 import 'package:widgetbook/widgetbook.dart';
@@ -33,6 +34,7 @@ class MyungliWidgetbook extends StatelessWidget {
         todayDirectory,
         calendarDirectory,
         diaryDirectory,
+        sajuDirectory,
       ],
       addons: [
         MaterialThemeAddon(
