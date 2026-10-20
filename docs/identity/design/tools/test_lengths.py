@@ -1,5 +1,6 @@
 """글자 수 상한 계산 테스트 (depth-lock spec §5, spec-followups spec §5)."""
 import pathlib
+import re
 import sys
 
 import pytest
@@ -116,10 +117,19 @@ def test_render_table_lists_targets_and_unbounded_slots():
 
 
 def test_corpus_reads_round_choices():
-    sentences = corpus_sentences()
-    assert len(sentences) == 49 and len(set(sentences)) == len(sentences)
+    sentences = corpus_sentences()  # 라운드는 W1 동안 계속 늘어나므로 개수를 고정하지 않음 (#252)
+    assert sentences and len(set(sentences)) == len(sentences)
     assert "오늘은 남색이 잘 맞아요." in sentences
     assert all("다 별로" not in sentence and "**" not in sentence for sentence in sentences)
+
+
+def test_measured_corpus_matches_lengths_md_basis():
+    basis = re.search(r"writing 라운드 R1~R(\d+) 원고 문장\(중복을 뺀 (\d+)개\)",
+                      (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8"))
+    last_round, count = int(basis.group(1)), int(basis.group(2))
+    measured = corpus_sentences(last_round=lengths.MEASURED_LAST_ROUND)
+    assert last_round == lengths.MEASURED_LAST_ROUND and len(measured) == count
+    assert corpus_sentences()[:count] == measured  # 뒤 라운드는 측정 말뭉치를 바꾸지 않음
 
 
 def test_every_requested_slot_has_a_value_or_no_limit():

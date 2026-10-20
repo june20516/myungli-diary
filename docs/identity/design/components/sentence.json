@@ -1,5 +1,5 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "group": "sentence",
   "components": [
     {
@@ -64,7 +64,7 @@
         "explainSheet": {
           "container": { "component": "sheet", "variant": "half" },
           "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
-          "hanja": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+          "hanja": { "type": "{type.caption.md}", "fontFamily": "{font.family.hanja}", "fg": "{color.text.secondary}" },
           "general": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.term.meaning" },
           "todayReason": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.today.reason", "marginTop": "{space.12}", "when": "오늘 화면에서 열었을 때만" },
           "evidenceLink": { "component": "depth-link", "variant": "block" }
@@ -88,7 +88,7 @@
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "uses": ["link.inline-nowrap"], "parts": { "label": { "joiners": "link.inline-nowrap", "gapBefore": "U+00A0" } } },
         { "id": "block", "when": "나 탭·풀이 시트처럼 문단 아래 따로 놓임", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } } },
-        { "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준). 시트를 열지 않음", "parts": { "label": { "align": "start", "slot": "birthplace.standard.link" }, "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }
+        { "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준, 그날 시트 → 그날 일기). 시트를 열지 않음", "parts": { "label": { "align": "start", "slot": "birthplace.standard.link", "daySheetSlot": "day-sheet.diary.open" }, "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }
       ],
       "parts": {
         "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
@@ -101,8 +101,8 @@
           "basisTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.basis" },
           "sourceTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.source" },
           "personalTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.personal", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
-          "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body" },
-          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "bg": "{color.bg.base}", "radius": "{radius.md}", "padding": "{space.12}" },
+          "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body", "repeat": { "each": "paragraph", "gap": "{space.12}", "skipEmpty": true } },
+          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "fontFallback": "{font.family.hanja}", "repeat": { "each": "box", "gap": "{space.12}", "skipEmpty": true }, "bg": "{color.bg.base}", "radius": "{radius.md}", "padding": "{space.12}" },
           "personal": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.personal.body", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" }
         }
       },

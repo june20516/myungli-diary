@@ -1,5 +1,5 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "group": "calendar",
   "components": [
     {
@@ -39,7 +39,7 @@
         "luckFill": { "good": "{color.calendar.good.bg}", "caution": "{color.calendar.caution.bg}", "neutral": "transparent" },
         "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": { "value": 6, "unit": "px" } },
         "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
-        "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
+        "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "leapNewMoon": { "text": "윤달 표지 + M.1", "note": "문구는 writing(#260). 칸 폭 44px 한 줄. 정해지기 전에는 M.1" }, "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
         "diarySeal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
         "todayOutline": { "element": "seal", "variant": "outline", "color": "{color.seal.fill}", "width": { "value": 1.6, "unit": "px" }, "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
         "selectedUnderline": { "element": "mark.underline-grow", "position": "under-number" },
@@ -60,6 +60,7 @@
       "a11y": {
         "role": "gridcell",
         "label": "M월 D일 요일, 음력 M.D 또는 절기, 길흉 낱말, 일기 씀, 일정 N개, 오늘",
+        "leapMonth": "윤달의 모든 날은 음력 조각 뒤에 '윤달'(dayCellLeapMonth). 절기 날은 음력 대신 절기를 읽으므로 '윤달'도 읽지 않는다",
         "colorIndependent": true,
         "selectedAnnounced": true,
         "textScaleMax": 1.3,
@@ -69,9 +70,9 @@
         "표시는 모두 같은 자리에서 겹쳐 그린다(빼기 처리 없음). 반투명 도장이 길흉 바탕과 섞여 보이는 것은 의도다.",
         "겹침 순서(아래부터): 길흉 바탕 → 일기 도장 soft → 오늘 윤곽 → 숫자 → 선택 밑줄 → 일정 점.",
         "일기 도장과 오늘 윤곽은 같은 크기·자리(숫자 상자 가운데 26px)다.",
-        "음력은 초하루만 'M.1', 절기 날은 절기 이름(굵게), 그 밖에는 일(日)만.",
+        "음력은 초하루만 'M.1', 절기 날은 절기 이름(굵게), 그 밖에는 일(日)만. 윤달 초하루는 윤달 표지를 붙인 'M.1'(leapNewMoon)이다.",
         "길흉은 색만으로 전하지 않는다. 스크린리더 라벨에 길흉 낱말을 넣는다.",
-        "시스템 글자 크기는 1.3배까지만 키운다. 그 위 설정에서는 칸 높이를 늘린다."
+        "시스템 글자 크기는 1.3배까지만 키운다(textScaleMax). 칸 높이 62는 최소 높이이고, 그 글자가 들어가는 만큼만 늘어난다(1.3배에서 약 65). 1.3배 위 설정은 1.3배와 같다(결정 V36)."
       ]
     },
     {
@@ -88,32 +89,39 @@
             "time": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"] },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
             "more": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
-            "allPast": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" }
+            "allPast": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
+            "twoLines": { "when": "상태·시각·'외 N개'를 뺀 제목 자리가 본문 글자 4개 폭(type.body.ui 글자 크기 × 4)보다 좁을 때", "lines": [["status", "time"], ["title", "more"]] }
           }
         },
         {
           "id": "list",
           "when": "그날 시트의 일정 목록",
           "parts": {
-            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}" },
+            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
             "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
             "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
-            "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet" } }
+            "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } },
+            "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add", "position": "below-list", "when": "일정이 있을 때" },
+            "failed": { "when": "일정 목록만 받지 못함(날의 성격은 받음)", "message": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "text": "오류 종류별 기존 문구 한 줄" }, "retry": { "component": "primary-button", "variant": "quiet" }, "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } }
           }
         }
       ],
       "parts": {},
       "states": { "pressed": { "pattern": "press.ink" } },
       "haptic": [],
-      "a11y": { "role": "button", "label": "상태 + 시각 + 제목", "minTarget": 48 },
+      "a11y": { "role": "button", "label": "상태 + 시각 + 제목 (+ '외 N개')", "moreJoin": "a11yListSeparator", "minTarget": 48 },
       "rules": [
-        "summary는 지금 시각 기준으로 하나를 고른다: 진행 중 일정 > 다음 일정 > 모두 지남.",
-        "하루 종일 일정은 진행 중으로 보지만, 시각이 있는 진행 중·다음 일정이 있으면 그 일정이 앞선다.",
+        "일정에는 길이가 없다. 시각이 있는 일정은 진행 중이 되지 않고, 그 시각이 지나면 지난 일정이다.",
+        "summary는 지금 시각 기준으로 하나를 고른다: 지금 이후 첫 시각 일정('다음') > 하루 종일 일정('진행 중') > 모두 지남.",
+        "summary의 '외 N개'는 스크린리더 라벨 끝에 목록 구분자로 이어 읽는다(예: '다음 14:00 회의, 외 2개').",
+        "summary가 좁으면(twoLines) [상태·시각] / [제목·외 N개] 두 줄로 내린다. 폭은 글자 크기로 어림한다.",
+        "list의 시각은 줄이지 않는다. 커진 시각이 칸에 들어가지 않으면 [시각] / [제목·화살표] 두 줄로 내린다.",
         "진행 중·다음 일정 말고도 일정이 더 있으면 '외 N개'를 붙인다.",
         "그날 일정이 모두 지났으면 개수 문장 한 줄만 보인다.",
         "list의 시각 칸에는 하루 종일도 같은 폭으로 들어간다.",
-        "일정이 없으면 빈 문장 + '일정 추가' quiet 버튼."
+        "일정이 없으면 빈 문장 + '일정 추가' quiet 버튼. 일정이 있어도 목록 아래에 '일정 추가' quiet 버튼(add)을 둔다.",
+        "일정 목록만 받지 못하면 빈 문장 대신 failed(문구 한 줄 + '다시 시도' + '일정 추가', 가운데 정렬)를 둔다. 없는 일정을 없다고 말하지 않는다. 시트 전체 error는 날의 성격을 받지 못했을 때만이다."
       ]
     }
   ]

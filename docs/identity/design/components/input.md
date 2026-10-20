@@ -17,15 +17,17 @@
 * `bg.sheet`, 1px `line`, `radius.md`, 높이 52px, 글자 17px(ui 글꼴 400).
 * 포커스는 `focus.ring`(1px `line` → 2px `action.primary`). 바탕은 바뀌지 않습니다. 다크 모드에서도 같은 규칙입니다.
 * Material 힌트: `InputDecoration`의 `filled: true`, `fillColor: bg.sheet`, `OutlineInputBorder` 두 벌(평소·포커스).
+* **여러 줄(`multiline`, #218):** event-edit 메모(2000자)처럼 줄바꿈이 필요한 칸입니다. 최소 높이 52를 지키며 글이 길어지면 6줄까지 늘고, 그 뒤로는 칸 안에서 스크롤합니다. 첫 줄은 한 줄 칸의 글자와 같은 자리이고, 지우기 아이콘은 첫 줄 높이에 둡니다. 키보드는 여러 줄 입력, 키보드 동작은 줄바꿈(완료가 아님)입니다. 바탕·테두리·포커스·글자 수·지우기 규칙은 한 줄 칸과 같습니다.
 
 ## date-picker
 
-* 쓰는 화면: onboard-birth(`birth`), event-edit(`birth`와 같은 휠), diary-list(`calendar`)
+* 쓰는 화면: onboard-birth(`birth`), event-edit(`solar`), diary-list(`calendar`)
 * `birth`: 년·월·일 휠 + 위에 양력·음력 segmented. 휠 선택 띠는 `status.bg`.
   * 음력이고 그해에 윤달이 있을 때만 월 휠에서 해당 달 바로 다음에 "윤N월"이 끼어듭니다.
   * 음력이면 아래에 양력 확인 줄이 `appear.seep`으로 나타납니다.
   * **윤달 대체(결정 V31):** 위 두 줄이 목표 모양입니다. 휠이어야 없는 윤달을 고를 수 없고, 확인 줄이 있어야 음력 입력이 맞는지 확인할 수 있습니다. 다만 음력→양력·윤달 조회(server #141)가 계약에 없으면 월 휠에 윤달을 끼우지 않고, 음력일 때 휠 아래에 `check-row` `inline` "윤달" 하나를 둡니다(`leapMonthFallback`). 확인 줄은 그리지 않고 그 자리도 비워 두지 않습니다. 없는 윤달을 고르면 저장할 때 server 오류로 input-step 오류 줄에 보입니다. 조회가 계약에 들어오면 목표 모양으로 바꿉니다.
   * 지원 범위(1900-01-31~2099-12-31) 밖은 input-step 오류 줄.
+* `solar`(#218): 일정 날짜는 양력뿐이라 `birth`에서 양력·음력 segmented와 윤달·양력 확인 줄을 뺀 모양입니다. 휠·선택 띠·지원 범위는 `birth`와 같습니다.
 * `calendar`: 시트 안 달력. calendar-month와 같은 표시(일기 쓴 날 옅은 도장, 오늘 윤곽, 선택 굵은 숫자 + 밑줄)이고 길흉 칸 채우기만 뺍니다. 미래 날짜는 흐리게 막습니다. 아래 버튼 글자에 고른 날짜가 들어갑니다(문구는 writing).
 * 휠 눈금이 넘어갈 때마다 햅틱 selection.
 

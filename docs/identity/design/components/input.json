@@ -1,5 +1,5 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "group": "input",
   "components": [
     {
@@ -36,6 +36,9 @@
       "id": "text-field",
       "summary": "글자 입력",
       "uses": ["focus.ring"],
+      "variants": [
+        { "id": "multiline", "when": "여러 줄 메모(event-edit 메모)", "parts": { "container": { "maxLines": 6, "overflow": "scroll" }, "keyboard": { "type": "multiline", "action": "newline" }, "clear": { "align": "first-line" } } }
+      ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
         "text": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 17, "unit": "px" }, "fontWeight": 400, "fg": "{color.text.primary}" },
@@ -52,12 +55,13 @@
       "a11y": { "role": "textbox", "label": "질문 또는 칸 이름", "minTarget": 48 },
       "rules": [
         "포커스에 바탕색을 바꾸지 않는다. 테두리만 2px action.primary.",
-        "지우기 아이콘은 글자가 있고 포커스가 있을 때만 보인다."
+        "지우기 아이콘은 글자가 있고 포커스가 있을 때만 보인다.",
+        "multiline은 최소 높이 52에서 글이 길어지면 6줄까지 늘고, 그 뒤로는 칸 안에서 스크롤한다. 첫 줄은 한 줄 칸의 글자와 같은 자리다. 바탕·테두리·포커스·글자 수·지우기 규칙은 한 줄 칸과 같다."
       ]
     },
     {
       "id": "date-picker",
-      "summary": "날짜(양력·음력, 윤달)",
+      "summary": "날짜(양력·음력, 윤달 / 양력만 / 달력)",
       "uses": ["select.seep-slide", "appear.seep", "mark.underline-grow", "seal"],
       "variants": [
         {
@@ -70,6 +74,16 @@
             "leapMonth": { "rule": "음력이고 그해에 윤달이 있을 때만 월 휠의 해당 달 다음에 '윤N월'을 끼운다" },
             "solarConfirm": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "when": "음력 선택 시", "pattern": "appear.seep" },
             "leapMonthFallback": { "component": "check-row", "variant": "inline", "when": "음력이고 음력→양력·윤달 조회가 계약에 없을 때", "position": "below-wheels", "replaces": ["leapMonth", "solarConfirm"] },
+            "range": { "min": "1900-01-31", "max": "2099-12-31", "outside": "input-step out-of-range" }
+          }
+        },
+        {
+          "id": "solar",
+          "when": "일정 날짜(양력만)",
+          "parts": {
+            "calendarType": { "visible": false },
+            "wheels": { "columns": ["year", "month", "day"], "visibleRows": 5, "rowHeight": { "value": 40, "unit": "px" }, "type": "{type.subtitle}", "fg": "{color.text.primary}", "fadeEdges": true },
+            "selectionBand": { "bg": "{color.status.bg}", "radius": "{radius.md}" },
             "range": { "min": "1900-01-31", "max": "2099-12-31", "outside": "input-step out-of-range" }
           }
         },

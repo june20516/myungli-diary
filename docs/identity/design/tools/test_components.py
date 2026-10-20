@@ -306,7 +306,7 @@ def test_generic_spec_values():
     assert variant_ids(c["primary-button"]) == {"filled", "quiet", "destructive"}
     assert variant_ids(c["app-bar"]) == {"tab-root", "inner"}
     assert variant_ids(c["sheet"]) == {"half", "full"}
-    assert variant_ids(c["date-picker"]) == {"birth", "calendar"}
+    assert variant_ids(c["date-picker"]) == {"birth", "solar", "calendar"}
     assert variant_ids(c["time-picker"]) == {"birth", "notify"}
     assert variant_ids(c["share-button"]) == {"icon", "soft"}
     assert "seal" in c["tab-bar"]["uses"] and "select.seep-slide" in c["segmented"]["uses"]
@@ -427,8 +427,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_5():
-    assert VERSION == "2.5.0"
+def test_contract_version_is_2_6():
+    assert VERSION == "2.6.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -441,7 +441,7 @@ def test_icon_set_version_is_not_contract_version():
 def test_readme_states_minimum_height_rule():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert "최소 높이" in readme and "| 2.3.0 | 2026-10-15 |" in readme and "| 2.4.0 | 2026-10-16 |" in readme
-    assert "| 2.5.0 | 2026-10-16 |" in readme
+    assert "| 2.5.0 | 2026-10-16 |" in readme and "| 2.6.0 | 2026-10-20 |" in readme
 
 
 def ia_screens():
@@ -688,3 +688,60 @@ def test_lucky_tag_chip_order_and_polarity_rules():
     assert any("tag" in rule and "맨 앞" in rule and "행운 4종(color·direction·number·time) 앞" in rule and "Daily.tags.featured" in rule for rule in rules)
     assert any("polarity" in rule and "D72" in rule for rule in rules)
     assert any("today.lucky-tag.body" in rule for rule in rules)
+
+
+# app 계획 4 달력·일정 확인 #218 (계약 2.6.0)
+def test_date_picker_solar_has_no_lunar_parts():
+    solar = next(v for v in component("input", "date-picker")["variants"] if v["id"] == "solar")
+    assert solar["parts"]["calendarType"] == {"visible": False}
+    assert not {"leapMonth", "solarConfirm", "leapMonthFallback"} & set(solar["parts"])
+    assert "event-edit(`solar`)" in (COMPONENTS_DIR / "input.md").read_text(encoding="utf-8")
+
+
+def test_text_field_multiline_grows_to_six_lines():
+    field = component("input", "text-field")
+    multiline = next(v for v in field["variants"] if v["id"] == "multiline")
+    assert multiline["parts"]["container"] == {"maxLines": 6, "overflow": "scroll"}
+    assert multiline["parts"]["keyboard"] == {"type": "multiline", "action": "newline"}
+
+
+def test_event_row_has_no_duration_and_reads_more():
+    row = component("calendar", "event-row")
+    assert any("길이가 없다" in rule for rule in row["rules"])
+    assert row["a11y"]["moreJoin"] == "a11yListSeparator"
+    summary, listed = (next(v for v in row["variants"] if v["id"] == key) for key in ("summary", "list"))
+    assert summary["parts"]["twoLines"]["lines"] == [["status", "time"], ["title", "more"]]
+    assert listed["parts"]["timeColumn"]["overflow"]["lines"] == [["time"], ["title", "chevron"]]
+    assert listed["parts"]["add"]["slot"] == listed["parts"]["failed"]["add"]["slot"] == "day-sheet.event.add"
+    assert listed["parts"]["failed"]["retry"] == {"component": "primary-button", "variant": "quiet"}
+
+
+def test_day_cell_leap_month_and_height_rule():
+    cell = component("calendar", "day-cell")
+    assert "leapNewMoon" in cell["parts"]["lunar"]
+    assert "dayCellLeapMonth" in cell["a11y"]["leapMonth"]
+    assert any("최소 높이" in rule and "V36" in rule for rule in cell["rules"])
+    assert not any("칸 높이를 늘린다" in rule for rule in cell["rules"])
+
+
+def test_delete_dialogs_are_destructive():
+    dialog = component("feedback", "dialog")
+    destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
+    assert "일정 삭제" in destructive["when"]
+
+
+def test_evidence_sheet_stacks_many_items_and_hanja_font():
+    sentence = load_documents(COMPONENTS_DIR)["sentence"]
+    by_id = {c["id"]: c for c in sentence["components"]}
+    sheet = by_id["depth-link"]["parts"]["evidenceSheet"]
+    assert sheet["basis"]["repeat"] == {"each": "paragraph", "gap": "{space.12}", "skipEmpty": True}
+    assert sheet["source"]["repeat"] == {"each": "box", "gap": "{space.12}", "skipEmpty": True}
+    assert sheet["source"]["fontFallback"] == "{font.family.hanja}"
+    assert by_id["term-token"]["parts"]["explainSheet"]["hanja"]["fontFamily"] == "{font.family.hanja}"
+
+
+def test_day_sheet_diary_entrances():
+    navigate = next(v for v in component("sentence", "depth-link")["variants"] if v["id"] == "navigate")
+    assert navigate["parts"]["label"]["daySheetSlot"] == "day-sheet.diary.open"
+    calendar_md = (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
+    assert "`day-sheet.diary.write-cta`" in calendar_md and "V37" in calendar_md

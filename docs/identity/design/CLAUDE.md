@@ -30,7 +30,14 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-16, design 세션 작성)
+## 현재 상태 (2026-10-20, design 세션 작성)
+* **app 계획 4 확인 #218·drift #252·#257** (브랜치 `design/calendar-answers`, 컴포넌트 계약 2.6.0).
+  * `date-picker` `solar`(일정 날짜 양력만), `text-field` `multiline`(6줄까지, 줄바꿈 키), `dialog` `destructive`에 일정 삭제.
+  * `event-row`: 일정에 길이가 없음(시각 일정은 진행 중 아님), '외 N개'는 라벨 끝 목록 구분자, summary `twoLines`, list `timeColumn.overflow`·`add`·`failed`.
+  * `day-cell`: 높이는 1.3배 글자까지만 늘어나는 최소 높이(V36), 윤달 초하루 표지(V38, 문구는 writing #260)·윤달 라벨은 윤달 모든 날.
+  * 그날 시트 일기 입구(V37): 보기 `depth-link` `navigate`(`daySheetSlot`), 쓰기 `primary-button` `filled`.
+  * 근거 여럿은 문단·상자를 `space.12`로 쌓음(`repeat`), 풀이 시트 한자는 `font.family.hanja`, 원전 인용은 한자만 `fontFallback`.
+  * drift: `lengths.py` 측정 말뭉치를 R8까지로 고정(`MEASURED_LAST_ROUND`). 확정값이 라운드에 따라 움직이지 않고, 테스트는 개수를 `lengths.md` 근거 문장에서 읽음.
 * **오늘 화면 대표 태그 칩 #239** (브랜치 `design/today-tag`, D76): `lucky-card` 변형 `tag`(글자 굵기 600 + 앞 아이콘 `tag` 본문색, 길흉 색 없음, 결정 V35), 칩 줄 맨 앞, 공유 이미지 제외. 글자 수 `daily.tag_label`은 이 칩 폭으로 다시 잼(확정값 그대로).
 * **app 질문 #195·#211** (브랜치 `design/app-questions`): `city-search` 고른 뒤 저장 중 `saving`(고른 줄 끝 점 숨쉬기, 결정 V34), 지역 구분자 `region.join`(ja `、`), `input-step` `preface` 간격 `space.24`, `skeleton` 글줄 `type`, 안내 글 본문 레이아웃(`frame.md`, IA 컴포넌트 아님).
 * **구현 대응·IA v3·글자 수 상한** (브랜치 `design/spec-followups`, Issue #118·#142·#154·#159·#131).
@@ -71,9 +78,7 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-0. **지금 할 일 (지휘 2026-10-20)**
-   * 열린 `drift` #252(PR #249)·#257(PR #254): writing 라운드 원고 문장 수가 늘어 `tools/test_lengths.py` `test_corpus_reads_round_choices`가 49를 고정값으로 대조해 실패합니다(지금 61). 고정값 대신 라운드 원고에서 기대 수를 얻도록 고치고 `Closes`로 닫습니다.
-   * #218(app 계획 4 임시 결정 확인): 본문 1~4와 코멘트(event-row 라벨·시각 칸·summary 두 줄, 윤달 표기 범위, day-cell 높이 V30 문구, 여러 줄 text-field ⑤, day-sheet 3건, 근거 여러 문단 A42·한자 글꼴 ⑥·원전 인용 상자 ⑦)에 답하고, 명세에 반영할 것은 컴포넌트 계약 버전 규칙대로 올립니다.
+0. **윤달 표지 문구:** writing이 #260에 답하면 `tools/lengths.py`에 그 슬롯(칸 폭 44px, 10.5px 400, 한 줄) 상한 행을 더하고 `calendar.json` `leapNewMoon`에 슬롯 id를 적습니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 1. **writing 확인 창 슬롯 답:** 확인 창 슬롯을 역할별로 나눌지, 상한 없음 표기를 어떻게 할지 writing 답(Issue #191)이 오면 `tools/lengths.py`의 `DIALOG_SLOTS`·`NO_LIMIT`과 `lengths.md`를 맞춥니다.
