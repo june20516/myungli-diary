@@ -352,7 +352,7 @@ Widget _datePickers() => Builder(
   },
 );
 
-/// date-picker: 양력 전용(`lunarAllowed: false`, A37) — 양력·음력 선택과 윤달 줄이 없습니다.
+/// date-picker: solar(일정 날짜) — 양력·음력 선택과 윤달 줄이 없습니다.
 Widget _solarOnlyDatePicker() => BirthDatePicker(
   value: const BirthDateValue(
     calendar: BirthCalendar.solar,
@@ -364,7 +364,7 @@ Widget _solarOnlyDatePicker() => BirthDatePicker(
   calendarLabelSolar: '양력',
   calendarLabelLunar: '음력',
   leapMonthLabel: '윤달',
-  lunarAllowed: false,
+  variant: DatePickerVariant.solar,
 );
 
 /// time-picker: birth(시진 확인 줄)·birth(확인 줄 없음)·birth(모름)·notify.

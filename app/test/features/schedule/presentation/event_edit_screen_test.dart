@@ -139,7 +139,7 @@ void main() {
     expect(_id(SlotIds.eventEditMemoHint), findsOneWidget);
 
     final picker = tester.widget<BirthDatePicker>(find.byType(BirthDatePicker));
-    expect(picker.lunarAllowed, isFalse);
+    expect(picker.variant, DatePickerVariant.solar);
     expect(
       picker.value,
       const BirthDateValue(
