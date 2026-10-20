@@ -2,10 +2,12 @@ package httpapi
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/june20516/myungli-diary/server/internal/city"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
+	"github.com/june20516/myungli-diary/server/legal"
 )
 
 // defaultCityLimit은 listCities limit의 기본값입니다(계약 default).
@@ -58,9 +60,17 @@ func varyByLanguage(resp gen.ListCitiesResponseObject, langFromHeader bool) gen.
 	return vary{resp}
 }
 
-// GetAppConfig는 플랫폼별 최소 앱 버전을 돌려줍니다(P6-10).
+// GetAppConfig는 플랫폼별 최소 앱 버전(P6-10)과 법적 문서 주소(D80)를 돌려줍니다.
+// 법적 문서는 App Link와 같은 서비스 도메인(AppLink.Base)에서 내줍니다.
 func (a *API) GetAppConfig(context.Context, gen.GetAppConfigRequestObject) (gen.GetAppConfigResponseObject, error) {
+	if a.AppLink.Base == nil {
+		return nil, errors.New("AppLink.Base가 없어 법적 문서 주소를 만들 수 없습니다")
+	}
 	return gen.GetAppConfig200JSONResponse{
 		MinimumVersion: gen.MinimumVersion{Ios: a.AppConfig.MinIOS, Android: a.AppConfig.MinAndroid},
+		Legal: gen.LegalLinks{
+			Terms:   legalURL(a.AppLink.Base, legal.Terms),
+			Privacy: legalURL(a.AppLink.Base, legal.Privacy),
+		},
 	}, nil
 }

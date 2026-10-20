@@ -105,8 +105,11 @@ jobs:
           }
           # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있어 core 소유입니다.
           unit core "$code_changed" '^core/|^proto/' ''
-          # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙, IA(시드 CI의 `mlw check`가 IA 대조까지 함).
-          unit server "$code_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/|^docs/ia/screens\.json$'
+          # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙, IA(시드 CI의 `mlw check`가 IA 대조까지 함),
+          # 법적 문서 원문(`go generate ./legal/`이 내장 파일로 바꿈, D80·#341).
+          # code_changed는 .md를 빼므로, server가 읽는 법적 문서 원문(docs/legal/<언어>/*.md)은 다시 넣습니다.
+          server_changed=$( { echo "$code_changed"; echo "$changed" | grep -E '^docs/legal/[^/]+/' || true; } | grep -v '^$' || true)
+          unit server "$server_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/|^docs/ia/screens\.json$|^docs/legal/[^/]+/'
           # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
           unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/'
           # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144), design 글자 수 상한 표(슬롯 max_length 대조, W26).
@@ -117,7 +120,7 @@ jobs:
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
-          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools|artifacts)/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/' | head -20 | tr '\n' ' ')
+          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools|artifacts)/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
 
   docs:

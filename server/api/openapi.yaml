@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.9
+  version: 1.0.0-draft.10
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -1489,7 +1489,7 @@ paths:
     get:
       operationId: getAppConfig
       summary: 앱 설정
-      description: 플랫폼별 최소 앱 버전입니다.
+      description: 플랫폼별 최소 앱 버전과 법적 문서 주소입니다.
       security: []
       responses:
         '200':
@@ -2527,6 +2527,12 @@ components:
     # ---- 나의 사주 ----
     Chart:
       type: object
+      description: |
+        나의 사주 화면 묶음입니다.
+        나의 사주 문장 셋은 근거 열람 권한과 상관없이 오고, 원고가 없거나 고를 값이 없으면 생략합니다(선택 필드).
+        * `ilganHead`: 일간 소개 첫 문장(writing 슬롯 `chart.ilgan_head`, IA `my-saju.ilgan.head`). 키는 `ilgan.head.<pillars.day.stem>`이고 호칭을 씁니다.
+        * `ilganBody`: 일간 소개 이어지는 문장(`chart.ilgan_body`, IA `my-saju.ilgan.body`). 키는 `ilgan.body.<pillars.day.stem>`입니다.
+        * `yongsinSummary`: 용신과 행운 색 설명(`chart.yongsin_summary`, IA `my-saju.yongsin.body`). 키는 `yongsin.summary`이고 매개변수는 `yongsin.yongsin`입니다.
       required:
         - rulesetVersion
         - evidenceAccess
@@ -2587,6 +2593,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Notice'
+        ilganHead:
+          $ref: '#/components/schemas/SlotText'
+        ilganBody:
+          $ref: '#/components/schemas/SlotText'
+        yongsinSummary:
+          $ref: '#/components/schemas/SlotText'
         personalReadings:
           type: array
           description: |
@@ -3227,10 +3239,29 @@ components:
             $ref: '#/components/schemas/City'
     AppConfig:
       type: object
-      required: [minimumVersion]
+      required: [minimumVersion, legal]
       properties:
         minimumVersion:
           $ref: '#/components/schemas/MinimumVersion'
+        legal:
+          $ref: '#/components/schemas/LegalLinks'
+    LegalLinks:
+      type: object
+      description: |
+        이용약관·개인정보 처리방침 정적 페이지의 절대 주소입니다(D80). app은 주소를 상수로 두지 않고 이 값을 씁니다.
+        주소에는 query가 없고, app이 화면 언어로 `?lang=ko|en|ja`를 붙여 엽니다.
+        페이지(`GET /legal/terms`·`GET /legal/privacy`)는 `/v1` 밖 정적 HTML이라 이 명세의 operation이 아닙니다.
+        `lang`이 없거나 모르는 값이면 기본 언어 `en`이고, 그 언어의 원문이 아직 없으면 404와 준비 중 안내 페이지입니다(다른 언어로 대신하지 않음).
+      required: [terms, privacy]
+      properties:
+        terms:
+          type: string
+          format: uri
+          description: 이용약관 주소(예 `https://<서비스 도메인>/legal/terms`)
+        privacy:
+          type: string
+          format: uri
+          description: 개인정보 처리방침 주소(예 `https://<서비스 도메인>/legal/privacy`)
     MinimumVersion:
       type: object
       description: 플랫폼별 최소 앱 버전(semver 문자열)

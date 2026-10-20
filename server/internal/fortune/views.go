@@ -30,11 +30,21 @@ const (
 	SlotCharacterReason = "character.reason"
 	SlotDayLevel        = "calendar.day_level"
 	SlotYongsinMethod   = "chart.yongsin_method"
+	SlotIlganHead       = "chart.ilgan_head"
+	SlotIlganBody       = "chart.ilgan_body"
+	SlotYongsinSummary  = "chart.yongsin_summary"
 	SlotNotice          = "system.notice"
 )
 
 // characterReasonPrefix는 날의 성격 이유 키의 앞부분입니다. 키는 character.reason.<day_kind>입니다(슬롯 명세 select).
 const characterReasonPrefix = "character.reason."
+
+// 나의 사주 문장의 식별자 키입니다(슬롯 명세 select). 일간 문장은 앞부분에 일간 천간 값(예 gap)을 붙입니다.
+const (
+	ilganHeadPrefix   = "ilgan.head."
+	ilganBodyPrefix   = "ilgan.body."
+	yongsinSummaryKey = "yongsin.summary"
+)
 
 // noticeKeyPrefix는 엔진 안내 문구 키의 앞부분입니다. 키는 notice.<계약 NoticeCode 값>입니다(슬롯 명세 select).
 const noticeKeyPrefix = "notice."
@@ -82,6 +92,11 @@ type CalendarView struct {
 // ChartView는 나의 사주 화면의 묶음입니다.
 type ChartView struct {
 	Response *enginev1.ChartResponse
+	// IlganHead·IlganBody·YongsinSummary는 일간 소개 두 문장과 용신 설명입니다(#329). 잠그지 않습니다.
+	// 원고가 없거나 고를 값(일간 천간, 용신 오행)이 없으면 nil입니다.
+	IlganHead      *content.SlotText
+	IlganBody      *content.SlotText
+	YongsinSummary *content.SlotText
 	// YongsinBasis는 용신 근거 문장(chart.yongsin_method)입니다. evidence 깊이라 잠겨 있거나 원고가 없으면 nil입니다.
 	// 이 문장이 곧 근거라 그 안의 Evidence(판정 근거·원전 문장)는 렌더하지 않아 늘 nil입니다(계약 Yongsin.basis는 문장 하나).
 	YongsinBasis *content.SlotText
@@ -200,7 +215,7 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 // 근거는 권한이 있을 때(unlocked)만 렌더합니다. 식별자 키 슬롯에는 근거가 없습니다.
 func (v *Views) renderDaily(ctx context.Context, tpl content.Templates, s dailySlot, variant, name string, unlocked bool) (content.SlotText, bool) {
 	if s.judgment == nil {
-		return v.renderer.Identifier(ctx, tpl, s.id, s.key, nil)
+		return v.renderer.Identifier(ctx, tpl, s.id, s.key, nil, "")
 	}
 	return v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name, unlocked)
 }
@@ -263,7 +278,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 			return CalendarView{}, fmt.Errorf("엔진 달력 응답 %d번째 날에 길흉 판정이 없습니다", i)
 		}
 		reasonKey := characterReasonKey(d.GetKind())
-		reason, ok := v.renderer.Identifier(ctx, tpl, SlotCharacterReason, reasonKey, nil)
+		reason, ok := v.renderer.Identifier(ctx, tpl, SlotCharacterReason, reasonKey, nil, "")
 		if !ok {
 			reason = emptyText(SlotCharacterReason, reasonKey, seed.VariantSingle)
 		}
@@ -277,7 +292,8 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 }
 
 // Chart는 나의 사주 묶음을 만듭니다. 기준일은 p.CurrentTimezone의 오늘입니다.
-// 용신 근거 문장과 원국 개인 해석은 evidence 깊이라 권한이 있을 때만 활성 시드로 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
+// 일간 소개와 용신 설명은 늘 활성 시드로 렌더합니다(일간 첫 문장만 호칭을 씀).
+// 용신 근거 문장과 원국 개인 해석은 evidence 깊이라 권한이 있을 때만 렌더하고, 그 문장의 근거(Evidence)는 렌더하지 않습니다.
 func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profile) (ChartView, error) {
 	version, err := v.store.Active(ctx)
 	if err != nil {
@@ -295,17 +311,14 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if err != nil {
 		return ChartView{}, err
 	}
-	notices, err := v.notices(ctx, version, p.Language, response.GetMeta())
-	if err != nil {
-		return ChartView{}, err
-	}
-	view := ChartView{Response: response, Notices: notices, Unlocked: unlocked}
-	if !unlocked {
-		return view, nil
-	}
 	tpl, err := v.store.Templates(ctx, version, p.Language)
 	if err != nil {
 		return ChartView{}, err
+	}
+	view := ChartView{Response: response, Notices: v.renderNotices(ctx, tpl, response.GetMeta()), Unlocked: unlocked}
+	view.IlganHead, view.IlganBody, view.YongsinSummary = v.renderChartTexts(ctx, tpl, response, p.Honorific)
+	if !unlocked {
+		return view, nil
 	}
 	// 계약에서 선택 필드라 원고가 없으면 nil로 둡니다(로그는 Renderer가 남김).
 	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", false); ok {
@@ -313,6 +326,34 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	}
 	view.PersonalReadings = v.renderPersonalReadings(ctx, tpl, response.GetPersonalReadings())
 	return view, nil
+}
+
+// renderChartTexts는 일간 소개 두 문장(키 ilgan.head.<천간>·ilgan.body.<천간>)과 용신 설명(yongsin.summary, 매개변수 yongsin)을 렌더합니다.
+// 엔진이 일간 천간이나 용신 오행을 주지 않으면 고를 키가 없어 그 문장을 렌더하지 않고 nil로 둡니다.
+// 원고가 없으면 nil입니다(로그는 Renderer가 남김).
+func (v *Views) renderChartTexts(ctx context.Context, tpl content.Templates, r *enginev1.ChartResponse, name string) (head, body, summary *content.SlotText) {
+	identifier := func(slot, key string, params map[string]render.Value) *content.SlotText {
+		text, ok := v.renderer.Identifier(ctx, tpl, slot, key, params, name)
+		if !ok {
+			return nil
+		}
+		return &text
+	}
+	if stem := r.GetPillars().GetDay().GetStem(); stem != enginev1.Stem_STEM_UNSPECIFIED {
+		value := enumName(stem.String(), "STEM_")
+		head = identifier(SlotIlganHead, ilganHeadPrefix+value, nil)
+		body = identifier(SlotIlganBody, ilganBodyPrefix+value, nil)
+	}
+	if element := r.GetYongsin().GetYongsin(); element != enginev1.Element_ELEMENT_UNSPECIFIED {
+		params := map[string]render.Value{"yongsin": {Kind: render.ValueEnum, Enum: enumName(element.String(), "ELEMENT_")}}
+		summary = identifier(SlotYongsinSummary, yongsinSummaryKey, params)
+	}
+	return head, body, summary
+}
+
+// enumName은 proto enum 이름에서 접두어를 떼고 소문자로 바꾼 키·매개변수 값입니다. 예: STEM_GAP → gap.
+func enumName(name, prefix string) string {
+	return strings.ToLower(strings.TrimPrefix(name, prefix))
 }
 
 // renderPersonalReadings는 개인 해석을 활성 시드의 single 문장으로 렌더합니다. 호칭은 쓰지 않고 근거는 렌더하지 않습니다.
@@ -389,7 +430,7 @@ func (v *Views) renderNotices(ctx context.Context, tpl content.Templates, meta *
 			continue
 		}
 		text := []render.Segment{}
-		if rendered, ok := v.renderer.Identifier(ctx, tpl, SlotNotice, noticeKeyPrefix+code, nil); ok {
+		if rendered, ok := v.renderer.Identifier(ctx, tpl, SlotNotice, noticeKeyPrefix+code, nil, ""); ok {
 			text = rendered.Text
 		}
 		out = append(out, content.Notice{Code: code, Text: text})

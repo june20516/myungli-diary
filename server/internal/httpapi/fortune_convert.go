@@ -397,16 +397,28 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 			Score: float32(r.GetStrength().GetScore()),
 			Level: enumValue[gen.StrengthLevel](c, r.GetStrength().GetLevel()),
 		},
-		Yongsin: c.yongsin(r.GetYongsin(), view.YongsinBasis),
-		Daeun:   c.daeun(r.GetDaeun()),
-		Seun:    convertAll(r.GetSeun(), c.seunYear),
-		Notices: c.notices(view.Notices),
+		Yongsin:        c.yongsin(r.GetYongsin(), view.YongsinBasis),
+		Daeun:          c.daeun(r.GetDaeun()),
+		Seun:           convertAll(r.GetSeun(), c.seunYear),
+		Notices:        c.notices(view.Notices),
+		IlganHead:      c.optionalSlotText(view.IlganHead),
+		IlganBody:      c.optionalSlotText(view.IlganBody),
+		YongsinSummary: c.optionalSlotText(view.YongsinSummary),
 	}
 	if view.Unlocked {
 		readings := convertAll(view.PersonalReadings, c.personalReading)
 		out.PersonalReadings = &readings
 	}
 	return out, c.err
+}
+
+// optionalSlotText는 선택 문장 필드를 옮깁니다. 문장이 없으면(nil) 필드를 생략합니다.
+func (c *converter) optionalSlotText(t *content.SlotText) *gen.SlotText {
+	if t == nil {
+		return nil
+	}
+	out := c.slotText(*t)
+	return &out
 }
 
 // personalReading은 개인 해석 한 항목을 옮깁니다. UNSPECIFIED 위치·신살과 의미 없는 순서(HIDDEN·DAEUN·SEUN 밖의 0)는 생략합니다.
