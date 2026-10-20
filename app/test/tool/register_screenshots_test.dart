@@ -215,6 +215,46 @@ void main() {
       );
     });
 
+    test('이번 입력에 없는 화면·상태의 이전 렌더는 항목과 파일을 지웁니다', () {
+      shot('today__default.png');
+      shot('today__loading.png');
+      render('2026-10-19');
+      File('${source.path}/today__loading.png').deleteSync();
+      render('2026-10-20');
+
+      expect(readIndex().map((e) => e['id']), [
+        'render.today.default.2026-10-19',
+      ]);
+      expect(
+        File('${artifacts.path}/2026-10-19-today-loading.png').existsSync(),
+        isFalse,
+      );
+      expect(
+        File('${artifacts.path}/2026-10-19-today-default.png').existsSync(),
+        isTrue,
+      );
+    });
+
+    test('Patrol 캡처 항목은 입력에 없어도 지우지 않습니다', () {
+      shot('welcome__default.png');
+      registerScreenshots(
+        sourceDir: source,
+        artifactsDir: artifacts,
+        date: '2026-10-14',
+      );
+      File('${source.path}/welcome__default.png').deleteSync();
+      shot('today__default.png');
+      render('2026-10-20');
+      expect(readIndex().map((e) => e['id']), [
+        'e2e.welcome.default.2026-10-14',
+        'render.today.default.2026-10-20',
+      ]);
+      expect(
+        File('${artifacts.path}/2026-10-14-welcome-default.png').existsSync(),
+        isTrue,
+      );
+    });
+
     test('Patrol 캡처 항목은 건드리지 않습니다', () {
       shot('welcome__default.png');
       registerScreenshots(

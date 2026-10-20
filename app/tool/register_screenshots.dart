@@ -7,7 +7,8 @@
 //   (workflow §7).
 // * `render`(tool/screens_linux.sh가 대역 데이터로 그린 화면, #336): 언제든 다시 만들 수 있으므로
 //   같은 화면·상태의 이전 렌더는 파일까지 지우고, 이전과 바이트가 같으면 새로 등록하지 않습니다
-//   (공개 저장소가 같은 그림으로 커지지 않게).
+//   (공개 저장소가 같은 그림으로 커지지 않게). 이번 입력에 없는 화면·상태의 `render.*` 항목과
+//   파일도 지웁니다. 그래서 <dir>은 사례 전체를 그린 결과(`build/screens`)여야 합니다.
 
 import 'dart:convert';
 import 'dart:io';
@@ -177,12 +178,44 @@ List<String> registerScreenshots({
       });
     ids.add(id);
   }
+  if (origin == ScreenshotOrigin.render) {
+    _dropOrphanRenders(entries, artifactsDir, {
+      for (final (_, screen, state) in parsed)
+        _idPrefix(ScreenshotOrigin.render, screen, state),
+    });
+  }
   // 화면·상태 순으로 정렬해 diff가 흔들리지 않게 합니다.
   entries.sort((a, b) => (a['id']! as String).compareTo(b['id']! as String));
   indexFile.writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(entries)}\n',
   );
   return ids;
+}
+
+/// 이번 렌더 입력([kept] 접두어)에 없는 화면·상태의 `render.*` 항목과 그 파일을 지웁니다.
+///
+/// 렌더는 `screens_test.dart`가 모든 사례를 한 번에 그린 결과이고 언제든 다시 만들 수 있으므로,
+/// 사례가 빠지거나 이름이 바뀐 그림이 공개 저장소에 고아로 남지 않게 합니다. Patrol 캡처(`e2e.*`)는
+/// 기록이라 건드리지 않습니다.
+void _dropOrphanRenders(
+  List<Map<String, Object?>> entries,
+  Directory artifactsDir,
+  Set<String> kept,
+) {
+  final renderPrefix = '${ScreenshotOrigin.render.name}.';
+  final orphans = [
+    for (final entry in entries)
+      if (entry['id'] case final String id
+          when id.startsWith(renderPrefix) && !kept.any(id.startsWith))
+        entry,
+  ];
+  for (final entry in orphans) {
+    final file = File('${artifactsDir.path}/${entry['file']}');
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
+    entries.remove(entry);
+  }
 }
 
 bool _sameBytes(List<int> a, List<int> b) {
