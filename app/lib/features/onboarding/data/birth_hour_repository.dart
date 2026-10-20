@@ -17,7 +17,7 @@ final class BirthHourRepository {
 
   /// [date] 생일의 [time](`HH:MM`)이 속한 시진과 그 벽시계 범위를 받습니다.
   ///
-  /// 실패는 [AppError]입니다(엔진 RPC 전에는 501).
+  /// 실패는 [AppError]입니다.
   Future<BirthHour> fetch({
     required BirthDateValue date,
     required String time,

@@ -1,6 +1,8 @@
 {
   "status": 200,
-  "headers": { "ETag": "\"glossary-ko-1\"" },
+  "headers": {
+    "ETag": "\"glossary-ko-1\""
+  },
   "body": {
     "seedVersion": "2026-10-15",
     "lang": "ko",
@@ -94,17 +96,35 @@
         "soseol": "소설",
         "daeseol": "대설",
         "dongji": "동지"
+      },
+      "day_kind": {
+        "yongsin_day": "용신의 날",
+        "gwiin_day": "귀인의 날",
+        "gisin_day": "기신의 날",
+        "ordinary_day": "평범한 날"
       }
     },
     "meanings": {
       "element.wood": {
-        "segments": [{ "text": "자라고 뻗어 나가는 기운이에요. 새로 시작하고 키워 가는 일에서 드러나요." }]
+        "segments": [
+          {
+            "text": "자라고 뻗어 나가는 기운이에요. 새로 시작하고 키워 가는 일에서 드러나요."
+          }
+        ]
       },
       "tag.cheoneul_gwiin": {
-        "segments": [{ "text": "어려울 때 도와주는 사람이 곁에 오는 기운이에요." }]
+        "segments": [
+          {
+            "text": "어려울 때 도와주는 사람이 곁에 오는 기운이에요."
+          }
+        ]
       },
       "ten_god.jeonggwan": {
-        "segments": [{ "text": "나를 바르게 다잡아 주는 기운이에요. 맡은 일을 차분히 해내는 힘이 돼요." }]
+        "segments": [
+          {
+            "text": "나를 바르게 다잡아 주는 기운이에요. 맡은 일을 차분히 해내는 힘이 돼요."
+          }
+        ]
       }
     },
     "hanja": {

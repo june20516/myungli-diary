@@ -523,7 +523,7 @@ void main() {
       );
     });
 
-    testWidgets('시진 확인이 실패(501)해도 줄 없이 다음으로 갑니다', (tester) async {
+    testWidgets('시진 확인이 실패(503)해도 줄 없이 다음으로 갑니다', (tester) async {
       final container = await openTimeStep(
         tester,
         scenario: 'birth-hour-unavailable',

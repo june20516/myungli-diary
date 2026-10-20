@@ -93,6 +93,7 @@
   "timePickerHourItem": "{hour}時",
   "timePickerMinuteItem": "{minute}分",
   "datePickerLeapMonthValue": "閏{month}月",
+  "datePickerSolarConfirm": "新暦 {date}",
   "citySearchResults": "{count, plural, other{結果{count}件}}",
   "forceUpdateNoticeHead": "新しいバージョンにアップデートしてください",
   "forceUpdateNoticeBody": "読み解きの計算方法が変わったため、このバージョンでは開けません。",
@@ -323,6 +324,9 @@
   "diaryListPickDateConfirm": "{date}の日記",
   "tagChipLabel": "#{tag}",
   "tagChipPolarityGood": "良い流れ",
-  "tagChipPolarityBad": "注意の流れ",
-  "tagChipPolarityNeutral": "中立"
+  "tagChipPolarityBad": "気をつけたい流れ",
+  "tagChipPolarityNeutral": "穏やかな流れ",
+  "dayCellLeapNewMoon": "閏{month}.1",
+  "errorCityNotFound": "出生地の都市が見つかりませんでした。都市を選び直してください。",
+  "errorTimezoneInvalid": "タイムゾーンを確認できませんでした。端末の設定を確認してください。"
 }

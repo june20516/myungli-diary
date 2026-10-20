@@ -179,7 +179,10 @@ final class FakeServerInterceptor extends Interceptor {
     }
   }
 
-  Future<FakeDiaryStore>? _diaryStore;
+  /// 준비를 마친 일기 저장소. 준비 중인 Future는 캐시하지 않습니다: widget 테스트에서 가짜 시간
+  /// 영역의 요청(앱 시작 때 오늘 일기 여부)이 만든 Future를 실제 시간 영역의 요청이 기다리면
+  /// 끝나지 않습니다. 준비가 겹치면 먼저 끝난 저장소를 씁니다(준비 중에는 쓰기가 없음).
+  FakeDiaryStore? _diaryStore;
 
   /// 일기 operation이면 대역 일기 저장소로 답합니다. 그 밖의 operation이면 null입니다.
   ///
@@ -205,7 +208,7 @@ final class FakeServerInterceptor extends Interceptor {
     if (fileWins) {
       return null;
     }
-    final store = await (_diaryStore ??= _loadDiaryStore());
+    final store = _diaryStore ?? (_diaryStore = await _loadDiaryStore());
     final date = route.pathParametersOf(path)?['date'];
     try {
       switch (operationId) {
@@ -247,9 +250,11 @@ final class FakeServerInterceptor extends Interceptor {
       return body is Map<String, Object?> ? body : null;
     }
 
-    final list = await firstOkBody('listDiaries.json');
-    final diary = await firstOkBody('getDiary.json');
-    final daily = await firstOkBody('getDaily.json');
+    final [list, diary, daily] = await Future.wait([
+      firstOkBody('listDiaries.json'),
+      firstOkBody('getDiary.json'),
+      firstOkBody('getDaily.json'),
+    ]);
     final items = list?['items'];
     final clock = noonClockOn(scenario.today, scenario.timezone);
     return FakeDiaryStore(

@@ -318,16 +318,22 @@ Widget _checkRows() => Builder(
   },
 );
 
-/// date-picker: 양력 / 음력 + 윤달 체크.
+/// date-picker: 양력 / 음력(V31 목표 모양: 윤2월 칸 + 양력 확인 줄). 조회 중 skeleton은 숨쉬기가
+/// 끝나지 않아 위젯 테스트가 확인합니다.
 Widget _datePickers() => Builder(
   builder: (context) {
     final ja = _ja(context);
-    Widget picker(BirthDateValue value) => BirthDatePicker(
+    Widget picker(
+      BirthDateValue value, {
+      int? leapMonth,
+      SolarConfirm? solarConfirm,
+    }) => BirthDatePicker(
       value: value,
       onChanged: (_) {},
       calendarLabelSolar: ja ? '新暦' : '양력',
       calendarLabelLunar: ja ? '旧暦' : '음력',
-      leapMonthLabel: ja ? '閏月' : '윤달',
+      leapMonth: leapMonth,
+      solarConfirm: solarConfirm,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -346,8 +352,12 @@ Widget _datePickers() => Builder(
             calendar: BirthCalendar.lunar,
             year: 2023,
             month: 2,
-            day: 30,
+            day: 29,
             isLeapMonth: true,
+          ),
+          leapMonth: 2,
+          solarConfirm: SolarConfirm.text(
+            ja ? '新暦 2023年4月19日' : '양력 2023년 4월 19일',
           ),
         ),
       ],
@@ -366,7 +376,6 @@ Widget _solarOnlyDatePicker() => BirthDatePicker(
   onChanged: (_) {},
   calendarLabelSolar: '양력',
   calendarLabelLunar: '음력',
-  leapMonthLabel: '윤달',
   variant: DatePickerVariant.solar,
 );
 
@@ -571,7 +580,7 @@ void main() {
     );
   });
 
-  goldenTest('date-picker(birth): 양력·음력+윤달 체크', (tester) async {
+  goldenTest('date-picker(birth): 양력·음력(윤달 칸·양력 확인 줄)', (tester) async {
     await goldenMatrix(
       tester,
       'input_date_picker',

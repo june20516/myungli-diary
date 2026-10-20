@@ -35,6 +35,8 @@ abstract class _$ChartCWProxy {
 
   Chart notices(List<Notice> notices);
 
+  Chart personalReadings(List<PersonalReading>? personalReadings);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Chart(...).copyWith.fieldName(value)`.
@@ -58,6 +60,7 @@ abstract class _$ChartCWProxy {
     Daeun daeun,
     List<SeunYear> seun,
     List<Notice> notices,
+    List<PersonalReading>? personalReadings,
   });
 }
 
@@ -115,6 +118,10 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
   @override
   Chart notices(List<Notice> notices) => call(notices: notices);
 
+  @override
+  Chart personalReadings(List<PersonalReading>? personalReadings) =>
+      call(personalReadings: personalReadings);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Chart(...).copyWith.fieldName(value)`.
@@ -139,6 +146,7 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
     Object? daeun = const $CopyWithPlaceholder(),
     Object? seun = const $CopyWithPlaceholder(),
     Object? notices = const $CopyWithPlaceholder(),
+    Object? personalReadings = const $CopyWithPlaceholder(),
   }) {
     return Chart(
       rulesetVersion:
@@ -205,6 +213,10 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
           ? _value.notices
           // ignore: cast_nullable_to_non_nullable
           : notices as List<Notice>,
+      personalReadings: personalReadings == const $CopyWithPlaceholder()
+          ? _value.personalReadings
+          // ignore: cast_nullable_to_non_nullable
+          : personalReadings as List<PersonalReading>?,
     );
   }
 }
@@ -311,6 +323,12 @@ Chart _$ChartFromJson(Map<String, dynamic> json) =>
               .map((e) => Notice.fromJson(e as Map<String, dynamic>))
               .toList(),
         ),
+        personalReadings: $checkedConvert(
+          'personalReadings',
+          (v) => (v as List<dynamic>?)
+              ?.map((e) => PersonalReading.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
       );
       return val;
     });
@@ -330,6 +348,9 @@ Map<String, dynamic> _$ChartToJson(Chart instance) => <String, dynamic>{
   'daeun': instance.daeun.toJson(),
   'seun': instance.seun.map((e) => e.toJson()).toList(),
   'notices': instance.notices.map((e) => e.toJson()).toList(),
+  'personalReadings': ?instance.personalReadings
+      ?.map((e) => e.toJson())
+      .toList(),
 };
 
 const _$EvidenceAccessEnumMap = {

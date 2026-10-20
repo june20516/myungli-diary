@@ -105,7 +105,7 @@ void main() {
       await tester.pumpWidget(_chip(TagChipVariant.neutral));
       final data = tester.getSemantics(find.byType(TagChip)).getSemanticsData();
       expect(data.flagsCollection.isLink, isFalse);
-      expect(data.label, '#천을귀인, 중립');
+      expect(data.label, '#천을귀인, 무난한 흐름');
       handle.dispose();
     });
 

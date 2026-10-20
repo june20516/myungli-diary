@@ -11,11 +11,13 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/pending_destination.dart';
 import 'package:myungli_diary/app/router/screen_registry.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
+import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 
@@ -41,6 +43,8 @@ ProviderContainer _routerContainer(WidgetTester tester, Override entry) {
     overrides: [
       entry,
       appDatabaseProvider.overrideWithValue(database),
+      // 탭 화면의 요청이 토큰을 읽습니다. 플랫폼 보안 저장소는 테스트에서 답하지 않습니다.
+      secureStoreProvider.overrideWithValue(MemorySecureStore()),
       // today 화면이 "오늘"을 읽습니다. 기기 시계면 자정 구독 timer가 테스트 뒤에 남습니다.
       clockProvider.overrideWithValue(
         FixedClock(DateTime.utc(2026, 10, 13, 3)),

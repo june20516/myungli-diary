@@ -93,6 +93,7 @@
   "timePickerHourItem": "{hour}",
   "timePickerMinuteItem": "{minute}",
   "datePickerLeapMonthValue": "Leap month {month}",
+  "datePickerSolarConfirm": "Solar {date}",
   "citySearchResults": "{count, plural, one{{count} result} other{{count} results}}",
   "forceUpdateNoticeHead": "Please update to the new version",
   "forceUpdateNoticeBody": "The way readings are calculated has changed, so this version can't open them.",
@@ -320,9 +321,12 @@
   "diaryViewEditAction": "Edit entry",
   "diaryViewDeleteAction": "Delete entry",
   "diaryViewDeleted": "Entry deleted.",
-  "diaryListPickDateConfirm": "Diary for {date}",
+  "diaryListPickDateConfirm": "{date} entry",
   "tagChipLabel": "#{tag}",
   "tagChipPolarityGood": "favorable",
   "tagChipPolarityBad": "take care",
-  "tagChipPolarityNeutral": "neutral"
+  "tagChipPolarityNeutral": "neutral",
+  "dayCellLeapNewMoon": "L{month}.1",
+  "errorCityNotFound": "We couldn't find that city. Please choose your birthplace again.",
+  "errorTimezoneInvalid": "We couldn't read the time zone. Please check your device's time zone setting."
 }
