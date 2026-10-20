@@ -212,10 +212,15 @@ func TestWebhooks_Handle_ConcurrentSameEvent_OneRow(t *testing.T) {
 	for _, err := range errs {
 		require.NoError(t, err)
 	}
+	var eventCount int
+	require.NoError(t, f.pool.QueryRow(context.Background(), "SELECT count(*) FROM billing_events").Scan(&eventCount))
+	assert.Equal(t, 1, eventCount, "같은 event.id는 billing_events 행 하나입니다")
 	rows := eventRows(t, f.pool, "evt-1")
 	require.Len(t, rows, 1)
 	assert.NotNil(t, rows[0].ProcessedAt)
-	assertPeriod(t, allGrants(t, f.pool), "p1", oct1, nov1, nil)
+	grants := allGrants(t, f.pool)
+	require.Len(t, grants, 2, "구매 하나는 ad_free·insight 두 행입니다")
+	assertPeriod(t, grants, "p1", oct1, nov1, nil)
 }
 
 func TestWebhooks_Handle_UnknownAccount_RecordsOnlyAndWarns(t *testing.T) {

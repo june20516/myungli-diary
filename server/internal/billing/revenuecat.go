@@ -124,6 +124,7 @@ func (r *RevenueCat) Purchases(ctx context.Context, customerID string) ([]Purcha
 }
 
 // fetchPage는 구매 목록 한 페이지를 받습니다. found가 false면 고객이 없는 것입니다(404).
+// 오류 문구에 API 키·응답 본문을 넣지 않습니다(호출자가 로그에 그대로 남김).
 func (r *RevenueCat) fetchPage(ctx context.Context, customerID, startingAfter string) (page purchasesPage, found bool, err error) {
 	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
