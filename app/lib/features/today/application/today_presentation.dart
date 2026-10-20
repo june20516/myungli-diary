@@ -191,10 +191,10 @@ SlotText? dailySlotText(Daily daily, String slotId) {
 /// `time_unknown` notice의 배너 문장([noticeTextOf]). 없으면 null입니다.
 ///
 /// 화면 상태가 있는 notice는 이것뿐이고, 나머지는 계획 6에서 다룹니다.
-String? timeUnknownNoticeOf(Daily daily, AppLocalizations l10n) {
+String? timeUnknownNoticeOf(Daily daily) {
   for (final notice in daily.notices) {
     if (notice.code == NoticeCode.timeUnknown) {
-      return noticeTextOf(notice, l10n);
+      return noticeTextOf(notice);
     }
   }
   return null;
@@ -323,7 +323,7 @@ TodayDisplay todayDisplayOf(
   return TodayDisplay(
     character: dayCharacterOf(daily, l10n),
     characterReasonSlot: daily.characterReason.slot,
-    timeUnknown: timeUnknownNoticeOf(daily, l10n),
+    timeUnknown: timeUnknownNoticeOf(daily),
     head: SentenceLine(
       text: daily.fortune.head.text,
       slot: daily.fortune.head.slot,

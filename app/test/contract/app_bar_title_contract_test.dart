@@ -35,7 +35,6 @@ const Set<String> _allowedTemporaryKeys = {
   'todayLuckyDirectionName',
   'todayLuckyNumberName',
   'todayLuckyTimeName',
-  'noticeTimeUnknown',
 };
 
 Map<String, Object?> _readJson(String path) =>

@@ -189,9 +189,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noticeOffline => '인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.';
 
   @override
-  String get noticeTimeUnknown => '시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.';
-
-  @override
   String get emptyStateDefault => '아직 보여 드릴 내용이 없어요.';
 
   @override
@@ -1054,4 +1051,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get todayBarTitle => '오늘';
+
+  @override
+  String get errorReactionNotFound => '반응을 남길 문장을 찾지 못했어요. 화면을 새로 고쳐 주세요.';
+
+  @override
+  String get errorScheduleNotFound => '일정을 찾지 못했어요. 목록을 새로 고쳐 주세요.';
+
+  @override
+  String get errorRangeTooLong => '한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.';
 }

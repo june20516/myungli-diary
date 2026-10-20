@@ -150,13 +150,11 @@ void main() {
       find.byKey(const ValueKey('preview.time-unknown')),
     );
     expect(banner.variant, NoticeBannerVariant.timeUnknown);
-    expect(banner.message, '태어난 시간을 몰라 세 기둥으로 계산했어요.');
+    expect(banner.message, '태어난 시간을 몰라 낮 12시로 계산했어요. 시간을 넣으면 더 정확해져요.');
     expect(find.text(_ko.dayKindYongsinDay), findsOneWidget);
   });
 
-  testWidgets('time_unknown notice의 문장이 비어 있으면 app 문구로 배너를 그립니다', (
-    tester,
-  ) async {
+  testWidgets('time_unknown notice의 문장이 비어 있으면 배너를 그리지 않습니다', (tester) async {
     final json = jsonDecode(
       File('fixtures/time-unknown/createPreview.json').readAsStringSync(),
     ) as Map<String, dynamic>;
@@ -173,10 +171,7 @@ void main() {
         previewProvider.overrideWith((ref) async => Preview.fromJson(body)),
       ],
     );
-    final banner = tester.widget<NoticeBanner>(
-      find.byKey(const ValueKey('preview.time-unknown')),
-    );
-    expect(banner.message, _ko.noticeTimeUnknown);
+    expect(find.byKey(const ValueKey('preview.time-unknown')), findsNothing);
   });
 
   testWidgets('new-user는 time-unknown 배너가 없습니다', (tester) async {

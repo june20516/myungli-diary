@@ -135,10 +135,10 @@ class _PreviewBody extends StatelessWidget {
   final Widget offlineNotice;
 
   /// 시간 모름 notice의 배너 문장([noticeTextOf]). 없으면 null입니다.
-  String? _timeUnknownMessage(AppLocalizations l10n) {
+  String? _timeUnknownMessage() {
     for (final notice in preview.notices) {
       if (notice.code == NoticeCode.timeUnknown) {
-        return noticeTextOf(notice, l10n);
+        return noticeTextOf(notice);
       }
     }
     return null;
@@ -162,7 +162,7 @@ class _PreviewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final timeUnknown = _timeUnknownMessage(l10n);
+    final timeUnknown = _timeUnknownMessage();
     final tag = preview.fortune.tag;
     return SingleChildScrollView(
       child: Column(

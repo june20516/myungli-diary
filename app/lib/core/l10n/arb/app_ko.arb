@@ -237,10 +237,6 @@
   "@noticeOffline": {
     "description": "오프라인 안내 배너와 빈 상태 기본 문장"
   },
-  "noticeTimeUnknown": "시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.",
-  "@noticeTimeUnknown": {
-    "description": "임시. writing #232 원고 전 time_unknown notice 대체(A43). 새 문구 요청 #237"
-  },
   "emptyStateDefault": "아직 보여 드릴 내용이 없어요.",
   "@emptyStateDefault": {
     "description": "오프라인 안내 배너와 빈 상태 기본 문장"
@@ -1471,5 +1467,17 @@
   "todayBarTitle": "오늘",
   "@todayBarTitle": {
     "description": "today.bar.title: app-bar 제목(화면 이름 \"오늘\")"
+  },
+  "errorReactionNotFound": "반응을 남길 문장을 찾지 못했어요. 화면을 새로 고쳐 주세요.",
+  "@errorReactionNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorScheduleNotFound": "일정을 찾지 못했어요. 목록을 새로 고쳐 주세요.",
+  "@errorScheduleNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorRangeTooLong": "한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.",
+  "@errorRangeTooLong": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   }
 }

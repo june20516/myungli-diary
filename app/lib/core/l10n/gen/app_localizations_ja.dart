@@ -187,9 +187,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noticeOffline => 'オフラインのため、保存してある内容を表示しています。';
 
   @override
-  String get noticeTimeUnknown => '時間がわからなければ、生まれた時刻を除いた三柱で読み解きます。';
-
-  @override
   String get emptyStateDefault => 'まだ表示する内容がありません。';
 
   @override
@@ -1052,4 +1049,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get todayBarTitle => '今日';
+
+  @override
+  String get errorReactionNotFound => '反応する文が見つかりませんでした。画面を更新してください。';
+
+  @override
+  String get errorScheduleNotFound => '予定が見つかりませんでした。一覧を更新してください。';
+
+  @override
+  String get errorRangeTooLong => '一度に見られる期間を超えています。期間を短くしてください。';
 }

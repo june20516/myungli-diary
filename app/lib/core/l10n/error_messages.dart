@@ -28,6 +28,8 @@ final Map<String, String Function(AppLocalizations)> problemMessages = {
   'preview.used': (l10n) => l10n.errorPreviewUsed,
   'route.not_found': (l10n) => l10n.errorRouteNotFound,
   'diary.not_found': (l10n) => l10n.errorDiaryNotFound,
+  'reaction.not_found': (l10n) => l10n.errorReactionNotFound,
+  'schedule.not_found': (l10n) => l10n.errorScheduleNotFound,
   'method.not_allowed': (l10n) => l10n.errorMethodNotAllowed,
   'profile.required': (l10n) => l10n.errorProfileRequired,
   'diary.date_taken': (l10n) => l10n.errorDiaryDateTaken,
@@ -36,6 +38,7 @@ final Map<String, String Function(AppLocalizations)> problemMessages = {
   'request.unsupported_media_type': (l10n) =>
       l10n.errorRequestUnsupportedMediaType,
   'date.out_of_range': (l10n) => l10n.errorDateOutOfRange,
+  'range.too_long': (l10n) => l10n.errorRangeTooLong,
   'birth.out_of_range': (l10n) => l10n.errorBirthOutOfRange,
   'date.invalid': (l10n) => l10n.errorDateInvalid,
   'request.inconsistent': (l10n) => l10n.errorRequestInconsistent,

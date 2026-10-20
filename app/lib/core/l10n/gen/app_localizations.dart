@@ -448,12 +448,6 @@ abstract class AppLocalizations {
   /// **'인터넷에 연결되어 있지 않아 저장해 둔 내용을 보여 드려요.'**
   String get noticeOffline;
 
-  /// 임시. writing #232 원고 전 time_unknown notice 대체(A43). 새 문구 요청 #237
-  ///
-  /// In ko, this message translates to:
-  /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
-  String get noticeTimeUnknown;
-
   /// 오프라인 안내 배너와 빈 상태 기본 문장
   ///
   /// In ko, this message translates to:
@@ -1991,6 +1985,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'오늘'**
   String get todayBarTitle;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'반응을 남길 문장을 찾지 못했어요. 화면을 새로 고쳐 주세요.'**
+  String get errorReactionNotFound;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'일정을 찾지 못했어요. 목록을 새로 고쳐 주세요.'**
+  String get errorScheduleNotFound;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.'**
+  String get errorRangeTooLong;
 }
 
 class _AppLocalizationsDelegate

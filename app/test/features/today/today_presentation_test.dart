@@ -198,7 +198,7 @@ void main() {
 
     test('time_unknown notice의 조각 글자를 잇고, 없으면 null입니다', () {
       final json = memberDailyJson();
-      expect(timeUnknownNoticeOf(Daily.fromJson(json), _l10n), isNull);
+      expect(timeUnknownNoticeOf(Daily.fromJson(json)), isNull);
       json['notices'] = [
         {
           'code': 'time_unknown',
@@ -212,7 +212,7 @@ void main() {
         },
       ];
       expect(
-        timeUnknownNoticeOf(Daily.fromJson(json), _l10n),
+        timeUnknownNoticeOf(Daily.fromJson(json)),
         '태어난 시간을 몰라 세 기둥으로 계산했어요.',
       );
     });
