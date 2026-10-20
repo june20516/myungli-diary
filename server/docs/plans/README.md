@@ -28,15 +28,14 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 
 **콘텐츠 후속 (조건이 오면)**
 * writing W1 원고가 다 오면 `server.yml`의 `mlw check ... --partial`에서 `--partial`을 빼고, 변환 도구(`seed/generate.go`의 `go:generate`)에 `-strict`를 켭니다(S38).
-* writing의 notice 문구 슬롯(#232)이 오면 변환 도구가 `notice.<code>` 원고를 시드에 넣고, `content.Notice`가 그 문구를 렌더하게 잇습니다. 그 전까지 `Notice.text`는 빈 `segments`입니다(P4-9).
+
+**P4 후속** — 완료(브랜치 `server/p4-followups`). notice 렌더(#232, S49), `Profile.birthCity`(#199, S46), 계약 draft.6(달력 범위 #248·S47, 409 `profile.required` 명시), 용어 id 대조 기준(S48).
 
 **P5 (일기·일정)**
-* `Profile.birthCity`(#199)를 채웁니다(`city.Lookup`, 프로필 언어 이름). `City.longitude`는 `listCities`(P6)에서 채웁니다.
-* 다음 계약 개정에서 `getGlossary`·`putReaction`·`deleteReaction`에 409 `profile.required`를 명시합니다. 지금은 계약 `default` 응답으로 덮여 있어 app client가 409를 default로 받습니다.
 * 422 `request.inconsistent`·`date.invalid` 구현은 P3에서 끝났습니다(프로필). 일정에도 같은 코드를 씁니다.
 
 **P6 (비로그인·참조)**
-* `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다.
+* `listCities`는 `city.All()`·`DataVersion()`(ETag)과 `Name/CountryName/RegionName`을 씁니다. `City` 변환은 `birthCity`(httpapi `profile_handlers.go`)와 같은 형태라 함께 쓸 수 있게 뽑아냅니다. `City.longitude`도 이때 채웁니다.
 * `convertLunarDate`에도 App Check·요청 한도를 겁니다.
 
 **P7 (결제와 권한)**

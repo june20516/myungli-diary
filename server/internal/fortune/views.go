@@ -30,10 +30,14 @@ const (
 	SlotCharacterReason = "character.reason"
 	SlotDayLevel        = "calendar.day_level"
 	SlotYongsinMethod   = "chart.yongsin_method"
+	SlotNotice          = "system.notice"
 )
 
 // characterReasonPrefix는 날의 성격 이유 키의 앞부분입니다. 키는 character.reason.<day_kind>입니다(슬롯 명세 select).
 const characterReasonPrefix = "character.reason."
+
+// noticeKeyPrefix는 엔진 안내 문구 키의 앞부분입니다. 키는 notice.<계약 NoticeCode 값>입니다(슬롯 명세 select).
+const noticeKeyPrefix = "notice."
 
 // ContentStore는 Views가 쓰는 콘텐츠 저장소 기능입니다. *content.Store가 만족합니다.
 type ContentStore interface {
@@ -118,7 +122,9 @@ type dailySlot struct {
 // 활성 시드가 없으면 content.ErrNoActiveSeed, 엔진 오류는 그대로 돌려줍니다.
 func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate) (DailyView, error) {
 	// 활성 시드가 없으면 엔진을 부르기 전에 빨리 503으로 끝내려고 먼저 봅니다. 렌더할 버전은 선택 기록이 정합니다.
-	if _, err := v.store.Active(ctx); err != nil {
+	// 엔진 안내는 선택 기록이 없어 활성 시드로 렌더합니다.
+	active, err := v.store.Active(ctx)
+	if err != nil {
 		return DailyView{}, err
 	}
 	response, err := v.service.Daily(ctx, p.Birth, date, p.CurrentTimezone)
@@ -168,10 +174,14 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 		}
 		texts[sel.Slot] = text
 	}
+	notices, err := v.notices(ctx, active, p.Language, response.GetMeta())
+	if err != nil {
+		return DailyView{}, err
+	}
 	return DailyView{
 		Response:     response,
 		Texts:        texts,
-		Notices:      v.notices(ctx, response.GetMeta()),
+		Notices:      notices,
 		Unlocked:     unlocked,
 		SelectionIDs: ids,
 	}, nil
@@ -254,7 +264,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 		}
 		days[i] = DayTexts{CharacterReason: reason, Level: level}
 	}
-	return CalendarView{Response: response, Days: days, Notices: v.notices(ctx, response.GetMeta()), Unlocked: unlocked}, nil
+	return CalendarView{Response: response, Days: days, Notices: v.renderNotices(ctx, tpl, response.GetMeta()), Unlocked: unlocked}, nil
 }
 
 // Chart는 나의 사주 묶음을 만듭니다. 기준일은 p.CurrentTimezone의 오늘입니다.
@@ -276,7 +286,11 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if err != nil {
 		return ChartView{}, err
 	}
-	view := ChartView{Response: response, Notices: v.notices(ctx, response.GetMeta()), Unlocked: unlocked}
+	notices, err := v.notices(ctx, version, p.Language, response.GetMeta())
+	if err != nil {
+		return ChartView{}, err
+	}
+	view := ChartView{Response: response, Notices: notices, Unlocked: unlocked}
 	if !unlocked {
 		return view, nil
 	}
@@ -310,9 +324,22 @@ func (v *Views) today(timezone string) (profile.LocalDate, error) {
 	return profile.LocalDate{Year: now.Year(), Month: int(now.Month()), Day: now.Day()}, nil
 }
 
-// notices는 엔진 안내를 응답 형태로 바꿉니다. 안내 문구 슬롯이 아직 없어 Text는 빈 조각 배열입니다(P4-9).
+// notices는 version·lang 문장 틀로 엔진 안내를 렌더합니다(renderNotices). 안내가 없으면 문장 틀을 읽지 않습니다.
+func (v *Views) notices(ctx context.Context, version, lang string, meta *enginev1.ResponseMeta) ([]content.Notice, error) {
+	if len(meta.GetNotices()) == 0 {
+		return []content.Notice{}, nil
+	}
+	tpl, err := v.store.Templates(ctx, version, lang)
+	if err != nil {
+		return nil, err
+	}
+	return v.renderNotices(ctx, tpl, meta), nil
+}
+
+// renderNotices는 엔진 안내를 응답 형태로 바꿉니다. 문구는 system.notice의 notice.<code> 문장입니다(#232).
+// 원고가 없거나 렌더에 실패하면 Text는 빈 조각 배열이고 app이 Code로 자기 문구를 씁니다(계약 Notice 설명, 로그는 Renderer가 남김).
 // 모르는 코드는 계약 enum에 없으므로 Warn을 남기고 뺍니다.
-func (v *Views) notices(ctx context.Context, meta *enginev1.ResponseMeta) []content.Notice {
+func (v *Views) renderNotices(ctx context.Context, tpl content.Templates, meta *enginev1.ResponseMeta) []content.Notice {
 	out := make([]content.Notice, 0, len(meta.GetNotices()))
 	for _, n := range meta.GetNotices() {
 		code, ok := noticeCode(n.GetCode())
@@ -320,7 +347,11 @@ func (v *Views) notices(ctx context.Context, meta *enginev1.ResponseMeta) []cont
 			v.log.WarnContext(ctx, "모르는 엔진 안내 코드를 뺍니다", slog.Int("code", int(n.GetCode())))
 			continue
 		}
-		out = append(out, content.Notice{Code: code, Text: []render.Segment{}})
+		text := []render.Segment{}
+		if rendered, ok := v.renderer.Identifier(ctx, tpl, SlotNotice, noticeKeyPrefix+code, nil); ok {
+			text = rendered.Text
+		}
+		out = append(out, content.Notice{Code: code, Text: text})
 	}
 	return out
 }

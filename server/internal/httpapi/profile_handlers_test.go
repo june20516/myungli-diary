@@ -16,7 +16,10 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
 )
 
-// storedProfile은 도시 출생지와 알림 시각을 가진 저장된 프로필입니다. 경도는 저장 시 채워지는 값입니다.
+// tokyoID는 도쿄의 GeoNames id입니다(내장 도시 자료).
+const tokyoID = "1850147"
+
+// storedProfile은 도시 출생지(도쿄)와 알림 시각을 가진 저장된 프로필입니다. 경도는 저장 시 채워지는 값입니다.
 func storedProfile() profile.Profile {
 	longitude := 139.69
 	return profile.Profile{
@@ -31,7 +34,7 @@ func storedProfile() profile.Profile {
 			Gender:      "female",
 			Timezone:    "Asia/Tokyo",
 			PlaceStatus: profile.PlaceCity,
-			CityID:      "tokyo",
+			CityID:      tokyoID,
 			Longitude:   &longitude,
 		},
 		Notification: profile.Notification{Status: profile.NotifyEnabled, Time: &profile.LocalTime{Hour: 7, Minute: 5}},
@@ -52,12 +55,66 @@ func TestGetProfile_Returns200(t *testing.T) {
 	assert.Equal(t, gen.LanguageKo, got.Language)
 	assert.Equal(t, gen.BirthPlaceStatusCity, got.Birth.Place.Status)
 	require.NotNil(t, got.Birth.Place.CityId)
-	assert.Equal(t, "tokyo", *got.Birth.Place.CityId)
+	assert.Equal(t, tokyoID, *got.Birth.Place.CityId)
 	require.NotNil(t, got.Birth.Time.Value)
 	assert.Equal(t, "07:30", *got.Birth.Time.Value)
 	require.NotNil(t, got.Notification.Time)
 	assert.Equal(t, "07:05", *got.Notification.Time)
-	assert.NotContains(t, rec.Body.String(), "longitude")
+
+	// 출생 도시는 프로필 언어 이름이고, 경도는 계산에 쓰는 저장된 경도입니다(#199).
+	require.NotNil(t, got.BirthCity)
+	assert.Equal(t, tokyoID, got.BirthCity.Id)
+	assert.Equal(t, "도쿄", got.BirthCity.Name)
+	assert.Equal(t, "JP", got.BirthCity.Country)
+	assert.Equal(t, "일본", got.BirthCity.CountryName)
+	assert.Equal(t, "Asia/Tokyo", got.BirthCity.Timezone)
+	assert.InDelta(t, 139.69, got.BirthCity.Longitude, 1e-4)
+	// 경도는 birthCity에만 있고 요청 형태와 같은 birth.place에는 없습니다.
+	var raw struct {
+		Birth struct {
+			Place map[string]any `json:"place"`
+		} `json:"birth"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &raw))
+	assert.NotContains(t, raw.Birth.Place, "longitude")
+}
+
+func TestGetProfile_BirthCityOmitted(t *testing.T) {
+	notAsked := storedProfile()
+	notAsked.Birth.PlaceStatus = profile.PlaceNotAsked
+	notAsked.Birth.CityID = ""
+	notAsked.Birth.Longitude = nil
+	// 도시 자료가 바뀌어 저장된 id를 더 찾을 수 없는 경우입니다.
+	removed := storedProfile()
+	removed.Birth.CityID = "0"
+
+	cases := []struct {
+		name string
+		p    profile.Profile
+		// wantWarn은 도시 자료가 바뀐 것을 운영에서 알아챌 Warn 로그가 남아야 하는지입니다(S46).
+		wantWarn bool
+	}{
+		{name: "도시 출생이 아님", p: notAsked},
+		{name: "도시 자료에 없는 id", p: removed, wantWarn: true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler, spec, logs := newHandlerAPIWithLogs(t, &httpapi.API{Profiles: &fakeProfiles{profile: tc.p}})
+
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me/profile", nil)
+			rec := serve(handler, req)
+
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			expectContractResponse(t, spec, req, rec)
+			assert.NotContains(t, rec.Body.String(), "birthCity")
+			if tc.wantWarn {
+				assert.Contains(t, logs.String(), `"severity":"WARNING"`)
+				assert.Contains(t, logs.String(), `"city_id":"0"`)
+			} else {
+				assert.NotContains(t, logs.String(), `"severity":"WARNING"`)
+			}
+		})
+	}
 }
 
 func TestGetProfile_MissingIs409(t *testing.T) {

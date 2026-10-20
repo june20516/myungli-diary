@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft5(t *testing.T) {
+func TestContract_VersionIsDraft6(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.5" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.5", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.6" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.6", doc.Info.Version)
 	}
 }
 
@@ -965,4 +965,39 @@ func TestContract_Draft5Additions(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestContract_Draft6Additions는 draft.6에서 더한 409 응답과 설명을 고정합니다. (#248, P4 남은 일)
+func TestContract_Draft6Additions(t *testing.T) {
+	doc := loadDoc(t)
+
+	for _, id := range []string{"getGlossary", "putReaction", "deleteReaction"} {
+		t.Run(id, func(t *testing.T) {
+			op := operationByID(t, doc, id)
+			if !strings.Contains(op.Description, "409 `profile.required`") {
+				t.Errorf("%s 설명에 409 profile.required가 없음", id)
+			}
+			if op.Responses.Value("409") == nil {
+				t.Errorf("%s에 409 응답이 없음", id)
+			}
+		})
+	}
+
+	t.Run("Profile.birthCity 생략 조건", func(t *testing.T) {
+		description := doc.Components.Schemas["Profile"].Value.Description
+		for _, text := range []string{"계산에 쓴 저장된 경도", "찾지 못하면 `city`여도 `birthCity`를 뺍니다"} {
+			if !strings.Contains(description, text) {
+				t.Errorf("Profile 설명에 %q가 없음", text)
+			}
+		}
+	})
+
+	t.Run("getCalendar 첫 달", func(t *testing.T) {
+		description := operationByID(t, doc, "getCalendar").Description
+		for _, text := range []string{"첫 달은 1900-02", "마지막 달은 2099-12"} {
+			if !strings.Contains(description, text) {
+				t.Errorf("getCalendar 설명에 %q가 없음", text)
+			}
+		}
+	})
 }

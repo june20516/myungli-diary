@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.5
+  version: 1.0.0-draft.6
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -544,6 +544,8 @@ paths:
       description: |
         한 달의 날짜별 일진, 음력, 절기, 길흉 수준을 돌려줍니다. `year`·`month`가 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 스키마 범위 안이지만 D41 지원 범위(양력 1900-01-31 ~ 2099-12-31)를 벗어나면 422 `date.out_of_range`입니다. 프로필이 없으면 409 `profile.required`입니다.
 
+        달력은 한 달 전체가 지원 범위 안인 달만 줍니다. 그래서 첫 달은 1900-02, 마지막 달은 2099-12이고, 1900-01은 1900-01-31이 지원 범위 안이어도 422 `date.out_of_range`입니다(#248).
+
         캐시: `ETag`는 없습니다. 응답은 출생 정보·언어·`rulesetVersion`·문장 시드로 정해지므로 app은 달마다 캐시해도 됩니다.
         프로필(출생 정보·언어)이나 `rulesetVersion`이 바뀌면 캐시를 버립니다. 문장 개선(시드 갱신)은 다음 무효화 때 반영됩니다.
       responses:
@@ -587,7 +589,7 @@ paths:
     put:
       operationId: putReaction
       summary: 문장 반응 남기기
-      description: 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 `reaction.not_found`입니다.
+      description: 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 `reaction.not_found`입니다. 프로필이 없으면 409 `profile.required`입니다.
       requestBody:
         required: true
         content:
@@ -605,6 +607,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '413':
           $ref: '#/components/responses/PayloadTooLarge'
         '415':
@@ -618,7 +622,7 @@ paths:
     delete:
       operationId: deleteReaction
       summary: 문장 반응 지우기
-      description: 남긴 반응을 지웁니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 `reaction.not_found`입니다.
+      description: 남긴 반응을 지웁니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 `reaction.not_found`입니다. 프로필이 없으면 409 `profile.required`입니다.
       responses:
         '204':
           description: 반응 지워짐
@@ -630,6 +634,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalError'
         '503':
@@ -641,7 +647,7 @@ paths:
     get:
       operationId: getGlossary
       summary: 용어 이름 사전
-      description: enum 값(오행·십성·태그 등)의 언어별 이름 사전입니다. 응답마다 이름을 싣는 대신 한 번 받아 둡니다(`ETag`).
+      description: enum 값(오행·십성·태그 등)의 언어별 이름 사전입니다. 응답마다 이름을 싣는 대신 한 번 받아 둡니다(`ETag`). `lang`을 생략했는데 프로필이 없으면 409 `profile.required`입니다.
       parameters:
         - name: lang
           in: query
@@ -668,6 +674,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalError'
         '503':
@@ -2303,6 +2311,7 @@ components:
       type: object
       description: |
         저장된 프로필입니다. `birthCity`는 출생 도시(`birth.place.status`가 `city`일 때만)이고 이름은 프로필 언어입니다.
+        `birthCity.longitude`는 계산에 쓴 저장된 경도입니다. 도시 자료가 바뀌어 저장된 도시를 찾지 못하면 `city`여도 `birthCity`를 뺍니다.
         계산 기준 화면의 경도 안내에 씁니다. 응답에만 있는 필드이며, 요청(`ProfileInput`·`ProfilePatch`)은 `birth.place.cityId`로만 보냅니다.
       required: [honorific, language, currentTimezone, birth, notification]
       properties:

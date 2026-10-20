@@ -44,6 +44,7 @@ var viewSlots = map[string]seed.Slot{
 	fortune.SlotCharacterReason: {ID: fortune.SlotCharacterReason, Rotation: seed.RotationNone},
 	fortune.SlotDayLevel:        {ID: fortune.SlotDayLevel, Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"score": {Kind: seed.KindNumber}}},
 	fortune.SlotYongsinMethod:   {ID: fortune.SlotYongsinMethod, Rotation: seed.RotationNone},
+	fortune.SlotNotice:          {ID: fortune.SlotNotice, Rotation: seed.RotationNone},
 	"explain.today_reason":      {ID: "explain.today_reason", Rotation: seed.RotationNone},
 	"evidence.basis":            {ID: "evidence.basis", Rotation: seed.RotationNone},
 	"evidence.source":           {ID: "evidence.source", Rotation: seed.RotationNone},
@@ -83,6 +84,9 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "ko", "판정 근거예요."+suffix),
 		tpl("evidence.basis", "basis.rule/a", seed.VariantSingle, "en", "The basis."+suffix),
 		tpl("glossary.value_name", "element.wood", seed.VariantSingle, "ko", "초록"),
+		// focus_time_fallback 안내는 원고가 없는 경우를 보려고 일부러 뺍니다.
+		tpl(fortune.SlotNotice, "notice.time_unknown", seed.VariantSingle, "ko", "태어난 시간을 몰라 낮 12시로 계산했어요."+suffix),
+		tpl(fortune.SlotNotice, "notice.dayun_start_approximate", seed.VariantSingle, "ko", "대운 시작 나이는 어림으로 계산했어요."+suffix),
 		tpl("glossary.value_name", "element.wood", seed.VariantSingle, "en", "Green"),
 	}
 	out := make([]seed.Template, 0, len(all))
@@ -578,14 +582,21 @@ func TestViews_CalendarMissingJudgmentIsError(t *testing.T) {
 	assert.ErrorContains(t, err, "길흉 판정이 없습니다")
 }
 
-// 엔진 안내 문구 슬롯이 아직 없어 notice는 code와 빈(nil 아닌) segments로 나갑니다(P4-9).
-func TestViews_NoticeWithoutTemplateHasEmptyText(t *testing.T) {
+// 엔진 안내는 활성 시드의 system.notice 문장(키 notice.<code>)으로 렌더합니다(#232).
+// 원고가 없는 코드는 빈(nil 아닌) segments로 나갑니다(계약 Notice 설명).
+func TestViews_NoticeRendersTemplateOrEmptyText(t *testing.T) {
 	notices := []enginev1.NoticeCode{enginev1.NoticeCode_NOTICE_CODE_TIME_UNKNOWN, enginev1.NoticeCode_NOTICE_CODE_FOCUS_TIME_FALLBACK}
 	fake := dailyFake(false, notices...)
 	fake.Chart = func(*enginev1.ChartRequest) (*enginev1.ChartResponse, error) {
 		return &enginev1.ChartResponse{Meta: &enginev1.ResponseMeta{
 			RulesetVersion: "rs-1",
 			Notices:        []*enginev1.Notice{{Code: enginev1.NoticeCode_NOTICE_CODE_DAYUN_START_APPROXIMATE}},
+		}}, nil
+	}
+	fake.MonthCalendar = func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error) {
+		return &enginev1.MonthResponse{Meta: &enginev1.ResponseMeta{
+			RulesetVersion: "rs-1",
+			Notices:        []*enginev1.Notice{{Code: enginev1.NoticeCode_NOTICE_CODE_TIME_UNKNOWN}},
 		}}, nil
 	}
 	f := newViewsFixture(t, fake, viewSeed(t, ""), fortune.AlwaysLocked{})
@@ -595,17 +606,22 @@ func TestViews_NoticeWithoutTemplateHasEmptyText(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, daily.Notices, 2)
 	assert.Equal(t, "time_unknown", daily.Notices[0].Code)
+	assert.Equal(t, "태어난 시간을 몰라 낮 12시로 계산했어요.", plain(daily.Notices[0].Text))
 	assert.Equal(t, "focus_time_fallback", daily.Notices[1].Code)
-	for _, n := range daily.Notices {
-		assert.NotNil(t, n.Text)
-		assert.Empty(t, n.Text)
-	}
+	assert.NotNil(t, daily.Notices[1].Text)
+	assert.Empty(t, daily.Notices[1].Text)
 
+	// 잠긴(근거 열람 권한 없는) 사주 화면도 안내 문구는 렌더합니다.
 	chart, err := f.views.Chart(ctx, f.account, viewProfile("ko"))
 	require.NoError(t, err)
 	require.Len(t, chart.Notices, 1)
 	assert.Equal(t, "dayun_start_approximate", chart.Notices[0].Code)
-	assert.NotNil(t, chart.Notices[0].Text)
+	assert.Equal(t, "대운 시작 나이는 어림으로 계산했어요.", plain(chart.Notices[0].Text))
+
+	calendar, err := f.views.Calendar(ctx, f.account, viewProfile("ko"), 2026, 10)
+	require.NoError(t, err)
+	require.Len(t, calendar.Notices, 1)
+	assert.Equal(t, "태어난 시간을 몰라 낮 12시로 계산했어요.", plain(calendar.Notices[0].Text))
 }
 
 func TestViews_NoActiveSeedIsErrNoActiveSeed(t *testing.T) {
