@@ -29,6 +29,9 @@ const (
 	adMobUnknownKeyRefetch = time.Minute
 	// rewardTimestampTolerance는 콜백 timestamp와 현재 시각의 허용 차이입니다(과거·미래 모두).
 	rewardTimestampTolerance = time.Hour
+	// adMobFailedRetryDelay는 키 조회가 실패한 뒤 캐시 없이는 다시 부르지 않는 시간입니다.
+	// 키 서버 장애 중에 요청마다 키 서버를 부르거나 mutex 안에서 줄 서는 일을 막습니다.
+	adMobFailedRetryDelay = 10 * time.Second
 	// signatureMarker는 서명 대상의 끝을 알리는 쿼리 조각입니다. 서명 대상에는 이 앞까지만 들어갑니다.
 	signatureMarker = "&signature="
 )
@@ -58,7 +61,8 @@ type RewardVerifierConfig struct {
 	KeysURL string
 	// HTTPClient가 nil이면 http.DefaultClient입니다.
 	HTTPClient *http.Client
-	Clock      clock.Clock
+	// Clock이 nil이면 clock.System을 씁니다.
+	Clock clock.Clock
 }
 
 // RewardVerifier는 AdMob 보상형 광고 SSV 콜백의 서명을 검증합니다.
@@ -70,6 +74,10 @@ type RewardVerifier struct {
 	mu        sync.Mutex
 	keys      map[uint64]*ecdsa.PublicKey
 	fetchedAt time.Time // keys를 마지막으로 받은 시각. 0이면 아직 받지 않음
+	// lastAttemptAt은 성공·실패와 무관하게 키 서버를 마지막으로 부른 시각이고,
+	// lastAttemptFailed는 그 시도가 실패했는지 나타냅니다. 둘 다 호출 억제에 씁니다.
+	lastAttemptAt     time.Time
+	lastAttemptFailed bool
 }
 
 // NewRewardVerifier는 검증기를 만듭니다.
@@ -82,7 +90,11 @@ func NewRewardVerifier(cfg RewardVerifierConfig) *RewardVerifier {
 	if keysURL == "" {
 		keysURL = defaultAdMobKeysURL
 	}
-	return &RewardVerifier{keysURL: keysURL, client: client, clk: cfg.Clock}
+	clk := cfg.Clock
+	if clk == nil {
+		clk = clock.System{}
+	}
+	return &RewardVerifier{keysURL: keysURL, client: client, clk: clk}
 }
 
 // Verify는 원본 쿼리 문자열(디코딩·재정렬하지 않은 것)의 서명을 검증하고 콜백 값을 돌려줍니다.
@@ -147,7 +159,11 @@ func decodeRewardSignature(value string) ([]byte, error) {
 	if value == "" {
 		return nil, ErrRewardSignature
 	}
-	return base64.RawURLEncoding.DecodeString(strings.TrimRight(value, "="))
+	trimmed := strings.TrimRight(value, "=")
+	if len(value)-len(trimmed) > 2 {
+		return nil, ErrRewardSignature
+	}
+	return base64.RawURLEncoding.DecodeString(trimmed)
 }
 
 // parseRewardTimestamp는 숫자 13자리 이하를 ms, 16자리를 µs로 읽습니다(P7-13). 그 밖의 형식은 오류입니다.
@@ -178,6 +194,9 @@ func (v *RewardVerifier) publicKey(ctx context.Context, keyID uint64) (*ecdsa.Pu
 
 	now := v.clk.Now()
 	if v.keys == nil || now.Sub(v.fetchedAt) >= adMobKeysTTL {
+		if v.lastAttemptFailed && now.Sub(v.lastAttemptAt) < adMobFailedRetryDelay {
+			return nil, ErrRewardKeysUnavailable
+		}
 		if err := v.refreshLocked(ctx, now); err != nil {
 			return nil, err
 		}
@@ -185,7 +204,7 @@ func (v *RewardVerifier) publicKey(ctx context.Context, keyID uint64) (*ecdsa.Pu
 	if key, ok := v.keys[keyID]; ok {
 		return key, nil
 	}
-	if now.Sub(v.fetchedAt) < adMobUnknownKeyRefetch {
+	if now.Sub(v.lastAttemptAt) < adMobUnknownKeyRefetch {
 		return nil, ErrRewardSignature
 	}
 	if err := v.refreshLocked(ctx, now); err != nil {
@@ -208,6 +227,8 @@ type adMobKeysResponse struct {
 // refreshLocked는 키 서버에서 키를 받아 캐시를 바꿉니다. 실패하면 캐시를 건드리지 않습니다.
 // 호출자가 v.mu를 잡고 있어야 합니다.
 func (v *RewardVerifier) refreshLocked(ctx context.Context, now time.Time) error {
+	v.lastAttemptAt = now
+	v.lastAttemptFailed = true
 	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
 
@@ -250,5 +271,6 @@ func (v *RewardVerifier) refreshLocked(ctx context.Context, now time.Time) error
 	}
 	v.keys = keys
 	v.fetchedAt = now
+	v.lastAttemptFailed = false
 	return nil
 }

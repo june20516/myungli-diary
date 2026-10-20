@@ -177,7 +177,8 @@ func TestReward_서명_패딩은_있어도_없어도_통과한다(t *testing.T) 
 	for _, pad := range []bool{false, true} {
 		f := newRewardFixture(t)
 		// 패딩이 실제로 붙도록 서명 길이가 3의 배수가 아닐 때까지 반복합니다.
-		for range 20 {
+		verified := false
+		for range 50 {
 			query := signRewardQuery(t, f.key, testRewardKeyID, rewardMessage(rewardTimestampMillis(rewardNow)), pad)
 			if pad && !strings.Contains(query, "=&key_id") {
 				continue
@@ -185,7 +186,11 @@ func TestReward_서명_패딩은_있어도_없어도_통과한다(t *testing.T) 
 			if _, err := f.verify.Verify(context.Background(), query); err != nil {
 				t.Fatalf("pad=%v 실패: %v", pad, err)
 			}
+			verified = true
 			break
+		}
+		if !verified {
+			t.Fatalf("pad=%v 서명을 만들지 못했습니다", pad)
 		}
 	}
 }
@@ -210,6 +215,7 @@ func TestReward_형식이_틀린_쿼리는_서명_오류다(t *testing.T) {
 		"빈 쿼리":           "",
 		"메시지가 바뀜":        strings.Replace(good, "reward_amount=1", "reward_amount=9", 1),
 		"key_id가 숫자 아님":  good[:strings.Index(good, "&key_id=")] + "&key_id=abc",
+		"서명 패딩이 3개 이상":   good[:strings.Index(good, "&key_id=")] + "===&key_id=3335741209",
 		"서명이 base64 아님":  strings.Replace(good, good[sigStart:sigStart+4], "!!!!", 1),
 	}
 	for name, query := range cases {
@@ -400,5 +406,81 @@ func TestReward_EC가_아닌_키_항목은_무시한다(t *testing.T) {
 	// RSA 항목은 버려지므로 그 key_id는 모르는 키입니다.
 	if _, err := verifier.Verify(context.Background(), signRewardQuery(t, ecKey, 99, message, false)); !errors.Is(err, ErrRewardSignature) {
 		t.Fatalf("err = %v, want ErrRewardSignature", err)
+	}
+}
+
+func TestReward_키_서버_장애_중에는_호출을_억제한다(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("캐시가 있고 모르는 key_id 재조회가 실패하면 1분 안에는 다시 부르지 않는다", func(t *testing.T) {
+		f := newRewardFixture(t)
+		if _, err := f.verify.Verify(ctx, f.signed(t, rewardMessage(rewardTimestampMillis(rewardNow)))); err != nil {
+			t.Fatal(err)
+		}
+		f.server.status.Store(http.StatusInternalServerError)
+		f.clk.Advance(2 * time.Minute)
+		unknown := signRewardQuery(t, newRewardPrivateKey(t), 42, rewardMessage(rewardTimestampMillis(f.clk.Now())), false)
+
+		// 재조회가 실패로 끝나면 503 쪽 오류입니다.
+		if _, err := f.verify.Verify(ctx, unknown); !errors.Is(err, ErrRewardKeysUnavailable) {
+			t.Fatalf("첫 요청 err = %v, want ErrRewardKeysUnavailable", err)
+		}
+		if got := f.server.calls.Load(); got != 2 {
+			t.Fatalf("호출 = %d, want 2", got)
+		}
+		// 1분 안의 두 번째는 키 서버를 부르지 않고 서명 오류입니다.
+		f.clk.Advance(30 * time.Second)
+		if _, err := f.verify.Verify(ctx, unknown); !errors.Is(err, ErrRewardSignature) {
+			t.Fatalf("두 번째 err = %v, want ErrRewardSignature", err)
+		}
+		if got := f.server.calls.Load(); got != 2 {
+			t.Fatalf("두 번째 뒤 호출 = %d, want 2", got)
+		}
+	})
+
+	t.Run("캐시가 없을 때 첫 조회 실패 뒤 10초 안에는 부르지 않고 10초 뒤에는 다시 부른다", func(t *testing.T) {
+		f := newRewardFixture(t)
+		f.server.status.Store(http.StatusInternalServerError)
+		query := f.signed(t, rewardMessage(rewardTimestampMillis(rewardNow)))
+
+		if _, err := f.verify.Verify(ctx, query); !errors.Is(err, ErrRewardKeysUnavailable) {
+			t.Fatalf("err = %v", err)
+		}
+		f.clk.Advance(9 * time.Second)
+		if _, err := f.verify.Verify(ctx, query); !errors.Is(err, ErrRewardKeysUnavailable) {
+			t.Fatalf("err = %v", err)
+		}
+		if got := f.server.calls.Load(); got != 1 {
+			t.Fatalf("10초 안 호출 = %d, want 1", got)
+		}
+
+		f.clk.Advance(time.Second)
+		if _, err := f.verify.Verify(ctx, query); !errors.Is(err, ErrRewardKeysUnavailable) {
+			t.Fatalf("err = %v", err)
+		}
+		if got := f.server.calls.Load(); got != 2 {
+			t.Fatalf("10초 뒤 호출 = %d, want 2", got)
+		}
+	})
+
+	t.Run("장애가 풀리면 10초 뒤 정상으로 돌아온다", func(t *testing.T) {
+		f := newRewardFixture(t)
+		f.server.status.Store(http.StatusInternalServerError)
+		_, _ = f.verify.Verify(ctx, f.signed(t, rewardMessage(rewardTimestampMillis(rewardNow))))
+		f.server.status.Store(http.StatusOK)
+		f.clk.Advance(10 * time.Second)
+		if _, err := f.verify.Verify(ctx, f.signed(t, rewardMessage(rewardTimestampMillis(f.clk.Now())))); err != nil {
+			t.Fatalf("err = %v", err)
+		}
+	})
+}
+
+func TestReward_Clock이_nil이면_System_시계를_쓴다(t *testing.T) {
+	key := newRewardPrivateKey(t)
+	server := newRewardKeyServer(t, rewardKeysJSON(t, map[uint64]any{testRewardKeyID: &key.PublicKey}))
+	verifier := NewRewardVerifier(RewardVerifierConfig{KeysURL: server.URL})
+	query := signRewardQuery(t, key, testRewardKeyID, rewardMessage(rewardTimestampMillis(time.Now())), false)
+	if _, err := verifier.Verify(context.Background(), query); err != nil {
+		t.Fatalf("err = %v", err)
 	}
 }
