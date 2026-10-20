@@ -1,10 +1,12 @@
 package httpapi_test
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -40,20 +42,28 @@ func (f *fakeAppCheck) Verify(_ context.Context, token string) error {
 // verifier가 nil이면 Routes.AppCheck도 nil입니다.
 func newAppCheckHandler(t *testing.T, verifier httpapi.AppCheckVerifier) http.Handler {
 	t.Helper()
+	handler, _ := newAppCheckHandlerWithLogs(t, verifier)
+	return handler
+}
+
+// newAppCheckHandlerWithLogs는 newAppCheckHandler와 같고, 로그가 쌓이는 buffer를 함께 돌려줍니다.
+func newAppCheckHandlerWithLogs(t *testing.T, verifier httpapi.AppCheckVerifier) (http.Handler, *bytes.Buffer) {
+	t.Helper()
 	spec, err := gen.GetSpec()
 	require.NoError(t, err)
-	deps, _ := newTestDeps()
+	deps, logs := newTestDeps()
 	routes := httpapi.Routes{
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: authenticateFixedAccount,
 	}
 	if verifier != nil {
-		routes.AppCheck = httpapi.RequireAppCheck(verifier)
+		routes.AppCheck = httpapi.RequireAppCheck(verifier, deps.Logger)
 	}
-	return httpapi.NewHandler(deps, func(mux *http.ServeMux) {
+	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, httpapi.Unimplemented{}, deps, routes)
 	})
+	return handler, logs
 }
 
 const birthHourBody = `{"installationId":"install-1","calendar":"solar","date":{"year":1990,"month":5,"day":15},"isLeapMonth":false,"time":"10:30"}`
@@ -87,13 +97,40 @@ func TestAppCheck_InvalidTokenIs401BeforeContractValidation(t *testing.T) {
 	assert.Equal(t, "app_check.invalid", decodeProblem(t, rec).Code)
 }
 
-func TestAppCheck_JWKSOutageIs503(t *testing.T) {
-	handler := newAppCheckHandler(t, &fakeAppCheck{err: fmt.Errorf("%w: JWKS", provider.ErrUnavailable)})
+func TestAppCheck_JWKSOutageIs503AndLogged(t *testing.T) {
+	handler, logs := newAppCheckHandlerWithLogs(t, &fakeAppCheck{err: fmt.Errorf("%w: JWKS 조회 실패: 상태 500", provider.ErrUnavailable)})
 
-	rec := serve(handler, birthHourRequest(t, "any"))
+	rec := serve(handler, birthHourRequest(t, "secret-token-value"))
 
 	require.Equal(t, http.StatusServiceUnavailable, rec.Code, "body = %s", rec.Body.String())
 	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+	assert.Equal(t, 1, strings.Count(logs.String(), "App Check 검증 불가"), "logs = %s", logs.String())
+	assert.Contains(t, logs.String(), "getBirthHour")
+	assert.Contains(t, logs.String(), "JWKS 조회 실패")
+	assert.NotContains(t, logs.String(), "secret-token-value")
+}
+
+func TestAppCheck_InvalidTokenIsNotLogged(t *testing.T) {
+	handler, logs := newAppCheckHandlerWithLogs(t, &fakeAppCheck{})
+
+	rec := serve(handler, birthHourRequest(t, "secret-token-value"))
+
+	require.Equal(t, http.StatusUnauthorized, rec.Code)
+	assert.NotContains(t, logs.String(), "App Check 검증")
+	assert.NotContains(t, logs.String(), "secret-token-value")
+}
+
+func TestAppCheck_DuplicateHeaderIs401(t *testing.T) {
+	verifier := &fakeAppCheck{}
+	handler := newAppCheckHandler(t, verifier)
+	req := birthHourRequest(t, validAppCheckToken)
+	req.Header.Add("X-Firebase-AppCheck", validAppCheckToken)
+
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusUnauthorized, rec.Code, "body = %s", rec.Body.String())
+	assert.Equal(t, "app_check.invalid", decodeProblem(t, rec).Code)
+	assert.Zero(t, verifier.calls)
 }
 
 func TestAppCheck_ValidTokenReachesContractValidation(t *testing.T) {
@@ -139,13 +176,36 @@ func TestAppCheck_OperationWithoutAppCheckIsNotChecked(t *testing.T) {
 	assert.Zero(t, verifier.calls)
 }
 
-func TestAppCheck_NilRoutesAppCheckIs503(t *testing.T) {
-	handler := newAppCheckHandler(t, nil)
+func TestAppCheck_NilRoutesAppCheckIs503AndLogged(t *testing.T) {
+	handler, logs := newAppCheckHandlerWithLogs(t, nil)
 
 	rec := serve(handler, birthHourRequest(t, validAppCheckToken))
 
 	require.Equal(t, http.StatusServiceUnavailable, rec.Code, "body = %s", rec.Body.String())
 	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+	assert.Equal(t, 1, strings.Count(logs.String(), "App Check 검증기가 설정되지 않았습니다"), "logs = %s", logs.String())
+	assert.NotContains(t, logs.String(), validAppCheckToken)
+}
+
+func TestRegisterAPI_PanicsOnSecurityAlternatives(t *testing.T) {
+	spec, err := gen.GetSpec()
+	require.NoError(t, err)
+	operation := spec.Paths.Value("/v1/birth-hour").Post
+	operation.Security = &openapi3.SecurityRequirements{
+		{"appCheck": []string{}},
+		{"bearerAuth": []string{}},
+	}
+	deps, _ := newTestDeps()
+	routes := httpapi.Routes{
+		Spec:         spec,
+		Validate:     func(next http.Handler) http.Handler { return next },
+		Authenticate: authenticateFixedAccount,
+		AppCheck:     passAppCheck,
+	}
+
+	assert.Panics(t, func() {
+		httpapi.RegisterAPI(http.NewServeMux(), httpapi.Unimplemented{}, deps, routes)
+	})
 }
 
 // Operation.AppCheck은 원본 계약(api/openapi.yaml)에서 security가 appCheck인 operationId 집합과 같아야 합니다.

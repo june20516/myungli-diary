@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"unicode"
@@ -56,7 +57,7 @@ func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, 
 		},
 	})
 	gen.HandlerWithOptions(strict, gen.StdHTTPServerOptions{
-		BaseRouter:       contractMux{mux: mux, routes: routes},
+		BaseRouter:       contractMux{mux: mux, routes: routes, logger: deps.Logger},
 		ErrorHandlerFunc: writeParameterError,
 	})
 	if router, ok := impl.(staticRouter); ok {
@@ -70,6 +71,7 @@ func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, 
 type contractMux struct {
 	mux    *http.ServeMux
 	routes Routes
+	logger *slog.Logger
 }
 
 func (c contractMux) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
@@ -85,7 +87,7 @@ func (c contractMux) HandleFunc(pattern string, handler func(http.ResponseWriter
 	if op.AppCheck {
 		appCheck := c.routes.AppCheck
 		if appCheck == nil {
-			appCheck = appCheckUnconfigured
+			appCheck = appCheckUnconfigured(c.logger)
 		}
 		wrapped = appCheck(op, wrapped)
 	}
@@ -119,6 +121,11 @@ func operationFor(spec *openapi3.T, pattern string) Operation {
 	if operation.Security != nil {
 		requirements = *operation.Security
 	}
+	// security 대안(OR)은 지원하지 않습니다. Operation은 scheme 하나가 필수라고 가정하고 라우트를 감싸므로,
+	// 서로 다른 scheme을 대안으로 두면 어느 쪽만 있어도 통과해야 하는 요청을 막게 됩니다. 조립 버그로 보고 panic합니다.
+	if hasSecurityAlternatives(requirements) {
+		panic(fmt.Sprintf("httpapi.RegisterAPI: 라우트 %q의 security 대안(OR)은 지원하지 않습니다", pattern))
+	}
 	var bearer, appCheck bool
 	for _, requirement := range requirements {
 		if _, ok := requirement[securitySchemeBearer]; ok {
@@ -129,6 +136,20 @@ func operationFor(spec *openapi3.T, pattern string) Operation {
 		}
 	}
 	return Operation{ID: contractOperationID(operation.OperationID), Bearer: bearer, AppCheck: appCheck}
+}
+
+// hasSecurityAlternatives는 requirement가 둘 이상이고 서로 다른 scheme을 요구하는지 판별합니다.
+func hasSecurityAlternatives(requirements openapi3.SecurityRequirements) bool {
+	if len(requirements) < 2 {
+		return false
+	}
+	schemes := map[string]bool{}
+	for _, requirement := range requirements {
+		for name := range requirement {
+			schemes[name] = true
+		}
+	}
+	return len(schemes) > 1
 }
 
 // contractOperationID는 operationId를 계약의 표기(lowerCamelCase, 예 "getMe")로 맞춥니다.

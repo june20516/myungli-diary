@@ -58,7 +58,7 @@ func NewAppCheck(cfg AppCheckConfig) (*AppCheck, error) {
 // Verify는 App Check 토큰의 RS256 서명, iss, exp, aud(projects/<프로젝트 번호> 포함)를 확인합니다.
 // 토큰이 올바르지 않으면 ErrTokenInvalid, JWKS를 받아 오지 못하면 ErrUnavailable로 감쌉니다.
 func (a *AppCheck) Verify(ctx context.Context, token string) error {
-	idToken, err := verifyIDTokenClaims(ctx, a.verifier, "App Check", token)
+	idToken, err := verifyIDTokenClaims(ctx, a.verifier, "App Check 토큰", token)
 	if err != nil {
 		return err
 	}
@@ -69,6 +69,8 @@ func (a *AppCheck) Verify(ctx context.Context, token string) error {
 }
 
 // isDigits는 value가 비어 있지 않은 ASCII 숫자열인지 검사합니다.
+// platform/config의 LoadAppCheck도 같은 기준(ASCII 숫자만)으로 FIREBASE_PROJECT_NUMBER를 검사합니다.
+// config는 도메인 패키지를 import하지 않는 관례라 코드를 공유하지 않으니, 기준을 바꾸면 양쪽을 함께 고칩니다.
 func isDigits(value string) bool {
 	if value == "" {
 		return false

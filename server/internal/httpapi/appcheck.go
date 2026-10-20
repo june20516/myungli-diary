@@ -3,6 +3,7 @@ package httpapi
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -25,20 +26,21 @@ type AppCheckVerifier interface {
 
 // RequireAppCheck은 appCheck 라우트를 감싸는 함수를 만듭니다(Routes.AppCheck에 넣습니다).
 //
-//  1. X-Firebase-AppCheck 헤더가 없거나 비어 있으면 401 app_check.invalid
-//  2. 검증 실패: JWKS 장애(provider.ErrUnavailable)는 503 service.unavailable, 그 밖의 실패는 401 app_check.invalid
+//  1. X-Firebase-AppCheck 헤더가 없거나 비어 있거나 둘 이상이면 401 app_check.invalid
+//  2. 검증 실패: JWKS 장애(provider.ErrUnavailable)는 503 service.unavailable(운영자가 알아야 해 Error 로그), 그 밖의 실패는 401 app_check.invalid(로그 없음)
 //
 // 토큰 값은 로그에 남기지 않습니다.
-func RequireAppCheck(verifier AppCheckVerifier) func(op Operation, next http.Handler) http.Handler {
-	return func(_ Operation, next http.Handler) http.Handler {
+func RequireAppCheck(verifier AppCheckVerifier, logger *slog.Logger) func(op Operation, next http.Handler) http.Handler {
+	return func(op Operation, next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			appCheckToken := strings.TrimSpace(r.Header.Get(appCheckHeader))
-			if appCheckToken == "" {
+			values := r.Header.Values(appCheckHeader)
+			if len(values) != 1 || strings.TrimSpace(values[0]) == "" {
 				writeAppCheckInvalid(w, r)
 				return
 			}
-			if err := verifier.Verify(r.Context(), appCheckToken); err != nil {
+			if err := verifier.Verify(r.Context(), strings.TrimSpace(values[0])); err != nil {
 				if errors.Is(err, provider.ErrUnavailable) {
+					logger.ErrorContext(r.Context(), "App Check 검증 불가(JWKS 장애)", "operation", op.ID, "error", err.Error())
 					writeServiceUnavailable(w, r)
 					return
 				}
@@ -52,8 +54,13 @@ func RequireAppCheck(verifier AppCheckVerifier) func(op Operation, next http.Han
 
 // appCheckUnconfigured는 Routes.AppCheck이 없을 때 appCheck 라우트를 막는 관문입니다(로컬에서 프로젝트 번호를 안 둔 경우).
 // 검증할 수 없는 요청을 통과시키지 않고 503으로 답합니다.
-func appCheckUnconfigured(_ Operation, _ http.Handler) http.Handler {
-	return http.HandlerFunc(writeServiceUnavailable)
+func appCheckUnconfigured(logger *slog.Logger) func(op Operation, next http.Handler) http.Handler {
+	return func(op Operation, _ http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger.ErrorContext(r.Context(), "App Check 검증기가 설정되지 않았습니다", "operation", op.ID)
+			writeServiceUnavailable(w, r)
+		})
+	}
 }
 
 func writeAppCheckInvalid(w http.ResponseWriter, r *http.Request) {
