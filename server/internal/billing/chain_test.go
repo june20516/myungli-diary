@@ -26,6 +26,20 @@ func pair(ref string, starts, expires time.Time) []Grant {
 	}
 }
 
+// inUTC는 시각을 UTC로 맞춘 사본입니다. 같은 순간이라도 Location이 다르면 assert.Equal이 다르다고 보기 때문입니다.
+func inUTC(grants []Grant) []Grant {
+	if grants == nil {
+		return nil
+	}
+	out := make([]Grant, len(grants))
+	for i, g := range grants {
+		g.StartsAt = g.StartsAt.UTC()
+		g.ExpiresAt = g.ExpiresAt.UTC()
+		out[i] = g
+	}
+	return out
+}
+
 func purchase(id string, at time.Time) Purchase {
 	return Purchase{ID: id, ProductID: testIOSProduct, PurchasedAt: at, Production: true}
 }
@@ -145,17 +159,7 @@ func TestAdFreeGrants(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := adFreeGrants(tt.purchases, testProducts, tt.productionOnly)
 
-			assert.Len(t, got, len(tt.want))
-			for i := range tt.want {
-				if i >= len(got) {
-					break
-				}
-				assert.Equal(t, tt.want[i].Entitlement, got[i].Entitlement, "행 %d", i)
-				assert.Equal(t, tt.want[i].Source, got[i].Source, "행 %d", i)
-				assert.Equal(t, tt.want[i].SourceRef, got[i].SourceRef, "행 %d", i)
-				assert.True(t, tt.want[i].StartsAt.Equal(got[i].StartsAt), "행 %d starts: got %v, want %v", i, got[i].StartsAt, tt.want[i].StartsAt)
-				assert.True(t, tt.want[i].ExpiresAt.Equal(got[i].ExpiresAt), "행 %d expires: got %v, want %v", i, got[i].ExpiresAt, tt.want[i].ExpiresAt)
-			}
+			assert.Equal(t, inUTC(tt.want), inUTC(got))
 		})
 	}
 }

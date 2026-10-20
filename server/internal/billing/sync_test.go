@@ -224,13 +224,14 @@ func TestSyncer_Sync_MiddleRefunded_RevokesAndPullsLaterForward(t *testing.T) {
 func TestSyncer_Sync_RefundReversed_RestoresRows(t *testing.T) {
 	f := newSyncFixture(t)
 	accountID := newAccount(t, f.pool)
-	f.source.set(accountID, owned("p1", oct1), refunded("p2", oct10), owned("p3", oct15))
-	require.NoError(t, f.syncer.Sync(context.Background(), accountID))
 	f.source.set(accountID, owned("p1", oct1), owned("p2", oct10), owned("p3", oct15))
 	require.NoError(t, f.syncer.Sync(context.Background(), accountID))
-	f.source.set(accountID, owned("p1", oct1), refunded("p2", oct10), owned("p3", oct15))
+
 	f.clk.Advance(time.Hour)
+	refundedAt := f.clk.Now()
+	f.source.set(accountID, owned("p1", oct1), refunded("p2", oct10), owned("p3", oct15))
 	require.NoError(t, f.syncer.Sync(context.Background(), accountID))
+	assertPeriod(t, allGrants(t, f.pool), "p2", nov1, dec1, &refundedAt)
 
 	f.clk.Advance(time.Hour)
 	f.source.set(accountID, owned("p1", oct1), owned("p2", oct10), owned("p3", oct15))
@@ -276,20 +277,23 @@ func TestSyncer_Sync_OtherSourcesUntouched(t *testing.T) {
 		}
 		assert.Nil(t, g.RevokedAt, "%v는 건드리지 않음", g)
 	}
-	rewarded := grants[slicesIndex(grants, "tx1")]
+	rewarded := grants[indexByRef(t, grants, "tx1")]
 	assert.True(t, rewarded.StartsAt.Equal(now.Add(-time.Hour)))
 	assert.True(t, rewarded.ExpiresAt.Equal(midnight))
-	subscription := grants[slicesIndex(grants, "sub1")]
+	subscription := grants[indexByRef(t, grants, "sub1")]
 	assert.True(t, subscription.StartsAt.Equal(oct1))
 	assert.True(t, subscription.ExpiresAt.Equal(nov1))
 }
 
-func slicesIndex(grants []storedGrant, ref string) int {
+// indexByRef는 source_ref가 ref인 행의 위치입니다. 없으면 테스트를 멈춥니다.
+func indexByRef(t *testing.T, grants []storedGrant, ref string) int {
+	t.Helper()
 	for i, g := range grants {
 		if g.SourceRef == ref {
 			return i
 		}
 	}
+	t.Fatalf("행 없음: %s (전체 %v)", ref, grants)
 	return -1
 }
 
