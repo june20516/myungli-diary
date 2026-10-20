@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
+import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
@@ -9,7 +11,13 @@ const _notFound = 404;
 /// 한 번에 받는 일기 목록 수. 달력 격자(42일)를 한 번에 덮습니다(A33).
 const _datesPageLimit = 100;
 
-/// 일기 저장소. 그날 일기가 있는지와 달력 도장용 일기 날짜만 묻습니다(일기 화면은 계획 5).
+/// 일기 목록 한 쪽의 기본 수(A45).
+const int diaryPageLimit = 30;
+
+/// 일기 저장소(`listDiaries`·`getDiary`·`putDiary`·`deleteDiary`).
+///
+/// 실패는 [appErrorFrom]이 분류한 [AppError]입니다([existsOn] 설명). 일기는 기기에 저장하지
+/// 않습니다(A45). 초안은 [DiaryDraftStore]가 따로 둡니다.
 final class DiaryRepository {
   /// `api`로 묻습니다.
   const new(this._api);
@@ -53,5 +61,72 @@ final class DiaryRepository {
       throw UnexpectedError(StateError('빈 응답'));
     }
     return {for (final item in list.items) CalendarDate.parse(item.date)};
+  }
+
+  /// 일기 목록 한 쪽(날짜 내림차순). [cursor]는 앞 쪽의 `nextCursor`이고, [tag]가 있으면 그
+  /// 태그가 붙은 일기만입니다.
+  Future<DiaryList> page({
+    CalendarDate? from,
+    CalendarDate? to,
+    String? tag,
+    String? cursor,
+    int limit = diaryPageLimit,
+  }) async {
+    final DiaryList? list;
+    try {
+      list = (await _api.listDiaries(
+        from: from?.toIso(),
+        to: to?.toIso(),
+        tag: tag,
+        cursor: cursor,
+        limit: limit,
+      )).data;
+    } on DioException catch (e) {
+      throw appErrorFrom(e);
+    }
+    if (list == null) {
+      throw UnexpectedError(StateError('빈 응답'));
+    }
+    return list;
+  }
+
+  /// [date]의 일기. 404면 null입니다.
+  Future<Diary?> find(CalendarDate date) async {
+    try {
+      return (await _api.getDiary(date: date.toIso())).data;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == _notFound) {
+        return null;
+      }
+      throw appErrorFrom(e);
+    }
+  }
+
+  /// [date]에 [body]를 쓰거나 고칩니다(하루 1편, 멱등 upsert). 저장된 일기를 돌려줍니다.
+  ///
+  /// 오늘 이후 날짜는 422 `diary.future_date`의 [ProblemError]입니다.
+  Future<Diary> put(CalendarDate date, String body) async {
+    final Diary? diary;
+    try {
+      diary = (await _api.putDiary(
+        date: date.toIso(),
+        diaryInput: DiaryInput(body: body),
+      )).data;
+    } on DioException catch (e) {
+      throw appErrorFrom(e);
+    }
+    if (diary == null) {
+      throw UnexpectedError(StateError('빈 응답'));
+    }
+    return diary;
+  }
+
+  /// [date]의 일기를 지웁니다. 이미 없으면 404 `diary.not_found`의 [ProblemError]입니다.
+  Future<void> delete(CalendarDate date) async {
+    try {
+      await _api.deleteDiary(date: date.toIso());
+    } on DioException catch (e) {
+      throw appErrorFrom(e);
+    }
   }
 }
