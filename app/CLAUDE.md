@@ -51,9 +51,12 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-10-20, app 세션 갱신)
-* **계획 5(일기) 화면 PR 검토 중**입니다. 브랜치 `app/diary-screens`, 계획 [`docs/plans/2026-10-20-diary.md`](docs/plans/2026-10-20-diary.md), 결정 A45~A54. 첫 PR #303(Task 1~7: fake 일기 저장소, `tag-chip`·`diary-row`·`diary-editor`·`draft-indicator`·`date-picker` `calendar`, 일기 provider, drift #271·#277·#286·#295·#301)은 병합됐습니다.
-  * 이 PR은 Task 8~12입니다: `diary-list`(쪽 목록, 날짜 골라 쓰기 시트 `PickDateSheet`), `diary-edit`(초안·저장 순간·오프라인 배너), `diary-view`(성격 → 풀이 시트, 고치기·지우기), `tag-diary`(태그 이름 제목, 뜻 한 줄, 같은 목록 `DiaryPageList`). 흐름 테스트 `test/flows/diary_*_flow_test.dart`·`tag_diary_flow_test.dart`, Patrol `patrol_test/diary_test.dart`.
-  * drift #288·#299·#300(writing·design 원고 가져오기, 윤달 초하루 표지)과 #307(PR #305: 생성 클라이언트에 `Chart.personalReadings`, 비로그인 시진 확인·음력 변환의 501 제거에 맞춰 `birth-hour-unavailable` fixture를 503으로)을 맞췄습니다. 원국 개인 해석 표시는 계획 6입니다. #309(필드 5개 제거)에는 "빼도 됨, fake 자료만 정리"로 답했습니다. #282는 2~10번을 모두 처리했습니다: ②④⑥⑨ 문서(A7·A11·A18·A27·A32·A38·A41 갱신, A54 golden만 Flutter 고정, spec 정리), ③ design #292 생일 음력 V31 목표 모양(월 휠 `윤N월` + 양력 확인 줄, `convertLunarDate`, A20 ④ 갱신), ⑤ #100·#114·#165를 처리한 부분으로 닫고 남은 일을 #311(계획 7)·#312(계획 6)로 나눔, ⑩ writing #217에 답.
+* **계획 6(나·설정) 진행 중**입니다. 브랜치 `app/me-settings`, 계획 [`docs/plans/2026-10-20-me-settings.md`](docs/plans/2026-10-20-me-settings.md), 결정 A55~A65. Task 1~8을 마쳤습니다.
+  * Task 1~2: 결정과 임시 문구 22개, `getChart` fixture(`tool/gen_chart_fixtures.py`)·차트 캐시·근거 주제
+  * Task 3~7: `settings-row`·`saju-pillars`·`ohaeng-bar`·`manse-table`·`daeun-table` 컴포넌트, 간지 표
+  * Task 8: `my-saju` 화면
+  * 이 브랜치의 첫 PR에 drift #322·#327과 #316(D79 기본 깊이 설정 없음), #313(W34 생일 음력 원고), #336(화면 스크린샷 도구 `tool/screens_linux.sh`, 계획 2~6 화면 26장 소급 등록)을 함께 담습니다. 보낸 요청: server #329(Chart 문장 필드), root #330(약관 주소), writing #331(임시 문구·사주 사전 범주).
+* **계획 5(일기) 완료**이고 PR #310으로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-20-diary.md`](docs/plans/2026-10-20-diary.md), 결정 A45~A54. `diary-list`·`diary-edit`·`diary-view`·`tag-diary`, 생일 음력 V31 목표 모양(design #292), 로컬 Patrol 스크립트 `tool/patrol_local.sh`, #282 마무리.
 * **컴포넌트·REST 따라잡기(drift #264·#266) 완료**이고 PR #269로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-20-contract-2-6.md`](docs/plans/2026-10-20-contract-2-6.md). `date-picker` `solar`, `text-field` `multiline`, `event-row` `failed`, 그날 시트 일기 쓰기 `filled`(V37), 원전 인용 한자 `fontFallback`, writing 오류 문구 3개(#237), A43 해제.
   * `city.not_found`·`timezone.invalid`는 writing 문구 대기라 4xx 일반 문구입니다(#268).
 * **계획 4(달력·일정) 완료**이고 PR #253으로 main에 병합됐습니다. 브랜치 `app/calendar`, 계획 [`docs/plans/2026-10-16-calendar.md`](docs/plans/2026-10-16-calendar.md), 결정 A32~A41(`docs/decisions.md`). `features/calendar`(달 길흉 영구 캐시와 앞뒤 달 미리 받기, `calendar` 탭, `day-sheet`)와 `features/schedule`(보이는 6주 격자 범위만 메모리에 드는 일정, `event-edit` 만들기·고치기·지우기)를 만들었고, `today`에 오늘 일정 한 줄과 `today` → `day-sheet` 출구를 붙였습니다. 시트·확인 창·toast는 셸 바깥에 그려도 글자가 Material 오류 스타일을 받지 않습니다.
@@ -88,7 +91,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **writing 답 대기:** #331(계획 6 임시 문구 22개와 사주 용어 사전 범주). #313(생일 음력 문구)은 W34로 반영했습니다. 열린 drift가 생기면 그보다 먼저 맞춥니다.
+1. **계획 6 이어서(다음 세션은 Task 9부터):** `saju-chart`(Task 9) → `settings`·앱 언어(Task 10) → `profile-edit`(Task 11) → `account-delete`·`legal`(Task 12) → 흐름·E2E·문서(Task 13). 화면을 만들 때마다 `test/screenshots/screens_test.dart`에 사례를 더하고 `tool/screens_linux.sh`로 등록합니다(#336). 그 뒤 계획 7(#311: 카카오·Apple adapter, App Link)을 미루지 않고 이어 갑니다. #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정이 생긴 뒤로 남깁니다. 답을 기다리는 것: writing #331, server #329, root #330. 열린 drift가 생기면 그보다 먼저 맞춥니다.
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목 13곳은 반영했습니다. 남은 것: 아직 없는 화면(계획 6)의 `<화면>.bar.title` 제목은 그 화면을 만들 때 붙입니다(일기 4곳은 계획 5에서 붙임, `test/contract/app_bar_title_contract_test.dart` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다. `settings` → `calc-basis` 출구는 계획 6(나·설정)에서 연결합니다.
 3. **계획 5(일기) 마무리:** 이 PR이 병합되면 계획 5는 끝납니다. 넘긴 것:
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).

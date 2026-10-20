@@ -151,6 +151,17 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
 * **Flutter 버전:** golden을 만드는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. 로컬 Flutter와 무관하게 `goldens_linux.sh`와 CI의 `goldens`·`update-goldens` job이 이 값을 읽습니다. Flutter를 올릴 때는 이 값을 올리고 같은 PR에서 golden을 다시 만듭니다.
 
+### 화면 스크린샷 (#336)
+화면별·상태별 스크린샷을 golden과 같은 Linux 렌더(Docker)로 그려 `docs/artifacts/`에 등록합니다. 제품 지도가 `index.json`의 `screens`로 화면 카드 그림을 고릅니다.
+
+```
+tool/screens_linux.sh
+```
+
+* 사례(화면·상태·fake 시나리오)는 `test/screenshots/screens_test.dart`에 있습니다. 환경 변수 `MYUNGLI_SCREENSHOTS=1`일 때만 돌아 평소 테스트와 CI에서는 건너뜁니다.
+* 결과는 `tool/register_screenshots.dart --origin render`로 등록합니다. 같은 화면·상태의 이전 렌더는 파일까지 바꾸고, 그림이 같으면 새로 등록하지 않습니다(id 접두어 `render.`). Patrol 캡처(`e2e.`)는 지금처럼 `superseded`로 남깁니다.
+* 화면을 새로 만들거나 바꾼 계획 PR에서 사례를 더하고 다시 돌립니다(세션 마무리 체크리스트의 산출물 등록).
+
 ### Widgetbook
 컴포넌트 카탈로그입니다. 테마(라이트·다크), 로케일(ko·en·ja), 글자 크기를 바꿔 볼 수 있습니다.
 
