@@ -6,7 +6,7 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "rulesetVersion": "2026.10.1",
+        "rulesetVersion": "r1",
         "evidenceAccess": "locked",
         "pillars": {
           "year": {
@@ -475,7 +475,7 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "rulesetVersion": "2026.10.1",
+        "rulesetVersion": "r1",
         "evidenceAccess": "unlocked",
         "pillars": {
           "year": {

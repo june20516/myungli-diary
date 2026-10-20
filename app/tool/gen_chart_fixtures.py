@@ -40,7 +40,16 @@ from myungli_engine.domain.enums import CalendarType, Gender
 
 SEOUL = "Asia/Seoul"
 AS_OF = date(2026, 10, 13)
-RULESET = "2026.10.1"
+# 시나리오의 다른 fixture(`getDaily`·`getCalendar`)와 같은 규칙 버전입니다. 다르면 대역 모드에서
+# 오늘·차트 응답이 번갈아 규칙 버전을 바꿔, 응답마다 사주 기반 캐시가 지워집니다.
+RULESET = "r1"
+
+# 안내 code별 대역 문장. 원고가 있는 것은 writing ko 원고(`docs/identity/writing/content/ko/system.yaml`
+# `notice.<code>`)를 따릅니다. `time_unknown`은 시주를 빼는 계산(app 표시 기준)에 맞춘 대역 문장입니다.
+NOTICE_TEXT = {
+    "time_unknown": "태어난 시간을 몰라 시주는 빼고 계산했어요.",
+    "dayun_start_approximate": "대운이 시작되는 나이는 태어난 시간을 몰라 어림으로 계산했어요.",
+}
 
 ELEMENT = {"WOOD": "wood", "FIRE": "fire", "EARTH": "earth", "METAL": "metal", "WATER": "water"}
 
@@ -81,6 +90,12 @@ def pillar(p) -> dict:
 
 def rendered(*segments) -> dict:
     return {"segments": list(segments)}
+
+
+def notice_body(notice) -> dict:
+    """엔진 안내 하나를 REST `Notice`로 옮깁니다. 문장은 code에 맞는 대역 문장입니다."""
+    code = lower(notice.code) if hasattr(notice, "code") else lower(notice)
+    return {"code": code, "text": rendered({"text": NOTICE_TEXT[code]})}
 
 
 def build(birth: BirthInput, *, unlocked: bool) -> dict:
@@ -151,13 +166,7 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
             }
             for year in view.luck.years
         ],
-        "notices": [
-            {
-                "code": lower(notice.code) if hasattr(notice, "code") else lower(notice),
-                "text": rendered({"text": "태어난 시간을 몰라 시주는 빼고 계산했어요."}),
-            }
-            for notice in view.notices
-        ],
+        "notices": [notice_body(notice) for notice in view.notices],
     }
     if yongsin.johu_stem is not None:
         body["yongsin"]["johuStem"] = lower(yongsin.johu_stem)

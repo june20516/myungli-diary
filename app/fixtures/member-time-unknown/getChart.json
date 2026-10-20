@@ -4,7 +4,7 @@
     "Content-Type": "application/json"
   },
   "body": {
-    "rulesetVersion": "2026.10.1",
+    "rulesetVersion": "r1",
     "evidenceAccess": "locked",
     "pillars": {
       "year": {
@@ -394,7 +394,7 @@
         "text": {
           "segments": [
             {
-              "text": "태어난 시간을 몰라 시주는 빼고 계산했어요."
+              "text": "대운이 시작되는 나이는 태어난 시간을 몰라 어림으로 계산했어요."
             }
           ]
         }
