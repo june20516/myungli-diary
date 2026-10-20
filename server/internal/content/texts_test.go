@@ -5,6 +5,8 @@ import (
 	"context"
 	"log/slog"
 	"math"
+	"strings"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -90,10 +92,72 @@ func joinSegments(segs []render.Segment) string {
 	return b.String()
 }
 
-func newTestRenderer() (*content.Renderer, *bytes.Buffer) {
-	var logs bytes.Buffer
-	log := slog.New(slog.NewTextHandler(&logs, nil))
-	return content.NewRenderer(log), &logs
+// testLogs는 렌더러 로그를 텍스트로 쌓으면서 레코드의 속성도 따로 모읍니다.
+// 텍스트는 레벨·키 같은 형식 검사에, 속성은 값이 새지 않았는지 검사(assertNotLogged)에 씁니다.
+type testLogs struct {
+	bytes.Buffer
+
+	mu      sync.Mutex
+	records []loggedAttrs
+}
+
+// loggedAttrs는 레코드 하나의 메시지와 속성(키 → 값 문자열)입니다. 레코드 시각은 속성이 아니라 들어가지 않습니다.
+type loggedAttrs struct {
+	message string
+	attrs   map[string]string
+}
+
+// captureHandler는 텍스트 handler로 넘기기 전에 레코드 속성을 testLogs에 모읍니다.
+type captureHandler struct {
+	slog.Handler
+	logs   *testLogs
+	preset []slog.Attr
+}
+
+func (h captureHandler) Handle(ctx context.Context, r slog.Record) error {
+	attrs := map[string]string{}
+	for _, a := range h.preset {
+		attrs[a.Key] = a.Value.String()
+	}
+	r.Attrs(func(a slog.Attr) bool {
+		attrs[a.Key] = a.Value.String()
+		return true
+	})
+	h.logs.mu.Lock()
+	h.logs.records = append(h.logs.records, loggedAttrs{message: r.Message, attrs: attrs})
+	h.logs.mu.Unlock()
+	return h.Handler.Handle(ctx, r)
+}
+
+func (h captureHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	preset := append(append([]slog.Attr{}, h.preset...), attrs...)
+	return captureHandler{Handler: h.Handler.WithAttrs(attrs), logs: h.logs, preset: preset}
+}
+
+func (h captureHandler) WithGroup(name string) slog.Handler {
+	return captureHandler{Handler: h.Handler.WithGroup(name), logs: h.logs, preset: h.preset}
+}
+
+func newTestRenderer() (*content.Renderer, *testLogs) {
+	logs := &testLogs{}
+	log := slog.New(captureHandler{Handler: slog.NewTextHandler(logs, nil), logs: logs})
+	return content.NewRenderer(log), logs
+}
+
+// assertNotLogged는 로그 레코드의 메시지와 속성 값 어디에도 secrets가 없는지 봅니다.
+// 레코드 시각(time)은 속성이 아니라 보지 않습니다. 시각 숫자가 우연히 secret과 겹쳐 실패하는 일을 막습니다(#272).
+func assertNotLogged(t *testing.T, logs *testLogs, secrets ...string) {
+	t.Helper()
+	logs.mu.Lock()
+	defer logs.mu.Unlock()
+	for i, rec := range logs.records {
+		for _, secret := range secrets {
+			assert.NotContains(t, rec.message, secret, "%d번째 로그의 메시지에 %q가 있습니다", i, secret)
+			for key, value := range rec.attrs {
+				assert.False(t, strings.Contains(value, secret), "%d번째 로그의 속성 %s에 %q가 있습니다: %q", i, key, secret, value)
+			}
+		}
+	}
 }
 
 func TestSlot_RendersJudgmentWithParams(t *testing.T) {
@@ -208,7 +272,7 @@ func TestSlot_MissingTemplateIsFalseAndLogs(t *testing.T) {
 	for _, want := range []string{"daily.color", "color.missing_key", "single", "lang=ko"} {
 		assert.Contains(t, out, want)
 	}
-	assert.NotContains(t, out, "민지")
+	assertNotLogged(t, logs, "민지")
 	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("\n")), "로그는 한 줄만 남습니다")
 }
 
@@ -225,9 +289,7 @@ func TestSlot_RenderErrorIsFalseAndLogsCauseWithoutBodyOrValues(t *testing.T) {
 	out := logs.String()
 	assert.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("level=ERROR")), out)
 	assert.Contains(t, out, `error="이름 사전에 element.no_such_value가 없습니다"`)
-	for _, secret := range []string{"민지", "좋아요", "80"} {
-		assert.NotContains(t, out, secret)
-	}
+	assertNotLogged(t, logs, "민지", "좋아요", "80")
 }
 
 func TestIdentifier_RendersKeyWithGivenParams(t *testing.T) {
