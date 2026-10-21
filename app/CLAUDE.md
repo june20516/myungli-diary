@@ -54,7 +54,7 @@
 
 ## 현재 상태 (2026-10-21, app 세션 갱신)
 * **drift 따라잡기(#391·#393·#403)**, 브랜치 `app/drift-1021`. REST draft.12 `DaeunPeriod.startYear`(#391, server #351 답)로 대운 시작 연도를 계약 값으로 바꾸고 생일 추정을 지웠습니다(`currentDaeunIndex`만 남음, `getChart` fixture에 `startYear`). IA D82(#393)로 `ia.g.dart`를 다시 생성하고, 아직 없는 `login-methods`·`account-merge`와 출구가 늘어난 `settings`를 `test/contract/ia_pending.dart`에 넣었습니다(#387에서 만듦). writing #398(#403)은 app 생성물·ARB 차이가 없습니다.
-* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 [`docs/specs/2026-10-21-real-login-design.md`](docs/specs/2026-10-21-real-login-design.md)(카카오·Apple, A67~A69). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
+* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 `docs/specs/2026-10-21-real-login-design.md`(아직 main에 없음)(카카오·Apple, A67~A69). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
 * **계획 6(나·설정) 완료**이고 PR #345로 main에 병합됐습니다. 브랜치 `app/me-settings`, 계획 [`docs/plans/2026-10-20-me-settings.md`](docs/plans/2026-10-20-me-settings.md), 결정 A55~A66.
   * Task 1~2: 결정과 임시 문구 22개(A64), `getChart` fixture(`tool/gen_chart_fixtures.py`)·차트 캐시(A56)·차트 근거 주제(`ChartEvidenceSubject`)
   * Task 3~7: `settings-row`·`ohaeng.cell`·`saju-pillars`·`ohaeng-bar`·`manse-table`·`daeun-table` 컴포넌트, 간지 표(A65)
