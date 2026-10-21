@@ -1114,7 +1114,7 @@
         {
           "id": "today.guide.cta",
           "source": "ui",
-          "role": "일기 쓰기 또는 쓴 일기 보기 버튼"
+          "role": "일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기)"
         },
         {
           "id": "today.event.summary",
@@ -1141,6 +1141,7 @@
         "reaction-button",
         "lucky-card",
         "guide-question-card",
+        "diary-row",
         "event-row",
         "share-button",
         "depth-link",
@@ -1149,11 +1150,11 @@
       "exits": [
         {
           "to": "diary-edit",
-          "trigger": "가이드 질문 카드(오늘 일기 없음)"
+          "trigger": "가이드 질문 카드(새 일기)"
         },
         {
           "to": "diary-view",
-          "trigger": "가이드 질문 카드(오늘 일기 있음)"
+          "trigger": "오늘 쓴 일기 줄"
         },
         {
           "to": "explain-sheet",
@@ -1183,7 +1184,8 @@
         "D40",
         "D48",
         "D39",
-        "D53"
+        "D53",
+        "D83"
       ]
     },
     {
@@ -1490,7 +1492,7 @@
       "tab": "calendar",
       "presentation": "half-sheet",
       "auth": "member",
-      "purpose": "그날 성격 한 줄과 일정, 일기 입구를 보여줍니다",
+      "purpose": "그날 성격 한 줄과 일정, 그날 쓴 일기 줄과 일기 쓰기 입구를 보여줍니다",
       "depths": [
         "surface",
         "explain"
@@ -1533,18 +1535,19 @@
         {
           "id": "day-sheet.diary.open",
           "source": "ui",
-          "role": "그날 일기 보기 링크"
+          "role": "그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다"
         },
         {
           "id": "day-sheet.diary.write-cta",
           "source": "ui",
-          "role": "이날 일기 쓰기(지난 날·오늘이고 일기 없음)"
+          "role": "이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기)"
         }
       ],
       "components": [
         "sheet",
         "day-character",
         "event-row",
+        "diary-row",
         "term-token",
         "depth-link",
         "primary-button"
@@ -1556,11 +1559,11 @@
         },
         {
           "to": "diary-view",
-          "trigger": "그날 일기 보기"
+          "trigger": "그날 일기 줄 누름"
         },
         {
           "to": "diary-edit",
-          "trigger": "이날 일기 쓰기"
+          "trigger": "이날 일기 쓰기(새 일기)"
         },
         {
           "to": "explain-sheet",
@@ -1571,7 +1574,8 @@
         "D19",
         "D47",
         "D49",
-        "D39"
+        "D39",
+        "D83"
       ]
     },
     {
@@ -1665,7 +1669,7 @@
       "tab": "diary",
       "presentation": "page",
       "auth": "member",
-      "purpose": "일기를 시간순으로 모아 보고 날짜를 골라 씁니다(미래 날짜는 고를 수 없음)",
+      "purpose": "일기를 시간순으로 모아 보고(같은 날 여러 편은 날짜 아래 작성 순) 날짜를 골라 새 일기를 씁니다(미래 날짜는 고를 수 없음)",
       "depths": [],
       "states": [
         {
@@ -1704,7 +1708,7 @@
         {
           "id": "diary-list.pick-date.confirm",
           "source": "ui",
-          "role": "날짜 시트 아래 버튼. 고른 날짜를 넣는 틀(매개변수 date)이고 누르면 그날 diary-edit 또는 diary-view로 갑니다"
+          "role": "날짜 시트 아래 버튼. 고른 날짜를 넣는 틀(매개변수 date)이고 누르면 그날 새 일기 diary-edit로 갑니다"
         }
       ],
       "components": [
@@ -1719,11 +1723,11 @@
       "exits": [
         {
           "to": "diary-view",
-          "trigger": "일기 누름 또는 고른 날에 일기 있음"
+          "trigger": "일기 누름"
         },
         {
           "to": "diary-edit",
-          "trigger": "날짜 골라 쓰기(그날 일기 없음)"
+          "trigger": "날짜 골라 쓰기(새 일기)"
         },
         {
           "to": "tag-diary",
@@ -1735,7 +1739,8 @@
         "D48",
         "D49",
         "D39",
-        "D53"
+        "D53",
+        "D83"
       ]
     },
     {
@@ -1744,7 +1749,7 @@
       "tab": "diary",
       "presentation": "page",
       "auth": "member",
-      "purpose": "그날 가이드 질문을 보며 일기를 쓰고 고칩니다. 작성 중인 글은 기기에 초안으로 남습니다",
+      "purpose": "그날 가이드 질문을 보며 일기 한 편을 쓰고 고칩니다. 같은 날 여러 편을 쓸 수 있습니다. 작성 중인 글은 기기에 초안으로 남습니다",
       "depths": [],
       "states": [
         {
@@ -1821,7 +1826,8 @@
         "D22",
         "D47",
         "D49",
-        "D39"
+        "D39",
+        "D83"
       ]
     },
     {
@@ -1830,7 +1836,7 @@
       "tab": "diary",
       "presentation": "page",
       "auth": "member",
-      "purpose": "일기 본문과 그날 성격, 태그를 보여주고 고치기·지우기를 둡니다",
+      "purpose": "일기 한 편의 본문과 그날 성격, 태그를 보여주고 고치기·지우기를 둡니다",
       "depths": [
         "surface",
         "explain"
@@ -1892,7 +1898,8 @@
       ],
       "decisions": [
         "D49",
-        "D39"
+        "D39",
+        "D83"
       ]
     },
     {
@@ -2494,7 +2501,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "붙이려는 로그인 수단이 다른 계정에 있을 때, 남길 계정을 골라 두 계정을 하나로 합칩니다(D82 ⑥)",
+      "purpose": "붙이려는 로그인 수단이 다른 계정에 있을 때, 남길 계정을 골라 두 계정을 하나로 합칩니다(D82 ⑥, D83 ④)",
       "depths": [],
       "states": [
         {
@@ -2520,7 +2527,7 @@
         {
           "id": "account-merge.title.body",
           "source": "ui",
-          "role": "합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 모두, 광고 제거 기간은 더함)"
+          "role": "합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)"
         },
         {
           "id": "account-merge.choice.label",
@@ -2530,7 +2537,7 @@
         {
           "id": "account-merge.overlap.notice",
           "source": "ui",
-          "role": "같은 날 일기가 겹쳐 지워질 일기 수 안내(고르지 않은 계정 쪽)"
+          "role": "같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(겹치는 날이 있을 때)"
         },
         {
           "id": "account-merge.cta.merge",
@@ -2567,7 +2574,8 @@
       "decisions": [
         "D49",
         "D53",
-        "D82"
+        "D82",
+        "D83"
       ]
     },
     {

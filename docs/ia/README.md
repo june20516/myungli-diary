@@ -35,17 +35,18 @@ flowchart LR
   launch -->|로그인 상태, 이 기기에서 광고 동의 전| ad-consent
 ```
 
-## 일기 입구 세 곳 (D49)
+## 일기 입구 세 곳 (D49·D83)
 
-일기는 하루 1편이고, 고른 날에 이미 일기가 있으면 보기로 갑니다.
+일기는 하루에 여러 편 쓸 수 있습니다(D83). 쓰는 입구는 언제나 새 일기를 열고, 이미 쓴 일기는 일기 줄에서 엽니다.
 
 ```mermaid
 flowchart LR
   today -->|가이드 질문 카드| diary-edit
   diary-list -->|날짜 골라 쓰기| diary-edit
   day-sheet -->|이날 일기 쓰기| diary-edit
-  today -.->|오늘 일기 있음| diary-view
-  diary-list -.->|그날 일기 있음| diary-view
+  today -.->|오늘 쓴 일기 줄| diary-view
+  day-sheet -.->|그날 일기 줄| diary-view
+  diary-list -.->|일기 누름| diary-view
   diary-edit -->|저장| diary-view
 ```
 
