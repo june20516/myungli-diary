@@ -214,8 +214,6 @@ def test_daily_slots_co_display_each_other(rules: RuleSet) -> None:
 LENGTHS_FILE = SLOTS_DIR.parents[1] / "design" / "lengths.md"
 # design 표의 옛 슬롯 이름 → writing 슬롯 id입니다(content 슬롯 settings.calculation_basis는 ui 슬롯으로 옮겼습니다).
 LENGTH_SLOT_ALIASES = {"settings.calculation_basis": "calc-basis.longitude.body"}
-# D79로 뺀 기본 깊이 설정 슬롯입니다. design이 lengths.md에서 행을 지울 때까지(#324) 대조에서 건너뜁니다.
-LENGTH_SLOTS_REMOVED = {"ui.depth.default_label", "ui.depth.surface", "ui.depth.evidence"}
 # 확인 창 슬롯의 제목 자리 키입니다(#191). 나머지 키는 버튼이고, profileEditRecalcConfirmBody는 본문입니다.
 DIALOG_TITLE_KEYS = {
     "diary-view.delete.confirm": "diaryViewDeleteConfirm",
@@ -241,8 +239,7 @@ def design_lengths() -> tuple[list[tuple[list[str], str, dict[str, int]]], list[
         if not line.startswith("| `"):
             continue
         cells = [cell.strip() for cell in line.strip("|").split("|")]
-        names = [name for name in re.findall(r"`([^`]+)`", cells[0]) if name not in LENGTH_SLOTS_REMOVED]
-        slot_ids = [LENGTH_SLOT_ALIASES.get(name, name) for name in names]
+        slot_ids = [LENGTH_SLOT_ALIASES.get(name, name) for name in re.findall(r"`([^`]+)`", cells[0])]
         if section == "unbounded":
             unbounded.extend(slot_ids)
         elif section == "## 상한":

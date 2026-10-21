@@ -11,7 +11,7 @@
   user_state: 용어를 탭해 하프 시트를 엽니다.
   structure: 단계 이름 하나.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 8, en: 13, ja: 6}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [sheet]
   keys:
     - depthExplain
@@ -23,7 +23,7 @@
       - {lang: ko, text: "왜 그런지", why: "라운드 R7-1 탈락", source: writing}
   endings: []
   a11y:
-    truncation: 짧은 이름이라 잘리지 않습니다. 상한은 design lengths.md의 같은 행 값입니다.
+    truncation: 화면에 보이지 않는 스크린리더 전용 이름이라 상한이 없습니다(design lengths.md, #372).
     screen_reader: 시트 이름으로 읽습니다.
 
 - id: ui.depth.evidence_link
