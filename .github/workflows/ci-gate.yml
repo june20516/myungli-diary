@@ -180,11 +180,15 @@ jobs:
     needs: changes
     if: needs.changes.outputs.writing == 'true'
     uses: ./.github/workflows/writing.yml
+    with:
+      mode: ${{ needs.changes.outputs.writing_mode }}
 
   design:
     needs: changes
     if: needs.changes.outputs.design == 'true'
     uses: ./.github/workflows/design.yml
+    with:
+      mode: ${{ needs.changes.outputs.design_mode }}
 
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 같은 PR·단위의 Issue가 열려 있으면 다시 열지 않습니다.
   # 같은 PR의 다음 실행에서 drift가 통과하면(주는 쪽이 PR 안에서 맞춤) 그 Issue를 닫습니다. main push에서는 drift를 돌리지 않기 때문입니다.
