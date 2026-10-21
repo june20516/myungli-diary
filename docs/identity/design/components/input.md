@@ -42,7 +42,7 @@
 
 ## segmented
 
-* 쓰는 화면: onboard-gender, event-edit, saju-chart(원국·오행 / 만세력·대운), settings, share-preview(공유 비율)
+* 쓰는 화면: onboard-gender, event-edit, saju-chart(원국·오행 / 만세력·대운), share-preview(공유 비율)
 * `bg.sheet` + 1px `line` 알약 트랙, 선택 표시는 `action.primary` 알약 + 흰 글자.
 * 선택이 바뀌면 `select.seep-slide`: 새 표시가 이전 자리 쪽에서 거리의 15%만 미끄러지며 선명해지고, 이전 표시는 제자리에서 번지며 사라집니다. 햅틱 selection.
 * 항목 2~4개, 같은 너비, 글자 한 줄.
