@@ -36,6 +36,14 @@
 | 슬롯 명세, 호칭·조사 처리 규칙, 라이팅 검사기 | **사용** (W0 이후) | writing |
 | MVP 화면 목록 (IA) `docs/ia/screens.json` | **사용** (`source: content` 슬롯이 콘텐츠 모듈의 템플릿 범위) | 지휘 |
 
+## 검사
+CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범위를 고릅니다(D81, `docs/workflow.md` §6.2). own은 전체를 돌리고, drift·gate는 계약을 읽는 검사만 돌립니다. 반복 중에는 아래 빠른 경로를 로컬에서 돌립니다(`server/`에서 실행).
+
+* **바뀐 패키지만:** `go test -race $(git diff --name-only origin/main... -- . | grep '\.go$' | sed 's#^server/##' | xargs -n1 dirname | sort -u | sed 's#^#./#')`. DB 테스트(testcontainers)는 Docker가 켜져 있어야 합니다.
+* **계약을 바꿨을 때:** `go generate ./... && git status --porcelain`(출력이 비어야 함), `go test -race ./api/ ./seed/... ./legal/... ./internal/content/render/ ./internal/profile/honorific/`, `go test -race -run 'TestRegisterAPI_|TestProblemCodes_|TestLegalPage_|TestAppCheck_' ./internal/httpapi/`
+* **엔진 클라이언트나 proto를 바꿨을 때만:** `go test -count=1 -tags enginecontract ./internal/engine/...`(core 이미지를 빌드해 띄우므로 느립니다)
+* **commit 전:** `go vet ./... && golangci-lint run ./... && go test -race ./...`. staging 태그를 건드렸으면 `-tags staging`으로 vet·lint를 한 번 더 돌립니다.
+
 ## 현재 상태 (2026-10-20, server 세션 갱신)
 * **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조)·P7(결제와 권한) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S93)에 모읍니다.
 * P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 조립됐습니다(S22). 새 결정은 S15~S24(nonce, 삭제 대기 계정, 도메인별 sqlc, 동의 문서 버전, Apple 토큰 처리, refresh 유예, Apple 웹 교환 코드, 문장 선택 지문, staging 테스트 로그인)입니다.
