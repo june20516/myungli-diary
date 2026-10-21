@@ -164,6 +164,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.server == 'true'
     uses: ./.github/workflows/server.yml
+    with:
+      mode: ${{ needs.changes.outputs.server_mode }}
 
   # 기기 E2E(e2e-android)는 run_e2e 기본값(false)이라 판정에 들어가지 않습니다. main push·매일 밤·수동은 app.yml이 직접 돕니다.
   # mode가 검사 범위를 정합니다(D81). Android 디버그 빌드와 golden은 own에서만 돕니다(app.yml).
