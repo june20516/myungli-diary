@@ -156,6 +156,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/core.yml
+    # 단위가 mode 입력을 받으면 넘깁니다(D81). own은 빠른 검사 전체, drift·gate는 계약 검사만입니다.
+    with:
+      mode: ${{ needs.changes.outputs.core_mode }}
 
   server:
     needs: changes
