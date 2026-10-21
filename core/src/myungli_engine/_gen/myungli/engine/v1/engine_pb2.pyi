@@ -665,20 +665,22 @@ class DaeunTable(_message.Message):
     def __init__(self, forward: _Optional[bool] = ..., start_years: _Optional[int] = ..., start_months: _Optional[int] = ..., periods: _Optional[_Iterable[_Union[LuckPeriod, _Mapping]]] = ...) -> None: ...
 
 class LuckPeriod(_message.Message):
-    __slots__ = ("pillar", "start_age", "start_age_korean", "stem_ten_god", "branch_ten_god", "twelve_stage")
+    __slots__ = ("pillar", "start_age", "start_age_korean", "stem_ten_god", "branch_ten_god", "twelve_stage", "start_year")
     PILLAR_FIELD_NUMBER: _ClassVar[int]
     START_AGE_FIELD_NUMBER: _ClassVar[int]
     START_AGE_KOREAN_FIELD_NUMBER: _ClassVar[int]
     STEM_TEN_GOD_FIELD_NUMBER: _ClassVar[int]
     BRANCH_TEN_GOD_FIELD_NUMBER: _ClassVar[int]
     TWELVE_STAGE_FIELD_NUMBER: _ClassVar[int]
+    START_YEAR_FIELD_NUMBER: _ClassVar[int]
     pillar: Pillar
     start_age: int
     start_age_korean: int
     stem_ten_god: TenGod
     branch_ten_god: TenGod
     twelve_stage: TwelveStage
-    def __init__(self, pillar: _Optional[_Union[Pillar, _Mapping]] = ..., start_age: _Optional[int] = ..., start_age_korean: _Optional[int] = ..., stem_ten_god: _Optional[_Union[TenGod, str]] = ..., branch_ten_god: _Optional[_Union[TenGod, str]] = ..., twelve_stage: _Optional[_Union[TwelveStage, str]] = ...) -> None: ...
+    start_year: int
+    def __init__(self, pillar: _Optional[_Union[Pillar, _Mapping]] = ..., start_age: _Optional[int] = ..., start_age_korean: _Optional[int] = ..., stem_ten_god: _Optional[_Union[TenGod, str]] = ..., branch_ten_god: _Optional[_Union[TenGod, str]] = ..., twelve_stage: _Optional[_Union[TwelveStage, str]] = ..., start_year: _Optional[int] = ...) -> None: ...
 
 class YearLuck(_message.Message):
     __slots__ = ("year", "pillar", "ten_god", "relations_with_natal")

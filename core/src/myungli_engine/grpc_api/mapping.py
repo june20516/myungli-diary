@@ -178,6 +178,7 @@ def chart_to_proto(view: ChartView) -> pb.ChartResponse:
                     pillar=_pillar(period.pillar),
                     start_age=period.start_age,
                     start_age_korean=period.start_age_korean,
+                    start_year=period.start_year,
                     stem_ten_god=_name(_PREFIX_TEN_GOD, period.stem_ten_god),
                     branch_ten_god=_name(_PREFIX_TEN_GOD, period.branch_ten_god),
                     twelve_stage=_name(_PREFIX_TWELVE_STAGE, period.twelve_stage),

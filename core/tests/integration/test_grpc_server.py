@@ -67,6 +67,23 @@ def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     assert len(response.gongmang) == 2
 
 
+def test_daeun_start_year_matches_korean_age_and_solar_birth_year(stub: pb_grpc.MyungliEngineStub) -> None:
+    # 음력 1984-12-20은 양력 1985년이다. 출생 양력 연도는 음력 연도가 아니라 변환한 양력 연도다(#378).
+    lunar_date = pb.LocalDate(year=1984, month=12, day=20)
+    solar = stub.ConvertLunarDate(pb.LunarDateRequest(date=lunar_date)).solar
+    assert solar.year == 1985
+    lunar_birth = pb.BirthInfo(
+        calendar=pb.CALENDAR_TYPE_LUNAR, date=lunar_date, gender=pb.GENDER_FEMALE, timezone=SEOUL
+    )
+    births_with_solar_year = [(solar_birth(1990, 3, 10), 1990), (lunar_birth, solar.year)]
+
+    for birth, birth_solar_year in births_with_solar_year:
+        periods = stub.GetChart(pb.ChartRequest(birth=birth, as_of=AS_OF)).daeun.periods
+        assert periods[0].start_year >= birth_solar_year
+        assert [p.start_year - periods[0].start_year for p in periods] == list(range(0, 100, 10))
+        assert all(p.start_age_korean == p.start_year - birth_solar_year + 1 for p in periods)
+
+
 def test_chart_personal_readings(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
