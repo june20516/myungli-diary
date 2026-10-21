@@ -37,18 +37,17 @@
 ## 현재 진행 순서 (2026-10-21 기준, app 계획 6 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 core PR #380(`LuckPeriod.start_year`)의 server #381, writing #382입니다. PR #380이 병합된 뒤 따라잡습니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 core PR #380(`LuckPeriod.start_year`)의 server #381, writing #382입니다. PR #380은 병합됐습니다(core #378 완료).
 * **검사 범위·시점 정리(D81) 완료:** 지휘 몫(PR #357·#366)과 다섯 단위 몫(app #364, core #365, server #368, writing #369, design #371)이 끝났고, `ci-gate`가 모든 단위에 `mode`를 넘깁니다(#366·#367·#370·#373). 캐시·건너뛰기는 D81 ⑥을 따릅니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
-* **가장 긴 경로:** A1(계획 6·7) → A2, 그리고 core #378 → S2(#351·다음 P7) → S3 → A2 → I2. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
+* **가장 긴 경로:** A1(계획 6·7) → A2, 그리고 S2(#381·#351·다음 P7) → S3 → A2 → I2. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
 | 지금 | app | 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
-| 지금 | core | proto `LuckPeriod.start_year`(#378, 하위 호환 추가, 엔진 값 그대로 + `start_age_korean` 관계 주석). 작은 일이라 server 자리를 잠깐 씁니다 | server #351, S3, A2 |
-| 지금 | server | core PR #380 병합 뒤 drift #381 따라잡기에서 REST `DaeunPeriod.startYear`(필수, #351) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화) | S2 완료, S3, A2 |
-| 다음 | writing | drift #382(생성 코드 갱신, core PR #380 병합 뒤) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
+| 지금 | server | drift #381 따라잡기에서 REST `DaeunPeriod.startYear`(필수, #351) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화) | S2 완료, S3, A2 |
+| 다음 | writing | drift #382(생성 코드 갱신) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
 | 필요할 때 | design | app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에 | - |
