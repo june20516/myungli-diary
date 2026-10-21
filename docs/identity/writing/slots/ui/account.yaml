@@ -1,0 +1,170 @@
+# 화면 문구 슬롯: 로그인 수단·계정 합치기 화면(D82, PR #390, drift #394)
+#
+# id는 IA 슬롯 id 그대로입니다(슬롯 명세 v1.1). keys는 ARB 메시지 이름입니다(#90, 검사기 ia.key_name).
+# 지금은 키 없는 틀입니다(slot.empty_keys warn). 키와 원고는 #388에서 씁니다.
+# 원고는 content/<lang>/ui.yaml이고, mlw gen-docs가 generated/arb/app_<lang>.arb를 만듭니다.
+
+- id: login-methods.intro.body
+  where: "로그인 수단 화면(login-methods): 첫머리 설명"
+  purpose: guide
+  user_state: "연결한 로그인 수단을 봅니다."
+  structure: "연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: login-methods.last.notice
+  where: "로그인 수단 화면(login-methods): 마지막 남은 수단 안내"
+  purpose: guide
+  user_state: "로그인 수단이 하나만 남았습니다."
+  structure: "마지막 남은 수단은 뗄 수 없다는 안내."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: login-methods.unlink.confirm
+  where: "로그인 수단 화면(login-methods): 떼기 확인"
+  purpose: guide
+  user_state: "로그인 수단 하나를 떼려 합니다."
+  structure: "확인 창: 질문과 버튼."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
+
+- id: login-methods.error.body
+  where: "로그인 수단 화면(login-methods): 연결·떼기 실패 안내"
+  purpose: guide
+  user_state: "연결·떼기를 끝내지 못했습니다(인증 창을 닫음 포함)."
+  structure: "무엇이 안 됐는지와 다시 해 볼 수 있다는 안내."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: account-merge.title.head
+  where: "계정 합치기 화면(account-merge): 제목"
+  purpose: info
+  user_state: "붙이려는 수단이 다른 계정에 연결돼 있습니다."
+  structure: "두 계정을 하나로 합친다는 제목."
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "화면 첫 문장으로 읽습니다."
+
+- id: account-merge.title.body
+  where: "계정 합치기 화면(account-merge): 합치면 남는 것과 옮겨지는 것"
+  purpose: info
+  user_state: "두 계정을 합칠지 정하려 합니다."
+  structure: "사주 정보·호칭·설정은 고른 계정, 일기는 모두, 광고 제거 기간은 더한다는 설명."
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: account-merge.choice.label
+  where: "계정 합치기 화면(account-merge): 남길 계정 고르기 안내"
+  purpose: guide
+  user_state: "두 계정 요약을 봅니다."
+  structure: "남길 계정을 고르라는 안내 한 줄."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "선택지 묶음의 이름으로 읽습니다."
+
+- id: account-merge.overlap.notice
+  where: "계정 합치기 화면(account-merge): 겹치는 일기 안내"
+  purpose: info
+  user_state: "같은 날 일기가 두 계정에 다 있습니다."
+  structure: "고르지 않은 계정 쪽에서 지워질 일기 수(매개변수)를 숫자로 알리는 안내."
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: account-merge.cta.merge
+  where: "계정 합치기 화면(account-merge): 합치기 버튼"
+  purpose: guide
+  user_state: "남길 계정을 골랐습니다."
+  structure: "버튼 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "버튼 이름으로 읽습니다."
+
+- id: account-merge.cta.cancel
+  where: "계정 합치기 화면(account-merge): 합치지 않기"
+  purpose: guide
+  user_state: "합치지 않으려 합니다."
+  structure: "버튼 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "버튼 이름으로 읽습니다."
+
+- id: account-merge.merge.confirm
+  where: "계정 합치기 화면(account-merge): 최종 확인"
+  purpose: guide
+  user_state: "합치기 버튼을 눌렀습니다."
+  structure: "확인 창: 되돌릴 수 없다는 것과 버튼."
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys: []
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples: {good: [], bad: []}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "제목, 본문, 버튼 순서로 읽습니다."

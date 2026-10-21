@@ -33,7 +33,10 @@ BAD_CONTENT = """\
 def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["check", str(CONTENT_DIR), "--partial"]) == 0
     # 근거 슬롯 키를 core 목록으로 채워 경고도 남지 않습니다(#130).
-    assert capsys.readouterr().out == ""
+    # D82 슬롯 틀 13개는 #388에서 키를 채우기 전까지 slot.empty_keys warn만 남깁니다(#394).
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 13
+    assert all(" slot.empty_keys warn " in line for line in lines)
 
 
 def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

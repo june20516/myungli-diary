@@ -39,6 +39,8 @@ abstract final class ScreenIds {
   static const String systemRewardedAd = 'system-rewarded-ad';
   static const String profileEdit = 'profile-edit';
   static const String calcBasis = 'calc-basis';
+  static const String loginMethods = 'login-methods';
+  static const String accountMerge = 'account-merge';
   static const String accountDelete = 'account-delete';
   static const String legal = 'legal';
 }
@@ -215,6 +217,21 @@ abstract final class SlotIds {
   static const String calcBasisSchoolsBody = 'calc-basis.schools.body';
   static const String calcBasisLongitudeBody = 'calc-basis.longitude.body';
   static const String calcBasisLunarBody = 'calc-basis.lunar.body';
+  static const String loginMethodsBarTitle = 'login-methods.bar.title';
+  static const String loginMethodsIntroBody = 'login-methods.intro.body';
+  static const String loginMethodsLastNotice = 'login-methods.last.notice';
+  static const String loginMethodsUnlinkConfirm =
+      'login-methods.unlink.confirm';
+  static const String loginMethodsErrorBody = 'login-methods.error.body';
+  static const String accountMergeBarTitle = 'account-merge.bar.title';
+  static const String accountMergeTitleHead = 'account-merge.title.head';
+  static const String accountMergeTitleBody = 'account-merge.title.body';
+  static const String accountMergeChoiceLabel = 'account-merge.choice.label';
+  static const String accountMergeOverlapNotice =
+      'account-merge.overlap.notice';
+  static const String accountMergeCtaMerge = 'account-merge.cta.merge';
+  static const String accountMergeCtaCancel = 'account-merge.cta.cancel';
+  static const String accountMergeMergeConfirm = 'account-merge.merge.confirm';
   static const String accountDeleteBarTitle = 'account-delete.bar.title';
   static const String accountDeleteTitleHead = 'account-delete.title.head';
   static const String accountDeleteDataBody = 'account-delete.data.body';
@@ -677,6 +694,7 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'profile-edit', trigger: '정보 수정'),
       IaExit(to: 'birthplace', trigger: '언어 변경 안내에서 출생지 입력'),
       IaExit(to: 'calc-basis', trigger: '계산 기준'),
+      IaExit(to: 'login-methods', trigger: '로그인 수단'),
       IaExit(to: 'account-delete', trigger: '계정 삭제'),
       IaExit(to: 'legal', trigger: '약관·정책'),
       IaExit(to: 'welcome', trigger: '로그아웃 확인'),
@@ -736,6 +754,27 @@ const List<IaScreen> iaScreens = [
     states: [],
     exits: [],
     components: ['app-bar'],
+  ),
+  IaScreen(
+    id: 'login-methods',
+    tab: 'me',
+    presentation: IaPresentation.page,
+    auth: IaAuth.member,
+    states: ['error'],
+    exits: [IaExit(to: 'account-merge', trigger: '붙이려는 수단이 다른 계정에 연결돼 있음')],
+    components: ['app-bar', 'settings-row', 'social-login-button', 'dialog'],
+  ),
+  IaScreen(
+    id: 'account-merge',
+    tab: 'me',
+    presentation: IaPresentation.page,
+    auth: IaAuth.member,
+    states: ['loading', 'error'],
+    exits: [
+      IaExit(to: 'login-methods', trigger: '합치기 완료'),
+      IaExit(to: 'login-methods', trigger: '합치지 않기'),
+    ],
+    components: ['app-bar', 'account-choice', 'primary-button', 'dialog'],
   ),
   IaScreen(
     id: 'account-delete',
