@@ -52,8 +52,10 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-10-20, app 세션 갱신)
-* **계획 6(나·설정) 완료**이고 PR 검토를 기다립니다. 브랜치 `app/me-settings`, 계획 [`docs/plans/2026-10-20-me-settings.md`](docs/plans/2026-10-20-me-settings.md), 결정 A55~A66.
+## 현재 상태 (2026-10-21, app 세션 갱신)
+* **drift 따라잡기(#391·#393·#403)**, 브랜치 `app/drift-1021`. REST draft.12 `DaeunPeriod.startYear`(#391, server #351 답)로 대운 시작 연도를 계약 값으로 바꾸고 생일 추정을 지웠습니다(`currentDaeunIndex`만 남음, `getChart` fixture에 `startYear`). IA D82(#393)로 `ia.g.dart`를 다시 생성하고, 아직 없는 `login-methods`·`account-merge`와 출구가 늘어난 `settings`를 `test/contract/ia_pending.dart`에 넣었습니다(#387에서 만듦). writing #398(#403)은 app 생성물·ARB 차이가 없습니다.
+* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 `docs/specs/2026-10-21-real-login-design.md`(아직 main에 없음)(카카오·Apple, A67~A69). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
+* **계획 6(나·설정) 완료**이고 PR #345로 main에 병합됐습니다. 브랜치 `app/me-settings`, 계획 [`docs/plans/2026-10-20-me-settings.md`](docs/plans/2026-10-20-me-settings.md), 결정 A55~A66.
   * Task 1~2: 결정과 임시 문구 22개(A64), `getChart` fixture(`tool/gen_chart_fixtures.py`)·차트 캐시(A56)·차트 근거 주제(`ChartEvidenceSubject`)
   * Task 3~7: `settings-row`·`ohaeng.cell`·`saju-pillars`·`ohaeng-bar`·`manse-table`·`daeun-table` 컴포넌트, 간지 표(A65)
   * Task 8: `my-saju`(A55). 문장 자리는 `Chart.ilganHead`·`ilganBody`·`yongsinSummary`(선택, #344)로 그리고 없으면 그리지 않습니다
@@ -65,8 +67,8 @@
   * 계약 따라잡기: REST 변경 셋(#339 S77 필드, #344 `Chart` 문장 세 필드로 A55 해제와 `AppConfig.legal`, #348). 버전은 `docs/contracts/README.md`가 기준입니다. 열린 enum은 A66입니다(#347 ①). 생성기 템플릿 patch(`tool/openapi-templates/open_enum.patch`)로 열린 enum에만 모르는 값을 두고, 모르는 필수 동의 문서는 `force-update`로 보냅니다. #347 ②(기기 호출 시점)는 계획 7입니다
   * 최종 review 일괄 수정: 사주 기반 캐시(달력·나의 사주)는 오늘처럼 캐시를 먼저 보이고 매 진입 server로 확인합니다(`loadCacheFirst`, A32·A56, D60 보상형 해제 자정 만료와 호칭 문장). 화면 공용 helper `SingleOpenGuard`(`lib/design/interaction/`)·`listenLoadErrorToast`·`failedWithoutValue`(`lib/design/components/feedback/load_feedback.dart`)와 controller 가드 `guardUnexpected`(`lib/core/platform/crash_reporter.dart`), 테스트 시트 닫기 `test/support/sheet_close.dart`. 렌더 스크린샷 등록은 입력에 없는 `render.*`를 지웁니다
   * toast pill은 누름을 통과시킵니다(`IgnorePointer`). 떠 있는 동안에도 그 아래 버튼을 누를 수 있습니다
-  * 이 브랜치의 PR에는 drift #322·#327·#335·#339·#344·#348과 #316(D79), #313(W34 생일 음력 원고), #336(화면 스크린샷 도구, 계획 2~6 화면 소급 등록), #312를 함께 담습니다
-  * 보낸 요청: server #329(닫힘, #344로 반영)·**#351**(`DaeunPeriod.startYear`, 열림. 지금은 사본 생일 연도와 `startAgeKorean`으로 셉니다), writing **#331**(임시 문구 22개·사주 사전 범주, 열림, 코멘트 2개), design **#353**(만세력·대운 십성 라벨 자리)·**#354**(`notice-banner` 오류 변형, `dialog` 기본 선택 취소, 다시 계산 안내, toast 위치), root #330(닫힘, D80)
+  * 그 PR에는 drift #322·#327·#335·#339·#344·#348과 #316(D79), #313(W34 생일 음력 원고), #336(화면 스크린샷 도구, 계획 2~6 화면 소급 등록), #312를 함께 담습니다
+  * 보낸 요청: server #329(닫힘, #344로 반영)·#351(`DaeunPeriod.startYear`, 닫힘, PR #385 draft.12로 반영), writing **#331**(임시 문구 22개·사주 사전 범주, 열림, 코멘트 2개), design **#353**(만세력·대운 십성 라벨 자리)·**#354**(`notice-banner` 오류 변형, `dialog` 기본 선택 취소, 다시 계산 안내, toast 위치), root #330(닫힘, D80)
 * **계획 5(일기) 완료**이고 PR #310으로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-20-diary.md`](docs/plans/2026-10-20-diary.md), 결정 A45~A54. `diary-list`·`diary-edit`·`diary-view`·`tag-diary`, 생일 음력 V31 목표 모양(design #292), 로컬 Patrol 스크립트 `tool/patrol_local.sh`, #282 마무리.
 * **컴포넌트·REST 따라잡기(drift #264·#266) 완료**이고 PR #269로 main에 병합됐습니다. 계획 [`docs/plans/2026-10-20-contract-2-6.md`](docs/plans/2026-10-20-contract-2-6.md). `date-picker` `solar`, `text-field` `multiline`, `event-row` `failed`, 그날 시트 일기 쓰기 `filled`(V37), 원전 인용 한자 `fontFallback`, writing 오류 문구 3개(#237), A43 해제.
   * `city.not_found`·`timezone.invalid`는 writing 문구 대기라 4xx 일반 문구입니다(#268).
@@ -102,11 +104,13 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **계획 7(#311)을 바로 이어 갑니다:** 계획 6 PR이 병합되면 미루지 않고 시작합니다. 열린 drift가 생기면 그보다 먼저 맞춥니다.
-   * #311: 카카오·Apple 실제 로그인 adapter, Android App Link `/auth/apple`. release 서명 지문(release·Play App Signing)과 스토어 URL만 Google Play 개발자 계정이 생긴 뒤로 남깁니다(debug 지문·패키지 이름은 먼저 알립니다).
+1. **계획 7(#311·#387)을 이어 갑니다:** 열린 drift가 생기면 그보다 먼저 맞춥니다.
+   * #311: 카카오·Apple 실제 로그인 adapter, Android App Link `/auth/apple`(spec 초안은 위 현재 상태).
+   * #387(D82): LINE·Google adapter, 로그인 화면 네 버튼(언어마다 맨 위 제공자만 다름), `login-methods`(붙이기·떼기, 마지막 하나는 막음), `account-merge`. 끝나면 `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`를 지웁니다. API는 server D82 계약을 따르고, 오기 전에는 화면과 adapter부터 합니다.
+   * #311 남은 일: release 서명 지문(release·Play App Signing)과 스토어 URL만 Google Play 개발자 계정이 생긴 뒤로 남깁니다(debug 지문·패키지 이름은 먼저 알립니다).
    * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
    * `ad-free` 화면(설정 광고 제거 줄의 대기 화면을 바꿈)과 구매 흐름, 남은 IA 경로(`ad-free>*`, `system-purchase>*`, `system-rewarded-ad>evidence-sheet`)와 상태(`ad-free:*`).
-   * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), server #351(받으면 `lib/features/me/application/luck_years.dart`의 시작 연도 계산을 지우고 계약 값을 씀), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
+   * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
    * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. 남은 것은 `ad-free`(계획 7)의 제목입니다(`test/contract/app_bar_title_contract_test.dart` 대조가 알려 줍니다, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
 3. **계획 5(일기)에서 넘긴 것:**

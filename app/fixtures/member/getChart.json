@@ -198,6 +198,7 @@
           },
           "startAge": 3,
           "startAgeKorean": 4,
+          "startYear": 1993,
           "stemTenGod": "bigyeon",
           "branchTenGod": "pyeonin",
           "twelveStage": "yang"
@@ -209,6 +210,7 @@
           },
           "startAge": 13,
           "startAgeKorean": 14,
+          "startYear": 2003,
           "stemTenGod": "jeongin",
           "branchTenGod": "jeongjae",
           "twelveStage": "tae"
@@ -220,6 +222,7 @@
           },
           "startAge": 23,
           "startAgeKorean": 24,
+          "startYear": 2013,
           "stemTenGod": "pyeonin",
           "branchTenGod": "pyeonjae",
           "twelveStage": "jeol"
@@ -231,6 +234,7 @@
           },
           "startAge": 33,
           "startAgeKorean": 34,
+          "startYear": 2023,
           "stemTenGod": "jeonggwan",
           "branchTenGod": "jeongin",
           "twelveStage": "myo"
@@ -242,6 +246,7 @@
           },
           "startAge": 43,
           "startAgeKorean": 44,
+          "startYear": 2033,
           "stemTenGod": "pyeongwan",
           "branchTenGod": "sanggwan",
           "twelveStage": "sa"
@@ -253,6 +258,7 @@
           },
           "startAge": 53,
           "startAgeKorean": 54,
+          "startYear": 2043,
           "stemTenGod": "jeongjae",
           "branchTenGod": "siksin",
           "twelveStage": "byeong"
@@ -264,6 +270,7 @@
           },
           "startAge": 63,
           "startAgeKorean": 64,
+          "startYear": 2053,
           "stemTenGod": "pyeonjae",
           "branchTenGod": "pyeonin",
           "twelveStage": "soe"
@@ -275,6 +282,7 @@
           },
           "startAge": 73,
           "startAgeKorean": 74,
+          "startYear": 2063,
           "stemTenGod": "sanggwan",
           "branchTenGod": "geopjae",
           "twelveStage": "jewang"
@@ -286,6 +294,7 @@
           },
           "startAge": 83,
           "startAgeKorean": 84,
+          "startYear": 2073,
           "stemTenGod": "siksin",
           "branchTenGod": "bigyeon",
           "twelveStage": "geonrok"
@@ -297,6 +306,7 @@
           },
           "startAge": 93,
           "startAgeKorean": 94,
+          "startYear": 2083,
           "stemTenGod": "geopjae",
           "branchTenGod": "jeongin",
           "twelveStage": "gwandae"

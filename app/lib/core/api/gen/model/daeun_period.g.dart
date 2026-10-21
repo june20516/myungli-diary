@@ -13,6 +13,8 @@ abstract class _$DaeunPeriodCWProxy {
 
   DaeunPeriod startAgeKorean(int startAgeKorean);
 
+  DaeunPeriod startYear(int startYear);
+
   DaeunPeriod stemTenGod(TenGod stemTenGod);
 
   DaeunPeriod branchTenGod(TenGod branchTenGod);
@@ -31,6 +33,7 @@ abstract class _$DaeunPeriodCWProxy {
     Pillar pillar,
     int startAge,
     int startAgeKorean,
+    int startYear,
     TenGod stemTenGod,
     TenGod branchTenGod,
     TwelveStage twelveStage,
@@ -53,6 +56,9 @@ class _$DaeunPeriodCWProxyImpl implements _$DaeunPeriodCWProxy {
   @override
   DaeunPeriod startAgeKorean(int startAgeKorean) =>
       call(startAgeKorean: startAgeKorean);
+
+  @override
+  DaeunPeriod startYear(int startYear) => call(startYear: startYear);
 
   @override
   DaeunPeriod stemTenGod(TenGod stemTenGod) => call(stemTenGod: stemTenGod);
@@ -78,6 +84,7 @@ class _$DaeunPeriodCWProxyImpl implements _$DaeunPeriodCWProxy {
     Object? pillar = const $CopyWithPlaceholder(),
     Object? startAge = const $CopyWithPlaceholder(),
     Object? startAgeKorean = const $CopyWithPlaceholder(),
+    Object? startYear = const $CopyWithPlaceholder(),
     Object? stemTenGod = const $CopyWithPlaceholder(),
     Object? branchTenGod = const $CopyWithPlaceholder(),
     Object? twelveStage = const $CopyWithPlaceholder(),
@@ -97,6 +104,10 @@ class _$DaeunPeriodCWProxyImpl implements _$DaeunPeriodCWProxy {
           ? _value.startAgeKorean
           // ignore: cast_nullable_to_non_nullable
           : startAgeKorean as int,
+      startYear: startYear == const $CopyWithPlaceholder() || startYear == null
+          ? _value.startYear
+          // ignore: cast_nullable_to_non_nullable
+          : startYear as int,
       stemTenGod:
           stemTenGod == const $CopyWithPlaceholder() || stemTenGod == null
           ? _value.stemTenGod
@@ -135,6 +146,7 @@ DaeunPeriod _$DaeunPeriodFromJson(Map<String, dynamic> json) =>
           'pillar',
           'startAge',
           'startAgeKorean',
+          'startYear',
           'stemTenGod',
           'branchTenGod',
           'twelveStage',
@@ -150,6 +162,7 @@ DaeunPeriod _$DaeunPeriodFromJson(Map<String, dynamic> json) =>
           'startAgeKorean',
           (v) => (v as num).toInt(),
         ),
+        startYear: $checkedConvert('startYear', (v) => (v as num).toInt()),
         stemTenGod: $checkedConvert(
           'stemTenGod',
           (v) => $enumDecode(_$TenGodEnumMap, v),
@@ -171,6 +184,7 @@ Map<String, dynamic> _$DaeunPeriodToJson(DaeunPeriod instance) =>
       'pillar': instance.pillar.toJson(),
       'startAge': instance.startAge,
       'startAgeKorean': instance.startAgeKorean,
+      'startYear': instance.startYear,
       'stemTenGod': _$TenGodEnumMap[instance.stemTenGod]!,
       'branchTenGod': _$TenGodEnumMap[instance.branchTenGod]!,
       'twelveStage': _$TwelveStageEnumMap[instance.twelveStage]!,
