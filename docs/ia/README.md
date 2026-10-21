@@ -68,4 +68,5 @@ flowchart LR
 * `app-bar`가 있는 화면은 app-bar 제목 자리로 `<화면 id>.bar.title` ui 슬롯을 둡니다. 화면의 `title` 필드는 문서용 한국어 이름이고, 화면에 보이는 제목은 이 슬롯의 원고입니다(#200).
 * 화면의 `components`에는 그 화면의 내용 컴포넌트만 적습니다. 상태 컴포넌트(`skeleton`, `error-state`, `empty-state`, `notice-banner`)는 화면의 `states`에 따라 붙으며, 따로 적은 곳은 상태와 별개로 내용에 쓰는 경우입니다.
 * 화면 id를 바꾸거나 지우거나, 슬롯·컴포넌트를 빼거나 id를 바꾸면 `version`을 올리고 app·writing·design·server에 `kind:request` Issue를 보냅니다(D78). 추가만 할 때는 올리지 않습니다.
+* **슬롯을 더할 때의 순서:** writing·server·app·design workflow의 writing 원고 검사(`mlw check`)는 mode와 상관없이 돌고, IA 슬롯을 담는 writing 슬롯이 없으면 `ia.uncovered` 오류로 그 단위의 모든 PR을 막습니다. 그래서 IA에 슬롯을 더하는 PR을 병합하기 전에 writing에 `blocking` `kind:request`를 보내고, writing이 IA PR 병합 직후 **키 없는 슬롯 틀**(`slot.empty_keys`는 warn)을 먼저 넣게 합니다. 원고는 그 뒤에 씁니다(PR #390 → #394에서 세 단위가 막힌 뒤 정함).
 * 형식 규칙은 spec §5에 있고, `python3 -I tools/docs-check/docs_check.py .`가 검사합니다.
