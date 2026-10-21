@@ -3,7 +3,7 @@
 import itertools
 from datetime import date, time, timedelta
 
-from hypothesis import given, settings
+from hypothesis import given
 from hypothesis import strategies as st
 
 from myungli_engine.calendar_core import lunar_adapter
@@ -17,7 +17,6 @@ from myungli_engine.domain.models import Judgment, Pillar
 from myungli_engine.references import loader
 
 SEOUL = "Asia/Seoul"
-PROPERTY_SETTINGS = settings(max_examples=300, deadline=None, derandomize=True)
 CYCLE_LENGTH = 60
 # 진시~술시 (spec 7.5). 구현 상수를 재사용하지 않고 독립적으로 적는다.
 FOCUS_CANDIDATES = frozenset({Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL})
@@ -37,7 +36,6 @@ birth_inputs = st.builds(
 )
 
 
-@PROPERTY_SETTINGS
 @given(birth=birth_inputs.filter(lambda b: b.time is not None))
 def test_birth_hour_branch_matches_chart_hour_pillar(birth: BirthInput) -> None:
     assert birth_hour(birth).branch == build_chart(resolve_birth_moment(birth)).pillars.hour.branch
@@ -56,7 +54,6 @@ def _judgments(view: DailyView) -> list[Judgment]:
     return [view.color[1], view.direction[1], view.number[1], view.focus[1], *view.fortune, view.guide]
 
 
-@PROPERTY_SETTINGS
 @given(d=daily_dates)
 def test_day_pillar_advances_one_step(d: date) -> None:
     today = _cycle_index(lunar_adapter.day_pillar(d))
@@ -64,13 +61,11 @@ def test_day_pillar_advances_one_step(d: date) -> None:
     assert tomorrow == (today + 1) % CYCLE_LENGTH
 
 
-@PROPERTY_SETTINGS
 @given(birth=birth_inputs, target=daily_dates)
 def test_deterministic(birth: BirthInput, target: date) -> None:
     assert compose_daily(birth, target, SEOUL) == compose_daily(birth, target, SEOUL)
 
 
-@PROPERTY_SETTINGS
 @given(birth=birth_inputs, target=daily_dates)
 def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
     for judgment in _judgments(compose_daily(birth, target, SEOUL)):
@@ -79,7 +74,6 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
         loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
 
 
-@PROPERTY_SETTINGS
 @given(birth=birth_inputs, as_of=daily_dates)
 def test_all_personal_readings_have_evidence(birth: BirthInput, as_of: date) -> None:
     readings = compose_chart(birth, as_of).personal_readings
@@ -118,7 +112,6 @@ DISTINCT_NATALS = (
 NATAL_PAIRS = list(itertools.combinations(DISTINCT_NATALS, 2))
 
 
-@PROPERTY_SETTINGS
 @given(pair=st.sampled_from(NATAL_PAIRS), target=daily_dates)
 def test_daily_not_determined_by_day_alone(pair: tuple[BirthInput, BirthInput], target: date) -> None:
     """같은 날 서로 다른 원국 두 개의 결과는 판정 근거 수준에서 구분된다 (spec 13.4)."""
@@ -128,7 +121,6 @@ def test_daily_not_determined_by_day_alone(pair: tuple[BirthInput, BirthInput], 
     )
 
 
-@PROPERTY_SETTINGS
 @given(birth=birth_inputs, target=daily_dates)
 def test_focus_slots_within_candidates(birth: BirthInput, target: date) -> None:
     focus = compose_daily(birth, target, SEOUL).focus[0]

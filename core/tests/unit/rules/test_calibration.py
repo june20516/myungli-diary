@@ -8,6 +8,7 @@ CORE_DIR = Path(__file__).resolve().parents[3]
 
 
 @pytest.mark.slow
+@pytest.mark.calibration
 def test_calibration_constants_up_to_date() -> None:
     result = subprocess.run(
         [sys.executable, "tools/calibrate_strength.py", "--check"],

@@ -18,7 +18,7 @@ from myungli_engine.calendar_core.lunar_adapter import DayInfo, lunar_to_solar, 
 from myungli_engine.domain.errors import InvalidInputError
 
 # 음력 검사가 1,800여 개월의 month_days를 계산해 30초 남짓 걸린다.
-pytestmark = pytest.mark.slow
+pytestmark = [pytest.mark.slow, pytest.mark.kasi]
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SEOUL = "Asia/Seoul"

@@ -55,5 +55,10 @@ extend-exclude = ["docs", "src/myungli_engine/_gen"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
-markers = ["slow: 분포 보정 등 느린 테스트"]
+pythonpath = ["src", "tools"]
+markers = [
+    "slow: 느린 테스트. PR에서는 바뀐 경로에 맞는 묶음만, 정기 실행에서는 모두 돈다(tools/slow_scope.py)",
+    "kasi: slow 묶음. KASI 천문 골든 대조",
+    "calibration: slow 묶음. 분포 보정 상수 확인",
+    "contract: 제공 계약 파일(proto 생성 코드, 메시지 키·매개변수, 근거 목록)이 코드와 맞는지 보는 검사",
+]
