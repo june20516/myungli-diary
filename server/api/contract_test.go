@@ -659,10 +659,31 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft11(t *testing.T) {
+func TestContract_VersionIsDraft12(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.11" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.11", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.12" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.12", doc.Info.Version)
+	}
+}
+
+// TestContract_Draft12DaeunStartYear는 대운 시작 양력 연도 DaeunPeriod.startYear(필수 정수)를 고정합니다. (S94, app 요청 #351)
+func TestContract_Draft12DaeunStartYear(t *testing.T) {
+	doc := loadDoc(t)
+	period := doc.Components.Schemas["DaeunPeriod"].Value
+	startYear := period.Properties["startYear"]
+	if startYear == nil {
+		t.Fatal("DaeunPeriod.startYear가 없음")
+	}
+	if !slices.Contains(period.Required, "startYear") {
+		t.Error("DaeunPeriod.startYear가 required에 없음")
+	}
+	if !startYear.Value.Type.Is("integer") {
+		t.Errorf("DaeunPeriod.startYear type = %v, want integer", startYear.Value.Type)
+	}
+	for _, text := range []string{"양력 연도", "`startAgeKorean` = `startYear` - 출생 양력 연도 + 1"} {
+		if !strings.Contains(startYear.Value.Description, text) {
+			t.Errorf("DaeunPeriod.startYear 설명에 %q가 없음", text)
+		}
 	}
 }
 

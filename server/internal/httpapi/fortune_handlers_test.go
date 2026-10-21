@@ -514,7 +514,7 @@ func chartResponse() *enginev1.ChartResponse {
 		Daeun: &enginev1.DaeunTable{
 			Forward: true, StartYears: 3, StartMonths: 4,
 			Periods: []*enginev1.LuckPeriod{{
-				Pillar: pillar(enginev1.Stem_STEM_IM, enginev1.Branch_BRANCH_O), StartAge: 3, StartAgeKorean: 4,
+				Pillar: pillar(enginev1.Stem_STEM_IM, enginev1.Branch_BRANCH_O), StartAge: 3, StartAgeKorean: 4, StartYear: 1993,
 				StemTenGod: enginev1.TenGod_TEN_GOD_PYEONIN, BranchTenGod: enginev1.TenGod_TEN_GOD_SANGGWAN,
 				TwelveStage: enginev1.TwelveStage_TWELVE_STAGE_SA,
 			}},
@@ -564,7 +564,7 @@ func TestGetChart_Returns200(t *testing.T) {
 		Tonggwan: gen.Wood, Method: gen.Eokbu,
 	}, got.Yongsin)
 	assert.Equal(t, gen.Daeun{Forward: true, StartYears: 3, StartMonths: 4, Periods: []gen.DaeunPeriod{{
-		Pillar: gen.Pillar{Stem: gen.StemIm, Branch: gen.BranchO}, StartAge: 3, StartAgeKorean: 4,
+		Pillar: gen.Pillar{Stem: gen.StemIm, Branch: gen.BranchO}, StartAge: 3, StartAgeKorean: 4, StartYear: 1993,
 		StemTenGod: gen.Pyeonin, BranchTenGod: gen.Sanggwan, TwelveStage: gen.TwelveStageSa,
 	}}}, got.Daeun)
 	assert.Equal(t, []gen.SeunYear{{
