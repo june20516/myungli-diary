@@ -166,13 +166,13 @@ jobs:
     uses: ./.github/workflows/server.yml
 
   # 기기 E2E(e2e-android)는 run_e2e 기본값(false)이라 판정에 들어가지 않습니다. main push·매일 밤·수동은 app.yml이 직접 돕니다.
-  # Android 디버그 빌드는 app 코드가 바뀐 own에서만 돕니다. 계약·gate 실행에서는 Gradle이 깨질 일이 없습니다.
+  # mode가 검사 범위를 정합니다(D81). Android 디버그 빌드와 golden은 own에서만 돕니다(app.yml).
   app:
     needs: changes
     if: needs.changes.outputs.app == 'true'
     uses: ./.github/workflows/app.yml
     with:
-      build_apk: ${{ needs.changes.outputs.app_mode == 'own' }}
+      mode: ${{ needs.changes.outputs.app_mode }}
 
   writing:
     needs: changes
