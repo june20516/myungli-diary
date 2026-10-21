@@ -11,6 +11,14 @@
 | account-delete.data.body | account-delete.data.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | account-delete.delete.confirm | account-delete.delete.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountDeleteDeleteConfirm` ko 34, en 60, ja 28 |
 | account-delete.title.head | account-delete.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
+| account-merge.bar.title | account-merge.bar.title | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.choice.label | account-merge.choice.label | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.cta.cancel | account-merge.cta.cancel | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.cta.merge | account-merge.cta.merge | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.overlap.notice | account-merge.overlap.notice | info | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.title.body | account-merge.title.body | info | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.title.head | account-merge.title.head | info | - | 1 | 0 | - | ko -, en -, ja - |
 | ad-free.bar.title | ad-free.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.legal.notice | ad-free.legal.notice | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.offer.head | ad-free.offer.head | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -90,6 +98,11 @@
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 94 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| login-methods.error.body | login-methods.error.body | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| login-methods.intro.body | login-methods.intro.body | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| login-methods.last.notice | login-methods.last.notice | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| login-methods.unlink.confirm | login-methods.unlink.confirm | guide | - | 1 | 0 | - | ko -, en -, ja - |
 | login.bar.title | login.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login.discard.notice | login.discard.notice | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login.title.body | login.title.body | info | - | 1 | 1 | - | ko -, en -, ja - |

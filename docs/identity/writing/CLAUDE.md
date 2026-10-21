@@ -46,9 +46,10 @@
 | `core/evidence_rules.json`·`core/evidence_sources.json` | **사용** (근거 슬롯 키·`detail` 매개변수·원전 원문 대조, W25) | core |
 | 엔진 gRPC API (`engine.proto`) | **사용** (검사기 생성 코드 `tools/gen_proto.sh`, #144) | core |
 
-## 현재 상태 (2026-10-20, writing 세션 작성)
+## 현재 상태 (2026-10-21, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **D82 슬롯 틀**(drift #394, PR #390): 로그인 수단·계정 합치기 IA ui 슬롯 13개를 키 없는 틀로 담았습니다(`slots/ui/account.yaml`, app-bar 제목 2개는 `app-bar.yaml`). 키와 3개 언어 원고, LINE·Google 버튼 라벨은 #388입니다.
 * **IA D77 따라잡기**(PR #279, W33, #278·#275 일부): IA ui 슬롯 9개를 `ia` 필드로 담고(ARB 키 이름 그대로), `ui.event-edit.form`의 버튼·안내 4개를 키별 슬롯으로 나눴습니다. 일기 저장 버튼·삭제 toast 원고(`diaryEditSave`·`diaryViewDeleted`).
 * **검사 범위 정리**(PR #369, D81, W35, #361): `writing.yml`에 `mode` 입력(`own`·`drift`·`gate`), `drift`·`gate`는 계약 검사만(`pytest -m contract`·`mlw check`·`gen-docs --check`·proto 대조). 테스트 세션 캐시로 전체 테스트 42초 → 14초.
 * **생일 음력 입력 문구**(PR #328, W34, #313): 양력 확인 줄 `datePickerSolarConfirm({date})`, 음력 안내를 월 휠 윤달 방식으로 고침, 윤달 체크 `leapMonth` 삭제.
@@ -72,7 +73,7 @@
 * **IA v3·D70~D72**(PR #185, W24): IA v3 ui 슬롯 3개, 출생 시간대별 경도 키, glossary ja 근거 표기(91개, 閑神·極身弱·極身強은 비움), D72 규칙 `style.S7`.
 * **공용 ui 문구·ICU plural**(PR #155, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22): 공용 ui 슬롯(`slots/ui/common.yaml`), glossary 지지·날의 성격·방향 이름(`content/<lang>/glossary.yaml`, ARB로도 나감), ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`). `writing.yml`은 ci-gate만 부릅니다(#148).
 * **IA 슬롯 정렬**(spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 128개입니다(IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298 포함, D79로 기본 깊이 설명 빠짐).
+  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 141개입니다(IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298, D82 13개 포함, D79로 기본 깊이 설명 빠짐).
   * 슬롯 명세 필드 `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
   * 호칭·조사 규칙: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
@@ -99,11 +100,12 @@
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
-3. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-4. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 봅니다. 원어민 검수는 완료 조건이 아니라 사용자가 감수자를 구하면 하는 보강 단계입니다(D70, W1 spec §7). 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
+2. **#388 D82 원고**: `slots/ui/account.yaml`·`app-bar.yaml`의 키 없는 틀 13개에 키와 3개 언어 원고를 채우고, `social-login-button`의 LINE·Google 라벨(브랜드 가이드 표기)과 붙이기·떼기 공통 낱말(`ui.*`)을 씁니다. 채우면 `tests/test_cli.py`의 `slot.empty_keys` warn 13개 허용을 되돌립니다. design이 `lengths.md`에 상한을 넣으면 따라잡습니다.
+3. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
+4. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
+5. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 봅니다. 원어민 검수는 완료 조건이 아니라 사용자가 감수자를 구하면 하는 보강 단계입니다(D70, W1 spec §7). 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
-5. **보낸 요청의 응답을 기다립니다.**
+6. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
    - 지휘 #158 코멘트: 閑神·極身弱·極身強 근거 보강, 용어집의 忌神 읽기 통일(きじん)
-6. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
+7. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
