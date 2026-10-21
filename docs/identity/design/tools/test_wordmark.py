@@ -7,7 +7,6 @@ import pytest
 
 TOOLS_DIR = pathlib.Path(__file__).resolve().parent
 DESIGN_DIR = TOOLS_DIR.parent
-REPO_ROOT = DESIGN_DIR.parents[2]
 sys.path.insert(0, str(TOOLS_DIR))
 
 from palette import build_palette  # noqa: E402
@@ -16,14 +15,11 @@ from wordmark import lockup_svg, wordmark_svg  # noqa: E402
 
 SVG = "{http://www.w3.org/2000/svg}"
 LOGO = DESIGN_DIR / "logo"
-FONT = REPO_ROOT / ".suberpowers" / "fonts" / "GowunDodum-Regular.ttf"
 
 
 @pytest.fixture
-def font_path():
-    if not FONT.exists():
-        pytest.skip(f"글꼴 없음: {FONT}")
-    return FONT
+def font_path(font_dir):
+    return font_dir / "GowunDodum-Regular.ttf"
 
 
 def test_wordmark_is_outlined(font_path):

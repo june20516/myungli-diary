@@ -99,10 +99,6 @@ TARGETS = (
     Target(("calendar.score_item",), "term-token label (좌우 4px)", "ui-500", 12, -0.24, CONTENT_WIDTH - 8, 1, False, 10),
     Target(("calendar.solar_term",), "day-cell lunar 줄 (칸 폭 44px, 굵게)", "ui-700", 10.5, -0.22, (CONTENT_WIDTH - 2 * 6) / 7, 1, False, 10),
     Target(("glossary.value_name",), "lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6)", "ui-500", 13, -0.26, CONTENT_WIDTH - 24 - 16 - 6, 1, False, 10),
-    Target(("ui.depth.surface", "ui.depth.explain", "ui.depth.evidence"), "segmented 세 칸 중 한 칸",
-           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * 3) / 3, 1, False, 10),
-    Target(("ui.depth.default_label",), "settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름)",
-           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, 10, reserve_slot="ui.depth.surface"),
     # ui 이름 자리와 새 content 슬롯 (#131, spec-followups spec §5.2). writing 초안이 없어 계산값이 확정값
     Target(("welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
             "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
@@ -190,6 +186,8 @@ NO_LIMIT = {
     "system.apple_return": OUTSIDE_APP,
     "ui.guide.a11y": SCREEN_READER_ONLY,
     "login.discard.notice": "확인 창 본문(창이 늘어남)",
+    # D79로 기본 깊이 설정(segmented)이 빠져 풀이 시트의 접근성 라벨로만 남음(#318)
+    "ui.depth.explain": SCREEN_READER_ONLY,
 }
 
 

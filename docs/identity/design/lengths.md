@@ -19,8 +19,6 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |
 | `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |
 | `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |
-| `ui.depth.surface`<br>`ui.depth.explain`<br>`ui.depth.evidence` | segmented 세 칸 중 한 칸 | 104px | 1 | 10 | 8 | **8** | **6** | **13** |
-| `ui.depth.default_label` | settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름) | 177.4px | 1 | 10 | 15 | **10** | **10** | **18** |
 | `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`evidence-sheet.lock.cta`<br>`ad-free.restore.cta`<br>`diary-list.pick-date.cta`<br>`day-sheet.event.add`<br>`day-sheet.diary.write-cta`<br>`share-preview.cta.share`<br>`ui.event-edit.save`<br>`ui.event-edit.delete`<br>`ui.diary-edit.save` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
 | `diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm` | dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15) | 241px | 2 | - | 34 | **34** | **28** | **60** |
 | `ui.action.button`<br>`diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm` | dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 버튼 사이 8) | 124px | 1 | - | 10 | **10** | **7** | **16** |
@@ -66,14 +64,15 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `system.apple_return` | app 밖 화면(server 웹 페이지) |
 | `ui.guide.a11y` | 스크린리더 전용(화면에 보이지 않음) |
 | `login.discard.notice` | 확인 창 본문(창이 늘어남) |
+| `ui.depth.explain` | 스크린리더 전용(화면에 보이지 않음) |
 
 * **ko 계산**: 레이아웃에 들어가는 글자 수입니다. 확정값은 writing 초안과 이 값 중 작은 값입니다(ja 초안 = ko, en 초안 = ko × 1.8). 초안이 `-`인 칸(#131에서 더한 칸)은 계산값이 곧 확정값입니다.
-* **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `today.evidence.link` = `ui.depth.evidence_link`, `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21).
+* **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `today.evidence.link` = `ui.depth.evidence_link`, `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21). 기본 깊이 설정(segmented 세 칸, settings-row 값)은 D79로 빠져 `ui.depth.surface`·`evidence`·`default_label` 행을 지웠고, `ui.depth.explain`은 풀이 시트의 접근성 라벨로만 남아 상한이 없습니다(#318).
 * **여러 자리에 쓰는 슬롯은 가장 좁은 자리의 값**을 받습니다. 예를 들어 `ui.action.button`은 `primary-button`과 `dialog` 버튼에 쓰이므로 dialog 버튼 폭(124px)으로 잽니다.
 * **확인 창 슬롯**(`diary-view.delete.confirm` 등 6개)은 한 슬롯에 제목·본문·버튼 키가 함께 있어 두 칸에 나옵니다. 제목 키는 "dialog title" 행, 버튼 키는 "dialog 버튼" 행의 값이고, 본문 키는 창이 늘어나므로 상한이 없습니다. writing은 슬롯을 나누지 않고 제목 키 상한을 `key_max_length`로 담았습니다(W26, #191).
 * `character.reason`은 마지막 줄 끝에 `depth-link` `inline-end`(앞 U+00A0 + `ui.depth.evidence_link` 원고 + 화살표 16)가 붙으므로, 마지막 줄에서 그 폭에 해당하는 글자 수를 한 번 뺐습니다. 링크 폭은 언어별 원고(ko "근거 보기", ja "根拠を見る", en "See the basis")로 재므로 링크 문구가 바뀌면 이 값도 다시 계산합니다.
 * 칸 앞에 아이콘이 붙는 상태가 있으면 그 폭을 뺐습니다: 잠긴 구역 제목(자물쇠 14 + 간격 4), destructive 확인 창 제목(`mark.caution` 11.3 + 띄어쓰기 3.5 → 15), toast(아이콘 16 + 간격 16).
-* 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px), `ui.depth.surface`·`explain`·`evidence`(segmented 한 칸).
+* 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).
 * `calendar.solar_term` en 6자: 영어 절기 이름("Start of Spring")은 날짜 칸에 들어가지 않습니다. writing이 6자 이하 줄임 표기를 정했습니다(`S.Cold`, `Sp.Eq` 등). 같은 칸 스타일(Pretendard Bold 10.5px)로 재면 가장 넓은 `Summer`가 40.1px라 44px 칸에 들어갑니다.
 
 ## 상한 없음
@@ -107,14 +106,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 
 ## 다시 계산하기
 
-측정 글꼴은 저장소에 넣지 않습니다. `.suberpowers/fonts/`에 아래 파일을 두고 저장소 루트에서 실행합니다. 글꼴이 없으면 표 비교 테스트는 skip되고, 계산 로직은 가짜 글꼴 단위 테스트로만 확인됩니다.
-
-| 파일 | 받는 곳 |
-| --- | --- |
-| `GowunDodum-Regular.ttf` | `https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf` |
-| `ZenMaruGothic-Regular.ttf` | `https://github.com/google/fonts/raw/main/ofl/zenmarugothic/ZenMaruGothic-Regular.ttf` |
-| `Pretendard-{Regular,Medium,SemiBold,Bold}.otf` | `https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/public/static/` |
+측정 글꼴(고운돋움, Zen Maru Gothic, Pretendard 1.3.9 네 굵기, 모두 SIL OFL 1.1)은 저장소에 넣지 않습니다. 받는 주소(commit·버전 고정)와 sha256은 [`tools/fonts.py`](tools/fonts.py)가 기준이고, 저장소 루트에서 받은 뒤 다시 잽니다.
 
 ```
+python3 docs/identity/design/tools/fonts.py --font-dir .suberpowers/fonts
 uv run --with fonttools==4.54.1 python docs/identity/design/tools/lengths.py --font-dir .suberpowers/fonts
 ```
+
+글꼴이 없으면 로컬에서는 표 비교 테스트가 skip됩니다. CI는 글꼴을 받아 쓰고(`DESIGN_FONTS_REQUIRED=1`), 글꼴이 없거나 checksum이 다르면 skip하지 않고 실패합니다(#362).
