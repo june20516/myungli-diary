@@ -1,3 +1,6 @@
+@Tags(['contract'])
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../tool/common/open_enums.dart';

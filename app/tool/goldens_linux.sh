@@ -8,7 +8,9 @@
 # .dart_tool·pubspec.lock이 바뀌지 않습니다. 결과 이미지만 호스트 사용자 소유로
 # 되돌립니다(삭제된 golden도 반영).
 #
-# 사용: app/tool/goldens_linux.sh
+# 사용: app/tool/goldens_linux.sh [테스트 파일...]
+#   대상이 없으면 golden 전체를 다시 만들고, 지운 golden도 반영합니다.
+#   대상(app 기준 경로, 예 test/design/saju_golden_test.dart)을 주면 그 파일만 돌리고 다른 기준 이미지는 그대로 둡니다.
 # 환경 변수: DOCKER_PLATFORM(기본 linux/amd64, CI runner와 같음)
 set -euo pipefail
 
@@ -59,10 +61,12 @@ docker run --rm --platform "$platform" \
       --exclude=app/android --exclude=app/ios -cf - app docs server/api | tar -xf - -C /work
     cd /work/app
     flutter pub get
-    flutter test --update-goldens --tags golden
+    flutter test --update-goldens --tags golden "$@"
     mkdir -p test/goldens
-    # 삭제된 golden도 반영하도록 비우고 복사합니다.
-    find /out -mindepth 1 -delete
+    # 전체 실행은 삭제된 golden도 반영하도록 비우고 복사합니다. 대상 실행은 덮어쓰기만 합니다.
+    if [ "$#" -eq 0 ]; then
+      find /out -mindepth 1 -delete
+    fi
     cp -a test/goldens/. /out/
     chown -R "$HOST_UID:$HOST_GID" /out
-  '
+  ' goldens "$@"
