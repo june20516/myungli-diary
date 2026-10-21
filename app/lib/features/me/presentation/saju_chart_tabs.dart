@@ -30,7 +30,6 @@ import 'package:myungli_diary/features/glossary/application/glossary_providers.d
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/application/luck_years.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
-import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// 원국표의 기둥 한 열과 그 천간·지지 자리.
 enum _Column {
@@ -377,7 +376,7 @@ class _YongsinBasis extends StatelessWidget {
 /// "만세력·대운" 탭: 만세력 표(`manse-table`) → 대운·세운 표(`daeun-table`, A57).
 ///
 /// 지금 대운과 올해 세운은 기기 오늘([todayProvider]) 기준이라 해가 바뀌면 새 해를 따릅니다
-/// (Review Focus 4). 대운 시작 연도는 프로필 사본의 생일로 셉니다([luckYearsOf]).
+/// (Review Focus 4). 대운 시작 연도는 계약 `DaeunPeriod.startYear`입니다.
 class SajuChartLuckTab extends ConsumerWidget {
   /// [chart]의 만세력 탭을 만듭니다.
   const new({required this.chart, super.key});
@@ -394,12 +393,7 @@ class SajuChartLuckTab extends ConsumerWidget {
     );
     final l10n = text.l10n;
     final thisYear = ref.watch(todayProvider).year;
-    final years = luckYearsOf(
-      daeun: chart.daeun,
-      seun: chart.seun,
-      birth: ref.watch(cachedProfileProvider).value?.birth,
-      thisYear: thisYear,
-    );
+    final currentDaeun = currentDaeunIndex(chart.daeun, thisYear: thisYear);
     final periods = chart.daeun.periods;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -421,7 +415,7 @@ class SajuChartLuckTab extends ConsumerWidget {
               for (final (index, period) in periods.indexed)
                 DaeunPillar(
                   age: period.startAgeKorean,
-                  startYear: years.startYears[index],
+                  startYear: period.startYear,
                   stem: _mini(period.pillar.stem),
                   branch: _miniBranch(period.pillar.branch),
                   stemLabel: text.termLabel(
@@ -444,8 +438,7 @@ class SajuChartLuckTab extends ConsumerWidget {
                   ),
                   semanticLabel: text.join([
                     l10n.daeunTableLabel(period.startAgeKorean),
-                    if (years.startYears[index] case final start?)
-                      l10n.luckYearLabel(start),
+                    l10n.luckYearLabel(period.startYear),
                     text.stemText(period.pillar.stem),
                     text.branchText(period.pillar.branch),
                   ]),
@@ -473,7 +466,7 @@ class SajuChartLuckTab extends ConsumerWidget {
                   ]),
                 ),
             ],
-            currentIndex: years.currentIndex,
+            currentIndex: currentDaeun,
             thisYear: thisYear,
             nowLabel: l10n.daeunTagNow,
             thisYearLabel: l10n.seunTagThisYear,

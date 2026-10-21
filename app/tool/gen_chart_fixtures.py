@@ -150,6 +150,7 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
                     "pillar": pillar(period.pillar),
                     "startAge": period.start_age,
                     "startAgeKorean": period.start_age_korean,
+                    "startYear": period.start_year,
                     "stemTenGod": lower(period.stem_ten_god),
                     "branchTenGod": lower(period.branch_ten_god),
                     "twelveStage": lower(period.twelve_stage),
