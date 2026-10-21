@@ -81,7 +81,7 @@ jobs:
           cache: gradle
       # NDK·CMake가 없으면 Gradle이 원격 package manifest를 받아 설치하느라 빌드마다 6분쯤 기다린다(#358).
       # NDK는 Flutter가 정한 버전(flutter.ndkVersion), CMake는 jni plugin이 쓰는 AGP 기본 버전이다.
-      # Gradle 로그에 다른 CMake 설치가 보이면 ANDROID_CMAKE_VERSION을 함께 바꾼다.
+      # 키 밖의 설치는 빌드 뒤 "NDK·CMake 캐시 대상 확인"이 warning으로 알린다. 비우는 기준은 app/README.md "NDK·CMake 캐시".
       - name: NDK·CMake 경로 읽기
         id: android-native
         if: env.BUILD_APK == 'true'
@@ -100,6 +100,8 @@ jobs:
             echo "ndk=$ANDROID_HOME/ndk/$ndk"
             echo "cmake=$ANDROID_HOME/cmake/$ANDROID_CMAKE_VERSION"
           } >> "$GITHUB_OUTPUT"
+          # 빌드 뒤 캐시 키 밖의 설치를 찾으려고 runner에 원래 있던 버전을 적어 둔다.
+          (cd "$ANDROID_HOME" && for dir in ndk/* cmake/*; do [ -d "$dir" ] && echo "$dir"; done) > "$RUNNER_TEMP/android-native-before.txt"
       - name: NDK·CMake 캐시
         if: steps.android-native.outputs.key != ''
         uses: actions/cache@v6
@@ -169,6 +171,24 @@ jobs:
       - name: Android 디버그 빌드
         if: env.BUILD_APK == 'true'
         run: flutter build apk --debug
+      # 빌드가 캐시 키 밖의 NDK·CMake를 설치했으면 키가 낡은 것이다(README "NDK·CMake 캐시").
+      - name: NDK·CMake 캐시 대상 확인
+        if: always() && steps.android-native.outputs.key != ''
+        working-directory: .
+        env:
+          NDK_DIR: ${{ steps.android-native.outputs.ndk }}
+          CMAKE_DIR: ${{ steps.android-native.outputs.cmake }}
+        run: |
+          cd "$ANDROID_HOME"
+          new=""
+          for dir in ndk/* cmake/*; do
+            [ -d "$dir" ] || continue
+            case "$dir" in "${NDK_DIR#"$ANDROID_HOME"/}" | "${CMAKE_DIR#"$ANDROID_HOME"/}") continue ;; esac
+            grep -qxF "$dir" "$RUNNER_TEMP/android-native-before.txt" || new="$new $dir"
+          done
+          if [ -n "$new" ]; then
+            echo "::warning title=NDK·CMake 캐시::캐시 키 밖의 설치가 있습니다:$new. app.yml의 ANDROID_CMAKE_VERSION 또는 키를 맞춥니다."
+          fi
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
   # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 main push 등)라
@@ -204,7 +224,7 @@ jobs:
           cache: gradle
       # NDK·CMake가 없으면 Gradle이 원격 package manifest를 받아 설치하느라 빌드마다 6분쯤 기다린다(#358).
       # NDK는 Flutter가 정한 버전(flutter.ndkVersion), CMake는 jni plugin이 쓰는 AGP 기본 버전이다.
-      # Gradle 로그에 다른 CMake 설치가 보이면 ANDROID_CMAKE_VERSION을 함께 바꾼다.
+      # 키 밖의 설치는 빌드 뒤 "NDK·CMake 캐시 대상 확인"이 warning으로 알린다. 비우는 기준은 app/README.md "NDK·CMake 캐시".
       - name: NDK·CMake 경로 읽기
         id: android-native
         working-directory: .
@@ -222,6 +242,8 @@ jobs:
             echo "ndk=$ANDROID_HOME/ndk/$ndk"
             echo "cmake=$ANDROID_HOME/cmake/$ANDROID_CMAKE_VERSION"
           } >> "$GITHUB_OUTPUT"
+          # 빌드 뒤 캐시 키 밖의 설치를 찾으려고 runner에 원래 있던 버전을 적어 둔다.
+          (cd "$ANDROID_HOME" && for dir in ndk/* cmake/*; do [ -d "$dir" ] && echo "$dir"; done) > "$RUNNER_TEMP/android-native-before.txt"
       - name: NDK·CMake 캐시
         if: steps.android-native.outputs.key != ''
         uses: actions/cache@v6
@@ -255,6 +277,24 @@ jobs:
           script: mkdir -p build && patrol test -t patrol_test --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; adb logcat -d > build/logcat-full.txt; exit 1; }
         env:
           PATROL_ANALYTICS_ENABLED: "false"
+      # 빌드가 캐시 키 밖의 NDK·CMake를 설치했으면 키가 낡은 것이다(README "NDK·CMake 캐시").
+      - name: NDK·CMake 캐시 대상 확인
+        if: always() && steps.android-native.outputs.key != ''
+        working-directory: .
+        env:
+          NDK_DIR: ${{ steps.android-native.outputs.ndk }}
+          CMAKE_DIR: ${{ steps.android-native.outputs.cmake }}
+        run: |
+          cd "$ANDROID_HOME"
+          new=""
+          for dir in ndk/* cmake/*; do
+            [ -d "$dir" ] || continue
+            case "$dir" in "${NDK_DIR#"$ANDROID_HOME"/}" | "${CMAKE_DIR#"$ANDROID_HOME"/}") continue ;; esac
+            grep -qxF "$dir" "$RUNNER_TEMP/android-native-before.txt" || new="$new $dir"
+          done
+          if [ -n "$new" ]; then
+            echo "::warning title=NDK·CMake 캐시::캐시 키 밖의 설치가 있습니다:$new. app.yml의 ANDROID_CMAKE_VERSION 또는 키를 맞춥니다."
+          fi
       # Patrol 파일 이름(<타임스탬프>_<태그>.png)을 <화면>__<상태|default>-<흐름>.png로 모은다(흐름은 테스트마다 달라 이름이 겹치지 않는다).
       - name: 스크린샷 모으기
         if: always()

@@ -214,3 +214,10 @@ tool/patrol_local.sh patrol_test/diary_test.dart  # 흐름 하나
 | `e2e-android` | `main` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |
 
 `workflow_call`을 지원합니다. 입력 `mode`(`own`·`drift`·`gate`, 기본 `own`)는 `ci-gate`가 넘기고 검사 범위를 정합니다(D81, `docs/workflow.md` §6.2). `main` push에서는 `ci-gate`가 `checks`·`goldens`를 한 번 돌리므로, 이 workflow의 `push` 트리거는 `e2e-android`만 돕니다. 호출되면 `e2e-android`는 돌지 않아 호출 측 판정에 들어가지 않습니다(입력 `run_e2e: true`로만 켬). 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행 여부는 `github.workflow == 'app'`으로 가립니다.
+
+### NDK·CMake 캐시
+Gradle이 Android 디버그 빌드에서 NDK·CMake를 설치하는 시간을 줄이려고 `checks`·`e2e-android`가 두 디렉터리를 `actions/cache`로 남깁니다(#358). 빌드 도구만 담고 테스트 입력·결과에는 영향이 없습니다.
+* **키:** `android-native-ndk-<flutter.ndkVersion>-cmake-<ANDROID_CMAKE_VERSION>`. NDK는 Flutter SDK에서 읽으므로 Flutter를 올리면 새 키로 바뀝니다. CMake는 `app.yml`의 고정 값(jni plugin이 쓰는 AGP 기본 3.22.1)입니다.
+* **범위:** 만든 ref에서만 읽힙니다. PR에서 만든 캐시는 그 PR만 쓰고, `main` push의 `ci-gate`(own)가 만든 캐시를 모든 브랜치가 씁니다. 7일 동안 쓰이지 않거나 저장소 캐시 한도(10GB)를 넘으면 GitHub이 오래된 것부터 지웁니다.
+* **키를 맞출 때:** 빌드 뒤 `NDK·CMake 캐시 대상 확인` 단계가 키 밖의 NDK·CMake 설치를 warning으로 남깁니다. 보이면 `ANDROID_CMAKE_VERSION`(두 job 모두)을 그 버전으로 바꿉니다. NDK 쪽이 보이면 `build.gradle.kts`의 `ndkVersion`이 `flutter.ndkVersion`과 달라진 것이므로 키를 읽는 방법을 맞춥니다.
+* **비울 때:** 캐시가 있는데도 빌드가 NDK·CMake 문제(빠진 파일, `source.properties` 오류, 툴체인 실행 실패)로 실패하면 캐시가 깨진 것으로 보고 `gh cache delete <키>`로 지운 뒤 다시 돌립니다(그 키의 모든 ref 캐시가 지워집니다). 캐시 없이 한 번 확인하려면 지운 뒤 실행하면 됩니다. 테스트 실패는 이 캐시와 관계없으므로 비우지 않습니다.
