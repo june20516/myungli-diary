@@ -49,6 +49,17 @@ flowchart LR
   diary-edit -->|저장| diary-view
 ```
 
+## 로그인 수단과 계정 합치기 (D82)
+
+한 계정에 카카오·LINE·Google·Apple을 여러 개 연결할 수 있습니다. 이메일로 계정을 잇지 않고, 사용자가 로그인 수단 화면에서 직접 붙입니다.
+
+```mermaid
+flowchart LR
+  settings -->|로그인 수단| login-methods
+  login-methods -->|붙이려는 수단이 다른 계정에 있음| account-merge
+  account-merge -->|합치기 완료 / 합치지 않기| login-methods
+```
+
 ## 고치는 절차
 
 * `screens.json`은 지휘 세션만 고칩니다. writing이나 design이 슬롯·컴포넌트를 새로 만들거나 빼야 하면 `to:root` Issue로 요청합니다.
