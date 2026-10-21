@@ -38,9 +38,17 @@
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78 |
 
-## 현재 상태 (엔진 MVP 완료, 원국 개인 해석·음력 변환·근거 목록 추가, 2026-10-20)
+## 현재 상태 (엔진 MVP 완료, 원국 개인 해석·음력 변환·근거 목록 추가, 2026-10-21)
 * **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), 음력 변환 RPC(`ConvertLunarDate`, #164), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).
-* **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인과 KASI 골든입니다. CI는 `.github/workflows/core.yml`.
+* **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인(`calibration`)과 KASI 골든(`kasi`) 두 묶음입니다. CI는 `.github/workflows/core.yml`이고, 범위(`mode`)와 시점은 `README.md` "테스트와 검사" 절에 있습니다(D81).
+* **반복 중 빠른 경로(로컬):** 바꾼 패키지의 테스트만 돌리고, PR 전에 기본 테스트 전체를 한 번 돌립니다. `tests/unit/`은 `src/myungli_engine/`의 패키지 구조를 따릅니다.
+  ```bash
+  uv run pytest -q -m "not slow" tests/unit/<패키지>   # 예: tests/unit/rules
+  uv run pytest -q --lf -m "not slow"                # 직전에 실패한 테스트만
+  uv run pytest -q -m contract                       # 계약 파일을 다시 만든 뒤
+  uv run pytest -q tests/snapshots                   # 판정 출력이 바뀌는 변경(규칙·상수·근거 데이터)
+  git diff --name-only $(git merge-base origin/main HEAD) | python3 -I tools/slow_scope.py   # 커밋하지 않은 변경까지 보고 돌릴 slow 묶음의 표지 식을 냄
+  ```
 * **제공 계약:** 위 "계약" 표. 버전과 상태는 `docs/contracts/README.md`의 core 행에 있습니다.
 * **알려진 한계:**
   * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
@@ -51,7 +59,7 @@
 
 ## 다음 할 일
 1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
-2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-20 기준:
+2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-21 기준:
    * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).

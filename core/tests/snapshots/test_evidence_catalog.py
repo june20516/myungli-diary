@@ -3,6 +3,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 from datetime import date, timedelta
 
+import pytest
 from snapshot_samples import SAMPLE_BIRTHS, SEOUL
 
 from myungli_engine.composers.chart import compose_chart
@@ -11,6 +12,8 @@ from myungli_engine.composers.month import compose_month
 from myungli_engine.constants.evidence_rules import RULE_DETAIL_KEYS
 from myungli_engine.domain.models import Evidence
 from myungli_engine.references.sources import source_catalog
+
+pytestmark = pytest.mark.contract
 
 # 모든 후보가 원국과 충일 때만 나와 샘플에 없다. tests/unit/rules/test_focus_time.py가 다룬다.
 RULES_NOT_IN_SAMPLES = frozenset({"focus_time/fallback"})

@@ -51,6 +51,7 @@ def _relative_files(root: Path) -> list[Path]:
     )
 
 
+@pytest.mark.contract
 def test_generated_code_up_to_date(tmp_path: Path) -> None:
     out_dir = tmp_path / "_gen"
     # 테스트 중 uv run을 다시 부르지 않도록 지금 Python을 넘긴다
@@ -84,6 +85,7 @@ def test_generated_modules_import_by_package_path() -> None:
     assert hasattr(pb2_grpc, "add_MyungliEngineServicer_to_server")
 
 
+@pytest.mark.contract
 @pytest.mark.parametrize(("domain_enum", "proto_name", "prefix"), DOMAIN_TO_PROTO_ENUMS)
 def test_proto_enums_cover_domain_enums(domain_enum: type[Enum], proto_name: str, prefix: str) -> None:
     pb2 = importlib.import_module(f"{GEN_PACKAGE}.engine_pb2")

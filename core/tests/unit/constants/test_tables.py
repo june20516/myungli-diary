@@ -99,6 +99,7 @@ def test_unknown_message_key_rejected():
         message_keys.require("no.such.key")
 
 
+@pytest.mark.contract
 def test_exported_key_list_up_to_date():
     exported = json.loads((CORE_DIR / "message_keys.json").read_text(encoding="utf-8"))
     assert exported == sorted(message_keys.ALL_KEYS)
@@ -125,11 +126,13 @@ def test_require_rejects_mismatched_params(params):
         message_keys.require("calendar.good", params)
 
 
+@pytest.mark.contract
 def test_exported_param_list_up_to_date():
     exported = json.loads((CORE_DIR / "message_params.json").read_text(encoding="utf-8"))
     assert exported == {key: list(message_keys.KEY_PARAMS[key]) for key in sorted(message_keys.KEY_PARAMS)}
 
 
+@pytest.mark.contract
 def test_exported_param_keys_match_key_list():
     keys = json.loads((CORE_DIR / "message_keys.json").read_text(encoding="utf-8"))
     params = json.loads((CORE_DIR / "message_params.json").read_text(encoding="utf-8"))

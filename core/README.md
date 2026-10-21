@@ -34,14 +34,23 @@ uv run python tools/check_container.py localhost:8080         # core/에서. hea
 
 ```bash
 uv run pytest -q -m "not slow"   # 기본: 단위·통합·불변 조건·회귀 스냅샷·골든(기준 앱)
-uv run pytest -q -m slow         # 느린 테스트: 분포 보정 상수 확인(약 80초), KASI 골든(약 30초)
-uv run pytest -q tests/golden    # 골든 테스트만 (KASI 골든은 slow 마커)
+uv run pytest -q -m slow         # 느린 테스트 전체: 아래 두 묶음
+uv run pytest -q -m calibration  # slow 묶음: 분포 보정 상수 확인(약 80초)
+uv run pytest -q -m kasi         # slow 묶음: KASI 골든(약 30초)
+uv run pytest -q -m contract     # 제공 계약 파일(proto 생성 코드, 메시지 키·매개변수, 근거 목록)과 코드의 일치
+HYPOTHESIS_PROFILE=full uv run pytest -q tests/properties   # property 테스트를 전체 예제 수로
 uv run ruff check .
 uv run mypy src tools
 ```
 
 KASI 골든은 저장된 fixture(`tests/golden/fixtures/`)만 읽고 네트워크를 쓰지 않습니다.
-CI(`.github/workflows/core.yml`)는 PR과 main push에서 ci-gate가 불러 기본 검사와 이미지 검사를 돌립니다. slow 테스트는 계산·원국·규칙·조립·상수(보정 상수 포함)·근거 데이터·의존성과 보정 도구·테스트를 바꾸는 변경, 수동 실행, 매주 한 번 돌립니다. 경로 조건은 `core.yml`의 `core-paths` job에 있습니다.
+property 테스트(`tests/properties/`)는 기본으로 `quick` profile(예제 50개)이고, 정기 실행은 `full`(300개)입니다(`tests/properties/conftest.py`).
+
+CI(`.github/workflows/core.yml`)는 PR과 main push에서 ci-gate가 부릅니다(D81, `docs/workflow.md` §6.2).
+* `mode: own`(core 코드를 바꿈): lint·mypy·기본 테스트, 이미지 검사, proto 검사, 그리고 바뀐 경로에 맞는 slow 묶음. 묶음별 경로는 `tools/slow_scope.py`에 있고, 묶음이 실제로 import하는 엔진 패키지와 맞는지 `tests/unit/test_slow_scope.py`가 검사합니다.
+* `mode: gate`(`ci-gate.yml`만 바뀜): 계약 검사만(`pytest -m contract`, proto 검사).
+* 매주 한 번(schedule)과 수동 실행: slow 테스트 전체와 property 테스트 전체 예제 수.
+* PR의 비교 기준은 merge ref의 first parent(검사 시점의 main)입니다. buf breaking 비교도 같은 커밋과 비교합니다.
 
 ## proto 코드 생성
 

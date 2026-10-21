@@ -48,6 +48,7 @@ def test_evidence_to_proto_rejects_unregistered_rule() -> None:
         mapping.evidence_to_proto(Evidence("yongsin/unknown", "gungtong-bogam/five_elements#color"))
 
 
+@pytest.mark.contract
 def test_exported_rule_list_up_to_date() -> None:
     exported = json.loads((CORE_DIR / "evidence_rules.json").read_text(encoding="utf-8"))
     assert exported == {rule: list(keys) for rule, keys in sorted(evidence_rules.RULE_DETAIL_KEYS.items())}

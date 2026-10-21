@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from myungli_engine.domain.enums import Branch, Stem
 from myungli_engine.references import loader, sources
 
@@ -38,6 +40,7 @@ def test_five_elements_entry_keeps_note() -> None:
     assert "金" in str(entry["note"])
 
 
+@pytest.mark.contract
 def test_exported_source_list_up_to_date() -> None:
     exported = json.loads((CORE_DIR / "evidence_sources.json").read_text(encoding="utf-8"))
     assert exported == dict(sorted(sources.source_catalog().items()))
