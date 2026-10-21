@@ -8,13 +8,18 @@ on:
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
-  # PR 검사는 ci-gate가 부른다(#85). push는 main 병합 뒤 기기 E2E를 돌리려고 남긴다.
+  # PR 검사는 ci-gate가 부른다(#85). push는 main 병합 뒤 기기 E2E만 돌리려고 남긴다.
+  # checks·goldens는 main push에서도 ci-gate가 한 번 돌리므로 이 push에서는 돌지 않는다(D81).
   # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
   schedule:
     - cron: "0 18 * * *"
   # ci-gate가 부르면 e2e-android는 돌지 않는다(판정에 넣지 않음). run_e2e로만 켤 수 있다.
   workflow_call:
     inputs:
+      mode:
+        description: "ci-gate 판별(own·drift·gate). own은 빠른 검사 전체, drift·gate는 계약을 읽는 검사만"
+        type: string
+        default: own
       run_e2e:
         description: "재사용 호출에서도 기기 E2E(e2e-android)를 돌린다"
         type: boolean
@@ -37,11 +42,19 @@ permissions:
 
 jobs:
   checks:
-    # 밤 schedule 실행은 e2e-android만 돈다.
-    if: github.event_name != 'schedule'
+    # 직접 실행에서는 수동 실행만 돈다. main push는 ci-gate가 이미 돌리고, 밤 schedule은 e2e-android만 돈다(D81).
+    # 재사용 호출이면 github.workflow가 호출 측 이름이다(e2e-android 주석).
+    if: github.workflow != 'app' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     # Gradle이 걸려 runner를 오래 점유하지 않게 상한을 둔다.
     timeout-minutes: 30
+    env:
+      # own은 빠른 검사 전체, drift·gate는 계약을 읽는 검사만 돈다(D81). 직접 실행에는 mode 입력이 없어 own이다.
+      # 계약 검사: 생성 코드 차이, ARB 문구, fixture 스키마, E2E 커버리지(IA), contract 태그 테스트.
+      # drift·gate에서 생성 코드가 commit된 것과 같으면 app 코드도 main과 같으므로 analyze는 own에만 둔다.
+      OWN: ${{ (inputs.mode || 'own') == 'own' }}
+      # 계약 PR의 깨짐은 위 검사가 잡고, Gradle 문제는 app/ 변경에서만 생기므로 own에서만 빌드한다.
+      BUILD_APK: ${{ (inputs.mode || 'own') == 'own' && (github.workflow == 'app' || inputs.build_apk == true) }}
     defaults:
       run:
         working-directory: app
@@ -50,6 +63,7 @@ jobs:
       # Android 빌드(NDK·CMake 설치 포함)가 ubuntu-latest 기본 여유 공간을 넘으므로,
       # 이 job이 쓰지 않는 사전 설치 도구를 지운다. Android SDK와 Docker는 남긴다.
       - name: runner 디스크 확보
+        if: env.BUILD_APK == 'true'
         working-directory: .
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
@@ -60,13 +74,44 @@ jobs:
           cache: true
       # flutter build apk는 Java 17이 필요하다.
       - uses: actions/setup-java@v6
+        if: env.BUILD_APK == 'true'
         with:
           distribution: temurin
           java-version: "17"
           cache: gradle
+      # NDK·CMake가 없으면 Gradle이 원격 package manifest를 받아 설치하느라 빌드마다 6분쯤 기다린다(#358).
+      # NDK는 Flutter가 정한 버전(flutter.ndkVersion), CMake는 jni plugin이 쓰는 AGP 기본 버전이다.
+      # Gradle 로그에 다른 CMake 설치가 보이면 ANDROID_CMAKE_VERSION을 함께 바꾼다.
+      - name: NDK·CMake 경로 읽기
+        id: android-native
+        if: env.BUILD_APK == 'true'
+        working-directory: .
+        env:
+          ANDROID_CMAKE_VERSION: "3.22.1"
+        run: |
+          flutter_root="${FLUTTER_ROOT:-$(dirname "$(dirname "$(command -v flutter)")")}"
+          ndk="$(sed -nE 's/.*val ndkVersion: String = "([0-9.]+)".*/\1/p' "$flutter_root/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt")"
+          if [ -z "$ndk" ]; then
+            echo "::warning title=NDK 캐시::flutter.ndkVersion을 찾지 못해 캐시 없이 빌드합니다."
+            exit 0
+          fi
+          {
+            echo "key=android-native-ndk-$ndk-cmake-$ANDROID_CMAKE_VERSION"
+            echo "ndk=$ANDROID_HOME/ndk/$ndk"
+            echo "cmake=$ANDROID_HOME/cmake/$ANDROID_CMAKE_VERSION"
+          } >> "$GITHUB_OUTPUT"
+      - name: NDK·CMake 캐시
+        if: steps.android-native.outputs.key != ''
+        uses: actions/cache@v6
+        with:
+          path: |
+            ${{ steps.android-native.outputs.ndk }}
+            ${{ steps.android-native.outputs.cmake }}
+          key: ${{ steps.android-native.outputs.key }}
       - name: 의존성 받기
         run: flutter pub get
       - name: 포맷 확인
+        if: env.OWN == 'true'
         run: dart format --output=none --set-exit-if-changed .
       - name: 생성 코드 차이 확인
         run: |
@@ -93,28 +138,36 @@ jobs:
             python -I tool/test_validate_fixtures.py &&
             python -I tool/validate_fixtures.py'
       - name: 정적 분석
+        if: env.OWN == 'true'
         run: flutter analyze
       # flutter analyze는 analyzer plugin(riverpod_lint)을 싣는 일이 실행마다 달라 지적이 빠질 수 있다.
       # dart analyze는 plugin을 늘 실으므로 함께 돌려 로컬과 같은 결과를 보장한다.
       - name: 정적 분석 (analyzer plugin 포함)
+        if: env.OWN == 'true'
         run: dart analyze
       # 흐름 테스트·E2E의 Covers 선언을 IA와 대조하고, 커버리지가 baseline보다 줄면 실패한다.
       - name: E2E 커버리지 ratchet
         run: dart run tool/ia_coverage.dart --check
       - name: Widgetbook 정적 분석
+        if: env.OWN == 'true'
         working-directory: app/widgetbook
         run: |
           flutter pub get
           flutter analyze
       - name: Widgetbook 테스트
+        if: env.OWN == 'true'
         working-directory: app/widgetbook
         run: flutter test
       # golden은 Flutter 버전을 고정한 goldens job이 비교한다(stable 추종과 분리).
       - name: 테스트
+        if: env.OWN == 'true'
         run: flutter test --exclude-tags golden
-      # 계약 PR에서는 생성 코드 대조·analyze·테스트가 깨짐을 잡고, Gradle 문제는 app/ 변경에서만 생기므로 재사용 호출에서는 build_apk로 거른다.
+      # 계약 파일을 읽는 테스트만 고른다. 태그를 붙일 곳은 test/contract/contract_tags_test.dart가 대조한다.
+      - name: 계약 테스트
+        if: env.OWN != 'true'
+        run: flutter test --tags contract --exclude-tags golden
       - name: Android 디버그 빌드
-        if: github.workflow == 'app' || inputs.build_apk == true
+        if: env.BUILD_APK == 'true'
         run: flutter build apk --debug
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
@@ -149,6 +202,34 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+      # NDK·CMake가 없으면 Gradle이 원격 package manifest를 받아 설치하느라 빌드마다 6분쯤 기다린다(#358).
+      # NDK는 Flutter가 정한 버전(flutter.ndkVersion), CMake는 jni plugin이 쓰는 AGP 기본 버전이다.
+      # Gradle 로그에 다른 CMake 설치가 보이면 ANDROID_CMAKE_VERSION을 함께 바꾼다.
+      - name: NDK·CMake 경로 읽기
+        id: android-native
+        working-directory: .
+        env:
+          ANDROID_CMAKE_VERSION: "3.22.1"
+        run: |
+          flutter_root="${FLUTTER_ROOT:-$(dirname "$(dirname "$(command -v flutter)")")}"
+          ndk="$(sed -nE 's/.*val ndkVersion: String = "([0-9.]+)".*/\1/p' "$flutter_root/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt")"
+          if [ -z "$ndk" ]; then
+            echo "::warning title=NDK 캐시::flutter.ndkVersion을 찾지 못해 캐시 없이 빌드합니다."
+            exit 0
+          fi
+          {
+            echo "key=android-native-ndk-$ndk-cmake-$ANDROID_CMAKE_VERSION"
+            echo "ndk=$ANDROID_HOME/ndk/$ndk"
+            echo "cmake=$ANDROID_HOME/cmake/$ANDROID_CMAKE_VERSION"
+          } >> "$GITHUB_OUTPUT"
+      - name: NDK·CMake 캐시
+        if: steps.android-native.outputs.key != ''
+        uses: actions/cache@v6
+        with:
+          path: |
+            ${{ steps.android-native.outputs.ndk }}
+            ${{ steps.android-native.outputs.cmake }}
+          key: ${{ steps.android-native.outputs.key }}
       - name: 의존성 받기
         run: flutter pub get
       - name: patrol_cli 설치
@@ -202,9 +283,12 @@ jobs:
           if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.
-  # checks와 같은 조건으로 돈다: workflow 수준 on(경로 포함)을 따르되 밤 schedule 실행은 뺀다.
+  # 직접 실행은 checks와 같이 수동 실행만, 재사용 호출은 own에서만 돈다(D81).
+  # 토큰 계약이 바뀌면 drift의 생성 코드 차이 확인이 먼저 잡는다.
   goldens:
-    if: github.event_name != 'schedule'
+    if: >-
+      (github.workflow == 'app' && github.event_name == 'workflow_dispatch')
+      || (github.workflow != 'app' && (inputs.mode || 'own') == 'own')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

@@ -1,3 +1,6 @@
 tags:
   # 기준 이미지는 Linux에서만 비교합니다(test/flutter_test_config.dart).
   golden:
+  # 저장소의 계약 파일(../docs/·../server/)을 읽는 테스트입니다. ci-gate의 drift·gate 호출은
+  # 이 태그만 돌립니다(D81). 붙일 곳은 test/contract/contract_tags_test.dart가 대조합니다.
+  contract:
