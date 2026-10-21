@@ -750,7 +750,6 @@ def test_day_sheet_diary_entrances():
 
 
 # 규칙 정합성 점검 #284 (D78): MD "쓰는 화면"은 IA components와 같다
-USED_ON_EXCEPTIONS = {"diary-editor": {"diary-view"}}  # view 변형. IA에 더해 달라고 요청함(#290)
 
 
 def used_on_lines():
@@ -777,5 +776,5 @@ def test_md_used_on_matches_ia_components():
         if component_id not in used:
             continue
         checked += 1
-        assert listed == used[component_id] | USED_ON_EXCEPTIONS.get(component_id, set()), (name, component_id)
+        assert listed == used[component_id], (name, component_id)
     assert checked >= 30

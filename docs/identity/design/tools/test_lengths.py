@@ -9,16 +9,15 @@ import pytest
 TOOLS_DIR = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
+import fonts  # noqa: E402
 import lengths  # noqa: E402
 from lengths import (CONTENT_WIDTH, Result, Target, corpus_sentences, en_line_chars, free_width,  # noqa: E402
                      ja_line_chars, ko_line_chars, ko_name_chars, measure, render_table)
 
 REPO_ROOT = TOOLS_DIR.parents[3]
-FONT_DIR = REPO_ROOT / ".suberpowers" / "fonts"
 FONT_FILES = [name for pair in lengths.FONT_FILES.values() for name in pair if name]
-FONTS_PRESENT = all((FONT_DIR / name).exists() for name in FONT_FILES)
 
-EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행. 값이 바뀌면 안 됨 (spec-followups spec §5.6)
+EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행 중 남은 11행(D79로 ui.depth 두 행을 뺌). 값이 바뀌면 안 됨 (spec-followups spec §5.6)
     '| `daily.fortune.head`<br>`daily.fortune.tag` | today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today) | 320px | 2 | 32 | 42 | **32** | **32** | **57** |',
     '| `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |',
     '| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card explain (안쪽 space.12) | 296px | 2 | 36 | 58 | **36** | **36** | **64** |',
@@ -29,8 +28,6 @@ EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행. 값이 바뀌면 �
     '| `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |',
     '| `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |',
     '| `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |',
-    '| `ui.depth.surface`<br>`ui.depth.explain`<br>`ui.depth.evidence` | segmented 세 칸 중 한 칸 | 104px | 1 | 10 | 8 | **8** | **6** | **13** |',
-    '| `ui.depth.default_label` | settings-row value 이름 (좌우 16px, 화살표 16, 오른쪽 값 = 단계 이름) | 177.4px | 1 | 10 | 15 | **10** | **10** | **18** |',
     '| `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |',
     # settings.calculation_basis는 W21로 ui 슬롯 calc-basis.longitude.body로 옮겨 감. 값은 그대로 (#284)
     '| `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |',
@@ -152,8 +149,8 @@ def test_every_requested_slot_has_a_value_or_no_limit():
     issue_54 = {
         "daily.fortune.head", "daily.fortune.tag", "daily.guide", "daily.color", "daily.direction", "daily.number",
         "daily.focus_time", "daily.tag_label", "daily.focus_reason", "calendar.day_level", "calendar.score_item",
-        "calendar.solar_term", "glossary.value_name", "ui.depth.default_label", "ui.depth.surface",
-        "ui.depth.explain", "ui.depth.evidence", "chart.yongsin_method",
+        "calendar.solar_term", "glossary.value_name", "chart.yongsin_method",
+        # ui.depth.surface·explain·evidence·default_label은 D79로 기본 깊이 설정과 함께 뺌(#318). explain은 NO_LIMIT
         "calc-basis.longitude.body",  # 옛 settings.calculation_basis (W21)
     }
     issue_131 = {  # spec-followups spec §5.2 표
@@ -178,6 +175,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
         "term.meaning", "ui.app.bootstrap", "system.apple_return", "ui.guide.a11y", "login.discard.notice",
+        "ui.depth.explain",
     }
     assert not set(lengths.NO_LIMIT) & slots
 
@@ -206,16 +204,18 @@ def test_only_dialog_slots_sit_in_two_targets():
     assert {slot for slot, count in seen.items() if count > 1} == DIALOG_SLOTS_EXPECTED == set(lengths.DIALOG_SLOTS)
 
 
-@pytest.mark.skipif(not FONTS_PRESENT, reason="측정 글꼴이 .suberpowers/fonts에 없음 (lengths.md 참고)")
-def test_existing_rows_keep_their_values(capsys):
-    lengths.main(["--font-dir", str(FONT_DIR)])
+def test_measuring_fonts_are_pinned():
+    assert set(FONT_FILES) <= {font.name for font in fonts.FONTS}
+
+
+def test_existing_rows_keep_their_values(capsys, font_dir):
+    lengths.main(["--font-dir", str(font_dir)])
     table = capsys.readouterr().out
     assert all(row in table for row in EXISTING_ROWS)
 
 
-@pytest.mark.skipif(not FONTS_PRESENT, reason="측정 글꼴이 .suberpowers/fonts에 없음 (lengths.md 참고)")
-def test_committed_table_matches_measurement(capsys):
-    lengths.main(["--font-dir", str(FONT_DIR)])
+def test_committed_table_matches_measurement(capsys, font_dir):
+    lengths.main(["--font-dir", str(font_dir)])
     table = capsys.readouterr().out
     assert table in (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8")
 

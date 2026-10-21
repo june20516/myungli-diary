@@ -30,7 +30,11 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-20, design 세션 작성)
+## 현재 상태 (2026-10-21, design 세션 작성)
+* **검사 범위 정리 #362** (브랜치 `design/ci-mode`, D81)와 drift #324·#318(D79).
+  * `design.yml` `mode` 입력: `own`은 전체, `drift`·`gate`는 계약 검사(`test_components.py`·`test_lengths.py`·`components.py`)만. 토큰·로고 생성물과 색 대비는 `own`만.
+  * 측정 글꼴은 `tools/fonts.py`(주소 고정·sha256)로 CI에서 받고 캐시함(키 = `fonts.py` 해시, main own에서만 저장). CI에서 글꼴이 없으면 skip 대신 실패.
+  * D79: 기본 깊이 설정 행(`ui.depth.surface`·`evidence`·`default_label`)을 지우고 `ui.depth.explain`은 접근성 라벨이라 상한 없음. `segmented` 쓰는 화면에서 settings를 뺌. #290이 닫혀 `USED_ON_EXCEPTIONS`를 지움.
 * **규칙 정합성 점검 #284** (브랜치 `design/rules-audit`, D78).
   * 글자 수 상한: D77 IA 자리 9개를 writing 슬롯(W33, `ui.*`에 `ia`) 기준으로 기존 행에 더함(값 그대로). `settings.calculation_basis` → `calc-basis.longitude.body`(W21). #191은 W26 `unbounded`·`key_max_length`로 끝남.
   * MD "쓰는 화면"을 IA에 맞추고 테스트가 대조함. 예외 `diary-editor` diary-view는 IA 보완 요청 #290.
@@ -60,7 +64,7 @@
 * **V2 후속: 근거 깊이 잠금·글자 수 상한** (브랜치 `design/v2-followups`, Issue #53·#54).
   * 근거 시트 구성과 잠김 상태 4개(`depth-link.evidenceSheet`), 요소 `lock.veil`, `sentence-block` `locked`. 풀이 시트의 개인 해석 상자와 `term-token` 잠김은 뺌(D60).
   * 공통 규칙: 동작 = 둥근 사각, 표시·고르기 = 알약(예외 없음), 화면 좌우 여백 `space.20`.
-  * 글자 수 상한: [`lengths.md`](lengths.md), 도구 `tools/lengths.py`(측정 글꼴은 `.suberpowers/fonts`, 없으면 표 비교 테스트 skip).
+  * 글자 수 상한: [`lengths.md`](lengths.md), 도구 `tools/lengths.py`(측정 글꼴은 `tools/fonts.py`로 `.suberpowers/fonts`에 받음).
   * 근거: [spec](specs/2026-10-11-depth-lock-lengths-design.md), 결정 V25~V27.
 * **마일스톤 V2 컴포넌트 명세** (브랜치 `design/components`).
   * 명세: [`components/`](components/README.md) JSON(사실) + MD(설명) 11쌍. 공통 `interaction`(패턴 12개)·`elements`(요소 15개, 근거 잠금에서 16개).
@@ -75,15 +79,16 @@
   * 근거: [V0 spec](specs/2026-10-10-visual-identity-design.md), 결정 V1~V7([`decisions.md`](decisions.md)).
   * 색 값의 출처: [`tools/palette.py`](tools/palette.py) (`--check`로 대비 검사).
   * 로고 원본: [`logo/`](logo/), 견본: [`specimen/index.html`](specimen/index.html), 시안 기록: [`artifacts/index.json`](artifacts/index.json).
-* 테스트: 저장소 루트에서 `uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q`
-* 고운돋움 TTF는 저장소에 넣지 않습니다(`.suberpowers/fonts/GowunDodum-Regular.ttf`). 받는 곳: `https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf`
-  * 글꼴이 없으면 워드마크 생성 테스트 2개가 **skip**됩니다. 새 checkout이나 CI에서 전부 통과로 보여도 그 2개는 돌지 않은 것입니다. 워드마크를 고쳤다면 글꼴을 받고 다시 돌립니다.
+* 테스트: 저장소 루트에서 `uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q`(1초 안쪽)
+  * 반복 중 빠른 경로: 바꾼 도구의 테스트 파일만 돌립니다. 예: 명세는 `... pytest docs/identity/design/tools/test_components.py -q` + `python3 docs/identity/design/tools/components.py`, 글자 수는 `test_lengths.py`, 토큰은 `test_tokens.py test_dtcg.py`.
+* 측정 글꼴(고운돋움·Zen Maru Gothic·Pretendard)은 저장소에 넣지 않습니다. 받기: `python3 docs/identity/design/tools/fonts.py --font-dir .suberpowers/fonts`(주소·sha256 고정).
+  * 로컬에서 글꼴이 없으면 글자 수 표 비교·워드마크 테스트 4개가 **skip**됩니다. CI는 글꼴을 받아 돌리고, 없으면 실패합니다(`DESIGN_FONTS_REQUIRED=1`).
 * 로고 원본(`logo/`)을 바꾸면 순서대로 다시 만듭니다.
   1. 워드마크·가로 조합: `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo`
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-0. **IA 보완 #290:** 지휘가 IA diary-view에 `diary-editor`를 더하면 `tools/test_components.py`의 `USED_ON_EXCEPTIONS`를 지웁니다.
+0. **#362 병합 뒤:** #362에 병합을 코멘트로 알립니다(지휘가 `ci-gate`에서 `mode`를 넘김).
 1. **윤달 표지 문구:** writing이 #260에 답하면 `tools/lengths.py`에 그 슬롯(칸 폭 44px, 10.5px 400, 한 줄) 상한 행을 더하고 `calendar.json` `leapNewMoon`에 슬롯 id를 적습니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.

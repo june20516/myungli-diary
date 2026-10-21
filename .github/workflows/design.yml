@@ -3,6 +3,11 @@ name: design
 # ci-gate가 부르는 전용 workflow입니다. 직접 push·pull_request로 돌면 중복 실행되므로 트리거를 두지 않습니다(#188).
 on:
   workflow_call:
+    inputs:
+      mode:
+        description: "ci-gate 판별(own·drift·gate). own은 빠른 검사 전체, drift·gate는 계약을 읽는 검사만"
+        type: string
+        default: own
   workflow_dispatch:
 
 # workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
@@ -13,16 +18,46 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      # own은 빠른 검사 전체, drift·gate는 계약(IA, writing 라운드 원고·ui 원고)을 읽는 검사만 돈다(D81). 직접 실행에는 mode 입력이 없어 own이다.
+      # 계약 검사: 컴포넌트 명세와 IA 대조(test_components.py, components.py), 글자 수 표(test_lengths.py).
+      # 토큰·로고 생성물 비교와 색 대비는 design 소유 파일만 읽으므로 own에만 둔다.
+      OWN: ${{ (inputs.mode || 'own') == 'own' }}
+      # 측정 글꼴이 없으면 글자 수 표·워드마크 테스트가 skip되지 않고 실패한다(#362).
+      DESIGN_FONTS_REQUIRED: "1"
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           version: "0.11.3"
           python-version: "3.13"
+      # 키는 fonts.py의 해시(주소·sha256 목록)다. 글꼴 파일은 runner OS와 상관없고, 복원한 뒤에도 fonts.py가 sha256을 다시 확인해
+      # 없거나 다른 파일만 받는다. 수동 실행은 캐시 없이 새로 받고, 저장은 main push의 own 실행에서만 한다(D81 ⑥).
+      - name: 측정 글꼴 캐시 복원
+        if: github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
+        uses: actions/cache/restore@v6
+        with:
+          path: .suberpowers/fonts
+          key: design-fonts-${{ hashFiles('docs/identity/design/tools/fonts.py') }}
+      - name: 측정 글꼴 받기
+        run: python3 docs/identity/design/tools/fonts.py --font-dir .suberpowers/fonts
       # 생성물(토큰·로고 모음)이 생성기 출력과 같은지도 이 테스트가 봅니다.
-      # 측정 글꼴(.suberpowers/fonts)이 없어 워드마크 테스트와 글자 수 표 비교 테스트는 skip됩니다.
-      - run: uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q
+      - name: 테스트 전체
+        if: env.OWN == 'true'
+        run: uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q
+      - name: 계약 테스트
+        if: env.OWN != 'true'
+        run: >-
+          uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest -q
+          docs/identity/design/tools/test_components.py docs/identity/design/tools/test_lengths.py
       - name: 컴포넌트 명세를 IA·토큰과 대조
         run: python3 docs/identity/design/tools/components.py
       - name: 색 대비 검사
+        if: env.OWN == 'true'
         run: python3 docs/identity/design/tools/palette.py --check
+      - name: 측정 글꼴 캐시 저장
+        if: env.OWN == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v6
+        with:
+          path: .suberpowers/fonts
+          key: design-fonts-${{ hashFiles('docs/identity/design/tools/fonts.py') }}
