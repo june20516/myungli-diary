@@ -1,0 +1,44 @@
+# pr-body: PR 본문의 처리한 Issue 표기 검사 (지휘 소유)
+#
+# * 처리한 Issue는 `Closes #<번호>`, 일부만 처리했으면 `참고 #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2, D78 ③).
+# * ci-gate와 나란히 필수 검사입니다. 본문만 고친 `edited`에서 단위 검사를 다시 돌리지 않으려고 ci-gate에서 떼었습니다(D81).
+
+name: pr-body
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+concurrency:
+  group: pr-body-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  pr-body:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 처리한 Issue 표기 확인
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python3 -I - <<'PY'
+          import os, re, sys
+          # 템플릿 안내 주석은 빼고 봅니다. 주석에도 예시 문구가 들어 있기 때문입니다.
+          body = re.sub(r"<!--.*?-->", "", os.environ.get("BODY") or "", flags=re.S)
+          # GitHub처럼 문장 안의 키워드도 인정합니다(줄 맨 앞만 보면 GitHub은 닫는데 검사만 실패합니다).
+          closes = re.findall(r"(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)", body)
+          none = re.search(r"(?m)^[\s*-]*처리한 Issue:\s*없음", body)
+          # 일부만 처리한 Issue는 `참고 #<번호>`로 적습니다(D78 ③). 남은 일은 새 Issue로 나눕니다.
+          partial = re.findall(r"참고(?:\s*Issue)?:?\s*#(\d+)", body)
+          if closes:
+              print("처리한 Issue: " + ", ".join("#" + n for n in closes))
+          elif partial:
+              print("일부 처리한 Issue: " + ", ".join("#" + n for n in partial))
+          elif none:
+              print("처리한 Issue: 없음")
+          else:
+              print("PR 본문에 `Closes #<번호>`, `참고 #<번호>`, `처리한 Issue: 없음` 중 하나가 없습니다 (docs/workflow.md §5.2).")
+              sys.exit(1)
+          PY

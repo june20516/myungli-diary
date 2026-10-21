@@ -29,7 +29,7 @@
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
 | `docs/coordination/` | 지휘 | 이관 전 문서 보관소 |
-| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/ia/`, `docs/legal/`, `docs/specs/`, `docs/plans/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**은 주는 쪽이 계약 PR에서 직접 고치거나 새로 넣습니다. 새 계약 파일이 받는 쪽 검사와 맞물리면 `ci-gate`의 drift 경로에 넣어 달라고 지휘에게 요청합니다. 표의 열 구성과 표 밖 내용은 지휘가 합니다 |
+| `README.md`, `CLAUDE.md`(루트), `docs/identity/README.md`, `docs/artifacts/`, `docs/decisions.md`, `docs/research/`, `docs/roadmap.md`, `docs/contracts/`, `docs/ia/`, `docs/legal/`, `docs/specs/`, `docs/plans/`, `docs/workflow.md`, `.github/workflows/ci-gate.yml`, `.github/workflows/pr-body.yml`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`, `tools/` | 지휘 | 서브 프로젝트는 읽기만 하고, 바꿀 일이 있으면 요청함으로. 예외: `docs/contracts/README.md` 표에서 **자기가 제공하는 계약의 행**은 주는 쪽이 계약 PR에서 직접 고치거나 새로 넣습니다. 새 계약 파일이 받는 쪽 검사와 맞물리면 `ci-gate`의 drift 경로에 넣어 달라고 지휘에게 요청합니다. 표의 열 구성과 표 밖 내용은 지휘가 합니다 |
 | 단위의 `CLAUDE.md` | 해당 단위 | 지휘는 착수 안내나 공통 규약 정리 때만 고치고 PR 본문에 적습니다 |
 
 ## 3. 서브 프로젝트의 작업 주기
@@ -79,7 +79,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   | `kind:task` | 작업이 끝났을 때 | 받는 쪽 |
 * **받는 쪽에 일을 시키는 공지는 `kind:request`로 엽니다.** 공지(`kind:notice`)는 알리기만 합니다. 수령으로 닫혀도 남은 일이 목록에서 사라지지 않게 하려는 것입니다.
 * **일부만 처리했으면** 처리한 부분으로 닫고, 남은 부분은 새 Issue로 엽니다. 새 Issue 번호를 닫는 코멘트에 남깁니다.
-* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `ci-gate`의 `pr-body` 검사가 둘 중 하나가 있는지 확인합니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다. `pr-body` 검사는 `Closes`, `참고 #`, `처리한 Issue: 없음` 가운데 하나를 요구합니다(D78 ③).
+* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `pr-body` 검사(`ci-gate`와 나란한 필수 검사, D81)가 둘 중 하나가 있는지 확인합니다. 본문만 고치면 `pr-body`만 다시 돕니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다. `pr-body` 검사는 `Closes`, `참고 #`, `처리한 Issue: 없음` 가운데 하나를 요구합니다(D78 ③).
 * **라벨:** `from:<단위>`, `to:<단위>`(단위: `root`, `core`, `server`, `app`, `writing`, `design`), `kind:request`·`kind:report`·`kind:notice`·`kind:task`, `blocking`(다른 작업을 막음)
 * **상태:** 열림 → 지휘 세션이 `accepted` 또는 `rejected` 라벨(거절은 닫음) → 받는 쪽이 처리하고 닫음. 완료 보고(`kind:report`)는 지휘 세션이 확인하고 닫습니다.
 * **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다. `ci-gate`가 자동으로 여는 `drift` Issue는 마일스톤 없이 열리고, `accepted`는 지휘가 정기 일과에서 붙입니다.
@@ -113,14 +113,29 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 | --- | --- | --- | --- | --- |
 | 자기 코드 | 각 단위의 테스트·린트 | 막음 | 막음 | 막음 |
 | 계약 자체의 유효성 | REST 생성·계약 테스트(server), `buf breaking`(core, PR에서만 비교), docs 검사(IA·근거 용어집) | 막음 | - | 막음 |
-| 단위 간 맞물림 | app 생성 코드 차이·ARB, writing의 IA 대조, server의 슬롯 대조, design의 IA 대조·라운드 원고 글자 수 | **경고** | 막음 | 경고 |
+| 단위 간 맞물림 | app 생성 코드 차이·ARB, writing의 IA 대조, server의 슬롯 대조, design의 IA 대조·라운드 원고 글자 수 | **경고** | 막음 | 돌지 않음 |
 
 * **판별:** PR이 그 단위의 소유 경로(또는 그 단위 workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다. 그 단위의 소유·계약 경로는 바뀌지 않았고 `ci-gate.yml`이 바뀌었으면 `gate`입니다. 실패하면 막지만, 그 단위 앞으로 열린 `drift` Issue가 있으면 알려진 실패로 보고 경고만 남깁니다. 단위들이 병렬로 일하는 동안 drift가 0이 되는 때는 드물어, workflow 수정이 그때를 기다리지 않게 하려는 것입니다.
 * **과정 문서:** writing·design의 `CLAUDE.md`·`decisions.md`·`specs/`·`plans/`·`artifacts/`는 자기 검사기가 읽지 않아 그 단위 검사를 고르지 않습니다(writing `artifacts/`의 라운드 원고는 design 검사가 읽으므로 design에는 계약입니다)(core·server·app은 `.md`만 바뀌면 고르지 않습니다). 그래서 지휘가 단위 `CLAUDE.md`를 고쳐도 그 단위의 열린 drift에 막히지 않습니다.
-* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에 `Closes #<drift Issue>`를 적습니다. 빠뜨려도 `main` push에서 그 단위 검사가 통과하면 `ci-gate`(`drift-close` job)가 그 단위 앞 drift Issue를 닫습니다. 그 커밋에서 통과했다는 것이 곧 그 커밋의 계약을 모두 따라잡았다는 뜻이기 때문입니다. 단, 원인 PR이 그 커밋에 들어 있는 Issue만 닫습니다(원인 PR이 열린 채 다른 PR이 먼저 병합되거나, 예전 실행을 다시 돌린 경우를 거릅니다). 원인 PR이 병합 없이 닫혔으면, 이후 `main`에서 그 단위 검사가 통과할 때 not planned로 닫습니다(그 단위 검사가 돌지 않으면 남습니다).
+* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에 `Closes #<drift Issue>`를 적습니다. 주는 쪽이 같은 PR 안에서 고쳐 다음 실행의 drift가 통과하면 `drift-report`가 그 Issue를 닫습니다. `main` push에서는 drift를 돌리지 않습니다(결과를 판정에도 Issue에도 쓰지 않으므로). 빠뜨려도 `main` push에서 그 단위 검사가 통과하면 `ci-gate`(`drift-close` job)가 그 단위 앞 drift Issue를 닫습니다. 그 커밋에서 통과했다는 것이 곧 그 커밋의 계약을 모두 따라잡았다는 뜻이기 때문입니다. 단, 원인 PR이 그 커밋에 들어 있는 Issue만 닫습니다(원인 PR이 열린 채 다른 PR이 먼저 병합되거나, 예전 실행을 다시 돌린 경우를 거릅니다). 원인 PR이 병합 없이 닫혔으면, 이후 `main`에서 그 단위 검사가 통과할 때 not planned로 닫습니다(그 단위 검사가 돌지 않으면 남습니다).
 * **통합 시점:** 통합 마일스톤(I1~I4)은 열린 `drift` Issue가 0이어야 시작합니다. 지휘는 정기 일과에서 `drift` Issue를 확인합니다.
 * **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 §5.1대로 사용하는 쪽마다 `kind:request`로 알립니다(D78). REST는 S3 freeze 뒤에는 추가 변경만 합니다.
 * **쌓아서 함께 병합하기**(예: IA v2 #133 → #138 → #149)는 더 이상 기본이 아닙니다. 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
+
+### 6.2 검사 범위와 시점 (D81)
+검사가 쌓일수록 바뀐 것과 상관없는 검사가 자원과 시간을 씁니다. 검사는 **변경에 맞는 범위**만, **작업 단계에 맞는 시점**에 돌립니다.
+
+* **범위:** `ci-gate`는 단위 workflow에 `mode` 입력(`own`·`drift`·`gate`)을 넘깁니다. `own`은 그 단위의 빠른 검사 전체, `drift`·`gate`는 계약을 읽는 검사(생성 코드 대조, 계약 테스트, IA·원고 대조)만 돕니다. 어느 단계가 계약 검사인지는 각 단위가 자기 workflow에서 정합니다. app의 Android 디버그 빌드는 `own`에서만 돕니다.
+* **비교 기준:** PR은 merge ref의 first parent(검사 시점의 `main`)와 비교합니다. PR을 연 뒤 `main`에 들어온 다른 PR의 파일을 바뀐 것으로 잡지 않기 위해서입니다.
+* **시점:**
+
+  | 단계 | 무엇을 | 어디서 |
+  | --- | --- | --- |
+  | 반복 중 | 바뀐 범위의 테스트(단위가 빠른 경로 명령을 둠). 기기 E2E는 바꾼 흐름의 테스트 파일만 | 로컬 |
+  | PR | `own`·`drift`·`gate` 범위, `pr-body`(본문만 고치면 이것만) | `ci-gate`·`pr-body` |
+  | `main` push | `own`·`gate`만 한 번. 단위 workflow의 push 트리거로 같은 검사를 다시 돌리지 않습니다. `main`에서만 의미 있는 검사(기기 E2E 등)는 예외입니다 | `ci-gate`, 단위 workflow |
+  | 정기 | 느린 검사(외부 API 대조·보정·property 전체·기기 E2E 전체) | 단위 workflow `schedule` |
+  | 전체 확인 | 모든 단위 `own` | `ci-gate` 수동 실행 |
 
 ## 7. 시각 산출물 (`artifacts/`)
 지휘 세션이 만드는 **제품 지도**(비공개 claude.ai 페이지, 갱신 절차는 `tools/product-map/README.md`)는 각 `artifacts/index.json`을 읽어 그립니다. 시안·컨셉·스크린샷 같은 시각 산출물은 다음 규칙으로 저장소에 쌓습니다.
