@@ -47,10 +47,10 @@
 | --- | --- | --- | --- |
 | 지금 | app | 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
 | 지금 | server | 대운 시작 연도(#351) → S3 REST v1 freeze PR(app #347 답 뒤, S93) → P8 Job(precompute·notify·retention과 익명화) | S2 완료, S3, A2 |
-| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331) | I3, server 시드 strict(S38) |
+| 다음 | writing | W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 필요할 때 | design | app·writing 요청 대응 | - |
+| 필요할 때 | design | app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
