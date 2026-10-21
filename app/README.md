@@ -156,7 +156,7 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 ### golden
 기준 이미지는 글꼴 래스터화가 플랫폼마다 달라 **Linux에서만** 만들고 비교합니다. macOS에서 golden을 비교하거나 갱신하면 테스트가 실패합니다(`test/flutter_test_config.dart`). 그래서 일반 `flutter test`에는 `--exclude-tags golden`을 붙입니다.
 
-* **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다.
+* **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다. 반복 중에는 바꾼 golden 테스트 파일만 줍니다(`tool/goldens_linux.sh test/design/saju_golden_test.dart`). 이때는 다른 기준 이미지를 지우지 않으므로, golden을 지운 변경은 대상 없이 전체로 돌립니다.
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
 * **Flutter 버전:** golden을 만드는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. 로컬 Flutter와 무관하게 `goldens_linux.sh`와 CI의 `goldens`·`update-goldens` job이 이 값을 읽습니다. Flutter를 올릴 때는 이 값을 올리고 같은 PR에서 golden을 다시 만듭니다.
 
@@ -208,9 +208,9 @@ tool/patrol_local.sh patrol_test/diary_test.dart  # 흐름 하나
 ## CI (`.github/workflows/app.yml`)
 | job | 언제 | 하는 일 |
 | --- | --- | --- |
-| `checks` | PR, `main` push | format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze, 테스트(golden 제외), Android debug 빌드 |
-| `goldens` | PR, `main` push | `golden_flutter_version`의 Flutter로 golden 비교 |
+| `checks` | `ci-gate` 호출(PR, `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, 테스트(golden 제외), Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `goldens` | `ci-gate` 호출 중 `own`, 수동 | `golden_flutter_version`의 Flutter로 golden 비교 |
 | `update-goldens` | 수동(`update_goldens`) | golden을 Linux에서 다시 만들어 artifact로 올림 |
 | `e2e-android` | `main` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |
 
-`workflow_call`을 지원합니다. 호출되면 `e2e-android`는 돌지 않아 호출 측 판정에 들어가지 않습니다(입력 `run_e2e: true`로만 켬). 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행 여부는 `github.workflow == 'app'`으로 가립니다. `ci-gate` 연결은 Issue #85에서 진행합니다.
+`workflow_call`을 지원합니다. 입력 `mode`(`own`·`drift`·`gate`, 기본 `own`)는 `ci-gate`가 넘기고 검사 범위를 정합니다(D81, `docs/workflow.md` §6.2). `main` push에서는 `ci-gate`가 `checks`·`goldens`를 한 번 돌리므로, 이 workflow의 `push` 트리거는 `e2e-android`만 돕니다. 호출되면 `e2e-android`는 돌지 않아 호출 측 판정에 들어가지 않습니다(입력 `run_e2e: true`로만 켬). 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행 여부는 `github.workflow == 'app'`으로 가립니다.
