@@ -128,6 +128,10 @@
       "role": "소셜 로그인 버튼"
     },
     {
+      "id": "account-choice",
+      "role": "합칠 두 계정 가운데 남길 쪽 고르기(호칭·사주 요약·일기 수·연결된 수단)"
+    },
+    {
       "id": "primary-button",
       "role": "주 동작 버튼"
     },
@@ -751,7 +755,7 @@
       "tab": null,
       "presentation": "page",
       "auth": "guest",
-      "purpose": "소셜 로그인으로 계정을 만들거나 엽니다(제공자는 따로 정함)",
+      "purpose": "소셜 로그인(카카오·LINE·Google·Apple, D82)으로 계정을 만들거나 엽니다. 언어마다 맨 위 제공자만 다릅니다",
       "depths": [],
       "states": [
         {
@@ -809,7 +813,8 @@
         "D50",
         "D39",
         "D53",
-        "D68"
+        "D68",
+        "D82"
       ]
     },
     {
@@ -2118,7 +2123,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "알림 시각, 광고 제거, 언어, 정보 수정, 계산 기준, 로그아웃, 계정 삭제, 약관을 둡니다",
+      "purpose": "알림 시각, 광고 제거, 언어, 정보 수정, 계산 기준, 로그인 수단, 로그아웃, 계정 삭제, 약관을 둡니다",
       "depths": [],
       "states": [],
       "slots": [
@@ -2168,6 +2173,10 @@
           "trigger": "계산 기준"
         },
         {
+          "to": "login-methods",
+          "trigger": "로그인 수단"
+        },
+        {
           "to": "account-delete",
           "trigger": "계정 삭제"
         },
@@ -2187,7 +2196,8 @@
         "D37",
         "D39",
         "D53",
-        "D79"
+        "D79",
+        "D82"
       ]
     },
     {
@@ -2418,6 +2428,146 @@
         "D39",
         "D68",
         "D71"
+      ]
+    },
+    {
+      "id": "login-methods",
+      "title": "로그인 수단",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "이 계정에 연결한 로그인 수단을 보여주고, 다른 제공자를 붙이거나 뗍니다(D82)",
+      "depths": [],
+      "states": [
+        {
+          "id": "error",
+          "note": "연결·떼기를 끝내지 못함"
+        }
+      ],
+      "slots": [
+        {
+          "id": "login-methods.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"로그인 수단\")"
+        },
+        {
+          "id": "login-methods.intro.body",
+          "source": "ui",
+          "role": "연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명"
+        },
+        {
+          "id": "login-methods.last.notice",
+          "source": "ui",
+          "role": "마지막 남은 수단은 뗄 수 없다는 안내"
+        },
+        {
+          "id": "login-methods.unlink.confirm",
+          "source": "ui",
+          "role": "떼기 확인"
+        },
+        {
+          "id": "login-methods.error.body",
+          "source": "ui",
+          "role": "연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "settings-row",
+        "social-login-button",
+        "dialog"
+      ],
+      "exits": [
+        {
+          "to": "account-merge",
+          "trigger": "붙이려는 수단이 다른 계정에 연결돼 있음"
+        }
+      ],
+      "decisions": [
+        "D55",
+        "D82"
+      ]
+    },
+    {
+      "id": "account-merge",
+      "title": "계정 합치기",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "붙이려는 로그인 수단이 다른 계정에 있을 때, 남길 계정을 골라 두 계정을 하나로 합칩니다(D82 ⑥)",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "두 계정 요약을 불러오는 중"
+        },
+        {
+          "id": "error",
+          "note": "합치기 실패"
+        }
+      ],
+      "slots": [
+        {
+          "id": "account-merge.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"계정 합치기\")"
+        },
+        {
+          "id": "account-merge.title.head",
+          "source": "ui",
+          "role": "두 계정을 하나로 합친다는 제목"
+        },
+        {
+          "id": "account-merge.title.body",
+          "source": "ui",
+          "role": "합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 모두, 광고 제거 기간은 더함)"
+        },
+        {
+          "id": "account-merge.choice.label",
+          "source": "ui",
+          "role": "남길 계정을 고르라는 안내"
+        },
+        {
+          "id": "account-merge.overlap.notice",
+          "source": "ui",
+          "role": "같은 날 일기가 겹쳐 지워질 일기 수 안내(고르지 않은 계정 쪽)"
+        },
+        {
+          "id": "account-merge.cta.merge",
+          "source": "ui",
+          "role": "합치기 버튼"
+        },
+        {
+          "id": "account-merge.cta.cancel",
+          "source": "ui",
+          "role": "합치지 않기"
+        },
+        {
+          "id": "account-merge.merge.confirm",
+          "source": "ui",
+          "role": "최종 확인(되돌릴 수 없음)"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "account-choice",
+        "primary-button",
+        "dialog"
+      ],
+      "exits": [
+        {
+          "to": "login-methods",
+          "trigger": "합치기 완료"
+        },
+        {
+          "to": "login-methods",
+          "trigger": "합치지 않기"
+        }
+      ],
+      "decisions": [
+        "D49",
+        "D53",
+        "D82"
       ]
     },
     {

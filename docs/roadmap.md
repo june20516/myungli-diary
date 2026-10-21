@@ -45,12 +45,12 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
-| 지금 | server | drift #381 따라잡기에서 REST `DaeunPeriod.startYear`(필수, #351) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화) | S2 완료, S3, A2 |
-| 다음 | writing | drift #382(생성 코드 갱신) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
+| 지금 | app | 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | server | drift #381 따라잡기에서 REST `DaeunPeriod.startYear`(필수, #351) → D82 인증 확장 #386(LINE·Google 로그인, 연결·떼기·합치기 API, freeze 전 계약) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화) | S2 완료, S3, A2 |
+| 다음 | writing | drift #382(생성 코드 갱신) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`), 로그인 수단·계정 합치기 원고(#388, D82) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 필요할 때 | design | app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에 | - |
+| 필요할 때 | design | app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 `social-login-button` LINE·Google 변형과 `account-choice`(#389)는 app #387 화면 전에 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
@@ -61,8 +61,8 @@
 | 영어·일본어 원어민 검수 | W1 | 사용자 (writing W1) |
 | ~~배포 플랫폼 선정 (서버·엔진)~~ | S1 | **결정 완료** (D56: GCP Cloud Run + Cloud SQL) |
 | GCP 프로젝트 준비: 결제 계정, Artifact Registry·Cloud Run·Cloud SQL·Secret Manager API 사용 설정, GitHub Actions용 Workload Identity Federation (D56) | S1 배포 단계 | 사용자 (설정 절차는 server가 안내) |
-| Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키) (D55) | S1·A1 로그인 연동 | 사용자 |
-| 개인정보 처리방침과 스토어 개인정보 표시 작성: Firebase(App Check·FCM·Crashlytics) 국외 이전, 카카오·Apple 로그인, AdMob·RevenueCat (D64) | 출시 전 (I4), 원문 위치 `docs/legal/`(D80) | 사용자 (초안은 지휘) |
+| Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키), LINE Developers 로그인 채널(이메일 권한 신청 없음), Google Cloud OAuth client(iOS·Android·server) (D55·D82) | S1·A1 로그인 연동 | 사용자 |
+| 개인정보 처리방침과 스토어 개인정보 표시 작성: Firebase(App Check·FCM·Crashlytics) 국외 이전, 카카오·LINE·Google·Apple 로그인, AdMob·RevenueCat (D64·D82) | 출시 전 (I4), 원문 위치 `docs/legal/`(D80) | 사용자 (초안은 지휘) |
 | 서비스 도메인 구입: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json` 호스팅, Apple Services ID 복귀 주소 (#89, S22) | A1 실제 로그인 연동 전, 늦어도 server 배포(P9) 전 | 사용자 |
 | 출시 전 정책 검토: AdMob 보상형 광고 고지 문구(`evidence-sheet.lock.reward`, writing 라운드 R8-4 선택에 "끝까지"가 없음), 스토어 심사 기준 | 출시 전 (I4) | 사용자 (writing·design 지원) |
 | 사업자등록, 통신판매업 신고, 스토어 세금·정산 계좌 (D53) | 출시 전 (I4) | 사용자 |
@@ -75,5 +75,5 @@
 | --- | --- | --- |
 | (없음) | | |
 
-* 결정됨: 소셜 로그인 제공자는 D55(카카오·Apple), 서버·엔진 배포 플랫폼은 D56(GCP)입니다(2026-10-11).
+* 결정됨: 소셜 로그인 제공자는 D55(카카오·Apple) → D82(카카오·LINE·Google·Apple, 계정 연결·합치기, 2026-10-21), 서버·엔진 배포 플랫폼은 D56(GCP)입니다(2026-10-11).
 * 이관 후 결정됨: "캘린더 길흉 점의 색 규칙"은 design V1에서 정했습니다. 점이 아니라 날짜 칸을 옅게 채웁니다(2026-10-11, design 결정 V10, PR #18).
