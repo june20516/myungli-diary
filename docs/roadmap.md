@@ -37,7 +37,7 @@
 ## 현재 진행 순서 (2026-10-21 기준, app 계획 6 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 core PR #380(`LuckPeriod.start_year`)의 server #381·writing #382, server PR #385(`DaeunPeriod.startYear`)의 app #391, PR #390(D82 IA 슬롯 추가)의 server #392·app #393·writing #394·design #395입니다. server #392·design #395는 writing이 #394에서 슬롯 틀을 더하면 고칠 것 없이 풀리고, 지휘가 닫습니다. app #393은 IA 생성 코드(`ia.g.dart`)를 다시 만들어야 합니다. 그 전까지 server·app·design의 PR은 writing 원고 검사에서 막히므로 #394가 가장 먼저입니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #391(server PR #385 `DaeunPeriod.startYear`)·#393(PR #390 IA 생성 코드 `ia.g.dart`)·#403(#393과 같음), design #395(PR #390)입니다. #403·#395는 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림).
 * **검사 범위·시점 정리(D81) 완료:** 지휘 몫(PR #357·#366)과 다섯 단위 몫(app #364, core #365, server #368, writing #369, design #371)이 끝났고, `ci-gate`가 모든 단위에 `mode`를 넘깁니다(#366·#367·#370·#373). 캐시·건너뛰기는 D81 ⑥을 따릅니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
@@ -46,8 +46,7 @@
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
 | 지금 | app | drift #391(`DaeunPeriod.startYear` 생성 코드, 대운 시작 연도 계산 삭제)·#393(IA 생성 코드 `ia.g.dart`) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
-| 지금 | server | drift #381 따라잡기에서 REST `DaeunPeriod.startYear`(필수, #351) → D82 인증 확장 #386(LINE·Google 로그인, 연결·떼기·합치기 API, freeze 전 계약) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화) | S2 완료, S3, A2 |
-| 지금(먼저) | writing | drift #394와 #382(proto 생성 코드, own PR이라 같이 해야 `ci-gate` 통과, PR #398): PR #390이 IA에 더한 ui 슬롯 13개(`login-methods.*`·`account-merge.*`)의 **틀만**(키 없는 슬롯, `slot.empty_keys` warn) 더하는 작은 PR. 이것이 들어가기 전에는 server·app·design PR의 writing 원고 검사(`ia.uncovered`)가 mode와 상관없이 실패합니다. 원고는 #388로 뒤에 씁니다 | server·app·design의 모든 PR |
+| 지금 | server | D82 인증 확장 #386(LINE·Google 로그인, 연결·떼기·합치기 API, freeze 전 계약) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화). 대운 시작 연도(#351, PR #385 draft.12) 완료 | S2 완료, S3, A2 |
 | 다음 | writing | D82 슬롯 원고(#388) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
