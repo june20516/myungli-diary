@@ -3,6 +3,11 @@ name: server
 # ci-gate가 부르는 전용 workflow입니다. 직접 push·pull_request로 돌면 중복 실행되므로 트리거를 두지 않습니다(#102).
 on:
   workflow_call:
+    inputs:
+      mode:
+        description: "ci-gate 판별(own·drift·gate). own은 빠른 검사 전체, drift·gate는 계약을 읽는 검사만"
+        type: string
+        default: own
   workflow_dispatch:
 
 # workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
@@ -10,21 +15,49 @@ on:
 permissions:
   contents: read
 
+env:
+  # lint 버전은 여기 한 곳에 둡니다. 캐시 키에도 들어갑니다.
+  GOLANGCI_LINT_VERSION: v2.14.0
+
 jobs:
   server:
     runs-on: ubuntu-latest
+    env:
+      # 검사 범위(D81, docs/workflow.md §6.2). inputs.mode가 없는 실행(workflow_dispatch)은 own으로 봅니다.
+      # * own: 아래 단계 전체.
+      # * drift·gate: 계약을 읽는 검사만. writing 원고 검사, 계약 패키지 테스트(openapi·시드·법적 문서·호칭·조사),
+      #   실제 엔진과 계약 테스트, 생성 코드 차이. vet·lint·전체 테스트·staging·이미지 빌드는 server 코드가 바뀐 own에서만 돕니다.
+      OWN: ${{ (inputs.mode || 'own') == 'own' }}
     defaults:
       run:
         working-directory: server
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      # setup-go 캐시는 키가 go.sum뿐이라 끄고 아래에서 직접 둡니다(D81 ⑥ 캐시 원칙).
+      - id: go
+        uses: actions/setup-go@v7
         with:
           go-version-file: server/go.mod
-          cache-dependency-path: server/go.sum
-      - run: go vet ./...
+          cache: false
+      # 빌드 캐시·모듈·lint 캐시입니다. 키에 runner OS, Go toolchain, lint 버전, go.sum, lint 설정을 넣고 소스 해시로 새로 고칩니다.
+      # 테스트 결과는 GOCACHE에 남아도 모든 go test가 -count=1이라 재사용하지 않습니다(testcontainers·엔진 이미지에 기댐).
+      # 수동 실행은 캐시 없이 새로 돌고, 저장은 main push의 own 실행에서만 합니다. 복원이 안 돼도 결과는 같고 느려질 뿐입니다.
+      - name: Go 캐시 복원
+        if: github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/.cache/golangci-lint
+          key: server-go-${{ runner.os }}-go${{ steps.go.outputs.go-version }}-lint${{ env.GOLANGCI_LINT_VERSION }}-${{ hashFiles('server/go.sum', 'server/.golangci.yml') }}-${{ hashFiles('server/**/*.go') }}
+          restore-keys: |
+            server-go-${{ runner.os }}-go${{ steps.go.outputs.go-version }}-lint${{ env.GOLANGCI_LINT_VERSION }}-${{ hashFiles('server/go.sum', 'server/.golangci.yml') }}-
+      - if: env.OWN == 'true'
+        run: go vet ./...
       # staging 테스트 로그인(S24)은 build tag staging 파일에만 있어 그 tag로 한 번 더 검사합니다.
-      - run: go vet -tags staging ./...
+      - if: env.OWN == 'true'
+        run: go vet -tags staging ./...
       # 시드의 원본인 writing 원고를 검사합니다(spec §6.1). 원고가 W1로 다 오기 전까지 --partial입니다(P4-8).
       - uses: astral-sh/setup-uv@v10.3.0
         with:
@@ -35,22 +68,38 @@ jobs:
         run: |
           uv sync --frozen
           uv run mlw check ../content --partial
-      - uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.14.0
-          working-directory: server
-      - name: golangci-lint (staging tag)
+      # action 자체 캐시는 키에 lint 버전·설정이 없어 끄고, 위 Go 캐시가 ~/.cache/golangci-lint를 맡습니다.
+      - name: golangci-lint
+        if: env.OWN == 'true'
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.14.0
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
           working-directory: server
+          skip-cache: true
+      - name: golangci-lint (staging tag)
+        if: env.OWN == 'true'
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          working-directory: server
+          skip-cache: true
           args: --build-tags=staging
       # testcontainers가 ubuntu runner의 Docker로 PostgreSQL을 띄운다.
-      - run: go test -race ./...
+      - name: 전체 테스트
+        if: env.OWN == 'true'
+        run: go test -race -count=1 ./...
+      # drift·gate: 계약 파일(openapi·writing 원고와 규칙·법적 문서)을 읽는 패키지와 httpapi의 계약 대조 테스트만 돕니다.
+      - name: 계약 패키지 테스트
+        if: env.OWN != 'true'
+        run: |
+          go test -race -count=1 ./api/ ./seed/... ./legal/... ./internal/content/render/ ./internal/profile/honorific/
+          go test -race -count=1 -run 'TestRegisterAPI_|TestProblemCodes_|TestLegalPage_|TestAppCheck_' ./internal/httpapi/
       - name: staging 테스트 로그인
+        if: env.OWN == 'true'
         # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24).
-        run: go test -race -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv'
+        run: go test -race -count=1 -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv'
       - name: prod 바이너리에 테스트 로그인이 없는지 확인
+        if: env.OWN == 'true'
         # prod 빌드(tag 없음)에는 없고 staging 빌드에는 있어야 합니다. staging 쪽도 확인해 검사가 헛돌지 않게 합니다(S24).
         run: |
           out="$RUNNER_TEMP/testlogin-check"
@@ -72,7 +121,7 @@ jobs:
           check staging present
       - name: 실제 엔진과 계약 테스트
         # core/Dockerfile로 엔진 이미지를 빌드해 띄우고 server 클라이언트로 실제 RPC를 부른다(#79).
-        run: go test -tags enginecontract ./internal/engine/...
+        run: go test -count=1 -tags enginecontract ./internal/engine/...
       # go generate는 시드(seed/data/content.json)도 원고에서 다시 만듭니다. 원고와 시드가 어긋나면 아래 차이 검사가 잡습니다.
       - name: 생성 코드가 계약과 일치하는지 확인
         run: |
@@ -83,4 +132,15 @@ jobs:
             exit 1
           fi
       - name: 이미지 빌드
+        if: env.OWN == 'true'
         run: docker build --build-arg GO_VERSION="$(go list -m -f '{{.GoVersion}}')" .
+      - name: Go 캐시 저장
+        # gate로 돈 main 실행은 계약 패키지만 빌드하므로, 그 캐시가 키를 먼저 차지하지 않게 own에서만 저장합니다.
+        if: env.OWN == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/.cache/golangci-lint
+          key: server-go-${{ runner.os }}-go${{ steps.go.outputs.go-version }}-lint${{ env.GOLANGCI_LINT_VERSION }}-${{ hashFiles('server/go.sum', 'server/.golangci.yml') }}-${{ hashFiles('server/**/*.go') }}
