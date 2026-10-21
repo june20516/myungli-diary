@@ -20,6 +20,9 @@ from mlw.paths import (
     SLOTS_DIR,
 )
 
+# 저장소의 IA·core 근거 목록·원고를 읽는 테스트라 모두 계약 검사입니다(drift·gate에서도 돕니다).
+pytestmark = pytest.mark.contract
+
 
 @pytest.fixture(scope="module")
 def rules() -> RuleSet:

@@ -251,6 +251,7 @@ def design_lengths() -> tuple[list[tuple[list[str], str, dict[str, int]]], list[
     return rows, unbounded
 
 
+@pytest.mark.contract
 def test_lengths_match_design(rules: RuleSet) -> None:
     """슬롯 상한이 design `lengths.md` 확정값과 같은지 봅니다(#54, #131, #191)."""
     slots = load_slots(SLOTS_DIR, rules)

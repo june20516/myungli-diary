@@ -46,3 +46,7 @@ extend-exclude = ["src/mlw/_gen"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+addopts = ["--strict-markers"]
+markers = [
+    "contract: 저장소 계약 파일(IA, core 메시지 키·근거 목록, design lengths.md)을 읽는 테스트. ci-gate drift·gate에서는 이것만 돕니다(D81)",
+]

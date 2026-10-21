@@ -80,6 +80,7 @@ def test_unknown_duplicate_and_non_han_are_reported(tmp_path: Path) -> None:
     ]
 
 
+@pytest.mark.contract
 def test_repo_hanja_covers_terms_with_hanja() -> None:
     tag_keys = [
         key for key in json.loads(MESSAGE_KEYS_FILE.read_text(encoding="utf-8")) if key.startswith("tag.")

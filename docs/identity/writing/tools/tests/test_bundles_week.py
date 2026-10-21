@@ -4,6 +4,8 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+import pytest
+
 from mlw.bundles import SLOT_GUIDE, DayKeys, _rotate, check_weeks, week_windows
 from mlw.josa import default_josa_data
 from mlw.model import SENTENCE_TYPES, CountSelector, Entry, Limit, RuleSet
@@ -88,6 +90,7 @@ def test_windows_slide() -> None:
     assert windows[-1] == list(range(21, 28))
 
 
+@pytest.mark.contract
 def test_real_fixture_has_no_stale_keys() -> None:
     fixture = json.loads((TOOLS_DIR / "fixtures" / "week_samples.json").read_text(encoding="utf-8"))
     keys = json.loads((TOOLS_DIR.parents[3] / "core" / "message_keys.json").read_text(encoding="utf-8"))

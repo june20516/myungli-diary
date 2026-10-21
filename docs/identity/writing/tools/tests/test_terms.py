@@ -55,6 +55,7 @@ def token_rules(text: str, lang: str = "ko") -> list[str]:
     return [finding.rule_id for finding in findings]
 
 
+@pytest.mark.contract
 def test_term_ids_count() -> None:
     message_keys = json.loads(MESSAGE_KEYS_FILE.read_text(encoding="utf-8"))
     tags = [key for key in message_keys if key.startswith("tag.")]
