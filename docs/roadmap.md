@@ -37,7 +37,7 @@
 ## 현재 진행 순서 (2026-10-21 기준, app 계획 6 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 design #395(PR #390 IA 추가)입니다. design이 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림). app #391·#393·#403은 PR #405로 닫힘.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #412(IA 생성 코드 `ia.g.dart`, PR #411), writing #413(생성 문서 `mlw gen-docs`, PR #411), design #395·#414(`account-choice` 명세 없음, PR #390)입니다. writing #413과 design #395는 그 단위 자기 PR의 계약 테스트를 막으므로 가장 먼저 합니다. server·app·design이 쓰는 `mlw check`는 통과해 다른 단위는 막지 않습니다. 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림).
 * **검사 범위·시점 정리(D81) 완료:** 지휘 몫(PR #357·#366)과 다섯 단위 몫(app #364, core #365, server #368, writing #369, design #371)이 끝났고, `ci-gate`가 모든 단위에 `mode`를 넘깁니다(#366·#367·#370·#373). 캐시·건너뛰기는 D81 ⑥을 따릅니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
@@ -45,12 +45,12 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), D83 일기 하루 여러 편 #408(입구는 언제나 새 일기, 일기 줄), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | app | drift #412(`ia.g.dart`, #408과 같은 PR도 됨) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), D83 일기 하루 여러 편 #408(입구는 언제나 새 일기, 일기 줄), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
 | 지금 | server | D82 인증 확장 #386(LINE·Google 로그인, 연결·떼기·합치기 API, freeze 전 계약)과 D83 일기 하루 여러 편 #407(저장 분리·일기 API, freeze 전 계약) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화). 대운 시작 연도(#351, PR #385 draft.12) 완료 | S2 완료, S3, A2 |
-| 다음 | writing | D82 슬롯 원고(#388)와 D83 역할 바뀐 슬롯 원고(#409) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
+| 다음 | writing | drift #413(`mlw gen-docs`, 자기 PR을 막음) → D82 슬롯 원고(#388)와 D83 역할 바뀐 슬롯 원고(#409) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 필요할 때 | design | drift #395 → app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 `social-login-button` LINE·Google 변형과 `account-choice`(#389), D83 `diary-row` 같은 날 여러 편 표시(#410)는 app #387·#408 화면 전에 | - |
+| 다음 | design | drift #395·#414 = #389의 `account-choice` 명세(자기 PR을 막음, 가장 먼저) → app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 `social-login-button` LINE·Google 변형과 `account-choice`(#389), D83 `diary-row` 같은 날 여러 편 표시(#410)는 app #387·#408 화면 전에 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
