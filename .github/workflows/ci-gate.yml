@@ -8,8 +8,11 @@
 #      `uses: ./.github/workflows/<단위>.yml` job을 더해 `ci-gate`의 needs에 넣습니다.
 #   3. (단위) 단위 workflow의 `pull_request`·`push` 트리거를 지웁니다(`schedule`·`workflow_dispatch`는 유지).
 #   이 순서면 검사가 하나도 돌지 않는 구간이 생기지 않습니다. 전환 전까지 그 단위는 이 판정에 들어가지 않습니다.
-# * PR 본문 검사(pr-body): 처리한 Issue는 `Closes #<번호>`, 일부만 처리했으면 `참고 #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2, D78 ③).
-#   본문만 고쳐도 다시 판정하도록 `edited`에서도 돕니다.
+# * PR 본문 검사는 별도 workflow(pr-body.yml)입니다. 본문만 고친 `edited`에서 단위 검사를 다시 돌리거나
+#   진행 중인 판정을 취소하지 않으려는 것입니다(D81).
+# * 비교 기준: PR은 merge ref의 first parent(검사 시점의 main)와 비교합니다. `pull_request.base.sha`는 PR을 열거나
+#   push한 시점의 main이라, 그 뒤 main에 들어온 다른 PR의 파일까지 바뀐 것으로 잡습니다(#345 실행에서 server가 own으로 돈 원인).
+# * 수동 실행(workflow_dispatch)은 모든 단위를 own으로 돌립니다. main 전체를 한 번에 확인할 때 씁니다.
 # * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
 # * 단위 간 맞물림(drift, docs/workflow.md §6.1): 단위 검사는 두 방식으로 돕니다.
 #   - own: PR이 그 단위의 코드(소유 경로)나 그 단위 workflow를 바꿨습니다. 실패하면 판정을 막습니다.
@@ -18,12 +21,13 @@
 #     받는 쪽은 다음 PR(own)에서 맞춰야 병합할 수 있습니다. 통합 마일스톤(I1~I4)은 남은 drift 0이 조건입니다.
 #   - gate: 그 단위의 소유·계약 경로는 바뀌지 않았고 이 workflow(ci-gate.yml)가 바뀌었습니다. 실패하면 막되, 그 단위 앞으로 열린 `drift` Issue가 있으면
 #     이미 알려진 실패로 보고 경고만 남깁니다. 병렬로 일하는 동안 drift가 0이 되기를 기다리지 않으려는 것입니다.
+#   main push에서는 drift를 돌리지 않습니다. 결과가 판정에도 Issue에도 쓰이지 않기 때문입니다(실패는 PR 단계에서 이미 Issue로 열림).
 
 name: ci-gate
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
   push:
     branches: [main]
   workflow_dispatch:
@@ -62,21 +66,26 @@ jobs:
         id: detect
         env:
           EVENT: ${{ github.event_name }}
-          PR_BASE: ${{ github.event.pull_request.base.sha }}
           PUSH_BEFORE: ${{ github.event.before }}
         run: |
-          if [ "$EVENT" = "pull_request" ]; then
-            base="$PR_BASE"
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "수동 실행: 모든 단위를 own으로 돌립니다."
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+            for name in core server app writing design; do
+              echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=own" >> "$GITHUB_OUTPUT"
+            done
+            exit 0
+          elif [ "$EVENT" = "pull_request" ]; then
+            # checkout은 merge ref(refs/pull/N/merge)이고, 그 first parent가 검사 시점의 main입니다.
+            base=$(git rev-parse HEAD^1)
           elif [ "$EVENT" = "push" ] && [ -n "$PUSH_BEFORE" ] && ! echo "$PUSH_BEFORE" | grep -qE '^0+$'; then
             base="$PUSH_BEFORE"
           else
-            # workflow_dispatch 등 비교 기준이 없으면 아무 검사도 고르지 않습니다.
+            # 비교 기준이 없으면 아무 검사도 고르지 않습니다.
             echo "docs=false" >> "$GITHUB_OUTPUT"
-            echo "core=false" >> "$GITHUB_OUTPUT"
-            echo "server=false" >> "$GITHUB_OUTPUT"
-            echo "app=false" >> "$GITHUB_OUTPUT"
-            echo "writing=false" >> "$GITHUB_OUTPUT"
-            echo "design=false" >> "$GITHUB_OUTPUT"
+            for name in core server app writing design; do
+              echo "$name=false" >> "$GITHUB_OUTPUT"; echo "${name}_mode=none" >> "$GITHUB_OUTPUT"
+            done
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -90,11 +99,13 @@ jobs:
           # writing은 생성 문서(.md)도 원본과 대조하므로(gen-docs --check) .md를 빼지 않습니다.
           code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
           # unit <이름> <바뀐 목록> <소유 경로> <쓰는 계약 경로>
-          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift, 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
+          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift(main push에서는 돌지 않음), 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
           unit() {
             name="$1"; list="$2"; own="$3"; contract="$4"
             if echo "$list" | grep -qE "$own|^\.github/workflows/$name\.yml$"; then
               echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=own" >> "$GITHUB_OUTPUT"
+            elif [ -n "$contract" ] && echo "$list" | grep -qE "$contract" && [ "$EVENT" = "push" ]; then
+              echo "$name=false" >> "$GITHUB_OUTPUT"; echo "${name}_mode=none" >> "$GITHUB_OUTPUT"
             elif [ -n "$contract" ] && echo "$list" | grep -qE "$contract"; then
               echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=drift" >> "$GITHUB_OUTPUT"
             elif echo "$list" | grep -qE '^\.github/workflows/ci-gate\.yml$'; then
@@ -104,23 +115,26 @@ jobs:
             fi
           }
           # core가 제공하는 계약(proto, message_keys.json, message_params.json)도 core/·proto/ 안에 있어 core 소유입니다.
-          unit core "$code_changed" '^core/|^proto/' ''
-          # server가 쓰는 계약: proto, 메시지 키·매개변수, 슬롯 명세·호칭·조사 규칙, IA(시드 CI의 `mlw check`가 IA 대조까지 함),
+          # core/docs/(원전 근거 자료와 그 도구)는 core 검사가 읽지 않으므로 고르지 않습니다(docs 검사만 돕니다).
+          core_changed=$(echo "$code_changed" | grep -vE '^core/docs/' || true)
+          unit core "$core_changed" '^core/|^proto/' ''
+          # server가 쓰는 계약: proto, 메시지 키·매개변수, IA(시드 CI의 `mlw check`가 IA 대조까지 함),
+          # writing 원고·슬롯 명세·조사 규칙과 그 검사기(seed/convert와 `mlw check`가 읽는 content·slots·rules·tools),
           # 법적 문서 원문(`go generate ./legal/`이 내장 파일로 바꿈, D80·#341).
           # code_changed는 .md를 빼므로, server가 읽는 법적 문서 원문(docs/legal/<언어>/*.md)은 다시 넣습니다.
           server_changed=$( { echo "$code_changed"; echo "$changed" | grep -E '^docs/legal/[^/]+/' || true; } | grep -v '^$' || true)
-          unit server "$server_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/|^docs/ia/screens\.json$|^docs/legal/[^/]+/'
+          unit server "$server_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/(content|slots|rules|tools)/|^docs/ia/screens\.json$|^docs/legal/[^/]+/'
           # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
           unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools)/'
           # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144), design 글자 수 상한 표(슬롯 max_length 대조, W26).
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$'
-          # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고(lengths.py). 과정 문서는 writing과 같이 뺍니다.
+          # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고와 ui 원고의 링크 문구(lengths.py). 과정 문서는 writing과 같이 뺍니다.
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
-          unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/'
+          unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^docs/identity/writing/content/[^/]+/ui\.yaml$'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
-          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(slots|tools|artifacts)/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
+          contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(content|slots|rules|tools)/|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
 
   docs:
@@ -138,34 +152,6 @@ jobs:
       - name: docs 검사 (링크·artifacts·결정 번호·IA·아이디어·ja 근거 용어집)
         run: python3 -I tools/docs-check/docs_check.py .
 
-  pr-body:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 처리한 Issue 표기 확인
-        env:
-          BODY: ${{ github.event.pull_request.body }}
-        run: |
-          python3 -I - <<'PY'
-          import os, re, sys
-          # 템플릿 안내 주석은 빼고 봅니다. 주석에도 예시 문구가 들어 있기 때문입니다.
-          body = re.sub(r"<!--.*?-->", "", os.environ.get("BODY") or "", flags=re.S)
-          # GitHub처럼 문장 안의 키워드도 인정합니다(줄 맨 앞만 보면 GitHub은 닫는데 검사만 실패합니다).
-          closes = re.findall(r"(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)", body)
-          none = re.search(r"(?m)^[\s*-]*처리한 Issue:\s*없음", body)
-          # 일부만 처리한 Issue는 `참고 #<번호>`로 적습니다(D78 ③). 남은 일은 새 Issue로 나눕니다.
-          partial = re.findall(r"참고(?:\s*Issue)?:?\s*#(\d+)", body)
-          if closes:
-              print("처리한 Issue: " + ", ".join("#" + n for n in closes))
-          elif partial:
-              print("일부 처리한 Issue: " + ", ".join("#" + n for n in partial))
-          elif none:
-              print("처리한 Issue: 없음")
-          else:
-              print("PR 본문에 `Closes #<번호>`, `참고 #<번호>`, `처리한 Issue: 없음` 중 하나가 없습니다 (docs/workflow.md §5.2).")
-              sys.exit(1)
-          PY
-
   core:
     needs: changes
     if: needs.changes.outputs.core == 'true'
@@ -177,10 +163,13 @@ jobs:
     uses: ./.github/workflows/server.yml
 
   # 기기 E2E(e2e-android)는 run_e2e 기본값(false)이라 판정에 들어가지 않습니다. main push·매일 밤·수동은 app.yml이 직접 돕니다.
+  # Android 디버그 빌드는 app 코드가 바뀐 own에서만 돕니다. 계약·gate 실행에서는 Gradle이 깨질 일이 없습니다.
   app:
     needs: changes
     if: needs.changes.outputs.app == 'true'
     uses: ./.github/workflows/app.yml
+    with:
+      build_apk: ${{ needs.changes.outputs.app_mode == 'own' }}
 
   writing:
     needs: changes
@@ -193,6 +182,7 @@ jobs:
     uses: ./.github/workflows/design.yml
 
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 같은 PR·단위의 Issue가 열려 있으면 다시 열지 않습니다.
+  # 같은 PR의 다음 실행에서 drift가 통과하면(주는 쪽이 PR 안에서 맞춤) 그 Issue를 닫습니다. main push에서는 drift를 돌리지 않기 때문입니다.
   drift-report:
     needs: [changes, core, server, app, writing, design]
     if: always() && github.event_name == 'pull_request'
@@ -223,8 +213,15 @@ jobs:
           gh label create drift --color FBCA04 --description "계약 변경을 받는 쪽이 아직 따라오지 않음 (workflow §6.1)" 2>/dev/null || true
           for pair in "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
             unit="${pair%%=*}"; state="${pair#*=}"
-            [ "$state" = "drift:failure" ] || continue
             title="[drift] $unit: PR #$PR 계약 변경 따라잡기"
+            if [ "$state" = "drift:success" ]; then
+              gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number,title \
+                --jq ".[] | select(.title == \"$title\") | .number" | while read -r number; do
+                gh issue close "$number" --comment "PR #$PR의 다음 실행에서 $unit drift 검사가 통과해 자동으로 닫습니다($RUN_URL)."
+              done
+              continue
+            fi
+            [ "$state" = "drift:failure" ] || continue
             if gh issue list --state open --label drift --limit 200 --json title --jq '.[].title' | grep -qxF "$title"; then
               echo "이미 열려 있습니다: $title"; continue
             fi
@@ -287,7 +284,7 @@ jobs:
           done
 
   ci-gate:
-    needs: [changes, docs, pr-body, core, server, app, writing, design]
+    needs: [changes, docs, core, server, app, writing, design]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -297,7 +294,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          FIXED: ${{ needs.changes.result }} ${{ needs.docs.result }} ${{ needs.pr-body.result }}
+          FIXED: ${{ needs.changes.result }} ${{ needs.docs.result }}
           CORE: ${{ needs.changes.outputs.core_mode }}:${{ needs.core.result }}
           SERVER: ${{ needs.changes.outputs.server_mode }}:${{ needs.server.result }}
           APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
