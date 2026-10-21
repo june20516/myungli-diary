@@ -180,6 +180,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.writing == 'true'
     uses: ./.github/workflows/writing.yml
+    with:
+      mode: ${{ needs.changes.outputs.writing_mode }}
 
   design:
     needs: changes
