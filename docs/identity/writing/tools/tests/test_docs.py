@@ -72,6 +72,7 @@ def test_header_warns_generated(rules: RuleSet, slots: dict[str, Slot], docs: di
             assert content.splitlines()[0] == HEADER
 
 
+@pytest.mark.contract
 def test_generated_files_are_current(rules: RuleSet, slots: dict[str, Slot], docs: dict[str, str]) -> None:
     assert stale_docs(WRITING_DIR / "generated", docs) == []
 
