@@ -497,6 +497,7 @@ func (c *converter) daeun(d *enginev1.DaeunTable) gen.Daeun {
 				Pillar:         c.pillar(p.GetPillar()),
 				StartAge:       int(p.GetStartAge()),
 				StartAgeKorean: int(p.GetStartAgeKorean()),
+				StartYear:      int(p.GetStartYear()),
 				StemTenGod:     enumValue[gen.TenGod](c, p.GetStemTenGod()),
 				BranchTenGod:   enumValue[gen.TenGod](c, p.GetBranchTenGod()),
 				TwelveStage:    enumValue[gen.TwelveStage](c, p.GetTwelveStage()),

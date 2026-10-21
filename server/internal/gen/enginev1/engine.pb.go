@@ -2898,14 +2898,16 @@ func (x *DaeunTable) GetPeriods() []*LuckPeriod {
 	return nil
 }
 
+// 출생 양력 연도는 BirthInfo.date의 연도다. calendar가 LUNAR면 양력으로 바꾼 날짜의 연도다(시각 보정 전).
 type LuckPeriod struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Pillar         *Pillar                `protobuf:"bytes,1,opt,name=pillar,proto3" json:"pillar,omitempty"`
 	StartAge       int32                  `protobuf:"varint,2,opt,name=start_age,json=startAge,proto3" json:"start_age,omitempty"`                     // 만 나이
-	StartAgeKorean int32                  `protobuf:"varint,3,opt,name=start_age_korean,json=startAgeKorean,proto3" json:"start_age_korean,omitempty"` // 한국식 나이
+	StartAgeKorean int32                  `protobuf:"varint,3,opt,name=start_age_korean,json=startAgeKorean,proto3" json:"start_age_korean,omitempty"` // 한국식 나이. start_age_korean = start_year - 출생 양력 연도 + 1
 	StemTenGod     TenGod                 `protobuf:"varint,4,opt,name=stem_ten_god,json=stemTenGod,proto3,enum=myungli.engine.v1.TenGod" json:"stem_ten_god,omitempty"`
 	BranchTenGod   TenGod                 `protobuf:"varint,5,opt,name=branch_ten_god,json=branchTenGod,proto3,enum=myungli.engine.v1.TenGod" json:"branch_ten_god,omitempty"` // 지지 정기 기준
 	TwelveStage    TwelveStage            `protobuf:"varint,6,opt,name=twelve_stage,json=twelveStage,proto3,enum=myungli.engine.v1.TwelveStage" json:"twelve_stage,omitempty"`
+	StartYear      int32                  `protobuf:"varint,7,opt,name=start_year,json=startYear,proto3" json:"start_year,omitempty"` // 대운이 실제로 시작하는 양력 연도. 다음 대운은 10년 뒤(#378)
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2980,6 +2982,13 @@ func (x *LuckPeriod) GetTwelveStage() TwelveStage {
 		return x.TwelveStage
 	}
 	return TwelveStage_TWELVE_STAGE_UNSPECIFIED
+}
+
+func (x *LuckPeriod) GetStartYear() int32 {
+	if x != nil {
+		return x.StartYear
+	}
+	return 0
 }
 
 type YearLuck struct {
@@ -4329,7 +4338,7 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\vstart_years\x18\x02 \x01(\x05R\n" +
 	"startYears\x12!\n" +
 	"\fstart_months\x18\x03 \x01(\x05R\vstartMonths\x127\n" +
-	"\aperiods\x18\x04 \x03(\v2\x1d.myungli.engine.v1.LuckPeriodR\aperiods\"\xc7\x02\n" +
+	"\aperiods\x18\x04 \x03(\v2\x1d.myungli.engine.v1.LuckPeriodR\aperiods\"\xe6\x02\n" +
 	"\n" +
 	"LuckPeriod\x121\n" +
 	"\x06pillar\x18\x01 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x12\x1b\n" +
@@ -4338,7 +4347,9 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\fstem_ten_god\x18\x04 \x01(\x0e2\x19.myungli.engine.v1.TenGodR\n" +
 	"stemTenGod\x12?\n" +
 	"\x0ebranch_ten_god\x18\x05 \x01(\x0e2\x19.myungli.engine.v1.TenGodR\fbranchTenGod\x12A\n" +
-	"\ftwelve_stage\x18\x06 \x01(\x0e2\x1e.myungli.engine.v1.TwelveStageR\vtwelveStage\"\xd8\x01\n" +
+	"\ftwelve_stage\x18\x06 \x01(\x0e2\x1e.myungli.engine.v1.TwelveStageR\vtwelveStage\x12\x1d\n" +
+	"\n" +
+	"start_year\x18\a \x01(\x05R\tstartYear\"\xd8\x01\n" +
 	"\bYearLuck\x12\x12\n" +
 	"\x04year\x18\x01 \x01(\x05R\x04year\x121\n" +
 	"\x06pillar\x18\x02 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x122\n" +

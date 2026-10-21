@@ -197,6 +197,38 @@ func TestRealEngine_GetChartSolar(t *testing.T) {
 	assert.Equal(t, info.GetRulesetVersion(), chart.GetMeta().GetRulesetVersion())
 }
 
+// TestRealEngine_DaeunStartYear는 대운 시작 연도가 한국식 나이와 출생 양력 연도로 맞물리는지 확인합니다(#378, S94).
+// 음력 1989-12-20은 양력 1990-01-16이라, 출생 양력 연도는 음력 연도가 아니라 바꾼 날짜의 연도입니다.
+func TestRealEngine_DaeunStartYear(t *testing.T) {
+	tests := []struct {
+		name           string
+		calendar       enginev1.CalendarType
+		date           *enginev1.LocalDate
+		birthSolarYear int32
+	}{
+		{"양력", enginev1.CalendarType_CALENDAR_TYPE_SOLAR, &enginev1.LocalDate{Year: 1990, Month: 5, Day: 15}, 1990},
+		{"음력 연말", enginev1.CalendarType_CALENDAR_TYPE_LUNAR, &enginev1.LocalDate{Year: 1989, Month: 12, Day: 20}, 1990},
+	}
+	client := newRealClient(t)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			chart, err := client.GetChart(t.Context(), &enginev1.ChartRequest{
+				Birth: seoulBirth(tt.calendar, false, tt.date),
+				AsOf:  &enginev1.LocalDate{Year: 2026, Month: 10, Day: 15},
+			})
+			require.NoError(t, err)
+			periods := chart.GetDaeun().GetPeriods()
+			require.NotEmpty(t, periods)
+			for i, period := range periods {
+				assert.Equal(t, period.GetStartYear()-tt.birthSolarYear+1, period.GetStartAgeKorean(), "periods[%d]", i)
+				if i > 0 {
+					assert.Equal(t, periods[i-1].GetStartYear()+10, period.GetStartYear(), "periods[%d]", i)
+				}
+			}
+		})
+	}
+}
+
 func TestRealEngine_LunarLeapMissingIsInvalid(t *testing.T) {
 	// 2026년 음력 1월에는 윤달이 없습니다.
 	_, err := newRealClient(t).GetChart(t.Context(), &enginev1.ChartRequest{
