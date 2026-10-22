@@ -39,7 +39,7 @@
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "알림에는 그날이 어떤 날인지와 총운 한 문장이 담겨요."}
 - {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "나중에"}
 - {slot: today.guide.cta, key: todayGuideCta, text: "일기 쓰기"}
-- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "쓴 일기 보기"}
+- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "일기 더 쓰기"}
 - {slot: today.event.summary, key: todayEventSummary, text: "오늘 일정 {count}개 · {title}"}
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "진행 중"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "다음"}
@@ -58,8 +58,9 @@
 - {slot: calendar.legend.body, key: calendarLegendBodyCaution, text: "조심할 날"}
 - {slot: day-sheet.event.empty, key: daySheetEventEmpty, text: "이날은 일정이 없어요."}
 - {slot: day-sheet.event.add, key: daySheetEventAdd, text: "일정 추가"}
-- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "이날 일기 보기"}
+- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "이날 쓴 일기 {count, plural, other{{count}편}}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "이날 일기 쓰기"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "이날 일기 더 쓰기"}
 - {slot: event-edit.title.hint, key: eventEditTitleHint, text: "일정 제목"}
 - {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "메모"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirm, text: "이 일정을 지울까요?"}
@@ -80,7 +81,7 @@
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "근거와 해석이 열렸어요"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "날짜 골라 쓰기"}
-- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date} 일기"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date} 일기 쓰기"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "오늘 있었던 일을 적어 보세요"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "기기에 임시 저장됨"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "저장 중"}
@@ -242,6 +243,8 @@
 - {slot: ui.birth.option, key: genderFemale, text: "여성"}
 - {slot: ui.login.provider, key: loginKakaoLabel, text: "카카오 로그인"}
 - {slot: ui.login.provider, key: loginAppleLabel, text: "Apple로 로그인"}
+- {slot: ui.login.provider, key: loginLineLabel, text: "LINE으로 로그인"}
+- {slot: ui.login.provider, key: loginGoogleLabel, text: "Google 계정으로 로그인"}
 - {slot: ui.login.error, key: loginCancelled, text: "로그인을 취소했어요."}
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "로그인을 확인하지 못했어요. 처음부터 다시 로그인해 주세요."}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Apple 로그인을 취소했어요."}
@@ -297,3 +300,31 @@
 - {slot: ui.event-edit.delete, key: eventEditDelete, text: "일정 지우기"}
 - {slot: ui.event-edit.offline, key: eventEditOfflineNotice, text: "인터넷에 연결되어 있지 않아 저장할 수 없어요."}
 - {slot: ui.event-edit.save-failed, key: eventEditSaveFailed, text: "일정을 저장하지 못했어요. 다시 시도해 주세요."}
+- {slot: login-methods.bar.title, key: loginMethodsBarTitle, text: "로그인 수단"}
+- {slot: login-methods.intro.body, key: loginMethodsIntroBody, text: "여러 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요."}
+- {slot: login-methods.last.notice, key: loginMethodsLastNotice, text: "로그인할 수단이 하나는 남아 있어야 해요."}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirm, text: "{provider} 연결을 끊을까요? 연결한 다른 수단으로 계속 로그인할 수 있어요."}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmUnlink, text: "연결 끊기"}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmCancel, text: "취소"}
+- {slot: login-methods.error.body, key: loginMethodsErrorBodyLink, text: "연결하지 못했어요. 다시 시도해 주세요."}
+- {slot: login-methods.error.body, key: loginMethodsErrorBodyUnlink, text: "연결을 끊지 못했어요. 다시 시도해 주세요."}
+- {slot: ui.login-methods.row, key: loginProviderKakao, text: "카카오"}
+- {slot: ui.login-methods.row, key: loginProviderLine, text: "LINE"}
+- {slot: ui.login-methods.row, key: loginProviderGoogle, text: "Google"}
+- {slot: ui.login-methods.row, key: loginProviderApple, text: "Apple"}
+- {slot: ui.login-methods.row, key: loginMethodsRowLink, text: "연결하기"}
+- {slot: ui.login-methods.row, key: loginMethodsRowUnlink, text: "연결 끊기"}
+- {slot: ui.settings.login-methods, key: settingsLoginMethodsLabel, text: "로그인 수단"}
+- {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "계정 합치기"}
+- {slot: account-merge.title.head, key: accountMergeTitleHead, text: "두 계정을 하나로 합칠까요?"}
+- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요."}
+- {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "남길 계정을 골라 주세요"}
+- {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "같은 날 쓴 일기도 모두 이 계정으로 옮겨요."}
+- {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "계정 합치기"}
+- {slot: account-merge.cta.cancel, key: accountMergeCtaCancel, text: "합치지 않기"}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없어요."}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "합치기"}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "취소"}
+- {slot: ui.account-merge.choice, key: accountChoiceDiaryCount, text: "일기 {count, plural, other{{count}편}}"}
+- {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "지금 로그인한 계정"}
+- {slot: ui.account-merge.error, key: accountMergeError, text: "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요."}
