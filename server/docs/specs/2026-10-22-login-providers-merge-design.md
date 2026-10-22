@@ -88,9 +88,13 @@ LINE·Google 로그인을 더하고, 한 계정에 여러 제공자를 붙이고
 
 ### 3.3. 계정 삭제
 
+> 이 절은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3·§4이 대체합니다.
+
 `DisconnectProviders`는 LINE·Google 연결을 외부 호출 없이 해제된 것으로 기록합니다(지금 `test` 연결과 같음). app은 계정 삭제 직전에 §3.2와 같이 SDK로 허가 취소를 합니다.
 
 ## 4. 합치기 (S101·S102)
+
+> 이 절은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §5~§6이 대체합니다.
 
 ### 4.1. 합치기 토큰 (S101)
 
@@ -180,6 +184,8 @@ commit한 뒤 허가 취소(4의 중복 연결)와 남길 계정의 결제 동�
 * 보상형 광고 권한(그날 끝까지)과 구독(MVP 밖)은 옮기지 않습니다.
 
 ## 5. 오류 코드 (S104)
+
+> 이 절은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §8이 대체합니다.
 
 | 상황 | 응답 |
 | --- | --- |

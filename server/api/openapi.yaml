@@ -377,7 +377,7 @@ paths:
       operationId: deleteMe
       summary: 계정 삭제 요청
       description: |
-        계정을 바로 삭제합니다. 삭제 대기 기간이 없고 되돌릴 수 없습니다. 그 유저 계정의 프로필, 기록(일기·일정·날짜 기록·반응), 인증 계정 연결, 세션을 지웁니다. 구매와 결제 기록은 법정 보관을 위해 지운 유저 계정 앞으로 남고, 반응은 지우기 전에 유저 계정과 끊긴 문장별 집계에 더합니다.
+        유저 계정을 바로 삭제합니다. 삭제 대기 기간이 없고 되돌릴 수 없습니다. 그 유저 계정의 프로필, 기록(일기·일정·날짜 기록·반응), 인증 계정 연결, 세션을 지웁니다. 구매와 결제 기록은 법정 보관을 위해 지운 유저 계정 앞으로 남고, 반응은 지우기 전에 유저 계정과 끊긴 문장별 집계에 더합니다.
         카카오·Apple 제공자 허가는 server가 취소를 시도하며, 실패해도 삭제는 성공입니다(LINE·Google은 app이 삭제 전에 SDK로 취소).
         같은 인증 계정으로 다시 로그인하면 새 유저 계정이 만들어집니다. 이미 삭제된 유저 계정의 access token은 401입니다.
       responses:
@@ -437,7 +437,7 @@ paths:
         * 200: 그 연결이 이미 현재 계정에 있어 바꾸지 않았습니다(apple이면 refresh token만 새 값으로).
         * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`: 붙이려는 증명이 틀림. 현재 세션은 유효하니 다시 로그인시키지 않고 붙이기를 다시 시도합니다.
         * 409 `auth.provider_taken`: 현재 계정에 같은 제공자의 다른 사용자 연결이 있습니다.
-        * 409 `auth.identity_in_use`: 그 인증 계정이 다른 유저 계정에 연결돼 있습니다. 본문은 일반 `Problem`이고 합치기 토큰은 없습니다. 두 계정을 합치려면 app이 그 연결로 `previewMerge`를 부릅니다.
+        * 409 `auth.identity_in_use`: 그 인증 계정이 다른 유저 계정에 연결돼 있습니다. 본문은 일반 `Problem`이고 합치기 토큰은 없습니다. 두 유저 계정을 합치려면 app이 그 인증 계정으로 `previewMerge`를 부릅니다.
 
         409가 나면 새로 받은 Apple 승인은 저장하지 않고 버립니다. 취소(revoke)하지도 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다.
       requestBody:
@@ -523,7 +523,7 @@ paths:
         * 400 `request.invalid`: `provider`와 본문 조합이 맞지 않음.
         * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`: 증명이 틀림. 현재 세션은 유효합니다.
         * 422 `merge.same_account`: 증명한 인증 계정이 현재 유저 계정에 이미 연결돼 있습니다.
-        * 422 `merge.no_account`: 증명한 인증 계정이 어느 유저 계정에도 연결돼 있지 않습니다. 연결로 넘어가지 않으니 app은 `linkIdentity`를 부릅니다.
+        * 422 `merge.no_account`: 증명한 인증 계정이 어느 유저 계정에도 연결돼 있지 않습니다. 이 응답은 인증 계정을 연결하지 않으니 app은 `linkIdentity`를 부릅니다.
       requestBody:
         required: true
         content:
@@ -2701,7 +2701,7 @@ components:
         overlapDays:
           type: integer
           minimum: 0
-          description: 두 계정 모두 날짜 기록이 있는 날 수. 0이면 app은 겹치는 날 안내를 보이지 않습니다.
+          description: 두 유저 계정 모두 날짜 기록이 있는 날 수. 0이면 app은 겹치는 날 안내를 보이지 않습니다.
         addedDays:
           $ref: '#/components/schemas/MergeAddedDays'
         current:

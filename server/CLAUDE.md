@@ -44,8 +44,8 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **엔진 클라이언트나 proto를 바꿨을 때만:** `go test -count=1 -tags enginecontract ./internal/engine/...`(core 이미지를 빌드해 띄우므로 느립니다)
 * **commit 전:** `go vet ./... && golangci-lint run ./... && go test -race ./...`. staging 태그를 건드렸으면 `-tags staging`으로 vet·lint를 한 번 더 돌립니다.
 
-## 현재 상태 (2026-10-22, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조)·P7(결제와 권한) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S98)에 모읍니다.
+## 현재 상태 (2026-10-23, server 세션 갱신)
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조)·P7(결제와 권한) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S113)에 모읍니다.
 * P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구, `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 조립됐습니다(S22). 새 결정은 S15~S24(nonce, 삭제 대기 계정, 도메인별 sqlc, 동의 문서 버전, Apple 토큰 처리, refresh 유예, Apple 웹 교환 코드, 문장 선택 지문, staging 테스트 로그인)입니다.
 * P3로 프로필 저장·조회·수정(`PUT/GET/PATCH /v1/me/profile`), 엔진 gRPC 클라이언트·대역, 결과 캐시(`ResultCache`)와 `ruleset_version` 확인, 도시 자료 내장이 조립됐습니다. 계약 변경은 PR #163으로 먼저 병합했습니다. 새 결정은 S25(프로필 Put 멱등)·S26(출생 해시 = 사주 지문)·S27(엔진 연결)·S28(도시 자료)·S29(엔진 검증 시점)·S30(캐시 흐름)·S31(tzdata 내장)입니다. `convertLunarDate`(`POST /v1/lunar-date`)는 core RPC(#164) 병합 뒤 #170으로 조립됐습니다(엔진 `INVALID_ARGUMENT` → 422 `date.invalid`, `OUT_OF_RANGE` → 422 `date.out_of_range`).
 * P4로 콘텐츠 모듈이 조립됐습니다: 원고 → 시드 변환(`go generate ./seed/`)과 `seed` 명령, 렌더러(호칭·조사·용어 토큰), 문장 선택·순환·돌봄 상한, 용어 사전(`getGlossary`, ETag), 데일리·캘린더·나의 사주 응답과 잠금(D60, P7에서 실제 판정으로 연결), 문장 반응(`put/deleteReaction`), 시드 CI(`mlw check --partial`). 새 결정은 S33~S44(문장 틀 키, 선택 지문, 변환 때 용어 역조회, 태그 polarity 표, serve는 시드를 넣지 않음, `--partial`, 반응 이력, 계정 advisory lock, 상한 우선, 잠금 시 근거 렌더 생략, 한자 표, 시드 출처 열 없음)입니다.
@@ -57,15 +57,16 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * S3 준비(브랜치 `server/s3-freeze-prep`, `server/p7-followups` 위에 쌓음): 계약 draft.11. 알림 기기 계약 확정(S92), 호환·버전 정책과 열린 enum(S93), 점검에서 찾은 응답 목록·설명 차이 정리. 점검 목록과 남은 일은 [`docs/plans/2026-10-20-s3-freeze-prep.md`](docs/plans/2026-10-20-s3-freeze-prep.md)입니다.
 * D83(#407): 일기를 날짜 기록 `diary_days`와 한 편으로 나눔(migration 00013), id 경로 API(계약 draft.13, 계약 PR #438·app 요청 #437, 구현 PR #456), 10편 상한 422 `diary.day_full`, `createDiary` 멱등. 결정 S95~S98.
 * D82 PR B(#386, 브랜치 `server/d82-identities`): LINE·Google 로그인(`loginLine`·`loginGoogle`), 연결 목록·붙이기·떼기(`listIdentities`·`linkIdentity`·`unlinkIdentity`), 다른 계정의 연결을 붙일 때 합치기 토큰 발급(409 `auth.identity_in_use`). migration 00014, 결정 S99~S101, 계약 draft.14(#466). `previewMerge`·`mergeAccounts`는 PR C에서 구현합니다.
+* D85·D88 계약 PR(브랜치 `server/d85-contract`): 계약 draft.15(계정 삭제 즉시 삭제, 계정 합치기 별도 입구, 구매 목록), 결정 S105~S113과 개정 표시, D82 spec 대체 표시. 새 동작은 아직 501이고 구현은 [`docs/plans/2026-10-23-account-delete-merge-purchases.md`](docs/plans/2026-10-23-account-delete-merge-purchases.md)의 PR 2~4입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **D82 PR C 합치기**(`previewMerge`·`mergeAccounts`, 광고 제거권 합산, #386을 닫음)를 S3 앞에 처리합니다. 합치기의 일기 규칙은 S95·D83 ④입니다.
+1. **D85·D88 구현**(plan `docs/plans/2026-10-23-account-delete-merge-purchases.md`의 PR 2~4)을 S3 앞에 처리합니다: 계정 삭제 → 구매 장부 → 합치기(#386·#481·#492을 닫음). 합치기의 일기 규칙은 S95(S111로 개정)·D83 ④입니다.
 2. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
-3. P8(Job: precompute, notify, retention과 익명화)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 `diaries.body`와 함께 `diary_days.guide_question`도 비우고, 그 계정의 `idempotency_keys`(일기 본문·가이드 질문이 응답 본문으로 저장됨)도 지웁니다(spec 2026-10-22 §3.3).
+3. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
 4. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 5. core #304 반영됨(PR #432): 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
 6. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
