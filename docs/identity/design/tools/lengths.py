@@ -85,6 +85,8 @@ class Target:
 DIALOG_SLOTS = (
     "diary-view.delete.confirm", "event-edit.delete.confirm", "account-delete.delete.confirm",
     "settings.logout.confirm", "preview.share.login-notice", "profile-edit.recalc.confirm",
+    # D82 로그인 수단 떼기·계정 합치기 확인 창 (#389)
+    "login-methods.unlink.confirm", "account-merge.merge.confirm",
 )
 
 TARGETS = (
@@ -105,15 +107,18 @@ TARGETS = (
             "today.guide.cta", "evidence-sheet.lock.cta", "ad-free.restore.cta", "diary-list.pick-date.cta",
             "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share",
             # D77 IA 자리 event-edit.save.cta·delete.cta·diary-edit.save.cta (writing W33: ui 슬롯에 ia로 담음)
-            "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save"),
+            "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save",
+            # D82 account-merge 아래 버튼 (#389)
+            "account-merge.cta.merge", "account-merge.cta.cancel"),
            "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
     # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15
     Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15)",
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 28 - 2 * 24 - 15, 2, False, None),
     Target(("ui.action.button",) + DIALOG_SLOTS, "dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 버튼 사이 8)",
            "ui-600", 14, -0.28, (SCREEN_WIDTH - 2 * 28 - 2 * 24 - 8) / 2, 1, False, None),
-    Target(("ui.login.provider",), "social-login-button 글자 (좌우 16, 로고 20 + 간격 8)",
-           "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 20 - 8, 1, False, None),
+    # 2.7.0: 로고는 왼쪽 16에 고정하고 글자는 가운데라 양쪽에 로고 자리(16 + 20 + 8)를 비움 (#389)
+    Target(("ui.login.provider",), "social-login-button 글자 (가운데 정렬, 양쪽 16 + 로고 20 + 간격 8)",
+           "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * (16 + 20 + 8), 1, False, None),
     # D77 IA 자리 login.error.body = ui.login.error, event-edit.save.failed·diary-view.deleted.toast (W33)
     Target(("ui.error.client", "ui.error.code", "ui.login.error", "ui.app.trace", "evidence-sheet.unlock.failed",
             "diary-edit.saved.tags", "ui.event-edit.save-failed", "ui.diary-view.deleted"),
@@ -158,7 +163,28 @@ TARGETS = (
     Target(("ui.evidence.title",), "evidence-sheet 제목 (sheet 안쪽 space.20)", "ui-600", 20, -0.4, CONTENT_WIDTH, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
            "sentence", 17, 0, CONTENT_WIDTH, 2, True, None),
+    # D82·D83 로그인 수단·계정 합치기 (#389, spec 2026-10-22 §6)
+    Target(("login-methods.intro.body",), "login-methods 첫머리 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
+    Target(("login-methods.last.notice",), "login-methods 마지막 수단 안내 (본문 폭)", "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None),
+    Target(("ui.login-methods.row",), "social-login-button connected 이름·연결됨 (좌우 16, 로고 20 + 간격 8, check 14 + 간격 4, 둘이 나눔)",
+           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 20 - 8 - 14 - 4) / 2, 1, False, None),
+    Target(("ui.settings.login-methods",), "settings-row 이름 (좌우 16, 화살표 16)", "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
+    Target(("account-merge.title.head",), "account-merge 제목 (본문 폭)", "ui-600", 20, -0.4, CONTENT_WIDTH, 2, False, None),
+    Target(("account-merge.title.body",), "account-merge 설명 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 4, True, None),
+    Target(("account-merge.choice.label",), "account-choice 묶음 이름 (본문 폭)", "ui-500", 12, -0.24, CONTENT_WIDTH, 1, False, None),
+    Target(("account-merge.overlap.notice",), "account-merge 겹치는 날 안내 (아이콘 16 + 간격 8)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 16 - 8, 2, True, None),
+    Target(("ui.account-merge.choice",), "account-choice 현재 계정 알약 (카드 안 256의 절반, 좌우 8 + 테두리 1)",
+           "ui-500", 11, -0.22, (CONTENT_WIDTH - 2 * 16 - 32) / 2 - 2 * 8 - 2, 1, False, None),
+    Target(("ui.account-merge.saju",), "account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None),
 )
+
+# 행 값과 다른 상한을 받는 키: (슬롯, 키, 언어) → (값을 빌려 올 언어, 이유) (#446)
+KEY_LIMITS = {
+    ("ui.login.provider", "loginKakaoLabel", "ja"): (
+        "en", "ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감"),
+}
 
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
 UNBOUNDED = {
@@ -188,6 +214,11 @@ NO_LIMIT = {
     "login.discard.notice": "확인 창 본문(창이 늘어남)",
     # D79로 기본 깊이 설정(segmented)이 빠져 풀이 시트의 접근성 라벨로만 남음(#318)
     "ui.depth.explain": SCREEN_READER_ONLY,
+    # D82 확인 창(dialog notice)으로 보이는 실패 안내 (#389)
+    "login-methods.error.body": "확인 창 본문(창이 늘어남)",
+    "ui.account-merge.error": "확인 창 본문(창이 늘어남)",
+    # 숫자가 섞인 고정 형식이라 글자 수가 폭을 대신하지 못함. 폭 44px로 확인: ko 윤12.1 26.4px (#260)
+    "ui.day-cell.lunar": "day-cell 윤달 표지(형식 고정, 글자 수 대신 칸 폭 44px로 확인)",
 }
 
 
@@ -386,6 +417,14 @@ def render_table(results: list[Result]) -> str:
     for slot, (where, draft) in UNBOUNDED.items():
         lines.append(f"| `{slot}` | {where} | 본문 | 제한 없음 | {draft} | - "
                      f"| **{draft}** | **{draft}** | **{math.floor(draft * 1.8)}** |")
+    finals = {(slot, language): result.final(language)
+              for result in results for slot in result.target.slots for language in LANGUAGES}
+    lines += ["", "키별 상한 (행 값과 다른 키, writing `key_max_length`):", "",
+              "| 언어 | 슬롯 | 키 | 상한 | 이유 |", "| --- | --- | --- | --- | --- |"]
+    for (slot, key, language), (source, reason) in KEY_LIMITS.items():
+        limit = finals.get((slot, source), "-")
+        # 언어 칸을 앞에 둠: writing 파서가 "| `"로 시작하는 줄을 슬롯 행으로 읽기 때문
+        lines.append(f"| {language} | `{slot}` | `{key}` | **{limit}** | {source} 상한을 씀: {reason} |")
     lines += ["", "상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):", "", "| 슬롯 | 상한 없음 이유 |", "| --- | --- |"]
     lines += [f"| `{slot}` | {reason} |" for slot, reason in NO_LIMIT.items()]
     return "\n".join(lines) + "\n"

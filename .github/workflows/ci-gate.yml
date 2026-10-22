@@ -90,7 +90,7 @@ jobs:
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
           echo "$changed"
-          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^docs/research/|^tools/docs-check/|^\.github/workflows/ci-gate\.yml$'; then
+          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^docs/research/|^tools/docs-check/|^tools/drift/|^\.github/workflows/ci-gate\.yml$'; then
             echo "docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
@@ -149,6 +149,9 @@ jobs:
       - name: docs 검사 테스트
         working-directory: tools/docs-check
         run: python3 -I -m unittest -q
+      - name: drift 도구 테스트
+        working-directory: tools/drift
+        run: python3 -I -m unittest -q
       - name: docs 검사 (링크·artifacts·결정 번호·IA·아이디어·ja 근거 용어집)
         run: python3 -I tools/docs-check/docs_check.py .
 
@@ -190,15 +193,20 @@ jobs:
     with:
       mode: ${{ needs.changes.outputs.design_mode }}
 
-  # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 같은 PR·단위의 Issue가 열려 있으면 다시 열지 않습니다.
-  # 같은 PR의 다음 실행에서 drift가 통과하면(주는 쪽이 PR 안에서 맞춤) 그 Issue를 닫습니다. main push에서는 drift를 돌리지 않기 때문입니다.
+  # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 그 단위 앞으로 열린 drift가 이미 있으면 새로 열지 않고
+  # 가장 오래된 Issue에 원인 PR을 더합니다(같은 원인의 Issue가 PR마다 쌓이지 않게). 같은 PR의 다음 실행에서 drift가 통과하면
+  # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. main push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
   drift-report:
     needs: [changes, core, server, app, writing, design]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       issues: write
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools/drift
       - name: drift Issue 열기
         env:
           GH_TOKEN: ${{ github.token }}
@@ -211,43 +219,10 @@ jobs:
           APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
           WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
           DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
-        run: |
-          # 계약 파일의 소유 단위(from 라벨)입니다.
-          from_labels=""
-          echo "$CONTRACTS" | grep -q 'server/api/openapi' && from_labels="$from_labels,from:server"
-          echo "$CONTRACTS" | grep -q 'docs/ia/' && from_labels="$from_labels,from:root"
-          echo "$CONTRACTS" | grep -q 'docs/identity/design/' && from_labels="$from_labels,from:design"
-          echo "$CONTRACTS" | grep -q 'docs/identity/writing/' && from_labels="$from_labels,from:writing"
-          echo "$CONTRACTS" | grep -qE 'core/|proto/' && from_labels="$from_labels,from:core"
-          gh label create drift --color FBCA04 --description "계약 변경을 받는 쪽이 아직 따라오지 않음 (workflow §6.1)" 2>/dev/null || true
-          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
-            unit="${pair%%=*}"; state="${pair#*=}"
-            title="[drift] $unit: PR #$PR 계약 변경 따라잡기"
-            if [ "$state" = "drift:success" ]; then
-              gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number,title \
-                --jq ".[] | select(.title == \"$title\") | .number" | while read -r number; do
-                gh issue close "$number" --comment "PR #$PR의 다음 실행에서 $unit drift 검사가 통과해 자동으로 닫습니다($RUN_URL)."
-              done
-              continue
-            fi
-            [ "$state" = "drift:failure" ] || continue
-            if gh issue list --state open --label drift --limit 200 --json title --jq '.[].title' | grep -qxF "$title"; then
-              echo "이미 열려 있습니다: $title"; continue
-            fi
-            printf '%s\n' \
-              "## 무엇이 필요한가" \
-              "PR #$PR($PR_TITLE)이 바꾼 계약에 \`$unit\`이 아직 맞지 않습니다. 이 단위의 다음 PR에서 맞춰 주세요. 맞추기 전에는 이 단위의 PR이 ci-gate를 통과하지 못합니다(docs/workflow.md §6.1)." \
-              "" \
-              "* 바뀐 계약 파일: $CONTRACTS" \
-              "* 실패한 검사: $RUN_URL" \
-              "" \
-              "## 관련" \
-              "PR #$PR. 이 Issue는 ci-gate가 자동으로 열었습니다. 맞춘 PR 본문에 \`Closes #<이 Issue>\`를 적어 주세요." > body.md
-            gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
-          done
+        run: tools/drift/drift.sh report
 
-  # main에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다. 원인 PR이 그 커밋에 들어 있는 drift Issue를 닫습니다.
-  # 원인 PR이 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
+  # main에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다. 원인 PR(제목과 더해진 원인)이 모두 그 커밋에 들어 있는
+  # drift Issue를 닫습니다. 원인 PR이 모두 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
   # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
   drift-close:
     needs: [changes, server, app, writing, design]
@@ -258,6 +233,9 @@ jobs:
       issues: write
       pull-requests: read
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools/drift
       - name: 따라잡은 단위의 drift Issue 닫기
         env:
           GH_TOKEN: ${{ github.token }}
@@ -268,29 +246,7 @@ jobs:
           APP: ${{ needs.app.result }}
           WRITING: ${{ needs.writing.result }}
           DESIGN: ${{ needs.design.result }}
-        run: |
-          for pair in "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
-            unit="${pair%%=*}"; result="${pair#*=}"
-            [ "$result" = "success" ] || continue
-            gh issue list --state open --label drift --label "to:$unit" --limit 200 --json number,title \
-              --jq '.[] | "\(.number) \(.title)"' | while read -r number title; do
-              # 제목의 원인 PR(`PR #N`)이 이 main 커밋에 들어 있을 때만 닫습니다.
-              # 원인 PR이 열린 채 다른 PR이 먼저 병합되면, 이 통과는 원인 계약 변경을 아직 검사하지 않은 것입니다.
-              source=$(echo "$title" | sed -nE 's/.*PR #([0-9]+).*/\1/p')
-              [ -n "$source" ] || continue
-              state=$(gh pr view "$source" --json state,mergeCommit --jq '"\(.state) \(.mergeCommit.oid // "")"')
-              case "$state" in
-                MERGED\ *)
-                  merge_sha="${state#MERGED }"
-                  compare=$(gh api "repos/$GH_REPO/compare/$merge_sha...$SHA" --jq .status)
-                  if [ "$compare" = "ahead" ] || [ "$compare" = "identical" ]; then
-                    gh issue close "$number" --comment "main \`${SHA:0:7}\`(원인 PR #$source 포함)에서 $unit 검사가 통과해 자동으로 닫습니다($RUN_URL, docs/workflow.md §6.1)."
-                  fi ;;
-                CLOSED\ *)
-                  gh issue close "$number" --reason "not planned" --comment "원인 PR #$source이 병합되지 않고 닫혀 따라잡을 계약 변경이 없습니다. 자동으로 닫습니다." ;;
-              esac
-            done
-          done
+        run: tools/drift/drift.sh close
 
   ci-gate:
     needs: [changes, docs, core, server, app, writing, design]

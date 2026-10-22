@@ -24,7 +24,7 @@ var expectedOperationIDs = []string{
 	"getMe", "deleteMe", "agreeConsents", "createProfile", "updateProfile", "getProfile",
 	"getDaily", "getChart", "getCalendar", "putReaction", "deleteReaction",
 	"getGlossary", "createPreview", "getBirthHour", "convertLunarDate",
-	"listDiaries", "getDiary", "putDiary", "deleteDiary", "restoreDiary",
+	"listDiaries", "createDiary", "getDiary", "updateDiary", "deleteDiary", "restoreDiary",
 	"listSchedules", "createSchedule", "updateSchedule", "deleteSchedule", "restoreSchedule",
 	"registerDevice", "deleteDevice",
 	"getEntitlements", "restorePurchases", "revenuecatWebhook", "admobRewardCallback",
@@ -206,7 +206,7 @@ func TestContract_CreatePostsAcceptIdempotencyKey(t *testing.T) {
 		operations[operationID] = op
 	})
 
-	for _, operationID := range []string{"createSchedule", "registerDevice"} {
+	for _, operationID := range []string{"createSchedule", "registerDevice", "createDiary"} {
 		op := operations[operationID]
 		if op == nil {
 			t.Errorf("%s: operation이 없음", operationID)
@@ -659,10 +659,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft12(t *testing.T) {
+func TestContract_VersionIsDraft13(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.12" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.12", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.13" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.13", doc.Info.Version)
 	}
 }
 
@@ -1066,8 +1066,7 @@ func TestContract_Draft7Additions(t *testing.T) {
 	doc := loadDoc(t)
 
 	descriptions := map[string][]string{
-		"putDiary":        {"본문만 바꾸고"},
-		"restoreDiary":    {"가장 늦게 지운", "404 `diary.not_found`"},
+		"restoreDiary":    {"이미 살아 있는 일기", "404 `diary.not_found`", "422 `diary.day_full`"},
 		"listDiaries":     {"`from`이 `to`보다 늦으면 빈 목록"},
 		"listSchedules":   {"`from`이 `to`보다 늦으면 400 `request.invalid`"},
 		"restoreSchedule": {"이미 살아 있는 일정이면 그대로"},
@@ -1267,5 +1266,138 @@ func testDraft8PersonalReadings(t *testing.T, doc *openapi3.T) {
 	}
 	if strings.Contains(doc.Info.Description, "원국 개인 해석은 writing 슬롯이 아직 없어") {
 		t.Error("info.description에 원국 개인 해석 설계 메모가 남아 있음")
+	}
+}
+
+// TestContract_Draft13DiaryEntries는 draft.13의 일기 하루 여러 편 계약을 고정합니다. (D83, #407)
+func TestContract_Draft13DiaryEntries(t *testing.T) {
+	doc := loadDoc(t)
+
+	paths := map[string][]string{
+		"/v1/diaries":              {"GET listDiaries", "POST createDiary"},
+		"/v1/diaries/{id}":         {"GET getDiary", "PUT updateDiary", "DELETE deleteDiary"},
+		"/v1/diaries/{id}/restore": {"POST restoreDiary"},
+	}
+	for path, methods := range paths {
+		item := doc.Paths.Find(path)
+		if item == nil {
+			t.Errorf("%s 경로가 없음", path)
+			continue
+		}
+		for _, entry := range methods {
+			method, operationID, _ := strings.Cut(entry, " ")
+			op := item.GetOperation(method)
+			if op == nil || op.OperationID != operationID {
+				t.Errorf("%s %s의 operationId가 %s가 아님", method, path, operationID)
+			}
+		}
+	}
+	for _, removed := range []string{"/v1/diaries/{date}", "/v1/diaries/{date}/restore"} {
+		if doc.Paths.Value(removed) != nil {
+			t.Errorf("옛 경로 %s가 남아 있음", removed)
+		}
+	}
+
+	t.Run("id 경로 매개변수", func(t *testing.T) {
+		for _, path := range []string{"/v1/diaries/{id}", "/v1/diaries/{id}/restore"} {
+			item := doc.Paths.Find(path)
+			if item == nil {
+				continue
+			}
+			var found bool
+			for _, param := range item.Parameters {
+				if param.Value == nil || param.Value.Name != "id" || param.Value.In != openapi3.ParameterInPath {
+					continue
+				}
+				found = true
+				schema := param.Value.Schema.Value
+				if !schema.Type.Is("string") || schema.Format != "uuid" {
+					t.Errorf("%s의 id schema가 string/uuid가 아님", path)
+				}
+			}
+			if !found {
+				t.Errorf("%s에 id 경로 매개변수가 없음", path)
+			}
+		}
+	})
+
+	requiredOf := func(name string) []string {
+		ref := doc.Components.Schemas[name]
+		if ref == nil || ref.Value == nil {
+			t.Fatalf("%s 스키마가 없음", name)
+		}
+		return ref.Value.Required
+	}
+	t.Run("스키마 required", func(t *testing.T) {
+		for _, want := range []string{"id", "date", "body", "tags", "rulesetVersion", "createdAt", "updatedAt"} {
+			if !slices.Contains(requiredOf("Diary"), want) {
+				t.Errorf("Diary.required에 %s가 없음", want)
+			}
+		}
+		if id := doc.Components.Schemas["Diary"].Value.Properties["id"]; id == nil || id.Value.Format != "uuid" {
+			t.Error("Diary.id가 format uuid가 아님")
+		}
+		sameSet := func(name string, want []string) {
+			got := slices.Clone(requiredOf(name))
+			slices.Sort(got)
+			slices.Sort(want)
+			if !slices.Equal(got, want) {
+				t.Errorf("%s.required = %v, want %v", name, got, want)
+			}
+		}
+		sameSet("DiarySummary", []string{"id", "date", "createdAt", "excerpt", "featuredTags"})
+		sameSet("DiaryInput", []string{"date", "body"})
+		sameSet("DiaryBodyInput", []string{"body"})
+	})
+	t.Run("본문 길이", func(t *testing.T) {
+		for _, name := range []string{"DiaryInput", "DiaryBodyInput"} {
+			body := doc.Components.Schemas[name].Value.Properties["body"].Value
+			if body.MinLength != 1 || body.MaxLength == nil || *body.MaxLength != 10000 {
+				t.Errorf("%s.body 길이가 1~10000이 아님", name)
+			}
+		}
+	})
+
+	t.Run("createDiary 응답", func(t *testing.T) {
+		op := operationByID(t, doc, "createDiary")
+		created := op.Responses.Value("201")
+		if created == nil || created.Value.Headers["Location"] == nil {
+			t.Error("createDiary 201에 Location 헤더가 없음")
+		}
+		for _, status := range []string{"409", "422"} {
+			if op.Responses.Value(status) == nil {
+				t.Errorf("createDiary에 %s 응답이 없음", status)
+			}
+		}
+		if op.Responses.Value("200") != nil {
+			t.Error("createDiary에 200 응답이 있음")
+		}
+	})
+	t.Run("updateDiary는 엔진을 부르지 않음", func(t *testing.T) {
+		op := operationByID(t, doc, "updateDiary")
+		for _, status := range []string{"502", "504"} {
+			if op.Responses.Value(status) != nil {
+				t.Errorf("updateDiary에 %s 응답이 있음", status)
+			}
+		}
+	})
+	t.Run("listDiaries 설명", func(t *testing.T) {
+		description := operationByID(t, doc, "listDiaries").Description
+		for _, text := range []string{"같은 날짜 안에서는 작성 순", "한 날짜의 일기가 두 쪽에 나뉠 수"} {
+			if !strings.Contains(description, text) {
+				t.Errorf("listDiaries 설명에 %q가 없음", text)
+			}
+		}
+	})
+}
+
+// TestContract_Draft13ProblemCodes는 draft.13에서 더하고 뺀 problem code를 고정합니다. (D83, #407)
+func TestContract_Draft13ProblemCodes(t *testing.T) {
+	codes := loadProblemCodes(t)
+	if entry, ok := codes["diary.day_full"]; !ok || entry.Status != 422 {
+		t.Errorf("diary.day_full = %+v (있음 %v), want status 422", entry, ok)
+	}
+	if _, ok := codes["diary.date_taken"]; ok {
+		t.Error("diary.date_taken이 남아 있음")
 	}
 }

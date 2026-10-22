@@ -160,5 +160,57 @@
     ],
     "status": "chosen",
     "note": "개인 해석 둘째 문장은 역할 사실, 오행 목·화·토·금·수, 역할 '나와 잘 맞는 기운'류, 가이드 질문 과거형·전제 없음(①②)"
+  },
+  {
+    "id": "round-R11",
+    "title": "라운드 R11 — D82 로그인 수단·계정 합치기, D83 일기 하루 여러 편",
+    "kind": "copy-sample",
+    "file": "2026-10-22-round-R11.md",
+    "date": "2026-10-22",
+    "milestone": "W1",
+    "screens": [
+      "login-methods",
+      "account-merge",
+      "today",
+      "day-sheet"
+    ],
+    "decisions": [
+      "W36"
+    ],
+    "status": "chosen",
+    "note": "안내·확인 문구는 막는 말 대신 남는 것·필요한 것(W36), 연결하기/연결 끊기, 일기 더 쓰기, 이날 쓴 일기 N편, 오행 이름은 W31 유지"
+  },
+  {
+    "id": "round-R12",
+    "title": "라운드 R12 — D83 ② 한 날짜 상한 문구",
+    "kind": "copy-sample",
+    "file": "2026-10-22-round-R12.md",
+    "date": "2026-10-22",
+    "milestone": "W1",
+    "screens": [
+      "today",
+      "day-sheet",
+      "diary-list",
+      "diary-edit"
+    ],
+    "decisions": [
+      "W37"
+    ],
+    "status": "chosen",
+    "note": "상한 수치 미노출 '충분히 썼어요', 이미 쓴 날 버튼 '새 일기 쓰기'"
+  },
+  {
+    "id": "round-R13",
+    "title": "라운드 R13 — 계정 합치기 원고 보완 (design #441)",
+    "kind": "copy-sample",
+    "file": "2026-10-22-round-R13.md",
+    "date": "2026-10-22",
+    "milestone": "W1",
+    "screens": [
+      "account-merge"
+    ],
+    "decisions": [],
+    "status": "chosen",
+    "note": "사주 요약 '양력 1990. 3. 5. 오후 2:30', '시각 모름', '사주 정보 없음', R11-4 재출제 일관"
   }
 ]

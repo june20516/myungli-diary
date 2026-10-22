@@ -47,7 +47,15 @@ D77_SLOTS = {
 }
 
 DIALOG_SLOTS_EXPECTED = {"diary-view.delete.confirm", "event-edit.delete.confirm", "account-delete.delete.confirm",
-                         "settings.logout.confirm", "preview.share.login-notice", "profile-edit.recalc.confirm"}
+                         "settings.logout.confirm", "preview.share.login-notice", "profile-edit.recalc.confirm",
+                         "login-methods.unlink.confirm", "account-merge.merge.confirm"}
+# D82·D83 로그인 수단·계정 합치기와 윤달 표지 (#389·#260, spec 2026-10-22 §6)
+ISSUE_389 = {
+    "login-methods.intro.body", "login-methods.last.notice", "login-methods.unlink.confirm",
+    "account-merge.title.head", "account-merge.title.body", "account-merge.choice.label",
+    "account-merge.overlap.notice", "account-merge.cta.merge", "account-merge.cta.cancel", "account-merge.merge.confirm",
+    "ui.login-methods.row", "ui.account-merge.choice", "ui.account-merge.saju", "ui.settings.login-methods",
+}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -170,12 +178,12 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values())
+    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
         "term.meaning", "ui.app.bootstrap", "system.apple_return", "ui.guide.a11y", "login.discard.notice",
-        "ui.depth.explain",
+        "ui.depth.explain", "login-methods.error.body", "ui.account-merge.error", "ui.day-cell.lunar",
     }
     assert not set(lengths.NO_LIMIT) & slots
 
@@ -230,3 +238,34 @@ def test_d77_ia_slots_are_measured():
     assert {places[D77_SLOTS[ia_id]].split(" ")[0] for ia_id in ("event-edit.save.cta", "diary-edit.save.cta")} == {"primary-button"}
     assert places["ui.event-edit.offline"].startswith("notice-banner")
     assert places["ui.diary-view.deleted"].startswith("toast") and places["ui.event-edit.save-failed"].startswith("toast")
+
+
+def test_d82_ia_slots_are_measured():
+    ia = json.loads((REPO_ROOT / "docs" / "ia" / "screens.json").read_text(encoding="utf-8"))
+    screens = {screen["id"]: screen for screen in ia["screens"]}
+    ia_slots = {slot["id"] for sid in ("login-methods", "account-merge") for slot in screens[sid]["slots"]
+                if not slot["id"].endswith(".bar.title")}
+    measured = {slot for target in lengths.TARGETS for slot in target.slots}
+    assert ia_slots <= measured | set(lengths.NO_LIMIT)
+    places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
+    assert places["account-merge.cta.merge"].startswith("primary-button")
+    assert "44px" in lengths.NO_LIMIT["ui.day-cell.lunar"]
+    assert next(t for t in lengths.TARGETS if "ui.login.provider" in t.slots).width == 232
+
+
+def test_latin_ja_label_takes_en_limit(capsys, font_dir):
+    # ja 카카오 라벨은 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(#143). 전각 기준 ja 상한 대신 en 상한 (#446)
+    assert lengths.KEY_LIMITS == {("ui.login.provider", "loginKakaoLabel", "ja"): (
+        "en", "ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감")}
+    lengths.main(["--font-dir", str(font_dir)])
+    table = capsys.readouterr().out
+    provider_row = next(line for line in table.splitlines() if line.startswith("| `ui.login.provider` | social"))
+    en_limit = provider_row.split("**")[-2]
+    assert f"| ja | `ui.login.provider` | `loginKakaoLabel` | **{en_limit}** |" in table
+
+
+def test_key_limit_rows_are_not_read_as_slot_rows():
+    # writing test_slots.design_lengths는 '## 상한' 절에서 "| `"로 시작하는 줄을 슬롯 행으로 읽음. 키별 행은 언어 칸으로 시작
+    table = render_table([])
+    key_section = table.split("키별 상한", 1)[1].split("상한을 두지 않는 슬롯", 1)[0]
+    assert not any(line.startswith("| `") for line in key_section.splitlines())

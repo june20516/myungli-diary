@@ -11,14 +11,14 @@
 | account-delete.data.body | account-delete.data.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | account-delete.delete.confirm | account-delete.delete.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountDeleteDeleteConfirm` ko 34, en 60, ja 28 |
 | account-delete.title.head | account-delete.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
-| account-merge.bar.title | account-merge.bar.title | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.choice.label | account-merge.choice.label | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.cta.cancel | account-merge.cta.cancel | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.cta.merge | account-merge.cta.merge | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.overlap.notice | account-merge.overlap.notice | info | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.title.body | account-merge.title.body | info | - | 1 | 0 | - | ko -, en -, ja - |
-| account-merge.title.head | account-merge.title.head | info | - | 1 | 0 | - | ko -, en -, ja - |
+| account-merge.bar.title | account-merge.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| account-merge.choice.label | account-merge.choice.label | guide | - | 1 | 1 | - | ko 31, en 58, ja 25 |
+| account-merge.cta.cancel | account-merge.cta.cancel | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| account-merge.cta.merge | account-merge.cta.merge | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountMergeMergeConfirm` ko 34, en 60, ja 28 |
+| account-merge.overlap.notice | account-merge.overlap.notice | info | - | 1 | 1 | - | ko 58, en 100, ja 42 |
+| account-merge.title.body | account-merge.title.body | info | - | 1 | 1 | - | ko 120, en 200, ja 84 |
+| account-merge.title.head | account-merge.title.head | info | - | 1 | 1 | - | ko 36, en 66, ja 30 |
 | ad-free.bar.title | ad-free.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.legal.notice | ad-free.legal.notice | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.offer.head | ad-free.offer.head | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -60,8 +60,8 @@
 | daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 20 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
 | daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko 36, en 64, ja 36 |
 | daily.tag_label | 컴포넌트 tag-chip<br>컴포넌트 lucky-card | info | - | 1 | 15 | - | ko 10, en 18, ja 10 |
-| day-sheet.diary.open | day-sheet.diary.open | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
-| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | `count`: number | ko 25, en 45, ja 20 |
+| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | day-sheet.event.empty | day-sheet.event.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.bar.title | diary-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -98,11 +98,11 @@
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 94 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| login-methods.error.body | login-methods.error.body | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| login-methods.intro.body | login-methods.intro.body | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| login-methods.last.notice | login-methods.last.notice | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| login-methods.unlink.confirm | login-methods.unlink.confirm | guide | - | 1 | 0 | - | ko -, en -, ja - |
+| login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| login-methods.error.body | login-methods.error.body | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| login-methods.intro.body | login-methods.intro.body | guide | - | 1 | 1 | - | ko 90, en 150, ja 63 |
+| login-methods.last.notice | login-methods.last.notice | guide | - | 1 | 1 | - | ko 64, en 108, ja 46 |
+| login-methods.unlink.confirm | login-methods.unlink.confirm | guide | - | 1 | 4 | `provider`: text | ko 10, en 16, ja 7<br>`loginMethodsUnlinkConfirm` ko 34, en 60, ja 28<br>`loginMethodsUnlinkConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login.bar.title | login.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login.discard.notice | login.discard.notice | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login.title.body | login.title.body | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -160,9 +160,12 @@
 | term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>today.lucky-tag.body | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
-| today.guide.cta | today.guide.cta | guide | - | 1 | 2 | - | ko 23, en 42, ja 19 |
+| today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 3 | `count`: number | ko 11, en 19, ja 9 |
+| ui.account-merge.error | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 3 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
 | ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 10, en 16, ja 7 |
 | ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
@@ -172,15 +175,15 @@
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.date-picker.solar-confirm | 컴포넌트 date-picker | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko -, en -, ja - |
+| ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.depth.evidence_link | today.evidence.link<br>컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
 | ui.depth.explain | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-edit.save | diary-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
-| ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 1 | `date`: text | ko 23, en 42, ja 19 |
+| ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 2 | `date`: text | ko 23, en 42, ja 19 |
 | ui.diary-view.actions | 컴포넌트 app-bar | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-view.deleted | diary-view.deleted.toast<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
-| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 44 | - | ko 48, en 78, ja 34 |
+| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 45 | - | ko 48, en 78, ja 34 |
 | ui.event-edit.delete | event-edit.delete.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.event-edit.form | 컴포넌트 segmented<br>컴포넌트 text-field | guide | - | 1 | 4 | - | ko -, en -, ja -<br>`eventEditAllDay` ko 13, en 22, ja 10<br>`eventEditTimed` ko 13, en 22, ja 10 |
 | ui.event-edit.offline | event-edit.offline.notice<br>컴포넌트 notice-banner | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
@@ -190,12 +193,14 @@
 | ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 33, ja 15 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
+| ui.login-methods.row | 컴포넌트 social-login-button | guide | - | 1 | 6 | - | ko 10, en 16, ja 7 |
 | ui.login.error | login.error.body<br>컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko 48, en 78, ja 34 |
-| ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 2 | - | ko 21, en 38, ja 17 |
+| ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 4 | - | ko 19, en 34, ja 15<br>`loginKakaoLabel` ko 19, en 34, ja 34 |
 | ui.nav.a11y | 컴포넌트 app-bar<br>컴포넌트 sheet | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |
 | ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
