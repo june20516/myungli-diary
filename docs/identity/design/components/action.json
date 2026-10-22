@@ -33,25 +33,44 @@
     },
     {
       "id": "social-login-button",
-      "summary": "소셜 로그인 버튼: 카카오·Apple (D55)",
-      "uses": ["press.ink"],
+      "summary": "소셜 로그인 버튼: 카카오·LINE·Google·Apple (D82, 결정 V39)",
+      "uses": ["press.ink", "icon"],
       "variants": [
-        { "id": "kakao", "when": "카카오 로그인 (위)", "parts": { "container": { "style": "kakao-login-design-guide" } } },
-        { "id": "apple", "when": "Apple로 로그인 (아래). iOS·Android 모두 보임, Android는 웹 흐름", "parts": { "container": { "style": "sign-in-with-apple-hig", "lightMode": "black", "darkMode": "white" }, "label": { "fontFamily": "platform-system", "type": "{type.label.lg}" } } }
+        { "id": "kakao", "when": "카카오 로그인", "parts": { "container": { "style": "kakao-login-design-guide" } } },
+        { "id": "line", "when": "LINE으로 로그인", "parts": { "container": { "style": "line-login-button-guidelines", "bg": "#06C755" }, "label": { "fg": "#FFFFFF" }, "logo": { "fg": "#FFFFFF", "keepAspect": true }, "separator": { "color": "#000000", "opacity": 0.08 }, "pressed": { "overlay": { "color": "#000000", "opacity": 0.3 } }, "disabled": { "bg": "#FFFFFF", "border": { "color": "#E5E5E5", "opacity": 0.6 }, "fg": { "color": "#1E1E1E", "opacity": 0.2 } } } },
+        { "id": "google", "when": "Google 계정으로 로그인", "parts": { "container": { "style": "google-sign-in-branding", "lightMode": { "bg": "#FFFFFF", "border": "#747775", "fg": "#1F1F1F" }, "darkMode": { "bg": "#131314", "border": "#8E918F", "fg": "#E3E3E3" }, "borderWidth": { "value": 1, "unit": "px" }, "borderAlign": "inside" }, "label": { "fontFamily": "Google Sans Medium", "fontSize": { "value": 14, "unit": "px" }, "lineHeight": { "value": 20, "unit": "px" } }, "logo": { "note": "표준 컬러 G. 흰 바탕 위에만 놓음" } } },
+        { "id": "apple", "when": "Apple로 로그인. iOS·Android 모두 보임, Android는 웹 흐름", "parts": { "container": { "style": "sign-in-with-apple-hig", "lightMode": "black", "darkMode": "white" }, "label": { "fontFamily": "platform-system", "type": "{type.label.lg}" } } }
       ],
       "parts": {
         "container": { "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "width": "fill" },
-        "stack": { "gap": "{space.12}" },
-        "logo": { "source": "provider-official-asset", "size": { "value": 20, "unit": "px" } },
-        "label": { "source": "provider-official-guide" }
+        "stack": { "gap": "{space.12}", "order": { "base": ["kakao", "line", "google", "apple"], "top": { "ko": "kakao", "ja": "line", "en": "google" } } },
+        "logo": { "source": "provider-official-asset", "size": { "value": 20, "unit": "px" }, "inset": "{space.16}", "position": "start" },
+        "label": { "source": "provider-official-guide", "align": "center" }
       },
-      "states": { "pressed": { "pattern": "press.ink" }, "loading": { "pattern": "loading.breathe" }, "disabled": { "note": "다른 버튼이 처리 중일 때. 제공자 색을 바꿀 수 없어 버튼 전체를 흐림", "parts": { "container": { "opacity": 0.4 } } } },
+      "states": {
+        "pressed": { "pattern": "press.ink", "note": "line 변형은 가이드의 검정 30% 덮개(variants.line.parts.pressed)" },
+        "loading": { "pattern": "loading.breathe", "note": "누른 버튼만. 나머지 버튼(connected 포함)은 disabled" },
+        "disabled": { "note": "다른 버튼이 처리 중일 때. 제공자 색을 바꿀 수 없어 버튼 전체를 흐림. line 변형은 가이드의 비활성 값(variants.line.parts.disabled)", "parts": { "container": { "opacity": 0.4 } } },
+        "connected": {
+          "note": "login-methods에서만. 로그인 동작이 아니라 연결 상태 줄이라 제공자 색을 쓰지 않음(결정 V39)",
+          "parts": {
+            "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
+            "logo": { "source": "provider-official-asset", "googleBackdrop": "white-circle", "backdropSize": { "value": 20, "unit": "px" } },
+            "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}", "align": "start", "slot": "ui.login-methods.row", "key": "loginProvider*" },
+            "state": { "icon": "check", "weight": "regular", "size": { "value": 14, "unit": "px" }, "gap": { "value": 4, "unit": "px" }, "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "label": "연결됨 (ui.login-methods.row에 더할 키, writing 요청)" }
+          },
+          "onPress": { "component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm" },
+          "lastOne": { "pressable": false, "noticeSlot": "login-methods.last.notice", "notice": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.12}", "position": "버튼 묶음 아래, 늘 보임" } },
+          "a11y": { "label": "제공자 이름, 연결됨", "hint": "loginMethodsRowUnlink", "lastOne": "역할·힌트 없이 라벨 뒤에 안내를 이어 읽음" }
+        }
+      },
       "haptic": [],
       "a11y": { "role": "button", "label": "제공자 공식 문구", "minTarget": 48 },
       "rules": [
         "색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 쓴다. 아이콘 세트에서 가져오지 않는다.",
         "반경·높이·쌓기 간격만 이 명세를 따른다(제공자 가이드가 허용하는 범위에서).",
-        "순서는 카카오 위, Apple 아래. 두 버튼은 같은 크기다(App Store 가이드라인 4.8의 등가 로그인)."
+        "네 버튼은 같은 크기·같은 무게다(D82 ①, App Store 가이드라인 4.8, Google 가이드). 순서는 parts.stack.order: 언어마다 맨 위만 다르고 나머지는 기본 순서다.",
+        "connected는 login-methods에서만 쓴다. 연결된 수단도 로그인 화면과 같은 자리에 둔다."
       ]
     },
     {

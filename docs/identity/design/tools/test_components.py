@@ -498,7 +498,7 @@ def test_evidence_sheet_section_titles_and_slots():
 # 최종 리뷰 반영 (term-segments spec §2.1·§2.6)
 SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
-SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju"}
+SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row"}
 
 
 def _slot_values(node):
@@ -768,6 +768,10 @@ def used_on_lines():
                 yield md.name, current, {token for token in re.findall(r"[a-z][a-z-]+", outside_code) if token in screens}
 
 
+# IA 보완 요청 중인 쓰는 화면 차이 (컴포넌트 → 화면). 지휘가 IA를 고치면 지움
+USED_ON_EXCEPTIONS = {"settings-row": {"login-methods"}}  # 시안 B(V39)로 social-login-button connected를 씀, spec §7.1
+
+
 def test_md_used_on_matches_ia_components():
     used = {}
     for screen in ia_screens().values():
@@ -778,7 +782,7 @@ def test_md_used_on_matches_ia_components():
         if component_id not in used:
             continue
         checked += 1
-        assert listed == used[component_id], (name, component_id)
+        assert listed == used[component_id] - USED_ON_EXCEPTIONS.get(component_id, set()), (name, component_id)
     assert checked >= 30
 
 
@@ -802,3 +806,33 @@ def test_account_choice_card_lines():
     assert parts["saju"]["slot"] == "ui.account-merge.saju"
     assert parts["providers"]["logo"] is False
     assert parts["mark"]["radius"] == "{radius.full}"
+
+
+def test_social_login_order_per_language():
+    button = component("action", "social-login-button")
+    assert [v["id"] for v in button["variants"]] == ["kakao", "line", "google", "apple"]
+    assert button["parts"]["stack"]["order"] == {"base": ["kakao", "line", "google", "apple"],
+                                                 "top": {"ko": "kakao", "ja": "line", "en": "google"}}
+    assert not any("카카오 위, Apple 아래" in rule for rule in button["rules"])
+
+
+def test_social_login_provider_guides():
+    variants = {v["id"]: v for v in component("action", "social-login-button")["variants"]}
+    line = variants["line"]["parts"]
+    assert line["container"]["bg"] == "#06C755" and line["label"]["fg"] == "#FFFFFF"
+    assert line["pressed"]["overlay"] == {"color": "#000000", "opacity": 0.3}
+    google = variants["google"]["parts"]
+    assert google["container"]["lightMode"] == {"bg": "#FFFFFF", "border": "#747775", "fg": "#1F1F1F"}
+    assert google["container"]["darkMode"] == {"bg": "#131314", "border": "#8E918F", "fg": "#E3E3E3"}
+    assert google["label"]["fontFamily"] == "Google Sans Medium"
+
+
+def test_social_login_connected_is_neutral():
+    connected = component("action", "social-login-button")["states"]["connected"]
+    parts = connected["parts"]
+    assert parts["container"]["bg"] == "{color.bg.sheet}"
+    assert parts["container"]["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}}
+    assert parts["state"]["fg"] == "{color.action.primary}" and parts["state"]["icon"] == "check"
+    assert parts["logo"]["googleBackdrop"] == "white-circle"
+    assert connected["lastOne"]["pressable"] is False and connected["lastOne"]["noticeSlot"] == "login-methods.last.notice"
+    assert connected["onPress"] == {"component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm"}
