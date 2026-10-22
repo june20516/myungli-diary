@@ -245,6 +245,24 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('본문이 빈 줄로 시작하면 화면도 낭독도 첫 내용 줄입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          DiaryEntryLine(
+            createdAt: _morning,
+            excerpt: '\n  \n아침에 쓴 글\n둘째 줄',
+            onTap: () {},
+          ),
+        ),
+      );
+      final block = tester.widget<SentenceBlock>(find.byType(SentenceBlock));
+      expect(block.text.segments.single.text, '아침에 쓴 글');
+      final node = tester.getSemantics(find.byType(DiaryEntryLine));
+      expect(node.getSemanticsData().label, '${_time(_morning)}, 아침에 쓴 글');
+      handle.dispose();
+    });
+
     testWidgets('entry 줄은 시각과 미리보기 첫 줄을 읽습니다', (tester) async {
       final handle = tester.ensureSemantics();
       var taps = 0;
@@ -465,6 +483,16 @@ void main() {
       expect(entry.getSemanticsData().flagsCollection.isButton, isTrue);
       entry.owner!.performAction(entry.id, SemanticsAction.tap);
       expect(taps, [0, 1, 0]);
+      handle.dispose();
+    });
+
+    testWidgets('묶음 그룹 안에는 배지·날짜 숫자·요일 노드가 따로 없습니다(라벨 중복 금지)', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_group());
+      expect(find.bySemanticsLabel('10월 12일 월요일, 좋은 날'), findsOneWidget);
+      expect(find.bySemanticsLabel('좋은 날'), findsNothing);
+      expect(find.bySemanticsLabel('12'), findsNothing);
+      expect(find.bySemanticsLabel('월'), findsNothing);
       handle.dispose();
     });
 

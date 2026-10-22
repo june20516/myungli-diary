@@ -405,6 +405,46 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('after에서 full로 바뀔 때 "더 쓸 수 없음"을 한 번 낭독하고 full에서는 다시 없습니다', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        Widget card(GuideQuestionState state) => inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: state,
+              eyebrow: '오늘의 질문',
+              question: _question(),
+              actionLabel: '쓴 일기 보기',
+              onAction: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        expect(find.byType(LiveAnnouncement), findsNothing);
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        final live = find.byType(LiveAnnouncement);
+        expect(live, findsOneWidget);
+        final data = tester.getSemantics(live).getSemanticsData();
+        expect(data.label, '오늘은 충분히 썼어요');
+        expect(data.flagsCollection.isLiveRegion, isTrue);
+        // full에서 다시 그려도 같은 문장 그대로입니다(바뀐 문장이 없어 다시 읽지 않음).
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        expect(
+          tester.getSemantics(live).getSemanticsData().label,
+          '오늘은 충분히 썼어요',
+        );
+        handle.dispose();
+      });
+
+      testWidgets('처음부터 full이면 낭독 노드(LiveAnnouncement)가 없습니다', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        expect(find.byType(LiveAnnouncement), findsNothing);
+        handle.dispose();
+      });
+
       testWidgets('after에서 full로 바뀌어도 도장은 그대로이고 다시 찍지 않습니다', (tester) async {
         Widget card(GuideQuestionState state) => inputApp(
           Center(

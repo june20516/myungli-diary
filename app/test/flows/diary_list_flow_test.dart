@@ -19,6 +19,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
+import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -150,7 +151,7 @@ void main() {
   });
 
   testWidgets('같은 날 두 편은 묶음 카드 하나, 날짜 열은 한 번', (tester) async {
-    await pumpApp(tester, scenario: 'diary-day-full');
+    final container = await pumpApp(tester, scenario: 'diary-day-full');
     await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
     await settleWithIo(tester);
 
@@ -167,6 +168,13 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('13'), findsOneWidget);
+    // 누른 줄(네 번째, server 순서)의 일기 id입니다.
+    final day = (await tester.runAsync(
+      () => container
+          .read(diaryRepositoryProvider)
+          .diariesOn(CalendarDate(2026, 10, 13)),
+    ))!;
+    expect(day, hasLength(10));
     // 줄을 누르면 그 줄 일기의 diary-view입니다.
     await tester.ensureVisible(lines.at(3));
     await tester.pumpAndSettle();
@@ -174,7 +182,7 @@ void main() {
     await settleWithIo(tester);
     expect(
       _locationOf(tester, ScreenIds.diaryView),
-      startsWith('/diary-view?id='),
+      '/diary-view?id=${day[3].id}',
     );
   });
 

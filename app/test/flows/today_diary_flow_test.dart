@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -68,7 +69,7 @@ Future<void> _writeFromToday(WidgetTester tester, String body) async {
 void main() {
   testWidgets('오늘 한 편 쓰고 돌아오면 줄 1개, 한 편 더 쓰면 줄 2개와 달력 도장', (tester) async {
     covers(const Covers(exits: ['today>diary-edit', 'today>diary-view']));
-    await pumpApp(tester, scenario: 'member');
+    final container = await pumpApp(tester, scenario: 'member');
     await pumpUntil(
       tester,
       () => find.byType(DayCharacter).evaluate().isNotEmpty,
@@ -105,9 +106,14 @@ void main() {
       () => find.textContaining('저녁에 책을').evaluate().isNotEmpty,
     );
     await settleWithIo(tester);
+    // 누른 줄(두 번째, 작성 순)의 일기 id입니다.
+    final written = (await tester.runAsync(
+      () => container.read(diaryRepositoryProvider).diariesOn(_today),
+    ))!;
+    expect(written, hasLength(2));
     expect(
       _locationOf(tester, ScreenIds.diaryView),
-      startsWith('/diary-view?id='),
+      '/diary-view?id=${written.last.id}',
     );
     await tester.tap(find.byKey(const ValueKey('app-bar.back')).last);
     await settleWithIo(tester);

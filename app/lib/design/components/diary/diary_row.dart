@@ -286,24 +286,27 @@ class _DayFrame extends StatelessWidget {
   Widget _dateColumn(BuildContext context) {
     final tokens = context.tokens;
     final locale = Localizations.localeOf(context).toLanguageTag();
-    return _DateColumn(
-      isLast: isLast,
-      number: Text(
-        '${date.day}',
-        maxLines: 1,
-        softWrap: false,
-        style: tokens.typography.bodyUi.copyWith(
-          fontSize: DiaryRow._numberSize,
-          fontWeight: FontWeight.w600,
-          height: 1,
-          color: tokens.colors.textPrimary,
-          fontFeatures: const [FontFeature.tabularFigures()],
+    // 날짜는 카드 라벨("날짜 요일, ...", 한 편·묶음 모두)이 읽으므로 숫자·요일은 따로 읽지 않습니다.
+    return ExcludeSemantics(
+      child: _DateColumn(
+        isLast: isLast,
+        number: Text(
+          '${date.day}',
+          maxLines: 1,
+          softWrap: false,
+          style: tokens.typography.bodyUi.copyWith(
+            fontSize: DiaryRow._numberSize,
+            fontWeight: FontWeight.w600,
+            height: 1,
+            color: tokens.colors.textPrimary,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
-      ),
-      weekday: Text(
-        DateFormat.E(locale).format(_day),
-        style: tokens.typography.captionMd.copyWith(
-          color: tokens.colors.textSecondary,
+        weekday: Text(
+          DateFormat.E(locale).format(_day),
+          style: tokens.typography.captionMd.copyWith(
+            color: tokens.colors.textSecondary,
+          ),
         ),
       ),
     );
@@ -345,7 +348,10 @@ List<Widget> _badgeSlot({
 }) {
   if (character != null && characterLabel != null) {
     return [
-      DayCharacterBadge(variant: character, label: characterLabel),
+      // 배지 이름은 카드 라벨이 읽습니다(묶음 그룹이 자식 노드로 한 번 더 읽지 않게).
+      ExcludeSemantics(
+        child: DayCharacterBadge(variant: character, label: characterLabel),
+      ),
       SizedBox(height: gap),
     ];
   }
@@ -650,7 +656,7 @@ class DiaryEntryLine extends StatelessWidget {
                     // 본문이 비어도 한 줄 높이를 지키도록 공백 하나를 둡니다.
                     text: RenderedText(
                       segments: [
-                        Segment(text: firstLine.isEmpty ? ' ' : excerpt),
+                        Segment(text: firstLine.isEmpty ? ' ' : firstLine),
                       ],
                     ),
                     maxLines: previewMaxLines,

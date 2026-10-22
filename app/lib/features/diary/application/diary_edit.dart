@@ -238,9 +238,8 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       if (isConnectivityError(error)) {
         onOffline();
       } else if (error is! ProblemError) {
-        ref
-            .read(crashReporterProvider)
-            .record(CrashSummary.from(error), stackTrace);
+        // await 뒤라 화면이 닫혔을 수 있어 `ref.read` 대신 build에서 잡아 둔 보고기를 씁니다.
+        _crashReporter.record(CrashSummary.from(error), stackTrace);
       }
       return null;
     }

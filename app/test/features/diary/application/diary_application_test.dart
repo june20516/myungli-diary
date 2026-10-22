@@ -37,11 +37,28 @@ final class _Network extends Interceptor {
   /// 있으면 `createDiary` 요청을 이 completer가 끝날 때까지 붙잡습니다.
   Completer<void>? holdCreate;
 
+  /// 있으면 `getDaily` 요청을 이 completer가 끝날 때까지 붙잡은 뒤 예상 못한 오류로 끊습니다.
+  Completer<void>? holdDailyThenFail;
+
   /// `createDiary`가 받은 `Idempotency-Key`.
   final createKeys = <String?>[];
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final holdDaily = holdDailyThenFail;
+    if (holdDaily != null && options.path.contains('/daily')) {
+      unawaited(
+        holdDaily.future.then(
+          (_) => handler.reject(
+            DioException(
+              requestOptions: options,
+              error: StateError('예상 못한 오류'),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     if (options.method == 'POST' && options.path == '/v1/diaries') {
       createKeys.add(options.headers['Idempotency-Key'] as String?);
       final hold = holdCreate;
@@ -578,6 +595,22 @@ void main() {
       final after = await h.container.read(diariesOnProvider(_today).future);
       expect(h.calls('listDiaries'), greaterThan(before));
       expect(after.map((d) => d.excerpt), contains('글'));
+    });
+  });
+
+  group('diaryEditProvider 가이드 질문', () {
+    test('질문을 기다리는 중 화면이 닫혀도 예상 못한 오류는 build에서 잡아 둔 보고기로 남깁니다', () async {
+      final h = await _harness();
+      final reporter =
+          h.container.read(crashReporterProvider) as FakeCrashReporter;
+      final hold = h.network.holdDailyThenFail = Completer<void>();
+      h.container.listen(diaryEditProvider(_newToday), (_, _) {});
+      // 초안 읽기를 지나 getDaily가 붙잡힐 때까지 기다립니다.
+      await pumpEventQueue();
+      h.container.dispose();
+      hold.complete();
+      await pumpEventQueue();
+      expect(reporter.errors, hasLength(1));
     });
   });
 

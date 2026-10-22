@@ -31,10 +31,12 @@ enum GuideQuestionState {
 /// 계획 4 `day-sheet`·계획 5 `diary-edit`이 같은 카드를 씁니다. 버튼 글자(쓰기/한 편 더 쓰기/다 채움)는
 /// 상태에 맞춰 호출하는 쪽이 [actionLabel]로 주고, 누를 수 없으면 [onAction]을 null로 줍니다.
 /// [GuideQuestionState.full]은 [onAction]을 받아도 버튼을 끄고, 눌러도 아무 일도 없으며
-/// 햅틱도 없습니다. 이유는 버튼 글자가 말하고 상태 낭독은 `after`와 같습니다.
+/// 햅틱도 없습니다. 이유는 버튼 글자가 말합니다.
 ///
 /// [state]가 `before`에서 `after`·`full`로 바뀌는 순간(일기를 쓰고 돌아왔을 때)에만 도장이
 /// `seal.stamp`로 찍히고, 상태 알림(`todayGuideWritten`)을 스크린리더에 한 번 보냅니다.
+/// `full`이 새로 되는 순간(`after`에서도)에는 "더 쓸 수 없음"(`todayGuideCtaFull`)을 한 번
+/// 알리고(명세 a11y `stateAnnounced`), `full`로 다시 그릴 때는 알리지 않습니다.
 /// 처음부터 쓴 상태로 그릴 때는 움직임도 알림도 없이 도장이 이미 찍혀 있습니다. 동작 줄이기는
 /// 패턴의 대체 규칙(투명도만)을 따릅니다. 눌림(`press.ink`)은 [PrimaryButton]이 입힙니다.
 ///
@@ -112,8 +114,10 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
   // 지우는 중인지(true면 erase, 아니면 stamp 값을 그립니다).
   bool _erasing = false;
 
-  // before에서 after로 바뀐 카드만 상태 알림을 보냅니다. 처음부터 after면 보내지 않습니다.
-  bool _announce = false;
+  // 상태가 바뀐 카드만 상태 알림을 보냅니다. 처음부터 after·full이면 null입니다.
+  // before에서 쓴 모양이 되면 "썼어요", 쓴 모양에서 full이 되면 "더 쓸 수 없음"
+  // (`todayGuideCtaFull`)이고, before에서 곧바로 full이 되면 둘을 이어 읽습니다.
+  String? _announcement;
 
   @override
   void initState() {
@@ -142,16 +146,30 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
   @override
   void didUpdateWidget(GuideQuestionCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final state = widget.state;
+    final old = oldWidget.state;
+    // 새로 full이 되면 한 번 낭독합니다(full에서 다시 그릴 때는 같은 문장이라 읽지 않음).
+    final becameFull =
+        state == GuideQuestionState.full && old != GuideQuestionState.full;
+    final l10n = AppLocalizations.of(context);
     // after와 full은 같은 모양이라 둘 사이에서는 도장을 다시 찍지 않습니다.
-    if (_written(widget.state) == _written(oldWidget.state)) return;
-    if (_written(widget.state)) {
-      _announce = true;
+    if (_written(state) == _written(old)) {
+      if (becameFull) _announcement = l10n.todayGuideCtaFull;
+      return;
+    }
+    if (_written(state)) {
+      _announcement = becameFull
+          ? [
+              l10n.todayGuideWritten,
+              l10n.todayGuideCtaFull,
+            ].join(l10n.a11yListSeparator)
+          : l10n.todayGuideWritten;
       _sealShown = true;
       _erasing = false;
       _erase.stop();
       _stamp.forward(from: 0);
     } else {
-      _announce = false;
+      _announcement = null;
       _erasing = true;
       _stamp.stop();
       _erase.forward(from: 0);
@@ -182,15 +200,16 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
             child: seal,
           );
     final written = l10n.todayGuideWritten;
+    final announcement = _announcement;
     // 도장은 장식이라 눈에 보이게만 두고, `todayGuideWritten`만 상태로 읽습니다.
     // 지워지는 동안(before)에는 상태를 읽지 않습니다.
     final announced = _erasing
         ? ExcludeSemantics(child: shown)
-        : _announce
+        : announcement != null
         ? Semantics(
             container: true,
             child: LiveAnnouncement(
-              label: written,
+              label: announcement,
               role: SemanticsRole.status,
               child: shown,
             ),

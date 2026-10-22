@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,6 +55,10 @@ const String diaryIdQuery = 'id';
 /// [screenId] 화면을 [id] 일기로 여는 경로(`/<id>?id=<uuid>`, [diaryIdQuery] 계약).
 String diaryPathOf(String screenId, String id) =>
     Uri(path: pathOf(screenId), queryParameters: {diaryIdQuery: id}).toString();
+
+/// [id] 일기의 `diary-view`를 쌓습니다. 일기 줄(한 편 줄·묶음 줄)이 모두 이것으로 엽니다(A67).
+void pushDiaryView(BuildContext context, String id) =>
+    unawaited(context.push<void>(diaryPathOf(ScreenIds.diaryView, id)));
 
 /// `diary-edit` 경로 [uri]가 여는 대상. [diaryIdQuery]가 [dateQuery]보다 앞서고, 둘 다 없거나
 /// 읽을 수 없으면 [today]의 새 일기입니다.

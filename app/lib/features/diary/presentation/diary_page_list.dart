@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
-import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -241,8 +239,7 @@ class DiarySummaryRow extends ConsumerWidget {
       characterPending: day.isLoading && !day.hasValue,
       tag: _featuredTagChip(context, ref, summary, listTag),
       isLast: isLast,
-      onTap: () =>
-          context.push<void>(diaryPathOf(ScreenIds.diaryView, summary.id)),
+      onTap: () => pushDiaryView(context, summary.id),
     );
   }
 }
@@ -250,6 +247,9 @@ class DiarySummaryRow extends ConsumerWidget {
 /// [onShown]을 State가 생길 때 한 번 부릅니다. 목록 끝 근처 줄만 이것으로 감싸므로, 쪽이 늘어
 /// 어떤 줄이 새로 끝 근처가 되면 감싸기가 새로 생겨(새 State) 다시 부르고, 계속 감싸인 줄은
 /// 다시 부르지 않습니다. 목록 끝 근처 줄이 다음 쪽 받기를 알립니다.
+///
+/// key가 바뀌면 새 State라 다시 부릅니다. 목록은 `첫 id:편수`를 key로 줘서 끝 묶음만
+/// 커지는 쪽(다음 쪽이 끝 묶음에 같은 날 일기만 더함)에서도 다시 묻습니다.
 class _OnShown extends StatefulWidget {
   const new({required this.onShown, required this.child, super.key});
 
