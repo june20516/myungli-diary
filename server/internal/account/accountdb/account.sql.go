@@ -30,7 +30,7 @@ DELETE FROM chart_cache
 WHERE birth_hash IN (
     SELECT p.birth_hash FROM profiles p WHERE p.account_id = $1
     UNION
-    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
+    SELECT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
 )
 `
 
@@ -56,7 +56,7 @@ DELETE FROM daily_cache
 WHERE birth_hash IN (
     SELECT p.birth_hash FROM profiles p WHERE p.account_id = $1
     UNION
-    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
+    SELECT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
 )
 `
 
@@ -125,7 +125,7 @@ DELETE FROM month_cache
 WHERE birth_hash IN (
     SELECT p.birth_hash FROM profiles p WHERE p.account_id = $1
     UNION
-    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
+    SELECT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
 )
 `
 

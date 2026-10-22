@@ -641,9 +641,12 @@ func TestService_Delete_AlreadyDeletedIsNoop(t *testing.T) {
 	f := newFixture(t)
 	require.NoError(t, f.service.Delete(f.ctx, f.id))
 
+	f.logs.Reset()
+
 	require.NoError(t, f.service.Delete(f.ctx, f.id))
 
 	assert.Equal(t, "deleted", f.status(t))
+	assert.NotContains(t, f.logs.String(), "계정 삭제", "이미 지운 계정에는 삭제 로그를 남기지 않습니다")
 }
 
 func TestService_Delete_UnknownAccountIsNotFound(t *testing.T) {

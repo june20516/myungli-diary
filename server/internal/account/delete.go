@@ -67,43 +67,52 @@ func deleteSteps(q *accountdb.Queries) []deleteStep {
 // 이미 deleted면 아무것도 하지 않고 (nil, nil)이고, 계정이 없으면 ErrNotFound입니다.
 // 계정 합치기는 B를 지울 때 같은 트랜잭션 안에서 이 함수를 그대로 부릅니다(D85 ④).
 func DeleteAccountTx(ctx context.Context, tx pgx.Tx, accountID uuid.UUID, now time.Time) ([]int64, error) {
+	revocationIDs, _, err := deleteAccountTx(ctx, tx, accountID, now)
+	return revocationIDs, err
+}
+
+// deleteAccountTx는 DeleteAccountTx이며, 이번 호출이 실제로 지웠는지(이미 deleted면 false)도 돌려줍니다.
+func deleteAccountTx(ctx context.Context, tx pgx.Tx, accountID uuid.UUID, now time.Time) (revocationIDs []int64, deleted bool, err error) {
 	q := accountdb.New(tx)
 
 	status, err := q.LockAccountForDelete(ctx, accountID)
 	if err != nil {
-		return nil, notFoundOr(err, "삭제할 계정 잠금")
+		return nil, false, notFoundOr(err, "삭제할 계정 잠금")
 	}
 	if Status(status) == StatusDeleted {
-		return nil, nil
+		return nil, false, nil
 	}
 
-	revocationIDs, err := q.QueueProviderRevocations(ctx, accountdb.QueueProviderRevocationsParams{
+	revocationIDs, err = q.QueueProviderRevocations(ctx, accountdb.QueueProviderRevocationsParams{
 		Now: now, AccountID: accountID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("허가 취소 대기 행 저장: %w", err)
+		return nil, false, fmt.Errorf("허가 취소 대기 행 저장: %w", err)
 	}
 	if err := q.TallyReactions(ctx, accountID); err != nil {
-		return nil, fmt.Errorf("반응 집계: %w", err)
+		return nil, false, fmt.Errorf("반응 집계: %w", err)
 	}
 	for _, step := range deleteSteps(q) {
 		if err := step.run(ctx, accountID); err != nil {
-			return nil, fmt.Errorf("%s 삭제: %w", step.what, err)
+			return nil, false, fmt.Errorf("%s 삭제: %w", step.what, err)
 		}
 	}
 	if err := q.MarkAccountDeleted(ctx, accountdb.MarkAccountDeletedParams{DeletedAt: now, ID: accountID}); err != nil {
-		return nil, fmt.Errorf("계정 상태 변경: %w", err)
+		return nil, false, fmt.Errorf("계정 상태 변경: %w", err)
 	}
-	return revocationIDs, nil
+	return revocationIDs, true, nil
 }
 
 // Delete는 계정을 바로 지웁니다(deleteMe). commit 뒤 허가 취소 대기 행을 한 번씩 시도하며, 그 결과와 상관없이 성공입니다.
 // 이미 지운 계정이면 아무것도 하지 않고 nil이고, 계정이 없으면 ErrNotFound입니다.
 func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
-	var revocationIDs []int64
+	var (
+		revocationIDs []int64
+		deleted       bool
+	)
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		var err error
-		revocationIDs, err = DeleteAccountTx(ctx, tx, id, s.clk.Now())
+		revocationIDs, deleted, err = deleteAccountTx(ctx, tx, id, s.clk.Now())
 		return err
 	})
 	if err != nil {
@@ -112,7 +121,9 @@ func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
 		}
 		return fmt.Errorf("계정 삭제: %w", err)
 	}
-	s.logger.InfoContext(ctx, "계정 삭제", "accountId", id, "revocations", len(revocationIDs))
+	if deleted {
+		s.logger.InfoContext(ctx, "계정 삭제", "accountId", id, "revocations", len(revocationIDs))
+	}
 
 	if len(revocationIDs) > 0 {
 		// 이미 commit된 삭제의 뒷정리이므로, 클라이언트가 응답 전에 연결을 끊어 ctx가 취소돼도 끝까지 수행합니다.

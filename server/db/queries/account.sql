@@ -111,7 +111,7 @@ DELETE FROM chart_cache
 WHERE birth_hash IN (
     SELECT p.birth_hash FROM profiles p WHERE p.account_id = @account_id
     UNION
-    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = @account_id AND s.birth_hash IS NOT NULL
+    SELECT s.birth_hash FROM daily_selections s WHERE s.account_id = @account_id AND s.birth_hash IS NOT NULL
 );
 
 -- name: DeleteDailyCacheByAccount :exec
@@ -119,7 +119,7 @@ DELETE FROM daily_cache
 WHERE birth_hash IN (
     SELECT p.birth_hash FROM profiles p WHERE p.account_id = @account_id
     UNION
-    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = @account_id AND s.birth_hash IS NOT NULL
+    SELECT s.birth_hash FROM daily_selections s WHERE s.account_id = @account_id AND s.birth_hash IS NOT NULL
 );
 
 -- name: DeleteMonthCacheByAccount :exec
@@ -127,7 +127,7 @@ DELETE FROM month_cache
 WHERE birth_hash IN (
     SELECT p.birth_hash FROM profiles p WHERE p.account_id = @account_id
     UNION
-    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = @account_id AND s.birth_hash IS NOT NULL
+    SELECT s.birth_hash FROM daily_selections s WHERE s.account_id = @account_id AND s.birth_hash IS NOT NULL
 );
 
 -- name: DeleteProfileByAccount :exec
