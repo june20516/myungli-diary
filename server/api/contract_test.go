@@ -525,8 +525,10 @@ func TestContract_LoginNonceDocumentsHashRule(t *testing.T) {
 	for _, id := range []string{"loginKakao", "loginApple", "loginLine", "loginGoogle", "linkIdentity"} {
 		op := operationByID(t, doc, id)
 		documented := strings.Contains(op.Description, "SHA-256")
-		if body := op.RequestBody.Value.Content["application/json"].Schema.Value; body.Properties["nonce"] != nil {
-			documented = documented || strings.Contains(body.Properties["nonce"].Value.Description, "SHA-256")
+		if body := op.RequestBody; body != nil && body.Value != nil && body.Value.Content["application/json"] != nil {
+			if nonce := body.Value.Content["application/json"].Schema.Value.Properties["nonce"]; nonce != nil {
+				documented = documented || strings.Contains(nonce.Value.Description, "SHA-256")
+			}
 		}
 		if !documented {
 			t.Errorf("%s: 설명과 요청 스키마 nonce 설명 어디에도 SHA-256 규칙이 없음", id)
@@ -1502,6 +1504,14 @@ func TestContract_Draft14Identities(t *testing.T) {
 		sameElements(t, "LoginProvider.enum", enumStrings(schemaOf(t, doc, "LoginProvider")), []string{"kakao", "apple", "line", "google"})
 	})
 
+	t.Run("열린 enum", func(t *testing.T) {
+		for _, text := range []string{"`Identity.provider`", "`MergeAccountSummary.providers`"} {
+			if !strings.Contains(doc.Info.Description, text) {
+				t.Errorf("info.description의 열린 enum 목록에 %s가 없음", text)
+			}
+		}
+	})
+
 	t.Run("새 bearer operation의 공통 응답", func(t *testing.T) {
 		for _, id := range []string{"listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts"} {
 			op := operationByID(t, doc, id)
@@ -1571,7 +1581,7 @@ func TestContract_Draft14Identities(t *testing.T) {
 		if conflict == nil || conflict.Schema.Ref != identityInUseProblemRef {
 			t.Error("linkIdentity 409 content가 IdentityInUseProblem 참조가 아님")
 		}
-		for _, text := range []string{"auth.provider_taken", "auth.identity_in_use", "auth.identity_pending_deletion", "exchangeCode", "저장하지 않"} {
+		for _, text := range []string{"auth.provider_taken", "auth.identity_in_use", "auth.identity_pending_deletion", "auth.provider_token_invalid", "auth.exchange_invalid", "exchangeCode", "저장하지 않"} {
 			if !strings.Contains(op.Description, text) {
 				t.Errorf("linkIdentity 설명에 %q가 없음", text)
 			}
@@ -1620,7 +1630,7 @@ func TestContract_Draft14Identities(t *testing.T) {
 	t.Run("unlinkIdentity", func(t *testing.T) {
 		op := operationByID(t, doc, "unlinkIdentity")
 		providerParam(t, "unlinkIdentity")
-		requireResponses(t, "unlinkIdentity", op, "204", "404", "409")
+		requireResponses(t, "unlinkIdentity", op, "204", "400", "404", "409")
 		if op.RequestBody != nil {
 			t.Error("unlinkIdentity에 요청 본문이 있음")
 		}
@@ -1645,6 +1655,27 @@ func TestContract_Draft14Identities(t *testing.T) {
 		if summary.Properties["honorific"] == nil {
 			t.Error("MergeAccountSummary.honorific이 없음")
 		}
+		if providers := summary.Properties["providers"]; providers == nil || providers.Value.Items.Ref != "#/components/schemas/LoginProvider" {
+			t.Error("MergeAccountSummary.providers.items가 LoginProvider 참조가 아님")
+		}
+		for name, count := range map[string]*openapi3.SchemaRef{
+			"MergeAccountSummary.diaryCount": summary.Properties["diaryCount"],
+			"MergePreview.overlapDayCount":   schemaOf(t, doc, "MergePreview").Properties["overlapDayCount"],
+		} {
+			if count == nil || !count.Value.Type.Is("integer") || count.Value.Min == nil || *count.Value.Min != 0 {
+				t.Errorf("%s가 minimum 0인 integer가 아님", name)
+			}
+		}
+		saju := schemaOf(t, doc, "MergeSaju")
+		if saju.Properties["calendar"].Ref != "#/components/schemas/CalendarType" {
+			t.Error("MergeSaju.calendar가 CalendarType 참조가 아님")
+		}
+		if saju.Properties["date"].Ref != "#/components/schemas/LunarOrSolarDate" {
+			t.Error("MergeSaju.date가 LunarOrSolarDate 참조가 아님")
+		}
+		if isLeap := saju.Properties["isLeapMonth"]; isLeap == nil || !isLeap.Value.Type.Is("boolean") {
+			t.Error("MergeSaju.isLeapMonth가 boolean이 아님")
+		}
 		sameElements(t, "MergeSaju.status", enumStrings(schemaOf(t, doc, "MergeSaju").Properties["status"].Value), []string{"saved", "none"})
 		if birthTime := schemaOf(t, doc, "MergeSaju").Properties["birthTime"]; birthTime == nil || birthTime.Ref != "#/components/schemas/BirthTime" {
 			t.Error("MergeSaju.birthTime이 BirthTime 참조가 아님")
@@ -1662,7 +1693,14 @@ func TestContract_Draft14Identities(t *testing.T) {
 		if got := okSchemaRef(t, op); got != "#/components/schemas/MergeResult" {
 			t.Errorf("mergeAccounts 200 = %s, want MergeResult", got)
 		}
-		sameElements(t, "MergeResult.required", schemaOf(t, doc, "MergeResult").Required, []string{"accountId", "tokens"})
+		result := schemaOf(t, doc, "MergeResult")
+		sameElements(t, "MergeResult.required", result.Required, []string{"accountId", "tokens"})
+		if result.Properties["tokens"].Ref != "#/components/schemas/TokenPair" {
+			t.Error("MergeResult.tokens가 TokenPair 참조가 아님")
+		}
+		if result.Properties["accountId"].Value.Format != "uuid" {
+			t.Error("MergeResult.accountId가 format uuid가 아님")
+		}
 		requireResponses(t, "mergeAccounts", op, "422", "503")
 		if op.Parameters.GetByInAndName(openapi3.ParameterInHeader, "Idempotency-Key") != nil {
 			t.Error("mergeAccounts가 Idempotency-Key를 받음")

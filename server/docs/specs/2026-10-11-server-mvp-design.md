@@ -471,9 +471,9 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 미리보기를 이미 씀 | 403 | `preview.used` |
 | 없는 리소스, 남의 리소스 | 404 | `diary.not_found`, `schedule.not_found` (남의 것도 404로 보내 존재 여부를 숨김). 반응할 선택 기록이 없거나 반응할 수 없는 슬롯은 `reaction.not_found` |
 | 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
-| 그 제공자 계정이 이미 내 계정에 연결됨 (연결하기) | 409 | `auth.provider_taken` |
+| 내 계정에 같은 제공자의 다른 사용자 연결이 있음 (붙이기) | 409 | `auth.provider_taken` |
 | 그 제공자 계정이 다른 계정에 연결됨 (본문에 합치기 토큰) | 409 | `auth.identity_in_use` |
-| 합치기 상대 계정이 삭제 대기 | 409 | `auth.identity_pending_deletion` |
+| 붙이려는 연결이 삭제 대기 계정에 있음 | 409 | `auth.identity_pending_deletion` |
 | 마지막 로그인 수단은 뗄 수 없음 | 409 | `auth.last_identity` |
 | 연결되지 않은 제공자를 뗌 | 404 | `auth.identity_not_found` |
 | 합치기 토큰이 없거나 만료·사용됨·다른 계정 것 | 422 | `merge.token_invalid` |
@@ -481,7 +481,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
 | 동의한 문서 버전이 현재 버전과 다름 | 422 | `consent.version_mismatch` (`errors[].field`는 `/documents/<i>/version`) |
-| 제공자(카카오·Apple) 장애 | 503 | `auth.provider_unavailable` |
+| 제공자(카카오·Apple·LINE·Google) 장애 | 503 | `auth.provider_unavailable` |
 | 요청 한도 초과 (`Retry-After`) | 429 | `rate_limited` |
 | 계약에는 있지만 아직 구현하지 않은 operation | 501 | `not_implemented` |
 
@@ -499,7 +499,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 엔진 | `INTERNAL` | 502, `engine.error`. 재시도해도 같을 가능성이 커서 503이 아님 |
 | 엔진 | 프로필 저장 중 `INVALID_ARGUMENT`·`OUT_OF_RANGE` | 422, `birth.invalid`·`birth.out_of_range` (§7.2) |
 | 엔진 | 그 밖의 요청에서 `INVALID_ARGUMENT`·`OUT_OF_RANGE` | 저장된 입력은 이미 검증했으므로 server 버그. 500 + 경보 |
-| 카카오·Apple | 제공자 장애 | 503, `auth.provider_unavailable` |
+| 카카오·Apple·LINE·Google | 제공자 장애 | 503, `auth.provider_unavailable` |
 | RevenueCat webhook | 인증 헤더 불일치 | 401, 기존 code `auth.token_invalid`(challenge 헤더 없음) |
 | RevenueCat webhook | 저장·동기화 실패 | 500. RevenueCat이 2xx가 아니면 다시 보내므로 재처리에 맡김 |
 | RevenueCat REST (`restore`) | 장애 | 503, `billing.provider_unavailable` |

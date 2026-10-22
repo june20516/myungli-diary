@@ -12,7 +12,7 @@ info:
     * `info.version`은 freeze 때 `1.0.0`이 되고, 그 뒤 하위 호환 추가마다 minor를, 설명만 바꾸면 patch를 올립니다.
     * 열린 enum: 값이 늘어날 수 있는 응답 enum입니다. app은 모르는 값이 와도 응답 전체를 실패로 보지 않고 그 항목만 건너뛰거나 기본 표시를 씁니다.
       `NoticeCode`, `ShinsalKind`, `RelationKind`, `PersonalReading.kind`, `FocusSlot.reasons`의 항목, `SlotText.variant`, `Insight.source`,
-      `ConsentDocument.document`, `Problem.code`입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
+      `ConsentDocument.document`, `Problem.code`, `Identity.provider`, `MergeAccountSummary.providers`의 항목입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
 
     공통 규약
     * JSON 필드는 camelCase입니다. 단, Apple이 보내는 `appleCallback`의 form 필드는 Apple이 정한 이름을 그대로 씁니다.
@@ -436,6 +436,7 @@ paths:
         응답
         * 201: 연결이 어디에도 없어 현재 계정에 만들었습니다.
         * 200: 그 연결이 이미 현재 계정에 있어 바꾸지 않았습니다(apple이면 refresh token만 새 값으로).
+        * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`: 붙이려는 증명이 틀림. 현재 세션은 유효하니 다시 로그인시키지 않고 붙이기를 다시 시도합니다.
         * 409 `auth.provider_taken`: 현재 계정에 같은 제공자의 다른 사용자 연결이 있습니다.
         * 409 `auth.identity_in_use`: 그 연결이 다른 active 계정에 있습니다. 본문에 합치기 토큰(`mergeToken`, `expiresAt`)이 있고, `previewMerge`와 `mergeAccounts`가 씁니다.
         * 409 `auth.identity_pending_deletion`: 그 연결이 삭제 대기 계정에 있습니다. 그 제공자로 로그인하면 계정이 복구되므로 복구한 뒤 다시 시도합니다.
@@ -495,6 +496,8 @@ paths:
       responses:
         '204':
           description: 연결을 지움
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -562,6 +565,7 @@ paths:
         같은 제공자 연결이 양쪽에 있으면 남길 계정의 것을 남기고, 없앨 계정의 것은 지운 뒤 제공자 허가 취소를 시도합니다(LINE·Google은 생략).
         같은 날짜에 양쪽 모두 날짜 기록(태그·가이드 질문)이 있으면 남길 계정의 것을 쓰고, 일기가 하루 10편을 넘어도 막지 않습니다.
         합친 뒤 남길 계정의 광고 제거권을 다시 계산합니다. 이 계산이 실패해도 합치기는 성공이고 다음 동기화 때 맞춰집니다.
+        합친 뒤 app은 응답의 토큰으로 바꾸고 지난 계정의 캐시·초안을 지운 뒤 `getMe`부터 다시 읽습니다. 남길 계정이 현재 버전 약관에 동의하지 않았으면 이후 요청은 403 `consent.required`입니다.
         응답은 남길 계정 id와 그 계정의 새 토큰 쌍입니다. 남길 계정의 기존 세션은 그대로 둡니다.
 
         `Idempotency-Key`를 받지 않습니다. 응답에 refresh token 원문이 있어 멱등 저장소에 남기지 않습니다. 합치기 토큰은 일회용이라 합치기는 두 번 일어나지 않습니다.
@@ -1961,8 +1965,8 @@ components:
     Unauthorized:
       description: |
         인증 실패. `auth.token_expired`, `auth.token_invalid`, `auth.refresh_reused`, `auth.provider_token_invalid`, `auth.exchange_invalid`, `app_check.invalid`,
-        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 요청의 401에만 붙습니다.
-        bearer 요청이 아닌 401(제공자 토큰, 교환 코드, App Check, webhook)에는 붙지 않습니다.
+        `reward.invalid_signature`, `reward.expired`. `WWW-Authenticate` 헤더는 bearer 인증(access token) 실패 401에만 붙고, 제공자 토큰·교환 코드 401에는 없습니다.
+        그 밖의 bearer가 아닌 401(App Check, webhook)에도 붙지 않습니다.
         webhook·App Check의 401에 challenge를 붙이지 않는 것은 RFC 9110 §15.5.2와 다른 의도한 이탈입니다.
       headers:
         WWW-Authenticate:
@@ -2102,10 +2106,10 @@ components:
               description: 'refresh token 재사용 감지. family 전체 폐기, 다시 로그인'
             auth.provider_token_invalid:
               status: 401
-              description: '카카오·Apple·LINE·Google 제공자 토큰 검증 실패'
+              description: '카카오·Apple·LINE·Google 제공자 토큰 검증 실패(로그인과 linkIdentity)'
             auth.exchange_invalid:
               status: 401
-              description: 'Apple 웹 로그인 교환 코드가 없음·만료·이미 씀, 또는 nonce 불일치(구분하지 않음)'
+              description: 'Apple 웹 로그인(completeAppleWebLogin)이나 Apple 붙이기(linkIdentity)의 교환 코드가 없음·만료·이미 씀, 또는 nonce 불일치(구분하지 않음)'
             app_check.invalid:
               status: 401
               description: 'App Check 토큰 검증 실패'
@@ -2526,7 +2530,7 @@ components:
           description: 삭제 대기 중이던 계정이 이 로그인으로 되돌아왔는지
     LoginProvider:
       type: string
-      description: 로그인 제공자. 닫힌 enum입니다.
+      description: 로그인 제공자. 요청(`{provider}` 경로)에서는 이 값만 받습니다(밖의 값은 400). 응답에서는 열린 enum이라 app은 모르는 값을 건너뜁니다.
       enum: [kakao, apple, line, google]
     LineLoginRequest:
       type: object
@@ -2640,7 +2644,7 @@ components:
       properties:
         honorific:
           type: string
-          description: 호칭. 프로필이 없으면 생략합니다.
+          description: 호칭. `saju.status`가 `saved`일 때만 있습니다.
         saju:
           $ref: '#/components/schemas/MergeSaju'
         diaryCount:
@@ -2655,7 +2659,7 @@ components:
     MergeSaju:
       type: object
       description: |
-        `status`가 `saved`일 때만 `calendar`·`date`·`birthTime`이 있습니다(프로필이 있음). `none`은 프로필이 없음입니다.
+        `status`가 `saved`일 때만 `calendar`·`date`·`isLeapMonth`·`birthTime`이 있습니다(`Birth`와 같은 모양)(프로필이 있음). `none`은 프로필이 없음입니다.
         출생 시각을 모르면 `birthTime.status`가 `unknown`입니다.
       required: [status]
       properties:
@@ -2665,18 +2669,10 @@ components:
         calendar:
           $ref: '#/components/schemas/CalendarType'
         date:
-          type: object
-          description: 출생 날짜. `LunarOrSolarDate`와 달리 윤달 여부(`isLeapMonth`)를 함께 담습니다.
-          required: [year, month, day, isLeapMonth]
-          properties:
-            year:
-              type: integer
-            month:
-              type: integer
-            day:
-              type: integer
-            isLeapMonth:
-              type: boolean
+          $ref: '#/components/schemas/LunarOrSolarDate'
+        isLeapMonth:
+          type: boolean
+          description: '`Birth.isLeapMonth`와 같습니다. `calendar`가 `solar`면 false입니다.'
         birthTime:
           $ref: '#/components/schemas/BirthTime'
     MergeRequest:
