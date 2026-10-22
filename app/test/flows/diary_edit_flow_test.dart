@@ -18,6 +18,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
+import 'package:myungli_diary/features/diary/model/diary_draft_target.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_bar_title.dart';
@@ -26,6 +27,9 @@ import '../support/onboarding_steps.dart';
 
 final _ko = AppLocalizationsKo();
 final _today = CalendarDate(2026, 10, 13);
+
+/// fake 시드의 2026-10-12 일기.
+const _writtenId = '7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001';
 
 /// [offline]이면 모든 요청을 연결 오류로 끊고, [failingPaths]의 GET은 503으로 답합니다.
 final class _Network extends Interceptor {
@@ -69,26 +73,40 @@ final class _Network extends Interceptor {
   }
 }
 
-/// member로 앱을 띄우고 [date] 일기 쓰기를 엽니다.
-Future<ProviderContainer> _openEdit(
+/// [scenario]로 앱을 띄우고 [path](`diary-edit` 경로) 일기 쓰기를 엽니다.
+Future<ProviderContainer> _openEditAt(
   WidgetTester tester,
-  CalendarDate date, {
+  String path, {
   _Network? network,
+  String scenario = 'member',
 }) async {
-  final container = await pumpApp(tester, scenario: 'member');
+  final container = await pumpApp(tester, scenario: scenario);
   if (network != null) {
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
   }
-  unawaited(
-    container
-        .read(routerProvider)
-        .push<void>(datedPathOf(ScreenIds.diaryEdit, date)),
-  );
+  unawaited(container.read(routerProvider).push<void>(path));
   await _untilShown(tester);
   expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
   return container;
 }
+
+/// [date]의 새 일기 쓰기를 엽니다.
+Future<ProviderContainer> _openEdit(
+  WidgetTester tester,
+  CalendarDate date, {
+  _Network? network,
+  String scenario = 'member',
+}) => _openEditAt(
+  tester,
+  datedPathOf(ScreenIds.diaryEdit, date),
+  network: network,
+  scenario: scenario,
+);
+
+/// 열린 [screenId] 화면의 경로.
+Uri _uriOf(WidgetTester tester, String screenId) =>
+    GoRouterState.of(tester.element(find.byKey(ValueKey(screenId)).last)).uri;
 
 Finder get _body => find.byType(TextField);
 
@@ -149,15 +167,21 @@ void main() {
       tester,
       () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
     );
-    expect(_server(container).callCountOf('putDiary'), 1);
+    expect(_server(container).callCountOf('createDiary'), 1);
     await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await pumpUntil(
+      tester,
+      () => find.textContaining('먼저 말을 꺼냈다').evaluate().isNotEmpty,
+    );
     await settleWithIo(tester, allowOngoing: true);
 
-    final view = find.byKey(const ValueKey(ScreenIds.diaryView)).last;
-    expect(
-      GoRouterState.of(tester.element(view)).uri.toString(),
-      '/diary-view?date=2026-10-13',
-    );
+    // 새로 쓴 일기는 server가 준 id로 엽니다.
+    final location = _uriOf(tester, ScreenIds.diaryView);
+    expect(location.path, '/diary-view');
+    final id = location.queryParameters[diaryIdQuery];
+    expect(id, isNotNull);
+    expect(id, isNot(_writtenId));
+    expect(location.queryParameters, {diaryIdQuery: id});
     expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsNothing);
     // toast가 사라질 때까지 둡니다.
     await tester.pump(const Duration(seconds: 3));
@@ -195,8 +219,14 @@ void main() {
     }
   });
 
-  testWidgets('저장된 일기는 그 본문으로 열리고 저장됨 상태입니다', (tester) async {
+  testWidgets('이미 쓴 날도 ?date=는 빈 새 일기입니다', (tester) async {
     await _openEdit(tester, CalendarDate(2026, 10, 12));
+    expect(tester.widget<TextField>(_body).controller!.text, isEmpty);
+    expect(find.byType(DraftIndicator), findsNothing);
+  });
+
+  testWidgets('?id=로 열면 그 일기 본문이고 저장됨 상태입니다', (tester) async {
+    await _openEditAt(tester, diaryPathOf(ScreenIds.diaryEdit, _writtenId));
     expect(
       tester.widget<TextField>(_body).controller!.text,
       startsWith('오랜만에'),
@@ -230,7 +260,9 @@ void main() {
     expect(find.text('끊긴 글'), findsOneWidget);
     expect(
       await tester.runAsync(
-        () => container.read(diaryDraftStoreProvider).read(_today),
+        () => container
+            .read(diaryDraftStoreProvider)
+            .read(DiaryDraftTarget.newOn(_today)),
       ),
       '끊긴 글',
     );
@@ -239,18 +271,12 @@ void main() {
 
   testWidgets('error: 저장된 일기를 읽지 못하면 오류 화면과 다시 시도', (tester) async {
     covers(const Covers(states: ['diary-edit:error']));
-    final network = _Network()..failingPaths.add('/v1/diaries/2026-10-12');
-    final container = await pumpApp(tester, scenario: 'member');
-    final interceptors = container.read(dioProvider).interceptors;
-    interceptors.insert(interceptors.length - 1, network);
-    unawaited(
-      container
-          .read(routerProvider)
-          .push<void>(
-            datedPathOf(ScreenIds.diaryEdit, CalendarDate(2026, 10, 12)),
-          ),
+    final network = _Network()..failingPaths.add('/v1/diaries/$_writtenId');
+    await _openEditAt(
+      tester,
+      diaryPathOf(ScreenIds.diaryEdit, _writtenId),
+      network: network,
     );
-    await _untilShown(tester);
     expect(find.byType(ErrorState), findsOneWidget);
     network.failingPaths.clear();
     await tester.tap(find.text(_ko.actionRetry));
@@ -259,5 +285,48 @@ void main() {
       tester.widget<TextField>(_body).controller!.text,
       startsWith('오랜만에'),
     );
+  });
+
+  testWidgets('?id=의 일기가 없으면(404) 찾지 못했다는 안내', (tester) async {
+    await _openEditAt(tester, diaryPathOf(ScreenIds.diaryEdit, 'gone'));
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.errorDiaryNotFound).evaluate().isNotEmpty,
+    );
+    expect(find.text(_ko.errorDiaryNotFound), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
+  });
+
+  testWidgets('그날 10편이면 저장이 422 diary.day_full: 문구 toast, 화면과 초안은 그대로', (
+    tester,
+  ) async {
+    final container = await _openEdit(
+      tester,
+      _today,
+      scenario: 'diary-day-full',
+    );
+    await tester.enterText(_body, '열한 번째 일기');
+    await tester.pump();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.errorDiaryDayFull).evaluate().isNotEmpty,
+    );
+    expect(find.text(_ko.errorDiaryDayFull), findsOneWidget);
+    expect(_server(container).callCountOf('createDiary'), 1);
+    expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
+    expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsNothing);
+    expect(find.text('열한 번째 일기'), findsOneWidget);
+    expect(
+      await tester.runAsync(
+        () => container
+            .read(diaryDraftStoreProvider)
+            .read(DiaryDraftTarget.newOn(_today)),
+      ),
+      '열한 번째 일기',
+    );
+    // toast가 사라질 때까지 둡니다.
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
   });
 }

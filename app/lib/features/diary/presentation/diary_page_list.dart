@@ -26,7 +26,7 @@ const int _loadMoreThreshold = 3;
 /// 줄들, 끝 근처에서 다음 쪽 받기(A45).
 ///
 /// [leading]은 목록 맨 위에 놓는 것(오프라인 배너, 태그 뜻 줄 등)입니다. 다음 쪽을 받는
-/// 동안은 맨 아래에 skeleton 줄, 받지 못하면 다시 시도 버튼을 둡니다. 줄을 누르면 그날
+/// 동안은 맨 아래에 skeleton 줄, 받지 못하면 다시 시도 버튼을 둡니다. 줄을 누르면 그 일기의
 /// `diary-view`, 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([tag])와 같은
 /// 칩은 같은 화면을 다시 쌓지 않도록 누를 수 없는 표시입니다.
 class DiaryPageList extends ConsumerWidget {
@@ -187,8 +187,9 @@ class _DiaryPageRowState extends ConsumerState<_DiaryPageRow> {
               linked: featured.first.key != widget.listTag,
             ),
       isLast: widget.isLast,
-      onTap: () =>
-          context.push<void>(datedPathOf(ScreenIds.diaryView, widget.date)),
+      onTap: () => context.push<void>(
+        diaryPathOf(ScreenIds.diaryView, widget.summary.id),
+      ),
     );
   }
 }

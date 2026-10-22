@@ -59,7 +59,7 @@ void main() {
       '/diary-edit?date=2026-10-10',
     );
 
-    // 쓰고 저장 → 저장 순간 뒤 그날 보기로 바뀝니다.
+    // 쓰고 저장 → 저장 순간 뒤 그 일기 보기로 바뀝니다.
     await tester.enterText(find.byType(TextField), '비가 그친 오후에 산책을 했다.');
     await tester.pump();
     await tester.tap(find.text(_ko.diaryEditSave));
@@ -74,10 +74,9 @@ void main() {
     );
     await settleWithIo(tester, allowOngoing: true);
     expect(_screen(ScreenIds.diaryEdit), findsNothing);
-    expect(
-      _locationOf(tester, ScreenIds.diaryView),
-      '/diary-view?date=2026-10-10',
-    );
+    final saved = Uri.parse(_locationOf(tester, ScreenIds.diaryView));
+    expect(saved.path, '/diary-view');
+    expect(saved.queryParameters.keys, ['id']);
 
     // 태그 칩 → 그 태그 모아보기에 방금 쓴 날이 있습니다.
     await tester.tap(

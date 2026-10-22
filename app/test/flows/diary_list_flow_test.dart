@@ -112,7 +112,7 @@ void main() {
     expect(tester.widget<DiaryRow>(find.byType(DiaryRow).last).isLast, isTrue);
   });
 
-  testWidgets('줄을 누르면 그날 diary-view, 태그 칩을 누르면 tag-diary', (tester) async {
+  testWidgets('줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary', (tester) async {
     covers(
       const Covers(exits: ['diary-list>diary-view', 'diary-list>tag-diary']),
     );
@@ -126,7 +126,7 @@ void main() {
     await settleWithIo(tester);
     expect(
       _locationOf(tester, ScreenIds.diaryView),
-      '/diary-view?date=2026-10-08',
+      '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a002',
     );
 
     container.read(routerProvider).pop();

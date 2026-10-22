@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 
 /// IA 화면 id의 경로.
@@ -19,10 +20,9 @@ String pathOf(String screenId) => '/$screenId';
 
 /// 날짜를 받는 화면의 query 이름. 값은 `YYYY-MM-DD`(양력)입니다.
 ///
-/// 계약: `event-edit`·`diary-view`·`diary-edit`은 `?date=YYYY-MM-DD`로 그 날을
-/// 받고, `date`가 없거나 읽을 수 없으면 오늘(`todayProvider`)로 엽니다.
-/// `day-sheet`가 그 날의 일정 추가와 일기 입구에 씁니다(일기 화면은 계획 5가 이
-/// 계약대로 읽습니다).
+/// 계약: `event-edit`·`diary-edit`(새 일기)은 `?date=YYYY-MM-DD`로 그 날을 받고,
+/// `date`가 없거나 읽을 수 없으면 오늘(`todayProvider`)로 엽니다. `day-sheet`가 그 날의
+/// 일정 추가와 일기 쓰기 입구에 씁니다. 일기 한 편은 [diaryIdQuery]로 엽니다(A67).
 const String dateQuery = 'date';
 
 /// [screenId] 화면을 [date] 날로 여는 경로(`/<id>?date=YYYY-MM-DD`, [dateQuery] 계약).
@@ -41,6 +41,29 @@ CalendarDate? dateOfQuery(String? source) {
   } on FormatException {
     return null;
   }
+}
+
+/// 일기 한 편을 여는 화면의 query 이름. 값은 일기 id(uuid)입니다(A67).
+///
+/// 계약: `diary-view`는 `?id=`의 일기를 보이고, 없으면 찾지 못했다는 안내입니다.
+/// `diary-edit`은 `?id=`가 있으면 그 일기를 고치고, 없으면 [dateQuery] 날의 새 일기입니다
+/// ([diaryEditTargetOf]).
+const String diaryIdQuery = 'id';
+
+/// [screenId] 화면을 [id] 일기로 여는 경로(`/<id>?id=<uuid>`, [diaryIdQuery] 계약).
+String diaryPathOf(String screenId, String id) =>
+    Uri(path: pathOf(screenId), queryParameters: {diaryIdQuery: id}).toString();
+
+/// `diary-edit` 경로 [uri]가 여는 대상. [diaryIdQuery]가 [dateQuery]보다 앞서고, 둘 다 없거나
+/// 읽을 수 없으면 [today]의 새 일기입니다.
+DiaryEditTarget diaryEditTargetOf(Uri uri, CalendarDate today) {
+  final id = uri.queryParameters[diaryIdQuery];
+  if (id != null && id.isNotEmpty) {
+    return DiaryEditTarget.existing(id);
+  }
+  return DiaryEditTarget.newOn(
+    dateOfQuery(uri.queryParameters[dateQuery]) ?? today,
+  );
 }
 
 /// 온보딩 입력 화면 [screenId]를 프로필 수정 모드로 여는 경로(`/<id>?mode=edit`, A19).
