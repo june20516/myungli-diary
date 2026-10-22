@@ -446,6 +446,13 @@ const diaryID = "0192a3b4-0000-7000-8000-000000000001"
 var minimalRequests = map[string]operationRequest{
 	"loginKakao":            {http.MethodPost, "/v1/auth/kakao", contentTypeJSON, `{"idToken":"t","nonce":"nonce-0123456789ab"}`},
 	"loginApple":            {http.MethodPost, "/v1/auth/apple", contentTypeJSON, `{"idToken":"t","authorizationCode":"c","nonce":"nonce-0123456789ab"}`},
+	"loginLine":             {http.MethodPost, "/v1/auth/line", contentTypeJSON, `{"idToken":"t","nonce":"nonce-0123456789ab"}`},
+	"loginGoogle":           {http.MethodPost, "/v1/auth/google", contentTypeJSON, `{"idToken":"t","nonce":"nonce-0123456789ab"}`},
+	"listIdentities":        {http.MethodGet, "/v1/me/identities", "", ""},
+	"linkIdentity":          {http.MethodPost, "/v1/me/identities/line", contentTypeJSON, `{"idToken":"t","nonce":"nonce-0123456789ab"}`},
+	"unlinkIdentity":        {http.MethodDelete, "/v1/me/identities/line", "", ""},
+	"previewMerge":          {http.MethodPost, "/v1/me/merge/preview", contentTypeJSON, `{"mergeToken":"t"}`},
+	"mergeAccounts":         {http.MethodPost, "/v1/me/merge", contentTypeJSON, `{"mergeToken":"t","keep":"current"}`},
 	"completeAppleWebLogin": {http.MethodPost, "/v1/auth/apple/web", contentTypeJSON, `{"exchangeCode":"` + strings.Repeat("a", 43) + `","nonce":"nonce-0123456789ab"}`},
 	"appleCallback":         {http.MethodPost, "/v1/auth/apple/callback", contentTypeForm, `code=c&id_token=t&state=s`},
 	"refreshToken":          {http.MethodPost, "/v1/auth/refresh", contentTypeJSON, `{"refreshToken":"r"}`},

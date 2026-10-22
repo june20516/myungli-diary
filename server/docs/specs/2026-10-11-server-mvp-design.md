@@ -185,6 +185,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | Apple (Android, D55①) | 웹 흐름: server 콜백이 Apple에서 받은 `code`, `id_token`. app은 일회용 교환 코드와 nonce 원문만 보냄 | 위와 같고, `client_id`는 Services ID. nonce 확인은 교환 단계에서 함(S22) |
 
 * Android의 Apple 웹 흐름(S22, Issue #89): app이 Apple 인증 페이지를 열면 Apple이 `POST /v1/auth/apple/callback`(form_post)으로 결과를 보냅니다. server가 그 자리에서 id_token을 검증하고 code를 교환한 뒤, App Link로 **일회용 교환 코드와 state만** 넘깁니다. app은 `POST /v1/auth/apple/web`에 교환 코드와 nonce 원문을 보내 로그인을 마칩니다. 토큰은 URL에 실리지 않습니다. 상세: [`2026-10-13-apple-web-callback-design.md`](2026-10-13-apple-web-callback-design.md)
+* D82로 제공자는 넷(카카오·Apple·LINE·Google)이고 계정 연결·합치기가 있습니다. 상세: [`2026-10-22-login-providers-merge-design.md`](2026-10-22-login-providers-merge-design.md)
 * 처음 보는 (provider, subject)면 계정을 새로 만들고 응답에 `isNewAccount`와 `consentRequired`를 담습니다.
 * 이메일로 계정을 자동 연결하지 않습니다. Apple은 이메일을 숨길 수 있고, 이메일만 같다고 같은 사람이라 볼 수 없습니다.
 
@@ -470,11 +471,17 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 미리보기를 이미 씀 | 403 | `preview.used` |
 | 없는 리소스, 남의 리소스 | 404 | `diary.not_found`, `schedule.not_found` (남의 것도 404로 보내 존재 여부를 숨김). 반응할 선택 기록이 없거나 반응할 수 없는 슬롯은 `reaction.not_found` |
 | 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
+| 내 계정에 같은 제공자의 다른 사용자 연결이 있음 (붙이기) | 409 | `auth.provider_taken` |
+| 그 제공자 계정이 다른 계정에 연결됨 (본문에 합치기 토큰) | 409 | `auth.identity_in_use` |
+| 붙이려는 연결이 삭제 대기 계정에 있음 | 409 | `auth.identity_pending_deletion` |
+| 마지막 로그인 수단은 뗄 수 없음 | 409 | `auth.last_identity` |
+| 연결되지 않은 제공자를 뗌 | 404 | `auth.identity_not_found` |
+| 합치기 토큰이 없거나 만료·사용됨·다른 계정 것 | 422 | `merge.token_invalid` |
 | 한 날짜의 살아 있는 일기가 10편 (만들기·되살리기) | 422 | `diary.day_full` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
 | 동의한 문서 버전이 현재 버전과 다름 | 422 | `consent.version_mismatch` (`errors[].field`는 `/documents/<i>/version`) |
-| 제공자(카카오·Apple) 장애 | 503 | `auth.provider_unavailable` |
+| 제공자(카카오·Apple·LINE·Google) 장애 | 503 | `auth.provider_unavailable` |
 | 요청 한도 초과 (`Retry-After`) | 429 | `rate_limited` |
 | 계약에는 있지만 아직 구현하지 않은 operation | 501 | `not_implemented` |
 
@@ -492,7 +499,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 엔진 | `INTERNAL` | 502, `engine.error`. 재시도해도 같을 가능성이 커서 503이 아님 |
 | 엔진 | 프로필 저장 중 `INVALID_ARGUMENT`·`OUT_OF_RANGE` | 422, `birth.invalid`·`birth.out_of_range` (§7.2) |
 | 엔진 | 그 밖의 요청에서 `INVALID_ARGUMENT`·`OUT_OF_RANGE` | 저장된 입력은 이미 검증했으므로 server 버그. 500 + 경보 |
-| 카카오·Apple | 제공자 장애 | 503, `auth.provider_unavailable` |
+| 카카오·Apple·LINE·Google | 제공자 장애 | 503, `auth.provider_unavailable` |
 | RevenueCat webhook | 인증 헤더 불일치 | 401, 기존 code `auth.token_invalid`(challenge 헤더 없음) |
 | RevenueCat webhook | 저장·동기화 실패 | 500. RevenueCat이 2xx가 아니면 다시 보내므로 재처리에 맡김 |
 | RevenueCat REST (`restore`) | 장애 | 503, `billing.provider_unavailable` |

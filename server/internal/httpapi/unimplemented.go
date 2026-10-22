@@ -183,3 +183,31 @@ func (Unimplemented) AdmobRewardCallback(context.Context, gen.AdmobRewardCallbac
 func (Unimplemented) RevenuecatWebhook(context.Context, gen.RevenuecatWebhookRequestObject) (gen.RevenuecatWebhookResponseObject, error) {
 	return nil, ErrNotImplemented
 }
+
+func (Unimplemented) LoginLine(context.Context, gen.LoginLineRequestObject) (gen.LoginLineResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) LoginGoogle(context.Context, gen.LoginGoogleRequestObject) (gen.LoginGoogleResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) ListIdentities(context.Context, gen.ListIdentitiesRequestObject) (gen.ListIdentitiesResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) LinkIdentity(context.Context, gen.LinkIdentityRequestObject) (gen.LinkIdentityResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) UnlinkIdentity(context.Context, gen.UnlinkIdentityRequestObject) (gen.UnlinkIdentityResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) PreviewMerge(context.Context, gen.PreviewMergeRequestObject) (gen.PreviewMergeResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) MergeAccounts(context.Context, gen.MergeAccountsRequestObject) (gen.MergeAccountsResponseObject, error) {
+	return nil, ErrNotImplemented
+}
