@@ -28,7 +28,7 @@ from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
 from mlw.jev import API_KEY_ENV, http_poster, jev_answers, limit_reason, pair_records, write_shadow
 from mlw.judge import DEFAULT_BATCH_SIZE, DEFAULT_MODEL, claude_cli_caller, judge_entries
 from mlw.loader import load_content, load_rules, load_slots
-from mlw.markup import check_name_position, check_ui_markup, strip_vocative
+from mlw.markup import check_name_position, check_ui_josa, check_ui_markup, strip_vocative
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
@@ -208,6 +208,7 @@ def markup_findings(slots: Mapping[str, Slot], entries: Sequence[Entry]) -> list
             per_form.extend(check_name_position(form, slot))
             if is_ui_slot(slot):
                 per_form.extend(check_ui_markup(form))
+                per_form.extend(check_ui_josa(form, slot.keys.get(entry.key, {})))
         findings.extend(_unique(per_form))
     return findings
 
