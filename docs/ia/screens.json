@@ -190,6 +190,10 @@
     {
       "id": "offer-card",
       "role": "광고 제거권 상품 설명·가격·기간 카드"
+    },
+    {
+      "id": "purchase-row",
+      "role": "구매 한 건: 구매일, 사용 기간, 상태(사용 중·대기·만료·환불)"
     }
   ],
   "screens": [
@@ -2218,7 +2222,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "1개월 광고 제거권을 사고, 남은 기간을 보고, 구매를 복원합니다",
+      "purpose": "1개월 광고 제거권을 사고, 남은 기간을 보고, 구매 내역으로 갑니다(D53, D88)",
       "depths": [],
       "states": [
         {
@@ -2256,14 +2260,9 @@
           "role": "광고 제거 남은 기간 또는 만료일"
         },
         {
-          "id": "ad-free.restore.cta",
+          "id": "ad-free.history.cta",
           "source": "ui",
-          "role": "구매 복원"
-        },
-        {
-          "id": "ad-free.restore.notice",
-          "source": "ui",
-          "role": "구매 복원하면 그 스토어 계정의 광고 제거권이 지금 계정으로 옮겨진다는 안내(D86 ④)"
+          "role": "구매 내역으로 가는 버튼(D88 ②)"
         },
         {
           "id": "ad-free.legal.notice",
@@ -2284,12 +2283,16 @@
         {
           "to": "legal",
           "trigger": "약관·정책 링크"
+        },
+        {
+          "to": "purchase-history",
+          "trigger": "구매 내역"
         }
       ],
       "decisions": [
         "D53",
         "D60",
-        "D86"
+        "D88"
       ]
     },
     {
@@ -2311,6 +2314,60 @@
       ],
       "decisions": [
         "D53"
+      ]
+    },
+    {
+      "id": "purchase-history",
+      "title": "구매 내역",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "이 계정의 광고 제거 구매를 구매일·사용 기간·상태로 보여줍니다. 들어갈 때 결제 기록을 사용자 모르게 다시 불러옵니다(D88 ②)",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "결제 기록을 다시 불러오고 목록을 받는 중"
+        },
+        {
+          "id": "empty",
+          "note": "구매가 없음"
+        },
+        {
+          "id": "error",
+          "note": "목록을 받지 못함, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "연결이 없어 목록을 받을 수 없다는 안내"
+        }
+      ],
+      "slots": [
+        {
+          "id": "purchase-history.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"구매 내역\")"
+        },
+        {
+          "id": "purchase-history.empty.body",
+          "source": "ui",
+          "role": "구매가 없을 때의 안내"
+        },
+        {
+          "id": "purchase-history.missing.notice",
+          "source": "ui",
+          "role": "결제했는데 목록에 없으면 문의하라는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "purchase-row"
+      ],
+      "exits": [],
+      "decisions": [
+        "D53",
+        "D61",
+        "D88"
       ]
     },
     {
@@ -2645,7 +2702,7 @@
         {
           "id": "account-delete.data.body",
           "source": "ui",
-          "role": "지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법으로 보관하는 결제 기록은 남음, D85 ⑤)"
+          "role": "지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 따로 보관한다는 한 줄, D88 ③④)"
         },
         {
           "id": "account-delete.cta.delete",
@@ -2672,7 +2729,8 @@
       "decisions": [
         "D39",
         "D68",
-        "D85"
+        "D85",
+        "D88"
       ]
     },
     {
