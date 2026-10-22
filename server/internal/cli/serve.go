@@ -488,8 +488,8 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
-		// Idempotency-Key는 일정 만들기에만 적용합니다. registerDevice는 P8에서 더합니다.
-		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule"),
+		// Idempotency-Key는 일정 만들기와 일기 만들기에만 적용합니다. registerDevice는 P8에서 더합니다.
+		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule", "createDiary"),
 		// 미리보기·시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.
 		RateLimit: httpapi.RateLimit(ratelimit.New(deps.Pool, deps.Clock), deps.ProxyHops, publicRateLimit, time.Minute, "createPreview", "getBirthHour", "convertLunarDate"),
 	}

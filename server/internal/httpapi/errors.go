@@ -83,6 +83,7 @@ var domainErrors = []domainError{
 	{target: content.ErrNoActiveSeed, code: problem.ServiceUnavailable, title: "Service unavailable", logged: true},
 	{target: diary.ErrNotFound, code: problem.DiaryNotFound, title: "Diary not found"},
 	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future", field: "date"},
+	{target: diary.ErrDayFull, code: problem.DiaryDayFull, title: "Diary day full", field: "date"},
 	{target: schedule.ErrNotFound, code: problem.ScheduleNotFound, title: "Schedule not found"},
 	// 경로·쿼리 매개변수 위반의 errors[].field는 이름 그대로입니다.
 	{target: schedule.ErrRangeTooLong, code: problem.RangeTooLong, title: "Range too long", field: "to"},
