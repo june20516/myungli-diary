@@ -210,7 +210,7 @@ final class FakeServerInterceptor extends Interceptor {
       return null;
     }
     final store = _diaryStore ?? (_diaryStore = await _loadDiaryStore());
-    final date = route.pathParametersOf(path)?['date'];
+    final id = route.pathParametersOf(path)?['id'];
     try {
       switch (operationId) {
         case 'listDiaries':
@@ -225,13 +225,22 @@ final class FakeServerInterceptor extends Interceptor {
               limit: query['limit'],
             ),
           );
+        case 'createDiary':
+          final diary = store.create(
+            options.data,
+            idempotencyKey: _headerOf(options, 'idempotency-key'),
+          );
+          return _ok(
+            201,
+            diary,
+            headers: {'location': '/v1/diaries/${diary['id']}'},
+          );
         case 'getDiary':
-          return _ok(200, store.get(date!));
-        case 'putDiary':
-          final result = store.put(date!, options.data);
-          return _ok(result.status, result.diary);
+          return _ok(200, store.get(id!));
+        case 'updateDiary':
+          return _ok(200, store.update(id!, options.data));
         default:
-          store.delete(date!);
+          store.delete(id!);
           return const _Fixture(status: 204, headers: {}, body: null);
       }
     } on FakeProblem catch (problem) {
@@ -481,7 +490,13 @@ final class FakeServerInterceptor extends Interceptor {
 }
 
 /// 대역 일기 저장소가 답하는 operation.
-const _diaryOperations = {'listDiaries', 'getDiary', 'putDiary', 'deleteDiary'};
+const _diaryOperations = {
+  'listDiaries',
+  'createDiary',
+  'getDiary',
+  'updateDiary',
+  'deleteDiary',
+};
 
 /// `ProfilePatch`의 필드. 대역 프로필 저장이 이 필드만 덮습니다.
 const _profilePatchFields = {

@@ -1,5 +1,5 @@
 {
-  "version": "2.8.0",
+  "version": "3.0.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림",

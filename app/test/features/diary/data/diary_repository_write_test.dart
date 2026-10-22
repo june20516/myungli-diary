@@ -8,6 +8,9 @@ import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/features/diary/data/diary_repository.dart';
 
+/// fake 시드의 2026-10-12 일기.
+const _writtenId = '7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001';
+
 Future<DiaryRepository> _repository(String scenarioId) async {
   final scenario = (await loadScenarios(rootBundle))
       .singleWhere((s) => s.id == scenarioId);
@@ -45,20 +48,25 @@ void main() {
 
   test('find는 있으면 일기, 404면 null입니다', () async {
     final repository = await _repository('member');
-    expect(
-      (await repository.find(CalendarDate(2026, 10, 12)))!.date,
-      '2026-10-12',
-    );
-    expect(await repository.find(CalendarDate(2026, 10, 13)), isNull);
+    expect((await repository.find(_writtenId))!.date, '2026-10-12');
+    expect(await repository.find('unknown'), isNull);
   });
 
-  test('put은 저장된 일기를 돌려주고, 미래 날짜는 ProblemError입니다', () async {
+  test('create는 쓴 일기를 돌려주고, 미래 날짜는 ProblemError입니다', () async {
     final repository = await _repository('member');
-    final diary = await repository.put(CalendarDate(2026, 10, 13), '오늘 일기');
+    final diary = await repository.create(
+      CalendarDate(2026, 10, 13),
+      '오늘 일기',
+      idempotencyKey: 'key-1',
+    );
     expect(diary.body, '오늘 일기');
-    expect((await repository.find(CalendarDate(2026, 10, 13)))!.body, '오늘 일기');
+    expect((await repository.find(diary.id))!.body, '오늘 일기');
     await expectLater(
-      repository.put(CalendarDate(2026, 10, 14), '내일'),
+      repository.create(
+        CalendarDate(2026, 10, 14),
+        '내일',
+        idempotencyKey: 'key-2',
+      ),
       throwsA(
         isA<ProblemError>().having((e) => e.code, 'code', 'diary.future_date'),
       ),
@@ -67,10 +75,10 @@ void main() {
 
   test('delete 뒤 find는 null이고, 없는 일기 delete는 diary.not_found입니다', () async {
     final repository = await _repository('member');
-    await repository.delete(CalendarDate(2026, 10, 12));
-    expect(await repository.find(CalendarDate(2026, 10, 12)), isNull);
+    await repository.delete(_writtenId);
+    expect(await repository.find(_writtenId), isNull);
     await expectLater(
-      repository.delete(CalendarDate(2026, 10, 12)),
+      repository.delete(_writtenId),
       throwsA(
         isA<ProblemError>().having((e) => e.code, 'code', 'diary.not_found'),
       ),
@@ -81,7 +89,7 @@ void main() {
     final offline = await _repository('offline');
     await expectLater(offline.page(), throwsA(isA<OfflineError>()));
     await expectLater(
-      offline.put(CalendarDate(2026, 10, 1), '본문'),
+      offline.create(CalendarDate(2026, 10, 1), '본문', idempotencyKey: 'key'),
       throwsA(isA<OfflineError>()),
     );
   });

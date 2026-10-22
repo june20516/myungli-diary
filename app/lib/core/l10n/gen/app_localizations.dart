@@ -1006,13 +1006,13 @@ abstract class AppLocalizations {
   /// **'이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.'**
   String get loginDiscardNotice;
 
-  /// 소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)
+  /// 소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)
   ///
   /// In ko, this message translates to:
   /// **'카카오 로그인'**
   String get loginKakaoLabel;
 
-  /// 소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)
+  /// 소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)
   ///
   /// In ko, this message translates to:
   /// **'Apple로 로그인'**
@@ -1144,12 +1144,6 @@ abstract class AppLocalizations {
   /// **'{price} · 1개월 · 자동 갱신 없음'**
   String adFreeOfferPrice(String price);
 
-  /// ad-free.restore.cta: 구매 복원
-  ///
-  /// In ko, this message translates to:
-  /// **'구매 복원'**
-  String get adFreeRestoreCta;
-
   /// ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일
   ///
   /// In ko, this message translates to:
@@ -1192,13 +1186,13 @@ abstract class AppLocalizations {
   /// **'(필수) 개인정보 수집·이용'**
   String get consentRequiredLabelPrivacy;
 
-  /// day-sheet.diary.open: 그날 일기 보기 링크
+  /// day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다
   ///
   /// In ko, this message translates to:
-  /// **'이날 일기 보기'**
-  String get daySheetDiaryOpen;
+  /// **'이날 쓴 일기 {count, plural, other{{count}편}}'**
+  String daySheetDiaryOpen(int count);
 
-  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘이고 일기 없음)
+  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
   ///
   /// In ko, this message translates to:
   /// **'이날 일기 쓰기'**
@@ -1492,16 +1486,16 @@ abstract class AppLocalizations {
   /// **'오늘 일정이 모두 끝났어요'**
   String get todayEventSummaryDone;
 
-  /// today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼
+  /// today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
   ///
   /// In ko, this message translates to:
   /// **'일기 쓰기'**
   String get todayGuideCta;
 
-  /// today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼
+  /// today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
   ///
   /// In ko, this message translates to:
-  /// **'쓴 일기 보기'**
+  /// **'새 일기 쓰기'**
   String get todayGuideCtaWritten;
 
   /// 가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)
@@ -2004,10 +1998,10 @@ abstract class AppLocalizations {
   /// **'일기를 지웠어요.'**
   String get diaryViewDeleted;
 
-  /// 일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 diary-edit 또는 diary-view로 갑니다(#294)
+  /// 일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)
   ///
   /// In ko, this message translates to:
-  /// **'{date} 일기'**
+  /// **'{date} 일기 쓰기'**
   String diaryListPickDateConfirm(String date);
 
   /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
@@ -2213,6 +2207,282 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'오픈소스 라이선스'**
   String get legalLicensesLabel;
+
+  /// account-merge.bar.title: app-bar 제목(화면 이름 "계정 합치기")
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 합치기'**
+  String get accountMergeBarTitle;
+
+  /// account-merge.choice.label: 남길 계정을 고르라는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'남길 계정을 골라 주세요'**
+  String get accountMergeChoiceLabel;
+
+  /// account-merge.cta.cancel: 합치지 않기
+  ///
+  /// In ko, this message translates to:
+  /// **'합치지 않기'**
+  String get accountMergeCtaCancel;
+
+  /// account-merge.cta.merge: 합치기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 합치기'**
+  String get accountMergeCtaMerge;
+
+  /// account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)
+  ///
+  /// In ko, this message translates to:
+  /// **'두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없어요.'**
+  String get accountMergeMergeConfirm;
+
+  /// account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)
+  ///
+  /// In ko, this message translates to:
+  /// **'합치기'**
+  String get accountMergeMergeConfirmMerge;
+
+  /// account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get accountMergeMergeConfirmCancel;
+
+  /// account-merge.overlap.notice: 같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(겹치는 날이 있을 때)
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 날 쓴 일기도 모두 이 계정으로 옮겨요.'**
+  String get accountMergeOverlapNotice;
+
+  /// account-merge.title.body: 합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)
+  ///
+  /// In ko, this message translates to:
+  /// **'합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.'**
+  String get accountMergeTitleBody;
+
+  /// account-merge.title.head: 두 계정을 하나로 합친다는 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'두 계정을 하나로 합칠까요?'**
+  String get accountMergeTitleHead;
+
+  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
+  ///
+  /// In ko, this message translates to:
+  /// **'이날 새 일기 쓰기'**
+  String get daySheetDiaryWriteCtaWritten;
+
+  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
+  ///
+  /// In ko, this message translates to:
+  /// **'이날은 충분히 썼어요'**
+  String get daySheetDiaryWriteCtaFull;
+
+  /// login-methods.bar.title: app-bar 제목(화면 이름 "로그인 수단")
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 수단'**
+  String get loginMethodsBarTitle;
+
+  /// login-methods.error.body: 연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'연결하지 못했어요. 다시 시도해 주세요.'**
+  String get loginMethodsErrorBodyLink;
+
+  /// login-methods.error.body: 연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'연결을 끊지 못했어요. 다시 시도해 주세요.'**
+  String get loginMethodsErrorBodyUnlink;
+
+  /// login-methods.intro.body: 연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'여러 인증 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.'**
+  String get loginMethodsIntroBody;
+
+  /// login-methods.last.notice: 마지막 남은 수단은 뗄 수 없다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 수단이 하나는 남아 있어야 해요.'**
+  String get loginMethodsLastNotice;
+
+  /// login-methods.unlink.confirm: 떼기 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'{provider} 연결을 끊을까요?'**
+  String loginMethodsUnlinkConfirm(String provider);
+
+  /// login-methods.unlink.confirm: 떼기 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'연결한 다른 인증 수단으로 계속 로그인할 수 있어요.'**
+  String get loginMethodsUnlinkConfirmBody;
+
+  /// login-methods.unlink.confirm: 떼기 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 끊기'**
+  String get loginMethodsUnlinkConfirmUnlink;
+
+  /// login-methods.unlink.confirm: 떼기 확인
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get loginMethodsUnlinkConfirmCancel;
+
+  /// today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 충분히 썼어요'**
+  String get todayGuideCtaFull;
+
+  /// 계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)
+  ///
+  /// In ko, this message translates to:
+  /// **'일기 {count, plural, other{{count}편}}'**
+  String accountChoiceDiaryCount(int count);
+
+  /// 계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 계정'**
+  String get accountChoiceCurrent;
+
+  /// 계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)
+  ///
+  /// In ko, this message translates to:
+  /// **' · '**
+  String get accountChoiceProviderSeparator;
+
+  /// 계정 합치기 화면(account-merge) 오류 상태: 합치기 실패. 고른 계정을 둔 채 다시 누를 수 있게 dialog notice로 보입니다(design #441)
+  ///
+  /// In ko, this message translates to:
+  /// **'계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.'**
+  String get accountMergeError;
+
+  /// 계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)
+  ///
+  /// In ko, this message translates to:
+  /// **'{calendar} {date} {time}'**
+  String accountChoiceSaju(String date, String calendar, String time);
+
+  /// 계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)
+  ///
+  /// In ko, this message translates to:
+  /// **'{calendar} {date} 시각 모름'**
+  String accountChoiceSajuNoTime(String date, String calendar);
+
+  /// 계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)
+  ///
+  /// In ko, this message translates to:
+  /// **'사주 정보 없음'**
+  String get accountChoiceSajuEmpty;
+
+  /// 일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)
+  ///
+  /// In ko, this message translates to:
+  /// **'이날은 충분히 썼어요'**
+  String get diaryListPickDateConfirmFull;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'이날은 충분히 썼어요.'**
+  String get errorDiaryDayFull;
+
+  /// 로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다
+  ///
+  /// In ko, this message translates to:
+  /// **'카카오'**
+  String get loginProviderKakao;
+
+  /// 로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다
+  ///
+  /// In ko, this message translates to:
+  /// **'LINE'**
+  String get loginProviderLine;
+
+  /// 로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다
+  ///
+  /// In ko, this message translates to:
+  /// **'Google'**
+  String get loginProviderGoogle;
+
+  /// 로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple'**
+  String get loginProviderApple;
+
+  /// 로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다
+  ///
+  /// In ko, this message translates to:
+  /// **'연결됨'**
+  String get loginMethodsRowConnected;
+
+  /// 로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 끊기'**
+  String get loginMethodsRowUnlink;
+
+  /// 소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)
+  ///
+  /// In ko, this message translates to:
+  /// **'LINE으로 로그인'**
+  String get loginLineLabel;
+
+  /// 소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)
+  ///
+  /// In ko, this message translates to:
+  /// **'Google 계정으로 로그인'**
+  String get loginGoogleLabel;
+
+  /// 설정 화면(settings) settings-row: 로그인 수단 화면으로 가는 줄 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 수단'**
+  String get settingsLoginMethodsLabel;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'연결된 인증 수단을 찾지 못했어요. 화면을 다시 열어 주세요.'**
+  String get errorAuthIdentityNotFound;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 인증 수단으로 연결한 다른 계정이 이미 있어요.'**
+  String get errorAuthProviderTaken;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 계정에 연결된 인증 수단이에요.'**
+  String get errorAuthIdentityInUse;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 대기 중인 계정에 연결되어 있어요.'**
+  String get errorAuthIdentityPendingDeletion;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 수단이 하나는 남아 있어야 해요.'**
+  String get errorAuthLastIdentity;
+
+  /// ad-free.restore.cta: 구매 복원
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 복원'**
+  String get adFreeRestoreCta;
 }
 
 class _AppLocalizationsDelegate

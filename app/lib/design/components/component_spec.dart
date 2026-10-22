@@ -20,6 +20,7 @@ import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -87,6 +88,7 @@ const List<ComponentSpec> implementedComponents = [
   BirthDatePicker.spec,
   TimePicker.spec,
   CitySearch.spec,
+  AccountChoice.spec,
   DayCharacter.spec,
   LuckyCardRow.spec,
   GuideQuestionCard.spec,

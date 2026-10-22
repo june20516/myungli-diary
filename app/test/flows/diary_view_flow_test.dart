@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
-import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
@@ -24,8 +23,11 @@ import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
 
 final _ko = AppLocalizationsKo();
-final _written = CalendarDate(2026, 10, 12);
-const _writtenPath = '/v1/diaries/2026-10-12';
+
+/// fake 시드의 2026-10-12 일기.
+const _writtenId = '7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001';
+const _writtenPath = '/v1/diaries/$_writtenId';
+final String _written = diaryPathOf(ScreenIds.diaryView, _writtenId);
 
 /// [failingPaths]의 GET은 503으로 답하고, [hold]가 있으면 그 GET을 [gate]가 열릴 때까지
 /// 붙잡습니다. [deleteGone]이면 지우기를 404 `diary.not_found`로 답합니다(다른 곳에서
@@ -79,10 +81,10 @@ final class _Network extends Interceptor {
   );
 }
 
-/// member로 앱을 띄우고 홈 위에 [date] 일기 보기를 엽니다.
+/// member로 앱을 띄우고 홈 위에 [path](`diary-view` 경로) 일기 보기를 엽니다.
 Future<ProviderContainer> _openView(
   WidgetTester tester,
-  CalendarDate date, {
+  String path, {
   _Network? network,
   bool settle = true,
 }) async {
@@ -91,11 +93,7 @@ Future<ProviderContainer> _openView(
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
   }
-  unawaited(
-    container
-        .read(routerProvider)
-        .push<void>(datedPathOf(ScreenIds.diaryView, date)),
-  );
+  unawaited(container.read(routerProvider).push<void>(path));
   if (settle) {
     await pumpUntil(
       tester,
@@ -122,7 +120,7 @@ FakeServerInterceptor _server(ProviderContainer container) => container
     .single;
 
 void main() {
-  testWidgets('그날 제목, 성격과 이유, 본문, 대표 태그 칩', (tester) async {
+  testWidgets('받은 일기 날짜의 제목, 성격과 이유, 본문, 대표 태그 칩', (tester) async {
     await _openView(tester, _written);
     await expectAppBarTitle(
       tester,
@@ -149,9 +147,9 @@ void main() {
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
   });
 
-  testWidgets('고치기는 이 화면을 그날 쓰기 화면으로 바꿉니다', (tester) async {
+  testWidgets('고치기는 이 화면을 그 일기 쓰기 화면으로 바꾸고, 저장하면 같은 일기 보기', (tester) async {
     covers(const Covers(exits: ['diary-view>diary-edit']));
-    await _openView(tester, _written);
+    final container = await _openView(tester, _written);
     await tester.tap(find.byKey(DiaryViewScreen.editKey));
     await pumpUntil(tester, () => find.byType(TextField).evaluate().isNotEmpty);
     await settleWithIo(tester);
@@ -161,12 +159,33 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsNothing);
     expect(
       GoRouterState.of(tester.element(edit)).uri.toString(),
-      '/diary-edit?date=2026-10-12',
+      '/diary-edit?id=$_writtenId',
     );
     expect(
       tester.widget<TextField>(find.byType(TextField)).controller!.text,
       startsWith('오랜만에'),
     );
+
+    await tester.enterText(find.byType(TextField), '오랜만에 고쳐 쓴 일기.');
+    await tester.pump();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
+    );
+    expect(_server(container).callCountOf('updateDiary'), 1);
+    expect(_server(container).callCountOf('createDiary'), 0);
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await pumpUntil(
+      tester,
+      () => find.textContaining('고쳐 쓴 일기').evaluate().isNotEmpty,
+    );
+    await settleWithIo(tester, allowOngoing: true);
+    final view = find.byKey(const ValueKey(ScreenIds.diaryView)).last;
+    expect(GoRouterState.of(tester.element(view)).uri.toString(), _written);
+    // toast가 사라질 때까지 둡니다.
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
   });
 
   testWidgets('지우기: 확인하면 지우고 앞 화면으로 돌아가 toast', (tester) async {
@@ -213,11 +232,18 @@ void main() {
     expect(_paper, findsOneWidget);
   });
 
-  testWidgets('없는 일기면 그 안내만, 고치기·지우기는 없습니다', (tester) async {
-    await _openView(tester, CalendarDate(2026, 10, 6));
+  testWidgets('없는 일기(404)면 그 안내만, 고치기·지우기는 없습니다', (tester) async {
+    await _openView(tester, diaryPathOf(ScreenIds.diaryView, 'gone'));
     expect(find.text(_ko.errorDiaryNotFound), findsOneWidget);
     expect(find.byKey(DiaryViewScreen.editKey), findsNothing);
     expect(find.byKey(DiaryViewScreen.deleteKey), findsNothing);
+  });
+
+  testWidgets('id 없이 열면 찾지 못했다는 안내', (tester) async {
+    final container = await _openView(tester, pathOf(ScreenIds.diaryView));
+    expect(find.text(_ko.errorDiaryNotFound), findsOneWidget);
+    expect(find.byKey(DiaryViewScreen.editKey), findsNothing);
+    expect(_server(container).callCountOf('getDiary'), 0);
   });
 
   testWidgets('loading: 일기를 받는 동안 skeleton, 오면 본문', (tester) async {

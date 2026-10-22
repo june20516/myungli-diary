@@ -1,6 +1,6 @@
 # 제공자 로고 (소셜 로그인)
 
-`social-login-button`이 쓰는 제공자 공식 자산입니다. 색·모양·비율은 바꾸지 않습니다(컴포넌트 명세: "색·로고·문구는 각 제공자의 공식 가이드와 공식 자산"). 받은 날짜는 모두 2026-10-14입니다.
+`social-login-button`이 쓰는 제공자 공식 자산입니다. 색·모양·비율은 바꾸지 않습니다(컴포넌트 명세: "색·로고·문구는 각 제공자의 공식 가이드와 공식 자산"). 카카오·Apple의 받은 날짜는 2026-10-14입니다.
 
 ## 카카오 — `kakao/kakao_symbol.svg`
 
@@ -14,6 +14,10 @@
 * 출처: Apple Design Resources의 Sign in with Apple 로고 `https://devimages-cdn.apple.com/design/resources/download/Logo-Sign-in-with-Apple.dmg`(`https://developer.apple.com/design/resources/`), 가이드: Human Interface Guidelines "Sign in with Apple"
 * 내용: dmg의 `Sign in with Apple - Logo Only/SVG/Logo - SIWA - Logo-only - {Black,White}.svg`에서 **로고 path를 그대로** 옮기고 정사각 바탕 사각형만 뺐습니다(`viewBox`는 로고 범위). 라이트 모드는 검정 바탕에 흰 로고, 다크 모드는 흰 바탕에 검정 로고를 씁니다(명세 `lightMode: black`, `darkMode: white`).
 * **이용 조건 주의:** dmg에 든 "Apple Design Resources License"는 자산을 macOS·iOS 등 UI의 목업(mock-up) 제작에만 쓰도록 허용하고 "소프트웨어 프로그램에 내장하지 않는다"고 적습니다(§2). 반면 HIG는 Sign in with Apple 버튼에 공식 로고 자산을 쓰도록 안내합니다. 출시 전에 이 해석(앱 안 사용 허용 여부, Android 웹 흐름의 로고 사용)을 사용자가 확인해야 합니다.
+
+## LINE — `line/line_icon.png`, Google — `google/g_logo_{light,dark}.png`
+
+출처·받은 날짜·변환은 각 디렉터리의 `SOURCE.md`에 있습니다(받은 날짜 2026-10-22). `SOURCE.md`가 번들에 들어가지 않도록 `pubspec.yaml`에는 이미지 파일만 적습니다.
 
 ## 명리일기 로고 — `myungli/lockup.svg`
 

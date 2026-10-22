@@ -274,6 +274,15 @@
     "description": "로그인한 회원. 오늘 일기를 이미 써서(getDiary 200) 오늘 화면의 가이드 질문 카드가 쓴 뒤(after) 상태이고 쓴 일기 보기로 이어집니다."
   },
   {
+    "id": "diary-day-full",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 오늘 날짜에 살아 있는 일기가 이미 10편이라 새 일기 입구가 막히고, 11번째를 만들면 422 diary.day_full입니다."
+  },
+  {
     "id": "reaction-failed",
     "extends": "member",
     "today": "2026-10-13",

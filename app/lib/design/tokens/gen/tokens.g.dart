@@ -51,11 +51,12 @@ final class ColorTokens {
     required this.tagBadFg,
     required this.tagNeutralBorder,
     required this.tagNeutralFg,
+    required this.timelineEntry,
+    required this.timelineLine,
     required this.chipBg,
     required this.swatchBorder,
     required this.statusBg,
     required this.statusFg,
-    required this.timelineLine,
     required this.scrim,
     required this.barBg,
     required this.skeletonBone,
@@ -195,6 +196,12 @@ final class ColorTokens {
   /// 중립 태그 칩 글자
   final Color tagNeutralFg;
 
+  /// 같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)
+  final Color timelineEntry;
+
+  /// 일기 목록 세로 흐름 줄
+  final Color timelineLine;
+
   /// 칩 바탕 (반투명 흰색)
   final Color chipBg;
 
@@ -206,9 +213,6 @@ final class ColorTokens {
 
   /// 상태 꼬리표 글자
   final Color statusFg;
-
-  /// 일기 목록 세로 흐름 줄
-  final Color timelineLine;
 
   /// 시트·확인 창 바깥 덮개
   final Color scrim;
@@ -292,6 +296,8 @@ const lightColors = ColorTokens(
   tagBadFg: Color(0xFF5B5B57),
   tagNeutralBorder: Color(0xFFC7C7C5),
   tagNeutralFg: Color(0xFF5B5B57),
+  timelineEntry: Color(0xFFC7C7C5),
+  timelineLine: Color(0xFFDEDEDC),
   chipBg: Color.from(
     alpha: 0.7,
     red: 0xff / 255,
@@ -306,7 +312,6 @@ const lightColors = ColorTokens(
   ),
   statusBg: Color(0xFFE8F2E9),
   statusFg: Color(0xFF47634C),
-  timelineLine: Color(0xFFDEDEDC),
   scrim: Color.from(
     alpha: 0.32,
     red: 0x1b / 255,
@@ -383,6 +388,8 @@ const darkColors = ColorTokens(
   tagBadFg: Color(0xFFDEDEDC),
   tagNeutralBorder: Color(0xFF5B5B57),
   tagNeutralFg: Color(0xFFABABA7),
+  timelineEntry: Color(0xFF5B5B57),
+  timelineLine: Color(0xFF424340),
   chipBg: Color.from(
     alpha: 0.08,
     red: 0xff / 255,
@@ -397,7 +404,6 @@ const darkColors = ColorTokens(
   ),
   statusBg: Color(0xFF354838),
   statusFg: Color(0xFFD4E3D6),
-  timelineLine: Color(0xFF424340),
   scrim: Color.from(
     alpha: 0.5,
     red: 0x00 / 255,

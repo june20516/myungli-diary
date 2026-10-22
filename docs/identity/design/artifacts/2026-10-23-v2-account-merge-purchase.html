@@ -1,0 +1,294 @@
+<title>계정 합치기·구매 내역 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* 레이아웃: 휴대폰 틀 장면을 가로로, 좁으면 세로로. 색·간격은 design 토큰 값 그대로 */
+  :root {
+    --bg-base: #f7f7f6; --bg-sheet: #ffffff;
+    --text-primary: #2b2b2a; --text-secondary: #5b5b57;
+    --line: #dededc; --action: #47634c; --on-action: #ffffff;
+    --status-bg: #e7eee8; --status-fg: #3a5340;
+    --disabled-bg: #eeeeed; --disabled-fg: #747570;
+    --scrim: rgba(27,27,26,.32); --page: #eeeeed; --frame-edge: #dededc;
+    --kakao-bg: #fee500; --kakao-fg: rgba(0,0,0,.85);
+    --line-bg: #06c755; --line-fg: #ffffff;
+    --google-bg: #ffffff; --google-fg: #1f1f1f; --google-edge: #747775;
+    --apple-bg: #000000; --apple-fg: #ffffff;
+    --font-ui: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg-base: #1b1b1a; --bg-sheet: #2b2b2a; --text-primary: #eeeeed; --text-secondary: #ababa7;
+      --line: #424340; --action: #b8cebc; --on-action: #1b1b1a; --status-bg: #33403a; --status-fg: #cfe0d3;
+      --disabled-bg: #424340; --disabled-fg: #8f908b; --scrim: rgba(0,0,0,.5); --page: #121211; --frame-edge: #424340;
+      --google-bg: #131314; --google-fg: #e3e3e3; --google-edge: #8e918f; --apple-bg: #ffffff; --apple-fg: #000000;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-base: #1b1b1a; --bg-sheet: #2b2b2a; --text-primary: #eeeeed; --text-secondary: #ababa7;
+    --line: #424340; --action: #b8cebc; --on-action: #1b1b1a; --status-bg: #33403a; --status-fg: #cfe0d3;
+    --disabled-bg: #424340; --disabled-fg: #8f908b; --scrim: rgba(0,0,0,.5); --page: #121211; --frame-edge: #424340;
+    --google-bg: #131314; --google-fg: #e3e3e3; --google-edge: #8e918f; --apple-bg: #ffffff; --apple-fg: #000000;
+    color-scheme: dark;
+  }
+  body {
+    background: var(--page); color: var(--text-primary); font-family: var(--font-ui);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 24px 48px;
+  }
+  header.page { max-width: 1180px; margin: 0 auto 24px; display: grid; gap: 6px; }
+  header.page h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; margin: 0; text-wrap: balance; }
+  header.page p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-secondary); max-width: 72ch; }
+  h2.group { max-width: 1180px; margin: 32px auto 12px; font-size: 17px; font-weight: 600; letter-spacing: -0.34px; }
+
+  .scenes { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 24px; align-items: start; }
+  .scene { display: grid; gap: 12px; min-width: 0; }
+  .scene h3 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.32px; }
+  .scene .why { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+
+  .phone { position: relative; background: var(--bg-base); border: 1px solid var(--frame-edge); border-radius: 28px; padding: 12px 20px 24px; max-width: 360px; width: 100%; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; min-height: 720px; }
+  .bar { height: 48px; display: flex; align-items: center; gap: 8px; }
+  .bar svg { width: 24px; height: 24px; }
+  .bar span { font-size: 16px; font-weight: 600; letter-spacing: -0.32px; }
+  .head { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; line-height: 1.3; margin: 12px 0 8px; text-wrap: balance; }
+  .body { font-size: 14px; line-height: 1.5; color: var(--text-secondary); margin: 0 0 24px; }
+  .intro { font-size: 14px; line-height: 1.5; color: var(--text-secondary); margin: 8px 0 20px; }
+  .caption { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+
+  /* social-login-button */
+  .stack { display: grid; gap: 12px; }
+  .slb { height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; letter-spacing: -0.28px; position: relative; border: 1px solid transparent; }
+  .slb .logo { position: absolute; left: 16px; width: 20px; height: 20px; border-radius: 4px; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .slb.kakao { background: var(--kakao-bg); color: var(--kakao-fg); }
+  .slb.line { background: var(--line-bg); color: var(--line-fg); }
+  .slb.google { background: var(--google-bg); color: var(--google-fg); border-color: var(--google-edge); }
+  .slb.google .logo { color: #4285f4; }
+  .slb.apple { background: var(--apple-bg); color: var(--apple-fg); }
+  .slb.connected { background: var(--bg-sheet); color: var(--text-primary); border-color: var(--line); justify-content: flex-start; padding-left: 48px; }
+  .slb.connected .logo { width: 20px; height: 20px; }
+  .slb.connected .logo.kakao { background: #fee500; color: #191919; }
+  .slb.connected .logo.apple { background: var(--apple-bg); color: var(--apple-fg); }
+  .slb.connected .state { margin-left: auto; margin-right: 16px; font-size: 13px; font-weight: 500; color: var(--action); display: inline-flex; align-items: center; gap: 4px; }
+
+  .btn { height: 52px; border-radius: 12px; display: grid; place-items: center; font-size: 14px; font-weight: 600; letter-spacing: -0.28px; }
+  .btn.filled { background: var(--action); color: var(--on-action); }
+  .btn.filled.disabled { background: var(--disabled-bg); color: var(--disabled-fg); }
+  .btn.quiet { height: 44px; color: var(--action); }
+  .merge-entry { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .merge-entry .btn { justify-self: stretch; }
+  .new { outline: 2px dashed var(--action); outline-offset: 4px; border-radius: 12px; }
+
+  /* 가져올 계정 요약 */
+  .summary { background: var(--bg-sheet); border-radius: 12px; padding: 16px; display: grid; gap: 8px; margin-bottom: 24px; }
+  .summary .row { display: flex; justify-content: space-between; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .summary .row span:first-child { color: var(--text-secondary); }
+
+  /* account-choice */
+  .cards { display: grid; gap: 12px; }
+  .card { background: var(--bg-sheet); border-radius: 12px; padding: 16px; border: 2px solid transparent; display: grid; gap: 8px; position: relative; }
+  .card.selected { border-color: var(--action); }
+  .card .top { display: flex; align-items: center; gap: 8px; padding-right: 32px; }
+  .card .name { font-size: 16px; font-weight: 600; letter-spacing: -0.32px; }
+  .pill { font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 9999px; border: 1px solid var(--line); color: var(--text-secondary); }
+  .card .saju { font-size: 13px; line-height: 1.45; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .radio { position: absolute; top: 16px; right: 16px; width: 22px; height: 22px; border-radius: 9999px; border: 1.5px solid var(--line); display: grid; place-items: center; box-sizing: border-box; }
+  .card.selected .radio { border-color: var(--action); }
+  .card.selected .radio::after { content: ""; width: 12px; height: 12px; border-radius: 9999px; background: var(--action); }
+  .overlap { display: flex; gap: 8px; align-items: flex-start; margin-top: 16px; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+  .overlap svg { width: 16px; height: 16px; flex: none; margin-top: 1.5px; }
+  .actions { margin-top: auto; padding-top: 24px; display: grid; gap: 4px; }
+
+  /* dialog */
+  .scrim { position: absolute; inset: 0; background: var(--scrim); display: grid; place-items: center; }
+  .dialog { background: var(--bg-sheet); border-radius: 20px; margin: 0 28px; padding: 24px; display: grid; }
+  .dialog .text { font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+  .dialog .row { display: flex; justify-content: flex-end; margin-top: 20px; }
+  .dialog .row span { min-height: 44px; padding: 0 12px; display: grid; place-items: center; font-size: 14px; font-weight: 600; color: var(--action); }
+
+  /* purchase-row */
+  .rows { background: var(--bg-sheet); border-radius: 20px; padding: 0 16px; }
+  .prow { padding: 16px 0; display: grid; gap: 4px; }
+  .prow + .prow { border-top: 1px solid var(--line); }
+  .prow .l1 { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .prow .item { font-size: 16px; font-weight: 600; letter-spacing: -0.32px; color: var(--text-primary); }
+  .prow .period { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .status { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 9999px; flex: none; }
+  .status.active { background: var(--status-bg); color: var(--status-fg); }
+  .status.plain { color: var(--text-secondary); padding-right: 0; }
+  .missing { font-size: 13px; line-height: 1.45; color: var(--text-secondary); margin-top: 16px; padding: 0 4px; }
+  .empty { margin-top: 30%; display: grid; justify-items: center; gap: 16px; text-align: center; }
+  .empty .circle { width: 56px; height: 56px; border-radius: 9999px; background: var(--status-bg); display: grid; place-items: center; color: var(--action); }
+  .empty .circle svg { width: 28px; height: 28px; }
+  .empty p { margin: 0; font-size: 16px; line-height: 1.6; max-width: 26ch; }
+
+  .foot { max-width: 1180px; margin: 28px auto 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+  .foot ul { margin: 6px 0 0; padding-left: 18px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="caret-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 12.3l2.8 2.8L16.2 9.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="receipt" viewBox="0 0 24 24"><path d="M5 3.5h14v17l-2.3-1.5-2.4 1.5-2.3-1.5-2.4 1.5-2.3-1.5L5 20.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8.5 8.5h7M8.5 12h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="page">
+  <h1>계정 합치기(D85)·구매 내역(D88) 시안</h1>
+  <p>예시: 지금 계정(카카오·Apple)으로 들어와 있고, LINE으로 만든 다른 계정을 합칩니다. 점선 테두리는 이번에 새로 생긴 자리입니다. 문구는 writing이 정할 자리를 채운 예시입니다.</p>
+</header>
+
+<h2 class="group">로그인 수단 (login-methods)</h2>
+<main class="scenes">
+  <section class="scene" aria-labelledby="s1">
+    <h3 id="s1">1. 계정 합치기 입구</h3>
+    <p class="why">버튼 묶음과 1px 선으로 나눈 아래에 primary-button quiet(login-methods.merge.cta). 연결과 합치기를 따로 둡니다(D85 ③④).</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>로그인 수단</span></div>
+      <p class="intro">이 계정에 연결한 인증 수단이에요. 여러 개를 연결해 두면 어느 것으로든 로그인할 수 있어요.</p>
+      <div class="stack">
+        <div class="slb connected"><span class="logo kakao">K</span>카카오<span class="state"><svg width="14" height="14"><use href="#check"/></svg>연결됨</span></div>
+        <div class="slb line"><span class="logo">L</span>LINE으로 계속하기</div>
+        <div class="slb google"><span class="logo">G</span>Google로 계속하기</div>
+        <div class="slb connected"><span class="logo apple"></span>Apple<span class="state"><svg width="14" height="14"><use href="#check"/></svg>연결됨</span></div>
+      </div>
+      <div class="merge-entry"><div class="btn quiet new">다른 계정 합치기</div></div>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s2">
+    <h3 id="s2">2. 다른 계정에 연결된 수단</h3>
+    <p class="why">LINE을 붙이려 했는데 다른 계정에 있음. 연결하지 않고 dialog notice로 알립니다(login-methods.in-use.body). 합치기로 저절로 넘어가지 않습니다.</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>로그인 수단</span></div>
+      <p class="intro">이 계정에 연결한 인증 수단이에요. 여러 개를 연결해 두면 어느 것으로든 로그인할 수 있어요.</p>
+      <div class="stack">
+        <div class="slb connected"><span class="logo kakao">K</span>카카오<span class="state"><svg width="14" height="14"><use href="#check"/></svg>연결됨</span></div>
+        <div class="slb line"><span class="logo">L</span>LINE으로 계속하기</div>
+        <div class="slb google"><span class="logo">G</span>Google로 계속하기</div>
+        <div class="slb connected"><span class="logo apple"></span>Apple<span class="state"><svg width="14" height="14"><use href="#check"/></svg>연결됨</span></div>
+      </div>
+      <div class="merge-entry"><div class="btn quiet">다른 계정 합치기</div></div>
+      <div class="scrim">
+        <div class="dialog new">
+          <div class="text">이 LINE은 다른 계정에 연결돼 있어 연결하지 않았어요. 그 계정의 기록을 가져오려면 계정 합치기를, 이 계정에 연결하려면 그 계정에서 먼저 연결을 끊어 주세요.</div>
+          <div class="row"><span>확인</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<h2 class="group">계정 합치기 (account-merge): 한 화면 두 단계</h2>
+<main class="scenes">
+  <section class="scene" aria-labelledby="s3">
+    <h3 id="s3">3. 인증 단계</h3>
+    <p class="why">제목 → account-merge.auth.body → social-login-button 넷(로그인 화면과 같은 순서·모양). 이 단계에는 버튼이 없고, 그만두려면 app-bar 뒤로 가기입니다.</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>계정 합치기</span></div>
+      <div class="head">다른 계정의 기록을 가져올까요?</div>
+      <p class="body new">가져올 계정에 연결된 인증 수단으로 로그인해 주세요.</p>
+      <div class="stack new">
+        <div class="slb kakao"><span class="logo">K</span>카카오로 계속하기</div>
+        <div class="slb line"><span class="logo">L</span>LINE으로 계속하기</div>
+        <div class="slb google"><span class="logo">G</span>Google로 계속하기</div>
+        <div class="slb apple"><span class="logo"></span>Apple로 계속하기</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s4">
+    <h3 id="s4">4. 이 계정의 수단으로 인증함</h3>
+    <p class="why">account-merge.not-other.body를 dialog notice로. 확인하면 인증 단계에 그대로 남습니다. 어느 계정에도 없는 수단이면 같은 자리에 "가져올 계정이 없음" 문구.</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>계정 합치기</span></div>
+      <div class="head">다른 계정의 기록을 가져올까요?</div>
+      <p class="body">가져올 계정에 연결된 인증 수단으로 로그인해 주세요.</p>
+      <div class="stack">
+        <div class="slb kakao"><span class="logo">K</span>카카오로 계속하기</div>
+        <div class="slb line"><span class="logo">L</span>LINE으로 계속하기</div>
+        <div class="slb google"><span class="logo">G</span>Google로 계속하기</div>
+        <div class="slb apple"><span class="logo"></span>Apple로 계속하기</div>
+      </div>
+      <div class="scrim">
+        <div class="dialog new">
+          <div class="text">카카오는 지금 계정에 연결된 수단이에요. 가져올 계정에 연결된 수단으로 다시 로그인해 주세요.</div>
+          <div class="row"><span>확인</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s5">
+    <h3 id="s5">5. 요약·고르기 단계 (고른 뒤)</h3>
+    <p class="why">설명 → 가져올 기록 상자(0건이어도 보임) → 고르기 묶음 이름 → account-choice(호칭 + 알약 + 사주 요약) → 겹치는 날 안내 → 합치기 버튼 하나. 그만두기는 뒤로 가기(합치지 않기 버튼 없음). 처음엔 고르지 않은 상태(V40 유지).</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>계정 합치기</span></div>
+      <div class="head">다른 계정의 기록을 가져올까요?</div>
+      <p class="body">가져올 계정의 기록은 이 계정으로 옮기고, 그 계정과 인증 수단은 지워요. 사주 정보·호칭·설정은 고른 쪽 것을 써요.</p>
+      <div class="summary new">
+        <div class="caption" style="margin:0">가져올 기록</div>
+        <div class="row"><span>일기</span><span>12편</span></div>
+        <div class="row"><span>일정</span><span>3개</span></div>
+        <div class="row"><span>광고 제거 남은 기간</span><span>20일</span></div>
+      </div>
+      <div class="caption">사주 정보·호칭·설정을 어느 쪽 것으로 둘까요?</div>
+      <div class="cards">
+        <div class="card selected">
+          <div class="top"><span class="name">수진</span><span class="pill">현재 계정</span></div>
+          <div class="saju">1994년 5월 3일 (양력) · 오전 7:30</div>
+          <span class="radio"></span>
+        </div>
+        <div class="card">
+          <div class="top"><span class="name">수진</span><span class="pill new">가져올 계정</span></div>
+          <div class="saju">1994년 5월 3일 (양력) · 시간 모름</div>
+          <span class="radio"></span>
+        </div>
+      </div>
+      <div class="overlap"><svg><use href="#check-circle"/></svg><span>같은 날 쓴 일기가 3일 있어요. 지우지 않고 그날 일기로 모두 옮겨요.</span></div>
+      <div class="actions">
+        <div class="btn filled">합치기</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<h2 class="group">구매 내역 (purchase-history, purchase-row)</h2>
+<main class="scenes">
+  <section class="scene" aria-labelledby="s6">
+    <h3 id="s6">6. 목록</h3>
+    <p class="why">묶음 카드 안 줄, 줄 사이 1px. 산 상품 이름 + 상태 오른쪽, 아래 구매일 · 사용 기간(고정폭 숫자, 기간 없는 상품은 구매일만). 상품이 늘어도 같은 줄입니다(#502). 강조는 "사용 중" 하나(tag.status), 나머지 상태는 글자만. 누르지 않는 줄입니다.</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>구매 내역</span></div>
+      <div class="rows">
+        <div class="prow"><div class="l1"><span class="item new">1개월 광고 제거권</span><span class="status plain">대기</span></div><div class="period">2026.10.20 구매 · 2026.11.04 – 2026.12.03</div></div>
+        <div class="prow"><div class="l1"><span class="item">1개월 광고 제거권</span><span class="status active">사용 중</span></div><div class="period">2026.10.05 구매 · 2026.10.05 – 2026.11.03</div></div>
+        <div class="prow"><div class="l1"><span class="item">1개월 광고 제거권</span><span class="status plain">환불</span></div><div class="period">2026.08.01 구매 · 2026.08.01 – 2026.08.31</div></div>
+        <div class="prow"><div class="l1"><span class="item">1개월 광고 제거권</span><span class="status plain">만료</span></div><div class="period">2026.06.12 구매 · 2026.06.12 – 2026.07.11</div></div>
+      </div>
+      <p class="missing">결제했는데 목록에 없다면 문의해 주세요.</p>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s7">
+    <h3 id="s7">7. 빈 상태</h3>
+    <p class="why">empty-state(sage 원 + receipt 아이콘 + 문장, 주 버튼 없음). 결제했는데 없을 수 있으니 문의 안내는 빈 상태에도 그 아래 둡니다.</p>
+    <div class="phone">
+      <div class="bar"><svg><use href="#caret-left"/></svg><span>구매 내역</span></div>
+      <div class="empty">
+        <div class="circle"><svg><use href="#receipt"/></svg></div>
+        <p>아직 구매한 상품이 없어요.</p>
+        <p class="missing" style="margin:0">결제했는데 목록에 없다면 문의해 주세요.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="foot">
+  정한 것
+  <ul>
+    <li>account-choice는 카드 두 장 그대로, 일기 수·수단 이름 줄을 빼고 가져올 계정 카드에 "가져올 계정" 알약을 더합니다. 호칭·사주가 같아도 두 카드를 가를 수 있게 하기 위해서입니다.</li>
+    <li>가져올 기록은 고르기와 상관없이 모두 옮기므로 고르기 카드 밖 상자에 둡니다. 광고 제거 남은 기간 줄은 남은 기간이 있을 때만 보입니다.</li>
+    <li>구매 내역은 산 상품의 기록입니다. 줄마다 상품 이름이 먼저 보이고, 최근 구매가 위입니다. 합친 계정에서 옮겨 온 구매는 따로 표시하지 않습니다(D88 ②). 상품 이름의 출처와 범위는 지휘 #502에서 정합니다.</li>
+  </ul>
+</div>

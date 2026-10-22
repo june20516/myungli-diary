@@ -8,7 +8,6 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
-import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
@@ -52,14 +51,14 @@ const AppGlyph _trash = AppGlyph(
 );
 
 /// 일기 보기(`diary-view`): 그날 성격과 이유(용어는 풀이 시트), 도장이 찍힌 종이, 태그 칩.
-/// 날짜는 `?date=`이고 없으면 오늘입니다.
+/// 일기는 `?id=`(A67)이고, 제목의 날짜는 받은 일기의 날짜입니다(받기 전에는 제목 없음).
 ///
 /// * 일기를 받는 동안 skeleton(`loading`), 받지 못하면 오류와 다시 시도(`error`)입니다.
-///   일기가 없으면(다른 곳에서 지워짐) 그 안내만 둡니다.
+///   일기가 없으면(다른 곳에서 지워짐, `id` 없음) 그 안내만 둡니다.
 /// * 그날 성격은 달 길흉 캐시(A46)이고, 받지 못하면 성격 줄 없이 일기만 보입니다.
-/// * 고치기는 이 화면을 `diary-edit`로 바꿔 엽니다(저장하면 다시 이 화면으로 바뀜). 지우기는
-///   확인 창(`dialog` `destructive`) 뒤 지우고 앞 화면으로 돌아가 toast입니다. 되살리기는
-///   없습니다(A50).
+/// * 고치기는 이 화면을 그 일기의 `diary-edit`로 바꿔 엽니다(저장하면 다시 이 화면으로 바뀜).
+///   지우기는 확인 창(`dialog` `destructive`) 뒤 지우고 앞 화면으로 돌아가 toast입니다.
+///   되살리기는 없습니다(A50).
 class DiaryViewScreen extends ConsumerWidget {
   /// diary-view 화면을 만듭니다.
   const new({super.key});
@@ -73,13 +72,14 @@ class DiaryViewScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final query = GoRouterState.of(context).uri.queryParameters[dateQuery];
-    final today = ref.read(todayProvider);
-    final date = dateOfQuery(query) ?? today;
-    final diary = ref.watch(diaryOnProvider(date));
+    final id = GoRouterState.of(context).uri.queryParameters[diaryIdQuery];
+    final hasId = id != null && id.isNotEmpty;
+    // id가 없으면 물을 일기가 없어 찾지 못한 것과 같습니다.
+    final diary = hasId
+        ? ref.watch(diaryProvider(id))
+        : const AsyncData<Diary?>(null);
+    final loaded = diary.value;
     final locale = Localizations.localeOf(context).toString();
-    final dateLabel = DateFormat.MMMd(locale)
-        .format(DateTime(date.year, date.month, date.day));
     final deleting = ref.watch(diaryDeleterProvider);
     return PopScope(
       canPop: !deleting,
@@ -91,17 +91,19 @@ class DiaryViewScreen extends ConsumerWidget {
             child: Column(
               children: [
                 MyungliAppBar.inner(
-                  title: l10n.diaryViewBarTitle(dateLabel),
+                  title: loaded == null
+                      ? ''
+                      : l10n.diaryViewBarTitle(_dateLabel(locale, loaded)),
                   titleIdentifier: SlotIds.diaryViewBarTitle,
                   showBack: MyungliAppBar.canGoBack(context),
                   actions: [
-                    if (diary.value != null) ...[
+                    if (loaded != null) ...[
                       AppBarAction(
                         key: editKey,
                         icon: _pencil,
                         semanticLabel: l10n.diaryViewEditAction,
                         onPressed: () => context.pushReplacement(
-                          datedPathOf(ScreenIds.diaryEdit, date),
+                          diaryPathOf(ScreenIds.diaryEdit, loaded.id),
                         ),
                       ),
                       AppBarAction(
@@ -110,7 +112,7 @@ class DiaryViewScreen extends ConsumerWidget {
                         semanticLabel: l10n.diaryViewDeleteAction,
                         onPressed: deleting
                             ? () {}
-                            : () => unawaited(_delete(context, ref, date)),
+                            : () => unawaited(_delete(context, ref, loaded)),
                       ),
                     ],
                   ],
@@ -118,10 +120,12 @@ class DiaryViewScreen extends ConsumerWidget {
                 Expanded(
                   child: ScreenStateView<Diary?>(
                     value: diary,
-                    onRetry: () => ref.invalidate(diaryOnProvider(date)),
+                    onRetry: hasId
+                        ? () => ref.invalidate(diaryProvider(id))
+                        : null,
                     isEmpty: (value) => value == null,
                     empty: EmptyState(body: l10n.errorDiaryNotFound),
-                    data: (value) => _DiaryViewBody(date: date, diary: value!),
+                    data: (value) => _DiaryViewBody(diary: value!),
                   ),
                 ),
               ],
@@ -132,12 +136,15 @@ class DiaryViewScreen extends ConsumerWidget {
     );
   }
 
-  /// 확인 창 뒤 [date] 일기를 지우고 앞 화면으로 돌아갑니다(A50).
-  Future<void> _delete(
-    BuildContext context,
-    WidgetRef ref,
-    CalendarDate date,
-  ) async {
+  /// 제목에 넣는 [diary] 날짜(예 `10월 12일`).
+  static String _dateLabel(String locale, Diary diary) {
+    final date = CalendarDate.parse(diary.date);
+    return DateFormat.MMMd(locale)
+        .format(DateTime(date.year, date.month, date.day));
+  }
+
+  /// 확인 창 뒤 [diary]를 지우고 앞 화면으로 돌아갑니다(A50).
+  Future<void> _delete(BuildContext context, WidgetRef ref, Diary diary) async {
     final l10n = AppLocalizations.of(context);
     final confirmed = await showMyungliDialog(
       context,
@@ -151,7 +158,7 @@ class DiaryViewScreen extends ConsumerWidget {
     try {
       final deleted = await ref
           .read(diaryDeleterProvider.notifier)
-          .delete(date);
+          .delete(diary);
       if (!deleted || !context.mounted) return;
       showMyungliToast(
         context,
@@ -182,14 +189,14 @@ class DiaryViewScreen extends ConsumerWidget {
 
 /// 그날 성격과 종이.
 class _DiaryViewBody extends ConsumerWidget {
-  const new({required this.date, required this.diary});
+  const new({required this.diary});
 
-  final CalendarDate date;
   final Diary diary;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final date = CalendarDate.parse(diary.date);
     final day = ref.watch(calendarDayProvider(date)).value;
     final names = ref.watch(glossaryProvider).value;
     final sheets = ref.read(depthSheetsProvider);

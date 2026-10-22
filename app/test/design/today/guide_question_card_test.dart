@@ -186,7 +186,7 @@ void main() {
       handle.dispose();
     });
 
-    for (final state in GuideQuestionState.values) {
+    for (final state in [GuideQuestionState.before, GuideQuestionState.after]) {
       testWidgets('${state.name}: 버튼을 누르면 onAction이 한 번 불립니다', (tester) async {
         var taps = 0;
         await tester.pumpWidget(_app(state, onAction: () => taps++));
@@ -195,6 +195,25 @@ void main() {
         expect(taps, 1);
       });
     }
+
+    testWidgets('onAction이 null이면 버튼이 꺼집니다(disabled)', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: GuideQuestionState.after,
+              eyebrow: '오늘의 질문',
+              question: RenderedText(segments: [Segment(text: '질문')]),
+              actionLabel: '오늘은 충분히 썼어요',
+              onAction: null,
+            ),
+          ),
+        ),
+      );
+      final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
+      expect(button.onPressed, isNull);
+      expect(button.label, '오늘은 충분히 썼어요');
+    });
 
     group('접근성', () {
       testWidgets('묶음 라벨은 "일기 질문"입니다', (tester) async {
@@ -338,6 +357,142 @@ void main() {
       expect(tester.binding.transientCallbackCount, 0);
       expect(find.byType(LiveAnnouncement), findsNothing);
       handle.dispose();
+    });
+
+    group('full(상한을 채운 날)', () {
+      testWidgets('full이면 버튼을 눌러도 onAction이 불리지 않고 햅틱이 없습니다', (tester) async {
+        final haptics = recordHaptics(tester);
+        var taps = 0;
+        await tester.pumpWidget(
+          _app(GuideQuestionState.full, onAction: () => taps++),
+        );
+        await tester.tap(find.byType(PrimaryButton), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(taps, 0);
+        expect(haptics, isEmpty);
+        final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
+        expect(button.onPressed, isNull);
+        expect(button.variant, PrimaryButtonVariant.quiet);
+      });
+
+      testWidgets('full은 글자가 disabled.fg이고 질문은 text.secondary입니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        final colors = tester.element(find.byType(SentenceBlock)).tokens.colors;
+        expect(_questionColor(tester), colors.textSecondary);
+        final label = tester.widget<Text>(
+          find.descendant(
+            of: find.byType(PrimaryButton),
+            matching: find.text('쓴 일기 보기'),
+          ),
+        );
+        expect(label.style!.color, colors.disabledFg);
+      });
+
+      testWidgets('full에서도 도장이 남습니다', (tester) async {
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        final seal = tester.widget<Seal>(find.byType(Seal));
+        expect(seal.size, SealSize.card);
+        expect(seal.variant, SealVariant.soft);
+        expect(tester.binding.transientCallbackCount, 0);
+      });
+
+      testWidgets('full은 after와 같은 상태 낭독(오늘 일기를 썼어요)입니다', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        expect(find.bySemanticsLabel('오늘 일기를 썼어요'), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('after에서 full로 바뀔 때 "더 쓸 수 없음"을 한 번 낭독하고 full에서는 다시 없습니다', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        Widget card(GuideQuestionState state) => inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: state,
+              eyebrow: '오늘의 질문',
+              question: _question(),
+              actionLabel: '쓴 일기 보기',
+              onAction: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        expect(find.byType(LiveAnnouncement), findsNothing);
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        final live = find.byType(LiveAnnouncement);
+        expect(live, findsOneWidget);
+        final data = tester.getSemantics(live).getSemanticsData();
+        expect(data.label, '오늘은 충분히 썼어요');
+        expect(data.flagsCollection.isLiveRegion, isTrue);
+        // full에서 다시 그려도 같은 문장 그대로입니다(바뀐 문장이 없어 다시 읽지 않음).
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        expect(
+          tester.getSemantics(live).getSemanticsData().label,
+          '오늘은 충분히 썼어요',
+        );
+        handle.dispose();
+      });
+
+      testWidgets('full에서 after로 돌아오면 "더 쓸 수 없음" 낭독이 사라지고 새로 낭독하지 않습니다', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        Widget card(GuideQuestionState state) => inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: state,
+              eyebrow: '오늘의 질문',
+              question: _question(),
+              actionLabel: '쓴 일기 보기',
+              onAction: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        expect(find.bySemanticsLabel('오늘은 충분히 썼어요'), findsOneWidget);
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        expect(find.bySemanticsLabel('오늘은 충분히 썼어요'), findsNothing);
+        expect(find.byType(LiveAnnouncement), findsNothing);
+        expect(find.bySemanticsLabel('오늘 일기를 썼어요'), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('처음부터 full이면 낭독 노드(LiveAnnouncement)가 없습니다', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        await tester.pumpWidget(_app(GuideQuestionState.full));
+        expect(find.byType(LiveAnnouncement), findsNothing);
+        handle.dispose();
+      });
+
+      testWidgets('after에서 full로 바뀌어도 도장은 그대로이고 다시 찍지 않습니다', (tester) async {
+        Widget card(GuideQuestionState state) => inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: state,
+              eyebrow: '오늘의 질문',
+              question: _question(),
+              actionLabel: '쓴 일기 보기',
+              onAction: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        // 다시 찍는다면 이 시점에 투명도가 1보다 작습니다.
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(_sealOpacity(tester), closeTo(1, 0.001));
+        // 테마 전환(AnimatedTheme)이 도는 프레임을 지나 도장 움직임이 없는지 봅니다.
+        await tester.pumpAndSettle();
+        expect(find.byType(Seal), findsOneWidget);
+        expect(tester.binding.transientCallbackCount, 0);
+        expect(_sealOpacity(tester), closeTo(1, 0.001));
+      });
     });
   });
 }

@@ -25,8 +25,8 @@ const _notUserFacing = {
 
 /// writing 오류 문구(`slots/ui/common.yaml`)가 아직 없는 code입니다. 그동안은 4xx 일반
 /// 문구(`errorClient`)로 보입니다. writing이 ARB 키를 더하면 아래 '대기 목록' 테스트가
-/// 실패하니, 이 목록에서 지우고 [problemMessages]에 연결합니다. 지금은 없습니다(#268 반영).
-const Set<String> _awaitingWriting = {};
+/// 실패하니, 이 목록에서 지우고 [problemMessages]에 연결합니다. D82 draft.14 code, writing 문구 대기.
+const Set<String> _awaitingWriting = {'merge.token_invalid'};
 
 /// 계약 `Problem.code`의 `x-problem-codes` 목록을 읽습니다.
 Set<String> _contractCodes() {

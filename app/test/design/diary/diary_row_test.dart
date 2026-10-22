@@ -201,6 +201,16 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('한 편 카드의 낭독은 날짜 숫자·요일·배지 노드 없이 라벨 하나입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_rows());
+      expect(find.bySemanticsLabel(RegExp('^10월 12일 월요일')), findsOneWidget);
+      expect(find.bySemanticsLabel('12'), findsNothing);
+      expect(find.bySemanticsLabel('월'), findsNothing);
+      expect(find.bySemanticsLabel('좋은 날'), findsNothing);
+      handle.dispose();
+    });
+
     testWidgets('배지를 기다리는 동안(characterPending) 배지 자리는 skeleton입니다', (
       tester,
     ) async {

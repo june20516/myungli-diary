@@ -63,6 +63,49 @@ class _DiaryRowDemo extends StatelessWidget {
   );
 }
 
+/// 같은 날 여러 편: 묶음 카드와 이어지는 한 편 줄(`diary-row` `day`).
+class _DiaryGroupDemo extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      DiaryDayGroup(
+        date: CalendarDate(2026, 10, 12),
+        character: DayCharacterVariant.good,
+        characterLabel: '좋은 날',
+        entries: _entries(),
+        tag: TagChip(name: '천을귀인', variant: TagChipVariant.good, onTap: () {}),
+      ),
+      DiaryRow(
+        date: CalendarDate(2026, 10, 8),
+        excerpt: '아침 공기가 갑자기 차가워졌다.',
+        isLast: true,
+        onTap: () {},
+      ),
+    ],
+  );
+}
+
+List<DiaryEntryData> _entries() => [
+  DiaryEntryData(
+    createdAt: DateTime(2026, 10, 12, 8, 40),
+    excerpt: '아침 공기가 맑아서 산책을 나갔다.',
+    onTap: () {},
+  ),
+  DiaryEntryData(
+    createdAt: DateTime(2026, 10, 12, 13, 5),
+    excerpt: '오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.',
+    onTap: () {},
+  ),
+  DiaryEntryData(
+    createdAt: DateTime(2026, 10, 12, 22, 30),
+    excerpt: '',
+    onTap: () {},
+  ),
+];
+
 /// diary-editor edit: 저장 순간 버튼으로 도장·태그 칩 순서를 봅니다.
 class _EditorDemo extends StatefulWidget {
   const new();
@@ -117,6 +160,43 @@ final WidgetbookFolder diaryDirectory = WidgetbookFolder(
           name: '목록',
           builder: (context) =>
               const Stage(child: SizedBox(width: 360, child: _DiaryRowDemo())),
+        ),
+        WidgetbookUseCase(
+          name: '같은 날 여러 편(묶음 카드)',
+          builder: (context) => const Stage(
+            child: SizedBox(width: 360, child: _DiaryGroupDemo()),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'entries(오늘 바탕)',
+          builder: (context) => Stage(
+            child: SizedBox(
+              width: 360,
+              child: DiaryEntries(
+                entries: _entries(),
+                surface: DiaryEntriesSurface.card,
+              ),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'entries(그날 시트 머리)',
+          builder: (context) => Stage(
+            child: SizedBox(
+              width: 360,
+              child: DiaryEntries(
+                entries: _entries(),
+                surface: DiaryEntriesSurface.plain,
+                head: '이날 일기 3편',
+              ),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'entries skeleton',
+          builder: (context) => const Stage(
+            child: SizedBox(width: 360, child: DiaryEntriesSkeleton()),
+          ),
         ),
       ],
     ),

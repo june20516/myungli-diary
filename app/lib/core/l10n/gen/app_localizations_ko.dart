@@ -572,9 +572,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get adFreeRestoreCta => '구매 복원';
-
-  @override
   String adFreeStatusRemaining(String date) {
     return '$date까지 광고 없이 볼 수 있어요';
   }
@@ -599,7 +596,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get consentRequiredLabelPrivacy => '(필수) 개인정보 수집·이용';
 
   @override
-  String get daySheetDiaryOpen => '이날 일기 보기';
+  String daySheetDiaryOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count편',
+    );
+    return '이날 쓴 일기 $_temp0';
+  }
 
   @override
   String get daySheetDiaryWriteCta => '이날 일기 쓰기';
@@ -759,7 +763,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayGuideCta => '일기 쓰기';
 
   @override
-  String get todayGuideCtaWritten => '쓴 일기 보기';
+  String get todayGuideCtaWritten => '새 일기 쓰기';
 
   @override
   String get todayGuideEyebrow => '오늘의 질문';
@@ -1066,7 +1070,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String diaryListPickDateConfirm(String date) {
-    return '$date 일기';
+    return '$date 일기 쓰기';
   }
 
   @override
@@ -1180,4 +1184,157 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get legalLicensesLabel => '오픈소스 라이선스';
+
+  @override
+  String get accountMergeBarTitle => '계정 합치기';
+
+  @override
+  String get accountMergeChoiceLabel => '남길 계정을 골라 주세요';
+
+  @override
+  String get accountMergeCtaCancel => '합치지 않기';
+
+  @override
+  String get accountMergeCtaMerge => '계정 합치기';
+
+  @override
+  String get accountMergeMergeConfirm => '두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없어요.';
+
+  @override
+  String get accountMergeMergeConfirmMerge => '합치기';
+
+  @override
+  String get accountMergeMergeConfirmCancel => '취소';
+
+  @override
+  String get accountMergeOverlapNotice => '같은 날 쓴 일기도 모두 이 계정으로 옮겨요.';
+
+  @override
+  String get accountMergeTitleBody =>
+      '합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.';
+
+  @override
+  String get accountMergeTitleHead => '두 계정을 하나로 합칠까요?';
+
+  @override
+  String get daySheetDiaryWriteCtaWritten => '이날 새 일기 쓰기';
+
+  @override
+  String get daySheetDiaryWriteCtaFull => '이날은 충분히 썼어요';
+
+  @override
+  String get loginMethodsBarTitle => '로그인 수단';
+
+  @override
+  String get loginMethodsErrorBodyLink => '연결하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get loginMethodsErrorBodyUnlink => '연결을 끊지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get loginMethodsIntroBody =>
+      '여러 인증 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.';
+
+  @override
+  String get loginMethodsLastNotice => '인증 수단이 하나는 남아 있어야 해요.';
+
+  @override
+  String loginMethodsUnlinkConfirm(String provider) {
+    return '$provider 연결을 끊을까요?';
+  }
+
+  @override
+  String get loginMethodsUnlinkConfirmBody => '연결한 다른 인증 수단으로 계속 로그인할 수 있어요.';
+
+  @override
+  String get loginMethodsUnlinkConfirmUnlink => '연결 끊기';
+
+  @override
+  String get loginMethodsUnlinkConfirmCancel => '취소';
+
+  @override
+  String get todayGuideCtaFull => '오늘은 충분히 썼어요';
+
+  @override
+  String accountChoiceDiaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count편',
+    );
+    return '일기 $_temp0';
+  }
+
+  @override
+  String get accountChoiceCurrent => '현재 계정';
+
+  @override
+  String get accountChoiceProviderSeparator => ' · ';
+
+  @override
+  String get accountMergeError => '계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.';
+
+  @override
+  String accountChoiceSaju(String date, String calendar, String time) {
+    return '$calendar $date $time';
+  }
+
+  @override
+  String accountChoiceSajuNoTime(String date, String calendar) {
+    return '$calendar $date 시각 모름';
+  }
+
+  @override
+  String get accountChoiceSajuEmpty => '사주 정보 없음';
+
+  @override
+  String get diaryListPickDateConfirmFull => '이날은 충분히 썼어요';
+
+  @override
+  String get errorDiaryDayFull => '이날은 충분히 썼어요.';
+
+  @override
+  String get loginProviderKakao => '카카오';
+
+  @override
+  String get loginProviderLine => 'LINE';
+
+  @override
+  String get loginProviderGoogle => 'Google';
+
+  @override
+  String get loginProviderApple => 'Apple';
+
+  @override
+  String get loginMethodsRowConnected => '연결됨';
+
+  @override
+  String get loginMethodsRowUnlink => '연결 끊기';
+
+  @override
+  String get loginLineLabel => 'LINE으로 로그인';
+
+  @override
+  String get loginGoogleLabel => 'Google 계정으로 로그인';
+
+  @override
+  String get settingsLoginMethodsLabel => '로그인 수단';
+
+  @override
+  String get errorAuthIdentityNotFound => '연결된 인증 수단을 찾지 못했어요. 화면을 다시 열어 주세요.';
+
+  @override
+  String get errorAuthProviderTaken => '같은 인증 수단으로 연결한 다른 계정이 이미 있어요.';
+
+  @override
+  String get errorAuthIdentityInUse => '다른 계정에 연결된 인증 수단이에요.';
+
+  @override
+  String get errorAuthIdentityPendingDeletion => '삭제 대기 중인 계정에 연결되어 있어요.';
+
+  @override
+  String get errorAuthLastIdentity => '인증 수단이 하나는 남아 있어야 해요.';
+
+  @override
+  String get adFreeRestoreCta => '구매 복원';
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -103,55 +105,71 @@ Widget _buttons() => Builder(
   },
 );
 
-/// 카카오(위)·Apple(아래) × 기본·loading·꺼짐. Apple은 밝기에 따라 검정·흰색입니다.
+/// 카카오·LINE·Google·Apple × 기본·loading·꺼짐. Apple·Google은 밝기에 따라 바뀝니다.
 Widget _socialButtons() => Builder(
   builder: (context) {
-    final ja = Localizations.localeOf(context).languageCode == 'ja';
-    final kakao = ja ? 'カカオでログイン' : '카카오 로그인';
-    final apple = ja ? 'Appleでサインイン' : 'Apple로 로그인';
+    final l10n = AppLocalizations.of(context);
     // golden에는 플랫폼 시스템 글꼴이 없어 앱 글꼴로 대신합니다.
     final appFont = context.tokens.typography.labelLg.fontFamily;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: Space.s12,
       children: [
-        SocialLoginButton(
-          provider: SocialProvider.kakao,
-          label: kakao,
-          onPressed: () {},
-        ),
-        SocialLoginButton(
-          provider: SocialProvider.apple,
-          label: apple,
-          systemFontFamily: appFont,
-          onPressed: () {},
-        ),
-        SocialLoginButton(
-          provider: SocialProvider.kakao,
-          label: kakao,
-          loading: true,
-          animated: false,
-          onPressed: () {},
-        ),
-        SocialLoginButton(
-          provider: SocialProvider.apple,
-          label: apple,
-          systemFontFamily: appFont,
-          loading: true,
-          animated: false,
-          onPressed: () {},
-        ),
-        SocialLoginButton(
-          provider: SocialProvider.kakao,
-          label: kakao,
-          onPressed: null,
-        ),
-        SocialLoginButton(
-          provider: SocialProvider.apple,
-          label: apple,
-          systemFontFamily: appFont,
-          onPressed: null,
-        ),
+        for (final provider in SocialProvider.values) ...[
+          SocialLoginButton(
+            provider: provider,
+            label: socialProviderLabel(l10n, provider),
+            systemFontFamily: appFont,
+            onPressed: () {},
+          ),
+          SocialLoginButton(
+            provider: provider,
+            label: socialProviderLabel(l10n, provider),
+            systemFontFamily: appFont,
+            loading: true,
+            animated: false,
+            onPressed: () {},
+          ),
+          SocialLoginButton(
+            provider: provider,
+            label: socialProviderLabel(l10n, provider),
+            systemFontFamily: appFont,
+            onPressed: null,
+          ),
+        ],
+      ],
+    );
+  },
+);
+
+/// connected(login-methods) 네 제공자 + 마지막 하나(누를 수 없음)·disabled·loading.
+Widget _socialConnected() => Builder(
+  builder: (context) {
+    final l10n = AppLocalizations.of(context);
+    SocialLoginButton row(
+      SocialProvider provider, {
+      bool pressable = true,
+      bool disabled = false,
+      bool loading = false,
+    }) => SocialLoginButton(
+      provider: provider,
+      label: socialProviderName(l10n, provider),
+      connected: true,
+      connectedLabel: l10n.loginMethodsRowConnected,
+      unlinkHint: l10n.loginMethodsRowUnlink,
+      disabled: disabled,
+      loading: loading,
+      animated: false,
+      onPressed: pressable ? () {} : null,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s12,
+      children: [
+        for (final provider in SocialProvider.values) row(provider),
+        row(SocialProvider.kakao, pressable: false),
+        row(SocialProvider.line, disabled: true),
+        row(SocialProvider.apple, loading: true),
       ],
     );
   },
@@ -189,11 +207,24 @@ void main() {
     await goldenMatrix(tester, 'action_primary_button', _buttons);
   });
 
-  goldenTest('social-login-button: 카카오·Apple × 기본·loading·꺼짐', (tester) async {
+  goldenTest('social-login-button: 카카오·LINE·Google·Apple × 기본·loading·꺼짐', (
+    tester,
+  ) async {
     await goldenMatrix(
       tester,
       'action_social_login_button',
       _socialButtons,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('social-login-button: connected 네 제공자·마지막 하나·disabled·loading', (
+    tester,
+  ) async {
+    await goldenMatrix(
+      tester,
+      'action_social_login_connected',
+      _socialConnected,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

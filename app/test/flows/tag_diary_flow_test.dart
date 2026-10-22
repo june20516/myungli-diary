@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
-import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
@@ -165,7 +164,10 @@ void main() {
       container
           .read(routerProvider)
           .push<void>(
-            datedPathOf(ScreenIds.diaryView, CalendarDate(2026, 10, 12)),
+            diaryPathOf(
+              ScreenIds.diaryView,
+              '7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001',
+            ),
           ),
     );
     await pumpUntil(tester, () => find.byType(TagChip).evaluate().isNotEmpty);
@@ -179,7 +181,7 @@ void main() {
     );
   });
 
-  testWidgets('줄을 누르면 그날 diary-view', (tester) async {
+  testWidgets('줄을 누르면 그 일기의 diary-view', (tester) async {
     covers(const Covers(exits: ['tag-diary>diary-view']));
     await _openTagDiary(tester);
     await tester.tap(find.byType(DiaryRow).first);
@@ -188,7 +190,7 @@ void main() {
     final view = find.byKey(const ValueKey(ScreenIds.diaryView));
     expect(
       GoRouterState.of(tester.element(view)).uri.toString(),
-      '/diary-view?date=2026-10-12',
+      '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001',
     );
   });
 
