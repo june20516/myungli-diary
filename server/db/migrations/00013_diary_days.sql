@@ -47,6 +47,9 @@ ALTER TABLE diaries
     ADD COLUMN guide_question  jsonb,
     ADD COLUMN ruleset_version text;
 
+-- updated_at 트리거가 복원 UPDATE로 수정 시각을 덮지 않게 잠시 끕니다.
+ALTER TABLE diaries DISABLE TRIGGER diaries_set_updated_at;
+
 UPDATE diaries d
 SET all_tags = dd.all_tags,
     featured_tags = dd.featured_tags,
@@ -54,6 +57,8 @@ SET all_tags = dd.all_tags,
     ruleset_version = dd.ruleset_version
 FROM diary_days dd
 WHERE dd.account_id = d.account_id AND dd.date = d.date;
+
+ALTER TABLE diaries ENABLE TRIGGER diaries_set_updated_at;
 
 ALTER TABLE diaries
     ALTER COLUMN all_tags SET NOT NULL,
