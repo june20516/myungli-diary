@@ -38,8 +38,8 @@ var _ PurchaseSource = (*RevenueCat)(nil)
 
 // SyncConfig는 광고 제거권 동기화 설정입니다(P7-2).
 type SyncConfig struct {
-	// AdFreeProductIDs는 광고 제거권 상품 id(iOS·Android)입니다. 목록 밖 상품은 무시합니다.
-	AdFreeProductIDs []string
+	// Catalog는 사용 구간을 만드는 상품 목록입니다. 목록 밖 상품은 무시합니다.
+	Catalog Catalog
 	// ProductionOnly가 true면 production 구매만 셉니다(APP_ENV가 prod일 때).
 	ProductionOnly bool
 }
@@ -48,7 +48,7 @@ type SyncConfig struct {
 type Syncer struct {
 	pool           *pgxpool.Pool
 	source         PurchaseSource
-	products       map[string]bool
+	catalog        Catalog
 	productionOnly bool
 	clk            clock.Clock
 	store          *Store
@@ -56,14 +56,10 @@ type Syncer struct {
 
 // NewSyncer는 Syncer를 만듭니다.
 func NewSyncer(pool *pgxpool.Pool, src PurchaseSource, cfg SyncConfig, clk clock.Clock) *Syncer {
-	products := make(map[string]bool, len(cfg.AdFreeProductIDs))
-	for _, id := range cfg.AdFreeProductIDs {
-		products[id] = true
-	}
 	return &Syncer{
 		pool:           pool,
 		source:         src,
-		products:       products,
+		catalog:        cfg.Catalog,
 		productionOnly: cfg.ProductionOnly,
 		clk:            clk,
 		store:          NewStore(pool, clk),
@@ -95,7 +91,7 @@ func (s *Syncer) Sync(ctx context.Context, accountID uuid.UUID) error {
 		if err != nil {
 			return fmt.Errorf("구매 목록 조회(계정 %s): %w", accountID, err)
 		}
-		return s.reconcile(ctx, billingdb.New(tx), accountID, adFreeGrants(purchases, s.products, s.productionOnly))
+		return s.reconcile(ctx, billingdb.New(tx), accountID, adFreeGrants(purchases, s.catalog, s.productionOnly))
 	})
 }
 
@@ -148,14 +144,14 @@ func (s *Syncer) Restore(ctx context.Context, accountID uuid.UUID) (Status, erro
 
 // adFreeGrants는 구매 목록에서 광고 제거권 행을 계산합니다(P7-3·P7-4, D61).
 //
-// products에 있는 상품의 환불되지 않은 구매만 셉니다. productionOnly면 sandbox 구매도 뺍니다.
+// catalog에 있는 상품의 환불되지 않은 구매만 셉니다. productionOnly면 sandbox 구매도 뺍니다.
 // 구매를 (구매일, id) 순으로 놓고 starts_at = max(직전 만료일, 구매일), expires_at = starts_at + 1개월로 이어 붙입니다.
 // 구매 하나는 같은 기간의 ad_free·insight 두 행(출처 ad_free_pass, source_ref = 구매 id)이 됩니다(D60 ③).
 // 입력 slice는 바꾸지 않습니다.
-func adFreeGrants(purchases []Purchase, products map[string]bool, productionOnly bool) []Grant {
+func adFreeGrants(purchases []Purchase, catalog Catalog, productionOnly bool) []Grant {
 	counted := make([]Purchase, 0, len(purchases))
 	for _, p := range purchases {
-		if p.Refunded || !products[p.ProductID] || (productionOnly && !p.Production) {
+		if p.Refunded || !inCatalog(catalog, p.ProductID) || (productionOnly && !p.Production) {
 			continue
 		}
 		counted = append(counted, p)
@@ -175,7 +171,7 @@ func adFreeGrants(purchases []Purchase, products map[string]bool, productionOnly
 			startsAt = previousExpiry
 		}
 		expiresAt := addMonth(startsAt)
-		for _, entitlement := range []Entitlement{AdFree, Insight} {
+		for _, entitlement := range catalog[p.ProductID].Entitlements {
 			grants = append(grants, Grant{
 				Entitlement: entitlement,
 				Source:      SourceAdFreePass,
@@ -187,6 +183,11 @@ func adFreeGrants(purchases []Purchase, products map[string]bool, productionOnly
 		previousExpiry = expiresAt
 	}
 	return grants
+}
+
+func inCatalog(catalog Catalog, productID string) bool {
+	_, ok := catalog[productID]
+	return ok
 }
 
 // addMonth는 UTC 달력으로 한 달 뒤 같은 날 같은 시각을 돌려줍니다(P7-3).

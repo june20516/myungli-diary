@@ -221,6 +221,19 @@ type ProviderRevocation struct {
 	CreatedAt         time.Time
 }
 
+type Purchase struct {
+	ID                string
+	AccountID         uuid.UUID
+	OriginalAccountID uuid.UUID
+	MergedAt          *time.Time
+	ProductID         string
+	Store             string
+	PurchasedAt       time.Time
+	RefundedAt        *time.Time
+	Production        bool
+	CreatedAt         time.Time
+}
+
 type RateLimit struct {
 	Key         string
 	WindowStart time.Time

@@ -126,7 +126,7 @@ func (q *Queries) InsertRewardEvent(ctx context.Context, arg InsertRewardEventPa
 const insertRewardedAdGrant = `-- name: InsertRewardedAdGrant :exec
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES ($1, 'insight', 'rewarded_ad', $2, $3, $4)
-ON CONFLICT (entitlement, source, source_ref) DO NOTHING
+ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING
 `
 
 type InsertRewardedAdGrantParams struct {
@@ -280,7 +280,7 @@ func (q *Queries) RevokeGrant(ctx context.Context, arg RevokeGrantParams) error 
 const upsertGrant = `-- name: UpsertGrant :exec
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES ($1, $2, $3, $4, $5, $6)
-ON CONFLICT (entitlement, source, source_ref) DO UPDATE
+ON CONFLICT (account_id, entitlement, source, source_ref) DO UPDATE
 SET account_id = EXCLUDED.account_id,
     starts_at  = EXCLUDED.starts_at,
     expires_at = EXCLUDED.expires_at,

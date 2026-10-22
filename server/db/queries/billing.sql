@@ -24,7 +24,7 @@ ORDER BY id;
 -- 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES (@account_id, @entitlement, @source, @source_ref, @starts_at, @expires_at)
-ON CONFLICT (entitlement, source, source_ref) DO UPDATE
+ON CONFLICT (account_id, entitlement, source, source_ref) DO UPDATE
 SET account_id = EXCLUDED.account_id,
     starts_at  = EXCLUDED.starts_at,
     expires_at = EXCLUDED.expires_at,
@@ -84,4 +84,4 @@ WHERE account_id = @account_id;
 -- 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES (@account_id, 'insight', 'rewarded_ad', @source_ref, @starts_at, @expires_at)
-ON CONFLICT (entitlement, source, source_ref) DO NOTHING;
+ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING;

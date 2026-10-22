@@ -1,0 +1,89 @@
+package postgres_test
+
+import (
+	"context"
+	"strings"
+	"testing"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+)
+
+const insertPurchase = `INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, production)
+	VALUES ($1, $2, $3, 'product.month', 'app_store', now(), true)`
+
+func TestSchema00016_Purchases(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	for _, id := range []string{accountA, accountB} {
+		if err := insertActive(ctx, pool, id); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// refunded_at·merged_at은 NULL을 허용하고, 합친 구매는 account_id와 original_account_id가 다를 수 있습니다.
+	if _, err := pool.Exec(ctx, insertPurchase, "txn-1", accountA, accountB); err != nil {
+		t.Fatalf("구매 삽입: %v", err)
+	}
+	var refundedNull, mergedNull bool
+	if err := pool.QueryRow(ctx, `SELECT refunded_at IS NULL, merged_at IS NULL FROM purchases WHERE id = 'txn-1'`).Scan(&refundedNull, &mergedNull); err != nil {
+		t.Fatal(err)
+	}
+	if !refundedNull || !mergedNull {
+		t.Errorf("refunded_at NULL = %v, merged_at NULL = %v, want 둘 다 true", refundedNull, mergedNull)
+	}
+
+	// id는 PK입니다.
+	if _, err := pool.Exec(ctx, insertPurchase, "txn-1", accountA, accountA); err == nil {
+		t.Error("같은 구매 id를 두 번 넣을 수 있습니다")
+	}
+
+	// 두 계정 FK는 RESTRICT라 구매가 있는 계정 행은 지울 수 없습니다.
+	for _, id := range []string{accountA, accountB} {
+		_, err := pool.Exec(ctx, `DELETE FROM accounts WHERE id = $1`, id)
+		if err == nil || !strings.Contains(err.Error(), "purchases") {
+			t.Errorf("계정 %s 삭제 오류 = %v, want purchases FK 위반", id, err)
+		}
+	}
+
+	// 없는 계정은 두 열 모두 거절합니다.
+	if _, err := pool.Exec(ctx, insertPurchase, "txn-2", "00000000-0000-7000-8000-0000000000ff", accountA); err == nil {
+		t.Error("없는 account_id로 구매를 넣을 수 있습니다")
+	}
+	if _, err := pool.Exec(ctx, insertPurchase, "txn-3", accountA, "00000000-0000-7000-8000-0000000000ff"); err == nil {
+		t.Error("없는 original_account_id로 구매를 넣을 수 있습니다")
+	}
+
+	// 목록 조회용 인덱스가 있습니다.
+	var indexDef string
+	if err := pool.QueryRow(ctx, `SELECT indexdef FROM pg_indexes WHERE tablename = 'purchases' AND indexdef LIKE '%account_id, purchased_at DESC%'`).Scan(&indexDef); err != nil {
+		t.Errorf("(account_id, purchased_at DESC) 인덱스 조회: %v", err)
+	}
+}
+
+func TestSchema00016_GrantsUniquePerAccount(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	for _, id := range []string{accountA, accountB} {
+		if err := insertActive(ctx, pool, id); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := insertGrantRow(ctx, pool, accountA); err != nil {
+		t.Fatalf("A 구간: %v", err)
+	}
+	if err := insertGrantRow(ctx, pool, accountB); err != nil {
+		t.Errorf("같은 (entitlement, source, source_ref)를 다른 계정에 넣을 수 없습니다: %v", err)
+	}
+	if err := insertGrantRow(ctx, pool, accountA); err == nil {
+		t.Error("같은 계정에 같은 (entitlement, source, source_ref)를 두 번 넣을 수 있습니다")
+	}
+}
+
+func insertGrantRow(ctx context.Context, pool *pgxpool.Pool, accountID string) error {
+	_, err := pool.Exec(ctx, `INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+		VALUES ($1, 'ad_free', 'ad_free_pass', 'txn-1', now(), now() + interval '1 month')`, accountID)
+	return err
+}

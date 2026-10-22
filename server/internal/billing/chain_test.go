@@ -12,7 +12,7 @@ const (
 	testAndroidProduct = "test.ad_free.month.android"
 )
 
-var testProducts = map[string]bool{testIOSProduct: true, testAndroidProduct: true}
+var testProducts = AdFreeCatalog([]string{testIOSProduct, testAndroidProduct})
 
 func utc(year int, month time.Month, day, hour int) time.Time {
 	return time.Date(year, month, day, hour, 0, 0, 0, time.UTC)

@@ -153,7 +153,7 @@ func newSyncFixture(t *testing.T) syncFixture {
 	pool := dbtest.New(t)
 	source := newFakePurchases()
 	clk := clocktest.New(now)
-	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{AdFreeProductIDs: []string{testAdFreeProduct}}, clk)
+	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct})}, clk)
 	return syncFixture{pool: pool, source: source, clk: clk, syncer: syncer}
 }
 
@@ -339,28 +339,25 @@ func TestSyncer_Sync_OtherProviderError_Returned(t *testing.T) {
 	assert.Empty(t, allGrants(t, f.pool))
 }
 
-func TestSyncer_Sync_PurchaseMovedToAnotherAccount_RowFollowsOwner(t *testing.T) {
+// unique가 (account_id, ...)로 바뀐 뒤에는 구매가 다른 계정 목록에 나타나도 행이 옮겨 가지 않고 계정마다 따로 생깁니다(spec §5.1).
+// 주인 규칙과 옛 계정 행 정리는 장부를 쓰는 동기화(spec §5.2·§5.3)가 맡습니다.
+func TestSyncer_Sync_PurchaseInAnotherAccountList_RowsPerAccount(t *testing.T) {
 	f := newSyncFixture(t)
 	accountA := newAccount(t, f.pool)
 	accountB := newAccount(t, f.pool)
 	f.source.set(accountA, owned("p1", oct1))
 	require.NoError(t, f.syncer.Sync(context.Background(), accountA))
 
-	// RevenueCat transfer 뒤 p1은 B의 목록에 옵니다.
-	f.source.set(accountA)
 	f.source.set(accountB, owned("p1", oct1))
 	require.NoError(t, f.syncer.Sync(context.Background(), accountB))
 
 	grants := allGrants(t, f.pool)
-	require.Len(t, grants, 2)
+	require.Len(t, grants, 4)
+	perAccount := map[uuid.UUID]int{}
 	for _, g := range grants {
-		assert.Equal(t, accountB, g.AccountID, "%v는 지금 주인 B의 행", g)
+		perAccount[g.AccountID]++
 	}
-	assertPeriod(t, grants, "p1", oct1, nov1, nil)
-
-	// A를 다시 동기화해도 B로 옮겨 간 행은 건드리지 않습니다.
-	require.NoError(t, f.syncer.Sync(context.Background(), accountA))
-	assertPeriod(t, allGrants(t, f.pool), "p1", oct1, nov1, nil)
+	assert.Equal(t, map[uuid.UUID]int{accountA: 2, accountB: 2}, perAccount)
 }
 
 func TestSyncer_Sync_ConcurrentSameAccount_LookupsDoNotOverlap(t *testing.T) {

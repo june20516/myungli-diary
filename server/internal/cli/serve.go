@@ -424,8 +424,8 @@ func newBillingParts(cfg config.BillingConfig, pool *pgxpool.Pool, httpClient *h
 		BaseURL:    urls.RevenueCat,
 	})
 	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
-		AdFreeProductIDs: cfg.AdFreeProductIDs,
-		ProductionOnly:   cfg.ProductionOnly,
+		Catalog:        billing.AdFreeCatalog(cfg.AdFreeProductIDs),
+		ProductionOnly: cfg.ProductionOnly,
 	}, clk)
 	parts.Purchases = syncer
 	parts.Webhooks = billing.NewWebhooks(pool, syncer, cfg.RevenueCatWebhookAuth, clk, logger)
