@@ -26,6 +26,7 @@ func IsAccountDeletedError(err error) bool {
 
 // Revoker는 계정 삭제가 commit된 뒤 허가 취소 대기 행을 한 번씩 시도합니다(S106).
 // 실패는 대기 행에 남아 재시도 job이 다시 시도하므로 오류를 돌려주지 않습니다.
+// 받는 ctx는 취소·마감이 없으므로(commit 뒤 뒷정리) 구현이 외부 호출마다 자기 timeout을 둬야 합니다.
 type Revoker interface {
 	Attempt(ctx context.Context, ids []int64)
 }
@@ -75,7 +76,7 @@ func DeleteAccountTx(ctx context.Context, tx pgx.Tx, accountID uuid.UUID, now ti
 	}
 
 	revocationIDs, err := q.QueueProviderRevocations(ctx, accountdb.QueueProviderRevocationsParams{
-		NextAttemptAt: now, AccountID: accountID,
+		Now: now, AccountID: accountID,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("허가 취소 대기 행 저장: %w", err)

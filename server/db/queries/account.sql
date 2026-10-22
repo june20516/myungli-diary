@@ -4,10 +4,11 @@ FROM accounts
 WHERE id = @id;
 
 -- TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
+-- 지운 계정의 껍데기는 갱신하지 않습니다.
 -- name: TouchLastActive :execrows
 UPDATE accounts
 SET last_active_at = @last_active_at
-WHERE id = @id AND last_active_at < @last_active_at;
+WHERE id = @id AND last_active_at < @last_active_at AND status <> 'deleted';
 
 -- name: ListConsents :many
 SELECT document, version, agreed_at
@@ -32,14 +33,16 @@ FOR UPDATE;
 -- QueueProviderRevocations는 카카오와, 저장한 token이 있는 Apple 인증 계정마다 허가 취소 대기 행을 넣습니다(S106).
 -- Apple refresh token은 원래 행의 암호화 값 그대로 옮기고, 복호화의 aad인 원래 인증 계정 id를 함께 남깁니다.
 -- name: QueueProviderRevocations :many
-INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at)
+-- created_at은 30일 포기 판정(S106)의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.
+INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at, created_at)
 SELECT provider,
        CASE WHEN provider = 'kakao' THEN subject END,
        id,
        apple_refresh_token,
        apple_token_key_id,
        apple_client_id,
-       @next_attempt_at::timestamptz
+       @now::timestamptz,
+       @now::timestamptz
 FROM auth_identities
 WHERE account_id = @account_id
   AND (provider = 'kakao' OR (provider = 'apple' AND apple_refresh_token IS NOT NULL))

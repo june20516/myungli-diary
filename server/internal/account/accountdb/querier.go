@@ -41,10 +41,12 @@ type Querier interface {
 	MarkAccountDeleted(ctx context.Context, arg MarkAccountDeletedParams) error
 	// QueueProviderRevocations는 카카오와, 저장한 token이 있는 Apple 인증 계정마다 허가 취소 대기 행을 넣습니다(S106).
 	// Apple refresh token은 원래 행의 암호화 값 그대로 옮기고, 복호화의 aad인 원래 인증 계정 id를 함께 남깁니다.
+	// created_at은 30일 포기 판정(S106)의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.
 	QueueProviderRevocations(ctx context.Context, arg QueueProviderRevocationsParams) ([]int64, error)
 	// TallyReactions는 살아 있는 반응을 계정과 끊긴 문장별 집계에 더합니다(D57).
 	TallyReactions(ctx context.Context, accountID uuid.UUID) error
 	// TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
+	// 지운 계정의 껍데기는 갱신하지 않습니다.
 	TouchLastActive(ctx context.Context, arg TouchLastActiveParams) (int64, error)
 }
 

@@ -98,8 +98,14 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 	identityID := uuid.Must(uuid.NewV7())
 	exec(`INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'kakao', $3)`,
 		identityID, id, subjectPrefix+"-kakao")
+	// 회전된 refresh token 쌍입니다. 앞 token이 replaced_by_id로 뒤 token을 가리키므로(자기참조 RESTRICT)
+	// 한 번의 DELETE로 둘 다 지울 수 있어야 합니다.
+	family, rotated := uuid.Must(uuid.NewV7()), uuid.Must(uuid.NewV7())
 	exec(`INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at) VALUES ($1, $2, $3, $4, $5)`,
-		uuid.Must(uuid.NewV7()), id, bytes.Repeat([]byte{hashByte}, 32), uuid.Must(uuid.NewV7()), testNow.Add(time.Hour))
+		rotated, id, bytes.Repeat([]byte{hashByte}, 32), family, testNow.Add(time.Hour))
+	exec(`INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at, used_at, replaced_by_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		uuid.Must(uuid.NewV7()), id, bytes.Repeat([]byte{hashByte ^ 0xFF}, 32), family, testNow.Add(time.Hour), testNow, rotated)
 	exec(`INSERT INTO idempotency_keys (account_id, key, request_hash, created_at) VALUES ($1, 'k1', $2, $3)`,
 		id, bytes.Repeat([]byte{1}, 32), testNow)
 
@@ -145,12 +151,15 @@ func TestDeleteAccountTx_RemovesPersonalData(t *testing.T) {
 	f := newFixture(t)
 	target := seedAccount(t, f.ctx, f.pool, 0xA1, "target")
 	other := seedAccount(t, f.ctx, f.pool, 0xB2, "other")
-	// 다른 계정이 이 계정을 상대로 받은 합치기 토큰도 지웁니다.
+	// 이 계정이 A(account_id)이거나 B(other_account_id)인 합치기 토큰을 둘 다 지웁니다.
+	// 두 행 모두 다른 계정의 인증 계정을 가리켜, 인증 계정 삭제의 CASCADE가 아니라 토큰 삭제 쿼리로만 지워지게 합니다.
 	var otherIdentity uuid.UUID
 	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT id FROM auth_identities WHERE account_id = $1`, other.id).Scan(&otherIdentity))
-	_, err := f.pool.Exec(f.ctx, `INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
-		VALUES ($1, $2, $3, $4, $5, $6)`, uuid.Must(uuid.NewV7()), bytes.Repeat([]byte{9}, 32), other.id, target.id, otherIdentity, testNow.Add(time.Hour))
-	require.NoError(t, err)
+	for i, pair := range [][2]uuid.UUID{{other.id, target.id}, {target.id, other.id}} {
+		_, err := f.pool.Exec(f.ctx, `INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
+			VALUES ($1, $2, $3, $4, $5, $6)`, uuid.Must(uuid.NewV7()), bytes.Repeat([]byte{byte(9 + i)}, 32), pair[0], pair[1], otherIdentity, testNow.Add(time.Hour))
+		require.NoError(t, err)
+	}
 
 	keptBefore := map[string]int{}
 	for table, sql := range keptTables {
@@ -160,11 +169,11 @@ func TestDeleteAccountTx_RemovesPersonalData(t *testing.T) {
 	for table, sql := range deletedTables {
 		otherBefore[table] = countRows(t, f.ctx, f.pool, sql, other.id)
 	}
-	// 다른 계정 쪽에서 센 합치기 토큰은 target과 함께 지워지므로 기대값에서 뺍니다.
-	otherBefore["account_merge_tickets"]--
+	// 다른 계정 쪽에서 센 합치기 토큰 둘은 target과 함께 지워지므로 기대값에서 뺍니다.
+	otherBefore["account_merge_tickets"] -= 2
 
 	deletedAt := testNow.Add(time.Hour)
-	_, err = deleteInTx(t, f.ctx, f.pool, target.id, deletedAt)
+	_, err := deleteInTx(t, f.ctx, f.pool, target.id, deletedAt)
 	require.NoError(t, err)
 
 	for table, sql := range deletedTables {
@@ -263,15 +272,16 @@ func TestDeleteAccountTx_QueuesKakaoAndAppleOnly(t *testing.T) {
 		clientID      *string
 		attempts      int
 		nextAttemptAt time.Time
+		createdAt     time.Time
 	}
 	got := map[string]revocation{}
 	rows, err := f.pool.Query(f.ctx, `SELECT provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id,
-			attempts, next_attempt_at
+			attempts, next_attempt_at, created_at
 		FROM provider_revocations WHERE id = ANY($1)`, ids)
 	require.NoError(t, err)
 	for rows.Next() {
 		var r revocation
-		require.NoError(t, rows.Scan(&r.provider, &r.subject, &r.identityID, &r.token, &r.keyID, &r.clientID, &r.attempts, &r.nextAttemptAt))
+		require.NoError(t, rows.Scan(&r.provider, &r.subject, &r.identityID, &r.token, &r.keyID, &r.clientID, &r.attempts, &r.nextAttemptAt, &r.createdAt))
 		got[r.provider] = r
 	}
 	require.NoError(t, rows.Err())
@@ -295,6 +305,7 @@ func TestDeleteAccountTx_QueuesKakaoAndAppleOnly(t *testing.T) {
 	for provider, r := range got {
 		assert.Zero(t, r.attempts, provider)
 		assert.True(t, testNow.Equal(r.nextAttemptAt), "%s는 바로 시도할 수 있습니다", provider)
+		assert.True(t, testNow.Equal(r.createdAt), "%s의 created_at은 앱 시각입니다(30일 포기 기준)", provider)
 	}
 }
 
@@ -328,6 +339,20 @@ func TestDeleteAccountTx_AlreadyDeletedIsNoop(t *testing.T) {
 	var deletedAt time.Time
 	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT deleted_at FROM accounts WHERE id = $1`, f.id).Scan(&deletedAt))
 	assert.True(t, testNow.Equal(deletedAt), "처음 지운 시각을 유지합니다")
+}
+
+// 지운 계정의 껍데기는 요청이 와도 last_active_at을 갱신하지 않습니다.
+func TestAccess_DeletedAccountDoesNotTouchLastActive(t *testing.T) {
+	f := newFixture(t)
+	_, err := deleteInTx(t, f.ctx, f.pool, f.id, testNow)
+	require.NoError(t, err)
+
+	f.clk.Set(testNow.Add(48 * time.Hour))
+	got, err := f.service.Access(f.ctx, f.id)
+
+	require.NoError(t, err)
+	assert.Equal(t, account.StatusDeleted, got.Status)
+	assert.True(t, testNow.Equal(f.lastActiveAt(t)), "last_active_at = %v", f.lastActiveAt(t))
 }
 
 func TestDeleteAccountTx_UnknownAccountIsNotFound(t *testing.T) {

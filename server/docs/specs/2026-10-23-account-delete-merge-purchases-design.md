@@ -55,7 +55,7 @@ drift #478은 server가 고칠 것이 없습니다(원인은 writing 슬롯, #47
 5. `accounts`를 `status = 'deleted'`, `deleted_at = now`로 바꿉니다.
 6. commit 뒤 허가 취소 대기 행을 한 번씩 시도합니다(§4.2). 결과와 상관없이 204입니다.
 
-같은 인증 계정으로 다시 로그인하면 새 유저 계정이 생깁니다. 다른 요청이 삭제 중인 계정을 쓰면 계정 행 잠금 뒤에 기다리고, 기다린 뒤 `deleted`를 보면 401 `auth.unauthorized`로 끝납니다. 이 함수(`account.DeleteAccount(ctx, tx, accountID)`)는 합치기의 B 삭제가 같은 트랜잭션 안에서 그대로 부릅니다(D85 ④).
+같은 인증 계정으로 다시 로그인하면 새 유저 계정이 생깁니다. 다른 요청이 삭제 중인 계정을 쓰면 계정 행 잠금 뒤에 기다리고, 기다린 뒤 `deleted`를 보면 401 `auth.token_invalid`로 끝납니다. 이 함수(`account.DeleteAccount(ctx, tx, accountID)`)는 합치기의 B 삭제가 같은 트랜잭션 안에서 그대로 부릅니다(D85 ④).
 
 ### 3.2. 지우는 것과 남기는 것
 
