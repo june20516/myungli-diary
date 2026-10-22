@@ -273,6 +273,7 @@ main 병합(`4b89cf9e`)으로 컴포넌트 2.8.0·토큰 1.2.0·IA(#460)가 들�
 - Modify: `docs/decisions.md`(A72, spec §10 문구 그대로, A69 행에 "(A72가 갱신)"), `CLAUDE.md`(현재 상태 줄에 2.8.0, real-login 초안 번호를 "A73부터 다시 매김"으로, #410 대기 bullet 삭제)
 - Test: 묶음 함수 단위 테스트, today·day-sheet·diary-list 위젯/흐름 테스트, screenshot
 
+- [ ] **Step 0: REST draft.14 따라잡기(main 병합으로 들어옴, 추가만)** — `tool/gen_api.sh` 재생성, `test/contract/open_enums_contract_test.dart`의 기대 열린 enum 목록에 계약이 새로 연 enum(`LoginProvider` 등, 실패 메시지 그대로)을 더함, `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에 draft.14의 새 code(실패 메시지의 `missing` 목록 그대로)를 넣고 주석의 "지금은 없습니다"를 "D82 draft.14 code, writing 문구 대기"로. `gen_api_routes_test`의 operation 수가 바뀌면 계약 수로. 화면·동작 변화는 없습니다(새 operation은 계획 7이 씀). `flutter test --tags contract` PASS 뒤 commit `chore(app): REST draft.14 생성 클라이언트와 대기 code (D82, #463)`
 - [ ] **Step 1: 실패하는 테스트**
   * 묶음: `'같은 날 이웃만 묶는다'`, `'순서를 바꾸지 않는다'`(같은 날 안 작성 순 그대로), `'빈 목록은 빈 목록'`, `'한 날짜가 두 쪽에 나뉘어도 이어 붙인 뒤 한 묶음'`.
   * today: `'오늘 쓴 일기가 있으면 가이드 카드 아래 entry 줄, 누르면 diary-view?id='`, `'0편이면 entries를 그리지 않는다'`, `'10편이면 가이드 카드가 full'`.
