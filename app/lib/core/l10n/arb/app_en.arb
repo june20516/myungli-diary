@@ -174,7 +174,6 @@
   "adFreeLegalNotice": "Please review the Terms of Service and Privacy Policy before purchasing.",
   "adFreeOfferHead": "One month with no ads, and the basis and interpretation fully unlocked.",
   "adFreeOfferPrice": "{price} · 1 month · no auto-renewal",
-  "adFreeRestoreCta": "Restore purchase",
   "adFreeStatusRemaining": "Ad-free until {date}",
   "calcBasisConventionBody": "Readings follow the standard widely used in Korea. It's one well-grounded approach among several schools.",
   "calcBasisLunarBody": "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute.",
@@ -390,5 +389,11 @@
   "loginMethodsRowUnlink": "Unlink",
   "loginLineLabel": "Log in with LINE",
   "loginGoogleLabel": "Sign in with Google",
-  "settingsLoginMethodsLabel": "Sign-in methods"
+  "settingsLoginMethodsLabel": "Sign-in methods",
+  "errorAuthIdentityNotFound": "We couldn't find that sign-in method. Please reopen this screen.",
+  "errorAuthProviderTaken": "Another account is already linked with the same sign-in method.",
+  "errorAuthIdentityInUse": "This sign-in method is linked to another account.",
+  "errorAuthIdentityPendingDeletion": "It's linked to an account waiting to be deleted.",
+  "errorAuthLastIdentity": "You need at least one way to sign in.",
+  "adFreeRestoreCta": "Restore purchase"
 }

@@ -570,9 +570,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get adFreeRestoreCta => '購入を復元';
-
-  @override
   String adFreeStatusRemaining(String date) {
     return '$dateまで広告なしで使えます';
   }
@@ -1320,4 +1317,22 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsLoginMethodsLabel => 'ログイン方法';
+
+  @override
+  String get errorAuthIdentityNotFound => 'ログイン方法が見つかりませんでした。画面を開き直してください。';
+
+  @override
+  String get errorAuthProviderTaken => '同じログイン方法で別のアカウントがすでに連携されています。';
+
+  @override
+  String get errorAuthIdentityInUse => 'このログイン方法は別のアカウントに連携されています。';
+
+  @override
+  String get errorAuthIdentityPendingDeletion => '削除待ちのアカウントに連携されています。';
+
+  @override
+  String get errorAuthLastIdentity => 'ログイン方法は1つ以上残しておく必要があります。';
+
+  @override
+  String get adFreeRestoreCta => '購入を復元';
 }

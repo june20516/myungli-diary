@@ -572,9 +572,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get adFreeRestoreCta => '구매 복원';
-
-  @override
   String adFreeStatusRemaining(String date) {
     return '$date까지 광고 없이 볼 수 있어요';
   }
@@ -1235,10 +1232,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginMethodsErrorBodyUnlink => '연결을 끊지 못했어요. 다시 시도해 주세요.';
 
   @override
-  String get loginMethodsIntroBody => '여러 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.';
+  String get loginMethodsIntroBody =>
+      '여러 인증 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.';
 
   @override
-  String get loginMethodsLastNotice => '로그인할 수단이 하나는 남아 있어야 해요.';
+  String get loginMethodsLastNotice => '인증 수단이 하나는 남아 있어야 해요.';
 
   @override
   String loginMethodsUnlinkConfirm(String provider) {
@@ -1246,7 +1244,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get loginMethodsUnlinkConfirmBody => '연결한 다른 수단으로 계속 로그인할 수 있어요.';
+  String get loginMethodsUnlinkConfirmBody => '연결한 다른 인증 수단으로 계속 로그인할 수 있어요.';
 
   @override
   String get loginMethodsUnlinkConfirmUnlink => '연결 끊기';
@@ -1321,4 +1319,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsLoginMethodsLabel => '로그인 수단';
+
+  @override
+  String get errorAuthIdentityNotFound => '연결된 인증 수단을 찾지 못했어요. 화면을 다시 열어 주세요.';
+
+  @override
+  String get errorAuthProviderTaken => '같은 인증 수단으로 연결한 다른 계정이 이미 있어요.';
+
+  @override
+  String get errorAuthIdentityInUse => '다른 계정에 연결된 인증 수단이에요.';
+
+  @override
+  String get errorAuthIdentityPendingDeletion => '삭제 대기 중인 계정에 연결되어 있어요.';
+
+  @override
+  String get errorAuthLastIdentity => '인증 수단이 하나는 남아 있어야 해요.';
+
+  @override
+  String get adFreeRestoreCta => '구매 복원';
 }

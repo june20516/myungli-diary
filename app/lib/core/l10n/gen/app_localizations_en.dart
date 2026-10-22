@@ -623,9 +623,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get adFreeRestoreCta => 'Restore purchase';
-
-  @override
   String adFreeStatusRemaining(String date) {
     return 'Ad-free until $date';
   }
@@ -1426,4 +1423,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLoginMethodsLabel => 'Sign-in methods';
+
+  @override
+  String get errorAuthIdentityNotFound =>
+      'We couldn\'t find that sign-in method. Please reopen this screen.';
+
+  @override
+  String get errorAuthProviderTaken =>
+      'Another account is already linked with the same sign-in method.';
+
+  @override
+  String get errorAuthIdentityInUse =>
+      'This sign-in method is linked to another account.';
+
+  @override
+  String get errorAuthIdentityPendingDeletion =>
+      'It\'s linked to an account waiting to be deleted.';
+
+  @override
+  String get errorAuthLastIdentity => 'You need at least one way to sign in.';
+
+  @override
+  String get adFreeRestoreCta => 'Restore purchase';
 }

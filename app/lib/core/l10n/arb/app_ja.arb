@@ -174,7 +174,6 @@
   "adFreeLegalNotice": "購入前に利用規約とプライバシーポリシーをご確認ください。",
   "adFreeOfferHead": "1か月間、広告なしで、根拠と解釈まですべて開いて見られます。",
   "adFreeOfferPrice": "{price}・1か月・自動更新なし",
-  "adFreeRestoreCta": "購入を復元",
   "adFreeStatusRemaining": "{date}まで広告なしで使えます",
   "calcBasisConventionBody": "読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。",
   "calcBasisLunarBody": "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。",
@@ -390,5 +389,11 @@
   "loginMethodsRowUnlink": "連携を解除",
   "loginLineLabel": "LINEでログイン",
   "loginGoogleLabel": "Google でログイン",
-  "settingsLoginMethodsLabel": "ログイン方法"
+  "settingsLoginMethodsLabel": "ログイン方法",
+  "errorAuthIdentityNotFound": "ログイン方法が見つかりませんでした。画面を開き直してください。",
+  "errorAuthProviderTaken": "同じログイン方法で別のアカウントがすでに連携されています。",
+  "errorAuthIdentityInUse": "このログイン方法は別のアカウントに連携されています。",
+  "errorAuthIdentityPendingDeletion": "削除待ちのアカウントに連携されています。",
+  "errorAuthLastIdentity": "ログイン方法は1つ以上残しておく必要があります。",
+  "adFreeRestoreCta": "購入を復元"
 }

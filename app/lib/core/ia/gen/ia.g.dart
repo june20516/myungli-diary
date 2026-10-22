@@ -36,6 +36,7 @@ abstract final class ScreenIds {
   static const String settings = 'settings';
   static const String adFree = 'ad-free';
   static const String systemPurchase = 'system-purchase';
+  static const String purchaseHistory = 'purchase-history';
   static const String systemRewardedAd = 'system-rewarded-ad';
   static const String profileEdit = 'profile-edit';
   static const String calcBasis = 'calc-basis';
@@ -84,6 +85,7 @@ abstract final class SlotIds {
   static const String previewFortuneBody = 'preview.fortune.body';
   static const String previewCtaSave = 'preview.cta.save';
   static const String previewCtaRestart = 'preview.cta.restart';
+  static const String previewRestartNotice = 'preview.restart.notice';
   static const String previewShareLoginNotice = 'preview.share.login-notice';
   static const String loginBarTitle = 'login.bar.title';
   static const String loginTitleHead = 'login.title.head';
@@ -207,8 +209,12 @@ abstract final class SlotIds {
   static const String adFreeOfferHead = 'ad-free.offer.head';
   static const String adFreeOfferPrice = 'ad-free.offer.price';
   static const String adFreeStatusRemaining = 'ad-free.status.remaining';
-  static const String adFreeRestoreCta = 'ad-free.restore.cta';
+  static const String adFreeHistoryCta = 'ad-free.history.cta';
   static const String adFreeLegalNotice = 'ad-free.legal.notice';
+  static const String purchaseHistoryBarTitle = 'purchase-history.bar.title';
+  static const String purchaseHistoryEmptyBody = 'purchase-history.empty.body';
+  static const String purchaseHistoryMissingNotice =
+      'purchase-history.missing.notice';
   static const String profileEditBarTitle = 'profile-edit.bar.title';
   static const String profileEditRecalcNotice = 'profile-edit.recalc.notice';
   static const String profileEditRecalcConfirm = 'profile-edit.recalc.confirm';
@@ -217,14 +223,19 @@ abstract final class SlotIds {
   static const String calcBasisSchoolsBody = 'calc-basis.schools.body';
   static const String calcBasisLongitudeBody = 'calc-basis.longitude.body';
   static const String calcBasisLunarBody = 'calc-basis.lunar.body';
+  static const String calcBasisDaeunBody = 'calc-basis.daeun.body';
   static const String loginMethodsBarTitle = 'login-methods.bar.title';
   static const String loginMethodsIntroBody = 'login-methods.intro.body';
   static const String loginMethodsLastNotice = 'login-methods.last.notice';
   static const String loginMethodsUnlinkConfirm =
       'login-methods.unlink.confirm';
+  static const String loginMethodsInUseBody = 'login-methods.in-use.body';
+  static const String loginMethodsMergeCta = 'login-methods.merge.cta';
   static const String loginMethodsErrorBody = 'login-methods.error.body';
   static const String accountMergeBarTitle = 'account-merge.bar.title';
   static const String accountMergeTitleHead = 'account-merge.title.head';
+  static const String accountMergeAuthBody = 'account-merge.auth.body';
+  static const String accountMergeNotOtherBody = 'account-merge.not-other.body';
   static const String accountMergeTitleBody = 'account-merge.title.body';
   static const String accountMergeChoiceLabel = 'account-merge.choice.label';
   static const String accountMergeOverlapNotice =
@@ -711,6 +722,7 @@ const List<IaScreen> iaScreens = [
     exits: [
       IaExit(to: 'system-purchase', trigger: '구매'),
       IaExit(to: 'legal', trigger: '약관·정책 링크'),
+      IaExit(to: 'purchase-history', trigger: '구매 내역'),
     ],
     components: ['app-bar', 'offer-card', 'primary-button'],
   ),
@@ -722,6 +734,15 @@ const List<IaScreen> iaScreens = [
     states: [],
     exits: [IaExit(to: 'ad-free', trigger: '결제 완료 또는 취소')],
     components: [],
+  ),
+  IaScreen(
+    id: 'purchase-history',
+    tab: 'me',
+    presentation: IaPresentation.page,
+    auth: IaAuth.member,
+    states: ['loading', 'empty', 'error', 'offline'],
+    exits: [],
+    components: ['app-bar', 'purchase-row'],
   ),
   IaScreen(
     id: 'system-rewarded-ad',
@@ -762,7 +783,7 @@ const List<IaScreen> iaScreens = [
     presentation: IaPresentation.page,
     auth: IaAuth.member,
     states: ['error'],
-    exits: [IaExit(to: 'account-merge', trigger: '붙이려는 수단이 다른 계정에 연결돼 있음')],
+    exits: [IaExit(to: 'account-merge', trigger: '계정 합치기')],
     components: ['app-bar', 'social-login-button', 'dialog'],
   ),
   IaScreen(
@@ -775,7 +796,13 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'login-methods', trigger: '합치기 완료'),
       IaExit(to: 'login-methods', trigger: '합치지 않기'),
     ],
-    components: ['app-bar', 'account-choice', 'primary-button', 'dialog'],
+    components: [
+      'app-bar',
+      'social-login-button',
+      'account-choice',
+      'primary-button',
+      'dialog',
+    ],
   ),
   IaScreen(
     id: 'account-delete',
