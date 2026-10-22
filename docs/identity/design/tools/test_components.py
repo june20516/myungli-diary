@@ -913,3 +913,11 @@ def test_full_day_entrances():
 def test_written_day_entrances_open_a_new_diary():
     assert "쓴 일기 보기" not in json.dumps(component("action", "primary-button"), ensure_ascii=False)
     assert "쓴 일기 보기" not in (COMPONENTS_DIR / "today.md").read_text(encoding="utf-8")
+
+
+# writing #441 키 이름 (2.7.0 spec §7.2, writing PR #436)
+def test_d82_writing_keys_are_named():
+    connected = component("action", "social-login-button")["states"]["connected"]["parts"]["state"]
+    assert connected["slot"] == "ui.login-methods.row" and connected["key"] == "loginMethodsRowConnected"
+    providers = component("input", "account-choice")["parts"]["providers"]
+    assert providers["join"] == {"slot": "ui.account-merge.choice", "key": "accountChoiceProviderSeparator"}

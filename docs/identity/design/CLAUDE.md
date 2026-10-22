@@ -31,6 +31,11 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-10-22, design 세션 작성)
+* **같은 날 여러 편 #410** (브랜치 `design/diary-row-multi`, D83, 컴포넌트 계약 2.8.0·토큰 1.2.0).
+  * `diary-row` 변형 `day`(목록·태그 모아보기: 한 편이면 지금 모양, 두 편 이상이면 날짜 하나에 카드 하나 — 배지 위·태그 아래 한 번씩, 사이에 `entry` 줄)와 `entries`(오늘·그날 시트: `entry` 줄만). `entry`는 작성 시각 + 한 줄 미리보기 + 꺾쇠, 줄 사이 1px 점선(대시 4·간격 3, 새 토큰 `color.timeline.entry`, V42).
+  * 상한을 채운 날 입구: `guide-question-card` `full`(도장 남기고 버튼만 막음), 그날 시트 버튼·날짜 시트 버튼 `disabled` + writing `…Full` 키(V43). "쓴 일기 보기" 표기를 "새 일기 쓰기"로 고침(D83 ③).
+  * writing #441 키 이름 채움: `connected` "연결됨" `loginMethodsRowConnected`, 수단 구분자 `accountChoiceProviderSeparator`.
+  * 근거: [spec](specs/2026-10-22-diary-row-multi-design.md), 결정 V42·V43, 시안 `design-v2-diary-row-multi`.
 * **영문 ja 로그인 라벨 상한 #446** (브랜치 `design/login-label-ja`): `lengths.py` `KEY_LIMITS`(키별 상한 표)로 `ui.login.provider` ja `loginKakaoLabel`(영문 "Login with Kakao", #143)은 en 상한. IA가 `login-methods`에서 `settings-row`를 빼(PR #442) `USED_ON_EXCEPTIONS`를 지움. app #311에 2.7.0 요약을 남김.
 * **로그인 수단·계정 합치기 #389** (PR #439 병합, D82·D83, 컴포넌트 계약 2.7.0, drift #395).
   * `social-login-button`: `line`·`google` 변형(각 사 가이드 값), 언어별 순서 `parts.stack.order`(맨 위만 ko 카카오·ja LINE·en Google), 상태 `connected`(중립 줄 + "연결됨", 마지막 하나는 누를 수 없음, 결정 V39). login-methods 화면 배치는 `action.md`.
@@ -93,12 +98,10 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-0. **#410 diary-row 같은 날 여러 편:** 오늘 화면·날짜 시트의 작성 순 표시(시각, 한 줄 미리보기), diary-list 날짜 묶음. 10편을 채운 날 쓰는 입구(D83 ②, app #424·writing #425)가 `primary-button` `disabled`로 되는지 함께 봅니다.
 1. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리.
-2. writing이 spec §7.2 키("연결됨", `ui.account-merge.saju`, 수단 구분자, "현재 계정")를 더하면(#441) `account-choice`·`connected`의 키 이름을 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-3. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
-4. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-5. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-6. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+2. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
+3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+5. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

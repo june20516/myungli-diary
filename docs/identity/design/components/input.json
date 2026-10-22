@@ -223,7 +223,7 @@
         "saju": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "numerals": "tabular", "slot": "ui.account-merge.saju", "content": "생년월일·달력 종류·출생 시각", "timeUnknown": "시각 자리에 '시간 모름'", "noSaju": "사주를 저장하지 않은 계정이면 줄 전체가 '사주 정보 없음'" },
         "facts": { "gap": "{space.12}", "wrap": true },
         "diaryCount": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "numerals": "tabular", "slot": "ui.account-merge.choice", "key": "accountChoiceDiaryCount" },
-        "providers": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "names": "ui.login-methods.row loginProvider*", "join": "ui.account-merge.choice 구분자 키", "logo": false, "overflow": "wrap", "note": "로고 없이 이름 글자. Google G 단독 사용 금지(Google 가이드), 스크린리더가 그대로 읽음. 넘치면 말줄임 없이 다음 줄로" },
+        "providers": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "names": "ui.login-methods.row loginProvider*", "join": { "slot": "ui.account-merge.choice", "key": "accountChoiceProviderSeparator" }, "logo": false, "overflow": "wrap", "note": "로고 없이 이름 글자. Google G 단독 사용 금지(Google 가이드), 스크린리더가 그대로 읽음. 넘치면 말줄임 없이 다음 줄로" },
         "mark": { "size": { "value": 22, "unit": "px" }, "border": { "color": "{color.line}", "width": { "value": 1.5, "unit": "px" } }, "radius": "{radius.full}", "position": "top-end", "inset": "{space.16}" }
       },
       "states": {
