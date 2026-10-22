@@ -84,7 +84,7 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 * 계정 합치기로 10편을 넘은 날도 `full`입니다(D83 ④).
 * `first`·`more`는 언제나 `diary-edit?date=<그날>`(새 일기)입니다. "그날 일기가 있으면 보기로" 분기(A51)는 없앱니다.
 * 목록을 받는 동안: `today`는 그날 일기 목록을 받은 뒤 그립니다(받는 동안 오늘 카드 입구를 그리지 않고 화면 로딩 상태입니다. 목록을 받지 못하면 0편으로 그려 `first`가 됩니다). `day-sheet`는 입구 자리에 지금처럼 skeleton을 둡니다. 날짜 골라 쓰기는 `first`로 그립니다.
-* 누를 수 없는 버튼: `GuideQuestionCard.onAction`과 `MonthDatePicker.onConfirm`을 nullable로 바꿔 null이면 비활성(버튼 전체 `opacity 0.4`, 다른 비활성과 같음)입니다. `day-sheet`는 `PrimaryButton` `disabled`입니다.
+* 누를 수 없는 버튼: `MonthDatePicker.onConfirm`을 nullable로 바꿔 null이면 비활성(버튼 전체 `opacity 0.4`, 다른 비활성과 같음)입니다. `day-sheet`는 `PrimaryButton` `disabled`입니다. `today`의 `GuideQuestionCard`는 `GuideQuestionState.full`이 버튼을 막습니다(§13).
 * 상한을 채운 날의 시험용 fake 시나리오 `diary-day-full`(오늘 일기 10편)을 둡니다.
 
 **일기 줄**
