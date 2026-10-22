@@ -14,7 +14,9 @@ JOSA_SUFFIX = "Josa"
 # 받침 있음(ㄹ 아님), ㄹ 받침, 받침 없음, 판정할 수 없음(ICU 필수 기본 가지) 순서입니다.
 JOSA_BRANCHES: tuple[str, ...] = ("final", "rieul", "none", "other")
 _SELECT = regex.compile(
-    r"\{(?P<var>\w+" + JOSA_SUFFIX + r"), select, "
+    r"\{(?P<var>\w+"
+    + JOSA_SUFFIX
+    + r"), select, "
     + " ".join(rf"{branch}\{{(?P<{branch}>[^{{}}]*)\}}" for branch in JOSA_BRANCHES)
     + r"\}"
 )
@@ -43,7 +45,9 @@ def expand_josa(text: str, data: JosaData | None = None) -> tuple[str, list[str]
         return text, []
     by_marker = {pair.marker: pair for pair in rules.pairs}
     markers = sorted(by_marker, key=len, reverse=True)
-    pattern = regex.compile(r"\{(?P<name>[^{}:\s,]+)\}(?P<marker>" + "|".join(regex.escape(m) for m in markers) + ")")
+    pattern = regex.compile(
+        r"\{(?P<name>[^{}:\s,]+)\}(?P<marker>" + "|".join(regex.escape(m) for m in markers) + ")"
+    )
     names: list[str] = []
 
     def replace(match: regex.Match[str]) -> str:
@@ -59,4 +63,4 @@ def select_forms(text: str) -> list[str]:
     """펼친 조사 select를 가지마다 하나씩 고른 문장입니다. 한 문장의 모든 select가 같은 가지를 고릅니다."""
     if _SELECT.search(text) is None:
         return [text]
-    return [_SELECT.sub(lambda match, branch=branch: match.group(branch), text) for branch in JOSA_BRANCHES]
+    return [_SELECT.sub(rf"\g<{branch}>", text) for branch in JOSA_BRANCHES]
