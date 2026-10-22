@@ -159,6 +159,7 @@ flutter:
     - fixtures/ad-free-active/
     - fixtures/daily-error/
     - fixtures/diary-written/
+    - fixtures/diary-day-full/
     - fixtures/reaction-failed/
     - fixtures/reaction-delete-failed/
     - fixtures/evidence-unlocked/

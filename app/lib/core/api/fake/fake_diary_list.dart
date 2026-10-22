@@ -12,7 +12,8 @@ const String _cursorPrefix = 'fake-offset-';
 /// `listDiaries` fixture 본문(`DiaryList` JSON)을 요청 매개변수대로 걸러 한 쪽을 돌려줍니다.
 ///
 /// 1. `items`를 [from]~[to](둘 다 포함, 각각 선택)와 [tag]로 거르고 계약대로 날짜
-///    내림차순으로 둡니다. [tag]는 그 태그가 붙은 일기만입니다. 목록 항목에는 대표 태그
+///    내림차순, 같은 날은 작성 순(`createdAt` 오름차순, 같으면 `id` 오름차순)으로 둡니다.
+///    [tag]는 그 태그가 붙은 일기만입니다. 목록 항목에는 대표 태그
 ///    (`featuredTags`)만 있으므로 대역은 대표 태그로만 거릅니다.
 /// 2. [cursor] 위치부터 [limit]개(기본 30, 1~100)를 담고, 뒤에 더 있으면 `nextCursor`를
 ///    붙입니다. 마지막 쪽에는 `nextCursor`가 없습니다.
@@ -42,7 +43,7 @@ Map<String, Object?> filterDiaryList(
           _inRange(item, start, end) &&
           (tagKey == null || _hasTag(item, tagKey)))
         item,
-  ]..sort((a, b) => (b['date']! as String).compareTo(a['date']! as String));
+  ]..sort(_compareItems);
   final pageEnd = offset + pageSize;
   final page = items.skip(offset).take(pageSize).toList();
   final rest = {...body}..remove('nextCursor');
@@ -51,6 +52,21 @@ Map<String, Object?> filterDiaryList(
     'items': page,
     if (pageEnd < items.length) 'nextCursor': '$_cursorPrefix$pageEnd',
   };
+}
+
+/// 계약 목록 순서: 날짜 내림차순 → `createdAt` 오름차순 → `id` 오름차순.
+int _compareItems(Map<String, Object?> a, Map<String, Object?> b) {
+  String field(Map<String, Object?> item, String name) => item[name]! as String;
+  final byDate = field(b, 'date').compareTo(field(a, 'date'));
+  if (byDate != 0) {
+    return byDate;
+  }
+  // 문자열이 아니라 시각으로 견줍니다(`...:00Z`와 `...:00.001Z`).
+  final byCreatedAt = DateTime.parse(field(a, 'createdAt'))
+      .compareTo(DateTime.parse(field(b, 'createdAt')));
+  return byCreatedAt != 0
+      ? byCreatedAt
+      : field(a, 'id').compareTo(field(b, 'id'));
 }
 
 bool _inRange(

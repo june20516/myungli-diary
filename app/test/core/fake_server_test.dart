@@ -240,6 +240,7 @@ void main() {
         'member-time-unknown',
         'daily-error',
         'diary-written',
+        'diary-day-full',
         'reaction-failed',
         'reaction-delete-failed',
         'evidence-unlocked',
@@ -256,7 +257,7 @@ void main() {
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(24));
+      expect(scenarios.where((s) => s.signedIn), hasLength(25));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),
