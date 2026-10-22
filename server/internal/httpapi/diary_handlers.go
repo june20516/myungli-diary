@@ -81,7 +81,7 @@ func (a *API) UpdateDiary(ctx context.Context, req gen.UpdateDiaryRequestObject)
 	}
 	entry, err := a.Diaries.UpdateBody(ctx, accountID, req.Id, req.Body.Body)
 	if err != nil {
-		return nil, outOfRangeError(err, fieldDiaryDate)
+		return nil, err
 	}
 	body, err := toDiary(entry)
 	if err != nil {

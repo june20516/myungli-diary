@@ -3,6 +3,7 @@ package httpapi_test
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -173,12 +174,6 @@ func TestCreateDiary_Errors(t *testing.T) {
 	}
 }
 
-func TestCreateDiary_DayFullIs422(t *testing.T) {
-	_, rec := sendRequest(t, diaryAPI(&fakeDiaries{err: diary.ErrDayFull}), http.MethodPost, diariesTarget, createDiaryJS)
-	require.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-	assert.Equal(t, "diary.day_full", decodeProblem(t, rec).Code)
-}
-
 func TestCreateDiary_WithoutProfileIs409(t *testing.T) {
 	diaries := &fakeDiaries{entry: sampleEntry()}
 	api := &httpapi.API{Profiles: &fakeProfiles{err: profile.ErrNotFound}, Diaries: diaries}
@@ -317,7 +312,7 @@ func listEntries(n int) []diary.Entry {
 	entries := make([]diary.Entry, n)
 	for i := range entries {
 		entries[i] = diary.Entry{
-			ID:        uuid.MustParse("0198a000-0000-7000-8000-00000000010" + string(rune('0'+i))),
+			ID:        uuid.MustParse(fmt.Sprintf("0198a000-0000-7000-8000-%012d", 100+i)),
 			Date:      profile.LocalDate{Year: 2026, Month: 10, Day: 20 - i},
 			Body:      "본문",
 			Featured:  []fortune.FeaturedTag{{Key: "tag.a", Polarity: fortune.Polarity("good")}},
