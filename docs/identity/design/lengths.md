@@ -56,6 +56,12 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
 | `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
 
+키별 상한 (행 값과 다른 키, writing `key_max_length`):
+
+| 언어 | 슬롯 | 키 | 상한 | 이유 |
+| --- | --- | --- | --- | --- |
+| ja | `ui.login.provider` | `loginKakaoLabel` | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
+
 상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):
 
 | 슬롯 | 상한 없음 이유 |
@@ -86,6 +92,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * `character.reason`은 마지막 줄 끝에 `depth-link` `inline-end`(앞 U+00A0 + `ui.depth.evidence_link` 원고 + 화살표 16)가 붙으므로, 마지막 줄에서 그 폭에 해당하는 글자 수를 한 번 뺐습니다. 링크 폭은 언어별 원고(ko "근거 보기", ja "根拠を見る", en "See the basis")로 재므로 링크 문구가 바뀌면 이 값도 다시 계산합니다.
 * 칸 앞에 아이콘이 붙는 상태가 있으면 그 폭을 뺐습니다: 잠긴 구역 제목(자물쇠 14 + 간격 4), destructive 확인 창 제목(`mark.caution` 11.3 + 띄어쓰기 3.5 → 15), toast(아이콘 16 + 간격 16).
 * **2.7.0(#389·#260):** 로그인 수단·계정 합치기 11행을 더하고 윤달 표지는 상한 없음 표에 넣었습니다. 기존 확정값은 그대로입니다. `login-methods.error.body`·`ui.account-merge.error`는 `dialog` `notice`의 본문이라 상한이 없습니다. `ui.account-merge.choice`는 가장 좁은 "현재 계정" 알약(110px)으로, 사주 요약은 따로 나눈 `ui.account-merge.saju`(256px)로 잽니다. `ui.day-cell.lunar`(윤달 표지 "윤{month}.1")는 숫자가 섞인 고정 형식이라 한글로 채운 글자 수가 폭을 대신하지 못해 상한 없음으로 두고 칸 폭 44px로 확인합니다(ko "윤12.1" 26.4px). `ui.login.provider`는 로고를 왼쪽에 고정하고 글자를 가운데 두므로 양쪽에 로고 자리를 비운 232px로 다시 쟀습니다(지금 원고는 모두 들어감).
+* **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).
 * `calendar.solar_term` en 6자: 영어 절기 이름("Start of Spring")은 날짜 칸에 들어가지 않습니다. writing이 6자 이하 줄임 표기를 정했습니다(`S.Cold`, `Sp.Eq` 등). 같은 칸 스타일(Pretendard Bold 10.5px)로 재면 가장 넓은 `Summer`가 40.1px라 44px 칸에 들어갑니다.

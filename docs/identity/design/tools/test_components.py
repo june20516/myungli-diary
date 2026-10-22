@@ -770,10 +770,6 @@ def used_on_lines():
                 yield md.name, current, {token for token in re.findall(r"[a-z][a-z-]+", outside_code) if token in screens}
 
 
-# IA 보완 요청 중인 쓰는 화면 차이 (컴포넌트 → 화면). 지휘가 IA를 고치면 지움
-USED_ON_EXCEPTIONS = {"settings-row": {"login-methods"}}  # 시안 B(V39)로 social-login-button connected를 씀, spec §7.1
-
-
 def test_md_used_on_matches_ia_components():
     used = {}
     for screen in ia_screens().values():
@@ -784,7 +780,7 @@ def test_md_used_on_matches_ia_components():
         if component_id not in used:
             continue
         checked += 1
-        assert listed == used[component_id] - USED_ON_EXCEPTIONS.get(component_id, set()), (name, component_id)
+        assert listed == used[component_id], (name, component_id)
     assert checked >= 30
 
 
