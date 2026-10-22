@@ -2,7 +2,9 @@ package provider_test
 
 import (
 	"context"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -76,5 +78,65 @@ func TestGoogle_VerifyAcceptsRepeatedNonce(t *testing.T) {
 	for range 2 {
 		_, err := google.Verify(context.Background(), fake.SignIDToken(claims), testRawNonce)
 		require.NoError(t, err)
+	}
+}
+
+func TestGoogle_VerifyRejectsES256AndExpired(t *testing.T) {
+	tests := []struct {
+		name string
+		sign func(fake *providertest.Server, claims map[string]any) string
+		exp  bool
+	}{
+		{name: "ES256 서명", sign: func(fake *providertest.Server, c map[string]any) string { return fake.SignES256IDToken(c) }},
+		{name: "만료", sign: func(fake *providertest.Server, c map[string]any) string { return fake.SignIDToken(c) }, exp: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			google, fake := newGoogle(t)
+			claims := providertest.GoogleClaims(googleSubject, testRawNonce, providertest.GoogleClientIDs[0], provider.GoogleIssuers[0], testNow)
+			if tt.exp {
+				claims["exp"] = testNow.Add(-time.Second).Unix()
+			}
+
+			_, err := google.Verify(context.Background(), tt.sign(fake, claims), testRawNonce)
+
+			require.ErrorIs(t, err, provider.ErrTokenInvalid)
+		})
+	}
+}
+
+func TestGoogle_JWKSFailureIsUnavailable(t *testing.T) {
+	google, fake := newGoogle(t)
+	fake.SetJWKSStatus(http.StatusInternalServerError)
+	claims := providertest.GoogleClaims(googleSubject, testRawNonce, providertest.GoogleClientIDs[0], provider.GoogleIssuers[0], testNow)
+
+	_, err := google.Verify(context.Background(), fake.SignIDToken(claims), testRawNonce)
+
+	require.ErrorIs(t, err, provider.ErrUnavailable)
+}
+
+func TestGoogle_VerifyHandlesArrayAudience(t *testing.T) {
+	tests := []struct {
+		name    string
+		aud     []string
+		wantErr bool
+	}{
+		{"배열에 설정된 client ID가 있음", []string{"other.apps.googleusercontent.com", providertest.GoogleClientIDs[1]}, false},
+		{"배열에 설정된 client ID가 없음", []string{"a.example", "b.example"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			google, fake := newGoogle(t)
+			claims := providertest.GoogleClaims(googleSubject, testRawNonce, "", provider.GoogleIssuers[0], testNow)
+			claims["aud"] = tt.aud
+
+			_, err := google.Verify(context.Background(), fake.SignIDToken(claims), testRawNonce)
+
+			if tt.wantErr {
+				require.ErrorIs(t, err, provider.ErrTokenInvalid)
+				return
+			}
+			require.NoError(t, err)
+		})
 	}
 }
