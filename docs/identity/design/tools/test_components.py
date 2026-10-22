@@ -836,3 +836,22 @@ def test_social_login_connected_is_neutral():
     assert parts["logo"]["googleBackdrop"] == "white-circle"
     assert connected["lastOne"]["pressable"] is False and connected["lastOne"]["noticeSlot"] == "login-methods.last.notice"
     assert connected["onPress"] == {"component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm"}
+
+
+def test_two_button_dialogs_have_no_first_focus():
+    dialog = component("feedback", "dialog")
+    variants = {v["id"]: v for v in dialog["variants"]}
+    assert "focusOnOpen" not in dialog["a11y"]
+    assert variants["destructive"]["a11y"] == {"dismissOnScrim": False, "backIs": "cancel"}
+    assert variants["notice"]["a11y"] == {"focusOnOpen": "confirm", "dismissOnScrim": True}
+    assert not any("처음 초점" in rule for rule in dialog["rules"])
+    assert any("뒤로 가기는 취소" in rule and "V41" in rule for rule in dialog["rules"])
+    assert "계정 합치기" in variants["destructive"]["when"] and "로그인 수단 떼기" in variants["destructive"]["when"]
+
+
+def test_account_merge_layout_keeps_emphasis_on_confirm():
+    input_md = (COMPONENTS_DIR / "input.md").read_text(encoding="utf-8")
+    section = input_md.split("## account-choice", 1)[1]
+    assert "`account-merge.overlap.notice`" in section and "`mark.caution`을 쓰지 않" in section
+    assert "`account-merge.merge.confirm`" in section and "`destructive`" in section
+    assert "`ui.account-merge.error`" in section and "`notice`" in section

@@ -5,7 +5,7 @@
 
 ## primary-button
 
-* 쓰는 화면: force-update, welcome, 온보딩 단계(onboard-call, onboard-birth, onboard-time, onboard-gender), preview, consent, notify-ask, evidence-sheet, share-preview, day-sheet, event-edit, diary-edit, ad-free, account-delete
+* 쓰는 화면: force-update, welcome, 온보딩 단계(onboard-call, onboard-birth, onboard-time, onboard-gender), preview, consent, notify-ask, evidence-sheet, share-preview, day-sheet, event-edit, diary-edit, ad-free, account-delete, account-merge
 * 둥근 사각(`radius.md`), 높이 52, 너비는 채움.
 
 | 변형 | 바탕 | 글자 | 쓰임 |

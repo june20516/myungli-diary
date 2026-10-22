@@ -74,3 +74,18 @@
 * **처음부터 어느 쪽도 골라 두지 않습니다**(`none`). 되돌릴 수 없는 합치기라 남길 계정은 사용자가 직접 고르고, 그 전에는 합치기 버튼이 `disabled`입니다.
 * `loading`(IA `account-merge:loading`): 카드 두 장 크기의 빈 카드가 `loading.breathe`로 숨쉽니다. `skeleton` 컴포넌트를 따로 쓰지 않습니다.
 * 스크린리더: 묶음은 radio-group(이름 `account-merge.choice.label`), 카드는 radio이고 카드 안 글자를 위에서 아래 순서로 읽습니다. 터치 영역은 카드 전체입니다.
+
+### account-merge 화면 배치
+
+app-bar 아래로 차례대로 놓습니다(결정 V40).
+
+1. `account-merge.title.head`(`type.title`, 위 `space.12`, 아래 `space.8`)
+2. `account-merge.title.body`(`type.body.ui`, `text.secondary`, 아래 `space.24`)
+3. `account-merge.choice.label`(`type.caption.md`, `text.secondary`, 아래 `space.8`)
+4. `account-choice` 카드 두 장
+5. `account-merge.overlap.notice`: 같은 날 일기가 겹칠 때만. 위 `space.16`, 앞 아이콘 `check-circle`(Light 16, `text.secondary`) + `type.caption.lg` `text.secondary`, 사이 `space.8`. `mark.caution`을 쓰지 않고 바탕 상자도 두지 않습니다. 같은 날 일기도 지우지 않고 모두 옮긴다는 안심 안내이기 때문입니다(D83 ④).
+6. 화면 아래(내용이 짧으면 바닥에 붙음): `primary-button` `filled` `account-merge.cta.merge`(고르기 전 `disabled`) → `primary-button` `quiet` `account-merge.cta.cancel`, 사이 `space.4`
+
+* 합치기 버튼을 누르면 `dialog` `destructive`(`account-merge.merge.confirm`)가 열립니다. **강조는 이 확인 창 한 곳입니다.** 화면의 합치기 버튼은 평소 무게(`filled`)로 둡니다.
+* 확정 뒤 확인 창이 닫히고 합치기 버튼이 `loading`입니다. 끝나면 `login-methods`로 돌아갑니다.
+* 실패(`account-merge:error`)는 `ui.account-merge.error`를 `dialog` `notice`로 보입니다. 고른 계정은 그대로 두어 버튼을 다시 누르면 됩니다. 화면 전체를 오류로 바꾸지 않습니다(IA `account-merge` 컴포넌트에 `error-state`가 없음).
