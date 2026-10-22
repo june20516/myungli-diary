@@ -1,9 +1,9 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 2.8.0 · 토큰 계약 1.2.0 이상을 기대합니다.
+컴포넌트 계약 3.0.0 · 토큰 계약 1.2.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), [로그인 수단·계정 합치기 spec](../specs/2026-10-22-login-methods-account-merge-design.md), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md), 결정 V13~V43([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v4([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), [로그인 수단·계정 합치기 spec](../specs/2026-10-22-login-methods-account-merge-design.md), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md), [계정 합치기·구매 내역 spec](../specs/2026-10-23-account-merge-purchase-design.md), 결정 V13~V46([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v4([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
 * 명세는 특정 위젯 라이브러리에 묶이지 않습니다. Material 대응은 각 `.md`에 참고 힌트로만 적습니다.
 * 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
 
@@ -40,15 +40,15 @@
 | `elements.json` | 반복 요소 16개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역 등) |
 | `frame.json` | tab-bar, app-bar, sheet, ad-banner |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
-| `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row |
-| `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card |
+| `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row, account-choice |
+| `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card, purchase-row |
 | `sentence.json` | sentence-block, term-token, depth-link, reaction-button |
 | `today.json` | day-character, lucky-card, guide-question-card, share-image |
 | `calendar.json` | calendar-month, day-cell, event-row |
 | `diary.json` | diary-row, diary-editor, draft-indicator, tag-chip |
 | `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table |
 
-IA 컴포넌트 42개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
+IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
 
 ## 공통 규칙
 
@@ -85,6 +85,7 @@ IA 컴포넌트 42개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.6.1 | 2026-10-20 | 규칙 정합성 점검(#284, D78): `lucky-card` 칩 최대 개수는 칩 줄 전체 6개(태그 2 + 행운 4), MD "쓰는 화면"을 IA에 맞춤. 문구만 |
 | 2.7.0 | 2026-10-22 | D82·D83(#389): `social-login-button` `line`·`google` 변형과 언어별 순서(`parts.stack.order`)·`connected`(V39), `account-choice` 새 컴포넌트와 `account-merge` 배치(V40), 두 버튼 `dialog` 첫 초점 삭제(V41, #354 ②), `day-cell` 윤달 표지 슬롯(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83). 추가와 값 변경 |
 | 2.8.0 | 2026-10-22 | D83(#410): `diary-row` 변형 `day`(같은 날 묶음 카드)·`entries`(오늘·그날 시트)와 `entry` 줄·점선(V42), `guide-question-card` 상태 `full`과 `date-picker` `calendar` 상한 규칙(V43), 토큰 1.2.0 이상 기대(`color.timeline.entry`), writing 키 이름 채움(`loginMethodsRowConnected`·`accountChoiceProviderSeparator`, #441), 그날 시트 일기 입구를 머리(`entries.head`) + 줄로 바꾸고 `depth-link` `navigate`의 `label.daySheetSlot` 삭제(V37 개정). 추가와 값 변경 |
+| 3.0.0 | 2026-10-23 | D85·D88(#480·#483·#494): `account-choice` 쓰임 바뀜(프로필 고르기, 부품 `facts`·`diaryCount`·`providers` 삭제, `other` 추가), `account-merge` 두 단계와 `login-methods` 합치기 입구(V44), `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(V45), #475 값(카카오 배지 `#191919`, LINE 글자 198px, `entry` 꺾쇠 앞 `space.8`, 시각 24시간제 `HH:mm`, V46). 부품 삭제라 major |
 
 ## 검사 (design)
 
@@ -94,7 +95,7 @@ python3 docs/identity/design/tools/components.py     # 저장소 루트에서
 
 검사하는 것(`tools/test_components.py`가 커밋된 파일에 돌림):
 
-* IA 컴포넌트 42개 id가 정확히 한 번(빠짐·넘침·겹침)
+* IA 컴포넌트 43개 id가 정확히 한 번(빠짐·넘침·겹침)
 * 구성 요소가 가리키는 `component`(IA 컴포넌트)·`element`(요소)가 있음, 변형 id 겹침 없음, 햅틱 세기는 selection·light·medium
 * 문자열 중간에 섞인 `{토큰}` 없음(값 하나에 참조 하나)
 * 모든 `{토큰}` 참조가 테마 조합 4가지 모두에 있음(깊이와 관계없이)

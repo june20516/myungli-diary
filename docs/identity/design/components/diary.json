@@ -1,5 +1,5 @@
 {
-  "version": "2.8.0",
+  "version": "3.0.0",
   "group": "diary",
   "components": [
     {
@@ -57,9 +57,9 @@
         "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}" },
         "tag": { "component": "tag-chip", "count": 1, "marginTop": "{space.12}" },
         "entry": {
-          "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "app이 기기 locale의 짧은 시각 형식으로 만듦(writing 슬롯 없음)" },
+          "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "HH:mm", "hourCycle": "h23", "note": "event-row와 같은 24시간제, 앞 0 채움(V46, #475). writing 슬롯 없음" },
           "preview": { "component": "sentence-block", "variant": "preview", "maxLines": 1, "marginStart": "{space.12}", "baseline": "time", "emptyKeepsLineHeight": true },
-          "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "fg": "{color.text.secondary}", "align": "center" },
+          "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "fg": "{color.text.secondary}", "align": "center", "marginStart": "{space.8}" },
           "paddingY": "{space.12}",
           "minHeight": { "value": 48, "unit": "px" },
           "divider": { "style": "dashed", "width": { "value": 1, "unit": "px" }, "dash": { "value": 4, "unit": "px" }, "gap": { "value": 3, "unit": "px" }, "color": "{color.timeline.entry}", "between": "entries-only", "span": "row", "inMinHeight": true }
