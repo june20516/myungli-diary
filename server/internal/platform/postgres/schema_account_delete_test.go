@@ -103,17 +103,23 @@ func TestSchema00015_DeletedAtBackfill(t *testing.T) {
 	if err := insertAccount(ctx, pool, accountB, "active", false, false); err != nil {
 		t.Fatal(err)
 	}
+	// 두 시각이 달라야 coalesce 우선순위(anonymized_at 먼저)를 구분할 수 있습니다.
+	if _, err := pool.Exec(ctx, `UPDATE accounts SET deletion_requested_at = now() - interval '2 days',
+		anonymized_at = now() - interval '1 day' WHERE id = $1`, accountA); err != nil {
+		t.Fatal(err)
+	}
 	if err := postgres.Migrate(ctx, pool, "up"); err != nil {
 		t.Fatal(err)
 	}
 
-	var deletedAtSet, matchesAnonymized bool
-	if err := pool.QueryRow(ctx, `SELECT deleted_at IS NOT NULL, deleted_at = anonymized_at FROM accounts WHERE id = $1`, accountA).
-		Scan(&deletedAtSet, &matchesAnonymized); err != nil {
+	var deletedAtSet, matchesAnonymized, differsFromRequested bool
+	if err := pool.QueryRow(ctx, `SELECT deleted_at IS NOT NULL, deleted_at = anonymized_at, deleted_at <> deletion_requested_at
+		FROM accounts WHERE id = $1`, accountA).Scan(&deletedAtSet, &matchesAnonymized, &differsFromRequested); err != nil {
 		t.Fatal(err)
 	}
-	if !deletedAtSet || !matchesAnonymized {
-		t.Errorf("deleted 행의 deleted_at 채움 = %v, anonymized_at과 같음 = %v, want 둘 다 true", deletedAtSet, matchesAnonymized)
+	if !deletedAtSet || !matchesAnonymized || !differsFromRequested {
+		t.Errorf("deleted_at 채움 = %v, anonymized_at과 같음 = %v, deletion_requested_at과 다름 = %v, want 모두 true",
+			deletedAtSet, matchesAnonymized, differsFromRequested)
 	}
 	if err := pool.QueryRow(ctx, `SELECT deleted_at IS NOT NULL FROM accounts WHERE id = $1`, accountB).Scan(&deletedAtSet); err != nil {
 		t.Fatal(err)
