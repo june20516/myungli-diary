@@ -2,9 +2,10 @@ package postgres_test
 
 import (
 	"context"
-	"strings"
+	"errors"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
@@ -42,18 +43,18 @@ func TestSchema00016_Purchases(t *testing.T) {
 	// 두 계정 FK는 RESTRICT라 구매가 있는 계정 행은 지울 수 없습니다.
 	for _, id := range []string{accountA, accountB} {
 		_, err := pool.Exec(ctx, `DELETE FROM accounts WHERE id = $1`, id)
-		if err == nil || !strings.Contains(err.Error(), "purchases") {
-			t.Errorf("계정 %s 삭제 오류 = %v, want purchases FK 위반", id, err)
+		wantSQLState(t, err, foreignKeyViolation)
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.TableName != "purchases" {
+			t.Errorf("계정 %s 삭제를 막은 표 = %s, want purchases", id, pgErr.TableName)
 		}
 	}
 
 	// 없는 계정은 두 열 모두 거절합니다.
-	if _, err := pool.Exec(ctx, insertPurchase, "txn-2", "00000000-0000-7000-8000-0000000000ff", accountA); err == nil {
-		t.Error("없는 account_id로 구매를 넣을 수 있습니다")
-	}
-	if _, err := pool.Exec(ctx, insertPurchase, "txn-3", accountA, "00000000-0000-7000-8000-0000000000ff"); err == nil {
-		t.Error("없는 original_account_id로 구매를 넣을 수 있습니다")
-	}
+	_, err := pool.Exec(ctx, insertPurchase, "txn-2", "00000000-0000-7000-8000-0000000000ff", accountA)
+	wantSQLState(t, err, foreignKeyViolation)
+	_, err = pool.Exec(ctx, insertPurchase, "txn-3", accountA, "00000000-0000-7000-8000-0000000000ff")
+	wantSQLState(t, err, foreignKeyViolation)
 
 	// 목록 조회용 인덱스가 있습니다.
 	var indexDef string

@@ -31,8 +31,10 @@ var ErrProviderUnavailable = errors.New("RevenueCat을 사용할 수 없습니�
 
 // Purchase는 RevenueCat이 알려 준 구매 한 건입니다.
 type Purchase struct {
-	ID          string
-	ProductID   string
+	ID        string
+	ProductID string
+	// Store는 RevenueCat 스토어 이름입니다(app_store, play_store 등).
+	Store       string
 	PurchasedAt time.Time
 	// Refunded는 환불된 구매인지 나타냅니다(status가 refunded).
 	Refunded bool

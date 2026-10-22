@@ -23,6 +23,7 @@ ALTER TABLE entitlement_grants
     ADD CONSTRAINT entitlement_grants_source_unique UNIQUE (account_id, entitlement, source, source_ref);
 
 -- +goose Down
+-- 한 구매가 여러 유저 계정에 구간 행을 가진 데이터가 있으면 옛 unique 복원이 실패합니다(출시 전이라 허용).
 ALTER TABLE entitlement_grants DROP CONSTRAINT entitlement_grants_source_unique;
 ALTER TABLE entitlement_grants
     ADD CONSTRAINT entitlement_grants_source_unique UNIQUE (entitlement, source, source_ref);

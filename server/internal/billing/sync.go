@@ -66,7 +66,7 @@ func NewSyncer(pool *pgxpool.Pool, src PurchaseSource, cfg SyncConfig, clk clock
 	}
 }
 
-// grantKey는 계정 안에서 ad_free_pass 행 하나를 가리킵니다. 표의 unique (entitlement, source, source_ref) 중 source는 늘 ad_free_pass입니다.
+// grantKey는 계정 안에서 ad_free_pass 행 하나를 가리킵니다. 표의 unique (account_id, entitlement, source, source_ref) 중 account_id는 조정하는 계정, source는 늘 ad_free_pass입니다.
 type grantKey struct {
 	entitlement Entitlement
 	sourceRef   string
@@ -97,9 +97,8 @@ func (s *Syncer) Sync(ctx context.Context, accountID uuid.UUID) error {
 
 // reconcile은 계정의 ad_free_pass 행을 want에 맞춥니다(P7-5).
 //
-// UpsertGrant는 다른 계정에 있던 같은 구매 행을 이 계정으로 옮깁니다(transfer). lock은 계정별이라, transfer 전에 조회한
-// 원래 계정의 오래된 목록이 새 주인보다 늦게 upsert하면 행이 원래 계정으로 되돌아가고, 원래 계정의 다음 동기화가 그 행을 취소해
-// 새 주인이 다시 동기화할 때까지 권한이 빠질 수 있습니다. TRANSFER 이벤트 하나에 transferred_from·transferred_to가 함께 오고 webhook이 그 계정들을 모두 동기화하므로(P7-7) 결국 수렴해 받아들입니다.
+// 구간 행은 계정마다 따로라(unique (account_id, entitlement, source, source_ref), spec §5.1) 다른 계정의 행을 옮기거나 취소하지 않습니다.
+// 구매 장부로 바꾸는 Task 9가 이 함수를 지웁니다.
 func (s *Syncer) reconcile(ctx context.Context, q *billingdb.Queries, accountID uuid.UUID, want []Grant) error {
 	wanted := make(map[grantKey]bool, len(want))
 	for _, g := range want {
@@ -190,15 +189,21 @@ func inCatalog(catalog Catalog, productID string) bool {
 	return ok
 }
 
-// addMonth는 UTC 달력으로 한 달 뒤 같은 날 같은 시각을 돌려줍니다(P7-3).
-// 다음 달에 그 날이 없으면 그 달 마지막 날입니다(1월 31일 → 2월 28일·29일).
-// time.AddDate는 넘친 날을 다음 달로 넘기므로(3월 3일) 쓰지 않습니다.
+// addMonth는 UTC 달력으로 한 달 뒤 같은 날 같은 시각을 돌려줍니다(P7-3). 규칙은 addMonths와 같습니다.
 func addMonth(t time.Time) time.Time {
+	return addMonths(t, 1)
+}
+
+// addMonths는 UTC 달력으로 months개월 뒤 같은 날 같은 시각을 돌려줍니다(P7-3, D61).
+// 그 달에 그 날이 없으면 그 달 마지막 날입니다(1월 31일 + 1개월 → 2월 28일·29일).
+// time.AddDate는 넘친 날을 다음 달로 넘기므로(3월 3일) 쓰지 않습니다.
+func addMonths(t time.Time, months int) time.Time {
 	t = t.UTC()
 	year, month, day := t.Date()
-	// time.Date의 0일은 앞 달의 마지막 날이라, month+2의 0일이 다음 달의 마지막 날입니다.
-	lastDayOfNextMonth := time.Date(year, month+2, 0, 0, 0, 0, 0, time.UTC).Day()
-	day = min(day, lastDayOfNextMonth)
+	targetMonth := month + time.Month(months)
+	// time.Date의 0일은 앞 달의 마지막 날이라, targetMonth+1의 0일이 targetMonth의 마지막 날입니다.
+	lastDayOfTargetMonth := time.Date(year, targetMonth+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	day = min(day, lastDayOfTargetMonth)
 	hour, minute, second := t.Clock()
-	return time.Date(year, month+1, day, hour, minute, second, t.Nanosecond(), time.UTC)
+	return time.Date(year, targetMonth, day, hour, minute, second, t.Nanosecond(), time.UTC)
 }

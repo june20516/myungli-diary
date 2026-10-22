@@ -19,29 +19,82 @@ WHERE account_id = @account_id
 ORDER BY id;
 
 -- name: UpsertGrant :exec
--- (entitlement, source, source_ref)로 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5).
--- 같은 구매가 다른 계정 행으로 이미 있으면(RevenueCat transfer 등) 지금 구매 목록에 그 구매가 있는 계정으로 옮깁니다(구매 목록이 권위).
+-- 계정의 (entitlement, source, source_ref) 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5, 옛 동기화 reconcile 전용).
+-- 구매 장부(spec §5)로 바꾸는 동기화(Task 9)가 reconcile과 함께 지울 쿼리입니다.
 -- 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES (@account_id, @entitlement, @source, @source_ref, @starts_at, @expires_at)
 ON CONFLICT (account_id, entitlement, source, source_ref) DO UPDATE
-SET account_id = EXCLUDED.account_id,
-    starts_at  = EXCLUDED.starts_at,
+SET starts_at  = EXCLUDED.starts_at,
     expires_at = EXCLUDED.expires_at,
     revoked_at = NULL
-WHERE entitlement_grants.account_id <> EXCLUDED.account_id
-   OR entitlement_grants.starts_at <> EXCLUDED.starts_at
+WHERE entitlement_grants.starts_at <> EXCLUDED.starts_at
    OR entitlement_grants.expires_at <> EXCLUDED.expires_at
    OR entitlement_grants.revoked_at IS NOT NULL;
 
 -- name: RevokeGrant :exec
 -- 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
--- account_id 조건은 그 사이 다른 계정의 동기화가 이 행을 옮겨 간 경우(transfer) 그 계정 행을 취소하지 않게 합니다.
+-- account_id 조건은 호출한 계정의 행만 취소하게 하는 안전장치입니다.
 UPDATE entitlement_grants
 SET revoked_at = @now::timestamptz
 WHERE id = @id
   AND account_id = @account_id
   AND revoked_at IS NULL;
+
+-- name: InsertPurchase :execrows
+-- 구매를 장부에 적습니다. 주인과 처음 산 계정은 적는 계정입니다(S107).
+-- 같은 id가 이미 있으면 아무것도 하지 않고 0행입니다(주인은 바꾸지 않음).
+INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, refunded_at, production)
+VALUES (@id, @account_id, @account_id, @product_id, @store, @purchased_at, sqlc.narg(refunded_at), @production)
+ON CONFLICT (id) DO NOTHING;
+
+-- name: PurchaseOwner :one
+-- 구매의 지금 주인 계정입니다. 장부에 없으면 행이 없습니다.
+SELECT account_id
+FROM purchases
+WHERE id = @id;
+
+-- name: MarkPurchaseRefunded :execrows
+-- 구매를 환불로 적습니다. 이미 환불된 구매는 처음 시각을 그대로 두고 0행입니다.
+UPDATE purchases
+SET refunded_at = @refunded_at::timestamptz
+WHERE id = @id
+  AND refunded_at IS NULL;
+
+-- name: NextPassStart :one
+-- 새 구매 구간의 시작 = max(구매 시각, 이 계정의 같은 권한 광고 제거권 구간 끝)입니다(S108).
+-- 취소된 구간은 셈하지 않습니다. GREATEST는 NULL(구간 없음)을 무시합니다.
+SELECT GREATEST(@purchased_at::timestamptz, max(expires_at))::timestamptz AS starts_at
+FROM entitlement_grants
+WHERE account_id = @account_id
+  AND entitlement = @entitlement
+  AND source = 'ad_free_pass'
+  AND revoked_at IS NULL;
+
+-- name: InsertPassGrant :exec
+-- 광고 제거권 구간 한 행입니다. source_ref는 구매 id입니다. 이미 있으면 아무것도 하지 않습니다.
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES (@account_id, @entitlement, 'ad_free_pass', @source_ref, @starts_at, @expires_at)
+ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING;
+
+-- name: ListPassSegments :many
+-- 계정의 취소되지 않은 광고 제거권 구간과 그 구매의 환불 여부입니다(rechainFrom, S108).
+-- 순서는 권한, 구매 시각, 구매 id입니다. 장부에 구매가 없는 행은 다시 잇기 대상이 아닙니다.
+SELECT g.id, g.entitlement, g.starts_at, g.expires_at, (p.refunded_at IS NOT NULL)::boolean AS refunded
+FROM entitlement_grants g
+JOIN purchases p ON p.id = g.source_ref
+WHERE g.account_id = @account_id
+  AND g.source = 'ad_free_pass'
+  AND g.revoked_at IS NULL
+ORDER BY g.entitlement, p.purchased_at, p.id;
+
+-- name: SetGrantPeriod :exec
+-- 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간).
+UPDATE entitlement_grants
+SET starts_at  = @starts_at,
+    expires_at = @expires_at
+WHERE id = @id
+  AND account_id = @account_id;
 
 -- name: ExistingAccountIDs :many
 -- 후보 id 중 accounts에 있는 id입니다(webhook 계정 찾기, P7-7). 순서는 보장하지 않으므로 호출한 쪽이 후보 순서로 맞춥니다.
