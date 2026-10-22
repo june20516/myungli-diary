@@ -36,21 +36,21 @@ type Querier interface {
 	// 순서는 (expires_at, id) 오름차순으로 고정합니다.
 	ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) ([]ListLiveGrantsRow, error)
 	// 계정의 취소되지 않은 광고 제거권 구간과 그 구매의 환불 여부입니다(rechainFrom, S108).
-	// 순서는 권한, 구매 시각, 구매 id입니다. 장부에 구매가 없는 행은 다시 잇기 대상이 아닙니다.
+	// 순서는 권한, 구매 시각, 구매 id입니다. 장부 이전 구간은 00016이 지웠으므로 모든 구간에 장부 행이 있습니다.
 	ListPassSegments(ctx context.Context, accountID uuid.UUID) ([]ListPassSegmentsRow, error)
 	// 이벤트 처리를 마쳤다고 찍습니다. 이미 찍혀 있으면 처음 시각을 그대로 둡니다.
 	MarkBillingEventProcessed(ctx context.Context, arg MarkBillingEventProcessedParams) error
 	// 구매를 환불로 적습니다. 이미 환불된 구매는 처음 시각을 그대로 두고 0행입니다.
 	MarkPurchaseRefunded(ctx context.Context, arg MarkPurchaseRefundedParams) (int64, error)
 	// 새 구매 구간의 시작 = max(구매 시각, 이 계정의 같은 권한 광고 제거권 구간 끝)입니다(S108).
-	// 취소된 구간은 셈하지 않습니다. GREATEST는 NULL(구간 없음)을 무시합니다.
+	// ListPassSegments와 같이 장부에 구매가 있는 취소되지 않은 구간만 셉니다. GREATEST는 NULL(구간 없음)을 무시합니다.
 	NextPassStart(ctx context.Context, arg NextPassStartParams) (time.Time, error)
 	// 구매의 지금 주인 계정입니다. 장부에 없으면 행이 없습니다.
 	PurchaseOwner(ctx context.Context, id string) (uuid.UUID, error)
 	// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
 	// account_id 조건은 호출한 계정의 행만 취소하게 하는 안전장치입니다.
 	RevokeGrant(ctx context.Context, arg RevokeGrantParams) error
-	// 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간).
+	// 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간). 취소된 구간은 옮기지 않습니다.
 	SetGrantPeriod(ctx context.Context, arg SetGrantPeriodParams) error
 	// 계정의 (entitlement, source, source_ref) 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5, 옛 동기화 reconcile 전용).
 	// 구매 장부(spec §5)로 바꾸는 동기화(Task 9)가 reconcile과 함께 지울 쿼리입니다.

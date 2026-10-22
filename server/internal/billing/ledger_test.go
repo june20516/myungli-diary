@@ -262,3 +262,69 @@ func TestRechainFrom_NoChangeIsStable(t *testing.T) {
 	f.assertSegment(t, a, "pur_1", utc(2026, 10, 1, 0), utc(2026, 11, 1, 0), nil)
 	f.assertSegment(t, a, "pur_2", utc(2026, 11, 1, 0), utc(2026, 12, 1, 0), nil)
 }
+
+func TestRechainFrom_StartingNowIsActive(t *testing.T) {
+	f := newLedgerFixture(t)
+	a, b := f.newAccount(t), f.newAccount(t)
+	now := utc(2026, 10, 10, 0)
+	f.record(t, a, ledgerPurchase("pur_now", now), now)
+	// 사용 중 구간보다 먼저 산 구매의 대기 구간입니다. pur_now를 대기로 보면 구매 순서대로 pur_merged가 앞에 붙습니다.
+	f.record(t, b, ledgerPurchase("pur_merged", utc(2026, 9, 20, 0)), utc(2026, 9, 20, 0))
+	f.insertPendingSegment(t, a, "pur_merged", utc(2026, 12, 1, 0), utc(2026, 12, 13, 0))
+
+	f.rechain(t, a, now)
+
+	f.assertSegment(t, a, "pur_now", now, utc(2026, 11, 10, 0), nil)
+	f.assertSegment(t, a, "pur_merged", utc(2026, 11, 10, 0), utc(2026, 11, 22, 0), nil)
+}
+
+func TestRechainFrom_EndingNowIsPast(t *testing.T) {
+	f := newLedgerFixture(t)
+	a := f.newAccount(t)
+	now := utc(2026, 10, 10, 0)
+	f.record(t, a, ledgerPurchase("pur_ended", utc(2026, 9, 10, 0)), utc(2026, 9, 10, 0))
+
+	require.True(t, f.refund(t, "pur_ended", now))
+	f.rechain(t, a, now)
+
+	f.assertSegment(t, a, "pur_ended", utc(2026, 9, 10, 0), now, nil)
+}
+
+func TestRechainFrom_SamePurchaseTimeOrdersByID(t *testing.T) {
+	f := newLedgerFixture(t)
+	a := f.newAccount(t)
+	now := utc(2026, 10, 10, 0)
+	boughtAt := utc(2026, 10, 5, 0)
+	f.record(t, a, ledgerPurchase("pur_0", utc(2026, 10, 1, 0)), utc(2026, 10, 1, 0))
+	// 장부에 적은 순서는 b, a라 처음 구간도 b가 앞입니다.
+	f.record(t, a, ledgerPurchase("pur_b", boughtAt), boughtAt)
+	f.record(t, a, ledgerPurchase("pur_a", boughtAt), boughtAt)
+	f.assertSegment(t, a, "pur_b", utc(2026, 11, 1, 0), utc(2026, 12, 1, 0), nil)
+	f.assertSegment(t, a, "pur_a", utc(2026, 12, 1, 0), utc(2027, 1, 1, 0), nil)
+
+	require.True(t, f.refund(t, "pur_0", now))
+	f.rechain(t, a, now)
+
+	// 다시 이을 때는 구매 id 순(a 31일, b 30일)입니다.
+	aEnd := now.Add(31 * 24 * time.Hour)
+	f.assertSegment(t, a, "pur_a", now, aEnd, nil)
+	f.assertSegment(t, a, "pur_b", aEnd, aEnd.Add(30*24*time.Hour), nil)
+}
+
+func TestRechainFrom_RefundedActivePullsAllPending(t *testing.T) {
+	f := newLedgerFixture(t)
+	a := f.newAccount(t)
+	now := utc(2026, 10, 10, 0)
+	f.record(t, a, ledgerPurchase("pur_1", utc(2026, 10, 1, 0)), utc(2026, 10, 1, 0))
+	f.record(t, a, ledgerPurchase("pur_2", utc(2026, 10, 2, 0)), utc(2026, 10, 2, 0))
+	f.record(t, a, ledgerPurchase("pur_3", utc(2026, 10, 3, 0)), utc(2026, 10, 3, 0))
+	f.assertSegment(t, a, "pur_3", utc(2026, 12, 1, 0), utc(2027, 1, 1, 0), nil)
+
+	require.True(t, f.refund(t, "pur_1", now))
+	f.rechain(t, a, now)
+
+	f.assertSegment(t, a, "pur_1", utc(2026, 10, 1, 0), utc(2026, 11, 1, 0), &now)
+	secondEnd := now.Add(30 * 24 * time.Hour) // 11/1~12/1
+	f.assertSegment(t, a, "pur_2", now, secondEnd, nil)
+	f.assertSegment(t, a, "pur_3", secondEnd, secondEnd.Add(31*24*time.Hour), nil) // 12/1~1/1
+}

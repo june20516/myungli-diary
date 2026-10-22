@@ -17,6 +17,10 @@ CREATE TABLE purchases (
 
 CREATE INDEX purchases_account_idx ON purchases (account_id, purchased_at DESC);
 
+-- 장부 이전 동기화가 만든 광고 제거권 구간은 장부 행이 없어 다시 잇기(rechainFrom)가 다룰 수 없으므로 지웁니다.
+-- 출시 전이라 staging 데이터만 해당하고, 다음 동기화가 구매 장부와 함께 구간을 다시 만듭니다. 다른 출처 행은 남깁니다.
+DELETE FROM entitlement_grants WHERE source = 'ad_free_pass';
+
 -- 합친 구매가 B 구간과 A 구간을 함께 가질 수 있도록 같은 구매 행을 계정마다 따로 둡니다(spec §5.1).
 ALTER TABLE entitlement_grants DROP CONSTRAINT entitlement_grants_source_unique;
 ALTER TABLE entitlement_grants

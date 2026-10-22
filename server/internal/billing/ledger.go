@@ -12,6 +12,8 @@ import (
 
 // 구매 장부(purchases)와 광고 제거권 사용 구간(entitlement_grants, 출처 ad_free_pass)을 다루는 함수입니다(spec §5.2·§5.3).
 // 모두 호출한 쪽의 트랜잭션 안에서 계정 advisory lock(S82)을 잡은 뒤 부른다고 봅니다.
+// recordPurchaseTx의 경합 처리는 READ COMMITTED에 기댑니다. 두 계정이 같은 구매를 동시에 적으면 늦은 INSERT는
+// 앞 트랜잭션의 commit을 기다려 0행이 되고, 이어지는 PurchaseOwner 조회가 그 commit된 주인을 봅니다.
 
 // recordPurchaseTx는 구매를 장부에 적습니다(S107).
 //

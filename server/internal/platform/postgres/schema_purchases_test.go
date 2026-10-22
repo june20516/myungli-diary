@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 const insertPurchase = `INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, production)
@@ -80,6 +81,37 @@ func TestSchema00016_GrantsUniquePerAccount(t *testing.T) {
 	}
 	if err := insertGrantRow(ctx, pool, accountA); err == nil {
 		t.Error("같은 계정에 같은 (entitlement, source, source_ref)를 두 번 넣을 수 있습니다")
+	}
+}
+
+// 00016은 장부 이전 동기화가 만든 광고 제거권 구간을 지우고, 다른 출처 행은 남깁니다.
+func TestSchema00016_DropsPrePurchaseLedgerPassGrants(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	if err := postgres.MigrateDownTo(ctx, pool, 15); err != nil {
+		t.Fatal(err)
+	}
+	if err := insertActive(ctx, pool, accountA); err != nil {
+		t.Fatal(err)
+	}
+	if err := insertGrantRow(ctx, pool, accountA); err != nil {
+		t.Fatalf("옛 광고 제거권 구간: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+		VALUES ($1, 'insight', 'rewarded_ad', 'ssv-1', now(), now() + interval '1 day')`, accountA); err != nil {
+		t.Fatalf("보상형 광고 행: %v", err)
+	}
+	if err := postgres.Migrate(ctx, pool, "up"); err != nil {
+		t.Fatal(err)
+	}
+
+	var passRows, rewardedRows int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FILTER (WHERE source = 'ad_free_pass'), count(*) FILTER (WHERE source = 'rewarded_ad')
+		FROM entitlement_grants`).Scan(&passRows, &rewardedRows); err != nil {
+		t.Fatal(err)
+	}
+	if passRows != 0 || rewardedRows != 1 {
+		t.Errorf("ad_free_pass %d행, rewarded_ad %d행, want 0행·1행", passRows, rewardedRows)
 	}
 }
 
