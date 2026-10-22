@@ -185,6 +185,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | Apple (Android, D55①) | 웹 흐름: server 콜백이 Apple에서 받은 `code`, `id_token`. app은 일회용 교환 코드와 nonce 원문만 보냄 | 위와 같고, `client_id`는 Services ID. nonce 확인은 교환 단계에서 함(S22) |
 
 * Android의 Apple 웹 흐름(S22, Issue #89): app이 Apple 인증 페이지를 열면 Apple이 `POST /v1/auth/apple/callback`(form_post)으로 결과를 보냅니다. server가 그 자리에서 id_token을 검증하고 code를 교환한 뒤, App Link로 **일회용 교환 코드와 state만** 넘깁니다. app은 `POST /v1/auth/apple/web`에 교환 코드와 nonce 원문을 보내 로그인을 마칩니다. 토큰은 URL에 실리지 않습니다. 상세: [`2026-10-13-apple-web-callback-design.md`](2026-10-13-apple-web-callback-design.md)
+* D82로 제공자는 넷(카카오·Apple·LINE·Google)이고 계정 연결·합치기가 있습니다. 상세: [`2026-10-22-login-providers-merge-design.md`](2026-10-22-login-providers-merge-design.md)
 * 처음 보는 (provider, subject)면 계정을 새로 만들고 응답에 `isNewAccount`와 `consentRequired`를 담습니다.
 * 이메일로 계정을 자동 연결하지 않습니다. Apple은 이메일을 숨길 수 있고, 이메일만 같다고 같은 사람이라 볼 수 없습니다.
 
@@ -470,6 +471,12 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 미리보기를 이미 씀 | 403 | `preview.used` |
 | 없는 리소스, 남의 리소스 | 404 | `diary.not_found`, `schedule.not_found` (남의 것도 404로 보내 존재 여부를 숨김). 반응할 선택 기록이 없거나 반응할 수 없는 슬롯은 `reaction.not_found` |
 | 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
+| 그 제공자 계정이 이미 내 계정에 연결됨 (연결하기) | 409 | `auth.provider_taken` |
+| 그 제공자 계정이 다른 계정에 연결됨 (본문에 합치기 토큰) | 409 | `auth.identity_in_use` |
+| 합치기 상대 계정이 삭제 대기 | 409 | `auth.identity_pending_deletion` |
+| 마지막 로그인 수단은 뗄 수 없음 | 409 | `auth.last_identity` |
+| 연결되지 않은 제공자를 뗌 | 404 | `auth.identity_not_found` |
+| 합치기 토큰이 없거나 만료·사용됨·다른 계정 것 | 422 | `merge.token_invalid` |
 | 한 날짜의 살아 있는 일기가 10편 (만들기·되살리기) | 422 | `diary.day_full` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
