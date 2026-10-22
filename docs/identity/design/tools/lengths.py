@@ -109,8 +109,8 @@ TARGETS = (
             # D77 IA 자리 event-edit.save.cta·delete.cta·diary-edit.save.cta (writing W33: ui 슬롯에 ia로 담음)
             "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save",
             # D82 account-merge 아래 버튼 (#389)
-            "account-merge.cta.merge", "account-merge.cta.cancel",
-            # D85·D88 계정 합치기 입구, 구매 내역 버튼(ad-free.restore.cta 대신) (#480). cta.cancel은 IA에서 지워질 때까지 둠
+            "account-merge.cta.merge",
+            # D85·D88 계정 합치기 입구, 구매 내역 버튼(ad-free.restore.cta 대신) (#480). 합치지 않기 버튼은 IA에서 빠짐(PR #511)
             "login-methods.merge.cta", "ad-free.history.cta"),
            "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
     # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15

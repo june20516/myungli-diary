@@ -53,7 +53,7 @@ DIALOG_SLOTS_EXPECTED = {"diary-view.delete.confirm", "event-edit.delete.confirm
 ISSUE_389 = {
     "login-methods.intro.body", "login-methods.last.notice", "login-methods.unlink.confirm",
     "account-merge.title.head", "account-merge.title.body", "account-merge.choice.label",
-    "account-merge.overlap.notice", "account-merge.cta.merge", "account-merge.cta.cancel", "account-merge.merge.confirm",
+    "account-merge.overlap.notice", "account-merge.cta.merge", "account-merge.merge.confirm",
     "ui.login-methods.row", "ui.account-merge.choice", "ui.account-merge.saju", "ui.settings.login-methods",
 }
 # D85 계정 합치기 두 단계·D88 구매 내역 (#480·#483·#494, spec 2026-10-23 §8)

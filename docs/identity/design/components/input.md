@@ -118,7 +118,7 @@
    * `mark.caution`을 쓰지 않고 바탕 상자도 두지 않습니다. 같은 날 일기도 지우지 않고 모두 옮긴다는 안심 안내이기 때문입니다(D83 ④).
 7. 화면 아래(내용이 짧으면 바닥에 붙음): `primary-button` `filled` `account-merge.cta.merge`(고르기 전 `disabled`)
 
-* **"합치지 않기" 버튼이 없습니다.** 그만두기는 app-bar 뒤로 가기(또는 시스템 뒤로 가기)입니다. 어느 단계에서든 `login-methods`로 돌아가고 인증 결과는 버립니다. IA의 `account-merge.cta.cancel` 슬롯과 "합치지 않기" 출구를 지우도록 지휘에 요청했습니다.
+* **"합치지 않기" 버튼이 없습니다.** 그만두기는 app-bar 뒤로 가기(또는 시스템 뒤로 가기)입니다. 어느 단계에서든 `login-methods`로 돌아가고 인증 결과는 버립니다.
 * 합치기 버튼을 누르면 `dialog` `destructive`(`account-merge.merge.confirm`)가 열립니다. **강조는 이 확인 창 한 곳입니다.** 화면의 합치기 버튼은 평소 무게(`filled`)로 둡니다.
 * 확정 뒤에는 확인 창이 닫히고 합치기 버튼이 `loading`, `account-choice`는 `disabled`(고름 잠금)입니다.
   * 합치는 동안 뒤로 가기는 동작하지 않습니다. app-bar 뒤로 가기 버튼은 `disabled`(opacity 0.4)이고, 시스템 뒤로 가기와 iOS 스와이프 뒤로 가기도 막습니다. 되돌릴 수 없는 처리가 진행 중이라 화면을 떠나 결과를 놓치지 않게 합니다.
