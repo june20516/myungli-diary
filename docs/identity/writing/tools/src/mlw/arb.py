@@ -1,4 +1,4 @@
-"""ARB 검사: 앱 화면 문구(ARB 파일)에 문장 단위 규칙을 적용합니다. ICU plural은 형태마다 펼쳐 검사합니다."""
+"""ARB 검사: 앱 화면 문구(ARB 파일)에 문장 단위 규칙을 적용합니다. ICU plural과 조사 select는 가지마다 펼쳐 검사합니다."""
 
 import json
 import re
@@ -6,10 +6,14 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 from mlw.icu import RULE_PLURAL, expand_entry, plural_problem
+from mlw.josa_select import JOSA_SUFFIX
 from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
 from mlw.sentence import check_sentence
 
 RULE_ARB = "arb.format"
+RULE_ARB_JOSA_ORPHAN = "arb.josa_orphan"
+# 조사 select 변수(`titleJosa`)입니다. 같은 메시지에 원래 매개변수(`{title}`)가 있어야 합니다.
+_JOSA_SELECT_VAR = re.compile(r"\{(\w+)" + JOSA_SUFFIX + r", select,")
 LOCALE_KEY = "@@locale"
 # ARB에서 슬롯에 없는 키는 정보 문구로 봅니다.
 DEFAULT_PURPOSE = "info"
@@ -65,6 +69,17 @@ def check_arb(arb_paths: Sequence[Path], slots: Mapping[str, Slot], rules: RuleS
             problem = plural_problem(value, lang)
             if problem is not None:
                 findings.append(Finding(path, entry.line, RULE_PLURAL, "error", problem))
+                continue
+            # select는 원래 매개변수 바로 뒤에 붙어 있어야 합니다(`{p}{pJosa, select, …}`).
+            orphans = [
+                name
+                for name in dict.fromkeys(_JOSA_SELECT_VAR.findall(value))
+                if value.count("{" + name + JOSA_SUFFIX + ", select,")
+                != value.count("{" + name + "}{" + name + JOSA_SUFFIX + ", select,")
+            ]
+            if orphans:
+                message = f"조사 매개변수의 원래 매개변수가 없습니다: {', '.join(orphans)}"
+                findings.append(Finding(path, entry.line, RULE_ARB_JOSA_ORPHAN, "error", message))
                 continue
             purpose = slot.purpose if slot else DEFAULT_PURPOSE
             max_length = slot.length_limit(lang, key) if slot else None

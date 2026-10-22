@@ -1,14 +1,28 @@
 """원고 표기 검사: 호칭 덩어리 위치(name.position)와 ui 원고의 표기(ui.markup).
 
 호칭은 `vocative: true` 슬롯에서 문장 맨 앞 덩어리로만 씁니다. 호칭이 없으면 렌더러가 덩어리를 지웁니다
-(호칭·조사 규칙 v1.1). ui 원고는 앱 ARB가 렌더하므로 호칭·조사 표기·용어 토큰을 쓸 수 없습니다.
+(호칭·조사 규칙 v1.1). ui 원고는 앱 ARB가 렌더하므로 호칭·용어 토큰을 쓸 수 없습니다. 조사 표기는 ko ui 원고에서만
+매개변수 바로 뒤에 쓸 수 있고, ARB를 만들 때 ICU select로 펼칩니다(ui.josa_*, spec 2026-10-22-ui-josa §5).
 """
 
-from mlw.model import Entry, Finding, Slot
+from collections.abc import Mapping
+
+import regex
+
+from mlw.josa import default_josa_data
+from mlw.josa_select import josa_param
+from mlw.model import Entry, Finding, ParamKind, Slot
 from mlw.placeholders import parse, parse_tokens
 
 RULE_NAME_POSITION = "name.position"
 RULE_UI_MARKUP = "ui.markup"
+RULE_UI_JOSA_POSITION = "ui.josa_position"
+RULE_UI_JOSA_LITERAL = "ui.josa_literal"
+RULE_UI_JOSA_NAME_CLASH = "ui.josa_name_clash"
+JOSA_LANG = "ko"
+JOSA_PARAM_KINDS = frozenset({"text", "number"})
+# 조사 뒤에 붙어도 조사로 보는 보조사입니다(`로는`, `으로도`, `은요`, `와의`).
+_TRAILING_PARTICLES = "는|도|만|요|의"
 NAME_PARAM = "name"
 VOCATIVE_PREFIX: dict[str, str] = {"ko": "{name}님, ", "ja": "{name}さん、", "en": "{name}, "}
 
@@ -56,7 +70,7 @@ def check_ui_markup(entry: Entry) -> list[Finding]:
     problems: list[str] = []
     if any(placeholder.name == NAME_PARAM for placeholder in placeholders):
         problems.append("호칭 {name}")
-    if any(placeholder.josa is not None for placeholder in placeholders):
+    if entry.lang != JOSA_LANG and any(placeholder.josa is not None for placeholder in placeholders):
         problems.append("조사 표기")
     if tokens:
         problems.append("용어 토큰 [[...]]")
@@ -64,3 +78,58 @@ def check_ui_markup(entry: Entry) -> list[Finding]:
         return []
     message = f"ui 원고에는 {', '.join(problems)}을(를) 쓸 수 없습니다(ARB는 렌더하지 않음)"
     return [Finding(entry.file, entry.line, RULE_UI_MARKUP, "error", message)]
+
+
+def _josa_patterns() -> tuple[regex.Pattern[str], regex.Pattern[str], regex.Pattern[str]]:
+    """(조사 표기, 자리표시자와 그 뒤 조사 표기, 자리표시자 뒤에 글자로 붙인 조사) 패턴입니다."""
+    pairs = default_josa_data().pairs
+    markers = "|".join(regex.escape(m) for m in sorted((pair.marker for pair in pairs), key=len, reverse=True))
+    words = {word for pair in pairs for word in (pair.with_batchim, pair.without_batchim, pair.rieul) if word}
+    literal = "|".join(regex.escape(word) for word in sorted(words, key=len, reverse=True))
+    return (
+        regex.compile(markers),
+        regex.compile(rf"\{{[^{{}}]*\}}(?:{markers})?"),
+        # 닫는 따옴표 뒤의 조사도 봅니다. 조사 글자(와 흔한 보조사 하나) 뒤에 한글이 이어지지 않을 때만 조사로 봅니다
+        # (`{date}이후`·`{date}이나`는 걸리지 않고, `{provider}로는`·`{title}와의`·`{title}이)`는 걸림).
+        regex.compile(
+            rf"\{{(?P<name>[^{{}}:\s,]+)\}}['’\"”]?(?P<word>{literal})(?=(?:{_TRAILING_PARTICLES})?(?!\p{{Hangul}}))"
+        ),
+    )
+
+
+_MARKER, _PLACEHOLDER_WITH_JOSA, _LITERAL_JOSA = _josa_patterns()
+
+
+def check_ui_josa(entry: Entry, params: Mapping[str, ParamKind]) -> list[Finding]:
+    """ko ui 원고의 조사 표기 자리, 글자로 붙인 조사, 생성 매개변수 이름 충돌을 봅니다."""
+    if entry.lang != JOSA_LANG:
+        return []
+    try:
+        placeholders = parse(entry.text)
+    except ValueError:
+        # 문법 오류는 문장 단위 검사가 보고합니다.
+        return []
+    findings: list[Finding] = []
+
+    def add(rule_id: str, message: str) -> None:
+        findings.append(Finding(entry.file, entry.line, rule_id, "error", message))
+
+    names = {placeholder.name for placeholder in placeholders}
+    for placeholder in placeholders:
+        if placeholder.josa is None:
+            continue
+        kind = params.get(placeholder.name)
+        # 범주 자리표시자(`{p:cat}`)는 ARB 생성이 펼치지 않습니다.
+        if kind is None or kind.kind not in JOSA_PARAM_KINDS or placeholder.category is not None:
+            add(RULE_UI_JOSA_POSITION, f"조사 표기는 text·number 매개변수 바로 뒤에만 씁니다({{{placeholder.name}}})")
+        generated = josa_param(placeholder.name)
+        if generated in params or generated in names:
+            add(RULE_UI_JOSA_NAME_CLASH, f"매개변수 '{generated}'가 조사 매개변수 이름과 겹칩니다")
+    if _MARKER.search(_PLACEHOLDER_WITH_JOSA.sub("", entry.text)):
+        add(RULE_UI_JOSA_POSITION, "조사 표기는 매개변수 바로 뒤에만 씁니다")
+    for match in _LITERAL_JOSA.finditer(entry.text):
+        kind = params.get(match.group("name"))
+        if kind is not None and kind.kind in JOSA_PARAM_KINDS:
+            word = match.group("word")
+            add(RULE_UI_JOSA_LITERAL, f"매개변수 뒤 조사 '{word}'는 받침에 따라 바뀝니다. 조사 표기를 씁니다")
+    return findings

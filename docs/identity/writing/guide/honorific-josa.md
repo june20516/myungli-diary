@@ -2,7 +2,7 @@
 
 server(Go) 콘텐츠 렌더러가 원고 문장을 화면 문장으로 바꿀 때 따르는 계약입니다.
 
-* 버전: v1.1 (2026-10-14). v1에서 바뀐 것: 호칭 덩어리와 호칭 생략(#69), 용어 토큰의 용어 id와 `[[글자|용어 id]]` 표기, 값 종류 `text`. 근거는 IA 슬롯 spec `specs/2026-10-13-ia-slots-design.md` §5·§6
+* 버전: v1.2 (2026-10-22). v1.1에서 바뀐 것: ui ARB의 조사(아래 "ui ARB의 조사", app이 받는 쪽, spec `specs/2026-10-22-ui-josa-design.md`, W38). v1.1 (2026-10-14)에서 v1과 달라진 것: 호칭 덩어리와 호칭 생략(#69), 용어 토큰의 용어 id와 `[[글자|용어 id]]` 표기, 값 종류 `text`. 근거는 IA 슬롯 spec `specs/2026-10-13-ia-slots-design.md` §5·§6
 * 규칙 원본은 `rules/josa.yaml`, 판정표는 `generated/josa-table.md`입니다. 이 문서는 값을 옮겨 적지 않고 순서와 계약만 설명합니다.
 * 테스트 자료: `rules/josa.yaml`의 `examples`(표기된 원고 → 렌더 결과)와 `name_rules.examples`(호칭 입력 → 저장값·코드). server 테스트가 그대로 읽어 씁니다.
 * 결정 근거: `decisions.md`의 W5(호칭), W9(용어 토큰 표기), W18(호칭 덩어리), W19(용어 id), spec §7
@@ -94,6 +94,34 @@ server(Go) 콘텐츠 렌더러가 원고 문장을 화면 문장으로 바꿀 �
   * `(이)가` → `이(가)`, `(은)는` → `은(는)`, `(을)를` → `을(를)`, `(과)와` → `과(와)`
   * `(으)로`와 `(이)에요`는 병기형이 어색하므로 표기 그대로 둡니다.
 * **영문 판정 한계:** 여러 글자 영문 값은 마지막 글자의 알파벳 이름으로만 판정합니다. 예를 들어 `Bob`은 `B`의 "비"로 읽어 받침 없음이 되지만 실제 읽기 "밥"은 받침이 있습니다. 값 이름 사전이 한글 이름을 주므로 실제 문장에서는 드뭅니다.
+
+## ui ARB의 조사 (v1.2)
+app 화면 문구(ARB)는 server를 거치지 않으므로, ko ui 원고의 조사 표기를 ARB를 만들 때 ICU `select`로 펼칩니다. app이 받는 쪽입니다.
+
+* 원고: ko ui 원고(`content/ko/ui.yaml`)는 `text`·`number` 매개변수 바로 뒤에 조사 표기 6쌍을 쓸 수 있습니다. 예 `"{title}(이)가 내일이에요"`. en·ja ui 원고, ui의 `{name}`·용어 토큰은 지금처럼 쓸 수 없습니다(`ui.markup`).
+* 생성: `mlw gen-docs`가 ko ARB에서 `{p}(이)가`를 다음으로 바꾸고, `@key.placeholders`에 `pJosa`(`String`)를 더합니다. 가지 값은 `rules/josa.yaml`의 `pairs`입니다.
+
+  ```
+  {p}{pJosa, select, final{이} rieul{이} none{가} other{이(가)}}
+  ```
+
+  | 가지 | 뜻 | 값 |
+  | --- | --- | --- |
+  | `final` | 받침 있음(ㄹ 아님) | `with_batchim` |
+  | `rieul` | ㄹ 받침 | `rieul`, 없으면 `with_batchim` |
+  | `none` | 받침 없음 | `without_batchim` |
+  | `other` | 판정할 수 없음 | `fallback`(병기형) |
+
+* 매개변수 이름은 `<원래 이름>Josa`이고, 한 메시지에서 같은 매개변수 뒤 조사가 여러 번이어도 하나입니다. template이 ko라 en·ja에서도 생성 메서드 시그니처에 들어가며 쓰이지 않습니다.
+* **app 계약:** `josaClass(String shown)`이 `'final' | 'rieul' | 'none' | 'other'`를 돌려줍니다. 판정 순서는 위 "조사 판정"과 같고(NFC → 한글 받침 → 숫자·영문·천간지지 읽는 소리 → 그 밖은 `other`), 판정표는 Dart 코드에 둡니다. app 테스트는 `rules/josa.yaml`의 `examples`로 결과를 맞춥니다. 부르는 쪽은 **화면에 보이는 문자열 그대로**(숫자·날짜·시각은 서식 적용 뒤) 넘깁니다.
+
+  ```dart
+  l10n.eventDueNotice(title, josaClass(title))
+  ```
+
+* 생성 메서드는 positional 인자이고(`app/l10n.yaml`에 `use-named-parameters` 없음), `pJosa`는 원래 매개변수들 뒤에 붙습니다.
+* app은 조사 표기를 문자열에서 찾아 바꾸는 후처리를 하지 않습니다.
+* 검사: `ui.josa_position`(조사 표기는 범주 없는 text·number 매개변수 바로 뒤), `ui.josa_literal`(매개변수나 그 뒤 닫는 따옴표에 바뀌는 조사를 글자로 붙임, 보조사 `는·도·만·요·의`가 이어져도 잡음), `ui.josa_name_clash`(`pJosa` 이름 충돌), `check-arb`의 `arb.josa_orphan`(원래 매개변수가 select 바로 앞에 없음). `check-arb`는 `final`·`rieul`·`none` 가지를 펼쳐 문장 규칙을 보고, 병기형은 콘텐츠 렌더와 같은 기계적 대체라 뺍니다.
 
 ## 호칭 입력 검증
 
