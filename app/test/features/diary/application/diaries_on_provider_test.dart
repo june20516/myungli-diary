@@ -20,7 +20,7 @@ final class _Scripted extends Interceptor {
       respond(options, handler);
 }
 
-/// 같은 날 두 편을 id·createdAt이 정렬 순서와 반대인 채로 답합니다.
+/// 같은 날 두 편을 id 정렬 순서와 반대인 채로(createdAt은 계약 순서) 답합니다.
 void _twoDiariesNotSorted(
   RequestOptions options,
   RequestInterceptorHandler handler,
@@ -104,7 +104,7 @@ void main() {
     test('성공하면 server가 준 순서 그대로입니다(다시 정렬하지 않음)', () async {
       final (container, crash) = _container(_twoDiariesNotSorted);
       final list = await _load(container);
-      // id·createdAt 어느 쪽으로 정렬해도 응답 순서(z, a)와 달라집니다.
+      // id로 다시 정렬하는 회귀를 잡습니다(응답 순서 z, a는 id 정렬과 다름).
       expect(list.map((item) => item.id), ['diary-z', 'diary-a']);
       expect(crash.errors, isEmpty);
     });

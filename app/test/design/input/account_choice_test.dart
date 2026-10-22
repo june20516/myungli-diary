@@ -81,11 +81,15 @@ void main() {
       Future<void> pumpWith(int? selectedIndex) => tester.pumpWidget(
         inputApp(_choice(selectedIndex: selectedIndex, onSelected: (_) {})),
       );
-      // select.seep-slide만 들어오는 표시를 키우며(Transform.scale) 스밉니다.
+      // select.seep-slide만 들어오는 표시를 키우며(Transform.scale) 스밉니다. 컴포넌트 밖
+      // 조상(앱 전환 등)의 Transform은 세지 않습니다.
       bool scaling(int index) => find
           .ancestor(
             of: find.byKey(AccountChoice.selectedBorderKey(index)),
-            matching: find.byType(Transform),
+            matching: find.descendant(
+              of: find.byType(AccountChoice),
+              matching: find.byType(Transform),
+            ),
           )
           .evaluate()
           .isNotEmpty;

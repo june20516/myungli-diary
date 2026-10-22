@@ -56,7 +56,7 @@
 * **D83 일기 하루 여러 편 완료**, 브랜치 `app/d83-diary`(PR 전). spec [`docs/specs/2026-10-22-diary-multi-design.md`](docs/specs/2026-10-22-diary-multi-design.md), 계획 [`docs/plans/2026-10-22-diary-multi.md`](docs/plans/2026-10-22-diary-multi.md), 결정 A67~A71. 일기 화면 경로는 id 기반(`diary-view?id=`, `diary-edit?id=`·`?date=`), 초안은 (계정, 날짜, 일기 id) 단위, 쓰는 입구는 그날 편수로 `first`·`more`·`full`(상한 `diaryDayLimit = 10`), 달력 도장은 `nextCursor`를 끝까지 따라 받고, 새 일기 저장은 `Idempotency-Key` 하나입니다. 같은 브랜치에서 design 2.7.0 컴포넌트 계약(`social-login-button` LINE·Google·연결됨, `account-choice`, drift #412·#389)도 맞췄습니다(LINE·Google 공식 로고 자산 포함). 목록의 날짜 묶음 모양은 design #410 답을 기다립니다.
 * 아래는 2026-10-21까지의 상태입니다.
 * **drift 따라잡기(#391·#393·#403)**, 브랜치 `app/drift-1021`. REST draft.12 `DaeunPeriod.startYear`(#391, server #351 답)로 대운 시작 연도를 계약 값으로 바꾸고 생일 추정을 지웠습니다(`currentDaeunIndex`만 남음, `getChart` fixture에 `startYear`). IA D82(#393)로 `ia.g.dart`를 다시 생성하고, 아직 없는 `login-methods`·`account-merge`와 출구가 늘어난 `settings`를 `test/contract/ia_pending.dart`에 넣었습니다(#387에서 만듦). writing #398(#403)은 app 생성물·ARB 차이가 없습니다.
-* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 `docs/specs/2026-10-21-real-login-design.md`(아직 main에 없음)(카카오·Apple, A67~A69). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
+* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 `docs/specs/2026-10-21-real-login-design.md`(아직 main에 없음)(카카오·Apple, 초안의 A67~A69는 일기 결정과 겹쳐 real-login 개정 때 A72부터 다시 매김). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
 * **계획 6(나·설정) 완료**이고 PR #345로 main에 병합됐습니다. 브랜치 `app/me-settings`, 계획 [`docs/plans/2026-10-20-me-settings.md`](docs/plans/2026-10-20-me-settings.md), 결정 A55~A66.
   * Task 1~2: 결정과 임시 문구 22개(A64), `getChart` fixture(`tool/gen_chart_fixtures.py`)·차트 캐시(A56)·차트 근거 주제(`ChartEvidenceSubject`)
   * Task 3~7: `settings-row`·`ohaeng.cell`·`saju-pillars`·`ohaeng-bar`·`manse-table`·`daeun-table` 컴포넌트, 간지 표(A65)
@@ -119,7 +119,7 @@
 3. **계획 5(일기)에서 넘긴 것:**
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).
    * 지운 일기 아래 쌓인 `diary-view`(태그 모아보기에서 다시 열어 지운 경우)는 돌아가면 "일기를 찾지 못했어요" 안내만 보입니다. 쌓인 화면을 정리할지는 실제 사용을 보고 정합니다.
-3-1. **design #410 대기:** `diary-list`·`tag-diary`의 날짜 아래 묶음 모양은 답이 오면 맞춥니다(지금은 줄마다 날짜를 보이는 `diary-row` 나열, A69).
+   * **design #410 대기:** `diary-list`·`tag-diary`의 날짜 아래 묶음 모양은 답이 오면 맞춥니다(지금은 줄마다 날짜를 보이는 `diary-row` 나열, A69).
 4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제, `repeat`·한자 `fontFallback`은 PR #269), 원전 인용 fixture는 writing 원고(W1-3)가 오면 채웁니다.
 5. **writing 대기 문구.** `city.not_found`·`timezone.invalid` 문구가 오면 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지우고 `problemMessages`에 연결합니다(대기 테스트가 실패해 알려 줍니다).
 6. **이후 계획으로 넘긴 사항**

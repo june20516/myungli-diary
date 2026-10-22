@@ -1,7 +1,7 @@
 # 일기 하루 여러 편 (D83) 설계
 
 * 작성: app 세션, 2026-10-22
-* 상태: 초안 (설계 대화 승인 2026-10-22, 문서 검토 대기)
+* 상태: 승인 (2026-10-22), 구현: 브랜치 `app/d83-diary`
 * 요청: Issue #412 (drift), #437 (REST draft.13), #408 (일기 흐름), #424 (한 날짜 10편 상한), #418 (writing 원고 중 일기 키)
 * 관련 결정: app A45·A47·A48·A50·A51(이 spec이 A67~A71로 갱신), 루트 D47 ②·D49·D83
 * 쓰는 계약: REST API `server/api/openapi.yaml` `1.0.0-draft.13`(`createDiary`·`getDiary`·`updateDiary`·`deleteDiary`·`listDiaries`), server spec `server/docs/specs/2026-10-22-diary-multi-design.md` §4, IA 화면 `today`·`day-sheet`·`diary-list`·`diary-edit`·`diary-view`·`tag-diary`, writing ARB(#418·#424 코멘트의 키)

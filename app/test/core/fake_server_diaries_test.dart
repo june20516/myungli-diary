@@ -76,7 +76,7 @@ void main() {
       expect(tagged.items.single.id, created.id);
     });
 
-    test('같은 날 두 편은 작성 순으로 목록에 나온다', () async {
+    test('같은 날 두 편은 작성 순으로 목록에 나옵니다', () async {
       final first = await create('2026-10-13', '첫째');
       final second = await create('2026-10-13', '둘째');
       expect(second.tags.all, first.tags.all);
@@ -91,7 +91,7 @@ void main() {
       ]);
     });
 
-    test('10편째 뒤 createDiary는 422 diary.day_full', () async {
+    test('10편째 뒤 createDiary는 422 diary.day_full입니다', () async {
       for (var n = 0; n < 10; n++) {
         await create('2026-10-13', '$n번째');
       }
@@ -102,7 +102,7 @@ void main() {
       expect((await create('2026-10-12', '다른 날')).date, '2026-10-12');
     });
 
-    test('같은 Idempotency-Key 재전송은 같은 일기를 돌려주고 늘지 않는다', () async {
+    test('같은 Idempotency-Key 재전송은 같은 일기를 돌려주고 늘지 않습니다', () async {
       final first = await create('2026-10-13', '일기', key: 'k1');
       final again = await create('2026-10-13', '일기', key: 'k1');
       expect(again.id, first.id);
@@ -117,7 +117,7 @@ void main() {
       expect(mismatch.code, 'idempotency.mismatch');
     });
 
-    test('지운 일기 getDiary는 404', () async {
+    test('지운 일기 getDiary는 404입니다', () async {
       final id = (await api.listDiaries()).data!.items.first.id;
       final deleted = await api.deleteDiary(id: id);
       expect(deleted.statusCode, 204);
@@ -127,7 +127,7 @@ void main() {
       expect(again.code, 'diary.not_found');
     });
 
-    test('updateDiary는 본문만 바꾸고 tags·createdAt은 그대로', () async {
+    test('updateDiary는 본문만 바꾸고 tags·createdAt은 그대로입니다', () async {
       final created = await create('2026-10-13', '처음');
       final updated = (await api.updateDiary(
         id: created.id,
@@ -139,7 +139,7 @@ void main() {
       expect(updated.id, created.id);
     });
 
-    test('오늘 뒤 날짜 createDiary는 422 diary.future_date', () async {
+    test('오늘 뒤 날짜 createDiary는 422 diary.future_date입니다', () async {
       final problem = await _problemOf(() => create('2026-10-14', '내일'));
       expect((problem.status, problem.code), (422, 'diary.future_date'));
     });
