@@ -131,7 +131,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 테이블 | 주요 열 | 비고 |
 | --- | --- | --- |
-| `diaries` | account_id, date, body, all_tags(text[]), featured_tags(jsonb `[{key, polarity}]`, 계약 키), guide_question(jsonb: 렌더된 조각 배열), ruleset_version, deleted_at, content_purged_at | partial unique(account_id, date) WHERE deleted_at IS NULL. all_tags에 GIN 인덱스. 날짜 내림차순 목록은 partial unique의 역방향 스캔이 덮으므로 목록 인덱스는 따로 두지 않음 (D47·D49·D59④) |
+| `diaries` (D83으로 `diary_days`와 나뉨, `2026-10-22-diary-multi-design.md`) | account_id, date, body, all_tags(text[]), featured_tags(jsonb `[{key, polarity}]`, 계약 키), guide_question(jsonb: 렌더된 조각 배열), ruleset_version, deleted_at, content_purged_at | partial unique(account_id, date) WHERE deleted_at IS NULL. all_tags에 GIN 인덱스. 날짜 내림차순 목록은 partial unique의 역방향 스캔이 덮으므로 목록 인덱스는 따로 두지 않음 (D47·D49·D59④) |
 | `schedules` | account_id, date, all_day, time, title, memo, deleted_at, content_purged_at | |
 
 **엔진 결과 캐시 (S4)**
@@ -236,7 +236,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
 | 반응 | `PUT /v1/daily/{date}/slots/{slot}/reaction`, `DELETE` 같은 경로 | 그날 선택 기록에 붙음 |
 | 비로그인 | `POST /v1/preview`, `POST /v1/birth-hour`, `POST /v1/lunar-date`(음력→양력, 윤달 유무) | App Check 필수. 입력 저장 안 함 (D50·D58) |
-| 일기 | `GET /v1/diaries?from&to&tag&cursor`, `GET`·`PUT`·`DELETE /v1/diaries/{date}`, `POST /v1/diaries/{date}/restore` | `PUT`은 멱등 upsert. 응답에 대표 태그 (Issue #31) |
+| 일기 | `GET /v1/diaries?from&to&tag&cursor`, `POST /v1/diaries`, `GET`·`PUT`·`DELETE /v1/diaries/{id}`, `POST /v1/diaries/{id}/restore` | `POST`는 `Idempotency-Key` 대상, `PUT`은 본문 전체 교체 (D83, S97). 응답에 대표 태그 (Issue #31) |
 | 일정 | `GET /v1/schedules?from&to`, `POST /v1/schedules`, `PATCH`·`DELETE /v1/schedules/{id}`, `POST /v1/schedules/{id}/restore` | |
 | 알림 기기 | `POST /v1/devices`, `DELETE /v1/devices/{id}` | 새 토큰 201, 등록된 토큰은 같은 `id`로 200(다른 계정이면 옮김), 계정당 활성 10대, 해제는 로그아웃 전과 토큰 교체 때(S92) |
 | 결제 | `GET /v1/me/entitlements`, `POST /v1/billing/restore`, `POST /webhooks/revenuecat`, `GET /webhooks/admob-ssv` | §10 |
@@ -470,7 +470,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 미리보기를 이미 씀 | 403 | `preview.used` |
 | 없는 리소스, 남의 리소스 | 404 | `diary.not_found`, `schedule.not_found` (남의 것도 404로 보내 존재 여부를 숨김). 반응할 선택 기록이 없거나 반응할 수 없는 슬롯은 `reaction.not_found` |
 | 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
-| 되살리려는 날짜에 이미 일기가 있음 | 409 | `diary.date_taken` |
+| 한 날짜의 살아 있는 일기가 10편 (만들기·되살리기) | 422 | `diary.day_full` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
 | 동의한 문서 버전이 현재 버전과 다름 | 422 | `consent.version_mismatch` (`errors[].field`는 `/documents/<i>/version`) |
