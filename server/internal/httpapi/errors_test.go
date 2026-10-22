@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
@@ -158,4 +159,34 @@ func TestWriteHandlerError_EngineInternalIs502(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadGateway, rec.Code)
 	assert.Equal(t, "engine.error", p.Code)
+}
+
+func TestWriteHandlerError_IdentityInUseCarriesMergeToken(t *testing.T) {
+	expires := time.Date(2026, 10, 13, 9, 10, 0, 0, time.UTC)
+	rec, p, _ := serveHandlerError(t, fmt.Errorf("wrap: %w", &auth.IdentityInUseError{MergeToken: "tok", ExpiresAt: expires}))
+
+	assert.Equal(t, http.StatusConflict, rec.Code)
+	assert.Equal(t, "auth.identity_in_use", p.Code)
+	assert.Equal(t, "tok", p.MergeToken)
+	require.NotNil(t, p.ExpiresAt)
+	assert.True(t, expires.Equal(*p.ExpiresAt))
+	assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
+}
+
+func TestWriteHandlerError_InvalidProofIsRequestInvalidWithOneField(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, &auth.InvalidProofError{Field: "/exchangeCode", Code: "additionalProperties"})
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, "request.invalid", p.Code)
+	assert.Equal(t, []problem.FieldError{{Field: "/exchangeCode", Code: "additionalProperties"}}, p.Errors)
+}
+
+// 합치기 토큰 필드는 identity_in_use에만 있고, 다른 problem 본문에는 키 자체가 나오지 않습니다.
+func TestWriteHandlerError_OtherProblemsOmitMergeFields(t *testing.T) {
+	for _, err := range []error{auth.ErrProviderTaken, auth.ErrIdentityPendingDeletion, auth.ErrLastIdentity, auth.ErrIdentityNotFound, auth.ErrProviderTokenInvalid} {
+		rec, _, _ := serveHandlerError(t, err)
+
+		assert.NotContains(t, rec.Body.String(), "mergeToken", "%v", err)
+		assert.NotContains(t, rec.Body.String(), "expiresAt", "%v", err)
+	}
 }

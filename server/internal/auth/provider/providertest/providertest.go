@@ -476,7 +476,12 @@ func (s *Server) serveJWKS(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	pub := key.private.PublicKey
-	ecPub := s.es256Key.PublicKey
+	// 비압축 점 인코딩(0x04 || X || Y)에서 각 32바이트 좌표를 꺼냅니다. ecdsa.PublicKey의 X·Y 필드는 deprecated입니다.
+	ecPoint, err := s.es256Key.PublicKey.Bytes()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	set := map[string]any{
 		"keys": []map[string]string{{
 			"kty": "RSA",
@@ -491,9 +496,9 @@ func (s *Server) serveJWKS(w http.ResponseWriter, _ *http.Request) {
 			"use": "sig",
 			"alg": "ES256",
 			"crv": "P-256",
-			// 좌표는 곡선 크기(32바이트)에 맞춰 앞을 0으로 채워야 합니다(RFC 7518 6.2.1.2).
-			"x": base64.RawURLEncoding.EncodeToString(ecPub.X.FillBytes(make([]byte, 32))),
-			"y": base64.RawURLEncoding.EncodeToString(ecPub.Y.FillBytes(make([]byte, 32))),
+			// 좌표는 곡선 크기(32바이트)로 고정된 길이입니다(RFC 7518 6.2.1.2).
+			"x": base64.RawURLEncoding.EncodeToString(ecPoint[1:33]),
+			"y": base64.RawURLEncoding.EncodeToString(ecPoint[33:65]),
 		}},
 	}
 	w.Header().Set("Content-Type", "application/json")

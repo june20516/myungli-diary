@@ -29,6 +29,13 @@ const healthPingTimeout = time.Second
 type AuthService interface {
 	LoginKakao(ctx context.Context, idToken, rawNonce string) (auth.LoginResult, error)
 	LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string) (auth.LoginResult, error)
+	LoginLine(ctx context.Context, idToken, rawNonce string) (auth.LoginResult, error)
+	LoginGoogle(ctx context.Context, idToken, rawNonce string) (auth.LoginResult, error)
+	// ListIdentities는 계정에 붙은 로그인 제공자를 붙인 순서로 돌려줍니다.
+	ListIdentities(ctx context.Context, accountID uuid.UUID) ([]auth.LinkedIdentity, error)
+	// LinkIdentity는 계정에 제공자 연결을 붙입니다. 제공자별 증명 조합 검사는 서비스가 합니다.
+	LinkIdentity(ctx context.Context, accountID uuid.UUID, providerName string, proof auth.LinkProof) (auth.LinkResult, error)
+	UnlinkIdentity(ctx context.Context, accountID uuid.UUID, providerName string) error
 	// BeginAppleWebLogin은 Apple 웹 콜백의 값을 검증·교환해 저장하고 일회용 교환 코드를 돌려줍니다.
 	BeginAppleWebLogin(ctx context.Context, idToken, authorizationCode string) (exchangeCode string, err error)
 	// CompleteAppleWebLogin은 교환 코드와 nonce 원문으로 로그인을 마칩니다.

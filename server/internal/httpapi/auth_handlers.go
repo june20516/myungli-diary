@@ -49,6 +49,32 @@ func (a *API) LoginKakao(ctx context.Context, req gen.LoginKakaoRequestObject) (
 	return gen.LoginKakao200JSONResponse(body), nil
 }
 
+// LoginLine은 LINE id_token을 검증하고 자체 토큰을 발급합니다.
+func (a *API) LoginLine(ctx context.Context, req gen.LoginLineRequestObject) (gen.LoginLineResponseObject, error) {
+	res, err := a.Auth.LoginLine(ctx, req.Body.IdToken, req.Body.Nonce)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.loginResponse(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+	return gen.LoginLine200JSONResponse(body), nil
+}
+
+// LoginGoogle은 Google id_token을 검증하고 자체 토큰을 발급합니다.
+func (a *API) LoginGoogle(ctx context.Context, req gen.LoginGoogleRequestObject) (gen.LoginGoogleResponseObject, error) {
+	res, err := a.Auth.LoginGoogle(ctx, req.Body.IdToken, req.Body.Nonce)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.loginResponse(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+	return gen.LoginGoogle200JSONResponse(body), nil
+}
+
 // LoginApple은 Apple id_token과 authorization code를 검증하고 자체 토큰을 발급합니다.
 // 이 operation은 iOS 앱 전용이라 요청에 클라이언트 종류가 없고, 서비스의 LoginApple이 Apple client_id를
 // 앱 BundleID로 고정합니다. Android의 Apple 웹 흐름은 appleCallback과 completeAppleWebLogin을 씁니다.

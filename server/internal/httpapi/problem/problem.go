@@ -4,6 +4,7 @@ package problem
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 )
@@ -28,6 +29,9 @@ type Problem struct {
 	TraceID string       `json:"traceId"`
 	Detail  string       `json:"detail,omitempty"`
 	Errors  []FieldError `json:"errors,omitempty"`
+	// MergeToken과 ExpiresAt은 auth.identity_in_use 409에만 담는 합치기 토큰과 그 만료 시각입니다.
+	MergeToken string     `json:"mergeToken,omitempty"`
+	ExpiresAt  *time.Time `json:"expiresAt,omitempty"`
 }
 
 // New는 상태, 오류 코드, 제목으로 Problem을 만듭니다. Type과 TraceID는 Write가 채웁니다.
