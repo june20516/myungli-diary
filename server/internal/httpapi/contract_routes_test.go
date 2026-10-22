@@ -189,7 +189,7 @@ func TestAPI_MissingRequiredQueryReturns400(t *testing.T) {
 func TestAPI_MissingRequiredFieldReturns400(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{}`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPost, "/v1/diaries", contentTypeJSON, `{"date":"2026-10-11"}`))
 
 	expectInvalid(t, rec, "/body")
 }
@@ -206,7 +206,7 @@ func TestAPI_NestedFieldErrorUsesJSONPointer(t *testing.T) {
 func TestAPI_WrongContentTypeReturns415(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", "text/plain", `{"body":"오늘"}`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPost, "/v1/diaries", "text/plain", `{"date":"2026-10-11","body":"오늘"}`))
 
 	if rec.Code != http.StatusUnsupportedMediaType {
 		t.Fatalf("status = %d, want 415, body = %s", rec.Code, rec.Body.String())
@@ -223,14 +223,14 @@ func TestAPI_ContentTypeIsJudgedByMediaType(t *testing.T) {
 		name, contentType, body string
 		want                    int
 	}{
-		{"charset 파라미터는 무시", "application/json; charset=utf-8", `{"body":"오늘"}`, http.StatusNotImplemented},
-		{"Content-Type 없음", "", `{"body":"오늘"}`, http.StatusUnsupportedMediaType},
-		{"PUT에 merge-patch", contentTypeMergePatch, `{"body":"오늘"}`, http.StatusUnsupportedMediaType},
+		{"charset 파라미터는 무시", "application/json; charset=utf-8", `{"date":"2026-10-11","body":"오늘"}`, http.StatusNotImplemented},
+		{"Content-Type 없음", "", `{"date":"2026-10-11","body":"오늘"}`, http.StatusUnsupportedMediaType},
+		{"POST에 merge-patch", contentTypeMergePatch, `{"date":"2026-10-11","body":"오늘"}`, http.StatusUnsupportedMediaType},
 		{"빈 본문은 형식과 관계없이 400", "text/plain", "", http.StatusBadRequest},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			req := httptest.NewRequestWithContext(t.Context(), http.MethodPut, "/v1/diaries/2026-10-11", strings.NewReader(tc.body))
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/diaries", strings.NewReader(tc.body))
 			if tc.contentType != "" {
 				req.Header.Set("Content-Type", tc.contentType)
 			}
@@ -281,7 +281,7 @@ func TestValidateRequests_UnknownContractRouteIsLogged(t *testing.T) {
 func TestAPI_MalformedJSONReturns400Malformed(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{"body":`))
+	rec := serve(handler, newBodyRequest(t, http.MethodPost, "/v1/diaries", contentTypeJSON, `{"date":"2026-10-11","body":`))
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want 400, body = %s", rec.Code, rec.Body.String())
@@ -297,7 +297,7 @@ func TestAPI_TrailingDataReturns400Malformed(t *testing.T) {
 	cases := []struct {
 		name, method, target, contentType string
 	}{
-		{"json", http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON},
+		{"json", http.MethodPost, "/v1/diaries", contentTypeJSON},
 		{"merge-patch", http.MethodPatch, "/v1/schedules/" + scheduleID, contentTypeMergePatch},
 	}
 	for _, tc := range cases {
@@ -317,8 +317,8 @@ func TestAPI_TrailingDataReturns400Malformed(t *testing.T) {
 func TestAPI_BodyTooLargeReturns413(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 	// Content-Length를 알 수 없는 스트림으로 보내 검증이 본문을 읽는 도중 상한에 걸리게 합니다.
-	body := io.MultiReader(strings.NewReader(`{"body":"`), strings.NewReader(strings.Repeat("x", 2<<20)), strings.NewReader(`"}`))
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodPut, "/v1/diaries/2026-10-11", body)
+	body := io.MultiReader(strings.NewReader(`{"date":"2026-10-11","body":"`), strings.NewReader(strings.Repeat("x", 2<<20)), strings.NewReader(`"}`))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/v1/diaries", body)
 	req.Header.Set("Content-Type", contentTypeJSON)
 	req.ContentLength = -1
 
@@ -415,9 +415,9 @@ func TestAPI_WrongMethodStaysProblem405(t *testing.T) {
 func TestAPI_AccessLogUsesContractRoute(t *testing.T) {
 	handler, logs := newAPIHandler(t)
 
-	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries/2026-10-11", nil))
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries/"+diaryID, nil))
 
-	if got := lastAccessLog(t, logs)["route"]; got != "GET /v1/diaries/{date}" {
+	if got := lastAccessLog(t, logs)["route"]; got != "GET /v1/diaries/{id}" {
 		t.Errorf("route = %v", got)
 	}
 }
@@ -438,6 +438,9 @@ type operationRequest struct {
 }
 
 const scheduleID = "0b6f8b52-3a4f-4f0e-9f57-0d2f7c3c1a10"
+
+// diaryID는 일기 경로 {id}에 쓰는 UUID v7입니다.
+const diaryID = "0192a3b4-0000-7000-8000-000000000001"
 
 // minimalRequests는 계약의 모든 operation에 대한 유효한 최소 요청입니다.
 var minimalRequests = map[string]operationRequest{
@@ -466,10 +469,11 @@ var minimalRequests = map[string]operationRequest{
 	"convertLunarDate": {http.MethodPost, "/v1/lunar-date", contentTypeJSON,
 		`{"installationId":"i","date":{"year":2026,"month":1,"day":1},"isLeapMonth":false}`},
 	"listDiaries":       {http.MethodGet, "/v1/diaries", "", ""},
-	"getDiary":          {http.MethodGet, "/v1/diaries/2026-10-11", "", ""},
-	"putDiary":          {http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, `{"body":"오늘"}`},
-	"deleteDiary":       {http.MethodDelete, "/v1/diaries/2026-10-11", "", ""},
-	"restoreDiary":      {http.MethodPost, "/v1/diaries/2026-10-11/restore", "", ""},
+	"createDiary":       {http.MethodPost, "/v1/diaries", contentTypeJSON, `{"date":"2026-10-11","body":"오늘"}`},
+	"getDiary":          {http.MethodGet, "/v1/diaries/" + diaryID, "", ""},
+	"updateDiary":       {http.MethodPut, "/v1/diaries/" + diaryID, contentTypeJSON, `{"body":"오늘"}`},
+	"deleteDiary":       {http.MethodDelete, "/v1/diaries/" + diaryID, "", ""},
+	"restoreDiary":      {http.MethodPost, "/v1/diaries/" + diaryID + "/restore", "", ""},
 	"listSchedules":     {http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "", ""},
 	"createSchedule":    {http.MethodPost, "/v1/schedules", contentTypeJSON, `{"date":"2026-10-11","allDay":true,"title":"점심"}`},
 	"updateSchedule":    {http.MethodPatch, "/v1/schedules/" + scheduleID, contentTypeMergePatch, `{"title":"점심"}`},
@@ -562,9 +566,9 @@ func TestValidateRequests_KeepsRawQueryAndBody(t *testing.T) {
 		t.Errorf("status = %d, RawQuery = %q, want empty", rec.Code, gotQuery)
 	}
 
-	body := `{"body":"오늘"}`
+	body := `{"date":"2026-10-11","body":"오늘"}`
 	rec = httptest.NewRecorder()
-	handler.ServeHTTP(rec, newBodyRequest(t, http.MethodPut, "/v1/diaries/2026-10-11", contentTypeJSON, body))
+	handler.ServeHTTP(rec, newBodyRequest(t, http.MethodPost, "/v1/diaries", contentTypeJSON, body))
 	if rec.Code != http.StatusNoContent || gotBody != body {
 		t.Errorf("status = %d, body = %q, want %q", rec.Code, gotBody, body)
 	}
