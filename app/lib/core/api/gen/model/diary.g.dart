@@ -7,6 +7,8 @@ part of 'diary.dart';
 // **************************************************************************
 
 abstract class _$DiaryCWProxy {
+  Diary id(String id);
+
   Diary date(String date);
 
   Diary body(String body);
@@ -30,6 +32,7 @@ abstract class _$DiaryCWProxy {
   /// Diary(...).copyWith(id: 12, name: "My name")
   /// ```
   Diary call({
+    String id,
     String date,
     String body,
     RenderedText? guideQuestion,
@@ -46,6 +49,9 @@ class _$DiaryCWProxyImpl implements _$DiaryCWProxy {
   const _$DiaryCWProxyImpl(this._value);
 
   final Diary _value;
+
+  @override
+  Diary id(String id) => call(id: id);
 
   @override
   Diary date(String date) => call(date: date);
@@ -80,6 +86,7 @@ class _$DiaryCWProxyImpl implements _$DiaryCWProxy {
   /// ```
   @override
   Diary call({
+    Object? id = const $CopyWithPlaceholder(),
     Object? date = const $CopyWithPlaceholder(),
     Object? body = const $CopyWithPlaceholder(),
     Object? guideQuestion = const $CopyWithPlaceholder(),
@@ -89,6 +96,10 @@ class _$DiaryCWProxyImpl implements _$DiaryCWProxy {
     Object? updatedAt = const $CopyWithPlaceholder(),
   }) {
     return Diary(
+      id: id == const $CopyWithPlaceholder() || id == null
+          ? _value.id
+          // ignore: cast_nullable_to_non_nullable
+          : id as String,
       date: date == const $CopyWithPlaceholder() || date == null
           ? _value.date
           // ignore: cast_nullable_to_non_nullable
@@ -140,6 +151,7 @@ Diary _$DiaryFromJson(
   $checkKeys(
     json,
     requiredKeys: const [
+      'id',
       'date',
       'body',
       'tags',
@@ -149,6 +161,7 @@ Diary _$DiaryFromJson(
     ],
   );
   final val = Diary(
+    id: $checkedConvert('id', (v) => v as String),
     date: $checkedConvert('date', (v) => v as String),
     body: $checkedConvert('body', (v) => v as String),
     guideQuestion: $checkedConvert(
@@ -168,6 +181,7 @@ Diary _$DiaryFromJson(
 });
 
 Map<String, dynamic> _$DiaryToJson(Diary instance) => <String, dynamic>{
+  'id': instance.id,
   'date': instance.date,
   'body': instance.body,
   'guideQuestion': ?instance.guideQuestion?.toJson(),

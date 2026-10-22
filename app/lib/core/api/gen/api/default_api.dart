@@ -24,6 +24,7 @@ import 'package:myungli_diary/core/api/gen/model/deletion_scheduled.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
@@ -472,6 +473,99 @@ class DefaultApi {
     );
   }
 
+  /// 일기 쓰기
+  /// 일기를 한 편 씁니다. 하루에 살아 있는 일기는 10편까지입니다. 그날 첫 편이면 날짜 기록(태그·&#x60;rulesetVersion&#x60;·가이드 질문)을 함께 만듭니다. 같은 &#x60;Idempotency-Key&#x60;로 다시 보내면 24시간 동안 같은 응답입니다. 그날 살아 있는 일기가 이미 10편이면 422 &#x60;diary.day_full&#x60;, 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  ///
+  /// Parameters:
+  /// * [diaryInput]
+  /// * [idempotencyKey] - 같은 키로 다시 보내면 24시간 동안 같은 응답을 돌려줍니다(IETF draft-ietf-httpapi-idempotency-key-header).
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Diary] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Diary>> createDiary({
+    required DiaryInput diaryInput,
+    String? idempotencyKey,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/diaries';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        if (idempotencyKey != null) r'Idempotency-Key': idempotencyKey,
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(diaryInput);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Diary? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Diary, Diary>(rawData, 'Diary', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Diary>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 비로그인 미리보기
   /// 출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 설치(&#x60;installationId&#x60;)마다 1번이며, 두 번째는 403 &#x60;preview.used&#x60;입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다. 언어는 &#x60;Accept-Language&#x60;를 씁니다. 총운 문장은 계정이 없어 순환 기록이 없으므로 &#x60;advice&#x60; 유형을 쓰고, 호칭은 없습니다.
   ///
@@ -807,10 +901,10 @@ class DefaultApi {
   }
 
   /// 일기 지우기
-  /// 일기를 지웁니다. 지운 일기는 &#x60;restoreDiary&#x60;로 되살릴 수 있습니다. 없거나 이미 지운 일기는 404 &#x60;diary.not_found&#x60;입니다.
+  /// 일기를 지웁니다. 지운 일기는 &#x60;restoreDiary&#x60;로 되살릴 수 있습니다. 없거나 이미 지운 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;입니다.
   ///
   /// Parameters:
-  /// * [date]
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -821,7 +915,7 @@ class DefaultApi {
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
   Future<Response<void>> deleteDiary({
-    required String date,
+    required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -829,11 +923,11 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}'.replaceAll(
+    final _path = r'/v1/diaries/{id}'.replaceAll(
       '{'
-      r'date'
+      r'id'
       '}',
-      date.toString(),
+      id.toString(),
     );
     final _options = Options(
       method: r'DELETE',
@@ -1454,10 +1548,10 @@ class DefaultApi {
   }
 
   /// 일기 읽기
-  /// 그날 일기를 돌려줍니다. 없거나 지운 일기는 404 &#x60;diary.not_found&#x60;입니다.
+  /// 일기 한 편을 돌려줍니다. 없거나 지운 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;입니다.
   ///
   /// Parameters:
-  /// * [date]
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1468,7 +1562,7 @@ class DefaultApi {
   /// Returns a [Future] containing a [Response] with a [Diary] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<Diary>> getDiary({
-    required String date,
+    required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1476,11 +1570,11 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}'.replaceAll(
+    final _path = r'/v1/diaries/{id}'.replaceAll(
       '{'
-      r'date'
+      r'id'
       '}',
-      date.toString(),
+      id.toString(),
     );
     final _options = Options(
       method: r'GET',
@@ -1988,7 +2082,7 @@ class DefaultApi {
   }
 
   /// 일기 목록
-  /// 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순입니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 빈 목록입니다.
+  /// 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순이고, 같은 날짜 안에서는 작성 순(&#x60;createdAt&#x60; 오름차순)입니다. &#x60;limit&#x60;은 일기 편수라 한 날짜의 일기가 두 쪽에 나뉠 수 있습니다. 날짜 하나의 일기는 &#x60;from&#x60;과 &#x60;to&#x60;에 같은 날짜를 넣어 받습니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 빈 목록입니다.
   ///
   /// Parameters:
   /// * [from]
@@ -2399,101 +2493,6 @@ class DefaultApi {
     return _response;
   }
 
-  /// 일기 쓰기
-  /// 그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다. 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 저장할 때 그날 엔진 결과의 태그와 &#x60;rulesetVersion&#x60;, 가이드 질문을 함께 기록합니다. 이미 있는 일기를 고치면 본문만 바꾸고, 태그·&#x60;rulesetVersion&#x60;·가이드 질문은 처음 쓸 때 기록한 값을 유지합니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
-  ///
-  /// Parameters:
-  /// * [date]
-  /// * [diaryInput]
-  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
-  /// * [headers] - Can be used to add additional headers to the request
-  /// * [extras] - Can be used to add flags to the request
-  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
-  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
-  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
-  ///
-  /// Returns a [Future] containing a [Response] with a [Diary] as data
-  /// Throws [DioException] if API call or serialization fails
-  Future<Response<Diary>> putDiary({
-    required String date,
-    required DiaryInput diaryInput,
-    CancelToken? cancelToken,
-    Map<String, dynamic>? headers,
-    Map<String, dynamic>? extra,
-    ValidateStatus? validateStatus,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final _path = r'/v1/diaries/{date}'.replaceAll(
-      '{'
-      r'date'
-      '}',
-      date.toString(),
-    );
-    final _options = Options(
-      method: r'PUT',
-      headers: <String, dynamic>{...?headers},
-      extra: <String, dynamic>{
-        'secure': <Map<String, String>>[
-          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
-        ],
-        ...?extra,
-      },
-      contentType: 'application/json',
-      validateStatus: validateStatus,
-    );
-
-    dynamic _bodyData;
-
-    try {
-      _bodyData = jsonEncode(diaryInput);
-    } catch (error, stackTrace) {
-      throw DioException(
-        requestOptions: _options.compose(_dio.options, _path),
-        type: DioExceptionType.unknown,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-
-    final _response = await _dio.request<Object>(
-      _path,
-      data: _bodyData,
-      options: _options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
-
-    Diary? _responseData;
-
-    try {
-      final rawData = _response.data;
-      _responseData = rawData == null
-          ? null
-          : deserialize<Diary, Diary>(rawData, 'Diary', growable: true);
-    } catch (error, stackTrace) {
-      throw DioException(
-        requestOptions: _response.requestOptions,
-        response: _response,
-        type: DioExceptionType.unknown,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return Response<Diary>(
-      data: _responseData,
-      headers: _response.headers,
-      isRedirect: _response.isRedirect,
-      requestOptions: _response.requestOptions,
-      redirects: _response.redirects,
-      statusCode: _response.statusCode,
-      statusMessage: _response.statusMessage,
-      extra: _response.extra,
-    );
-  }
-
   /// 문장 반응 남기기
   /// 그날 그 슬롯에 보인 문장에 반응을 남깁니다. 같은 요청을 다시 보내도 결과가 같습니다. 그날 그 슬롯에 반응할 선택 기록이 없거나 반응할 수 없는 슬롯이면 404 &#x60;reaction.not_found&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
   ///
@@ -2753,10 +2752,10 @@ class DefaultApi {
   }
 
   /// 지운 일기 되살리기
-  /// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 그 날짜에 이미 새 일기가 있으면 409 &#x60;diary.date_taken&#x60;, 지운 일기가 없으면 404 &#x60;diary.not_found&#x60;입니다.
+  /// 지운 일기를 되살립니다. 이미 살아 있는 일기면 그대로 200입니다. 내용을 비운 일기와 없는 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;, 그 날짜에 살아 있는 일기가 이미 10편이면 422 &#x60;diary.day_full&#x60;입니다.
   ///
   /// Parameters:
-  /// * [date]
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2767,7 +2766,7 @@ class DefaultApi {
   /// Returns a [Future] containing a [Response] with a [Diary] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<Diary>> restoreDiary({
-    required String date,
+    required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2775,11 +2774,11 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}/restore'.replaceAll(
+    final _path = r'/v1/diaries/{id}/restore'.replaceAll(
       '{'
-      r'date'
+      r'id'
       '}',
-      date.toString(),
+      id.toString(),
     );
     final _options = Options(
       method: r'POST',
@@ -3042,6 +3041,101 @@ class DefaultApi {
     );
 
     return _response;
+  }
+
+  /// 일기 고치기
+  /// 일기 본문을 바꿉니다(전체 교체, 멱등). 날짜 기록(태그·&#x60;rulesetVersion&#x60;·가이드 질문)은 처음 쓸 때 기록한 값 그대로입니다. 엔진을 부르지 않습니다. 없거나 지운 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;입니다.
+  ///
+  /// Parameters:
+  /// * [id]
+  /// * [diaryBodyInput]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Diary] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Diary>> updateDiary({
+    required String id,
+    required DiaryBodyInput diaryBodyInput,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/diaries/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
+    final _options = Options(
+      method: r'PUT',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(diaryBodyInput);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Diary? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Diary, Diary>(rawData, 'Diary', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Diary>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
   }
 
   /// 프로필 수정

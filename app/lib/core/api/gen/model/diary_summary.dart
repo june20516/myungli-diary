@@ -19,15 +19,25 @@ part 'diary_summary.g.dart';
 class DiarySummary {
   /// Returns a new [DiarySummary] instance.
   DiarySummary({
+    required this.id,
+
     required this.date,
+
+    required this.createdAt,
 
     required this.excerpt,
 
     required this.featuredTags,
   });
 
+  @JsonKey(name: r'id', required: true, includeIfNull: false)
+  final String id;
+
   @JsonKey(name: r'date', required: true, includeIfNull: false)
   final String date;
+
+  @JsonKey(name: r'createdAt', required: true, includeIfNull: false)
+  final DateTime createdAt;
 
   /// 본문 앞 100자
   @JsonKey(name: r'excerpt', required: true, includeIfNull: false)
@@ -40,12 +50,19 @@ class DiarySummary {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DiarySummary &&
+          other.id == id &&
           other.date == date &&
+          other.createdAt == createdAt &&
           other.excerpt == excerpt &&
           other.featuredTags == featuredTags;
 
   @override
-  int get hashCode => date.hashCode + excerpt.hashCode + featuredTags.hashCode;
+  int get hashCode =>
+      id.hashCode +
+      date.hashCode +
+      createdAt.hashCode +
+      excerpt.hashCode +
+      featuredTags.hashCode;
 
   factory DiarySummary.fromJson(Map<String, dynamic> json) =>
       _$DiarySummaryFromJson(json);

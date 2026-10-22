@@ -25,6 +25,7 @@ import 'package:myungli_diary/core/api/gen/model/deletion_scheduled.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
@@ -168,6 +169,9 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'DevicePlatform':
     case 'Diary':
       return Diary.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DiaryBodyInput':
+      return DiaryBodyInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'DiaryInput':
       return DiaryInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DiaryList':
