@@ -56,7 +56,14 @@ Map<String, Object?> filterDiaryList(
 
 /// 계약 목록 순서: 날짜 내림차순 → `createdAt` 오름차순 → `id` 오름차순.
 int _compareItems(Map<String, Object?> a, Map<String, Object?> b) {
-  String field(Map<String, Object?> item, String name) => item[name]! as String;
+  String field(Map<String, Object?> item, String name) {
+    final value = item[name];
+    if (value is! String) {
+      throw StateError('listDiaries fixture 항목에 $name이 없습니다: $item');
+    }
+    return value;
+  }
+
   final byDate = field(b, 'date').compareTo(field(a, 'date'));
   if (byDate != 0) {
     return byDate;

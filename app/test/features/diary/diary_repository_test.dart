@@ -24,9 +24,7 @@ Map<String, Object> _diaryJson() => {
 Map<String, Object> _summaryJson(String id, String date) => {
   'id': id,
   'date': date,
-  'createdAt':
-      '$date'
-      'T12:00:00Z',
+  'createdAt': '${date}T12:00:00Z',
   'excerpt': '일기',
   'featuredTags': <Object>[],
 };
@@ -222,7 +220,7 @@ void main() {
   });
 
   group('DiaryRepository.datesIn', () {
-    test('nextCursor가 없을 때까지 이어 받아 날짜를 합칩니다', () async {
+    test('datesIn은 nextCursor가 없을 때까지 이어 받는다', () async {
       final server = _Server((options) {
         final first = options.queryParameters['cursor'] == null;
         return (

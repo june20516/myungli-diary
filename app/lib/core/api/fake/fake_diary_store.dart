@@ -31,7 +31,13 @@ final class FakeDiaryStore {
     required this._today,
     required this._nowUtc,
   }) : _daily = daily ?? const {} {
+    // 전체 일기를 먼저 넣어, 그 날짜의 날짜 기록(태그 전체·가이드 질문)이 요약 기반 기록보다
+    // 앞서게 합니다.
+    diaries.forEach(_seed);
     for (final summary in summaries) {
+      if (_diaries.containsKey(summary['id'])) {
+        continue;
+      }
       final featured = summary['featuredTags'] as List<Object?>? ?? const [];
       final createdAt = summary['createdAt']! as String;
       _seed({
@@ -47,7 +53,6 @@ final class FakeDiaryStore {
         'updatedAt': createdAt,
       });
     }
-    diaries.forEach(_seed);
   }
 
   /// 본문 글자 수 범위(계약 `DiaryInput.body`).
@@ -91,6 +96,7 @@ final class FakeDiaryStore {
   Map<String, Object?> create(Object? body, {String? idempotencyKey}) {
     final input = decodeJsonObject(body);
     if (idempotencyKey != null) {
+      // 서버는 24시간 응답을 재생합니다. 그 사이 일기를 지워도 같은 응답이라 대역도 같습니다.
       final previous = _idempotent[idempotencyKey];
       if (previous != null) {
         if (!mapEquals(previous.input, input)) {
