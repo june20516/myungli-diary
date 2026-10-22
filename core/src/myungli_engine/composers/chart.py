@@ -21,6 +21,7 @@ from myungli_engine.chart.shinsal import shinsal_branches
 from myungli_engine.constants.gwiin import CHEONEUL_GWIIN
 from myungli_engine.constants.message_keys import require
 from myungli_engine.domain.enums import Branch, PersonalTermKind, Shinsal
+from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.domain.models import FourPillars, Judgment, Notice, Pillar
 from myungli_engine.rules import personal
 from myungli_engine.rules.strength import StrengthResult, compute_strength
@@ -85,6 +86,8 @@ def yongsin_judgment(yongsin: YongsinResult) -> Judgment:
 
 def compose_chart(birth: BirthInput, as_of: date) -> ChartView:
     validate_civil_date(as_of)
+    if birth.gender is None:  # 대운 순행·역행이 성별로 갈린다
+        raise InvalidInputError("birth.gender가 없습니다.")
     natal = prepare_natal(birth)
     luck = build_luck_cycles(natal.moment, birth.gender, natal.chart.pillars, as_of)
     return ChartView(

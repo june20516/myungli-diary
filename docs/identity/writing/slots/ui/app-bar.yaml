@@ -469,9 +469,13 @@
   structure: "화면 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - loginMethodsBarTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: loginMethodsBarTitle, text: "로그인 수단", why: "IA 화면 이름 그대로", source: writing}
+    bad: []
   endings: []
   a11y:
     truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
@@ -484,9 +488,13 @@
   structure: "화면 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - accountMergeBarTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: accountMergeBarTitle, text: "계정 합치기", why: "IA 화면 이름 그대로", source: writing}
+    bad: []
   endings: []
   a11y:
     truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."

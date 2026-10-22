@@ -59,7 +59,7 @@ class MyungliEngineServicer(pb_grpc.MyungliEngineServicer):
         self, request: pb.BirthHourRequest, context: grpc.ServicerContext
     ) -> pb.BirthHourResponse:
         def compute() -> pb.BirthHourResponse:
-            birth = mapping.birth_from_proto(_required_birth(request))
+            birth = mapping.birth_from_proto(_required_birth(request), require_gender=False)
             return mapping.birth_hour_to_proto(birth_hour(birth))
 
         return run_or_abort(context, compute)
