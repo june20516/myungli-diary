@@ -17,30 +17,33 @@ final diaryRepositoryProvider = Provider<DiaryRepository>(
 
 /// [CalendarDate] 날에 쓴 일기 요약. server 순서(같은 날은 작성 순) 그대로입니다.
 ///
-/// `day-sheet`와 오늘 화면의 일기 입구(보기/쓰기, [DiaryWriteEntry])를 정합니다. 404처럼
-/// 일기가 없으면 빈 목록입니다. 받지 못해도 빈 목록(0편)으로 그려 쓰기를 막지 않고, 연결 없음·
+/// `day-sheet`와 오늘 화면의 일기 입구(보기/쓰기, [DiaryWriteEntry])를 정합니다. 일기가
+/// 없으면 server가 빈 목록을 줍니다. 받지 못해도 빈 목록(0편)으로 그려 쓰기를 막지 않고, 연결 없음·
 /// 시간 초과·server problem은 예상한 실패라 조용히 넘기며, 그 밖의 오류(응답을 읽지 못함,
 /// 프로그래밍 오류)만 비정상 종료 보고에 [CrashSummary]로 남깁니다(D64: 값은 싣지 않음).
 /// 저장하지 않고(A45) 구독이 끝나면 버립니다(autoDispose). 일기를 쓰거나 지우고 돌아온 화면은
 /// 이 날을 invalidate해 다시 묻습니다. 미래 날은 일기 입구가 없으므로(D49) 쓰는 쪽이 묻지
 /// 않습니다. 자동 재시도는 끕니다.
 final FutureProviderFamily<List<DiarySummary>, CalendarDate> diariesOnProvider =
-    FutureProvider.autoDispose.family<List<DiarySummary>, CalendarDate>((
-      ref,
-      date,
-    ) async {
-      final repository = ref.watch(diaryRepositoryProvider);
-      try {
-        return await repository.diariesOn(date);
-      } on Object catch (error, stackTrace) {
-        if (!_expectedFailure(error)) {
-          ref
-              .read(crashReporterProvider)
-              .record(CrashSummary.from(error), stackTrace);
-        }
-        return const <DiarySummary>[];
-      }
-    }, retry: (_, _) => null);
+    FutureProvider.autoDispose.family<List<DiarySummary>, CalendarDate>(
+      _diariesOrEmpty,
+      retry: (_, _) => null,
+    );
+
+/// [date] 일기 요약. 실패는 빈 목록이고 예상하지 못한 오류만 보고합니다.
+Future<List<DiarySummary>> _diariesOrEmpty(Ref ref, CalendarDate date) async {
+  final repository = ref.watch(diaryRepositoryProvider);
+  try {
+    return await repository.diariesOn(date);
+  } on Object catch (error, stackTrace) {
+    if (!_expectedFailure(error)) {
+      ref
+          .read(crashReporterProvider)
+          .record(CrashSummary.from(error), stackTrace);
+    }
+    return const <DiarySummary>[];
+  }
+}
 
 /// 보이는 달 [CalendarMonth] 격자에서 일기를 쓴 날짜. 범위는 지원 날짜로 자른 격자
 /// (`supportedGridStart`~`supportedGridEnd`, D41)입니다. 달력 도장(V19)을
