@@ -251,3 +251,14 @@ def test_d82_ia_slots_are_measured():
     assert places["account-merge.cta.merge"].startswith("primary-button")
     assert "44px" in lengths.NO_LIMIT["ui.day-cell.lunar"]
     assert next(t for t in lengths.TARGETS if "ui.login.provider" in t.slots).width == 232
+
+
+def test_latin_ja_label_takes_en_limit(capsys, font_dir):
+    # ja 카카오 라벨은 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(#143). 전각 기준 ja 상한 대신 en 상한 (#446)
+    assert lengths.KEY_LIMITS == {("ui.login.provider", "loginKakaoLabel", "ja"): (
+        "en", "ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감")}
+    lengths.main(["--font-dir", str(font_dir)])
+    table = capsys.readouterr().out
+    provider_row = next(line for line in table.splitlines() if line.startswith("| `ui.login.provider` | social"))
+    en_limit = provider_row.split("**")[-2]
+    assert f"| `ui.login.provider` | `loginKakaoLabel` | ja | **{en_limit}** |" in table

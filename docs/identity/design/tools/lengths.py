@@ -180,6 +180,12 @@ TARGETS = (
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None),
 )
 
+# 행 값과 다른 상한을 받는 키: (슬롯, 키, 언어) → (값을 빌려 올 언어, 이유) (#446)
+KEY_LIMITS = {
+    ("ui.login.provider", "loginKakaoLabel", "ja"): (
+        "en", "ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감"),
+}
+
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
 UNBOUNDED = {
     "chart.yongsin_method": ("saju-chart 본문 sentence-block body", 60),
@@ -411,6 +417,13 @@ def render_table(results: list[Result]) -> str:
     for slot, (where, draft) in UNBOUNDED.items():
         lines.append(f"| `{slot}` | {where} | 본문 | 제한 없음 | {draft} | - "
                      f"| **{draft}** | **{draft}** | **{math.floor(draft * 1.8)}** |")
+    finals = {(slot, language): result.final(language)
+              for result in results for slot in result.target.slots for language in LANGUAGES}
+    lines += ["", "키별 상한 (행 값과 다른 키, writing `key_max_length`):", "",
+              "| 슬롯 | 키 | 언어 | 상한 | 이유 |", "| --- | --- | --- | --- | --- |"]
+    for (slot, key, language), (source, reason) in KEY_LIMITS.items():
+        limit = finals.get((slot, source), "-")
+        lines.append(f"| `{slot}` | `{key}` | {language} | **{limit}** | {source} 상한을 씀: {reason} |")
     lines += ["", "상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):", "", "| 슬롯 | 상한 없음 이유 |", "| --- | --- |"]
     lines += [f"| `{slot}` | {reason} |" for slot, reason in NO_LIMIT.items()]
     return "\n".join(lines) + "\n"
