@@ -1,11 +1,11 @@
 # 실제 로그인 adapter와 로그인 수단·계정 합치기 설계
 
-* 작성: app 세션, 2026-10-21 (D82 범위 반영 2026-10-22)
+* 작성: app 세션, 2026-10-21 (D82 범위 반영 2026-10-22, D83 ④ 합치기 일기 정정 2026-10-22)
 * 상태: 초안 (설계 대화 승인 2026-10-21·2026-10-22, 문서 검토 대기)
-* 요청: Issue #311 (#100 ⑥, #114 ①④⑤의 남은 일), #387 (D82 범위 확장)
-* 관련 결정: app A12(이 spec이 A67로 갱신), A67~A71(새로 기록), 루트 D49·D53·D55·D64·D82, server S15·S22
+* 요청: Issue #311 (#100 ⑥, #114 ①④⑤의 남은 일), #387 (D82 범위 확장, D83 ④ 정정 코멘트)
+* 관련 결정: app A12(이 spec이 A67로 갱신), A67~A71(새로 기록), 루트 D49·D53·D55·D64·D82·D83, server S15·S22
 * 쓰는 계약: REST API `server/api/openapi.yaml`(`loginKakao`·`loginApple`·`completeAppleWebLogin`, 버전은 `docs/contracts/README.md` 기준), server spec `2026-10-13-apple-web-callback-design.md`, IA 화면 `login`·`settings`·`login-methods`·`account-merge`
-* 기다리는 계약: LINE·Google 로그인과 연결·떼기·합치기 API(server #386), 버튼 변형과 `account-choice`(design #389), 슬롯 원고(writing #388)
+* 기다리는 계약: LINE·Google 로그인과 연결·떼기·합치기 API(server #386), 합치기 요약 값(server #407 ④), 버튼 변형과 `account-choice`(design #389), 슬롯 원고(writing #388)
 
 ## 1. 목적과 범위
 
@@ -232,7 +232,8 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 * app-bar 제목, `account-merge.title.head`·`title.body`
 * `loading` 상태: `AccountLinkRepository.mergePreview(ticket)`로 두 계정 요약을 불러오는 중
 * `account-merge.choice.label`과 `account-choice` 두 장(지금 계정, 다른 계정). 요약은 호칭, 사주 요약 한 줄, 일기 수, 연결 수단입니다. 처음에는 지금 계정이 골라져 있습니다.
-* `account-merge.overlap.notice`: 고르지 않은 쪽에서 지워질 일기 수. 고른 쪽이 바뀌면 다시 계산합니다(미리보기가 양쪽 수를 모두 줌). 0이면 보이지 않습니다.
+* **옮겨질 일기 수:** 일기는 같은 날 것까지 지우지 않고 모두 옮깁니다(D83 ④). 고르지 않은 쪽 카드의 일기 수가 남는 계정으로 옮겨질 일기 수이고, 고른 쪽이 바뀌면 두 카드의 표시가 서로 바뀝니다. 표시 모양은 design #389, 문구는 writing #388을 따릅니다. 지워질 일기 수는 없습니다.
+* `account-merge.overlap.notice`: 두 계정에 같은 날 일기가 있을 때만, 겹쳐도 지우지 않고 모두 옮긴다고 알립니다. 어느 쪽을 고르든 같으므로 고르기와 상관없이 미리보기의 겹침 여부로 정합니다.
 * `account-merge.cta.merge`(primary-button)와 `account-merge.cta.cancel`
 * `error` 상태: 미리보기·합치기 실패. 합치기 표가 만료됐으면 붙이기부터 다시 하도록 안내하고 `login-methods`로 돌아갑니다.
 
@@ -253,7 +254,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 | `methods()` | 연결된 제공자 목록 |
 | `link(ProviderProof)` | `Linked(methods)` 또는 `LinkConflict(MergeTicket)` |
 | `unlink(SocialProvider)` | 남은 목록 |
-| `mergePreview(MergeTicket)` | 두 계정 요약과 각 쪽을 남길 때 지워질 일기 수 |
+| `mergePreview(MergeTicket)` | 두 계정 요약(일기 수 포함)과 같은 날 일기가 겹치는지. 값 모양은 server #407 ④ 계약을 따릅니다 |
 | `merge(MergeTicket, {required MergeKeep keep})` | 남은 계정의 토큰(지금 계정을 남기면 없음) |
 
 * 값 타입은 app 모델로 둡니다. server 계약이 오면 http 구현이 생성 모델을 이 타입으로 옮깁니다(§12 C).
@@ -285,7 +286,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
   * Apple 웹: authorize URL(Services ID·redirect·해시·state), `httpsHost`·`httpsPath`, 성공 결과 해석, state 불일치, `CANCELED` → `userCancelled`, 그 밖의 예외 전달, 설정 없음.
 * **`ProviderAuthenticator`:** 제공자·플랫폼별 adapter 선택, proof 변환, Google nonce 전달, 취소·웹 실패 전달.
 * **`AuthConfig`·`loginProviderOrder`:** 빈 값·채운 값 판정, 언어별 순서.
-* **화면**(fake): 로그인 네 버튼과 순서, 로그인 수단의 붙이기·떼기·마지막 하나 막기·`error`, 계정 합치기의 `loading`·고르기에 따른 겹침 수·확인 dialog·토큰 교체·`error`·표 없이 들어옴. IA 계약 테스트가 세 화면의 상태·출구를 확인하고, `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`를 지웁니다.
+* **화면**(fake): 로그인 네 버튼과 순서, 로그인 수단의 붙이기·떼기·마지막 하나 막기·`error`, 계정 합치기의 `loading`·고르기에 따라 바뀌는 옮겨질 일기 수·겹침 안내(겹칠 때만, 고르기와 무관)·확인 dialog·토큰 교체·`error`·표 없이 들어옴. IA 계약 테스트가 세 화면의 상태·출구를 확인하고, `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`를 지웁니다.
 * **golden:** `SocialLoginButton` 새 변형, `account-choice`, 두 화면.
 * **부팅:** `realPlatformOverrides(ApiMode.http)`가 실제 adapter를 끼우고, fake 모드는 대역인지 확인합니다(기존 테스트에 더함).
 * **계약:** `native_auth_config_test.dart`(§4).
@@ -309,7 +310,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 ## 13. 남기는 일
 
 * #311 ③ release 지문·스토어 URL: Play 계정 뒤. 그때까지 #311은 열어 둡니다.
-* 계획 단계 C: server #386 계약 뒤.
+* 계획 단계 C: server #386 계약 뒤. 합치기 요약 값은 server #407 ④ 계약에 맞춥니다.
 * design #389·writing #388 결과가 오면 버튼·`account-choice`·문구를 맞춥니다(받은 쪽 drift 또는 요청 답으로).
 * 실기기 확인 목록: 외부 준비물 뒤.
 * 실기기에서 Auth Tab이 303을 받지 못하면, 안내 페이지 intent 경로가 기본이 되는지 다시 판단합니다. 이 경우 server와 페이지 문구를 맞춰야 할 수 있어 Issue로 올립니다.
