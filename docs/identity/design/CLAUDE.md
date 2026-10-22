@@ -33,7 +33,7 @@
 ## 현재 상태 (2026-10-22, design 세션 작성)
 * **같은 날 여러 편 #410** (브랜치 `design/diary-row-multi`, D83, 컴포넌트 계약 2.8.0·토큰 1.2.0).
   * `diary-row` 변형 `day`(목록·태그 모아보기: 한 편이면 지금 모양, 두 편 이상이면 날짜 하나에 카드 하나 — 배지 위·태그 아래 한 번씩, 사이에 `entry` 줄)와 `entries`(오늘·그날 시트: `entry` 줄만). `entry`는 작성 시각 + 한 줄 미리보기 + 꺾쇠, 줄 사이 1px 점선(대시 4·간격 3, 새 토큰 `color.timeline.entry`, V42).
-  * 상한을 채운 날 입구: `guide-question-card` `full`(도장 남기고 버튼만 막음), 그날 시트 버튼·날짜 시트 버튼 `disabled` + writing `…Full` 키(V43). "쓴 일기 보기" 표기를 writing 키로 고침(D83 ③). 그날 시트 일기 입구는 머리(`entries.head`) + 줄 + 쓰기 버튼으로 V37을 개정하고 `depth-link` `navigate`의 `daySheetSlot`을 지움(IA day-sheet의 `depth-link`는 쓰임이 없어 지휘에 정리 요청).
+  * 상한을 채운 날 입구: `guide-question-card` `full`(도장 남기고 버튼만 막음), 그날 시트 버튼·날짜 시트 버튼 `disabled` + writing `…Full` 키(V43). "쓴 일기 보기" 표기를 writing 키로 고침(D83 ③). 그날 시트 일기 입구는 머리(`entries.head`) + 줄 + 쓰기 버튼으로 V37을 개정하고 `depth-link` `navigate`의 `daySheetSlot`을 지움(IA day-sheet의 `depth-link`는 지휘가 PR #460으로 뺌, drift #461).
   * writing #441 키 이름 채움: `connected` "연결됨" `loginMethodsRowConnected`, 수단 구분자 `accountChoiceProviderSeparator`.
   * 근거: [spec](specs/2026-10-22-diary-row-multi-design.md), 결정 V42·V43, 시안 `design-v2-diary-row-multi`.
 * **영문 ja 로그인 라벨 상한 #446** (브랜치 `design/login-label-ja`): `lengths.py` `KEY_LIMITS`(키별 상한 표)로 `ui.login.provider` ja `loginKakaoLabel`(영문 "Login with Kakao", #143)은 en 상한. IA가 `login-methods`에서 `settings-row`를 빼(PR #442) `USED_ON_EXCEPTIONS`를 지움. app #311에 2.7.0 요약을 남김.
