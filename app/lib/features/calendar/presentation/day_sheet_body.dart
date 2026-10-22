@@ -227,13 +227,19 @@ class _DiaryEntry extends ConsumerWidget {
           Semantics(
             identifier: SlotIds.daySheetDiaryOpen,
             container: true,
+            // 일기 목록 달 머리와 같은 머리 모양(`diary-row` 규칙의 subtitle)을 빌립니다.
             child: DiaryMonthHeader(
               label: l10n.daySheetDiaryOpen(diaries.length),
             ),
           ),
           const SizedBox(height: Space.s12),
           for (final (index, summary) in diaries.indexed)
-            diaryRow(summary, isLast: index == diaries.length - 1),
+            diaryRow(
+              summary,
+              isLast: index == diaries.length - 1,
+              // IA 출구에 tag-diary가 없어 대표 태그 칩은 표시만 합니다.
+              tagLinked: false,
+            ),
         ],
         Padding(
           padding: const EdgeInsets.only(top: Space.s12),
@@ -260,6 +266,8 @@ class _DiaryEntry extends ConsumerWidget {
     if (!context.mounted) {
       return;
     }
+    // 저장하면 쓰기 화면이 이미 다시 묻게 합니다. 저장 없이 돌아온 경우(취소·초안만 남김)나
+    // 그 사이 다른 기기에서 바뀐 경우를 위해 돌아올 때 한 번 더 묻습니다.
     ref
       ..invalidate(diariesOnProvider(date))
       ..invalidate(diaryDatesProvider);

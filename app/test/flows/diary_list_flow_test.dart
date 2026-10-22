@@ -32,6 +32,9 @@ final class _Network extends Interceptor {
   bool offline = false;
   bool emptyDiaries = false;
 
+  /// 하루 범위(`from`==`to`) 일기 목록을 날짜마다 물은 횟수.
+  final dayQueries = <String, int>{};
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (offline) {
@@ -40,6 +43,12 @@ final class _Network extends Interceptor {
         true,
       );
       return;
+    }
+    final from = options.queryParameters['from'];
+    if (options.path == '/v1/diaries' &&
+        from != null &&
+        from == options.queryParameters['to']) {
+      dayQueries.update('$from', (count) => count + 1, ifAbsent: () => 1);
     }
     if (emptyDiaries && options.path == '/v1/diaries') {
       handler.resolve(
@@ -242,6 +251,22 @@ void main() {
       _locationOf(tester, ScreenIds.diaryEdit),
       '/diary-edit?date=2026-10-12',
     );
+  });
+
+  testWidgets('날짜 골라 쓰기: 시트가 열린 동안 다시 고른 날은 그날 일기를 다시 묻지 않습니다', (tester) async {
+    final network = _Network();
+    await _openDiaryList(tester, network: network);
+    await tester.tap(find.byKey(DiaryListScreen.pickDateKey));
+    await settleWithIo(tester);
+    // 오늘(13일)은 뒤의 오늘 화면이 이미 붙잡고 있어 지난 두 날로 봅니다.
+    for (final day in [12, 8, 12, 8]) {
+      await tester.tap(
+        find.byKey(CalendarMonthView.cellKey(CalendarDate(2026, 10, day))),
+      );
+      await settleWithIo(tester);
+    }
+    expect(network.dayQueries['2026-10-12'], 1);
+    expect(network.dayQueries['2026-10-08'], 1);
   });
 
   testWidgets('날짜 골라 쓰기: 10편인 날은 다 채웠다는 문구로 버튼이 꺼집니다', (tester) async {

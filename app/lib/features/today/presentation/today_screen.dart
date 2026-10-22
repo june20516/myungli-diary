@@ -173,6 +173,8 @@ class _TodayBody extends ConsumerWidget {
     final date = content.view.date;
     await context.push<void>(datedPathOf(ScreenIds.diaryEdit, date));
     if (context.mounted) {
+      // 저장하면 쓰기 화면이 이미 다시 묻게 합니다. 저장 없이 돌아온 경우(취소·초안만 남김)나
+      // 그 사이 다른 기기에서 바뀐 경우를 위해 돌아올 때 한 번 더 묻습니다.
       ref
         ..invalidate(diariesOnProvider(date))
         ..invalidate(diaryDatesProvider);
@@ -336,7 +338,12 @@ class _TodayBody extends ConsumerWidget {
             if (diaries.isNotEmpty) ...[
               const SizedBox(height: Space.s12),
               for (final (index, summary) in diaries.indexed)
-                diaryRow(summary, isLast: index == diaries.length - 1),
+                diaryRow(
+                  summary,
+                  isLast: index == diaries.length - 1,
+                  // IA 출구에 tag-diary가 없어 대표 태그 칩은 표시만 합니다.
+                  tagLinked: false,
+                ),
             ],
           ],
         ),

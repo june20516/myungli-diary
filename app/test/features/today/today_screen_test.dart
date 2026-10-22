@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
@@ -403,6 +404,8 @@ void main() {
 
       await tester.ensureVisible(find.byKey(GuideQuestionCard.buttonKey));
       await tester.pumpAndSettle();
+      // brief가 "누르면 아무 이동 없음"까지 요구해 실제로 눌러 봅니다. 꺼진 버튼은 누름을 받지
+      // 않을 수 있어 hit 경고를 끄고, 결과는 아래 경로로 단언합니다.
       await tester.tap(
         find.byKey(GuideQuestionCard.buttonKey),
         warnIfMissed: false,
@@ -411,6 +414,29 @@ void main() {
       expect(
         container.read(routerProvider).state.uri.toString(),
         pathOf(ScreenIds.today),
+      );
+    });
+
+    testWidgets('일기 줄의 대표 태그 칩은 표시만이라 tag-diary로 가지 않습니다', (tester) async {
+      final container = await pumpApp(tester, scenario: 'diary-written');
+      await _settleToday(tester);
+      final chip = find.descendant(
+        of: find.byType(DiarySummaryRow),
+        matching: find.byType(TagChip),
+      );
+      await pumpUntil(tester, () => chip.evaluate().isNotEmpty);
+      expect(tester.widget<TagChip>(chip).name, '천을귀인');
+      expect(tester.widget<TagChip>(chip).onTap, isNull);
+
+      // 표시용 칩이라 누름은 줄로 내려가 그 일기 보기입니다(목록의 같은 태그 칩과 같음).
+      await tester.ensureVisible(chip);
+      await tester.pumpAndSettle();
+      await tester.tap(chip);
+      await settleWithIo(tester);
+      expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsNothing);
+      expect(
+        container.read(routerProvider).state.uri.toString(),
+        '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a005',
       );
     });
 

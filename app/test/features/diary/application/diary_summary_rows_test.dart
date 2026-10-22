@@ -18,7 +18,11 @@ void main() {
     final plain = ProviderContainer();
     addTearDown(plain.dispose);
     expect(
-      () => plain.read(diarySummaryRowProvider)(_summary, isLast: true),
+      () => plain.read(diarySummaryRowProvider)(
+        _summary,
+        isLast: true,
+        tagLinked: true,
+      ),
       throwsUnimplementedError,
     );
   });
@@ -26,9 +30,14 @@ void main() {
   test('app의 override가 DiarySummaryRow를 잇습니다', () {
     final wired = ProviderContainer(overrides: diarySummaryRowOverrides);
     addTearDown(wired.dispose);
-    final row = wired.read(diarySummaryRowProvider)(_summary, isLast: true);
+    final row = wired.read(diarySummaryRowProvider)(
+      _summary,
+      isLast: true,
+      tagLinked: false,
+    );
     expect(row, isA<DiarySummaryRow>());
     expect((row as DiarySummaryRow).summary, _summary);
     expect(row.isLast, isTrue);
+    expect(row.tagLinked, isFalse);
   });
 }

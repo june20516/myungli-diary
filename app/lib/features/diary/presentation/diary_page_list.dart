@@ -129,7 +129,8 @@ class DiaryPageListSkeleton extends StatelessWidget {
 /// 일기 한 편의 줄: 그날 성격 배지(달 길흉 캐시, A46)와 대표 태그 칩을 채운 `diary-row`.
 ///
 /// 일기 목록·태그 모아보기·오늘·그날 시트가 함께 씁니다. 누르면 그 일기의 `diary-view`
-/// (A67)이고, 대표 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([listTag])와 같은
+/// (A67)이고, 대표 태그 칩을 누르면 그 태그의 `tag-diary`입니다([tagLinked]가 false면 모든 칩이,
+/// 아니면 목록의 태그([listTag])와 같은 칩이 누를 수 없는 표시). 목록의 태그와 같은
 /// 칩은 같은 화면을 다시 쌓지 않도록 누를 수 없는 표시입니다.
 class DiarySummaryRow extends ConsumerWidget {
   /// [summary] 일기의 줄을 만듭니다.
@@ -137,6 +138,7 @@ class DiarySummaryRow extends ConsumerWidget {
     required this.summary,
     this.isLast = false,
     this.listTag,
+    this.tagLinked = true,
     super.key,
   });
 
@@ -148,6 +150,10 @@ class DiarySummaryRow extends ConsumerWidget {
 
   /// 이 줄이 놓인 목록의 태그(태그 모아보기). 그 밖은 null입니다.
   final String? listTag;
+
+  /// 대표 태그 칩을 누를 수 있는지. IA 출구에 `tag-diary`가 없는 화면(오늘·그날 시트)은
+  /// false입니다.
+  final bool tagLinked;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -168,7 +174,7 @@ class DiarySummaryRow extends ConsumerWidget {
               context,
               ref.watch(glossaryProvider).value,
               featured.first,
-              linked: featured.first.key != listTag,
+              linked: tagLinked && featured.first.key != listTag,
             ),
       isLast: isLast,
       onTap: () =>
@@ -177,8 +183,9 @@ class DiarySummaryRow extends ConsumerWidget {
   }
 }
 
-/// 처음 그려질 때(또는 [onShown]이 새로 생길 때) [onShown]을 한 번 부릅니다. 목록 끝 근처
-/// 줄이 다음 쪽 받기를 알립니다.
+/// [onShown]을 State가 생길 때 한 번 부릅니다. 목록 끝 근처 줄만 이것으로 감싸므로, 쪽이 늘어
+/// 어떤 줄이 새로 끝 근처가 되면 감싸기가 새로 생겨(새 State) 다시 부르고, 계속 감싸인 줄은
+/// 다시 부르지 않습니다. 목록 끝 근처 줄이 다음 쪽 받기를 알립니다.
 class _OnShown extends StatefulWidget {
   const new({required this.onShown, required this.child});
 

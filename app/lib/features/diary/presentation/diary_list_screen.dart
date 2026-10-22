@@ -176,6 +176,22 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
   late CalendarMonth _month = CalendarMonth.of(widget.today);
   late CalendarDate _selected = widget.today;
 
+  /// 시트가 열린 동안 고른 날들. 그날 일기 목록(autoDispose)을 붙잡아 같은 날로 돌아가도 다시
+  /// 묻지 않게 합니다. 붙잡기(`listenManual`)는 시트가 닫히면 함께 풀립니다.
+  final Set<CalendarDate> _kept = {};
+
+  void _keep(CalendarDate date) {
+    if (_kept.add(date)) {
+      ref.listenManual(diariesOnProvider(date), (_, _) {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _keep(_selected);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -193,7 +209,10 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
         selected: _selected,
         today: widget.today,
         markedDates: marked,
-        onSelect: (date) => setState(() => _selected = date),
+        onSelect: (date) {
+          _keep(date);
+          setState(() => _selected = date);
+        },
         onMonthChange: (month) => setState(() => _month = month),
         confirmLabel: full
             ? l10n.diaryListPickDateConfirmFull

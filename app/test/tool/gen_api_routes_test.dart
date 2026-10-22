@@ -84,11 +84,12 @@ void main() {
   });
 
   group('실제 계약', () {
-    test('operation 40개가 route 표에 모두 있다', () {
-      expect(apiRoutes, hasLength(40));
+    // draft.13(D83)에서 일기 putDiary가 createDiary·updateDiary로 나뉘어 41개입니다.
+    test('operation 41개가 route 표에 모두 있다', () {
+      expect(apiRoutes, hasLength(41));
       expect(
         apiRoutes.map((route) => route.operationId).toSet(),
-        hasLength(40),
+        hasLength(41),
       );
     });
 

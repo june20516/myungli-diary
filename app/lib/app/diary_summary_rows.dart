@@ -8,7 +8,7 @@ import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 /// 잇습니다(spec §2).
 final List<Override> diarySummaryRowOverrides = [
   diarySummaryRowProvider.overrideWithValue(
-    (summary, {required isLast}) =>
-        DiarySummaryRow(summary: summary, isLast: isLast),
+    (summary, {required isLast, required tagLinked}) =>
+        DiarySummaryRow(summary: summary, isLast: isLast, tagLinked: tagLinked),
   ),
 ];
