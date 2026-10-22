@@ -98,7 +98,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 
 | 부품 | 모습 |
 | --- | --- |
-| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase-row` `purchaseProduct*`), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
+| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase-product` `purchaseProduct*`, 줄바꿈하므로 글자 수 상한 없음), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
 | `status` | 오른쪽, `product` 첫 줄과 세로 가운데. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
 | `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 기기 locale의 짧은 날짜) + 사용 기간(`purchaseRowPeriod`). 사용 기간이 없는 상품은 구매일만 |
 

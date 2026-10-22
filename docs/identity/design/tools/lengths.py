@@ -104,12 +104,14 @@ TARGETS = (
     # ui 이름 자리와 새 content 슬롯 (#131, spec-followups spec §5.2). writing 초안이 없어 계산값이 확정값
     Target(("welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
             "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
-            "today.guide.cta", "evidence-sheet.lock.cta", "ad-free.restore.cta", "diary-list.pick-date.cta",
+            "today.guide.cta", "evidence-sheet.lock.cta", "diary-list.pick-date.cta",
             "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share",
             # D77 IA 자리 event-edit.save.cta·delete.cta·diary-edit.save.cta (writing W33: ui 슬롯에 ia로 담음)
             "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save",
             # D82 account-merge 아래 버튼 (#389)
-            "account-merge.cta.merge", "account-merge.cta.cancel"),
+            "account-merge.cta.merge", "account-merge.cta.cancel",
+            # D85·D88 계정 합치기 입구, 구매 내역 버튼(ad-free.restore.cta 대신) (#480). cta.cancel은 IA에서 지워질 때까지 둠
+            "login-methods.merge.cta", "ad-free.history.cta"),
            "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
     # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15
     Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15)",
@@ -178,7 +180,22 @@ TARGETS = (
            "ui-500", 11, -0.22, (CONTENT_WIDTH - 2 * 16 - 32) / 2 - 2 * 8 - 2, 1, False, None),
     Target(("ui.account-merge.saju",), "account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None),
+    # D85 계정 합치기 두 단계·D88 구매 내역 (#480·#483·#494, spec 2026-10-23 §8)
+    Target(("account-merge.auth.body",), "account-merge 인증 단계 안내 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
+    # 값 자리 56: 고정폭 숫자 값("30일")보다 넉넉한 폭
+    Target(("ui.account-merge.summary",), "account-merge 가져올 기록 상자 줄 이름 (상자 안쪽 16, 값 자리 56)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 56, 1, False, None),
+    Target(("purchase-history.missing.notice",), "purchase-history 문의 안내 (본문 폭, 좌우 4)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 4, 2, True, None),
+    # 꼬리표 하나 폭 80에서 좌우 8. meta 줄은 날짜가 대부분이라 상태 낱말만 잼
+    Target(("ui.purchase-row",), "purchase-row 상태 낱말 (꼬리표 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
 )
+
+# 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
+KEY_TARGETS = {
+    ("ui.login.provider", "loginLineLabel"): Target(
+        ("ui.login.provider",), "LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46)", "ui-600", 14, -0.28, 198, 1, False, None),
+}
 
 # 행 값과 다른 상한을 받는 키: (슬롯, 키, 언어) → (값을 빌려 올 언어, 이유) (#446)
 KEY_LIMITS = {
@@ -217,6 +234,11 @@ NO_LIMIT = {
     # D82 확인 창(dialog notice)으로 보이는 실패 안내 (#389)
     "login-methods.error.body": "확인 창 본문(창이 늘어남)",
     "ui.account-merge.error": "확인 창 본문(창이 늘어남)",
+    # D85 확인 창(dialog notice)으로 보이는 안내 (#480)
+    "login-methods.in-use.body": "확인 창 본문(창이 늘어남)",
+    "account-merge.not-other.body": "확인 창 본문(창이 늘어남)",
+    # D88 ② 구매 줄 상품 이름: 줄바꿈하고, 키가 없으면 스토어 이름을 쓰므로 길이를 막지 않음 (#494)
+    "ui.purchase-product": "purchase-row 상품 이름(말줄임 없이 줄바꿈, 스토어 이름 대체)",
     # 숫자가 섞인 고정 형식이라 글자 수가 폭을 대신하지 못함. 폭 44px로 확인: ko 윤12.1 26.4px (#260)
     "ui.day-cell.lunar": "day-cell 윤달 표지(형식 고정, 글자 수 대신 칸 폭 44px로 확인)",
 }
@@ -401,7 +423,7 @@ def measure(fonts: Fonts, words: list[str], targets: tuple[Target, ...] = TARGET
     return results
 
 
-def render_table(results: list[Result]) -> str:
+def render_table(results: list[Result], key_results: list[tuple[tuple[str, str], Result]] = ()) -> str:
     lines = [
         "| 슬롯 | 놓이는 칸 | 칸 폭 | 줄 | ko 초안 | ko 계산 | **ko** | **ja** | **en** |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -425,6 +447,9 @@ def render_table(results: list[Result]) -> str:
         limit = finals.get((slot, source), "-")
         # 언어 칸을 앞에 둠: writing 파서가 "| `"로 시작하는 줄을 슬롯 행으로 읽기 때문
         lines.append(f"| {language} | `{slot}` | `{key}` | **{limit}** | {source} 상한을 씀: {reason} |")
+    for (slot, key), result in key_results:
+        for language in LANGUAGES:
+            lines.append(f"| {language} | `{slot}` | `{key}` | **{result.final(language)}** | 따로 잼: {result.target.where} |")
     lines += ["", "상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):", "", "| 슬롯 | 상한 없음 이유 |", "| --- | --- |"]
     lines += [f"| `{slot}` | {reason} |" for slot, reason in NO_LIMIT.items()]
     return "\n".join(lines) + "\n"
@@ -436,7 +461,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     words = " ".join(corpus_sentences(last_round=MEASURED_LAST_ROUND)).split()
     links = link_texts({target.trailing_link for target in TARGETS if target.trailing_link})
-    sys.stdout.write(render_table(measure(Fonts(args.font_dir), words, links=links)))
+    fonts = Fonts(args.font_dir)
+    key_results = list(zip(KEY_TARGETS, measure(fonts, words, tuple(KEY_TARGETS.values()))))
+    sys.stdout.write(render_table(measure(fonts, words, links=links), key_results))
     return 0
 
 

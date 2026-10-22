@@ -107,7 +107,7 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 
 | 부품 | 값 |
 | --- | --- |
-| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase-row` `purchaseProduct*`), 없으면 스토어의 현지화된 이름(D88 ②). 넘치면 말줄임 없이 다음 줄로 감음(스토어 이름은 길이를 알 수 없음) |
+| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(IA 밖 슬롯 `ui.purchase-product` `purchaseProduct*`), 없으면 스토어의 현지화된 이름(D88 ②). 넘치면 말줄임 없이 다음 줄로 감음(스토어 이름은 길이를 알 수 없음) |
 | `status` | 오른쪽, `product` 첫 줄과 세로 가운데를 맞춤. 사용 중이면 `tag.status`, 그 밖(대기·만료·환불)은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 `ui.purchase-row` 키, 상품 종류에 따라 다를 수 있음(D88 ②) |
 | `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 날짜는 app이 기기 locale의 짧은 날짜 형식으로) + 구분자 + 사용 기간(`purchaseRowPeriod`, 시작·끝). 사용 기간이 없는 상품(server가 기간을 주지 않음)은 구매일만 |
 | 줄 | 위아래 `space.16`, 줄과 줄 사이 1px `color.line`(첫 줄 위·끝 줄 아래 없음) |
@@ -148,7 +148,7 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
   * ① 다른 계정을 "가져올 계정"으로 부름(사용자 뜻)
   * ② `ui.account-merge.summary`(머리, 일기·일정·광고 제거 남은 기간 줄 이름과 값 틀)
   * ③ `accountChoiceOther`
-  * ④ `ui.purchase-row`(상품 이름 `purchaseProduct*`, 상태 낱말, `purchaseRowPurchased`·`purchaseRowPeriod`, 구분자)
+  * ④ `ui.purchase-product`(상품 이름 `purchaseProduct*`)와 `ui.purchase-row`(상태 낱말, `purchaseRowPurchased`·`purchaseRowPeriod`, 구분자)
   * ⑤ 쓰지 않게 된 키 `accountChoiceDiaryCount`·`accountChoiceProviderSeparator`·`ad-free.restore.cta`
   * ⑥ 글자 수 상한(`lengths.md`)
 
@@ -161,7 +161,8 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 | `login-methods.in-use.body`, `account-merge.not-other.body` | 상한 없음(확인 창 본문, 창이 늘어남) |
 | `purchase-history.missing.notice` | 본문 폭 − 8, `type.caption.lg`, 2줄 |
 | `ui.account-merge.summary` | 상자 안 폭(본문 − 32)에서 값 자리를 뺀 이름 한 줄 |
-| `ui.purchase-row` | 상태 낱말(꼬리표 한 개 폭), meta 한 줄. 상품 이름은 줄바꿈하므로 상한 없음 |
+| `ui.purchase-row` | 상태 낱말(꼬리표 한 개 폭) |
+| `ui.purchase-product` | 상한 없음(상품 이름은 줄바꿈하고 스토어 이름으로 대체될 수 있음). 슬롯을 나눈 것은 writing 상한이 슬롯 단위라서입니다 |
 | `ui.login.provider` LINE 라벨 | 198px(§6 ②) |
 | `account-merge.cta.cancel` | IA에서 지워질 때까지 `primary-button` 묶음에 남김(IA 대조 검사) |
 

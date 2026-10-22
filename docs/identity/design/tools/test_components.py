@@ -507,7 +507,7 @@ SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 �
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
 SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
 # D88 구매 줄 낱말 (#494). 가져올 기록 상자(ui.account-merge.summary)는 컴포넌트가 아닌 화면 배치라 input.md에만 있음
-SLOTS_OUTSIDE_IA |= {"ui.purchase-row"}
+SLOTS_OUTSIDE_IA |= {"ui.purchase-row", "ui.purchase-product"}
 
 
 def _slot_values(node):

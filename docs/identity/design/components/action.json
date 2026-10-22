@@ -183,7 +183,7 @@
         "product": {
           "type": "{type.subtitle}",
           "fg": "{color.text.primary}",
-          "slot": "ui.purchase-row",
+          "slot": "ui.purchase-product",
           "key": "purchaseProduct*",
           "fallback": "writing 키가 없는 상품은 스토어의 현지화된 상품 이름",
           "overflow": "wrap",

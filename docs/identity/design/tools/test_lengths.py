@@ -56,6 +56,11 @@ ISSUE_389 = {
     "account-merge.overlap.notice", "account-merge.cta.merge", "account-merge.cta.cancel", "account-merge.merge.confirm",
     "ui.login-methods.row", "ui.account-merge.choice", "ui.account-merge.saju", "ui.settings.login-methods",
 }
+# D85 계정 합치기 두 단계·D88 구매 내역 (#480·#483·#494, spec 2026-10-23 §8)
+ISSUE_480 = {
+    "login-methods.merge.cta", "ad-free.history.cta", "account-merge.auth.body", "purchase-history.missing.notice",
+    "ui.account-merge.summary", "ui.purchase-row",
+}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -164,7 +169,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
     issue_131 = {  # spec-followups spec §5.2 표
         "welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
         "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
-        "today.guide.cta", "evidence-sheet.lock.cta", "ad-free.restore.cta", "diary-list.pick-date.cta",
+        "today.guide.cta", "evidence-sheet.lock.cta", "diary-list.pick-date.cta",
         "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share", "ui.action.button",
         "ui.login.provider", "ui.error.client", "ui.error.code", "ui.login.error", "ui.app.trace",
         "evidence-sheet.unlock.failed", "diary-edit.saved.tags", "ui.nav.tab", "ui.birth.option",
@@ -178,12 +183,13 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389
+    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
         "term.meaning", "ui.app.bootstrap", "system.apple_return", "ui.guide.a11y", "login.discard.notice",
         "ui.depth.explain", "login-methods.error.body", "ui.account-merge.error", "ui.day-cell.lunar",
+        "login-methods.in-use.body", "account-merge.not-other.body", "ui.purchase-product",
     }
     assert not set(lengths.NO_LIMIT) & slots
 
@@ -243,12 +249,18 @@ def test_d77_ia_slots_are_measured():
 def test_d82_ia_slots_are_measured():
     ia = json.loads((REPO_ROOT / "docs" / "ia" / "screens.json").read_text(encoding="utf-8"))
     screens = {screen["id"]: screen for screen in ia["screens"]}
-    ia_slots = {slot["id"] for sid in ("login-methods", "account-merge") for slot in screens[sid]["slots"]
-                if not slot["id"].endswith(".bar.title")}
+    # 빈 상태 문장은 다른 화면과 같이 재지 않음. ad-free는 새 버튼만 봄(가격·남은 기간은 재지 않는 자리, spec 2026-10-23 §8)
+    ia_slots = {slot["id"] for sid in ("login-methods", "account-merge", "purchase-history")
+                for slot in screens[sid]["slots"]
+                if not slot["id"].endswith(".bar.title") and slot["id"] != "purchase-history.empty.body"}
+    ia_slots.add("ad-free.history.cta")
     measured = {slot for target in lengths.TARGETS for slot in target.slots}
     assert ia_slots <= measured | set(lengths.NO_LIMIT)
     places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
     assert places["account-merge.cta.merge"].startswith("primary-button")
+    assert places["login-methods.merge.cta"].startswith("primary-button")
+    assert places["ad-free.history.cta"].startswith("primary-button")
+    assert "ad-free.restore.cta" not in places
     assert "44px" in lengths.NO_LIMIT["ui.day-cell.lunar"]
     assert next(t for t in lengths.TARGETS if "ui.login.provider" in t.slots).width == 232
 
@@ -269,3 +281,9 @@ def test_key_limit_rows_are_not_read_as_slot_rows():
     table = render_table([])
     key_section = table.split("키별 상한", 1)[1].split("상한을 두지 않는 슬롯", 1)[0]
     assert not any(line.startswith("| `") for line in key_section.splitlines())
+
+
+def test_line_label_is_measured_at_198():
+    # LINE 공식 버튼 자산의 구분선 비율을 따르면 글자 자리가 198px (#475, 결정 V46)
+    target = lengths.KEY_TARGETS[("ui.login.provider", "loginLineLabel")]
+    assert (target.width, target.font, target.size) == (198, "ui-600", 14)
