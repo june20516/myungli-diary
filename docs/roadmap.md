@@ -50,7 +50,7 @@
 | 다음 | writing | (D82·D83 원고 #388·#409·#425·#441은 PR #419·#436으로 완료) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때). #304는 PR #432로 완료 | - |
-| 다음 | design | D83 `diary-row` 같은 날 여러 편 표시(#410, app #408 화면 전에) → app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 로그인 수단·계정 합치기(#389)는 컴포넌트 계약 2.7.0(PR #439)으로 완료 | - |
+| 다음 | design | app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 로그인 수단·계정 합치기(#389)는 컴포넌트 계약 2.7.0(PR #439), D83 같은 날 여러 편 일기 줄과 상한 채운 날 입구(#410)는 2.8.0(PR #458)으로 완료 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
