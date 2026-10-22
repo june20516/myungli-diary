@@ -49,6 +49,7 @@
 ## 현재 상태 (2026-10-22, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **ui 원고의 조사**(spec `specs/2026-10-22-ui-josa-design.md`, 계획 `plans/2026-10-22-ui-josa.md`, W38): ko ui 원고에 조사 표기를 쓸 수 있고, ARB 생성 때 ICU `select`(`pJosa`)로 펼칩니다. app은 `josaClass`로 채웁니다(호칭·조사 규칙 v1.2, 검사기 v0.8.0). 원고에 처음 쓰는 것은 app의 `josaClass` 완료 보고 뒤입니다.
 * **계정 합치기 원고 보완·상한**(design #441, drift #443, 라운드 R13 `artifacts/2026-10-22-round-R13.md`): `lengths.md` 2.7.0 상한을 D82 슬롯에 넣고, 떼기 확인을 제목·본문 키로 나눴습니다(`loginMethodsUnlinkConfirmBody`). 수단 줄은 `social-login-button` connected(`loginMethodsRowConnected` "연결됨", `loginMethodsRowLink` 삭제), "현재 계정", 사주 요약 슬롯 `ui.account-merge.saju`, 수단 구분자, 합치기 오류는 `dialog`. 확인 창의 "기본 선택은 취소"를 지웠습니다(V41). ja 카카오 라벨 "Login with Kakao"(16자)가 새 상한 15자를 넘어 design에 다시 재 달라고 했습니다(#446). 그 전에는 `mlw check`가 막힙니다.
 * **D83 ② 상한 문구**(#425, 라운드 R12 `artifacts/2026-10-22-round-R12.md`, W37): 상한을 채운 날의 쓰는 입구 `todayGuideCtaFull`·`daySheetDiaryWriteCtaFull`·`diaryListPickDateConfirmFull`과 오류 `errorDiaryDayFull`("충분히 썼어요", 상한 수치 없음). 이미 쓴 날의 버튼을 "새 일기 쓰기"로 바꿨습니다. `errorDiaryDateTaken`은 server가 `diary.date_taken`을 없애고 app이 쓰지 않게 되면 지웁니다.
 * **D82·D83 원고**(#388·#409, 라운드 R11 `artifacts/2026-10-22-round-R11.md`, W36): 로그인 수단·계정 합치기 IA ui 슬롯 13개(`slots/ui/account.yaml`, app-bar 제목 2개는 `app-bar.yaml`)의 키와 3개 언어 원고, LINE·Google 로그인 라벨(제공자 가이드 문구), IA 밖 `ui.*` 4개(제공자 이름·연결 동작, 합칠 계정 요약, 합치기 실패, 설정 줄). D83: 쓰는 입구는 언제나 새 일기라 `todayGuideCtaWritten`·`diaryListPickDateConfirm`을 쓰기 문구로, `daySheetDiaryOpen`을 편수 머리(`count`)로 바꾸고 `daySheetDiaryWriteCtaWritten`을 더했습니다. W36: 안내·확인 문구는 막는 말 대신 남는 것·필요한 것. drift #413(PR #416)은 생성 ARB 갱신. 상한은 design 측정 전이라 `null`입니다.
@@ -97,19 +98,19 @@
     * 검사기 코드를 고쳤을 때: `docs/identity/writing/tools`에서 `uv run pytest -q tests/test_<모듈>.py`, PR 전에 `uv run pytest -q`(전체 약 15초)와 `uv run ruff check .`·`uv run mypy src`
     * 계약(IA·core JSON·proto·design `lengths.md`)이 바뀌었을 때: `uv run pytest -q -m contract`와 위 원고 검사. CI `drift`·`gate`도 이 범위만 돕니다(`writing.yml`)
     * 테스트는 한 실행 안에서 같은 원고 읽기와 묶음 검사 결과를 다시 씁니다(`tests/session_cache.py`, 키는 파일 내용 해시). 공유 원고를 고치는 테스트는 `tmp_path` 사본을 쓰고, 고치면 세션 끝 확인이 실패합니다
-* 결정은 W1~W37입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지).
+* 결정은 W1~W38입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **#446 답을 기다립니다**: design이 `ui.login.provider` ja 상한을 고치면 main을 합쳐 PR #436을 통과시킵니다.
-2. **D82·D83 후속**: design이 `lengths.md`에 로그인 수단·계정 합치기 상한을 넣으면 따라잡습니다. app이 D83 키 변화(`daySheetDiaryOpen({count})`, `daySheetDiaryWriteCtaWritten`)를 따라잡는지 봅니다.
+2. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
+3. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
    - 다음은 #355(`force-update` 사유별 키, 사유 `select`)와 #331(app 임시 문구 28개, 사주 사전 범주, 사주 맥락 근거 시트 제목)입니다.
-3. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
-4. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-5. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 봅니다. 원어민 검수는 완료 조건이 아니라 사용자가 감수자를 구하면 하는 보강 단계입니다(D70, W1 spec §7). 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
+4. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
+5. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
+6. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 봅니다. 원어민 검수는 완료 조건이 아니라 사용자가 감수자를 구하면 하는 보강 단계입니다(D70, W1 spec §7). 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
-6. **보낸 요청의 응답을 기다립니다.**
+7. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
    - 지휘 #158 코멘트: 閑神·極身弱·極身強 근거 보강, 용어집의 忌神 읽기 통일(きじん)
-7. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
+8. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 
 import regex
 
+from mlw.josa_select import CHECKED_BRANCHES, select_forms
 from mlw.model import Entry
 
 RULE_PLURAL = "icu.plural"
@@ -116,12 +117,13 @@ def plural_problem(text: str, lang: str) -> str | None:
 
 
 def expand_entry(entry: Entry) -> list[Entry]:
-    """원고를 plural 형태마다 펼친 원고 목록입니다. plural이 없거나 문법이 틀리면 `[entry]`입니다.
+    """원고를 plural 형태마다, 그 안에서 조사 select 가지(병기형 제외)마다 펼친 원고 목록입니다(spec 2026-10-22-ui-josa §5).
 
-    문법 오류는 `icu.plural` 검사가 보고하므로 여기서는 펼치지 않고 그대로 둡니다.
+    펼칠 것이 없거나 plural 문법이 틀리면 `[entry]`입니다. 문법 오류는 `icu.plural` 검사가 보고합니다.
     """
     try:
-        forms = expand_plural(entry.text)
+        plural_forms = expand_plural(entry.text)
     except ValueError:
         return [entry]
+    forms = [form for plural_form in plural_forms for form in select_forms(plural_form, CHECKED_BRANCHES)]
     return [entry] if forms == [entry.text] else [dataclasses.replace(entry, text=form) for form in forms]

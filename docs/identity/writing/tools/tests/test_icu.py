@@ -1,8 +1,11 @@
 """ICU plural 파싱·펼치기 테스트."""
 
+from pathlib import Path
+
 import pytest
 
-from mlw.icu import expand_plural, parse_plural, plural_problem
+from mlw.icu import expand_entry, expand_plural, parse_plural, plural_problem
+from mlw.model import Entry
 
 
 def test_text_without_plural_is_returned_as_is() -> None:
@@ -57,3 +60,25 @@ def test_problem_reports_bad_syntax_and_ignores_plain_text() -> None:
 def test_problem_rejects_hash_and_nested_plural_in_form() -> None:
     assert plural_problem("{count, plural, other{#개}}", "ko") is not None
     assert plural_problem("{count, plural, other{{n, plural, other{x}}}}", "ko") is not None
+
+
+SELECT = "{tJosa, select, final{이} rieul{이} none{가} other{이(가)}}"
+PLURAL_WITH_JOSA = (
+    "{count, plural, other{{count}{countJosa, select, final{이에요} rieul{이에요} none{예요} other{(이)에요}}}}"
+)
+
+
+def _entry(text: str) -> Entry:
+    return Entry(Path("app_ko.arb"), 1, "", "k", None, 1, "ko", text)
+
+
+def test_expand_entry_josa_select() -> None:
+    forms = [form.text for form in expand_entry(_entry("{t}" + SELECT + " 내일"))]
+    # 병기형(`other` 가지)은 server 콘텐츠 렌더와 같은 기계적 대체라 문장 검사에서 뺍니다(style.S1에 걸림).
+    assert forms == ["{t}이 내일", "{t}이 내일", "{t}가 내일"]
+
+
+def test_expand_entry_plural_with_josa() -> None:
+    assert plural_problem(PLURAL_WITH_JOSA, "ko") is None
+    forms = [form.text for form in expand_entry(_entry(PLURAL_WITH_JOSA))]
+    assert forms == ["{count}이에요", "{count}이에요", "{count}예요"]
