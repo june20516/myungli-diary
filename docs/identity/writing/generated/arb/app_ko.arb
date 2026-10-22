@@ -466,11 +466,11 @@
   "@loginMethodsErrorBodyUnlink": {
     "description": "login-methods.error.body: 연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
   },
-  "loginMethodsIntroBody": "여러 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.",
+  "loginMethodsIntroBody": "여러 인증 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.",
   "@loginMethodsIntroBody": {
     "description": "login-methods.intro.body: 연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명"
   },
-  "loginMethodsLastNotice": "로그인할 수단이 하나는 남아 있어야 해요.",
+  "loginMethodsLastNotice": "인증 수단이 하나는 남아 있어야 해요.",
   "@loginMethodsLastNotice": {
     "description": "login-methods.last.notice: 마지막 남은 수단은 뗄 수 없다는 안내"
   },
@@ -483,7 +483,7 @@
       }
     }
   },
-  "loginMethodsUnlinkConfirmBody": "연결한 다른 수단으로 계속 로그인할 수 있어요.",
+  "loginMethodsUnlinkConfirmBody": "연결한 다른 인증 수단으로 계속 로그인할 수 있어요.",
   "@loginMethodsUnlinkConfirmBody": {
     "description": "login-methods.unlink.confirm: 떼기 확인"
   },
@@ -1170,6 +1170,26 @@
   },
   "errorAuthExchangeInvalid": "로그인 시간이 지났어요. 처음부터 다시 로그인해 주세요.",
   "@errorAuthExchangeInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthIdentityNotFound": "연결된 인증 수단을 찾지 못했어요. 화면을 다시 열어 주세요.",
+  "@errorAuthIdentityNotFound": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthProviderTaken": "같은 인증 수단으로 연결한 다른 계정이 이미 있어요.",
+  "@errorAuthProviderTaken": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthIdentityInUse": "다른 계정에 연결된 인증 수단이에요.",
+  "@errorAuthIdentityInUse": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthIdentityPendingDeletion": "삭제 대기 중인 계정에 연결되어 있어요.",
+  "@errorAuthIdentityPendingDeletion": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorAuthLastIdentity": "인증 수단이 하나는 남아 있어야 해요.",
+  "@errorAuthLastIdentity": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorAppCheckInvalid": "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요.",

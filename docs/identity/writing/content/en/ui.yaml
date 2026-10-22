@@ -158,6 +158,11 @@
 - {slot: ui.error.code, key: errorAuthRefreshReused, text: "We signed you out to keep your account safe. Please sign in again."}
 - {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "Sign-in didn't work. Please try again."}
 - {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "Sign-in timed out. Please start again."}
+- {slot: ui.error.code, key: errorAuthIdentityNotFound, text: "We couldn't find that sign-in method. Please reopen this screen."}
+- {slot: ui.error.code, key: errorAuthProviderTaken, text: "Another account is already linked with the same sign-in method."}
+- {slot: ui.error.code, key: errorAuthIdentityInUse, text: "This sign-in method is linked to another account."}
+- {slot: ui.error.code, key: errorAuthIdentityPendingDeletion, text: "It's linked to an account waiting to be deleted."}
+- {slot: ui.error.code, key: errorAuthLastIdentity, text: "You need at least one way to sign in."}
 - {slot: ui.error.code, key: errorAppCheckInvalid, text: "We couldn't verify the app. Please update to the latest version."}
 - {slot: ui.error.code, key: errorConsentRequired, text: "Please agree to the terms to continue."}
 - {slot: ui.error.code, key: errorPreviewUsed, text: "The preview is available once. Sign in to keep going."}
