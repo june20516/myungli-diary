@@ -192,6 +192,35 @@
 - [ ] **Step 6: screenshot·golden** — `flutter test test/screenshots/screens_test.dart --update-goldens` 뒤 바뀐 이미지가 today·day-sheet·diary-list 날짜 시트뿐인지 확인
 - [ ] **Step 7: Commit** — `feat(app): 쓰는 입구는 언제나 새 일기, 그날 일기 줄과 10편 상한 (D83, #408·#424), drift #412`
 
+### Task 6b: design 2.7.0 컴포넌트 계약 (drift #412의 design 원인)
+
+drift #412에는 design 컴포넌트 계약 2.7.0(PR #439)이 들어 있어 `test/contract/component_contract_test.dart`가 실패합니다(IA 컴포넌트 42개, `account-choice` 없음, `social-login-button`에 `line`·`google`·`connected` 없음). 이 task는 **컴포넌트만** 맞춥니다. 로그인 화면의 네 버튼·언어별 순서, `login-methods`·`account-merge` 화면은 계획 7(`2026-10-22-real-login.md`)에 남깁니다.
+
+기준: design spec `docs/identity/design/specs/2026-10-22-login-methods-account-merge-design.md` §2·§3, 명세 `docs/identity/design/components/action.json`(`social-login-button`)·`input.json`(`account-choice`)·`action.md`·`input.md`.
+
+**Files:**
+- Modify: `lib/design/components/action/social_login_button.dart`(`SocialProvider`에 `line`·`google`, 변형 그리기, `connected` 상태, `spec`), `assets/brand/line/`·`assets/brand/google/`(각 사 공식 로고), `pubspec.yaml`(assets)
+- Create: `lib/design/components/input/account_choice.dart`
+- Modify: `widgetbook/lib/` action·input 디렉터리(use case), `test/contract/component_contract_test.dart`(개수 41 → 42)
+- Test: `test/design/social_login_button_test.dart`(있으면 수정), `test/design/account_choice_test.dart`(새), action·input golden
+
+**Interfaces:**
+- Produces:
+  - `enum SocialProvider { kakao, line, google, apple }`(지금 위치 그대로)
+  - `SocialLoginButton`에 `bool connected = false`(연결됨 줄: 중립 바탕·배지 로고·제공자 이름·`check` + "연결됨" 라벨 인자). 문구는 인자로 받습니다(`label`, `connectedLabel`). 마지막 하나면 `onPressed: null`로 누를 수 없고 모양은 그대로입니다(V39).
+  - `final class AccountChoiceOption { const new({required String name, required bool current, required String saju, required String diaryCount, required String providers}); }`
+  - `class AccountChoice extends StatelessWidget { const new({required List<AccountChoiceOption> options, required int? selectedIndex, required ValueChanged<int>? onSelected, required String groupLabel, required String currentLabel, bool loading = false, String? identifier}); static const ComponentSpec spec; }` — `options`는 두 개, `selectedIndex == null`이면 `none`, `onSelected == null`이면 `disabled`(고름 잠금), `loading`이면 카드 두 장 크기의 숨쉬기 자리.
+
+- [ ] **Step 1: 실패하는 테스트**
+  * `component_contract_test.dart`가 이미 실패합니다(개수 42, `social-login-button` 변형·상태, `account-choice` 대조). 개수 기대값을 42로 고칩니다.
+  * `account_choice_test.dart`: `'처음에는 어느 카드도 고르지 않는다'`(두 카드 semantics checked false), `'카드를 누르면 onSelected(그 index)'`, `'onSelected가 null이면 눌러도 바뀌지 않는다'`, `'radio-group 이름은 groupLabel, 카드 라벨은 카드 안 글자를 위에서 아래로'`, `'current 카드에만 currentLabel 알약'`, `'loading이면 카드 글자가 없다'`.
+  * social-login-button: `'connected면 제공자 이름과 연결됨 라벨, 제공자 바탕색이 아님'`, `'connected이고 onPressed가 null이면 누를 수 없고 button 역할·힌트가 없다'`, `'line·google 변형이 그려진다'`.
+  * golden: `social-login-button` 네 변형 × 기본·loading·disabled·connected(라이트·다크), `account-choice` none·selected·disabled·loading(라이트·다크).
+- [ ] **Step 2: 실패 확인** — `flutter test test/contract/component_contract_test.dart test/design/account_choice_test.dart` FAIL
+- [ ] **Step 3: 구현** — 값은 design spec §2.1(LINE `#06C755`·눌림 검정 30% 덮개·비활성 값, Google light/dark 테마 값·Google Sans Medium 14/20 없으면 시스템 글꼴), §2.3(connected 모양·배지 20px·심볼 14px·`check` 14px·"연결됨" `type.caption.lg` `action.primary`), §3(카드·고름 표시·상태·햅틱 `selection`·`select.seep-slide`/`appear.seep`). 로고는 각 사 공식 배포 자산(Google Sign-In branding 자산, LINE Login button 자산)을 받아 `assets/brand/`에 두고, 출처 URL을 그 디렉터리 `SOURCE.md`에 적습니다. 공식 자산을 받을 수 없으면 BLOCKED로 보고합니다.
+- [ ] **Step 4: 통과 확인** — Step 2 명령 PASS, golden 갱신(`tool/goldens_linux.sh <파일> --update-goldens`) 뒤 같은 명령 PASS, `cd widgetbook && flutter analyze && flutter test` PASS
+- [ ] **Step 5: Commit** — `feat(app): 컴포넌트 계약 2.7.0 — social-login-button LINE·Google·연결됨, account-choice (drift #412, #389)`
+
 ### Task 7: 마무리 검사, 문서, 알림
 
 **Files:**
