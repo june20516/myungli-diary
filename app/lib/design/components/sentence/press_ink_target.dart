@@ -92,6 +92,16 @@ class _PressInkTargetState extends State<PressInkTarget>
   /// [PressInkTarget.pressed]에서 지금 눌려 있는지.
   bool _pressed = false;
 
+  @override
+  void didUpdateWidget(PressInkTarget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 눌린 채 꺼지면 제스처 인식기가 사라지며 취소가 build 중에 옵니다. 눌림 상태를 먼저
+    // 풀어 두어 그 취소가 setState를 부르지 않게 하고, 꺼진 자리에 눌림이 남지 않게 합니다.
+    if (oldWidget.onTap != null && widget.onTap == null && _pressed) {
+      _pressed = false;
+    }
+  }
+
   void _down(TapDownDetails details) {
     if (widget.builder == null) {
       pressInkDown(details);

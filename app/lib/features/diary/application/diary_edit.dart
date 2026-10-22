@@ -147,24 +147,34 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   /// 지금 본문이 붙는 초안 대상. 새 일기를 저장하면 그 일기로 바뀝니다.
   DiaryDraftTarget? _draftTarget;
 
+  /// 저장 요청 중인지. [save]가 시작하면 true, 두 경로(성공·실패) 끝에서 false입니다.
+  /// dispose에서 state를 읽지 않으려고 필드로 둡니다.
+  bool _saving = false;
+
+  /// dispose 중에도 쓸 수 있게 build에서 잡아 둔 초안 저장소와 crash 보고기(dispose 안에서는
+  /// `ref.read`를 쓸 수 없음).
+  late DiaryDraftStore _drafts;
+  late CrashReporter _crashReporter;
+
   /// 새 일기 저장 요청의 본문과 `Idempotency-Key`. 실패 뒤 같은 본문을 다시 저장하면 같은
   /// 키를 쓰고(시간 초과 뒤 일기가 두 편 생기지 않게), 성공하면 비웁니다.
   ({String body, String key})? _pendingCreate;
 
   @override
   Future<DiaryEditState> build() async {
+    final drafts = ref.watch(diaryDraftStoreProvider);
+    _drafts = drafts;
+    _crashReporter = ref.read(crashReporterProvider);
     ref.onDispose(() {
       _draftTimer?.cancel();
-      // 화면을 떠나며 아직 쓰지 않은 초안을 남깁니다.
+      // 저장 중이면 아직 쓰지 않은 입력은 저장 경로가 끝에서 맡습니다(옛 대상인 새 일기 초안에
+      // 쓰면 저장된 일기 초안과 겹침). 아니면 화면을 떠나며 남은 초안을 씁니다.
       final pending = _pendingDraft;
       final draftTarget = _draftTarget;
-      if (pending != null && draftTarget != null) {
-        unawaited(
-          _writeDraft(ref.read(diaryDraftStoreProvider), draftTarget, pending),
-        );
+      if (!_saving && pending != null && draftTarget != null) {
+        unawaited(_writeDraft(drafts, draftTarget, pending));
       }
     });
-    final drafts = ref.watch(diaryDraftStoreProvider);
     switch (target) {
       case NewDiaryEditTarget(:final date):
         final draftTarget = DiaryDraftTarget.newOn(date);
@@ -254,7 +264,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       return;
     }
     _pendingDraft = null;
-    await _writeDraft(ref.read(diaryDraftStoreProvider), draftTarget, body);
+    await _writeDraft(_drafts, draftTarget, body);
     final current = state.value;
     if (!ref.mounted || current == null || current.saving) {
       return;
@@ -280,10 +290,11 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     }
     _draftTimer?.cancel();
     _pendingDraft = null;
+    _saving = true;
     state = AsyncData(
       current.copyWith(saving: true, status: DiaryDraftStatus.saving),
     );
-    final drafts = ref.read(diaryDraftStoreProvider);
+    final drafts = _drafts;
     final Diary saved;
     try {
       saved = await _send(current, body);
@@ -293,6 +304,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       _draftTimer?.cancel();
       _pendingDraft = null;
       await _writeDraft(drafts, draftTarget, latest);
+      _saving = false;
       if (ref.mounted) {
         state = AsyncData(
           current.copyWith(
@@ -301,6 +313,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
             offline: isConnectivityError(error),
           ),
         );
+        _rearmDraftTimer();
       }
       rethrow;
     }
@@ -319,6 +332,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     if (keepLater) {
       await _writeDraft(drafts, savedTarget, later);
     }
+    _saving = false;
     if (ref.mounted) {
       invalidateDiaryViews(ref, current.date, id: saved.id);
       state = AsyncData(
@@ -331,8 +345,18 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
           offline: false,
         ),
       );
+      _rearmDraftTimer();
     }
     return saved;
+  }
+
+  /// 저장 경로가 초안을 쓰는 동안 들어온 입력은 [_flushDraft]가 saving 때문에 돌아가 타이머
+  /// 없이 남습니다. 저장이 끝나면 남은 입력에 디바운스를 다시 겁니다.
+  void _rearmDraftTimer() {
+    final pending = _pendingDraft;
+    if (pending != null) {
+      edit(pending);
+    }
   }
 
   Future<Diary> _send(DiaryEditState current, String body) {
@@ -369,11 +393,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     try {
       await action();
     } on Object catch (error, stackTrace) {
-      if (ref.mounted) {
-        ref
-            .read(crashReporterProvider)
-            .record(CrashSummary.from(error), stackTrace);
-      }
+      _crashReporter.record(CrashSummary.from(error), stackTrace);
     }
   }
 }

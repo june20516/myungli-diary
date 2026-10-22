@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart'
+    show ApplyInterceptor, QueryExecutor, QueryInterceptor;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,12 +70,28 @@ final class _Network extends Interceptor {
   }
 }
 
+/// 있으면 초안 쓰기(insert)를 이 completer가 끝날 때까지 붙잡는 DB 가로채기.
+final class _DraftWriteHold extends QueryInterceptor {
+  Completer<void>? hold;
+
+  @override
+  Future<int> runInsert(
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) async {
+    await hold?.future;
+    return await super.runInsert(executor, statement, args);
+  }
+}
+
 final class _Harness {
-  new(this.container, this.server, this.network);
+  new(this.container, this.server, this.network, this.draftWrites);
 
   final ProviderContainer container;
   final FakeServerInterceptor server;
   final _Network network;
+  final _DraftWriteHold draftWrites;
 
   int calls(String operationId) => server.callCountOf(operationId);
 }
@@ -86,7 +104,10 @@ Future<_Harness> _harness({
       .singleWhere((s) => s.id == scenarioId);
   final server = FakeServerInterceptor(scenario: scenario, bundle: rootBundle);
   final network = _Network();
-  final database = AppDatabase.forExecutor(NativeDatabase.memory());
+  final draftWrites = _DraftWriteHold();
+  final database = AppDatabase.forExecutor(
+    NativeDatabase.memory().interceptWith(draftWrites),
+  );
   final container = ProviderContainer(
     overrides: [
       restClientProvider.overrideWithValue(
@@ -107,7 +128,7 @@ Future<_Harness> _harness({
     container.dispose();
     await database.close();
   });
-  return _Harness(container, server, network);
+  return _Harness(container, server, network, draftWrites);
 }
 
 Future<DiaryPagesView> _pages(_Harness h, [String? tag]) async {
@@ -375,6 +396,88 @@ void main() {
       expect(
         h.container.read(diaryEditProvider(_newToday)).value!.status,
         DiaryDraftStatus.local,
+      );
+    });
+
+    test('실패 경로의 초안 쓰기를 기다리는 중 들어온 입력도 디바운스로 초안에 남는다', () async {
+      final h = await _harness();
+      await _edit(h, _newToday);
+      final notifier = h.container.read(diaryEditProvider(_newToday).notifier);
+      final drafts = h.container.read(diaryDraftStoreProvider);
+      h.network.offline = true;
+      h.draftWrites.hold = Completer<void>();
+      final saving = notifier.save('첫 글');
+      final failure = expectLater(saving, throwsA(isA<OfflineError>()));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      notifier.edit('쓰기를 기다리며 더 쓴 글');
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 50),
+      );
+      h.draftWrites.hold!.complete();
+      await failure;
+      h.draftWrites.hold = null;
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 100),
+      );
+      expect(await drafts.read(_draftToday), '쓰기를 기다리며 더 쓴 글');
+    });
+
+    test('성공 경로의 초안 쓰기를 기다리는 중 들어온 입력도 디바운스로 초안에 남는다', () async {
+      final h = await _harness();
+      await _edit(h, _newToday);
+      final notifier = h.container.read(diaryEditProvider(_newToday).notifier);
+      final drafts = h.container.read(diaryDraftStoreProvider);
+      h.network.holdCreate = Completer<void>();
+      final saving = notifier.save('저장한 글');
+      notifier.edit('저장 중에 더 쓴 글');
+      h.draftWrites.hold = Completer<void>();
+      h.network.holdCreate!.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      notifier.edit('쓰기를 기다리며 더 쓴 글');
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 50),
+      );
+      h.draftWrites.hold!.complete();
+      final saved = (await saving)!;
+      h.draftWrites.hold = null;
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 100),
+      );
+      expect(
+        await drafts.read(
+          DiaryDraftTarget.existing(date: _today, id: saved.id),
+        ),
+        '쓰기를 기다리며 더 쓴 글',
+      );
+    });
+
+    test('저장 중에 화면을 떠나면 새 일기 초안에 쓰지 않고 저장 경로가 맡는다', () async {
+      final h = await _harness();
+      final subscription = h.container.listen(
+        diaryEditProvider(_newToday),
+        (_, _) {},
+      );
+      await h.container.read(diaryEditProvider(_newToday).future);
+      final notifier = h.container.read(diaryEditProvider(_newToday).notifier);
+      final drafts = h.container.read(diaryDraftStoreProvider);
+      h.network.holdCreate = Completer<void>();
+      final saving = notifier.save('저장한 글');
+      notifier.edit('저장 중에 더 쓴 글');
+      subscription.close();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(
+        await drafts.read(_draftToday),
+        isNull,
+        reason: '떠날 때 옛 대상(새 일기 초안)에 쓰지 않음',
+      );
+      h.network.holdCreate!.complete();
+      final saved = (await saving)!;
+      expect(await drafts.read(_draftToday), isNull);
+      expect(
+        await drafts.read(
+          DiaryDraftTarget.existing(date: _today, id: saved.id),
+        ),
+        '저장 중에 더 쓴 글',
       );
     });
 

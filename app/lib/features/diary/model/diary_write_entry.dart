@@ -1,4 +1,4 @@
-import 'package:myungli_diary/features/diary/data/diary_repository.dart';
+import 'package:myungli_diary/features/diary/model/diary_limits.dart';
 
 /// 그날 일기를 쓰는 입구의 상태(D83 ②).
 enum DiaryWriteEntry {

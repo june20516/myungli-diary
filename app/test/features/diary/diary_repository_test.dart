@@ -242,5 +242,39 @@ void main() {
       expect(server.requests, hasLength(2));
       expect(server.requests.last.queryParameters['cursor'], 'c1');
     });
+
+    test('cursor를 계속 주면 다섯 쪽에서 멈추고 받은 날짜까지만 돌려준다', () async {
+      final server = _Server((options) {
+        final cursor = options.queryParameters['cursor'] as String?;
+        final number = cursor == null ? 0 : int.parse(cursor.substring(1)) + 1;
+        return (
+          200,
+          {
+            'items': [_summaryJson('d$number', '2026-10-${10 + number}')],
+            'nextCursor': 'c$number',
+          },
+        );
+      });
+      final dates = await _repository(server)
+          .datesIn(CalendarDate(2026, 10, 1), CalendarDate(2026, 10, 31));
+      expect(server.requests, hasLength(5));
+      expect(dates, hasLength(5));
+    });
+
+    test('같은 cursor가 다시 오면 멈춘다', () async {
+      final server = _Server(
+        (_) => (
+          200,
+          {
+            'items': [_summaryJson('a', '2026-10-13')],
+            'nextCursor': 'same',
+          },
+        ),
+      );
+      final dates = await _repository(server)
+          .datesIn(CalendarDate(2026, 10, 1), CalendarDate(2026, 10, 31));
+      expect(server.requests, hasLength(2));
+      expect(dates, {CalendarDate(2026, 10, 13)});
+    });
   });
 }

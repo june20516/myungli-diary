@@ -7,6 +7,7 @@ import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/features/diary/model/diary_limits.dart';
 
 const _notFound = 404;
 
@@ -16,9 +17,9 @@ const _maxPageLimit = 100;
 /// 일기 목록 한 쪽의 기본 수(A45).
 const int diaryPageLimit = 30;
 
-/// 한 날짜에 살아 있을 수 있는 일기 수(D83 ②). 기준은 server이고, 상수가 어긋나도 422
-/// `diary.day_full`이 막습니다.
-const int diaryDayLimit = 10;
+/// 달력 격자 하나(42일)의 일기 날짜를 받는 쪽 수의 상한(spec §7). 42일 × `diaryDayLimit`편
+/// 을 `limit` 100으로 나눈 올림이 5입니다.
+const _maxDatePages = 5;
 
 /// 일기 저장소(`listDiaries`·`createDiary`·`getDiary`·`updateDiary`·`deleteDiary`).
 ///
@@ -104,12 +105,13 @@ final class DiaryRepository {
   }
 
   /// [from]~[to](둘 다 포함)에 쓴 일기의 날짜(A33). 달력 격자(42일)에는 같은 날 여러 편이
-  /// 있을 수 있어 `nextCursor`가 없을 때까지 이어 받습니다. 실패는 [find]와 같은
-  /// [AppError]입니다.
+  /// 있을 수 있어 `nextCursor`가 없을 때까지 이어 받되, 최대 [_maxDatePages]쪽이고 같은
+  /// cursor가 다시 오면 멈춥니다. 상한에 닿으면 받은 날짜까지만 돌려줍니다. 실패는 [find]와
+  /// 같은 [AppError]입니다.
   Future<Set<CalendarDate>> datesIn(CalendarDate from, CalendarDate to) async {
     final dates = <CalendarDate>{};
     String? cursor;
-    do {
+    for (var received = 0; received < _maxDatePages; received++) {
       final list = await page(
         from: from,
         to: to,
@@ -117,8 +119,12 @@ final class DiaryRepository {
         limit: _maxPageLimit,
       );
       dates.addAll(list.items.map((item) => CalendarDate.parse(item.date)));
-      cursor = list.nextCursor;
-    } while (cursor != null);
+      final next = list.nextCursor;
+      if (next == null || next == cursor) {
+        break;
+      }
+      cursor = next;
+    }
     return dates;
   }
 

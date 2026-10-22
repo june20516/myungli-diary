@@ -59,7 +59,7 @@ int _compareItems(Map<String, Object?> a, Map<String, Object?> b) {
   String field(Map<String, Object?> item, String name) {
     final value = item[name];
     if (value is! String) {
-      throw StateError('listDiaries fixture 항목에 $name이 없습니다: $item');
+      throw StateError('listDiaries fixture 항목에 $name이 없거나 문자열이 아닙니다: $item');
     }
     return value;
   }
