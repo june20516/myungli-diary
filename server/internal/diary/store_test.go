@@ -5,6 +5,7 @@ import (
 	"math"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -205,6 +206,43 @@ func TestStore_RestoreLiveEntryIsNoop(t *testing.T) {
 	got, err := store.Restore(ctx, acc, ids[3])
 	require.NoError(t, err, "10편이어도 이미 살아 있으면 상한을 보지 않음")
 	assert.Equal(t, before, got)
+}
+
+func TestStore_ConcurrentRestoreOfSameEntryReturnsIt(t *testing.T) {
+	ctx := context.Background()
+	store, acc, pool := setup(t)
+	all := fillDay(t, store, acc, 10, diary.MaxEntriesPerDay)
+	target := all[0]
+	require.NoError(t, store.Delete(ctx, acc, target)) // 살아 있는 9편 + 지운 1편
+
+	// 수동 tx가 대상 행을 잡고 되살리는 동안 같은 id로 Restore를 부릅니다.
+	tx, err := pool.Begin(ctx)
+	require.NoError(t, err)
+	defer func() { _ = tx.Rollback(ctx) }()
+	_, err = tx.Exec(ctx, "SELECT 1 FROM diaries WHERE id = $1 FOR UPDATE", target)
+	require.NoError(t, err)
+	_, err = tx.Exec(ctx, "SELECT 1 FROM diary_days WHERE account_id = $1 FOR UPDATE", acc) // 실제 Restore와 같은 잠금 순서
+	require.NoError(t, err)
+	_, err = tx.Exec(ctx, "UPDATE diaries SET deleted_at = NULL WHERE id = $1", target)
+	require.NoError(t, err)
+
+	type result struct {
+		entry diary.Entry
+		err   error
+	}
+	done := make(chan result, 1)
+	go func() {
+		e, err := store.Restore(ctx, acc, target)
+		done <- result{e, err}
+	}()
+	time.Sleep(200 * time.Millisecond) // goroutine이 행 잠금에서 기다리게 합니다.
+	require.NoError(t, tx.Commit(ctx))
+
+	res := <-done
+	require.NoError(t, res.err, "이미 살아 있으면 10편이어도 그대로 돌려줌")
+	saved, err := store.Get(ctx, acc, target)
+	require.NoError(t, err)
+	assert.Equal(t, saved, res.entry)
 }
 
 func TestStore_RestorePurgedIsNotFound(t *testing.T) {

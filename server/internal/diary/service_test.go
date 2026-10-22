@@ -195,6 +195,7 @@ func TestService_RetryFailsTwiceReturnsError(t *testing.T) {
 	_, err := svc.Create(context.Background(), uuid.New(), seoulProfile(), day(10), "본문")
 	assert.ErrorIs(t, err, diary.ErrDayRecordMissing)
 	assert.Len(t, entries.records, 2, "한 번만 다시 부름")
+	assert.Equal(t, 1, days.calls)
 }
 
 func TestService_DayFullIsNotRetried(t *testing.T) {

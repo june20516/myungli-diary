@@ -14,15 +14,17 @@ type Querier interface {
 	// 조회는 모두 살아 있는 행(deleted_at IS NULL)만 보고, 모든 쿼리가 account_id 조건을 겁니다.
 	DiaryDayExists(ctx context.Context, arg DiaryDayExistsParams) (bool, error)
 	GetDiary(ctx context.Context, arg GetDiaryParams) (GetDiaryRow, error)
-	// 지운 행까지 봅니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	// 지운 행까지 보고 그 행을 잠급니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다(같은 일기의 동시 되살리기·지우기가 줄을 섭니다).
+	// 잠금 순서는 diaries 행 다음 diary_days 행입니다(만들기는 diary_days 행 다음 새 행이라 순환이 없습니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (GetDiaryStateRow, error)
 	InsertDiary(ctx context.Context, arg InsertDiaryParams) (InsertDiaryRow, error)
 	// 그날 첫 편이면 날짜 기록을 만들고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
 	InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) error
 	// 날짜 역순, 같은 날짜 안에서는 작성 순입니다. 범위(from·to, 포함)·태그·keyset(after_*: 그 항목 다음)은 NULL이면 걸지 않습니다.
+	// after_date·after_created_at·after_id는 셋 다 넣거나 셋 다 NULL로 둡니다.
 	ListDiaries(ctx context.Context, arg ListDiariesParams) ([]ListDiariesRow, error)
-	// 날짜 기록을 읽으면서 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
-	LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (LockDiaryDayRow, error)
+	// 날짜 기록 행을 잠가 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (int32, error)
 	SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams) (int64, error)
 	UndeleteDiary(ctx context.Context, arg UndeleteDiaryParams) error
 	// 살아 있는 일기의 본문만 바꿉니다(날짜 기록은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).

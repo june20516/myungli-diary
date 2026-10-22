@@ -98,6 +98,7 @@ const getDiaryState = `-- name: GetDiaryState :one
 SELECT id, date, deleted_at, content_purged_at
 FROM diaries
 WHERE id = $1 AND account_id = $2
+FOR UPDATE
 `
 
 type GetDiaryStateParams struct {
@@ -112,7 +113,8 @@ type GetDiaryStateRow struct {
 	ContentPurgedAt *time.Time
 }
 
-// 지운 행까지 봅니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+// 지운 행까지 보고 그 행을 잠급니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다(같은 일기의 동시 되살리기·지우기가 줄을 섭니다).
+// 잠금 순서는 diaries 행 다음 diary_days 행입니다(만들기는 diary_days 행 다음 새 행이라 순환이 없습니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 func (q *Queries) GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (GetDiaryStateRow, error) {
 	row := q.db.QueryRow(ctx, getDiaryState, arg.ID, arg.AccountID)
 	var i GetDiaryStateRow
@@ -248,6 +250,7 @@ type ListDiariesRow struct {
 }
 
 // 날짜 역순, 같은 날짜 안에서는 작성 순입니다. 범위(from·to, 포함)·태그·keyset(after_*: 그 항목 다음)은 NULL이면 걸지 않습니다.
+// after_date·after_created_at·after_id는 셋 다 넣거나 셋 다 NULL로 둡니다.
 func (q *Queries) ListDiaries(ctx context.Context, arg ListDiariesParams) ([]ListDiariesRow, error) {
 	rows, err := q.db.Query(ctx, listDiaries,
 		arg.AccountID,
@@ -289,7 +292,7 @@ func (q *Queries) ListDiaries(ctx context.Context, arg ListDiariesParams) ([]Lis
 }
 
 const lockDiaryDay = `-- name: LockDiaryDay :one
-SELECT all_tags, featured_tags, guide_question, ruleset_version
+SELECT 1
 FROM diary_days
 WHERE account_id = $1 AND date = $2
 FOR UPDATE
@@ -300,24 +303,12 @@ type LockDiaryDayParams struct {
 	Date      pgtype.Date
 }
 
-type LockDiaryDayRow struct {
-	AllTags        []string
-	FeaturedTags   []byte
-	GuideQuestion  []byte
-	RulesetVersion string
-}
-
-// 날짜 기록을 읽으면서 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
-func (q *Queries) LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (LockDiaryDayRow, error) {
+// 날짜 기록 행을 잠가 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+func (q *Queries) LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (int32, error) {
 	row := q.db.QueryRow(ctx, lockDiaryDay, arg.AccountID, arg.Date)
-	var i LockDiaryDayRow
-	err := row.Scan(
-		&i.AllTags,
-		&i.FeaturedTags,
-		&i.GuideQuestion,
-		&i.RulesetVersion,
-	)
-	return i, err
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const softDeleteDiary = `-- name: SoftDeleteDiary :execrows

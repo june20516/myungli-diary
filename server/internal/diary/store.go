@@ -178,6 +178,7 @@ func (s *Store) Delete(ctx context.Context, accountID, id uuid.UUID) error {
 }
 
 // Restore는 지운 일기를 되살립니다. 이미 살아 있으면 상한을 보지 않고 그대로 돌려줍니다.
+// 대상 행을 먼저 잠그므로 같은 일기의 동시 되살리기·지우기는 줄을 섭니다.
 // 없거나 남의 것이거나 내용을 비웠으면 ErrNotFound, 되살리면 그 날짜가 MaxEntriesPerDay편을 넘으면 ErrDayFull입니다.
 func (s *Store) Restore(ctx context.Context, accountID, id uuid.UUID) (Entry, error) {
 	var entry Entry
@@ -202,6 +203,9 @@ func (s *Store) Restore(ctx context.Context, accountID, id uuid.UUID) (Entry, er
 			}
 		}
 		row, err := q.GetDiary(ctx, diarydb.GetDiaryParams{ID: id, AccountID: accountID})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound // 방어: 행을 잠갔으므로 보통 오지 않습니다.
+		}
 		if err != nil {
 			return fmt.Errorf("일기 조회: %w", err)
 		}

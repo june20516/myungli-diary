@@ -13,8 +13,8 @@ VALUES (@account_id, @date, @all_tags, @featured_tags, @guide_question, @ruleset
 ON CONFLICT (account_id, date) DO NOTHING;
 
 -- name: LockDiaryDay :one
--- 날짜 기록을 읽으면서 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
-SELECT all_tags, featured_tags, guide_question, ruleset_version
+-- 날짜 기록 행을 잠가 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+SELECT 1
 FROM diary_days
 WHERE account_id = @account_id AND date = @date
 FOR UPDATE;
@@ -55,10 +55,12 @@ UPDATE diaries SET deleted_at = now()
 WHERE id = @id AND account_id = @account_id AND deleted_at IS NULL;
 
 -- name: GetDiaryState :one
--- 지운 행까지 봅니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+-- 지운 행까지 보고 그 행을 잠급니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다(같은 일기의 동시 되살리기·지우기가 줄을 섭니다).
+-- 잠금 순서는 diaries 행 다음 diary_days 행입니다(만들기는 diary_days 행 다음 새 행이라 순환이 없습니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 SELECT id, date, deleted_at, content_purged_at
 FROM diaries
-WHERE id = @id AND account_id = @account_id;
+WHERE id = @id AND account_id = @account_id
+FOR UPDATE;
 
 -- name: UndeleteDiary :exec
 UPDATE diaries SET deleted_at = NULL
@@ -66,6 +68,7 @@ WHERE id = @id AND account_id = @account_id AND deleted_at IS NOT NULL AND conte
 
 -- name: ListDiaries :many
 -- 날짜 역순, 같은 날짜 안에서는 작성 순입니다. 범위(from·to, 포함)·태그·keyset(after_*: 그 항목 다음)은 NULL이면 걸지 않습니다.
+-- after_date·after_created_at·after_id는 셋 다 넣거나 셋 다 NULL로 둡니다.
 SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
