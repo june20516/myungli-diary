@@ -74,16 +74,19 @@ void main() {
   });
 
   test('DiaryDraftTarget은 값 동등성을 가진다', () {
-    expect(DiaryDraftTarget.newOn(day), DiaryDraftTarget.newOn(day));
-    expect(
-      DiaryDraftTarget.existing(date: day, id: 'x').hashCode,
-      DiaryDraftTarget.existing(date: day, id: 'x').hashCode,
-    );
-    expect(
-      DiaryDraftTarget.newOn(day) ==
-          DiaryDraftTarget.existing(date: day, id: 'x'),
-      isFalse,
-    );
+    final x = DiaryDraftTarget.existing(date: day, id: 'x');
+    expect(x == DiaryDraftTarget.existing(date: day, id: 'x'), isTrue);
+    expect(x.hashCode, DiaryDraftTarget.existing(date: day, id: 'x').hashCode);
+    expect(x == DiaryDraftTarget.existing(date: day, id: 'y'), isFalse);
+    expect(DiaryDraftTarget.newOn(day) == DiaryDraftTarget.newOn(day), isTrue);
+    expect(DiaryDraftTarget.newOn(day) == x, isFalse);
     expect(DiaryDraftTarget.newOn(day).diaryId, '');
+  });
+
+  test('고치는 일기 id는 비어 있을 수 없다', () {
+    expect(
+      () => DiaryDraftTarget.existing(date: day, id: ''),
+      throwsA(isA<AssertionError>()),
+    );
   });
 }

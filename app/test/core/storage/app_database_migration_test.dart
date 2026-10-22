@@ -43,5 +43,13 @@ void main() {
       await store.read(DiaryDraftTarget.existing(date: day, id: 'x')),
       isNull,
     );
+
+    // 이관 뒤 같은 날 다른 id 초안을 써도 이관된 새 일기 초안이 남습니다.
+    await store.write(DiaryDraftTarget.existing(date: day, id: 'x'), '고치는 글');
+    expect(await store.read(DiaryDraftTarget.newOn(day)), '옛 초안');
+    expect(
+      await store.read(DiaryDraftTarget.existing(date: day, id: 'x')),
+      '고치는 글',
+    );
   });
 }

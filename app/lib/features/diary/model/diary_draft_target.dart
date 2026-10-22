@@ -44,8 +44,10 @@ final class NewDiaryDraftTarget extends DiaryDraftTarget {
 
 /// 이미 있는 일기를 고치는 초안 대상.
 final class ExistingDiaryDraftTarget extends DiaryDraftTarget {
-  /// [date]의 [id] 일기 대상을 만듭니다.
-  const new({required this.date, required String id}) : diaryId = id;
+  /// [date]의 [id] 일기 대상을 만듭니다. 빈 [id]는 새 일기 초안 키와 같아져 막습니다.
+  const new({required this.date, required String id})
+    : assert(id != '', '고치는 일기 id는 비어 있을 수 없습니다.'),
+      diaryId = id;
 
   @override
   final CalendarDate date;

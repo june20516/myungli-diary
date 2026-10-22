@@ -116,7 +116,6 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         // v1 날짜 초안은 기본값 id `''`가 되어 그날 새 일기 초안으로 남습니다.
