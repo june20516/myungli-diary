@@ -21,45 +21,51 @@ func (c Code) Problem(title string) Problem {
 
 // 요청 처리 (spec §11.2).
 var (
-	RequestMalformed         = Code{"request.malformed", http.StatusBadRequest}
-	RequestInvalid           = Code{"request.invalid", http.StatusBadRequest}
-	RouteNotFound            = Code{"route.not_found", http.StatusNotFound}
-	MethodNotAllowed         = Code{"method.not_allowed", http.StatusMethodNotAllowed}
-	RequestTooLarge          = Code{"request.too_large", http.StatusRequestEntityTooLarge}
-	UnsupportedMediaType     = Code{"request.unsupported_media_type", http.StatusUnsupportedMediaType}
-	DateOutOfRange           = Code{"date.out_of_range", http.StatusUnprocessableEntity}
-	BirthOutOfRange          = Code{"birth.out_of_range", http.StatusUnprocessableEntity}
-	DateInvalid              = Code{"date.invalid", http.StatusUnprocessableEntity}
-	RequestInconsistent      = Code{"request.inconsistent", http.StatusUnprocessableEntity}
-	BirthInvalid             = Code{"birth.invalid", http.StatusUnprocessableEntity}
-	DiaryFutureDate          = Code{"diary.future_date", http.StatusUnprocessableEntity}
-	DiaryDayFull             = Code{"diary.day_full", http.StatusUnprocessableEntity}
-	NameEmpty                = Code{"name.empty", http.StatusUnprocessableEntity}
-	NameTooLong              = Code{"name.too_long", http.StatusUnprocessableEntity}
-	NameEmoji                = Code{"name.emoji", http.StatusUnprocessableEntity}
-	NameControl              = Code{"name.control", http.StatusUnprocessableEntity}
-	NameInvalidChar          = Code{"name.invalid_char", http.StatusUnprocessableEntity}
-	IdempotencyMismatch      = Code{"idempotency.mismatch", http.StatusUnprocessableEntity}
-	ConsentVersionMismatch   = Code{"consent.version_mismatch", http.StatusUnprocessableEntity}
-	TimezoneInvalid          = Code{"timezone.invalid", http.StatusUnprocessableEntity}
-	CityNotFound             = Code{"city.not_found", http.StatusUnprocessableEntity}
-	RangeTooLong             = Code{"range.too_long", http.StatusUnprocessableEntity}
-	AuthTokenExpired         = Code{"auth.token_expired", http.StatusUnauthorized}
-	AuthTokenInvalid         = Code{"auth.token_invalid", http.StatusUnauthorized} //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
-	AuthRefreshReused        = Code{"auth.refresh_reused", http.StatusUnauthorized}
-	AuthProviderTokenInvalid = Code{"auth.provider_token_invalid", http.StatusUnauthorized}
-	AuthExchangeInvalid      = Code{"auth.exchange_invalid", http.StatusUnauthorized}
-	AppCheckInvalid          = Code{"app_check.invalid", http.StatusUnauthorized}
-	ConsentRequired          = Code{"consent.required", http.StatusForbidden}
-	PreviewUsed              = Code{"preview.used", http.StatusForbidden}
-	DiaryNotFound            = Code{"diary.not_found", http.StatusNotFound}
-	ReactionNotFound         = Code{"reaction.not_found", http.StatusNotFound}
-	ScheduleNotFound         = Code{"schedule.not_found", http.StatusNotFound}
-	DeviceNotFound           = Code{"device.not_found", http.StatusNotFound}
-	ProfileRequired          = Code{"profile.required", http.StatusConflict}
-	IdempotencyInProgress    = Code{"idempotency.in_progress", http.StatusConflict}
-	RateLimited              = Code{"rate_limited", http.StatusTooManyRequests}
-	NotImplemented           = Code{"not_implemented", http.StatusNotImplemented}
+	RequestMalformed            = Code{"request.malformed", http.StatusBadRequest}
+	RequestInvalid              = Code{"request.invalid", http.StatusBadRequest}
+	RouteNotFound               = Code{"route.not_found", http.StatusNotFound}
+	MethodNotAllowed            = Code{"method.not_allowed", http.StatusMethodNotAllowed}
+	RequestTooLarge             = Code{"request.too_large", http.StatusRequestEntityTooLarge}
+	UnsupportedMediaType        = Code{"request.unsupported_media_type", http.StatusUnsupportedMediaType}
+	DateOutOfRange              = Code{"date.out_of_range", http.StatusUnprocessableEntity}
+	BirthOutOfRange             = Code{"birth.out_of_range", http.StatusUnprocessableEntity}
+	DateInvalid                 = Code{"date.invalid", http.StatusUnprocessableEntity}
+	RequestInconsistent         = Code{"request.inconsistent", http.StatusUnprocessableEntity}
+	BirthInvalid                = Code{"birth.invalid", http.StatusUnprocessableEntity}
+	DiaryFutureDate             = Code{"diary.future_date", http.StatusUnprocessableEntity}
+	DiaryDayFull                = Code{"diary.day_full", http.StatusUnprocessableEntity}
+	NameEmpty                   = Code{"name.empty", http.StatusUnprocessableEntity}
+	NameTooLong                 = Code{"name.too_long", http.StatusUnprocessableEntity}
+	NameEmoji                   = Code{"name.emoji", http.StatusUnprocessableEntity}
+	NameControl                 = Code{"name.control", http.StatusUnprocessableEntity}
+	NameInvalidChar             = Code{"name.invalid_char", http.StatusUnprocessableEntity}
+	IdempotencyMismatch         = Code{"idempotency.mismatch", http.StatusUnprocessableEntity}
+	ConsentVersionMismatch      = Code{"consent.version_mismatch", http.StatusUnprocessableEntity}
+	TimezoneInvalid             = Code{"timezone.invalid", http.StatusUnprocessableEntity}
+	CityNotFound                = Code{"city.not_found", http.StatusUnprocessableEntity}
+	RangeTooLong                = Code{"range.too_long", http.StatusUnprocessableEntity}
+	MergeTokenInvalid           = Code{"merge.token_invalid", http.StatusUnprocessableEntity}
+	AuthTokenExpired            = Code{"auth.token_expired", http.StatusUnauthorized}
+	AuthTokenInvalid            = Code{"auth.token_invalid", http.StatusUnauthorized} //nolint:gosec // 오류 코드 문자열이며 자격 증명이 아닙니다
+	AuthRefreshReused           = Code{"auth.refresh_reused", http.StatusUnauthorized}
+	AuthProviderTokenInvalid    = Code{"auth.provider_token_invalid", http.StatusUnauthorized}
+	AuthExchangeInvalid         = Code{"auth.exchange_invalid", http.StatusUnauthorized}
+	AppCheckInvalid             = Code{"app_check.invalid", http.StatusUnauthorized}
+	ConsentRequired             = Code{"consent.required", http.StatusForbidden}
+	PreviewUsed                 = Code{"preview.used", http.StatusForbidden}
+	DiaryNotFound               = Code{"diary.not_found", http.StatusNotFound}
+	ReactionNotFound            = Code{"reaction.not_found", http.StatusNotFound}
+	ScheduleNotFound            = Code{"schedule.not_found", http.StatusNotFound}
+	DeviceNotFound              = Code{"device.not_found", http.StatusNotFound}
+	ProfileRequired             = Code{"profile.required", http.StatusConflict}
+	IdempotencyInProgress       = Code{"idempotency.in_progress", http.StatusConflict}
+	AuthProviderTaken           = Code{"auth.provider_taken", http.StatusConflict}
+	AuthIdentityInUse           = Code{"auth.identity_in_use", http.StatusConflict}
+	AuthIdentityPendingDeletion = Code{"auth.identity_pending_deletion", http.StatusConflict}
+	AuthLastIdentity            = Code{"auth.last_identity", http.StatusConflict}
+	AuthIdentityNotFound        = Code{"auth.identity_not_found", http.StatusNotFound}
+	RateLimited                 = Code{"rate_limited", http.StatusTooManyRequests}
+	NotImplemented              = Code{"not_implemented", http.StatusNotImplemented}
 )
 
 // 외부 의존과 서버 오류 (spec §11.3).
@@ -81,9 +87,10 @@ func AllCodes() []Code {
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
 		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate, DiaryDayFull,
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
-		TimezoneInvalid, CityNotFound, RangeTooLong,
+		TimezoneInvalid, CityNotFound, RangeTooLong, MergeTokenInvalid,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,
 		ConsentRequired, PreviewUsed, DiaryNotFound, ReactionNotFound, ScheduleNotFound, DeviceNotFound, ProfileRequired, IdempotencyInProgress,
+		AuthProviderTaken, AuthIdentityInUse, AuthIdentityPendingDeletion, AuthLastIdentity, AuthIdentityNotFound,
 		RateLimited, NotImplemented,
 		EngineUnavailable, EngineTimeout, EngineError, AuthProviderUnavailable, BillingUnavailable,
 		RewardInvalidSignature, RewardExpired, ServiceUnavailable, Internal,
