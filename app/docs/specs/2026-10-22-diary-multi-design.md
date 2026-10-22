@@ -83,7 +83,7 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 
 * 계정 합치기로 10편을 넘은 날도 `full`입니다(D83 ④).
 * `first`·`more`는 언제나 `diary-edit?date=<그날>`(새 일기)입니다. "그날 일기가 있으면 보기로" 분기(A51)는 없앱니다.
-* 목록을 받는 동안: `today`는 버튼을 `first`로 그리고, `day-sheet`는 입구 자리에 지금처럼 skeleton을 둡니다. 날짜 골라 쓰기는 `first`로 그립니다.
+* 목록을 받는 동안: `today`는 그날 일기 목록을 받은 뒤 그립니다(받는 동안 오늘 카드 입구를 그리지 않고 화면 로딩 상태입니다. 목록을 받지 못하면 0편으로 그려 `first`가 됩니다). `day-sheet`는 입구 자리에 지금처럼 skeleton을 둡니다. 날짜 골라 쓰기는 `first`로 그립니다.
 * 누를 수 없는 버튼: `GuideQuestionCard.onAction`과 `MonthDatePicker.onConfirm`을 nullable로 바꿔 null이면 비활성(버튼 전체 `opacity 0.4`, 다른 비활성과 같음)입니다. `day-sheet`는 `PrimaryButton` `disabled`입니다.
 * 상한을 채운 날의 시험용 fake 시나리오 `diary-day-full`(오늘 일기 10편)을 둡니다.
 
@@ -100,7 +100,7 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 ## 8. 쓰기 화면 (`diary-edit`, 결정 A71)
 
 * family 값은 `DiaryEditTarget`입니다: `DiaryEditTarget.newOn(CalendarDate)` 또는 `DiaryEditTarget.existing(String id)`.
-* 열 때: 새 일기는 그날 새 일기 초안과 `getDaily(date).guide`(A47)를 읽습니다. 고치기는 `find(id)`와 그 일기 초안을 읽고, 질문은 `Diary.guideQuestion`입니다. 받지 못한 일기가 연결 오류면 초안으로 열고 `offline`, 404면 "일기를 찾지 못했어요" 안내입니다(지금과 같음).
+* 열 때: 새 일기는 그날 새 일기 초안과 `getDaily(date).guide`(A47)를 읽습니다. 고치기는 `find(id)`와 그 일기 초안을 읽고, 질문은 `Diary.guideQuestion`입니다. 새 일기에서 질문을 받지 못하면 쓰기를 막지 않고, 연결 오류면 `offline`입니다. 고치는 일기(`diary-edit?id=`)를 받지 못하면 날짜를 몰라 초안으로 열 수 없으므로, 연결 오류면 오류 상태를 보이고 404면 "일기를 찾지 못했어요" 안내입니다.
 * 저장: 새 일기는 `create`, 고치기는 `update`입니다. 새 일기의 `Idempotency-Key`(uuid v4)는 화면 상태 하나에 하나이고 실패 뒤 다시 저장하면 같은 키를 씁니다. 시간 초과 뒤 다시 눌러도 일기가 두 편 생기지 않게 하기 위해서입니다(일정 만들기와 같음).
 * 저장 실패: 422 `diary.day_full`은 `errorDiaryDayFull` 문구로 알리고(`toast`, 지금 저장 실패 알림과 같은 자리), 초안을 남기고 화면에 머뭅니다. 그 밖은 지금과 같습니다.
 * 저장·삭제 성공 뒤 다시 받기: 그날 `diariesOnProvider`, 그 달 `diaryDatesProvider`, 일기 목록 쪽(A45), 고친 일기의 `diaryProvider(id)`.
