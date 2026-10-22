@@ -37,7 +37,7 @@
 ## 현재 진행 순서 (2026-10-22 기준, app 계획 6 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #412(IA 생성 코드 `ia.g.dart`와 REST draft.13 등, 원인 PR은 Issue 본문) 하나입니다. design #395, server #433·#448, writing #443은 PR #439·#438·#436으로 끝났습니다. 단위마다 열린 drift는 하나이고, 따라잡기 전에 계약이 또 바뀌면 그 Issue에 원인 PR이 더해집니다(PR #430). writing #413·#426은 PR #416·#419로 끝났습니다. server·app·design이 쓰는 `mlw check`는 통과해 다른 단위는 막지 않습니다. 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림).
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #412(IA 생성 코드 `ia.g.dart`와 REST draft.13 등, 원인 PR은 Issue 본문), D85 IA 변경(PR #477)의 server #478·writing #479·design #480입니다. 세 drift는 각 단위의 D85 요청(#481·#482·#483)과 같은 PR에서 맞추면 됩니다. design #395, server #433·#448, writing #443은 PR #439·#438·#436으로 끝났습니다. 단위마다 열린 drift는 하나이고, 따라잡기 전에 계약이 또 바뀌면 그 Issue에 원인 PR이 더해집니다(PR #430). writing #413·#426은 PR #416·#419로 끝났습니다. server·app·design이 쓰는 `mlw check`는 통과해 다른 단위는 막지 않습니다. 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림).
 * **검사 범위·시점 정리(D81) 완료:** 지휘 몫(PR #357·#366)과 다섯 단위 몫(app #364, core #365, server #368, writing #369, design #371)이 끝났고, `ci-gate`가 모든 단위에 `mode`를 넘깁니다(#366·#367·#370·#373). 캐시·건너뛰기는 D81 ⑥을 따릅니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
@@ -45,12 +45,12 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | drift #412(`ia.g.dart`, #408과 같은 PR도 됨) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), D83 일기 하루 여러 편 #408(입구는 언제나 새 일기, 일기 줄)과 한 날짜 10편 상한 #424(입구 막기, 422), REST draft.13 일기 클라이언트 #437, REST draft.14 LINE·Google 로그인·연결·합치기 #463(떼기·계정 삭제 직전 LINE·Google SDK 허가 취소, D82 ⑤), writing ARB #418, ui 조사 `josaClass` #453(D84), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
-| 지금 | server | D82 인증 확장 #386(계약 draft.14 PR #466 완료 → 제공자·연결 구현 PR → 합치기 구현 PR. 합치기는 같은 날 일기를 10편을 넘어도 모두 옮김, D83 ④. LINE·Google 허가 취소는 app, D82 ⑤), S69 되돌림(core #304 완료) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화). 대운 시작 연도(#351, PR #385 draft.12)와 D83 일기 하루 여러 편(#407, 계약 PR #438·구현 PR #456) 완료 | S2 완료, S3, A2 |
-| 다음 | writing | (D82·D83 원고 #388·#409·#425·#441은 PR #419·#436, REST draft.14 오류 문구 #468은 PR #470으로 완료) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
+| 지금 | app | drift #412(`ia.g.dart`, PR #474. D85 PR #477 몫도 함께) → D85 연결 거절·합치기 별도 흐름·삭제 복구 없음 #484(#387 범위 조정) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), D83 일기 하루 여러 편 #408(입구는 언제나 새 일기, 일기 줄)과 한 날짜 10편 상한 #424(입구 막기, 422), REST draft.13 일기 클라이언트 #437, REST draft.14 LINE·Google 로그인·연결·합치기 #463(떼기·계정 삭제 직전 LINE·Google SDK 허가 취소, D82 ⑤), writing ARB #418, ui 조사 `josaClass` #453(D84), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
+| 지금 | server | drift #478 → D85 #481(계정 삭제 복구·유예 없앰과 익명화 뒤 남는 항목 목록, 연결 409에서 합치기 토큰 빼기, 합치기는 별도 입구·기록만·남는 계정은 지금 계정, 떼기 허가 취소 재시도. 하위 호환 깨짐은 S3 freeze 전) → D82 인증 확장 #386(계약 draft.14 PR #466 완료, 제공자·연결 구현 PR #473 → 합치기 구현 PR), S69 되돌림(core #304 완료) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화). 대운 시작 연도(#351, PR #385 draft.12)와 D83 일기 하루 여러 편(#407, 계약 PR #438·구현 PR #456) 완료 | S2 완료, S3, A2 |
+| 다음 | writing | drift #479 → D85 원고 #482(로그인 수단 `in-use.body`·`merge.cta`, 합치기 `auth.body`·`not-other.body`와 역할 바뀐 슬롯, PR #472는 server 계약 뒤) → D86 안내 원고 #487(구매 복원·미리보기 다시 입력·대운수, 시간 모름 안내 사실 고치기) → (D82·D83 원고 #388·#409·#425·#441은 PR #419·#436, REST draft.14 오류 문구 #468은 PR #470으로 완료) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때). #304는 PR #432로 완료 | - |
-| 다음 | design | app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 로그인 수단·계정 합치기(#389)는 컴포넌트 계약 2.7.0(PR #439), D83 같은 날 여러 편 일기 줄과 상한 채운 날 입구(#410)는 2.8.0(PR #458)으로 완료 | - |
+| 다음 | design | drift #480 → D85 합치기 흐름 #483(`account-choice` 쓰임 바뀜, `account-merge`에 `social-login-button`) → app 요청 #475(2.7.0·2.8.0 구현에서 명세와 다르게 둔 값 4가지: 카카오 배지 색, LINE 글자 폭, 일기 줄 간격, 그날 시트 시각 형식) → #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 로그인 수단·계정 합치기(#389)는 컴포넌트 계약 2.7.0(PR #439), D83 같은 날 여러 편 일기 줄과 상한 채운 날 입구(#410)는 2.8.0(PR #458)으로 완료 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
@@ -62,7 +62,8 @@
 | ~~배포 플랫폼 선정 (서버·엔진)~~ | S1 | **결정 완료** (D56: GCP Cloud Run + Cloud SQL) |
 | GCP 프로젝트 준비: 결제 계정, Artifact Registry·Cloud Run·Cloud SQL·Secret Manager API 사용 설정, GitHub Actions용 Workload Identity Federation (D56) | S1 배포 단계 | 사용자 (설정 절차는 server가 안내) |
 | Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키), LINE Developers 로그인 채널(이메일 권한 신청 없음), Google Cloud OAuth client(iOS·Android·server) (D55·D82) | S1·A1 로그인 연동 | 사용자 |
-| 개인정보 처리방침과 스토어 개인정보 표시 작성: Firebase(App Check·FCM·Crashlytics) 국외 이전, 카카오·LINE·Google·Apple 로그인(server는 LINE·Google 사용자 token을 보관하지 않음, D82 ⑤), AdMob·RevenueCat (D64·D82) | 출시 전 (I4), 원문 위치 `docs/legal/`(D80) | 사용자 (초안은 지휘) |
+| 개인정보 처리방침과 스토어 개인정보 표시 작성: 수집·보관 항목은 대장 `docs/legal/data-inventory.md`(D86 ⑧, "확인 필요" 항목은 초안 전에 단위에 물음). 동의 문서 버전은 재동의 흐름 전에는 올리지 않음(D86 ②) | 출시 전 (I4), 원문 위치 `docs/legal/`(D80) | 사용자 (초안은 지휘) |
+| 이용약관·개인정보 처리방침 ko·en·ja 원문 모두 갖춤(없는 언어는 server가 준비 중 페이지를 보이므로, D86 ⑥) | 출시 전 (I4) | 사용자 (초안은 지휘) |
 | 서비스 도메인 구입: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json` 호스팅, Apple Services ID 복귀 주소 (#89, S22) | A1 실제 로그인 연동 전, 늦어도 server 배포(P9) 전 | 사용자 |
 | 출시 전 정책 검토: AdMob 보상형 광고 고지 문구(`evidence-sheet.lock.reward`, writing 라운드 R8-4 선택에 "끝까지"가 없음), 스토어 심사 기준 | 출시 전 (I4) | 사용자 (writing·design 지원) |
 | 사업자등록, 통신판매업 신고, 스토어 세금·정산 계좌 (D53) | 출시 전 (I4) | 사용자 |

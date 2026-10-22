@@ -36,10 +36,13 @@ FAKE_GH = textwrap.dedent(
 
     if args[:2] == ["label", "create"]:
         pass
-    elif args[:2] == ["issue", "list"]:
-        labels = opt("--label", many=True)
+    elif args[0] == "api" and "/issues?" in args[1]:
+        query = dict(part.split("=", 1) for part in args[1].split("?", 1)[1].split("&"))
+        labels = query["labels"].split(",")
         found = [i for i in state["issues"] if i["state"] == "open" and all(l in i["labels"] for l in labels)]
-        print(json.dumps([{"number": i["number"], "title": i["title"], "body": i["body"]} for i in found], ensure_ascii=False))
+        items = [{"number": i["number"], "title": i["title"], "body": i["body"]} for i in found]
+        items += [{"number": p["number"], "title": p["title"], "body": "", "pull_request": {}} for p in state.get("open_prs", [])]
+        print(json.dumps(items, ensure_ascii=False))
     elif args[:2] == ["issue", "create"]:
         number = max([i["number"] for i in state["issues"]] + [100]) + 1
         state["issues"].append({"number": number, "title": opt("--title"), "labels": opt("--label").split(","),
@@ -144,6 +147,13 @@ class DriftTest(unittest.TestCase):
         state = {"issues": [drift_issue(412, "app", 411, body), drift_issue(500, "design", 419)]}
         after = self.report(state, 419, app="drift:failure", design="drift:failure")
         self.assertEqual(after["issues"], state["issues"])
+
+    def test_report_ignores_pull_requests_in_issue_list(self):
+        state = {"issues": [drift_issue(412, "app", 411)],
+                 "open_prs": [{"number": 300, "title": "[drift] app: PR #1 계약 변경 따라잡기"}]}
+        after = self.report(state, 419, app="drift:failure")
+        self.assertEqual(len(after["issues"]), 1)
+        self.assertIn("PR #419(", self.by_number(after, 412)["body"])
 
     def test_report_success_closes_own_issue(self):
         after = self.report({"issues": [drift_issue(412, "app", 411)]}, 411, app="drift:success")

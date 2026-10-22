@@ -5,4 +5,4 @@
 * **고치는 쪽:** 초안은 지휘 세션, 확정은 사용자입니다. 공개 저장소이므로 원문도 공개 문서로 씁니다(D74).
 * **파일:** `<언어>/terms.md`, `<언어>/privacy.md` (언어: `ko`, `en`, `ja`). 머리에 시행일을 적습니다.
 * **주소:** server가 `/legal/terms`·`/legal/privacy`(`?lang=ko|en|ja`)로 내주고, `getAppConfig`가 그 주소를 알려 줍니다. app은 주소를 상수로 두지 않습니다.
-* **아직 원문이 없습니다.** 개인정보 처리방침에 들어갈 항목(Firebase 국외 이전, 카카오·LINE·Google·Apple 로그인(D82), AdMob·RevenueCat, D64)은 `docs/roadmap.md` 외부 준비물에 있습니다.
+* **아직 원문이 없습니다.** 개인정보 처리방침에 들어갈 수집·보관 항목은 대장 [`data-inventory.md`](data-inventory.md)에 모읍니다(D86 ⑧). 출시 전에 ko·en·ja 원문을 모두 갖춥니다(D86 ⑥).

@@ -190,6 +190,10 @@
     {
       "id": "offer-card",
       "role": "광고 제거권 상품 설명·가격·기간 카드"
+    },
+    {
+      "id": "purchase-row",
+      "role": "구매 한 건: 구매일, 사용 기간, 상태(사용 중·대기·만료·환불)"
     }
   ],
   "screens": [
@@ -714,6 +718,11 @@
           "role": "다시 입력 링크"
         },
         {
+          "id": "preview.restart.notice",
+          "source": "ui",
+          "role": "다시 입력할 때, 미리보기는 한 번이라 고친 정보로 이어 보려면 로그인을 권하는 안내. 막는다는 말보다 권하는 말(D86 ⑤)"
+        },
+        {
           "id": "preview.share.login-notice",
           "source": "ui",
           "role": "로그인하면 공유할 수 있다는 안내 창"
@@ -746,7 +755,8 @@
         "D19",
         "D47",
         "D50",
-        "D39"
+        "D39",
+        "D86"
       ]
     },
     {
@@ -2212,7 +2222,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "1개월 광고 제거권을 사고, 남은 기간을 보고, 구매를 복원합니다",
+      "purpose": "1개월 광고 제거권을 사고, 남은 기간을 보고, 구매 내역으로 갑니다(D53, D88)",
       "depths": [],
       "states": [
         {
@@ -2250,9 +2260,9 @@
           "role": "광고 제거 남은 기간 또는 만료일"
         },
         {
-          "id": "ad-free.restore.cta",
+          "id": "ad-free.history.cta",
           "source": "ui",
-          "role": "구매 복원"
+          "role": "구매 내역으로 가는 버튼(D88 ②)"
         },
         {
           "id": "ad-free.legal.notice",
@@ -2273,11 +2283,16 @@
         {
           "to": "legal",
           "trigger": "약관·정책 링크"
+        },
+        {
+          "to": "purchase-history",
+          "trigger": "구매 내역"
         }
       ],
       "decisions": [
         "D53",
-        "D60"
+        "D60",
+        "D88"
       ]
     },
     {
@@ -2299,6 +2314,60 @@
       ],
       "decisions": [
         "D53"
+      ]
+    },
+    {
+      "id": "purchase-history",
+      "title": "구매 내역",
+      "tab": "me",
+      "presentation": "page",
+      "auth": "member",
+      "purpose": "이 계정의 광고 제거 구매를 구매일·사용 기간·상태로 보여줍니다. 들어갈 때 결제 기록을 사용자 모르게 다시 불러옵니다(D88 ②)",
+      "depths": [],
+      "states": [
+        {
+          "id": "loading",
+          "note": "결제 기록을 다시 불러오고 목록을 받는 중"
+        },
+        {
+          "id": "empty",
+          "note": "구매가 없음"
+        },
+        {
+          "id": "error",
+          "note": "목록을 받지 못함, 다시 시도"
+        },
+        {
+          "id": "offline",
+          "note": "연결이 없어 목록을 받을 수 없다는 안내"
+        }
+      ],
+      "slots": [
+        {
+          "id": "purchase-history.bar.title",
+          "source": "ui",
+          "role": "app-bar 제목(화면 이름 \"구매 내역\")"
+        },
+        {
+          "id": "purchase-history.empty.body",
+          "source": "ui",
+          "role": "구매가 없을 때의 안내"
+        },
+        {
+          "id": "purchase-history.missing.notice",
+          "source": "ui",
+          "role": "결제했는데 목록에 없으면 문의하라는 안내"
+        }
+      ],
+      "components": [
+        "app-bar",
+        "purchase-row"
+      ],
+      "exits": [],
+      "decisions": [
+        "D53",
+        "D61",
+        "D88"
       ]
     },
     {
@@ -2421,6 +2490,11 @@
           "id": "calc-basis.lunar.body",
           "source": "ui",
           "role": "KASI 기준 한국 음력 안내"
+        },
+        {
+          "id": "calc-basis.daeun.body",
+          "source": "ui",
+          "role": "대운수는 개월을 버려 센다는 안내와, 다른 앱과 1 차이가 날 수 있다는 안내(core C5, D86 ⑦)"
         }
       ],
       "components": [
@@ -2433,7 +2507,8 @@
         "D42",
         "D39",
         "D68",
-        "D71"
+        "D71",
+        "D86"
       ]
     },
     {
@@ -2442,12 +2517,12 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "이 계정에 연결한 로그인 수단을 보여주고, 다른 제공자를 붙이거나 뗍니다(D82)",
+      "purpose": "이 계정에 연결한 인증 수단을 보여주고, 아직 없는 제공자를 붙이거나 떼며, 계정 합치기로 들어갑니다(D82, D85)",
       "depths": [],
       "states": [
         {
           "id": "error",
-          "note": "연결·떼기를 끝내지 못함"
+          "note": "연결·떼기를 끝내지 못함, 또는 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결하지 않음(D85 ③)"
         }
       ],
       "slots": [
@@ -2472,6 +2547,16 @@
           "role": "떼기 확인"
         },
         {
+          "id": "login-methods.in-use.body",
+          "source": "ui",
+          "role": "붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결할 수 없다는 안내와, 계정 합치기를 쓰거나 그 계정에서 먼저 연결을 끊으라는 안내(D85 ③)"
+        },
+        {
+          "id": "login-methods.merge.cta",
+          "source": "ui",
+          "role": "계정 합치기로 가는 버튼"
+        },
+        {
           "id": "login-methods.error.body",
           "source": "ui",
           "role": "연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
@@ -2485,12 +2570,13 @@
       "exits": [
         {
           "to": "account-merge",
-          "trigger": "붙이려는 수단이 다른 계정에 연결돼 있음"
+          "trigger": "계정 합치기"
         }
       ],
       "decisions": [
         "D55",
-        "D82"
+        "D82",
+        "D85"
       ]
     },
     {
@@ -2499,16 +2585,16 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "붙이려는 로그인 수단이 다른 계정에 있을 때, 남길 계정을 골라 두 계정을 하나로 합칩니다(D82 ⑥, D83 ④)",
+      "purpose": "합칠 다른 계정의 인증 수단으로 인증해, 그 계정의 기록을 이 계정으로 가져오고 그 계정을 지웁니다. 인증 수단은 가져오지 않습니다(D85 ④, D83 ④)",
       "depths": [],
       "states": [
         {
           "id": "loading",
-          "note": "두 계정 요약을 불러오는 중"
+          "note": "합칠 계정 요약을 불러오는 중"
         },
         {
           "id": "error",
-          "note": "합치기 실패"
+          "note": "합칠 계정이 없음(인증한 수단이 이 계정 것이거나 어느 계정에도 연결돼 있지 않음, D85 ④), 또는 합치기 실패"
         }
       ],
       "slots": [
@@ -2520,17 +2606,27 @@
         {
           "id": "account-merge.title.head",
           "source": "ui",
-          "role": "두 계정을 하나로 합친다는 제목"
+          "role": "다른 계정의 기록을 이 계정으로 가져와 합친다는 제목"
+        },
+        {
+          "id": "account-merge.auth.body",
+          "source": "ui",
+          "role": "합칠 계정에 연결된 인증 수단으로 로그인하라는 안내"
+        },
+        {
+          "id": "account-merge.not-other.body",
+          "source": "ui",
+          "role": "인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)"
         },
         {
           "id": "account-merge.title.body",
           "source": "ui",
-          "role": "합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)"
+          "role": "합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록은 이 계정으로, 사주 정보·호칭·설정은 고른 쪽, 광고 제거 기간은 더함, 합칠 계정과 그 인증 수단은 지워짐). 옮길 기록이 0건이어도 보임"
         },
         {
           "id": "account-merge.choice.label",
           "source": "ui",
-          "role": "남길 계정을 고르라는 안내"
+          "role": "사주 정보·호칭·설정을 어느 계정 것으로 둘지 고르라는 안내"
         },
         {
           "id": "account-merge.overlap.notice",
@@ -2555,6 +2651,7 @@
       ],
       "components": [
         "app-bar",
+        "social-login-button",
         "account-choice",
         "primary-button",
         "dialog"
@@ -2573,7 +2670,8 @@
         "D49",
         "D53",
         "D82",
-        "D83"
+        "D83",
+        "D85"
       ]
     },
     {
@@ -2582,7 +2680,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "지워지는 데이터를 안내하고 최종 확인을 받아 계정을 지웁니다",
+      "purpose": "지워지는 데이터와 되돌릴 수 없다는 것을 안내하고 최종 확인을 받아 계정을 바로 지웁니다(D85 ⑤)",
       "depths": [],
       "states": [
         {
@@ -2604,7 +2702,7 @@
         {
           "id": "account-delete.data.body",
           "source": "ui",
-          "role": "지워지는 데이터 안내"
+          "role": "지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 따로 보관한다는 한 줄, D88 ③④)"
         },
         {
           "id": "account-delete.cta.delete",
@@ -2630,7 +2728,9 @@
       ],
       "decisions": [
         "D39",
-        "D68"
+        "D68",
+        "D85",
+        "D88"
       ]
     },
     {

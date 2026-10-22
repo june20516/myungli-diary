@@ -15,8 +15,11 @@ ADDED="* 더해진 원인: PR #"
 UNITS=(server app writing design)
 
 # 그 단위 앞으로 열린 drift Issue 배열(번호 오름차순)
+# `gh issue list`의 라벨 조건은 검색 색인을 거쳐 가끔 빈 결과를 돌려줍니다(그래서 #479가 열려 있는데 #490이 새로 열림).
+# REST issues 목록은 저장소 데이터를 바로 읽으므로 이것을 씁니다. 이 목록에는 PR도 섞여 오므로 뺍니다.
 open_drifts() {
-  gh issue list --state open --label drift --label "to:$1" --limit 200 --json number,title,body | jq 'sort_by(.number)'
+  gh api "repos/$GH_REPO/issues?state=open&labels=drift,to:$1&per_page=100" |
+    jq '[.[] | select(.pull_request | not) | {number, title, body}] | sort_by(.number)'
 }
 
 # Issue 하나(JSON)의 원인 PR 번호: 제목의 `PR #N`과 본문의 더해진 원인 줄
