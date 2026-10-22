@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"time"
 
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/billing"
@@ -38,6 +39,9 @@ func (a *API) PreviewMerge(ctx context.Context, req gen.PreviewMergeRequestObjec
 	}, nil
 }
 
+// mergeMeTimeout은 합친 뒤 Me를 읽는 마감입니다. 요청 ctx와 떼어 읽으므로 따로 둡니다.
+const mergeMeTimeout = 5 * time.Second
+
 // MergeAccounts는 합치기 토큰으로 다른 유저 계정(B)을 현재 계정(A)에 합치고 A의 Me를 돌려줍니다(S111).
 // 토큰이 맞지 않으면 422 merge.token_invalid입니다. 같은 Idempotency-Key의 재전송은 멱등 미들웨어가 첫 응답으로 답합니다.
 // 합치기 서비스나 권한 판정(Me에 필요)이 없으면 합치기 전에 503입니다.
@@ -52,12 +56,15 @@ func (a *API) MergeAccounts(ctx context.Context, req gen.MergeAccountsRequestObj
 	if err := a.Merges.Execute(ctx, id, req.Body.MergeToken, merge.Profile(req.Body.Profile)); err != nil {
 		return nil, err
 	}
-	// 합치기는 이미 commit됐으므로 Me 읽기가 잠깐 실패해도 한 번 다시 읽습니다. 그래도 실패하면 오류로 답하는데,
-	// 멱등 미들웨어는 2xx만 저장하고 키를 풀므로 같은 키 재전송은 다시 실행돼 토큰을 이미 쓴 422 merge.token_invalid가 됩니다.
-	// app은 그때 getMe로 합친 결과를 확인할 수 있습니다.
-	body, err := a.me(ctx, id)
+	// 합치기는 이미 commit됐으므로, 클라이언트가 끊어 요청 ctx가 취소돼도 Me를 읽어 200으로 끝냅니다.
+	// 그래야 멱등 미들웨어가 응답을 저장해 같은 키 재전송이 저장 응답을 받습니다. 취소를 떼는 대신 짧은 마감을 둡니다.
+	// Me 읽기가 잠깐 실패하면 한 번 다시 읽고, 그래도 실패하면 오류입니다(2xx가 아니라 키가 풀리므로
+	// 같은 키 재전송은 토큰을 이미 쓴 422 merge.token_invalid가 됩니다. 계약 mergeAccounts 설명 참고).
+	meCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), mergeMeTimeout)
+	defer cancel()
+	body, err := a.me(meCtx, id)
 	if err != nil {
-		body, err = a.me(ctx, id)
+		body, err = a.me(meCtx, id)
 	}
 	if err != nil {
 		return nil, err

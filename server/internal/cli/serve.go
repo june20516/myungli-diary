@@ -409,6 +409,8 @@ type billingParts struct {
 	Webhooks       httpapi.RevenueCatWebhooks
 	RewardVerifier httpapi.RewardVerifier
 	Rewards        httpapi.RewardGranter
+	// Sync는 계정 합치기가 합치기 전에 B의 결제를 동기화하는 데 씁니다. 결제 설정이 없으면 비어 있습니다.
+	Sync merge.PurchaseSyncer
 }
 
 // newBillingParts는 결제 의존성을 조립합니다.
@@ -434,6 +436,7 @@ func newBillingParts(cfg config.BillingConfig, pool *pgxpool.Pool, httpClient *h
 		Logger:         logger,
 	}, clk)
 	parts.Purchases = syncer
+	parts.Sync = syncer
 	parts.Webhooks = billing.NewWebhooks(pool, syncer, cfg.RevenueCatWebhookAuth, clk, logger)
 	return parts
 }
@@ -529,8 +532,16 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	accountService := account.NewService(deps.Pool, revocations, deps.Clock, deps.Logger)
 
 	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
-	// 계정 합치기는 B의 증명 검증을 인증 서비스에, 프로필 요약을 프로필 서비스에 맡기고, B를 지운 뒤 허가 취소를 시도합니다(S110·S111).
-	mergeService := merge.NewService(deps.Pool, authService, profileService, revocations, deps.Clock, deps.Logger)
+	// 계정 합치기는 B의 증명 검증을 인증 서비스에, 프로필 요약을 프로필 서비스에 맡기고, 합치기 전에 B의 결제를 동기화하며,
+	// B를 지운 뒤 허가 취소를 시도합니다(S110·S111).
+	mergeService := merge.NewService(deps.Pool, merge.Deps{
+		Proofs:    authService,
+		Profiles:  profileService,
+		Purchases: deps.Billing.Sync,
+		Revoker:   revocations,
+		Clock:     deps.Clock,
+		Logger:    deps.Logger,
+	})
 
 	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
 	spec, err := gen.GetSpec()

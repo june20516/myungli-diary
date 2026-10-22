@@ -89,22 +89,54 @@ const (
 	ProfileOther Profile = "other"
 )
 
-// Service는 계정 합치기 서비스입니다. 여러 goroutine에서 동시에 써도 안전합니다.
-type Service struct {
-	pool     *pgxpool.Pool
-	proofs   ProofVerifier
-	profiles ProfileReader
-	revoker  account.Revoker
-	clock    clock.Clock
-	logger   *slog.Logger
+// PurchaseSyncer는 계정의 RevenueCat 구매 목록으로 구매 장부를 맞춥니다. *billing.Syncer가 만족합니다.
+type PurchaseSyncer interface {
+	Sync(ctx context.Context, accountID uuid.UUID) error
 }
 
-// NewService는 Service를 만듭니다. revoker는 B를 지운 뒤 허가 취소를 시도합니다. logger가 nil이면 아무것도 남기지 않습니다.
-func NewService(pool *pgxpool.Pool, proofs ProofVerifier, profiles ProfileReader, revoker account.Revoker, clk clock.Clock, logger *slog.Logger) *Service {
+var _ PurchaseSyncer = (*billing.Syncer)(nil)
+
+// Deps는 Service가 쓰는 협력자입니다.
+type Deps struct {
+	// Proofs는 B의 인증 증명을 검증합니다.
+	Proofs ProofVerifier
+	// Profiles는 요약의 두 프로필을 읽습니다.
+	Profiles ProfileReader
+	// Purchases는 합치기 전에 B의 결제를 동기화합니다. nil이면(결제 설정 없음) 동기화하지 않습니다.
+	Purchases PurchaseSyncer
+	// Revoker는 B를 지운 뒤 허가 취소를 시도합니다.
+	Revoker account.Revoker
+	Clock   clock.Clock
+	// Logger가 nil이면 아무것도 남기지 않습니다.
+	Logger *slog.Logger
+}
+
+// Service는 계정 합치기 서비스입니다. 여러 goroutine에서 동시에 써도 안전합니다.
+type Service struct {
+	pool      *pgxpool.Pool
+	proofs    ProofVerifier
+	profiles  ProfileReader
+	purchases PurchaseSyncer
+	revoker   account.Revoker
+	clock     clock.Clock
+	logger    *slog.Logger
+}
+
+// NewService는 Service를 만듭니다.
+func NewService(pool *pgxpool.Pool, deps Deps) *Service {
+	logger := deps.Logger
 	if logger == nil {
 		logger = slog.New(slog.DiscardHandler)
 	}
-	return &Service{pool: pool, proofs: proofs, profiles: profiles, revoker: revoker, clock: clk, logger: logger}
+	return &Service{
+		pool:      pool,
+		proofs:    deps.Proofs,
+		profiles:  deps.Profiles,
+		purchases: deps.Purchases,
+		revoker:   deps.Revoker,
+		clock:     deps.Clock,
+		logger:    logger,
+	}
 }
 
 // Preview는 B의 증명을 검증하고, A(accountID)와 B를 합칠 때의 요약과 합치기 토큰을 돌려줍니다(previewMerge, S110).
@@ -238,6 +270,7 @@ func (s *Service) Execute(ctx context.Context, accountID uuid.UUID, mergeToken s
 		return fmt.Errorf("합치기 프로필 선택 %q: 알 수 없는 값", chosen)
 	}
 	hash := token.HashRefreshToken(mergeToken)
+	s.syncOtherPurchases(ctx, accountID, hash)
 
 	var (
 		otherID       uuid.UUID
@@ -284,6 +317,23 @@ func (s *Service) Execute(ctx context.Context, accountID uuid.UUID, mergeToken s
 		s.revoker.Attempt(context.WithoutCancel(ctx), revocationIDs)
 	}
 	return nil
+}
+
+// syncOtherPurchases는 합치기 트랜잭션 전에 B의 결제를 한 번 동기화합니다(best-effort, spec §6.3).
+// 결제 직후 동기화가 실패했고 webhook도 아직 오지 않아 장부에 없는 B 구매가, 합친 뒤 지운 B의 것이 되는 경로를 줄입니다.
+// 토큰이 A의 것이 아니면 하지 않습니다(확인은 트랜잭션이 다시 합니다). 실패하면 Warn 로그만 남기고 장부에 있는 것으로 합칩니다.
+func (s *Service) syncOtherPurchases(ctx context.Context, accountID uuid.UUID, hash []byte) {
+	if s.purchases == nil {
+		return
+	}
+	ticket, err := mergedb.New(s.pool).MergeTicketAccounts(ctx, hash)
+	if err != nil || ticket.AccountID != accountID {
+		return
+	}
+	if err := s.purchases.Sync(ctx, ticket.OtherAccountID); err != nil {
+		s.logger.WarnContext(ctx, "합치기 전 결제 동기화 실패, 장부에 있는 구매로 합침",
+			"accountId", accountID, "otherAccountId", ticket.OtherAccountID, "error", err)
+	}
 }
 
 // lockAndConsume은 A·B를 잠그고 토큰을 확인한 뒤 쓴 것으로 표시하고 B의 id를 돌려줍니다. 맞지 않으면 ErrTokenInvalid입니다.

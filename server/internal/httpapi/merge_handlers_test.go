@@ -36,10 +36,15 @@ type fakeMerges struct {
 	executed   int
 	gotToken   string
 	gotProfile merge.Profile
+	// afterExecute가 있으면 Execute가 성공하기 직전에 불립니다(commit 뒤 클라이언트 연결이 끊기는 경우 재현).
+	afterExecute func()
 }
 
 func (f *fakeMerges) Execute(_ context.Context, accountID uuid.UUID, token string, chosen merge.Profile) error {
 	f.executed++
+	if f.afterExecute != nil {
+		f.afterExecute()
+	}
 	f.gotAccount, f.gotToken, f.gotProfile = accountID, token, chosen
 	return f.err
 }
@@ -245,4 +250,34 @@ func TestMergeAccounts_RetriesMeOnce(t *testing.T) {
 		assert.Equal(t, 1, fm.executed)
 		assert.Equal(t, 2, accounts.calls)
 	}
+}
+
+// ctxAccounts는 받은 ctx가 취소됐으면 그 오류로 실패하는 AccountService 대역입니다(DB 조회처럼).
+type ctxAccounts struct {
+	fakeAccounts
+}
+
+func (f *ctxAccounts) Me(ctx context.Context, id uuid.UUID) (account.Me, error) {
+	if err := ctx.Err(); err != nil {
+		return account.Me{}, err
+	}
+	return f.fakeAccounts.Me(ctx, id)
+}
+
+// 합치기가 commit된 뒤 클라이언트가 연결을 끊어 요청 ctx가 취소돼도 Me를 읽어 200으로 끝냅니다.
+// 그래야 멱등 미들웨어가 응답을 저장해 같은 키 재전송이 422가 아니라 저장 응답이 됩니다(Review Focus 5).
+func TestMergeAccounts_CanceledAfterCommitStillAnswersMe(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	fm := &fakeMerges{afterExecute: cancel}
+	api := mergeAPI(fm)
+	api.Accounts = &ctxAccounts{fakeAccounts: fakeAccounts{me: account.Me{AccountID: fixedAccountID}}}
+	handler, _ := newHandlerAPI(t, api)
+
+	rec := serve(handler, postJSON(t, "/v1/me/merge", mergeAccountsBody).WithContext(ctx))
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var got gen.Me
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	assert.Equal(t, fixedAccountID, got.AccountId)
 }

@@ -42,7 +42,37 @@ type fixture struct {
 	fake    *providertest.Server
 	auth    *auth.Service
 	revoker *fakeRevoker
-	service *merge.Service
+	// purchases는 결제 동기화가 읽는 RevenueCat 구매 목록 대역입니다. 비어 있으면 동기화가 아무것도 적지 않습니다.
+	purchases *fakePurchaseSource
+	service   *merge.Service
+}
+
+// fakePurchaseSource는 billing.PurchaseSource 대역입니다. 고객(계정 id)별 구매 목록 또는 오류를 돌려줍니다.
+type fakePurchaseSource struct {
+	mu        sync.Mutex
+	purchases map[string][]billing.Purchase
+	err       error
+}
+
+func (f *fakePurchaseSource) Purchases(_ context.Context, customerID string) ([]billing.Purchase, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.err != nil {
+		return nil, f.err
+	}
+	return append([]billing.Purchase(nil), f.purchases[customerID]...), nil
+}
+
+func (f *fakePurchaseSource) add(accountID uuid.UUID, p billing.Purchase) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.purchases[accountID.String()] = append(f.purchases[accountID.String()], p)
+}
+
+func (f *fakePurchaseSource) fail(err error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.err = err
 }
 
 // fakeRevoker는 account.Revoker 대역입니다. 받은 허가 취소 대기 행 id를 호출마다 기록합니다.
@@ -87,14 +117,23 @@ func newFixture(t *testing.T) *fixture {
 	})
 	profiles := profile.NewService(pool, nil, clk)
 	revoker := &fakeRevoker{}
+	purchases := &fakePurchaseSource{purchases: map[string][]billing.Purchase{}}
+	syncer := billing.NewSyncer(pool, purchases, billing.SyncConfig{Catalog: billing.AdFreeCatalog([]string{"test.ad_free.month"})}, clk)
 	return &fixture{
-		ctx:     context.Background(),
-		pool:    pool,
-		clk:     clk,
-		fake:    fake,
-		auth:    authService,
-		revoker: revoker,
-		service: merge.NewService(pool, authService, profiles, revoker, clk, nil),
+		ctx:       context.Background(),
+		pool:      pool,
+		clk:       clk,
+		fake:      fake,
+		auth:      authService,
+		revoker:   revoker,
+		purchases: purchases,
+		service: merge.NewService(pool, merge.Deps{
+			Proofs:    authService,
+			Profiles:  profiles,
+			Purchases: syncer,
+			Revoker:   revoker,
+			Clock:     clk,
+		}),
 	}
 }
 
@@ -794,4 +833,39 @@ func TestExecute_KeepsUpdatedAtOfMovedRecords(t *testing.T) {
 	f.exec(t, `UPDATE schedules SET title = '고친 회의' WHERE id = $1`, scheduleID)
 	assert.True(t, updatedAt("diaries", diaryID).After(editedAt), "보통 수정은 수정 시각을 바꿉니다")
 	assert.True(t, updatedAt("schedules", scheduleID).After(editedAt), "보통 수정은 수정 시각을 바꿉니다")
+}
+
+// 합치기 전에 B를 결제 동기화하므로, 장부에 아직 적지 않은 B 구매도 A로 옮겨지고 A 구간이 생깁니다(spec §6.3).
+func TestExecute_SyncsOtherPurchasesFirst(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	boughtAt := testNow.AddDate(0, 0, -1)
+	f.purchases.add(other, billing.Purchase{ID: "p-unsynced", ProductID: "test.ad_free.month", Store: "app_store", PurchasedAt: boughtAt, Production: true})
+	token := f.issueToken(t, me, "U-b")
+
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	var owner, original uuid.UUID
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT account_id, original_account_id FROM purchases WHERE id = 'p-unsynced'`).Scan(&owner, &original))
+	assert.Equal(t, me, owner)
+	assert.Equal(t, other, original)
+	startsAt, expiresAt, revokedAt := f.grantPeriod(t, me, "p-unsynced")
+	assert.True(t, startsAt.Equal(testNow), "A 구간은 지금부터: %s", startsAt.UTC())
+	assert.True(t, expiresAt.Equal(boughtAt.AddDate(0, 1, 0)), "남은 길이만큼: %s", expiresAt.UTC())
+	assert.Nil(t, revokedAt)
+}
+
+// 합치기 전 결제 동기화가 실패해도 합치기는 진행합니다(장부에 있는 것만 옮김).
+func TestExecute_SyncFailureStillMerges(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	f.purchases.fail(billing.ErrProviderUnavailable)
+	token := f.issueToken(t, me, "U-b")
+
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	assert.Equal(t, "deleted", f.accountStatus(t, other))
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM purchases`))
 }
