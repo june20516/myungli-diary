@@ -8,10 +8,9 @@ import pytest
 
 from mlw.completeness import check_params
 from mlw.glossary import glossary_values
-from mlw.ia import load_ia
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.model import UNBOUNDED, LoadError, ParamKind, RuleSet
-from mlw.paths import IA_FILE, MESSAGE_PARAMS_FILE, RULES_DIR, SLOTS_DIR
+from mlw.paths import MESSAGE_PARAMS_FILE, RULES_DIR, SLOTS_DIR
 
 MESSAGE_KEYS_PATH = Path(__file__).resolve().parents[5] / "core" / "message_keys.json"
 # 메시지 키가 아니라 식별자를 키로 갖는 슬롯입니다.
@@ -280,23 +279,14 @@ def test_key_lengths_match_design(rules: RuleSet) -> None:
         assert slots[slot_id].key_max_length[key][lang] == limit, (slot_id, key, lang)
 
 
-# IA에서 없어졌지만 design `lengths.md`에 아직 행이 남은 자리입니다. design이 행을 지우면 이 목록에서도 뺍니다.
-# 목록에 없는 이름이 표에 있으면 오타일 수 있으므로 KeyError로 실패합니다.
-IA_REMOVED_SLOTS = frozenset({"account-merge.cta.cancel"})
-
-
 @pytest.mark.contract
 def test_lengths_match_design(rules: RuleSet) -> None:
     """슬롯 상한이 design `lengths.md` 확정값과 같은지 봅니다(#54, #131, #191)."""
     slots = load_slots(SLOTS_DIR, rules)
-    ia_slots = load_ia(IA_FILE).slots
     rows, unbounded = design_lengths()
     assert rows and unbounded
     for slot_ids, place, limits in rows:
         for slot_id in slot_ids:
-            # IA에서 없어진 자리의 행은 design이 따라잡을 몫(drift)이라 대조하지 않습니다.
-            if slot_id not in slots and slot_id not in ia_slots and slot_id in IA_REMOVED_SLOTS:
-                continue
             slot = slots[slot_id]
             if slot_id not in DIALOG_TITLE_KEYS:
                 assert slot.max_length == limits, slot_id
