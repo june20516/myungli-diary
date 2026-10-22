@@ -36,13 +36,16 @@ class CachedResponses extends Table {
   Set<Column<Object>> get primaryKey => {accountId, kind, cacheKey};
 }
 
-/// 일기 초안. 날짜(`YYYY-MM-DD`)당 1개입니다.
+/// 일기 초안. (계정, 날짜, 일기 id)당 1개이고, 새 일기는 id `''`입니다.
 class DiaryDrafts extends Table {
   /// 소유 계정 id.
   TextColumn get accountId => text()();
 
   /// 날짜(`YYYY-MM-DD`).
   TextColumn get date => text()();
+
+  /// 고치는 일기 id. 새 일기 초안은 빈 문자열입니다.
+  TextColumn get diaryId => text().withDefault(const Constant(''))();
 
   /// 초안 본문.
   TextColumn get body => text()();
@@ -52,7 +55,7 @@ class DiaryDrafts extends Table {
 
   /// 기본 키.
   @override
-  Set<Column<Object>> get primaryKey => {accountId, date};
+  Set<Column<Object>> get primaryKey => {accountId, date, diaryId};
 }
 
 /// 온보딩 입력. 로그인 전에 쓰므로 계정 없는 단일 행(id=1)입니다.
@@ -109,7 +112,20 @@ class AppDatabase extends _$AppDatabase {
   new forExecutor(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // v1 날짜 초안은 기본값 id `''`가 되어 그날 새 일기 초안으로 남습니다.
+        await m.alterTable(
+          TableMigration(diaryDrafts, newColumns: [diaryDrafts.diaryId]),
+        );
+      }
+    },
+  );
 
   /// 로그아웃 정리. 모든 계정의 캐시·일기 초안과 온보딩 입력을 지우고 기기 플래그는 남깁니다.
   ///
