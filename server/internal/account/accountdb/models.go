@@ -19,6 +19,7 @@ type Account struct {
 	LastActiveAt        time.Time
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
+	DeletedAt           *time.Time
 }
 
 type AccountMergeTicket struct {
@@ -211,6 +212,19 @@ type Profile struct {
 	UpdatedAt        time.Time
 }
 
+type ProviderRevocation struct {
+	ID                int64
+	Provider          string
+	Subject           pgtype.Text
+	IdentityID        uuid.UUID
+	AppleRefreshToken []byte
+	AppleTokenKeyID   pgtype.Text
+	AppleClientID     pgtype.Text
+	Attempts          int32
+	NextAttemptAt     time.Time
+	CreatedAt         time.Time
+}
+
 type RateLimit struct {
 	Key         string
 	WindowStart time.Time
@@ -222,6 +236,13 @@ type Reaction struct {
 	Reaction    string
 	CreatedAt   time.Time
 	DeletedAt   *time.Time
+}
+
+type ReactionTally struct {
+	MessageKey string
+	Variant    string
+	Reaction   string
+	Count      int64
 }
 
 type RefreshToken struct {
