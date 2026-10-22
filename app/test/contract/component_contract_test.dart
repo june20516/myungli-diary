@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
+import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
@@ -69,6 +70,17 @@ double _px(Object? json) =>
 
 double _num(Object? json) => (json! as num).toDouble();
 
+/// `"#06C755"`와 투명도 → [Color]. 투명도가 없으면 불투명입니다.
+Color _hexColor(Object? hex, [Object? opacity]) {
+  final value = int.parse((hex! as String).substring(1), radix: 16);
+  return Color.from(
+    alpha: opacity == null ? 1 : _num(opacity),
+    red: ((value >> 16) & 0xFF) / 255,
+    green: ((value >> 8) & 0xFF) / 255,
+    blue: (value & 0xFF) / 255,
+  );
+}
+
 Map<String, Object?> _map(Object? json) => json! as Map<String, Object?>;
 
 Map<String, Object?> _elements() => _map(
@@ -101,11 +113,11 @@ void main() {
   group('ComponentSpec 대조', () {
     final specs = loadSpecComponents();
 
-    test('명세 묶음에서 IA 컴포넌트 41개를 읽습니다', () {
-      expect(specs, hasLength(41));
+    test('명세 묶음에서 IA 컴포넌트 42개를 읽습니다', () {
+      expect(specs, hasLength(42));
     });
 
-    test('41개 전체의 variants·states 형태가 기대와 같습니다', () {
+    test('42개 전체의 variants·states 형태가 기대와 같습니다', () {
       for (final component in specs.values) {
         // variantIds·stateKeys가 형태(list/null, 문자열 id, dict/null)를 assert합니다.
         variantIds(component);
@@ -113,7 +125,7 @@ void main() {
       }
     });
 
-    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(41개)', () {
+    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(42개)', () {
       for (final component in specs.values) {
         final spec = ComponentSpec(
           component['id']! as String,
@@ -438,6 +450,130 @@ void main() {
       expect({
         for (final v in LuckyCardVariant.values) v.name,
       }, variantIds(specs['lucky-card']!));
+    });
+  });
+
+  group('컴포넌트 2.7.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    Map<String, Object?> variantParts(String id) => _map(
+      _map(
+        (specs['social-login-button']!['variants']! as List<Object?>)
+            .map(_map)
+            .firstWhere((v) => v['id'] == id),
+      )['parts'],
+    );
+
+    test('social-login-button line 변형 색이 LINE 가이드 값과 같습니다', () {
+      final parts = variantParts('line');
+      expect(
+        _hexColor(_map(parts['container'])['bg']),
+        SocialLoginButton.lineBackground,
+      );
+      expect(
+        _hexColor(_map(parts['label'])['fg']),
+        SocialLoginButton.lineForeground,
+      );
+      final separator = _map(parts['separator']);
+      expect(
+        _hexColor(separator['color'], separator['opacity']),
+        SocialLoginButton.lineSeparator,
+      );
+      final overlay = _map(_map(parts['pressed'])['overlay']);
+      expect(
+        _hexColor(overlay['color'], overlay['opacity']),
+        SocialLoginButton.linePressedOverlay,
+      );
+      final disabled = _map(parts['disabled']);
+      expect(
+        _hexColor(disabled['bg']),
+        SocialLoginButton.lineDisabledBackground,
+      );
+      final border = _map(disabled['border']);
+      expect(
+        _hexColor(border['color'], border['opacity']),
+        SocialLoginButton.lineDisabledBorder,
+      );
+      final fg = _map(disabled['fg']);
+      expect(
+        _hexColor(fg['color'], fg['opacity']),
+        SocialLoginButton.lineDisabledForeground,
+      );
+    });
+
+    test('social-login-button google 변형 light·dark 값과 글자 크기가 가이드와 같습니다', () {
+      final parts = variantParts('google');
+      final container = _map(parts['container']);
+      for (final (mode, theme) in [
+        ('lightMode', SocialLoginButton.googleLight),
+        ('darkMode', SocialLoginButton.googleDark),
+      ]) {
+        final json = _map(container[mode]);
+        expect(_hexColor(json['bg']), theme.background, reason: mode);
+        expect(_hexColor(json['border']), theme.border, reason: mode);
+        expect(_hexColor(json['fg']), theme.foreground, reason: mode);
+      }
+      expect(
+        _px(container['borderWidth']),
+        SocialLoginButton.googleBorderWidth,
+      );
+      final label = _map(parts['label']);
+      expect(_px(label['fontSize']), SocialLoginButton.googleFontSize);
+      expect(_px(label['lineHeight']), SocialLoginButton.googleLineHeight);
+    });
+
+    test('social-login-button 로고 크기·안쪽 여백과 connected 배지가 명세와 같습니다', () {
+      final component = specs['social-login-button']!;
+      final logo = _map(_map(component['parts'])['logo']);
+      expect(_px(logo['size']), SocialLoginButton.logoSize);
+      expect(logo['inset'], '{space.16}');
+      expect(SocialLoginButton.logoInset, Space.s16);
+      expect(logo['position'], 'start');
+      final connected = _map(_map(component['states'])['connected']);
+      final badge = _map(_map(_map(connected['parts'])['logo'])['badge']);
+      expect(_px(badge['size']), SocialLoginButton.badgeSize);
+      expect(_px(badge['symbolSize']), SocialLoginButton.badgeSymbolSize);
+      expect(
+        _hexColor(_map(badge['kakao'])['bg']),
+        SocialLoginButton.kakaoBadge,
+      );
+      expect(
+        _hexColor(_map(badge['line'])['bg']),
+        SocialLoginButton.lineBackground,
+      );
+      final state = _map(_map(connected['parts'])['state']);
+      expect(state['icon'], 'check');
+      expect(state['weight'], 'regular');
+      expect(_px(state['size']), SocialLoginButton.connectedIconSize);
+      final connectedDisabled = _map(
+        _map(_map(connected['disabled'])['parts'])['container'],
+      );
+      expect(
+        _num(connectedDisabled['opacity']),
+        SocialLoginButton.disabledOpacity,
+      );
+    });
+
+    test('account-choice 카드 테두리·고름 표시 크기가 명세와 같습니다', () {
+      final component = specs['account-choice']!;
+      final parts = _map(component['parts']);
+      expect(_num(_map(parts['group'])['count']), AccountChoice.optionCount);
+      expect(
+        _px(_map(_map(parts['card'])['border'])['width']),
+        AccountChoice.cardBorderWidth,
+      );
+      final mark = _map(parts['mark']);
+      expect(_px(mark['size']), AccountChoice.markSize);
+      expect(_px(_map(mark['border'])['width']), AccountChoice.markBorderWidth);
+      final selected = _map(
+        _map(_map(component['states'])['selected'])['parts'],
+      );
+      expect(
+        _px(_map(_map(selected['mark'])['dot'])['size']),
+        AccountChoice.dotSize,
+      );
+      final haptic = _map((component['haptic']! as List<Object?>).single);
+      expect(haptic['strength'], 'selection');
     });
   });
 

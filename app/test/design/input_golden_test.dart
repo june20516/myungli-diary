@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -520,6 +521,61 @@ Widget _monthDatePicker() => Builder(
   ),
 );
 
+/// account-choice: none(처음)·selected(둘째 카드)·disabled(고름 잠금)·loading.
+Widget _accountChoices() => Builder(
+  builder: (context) {
+    final ja = _ja(context);
+    final l10n = AppLocalizations.of(context);
+    final options = [
+      AccountChoiceOption(
+        name: ja ? 'つき' : '달',
+        current: true,
+        saju: l10n.accountChoiceSaju(
+          '1990.04.15',
+          ja ? '陽暦' : '양력',
+          ja ? '午前7:30' : '오전 7:30',
+        ),
+        diaryCount: l10n.accountChoiceDiaryCount(128),
+        providers: [
+          l10n.loginProviderKakao,
+          l10n.loginProviderGoogle,
+          l10n.loginProviderApple,
+        ].join(l10n.accountChoiceProviderSeparator),
+      ),
+      AccountChoiceOption(
+        name: ja ? 'ほし' : '별',
+        current: false,
+        saju: l10n.accountChoiceSajuEmpty,
+        diaryCount: l10n.accountChoiceDiaryCount(3),
+        providers: l10n.loginProviderLine,
+      ),
+    ];
+    AccountChoice choice({
+      int? selectedIndex,
+      bool locked = false,
+      bool loading = false,
+    }) => AccountChoice(
+      options: options,
+      selectedIndex: selectedIndex,
+      onSelected: locked ? null : (_) {},
+      groupLabel: l10n.accountMergeChoiceLabel,
+      currentLabel: l10n.accountChoiceCurrent,
+      loading: loading,
+      animated: false,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s24,
+      children: [
+        choice(),
+        choice(selectedIndex: 1),
+        choice(selectedIndex: 0, locked: true),
+        choice(loading: true),
+      ],
+    );
+  },
+);
+
 void main() {
   goldenTest('date-picker: calendar', (tester) async {
     await goldenMatrix(tester, 'input_month_date_picker', _monthDatePicker);
@@ -621,6 +677,15 @@ void main() {
       tester,
       'input_city_search_saving',
       _citySearchSaving,
+      settle: (tester) => tester.pumpAndSettle(),
+    );
+  });
+
+  goldenTest('account-choice: none·selected·disabled·loading', (tester) async {
+    await goldenMatrix(
+      tester,
+      'input_account_choice',
+      _accountChoices,
       settle: (tester) => tester.pumpAndSettle(),
     );
   });

@@ -20,6 +20,7 @@ class PressInkTarget extends StatefulWidget {
     this.link = false,
     this.expanded,
     this.identifier,
+    this.hint,
     this.inkColor,
     this.customActions = const {},
     super.key,
@@ -37,6 +38,9 @@ class PressInkTarget extends StatefulWidget {
 
   /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
   final String? identifier;
+
+  /// 스크린리더 힌트(누르면 무엇이 되는지). 없으면 읽지 않습니다.
+  final String? hint;
 
   /// true면 링크, false면 버튼으로 읽습니다.
   final bool link;
@@ -71,6 +75,7 @@ class _PressInkTargetState extends State<PressInkTarget>
       expanded: widget.expanded,
       identifier: widget.identifier,
       label: widget.semanticLabel,
+      hint: widget.hint,
       onTap: onTap,
       customSemanticsActions: widget.customActions.isEmpty
           ? null

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -19,6 +21,60 @@ WidgetbookUseCase _stage(String name, Widget Function() build) =>
       name: name,
       builder: (context) => Stage(child: build()),
     );
+
+/// 눌러서 고르는 계정 합치기 카드 두 장. 처음에는 고르지 않음(`none`)입니다.
+class _AccountChoiceDemo extends StatefulWidget {
+  const new({required this.locked, required this.loading});
+
+  /// 고름 잠금(`disabled`, 합치는 중).
+  final bool locked;
+
+  /// 불러오는 중(`loading`).
+  final bool loading;
+
+  @override
+  State<_AccountChoiceDemo> createState() => _AccountChoiceDemoState();
+}
+
+class _AccountChoiceDemoState extends State<_AccountChoiceDemo> {
+  int? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SizedBox(
+      width: 320,
+      child: AccountChoice(
+        options: [
+          AccountChoiceOption(
+            name: '달',
+            current: true,
+            saju: l10n.accountChoiceSaju('1990.04.15', '양력', '오전 7:30'),
+            diaryCount: l10n.accountChoiceDiaryCount(128),
+            providers: [
+              l10n.loginProviderKakao,
+              l10n.loginProviderApple,
+            ].join(l10n.accountChoiceProviderSeparator),
+          ),
+          AccountChoiceOption(
+            name: '별',
+            current: false,
+            saju: l10n.accountChoiceSajuEmpty,
+            diaryCount: l10n.accountChoiceDiaryCount(3),
+            providers: l10n.loginProviderLine,
+          ),
+        ],
+        selectedIndex: _selected,
+        onSelected: widget.locked
+            ? null
+            : (index) => setState(() => _selected = index),
+        groupLabel: l10n.accountMergeChoiceLabel,
+        currentLabel: l10n.accountChoiceCurrent,
+        loading: widget.loading,
+      ),
+    );
+  }
+}
 
 /// 입력 화면 틀. 높이를 정해야 내용이 스크롤되고 버튼이 아래에 붙습니다.
 Widget _inputStep({
@@ -246,7 +302,7 @@ Widget _citySearch({bool loading = false, bool saving = false}) {
 }
 
 /// 입력 카탈로그: input-step, text-field, segmented, check-row,
-/// date-picker, time-picker, city-search.
+/// date-picker, time-picker, account-choice, city-search.
 final WidgetbookFolder inputDirectory = WidgetbookFolder(
   name: '입력',
   children: [
@@ -463,6 +519,20 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
           () => _timePicker(TimePickerVariant.birth, unknown: true),
         ),
         _stage('notify(5분 단위)', () => _timePicker(TimePickerVariant.notify)),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'account-choice',
+      useCases: [
+        WidgetbookUseCase(
+          name: '고르기(none → selected)',
+          builder: (context) => Stage(
+            child: _AccountChoiceDemo(
+              locked: context.knobs.boolean(label: '고름 잠금(disabled)'),
+              loading: context.knobs.boolean(label: 'loading'),
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(
