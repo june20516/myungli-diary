@@ -251,7 +251,7 @@ class DiarySummaryRow extends ConsumerWidget {
 /// 어떤 줄이 새로 끝 근처가 되면 감싸기가 새로 생겨(새 State) 다시 부르고, 계속 감싸인 줄은
 /// 다시 부르지 않습니다. 목록 끝 근처 줄이 다음 쪽 받기를 알립니다.
 class _OnShown extends StatefulWidget {
-  const new({super.key, required this.onShown, required this.child});
+  const new({required this.onShown, required this.child, super.key});
 
   final VoidCallback onShown;
   final Widget child;
