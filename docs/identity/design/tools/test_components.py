@@ -275,7 +275,7 @@ def test_generic_groups_contain_spec_components():
     assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner"}
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
-                            "check-row"}
+                            "check-row", "account-choice"}
     assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card"}
 
 
@@ -428,8 +428,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_6():
-    assert VERSION == "2.6.1"
+def test_contract_version_is_2_7():
+    assert VERSION == "2.7.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -497,6 +497,8 @@ def test_evidence_sheet_section_titles_and_slots():
 
 # 최종 리뷰 반영 (term-segments spec §2.1·§2.6)
 SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
+# IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
+SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
 
 
 def _slot_values(node):
@@ -721,6 +723,8 @@ def test_event_row_has_no_duration_and_reads_more():
 def test_day_cell_leap_month_and_height_rule():
     cell = component("calendar", "day-cell")
     assert "leapNewMoon" in cell["parts"]["lunar"]
+    assert cell["parts"]["lunar"]["leapNewMoon"] == {"slot": "ui.day-cell.lunar", "key": "dayCellLeapNewMoon",
+                                                      "text": "윤달 표지 + M.1 (예: 윤6.1)"}
     assert "dayCellLeapMonth" in cell["a11y"]["leapMonth"]
     assert any("최소 높이" in rule and "V36" in rule for rule in cell["rules"])
     assert not any("칸 높이를 늘린다" in rule for rule in cell["rules"])
@@ -766,6 +770,10 @@ def used_on_lines():
                 yield md.name, current, {token for token in re.findall(r"[a-z][a-z-]+", outside_code) if token in screens}
 
 
+# IA 보완 요청 중인 쓰는 화면 차이 (컴포넌트 → 화면). 지휘가 IA를 고치면 지움
+USED_ON_EXCEPTIONS = {"settings-row": {"login-methods"}}  # 시안 B(V39)로 social-login-button connected를 씀, spec §7.1
+
+
 def test_md_used_on_matches_ia_components():
     used = {}
     for screen in ia_screens().values():
@@ -776,5 +784,91 @@ def test_md_used_on_matches_ia_components():
         if component_id not in used:
             continue
         checked += 1
-        assert listed == used[component_id], (name, component_id)
+        assert listed == used[component_id] - USED_ON_EXCEPTIONS.get(component_id, set()), (name, component_id)
     assert checked >= 30
+
+
+# 로그인 수단·계정 합치기 (#389, D82·D83, 결정 V39~V41)
+
+
+def test_account_choice_starts_unselected():
+    choice = component("input", "account-choice")
+    assert set(choice["states"]) == {"none", "selected", "pressed", "loading", "disabled"}
+    assert "합치는 중" in choice["states"]["disabled"]["note"]
+    assert any("합치는 중에는 고름을 잠근다" in rule for rule in choice["rules"])
+    assert choice["states"]["selected"]["parts"]["card"]["border"] == {"color": "{color.action.primary}", "width": {"value": 2, "unit": "px"}}
+    assert choice["states"]["loading"]["pattern"] == "loading.breathe"
+    assert any("처음부터 어느 쪽도 골라 두지 않는다" in rule for rule in choice["rules"])
+    assert choice["a11y"]["role"] == "radio-group" and choice["a11y"]["labelSlot"] == "account-merge.choice.label"
+    assert choice["haptic"] == [{"when": "고름이 바뀜", "strength": "selection"}]
+
+
+def test_account_choice_card_lines():
+    parts = component("input", "account-choice")["parts"]
+    assert parts["card"]["bg"] == "{color.bg.sheet}" and parts["card"]["radius"] == "{radius.md}"
+    assert parts["current"]["radius"] == "{radius.full}" and parts["current"]["slot"] == "ui.account-merge.choice"
+    assert parts["saju"]["slot"] == "ui.account-merge.saju"
+    assert parts["providers"]["logo"] is False
+    assert parts["facts"]["wrap"] is True and parts["providers"]["overflow"] == "wrap"
+    assert parts["mark"]["radius"] == "{radius.full}"
+
+
+def test_social_login_order_per_language():
+    button = component("action", "social-login-button")
+    assert [v["id"] for v in button["variants"]] == ["kakao", "line", "google", "apple"]
+    assert button["parts"]["stack"]["order"] == {"base": ["kakao", "line", "google", "apple"],
+                                                 "top": {"ko": "kakao", "ja": "line", "en": "google"}}
+    assert not any("카카오 위, Apple 아래" in rule for rule in button["rules"])
+
+
+def test_social_login_provider_guides():
+    variants = {v["id"]: v for v in component("action", "social-login-button")["variants"]}
+    line = variants["line"]["parts"]
+    assert line["container"]["bg"] == "#06C755" and line["label"]["fg"] == "#FFFFFF"
+    assert line["pressed"]["overlay"] == {"color": "#000000", "opacity": 0.3}
+    google = variants["google"]["parts"]
+    assert google["container"]["lightMode"] == {"bg": "#FFFFFF", "border": "#747775", "fg": "#1F1F1F"}
+    assert google["container"]["darkMode"] == {"bg": "#131314", "border": "#8E918F", "fg": "#E3E3E3"}
+    assert google["label"]["fontFamily"] == "Google Sans Medium"
+    assert google["label"]["fontFallback"] == "platform-system"
+    assert google["logo"]["backdrop"] == "theme-background"
+    assert line["separator"]["source"] == "provider-official-asset"
+
+
+def test_social_login_connected_is_neutral():
+    connected = component("action", "social-login-button")["states"]["connected"]
+    parts = connected["parts"]
+    assert parts["container"]["bg"] == "{color.bg.sheet}"
+    assert parts["container"]["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}}
+    assert parts["state"]["fg"] == "{color.action.primary}" and parts["state"]["icon"] == "check"
+    assert parts["logo"]["badge"] == {
+        "size": {"value": 20, "unit": "px"}, "symbolSize": {"value": 14, "unit": "px"},
+        "kakao": {"bg": "#FEE500", "symbol": "#000000", "shape": "{radius.xs}"},
+        "line": {"bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}"},
+        "google": {"bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}"},
+        "apple": {"lightMode": {"bg": "#000000", "symbol": "#FFFFFF"}, "darkMode": {"bg": "#FFFFFF", "symbol": "#000000"},
+                  "shape": "{radius.xs}"},
+    }
+    assert parts["state"]["gap"] == "{space.4}"
+    assert "loading" in connected and "disabled" in connected
+    assert connected["lastOne"]["pressable"] is False and connected["lastOne"]["noticeSlot"] == "login-methods.last.notice"
+    assert connected["onPress"] == {"component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm"}
+
+
+def test_two_button_dialogs_have_no_first_focus():
+    dialog = component("feedback", "dialog")
+    variants = {v["id"]: v for v in dialog["variants"]}
+    assert "focusOnOpen" not in dialog["a11y"]
+    assert variants["destructive"]["a11y"] == {"dismissOnScrim": False, "backIs": "cancel"}
+    assert variants["notice"]["a11y"] == {"focusOnOpen": "confirm", "dismissOnScrim": True}
+    assert not any("처음 초점" in rule for rule in dialog["rules"])
+    assert any("뒤로 가기는 취소" in rule and "V41" in rule for rule in dialog["rules"])
+    assert "계정 합치기" in variants["destructive"]["when"] and "로그인 수단 떼기" in variants["destructive"]["when"]
+
+
+def test_account_merge_layout_keeps_emphasis_on_confirm():
+    input_md = (COMPONENTS_DIR / "input.md").read_text(encoding="utf-8")
+    section = input_md.split("## account-choice", 1)[1]
+    assert "`account-merge.overlap.notice`" in section and "`mark.caution`을 쓰지 않" in section
+    assert "`account-merge.merge.confirm`" in section and "`destructive`" in section
+    assert "`ui.account-merge.error`" in section and "`notice`" in section

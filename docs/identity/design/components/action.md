@@ -5,7 +5,7 @@
 
 ## primary-button
 
-* 쓰는 화면: force-update, welcome, 온보딩 단계(onboard-call, onboard-birth, onboard-time, onboard-gender), preview, consent, notify-ask, evidence-sheet, share-preview, day-sheet, event-edit, diary-edit, ad-free, account-delete
+* 쓰는 화면: force-update, welcome, 온보딩 단계(onboard-call, onboard-birth, onboard-time, onboard-gender), preview, consent, notify-ask, evidence-sheet, share-preview, day-sheet, event-edit, diary-edit, ad-free, account-delete, account-merge
 * 둥근 사각(`radius.md`), 높이 52, 너비는 채움.
 
 | 변형 | 바탕 | 글자 | 쓰임 |
@@ -25,10 +25,28 @@
 
 ## social-login-button
 
-* 쓰는 화면: login
-* 반경 `radius.md`, 높이 52, 세로 간격 12만 정합니다. 색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 씁니다. 제공자는 **카카오와 Apple**(D55)이고 iOS·Android 모두 두 버튼을 같은 크기로 보입니다(카카오 위, Apple 아래). Apple 버튼은 라이트 모드 검정, 다크 모드 흰색 스타일입니다(Apple HIG).
-* Apple 버튼 글자는 HIG대로 플랫폼 시스템 글꼴이고, 크기와 굵기는 `type.label.lg`입니다(`apple` 변형 `parts.label`).
-* `disabled`: 다른 버튼이 처리 중일 때입니다. 제공자 색을 바꿀 수 없으므로 버튼 전체를 `opacity 0.4`로 흐립니다.
+* 쓰는 화면: login, login-methods
+* 반경 `radius.md`, 높이 52(최소 높이, V30), 너비 fill, 세로 간격 12, 로고 20px은 왼쪽 안쪽 16에 고정하고 글자는 가운데입니다. 색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 씁니다(V15).
+* 제공자는 **카카오·LINE·Google·Apple**(D82)이고 iOS·Android 모두 네 버튼을 같은 크기·같은 무게로 보입니다(App Store 4.8, Google 가이드 "다른 제공자만큼 눈에 띔"). 결정 V39.
+  * `kakao`: 카카오 로그인 디자인 가이드.
+  * `line`: LINE Login button design guidelines. 바탕 `#06C755`, 글자·로고 흰색, 로고와 글자 사이 구분선(검정 8%)은 공식 로고 자산의 것을 그대로 씀, 눌림은 검정 30% 덮개, 비활성은 흰 바탕 + `#E5E5E5` 60% 테두리 + 글자·로고 `#1E1E1E` 20%. 아이콘 비율은 바꾸지 않습니다.
+  * `google`: Google Sign-In branding. 라이트 화면은 light 테마(`#FFFFFF`, 안쪽 1px `#747775`, 글자 `#1F1F1F`), 다크 화면은 dark 테마(`#131314`, `#8E918F`, `#E3E3E3`). 글자는 Google Sans Medium 14/20이고, 없는 한글·가나는 플랫폼 시스템 글꼴로 이어 씁니다. Google Identity SDK가 그리는 버튼을 쓸 수 있으면 그것을 우선합니다(가이드 권장). 표준 컬러 "G"는 light·dark 테마 바탕 위에 그대로 놓고(그 밖의 바탕 금지), "Google" 한 낱말만 라벨로 쓰지 않습니다.
+  * `apple`: Sign in with Apple HIG(라이트 검정, 다크 흰색). 글자는 플랫폼 시스템 글꼴, 크기와 굵기는 `type.label.lg`.
+* 순서(`parts.stack.order`): 언어마다 맨 위만 다르고 나머지는 기본 순서(카카오·LINE·Google·Apple)입니다.
+
+| 언어 | 순서 |
+| --- | --- |
+| ko | 카카오, LINE, Google, Apple |
+| ja | LINE, 카카오, Google, Apple |
+| en | Google, 카카오, LINE, Apple |
+
+* `disabled`: 다른 버튼이 처리 중일 때입니다. 제공자 색을 바꿀 수 없으므로 버튼 전체를 `opacity 0.4`로 흐립니다. `line`만 가이드의 비활성 값을 씁니다. 처리 중에는 누른 버튼만 `loading`입니다.
+* `connected`(login-methods에서만): 연결된 수단을 보이는 상태입니다. 로그인 동작이 아니라 연결 상태 줄이라 제공자 색을 쓰지 않습니다. `bg.sheet` 바탕 + `line` 1px 테두리, 로고는 제공자 색 배지 20px 안의 심볼 14px(카카오 `#FEE500` 위 검정, LINE `#06C755` 위 흰색, Apple 라이트 검정 위 흰색·다크 흰색 위 검정, 모서리 `radius.xs`; Google은 흰 원 위 표준 컬러 "G")로 중립 바탕에서도 보이게 하고, 왼쪽에 제공자 이름(`type.label.lg`, `ui.login-methods.row` `loginProvider*`), 끝에 `check` Regular 14 + 간격 `space.4` + "연결됨"(`type.caption.lg`, `action.primary`). 누르면 떼기 확인 `dialog` `destructive`(`login-methods.unlink.confirm`)가 열립니다. 스크린리더 라벨은 "제공자 이름, 연결됨", 힌트는 `loginMethodsRowUnlink`. 떼기 확정 뒤에는 그 줄 전체가 `loading.breathe`로 숨쉬고, 끝나면 연결하지 않은 버튼으로 바뀝니다. 다른 버튼이 처리 중이면 다른 상태와 같이 줄 전체 `opacity 0.4`입니다.
+* 연결된 수단이 하나만 남으면 그 줄은 누를 수 없고(모양은 그대로), 버튼 묶음 아래에 `login-methods.last.notice`(`type.caption.lg`, `text.secondary`, 위 `space.12`)를 늘 보입니다.
+
+### login-methods 화면 배치
+
+app-bar 아래로 `login-methods.intro.body`(`type.body.ui`, `text.secondary`, 아래 `space.20`) → 버튼 네 개(위 순서, 연결된 것은 `connected`) → 하나만 남았을 때 `login-methods.last.notice`. 연결하지 않은 수단은 로그인 화면과 같은 버튼·라벨입니다(연결은 그 제공자로 다시 로그인, D82 ⑤). 오류(`login-methods.error.body`)는 `dialog` `notice`로 보입니다. 붙이려는 수단이 다른 계정에 있으면 `account-merge`로 넘어갑니다. IA는 이 화면에 `settings-row`를 적고 있지만 시안 B(V39)로 쓰지 않습니다(지휘에 IA 수정 요청).
 
 ## share-button
 

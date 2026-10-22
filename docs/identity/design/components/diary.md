@@ -5,7 +5,7 @@
 
 ## diary-row
 
-* 쓰는 화면: diary-list, tag-diary
+* 쓰는 화면: diary-list, tag-diary, today, day-sheet(D83: 오늘 화면 가이드 질문 카드 아래·날짜 시트 일기 머리 아래. 같은 날 여러 편의 모양은 #410에서 정함)
 * 왼쪽 날짜 열(44px): 숫자 18px 600(고정폭) + 뒤에 `seal` soft 34px(숫자가 도장 가운데) + 요일 `type.caption.md`.
 * 날짜 열 가운데로 `rail.timeline`(1.5px)이 요일 아래에서 다음 날짜까지 이어집니다. 마지막 줄 뒤에는 없습니다.
 * 오른쪽 카드(`bg.sheet`, `radius.lg`): 배지 → 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임, 카드 전체가 버튼이라 용어도 일반 글자) → 대표 태그 칩 하나.
