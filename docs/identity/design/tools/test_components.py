@@ -992,8 +992,8 @@ def test_account_merge_two_steps_layout():
     for text in ("인증 단계", "요약·고르기 단계", "`account-merge.auth.body`", "`account-merge.not-other.body`",
                  "`ui.account-merge.summary`", "0이어도", "\"합치지 않기\" 버튼이 없습니다", "뒤로 가기는 동작하지 않습니다"):
         assert text in section, text
-    cancel_lines = [line for line in section.splitlines() if "account-merge.cta.cancel" in line]
-    assert cancel_lines and all("지휘에 요청" in line for line in cancel_lines)
+    # IA가 PR #511로 슬롯 account-merge.cta.cancel과 출구 "합치지 않기"를 지움(#507)
+    assert "account-merge.cta.cancel" not in section
 
 
 def test_login_methods_merge_entry():
