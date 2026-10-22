@@ -151,13 +151,18 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
     // 새로 full이 되면 한 번 낭독합니다(full에서 다시 그릴 때는 같은 문장이라 읽지 않음).
     final becameFull =
         state == GuideQuestionState.full && old != GuideQuestionState.full;
-    final l10n = AppLocalizations.of(context);
     // after와 full은 같은 모양이라 둘 사이에서는 도장을 다시 찍지 않습니다.
     if (_written(state) == _written(old)) {
-      if (becameFull) _announcement = l10n.todayGuideCtaFull;
+      if (becameFull) {
+        _announcement = AppLocalizations.of(context).todayGuideCtaFull;
+      } else if (state != old) {
+        // full을 벗어남: "더 쓸 수 없음"을 지웁니다. 새로 낭독하지 않고 정적 상태 노드가 읽습니다.
+        _announcement = null;
+      }
       return;
     }
     if (_written(state)) {
+      final l10n = AppLocalizations.of(context);
       _announcement = becameFull
           ? [
               l10n.todayGuideWritten,

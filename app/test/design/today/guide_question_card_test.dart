@@ -437,6 +437,31 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('full에서 after로 돌아오면 "더 쓸 수 없음" 낭독이 사라지고 새로 낭독하지 않습니다', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        Widget card(GuideQuestionState state) => inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: state,
+              eyebrow: '오늘의 질문',
+              question: _question(),
+              actionLabel: '쓴 일기 보기',
+              onAction: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        await tester.pumpWidget(card(GuideQuestionState.full));
+        expect(find.bySemanticsLabel('오늘은 충분히 썼어요'), findsOneWidget);
+        await tester.pumpWidget(card(GuideQuestionState.after));
+        expect(find.bySemanticsLabel('오늘은 충분히 썼어요'), findsNothing);
+        expect(find.byType(LiveAnnouncement), findsNothing);
+        expect(find.bySemanticsLabel('오늘 일기를 썼어요'), findsOneWidget);
+        handle.dispose();
+      });
+
       testWidgets('처음부터 full이면 낭독 노드(LiveAnnouncement)가 없습니다', (tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(_app(GuideQuestionState.full));
