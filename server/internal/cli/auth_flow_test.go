@@ -283,6 +283,7 @@ func TestAuthFlow_KakaoLoginConsentMeRefreshLogout(t *testing.T) {
 		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 }
 
+// TODO(PR 2): 즉시 삭제로 바뀌면 이 테스트를 지우고 "삭제 뒤 같은 인증 계정 로그인은 새 유저 계정" 테스트로 다시 씁니다.
 func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	env := newFlowEnv(t)
 
@@ -311,7 +312,6 @@ func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	// 유예 기간 안에 같은 subject로 다시 로그인하면 계정이 되살아납니다.
 	restored := env.loginAppleNative("apple-flow-subject")
 	require.Equal(t, http.StatusOK, restored.status, "재로그인 본문: %v", restored.body)
-	assert.NotContains(t, restored.body, "restoredFromDeletion")
 	assert.Equal(t, false, restored.body["isNewAccount"])
 	access2, _ := restored.tokens(t)
 

@@ -1614,11 +1614,6 @@ func TestContract_Draft14Identities(t *testing.T) {
 			t.Error("unlinkIdentity 설명에 LINE·Google 허가 취소 규칙이 없음")
 		}
 	})
-
-	t.Run("previewMerge와 mergeAccounts는 draft.15 테스트가 고정함", func(t *testing.T) {
-		operationByID(t, doc, "previewMerge")
-		operationByID(t, doc, "mergeAccounts")
-	})
 }
 
 // TestContract_Draft14ProblemCodes는 draft.14에서 더한 problem code를 고정합니다. (D82, S104)
@@ -1701,6 +1696,15 @@ func TestContract_Draft15AccountShapes(t *testing.T) {
 		}
 		request := schemaOf(t, doc, "MergePreviewRequest")
 		sameElements(t, "MergePreviewRequest.required", request.Required, []string{"provider", "nonce"})
+		// LinkIdentityRequest의 필드 정의를 복사했으므로 어긋나지 않는지 비교합니다.
+		link := schemaOf(t, doc, "LinkIdentityRequest")
+		for _, name := range []string{"idToken", "authorizationCode", "exchangeCode", "nonce"} {
+			got, want := request.Properties[name].Value, link.Properties[name].Value
+			if !slices.Equal(got.Type.Slice(), want.Type.Slice()) || got.Pattern != want.Pattern || got.MinLength != want.MinLength ||
+				!slices.Equal(ptrValue(got.MaxLength), ptrValue(want.MaxLength)) || got.Description != want.Description {
+				t.Errorf("MergePreviewRequest.%s 정의가 LinkIdentityRequest와 다름", name)
+			}
+		}
 		if request.Properties["provider"].Ref != "#/components/schemas/LoginProvider" {
 			t.Error("MergePreviewRequest.provider가 LoginProvider 참조가 아님")
 		}
@@ -1788,7 +1792,7 @@ func TestContract_Draft15AccountShapes(t *testing.T) {
 	})
 
 	t.Run("restorePurchases 설명", func(t *testing.T) {
-		contains(t, "restorePurchases 설명", operationByID(t, doc, "restorePurchases").Description, "다른 계정이 주인인 구매")
+		contains(t, "restorePurchases 설명", operationByID(t, doc, "restorePurchases").Description, "다른 유저 계정이 주인인 구매")
 	})
 
 	t.Run("listPurchases", func(t *testing.T) {
@@ -1840,4 +1844,12 @@ func TestContract_Draft15AccountShapes(t *testing.T) {
 			t.Error("auth.identity_in_use 설명에 mergeToken이 남아 있음")
 		}
 	})
+}
+
+// ptrValue는 선택 숫자 제한을 비교하기 쉽게 0~1개짜리 목록으로 바꿉니다.
+func ptrValue(value *uint64) []uint64 {
+	if value == nil {
+		return nil
+	}
+	return []uint64{*value}
 }

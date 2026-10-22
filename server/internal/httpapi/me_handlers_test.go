@@ -35,8 +35,7 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 	assert.False(t, got.HasProfile)
 	assert.False(t, got.AdFree.Active)
 	assert.False(t, got.Insight.Active)
-	assert.NotContains(t, rec.Body.String(), "status")
-	assert.NotContains(t, rec.Body.String(), "deletionScheduledAt")
+	requireNoDeletionFields(t, rec.Body.Bytes())
 }
 
 func TestGetMe_HasProfileTrue(t *testing.T) {
@@ -78,8 +77,16 @@ func TestGetMe_PendingDeletionOmitsStatusAndSchedule(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectContractResponse(t, spec, req, rec)
-	assert.NotContains(t, rec.Body.String(), "status")
-	assert.NotContains(t, rec.Body.String(), "deletionScheduledAt")
+	requireNoDeletionFields(t, rec.Body.Bytes())
+}
+
+// requireNoDeletionFields는 Me 응답의 최상위에 삭제 대기 필드가 없는지 JSON key로 확인합니다.
+func requireNoDeletionFields(t *testing.T, body []byte) {
+	t.Helper()
+	var raw map[string]any
+	require.NoError(t, json.Unmarshal(body, &raw))
+	assert.NotContains(t, raw, "status")
+	assert.NotContains(t, raw, "deletionScheduledAt")
 }
 
 func TestGetMe_UnknownAccountIs401(t *testing.T) {

@@ -377,9 +377,9 @@ paths:
       operationId: deleteMe
       summary: 계정 삭제 요청
       description: |
-        계정을 바로 삭제합니다. 삭제 대기 기간이 없고 되돌릴 수 없습니다. 그 계정의 일기·일정·프로필·세션·로그인 연결 등 기록을 지우고, 구매 장부와 반응 집계처럼 사용자를 가리지 않는 기록만 남깁니다.
+        계정을 바로 삭제합니다. 삭제 대기 기간이 없고 되돌릴 수 없습니다. 그 유저 계정의 프로필, 기록(일기·일정·날짜 기록·반응), 인증 계정 연결, 세션을 지웁니다. 구매와 결제 기록은 법정 보관을 위해 지운 유저 계정 앞으로 남고, 반응은 지우기 전에 유저 계정과 끊긴 문장별 집계에 더합니다.
         카카오·Apple 제공자 허가는 server가 취소를 시도하며, 실패해도 삭제는 성공입니다(LINE·Google은 app이 삭제 전에 SDK로 취소).
-        같은 제공자로 다시 로그인하면 새 계정이 만들어집니다. 이미 삭제된 계정의 access token은 401입니다.
+        같은 인증 계정으로 다시 로그인하면 새 유저 계정이 만들어집니다. 이미 삭제된 유저 계정의 access token은 401입니다.
       responses:
         '204':
           description: 삭제함
@@ -437,7 +437,7 @@ paths:
         * 200: 그 연결이 이미 현재 계정에 있어 바꾸지 않았습니다(apple이면 refresh token만 새 값으로).
         * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`: 붙이려는 증명이 틀림. 현재 세션은 유효하니 다시 로그인시키지 않고 붙이기를 다시 시도합니다.
         * 409 `auth.provider_taken`: 현재 계정에 같은 제공자의 다른 사용자 연결이 있습니다.
-        * 409 `auth.identity_in_use`: 그 연결이 다른 계정에 있습니다. 본문은 일반 `Problem`이고 합치기 토큰은 없습니다. 두 계정을 합치려면 app이 그 연결로 `previewMerge`를 부릅니다.
+        * 409 `auth.identity_in_use`: 그 인증 계정이 다른 유저 계정에 연결돼 있습니다. 본문은 일반 `Problem`이고 합치기 토큰은 없습니다. 두 계정을 합치려면 app이 그 연결로 `previewMerge`를 부릅니다.
 
         409가 나면 새로 받은 Apple 승인은 저장하지 않고 버립니다. 취소(revoke)하지도 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다.
       requestBody:
@@ -513,17 +513,17 @@ paths:
       operationId: previewMerge
       summary: 계정 합치기 요약
       description: |
-        합칠 다른 계정(B)의 로그인 증명을 받아, 현재 계정(A)과 B를 합칠 때 옮겨질 것을 요약하고 합치기 토큰을 발급합니다.
+        합칠 다른 유저 계정(B)의 로그인 증명을 받아, 현재 유저 계정(A)과 B를 합칠 때 옮겨질 것을 요약하고 합치기 토큰을 발급합니다.
         본문은 `linkIdentity`의 본문에 `provider`를 더한 것이고 검증도 같습니다(`MergePreviewRequest` 참고). Apple은 소유 확인에 id_token만 씁니다.
         Android 웹 흐름의 code 교환으로 받은 refresh token은 저장하지 않습니다.
 
         응답
-        * 200: 증명한 연결이 B에 있습니다. 합치기 토큰(`mergeToken`, `expiresAt`)과 요약(`summary`)을 줍니다. 옮길 기록이 없어도 줍니다.
-          토큰은 일회용이고 10분 동안 현재 계정(A)의 bearer만 쓸 수 있으며, 증명한 연결을 B에서 떼면 무효가 됩니다. URL에 넣지 않습니다.
+        * 200: 증명한 인증 계정이 B에 연결돼 있습니다. 합치기 토큰(`mergeToken`, `expiresAt`)과 요약(`summary`)을 줍니다. 옮길 기록이 없어도 줍니다.
+          토큰은 일회용이고 10분 동안 현재 유저 계정(A)의 bearer만 쓸 수 있으며, 증명한 인증 계정을 B에서 떼면 무효가 됩니다. URL에 넣지 않습니다.
         * 400 `request.invalid`: `provider`와 본문 조합이 맞지 않음.
         * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`: 증명이 틀림. 현재 세션은 유효합니다.
-        * 422 `merge.same_account`: 증명한 연결이 현재 계정에 이미 있습니다.
-        * 422 `merge.no_account`: 증명한 연결이 어느 계정에도 없습니다. 연결로 넘어가지 않으니 app은 `linkIdentity`를 부릅니다.
+        * 422 `merge.same_account`: 증명한 인증 계정이 현재 유저 계정에 이미 연결돼 있습니다.
+        * 422 `merge.no_account`: 증명한 인증 계정이 어느 유저 계정에도 연결돼 있지 않습니다. 연결로 넘어가지 않으니 app은 `linkIdentity`를 부릅니다.
       requestBody:
         required: true
         content:
@@ -532,7 +532,7 @@ paths:
               $ref: '#/components/schemas/MergePreviewRequest'
       responses:
         '200':
-          description: 두 계정의 요약
+          description: 두 유저 계정의 요약
           content:
             application/json:
               schema:
@@ -561,15 +561,15 @@ paths:
       operationId: mergeAccounts
       summary: 계정 합치기
       description: |
-        `previewMerge`가 준 합치기 토큰으로 다른 계정(B)을 현재 계정(A)에 합칩니다. 남는 계정은 언제나 A입니다.
+        `previewMerge`가 준 합치기 토큰으로 다른 유저 계정(B)을 현재 유저 계정(A)에 합칩니다. 남는 유저 계정은 언제나 A입니다.
         B의 일기(지운 일기 포함, 하루 10편 상한은 검사하지 않음)·일정·날짜 기록·오늘 문장 선택 기록·반응과 구매를 A로 옮기고, B는 삭제합니다(`deleteMe`와 같이 즉시, 되돌릴 수 없음).
         `profile`은 합친 뒤 쓸 프로필(사주 정보·호칭)입니다. `current`는 A의 것을 그대로 두고, `other`는 B의 것으로 A의 프로필을 바꿉니다.
         같은 날짜에 양쪽 모두 날짜 기록(태그·가이드 질문)이 있으면 고른 프로필 쪽을 남기고, 다른 쪽 일기는 모두 남긴 날짜 기록 아래로 옮깁니다. 일기는 지우지 않습니다.
-        로그인 연결, 세션, 약관 동의는 옮기지 않습니다. B의 연결은 B와 함께 사라지고 A의 세션은 그대로입니다.
+        인증 계정 연결, 세션, 약관 동의는 옮기지 않습니다. B의 인증 계정 연결은 B와 함께 사라지고 A의 세션은 그대로입니다.
 
-        응답은 A의 `Me`입니다. 새 세션을 주지 않으므로 app은 토큰을 바꾸지 않고, 합친 계정 기준으로 캐시·초안을 지운 뒤 `getMe`부터 다시 읽습니다.
+        응답은 A의 `Me`입니다. 새 세션을 주지 않으므로 app은 토큰을 바꾸지 않고, 합친 유저 계정 기준으로 캐시·초안을 지운 뒤 `getMe`부터 다시 읽습니다.
         `Idempotency-Key`를 받습니다. 같은 키로 다시 보내면 24시간 동안 처음 응답을 돌려줍니다. 키 없이 다시 보내면 토큰이 일회용이라 422 `merge.token_invalid`입니다.
-        토큰이 없거나, 만료됐거나, 이미 썼거나, 현재 계정의 토큰이 아니거나, 확인 시점에 조건이 바뀌었으면(B가 이미 없어짐, 증명한 연결이 B에서 떨어짐) 422 `merge.token_invalid`이고 이 경우들은 구분하지 않습니다.
+        토큰이 없거나, 만료됐거나, 이미 썼거나, 현재 유저 계정의 토큰이 아니거나, 확인 시점에 조건이 바뀌었으면(B가 이미 없어짐, 증명한 인증 계정이 B에서 떨어짐) 422 `merge.token_invalid`이고 이 경우들은 구분하지 않습니다.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -580,7 +580,7 @@ paths:
               $ref: '#/components/schemas/MergeRequest'
       responses:
         '200':
-          description: 합침. 남은 계정(A)의 `getMe`와 같은 응답
+          description: 합침. 남은 유저 계정(A)의 `getMe`와 같은 응답
           content:
             application/json:
               schema:
@@ -1665,8 +1665,8 @@ paths:
       operationId: listPurchases
       summary: 구매 목록
       description: |
-        이 계정의 구매 장부를 최근 구매 먼저 돌려줍니다. 상품 이름은 app이 `productId`로 자기 문구나 스토어 이름에서 찾습니다.
-        기간 상품이면 `period`에 이 계정의 사용 구간이 있습니다. 합친 구매는 현재 계정의 구간만 담습니다. 산 계정과 합치기 출처는 주지 않습니다.
+        이 유저 계정의 구매 장부를 최근 구매 먼저 돌려줍니다. 상품 이름은 app이 `productId`로 자기 문구나 스토어 이름에서 찾습니다.
+        기간 상품이면 `period`에 이 유저 계정의 사용 구간이 있습니다. 합친 구매는 현재 유저 계정의 구간만 담습니다. 산 유저 계정과 합치기 출처는 주지 않습니다.
         production이 아닌 구매는 `BILLING_PRODUCTION_ONLY`가 꺼진 환경에서만 보입니다. 페이지 나누기는 필요해지면 선택 필드로 더합니다.
       responses:
         '200':
@@ -1691,9 +1691,9 @@ paths:
       operationId: restorePurchases
       summary: 구매 복원
       description: |
-        이 계정의 RevenueCat 구매 목록으로 구매 장부를 다시 맞추고 광고 제거권을 처음부터 다시 계산합니다. 환불된 구매는 빼고 계산합니다.
-        장부에 없는 구매는 이 계정의 것으로 적습니다. 다른 계정이 주인인 구매는 주인을 바꾸거나 가져오지 않습니다(환불 사실만 장부에 맞춥니다).
-        장부에 있는데 이 계정의 RevenueCat 목록에 없는 구매는 취소하지 않습니다.
+        이 유저 계정의 RevenueCat 구매 목록으로 구매 장부를 다시 맞추고 광고 제거권을 처음부터 다시 계산합니다. 환불된 구매는 빼고 계산합니다.
+        장부에 없는 구매는 이 유저 계정의 것으로 적습니다. 다른 유저 계정이 주인인 구매는 주인을 바꾸거나 가져오지 않습니다(환불 사실만 장부에 맞춥니다).
+        장부에 있는데 이 유저 계정의 RevenueCat 목록에 없는 구매는 취소하지 않습니다.
         app은 RevenueCat `Purchases.logIn`에 `Me.accountId` 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다. 다른 표기면 server가 구매를 찾지 못합니다.
         RevenueCat 장애는 503 `billing.provider_unavailable`입니다.
       responses:
@@ -2046,8 +2046,8 @@ components:
         * `city.not_found`: `cityId`가 도시 목록에 없음. `errors[].field`는 `/birth/place/cityId`
         * `range.too_long`: `listSchedules`의 조회 범위(`from`~`to`)가 62일을 넘음
         * `merge.token_invalid`: 합치기 토큰이 없음·만료·이미 씀·현재 계정의 토큰이 아님, 또는 합치는 시점에 조건이 바뀜(구분하지 않음)
-        * `merge.same_account`: `previewMerge`에서 증명한 연결이 현재 계정에 이미 있음
-        * `merge.no_account`: `previewMerge`에서 증명한 연결이 어느 계정에도 없음
+        * `merge.same_account`: `previewMerge`에서 증명한 인증 계정이 현재 유저 계정에 이미 연결돼 있음
+        * `merge.no_account`: `previewMerge`에서 증명한 인증 계정이 어느 유저 계정에도 연결돼 있지 않음
         * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `diary.day_full`, 호칭 거부(`name.empty`·`name.too_long`·`name.emoji`·`name.control`·`name.invalid_char`, josa.yaml name_rules의 기준 구현 normalize_name), `idempotency.mismatch`
       content:
         application/problem+json:
@@ -2187,7 +2187,7 @@ components:
               description: '현재 계정에 같은 제공자의 다른 사용자 연결이 있음'
             auth.identity_in_use:
               status: 409
-              description: '붙이려는 연결이 다른 계정에 있음. 합치려면 그 연결로 previewMerge'
+              description: '붙이려는 인증 계정이 다른 유저 계정에 연결돼 있음. 합치려면 그 인증 계정으로 previewMerge'
             auth.last_identity:
               status: 409
               description: '마지막 연결은 뗄 수 없음'
@@ -2253,10 +2253,10 @@ components:
               description: '합치기 토큰이 없음·만료·이미 씀·현재 계정의 토큰이 아님, 또는 합치는 시점에 조건이 바뀜(구분하지 않음)'
             merge.same_account:
               status: 422
-              description: 'previewMerge에서 증명한 연결이 현재 계정에 이미 있음'
+              description: 'previewMerge에서 증명한 인증 계정이 현재 유저 계정에 이미 연결돼 있음'
             merge.no_account:
               status: 422
-              description: 'previewMerge에서 증명한 연결이 어느 계정에도 없음. linkIdentity로 붙임'
+              description: 'previewMerge에서 증명한 인증 계정이 어느 유저 계정에도 연결돼 있지 않음. linkIdentity로 붙임'
             rate_limited:
               status: 429
               description: '요청 한도 초과(Retry-After)'
@@ -2637,7 +2637,7 @@ components:
     MergePreviewRequest:
       type: object
       description: |
-        `previewMerge` 본문. 합칠 다른 계정(B)의 로그인 증명입니다. `provider`가 필수이고, 나머지는 `LinkIdentityRequest`와 같습니다.
+        `previewMerge` 본문. 합칠 다른 유저 계정(B)의 로그인 증명입니다. `provider`가 필수이고, 나머지는 `LinkIdentityRequest`와 같습니다.
         `nonce`만 항상 필수이고, 제공자마다 쓰는 조합이 다릅니다.
         * kakao·line·google: `idToken`
         * apple(iOS): `idToken`과 `authorizationCode`
@@ -2670,7 +2670,7 @@ components:
       properties:
         mergeToken:
           type: string
-          description: 합치기 토큰(랜덤 32바이트, base64url 패딩 없음). 일회용이고 현재 계정의 bearer만 `mergeAccounts`에 쓸 수 있습니다. URL에 넣지 않습니다.
+          description: 합치기 토큰(랜덤 32바이트, base64url 패딩 없음). 일회용이고 현재 유저 계정의 bearer만 `mergeAccounts`에 쓸 수 있습니다. URL에 넣지 않습니다.
         expiresAt:
           type: string
           format: date-time
@@ -2710,7 +2710,7 @@ components:
           $ref: '#/components/schemas/MergeProfileSummary'
     MergeAddedDays:
       type: object
-      description: 합치면 현재 계정에 더해지는 남은 기간(일). 기간 상품 권한마다 한 필드입니다.
+      description: 합치면 현재 유저 계정에 더해지는 남은 기간(일). 기간 상품 권한마다 한 필드입니다.
       required: [adFree]
       properties:
         adFree:
@@ -2733,7 +2733,7 @@ components:
           $ref: '#/components/schemas/Birth'
     MergeProfile:
       type: string
-      description: 합친 뒤 쓸 프로필. `current`는 현재 계정(A)의 것, `other`는 합치는 다른 계정(B)의 것입니다.
+      description: 합친 뒤 쓸 프로필. `current`는 현재 유저 계정(A)의 것, `other`는 합치는 다른 유저 계정(B)의 것입니다.
       enum: [current, other]
     MergeRequest:
       type: object
@@ -3814,7 +3814,7 @@ components:
       enum: [active, pending, expired, refunded, owned]
     PurchasePeriod:
       type: object
-      description: 이 계정의 사용 구간. 합친 구매는 현재 계정의 구간만 담습니다.
+      description: 이 유저 계정의 사용 구간. 합친 구매는 현재 유저 계정의 구간만 담습니다.
       required: [startsAt, endsAt]
       properties:
         startsAt:

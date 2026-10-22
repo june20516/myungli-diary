@@ -115,8 +115,8 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 	case errors.As(err, &explicit):
 	case errors.As(err, &violation):
 		explicit = validationError(violation)
-	case errors.As(err, &inUse):
-		explicit = identityInUseError()
+	case errors.As(err, &inUse): // 합치기 토큰은 본문에 싣지 않습니다(draft.15).
+		explicit = newError(problem.AuthIdentityInUse, "Identity in use")
 	case errors.As(err, &invalidProof):
 		explicit = invalidProofError(invalidProof)
 	}
@@ -157,11 +157,6 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 
 	logHandlerError(r.Context(), deps.Logger, err)
 	problem.Write(w, r, problem.Internal.Problem("Internal server error"))
-}
-
-// identityInUseError는 다른 계정에 붙어 있는 연결을 409로 바꿉니다. 합치기 토큰은 본문에 싣지 않습니다(draft.15).
-func identityInUseError() *Error {
-	return newError(problem.AuthIdentityInUse, "Identity in use")
 }
 
 // invalidProofError는 제공자별 증명 필드 조합 위반을 400과 errors[] 한 항목으로 바꿉니다.
