@@ -373,6 +373,9 @@
   structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143). LINE은 가이드의 언어별 권장 문구(ko \"LINE으로 로그인\", en \"Log in with LINE\", ja \"LINEでログイン\"), Google은 가이드 문구 \"Sign in with Google\"의 Google 현지화 표기(ko \"Google 계정으로 로그인\", ja \"Google でログイン\")입니다(#388)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: 19, en: 34, ja: 15}
+  # ja 카카오 라벨은 영문이라 en 상한으로 잽니다(design lengths.md 키별 상한, #446).
+  key_max_length:
+    loginKakaoLabel: {ko: 19, en: 34, ja: 34}
   components: [social-login-button]
   keys:
     - loginKakaoLabel
