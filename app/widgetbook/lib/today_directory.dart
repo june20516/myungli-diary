@@ -15,12 +15,17 @@ final RenderedText _guideQuestion = RenderedText(
   segments: [Segment(text: '오늘 가장 오래 마음에 남은 장면은 무엇인가요?')],
 );
 
+/// `full`은 그날 일기를 다 채워 버튼이 꺼진 모양입니다(D83 ②).
 Widget _guideCard(GuideQuestionState state, {VoidCallback? onAction}) =>
     GuideQuestionCard(
       state: state,
       eyebrow: '오늘의 질문',
       question: _guideQuestion,
-      actionLabel: state == GuideQuestionState.before ? '일기 쓰기' : '쓴 일기 보기',
+      actionLabel: switch (state) {
+        GuideQuestionState.before => '일기 쓰기',
+        GuideQuestionState.after => '새 일기 쓰기',
+        GuideQuestionState.full => '오늘은 충분히 썼어요',
+      },
       onAction: onAction ?? () {},
     );
 
@@ -217,6 +222,15 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 child: SizedBox(
                   width: 360,
                   child: _guideCard(GuideQuestionState.after),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: 'full(그날 일기 다 채움)',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 360,
+                  child: _guideCard(GuideQuestionState.full),
                 ),
               ),
             ),

@@ -121,6 +121,10 @@ flutter:
   # 글꼴 라이선스(OFL.txt)는 licenses.dart가 LicenseRegistry에 더합니다.
   assets:
     - assets/brand/kakao/
+    # 출처 문서(SOURCE.md)는 번들에 넣지 않도록 파일 단위로 적습니다.
+    - assets/brand/line/line_icon.png
+    - assets/brand/google/g_logo_light.png
+    - assets/brand/google/g_logo_dark.png
     - assets/brand/apple/
     - assets/brand/myungli/
     - assets/fonts/gowun_dodum/OFL.txt
@@ -159,6 +163,7 @@ flutter:
     - fixtures/ad-free-active/
     - fixtures/daily-error/
     - fixtures/diary-written/
+    - fixtures/diary-day-full/
     - fixtures/reaction-failed/
     - fixtures/reaction-delete-failed/
     - fixtures/evidence-unlocked/

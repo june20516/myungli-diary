@@ -80,6 +80,7 @@ void main() {
       'SlotText.variant',
       'Insight.source',
       'ConsentDocument.document',
+      'LoginProvider',
     });
     expect(targets.where((t) => !t.isEnum).map((t) => t.name), [
       'Problem.code',
@@ -149,6 +150,8 @@ void main() {
       'slot_text.dart:variant',
       'insight.dart:source',
       'consent_document.dart:document',
+      'identity.dart:provider',
+      'merge_account_summary.dart:providers',
     });
   });
 }

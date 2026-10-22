@@ -10,6 +10,8 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
@@ -18,7 +20,7 @@ import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
-import '../support/onboarding_steps.dart' show pumpUntil;
+import '../support/onboarding_steps.dart' show pumpUntil, pumpUntilScreen;
 
 final _ko = AppLocalizationsKo();
 
@@ -71,35 +73,6 @@ final class _CalendarHold extends Interceptor {
   }
 }
 
-/// `/v1/diaries/`에 쓴 일기(200)로 답합니다.
-final class _DiaryWritten extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (!options.path.startsWith('/v1/diaries/')) {
-      handler.next(options);
-      return;
-    }
-    handler.resolve(
-      Response<Object?>(
-        requestOptions: options,
-        statusCode: 200,
-        headers: Headers.fromMap({
-          Headers.contentTypeHeader: ['application/json'],
-        }),
-        data: {
-          'date': '2026-10-13',
-          'body': '일기',
-          'tags': {'featured': <Object>[], 'all': <Object>[]},
-          'rulesetVersion': 'r1',
-          'createdAt': '2026-10-13T12:00:00Z',
-          'updatedAt': '2026-10-13T12:00:00Z',
-        },
-      ),
-      true,
-    );
-  }
-}
-
 void main() {
   testWidgets('member: 오늘 시트의 성격·일정, 일정 누름 → event-edit', (tester) async {
     covers(const Covers(exits: ['day-sheet>event-edit']));
@@ -140,51 +113,106 @@ void main() {
     );
   });
 
-  testWidgets('member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다', (
-    tester,
-  ) async {
+  testWidgets('member: 일기 쓰기 → 새 일기 저장, 돌아오면 그날 일기 줄과 새 일기 쓰기', (tester) async {
     covers(const Covers(exits: ['day-sheet>diary-edit'], decisions: ['D49']));
     final container = await _openDaySheet(tester, CalendarDate(2026, 10, 13));
+    expect(
+      find.descendant(
+        of: find.byKey(const Key(ScreenIds.daySheet)),
+        matching: find.byType(DiaryEntryLine),
+      ),
+      findsNothing,
+    );
 
     final entry = find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta);
     await tester.ensureVisible(entry);
     await tester.pumpAndSettle();
     await tester.tap(entry);
+    await pumpUntil(tester, () => find.byType(TextField).evaluate().isNotEmpty);
     await settleWithIo(tester);
-    expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
+    expect(
+      container.read(routerProvider).state.uri.toString(),
+      '/diary-edit?date=2026-10-13',
+    );
 
-    // 일기 화면에 있는 동안 일기를 썼다고 봅니다: 이제 getDiary는 200입니다.
-    final interceptors = container.read(dioProvider).interceptors;
-    interceptors.insert(interceptors.length - 1, _DiaryWritten());
-    container.read(routerProvider).pop();
+    await tester.enterText(find.byType(TextField), '시트에서 쓴 일기');
+    await tester.pump();
+    await tester.tap(find.text(_ko.diaryEditSave));
     await pumpUntil(
       tester,
-      () => find
-          .bySemanticsIdentifier(SlotIds.daySheetDiaryOpen)
-          .evaluate()
-          .isNotEmpty,
+      () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
     );
-    expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await settleWithIo(tester, allowOngoing: true);
+    // toast가 사라질 때까지 둡니다.
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
+
+    container.read(routerProvider).pop();
+    final sheetRows = find.descendant(
+      of: find.byKey(const Key(ScreenIds.daySheet)),
+      matching: find.byType(DiaryEntryLine),
+    );
+    await pumpUntil(tester, () => sheetRows.evaluate().isNotEmpty);
+    expect(sheetRows, findsOneWidget);
     expect(
-      find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
-      findsNothing,
+      find.descendant(
+        of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
+        matching: find.text(_ko.daySheetDiaryOpen(1)),
+      ),
+      findsOneWidget,
     );
+    expect(find.text(_ko.daySheetDiaryWriteCtaWritten), findsOneWidget);
   });
 
-  testWidgets('diary-written: 지난 날 일기 보기 → diary-view', (tester) async {
+  testWidgets('diary-written: 지난 날 일기 줄 → 그 일기의 diary-view', (tester) async {
     covers(const Covers(exits: ['day-sheet>diary-view']));
-    await _openDaySheet(
+    final container = await _openDaySheet(
       tester,
       CalendarDate(2026, 10, 12),
       scenario: 'diary-written',
     );
 
-    final entry = find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen);
-    await tester.ensureVisible(entry);
+    // 뒤의 오늘 화면에도 오늘 일기 줄이 있어 시트 안으로 좁힙니다.
+    final row = find.descendant(
+      of: find.byKey(const Key(ScreenIds.daySheet)),
+      matching: find.byType(DiaryEntryLine),
+    );
+    expect(row, findsOneWidget);
+    await tester.ensureVisible(row);
     await tester.pumpAndSettle();
-    await tester.tap(entry);
+    await tester.tap(row);
     await settleWithIo(tester);
     expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsOneWidget);
+    expect(
+      container.read(routerProvider).state.uri.toString(),
+      '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001',
+    );
+  });
+
+  testWidgets('diary-written: 그날 시트 일기 줄에는 날짜 열·태그 칩이 없습니다', (tester) async {
+    await _openDaySheet(
+      tester,
+      CalendarDate(2026, 10, 12),
+      scenario: 'diary-written',
+    );
+    final sheet = find.byKey(const Key(ScreenIds.daySheet));
+    final line = find.descendant(
+      of: sheet,
+      matching: find.byType(DiaryEntryLine),
+    );
+    await pumpUntil(tester, () => line.evaluate().isNotEmpty);
+    expect(
+      find.descendant(of: sheet, matching: find.byType(DiaryRow)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.descendant(of: sheet, matching: find.byType(DiaryEntries)),
+        matching: find.byType(TagChip),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('member: 미래 날은 일기 입구가 없습니다(D49)', (tester) async {

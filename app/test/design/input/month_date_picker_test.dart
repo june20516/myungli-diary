@@ -16,6 +16,7 @@ Widget _picker({
   ValueChanged<CalendarDate>? onSelect,
   ValueChanged<CalendarMonth>? onMonthChange,
   VoidCallback? onConfirm,
+  bool confirmDisabled = false,
 }) => inputApp(
   SingleChildScrollView(
     child: SizedBox(
@@ -28,7 +29,7 @@ Widget _picker({
         onSelect: onSelect ?? (_) {},
         onMonthChange: onMonthChange ?? (_) {},
         confirmLabel: '10월 13일 일기',
-        onConfirm: onConfirm ?? () {},
+        onConfirm: confirmDisabled ? null : onConfirm ?? () {},
       ),
     ),
   ),
@@ -90,6 +91,22 @@ void main() {
       await tester.tap(find.byType(PrimaryButton));
       await tester.pumpAndSettle();
       expect(confirms, 1);
+    });
+
+    testWidgets('onConfirm이 null이면 아래 버튼은 꺼지고 날은 그대로 고릅니다', (tester) async {
+      CalendarDate? picked;
+      await tester.pumpWidget(
+        _picker(confirmDisabled: true, onSelect: (date) => picked = date),
+      );
+      expect(
+        tester.widget<PrimaryButton>(find.byType(PrimaryButton)).onPressed,
+        isNull,
+      );
+      await tester.tap(
+        find.byKey(CalendarMonthView.cellKey(CalendarDate(2026, 10, 12))),
+      );
+      await tester.pump();
+      expect(picked, CalendarDate(2026, 10, 12));
     });
 
     testWidgets('칸 스크린리더 라벨은 날짜·요일과 일기 씀·오늘입니다', (tester) async {

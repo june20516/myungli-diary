@@ -21,7 +21,7 @@
   * `evidence`: 사주팔자 표, 십성·지장간·12운성·신살, 오행 분포, 용신 근거, 대운·세운 표 (D16·D18-⑥⑦). 표 데이터는 무료이고, 판정 근거·원전·원국 개인 해석·용신 근거는 잠금입니다(`evidenceAccess`, D60)
 * **탭 4개:** 오늘·달력·일기·나 (D48). 로그인은 첫 풀이 미리보기 뒤에 받습니다 (D50)
 * **캘린더:** 월간 길흉(날짜 칸 채우기, design 결정 V10), 음력 날짜, 절기 (04 §4.4, D18-⑧). 기본 일정(제목·날짜·종일 또는 시간·메모, D47③). 다른 날 전체 풀이는 없고 그날 성격 한 줄만 (D47⑥)
-* **일기:** 텍스트 작성, 작성 전 가이드 질문, 저장 후 해시태그 칩 (04 §4.3, D22, 06 §4). 하루 1편, 지난 날 쓰기 가능 (D49). 태그를 누르면 같은 태그의 일기 목록 (D47①). 오프라인은 로컬 초안만 (D47②)
+* **일기:** 텍스트 작성, 작성 전 가이드 질문, 저장 후 해시태그 칩 (04 §4.3, D22, 06 §4). 하루 여러 편(한 날짜 최대 10편, D83), 지난 날 쓰기 가능 (D49). 태그를 누르면 같은 태그의 일기 목록 (D47①). 오프라인은 로컬 초안만 (D47②)
 * **공유:** 오늘 카드 이미지 공유, 로그인 필요 (D47④). 일기는 공유하지 않습니다
 * **수익 (D53·D54):** 탭 루트 4곳 하단 적응형 배너 광고(AdMob 기본안), 광고 동의(iOS ATT, 필요한 지역 UMP)는 이 기기에서 처음 광고를 보이기 전에, 1개월 광고 제거권 인앱결제(자동 갱신 없음, 잠정 가격은 비공개 기록, RevenueCat 기본안)와 구매 복원. 근거 시트의 잠금 안내와 보상형 광고(D60): 사용자가 고를 때만, 매번 보상 고지 후, 광고가 준비됐을 때만 버튼을 켬. SSV `userId`로 계정을 넘기고 server 권한을 받아 엶
 * **알림 수신:** 아침 운세 (D18-⑨)
@@ -52,9 +52,11 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-10-21, app 세션 갱신)
+## 현재 상태 (2026-10-22, app 세션 갱신)
+* **D83 일기 하루 여러 편 완료**, 브랜치 `app/d83-diary`(PR 전). spec [`docs/specs/2026-10-22-diary-multi-design.md`](docs/specs/2026-10-22-diary-multi-design.md), 계획 [`docs/plans/2026-10-22-diary-multi.md`](docs/plans/2026-10-22-diary-multi.md), 결정 A67~A72. 일기 화면 경로는 id 기반(`diary-view?id=`, `diary-edit?id=`·`?date=`), 초안은 (계정, 날짜, 일기 id) 단위, 쓰는 입구는 그날 편수로 `first`·`more`·`full`(상한 `diaryDayLimit = 10`), 달력 도장은 `nextCursor`를 끝까지 따라 받고, 새 일기 저장은 `Idempotency-Key` 하나입니다. 같은 브랜치에서 design 2.7.0 컴포넌트 계약(`social-login-button` LINE·Google·연결됨, `account-choice`, drift #412·#389)과 2.8.0(#410: `diary-row`의 같은 날 묶음 카드 `day`·`entries`, `guide-question-card` `full`, 결정 A72)도 맞췄습니다(LINE·Google 공식 로고 자산 포함). 오늘·그날 시트는 `entries`를 직접 그리고(줄 builder provider 없음), 일기 목록은 같은 날 이웃을 묶음 카드로 그립니다. REST draft.14(D82) 생성 클라이언트도 받아 두었습니다(새 operation은 계획 7이 씀, 새 problem code 6개는 writing 문구 대기).
+* 아래는 2026-10-21까지의 상태입니다.
 * **drift 따라잡기(#391·#393·#403)**, 브랜치 `app/drift-1021`. REST draft.12 `DaeunPeriod.startYear`(#391, server #351 답)로 대운 시작 연도를 계약 값으로 바꾸고 생일 추정을 지웠습니다(`currentDaeunIndex`만 남음, `getChart` fixture에 `startYear`). IA D82(#393)로 `ia.g.dart`를 다시 생성하고, 아직 없는 `login-methods`·`account-merge`와 출구가 늘어난 `settings`를 `test/contract/ia_pending.dart`에 넣었습니다(#387에서 만듦). writing #398(#403)은 app 생성물·ARB 차이가 없습니다.
-* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 `docs/specs/2026-10-21-real-login-design.md`(아직 main에 없음)(카카오·Apple, A67~A69). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
+* **계획 7 로그인 spec 초안**: 브랜치 `app/real-login`의 `docs/specs/2026-10-21-real-login-design.md`(아직 main에 없음)(카카오·Apple, 초안의 A67~A69는 일기 결정과 겹쳐 real-login 개정 때 A73부터 다시 매김). D82(#387)로 LINE·Google과 로그인 수단·계정 합치기가 더해져 다시 고칩니다.
 * **계획 6(나·설정) 완료**이고 PR #345로 main에 병합됐습니다. 브랜치 `app/me-settings`, 계획 [`docs/plans/2026-10-20-me-settings.md`](docs/plans/2026-10-20-me-settings.md), 결정 A55~A66.
   * Task 1~2: 결정과 임시 문구 22개(A64), `getChart` fixture(`tool/gen_chart_fixtures.py`)·차트 캐시(A56)·차트 근거 주제(`ChartEvidenceSubject`)
   * Task 3~7: `settings-row`·`ohaeng.cell`·`saju-pillars`·`ohaeng-bar`·`manse-table`·`daeun-table` 컴포넌트, 간지 표(A65)
@@ -109,6 +111,7 @@
    * #387(D82): LINE·Google adapter, 로그인 화면 네 버튼(언어마다 맨 위 제공자만 다름), `login-methods`(붙이기·떼기, 마지막 하나는 막음), `account-merge`. 끝나면 `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`를 지웁니다. API는 server D82 계약을 따르고, 오기 전에는 화면과 adapter부터 합니다.
    * #311 남은 일: release 서명 지문(release·Play App Signing)과 스토어 URL만 Google Play 개발자 계정이 생긴 뒤로 남깁니다(debug 지문·패키지 이름은 먼저 알립니다).
    * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
+   * **컴포넌트 작업은 끝남(drift #412, 일기 브랜치):** `social-login-button`(LINE·Google·연결됨)과 `account-choice` 컴포넌트·golden·공식 로고 자산은 이미 있습니다. 계획 7은 화면(`login`·`login-methods`·`account-merge`)과 adapter만 합니다.
    * `ad-free` 화면(설정 광고 제거 줄의 대기 화면을 바꿈)과 구매 흐름, 남은 IA 경로(`ad-free>*`, `system-purchase>*`, `system-rewarded-ad>evidence-sheet`)와 상태(`ad-free:*`).
    * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
    * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
@@ -117,7 +120,7 @@
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).
    * 지운 일기 아래 쌓인 `diary-view`(태그 모아보기에서 다시 열어 지운 경우)는 돌아가면 "일기를 찾지 못했어요" 안내만 보입니다. 쌓인 화면을 정리할지는 실제 사용을 보고 정합니다.
 4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제, `repeat`·한자 `fontFallback`은 PR #269), 원전 인용 fixture는 writing 원고(W1-3)가 오면 채웁니다.
-5. **writing 대기 문구.** `city.not_found`·`timezone.invalid` 문구가 오면 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지우고 `problemMessages`에 연결합니다(대기 테스트가 실패해 알려 줍니다).
+5. **writing 대기 문구.** 대기 code는 draft.14의 `auth.identity_not_found`·`auth.provider_taken`·`auth.identity_in_use`·`auth.identity_pending_deletion`·`auth.last_identity`·`merge.token_invalid`(writing #468)입니다. 문구가 오면 `test/contract/problem_codes_contract_test.dart`의 `_awaitingWriting`에서 지우고 `problemMessages`에 연결합니다(대기 테스트가 실패해 알려 줍니다).
 6. **이후 계획으로 넘긴 사항**
    * 계획 6에서 넘긴 사항(차트 근거 주제, `legal`의 GeoNames 고지, 로그아웃·계정 삭제의 `revokeAndSignOut`, `getProfile` 사본 채우기, 수정 모드 extra)은 모두 반영했습니다. `toBirth(deviceRegionIsKorea)`는 한국 기기면 도시가 남아 있어도 `not_asked`·`Asia/Seoul`입니다(D29). 해외 출생 한국 거주자는 `profile-edit`의 출생지 줄로 지정합니다.
    * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함, 위 1의 #347 ②). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. RevenueCat·Crashlytics adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 IA 화면이 아니라 라우터 `onException`이 첫 화면으로 보내므로, 그보다 먼저 가로채는 전용 처리를 둡니다. 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).

@@ -88,6 +88,97 @@ Widget _diaryRows() => Builder(
   },
 );
 
+/// diary-row 같은 날 여러 편: 묶음 카드(배지 → 줄 3개 → 태그)와 이어지는 한 편 줄, 빈 본문 줄이 낀 묶음.
+Widget _diaryRowGroups() => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DiaryDayGroup(
+          date: CalendarDate(2026, 10, 12),
+          character: DayCharacterVariant.good,
+          characterLabel: ja ? '良い日' : '좋은 날',
+          entries: [
+            DiaryEntryData(
+              createdAt: DateTime(2026, 10, 12, 8, 40),
+              excerpt: ja ? '朝の空気が澄んでいて、散歩に出た。' : '아침 공기가 맑아서 산책을 나갔다.',
+              onTap: () {},
+            ),
+            DiaryEntryData(
+              createdAt: DateTime(2026, 10, 12, 13, 5),
+              excerpt: ja
+                  ? '久しぶりに連絡をくれた友達とお昼を食べた。話が長くなって午後の予定がずれたけれど、気分は良かった。'
+                  : '오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.',
+              onTap: () {},
+            ),
+            DiaryEntryData(
+              createdAt: DateTime(2026, 10, 12, 22, 30),
+              excerpt: '',
+              onTap: () {},
+            ),
+          ],
+          tag: TagChip(
+            name: ja ? '天乙貴人' : '천을귀인',
+            variant: TagChipVariant.good,
+            onTap: () {},
+          ),
+        ),
+        DiaryRow(
+          date: CalendarDate(2026, 10, 8),
+          excerpt: ja ? '朝の空気が急に冷たくなった。' : '아침 공기가 갑자기 차가워졌다.',
+          character: DayCharacterVariant.gisin,
+          characterLabel: ja ? '気をつける日' : '조심할 날',
+          isLast: true,
+          onTap: () {},
+        ),
+      ],
+    );
+  },
+);
+
+/// diary-row entries: 오늘 바탕 카드, 그날 시트(머리 포함), skeleton 두 가지.
+Widget _diaryEntries() => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    final entries = [
+      DiaryEntryData(
+        createdAt: DateTime(2026, 10, 12, 8, 40),
+        excerpt: ja ? '朝の空気が澄んでいて、散歩に出た。' : '아침 공기가 맑아서 산책을 나갔다.',
+        onTap: () {},
+      ),
+      DiaryEntryData(
+        createdAt: DateTime(2026, 10, 12, 13, 5),
+        excerpt: ja
+            ? '久しぶりに連絡をくれた友達とお昼を食べた。話が長くなって午後の予定がずれたけれど、気分は良かった。'
+            : '오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.',
+        onTap: () {},
+      ),
+      DiaryEntryData(
+        createdAt: DateTime(2026, 10, 12, 22, 30),
+        excerpt: '',
+        onTap: () {},
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DiaryEntries(entries: entries, surface: DiaryEntriesSurface.card),
+        const SizedBox(height: Space.s24),
+        DiaryEntries(
+          entries: entries,
+          surface: DiaryEntriesSurface.plain,
+          head: ja ? 'この日の日記 3件' : '이날 일기 3편',
+        ),
+        const SizedBox(height: Space.s24),
+        const DiaryEntriesSkeleton(),
+        const SizedBox(height: Space.s24),
+        const DiaryEntriesSkeleton(surface: DiaryEntriesSurface.plain),
+      ],
+    );
+  },
+);
+
 /// diary-editor: edit(질문·빈 본문), view(도장·태그), draft-indicator 세 상태.
 Widget _editors() => Builder(
   builder: (context) {
@@ -155,6 +246,14 @@ void main() {
 
   goldenTest('diary-row: 달 머리·줄·배지 대기·마지막 줄·skeleton', (tester) async {
     await goldenMatrix(tester, 'diary_row', _diaryRows);
+  });
+
+  goldenTest('diary-row: 같은 날 묶음 카드(3편, 빈 본문 줄)', (tester) async {
+    await goldenMatrix(tester, 'diary_row_group', _diaryRowGroups);
+  });
+
+  goldenTest('diary-row: entries(오늘 바탕·그날 시트 머리·skeleton)', (tester) async {
+    await goldenMatrix(tester, 'diary_entries', _diaryEntries);
   });
 
   goldenTest('tag-chip: good·bad·neutral', (tester) async {

@@ -106,7 +106,7 @@ class SentenceBlock extends StatelessWidget {
   final Color? color;
 
   /// 최대 줄 수. 넘치면 말줄임합니다(공유 이미지 feed의 두 줄). null이면 제한이 없고,
-  /// [SentenceBlockVariant.preview]는 항상 두 줄입니다.
+  /// [SentenceBlockVariant.preview]는 기본 두 줄입니다(같은 날 여러 편 줄은 한 줄로 줄임).
   final int? maxLines;
 
   /// 문장 글꼴의 대체 글꼴 맨 앞에 끼울 글꼴 family. 문장 글꼴에 없는 글리프만 이 글꼴로
@@ -151,7 +151,7 @@ class SentenceBlock extends StatelessWidget {
       termStyle: onTerm == null ? TermStyle.plain : terms,
       onTerm: onTerm,
       trailing: trailing,
-      maxLines: preview ? _previewMaxLines : maxLines,
+      maxLines: preview ? (maxLines ?? _previewMaxLines) : maxLines,
       overflow: preview || maxLines != null
           ? TextOverflow.ellipsis
           : TextOverflow.clip,

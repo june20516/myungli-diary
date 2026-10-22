@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/screen_breadcrumbs.dart';
-import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -21,6 +20,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -143,7 +143,8 @@ class _DiaryListScreenState extends ConsumerState<DiaryListScreen> {
     );
   }
 
-  /// 날짜 시트를 열고(A51), 고른 날에 일기가 있으면 보기, 없으면 쓰기로 갑니다.
+  /// 날짜 시트를 열고(A51), 고른 날의 새 일기 쓰기로 갑니다(A67). 일기가 있는 날도 새
+  /// 일기입니다(D83).
   Future<void> _pickDate() async {
     final date = await showMyungliSheet<CalendarDate>(
       context,
@@ -152,22 +153,14 @@ class _DiaryListScreenState extends ConsumerState<DiaryListScreen> {
       builder: (_) => PickDateSheet(today: ref.read(todayProvider)),
     );
     if (date == null || !mounted) return;
-    // 일기 여부를 묻지 못하면 쓰기 화면으로 갑니다. 쓰기 화면이 저장된 일기를 다시 확인하고
-    // 연결이 없으면 초안으로 엽니다(A48·A49).
-    bool written;
-    try {
-      written = await ref.read(diaryRepositoryProvider).existsOn(date);
-    } on AppError {
-      written = false;
-    }
-    if (!mounted) return;
-    final target = written ? ScreenIds.diaryView : ScreenIds.diaryEdit;
-    await context.push<void>(datedPathOf(target, date));
+    await context.push<void>(datedPathOf(ScreenIds.diaryEdit, date));
   }
 }
 
 /// 날짜 골라 쓰기 시트(`date-picker` `calendar`, A51): 보이는 달의 일기 쓴 날에 도장,
-/// 미래 날짜는 막고, 아래 버튼을 누르면 고른 날을 돌려주며 닫힙니다.
+/// 미래 날짜는 막고, 아래 버튼을 누르면 고른 날을 돌려주며 닫힙니다. 고른 날 일기를 다
+/// 채웠으면 버튼은 그 문구로 꺼집니다(D83 ②). 그날 일기를 받는 동안·받지 못하면 쓸 수 있는
+/// 것으로 그리고, 저장 422가 막습니다(A69).
 class PickDateSheet extends ConsumerStatefulWidget {
   /// [today]를 고른 채로 시트를 만듭니다.
   const new({required this.today, super.key});
@@ -183,6 +176,22 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
   late CalendarMonth _month = CalendarMonth.of(widget.today);
   late CalendarDate _selected = widget.today;
 
+  /// 시트가 열린 동안 고른 날들. 그날 일기 목록(autoDispose)을 붙잡아 같은 날로 돌아가도 다시
+  /// 묻지 않게 합니다. 붙잡기(`listenManual`)는 시트가 닫히면 함께 풀립니다.
+  final Set<CalendarDate> _kept = {};
+
+  void _keep(CalendarDate date) {
+    if (_kept.add(date)) {
+      ref.listenManual(diariesOnProvider(date), (_, _) {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _keep(_selected);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -191,6 +200,8 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
         ref.watch(diaryDatesProvider(_month)).value ?? const <CalendarDate>{};
     final dateLabel = DateFormat.MMMd(locale)
         .format(DateTime(_selected.year, _selected.month, _selected.day));
+    final count = ref.watch(diariesOnProvider(_selected)).value?.length ?? 0;
+    final full = diaryWriteEntryOf(count) == DiaryWriteEntry.full;
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: Space.s8),
       child: MonthDatePicker(
@@ -198,11 +209,16 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
         selected: _selected,
         today: widget.today,
         markedDates: marked,
-        onSelect: (date) => setState(() => _selected = date),
+        onSelect: (date) {
+          _keep(date);
+          setState(() => _selected = date);
+        },
         onMonthChange: (month) => setState(() => _month = month),
-        confirmLabel: l10n.diaryListPickDateConfirm(dateLabel),
+        confirmLabel: full
+            ? l10n.diaryListPickDateConfirmFull
+            : l10n.diaryListPickDateConfirm(dateLabel),
         confirmIdentifier: SlotIds.diaryListPickDateConfirm,
-        onConfirm: () => Navigator.of(context).pop(_selected),
+        onConfirm: full ? null : () => Navigator.of(context).pop(_selected),
       ),
     );
   }

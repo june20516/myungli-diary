@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -42,31 +44,56 @@ WidgetbookComponent _variant(PrimaryButtonVariant variant, String label) =>
       ],
     );
 
-WidgetbookComponent _social(SocialProvider provider, String label) =>
-    WidgetbookComponent(
-      name: provider.name,
-      useCases: [
-        for (final (name, loading, enabled) in [
-          ('기본', false, true),
-          ('loading', true, true),
-          ('꺼짐', false, false),
-        ])
-          WidgetbookUseCase(
-            name: name,
-            builder: (context) => Stage(
-              child: SizedBox(
-                width: 360,
-                child: SocialLoginButton(
-                  provider: provider,
-                  label: label,
-                  loading: loading,
-                  onPressed: enabled ? () {} : null,
-                ),
+WidgetbookComponent _social(SocialProvider provider) => WidgetbookComponent(
+  name: provider.name,
+  useCases: [
+    for (final (name, loading, enabled) in [
+      ('기본', false, true),
+      ('loading', true, true),
+      ('꺼짐', false, false),
+    ])
+      WidgetbookUseCase(
+        name: name,
+        builder: (context) => Stage(
+          child: SizedBox(
+            width: 360,
+            child: SocialLoginButton(
+              provider: provider,
+              label: socialProviderLabel(
+                AppLocalizations.of(context),
+                provider,
               ),
+              loading: loading,
+              onPressed: enabled ? () {} : null,
             ),
           ),
-      ],
-    );
+        ),
+      ),
+    WidgetbookUseCase(
+      name: 'connected(login-methods)',
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        final knobs = context.knobs;
+        final lastOne = knobs.boolean(label: '마지막 하나(누를 수 없음)');
+        return Stage(
+          child: SizedBox(
+            width: 360,
+            child: SocialLoginButton(
+              provider: provider,
+              label: socialProviderName(l10n, provider),
+              connected: true,
+              connectedLabel: l10n.loginMethodsRowConnected,
+              unlinkHint: l10n.loginMethodsRowUnlink,
+              disabled: knobs.boolean(label: 'disabled(다른 버튼 처리 중)'),
+              loading: knobs.boolean(label: 'loading(떼는 중)'),
+              onPressed: lastOne ? null : () {},
+            ),
+          ),
+        );
+      },
+    ),
+  ],
+);
 
 WidgetbookComponent _share(ShareButtonVariant variant) => WidgetbookComponent(
   name: variant.name,
@@ -138,7 +165,8 @@ class _SettingsRowsDemoState extends State<_SettingsRowsDemo> {
 }
 
 /// 동작 카탈로그: primary-button(filled·quiet·destructive), social-login-button
-/// (kakao·apple), share-button(icon·soft), settings-row(묶음).
+/// (kakao·line·google·apple, connected), share-button(icon·soft),
+/// settings-row(묶음).
 final WidgetbookFolder actionDirectory = WidgetbookFolder(
   name: '동작',
   children: [
@@ -153,8 +181,7 @@ final WidgetbookFolder actionDirectory = WidgetbookFolder(
     WidgetbookFolder(
       name: 'social-login-button',
       children: [
-        _social(SocialProvider.kakao, '카카오 로그인'),
-        _social(SocialProvider.apple, 'Apple로 로그인'),
+        for (final provider in SocialProvider.values) _social(provider),
       ],
     ),
     WidgetbookFolder(

@@ -7,6 +7,8 @@ part of 'diary_input.dart';
 // **************************************************************************
 
 abstract class _$DiaryInputCWProxy {
+  DiaryInput date(String date);
+
   DiaryInput body(String body);
 
   /// Creates a new instance with the provided field values.
@@ -17,7 +19,7 @@ abstract class _$DiaryInputCWProxy {
   /// ```dart
   /// DiaryInput(...).copyWith(id: 12, name: "My name")
   /// ```
-  DiaryInput call({String body});
+  DiaryInput call({String date, String body});
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -26,6 +28,9 @@ class _$DiaryInputCWProxyImpl implements _$DiaryInputCWProxy {
   const _$DiaryInputCWProxyImpl(this._value);
 
   final DiaryInput _value;
+
+  @override
+  DiaryInput date(String date) => call(date: date);
 
   @override
   DiaryInput body(String body) => call(body: body);
@@ -39,8 +44,15 @@ class _$DiaryInputCWProxyImpl implements _$DiaryInputCWProxy {
   /// DiaryInput(...).copyWith(id: 12, name: "My name")
   /// ```
   @override
-  DiaryInput call({Object? body = const $CopyWithPlaceholder()}) {
+  DiaryInput call({
+    Object? date = const $CopyWithPlaceholder(),
+    Object? body = const $CopyWithPlaceholder(),
+  }) {
     return DiaryInput(
+      date: date == const $CopyWithPlaceholder() || date == null
+          ? _value.date
+          // ignore: cast_nullable_to_non_nullable
+          : date as String,
       body: body == const $CopyWithPlaceholder() || body == null
           ? _value.body
           // ignore: cast_nullable_to_non_nullable
@@ -62,10 +74,13 @@ extension $DiaryInputCopyWith on DiaryInput {
 
 DiaryInput _$DiaryInputFromJson(Map<String, dynamic> json) =>
     $checkedCreate('DiaryInput', json, ($checkedConvert) {
-      $checkKeys(json, requiredKeys: const ['body']);
-      final val = DiaryInput(body: $checkedConvert('body', (v) => v as String));
+      $checkKeys(json, requiredKeys: const ['date', 'body']);
+      final val = DiaryInput(
+        date: $checkedConvert('date', (v) => v as String),
+        body: $checkedConvert('body', (v) => v as String),
+      );
       return val;
     });
 
 Map<String, dynamic> _$DiaryInputToJson(DiaryInput instance) =>
-    <String, dynamic>{'body': instance.body};
+    <String, dynamic>{'date': instance.date, 'body': instance.body};

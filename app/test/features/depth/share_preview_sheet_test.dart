@@ -80,7 +80,7 @@ TodayContent _content() => TodayContent(
   names: const GlossaryNames({
     'color': {'wood': '초록'},
   }),
-  diaryWritten: false,
+  diaries: const [],
 );
 
 /// 로고 자산 읽기만 끝나지 않게 붙잡는 자산 묶음. 다른 자산은 앱 묶음에서 읽습니다.

@@ -17,17 +17,21 @@ part 'diary_input.g.dart';
 )
 class DiaryInput {
   /// Returns a new [DiaryInput] instance.
-  DiaryInput({required this.body});
+  DiaryInput({required this.date, required this.body});
+
+  @JsonKey(name: r'date', required: true, includeIfNull: false)
+  final String date;
 
   @JsonKey(name: r'body', required: true, includeIfNull: false)
   final String body;
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is DiaryInput && other.body == body;
+      identical(this, other) ||
+      other is DiaryInput && other.date == date && other.body == body;
 
   @override
-  int get hashCode => body.hashCode;
+  int get hashCode => date.hashCode + body.hashCode;
 
   factory DiaryInput.fromJson(Map<String, dynamic> json) =>
       _$DiaryInputFromJson(json);

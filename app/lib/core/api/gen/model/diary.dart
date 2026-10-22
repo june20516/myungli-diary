@@ -20,6 +20,8 @@ part 'diary.g.dart';
 class Diary {
   /// Returns a new [Diary] instance.
   Diary({
+    required this.id,
+
     required this.date,
 
     required this.body,
@@ -34,6 +36,9 @@ class Diary {
 
     required this.updatedAt,
   });
+
+  @JsonKey(name: r'id', required: true, includeIfNull: false)
+  final String id;
 
   @JsonKey(name: r'date', required: true, includeIfNull: false)
   final String date;
@@ -60,6 +65,7 @@ class Diary {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Diary &&
+          other.id == id &&
           other.date == date &&
           other.body == body &&
           other.guideQuestion == guideQuestion &&
@@ -70,6 +76,7 @@ class Diary {
 
   @override
   int get hashCode =>
+      id.hashCode +
       date.hashCode +
       body.hashCode +
       guideQuestion.hashCode +

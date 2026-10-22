@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
@@ -125,7 +126,9 @@ Widget _luckyCardWithTags() => Builder(
 Widget _guideQuestionCard(GuideQuestionState state) => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
-    final written = state == GuideQuestionState.after;
+    final written = state != GuideQuestionState.before;
+    // full은 버튼 글자가 이유를 말하므로 실제 문구(`todayGuideCtaFull`)를 씁니다.
+    final fullLabel = AppLocalizations.of(context).todayGuideCtaFull;
     return GuideQuestionCard(
       state: state,
       eyebrow: ja ? '今日の質問' : '오늘의 질문',
@@ -136,7 +139,9 @@ Widget _guideQuestionCard(GuideQuestionState state) => Builder(
           ),
         ],
       ),
-      actionLabel: ja
+      actionLabel: state == GuideQuestionState.full
+          ? fullLabel
+          : ja
           ? (written ? '書いた日記を見る' : '日記を書く')
           : (written ? '쓴 일기 보기' : '일기 쓰기'),
       onAction: () {},
@@ -258,6 +263,16 @@ void main() {
       tester,
       'today_guide_question_card_after',
       () => _guideQuestionCard(GuideQuestionState.after),
+    );
+  });
+
+  goldenTest('guide-question-card: full(상한을 채운 날, 도장 유지·버튼 disabled)', (
+    tester,
+  ) async {
+    await goldenMatrix(
+      tester,
+      'today_guide_question_card_full',
+      () => _guideQuestionCard(GuideQuestionState.full),
     );
   });
 

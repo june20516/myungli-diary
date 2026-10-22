@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -13,6 +14,7 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
@@ -33,6 +35,7 @@ import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
@@ -59,7 +62,9 @@ const Set<String> todayExits = {
   ScreenIds.sharePreview,
 };
 
-/// 오늘(탭 루트): 날의 성격, 총운, 행운 칩, 가이드 질문을 보여 주고 깊이 시트와 일기로 잇습니다.
+/// 오늘(탭 루트): 날의 성격, 총운, 행운 칩, 가이드 질문과 오늘 쓴 일기 줄을 보여 주고 깊이
+/// 시트와 일기로 잇습니다. 가이드 질문 카드는 언제나 새 일기 쓰기이고, 오늘 일기를 다 채웠으면
+/// 누를 수 없습니다(D83 ②).
 ///
 /// 값은 [todayContentProvider] 한 곳에서 받고, 표시 값 변환은 `today_presentation.dart`가
 /// 합니다. 처음 불러올 때는 카드 자리 skeleton, 캐시 → server 응답이 다르면 내용이 스밉니다.
@@ -163,14 +168,17 @@ class _TodayBody extends ConsumerWidget {
   final Widget offlineNotice;
   final DepthSheets sheets;
 
-  /// 일기 화면으로 갔다가 돌아오면 오늘 일기 여부를 다시 묻습니다(쓰고 왔으면 도장이 찍힘).
-  Future<void> _openDiary(BuildContext context, WidgetRef ref) async {
-    final target = content.diaryWritten
-        ? ScreenIds.diaryView
-        : ScreenIds.diaryEdit;
-    await context.push<void>(pathOf(target));
+  /// 오늘 새 일기를 쓰러 갑니다(A67·A69). 돌아오면 오늘 일기 목록과 달력 도장을 다시 묻습니다
+  /// (쓰고 왔으면 줄이 늘고 도장이 찍힘).
+  Future<void> _writeDiary(BuildContext context, WidgetRef ref) async {
+    final date = content.view.date;
+    await context.push<void>(datedPathOf(ScreenIds.diaryEdit, date));
     if (context.mounted) {
-      ref.invalidate(todayDiaryExistsProvider);
+      // 저장하면 쓰기 화면이 이미 다시 묻게 합니다. 저장 없이 돌아온 경우(취소·초안만 남김)나
+      // 그 사이 다른 기기에서 바뀐 경우를 위해 돌아올 때 한 번 더 묻습니다.
+      ref
+        ..invalidate(diariesOnProvider(date))
+        ..invalidate(diaryDatesProvider);
     }
   }
 
@@ -213,6 +221,8 @@ class _TodayBody extends ConsumerWidget {
     final timeUnknown = display.timeUnknown;
     final head = display.head;
     final tag = display.tag;
+    final diaries = content.diaries;
+    final entry = diaryWriteEntryOf(diaries.length);
     // 오늘 화면의 용어는 오늘 응답의 슬롯에서 왔으므로 오늘 응답을 출처로 넘깁니다.
     void openExplain(String termId, String slotId) => sheets.openExplain(
       context,
@@ -307,17 +317,27 @@ class _TodayBody extends ConsumerWidget {
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             const _TodayEventSummary(),
             GuideQuestionCard(
-              state: content.diaryWritten
-                  ? GuideQuestionState.after
-                  : GuideQuestionState.before,
+              state: switch (entry) {
+                DiaryWriteEntry.first => GuideQuestionState.before,
+                DiaryWriteEntry.more => GuideQuestionState.after,
+                DiaryWriteEntry.full => GuideQuestionState.full,
+              },
               eyebrow: l10n.todayGuideEyebrow,
               question: display.guide,
-              actionLabel: content.diaryWritten
-                  ? l10n.todayGuideCtaWritten
-                  : l10n.todayGuideCta,
-              onAction: () => _openDiary(context, ref),
+              actionLabel: switch (entry) {
+                DiaryWriteEntry.first => l10n.todayGuideCta,
+                DiaryWriteEntry.more => l10n.todayGuideCtaWritten,
+                DiaryWriteEntry.full => l10n.todayGuideCtaFull,
+              },
+              // full이면 카드가 버튼을 막습니다(D83 ②, 눌러도 아무 일 없음).
+              onAction: () => unawaited(_writeDiary(context, ref)),
               questionSlotId: SlotIds.todayGuideQuestion,
               actionSlotId: SlotIds.todayGuideCta,
+            ),
+            // 오늘 쓴 일기 줄(작성 순). 누르면 그 일기의 diary-view이고, 0편이면 그리지 않습니다.
+            DiaryEntries(
+              surface: DiaryEntriesSurface.card,
+              entries: diaryEntriesDataOf(context, diaries),
             ),
           ],
         ),

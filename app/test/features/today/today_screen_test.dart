@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -19,6 +21,8 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
@@ -29,6 +33,7 @@ import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart'
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -102,6 +107,38 @@ final class _DailyHold extends Interceptor {
     if (options.path.startsWith('/v1/daily/')) {
       paths.add(options.path);
       await hold?.future;
+    }
+    handler.next(options);
+  }
+}
+
+/// 일기 목록(`GET /v1/diaries`)을 503으로 답합니다.
+final class _FailDiaryList extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method == 'GET' && options.path == '/v1/diaries') {
+      handler.reject(
+        DioException.badResponse(
+          statusCode: 503,
+          requestOptions: options,
+          response: Response<Object?>(
+            requestOptions: options,
+            statusCode: 503,
+            data: {
+              'type': 'about:blank',
+              'title': 'Unavailable',
+              'status': 503,
+              'code': 'service.unavailable',
+              'traceId': 'test',
+            },
+            headers: Headers.fromMap({
+              Headers.contentTypeHeader: ['application/problem+json'],
+            }),
+          ),
+        ),
+        true,
+      );
+      return;
     }
     handler.next(options);
   }
@@ -291,14 +328,145 @@ void main() {
     });
   });
 
-  testWidgets('diary-written: 가이드 카드 after와 쓴 일기 보기', (tester) async {
-    await pumpApp(tester, scenario: 'diary-written');
-    await _settleToday(tester);
-    final guide = tester.widget<GuideQuestionCard>(
-      find.byType(GuideQuestionCard),
-    );
-    expect(guide.state, GuideQuestionState.after);
-    expect(guide.actionLabel, _ko.todayGuideCtaWritten);
+  group('오늘 일기 입구와 줄(D83)', () {
+    GuideQuestionCard guideOf(WidgetTester tester) =>
+        tester.widget<GuideQuestionCard>(find.byType(GuideQuestionCard));
+
+    testWidgets('0편: 일기 쓰기, 일기 줄 없음', (tester) async {
+      await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+      final guide = guideOf(tester);
+      expect(guide.state, GuideQuestionState.before);
+      expect(guide.actionLabel, _ko.todayGuideCta);
+      expect(guide.onAction, isNotNull);
+      expect(find.byType(DiaryEntryLine), findsNothing);
+      expect(find.byKey(DiaryEntries.cardKey), findsNothing);
+    });
+
+    testWidgets('2편: 새 일기 쓰기와 작성 순 줄 2개, 첫 줄은 그 일기 보기', (tester) async {
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          diariesOnProvider.overrideWith(
+            (ref, date) async => [
+              for (final i in [1, 2])
+                DiarySummary(
+                  id: 'today-$i',
+                  date: date.toIso(),
+                  createdAt: DateTime.utc(2026, 10, 13, 9, i),
+                  excerpt: '오늘 $i번째 일기',
+                  featuredTags: const [],
+                ),
+            ],
+          ),
+        ],
+      );
+      await _settleToday(tester);
+      final guide = guideOf(tester);
+      expect(guide.state, GuideQuestionState.after);
+      expect(guide.actionLabel, _ko.todayGuideCtaWritten);
+      final lines = tester
+          .widgetList<DiaryEntryLine>(find.byType(DiaryEntryLine))
+          .toList();
+      expect(
+        [for (final line in lines) line.excerpt],
+        ['오늘 1번째 일기', '오늘 2번째 일기'],
+      );
+      // 줄은 가이드 질문 카드 아래, 오늘 바탕 카드 안입니다.
+      expect(
+        tester.getTopLeft(find.byKey(DiaryEntries.cardKey)).dy,
+        greaterThan(tester.getBottomLeft(find.byType(GuideQuestionCard)).dy),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(DiaryEntries.cardKey),
+          matching: find.byType(DiaryEntryLine),
+        ),
+        findsNWidgets(2),
+      );
+      // 날짜 열·태그 칩 없이 줄만 있습니다.
+      expect(find.byType(DiaryRow), findsNothing);
+
+      await tester.ensureVisible(find.byType(DiaryEntryLine).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DiaryEntryLine).first);
+      await pumpUntil(
+        tester,
+        () => find
+            .byKey(const ValueKey(ScreenIds.diaryView))
+            .evaluate()
+            .isNotEmpty,
+      );
+      expect(
+        container.read(routerProvider).state.uri.toString(),
+        '/diary-view?id=today-1',
+      );
+      await settleWithIo(tester);
+    });
+
+    testWidgets('diary-day-full: 다 채웠다는 문구, 버튼이 꺼져 눌러도 그대로', (tester) async {
+      final container = await pumpApp(tester, scenario: 'diary-day-full');
+      await _settleToday(tester);
+      final guide = guideOf(tester);
+      expect(guide.state, GuideQuestionState.full);
+      expect(guide.actionLabel, _ko.todayGuideCtaFull);
+      expect(find.byType(DiaryEntryLine), findsNWidgets(10));
+
+      await tester.ensureVisible(find.byKey(GuideQuestionCard.buttonKey));
+      await tester.pumpAndSettle();
+      // brief가 "누르면 아무 이동 없음"까지 요구해 실제로 눌러 봅니다. 꺼진 버튼은 누름을 받지
+      // 않을 수 있어 hit 경고를 끄고, 결과는 아래 경로로 단언합니다.
+      await tester.tap(
+        find.byKey(GuideQuestionCard.buttonKey),
+        warnIfMissed: false,
+      );
+      await settleWithIo(tester);
+      expect(
+        container.read(routerProvider).state.uri.toString(),
+        pathOf(ScreenIds.today),
+      );
+    });
+
+    testWidgets('일기 줄에는 태그 칩이 없고, 누르면 그 일기 보기입니다', (tester) async {
+      final container = await pumpApp(tester, scenario: 'diary-written');
+      await _settleToday(tester);
+      final line = find.descendant(
+        of: find.byKey(DiaryEntries.cardKey),
+        matching: find.byType(DiaryEntryLine),
+      );
+      await pumpUntil(tester, () => line.evaluate().isNotEmpty);
+      expect(
+        find.descendant(
+          of: find.byKey(DiaryEntries.cardKey),
+          matching: find.byType(TagChip),
+        ),
+        findsNothing,
+      );
+
+      await tester.ensureVisible(line);
+      await tester.pumpAndSettle();
+      await tester.tap(line);
+      await settleWithIo(tester);
+      expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsNothing);
+      expect(
+        container.read(routerProvider).state.uri.toString(),
+        '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a005',
+      );
+    });
+
+    testWidgets('목록을 받지 못하면 0편으로: 일기 쓰기, 줄 없음', (tester) async {
+      await pumpApp(
+        tester,
+        scenario: 'diary-written',
+        network: _FailDiaryList(),
+      );
+      await _settleToday(tester);
+      final guide = guideOf(tester);
+      expect(guide.state, GuideQuestionState.before);
+      expect(guide.actionLabel, _ko.todayGuideCta);
+      expect(find.byType(DiaryEntryLine), findsNothing);
+    });
   });
 
   testWidgets('loading: 응답 전에는 카드 자리 skeleton입니다', (tester) async {

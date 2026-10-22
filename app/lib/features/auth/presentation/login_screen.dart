@@ -63,6 +63,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       SocialProvider.apple => await controller.signInWithApple(
         showDiscardNotice: _showDiscardNotice,
       ),
+      // LINE·Google 버튼은 아직 이 화면에 없습니다(계획 7에서 adapter와 함께 붙임).
+      SocialProvider.line || SocialProvider.google => throw StateError(
+        '$provider 로그인은 아직 연결하지 않았습니다.',
+      ),
     };
     if (!mounted) return;
     setState(() {
