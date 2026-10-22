@@ -32,7 +32,6 @@ type Querier interface {
 	// ListRemainingPassGrants는 계정의 기간 상품 사용 구간 중 아직 끝나지 않은 것을 돌려줍니다(남은 날 계산).
 	// 끊긴 구간(revoked_at)과 보상형 광고 구간은 옮기지 않으므로 뺍니다.
 	ListRemainingPassGrants(ctx context.Context, arg ListRemainingPassGrantsParams) ([]ListRemainingPassGrantsRow, error)
-	// 계정 합치기(S110·S111)의 쿼리입니다. A는 지금 로그인한 유저 계정, B는 합쳐져 지워지는 유저 계정입니다.
 	// LockActiveIdentityAccount는 합치기 증명으로 찾은 인증 계정과 그 유저 계정이 아직 있고 active인지 확인하고,
 	// 합치기 토큰을 넣는 동안 두 행이 지워지지 않게 공유 잠금을 잡습니다. 그 사이 떼거나 지웠으면 행이 없습니다.
 	LockActiveIdentityAccount(ctx context.Context, identityID uuid.UUID) (uuid.UUID, error)
@@ -40,11 +39,10 @@ type Querier interface {
 	LockMergeAccounts(ctx context.Context, ids []uuid.UUID) ([]LockMergeAccountsRow, error)
 	// LockMergeTicket은 A·B에 묶인 합치기 토큰 행을 잠급니다. 그 사이 B 삭제·인증 계정 떼기로 지워졌으면 행이 없습니다.
 	LockMergeTicket(ctx context.Context, arg LockMergeTicketParams) (LockMergeTicketRow, error)
-	// 아래는 합치기 실행(Execute, S111)의 쿼리입니다. 모두 한 트랜잭션에서 A·B 계정 행을 FOR UPDATE로 잡은 뒤 부릅니다.
 	// MergeTicketAccounts는 토큰 해시로 합치기 토큰의 A·B를 찾습니다. 잠그기 전에 잠글 계정을 정하려고 읽으며, 확인은 LockMergeTicket이 합니다.
 	MergeTicketAccounts(ctx context.Context, tokenHash []byte) (MergeTicketAccountsRow, error)
 	// MoveDiaries는 B의 일기를 지운 것까지 모두 A로 옮깁니다. 하루 10편 상한은 검사하지 않습니다(D83 ④).
-	// updated_at은 trigger가 옮긴 시각으로 바꿉니다.
+	// account_id만 바꾸므로 updated_at trigger가 수정 시각을 바꾸지 않습니다(migration 00017). 일정도 같습니다.
 	MoveDiaries(ctx context.Context, arg MoveDiariesParams) error
 	MoveSchedules(ctx context.Context, arg MoveSchedulesParams) error
 	// MoveSelections는 남은 B 문장 선택 기록을 A로 옮깁니다. 반응은 selection_id로 따라갑니다.
@@ -52,9 +50,9 @@ type Querier interface {
 	// ReplaceProfileWithOther는 B의 프로필(사주 정보·호칭·설정)로 A의 프로필을 바꾸고, A에 없으면 만듭니다(profile = other).
 	// B에 프로필이 없으면 0행입니다.
 	ReplaceProfileWithOther(ctx context.Context, arg ReplaceProfileWithOtherParams) (int64, error)
-	// 겹친 문장 선택 기록은 같은 (date, slot, birth_hash)가 두 계정에 모두 있는 것입니다. birth_hash가 NULL인 행은 unique에서
-	// 서로 다른 값이라 겹치지 않습니다. loser는 지울 쪽, winner는 남길 쪽(고른 프로필 쪽) 계정입니다.
 	// TallyOverlappingReactions는 지울 쪽 겹친 선택에 붙은 살아 있는 반응을 문장별 집계에 더합니다(D57).
+	// 겹친 문장 선택 기록은 같은 (date, slot, birth_hash)가 두 계정에 모두 있는 것입니다. birth_hash가 NULL인 행은 unique에서
+	// 서로 다른 값이라 겹치지 않습니다. loser는 지울 쪽, winner는 남길 쪽(고른 프로필 쪽) 계정이며 아래 두 삭제도 같습니다.
 	// 계정 삭제의 TallyReactions와 같은 순서로 집계 행을 잠가 deadlock을 막습니다.
 	TallyOverlappingReactions(ctx context.Context, arg TallyOverlappingReactionsParams) error
 }

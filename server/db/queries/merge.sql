@@ -1,5 +1,3 @@
--- 계정 합치기(S110·S111)의 쿼리입니다. A는 지금 로그인한 유저 계정, B는 합쳐져 지워지는 유저 계정입니다.
-
 -- LockActiveIdentityAccount는 합치기 증명으로 찾은 인증 계정과 그 유저 계정이 아직 있고 active인지 확인하고,
 -- 합치기 토큰을 넣는 동안 두 행이 지워지지 않게 공유 잠금을 잡습니다. 그 사이 떼거나 지웠으면 행이 없습니다.
 -- name: LockActiveIdentityAccount :one
@@ -41,8 +39,6 @@ WHERE account_id = @account_id
   AND revoked_at IS NULL
   AND expires_at > @now::timestamptz
 ORDER BY entitlement, starts_at;
-
--- 아래는 합치기 실행(Execute, S111)의 쿼리입니다. 모두 한 트랜잭션에서 A·B 계정 행을 FOR UPDATE로 잡은 뒤 부릅니다.
 
 -- MergeTicketAccounts는 토큰 해시로 합치기 토큰의 A·B를 찾습니다. 잠그기 전에 잠글 계정을 정하려고 읽으며, 확인은 LockMergeTicket이 합니다.
 -- name: MergeTicketAccounts :one
@@ -99,17 +95,16 @@ WHERE b.account_id = @other_account_id
   AND NOT EXISTS (SELECT 1 FROM diary_days a WHERE a.account_id = @account_id AND a.date = b.date);
 
 -- MoveDiaries는 B의 일기를 지운 것까지 모두 A로 옮깁니다. 하루 10편 상한은 검사하지 않습니다(D83 ④).
--- updated_at은 trigger가 옮긴 시각으로 바꿉니다.
+-- account_id만 바꾸므로 updated_at trigger가 수정 시각을 바꾸지 않습니다(migration 00017). 일정도 같습니다.
 -- name: MoveDiaries :exec
 UPDATE diaries SET account_id = @account_id WHERE account_id = @other_account_id;
 
 -- name: MoveSchedules :exec
 UPDATE schedules SET account_id = @account_id WHERE account_id = @other_account_id;
 
--- 겹친 문장 선택 기록은 같은 (date, slot, birth_hash)가 두 계정에 모두 있는 것입니다. birth_hash가 NULL인 행은 unique에서
--- 서로 다른 값이라 겹치지 않습니다. loser는 지울 쪽, winner는 남길 쪽(고른 프로필 쪽) 계정입니다.
-
 -- TallyOverlappingReactions는 지울 쪽 겹친 선택에 붙은 살아 있는 반응을 문장별 집계에 더합니다(D57).
+-- 겹친 문장 선택 기록은 같은 (date, slot, birth_hash)가 두 계정에 모두 있는 것입니다. birth_hash가 NULL인 행은 unique에서
+-- 서로 다른 값이라 겹치지 않습니다. loser는 지울 쪽, winner는 남길 쪽(고른 프로필 쪽) 계정이며 아래 두 삭제도 같습니다.
 -- name: TallyOverlappingReactions :exec
 INSERT INTO reaction_tallies (message_key, variant, reaction, count)
 SELECT s.message_key, s.variant, r.reaction, count(*)

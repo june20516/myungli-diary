@@ -167,10 +167,8 @@ INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, sta
 VALUES (@account_id, 'insight', 'rewarded_ad', @source_ref, @starts_at, @expires_at)
 ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING;
 
--- 아래는 계정 합치기(MovePurchasesTx, spec §5.3·§6.3)의 쿼리입니다.
-
 -- name: ListMovablePassSegments :many
--- 옮길 계정의 아직 끝나지 않은 광고 제거권 구간입니다. 끊긴 구간(환불)과 보상형 광고 구간은 옮기지 않으므로 뺍니다.
+-- 계정 합치기(MovePurchasesTx, spec §5.3·§6.3)로 옮길 계정의 아직 끝나지 않은 광고 제거권 구간입니다. 끊긴 구간(환불)과 보상형 광고 구간은 옮기지 않으므로 뺍니다.
 -- 순서는 권한, 그 계정 사슬의 시작 순입니다(받는 계정 끝에 차례로 붙임).
 SELECT g.id, g.entitlement, g.source_ref, g.starts_at, g.expires_at
 FROM entitlement_grants g

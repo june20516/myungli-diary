@@ -66,7 +66,7 @@ func wireBillingReadings(t *testing.T, deps *serverDeps, service *fortune.Servic
 	t.Helper()
 	contents := content.NewStore(deps.Pool, deps.Clock, deps.Logger)
 	deps.Contents = contents
-	store := billing.NewStore(deps.Pool, deps.Clock)
+	store := billing.NewStore(deps.Pool, deps.Clock, billing.AdFreeCatalog([]string{flowProductID}))
 	deps.Entitlements = store
 	deps.Ledger = store
 	deps.Readings = newReadings(contents, service, store, deps.Logger, deps.Clock)

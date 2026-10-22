@@ -3,6 +3,7 @@ package httpapi_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"testing"
@@ -210,4 +211,38 @@ func TestMergeAccounts_Unconfigured_503(t *testing.T) {
 		})
 	}
 	assert.Zero(t, fm.executed, "합치지 않습니다")
+}
+
+// flakyAccounts는 Me가 처음 failures번 실패하고 그 뒤 성공하는 AccountService 대역입니다.
+type flakyAccounts struct {
+	fakeAccounts
+	failures int
+	calls    int
+}
+
+func (f *flakyAccounts) Me(ctx context.Context, id uuid.UUID) (account.Me, error) {
+	f.calls++
+	if f.calls <= f.failures {
+		return account.Me{}, errors.New("db blip")
+	}
+	return f.fakeAccounts.Me(ctx, id)
+}
+
+// 합친 뒤 Me 읽기가 한 번 실패하면 다시 읽어 200이고, 두 번 실패하면 500입니다. 합치기는 한 번만 합니다.
+func TestMergeAccounts_RetriesMeOnce(t *testing.T) {
+	for _, tc := range []struct {
+		failures, status int
+	}{{1, http.StatusOK}, {2, http.StatusInternalServerError}} {
+		fm := &fakeMerges{}
+		accounts := &flakyAccounts{fakeAccounts: fakeAccounts{me: account.Me{AccountID: fixedAccountID}}, failures: tc.failures}
+		api := mergeAPI(fm)
+		api.Accounts = accounts
+		handler, _ := newHandlerAPI(t, api)
+
+		rec := serve(handler, postJSON(t, "/v1/me/merge", mergeAccountsBody))
+
+		assert.Equal(t, tc.status, rec.Code, "실패 %d번: %s", tc.failures, rec.Body.String())
+		assert.Equal(t, 1, fm.executed)
+		assert.Equal(t, 2, accounts.calls)
+	}
 }

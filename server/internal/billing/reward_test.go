@@ -35,7 +35,7 @@ func newRewardFixture(t *testing.T) rewardFixture {
 	return rewardFixture{
 		pool:    pool,
 		rewards: billing.NewRewards(pool, clk, logging.New(logs, slog.LevelDebug, "")),
-		store:   billing.NewStore(pool, clk),
+		store:   billing.NewStore(pool, clk, nil),
 		logs:    logs,
 	}
 }

@@ -160,9 +160,6 @@ func (s *Service) Preview(ctx context.Context, accountID uuid.UUID, providerName
 		return err
 	})
 	if err != nil {
-		if errors.Is(err, ErrNoAccount) {
-			return "", time.Time{}, Summary{}, ErrNoAccount
-		}
 		return "", time.Time{}, Summary{}, err
 	}
 

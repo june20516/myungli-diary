@@ -137,8 +137,9 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
 	contents := content.NewStore(pool, clock.System{}, logger)
-	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements 응답에 쓰입니다.
-	entitlements := billing.NewStore(pool, clock.System{})
+	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements·listPurchases 응답에 쓰입니다.
+	// 구매 목록이 기간 상품을 알아보도록 결제 동기화(newBillingParts)와 같은 상품 목록을 넘깁니다.
+	entitlements := billing.NewStore(pool, clock.System{}, billing.AdFreeCatalog(billingCfg.AdFreeProductIDs))
 	readings := newReadings(contents, fortuneService, entitlements, logger, clock.System{})
 
 	// 외부 제공자 호출(로그인 제공자·App Check)이 이 client 하나를 나눠 씁니다.

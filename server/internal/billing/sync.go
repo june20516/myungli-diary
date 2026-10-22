@@ -75,7 +75,7 @@ func NewSyncer(pool *pgxpool.Pool, src PurchaseSource, cfg SyncConfig, clk clock
 		catalog:        cfg.Catalog,
 		productionOnly: cfg.ProductionOnly,
 		clk:            clk,
-		store:          NewStore(pool, clk),
+		store:          NewStore(pool, clk, cfg.Catalog),
 		log:            cmp.Or(cfg.Logger, slog.New(slog.DiscardHandler)),
 	}
 }

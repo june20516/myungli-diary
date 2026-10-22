@@ -45,6 +45,8 @@ func TestMergeFlow_MergeAccounts(t *testing.T) {
 	require.Equal(t, http.StatusOK, meB.status, "B me 본문: %v", meB.body)
 	accountB, _ := meB.body["accountId"].(string)
 	revenueCat.add(accountB, "purchase-merge-b", now.Add(-24*time.Hour))
+	// B가 예전에 산 광고 제거권은 합치기 전에 끝났습니다.
+	revenueCat.add(accountB, "purchase-merge-b-old", now.AddDate(0, -3, 0))
 	require.Equal(t, http.StatusOK, env.do(http.MethodPost, "/v1/billing/restore", accessB, nil).status)
 
 	preview := env.do(http.MethodPost, "/v1/me/merge/preview", accessA, map[string]string{"provider": "line", "idToken": lineToken, "nonce": flowNonce})
@@ -75,9 +77,12 @@ func TestMergeFlow_MergeAccounts(t *testing.T) {
 	listed := env.do(http.MethodGet, "/v1/me/purchases", accessA, nil)
 	require.Equal(t, http.StatusOK, listed.status, "목록 본문: %v", listed.body)
 	items, _ := listed.body["items"].([]any)
-	require.Len(t, items, 2)
+	require.Len(t, items, 3)
 	moved, _ := items[0].(map[string]any)
 	own, _ := items[1].(map[string]any)
+	ended, _ := items[2].(map[string]any)
+	assert.Equal(t, "expired", ended["status"], "합치기 전에 끝난 B 구매는 A 목록에서 expired입니다: %v", ended)
+	assert.NotContains(t, ended, "period", "A 구간이 없습니다")
 	assert.Equal(t, "pending", moved["status"], "B 구매는 A 구간 뒤에 대기합니다: %v", moved)
 	assert.Equal(t, "active", own["status"], "A 구매는 그대로 사용 중입니다: %v", own)
 	movedPeriod, _ := moved["period"].(map[string]any)

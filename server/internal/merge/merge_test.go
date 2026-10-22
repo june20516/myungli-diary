@@ -19,6 +19,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
@@ -210,6 +211,27 @@ func TestPreview_NoAccount(t *testing.T) {
 
 	require.ErrorIs(t, err, merge.ErrNoAccount)
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM auth_identities WHERE provider = 'line'`), "연결로 넘어가지 않습니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
+}
+
+func (f *fixture) googleProof(subject string) auth.LinkProof {
+	claims := providertest.GoogleClaims(subject, testNonce, providertest.GoogleClientIDs[0], provider.GoogleIssuers[0], f.clk.Now())
+	return auth.LinkProof{IDToken: f.fake.SignIDToken(claims), RawNonce: testNonce}
+}
+
+// Google 증명도 같은 두 갈래의 422입니다. A에 연결된 Google이면 같은 계정, 어디에도 없는 Google이면 연결 없음입니다.
+func TestPreview_GoogleUnprocessable(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	_, err := f.auth.LinkIdentity(f.ctx, me, "google", f.googleProof("google-a"))
+	require.NoError(t, err)
+
+	_, _, _, err = f.service.Preview(f.ctx, me, "google", f.googleProof("google-a"))
+	require.ErrorIs(t, err, merge.ErrSameAccount)
+
+	_, _, _, err = f.service.Preview(f.ctx, me, "google", f.googleProof("google-free"))
+	require.ErrorIs(t, err, merge.ErrNoAccount)
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE provider = 'google'`), "연결로 넘어가지 않습니다")
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
 }
 
@@ -540,8 +562,27 @@ func TestExecute_PurchasesAppendRemaining(t *testing.T) {
 	f.seedPassGrant(t, me, "p-a", time.Date(2026, 10, 5, 0, 0, 0, 0, time.UTC), time.Date(2026, 11, 5, 0, 0, 0, 0, time.UTC))
 	f.seedPurchase(t, other, "p-b", time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC))
 	f.seedPassGrant(t, other, "p-b", time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 11, 1, 0, 0, 0, 0, time.UTC))
+	// 합치기 전에 끝난 B 구매는 A 구간을 받지 않습니다.
+	f.seedPurchase(t, other, "p-b-old", time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC))
+	f.seedPassGrant(t, other, "p-b-old", time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC))
 
 	require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
+
+	// A의 구매 목록: 옮긴 구매는 A 구간으로 대기, 합치기 전에 끝난 B 구매는 구간 없이 expired입니다(owned가 아님).
+	listed, err := billing.NewStore(f.pool, f.clk, billing.AdFreeCatalog([]string{"test.ad_free.month"})).Purchases(f.ctx, me)
+	require.NoError(t, err)
+	statusOf := map[time.Time]string{}
+	for _, item := range listed {
+		statusOf[item.PurchasedAt.UTC()] = item.Status
+		if item.PurchasedAt.Equal(time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC)) {
+			assert.Nil(t, item.Period, "끝난 B 구매는 A 구간이 없습니다")
+		}
+	}
+	assert.Equal(t, map[time.Time]string{
+		time.Date(2026, 10, 5, 0, 0, 0, 0, time.UTC): billing.PurchaseActive,
+		time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC): billing.PurchasePending,
+		time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC):  billing.PurchaseExpired,
+	}, statusOf)
 
 	startsAt, expiresAt, revokedAt := f.grantPeriod(t, me, "p-b")
 	assert.True(t, startsAt.Equal(time.Date(2026, 11, 5, 0, 0, 0, 0, time.UTC)), "A 구간 시작 %s", startsAt.UTC())
@@ -565,18 +606,20 @@ func TestExecute_PurchasesAppendRemaining(t *testing.T) {
 func TestExecute_TokenInvalidCases(t *testing.T) {
 	cases := []struct {
 		name string
+		// otherGone이면 prepare가 B를 지우거나 deleted로 바꾸므로 B의 상태·기록은 보지 않습니다.
+		otherGone bool
 		// prepare는 토큰을 받은 뒤 상황을 만들고, Execute를 부를 bearer 계정을 돌려줍니다.
-		prepare func(t *testing.T, f *fixture, me, other uuid.UUID, token string) uuid.UUID
+		prepare func(t *testing.T, f *fixture, me, other uuid.UUID) uuid.UUID
 	}{
-		{name: "없는 토큰", prepare: func(_ *testing.T, _ *fixture, me, _ uuid.UUID, _ string) uuid.UUID { return me }},
-		{name: "만료", prepare: func(_ *testing.T, f *fixture, me, _ uuid.UUID, _ string) uuid.UUID {
+		{name: "없는 토큰", prepare: func(_ *testing.T, _ *fixture, me, _ uuid.UUID) uuid.UUID { return me }},
+		{name: "만료", prepare: func(_ *testing.T, f *fixture, me, _ uuid.UUID) uuid.UUID {
 			f.clk.Advance(merge.MergeTicketTTL)
 			return me
 		}},
-		{name: "다른 bearer", prepare: func(t *testing.T, f *fixture, _, _ uuid.UUID, _ string) uuid.UUID {
+		{name: "다른 bearer", prepare: func(t *testing.T, f *fixture, _, _ uuid.UUID) uuid.UUID {
 			return f.loginKakao(t, "kakao-c")
 		}},
-		{name: "B가 삭제됨", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID, _ string) uuid.UUID {
+		{name: "B가 삭제됨", otherGone: true, prepare: func(t *testing.T, f *fixture, me, other uuid.UUID) uuid.UUID {
 			// B를 지우면 B에 묶인 토큰 행도 지워집니다.
 			tx, err := f.pool.Begin(f.ctx)
 			require.NoError(t, err)
@@ -585,12 +628,12 @@ func TestExecute_TokenInvalidCases(t *testing.T) {
 			require.NoError(t, tx.Commit(f.ctx))
 			return me
 		}},
-		{name: "B만 deleted 표시", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID, _ string) uuid.UUID {
+		{name: "B만 deleted 표시", otherGone: true, prepare: func(t *testing.T, f *fixture, me, other uuid.UUID) uuid.UUID {
 			// 토큰 행이 남은 채 B가 deleted인 상태(방어)입니다.
 			f.exec(t, `UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1`, other)
 			return me
 		}},
-		{name: "인증 계정이 B에서 떼짐", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID, _ string) uuid.UUID {
+		{name: "인증 계정이 B에서 떼짐", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID) uuid.UUID {
 			f.exec(t, `DELETE FROM auth_identities WHERE account_id = $1 AND provider = 'line'`, other)
 			return me
 		}},
@@ -603,19 +646,39 @@ func TestExecute_TokenInvalidCases(t *testing.T) {
 			// B는 카카오도 있어 LINE을 떼도 남습니다.
 			_, err := f.auth.LinkIdentity(f.ctx, other, "kakao", f.kakaoProof("kakao-b"))
 			require.NoError(t, err)
+			// 단언이 비지 않도록 A·B 모두 기록·프로필·구매를 둡니다.
+			f.seedProfile(t, me, "민지")
+			f.seedPurchase(t, me, "p-a", testNow.AddDate(0, 0, -5))
+			f.seedPassGrant(t, me, "p-a", testNow.AddDate(0, 0, -5), testNow.AddDate(0, 0, 25))
+			f.seedProfile(t, other, "벗")
 			f.seedDay(t, other, "2026-10-14")
 			f.seedDiary(t, other, "2026-10-14", false)
+			f.seedPurchase(t, other, "p-b", testNow.AddDate(0, 0, -1))
+			f.seedPassGrant(t, other, "p-b", testNow.AddDate(0, 0, -1), testNow.AddDate(0, 0, 29))
 			token := f.issueToken(t, me, "U-b")
 			if tc.name == "없는 토큰" {
 				token = "not-issued-token-0123456789012345678901234"
 			}
-			bearer := tc.prepare(t, f, me, other, token)
+			bearer := tc.prepare(t, f, me, other)
 
 			err = f.service.Execute(f.ctx, bearer, token, merge.ProfileCurrent)
 
 			require.ErrorIs(t, err, merge.ErrTokenInvalid)
-			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, me), "A는 바뀌지 않습니다")
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets WHERE consumed_at IS NOT NULL`), "토큰을 쓰지 않았습니다")
 			assert.Equal(t, "active", f.accountStatus(t, me))
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, me), "A 기록은 그대로입니다")
+			assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM profiles WHERE account_id = $1 AND honorific = '민지'`, me), "A 프로필은 그대로입니다")
+			startsAt, expiresAt, revokedAt := f.grantPeriod(t, me, "p-a")
+			assert.True(t, startsAt.Equal(testNow.AddDate(0, 0, -5)) && expiresAt.Equal(testNow.AddDate(0, 0, 25)) && revokedAt == nil,
+				"A 구매 구간은 그대로입니다: %s~%s", startsAt.UTC(), expiresAt.UTC())
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM entitlement_grants WHERE account_id = $1 AND source_ref = 'p-b'`, me))
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM purchases WHERE account_id = $1 AND id = 'p-b'`, me))
+			if !tc.otherGone {
+				assert.Equal(t, "active", f.accountStatus(t, other))
+				assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, other), "B 일기는 그대로입니다")
+				_, bExpires, bRevoked := f.grantPeriod(t, other, "p-b")
+				assert.True(t, bExpires.Equal(testNow.AddDate(0, 0, 29)) && bRevoked == nil, "B 구간은 끊기지 않았습니다")
+			}
 			assert.Empty(t, f.revoker.recorded())
 		})
 	}
@@ -702,4 +765,33 @@ func TestExecute_DiaryCapIgnored(t *testing.T) {
 	require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
 
 	assert.Equal(t, 12, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1 AND date = '2026-10-12' AND deleted_at IS NULL`, me))
+}
+
+// 합치기로 옮긴 일기·일정은 수정 시각(updated_at)을 바꾸지 않고, 그 뒤 보통 수정은 여전히 수정 시각을 바꿉니다(migration 00017).
+func TestExecute_KeepsUpdatedAtOfMovedRecords(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	editedAt := time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC)
+	diaryID, scheduleID := uuid.Must(uuid.NewV7()), uuid.Must(uuid.NewV7())
+	f.seedDay(t, other, "2026-09-01")
+	f.exec(t, `INSERT INTO diaries (id, account_id, date, body, created_at, updated_at) VALUES ($1, $2, '2026-09-01', '일기', $3, $3)`, diaryID, other, editedAt)
+	f.exec(t, `INSERT INTO schedules (id, account_id, date, all_day, title, created_at, updated_at) VALUES ($1, $2, '2026-09-01', true, '회의', $3, $3)`,
+		scheduleID, other, editedAt)
+
+	require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
+
+	updatedAt := func(table string, id uuid.UUID) time.Time {
+		t.Helper()
+		var at time.Time
+		require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT updated_at FROM `+table+` WHERE id = $1 AND account_id = $2`, id, me).Scan(&at))
+		return at
+	}
+	assert.True(t, updatedAt("diaries", diaryID).Equal(editedAt), "옮긴 일기 수정 시각 %s", updatedAt("diaries", diaryID).UTC())
+	assert.True(t, updatedAt("schedules", scheduleID).Equal(editedAt), "옮긴 일정 수정 시각 %s", updatedAt("schedules", scheduleID).UTC())
+
+	f.exec(t, `UPDATE diaries SET body = '고친 일기' WHERE id = $1`, diaryID)
+	f.exec(t, `UPDATE schedules SET title = '고친 회의' WHERE id = $1`, scheduleID)
+	assert.True(t, updatedAt("diaries", diaryID).After(editedAt), "보통 수정은 수정 시각을 바꿉니다")
+	assert.True(t, updatedAt("schedules", scheduleID).After(editedAt), "보통 수정은 수정 시각을 바꿉니다")
 }

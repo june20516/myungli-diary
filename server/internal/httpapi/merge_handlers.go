@@ -52,7 +52,13 @@ func (a *API) MergeAccounts(ctx context.Context, req gen.MergeAccountsRequestObj
 	if err := a.Merges.Execute(ctx, id, req.Body.MergeToken, merge.Profile(req.Body.Profile)); err != nil {
 		return nil, err
 	}
+	// 합치기는 이미 commit됐으므로 Me 읽기가 잠깐 실패해도 한 번 다시 읽습니다. 그래도 실패하면 오류로 답하는데,
+	// 멱등 미들웨어는 2xx만 저장하고 키를 풀므로 같은 키 재전송은 다시 실행돼 토큰을 이미 쓴 422 merge.token_invalid가 됩니다.
+	// app은 그때 getMe로 합친 결과를 확인할 수 있습니다.
 	body, err := a.me(ctx, id)
+	if err != nil {
+		body, err = a.me(ctx, id)
+	}
 	if err != nil {
 		return nil, err
 	}

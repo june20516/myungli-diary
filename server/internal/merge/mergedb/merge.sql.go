@@ -255,7 +255,6 @@ func (q *Queries) ListRemainingPassGrants(ctx context.Context, arg ListRemaining
 }
 
 const lockActiveIdentityAccount = `-- name: LockActiveIdentityAccount :one
-
 SELECT i.account_id
 FROM auth_identities i
 JOIN accounts a ON a.id = i.account_id
@@ -263,7 +262,6 @@ WHERE i.id = $1 AND a.status = 'active'
 FOR SHARE OF i, a
 `
 
-// 계정 합치기(S110·S111)의 쿼리입니다. A는 지금 로그인한 유저 계정, B는 합쳐져 지워지는 유저 계정입니다.
 // LockActiveIdentityAccount는 합치기 증명으로 찾은 인증 계정과 그 유저 계정이 아직 있고 active인지 확인하고,
 // 합치기 토큰을 넣는 동안 두 행이 지워지지 않게 공유 잠금을 잡습니다. 그 사이 떼거나 지웠으면 행이 없습니다.
 func (q *Queries) LockActiveIdentityAccount(ctx context.Context, identityID uuid.UUID) (uuid.UUID, error) {
@@ -343,7 +341,6 @@ func (q *Queries) LockMergeTicket(ctx context.Context, arg LockMergeTicketParams
 }
 
 const mergeTicketAccounts = `-- name: MergeTicketAccounts :one
-
 SELECT account_id, other_account_id
 FROM account_merge_tickets
 WHERE token_hash = $1
@@ -354,7 +351,6 @@ type MergeTicketAccountsRow struct {
 	OtherAccountID uuid.UUID
 }
 
-// 아래는 합치기 실행(Execute, S111)의 쿼리입니다. 모두 한 트랜잭션에서 A·B 계정 행을 FOR UPDATE로 잡은 뒤 부릅니다.
 // MergeTicketAccounts는 토큰 해시로 합치기 토큰의 A·B를 찾습니다. 잠그기 전에 잠글 계정을 정하려고 읽으며, 확인은 LockMergeTicket이 합니다.
 func (q *Queries) MergeTicketAccounts(ctx context.Context, tokenHash []byte) (MergeTicketAccountsRow, error) {
 	row := q.db.QueryRow(ctx, mergeTicketAccounts, tokenHash)
@@ -373,7 +369,7 @@ type MoveDiariesParams struct {
 }
 
 // MoveDiaries는 B의 일기를 지운 것까지 모두 A로 옮깁니다. 하루 10편 상한은 검사하지 않습니다(D83 ④).
-// updated_at은 trigger가 옮긴 시각으로 바꿉니다.
+// account_id만 바꾸므로 updated_at trigger가 수정 시각을 바꾸지 않습니다(migration 00017). 일정도 같습니다.
 func (q *Queries) MoveDiaries(ctx context.Context, arg MoveDiariesParams) error {
 	_, err := q.db.Exec(ctx, moveDiaries, arg.AccountID, arg.OtherAccountID)
 	return err
@@ -456,7 +452,6 @@ func (q *Queries) ReplaceProfileWithOther(ctx context.Context, arg ReplaceProfil
 }
 
 const tallyOverlappingReactions = `-- name: TallyOverlappingReactions :exec
-
 INSERT INTO reaction_tallies (message_key, variant, reaction, count)
 SELECT s.message_key, s.variant, r.reaction, count(*)
 FROM reactions r
@@ -478,9 +473,9 @@ type TallyOverlappingReactionsParams struct {
 	WinnerAccountID uuid.UUID
 }
 
-// 겹친 문장 선택 기록은 같은 (date, slot, birth_hash)가 두 계정에 모두 있는 것입니다. birth_hash가 NULL인 행은 unique에서
-// 서로 다른 값이라 겹치지 않습니다. loser는 지울 쪽, winner는 남길 쪽(고른 프로필 쪽) 계정입니다.
 // TallyOverlappingReactions는 지울 쪽 겹친 선택에 붙은 살아 있는 반응을 문장별 집계에 더합니다(D57).
+// 겹친 문장 선택 기록은 같은 (date, slot, birth_hash)가 두 계정에 모두 있는 것입니다. birth_hash가 NULL인 행은 unique에서
+// 서로 다른 값이라 겹치지 않습니다. loser는 지울 쪽, winner는 남길 쪽(고른 프로필 쪽) 계정이며 아래 두 삭제도 같습니다.
 // 계정 삭제의 TallyReactions와 같은 순서로 집계 행을 잠가 deadlock을 막습니다.
 func (q *Queries) TallyOverlappingReactions(ctx context.Context, arg TallyOverlappingReactionsParams) error {
 	_, err := q.db.Exec(ctx, tallyOverlappingReactions, arg.LoserAccountID, arg.WinnerAccountID)
