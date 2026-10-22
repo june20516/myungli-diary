@@ -9,19 +9,24 @@ import (
 )
 
 type Querier interface {
+	CountLiveDiaries(ctx context.Context, arg CountLiveDiariesParams) (int64, error)
+	// 일기 쿼리입니다. 일기 한 편(diaries)과 날짜 기록(diary_days)을 JOIN해 읽습니다(D83).
+	// 조회는 모두 살아 있는 행(deleted_at IS NULL)만 보고, 모든 쿼리가 account_id 조건을 겁니다.
+	DiaryDayExists(ctx context.Context, arg DiaryDayExistsParams) (bool, error)
 	GetDiary(ctx context.Context, arg GetDiaryParams) (GetDiaryRow, error)
-	// 날짜 역순입니다. 범위(from·to, 포함)·태그·keyset(before: 그 날짜보다 앞)은 NULL이면 걸지 않습니다.
+	// 지운 행까지 봅니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (GetDiaryStateRow, error)
+	InsertDiary(ctx context.Context, arg InsertDiaryParams) (InsertDiaryRow, error)
+	// 그날 첫 편이면 날짜 기록을 만들고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
+	InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) error
+	// 날짜 역순, 같은 날짜 안에서는 작성 순입니다. 범위(from·to, 포함)·태그·keyset(after_*: 그 항목 다음)은 NULL이면 걸지 않습니다.
 	ListDiaries(ctx context.Context, arg ListDiariesParams) ([]ListDiariesRow, error)
-	LiveDiaryExists(ctx context.Context, arg LiveDiaryExistsParams) (bool, error)
-	// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 내용을 이미 비운(content_purged_at) 행은 제외합니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
-	RestoreLatestDeletedDiary(ctx context.Context, arg RestoreLatestDeletedDiaryParams) (RestoreLatestDeletedDiaryRow, error)
+	// 날짜 기록을 읽으면서 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (LockDiaryDayRow, error)
 	SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams) (int64, error)
-	// 살아 있는 일기의 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+	UndeleteDiary(ctx context.Context, arg UndeleteDiaryParams) error
+	// 살아 있는 일기의 본문만 바꿉니다(날짜 기록은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams) (UpdateDiaryBodyRow, error)
-	// 일기 쿼리입니다. 조회는 모두 살아 있는 행(deleted_at IS NULL)만 봅니다.
-	// 그날 일기가 없으면 만들고, 있으면 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 처음 값을 유지합니다).
-	// 동시 요청도 partial unique 인덱스가 하나의 행으로 모읍니다. created는 새 행일 때만 true입니다.
-	UpsertDiary(ctx context.Context, arg UpsertDiaryParams) (UpsertDiaryRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
