@@ -30,12 +30,15 @@ main_ci() {
   while read -r id attempt sha; do
     [ -n "$id" ] || continue
     cache="$STATE_DIR/gate-$id-$attempt"
-    if [ ! -s "$cache" ]; then
-      gh api "repos/$REPO/actions/runs/$id/attempts/$attempt/jobs" \
-        --jq '.jobs[] | select(.name == "ci-gate") | .conclusion' > "$cache.tmp" || return 1
+    # 판정이 비어 있는 캐시(예전 버전이 남긴 것)는 없는 것으로 보고 다시 조회합니다.
+    if [ "$(tr -d '[:space:]' 2>/dev/null < "$cache")" = "" ]; then
+      # 실행이 completed여도 ci-gate job은 아직 queued일 수 있습니다(2026-10-23 main 2672494).
+      # 끝난 job의 판정만 캐시합니다. 아직이면 이번 줄을 건너뛰고 다음 조회에서 다시 봅니다.
       # ci-gate job이 없으면(changes 단계에서 실행이 멈춤 등) 판정 없음으로 둡니다.
-      [ -s "$cache.tmp" ] || echo "no-verdict" > "$cache.tmp"
-      mv "$cache.tmp" "$cache"
+      verdict=$(gh api "repos/$REPO/actions/runs/$id/attempts/$attempt/jobs" \
+        --jq '[.jobs[] | select(.name == "ci-gate")] | if length == 0 then "no-verdict" elif .[0].status == "completed" then .[0].conclusion else "" end') || return 1
+      [ -n "$verdict" ] || continue
+      echo "$verdict" > "$cache"
     fi
     verdict=$(cat "$cache")
     echo "main-ci $sha $verdict"
