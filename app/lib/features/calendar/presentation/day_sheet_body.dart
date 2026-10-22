@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
@@ -28,7 +29,6 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
-import 'package:myungli_diary/features/diary/application/diary_summary_rows.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 
@@ -197,7 +197,7 @@ class _ScheduleSection extends ConsumerWidget {
 }
 
 /// 일기 입구(오늘·지난 날, D49): 그날 쓴 일기가 있으면 머리(편수, 동작 아님)와 작성 순
-/// `diary-row`, 그 아래 새 일기 쓰기 `primary-button` `filled`(V37)입니다(A69).
+/// `diary-row` `entries`, 그 아래 새 일기 쓰기 `primary-button` `filled`(V37)입니다(A69).
 ///
 /// 쓰기 버튼은 그날 편수로 처음 쓰기·한 편 더 쓰기·다 채움(누를 수 없음)입니다(D83 ②). 그날
 /// 일기를 받는 동안은 입구 자리에 skeleton이고, 받지 못하면 0편으로 그려 쓰기를 막지 않습니다.
@@ -216,31 +216,18 @@ class _DiaryEntry extends ConsumerWidget {
       return const _EntrySkeleton();
     }
     final entry = diaryWriteEntryOf(diaries.length);
-    final diaryRow = ref.watch(diarySummaryRowProvider);
     return Column(
       key: entryKey,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (diaries.isNotEmpty) ...[
-          const SizedBox(height: Space.s24),
-          Semantics(
-            identifier: SlotIds.daySheetDiaryOpen,
-            container: true,
-            // 일기 목록 달 머리와 같은 머리 모양(`diary-row` 규칙의 subtitle)을 빌립니다.
-            child: DiaryMonthHeader(
-              label: l10n.daySheetDiaryOpen(diaries.length),
-            ),
-          ),
-          const SizedBox(height: Space.s12),
-          for (final (index, summary) in diaries.indexed)
-            diaryRow(
-              summary,
-              isLast: index == diaries.length - 1,
-              // IA 출구에 tag-diary가 없어 대표 태그 칩은 표시만 합니다.
-              tagLinked: false,
-            ),
-        ],
+        // 머리(편수, 동작 아님)와 작성 순 줄. 0편이면 아무것도 그리지 않습니다.
+        DiaryEntries(
+          surface: DiaryEntriesSurface.plain,
+          head: diaries.isEmpty ? null : l10n.daySheetDiaryOpen(diaries.length),
+          headIdentifier: SlotIds.daySheetDiaryOpen,
+          entries: diaryEntriesDataOf(context, diaries),
+        ),
         Padding(
           padding: const EdgeInsets.only(top: Space.s12),
           child: PrimaryButton(

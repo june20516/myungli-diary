@@ -23,6 +23,13 @@ const AppGlyph _caretRight = AppGlyph(
   regular: PhosphorIconsRegular.caretRight,
 );
 
+/// 날짜 칸의 스크린리더 라벨("10월 12일 월요일"). [DiaryRow]와 [DiaryDayGroup]이 함께 씁니다.
+String _dateLabel(BuildContext context, CalendarDate date) {
+  final locale = Localizations.localeOf(context).toLanguageTag();
+  return DateFormat.MMMMEEEEd(locale)
+      .format(DateTime(date.year, date.month, date.day));
+}
+
 /// 일기 목록 한 줄(`diary-row` `day`): 흐름 줄 위 날짜 + 카드.
 ///
 /// 그날 일기가 한 편일 때의 모양입니다. 두 편 이상이면 [DiaryDayGroup], 오늘·그날 시트는
@@ -113,13 +120,10 @@ class DiaryRow extends StatelessWidget {
   /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
   final String? identifier;
 
-  DateTime get _day => DateTime(date.year, date.month, date.day);
-
   String _semanticLabel(BuildContext context, AppLocalizations l10n) {
-    final locale = Localizations.localeOf(context).toLanguageTag();
     final tag = this.tag;
     return [
-      DateFormat.MMMMEEEEd(locale).format(_day),
+      _dateLabel(context, date),
       ?characterLabel,
       excerpt,
       if (tag != null) l10n.tagChipLabel(tag.name),
@@ -215,11 +219,9 @@ class DiaryDayGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).toLanguageTag();
     final tag = this.tag;
     final label = [
-      DateFormat.MMMMEEEEd(locale)
-          .format(DateTime(date.year, date.month, date.day)),
+      _dateLabel(context, date),
       ?characterLabel,
     ].join(l10n.a11yListSeparator);
     return _DayFrame(
@@ -615,7 +617,8 @@ class DiaryEntryLine extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final time = DateFormat.jm(l10n.localeName).format(createdAt.toLocal());
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final time = DateFormat.jm(locale).format(createdAt.toLocal());
     final firstLine = _firstLine;
     final label = [
       time,
@@ -757,6 +760,7 @@ class DiaryEntries extends StatelessWidget {
     required this.entries,
     required this.surface,
     this.head,
+    this.headIdentifier,
     super.key,
   });
 
@@ -788,6 +792,9 @@ class DiaryEntries extends StatelessWidget {
   /// [DiaryEntriesSurface.plain]에서만 씁니다.
   final String? head;
 
+  /// 머리의 IA 슬롯 id(`day-sheet.diary.open`). 있으면 Semantics `identifier`로 붙입니다.
+  final String? headIdentifier;
+
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) return const SizedBox.shrink();
@@ -810,10 +817,14 @@ class DiaryEntries extends StatelessWidget {
                   top: headMarginTop,
                   bottom: headMarginBottom,
                 ),
-                child: Text(
-                  head,
-                  style: tokens.typography.labelMd.copyWith(
-                    color: tokens.colors.textSecondary,
+                child: Semantics(
+                  identifier: headIdentifier,
+                  container: headIdentifier != null,
+                  child: Text(
+                    head,
+                    style: tokens.typography.labelMd.copyWith(
+                      color: tokens.colors.textSecondary,
+                    ),
                   ),
                 ),
               ),

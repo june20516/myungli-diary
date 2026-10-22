@@ -21,6 +21,7 @@ import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
@@ -30,7 +31,6 @@ import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -441,7 +441,7 @@ void main() {
   testWidgets('diary-written: 오늘 쓴 일기 줄 → 그 일기의 diary-view', (tester) async {
     covers(const Covers(exits: ['today>diary-view']));
     final container = await _openToday(tester, scenario: 'diary-written');
-    final row = find.byType(DiarySummaryRow);
+    final row = find.byType(DiaryEntryLine);
     expect(row, findsOneWidget);
     await tester.ensureVisible(row);
     await tester.pumpAndSettle();

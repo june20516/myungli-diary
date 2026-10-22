@@ -6,9 +6,9 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -74,12 +74,12 @@ void main() {
       () => find.byType(DayCharacter).evaluate().isNotEmpty,
     );
     expect(_guide(tester).actionLabel, _ko.todayGuideCta);
-    expect(find.byType(DiarySummaryRow), findsNothing);
+    expect(find.byType(DiaryEntryLine), findsNothing);
 
     await _writeFromToday(tester, '아침에 산책을 했다.');
     await pumpUntil(
       tester,
-      () => find.byType(DiarySummaryRow).evaluate().length == 1,
+      () => find.byType(DiaryEntryLine).evaluate().length == 1,
     );
     expect(_guide(tester).state, GuideQuestionState.after);
     expect(_guide(tester).actionLabel, _ko.todayGuideCtaWritten);
@@ -87,19 +87,19 @@ void main() {
     await _writeFromToday(tester, '저녁에 책을 읽었다.');
     await pumpUntil(
       tester,
-      () => find.byType(DiarySummaryRow).evaluate().length == 2,
+      () => find.byType(DiaryEntryLine).evaluate().length == 2,
     );
-    final rows = tester
-        .widgetList<DiarySummaryRow>(find.byType(DiarySummaryRow))
+    final lines = tester
+        .widgetList<DiaryEntryLine>(find.byType(DiaryEntryLine))
         .toList();
     // 작성 순입니다.
-    expect(rows.first.summary.excerpt, startsWith('아침에'));
-    expect(rows.last.summary.excerpt, startsWith('저녁에'));
+    expect(lines.first.excerpt, startsWith('아침에'));
+    expect(lines.last.excerpt, startsWith('저녁에'));
 
     // 두 번째 줄 → 그 일기의 diary-view.
-    await tester.ensureVisible(find.byType(DiarySummaryRow).last);
+    await tester.ensureVisible(find.byType(DiaryEntryLine).last);
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(DiarySummaryRow).last);
+    await tester.tap(find.byType(DiaryEntryLine).last);
     await pumpUntil(
       tester,
       () => find.textContaining('저녁에 책을').evaluate().isNotEmpty,
@@ -107,7 +107,7 @@ void main() {
     await settleWithIo(tester);
     expect(
       _locationOf(tester, ScreenIds.diaryView),
-      '/diary-view?id=${rows.last.summary.id}',
+      startsWith('/diary-view?id='),
     );
     await tester.tap(find.byKey(const ValueKey('app-bar.back')).last);
     await settleWithIo(tester);

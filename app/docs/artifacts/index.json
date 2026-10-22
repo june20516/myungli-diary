@@ -128,6 +128,20 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
+    "id": "render.day-sheet.diary-full.2026-10-22",
+    "title": "day-sheet (diary-full) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-22-day-sheet-diary-full.png",
+    "date": "2026-10-22",
+    "milestone": "A1",
+    "screens": [
+      "day-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "diary-full 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
     "id": "render.diary-edit.default.2026-10-22",
     "title": "diary-edit (default) 화면",
     "kind": "screenshot",
@@ -154,6 +168,20 @@
     "decisions": [],
     "status": "draft",
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.diary-list.multi.2026-10-22",
+    "title": "diary-list (multi) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-22-diary-list-multi.png",
+    "date": "2026-10-22",
+    "milestone": "A1",
+    "screens": [
+      "diary-list"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "multi 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
     "id": "render.diary-view.default.2026-10-20",
@@ -658,6 +686,34 @@
     "decisions": [],
     "status": "draft",
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.today.diary-full.2026-10-22",
+    "title": "today (diary-full) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-22-today-diary-full.png",
+    "date": "2026-10-22",
+    "milestone": "A1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "diary-full 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.today.diary-written.2026-10-22",
+    "title": "today (diary-written) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-22-today-diary-written.png",
+    "date": "2026-10-22",
+    "milestone": "A1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "diary-written 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
     "id": "render.today.error.2026-10-20",

@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
@@ -33,7 +34,6 @@ import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -339,7 +339,8 @@ void main() {
       expect(guide.state, GuideQuestionState.before);
       expect(guide.actionLabel, _ko.todayGuideCta);
       expect(guide.onAction, isNotNull);
-      expect(find.byType(DiarySummaryRow), findsNothing);
+      expect(find.byType(DiaryEntryLine), findsNothing);
+      expect(find.byKey(DiaryEntries.cardKey), findsNothing);
     });
 
     testWidgets('2편: 새 일기 쓰기와 작성 순 줄 2개, 첫 줄은 그 일기 보기', (tester) async {
@@ -365,20 +366,31 @@ void main() {
       final guide = guideOf(tester);
       expect(guide.state, GuideQuestionState.after);
       expect(guide.actionLabel, _ko.todayGuideCtaWritten);
-      final rows = tester
-          .widgetList<DiarySummaryRow>(find.byType(DiarySummaryRow))
+      final lines = tester
+          .widgetList<DiaryEntryLine>(find.byType(DiaryEntryLine))
           .toList();
-      expect([for (final row in rows) row.summary.id], ['today-1', 'today-2']);
-      expect(rows.last.isLast, isTrue);
-      // 줄은 가이드 질문 카드 아래입니다.
       expect(
-        tester.getTopLeft(find.byType(DiarySummaryRow).first).dy,
-        greaterThan(tester.getTopLeft(find.byType(GuideQuestionCard)).dy),
+        [for (final line in lines) line.excerpt],
+        ['오늘 1번째 일기', '오늘 2번째 일기'],
       );
+      // 줄은 가이드 질문 카드 아래, 오늘 바탕 카드 안입니다.
+      expect(
+        tester.getTopLeft(find.byKey(DiaryEntries.cardKey)).dy,
+        greaterThan(tester.getBottomLeft(find.byType(GuideQuestionCard)).dy),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(DiaryEntries.cardKey),
+          matching: find.byType(DiaryEntryLine),
+        ),
+        findsNWidgets(2),
+      );
+      // 날짜 열·태그 칩 없이 줄만 있습니다.
+      expect(find.byType(DiaryRow), findsNothing);
 
-      await tester.ensureVisible(find.byType(DiarySummaryRow).first);
+      await tester.ensureVisible(find.byType(DiaryEntryLine).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(DiarySummaryRow).first);
+      await tester.tap(find.byType(DiaryEntryLine).first);
       await pumpUntil(
         tester,
         () => find
@@ -397,10 +409,9 @@ void main() {
       final container = await pumpApp(tester, scenario: 'diary-day-full');
       await _settleToday(tester);
       final guide = guideOf(tester);
-      expect(guide.state, GuideQuestionState.after);
+      expect(guide.state, GuideQuestionState.full);
       expect(guide.actionLabel, _ko.todayGuideCtaFull);
-      expect(guide.onAction, isNull);
-      expect(find.byType(DiarySummaryRow), findsNWidgets(10));
+      expect(find.byType(DiaryEntryLine), findsNWidgets(10));
 
       await tester.ensureVisible(find.byKey(GuideQuestionCard.buttonKey));
       await tester.pumpAndSettle();
@@ -417,21 +428,25 @@ void main() {
       );
     });
 
-    testWidgets('일기 줄의 대표 태그 칩은 표시만이라 tag-diary로 가지 않습니다', (tester) async {
+    testWidgets('일기 줄에는 태그 칩이 없고, 누르면 그 일기 보기입니다', (tester) async {
       final container = await pumpApp(tester, scenario: 'diary-written');
       await _settleToday(tester);
-      final chip = find.descendant(
-        of: find.byType(DiarySummaryRow),
-        matching: find.byType(TagChip),
+      final line = find.descendant(
+        of: find.byKey(DiaryEntries.cardKey),
+        matching: find.byType(DiaryEntryLine),
       );
-      await pumpUntil(tester, () => chip.evaluate().isNotEmpty);
-      expect(tester.widget<TagChip>(chip).name, '천을귀인');
-      expect(tester.widget<TagChip>(chip).onTap, isNull);
+      await pumpUntil(tester, () => line.evaluate().isNotEmpty);
+      expect(
+        find.descendant(
+          of: find.byKey(DiaryEntries.cardKey),
+          matching: find.byType(TagChip),
+        ),
+        findsNothing,
+      );
 
-      // 표시용 칩이라 누름은 줄로 내려가 그 일기 보기입니다(목록의 같은 태그 칩과 같음).
-      await tester.ensureVisible(chip);
+      await tester.ensureVisible(line);
       await tester.pumpAndSettle();
-      await tester.tap(chip);
+      await tester.tap(line);
       await settleWithIo(tester);
       expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsNothing);
       expect(
@@ -450,7 +465,7 @@ void main() {
       final guide = guideOf(tester);
       expect(guide.state, GuideQuestionState.before);
       expect(guide.actionLabel, _ko.todayGuideCta);
-      expect(find.byType(DiarySummaryRow), findsNothing);
+      expect(find.byType(DiaryEntryLine), findsNothing);
     });
   });
 

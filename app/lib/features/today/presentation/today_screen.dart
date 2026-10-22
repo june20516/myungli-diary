@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -13,6 +14,7 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
@@ -33,7 +35,6 @@ import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
-import 'package:myungli_diary/features/diary/application/diary_summary_rows.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
@@ -222,7 +223,6 @@ class _TodayBody extends ConsumerWidget {
     final tag = display.tag;
     final diaries = content.diaries;
     final entry = diaryWriteEntryOf(diaries.length);
-    final diaryRow = ref.watch(diarySummaryRowProvider);
     // 오늘 화면의 용어는 오늘 응답의 슬롯에서 왔으므로 오늘 응답을 출처로 넘깁니다.
     void openExplain(String termId, String slotId) => sheets.openExplain(
       context,
@@ -317,9 +317,11 @@ class _TodayBody extends ConsumerWidget {
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             const _TodayEventSummary(),
             GuideQuestionCard(
-              state: diaries.isEmpty
-                  ? GuideQuestionState.before
-                  : GuideQuestionState.after,
+              state: switch (entry) {
+                DiaryWriteEntry.first => GuideQuestionState.before,
+                DiaryWriteEntry.more => GuideQuestionState.after,
+                DiaryWriteEntry.full => GuideQuestionState.full,
+              },
               eyebrow: l10n.todayGuideEyebrow,
               question: display.guide,
               actionLabel: switch (entry) {
@@ -327,24 +329,16 @@ class _TodayBody extends ConsumerWidget {
                 DiaryWriteEntry.more => l10n.todayGuideCtaWritten,
                 DiaryWriteEntry.full => l10n.todayGuideCtaFull,
               },
-              // 그날 일기를 다 채웠으면 누를 수 없습니다(D83 ②).
-              onAction: entry == DiaryWriteEntry.full
-                  ? null
-                  : () => unawaited(_writeDiary(context, ref)),
+              // full이면 카드가 버튼을 막습니다(D83 ②, 눌러도 아무 일 없음).
+              onAction: () => unawaited(_writeDiary(context, ref)),
               questionSlotId: SlotIds.todayGuideQuestion,
               actionSlotId: SlotIds.todayGuideCta,
             ),
-            // 오늘 쓴 일기 줄(작성 순). 누르면 그 일기의 diary-view입니다.
-            if (diaries.isNotEmpty) ...[
-              const SizedBox(height: Space.s12),
-              for (final (index, summary) in diaries.indexed)
-                diaryRow(
-                  summary,
-                  isLast: index == diaries.length - 1,
-                  // IA 출구에 tag-diary가 없어 대표 태그 칩은 표시만 합니다.
-                  tagLinked: false,
-                ),
-            ],
+            // 오늘 쓴 일기 줄(작성 순). 누르면 그 일기의 diary-view이고, 0편이면 그리지 않습니다.
+            DiaryEntries(
+              surface: DiaryEntriesSurface.card,
+              entries: diaryEntriesDataOf(context, diaries),
+            ),
           ],
         ),
       ),

@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
-import 'package:myungli_diary/app/diary_summary_rows.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/sheet_registry.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
@@ -25,6 +25,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
@@ -37,7 +38,6 @@ import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/calendar/presentation/day_sheet_body.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 
 import '../../support/schedule_test_server.dart';
@@ -111,7 +111,6 @@ final class _Harness {
       daySheetBodyProvider.overrideWithValue(
         (date) => DaySheetBody(date: date),
       ),
-      ...diarySummaryRowOverrides,
       explainBodyProvider.overrideWithValue(
         (termId, origin) => Text('풀이 $termId ${origin?.slotId}'),
       ),
@@ -388,7 +387,8 @@ void main() {
         find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
         findsNothing,
       );
-      expect(find.byType(DiarySummaryRow), findsNothing);
+      expect(find.byType(DiaryEntryLine), findsNothing);
+      expect(find.byKey(DiaryEntries.cardKey), findsNothing);
       // 쓰기는 실행하는 동작이라 filled 버튼입니다(V37).
       final button = _writeButton(tester);
       expect(button.label, _ko.daySheetDiaryWriteCta);
@@ -414,20 +414,23 @@ void main() {
         ),
         findsOneWidget,
       );
-      final rows = tester
-          .widgetList<DiarySummaryRow>(find.byType(DiarySummaryRow))
+      final lines = tester
+          .widgetList<DiaryEntryLine>(find.byType(DiaryEntryLine))
           .toList();
       expect(
-        [for (final row in rows) row.summary.id],
-        ['d2026-10-12-1', 'd2026-10-12-2', 'd2026-10-12-3'],
+        [for (final line in lines) line.excerpt],
+        ['1번째 일기', '2번째 일기', '3번째 일기'],
+        reason: '작성 순 그대로',
       );
-      expect(rows.last.isLast, isTrue);
+      // 줄만 있고 날짜 열·태그 칩은 없습니다(그날 시트 모양).
+      expect(find.byType(DiaryRow), findsNothing);
+      expect(find.byKey(DiaryRow.dateColumnKey), findsNothing);
       expect(_writeButton(tester).label, _ko.daySheetDiaryWriteCtaWritten);
       expect(_writeButton(tester).onPressed, isNotNull);
 
       // 줄은 머리와 버튼 사이에 놓입니다.
       final headTop = tester.getTopLeft(head).dy;
-      final rowTop = tester.getTopLeft(find.byType(DiarySummaryRow).first).dy;
+      final rowTop = tester.getTopLeft(find.byType(DiaryEntryLine).first).dy;
       final buttonTop = tester
           .getTopLeft(find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta))
           .dy;
@@ -445,15 +448,30 @@ void main() {
       expect(find.text('uri /diary-edit?date=2026-10-12'), findsOneWidget);
     });
 
+    testWidgets('머리는 링크가 아니라 글자입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        CalendarDate(2026, 10, 12),
+        diaries: (date) async => _diaries(date, 2),
+      );
+      final data = tester
+          .getSemantics(find.text(_ko.daySheetDiaryOpen(2)))
+          .getSemanticsData();
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      expect(data.identifier, SlotIds.daySheetDiaryOpen);
+      handle.dispose();
+    });
+
     testWidgets('일기 줄을 누르면 그 일기의 diary-view', (tester) async {
       await _open(
         tester,
         CalendarDate(2026, 10, 12),
         diaries: (date) async => _diaries(date, 2),
       );
-      await tester.ensureVisible(find.byType(DiarySummaryRow).at(1));
+      await tester.ensureVisible(find.byType(DiaryEntryLine).at(1));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(DiarySummaryRow).at(1));
+      await tester.tap(find.byType(DiaryEntryLine).at(1));
       await tester.pumpAndSettle();
       expect(find.text('uri /diary-view?id=d2026-10-12-2'), findsOneWidget);
     });
@@ -475,7 +493,7 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(find.byType(DiarySummaryRow), findsNWidgets(count));
+        expect(find.byType(DiaryEntryLine), findsNWidgets(count));
       });
     }
 

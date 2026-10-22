@@ -149,6 +149,56 @@ void main() {
     );
   });
 
+  testWidgets('같은 날 두 편은 묶음 카드 하나, 날짜 열은 한 번', (tester) async {
+    await pumpApp(tester, scenario: 'diary-day-full');
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    // 오늘(13일) 10편은 카드 하나이고 날짜 숫자도 한 번뿐입니다.
+    final group = find.byType(DiaryDayGroup);
+    expect(group, findsOneWidget);
+    final lines = find.descendant(
+      of: group,
+      matching: find.byType(DiaryEntryLine),
+    );
+    expect(lines, findsNWidgets(10));
+    expect(
+      find.descendant(of: group, matching: find.byKey(DiaryRow.dateColumnKey)),
+      findsOneWidget,
+    );
+    expect(find.text('13'), findsOneWidget);
+    // 줄을 누르면 그 줄 일기의 diary-view입니다.
+    await tester.ensureVisible(lines.at(3));
+    await tester.pumpAndSettle();
+    await tester.tap(lines.at(3));
+    await settleWithIo(tester);
+    expect(
+      _locationOf(tester, ScreenIds.diaryView),
+      startsWith('/diary-view?id='),
+    );
+  });
+
+  testWidgets('다음 쪽에 이어지는 같은 날은 같은 묶음 카드로 커진다', (tester) async {
+    // 쪽 크기 4: 오늘 10편이 세 쪽에 걸칩니다.
+    await pumpApp(
+      tester,
+      scenario: 'diary-day-full',
+      overrides: [diaryPageSizeProvider.overrideWithValue(4)],
+    );
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    expect(find.byType(DiaryDayGroup), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(DiaryDayGroup),
+        matching: find.byType(DiaryEntryLine),
+      ),
+      findsNWidgets(10),
+    );
+    expect(find.text('13'), findsOneWidget);
+  });
+
   testWidgets('empty: 쓴 일기가 없으면 안내와 날짜 골라 쓰기', (tester) async {
     covers(const Covers(states: ['diary-list:empty']));
     final container = await _openDiaryList(

@@ -125,15 +125,17 @@ Future<void> _todayShare(WidgetTester tester, ProviderContainer _) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
-Future<void> _daySheet(WidgetTester tester, ProviderContainer container) async {
+/// 오늘 화면 위에 [date]의 그날 시트를 엽니다.
+_Open _daySheetOn(CalendarDate date) => (tester, container) async {
   await settleWithIo(tester);
   final context = tester.element(find.byKey(const ValueKey(ScreenIds.today)));
-  unawaited(
-    container.read(daySheetsProvider).open(context, CalendarDate(2026, 10, 12)),
-  );
+  unawaited(container.read(daySheetsProvider).open(context, date));
   await pumpUntilScreen(tester, ScreenIds.daySheet);
   await settleWithIo(tester);
-}
+};
+
+Future<void> _daySheet(WidgetTester tester, ProviderContainer container) =>
+    _daySheetOn(CalendarDate(2026, 10, 12))(tester, container);
 
 /// 사주 표를 엽니다. [gate]가 있으면 대역 서버 앞에 끼우고, [after]로 화면 안을 더 조작합니다.
 _Open _sajuChart({
@@ -315,6 +317,8 @@ final List<_Shot> _shots = [
   const _Shot('today', 'default', 'member', _arrived),
   const _Shot('today', 'time-unknown', 'member-time-unknown', _arrived),
   const _Shot('today', 'error', 'daily-error', _arrived),
+  const _Shot('today', 'diary-written', 'diary-written', _arrived),
+  const _Shot('today', 'diary-full', 'diary-day-full', _arrived),
   const _Shot('explain-sheet', 'default', 'member', _todayTerm),
   const _Shot('evidence-sheet', 'locked', 'member', _todayEvidence),
   const _Shot(
@@ -329,6 +333,12 @@ final List<_Shot> _shots = [
   _Shot('calendar', 'error', 'calendar-error', _tab(1, ScreenIds.calendar)),
   const _Shot('day-sheet', 'default', 'member', _daySheet),
   _Shot(
+    'day-sheet',
+    'diary-full',
+    'diary-day-full',
+    _daySheetOn(CalendarDate(2026, 10, 13)),
+  ),
+  _Shot(
     'event-edit',
     'default',
     'member',
@@ -336,6 +346,7 @@ final List<_Shot> _shots = [
   ),
   // 계획 5: 일기
   _Shot('diary-list', 'default', 'member', _tab(2, ScreenIds.diaryList)),
+  _Shot('diary-list', 'multi', 'diary-day-full', _tab(2, ScreenIds.diaryList)),
   _Shot(
     'diary-edit',
     'default',

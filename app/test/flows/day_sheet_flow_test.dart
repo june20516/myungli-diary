@@ -10,13 +10,13 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -119,7 +119,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key(ScreenIds.daySheet)),
-        matching: find.byType(DiarySummaryRow),
+        matching: find.byType(DiaryEntryLine),
       ),
       findsNothing,
     );
@@ -151,7 +151,7 @@ void main() {
     container.read(routerProvider).pop();
     final sheetRows = find.descendant(
       of: find.byKey(const Key(ScreenIds.daySheet)),
-      matching: find.byType(DiarySummaryRow),
+      matching: find.byType(DiaryEntryLine),
     );
     await pumpUntil(tester, () => sheetRows.evaluate().isNotEmpty);
     expect(sheetRows, findsOneWidget);
@@ -176,7 +176,7 @@ void main() {
     // 뒤의 오늘 화면에도 오늘 일기 줄이 있어 시트 안으로 좁힙니다.
     final row = find.descendant(
       of: find.byKey(const Key(ScreenIds.daySheet)),
-      matching: find.byType(DiarySummaryRow),
+      matching: find.byType(DiaryEntryLine),
     );
     expect(row, findsOneWidget);
     await tester.ensureVisible(row);
@@ -190,33 +190,28 @@ void main() {
     );
   });
 
-  testWidgets('diary-written: 일기 줄의 대표 태그 칩은 표시만이라 tag-diary로 가지 않습니다', (
-    tester,
-  ) async {
-    final container = await _openDaySheet(
+  testWidgets('diary-written: 그날 시트 일기 줄에는 날짜 열·태그 칩이 없습니다', (tester) async {
+    await _openDaySheet(
       tester,
       CalendarDate(2026, 10, 12),
       scenario: 'diary-written',
     );
-    final chip = find.descendant(
-      of: find.descendant(
-        of: find.byKey(const Key(ScreenIds.daySheet)),
-        matching: find.byType(DiarySummaryRow),
-      ),
-      matching: find.byType(TagChip),
+    final sheet = find.byKey(const Key(ScreenIds.daySheet));
+    final line = find.descendant(
+      of: sheet,
+      matching: find.byType(DiaryEntryLine),
     );
-    await pumpUntil(tester, () => chip.evaluate().isNotEmpty);
-    expect(tester.widget<TagChip>(chip).onTap, isNull);
-
-    // 표시용 칩이라 누름은 줄로 내려가 그 일기 보기입니다(목록의 같은 태그 칩과 같음).
-    await tester.ensureVisible(chip);
-    await tester.pumpAndSettle();
-    await tester.tap(chip);
-    await settleWithIo(tester);
-    expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsNothing);
+    await pumpUntil(tester, () => line.evaluate().isNotEmpty);
     expect(
-      container.read(routerProvider).state.uri.toString(),
-      '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001',
+      find.descendant(of: sheet, matching: find.byType(DiaryRow)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.descendant(of: sheet, matching: find.byType(DiaryEntries)),
+        matching: find.byType(TagChip),
+      ),
+      findsNothing,
     );
   });
 

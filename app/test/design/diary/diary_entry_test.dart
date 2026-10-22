@@ -7,9 +7,11 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../input/input_harness.dart';
 
@@ -169,6 +171,25 @@ void main() {
         tester.getTopRight(find.byKey(DiaryEntryLine.chevronKey)).dx,
         tester.getTopRight(find.byType(DiaryEntryLine)).dx,
       );
+    });
+
+    testWidgets('꺾쇠는 light weight(caret-right Light 글리프)입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          DiaryEntryLine(createdAt: _morning, excerpt: '아침에 쓴 글', onTap: () {}),
+        ),
+      );
+      final appIcon = tester.widget<AppIcon>(
+        find.byKey(DiaryEntryLine.chevronKey),
+      );
+      expect(appIcon.weight, AppIconWeight.light);
+      final icon = tester.widget<Icon>(
+        find.descendant(
+          of: find.byKey(DiaryEntryLine.chevronKey),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(icon.icon, PhosphorIconsLight.caretRight);
     });
 
     testWidgets('높이는 위아래 12, 최소 48입니다', (tester) async {
@@ -589,6 +610,30 @@ void main() {
         handle.dispose();
       },
     );
+
+    testWidgets('headIdentifier가 있으면 머리에 Semantics identifier로 붙습니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          DiaryEntries(
+            entries: _three(),
+            surface: DiaryEntriesSurface.plain,
+            head: '이날 일기 3편',
+            headIdentifier: 'day-sheet.diary.open',
+          ),
+        ),
+      );
+      expect(
+        tester
+            .getSemantics(find.text('이날 일기 3편'))
+            .getSemanticsData()
+            .identifier,
+        'day-sheet.diary.open',
+      );
+      handle.dispose();
+    });
 
     testWidgets('plain에서 head가 없으면 머리를 그리지 않습니다', (tester) async {
       await tester.pumpWidget(
