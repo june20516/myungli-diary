@@ -1144,12 +1144,6 @@ abstract class AppLocalizations {
   /// **'{price} · 1개월 · 자동 갱신 없음'**
   String adFreeOfferPrice(String price);
 
-  /// ad-free.restore.cta: 구매 복원
-  ///
-  /// In ko, this message translates to:
-  /// **'구매 복원'**
-  String get adFreeRestoreCta;
-
   /// ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일
   ///
   /// In ko, this message translates to:
@@ -2307,13 +2301,13 @@ abstract class AppLocalizations {
   /// login-methods.intro.body: 연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명
   ///
   /// In ko, this message translates to:
-  /// **'여러 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.'**
+  /// **'여러 인증 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.'**
   String get loginMethodsIntroBody;
 
   /// login-methods.last.notice: 마지막 남은 수단은 뗄 수 없다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'로그인할 수단이 하나는 남아 있어야 해요.'**
+  /// **'인증 수단이 하나는 남아 있어야 해요.'**
   String get loginMethodsLastNotice;
 
   /// login-methods.unlink.confirm: 떼기 확인
@@ -2325,7 +2319,7 @@ abstract class AppLocalizations {
   /// login-methods.unlink.confirm: 떼기 확인
   ///
   /// In ko, this message translates to:
-  /// **'연결한 다른 수단으로 계속 로그인할 수 있어요.'**
+  /// **'연결한 다른 인증 수단으로 계속 로그인할 수 있어요.'**
   String get loginMethodsUnlinkConfirmBody;
 
   /// login-methods.unlink.confirm: 떼기 확인
@@ -2453,6 +2447,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'로그인 수단'**
   String get settingsLoginMethodsLabel;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'연결된 인증 수단을 찾지 못했어요. 화면을 다시 열어 주세요.'**
+  String get errorAuthIdentityNotFound;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 인증 수단으로 연결한 다른 계정이 이미 있어요.'**
+  String get errorAuthProviderTaken;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 계정에 연결된 인증 수단이에요.'**
+  String get errorAuthIdentityInUse;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 대기 중인 계정에 연결되어 있어요.'**
+  String get errorAuthIdentityPendingDeletion;
+
+  /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 수단이 하나는 남아 있어야 해요.'**
+  String get errorAuthLastIdentity;
+
+  /// ad-free.restore.cta: 구매 복원
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 복원'**
+  String get adFreeRestoreCta;
 }
 
 class _AppLocalizationsDelegate
