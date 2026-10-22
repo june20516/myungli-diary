@@ -275,7 +275,7 @@ def test_generic_groups_contain_spec_components():
     assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner"}
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
-                            "check-row"}
+                            "check-row", "account-choice"}
     assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card"}
 
 
@@ -497,6 +497,8 @@ def test_evidence_sheet_section_titles_and_slots():
 
 # 최종 리뷰 반영 (term-segments spec §2.1·§2.6)
 SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
+# IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
+SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju"}
 
 
 def _slot_values(node):
@@ -778,3 +780,25 @@ def test_md_used_on_matches_ia_components():
         checked += 1
         assert listed == used[component_id], (name, component_id)
     assert checked >= 30
+
+
+# 로그인 수단·계정 합치기 (#389, D82·D83, 결정 V39~V41)
+
+
+def test_account_choice_starts_unselected():
+    choice = component("input", "account-choice")
+    assert set(choice["states"]) == {"none", "selected", "pressed", "loading"}
+    assert choice["states"]["selected"]["parts"]["card"]["border"] == {"color": "{color.action.primary}", "width": {"value": 2, "unit": "px"}}
+    assert choice["states"]["loading"]["pattern"] == "loading.breathe"
+    assert any("처음부터 어느 쪽도 골라 두지 않는다" in rule for rule in choice["rules"])
+    assert choice["a11y"]["role"] == "radio-group" and choice["a11y"]["labelSlot"] == "account-merge.choice.label"
+    assert choice["haptic"] == [{"when": "고름이 바뀜", "strength": "selection"}]
+
+
+def test_account_choice_card_lines():
+    parts = component("input", "account-choice")["parts"]
+    assert parts["card"]["bg"] == "{color.bg.sheet}" and parts["card"]["radius"] == "{radius.md}"
+    assert parts["current"]["radius"] == "{radius.full}" and parts["current"]["slot"] == "ui.account-merge.choice"
+    assert parts["saju"]["slot"] == "ui.account-merge.saju"
+    assert parts["providers"]["logo"] is False
+    assert parts["mark"]["radius"] == "{radius.full}"

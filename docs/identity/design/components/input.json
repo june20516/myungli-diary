@@ -210,6 +210,42 @@
       "haptic": [{ "when": "켜고 끔", "strength": "selection" }],
       "a11y": { "role": "checkbox", "label": "항목 글자", "viewLinkSeparateFocus": true, "minTarget": 48 },
       "rules": ["줄마다 떨어진 카드로 둔다.", "'보기'를 누르면 체크가 바뀌지 않고 약관을 연다."]
+    },
+    {
+      "id": "account-choice",
+      "summary": "합칠 두 계정 가운데 남길 쪽 고르기 (D82 ⑥, 결정 V40)",
+      "uses": ["press.ink", "select.seep-slide", "appear.seep", "loading.breathe"],
+      "parts": {
+        "group": { "gap": "{space.12}", "count": 2 },
+        "card": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "padding": "{space.16}", "gap": "{space.8}", "border": { "color": "transparent", "width": { "value": 2, "unit": "px" } } },
+        "name": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "호칭" },
+        "current": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "paddingX": "{space.8}", "gap": "{space.8}", "slot": "ui.account-merge.choice", "key": "accountChoiceCurrent", "onlyWhen": "현재 로그인한 계정", "position": "호칭 뒤 같은 줄" },
+        "saju": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "numerals": "tabular", "slot": "ui.account-merge.saju", "content": "생년월일·달력 종류·출생 시각", "timeUnknown": "시각 자리에 '시간 모름'", "noSaju": "사주를 저장하지 않은 계정이면 줄 전체가 '사주 정보 없음'" },
+        "facts": { "gap": "{space.12}" },
+        "diaryCount": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "numerals": "tabular", "slot": "ui.account-merge.choice", "key": "accountChoiceDiaryCount" },
+        "providers": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "names": "ui.login-methods.row loginProvider*", "join": "ui.account-merge.choice 구분자 키", "logo": false, "note": "로고 없이 이름 글자. Google G 단독 사용 금지(Google 가이드), 스크린리더가 그대로 읽음" },
+        "mark": { "size": { "value": 22, "unit": "px" }, "border": { "color": "{color.line}", "width": { "value": 1.5, "unit": "px" } }, "radius": "{radius.full}", "position": "top-end", "inset": "{space.16}" }
+      },
+      "states": {
+        "none": { "note": "처음 상태. 어느 카드도 고르지 않음. account-merge의 합치기 버튼은 disabled" },
+        "selected": {
+          "pattern": "select.seep-slide",
+          "note": "이동 없이 스밈만. 처음 고를 때는 appear.seep",
+          "parts": {
+            "card": { "border": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } } },
+            "mark": { "border": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" } }, "dot": { "size": { "value": 12, "unit": "px" }, "color": "{color.action.primary}", "radius": "{radius.full}" } }
+          }
+        },
+        "pressed": { "pattern": "press.ink" },
+        "loading": { "pattern": "loading.breathe", "note": "카드 두 장 크기의 빈 카드가 숨쉼. 글줄 자리는 skeleton과 같은 모양이고 skeleton 컴포넌트를 쓰지 않음(IA account-merge:loading)" }
+      },
+      "haptic": [{ "when": "고름이 바뀜", "strength": "selection" }],
+      "a11y": { "role": "radio-group", "itemRole": "radio", "labelSlot": "account-merge.choice.label", "label": "카드 안 글자를 위에서 아래 순서로", "minTarget": "card" },
+      "rules": [
+        "처음부터 어느 쪽도 골라 두지 않는다. 되돌릴 수 없는 합치기라 남길 계정은 사용자가 직접 고른다.",
+        "연결된 수단은 로고 없이 이름 글자로 보인다(Google 가이드: G 단독 금지).",
+        "카드는 고르기 묶음의 항목이고, 고름 표시는 알약 동그라미다(V26)."
+      ]
     }
   ]
 }

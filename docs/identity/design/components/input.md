@@ -63,3 +63,14 @@
 * 쓰는 화면: consent
 * 변형 `card`(동의 항목: 줄마다 떨어진 카드) / `inline`(시간 '모름'처럼 다른 입력 아래 붙는 체크 하나, 바탕·보기 링크 없음).
 * `card`는 줄마다 떨어진 카드(`bg.sheet`, `radius.md`). 24px 체크 상자(`radius.sm`): 켜면 `action.primary`로 채워지고 흰 체크가 그어집니다(200ms). 오른쪽 "보기" 링크는 따로 초점을 받고, 눌러도 체크는 바뀌지 않습니다.
+
+## account-choice
+
+* 쓰는 화면: account-merge
+* 합칠 두 계정 가운데 남길 쪽을 고르는 카드 두 장입니다(D82 ⑥, 결정 V40). 카드 사이 `space.12`, 카드는 `bg.sheet`·`radius.md`·안쪽 `space.16`·줄 사이 `space.8`입니다.
+* 카드 안 줄(위에서 아래): ① 호칭(`type.subtitle`) + 현재 로그인한 계정이면 알약 "현재 계정"(`ui.account-merge.choice` `accountChoiceCurrent`, `type.caption.sm`, `line` 테두리, `radius.full`) ② 사주 요약 한 줄(`ui.account-merge.saju`: 생년월일·달력 종류·출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음") ③ 일기 수(`accountChoiceDiaryCount`)와 연결된 수단 이름(`loginProvider*`를 구분자로 이음).
+* 연결된 수단은 로고 없이 이름 글자로 보입니다. Google 가이드가 "G"만 단독으로 쓰는 것을 막고, 스크린리더도 이름을 그대로 읽습니다.
+* 고름 표시는 카드 오른쪽 위 22px 알약 동그라미입니다(V26). `selected`는 카드 테두리 `action.primary` 2px + 동그라미 안 점 12px, 바뀔 때 이동 없이 스밉니다(처음 고를 때 `appear.seep`). 햅틱 selection.
+* **처음부터 어느 쪽도 골라 두지 않습니다**(`none`). 되돌릴 수 없는 합치기라 남길 계정은 사용자가 직접 고르고, 그 전에는 합치기 버튼이 `disabled`입니다.
+* `loading`(IA `account-merge:loading`): 카드 두 장 크기의 빈 카드가 `loading.breathe`로 숨쉽니다. `skeleton` 컴포넌트를 따로 쓰지 않습니다.
+* 스크린리더: 묶음은 radio-group(이름 `account-merge.choice.label`), 카드는 radio이고 카드 안 글자를 위에서 아래 순서로 읽습니다. 터치 영역은 카드 전체입니다.
