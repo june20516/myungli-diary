@@ -59,6 +59,7 @@
     - errorMethodNotAllowed
     - errorProfileRequired
     - errorDiaryDateTaken
+    - errorDiaryDayFull
     - errorIdempotencyInProgress
     - errorRequestTooLarge
     - errorRequestUnsupportedMediaType
@@ -788,7 +789,7 @@
   where: "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)"
   purpose: guide
   user_state: "날짜 시트에서 일기를 쓸 날짜를 골랐습니다."
-  structure: "고른 날짜 + 일기 쓰기. 언제나 새 일기로 가므로 동작 말(쓰기)을 넣습니다."
+  structure: "고른 날짜 + 일기 쓰기. 언제나 새 일기로 가므로 동작 말(쓰기)을 넣습니다. 고른 날이 상한을 채웠으면 `Full`(누를 수 없음, 날짜·상한 수치 없음, W37)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   ia: [diary-list.pick-date.confirm]
@@ -796,10 +797,12 @@
   keys:
     - params: {date: text}
       keys: [diaryListPickDateConfirm]
+    - diaryListPickDateConfirmFull
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: diaryListPickDateConfirm, text: "{date} 일기 쓰기", why: "D83으로 언제나 새 일기(#409)", source: writing}
+      - {lang: ko, key: diaryListPickDateConfirmFull, text: "이날은 충분히 썼어요", why: "라운드 R12 선택", source: writing}
     bad:
       - {lang: ko, text: "{date} 일기 보기", why: "D83으로 이 버튼은 보기로 가지 않음", source: writing}
   endings: []

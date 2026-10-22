@@ -179,5 +179,24 @@
     ],
     "status": "chosen",
     "note": "안내·확인 문구는 막는 말 대신 남는 것·필요한 것(W36), 연결하기/연결 끊기, 일기 더 쓰기, 이날 쓴 일기 N편, 오행 이름은 W31 유지"
+  },
+  {
+    "id": "round-R12",
+    "title": "라운드 R12 — D83 ② 한 날짜 상한 문구",
+    "kind": "copy-sample",
+    "file": "2026-10-22-round-R12.md",
+    "date": "2026-10-22",
+    "milestone": "W1",
+    "screens": [
+      "today",
+      "day-sheet",
+      "diary-list",
+      "diary-edit"
+    ],
+    "decisions": [
+      "W37"
+    ],
+    "status": "chosen",
+    "note": "상한 수치 미노출 '충분히 썼어요', 이미 쓴 날 버튼 '새 일기 쓰기'"
   }
 ]

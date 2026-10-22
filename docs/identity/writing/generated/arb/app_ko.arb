@@ -285,8 +285,12 @@
   "@daySheetDiaryWriteCta": {
     "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
-  "daySheetDiaryWriteCtaWritten": "이날 일기 더 쓰기",
+  "daySheetDiaryWriteCtaWritten": "이날 새 일기 쓰기",
   "@daySheetDiaryWriteCtaWritten": {
+    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+  },
+  "daySheetDiaryWriteCtaFull": "이날은 충분히 썼어요",
+  "@daySheetDiaryWriteCtaFull": {
     "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
   "daySheetEventAdd": "일정 추가",
@@ -801,8 +805,12 @@
   "@todayGuideCta": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
-  "todayGuideCtaWritten": "일기 더 쓰기",
+  "todayGuideCtaWritten": "새 일기 쓰기",
   "@todayGuideCtaWritten": {
+    "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+  },
+  "todayGuideCtaFull": "오늘은 충분히 썼어요",
+  "@todayGuideCtaFull": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
   "todayReactionLabel": "좋아요",
@@ -1057,6 +1065,10 @@
       }
     }
   },
+  "diaryListPickDateConfirmFull": "이날은 충분히 썼어요",
+  "@diaryListPickDateConfirmFull": {
+    "description": "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)"
+  },
   "diaryViewEditAction": "일기 고치기",
   "@diaryViewEditAction": {
     "description": "일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)"
@@ -1159,6 +1171,10 @@
   },
   "errorDiaryDateTaken": "그날에는 이미 일기가 있어요.",
   "@errorDiaryDateTaken": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDiaryDayFull": "이날은 충분히 썼어요.",
+  "@errorDiaryDayFull": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorIdempotencyInProgress": "아직 처리하고 있어요. 잠시 후 다시 확인해 주세요.",

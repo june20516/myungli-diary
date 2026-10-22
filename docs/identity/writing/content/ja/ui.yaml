@@ -39,7 +39,8 @@
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "通知には、その日がどんな日かと総運の一文が入ります。"}
 - {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "あとで"}
 - {slot: today.guide.cta, key: todayGuideCta, text: "日記を書く"}
-- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "日記をもう1つ書く"}
+- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "新しい日記を書く"}
+- {slot: today.guide.cta, key: todayGuideCtaFull, text: "今日は十分に書きました"}
 - {slot: today.event.summary, key: todayEventSummary, text: "今日の予定 {count}件・{title}"}
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "進行中"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "次"}
@@ -60,7 +61,8 @@
 - {slot: day-sheet.event.add, key: daySheetEventAdd, text: "予定を追加"}
 - {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "{count, plural, other{この日の日記{count}件}}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "この日の日記を書く"}
-- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "この日の日記をもう1つ書く"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "この日の新しい日記を書く"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaFull, text: "この日は十分に書きました"}
 - {slot: event-edit.title.hint, key: eventEditTitleHint, text: "予定のタイトル"}
 - {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "メモ"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirm, text: "この予定を削除しますか?"}
@@ -82,6 +84,7 @@
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "まだ日記がありません。今日のことから書いてみませんか?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "日付を選んで書く"}
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date}の日記を書く"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirmFull, text: "この日は十分に書きました"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "今日あったことを書いてみましょう"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "端末に下書きを保存しました"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "保存中"}
@@ -165,6 +168,7 @@
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorProfileRequired, text: "先に生まれた日と時間を入力してください。"}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "その日にはすでに日記があります。"}
+- {slot: ui.error.code, key: errorDiaryDayFull, text: "この日は十分に書きました。"}
 - {slot: ui.error.code, key: errorIdempotencyInProgress, text: "まだ処理しています。しばらくしてからもう一度確認してください。"}
 - {slot: ui.error.code, key: errorRequestTooLarge, text: "内容が長すぎます。少し短くしてください。"}
 - {slot: ui.error.code, key: errorRequestUnsupportedMediaType, text: "処理できませんでした。アプリをアップデートしてください。"}

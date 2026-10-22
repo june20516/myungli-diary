@@ -39,7 +39,8 @@
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "Each notification tells you what kind of day it is, with one line from your daily reading."}
 - {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "Not now"}
 - {slot: today.guide.cta, key: todayGuideCta, text: "Write in diary"}
-- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "Write another entry"}
+- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "Write a new entry"}
+- {slot: today.guide.cta, key: todayGuideCtaFull, text: "You've written enough for today"}
 - {slot: today.event.summary, key: todayEventSummary, text: "Events today: {count} · {title}"}
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "Now"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "Next"}
@@ -60,7 +61,8 @@
 - {slot: day-sheet.event.add, key: daySheetEventAdd, text: "Add event"}
 - {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "{count, plural, one{{count} entry this day} other{{count} entries this day}}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "Write about this day"}
-- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "Write another entry for this day"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "Write a new entry for this day"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaFull, text: "You've written enough for this day"}
 - {slot: event-edit.title.hint, key: eventEditTitleHint, text: "Event title"}
 - {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "Notes"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirm, text: "Delete this event?"}
@@ -82,6 +84,7 @@
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "No diary entries yet. Why not start with today?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Pick a date to write"}
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "Write a {date} entry"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirmFull, text: "You've written enough for this day"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft saved on this device"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "Saving"}
@@ -165,6 +168,7 @@
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "We couldn't complete that. Please update the app."}
 - {slot: ui.error.code, key: errorProfileRequired, text: "Please enter your birth date and time first."}
 - {slot: ui.error.code, key: errorDiaryDateTaken, text: "There's already a diary entry for that day."}
+- {slot: ui.error.code, key: errorDiaryDayFull, text: "You've written enough for this day."}
 - {slot: ui.error.code, key: errorIdempotencyInProgress, text: "Still working on it. Please check again in a moment."}
 - {slot: ui.error.code, key: errorRequestTooLarge, text: "That's too long. Please shorten it."}
 - {slot: ui.error.code, key: errorRequestUnsupportedMediaType, text: "We couldn't complete that. Please update the app."}

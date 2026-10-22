@@ -61,7 +61,7 @@
 | daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko 36, en 64, ja 36 |
 | daily.tag_label | 컴포넌트 tag-chip<br>컴포넌트 lucky-card | info | - | 1 | 15 | - | ko 10, en 18, ja 10 |
 | day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | `count`: number | ko 25, en 45, ja 20 |
-| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 2 | - | ko 23, en 42, ja 19 |
+| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | day-sheet.event.empty | day-sheet.event.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.bar.title | diary-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -160,7 +160,7 @@
 | term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>today.lucky-tag.body | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
-| today.guide.cta | today.guide.cta | guide | - | 1 | 2 | - | ko 23, en 42, ja 19 |
+| today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 2 | `count`: number | ko -, en -, ja - |
@@ -178,11 +178,11 @@
 | ui.depth.evidence_link | today.evidence.link<br>컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
 | ui.depth.explain | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-edit.save | diary-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
-| ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 1 | `date`: text | ko 23, en 42, ja 19 |
+| ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 2 | `date`: text | ko 23, en 42, ja 19 |
 | ui.diary-view.actions | 컴포넌트 app-bar | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-view.deleted | diary-view.deleted.toast<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
-| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 44 | - | ko 48, en 78, ja 34 |
+| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 45 | - | ko 48, en 78, ja 34 |
 | ui.event-edit.delete | event-edit.delete.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.event-edit.form | 컴포넌트 segmented<br>컴포넌트 text-field | guide | - | 1 | 4 | - | ko -, en -, ja -<br>`eventEditAllDay` ko 13, en 22, ja 10<br>`eventEditTimed` ko 13, en 22, ja 10 |
 | ui.event-edit.offline | event-edit.offline.notice<br>컴포넌트 notice-banner | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
