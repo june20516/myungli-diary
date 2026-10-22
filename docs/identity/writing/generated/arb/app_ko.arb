@@ -234,11 +234,11 @@
   },
   "daySheetDiaryOpen": "이날 일기 보기",
   "@daySheetDiaryOpen": {
-    "description": "day-sheet.diary.open: 그날 일기 보기 링크"
+    "description": "day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다"
   },
   "daySheetDiaryWriteCta": "이날 일기 쓰기",
   "@daySheetDiaryWriteCta": {
-    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘이고 일기 없음)"
+    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기)"
   },
   "daySheetEventAdd": "일정 추가",
   "@daySheetEventAdd": {
@@ -713,11 +713,11 @@
   },
   "todayGuideCta": "일기 쓰기",
   "@todayGuideCta": {
-    "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
+    "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기)"
   },
   "todayGuideCtaWritten": "쓴 일기 보기",
   "@todayGuideCtaWritten": {
-    "description": "today.guide.cta: 일기 쓰기 또는 쓴 일기 보기 버튼"
+    "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기)"
   },
   "todayReactionLabel": "좋아요",
   "@todayReactionLabel": {
