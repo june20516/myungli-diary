@@ -246,10 +246,14 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   Future<void> _flushDraft() async {
     final body = _pendingDraft;
     final draftTarget = _draftTarget;
-    _pendingDraft = null;
     if (body == null || draftTarget == null || !ref.mounted) {
       return;
     }
+    // 저장 중에 들어온 입력은 저장이 끝난 뒤 새 대상에 씁니다([save]).
+    if (state.value?.saving ?? false) {
+      return;
+    }
+    _pendingDraft = null;
     await _writeDraft(ref.read(diaryDraftStoreProvider), draftTarget, body);
     final current = state.value;
     if (!ref.mounted || current == null || current.saving) {
@@ -284,7 +288,11 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     try {
       saved = await _send(current, body);
     } on Object catch (error) {
-      await _writeDraft(drafts, draftTarget, body);
+      // 저장 중에 더 입력했다면 그 글이 최신입니다.
+      final latest = _pendingDraft ?? body;
+      _draftTimer?.cancel();
+      _pendingDraft = null;
+      await _writeDraft(drafts, draftTarget, latest);
       if (ref.mounted) {
         state = AsyncData(
           current.copyWith(
@@ -298,14 +306,28 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     }
     await _guard(() => drafts.remove(draftTarget));
     // 새 일기를 저장했으면 이 화면의 다음 초안은 방금 쓴 일기에 붙습니다.
-    _draftTarget = DiaryDraftTarget.existing(date: current.date, id: saved.id);
+    final savedTarget = DiaryDraftTarget.existing(
+      date: current.date,
+      id: saved.id,
+    );
+    _draftTarget = savedTarget;
+    // 저장 중에 들어온 입력이 저장한 본문과 다르면 새 대상의 초안으로 남깁니다.
+    final later = _pendingDraft;
+    _draftTimer?.cancel();
+    _pendingDraft = null;
+    final keepLater = later != null && later != body;
+    if (keepLater) {
+      await _writeDraft(drafts, savedTarget, later);
+    }
     if (ref.mounted) {
       invalidateDiaryViews(ref, current.date, id: saved.id);
       state = AsyncData(
         current.copyWith(
           existing: saved,
           saving: false,
-          status: DiaryDraftStatus.saved,
+          status: keepLater && later.trim().isNotEmpty
+              ? DiaryDraftStatus.local
+              : DiaryDraftStatus.saved,
           offline: false,
         ),
       );

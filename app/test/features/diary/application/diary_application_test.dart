@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
@@ -30,6 +32,9 @@ final class _Network extends Interceptor {
   /// 다음 `createDiary` 요청 하나를 시간 초과로 끊습니다.
   bool timeoutNextCreate = false;
 
+  /// 있으면 `createDiary` 요청을 이 completer가 끝날 때까지 붙잡습니다.
+  Completer<void>? holdCreate;
+
   /// `createDiary`가 받은 `Idempotency-Key`.
   final createKeys = <String?>[];
 
@@ -37,6 +42,11 @@ final class _Network extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (options.method == 'POST' && options.path == '/v1/diaries') {
       createKeys.add(options.headers['Idempotency-Key'] as String?);
+      final hold = holdCreate;
+      if (hold != null) {
+        unawaited(hold.future.then((_) => handler.next(options)));
+        return;
+      }
       if (timeoutNextCreate) {
         timeoutNextCreate = false;
         handler.reject(
@@ -330,6 +340,44 @@ void main() {
       },
     );
 
+    test('새 일기에서 본문을 바꿔 다시 저장하면 새 Idempotency-Key를 보낸다', () async {
+      final h = await _harness();
+      await _edit(h, _newToday);
+      final notifier = h.container.read(diaryEditProvider(_newToday).notifier);
+      h.network.timeoutNextCreate = true;
+      await expectLater(notifier.save('처음 글'), throwsA(isA<TimeoutError>()));
+      h.network.timeoutNextCreate = true;
+      await expectLater(notifier.save('고친 글'), throwsA(isA<TimeoutError>()));
+      expect(h.network.createKeys, hasLength(2));
+      expect(h.network.createKeys.last, isNot(h.network.createKeys.first));
+    });
+
+    test('저장 중에 들어온 입력은 저장 뒤 그 일기 초안으로 남는다', () async {
+      final h = await _harness();
+      await _edit(h, _newToday);
+      final notifier = h.container.read(diaryEditProvider(_newToday).notifier);
+      final drafts = h.container.read(diaryDraftStoreProvider);
+      h.network.holdCreate = Completer<void>();
+      final saving = notifier.save('저장한 글');
+      notifier.edit('저장 중에 더 쓴 글');
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 50),
+      );
+      h.network.holdCreate!.complete();
+      final saved = (await saving)!;
+      expect(await drafts.read(_draftToday), isNull);
+      expect(
+        await drafts.read(
+          DiaryDraftTarget.existing(date: _today, id: saved.id),
+        ),
+        '저장 중에 더 쓴 글',
+      );
+      expect(
+        h.container.read(diaryEditProvider(_newToday)).value!.status,
+        DiaryDraftStatus.local,
+      );
+    });
+
     test('고치기 저장은 update이고 그 일기 초안만 지운다', () async {
       final h = await _harness();
       final date = CalendarDate(2026, 10, 12);
@@ -415,10 +463,9 @@ void main() {
 
     test('저장 뒤 그날 diariesOnProvider를 다시 묻는다', () async {
       final h = await _harness();
-      var heard = 0;
       final subscription = h.container.listen(
         diariesOnProvider(_today),
-        (_, _) => heard++,
+        (_, _) {},
       );
       addTearDown(subscription.close);
       await h.container.read(diariesOnProvider(_today).future);
