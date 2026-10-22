@@ -421,6 +421,40 @@ func newReadings(store *content.Store, service *fortune.Service, insight fortune
 	return fortune.NewViews(service, store, content.NewRenderer(logger), insight, clk, logger)
 }
 
+// newGrantProviders는 로그인 허가를 취소하는 제공자(카카오 unlink, Apple revoke) 클라이언트를 만듭니다.
+// serve와 job retention이 같은 설정으로 조립합니다.
+func newGrantProviders(settings authSettings, urls providerURLs, httpClient *http.Client, clk clock.Clock) (*provider.Kakao, *provider.Apple, error) {
+	cfg := settings.config
+	kakao, err := provider.NewKakao(provider.KakaoConfig{
+		AppKey:    cfg.KakaoAppKey,
+		AdminKey:  cfg.KakaoAdminKey,
+		JWKSURL:   urls.KakaoJWKS,
+		UnlinkURL: urls.KakaoUnlink,
+		HTTP:      httpClient,
+		Clock:     clk,
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("provider kakao: %w", err)
+	}
+	apple, err := provider.NewApple(provider.AppleConfig{
+		TeamID:         cfg.AppleTeamID,
+		KeyID:          cfg.AppleKeyID,
+		PrivateKey:     settings.applePrivate,
+		BundleID:       cfg.AppleBundleID,
+		ServicesID:     cfg.AppleServicesID,
+		WebRedirectURI: cfg.AppleWebRedirectURI,
+		JWKSURL:        urls.AppleJWKS,
+		TokenURL:       urls.AppleToken,
+		RevokeURL:      urls.AppleRevoke,
+		HTTP:           httpClient,
+		Clock:          clk,
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("provider apple: %w", err)
+	}
+	return kakao, apple, nil
+}
+
 // newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
 //
 // 의존 방향은 핸들러(httpapi.API) → 서비스(auth·account) → provider·DB입니다.
@@ -432,32 +466,9 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	if err != nil {
 		return nil, fmt.Errorf("access token 발급기: %w", err)
 	}
-	kakao, err := provider.NewKakao(provider.KakaoConfig{
-		AppKey:    cfg.KakaoAppKey,
-		AdminKey:  cfg.KakaoAdminKey,
-		JWKSURL:   deps.Providers.KakaoJWKS,
-		UnlinkURL: deps.Providers.KakaoUnlink,
-		HTTP:      deps.HTTP,
-		Clock:     deps.Clock,
-	})
+	kakao, apple, err := newGrantProviders(settings, deps.Providers, deps.HTTP, deps.Clock)
 	if err != nil {
-		return nil, fmt.Errorf("provider kakao: %w", err)
-	}
-	apple, err := provider.NewApple(provider.AppleConfig{
-		TeamID:         cfg.AppleTeamID,
-		KeyID:          cfg.AppleKeyID,
-		PrivateKey:     settings.applePrivate,
-		BundleID:       cfg.AppleBundleID,
-		ServicesID:     cfg.AppleServicesID,
-		WebRedirectURI: cfg.AppleWebRedirectURI,
-		JWKSURL:        deps.Providers.AppleJWKS,
-		TokenURL:       deps.Providers.AppleToken,
-		RevokeURL:      deps.Providers.AppleRevoke,
-		HTTP:           deps.HTTP,
-		Clock:          deps.Clock,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("provider apple: %w", err)
+		return nil, err
 	}
 
 	line, err := provider.NewLINE(provider.LINEConfig{
@@ -479,19 +490,20 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		return nil, fmt.Errorf("provider google: %w", err)
 	}
 
+	// 허가 취소 대기 행은 commit 뒤 한 번 시도하고, 실패하면 job retention이 다시 시도합니다(S106).
+	revocations := auth.NewRevocations(deps.Pool, kakao, apple, settings.box, deps.Clock, deps.Logger)
 	authService := auth.NewService(deps.Pool, auth.ServiceDeps{
-		Kakao:       kakao,
-		Line:        line,
-		Google:      google,
-		Apple:       apple,
-		KakaoUnlink: kakao,
-		Access:      access,
-		Box:         settings.box,
-		Clock:       deps.Clock,
-		Logger:      deps.Logger,
+		Kakao:   kakao,
+		Line:    line,
+		Google:  google,
+		Apple:   apple,
+		Access:  access,
+		Box:     settings.box,
+		Clock:   deps.Clock,
+		Logger:  deps.Logger,
+		Revoker: revocations,
 	})
-	// 계정 삭제가 남긴 허가 취소 대기 행은 아직 바로 시도하지 않고 쌓아 둡니다(재시도 조립 전까지).
-	accountService := account.NewService(deps.Pool, queueOnlyRevoker{}, deps.Clock)
+	accountService := account.NewService(deps.Pool, revocations, deps.Clock)
 
 	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
 
@@ -590,10 +602,3 @@ func serveHTTP(ctx context.Context, listener net.Listener, handler http.Handler,
 	}
 	return nil
 }
-
-// queueOnlyRevoker는 허가 취소 대기 행을 시도하지 않는 account.Revoker입니다.
-// 허가 취소 재시도(S106)를 조립하기 전까지 대기 행은 provider_revocations에 남습니다.
-type queueOnlyRevoker struct{}
-
-// Attempt는 아무것도 하지 않습니다.
-func (queueOnlyRevoker) Attempt(context.Context, []int64) {}

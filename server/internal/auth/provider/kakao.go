@@ -19,7 +19,8 @@ const (
 	DefaultKakaoUnlinkURL = "https://kapi.kakao.com/v1/user/unlink"
 )
 
-// kakaoNotRegisteredCode는 카카오가 "이미 연결이 끊긴(앱에 가입되지 않은) 사용자"에 돌려주는 오류 코드입니다.
+// kakaoNotRegisteredCode는 카카오가 "해당 앱에 카카오계정 연결이 완료되지 않은 사용자가 호출한 경우"에 돌려주는 오류 코드(-101, HTTP 400)입니다.
+// 카카오 개발자 문서 "카카오 로그인 > 문제 해결"의 -101 항목에서 확인했습니다(2026-10-23).
 const kakaoNotRegisteredCode = -101
 
 // KakaoConfig는 카카오 연동 설정입니다. 빈 URL은 Default* 값을 씁니다.
@@ -76,7 +77,7 @@ func (k *Kakao) Verify(ctx context.Context, idToken, rawNonce string) (Identity,
 }
 
 // Unlink는 카카오 사용자와 우리 앱의 연결을 끊습니다(Admin 키 방식).
-// 이미 연결이 끊긴 사용자(code -101)는 목적을 이룬 것이므로 성공으로 봅니다.
+// 이미 앱과 연결되지 않은 사용자(code -101)에는 ErrKakaoNotLinked를 돌려줍니다. 호출하는 쪽이 성공으로 다룹니다.
 func (k *Kakao) Unlink(ctx context.Context, subject string) error {
 	form := url.Values{
 		"target_id_type": {"user_id"},
@@ -102,7 +103,7 @@ func (k *Kakao) Unlink(ctx context.Context, subject string) error {
 		return fmt.Errorf("카카오 unlink: 상태 %d, 오류 코드를 읽지 못했습니다", resp.status)
 	}
 	if *body.Code == kakaoNotRegisteredCode {
-		return nil
+		return ErrKakaoNotLinked
 	}
 	return fmt.Errorf("카카오 unlink: 상태 %d, 오류 코드 %d", resp.status, *body.Code)
 }

@@ -37,11 +37,6 @@ UPDATE accounts
 SET status = 'active', deletion_requested_at = NULL
 WHERE id = @id AND status = 'pending_deletion';
 
--- name: ClearProviderDisconnected :exec
-UPDATE auth_identities
-SET provider_disconnected_at = NULL
-WHERE account_id = @account_id AND provider_disconnected_at IS NOT NULL;
-
 -- name: InsertRefreshToken :exec
 INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
 VALUES (@id, @account_id, @token_hash, @family_id, @expires_at);
@@ -94,24 +89,7 @@ UPDATE refresh_tokens
 SET revoked_at = @revoked_at::timestamptz
 WHERE account_id = @account_id AND revoked_at IS NULL;
 
--- name: ListIdentities :many
-SELECT id, account_id, provider, subject,
-       apple_refresh_token, apple_token_key_id, apple_client_id, provider_disconnected_at
-FROM auth_identities
-WHERE account_id = @account_id
-ORDER BY created_at, id;
-
--- MarkProviderDisconnected는 Apple 토큰 세 열을 비우고 연결 해제 시각을 기록합니다.
--- name: MarkProviderDisconnected :exec
-UPDATE auth_identities
-SET apple_refresh_token = NULL,
-    apple_token_key_id = NULL,
-    apple_client_id = NULL,
-    provider_disconnected_at = @disconnected_at::timestamptz
-WHERE id = @id;
-
 -- LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
--- 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
 -- name: LockAccountStatus :one
 SELECT status FROM accounts WHERE id = @id FOR UPDATE;
 
@@ -174,3 +152,37 @@ RETURNING id, account_id, provider, subject, apple_refresh_token, apple_token_ke
 -- name: InsertMergeTicket :exec
 INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
 VALUES (@id, @token_hash, @account_id, @other_account_id, @identity_id, @expires_at::timestamptz);
+
+-- QueueRevocation은 카카오·Apple 허가 취소 대기 행을 하나 넣고 id를 돌려줍니다(S106).
+-- created_at은 30일 포기 판정의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.
+-- name: QueueRevocation :one
+INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at, created_at)
+VALUES (@provider, @subject, @identity_id, @apple_refresh_token, @apple_token_key_id, @apple_client_id, @now::timestamptz, @now::timestamptz)
+RETURNING id;
+
+-- LockDueRevocation은 시각이 된 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+-- name: LockDueRevocation :one
+SELECT id, provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id,
+       attempts, next_attempt_at, created_at
+FROM provider_revocations
+WHERE next_attempt_at <= @now::timestamptz
+ORDER BY next_attempt_at, id
+LIMIT 1
+FOR UPDATE SKIP LOCKED;
+
+-- LockRevocation은 id로 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+-- name: LockRevocation :one
+SELECT id, provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id,
+       attempts, next_attempt_at, created_at
+FROM provider_revocations
+WHERE id = @id
+FOR UPDATE SKIP LOCKED;
+
+-- name: DeleteRevocation :exec
+DELETE FROM provider_revocations WHERE id = @id;
+
+-- ScheduleRevocationRetry는 실패한 대기 행의 시도 횟수와 다음 시각을 정합니다.
+-- name: ScheduleRevocationRetry :exec
+UPDATE provider_revocations
+SET attempts = @attempts, next_attempt_at = @next_attempt_at::timestamptz
+WHERE id = @id;

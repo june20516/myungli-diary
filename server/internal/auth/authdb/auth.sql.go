@@ -32,17 +32,6 @@ func (q *Queries) AccountHasProvider(ctx context.Context, arg AccountHasProvider
 	return exists, err
 }
 
-const clearProviderDisconnected = `-- name: ClearProviderDisconnected :exec
-UPDATE auth_identities
-SET provider_disconnected_at = NULL
-WHERE account_id = $1 AND provider_disconnected_at IS NOT NULL
-`
-
-func (q *Queries) ClearProviderDisconnected(ctx context.Context, accountID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, clearProviderDisconnected, accountID)
-	return err
-}
-
 const consumeAppleWebLogin = `-- name: ConsumeAppleWebLogin :execrows
 UPDATE apple_web_logins
 SET consumed_at = $1::timestamptz
@@ -153,6 +142,15 @@ func (q *Queries) DeleteIdentity(ctx context.Context, arg DeleteIdentityParams) 
 		&i.AppleClientID,
 	)
 	return i, err
+}
+
+const deleteRevocation = `-- name: DeleteRevocation :exec
+DELETE FROM provider_revocations WHERE id = $1
+`
+
+func (q *Queries) DeleteRevocation(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteRevocation, id)
+	return err
 }
 
 const getAppleWebLoginForUpdate = `-- name: GetAppleWebLoginForUpdate :one
@@ -468,60 +466,11 @@ func (q *Queries) ListAccountIdentities(ctx context.Context, accountID uuid.UUID
 	return items, nil
 }
 
-const listIdentities = `-- name: ListIdentities :many
-SELECT id, account_id, provider, subject,
-       apple_refresh_token, apple_token_key_id, apple_client_id, provider_disconnected_at
-FROM auth_identities
-WHERE account_id = $1
-ORDER BY created_at, id
-`
-
-type ListIdentitiesRow struct {
-	ID                     uuid.UUID
-	AccountID              uuid.UUID
-	Provider               string
-	Subject                string
-	AppleRefreshToken      []byte
-	AppleTokenKeyID        pgtype.Text
-	AppleClientID          pgtype.Text
-	ProviderDisconnectedAt *time.Time
-}
-
-func (q *Queries) ListIdentities(ctx context.Context, accountID uuid.UUID) ([]ListIdentitiesRow, error) {
-	rows, err := q.db.Query(ctx, listIdentities, accountID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListIdentitiesRow
-	for rows.Next() {
-		var i ListIdentitiesRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.AccountID,
-			&i.Provider,
-			&i.Subject,
-			&i.AppleRefreshToken,
-			&i.AppleTokenKeyID,
-			&i.AppleClientID,
-			&i.ProviderDisconnectedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const lockAccountStatus = `-- name: LockAccountStatus :one
 SELECT status FROM accounts WHERE id = $1 FOR UPDATE
 `
 
 // LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
-// 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
 func (q *Queries) LockAccountStatus(ctx context.Context, id uuid.UUID) (string, error) {
 	row := q.db.QueryRow(ctx, lockAccountStatus, id)
 	var status string
@@ -529,24 +478,60 @@ func (q *Queries) LockAccountStatus(ctx context.Context, id uuid.UUID) (string, 
 	return status, err
 }
 
-const markProviderDisconnected = `-- name: MarkProviderDisconnected :exec
-UPDATE auth_identities
-SET apple_refresh_token = NULL,
-    apple_token_key_id = NULL,
-    apple_client_id = NULL,
-    provider_disconnected_at = $1::timestamptz
-WHERE id = $2
+const lockDueRevocation = `-- name: LockDueRevocation :one
+SELECT id, provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id,
+       attempts, next_attempt_at, created_at
+FROM provider_revocations
+WHERE next_attempt_at <= $1::timestamptz
+ORDER BY next_attempt_at, id
+LIMIT 1
+FOR UPDATE SKIP LOCKED
 `
 
-type MarkProviderDisconnectedParams struct {
-	DisconnectedAt time.Time
-	ID             uuid.UUID
+// LockDueRevocation은 시각이 된 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+func (q *Queries) LockDueRevocation(ctx context.Context, now time.Time) (ProviderRevocation, error) {
+	row := q.db.QueryRow(ctx, lockDueRevocation, now)
+	var i ProviderRevocation
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.Subject,
+		&i.IdentityID,
+		&i.AppleRefreshToken,
+		&i.AppleTokenKeyID,
+		&i.AppleClientID,
+		&i.Attempts,
+		&i.NextAttemptAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
-// MarkProviderDisconnected는 Apple 토큰 세 열을 비우고 연결 해제 시각을 기록합니다.
-func (q *Queries) MarkProviderDisconnected(ctx context.Context, arg MarkProviderDisconnectedParams) error {
-	_, err := q.db.Exec(ctx, markProviderDisconnected, arg.DisconnectedAt, arg.ID)
-	return err
+const lockRevocation = `-- name: LockRevocation :one
+SELECT id, provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id,
+       attempts, next_attempt_at, created_at
+FROM provider_revocations
+WHERE id = $1
+FOR UPDATE SKIP LOCKED
+`
+
+// LockRevocation은 id로 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+func (q *Queries) LockRevocation(ctx context.Context, id int64) (ProviderRevocation, error) {
+	row := q.db.QueryRow(ctx, lockRevocation, id)
+	var i ProviderRevocation
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.Subject,
+		&i.IdentityID,
+		&i.AppleRefreshToken,
+		&i.AppleTokenKeyID,
+		&i.AppleClientID,
+		&i.Attempts,
+		&i.NextAttemptAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const markRefreshTokenUsed = `-- name: MarkRefreshTokenUsed :execrows
@@ -569,6 +554,39 @@ func (q *Queries) MarkRefreshTokenUsed(ctx context.Context, arg MarkRefreshToken
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const queueRevocation = `-- name: QueueRevocation :one
+INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
+RETURNING id
+`
+
+type QueueRevocationParams struct {
+	Provider          string
+	Subject           pgtype.Text
+	IdentityID        uuid.UUID
+	AppleRefreshToken []byte
+	AppleTokenKeyID   pgtype.Text
+	AppleClientID     pgtype.Text
+	Now               time.Time
+}
+
+// QueueRevocation은 카카오·Apple 허가 취소 대기 행을 하나 넣고 id를 돌려줍니다(S106).
+// created_at은 30일 포기 판정의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.
+func (q *Queries) QueueRevocation(ctx context.Context, arg QueueRevocationParams) (int64, error) {
+	row := q.db.QueryRow(ctx, queueRevocation,
+		arg.Provider,
+		arg.Subject,
+		arg.IdentityID,
+		arg.AppleRefreshToken,
+		arg.AppleTokenKeyID,
+		arg.AppleClientID,
+		arg.Now,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const restoreAccount = `-- name: RestoreAccount :execrows
@@ -640,6 +658,24 @@ func (q *Queries) RevokeRefreshToken(ctx context.Context, arg RevokeRefreshToken
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const scheduleRevocationRetry = `-- name: ScheduleRevocationRetry :exec
+UPDATE provider_revocations
+SET attempts = $1, next_attempt_at = $2::timestamptz
+WHERE id = $3
+`
+
+type ScheduleRevocationRetryParams struct {
+	Attempts      int32
+	NextAttemptAt time.Time
+	ID            int64
+}
+
+// ScheduleRevocationRetry는 실패한 대기 행의 시도 횟수와 다음 시각을 정합니다.
+func (q *Queries) ScheduleRevocationRetry(ctx context.Context, arg ScheduleRevocationRetryParams) error {
+	_, err := q.db.Exec(ctx, scheduleRevocationRetry, arg.Attempts, arg.NextAttemptAt, arg.ID)
+	return err
 }
 
 const setRefreshTokenReplacedBy = `-- name: SetRefreshTokenReplacedBy :execrows

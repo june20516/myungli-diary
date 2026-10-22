@@ -422,15 +422,7 @@ func TestUnlinkIdentity_RemovesAndRevokesAfterCommit(t *testing.T) {
 	require.Len(t, revokes, 1)
 	assert.Equal(t, providertest.AppleRefreshToken, revokes[0].Form.Get("token"), "복호화한 토큰으로 revoke합니다")
 	assert.Equal(t, providertest.AppleBundleID, revokes[0].Form.Get("client_id"))
-
-	// revoke가 실패해도 떼기는 성공입니다.
-	f.link(t, accountID, "apple", f.appleProof("A1"))
-	f.fake.SetAppleRevokeResponse(http.StatusServiceUnavailable, "")
-
-	require.NoError(t, f.service.UnlinkIdentity(f.ctx, accountID, "apple"))
-
-	assert.Equal(t, []string{"kakao"}, f.providers(t, accountID))
-	assert.Len(t, f.fake.AppleRevokeRequests(), 2)
+	assert.Zero(t, f.revocationCount(t), "성공하면 대기 행을 지웁니다")
 }
 
 func TestUnlinkIdentity_KakaoUnlinksAfterCommit(t *testing.T) {
@@ -444,6 +436,40 @@ func TestUnlinkIdentity_KakaoUnlinksAfterCommit(t *testing.T) {
 	unlinks := f.fake.KakaoUnlinkRequests()
 	require.Len(t, unlinks, 1)
 	assert.Equal(t, "kakao-1", unlinks[0].Form.Get("target_id"))
+	assert.Zero(t, f.revocationCount(t))
+}
+
+// 허가 취소가 실패해도 떼기는 성공(204)이고, 대기 행이 남아 재시도를 기다립니다.
+func TestUnlinkIdentity_QueuesAndAttempts(t *testing.T) {
+	f := newFixture(t)
+	accountID := f.loginLine(t, "U1").AccountID
+	f.link(t, accountID, "kakao", auth.LinkProof{IDToken: f.kakaoToken("kakao-1"), RawNonce: testNonce})
+	f.fake.SetKakaoUnlinkResponse(http.StatusServiceUnavailable, "")
+
+	require.NoError(t, f.service.UnlinkIdentity(f.ctx, accountID, "kakao"))
+
+	assert.Equal(t, []string{"line"}, f.providers(t, accountID))
+	assert.Len(t, f.fake.KakaoUnlinkRequests(), 1, "commit 뒤 한 번 시도합니다")
+	require.Equal(t, 1, f.revocationCount(t))
+	var attempts int
+	var subject string
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT attempts, subject FROM provider_revocations`).Scan(&attempts, &subject))
+	assert.Equal(t, 1, attempts)
+	assert.Equal(t, "kakao-1", subject)
+}
+
+// 저장한 token이 없는 Apple 연결은 허가 취소할 것이 없어 대기 행을 넣지 않습니다.
+func TestUnlinkIdentity_AppleWithoutStoredTokenQueuesNothing(t *testing.T) {
+	f := newFixture(t)
+	accountID := f.loginKakao(t, "kakao-1").AccountID
+	f.link(t, accountID, "apple", f.appleProof("A1"))
+	f.exec(t, `UPDATE auth_identities SET apple_refresh_token = NULL, apple_token_key_id = NULL, apple_client_id = NULL
+	           WHERE account_id = $1 AND provider = 'apple'`, accountID)
+
+	require.NoError(t, f.service.UnlinkIdentity(f.ctx, accountID, "apple"))
+
+	assert.Zero(t, f.revocationCount(t))
+	assert.Empty(t, f.fake.AppleRevokeRequests())
 }
 
 func TestUnlinkIdentity_LINEGoogleNoExternalCall(t *testing.T) {
@@ -458,6 +484,7 @@ func TestUnlinkIdentity_LINEGoogleNoExternalCall(t *testing.T) {
 	assert.Equal(t, []string{"kakao"}, f.providers(t, accountID))
 	assert.Empty(t, f.fake.AppleRevokeRequests())
 	assert.Empty(t, f.fake.KakaoUnlinkRequests())
+	assert.Zero(t, f.revocationCount(t))
 }
 
 func TestUnlinkIdentity_LastAndMissing(t *testing.T) {

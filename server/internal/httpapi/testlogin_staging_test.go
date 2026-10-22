@@ -172,19 +172,14 @@ func TestLogin_TestLoginConsentFlow(t *testing.T) {
 	assert.Equal(t, false, f.login(t, "e2e01")["consentRequired"])
 }
 
-// 삭제 대기 계정은 정상 로그인처럼 되살아나고, 테스트 연결도 계정 삭제의 연결 해제를 거칩니다.
+// 삭제 대기 계정은 정상 로그인처럼 되살아납니다.
 func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
 	f := newTestLoginFixture(t)
 	f.login(t, "e2e01")
 	accountID := f.accountOf(t, "e2e01")
-	// 삭제 예약 API는 없어졌으므로(S105) 남은 삭제 대기 계정을 SQL로 만들고 그 뒷정리를 직접 부릅니다.
+	// 삭제 예약 API는 없어졌으므로(S105) 남은 삭제 대기 계정을 SQL로 만듭니다.
 	_, err := f.pool.Exec(t.Context(), `UPDATE accounts SET status = 'pending_deletion', deletion_requested_at = now() WHERE id = $1`, accountID)
 	require.NoError(t, err)
-	require.NoError(t, f.auth.DisconnectProviders(t.Context(), accountID))
-	var disconnected bool
-	require.NoError(t, f.pool.QueryRow(t.Context(),
-		`SELECT provider_disconnected_at IS NOT NULL FROM auth_identities WHERE account_id = $1`, accountID).Scan(&disconnected))
-	assert.True(t, disconnected, "테스트 연결은 외부 호출 없이 해제된 것으로 기록됩니다")
 
 	body := f.login(t, "e2e01")
 

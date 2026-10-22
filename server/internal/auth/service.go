@@ -43,9 +43,6 @@ const (
 	// providerLine·providerGoogle은 LINE·Google 로그인(S99)의 연결입니다. 둘 다 Apple 토큰 열이 없습니다.
 	providerLine   = "line"
 	providerGoogle = "google"
-	// providerTest는 staging 테스트 로그인(S24)의 연결입니다. 발급 경로(LoginTest)는 build tag staging 파일에만 있고,
-	// 여기의 상수는 연결 해제가 staging의 테스트 계정 삭제를 처리하려고 씁니다.
-	providerTest = "test"
 )
 
 // DB의 accounts.status 값입니다.
@@ -94,15 +91,17 @@ type AppleClient interface {
 
 // ServiceDeps는 Service가 쓰는 의존성입니다. Logger는 nil이면 아무것도 남기지 않습니다.
 type ServiceDeps struct {
-	Kakao       KakaoVerifier
-	Line        IDTokenVerifier
-	Google      IDTokenVerifier
-	Apple       AppleClient
-	KakaoUnlink KakaoUnlinker
-	Access      *token.AccessIssuer
-	Box         *secretbox.Box
-	Clock       clock.Clock
-	Logger      *slog.Logger
+	Kakao  KakaoVerifier
+	Line   IDTokenVerifier
+	Google IDTokenVerifier
+	Apple  AppleClient
+	Access *token.AccessIssuer
+	Box    *secretbox.Box
+	Clock  clock.Clock
+	Logger *slog.Logger
+	// Revoker는 떼기(UnlinkIdentity)가 commit한 뒤 허가 취소 대기 행을 시도합니다. nil이면 시도하지 않고
+	// 대기 행이 job retention의 재시도를 기다립니다. *Revocations가 만족합니다.
+	Revoker RevocationAttempter
 }
 
 // TokenPair는 클라이언트에 주는 자체 토큰 한 쌍입니다.
@@ -125,16 +124,16 @@ type LoginResult struct {
 
 // Service는 인증 서비스입니다. 여러 goroutine에서 동시에 써도 안전합니다.
 type Service struct {
-	pool        *pgxpool.Pool
-	kakao       KakaoVerifier
-	line        IDTokenVerifier
-	google      IDTokenVerifier
-	apple       AppleClient
-	kakaoUnlink KakaoUnlinker
-	access      *token.AccessIssuer
-	box         *secretbox.Box
-	clock       clock.Clock
-	logger      *slog.Logger
+	pool    *pgxpool.Pool
+	kakao   KakaoVerifier
+	line    IDTokenVerifier
+	google  IDTokenVerifier
+	apple   AppleClient
+	access  *token.AccessIssuer
+	box     *secretbox.Box
+	clock   clock.Clock
+	logger  *slog.Logger
+	revoker RevocationAttempter
 }
 
 // NewService는 Service를 만듭니다.
@@ -144,16 +143,16 @@ func NewService(pool *pgxpool.Pool, deps ServiceDeps) *Service {
 		logger = slog.New(slog.DiscardHandler)
 	}
 	return &Service{
-		pool:        pool,
-		kakao:       deps.Kakao,
-		line:        deps.Line,
-		google:      deps.Google,
-		apple:       deps.Apple,
-		kakaoUnlink: deps.KakaoUnlink,
-		access:      deps.Access,
-		box:         deps.Box,
-		clock:       deps.Clock,
-		logger:      logger,
+		pool:    pool,
+		kakao:   deps.Kakao,
+		line:    deps.Line,
+		google:  deps.Google,
+		apple:   deps.Apple,
+		access:  deps.Access,
+		box:     deps.Box,
+		clock:   deps.Clock,
+		logger:  logger,
+		revoker: deps.Revoker,
 	}
 }
 
@@ -363,9 +362,6 @@ func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, no
 		restored = true
 		if err := q.RevokeAccountTokens(ctx, authdb.RevokeAccountTokensParams{RevokedAt: now, AccountID: existing.AccountID}); err != nil {
 			return uuid.Nil, false, false, fmt.Errorf("복구 전 세션 폐기: %w", err)
-		}
-		if err := q.ClearProviderDisconnected(ctx, existing.AccountID); err != nil {
-			return uuid.Nil, false, false, fmt.Errorf("연결 해제 기록 지우기: %w", err)
 		}
 		s.logger.InfoContext(ctx, "삭제 대기 계정 복구", "accountId", existing.AccountID, "provider", providerName)
 	}

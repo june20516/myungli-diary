@@ -63,7 +63,7 @@ func TestLoginTest_RestoresPendingDeletion(t *testing.T) {
 	f := newFixture(t)
 	first, err := f.service.LoginTest(f.ctx, "e2e01")
 	require.NoError(t, err)
-	f.requestDeletion(t, first.AccountID)
+	f.markPendingDeletion(t, first.AccountID)
 
 	res, err := f.service.LoginTest(f.ctx, "e2e01")
 	require.NoError(t, err)

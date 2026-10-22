@@ -191,10 +191,13 @@ func runSeed(ctx context.Context, args []string, getenv func(string) string, _, 
 
 var jobNames = []string{"precompute", "notify", "retention"}
 
-// runJob은 작업 이름을 검증합니다. 각 작업은 P8에서 채웁니다.
-func runJob(_ context.Context, args []string, _ func(string) string, _, _ io.Writer) error {
+// runJob은 작업 이름을 검증하고 실행합니다. retention만 채워졌고, 나머지 작업은 P8에서 채웁니다.
+func runJob(ctx context.Context, args []string, getenv func(string) string, _, stderr io.Writer) error {
 	if len(args) != 1 || !slices.Contains(jobNames, args[0]) {
 		return usageErrorf("usage: server job %s", strings.Join(jobNames, "|"))
+	}
+	if args[0] == "retention" {
+		return runRetention(ctx, getenv, stderr)
 	}
 	return ErrNotImplemented
 }

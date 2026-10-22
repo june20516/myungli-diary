@@ -305,10 +305,11 @@ func TestAuthFlow_DeleteThenLoginCreatesNewAccount(t *testing.T) {
 	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).
 		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 
-	// 로그인 때 받은 Apple refresh token은 허가 취소 대기 행으로 남습니다.
+	// 로그인 때 받은 Apple refresh token은 commit 뒤 바로 revoke하고, 성공했으므로 대기 행이 남지 않습니다(S106).
+	assert.Len(t, env.fake.AppleRevokeRequests(), 1)
 	var queued int
-	require.NoError(t, env.pool.QueryRow(t.Context(), `SELECT count(*) FROM provider_revocations WHERE provider = 'apple'`).Scan(&queued))
-	assert.Equal(t, 1, queued)
+	require.NoError(t, env.pool.QueryRow(t.Context(), `SELECT count(*) FROM provider_revocations`).Scan(&queued))
+	assert.Zero(t, queued)
 
 	again := env.loginAppleNative("apple-flow-subject")
 	require.Equal(t, http.StatusOK, again.status, "재로그인 본문: %v", again.body)

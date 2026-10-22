@@ -205,13 +205,13 @@ func TestKakao_UnlinkSendsAdminKeyAndTarget(t *testing.T) {
 	assert.Equal(t, testSubject, reqs[0].Form.Get("target_id"))
 }
 
-func TestKakao_UnlinkAlreadyUnlinkedIsSuccess(t *testing.T) {
+func TestKakao_UnlinkNotLinkedReturnsSentinel(t *testing.T) {
 	kakao, fake := newKakao(t)
 	fake.SetKakaoUnlinkResponse(http.StatusBadRequest, `{"msg":"NotRegisteredUserException","code":-101}`)
 
 	err := kakao.Unlink(context.Background(), testSubject)
 
-	require.NoError(t, err)
+	require.ErrorIs(t, err, provider.ErrKakaoNotLinked)
 }
 
 func TestKakao_UnlinkFailures(t *testing.T) {

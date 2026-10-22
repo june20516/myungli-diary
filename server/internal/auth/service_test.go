@@ -55,20 +55,24 @@ func newFixture(t *testing.T, opts ...func(*auth.ServiceDeps)) *fixture {
 
 	kakao := fake.NewKakao(t, clk)
 	deps := auth.ServiceDeps{
-		Kakao:       kakao,
-		Line:        fake.NewLINE(t, clk),
-		Google:      fake.NewGoogle(t, clk),
-		Apple:       fake.NewApple(t, clk),
-		KakaoUnlink: kakao,
-		Access:      access,
-		Box:         box,
-		Clock:       clk,
+		Kakao:  kakao,
+		Line:   fake.NewLINE(t, clk),
+		Google: fake.NewGoogle(t, clk),
+		Apple:  fake.NewApple(t, clk),
+		Access: access,
+		Box:    box,
+		Clock:  clk,
 	}
 	for _, opt := range opts {
 		opt(&deps)
 	}
-	service := auth.NewService(pool, deps)
-	return &fixture{ctx: context.Background(), pool: pool, clk: clk, fake: fake, box: box, service: service}
+	f := &fixture{ctx: context.Background(), pool: pool, clk: clk, fake: fake, box: box}
+	deps.Revoker = auth.NewRevocations(pool, kakao, fake.NewApple(t, clk), box, clk, nil)
+	for _, opt := range opts {
+		opt(&deps)
+	}
+	f.service = auth.NewService(pool, deps)
+	return f
 }
 
 // kakaoToken은 subject로 검증을 통과하는 카카오 id_token을 만듭니다.
@@ -108,11 +112,10 @@ func (f *fixture) exec(t *testing.T, sql string, args ...any) {
 	require.NoError(t, err)
 }
 
-// markPendingDeletion은 계정을 삭제 대기로 바꾸고 제공자 연결 해제 시각을 기록합니다(DELETE /v1/me 직후 상태).
+// markPendingDeletion은 계정만 삭제 대기로 바꿉니다(옛 삭제 요청 직후 상태).
 func (f *fixture) markPendingDeletion(t *testing.T, accountID uuid.UUID) {
 	t.Helper()
 	f.exec(t, `UPDATE accounts SET status = 'pending_deletion', deletion_requested_at = $2 WHERE id = $1`, accountID, f.clk.Now())
-	f.exec(t, `UPDATE auth_identities SET provider_disconnected_at = $2 WHERE account_id = $1`, accountID, f.clk.Now())
 }
 
 // refreshRow는 refresh token 원문으로 DB 행의 family·만료·사용 시각을 읽습니다.
@@ -262,7 +265,6 @@ func TestLoginKakao_RestoresPendingDeletion(t *testing.T) {
 	require.NoError(t, err, "복구 로그인이 새로 받은 refresh token")
 	assert.False(t, res.IsNewAccount)
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts WHERE id = $1 AND status = 'active' AND deletion_requested_at IS NULL`, res.AccountID))
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND provider_disconnected_at IS NULL`, res.AccountID))
 }
 
 func TestLoginKakao_DeletedAccountIdentityFails(t *testing.T) {

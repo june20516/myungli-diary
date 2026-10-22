@@ -333,15 +333,17 @@ func (s *Service) issueMergeTicket(ctx context.Context, q *authdb.Queries, now t
 // 동시에 떼도 하나는 남습니다. 표시만 남기지 않고 지우는 것은 그 제공자 사용자가 나중에 새 계정을 만들 때
 // (provider, subject) unique에 걸리지 않게 하려는 것입니다.
 //
-// commit한 뒤 허가 취소(RevokeGrant)를 한 번 시도합니다. 실패해도 경고 로그만 남기고 떼기는 성공입니다.
+// 카카오와 저장한 token이 있는 Apple이면 같은 트랜잭션에서 허가 취소 대기 행을 넣고(QueueRevocationTx),
+// commit한 뒤 한 번 시도합니다(S106). 실패해도 대기 행에 남아 job retention이 다시 시도하므로 떼기는 성공입니다.
 // 요청이 취소돼도 끝까지 하도록 context의 취소를 떼어 냅니다.
 func (s *Service) UnlinkIdentity(ctx context.Context, accountID uuid.UUID, providerName string) error {
 	if !isLinkableProvider(providerName) {
 		return fmt.Errorf("뗄 수 없는 제공자 %q", providerName)
 	}
-	var removed RemovedIdentity
+	var revocationID int64
+	var queued bool
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
-		removed = RemovedIdentity{}
+		queued = false
 		q := authdb.New(tx)
 		if err := lockActiveAccount(ctx, q, accountID); err != nil {
 			return err
@@ -361,15 +363,11 @@ func (s *Service) UnlinkIdentity(ctx context.Context, accountID uuid.UUID, provi
 			// 오류를 돌려주면 rollback되어 지운 행이 되돌아갑니다.
 			return ErrLastIdentity
 		}
-		removed = RemovedIdentity{
-			ID:                row.ID,
-			AccountID:         row.AccountID,
-			Provider:          row.Provider,
-			Subject:           row.Subject,
-			AppleRefreshToken: row.AppleRefreshToken,
-			AppleTokenKeyID:   row.AppleTokenKeyID.String,
-			AppleClientID:     row.AppleClientID.String,
+		id, ok, err := QueueRevocationTx(ctx, q, row, s.clock.Now())
+		if err != nil {
+			return err
 		}
+		revocationID, queued = id, ok
 		return nil
 	})
 	if err != nil {
@@ -380,9 +378,8 @@ func (s *Service) UnlinkIdentity(ctx context.Context, accountID uuid.UUID, provi
 	}
 	s.logger.InfoContext(ctx, "연결 떼기", "accountId", accountID, "provider", providerName)
 
-	if err := s.RevokeGrant(context.WithoutCancel(ctx), removed); err != nil {
-		s.logger.WarnContext(ctx, "떼기 뒤 허가 취소 실패",
-			"accountId", accountID, "provider", providerName, "reason", disconnectFailureReason(err))
+	if queued && s.revoker != nil {
+		s.revoker.Attempt(context.WithoutCancel(ctx), []int64{revocationID})
 	}
 	return nil
 }
@@ -411,7 +408,7 @@ func isLinkableProvider(providerName string) bool {
 
 // lockActiveAccount는 계정 행을 잠그고 active인지 확인합니다.
 // httpapi의 상태 관문이 active가 아닌 계정을 먼저 막으므로, 여기서 걸리는 것은 그 사이 삭제 요청이 끼어든 경우뿐입니다.
-// 삭제 대기 계정에 연결을 더하거나 빼면 연결 해제(DisconnectProviders)와 어긋나므로 서버 오류로 멈춥니다.
+// 삭제 대기 계정에 연결을 더하거나 빼면 허가 취소 대기 행과 어긋나므로 서버 오류로 멈춥니다.
 func lockActiveAccount(ctx context.Context, q *authdb.Queries, accountID uuid.UUID) error {
 	status, err := q.LockAccountStatus(ctx, accountID)
 	if err != nil {

@@ -1,0 +1,81 @@
+package cli
+
+import (
+	"context"
+	"io"
+	"log/slog"
+	"net/http"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/june20516/myungli-diary/server/internal/auth"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock"
+	"github.com/june20516/myungli-diary/server/internal/platform/config"
+	"github.com/june20516/myungli-diary/server/internal/platform/logging"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
+)
+
+// retentionDeps는 job retention이 바깥에서 받는 의존성입니다.
+type retentionDeps struct {
+	Pool   *pgxpool.Pool
+	Clock  clock.Clock
+	Logger *slog.Logger
+	HTTP   *http.Client
+	// Providers는 제공자 엔드포인트 주소입니다. 빈 값은 실제 제공자 주소를 씁니다.
+	Providers providerURLs
+}
+
+// runRetention은 설정을 읽고 DB에 연결해 retention을 실행합니다.
+// 허가 취소에 필요한 설정(DB, 카카오 admin key, Apple 키, token 암호화 키)을 serve와 같은 방식으로 읽습니다.
+func runRetention(ctx context.Context, getenv func(string) string, stderr io.Writer) error {
+	cfg, err := config.Load(getenv)
+	if err != nil {
+		return err
+	}
+	if err := cfg.RequireDatabase(); err != nil {
+		return err
+	}
+	authCfg, err := config.LoadAuth(getenv)
+	if err != nil {
+		return err
+	}
+	settings, err := parseAuthSettings(authCfg)
+	if err != nil {
+		return err
+	}
+	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
+
+	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	defer pool.Close()
+
+	if err := retention(ctx, settings, retentionDeps{
+		Pool:   pool,
+		Clock:  clock.System{},
+		Logger: logger,
+		HTTP:   newProviderHTTPClient(),
+	}); err != nil {
+		logger.ErrorContext(ctx, "retention 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	return nil
+}
+
+// retention은 시각이 된 허가 취소 대기 행을 다시 시도합니다(S106).
+// 제공자 호출이 실패한 행은 대기 행에 남으므로 오류가 아니고, DB 오류만 실패로 돌려줍니다.
+func retention(ctx context.Context, settings authSettings, deps retentionDeps) error {
+	kakao, apple, err := newGrantProviders(settings, deps.Providers, deps.HTTP, deps.Clock)
+	if err != nil {
+		return err
+	}
+	revocations := auth.NewRevocations(deps.Pool, kakao, apple, settings.box, deps.Clock, deps.Logger)
+	attempted, err := revocations.RetryDue(ctx)
+	if err != nil {
+		return err
+	}
+	deps.Logger.InfoContext(ctx, "허가 취소 재시도 완료", "attempted", attempted)
+	return nil
+}
