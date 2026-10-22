@@ -868,3 +868,30 @@ def test_account_merge_layout_keeps_emphasis_on_confirm():
     assert "`account-merge.overlap.notice`" in section and "`mark.caution`을 쓰지 않" in section
     assert "`account-merge.merge.confirm`" in section and "`destructive`" in section
     assert "`ui.account-merge.error`" in section and "`notice`" in section
+
+
+# 같은 날 여러 편 (2026-10-22-diary-row-multi-design.md §2·§3, 결정 V42)
+def test_diary_row_same_day_entries():
+    row = component("diary", "diary-row")
+    assert [variant["id"] for variant in row["variants"]] == ["day", "entries"]
+    entry = row["parts"]["entry"]
+    assert entry["divider"] == {"style": "dashed", "width": {"value": 1, "unit": "px"},
+                                "dash": {"value": 4, "unit": "px"}, "gap": {"value": 3, "unit": "px"},
+                                "color": "{color.timeline.entry}", "between": "entries-only"}
+    assert entry["preview"]["maxLines"] == 1 and entry["preview"]["emptyKeepsLineHeight"] is True
+    assert entry["time"]["fontFeatures"] == ["tnum"] and entry["time"]["source"] == "createdAt"
+    assert entry["time"]["wrap"] is False
+    assert entry["minHeight"] == {"value": 48, "unit": "px"}
+    variants = {variant["id"]: variant for variant in row["variants"]}
+    group = variants["day"]["parts"]["group"]
+    assert group["pressable"] is False and group["order"] == ["badge", "entries", "tag"]
+    for part in ("dateColumn", "badge", "tag"):
+        assert variants["entries"]["parts"][part]["visible"] is False
+    assert any("server 순서" in rule for rule in row["rules"])
+
+
+def test_diary_row_single_entry_day_is_unchanged():
+    row = component("diary", "diary-row")
+    assert row["parts"]["card"]["padding"] == "{space.16}"
+    assert row["parts"]["preview"] == {"component": "sentence-block", "variant": "preview", "marginTop": "{space.8}"}
+    assert row["a11y"]["label"] == "날짜 요일, 배지, 미리보기 첫 줄, 태그"
