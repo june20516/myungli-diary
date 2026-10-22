@@ -15,7 +15,7 @@
 * 한 날짜에 살아 있는(`deleted_at IS NULL`) 일기는 `diary.MaxEntriesPerDay = 10`편까지입니다. 상한은 만들기와 되살리기(지운 일기를 살릴 때)에만 겁니다. 넘으면 422 `diary.day_full`입니다(D83 ②, S96).
 * 날짜 기록(`all_tags`·`featured_tags`·`guide_question`·`ruleset_version`)은 그날 첫 편을 쓸 때 만들고 바꾸지 않습니다(S50). 둘째 편부터는 엔진을 부르지 않습니다.
 * 행을 물리적으로 지우지 않습니다. 일기 삭제는 `deleted_at` soft delete이고 FK는 `ON DELETE RESTRICT`입니다(S6·S7).
-* "오늘"은 프로필 `current_timezone` 기준이고 `clock.Clock`으로 셉니다(D30). 오늘 이후는 422 `diary.future_date`, D41 범위 밖은 422 `date.out_of_range`(field `date`).
+* "오늘"은 프로필 `current_timezone` 기준이고 `clock.Clock`으로 셉니다(D30). 오늘 이후는 422 `diary.future_date`, D41 범위 밖은 422 `date.out_of_range`입니다. `createDiary`는 세 오류 모두 본문 필드라 field `/date`이고, `restoreDiary`의 `diary.day_full`은 요청에 `date`가 없어 `errors[]`가 없습니다.
 * 없는 일기·남의 일기·지운 일기는 404 `diary.not_found`입니다. 내용을 비운(`content_purged_at`) 일기는 되살리기에서도 404입니다.
 * 목록 순서는 `date DESC, created_at ASC, id ASC`, cursor는 `(date, createdAt, id)`의 불투명 문자열이고 해석할 수 없으면 400 `request.invalid`(field `cursor`)입니다(S98).
 * ID는 UUIDv7, 시각 `timestamptz`, 날짜 `date`입니다.
@@ -363,7 +363,7 @@ git commit -m "feat(server): 일기 Service Create, 둘째 편부터 엔진을 �
 - Create: `server/internal/httpapi/diary_handlers.go`
 - Create: `server/internal/httpapi/diary_handlers_test.go`
 - Modify: `server/internal/httpapi/api.go:123-131`(`DiaryService`)
-- Modify: `server/internal/httpapi/errors.go`(`diary.ErrDayFull` → `problem.DiaryDayFull`, field `date`)
+- Modify: `server/internal/httpapi/errors.go`(`diary.ErrDayFull` → `problem.DiaryDayFull`, field 없음. `createDiary`만 핸들러에서 field `/date`를 붙임)
 - Modify: `server/internal/httpapi/unimplemented.go`(일기 operation 6개 제거)
 - Modify: `server/internal/cli/serve.go:492`(`Idempotency(…, "createSchedule", "createDiary")`)
 
@@ -389,15 +389,15 @@ git commit -m "feat(server): 일기 Service Create, 둘째 편부터 엔진을 �
 PR A가 지운 판을 `del=$(git log --diff-filter=D -1 --format=%H -- server/internal/httpapi/diary_handlers.go) && git show "$del^:server/internal/httpapi/diary_handlers_test.go"`로 꺼내, 그 대역·helper를 새 interface로 옮겨 씁니다(`diary_handlers.go`도 같은 방법).
 ```go
 TestCreateDiary_Returns201WithLocation        // Location == "/v1/diaries/"+entry.ID, 본문 id·date·tags
-TestCreateDiary_DayFullIs422                  // 대역 ErrDayFull → 422 diary.day_full, field date
+TestCreateDiary_DayFullIs422                  // 대역 ErrDayFull → 422 diary.day_full, field /date
 TestCreateDiary_FutureDateIs422               // 422 diary.future_date
-TestCreateDiary_OutOfRangeIs422               // 422 date.out_of_range, field date
+TestCreateDiary_OutOfRangeIs422               // 422 date.out_of_range, field /date
 TestCreateDiary_WithoutProfileIs409           // 409 profile.required
 TestCreateDiary_IdempotentReplay              // 같은 Idempotency-Key 두 번 → 같은 상태·Location·본문, 대역 Create 호출 1 (register 경로로 serve.go와 같은 Idempotency 조립)
 TestUpdateDiary_ReturnsDiary                  // 200, 본문 바뀜
 TestGetDiary_NotFoundIs404                    // 404 diary.not_found
 TestDeleteDiary_Returns204
-TestRestoreDiary_DayFullIs422
+TestRestoreDiary_DayFullIs422                 // 422 diary.day_full, errors[] 없음
 TestListDiaries_CursorRoundTrip               // 대역이 Limit+1개 → nextCursor를 decode하면 마지막 항목의 Date·CreatedAt·ID
 TestListDiaries_OldDateCursorIs400            // cursor = base64url("2026-10-12") → 400 request.invalid field cursor (Review Focus 4)
 TestListDiaries_BadCursorIs400                // "!!!", base64url("{}"), base64url(`{"d":"2026-02-30","c":"…","i":"…"}`) → 400

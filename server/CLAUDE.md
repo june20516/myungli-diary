@@ -64,7 +64,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 ## 다음 할 일
 1. **D82 #386**을 S3 앞에 처리합니다. 합치기의 일기 규칙은 S95·D83 ④입니다.
 2. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
-3. P8(Job: precompute, notify, retention과 익명화)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 `diaries.body`와 함께 `diary_days.guide_question`도 비웁니다(spec 2026-10-22 §3.3).
+3. P8(Job: precompute, notify, retention과 익명화)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 `diaries.body`와 함께 `diary_days.guide_question`도 비우고, 그 계정의 `idempotency_keys`(일기 본문·가이드 질문이 응답 본문으로 저장됨)도 지웁니다(spec 2026-10-22 §3.3).
 4. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 5. core #304 반영됨(PR #432): 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
 6. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).

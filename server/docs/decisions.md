@@ -63,7 +63,7 @@ server 안에서 정한 사항을 모읍니다. 제품 결정(D#)과 부딪히�
 | S57 | 2026-10-20 | API | 경로·쿼리 매개변수 오류의 `errors[].field`는 매개변수 이름 그대로(`date`, `cursor`, `from`, `to`)이고 본문 위치만 JSON Pointer입니다. 요청 검증과 운세 operation의 기존 관례입니다 | P5 Task 5 |
 | S58 | 2026-10-20 | 일기 | `excerpt`는 NFC 뒤 본문 앞 100 code point입니다 | P5 계획 P5-8 |
 | S59 | 2026-10-20 | 일정 | `memo`의 빈 문자열은 NULL로 저장하고 응답에서 생략합니다(PATCH의 `""`는 지우기, 생략은 바꾸지 않음). 일정 날짜에는 D41 범위 검사를 하지 않습니다(엔진 계산이 없는 사용자 기록이기 때문) | P5 계획 P5-9·P5-10 |
-| S60 | 2026-10-20 | API | `Idempotency-Key`는 `RegisterAPI`가 operation 단위로 인증 → 계약 검증 → 멱등 → 핸들러 순으로 감쌉니다(대상 `createSchedule`, P8에서 `registerDevice`). 첫 요청 때 행을 선점하고 2xx면 상태·`Location`·`Content-Type`·본문을 저장, 2xx가 아니거나 panic·끊김이면 행을 지워 다시 시도할 수 있게 합니다. 24시간 지난 행은 덮어씁니다. 지문은 메서드·경로·본문의 SHA-256입니다 | P5 계획 P5-11, P5 Task 7 |
+| S60 | 2026-10-20 | API | `Idempotency-Key`는 `RegisterAPI`가 operation 단위로 인증 → 계약 검증 → 멱등 → 핸들러 순으로 감쌉니다(대상 `createSchedule`, P8에서 `registerDevice`; S97로 `createDiary` 추가). 첫 요청 때 행을 선점하고 2xx면 상태·`Location`·`Content-Type`·본문을 저장, 2xx가 아니거나 panic·끊김이면 행을 지워 다시 시도할 수 있게 합니다. 24시간 지난 행은 덮어씁니다. 지문은 메서드·경로·본문의 SHA-256입니다 | P5 계획 P5-11, P5 Task 7 |
 | S61 | 2026-10-20 | API | 핸들러가 2xx로 끝났는데 멱등 행 완료 기록이 실패하면 행을 지우지 않고(그 키는 24시간 409) Error 로그를 남깁니다. 이미 만들어진 뒤라 행을 풀면 재시도가 중복을 만들기 때문입니다. 완료·해제는 요청 ctx 취소와 분리합니다 | P5 Task 7 |
 | S62 | 2026-10-20 | 데이터 | LocalDate·LocalTime ↔ pgtype 변환은 `profile`(값 타입 소유자)의 공용 함수를 씁니다. `content`는 다른 도메인을 모른다는 규칙(spec §2.2)으로 제외합니다 | P5 Task 6 |
 | S63 | 2026-10-20 | 데이터 | `diaries`의 목록 인덱스를 따로 두지 않습니다. partial unique `diaries_one_per_day (account_id, date) WHERE deleted_at IS NULL`이 역방향 스캔으로 날짜 내림차순 목록을 덮습니다. 태그 필터는 GIN이 쓰는 `all_tags @> ARRAY[...]`입니다 (→ S98·S95로 대체) | P5 Task 3 |
