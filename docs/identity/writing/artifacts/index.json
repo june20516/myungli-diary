@@ -212,5 +212,22 @@
     "decisions": [],
     "status": "chosen",
     "note": "사주 요약 '양력 1990. 3. 5. 오후 2:30', '시각 모름', '사주 정보 없음', R11-4 재출제 일관"
+  },
+  {
+    "id": "round-R14",
+    "title": "라운드 R14 — REST draft.14 새 오류 code 문구 (app #468)",
+    "kind": "copy-sample",
+    "file": "2026-10-22-round-R14.md",
+    "date": "2026-10-22",
+    "milestone": "W1",
+    "screens": [
+      "login-methods",
+      "account-merge"
+    ],
+    "decisions": [
+      "W39"
+    ],
+    "status": "chosen",
+    "note": "단독 '수단' 금지 → '인증 수단', 새 오류 키 5개, merge.token_invalid는 accountMergeError"
   }
 ]
