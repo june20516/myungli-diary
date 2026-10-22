@@ -228,6 +228,6 @@
       "W39"
     ],
     "status": "chosen",
-    "note": "단독 '수단' 금지 → '인증 수단', 새 오류 키 5개, merge.token_invalid는 accountMergeError"
+    "note": "단독 '수단' 금지 → '인증 수단', 새 오류 키 6개(merge.token_invalid는 재선택으로 errorMergeTokenInvalid)"
   }
 ]

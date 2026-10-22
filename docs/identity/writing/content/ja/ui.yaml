@@ -163,6 +163,7 @@
 - {slot: ui.error.code, key: errorAuthIdentityInUse, text: "このログイン方法は別のアカウントに連携されています。"}
 - {slot: ui.error.code, key: errorAuthIdentityPendingDeletion, text: "削除待ちのアカウントに連携されています。"}
 - {slot: ui.error.code, key: errorAuthLastIdentity, text: "ログイン方法は1つ以上残しておく必要があります。"}
+- {slot: ui.error.code, key: errorMergeTokenInvalid, text: "アカウント統合を続けられませんでした。もう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAppCheckInvalid, text: "アプリを確認できませんでした。最新版にアップデートしてください。"}
 - {slot: ui.error.code, key: errorConsentRequired, text: "続けるには利用規約への同意が必要です。"}
 - {slot: ui.error.code, key: errorPreviewUsed, text: "プレビューは一度だけ見られます。ログインすると続きを読めます。"}

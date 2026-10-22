@@ -163,6 +163,7 @@
 - {slot: ui.error.code, key: errorAuthIdentityInUse, text: "This sign-in method is linked to another account."}
 - {slot: ui.error.code, key: errorAuthIdentityPendingDeletion, text: "It's linked to an account waiting to be deleted."}
 - {slot: ui.error.code, key: errorAuthLastIdentity, text: "You need at least one way to sign in."}
+- {slot: ui.error.code, key: errorMergeTokenInvalid, text: "We couldn't continue merging the accounts. Please sign in again."}
 - {slot: ui.error.code, key: errorAppCheckInvalid, text: "We couldn't verify the app. Please update to the latest version."}
 - {slot: ui.error.code, key: errorConsentRequired, text: "Please agree to the terms to continue."}
 - {slot: ui.error.code, key: errorPreviewUsed, text: "The preview is available once. Sign in to keep going."}

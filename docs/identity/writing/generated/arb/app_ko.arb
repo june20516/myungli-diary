@@ -1192,6 +1192,10 @@
   "@errorAuthLastIdentity": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
+  "errorMergeTokenInvalid": "계정 합치기를 이어 가지 못했어요. 다시 로그인해 주세요.",
+  "@errorMergeTokenInvalid": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
   "errorAppCheckInvalid": "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요.",
   "@errorAppCheckInvalid": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"

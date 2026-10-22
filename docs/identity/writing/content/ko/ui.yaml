@@ -163,6 +163,7 @@
 - {slot: ui.error.code, key: errorAuthIdentityInUse, text: "다른 계정에 연결된 인증 수단이에요."}
 - {slot: ui.error.code, key: errorAuthIdentityPendingDeletion, text: "삭제 대기 중인 계정에 연결되어 있어요."}
 - {slot: ui.error.code, key: errorAuthLastIdentity, text: "인증 수단이 하나는 남아 있어야 해요."}
+- {slot: ui.error.code, key: errorMergeTokenInvalid, text: "계정 합치기를 이어 가지 못했어요. 다시 로그인해 주세요."}
 - {slot: ui.error.code, key: errorAppCheckInvalid, text: "앱을 확인하지 못했어요. 최신 버전으로 업데이트해 주세요."}
 - {slot: ui.error.code, key: errorConsentRequired, text: "약관에 동의해야 계속할 수 있어요."}
 - {slot: ui.error.code, key: errorPreviewUsed, text: "미리보기는 한 번만 볼 수 있어요. 로그인하면 이어서 읽을 수 있어요."}

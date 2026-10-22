@@ -183,7 +183,7 @@
 | ui.diary-view.actions | 컴포넌트 app-bar | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-view.deleted | diary-view.deleted.toast<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.error.client | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 6 | - | ko 48, en 78, ja 34 |
-| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 50 | - | ko 48, en 78, ja 34 |
+| ui.error.code | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 51 | - | ko 48, en 78, ja 34 |
 | ui.event-edit.delete | event-edit.delete.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.event-edit.form | 컴포넌트 segmented<br>컴포넌트 text-field | guide | - | 1 | 4 | - | ko -, en -, ja -<br>`eventEditAllDay` ko 13, en 22, ja 10<br>`eventEditTimed` ko 13, en 22, ja 10 |
 | ui.event-edit.offline | event-edit.offline.notice<br>컴포넌트 notice-banner | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
