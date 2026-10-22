@@ -51,7 +51,8 @@ type Querier interface {
 	LockAccountStatus(ctx context.Context, id uuid.UUID) (string, error)
 	// LockDueRevocation은 시각이 된 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
 	LockDueRevocation(ctx context.Context, now time.Time) (ProviderRevocation, error)
-	// LockRevocation은 id로 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+	// LockRevocation은 아직 시도하지 않은(attempts = 0) 대기 행 하나를 id로 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+	// 이미 실패 처리된 행은 재시도 job의 몫이라, Attempt가 곧바로 다시 부르지 않게 합니다.
 	LockRevocation(ctx context.Context, id int64) (ProviderRevocation, error)
 	// MarkRefreshTokenUsed는 토큰을 쓴 시각과 그 대신 발급한 다음 토큰을 기록합니다.
 	// 다음 토큰은 replaced_by_id 외래 키 때문에 먼저 저장돼 있어야 합니다.

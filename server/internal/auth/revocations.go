@@ -89,7 +89,8 @@ func QueueRevocationTx(ctx context.Context, q *authdb.Queries, identity authdb.D
 	return id, true, nil
 }
 
-// Attempt는 대기 행을 id로 한 번씩 시도합니다(account.Revoker). 시각이 아직 안 된 행도 시도합니다.
+// Attempt는 아직 시도하지 않은(attempts = 0) 대기 행을 id로 한 번씩 시도합니다(account.Revoker).
+// 이미 실패 처리된 행은 건드리지 않고 RetryDue에 맡깁니다.
 // 실패는 대기 행에 남겨 RetryDue가 다시 시도하므로 오류를 돌려주지 않습니다.
 // 다른 곳이 이미 잡고 있거나 이미 없는 행은 건너뜁니다.
 func (r *Revocations) Attempt(ctx context.Context, ids []int64) {
@@ -123,7 +124,9 @@ func (r *Revocations) RetryDue(ctx context.Context) (attempted int, err error) {
 	return attempted, nil
 }
 
-// handleOne은 lock이 돌려준 대기 행 하나를 한 트랜잭션에서 처리합니다. 외부 호출 동안 행 잠금을 쥡니다.
+// handleOne은 lock이 돌려준 대기 행 하나를 한 트랜잭션에서 처리합니다.
+// 외부 호출(최대 revocationCallTimeout) 동안 행 잠금과 DB 연결 하나를 쥡니다. 겹쳐 도는 Attempt·RetryDue가 많으면
+// 그만큼 연결이 묶이는데 pgxpool 기본 MaxConns는 작으므로, 운영에서 필요하면 DATABASE_URL의 pool_max_conns를 올립니다.
 // 잠글 행이 없으면 handled=false입니다.
 func (r *Revocations) handleOne(ctx context.Context, lock func(q *authdb.Queries) (authdb.ProviderRevocation, error)) (handled bool, err error) {
 	err = postgres.InTx(ctx, r.pool, func(tx pgx.Tx) error {
@@ -150,7 +153,7 @@ func (r *Revocations) handleOne(ctx context.Context, lock func(q *authdb.Queries
 func (r *Revocations) process(ctx context.Context, q *authdb.Queries, row authdb.ProviderRevocation) error {
 	now := r.clock.Now()
 	if now.After(row.CreatedAt.Add(revocationGiveUpAfter)) {
-		r.logger.ErrorContext(ctx, "허가 취소를 포기함", "id", row.ID, "provider", row.Provider, "attempts", row.Attempts)
+		r.logger.ErrorContext(ctx, "허가 취소를 포기함", "id", row.ID, "provider", row.Provider)
 		return r.deleteRow(ctx, q, row.ID)
 	}
 

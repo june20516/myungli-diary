@@ -504,3 +504,87 @@ func TestLoadBilling(t *testing.T) {
 		}
 	})
 }
+
+var revocationEnvNames = []string{
+	"TOKEN_ENCRYPTION_KEY_ID", "TOKEN_ENCRYPTION_KEY", "KAKAO_ADMIN_KEY",
+	"APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY",
+}
+
+func revocationEnv() map[string]string {
+	env := map[string]string{}
+	for _, name := range revocationEnvNames {
+		env[name] = "v-" + name
+	}
+	return env
+}
+
+func getenvOf(env map[string]string) func(string) string {
+	return func(name string) string { return env[name] }
+}
+
+// JWT 서명 키·카카오 앱 키·LINE 같은 무관한 값이 없어도 성공합니다.
+func TestLoadRevocation_ReadsOnlyWhatItNeeds(t *testing.T) {
+	cfg, err := LoadRevocation(getenvOf(revocationEnv()))
+	if err != nil {
+		t.Fatalf("LoadRevocation: %v", err)
+	}
+	//nolint:gosec // 환경 변수 이름을 흉내 낸 테스트 값이며 실제 자격 증명이 아닙니다
+	want := RevocationConfig{
+		TokenKeyID: "v-TOKEN_ENCRYPTION_KEY_ID", TokenKey: "v-TOKEN_ENCRYPTION_KEY",
+		KakaoAdminKey: "v-KAKAO_ADMIN_KEY",
+		AppleTeamID:   "v-APPLE_TEAM_ID", AppleKeyID: "v-APPLE_KEY_ID", ApplePrivateKeyPEM: "v-APPLE_PRIVATE_KEY",
+	}
+	if cfg != want {
+		t.Errorf("cfg = %+v, want %+v", cfg, want)
+	}
+}
+
+func TestLoadRevocation_ReportsAllMissingRequired(t *testing.T) {
+	_, err := LoadRevocation(getenvOf(map[string]string{}))
+	if err == nil {
+		t.Fatal("오류가 없습니다")
+	}
+	for _, name := range revocationEnvNames {
+		if !strings.Contains(err.Error(), name) {
+			t.Errorf("오류에 %s 없음: %v", name, err)
+		}
+	}
+}
+
+func TestLoadRevocation_EachRequiredValueMatters(t *testing.T) {
+	for _, name := range revocationEnvNames {
+		env := revocationEnv()
+		env[name] = "  \n"
+
+		_, err := LoadRevocation(getenvOf(env))
+
+		if err == nil || !strings.Contains(err.Error(), name) {
+			t.Errorf("%s가 비었는데 오류 = %v", name, err)
+		}
+	}
+}
+
+func TestLoadRevocation_PreviousKeyNeedsBothIDAndValue(t *testing.T) {
+	env := revocationEnv()
+	env["TOKEN_PREVIOUS_KEY_ID"] = "old"
+	if _, err := LoadRevocation(getenvOf(env)); err == nil {
+		t.Fatal("이전 키 ID만 있는데 오류가 없습니다")
+	}
+
+	env["TOKEN_PREVIOUS_KEY"] = "old-key"
+	cfg, err := LoadRevocation(getenvOf(env))
+	if err != nil || cfg.TokenPreviousKeyID != "old" {
+		t.Errorf("cfg = %+v, err = %v", cfg, err)
+	}
+}
+
+func TestLoadRevocation_ErrorDoesNotContainValues(t *testing.T) {
+	env := revocationEnv()
+	env["KAKAO_ADMIN_KEY"] = ""
+
+	_, err := LoadRevocation(getenvOf(env))
+
+	if err == nil || strings.Contains(err.Error(), "v-TOKEN_ENCRYPTION_KEY") {
+		t.Errorf("오류에 값이 들어 있거나 오류가 없습니다: %v", err)
+	}
+}

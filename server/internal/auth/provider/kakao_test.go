@@ -253,3 +253,23 @@ func TestKakao_UnlinkConnectionRefusedIsUnavailable(t *testing.T) {
 
 	require.ErrorIs(t, err, provider.ErrUnavailable)
 }
+
+func TestNewKakaoUnlinker_RequiresAdminKey(t *testing.T) {
+	_, err := provider.NewKakaoUnlinker(provider.KakaoConfig{})
+
+	require.ErrorContains(t, err, "AdminKey")
+}
+
+func TestKakaoUnlinker_UnlinksWithAdminKeyOnly(t *testing.T) {
+	fake := providertest.New(t)
+	unlinker, err := provider.NewKakaoUnlinker(provider.KakaoConfig{
+		AdminKey: providertest.KakaoAdminKey, UnlinkURL: fake.KakaoUnlinkURL(), HTTP: fake.Client(),
+	})
+	require.NoError(t, err)
+
+	require.NoError(t, unlinker.Unlink(context.Background(), testSubject))
+
+	reqs := fake.KakaoUnlinkRequests()
+	require.Len(t, reqs, 1)
+	assert.Equal(t, "KakaoAK "+providertest.KakaoAdminKey, reqs[0].Header.Get("Authorization"))
+}

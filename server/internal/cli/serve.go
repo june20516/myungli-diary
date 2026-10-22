@@ -238,27 +238,14 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		previousSigning = append(previousSigning, previous)
 	}
 
-	boxKey, err := secretbox.ParseKey(cfg.TokenKeyID, cfg.TokenKey)
+	box, err := parseTokenBox(cfg.TokenKeyID, cfg.TokenKey, cfg.TokenPreviousKeyID, cfg.TokenPreviousKey)
 	if err != nil {
-		return authSettings{}, fmt.Errorf("TOKEN_ENCRYPTION_KEY: %w", err)
-	}
-	var previousBoxKeys []secretbox.Key
-	if cfg.TokenPreviousKeyID != "" {
-		previous, err := secretbox.ParseKey(cfg.TokenPreviousKeyID, cfg.TokenPreviousKey)
-		if err != nil {
-			return authSettings{}, fmt.Errorf("TOKEN_PREVIOUS_KEY: %w", err)
-		}
-		previousBoxKeys = append(previousBoxKeys, previous)
-	}
-	box, err := secretbox.New(boxKey, previousBoxKeys)
-	if err != nil {
-		return authSettings{}, fmt.Errorf("TOKEN_ENCRYPTION_KEY·TOKEN_PREVIOUS_KEY: %w", err)
+		return authSettings{}, err
 	}
 
-	// Apple .p8도 PKCS8 PEM의 P-256 EC 키라 access token 서명 키와 같은 규칙으로 읽습니다.
-	appleKey, err := token.ParseSigningKey(cfg.AppleKeyID, cfg.ApplePrivateKeyPEM)
+	appleKey, err := parseApplePrivateKey(cfg.AppleKeyID, cfg.ApplePrivateKeyPEM)
 	if err != nil {
-		return authSettings{}, fmt.Errorf("APPLE_PRIVATE_KEY: %w", err)
+		return authSettings{}, err
 	}
 
 	appLink, err := parseAppLink(cfg)
@@ -274,6 +261,36 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		applePrivate:    appleKey.Private,
 		appLink:         appLink,
 	}, nil
+}
+
+// parseTokenBox는 제공자 token 암호화 키(와 교체 중인 이전 키)로 secretbox를 만듭니다. 오류에는 변수 이름만 담습니다.
+func parseTokenBox(keyID, key, previousKeyID, previousKey string) (*secretbox.Box, error) {
+	boxKey, err := secretbox.ParseKey(keyID, key)
+	if err != nil {
+		return nil, fmt.Errorf("TOKEN_ENCRYPTION_KEY: %w", err)
+	}
+	var previousBoxKeys []secretbox.Key
+	if previousKeyID != "" {
+		previous, err := secretbox.ParseKey(previousKeyID, previousKey)
+		if err != nil {
+			return nil, fmt.Errorf("TOKEN_PREVIOUS_KEY: %w", err)
+		}
+		previousBoxKeys = append(previousBoxKeys, previous)
+	}
+	box, err := secretbox.New(boxKey, previousBoxKeys)
+	if err != nil {
+		return nil, fmt.Errorf("TOKEN_ENCRYPTION_KEY·TOKEN_PREVIOUS_KEY: %w", err)
+	}
+	return box, nil
+}
+
+// parseApplePrivateKey는 Apple .p8 키를 읽습니다. .p8도 PKCS8 PEM의 P-256 EC 키라 access token 서명 키와 같은 규칙입니다.
+func parseApplePrivateKey(keyID, pem string) (token.SigningKey, error) {
+	key, err := token.ParseSigningKey(keyID, pem)
+	if err != nil {
+		return token.SigningKey{}, fmt.Errorf("APPLE_PRIVATE_KEY: %w", err)
+	}
+	return key, nil
 }
 
 // androidPackagePattern은 Android 패키지 이름 형식입니다. 점으로 나눈 조각이 둘 이상이고,

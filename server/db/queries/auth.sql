@@ -7,7 +7,7 @@ VALUES (@id, 'active', @last_active_at);
 -- name: GetIdentity :one
 SELECT i.id, i.account_id, i.provider, i.subject,
        i.apple_refresh_token, i.apple_token_key_id, i.apple_client_id,
-       i.provider_disconnected_at, a.status AS account_status
+       a.status AS account_status
 FROM auth_identities i
 JOIN accounts a ON a.id = i.account_id
 WHERE i.provider = @provider AND i.subject = @subject
@@ -170,12 +170,13 @@ ORDER BY next_attempt_at, id
 LIMIT 1
 FOR UPDATE SKIP LOCKED;
 
--- LockRevocation은 id로 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+-- LockRevocation은 아직 시도하지 않은(attempts = 0) 대기 행 하나를 id로 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+-- 이미 실패 처리된 행은 재시도 job의 몫이라, Attempt가 곧바로 다시 부르지 않게 합니다.
 -- name: LockRevocation :one
 SELECT id, provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id,
        attempts, next_attempt_at, created_at
 FROM provider_revocations
-WHERE id = @id
+WHERE id = @id AND attempts = 0
 FOR UPDATE SKIP LOCKED;
 
 -- name: DeleteRevocation :exec

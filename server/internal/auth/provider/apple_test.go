@@ -363,3 +363,27 @@ func TestApple_VerifyWebCallbackJWKSDownIsUnavailable(t *testing.T) {
 	require.ErrorIs(t, err, provider.ErrUnavailable)
 	assert.NotContains(t, err.Error(), idToken)
 }
+
+func TestNewAppleRevoker_RequiresSigningKey(t *testing.T) {
+	_, err := provider.NewAppleRevoker(provider.AppleConfig{})
+
+	require.ErrorContains(t, err, "TeamID")
+	require.ErrorContains(t, err, "PrivateKey")
+}
+
+func TestAppleRevoker_RevokesWithSigningKeyOnly(t *testing.T) {
+	fake := providertest.New(t)
+	revoker, err := provider.NewAppleRevoker(provider.AppleConfig{
+		TeamID: providertest.AppleTeamID, KeyID: providertest.AppleKeyID, PrivateKey: fake.ApplePrivateKey(),
+		RevokeURL: fake.AppleRevokeURL(), HTTP: fake.Client(),
+	})
+	require.NoError(t, err)
+
+	require.NoError(t, revoker.Revoke(context.Background(), "stored-refresh-token", providertest.AppleBundleID))
+
+	reqs := fake.AppleRevokeRequests()
+	require.Len(t, reqs, 1)
+	assert.Equal(t, "stored-refresh-token", reqs[0].Form.Get("token"))
+	assert.Equal(t, providertest.AppleBundleID, reqs[0].Form.Get("client_id"))
+	assert.NotEmpty(t, reqs[0].Form.Get("client_secret"))
+}

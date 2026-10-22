@@ -42,10 +42,33 @@ type KakaoConfig struct {
 
 // Kakao는 카카오 id_token 검증과 연결 끊기를 맡습니다. 여러 고루틴에서 함께 써도 안전합니다.
 type Kakao struct {
-	verifier  *oidc.IDTokenVerifier
+	KakaoUnlinker
+	verifier *oidc.IDTokenVerifier
+}
+
+// KakaoUnlinker는 카카오 사용자와 앱의 연결 끊기(unlink)만 맡습니다. id_token 검증은 하지 않으므로
+// 허가 취소 job(retention)처럼 Admin 키만 있는 곳에서 씁니다. Kakao가 포함합니다.
+type KakaoUnlinker struct {
 	http      *http.Client
 	adminKey  string
 	unlinkURL string
+}
+
+// NewKakaoUnlinker는 cfg로 KakaoUnlinker를 만듭니다. AdminKey가 비면 오류입니다.
+// cfg에서 AdminKey·UnlinkURL·HTTP만 읽습니다.
+func NewKakaoUnlinker(cfg KakaoConfig) (*KakaoUnlinker, error) {
+	if err := checkRequired("카카오", requiredField{"AdminKey", cfg.AdminKey == ""}); err != nil {
+		return nil, err
+	}
+	return newKakaoUnlinker(cfg), nil
+}
+
+func newKakaoUnlinker(cfg KakaoConfig) *KakaoUnlinker {
+	return &KakaoUnlinker{
+		http:      orDefaultClient(cfg.HTTP),
+		adminKey:  cfg.AdminKey,
+		unlinkURL: orDefault(cfg.UnlinkURL, DefaultKakaoUnlinkURL),
+	}
 }
 
 // NewKakao는 cfg로 Kakao를 만듭니다. AppKey·AdminKey가 비면 오류입니다.
@@ -61,12 +84,11 @@ func NewKakao(cfg KakaoConfig) (*Kakao, error) {
 	jwksURL := orDefault(cfg.JWKSURL, DefaultKakaoJWKSURL)
 	client := orDefaultClient(cfg.HTTP)
 	clk := orDefaultClock(cfg.Clock)
+	cfg.HTTP = client
 
 	return &Kakao{
-		verifier:  newVerifier(issuer, cfg.AppKey, []string{oidc.RS256}, newKeySet(client, jwksURL), clk),
-		http:      client,
-		adminKey:  cfg.AdminKey,
-		unlinkURL: orDefault(cfg.UnlinkURL, DefaultKakaoUnlinkURL),
+		KakaoUnlinker: *newKakaoUnlinker(cfg),
+		verifier:      newVerifier(issuer, cfg.AppKey, []string{oidc.RS256}, newKeySet(client, jwksURL), clk),
 	}, nil
 }
 
@@ -78,7 +100,7 @@ func (k *Kakao) Verify(ctx context.Context, idToken, rawNonce string) (Identity,
 
 // Unlink는 카카오 사용자와 우리 앱의 연결을 끊습니다(Admin 키 방식).
 // 이미 앱과 연결되지 않은 사용자(code -101)에는 ErrKakaoNotLinked를 돌려줍니다. 호출하는 쪽이 성공으로 다룹니다.
-func (k *Kakao) Unlink(ctx context.Context, subject string) error {
+func (k *KakaoUnlinker) Unlink(ctx context.Context, subject string) error {
 	form := url.Values{
 		"target_id_type": {"user_id"},
 		"target_id":      {subject},

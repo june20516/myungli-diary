@@ -66,11 +66,9 @@ func newFixture(t *testing.T, opts ...func(*auth.ServiceDeps)) *fixture {
 	for _, opt := range opts {
 		opt(&deps)
 	}
+	// Revoker는 opts가 바꾼 제공자를 따라가도록 opts 적용 뒤 값으로 만듭니다.
+	deps.Revoker = auth.NewRevocations(pool, deps.Kakao.(auth.KakaoUnlinker), deps.Apple, deps.Box, deps.Clock, nil)
 	f := &fixture{ctx: context.Background(), pool: pool, clk: clk, fake: fake, box: box}
-	deps.Revoker = auth.NewRevocations(pool, kakao, fake.NewApple(t, clk), box, clk, nil)
-	for _, opt := range opts {
-		opt(&deps)
-	}
 	f.service = auth.NewService(pool, deps)
 	return f
 }

@@ -219,3 +219,59 @@ func TestRevocations_RetryDueSkipsRowsLockedElsewhere(t *testing.T) {
 	assert.Equal(t, 1, attempted)
 	assert.Zero(t, f.revocationCount(t))
 }
+
+// RetryDue가 이미 실패 처리한 행은 Attempt가 곧바로 다시 부르지 않습니다.
+func TestRevocations_AttemptSkipsRowsAlreadyFailed(t *testing.T) {
+	f := newFixture(t)
+	revocations := f.newRevocations(t)
+	id := f.queueKakao(t, "kakao-1")
+	f.fake.SetKakaoUnlinkResponse(http.StatusServiceUnavailable, "")
+	_, err := revocations.RetryDue(f.ctx)
+	require.NoError(t, err)
+	require.Len(t, f.fake.KakaoUnlinkRequests(), 1)
+
+	revocations.Attempt(f.ctx, []int64{id})
+
+	assert.Len(t, f.fake.KakaoUnlinkRequests(), 1, "이미 실패 처리된 행은 부르지 않습니다")
+	assert.Equal(t, 1, f.revocation(t, id).attempts)
+}
+
+// cancelingKakao는 호출되면 호출한 쪽 ctx를 취소하고 실패를 돌려주는 KakaoUnlinker입니다.
+type cancelingKakao struct{ cancel context.CancelFunc }
+
+func (k cancelingKakao) Unlink(context.Context, string) error {
+	k.cancel()
+	return context.Canceled
+}
+
+// 외부 호출 중 호출한 쪽 ctx가 취소되면 실패로 세지 않아 attempts·다음 시각이 그대로입니다.
+func TestRevocations_CanceledContextDoesNotCountAsFailure(t *testing.T) {
+	tests := []struct {
+		name string
+		run  func(t *testing.T, r *auth.Revocations, ctx context.Context, id int64)
+	}{
+		{"RetryDue", func(t *testing.T, r *auth.Revocations, ctx context.Context, _ int64) {
+			_, err := r.RetryDue(ctx)
+			require.ErrorIs(t, err, context.Canceled)
+		}},
+		{"Attempt", func(_ *testing.T, r *auth.Revocations, ctx context.Context, id int64) {
+			r.Attempt(ctx, []int64{id})
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			id := f.queueKakao(t, "kakao-1")
+			before := f.revocation(t, id)
+			ctx, cancel := context.WithCancel(f.ctx)
+			defer cancel()
+			r := auth.NewRevocations(f.pool, cancelingKakao{cancel: cancel}, f.fake.NewApple(t, f.clk), f.box, f.clk, nil)
+
+			tt.run(t, r, ctx, id)
+
+			after := f.revocation(t, id)
+			assert.Equal(t, 0, after.attempts)
+			assert.True(t, after.nextAttemptAt.Equal(before.nextAttemptAt))
+		})
+	}
+}

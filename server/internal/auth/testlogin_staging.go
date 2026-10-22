@@ -14,10 +14,10 @@ var ErrTestLabelInvalid = errors.New("테스트 로그인 label 형식이 틀렸
 // testLabelPattern은 테스트 로그인 label 형식(영숫자 1~32자)입니다(spec §13.2).
 var testLabelPattern = regexp.MustCompile(`^[A-Za-z0-9]{1,32}$`)
 
-// ValidTestLabel은 label이 테스트 로그인 형식(영숫자 1~32자)인지 알려 줍니다.
 // providerTest는 staging 테스트 로그인(S24)의 연결입니다. 허가 취소 대기 행을 만들지 않는 제공자입니다.
 const providerTest = "test"
 
+// ValidTestLabel은 label이 테스트 로그인 형식(영숫자 1~32자)인지 알려 줍니다.
 func ValidTestLabel(label string) bool {
 	return testLabelPattern.MatchString(label)
 }
