@@ -236,11 +236,12 @@ func TestStore_ConcurrentRestoreOfSameEntryReturnsIt(t *testing.T) {
 		done <- result{e, err}
 	}()
 	// goroutine이 잠금 대기에 들어간 것을 확인한 뒤에 commit합니다.
+	// 조건 함수는 testing이 만든 다른 goroutine에서 돌아 FailNow를 부를 수 없으므로 오류는 false로 돌려 재시도합니다.
 	require.Eventually(t, func() bool {
 		var waiting int
-		require.NoError(t, pool.QueryRow(ctx,
-			"SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'").Scan(&waiting))
-		return waiting > 0
+		err := pool.QueryRow(ctx,
+			"SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'").Scan(&waiting)
+		return err == nil && waiting > 0
 	}, 10*time.Second, 10*time.Millisecond, "Restore가 잠금을 기다려야 함")
 	require.NoError(t, tx.Commit(ctx))
 

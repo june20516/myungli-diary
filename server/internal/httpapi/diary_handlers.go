@@ -20,12 +20,14 @@ import (
 // 일기 목록 쪽 크기 기본값과 요약 본문(excerpt)의 길이(code point)입니다. 계약 listDiaries·DiarySummary와 같습니다.
 const (
 	defaultDiaryLimit = 30
+	maxDiaryLimit     = 100
 	excerptLength     = 100
 )
 
 // 일기 operation 오류가 가리키는 field입니다(계약 FieldError.field).
+// date는 createDiary의 요청 본문 필드라 JSON Pointer이고, cursor는 쿼리 parameter 이름입니다.
 const (
-	fieldDiaryDate   = "date"
+	fieldDiaryDate   = "/date"
 	fieldDiaryCursor = "cursor"
 )
 
@@ -43,7 +45,7 @@ func (a *API) CreateDiary(ctx context.Context, req gen.CreateDiaryRequestObject)
 	}
 	entry, err := a.Diaries.Create(ctx, accountID, p, localDateOf(req.Body.Date), req.Body.Body)
 	if err != nil {
-		return nil, outOfRangeError(err, fieldDiaryDate)
+		return nil, createDiaryError(err)
 	}
 	body, err := toDiary(entry)
 	if err != nil {
@@ -54,6 +56,25 @@ func (a *API) CreateDiary(ctx context.Context, req gen.CreateDiaryRequestObject)
 		Body:    body,
 		Headers: gen.CreateDiary201ResponseHeaders{Location: &location},
 	}, nil
+}
+
+// createDiaryError는 createDiary의 도메인 오류를 본문 date를 가리키는 422로 바꿉니다.
+// 같은 sentinel이라도 restoreDiary는 요청에 date가 없어 errors[] 없이 domainErrors 표로 나갑니다.
+func createDiaryError(err error) error {
+	switch {
+	case errors.Is(err, diary.ErrFutureDate):
+		return dateFieldError(problem.DiaryFutureDate, "Diary date in the future")
+	case errors.Is(err, diary.ErrDayFull):
+		return dateFieldError(problem.DiaryDayFull, "Diary day full")
+	}
+	return outOfRangeError(err, fieldDiaryDate)
+}
+
+// dateFieldError는 제목을 유지한 채 본문 date 하나를 가리키는 *Error를 만듭니다.
+func dateFieldError(c problem.Code, title string) *Error {
+	e := newError(c, title)
+	e.Errors = []problem.FieldError{{Field: fieldDiaryDate, Code: c.Value}}
+	return e
 }
 
 // GetDiary는 일기 한 편을 돌려줍니다. 없으면 404 diary.not_found입니다.
@@ -132,10 +153,11 @@ func (a *API) ListDiaries(ctx context.Context, req gen.ListDiariesRequestObject)
 	if req.Params.Limit != nil {
 		query.Limit = *req.Params.Limit
 	}
-	// 계약 검증이 limit을 1~100으로 보장하지만, 아래 entries[pageSize-1]이 panic하지 않게 한 번 더 막습니다.
+	// 계약 검증이 limit을 1~100으로 보장하지만, 아래 entries[pageSize-1]이 panic하지 않고 상한을 넘지 않게 한 번 더 막습니다.
 	if query.Limit < 1 {
 		query.Limit = defaultDiaryLimit
 	}
+	query.Limit = min(query.Limit, maxDiaryLimit)
 	pageSize := query.Limit
 	query.Limit++
 	if req.Params.From != nil {

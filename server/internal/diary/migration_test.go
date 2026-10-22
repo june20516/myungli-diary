@@ -152,6 +152,15 @@ func TestMigration00013_DownRestoresColumns(t *testing.T) {
 	require.NoError(t, pool.QueryRow(ctx,
 		`SELECT count(*) FROM pg_indexes WHERE tablename = 'diaries' AND indexname IN ('diaries_one_per_day', 'diaries_all_tags')`).Scan(&indexes))
 	assert.Equal(t, 2, indexes)
+	// 이름만으로는 Down 뒤 복원된 정의가 맞는지 모르므로 partial 조건과 접근 방법도 확인합니다.
+	var onePerDay, allTags string
+	require.NoError(t, pool.QueryRow(ctx,
+		`SELECT indexdef FROM pg_indexes WHERE tablename = 'diaries' AND indexname = 'diaries_one_per_day'`).Scan(&onePerDay))
+	assert.Contains(t, onePerDay, "WHERE (deleted_at IS NULL)")
+	require.NoError(t, pool.QueryRow(ctx,
+		`SELECT indexdef FROM pg_indexes WHERE tablename = 'diaries' AND indexname = 'diaries_all_tags'`).Scan(&allTags))
+	assert.Contains(t, allTags, "USING gin")
+	assert.Contains(t, allTags, "WHERE (deleted_at IS NULL)")
 
 	nullable := map[string]string{}
 	columnRows, err := pool.Query(ctx,

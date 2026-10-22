@@ -168,7 +168,7 @@ func TestCreateDiary_Errors(t *testing.T) {
 			require.Equal(t, tt.status, rec.Code, rec.Body.String())
 			p := decodeProblem(t, rec)
 			assert.Equal(t, tt.code, p.Code)
-			assert.Equal(t, []string{"date"}, fieldsOf(p))
+			assert.Equal(t, []string{"/date"}, fieldsOf(p))
 			expectFortuneContract(t, req, rec)
 		})
 	}
@@ -286,7 +286,7 @@ func TestRestoreDiary_DayFullIs422(t *testing.T) {
 	require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
 	p := decodeProblem(t, rec)
 	assert.Equal(t, "diary.day_full", p.Code)
-	assert.Equal(t, []string{"date"}, fieldsOf(p))
+	assert.Empty(t, fieldsOf(p))
 	expectFortuneContract(t, req, rec)
 }
 
@@ -310,13 +310,15 @@ func TestDiary_Unavailable(t *testing.T) {
 // listEntries는 날짜가 2026-10-20부터 하루씩 앞서는 일기 n개입니다.
 func listEntries(n int) []diary.Entry {
 	entries := make([]diary.Entry, n)
+	base := time.Date(2026, 10, 20, 0, 0, 0, 0, time.UTC)
 	for i := range entries {
+		day := base.AddDate(0, 0, -i)
 		entries[i] = diary.Entry{
 			ID:        uuid.MustParse(fmt.Sprintf("0198a000-0000-7000-8000-%012d", 100+i)),
-			Date:      profile.LocalDate{Year: 2026, Month: 10, Day: 20 - i},
+			Date:      profile.LocalDate{Year: day.Year(), Month: int(day.Month()), Day: day.Day()},
 			Body:      "본문",
 			Featured:  []fortune.FeaturedTag{{Key: "tag.a", Polarity: fortune.Polarity("good")}},
-			CreatedAt: time.Date(2026, 10, 20-i, 1, 2, 3, 456789000, time.UTC),
+			CreatedAt: time.Date(day.Year(), day.Month(), day.Day(), 1, 2, 3, 456789000, time.UTC),
 		}
 	}
 	return entries
