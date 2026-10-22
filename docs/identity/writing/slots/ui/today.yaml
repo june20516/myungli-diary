@@ -306,7 +306,7 @@
   where: "일정 편집 화면(event-edit): 일정 삭제 확인"
   purpose: guide
   user_state: "일정을 지우려 합니다."
-  structure: "확인 창: 질문 한 문장과 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
+  structure: "확인 창: 질문 한 문장과 버튼 둘(`Delete`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 10, en: 16, ja: 7}
   key_max_length:

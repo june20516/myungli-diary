@@ -198,5 +198,19 @@
     ],
     "status": "chosen",
     "note": "상한 수치 미노출 '충분히 썼어요', 이미 쓴 날 버튼 '새 일기 쓰기'"
+  },
+  {
+    "id": "round-R13",
+    "title": "라운드 R13 — 계정 합치기 원고 보완 (design #441)",
+    "kind": "copy-sample",
+    "file": "2026-10-22-round-R13.md",
+    "date": "2026-10-22",
+    "milestone": "W1",
+    "screens": [
+      "account-merge"
+    ],
+    "decisions": [],
+    "status": "chosen",
+    "note": "사주 요약 '양력 1990. 3. 5. 오후 2:30', '시각 모름', '사주 정보 없음', R11-4 재출제 일관"
   }
 ]

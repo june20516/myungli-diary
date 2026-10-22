@@ -10,7 +10,7 @@
   user_state: "연결한 로그인 수단을 봅니다."
   structure: "연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 90, en: 150, ja: 63}
   keys:
     - loginMethodsIntroBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -29,7 +29,7 @@
   user_state: "로그인 수단이 하나만 남았습니다."
   structure: "마지막 남은 수단은 뗄 수 없다는 안내. 막는 말(~할 수 없어요) 대신 필요한 것을 말합니다(W36)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 64, en: 108, ja: 46}
   keys:
     - loginMethodsLastNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -47,18 +47,23 @@
   where: "로그인 수단 화면(login-methods): 떼기 확인"
   purpose: guide
   user_state: "로그인 수단 하나를 떼려 합니다."
-  structure: "확인 창: 질문(제공자 이름 매개변수)과 연결한 다른 수단으로 계속 로그인할 수 있다는 것(W36), 버튼 둘(`Unlink`, `Cancel`). 기본 선택은 취소입니다. 제공자 이름 뒤에 조사를 붙이지 않습니다."
+  structure: "확인 창: 제목은 질문(제공자 이름 매개변수), 본문(`Body`)은 연결한 다른 수단으로 계속 로그인할 수 있다는 것(W36), 버튼 둘(`Unlink`, `Cancel`). 제공자 이름 뒤에 조사를 붙이지 않습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    loginMethodsUnlinkConfirm: {ko: 34, en: 60, ja: 28}
+    loginMethodsUnlinkConfirmBody: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - params: {provider: text}
       keys: [loginMethodsUnlinkConfirm]
+    - loginMethodsUnlinkConfirmBody
     - loginMethodsUnlinkConfirmUnlink
     - loginMethodsUnlinkConfirmCancel
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: loginMethodsUnlinkConfirm, text: "{provider} 연결을 끊을까요? 연결한 다른 수단으로 계속 로그인할 수 있어요.", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: loginMethodsUnlinkConfirm, text: "{provider} 연결을 끊을까요?", why: "라운드 R11 선택, 제목 상한으로 본문과 나눔(#441)", source: writing}
+      - {lang: ko, key: loginMethodsUnlinkConfirmBody, text: "연결한 다른 수단으로 계속 로그인할 수 있어요.", why: "라운드 R11 선택", source: writing}
       - {lang: ko, key: loginMethodsUnlinkConfirmUnlink, text: "연결 끊기", why: "라운드 R11 선택", source: writing}
       - {lang: ko, key: loginMethodsUnlinkConfirmCancel, text: "취소", why: "다른 확인 창과 같음", source: writing}
     bad:
@@ -75,7 +80,7 @@
   user_state: "연결·떼기를 끝내지 못했습니다(인증 창을 닫음 포함)."
   structure: "무엇이 안 됐는지와 다시 해 볼 수 있다는 안내. 연결 실패(`Link`)와 떼기 실패(`Unlink`)를 나눕니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - loginMethodsErrorBodyLink
     - loginMethodsErrorBodyUnlink
@@ -96,7 +101,7 @@
   user_state: "붙이려는 수단이 다른 계정에 연결돼 있습니다."
   structure: "두 계정을 하나로 합친다는 제목."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 36, en: 66, ja: 30}
   keys:
     - accountMergeTitleHead
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -115,7 +120,7 @@
   user_state: "두 계정을 합칠지 정하려 합니다."
   structure: "사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두 옮김, 광고 제거 기간은 더함, 고르지 않은 계정은 지워짐(D82 ⑥, D83 ④)."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 120, en: 200, ja: 84}
   keys:
     - accountMergeTitleBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -135,7 +140,7 @@
   user_state: "두 계정 요약을 봅니다."
   structure: "남길 계정을 고르라는 안내 한 줄."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 31, en: 58, ja: 25}
   keys:
     - accountMergeChoiceLabel
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -154,7 +159,7 @@
   user_state: "같은 날 일기가 두 계정에 다 있습니다."
   structure: "같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(D83 ④). 매개변수는 없습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 58, en: 100, ja: 42}
   keys:
     - accountMergeOverlapNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -173,7 +178,7 @@
   user_state: "남길 계정을 골랐습니다."
   structure: "버튼 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - accountMergeCtaMerge
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -192,7 +197,7 @@
   user_state: "합치지 않으려 합니다."
   structure: "버튼 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - accountMergeCtaCancel
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -209,9 +214,11 @@
   where: "계정 합치기 화면(account-merge): 최종 확인"
   purpose: guide
   user_state: "합치기 버튼을 눌렀습니다."
-  structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Merge`, `Cancel`). 기본 선택은 취소입니다."
+  structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Merge`, `Cancel`)."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 16, ja: 7}
+  key_max_length:
+    accountMergeMergeConfirm: {ko: 34, en: 60, ja: 28}
   keys:
     - accountMergeMergeConfirm
     - accountMergeMergeConfirmMerge
@@ -229,49 +236,50 @@
     screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
 
 - id: ui.login-methods.row
-  where: "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  where: "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   purpose: guide
   user_state: "연결한 수단과 연결하지 않은 수단을 봅니다."
-  structure: "제공자 이름은 각 제공자 표기 그대로(카카오는 ko만 한글). 동작은 연결하지 않은 줄 `Link`, 연결한 줄 `Unlink`."
+  structure: "제공자 이름은 각 제공자 표기 그대로(카카오는 ko만 한글). 연결된 표시 `Connected`, 누르면 떼기 확인으로 가는 스크린리더 힌트 `Unlink`."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  components: [settings-row]
+  max_length: {ko: 10, en: 16, ja: 7}
+  components: [social-login-button]
   keys:
     - loginProviderKakao
     - loginProviderLine
     - loginProviderGoogle
     - loginProviderApple
-    - loginMethodsRowLink
+    - loginMethodsRowConnected
     - loginMethodsRowUnlink
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: loginMethodsRowLink, text: "연결하기", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: loginMethodsRowConnected, text: "연결됨", why: "design #441", source: writing}
       - {lang: ko, key: loginMethodsRowUnlink, text: "연결 끊기", why: "라운드 R11 선택", source: writing}
     bad:
       - {lang: ko, text: "삭제", why: "계정이나 데이터를 지우는 것으로 읽힘", source: writing}
   endings: []
   a11y:
     truncation: "줄 한 칸 안에 들어가게 짧게 씁니다."
-    screen_reader: "제공자 이름, 동작 순서로 읽습니다."
+    screen_reader: "제공자 이름과 연결됨을 읽고, 떼기 힌트(`Unlink`)를 덧붙입니다."
 
 - id: ui.account-merge.choice
   where: "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
   purpose: info
   user_state: "두 계정 요약을 견줍니다."
-  structure: "일기 수는 숫자로 말합니다(ICU plural). 표시는 지금 로그인한 계정 쪽에만 붙입니다."
+  structure: "일기 수는 숫자로 말합니다(ICU plural). 현재 계정 표시(알약)는 지금 로그인한 계정 쪽에만 붙입니다. 연결된 수단 이름은 구분자(`ProviderSeparator`)로 잇습니다."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 11, en: 19, ja: 9}
   components: [account-choice]
   keys:
     - params: {count: number}
       keys: [accountChoiceDiaryCount]
     - accountChoiceCurrent
+    - accountChoiceProviderSeparator
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: accountChoiceDiaryCount, text: "일기 {count, plural, other{{count}편}}", why: "라운드 R11 선택", source: writing}
-      - {lang: ko, key: accountChoiceCurrent, text: "지금 로그인한 계정", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: accountChoiceCurrent, text: "현재 계정", why: "사용자 결정(design #441)", source: writing}
     bad: []
   endings: []
   a11y:
@@ -279,13 +287,13 @@
     screen_reader: "계정 요약과 함께 읽습니다."
 
 - id: ui.account-merge.error
-  where: "계정 합치기 화면(account-merge) 오류 상태: 합치기 실패"
+  where: "계정 합치기 화면(account-merge) 오류 상태: 합치기 실패. 고른 계정을 둔 채 다시 누를 수 있게 dialog notice로 보입니다(design #441)"
   purpose: info
   user_state: "합치기를 끝내지 못했습니다."
   structure: "무엇이 안 됐는지, 두 계정이 그대로라는 것, 다시 하는 방법."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  components: [error-state]
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [dialog]
   keys:
     - accountMergeError
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -304,7 +312,7 @@
   user_state: "설정에서 로그인 수단을 찾습니다."
   structure: "줄 이름 하나. 화면 이름(login-methods.bar.title)과 같습니다."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 18}
   components: [settings-row]
   keys:
     - settingsLoginMethodsLabel
@@ -317,3 +325,30 @@
   a11y:
     truncation: "줄 한 칸 안에 들어가게 짧게 씁니다."
     screen_reader: "줄 이름 그대로 읽습니다."
+
+- id: ui.account-merge.saju
+  where: "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)"
+  purpose: info
+  user_state: "두 계정의 사주 정보를 견줍니다."
+  structure: "달력 이름(calendar, `calendarSolar`·`calendarLunar`), 생일(app이 짧은 서식으로 넣는 date), 태어난 시각(time) 순서입니다. 시각을 모르면 `NoTime`, 사주 정보가 없는 계정은 `Empty`."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 43, ja: 18}
+  components: [account-choice]
+  keys:
+    - params: {date: text, calendar: text, time: text}
+      keys: [accountChoiceSaju]
+    - params: {date: text, calendar: text}
+      keys: [accountChoiceSajuNoTime]
+    - accountChoiceSajuEmpty
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountChoiceSaju, text: "{calendar} {date} {time}", why: "라운드 R13 선택", source: writing}
+      - {lang: ko, key: accountChoiceSajuNoTime, text: "{calendar} {date} 시각 모름", why: "라운드 R13 선택", source: writing}
+      - {lang: ko, key: accountChoiceSajuEmpty, text: "사주 정보 없음", why: "라운드 R13 선택", source: writing}
+    bad:
+      - {lang: ko, text: "사주 여정을 아직 시작하지 않았어요", why: "R13-3 대조군, 과한 추상화(slop.P1)", source: writing}
+  endings: []
+  a11y:
+    truncation: "카드 한 줄 안에 들어갑니다. 날짜·시각은 app이 짧은 서식으로 넣습니다."
+    screen_reader: "계정 요약과 함께 읽습니다."

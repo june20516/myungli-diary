@@ -307,7 +307,8 @@
 - {slot: login-methods.bar.title, key: loginMethodsBarTitle, text: "Sign-in methods"}
 - {slot: login-methods.intro.body, key: loginMethodsIntroBody, text: "Link more than one method and you can sign in to this account with any of them."}
 - {slot: login-methods.last.notice, key: loginMethodsLastNotice, text: "You need at least one way to sign in."}
-- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirm, text: "Unlink {provider}? You can keep signing in with your other linked methods."}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirm, text: "Unlink {provider}?"}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmBody, text: "You can keep signing in with your other linked methods."}
 - {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmUnlink, text: "Unlink"}
 - {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmCancel, text: "Cancel"}
 - {slot: login-methods.error.body, key: loginMethodsErrorBodyLink, text: "We couldn't link it. Please try again."}
@@ -316,12 +317,12 @@
 - {slot: ui.login-methods.row, key: loginProviderLine, text: "LINE"}
 - {slot: ui.login-methods.row, key: loginProviderGoogle, text: "Google"}
 - {slot: ui.login-methods.row, key: loginProviderApple, text: "Apple"}
-- {slot: ui.login-methods.row, key: loginMethodsRowLink, text: "Link"}
 - {slot: ui.login-methods.row, key: loginMethodsRowUnlink, text: "Unlink"}
+- {slot: ui.login-methods.row, key: loginMethodsRowConnected, text: "Linked"}
 - {slot: ui.settings.login-methods, key: settingsLoginMethodsLabel, text: "Sign-in methods"}
 - {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "Merge accounts"}
 - {slot: account-merge.title.head, key: accountMergeTitleHead, text: "Merge these two accounts?"}
-- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "The account you choose keeps its chart details, name, and settings. All diary entries from both accounts move over, and any remaining ad-free time is added together. The account you don't choose is deleted."}
+- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "The account you choose keeps its chart details, name, and settings. All diary entries from both accounts move over, and remaining ad-free time is added together. The other account is deleted."}
 - {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "Choose the account to keep"}
 - {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "Entries from the same day also all move to this account."}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "Merge accounts"}
@@ -330,5 +331,9 @@
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "Merge"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "Cancel"}
 - {slot: ui.account-merge.choice, key: accountChoiceDiaryCount, text: "{count, plural, one{{count} entry} other{{count} entries}}"}
-- {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "Signed in now"}
+- {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "Current account"}
+- {slot: ui.account-merge.choice, key: accountChoiceProviderSeparator, text: ", "}
+- {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date}, time unknown"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "No chart details"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "We couldn't merge the accounts. Both accounts are unchanged. Please try again."}

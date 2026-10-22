@@ -222,8 +222,13 @@ DIALOG_TITLE_KEYS = {
     "settings.logout.confirm": "settingsLogoutConfirm",
     "preview.share.login-notice": "previewShareLoginNotice",
     "profile-edit.recalc.confirm": "profileEditRecalcConfirmTitle",
+    "login-methods.unlink.confirm": "loginMethodsUnlinkConfirm",
+    "account-merge.merge.confirm": "accountMergeMergeConfirm",
 }
-DIALOG_BODY_KEYS = {"profile-edit.recalc.confirm": "profileEditRecalcConfirmBody"}
+DIALOG_BODY_KEYS = {
+    "profile-edit.recalc.confirm": "profileEditRecalcConfirmBody",
+    "login-methods.unlink.confirm": "loginMethodsUnlinkConfirmBody",
+}
 
 
 def design_lengths() -> tuple[list[tuple[list[str], str, dict[str, int]]], list[str]]:

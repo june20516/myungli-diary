@@ -307,7 +307,8 @@
 - {slot: login-methods.bar.title, key: loginMethodsBarTitle, text: "ログイン方法"}
 - {slot: login-methods.intro.body, key: loginMethodsIntroBody, text: "複数の方法を連携しておくと、どれでもこのアカウントにログインできます。"}
 - {slot: login-methods.last.notice, key: loginMethodsLastNotice, text: "ログイン方法は1つ以上残しておく必要があります。"}
-- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirm, text: "{provider}の連携を解除しますか?連携しているほかの方法で引き続きログインできます。"}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirm, text: "{provider}の連携を解除しますか?"}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmBody, text: "連携しているほかの方法で引き続きログインできます。"}
 - {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmUnlink, text: "連携を解除"}
 - {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmCancel, text: "キャンセル"}
 - {slot: login-methods.error.body, key: loginMethodsErrorBodyLink, text: "連携できませんでした。もう一度お試しください。"}
@@ -316,8 +317,8 @@
 - {slot: ui.login-methods.row, key: loginProviderLine, text: "LINE"}
 - {slot: ui.login-methods.row, key: loginProviderGoogle, text: "Google"}
 - {slot: ui.login-methods.row, key: loginProviderApple, text: "Apple"}
-- {slot: ui.login-methods.row, key: loginMethodsRowLink, text: "連携する"}
 - {slot: ui.login-methods.row, key: loginMethodsRowUnlink, text: "連携を解除"}
+- {slot: ui.login-methods.row, key: loginMethodsRowConnected, text: "連携済み"}
 - {slot: ui.settings.login-methods, key: settingsLoginMethodsLabel, text: "ログイン方法"}
 - {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "アカウントの統合"}
 - {slot: account-merge.title.head, key: accountMergeTitleHead, text: "2つのアカウントを1つにまとめますか?"}
@@ -326,9 +327,13 @@
 - {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "同じ日に書いた日記もすべてこのアカウントに移します。"}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "アカウントを統合"}
 - {slot: account-merge.cta.cancel, key: accountMergeCtaCancel, text: "統合しない"}
-- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "2つのアカウントを統合しますか?統合すると元に戻せません。"}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "アカウントを統合しますか?統合すると元に戻せません。"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "統合"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "キャンセル"}
 - {slot: ui.account-merge.choice, key: accountChoiceDiaryCount, text: "{count, plural, other{日記{count}件}}"}
-- {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "ログイン中のアカウント"}
+- {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "現在のアカウント"}
+- {slot: ui.account-merge.choice, key: accountChoiceProviderSeparator, text: "・"}
+- {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date} 時刻不明"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "命式の情報なし"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "アカウントを統合できませんでした。2つのアカウントはそのままです。もう一度お試しください。"}

@@ -372,7 +372,7 @@
   user_state: "로그인 방법을 고릅니다."
   structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143). LINE은 가이드의 언어별 권장 문구(ko \"LINE으로 로그인\", en \"Log in with LINE\", ja \"LINEでログイン\"), Google은 가이드 문구 \"Sign in with Google\"의 Google 현지화 표기(ko \"Google 계정으로 로그인\", ja \"Google でログイン\")입니다(#388)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: 21, en: 38, ja: 17}
+  max_length: {ko: 19, en: 34, ja: 15}
   components: [social-login-button]
   keys:
     - loginKakaoLabel
@@ -717,7 +717,7 @@
   user_state: "달력에서 같은 해에 같은 달 초하루가 두 번 보입니다."
   structure: "숫자 틀 하나. 윤달 표지 + 월 + `.1`입니다. 칸 폭 44px 한 줄이라 표지는 한 글자로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [day-cell]
   keys:
     - params: {month: number}

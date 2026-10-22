@@ -127,7 +127,7 @@
   where: "일기 보기 화면(diary-view): 일기 삭제 확인"
   purpose: guide
   user_state: "일기를 지우려 합니다."
-  structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
+  structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 10, en: 16, ja: 7}
   key_max_length:
