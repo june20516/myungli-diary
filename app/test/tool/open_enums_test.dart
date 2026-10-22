@@ -98,7 +98,7 @@ void main() {
       );
     });
 
-    test('실제 계약에서 9개를 읽는다', () {
+    test('실제 계약에서 10개를 읽는다', () {
       expect(contractOpenEnumNames(loadOpenApi()), [
         'NoticeCode',
         'ShinsalKind',
@@ -109,6 +109,7 @@ void main() {
         'Insight.source',
         'ConsentDocument.document',
         'Problem.code',
+        'LoginProvider',
       ]);
     });
   });
