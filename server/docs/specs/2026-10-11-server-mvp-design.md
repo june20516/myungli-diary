@@ -219,7 +219,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 * 경로 버전 `/v1`. JSON 필드는 camelCase(Google API 가이드, proto JSON 매핑과 같음).
 * 날짜 `YYYY-MM-DD`, 시각은 RFC 3339입니다. 시각은 기본이 UTC이고, 화면 표시용 시각(`FocusSlot.start`·`end`, `CalendarDay.solarTerm.at`)만 프로필 현재 시간대의 offset으로 보냅니다.
 * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`). 기간(`from`·`to`)으로 받는 목록(`listSchedules`)은 예외로 범위 안을 한 번에 돌려줍니다.
-* `Idempotency-Key` 헤더는 `createSchedule`·`registerDevice`(P8)만 받습니다(S60). 규격은 IETF `draft-ietf-httpapi-idempotency-key-header`를 따릅니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다. 계약 검증 뒤 핸들러 앞에서 operation 단위로 처리하며(`httpapi.Idempotency`), 첫 요청이 행을 선점하고 2xx 응답만 저장합니다. 2xx가 아니면 행을 지워 같은 키로 다시 시도할 수 있습니다.
+* `Idempotency-Key` 헤더는 `createSchedule`·`createDiary`·`registerDevice`(P8)만 받습니다(S60, S97). 규격은 IETF `draft-ietf-httpapi-idempotency-key-header`를 따릅니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다. 계약 검증 뒤 핸들러 앞에서 operation 단위로 처리하며(`httpapi.Idempotency`), 첫 요청이 행을 선점하고 2xx 응답만 저장합니다. 2xx가 아니면 행을 지워 같은 키로 다시 시도할 수 있습니다.
 * 사용자의 선택은 상태 필드로 보냅니다(§3.2). 필드를 빼거나 `null`을 보내는 것으로 "모름"을 뜻하게 하지 않습니다. PATCH에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다.
 * 언어는 로그인 사용자면 프로필 값, 비로그인 요청이면 `Accept-Language`를 RFC 9110 q값 순서로 읽어 `ko`·`en`·`ja` 중 첫째를 씁니다. 없으면 `en`입니다(S65).
 * 문장 필드는 조각 배열입니다(§6.4). 화면의 고정 UI 문구는 app 몫입니다(D59⑤).

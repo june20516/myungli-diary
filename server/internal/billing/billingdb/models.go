@@ -121,14 +121,20 @@ type Diary struct {
 	AccountID       uuid.UUID
 	Date            pgtype.Date
 	Body            string
-	AllTags         []string
-	FeaturedTags    []byte
-	GuideQuestion   []byte
-	RulesetVersion  string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time
 	ContentPurgedAt *time.Time
+}
+
+type DiaryDay struct {
+	AccountID      uuid.UUID
+	Date           pgtype.Date
+	AllTags        []string
+	FeaturedTags   []byte
+	GuideQuestion  []byte
+	RulesetVersion string
+	CreatedAt      time.Time
 }
 
 type EntitlementGrant struct {
