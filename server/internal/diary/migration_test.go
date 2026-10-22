@@ -156,11 +156,12 @@ func TestMigration00013_DownRestoresColumns(t *testing.T) {
 	var onePerDay, allTags string
 	require.NoError(t, pool.QueryRow(ctx,
 		`SELECT indexdef FROM pg_indexes WHERE tablename = 'diaries' AND indexname = 'diaries_one_per_day'`).Scan(&onePerDay))
+	assert.Contains(t, onePerDay, "UNIQUE")
 	assert.Contains(t, onePerDay, "WHERE (deleted_at IS NULL)")
 	require.NoError(t, pool.QueryRow(ctx,
 		`SELECT indexdef FROM pg_indexes WHERE tablename = 'diaries' AND indexname = 'diaries_all_tags'`).Scan(&allTags))
 	assert.Contains(t, allTags, "USING gin")
-	assert.Contains(t, allTags, "WHERE (deleted_at IS NULL)")
+	assert.NotContains(t, allTags, "WHERE")
 
 	nullable := map[string]string{}
 	columnRows, err := pool.Query(ctx,
