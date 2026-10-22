@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
@@ -85,6 +86,7 @@ func (s *Service) ListIdentities(ctx context.Context, accountID uuid.UUID) ([]Li
 //
 // Apple 웹 흐름은 교환 코드를 CompleteAppleWebLogin과 같은 규칙(appleWebTarget)으로 트랜잭션 안에서 소진합니다.
 // 코드가 틀리거나 nonce가 맞지 않으면 ErrExchangeInvalid이며 코드는 소진되지 않습니다.
+// 교환 코드는 in-use면 commit되므로 토큰 행과 함께 소진되고, provider_taken·삭제 대기면 rollback으로 남습니다.
 //
 // iOS Apple에서 교환한 refresh token을 저장하지 못하면 LoginApple과 같이 revokeUnsavedAppleGrant 규칙을 따릅니다
 // (그 subject의 연결 행이 없을 때만 revoke). 다른 계정에 연결이 있는 경우(in-use)는 연결 행이 있으므로 revoke하지 않고 버립니다.
@@ -205,11 +207,15 @@ func (s *Service) idTokenVerifier(providerName string) (IDTokenVerifier, error) 
 	}
 }
 
-// link는 붙이기 트랜잭션을 실행합니다. (provider, subject) unique 위반이면 한 번 다시 실행합니다.
-// 다시 실행하면 먼저 commit된 연결을 찾게 되므로 in-use(또는 같은 계정이면 Created=false)가 됩니다.
+// link는 붙이기 트랜잭션을 실행합니다. 아래 두 경합이면 한 번 다시 실행합니다.
+//
+//   - (provider, subject) unique 위반: 같은 연결을 동시에 붙인 쪽이 먼저 commit했습니다. 다시 실행하면 그 연결을 찾아
+//     in-use(같은 계정이면 Created=false)가 됩니다.
+//   - 합치기 토큰의 identity_id FK 위반: 다른 계정이 그 연결을 떼는 중이었습니다. GetIdentityForLink가 계정 행 잠금을
+//     기다린 뒤 다시 확인하는 것은 계정 행뿐이라, 이미 지워진 연결 행을 돌려줄 수 있습니다. 다시 실행하면 연결이 없으므로 Created가 됩니다.
 func (s *Service) link(ctx context.Context, accountID uuid.UUID, providerName string, prepare prepareLogin) (LinkResult, error) {
 	result, err := s.linkOnce(ctx, accountID, providerName, prepare)
-	if isIdentityConflict(err) {
+	if isIdentityConflict(err) || isMergeTicketIdentityGone(err) {
 		result, err = s.linkOnce(ctx, accountID, providerName, prepare)
 	}
 	return result, err
@@ -379,6 +385,18 @@ func (s *Service) UnlinkIdentity(ctx context.Context, accountID uuid.UUID, provi
 			"accountId", accountID, "provider", providerName, "reason", disconnectFailureReason(err))
 	}
 	return nil
+}
+
+// mergeTicketIdentityConstraint는 account_merge_tickets.identity_id의 FK 제약 이름입니다.
+const mergeTicketIdentityConstraint = "account_merge_tickets_identity_id_fkey"
+
+// sqlStateForeignKeyViolation은 FK 위반 SQLSTATE입니다.
+const sqlStateForeignKeyViolation = "23503"
+
+// isMergeTicketIdentityGone은 err가 합치기 토큰의 identity_id FK 위반(붙이려던 연결이 그 사이 지워짐)인지 알려 줍니다.
+func isMergeTicketIdentityGone(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == sqlStateForeignKeyViolation && pgErr.ConstraintName == mergeTicketIdentityConstraint
 }
 
 // isLinkableProvider는 계약의 붙이기·떼기 대상 제공자(kakao·apple·line·google)인지 알려 줍니다. test는 계약에 없습니다.

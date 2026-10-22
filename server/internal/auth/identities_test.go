@@ -265,6 +265,63 @@ func TestLinkIdentity_UniqueConflictRetriesAsInUse(t *testing.T) {
 	assert.Equal(t, []string{"kakao"}, f.providers(t, me), "실패한 첫 시도의 연결 행은 rollback됩니다")
 }
 
+// 다른 계정이 그 연결을 떼는 중에 붙이면, GetIdentityForLink는 계정 행 잠금을 기다린 뒤 계정 행만 다시 확인하므로
+// 이미 지워진 연결 행을 돌려줍니다. 합치기 토큰 저장이 identity_id FK 위반을 받으면 한 번 다시 실행해 연결을 만듭니다.
+func TestLinkIdentity_RetriesWhenOtherAccountUnlinksConcurrently(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginKakao(t, "kakao-other").AccountID
+	f.link(t, other, "line", f.lineProof("U1"))
+	me := f.loginKakao(t, "kakao-1").AccountID
+
+	// 떼기 트랜잭션처럼 다른 계정 행을 잠근 채 연결을 지우고 commit하지 않습니다.
+	tx, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = tx.Rollback(context.Background()) })
+	_, err = tx.Exec(f.ctx, `SELECT 1 FROM accounts WHERE id = $1 FOR UPDATE`, other)
+	require.NoError(t, err)
+	_, err = tx.Exec(f.ctx, `DELETE FROM auth_identities WHERE account_id = $1 AND provider = 'line'`, other)
+	require.NoError(t, err)
+
+	type outcome struct {
+		res auth.LinkResult
+		err error
+	}
+	done := make(chan outcome, 1)
+	proof := f.lineProof("U1")
+	go func() {
+		res, err := f.service.LinkIdentity(f.ctx, me, "line", proof)
+		done <- outcome{res, err}
+	}()
+
+	// 붙이기가 다른 계정 행 잠금을 기다릴 때까지 기다린 뒤 떼기를 commit합니다.
+	require.Eventually(t, func() bool {
+		return f.count(t, `SELECT count(*) FROM pg_stat_activity
+			WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FOR UPDATE OF a%'`) == 1
+	}, 10*time.Second, 20*time.Millisecond)
+	require.NoError(t, tx.Commit(f.ctx))
+
+	got := <-done
+	require.NoError(t, got.err)
+	assert.True(t, got.res.Created)
+	assert.Equal(t, []string{"kakao", "line"}, f.providers(t, me))
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
+}
+
+// 현재 계정에 같은 제공자 연결이 있어도, 붙이려는 연결이 다른 active 계정에 있으면 provider_taken이 아니라 in-use입니다.
+// 연결 행을 먼저 찾기 때문입니다.
+func TestLinkIdentity_InUseTakesPrecedenceOverProviderTaken(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginLine(t, "U1").AccountID
+	other := f.loginLine(t, "U2").AccountID
+
+	_, err := f.service.LinkIdentity(f.ctx, me, "line", f.lineProof("U2"))
+
+	var inUse *auth.IdentityInUseError
+	require.ErrorAs(t, err, &inUse)
+	require.NotErrorIs(t, err, auth.ErrProviderTaken)
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_tickets WHERE account_id = $1 AND other_account_id = $2`, me, other))
+}
+
 func TestLinkIdentity_InvalidProofCombinations(t *testing.T) {
 	f := newFixture(t)
 	accountID := f.newAccount(t)
