@@ -2480,7 +2480,6 @@
       ],
       "components": [
         "app-bar",
-        "settings-row",
         "social-login-button",
         "dialog"
       ],
