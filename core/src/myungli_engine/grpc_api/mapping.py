@@ -57,9 +57,12 @@ _UNSPECIFIED = "UNSPECIFIED"
 # --- 요청 → 도메인 ---
 
 
-def birth_from_proto(msg: pb.BirthInfo) -> BirthInput:
+def birth_from_proto(msg: pb.BirthInfo, *, require_gender: bool = True) -> BirthInput:
+    """require_gender가 False면 GENDER_UNSPECIFIED를 성별 None으로 받는다(성별을 보지 않는 GetBirthHour)."""
     calendar = _domain_enum(CalendarType, _PREFIX_CALENDAR_TYPE, pb.CalendarType.Name, msg.calendar)
-    gender = _domain_enum(Gender, _PREFIX_GENDER, pb.Gender.Name, msg.gender)
+    gender: Gender | None = None
+    if require_gender or msg.gender != pb.GENDER_UNSPECIFIED:
+        gender = _domain_enum(Gender, _PREFIX_GENDER, pb.Gender.Name, msg.gender)
     birth_date: date | LunarDate
     if calendar is CalendarType.LUNAR:
         # 음력 월일 범위(음력 30일 포함)는 calendar_core의 변환이 검증한다

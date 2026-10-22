@@ -42,14 +42,14 @@ class BirthInput:
     """출생 입력.
 
     SOLAR면 date는 양력 date여야 한다. LUNAR면 LunarDate 또는 date를 받으며, date면 그 연·월·일을
-    음력 값으로 해석한다.
+    음력 값으로 해석한다. gender가 None이면 성별을 보지 않는 계산(시진)에만 쓸 수 있다.
     """
 
     calendar: CalendarType
     is_leap_month: bool
     date: date | LunarDate
     time: time | None
-    gender: Gender
+    gender: Gender | None
     timezone: str
     longitude: float | None
 

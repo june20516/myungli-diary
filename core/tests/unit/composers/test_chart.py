@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 
 import pytest
@@ -7,7 +8,7 @@ from myungli_engine.chart.personal_target import PersonalReading
 from myungli_engine.chart.positions import BRANCH_POSITIONS, Position
 from myungli_engine.composers.chart import ChartView, compose_chart
 from myungli_engine.domain.enums import NoticeCode, PersonalTermKind, Shinsal
-from myungli_engine.domain.errors import OutOfRangeError
+from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 
 
 def test_chart_notices_propagated(zi_hour_birth: BirthInput) -> None:
@@ -28,6 +29,12 @@ def test_yongsin_judgment_key_follows_method(spring_birth: BirthInput) -> None:
     assert view.yongsin_judgment.message_key == f"yongsin.method.{view.yongsin.method.name.lower()}"
     assert view.yongsin_judgment.params["yongsin"] == view.yongsin.yongsin.name
     assert view.yongsin_judgment.evidence == view.yongsin.evidence
+
+
+def test_chart_requires_gender(spring_birth: BirthInput) -> None:
+    """대운 방향이 성별로 갈리므로 성별 없는 출생 입력은 원국을 세우지 않는다."""
+    with pytest.raises(InvalidInputError, match="gender"):
+        compose_chart(replace(spring_birth, gender=None), date(2026, 10, 10))
 
 
 def test_chart_as_of_out_of_range(spring_birth: BirthInput) -> None:
