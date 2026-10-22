@@ -9,19 +9,22 @@
   where: "오늘 화면(today): 일기 쓰기 버튼(언제나 새 일기, D83)"
   purpose: guide
   user_state: "가이드 질문을 보고 일기를 쓰려 합니다. 오늘 이미 썼을 수도 있습니다."
-  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 오늘 이미 쓴 날의 한 편 더 쓰기. 둘 다 새 일기를 엽니다(D83 ③)."
+  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 오늘 이미 쓴 날(새 일기 쓰기, 앞에 몇 편이 있어도 맞는 말, W37), `Full`은 상한을 채운 날(누를 수 없음). 상한 수치는 쓰지 않습니다(W37). `Full` 말고는 새 일기를 엽니다(D83 ②③)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - todayGuideCta
     - todayGuideCtaWritten
+    - todayGuideCtaFull
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: todayGuideCta, text: "일기 쓰기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: todayGuideCtaWritten, text: "일기 더 쓰기", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: todayGuideCtaWritten, text: "새 일기 쓰기", why: "라운드 R12 선택(R11-9 재출제, 앞에 몇 편이 있어도 맞는 말)", source: writing}
+      - {lang: ko, key: todayGuideCtaFull, text: "오늘은 충분히 썼어요", why: "라운드 R12 선택", source: writing}
     bad:
       - {lang: ko, text: "쓴 일기 보기", why: "D83으로 이 버튼은 언제나 새 일기를 엶", source: writing}
+      - {lang: ko, text: "오늘 일기 10편을 다 썼어요", why: "바뀔 수 있는 상한 수치를 씀(W37)", source: writing}
   endings: []
   a11y:
     truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
@@ -242,17 +245,19 @@
   where: "그날 시트 화면(day-sheet): 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, D83)"
   purpose: guide
   user_state: "지난 날이나 오늘의 일기를 쓰려 합니다. 이미 쓴 날일 수도 있습니다."
-  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 이미 쓴 날. 둘 다 새 일기를 엽니다(D83 ③)."
+  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 이미 쓴 날(새 일기 쓰기, W37), `Full`은 상한을 채운 날(누를 수 없음, 상한 수치는 쓰지 않음, W37). `Full` 말고는 새 일기를 엽니다(D83 ②③)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - daySheetDiaryWriteCta
     - daySheetDiaryWriteCtaWritten
+    - daySheetDiaryWriteCtaFull
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: daySheetDiaryWriteCta, text: "이날 일기 쓰기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: daySheetDiaryWriteCtaWritten, text: "이날 일기 더 쓰기", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: daySheetDiaryWriteCtaWritten, text: "이날 새 일기 쓰기", why: "라운드 R12 선택", source: writing}
+      - {lang: ko, key: daySheetDiaryWriteCtaFull, text: "이날은 충분히 썼어요", why: "라운드 R12 선택, 오늘·지난 날 모두 맞는 말", source: writing}
     bad: []
   endings: []
   a11y:
@@ -301,7 +306,7 @@
   where: "일정 편집 화면(event-edit): 일정 삭제 확인"
   purpose: guide
   user_state: "일정을 지우려 합니다."
-  structure: "확인 창: 질문 한 문장과 버튼 둘(`Delete`, `Cancel`). 기본 선택은 취소입니다."
+  structure: "확인 창: 질문 한 문장과 버튼 둘(`Delete`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 10, en: 16, ja: 7}
   key_max_length:

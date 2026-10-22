@@ -59,6 +59,7 @@
     - errorMethodNotAllowed
     - errorProfileRequired
     - errorDiaryDateTaken
+    - errorDiaryDayFull
     - errorIdempotencyInProgress
     - errorRequestTooLarge
     - errorRequestUnsupportedMediaType
@@ -371,7 +372,10 @@
   user_state: "로그인 방법을 고릅니다."
   structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143). LINE은 가이드의 언어별 권장 문구(ko \"LINE으로 로그인\", en \"Log in with LINE\", ja \"LINEでログイン\"), Google은 가이드 문구 \"Sign in with Google\"의 Google 현지화 표기(ko \"Google 계정으로 로그인\", ja \"Google でログイン\")입니다(#388)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: 21, en: 38, ja: 17}
+  max_length: {ko: 19, en: 34, ja: 15}
+  # ja 카카오 라벨은 영문이라 en 상한으로 잽니다(design lengths.md 키별 상한, #446).
+  key_max_length:
+    loginKakaoLabel: {ko: 19, en: 34, ja: 34}
   components: [social-login-button]
   keys:
     - loginKakaoLabel
@@ -716,7 +720,7 @@
   user_state: "달력에서 같은 해에 같은 달 초하루가 두 번 보입니다."
   structure: "숫자 틀 하나. 윤달 표지 + 월 + `.1`입니다. 칸 폭 44px 한 줄이라 표지는 한 글자로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [day-cell]
   keys:
     - params: {month: number}
@@ -788,7 +792,7 @@
   where: "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)"
   purpose: guide
   user_state: "날짜 시트에서 일기를 쓸 날짜를 골랐습니다."
-  structure: "고른 날짜 + 일기 쓰기. 언제나 새 일기로 가므로 동작 말(쓰기)을 넣습니다."
+  structure: "고른 날짜 + 일기 쓰기. 언제나 새 일기로 가므로 동작 말(쓰기)을 넣습니다. 고른 날이 상한을 채웠으면 `Full`(누를 수 없음, 날짜·상한 수치 없음, W37)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   ia: [diary-list.pick-date.confirm]
@@ -796,10 +800,12 @@
   keys:
     - params: {date: text}
       keys: [diaryListPickDateConfirm]
+    - diaryListPickDateConfirmFull
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: diaryListPickDateConfirm, text: "{date} 일기 쓰기", why: "D83으로 언제나 새 일기(#409)", source: writing}
+      - {lang: ko, key: diaryListPickDateConfirmFull, text: "이날은 충분히 썼어요", why: "라운드 R12 선택", source: writing}
     bad:
       - {lang: ko, text: "{date} 일기 보기", why: "D83으로 이 버튼은 보기로 가지 않음", source: writing}
   endings: []

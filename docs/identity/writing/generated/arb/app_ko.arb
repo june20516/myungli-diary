@@ -285,8 +285,12 @@
   "@daySheetDiaryWriteCta": {
     "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
-  "daySheetDiaryWriteCtaWritten": "이날 일기 더 쓰기",
+  "daySheetDiaryWriteCtaWritten": "이날 새 일기 쓰기",
   "@daySheetDiaryWriteCtaWritten": {
+    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+  },
+  "daySheetDiaryWriteCtaFull": "이날은 충분히 썼어요",
+  "@daySheetDiaryWriteCtaFull": {
     "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
   "daySheetEventAdd": "일정 추가",
@@ -470,7 +474,7 @@
   "@loginMethodsLastNotice": {
     "description": "login-methods.last.notice: 마지막 남은 수단은 뗄 수 없다는 안내"
   },
-  "loginMethodsUnlinkConfirm": "{provider} 연결을 끊을까요? 연결한 다른 수단으로 계속 로그인할 수 있어요.",
+  "loginMethodsUnlinkConfirm": "{provider} 연결을 끊을까요?",
   "@loginMethodsUnlinkConfirm": {
     "description": "login-methods.unlink.confirm: 떼기 확인",
     "placeholders": {
@@ -478,6 +482,10 @@
         "type": "String"
       }
     }
+  },
+  "loginMethodsUnlinkConfirmBody": "연결한 다른 수단으로 계속 로그인할 수 있어요.",
+  "@loginMethodsUnlinkConfirmBody": {
+    "description": "login-methods.unlink.confirm: 떼기 확인"
   },
   "loginMethodsUnlinkConfirmUnlink": "연결 끊기",
   "@loginMethodsUnlinkConfirmUnlink": {
@@ -801,8 +809,12 @@
   "@todayGuideCta": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
-  "todayGuideCtaWritten": "일기 더 쓰기",
+  "todayGuideCtaWritten": "새 일기 쓰기",
   "@todayGuideCtaWritten": {
+    "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+  },
+  "todayGuideCtaFull": "오늘은 충분히 썼어요",
+  "@todayGuideCtaFull": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
   "todayReactionLabel": "좋아요",
@@ -884,13 +896,48 @@
       }
     }
   },
-  "accountChoiceCurrent": "지금 로그인한 계정",
+  "accountChoiceCurrent": "현재 계정",
   "@accountChoiceCurrent": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
+  },
+  "accountChoiceProviderSeparator": " · ",
+  "@accountChoiceProviderSeparator": {
     "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
   },
   "accountMergeError": "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.",
   "@accountMergeError": {
-    "description": "계정 합치기 화면(account-merge) 오류 상태: 합치기 실패"
+    "description": "계정 합치기 화면(account-merge) 오류 상태: 합치기 실패. 고른 계정을 둔 채 다시 누를 수 있게 dialog notice로 보입니다(design #441)"
+  },
+  "accountChoiceSaju": "{calendar} {date} {time}",
+  "@accountChoiceSaju": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "calendar": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "accountChoiceSajuNoTime": "{calendar} {date} 시각 모름",
+  "@accountChoiceSajuNoTime": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "calendar": {
+        "type": "String"
+      }
+    }
+  },
+  "accountChoiceSajuEmpty": "사주 정보 없음",
+  "@accountChoiceSajuEmpty": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)"
   },
   "actionRetry": "다시 시도",
   "@actionRetry": {
@@ -1057,6 +1104,10 @@
       }
     }
   },
+  "diaryListPickDateConfirmFull": "이날은 충분히 썼어요",
+  "@diaryListPickDateConfirmFull": {
+    "description": "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)"
+  },
   "diaryViewEditAction": "일기 고치기",
   "@diaryViewEditAction": {
     "description": "일기 보기 화면(diary-view) app-bar의 아이콘 버튼 접근성 라벨(#275, D77 ② IA 밖)"
@@ -1159,6 +1210,10 @@
   },
   "errorDiaryDateTaken": "그날에는 이미 일기가 있어요.",
   "@errorDiaryDateTaken": {
+    "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "errorDiaryDayFull": "이날은 충분히 썼어요.",
+  "@errorDiaryDayFull": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
   },
   "errorIdempotencyInProgress": "아직 처리하고 있어요. 잠시 후 다시 확인해 주세요.",
@@ -1347,27 +1402,27 @@
   },
   "loginProviderKakao": "카카오",
   "@loginProviderKakao": {
-    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+    "description": "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   },
   "loginProviderLine": "LINE",
   "@loginProviderLine": {
-    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+    "description": "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   },
   "loginProviderGoogle": "Google",
   "@loginProviderGoogle": {
-    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+    "description": "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   },
   "loginProviderApple": "Apple",
   "@loginProviderApple": {
-    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+    "description": "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   },
-  "loginMethodsRowLink": "연결하기",
-  "@loginMethodsRowLink": {
-    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  "loginMethodsRowConnected": "연결됨",
+  "@loginMethodsRowConnected": {
+    "description": "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   },
   "loginMethodsRowUnlink": "연결 끊기",
   "@loginMethodsRowUnlink": {
-    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+    "description": "로그인 수단 화면(login-methods) social-login-button connected 상태: 제공자 이름과 연결됨 표시, 떼기 스크린리더 힌트(design V39). 연결하지 않은 수단은 로그인 라벨(ui.login.provider)을 그대로 씁니다"
   },
   "loginCancelled": "로그인을 취소했어요.",
   "@loginCancelled": {

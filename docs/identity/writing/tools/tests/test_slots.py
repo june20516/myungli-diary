@@ -222,8 +222,13 @@ DIALOG_TITLE_KEYS = {
     "settings.logout.confirm": "settingsLogoutConfirm",
     "preview.share.login-notice": "previewShareLoginNotice",
     "profile-edit.recalc.confirm": "profileEditRecalcConfirmTitle",
+    "login-methods.unlink.confirm": "loginMethodsUnlinkConfirm",
+    "account-merge.merge.confirm": "accountMergeMergeConfirm",
 }
-DIALOG_BODY_KEYS = {"profile-edit.recalc.confirm": "profileEditRecalcConfirmBody"}
+DIALOG_BODY_KEYS = {
+    "profile-edit.recalc.confirm": "profileEditRecalcConfirmBody",
+    "login-methods.unlink.confirm": "loginMethodsUnlinkConfirmBody",
+}
 
 
 def design_lengths() -> tuple[list[tuple[list[str], str, dict[str, int]]], list[str]]:
@@ -246,6 +251,32 @@ def design_lengths() -> tuple[list[tuple[list[str], str, dict[str, int]]], list[
             ko, ja, en = (int(cell.strip("*")) for cell in cells[-3:])
             rows.append((slot_ids, cells[1], {"ko": ko, "en": en, "ja": ja}))
     return rows, unbounded
+
+
+def design_key_lengths() -> list[tuple[str, str, str, int]]:
+    """design `lengths.md` "키별 상한" 표의 (언어, 슬롯, 키, 상한)입니다(#446)."""
+    rows: list[tuple[str, str, str, int]] = []
+    in_table = False
+    for line in LENGTHS_FILE.read_text(encoding="utf-8").splitlines():
+        if line.startswith("키별 상한"):
+            in_table = True
+            continue
+        if in_table and line and not line.startswith("|"):
+            break
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if in_table and len(cells) >= 4 and cells[0] in ("ko", "en", "ja"):
+            rows.append((cells[0], cells[1].strip("`"), cells[2].strip("`"), int(cells[3].strip("*"))))
+    return rows
+
+
+@pytest.mark.contract
+def test_key_lengths_match_design(rules: RuleSet) -> None:
+    """키별 상한이 design `lengths.md` "키별 상한" 표와 같은지 봅니다(#446)."""
+    slots = load_slots(SLOTS_DIR, rules)
+    rows = design_key_lengths()
+    assert rows
+    for lang, slot_id, key, limit in rows:
+        assert slots[slot_id].key_max_length[key][lang] == limit, (slot_id, key, lang)
 
 
 @pytest.mark.contract
