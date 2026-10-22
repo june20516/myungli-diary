@@ -37,8 +37,12 @@
 
 | 상태 | 질문 | 동작 | 도장 |
 | --- | --- | --- | --- |
-| `before` | `type.sentence.card` 본문색 | 주 버튼 "일기 쓰기" | 없음 |
-| `after` | `text.secondary`로 흐림 | 가운데 조용한 버튼 "쓴 일기 보기"(글자 `seal.on-soft`) | 버튼 글자 뒤 층에 `seal` soft 52px |
+| `before` | `type.sentence.card` 본문색 | 주 버튼(`todayGuideCta`) | 없음 |
+| `after` | `text.secondary`로 흐림 | 가운데 조용한 버튼(`todayGuideCtaWritten`, 글자 `seal.on-soft`) | 버튼 글자 뒤 층에 `seal` soft 52px |
+| `full` | `text.secondary`로 흐림 | 같은 조용한 버튼 `disabled`(`todayGuideCtaFull`, 글자 `disabled.fg`) | `after`와 같음 |
+
+* 버튼은 `full`이 아니면 언제나 새 일기를 엽니다(D83 ③). 오늘 쓴 일기는 카드 아래 `diary-row` `entries`에서 엽니다.
+* `full`은 오늘 일기가 상한을 채운 날입니다(D83 ②, 결정 V43). 도장은 그날 일기를 썼다는 표시라 남기고 버튼만 막습니다. 막힌 버튼을 눌러도 아무 일도 없고 햅틱도 없습니다. 이유는 버튼 글자가 말합니다(상한 수치 없음, writing W37).
 
 도장 위치 규칙: 일기 종이는 오른쪽 아래, 질문 카드는 버튼 뒤, 날짜 숫자에 찍는 곳(달력·일기 목록)은 숫자 뒤(elements.md).
 

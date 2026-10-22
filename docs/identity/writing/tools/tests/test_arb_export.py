@@ -132,3 +132,23 @@ def test_render_arb_exports_direction_names() -> None:
     entries = [*ENTRIES, entry("glossary.value_name", "direction8.n", "ko", "북"), entry("glossary.value_name", "direction8.nw", "ko", "북서")]
     arb = json.loads(render_arb({**SLOTS, glossary.id: glossary}, entries, "ko", ROLES))
     assert (arb["direction8N"], arb["direction8Nw"]) == ("북", "북서")
+
+
+NOTICE = make_slot("ui.notice", "ui", {"notice": {"title": ParamKind("text")}})
+
+
+def test_render_arb_expands_josa_ko() -> None:
+    entries = [entry("ui.notice", "notice", "ko", "{title}(이)가 내일이에요")]
+    arb = json.loads(render_arb({NOTICE.id: NOTICE}, entries, "ko", {}))
+    assert arb["notice"] == "{title}{titleJosa, select, final{이} rieul{이} none{가} other{이(가)}} 내일이에요"
+    assert arb["@notice"]["placeholders"] == {
+        "title": {"type": "String"},
+        "titleJosa": {"type": "String", "description": "app이 josaClass(title)로 채움"},
+    }
+
+
+def test_render_arb_josa_not_in_en() -> None:
+    entries = [entry("ui.notice", "notice", "en", "{title} is tomorrow")]
+    arb = json.loads(render_arb({NOTICE.id: NOTICE}, entries, "en", {}))
+    assert arb["notice"] == "{title} is tomorrow"
+    assert "@notice" not in arb

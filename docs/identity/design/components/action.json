@@ -1,5 +1,5 @@
 {
-  "version": "2.7.0",
+  "version": "2.8.0",
   "group": "action",
   "components": [
     {
@@ -8,7 +8,7 @@
       "uses": ["press.ink", "loading.breathe"],
       "variants": [
         { "id": "filled", "when": "화면의 주 동작" },
-        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 쓴 일기 보기)",
+        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼)",
           "parts": { "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" } }, "label": { "fg": "{color.action.primary}" } } },
         { "id": "destructive", "when": "되돌릴 수 없는 동작", "uses": ["mark.caution"],
           "parts": { "container": { "bg": "{color.text.primary}" }, "label": { "fg": "{color.bg.sheet}", "leading": "mark.caution" } } }
@@ -57,7 +57,7 @@
             "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
             "logo": { "source": "provider-official-asset", "badge": { "size": { "value": 20, "unit": "px" }, "symbolSize": { "value": 14, "unit": "px" }, "kakao": { "bg": "#FEE500", "symbol": "#000000", "shape": "{radius.xs}" }, "line": { "bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}" }, "google": { "bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}" }, "apple": { "lightMode": { "bg": "#000000", "symbol": "#FFFFFF" }, "darkMode": { "bg": "#FFFFFF", "symbol": "#000000" }, "shape": "{radius.xs}" } }, "note": "중립 바탕(bg.sheet)에서도 보이게 로고는 제공자 색 배지(20px) 안의 심볼 14px. Google G는 흰 원 위" },
             "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}", "align": "start", "slot": "ui.login-methods.row", "key": "loginProvider*" },
-            "state": { "icon": "check", "weight": "regular", "size": { "value": 14, "unit": "px" }, "gap": "{space.4}", "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "label": "연결됨 (ui.login-methods.row에 더할 키, writing 요청)" }
+            "state": { "icon": "check", "weight": "regular", "size": { "value": 14, "unit": "px" }, "gap": "{space.4}", "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "slot": "ui.login-methods.row", "key": "loginMethodsRowConnected" }
           },
           "onPress": { "component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm" },
           "lastOne": { "pressable": false, "noticeSlot": "login-methods.last.notice", "notice": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.12}", "position": "버튼 묶음 아래, 늘 보임" } },

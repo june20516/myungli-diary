@@ -6,8 +6,12 @@ import pytest
 
 from mlw.markup import (
     RULE_NAME_POSITION,
+    RULE_UI_JOSA_LITERAL,
+    RULE_UI_JOSA_NAME_CLASH,
+    RULE_UI_JOSA_POSITION,
     RULE_UI_MARKUP,
     check_name_position,
+    check_ui_josa,
     check_ui_markup,
     strip_vocative,
 )
@@ -70,9 +74,12 @@ def test_name_position_errors(vocative: bool, text: str) -> None:
     assert [finding.rule_id for finding in findings] == [RULE_NAME_POSITION]
 
 
-@pytest.mark.parametrize("text", ["{name}님, 안녕하세요", "일정 {count}(이)가 있어요", "[[편관]]이 들어요"])
-def test_ui_markup_errors(text: str) -> None:
-    assert [finding.rule_id for finding in check_ui_markup(entry(text))] == [RULE_UI_MARKUP]
+@pytest.mark.parametrize(
+    ("lang", "text"),
+    [("ko", "{name}님, 안녕하세요"), ("en", "{count}(이)가 events"), ("ko", "[[편관]]이 들어요")],
+)
+def test_ui_markup_errors(lang: str, text: str) -> None:
+    assert [finding.rule_id for finding in check_ui_markup(entry(text, lang))] == [RULE_UI_MARKUP]
 
 
 def test_ui_markup_ok() -> None:
@@ -82,3 +89,64 @@ def test_ui_markup_ok() -> None:
 def test_name_position_rejects_extra_space_after_vocative() -> None:
     findings = check_name_position(entry("{name}님,  쉬어 가는 날이에요."), make_slot(vocative=True))
     assert [finding.rule_id for finding in findings] == [RULE_NAME_POSITION]
+
+
+TEXT = ParamKind("text")
+
+
+def test_ui_markup_allows_josa_in_ko() -> None:
+    assert check_ui_markup(entry("{title}(이)가 내일이에요")) == []
+    assert [finding.rule_id for finding in check_ui_markup(entry("{title}(이)가 내일이에요", "en"))] == [RULE_UI_MARKUP]
+
+
+@pytest.mark.parametrize(
+    ("text", "params"),
+    [("오늘(은)는 쉬어요", {}), ("{role}(이)가 있어요", {"role": ParamKind("none")})],
+)
+def test_ui_josa_position_errors(text: str, params: dict[str, ParamKind]) -> None:
+    assert [finding.rule_id for finding in check_ui_josa(entry(text), params)] == [RULE_UI_JOSA_POSITION]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "{provider}로 로그인해요",
+        "{title}이 내일이에요",
+        "{title}가",
+        "{title}가…",
+        "{title}이)",
+        '{title}이"',
+        "{title}가: 내일",
+        "{provider}로는 로그인할 수 없어요",
+        "{provider}으로도 돼요",
+        "{title}은요?",
+        "{title}와의 약속",
+        "‘{title}’이 내일이에요",
+    ],
+)
+def test_ui_josa_literal_errors(text: str) -> None:
+    params = {"provider": TEXT, "title": TEXT}
+    assert [finding.rule_id for finding in check_ui_josa(entry(text), params)] == [RULE_UI_JOSA_LITERAL]
+
+
+def test_ui_josa_category_placeholder_is_position_error() -> None:
+    findings = check_ui_josa(entry("{p:cat}(이)가 있어요"), {"p": TEXT})
+    assert [finding.rule_id for finding in findings] == [RULE_UI_JOSA_POSITION]
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["{date}이후", "{count}개", "{end}에 태어났어요", "{tag} 태그", "{title}(이)가", "{count}(은)는 많아요", "{date}이나 내일"],
+)
+def test_ui_josa_literal_ok(text: str) -> None:
+    params = {"date": TEXT, "count": ParamKind("number"), "end": TEXT, "tag": TEXT, "title": TEXT}
+    assert check_ui_josa(entry(text), params) == []
+
+
+def test_ui_josa_name_clash() -> None:
+    findings = check_ui_josa(entry("{title}(이)가 {titleJosa}"), {"title": TEXT, "titleJosa": TEXT})
+    assert [finding.rule_id for finding in findings] == [RULE_UI_JOSA_NAME_CLASH]
+
+
+def test_ui_josa_skips_other_languages() -> None:
+    assert check_ui_josa(entry("{title}이 내일", "en"), {"title": TEXT}) == []

@@ -18,6 +18,8 @@ const specPath = "openapi.yaml"
 
 const problemRef = "#/components/schemas/Problem"
 
+const identityInUseProblemRef = "#/components/schemas/IdentityInUseProblem"
+
 // expectedOperationIDs는 계약의 operation 표 전체입니다.
 var expectedOperationIDs = []string{
 	"loginKakao", "loginApple", "appleCallback", "completeAppleWebLogin", "refreshToken", "logout",
@@ -29,6 +31,7 @@ var expectedOperationIDs = []string{
 	"registerDevice", "deleteDevice",
 	"getEntitlements", "restorePurchases", "revenuecatWebhook", "admobRewardCallback",
 	"listCities", "getAppConfig", "getHealth",
+	"loginLine", "loginGoogle", "listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts",
 }
 
 // securityOverrides는 최상위 bearerAuth를 덮어쓰는 operation과 그 security scheme 이름입니다.
@@ -36,6 +39,8 @@ var expectedOperationIDs = []string{
 var securityOverrides = map[string][]string{
 	"loginKakao":            {},
 	"loginApple":            {},
+	"loginLine":             {},
+	"loginGoogle":           {},
 	"appleCallback":         {},
 	"completeAppleWebLogin": {},
 	"refreshToken":          {},
@@ -117,8 +122,12 @@ func TestContract_ErrorsAreProblems(t *testing.T) {
 				t.Errorf("%s %s: application/problem+json이 아님: %v", operationID, status, mapKeys(content))
 				continue
 			}
-			if media.Schema == nil || media.Schema.Ref != problemRef {
-				t.Errorf("%s %s: schema가 Problem 참조가 아님", operationID, status)
+			wantRef := problemRef
+			if operationID == "linkIdentity" && status == "409" {
+				wantRef = identityInUseProblemRef // Problem에 mergeToken·expiresAt을 더한 확장
+			}
+			if media.Schema == nil || media.Schema.Ref != wantRef {
+				t.Errorf("%s %s: schema가 %s 참조가 아님", operationID, status, wantRef)
 			}
 		}
 	})
@@ -494,7 +503,7 @@ func mapKeys(content openapi3.Content) []string {
 func TestContract_LoginNonceDocumentsHashRule(t *testing.T) {
 	doc := loadDoc(t)
 
-	for _, name := range []string{"KakaoLoginRequest", "AppleLoginRequest"} {
+	for _, name := range []string{"KakaoLoginRequest", "AppleLoginRequest", "LineLoginRequest", "GoogleLoginRequest", "LinkIdentityRequest"} {
 		ref := doc.Components.Schemas[name]
 		if ref == nil || ref.Value.Properties["nonce"] == nil {
 			t.Errorf("%s: nonce 속성이 없음", name)
@@ -509,6 +518,25 @@ func TestContract_LoginNonceDocumentsHashRule(t *testing.T) {
 		}
 		if nonce.MaxLength == nil || *nonce.MaxLength != 256 {
 			t.Errorf("%s: nonce maxLength가 256이 아님", name)
+		}
+	}
+
+	// nonce를 받는 operation은 설명 또는 요청 스키마의 nonce 설명에 해시 규칙이 있어야 합니다.
+	for _, id := range []string{"loginKakao", "loginApple", "loginLine", "loginGoogle", "linkIdentity"} {
+		op := operationByID(t, doc, id)
+		documented := strings.Contains(op.Description, "SHA-256")
+		if body := op.RequestBody; body != nil && body.Value != nil && body.Value.Content["application/json"] != nil {
+			if nonce := body.Value.Content["application/json"].Schema.Value.Properties["nonce"]; nonce != nil {
+				documented = documented || strings.Contains(nonce.Value.Description, "SHA-256")
+			}
+		}
+		if !documented {
+			t.Errorf("%s: 설명과 요청 스키마 nonce 설명 어디에도 SHA-256 규칙이 없음", id)
+		}
+	}
+	for _, text := range []string{"일회용으로 기록하지 않습니다", "Google"} {
+		if !strings.Contains(doc.Info.Description, text) {
+			t.Errorf("info.description에 %q가 없음", text)
 		}
 	}
 }
@@ -659,10 +687,10 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft13(t *testing.T) {
+func TestContract_VersionIsDraft14(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.13" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.13", doc.Info.Version)
+	if doc.Info.Version != "1.0.0-draft.14" {
+		t.Errorf("info.version = %q, want 1.0.0-draft.14", doc.Info.Version)
 	}
 }
 
@@ -1399,5 +1427,305 @@ func TestContract_Draft13ProblemCodes(t *testing.T) {
 	}
 	if _, ok := codes["diary.date_taken"]; ok {
 		t.Error("diary.date_taken이 남아 있음")
+	}
+}
+
+// enumStrings는 문자열 enum 스키마의 값을 []string으로 바꿉니다.
+func enumStrings(schema *openapi3.Schema) []string {
+	values := make([]string, 0, len(schema.Enum))
+	for _, value := range schema.Enum {
+		values = append(values, value.(string))
+	}
+	return values
+}
+
+// sameElements는 got과 want가 순서와 상관없이 같은 원소 집합인지 확인합니다.
+func sameElements(t *testing.T, label string, got, want []string) {
+	t.Helper()
+	got, want = slices.Clone(got), slices.Clone(want)
+	slices.Sort(got)
+	slices.Sort(want)
+	if !slices.Equal(got, want) {
+		t.Errorf("%s = %v, want %v", label, got, want)
+	}
+}
+
+// schemaOf는 components/schemas의 스키마를 돌려줍니다. 없으면 테스트를 멈춥니다.
+func schemaOf(t *testing.T, doc *openapi3.T, name string) *openapi3.Schema {
+	t.Helper()
+	ref := doc.Components.Schemas[name]
+	if ref == nil || ref.Value == nil {
+		t.Fatalf("%s 스키마가 없음", name)
+	}
+	return ref.Value
+}
+
+// requireResponses는 operation에 status 응답이 모두 있는지 확인합니다.
+func requireResponses(t *testing.T, operationID string, op *openapi3.Operation, statuses ...string) {
+	t.Helper()
+	for _, status := range statuses {
+		if op.Responses.Value(status) == nil {
+			t.Errorf("%s에 %s 응답이 없음", operationID, status)
+		}
+	}
+}
+
+// jsonBodyRef는 operation의 JSON 요청 본문 스키마 $ref입니다.
+func jsonBodyRef(t *testing.T, op *openapi3.Operation) string {
+	t.Helper()
+	if op.RequestBody == nil || op.RequestBody.Value == nil || op.RequestBody.Value.Content["application/json"] == nil {
+		t.Fatal("JSON 요청 본문이 없음")
+	}
+	return op.RequestBody.Value.Content["application/json"].Schema.Ref
+}
+
+// TestContract_Draft14Identities는 draft.14에서 더한 로그인 제공자·연결 관리·합치기 계약을 고정합니다. (D82, #386)
+func TestContract_Draft14Identities(t *testing.T) {
+	doc := loadDoc(t)
+
+	t.Run("LINE·Google 로그인", func(t *testing.T) {
+		for id, schema := range map[string]string{"loginLine": "LineLoginRequest", "loginGoogle": "GoogleLoginRequest"} {
+			op := operationByID(t, doc, id)
+			if op.Security == nil || len(*op.Security) != 0 {
+				t.Errorf("%s: security가 빈 배열이 아님", id)
+			}
+			if got := jsonBodyRef(t, op); got != "#/components/schemas/"+schema {
+				t.Errorf("%s 본문 = %s, want %s", id, got, schema)
+			}
+			sameElements(t, schema+".required", schemaOf(t, doc, schema).Required, []string{"idToken", "nonce"})
+			if got := okSchemaRef(t, op); got != "#/components/schemas/LoginResponse" {
+				t.Errorf("%s 200 = %s, want LoginResponse", id, got)
+			}
+			requireResponses(t, id, op, "401", "503")
+		}
+	})
+
+	t.Run("LoginProvider", func(t *testing.T) {
+		sameElements(t, "LoginProvider.enum", enumStrings(schemaOf(t, doc, "LoginProvider")), []string{"kakao", "apple", "line", "google"})
+	})
+
+	t.Run("열린 enum", func(t *testing.T) {
+		for _, text := range []string{"`LoginProvider`"} {
+			if !strings.Contains(doc.Info.Description, text) {
+				t.Errorf("info.description의 열린 enum 목록에 %s가 없음", text)
+			}
+		}
+	})
+
+	t.Run("새 bearer operation의 공통 응답", func(t *testing.T) {
+		for _, id := range []string{"listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts"} {
+			op := operationByID(t, doc, id)
+			requireResponses(t, id, op, "401", "403")
+			if id == "linkIdentity" || id == "previewMerge" || id == "mergeAccounts" {
+				requireResponses(t, id, op, "400", "413", "415")
+			}
+		}
+	})
+
+	t.Run("listIdentities", func(t *testing.T) {
+		op := operationByID(t, doc, "listIdentities")
+		if got := okSchemaRef(t, op); got != "#/components/schemas/IdentityList" {
+			t.Errorf("listIdentities 200 = %s, want IdentityList", got)
+		}
+		list := schemaOf(t, doc, "IdentityList")
+		items := list.Properties["items"]
+		if items == nil || !items.Value.Type.Is("array") || items.Value.Items.Ref != "#/components/schemas/Identity" {
+			t.Error("IdentityList.items가 Identity 배열이 아님")
+		}
+		sameElements(t, "IdentityList.required", list.Required, []string{"items"})
+		identity := schemaOf(t, doc, "Identity")
+		sameElements(t, "Identity.required", identity.Required, []string{"provider", "linkedAt"})
+		if identity.Properties["subject"] != nil {
+			t.Error("Identity에 subject가 있음")
+		}
+		if identity.Properties["provider"].Ref != "#/components/schemas/LoginProvider" {
+			t.Error("Identity.provider가 LoginProvider 참조가 아님")
+		}
+		if linkedAt := identity.Properties["linkedAt"].Value; linkedAt.Format != "date-time" {
+			t.Errorf("Identity.linkedAt format = %q, want date-time", linkedAt.Format)
+		}
+		requireResponses(t, "listIdentities", op, "401", "403")
+	})
+
+	providerParam := func(t *testing.T, operationID string) {
+		t.Helper()
+		item := doc.Paths.Find("/v1/me/identities/{provider}")
+		if item == nil {
+			t.Fatal("/v1/me/identities/{provider} 경로가 없음")
+		}
+		for _, param := range item.Parameters {
+			if param.Value != nil && param.Value.Name == "provider" && param.Value.In == openapi3.ParameterInPath {
+				if !param.Value.Required || param.Value.Schema.Ref != "#/components/schemas/LoginProvider" {
+					t.Errorf("%s: provider parameter가 필수 LoginProvider 참조가 아님", operationID)
+				}
+				return
+			}
+		}
+		t.Errorf("%s: provider 경로 매개변수가 없음", operationID)
+	}
+
+	t.Run("linkIdentity", func(t *testing.T) {
+		op := operationByID(t, doc, "linkIdentity")
+		providerParam(t, "linkIdentity")
+		requireResponses(t, "linkIdentity", op, "200", "201", "400", "401", "409", "503")
+		for _, status := range []string{"200", "201"} {
+			media := op.Responses.Value(status).Value.Content["application/json"]
+			if media == nil || media.Schema.Ref != "#/components/schemas/IdentityList" {
+				t.Errorf("linkIdentity %s JSON 스키마가 IdentityList가 아님", status)
+			}
+		}
+		if got := jsonBodyRef(t, op); got != "#/components/schemas/LinkIdentityRequest" {
+			t.Errorf("linkIdentity 본문 = %s, want LinkIdentityRequest", got)
+		}
+		conflict := op.Responses.Value("409").Value.Content["application/problem+json"]
+		if conflict == nil || conflict.Schema.Ref != identityInUseProblemRef {
+			t.Error("linkIdentity 409 content가 IdentityInUseProblem 참조가 아님")
+		}
+		for _, text := range []string{"auth.provider_taken", "auth.identity_in_use", "auth.identity_pending_deletion", "auth.provider_token_invalid", "auth.exchange_invalid", "exchangeCode", "저장하지 않"} {
+			if !strings.Contains(op.Description, text) {
+				t.Errorf("linkIdentity 설명에 %q가 없음", text)
+			}
+		}
+
+		problem := schemaOf(t, doc, "IdentityInUseProblem")
+		if len(problem.AllOf) == 0 || problem.AllOf[0].Ref != problemRef {
+			t.Error("IdentityInUseProblem.allOf에 Problem이 없음")
+		}
+		var properties openapi3.Schemas
+		for _, part := range problem.AllOf {
+			if part.Ref == "" && part.Value != nil && part.Value.Properties != nil {
+				properties = part.Value.Properties
+			}
+			if part.Ref == "" && part.Value != nil && len(part.Value.Required) > 0 {
+				t.Errorf("IdentityInUseProblem에 required %v가 있음(auth.identity_in_use일 때만 있는 필드)", part.Value.Required)
+			}
+		}
+		if len(problem.Properties) > 0 {
+			properties = problem.Properties
+		}
+		if properties["mergeToken"] == nil || !properties["mergeToken"].Value.Type.Is("string") {
+			t.Error("IdentityInUseProblem.mergeToken이 string이 아님")
+		}
+		if properties["expiresAt"] == nil || properties["expiresAt"].Value.Format != "date-time" {
+			t.Error("IdentityInUseProblem.expiresAt이 date-time이 아님")
+		}
+
+		request := schemaOf(t, doc, "LinkIdentityRequest")
+		sameElements(t, "LinkIdentityRequest.required", request.Required, []string{"nonce"})
+		var names []string
+		for name := range request.Properties {
+			names = append(names, name)
+		}
+		sameElements(t, "LinkIdentityRequest.properties", names, []string{"idToken", "authorizationCode", "exchangeCode", "nonce"})
+		if len(request.OneOf) > 0 || len(request.AnyOf) > 0 {
+			t.Error("LinkIdentityRequest가 oneOf/anyOf를 씀(additionalProperties가 없어 Apple iOS 증명이 두 갈래에 다 맞음)")
+		}
+		for _, text := range []string{"kakao", "idToken", "authorizationCode", "exchangeCode", "request.invalid"} {
+			if !strings.Contains(request.Description, text) {
+				t.Errorf("LinkIdentityRequest 설명에 %q가 없음", text)
+			}
+		}
+	})
+
+	t.Run("unlinkIdentity", func(t *testing.T) {
+		op := operationByID(t, doc, "unlinkIdentity")
+		providerParam(t, "unlinkIdentity")
+		requireResponses(t, "unlinkIdentity", op, "204", "400", "404", "409")
+		if op.RequestBody != nil {
+			t.Error("unlinkIdentity에 요청 본문이 있음")
+		}
+		if !strings.Contains(op.Description, "LINE·Google의 제공자 허가는 server가 취소하지 않습니다") {
+			t.Error("unlinkIdentity 설명에 LINE·Google 허가 취소 규칙이 없음")
+		}
+	})
+
+	t.Run("previewMerge", func(t *testing.T) {
+		op := operationByID(t, doc, "previewMerge")
+		if got := jsonBodyRef(t, op); got != "#/components/schemas/MergePreviewRequest" {
+			t.Errorf("previewMerge 본문 = %s, want MergePreviewRequest", got)
+		}
+		sameElements(t, "MergePreviewRequest.required", schemaOf(t, doc, "MergePreviewRequest").Required, []string{"mergeToken"})
+		if got := okSchemaRef(t, op); got != "#/components/schemas/MergePreview" {
+			t.Errorf("previewMerge 200 = %s, want MergePreview", got)
+		}
+		requireResponses(t, "previewMerge", op, "422")
+		sameElements(t, "MergePreview.required", schemaOf(t, doc, "MergePreview").Required, []string{"current", "other", "overlapDayCount"})
+		summary := schemaOf(t, doc, "MergeAccountSummary")
+		sameElements(t, "MergeAccountSummary.required", summary.Required, []string{"saju", "diaryCount", "providers"})
+		if summary.Properties["honorific"] == nil {
+			t.Error("MergeAccountSummary.honorific이 없음")
+		}
+		if providers := summary.Properties["providers"]; providers == nil || providers.Value.Items.Ref != "#/components/schemas/LoginProvider" {
+			t.Error("MergeAccountSummary.providers.items가 LoginProvider 참조가 아님")
+		}
+		for name, count := range map[string]*openapi3.SchemaRef{
+			"MergeAccountSummary.diaryCount": summary.Properties["diaryCount"],
+			"MergePreview.overlapDayCount":   schemaOf(t, doc, "MergePreview").Properties["overlapDayCount"],
+		} {
+			if count == nil || !count.Value.Type.Is("integer") || count.Value.Min == nil || *count.Value.Min != 0 {
+				t.Errorf("%s가 minimum 0인 integer가 아님", name)
+			}
+		}
+		saju := schemaOf(t, doc, "MergeSaju")
+		if saju.Properties["calendar"].Ref != "#/components/schemas/CalendarType" {
+			t.Error("MergeSaju.calendar가 CalendarType 참조가 아님")
+		}
+		if saju.Properties["date"].Ref != "#/components/schemas/LunarOrSolarDate" {
+			t.Error("MergeSaju.date가 LunarOrSolarDate 참조가 아님")
+		}
+		if isLeap := saju.Properties["isLeapMonth"]; isLeap == nil || !isLeap.Value.Type.Is("boolean") {
+			t.Error("MergeSaju.isLeapMonth가 boolean이 아님")
+		}
+		sameElements(t, "MergeSaju.status", enumStrings(schemaOf(t, doc, "MergeSaju").Properties["status"].Value), []string{"saved", "none"})
+		if birthTime := schemaOf(t, doc, "MergeSaju").Properties["birthTime"]; birthTime == nil || birthTime.Ref != "#/components/schemas/BirthTime" {
+			t.Error("MergeSaju.birthTime이 BirthTime 참조가 아님")
+		}
+	})
+
+	t.Run("mergeAccounts", func(t *testing.T) {
+		op := operationByID(t, doc, "mergeAccounts")
+		if got := jsonBodyRef(t, op); got != "#/components/schemas/MergeRequest" {
+			t.Errorf("mergeAccounts 본문 = %s, want MergeRequest", got)
+		}
+		request := schemaOf(t, doc, "MergeRequest")
+		sameElements(t, "MergeRequest.required", request.Required, []string{"mergeToken", "keep"})
+		sameElements(t, "MergeRequest.keep", enumStrings(request.Properties["keep"].Value), []string{"current", "other"})
+		if got := okSchemaRef(t, op); got != "#/components/schemas/MergeResult" {
+			t.Errorf("mergeAccounts 200 = %s, want MergeResult", got)
+		}
+		result := schemaOf(t, doc, "MergeResult")
+		sameElements(t, "MergeResult.required", result.Required, []string{"accountId", "tokens"})
+		if result.Properties["tokens"].Ref != "#/components/schemas/TokenPair" {
+			t.Error("MergeResult.tokens가 TokenPair 참조가 아님")
+		}
+		if result.Properties["accountId"].Value.Format != "uuid" {
+			t.Error("MergeResult.accountId가 format uuid가 아님")
+		}
+		requireResponses(t, "mergeAccounts", op, "422", "503")
+		if op.Parameters.GetByInAndName(openapi3.ParameterInHeader, "Idempotency-Key") != nil {
+			t.Error("mergeAccounts가 Idempotency-Key를 받음")
+		}
+		for _, text := range []string{"Idempotency-Key", "merge.token_invalid", "billing.provider_unavailable"} {
+			if !strings.Contains(op.Description, text) {
+				t.Errorf("mergeAccounts 설명에 %q가 없음", text)
+			}
+		}
+	})
+}
+
+// TestContract_Draft14ProblemCodes는 draft.14에서 더한 problem code를 고정합니다. (D82, S104)
+func TestContract_Draft14ProblemCodes(t *testing.T) {
+	codes := loadProblemCodes(t)
+	for code, status := range map[string]int{
+		"auth.provider_taken":            409,
+		"auth.identity_in_use":           409,
+		"auth.identity_pending_deletion": 409,
+		"auth.last_identity":             409,
+		"auth.identity_not_found":        404,
+		"merge.token_invalid":            422,
+	} {
+		if entry, ok := codes[code]; !ok || entry.Status != status {
+			t.Errorf("%s = %+v (있음 %v), want status %d", code, entry, ok, status)
+		}
 	}
 }

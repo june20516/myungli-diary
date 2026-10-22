@@ -3,6 +3,7 @@
 * 키 순서는 슬롯 id 순서, 그 안에서는 슬롯 명세의 키 순서입니다.
 * `@<키>` 메타데이터(설명, 자리표시자 타입)는 기준 언어(ko) 파일에만 둡니다.
 * 원고가 없는 키는 그 언어 파일에서 뺍니다. 앱은 기준 언어 문구로 대신합니다.
+* ko 원고의 조사 표기(`{p}(이)가`)는 ICU select로 펼치고 `pJosa` 자리표시자를 더합니다(spec 2026-10-22-ui-josa §4).
 * glossary 이름 중 `ARB_TERM_CATEGORIES` 범주(지지, 날의 성격, 방향)도 ui 키 뒤에 냅니다. content 문장과 앱 화면이
   같은 이름을 쓰게 하기 위해서입니다(#143). 키는 용어 id의 lowerCamelCase입니다(`branch.in` → `branchIn`).
 """
@@ -13,6 +14,7 @@ from collections.abc import Mapping, Sequence
 import regex
 
 from mlw.ia import is_ui_slot
+from mlw.josa_select import expand_josa, josa_param
 from mlw.model import Entry, Finding, LoadError, ParamKind, Slot
 
 TEMPLATE_LANG = "ko"
@@ -24,8 +26,11 @@ RULE_DUPLICATE_KEY = "arb.duplicate_key"
 TERM_WORD_BOUNDARY = regex.compile(r"[._]")
 
 
-def _placeholders(params: Mapping[str, ParamKind]) -> dict[str, dict[str, str]]:
-    return {name: {"type": PLACEHOLDER_TYPES.get(kind.kind, "String")} for name, kind in params.items()}
+def _placeholders(params: Mapping[str, ParamKind], josa_params: Sequence[str] = ()) -> dict[str, dict[str, str]]:
+    placeholders = {name: {"type": PLACEHOLDER_TYPES.get(kind.kind, "String")} for name, kind in params.items()}
+    for name in josa_params:
+        placeholders[josa_param(name)] = {"type": "String", "description": f"app이 josaClass({name})로 채움"}
+    return placeholders
 
 
 def _description(slot: Slot, ia_roles: Mapping[str, str]) -> str:
@@ -64,12 +69,14 @@ def render_arb(slots: Mapping[str, Slot], entries: Sequence[Entry], lang: str, i
             text = texts.get((slot.id, key))
             if text is None:
                 continue
-            arb[key] = text
             if lang != TEMPLATE_LANG:
+                arb[key] = text
                 continue
+            text, josa_params = expand_josa(text)
+            arb[key] = text
             meta: dict[str, object] = {"description": _description(slot, ia_roles)}
             if params:
-                meta["placeholders"] = _placeholders(params)
+                meta["placeholders"] = _placeholders(params, josa_params)
             arb[f"@{key}"] = meta
     ui_keys = {key for slot in slots.values() if is_ui_slot(slot) for key in slot.keys}
     for key, term_id, text in _term_messages(slots, texts):

@@ -1,5 +1,5 @@
 {
-  "version": "2.7.0",
+  "version": "2.8.0",
   "group": "today",
   "components": [
     {
@@ -67,18 +67,32 @@
         "action": { "marginTop": "{space.16}" }
       },
       "states": {
-        "before": { "parts": { "action": { "component": "primary-button", "variant": "filled" } } },
+        "before": { "labelKey": "todayGuideCta", "parts": { "action": { "component": "primary-button", "variant": "filled" } } },
         "after": {
+          "labelKey": "todayGuideCtaWritten",
+          "note": "오늘 이미 쓴 날. 버튼은 언제나 새 일기를 연다(D83 ③)",
           "parts": {
             "question": { "fg": "{color.text.secondary}" },
             "action": { "component": "primary-button", "variant": "quiet", "align": "center", "labelFg": "{color.seal.on-soft}" },
             "seal": { "element": "seal", "variant": "soft", "size": { "value": 52, "unit": "px" }, "layer": "behind-action-label", "align": "center" }
           }
+        },
+        "full": {
+          "labelKey": "todayGuideCtaFull",
+          "note": "오늘 일기가 상한을 채운 날(D83 ②). after 모양에서 버튼만 막는다",
+          "parts": {
+            "question": { "fg": "{color.text.secondary}" },
+            "action": { "component": "primary-button", "variant": "quiet", "state": "disabled", "align": "center" },
+            "seal": { "element": "seal", "variant": "soft", "size": { "value": 52, "unit": "px" }, "layer": "behind-action-label", "align": "center" }
+          }
         }
       },
       "haptic": [],
-      "a11y": { "role": "group", "label": "질문", "stateAnnounced": "일기를 썼으면 '오늘 일기 씀'" },
-      "rules": ["일기를 쓴 뒤 도장은 버튼 글자 뒤 층에 둔다(일기 종이 도장과 같은 모양, 옅은 변형)."]
+      "a11y": { "role": "group", "label": "질문", "stateAnnounced": "일기를 썼으면 '오늘 일기 씀', 상한을 채웠으면 '더 쓸 수 없음'" },
+      "rules": [
+        "일기를 쓴 뒤 도장은 버튼 글자 뒤 층에 둔다(일기 종이 도장과 같은 모양, 옅은 변형).",
+        "상한을 채운 날(full)에도 도장은 남긴다. 그날 일기를 썼다는 표시이기 때문이다. 막힌 버튼을 눌러도 아무 일도 일어나지 않고 햅틱도 없다."
+      ]
     },
     {
       "id": "share-image",

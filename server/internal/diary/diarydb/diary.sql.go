@@ -13,15 +13,54 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getDiary = `-- name: GetDiary :one
-SELECT id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at
-FROM diaries
+const countLiveDiaries = `-- name: CountLiveDiaries :one
+SELECT count(*) FROM diaries
 WHERE account_id = $1 AND date = $2 AND deleted_at IS NULL
 `
 
-type GetDiaryParams struct {
+type CountLiveDiariesParams struct {
 	AccountID uuid.UUID
 	Date      pgtype.Date
+}
+
+func (q *Queries) CountLiveDiaries(ctx context.Context, arg CountLiveDiariesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countLiveDiaries, arg.AccountID, arg.Date)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const diaryDayExists = `-- name: DiaryDayExists :one
+
+SELECT EXISTS (
+    SELECT 1 FROM diary_days WHERE account_id = $1 AND date = $2
+)
+`
+
+type DiaryDayExistsParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+// 일기 쿼리입니다. 일기 한 편(diaries)과 날짜 기록(diary_days)을 JOIN해 읽습니다(D83).
+// 조회는 모두 살아 있는 행(deleted_at IS NULL)만 보고, 모든 쿼리가 account_id 조건을 겁니다.
+func (q *Queries) DiaryDayExists(ctx context.Context, arg DiaryDayExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, diaryDayExists, arg.AccountID, arg.Date)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const getDiary = `-- name: GetDiary :one
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, d.created_at, d.updated_at
+FROM diaries d
+JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
+WHERE d.id = $1 AND d.account_id = $2 AND d.deleted_at IS NULL
+`
+
+type GetDiaryParams struct {
+	ID        uuid.UUID
+	AccountID uuid.UUID
 }
 
 type GetDiaryRow struct {
@@ -38,7 +77,7 @@ type GetDiaryRow struct {
 }
 
 func (q *Queries) GetDiary(ctx context.Context, arg GetDiaryParams) (GetDiaryRow, error) {
-	row := q.db.QueryRow(ctx, getDiary, arg.AccountID, arg.Date)
+	row := q.db.QueryRow(ctx, getDiary, arg.ID, arg.AccountID)
 	var i GetDiaryRow
 	err := row.Scan(
 		&i.ID,
@@ -55,25 +94,146 @@ func (q *Queries) GetDiary(ctx context.Context, arg GetDiaryParams) (GetDiaryRow
 	return i, err
 }
 
-const listDiaries = `-- name: ListDiaries :many
-SELECT id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at
+const getDiaryState = `-- name: GetDiaryState :one
+SELECT id, date, deleted_at, content_purged_at
 FROM diaries
-WHERE account_id = $1 AND deleted_at IS NULL
-  AND ($2::date IS NULL OR date >= $2::date)
-  AND ($3::date IS NULL OR date <= $3::date)
-  AND ($4::text IS NULL OR all_tags @> ARRAY[$4::text])
-  AND ($5::date IS NULL OR date < $5::date)
-ORDER BY date DESC
-LIMIT $6
+WHERE id = $1 AND account_id = $2
+FOR UPDATE
+`
+
+type GetDiaryStateParams struct {
+	ID        uuid.UUID
+	AccountID uuid.UUID
+}
+
+type GetDiaryStateRow struct {
+	ID              uuid.UUID
+	Date            pgtype.Date
+	DeletedAt       *time.Time
+	ContentPurgedAt *time.Time
+}
+
+// 지운 행까지 보고 그 행을 잠급니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다(같은 일기의 동시 되살리기·지우기가 줄을 섭니다).
+// 잠금 순서는 diaries 행 다음 diary_days 행입니다(만들기는 diary_days 행 다음 새 행이라 순환이 없습니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+func (q *Queries) GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (GetDiaryStateRow, error) {
+	row := q.db.QueryRow(ctx, getDiaryState, arg.ID, arg.AccountID)
+	var i GetDiaryStateRow
+	err := row.Scan(
+		&i.ID,
+		&i.Date,
+		&i.DeletedAt,
+		&i.ContentPurgedAt,
+	)
+	return i, err
+}
+
+const insertDiary = `-- name: InsertDiary :one
+WITH inserted AS (
+    INSERT INTO diaries (id, account_id, date, body)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, account_id, date, body, created_at, updated_at
+)
+SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, i.created_at, i.updated_at
+FROM inserted i
+JOIN diary_days dd ON dd.account_id = i.account_id AND dd.date = i.date
+`
+
+type InsertDiaryParams struct {
+	ID        uuid.UUID
+	AccountID uuid.UUID
+	Date      pgtype.Date
+	Body      string
+}
+
+type InsertDiaryRow struct {
+	ID             uuid.UUID
+	AccountID      uuid.UUID
+	Date           pgtype.Date
+	Body           string
+	AllTags        []string
+	FeaturedTags   []byte
+	GuideQuestion  []byte
+	RulesetVersion string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+func (q *Queries) InsertDiary(ctx context.Context, arg InsertDiaryParams) (InsertDiaryRow, error) {
+	row := q.db.QueryRow(ctx, insertDiary,
+		arg.ID,
+		arg.AccountID,
+		arg.Date,
+		arg.Body,
+	)
+	var i InsertDiaryRow
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Date,
+		&i.Body,
+		&i.AllTags,
+		&i.FeaturedTags,
+		&i.GuideQuestion,
+		&i.RulesetVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const insertDiaryDay = `-- name: InsertDiaryDay :exec
+INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (account_id, date) DO NOTHING
+`
+
+type InsertDiaryDayParams struct {
+	AccountID      uuid.UUID
+	Date           pgtype.Date
+	AllTags        []string
+	FeaturedTags   []byte
+	GuideQuestion  []byte
+	RulesetVersion string
+}
+
+// 그날 첫 편이면 날짜 기록을 만들고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
+func (q *Queries) InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) error {
+	_, err := q.db.Exec(ctx, insertDiaryDay,
+		arg.AccountID,
+		arg.Date,
+		arg.AllTags,
+		arg.FeaturedTags,
+		arg.GuideQuestion,
+		arg.RulesetVersion,
+	)
+	return err
+}
+
+const listDiaries = `-- name: ListDiaries :many
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, d.created_at, d.updated_at
+FROM diaries d
+JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
+WHERE d.account_id = $1 AND d.deleted_at IS NULL
+  AND ($2::date IS NULL OR d.date >= $2::date)
+  AND ($3::date IS NULL OR d.date <= $3::date)
+  AND ($4::text IS NULL OR dd.all_tags @> ARRAY[$4::text])
+  AND ($5::date IS NULL
+       OR d.date < $5::date
+       OR (d.date = $5::date
+           AND (d.created_at, d.id) > ($6::timestamptz, $7::uuid)))
+ORDER BY d.date DESC, d.created_at ASC, d.id ASC
+LIMIT $8
 `
 
 type ListDiariesParams struct {
-	AccountID  uuid.UUID
-	FromDate   pgtype.Date
-	ToDate     pgtype.Date
-	Tag        pgtype.Text
-	BeforeDate pgtype.Date
-	RowLimit   int32
+	AccountID      uuid.UUID
+	FromDate       pgtype.Date
+	ToDate         pgtype.Date
+	Tag            pgtype.Text
+	AfterDate      pgtype.Date
+	AfterCreatedAt *time.Time
+	AfterID        uuid.NullUUID
+	RowLimit       int32
 }
 
 type ListDiariesRow struct {
@@ -89,14 +249,17 @@ type ListDiariesRow struct {
 	UpdatedAt      time.Time
 }
 
-// 날짜 역순입니다. 범위(from·to, 포함)·태그·keyset(before: 그 날짜보다 앞)은 NULL이면 걸지 않습니다.
+// 날짜 역순, 같은 날짜 안에서는 작성 순입니다. 범위(from·to, 포함)·태그·keyset(after_*: 그 항목 다음)은 NULL이면 걸지 않습니다.
+// after_date·after_created_at·after_id는 셋 다 넣거나 셋 다 NULL로 둡니다.
 func (q *Queries) ListDiaries(ctx context.Context, arg ListDiariesParams) ([]ListDiariesRow, error) {
 	rows, err := q.db.Query(ctx, listDiaries,
 		arg.AccountID,
 		arg.FromDate,
 		arg.ToDate,
 		arg.Tag,
-		arg.BeforeDate,
+		arg.AfterDate,
+		arg.AfterCreatedAt,
+		arg.AfterID,
 		arg.RowLimit,
 	)
 	if err != nil {
@@ -128,101 +291,74 @@ func (q *Queries) ListDiaries(ctx context.Context, arg ListDiariesParams) ([]Lis
 	return items, nil
 }
 
-const liveDiaryExists = `-- name: LiveDiaryExists :one
-SELECT EXISTS (
-    SELECT 1 FROM diaries WHERE account_id = $1 AND date = $2 AND deleted_at IS NULL
-)
+const lockDiaryDay = `-- name: LockDiaryDay :one
+SELECT 1
+FROM diary_days
+WHERE account_id = $1 AND date = $2
+FOR UPDATE
 `
 
-type LiveDiaryExistsParams struct {
+type LockDiaryDayParams struct {
 	AccountID uuid.UUID
 	Date      pgtype.Date
 }
 
-func (q *Queries) LiveDiaryExists(ctx context.Context, arg LiveDiaryExistsParams) (bool, error) {
-	row := q.db.QueryRow(ctx, liveDiaryExists, arg.AccountID, arg.Date)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const restoreLatestDeletedDiary = `-- name: RestoreLatestDeletedDiary :one
-UPDATE diaries SET deleted_at = NULL
-WHERE id = (
-    SELECT d.id FROM diaries d
-    WHERE d.account_id = $1 AND d.date = $2 AND d.deleted_at IS NOT NULL
-    AND d.content_purged_at IS NULL
-    ORDER BY d.deleted_at DESC, d.created_at DESC, d.id DESC
-    LIMIT 1
-)
-RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at
-`
-
-type RestoreLatestDeletedDiaryParams struct {
-	AccountID uuid.UUID
-	Date      pgtype.Date
-}
-
-type RestoreLatestDeletedDiaryRow struct {
-	ID             uuid.UUID
-	AccountID      uuid.UUID
-	Date           pgtype.Date
-	Body           string
-	AllTags        []string
-	FeaturedTags   []byte
-	GuideQuestion  []byte
-	RulesetVersion string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-}
-
-// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 내용을 이미 비운(content_purged_at) 행은 제외합니다. 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
-func (q *Queries) RestoreLatestDeletedDiary(ctx context.Context, arg RestoreLatestDeletedDiaryParams) (RestoreLatestDeletedDiaryRow, error) {
-	row := q.db.QueryRow(ctx, restoreLatestDeletedDiary, arg.AccountID, arg.Date)
-	var i RestoreLatestDeletedDiaryRow
-	err := row.Scan(
-		&i.ID,
-		&i.AccountID,
-		&i.Date,
-		&i.Body,
-		&i.AllTags,
-		&i.FeaturedTags,
-		&i.GuideQuestion,
-		&i.RulesetVersion,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+// 날짜 기록 행을 잠가 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+func (q *Queries) LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (int32, error) {
+	row := q.db.QueryRow(ctx, lockDiaryDay, arg.AccountID, arg.Date)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const softDeleteDiary = `-- name: SoftDeleteDiary :execrows
 UPDATE diaries SET deleted_at = now()
-WHERE account_id = $1 AND date = $2 AND deleted_at IS NULL
+WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL
 `
 
 type SoftDeleteDiaryParams struct {
+	ID        uuid.UUID
 	AccountID uuid.UUID
-	Date      pgtype.Date
 }
 
 func (q *Queries) SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams) (int64, error) {
-	result, err := q.db.Exec(ctx, softDeleteDiary, arg.AccountID, arg.Date)
+	result, err := q.db.Exec(ctx, softDeleteDiary, arg.ID, arg.AccountID)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected(), nil
 }
 
+const undeleteDiary = `-- name: UndeleteDiary :exec
+UPDATE diaries SET deleted_at = NULL
+WHERE id = $1 AND account_id = $2 AND deleted_at IS NOT NULL AND content_purged_at IS NULL
+`
+
+type UndeleteDiaryParams struct {
+	ID        uuid.UUID
+	AccountID uuid.UUID
+}
+
+func (q *Queries) UndeleteDiary(ctx context.Context, arg UndeleteDiaryParams) error {
+	_, err := q.db.Exec(ctx, undeleteDiary, arg.ID, arg.AccountID)
+	return err
+}
+
 const updateDiaryBody = `-- name: UpdateDiaryBody :one
-UPDATE diaries SET body = $1, updated_at = now()
-WHERE account_id = $2 AND date = $3 AND deleted_at IS NULL
-RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at
+WITH changed AS (
+    UPDATE diaries SET body = $1, updated_at = now()
+    WHERE diaries.id = $2 AND diaries.account_id = $3 AND diaries.deleted_at IS NULL
+    RETURNING id, account_id, date, body, created_at, updated_at
+)
+SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, u.created_at, u.updated_at
+FROM changed u
+JOIN diary_days dd ON (dd.account_id, dd.date) = (u.account_id, u.date)
 `
 
 type UpdateDiaryBodyParams struct {
 	Body      string
+	ID        uuid.UUID
 	AccountID uuid.UUID
-	Date      pgtype.Date
 }
 
 type UpdateDiaryBodyRow struct {
@@ -238,9 +374,9 @@ type UpdateDiaryBodyRow struct {
 	UpdatedAt      time.Time
 }
 
-// 살아 있는 일기의 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
+// 살아 있는 일기의 본문만 바꿉니다(날짜 기록은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 func (q *Queries) UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams) (UpdateDiaryBodyRow, error) {
-	row := q.db.QueryRow(ctx, updateDiaryBody, arg.Body, arg.AccountID, arg.Date)
+	row := q.db.QueryRow(ctx, updateDiaryBody, arg.Body, arg.ID, arg.AccountID)
 	var i UpdateDiaryBodyRow
 	err := row.Scan(
 		&i.ID,
@@ -253,72 +389,6 @@ func (q *Queries) UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams
 		&i.RulesetVersion,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const upsertDiary = `-- name: UpsertDiary :one
-
-INSERT INTO diaries (id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-ON CONFLICT (account_id, date) WHERE deleted_at IS NULL
-DO UPDATE SET body = EXCLUDED.body, updated_at = now()
-RETURNING id, account_id, date, body, all_tags, featured_tags, guide_question, ruleset_version, created_at, updated_at,
-          (xmax = 0) AS created
-`
-
-type UpsertDiaryParams struct {
-	ID             uuid.UUID
-	AccountID      uuid.UUID
-	Date           pgtype.Date
-	Body           string
-	AllTags        []string
-	FeaturedTags   []byte
-	GuideQuestion  []byte
-	RulesetVersion string
-}
-
-type UpsertDiaryRow struct {
-	ID             uuid.UUID
-	AccountID      uuid.UUID
-	Date           pgtype.Date
-	Body           string
-	AllTags        []string
-	FeaturedTags   []byte
-	GuideQuestion  []byte
-	RulesetVersion string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	Created        bool
-}
-
-// 일기 쿼리입니다. 조회는 모두 살아 있는 행(deleted_at IS NULL)만 봅니다.
-// 그날 일기가 없으면 만들고, 있으면 본문만 바꿉니다(태그·질문·규칙 버전·created_at은 처음 값을 유지합니다).
-// 동시 요청도 partial unique 인덱스가 하나의 행으로 모읍니다. created는 새 행일 때만 true입니다.
-func (q *Queries) UpsertDiary(ctx context.Context, arg UpsertDiaryParams) (UpsertDiaryRow, error) {
-	row := q.db.QueryRow(ctx, upsertDiary,
-		arg.ID,
-		arg.AccountID,
-		arg.Date,
-		arg.Body,
-		arg.AllTags,
-		arg.FeaturedTags,
-		arg.GuideQuestion,
-		arg.RulesetVersion,
-	)
-	var i UpsertDiaryRow
-	err := row.Scan(
-		&i.ID,
-		&i.AccountID,
-		&i.Date,
-		&i.Body,
-		&i.AllTags,
-		&i.FeaturedTags,
-		&i.GuideQuestion,
-		&i.RulesetVersion,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Created,
 	)
 	return i, err
 }

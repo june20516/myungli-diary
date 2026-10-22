@@ -428,8 +428,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_7():
-    assert VERSION == "2.7.0"
+def test_contract_version_is_2_8():
+    assert VERSION == "2.8.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -747,10 +747,8 @@ def test_evidence_sheet_stacks_many_items_and_hanja_font():
 
 
 def test_day_sheet_diary_entrances():
-    navigate = next(v for v in component("sentence", "depth-link")["variants"] if v["id"] == "navigate")
-    assert navigate["parts"]["label"]["daySheetSlot"] == "day-sheet.diary.open"
     calendar_md = (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
-    assert "`day-sheet.diary.write-cta`" in calendar_md and "V37" in calendar_md
+    assert "`day-sheet.diary.write-cta`" in calendar_md and "V42" in calendar_md
 
 
 # 규칙 정합성 점검 #284 (D78): MD "쓰는 화면"은 IA components와 같다
@@ -868,3 +866,98 @@ def test_account_merge_layout_keeps_emphasis_on_confirm():
     assert "`account-merge.overlap.notice`" in section and "`mark.caution`을 쓰지 않" in section
     assert "`account-merge.merge.confirm`" in section and "`destructive`" in section
     assert "`ui.account-merge.error`" in section and "`notice`" in section
+
+
+# 같은 날 여러 편 (2026-10-22-diary-row-multi-design.md §2·§3, 결정 V42)
+def test_diary_row_same_day_entries():
+    row = component("diary", "diary-row")
+    assert [variant["id"] for variant in row["variants"]] == ["day", "entries"]
+    entry = row["parts"]["entry"]
+    assert entry["divider"] == {"style": "dashed", "width": {"value": 1, "unit": "px"},
+                                "dash": {"value": 4, "unit": "px"}, "gap": {"value": 3, "unit": "px"},
+                                "color": "{color.timeline.entry}", "between": "entries-only",
+                                "span": "row", "inMinHeight": True}
+    assert entry["preview"]["maxLines"] == 1 and entry["preview"]["emptyKeepsLineHeight"] is True
+    assert entry["time"]["fontFeatures"] == ["tnum"] and entry["time"]["source"] == "createdAt"
+    assert entry["time"]["wrap"] is False
+    assert entry["minHeight"] == {"value": 48, "unit": "px"}
+    variants = {variant["id"]: variant for variant in row["variants"]}
+    group = variants["day"]["parts"]["group"]
+    assert group["pressable"] is False and group["order"] == ["badge", "entries", "tag"]
+    for part in ("dateColumn", "badge", "tag"):
+        assert variants["entries"]["parts"][part]["visible"] is False
+    assert any("server 순서" in rule for rule in row["rules"])
+
+
+def test_diary_row_single_entry_day_is_unchanged():
+    row = component("diary", "diary-row")
+    assert row["parts"]["card"]["padding"] == "{space.16}"
+    assert row["parts"]["preview"] == {"component": "sentence-block", "variant": "preview", "marginTop": "{space.8}"}
+    assert row["a11y"]["label"] == "날짜 요일, 배지, 미리보기 첫 줄, 태그"
+
+
+# 상한을 채운 날의 쓰는 입구 (2026-10-22-diary-row-multi-design.md §4, 결정 V43)
+def test_full_day_entrances():
+    card = component("today", "guide-question-card")
+    full = card["states"]["full"]
+    assert full["parts"]["action"] == {"component": "primary-button", "variant": "quiet", "state": "disabled", "align": "center"}
+    assert full["parts"]["seal"] == card["states"]["after"]["parts"]["seal"]
+    assert full["parts"]["question"]["fg"] == "{color.text.secondary}"
+    assert full["labelKey"] == "todayGuideCtaFull"
+    assert "더 쓸 수 없음" in card["a11y"]["stateAnnounced"]
+    calendar = next(v for v in component("input", "date-picker")["variants"] if v["id"] == "calendar")
+    assert calendar["parts"]["bottomAction"]["whenFull"] == {"state": "disabled", "labelKey": "diaryListPickDateConfirmFull"}
+
+
+def test_written_day_entrances_open_a_new_diary():
+    assert "쓴 일기 보기" not in json.dumps(component("action", "primary-button"), ensure_ascii=False)
+    assert "쓴 일기 보기" not in (COMPONENTS_DIR / "today.md").read_text(encoding="utf-8")
+
+
+# writing #441 키 이름 (2.7.0 spec §7.2, writing PR #436)
+def test_d82_writing_keys_are_named():
+    connected = component("action", "social-login-button")["states"]["connected"]["parts"]["state"]
+    assert connected["slot"] == "ui.login-methods.row" and connected["key"] == "loginMethodsRowConnected"
+    providers = component("input", "account-choice")["parts"]["providers"]
+    assert providers["join"] == {"slot": "ui.account-merge.choice", "key": "accountChoiceProviderSeparator"}
+
+
+# 최종 리뷰 반영 (#410): 그날 시트 일기 머리, 변형 덮어쓰기, 묶음 카드 a11y
+def test_day_sheet_diary_head_is_not_a_link():
+    navigate = next(v for v in component("sentence", "depth-link")["variants"] if v["id"] == "navigate")
+    assert "daySheetSlot" not in navigate["parts"]["label"] and "그날 일기" not in navigate["when"]
+    entries = next(v for v in component("diary", "diary-row")["variants"] if v["id"] == "entries")
+    assert entries["parts"]["head"] == {"screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}",
+                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}"}
+    for name in ("calendar.md", "sentence.md"):
+        text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
+        assert "이날 일기 보기" not in text and "둘 중 하나만" not in text, name
+
+
+def test_diary_row_variant_overrides_are_explicit():
+    variants = {v["id"]: v for v in component("diary", "diary-row")["variants"]}
+    entries = variants["entries"]["parts"]
+    for part in ("card", "preview", "rail", "number", "seal", "weekday"):
+        assert entries[part]["visible"] is False, part
+    assert entries["container"] == {
+        "byScreen": {"today": {"bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}",
+                               "paddingY": "{space.4}", "marginTop": "{space.12}"}, "day-sheet": "none"},
+        "whenEmpty": "그리지 않음"}
+    group = variants["day"]["parts"]["group"]
+    assert group["preview"] == {"visible": False} and group["tag"] == {"marginTop": "{space.8}"}
+    assert "tagMarginTop" not in group
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "visible: false" in readme and "덮어" in readme
+
+
+def test_diary_row_group_a11y_replaces_button_role():
+    row = component("diary", "diary-row")
+    assert "두 편 이상" in row["a11y"]["group"]["when"] and row["a11y"]["group"]["role"] == "group"
+    assert row["a11y"]["entry"]["role"] == "button" and "entries" in row["a11y"]["entry"]["when"]
+    assert "시각만" in row["a11y"]["entry"]["emptyPreview"]
+    assert row["parts"]["entry"]["divider"]["span"] == "row"
+
+
+def test_manuscript_text_is_not_copied_into_design_docs():
+    for name in ("today.md", "elements.md"):
+        assert "새 일기 쓰기" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
