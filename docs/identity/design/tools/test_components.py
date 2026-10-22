@@ -498,7 +498,7 @@ def test_evidence_sheet_section_titles_and_slots():
 # 최종 리뷰 반영 (term-segments spec §2.1·§2.6)
 SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
-SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row"}
+SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
 
 
 def _slot_values(node):
@@ -723,6 +723,8 @@ def test_event_row_has_no_duration_and_reads_more():
 def test_day_cell_leap_month_and_height_rule():
     cell = component("calendar", "day-cell")
     assert "leapNewMoon" in cell["parts"]["lunar"]
+    assert cell["parts"]["lunar"]["leapNewMoon"] == {"slot": "ui.day-cell.lunar", "key": "dayCellLeapNewMoon",
+                                                      "text": "윤달 표지 + M.1 (예: 윤6.1)"}
     assert "dayCellLeapMonth" in cell["a11y"]["leapMonth"]
     assert any("최소 높이" in rule and "V36" in rule for rule in cell["rules"])
     assert not any("칸 높이를 늘린다" in rule for rule in cell["rules"])
