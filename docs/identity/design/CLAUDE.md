@@ -31,12 +31,13 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-10-22, design 세션 작성)
-* **로그인 수단·계정 합치기 #389** (브랜치 `design/account-choice`, D82·D83, 컴포넌트 계약 2.7.0, drift #395).
+* **영문 ja 로그인 라벨 상한 #446** (브랜치 `design/login-label-ja`): `lengths.py` `KEY_LIMITS`(키별 상한 표)로 `ui.login.provider` ja `loginKakaoLabel`(영문 "Login with Kakao", #143)은 en 상한. IA가 `login-methods`에서 `settings-row`를 빼(PR #442) `USED_ON_EXCEPTIONS`를 지움. app #311에 2.7.0 요약을 남김.
+* **로그인 수단·계정 합치기 #389** (PR #439 병합, D82·D83, 컴포넌트 계약 2.7.0, drift #395).
   * `social-login-button`: `line`·`google` 변형(각 사 가이드 값), 언어별 순서 `parts.stack.order`(맨 위만 ko 카카오·ja LINE·en Google), 상태 `connected`(중립 줄 + "연결됨", 마지막 하나는 누를 수 없음, 결정 V39). login-methods 화면 배치는 `action.md`.
   * `account-choice`(새 컴포넌트, `input`): 처음엔 고르지 않음(`none`), 카드에 호칭·"현재 계정"·사주 요약(`ui.account-merge.saju`)·일기 수·수단 이름(로고 없음). account-merge 배치는 `input.md`: 겹치는 날 안내는 경고 표시 없는 안심 안내, 강조는 최종 확인 `dialog` `destructive` 한 곳(V40).
   * `dialog`: 버튼 두 개짜리 확인 창의 첫 초점 규칙을 지움, `destructive`의 뒤로 가기는 취소(V41, #354 ②의 답).
   * `day-cell` 윤달 표지 슬롯 `ui.day-cell.lunar`(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83, 모양은 #410).
-  * 글자 수 상한 11행, 윤달 표지는 상한 없음(폭 44px로 확인), `ui.login.provider`는 가운데 정렬 232px로 다시 잼(`lengths.md` 2.7.0). #419 원고 중 확인 창 제목 키·ja 알약이 상한을 넘어 writing에 줄이기 요청. IA `login-methods`의 `settings-row`는 테스트 예외(`USED_ON_EXCEPTIONS`, 지휘에 IA 수정 요청).
+  * 글자 수 상한 11행, 윤달 표지는 상한 없음(폭 44px로 확인), `ui.login.provider`는 가운데 정렬 232px로 다시 잼(`lengths.md` 2.7.0). #419 원고 중 확인 창 제목 키·ja 알약이 상한을 넘어 writing에 줄이기 요청. IA `login-methods`의 `settings-row`는 지휘가 PR #442로 뺌(#440).
   * 근거: [spec](specs/2026-10-22-login-methods-account-merge-design.md), 결정 V39~V41, 시안 `design-v2-login-methods`·`design-v2-account-merge`.
 * **검사 범위 정리 #362** (PR #371 병합, D81): `design.yml` `mode`(`own` 전체, `drift`·`gate`는 계약 검사만), 측정 글꼴 CI 받기·캐시, D79 기본 깊이 행 삭제.
 * **규칙 정합성 점검 #284** (브랜치 `design/rules-audit`, D78).
@@ -92,14 +93,12 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-0. **#389 PR 병합 뒤:** app #311(계획 7)에 2.7.0 요약을 코멘트로 남깁니다. 첫 초점 삭제(V41)는 기존 삭제 확인 창에도 걸린다고 함께 알립니다.
-1. **#410 diary-row 같은 날 여러 편:** 오늘 화면·날짜 시트의 작성 순 표시(시각, 한 줄 미리보기), diary-list 날짜 묶음. 10편을 채운 날 쓰는 입구(D83 ②, app #424·writing #425)가 `primary-button` `disabled`로 되는지 함께 봅니다.
-2. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리.
-3. 지휘가 IA `login-methods`에서 `settings-row`를 빼면 `USED_ON_EXCEPTIONS`를 지웁니다.
-4. writing이 spec §7.2 키("연결됨", `ui.account-merge.saju`, 수단 구분자, "현재 계정")를 더하면 `account-choice`·`connected`의 키 이름을 맞춥니다.
+0. **#410 diary-row 같은 날 여러 편:** 오늘 화면·날짜 시트의 작성 순 표시(시각, 한 줄 미리보기), diary-list 날짜 묶음. 10편을 채운 날 쓰는 입구(D83 ②, app #424·writing #425)가 `primary-button` `disabled`로 되는지 함께 봅니다.
+1. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리.
+2. writing이 spec §7.2 키("연결됨", `ui.account-merge.saju`, 수단 구분자, "현재 계정")를 더하면(#441) `account-choice`·`connected`의 키 이름을 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-5. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
-6. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-7. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-8. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+3. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
+4. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+5. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+6. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
