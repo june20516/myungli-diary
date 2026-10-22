@@ -209,6 +209,60 @@ func (q *Queries) InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedA
 	return err
 }
 
+const listAccountPurchases = `-- name: ListAccountPurchases :many
+SELECT p.id, p.product_id, p.purchased_at, p.refunded_at,
+       g.starts_at AS segment_starts_at, g.expires_at AS segment_expires_at, g.revoked_at AS segment_revoked_at
+FROM purchases p
+LEFT JOIN entitlement_grants g
+       ON g.source_ref = p.id
+      AND g.account_id = $1
+      AND g.entitlement = 'ad_free'
+      AND g.source = 'ad_free_pass'
+WHERE p.account_id = $1
+ORDER BY p.purchased_at DESC, p.id
+`
+
+type ListAccountPurchasesRow struct {
+	ID               string
+	ProductID        string
+	PurchasedAt      time.Time
+	RefundedAt       *time.Time
+	SegmentStartsAt  *time.Time
+	SegmentExpiresAt *time.Time
+	SegmentRevokedAt *time.Time
+}
+
+// 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
+// 한 구매의 권한 행은 같은 구간이라 ad_free 행 하나만 봅니다. 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
+// 구간이 없는 구매(목록 밖 상품, 시작 전 환불로 구간이 없던 구매)는 구간 열이 NULL입니다.
+func (q *Queries) ListAccountPurchases(ctx context.Context, accountID uuid.UUID) ([]ListAccountPurchasesRow, error) {
+	rows, err := q.db.Query(ctx, listAccountPurchases, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAccountPurchasesRow
+	for rows.Next() {
+		var i ListAccountPurchasesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductID,
+			&i.PurchasedAt,
+			&i.RefundedAt,
+			&i.SegmentStartsAt,
+			&i.SegmentExpiresAt,
+			&i.SegmentRevokedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLiveGrants = `-- name: ListLiveGrants :many
 
 SELECT entitlement, source, starts_at, expires_at

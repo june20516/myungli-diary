@@ -42,6 +42,31 @@ func toEntitlements(s billing.Status) gen.Entitlements {
 	return out
 }
 
+// ListPurchases는 계정이 주인인 구매를 최근 구매 먼저 돌려줍니다(S109).
+// 구매 장부 조회(Ledger)가 없으면 503 service.unavailable입니다.
+func (a *API) ListPurchases(ctx context.Context, _ gen.ListPurchasesRequestObject) (gen.ListPurchasesResponseObject, error) {
+	id, _, ok := AccountFrom(ctx)
+	if !ok {
+		return nil, errNoAccount
+	}
+	if a.Ledger == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+	}
+	purchases, err := a.Ledger.Purchases(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	items := make([]gen.Purchase, 0, len(purchases))
+	for _, p := range purchases {
+		item := gen.Purchase{ProductId: p.ProductID, PurchasedAt: p.PurchasedAt, Status: gen.PurchaseStatus(p.Status)}
+		if p.Period != nil {
+			item.Period = &gen.PurchasePeriod{StartsAt: p.Period.StartsAt, EndsAt: p.Period.EndsAt}
+		}
+		items = append(items, item)
+	}
+	return gen.ListPurchases200JSONResponse{Items: items}, nil
+}
+
 // RestorePurchases는 RevenueCat 구매 목록으로 광고 제거권을 다시 계산하고 권한 상태를 돌려줍니다.
 // 결제 설정이 없거나(Purchases가 비어 있음, P7-16) RevenueCat 장애면 503 billing.provider_unavailable입니다. 그 밖의 오류는 500입니다.
 func (a *API) RestorePurchases(ctx context.Context, _ gen.RestorePurchasesRequestObject) (gen.RestorePurchasesResponseObject, error) {

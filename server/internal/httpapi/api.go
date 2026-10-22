@@ -95,6 +95,13 @@ type EntitlementService interface {
 
 var _ EntitlementService = (*billing.Store)(nil)
 
+// PurchaseLister는 listPurchases가 쓰는 구매 장부 조회입니다. *billing.Store가 만족합니다.
+type PurchaseLister interface {
+	Purchases(ctx context.Context, accountID uuid.UUID) ([]billing.PurchaseItem, error)
+}
+
+var _ PurchaseLister = (*billing.Store)(nil)
+
 // PurchaseRestorer는 restorePurchases가 쓰는 구매 복원입니다. *billing.Syncer가 만족합니다.
 type PurchaseRestorer interface {
 	Restore(ctx context.Context, accountID uuid.UUID) (billing.Status, error)
@@ -171,6 +178,8 @@ type API struct {
 	Contents Contents
 	// Entitlements는 권한 판정입니다. 비어 있으면 getMe·getEntitlements는 503 service.unavailable입니다.
 	Entitlements EntitlementService
+	// Ledger는 구매 목록(listPurchases)입니다. 비어 있으면 503 service.unavailable입니다.
+	Ledger PurchaseLister
 	// Purchases는 구매 복원입니다. 비어 있으면(결제 설정 없음) restorePurchases는 503 billing.provider_unavailable입니다(P7-16).
 	Purchases PurchaseRestorer
 	// Webhooks는 RevenueCat webhook 처리입니다. 비어 있으면(결제 설정 없음) revenuecatWebhook은 500이고 Error 로그를 남깁니다(P7-16).

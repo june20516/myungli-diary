@@ -68,6 +68,7 @@ func wireBillingReadings(t *testing.T, deps *serverDeps, service *fortune.Servic
 	deps.Contents = contents
 	store := billing.NewStore(deps.Pool, deps.Clock)
 	deps.Entitlements = store
+	deps.Ledger = store
 	deps.Readings = newReadings(contents, service, store, deps.Logger, deps.Clock)
 	code, _, stderr := runCLIWithEnv(t, map[string]string{"DATABASE_URL": deps.Pool.Config().ConnString()}, "seed")
 	require.Equal(t, 0, code, "seed stderr: %s", stderr)
@@ -270,6 +271,33 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 
 		assert.Equal(t, true, adFreeOf(access)["active"])
 		assert.True(t, chartUnlocked(access), "광고 제거권 기간의 insight가 근거를 엽니다")
+	})
+
+	t.Run("restorePurchases 뒤 listPurchases는 구매를 최근 먼저 보여 준다", func(t *testing.T) {
+		access, accountID := env.signUp("billing-flow-list")
+		empty := env.do(http.MethodGet, "/v1/me/purchases", access, nil)
+		require.Equal(t, http.StatusOK, empty.status, "목록 본문: %v", empty.body)
+		assert.Equal(t, []any{}, empty.body["items"])
+
+		revenueCat.add(accountID, "purchase-list-old", purchasedAt)
+		revenueCat.add(accountID, "purchase-list-new", purchasedAt.Add(time.Hour))
+		restored := env.do(http.MethodPost, "/v1/billing/restore", access, nil)
+		require.Equal(t, http.StatusOK, restored.status, "복원 본문: %v", restored.body)
+
+		listed := env.do(http.MethodGet, "/v1/me/purchases", access, nil)
+		require.Equal(t, http.StatusOK, listed.status, "목록 본문: %v", listed.body)
+		items, _ := listed.body["items"].([]any)
+		require.Len(t, items, 2)
+		newer, _ := items[0].(map[string]any)
+		older, _ := items[1].(map[string]any)
+		assert.Equal(t, flowProductID, newer["productId"])
+		assert.Equal(t, "active", older["status"], "먼저 산 구매가 사용 중입니다")
+		assert.Equal(t, "pending", newer["status"], "나중 구매는 앞 구간 뒤에 대기합니다")
+		assert.Contains(t, older, "period")
+		assert.Contains(t, newer, "period")
+		assert.Greater(t, newer["purchasedAt"], older["purchasedAt"], "ISO 8601 UTC 문자열은 시각 순으로 비교됩니다")
+
+		env.do(http.MethodGet, "/v1/me/purchases", "", nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 	})
 
 	t.Run("다른 계정의 restorePurchases는 구매 주인을 옮기지 않는다", func(t *testing.T) {

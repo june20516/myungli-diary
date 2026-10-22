@@ -170,6 +170,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Days:         readings,
 		Contents:     contents,
 		Entitlements: entitlements,
+		Ledger:       entitlements,
 		Billing:      billingParts,
 		Logger:       logger,
 		Clock:        clock.System{},
@@ -378,6 +379,8 @@ type serverDeps struct {
 	Contents httpapi.Contents
 	// Entitlements는 getMe·getEntitlements가 쓰는 권한 판정입니다(billing.Store). 비어 있으면 getMe·getEntitlements는 503입니다.
 	Entitlements httpapi.EntitlementService
+	// Ledger는 listPurchases가 쓰는 구매 장부 조회입니다(billing.Store). 비어 있으면 listPurchases는 503입니다.
+	Ledger httpapi.PurchaseLister
 	// Billing은 구매 복원·RevenueCat webhook·보상형 광고 콜백의 의존성입니다. 필드가 비면 그 operation은 각자 정한 오류로 답합니다.
 	Billing billingParts
 	// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다(fortune.Views). 비어 있으면 일기 operation은 503입니다.
@@ -573,6 +576,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		api.Diaries = diary.NewService(diary.NewStore(deps.Pool), deps.Days, deps.Clock)
 	}
 	api.Entitlements = deps.Entitlements
+	api.Ledger = deps.Ledger
 	api.Purchases = deps.Billing.Purchases
 	api.Webhooks = deps.Billing.Webhooks
 	api.RewardVerifier = deps.Billing.RewardVerifier

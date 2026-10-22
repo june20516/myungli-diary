@@ -29,6 +29,10 @@ type Querier interface {
 	InsertRewardEvent(ctx context.Context, arg InsertRewardEventParams) (int64, error)
 	// 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
 	InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedAdGrantParams) error
+	// 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
+	// 한 구매의 권한 행은 같은 구간이라 ad_free 행 하나만 봅니다. 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
+	// 구간이 없는 구매(목록 밖 상품, 시작 전 환불로 구간이 없던 구매)는 구간 열이 NULL입니다.
+	ListAccountPurchases(ctx context.Context, accountID uuid.UUID) ([]ListAccountPurchasesRow, error)
 	// 권한 기록 쿼리입니다. 판정은 이 쿼리가 돌려준 유효한 행으로 계산합니다(spec §3.3).
 	// 계정의 취소되지 않았고 아직 만료되지 않은 권한 행입니다. 시작 전인 행도 포함하므로 호출한 쪽이 starts_at을 봅니다.
 	// 순서는 (expires_at, id) 오름차순으로 고정합니다.

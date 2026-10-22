@@ -80,6 +80,21 @@ WHERE g.account_id = @account_id
   AND g.revoked_at IS NULL
 ORDER BY g.entitlement, p.purchased_at, p.id;
 
+-- name: ListAccountPurchases :many
+-- 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
+-- 한 구매의 권한 행은 같은 구간이라 ad_free 행 하나만 봅니다. 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
+-- 구간이 없는 구매(목록 밖 상품, 시작 전 환불로 구간이 없던 구매)는 구간 열이 NULL입니다.
+SELECT p.id, p.product_id, p.purchased_at, p.refunded_at,
+       g.starts_at AS segment_starts_at, g.expires_at AS segment_expires_at, g.revoked_at AS segment_revoked_at
+FROM purchases p
+LEFT JOIN entitlement_grants g
+       ON g.source_ref = p.id
+      AND g.account_id = @account_id
+      AND g.entitlement = 'ad_free'
+      AND g.source = 'ad_free_pass'
+WHERE p.account_id = @account_id
+ORDER BY p.purchased_at DESC, p.id;
+
 -- name: SetGrantPeriod :exec
 -- 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간). 취소된 구간은 옮기지 않습니다.
 UPDATE entitlement_grants
