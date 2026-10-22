@@ -116,8 +116,9 @@ TARGETS = (
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 28 - 2 * 24 - 15, 2, False, None),
     Target(("ui.action.button",) + DIALOG_SLOTS, "dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 버튼 사이 8)",
            "ui-600", 14, -0.28, (SCREEN_WIDTH - 2 * 28 - 2 * 24 - 8) / 2, 1, False, None),
-    Target(("ui.login.provider",), "social-login-button 글자 (좌우 16, 로고 20 + 간격 8)",
-           "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 20 - 8, 1, False, None),
+    # 2.7.0: 로고는 왼쪽 16에 고정하고 글자는 가운데라 양쪽에 로고 자리(16 + 20 + 8)를 비움 (#389)
+    Target(("ui.login.provider",), "social-login-button 글자 (가운데 정렬, 양쪽 16 + 로고 20 + 간격 8)",
+           "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * (16 + 20 + 8), 1, False, None),
     # D77 IA 자리 login.error.body = ui.login.error, event-edit.save.failed·diary-view.deleted.toast (W33)
     Target(("ui.error.client", "ui.error.code", "ui.login.error", "ui.app.trace", "evidence-sheet.unlock.failed",
             "diary-edit.saved.tags", "ui.event-edit.save-failed", "ui.diary-view.deleted"),
@@ -177,9 +178,6 @@ TARGETS = (
            "ui-500", 11, -0.22, (CONTENT_WIDTH - 2 * 16 - 32) / 2 - 2 * 8 - 2, 1, False, None),
     Target(("ui.account-merge.saju",), "account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None),
-    # 윤달 초하루 표지 (#260, writing W33)
-    Target(("ui.day-cell.lunar",), "day-cell lunar 줄 윤달 초하루 (칸 폭 44px, type.caption.sm 500)",
-           "ui-500", 10.5, -0.22, (CONTENT_WIDTH - 2 * 6) / 7, 1, False, None),
 )
 
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
@@ -213,6 +211,8 @@ NO_LIMIT = {
     # D82 확인 창(dialog notice)으로 보이는 실패 안내 (#389)
     "login-methods.error.body": "확인 창 본문(창이 늘어남)",
     "ui.account-merge.error": "확인 창 본문(창이 늘어남)",
+    # 숫자가 섞인 고정 형식이라 글자 수가 폭을 대신하지 못함. 폭 44px로 확인: ko 윤12.1 26.4px (#260)
+    "ui.day-cell.lunar": "day-cell 윤달 표지(형식 고정, 글자 수 대신 칸 폭 44px로 확인)",
 }
 
 

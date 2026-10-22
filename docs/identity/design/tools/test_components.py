@@ -793,7 +793,9 @@ def test_md_used_on_matches_ia_components():
 
 def test_account_choice_starts_unselected():
     choice = component("input", "account-choice")
-    assert set(choice["states"]) == {"none", "selected", "pressed", "loading"}
+    assert set(choice["states"]) == {"none", "selected", "pressed", "loading", "disabled"}
+    assert "합치는 중" in choice["states"]["disabled"]["note"]
+    assert any("합치는 중에는 고름을 잠근다" in rule for rule in choice["rules"])
     assert choice["states"]["selected"]["parts"]["card"]["border"] == {"color": "{color.action.primary}", "width": {"value": 2, "unit": "px"}}
     assert choice["states"]["loading"]["pattern"] == "loading.breathe"
     assert any("처음부터 어느 쪽도 골라 두지 않는다" in rule for rule in choice["rules"])
@@ -807,6 +809,7 @@ def test_account_choice_card_lines():
     assert parts["current"]["radius"] == "{radius.full}" and parts["current"]["slot"] == "ui.account-merge.choice"
     assert parts["saju"]["slot"] == "ui.account-merge.saju"
     assert parts["providers"]["logo"] is False
+    assert parts["facts"]["wrap"] is True and parts["providers"]["overflow"] == "wrap"
     assert parts["mark"]["radius"] == "{radius.full}"
 
 
@@ -827,6 +830,9 @@ def test_social_login_provider_guides():
     assert google["container"]["lightMode"] == {"bg": "#FFFFFF", "border": "#747775", "fg": "#1F1F1F"}
     assert google["container"]["darkMode"] == {"bg": "#131314", "border": "#8E918F", "fg": "#E3E3E3"}
     assert google["label"]["fontFamily"] == "Google Sans Medium"
+    assert google["label"]["fontFallback"] == "platform-system"
+    assert google["logo"]["backdrop"] == "theme-background"
+    assert line["separator"]["source"] == "provider-official-asset"
 
 
 def test_social_login_connected_is_neutral():
@@ -835,7 +841,16 @@ def test_social_login_connected_is_neutral():
     assert parts["container"]["bg"] == "{color.bg.sheet}"
     assert parts["container"]["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}}
     assert parts["state"]["fg"] == "{color.action.primary}" and parts["state"]["icon"] == "check"
-    assert parts["logo"]["googleBackdrop"] == "white-circle"
+    assert parts["logo"]["badge"] == {
+        "size": {"value": 20, "unit": "px"}, "symbolSize": {"value": 14, "unit": "px"},
+        "kakao": {"bg": "#FEE500", "symbol": "#000000", "shape": "{radius.xs}"},
+        "line": {"bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}"},
+        "google": {"bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}"},
+        "apple": {"lightMode": {"bg": "#000000", "symbol": "#FFFFFF"}, "darkMode": {"bg": "#FFFFFF", "symbol": "#000000"},
+                  "shape": "{radius.xs}"},
+    }
+    assert parts["state"]["gap"] == "{space.4}"
+    assert "loading" in connected and "disabled" in connected
     assert connected["lastOne"]["pressable"] is False and connected["lastOne"]["noticeSlot"] == "login-methods.last.notice"
     assert connected["onPress"] == {"component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm"}
 

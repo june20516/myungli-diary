@@ -55,7 +55,6 @@ ISSUE_389 = {
     "account-merge.title.head", "account-merge.title.body", "account-merge.choice.label",
     "account-merge.overlap.notice", "account-merge.cta.merge", "account-merge.cta.cancel", "account-merge.merge.confirm",
     "ui.login-methods.row", "ui.account-merge.choice", "ui.account-merge.saju", "ui.settings.login-methods",
-    "ui.day-cell.lunar",
 }
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
@@ -184,7 +183,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
         "term.meaning", "ui.app.bootstrap", "system.apple_return", "ui.guide.a11y", "login.discard.notice",
-        "ui.depth.explain", "login-methods.error.body", "ui.account-merge.error",
+        "ui.depth.explain", "login-methods.error.body", "ui.account-merge.error", "ui.day-cell.lunar",
     }
     assert not set(lengths.NO_LIMIT) & slots
 
@@ -250,4 +249,5 @@ def test_d82_ia_slots_are_measured():
     assert ia_slots <= measured | set(lengths.NO_LIMIT)
     places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
     assert places["account-merge.cta.merge"].startswith("primary-button")
-    assert places["ui.day-cell.lunar"].startswith("day-cell")
+    assert "44px" in lengths.NO_LIMIT["ui.day-cell.lunar"]
+    assert next(t for t in lengths.TARGETS if "ui.login.provider" in t.slots).width == 232

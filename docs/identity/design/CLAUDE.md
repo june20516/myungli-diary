@@ -36,7 +36,7 @@
   * `account-choice`(새 컴포넌트, `input`): 처음엔 고르지 않음(`none`), 카드에 호칭·"현재 계정"·사주 요약(`ui.account-merge.saju`)·일기 수·수단 이름(로고 없음). account-merge 배치는 `input.md`: 겹치는 날 안내는 경고 표시 없는 안심 안내, 강조는 최종 확인 `dialog` `destructive` 한 곳(V40).
   * `dialog`: 버튼 두 개짜리 확인 창의 첫 초점 규칙을 지움, `destructive`의 뒤로 가기는 취소(V41, #354 ②의 답).
   * `day-cell` 윤달 표지 슬롯 `ui.day-cell.lunar`(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83, 모양은 #410).
-  * 글자 수 상한 12행(`lengths.md` 2.7.0). IA `login-methods`의 `settings-row`는 테스트 예외(`USED_ON_EXCEPTIONS`, 지휘에 IA 수정 요청).
+  * 글자 수 상한 11행, 윤달 표지는 상한 없음(폭 44px로 확인), `ui.login.provider`는 가운데 정렬 232px로 다시 잼(`lengths.md` 2.7.0). #419 원고 중 확인 창 제목 키·ja 알약이 상한을 넘어 writing에 줄이기 요청. IA `login-methods`의 `settings-row`는 테스트 예외(`USED_ON_EXCEPTIONS`, 지휘에 IA 수정 요청).
   * 근거: [spec](specs/2026-10-22-login-methods-account-merge-design.md), 결정 V39~V41, 시안 `design-v2-login-methods`·`design-v2-account-merge`.
 * **검사 범위 정리 #362** (PR #371 병합, D81): `design.yml` `mode`(`own` 전체, `drift`·`gate`는 계약 검사만), 측정 글꼴 CI 받기·캐시, D79 기본 깊이 행 삭제.
 * **규칙 정합성 점검 #284** (브랜치 `design/rules-audit`, D78).

@@ -3,7 +3,7 @@
 컴포넌트 계약 2.7.0 · 토큰 계약 1.1.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), 결정 V13~V38([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v3([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), [로그인 수단·계정 합치기 spec](../specs/2026-10-22-login-methods-account-merge-design.md), 결정 V13~V41([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v4([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
 * 명세는 특정 위젯 라이브러리에 묶이지 않습니다. Material 대응은 각 `.md`에 참고 힌트로만 적습니다.
 * 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
 
@@ -48,7 +48,7 @@
 | `diary.json` | diary-row, diary-editor, draft-indicator, tag-chip |
 | `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table |
 
-IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
+IA 컴포넌트 42개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
 
 ## 공통 규칙
 
@@ -93,7 +93,7 @@ python3 docs/identity/design/tools/components.py     # 저장소 루트에서
 
 검사하는 것(`tools/test_components.py`가 커밋된 파일에 돌림):
 
-* IA 컴포넌트 41개 id가 정확히 한 번(빠짐·넘침·겹침)
+* IA 컴포넌트 42개 id가 정확히 한 번(빠짐·넘침·겹침)
 * 구성 요소가 가리키는 `component`(IA 컴포넌트)·`element`(요소)가 있음, 변형 id 겹침 없음, 햅틱 세기는 selection·light·medium
 * 문자열 중간에 섞인 `{토큰}` 없음(값 하나에 참조 하나)
 * 모든 `{토큰}` 참조가 테마 조합 4가지 모두에 있음(깊이와 관계없이)

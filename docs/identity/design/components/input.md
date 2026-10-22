@@ -68,10 +68,11 @@
 
 * 쓰는 화면: account-merge
 * 합칠 두 계정 가운데 남길 쪽을 고르는 카드 두 장입니다(D82 ⑥, 결정 V40). 카드 사이 `space.12`, 카드는 `bg.sheet`·`radius.md`·안쪽 `space.16`·줄 사이 `space.8`입니다.
-* 카드 안 줄(위에서 아래): ① 호칭(`type.subtitle`) + 현재 로그인한 계정이면 알약 "현재 계정"(`ui.account-merge.choice` `accountChoiceCurrent`, `type.caption.sm`, `line` 테두리, `radius.full`) ② 사주 요약 한 줄(`ui.account-merge.saju`: 생년월일·달력 종류·출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음") ③ 일기 수(`accountChoiceDiaryCount`)와 연결된 수단 이름(`loginProvider*`를 구분자로 이음).
+* 카드 안 줄(위에서 아래): ① 호칭(`type.subtitle`) + 현재 로그인한 계정이면 알약 "현재 계정"(`ui.account-merge.choice` `accountChoiceCurrent`, `type.caption.sm`, `line` 테두리, `radius.full`) ② 사주 요약 한 줄(`ui.account-merge.saju`: 생년월일·달력 종류·출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음") ③ 일기 수(`accountChoiceDiaryCount`)와 연결된 수단 이름(`loginProvider*`를 구분자로 이음). 이 줄이 넘치면 말줄임 없이 다음 줄로 감습니다. 합칠 계정을 판단하는 데 필요한 수단 이름을 가리지 않기 위해서입니다.
 * 연결된 수단은 로고 없이 이름 글자로 보입니다. Google 가이드가 "G"만 단독으로 쓰는 것을 막고, 스크린리더도 이름을 그대로 읽습니다.
 * 고름 표시는 카드 오른쪽 위 22px 알약 동그라미입니다(V26). `selected`는 카드 테두리 `action.primary` 2px + 동그라미 안 점 12px, 바뀔 때 이동 없이 스밉니다(처음 고를 때 `appear.seep`). 햅틱 selection.
 * **처음부터 어느 쪽도 골라 두지 않습니다**(`none`). 되돌릴 수 없는 합치기라 남길 계정은 사용자가 직접 고르고, 그 전에는 합치기 버튼이 `disabled`입니다.
+* `disabled`: 합치는 중(최종 확인 뒤 합치기 버튼 `loading`)에는 고름을 잠가 카드를 누를 수 없습니다. 모양은 그대로이고 실패하면 풀립니다. 화면에 보인 고름과 실제로 남는 계정이 어긋나지 않게 합니다.
 * `loading`(IA `account-merge:loading`): 카드 두 장 크기의 빈 카드가 `loading.breathe`로 숨쉽니다. `skeleton` 컴포넌트를 따로 쓰지 않습니다.
 * 스크린리더: 묶음은 radio-group(이름 `account-merge.choice.label`), 카드는 radio이고 카드 안 글자를 위에서 아래 순서로 읽습니다. 터치 영역은 카드 전체입니다.
 
@@ -87,5 +88,5 @@ app-bar 아래로 차례대로 놓습니다(결정 V40).
 6. 화면 아래(내용이 짧으면 바닥에 붙음): `primary-button` `filled` `account-merge.cta.merge`(고르기 전 `disabled`) → `primary-button` `quiet` `account-merge.cta.cancel`, 사이 `space.4`
 
 * 합치기 버튼을 누르면 `dialog` `destructive`(`account-merge.merge.confirm`)가 열립니다. **강조는 이 확인 창 한 곳입니다.** 화면의 합치기 버튼은 평소 무게(`filled`)로 둡니다.
-* 확정 뒤 확인 창이 닫히고 합치기 버튼이 `loading`입니다. 끝나면 `login-methods`로 돌아갑니다.
+* 확정 뒤 확인 창이 닫히고 합치기 버튼이 `loading`, `account-choice`는 `disabled`(고름 잠금)입니다. 끝나면 `login-methods`로 돌아갑니다.
 * 실패(`account-merge:error`)는 `ui.account-merge.error`를 `dialog` `notice`로 보입니다. 고른 계정은 그대로 두어 버튼을 다시 누르면 됩니다. 화면 전체를 오류로 바꾸지 않습니다(IA `account-merge` 컴포넌트에 `error-state`가 없음).
