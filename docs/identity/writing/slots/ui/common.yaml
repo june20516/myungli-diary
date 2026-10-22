@@ -366,21 +366,25 @@
     screen_reader: "이름과 선택 여부를 읽습니다."
 
 - id: ui.login.provider
-  where: "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
+  where: "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)"
   purpose: guide
   user_state: "로그인 방법을 고릅니다."
-  structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143)."
+  structure: "제공자 문구 그대로. 카카오는 ko \"카카오 로그인\", 그 밖 언어는 영문 \"Login with Kakao\"입니다(가이드에 일본어 지침 없음, #143). LINE은 가이드의 언어별 권장 문구(ko \"LINE으로 로그인\", en \"Log in with LINE\", ja \"LINEでログイン\"), Google은 가이드 문구 \"Sign in with Google\"의 Google 현지화 표기(ko \"Google 계정으로 로그인\", ja \"Google でログイン\")입니다(#388)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: 21, en: 38, ja: 17}
   components: [social-login-button]
   keys:
     - loginKakaoLabel
     - loginAppleLabel
+    - loginLineLabel
+    - loginGoogleLabel
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: loginKakaoLabel, text: "카카오 로그인", why: "#143 공용 문구 원고", source: writing}
       - {lang: ko, key: loginAppleLabel, text: "Apple로 로그인", why: "#143 공용 문구 원고", source: writing}
+      - {lang: ko, key: loginLineLabel, text: "LINE으로 로그인", why: "LINE 버튼 가이드 ko 권장 문구(#388)", source: writing}
+      - {lang: ko, key: loginGoogleLabel, text: "Google 계정으로 로그인", why: "Google 현지화 표기(#388)", source: writing}
     bad:
       - {lang: ko, text: "카카오로 시작하기", why: "제공자 가이드에 없는 문구", source: writing}
   endings: []
@@ -781,10 +785,10 @@
     screen_reader: "태그 이름 다음에 길흉 낱말을 이어 읽습니다."
 
 - id: ui.diary-list.pick-date-confirm
-  where: "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 diary-edit 또는 diary-view로 갑니다(#294)"
+  where: "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)"
   purpose: guide
-  user_state: "날짜 시트에서 일기를 쓰거나 볼 날짜를 골랐습니다."
-  structure: "고른 날짜 + 대상(일기). 그날 일기가 있으면 보기, 없으면 쓰기로 가므로 동작 말(쓰기·보기)은 넣지 않습니다."
+  user_state: "날짜 시트에서 일기를 쓸 날짜를 골랐습니다."
+  structure: "고른 날짜 + 일기 쓰기. 언제나 새 일기로 가므로 동작 말(쓰기)을 넣습니다."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   ia: [diary-list.pick-date.confirm]
@@ -795,9 +799,9 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: diaryListPickDateConfirm, text: "{date} 일기", why: "app 초안 그대로, 쓰기·보기 어느 쪽으로 가도 맞음", source: writing}
+      - {lang: ko, key: diaryListPickDateConfirm, text: "{date} 일기 쓰기", why: "D83으로 언제나 새 일기(#409)", source: writing}
     bad:
-      - {lang: ko, text: "{date} 일기 쓰기", why: "그날 일기가 있으면 보기로 가서 틀린 말이 됨", source: writing}
+      - {lang: ko, text: "{date} 일기 보기", why: "D83으로 이 버튼은 보기로 가지 않음", source: writing}
   endings: []
   a11y:
     truncation: "버튼 한 줄 안에 들어갑니다. 날짜는 app이 짧은 서식으로 넣습니다."

@@ -6,10 +6,10 @@
 # ui 원고는 앱 ARB가 렌더하므로 호칭·조사 표기·용어 토큰을 쓰지 않습니다(ui.markup).
 
 - id: today.guide.cta
-  where: "오늘 화면(today): 일기 쓰기 또는 쓴 일기 보기 버튼"
+  where: "오늘 화면(today): 일기 쓰기 버튼(언제나 새 일기, D83)"
   purpose: guide
-  user_state: "가이드 질문을 보고 일기를 쓰거나, 쓴 일기를 보려 합니다."
-  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 이미 쓴 날."
+  user_state: "가이드 질문을 보고 일기를 쓰려 합니다. 오늘 이미 썼을 수도 있습니다."
+  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 오늘 이미 쓴 날의 한 편 더 쓰기. 둘 다 새 일기를 엽니다(D83 ③)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   keys:
@@ -19,8 +19,9 @@
   examples:
     good:
       - {lang: ko, key: todayGuideCta, text: "일기 쓰기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: todayGuideCtaWritten, text: "쓴 일기 보기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
+      - {lang: ko, key: todayGuideCtaWritten, text: "일기 더 쓰기", why: "라운드 R11 선택", source: writing}
+    bad:
+      - {lang: ko, text: "쓴 일기 보기", why: "D83으로 이 버튼은 언제나 새 일기를 엶", source: writing}
   endings: []
   a11y:
     truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
@@ -217,37 +218,41 @@
     screen_reader: "버튼 이름 그대로 읽습니다."
 
 - id: day-sheet.diary.open
-  where: "그날 시트 화면(day-sheet): 그날 일기 보기 링크"
-  purpose: guide
-  user_state: "그날 쓴 일기를 보려 합니다."
-  structure: "동작 이름 하나."
+  where: "그날 시트 화면(day-sheet): 그날 쓴 일기 머리(편수). 아래에 diary-row가 작성 순으로 놓입니다(D83)"
+  purpose: info
+  user_state: "그날 쓴 일기를 봅니다."
+  structure: "그날 일기와 편수(ICU plural). 동작 말은 넣지 않습니다(일기는 아래 diary-row에서 엶)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 25, en: 45, ja: 20}
   keys:
-    - daySheetDiaryOpen
+    - params: {count: number}
+      keys: [daySheetDiaryOpen]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: daySheetDiaryOpen, text: "이날 일기 보기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
+      - {lang: ko, key: daySheetDiaryOpen, text: "이날 쓴 일기 {count, plural, other{{count}편}}", why: "라운드 R11 선택", source: writing}
+    bad:
+      - {lang: ko, text: "이날 일기 보기", why: "D83으로 머리가 되어 동작 말이 맞지 않음", source: writing}
   endings: []
   a11y:
     truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
-    screen_reader: "버튼 이름 그대로 읽습니다."
+    screen_reader: "목록 머리로 읽습니다."
 
 - id: day-sheet.diary.write-cta
-  where: "그날 시트 화면(day-sheet): 이날 일기 쓰기(지난 날·오늘이고 일기 없음)"
+  where: "그날 시트 화면(day-sheet): 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, D83)"
   purpose: guide
-  user_state: "지난 날이나 오늘인데 일기가 없습니다."
-  structure: "동작 이름 하나."
+  user_state: "지난 날이나 오늘의 일기를 쓰려 합니다. 이미 쓴 날일 수도 있습니다."
+  structure: "동작 이름 하나. 기본은 쓰기, `Written`은 이미 쓴 날. 둘 다 새 일기를 엽니다(D83 ③)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - daySheetDiaryWriteCta
+    - daySheetDiaryWriteCtaWritten
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: daySheetDiaryWriteCta, text: "이날 일기 쓰기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: daySheetDiaryWriteCtaWritten, text: "이날 일기 더 쓰기", why: "라운드 R11 선택", source: writing}
     bad: []
   endings: []
   a11y:
