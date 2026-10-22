@@ -58,9 +58,9 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 
 키별 상한 (행 값과 다른 키, writing `key_max_length`):
 
-| 슬롯 | 키 | 언어 | 상한 | 이유 |
+| 언어 | 슬롯 | 키 | 상한 | 이유 |
 | --- | --- | --- | --- | --- |
-| `ui.login.provider` | `loginKakaoLabel` | ja | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
+| ja | `ui.login.provider` | `loginKakaoLabel` | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
 
 상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):
 

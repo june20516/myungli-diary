@@ -261,4 +261,11 @@ def test_latin_ja_label_takes_en_limit(capsys, font_dir):
     table = capsys.readouterr().out
     provider_row = next(line for line in table.splitlines() if line.startswith("| `ui.login.provider` | social"))
     en_limit = provider_row.split("**")[-2]
-    assert f"| `ui.login.provider` | `loginKakaoLabel` | ja | **{en_limit}** |" in table
+    assert f"| ja | `ui.login.provider` | `loginKakaoLabel` | **{en_limit}** |" in table
+
+
+def test_key_limit_rows_are_not_read_as_slot_rows():
+    # writing test_slots.design_lengths는 '## 상한' 절에서 "| `"로 시작하는 줄을 슬롯 행으로 읽음. 키별 행은 언어 칸으로 시작
+    table = render_table([])
+    key_section = table.split("키별 상한", 1)[1].split("상한을 두지 않는 슬롯", 1)[0]
+    assert not any(line.startswith("| `") for line in key_section.splitlines())

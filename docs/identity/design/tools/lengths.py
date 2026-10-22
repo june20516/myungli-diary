@@ -420,10 +420,11 @@ def render_table(results: list[Result]) -> str:
     finals = {(slot, language): result.final(language)
               for result in results for slot in result.target.slots for language in LANGUAGES}
     lines += ["", "키별 상한 (행 값과 다른 키, writing `key_max_length`):", "",
-              "| 슬롯 | 키 | 언어 | 상한 | 이유 |", "| --- | --- | --- | --- | --- |"]
+              "| 언어 | 슬롯 | 키 | 상한 | 이유 |", "| --- | --- | --- | --- | --- |"]
     for (slot, key, language), (source, reason) in KEY_LIMITS.items():
         limit = finals.get((slot, source), "-")
-        lines.append(f"| `{slot}` | `{key}` | {language} | **{limit}** | {source} 상한을 씀: {reason} |")
+        # 언어 칸을 앞에 둠: writing 파서가 "| `"로 시작하는 줄을 슬롯 행으로 읽기 때문
+        lines.append(f"| {language} | `{slot}` | `{key}` | **{limit}** | {source} 상한을 씀: {reason} |")
     lines += ["", "상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):", "", "| 슬롯 | 상한 없음 이유 |", "| --- | --- |"]
     lines += [f"| `{slot}` | {reason} |" for slot, reason in NO_LIMIT.items()]
     return "\n".join(lines) + "\n"
