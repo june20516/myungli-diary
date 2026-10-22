@@ -89,3 +89,16 @@ def test_arb_uses_key_max_length(tmp_path: Path, rules: RuleSet, slots: dict[str
     findings = [finding for finding in check_arb([arb], custom, rules) if finding.rule_id == "style.length"]
     assert len(findings) == 1
     assert findings[0].line == 4
+
+
+JOSA_SELECT = "{tJosa, select, final{이} rieul{이} none{가} other{이(가)}}"
+
+
+def test_arb_josa_select_passes(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    path = write_arb(tmp_path, {"@@locale": "ko", "notice": "{t}" + JOSA_SELECT + " 내일이에요"})
+    assert check_arb([path], slots, rules) == []
+
+
+def test_arb_josa_orphan(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    path = write_arb(tmp_path, {"@@locale": "ko", "notice": JOSA_SELECT + " 내일이에요"})
+    assert [finding.rule_id for finding in check_arb([path], slots, rules)] == ["arb.josa_orphan"]

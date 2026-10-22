@@ -59,8 +59,12 @@ def expand_josa(text: str, data: JosaData | None = None) -> tuple[str, list[str]
     return pattern.sub(replace, text), names
 
 
-def select_forms(text: str) -> list[str]:
+# 문장 규칙으로 검사하는 가지입니다. 병기형(`other`)은 server 콘텐츠 렌더와 같은 기계적 대체라 뺍니다.
+CHECKED_BRANCHES: tuple[str, ...] = ("final", "rieul", "none")
+
+
+def select_forms(text: str, branches: tuple[str, ...] = JOSA_BRANCHES) -> list[str]:
     """펼친 조사 select를 가지마다 하나씩 고른 문장입니다. 한 문장의 모든 select가 같은 가지를 고릅니다."""
     if _SELECT.search(text) is None:
         return [text]
-    return [_SELECT.sub(rf"\g<{branch}>", text) for branch in JOSA_BRANCHES]
+    return [_SELECT.sub(rf"\g<{branch}>", text) for branch in branches]
