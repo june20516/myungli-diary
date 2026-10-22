@@ -112,7 +112,11 @@ func (Unimplemented) GetDiary(context.Context, gen.GetDiaryRequestObject) (gen.G
 	return nil, ErrNotImplemented
 }
 
-func (Unimplemented) PutDiary(context.Context, gen.PutDiaryRequestObject) (gen.PutDiaryResponseObject, error) {
+func (Unimplemented) CreateDiary(context.Context, gen.CreateDiaryRequestObject) (gen.CreateDiaryResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
+func (Unimplemented) UpdateDiary(context.Context, gen.UpdateDiaryRequestObject) (gen.UpdateDiaryResponseObject, error) {
 	return nil, ErrNotImplemented
 }
 

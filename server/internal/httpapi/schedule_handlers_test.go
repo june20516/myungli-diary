@@ -3,6 +3,7 @@ package httpapi_test
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -75,11 +76,24 @@ func scheduleAPI(schedules *fakeSchedules) *httpapi.API {
 	return &httpapi.API{Schedules: schedules}
 }
 
+// sendRequest는 요청을 보내고 요청과 응답을 돌려줍니다. body가 비어 있으면 본문 없는 요청입니다.
+func sendRequest(t *testing.T, api *httpapi.API, method, target, body string) (*http.Request, *httptest.ResponseRecorder) {
+	t.Helper()
+	handler, _ := newHandlerAPI(t, api)
+	var req *http.Request
+	if body == "" {
+		req = httptest.NewRequestWithContext(t.Context(), method, target, nil)
+	} else {
+		req = newBodyRequest(t, method, target, contentTypeJSON, body)
+	}
+	return req, serve(handler, req)
+}
+
 const scheduleTarget = "/v1/schedules/0198a000-0000-7000-8000-000000000001"
 
 func TestListSchedules(t *testing.T) {
 	schedules := &fakeSchedules{list: []schedule.Schedule{sampleSchedule()}}
-	req, rec := sendDiary(t, scheduleAPI(schedules), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "")
+	req, rec := sendRequest(t, scheduleAPI(schedules), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "")
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectFortuneContract(t, req, rec)
@@ -99,14 +113,14 @@ func TestListSchedules(t *testing.T) {
 }
 
 func TestListSchedules_EmptyAndOmitted(t *testing.T) {
-	_, rec := sendDiary(t, scheduleAPI(&fakeSchedules{}), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "")
+	_, rec := sendRequest(t, scheduleAPI(&fakeSchedules{}), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "")
 	require.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, []any{}, decodeMap(t, rec)["items"])
 
 	// 종일 일정은 time을, 메모 없는 일정은 memo를 응답에서 생략합니다.
 	s := sampleSchedule()
 	s.AllDay, s.Time, s.Memo = true, nil, nil
-	req, rec := sendDiary(t, scheduleAPI(&fakeSchedules{list: []schedule.Schedule{s}}), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "")
+	req, rec := sendRequest(t, scheduleAPI(&fakeSchedules{list: []schedule.Schedule{s}}), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "")
 	require.Equal(t, http.StatusOK, rec.Code)
 	expectFortuneContract(t, req, rec)
 	item, ok := decodeMap(t, rec)["items"].([]any)[0].(map[string]any)
@@ -128,7 +142,7 @@ func TestListSchedules_RangeErrors(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, rec := sendDiary(t, scheduleAPI(&fakeSchedules{err: tt.err}), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-12-31", "")
+			req, rec := sendRequest(t, scheduleAPI(&fakeSchedules{err: tt.err}), http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-12-31", "")
 
 			require.Equal(t, tt.status, rec.Code, rec.Body.String())
 			p := decodeProblem(t, rec)
@@ -141,7 +155,7 @@ func TestListSchedules_RangeErrors(t *testing.T) {
 
 func TestCreateSchedule(t *testing.T) {
 	schedules := &fakeSchedules{item: sampleSchedule()}
-	req, rec := sendDiary(t, scheduleAPI(schedules), http.MethodPost, "/v1/schedules",
+	req, rec := sendRequest(t, scheduleAPI(schedules), http.MethodPost, "/v1/schedules",
 		`{"date":"2026-10-21","allDay":false,"time":"09:05","title":"회의","memo":"3층 회의실"}`)
 
 	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
@@ -158,7 +172,7 @@ func TestCreateSchedule(t *testing.T) {
 
 func TestCreateSchedule_AllDayHasNoTime(t *testing.T) {
 	schedules := &fakeSchedules{item: sampleSchedule()}
-	_, rec := sendDiary(t, scheduleAPI(schedules), http.MethodPost, "/v1/schedules", `{"date":"2026-10-21","allDay":true,"title":"종일"}`)
+	_, rec := sendRequest(t, scheduleAPI(schedules), http.MethodPost, "/v1/schedules", `{"date":"2026-10-21","allDay":true,"title":"종일"}`)
 
 	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
 	assert.Nil(t, schedules.gotInput.Time)
@@ -177,7 +191,7 @@ func TestCreateSchedule_Inconsistent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			violation := &profile.ValidationError{Violation: profile.Inconsistent, Fields: []profile.FieldViolation{{Field: "/time", Rule: tt.rule}}}
-			req, rec := sendDiary(t, scheduleAPI(&fakeSchedules{err: violation}), http.MethodPost, "/v1/schedules",
+			req, rec := sendRequest(t, scheduleAPI(&fakeSchedules{err: violation}), http.MethodPost, "/v1/schedules",
 				`{"date":"2026-10-21","allDay":false,"title":"x"}`)
 
 			require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
@@ -241,7 +255,7 @@ func TestScheduleOperations_NotFound(t *testing.T) {
 
 func TestDeleteSchedule(t *testing.T) {
 	schedules := &fakeSchedules{}
-	req, rec := sendDiary(t, scheduleAPI(schedules), http.MethodDelete, scheduleTarget, "")
+	req, rec := sendRequest(t, scheduleAPI(schedules), http.MethodDelete, scheduleTarget, "")
 
 	require.Equal(t, http.StatusNoContent, rec.Code, rec.Body.String())
 	expectFortuneContract(t, req, rec)
@@ -251,7 +265,7 @@ func TestDeleteSchedule(t *testing.T) {
 
 func TestRestoreSchedule(t *testing.T) {
 	schedules := &fakeSchedules{item: sampleSchedule()}
-	req, rec := sendDiary(t, scheduleAPI(schedules), http.MethodPost, scheduleTarget+"/restore", "")
+	req, rec := sendRequest(t, scheduleAPI(schedules), http.MethodPost, scheduleTarget+"/restore", "")
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectFortuneContract(t, req, rec)
@@ -268,7 +282,7 @@ func TestSchedules_Unavailable(t *testing.T) {
 		{http.MethodPost, scheduleTarget + "/restore", ""},
 	}
 	for _, tt := range targets {
-		_, rec := sendDiary(t, api, tt.method, tt.target, tt.body)
+		_, rec := sendRequest(t, api, tt.method, tt.target, tt.body)
 		require.Equal(t, http.StatusServiceUnavailable, rec.Code, tt.target)
 		assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
 	}

@@ -33,6 +33,7 @@ var (
 	RequestInconsistent      = Code{"request.inconsistent", http.StatusUnprocessableEntity}
 	BirthInvalid             = Code{"birth.invalid", http.StatusUnprocessableEntity}
 	DiaryFutureDate          = Code{"diary.future_date", http.StatusUnprocessableEntity}
+	DiaryDayFull             = Code{"diary.day_full", http.StatusUnprocessableEntity}
 	NameEmpty                = Code{"name.empty", http.StatusUnprocessableEntity}
 	NameTooLong              = Code{"name.too_long", http.StatusUnprocessableEntity}
 	NameEmoji                = Code{"name.emoji", http.StatusUnprocessableEntity}
@@ -56,7 +57,6 @@ var (
 	ScheduleNotFound         = Code{"schedule.not_found", http.StatusNotFound}
 	DeviceNotFound           = Code{"device.not_found", http.StatusNotFound}
 	ProfileRequired          = Code{"profile.required", http.StatusConflict}
-	DiaryDateTaken           = Code{"diary.date_taken", http.StatusConflict}
 	IdempotencyInProgress    = Code{"idempotency.in_progress", http.StatusConflict}
 	RateLimited              = Code{"rate_limited", http.StatusTooManyRequests}
 	NotImplemented           = Code{"not_implemented", http.StatusNotImplemented}
@@ -79,11 +79,11 @@ var (
 func AllCodes() []Code {
 	return []Code{
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
-		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate,
+		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate, DiaryDayFull,
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
 		TimezoneInvalid, CityNotFound, RangeTooLong,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,
-		ConsentRequired, PreviewUsed, DiaryNotFound, ReactionNotFound, ScheduleNotFound, DeviceNotFound, ProfileRequired, DiaryDateTaken, IdempotencyInProgress,
+		ConsentRequired, PreviewUsed, DiaryNotFound, ReactionNotFound, ScheduleNotFound, DeviceNotFound, ProfileRequired, IdempotencyInProgress,
 		RateLimited, NotImplemented,
 		EngineUnavailable, EngineTimeout, EngineError, AuthProviderUnavailable, BillingUnavailable,
 		RewardInvalidSignature, RewardExpired, ServiceUnavailable, Internal,

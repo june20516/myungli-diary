@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.12
+  version: 1.0.0-draft.13
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
 
@@ -23,7 +23,7 @@ info:
     * PATCH(`application/merge-patch+json`)에서 필드가 없으면 "바꾸지 않음" 하나만 뜻합니다. `null`로 필드를 지우지 않습니다.
     * 요청 본문 상한은 1 MiB입니다. 넘으면 413 `request.too_large`입니다.
     * 언어는 bearer 요청이면 프로필의 `language`, 그 밖이면 `Accept-Language` 헤더를 씁니다. 지원 언어는 `ko`·`en`·`ja`이고, 헤더의 q값 순서로 첫 지원 언어를 고릅니다(`ko-KR`은 `ko`). 맞는 언어가 없거나 헤더가 없으면 기본 언어는 `en`입니다. `Accept-Language`는 middleware가 읽으므로 operation parameter로 적지 않습니다.
-    * 생성하는 POST(`createSchedule`, `registerDevice`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
+    * 생성하는 POST(`createSchedule`, `registerDevice`, `createDiary`)는 `Idempotency-Key` 헤더를 받습니다. 24시간 동안 같은 키에는 같은 응답을 돌려줍니다.
     * 문장 필드는 조각 배열(`RenderedText`)입니다. 화면의 고정 UI 문구는 app 몫입니다.
     * 목록은 cursor 방식입니다(`cursor`, `limit`, 응답의 `nextCursor`). `nextCursor`가 없으면 마지막 쪽입니다.
       cursor는 불투명한 값이라 app은 해석하거나 만들지 않고, 받은 값을 같은 필터와 함께 그대로 보냅니다. 읽지 못하는 cursor는 400 `request.invalid`(field `cursor`)입니다.
@@ -842,7 +842,8 @@ paths:
       operationId: listDiaries
       summary: 일기 목록
       description: |
-        날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순입니다.
+        날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순이고, 같은 날짜 안에서는 작성 순(`createdAt` 오름차순)입니다.
+        `limit`은 일기 편수라 한 날짜의 일기가 두 쪽에 나뉠 수 있습니다. 날짜 하나의 일기는 `from`과 `to`에 같은 날짜를 넣어 받습니다.
         `from`이 `to`보다 늦으면 빈 목록입니다.
       parameters:
         - name: from
@@ -896,43 +897,16 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         default:
           $ref: '#/components/responses/UnexpectedError'
-
-  /v1/diaries/{date}:
-    parameters:
-      - $ref: '#/components/parameters/Date'
-    get:
-      operationId: getDiary
-      summary: 일기 읽기
-      description: 그날 일기를 돌려줍니다. 없거나 지운 일기는 404 `diary.not_found`입니다.
-      responses:
-        '200':
-          description: 일기
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Diary'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
-        default:
-          $ref: '#/components/responses/UnexpectedError'
-    put:
-      operationId: putDiary
+    post:
+      operationId: createDiary
       summary: 일기 쓰기
       description: |
-        그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다.
-        오늘 이후 날짜는 422 `diary.future_date`, 지원 범위(D41) 밖 날짜는 422 `date.out_of_range`입니다. 저장할 때 그날 엔진 결과의 태그와 `rulesetVersion`, 가이드 질문을 함께 기록합니다.
-        이미 있는 일기를 고치면 본문만 바꾸고, 태그·`rulesetVersion`·가이드 질문은 처음 쓸 때 기록한 값을 유지합니다.
+        일기를 한 편 씁니다. 하루에 살아 있는 일기는 10편까지입니다. 그날 첫 편이면 날짜 기록(태그·`rulesetVersion`·가이드 질문)을 함께 만듭니다.
+        같은 `Idempotency-Key`로 다시 보내면 24시간 동안 같은 응답입니다.
+        그날 살아 있는 일기가 이미 10편이면 422 `diary.day_full`, 오늘 이후 날짜는 422 `diary.future_date`, 지원 범위(D41) 밖 날짜는 422 `date.out_of_range`입니다.
         프로필이 없으면 409 `profile.required`입니다.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -940,14 +914,11 @@ paths:
             schema:
               $ref: '#/components/schemas/DiaryInput'
       responses:
-        '200':
-          description: 고친 일기
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Diary'
         '201':
           description: 새로 쓴 일기
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
           content:
             application/json:
               schema:
@@ -976,10 +947,81 @@ paths:
           $ref: '#/components/responses/GatewayTimeout'
         default:
           $ref: '#/components/responses/UnexpectedError'
+
+  /v1/diaries/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getDiary
+      summary: 일기 읽기
+      description: 일기 한 편을 돌려줍니다. 없거나 지운 일기(남의 일기 포함)는 404 `diary.not_found`입니다.
+      responses:
+        '200':
+          description: 일기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    put:
+      operationId: updateDiary
+      summary: 일기 고치기
+      description: |
+        일기 본문을 바꿉니다(전체 교체, 멱등). 날짜 기록(태그·`rulesetVersion`·가이드 질문)은 처음 쓸 때 기록한 값 그대로입니다.
+        엔진을 부르지 않습니다. 없거나 지운 일기(남의 일기 포함)는 404 `diary.not_found`입니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiaryBodyInput'
+      responses:
+        '200':
+          description: 고친 일기
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
     delete:
       operationId: deleteDiary
       summary: 일기 지우기
-      description: 일기를 지웁니다. 지운 일기는 `restoreDiary`로 되살릴 수 있습니다. 없거나 이미 지운 일기는 404 `diary.not_found`입니다.
+      description: 일기를 지웁니다. 지운 일기는 `restoreDiary`로 되살릴 수 있습니다. 없거나 이미 지운 일기(남의 일기 포함)는 404 `diary.not_found`입니다.
       responses:
         '204':
           description: 지워짐
@@ -998,15 +1040,20 @@ paths:
         default:
           $ref: '#/components/responses/UnexpectedError'
 
-  /v1/diaries/{date}/restore:
+  /v1/diaries/{id}/restore:
     parameters:
-      - $ref: '#/components/parameters/Date'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
     post:
       operationId: restoreDiary
       summary: 지운 일기 되살리기
       description: |
-        그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다.
-        그 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`, 지운 일기가 없으면 404 `diary.not_found`입니다.
+        지운 일기를 되살립니다. 이미 살아 있는 일기면 그대로 200입니다.
+        내용을 비운 일기와 없는 일기(남의 일기 포함)는 404 `diary.not_found`, 그 날짜에 살아 있는 일기가 이미 10편이면 422 `diary.day_full`입니다.
       responses:
         '200':
           description: 되살린 일기
@@ -1022,8 +1069,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalError'
         '503':
@@ -1660,7 +1707,7 @@ components:
           schema:
             $ref: '#/components/schemas/Problem'
     Conflict:
-      description: 상태 충돌. `profile.required`, `diary.date_taken`, `idempotency.in_progress`.
+      description: 상태 충돌. `profile.required`, `idempotency.in_progress`.
       content:
         application/problem+json:
           schema:
@@ -1689,7 +1736,7 @@ components:
         * `timezone.invalid`: IANA 시간대 이름이 아님. `errors[].field`는 `/currentTimezone` 또는 `/birth/timezone`
         * `city.not_found`: `cityId`가 도시 목록에 없음. `errors[].field`는 `/birth/place/cityId`
         * `range.too_long`: `listSchedules`의 조회 범위(`from`~`to`)가 62일을 넘음
-        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, 호칭 거부(`name.empty`·`name.too_long`·`name.emoji`·`name.control`·`name.invalid_char`, josa.yaml name_rules의 기준 구현 normalize_name), `idempotency.mismatch`
+        * 엔진 판정과 업무 규칙: `birth.invalid`, `diary.future_date`, `diary.day_full`, 호칭 거부(`name.empty`·`name.too_long`·`name.emoji`·`name.control`·`name.invalid_char`, josa.yaml name_rules의 기준 구현 normalize_name), `idempotency.mismatch`
       content:
         application/problem+json:
           schema:
@@ -1817,9 +1864,6 @@ components:
             profile.required:
               status: 409
               description: '프로필 없이 운세·일기를 요청함'
-            diary.date_taken:
-              status: 409
-              description: '되살리려는 날짜에 이미 일기가 있음'
             idempotency.in_progress:
               status: 409
               description: '같은 Idempotency-Key 요청이 처리 중'
@@ -1847,6 +1891,9 @@ components:
             diary.future_date:
               status: 422
               description: '오늘 이후 날짜의 일기'
+            diary.day_full:
+              status: 422
+              description: '그 날짜에 살아 있는 일기가 이미 10편'
             name.empty:
               status: 422
               description: '호칭 거부: 공백과 접미사를 떼고 나면 비어 있음'
@@ -3039,6 +3086,17 @@ components:
     # ---- 일기 ----
     DiaryInput:
       type: object
+      required: [date, body]
+      properties:
+        date:
+          type: string
+          format: date
+        body:
+          type: string
+          minLength: 1
+          maxLength: 10000
+    DiaryBodyInput:
+      type: object
       required: [body]
       properties:
         body:
@@ -3047,9 +3105,14 @@ components:
           maxLength: 10000
     Diary:
       type: object
-      description: '`guideQuestion`은 처음 쓸 때 보인 가이드 질문의 렌더된 원문이고, 그날 가이드 질문이 없었으면 생략합니다.'
-      required: [date, body, tags, rulesetVersion, createdAt, updatedAt]
+      description: |
+        `guideQuestion`은 그날 첫 편을 쓸 때 보인 가이드 질문의 렌더된 원문이고, 그날 가이드 질문이 없었으면 생략합니다.
+        `tags`·`guideQuestion`·`rulesetVersion`은 그날 첫 편을 쓸 때 기록한 날짜 기록이고 같은 날 일기에 똑같이 붙습니다.
+      required: [id, date, body, tags, rulesetVersion, createdAt, updatedAt]
       properties:
+        id:
+          type: string
+          format: uuid
         date:
           type: string
           format: date
@@ -3080,11 +3143,17 @@ components:
           type: string
     DiarySummary:
       type: object
-      required: [date, excerpt, featuredTags]
+      required: [id, date, createdAt, excerpt, featuredTags]
       properties:
+        id:
+          type: string
+          format: uuid
         date:
           type: string
           format: date
+        createdAt:
+          type: string
+          format: date-time
         excerpt:
           type: string
           description: 본문 앞 100자
