@@ -1,4 +1,4 @@
-// Package diary는 일기(하루 1편)를 저장하고 읽는 저장소를 둡니다.
+// Package diary는 일기(한 날짜 여러 편, D83)를 저장하고 읽는 저장소를 둡니다.
 package diary
 
 import (
@@ -11,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -22,19 +21,22 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
+// MaxEntriesPerDay는 한 날짜에 살아 있을 수 있는 일기의 최대 편수입니다(D83 ②). 만들기와 되살리기에만 겁니다.
+const MaxEntriesPerDay = 10
+
 var (
-	// ErrNotFound는 그 날짜에 (복원할 때는 지운) 일기가 없을 때 돌려줍니다.
+	// ErrNotFound는 (복원할 때는 지운 것을 포함해) 그 일기가 없거나 내용을 비웠거나 남의 것일 때 돌려줍니다.
 	ErrNotFound = errors.New("일기를 찾을 수 없습니다")
-	// ErrDateTaken은 복원하려는 날짜에 이미 살아 있는 일기가 있을 때 돌려줍니다.
-	ErrDateTaken = errors.New("그 날짜에 이미 일기가 있습니다")
+	// ErrDayFull은 그 날짜에 살아 있는 일기가 이미 MaxEntriesPerDay편일 때 돌려줍니다.
+	ErrDayFull = errors.New("그 날짜의 일기가 가득 찼습니다")
+	// ErrDayRecordMissing은 날짜 기록 없이 일기를 만들려는데 그 날짜 기록이 없을 때 돌려줍니다.
+	ErrDayRecordMissing = errors.New("그 날짜의 날짜 기록이 없습니다")
 )
 
-// uniqueViolation은 PostgreSQL의 unique 위반 SQLSTATE입니다.
-const uniqueViolation = "23505"
-
 // Entry는 일기 한 편입니다.
-// AllTags·Featured·GuideQuestion·RulesetVersion은 처음 쓸 때 본 그날 엔진 결과와 질문의 기록입니다.
+// AllTags·Featured·GuideQuestion·RulesetVersion은 그날 첫 편을 쓸 때 본 엔진 결과와 질문의 기록(날짜 기록)이고, 같은 날 일기에 똑같이 붙습니다.
 type Entry struct {
+	ID             uuid.UUID
 	Date           profile.LocalDate
 	Body           string
 	AllTags        []string
@@ -45,12 +47,20 @@ type Entry struct {
 	UpdatedAt      time.Time
 }
 
+// Cursor는 목록 keyset의 위치입니다. 마지막으로 본 일기의 (날짜, 작성 시각, id)입니다.
+type Cursor struct {
+	Date      profile.LocalDate
+	CreatedAt time.Time
+	ID        uuid.UUID
+}
+
 // ListQuery는 목록 조건입니다. 포인터 필드는 nil이면 조건을 걸지 않습니다.
-// From·To는 포함 범위이고, Before는 그 날짜보다 앞 일기만 보는 keyset 커서입니다.
+// From·To는 포함 범위이고, After는 그 Cursor 다음 일기부터 보는 keyset 커서입니다.
+// 순서는 날짜 역순, 같은 날짜 안에서는 작성 순(created_at, id)입니다.
 type ListQuery struct {
 	From, To *profile.LocalDate
 	Tag      *string
-	Before   *profile.LocalDate
+	After    *Cursor
 	Limit    int
 }
 
@@ -64,102 +74,42 @@ func NewStore(pool *pgxpool.Pool) *Store {
 	return &Store{pool: pool}
 }
 
-// Get은 그 날짜의 살아 있는 일기를 돌려줍니다. 없으면 ErrNotFound입니다.
-func (s *Store) Get(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (Entry, error) {
-	row, err := diarydb.New(s.pool).GetDiary(ctx, diarydb.GetDiaryParams{AccountID: accountID, Date: profile.PgDate(date)})
-	if errors.Is(err, pgx.ErrNoRows) {
-		return Entry{}, ErrNotFound
-	}
+// DayExists는 그 날짜의 날짜 기록이 있는지 알려 줍니다. 일기를 다 지워도 날짜 기록은 남습니다.
+func (s *Store) DayExists(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (bool, error) {
+	exists, err := diarydb.New(s.pool).DiaryDayExists(ctx, diarydb.DiaryDayExistsParams{AccountID: accountID, Date: profile.PgDate(date)})
 	if err != nil {
-		return Entry{}, fmt.Errorf("일기 조회: %w", err)
+		return false, fmt.Errorf("날짜 기록 확인: %w", err)
 	}
-	return toEntry(row)
+	return exists, nil
 }
 
-// Upsert는 그날 일기가 없으면 e대로 만들고(created가 true), 있으면 본문만 바꿉니다.
-// 이미 있는 일기의 태그·질문·규칙 버전·생성 시각은 처음 값을 유지하므로 e의 그 필드는 쓰지 않습니다.
-// 동시 호출은 DB의 partial unique 인덱스가 하나의 행으로 모읍니다.
-func (s *Store) Upsert(ctx context.Context, accountID uuid.UUID, e Entry) (Entry, bool, error) {
-	featured, guide, err := encodeJSON(e)
-	if err != nil {
-		return Entry{}, false, err
-	}
+// CreateEntry는 date에 일기를 한 편 만듭니다. 한 트랜잭션에서 날짜 기록 넣기, 날짜 잠금, 편수 확인, 일기 넣기 순으로 처리합니다(spec §2.4).
+// record가 있으면 날짜 기록이 없을 때 그것을 적고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
+// record가 nil인데 날짜 기록이 없으면 ErrDayRecordMissing, 그 날짜에 살아 있는 일기가 이미 MaxEntriesPerDay편이면 ErrDayFull입니다.
+func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, record *fortune.DayRecord) (Entry, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Entry{}, false, fmt.Errorf("일기 ID 생성: %w", err)
+		return Entry{}, fmt.Errorf("일기 ID 생성: %w", err)
 	}
-	allTags := e.AllTags
-	if allTags == nil {
-		allTags = []string{}
-	}
-	row, err := diarydb.New(s.pool).UpsertDiary(ctx, diarydb.UpsertDiaryParams{
-		ID:             id,
-		AccountID:      accountID,
-		Date:           profile.PgDate(e.Date),
-		Body:           e.Body,
-		AllTags:        allTags,
-		FeaturedTags:   featured,
-		GuideQuestion:  guide,
-		RulesetVersion: e.RulesetVersion,
-	})
-	if err != nil {
-		return Entry{}, false, fmt.Errorf("일기 저장: %w", err)
-	}
-	entry, err := toEntry(fromUpsertRow(row))
-	return entry, row.Created, err
-}
-
-// UpdateBody는 그 날짜의 살아 있는 일기의 본문만 바꿉니다. 태그·질문·규칙 버전·생성 시각은 그대로입니다.
-// 살아 있는 일기가 없으면 ErrNotFound입니다.
-func (s *Store) UpdateBody(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string) (Entry, error) {
-	row, err := diarydb.New(s.pool).UpdateDiaryBody(ctx, diarydb.UpdateDiaryBodyParams{AccountID: accountID, Date: profile.PgDate(date), Body: body})
-	if errors.Is(err, pgx.ErrNoRows) {
-		return Entry{}, ErrNotFound
-	}
-	if err != nil {
-		return Entry{}, fmt.Errorf("일기 본문 수정: %w", err)
-	}
-	return toEntry(diarydb.GetDiaryRow(row))
-}
-
-// Delete는 그 날짜의 일기를 지운 것으로 표시합니다(soft delete). 살아 있는 일기가 없으면 ErrNotFound입니다.
-func (s *Store) Delete(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) error {
-	n, err := diarydb.New(s.pool).SoftDeleteDiary(ctx, diarydb.SoftDeleteDiaryParams{AccountID: accountID, Date: profile.PgDate(date)})
-	if err != nil {
-		return fmt.Errorf("일기 삭제: %w", err)
-	}
-	if n == 0 {
-		return ErrNotFound
-	}
-	return nil
-}
-
-// Restore는 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다.
-// 그날 살아 있는 일기가 있으면 ErrDateTaken, 지운 일기가 없으면 ErrNotFound입니다.
-func (s *Store) Restore(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (Entry, error) {
 	var entry Entry
-	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+	err = postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		q := diarydb.New(tx)
 		pgDate := profile.PgDate(date)
-		alive, err := q.LiveDiaryExists(ctx, diarydb.LiveDiaryExistsParams{AccountID: accountID, Date: pgDate})
+		if record != nil {
+			params, err := newDayParams(accountID, date, record)
+			if err != nil {
+				return err
+			}
+			if err := q.InsertDiaryDay(ctx, params); err != nil {
+				return fmt.Errorf("날짜 기록 저장: %w", err)
+			}
+		}
+		if err := lockAndCheckRoom(ctx, q, accountID, pgDate); err != nil {
+			return err
+		}
+		row, err := q.InsertDiary(ctx, diarydb.InsertDiaryParams{ID: id, AccountID: accountID, Date: pgDate, Body: body})
 		if err != nil {
-			return fmt.Errorf("살아 있는 일기 확인: %w", err)
-		}
-		if alive {
-			return ErrDateTaken
-		}
-		row, err := q.RestoreLatestDeletedDiary(ctx, diarydb.RestoreLatestDeletedDiaryParams{AccountID: accountID, Date: pgDate})
-		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrNotFound
-		}
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == uniqueViolation {
-			// 살아 있는 일기 확인과 복원 사이에 같은 날짜 일기가 새로 생긴 경쟁을 막는 방어 경로입니다.
-			// 두 문장 사이에 끼어들게 만들 수 없어 테스트하지 않습니다.
-			return ErrDateTaken
-		}
-		if err != nil {
-			return fmt.Errorf("일기 복원: %w", err)
+			return fmt.Errorf("일기 저장: %w", err)
 		}
 		entry, err = toEntry(diarydb.GetDiaryRow(row))
 		return err
@@ -170,20 +120,122 @@ func (s *Store) Restore(ctx context.Context, accountID uuid.UUID, date profile.L
 	return entry, nil
 }
 
-// List는 날짜 역순으로 살아 있는 일기를 q.Limit편까지 돌려줍니다.
+// lockAndCheckRoom은 그 날짜의 날짜 기록 행을 잠그고(같은 날짜의 만들기·되살리기가 줄을 섭니다) 일기를 더 둘 자리가 있는지 확인합니다.
+// 날짜 기록이 없으면 ErrDayRecordMissing, 자리가 없으면 ErrDayFull입니다.
+func lockAndCheckRoom(ctx context.Context, q *diarydb.Queries, accountID uuid.UUID, date pgtype.Date) error {
+	_, err := q.LockDiaryDay(ctx, diarydb.LockDiaryDayParams{AccountID: accountID, Date: date})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrDayRecordMissing
+	}
+	if err != nil {
+		return fmt.Errorf("날짜 잠금: %w", err)
+	}
+	live, err := q.CountLiveDiaries(ctx, diarydb.CountLiveDiariesParams{AccountID: accountID, Date: date})
+	if err != nil {
+		return fmt.Errorf("일기 편수 확인: %w", err)
+	}
+	if live >= MaxEntriesPerDay {
+		return ErrDayFull
+	}
+	return nil
+}
+
+// Get은 살아 있는 일기를 날짜 기록과 함께 돌려줍니다. 없거나 남의 것이면 ErrNotFound입니다.
+func (s *Store) Get(ctx context.Context, accountID, id uuid.UUID) (Entry, error) {
+	row, err := diarydb.New(s.pool).GetDiary(ctx, diarydb.GetDiaryParams{ID: id, AccountID: accountID})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Entry{}, ErrNotFound
+	}
+	if err != nil {
+		return Entry{}, fmt.Errorf("일기 조회: %w", err)
+	}
+	return toEntry(row)
+}
+
+// UpdateBody는 살아 있는 일기의 본문만 바꿉니다. 날짜 기록과 생성 시각은 그대로입니다.
+// 살아 있는 일기가 없거나 남의 것이면 ErrNotFound입니다.
+func (s *Store) UpdateBody(ctx context.Context, accountID, id uuid.UUID, body string) (Entry, error) {
+	row, err := diarydb.New(s.pool).UpdateDiaryBody(ctx, diarydb.UpdateDiaryBodyParams{ID: id, AccountID: accountID, Body: body})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Entry{}, ErrNotFound
+	}
+	if err != nil {
+		return Entry{}, fmt.Errorf("일기 본문 수정: %w", err)
+	}
+	return toEntry(diarydb.GetDiaryRow(row))
+}
+
+// Delete는 일기를 지운 것으로 표시합니다(soft delete). 살아 있는 일기가 없거나 남의 것이면 ErrNotFound입니다.
+func (s *Store) Delete(ctx context.Context, accountID, id uuid.UUID) error {
+	n, err := diarydb.New(s.pool).SoftDeleteDiary(ctx, diarydb.SoftDeleteDiaryParams{ID: id, AccountID: accountID})
+	if err != nil {
+		return fmt.Errorf("일기 삭제: %w", err)
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// Restore는 지운 일기를 되살립니다. 이미 살아 있으면 상한을 보지 않고 그대로 돌려줍니다.
+// 대상 행을 먼저 잠그므로 같은 일기의 동시 되살리기·지우기는 줄을 섭니다.
+// 없거나 남의 것이거나 내용을 비웠으면 ErrNotFound, 되살리면 그 날짜가 MaxEntriesPerDay편을 넘으면 ErrDayFull입니다.
+func (s *Store) Restore(ctx context.Context, accountID, id uuid.UUID) (Entry, error) {
+	var entry Entry
+	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := diarydb.New(tx)
+		state, err := q.GetDiaryState(ctx, diarydb.GetDiaryStateParams{ID: id, AccountID: accountID})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		if err != nil {
+			return fmt.Errorf("일기 상태 조회: %w", err)
+		}
+		if state.ContentPurgedAt != nil {
+			return ErrNotFound
+		}
+		if state.DeletedAt != nil {
+			if err := lockAndCheckRoom(ctx, q, accountID, state.Date); err != nil {
+				return err
+			}
+			if err := q.UndeleteDiary(ctx, diarydb.UndeleteDiaryParams{ID: id, AccountID: accountID}); err != nil {
+				return fmt.Errorf("일기 복원: %w", err)
+			}
+		}
+		row, err := q.GetDiary(ctx, diarydb.GetDiaryParams{ID: id, AccountID: accountID})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound // 방어: 행을 잠갔으므로 보통 오지 않습니다.
+		}
+		if err != nil {
+			return fmt.Errorf("일기 조회: %w", err)
+		}
+		entry, err = toEntry(row)
+		return err
+	})
+	if err != nil {
+		return Entry{}, err
+	}
+	return entry, nil
+}
+
+// List는 날짜 역순(같은 날짜는 작성 순)으로 살아 있는 일기를 q.Limit편까지 돌려줍니다.
 func (s *Store) List(ctx context.Context, accountID uuid.UUID, q ListQuery) ([]Entry, error) {
 	if q.Limit <= 0 || q.Limit > math.MaxInt32 {
 		return nil, fmt.Errorf("일기 목록 Limit이 범위를 벗어났습니다: %d", q.Limit)
 	}
 	params := diarydb.ListDiariesParams{
-		AccountID:  accountID,
-		FromDate:   profile.PgDateOrNull(q.From),
-		ToDate:     profile.PgDateOrNull(q.To),
-		BeforeDate: profile.PgDateOrNull(q.Before),
-		RowLimit:   int32(q.Limit), // 위에서 범위를 검사했습니다.
+		AccountID: accountID,
+		FromDate:  profile.PgDateOrNull(q.From),
+		ToDate:    profile.PgDateOrNull(q.To),
+		RowLimit:  int32(q.Limit), // 위에서 범위를 검사했습니다.
 	}
 	if q.Tag != nil {
 		params.Tag = pgtype.Text{String: *q.Tag, Valid: true}
+	}
+	if q.After != nil {
+		params.AfterDate = profile.PgDate(q.After.Date)
+		params.AfterCreatedAt = &q.After.CreatedAt
+		params.AfterID = uuid.NullUUID{UUID: q.After.ID, Valid: true}
 	}
 	rows, err := diarydb.New(s.pool).ListDiaries(ctx, params)
 	if err != nil {
@@ -211,20 +263,40 @@ type segmentJSON struct {
 	Term string `json:"term,omitempty"`
 }
 
-// encodeJSON은 e의 길흉 태그와 가이드 질문을 jsonb 값으로 바꿉니다. 질문이 비어 있으면 guide는 nil(NULL)입니다.
-func encodeJSON(e Entry) (featured, guide []byte, err error) {
-	tags := make([]featuredJSON, len(e.Featured))
-	for i, t := range e.Featured {
+// newDayParams는 날짜 기록을 InsertDiaryDay 인자로 바꿉니다. 질문이 비어 있으면 guide는 NULL입니다.
+func newDayParams(accountID uuid.UUID, date profile.LocalDate, r *fortune.DayRecord) (diarydb.InsertDiaryDayParams, error) {
+	featured, guide, err := encodeJSON(r)
+	if err != nil {
+		return diarydb.InsertDiaryDayParams{}, err
+	}
+	allTags := r.AllTags
+	if allTags == nil {
+		allTags = []string{}
+	}
+	return diarydb.InsertDiaryDayParams{
+		AccountID:      accountID,
+		Date:           profile.PgDate(date),
+		AllTags:        allTags,
+		FeaturedTags:   featured,
+		GuideQuestion:  guide,
+		RulesetVersion: r.RulesetVersion,
+	}, nil
+}
+
+// encodeJSON은 r의 길흉 태그와 가이드 질문을 jsonb 값으로 바꿉니다. 질문이 비어 있으면 guide는 nil(NULL)입니다.
+func encodeJSON(r *fortune.DayRecord) (featured, guide []byte, err error) {
+	tags := make([]featuredJSON, len(r.Featured))
+	for i, t := range r.Featured {
 		tags[i] = featuredJSON{Key: t.Key, Polarity: string(t.Polarity)}
 	}
 	if featured, err = json.Marshal(tags); err != nil {
 		return nil, nil, fmt.Errorf("대표 태그 직렬화: %w", err)
 	}
-	if len(e.GuideQuestion) == 0 {
+	if len(r.GuideQuestion) == 0 {
 		return featured, nil, nil
 	}
-	segments := make([]segmentJSON, len(e.GuideQuestion))
-	for i, seg := range e.GuideQuestion {
+	segments := make([]segmentJSON, len(r.GuideQuestion))
+	for i, seg := range r.GuideQuestion {
 		segments[i] = segmentJSON{Text: seg.Text, Term: seg.Term}
 	}
 	if guide, err = json.Marshal(segments); err != nil {
@@ -255,6 +327,7 @@ func toEntry(row diarydb.GetDiaryRow) (Entry, error) {
 		}
 	}
 	return Entry{
+		ID:             row.ID,
 		Date:           profile.LocalDateFromPg(row.Date),
 		Body:           row.Body,
 		AllTags:        row.AllTags,
@@ -264,13 +337,4 @@ func toEntry(row diarydb.GetDiaryRow) (Entry, error) {
 		CreatedAt:      row.CreatedAt,
 		UpdatedAt:      row.UpdatedAt,
 	}, nil
-}
-
-// fromUpsertRow는 Upsert가 돌려준 행을 다른 조회와 같은 모양으로 맞춥니다. 일기 열이 늘면 여기서 옮깁니다.
-func fromUpsertRow(row diarydb.UpsertDiaryRow) diarydb.GetDiaryRow {
-	return diarydb.GetDiaryRow{
-		ID: row.ID, AccountID: row.AccountID, Date: row.Date, Body: row.Body, AllTags: row.AllTags,
-		FeaturedTags: row.FeaturedTags, GuideQuestion: row.GuideQuestion, RulesetVersion: row.RulesetVersion,
-		CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt,
-	}
 }

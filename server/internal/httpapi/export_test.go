@@ -5,3 +5,6 @@ var WithAccount = withAccount
 
 // ToChartForTest는 외부 테스트 패키지가 toChart(View -> 계약 Chart)를 직접 확인할 때 씁니다.
 var ToChartForTest = toChart
+
+// DecodeDiaryCursorForTest는 외부 테스트 패키지가 nextCursor를 풀어 확인할 때 씁니다.
+var DecodeDiaryCursorForTest = decodeDiaryCursor
