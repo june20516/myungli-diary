@@ -1,6 +1,6 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 2.6.1 · 토큰 계약 1.1.0 이상을 기대합니다.
+컴포넌트 계약 2.7.0 · 토큰 계약 1.1.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), 결정 V13~V38([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v3([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
@@ -83,6 +83,7 @@ IA 컴포넌트 41개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.5.0 | 2026-10-16 | 오늘 화면 대표 태그(#239, D76): `lucky-card` 변형 `tag`(글자 굵기 600 + 앞 아이콘 `tag` 본문색, 길흉 색 없음, V35), 칩 줄 맨 앞 순서, 칩 줄 줄 수 제한 없음 |
 | 2.6.0 | 2026-10-20 | app 계획 4 확인(#218): `date-picker` `solar`, `text-field` `multiline`, `event-row` 길이 없는 일정 규칙·두 줄 배치(`twoLines`·`timeColumn.overflow`)·`add`·`failed`·'외 N개' 라벨, `day-cell` 윤달 초하루 표지(V38)·윤달 라벨·높이 규칙(V36), 그날 시트 일기 입구(V37, `depth-link` `navigate` `daySheetSlot`), `dialog` `destructive`에 일정 삭제, 근거 여럿 쌓기(`repeat`)·한자 글꼴(`explainSheet.hanja`, 원전 `fontFallback`). 추가와 문구 |
 | 2.6.1 | 2026-10-20 | 규칙 정합성 점검(#284, D78): `lucky-card` 칩 최대 개수는 칩 줄 전체 6개(태그 2 + 행운 4), MD "쓰는 화면"을 IA에 맞춤. 문구만 |
+| 2.7.0 | 2026-10-22 | D82·D83(#389): `social-login-button` `line`·`google` 변형과 언어별 순서(`parts.stack.order`)·`connected`(V39), `account-choice` 새 컴포넌트와 `account-merge` 배치(V40), 두 버튼 `dialog` 첫 초점 삭제(V41, #354 ②), `day-cell` 윤달 표지 슬롯(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83). 추가와 값 변경 |
 
 ## 검사 (design)
 
