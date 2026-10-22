@@ -1,6 +1,7 @@
 -- +goose Up
 -- 계정 삭제 즉시 처리(S105)와 허가 취소 재시도(S106)의 저장입니다.
--- 삭제 대기 상태('pending_deletion')·30일 유예가 없어지므로, 남은 삭제 대기 계정을 지우고 옛 열과 CHECK를 deleted_at 하나로 바꿉니다.
+-- 삭제 대기 상태('pending_deletion')·30일 유예·익명화가 없어지므로, 남은 삭제 대기 계정을 지우고 옛 열과 CHECK를
+-- deleted_at 하나로 바꾸며, 프로필의 익명화 열도 없앱니다.
 
 -- 지운 시각입니다. 이미 'deleted'인 행은 옛 시각에서 채웁니다.
 ALTER TABLE accounts ADD COLUMN deleted_at timestamptz;
@@ -172,8 +173,30 @@ ALTER TABLE accounts ADD CONSTRAINT accounts_status_deleted_at CHECK (
 -- 떼기는 연결 행을 지우고 계정 삭제도 연결 행을 지우므로(S100·S105) 끊긴 시각 표시는 쓰지 않습니다.
 ALTER TABLE auth_identities DROP COLUMN provider_disconnected_at;
 
+-- 익명화가 없어졌으므로(S105, 계정 삭제가 프로필 행을 지움) profiles.anonymized_at과 익명화 전제 CHECK를 없앱니다.
+-- 익명화된 프로필은 익명화 job이 없어 생긴 적이 없지만, 남아 있다면 지운 계정의 것이라 지웁니다.
+-- 출생 정보 전체·호칭·출생 해시가 모두 있어야 한다는 조건은 그대로 profiles_complete로 지킵니다.
+DELETE FROM profiles WHERE anonymized_at IS NOT NULL;
+ALTER TABLE profiles DROP CONSTRAINT profiles_complete_until_anonymized;
+ALTER TABLE profiles DROP COLUMN anonymized_at;
+ALTER TABLE profiles ADD CONSTRAINT profiles_complete CHECK (
+    honorific IS NOT NULL AND calendar IS NOT NULL AND is_leap_month IS NOT NULL
+    AND birth_year IS NOT NULL AND birth_month IS NOT NULL AND birth_day IS NOT NULL
+    AND birth_time_status IS NOT NULL AND gender IS NOT NULL AND birth_timezone IS NOT NULL
+    AND birth_place_status IS NOT NULL AND birth_hash IS NOT NULL
+);
+
 -- +goose Down
 -- 열과 CHECK는 되돌리지만 지운 데이터(삭제 대기 계정의 개인 데이터)는 되돌리지 않습니다. 그 계정은 deleted로 남습니다.
+ALTER TABLE profiles DROP CONSTRAINT profiles_complete;
+ALTER TABLE profiles ADD COLUMN anonymized_at timestamptz;
+ALTER TABLE profiles ADD CONSTRAINT profiles_complete_until_anonymized CHECK (
+    anonymized_at IS NOT NULL
+    OR (honorific IS NOT NULL AND calendar IS NOT NULL AND is_leap_month IS NOT NULL
+        AND birth_year IS NOT NULL AND birth_month IS NOT NULL AND birth_day IS NOT NULL
+        AND birth_time_status IS NOT NULL AND gender IS NOT NULL AND birth_timezone IS NOT NULL
+        AND birth_place_status IS NOT NULL AND birth_hash IS NOT NULL)
+);
 ALTER TABLE auth_identities ADD COLUMN provider_disconnected_at timestamptz;
 ALTER TABLE accounts DROP CONSTRAINT accounts_status_deleted_at;
 ALTER TABLE accounts DROP CONSTRAINT accounts_status_check;

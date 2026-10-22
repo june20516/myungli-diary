@@ -204,7 +204,6 @@ type Profile struct {
 	NotifyStatus     string
 	NotifyTime       pgtype.Time
 	BirthHash        []byte
-	AnonymizedAt     *time.Time
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }

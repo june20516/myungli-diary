@@ -289,9 +289,10 @@ func fixedTarget(subject string, apple *appleGrant) prepareLogin {
 // login은 로그인 트랜잭션을 실행합니다.
 // 같은 (provider, subject)의 첫 로그인이 동시에 오면 한쪽이 identity insert에서 unique 위반을 받습니다.
 // 그때는 트랜잭션을 처음부터(prepare 포함) 한 번 다시 실행해, 먼저 commit된 identity와 계정을 씁니다.
+// 계정 삭제를 기다린 사이 같은 연결로 새 계정이 생긴 경우(errDeletedAccountIdentity)도 같이 다시 실행합니다.
 func (s *Service) login(ctx context.Context, providerName string, prepare prepareLogin) (LoginResult, error) {
 	result, err := s.loginOnce(ctx, providerName, prepare)
-	if isIdentityConflict(err) {
+	if retryableTxError(err) {
 		result, err = s.loginOnce(ctx, providerName, prepare)
 	}
 	if err != nil {
@@ -363,7 +364,7 @@ func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, no
 
 // checkDeletedIdentityGone은 지운 계정(deleted)에 묶여 읽힌 연결 행이 정말 지워졌는지 새 statement로 다시 확인합니다.
 // GetIdentity·GetIdentityForLink는 계정 행 잠금을 기다린 뒤 계정 행만 다시 확인하므로, 기다리는 사이 계정 삭제가
-// 지운 연결 행을 돌려줄 수 있습니다. 행이 남아 있으면 계정 삭제와 어긋난 데이터라 서버 오류로 멈춥니다.
+// 지운 연결 행을 돌려줄 수 있습니다. 행이 남아 있으면 errDeletedAccountIdentity이며, 호출자가 트랜잭션을 다시 실행합니다.
 func checkDeletedIdentityGone(ctx context.Context, q *authdb.Queries, accountID uuid.UUID, providerName, subject string) error {
 	exists, err := q.IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerName, Subject: subject})
 	if err != nil {
@@ -375,9 +376,20 @@ func checkDeletedIdentityGone(ctx context.Context, q *authdb.Queries, accountID 
 	return nil
 }
 
-// deletedAccountIdentityError는 지운 계정에 연결 행이 남은(계정 삭제와 어긋난) 데이터의 서버 오류입니다.
+// errDeletedAccountIdentity는 지운 계정에 묶여 읽힌 연결 행이 다시 확인해도 남아 있을 때의 오류입니다.
+// 계정 삭제 commit 직후 다른 트랜잭션이 같은 (provider, subject)로 새 계정을 만든 경우라면 트랜잭션을 다시 실행해
+// 그 새 연결을 찾으므로, 로그인·붙이기는 이 오류를 unique 위반과 같이 한 번 다시 실행합니다(retryableTxError).
+// 다시 실행해도 같으면 계정 삭제와 어긋난 데이터라 서버 오류로 남습니다.
+var errDeletedAccountIdentity = errors.New("auth: identity still linked to deleted account")
+
+// deletedAccountIdentityError는 errDeletedAccountIdentity에 계정 id를 붙입니다.
 func deletedAccountIdentityError(accountID uuid.UUID) error {
-	return fmt.Errorf("계정 %s: 지운 계정에 연결된 identity입니다", accountID)
+	return fmt.Errorf("계정 %s: 지운 계정에 연결된 identity입니다: %w", accountID, errDeletedAccountIdentity)
+}
+
+// retryableTxError는 로그인·붙이기 트랜잭션을 처음부터 한 번 다시 실행하면 풀리는 경합인지 알려 줍니다.
+func retryableTxError(err error) bool {
+	return isIdentityConflict(err) || errors.Is(err, errDeletedAccountIdentity)
 }
 
 // saveAppleGrant는 이미 있는 Apple 연결의 refresh token을 새 값으로 바꿉니다. 연결 id를 aad로 묶어 암호화합니다.

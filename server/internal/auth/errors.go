@@ -20,6 +20,8 @@ var (
 	ErrProviderTaken = errors.New("auth: provider already linked")
 	// ErrIdentityInUse는 붙이려는 연결이 다른 유저 계정에 있을 때 돌려줍니다(409 auth.identity_in_use, S110).
 	ErrIdentityInUse = errors.New("auth: identity in use by another account")
+	// ErrAccountDeleted는 붙이기·떼기 도중 현재 계정이 지워졌을 때 돌려줍니다(401 auth.token_invalid, S105).
+	ErrAccountDeleted = errors.New("auth: account deleted")
 	// ErrLastIdentity는 계정의 마지막 연결을 떼려 할 때 돌려줍니다(409 auth.last_identity).
 	ErrLastIdentity = errors.New("auth: last identity")
 	// ErrIdentityNotFound는 현재 계정에 떼려는 제공자 연결이 없을 때 돌려줍니다(404 auth.identity_not_found).

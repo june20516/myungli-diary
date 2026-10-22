@@ -200,11 +200,14 @@ func (s *Service) idTokenVerifier(providerName string) (IDTokenVerifier, error) 
 	}
 }
 
-// link는 붙이기 트랜잭션을 실행합니다. (provider, subject) unique 위반이면 한 번 다시 실행합니다.
-// 같은 연결을 동시에 붙인 쪽이 먼저 commit한 것이므로, 다시 실행하면 그 연결을 찾아 in-use(같은 계정이면 Created=false)가 됩니다.
+// link는 붙이기 트랜잭션을 실행합니다. 아래 경합이면 한 번 다시 실행합니다(retryableTxError).
+//
+//   - (provider, subject) unique 위반: 같은 연결을 동시에 붙인 쪽이 먼저 commit했습니다. 다시 실행하면 그 연결을 찾아
+//     in-use(같은 계정이면 Created=false)가 됩니다.
+//   - errDeletedAccountIdentity: 다른 계정 삭제를 기다린 사이 같은 연결로 새 계정이 생겼습니다. 다시 실행하면 그 새 연결을 찾습니다.
 func (s *Service) link(ctx context.Context, accountID uuid.UUID, providerName string, prepare prepareLogin) (LinkResult, error) {
 	result, err := s.linkOnce(ctx, accountID, providerName, prepare)
-	if isIdentityConflict(err) {
+	if retryableTxError(err) {
 		result, err = s.linkOnce(ctx, accountID, providerName, prepare)
 	}
 	return result, err
@@ -362,12 +365,15 @@ func isLinkableProvider(providerName string) bool {
 }
 
 // lockActiveAccount는 계정 행을 잠그고 active인지 확인합니다.
-// httpapi의 상태 관문이 active가 아닌 계정을 먼저 막으므로, 여기서 걸리는 것은 그 사이 계정 삭제가 끼어든 경우뿐입니다.
-// 지운 계정에 연결을 더하거나 빼지 않도록 서버 오류로 멈춥니다.
+// httpapi의 상태 관문이 active가 아닌 계정을 먼저 막으므로, 여기서 걸리는 것은 그 사이 계정 삭제가 끼어든 경우입니다.
+// 지운 계정이면 ErrAccountDeleted(401, 미들웨어가 지운 계정에 주는 응답과 같음)이고, 모르는 상태는 서버 오류입니다.
 func lockActiveAccount(ctx context.Context, q *authdb.Queries, accountID uuid.UUID) error {
 	status, err := q.LockAccountStatus(ctx, accountID)
 	if err != nil {
 		return fmt.Errorf("계정 잠금: %w", err)
+	}
+	if status == statusDeleted {
+		return ErrAccountDeleted
 	}
 	if status != statusActive {
 		return fmt.Errorf("계정 %s: active가 아닙니다(%s)", accountID, status)

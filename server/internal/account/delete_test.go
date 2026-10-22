@@ -385,8 +385,11 @@ func TestDeletedAccount_RejectsPersonalWrites(t *testing.T) {
 		sql  string
 		args []any
 	}{
-		"profiles insert": {`INSERT INTO profiles (account_id, language, current_timezone, notify_status, anonymized_at)
-			VALUES ($1, 'ko', 'Asia/Seoul', 'not_asked', now())`, []any{target.id}},
+		"profiles insert": {`INSERT INTO profiles (account_id, honorific, language, current_timezone, calendar, is_leap_month,
+			birth_year, birth_month, birth_day, birth_time_status, gender, birth_timezone, birth_place_status,
+			notify_status, birth_hash)
+			VALUES ($1, '벗', 'ko', 'Asia/Seoul', 'solar', false, 1990, 3, 14, 'unknown', 'female', 'Asia/Seoul',
+			'not_asked', 'not_asked', $2)`, []any{target.id, hash}},
 		"diary_days insert": {`INSERT INTO diary_days (account_id, date, all_tags, featured_tags, ruleset_version)
 			VALUES ($1, '2026-10-20', '{}', '[]', 'r1')`, []any{target.id}},
 		"schedules insert": {`INSERT INTO schedules (id, account_id, date, all_day, title) VALUES ($1, $2, '2026-10-21', true, 't')`,

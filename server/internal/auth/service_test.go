@@ -311,6 +311,70 @@ func TestLoginKakao_WaitsForDeleteThenCreatesNewAccount(t *testing.T) {
 	assert.NotEqual(t, first.AccountID, got.res.AccountID)
 }
 
+// relinkDuringDelete는 accountID의 삭제가 commit된 직후, 그 계정 행 잠금을 먼저 기다리던 다른 트랜잭션이 같은
+// (provider, subject)로 새 계정을 만들어 commit하는 경합을 결정적으로 재현합니다. waiter는 그 뒤에 잠금을 기다리는
+// 호출(로그인·붙이기)이며, waitQuery는 waiter가 잠금을 기다릴 때 pg_stat_activity에 보이는 쿼리 조각입니다.
+// 돌려주는 값은 새로 만든 계정 id입니다.
+func (f *fixture) relinkDuringDelete(t *testing.T, accountID uuid.UUID, provider, subject, waitQuery string, waiter func()) uuid.UUID {
+	t.Helper()
+	deleteTx, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = deleteTx.Rollback(context.Background()) })
+	_, err = account.DeleteAccountTx(f.ctx, deleteTx, accountID, f.clk.Now())
+	require.NoError(t, err)
+
+	// 다른 트랜잭션이 먼저 계정 행 잠금을 기다리고, 잠금을 얻으면 같은 연결로 새 계정을 만들어 commit합니다.
+	newAccount := uuid.Must(uuid.NewV7())
+	relinked := make(chan error, 1)
+	go func() {
+		relinked <- postgres.InTx(f.ctx, f.pool, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(f.ctx, `SELECT 1 /* relink */ FROM accounts WHERE id = $1 FOR UPDATE`, accountID); err != nil {
+				return err
+			}
+			if _, err := tx.Exec(f.ctx, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', $2)`, newAccount, testNow); err != nil {
+				return err
+			}
+			_, err := tx.Exec(f.ctx, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, $3, $4)`,
+				uuid.Must(uuid.NewV7()), newAccount, provider, subject)
+			return err
+		})
+	}()
+	waiting := func(fragment string) func() bool {
+		return func() bool {
+			return f.count(t, `SELECT count(*) FROM pg_stat_activity
+				WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE $1`, "%"+fragment+"%") == 1
+		}
+	}
+	require.Eventually(t, waiting("/* relink */"), 10*time.Second, 20*time.Millisecond)
+	go waiter()
+	require.Eventually(t, waiting(waitQuery), 10*time.Second, 20*time.Millisecond)
+	require.NoError(t, deleteTx.Commit(f.ctx))
+	require.NoError(t, <-relinked)
+	return newAccount
+}
+
+// 로그인이 기다린 사이 계정이 지워지고 같은 연결로 새 계정이 생기면, 로그인은 트랜잭션을 다시 실행해 그 새 계정으로 들어갑니다.
+func TestLoginKakao_RetriesWhenIdentityRelinkedDuringDelete(t *testing.T) {
+	f := newFixture(t)
+	first := f.loginKakao(t, "kakao-1")
+	type outcome struct {
+		res auth.LoginResult
+		err error
+	}
+	done := make(chan outcome, 1)
+	idToken := f.kakaoToken("kakao-1")
+
+	relinked := f.relinkDuringDelete(t, first.AccountID, "kakao", "kakao-1", "FOR UPDATE OF a", func() {
+		res, err := f.service.LoginKakao(f.ctx, idToken, testNonce)
+		done <- outcome{res, err}
+	})
+
+	got := <-done
+	require.NoError(t, got.err)
+	assert.Equal(t, relinked, got.res.AccountID)
+	assert.False(t, got.res.IsNewAccount)
+}
+
 // 지운 계정에 연결 행이 남은 것은 삭제와 어긋난 데이터라 서버 오류로 멈춥니다.
 func TestLoginKakao_DeletedAccountIdentityFails(t *testing.T) {
 	f := newFixture(t)
@@ -319,7 +383,7 @@ func TestLoginKakao_DeletedAccountIdentityFails(t *testing.T) {
 
 	_, err := f.service.LoginKakao(f.ctx, f.kakaoToken("kakao-1"), testNonce)
 
-	require.ErrorContains(t, err, "지운 계정에 연결된 identity")
+	require.ErrorContains(t, err, "지운 계정에 연결된 identity", "한 번 다시 실행해도 같으면 서버 오류입니다")
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM refresh_tokens`), "새 토큰을 만들지 않습니다")
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts`), "새 계정을 만들지 않습니다")
 }

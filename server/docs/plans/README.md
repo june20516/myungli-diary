@@ -54,7 +54,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 만료된 refresh token 정리는 "행을 물리적으로 지우지 않는다"(S6·S7, spec §2)의 예외입니다(시스템 데이터). 다만 `refresh_tokens.replaced_by_id`가 같은 테이블을 `ON DELETE RESTRICT`로 참조하므로(S20), 앞 토큰이 남아 있는 동안 그 다음 토큰은 지울 수 없습니다. family의 모든 토큰이 만료됐을 때 family 단위로 지우되 참조하는 행(앞 토큰)부터 지워야 합니다. RESTRICT는 한 DELETE 문 안에서도 행마다 즉시 검사하므로 한 문장에 몰아 지울 때의 순서에 기대지 않습니다(필요하면 FK를 `NO ACTION`으로 바꾸는 것을 검토).
 * 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
-* 계정 삭제(S105)는 `daily_selections`·`rotation_state`·`reactions`·`profiles`도 지우고, 반응은 지우기 전에 `reaction_tallies`에 더합니다(D57). 그래서 익명화 때 `birth_hash`를 비우는 일과 프로필 익명화 쿼리는 없어졌습니다. `profiles.anonymized_at` 열과 CHECK `profiles_complete_until_anonymized`는 아직 남아 있어 따로 정리할 수 있습니다.
+* 계정 삭제(S105)는 `daily_selections`·`rotation_state`·`reactions`·`profiles`도 지우고, 반응은 지우기 전에 `reaction_tallies`에 더합니다(D57). 그래서 익명화 때 `birth_hash`를 비우는 일과 프로필 익명화 쿼리는 없어졌습니다. `profiles.anonymized_at` 열과 CHECK `profiles_complete_until_anonymized`도 migration 00015가 없애고, 출생 정보가 모두 있어야 한다는 조건은 CHECK `profiles_complete`로 남겼습니다.
 * 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 지우지 않습니다(1회 제한).
 
 **P9 (배포)**

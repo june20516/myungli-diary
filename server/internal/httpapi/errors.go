@@ -76,6 +76,8 @@ var domainErrors = []domainError{
 	{target: auth.ErrRefreshReused, code: problem.AuthRefreshReused, title: "Refresh token reused"},
 	{target: auth.ErrExchangeInvalid, code: problem.AuthExchangeInvalid, title: "Exchange code invalid"},
 	{target: auth.ErrProviderTaken, code: problem.AuthProviderTaken, title: "Provider already linked"},
+	// 붙이기·떼기 도중 현재 계정이 지워졌습니다. 미들웨어가 지운 계정에 주는 응답과 같은 bearer 실패입니다.
+	{target: auth.ErrAccountDeleted, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
 	{target: auth.ErrIdentityInUse, code: problem.AuthIdentityInUse, title: "Identity in use"},
 	{target: auth.ErrLastIdentity, code: problem.AuthLastIdentity, title: "Last identity"},
 	{target: auth.ErrIdentityNotFound, code: problem.AuthIdentityNotFound, title: "Identity not found"},

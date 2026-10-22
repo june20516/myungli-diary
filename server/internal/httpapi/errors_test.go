@@ -183,6 +183,15 @@ func TestWriteHandlerError_IdentityInUseIs409WithoutMergeFields(t *testing.T) {
 	assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
 }
 
+// 붙이기·떼기 도중 자기 계정이 지워지면 미들웨어가 지운 계정에 주는 것과 같은 401입니다.
+func TestWriteHandlerError_AccountDeletedIsTokenInvalid(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, fmt.Errorf("line 붙이기: %w", auth.ErrAccountDeleted))
+
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	assert.Equal(t, "auth.token_invalid", p.Code)
+	assert.NotEmpty(t, rec.Header().Get("WWW-Authenticate"))
+}
+
 func TestWriteHandlerError_InvalidProofIsRequestInvalidWithOneField(t *testing.T) {
 	rec, p, _ := serveHandlerError(t, &auth.InvalidProofError{Field: "/exchangeCode", Code: "additionalProperties"})
 

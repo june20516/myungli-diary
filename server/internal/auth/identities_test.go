@@ -306,6 +306,61 @@ func TestLinkIdentity_CreatesWhenOtherAccountDeletedConcurrently(t *testing.T) {
 	assert.Equal(t, []string{"kakao", "line"}, f.providers(t, me))
 }
 
+// 붙이기가 기다린 사이 다른 계정이 지워지고 같은 연결로 새 계정이 생기면, 다시 실행해 그 새 계정의 연결로 보고 409입니다.
+func TestLinkIdentity_RetriesWhenIdentityRelinkedDuringDelete(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginLine(t, "U1").AccountID
+	me := f.loginKakao(t, "kakao-1").AccountID
+	done := make(chan error, 1)
+	proof := f.lineProof("U1")
+
+	f.relinkDuringDelete(t, other, "line", "U1", "FOR UPDATE OF a", func() {
+		_, err := f.service.LinkIdentity(f.ctx, me, "line", proof)
+		done <- err
+	})
+
+	require.ErrorIs(t, <-done, auth.ErrIdentityInUse)
+	assert.Equal(t, []string{"kakao"}, f.providers(t, me))
+}
+
+// 붙이기가 자기 계정의 삭제를 기다리면, 삭제가 commit된 뒤 ErrAccountDeleted입니다(httpapi가 401 auth.token_invalid로 바꿈).
+// 떼기도 같은 lockActiveAccount를 거칩니다.
+func TestLinkIdentity_WaitsForOwnAccountDeleteThenAccountDeleted(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-1").AccountID
+
+	tx, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = tx.Rollback(context.Background()) })
+	_, err = account.DeleteAccountTx(f.ctx, tx, me, f.clk.Now())
+	require.NoError(t, err)
+
+	done := make(chan error, 1)
+	proof := f.lineProof("U1")
+	go func() {
+		_, err := f.service.LinkIdentity(f.ctx, me, "line", proof)
+		done <- err
+	}()
+
+	require.Eventually(t, func() bool {
+		return f.count(t, `SELECT count(*) FROM pg_stat_activity
+			WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%SELECT status FROM accounts WHERE id = $1 FOR UPDATE%'`) == 1
+	}, 10*time.Second, 20*time.Millisecond)
+	require.NoError(t, tx.Commit(f.ctx))
+
+	require.ErrorIs(t, <-done, auth.ErrAccountDeleted)
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM auth_identities WHERE provider = 'line'`))
+}
+
+// 이미 지운 계정에서 떼기를 부르면 ErrAccountDeleted입니다.
+func TestUnlinkIdentity_DeletedAccountIsAccountDeleted(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-1").AccountID
+	f.deleteAccount(t, me)
+
+	require.ErrorIs(t, f.service.UnlinkIdentity(f.ctx, me, "kakao"), auth.ErrAccountDeleted)
+}
+
 // 지운 계정에 연결 행이 남은 것은 삭제와 어긋난 데이터라 서버 오류로 멈춥니다.
 func TestLinkIdentity_DeletedAccountIdentityFails(t *testing.T) {
 	f := newFixture(t)

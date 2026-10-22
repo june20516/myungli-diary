@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"testing"
@@ -182,6 +183,7 @@ func TestSchema00015_DropsLegacyColumns(t *testing.T) {
 		{"accounts", "deletion_requested_at"},
 		{"accounts", "anonymized_at"},
 		{"auth_identities", "provider_disconnected_at"},
+		{"profiles", "anonymized_at"},
 	} {
 		if columnExists(t, ctx, pool, c.table, c.column) {
 			t.Errorf("%s.%s가 남았습니다", c.table, c.column)
@@ -204,8 +206,25 @@ func TestSchema00015_PendingAccountsDeleted(t *testing.T) {
 	if err := insertActive(ctx, pool, accountB); err != nil {
 		t.Fatal(err)
 	}
+	identities := map[string]string{}
 	for _, id := range []string{accountA, accountB} {
-		seedPersonalData(t, ctx, pool, id)
+		identities[id] = seedPersonalData(t, ctx, pool, id)
+	}
+	// 삭제 대기 계정의 Apple 연결입니다. 암호화 값 그대로 허가 취소 대기 행으로 옮겨야 합니다.
+	appleToken, appleKeyID, appleClientID := []byte{0xA1, 0xB2, 0xC3}, "box-1", "com.example.app" //nolint:gosec // 테스트용 가짜 암호화 값입니다
+	var appleIdentity string
+	if err := pool.QueryRow(ctx, `INSERT INTO auth_identities (id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id)
+		VALUES (gen_random_uuid(), $1, 'apple', 'apple-pending', $2, $3, $4) RETURNING id::text`,
+		accountA, appleToken, appleKeyID, appleClientID).Scan(&appleIdentity); err != nil {
+		t.Fatal(err)
+	}
+	// 합치기 토큰은 삭제 대기 계정이 A(account_id)인 것과 B(other_account_id)인 것 둘 다 지워야 합니다.
+	for i, pair := range [][2]string{{accountA, accountB}, {accountB, accountA}} {
+		if _, err := pool.Exec(ctx, `INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
+			VALUES (gen_random_uuid(), $1, $2, $3, $4, now() + interval '10 minutes')`,
+			bytes.Repeat([]byte{byte(i + 1)}, 32), pair[0], pair[1], identities[pair[1]]); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	if err := postgres.Migrate(ctx, pool, "up"); err != nil {
@@ -228,13 +247,32 @@ func TestSchema00015_PendingAccountsDeleted(t *testing.T) {
 			t.Errorf("active 계정의 %s = %d행, want 1(그대로)", table, got)
 		}
 	}
-	if got := countRows(t, ctx, pool, `SELECT count(*) FROM chart_cache WHERE birth_hash = $1`, birthHashOf(accountA)); got != 0 {
-		t.Errorf("삭제 대기 계정의 차트 캐시 = %d행, want 0", got)
+	for _, table := range []string{"chart_cache", "daily_cache", "month_cache"} {
+		query := `SELECT count(*) FROM ` + table + ` WHERE birth_hash = $1`
+		if got := countRows(t, ctx, pool, query, birthHashOf(accountA)); got != 0 {
+			t.Errorf("삭제 대기 계정의 %s = %d행, want 0", table, got)
+		}
+		if got := countRows(t, ctx, pool, query, birthHashOf(accountB)); got != 1 {
+			t.Errorf("active 계정의 %s = %d행, want 1(그대로)", table, got)
+		}
 	}
-	// 카카오 허가 취소는 계정 삭제와 같이 대기 행으로 남겨 재시도 job이 처리합니다.
-	if got := countRows(t, ctx, pool, `SELECT count(*) FROM provider_revocations WHERE provider = 'kakao' AND subject = $1`,
-		subjectOf(accountA)); got != 1 {
-		t.Errorf("삭제 대기 계정의 허가 취소 대기 = %d행, want 1", got)
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM account_merge_tickets`); got != 0 {
+		t.Errorf("합치기 토큰 = %d행, want 0(A·B 어느 쪽이든 지움)", got)
+	}
+	// 카카오·Apple 허가 취소는 계정 삭제와 같이 대기 행으로 남겨 재시도 job이 처리합니다.
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM provider_revocations
+		WHERE provider = 'kakao' AND subject = $1 AND identity_id = $2 AND apple_refresh_token IS NULL`,
+		subjectOf(accountA), identities[accountA]); got != 1 {
+		t.Errorf("삭제 대기 계정의 카카오 허가 취소 대기 = %d행, want 1", got)
+	}
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM provider_revocations
+		WHERE provider = 'apple' AND subject IS NULL AND identity_id = $1
+		  AND apple_refresh_token = $2 AND apple_token_key_id = $3 AND apple_client_id = $4`,
+		appleIdentity, appleToken, appleKeyID, appleClientID); got != 1 {
+		t.Errorf("삭제 대기 계정의 Apple 허가 취소 대기(암호화 값 그대로) = %d행, want 1", got)
+	}
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM provider_revocations`); got != 2 {
+		t.Errorf("허가 취소 대기 전체 = %d행, want 2(active 계정 것은 없음)", got)
 	}
 	if got := countRows(t, ctx, pool, `SELECT count(*) FROM reaction_tallies`); got != 0 {
 		t.Errorf("반응 집계 = %d행, want 0(staging 데이터라 더하지 않음)", got)
@@ -266,8 +304,8 @@ func subjectOf(id string) string {
 	return "kakao-" + id[len(id)-12:]
 }
 
-// seedPersonalData는 00014 스키마에서 계정의 개인 데이터 표마다 한 행씩 채웁니다.
-func seedPersonalData(t *testing.T, ctx context.Context, pool *pgxpool.Pool, id string) {
+// seedPersonalData는 00014 스키마에서 계정의 개인 데이터 표와 출생 해시 캐시마다 한 행씩 채우고, 카카오 연결 id를 돌려줍니다.
+func seedPersonalData(t *testing.T, ctx context.Context, pool *pgxpool.Pool, id string) string {
 	t.Helper()
 	hash := birthHashOf(id)
 	exec := func(sql string, args ...any) {
@@ -294,11 +332,20 @@ func seedPersonalData(t *testing.T, ctx context.Context, pool *pgxpool.Pool, id 
 	exec(`INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'like')`, selectionID)
 	exec(`INSERT INTO rotation_state (account_id, message_key, next_variant) VALUES ($1, 'msg.a', 'v2')`, id)
 	exec(`INSERT INTO consents (id, account_id, document, version, agreed_at) VALUES (gen_random_uuid(), $1, 'terms', '1', now())`, id)
-	exec(`INSERT INTO auth_identities (id, account_id, provider, subject) VALUES (gen_random_uuid(), $1, 'kakao', $2)`, id, subjectOf(id))
+	var identityID string
+	if err := pool.QueryRow(ctx, `INSERT INTO auth_identities (id, account_id, provider, subject)
+		VALUES (gen_random_uuid(), $1, 'kakao', $2) RETURNING id::text`, id, subjectOf(id)).Scan(&identityID); err != nil {
+		t.Fatal(err)
+	}
 	exec(`INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
 		VALUES (gen_random_uuid(), $1, $2, gen_random_uuid(), now() + interval '1 hour')`, id, hash)
 	exec(`INSERT INTO idempotency_keys (account_id, key, request_hash, created_at) VALUES ($1, 'k1', $2, now())`, id, hash)
 	exec(`INSERT INTO chart_cache (birth_hash, ruleset_version, as_of_year, response) VALUES ($1, 'r1', 2026, '\x00')`, hash)
+	exec(`INSERT INTO daily_cache (birth_hash, ruleset_version, date, current_timezone, response)
+		VALUES ($1, 'r1', '2026-10-12', 'Asia/Seoul', '\x00')`, hash)
+	exec(`INSERT INTO month_cache (birth_hash, ruleset_version, year, month, current_timezone, response)
+		VALUES ($1, 'r1', 2026, 10, 'Asia/Seoul', '\x00')`, hash)
+	return identityID
 }
 
 // countRows는 SELECT count(*) 쿼리의 결과를 돌려줍니다.
@@ -339,6 +386,7 @@ func TestSchema00015_DownRestores(t *testing.T) {
 		{"accounts", "deletion_requested_at"},
 		{"accounts", "anonymized_at"},
 		{"auth_identities", "provider_disconnected_at"},
+		{"profiles", "anonymized_at"},
 	} {
 		if !columnExists(t, ctx, pool, c.table, c.column) {
 			t.Errorf("%s.%s가 되돌아오지 않았습니다", c.table, c.column)
