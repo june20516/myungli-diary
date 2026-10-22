@@ -224,6 +224,18 @@
         }
       }
     },
+    "timeline": {
+      "entry": {
+        "$type": "color",
+        "$value": "{color.neutral.700}",
+        "$description": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)"
+      },
+      "line": {
+        "$type": "color",
+        "$value": "{color.line}",
+        "$description": "일기 목록 세로 흐름 줄"
+      }
+    },
     "chip": {
       "bg": {
         "$type": "color",
@@ -266,13 +278,6 @@
         "$type": "color",
         "$value": "{color.term.fg}",
         "$description": "상태 꼬리표 글자"
-      }
-    },
-    "timeline": {
-      "line": {
-        "$type": "color",
-        "$value": "{color.line}",
-        "$description": "일기 목록 세로 흐름 줄"
       }
     },
     "scrim": {

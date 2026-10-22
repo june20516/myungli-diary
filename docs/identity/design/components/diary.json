@@ -1,11 +1,51 @@
 {
-  "version": "2.7.0",
+  "version": "2.8.0",
   "group": "diary",
   "components": [
     {
       "id": "diary-row",
-      "summary": "일기 목록 한 줄: 흐름 줄 위 날짜 + 카드",
+      "summary": "일기 줄: 흐름 줄 위 날짜 + 카드(목록), 같은 날 여러 편은 시각 + 한 줄 미리보기 줄",
       "uses": ["rail.timeline", "seal", "press.ink"],
+      "variants": [
+        {
+          "id": "day",
+          "when": "일기 목록·태그 모아보기. 그날 일기가 한 편이면 지금 모양(카드 전체가 버튼), 두 편 이상이면 묶음 카드",
+          "parts": {
+            "group": {
+              "when": "그날 일기 두 편 이상",
+              "pressable": false,
+              "order": ["badge", "entries", "tag"],
+              "entriesMarginTop": "{space.4}",
+              "preview": { "visible": false },
+              "tag": { "marginTop": "{space.8}" },
+              "note": "카드 바탕·반경·안쪽 여백은 한 편일 때와 같다. 최상위 preview(2줄) 대신 entry 줄을 쓰고, 태그 위 간격만 space.8로 덮어쓴다. 누를 곳은 entry 줄마다와 태그 칩"
+            }
+          }
+        },
+        {
+          "id": "entries",
+          "when": "오늘(가이드 질문 카드 아래)·그날 시트(일기 머리 아래). 날짜와 날의 성격은 화면이 이미 보여 준다",
+          "parts": {
+            "dateColumn": { "visible": false },
+            "number": { "visible": false },
+            "seal": { "visible": false },
+            "weekday": { "visible": false },
+            "rail": { "visible": false },
+            "card": { "visible": false },
+            "badge": { "visible": false },
+            "preview": { "visible": false },
+            "tag": { "visible": false },
+            "head": { "screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}" },
+            "container": {
+              "byScreen": {
+                "today": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}", "paddingY": "{space.4}", "marginTop": "{space.12}" },
+                "day-sheet": "none"
+              },
+              "whenEmpty": "그리지 않음"
+            }
+          }
+        }
+      ],
       "parts": {
         "dateColumn": { "width": { "value": 44, "unit": "px" }, "align": "center" },
         "number": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 18, "unit": "px" }, "fontWeight": 600, "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
@@ -15,18 +55,36 @@
         "card": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}", "marginStart": "{space.12}", "marginBottom": "{space.12}" },
         "badge": { "component": "day-character", "part": "badge" },
         "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}" },
-        "tag": { "component": "tag-chip", "count": 1, "marginTop": "{space.12}" }
+        "tag": { "component": "tag-chip", "count": 1, "marginTop": "{space.12}" },
+        "entry": {
+          "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "app이 기기 locale의 짧은 시각 형식으로 만듦(writing 슬롯 없음)" },
+          "preview": { "component": "sentence-block", "variant": "preview", "maxLines": 1, "marginStart": "{space.12}", "baseline": "time", "emptyKeepsLineHeight": true },
+          "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "fg": "{color.text.secondary}", "align": "center" },
+          "paddingY": "{space.12}",
+          "minHeight": { "value": 48, "unit": "px" },
+          "divider": { "style": "dashed", "width": { "value": 1, "unit": "px" }, "dash": { "value": 4, "unit": "px" }, "gap": { "value": 3, "unit": "px" }, "color": "{color.timeline.entry}", "between": "entries-only", "span": "row", "inMinHeight": true }
+        }
       },
       "states": {
-        "pressed": { "pattern": "press.ink", "note": "카드 안에서만" },
-        "loading": { "note": "날짜 열은 바로, 카드는 skeleton" }
+        "pressed": { "pattern": "press.ink", "note": "한 편 카드는 카드 안, 묶음 카드와 entries는 누른 entry 줄 안에서만" },
+        "loading": { "note": "day는 날짜 열을 바로, 카드는 skeleton. entries는 줄 두 개 높이 skeleton" }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "날짜 요일, 배지, 미리보기 첫 줄, 태그", "minTarget": 48 },
+      "a11y": {
+        "role": "button",
+        "label": "날짜 요일, 배지, 미리보기 첫 줄, 태그",
+        "minTarget": 48,
+        "group": { "when": "day에서 그날 일기 두 편 이상(묶음 카드). 카드의 role button을 이것으로 바꾼다", "role": "group", "label": "날짜 요일, 배지" },
+        "entry": { "when": "묶음 카드 안의 줄과 entries의 줄마다", "role": "button", "label": "시각, 미리보기 첫 줄", "emptyPreview": "본문이 비면 시각만 읽음" }
+      },
       "rules": [
         "날짜는 카드 밖 왼쪽 열에 둔다. 숫자는 옅은 도장 가운데.",
         "흐름 줄은 요일 아래에서 시작해 다음 날짜까지 이어진다. 마지막 줄 뒤에는 줄이 없다.",
-        "같은 달이 바뀌는 자리에 달 머리(type.subtitle)를 둔다."
+        "같은 달이 바뀌는 자리에 달 머리(type.subtitle)를 둔다.",
+        "같은 날 일기는 작성 순(createdAt 오름차순)으로 server 순서 그대로 놓는다. 같은 분에 쓴 일기도 app이 시각 문자열로 다시 정렬하지 않는다.",
+        "같은 날 일기는 몇 편이든 모두 보인다. 접거나 더 보기를 두지 않는다(계정을 합친 날은 상한보다 많을 수 있음).",
+        "entry 줄 사이에만 점선을 긋는다. 첫 줄 위와 끝 줄 아래에는 없다. 날짜 사이는 흐름 줄(실선), 같은 날 안은 점선이다.",
+        "묶음 카드에서도 흐름 줄은 카드 높이만큼 이어져 다음 날짜까지 간다."
       ]
     },
     {

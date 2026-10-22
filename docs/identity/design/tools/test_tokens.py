@@ -128,7 +128,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.1.0" in readme
+    assert "계약 버전: 1.2.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -177,3 +177,12 @@ def test_v2_type_styles():
     assert tokens["type.body.ui"]["$value"]["letterSpacing"] == {"value": -0.28, "unit": "px"}
     japanese = flatten(build_token_files()["typography.ja.tokens.json"])
     assert japanese["type.body.ui"]["$value"]["letterSpacing"] == {"value": 0, "unit": "px"}
+
+
+# 같은 날 일기 사이 점선 (2026-10-22-diary-row-multi-design.md §5)
+def test_timeline_entry_role():
+    files = build_token_files()
+    light = flatten(files["color.light.tokens.json"])
+    dark = flatten(files["color.dark.tokens.json"])
+    assert light["color.timeline.entry"]["$value"] == "{color.neutral.300}"
+    assert dark["color.timeline.entry"]["$value"] == "{color.neutral.700}"

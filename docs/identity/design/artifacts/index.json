@@ -671,5 +671,26 @@
     ],
     "status": "chosen",
     "note": "고르기 전 none, 강조는 최종 확인 dialog destructive 한 곳, 겹치는 날 안내는 경고 표시 없는 안심 안내. 표시 문구 '현재 계정'은 사용자 결정. 카드의 수단 로고는 spec에서 이름 글자로 바꿈(Google G 단독 금지)"
+  },
+  {
+    "id": "design-v2-diary-row-multi",
+    "title": "같은 날 여러 편: diary-row 묶음 카드와 점선 (D83)",
+    "kind": "concept",
+    "file": "2026-10-22-v2-diary-row-multi.png",
+    "source": "2026-10-22-v2-diary-row-multi.html",
+    "date": "2026-10-22",
+    "milestone": "V2",
+    "screens": [
+      "diary-list",
+      "tag-diary",
+      "today",
+      "day-sheet"
+    ],
+    "decisions": [
+      "V42",
+      "V43"
+    ],
+    "status": "chosen",
+    "note": "목록은 날짜 하나에 카드 하나(A안, B안 카드 여러 장은 버림). 줄 사이는 사용자가 고른 점선(실선과 같은 1px, 대시 4·간격 3). 10편 채운 날 입구는 disabled + writing Full 문구"
   }
 ]
