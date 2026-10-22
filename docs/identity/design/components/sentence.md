@@ -46,12 +46,12 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 ## depth-link
 
-* 쓰는 화면: today, explain-sheet, my-saju, birthplace·day-sheet(`navigate`)
+* 쓰는 화면: today, explain-sheet, my-saju, birthplace(`navigate`), day-sheet(IA 목록에는 있으나 결정 V42 뒤 쓰임이 없어 지휘에 정리를 요청함)
 * 근거 시트(evidence-sheet)의 구성도 이 컴포넌트가 정합니다(`parts.evidenceSheet`, 아래).
 * "근거 보기" + 화살표, `action.primary` `type.label.lg`.
 * `inline-end`: 이유 문장 끝에 붙습니다. `link.inline-nowrap`으로 링크 전체가 한 덩어리라, 줄 끝에 다 들어가지 않으면 통째로 다음 줄로 갑니다. "근거 / 보기"처럼 갈라지지 않습니다(시안 비교에서 고른 0-나).
 * `block`: 문단 아래 따로 놓입니다(나 탭).
-* `navigate`: 모양은 `block`과 같지만 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크와, `day-sheet`에서 그날 일기(`diary-view`)로 가는 "이날 일기 보기"(슬롯 `day-sheet.diary.open`, `label.daySheetSlot`, 결정 V37) 두 곳입니다. 출생지 링크의 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
+* `navigate`: 모양은 `block`과 같지만 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크 한 곳입니다. 그날 시트의 일기 입구는 D83 뒤 머리 + `diary-row` 줄로 바뀌어 이 변형을 쓰지 않습니다(결정 V42가 V37을 개정). 출생지 링크의 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
 * `inline-end`·`block`은 누르면 한 단계 깊은 시트가 열립니다. 이미 시트 안이면 `sheet.stack`으로 쌓입니다.
 * **화살표(결정 V29):** 화살표는 원고에 넣지 않습니다. 슬롯 문구는 링크 이름만이고, 컴포넌트가 그 뒤에 아이콘 `caret-right`(regular, 링크 글자 크기, 링크 색, 간격 2px)를 붙입니다. `›` 글리프는 ko·ja 글꼴에서 모양과 굵기가 달라 아이콘으로 바꿨습니다. 스크린리더는 읽지 않고(장식), 링크가 감기면 마지막 줄 끝에 붙어 마지막 낱말과 떨어지지 않습니다. `sentence-block` 잠김의 "열기"와 잠금 안내의 `pass` 링크도 같습니다.
 * 구현 힌트(Flutter): `inline-end`는 문장 끝 `WidgetSpan` 하나로 링크 이름과 화살표를 함께 담습니다.

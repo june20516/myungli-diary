@@ -8,7 +8,7 @@
       "uses": ["press.ink", "loading.breathe"],
       "variants": [
         { "id": "filled", "when": "화면의 주 동작" },
-        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 새 일기 쓰기)",
+        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼)",
           "parts": { "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" } }, "label": { "fg": "{color.action.primary}" } } },
         { "id": "destructive", "when": "되돌릴 수 없는 동작", "uses": ["mark.caution"],
           "parts": { "container": { "bg": "{color.text.primary}" }, "label": { "fg": "{color.bg.sheet}", "leading": "mark.caution" } } }

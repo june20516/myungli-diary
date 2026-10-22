@@ -228,7 +228,7 @@
       "entry": {
         "$type": "color",
         "$value": "{color.neutral.300}",
-        "$description": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 진함)"
+        "$description": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)"
       },
       "line": {
         "$type": "color",

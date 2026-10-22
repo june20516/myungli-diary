@@ -51,5 +51,9 @@
 IA 화면이라 컴포넌트가 아니지만, 쓰는 컴포넌트의 모양을 여기에 적습니다.
 
 * 날의 성격(`day-character`) → 일정(`event-row` `list`) → 일기 입구.
-* **일기 입구(결정 V37):** "이날 일기 보기"(`day-sheet.diary.open`)는 쓴 일기를 보러 가는 이동이라 `depth-link` `navigate`입니다. "이날 일기 쓰기"(`day-sheet.diary.write-cta`)는 일기를 새로 쓰는 동작이라 `primary-button` `filled`입니다(모양 규칙 V26: 실행하는 동작은 버튼). 오늘 화면 질문 카드의 "일기 쓰기"와 같은 무게입니다. 둘 중 하나만 보입니다.
+* **일기 구역(결정 V42, V37을 개정):** 위에서부터 다음 순서입니다.
+  1. 머리(`day-sheet.diary.open`, 편수): `diary-row` `entries`의 `head`(`type.label.md`, `text.secondary`, 위 `space.16`·아래 `space.4`). 링크가 아니라 글자입니다.
+  2. 그날 쓴 일기 줄(`diary-row` `entries`, 작성 순, 누르면 `diary-view`).
+  3. 쓰기 버튼(`day-sheet.diary.write-cta`): `primary-button` `filled`(모양 규칙 V26: 실행하는 동작은 버튼). 언제나 새 일기를 엽니다(D83 ③). 상한을 채운 날은 `disabled`(결정 V43).
+  * 그날 쓴 일기가 없으면 머리와 줄은 그리지 않고 쓰기 버튼만 둡니다. 문구 키는 writing이 날의 상태(쓰지 않음·이미 씀·상한)에 따라 정합니다.
 * 그날 시트에서 연 풀이 시트(`explain-sheet`)에는 "근거 보기"가 없습니다. IA의 day-sheet 깊이가 `surface`·`explain`까지이기 때문입니다.

@@ -59,7 +59,7 @@ ROLE_DESCRIPTIONS = {
     "tag.bad.fg": "나쁜 태그 칩 글자",
     "tag.neutral.border": "중립 태그 칩 테두리. 바탕은 없음",
     "tag.neutral.fg": "중립 태그 칩 글자",
-    "timeline.entry": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 진함)",
+    "timeline.entry": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)",
 }
 
 # 다른 역할을 그대로 가리키는 V2 역할 (V2 spec §5.3)

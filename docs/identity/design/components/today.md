@@ -38,7 +38,7 @@
 | 상태 | 질문 | 동작 | 도장 |
 | --- | --- | --- | --- |
 | `before` | `type.sentence.card` 본문색 | 주 버튼(`todayGuideCta`) | 없음 |
-| `after` | `text.secondary`로 흐림 | 가운데 조용한 버튼 "새 일기 쓰기"(`todayGuideCtaWritten`, 글자 `seal.on-soft`) | 버튼 글자 뒤 층에 `seal` soft 52px |
+| `after` | `text.secondary`로 흐림 | 가운데 조용한 버튼(`todayGuideCtaWritten`, 글자 `seal.on-soft`) | 버튼 글자 뒤 층에 `seal` soft 52px |
 | `full` | `text.secondary`로 흐림 | 같은 조용한 버튼 `disabled`(`todayGuideCtaFull`, 글자 `disabled.fg`) | `after`와 같음 |
 
 * 버튼은 `full`이 아니면 언제나 새 일기를 엽니다(D83 ③). 오늘 쓴 일기는 카드 아래 `diary-row` `entries`에서 엽니다.

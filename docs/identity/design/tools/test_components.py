@@ -747,10 +747,8 @@ def test_evidence_sheet_stacks_many_items_and_hanja_font():
 
 
 def test_day_sheet_diary_entrances():
-    navigate = next(v for v in component("sentence", "depth-link")["variants"] if v["id"] == "navigate")
-    assert navigate["parts"]["label"]["daySheetSlot"] == "day-sheet.diary.open"
     calendar_md = (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
-    assert "`day-sheet.diary.write-cta`" in calendar_md and "V37" in calendar_md
+    assert "`day-sheet.diary.write-cta`" in calendar_md and "V42" in calendar_md
 
 
 # 규칙 정합성 점검 #284 (D78): MD "쓰는 화면"은 IA components와 같다
@@ -877,7 +875,8 @@ def test_diary_row_same_day_entries():
     entry = row["parts"]["entry"]
     assert entry["divider"] == {"style": "dashed", "width": {"value": 1, "unit": "px"},
                                 "dash": {"value": 4, "unit": "px"}, "gap": {"value": 3, "unit": "px"},
-                                "color": "{color.timeline.entry}", "between": "entries-only"}
+                                "color": "{color.timeline.entry}", "between": "entries-only",
+                                "span": "row", "inMinHeight": True}
     assert entry["preview"]["maxLines"] == 1 and entry["preview"]["emptyKeepsLineHeight"] is True
     assert entry["time"]["fontFeatures"] == ["tnum"] and entry["time"]["source"] == "createdAt"
     assert entry["time"]["wrap"] is False
@@ -921,3 +920,44 @@ def test_d82_writing_keys_are_named():
     assert connected["slot"] == "ui.login-methods.row" and connected["key"] == "loginMethodsRowConnected"
     providers = component("input", "account-choice")["parts"]["providers"]
     assert providers["join"] == {"slot": "ui.account-merge.choice", "key": "accountChoiceProviderSeparator"}
+
+
+# 최종 리뷰 반영 (#410): 그날 시트 일기 머리, 변형 덮어쓰기, 묶음 카드 a11y
+def test_day_sheet_diary_head_is_not_a_link():
+    navigate = next(v for v in component("sentence", "depth-link")["variants"] if v["id"] == "navigate")
+    assert "daySheetSlot" not in navigate["parts"]["label"] and "그날 일기" not in navigate["when"]
+    entries = next(v for v in component("diary", "diary-row")["variants"] if v["id"] == "entries")
+    assert entries["parts"]["head"] == {"screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}",
+                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}"}
+    for name in ("calendar.md", "sentence.md"):
+        text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
+        assert "이날 일기 보기" not in text and "둘 중 하나만" not in text, name
+
+
+def test_diary_row_variant_overrides_are_explicit():
+    variants = {v["id"]: v for v in component("diary", "diary-row")["variants"]}
+    entries = variants["entries"]["parts"]
+    for part in ("card", "preview", "rail", "number", "seal", "weekday"):
+        assert entries[part]["visible"] is False, part
+    assert entries["container"] == {
+        "byScreen": {"today": {"bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}",
+                               "paddingY": "{space.4}", "marginTop": "{space.12}"}, "day-sheet": "none"},
+        "whenEmpty": "그리지 않음"}
+    group = variants["day"]["parts"]["group"]
+    assert group["preview"] == {"visible": False} and group["tag"] == {"marginTop": "{space.8}"}
+    assert "tagMarginTop" not in group
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "visible: false" in readme and "덮어" in readme
+
+
+def test_diary_row_group_a11y_replaces_button_role():
+    row = component("diary", "diary-row")
+    assert "두 편 이상" in row["a11y"]["group"]["when"] and row["a11y"]["group"]["role"] == "group"
+    assert row["a11y"]["entry"]["role"] == "button" and "entries" in row["a11y"]["entry"]["when"]
+    assert "시각만" in row["a11y"]["entry"]["emptyPreview"]
+    assert row["parts"]["entry"]["divider"]["span"] == "row"
+
+
+def test_manuscript_text_is_not_copied_into_design_docs():
+    for name in ("today.md", "elements.md"):
+        assert "새 일기 쓰기" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name

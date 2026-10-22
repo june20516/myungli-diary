@@ -11,7 +11,7 @@
 | 변형 | 바탕 | 글자 | 쓰임 |
 | --- | --- | --- | --- |
 | `filled` | `action.primary` | `action.on-primary` | 화면의 주 동작 |
-| `quiet` | 없음(높이 44) | `action.primary` | 다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 새 일기 쓰기 |
+| `quiet` | 없음(높이 44) | `action.primary` | 다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼 |
 | `destructive` | `text.primary` | `bg.sheet` + 앞에 `mark.caution` | 되돌릴 수 없는 동작 |
 
 | 상태 | 모습 |
@@ -22,7 +22,7 @@
 
 * 스피너는 쓰지 않습니다. 버튼 처리 중의 점 숨쉬기가 유일한 대체입니다.
 * Material 힌트: `FilledButton`의 `overlayColor`·`elevation`·`surfaceTintColor`를 끄고 먹 번짐 층을 얹습니다.
-* 그날 시트(`day-sheet`)의 이날 일기 쓰기는 그날 일기가 상한을 채우면 `disabled` + `daySheetDiaryWriteCtaFull`입니다(결정 V43).
+* 그날 시트(`day-sheet`)의 이날 일기 쓰기(`filled`)는 그날 일기가 상한을 채우면 `disabled` + `daySheetDiaryWriteCtaFull`입니다(결정 V43).
 
 ## social-login-button
 

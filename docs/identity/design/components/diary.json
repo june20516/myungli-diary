@@ -16,8 +16,9 @@
               "pressable": false,
               "order": ["badge", "entries", "tag"],
               "entriesMarginTop": "{space.4}",
-              "tagMarginTop": "{space.8}",
-              "note": "카드 바탕·반경·안쪽 여백은 한 편일 때와 같다. 누를 곳은 entry 줄마다와 태그 칩"
+              "preview": { "visible": false },
+              "tag": { "marginTop": "{space.8}" },
+              "note": "카드 바탕·반경·안쪽 여백은 한 편일 때와 같다. 최상위 preview(2줄) 대신 entry 줄을 쓰고, 태그 위 간격만 space.8로 덮어쓴다. 누를 곳은 entry 줄마다와 태그 칩"
             }
           }
         },
@@ -26,11 +27,20 @@
           "when": "오늘(가이드 질문 카드 아래)·그날 시트(일기 머리 아래). 날짜와 날의 성격은 화면이 이미 보여 준다",
           "parts": {
             "dateColumn": { "visible": false },
+            "number": { "visible": false },
+            "seal": { "visible": false },
+            "weekday": { "visible": false },
+            "rail": { "visible": false },
+            "card": { "visible": false },
             "badge": { "visible": false },
+            "preview": { "visible": false },
             "tag": { "visible": false },
+            "head": { "screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}" },
             "container": {
-              "today": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}", "paddingY": "{space.4}", "marginTop": "{space.12}" },
-              "day-sheet": "none",
+              "byScreen": {
+                "today": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}", "paddingY": "{space.4}", "marginTop": "{space.12}" },
+                "day-sheet": "none"
+              },
               "whenEmpty": "그리지 않음"
             }
           }
@@ -52,7 +62,7 @@
           "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "fg": "{color.text.secondary}", "align": "center" },
           "paddingY": "{space.12}",
           "minHeight": { "value": 48, "unit": "px" },
-          "divider": { "style": "dashed", "width": { "value": 1, "unit": "px" }, "dash": { "value": 4, "unit": "px" }, "gap": { "value": 3, "unit": "px" }, "color": "{color.timeline.entry}", "between": "entries-only" }
+          "divider": { "style": "dashed", "width": { "value": 1, "unit": "px" }, "dash": { "value": 4, "unit": "px" }, "gap": { "value": 3, "unit": "px" }, "color": "{color.timeline.entry}", "between": "entries-only", "span": "row", "inMinHeight": true }
         }
       },
       "states": {
@@ -64,8 +74,8 @@
         "role": "button",
         "label": "날짜 요일, 배지, 미리보기 첫 줄, 태그",
         "minTarget": 48,
-        "group": { "role": "group", "label": "날짜 요일, 배지" },
-        "entry": { "role": "button", "label": "시각, 미리보기 첫 줄" }
+        "group": { "when": "day에서 그날 일기 두 편 이상(묶음 카드). 카드의 role button을 이것으로 바꾼다", "role": "group", "label": "날짜 요일, 배지" },
+        "entry": { "when": "묶음 카드 안의 줄과 entries의 줄마다", "role": "button", "label": "시각, 미리보기 첫 줄", "emptyPreview": "본문이 비면 시각만 읽음" }
       },
       "rules": [
         "날짜는 카드 밖 왼쪽 열에 둔다. 숫자는 옅은 도장 가운데.",

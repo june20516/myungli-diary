@@ -24,7 +24,7 @@
 | `id` | IA `components`의 id |
 | `summary` | 한 줄 설명 |
 | `uses` | 쓰는 요소·패턴 |
-| `variants` | 변형 목록(`id`, `when`, 달라지는 `parts`) |
+| `variants` | 변형 목록(`id`, `when`, 달라지는 `parts`). 변형의 `parts`는 최상위 `parts`의 같은 이름을 덮어쓰고, 최상위에 있지만 그 변형에서 그리지 않는 부품은 `visible: false`로 적습니다 |
 | `parts` | 구성 요소별 토큰과 크기 |
 | `states` | 상태별 차이(`pattern`, `parts`, `note`) |
 | `motion` | 여러 단계로 이어지는 움직임(예: 일기 저장 순서) |
@@ -84,7 +84,7 @@ IA 컴포넌트 42개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.6.0 | 2026-10-20 | app 계획 4 확인(#218): `date-picker` `solar`, `text-field` `multiline`, `event-row` 길이 없는 일정 규칙·두 줄 배치(`twoLines`·`timeColumn.overflow`)·`add`·`failed`·'외 N개' 라벨, `day-cell` 윤달 초하루 표지(V38)·윤달 라벨·높이 규칙(V36), 그날 시트 일기 입구(V37, `depth-link` `navigate` `daySheetSlot`), `dialog` `destructive`에 일정 삭제, 근거 여럿 쌓기(`repeat`)·한자 글꼴(`explainSheet.hanja`, 원전 `fontFallback`). 추가와 문구 |
 | 2.6.1 | 2026-10-20 | 규칙 정합성 점검(#284, D78): `lucky-card` 칩 최대 개수는 칩 줄 전체 6개(태그 2 + 행운 4), MD "쓰는 화면"을 IA에 맞춤. 문구만 |
 | 2.7.0 | 2026-10-22 | D82·D83(#389): `social-login-button` `line`·`google` 변형과 언어별 순서(`parts.stack.order`)·`connected`(V39), `account-choice` 새 컴포넌트와 `account-merge` 배치(V40), 두 버튼 `dialog` 첫 초점 삭제(V41, #354 ②), `day-cell` 윤달 표지 슬롯(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83). 추가와 값 변경 |
-| 2.8.0 | 2026-10-22 | D83(#410): `diary-row` 변형 `day`(같은 날 묶음 카드)·`entries`(오늘·그날 시트)와 `entry` 줄·점선(V42), `guide-question-card` 상태 `full`과 `date-picker` `calendar` 상한 규칙(V43), 토큰 1.2.0 이상 기대(`color.timeline.entry`), writing 키 이름 채움(`loginMethodsRowConnected`·`accountChoiceProviderSeparator`, #441). 추가와 값 변경 |
+| 2.8.0 | 2026-10-22 | D83(#410): `diary-row` 변형 `day`(같은 날 묶음 카드)·`entries`(오늘·그날 시트)와 `entry` 줄·점선(V42), `guide-question-card` 상태 `full`과 `date-picker` `calendar` 상한 규칙(V43), 토큰 1.2.0 이상 기대(`color.timeline.entry`), writing 키 이름 채움(`loginMethodsRowConnected`·`accountChoiceProviderSeparator`, #441), 그날 시트 일기 입구를 머리(`entries.head`) + 줄로 바꾸고 `depth-link` `navigate`의 `label.daySheetSlot` 삭제(V37 개정). 추가와 값 변경 |
 
 ## 검사 (design)
 

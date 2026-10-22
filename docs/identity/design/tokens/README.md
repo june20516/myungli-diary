@@ -3,7 +3,7 @@
 계약 버전: 1.2.0
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13([`../decisions.md`](../decisions.md)), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
+* 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
 * 컴포넌트 명세(`../components/`)가 이 토큰을 `{이름}`으로 가리킵니다.
 * 형식: [DTCG Format Module 2025.10](https://www.designtokens.org/tr/2025.10/format/)
 * 이 파일들은 생성기가 만듭니다. **손으로 고치지 않습니다.** 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
@@ -39,7 +39,7 @@
   * 다음 두 경우만 값을 직접 적습니다.
     * 원시 팔레트에 없는 색: 그라데이션, 오행 바탕·글자
     * 알파가 있는 색(위 목록). 참조에는 알파를 덧붙일 수 없기 때문입니다.
-  * 다른 역할을 그대로 가리키는 역할도 있습니다: `color.seal.fill` → `action.primary`, `color.status.*` → `term.*`, `color.calendar.weekday.sun`·`.sat` → `ohaeng.fire.fg`·`ohaeng.earth.fg`, `color.timeline.line` → `line`. 같은 날 일기 사이 점선 `color.timeline.entry`는 흐름 줄보다 한 단계 진한 값(라이트 `neutral.300`, 다크 `neutral.700`)입니다.
+  * 다른 역할을 그대로 가리키는 역할도 있습니다: `color.seal.fill` → `action.primary`, `color.status.*` → `term.*`, `color.calendar.weekday.sun`·`.sat` → `ohaeng.fire.fg`·`ohaeng.earth.fg`, `color.timeline.line` → `line`. 같은 날 일기 사이 점선 `color.timeline.entry`는 흐름 줄보다 한 단계 뚜렷한 값(라이트 `neutral.300`, 다크 `neutral.700`. 라이트는 더 진하고 다크는 더 밝음)입니다.
 * **치수:** `{"value": 16, "unit": "px"}`. 단위는 px만 씁니다. Flutter 논리 픽셀로 그대로 씁니다.
 * **움직임 시간 (`duration`):** `{"value": 320, "unit": "ms"}`.
 * **움직임 곡선 (`cubicBezier`):** `[x1, y1, x2, y2]`. Flutter `Cubic(x1, y1, x2, y2)`에 그대로 넣습니다.

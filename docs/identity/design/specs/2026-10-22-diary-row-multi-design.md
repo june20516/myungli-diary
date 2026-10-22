@@ -33,7 +33,7 @@ D83으로 일기를 하루에 여러 편 쓸 수 있습니다. 날의 성격(배
 | `preview` | `sentence-block` `preview`, **1줄** 말줄임. `time` 오른쪽에 남은 너비를 씀(간격 `space.12`), 첫 줄 기준선을 `time`과 맞춤 |
 | `chevron` | Phosphor `caret-right` 16 Light, `color.text.secondary`, 세로 가운데. 한 카드 안에 누를 곳이 여럿임을 알림 |
 | 줄 높이 | 위아래 `space.12`, 최소 48 |
-| 사이 구분 | 1px 점선, 대시 4px·간격 3px, `color.timeline.entry`. 줄과 줄 **사이에만** 그음(첫 줄 위·끝 줄 아래 없음) |
+| 사이 구분 | 1px 점선, 대시 4px·간격 3px, `color.timeline.entry`. 줄과 줄 **사이에만** 그음(첫 줄 위·끝 줄 아래 없음). 가로는 줄 전체 너비(시각 왼쪽 끝부터 꺾쇠 오른쪽 끝까지), 1px은 최소 48 안에 듦 |
 | 눌림 | 줄마다 `press.ink`, 누르면 그 일기 `diary-view` |
 
 * 순서는 작성 순(`createdAt` 오름차순)입니다. server 목록 순서 그대로입니다(draft.13).
@@ -59,7 +59,8 @@ D83으로 일기를 하루에 여러 편 쓸 수 있습니다. 날의 성격(배
 ### 3.3. `entries`의 바탕
 
 * `today`: 가이드 질문 카드 아래 `space.12`에 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16`, 위아래 `space.4`) 안에 줄을 놓습니다. 오늘 쓴 일기가 없으면 카드를 그리지 않습니다.
-* `day-sheet`: `day-sheet.diary.open` 머리 아래 시트 바탕에 카드 없이 바로 놓습니다. 그날 쓴 일기가 없으면 머리와 줄을 모두 그리지 않습니다.
+* `day-sheet`: 머리(`day-sheet.diary.open`, 편수, `head`: `type.label.md`, `text.secondary`, 위 `space.16`·아래 `space.4`) 아래 시트 바탕에 카드 없이 바로 놓습니다. 머리는 링크가 아니라 글자입니다(V37의 "이날 일기 보기" 링크를 개정). 그날 쓴 일기가 없으면 머리와 줄을 모두 그리지 않습니다.
+* `entries`는 최상위의 날짜 열·도장·흐름 줄·카드·배지·2줄 미리보기·태그를 모두 `visible: false`로 덮어씁니다.
 
 ### 3.4. 상태와 접근성
 
@@ -67,7 +68,7 @@ D83으로 일기를 하루에 여러 편 쓸 수 있습니다. 날의 성격(배
 * `loading`: `day`는 날짜 열을 바로, 카드는 skeleton(지금과 같음). `entries`는 줄 두 개 높이 skeleton.
 * 한 편 카드: role `button`, 라벨 "날짜 요일, 배지, 미리보기 첫 줄, 태그"(지금과 같음).
 * 묶음 카드: role `group`, 라벨 "날짜 요일, 배지". 안의 `entry` 줄은 각각 role `button`, 라벨 "시각, 미리보기 첫 줄". 편수는 줄 개수로 전해지므로 따로 읽지 않습니다.
-* `entries`의 줄도 role `button`, 라벨 "시각, 미리보기 첫 줄"입니다.
+* `entries`의 줄도 role `button`, 라벨 "시각, 미리보기 첫 줄"입니다. 본문이 비면 시각만 읽습니다.
 
 ## 4. 10편을 채운 날의 쓰는 입구 (D83 ②)
 
@@ -101,7 +102,9 @@ D83으로 일기를 하루에 여러 편 쓸 수 있습니다. 날의 성격(배
 * 모든 컴포넌트 JSON·`tools/components.py`·`components/README.md`: 2.8.0, 토큰 1.2.0 이상 기대
 * `tokens/color.light.tokens.json`·`color.dark.tokens.json`·`tokens/README.md`·`tools/test_tokens.py`: `color.timeline.entry`, 1.2.0
 * `docs/contracts/README.md`: 디자인 토큰·컴포넌트 명세 행
-* `decisions.md` V42·V43, `artifacts/index.json`, `CLAUDE.md`
+* `components/calendar.md`·`sentence.json`·`sentence.md`: 그날 시트 일기 구역을 머리 + `entries` + 쓰기 버튼으로 고침, `depth-link` `navigate`의 `label.daySheetSlot` 삭제(V37 개정, 최종 리뷰에서 찾음). `diary-row` `entries`에 머리 부품 `head`
+* `components/action.json`·`input.json`: writing #441 키 이름 채움(`connected`의 `loginMethodsRowConnected`, 수단 구분자 `accountChoiceProviderSeparator`)
+* `decisions.md` V42·V43(V37에 개정 표시), `artifacts/index.json`, `CLAUDE.md`
 
 ## 7. 결정
 

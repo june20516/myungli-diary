@@ -88,7 +88,7 @@
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "uses": ["link.inline-nowrap"], "parts": { "label": { "joiners": "link.inline-nowrap", "gapBefore": "U+00A0" } } },
         { "id": "block", "when": "나 탭·풀이 시트처럼 문단 아래 따로 놓임", "parts": { "label": { "align": "start" }, "container": { "marginTop": "{space.12}" } } },
-        { "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준, 그날 시트 → 그날 일기). 시트를 열지 않음", "parts": { "label": { "align": "start", "slot": "birthplace.standard.link", "daySheetSlot": "day-sheet.diary.open" }, "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }
+        { "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준). 시트를 열지 않음", "parts": { "label": { "align": "start", "slot": "birthplace.standard.link" }, "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }
       ],
       "parts": {
         "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
