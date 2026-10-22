@@ -104,6 +104,7 @@
 
 ## 다음 할 일
 1. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리.
+   * 대기: 지휘 #507(IA `login-methods`에 `primary-button` → `action.md` 쓰는 화면 줄에 `login-methods` 추가, `account-merge.cta.cancel` 삭제 → `lengths.py` `primary-button` 행에서 뺌)이 반영되면 drift로 따라잡습니다. writing #509 원고가 오면 글자 수를 원고와 견줍니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
