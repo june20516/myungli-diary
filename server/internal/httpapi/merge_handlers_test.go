@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
@@ -30,6 +31,16 @@ type fakeMerges struct {
 	gotAccount  uuid.UUID
 	gotProvider string
 	gotProof    auth.LinkProof
+
+	executed   int
+	gotToken   string
+	gotProfile merge.Profile
+}
+
+func (f *fakeMerges) Execute(_ context.Context, accountID uuid.UUID, token string, chosen merge.Profile) error {
+	f.executed++
+	f.gotAccount, f.gotToken, f.gotProfile = accountID, token, chosen
+	return f.err
 }
 
 func (f *fakeMerges) Preview(_ context.Context, accountID uuid.UUID, providerName string, proof auth.LinkProof) (string, time.Time, merge.Summary, error) {
@@ -137,4 +148,66 @@ func TestPreviewMerge_Unconfigured_503(t *testing.T) {
 
 	require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
 	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+}
+
+const mergeAccountsBody = `{"mergeToken":"merge-token","profile":"other"}`
+
+// mergeAPI는 합치기 실행 뒤 A의 Me를 만들 수 있는 API입니다.
+func mergeAPI(fm *fakeMerges) *httpapi.API {
+	api := meAPI(fakeEntitlements{})
+	api.Merges = fm
+	return api
+}
+
+func TestMergeAccounts_Handler(t *testing.T) {
+	fm := &fakeMerges{}
+	api := mergeAPI(fm)
+	api.Profiles = &fakeProfiles{exists: true}
+	handler, spec := newHandlerAPI(t, api)
+
+	req := postJSON(t, "/v1/me/merge", mergeAccountsBody)
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectContractResponse(t, spec, req, rec)
+	assert.Equal(t, fixedAccountID, fm.gotAccount)
+	assert.Equal(t, "merge-token", fm.gotToken)
+	assert.Equal(t, merge.ProfileOther, fm.gotProfile)
+	var got gen.Me
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	assert.Equal(t, fixedAccountID, got.AccountId, "남는 계정 A의 Me입니다")
+	assert.True(t, got.HasProfile)
+	assert.False(t, got.AdFree.Active)
+}
+
+func TestMergeAccounts_TokenInvalid(t *testing.T) {
+	handler, spec := newHandlerAPI(t, mergeAPI(&fakeMerges{err: merge.ErrTokenInvalid}))
+
+	req := postJSON(t, "/v1/me/merge", mergeAccountsBody)
+	rec := serve(handler, req)
+
+	require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
+	assert.Equal(t, "merge.token_invalid", decodeProblem(t, rec).Code)
+	assert.Empty(t, rec.Header().Get("WWW-Authenticate"), "현재 세션은 유효합니다")
+	expectContractResponse(t, spec, req, rec)
+}
+
+// 합치기 서비스나 Me를 만들 권한 판정이 없으면 합치기 전에 503입니다.
+func TestMergeAccounts_Unconfigured_503(t *testing.T) {
+	fm := &fakeMerges{}
+	cases := map[string]*httpapi.API{
+		"합치기 없음":   {Accounts: &fakeAccounts{me: account.Me{AccountID: fixedAccountID}}, Profiles: &fakeProfiles{}, Entitlements: fakeEntitlements{}},
+		"권한 판정 없음": {Merges: fm, Accounts: &fakeAccounts{}, Profiles: &fakeProfiles{}},
+	}
+	for name, api := range cases {
+		t.Run(name, func(t *testing.T) {
+			handler, _ := newHandlerAPI(t, api)
+
+			rec := serve(handler, postJSON(t, "/v1/me/merge", mergeAccountsBody))
+
+			require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
+			assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+		})
+	}
+	assert.Zero(t, fm.executed, "합치지 않습니다")
 }

@@ -205,6 +205,87 @@ func rechainEntitlement(ctx context.Context, q *billingdb.Queries, accountID uui
 	return nil
 }
 
+// LockAccountsTx는 계정들의 결제 advisory lock(S82)을 tx 안에서 한 번에 잡습니다. 트랜잭션이 끝나면 풀립니다.
+// 결제 동기화와 같은 lock·순서라, 합치기처럼 billing 밖에서 구매 장부를 바꾸는 트랜잭션이 동기화와 차례를 지키게 합니다.
+func LockAccountsTx(ctx context.Context, tx pgx.Tx, ids ...uuid.UUID) error {
+	return lockBillingAccounts(ctx, tx, ids...)
+}
+
+// MovePurchasesTx는 계정 합치기에서 from(B)의 구매를 to(A)로 옮깁니다(spec §5.3·§6.3, D88 ①).
+//
+//   - from의 아직 끝나지 않은 광고 제거권 구간을 now에서 끊습니다. B 쪽 행은 남습니다. 사용 중 구간은 expires_at = now로 끝내고,
+//     아직 시작하지 않았거나 now에 막 시작한 구간은 끝을 now로 두면 길이가 0이라(CHECK expires_at > starts_at) revoked_at = now로 끊습니다.
+//   - 끊기 전 남은 길이(expires_at - max(starts_at, now))로 to 쪽에 같은 권한·구매의 구간을 to의 구간 끝에 놓고,
+//     rechainFromTx(to, now)로 to의 대기 구간을 구매 시각 순으로 다시 잇습니다.
+//   - from이 주인인 구매는 구간이 없는 것(끝남·환불·목록 밖 상품)까지 모두 주인을 to로 바꾸고 merged_at = now를 적습니다.
+//
+// lock은 잡지 않습니다. 호출자가 같은 tx에서 LockAccountsTx(from, to)로 두 계정의 결제 lock을 먼저 잡아야 합니다.
+func MovePurchasesTx(ctx context.Context, tx pgx.Tx, from, to uuid.UUID, now time.Time) error {
+	q := billingdb.New(tx)
+	segments, err := q.ListMovablePassSegments(ctx, billingdb.ListMovablePassSegmentsParams{AccountID: from, Now: now})
+	if err != nil {
+		return fmt.Errorf("옮길 구간 조회: %w", err)
+	}
+	for _, segment := range segments {
+		if err := cutSegmentAt(ctx, q, from, segment, now); err != nil {
+			return err
+		}
+	}
+
+	if err := q.MovePurchasesOwner(ctx, billingdb.MovePurchasesOwnerParams{ToAccountID: to, Now: now, FromAccountID: from}); err != nil {
+		return fmt.Errorf("구매 주인 옮기기: %w", err)
+	}
+
+	// 끊은 순서(권한, B 사슬 순)대로 A 끝에 붙인 뒤 다시 잇기가 A의 대기 구간 전체를 구매 시각 순으로 맞춥니다.
+	for _, segment := range segments {
+		if err := appendRemaining(ctx, q, to, segment, now); err != nil {
+			return err
+		}
+	}
+	if err := rechainFromTx(ctx, q, to, now); err != nil {
+		return fmt.Errorf("합친 구간 다시 잇기: %w", err)
+	}
+	return nil
+}
+
+// cutSegmentAt은 from 쪽 구간을 now에서 끊습니다. 사용 중이면 끝을 now로, 시작 전이거나 now에 시작했으면 취소로 둡니다.
+func cutSegmentAt(ctx context.Context, q *billingdb.Queries, from uuid.UUID, segment billingdb.ListMovablePassSegmentsRow, now time.Time) error {
+	if segment.StartsAt.Before(now) {
+		if err := q.EndGrantAt(ctx, billingdb.EndGrantAtParams{Now: now, ID: segment.ID, AccountID: from}); err != nil {
+			return fmt.Errorf("옮길 구간 끝내기(%d): %w", segment.ID, err)
+		}
+		return nil
+	}
+	if err := q.RevokeGrant(ctx, billingdb.RevokeGrantParams{Now: now, ID: segment.ID, AccountID: from}); err != nil {
+		return fmt.Errorf("옮길 구간 끊기(%d): %w", segment.ID, err)
+	}
+	return nil
+}
+
+// appendRemaining은 from 구간의 남은 길이로 to 쪽 구간을 to의 같은 권한 구간 끝(없으면 now)에 놓습니다.
+func appendRemaining(ctx context.Context, q *billingdb.Queries, to uuid.UUID, segment billingdb.ListMovablePassSegmentsRow, now time.Time) error {
+	remaining := segment.ExpiresAt.Sub(latest(segment.StartsAt, now))
+	startsAt, err := q.NextPassStart(ctx, billingdb.NextPassStartParams{
+		PurchasedAt: now,
+		AccountID:   to,
+		Entitlement: segment.Entitlement,
+	})
+	if err != nil {
+		return fmt.Errorf("합친 구간 시작 계산(%s %s): %w", segment.Entitlement, segment.SourceRef, err)
+	}
+	err = q.InsertPassGrant(ctx, billingdb.InsertPassGrantParams{
+		AccountID:   to,
+		Entitlement: segment.Entitlement,
+		SourceRef:   segment.SourceRef,
+		StartsAt:    startsAt,
+		ExpiresAt:   startsAt.Add(remaining),
+	})
+	if err != nil {
+		return fmt.Errorf("합친 구간 저장(%s %s): %w", segment.Entitlement, segment.SourceRef, err)
+	}
+	return nil
+}
+
 func latest(a, b time.Time) time.Time {
 	if b.After(a) {
 		return b

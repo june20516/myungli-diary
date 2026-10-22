@@ -16,6 +16,8 @@ type Querier interface {
 	AccountCurrentTimezone(ctx context.Context, accountID uuid.UUID) (string, error)
 	// 이벤트의 처리 완료 시각입니다. NULL이면 아직 처리하지 않았거나 앞선 처리가 실패했습니다.
 	BillingEventProcessedAt(ctx context.Context, eventID string) (*time.Time, error)
+	// 사용 중 구간을 지금에서 끝냅니다(합치기로 옮긴 B 구간). 취소된 구간은 바꾸지 않습니다.
+	EndGrantAt(ctx context.Context, arg EndGrantAtParams) error
 	// 후보 id 중 accounts에 있는 id입니다(webhook 계정 찾기, P7-7). 순서는 보장하지 않으므로 호출한 쪽이 후보 순서로 맞춥니다.
 	ExistingAccountIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error)
 	// webhook 이벤트를 기록합니다. 같은 event_id가 이미 있으면 아무것도 하지 않습니다(P7-8).
@@ -38,6 +40,10 @@ type Querier interface {
 	// 계정의 취소되지 않았고 아직 만료되지 않은 권한 행입니다. 시작 전인 행도 포함하므로 호출한 쪽이 starts_at을 봅니다.
 	// 순서는 (expires_at, id) 오름차순으로 고정합니다.
 	ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) ([]ListLiveGrantsRow, error)
+	// 아래는 계정 합치기(MovePurchasesTx, spec §5.3·§6.3)의 쿼리입니다.
+	// 옮길 계정의 아직 끝나지 않은 광고 제거권 구간입니다. 끊긴 구간(환불)과 보상형 광고 구간은 옮기지 않으므로 뺍니다.
+	// 순서는 권한, 그 계정 사슬의 시작 순입니다(받는 계정 끝에 차례로 붙임).
+	ListMovablePassSegments(ctx context.Context, arg ListMovablePassSegmentsParams) ([]ListMovablePassSegmentsRow, error)
 	// 계정의 취소되지 않은 광고 제거권 구간과 그 구매의 환불 여부입니다(rechainFrom, S108).
 	// 순서는 권한, 구매 시각, 구매 id입니다. 장부 이전 구간은 00016이 지웠으므로 모든 구간에 장부 행이 있습니다.
 	ListPassSegments(ctx context.Context, accountID uuid.UUID) ([]ListPassSegmentsRow, error)
@@ -45,6 +51,8 @@ type Querier interface {
 	MarkBillingEventProcessed(ctx context.Context, arg MarkBillingEventProcessedParams) error
 	// 구매를 환불로 적습니다. 이미 환불된 구매는 처음 시각을 그대로 두고 0행입니다.
 	MarkPurchaseRefunded(ctx context.Context, arg MarkPurchaseRefundedParams) (int64, error)
+	// 계정이 주인인 구매를 모두 받는 계정으로 옮기고 합친 시각을 적습니다. 처음 산 계정(original_account_id)은 그대로입니다.
+	MovePurchasesOwner(ctx context.Context, arg MovePurchasesOwnerParams) error
 	// 새 구매 구간의 시작 = max(구매 시각, 이 계정의 같은 권한 광고 제거권 구간 끝)입니다(S108).
 	// ListPassSegments와 같이 장부에 구매가 있는 취소되지 않은 구간만 셉니다. GREATEST는 NULL(구간 없음)을 무시합니다.
 	NextPassStart(ctx context.Context, arg NextPassStartParams) (time.Time, error)

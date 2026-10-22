@@ -7,6 +7,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -15,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
 	"github.com/june20516/myungli-diary/server/internal/auth/secretbox"
@@ -37,7 +40,26 @@ type fixture struct {
 	clk     *clocktest.Fake
 	fake    *providertest.Server
 	auth    *auth.Service
+	revoker *fakeRevoker
 	service *merge.Service
+}
+
+// fakeRevoker는 account.Revoker 대역입니다. 받은 허가 취소 대기 행 id를 호출마다 기록합니다.
+type fakeRevoker struct {
+	mu    sync.Mutex
+	calls [][]int64
+}
+
+func (f *fakeRevoker) Attempt(_ context.Context, ids []int64) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.calls = append(f.calls, ids)
+}
+
+func (f *fakeRevoker) recorded() [][]int64 {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([][]int64(nil), f.calls...)
 }
 
 func newFixture(t *testing.T) *fixture {
@@ -63,13 +85,15 @@ func newFixture(t *testing.T) *fixture {
 		Clock:  clk,
 	})
 	profiles := profile.NewService(pool, nil, clk)
+	revoker := &fakeRevoker{}
 	return &fixture{
 		ctx:     context.Background(),
 		pool:    pool,
 		clk:     clk,
 		fake:    fake,
 		auth:    authService,
-		service: merge.NewService(pool, authService, profiles, clk, nil),
+		revoker: revoker,
+		service: merge.NewService(pool, authService, profiles, revoker, clk, nil),
 	}
 }
 
@@ -307,4 +331,375 @@ func TestPreview_EachCallIssuesNewToken(t *testing.T) {
 
 	assert.NotEqual(t, first, second)
 	assert.Equal(t, 2, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
+}
+
+// issueToken은 A(me)가 B의 LINE 증명으로 요약을 불러 합치기 토큰을 받습니다.
+func (f *fixture) issueToken(t *testing.T, me uuid.UUID, lineSubject string) string {
+	t.Helper()
+	raw, _, _, err := f.service.Preview(f.ctx, me, "line", f.lineProof(lineSubject))
+	require.NoError(t, err)
+	return raw
+}
+
+// seedTaggedDay는 태그가 tag 하나인 날짜 기록을 넣습니다.
+func (f *fixture) seedTaggedDay(t *testing.T, accountID uuid.UUID, date, tag string) {
+	t.Helper()
+	f.exec(t, `INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version)
+		VALUES ($1, $2, ARRAY[$3::text], '[]', jsonb_build_array(jsonb_build_object('text', $3::text)), 'r1')`, accountID, date, tag)
+}
+
+// seedSelectionWithReaction은 메시지 키가 messageKey인 문장 선택 기록과 살아 있는 반응 하나를 넣고 선택 id를 돌려줍니다.
+// 출생 해시는 모든 계정이 같은 값이라 같은 (date, slot)이면 겹칩니다.
+func (f *fixture) seedSelectionWithReaction(t *testing.T, accountID uuid.UUID, date, messageKey, reaction string) int64 {
+	t.Helper()
+	f.exec(t, `INSERT INTO content_seeds (version, slots) VALUES ('seed-v1', '{}') ON CONFLICT DO NOTHING`)
+	var id int64
+	require.NoError(t, f.pool.QueryRow(f.ctx, `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+		VALUES ($1, $2, 'overall', $3, $4, 'v1', 'seed-v1') RETURNING id`, accountID, date, bytes.Repeat([]byte{1}, 32), messageKey).Scan(&id))
+	f.exec(t, `INSERT INTO reactions (selection_id, reaction) VALUES ($1, $2)`, id, reaction)
+	return id
+}
+
+func (f *fixture) accountStatus(t *testing.T, accountID uuid.UUID) string {
+	t.Helper()
+	var status string
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT status FROM accounts WHERE id = $1`, accountID).Scan(&status))
+	return status
+}
+
+func TestExecute_MovesRecordsAndDeletesB(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	// B는 카카오도 붙여 둡니다. B를 지울 때 카카오 허가 취소 대기 행 하나가 생깁니다(LINE은 server가 취소하지 않음).
+	_, err := f.auth.LinkIdentity(f.ctx, other, "kakao", f.kakaoProof("kakao-b"))
+	require.NoError(t, err)
+
+	f.seedDay(t, other, "2026-10-14")
+	f.seedDiary(t, other, "2026-10-14", false)
+	f.seedDiary(t, other, "2026-10-14", true)
+	f.seedSchedule(t, other, false)
+	f.seedSchedule(t, other, true)
+	selectionID := f.seedSelectionWithReaction(t, other, "2026-10-14", "msg.b", "like")
+	f.exec(t, `INSERT INTO rotation_state (account_id, message_key, next_variant) VALUES ($1, 'msg.b', 'v2')`, other)
+	token := f.issueToken(t, me, "U-b")
+
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	assert.Equal(t, 2, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, me), "지운 일기도 옮깁니다")
+	assert.Equal(t, 2, f.count(t, `SELECT count(*) FROM schedules WHERE account_id = $1`, me), "지운 일정도 옮깁니다")
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM diary_days WHERE account_id = $1 AND date = '2026-10-14'`, me))
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM daily_selections WHERE id = $1 AND account_id = $2`, selectionID, me))
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM reactions WHERE selection_id = $1 AND deleted_at IS NULL`, selectionID), "반응은 선택 기록을 따라갑니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM reaction_tallies`), "옮긴 반응은 집계에 더하지 않습니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM rotation_state WHERE account_id = $1`, me), "순환 상태는 A 것을 씁니다")
+
+	assert.Equal(t, "deleted", f.accountStatus(t, other))
+	assert.Equal(t, "active", f.accountStatus(t, me))
+	for _, table := range []string{"auth_identities", "refresh_tokens", "diaries", "diary_days", "schedules", "daily_selections", "rotation_state", "consents"} {
+		assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM `+table+` WHERE account_id = $1`, other), "%s에 B 행이 없습니다", table)
+	}
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1`, me), "인증 계정은 옮기지 않습니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`), "B를 지우며 토큰도 지웁니다")
+
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM provider_revocations WHERE provider = 'kakao' AND subject = 'kakao-b'`))
+	calls := f.revoker.recorded()
+	require.Len(t, calls, 1, "commit 뒤 허가 취소를 한 번 시도합니다")
+	assert.Len(t, calls[0], 1)
+}
+
+// 같은 날짜의 날짜 기록과 같은 (date, slot, birth_hash)의 문장 선택 기록은 고른 프로필 쪽을 남깁니다(spec §6.3).
+// 다른 쪽 일기는 모두 남긴 날짜 기록 아래로 옮기고, 다른 쪽 선택에 붙은 반응은 집계에 더한 뒤 지웁니다.
+func TestExecute_OverlapKeepsChosenProfileSide(t *testing.T) {
+	cases := []struct {
+		name         string
+		profile      merge.Profile
+		keptTag      string
+		keptMessage  string
+		tallyMessage string
+		tallyAction  string
+	}{
+		{name: "other", profile: merge.ProfileOther, keptTag: "tag.b", keptMessage: "msg.b", tallyMessage: "msg.a", tallyAction: "like"},
+		{name: "current", profile: merge.ProfileCurrent, keptTag: "tag.a", keptMessage: "msg.a", tallyMessage: "msg.b", tallyAction: "dislike"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newFixture(t)
+			me := f.loginKakao(t, "kakao-a")
+			other := f.loginLine(t, "U-b")
+			f.seedProfile(t, me, "민지")
+			f.seedProfile(t, other, "벗")
+			f.seedTaggedDay(t, me, "2026-10-12", "tag.a")
+			f.seedDiary(t, me, "2026-10-12", false)
+			f.seedTaggedDay(t, other, "2026-10-12", "tag.b")
+			f.seedDiary(t, other, "2026-10-12", false)
+			f.seedDiary(t, other, "2026-10-12", true)
+			mine := f.seedSelectionWithReaction(t, me, "2026-10-12", "msg.a", "like")
+			theirs := f.seedSelectionWithReaction(t, other, "2026-10-12", "msg.b", "dislike")
+			token := f.issueToken(t, me, "U-b")
+
+			require.NoError(t, f.service.Execute(f.ctx, me, token, tc.profile))
+
+			var tags []string
+			var question string
+			require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT all_tags, guide_question->0->>'text' FROM diary_days WHERE account_id = $1 AND date = '2026-10-12'`, me).
+				Scan(&tags, &question))
+			assert.Equal(t, []string{tc.keptTag}, tags)
+			assert.Equal(t, tc.keptTag, question, "가이드 질문도 남긴 쪽 것입니다")
+			assert.Equal(t, 3, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1 AND date = '2026-10-12'`, me), "일기는 하나도 지우지 않습니다")
+
+			assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM daily_selections WHERE account_id = $1 AND date = '2026-10-12'`, me))
+			assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM daily_selections WHERE account_id = $1 AND message_key = $2`, me, tc.keptMessage))
+			assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM reactions WHERE selection_id IN ($1, $2)`, mine, theirs), "남긴 선택의 반응만 남습니다")
+			var tallied int
+			require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT count FROM reaction_tallies WHERE message_key = $1 AND variant = 'v1' AND reaction = $2`,
+				tc.tallyMessage, tc.tallyAction).Scan(&tallied))
+			assert.Equal(t, 1, tallied, "지운 쪽 반응은 집계에 더합니다")
+			assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM reaction_tallies`))
+		})
+	}
+}
+
+func TestExecute_ProfileOtherReplacesProfile(t *testing.T) {
+	t.Run("other는 B 프로필로 A를 바꿉니다", func(t *testing.T) {
+		f := newFixture(t)
+		me := f.loginKakao(t, "kakao-a")
+		other := f.loginLine(t, "U-b")
+		f.seedProfile(t, me, "민지")
+		f.seedProfile(t, other, "벗")
+		f.exec(t, `UPDATE profiles SET birth_year = 1985, language = 'ja', birth_hash = $2 WHERE account_id = $1`, other, bytes.Repeat([]byte{3}, 32))
+
+		require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileOther))
+
+		var honorific, language string
+		var year int
+		var hash []byte
+		require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT honorific, birth_year, language, birth_hash FROM profiles WHERE account_id = $1`, me).
+			Scan(&honorific, &year, &language, &hash))
+		assert.Equal(t, "벗", honorific)
+		assert.Equal(t, 1985, year)
+		assert.Equal(t, "ja", language, "설정도 B 것입니다")
+		assert.Equal(t, bytes.Repeat([]byte{3}, 32), hash)
+	})
+	t.Run("A에 프로필이 없어도 other면 B 프로필이 생깁니다", func(t *testing.T) {
+		f := newFixture(t)
+		me := f.loginKakao(t, "kakao-a")
+		other := f.loginLine(t, "U-b")
+		f.seedProfile(t, other, "벗")
+
+		require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileOther))
+
+		assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM profiles WHERE account_id = $1 AND honorific = '벗'`, me))
+	})
+	t.Run("B에 프로필이 없으면 other는 A를 프로필 없음으로 둡니다", func(t *testing.T) {
+		f := newFixture(t)
+		me := f.loginKakao(t, "kakao-a")
+		f.loginLine(t, "U-b")
+		f.seedProfile(t, me, "민지")
+
+		require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileOther))
+
+		assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM profiles WHERE account_id = $1`, me))
+	})
+	t.Run("current는 A 프로필을 그대로 둡니다", func(t *testing.T) {
+		f := newFixture(t)
+		me := f.loginKakao(t, "kakao-a")
+		other := f.loginLine(t, "U-b")
+		f.seedProfile(t, me, "민지")
+		f.seedProfile(t, other, "벗")
+
+		require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
+
+		assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM profiles WHERE account_id = $1 AND honorific = '민지'`, me))
+	})
+}
+
+// seedPurchase는 구매 장부 행 하나를 넣습니다.
+func (f *fixture) seedPurchase(t *testing.T, accountID uuid.UUID, purchaseID string, purchasedAt time.Time) {
+	t.Helper()
+	f.exec(t, `INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, production)
+		VALUES ($1, $2, $2, 'test.ad_free.month', 'app_store', $3, true)`, purchaseID, accountID, purchasedAt)
+}
+
+// grantPeriod는 계정의 구매 ad_free 구간입니다.
+func (f *fixture) grantPeriod(t *testing.T, accountID uuid.UUID, purchaseID string) (startsAt, expiresAt time.Time, revokedAt *time.Time) {
+	t.Helper()
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT starts_at, expires_at, revoked_at FROM entitlement_grants
+		WHERE account_id = $1 AND source_ref = $2 AND entitlement = 'ad_free'`, accountID, purchaseID).Scan(&startsAt, &expiresAt, &revokedAt))
+	return startsAt, expiresAt, revokedAt
+}
+
+// D88 ① 예: 10/20에 합치면 A는 11/5 만료, B는 11/1 만료(12일 남음)라 A 끝이 11/17입니다.
+func TestExecute_PurchasesAppendRemaining(t *testing.T) {
+	f := newFixture(t)
+	now := time.Date(2026, 10, 20, 0, 0, 0, 0, time.UTC)
+	f.clk.Set(now)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	f.seedPurchase(t, me, "p-a", time.Date(2026, 10, 5, 0, 0, 0, 0, time.UTC))
+	f.seedPassGrant(t, me, "p-a", time.Date(2026, 10, 5, 0, 0, 0, 0, time.UTC), time.Date(2026, 11, 5, 0, 0, 0, 0, time.UTC))
+	f.seedPurchase(t, other, "p-b", time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC))
+	f.seedPassGrant(t, other, "p-b", time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 11, 1, 0, 0, 0, 0, time.UTC))
+
+	require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
+
+	startsAt, expiresAt, revokedAt := f.grantPeriod(t, me, "p-b")
+	assert.True(t, startsAt.Equal(time.Date(2026, 11, 5, 0, 0, 0, 0, time.UTC)), "A 구간 시작 %s", startsAt.UTC())
+	assert.True(t, expiresAt.Equal(time.Date(2026, 11, 17, 0, 0, 0, 0, time.UTC)), "A 구간 끝 %s", expiresAt.UTC())
+	assert.Nil(t, revokedAt)
+	_, cutAt, cutRevoked := f.grantPeriod(t, other, "p-b")
+	assert.True(t, cutAt.Equal(now), "B 쪽 행은 지금에서 끊깁니다: %s", cutAt.UTC())
+	assert.Nil(t, cutRevoked)
+
+	var owner, original uuid.UUID
+	var mergedAt *time.Time
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT account_id, original_account_id, merged_at FROM purchases WHERE id = 'p-b'`).
+		Scan(&owner, &original, &mergedAt))
+	assert.Equal(t, me, owner)
+	assert.Equal(t, other, original)
+	require.NotNil(t, mergedAt)
+	assert.True(t, mergedAt.Equal(now))
+}
+
+// 토큰이 안 맞는 경우는 모두 ErrTokenInvalid이고 A·B 모두 바뀌지 않습니다(Review Focus 4).
+func TestExecute_TokenInvalidCases(t *testing.T) {
+	cases := []struct {
+		name string
+		// prepare는 토큰을 받은 뒤 상황을 만들고, Execute를 부를 bearer 계정을 돌려줍니다.
+		prepare func(t *testing.T, f *fixture, me, other uuid.UUID, token string) uuid.UUID
+	}{
+		{name: "없는 토큰", prepare: func(_ *testing.T, _ *fixture, me, _ uuid.UUID, _ string) uuid.UUID { return me }},
+		{name: "만료", prepare: func(_ *testing.T, f *fixture, me, _ uuid.UUID, _ string) uuid.UUID {
+			f.clk.Advance(merge.MergeTicketTTL)
+			return me
+		}},
+		{name: "다른 bearer", prepare: func(t *testing.T, f *fixture, _, _ uuid.UUID, _ string) uuid.UUID {
+			return f.loginKakao(t, "kakao-c")
+		}},
+		{name: "B가 삭제됨", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID, _ string) uuid.UUID {
+			// B를 지우면 B에 묶인 토큰 행도 지워집니다.
+			tx, err := f.pool.Begin(f.ctx)
+			require.NoError(t, err)
+			_, err = account.DeleteAccountTx(f.ctx, tx, other, f.clk.Now())
+			require.NoError(t, err)
+			require.NoError(t, tx.Commit(f.ctx))
+			return me
+		}},
+		{name: "B만 deleted 표시", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID, _ string) uuid.UUID {
+			// 토큰 행이 남은 채 B가 deleted인 상태(방어)입니다.
+			f.exec(t, `UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1`, other)
+			return me
+		}},
+		{name: "인증 계정이 B에서 떼짐", prepare: func(t *testing.T, f *fixture, me, other uuid.UUID, _ string) uuid.UUID {
+			f.exec(t, `DELETE FROM auth_identities WHERE account_id = $1 AND provider = 'line'`, other)
+			return me
+		}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newFixture(t)
+			me := f.loginKakao(t, "kakao-a")
+			other := f.loginLine(t, "U-b")
+			// B는 카카오도 있어 LINE을 떼도 남습니다.
+			_, err := f.auth.LinkIdentity(f.ctx, other, "kakao", f.kakaoProof("kakao-b"))
+			require.NoError(t, err)
+			f.seedDay(t, other, "2026-10-14")
+			f.seedDiary(t, other, "2026-10-14", false)
+			token := f.issueToken(t, me, "U-b")
+			if tc.name == "없는 토큰" {
+				token = "not-issued-token-0123456789012345678901234"
+			}
+			bearer := tc.prepare(t, f, me, other, token)
+
+			err = f.service.Execute(f.ctx, bearer, token, merge.ProfileCurrent)
+
+			require.ErrorIs(t, err, merge.ErrTokenInvalid)
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, me), "A는 바뀌지 않습니다")
+			assert.Equal(t, "active", f.accountStatus(t, me))
+			assert.Empty(t, f.revoker.recorded())
+		})
+	}
+
+	t.Run("재사용", func(t *testing.T) {
+		f := newFixture(t)
+		me := f.loginKakao(t, "kakao-a")
+		f.loginLine(t, "U-b")
+		token := f.issueToken(t, me, "U-b")
+		require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+		require.ErrorIs(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent), merge.ErrTokenInvalid)
+	})
+	t.Run("쓴 토큰(consumed_at)", func(t *testing.T) {
+		f := newFixture(t)
+		me := f.loginKakao(t, "kakao-a")
+		other := f.loginLine(t, "U-b")
+		token := f.issueToken(t, me, "U-b")
+		f.exec(t, `UPDATE account_merge_tickets SET consumed_at = now()`)
+
+		require.ErrorIs(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent), merge.ErrTokenInvalid)
+		assert.Equal(t, "active", f.accountStatus(t, other))
+	})
+}
+
+// A→B와 B→A를 동시에 실행하면 잠금 순서 때문에 하나만 성공하고, 다른 쪽은 상대가 deleted라 ErrTokenInvalid입니다(spec §6.3).
+// 두 실행이 모두 잠금을 기다리는 것을 확인한 뒤 풀어 결정적으로 겹치게 하고, deadlock이면 마감으로 실패합니다.
+func TestExecute_MutualMergeOnlyOneWins(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	tokenAB := f.issueToken(t, me, "U-b")
+	tokenBA, _, _, err := f.service.Preview(f.ctx, other, "kakao", f.kakaoProof("kakao-a"))
+	require.NoError(t, err)
+
+	// 두 계정 행을 잡아 두 실행을 잠금 앞에 세웁니다.
+	blocker, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = blocker.Rollback(context.Background()) })
+	_, err = blocker.Exec(f.ctx, `SELECT id FROM accounts WHERE id = ANY($1) ORDER BY id FOR UPDATE`, []uuid.UUID{me, other})
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(f.ctx, 15*time.Second)
+	defer cancel()
+	results := make(chan error, 2)
+	go func() { results <- f.service.Execute(ctx, me, tokenAB, merge.ProfileCurrent) }()
+	go func() { results <- f.service.Execute(ctx, other, tokenBA, merge.ProfileCurrent) }()
+
+	require.Eventually(t, func() bool {
+		return f.count(t, `SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'`) == 2
+	}, 10*time.Second, 20*time.Millisecond, "두 실행이 모두 잠금을 기다립니다")
+	require.NoError(t, blocker.Rollback(f.ctx))
+
+	var succeeded, invalid int
+	for range 2 {
+		err := <-results
+		switch {
+		case err == nil:
+			succeeded++
+		case errors.Is(err, merge.ErrTokenInvalid):
+			invalid++
+		default:
+			t.Fatalf("예상하지 못한 오류: %v", err)
+		}
+	}
+	assert.Equal(t, 1, succeeded)
+	assert.Equal(t, 1, invalid)
+	statuses := []string{f.accountStatus(t, me), f.accountStatus(t, other)}
+	assert.ElementsMatch(t, []string{"active", "deleted"}, statuses)
+}
+
+// 하루 10편 상한은 합치기에서 검사하지 않습니다(D83 ④).
+func TestExecute_DiaryCapIgnored(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	f.seedDay(t, me, "2026-10-12")
+	f.seedDay(t, other, "2026-10-12")
+	for range 6 {
+		f.seedDiary(t, me, "2026-10-12", false)
+		f.seedDiary(t, other, "2026-10-12", false)
+	}
+
+	require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
+
+	assert.Equal(t, 12, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1 AND date = '2026-10-12' AND deleted_at IS NULL`, me))
 }

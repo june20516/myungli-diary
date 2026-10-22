@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
+
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
@@ -20,19 +22,28 @@ func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeRes
 	if a.Entitlements == nil {
 		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
 	}
-	me, err := a.Accounts.Me(ctx, id)
+	body, err := a.me(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+	return gen.GetMe200JSONResponse(body), nil
+}
+
+// me는 계정의 Me 본문을 만듭니다(getMe, 합친 뒤의 mergeAccounts). 호출자가 Entitlements가 있는지 먼저 확인합니다.
+func (a *API) me(ctx context.Context, id uuid.UUID) (gen.Me, error) {
+	me, err := a.Accounts.Me(ctx, id)
+	if err != nil {
+		return gen.Me{}, err
 	}
 
 	hasProfile, err := a.Profiles.Exists(ctx, id)
 	if err != nil {
-		return nil, err
+		return gen.Me{}, err
 	}
 
 	status, err := a.Entitlements.Status(ctx, id)
 	if err != nil {
-		return nil, err
+		return gen.Me{}, err
 	}
 	entitlements := toEntitlements(status)
 
@@ -41,15 +52,14 @@ func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeRes
 	for _, doc := range me.RequiredConsents {
 		required = append(required, gen.ConsentDocument{Document: gen.ConsentDocumentDocument(doc.Document), Version: doc.Version})
 	}
-	body := gen.Me{
+	return gen.Me{
 		AccountId:        id,
 		AdFree:           entitlements.AdFree,
 		ConsentRequired:  me.ConsentRequired,
 		HasProfile:       hasProfile,
 		Insight:          entitlements.Insight,
 		RequiredConsents: required,
-	}
-	return gen.GetMe200JSONResponse(body), nil
+	}, nil
 }
 
 // AgreeConsents는 약관 동의를 기록합니다. 현재 버전이 아닌 문서가 있으면 422이고 아무것도 저장하지 않습니다.

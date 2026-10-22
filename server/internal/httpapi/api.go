@@ -65,6 +65,8 @@ type ProfileService interface {
 type MergeService interface {
 	// Preview는 다른 유저 계정의 증명을 검증하고 합치기 토큰·만료와 요약을 돌려줍니다(previewMerge).
 	Preview(ctx context.Context, accountID uuid.UUID, providerName string, proof auth.LinkProof) (token string, expiresAt time.Time, summary merge.Summary, err error)
+	// Execute는 합치기 토큰으로 다른 유저 계정을 현재 계정에 합칩니다(mergeAccounts).
+	Execute(ctx context.Context, accountID uuid.UUID, token string, profile merge.Profile) error
 }
 
 var _ MergeService = (*merge.Service)(nil)
@@ -175,7 +177,7 @@ type API struct {
 	Auth     AuthService
 	Accounts AccountService
 	Profiles ProfileService
-	// Merges는 계정 합치기입니다. 비어 있으면 previewMerge는 503 service.unavailable입니다.
+	// Merges는 계정 합치기입니다. 비어 있으면 previewMerge·mergeAccounts는 503 service.unavailable입니다.
 	Merges MergeService
 	Lunar  LunarConverter
 	// BirthHour는 시진 확인(getBirthHour)이 쓰는 엔진입니다. 조립에서 반드시 넣습니다.

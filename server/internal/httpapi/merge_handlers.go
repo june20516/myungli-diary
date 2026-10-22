@@ -38,6 +38,27 @@ func (a *API) PreviewMerge(ctx context.Context, req gen.PreviewMergeRequestObjec
 	}, nil
 }
 
+// MergeAccounts는 합치기 토큰으로 다른 유저 계정(B)을 현재 계정(A)에 합치고 A의 Me를 돌려줍니다(S111).
+// 토큰이 맞지 않으면 422 merge.token_invalid입니다. 같은 Idempotency-Key의 재전송은 멱등 미들웨어가 첫 응답으로 답합니다.
+// 합치기 서비스나 권한 판정(Me에 필요)이 없으면 합치기 전에 503입니다.
+func (a *API) MergeAccounts(ctx context.Context, req gen.MergeAccountsRequestObject) (gen.MergeAccountsResponseObject, error) {
+	id, _, ok := AccountFrom(ctx)
+	if !ok {
+		return nil, errNoAccount
+	}
+	if a.Merges == nil || a.Entitlements == nil {
+		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+	}
+	if err := a.Merges.Execute(ctx, id, req.Body.MergeToken, merge.Profile(req.Body.Profile)); err != nil {
+		return nil, err
+	}
+	body, err := a.me(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return gen.MergeAccounts200JSONResponse(body), nil
+}
+
 // toGenMergeSummary는 합치기 요약을 계약 MergeSummary로 바꿉니다. 계약에 없는 권한(insight)의 남은 날은 adFree와 같은 기간이라 싣지 않습니다.
 func toGenMergeSummary(s merge.Summary) gen.MergeSummary {
 	return gen.MergeSummary{

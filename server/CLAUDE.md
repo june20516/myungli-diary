@@ -59,17 +59,17 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * D82 PR B(#386, 브랜치 `server/d82-identities`): LINE·Google 로그인(`loginLine`·`loginGoogle`), 연결 목록·붙이기·떼기(`listIdentities`·`linkIdentity`·`unlinkIdentity`), 다른 계정의 연결을 붙일 때 합치기 토큰 발급(409 `auth.identity_in_use`, S110으로 PR 2에서 토큰을 뺌). migration 00014, 결정 S99~S101, 계약 draft.14(#466). `previewMerge`·`mergeAccounts`는 PR C에서 구현합니다.
 * D85·D88 계약 PR(브랜치 `server/d85-contract`): 계약 draft.15(계정 삭제 즉시 삭제, 계정 합치기 별도 입구, 구매 목록), 결정 S105~S113과 개정 표시, D82 spec 대체 표시. 새 동작은 아직 501이고 구현은 [`docs/plans/2026-10-23-account-delete-merge-purchases.md`](docs/plans/2026-10-23-account-delete-merge-purchases.md)의 PR 2~4입니다.
 * D88 PR 3(브랜치 `server/d88-purchase-ledger`): 구매 장부 `purchases`(migration 00016), 장부 기준 결제 동기화(주인은 처음 적은 계정, 환불·합치기는 지금부터 구간 다시 잇기), 구매 목록 `GET /v1/me/purchases`(`listPurchases`)와 `restorePurchases` 뒤 목록 흐름. 결정 S107~S109.
+* D85·D88 PR 4(브랜치 `server/d85-merge`): 계정 합치기 요약 `previewMerge`와 실행 `mergeAccounts`(`Idempotency-Key`, 응답은 A의 `Me`). B의 기록·구매를 A로 옮기고(겹친 날짜 기록·문장 선택 기록은 고른 프로필 쪽, B 구간은 지금에서 끊고 남은 길이를 A 끝에 붙임) B를 계정 삭제와 같이 지웁니다. 결정 S110·S111.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. **D85·D88 구현**(plan `docs/plans/2026-10-23-account-delete-merge-purchases.md`)의 남은 PR 4(합치기: `previewMerge`·`mergeAccounts`, #386·#481·#492을 닫음)를 S3 앞에 처리합니다. 계정 삭제(PR 2)와 구매 장부(PR 3)는 끝났습니다. 합치기의 일기 규칙은 S95(S111로 개정)·D83 ④입니다.
-2. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
-3. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
-4. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
-5. core #304 반영됨(PR #432): 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
-6. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-7. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
-8. app 질문(#100·#114·#165)이 오면 답합니다.
+1. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
+2. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
+3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
+4. core #304 반영됨(PR #432): 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
+5. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
+6. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
+7. app 질문(#100·#114·#165)이 오면 답합니다.

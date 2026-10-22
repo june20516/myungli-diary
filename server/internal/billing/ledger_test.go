@@ -361,3 +361,104 @@ func TestRecordPurchase_StoreTransactionMatchNeedsSameStoreAndValue(t *testing.T
 	assert.Equal(t, a, owner, "같은 스토어 거래면 기존 행의 주인")
 	assert.Empty(t, f.segments(t, b, "pur_apple_alias"))
 }
+
+// move는 한 트랜잭션에서 from의 구매를 to로 옮기고 commit합니다(합치기, spec §5.3·§6.3).
+func (f ledgerFixture) move(t *testing.T, from, to uuid.UUID, now time.Time) {
+	t.Helper()
+	ctx := context.Background()
+	tx, err := f.pool.Begin(ctx)
+	require.NoError(t, err)
+	defer func() { _ = tx.Rollback(ctx) }()
+	require.NoError(t, MovePurchasesTx(ctx, tx, from, to, now))
+	require.NoError(t, tx.Commit(ctx))
+}
+
+// ledgerOwner는 구매의 지금 주인, 처음 산 계정, 합친 시각입니다.
+func (f ledgerFixture) ledgerOwner(t *testing.T, purchaseID string) (owner, original uuid.UUID, mergedAt *time.Time) {
+	t.Helper()
+	require.NoError(t, f.pool.QueryRow(context.Background(),
+		"SELECT account_id, original_account_id, merged_at FROM purchases WHERE id = $1", purchaseID).Scan(&owner, &original, &mergedAt))
+	return owner, original, mergedAt
+}
+
+// D88 ① 예: 10/20에 합치면 A가 11/5에 끝나고 B가 12일 남았으므로 A 끝은 11/17입니다.
+// B 쪽 행은 남고 지금(10/20)에서 끊깁니다. 대기 구간은 구매 시각 순으로 A 끝에 붙습니다.
+func TestMovePurchasesTx_AppendsRemainingToTarget(t *testing.T) {
+	f := newLedgerFixture(t)
+	a, b := f.newAccount(t), f.newAccount(t)
+	now := utc(2026, 10, 20, 0)
+
+	f.record(t, a, ledgerPurchase("pur_a", utc(2026, 10, 5, 0)), utc(2026, 10, 5, 0))         // 10/5–11/5 사용 중
+	f.record(t, a, ledgerPurchase("pur_a_later", utc(2026, 10, 15, 0)), utc(2026, 10, 15, 0)) // 11/5–12/5 대기
+	f.record(t, b, ledgerPurchase("pur_b_old", utc(2026, 8, 1, 0)), utc(2026, 8, 1, 0))       // 8/1–9/1 끝남
+	f.record(t, b, ledgerPurchase("pur_b", utc(2026, 10, 1, 0)), utc(2026, 10, 1, 0))         // 10/1–11/1 사용 중, 12일 남음
+	f.record(t, b, ledgerPurchase("pur_b_next", utc(2026, 10, 10, 0)), utc(2026, 10, 10, 0))  // 11/1–12/1 대기, 30일
+	unknown := Purchase{ID: "pur_b_unknown", ProductID: "test.unknown", Store: "app_store", PurchasedAt: utc(2026, 9, 1, 0), Production: true}
+	f.record(t, b, unknown, utc(2026, 9, 1, 0))
+
+	f.move(t, b, a, now)
+
+	// B 쪽: 사용 중 구간은 지금에서 끝나고, 대기 구간은 시작 전이라 끊김(revoked)으로 남습니다. 끝난 구간은 그대로입니다.
+	f.assertSegment(t, b, "pur_b", utc(2026, 10, 1, 0), now, nil)
+	f.assertSegment(t, b, "pur_b_next", utc(2026, 11, 1, 0), utc(2026, 12, 1, 0), &now)
+	f.assertSegment(t, b, "pur_b_old", utc(2026, 8, 1, 0), utc(2026, 9, 1, 0), nil)
+
+	// A 쪽: 사용 중 구간 끝(11/5)부터 구매 시각 순(pur_b 10/1, pur_b_next 10/10, pur_a_later 10/15)으로 붙습니다.
+	f.assertSegment(t, a, "pur_a", utc(2026, 10, 5, 0), utc(2026, 11, 5, 0), nil)
+	f.assertSegment(t, a, "pur_b", utc(2026, 11, 5, 0), utc(2026, 11, 17, 0), nil)
+	f.assertSegment(t, a, "pur_b_next", utc(2026, 11, 17, 0), utc(2026, 12, 17, 0), nil)
+	f.assertSegment(t, a, "pur_a_later", utc(2026, 12, 17, 0), utc(2027, 1, 16, 0), nil)
+	assert.Empty(t, f.segments(t, a, "pur_b_old"), "끝난 구간은 옮기지 않습니다")
+	assert.Empty(t, f.segments(t, a, "pur_b_unknown"))
+
+	// 구간이 없는 구매(끝난 것·목록 밖 상품)도 장부 주인은 A입니다.
+	for _, id := range []string{"pur_b", "pur_b_next", "pur_b_old", "pur_b_unknown"} {
+		owner, original, mergedAt := f.ledgerOwner(t, id)
+		assert.Equal(t, a, owner, id)
+		assert.Equal(t, b, original, "%s 처음 산 계정은 그대로", id)
+		if assert.NotNil(t, mergedAt, id) {
+			assert.True(t, mergedAt.Equal(now), id)
+		}
+	}
+	owner, original, mergedAt := f.ledgerOwner(t, "pur_a")
+	assert.Equal(t, a, owner)
+	assert.Equal(t, a, original)
+	assert.Nil(t, mergedAt, "A가 원래 가진 구매는 합친 시각이 없습니다")
+}
+
+// 지금 막 시작한 B 구간은 지금에서 끊으면 길이가 0이라(CHECK expires_at > starts_at) 끊김으로 남기고, 전체 길이를 A에 붙입니다.
+// A에 구간이 없으면 지금부터 씁니다.
+func TestMovePurchasesTx_SegmentStartingNowIsRevokedOnSource(t *testing.T) {
+	f := newLedgerFixture(t)
+	a, b := f.newAccount(t), f.newAccount(t)
+	now := utc(2026, 10, 20, 0)
+	f.record(t, b, ledgerPurchase("pur_b", now), now) // 10/20–11/20
+
+	f.move(t, b, a, now)
+
+	f.assertSegment(t, b, "pur_b", now, utc(2026, 11, 20, 0), &now)
+	f.assertSegment(t, a, "pur_b", now, utc(2026, 11, 20, 0), nil)
+}
+
+// 환불된 구매의 끊긴 구간과 보상형 광고 구간은 옮기지 않습니다. 환불된 구매도 장부 주인은 A로 옮깁니다.
+func TestMovePurchasesTx_SkipsRevokedAndRewardedGrants(t *testing.T) {
+	f := newLedgerFixture(t)
+	a, b := f.newAccount(t), f.newAccount(t)
+	now := utc(2026, 10, 20, 0)
+	f.record(t, b, ledgerPurchase("pur_refunded", utc(2026, 10, 10, 0)), utc(2026, 10, 10, 0))
+	f.refund(t, "pur_refunded", utc(2026, 10, 15, 0))
+	f.rechain(t, b, utc(2026, 10, 15, 0))
+	_, err := f.pool.Exec(context.Background(), `INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+		VALUES ($1, 'insight', 'rewarded_ad', 'reward-1', $2, $3)`, b, now.Add(-time.Hour), now.Add(time.Hour))
+	require.NoError(t, err)
+
+	f.move(t, b, a, now)
+
+	assert.Empty(t, f.segments(t, a, "pur_refunded"))
+	owner, _, _ := f.ledgerOwner(t, "pur_refunded")
+	assert.Equal(t, a, owner)
+	var rewarded int
+	require.NoError(t, f.pool.QueryRow(context.Background(),
+		"SELECT count(*) FROM entitlement_grants WHERE account_id = $1 AND source = 'rewarded_ad'", a).Scan(&rewarded))
+	assert.Zero(t, rewarded)
+}
