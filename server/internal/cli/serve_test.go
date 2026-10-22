@@ -424,6 +424,8 @@ func testAuthEnv(t *testing.T) map[string]string {
 		"TOKEN_ENCRYPTION_KEY":    base64.StdEncoding.EncodeToString(tokenKey),
 		"KAKAO_APP_KEY":           "kakao-app-key",
 		"KAKAO_ADMIN_KEY":         "kakao-admin-key",
+		"LINE_CHANNEL_ID":         "1650000000",
+		"GOOGLE_CLIENT_IDS":       "test-ios.apps.googleusercontent.com,test-web.apps.googleusercontent.com",
 		"APPLE_TEAM_ID":           "TEAMID0001",
 		"APPLE_KEY_ID":            "KEYID00001",
 		"APPLE_PRIVATE_KEY":       keyPEM,

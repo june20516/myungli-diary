@@ -82,6 +82,8 @@ func newFlowEnvWith(t *testing.T, customize func(*serverDeps)) *flowEnv {
 			AppleJWKS:   fake.JWKSURL(),
 			AppleToken:  fake.AppleTokenURL(),
 			AppleRevoke: fake.AppleRevokeURL(),
+			LineJWKS:    fake.JWKSURL(),
+			GoogleJWKS:  fake.JWKSURL(),
 		},
 	}
 	deps.Entitlements = billing.NewStore(deps.Pool, clk)
@@ -110,6 +112,8 @@ func flowAuthConfig(t *testing.T) config.AuthConfig {
 		TokenKey:            base64.StdEncoding.EncodeToString(tokenKey),
 		KakaoAppKey:         providertest.KakaoAppKey,
 		KakaoAdminKey:       providertest.KakaoAdminKey,
+		LineChannelID:       providertest.LINEChannelID,
+		GoogleClientIDs:     providertest.GoogleClientIDs,
 		AppleTeamID:         providertest.AppleTeamID,
 		AppleKeyID:          providertest.AppleKeyID,
 		ApplePrivateKeyPEM:  newP256PEM(t),

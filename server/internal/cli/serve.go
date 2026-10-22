@@ -334,6 +334,7 @@ func newProviderHTTPClient() *http.Client {
 type providerURLs struct {
 	KakaoJWKS, KakaoUnlink             string
 	AppleJWKS, AppleToken, AppleRevoke string
+	LineJWKS, GoogleJWKS               string
 }
 
 // serverDeps는 newServer가 바깥에서 받는 의존성입니다.

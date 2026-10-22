@@ -104,8 +104,8 @@ func NewApple(cfg AppleConfig) (*Apple, error) {
 		http:  client,
 		clock: clk,
 		verifiers: map[AppleClient]*oidc.IDTokenVerifier{
-			AppleNative: newVerifier(cfg.Issuer, cfg.BundleID, keySet, clk),
-			AppleWeb:    newVerifier(cfg.Issuer, cfg.ServicesID, keySet, clk),
+			AppleNative: newVerifier(cfg.Issuer, cfg.BundleID, []string{oidc.RS256}, keySet, clk),
+			AppleWeb:    newVerifier(cfg.Issuer, cfg.ServicesID, []string{oidc.RS256}, keySet, clk),
 		},
 	}, nil
 }
