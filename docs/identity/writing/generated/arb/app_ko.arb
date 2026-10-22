@@ -61,7 +61,7 @@
   "@accountMergeMergeConfirmCancel": {
     "description": "account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)"
   },
-  "accountMergeNotOtherBodySelf": "지금 계정의 인증 수단으로 로그인했어요. 합칠 계정의 인증 수단으로 다시 로그인해 주세요.",
+  "accountMergeNotOtherBodySelf": "지금 계정의 인증 수단으로 로그인했어요. 가져올 계정의 인증 수단으로 다시 로그인해 주세요.",
   "@accountMergeNotOtherBodySelf": {
     "description": "account-merge.not-other.body: 인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)"
   },
@@ -73,7 +73,7 @@
   "@accountMergeOverlapNotice": {
     "description": "account-merge.overlap.notice: 같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(겹치는 날이 있을 때)"
   },
-  "accountMergeTitleBody": "합칠 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 합칠 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.",
+  "accountMergeTitleBody": "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.",
   "@accountMergeTitleBody": {
     "description": "account-merge.title.body: 합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록은 이 계정으로, 사주 정보·호칭·설정은 고른 쪽, 광고 제거 기간은 더함, 합칠 계정과 그 인증 수단은 지워짐). 옮길 기록이 0건이어도 보임"
   },
@@ -927,22 +927,13 @@
   "@birthplaceSearchLabel": {
     "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
   },
-  "accountChoiceDiaryCount": "일기 {count, plural, other{{count}편}}",
-  "@accountChoiceDiaryCount": {
-    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "accountChoiceCurrent": "현재 계정",
   "@accountChoiceCurrent": {
-    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)"
   },
-  "accountChoiceProviderSeparator": " · ",
-  "@accountChoiceProviderSeparator": {
-    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
+  "accountChoiceOther": "가져올 계정",
+  "@accountChoiceOther": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)"
   },
   "accountMergeError": "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.",
   "@accountMergeError": {
@@ -978,6 +969,49 @@
   "accountChoiceSajuEmpty": "사주 정보 없음",
   "@accountChoiceSajuEmpty": {
     "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)"
+  },
+  "accountMergeSummaryHead": "가져올 기록",
+  "@accountMergeSummaryHead": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)"
+  },
+  "accountMergeSummaryDiary": "일기",
+  "@accountMergeSummaryDiary": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)"
+  },
+  "accountMergeSummaryEvent": "일정",
+  "@accountMergeSummaryEvent": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)"
+  },
+  "accountMergeSummaryAdFree": "광고 제거 남은 기간",
+  "@accountMergeSummaryAdFree": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)"
+  },
+  "accountMergeSummaryDiaryCount": "{count, plural, other{{count}편}}",
+  "@accountMergeSummaryDiaryCount": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountMergeSummaryEventCount": "{count, plural, other{{count}개}}",
+  "@accountMergeSummaryEventCount": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountMergeSummaryAdFreeDays": "{days, plural, other{{days}일}}",
+  "@accountMergeSummaryAdFreeDays": {
+    "description": "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "actionRetry": "다시 시도",
   "@actionRetry": {
@@ -1628,23 +1662,48 @@
   },
   "purchaseProductAdFreeMonth": "광고 제거 1개월",
   "@purchaseProductAdFreeMonth": {
-    "description": "구매 내역 화면(purchase-history): purchase-row의 상품 이름. 상품 종류마다 키 하나, app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)"
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상품 이름. 상품 종류마다 키 하나이고 app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)"
   },
-  "purchaseStatusActive": "사용 중",
-  "@purchaseStatusActive": {
-    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  "purchaseRowActive": "사용 중",
+  "@purchaseRowActive": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)"
   },
-  "purchaseStatusPending": "사용 전",
-  "@purchaseStatusPending": {
-    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  "purchaseRowPending": "사용 전",
+  "@purchaseRowPending": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)"
   },
-  "purchaseStatusExpired": "만료",
-  "@purchaseStatusExpired": {
-    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  "purchaseRowExpired": "만료",
+  "@purchaseRowExpired": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)"
   },
-  "purchaseStatusRefunded": "환불",
-  "@purchaseStatusRefunded": {
-    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  "purchaseRowRefunded": "환불",
+  "@purchaseRowRefunded": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)"
+  },
+  "purchaseRowPurchased": "{date} 구매",
+  "@purchaseRowPurchased": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseRowPeriod": "{start}~{end}",
+  "@purchaseRowPeriod": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseRowSeparator": " · ",
+  "@purchaseRowSeparator": {
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)"
   },
   "settingsLoginMethodsLabel": "로그인 수단",
   "@settingsLoginMethodsLabel": {

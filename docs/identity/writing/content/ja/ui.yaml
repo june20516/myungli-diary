@@ -144,11 +144,14 @@
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入前に利用規約とプライバシーポリシーをご確認ください。"}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "購入履歴はありません。"}
 - {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、お問い合わせください。"}
-- {slot: ui.purchase.status, key: purchaseStatusActive, text: "利用中"}
-- {slot: ui.purchase.status, key: purchaseStatusPending, text: "利用前"}
-- {slot: ui.purchase.status, key: purchaseStatusExpired, text: "期限切れ"}
-- {slot: ui.purchase.status, key: purchaseStatusRefunded, text: "返金済み"}
-- {slot: ui.purchase.product, key: purchaseProductAdFreeMonth, text: "広告なし1か月"}
+- {slot: ui.purchase-row, key: purchaseRowActive, text: "利用中"}
+- {slot: ui.purchase-row, key: purchaseRowPending, text: "利用前"}
+- {slot: ui.purchase-row, key: purchaseRowExpired, text: "期限切れ"}
+- {slot: ui.purchase-row, key: purchaseRowRefunded, text: "返金済み"}
+- {slot: ui.purchase-row, key: purchaseRowPurchased, text: "{date}購入"}
+- {slot: ui.purchase-row, key: purchaseRowPeriod, text: "{start}〜{end}"}
+- {slot: ui.purchase-row, key: purchaseRowSeparator, text: " · "}
+- {slot: ui.purchase-product, key: purchaseProductAdFreeMonth, text: "広告なし1か月"}
 - {slot: ui.depth.explain, key: depthExplain, text: "読み解き"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}の刻、{start}〜{end}に生まれました。"}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "通知を受け取る"}
@@ -339,10 +342,10 @@
 - {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "アカウントの統合"}
 - {slot: purchase-history.bar.title, key: purchaseHistoryBarTitle, text: "購入履歴"}
 - {slot: account-merge.title.head, key: accountMergeTitleHead, text: "別のアカウントの記録をこちらに移しますか?"}
-- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "統合するアカウントの記録はすべてこちらに移します。命式の情報・呼び名・設定は選んだ方を使い、統合するアカウントとそのログイン方法は削除されます。購入もこちらに移します。"}
+- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "取り込むアカウントの記録はすべてこちらに移します。命式の情報・呼び名・設定は選んだ方を使い、取り込むアカウントとそのログイン方法は削除されます。購入もこちらに移します。"}
 - {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "どちらの命式の情報を使いますか?"}
-- {slot: account-merge.auth.body, key: accountMergeAuthBody, text: "記録を移すアカウントで認証してください。"}
-- {slot: account-merge.not-other.body, key: accountMergeNotOtherBodySelf, text: "このアカウントのログイン方法でログインしました。統合するアカウントのログイン方法でもう一度ログインしてください。"}
+- {slot: account-merge.auth.body, key: accountMergeAuthBody, text: "取り込むアカウントで認証してください。"}
+- {slot: account-merge.not-other.body, key: accountMergeNotOtherBodySelf, text: "このアカウントのログイン方法でログインしました。取り込むアカウントのログイン方法でもう一度ログインしてください。"}
 - {slot: account-merge.not-other.body, key: accountMergeNotOtherBodyNone, text: "このログイン方法に連携しているアカウントはありません。"}
 - {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "同じ日に書いた日記もすべてこのアカウントに移します。"}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "アカウントを統合"}
@@ -350,10 +353,16 @@
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "アカウントを統合しますか?統合すると元に戻せません。"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "統合"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "キャンセル"}
-- {slot: ui.account-merge.choice, key: accountChoiceDiaryCount, text: "{count, plural, other{日記{count}件}}"}
 - {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "現在のアカウント"}
-- {slot: ui.account-merge.choice, key: accountChoiceProviderSeparator, text: "・"}
+- {slot: ui.account-merge.choice, key: accountChoiceOther, text: "取り込むアカウント"}
 - {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date} 時刻不明"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "命式の情報なし"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "アカウントを統合できませんでした。2つのアカウントはそのままです。もう一度お試しください。"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryHead, text: "取り込む記録"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryDiary, text: "日記"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryEvent, text: "予定"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryAdFree, text: "広告除去の残り期間"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, other{{count}編}}"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryEventCount, text: "{count, plural, other{{count}件}}"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryAdFreeDays, text: "{days, plural, other{{days}日}}"}

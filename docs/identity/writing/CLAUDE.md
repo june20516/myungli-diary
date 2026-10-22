@@ -49,7 +49,7 @@
 ## 현재 상태 (2026-10-22, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
-* **D85·D86·D88 원고**(drift #479, #482·#487·#495, 라운드 R15 `artifacts/2026-10-23-round-R15.md`, W40): IA 새 슬롯 10개(인증 수단 연결 거절, 합치기 입구·인증·합칠 계정 없음, 구매 내역, 미리보기 다시 입력, 대운수)와 구매 줄 낱말·상품 이름, `ad-free.restore.cta` 삭제, 합치기 제목·설명·묶음 이름, 계정 삭제 안내(보관 고지), 시간 모름 안내(시주를 뺀 계산). 맺음은 슬롯 `register`로 나눕니다(W40, 검사기 v0.9.0). `errorAuthIdentityPendingDeletion`은 server #481 뒤 지웁니다.
+* **D85·D86·D88 원고**(drift #479, #482·#487·#495, 라운드 R15 `artifacts/2026-10-23-round-R15.md`, W40): IA 새 슬롯 10개(인증 수단 연결 거절, 합치기 입구·인증·합칠 계정 없음, 구매 내역, 미리보기 다시 입력, 대운수)와 구매 줄 낱말·상품 이름, `ad-free.restore.cta` 삭제, 합치기 제목·설명·묶음 이름, 계정 삭제 안내(보관 고지), 시간 모름 안내(시주를 뺀 계산). 맺음은 슬롯 `register`로 나눕니다(W40, 검사기 v0.9.0). design #509(라운드 R16, W41): 합칠 다른 계정은 "가져올 계정", 요약 상자 `ui.account-merge.summary`, 구매 줄 `ui.purchase-row`·`ui.purchase-product`. `errorAuthIdentityPendingDeletion`은 server #481 뒤, `account-merge.cta.cancel`은 지휘 #507 뒤 지웁니다.
 * **REST draft.14 오류 문구**(#468, 라운드 R14 `artifacts/2026-10-22-round-R14.md`, W39): `ui.error.code`에 인증 수단 오류 키 5개를 더했고, `merge.token_invalid`는 `accountMergeError`를 씁니다. 따로 쓰던 "수단"을 "인증 수단"으로 바꿨습니다(기존 키 세 개의 문구).
 * **ui 원고의 조사**(spec `specs/2026-10-22-ui-josa-design.md`, 계획 `plans/2026-10-22-ui-josa.md`, W38): ko ui 원고에 조사 표기를 쓸 수 있고, ARB 생성 때 ICU `select`(`pJosa`)로 펼칩니다. app은 `josaClass`로 채웁니다(호칭·조사 규칙 v1.2, 검사기 v0.8.0). 원고에 처음 쓰는 것은 app의 `josaClass` 완료 보고 뒤입니다.
 * **계정 합치기 원고 보완·상한**(design #441, drift #443, 라운드 R13 `artifacts/2026-10-22-round-R13.md`): `lengths.md` 2.7.0 상한을 D82 슬롯에 넣고, 떼기 확인을 제목·본문 키로 나눴습니다(`loginMethodsUnlinkConfirmBody`). 수단 줄은 `social-login-button` connected(`loginMethodsRowConnected` "연결됨", `loginMethodsRowLink` 삭제), "현재 계정", 사주 요약 슬롯 `ui.account-merge.saju`, 수단 구분자, 합치기 오류는 `dialog`. 확인 창의 "기본 선택은 취소"를 지웠습니다(V41). ja 카카오 라벨 "Login with Kakao"(16자)가 새 상한 15자를 넘어 design에 다시 재 달라고 했습니다(#446). 그 전에는 `mlw check`가 막힙니다.
@@ -100,7 +100,7 @@
     * 검사기 코드를 고쳤을 때: `docs/identity/writing/tools`에서 `uv run pytest -q tests/test_<모듈>.py`, PR 전에 `uv run pytest -q`(전체 약 15초)와 `uv run ruff check .`·`uv run mypy src`
     * 계약(IA·core JSON·proto·design `lengths.md`)이 바뀌었을 때: `uv run pytest -q -m contract`와 위 원고 검사. CI `drift`·`gate`도 이 범위만 돕니다(`writing.yml`)
     * 테스트는 한 실행 안에서 같은 원고 읽기와 묶음 검사 결과를 다시 씁니다(`tests/session_cache.py`, 키는 파일 내용 해시). 공유 원고를 고치는 테스트는 `tmp_path` 사본을 쓰고, 고치면 세션 끝 확인이 실패합니다
-* 결정은 W1~W40입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지).
+* 결정은 W1~W41입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일

@@ -144,11 +144,14 @@
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "구매 내역이 없어요."}
 - {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 문의해 주세요."}
-- {slot: ui.purchase.status, key: purchaseStatusActive, text: "사용 중"}
-- {slot: ui.purchase.status, key: purchaseStatusPending, text: "사용 전"}
-- {slot: ui.purchase.status, key: purchaseStatusExpired, text: "만료"}
-- {slot: ui.purchase.status, key: purchaseStatusRefunded, text: "환불"}
-- {slot: ui.purchase.product, key: purchaseProductAdFreeMonth, text: "광고 제거 1개월"}
+- {slot: ui.purchase-row, key: purchaseRowActive, text: "사용 중"}
+- {slot: ui.purchase-row, key: purchaseRowPending, text: "사용 전"}
+- {slot: ui.purchase-row, key: purchaseRowExpired, text: "만료"}
+- {slot: ui.purchase-row, key: purchaseRowRefunded, text: "환불"}
+- {slot: ui.purchase-row, key: purchaseRowPurchased, text: "{date} 구매"}
+- {slot: ui.purchase-row, key: purchaseRowPeriod, text: "{start}~{end}"}
+- {slot: ui.purchase-row, key: purchaseRowSeparator, text: " · "}
+- {slot: ui.purchase-product, key: purchaseProductAdFreeMonth, text: "광고 제거 1개월"}
 - {slot: ui.depth.explain, key: depthExplain, text: "풀이"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "알림 받기"}
@@ -339,10 +342,10 @@
 - {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "계정 합치기"}
 - {slot: purchase-history.bar.title, key: purchaseHistoryBarTitle, text: "구매 내역"}
 - {slot: account-merge.title.head, key: accountMergeTitleHead, text: "다른 계정의 기록을 이 계정으로 가져올까요?"}
-- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "합칠 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 합칠 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요."}
+- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요."}
 - {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "어느 계정의 사주 정보를 쓸까요?"}
 - {slot: account-merge.auth.body, key: accountMergeAuthBody, text: "기록을 가져올 계정을 인증해 주세요."}
-- {slot: account-merge.not-other.body, key: accountMergeNotOtherBodySelf, text: "지금 계정의 인증 수단으로 로그인했어요. 합칠 계정의 인증 수단으로 다시 로그인해 주세요."}
+- {slot: account-merge.not-other.body, key: accountMergeNotOtherBodySelf, text: "지금 계정의 인증 수단으로 로그인했어요. 가져올 계정의 인증 수단으로 다시 로그인해 주세요."}
 - {slot: account-merge.not-other.body, key: accountMergeNotOtherBodyNone, text: "이 인증 수단에 연결된 계정이 없어요."}
 - {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "같은 날 쓴 일기도 모두 이 계정으로 옮겨요."}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "계정 합치기"}
@@ -350,10 +353,16 @@
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없어요."}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "합치기"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "취소"}
-- {slot: ui.account-merge.choice, key: accountChoiceDiaryCount, text: "일기 {count, plural, other{{count}편}}"}
 - {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "현재 계정"}
-- {slot: ui.account-merge.choice, key: accountChoiceProviderSeparator, text: " · "}
+- {slot: ui.account-merge.choice, key: accountChoiceOther, text: "가져올 계정"}
 - {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date} 시각 모름"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "사주 정보 없음"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요."}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryHead, text: "가져올 기록"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryDiary, text: "일기"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryEvent, text: "일정"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryAdFree, text: "광고 제거 남은 기간"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, other{{count}편}}"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryEventCount, text: "{count, plural, other{{count}개}}"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryAdFreeDays, text: "{days, plural, other{{days}일}}"}

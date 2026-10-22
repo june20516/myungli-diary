@@ -17,7 +17,7 @@
 | account-merge.cta.cancel | account-merge.cta.cancel | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | account-merge.cta.merge | account-merge.cta.merge | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountMergeMergeConfirm` ko 34, en 60, ja 28 |
-| account-merge.not-other.body | account-merge.not-other.body | info | - | 1 | 2 | - | ko 90, en 150, ja 63 |
+| account-merge.not-other.body | account-merge.not-other.body | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | account-merge.overlap.notice | account-merge.overlap.notice | info | - | 1 | 1 | - | ko 58, en 100, ja 42 |
 | account-merge.title.body | account-merge.title.body | info | - | 1 | 1 | - | ko 120, en 200, ja 84 |
 | account-merge.title.head | account-merge.title.head | info | - | 1 | 1 | - | ko 36, en 66, ja 30 |
@@ -103,7 +103,7 @@
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.error.body | login-methods.error.body | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| login-methods.in-use.body | login-methods.in-use.body | guide | - | 1 | 1 | - | ko 90, en 150, ja 63 |
+| login-methods.in-use.body | login-methods.in-use.body | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login-methods.intro.body | login-methods.intro.body | guide | - | 1 | 1 | - | ko 90, en 150, ja 63 |
 | login-methods.last.notice | login-methods.last.notice | guide | - | 1 | 1 | - | ko 64, en 108, ja 46 |
 | login-methods.merge.cta | login-methods.merge.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
@@ -172,9 +172,10 @@
 | today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 3 | `count`: number | ko 11, en 19, ja 9 |
+| ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 2 | - | ko 11, en 19, ja 9 |
 | ui.account-merge.error | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 3 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
+| ui.account-merge.summary | 컴포넌트 account-choice | info | - | 1 | 7 | `count`: number<br>`days`: number | ko 19, en 35, ja 15 |
 | ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 10, en 16, ja 7 |
 | ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
@@ -204,13 +205,13 @@
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
 | ui.login-methods.row | 컴포넌트 social-login-button | guide | - | 1 | 6 | - | ko 10, en 16, ja 7 |
 | ui.login.error | login.error.body<br>컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko 48, en 78, ja 34 |
-| ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 4 | - | ko 19, en 34, ja 15<br>`loginKakaoLabel` ko 19, en 34, ja 34 |
+| ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 4 | - | ko 19, en 34, ja 15<br>`loginKakaoLabel` ko 19, en 34, ja 34<br>`loginLineLabel` ko 16, en 28, ja 13 |
 | ui.nav.a11y | 컴포넌트 app-bar<br>컴포넌트 sheet | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 23, en 42, ja 18 |
-| ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 11, en 19, ja 9 |
+| ui.purchase-product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.purchase-row | 컴포넌트 purchase-row | info | - | 1 | 7 | `date`: text<br>`start`: text<br>`end`: text | ko 6, en 9, ja 4 |
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |
 | ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
