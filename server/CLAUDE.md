@@ -55,7 +55,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * P7로 결제와 권한이 `serve`에 조립됐습니다: 결제 표 3개(migration 00012), RevenueCat REST v2 동기화(광고 제거권 이어 붙이기·환불), webhook 멱등 처리와 구매 복원(`restorePurchases`), AdMob SSV 검증과 보상 권한(`rewarded_ad`), 근거 잠금의 실제 판정(D60), 계약 개정(결제 설명, S77 필드 제거). 새 결정은 S79~S89입니다.
 * P7 후속(브랜치 `server/p7-followups`, #338 위에 쌓음): 나의 사주 문장 `Chart.ilganHead`·`ilganBody`·`yongsinSummary`(#329, S90), 법적 문서 정적 페이지 `GET /legal/terms`·`/legal/privacy`와 `AppConfig.legal`(#332·D80, S91). 원문 `docs/legal/<언어>/`는 `go generate ./legal/`로 내장하며 아직 원문이 없어 페이지는 404 준비 중입니다. 계약 draft.10(하위 호환 추가). ci-gate server drift 경로에 `docs/legal/<언어>/`가 들어갔습니다(#341).
 * S3 준비(브랜치 `server/s3-freeze-prep`, `server/p7-followups` 위에 쌓음): 계약 draft.11. 알림 기기 계약 확정(S92), 호환·버전 정책과 열린 enum(S93), 점검에서 찾은 응답 목록·설명 차이 정리. 점검 목록과 남은 일은 [`docs/plans/2026-10-20-s3-freeze-prep.md`](docs/plans/2026-10-20-s3-freeze-prep.md)입니다.
-* D83(#407): 일기를 날짜 기록 `diary_days`와 한 편으로 나눔(migration 00013), id 경로 API(계약 draft.13, 계약 PR #438·app 요청 #437, 구현 PR `server/d83-diary-impl`), 10편 상한 422 `diary.day_full`, `createDiary` 멱등. 결정 S95~S98.
+* D83(#407): 일기를 날짜 기록 `diary_days`와 한 편으로 나눔(migration 00013), id 경로 API(계약 draft.13, 계약 PR #438·app 요청 #437, 구현 PR #456), 10편 상한 422 `diary.day_full`, `createDiary` 멱등. 결정 S95~S98.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
