@@ -32,6 +32,10 @@
   required: false
   type: "list[string]"
   description: 우선 문장 맺음 (style.yaml 참조)
+- name: register
+  required: false
+  type: "enum[haeyo, hamnida]"
+  description: 문장 맺음 갈래(W40). haeyo(기본, 말을 거는 문장)는 style.S3이, hamnida(공적이고 명확한 사실)는 style.S8이 맺음을 검사합니다.
 - name: tone
   required: true
   type: "map[string, int 1..5]"

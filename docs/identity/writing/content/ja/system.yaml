@@ -6,7 +6,7 @@
 - {slot: system.notice, key: notice.ambiguous_local_time, text: "時刻の基準が変わり同じ時刻が二度あったため、早いほうで計算しました。"}
 - {slot: system.notice, key: notice.nonexistent_local_time, text: "時刻の基準が変わり飛ばされた時刻のため、切り替え後で計算しました。"}
 - {slot: system.notice, key: notice.zi_hour_next_day, text: "経度で補正した生まれの時刻が子の刻のため、翌日の始まりとして計算しました。"}
-- {slot: system.notice, key: notice.time_unknown, text: "生まれた時刻がわからないため、正午で計算しました。入力するとより正確です。"}
+- {slot: system.notice, key: notice.time_unknown, text: "生まれた時刻が不明のため、時柱を除いて計算しました。入力するとより正確です。"}
 - {slot: system.notice, key: notice.near_solar_term, text: "節入りの近くに生まれたため、時刻によって月柱や年柱が変わることがあります。"}
 - {slot: system.notice, key: notice.dayun_start_approximate, text: "大運が始まる年齢は、生まれた時刻がわからないため概算で計算しました。"}
 - {slot: system.notice, key: notice.focus_time_fallback, text: "今日は候補の時間がすべて命式とぶつかるため、暦の吉時から選びました。"}
