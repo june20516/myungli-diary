@@ -39,7 +39,7 @@
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "Each notification tells you what kind of day it is, with one line from your daily reading."}
 - {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "Not now"}
 - {slot: today.guide.cta, key: todayGuideCta, text: "Write in diary"}
-- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "View diary"}
+- {slot: today.guide.cta, key: todayGuideCtaWritten, text: "Write another entry"}
 - {slot: today.event.summary, key: todayEventSummary, text: "Events today: {count} · {title}"}
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "Now"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "Next"}
@@ -58,8 +58,9 @@
 - {slot: calendar.legend.body, key: calendarLegendBodyCaution, text: "Careful day"}
 - {slot: day-sheet.event.empty, key: daySheetEventEmpty, text: "No events on this day."}
 - {slot: day-sheet.event.add, key: daySheetEventAdd, text: "Add event"}
-- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "View this day's diary"}
+- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "{count, plural, one{{count} entry this day} other{{count} entries this day}}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "Write about this day"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "Write another entry for this day"}
 - {slot: event-edit.title.hint, key: eventEditTitleHint, text: "Event title"}
 - {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "Notes"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirm, text: "Delete this event?"}
@@ -80,7 +81,7 @@
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "The basis and interpretation are unlocked"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "No diary entries yet. Why not start with today?"}
 - {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Pick a date to write"}
-- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "{date} entry"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "Write a {date} entry"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft saved on this device"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "Saving"}
@@ -242,6 +243,8 @@
 - {slot: ui.birth.option, key: genderFemale, text: "Female"}
 - {slot: ui.login.provider, key: loginKakaoLabel, text: "Login with Kakao"}
 - {slot: ui.login.provider, key: loginAppleLabel, text: "Sign in with Apple"}
+- {slot: ui.login.provider, key: loginLineLabel, text: "Log in with LINE"}
+- {slot: ui.login.provider, key: loginGoogleLabel, text: "Sign in with Google"}
 - {slot: ui.login.error, key: loginCancelled, text: "Sign-in was cancelled."}
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "We couldn't confirm your sign-in. Please start again."}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Sign in with Apple was cancelled."}
@@ -297,3 +300,31 @@
 - {slot: ui.event-edit.delete, key: eventEditDelete, text: "Delete event"}
 - {slot: ui.event-edit.offline, key: eventEditOfflineNotice, text: "You're offline, so this can't be saved."}
 - {slot: ui.event-edit.save-failed, key: eventEditSaveFailed, text: "We couldn't save the event. Please try again."}
+- {slot: login-methods.bar.title, key: loginMethodsBarTitle, text: "Sign-in methods"}
+- {slot: login-methods.intro.body, key: loginMethodsIntroBody, text: "Link more than one method and you can sign in to this account with any of them."}
+- {slot: login-methods.last.notice, key: loginMethodsLastNotice, text: "You need at least one way to sign in."}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirm, text: "Unlink {provider}? You can keep signing in with your other linked methods."}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmUnlink, text: "Unlink"}
+- {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmCancel, text: "Cancel"}
+- {slot: login-methods.error.body, key: loginMethodsErrorBodyLink, text: "We couldn't link it. Please try again."}
+- {slot: login-methods.error.body, key: loginMethodsErrorBodyUnlink, text: "We couldn't unlink it. Please try again."}
+- {slot: ui.login-methods.row, key: loginProviderKakao, text: "Kakao"}
+- {slot: ui.login-methods.row, key: loginProviderLine, text: "LINE"}
+- {slot: ui.login-methods.row, key: loginProviderGoogle, text: "Google"}
+- {slot: ui.login-methods.row, key: loginProviderApple, text: "Apple"}
+- {slot: ui.login-methods.row, key: loginMethodsRowLink, text: "Link"}
+- {slot: ui.login-methods.row, key: loginMethodsRowUnlink, text: "Unlink"}
+- {slot: ui.settings.login-methods, key: settingsLoginMethodsLabel, text: "Sign-in methods"}
+- {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "Merge accounts"}
+- {slot: account-merge.title.head, key: accountMergeTitleHead, text: "Merge these two accounts?"}
+- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "The account you choose keeps its chart details, name, and settings. All diary entries from both accounts move over, and any remaining ad-free time is added together. The account you don't choose is deleted."}
+- {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "Choose the account to keep"}
+- {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "Entries from the same day also all move to this account."}
+- {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "Merge accounts"}
+- {slot: account-merge.cta.cancel, key: accountMergeCtaCancel, text: "Don't merge"}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "Merge the two accounts? This can't be undone."}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "Merge"}
+- {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "Cancel"}
+- {slot: ui.account-merge.choice, key: accountChoiceDiaryCount, text: "{count, plural, one{{count} entry} other{{count} entries}}"}
+- {slot: ui.account-merge.choice, key: accountChoiceCurrent, text: "Signed in now"}
+- {slot: ui.account-merge.error, key: accountMergeError, text: "We couldn't merge the accounts. Both accounts are unchanged. Please try again."}

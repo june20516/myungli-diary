@@ -29,6 +29,46 @@
   "@accountDeleteTitleHead": {
     "description": "account-delete.title.head: 계정 삭제 제목"
   },
+  "accountMergeBarTitle": "계정 합치기",
+  "@accountMergeBarTitle": {
+    "description": "account-merge.bar.title: app-bar 제목(화면 이름 \"계정 합치기\")"
+  },
+  "accountMergeChoiceLabel": "남길 계정을 골라 주세요",
+  "@accountMergeChoiceLabel": {
+    "description": "account-merge.choice.label: 남길 계정을 고르라는 안내"
+  },
+  "accountMergeCtaCancel": "합치지 않기",
+  "@accountMergeCtaCancel": {
+    "description": "account-merge.cta.cancel: 합치지 않기"
+  },
+  "accountMergeCtaMerge": "계정 합치기",
+  "@accountMergeCtaMerge": {
+    "description": "account-merge.cta.merge: 합치기 버튼"
+  },
+  "accountMergeMergeConfirm": "두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없어요.",
+  "@accountMergeMergeConfirm": {
+    "description": "account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)"
+  },
+  "accountMergeMergeConfirmMerge": "합치기",
+  "@accountMergeMergeConfirmMerge": {
+    "description": "account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)"
+  },
+  "accountMergeMergeConfirmCancel": "취소",
+  "@accountMergeMergeConfirmCancel": {
+    "description": "account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)"
+  },
+  "accountMergeOverlapNotice": "같은 날 쓴 일기도 모두 이 계정으로 옮겨요.",
+  "@accountMergeOverlapNotice": {
+    "description": "account-merge.overlap.notice: 같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(겹치는 날이 있을 때)"
+  },
+  "accountMergeTitleBody": "합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.",
+  "@accountMergeTitleBody": {
+    "description": "account-merge.title.body: 합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)"
+  },
+  "accountMergeTitleHead": "두 계정을 하나로 합칠까요?",
+  "@accountMergeTitleHead": {
+    "description": "account-merge.title.head: 두 계정을 하나로 합친다는 제목"
+  },
   "adFreeBarTitle": "광고 제거",
   "@adFreeBarTitle": {
     "description": "ad-free.bar.title: app-bar 제목(화면 이름 \"광고 제거\")"
@@ -232,12 +272,21 @@
   "@consentTitleHead": {
     "description": "consent.title.head: 동의 화면 제목"
   },
-  "daySheetDiaryOpen": "이날 일기 보기",
+  "daySheetDiaryOpen": "이날 쓴 일기 {count, plural, other{{count}편}}",
   "@daySheetDiaryOpen": {
-    "description": "day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다"
+    "description": "day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "daySheetDiaryWriteCta": "이날 일기 쓰기",
   "@daySheetDiaryWriteCta": {
+    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기)"
+  },
+  "daySheetDiaryWriteCtaWritten": "이날 일기 더 쓰기",
+  "@daySheetDiaryWriteCtaWritten": {
     "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기)"
   },
   "daySheetEventAdd": "일정 추가",
@@ -400,6 +449,43 @@
   "legalBarTitle": "약관·정책",
   "@legalBarTitle": {
     "description": "legal.bar.title: app-bar 제목(화면 이름 \"약관·정책\")"
+  },
+  "loginMethodsBarTitle": "로그인 수단",
+  "@loginMethodsBarTitle": {
+    "description": "login-methods.bar.title: app-bar 제목(화면 이름 \"로그인 수단\")"
+  },
+  "loginMethodsErrorBodyLink": "연결하지 못했어요. 다시 시도해 주세요.",
+  "@loginMethodsErrorBodyLink": {
+    "description": "login-methods.error.body: 연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
+  },
+  "loginMethodsErrorBodyUnlink": "연결을 끊지 못했어요. 다시 시도해 주세요.",
+  "@loginMethodsErrorBodyUnlink": {
+    "description": "login-methods.error.body: 연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
+  },
+  "loginMethodsIntroBody": "여러 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.",
+  "@loginMethodsIntroBody": {
+    "description": "login-methods.intro.body: 연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명"
+  },
+  "loginMethodsLastNotice": "로그인할 수단이 하나는 남아 있어야 해요.",
+  "@loginMethodsLastNotice": {
+    "description": "login-methods.last.notice: 마지막 남은 수단은 뗄 수 없다는 안내"
+  },
+  "loginMethodsUnlinkConfirm": "{provider} 연결을 끊을까요? 연결한 다른 수단으로 계속 로그인할 수 있어요.",
+  "@loginMethodsUnlinkConfirm": {
+    "description": "login-methods.unlink.confirm: 떼기 확인",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "loginMethodsUnlinkConfirmUnlink": "연결 끊기",
+  "@loginMethodsUnlinkConfirmUnlink": {
+    "description": "login-methods.unlink.confirm: 떼기 확인"
+  },
+  "loginMethodsUnlinkConfirmCancel": "취소",
+  "@loginMethodsUnlinkConfirmCancel": {
+    "description": "login-methods.unlink.confirm: 떼기 확인"
   },
   "loginBarTitle": "로그인",
   "@loginBarTitle": {
@@ -715,7 +801,7 @@
   "@todayGuideCta": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기)"
   },
-  "todayGuideCtaWritten": "쓴 일기 보기",
+  "todayGuideCtaWritten": "일기 더 쓰기",
   "@todayGuideCtaWritten": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기)"
   },
@@ -788,6 +874,23 @@
   "birthplaceSearchLabel": "태어난 도시 찾기",
   "@birthplaceSearchLabel": {
     "description": "스크린리더가 읽는 컴포넌트 이름과 상태(처리 중, 광고, 불러오는 중, 용어 토큰, 진행 단계, 글자 수, 검색 결과 수, 입력칸 이름)"
+  },
+  "accountChoiceDiaryCount": "일기 {count, plural, other{{count}편}}",
+  "@accountChoiceDiaryCount": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountChoiceCurrent": "지금 로그인한 계정",
+  "@accountChoiceCurrent": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
+  },
+  "accountMergeError": "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.",
+  "@accountMergeError": {
+    "description": "계정 합치기 화면(account-merge) 오류 상태: 합치기 실패"
   },
   "actionRetry": "다시 시도",
   "@actionRetry": {
@@ -945,9 +1048,9 @@
   "@diaryEditSave": {
     "description": "일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)"
   },
-  "diaryListPickDateConfirm": "{date} 일기",
+  "diaryListPickDateConfirm": "{date} 일기 쓰기",
   "@diaryListPickDateConfirm": {
-    "description": "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 diary-edit 또는 diary-view로 갑니다(#294)",
+    "description": "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)",
     "placeholders": {
       "date": {
         "type": "String"
@@ -1242,6 +1345,30 @@
   "@todayGuideEyebrow": {
     "description": "가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)"
   },
+  "loginProviderKakao": "카카오",
+  "@loginProviderKakao": {
+    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  },
+  "loginProviderLine": "LINE",
+  "@loginProviderLine": {
+    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  },
+  "loginProviderGoogle": "Google",
+  "@loginProviderGoogle": {
+    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  },
+  "loginProviderApple": "Apple",
+  "@loginProviderApple": {
+    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  },
+  "loginMethodsRowLink": "연결하기",
+  "@loginMethodsRowLink": {
+    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  },
+  "loginMethodsRowUnlink": "연결 끊기",
+  "@loginMethodsRowUnlink": {
+    "description": "로그인 수단 화면(login-methods) settings-row: 제공자 이름과 줄 끝 동작(연결·떼기)"
+  },
   "loginCancelled": "로그인을 취소했어요.",
   "@loginCancelled": {
     "description": "로그인 화면 오류 상태: 로그인 창을 닫음, Android Apple 웹 로그인 복귀 실패"
@@ -1260,11 +1387,19 @@
   },
   "loginKakaoLabel": "카카오 로그인",
   "@loginKakaoLabel": {
-    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)"
   },
   "loginAppleLabel": "Apple로 로그인",
   "@loginAppleLabel": {
-    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG)"
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)"
+  },
+  "loginLineLabel": "LINE으로 로그인",
+  "@loginLineLabel": {
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)"
+  },
+  "loginGoogleLabel": "Google 계정으로 로그인",
+  "@loginGoogleLabel": {
+    "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)"
   },
   "appBarBack": "뒤로",
   "@appBarBack": {
@@ -1375,6 +1510,10 @@
   "timePickerMinuteLabel": "분",
   "@timePickerMinuteLabel": {
     "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "settingsLoginMethodsLabel": "로그인 수단",
+  "@settingsLoginMethodsLabel": {
+    "description": "설정 화면(settings) settings-row: 로그인 수단 화면으로 가는 줄 이름"
   },
   "tagChipLabel": "#{tag}",
   "@tagChipLabel": {
