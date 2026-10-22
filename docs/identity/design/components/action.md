@@ -26,7 +26,7 @@
 
 ## social-login-button
 
-* 쓰는 화면: login, login-methods
+* 쓰는 화면: login, login-methods, account-merge
 * 반경 `radius.md`, 높이 52(최소 높이, V30), 너비 fill, 세로 간격 12, 로고 20px은 왼쪽 안쪽 16에 고정하고 글자는 가운데입니다. 색·로고·문구는 각 제공자의 공식 가이드와 공식 자산을 씁니다(V15).
 * 제공자는 **카카오·LINE·Google·Apple**(D82)이고 iOS·Android 모두 네 버튼을 같은 크기·같은 무게로 보입니다(App Store 4.8, Google 가이드 "다른 제공자만큼 눈에 띔"). 결정 V39.
   * `kakao`: 카카오 로그인 디자인 가이드.
@@ -47,7 +47,19 @@
 
 ### login-methods 화면 배치
 
-app-bar 아래로 `login-methods.intro.body`(`type.body.ui`, `text.secondary`, 아래 `space.20`) → 버튼 네 개(위 순서, 연결된 것은 `connected`) → 하나만 남았을 때 `login-methods.last.notice`. 연결하지 않은 수단은 로그인 화면과 같은 버튼·라벨입니다(연결은 그 제공자로 다시 로그인, D82 ⑤). 오류(`login-methods.error.body`)는 `dialog` `notice`로 보입니다. 붙이려는 수단이 다른 계정에 있으면 `account-merge`로 넘어갑니다. IA는 이 화면에 `settings-row`를 적고 있지만 시안 B(V39)로 쓰지 않습니다(지휘에 IA 수정 요청).
+app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
+
+1. `login-methods.intro.body`(`type.body.ui`, `text.secondary`, 아래 `space.20`)
+2. 버튼 네 개(위 순서, 연결된 것은 `connected`). 연결하지 않은 수단은 로그인 화면과 같은 버튼·라벨입니다(연결은 그 제공자로 다시 로그인, D82 ⑤).
+3. 하나만 남았을 때 `login-methods.last.notice`
+4. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선을 긋고, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`를 둡니다. 연결된 수단 수와 관계없이 늘 보입니다(D85 ④). IA `login-methods` 컴포넌트에 `primary-button`이 아직 없어 지휘에 더해 달라고 요청했습니다. 그래서 `primary-button`의 쓰는 화면 줄에는 아직 적지 않습니다.
+
+* 오류(`login-methods.error.body`)는 `dialog` `notice`로 보입니다.
+* 붙이려는 인증 수단이 다른 계정에 연결돼 있으면 연결하지 않고, `login-methods.in-use.body`를 `dialog` `notice`로 보입니다. 확인하면 이 화면에 그대로 있습니다. 합치기로 저절로 넘어가지 않습니다(D85 ③).
+
+### account-merge 인증 단계
+
+`account-merge`의 인증 단계(배치는 `input.md` `### account-merge 화면 배치`)에서는 네 버튼을 `login` 화면과 같은 순서·모양·라벨로 씁니다. 가져올 계정의 인증 수단으로 로그인하는 동작이라 `connected`는 쓰지 않습니다(결정 V44).
 
 ## share-button
 

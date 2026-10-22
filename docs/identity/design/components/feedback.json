@@ -23,7 +23,7 @@
             "confirm": { "fg": "{color.text.primary}", "fontWeight": 700 },
             "cancel": { "fg": "{color.action.primary}" }
           } },
-        { "id": "notice", "when": "고를 것 없이 읽었다는 확인만 받는 안내(login.discard.notice, login-methods.error.body, ui.account-merge.error)", "a11y": { "focusOnOpen": "confirm", "dismissOnScrim": true }, "parts": { "cancel": { "visible": false } } }
+        { "id": "notice", "when": "고를 것 없이 읽었다는 확인만 받는 안내(login.discard.notice, login-methods.error.body, login-methods.in-use.body, ui.account-merge.error, account-merge.not-other.body)", "a11y": { "focusOnOpen": "confirm", "dismissOnScrim": true }, "parts": { "cancel": { "visible": false } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "marginX": { "value": 28, "unit": "px" }, "padding": "{space.24}" },

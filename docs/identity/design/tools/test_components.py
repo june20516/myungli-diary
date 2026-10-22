@@ -802,9 +802,12 @@ def test_account_choice_card_lines():
     assert parts["card"]["bg"] == "{color.bg.sheet}" and parts["card"]["radius"] == "{radius.md}"
     assert parts["current"]["radius"] == "{radius.full}" and parts["current"]["slot"] == "ui.account-merge.choice"
     assert parts["saju"]["slot"] == "ui.account-merge.saju"
-    assert parts["providers"]["logo"] is False
-    assert parts["facts"]["wrap"] is True and parts["providers"]["overflow"] == "wrap"
     assert parts["mark"]["radius"] == "{radius.full}"
+    # V44: 기록은 모두 옮기고 인증 수단은 옮기지 않아 일기 수·수단 이름 줄을 지움
+    assert not {"facts", "diaryCount", "providers"} & set(parts)
+    shape = ("type", "fg", "border", "radius", "paddingX")
+    assert {k: parts["other"][k] for k in shape} == {k: parts["current"][k] for k in shape}
+    assert parts["other"]["slot"] == "ui.account-merge.choice" and parts["other"]["key"] == "accountChoiceOther"
 
 
 def test_social_login_order_per_language():
@@ -918,8 +921,6 @@ def test_written_day_entrances_open_a_new_diary():
 def test_d82_writing_keys_are_named():
     connected = component("action", "social-login-button")["states"]["connected"]["parts"]["state"]
     assert connected["slot"] == "ui.login-methods.row" and connected["key"] == "loginMethodsRowConnected"
-    providers = component("input", "account-choice")["parts"]["providers"]
-    assert providers["join"] == {"slot": "ui.account-merge.choice", "key": "accountChoiceProviderSeparator"}
 
 
 # 최종 리뷰 반영 (#410): 그날 시트 일기 머리, 변형 덮어쓰기, 묶음 카드 a11y
@@ -961,3 +962,39 @@ def test_diary_row_group_a11y_replaces_button_role():
 def test_manuscript_text_is_not_copied_into_design_docs():
     for name in ("today.md", "elements.md"):
         assert "새 일기 쓰기" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+
+
+# 계정 합치기 두 단계 (#483, D85, 결정 V44)
+def _md_section(name, heading):
+    text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
+    section = text.split(heading, 1)[1]
+    return section.split("\n## ", 1)[0].split("\n### ", 1)[0]
+
+
+def test_account_choice_chooses_profile_not_account():
+    choice = component("input", "account-choice")
+    assert "사주 정보·호칭·설정" in choice["summary"] and "V44" in choice["summary"]
+    first = next(rule for rule in choice["rules"] if "처음부터 어느 쪽도 골라 두지 않는다" in rule)
+    assert "지워져" in first
+
+
+def test_account_merge_two_steps_layout():
+    section = _md_section("input.md", "### account-merge 화면 배치")
+    for text in ("인증 단계", "요약·고르기 단계", "`account-merge.auth.body`", "`account-merge.not-other.body`",
+                 "`ui.account-merge.summary`", "0이어도", "\"합치지 않기\" 버튼이 없습니다", "뒤로 가기는 동작하지 않습니다"):
+        assert text in section, text
+    cancel_lines = [line for line in section.splitlines() if "account-merge.cta.cancel" in line]
+    assert cancel_lines and all("지휘에 요청" in line for line in cancel_lines)
+
+
+def test_login_methods_merge_entry():
+    section = _md_section("action.md", "### login-methods 화면 배치")
+    for text in ("`login-methods.merge.cta`", "`quiet`", "`login-methods.in-use.body`", "`notice`", "저절로 넘어가지 않습니다"):
+        assert text in section, text
+    assert "`account-merge`로 넘어갑니다" not in section
+
+
+def test_dialog_notice_covers_d85_bodies():
+    dialog = component("feedback", "dialog")
+    notice = next(v for v in dialog["variants"] if v["id"] == "notice")
+    assert "login-methods.in-use.body" in notice["when"] and "account-merge.not-other.body" in notice["when"]
