@@ -196,6 +196,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "tag.bad.fg": neutral[700],
             "tag.neutral.border": neutral[300],
             "tag.neutral.fg": neutral[700],
+            "timeline.entry": neutral[300],
         },
         "dark": {
             "bg.base": neutral[950],
@@ -229,6 +230,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "tag.bad.fg": neutral[200],
             "tag.neutral.border": neutral[700],
             "tag.neutral.fg": neutral[400],
+            "timeline.entry": neutral[700],
         },
     }
 

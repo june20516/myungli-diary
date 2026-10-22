@@ -1,7 +1,8 @@
 """palette.py 결과와 타이포·간격·반경 상수로 DTCG 토큰 파일 다섯 개를 만듭니다.
 
 spec: docs/identity/design/specs/2026-10-11-design-tokens-design.md §4~§7,
-      docs/identity/design/specs/2026-10-11-components-design.md §5 (1.1.0)
+      docs/identity/design/specs/2026-10-11-components-design.md §5 (1.1.0),
+      docs/identity/design/specs/2026-10-22-diary-row-multi-design.md §5 (1.2.0)
 토큰 파일은 손으로 고치지 않고, 이 파일이나 palette.py를 고친 뒤 다시 만듭니다.
 
 사용법 (저장소 루트에서):
@@ -58,6 +59,7 @@ ROLE_DESCRIPTIONS = {
     "tag.bad.fg": "나쁜 태그 칩 글자",
     "tag.neutral.border": "중립 태그 칩 테두리. 바탕은 없음",
     "tag.neutral.fg": "중립 태그 칩 글자",
+    "timeline.entry": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 진함)",
 }
 
 # 다른 역할을 그대로 가리키는 V2 역할 (V2 spec §5.3)

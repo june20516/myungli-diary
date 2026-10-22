@@ -1,6 +1,6 @@
 # 명리일기 디자인 토큰
 
-계약 버전: 1.1.0
+계약 버전: 1.2.0
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13([`../decisions.md`](../decisions.md)), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
@@ -39,7 +39,7 @@
   * 다음 두 경우만 값을 직접 적습니다.
     * 원시 팔레트에 없는 색: 그라데이션, 오행 바탕·글자
     * 알파가 있는 색(위 목록). 참조에는 알파를 덧붙일 수 없기 때문입니다.
-  * 다른 역할을 그대로 가리키는 역할도 있습니다: `color.seal.fill` → `action.primary`, `color.status.*` → `term.*`, `color.calendar.weekday.sun`·`.sat` → `ohaeng.fire.fg`·`ohaeng.earth.fg`, `color.timeline.line` → `line`.
+  * 다른 역할을 그대로 가리키는 역할도 있습니다: `color.seal.fill` → `action.primary`, `color.status.*` → `term.*`, `color.calendar.weekday.sun`·`.sat` → `ohaeng.fire.fg`·`ohaeng.earth.fg`, `color.timeline.line` → `line`. 같은 날 일기 사이 점선 `color.timeline.entry`는 흐름 줄보다 한 단계 진한 값(라이트 `neutral.300`, 다크 `neutral.700`)입니다.
 * **치수:** `{"value": 16, "unit": "px"}`. 단위는 px만 씁니다. Flutter 논리 픽셀로 그대로 씁니다.
 * **움직임 시간 (`duration`):** `{"value": 320, "unit": "ms"}`.
 * **움직임 곡선 (`cubicBezier`):** `[x1, y1, x2, y2]`. Flutter `Cubic(x1, y1, x2, y2)`에 그대로 넣습니다.
@@ -81,6 +81,7 @@
 | --- | --- | --- |
 | 1.0.0 | 2026-10-11 | 마일스톤 V1 freeze |
 | 1.1.0 | 2026-10-11 | 추가: `motion.duration.*`(short·fade·medium·select·long·stamp·breathe·toast-hold)·`motion.easing.*`·`shadow.raised`, V2 역할 색(토스트·비활성·덮개·탭 바·도장·도장 위 글자·상태 꼬리표·태그·요일·skeleton·흐름 줄), 글자 스타일 `type.body.ui`·`type.caption.lg` (마일스톤 V2) |
+| 1.2.0 | 2026-10-22 | 추가: `color.timeline.entry`(같은 날 일기 사이 점선, 결정 V42, #410) |
 
 주 버전 변경은 `docs/workflow.md` §5.1을 따릅니다. 순서는 `kind:notice` Issue로 공지 → 버전 올림 → app 대응 보고 뒤 이전 이름 제거입니다.
 
