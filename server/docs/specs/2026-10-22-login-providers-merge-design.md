@@ -60,7 +60,7 @@ LINE·Google 로그인을 더하고, 한 계정에 여러 제공자를 붙이고
 | `linkIdentity` | `POST /v1/me/identities/{provider}` | 201 연결 생성, 200 그 연결이 이미 현재 계정에 있음 |
 | `unlinkIdentity` | `DELETE /v1/me/identities/{provider}` | 204 |
 
-`{provider}`는 닫힌 enum(`kakao`·`apple`·`line`·`google`)입니다. 응답의 제공자 값은 열린 enum입니다. `test`는 계약에 없습니다.
+`{provider}`는 닫힌 enum(`kakao`·`apple`·`line`·`google`)입니다. 응답의 제공자 값(`LoginProvider`)은 열린 enum입니다. `test`는 계약에 없습니다.
 
 ### 3.1. 붙이기
 
@@ -228,7 +228,7 @@ commit한 뒤 허가 취소(4의 중복 연결)와 남길 계정의 결제 동�
 | 번호 | 내용 |
 | --- | --- |
 | S99 | LINE(ES256, iss `https://access.line.me`, aud channel ID)·Google(RS256, iss 두 형태, aud client ID 목록) id_token을 공용 OIDC 검증으로 확인합니다. nonce는 네 제공자 모두 `hex(SHA-256(원문))`이고 일회용으로 기록하지 않습니다(Google은 프로세스마다 nonce 하나) |
-| S100 | 한 계정에 같은 제공자 연결은 하나(UNIQUE `(account_id, provider)`)입니다. `{provider}` 경로는 닫힌 enum이고 응답의 제공자 값은 열린 enum입니다. 떼기는 연결 행을 물리적으로 지우고 commit 뒤 허가 취소를 한 번 시도합니다(실패해도 성공). LINE·Google 허가 취소는 server가 아니라 app SDK가 하고, 그 기기에 제공자 token이 없으면 생략합니다(사용자 결정 2026-10-22, D82 ⑤ 단서 요청) |
+| S100 | 한 계정에 같은 제공자 연결은 하나(UNIQUE `(account_id, provider)`)입니다. `{provider}` 경로는 닫힌 enum이고 응답의 제공자 값(`LoginProvider`)은 열린 enum입니다. 떼기는 연결 행을 물리적으로 지우고 commit 뒤 허가 취소를 한 번 시도합니다(실패해도 성공). LINE·Google 허가 취소는 server가 아니라 app SDK가 하고, 그 기기에 제공자 token이 없으면 생략합니다(사용자 결정 2026-10-22, D82 ⑤ 단서 요청) |
 | S101 | 합치기 토큰은 `linkIdentity`의 409 본문으로 주고, 해시만 저장하며 10분·일회용·bearer 계정에 묶입니다. 요약은 토큰을 소진하지 않는 `POST /v1/me/merge/preview`입니다(토큰을 URL에 넣지 않음, 사용자 선택 2026-10-22: 요약 조회 분리) |
 | S102 | 합치기는 연결·일기(지운 것 포함, 상한 무시)·일정을 남길 계정으로 옮기고, 프로필·동의·문장 선택 기록은 남길 계정 것을 씁니다. 없앨 계정은 세션 폐기·멱등 키 삭제 뒤 `pending_deletion`으로 두어 P8이 익명화합니다. 삭제 대기 계정과는 합치지 않습니다. `Idempotency-Key`는 받지 않습니다(응답의 refresh token 원문을 저장하지 않음, 사용자 결정 2026-10-22) |
 | S103 | 광고 제거권은 구매를 `merged_purchases`로 옮기고 동기화가 RevenueCat 목록과 합쳐 D61로 다시 이어 붙입니다(구매 id로 중복 제거). 없앤 계정의 webhook은 환불 값만 갱신하고 남길 계정을 동기화합니다 |

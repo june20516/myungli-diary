@@ -12,7 +12,7 @@ info:
     * `info.version`은 freeze 때 `1.0.0`이 되고, 그 뒤 하위 호환 추가마다 minor를, 설명만 바꾸면 patch를 올립니다.
     * 열린 enum: 값이 늘어날 수 있는 응답 enum입니다. app은 모르는 값이 와도 응답 전체를 실패로 보지 않고 그 항목만 건너뛰거나 기본 표시를 씁니다.
       `NoticeCode`, `ShinsalKind`, `RelationKind`, `PersonalReading.kind`, `FocusSlot.reasons`의 항목, `SlotText.variant`, `Insight.source`,
-      `ConsentDocument.document`, `Problem.code`, `Identity.provider`, `MergeAccountSummary.providers`의 항목입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
+      `ConsentDocument.document`, `Problem.code`, `LoginProvider`입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
 
     공통 규약
     * JSON 필드는 camelCase입니다. 단, Apple이 보내는 `appleCallback`의 form 필드는 Apple이 정한 이름을 그대로 씁니다.

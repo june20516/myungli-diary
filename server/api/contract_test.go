@@ -1505,7 +1505,7 @@ func TestContract_Draft14Identities(t *testing.T) {
 	})
 
 	t.Run("열린 enum", func(t *testing.T) {
-		for _, text := range []string{"`Identity.provider`", "`MergeAccountSummary.providers`"} {
+		for _, text := range []string{"`LoginProvider`"} {
 			if !strings.Contains(doc.Info.Description, text) {
 				t.Errorf("info.description의 열린 enum 목록에 %s가 없음", text)
 			}
