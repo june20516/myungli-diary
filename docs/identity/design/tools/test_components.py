@@ -276,7 +276,8 @@ def test_generic_groups_contain_spec_components():
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
                             "check-row", "account-choice"}
-    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card"}
+    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card",
+                             "purchase-row"}
 
 
 # main IA 변경(D53)과 최종 리뷰 반영
@@ -293,6 +294,12 @@ def test_offer_card_states():
     offer = components_by_id(("action",))["offer-card"]
     assert {"available", "active"} <= set(offer["states"])
     assert offer["parts"]["container"]["radius"] == "{radius.lg}"
+    # D88 ②: 구매 복원 버튼 대신 구매 내역으로 가는 버튼 (#494)
+    assert "restore" not in offer["parts"]
+    assert offer["parts"]["history"] == {"component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta"}
+    assert "history" not in offer["states"]["offline"]["parts"]
+    assert any("구매 내역 버튼은 상태와 관계없이 늘 보인다" in rule for rule in offer["rules"])
+    assert offer["haptic"] == [{"when": "구매 완료", "strength": "light"}]
 
 
 def test_sage_text_on_soft_seal_uses_on_soft_token():
@@ -499,6 +506,8 @@ def test_evidence_sheet_section_titles_and_slots():
 SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
 SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
+# D88 구매 줄 낱말 (#494). 가져올 기록 상자(ui.account-merge.summary)는 컴포넌트가 아닌 화면 배치라 input.md에만 있음
+SLOTS_OUTSIDE_IA |= {"ui.purchase-row"}
 
 
 def _slot_values(node):
@@ -998,3 +1007,27 @@ def test_dialog_notice_covers_d85_bodies():
     dialog = component("feedback", "dialog")
     notice = next(v for v in dialog["variants"] if v["id"] == "notice")
     assert "login-methods.in-use.body" in notice["when"] and "account-merge.not-other.body" in notice["when"]
+
+
+# 구매 내역 (#494, D88 ②, #502, 결정 V45)
+def test_purchase_row():
+    row = component("action", "purchase-row")
+    parts = row["parts"]
+    assert parts["product"]["type"] == "{type.subtitle}" and parts["product"]["overflow"] == "wrap"
+    assert "스토어" in parts["product"]["fallback"]
+    status = parts["status"]
+    assert status["active"] == {"element": "tag.status"} and status["align"] == "product-first-line"
+    assert status["other"]["type"] == "{type.label.md}" and status["other"]["fg"] == "{color.text.secondary}"
+    assert parts["meta"]["type"] == "{type.caption.lg}" and parts["meta"]["fontFeatures"] == ["tnum"]
+    assert "기간" in parts["meta"]["periodOnlyWhen"]
+    assert parts["row"]["divider"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}, "between": "rows-only"}
+    assert parts["group"]["bg"] == "{color.bg.sheet}" and parts["group"]["radius"] == "{radius.lg}"
+    assert "pressed" not in row["states"] and row["states"]["loading"]["component"] == "skeleton"
+    assert any("server" in rule and "순서" in rule for rule in row["rules"])
+    assert any("합치기" in rule and "표시하지 않는다" in rule for rule in row["rules"])
+
+
+def test_purchase_history_layout():
+    section = _md_section("action.md", "### purchase-history 화면 배치")
+    for text in ("`purchase-history.missing.notice`", "늘 보입니다", "`receipt`", "`empty-state`"):
+        assert text in section, text

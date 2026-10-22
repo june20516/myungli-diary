@@ -77,7 +77,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 ## offer-card
 
 * 쓰는 화면: ad-free (D53·D54: 1개월 광고 제거권, 자동 갱신 아님)
-* 카드(`bg.sheet`, `radius.lg`, 안쪽 20): Light 아이콘 28 → 주는 것 한 줄(`type.subtitle`) → 가격(`type.title`, 고정폭 숫자) + 기간·"자동 갱신 아님"(`type.caption.lg`) → 구매 주 버튼 → 구매 복원 조용한 버튼 → 약관·정책 안내(`type.caption.md`).
+* 카드(`bg.sheet`, `radius.lg`, 안쪽 20): Light 아이콘 28 → 주는 것 한 줄(`type.subtitle`) → 가격(`type.title`, 고정폭 숫자) + 기간·"자동 갱신 아님"(`type.caption.lg`) → 구매 주 버튼 → 구매 내역 조용한 버튼(`ad-free.history.cta`) → 약관·정책 안내(`type.caption.md`).
 * 가격·기간·자동 갱신 아님 고지는 구매 버튼보다 위, 같은 카드 안에 둡니다.
 
 | 상태 | 모습 |
@@ -85,7 +85,36 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 | `available` | 구매 버튼 보임 |
 | `active` | 구매 버튼 대신 `tag.status` "이용 중" + 남은 기간·만료일(`appear.seep`) |
 | `purchasing` | 구매 버튼 점 숨쉬기 |
-| `offline` | 구매·복원 비활성, 화면 위 notice-banner `offline` |
+| `offline` | 구매 버튼 비활성, 화면 위 notice-banner `offline`. 구매 내역 버튼은 누를 수 있음(구매 내역 화면이 자기 `offline` 상태를 가짐) |
 
-* 구매 복원은 상태와 관계없이 늘 보입니다. 구매·복원이 끝나면 햅틱 light.
+* 구매 내역 버튼은 상태와 관계없이 늘 보입니다. 따로 누르는 구매 복원 버튼은 없습니다(D88 ②). 구매가 끝나면 햅틱 light.
 * 빨간색·카운트다운·과장 표시를 쓰지 않습니다. 문구는 writing(슬롯 `ad-free.*`).
+
+## purchase-row
+
+* 쓰는 화면: purchase-history
+* 산 상품의 구매 한 건입니다(D88 ②, #502, 결정 V45). 누르지 않는 줄입니다.
+* 줄들은 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16`)에 담습니다. 줄은 위아래 `space.16`이고, 줄과 줄 사이에만 1px `line`을 긋습니다.
+
+| 부품 | 모습 |
+| --- | --- |
+| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase-row` `purchaseProduct*`), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
+| `status` | 오른쪽, `product` 첫 줄과 세로 가운데. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
+| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 기기 locale의 짧은 날짜) + 사용 기간(`purchaseRowPeriod`). 사용 기간이 없는 상품은 구매일만 |
+
+* 순서는 server가 준 순서 그대로입니다(최근 구매가 위).
+* 사용 기간은 server가 준 구간 그대로입니다. 합치기로 옮겨 온 구매는 이 계정에서 쓰는 구간만 오므로 구매일이 사용 기간 시작보다 이를 수 있습니다. 대기 구매와 같습니다.
+* 합치기 출처나 산 계정은 표시하지 않습니다(D88 ②).
+* 강조는 "사용 중" 꼬리표 하나입니다. 빨간색·카운트다운을 쓰지 않습니다.
+* `loading`: 줄 세 개 자리 `skeleton`(상품 이름 줄 + meta 줄 bone).
+* 스크린리더는 한 줄을 한 덩어리로 "상품 이름, 상태, 구매일, 사용 기간" 순서로 읽습니다.
+
+### purchase-history 화면 배치
+
+1. app-bar(`purchase-history.bar.title`)
+2. 위 `space.12`에 `purchase-row` 묶음 카드
+3. `purchase-history.missing.notice`: 위 `space.16`, `type.caption.lg`, `text.secondary`, 좌우 안쪽 `space.4`. 목록이 있든 비었든 늘 보입니다. 결제했는데 목록에 없을 수 있기 때문입니다.
+
+* `empty`: 화면 상태 대응표(`stateMap`)대로 `empty-state`입니다. 아이콘은 Phosphor `receipt`, 문장은 `purchase-history.empty.body`이고 주 버튼은 없습니다. `missing.notice`는 그 문장 아래 `space.16`에 둡니다.
+* `loading`·`error`·`offline`은 `stateMap` 그대로입니다. 들어갈 때 결제 기록을 다시 불러오는 동안(D88 ②)이 `loading`입니다.
+* 입구는 지금 `ad-free`의 구매 내역 버튼뿐입니다. 상품이 둘 이상이 되면 설정에도 둡니다(D88 ②).
