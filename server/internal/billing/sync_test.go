@@ -437,6 +437,13 @@ func TestSync_RefundSeenByNonOwner(t *testing.T) {
 	assertPeriod(t, grants, "p1", oct1, nov1, nil)
 	assertPeriod(t, grants, "p2", nov1, dec1, &refundedAt)
 	assertPeriod(t, grants, "p3", nov1, dec2, nil)
+
+	// 이미 환불로 적힌 다른 주인 구매는 A lock을 잡으러 다시 시작하지 않습니다(조회 1번으로 끝남).
+	callsBefore := f.source.calls.Load()
+	f.clk.Advance(time.Hour)
+	require.NoError(t, f.syncer.Sync(context.Background(), accountB))
+	assert.EqualValues(t, 1, f.source.calls.Load()-callsBefore)
+	assertPeriod(t, allGrants(t, f.pool), "p2", nov1, dec1, &refundedAt)
 }
 
 // A와 B가 서로의 구매 환불을 동시에 보면 두 동기화 모두 다른 주인 lock이 필요합니다.

@@ -28,9 +28,9 @@ func recordPurchaseTx(ctx context.Context, q *billingdb.Queries, accountID uuid.
 		refundedAt = &now
 	}
 	inserted, err := q.InsertPurchase(ctx, billingdb.InsertPurchaseParams{
-		ID:          p.ID,
-		AccountID:   accountID,
-		ProductID:   p.ProductID,
+		ID:              p.ID,
+		AccountID:       accountID,
+		ProductID:       p.ProductID,
 		Store:           p.Store,
 		StorePurchaseID: p.StorePurchaseID,
 		PurchasedAt:     p.PurchasedAt,
