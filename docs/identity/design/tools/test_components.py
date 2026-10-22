@@ -507,7 +507,7 @@ SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 �
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
 SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
 # D88 구매 줄 낱말 (#494). 가져올 기록 상자(ui.account-merge.summary)는 컴포넌트가 아닌 화면 배치라 input.md에만 있음
-SLOTS_OUTSIDE_IA |= {"ui.purchase-row", "ui.purchase-product", "ui.purchase-status"}
+SLOTS_OUTSIDE_IA |= {"ui.purchase.meta", "ui.purchase.product", "ui.purchase.status"}
 
 
 def _slot_values(node):
@@ -982,7 +982,7 @@ def _md_section(name, heading):
 
 def test_account_choice_chooses_profile_not_account():
     choice = component("input", "account-choice")
-    assert "사주 정보·호칭·설정" in choice["summary"] and "V44" in choice["summary"]
+    assert "프로필" in choice["summary"] and "V44" in choice["summary"]
     first = next(rule for rule in choice["rules"] if "처음부터 어느 쪽도 골라 두지 않는다" in rule)
     assert "지워져" in first
 
@@ -1052,9 +1052,9 @@ def test_issue_475_values():
 # 최종 리뷰 반영 (#480): 구매 줄 슬롯 나눔, 색인, 요약 실패·뒤로 가기·문의 안내 범위
 def test_purchase_row_slots_are_split_by_limit():
     parts = component("action", "purchase-row")["parts"]
-    assert parts["status"]["slot"] == "ui.purchase-status" and parts["status"]["key"] == "purchaseRowStatus*"
+    assert parts["status"]["slot"] == "ui.purchase.status" and parts["status"]["key"] == "purchaseStatus*"
     assert parts["status"]["maxWidth"] == {"value": 80, "unit": "px"}
-    assert parts["meta"]["slot"] == "ui.purchase-row" and parts["meta"]["join"] == {"key": "purchaseRowSeparator"}
+    assert parts["meta"]["slot"] == "ui.purchase.meta" and parts["meta"]["join"] == {"key": "purchaseMetaSeparator"}
 
 
 def test_readme_index_lists_3_0_components():

@@ -183,14 +183,14 @@ TARGETS = (
     # D85 계정 합치기 두 단계·D88 구매 내역 (#480·#483·#494, spec 2026-10-23 §8)
     Target(("account-merge.auth.body",), "account-merge 인증 단계 안내 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
     # 값 자리 56: 고정폭 숫자 값("30일")보다 넉넉한 폭
-    Target(("ui.account-merge.summary",), "account-merge 가져올 기록 상자 줄 이름 (상자 안쪽 16, 값 자리 56)",
+    Target(("ui.account-merge.summary",), "account-merge 가져올 기록·구매 상자 줄 이름 (상자 안쪽 16, 값 자리 56)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 56, 1, False, None),
     Target(("purchase-history.missing.notice",), "purchase-history 문의 안내 (본문 폭, 좌우 4)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 4, 2, True, None),
     # 상태 꼬리표 최대 폭 80(purchase-row status.maxWidth)에서 좌우 8
-    Target(("ui.purchase-status",), "purchase-row 상태 낱말 (꼬리표 최대 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
+    Target(("ui.purchase.status",), "purchase-row 상태 낱말 (꼬리표 최대 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
     # meta 줄(구매일 · 사용 기간, 날짜 매개변수 포함)은 상품 이름 아래 카드 안 폭 전체를 씀(안쪽 16 양쪽)
-    Target(("ui.purchase-row",), "purchase-row 구매일·사용 기간 줄 (카드 안쪽 16)",
+    Target(("ui.purchase.meta",), "purchase-row 구매일·사용 기간 줄 (카드 안쪽 16)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16, 1, False, None),
 )
 
@@ -241,7 +241,7 @@ NO_LIMIT = {
     "login-methods.in-use.body": "확인 창 본문(창이 늘어남)",
     "account-merge.not-other.body": "확인 창 본문(창이 늘어남)",
     # D88 ② 구매 줄 상품 이름: 줄바꿈하고, 키가 없으면 스토어 이름을 쓰므로 길이를 막지 않음 (#494)
-    "ui.purchase-product": "purchase-row 상품 이름(말줄임 없이 줄바꿈, 스토어 이름 대체)",
+    "ui.purchase.product": "purchase-row 상품 이름(말줄임 없이 줄바꿈, 스토어 이름 대체)",
     # 숫자가 섞인 고정 형식이라 글자 수가 폭을 대신하지 못함. 폭 44px로 확인: ko 윤12.1 26.4px (#260)
     "ui.day-cell.lunar": "day-cell 윤달 표지(형식 고정, 글자 수 대신 칸 폭 44px로 확인)",
 }

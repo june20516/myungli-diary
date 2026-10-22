@@ -9,7 +9,9 @@
 
 ## 1. 목적과 완료 기준
 
-D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고, 남는 계정은 언제나 지금 계정입니다. 고르는 것은 사주 정보·호칭·설정뿐입니다. D88로 구매 복원 버튼이 없어지고 구매 내역 화면이 생겼습니다. 구매 내역은 산 상품의 기록입니다(#502). 이 작업은 두 흐름의 컴포넌트와 화면 배치를 정해 app이 추가 질문 없이 그리게 하고, drift #480을 풉니다.
+용어는 D85 ①의 다섯 이름을 씁니다: 유저 계정(A는 지금 로그인한 계정, B는 가져올 계정), 인증 계정, 프로필(사주 정보·호칭·설정), 기록(일기·일정·태그·날짜 기록·반응), 구매(산 상품과 사용 기간). 화면 말("가져올 계정", "인증 수단")은 writing이 정합니다. 2026-10-23 용어 정리(PR #506)와 writing 슬롯 이름(PR #510: `ui.purchase.status`·`ui.purchase.product`)에 맞춰 고쳤습니다.
+
+D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고, 남는 계정은 언제나 지금 계정입니다. 고르는 것은 프로필뿐입니다. D88로 구매 복원 버튼이 없어지고 구매 내역 화면이 생겼습니다. 구매 내역은 산 상품의 기록입니다(#502). 이 작업은 두 흐름의 컴포넌트와 화면 배치를 정해 app이 추가 질문 없이 그리게 하고, drift #480을 풉니다.
 
 사용자가 정한 방향(2026-10-23):
 
@@ -34,9 +36,9 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 배치(위에서 아래):
 
 1. `login-methods.intro.body` → `social-login-button` 네 개 → 하나만 남으면 `login-methods.last.notice` (2.7.0 그대로)
-2. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`. 연결된 수단 수와 관계없이 늘 보입니다.
+2. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`. 연결된 인증 계정 수와 관계없이 늘 보입니다.
 
-* 붙이려는 인증 수단이 다른 계정에 연결돼 있으면 연결하지 않고 `dialog` `notice`(`login-methods.in-use.body`)로 알립니다. 확인하면 이 화면에 그대로 있습니다. 합치기로 저절로 넘어가지 않습니다(D85 ③).
+* 붙이려는 인증 계정이 다른 유저 계정에 연결돼 있으면 연결하지 않고 `dialog` `notice`(`login-methods.in-use.body`)로 알립니다. 확인하면 이 화면에 그대로 있습니다. 합치기로 저절로 넘어가지 않습니다(D85 ③).
 * IA `login-methods` 컴포넌트에 `primary-button`이 없습니다. 지휘에 더해 달라고 요청합니다(§7). 그 전까지 `action.md` `primary-button`의 "쓰는 화면" 줄에는 `login-methods`를 적지 않고(IA 대조 검사), 배치는 `social-login-button` 절에 적습니다.
 
 ## 3. 계정 합치기 `account-merge` (D85 ④, 결정 V44)
@@ -51,14 +53,14 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 
 * 이 단계에는 다른 버튼이 없습니다.
 * 누른 버튼만 `loading`, 나머지는 `disabled`입니다(`social-login-button` 기존 규칙).
-* 인증한 수단이 지금 계정의 것이거나 어느 계정에도 연결돼 있지 않으면, `account-merge.not-other.body`를 `dialog` `notice`로 보입니다. 확인하면 인증 단계에 그대로 남아 다시 고를 수 있습니다(IA `account-merge:error`).
+* 인증한 인증 계정이 유저 계정 A의 것이거나 어느 유저 계정에도 연결돼 있지 않으면, `account-merge.not-other.body`를 `dialog` `notice`로 보입니다. 확인하면 인증 단계에 그대로 남아 다시 고를 수 있습니다(IA `account-merge:error`).
 * 인증되면 요약·고르기 단계로 바뀝니다. 요약을 받는 동안(IA `account-merge:loading`)은 요약 상자와 카드 두 장 자리가 `loading.breathe`로 숨쉽니다.
 
 ### 3.2. 요약·고르기 단계
 
 1. 제목
 2. `account-merge.title.body`(`type.body.ui`, `text.secondary`, 아래 `space.24`)
-3. **가져올 기록 상자**(새, 컴포넌트 아님): `bg.sheet`, `radius.md`, 안쪽 `space.16`, 줄 사이 `space.8`, 아래 `space.24`.
+3. **가져올 기록·구매 상자**(새, 컴포넌트 아님): `bg.sheet`, `radius.md`, 안쪽 `space.16`, 줄 사이 `space.8`, 아래 `space.24`.
    * 머리: `type.caption.md`, `text.secondary`.
    * 줄마다 왼쪽에 이름(`type.body.ui`, `text.secondary`), 오른쪽에 값(`type.body.ui`, `text.primary`, 고정폭 숫자).
    * 줄 순서: 일기 편수 → 일정 개수 → 광고 제거 남은 기간.
@@ -76,21 +78,21 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 
 ### 3.3. `account-choice` (쓰임 바뀜, 3.0.0)
 
-사주 정보·호칭·설정을 지금 계정 것으로 둘지, 가져올 계정 것으로 둘지 고르는 카드 두 장입니다.
+프로필을 유저 계정 A(지금 로그인한 계정) 것으로 둘지 B(가져올 계정) 것으로 둘지 고르는 카드 두 장입니다.
 
 * 카드 순서: 지금 계정 → 가져올 계정.
 * 카드 안 줄:
   * ① 호칭(`type.subtitle`) + 알약
   * ② 사주 요약 한 줄(`ui.account-merge.saju`, 2.7.0 그대로)
 * 알약은 두 카드 모두에 붙습니다. 모양은 2.7.0 `current`와 같습니다.
-  * 지금 계정 카드: `current`(`ui.account-merge.choice` `accountChoiceCurrent`)
-  * 가져올 계정 카드: 새 부품 `other`(같은 슬롯, 새 키 `accountChoiceOther`)
+  * A 카드: `current`(`ui.account-merge.choice` `accountChoiceCurrent`)
+  * B 카드: 새 부품 `other`(같은 슬롯, 새 키 `accountChoiceOther`)
   * 호칭과 사주가 같은 두 계정도 가를 수 있게 하기 위해서입니다.
-* **지우는 부품:** `facts`·`diaryCount`·`providers`. 기록은 고르기와 상관없이 모두 옮기므로 일기 수는 고를 근거가 아닙니다. 인증 수단은 옮기지 않습니다(D85 ④). 키 `accountChoiceDiaryCount`·`accountChoiceProviderSeparator`는 쓰지 않게 되므로 writing에 알립니다.
-* 설정은 카드에 보이지 않습니다. 묶음 이름(`choice.label`)이 "사주 정보·호칭·설정"을 말합니다.
+* **지우는 부품:** `facts`·`diaryCount`·`providers`. 기록은 고르기와 상관없이 모두 옮기므로 일기 수는 고를 근거가 아닙니다. 인증 계정은 옮기지 않습니다(D85 ④). 키 `accountChoiceDiaryCount`·`accountChoiceProviderSeparator`는 쓰지 않게 되므로 writing에 알립니다.
+* 설정은 카드에 보이지 않습니다. 묶음 이름(`choice.label`)이 "프로필"을 말합니다.
 * 상태 `none`·`selected`·`pressed`·`loading`·`disabled`와 a11y는 2.7.0 그대로입니다. `none`의 합치기 버튼 `disabled`도 그대로입니다.
-* 규칙 "처음부터 어느 쪽도 골라 두지 않는다"의 이유를 "고르지 않은 쪽의 사주 정보·호칭·설정은 지워져 되돌릴 수 없다"로 고칩니다.
-* `summary` 문장을 "사주 정보·호칭·설정을 어느 계정 것으로 둘지 고르기 (D85 ④, 결정 V40·V44)"로 고칩니다.
+* 규칙 "처음부터 어느 쪽도 골라 두지 않는다"의 이유를 "고르지 않은 쪽의 프로필은 지워져 되돌릴 수 없다"로 고칩니다.
+* `summary` 문장을 "프로필을 어느 계정 것으로 둘지 고르기 (D85 ④, 결정 V40·V44)"로 고칩니다.
 
 ## 4. 광고 제거 `ad-free`의 `offer-card` (D88 ②)
 
@@ -107,9 +109,9 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 
 | 부품 | 값 |
 | --- | --- |
-| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(IA 밖 슬롯 `ui.purchase-product` `purchaseProduct*`), 없으면 스토어의 현지화된 이름(D88 ②). 넘치면 말줄임 없이 다음 줄로 감음(스토어 이름은 길이를 알 수 없음) |
-| `status` | 오른쪽, `product` 첫 줄과 세로 가운데를 맞춤. 사용 중이면 `tag.status`, 그 밖(대기·만료·환불)은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 `ui.purchase-row` 키, 상품 종류에 따라 다를 수 있음(D88 ②) |
-| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 날짜는 app이 기기 locale의 짧은 날짜 형식으로) + 구분자 + 사용 기간(`purchaseRowPeriod`, 시작·끝). 사용 기간이 없는 상품(server가 기간을 주지 않음)은 구매일만 |
+| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(IA 밖 슬롯 `ui.purchase.product` `purchaseProduct*`), 없으면 스토어의 현지화된 이름(D88 ②). 넘치면 말줄임 없이 다음 줄로 감음(스토어 이름은 길이를 알 수 없음) |
+| `status` | 오른쪽, `product` 첫 줄과 세로 가운데를 맞춤. 사용 중이면 `tag.status`, 그 밖(대기·만료·환불)은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 `ui.purchase.meta` 키, 상품 종류에 따라 다를 수 있음(D88 ②) |
+| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseMetaPurchased`, 날짜는 app이 기기 locale의 짧은 날짜 형식으로) + 구분자 + 사용 기간(`purchaseMetaPeriod`, 시작·끝). 사용 기간이 없는 상품(server가 기간을 주지 않음)은 구매일만 |
 | 줄 | 위아래 `space.16`, 줄과 줄 사이 1px `color.line`(첫 줄 위·끝 줄 아래 없음) |
 | 묶음 | 줄들을 카드 한 장에 담음: `bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16` |
 
@@ -148,7 +150,7 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
   * ① 다른 계정을 "가져올 계정"으로 부름(사용자 뜻)
   * ② `ui.account-merge.summary`(머리, 일기·일정·광고 제거 남은 기간 줄 이름과 값 틀)
   * ③ `accountChoiceOther`
-  * ④ `ui.purchase-product`(상품 이름 `purchaseProduct*`)와 `ui.purchase-row`(상태 낱말, `purchaseRowPurchased`·`purchaseRowPeriod`, 구분자)
+  * ④ `ui.purchase.product`(상품 이름 `purchaseProduct*`)와 `ui.purchase.meta`(상태 낱말, `purchaseMetaPurchased`·`purchaseMetaPeriod`, 구분자)
   * ⑤ 쓰지 않게 된 키 `accountChoiceDiaryCount`·`accountChoiceProviderSeparator`·`ad-free.restore.cta`
   * ⑥ 글자 수 상한(`lengths.md`)
 
@@ -161,8 +163,8 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 | `login-methods.in-use.body`, `account-merge.not-other.body` | 상한 없음(확인 창 본문, 창이 늘어남) |
 | `purchase-history.missing.notice` | 본문 폭 − 8, `type.caption.lg`, 2줄 |
 | `ui.account-merge.summary` | 상자 안 폭(본문 − 32)에서 값 자리를 뺀 이름 한 줄 |
-| `ui.purchase-row` | 상태 낱말(꼬리표 한 개 폭) |
-| `ui.purchase-product` | 상한 없음(상품 이름은 줄바꿈하고 스토어 이름으로 대체될 수 있음). 슬롯을 나눈 것은 writing 상한이 슬롯 단위라서입니다 |
+| `ui.purchase.meta` | 상태 낱말(꼬리표 한 개 폭) |
+| `ui.purchase.product` | 상한 없음(상품 이름은 줄바꿈하고 스토어 이름으로 대체될 수 있음). 슬롯을 나눈 것은 writing 상한이 슬롯 단위라서입니다 |
 | `ui.login.provider` LINE 라벨 | 198px(§6 ②) |
 | `account-merge.cta.cancel` | IA에서 지워질 때까지 `primary-button` 묶음에 남김(IA 대조 검사) |
 
@@ -172,10 +174,10 @@ D85로 계정 합치기가 로그인 수단 화면의 별도 입구가 되었고
 
 * **V44** 계정 합치기는 한 화면 두 단계입니다.
   * 인증 단계: 설명 + 로그인 버튼 넷.
-  * 요약·고르기 단계: 설명 → 가져올 기록 상자 → 고르기 → 합치기 버튼 하나.
+  * 요약·고르기 단계: 설명 → 가져올 기록·구매 상자 → 고르기 → 합치기 버튼 하나.
   * `account-choice`는 호칭 + 알약(현재 계정·가져올 계정) + 사주 요약만 보이고, 처음엔 고르지 않습니다.
   * "합치지 않기" 버튼 없이 뒤로 가기로 그만두고, 합치는 중엔 뒤로 가기를 막습니다.
-  * 다른 계정에 연결된 수단, 이 계정 수단으로 인증한 경우의 안내는 `dialog` `notice`입니다. 사용자 영향: D85.
+  * 다른 유저 계정에 연결된 인증 계정, 유저 계정 A의 인증 계정으로 인증한 경우의 안내는 `dialog` `notice`입니다. 사용자 영향: D85.
 * **V45** 구매 내역은 산 상품의 기록입니다.
   * `purchase-row`는 상품 이름 → 구매일·사용 기간 줄이고, 상태는 오른쪽에 둡니다.
   * 강조는 "사용 중" 꼬리표 하나입니다.

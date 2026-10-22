@@ -183,7 +183,7 @@
         "product": {
           "type": "{type.subtitle}",
           "fg": "{color.text.primary}",
-          "slot": "ui.purchase-product",
+          "slot": "ui.purchase.product",
           "key": "purchaseProduct*",
           "fallback": "writing 키가 없는 상품은 스토어의 현지화된 상품 이름",
           "overflow": "wrap",
@@ -193,7 +193,7 @@
           "position": "end",
           "align": "product-first-line",
           "gap": "{space.12}",
-          "slot": "ui.purchase-status",
+          "slot": "ui.purchase.status",
           "active": {
             "element": "tag.status"
           },
@@ -203,7 +203,7 @@
             "bg": "none"
           },
           "note": "사용 중이면 tag.status, 대기·만료·환불은 바탕 없는 글자. 낱말은 상품 종류에 따라 다를 수 있음(D88 ②)",
-          "key": "purchaseRowStatus*",
+          "key": "purchaseStatus*",
           "maxWidth": {
             "value": 80,
             "unit": "px"
@@ -216,18 +216,18 @@
             "tnum"
           ],
           "marginTop": "{space.4}",
-          "slot": "ui.purchase-row",
+          "slot": "ui.purchase.meta",
           "purchased": {
-            "key": "purchaseRowPurchased",
+            "key": "purchaseMetaPurchased",
             "date": "app이 기기 locale의 짧은 날짜 형식으로 만듦"
           },
           "period": {
-            "key": "purchaseRowPeriod",
+            "key": "purchaseMetaPeriod",
             "source": "server가 준 사용 구간(시작·끝) 그대로"
           },
           "periodOnlyWhen": "server가 사용 기간을 준 상품(기간권·구독). 없으면 구매일만",
           "join": {
-            "key": "purchaseRowSeparator"
+            "key": "purchaseMetaSeparator"
           }
         }
       },

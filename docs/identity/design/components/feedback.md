@@ -23,7 +23,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 * `bg.sheet`, `radius.lg`, 좌우 28px. 제목 `type.subtitle`, 본문 `type.body.ui` `text.secondary`, 오른쪽 아래 글자 버튼. 나타남 `appear.seep`.
 * `destructive` 변형(일기 삭제, 일정 삭제, 계정 삭제, 계정 합치기, 로그인 수단 떼기): 제목 앞 `mark.caution`, 확정 버튼 글자는 `text.primary` 굵게, 취소는 `action.primary`. **빨간색을 쓰지 않습니다.** 바깥 누르기로 닫히지 않고 뒤로 가기는 취소와 같음, 확정 시 햅틱 medium.
 * 버튼 두 개짜리 확인 창(`confirm`·`destructive`)에는 첫 초점 규칙을 두지 않습니다. 앱은 웹처럼 키보드 초점으로 기본 버튼을 고르지 않고, 스크린리더는 플랫폼 기본대로 제목 → 본문 → 버튼 순서로 읽습니다(결정 V41). #354 ②의 답: 사주 다시 계산처럼 파괴적이지 않은 무거운 변경은 `confirm`을 쓰고, "첫 초점 취소" 옵션은 두지 않습니다.
-* `notice` 변형: 확인 버튼 하나만 있는 안내입니다. `login.discard.notice`(미리보기 입력을 쓰지 않는다는 안내), 로그인 수단 연결·떼기 실패(`login-methods.error.body`), 다른 계정에 연결된 수단이라 연결하지 않음(`login-methods.in-use.body`), 계정 합치기 실패(`ui.account-merge.error`), 가져올 계정이 아닌 수단으로 인증함(`account-merge.not-other.body`)처럼 고를 것이 없고 읽었다는 확인만 받는 곳에 씁니다. 확인 버튼은 `confirm`과 같은 모양으로 오른쪽 끝에 놓입니다. 바깥을 누르거나 뒤로 가면 확인과 같고, 첫 초점은 확인 버튼입니다. 두 버튼 형식에서 "닫기"가 취소처럼 읽히던 문제가 없어집니다.
+* `notice` 변형: 확인 버튼 하나만 있는 안내입니다. `login.discard.notice`(미리보기 입력을 쓰지 않는다는 안내), 로그인 수단 연결·떼기 실패(`login-methods.error.body`), 다른 유저 계정에 연결된 인증 계정이라 연결하지 않음(`login-methods.in-use.body`), 계정 합치기 실패(`ui.account-merge.error`), 유저 계정 B가 아닌 인증 계정으로 인증함(`account-merge.not-other.body`)처럼 고를 것이 없고 읽었다는 확인만 받는 곳에 씁니다. 확인 버튼은 `confirm`과 같은 모양으로 오른쪽 끝에 놓입니다. 바깥을 누르거나 뒤로 가면 확인과 같고, 첫 초점은 확인 버튼입니다. 두 버튼 형식에서 "닫기"가 취소처럼 읽히던 문제가 없어집니다.
 * Material 힌트: `AlertDialog`의 표면 색조·그림자를 끄고 `appear.seep` 전환을 씁니다.
 
 ## toast

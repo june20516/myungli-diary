@@ -32,7 +32,7 @@
 
 ## 현재 상태 (2026-10-23, design 세션 작성)
 * **계정 합치기 두 단계·구매 내역 #480·#483·#494·#475** (브랜치 `design/catchup-480-d85-d88`, D85·D88, 컴포넌트 계약 3.0.0).
-  * `account-merge` 한 화면 두 단계(인증 → 가져올 기록 상자 + `account-choice` + 합치기 버튼), "합치지 않기" 없이 뒤로 가기. `account-choice`는 사주 정보·호칭·설정 고르기(`facts`·`diaryCount`·`providers` 삭제, `other` 알약 추가). `login-methods`에 합치기 입구, 연결 안 함 안내는 `dialog` `notice`(V44).
+  * `account-merge` 한 화면 두 단계(인증 → 가져올 기록·구매 상자 + `account-choice` + 합치기 버튼), "합치지 않기" 없이 뒤로 가기. `account-choice`는 프로필 고르기(`facts`·`diaryCount`·`providers` 삭제, `other` 알약 추가). `login-methods`에 합치기 입구, 연결 안 함 안내는 `dialog` `notice`(V44).
   * `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(상품 이름 → 구매일·사용 기간, 상태 오른쪽, V45, 지휘 #502로 상품 이름 추가).
   * #475: 카카오 배지 `#191919`, LINE 글자 198px(`lengths.py` `KEY_TARGETS`), `entry` 꺾쇠 앞 `space.8`, 시각 24시간제(V46).
   * 근거: [spec](specs/2026-10-23-account-merge-purchase-design.md), 결정 V44~V46, 시안 `design-v2-account-merge-purchase`.

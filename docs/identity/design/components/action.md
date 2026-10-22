@@ -52,14 +52,14 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 1. `login-methods.intro.body`(`type.body.ui`, `text.secondary`, 아래 `space.20`)
 2. 버튼 네 개(위 순서, 연결된 것은 `connected`). 연결하지 않은 수단은 로그인 화면과 같은 버튼·라벨입니다(연결은 그 제공자로 다시 로그인, D82 ⑤).
 3. 하나만 남았을 때 `login-methods.last.notice`
-4. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선을 긋고, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`를 둡니다. 연결된 수단 수와 관계없이 늘 보입니다(D85 ④). IA `login-methods` 컴포넌트에 `primary-button`이 아직 없어 지휘에 더해 달라고 요청했습니다. 그래서 `primary-button`의 쓰는 화면 줄에는 아직 적지 않습니다.
+4. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선을 긋고, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`를 둡니다. 연결된 인증 계정 수와 관계없이 늘 보입니다(D85 ④). IA `login-methods` 컴포넌트에 `primary-button`이 아직 없어 지휘에 더해 달라고 요청했습니다. 그래서 `primary-button`의 쓰는 화면 줄에는 아직 적지 않습니다.
 
 * 오류(`login-methods.error.body`)는 `dialog` `notice`로 보입니다.
-* 붙이려는 인증 수단이 다른 계정에 연결돼 있으면 연결하지 않고, `login-methods.in-use.body`를 `dialog` `notice`로 보입니다. 확인하면 이 화면에 그대로 있습니다. 합치기로 저절로 넘어가지 않습니다(D85 ③).
+* 붙이려는 인증 계정이 다른 유저 계정에 연결돼 있으면 연결하지 않고, `login-methods.in-use.body`를 `dialog` `notice`로 보입니다. 확인하면 이 화면에 그대로 있습니다. 합치기로 저절로 넘어가지 않습니다(D85 ③).
 
 ### account-merge 인증 단계
 
-`account-merge`의 인증 단계(배치는 `input.md` `### account-merge 화면 배치`)에서는 네 버튼을 `login` 화면과 같은 순서·모양·라벨로 씁니다. 가져올 계정의 인증 수단으로 로그인하는 동작이라 `connected`는 쓰지 않습니다(결정 V44).
+`account-merge`의 인증 단계(배치는 `input.md` `### account-merge 화면 배치`)에서는 네 버튼을 `login` 화면과 같은 순서·모양·라벨로 씁니다. 유저 계정 B의 인증 계정으로 로그인하는 동작이라 `connected`는 쓰지 않습니다(결정 V44).
 
 ## share-button
 
@@ -98,9 +98,9 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 
 | 부품 | 모습 |
 | --- | --- |
-| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase-product` `purchaseProduct*`, 줄바꿈하므로 글자 수 상한 없음), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
-| `status` | 오른쪽, `product` 첫 줄과 세로 가운데, 최대 폭 80(사이 `space.12`). 낱말은 `ui.purchase-status` `purchaseRowStatus*`. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
-| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 기기 locale의 짧은 날짜) + 구분자(`purchaseRowSeparator`) + 사용 기간(`purchaseRowPeriod`). 문구는 `ui.purchase-row`. 사용 기간이 없는 상품은 구매일만 |
+| `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase.product` `purchaseProduct*`, 줄바꿈하므로 글자 수 상한 없음), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
+| `status` | 오른쪽, `product` 첫 줄과 세로 가운데, 최대 폭 80(사이 `space.12`). 낱말은 `ui.purchase.status` `purchaseStatus*`. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
+| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseMetaPurchased`, 기기 locale의 짧은 날짜) + 구분자(`purchaseMetaSeparator`) + 사용 기간(`purchaseMetaPeriod`). 문구는 `ui.purchase.meta`. 사용 기간이 없는 상품은 구매일만 |
 
 * 순서는 server가 준 순서 그대로입니다(최근 구매가 위).
 * 사용 기간은 server가 준 구간 그대로입니다. 합치기로 옮겨 온 구매는 이 계정에서 쓰는 구간만 오므로 구매일이 사용 기간 시작보다 이를 수 있습니다. 대기 구매와 같습니다.

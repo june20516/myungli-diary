@@ -85,7 +85,7 @@ IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.6.1 | 2026-10-20 | 규칙 정합성 점검(#284, D78): `lucky-card` 칩 최대 개수는 칩 줄 전체 6개(태그 2 + 행운 4), MD "쓰는 화면"을 IA에 맞춤. 문구만 |
 | 2.7.0 | 2026-10-22 | D82·D83(#389): `social-login-button` `line`·`google` 변형과 언어별 순서(`parts.stack.order`)·`connected`(V39), `account-choice` 새 컴포넌트와 `account-merge` 배치(V40), 두 버튼 `dialog` 첫 초점 삭제(V41, #354 ②), `day-cell` 윤달 표지 슬롯(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83). 추가와 값 변경 |
 | 2.8.0 | 2026-10-22 | D83(#410): `diary-row` 변형 `day`(같은 날 묶음 카드)·`entries`(오늘·그날 시트)와 `entry` 줄·점선(V42), `guide-question-card` 상태 `full`과 `date-picker` `calendar` 상한 규칙(V43), 토큰 1.2.0 이상 기대(`color.timeline.entry`), writing 키 이름 채움(`loginMethodsRowConnected`·`accountChoiceProviderSeparator`, #441), 그날 시트 일기 입구를 머리(`entries.head`) + 줄로 바꾸고 `depth-link` `navigate`의 `label.daySheetSlot` 삭제(V37 개정). 추가와 값 변경 |
-| 3.0.0 | 2026-10-23 | D85·D88(#480·#483·#494): `account-choice` 쓰임 바뀜(사주 정보·호칭·설정 고르기, 부품 `facts`·`diaryCount`·`providers` 삭제, `other` 추가), `account-merge` 두 단계와 `login-methods` 합치기 입구(V44), `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(V45), #475 값(카카오 배지 `#191919`, LINE 글자 198px, `entry` 꺾쇠 앞 `space.8`, 시각 24시간제 `HH:mm`, V46). 부품 삭제라 major |
+| 3.0.0 | 2026-10-23 | D85·D88(#480·#483·#494): `account-choice` 쓰임 바뀜(프로필 고르기, 부품 `facts`·`diaryCount`·`providers` 삭제, `other` 추가), `account-merge` 두 단계와 `login-methods` 합치기 입구(V44), `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(V45), #475 값(카카오 배지 `#191919`, LINE 글자 198px, `entry` 꺾쇠 앞 `space.8`, 시각 24시간제 `HH:mm`, V46). 부품 삭제라 major |
 
 ## 검사 (design)
 
