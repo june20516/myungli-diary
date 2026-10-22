@@ -9,15 +9,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
-	"github.com/june20516/myungli-diary/server/internal/auth/token"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
-
-// MergeTicketTTL은 합치기 토큰의 수명입니다(S101). 붙이기가 409로 끝난 뒤 사용자가 요약을 보고 합치기를 고를 시간입니다.
-const MergeTicketTTL = 10 * time.Minute
 
 // LinkedIdentity는 계정에 붙은 제공자 연결 하나입니다. subject는 내보내지 않습니다.
 type LinkedIdentity struct {
@@ -78,15 +73,14 @@ func (s *Service) ListIdentities(ctx context.Context, accountID uuid.UUID) ([]Li
 //
 //   - 어디에도 없음: 현재 계정에 같은 제공자 연결이 있으면 ErrProviderTaken, 없으면 연결을 만들고 Created=true
 //   - 현재 계정에 있음: 바꾸지 않고 Created=false(Apple이면 refresh token만 새 값으로)
-//   - 다른 active 계정에 있음: 합치기 토큰을 저장해 commit한 뒤 *IdentityInUseError
-//   - 삭제 대기 계정에 있음: ErrIdentityPendingDeletion
+//   - 다른 유저 계정에 있음: ErrIdentityInUse(409). 합치기 토큰은 만들지 않습니다(S110). 합치기는 previewMerge가 따로 증명을 받습니다.
 //
 // 같은 연결을 두 계정이 동시에 붙이면 한쪽이 (provider, subject) unique 위반을 받습니다. 그쪽은 트랜잭션을 한 번 다시
-// 실행해 *IdentityInUseError가 됩니다(로그인의 동시 첫 로그인 처리와 같은 방식).
+// 실행해 ErrIdentityInUse가 됩니다(로그인의 동시 첫 로그인 처리와 같은 방식).
 //
 // Apple 웹 흐름은 교환 코드를 CompleteAppleWebLogin과 같은 규칙(appleWebTarget)으로 트랜잭션 안에서 소진합니다.
 // 코드가 틀리거나 nonce가 맞지 않으면 ErrExchangeInvalid이며 코드는 소진되지 않습니다.
-// 교환 코드는 in-use면 commit되므로 토큰 행과 함께 소진되고, provider_taken·삭제 대기면 rollback으로 남습니다.
+// 연결을 만들지 못하면(in-use·provider_taken) rollback되므로 교환 코드도 소진되지 않고 남습니다.
 //
 // iOS Apple에서 교환한 refresh token을 저장하지 못하면 LoginApple과 같이 revokeUnsavedAppleGrant 규칙을 따릅니다
 // (그 subject의 연결 행이 없을 때만 revoke). 다른 계정에 연결이 있는 경우(in-use)는 연결 행이 있으므로 revoke하지 않고 버립니다.
@@ -100,13 +94,12 @@ func (s *Service) LinkIdentity(ctx context.Context, accountID uuid.UUID, provide
 	}
 
 	result, err := s.link(ctx, accountID, providerName, verified.prepare)
-	var inUse *IdentityInUseError
 	switch {
 	case err == nil:
 		return result, nil
-	case errors.As(err, &inUse):
-		s.logger.InfoContext(ctx, "다른 계정의 연결이어서 합치기 토큰 발급", "accountId", accountID, "provider", providerName)
-		return LinkResult{}, inUse
+	case errors.Is(err, ErrIdentityInUse):
+		s.logger.InfoContext(ctx, "다른 계정의 연결이어서 붙이기 거절", "accountId", accountID, "provider", providerName)
+		return LinkResult{}, ErrIdentityInUse
 	case errors.Is(err, ErrExchangeInvalid):
 		s.logger.InfoContext(ctx, "Apple 웹 흐름 붙이기 교환 코드 거절", "provider", providerApple, "step", "link_web")
 		return LinkResult{}, ErrExchangeInvalid
@@ -207,30 +200,26 @@ func (s *Service) idTokenVerifier(providerName string) (IDTokenVerifier, error) 
 	}
 }
 
-// link는 붙이기 트랜잭션을 실행합니다. 아래 두 경합이면 한 번 다시 실행합니다.
-//
-//   - (provider, subject) unique 위반: 같은 연결을 동시에 붙인 쪽이 먼저 commit했습니다. 다시 실행하면 그 연결을 찾아
-//     in-use(같은 계정이면 Created=false)가 됩니다.
-//   - 합치기 토큰의 identity_id FK 위반: 다른 계정이 그 연결을 떼는 중이었습니다. GetIdentityForLink가 계정 행 잠금을
-//     기다린 뒤 다시 확인하는 것은 계정 행뿐이라, 이미 지워진 연결 행을 돌려줄 수 있습니다. 다시 실행하면 연결이 없으므로 Created가 됩니다.
+// link는 붙이기 트랜잭션을 실행합니다. (provider, subject) unique 위반이면 한 번 다시 실행합니다.
+// 같은 연결을 동시에 붙인 쪽이 먼저 commit한 것이므로, 다시 실행하면 그 연결을 찾아 in-use(같은 계정이면 Created=false)가 됩니다.
 func (s *Service) link(ctx context.Context, accountID uuid.UUID, providerName string, prepare prepareLogin) (LinkResult, error) {
 	result, err := s.linkOnce(ctx, accountID, providerName, prepare)
-	if isIdentityConflict(err) || isMergeTicketIdentityGone(err) {
+	if isIdentityConflict(err) {
 		result, err = s.linkOnce(ctx, accountID, providerName, prepare)
 	}
 	return result, err
 }
 
-// linkOnce는 붙이기 트랜잭션 한 번입니다. in-use면 합치기 토큰을 남겨야 하므로 오류를 돌려주지 않고 commit한 뒤
-// *IdentityInUseError를 돌려줍니다(Refresh의 재사용 처리와 같은 방식).
+// linkOnce는 붙이기 트랜잭션 한 번입니다.
+//
+// 다른 계정이 그 연결을 떼거나 계정을 지우는 중이면 GetIdentityForLink가 그 계정 행 잠금을 기다린 뒤 계정 행만 다시
+// 확인하므로, 이미 지워진 연결 행을 돌려줄 수 있습니다. 그래서 다른 계정의 연결이면 새 statement로 연결 행이 남아 있는지
+// 다시 확인하고, 없으면 어디에도 없는 연결로 보고 만듭니다.
 func (s *Service) linkOnce(ctx context.Context, accountID uuid.UUID, providerName string, prepare prepareLogin) (LinkResult, error) {
-	var (
-		result LinkResult
-		inUse  *IdentityInUseError
-	)
+	var result LinkResult
 	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		// InTx가 다시 실행할 수 있으므로 결과를 매번 새로 채웁니다.
-		result, inUse = LinkResult{}, nil
+		result = LinkResult{}
 		q := authdb.New(tx)
 		now := s.clock.Now()
 
@@ -242,39 +231,43 @@ func (s *Service) linkOnce(ctx context.Context, accountID uuid.UUID, providerNam
 		if err != nil {
 			return err
 		}
-		existing, err := q.GetIdentityForLink(ctx, authdb.GetIdentityForLinkParams{Provider: providerName, Subject: target.subject})
-		if errors.Is(err, pgx.ErrNoRows) {
+		create := func() error {
 			if err := s.createLinkedIdentity(ctx, q, accountID, providerName, target); err != nil {
 				return err
 			}
 			result = LinkResult{Created: true}
 			return nil
 		}
+		existing, err := q.GetIdentityForLink(ctx, authdb.GetIdentityForLinkParams{Provider: providerName, Subject: target.subject})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return create()
+		}
 		if err != nil {
 			return fmt.Errorf("identity 조회: %w", err)
 		}
-
-		switch {
-		case existing.AccountID == accountID:
+		if existing.AccountID == accountID {
 			if target.apple != nil {
 				return s.saveAppleGrant(ctx, q, existing.ID, target.apple)
 			}
 			return nil
-		case existing.AccountStatus == statusPendingDeletion:
-			return ErrIdentityPendingDeletion
+		}
+
+		stillLinked, err := q.IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerName, Subject: target.subject})
+		if err != nil {
+			return fmt.Errorf("identity 다시 확인: %w", err)
+		}
+		switch {
+		case !stillLinked:
+			return create()
 		case existing.AccountStatus == statusActive:
-			inUse, err = s.issueMergeTicket(ctx, q, now, accountID, existing)
-			return err
+			// 오류를 돌려주면 rollback되므로 Apple 웹 흐름의 교환 코드도 소진되지 않습니다.
+			return ErrIdentityInUse
 		default:
-			// 익명화는 subject를 바꾸므로 정상이라면 여기에 오지 않습니다. 데이터가 어긋난 것이라 서버 오류로 둡니다.
-			return fmt.Errorf("계정 %s: 익명화된 계정에 연결된 identity입니다", existing.AccountID)
+			return deletedAccountIdentityError(existing.AccountID)
 		}
 	})
 	if err != nil {
 		return LinkResult{}, err
-	}
-	if inUse != nil {
-		return LinkResult{}, inUse
 	}
 	return result, nil
 }
@@ -298,32 +291,6 @@ func (s *Service) createLinkedIdentity(ctx context.Context, q *authdb.Queries, a
 	}
 	s.logger.InfoContext(ctx, "연결 붙이기", "accountId", accountID, "provider", providerName)
 	return nil
-}
-
-// issueMergeTicket은 다른 계정에 있는 연결로 합치기 토큰을 만들어 해시를 저장하고, 원문을 담은 오류를 돌려줍니다.
-// 토큰은 refresh token과 같은 방식(256비트 난수 base64url, SHA-256 저장)으로 만듭니다.
-func (s *Service) issueMergeTicket(ctx context.Context, q *authdb.Queries, now time.Time, accountID uuid.UUID, other authdb.GetIdentityForLinkRow) (*IdentityInUseError, error) {
-	id, err := uuid.NewV7()
-	if err != nil {
-		return nil, fmt.Errorf("합치기 토큰 id 생성: %w", err)
-	}
-	raw, hash, err := token.NewRefreshToken()
-	if err != nil {
-		return nil, fmt.Errorf("합치기 토큰 생성: %w", err)
-	}
-	// DB(timestamptz)는 마이크로초 정밀도로 저장하므로, 응답 값도 같은 정밀도로 맞춰 DB 값과 일치시킵니다.
-	expiresAt := now.Add(MergeTicketTTL).Truncate(time.Microsecond)
-	if err := q.InsertMergeTicket(ctx, authdb.InsertMergeTicketParams{
-		ID:             id,
-		TokenHash:      hash,
-		AccountID:      accountID,
-		OtherAccountID: other.AccountID,
-		IdentityID:     other.ID,
-		ExpiresAt:      expiresAt,
-	}); err != nil {
-		return nil, fmt.Errorf("합치기 토큰 저장: %w", err)
-	}
-	return &IdentityInUseError{MergeToken: raw, ExpiresAt: expiresAt}, nil
 }
 
 // UnlinkIdentity는 현재 계정에서 제공자 연결을 뗍니다(S100). providerName은 kakao·apple·line·google입니다.
@@ -384,18 +351,6 @@ func (s *Service) UnlinkIdentity(ctx context.Context, accountID uuid.UUID, provi
 	return nil
 }
 
-// mergeTicketIdentityConstraint는 account_merge_tickets.identity_id의 FK 제약 이름입니다.
-const mergeTicketIdentityConstraint = "account_merge_tickets_identity_id_fkey"
-
-// sqlStateForeignKeyViolation은 FK 위반 SQLSTATE입니다.
-const sqlStateForeignKeyViolation = "23503"
-
-// isMergeTicketIdentityGone은 err가 합치기 토큰의 identity_id FK 위반(붙이려던 연결이 그 사이 지워짐)인지 알려 줍니다.
-func isMergeTicketIdentityGone(err error) bool {
-	var pgErr *pgconn.PgError
-	return errors.As(err, &pgErr) && pgErr.Code == sqlStateForeignKeyViolation && pgErr.ConstraintName == mergeTicketIdentityConstraint
-}
-
 // isLinkableProvider는 계약의 붙이기·떼기 대상 제공자(kakao·apple·line·google)인지 알려 줍니다. test는 계약에 없습니다.
 func isLinkableProvider(providerName string) bool {
 	switch providerName {
@@ -407,8 +362,8 @@ func isLinkableProvider(providerName string) bool {
 }
 
 // lockActiveAccount는 계정 행을 잠그고 active인지 확인합니다.
-// httpapi의 상태 관문이 active가 아닌 계정을 먼저 막으므로, 여기서 걸리는 것은 그 사이 삭제 요청이 끼어든 경우뿐입니다.
-// 삭제 대기 계정에 연결을 더하거나 빼면 허가 취소 대기 행과 어긋나므로 서버 오류로 멈춥니다.
+// httpapi의 상태 관문이 active가 아닌 계정을 먼저 막으므로, 여기서 걸리는 것은 그 사이 계정 삭제가 끼어든 경우뿐입니다.
+// 지운 계정에 연결을 더하거나 빼지 않도록 서버 오류로 멈춥니다.
 func lockActiveAccount(ctx context.Context, q *authdb.Queries, accountID uuid.UUID) error {
 	status, err := q.LockAccountStatus(ctx, accountID)
 	if err != nil {

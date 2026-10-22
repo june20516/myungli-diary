@@ -1,9 +1,6 @@
 package auth
 
-import (
-	"errors"
-	"time"
-)
+import "errors"
 
 // 이 패키지가 돌려주는 도메인 오류입니다. httpapi가 errors.Is로 찾아 problem 응답으로 바꿉니다.
 // 오류 문구에는 토큰·code·nonce·subject를 넣지 않습니다.
@@ -21,9 +18,8 @@ var (
 	ErrExchangeInvalid = errors.New("auth: exchange code invalid")
 	// ErrProviderTaken은 현재 계정에 같은 제공자의 다른 사용자 연결이 이미 있어 붙이지 못할 때 돌려줍니다(409 auth.provider_taken).
 	ErrProviderTaken = errors.New("auth: provider already linked")
-	// ErrIdentityPendingDeletion은 붙이려는 연결이 삭제 대기 계정에 있을 때 돌려줍니다(409 auth.identity_pending_deletion).
-	// 그 제공자로 로그인하면 계정이 복구되므로, 복구한 뒤 다시 시도하게 합니다.
-	ErrIdentityPendingDeletion = errors.New("auth: identity belongs to account pending deletion")
+	// ErrIdentityInUse는 붙이려는 연결이 다른 유저 계정에 있을 때 돌려줍니다(409 auth.identity_in_use, S110).
+	ErrIdentityInUse = errors.New("auth: identity in use by another account")
 	// ErrLastIdentity는 계정의 마지막 연결을 떼려 할 때 돌려줍니다(409 auth.last_identity).
 	ErrLastIdentity = errors.New("auth: last identity")
 	// ErrIdentityNotFound는 현재 계정에 떼려는 제공자 연결이 없을 때 돌려줍니다(404 auth.identity_not_found).
@@ -53,16 +49,4 @@ func (e *InvalidProofError) Error() string {
 // Is는 errors.Is(err, ErrInvalidProof)가 참이 되게 합니다.
 func (e *InvalidProofError) Is(target error) bool {
 	return target == ErrInvalidProof
-}
-
-// IdentityInUseError는 붙이려는 연결이 다른 active 계정에 있어 합치기 토큰을 발급했을 때 돌려줍니다
-// (409 auth.identity_in_use, S101). MergeToken은 원문이며 DB에는 SHA-256만 있습니다.
-// 오류 문구가 로그에 남을 수 있으므로 Error()에는 토큰을 넣지 않습니다.
-type IdentityInUseError struct {
-	MergeToken string
-	ExpiresAt  time.Time
-}
-
-func (e *IdentityInUseError) Error() string {
-	return "auth: identity in use by another account"
 }

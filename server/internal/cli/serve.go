@@ -475,7 +475,7 @@ func newGrantProviders(settings authSettings, urls providerURLs, httpClient *htt
 // newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
 //
 // 의존 방향은 핸들러(httpapi.API) → 서비스(auth·account) → provider·DB입니다.
-// bearer 라우트는 BearerAuth가 access token을 검증하고 계정 접근 상태(동의, 삭제 대기)를 확인한 뒤 핸들러로 넘깁니다.
+// bearer 라우트는 BearerAuth가 access token을 검증하고 계정 접근 상태(지운 계정, 동의)를 확인한 뒤 핸들러로 넘깁니다.
 func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	cfg := settings.config
 

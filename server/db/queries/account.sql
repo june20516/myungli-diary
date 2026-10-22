@@ -1,5 +1,5 @@
 -- name: GetAccountAccess :one
-SELECT status, deletion_requested_at, last_active_at
+SELECT status, last_active_at
 FROM accounts
 WHERE id = @id;
 
@@ -113,12 +113,8 @@ WHERE birth_hash = (SELECT birth_hash FROM profiles WHERE account_id = @account_
 DELETE FROM profiles WHERE account_id = @account_id;
 
 -- MarkAccountDeleted는 계정을 껍데기(id·status·created_at·deleted_at)로 남깁니다.
--- 옛 CHECK(accounts_status_timestamps)가 deleted에 deletion_requested_at·anonymized_at을 요구하므로 둘도 같은 시각으로 채웁니다.
--- 옛 열을 없애는 migration과 함께 이 두 쓰기도 없어집니다.
 -- name: MarkAccountDeleted :exec
 UPDATE accounts
 SET status = 'deleted',
-    deleted_at = @deleted_at::timestamptz,
-    deletion_requested_at = @deleted_at::timestamptz,
-    anonymized_at = @deleted_at::timestamptz
+    deleted_at = @deleted_at::timestamptz
 WHERE id = @id;

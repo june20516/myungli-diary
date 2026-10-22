@@ -29,7 +29,7 @@ func TestSchema_LineGoogleIdentities(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 	for _, id := range []string{accountA, accountB} {
-		if err := insertAccount(ctx, pool, id, "active", false, false); err != nil {
+		if err := insertActive(ctx, pool, id); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -68,7 +68,7 @@ func TestSchema_MergeTicketFollowsIdentityAndRestrictsAccounts(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 	for _, id := range []string{accountA, accountB} {
-		if err := insertAccount(ctx, pool, id, "active", false, false); err != nil {
+		if err := insertActive(ctx, pool, id); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -103,7 +103,7 @@ func TestSchema_Migration00014Down(t *testing.T) {
 	ctx := context.Background()
 	t.Run("표와 제약이 사라집니다", func(t *testing.T) {
 		pool := dbtest.New(t)
-		if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+		if err := insertActive(ctx, pool, accountA); err != nil {
 			t.Fatal(err)
 		}
 		if err := postgres.MigrateDownTo(ctx, pool, 13); err != nil { // 00014만 내립니다.
@@ -130,7 +130,7 @@ func TestSchema_Migration00014Down(t *testing.T) {
 
 	t.Run("line 행이 남아 있으면 되돌리기가 CHECK 위반으로 실패합니다", func(t *testing.T) {
 		pool := dbtest.New(t)
-		if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+		if err := insertActive(ctx, pool, accountA); err != nil {
 			t.Fatal(err)
 		}
 		if _, err := pool.Exec(ctx, `INSERT INTO auth_identities (id, account_id, provider, subject)

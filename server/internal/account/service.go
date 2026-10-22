@@ -21,8 +21,6 @@ import (
 const (
 	// lastActiveInterval은 last_active_at을 다시 갱신하기까지의 최소 간격입니다(하루 1번까지).
 	lastActiveInterval = 24 * time.Hour
-	// deletionGracePeriod는 옛 삭제 예약의 유예 기간입니다. 삭제 대기 계정이 남아 있는 동안 예정 시각 계산에만 씁니다.
-	deletionGracePeriod = 30 * 24 * time.Hour
 
 	// pgForeignKeyViolation은 PostgreSQL의 foreign_key_violation SQLSTATE입니다.
 	pgForeignKeyViolation = "23503"
@@ -48,8 +46,6 @@ type Status string
 const (
 	// StatusActive는 정상 계정입니다.
 	StatusActive Status = "active"
-	// StatusPendingDeletion은 옛 삭제 예약으로 유예 기간 중인 계정입니다. 새로 만들지 않으며, 삭제 대기 경로를 없앨 때 함께 없앱니다.
-	StatusPendingDeletion Status = "pending_deletion"
 	// StatusDeleted는 개인 데이터를 지우고 껍데기만 남은 계정입니다.
 	StatusDeleted Status = "deleted"
 )
@@ -57,8 +53,6 @@ const (
 // Access는 요청마다 확인하는 계정 접근 상태입니다.
 type Access struct {
 	Status Status
-	// DeletionScheduledAt은 삭제 대기 계정의 익명화 예정 시각입니다. 그 밖에는 nil입니다.
-	DeletionScheduledAt *time.Time
 	// ConsentRequired는 현재 버전 문서 중 아직 동의하지 않은 것이 있으면 true입니다.
 	ConsentRequired bool
 }
@@ -180,12 +174,7 @@ func (s *Service) missingConsents(ctx context.Context, q *accountdb.Queries, id 
 
 // buildAccess는 조회 행을 Access로 바꿉니다.
 func buildAccess(row accountdb.GetAccountAccessRow, consentRequired bool) Access {
-	a := Access{Status: Status(row.Status), ConsentRequired: consentRequired}
-	if row.DeletionRequestedAt != nil {
-		t := row.DeletionRequestedAt.Add(deletionGracePeriod)
-		a.DeletionScheduledAt = &t
-	}
-	return a
+	return Access{Status: Status(row.Status), ConsentRequired: consentRequired}
 }
 
 // notFoundOr는 행 없음을 ErrNotFound로, 그 밖의 오류를 맥락을 붙여 돌려줍니다.

@@ -1,7 +1,6 @@
 -- +goose Up
 -- 계정 삭제 즉시 처리(S105)와 허가 취소 재시도(S106)의 저장입니다.
--- 옛 열(deletion_requested_at·anonymized_at, auth_identities.provider_disconnected_at)과
--- 옛 CHECK·'pending_deletion' 값은 그 열을 쓰는 코드가 없어질 때 따로 지우므로 이 migration은 새 것만 더합니다.
+-- 삭제 대기 상태('pending_deletion')·30일 유예가 없어지므로, 남은 삭제 대기 계정을 지우고 옛 열과 CHECK를 deleted_at 하나로 바꿉니다.
 
 -- 지운 시각입니다. 이미 'deleted'인 행은 옛 시각에서 채웁니다.
 ALTER TABLE accounts ADD COLUMN deleted_at timestamptz;
@@ -109,7 +108,85 @@ CREATE TRIGGER idempotency_keys_reject_deleted_account BEFORE INSERT OR UPDATE O
 CREATE TRIGGER reactions_reject_deleted_account BEFORE INSERT OR UPDATE OF selection_id ON reactions
     FOR EACH ROW EXECUTE FUNCTION reject_deleted_account_reaction();
 
+-- 남은 삭제 대기 계정을 계정 삭제(account.DeleteAccountTx)와 같은 목록·순서로 지웁니다(spec §3.2).
+-- 출시 전이라 staging에만 있는 행입니다. 그래서 반응을 문장별 집계(reaction_tallies)에 더하지 않습니다
+-- (실제 사용자의 반응이 아니라 집계에 섞이면 안 됩니다). 카카오·Apple 허가 취소는 계정 삭제처럼 대기 행으로 남겨
+-- 재시도 job(retention)이 처리하게 합니다. 위 trigger는 INSERT와 account_id를 바꾸는 UPDATE에만 걸리므로
+-- 여기의 DELETE와 accounts UPDATE를 막지 않습니다.
+INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at, created_at)
+SELECT i.provider,
+       CASE WHEN i.provider = 'kakao' THEN i.subject END,
+       i.id,
+       i.apple_refresh_token,
+       i.apple_token_key_id,
+       i.apple_client_id,
+       now(),
+       now()
+FROM auth_identities i
+JOIN accounts a ON a.id = i.account_id
+WHERE a.status = 'pending_deletion'
+  AND (i.provider = 'kakao' OR (i.provider = 'apple' AND i.apple_refresh_token IS NOT NULL));
+
+DELETE FROM reactions
+WHERE selection_id IN (
+    SELECT s.id FROM daily_selections s JOIN accounts a ON a.id = s.account_id WHERE a.status = 'pending_deletion'
+);
+DELETE FROM daily_selections WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM rotation_state WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM diaries WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM diary_days WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM schedules WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM idempotency_keys WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM account_merge_tickets
+WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion')
+   OR other_account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM refresh_tokens WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM consents WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+DELETE FROM auth_identities WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+-- 계산 캐시는 프로필의 출생 해시로 찾으므로 프로필보다 먼저 지웁니다.
+DELETE FROM chart_cache WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
+);
+DELETE FROM daily_cache WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
+);
+DELETE FROM month_cache WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
+);
+DELETE FROM profiles WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+-- 지운 시각은 삭제를 요청한 시각으로 둡니다. 옛 CHECK가 deleted에 anonymized_at을 요구하므로 같은 값으로 채웁니다.
+UPDATE accounts
+SET status = 'deleted', deleted_at = deletion_requested_at, anonymized_at = deletion_requested_at
+WHERE status = 'pending_deletion';
+
+-- 상태는 active·deleted 둘뿐이고, 지운 시각은 deleted일 때만 있습니다.
+ALTER TABLE accounts DROP CONSTRAINT accounts_status_timestamps;
+ALTER TABLE accounts DROP CONSTRAINT accounts_status_check;
+ALTER TABLE accounts DROP COLUMN deletion_requested_at;
+ALTER TABLE accounts DROP COLUMN anonymized_at;
+ALTER TABLE accounts ADD CONSTRAINT accounts_status_check CHECK (status IN ('active', 'deleted'));
+ALTER TABLE accounts ADD CONSTRAINT accounts_status_deleted_at CHECK (
+    (status = 'active' AND deleted_at IS NULL) OR (status = 'deleted' AND deleted_at IS NOT NULL)
+);
+
+-- 떼기는 연결 행을 지우고 계정 삭제도 연결 행을 지우므로(S100·S105) 끊긴 시각 표시는 쓰지 않습니다.
+ALTER TABLE auth_identities DROP COLUMN provider_disconnected_at;
+
 -- +goose Down
+-- 열과 CHECK는 되돌리지만 지운 데이터(삭제 대기 계정의 개인 데이터)는 되돌리지 않습니다. 그 계정은 deleted로 남습니다.
+ALTER TABLE auth_identities ADD COLUMN provider_disconnected_at timestamptz;
+ALTER TABLE accounts DROP CONSTRAINT accounts_status_deleted_at;
+ALTER TABLE accounts DROP CONSTRAINT accounts_status_check;
+ALTER TABLE accounts ADD COLUMN deletion_requested_at timestamptz;
+ALTER TABLE accounts ADD COLUMN anonymized_at timestamptz;
+-- 되돌린 옛 CHECK를 만족하도록 지운 계정의 옛 두 시각을 지운 시각으로 채웁니다.
+UPDATE accounts SET deletion_requested_at = deleted_at, anonymized_at = deleted_at WHERE status = 'deleted';
+ALTER TABLE accounts ADD CONSTRAINT accounts_status_check CHECK (status IN ('active', 'pending_deletion', 'deleted'));
+ALTER TABLE accounts ADD CONSTRAINT accounts_status_timestamps CHECK (
+    (status = 'active' AND deletion_requested_at IS NULL AND anonymized_at IS NULL)
+    OR (status = 'pending_deletion' AND deletion_requested_at IS NOT NULL AND anonymized_at IS NULL)
+    OR (status = 'deleted' AND deletion_requested_at IS NOT NULL AND anonymized_at IS NOT NULL)
+);
 DROP TRIGGER reactions_reject_deleted_account ON reactions;
 DROP TRIGGER idempotency_keys_reject_deleted_account ON idempotency_keys;
 DROP TRIGGER refresh_tokens_reject_deleted_account ON refresh_tokens;

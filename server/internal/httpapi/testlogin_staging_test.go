@@ -172,20 +172,18 @@ func TestLogin_TestLoginConsentFlow(t *testing.T) {
 	assert.Equal(t, false, f.login(t, "e2e01")["consentRequired"])
 }
 
-// 삭제 대기 계정은 정상 로그인처럼 되살아납니다.
-func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
+// 지운 계정의 label로 다시 로그인하면 정상 로그인처럼 새 유저 계정이고 약관 동의부터 합니다(S105).
+func TestLogin_TestLoginAfterDeleteCreatesNewAccount(t *testing.T) {
 	f := newTestLoginFixture(t)
 	f.login(t, "e2e01")
 	accountID := f.accountOf(t, "e2e01")
-	// 삭제 예약 API는 없어졌으므로(S105) 남은 삭제 대기 계정을 SQL로 만듭니다.
-	_, err := f.pool.Exec(t.Context(), `UPDATE accounts SET status = 'pending_deletion', deletion_requested_at = now() WHERE id = $1`, accountID)
-	require.NoError(t, err)
+	require.NoError(t, f.accounts.Delete(t.Context(), accountID))
 
 	body := f.login(t, "e2e01")
 
-	assert.NotContains(t, body, "restoredFromDeletion", "계약 draft.15에서 없어진 필드입니다")
-	assert.Equal(t, false, body["isNewAccount"])
-	assert.Equal(t, accountID, f.accountOf(t, "e2e01"))
+	assert.Equal(t, true, body["isNewAccount"])
+	assert.Equal(t, true, body["consentRequired"], "새 유저 계정은 약관 동의가 필요합니다")
+	assert.NotEqual(t, accountID, f.accountOf(t, "e2e01"))
 }
 
 // 로그에 비밀과 label을 남기지 않습니다(label은 테스트 계정의 subject입니다).

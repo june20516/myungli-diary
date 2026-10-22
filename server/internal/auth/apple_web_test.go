@@ -148,7 +148,6 @@ func TestCompleteAppleWebLogin_CreatesAccountAndConsumes(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.True(t, res.IsNewAccount)
-	assert.False(t, res.RestoredFromDeletion)
 	assert.NotEmpty(t, res.Tokens.AccessToken)
 	assert.Equal(t, res.AccountID, f.refreshRowAccount(t, res.Tokens.RefreshToken))
 
@@ -311,21 +310,19 @@ func TestCompleteAppleWebLogin_TxFailureKeepsCodeUsable(t *testing.T) {
 	assert.NotNil(t, f.appleWebRow(t, code).consumedAt)
 }
 
-func TestCompleteAppleWebLogin_RestoresPendingDeletion(t *testing.T) {
+// 지운 계정의 Apple로 웹 로그인하면 새 유저 계정이고, 웹 로그인에서 받은 토큰을 새 연결에 저장합니다(S105).
+func TestCompleteAppleWebLogin_AfterDeleteCreatesNewAccount(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginApple(t, "apple-1")
-	f.markPendingDeletion(t, first.AccountID)
+	f.deleteAccount(t, first.AccountID)
 	f.fake.SetAppleRefreshToken("web-refresh")
 	code := f.beginAppleWeb(t, "apple-1")
 
 	res, err := f.service.CompleteAppleWebLogin(f.ctx, code, testNonce)
 
 	require.NoError(t, err)
-	assert.Equal(t, first.AccountID, res.AccountID)
-	assert.False(t, res.IsNewAccount)
-	assert.True(t, res.RestoredFromDeletion)
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts WHERE id = $1 AND status = 'active'`, first.AccountID))
-	assert.NotNil(t, f.refreshRow(t, first.Tokens.RefreshToken).revokedAt, "복구 전 세션은 폐기합니다")
+	assert.True(t, res.IsNewAccount)
+	assert.NotEqual(t, first.AccountID, res.AccountID)
 
 	var (
 		identityID uuid.UUID
@@ -335,10 +332,10 @@ func TestCompleteAppleWebLogin_RestoresPendingDeletion(t *testing.T) {
 	)
 	require.NoError(t, f.pool.QueryRow(f.ctx,
 		`SELECT id, apple_refresh_token, apple_token_key_id, apple_client_id FROM auth_identities WHERE account_id = $1`,
-		first.AccountID).Scan(&identityID, &sealed, &keyID, &clientID))
+		res.AccountID).Scan(&identityID, &sealed, &keyID, &clientID))
 	plain, err := f.box.Open(sealed, keyID, identityID[:])
 	require.NoError(t, err)
-	assert.Equal(t, "web-refresh", string(plain), "웹 로그인에서 받은 토큰으로 바꿔 저장합니다")
+	assert.Equal(t, "web-refresh", string(plain))
 	assert.Equal(t, providertest.AppleServicesID, clientID)
 }
 

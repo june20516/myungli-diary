@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
@@ -173,25 +172,15 @@ func TestWriteHandlerError_EngineInternalIs502(t *testing.T) {
 	assert.Equal(t, "engine.error", p.Code)
 }
 
-// 합치기 토큰은 draft.15부터 409 본문에 싣지 않습니다(previewMerge가 발급).
-func TestWriteHandlerError_IdentityInUseOmitsMergeToken(t *testing.T) {
-	expires := time.Date(2026, 10, 13, 9, 10, 0, 0, time.UTC)
-	rec, p, _ := serveHandlerError(t, fmt.Errorf("wrap: %w", &auth.IdentityInUseError{MergeToken: "tok", ExpiresAt: expires}))
+// 다른 유저 계정의 연결은 409 identity_in_use만이고 합치기 토큰 필드가 없습니다(S110).
+func TestWriteHandlerError_IdentityInUseIs409WithoutMergeFields(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, fmt.Errorf("wrap: %w", auth.ErrIdentityInUse))
 
 	assert.Equal(t, http.StatusConflict, rec.Code)
 	assert.Equal(t, "auth.identity_in_use", p.Code)
-	assert.NotContains(t, rec.Body.String(), "tok")
 	assert.NotContains(t, rec.Body.String(), "mergeToken")
 	assert.NotContains(t, rec.Body.String(), "expiresAt")
 	assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
-}
-
-// auth 패키지가 아직 돌려주는 삭제 대기 오류는 계약에서 없어진 code 대신 identity_in_use 409로 답합니다.
-func TestWriteHandlerError_PendingDeletionIsIdentityInUse(t *testing.T) {
-	rec, p, _ := serveHandlerError(t, auth.ErrIdentityPendingDeletion)
-
-	assert.Equal(t, http.StatusConflict, rec.Code)
-	assert.Equal(t, "auth.identity_in_use", p.Code)
 }
 
 func TestWriteHandlerError_InvalidProofIsRequestInvalidWithOneField(t *testing.T) {

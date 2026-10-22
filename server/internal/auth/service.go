@@ -2,7 +2,7 @@
 //
 // 흐름은 다음과 같습니다.
 //   - 로그인: 제공자 토큰을 검증하고 (provider, subject)로 계정을 찾거나 만듭니다.
-//     삭제 대기 계정이면 되살리고 그 계정의 이전 세션(refresh token)을 모두 폐기합니다. 로그인마다 새 refresh family를 만들고 토큰 쌍을 발급합니다.
+//     지운 계정은 인증 계정 행이 없으므로 새 계정이 됩니다(S105). 로그인마다 새 refresh family를 만들고 토큰 쌍을 발급합니다.
 //   - Apple 웹 로그인(Android): 콜백에서 제공자 검증·code 교환을 마치고 결과를 잠시 저장한 뒤 일회용 교환 코드를 주고(BeginAppleWebLogin),
 //     앱이 교환 코드와 nonce 원문을 보내면 위 로그인과 같은 단계로 마칩니다(CompleteAppleWebLogin).
 //   - 갱신: refresh token을 쓸 때마다 같은 family 안에서 새 토큰으로 바꿉니다(rotation).
@@ -47,9 +47,8 @@ const (
 
 // DB의 accounts.status 값입니다.
 const (
-	statusActive          = "active"
-	statusPendingDeletion = "pending_deletion"
-	statusDeleted         = "deleted"
+	statusActive  = "active"
+	statusDeleted = "deleted"
 )
 
 // identityUniqueConstraint는 (provider, subject) unique 제약 이름입니다. 동시 첫 로그인 경합을 알아보는 데 씁니다.
@@ -116,10 +115,8 @@ type TokenPair struct {
 type LoginResult struct {
 	AccountID uuid.UUID
 	Tokens    TokenPair
-	// IsNewAccount는 이번 로그인으로 계정을 새로 만들었는지입니다.
+	// IsNewAccount는 이번 로그인으로 계정을 새로 만들었는지입니다. 지운 계정의 인증 계정으로 로그인해도 새 계정입니다(S105).
 	IsNewAccount bool
-	// RestoredFromDeletion은 삭제 대기 계정을 이번 로그인으로 되살렸는지입니다.
-	RestoredFromDeletion bool
 }
 
 // Service는 인증 서비스입니다. 여러 goroutine에서 동시에 써도 안전합니다.
@@ -198,7 +195,7 @@ func (s *Service) LoginGoogle(ctx context.Context, idToken, rawNonce string) (Lo
 //
 // 로그인 트랜잭션이 실패하면 교환한 refresh token은 저장하지 않습니다. 그 subject의 연결 행이 없을 때만
 // revoke해, 처음 로그인하다 실패한 사용자의 Apple 설정 목록(Sign in with Apple)에 앱이 남지 않게 합니다.
-// 연결 행이 있으면(기존 사용자의 일시 오류, 동시 첫 로그인에서 먼저 commit된 연결, 익명화된 계정 등) revoke하지 않습니다.
+// 연결 행이 있으면(기존 사용자의 일시 오류, 동시 첫 로그인에서 먼저 commit된 연결, 지운 계정에 어긋나게 남은 연결 등) revoke하지 않습니다.
 // Apple의 revoke는 그 사용자의 앱 승인 전체를 끊어 저장된 연결까지 무효로 만들기 때문입니다.
 // 연결 행 조회나 revoke가 실패해도 원래 로그인 오류를 그대로 돌려줍니다(revokeUnsavedAppleGrant).
 func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string) (LoginResult, error) {
@@ -316,7 +313,7 @@ func (s *Service) loginOnce(ctx context.Context, providerName string, prepare pr
 		if err != nil {
 			return err
 		}
-		accountID, isNew, restored, err := s.findOrCreateAccount(ctx, q, now, providerName, target.subject, target.apple)
+		accountID, isNew, err := s.findOrCreateAccount(ctx, q, now, providerName, target.subject, target.apple)
 		if err != nil {
 			return err
 		}
@@ -328,50 +325,59 @@ func (s *Service) loginOnce(ctx context.Context, providerName string, prepare pr
 		if err != nil {
 			return err
 		}
-		result = LoginResult{AccountID: accountID, Tokens: tokens, IsNewAccount: isNew, RestoredFromDeletion: restored}
+		result = LoginResult{AccountID: accountID, Tokens: tokens, IsNewAccount: isNew}
 		return nil
 	})
 	return result, err
 }
 
 // findOrCreateAccount는 (provider, subject)의 계정을 찾거나 만듭니다.
-// 이미 있으면 계정 행을 잠근 채로 삭제 대기면 되살리고, Apple이면 refresh token을 새 값으로 바꿉니다.
-// 되살릴 때는 같은 트랜잭션에서 그 계정의 refresh token을 모두 폐기합니다. 삭제 요청 뒤의 세션 폐기가
-// 실패했더라도 삭제 전 세션이 복구와 함께 살아나지 않게 하려는 것이며, 새 family는 이 뒤에 발급합니다.
-func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, now time.Time, providerName, subject string, apple *appleGrant) (accountID uuid.UUID, isNew, restored bool, err error) {
+// 이미 있으면 계정 행을 잠근 채로 그 계정을 쓰고, Apple이면 refresh token을 새 값으로 바꿉니다.
+// 계정 삭제는 인증 계정 행도 지우므로, 지운 계정의 인증 계정으로 로그인하면 연결 행이 없어 새 계정을 만듭니다(S105).
+func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, now time.Time, providerName, subject string, apple *appleGrant) (accountID uuid.UUID, isNew bool, err error) {
 	existing, err := q.GetIdentity(ctx, authdb.GetIdentityParams{Provider: providerName, Subject: subject})
 	if errors.Is(err, pgx.ErrNoRows) {
 		accountID, err = s.createAccount(ctx, q, now, providerName, subject, apple)
-		return accountID, true, false, err
+		return accountID, true, err
 	}
 	if err != nil {
-		return uuid.Nil, false, false, fmt.Errorf("identity 조회: %w", err)
+		return uuid.Nil, false, fmt.Errorf("identity 조회: %w", err)
 	}
 
 	if existing.AccountStatus == statusDeleted {
-		// 익명화는 subject를 바꾸므로 정상이라면 여기에 오지 않습니다. 데이터가 어긋난 것이라 서버 오류로 둡니다.
-		return uuid.Nil, false, false, fmt.Errorf("계정 %s: 익명화된 계정에 연결된 identity입니다", existing.AccountID)
-	}
-
-	// active 계정이면 0행, pending_deletion이면 1행이 바뀝니다. 계정 행을 잠갔으므로 그 사이 상태가 바뀌지 않습니다.
-	rows, err := q.RestoreAccount(ctx, existing.AccountID)
-	if err != nil {
-		return uuid.Nil, false, false, fmt.Errorf("계정 복구: %w", err)
-	}
-	if rows == 1 {
-		restored = true
-		if err := q.RevokeAccountTokens(ctx, authdb.RevokeAccountTokensParams{RevokedAt: now, AccountID: existing.AccountID}); err != nil {
-			return uuid.Nil, false, false, fmt.Errorf("복구 전 세션 폐기: %w", err)
+		// 계정 삭제가 commit되기를 기다린 경우입니다. 연결 행이 정말 지워졌으면 새 계정을 만듭니다.
+		if err := checkDeletedIdentityGone(ctx, q, existing.AccountID, providerName, subject); err != nil {
+			return uuid.Nil, false, err
 		}
-		s.logger.InfoContext(ctx, "삭제 대기 계정 복구", "accountId", existing.AccountID, "provider", providerName)
+		accountID, err = s.createAccount(ctx, q, now, providerName, subject, apple)
+		return accountID, true, err
 	}
 
 	if apple != nil {
 		if err := s.saveAppleGrant(ctx, q, existing.ID, apple); err != nil {
-			return uuid.Nil, false, false, err
+			return uuid.Nil, false, err
 		}
 	}
-	return existing.AccountID, false, restored, nil
+	return existing.AccountID, false, nil
+}
+
+// checkDeletedIdentityGone은 지운 계정(deleted)에 묶여 읽힌 연결 행이 정말 지워졌는지 새 statement로 다시 확인합니다.
+// GetIdentity·GetIdentityForLink는 계정 행 잠금을 기다린 뒤 계정 행만 다시 확인하므로, 기다리는 사이 계정 삭제가
+// 지운 연결 행을 돌려줄 수 있습니다. 행이 남아 있으면 계정 삭제와 어긋난 데이터라 서버 오류로 멈춥니다.
+func checkDeletedIdentityGone(ctx context.Context, q *authdb.Queries, accountID uuid.UUID, providerName, subject string) error {
+	exists, err := q.IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerName, Subject: subject})
+	if err != nil {
+		return fmt.Errorf("identity 다시 확인: %w", err)
+	}
+	if exists {
+		return deletedAccountIdentityError(accountID)
+	}
+	return nil
+}
+
+// deletedAccountIdentityError는 지운 계정에 연결 행이 남은(계정 삭제와 어긋난) 데이터의 서버 오류입니다.
+func deletedAccountIdentityError(accountID uuid.UUID) error {
+	return fmt.Errorf("계정 %s: 지운 계정에 연결된 identity입니다", accountID)
 }
 
 // saveAppleGrant는 이미 있는 Apple 연결의 refresh token을 새 값으로 바꿉니다. 연결 id를 aad로 묶어 암호화합니다.
@@ -640,15 +646,6 @@ func (s *Service) Logout(ctx context.Context, accountID uuid.UUID, rawRefresh st
 	})
 	if err != nil {
 		return fmt.Errorf("logout: %w", err)
-	}
-	return nil
-}
-
-// RevokeAllSessions는 계정의 모든 refresh token을 폐기합니다(계정 삭제 때 씀).
-func (s *Service) RevokeAllSessions(ctx context.Context, accountID uuid.UUID) error {
-	q := authdb.New(s.pool)
-	if err := q.RevokeAccountTokens(ctx, authdb.RevokeAccountTokensParams{RevokedAt: s.clock.Now(), AccountID: accountID}); err != nil {
-		return fmt.Errorf("계정 refresh token 폐기: %w", err)
 	}
 	return nil
 }

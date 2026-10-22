@@ -348,8 +348,7 @@ func TestIdempotency_CompleteFailureKeepsRowAndLogs(t *testing.T) {
 // 삭제 중이던 계정이라 키 선점이 DB trigger에 막히면 401 auth.token_invalid이고 행을 남기지 않습니다.
 func TestIdempotency_DeletedAccountClaimIs401(t *testing.T) {
 	env := newIdempotencyEnv(t)
-	_, err := env.pool.Exec(t.Context(), `UPDATE accounts SET status = 'deleted', deleted_at = now(),
-		deletion_requested_at = now(), anonymized_at = now() WHERE id = $1`, env.accounts["a"])
+	_, err := env.pool.Exec(t.Context(), `UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1`, env.accounts["a"])
 	require.NoError(t, err)
 
 	rec := env.post(t, "key-1", "a", createBody)

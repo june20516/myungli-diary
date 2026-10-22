@@ -30,8 +30,14 @@ func wantSQLState(t *testing.T, err error, want string) {
 	}
 }
 
-// insertAccount는 계정 한 행을 넣고 그 결과 오류를 돌려줍니다.
-func insertAccount(ctx context.Context, pool *pgxpool.Pool, id, status string, deletionRequested, anonymized bool) error {
+// insertActive는 active 계정 한 행을 넣고 그 결과 오류를 돌려줍니다. 지금 스키마와 00014 이하 스키마 모두에서 됩니다.
+func insertActive(ctx context.Context, pool *pgxpool.Pool, id string) error {
+	_, err := pool.Exec(ctx, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', now())`, id)
+	return err
+}
+
+// insertLegacyAccount는 00014 이하 스키마(deletion_requested_at·anonymized_at이 있던 때)에 계정 한 행을 넣습니다.
+func insertLegacyAccount(ctx context.Context, pool *pgxpool.Pool, id, status string, deletionRequested, anonymized bool) error {
 	deletionAt, anonymizedAt := "NULL", "NULL"
 	if deletionRequested {
 		deletionAt = "now()"
@@ -49,6 +55,7 @@ const (
 	accountB = "00000000-0000-7000-8000-000000000002"
 )
 
+// 00002의 옛 CHECK입니다. 00015가 바꾸므로 00014까지 내린 스키마에서 확인합니다.
 func TestSchema_AccountStatusRequiresMatchingTimestamps(t *testing.T) {
 	tests := []struct {
 		name              string
@@ -68,8 +75,12 @@ func TestSchema_AccountStatusRequiresMatchingTimestamps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			pool := dbtest.New(t)
-			err := insertAccount(context.Background(), pool, accountA, tt.status, tt.deletionRequested, tt.anonymized)
+			if err := postgres.MigrateDownTo(ctx, pool, 14); err != nil {
+				t.Fatal(err)
+			}
+			err := insertLegacyAccount(ctx, pool, accountA, tt.status, tt.deletionRequested, tt.anonymized)
 			if tt.wantState == "" {
 				if err != nil {
 					t.Fatalf("성공해야 하는데 %v", err)
@@ -84,7 +95,7 @@ func TestSchema_AccountStatusRequiresMatchingTimestamps(t *testing.T) {
 func TestSchema_KakaoIdentityRejectsAppleColumns(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+	if err := insertActive(ctx, pool, accountA); err != nil {
 		t.Fatal(err)
 	}
 	_, err := pool.Exec(ctx, `INSERT INTO auth_identities
@@ -112,7 +123,7 @@ func TestSchema_AppleTokenColumnsComeTogether(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
 			pool := dbtest.New(t)
-			if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+			if err := insertActive(ctx, pool, accountA); err != nil {
 				t.Fatal(err)
 			}
 			_, err := pool.Exec(ctx, `INSERT INTO auth_identities
@@ -133,7 +144,7 @@ func TestSchema_IdentityUniquePerProviderSubject(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 	for _, id := range []string{accountA, accountB} {
-		if err := insertAccount(ctx, pool, id, "active", false, false); err != nil {
+		if err := insertActive(ctx, pool, id); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -150,7 +161,7 @@ func TestSchema_IdentityUniquePerProviderSubject(t *testing.T) {
 func TestSchema_AccountsCannotBeDeletedWhileReferenced(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+	if err := insertActive(ctx, pool, accountA); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := pool.Exec(ctx, `INSERT INTO auth_identities (id, account_id, provider, subject)
@@ -170,7 +181,7 @@ func TestSchema_MigrationDownUp(t *testing.T) {
 			t.Fatalf("Migrate(%s): %v", direction, err)
 		}
 	}
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+	if err := insertActive(ctx, pool, accountA); err != nil {
 		t.Fatalf("다시 올린 뒤 accounts에 쓸 수 있어야 합니다: %v", err)
 	}
 }
@@ -178,7 +189,7 @@ func TestSchema_MigrationDownUp(t *testing.T) {
 func TestSchema_RefreshTokenHashIsUnique(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+	if err := insertActive(ctx, pool, accountA); err != nil {
 		t.Fatal(err)
 	}
 	const insert = `INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
@@ -193,7 +204,7 @@ func TestSchema_RefreshTokenHashIsUnique(t *testing.T) {
 func TestSchema_RefreshTokenUsedAndReplacedComeTogether(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+	if err := insertActive(ctx, pool, accountA); err != nil {
 		t.Fatal(err)
 	}
 	const (
@@ -235,7 +246,7 @@ func TestSchema_RefreshTokenUsedAndReplacedComeTogether(t *testing.T) {
 func TestSchema_ConsentDocumentAndUniqueness(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
+	if err := insertActive(ctx, pool, accountA); err != nil {
 		t.Fatal(err)
 	}
 	const insert = `INSERT INTO consents (id, account_id, document, version, agreed_at) VALUES ($1, $2, $3, $4, now())`

@@ -40,10 +40,7 @@ func (f *fakeAuth) UnlinkIdentity(_ context.Context, _ uuid.UUID, providerName s
 	return f.unlinkErr
 }
 
-var (
-	identityLinkedAt = time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)
-	identityMergeAt  = time.Date(2026, 10, 13, 9, 10, 0, 0, time.UTC)
-)
+var identityLinkedAt = time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)
 
 func TestLoginLine_ReturnsLoginResponse(t *testing.T) {
 	fa := &fakeAuth{login: auth.LoginResult{AccountID: testAccountID, Tokens: testTokenPair(), IsNewAccount: true}}
@@ -103,7 +100,7 @@ func TestLinkIdentity_StatusByResult(t *testing.T) {
 		{name: "만들었으면 201", fake: &fakeAuth{identities: list, linkResult: auth.LinkResult{Created: true}}, wantStatus: http.StatusCreated},
 		{name: "이미 있으면 200", fake: &fakeAuth{identities: list}, wantStatus: http.StatusOK},
 		{name: "같은 제공자가 이미 붙음", fake: &fakeAuth{linkErr: auth.ErrProviderTaken}, wantStatus: http.StatusConflict, wantCode: "auth.provider_taken"},
-		{name: "삭제 대기 계정의 연결", fake: &fakeAuth{linkErr: auth.ErrIdentityPendingDeletion}, wantStatus: http.StatusConflict, wantCode: "auth.identity_in_use"},
+		{name: "다른 유저 계정의 연결", fake: &fakeAuth{linkErr: auth.ErrIdentityInUse}, wantStatus: http.StatusConflict, wantCode: "auth.identity_in_use"},
 		{
 			name: "증명 조합 위반", wantStatus: http.StatusBadRequest, wantCode: "request.invalid",
 			fake: &fakeAuth{linkErr: &auth.InvalidProofError{Field: "/exchangeCode", Code: "additionalProperties"}},
@@ -142,23 +139,6 @@ func TestLinkIdentity_StatusByResult(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestLinkIdentity_InUseOmitsMergeToken(t *testing.T) {
-	fa := &fakeAuth{linkErr: &auth.IdentityInUseError{MergeToken: "tok", ExpiresAt: identityMergeAt}}
-	handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa})
-
-	req := postJSON(t, "/v1/me/identities/line", kakaoBody)
-	rec := serve(handler, req)
-
-	require.Equal(t, http.StatusConflict, rec.Code, rec.Body.String())
-	expectContractResponse(t, spec, req, rec)
-	var raw map[string]any
-	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &raw))
-	assert.Equal(t, "auth.identity_in_use", raw["code"])
-	assert.NotContains(t, raw, "mergeToken")
-	assert.NotContains(t, raw, "expiresAt")
-	assert.NotContains(t, rec.Body.String(), "tok")
 }
 
 func TestLinkIdentity_PassesProofFields(t *testing.T) {

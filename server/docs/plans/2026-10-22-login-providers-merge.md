@@ -1,5 +1,7 @@
 # 로그인 제공자 넷과 계정 연결·합치기 (D82) Implementation Plan
 
+> PR C(합치기), 409 본문의 합치기 토큰, 합친 계정을 `pending_deletion`으로 두는 부분은 D85·S105·S110·S111로 바뀌었습니다. 지금 계획은 `2026-10-23-account-delete-merge-purchases.md`입니다.
+
 > **agentic worker에게:** REQUIRED SUB-SKILL: 이 plan을 task 단위로 구현하려면 suberpower:subagent-driven-development(권장) 또는 suberpower:executing-plans를 사용하세요. Step은 추적을 위해 checkbox(`- [ ]`) 문법을 사용합니다.
 
 **Goal:** LINE·Google 로그인, 한 계정의 제공자 연결 목록·붙이기·떼기, 두 계정 합치기(요약·실행·광고 제거권 합산)를 REST draft.14와 구현에 넣습니다.

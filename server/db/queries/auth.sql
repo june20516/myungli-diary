@@ -3,7 +3,8 @@ INSERT INTO accounts (id, status, last_active_at)
 VALUES (@id, 'active', @last_active_at);
 
 -- GetIdentity는 제공자 연결과 계정 status를 함께 읽고 계정 행을 잠급니다.
--- 같은 계정에 대한 동시 로그인·복구가 한 줄로 처리됩니다.
+-- 같은 계정에 대한 동시 로그인·계정 삭제가 한 줄로 처리됩니다. 잠금을 기다린 뒤 다시 확인하는 것은 계정 행뿐이라,
+-- 기다리는 사이 지워진 연결 행을 돌려줄 수 있습니다(호출자가 IdentityExists로 다시 확인).
 -- name: GetIdentity :one
 SELECT i.id, i.account_id, i.provider, i.subject,
        i.apple_refresh_token, i.apple_token_key_id, i.apple_client_id,
@@ -14,7 +15,8 @@ WHERE i.provider = @provider AND i.subject = @subject
 FOR UPDATE OF a;
 
 -- IdentityExists는 (provider, subject) 연결 행이 있는지 잠그지 않고 확인합니다.
--- Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때 씁니다.
+-- Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때와, 계정 행 잠금을 기다린 뒤
+-- 연결 행이 정말 남아 있는지 다시 확인할 때 씁니다.
 -- name: IdentityExists :one
 SELECT EXISTS (
     SELECT 1 FROM auth_identities WHERE provider = @provider AND subject = @subject
@@ -30,12 +32,6 @@ SET apple_refresh_token = @apple_refresh_token,
     apple_token_key_id = @apple_token_key_id,
     apple_client_id = @apple_client_id
 WHERE id = @id;
-
--- RestoreAccount는 삭제 대기 계정을 되살립니다. 갱신된 행 수를 돌려줍니다.
--- name: RestoreAccount :execrows
-UPDATE accounts
-SET status = 'active', deletion_requested_at = NULL
-WHERE id = @id AND status = 'pending_deletion';
 
 -- name: InsertRefreshToken :exec
 INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
@@ -84,11 +80,6 @@ UPDATE refresh_tokens
 SET revoked_at = @revoked_at::timestamptz
 WHERE family_id = @family_id AND revoked_at IS NULL;
 
--- name: RevokeAccountTokens :exec
-UPDATE refresh_tokens
-SET revoked_at = @revoked_at::timestamptz
-WHERE account_id = @account_id AND revoked_at IS NULL;
-
 -- LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
 -- name: LockAccountStatus :one
 SELECT status FROM accounts WHERE id = @id FOR UPDATE;
@@ -125,6 +116,7 @@ ORDER BY created_at, id;
 
 -- GetIdentityForLink는 붙이려는 (provider, subject) 연결과 그 계정의 status를 읽고 계정 행을 잠급니다.
 -- 붙이기 트랜잭션이 현재 계정 행을 먼저 잠근 뒤 부르므로, 다른 계정 행은 그 다음에 잠깁니다.
+-- GetIdentity와 같이 기다리는 사이 지워진 연결 행을 돌려줄 수 있습니다.
 -- name: GetIdentityForLink :one
 SELECT i.id, i.account_id, a.status AS account_status
 FROM auth_identities i
@@ -148,7 +140,8 @@ DELETE FROM auth_identities
 WHERE account_id = @account_id AND provider = @provider
 RETURNING id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id;
 
--- InsertMergeTicket은 합치기 토큰의 해시를 저장합니다(S101). 원문은 저장하지 않습니다.
+-- InsertMergeTicket은 합치기 토큰의 해시를 저장합니다. 원문은 저장하지 않습니다.
+-- 연결 409는 더 이상 토큰을 만들지 않고(S110), 합치기 요약(previewMerge, S110)이 이 쿼리로 발급합니다.
 -- name: InsertMergeTicket :exec
 INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
 VALUES (@id, @token_hash, @account_id, @other_account_id, @identity_id, @expires_at::timestamptz);

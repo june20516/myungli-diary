@@ -36,11 +36,9 @@ func TestJobRetention_RunsRevocationRetry(t *testing.T) {
 		Clock:  clk,
 		Logger: slog.New(slog.DiscardHandler),
 		HTTP:   fake.Client(),
+		// retention은 허가 취소 주소만 씁니다.
 		Providers: providerURLs{
-			KakaoJWKS:   fake.JWKSURL(),
 			KakaoUnlink: fake.KakaoUnlinkURL(),
-			AppleJWKS:   fake.JWKSURL(),
-			AppleToken:  fake.AppleTokenURL(),
 			AppleRevoke: fake.AppleRevokeURL(),
 		},
 	})

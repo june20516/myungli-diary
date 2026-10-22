@@ -2,8 +2,6 @@ package auth_test
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/base64"
 	"errors"
 	"net/http"
 	"testing"
@@ -13,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
@@ -126,45 +125,18 @@ func TestLinkIdentity_ProviderTaken(t *testing.T) {
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
 }
 
-func TestLinkIdentity_InUseIssuesMergeTicket(t *testing.T) {
+// 다른 유저 계정에 연결된 인증 계정은 409 identity_in_use만이고, 합치기 토큰을 만들지 않습니다(S110).
+func TestLinkIdentity_OtherAccountReturnsInUse(t *testing.T) {
 	f := newFixture(t)
 	other := f.loginLine(t, "U1").AccountID
 	me := f.loginKakao(t, "kakao-1").AccountID
-	// 나노초가 있는 시각으로 만료 시각의 마이크로초 절사를 확인합니다.
-	f.clk.Advance(1234 * time.Nanosecond)
-	now := f.clk.Now()
 
 	_, err := f.service.LinkIdentity(f.ctx, me, "line", f.lineProof("U1"))
 
-	var inUse *auth.IdentityInUseError
-	require.ErrorAs(t, err, &inUse)
-	assert.Len(t, inUse.MergeToken, 43, "32바이트 난수의 base64url(패딩 없음)은 43자입니다")
-	raw, decodeErr := base64.RawURLEncoding.DecodeString(inUse.MergeToken)
-	require.NoError(t, decodeErr)
-	assert.Len(t, raw, 32)
-	assert.Equal(t, now.Add(auth.MergeTicketTTL).Truncate(time.Microsecond), inUse.ExpiresAt)
-	assert.NotContains(t, err.Error(), inUse.MergeToken, "오류 문구에 토큰을 넣지 않습니다")
-
-	var (
-		accountID, otherAccountID, identityID uuid.UUID
-		expiresAt                             time.Time
-		consumedAt                            *time.Time
-	)
-	hash := sha256.Sum256([]byte(inUse.MergeToken))
-	require.NoError(t, f.pool.QueryRow(f.ctx,
-		`SELECT account_id, other_account_id, identity_id, expires_at, consumed_at FROM account_merge_tickets WHERE token_hash = $1`,
-		hash[:]).Scan(&accountID, &otherAccountID, &identityID, &expiresAt, &consumedAt))
-	assert.Equal(t, me, accountID, "토큰을 쓸 수 있는 쪽은 현재 계정입니다")
-	assert.Equal(t, other, otherAccountID)
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE id = $1 AND account_id = $2 AND provider = 'line'`, identityID, other))
-	assert.True(t, expiresAt.Equal(inUse.ExpiresAt))
-	assert.Nil(t, consumedAt)
-
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
-	assert.Equal(t, 0, f.count(t,
-		`SELECT count(*) FROM account_merge_tickets WHERE position(convert_to($1, 'UTF8') IN token_hash) > 0`,
-		inUse.MergeToken), "원문은 저장하지 않습니다")
+	require.ErrorIs(t, err, auth.ErrIdentityInUse)
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
 	assert.Equal(t, []string{"kakao"}, f.providers(t, me), "연결은 옮기지 않습니다")
+	assert.Equal(t, []string{"line"}, f.providers(t, other))
 }
 
 func TestLinkIdentity_InUseDiscardsNewAppleGrantWithoutRevoke(t *testing.T) {
@@ -175,8 +147,7 @@ func TestLinkIdentity_InUseDiscardsNewAppleGrantWithoutRevoke(t *testing.T) {
 
 	_, err := f.service.LinkIdentity(f.ctx, me, "apple", f.appleProof("A1"))
 
-	var inUse *auth.IdentityInUseError
-	require.ErrorAs(t, err, &inUse)
+	require.ErrorIs(t, err, auth.ErrIdentityInUse)
 	assert.Empty(t, f.fake.AppleRevokeRequests(), "revoke하면 다른 계정에 저장된 연결까지 무효가 됩니다")
 	assert.Equal(t, providertest.AppleRefreshToken, f.appleRefreshOf(t, other), "다른 계정의 토큰은 그대로입니다")
 }
@@ -192,33 +163,7 @@ func TestLinkIdentity_ProviderTakenRevokesUnsavedAppleGrant(t *testing.T) {
 	assert.Len(t, f.fake.AppleRevokeRequests(), 1, "저장하지 못한 grant 정리")
 }
 
-// 삭제 대기 계정이 가진 Apple을 붙이면 거절되고, 그 subject의 연결 행이 있으므로 revoke하지 않습니다.
-func TestLinkIdentity_PendingDeletionAppleDoesNotRevoke(t *testing.T) {
-	f := newFixture(t)
-	other := f.loginApple(t, "A1").AccountID
-	f.markPendingDeletion(t, other)
-	me := f.loginKakao(t, "kakao-1").AccountID
-
-	_, err := f.service.LinkIdentity(f.ctx, me, "apple", f.appleProof("A1"))
-
-	require.ErrorIs(t, err, auth.ErrIdentityPendingDeletion)
-	assert.Empty(t, f.fake.AppleRevokeRequests())
-}
-
-func TestLinkIdentity_PendingDeletionOwner(t *testing.T) {
-	f := newFixture(t)
-	other := f.loginLine(t, "U1").AccountID
-	f.markPendingDeletion(t, other)
-	me := f.loginKakao(t, "kakao-1").AccountID
-
-	_, err := f.service.LinkIdentity(f.ctx, me, "line", f.lineProof("U1"))
-
-	require.ErrorIs(t, err, auth.ErrIdentityPendingDeletion)
-	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
-	assert.Equal(t, []string{"kakao"}, f.providers(t, me))
-}
-
-// Review Focus 1: 같은 연결을 두 계정이 동시에 붙이면 한쪽만 붙이고 다른 쪽은 합치기 토큰을 받습니다.
+// 같은 연결을 두 계정이 동시에 붙이면 한쪽만 붙이고 다른 쪽은 identity_in_use입니다.
 func TestLinkIdentity_ConcurrentLinkOfSameIdentity(t *testing.T) {
 	f := newFixture(t)
 	accounts := []uuid.UUID{f.loginKakao(t, "kakao-1").AccountID, f.loginKakao(t, "kakao-2").AccountID}
@@ -235,12 +180,11 @@ func TestLinkIdentity_ConcurrentLinkOfSameIdentity(t *testing.T) {
 
 	created, inUse := 0, 0
 	for i, err := range errs {
-		var inUseErr *auth.IdentityInUseError
 		switch {
 		case err == nil:
 			assert.True(t, results[i].Created)
 			created++
-		case errors.As(err, &inUseErr):
+		case errors.Is(err, auth.ErrIdentityInUse):
 			inUse++
 		default:
 			t.Fatalf("예상하지 못한 오류: %v", err)
@@ -249,12 +193,11 @@ func TestLinkIdentity_ConcurrentLinkOfSameIdentity(t *testing.T) {
 	assert.Equal(t, 1, created)
 	assert.Equal(t, 1, inUse)
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE provider = 'google'`))
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
 }
 
 // 동시 붙이기의 unique 위반 재시도 경로를 결정적으로 재현합니다.
 // 다른 트랜잭션이 같은 (provider, subject)를 넣고 commit하지 않은 채로 있으면, 붙이기는 identity insert에서 기다리다
-// 그 트랜잭션이 commit되면 unique 위반을 받고, 처음부터 다시 실행해 합치기 토큰을 받습니다.
+// 그 트랜잭션이 commit되면 unique 위반을 받고, 처음부터 다시 실행해 identity_in_use가 됩니다.
 func TestLinkIdentity_UniqueConflictRetriesAsInUse(t *testing.T) {
 	f := newFixture(t)
 	me := f.loginKakao(t, "kakao-1").AccountID
@@ -283,14 +226,12 @@ func TestLinkIdentity_UniqueConflictRetriesAsInUse(t *testing.T) {
 	require.NoError(t, tx.Commit(f.ctx))
 
 	err = <-done
-	var inUse *auth.IdentityInUseError
-	require.ErrorAs(t, err, &inUse)
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_tickets WHERE account_id = $1 AND other_account_id = $2`, me, other))
+	require.ErrorIs(t, err, auth.ErrIdentityInUse)
 	assert.Equal(t, []string{"kakao"}, f.providers(t, me), "실패한 첫 시도의 연결 행은 rollback됩니다")
 }
 
 // 다른 계정이 그 연결을 떼는 중에 붙이면, GetIdentityForLink는 계정 행 잠금을 기다린 뒤 계정 행만 다시 확인하므로
-// 이미 지워진 연결 행을 돌려줍니다. 합치기 토큰 저장이 identity_id FK 위반을 받으면 한 번 다시 실행해 연결을 만듭니다.
+// 이미 지워진 연결 행을 돌려줍니다. 그 연결이 정말 남아 있는지 다시 확인해, 없으면 현재 계정에 연결을 만듭니다.
 func TestLinkIdentity_RetriesWhenOtherAccountUnlinksConcurrently(t *testing.T) {
 	f := newFixture(t)
 	other := f.loginKakao(t, "kakao-other").AccountID
@@ -328,7 +269,55 @@ func TestLinkIdentity_RetriesWhenOtherAccountUnlinksConcurrently(t *testing.T) {
 	require.NoError(t, got.err)
 	assert.True(t, got.res.Created)
 	assert.Equal(t, []string{"kakao", "line"}, f.providers(t, me))
-	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM account_merge_tickets`))
+}
+
+// 다른 계정이 지워지는 중에 그 연결을 붙이면, 삭제가 commit된 뒤 연결이 없으므로 현재 계정에 연결을 만듭니다.
+func TestLinkIdentity_CreatesWhenOtherAccountDeletedConcurrently(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginLine(t, "U1").AccountID
+	me := f.loginKakao(t, "kakao-1").AccountID
+
+	tx, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = tx.Rollback(context.Background()) })
+	_, err = account.DeleteAccountTx(f.ctx, tx, other, f.clk.Now())
+	require.NoError(t, err)
+
+	type outcome struct {
+		res auth.LinkResult
+		err error
+	}
+	done := make(chan outcome, 1)
+	proof := f.lineProof("U1")
+	go func() {
+		res, err := f.service.LinkIdentity(f.ctx, me, "line", proof)
+		done <- outcome{res, err}
+	}()
+
+	require.Eventually(t, func() bool {
+		return f.count(t, `SELECT count(*) FROM pg_stat_activity
+			WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FOR UPDATE OF a%'`) == 1
+	}, 10*time.Second, 20*time.Millisecond)
+	require.NoError(t, tx.Commit(f.ctx))
+
+	got := <-done
+	require.NoError(t, got.err)
+	assert.True(t, got.res.Created)
+	assert.Equal(t, []string{"kakao", "line"}, f.providers(t, me))
+}
+
+// 지운 계정에 연결 행이 남은 것은 삭제와 어긋난 데이터라 서버 오류로 멈춥니다.
+func TestLinkIdentity_DeletedAccountIdentityFails(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginLine(t, "U1").AccountID
+	f.markDeletedKeepingRows(t, other)
+	me := f.loginKakao(t, "kakao-1").AccountID
+
+	_, err := f.service.LinkIdentity(f.ctx, me, "line", f.lineProof("U1"))
+
+	require.ErrorContains(t, err, "지운 계정에 연결된 identity")
+	require.NotErrorIs(t, err, auth.ErrIdentityInUse)
+	assert.Equal(t, []string{"kakao"}, f.providers(t, me))
 }
 
 // 현재 계정에 같은 제공자 연결이 있어도, 붙이려는 연결이 다른 active 계정에 있으면 provider_taken이 아니라 in-use입니다.
@@ -340,10 +329,9 @@ func TestLinkIdentity_InUseTakesPrecedenceOverProviderTaken(t *testing.T) {
 
 	_, err := f.service.LinkIdentity(f.ctx, me, "line", f.lineProof("U2"))
 
-	var inUse *auth.IdentityInUseError
-	require.ErrorAs(t, err, &inUse)
+	require.ErrorIs(t, err, auth.ErrIdentityInUse)
 	require.NotErrorIs(t, err, auth.ErrProviderTaken)
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_tickets WHERE account_id = $1 AND other_account_id = $2`, me, other))
+	assert.Equal(t, []string{"line"}, f.providers(t, other))
 }
 
 func TestLinkIdentity_InvalidProofCombinations(t *testing.T) {

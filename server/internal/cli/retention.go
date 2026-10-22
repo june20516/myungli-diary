@@ -23,7 +23,7 @@ type retentionDeps struct {
 	Clock  clock.Clock
 	Logger *slog.Logger
 	HTTP   *http.Client
-	// Providers는 제공자 엔드포인트 주소입니다. 빈 값은 실제 제공자 주소를 씁니다.
+	// Providers는 제공자 엔드포인트 주소입니다. KakaoUnlink·AppleRevoke만 쓰며, 빈 값은 실제 제공자 주소를 씁니다.
 	Providers providerURLs
 }
 

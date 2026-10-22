@@ -260,7 +260,7 @@ func TestLoginKakao_ProviderInvalidIs401WithoutChallenge(t *testing.T) {
 
 // TestLoginApple_ReturnsLogin은 loginApple이 서비스의 로그인 결과를 계약 응답으로 돌려주는지 확인합니다.
 func TestLoginApple_ReturnsLogin(t *testing.T) {
-	fa := &fakeAuth{login: auth.LoginResult{AccountID: testAccountID, Tokens: testTokenPair(), RestoredFromDeletion: true}}
+	fa := &fakeAuth{login: auth.LoginResult{AccountID: testAccountID, Tokens: testTokenPair()}}
 	handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa, Accounts: &fakeAccounts{}})
 
 	req := postJSON(t, "/v1/auth/apple", `{"idToken":"id","authorizationCode":"code","nonce":"0123456789abcdef"}`)

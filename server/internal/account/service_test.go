@@ -124,7 +124,6 @@ func TestAccess_NewAccountRequiresConsent(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, account.StatusActive, got.Status)
 	assert.True(t, got.ConsentRequired)
-	assert.Nil(t, got.DeletionScheduledAt)
 }
 
 func TestAccess_TouchesLastActiveAtMostOncePerDay(t *testing.T) {

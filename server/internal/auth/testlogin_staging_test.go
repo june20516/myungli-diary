@@ -58,20 +58,20 @@ func TestLoginTest_DoesNotReuseOtherProviderSubject(t *testing.T) {
 	assert.NotEqual(t, kakao.AccountID, res.AccountID)
 }
 
-// 삭제 대기 계정은 정상 로그인처럼 되살리고 이전 세션을 폐기합니다.
-func TestLoginTest_RestoresPendingDeletion(t *testing.T) {
+// 지운 계정의 label로 다시 로그인하면 정상 로그인처럼 새 유저 계정입니다(S105).
+func TestLoginTest_AfterDeleteCreatesNewAccount(t *testing.T) {
 	f := newFixture(t)
 	first, err := f.service.LoginTest(f.ctx, "e2e01")
 	require.NoError(t, err)
-	f.markPendingDeletion(t, first.AccountID)
+	f.deleteAccount(t, first.AccountID)
 
 	res, err := f.service.LoginTest(f.ctx, "e2e01")
 	require.NoError(t, err)
-	assert.True(t, res.RestoredFromDeletion)
-	assert.Equal(t, first.AccountID, res.AccountID)
+	assert.True(t, res.IsNewAccount)
+	assert.NotEqual(t, first.AccountID, res.AccountID)
 
 	_, err = f.service.Refresh(f.ctx, first.Tokens.RefreshToken)
-	require.Error(t, err, "복구 전 세션은 폐기됩니다")
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "지운 계정의 refresh token")
 }
 
 // 핸들러를 거치지 않은 호출도 형식이 틀린 label은 DB에 닿기 전에 거절합니다.

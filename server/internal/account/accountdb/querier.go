@@ -36,8 +36,6 @@ type Querier interface {
 	// LockAccountForDelete는 계정 행을 잠그고 상태를 돌려줍니다. 같은 계정에 쓰는 요청은 이 잠금 뒤에서 기다립니다.
 	LockAccountForDelete(ctx context.Context, id uuid.UUID) (string, error)
 	// MarkAccountDeleted는 계정을 껍데기(id·status·created_at·deleted_at)로 남깁니다.
-	// 옛 CHECK(accounts_status_timestamps)가 deleted에 deletion_requested_at·anonymized_at을 요구하므로 둘도 같은 시각으로 채웁니다.
-	// 옛 열을 없애는 migration과 함께 이 두 쓰기도 없어집니다.
 	MarkAccountDeleted(ctx context.Context, arg MarkAccountDeletedParams) error
 	// QueueProviderRevocations는 카카오와, 저장한 token이 있는 Apple 인증 계정마다 허가 취소 대기 행을 넣습니다(S106).
 	// Apple refresh token은 원래 행의 암호화 값 그대로 옮기고, 복호화의 aad인 원래 인증 계정 id를 함께 남깁니다.

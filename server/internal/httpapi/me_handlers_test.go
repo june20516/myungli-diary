@@ -66,11 +66,11 @@ func TestGetMe_NoRequiredConsentsIsEmptyArray(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-func TestGetMe_PendingDeletionOmitsStatusAndSchedule(t *testing.T) {
-	at := handlerNow.AddDate(0, 0, 30)
+// Me에는 계정 상태와 삭제 예정 시각이 없습니다(draft.15).
+func TestGetMe_OmitsStatusAndSchedule(t *testing.T) {
 	accts := &fakeAccounts{me: account.Me{
 		AccountID: fixedAccountID,
-		Access:    account.Access{Status: account.StatusPendingDeletion, DeletionScheduledAt: &at},
+		Access:    account.Access{Status: account.StatusActive},
 	}}
 	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
 
@@ -82,7 +82,7 @@ func TestGetMe_PendingDeletionOmitsStatusAndSchedule(t *testing.T) {
 	requireNoDeletionFields(t, rec.Body.Bytes())
 }
 
-// requireNoDeletionFields는 Me 응답의 최상위에 삭제 대기 필드가 없는지 JSON key로 확인합니다.
+// requireNoDeletionFields는 Me 응답의 최상위에 계정 상태·삭제 예정 필드가 없는지 JSON key로 확인합니다.
 func requireNoDeletionFields(t *testing.T, body []byte) {
 	t.Helper()
 	var raw map[string]any

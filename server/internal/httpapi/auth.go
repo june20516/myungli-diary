@@ -23,14 +23,6 @@ const (
 	bearerScheme = "Bearer"
 )
 
-// allowedWhilePendingDeletion은 삭제 대기 계정이 부를 수 있는 operation입니다.
-// 상태 확인(getMe), 삭제 재요청(deleteMe), 로그아웃만 열어 둡니다. 복구는 다시 로그인해서 합니다.
-var allowedWhilePendingDeletion = map[string]bool{
-	"getMe":    true,
-	"deleteMe": true,
-	"logout":   true,
-}
-
 // allowedWhileConsentRequired는 현재 버전 약관에 아직 동의하지 않은 계정이 부를 수 있는 operation입니다.
 // 계약의 agreeConsents 설명과 같습니다. deleteDevice는 로그아웃 전에 알림을 멈추려고 부르므로 엽니다(S92).
 var allowedWhileConsentRequired = map[string]bool{
@@ -70,9 +62,8 @@ type AccountGate interface {
 //  2. 토큰 검증: 만료면 401 auth.token_expired, 그 밖의 실패면 401 auth.token_invalid
 //  3. 계정 상태 조회: 계정이 없으면 401 auth.token_invalid, DB 연결 실패는 503, 그 밖의 오류는 500
 //     (핸들러 오류와 같은 writeHandlerError 규칙)
-//  4. 상태 관문: deleted면 401 auth.token_invalid. pending_deletion이면 getMe·deleteMe·logout 말고는
-//     401 auth.token_invalid. 동의가 필요하면 getMe·agreeConsents·logout·deleteMe 말고는 403 consent.required.
-//     두 조건이 함께면 삭제 대기 규칙이 먼저입니다.
+//  4. 상태 관문: active가 아니면(deleted·모르는 상태) 401 auth.token_invalid. 동의가 필요하면
+//     getMe·agreeConsents·logout·deleteMe·deleteDevice 말고는 403 consent.required.
 //
 // 401에는 모두 WWW-Authenticate 헤더를 붙입니다. 통과하면 계정 id와 접근 상태를 ctx에 넣으며,
 // 핸들러는 AccountFrom으로 꺼냅니다. 토큰 값은 로그에 남기지 않습니다.
@@ -102,15 +93,8 @@ func BearerAuth(tokens AccessTokenVerifier, gate AccountGate, logger *slog.Logge
 				return
 			}
 
-			switch access.Status {
-			case account.StatusActive:
-			case account.StatusPendingDeletion:
-				if !allowedWhilePendingDeletion[op.ID] {
-					writeTokenInvalid(w, r)
-					return
-				}
-			default:
-				// deleted(익명화 완료)와 모르는 상태는 토큰이 가리키는 계정이 더는 없는 것으로 봅니다.
+			if access.Status != account.StatusActive {
+				// deleted(지운 계정의 껍데기)와 모르는 상태는 토큰이 가리키는 계정이 더는 없는 것으로 봅니다.
 				writeTokenInvalid(w, r)
 				return
 			}

@@ -156,21 +156,20 @@ func (q *Queries) DeleteSchedulesByAccount(ctx context.Context, accountID uuid.U
 }
 
 const getAccountAccess = `-- name: GetAccountAccess :one
-SELECT status, deletion_requested_at, last_active_at
+SELECT status, last_active_at
 FROM accounts
 WHERE id = $1
 `
 
 type GetAccountAccessRow struct {
-	Status              string
-	DeletionRequestedAt *time.Time
-	LastActiveAt        time.Time
+	Status       string
+	LastActiveAt time.Time
 }
 
 func (q *Queries) GetAccountAccess(ctx context.Context, id uuid.UUID) (GetAccountAccessRow, error) {
 	row := q.db.QueryRow(ctx, getAccountAccess, id)
 	var i GetAccountAccessRow
-	err := row.Scan(&i.Status, &i.DeletionRequestedAt, &i.LastActiveAt)
+	err := row.Scan(&i.Status, &i.LastActiveAt)
 	return i, err
 }
 
@@ -252,9 +251,7 @@ func (q *Queries) LockAccountForDelete(ctx context.Context, id uuid.UUID) (strin
 const markAccountDeleted = `-- name: MarkAccountDeleted :exec
 UPDATE accounts
 SET status = 'deleted',
-    deleted_at = $1::timestamptz,
-    deletion_requested_at = $1::timestamptz,
-    anonymized_at = $1::timestamptz
+    deleted_at = $1::timestamptz
 WHERE id = $2
 `
 
@@ -264,8 +261,6 @@ type MarkAccountDeletedParams struct {
 }
 
 // MarkAccountDeleted는 계정을 껍데기(id·status·created_at·deleted_at)로 남깁니다.
-// 옛 CHECK(accounts_status_timestamps)가 deleted에 deletion_requested_at·anonymized_at을 요구하므로 둘도 같은 시각으로 채웁니다.
-// 옛 열을 없애는 migration과 함께 이 두 쓰기도 없어집니다.
 func (q *Queries) MarkAccountDeleted(ctx context.Context, arg MarkAccountDeletedParams) error {
 	_, err := q.db.Exec(ctx, markAccountDeleted, arg.DeletedAt, arg.ID)
 	return err

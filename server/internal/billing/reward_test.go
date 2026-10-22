@@ -226,10 +226,10 @@ func TestRewards_Grant_NoAccount_DuplicateCallbackWarnsOnce(t *testing.T) {
 	assert.Equal(t, 1, strings.Count(f.logs.String(), `"severity":"WARNING"`), "중복 콜백은 Warn을 늘리지 않습니다")
 }
 
-func TestRewards_Grant_PendingDeletionAccount_StillGrants(t *testing.T) {
+func TestRewards_Grant_DeletedAccount_StillGrants(t *testing.T) {
 	f := newRewardFixture(t)
 	accountID := newAccount(t, f.pool)
-	_, err := f.pool.Exec(context.Background(), "UPDATE accounts SET status = 'pending_deletion', deletion_requested_at = now() WHERE id = $1", accountID)
+	_, err := f.pool.Exec(context.Background(), "UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1", accountID)
 	require.NoError(t, err)
 
 	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))

@@ -50,7 +50,7 @@ func (a *API) CreateProfile(ctx context.Context, req gen.CreateProfileRequestObj
 	}
 	saved, err := a.Profiles.Put(ctx, id, input)
 	if err != nil {
-		// 계약 PUT에는 409가 없습니다. 인증 뒤 계정이 익명화된 경합은 계정 없음과 같은 401로 답합니다.
+		// 계약 PUT에는 409가 없습니다. 인증 뒤 계정이 지워진 경합은 계정 없음과 같은 401로 답합니다.
 		if errors.Is(err, profile.ErrNotFound) {
 			return nil, fmt.Errorf("프로필 저장 중 계정이 사라졌습니다: %w", account.ErrNotFound)
 		}

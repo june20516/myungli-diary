@@ -24,7 +24,7 @@ func ValidTestLabel(label string) bool {
 
 // LoginTest는 staging E2E용 테스트 로그인입니다(S24, spec §13.2). build tag staging에만 있어 prod 바이너리에는 없습니다.
 // 외부 제공자 검증만 건너뛰고, provider test·subject label로 카카오·Apple 로그인과 같은 트랜잭션(계정 찾기·만들기,
-// 삭제 대기 복구와 이전 세션 폐기, 새 refresh family 발급)을 거칩니다. label은 로그에 남기지 않습니다(subject와 같은 취급).
+// 새 refresh family 발급)을 거칩니다. label은 로그에 남기지 않습니다(subject와 같은 취급).
 func (s *Service) LoginTest(ctx context.Context, label string) (LoginResult, error) {
 	if !ValidTestLabel(label) {
 		return LoginResult{}, ErrTestLabelInvalid
