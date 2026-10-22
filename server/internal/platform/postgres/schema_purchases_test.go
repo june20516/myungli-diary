@@ -3,6 +3,7 @@ package postgres_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -63,9 +64,11 @@ func TestSchema00016_Purchases(t *testing.T) {
 		t.Errorf("(account_id, purchased_at DESC) 인덱스 조회: %v", err)
 	}
 
-	// webhook 대체 경로가 스토어 거래 id로 주인을 찾는 인덱스가 있고, 열은 비어 있을 수 있습니다(spec §5.4).
-	if err := pool.QueryRow(ctx, `SELECT indexdef FROM pg_indexes WHERE tablename = 'purchases' AND indexdef LIKE '%(store_purchase_id)%'`).Scan(&indexDef); err != nil {
-		t.Errorf("(store_purchase_id) 인덱스 조회: %v", err)
+	// 같은 스토어 거래를 찾는 (store, store_purchase_id) 인덱스가 있고(unique 아님), 열은 비어 있을 수 있습니다(spec §5.2·§5.4).
+	if err := pool.QueryRow(ctx, `SELECT indexdef FROM pg_indexes WHERE tablename = 'purchases' AND indexdef LIKE '%(store, store_purchase_id)%'`).Scan(&indexDef); err != nil {
+		t.Errorf("(store, store_purchase_id) 인덱스 조회: %v", err)
+	} else if strings.Contains(indexDef, "UNIQUE") {
+		t.Errorf("(store, store_purchase_id) 인덱스가 unique입니다: %s", indexDef)
 	}
 	var storePurchaseNull bool
 	if err := pool.QueryRow(ctx, `SELECT store_purchase_id IS NULL FROM purchases WHERE id = 'txn-1'`).Scan(&storePurchaseNull); err != nil || !storePurchaseNull {

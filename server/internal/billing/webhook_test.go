@@ -87,6 +87,7 @@ func TestParseWebhook_NonCanonicalUUIDIgnored(t *testing.T) {
 
 func TestParseWebhook_CollectsStorePurchaseIDs(t *testing.T) {
 	body := webhookBody("evt-1", "CANCELLATION", map[string]any{
+		"store":                   "APP_STORE",
 		"transaction_id":          "2000000002",
 		"original_transaction_id": "2000000001",
 	})
@@ -95,6 +96,25 @@ func TestParseWebhook_CollectsStorePurchaseIDs(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, []string{"2000000002", "2000000001"}, got.StorePurchaseIDs)
+	assert.Equal(t, "app_store", got.Store, "webhook 대문자 스토어 이름을 v2 소문자로 맞춤")
+}
+
+// 다른 스토어의 같은 거래 id로는 장부 주인을 찾지 않습니다(장부 키는 (store, store_purchase_id)).
+func TestWebhook_FallbackNeedsSameStore(t *testing.T) {
+	f := newWebhookFixture(t)
+	owner := newAccount(t, f.pool)
+	f.source.set(owner, owned("p1", oct1))
+	require.NoError(t, f.syncer.Sync(context.Background(), owner))
+
+	body := webhookBody("evt-1", "CANCELLATION", map[string]any{
+		"app_user_id": uuid.New().String(), "store": "PLAY_STORE", "transaction_id": "store-p1",
+	})
+	require.NoError(t, f.webhooks.Handle(context.Background(), body))
+
+	assert.EqualValues(t, 1, f.source.calls.Load(), "주인을 찾지 못해 동기화하지 않음")
+	rows := eventRows(t, f.pool, "evt-1")
+	require.Len(t, rows, 1)
+	assert.False(t, rows[0].AccountID.Valid)
 }
 
 func TestParseWebhook_StorePurchaseIDsDeduplicatedAndNonEmpty(t *testing.T) {
@@ -369,8 +389,8 @@ func TestWebhook_UnknownCandidateFallsBackToLedgerOwner(t *testing.T) {
 		name   string
 		fields map[string]any
 	}{
-		{"transaction_id", map[string]any{"transaction_id": "store-p1"}},
-		{"original_transaction_id", map[string]any{"transaction_id": "store-unknown", "original_transaction_id": "store-p1"}},
+		{"transaction_id", map[string]any{"store": "APP_STORE", "transaction_id": "store-p1"}},
+		{"original_transaction_id", map[string]any{"store": "APP_STORE", "transaction_id": "store-unknown", "original_transaction_id": "store-p1"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -404,7 +424,7 @@ func TestWebhook_UnknownCandidateFallsBackToLedgerOwner(t *testing.T) {
 func TestWebhooks_Handle_UnknownAccountAndPurchase_RecordsOnly(t *testing.T) {
 	f := newWebhookFixture(t)
 	body := webhookBody("evt-1", "CANCELLATION", map[string]any{
-		"app_user_id": uuid.New().String(), "transaction_id": "store-nowhere",
+		"app_user_id": uuid.New().String(), "store": "APP_STORE", "transaction_id": "store-nowhere",
 	})
 
 	require.NoError(t, f.webhooks.Handle(context.Background(), body))

@@ -293,8 +293,21 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 		assert.Equal(t, flowProductID, newer["productId"])
 		assert.Equal(t, "active", older["status"], "먼저 산 구매가 사용 중입니다")
 		assert.Equal(t, "pending", newer["status"], "나중 구매는 앞 구간 뒤에 대기합니다")
-		assert.Contains(t, older, "period")
-		assert.Contains(t, newer, "period")
+		olderPeriod, _ := older["period"].(map[string]any)
+		newerPeriod, _ := newer["period"].(map[string]any)
+		require.NotNil(t, olderPeriod, "older: %v", older)
+		require.NotNil(t, newerPeriod, "newer: %v", newer)
+		utcString := func(at time.Time) string { return at.UTC().Format(time.RFC3339) }
+		parse := func(value any) time.Time {
+			t.Helper()
+			text, _ := value.(string)
+			parsed, err := time.Parse(time.RFC3339Nano, text)
+			require.NoError(t, err, "시각 %v", value)
+			return parsed
+		}
+		assert.True(t, parse(olderPeriod["startsAt"]).Equal(parse(older["purchasedAt"])), "먼저 산 구매는 구매 시각부터: %v", olderPeriod)
+		assert.Equal(t, utcString(purchasedAt.AddDate(0, 1, 0)), utcString(parse(olderPeriod["endsAt"])), "1개월 뒤 끝")
+		assert.True(t, parse(newerPeriod["startsAt"]).Equal(parse(olderPeriod["endsAt"])), "나중 구매는 앞 구간 끝부터: %v", newerPeriod)
 		assert.Greater(t, newer["purchasedAt"], older["purchasedAt"], "ISO 8601 UTC 문자열은 시각 순으로 비교됩니다")
 
 		env.do(http.MethodGet, "/v1/me/purchases", "", nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")

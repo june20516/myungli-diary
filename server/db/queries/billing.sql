@@ -33,11 +33,22 @@ FROM purchases
 WHERE id = @id;
 
 -- name: OwnersByStorePurchaseIDs :many
--- 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
+-- 그 스토어에서 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
 SELECT DISTINCT account_id
 FROM purchases
-WHERE store_purchase_id = ANY(@store_purchase_ids::text[])
+WHERE store = @store
+  AND store_purchase_id = ANY(@store_purchase_ids::text[])
 ORDER BY account_id;
+
+-- name: PurchaseBySameStoreTransaction :one
+-- 같은 스토어 거래(store, store_purchase_id)를 다른 구매 id로 먼저 적은 행입니다(spec §5.2 방어). 먼저 적은 행 하나입니다.
+SELECT id, account_id
+FROM purchases
+WHERE store = @store
+  AND store_purchase_id = @store_purchase_id::text
+  AND id <> @id
+ORDER BY created_at, id
+LIMIT 1;
 
 -- name: PurchaseRefunded :one
 -- 장부의 구매가 환불로 적혀 있는지입니다. 잠그지 않은 주인 계정의 구매를 쓰지 않고 볼 때 씁니다(spec §5.4).
@@ -82,7 +93,8 @@ ORDER BY g.entitlement, p.purchased_at, p.id;
 
 -- name: ListAccountPurchases :many
 -- 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
--- 한 구매의 권한 행은 같은 구간이라 ad_free 행 하나만 봅니다. 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
+-- 한 구매의 권한 행은 같은 구간이라 이 계정의 행 하나만 봅니다(권한 이름 순 첫 행). 권한을 고정하지 않으므로 insight만 주는
+-- 기간 상품도 구간이 나옵니다(spec §5.6). 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
 -- 구간이 없는 구매(목록 밖 상품, 시작 전 환불로 구간이 없던 구매)는 구간 열이 NULL입니다.
 SELECT p.id, p.product_id, p.purchased_at, p.refunded_at,
        g.starts_at AS segment_starts_at, g.expires_at AS segment_expires_at, g.revoked_at AS segment_revoked_at
@@ -90,8 +102,16 @@ FROM purchases p
 LEFT JOIN entitlement_grants g
        ON g.source_ref = p.id
       AND g.account_id = @account_id
-      AND g.entitlement = 'ad_free'
       AND g.source = 'ad_free_pass'
+      -- unique (account_id, entitlement, source, source_ref)라 권한 하나를 고르면 한 행입니다.
+      -- LATERAL 하위 쿼리 대신 이 형태를 쓰는 것은 sqlc가 LEFT JOIN 표의 열을 NULL 가능으로 추론하게 하려는 것입니다.
+      AND g.entitlement = (
+          SELECT min(eg.entitlement)
+          FROM entitlement_grants eg
+          WHERE eg.source_ref = p.id
+            AND eg.account_id = @account_id
+            AND eg.source = 'ad_free_pass'
+      )
 WHERE p.account_id = @account_id
 ORDER BY p.purchased_at DESC, p.id;
 

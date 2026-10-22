@@ -1,9 +1,11 @@
 package billing_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -17,6 +19,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 )
 
 const testAdFreeProduct = "test.ad_free.month"
@@ -509,6 +512,66 @@ func TestSync_ConcurrentCrossAccountNoDeadlock(t *testing.T) {
 	assert.Equal(t, accountB, findGrant(t, grants, billing.AdFree, "pb").AccountID)
 	assert.Equal(t, accountA, ledgerOf(t, f.pool, "pa").Owner)
 	assert.Equal(t, accountB, ledgerOf(t, f.pool, "pb").Owner)
+}
+
+// 같은 스토어 거래(store, store_purchase_id)가 다른 RevenueCat 구매 id로 B 목록에 보이면 새로 적지 않습니다(spec §5.2).
+// transfer·다른 App User ID 복원 뒤 구매 id가 같다는 전제가 깨져도 주인이 둘이 되지 않게 하는 방어입니다.
+func TestSync_SameStoreTransactionOtherIDNotRecorded(t *testing.T) {
+	pool := dbtest.New(t)
+	source := newFakePurchases()
+	logs := &bytes.Buffer{}
+	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
+		Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct}),
+		Logger:  logging.New(logs, slog.LevelDebug, ""),
+	}, clocktest.New(now))
+	accountA, accountB := newAccount(t, pool), newAccount(t, pool)
+	source.set(accountA, owned("p1", oct1))
+	require.NoError(t, syncer.Sync(context.Background(), accountA))
+
+	alias := owned("p1-alias", oct1)
+	alias.StorePurchaseID = "store-p1"
+	source.set(accountB, alias)
+	statusB, err := syncer.Restore(context.Background(), accountB)
+	require.NoError(t, err)
+
+	assert.Equal(t, 1, ledgerCount(t, pool), "장부 행은 하나")
+	assert.Equal(t, accountA, ledgerOf(t, pool, "p1").Owner)
+	grants := allGrants(t, pool)
+	require.Len(t, grants, 2)
+	for _, g := range grants {
+		assert.Equal(t, accountA, g.AccountID, "B에는 구간이 없음")
+	}
+	assert.False(t, statusB.AdFree.Active)
+	out := logs.String()
+	assert.Contains(t, out, `"severity":"WARNING"`)
+	assert.Contains(t, out, "p1-alias")
+	assert.Contains(t, out, accountA.String())
+	assert.Contains(t, out, accountB.String())
+	assert.NotContains(t, out, "store-p1", "스토어 거래 id는 로그에 남기지 않음")
+}
+
+// 지운 유저 계정이 주인인 구매를 새 계정이 복원해도 가져오지 않습니다(spec §5.4, D85 ⑤).
+func TestSync_DeletedOwnerPurchaseNotTakenByNewAccount(t *testing.T) {
+	f := newSyncFixture(t)
+	deleted := newAccount(t, f.pool)
+	f.source.set(deleted, owned("p1", oct1))
+	require.NoError(t, f.syncer.Sync(context.Background(), deleted))
+	_, err := f.pool.Exec(context.Background(),
+		`UPDATE accounts SET status = 'deleted', deleted_at = $2 WHERE id = $1`, deleted, now)
+	require.NoError(t, err)
+
+	newcomer := newAccount(t, f.pool)
+	f.source.set(newcomer, owned("p1", oct1))
+	status, err := f.syncer.Restore(context.Background(), newcomer)
+	require.NoError(t, err)
+
+	assert.Equal(t, deleted, ledgerOf(t, f.pool, "p1").Owner)
+	for _, g := range allGrants(t, f.pool) {
+		assert.Equal(t, deleted, g.AccountID, "새 계정에는 구간이 없음")
+	}
+	assert.False(t, status.AdFree.Active)
+	// webhook 후보로 찾힌 지운 계정의 껍데기 동기화도 오류 없이 끝납니다.
+	require.NoError(t, f.syncer.Sync(context.Background(), deleted))
 }
 
 // productionOnly면 sandbox 구매는 장부에 적지 않습니다(spec §5.5, P7).

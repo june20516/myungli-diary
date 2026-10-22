@@ -2,6 +2,7 @@ package billing
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -13,6 +14,9 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/billing/billingdb"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
+
+// testLog는 장부 함수에 넘기는 버리는 logger입니다.
+var testLog = slog.New(slog.DiscardHandler)
 
 // ledgerFixture는 장부 테스트의 DB와 쿼리입니다.
 type ledgerFixture struct {
@@ -37,7 +41,7 @@ func (f ledgerFixture) newAccount(t *testing.T) uuid.UUID {
 // record는 구매를 장부에 적고 오류가 없음을 확인합니다.
 func (f ledgerFixture) record(t *testing.T, accountID uuid.UUID, p Purchase, now time.Time) (uuid.UUID, bool) {
 	t.Helper()
-	owner, created, err := recordPurchaseTx(context.Background(), f.q, accountID, p, testProducts, now)
+	owner, created, err := recordPurchaseTx(context.Background(), f.q, testLog, accountID, p, testProducts, now)
 	require.NoError(t, err)
 	return owner, created
 }
@@ -154,7 +158,7 @@ func TestRecordPurchase_UsesProductMonths(t *testing.T) {
 	catalog := Catalog{"test.pass.quarter": {Months: 3, Entitlements: []Entitlement{AdFree, Insight}}}
 	p := Purchase{ID: "pur_quarter", ProductID: "test.pass.quarter", Store: "play_store", PurchasedAt: utc(2026, 11, 30, 0), Production: true}
 
-	_, _, err := recordPurchaseTx(context.Background(), f.q, a, p, catalog, utc(2026, 11, 30, 0))
+	_, _, err := recordPurchaseTx(context.Background(), f.q, testLog, a, p, catalog, utc(2026, 11, 30, 0))
 	require.NoError(t, err)
 
 	f.assertSegment(t, a, p.ID, utc(2026, 11, 30, 0), utc(2027, 2, 28, 0), nil)
@@ -327,4 +331,33 @@ func TestRechainFrom_RefundedActivePullsAllPending(t *testing.T) {
 	secondEnd := now.Add(30 * 24 * time.Hour) // 11/1~12/1
 	f.assertSegment(t, a, "pur_2", now, secondEnd, nil)
 	f.assertSegment(t, a, "pur_3", secondEnd, secondEnd.Add(31*24*time.Hour), nil) // 12/1~1/1
+}
+
+// 스토어 거래 id가 비어 있으면 같은 거래로 보지 않고 각각 적습니다. 다른 스토어의 같은 값도 다른 거래입니다.
+func TestRecordPurchase_StoreTransactionMatchNeedsSameStoreAndValue(t *testing.T) {
+	f := newLedgerFixture(t)
+	a, b := f.newAccount(t), f.newAccount(t)
+	at := utc(2026, 10, 5, 0)
+
+	_, created := f.record(t, a, ledgerPurchase("pur_empty_1", at), at)
+	assert.True(t, created)
+	_, created = f.record(t, b, ledgerPurchase("pur_empty_2", at), at)
+	assert.True(t, created, "빈 스토어 거래 id는 맞춰 보지 않음")
+
+	apple := ledgerPurchase("pur_apple", at)
+	apple.StorePurchaseID = "tx-1"
+	_, created = f.record(t, a, apple, at)
+	assert.True(t, created)
+	play := ledgerPurchase("pur_play", at)
+	play.Store, play.StorePurchaseID = "play_store", "tx-1"
+	owner, created := f.record(t, b, play, at)
+	assert.True(t, created, "다른 스토어의 같은 값은 다른 거래")
+	assert.Equal(t, b, owner)
+
+	alias := ledgerPurchase("pur_apple_alias", at)
+	alias.StorePurchaseID = "tx-1"
+	owner, created = f.record(t, b, alias, at)
+	assert.False(t, created)
+	assert.Equal(t, a, owner, "같은 스토어 거래면 기존 행의 주인")
+	assert.Empty(t, f.segments(t, b, "pur_apple_alias"))
 }

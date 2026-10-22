@@ -19,8 +19,10 @@ CREATE TABLE purchases (
 );
 
 CREATE INDEX purchases_account_idx ON purchases (account_id, purchased_at DESC);
--- 스토어마다 거래 id 체계가 달라 unique로 두지 않습니다. 같은 값이 여러 행이면 그 주인을 모두 동기화합니다.
-CREATE INDEX purchases_store_purchase_idx ON purchases (store_purchase_id) WHERE store_purchase_id IS NOT NULL;
+-- 같은 스토어 거래를 찾는 인덱스입니다(장부 기록의 중복 방어, webhook 대체 경로, spec §5.2·§5.4).
+-- unique로 두지 않습니다. 같은 스토어 거래가 여러 RevenueCat 구매 id로 보일 수 있는지 아직 확인하지 못했고,
+-- 그런 행이 이미 있어도 동기화가 실패하지 않고 경고를 남긴 채 기존 행을 따르게 하려는 것입니다.
+CREATE INDEX purchases_store_purchase_idx ON purchases (store, store_purchase_id) WHERE store_purchase_id IS NOT NULL;
 
 -- 장부 이전 동기화가 만든 광고 제거권 구간은 장부 행이 없어 다시 잇기(rechainFrom)가 다룰 수 없으므로 지웁니다.
 -- 출시 전이라 staging 데이터만 해당하고, 다음 동기화가 구매 장부와 함께 구간을 다시 만듭니다. 다른 출처 행은 남깁니다.

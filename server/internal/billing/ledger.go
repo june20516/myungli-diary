@@ -2,10 +2,13 @@ package billing
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/june20516/myungli-diary/server/internal/billing/billingdb"
 )
@@ -20,9 +23,20 @@ import (
 //   - 장부에 없으면 accountID를 주인·처음 산 계정으로 적고 created = true입니다. catalog에 있는 상품이고 환불되지 않았으면
 //     상품의 권한마다 사용 구간을 놓습니다(starts_at = max(구매 시각, 이 계정의 같은 권한 구간 끝), expires_at = starts_at + Months개월).
 //   - 이미 있으면 아무것도 바꾸지 않고 지금 주인을 돌려줍니다(created = false). 환불 반영은 markRefundedTx 몫입니다.
+//   - 같은 스토어 거래(store, store_purchase_id)가 다른 구매 id로 이미 있으면 새로 적지 않고 그 행의 주인을 돌려주며
+//     구간도 만들지 않습니다(created = false, Warn 로그). D88 ①은 transfer·다른 App User ID 복원 뒤에도 RevenueCat 구매 id가
+//     같다고 보지만 확인하지 못했으므로, 그 전제가 깨져도 한 거래에 주인이 둘 생기지 않게 막습니다(spec §5.2).
+//     빈 스토어 거래 id는 맞춰 보지 않습니다. 같은 거래를 두 트랜잭션이 서로 다른 구매 id로 동시에 처음 적으면 둘 다 들어갈 수 있습니다.
 //
 // 처음 적을 때 이미 환불된 구매는 환불 시각을 알 수 없어 now로 적습니다. production 필터는 호출한 쪽이 적용합니다.
-func recordPurchaseTx(ctx context.Context, q *billingdb.Queries, accountID uuid.UUID, p Purchase, catalog Catalog, now time.Time) (owner uuid.UUID, created bool, err error) {
+func recordPurchaseTx(ctx context.Context, q *billingdb.Queries, log *slog.Logger, accountID uuid.UUID, p Purchase, catalog Catalog, now time.Time) (owner uuid.UUID, created bool, err error) {
+	if p.StorePurchaseID != "" {
+		owner, found, err := sameStoreTransactionOwner(ctx, q, log, accountID, p)
+		if err != nil || found {
+			return owner, false, err
+		}
+	}
+
 	var refundedAt *time.Time
 	if p.Refunded {
 		refundedAt = &now
@@ -58,6 +72,33 @@ func recordPurchaseTx(ctx context.Context, q *billingdb.Queries, accountID uuid.
 		}
 	}
 	return accountID, true, nil
+}
+
+// sameStoreTransactionOwner는 p와 같은 스토어 거래를 다른 구매 id로 먼저 적은 행이 있으면 found = true와 돌려줄 주인을 줍니다.
+// p 자신이 이미 장부에 있으면 p의 주인입니다. 로그에는 구매 id 둘과 계정 id만 남기고 스토어 거래 id는 남기지 않습니다.
+func sameStoreTransactionOwner(ctx context.Context, q *billingdb.Queries, log *slog.Logger, accountID uuid.UUID, p Purchase) (owner uuid.UUID, found bool, err error) {
+	existing, err := q.PurchaseBySameStoreTransaction(ctx, billingdb.PurchaseBySameStoreTransactionParams{
+		Store:           p.Store,
+		StorePurchaseID: p.StorePurchaseID,
+		ID:              p.ID,
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return uuid.Nil, false, nil
+	}
+	if err != nil {
+		return uuid.Nil, false, fmt.Errorf("같은 스토어 거래 조회(%s): %w", p.ID, err)
+	}
+
+	own, err := q.PurchaseOwner(ctx, p.ID)
+	switch {
+	case err == nil:
+		return own, true, nil
+	case !errors.Is(err, pgx.ErrNoRows):
+		return uuid.Nil, false, fmt.Errorf("구매 주인 조회(%s): %w", p.ID, err)
+	}
+	log.WarnContext(ctx, "같은 스토어 거래가 다른 구매 id로 장부에 있어 새로 적지 않음",
+		"purchaseId", p.ID, "existingPurchaseId", existing.ID, "accountId", accountID, "ownerId", existing.AccountID)
+	return existing.AccountID, true, nil
 }
 
 // placeSegment는 구매 p의 entitlement 구간을 이 계정의 같은 권한 구간 끝에 이어 놓습니다(S108, D61).

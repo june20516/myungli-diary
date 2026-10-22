@@ -30,7 +30,8 @@ type Querier interface {
 	// 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
 	InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedAdGrantParams) error
 	// 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
-	// 한 구매의 권한 행은 같은 구간이라 ad_free 행 하나만 봅니다. 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
+	// 한 구매의 권한 행은 같은 구간이라 이 계정의 행 하나만 봅니다(권한 이름 순 첫 행). 권한을 고정하지 않으므로 insight만 주는
+	// 기간 상품도 구간이 나옵니다(spec §5.6). 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
 	// 구간이 없는 구매(목록 밖 상품, 시작 전 환불로 구간이 없던 구매)는 구간 열이 NULL입니다.
 	ListAccountPurchases(ctx context.Context, accountID uuid.UUID) ([]ListAccountPurchasesRow, error)
 	// 권한 기록 쿼리입니다. 판정은 이 쿼리가 돌려준 유효한 행으로 계산합니다(spec §3.3).
@@ -47,8 +48,10 @@ type Querier interface {
 	// 새 구매 구간의 시작 = max(구매 시각, 이 계정의 같은 권한 광고 제거권 구간 끝)입니다(S108).
 	// ListPassSegments와 같이 장부에 구매가 있는 취소되지 않은 구간만 셉니다. GREATEST는 NULL(구간 없음)을 무시합니다.
 	NextPassStart(ctx context.Context, arg NextPassStartParams) (time.Time, error)
-	// 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
-	OwnersByStorePurchaseIDs(ctx context.Context, storePurchaseIds []string) ([]uuid.UUID, error)
+	// 그 스토어에서 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
+	OwnersByStorePurchaseIDs(ctx context.Context, arg OwnersByStorePurchaseIDsParams) ([]uuid.UUID, error)
+	// 같은 스토어 거래(store, store_purchase_id)를 다른 구매 id로 먼저 적은 행입니다(spec §5.2 방어). 먼저 적은 행 하나입니다.
+	PurchaseBySameStoreTransaction(ctx context.Context, arg PurchaseBySameStoreTransactionParams) (PurchaseBySameStoreTransactionRow, error)
 	// 구매의 지금 주인 계정입니다. 장부에 없으면 행이 없습니다.
 	PurchaseOwner(ctx context.Context, id string) (uuid.UUID, error)
 	// 장부의 구매가 환불로 적혀 있는지입니다. 잠그지 않은 주인 계정의 구매를 쓰지 않고 볼 때 씁니다(spec §5.4).

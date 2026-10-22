@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/google/uuid"
@@ -51,6 +52,8 @@ type SyncConfig struct {
 	Catalog Catalog
 	// ProductionOnly가 true면 production 구매만 장부에 적습니다(APP_ENV가 prod일 때).
 	ProductionOnly bool
+	// Logger는 장부 기록의 경고를 남깁니다. nil이면 버립니다.
+	Logger *slog.Logger
 }
 
 // Syncer는 계정의 RevenueCat 구매 목록으로 구매 장부와 사용 구간을 맞춥니다(spec §5.4).
@@ -61,6 +64,7 @@ type Syncer struct {
 	productionOnly bool
 	clk            clock.Clock
 	store          *Store
+	log            *slog.Logger
 }
 
 // NewSyncer는 Syncer를 만듭니다.
@@ -72,6 +76,7 @@ func NewSyncer(pool *pgxpool.Pool, src PurchaseSource, cfg SyncConfig, clk clock
 		productionOnly: cfg.ProductionOnly,
 		clk:            clk,
 		store:          NewStore(pool, clk),
+		log:            cmp.Or(cfg.Logger, slog.New(slog.DiscardHandler)),
 	}
 }
 
@@ -126,7 +131,7 @@ func (s *Syncer) syncLocked(ctx context.Context, q *billingdb.Queries, accountID
 	now := s.clk.Now()
 	var rechainOwners, unlockedOwners []uuid.UUID
 	for _, p := range s.ledgerOrder(purchases) {
-		owner, created, err := recordPurchaseTx(ctx, q, accountID, p, s.catalog, now)
+		owner, created, err := recordPurchaseTx(ctx, q, s.log, accountID, p, s.catalog, now)
 		if err != nil {
 			return err
 		}

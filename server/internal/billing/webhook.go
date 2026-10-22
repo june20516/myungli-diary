@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -41,6 +42,8 @@ type WebhookEvent struct {
 	AccountIDs []uuid.UUID
 	// StorePurchaseIDs는 스토어 거래 id 후보입니다(transaction_id, original_transaction_id 순, 중복 없음).
 	StorePurchaseIDs []string
+	// Store는 스토어 이름을 v2 표기(소문자, app_store 등)로 맞춘 값입니다. 없으면 빈 문자열입니다.
+	Store string
 }
 
 // ParseWebhook은 webhook 본문에서 event.id·type, 계정 id 후보, 스토어 거래 id 후보를 꺼냅니다(P7-7, spec §5.4).
@@ -95,7 +98,12 @@ func ParseWebhook(body map[string]any) (WebhookEvent, error) {
 		}
 		storePurchaseIDs = append(storePurchaseIDs, value)
 	}
-	return WebhookEvent{ID: id, Type: eventType, AccountIDs: accountIDs, StorePurchaseIDs: storePurchaseIDs}, nil
+	// webhook store는 대문자(APP_STORE)이고 v2·장부는 소문자(app_store)입니다.
+	store, _ := event["store"].(string)
+	return WebhookEvent{
+		ID: id, Type: eventType, AccountIDs: accountIDs,
+		StorePurchaseIDs: storePurchaseIDs, Store: strings.ToLower(store),
+	}, nil
 }
 
 // Webhooks는 RevenueCat webhook을 검증하고 처리합니다. webhook은 신호로만 쓰고 권한은 Syncer가 다시 계산합니다.
@@ -185,15 +193,18 @@ func (w *Webhooks) Handle(ctx context.Context, body map[string]any) error {
 }
 
 // syncTargets는 이벤트로 동기화할 계정을 돌려줍니다(spec §5.4).
-// 후보 계정이 accounts에 있으면 그 계정들(후보 순서)이고, 하나도 없으면 스토어 거래 id로 찾은 장부 주인들(id 순)입니다.
+// 후보 계정이 accounts에 있으면 그 계정들(후보 순서)이고, 하나도 없으면 같은 스토어의 스토어 거래 id로 찾은 장부 주인들(id 순)입니다.
 // app_user_id는 "마지막으로 쓴 App User ID"라 주인을 정하는 근거가 아니므로, 후보를 찾았을 때 주인을 따로 더하지 않습니다.
 // 후보 계정의 동기화가 다른 주인의 환불을 그 주인 장부에 적습니다.
 func (w *Webhooks) syncTargets(ctx context.Context, queries *billingdb.Queries, event WebhookEvent) ([]uuid.UUID, error) {
 	accountIDs, err := w.existingAccounts(ctx, queries, event.AccountIDs)
-	if err != nil || len(accountIDs) > 0 || len(event.StorePurchaseIDs) == 0 {
+	if err != nil || len(accountIDs) > 0 || len(event.StorePurchaseIDs) == 0 || event.Store == "" {
 		return accountIDs, err
 	}
-	return queries.OwnersByStorePurchaseIDs(ctx, event.StorePurchaseIDs)
+	return queries.OwnersByStorePurchaseIDs(ctx, billingdb.OwnersByStorePurchaseIDsParams{
+		Store:            event.Store,
+		StorePurchaseIds: event.StorePurchaseIDs,
+	})
 }
 
 // existingAccounts는 candidates 중 accounts에 있는 id를 candidates 순서대로 돌려줍니다.

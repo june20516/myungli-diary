@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/billing/billingdb"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 )
 
@@ -134,4 +135,66 @@ func TestPurchases_NoPurchasesIsEmptyNotNil(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, got)
 	assert.Empty(t, got)
+}
+
+// insight만 주는 기간 상품도 이 계정 구간으로 period가 나옵니다(spec §5.6).
+func TestPurchases_InsightOnlyProductHasPeriod(t *testing.T) {
+	f := newLedgerFixture(t)
+	store := NewStore(f.pool, clocktest.New(purchasesNow))
+	a := f.newAccount(t)
+	catalog := Catalog{"test.insight.month": {Months: 1, Entitlements: []Entitlement{Insight}}}
+	boughtAt := utc(2026, 10, 10, 0)
+	_, _, err := recordPurchaseTx(context.Background(), f.q, testLog, a, purchaseOf("pur_insight", "test.insight.month", boughtAt), catalog, boughtAt)
+	require.NoError(t, err)
+
+	got, err := store.Purchases(context.Background(), a)
+	require.NoError(t, err)
+	require.Len(t, got, 1)
+	assert.Equal(t, PurchaseActive, got[0].Status)
+	require.NotNil(t, got[0].Period)
+	assert.True(t, got[0].Period.StartsAt.Equal(boughtAt))
+	assert.True(t, got[0].Period.EndsAt.Equal(utc(2026, 11, 10, 0)))
+}
+
+func TestPurchaseItemOf(t *testing.T) {
+	starts, expires := utc(2026, 10, 10, 0), utc(2026, 11, 10, 0)
+	middle := utc(2026, 10, 20, 0)
+	at := func(t time.Time) *time.Time { return &t }
+	segment := func(revokedAt, refundedAt *time.Time) billingdb.ListAccountPurchasesRow {
+		return billingdb.ListAccountPurchasesRow{
+			ProductID: testIOSProduct, PurchasedAt: starts, RefundedAt: refundedAt,
+			SegmentStartsAt: at(starts), SegmentExpiresAt: at(expires), SegmentRevokedAt: revokedAt,
+		}
+	}
+	tests := []struct {
+		name       string
+		row        billingdb.ListAccountPurchasesRow
+		now        time.Time
+		wantStatus string
+		wantPeriod *Period
+	}{
+		{"시작 시각이면 active", segment(nil, nil), starts, PurchaseActive, &Period{starts, expires}},
+		{"시작 전이면 pending", segment(nil, nil), starts.Add(-time.Second), PurchasePending, &Period{starts, expires}},
+		{"끝 시각이면 expired", segment(nil, nil), expires, PurchaseExpired, &Period{starts, expires}},
+		{"합치기로 시작 전에 끊긴 구간은 expired, period 없음", segment(at(starts.Add(-time.Hour)), nil), starts.Add(-2 * time.Hour), PurchaseExpired, nil},
+		{"끊은 시각이 시작 시각이면 period 없음", segment(at(starts), nil), middle, PurchaseExpired, nil},
+		{"쓰던 중 끊긴 구간은 끊은 시각까지", segment(at(middle), nil), middle.Add(time.Hour), PurchaseExpired, &Period{starts, middle}},
+		{"환불 전 사용 중", segment(nil, nil), middle, PurchaseActive, &Period{starts, expires}},
+		{"환불 뒤는 refunded, 쓴 구간까지", segment(at(middle), at(middle)), middle.Add(time.Hour), PurchaseRefunded, &Period{starts, middle}},
+		{"구간 없는 구매는 owned", billingdb.ListAccountPurchasesRow{ProductID: "test.other", PurchasedAt: starts}, middle, PurchaseOwned, nil},
+		{"구간 없는 환불 구매는 refunded", billingdb.ListAccountPurchasesRow{ProductID: "test.other", PurchasedAt: starts, RefundedAt: at(middle)}, middle, PurchaseRefunded, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := purchaseItemOf(tt.row, tt.now)
+			assert.Equal(t, tt.wantStatus, got.Status)
+			if tt.wantPeriod == nil {
+				assert.Nil(t, got.Period)
+				return
+			}
+			require.NotNil(t, got.Period)
+			assert.True(t, got.Period.StartsAt.Equal(tt.wantPeriod.StartsAt), "starts %v", got.Period.StartsAt)
+			assert.True(t, got.Period.EndsAt.Equal(tt.wantPeriod.EndsAt), "ends %v", got.Period.EndsAt)
+		})
+	}
 }

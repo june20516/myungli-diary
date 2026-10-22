@@ -34,7 +34,7 @@ type PurchaseItem struct {
 }
 
 // Purchases는 계정이 주인인 구매를 최근 구매 먼저 돌려줍니다(S109).
-// 구간은 이 계정의 ad_free 행만 봅니다. 한 구매의 권한 행은 같은 구간이고, 합친 구매의 다른 계정 구간은 읽지 않습니다.
+// 구간은 이 계정의 행 하나(권한 이름 순 첫 행)만 봅니다. 한 구매의 권한 행은 같은 구간이고, 합친 구매의 다른 계정 구간은 읽지 않습니다.
 func (s *Store) Purchases(ctx context.Context, accountID uuid.UUID) ([]PurchaseItem, error) {
 	rows, err := billingdb.New(s.pool).ListAccountPurchases(ctx, accountID)
 	if err != nil {
