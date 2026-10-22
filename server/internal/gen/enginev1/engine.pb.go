@@ -3889,6 +3889,8 @@ func (x *ScoreItem) GetScore() int32 {
 	return 0
 }
 
+// 시진은 출생 시각·시간대·경도로만 정해지므로 GetBirthHour는 birth.gender를 보지 않습니다.
+// GENDER_UNSPECIFIED도 받습니다(다른 RPC는 INVALID_ARGUMENT).
 type BirthHourRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Birth         *BirthInfo             `protobuf:"bytes,1,opt,name=birth,proto3" json:"birth,omitempty"` // time이 없으면 INVALID_ARGUMENT

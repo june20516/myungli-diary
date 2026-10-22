@@ -82,7 +82,6 @@ var domainErrors = []domainError{
 	// 활성 콘텐츠 시드가 없으면 seed 명령을 돌리지 않은 배포입니다(P4-7). 사용자 탓이 아니라 503이고 로그를 남깁니다.
 	{target: content.ErrNoActiveSeed, code: problem.ServiceUnavailable, title: "Service unavailable", logged: true},
 	{target: diary.ErrNotFound, code: problem.DiaryNotFound, title: "Diary not found"},
-	{target: diary.ErrDateTaken, code: problem.DiaryDateTaken, title: "Diary date taken"},
 	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future", field: "date"},
 	{target: schedule.ErrNotFound, code: problem.ScheduleNotFound, title: "Schedule not found"},
 	// 경로·쿼리 매개변수 위반의 errors[].field는 이름 그대로입니다.

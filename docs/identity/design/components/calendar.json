@@ -1,5 +1,5 @@
 {
-  "version": "2.6.1",
+  "version": "2.7.0",
   "group": "calendar",
   "components": [
     {
@@ -39,7 +39,7 @@
         "luckFill": { "good": "{color.calendar.good.bg}", "caution": "{color.calendar.caution.bg}", "neutral": "transparent" },
         "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": { "value": 6, "unit": "px" } },
         "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
-        "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "leapNewMoon": { "text": "윤달 표지 + M.1", "note": "문구는 writing(#260). 칸 폭 44px 한 줄. 정해지기 전에는 M.1" }, "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
+        "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "leapNewMoon": { "slot": "ui.day-cell.lunar", "key": "dayCellLeapNewMoon", "text": "윤달 표지 + M.1 (예: 윤6.1)" }, "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
         "diarySeal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
         "todayOutline": { "element": "seal", "variant": "outline", "color": "{color.seal.fill}", "width": { "value": 1.6, "unit": "px" }, "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
         "selectedUnderline": { "element": "mark.underline-grow", "position": "under-number" },

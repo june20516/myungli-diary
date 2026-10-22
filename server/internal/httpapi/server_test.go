@@ -187,25 +187,26 @@ func TestDecodeJSON_SyntaxError(t *testing.T) {
 
 func TestHandler_AccessLog_UsesRoutePatternNotActualPath(t *testing.T) {
 	handler, logs := newTestHandler(t, func(mux *http.ServeMux) {
-		mux.HandleFunc("GET /v1/diaries/{date}", func(w http.ResponseWriter, _ *http.Request) {
+		mux.HandleFunc("GET /v1/diaries/{id}", func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusTeapot)
 		})
 	})
 
-	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries/1990-05-17?token=secret", nil))
+	const pathValue = "0192a3b4-0000-7000-8000-000000000001"
+	serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/diaries/"+pathValue+"?token=secret", nil))
 
 	var entry map[string]any
 	if err := json.Unmarshal(bytes.TrimSpace(logs.Bytes()), &entry); err != nil {
 		t.Fatalf("로그 파싱: %v, logs = %q", err, logs.String())
 	}
-	if entry["method"] != "GET" || entry["route"] != "GET /v1/diaries/{date}" || entry["status"] != float64(418) {
+	if entry["method"] != "GET" || entry["route"] != "GET /v1/diaries/{id}" || entry["status"] != float64(418) {
 		t.Errorf("접근 로그 필드 = %v", entry)
 	}
 	// latency는 monotonic clock으로 재므로 주입한 Clock과 무관하게 존재와 0 이상만 확인합니다.
 	if latency, ok := entry["latencyMs"].(float64); !ok || latency < 0 {
 		t.Errorf("latencyMs = %v, want 0 이상의 숫자", entry["latencyMs"])
 	}
-	if strings.Contains(logs.String(), "1990-05-17") || strings.Contains(logs.String(), "secret") {
+	if strings.Contains(logs.String(), pathValue) || strings.Contains(logs.String(), "secret") {
 		t.Errorf("로그에 실제 경로 값이나 query가 남음: %q", logs.String())
 	}
 }

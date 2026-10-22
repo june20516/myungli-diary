@@ -1,0 +1,155 @@
+<title>로그인 수단 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* 레이아웃: 휴대폰 틀 세 개(A/B/C)를 가로로 놓고, 좁으면 세로로 쌓음. 색·간격은 design 토큰 값 그대로 */
+  :root {
+    --bg-base: #f7f7f6;      /* color.bg.base */
+    --bg-sheet: #ffffff;     /* color.bg.sheet */
+    --text-primary: #2b2b2a; /* color.text.primary */
+    --text-secondary: #5b5b57;
+    --line: #dededc;
+    --action: #47634c;       /* color.action.primary */
+    --page: #eeeeed;
+    --frame-edge: #dededc;
+    /* 제공자 색(각 사 가이드 값, 테마와 무관하게 고정) */
+    --kakao-bg: #fee500; --kakao-fg: rgba(0,0,0,.85);
+    --line-bg: #06c755;  --line-fg: #ffffff;
+    --google-bg: #ffffff; --google-fg: #1f1f1f; --google-edge: #747775;
+    --apple-bg: #000000; --apple-fg: #ffffff;
+    --font-ui: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg-base: #1b1b1a; --bg-sheet: #2b2b2a; --text-primary: #eeeeed; --text-secondary: #ababa7;
+      --line: #424340; --action: #b8cebc; --page: #121211; --frame-edge: #424340;
+      --google-bg: #131314; --google-fg: #e3e3e3; --google-edge: #8e918f;
+      --apple-bg: #ffffff; --apple-fg: #000000;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-base: #1b1b1a; --bg-sheet: #2b2b2a; --text-primary: #eeeeed; --text-secondary: #ababa7;
+    --line: #424340; --action: #b8cebc; --page: #121211; --frame-edge: #424340;
+    --google-bg: #131314; --google-fg: #e3e3e3; --google-edge: #8e918f;
+    --apple-bg: #ffffff; --apple-fg: #000000;
+    color-scheme: dark;
+  }
+  body {
+    background: var(--page); color: var(--text-primary); font-family: var(--font-ui);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 24px 48px;
+  }
+  header.page { max-width: 1180px; margin: 0 auto 24px; display: grid; gap: 6px; }
+  header.page h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; margin: 0; }
+  header.page p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-secondary); max-width: 68ch; }
+
+  .options { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 24px; align-items: start; }
+  .option { display: grid; gap: 12px; min-width: 0; }
+  .option h2 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.32px; }
+  .option .why { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+  .option .why b { color: var(--text-primary); font-weight: 600; }
+
+  .phone { background: var(--bg-base); border: 1px solid var(--frame-edge); border-radius: 28px; padding: 12px 20px 28px; max-width: 360px; width: 100%; }
+  .bar { height: 48px; display: flex; align-items: center; gap: 8px; }
+  .bar .back { width: 24px; height: 24px; color: var(--text-primary); }
+  .bar span { font-size: 16px; font-weight: 600; letter-spacing: -0.32px; }
+  .intro { font-size: 14px; line-height: 1.5; color: var(--text-secondary); margin: 8px 0 20px; }
+  .group-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); padding: 0 16px; margin-bottom: 8px; }
+
+  /* settings-row 묶음 */
+  .group { background: var(--bg-sheet); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+  .row { min-height: 52px; padding: 0 16px; display: flex; align-items: center; gap: 12px; position: relative; }
+  .row + .row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--line); }
+  .row .name { flex: 1; font-size: 14px; }
+  .row .meta { font-size: 14px; color: var(--text-secondary); }
+  .row .act { font-size: 14px; font-weight: 600; color: var(--action); }
+  .row .sep { color: var(--line); }
+
+  /* 로고 자리: 공식 자산이 들어갈 20px 칸 */
+  .logo { width: 20px; height: 20px; border-radius: 4px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; flex: none; }
+  .logo.kakao { background: var(--kakao-bg); color: #000; }
+  .logo.line { background: var(--line-bg); color: #fff; }
+  .logo.google { background: #fff; color: #4285f4; border: 1px solid #dadce0; }
+  .logo.apple { background: var(--apple-bg); color: var(--apple-fg); }
+
+  /* social-login-button */
+  .stack { display: grid; gap: 12px; }
+  .slb { height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600; letter-spacing: -0.28px; position: relative; border: 1px solid transparent; }
+  .slb .logo { position: absolute; left: 16px; }
+  .slb.kakao { background: var(--kakao-bg); color: var(--kakao-fg); }
+  .slb.line { background: var(--line-bg); color: var(--line-fg); }
+  .slb.google { background: var(--google-bg); color: var(--google-fg); border-color: var(--google-edge); }
+  .slb.apple { background: var(--apple-bg); color: var(--apple-fg); }
+  .slb.kakao .logo, .slb.line .logo, .slb.apple .logo { background: transparent; color: inherit; }
+  /* B안: 연결됨 상태(제공자 색 대신 중립) */
+  .slb.connected { background: var(--bg-sheet); color: var(--text-primary); border-color: var(--line); justify-content: flex-start; padding-left: 44px; }
+  .slb.connected .state { margin-left: auto; margin-right: 16px; font-size: 13px; font-weight: 500; color: var(--action); display: inline-flex; align-items: center; gap: 4px; }
+
+  .notice { font-size: 13px; line-height: 1.45; color: var(--text-secondary); padding: 0 16px; margin-top: -8px; margin-bottom: 20px; }
+  .tag { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 9999px; background: var(--bg-base); color: var(--text-secondary); border: 1px solid var(--line); }
+  .foot { max-width: 1180px; margin: 28px auto 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+</style>
+
+<header class="page">
+  <h1>로그인 수단 화면: "연결됨" 표시 세 안</h1>
+  <p>예시 상태: 카카오와 Apple이 연결돼 있고 LINE·Google은 아직 연결하지 않았습니다(ko, 맨 위 제공자 카카오). 색·간격은 토큰 값 그대로이고, 로고 칸의 글자는 공식 자산이 들어갈 자리 표시입니다. 버튼 문구는 writing #388이 정합니다.</p>
+</header>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="caret-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<main class="options">
+  <section class="option" aria-labelledby="a-title">
+    <h2 id="a-title">A. 연결된 것은 줄, 연결할 것은 버튼 (추천)</h2>
+    <p class="why"><b>제공자 버튼을 손대지 않습니다.</b> 연결된 수단은 settings-row 줄(로고 + 이름 + 떼기)이고, 아직 연결하지 않은 수단만 로그인 화면과 같은 브랜드 버튼으로 보입니다. 마지막 남은 하나는 "떼기" 대신 안내를 보입니다.</p>
+    <div class="phone">
+      <div class="bar"><svg class="back"><use href="#caret-left"/></svg><span>로그인 수단</span></div>
+      <p class="intro">연결한 수단 어느 것으로 로그인해도 같은 계정이에요.</p>
+      <div class="group-title">연결한 수단</div>
+      <div class="group">
+        <div class="row"><span class="logo kakao">K</span><span class="name">카카오</span><span class="act">떼기</span></div>
+        <div class="row"><span class="logo apple"></span><span class="name">Apple</span><span class="act">떼기</span></div>
+      </div>
+      <div class="group-title">다른 수단 연결</div>
+      <div class="stack">
+        <div class="slb line"><span class="logo line">L</span>LINE으로 계속하기</div>
+        <div class="slb google"><span class="logo google">G</span>Google로 계속하기</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="option" aria-labelledby="b-title">
+    <h2 id="b-title">B. 네 버튼 그대로 + 연결됨 상태</h2>
+    <p class="why">로그인 화면과 같은 순서·모양의 버튼 네 개입니다. 연결된 버튼만 <b>제공자 색을 빼고</b> 중립 테두리 + "연결됨"으로 바뀌고, 누르면 떼기 확인이 열립니다. 익숙하지만 버튼 색을 바꾸는 것이 각 사 가이드와 어긋날 수 있습니다.</p>
+    <div class="phone">
+      <div class="bar"><svg class="back"><use href="#caret-left"/></svg><span>로그인 수단</span></div>
+      <p class="intro">연결한 수단 어느 것으로 로그인해도 같은 계정이에요.</p>
+      <div class="stack">
+        <div class="slb connected"><span class="logo kakao">K</span>카카오<span class="state"><svg width="14" height="14"><use href="#check"/></svg>연결됨</span></div>
+        <div class="slb line"><span class="logo line">L</span>LINE으로 계속하기</div>
+        <div class="slb google"><span class="logo google">G</span>Google로 계속하기</div>
+        <div class="slb connected"><span class="logo apple"></span>Apple<span class="state"><svg width="14" height="14"><use href="#check"/></svg>연결됨</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="option" aria-labelledby="c-title">
+    <h2 id="c-title">C. 네 줄 모두 settings-row</h2>
+    <p class="why">가장 조용합니다. 네 제공자를 한 묶음의 줄로 두고 오른쪽에 "연결됨 · 떼기" 또는 "연결"을 둡니다. <b>연결 동작이 브랜드 버튼이 아니게 되어</b> IA의 social-login-button을 이 화면에서 쓰지 않게 됩니다.</p>
+    <div class="phone">
+      <div class="bar"><svg class="back"><use href="#caret-left"/></svg><span>로그인 수단</span></div>
+      <p class="intro">연결한 수단 어느 것으로 로그인해도 같은 계정이에요.</p>
+      <div class="group">
+        <div class="row"><span class="logo kakao">K</span><span class="name">카카오</span><span class="meta">연결됨</span><span class="sep">·</span><span class="act">떼기</span></div>
+        <div class="row"><span class="logo line">L</span><span class="name">LINE</span><span class="act">연결</span></div>
+        <div class="row"><span class="logo google">G</span><span class="name">Google</span><span class="act">연결</span></div>
+        <div class="row"><span class="logo apple"></span><span class="name">Apple</span><span class="meta">연결됨</span><span class="sep">·</span><span class="act">떼기</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<p class="foot">공통: 마지막 남은 수단은 뗄 수 없습니다(login-methods.last.notice). A·C는 그 줄의 "떼기"를 숨기고 묶음 아래에 안내 한 줄을 보입니다. B는 그 버튼을 눌러도 확인 창 대신 안내를 보입니다.</p>

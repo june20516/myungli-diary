@@ -3,7 +3,7 @@
 * 상태: 확정, 구현 P1~P7 완료(계획은 `docs/plans/README.md`)
 * 마일스톤: S1 (설계). 이 문서가 S2(구현)와 S3(REST API v1 freeze)의 기준입니다.
 * 근거: `server/CLAUDE.md` 범위, Issue #3·#7·#29·#55, 결정 D26~D62, IA spec §10, 수익화 사이클(비공개 기록 `business/cycles/2026-10-11-launch-payment.md`, D74)
-* server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다(S1~S89). 이 문서의 각 절에 해당 번호를 붙입니다.
+* server 결정 번호(S#)는 `server/docs/decisions.md`에 모읍니다(S1~S98). 이 문서의 각 절에 해당 번호를 붙입니다.
 
 ## 1. 목표와 범위
 
@@ -12,7 +12,7 @@ server는 app이 쓰는 유일한 API입니다. 다음을 맡습니다.
 * 인증과 계정: 카카오·Apple 로그인, 자체 JWT, 약관 동의, 계정 삭제 (D50·D55)
 * 프로필: 호칭, 출생 정보, 언어, 현재 시간대, 알림 설정 (D29·D30·D36·D41)
 * 운세: 엔진(gRPC) 결과를 캐시하고, 메시지 키를 언어별 문장으로 렌더합니다 (D26·D27·D31·D59)
-* 일기(하루 1편)와 기본 일정 (D47·D49)
+* 일기(하루 여러 편, 한 날짜 10편까지)와 기본 일정 (D47·D49·D83)
 * 로그인 없는 요청 두 가지: 미리보기 1회(D50)와 시진 확인(D58)
 * 아침 운세 알림 (D18⑨)
 * 광고 제거권 entitlement와 RevenueCat 연동 (D53·D54)
@@ -131,7 +131,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 
 | 테이블 | 주요 열 | 비고 |
 | --- | --- | --- |
-| `diaries` | account_id, date, body, all_tags(text[]), featured_tags(jsonb `[{key, polarity}]`, 계약 키), guide_question(jsonb: 렌더된 조각 배열), ruleset_version, deleted_at, content_purged_at | partial unique(account_id, date) WHERE deleted_at IS NULL. all_tags에 GIN 인덱스. 날짜 내림차순 목록은 partial unique의 역방향 스캔이 덮으므로 목록 인덱스는 따로 두지 않음 (D47·D49·D59④) |
+| `diaries` (D83으로 `diary_days`와 나뉨, `2026-10-22-diary-multi-design.md`) | account_id, date, body, deleted_at, content_purged_at. 태그·가이드 질문·ruleset_version은 날짜 기록 `diary_days`(PK (account_id, date), all_tags·featured_tags·guide_question·ruleset_version)에 둠 | (account_id, date) → `diary_days` FK. 목록 인덱스 `diaries_list (account_id, date DESC, created_at, id) WHERE deleted_at IS NULL`. `diary_days.all_tags`에 GIN 인덱스 (D47·D49·D59④·D83) |
 | `schedules` | account_id, date, all_day, time, title, memo, deleted_at, content_purged_at | |
 
 **엔진 결과 캐시 (S4)**
@@ -236,7 +236,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 운세 | `GET /v1/daily/{date}`, `GET /v1/chart`, `GET /v1/calendar/{year}/{month}` | 프로필 없으면 409 `profile.required` |
 | 반응 | `PUT /v1/daily/{date}/slots/{slot}/reaction`, `DELETE` 같은 경로 | 그날 선택 기록에 붙음 |
 | 비로그인 | `POST /v1/preview`, `POST /v1/birth-hour`, `POST /v1/lunar-date`(음력→양력, 윤달 유무) | App Check 필수. 입력 저장 안 함 (D50·D58) |
-| 일기 | `GET /v1/diaries?from&to&tag&cursor`, `GET`·`PUT`·`DELETE /v1/diaries/{date}`, `POST /v1/diaries/{date}/restore` | `PUT`은 멱등 upsert. 응답에 대표 태그 (Issue #31) |
+| 일기 | `GET /v1/diaries?from&to&tag&cursor`, `POST /v1/diaries`, `GET`·`PUT`·`DELETE /v1/diaries/{id}`, `POST /v1/diaries/{id}/restore` | `POST`는 `Idempotency-Key` 대상, `PUT`은 본문 전체 교체 (D83, S97). 응답에 대표 태그 (Issue #31) |
 | 일정 | `GET /v1/schedules?from&to`, `POST /v1/schedules`, `PATCH`·`DELETE /v1/schedules/{id}`, `POST /v1/schedules/{id}/restore` | |
 | 알림 기기 | `POST /v1/devices`, `DELETE /v1/devices/{id}` | 새 토큰 201, 등록된 토큰은 같은 `id`로 200(다른 계정이면 옮김), 계정당 활성 10대, 해제는 로그아웃 전과 토큰 교체 때(S92) |
 | 결제 | `GET /v1/me/entitlements`, `POST /v1/billing/restore`, `POST /webhooks/revenuecat`, `GET /webhooks/admob-ssv` | §10 |
@@ -246,8 +246,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 ### 5.3 동작 규칙
 
 * **오늘(D30):** "오늘"은 프로필의 `current_timezone` 기준 날짜입니다. app은 기기 시간대가 바뀌면 `PATCH /v1/me/profile`로 알립니다.
-* **일기 날짜(D49):** 오늘 이후 날짜는 422 `diary.future_date`입니다. 지운 일기를 되살리려는 날짜에 이미 새 일기가 있으면 409 `diary.date_taken`입니다.
-* **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다. 이미 있는 일기를 고칠 때는 본문만 바꾸고 이 기록은 처음 값을 유지합니다.
+* **일기 날짜(D49):** 오늘 이후 날짜는 422 `diary.future_date`입니다. 한 날짜의 살아 있는 일기는 10편까지이고, 만들기·되살리기로 넘기면 422 `diary.day_full`입니다(D83, `2026-10-22-diary-multi-design.md`).
+* **일기 저장 시 함께 기록(D47·D59④):** 그날 엔진 결과의 `all_tags`·`featured_tags`·`ruleset_version`과 가이드 질문의 렌더된 조각 배열입니다. 그날 선택 기록이 없으면(예: 지난 날 일기) 저장할 때 선택합니다. 이 기록은 그날 첫 편을 쓸 때 날짜 기록(`diary_days`)으로 한 번 만들어지고 이후 바꾸지 않으며, 같은 날 일기들이 함께 씁니다(D83, `2026-10-22-diary-multi-design.md` §2.1). 이미 있는 일기를 고칠 때는 본문만 바꿉니다.
 * **일기 동시 저장:** 기기 동기화는 MVP 범위 밖이라(D47②) 마지막 쓰기가 남습니다.
 * **날짜 경로 검증:** `/calendar/{year}/{month}`는 정수가 아니거나 스키마 범위(1900~2099, 1~12) 밖이면 400 `request.invalid`, 그 안이지만 D41 범위를 벗어나면 422 `date.out_of_range`입니다. `/daily/{date}`의 날짜는 형식이 틀리거나 달력에 없는 날짜(예 `2026-02-30`, `format: date` 위반)면 400 `request.invalid`, 형식은 맞지만 D41 범위 밖이면 422 `date.out_of_range`입니다. 422 `date.invalid`는 정수 필드 객체 `LunarOrSolarDate`(예 양력 2월 31일)에만 씁니다.
 * **미리보기(D50):** 출생 정보·현재 시간대를 받아 오늘의 데일리 중 surface만 돌려줍니다. 호칭을 받지 않으므로 호칭이 들어가는 슬롯은 호칭 없는 변주를 쓰도록 writing에 확인합니다(§13). 설치 id의 SHA-256(`device_hash`)마다 1번이며, 두 번째는 403 `preview.used`입니다. 설치 id는 재설치로 바뀔 수 있어 1회 제한은 최선 노력입니다. 엔진 결과 캐시는 읽지도 쓰지도 않습니다(S70).
@@ -470,7 +470,7 @@ RFC 9457 `application/problem+json`을 씁니다.
 | 미리보기를 이미 씀 | 403 | `preview.used` |
 | 없는 리소스, 남의 리소스 | 404 | `diary.not_found`, `schedule.not_found` (남의 것도 404로 보내 존재 여부를 숨김). 반응할 선택 기록이 없거나 반응할 수 없는 슬롯은 `reaction.not_found` |
 | 프로필 없이 운세 요청, 프로필 읽기 | 409 | `profile.required` |
-| 되살리려는 날짜에 이미 일기가 있음 | 409 | `diary.date_taken` |
+| 한 날짜의 살아 있는 일기가 10편 (만들기·되살리기) | 422 | `diary.day_full` |
 | 같은 `Idempotency-Key`가 처리 중 | 409 | `idempotency.in_progress` |
 | 같은 `Idempotency-Key`에 다른 본문 | 422 | `idempotency.mismatch` |
 | 동의한 문서 버전이 현재 버전과 다름 | 422 | `consent.version_mismatch` (`errors[].field`는 `/documents/<i>/version`) |
