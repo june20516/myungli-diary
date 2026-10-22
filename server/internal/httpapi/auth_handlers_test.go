@@ -239,7 +239,7 @@ func TestLoginKakao_ReturnsLoginResponse(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
 	assert.True(t, got.ConsentRequired)
 	assert.True(t, got.IsNewAccount)
-	assert.False(t, got.RestoredFromDeletion)
+	assert.NotContains(t, rec.Body.String(), "restoredFromDeletion")
 	assert.Equal(t, "access", got.Tokens.AccessToken)
 	assert.Equal(t, "refresh", got.Tokens.RefreshToken)
 }

@@ -29,10 +29,9 @@ func (a *API) loginResponse(ctx context.Context, res auth.LoginResult) (gen.Logi
 		return gen.LoginResponse{}, err
 	}
 	return gen.LoginResponse{
-		ConsentRequired:      me.ConsentRequired,
-		IsNewAccount:         res.IsNewAccount,
-		RestoredFromDeletion: res.RestoredFromDeletion,
-		Tokens:               toGenTokenPair(res.Tokens),
+		ConsentRequired: me.ConsentRequired,
+		IsNewAccount:    res.IsNewAccount,
+		Tokens:          toGenTokenPair(res.Tokens),
 	}, nil
 }
 

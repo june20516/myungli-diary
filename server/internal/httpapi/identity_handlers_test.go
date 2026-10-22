@@ -103,7 +103,7 @@ func TestLinkIdentity_StatusByResult(t *testing.T) {
 		{name: "만들었으면 201", fake: &fakeAuth{identities: list, linkResult: auth.LinkResult{Created: true}}, wantStatus: http.StatusCreated},
 		{name: "이미 있으면 200", fake: &fakeAuth{identities: list}, wantStatus: http.StatusOK},
 		{name: "같은 제공자가 이미 붙음", fake: &fakeAuth{linkErr: auth.ErrProviderTaken}, wantStatus: http.StatusConflict, wantCode: "auth.provider_taken"},
-		{name: "삭제 대기 계정의 연결", fake: &fakeAuth{linkErr: auth.ErrIdentityPendingDeletion}, wantStatus: http.StatusConflict, wantCode: "auth.identity_pending_deletion"},
+		{name: "삭제 대기 계정의 연결", fake: &fakeAuth{linkErr: auth.ErrIdentityPendingDeletion}, wantStatus: http.StatusConflict, wantCode: "auth.identity_in_use"},
 		{
 			name: "증명 조합 위반", wantStatus: http.StatusBadRequest, wantCode: "request.invalid",
 			fake: &fakeAuth{linkErr: &auth.InvalidProofError{Field: "/exchangeCode", Code: "additionalProperties"}},
@@ -130,8 +130,8 @@ func TestLinkIdentity_StatusByResult(t *testing.T) {
 			}
 			p := decodeProblem(t, rec)
 			assert.Equal(t, tt.wantCode, p.Code)
-			assert.Empty(t, p.MergeToken, "합치기 토큰은 identity_in_use에만 있습니다")
-			assert.Nil(t, p.ExpiresAt)
+			assert.NotContains(t, rec.Body.String(), "mergeToken")
+			assert.NotContains(t, rec.Body.String(), "expiresAt")
 			if tt.wantStatus == http.StatusBadRequest {
 				assert.Equal(t, "request.invalid", p.Code)
 				require.Len(t, p.Errors, 1)
@@ -144,7 +144,7 @@ func TestLinkIdentity_StatusByResult(t *testing.T) {
 	}
 }
 
-func TestLinkIdentity_InUseCarriesMergeToken(t *testing.T) {
+func TestLinkIdentity_InUseOmitsMergeToken(t *testing.T) {
 	fa := &fakeAuth{linkErr: &auth.IdentityInUseError{MergeToken: "tok", ExpiresAt: identityMergeAt}}
 	handler, spec := newHandlerAPI(t, &httpapi.API{Auth: fa})
 
@@ -156,8 +156,9 @@ func TestLinkIdentity_InUseCarriesMergeToken(t *testing.T) {
 	var raw map[string]any
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &raw))
 	assert.Equal(t, "auth.identity_in_use", raw["code"])
-	assert.Equal(t, "tok", raw["mergeToken"])
-	assert.Equal(t, "2026-10-13T09:10:00Z", raw["expiresAt"])
+	assert.NotContains(t, raw, "mergeToken")
+	assert.NotContains(t, raw, "expiresAt")
+	assert.NotContains(t, rec.Body.String(), "tok")
 }
 
 func TestLinkIdentity_PassesProofFields(t *testing.T) {
