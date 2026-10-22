@@ -1,5 +1,5 @@
 {
-  "version": "2.6.1",
+  "version": "2.7.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -17,13 +17,13 @@
       "uses": ["appear.seep", "disappear.seep", "press.ink"],
       "variants": [
         { "id": "confirm", "when": "일반 확인" },
-        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 일정 삭제, 계정 삭제)", "uses": ["mark.caution"], "a11y": { "focusOnOpen": "cancel", "dismissOnScrim": false },
+        { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 일정 삭제, 계정 삭제, 계정 합치기, 로그인 수단 떼기)", "uses": ["mark.caution"], "a11y": { "dismissOnScrim": false, "backIs": "cancel" },
           "parts": {
             "title": { "leading": "mark.caution" },
             "confirm": { "fg": "{color.text.primary}", "fontWeight": 700 },
             "cancel": { "fg": "{color.action.primary}" }
           } },
-        { "id": "notice", "when": "고를 것 없이 읽었다는 확인만 받는 안내(login.discard.notice)", "a11y": { "focusOnOpen": "confirm", "dismissOnScrim": true }, "parts": { "cancel": { "visible": false } } }
+        { "id": "notice", "when": "고를 것 없이 읽었다는 확인만 받는 안내(login.discard.notice, login-methods.error.body, ui.account-merge.error)", "a11y": { "focusOnOpen": "confirm", "dismissOnScrim": true }, "parts": { "cancel": { "visible": false } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "marginX": { "value": 28, "unit": "px" }, "padding": "{space.24}" },
@@ -40,10 +40,10 @@
         "pressed": { "pattern": "press.ink", "note": "버튼 글자 둘레에서만" }
       },
       "haptic": [{ "when": "destructive 변형의 확정 버튼을 누름", "strength": "medium" }],
-      "a11y": { "role": "alertdialog", "label": "제목", "description": "본문", "focusOnOpen": "confirm", "minTarget": 44 },
+      "a11y": { "role": "alertdialog", "label": "제목", "description": "본문", "readOrder": "제목 → 본문 → 버튼(플랫폼 기본)", "minTarget": 44 },
       "rules": [
         "되돌릴 수 없는 동작에 빨간색을 쓰지 않는다. 제목 앞 mark.caution과 굵은 본문색 확정 버튼으로 구분한다.",
-        "destructive 변형은 처음 초점과 기본 동작을 취소에 둔다.",
+        "destructive 변형에서 뒤로 가기는 취소와 같다. 버튼 두 개짜리 확인 창에는 첫 초점 규칙을 두지 않는다(앱, 결정 V41).",
         "바깥을 누르면 취소와 같다. destructive는 바깥 누르기로 닫지 않는다.",
         "notice는 확인 버튼 하나다. 바깥을 누르거나 뒤로 가면 확인과 같다."
       ]

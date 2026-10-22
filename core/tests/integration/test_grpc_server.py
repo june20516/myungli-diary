@@ -166,12 +166,18 @@ def test_out_of_range_is_out_of_range(stub: pb_grpc.MyungliEngineStub) -> None:
     assert status_of(caught.value) == grpc.StatusCode.OUT_OF_RANGE
 
 
-def test_unspecified_gender_rejected(stub: pb_grpc.MyungliEngineStub) -> None:
+@pytest.mark.parametrize("rpc", ["GetChart", "GetDaily", "GetMonthCalendar"])
+def test_unspecified_gender_rejected(stub: pb_grpc.MyungliEngineStub, rpc: str) -> None:
+    birth = solar_birth(1985, 3, 10, gender=pb.GENDER_UNSPECIFIED)
+    requests = {
+        "GetChart": pb.ChartRequest(birth=birth, as_of=AS_OF),
+        "GetDaily": pb.DailyRequest(birth=birth, date=AS_OF, current_timezone=SEOUL),
+        "GetMonthCalendar": pb.MonthRequest(birth=birth, year=2026, month=10, current_timezone=SEOUL),
+    }
     with pytest.raises(grpc.RpcError) as caught:
-        stub.GetChart(
-            pb.ChartRequest(birth=solar_birth(1985, 3, 10, gender=pb.GENDER_UNSPECIFIED), as_of=AS_OF)
-        )
+        getattr(stub, rpc)(requests[rpc])
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+    assert "GENDER_UNSPECIFIED" in details_of(caught.value)
 
 
 def test_notices_mapped(stub: pb_grpc.MyungliEngineStub) -> None:
@@ -353,6 +359,15 @@ def test_get_birth_hour(stub: pb_grpc.MyungliEngineStub) -> None:
     assert response.start.ToDatetime() == datetime(1990, 5, 4, 18, 30)  # KST 03:30
     assert response.end.ToDatetime() == datetime(1990, 5, 4, 20, 30)  # KST 05:30
     assert response.meta.engine_version == ENGINE_VERSION
+
+
+def test_get_birth_hour_ignores_gender(stub: pb_grpc.MyungliEngineStub) -> None:
+    """시진은 출생 시각·시간대·경도로만 정해지므로 성별 미지정도 받는다 (#304)."""
+    unspecified = stub.GetBirthHour(
+        pb.BirthHourRequest(birth=solar_birth(1990, 5, 15, 0, 10, gender=pb.GENDER_UNSPECIFIED))
+    )
+    male = stub.GetBirthHour(pb.BirthHourRequest(birth=solar_birth(1990, 5, 15, 0, 10)))
+    assert unspecified == male
 
 
 def test_get_birth_hour_without_time_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
