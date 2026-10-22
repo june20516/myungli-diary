@@ -224,7 +224,7 @@ paths:
     post:
       operationId: loginLine
       summary: LINE 로그인
-      description: LINE OIDC `id_token`과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 `loginKakao`와 같습니다. 처음 보는 연결이면 계정을 새로 만듭니다. 삭제한 계정의 연결은 남지 않으므로 같은 제공자로 다시 로그인하면 새 계정입니다.
+      description: LINE OIDC `id_token`과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 `loginKakao`와 같습니다. 처음 보는 인증 계정이면 유저 계정을 새로 만듭니다. 삭제한 유저 계정의 인증 계정은 남지 않으므로 같은 인증 계정으로 다시 로그인하면 새 유저 계정입니다.
       security: []
       requestBody:
         required: true
@@ -258,7 +258,7 @@ paths:
     post:
       operationId: loginGoogle
       summary: Google 로그인
-      description: Google OIDC `id_token`과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 `loginKakao`와 같습니다. 처음 보는 연결이면 계정을 새로 만듭니다. 삭제한 계정의 연결은 남지 않으므로 같은 제공자로 다시 로그인하면 새 계정입니다.
+      description: Google OIDC `id_token`과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 `loginKakao`와 같습니다. 처음 보는 인증 계정이면 유저 계정을 새로 만듭니다. 삭제한 유저 계정의 인증 계정은 남지 않으므로 같은 인증 계정으로 다시 로그인하면 새 유저 계정입니다.
       security: []
       requestBody:
         required: true
@@ -356,11 +356,11 @@ paths:
   /v1/me:
     get:
       operationId: getMe
-      summary: 내 계정 상태
-      description: 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태를 돌려줍니다. 약관 동의 전에도 부를 수 있습니다.
+      summary: 내 정보
+      description: 유저 계정 id, 동의 필요 여부와 동의할 문서, 프로필 유무, 권한(광고 제거·근거 열람) 상태를 돌려줍니다. 약관 동의 전에도 부를 수 있습니다.
       responses:
         '200':
-          description: 계정 상태
+          description: 내 정보
           content:
             application/json:
               schema:
@@ -565,10 +565,13 @@ paths:
         B의 일기(지운 일기 포함, 하루 10편 상한은 검사하지 않음)·일정·날짜 기록·오늘 문장 선택 기록·반응과 구매를 A로 옮기고, B는 삭제합니다(`deleteMe`와 같이 즉시, 되돌릴 수 없음).
         `profile`은 합친 뒤 쓸 프로필(사주 정보·호칭)입니다. `current`는 A의 것을 그대로 두고, `other`는 B의 것으로 A의 프로필을 바꿉니다.
         같은 날짜에 양쪽 모두 날짜 기록(태그·가이드 질문)이 있으면 고른 프로필 쪽을 남기고, 다른 쪽 일기는 모두 남긴 날짜 기록 아래로 옮깁니다. 일기는 지우지 않습니다.
+        고른 쪽 프로필이 없으면(`status`가 `none`) 합친 뒤 A는 프로필이 없습니다.
         인증 계정 연결, 세션, 약관 동의는 옮기지 않습니다. B의 인증 계정 연결은 B와 함께 사라지고 A의 세션은 그대로입니다.
+        B의 카카오·Apple 제공자 허가는 server가 취소를 시도합니다. B의 LINE·Google 허가는 server가 취소하지 않으므로, app은 증명에 쓴 그 제공자(LINE·Google)를 SDK로 취소할 수 있습니다. B의 다른 LINE·Google 인증 계정은 취소가 생략됩니다.
 
         응답은 A의 `Me`입니다. 새 세션을 주지 않으므로 app은 토큰을 바꾸지 않고, 합친 유저 계정 기준으로 캐시·초안을 지운 뒤 `getMe`부터 다시 읽습니다.
         `Idempotency-Key`를 받습니다. 같은 키로 다시 보내면 24시간 동안 처음 응답을 돌려줍니다. 키 없이 다시 보내면 토큰이 일회용이라 422 `merge.token_invalid`입니다.
+        같은 키의 요청이 처리 중이면 409 `idempotency.in_progress`이고, 잠시 뒤 같은 키로 다시 보냅니다.
         토큰이 없거나, 만료됐거나, 이미 썼거나, 현재 유저 계정의 토큰이 아니거나, 확인 시점에 조건이 바뀌었으면(B가 이미 없어짐, 증명한 인증 계정이 B에서 떨어짐) 422 `merge.token_invalid`이고 이 경우들은 구분하지 않습니다.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -591,6 +594,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '413':
           $ref: '#/components/responses/PayloadTooLarge'
         '415':
@@ -2693,11 +2698,11 @@ components:
         dateRecords:
           type: integer
           minimum: 0
-          description: 옮길 날짜 기록 수
+          description: 옮길 날짜 기록 수. A와 날짜가 겹치지 않는 B의 날짜 기록만 셉니다(겹친 날은 `overlapDays`로만 셈).
         reactions:
           type: integer
           minimum: 0
-          description: 옮길 문장 반응 수
+          description: B의 살아 있는 문장 반응 전체 수. 같은 날·같은 자리·같은 출생 정보의 문장 선택이 겹치면 고른 프로필에 따라 일부는 유저 계정과 끊긴 문장별 집계로만 남을 수 있습니다.
         overlapDays:
           type: integer
           minimum: 0
@@ -2710,17 +2715,18 @@ components:
           $ref: '#/components/schemas/MergeProfileSummary'
     MergeAddedDays:
       type: object
-      description: 합치면 현재 유저 계정에 더해지는 남은 기간(일). 기간 상품 권한마다 한 필드입니다.
+      description: 합치면 현재 유저 계정에 더해지는 남은 기간(일). 기간 상품이 늘면 필드를 더합니다.
       required: [adFree]
       properties:
         adFree:
           type: integer
           minimum: 0
-          description: 광고 제거권에 더해지는 일 수
+          description: 광고 제거권 남은 날. 같은 구매가 주는 근거·해석 열람(insight)도 같은 기간입니다.
     MergeProfileSummary:
       type: object
       description: |
         합칠 때 고를 수 있는 프로필 요약. `status`가 `saved`일 때만 `honorific`·`birth`가 있습니다(`none`은 프로필이 없음).
+        고른 쪽의 `status`가 `none`이면 합친 뒤 현재 유저 계정은 프로필이 없습니다.
       required: [status]
       properties:
         status:
@@ -3814,7 +3820,10 @@ components:
       enum: [active, pending, expired, refunded, owned]
     PurchasePeriod:
       type: object
-      description: 이 유저 계정의 사용 구간. 합친 구매는 현재 유저 계정의 구간만 담습니다.
+      description: |
+        기간 상품만 있는 이 유저 계정의 사용 구간. 합친 구매는 현재 유저 계정의 구간만 담습니다.
+        `refunded`면 실제로 쓴 구간(`startsAt`부터 원래 끝과 끊은 시각 중 이른 것)이고, 시작 전에 환불됐으면 `period`가 없습니다.
+        `pending` 구간은 환불이나 합치기로 앞당겨질 수 있습니다.
       required: [startsAt, endsAt]
       properties:
         startsAt:

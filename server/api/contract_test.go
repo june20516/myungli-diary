@@ -227,6 +227,10 @@ func TestContract_CreatePostsAcceptIdempotencyKey(t *testing.T) {
 		if schema.MinLength != 1 || schema.MaxLength == nil || *schema.MaxLength != 255 {
 			t.Errorf("%s: Idempotency-Key 길이가 1~255가 아님", operationID)
 		}
+		// 처리 중인 같은 키 요청은 409 idempotency.in_progress입니다.
+		if op.Responses.Value("409") == nil {
+			t.Errorf("%s: Idempotency-Key를 받는데 409 응답이 없음", operationID)
+		}
 	}
 }
 
