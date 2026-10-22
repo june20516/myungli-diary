@@ -63,6 +63,7 @@
 | GCP 프로젝트 준비: 결제 계정, Artifact Registry·Cloud Run·Cloud SQL·Secret Manager API 사용 설정, GitHub Actions용 Workload Identity Federation (D56) | S1 배포 단계 | 사용자 (설정 절차는 server가 안내) |
 | Kakao Developers 앱 등록, Apple Sign in with Apple 설정(Services ID, 키), LINE Developers 로그인 채널(이메일 권한 신청 없음), Google Cloud OAuth client(iOS·Android·server) (D55·D82) | S1·A1 로그인 연동 | 사용자 |
 | 개인정보 처리방침과 스토어 개인정보 표시 작성: 수집·보관 항목은 대장 `docs/legal/data-inventory.md`(D86 ⑧, "확인 필요" 항목은 초안 전에 단위에 물음). 동의 문서 버전은 재동의 흐름 전에는 올리지 않음(D86 ②) | 출시 전 (I4), 원문 위치 `docs/legal/`(D80) | 사용자 (초안은 지휘) |
+| 문의 전용 메일 주소(앱 문의하기와 App Store·Google Play 지원 연락처에 같이 씀, D89) | A2 전, 스토어 등록 전 | 사용자 |
 | 이용약관·개인정보 처리방침 ko·en·ja 원문 모두 갖춤(없는 언어는 server가 준비 중 페이지를 보이므로, D86 ⑥) | 출시 전 (I4) | 사용자 (초안은 지휘) |
 | 서비스 도메인 구입: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json` 호스팅, Apple Services ID 복귀 주소 (#89, S22) | A1 실제 로그인 연동 전, 늦어도 server 배포(P9) 전 | 사용자 |
 | 출시 전 정책 검토: AdMob 보상형 광고 고지 문구(`evidence-sheet.lock.reward`, writing 라운드 R8-4 선택에 "끝까지"가 없음), 스토어 심사 기준 | 출시 전 (I4) | 사용자 (writing·design 지원) |
