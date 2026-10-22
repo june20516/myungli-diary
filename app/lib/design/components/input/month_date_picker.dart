@@ -51,8 +51,8 @@ class MonthDatePicker extends StatelessWidget {
   /// 아래 버튼 글자(고른 날짜가 든 문구).
   final String confirmLabel;
 
-  /// 아래 버튼을 눌렀을 때.
-  final VoidCallback onConfirm;
+  /// 아래 버튼을 눌렀을 때. null이면 버튼이 꺼집니다(`disabled`, 예 고른 날 일기를 다 채움).
+  final VoidCallback? onConfirm;
 
   /// 아래 버튼의 IA 슬롯 id(`diary-list.pick-date.confirm`).
   final String? confirmIdentifier;

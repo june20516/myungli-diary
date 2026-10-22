@@ -196,6 +196,25 @@ void main() {
       });
     }
 
+    testWidgets('onAction이 null이면 버튼이 꺼집니다(disabled)', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: GuideQuestionCard(
+              state: GuideQuestionState.after,
+              eyebrow: '오늘의 질문',
+              question: RenderedText(segments: [Segment(text: '질문')]),
+              actionLabel: '오늘은 충분히 썼어요',
+              onAction: null,
+            ),
+          ),
+        ),
+      );
+      final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
+      expect(button.onPressed, isNull);
+      expect(button.label, '오늘은 충분히 썼어요');
+    });
+
     group('접근성', () {
       testWidgets('묶음 라벨은 "일기 질문"입니다', (tester) async {
         final handle = tester.ensureSemantics();

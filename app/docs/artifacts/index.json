@@ -114,11 +114,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.day-sheet.default.2026-10-20",
+    "id": "render.day-sheet.default.2026-10-22",
     "title": "day-sheet (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-day-sheet-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-22-day-sheet-default.png",
+    "date": "2026-10-22",
     "milestone": "A1",
     "screens": [
       "day-sheet"
@@ -128,11 +128,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.diary-edit.default.2026-10-20",
+    "id": "render.diary-edit.default.2026-10-22",
     "title": "diary-edit (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-diary-edit-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-22-diary-edit-default.png",
+    "date": "2026-10-22",
     "milestone": "A1",
     "screens": [
       "diary-edit"

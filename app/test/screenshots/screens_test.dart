@@ -350,7 +350,8 @@ final List<_Shot> _shots = [
     'default',
     'member',
     _push(
-      datedPathOf(ScreenIds.diaryView, CalendarDate(2026, 10, 12)),
+      // fake 시드의 2026-10-12 일기(A67).
+      diaryPathOf(ScreenIds.diaryView, '7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001'),
       ScreenIds.diaryView,
     ),
   ),

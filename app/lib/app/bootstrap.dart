@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
+import 'package:myungli_diary/app/diary_summary_rows.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
 import 'package:myungli_diary/app/profile_language.dart';
@@ -80,6 +81,7 @@ Future<ProviderContainer> bootstrap({
       ...profileLanguageOverrides,
       ...depthSheetBodyOverrides,
       ...daySheetBodyOverrides,
+      ...diarySummaryRowOverrides,
       ...realPlatformOverrides(resolvedMode),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),

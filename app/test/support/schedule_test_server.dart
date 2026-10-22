@@ -211,8 +211,14 @@ final class ScheduleTestServer extends Interceptor {
         200,
         {
           'items': [
-            for (final date in diaryDates)
-              {'date': date, 'excerpt': '일기', 'featuredTags': <Object>[]},
+            for (final (index, date) in diaryDates.indexed)
+              {
+                'id': 'diary-$index',
+                'date': date,
+                'createdAt': '${date}T09:00:00Z',
+                'excerpt': '일기',
+                'featuredTags': <Object>[],
+              },
           ],
         },
       );

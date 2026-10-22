@@ -33,6 +33,8 @@ import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/diary/application/diary_summary_rows.dart';
+import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
@@ -59,7 +61,9 @@ const Set<String> todayExits = {
   ScreenIds.sharePreview,
 };
 
-/// 오늘(탭 루트): 날의 성격, 총운, 행운 칩, 가이드 질문을 보여 주고 깊이 시트와 일기로 잇습니다.
+/// 오늘(탭 루트): 날의 성격, 총운, 행운 칩, 가이드 질문과 오늘 쓴 일기 줄을 보여 주고 깊이
+/// 시트와 일기로 잇습니다. 가이드 질문 카드는 언제나 새 일기 쓰기이고, 오늘 일기를 다 채웠으면
+/// 누를 수 없습니다(D83 ②).
 ///
 /// 값은 [todayContentProvider] 한 곳에서 받고, 표시 값 변환은 `today_presentation.dart`가
 /// 합니다. 처음 불러올 때는 카드 자리 skeleton, 캐시 → server 응답이 다르면 내용이 스밉니다.
@@ -163,14 +167,15 @@ class _TodayBody extends ConsumerWidget {
   final Widget offlineNotice;
   final DepthSheets sheets;
 
-  /// 일기 화면으로 갔다가 돌아오면 오늘 일기 여부를 다시 묻습니다(쓰고 왔으면 도장이 찍힘).
-  Future<void> _openDiary(BuildContext context, WidgetRef ref) async {
-    final target = content.diaryWritten
-        ? ScreenIds.diaryView
-        : ScreenIds.diaryEdit;
-    await context.push<void>(pathOf(target));
+  /// 오늘 새 일기를 쓰러 갑니다(A67·A69). 돌아오면 오늘 일기 목록과 달력 도장을 다시 묻습니다
+  /// (쓰고 왔으면 줄이 늘고 도장이 찍힘).
+  Future<void> _writeDiary(BuildContext context, WidgetRef ref) async {
+    final date = content.view.date;
+    await context.push<void>(datedPathOf(ScreenIds.diaryEdit, date));
     if (context.mounted) {
-      ref.invalidate(todayDiaryExistsProvider);
+      ref
+        ..invalidate(diariesOnProvider(date))
+        ..invalidate(diaryDatesProvider);
     }
   }
 
@@ -213,6 +218,9 @@ class _TodayBody extends ConsumerWidget {
     final timeUnknown = display.timeUnknown;
     final head = display.head;
     final tag = display.tag;
+    final diaries = content.diaries;
+    final entry = diaryWriteEntryOf(diaries.length);
+    final diaryRow = ref.watch(diarySummaryRowProvider);
     // 오늘 화면의 용어는 오늘 응답의 슬롯에서 왔으므로 오늘 응답을 출처로 넘깁니다.
     void openExplain(String termId, String slotId) => sheets.openExplain(
       context,
@@ -307,18 +315,29 @@ class _TodayBody extends ConsumerWidget {
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             const _TodayEventSummary(),
             GuideQuestionCard(
-              state: content.diaryWritten
-                  ? GuideQuestionState.after
-                  : GuideQuestionState.before,
+              state: diaries.isEmpty
+                  ? GuideQuestionState.before
+                  : GuideQuestionState.after,
               eyebrow: l10n.todayGuideEyebrow,
               question: display.guide,
-              actionLabel: content.diaryWritten
-                  ? l10n.todayGuideCtaWritten
-                  : l10n.todayGuideCta,
-              onAction: () => _openDiary(context, ref),
+              actionLabel: switch (entry) {
+                DiaryWriteEntry.first => l10n.todayGuideCta,
+                DiaryWriteEntry.more => l10n.todayGuideCtaWritten,
+                DiaryWriteEntry.full => l10n.todayGuideCtaFull,
+              },
+              // 그날 일기를 다 채웠으면 누를 수 없습니다(D83 ②).
+              onAction: entry == DiaryWriteEntry.full
+                  ? null
+                  : () => unawaited(_writeDiary(context, ref)),
               questionSlotId: SlotIds.todayGuideQuestion,
               actionSlotId: SlotIds.todayGuideCta,
             ),
+            // 오늘 쓴 일기 줄(작성 순). 누르면 그 일기의 diary-view입니다.
+            if (diaries.isNotEmpty) ...[
+              const SizedBox(height: Space.s12),
+              for (final (index, summary) in diaries.indexed)
+                diaryRow(summary, isLast: index == diaries.length - 1),
+            ],
           ],
         ),
       ),

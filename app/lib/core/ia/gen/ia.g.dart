@@ -438,8 +438,8 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['loading', 'error', 'offline', 'time-unknown'],
     exits: [
-      IaExit(to: 'diary-edit', trigger: '가이드 질문 카드(오늘 일기 없음)'),
-      IaExit(to: 'diary-view', trigger: '가이드 질문 카드(오늘 일기 있음)'),
+      IaExit(to: 'diary-edit', trigger: '가이드 질문 카드(새 일기)'),
+      IaExit(to: 'diary-view', trigger: '오늘 쓴 일기 줄'),
       IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
       IaExit(to: 'evidence-sheet', trigger: '근거 보기'),
       IaExit(to: 'share-preview', trigger: '공유'),
@@ -454,6 +454,7 @@ const List<IaScreen> iaScreens = [
       'reaction-button',
       'lucky-card',
       'guide-question-card',
+      'diary-row',
       'event-row',
       'share-button',
       'depth-link',
@@ -531,14 +532,15 @@ const List<IaScreen> iaScreens = [
     states: ['loading', 'empty', 'error'],
     exits: [
       IaExit(to: 'event-edit', trigger: '일정 추가 또는 일정 누름'),
-      IaExit(to: 'diary-view', trigger: '그날 일기 보기'),
-      IaExit(to: 'diary-edit', trigger: '이날 일기 쓰기'),
+      IaExit(to: 'diary-view', trigger: '그날 일기 줄 누름'),
+      IaExit(to: 'diary-edit', trigger: '이날 일기 쓰기(새 일기)'),
       IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
     ],
     components: [
       'sheet',
       'day-character',
       'event-row',
+      'diary-row',
       'term-token',
       'depth-link',
       'primary-button',
@@ -569,8 +571,8 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['loading', 'empty', 'error', 'offline'],
     exits: [
-      IaExit(to: 'diary-view', trigger: '일기 누름 또는 고른 날에 일기 있음'),
-      IaExit(to: 'diary-edit', trigger: '날짜 골라 쓰기(그날 일기 없음)'),
+      IaExit(to: 'diary-view', trigger: '일기 누름'),
+      IaExit(to: 'diary-edit', trigger: '날짜 골라 쓰기(새 일기)'),
       IaExit(to: 'tag-diary', trigger: '태그 칩'),
     ],
     components: [
@@ -762,7 +764,7 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['error'],
     exits: [IaExit(to: 'account-merge', trigger: '붙이려는 수단이 다른 계정에 연결돼 있음')],
-    components: ['app-bar', 'settings-row', 'social-login-button', 'dialog'],
+    components: ['app-bar', 'social-login-button', 'dialog'],
   ),
   IaScreen(
     id: 'account-merge',

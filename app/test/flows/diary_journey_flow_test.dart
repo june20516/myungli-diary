@@ -48,7 +48,7 @@ void main() {
     await settleWithIo(tester);
     await tester.tap(find.byKey(CalendarMonthView.cellKey(_day)));
     await tester.pump();
-    final confirm = find.text('10월 10일 일기');
+    final confirm = find.text(_ko.diaryListPickDateConfirm('10월 10일'));
     await tester.ensureVisible(confirm);
     await tester.pumpAndSettle();
     await tester.tap(confirm);

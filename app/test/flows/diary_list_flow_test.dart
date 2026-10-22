@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
@@ -194,7 +195,7 @@ void main() {
     expect(_rowDates(tester), hasLength(4));
   });
 
-  testWidgets('날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기', (tester) async {
+  testWidgets('날짜 골라 쓰기: 미래는 막고, 이미 쓴 날도 그날 새 일기', (tester) async {
     covers(const Covers(exits: ['diary-list>diary-edit'], decisions: ['D49']));
     final container = await _openDiaryList(tester);
     await tester.tap(find.byKey(DiaryListScreen.pickDateKey));
@@ -202,7 +203,8 @@ void main() {
     final picker = tester.widget<MonthDatePicker>(find.byType(MonthDatePicker));
     expect(picker.today, CalendarDate(2026, 10, 13));
     expect(picker.markedDates, contains(CalendarDate(2026, 10, 12)));
-    expect(find.text('10월 13일 일기'), findsOneWidget);
+    final todayConfirm = find.text(_ko.diaryListPickDateConfirm('10월 13일'));
+    expect(todayConfirm, findsOneWidget);
     expect(
       find.bySemanticsIdentifier(SlotIds.diaryListPickDateConfirm),
       findsOneWidget,
@@ -212,11 +214,11 @@ void main() {
       find.byKey(CalendarMonthView.cellKey(CalendarDate(2026, 10, 20))),
     );
     await tester.pump();
-    expect(find.text('10월 13일 일기'), findsOneWidget, reason: '미래 날짜는 막힘');
+    expect(todayConfirm, findsOneWidget, reason: '미래 날짜는 막힘');
 
-    await tester.ensureVisible(find.text('10월 13일 일기'));
+    await tester.ensureVisible(todayConfirm);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('10월 13일 일기'));
+    await tester.tap(todayConfirm);
     await settleWithIo(tester);
     expect(
       _locationOf(tester, ScreenIds.diaryEdit),
@@ -230,14 +232,47 @@ void main() {
     await tester.tap(
       find.byKey(CalendarMonthView.cellKey(CalendarDate(2026, 10, 12))),
     );
-    await tester.pump();
-    await tester.ensureVisible(find.text('10월 12일 일기'));
+    await settleWithIo(tester);
+    final writtenConfirm = find.text(_ko.diaryListPickDateConfirm('10월 12일'));
+    await tester.ensureVisible(writtenConfirm);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('10월 12일 일기'));
+    await tester.tap(writtenConfirm);
     await settleWithIo(tester);
     expect(
-      _locationOf(tester, ScreenIds.diaryView),
-      '/diary-view?date=2026-10-12',
+      _locationOf(tester, ScreenIds.diaryEdit),
+      '/diary-edit?date=2026-10-12',
+    );
+  });
+
+  testWidgets('날짜 골라 쓰기: 10편인 날은 다 채웠다는 문구로 버튼이 꺼집니다', (tester) async {
+    await pumpApp(tester, scenario: 'diary-day-full');
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+    await tester.tap(find.byKey(DiaryListScreen.pickDateKey));
+    await settleWithIo(tester);
+
+    final confirm = tester.widget<PrimaryButton>(
+      find.ancestor(
+        of: find.bySemanticsIdentifier(SlotIds.diaryListPickDateConfirm),
+        matching: find.byType(PrimaryButton),
+      ),
+    );
+    expect(confirm.label, _ko.diaryListPickDateConfirmFull);
+    expect(confirm.onPressed, isNull);
+    expect(
+      tester.widget<MonthDatePicker>(find.byType(MonthDatePicker)).onConfirm,
+      isNull,
+    );
+
+    // 다른 날을 고르면 다시 쓸 수 있습니다.
+    await tester.tap(
+      find.byKey(CalendarMonthView.cellKey(CalendarDate(2026, 10, 12))),
+    );
+    await settleWithIo(tester);
+    expect(find.text(_ko.diaryListPickDateConfirm('10월 12일')), findsOneWidget);
+    expect(
+      tester.widget<MonthDatePicker>(find.byType(MonthDatePicker)).onConfirm,
+      isNotNull,
     );
   });
 }

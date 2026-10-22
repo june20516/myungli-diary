@@ -93,7 +93,10 @@ Widget _checkRow(
 
 /// 달을 넘기고 날을 고르는 date-picker calendar.
 class _MonthDatePickerDemo extends StatefulWidget {
-  const new();
+  const new({this.disabled = false});
+
+  /// 고른 날 일기를 다 채워 아래 버튼이 꺼진 모양인지(D83 ②).
+  final bool disabled;
 
   @override
   State<_MonthDatePickerDemo> createState() => _MonthDatePickerDemoState();
@@ -114,8 +117,10 @@ class _MonthDatePickerDemoState extends State<_MonthDatePickerDemo> {
       markedDates: {CalendarDate(2026, 10, 2), CalendarDate(2026, 10, 12)},
       onSelect: (date) => setState(() => _selected = date),
       onMonthChange: (month) => setState(() => _month = month),
-      confirmLabel: '${_selected.month}월 ${_selected.day}일 일기',
-      onConfirm: () {},
+      confirmLabel: widget.disabled
+          ? '이날은 충분히 썼어요'
+          : '${_selected.month}월 ${_selected.day}일 일기 쓰기',
+      onConfirm: widget.disabled ? null : () {},
     ),
   );
 }
@@ -420,7 +425,14 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
             solarConfirm: const SolarConfirm.loading(),
           ),
         ),
-        _stage('calendar(일기 날짜)', () => const _MonthDatePickerDemo()),
+        WidgetbookUseCase(
+          name: 'calendar(일기 날짜)',
+          builder: (context) => Stage(
+            child: _MonthDatePickerDemo(
+              disabled: context.knobs.boolean(label: '비활성(고른 날 다 채움)'),
+            ),
+          ),
+        ),
         _stage(
           'solar(일정 날짜)',
           () => _datePicker(

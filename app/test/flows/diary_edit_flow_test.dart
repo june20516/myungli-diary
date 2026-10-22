@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -110,13 +111,14 @@ Uri _uriOf(WidgetTester tester, String screenId) =>
 
 Finder get _body => find.byType(TextField);
 
-/// 쓰기 화면이 본문 칸이나 오류 화면을 보일 때까지 기다립니다. 받는 동안 skeleton이
+/// 쓰기 화면이 본문 칸이나 오류·찾지 못함 안내를 보일 때까지 기다립니다. 받는 동안 skeleton이
 /// 나오기 전(300ms)에는 프레임이 없어 [settleWithIo]만으로는 일찍 끝납니다.
 Future<void> _untilShown(WidgetTester tester) => pumpUntil(
   tester,
   () =>
       find.byType(TextField).evaluate().isNotEmpty ||
-      find.byType(ErrorState).evaluate().isNotEmpty,
+      find.byType(ErrorState).evaluate().isNotEmpty ||
+      find.byType(EmptyState).evaluate().isNotEmpty,
 );
 
 PrimaryButton _saveButton(WidgetTester tester) => tester.widget<PrimaryButton>(
@@ -289,10 +291,6 @@ void main() {
 
   testWidgets('?id=의 일기가 없으면(404) 찾지 못했다는 안내', (tester) async {
     await _openEditAt(tester, diaryPathOf(ScreenIds.diaryEdit, 'gone'));
-    await pumpUntil(
-      tester,
-      () => find.text(_ko.errorDiaryNotFound).evaluate().isNotEmpty,
-    );
     expect(find.text(_ko.errorDiaryNotFound), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
   });

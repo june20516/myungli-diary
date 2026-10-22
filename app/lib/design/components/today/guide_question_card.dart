@@ -24,8 +24,8 @@ enum GuideQuestionState {
 /// 가이드 질문과 쓰기 입구(`guide-question-card`).
 ///
 /// 데이터 조회 없는 순수 컴포넌트입니다. 상태와 문구·동작을 모두 밖에서 받아, 오늘 화면과
-/// 계획 4 `day-sheet`·계획 5 `diary-edit`이 같은 카드를 씁니다. 버튼 글자(쓰기/쓴 일기 보기)는
-/// 상태에 맞춰 호출하는 쪽이 [actionLabel]로 줍니다.
+/// 계획 4 `day-sheet`·계획 5 `diary-edit`이 같은 카드를 씁니다. 버튼 글자(쓰기/한 편 더 쓰기/다 채움)는
+/// 상태에 맞춰 호출하는 쪽이 [actionLabel]로 주고, 누를 수 없으면 [onAction]을 null로 줍니다.
 ///
 /// [state]가 `before`에서 `after`로 바뀌는 순간(일기를 쓰고 돌아왔을 때)에만 도장이
 /// `seal.stamp`로 찍히고, 상태 알림(`todayGuideWritten`)을 스크린리더에 한 번 보냅니다.
@@ -72,8 +72,8 @@ class GuideQuestionCard extends StatefulWidget {
   /// 버튼 글자.
   final String actionLabel;
 
-  /// 버튼을 눌렀을 때.
-  final VoidCallback onAction;
+  /// 버튼을 눌렀을 때. null이면 버튼이 꺼집니다(`disabled`, 예 그날 일기를 다 채움).
+  final VoidCallback? onAction;
 
   /// 질문이 채우는 IA 슬롯 id.
   final String? questionSlotId;
