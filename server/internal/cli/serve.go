@@ -460,8 +460,29 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		return nil, fmt.Errorf("provider apple: %w", err)
 	}
 
+	line, err := provider.NewLINE(provider.LINEConfig{
+		ChannelID: cfg.LineChannelID,
+		JWKSURL:   deps.Providers.LineJWKS,
+		HTTP:      deps.HTTP,
+		Clock:     deps.Clock,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("provider line: %w", err)
+	}
+	google, err := provider.NewGoogle(provider.GoogleConfig{
+		ClientIDs: cfg.GoogleClientIDs,
+		JWKSURL:   deps.Providers.GoogleJWKS,
+		HTTP:      deps.HTTP,
+		Clock:     deps.Clock,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("provider google: %w", err)
+	}
+
 	authService := auth.NewService(deps.Pool, auth.ServiceDeps{
 		Kakao:       kakao,
+		Line:        line,
+		Google:      google,
 		Apple:       apple,
 		KakaoUnlink: kakao,
 		Access:      access,

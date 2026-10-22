@@ -17,6 +17,7 @@ import (
 //
 //   - Apple: 저장한 refresh token을 복호화해 revoke합니다.
 //   - 카카오: 앱과의 연결을 끊습니다(unlink).
+//   - LINE·Google: 허가 취소는 app SDK가 하므로(S100) 외부 호출 없이 해제된 것으로 기록합니다.
 //   - 테스트(staging, S24): 외부 호출 없이 해제된 것으로 기록합니다.
 //
 // 각 연결의 외부 호출 직전에 계정이 아직 삭제 대기인지 확인하고(stillPendingDeletion), 아니면(복구 로그인으로
@@ -132,8 +133,9 @@ func (s *Service) disconnect(ctx context.Context, identity authdb.ListIdentities
 		return nil
 	case providerApple:
 		return s.revokeApple(ctx, identity)
-	case providerTest:
-		// 테스트 연결은 외부 제공자가 없어 끊을 것이 없습니다. 해제된 것으로 기록되게 성공으로 돌려줍니다.
+	case providerLine, providerGoogle, providerTest:
+		// LINE·Google은 허가 취소를 app SDK가 하고, 테스트 연결은 외부 제공자가 없어 server가 끊을 것이 없습니다.
+		// 해제된 것으로 기록되게 성공으로 돌려줍니다.
 		return nil
 	default:
 		return fmt.Errorf("identity %s: 알 수 없는 제공자 %q", identity.ID, identity.Provider)

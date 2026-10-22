@@ -209,7 +209,23 @@ func TestDisconnectProviders_TestProviderIsRecordedWithoutCalls(t *testing.T) {
 	assert.NotNil(t, f.identityState(t, accountID, "test").disconnectedAt)
 }
 
-// auth_identities.provider는 kakao·apple·test만 받고, test 연결에는 Apple 토큰 열이 없습니다(00011, spec §13.2).
+// LINE·Google 허가 취소는 app SDK가 하므로(S100) server는 외부 호출 없이 해제된 것으로 기록합니다.
+func TestDisconnectProviders_LINEGoogleRecordWithoutExternalCall(t *testing.T) {
+	f := newFixture(t)
+	accountID := f.loginLine(t, "line-1").AccountID
+	f.exec(t, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'google', 'google-1')`,
+		uuid.Must(uuid.NewV7()), accountID)
+	f.requestDeletion(t, accountID)
+
+	require.NoError(t, f.service.DisconnectProviders(f.ctx, accountID))
+
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+	assert.Empty(t, f.fake.KakaoUnlinkRequests())
+	assert.NotNil(t, f.identityState(t, accountID, "line").disconnectedAt)
+	assert.NotNil(t, f.identityState(t, accountID, "google").disconnectedAt)
+}
+
+// auth_identities.provider는 kakao·apple·test·line·google만 받고, test 연결에는 Apple 토큰 열이 없습니다(00011, 00014, spec §13.2).
 func TestAuthIdentities_ProviderCheckAllowsTest(t *testing.T) {
 	f := newFixture(t)
 	accountID := uuid.Must(uuid.NewV7())
@@ -228,6 +244,6 @@ func TestAuthIdentities_ProviderCheckAllowsTest(t *testing.T) {
 		return err
 	}
 	require.NoError(t, insert("test", "e2e01", false))
-	require.Error(t, insert("google", "g-1", false), "목록 밖 제공자는 거절합니다")
+	require.Error(t, insert("naver", "n-1", false), "목록 밖 제공자는 거절합니다")
 	require.Error(t, insert("test", "e2e02", true), "test 연결에는 Apple 토큰이 없습니다")
 }

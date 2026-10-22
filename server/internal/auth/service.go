@@ -40,6 +40,9 @@ import (
 const (
 	providerKakao = "kakao"
 	providerApple = "apple"
+	// providerLine·providerGoogle은 LINE·Google 로그인(S99)의 연결입니다. 둘 다 Apple 토큰 열이 없습니다.
+	providerLine   = "line"
+	providerGoogle = "google"
 	// providerTest는 staging 테스트 로그인(S24)의 연결입니다. 발급 경로(LoginTest)는 build tag staging 파일에만 있고,
 	// 여기의 상수는 연결 해제가 staging의 테스트 계정 삭제를 처리하려고 씁니다.
 	providerTest = "test"
@@ -67,10 +70,13 @@ const identityLookupTimeout = 3 * time.Second
 // 첫 사용 뒤 이 시간 안(경계 포함)이고 그 다음 token이 아직 쓰이지 않았으면 탈취가 아니라 재시도로 봅니다.
 const RefreshReuseGrace = 30 * time.Second
 
-// KakaoVerifier는 카카오 id_token을 검증합니다. *provider.Kakao가 만족합니다.
-type KakaoVerifier interface {
+// IDTokenVerifier는 nonce가 있는 OIDC id_token을 검증합니다. *provider.Kakao·*provider.LINE·*provider.Google이 만족합니다.
+type IDTokenVerifier interface {
 	Verify(ctx context.Context, idToken, rawNonce string) (provider.Identity, error)
 }
+
+// KakaoVerifier는 카카오 id_token을 검증합니다. IDTokenVerifier의 다른 이름입니다.
+type KakaoVerifier = IDTokenVerifier
 
 // KakaoUnlinker는 카카오 사용자와 앱의 연결을 끊습니다. *provider.Kakao가 만족합니다.
 type KakaoUnlinker interface {
@@ -89,6 +95,8 @@ type AppleClient interface {
 // ServiceDeps는 Service가 쓰는 의존성입니다. Logger는 nil이면 아무것도 남기지 않습니다.
 type ServiceDeps struct {
 	Kakao       KakaoVerifier
+	Line        IDTokenVerifier
+	Google      IDTokenVerifier
 	Apple       AppleClient
 	KakaoUnlink KakaoUnlinker
 	Access      *token.AccessIssuer
@@ -119,6 +127,8 @@ type LoginResult struct {
 type Service struct {
 	pool        *pgxpool.Pool
 	kakao       KakaoVerifier
+	line        IDTokenVerifier
+	google      IDTokenVerifier
 	apple       AppleClient
 	kakaoUnlink KakaoUnlinker
 	access      *token.AccessIssuer
@@ -136,6 +146,8 @@ func NewService(pool *pgxpool.Pool, deps ServiceDeps) *Service {
 	return &Service{
 		pool:        pool,
 		kakao:       deps.Kakao,
+		line:        deps.Line,
+		google:      deps.Google,
 		apple:       deps.Apple,
 		kakaoUnlink: deps.KakaoUnlink,
 		access:      deps.Access,
@@ -159,6 +171,24 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 		return LoginResult{}, s.providerError(ctx, err, providerKakao, "verify")
 	}
 	return s.login(ctx, providerKakao, fixedTarget(identity.Subject, nil))
+}
+
+// LoginLine은 LINE id_token으로 로그인합니다. 흐름과 오류는 LoginKakao와 같습니다.
+func (s *Service) LoginLine(ctx context.Context, idToken, rawNonce string) (LoginResult, error) {
+	identity, err := s.line.Verify(ctx, idToken, rawNonce)
+	if err != nil {
+		return LoginResult{}, s.providerError(ctx, err, providerLine, "verify")
+	}
+	return s.login(ctx, providerLine, fixedTarget(identity.Subject, nil))
+}
+
+// LoginGoogle은 Google id_token으로 로그인합니다. 흐름과 오류는 LoginKakao와 같습니다.
+func (s *Service) LoginGoogle(ctx context.Context, idToken, rawNonce string) (LoginResult, error) {
+	identity, err := s.google.Verify(ctx, idToken, rawNonce)
+	if err != nil {
+		return LoginResult{}, s.providerError(ctx, err, providerGoogle, "verify")
+	}
+	return s.login(ctx, providerGoogle, fixedTarget(identity.Subject, nil))
 }
 
 // LoginApple은 iOS 앱이 받은 Apple id_token과 authorization code로 로그인합니다.

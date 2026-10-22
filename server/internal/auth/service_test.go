@@ -56,6 +56,8 @@ func newFixture(t *testing.T, opts ...func(*auth.ServiceDeps)) *fixture {
 	kakao := fake.NewKakao(t, clk)
 	deps := auth.ServiceDeps{
 		Kakao:       kakao,
+		Line:        fake.NewLINE(t, clk),
+		Google:      fake.NewGoogle(t, clk),
 		Apple:       fake.NewApple(t, clk),
 		KakaoUnlink: kakao,
 		Access:      access,
@@ -778,4 +780,80 @@ func TestRevokeAllSessions_RevokesEveryFamilyOfAccount(t *testing.T) {
 	}
 	_, err := f.service.Refresh(f.ctx, theirs.Tokens.RefreshToken)
 	require.NoError(t, err)
+}
+
+// loginLine은 subject로 LINE 로그인을 하고 성공을 확인합니다.
+func (f *fixture) loginLine(t *testing.T, subject string) auth.LoginResult {
+	t.Helper()
+	res, err := f.service.LoginLine(f.ctx, f.fake.SignES256IDToken(providertest.LINEClaims(subject, testNonce, f.clk.Now())), testNonce)
+	require.NoError(t, err)
+	return res
+}
+
+// googleToken은 subject로 검증을 통과하는 Google id_token을 만듭니다.
+func (f *fixture) googleToken(subject string) string {
+	return f.fake.SignIDToken(providertest.GoogleClaims(subject, testNonce, providertest.GoogleClientIDs[0], "https://accounts.google.com", f.clk.Now()))
+}
+
+func TestLoginLine_CreatesAccountThenReusesIt(t *testing.T) {
+	f := newFixture(t)
+
+	first := f.loginLine(t, "line-1")
+	second := f.loginLine(t, "line-1")
+
+	assert.True(t, first.IsNewAccount)
+	assert.False(t, second.IsNewAccount)
+	assert.Equal(t, first.AccountID, second.AccountID)
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND provider = 'line'`, first.AccountID))
+}
+
+func TestLoginGoogle_CreatesAccountThenReusesIt(t *testing.T) {
+	f := newFixture(t)
+
+	first, err := f.service.LoginGoogle(f.ctx, f.googleToken("google-1"), testNonce)
+	require.NoError(t, err)
+	second, err := f.service.LoginGoogle(f.ctx, f.googleToken("google-1"), testNonce)
+	require.NoError(t, err)
+
+	assert.True(t, first.IsNewAccount)
+	assert.False(t, second.IsNewAccount)
+	assert.Equal(t, first.AccountID, second.AccountID)
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND provider = 'google'`, first.AccountID))
+}
+
+func TestLoginGoogle_ProviderErrorsMapToSentinels(t *testing.T) {
+	tests := []struct {
+		name    string
+		prepare func(f *fixture) (idToken string)
+		want    error
+	}{
+		{
+			name: "audience가 목록 밖이면 토큰 오류",
+			prepare: func(f *fixture) string {
+				return f.fake.SignIDToken(providertest.GoogleClaims("google-1", testNonce, "other.apps.googleusercontent.com", "https://accounts.google.com", f.clk.Now()))
+			},
+			want: auth.ErrProviderTokenInvalid,
+		},
+		{
+			name: "JWKS 장애는 제공자 장애",
+			prepare: func(f *fixture) string {
+				f.fake.SetJWKSStatus(http.StatusInternalServerError)
+				return f.googleToken("google-1")
+			},
+			want: auth.ErrProviderUnavailable,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			idToken := tt.prepare(f)
+
+			_, err := f.service.LoginGoogle(f.ctx, idToken, testNonce)
+
+			require.ErrorIs(t, err, tt.want)
+			assert.NotErrorIs(t, err, provider.ErrTokenInvalid, "제공자 오류 원인을 응답 경로로 넘기지 않습니다")
+			assert.NotErrorIs(t, err, provider.ErrUnavailable)
+			assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM accounts`))
+		})
+	}
 }
